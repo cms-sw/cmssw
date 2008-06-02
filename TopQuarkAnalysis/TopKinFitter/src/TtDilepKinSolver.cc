@@ -1,13 +1,18 @@
 //based on a code by Jan Valenta
 #include "TopQuarkAnalysis/TopKinFitter/interface/TtDilepKinSolver.h"
+#include "TF2.h"
 
-
-TtDilepKinSolver::TtDilepKinSolver() {
-
+TtDilepKinSolver::TtDilepKinSolver() 
+{
+  // That crude parametrisation has been obtained from a fit of O(1000) pythia events.
+  // It is normalized to 1.
+  EventShape_ = new TF2("landau2D","[0]*TMath::Landau(x,[1],[2],0)*TMath::Landau(y,[3],[4],0)",0,500,0,500);
+  EventShape_->SetParameters(30.7137,56.2880,23.0744,59.1015,24.9145);
 }
 
 TtDilepKinSolver::TtDilepKinSolver(double b, double e, double s,
-                               double xx, double yy) {
+				   double xx, double yy) 
+{
   topmass_begin = b;
   topmass_end = e;
   topmass_step = s;
@@ -17,17 +22,22 @@ TtDilepKinSolver::TtDilepKinSolver(double b, double e, double s,
   maw = 80.22;
   mab = 4.800;
   mb = 4.800;
+  // That crude parametrisation has been obtained from a fit of O(1000) pythia events.
+  // It is normalized to 1.
+  EventShape_ = new TF2("landau2D","[0]*TMath::Landau(x,[1],[2],0)*TMath::Landau(y,[3],[4],0)",0,500,0,500);
+  EventShape_->SetParameters(30.7137,56.2880,23.0744,59.1015,24.9145);
 }
 
 //
 // destructor
 //
-TtDilepKinSolver::~TtDilepKinSolver() {
-
+TtDilepKinSolver::~TtDilepKinSolver() 
+{
+  delete EventShape_;
 }
 
-
-TtDilepEvtSolution TtDilepKinSolver::addKinSolInfo(TtDilepEvtSolution * asol) {
+TtDilepEvtSolution TtDilepKinSolver::addKinSolInfo(TtDilepEvtSolution * asol) 
+{
   TtDilepEvtSolution fitsol(*asol);
   
   //antilepton and lepton
@@ -35,32 +45,49 @@ TtDilepEvtSolution TtDilepKinSolver::addKinSolInfo(TtDilepEvtSolution * asol) {
   //b and bbar quark
   TLorentzVector LV_b, LV_b_;
   
-  //provisional
-  genLV_n = TLorentzVector(fitsol.getGenN()->px(), fitsol.getGenN()->py(),
-                           fitsol.getGenN()->pz(), fitsol.getGenN()->energy());
-			  
-  genLV_n_ = TLorentzVector(fitsol.getGenNbar()->px(), fitsol.getGenNbar()->py(),
-                            fitsol.getGenNbar()->pz(), fitsol.getGenNbar()->energy());
-  //provisional
+  bool hasMCinfo = true;
+  if(fitsol.getGenN()) { // protect against non-dilept genevents
+    genLV_n = TLorentzVector(fitsol.getGenN()->px(), fitsol.getGenN()->py(),
+                             fitsol.getGenN()->pz(), fitsol.getGenN()->energy());
+  } else hasMCinfo = false;
 
+  if(fitsol.getGenNbar()) { // protect against non-dilept genevents
+    genLV_n_ = TLorentzVector(fitsol.getGenNbar()->px(), fitsol.getGenNbar()->py(),
+                              fitsol.getGenNbar()->pz(), fitsol.getGenNbar()->energy());
+  } else hasMCinfo = false;
+  // if MC is to be used to select the best top mass and is not available,
+  // then nothing can be done. Stop here.
+  if(useMCforBest_&&!hasMCinfo) return fitsol;
+
+  // first lepton
   if (fitsol.getWpDecay() == "muon") {
     LV_e = TLorentzVector(fitsol.getMuonp().px(), fitsol.getMuonp().py(),
                           fitsol.getMuonp().pz(), fitsol.getMuonp().energy());
   } else if (fitsol.getWpDecay() == "electron") {
     LV_e = TLorentzVector(fitsol.getElectronp().px(), fitsol.getElectronp().py(),
                           fitsol.getElectronp().pz(), fitsol.getElectronp().energy());
+  } else if (fitsol.getWpDecay() == "tau") {
+    LV_e = TLorentzVector(fitsol.getTaup().px(), fitsol.getTaup().py(),
+                          fitsol.getTaup().pz(), fitsol.getTaup().energy());
   }
+    
+  // second lepton
   if (fitsol.getWmDecay() == "muon") {
     LV_e_ = TLorentzVector(fitsol.getMuonm().px(), fitsol.getMuonm().py(),
                           fitsol.getMuonm().pz(), fitsol.getMuonm().energy());
   } else if (fitsol.getWmDecay() == "electron") {
     LV_e_ = TLorentzVector(fitsol.getElectronm().px(), fitsol.getElectronm().py(),
-                          fitsol.getElectronm().pz(), fitsol.getElectronm().energy());
+                           fitsol.getElectronm().pz(), fitsol.getElectronm().energy());
+  } else if (fitsol.getWmDecay() == "tau") {
+    LV_e_ = TLorentzVector(fitsol.getTaum().px(), fitsol.getTaum().py(),
+                           fitsol.getTaum().pz(), fitsol.getTaum().energy());
   }
 
+  // first jet
   LV_b = TLorentzVector(fitsol.getCalJetB().px(), fitsol.getCalJetB().py(),
                         fitsol.getCalJetB().pz(), fitsol.getCalJetB().energy());
-			  
+
+  // second jet
   LV_b_ = TLorentzVector(fitsol.getCalJetBbar().px(), fitsol.getCalJetBbar().py(),
                          fitsol.getCalJetBbar().pz(), fitsol.getCalJetBbar().energy());
   
@@ -78,13 +105,12 @@ TtDilepEvtSolution TtDilepKinSolver::addKinSolInfo(TtDilepEvtSolution * asol) {
     //loop on all solutions
     for (int isol = 0; isol < NSol; isol++) {
       TopRec(LV_e, LV_e_, LV_b, LV_b_, q_sol[isol]);
-      double weight = WeightSol();
+      double weight = useMCforBest_ ? WeightSolfromMC() : WeightSolfromShape();
       if (weight > weightmax) {
         weightmax =weight;
 	mtmax = mt;
       }
     }
-    
     
     //for (int i=0;i<5;i++) cout << " q_coeff["<<i<< "]= " << q_coeff[i];
     //cout << endl;
@@ -226,12 +252,19 @@ void TtDilepKinSolver::TopRec(const TLorentzVector al,
   LV_tt_t.Boost(t_ttboost); 
 }
 
-double TtDilepKinSolver::WeightSol() {
+double TtDilepKinSolver::WeightSolfromMC() {
 
-  double weight = 1;		 
+  double weight = 1;
   weight = ((LV_n.E() > genLV_n.E())? genLV_n.E()/LV_n.E(): LV_n.E()/genLV_n.E())
            *((LV_n_.E() > genLV_n_.E())? genLV_n_.E()/LV_n_.E(): LV_n_.E()/genLV_n_.E());
   return weight;
+
+}
+
+double TtDilepKinSolver::WeightSolfromShape() {
+  
+  // Use the parametrized event shape to obtain the solution weight.
+  return EventShape_->Eval(LV_n.E(),LV_n_.E());
 
 }
 		     

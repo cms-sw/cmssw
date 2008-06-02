@@ -6,8 +6,8 @@
  *  
  *  This class is an EDFilter choosing reconstructed di-tracks
  *
- *  $Date: 2007/05/31 $
- *  $Revision: 1.3 $
+ *  $Date: 2007/05/31 16:52:02 $
+ *  $Revision: 1.1 $
  *
  *  \author Ezio Torassa  -  INFN Padova
  *
@@ -39,13 +39,18 @@ class HiggsToWW2LeptonsSkim : public edm::EDFilter {
        virtual bool filter(Event&, const EventSetup&);
 
    private:
-      InputTag trackLabel_;
       double singleTrackPtMin_;
       double diTrackPtMin_;
       double etaMin_;
       double etaMax_;
       unsigned int  nEvents_;
       unsigned int nAccepted_;
+
+  // Reco samples
+  edm::InputTag recTrackLabel;
+  edm::InputTag theGLBMuonLabel;
+  edm::InputTag thePixelGsfELabel;
+
 };
 #endif
 

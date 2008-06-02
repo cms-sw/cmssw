@@ -9,13 +9,14 @@
 //
 // Author:	Christophe Saout <christophe.saout@cern.ch>
 // Created:     Sat Apr 24 15:18 CEST 2007
-// $Id: MVAComputer.h,v 1.2 2007/05/25 16:37:58 saout Exp $
+// $Id: MVAComputer.h,v 1.5 2007/12/08 16:11:11 saout Exp $
 //
 
+#include <iostream>
 #include <vector>
 #include <memory>
 
-#include "PhysicsTools/MVAComputer/interface/Calibration.h"
+#include "PhysicsTools/MVAComputer/interface/CalibrationFwd.h"
 #include "PhysicsTools/MVAComputer/interface/VarProcessor.h"
 #include "PhysicsTools/MVAComputer/interface/Variable.h"
 #include "PhysicsTools/MVAComputer/interface/AtomicId.h"
@@ -38,8 +39,12 @@ namespace PhysicsTools {
  ************************************************************/
 class MVAComputer {
     public:
-	/// construct a discriminator computer from a calibation object
+	/// construct a discriminator computer from a const calibation object
 	MVAComputer(const Calibration::MVAComputer *calib);
+
+	/// construct a discriminator computer from a calibation object
+	MVAComputer(Calibration::MVAComputer *calib, bool owned = false);
+
 	~MVAComputer();
 
 	/// evaluate variables given by a range of iterators given by \a first and \a last
@@ -54,6 +59,28 @@ class MVAComputer {
 		return this->template eval<Iterator_t>(
 						values.begin(), values.end());
 	}
+
+	/* various methods for standalone use of calibration files */
+
+	/// read calibration object from plain file
+	static Calibration::MVAComputer *readCalibration(const char *filename);
+
+	/// read calibration object from plain C++ input stream
+	static Calibration::MVAComputer *readCalibration(std::istream &is);
+
+	/// write calibration object to file
+	static void writeCalibration(const char *filename,
+	                             const Calibration::MVAComputer *calib);
+
+	/// write calibration object to pain C++ output stream
+	static void writeCalibration(std::ostream &os,
+	                             const Calibration::MVAComputer *calib);
+
+	/// construct a discriminator computer from a calibration file
+	MVAComputer(const char *filename);
+
+	/// construct a discriminator computer from C++ input stream
+	MVAComputer(std::istream &is);
 
     private:
 	/** \class InputVar
@@ -114,6 +141,9 @@ class MVAComputer {
 
 	/// index of the variable in the "conf" array to return as result
 	unsigned int		output;
+
+	/// in case calibration object is owned by the MVAComputer
+	std::auto_ptr<Calibration::MVAComputer> owned;
 };
 
 } // namespace PhysicsTools

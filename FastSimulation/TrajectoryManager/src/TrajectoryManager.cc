@@ -17,6 +17,7 @@
 #include "Geometry/CommonDetUnit/interface/GeomDetUnit.h"
 #include "TrackingTools/GeomPropagators/interface/HelixArbitraryPlaneCrossing.h"
 #include "RecoTracker/TkDetLayers/interface/GeometricSearchTracker.h"
+//#include "Geometry/TrackerGeometryBuilder/interface/TrackerGeometry.h"
 
 //FAMOS Headers
 #include "FastSimulation/TrajectoryManager/interface/TrajectoryManager.h"
@@ -28,6 +29,7 @@
 #include "FastSimulation/Event/interface/FSimVertex.h"
 #include "FastSimulation/Event/interface/KineParticleFilter.h"
 
+#include "FastSimulation/Utilities/interface/RandomEngine.h"
 //#include "FastSimulation/Utilities/interface/Histos.h"
 //#include "FastSimulation/Utilities/interface/FamosLooses.h"
 // Numbering scheme
@@ -65,8 +67,10 @@ TrajectoryManager::TrajectoryManager(FSimEvent* aSimEvent,
 {
   
   // Initialize Bthe stable particle decay engine 
-  if ( decays.getParameter<bool>("ActivateDecays") )
-       myDecayEngine = new Pythia6Decays();
+  if ( decays.getParameter<bool>("ActivateDecays") ) { 
+    int seed = (int) ( 900000000. * random->flatShoot() );
+    myDecayEngine = new Pythia6Decays(seed);
+  }
 
   // Initialize the Material Effects updator, if needed
   if ( matEff.getParameter<bool>("PairProduction") || 
@@ -133,6 +137,9 @@ void
 TrajectoryManager::reconstruct()
 {
 
+  // Get pythia random state for decay (after saving current pythia state)
+  if ( myDecayEngine ) myDecayEngine->getRandom();
+  
   // Clear the hits of the previous event
   //  thePSimHits->clear();
   thePSimHits.clear();
@@ -321,6 +328,9 @@ TrajectoryManager::reconstruct()
   // Save the information from Nuclear Interaction Generation
   if ( theMaterialEffects ) theMaterialEffects->save();
 
+  // Save pythia random state for decay (and put pythia state for event generation back on the stack)
+  if ( myDecayEngine ) myDecayEngine->saveRandom();
+  
 }
 
 void 
@@ -542,7 +552,7 @@ TrajectoryManager::makeSinglePSimHit( const GeomDetUnit& det,
     // Total thickness is in radiation lengths, 1 radlen = 9.36 cm
     // Sensitive module thickness is about 30 microns larger than 
     // the module thickness itself
-    el *= (2.* halfThick - 0.003) / (9.36 * thick);
+    eloss *= (2.* halfThick - 0.003) / (9.36 * thick);
   }
   // The entry and exit points, and the time of flight
   float pZ = lmom.z();
@@ -805,7 +815,7 @@ TrajectoryManager::loadSimHits(edm::PSimHitContainer & c) const
     std::map<double,PSimHit>::const_iterator it = (itrack->second).begin();
     std::map<double,PSimHit>::const_iterator itEnd = (itrack->second).end();
     for( ; it!= itEnd; ++it) { 
-      /* 
+      /*
       DetId theDetUnitId((it->second).detUnitId());
       const GeomDet* theDet = theGeomTracker->idToDet(theDetUnitId);
       std::cout << "Track/z/r after : "

@@ -1,0 +1,120 @@
+#include "PhysicsTools/PatAlgos/plugins/PATJetCleaner.h"
+#include "DataFormats/Common/interface/ValueMap.h"
+
+template<typename JetIn, typename JetOut>
+pat::PATJetCleaner<JetIn,JetOut>::PATJetCleaner(const edm::ParameterSet & iConfig):
+  jetSrc_(iConfig.getParameter<edm::InputTag>( "jetSource" )),
+  helper_(jetSrc_),
+  selectionCfg_(iConfig.getParameter<edm::ParameterSet>("selection"))
+{
+  helper_.configure(iConfig);      // learn whether to save good, bad, all, ...
+  helper_.registerProducts(*this); // issue the produces<>() commands
+
+  std::string  selectionType = selectionCfg_.getParameter<std::string>("type");
+  if (selectionType == "IDmap") {
+    IDmap_   = selectionCfg_.getParameter<edm::InputTag>("IDmap");
+    doSelByID_ = true;
+  } else {
+    doSelByID_ = false;
+  }
+  
+  if (iConfig.exists("removeOverlaps")) {
+    edm::ParameterSet overlapConf = iConfig.getParameter<edm::ParameterSet>("removeOverlaps");
+    overlapHelper_ = pat::helper::OverlapHelper(overlapConf);
+  } 
+  
+
+  selector_ = std::auto_ptr<JetSelectorType >( 
+                                              new JetSelectorType( fillSelection_(selectionCfg_) ) 
+                                              );
+}
+
+
+template<typename JetIn, typename JetOut>
+pat::PATJetCleaner<JetIn,JetOut>::~PATJetCleaner() {
+}
+
+
+template<typename JetIn, typename JetOut>
+void pat::PATJetCleaner<JetIn,JetOut>::produce(edm::Event & iEvent, const edm::EventSetup & iSetup) {     
+  // start a new event
+  helper_.newEvent(iEvent);
+
+  edm::Handle<pat::JetValueMap> JetIDmap;
+  if (doSelByID_) iEvent.getByLabel(IDmap_, JetIDmap); 
+
+  typedef typename edm::Ref< std::vector<JetIn> > JetInRef;
+  for (size_t idx = 0, size = helper_.srcSize(); idx < size; ++idx) {
+    // read the source jet
+    const JetIn & srcJet = helper_.srcAt(idx);
+
+    // clone the jet and convert it to the new type
+    JetOut ourJet = static_cast<JetOut>(srcJet);
+
+    // write the jet
+    size_t selIdx = helper_.addItem(idx, ourJet);
+ 
+    // perform the selection
+    if ( !selector_->filter(idx,helper_.source(), &(*JetIDmap) ) ) {
+        helper_.addMark(selIdx, pat::Flags::Selection::Bit0); // opaque, at the moment
+    }
+    
+  }
+
+  if (overlapHelper_.enabled()) {
+     typedef typename pat::helper::OverlapHelper::Result Result;
+     std::auto_ptr<Result> result = overlapHelper_.test( iEvent, helper_.selected() );
+     for (size_t i = 0, n = helper_.size(); i < n; ++i) {
+        helper_.setMark( i, (*result)[i] );
+     }
+  }
+
+  helper_.done();
+ 
+}
+template<typename JetIn, typename JetOut>
+void pat::PATJetCleaner<JetIn,JetOut>::endJob() { 
+    edm::LogVerbatim("PATLayer0Summary|PATJetCleaner") << "PATJetCleaner end job. \n" <<
+            "Input tag was " << jetSrc_.encode() <<
+            "\nCleaner summary information:\n" <<
+            helper_.printSummary();
+    helper_.endJob(); 
+}
+
+template<typename JetIn, typename JetOut>
+const pat::JetSelection
+pat::PATJetCleaner<JetIn,JetOut>::fillSelection_( const edm::ParameterSet & cfg)
+{
+
+  // Fill selector struct here: I'm not able to do it in the ParameterAdapter
+  JetSelection config_;
+
+  config_.selectionType = cfg.getParameter<std::string>("type");;
+  if ( config_.selectionType == "custom" ) {
+    config_.EMFmin                 = cfg.getParameter<double>("EMFmin");
+    config_.EMFmax                 = cfg.getParameter<double>("EMFmax");
+    config_.Etamax                 = cfg.getParameter<double>("Etamax");
+    config_.Ptmin                  = cfg.getParameter<double>("Ptmin");
+    config_.EMvsHadFmin            = cfg.getParameter<double>("EMvsHadFmin");
+    config_.EMvsHadFmax            = cfg.getParameter<double>("EMvsHadFmax");
+    config_.HadFmin                = cfg.getParameter<double>("HadFmin");
+    config_.HadFmax                = cfg.getParameter<double>("HadFmax");
+    config_.N90min                 = cfg.getParameter<double>("N90min");
+    config_.N90max                 = cfg.getParameter<double>("N90max");
+    config_.NCaloTowersmin         = cfg.getParameter<double>("NCaloTowersmin");
+    config_.NCaloTowersmax         = cfg.getParameter<double>("NCaloTowersmax");
+    config_.HighestTowerOverJetmin = cfg.getParameter<double>("HighestTowerOverJetmin");
+    config_.HighestTowerOverJetmax = cfg.getParameter<double>("HighestTowerOverJetmax");
+    config_.RWidthmin              = cfg.getParameter<double>("RWidthmin");
+    config_.RWidthmax              = cfg.getParameter<double>("RWidthmax");
+    config_.PtJetOverArea_min      = cfg.getParameter<double>("PtJetOverAreamin");
+    config_.PtJetOverArea_max      = cfg.getParameter<double>("PtJetOverAreamax");
+    config_.PtTowerOverArea_min    = cfg.getParameter<double>("PtTowerOverAreamin");
+    config_.PtTowerOverArea_max    = cfg.getParameter<double>("PtTowerOverAreamax");
+  } else if ( config_.selectionType == "IDmap" ) {
+    config_.value = cfg.template getParameter<double>("value");
+  }
+
+  return config_;
+
+}

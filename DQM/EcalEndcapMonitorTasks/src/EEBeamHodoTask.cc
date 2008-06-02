@@ -1,8 +1,8 @@
 /*
  * \file EEBeamHodoTask.cc
  *
- * $Date: 2007/05/14 10:03:16 $
- * $Revision: 1.4 $
+ * $Date: 2007/05/24 13:26:12 $
+ * $Revision: 1.5 $
  * \author G. Della Ricca
  * \author G. Franzoni
  *
@@ -40,8 +40,6 @@ using namespace edm;
 using namespace std;
 
 EEBeamHodoTask::EEBeamHodoTask(const ParameterSet& ps){
-
-  Numbers::maxSM = 18;
 
   init_ = false;
 
@@ -269,9 +267,9 @@ void EEBeamHodoTask::endJob(void){
 
 void EEBeamHodoTask::analyze(const Event& e, const EventSetup& c){
 
+  Numbers::initGeometry(c);
+
   bool enable = false;
-
-
   Handle<EcalTBEventHeader> pHeader;
   const EcalTBEventHeader * Header =0;
   try{

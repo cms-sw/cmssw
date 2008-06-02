@@ -5,8 +5,8 @@
 //   Description: Setup the L1 barrel Muon Trigger Track Finder
 //
 //
-//   $Date: 2007/02/27 11:44:00 $
-//   $Revision: 1.2 $
+//   $Date: 2007/03/30 09:05:32 $
+//   $Revision: 1.3 $
 //
 //   Author :
 //   N. Neumeister            CERN EP
@@ -45,10 +45,6 @@ using namespace std;
 //----------------
 
 L1MuDTTFSetup::L1MuDTTFSetup(const edm::ParameterSet & ps) : m_tf(new L1MuDTTrackFinder(ps)) {
-
-  cout << endl;
-  cout << "**** Initialization of L1MuDTTrackFinder ****" << endl;
-  cout << endl;
 
   // setup  the barrel Muon Trigger Track Finder
   m_tf->setup(); 

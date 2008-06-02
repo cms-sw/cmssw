@@ -57,7 +57,7 @@ MessageServicePresence::MessageServicePresence()
 
 MessageServicePresence::~MessageServicePresence()
 {
-  MessageLoggerQ::END();
+  MessageLoggerQ::MLqEND();
   scribe.join();
 }
 

@@ -18,6 +18,7 @@
 
 #include <list>
 #include <vector>
+#include <map>
 #include <string>
 
 MaterialEffects::MaterialEffects(const edm::ParameterSet& matEff,
@@ -69,27 +70,114 @@ MaterialEffects::MaterialEffects(const edm::ParameterSet& matEff,
   }
 
   if ( doNuclearInteraction ) { 
-    std::vector<std::string> listOfFiles 
-      = matEff.getUntrackedParameter<std::vector<std::string> >("fileNames");
+
+    // The energies simulated
     std::vector<double> pionEnergies 
       = matEff.getUntrackedParameter<std::vector<double> >("pionEnergies");
-    std::vector<double> ratioRatio 
-      = matEff.getUntrackedParameter<std::vector<double> >("ratioRatio");
+
+    // The particle types simulated
+    std::vector<int> pionTypes 
+      = matEff.getUntrackedParameter<std::vector<int> >("pionTypes");
+
+    // The corresponding particle names
+    std::vector<std::string> pionNames 
+      = matEff.getUntrackedParameter<std::vector<std::string> >("pionNames");
+
+    // The corresponding particle masses
+    std::vector<double> pionMasses 
+      = matEff.getUntrackedParameter<std::vector<double> >("pionMasses");
+
+    // The smallest momentum for inelastic interactions
+    std::vector<double> pionPMin 
+      = matEff.getUntrackedParameter<std::vector<double> >("pionMinP");
+
+    // The interaction length / radiation length ratio for each particle type
+    std::vector<double> lengthRatio 
+      = matEff.getParameter<std::vector<double> >("lengthRatio");
+    //    std::map<int,double> lengthRatio;
+    //    for ( unsigned i=0; i<theLengthRatio.size(); ++i )
+    //      lengthRatio[ pionTypes[i] ] = theLengthRatio[i];
+
+    // The evolution of the interaction lengths with energy
+    std::vector<double> theRatios  
+      = matEff.getUntrackedParameter<std::vector<double> >("ratios");
+    //std::map<int,std::vector<double> > ratios;
+    //for ( unsigned i=0; i<pionTypes.size(); ++i ) { 
+    //  for ( unsigned j=0; j<pionEnergies.size(); ++j ) { 
+    //	ratios[ pionTypes[i] ].push_back(theRatios[ i*pionEnergies.size() + j ]);
+    //  }
+    //}
+    std::vector< std::vector<double> > ratios;
+    ratios.resize(pionTypes.size());
+    for ( unsigned i=0; i<pionTypes.size(); ++i ) { 
+      for ( unsigned j=0; j<pionEnergies.size(); ++j ) { 
+	ratios[i].push_back(theRatios[ i*pionEnergies.size() + j ]);
+      }
+    }
+
+    // The smallest momentum for elastic interactions
     double pionEnergy 
       = matEff.getParameter<double>("pionEnergy");
-    double lengthRatio 
-      = matEff.getParameter<double>("lengthRatio");
+
+    // The file to read the starting interaction in each files
+    // (random reproducibility in case of a crash)
     std::string inputFile 
       = matEff.getUntrackedParameter<std::string>("inputFile");
+
+    // Build the ID map (i.e., what is to be considered as a proton, etc...)
+    std::map<int,int> idMap;
+    // Protons
+    std::vector<int> idProtons 
+      = matEff.getUntrackedParameter<std::vector<int> >("protons");
+    for ( unsigned i=0; i<idProtons.size(); ++i ) 
+      idMap[idProtons[i]] = 2212;
+    // Anti-Protons
+    std::vector<int> idAntiProtons 
+      = matEff.getUntrackedParameter<std::vector<int> >("antiprotons");
+    for ( unsigned i=0; i<idAntiProtons.size(); ++i ) 
+      idMap[idAntiProtons[i]] = -2212;
+    // Neutrons
+    std::vector<int> idNeutrons 
+      = matEff.getUntrackedParameter<std::vector<int> >("neutrons");
+    for ( unsigned i=0; i<idNeutrons.size(); ++i ) 
+      idMap[idNeutrons[i]] = 2112;
+    // Anti-Neutrons
+    std::vector<int> idAntiNeutrons 
+      = matEff.getUntrackedParameter<std::vector<int> >("antineutrons");
+    for ( unsigned i=0; i<idAntiNeutrons.size(); ++i ) 
+      idMap[idAntiNeutrons[i]] = -2112;
+    // K0L's
+    std::vector<int> idK0Ls 
+      = matEff.getUntrackedParameter<std::vector<int> >("K0Ls");
+    for ( unsigned i=0; i<idK0Ls.size(); ++i ) 
+      idMap[idK0Ls[i]] = 130;
+    // K+'s
+    std::vector<int> idKplusses 
+      = matEff.getUntrackedParameter<std::vector<int> >("Kplusses");
+    for ( unsigned i=0; i<idKplusses.size(); ++i ) 
+      idMap[idKplusses[i]] = 321;
+    // K-'s
+    std::vector<int> idKminusses 
+      = matEff.getUntrackedParameter<std::vector<int> >("Kminusses");
+    for ( unsigned i=0; i<idKminusses.size(); ++i ) 
+      idMap[idKminusses[i]] = -321;
+    // pi+'s
+    std::vector<int> idPiplusses 
+      = matEff.getUntrackedParameter<std::vector<int> >("Piplusses");
+    for ( unsigned i=0; i<idPiplusses.size(); ++i ) 
+      idMap[idPiplusses[i]] = 211;
+    // pi-'s
+    std::vector<int> idPiminusses 
+      = matEff.getUntrackedParameter<std::vector<int> >("Piminusses");
+    for ( unsigned i=0; i<idPiminusses.size(); ++i ) 
+      idMap[idPiminusses[i]] = -211;
+
     // Construction
     NuclearInteraction = 
-      new NuclearInteractionSimulator(listOfFiles,
-				      pionEnergies,
-				      pionEnergy,
-				      lengthRatio,
-				      ratioRatio,
-				      inputFile,
-				      random);
+      new NuclearInteractionSimulator(pionEnergies, pionTypes, pionNames, 
+				      pionMasses, pionPMin, pionEnergy, 
+				      lengthRatio, ratios, idMap, 
+				      inputFile, random);
   }
 
 }

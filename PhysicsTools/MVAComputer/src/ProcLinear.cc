@@ -10,7 +10,7 @@
 //
 // Author:      Christophe Saout
 // Created:     Sat Apr 24 15:18 CEST 2007
-// $Id: ProcLinear.cc,v 1.2 2007/05/17 15:04:08 saout Exp $
+// $Id: ProcLinear.cc,v 1.4 2007/12/07 15:04:44 saout Exp $
 //
 
 #include <vector>
@@ -54,9 +54,9 @@ ProcLinear::ProcLinear(const char *name,
 void ProcLinear::configure(ConfIterator iter, unsigned int n)
 {
 	while(iter)
-		iter++(Variable::FLAG_NONE);
+		iter++(Variable::FLAG_OPTIONAL);
 
-	iter << Variable::FLAG_NONE;
+	iter << Variable::FLAG_OPTIONAL;
 }
 
 void ProcLinear::eval(ValueIterator iter, unsigned int n) const
@@ -64,8 +64,13 @@ void ProcLinear::eval(ValueIterator iter, unsigned int n) const
 	double sum = offset;
 
 	for(std::vector<double>::const_iterator coeff = coeffs.begin();
-	    coeff != coeffs.end(); coeff++, ++iter)
+	    coeff != coeffs.end(); coeff++, ++iter) {
+		if (iter.empty()) {
+			iter();
+			return;
+		}
 		sum += *coeff * *iter;
+	}
 
 	iter(sum);
 }

@@ -7,9 +7,9 @@
  * 
  * \author Luca Lista, INFN
  *
- * \version $Revision: 1.5 $
+ * \version $Revision: 1.1 $
  *
- * $Id: SingleElementCollectionSelectorPlusEvent.h,v 1.5 2007/01/31 14:51:37 llista Exp $
+ * $Id: SingleElementCollectionSelectorPlusEvent.h,v 1.1 2007/06/01 14:20:54 gpetrucc Exp $
  *
  */
 #include "PhysicsTools/UtilAlgos/interface/SelectionAdderTrait.h"
@@ -28,11 +28,11 @@ struct SingleElementCollectionSelectorPlusEvent {
     select_( reco::modules::make<Selector>( cfg ) ) { }
   const_iterator begin() const { return selected_.begin(); }
   const_iterator end() const { return selected_.end(); }
-  void select( const edm::Handle<InputCollection> & c, const edm::Event &ev ) {
+  void select(const edm::Handle<InputCollection> & c, const edm::Event &ev, const edm::EventSetup &) {
     selected_.clear();    
-    for( size_t idx = 0; idx < c->size(); ++ idx ) {
-      if ( select_( ( * c )[ idx ], ev  ) ) 
-	addRef_( selected_, c, idx );
+    for(size_t idx = 0; idx < c->size(); ++ idx) {
+      if(select_((*c)[idx], ev)) 
+	addRef_(selected_, c, idx);
     }
   }
 private:

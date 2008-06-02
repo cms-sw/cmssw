@@ -16,7 +16,7 @@
 //
 // Original Author: Benedikt HEGNER
 //         Created:  Fri Jun  1 14:35:22 CEST 2007
-// $Id: ExpressionHisto.h,v 1.1 2007/06/01 14:43:58 hegner Exp $
+// $Id: ExpressionHisto.h,v 1.4 2007/10/31 14:13:19 llista Exp $
 //
 
 // system include files
@@ -25,61 +25,87 @@
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "FWCore/ServiceRegistry/interface/Service.h"
 #include "PhysicsTools/UtilAlgos/interface/TFileService.h"
-#include "PhysicsTools/Parser/interface/StringObjectFunction.h"
+#include "PhysicsTools/Utilities/interface/StringObjectFunction.h"
 
 #include "TFile.h"
 #include "TH1F.h"
 #include "TH1.h"
 
 template<typename T>
-class ExpressionHisto
-{
-
-   public:
-      ExpressionHisto(const edm::ParameterSet& iConfig);
-      ~ExpressionHisto();
-
-      void initialize(edm::Service<TFileService>& fs);
-      void fill(const T& element);  
-
-   private:
-
-      double min, max;
-      int nbins;
-      std::string name, plotquantity;
-      TH1F * hist;
-      StringObjectFunction<T> function;      
+class ExpressionHisto {
+public:
+  ExpressionHisto(const edm::ParameterSet& iConfig);
+  ~ExpressionHisto();
+  
+  void initialize(edm::Service<TFileService>& fs);
+/** Plot the quantity for the specified element and index.
+    Returns true if the quantity has been plotted, false otherwise.
+    A return value of "false" means "please don't send any more elements".
+    The default "i = 0" is to keep backwards compatibility with usages outside
+    HistoAnalyzer */
+  bool fill(const T& element, double weight=1.0, uint32_t i=0);  
+  
+private:
+  double min, max;
+  int nbins;
+  std::string name, description;
+  uint32_t nhistos;
+  bool     separatePlots;
+  TH1F ** hist;
+  StringObjectFunction<T> function;      
 };
 
 template<typename T>
 ExpressionHisto<T>::ExpressionHisto(const edm::ParameterSet& iConfig):
-   min(iConfig.template getUntrackedParameter<double>("min")),
-   max(iConfig.template getUntrackedParameter<double>("max")),
-   nbins(iConfig.template getUntrackedParameter<int>("nbins")),
-   name(iConfig.template getUntrackedParameter<std::string>("name")),
-    plotquantity(iConfig.template getUntrackedParameter<std::string>("plotquantity")),
-   function(plotquantity)
-{
-
+  min(iConfig.template getUntrackedParameter<double>("min")),
+  max(iConfig.template getUntrackedParameter<double>("max")),
+  nbins(iConfig.template getUntrackedParameter<int>("nbins")),
+  name(iConfig.template getUntrackedParameter<std::string>("name")),
+  description(iConfig.template getUntrackedParameter<std::string>("description")),
+  function(iConfig.template getUntrackedParameter<std::string>("plotquantity")) {
+  int32_t itemsToPlot = iConfig.template getUntrackedParameter<int32_t>("itemsToPlot", -1);
+  if (itemsToPlot <= 0) {
+      nhistos = 1; separatePlots = false;
+  } else {
+      nhistos = itemsToPlot; separatePlots = true;
+  }
 }
 
 template<typename T>
-ExpressionHisto<T>::~ExpressionHisto()
-{
-
-}
-
-
-template<typename T>
-void ExpressionHisto<T>::initialize(edm::Service<TFileService>& fs)
-{
-   hist = fs->template make<TH1F>(name.c_str(),plotquantity.c_str(),nbins,min,max);
+ExpressionHisto<T>::~ExpressionHisto() {
 }
 
 template<typename T>
-void ExpressionHisto<T>::fill(const T& element)
+void ExpressionHisto<T>::initialize(edm::Service<TFileService>& fs) 
 {
-  hist->Fill( function(element) );
+   hist = new TH1F*[nhistos];
+   char buff[1024],baff[1024];
+   if (separatePlots) {
+       for (uint32_t i = 0; i < nhistos; i++) {
+               if (strstr(name.c_str(), "%d") != 0) {
+                       snprintf(buff, 1024, name.c_str(), i+1);
+               } else {
+                       snprintf(buff, 1024, "%s [#%d]", name.c_str(), i+1);
+               }
+               if (strstr(description.c_str(), "%d") != 0) {
+                       snprintf(baff, 1024, description.c_str(), i+1);
+               } else {
+                       snprintf(baff, 1024, "%s [#%d]", description.c_str(), i+1);
+               }
+               hist[i] = fs->template make<TH1F>(buff,baff,nbins,min,max);
+       }
+    } else {
+       hist[0] = fs->template make<TH1F>(name.c_str(),description.c_str(),nbins,min,max);
+    }
+}
+
+template<typename T>
+bool ExpressionHisto<T>::fill(const T& element, double weight, uint32_t i) 
+{
+  if (!separatePlots) hist[0]->Fill( function(element), weight );
+  else if (i < nhistos)  hist[i]->Fill( function(element), weight );
+  else return false;
+  return true;
 }
 
 #endif

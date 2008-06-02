@@ -1,30 +1,19 @@
 //
-// Author:  Jan Heyninck
-// Created: Tue Apr  3 17:33:23 PDT 2007
+// $Id: TtSemiSimpleBestJetComb.cc,v 1.3 2007/09/20 18:03:20 lowette Exp $
 //
-// $Id: TtSemiSimpleBestJetComb.cc,v 1.1 2007/05/19 09:54:39 heyninck Exp $
-//
-
-/**
-  \class    TtSemiSimpleBestJetComb
-  \brief    Simple method to get the correct jet combination in semileptonic ttbar events
-
-   This method starts from a vector of fitted TtSemiEvtSolutions. This class returns the solution with the highest probChi^2 value. In case
-   that there are more possibilities (eg when only a hadrW constraint was applied), the correct hadronic b is assumed to be the one with the
-   smallest DR angle wrt the Whadr direction. 
-
-  \author   Jan Heyninck
-  \version  $Id: TtSemiSimpleBestJetComb.cc,v 1.1 2007/05/19 09:54:39 heyninck Exp $
-*/
 
 #include "TopQuarkAnalysis/TopJetCombination/interface/TtSemiSimpleBestJetComb.h"
 
-TtSemiSimpleBestJetComb::TtSemiSimpleBestJetComb() {}
-TtSemiSimpleBestJetComb::~TtSemiSimpleBestJetComb() {}
+TtSemiSimpleBestJetComb::TtSemiSimpleBestJetComb() 
+{
+}
 
+TtSemiSimpleBestJetComb::~TtSemiSimpleBestJetComb() 
+{
+}
 
-int  TtSemiSimpleBestJetComb::operator()(std::vector<TtSemiEvtSolution> & sols){
- 
+int  TtSemiSimpleBestJetComb::operator()(std::vector<TtSemiEvtSolution> & sols)
+{ 
   // search the highest probChi^2 value in the among the different jet combination solutions   
   double maxProbChi2 = 0;
   for(unsigned int s=0; s<sols.size(); s++)  maxProbChi2 = std::max(maxProbChi2,sols[s].getProbChi2());
@@ -35,8 +24,7 @@ int  TtSemiSimpleBestJetComb::operator()(std::vector<TtSemiEvtSolution> & sols){
   for(unsigned int s=0; s<sols.size(); s++){
     if(fabs(sols[s].getProbChi2()-maxProbChi2) < 0.0001) indices.push_back(s);
   }
-  
-    
+     
   int bestSol = -999;
   if(maxProbChi2 > 0.){
     if(indices.size() == 1) bestSol = indices[0];

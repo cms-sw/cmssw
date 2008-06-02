@@ -19,7 +19,11 @@ Handles can have:
 
 To check validity, one can use the isValid() function.
 
-$Id: Handle.h,v 1.8 2007/07/09 07:28:49 llista Exp $
+If failedToGet() returns true then the requested data is not available
+If failedToGet() returns false but isValid() is also false then no attempt 
+  to get data has occurred
+
+$Id: Handle.h,v 1.9 2007/07/13 09:30:12 llista Exp $
 
 ----------------------------------------------------------------------*/
 
@@ -46,6 +50,8 @@ namespace edm
     Handle(const Handle<T>& h);
 
     Handle(T const* prod, Provenance const* prov);
+    
+    Handle(const boost::shared_ptr<cms::Exception>&);
 
     ~Handle();
 
@@ -55,6 +61,9 @@ namespace edm
     Handle<T>& operator=(const Handle<T>& rhs);
 
     bool isValid() const;
+
+    ///Returns true only if Handle was used in a 'get' call and the data could not be found
+    bool failedToGet() const;
 
     T const* product() const;
     T const* operator->() const; // alias for product()
@@ -70,6 +79,7 @@ namespace edm
     T const* prod_;
     Provenance const* prov_;    
     ProductID id_;
+    boost::shared_ptr<cms::Exception> whyFailed_;
   };
 
   template <class T>
@@ -83,18 +93,28 @@ namespace edm
   Handle<T>::Handle(const Handle<T>& h) :
     prod_(h.prod_),
     prov_(h.prov_),
-    id_(h.id_)
+    id_(h.id_),
+    whyFailed_(h.whyFailed_)
   { }
 
   template <class T>
   Handle<T>::Handle(T const* prod, Provenance const* prov) :
     prod_(prod),
     prov_(prov),
-    id_(prov->productID()) { 
+    id_(prov->productID())
+  { 
       assert(prod_);
       assert(prov_);
       assert(id_.isValid());
   }
+
+  template <class T>
+    Handle<T>::Handle(const boost::shared_ptr<cms::Exception>& iWhyFailed):
+    prod_(0),
+    prov_(0),
+    id_(0),
+    whyFailed_(iWhyFailed)
+  { }
 
   template <class T>
   Handle<T>::~Handle()
@@ -112,6 +132,7 @@ namespace edm
     std::swap(prod_, other.prod_);
     std::swap(prov_, other.prov_);
     swap(id_, other.id_);
+    swap(whyFailed_,other.whyFailed_);
   }
 
   template <class T>
@@ -131,9 +152,19 @@ namespace edm
   }
 
   template <class T>
+  bool
+  Handle<T>::failedToGet() const
+  {
+    return 0 != whyFailed_.get();
+  }
+  
+  template <class T>
   T const* 
   Handle<T>::product() const
   {
+    if(failedToGet()) {
+      throw *whyFailed_;
+    }
     // Should we throw if the pointer is null?
     return prod_;
   }
@@ -174,6 +205,7 @@ namespace edm
     prod_ = 0;
     prov_ = 0;
     id_ = ProductID();
+    whyFailed_.reset();
   }
   //------------------------------------------------------------
   // Non-member functions
@@ -193,6 +225,11 @@ namespace edm
   void convert_handle(BasicHandle const& orig,
 		      Handle<T>& result)
   {
+    if(orig.failedToGet()) {
+      Handle<T> h(orig.whyFailed());
+      h.swap(result);
+      return;
+    }
     EDProduct const* originalWrap = orig.wrapper();
     if (originalWrap == 0)
       throw edm::Exception(edm::errors::InvalidReference,"NullPointer")

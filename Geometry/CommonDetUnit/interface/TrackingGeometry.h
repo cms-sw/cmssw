@@ -16,14 +16,13 @@
  *  idToDetUnit(), are useful when it is necessary to deal with the 
  *  extended interface of GeomDetUnit. 
  *
- *  $Date: 2006/03/01 18:16:03 $
- *  $Revision: 1.3 $
+ *  $Date: 2006/02/22 15:04:39 $
+ *  $Revision: 1.2 $
  */
 
 #include "DataFormats/DetId/interface/DetId.h"
 #include <vector>
-// #include <map>
-#include <ext/hash_map>
+#include <map>
 
 class GeomDetType;
 class GeomDetUnit;
@@ -36,10 +35,8 @@ public:
   typedef std::vector<GeomDet*>              DetContainer;
   typedef std::vector<GeomDetUnit*>          DetUnitContainer;
   typedef std::vector<DetId>                 DetIdContainer;
-  //  typedef std::map<DetId,GeomDetUnit*>       mapIdToDetUnit;
-  // typedef std::map<DetId,GeomDet*>           mapIdToDet;
-  typedef  __gnu_cxx::hash_map< unsigned int, GeomDetUnit*> mapIdToDetUnit;
-  typedef  __gnu_cxx::hash_map< unsigned int, GeomDet*>     mapIdToDet;
+  typedef std::map<DetId,GeomDetUnit*>       mapIdToDetUnit;
+  typedef std::map<DetId,GeomDet*>           mapIdToDet;
 
   // Default constructor
   //  virtual TrackingGeometry() {}

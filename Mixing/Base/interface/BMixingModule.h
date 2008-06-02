@@ -37,19 +37,20 @@ namespace edm {
       /**Cumulates the pileup events onto this event*/
       virtual void produce(edm::Event& e1, const edm::EventSetup& c);
 
-      //int minBunch() const {return input_.minBunch();}
-      int minBunch() const {return input_ ? input_->minBunch() : 0 ;}
-      //int maxBunch() const {return input_.maxBunch();}
-      int maxBunch() const {return input_ ? input_->maxBunch() : 0 ;}
+      int minBunch() const {return minBunch_;}
+      //      int minBunch() const {return input_[0] ? input_[0]->minBunch() : 0 ;}
+      int maxBunch() const {return maxBunch_;}
+      // int maxBunch() const {return input_[0] ? input_[0]->maxBunch() : 0 ;}
       //double averageNumber() const {return input_.averageNumber();}
       // Should 'averageNumber' return 0 or 1 if there is no mixing? It is the average number of
       // *crossings*, including the hard scatter, or the average number of overlapping events?
       // We have guessed 'overlapping events'.
-      double averageNumber() const {return input_ ? input_->averageNumber() : 0.0;}
+      //      double averageNumber() const {return input_[0] ? input_[0]->averageNumber() : 0.0;}
+      double averageNumber() const {return avNum_;}
       // Should 'poisson' return 0 or 1 if there is no mixing? See also averageNumber above.
       //bool poisson() const {return input_.poisson();}
-      bool poisson() const {return input_ ? input_->poisson() : 0.0 ;}
-
+      //      bool poisson() const {return input_[0] ? input_[0]->poisson() : 0.0 ;}
+      bool poisson() const {return poiss_ ;}
       virtual void createnewEDProduct() {std::cout << "BMixingModule::createnewEDProduct must be overwritten!" << std::endl;}
       void merge(const int bcr, const EventPrincipalVector& vec);
       virtual void addSignals(const edm::Event &e) {;}
@@ -58,11 +59,18 @@ namespace edm {
 
     protected:
       int bunchSpace_;
+      int minBunch_;
+      int maxBunch_;
+      double avNum_;
+      bool poiss_;
       static int vertexoffset;
       bool checktof_;
 
     private:
-      boost::shared_ptr<PileUp> input_;
+      
+      std::vector<boost::shared_ptr<PileUp> > input_;
+
+      const static unsigned int maxNbSources;
       ModuleDescription md_;
       unsigned int eventId_;
     };

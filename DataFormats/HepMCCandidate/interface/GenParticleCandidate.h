@@ -6,9 +6,9 @@
  *
  * \author: Luca Lista, INFN
  *
- * \version $Id: GenParticleCandidate.h,v 1.18 2007/03/05 13:25:48 llista Exp $
+ * \version $Id: GenParticleCandidate.h,v 1.19 2007/05/14 11:47:17 llista Exp $
  */
-#include "DataFormats/Candidate/interface/CompositeRefCandidate.h"
+#include "DataFormats/Candidate/interface/CompositeRefCandidate.h" 
 
 namespace HepMC {
   class GenParticle;
@@ -22,6 +22,9 @@ namespace reco {
     GenParticleCandidate() { }
     /// constrocturo from values
     GenParticleCandidate( Charge q, const LorentzVector & p4, const Point & vtx, 
+			  int pdgId, int status, bool integerCharge );
+    /// constrocturo from values
+    GenParticleCandidate( Charge q, const PolarLorentzVector & p4, const Point & vtx, 
 			  int pdgId, int status, bool integerCharge );
     /// destructor
     virtual ~GenParticleCandidate();

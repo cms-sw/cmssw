@@ -3,19 +3,26 @@
 // library, which contains the ROOT interface
 gSystem->Load("libFWCoreFWLite.so");
 gSystem->Load("libRecoParticleFlowPFRootEvent.so");
-AutoLibraryLoader::enable();
+// // AutoLibraryLoader::enable();
 gSystem->Load("libCintex.so");
 ROOT::Cintex::Cintex::Enable();
 
 // create a PFRootEventManager
 PFRootEventManager em("pfRootEvent.opt");
-// create a JetPFRootEventManager for Jet reco 
-//JetPFRootEventManager em("pfRootEventJets.opt");
+// create a JetPFRootEventManager to make FWLiteJets
+//JetPFRootEventManager em("pfRootEvent.opt");
+
+//create a DisplayManager
+DisplayManager dm(&em);
 
 // display first entry
 int i=0;
-em.display(i++);
+dm.display(i++);
 
 // look for ECAL rechit with maximum energy
-em.lookForMaxRecHit(true);
+dm.lookForMaxRecHit(true);
+
+// create a dialogFrame:
+// DialogFrame *win = new DialogFrame(&em,&dm,gClient->GetRoot(), 200,220);
+
 }

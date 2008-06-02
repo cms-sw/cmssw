@@ -77,8 +77,10 @@ class PFClusterProducer : public edm::EDProducer {
   reco::PFRecHit*  createHcalRecHit( const DetId& detid, 
 				     double energy,
 				     int layer,
-				     const CaloSubdetectorGeometry* geom );
+				     const CaloSubdetectorGeometry* geom,
+				     unsigned newDetId=0);
   
+
   
 
 
@@ -105,8 +107,7 @@ class PFClusterProducer : public edm::EDProducer {
   void 
     findRecHitNeighboursCT( reco::PFRecHit& rh, 
 			    const std::map<unsigned,unsigned >& sortedHits,
-			    const CaloSubdetectorTopology& topology, 
-			    const CaloSubdetectorGeometry& geometry );
+			    const CaloSubdetectorTopology& topology );
   
   DetId getNorth(const DetId& id, const CaloSubdetectorTopology& topology);
   DetId getSouth(const DetId& id, const CaloSubdetectorTopology& topology);

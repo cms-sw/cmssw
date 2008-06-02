@@ -11,6 +11,7 @@
 #include "IOPool/Streamer/interface/ClassFiller.h"
 #include "IOPool/Streamer/interface/InitMsgBuilder.h"
 #include "FWCore/Framework/interface/EventPrincipal.h"
+#include "FWCore/Utilities/interface/WrappedClassName.h"
 #include "DataFormats/Streamer/interface/StreamedProducts.h"
 #include "DataFormats/Common/interface/BasicHandle.h"
 

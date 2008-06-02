@@ -32,7 +32,7 @@ using namespace sim;
 
 FieldBuilder::FieldBuilder(const MagneticField * f, 
 			   const edm::ParameterSet & p) 
-   : theField( new Field(f,p)), 
+   : theField( new Field(f,p.getParameter<double>("delta"))), 
      theFieldEquation(new G4Mag_UsualEqRhs(theField.get())),
      theTopVolume(0),
      fieldValue(0.), minStep(0.), dChord(0.), dOneStep(0.),

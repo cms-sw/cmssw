@@ -65,16 +65,33 @@ void testone(const Strings& paths,
   EventSelector select1(pattern, paths);
   EventSelector select2(pattern);
 
+  int number_of_trigger_paths = 0;
+  std::vector<unsigned char> bitArray;
+
   HLTGlobalStatus bm(mask.size());
   const HLTPathStatus pass  = HLTPathStatus(edm::hlt::Pass);
   const HLTPathStatus fail  = HLTPathStatus(edm::hlt::Fail);
   const HLTPathStatus ex    = HLTPathStatus(edm::hlt::Exception);
   const HLTPathStatus ready = HLTPathStatus(edm::hlt::Ready);
-  for(unsigned int b=0;b<mask.size();++b) bm[b] = (mask[b]? pass : fail);
+  for(unsigned int b=0;b<mask.size();++b) {
+    bm[b] = (mask[b]? pass : fail);
+
+    // There is an alternate version of the function acceptEvent
+    // that takes an array of characters as an argument instead
+    // of a TriggerResults object.  These next few lines build
+    // that array so we can test that also.
+    if ( (number_of_trigger_paths % 4) == 0) bitArray.push_back(0);
+    int byteIndex = number_of_trigger_paths / 4;
+    int subIndex = number_of_trigger_paths % 4;
+    bitArray[byteIndex] |= (mask[b]? edm::hlt::Pass : edm::hlt::Fail) << (subIndex * 2);
+    ++number_of_trigger_paths;
+  }
 
   if (jmask == 8 && mask.size() > 4) {
     bm[0] = ready;
     bm[4] = ex;
+    bitArray[0] = (bitArray[0] & 0xfc) | edm::hlt::Ready;
+    bitArray[1] = (bitArray[1] & 0xfc) | edm::hlt::Exception;
   }
 
   TriggerResults results(bm,paths);
@@ -83,8 +100,9 @@ void testone(const Strings& paths,
   bool a1 = select1.acceptEvent(results);
   bool a2 = select2.acceptEvent(results);
   bool b2 = select2.acceptEvent(results);
+  bool c1 = select1.acceptEvent(&(bitArray[0]), number_of_trigger_paths);
 
-  if (a!=answer || a1 != answer || a2 != answer || b2 != answer)
+  if (a!=answer || a1 != answer || a2 != answer || b2 != answer || c1 != answer)
     {
       cerr << "failed to compare pattern with mask: "
 	   << "correct=" << answer << " "
@@ -196,10 +214,10 @@ int main()
 		  {true, true,  false, true,  true,  false, false, true,  true  },
 		  {true, false, true,  true,  true,  true , true,  true,  true  },
 		  {true, true,  true,  true,  false, true,  true,  true,  true  },
-		  {true, true,  true,  true,  true,  false, true,  true,  true  },
+		  {false,false, false, false, true,  false, false, false, false },
 		  {true, true,  true,  true,  true,  true,  true,  true,  true  },
 		  {true, true,  true,  true,  true,  true,  true,  true,  true  },
-		  {true, true,  true,  true,  true,  true,  true,  true,  true  },
+		  {false,true,  true,  false, true,  true,  true,  false, false },
 		  {true, true,  true,  true,  false, true,  true,  true,  true  }
   };
 

@@ -293,11 +293,17 @@ FBaseSimEvent::fill(const std::vector<SimTrack>& simTracks,
       // were saved (probably due to cuts on E, pT and eta)
       //  if ( part.PDGcTau() > 0.1 || endVertex.find(trackId) != endVertex.end() ) 
 	myTracks[trackId] = addSimTrack(&part,myVertices[vertexId],track.genpartIndex());
-	(*theSimTracks)[ myTracks[trackId] ].setTkPosition(track.trackerSurfacePosition());
+	if ( track.trackerSurfacePosition().perp() > 150. || fabs(track.trackerSurfacePosition().z()) > 400. ) 
+	  (*theSimTracks)[ myTracks[trackId] ].setTkPosition(track.trackerSurfacePosition()/10.);
+	else
+	  (*theSimTracks)[ myTracks[trackId] ].setTkPosition(track.trackerSurfacePosition());
 	(*theSimTracks)[ myTracks[trackId] ].setTkMomentum(track.trackerSurfaceMomentum());
     } else {
       myTracks[trackId] = myTracks[motherId];
-      (*theSimTracks)[ myTracks[trackId] ].setTkPosition(track.trackerSurfacePosition());
+      if ( track.trackerSurfacePosition().perp() > 150. || fabs(track.trackerSurfacePosition().z()) > 400. ) 
+	(*theSimTracks)[ myTracks[trackId] ].setTkPosition(track.trackerSurfacePosition()/10.);
+      else
+	(*theSimTracks)[ myTracks[trackId] ].setTkPosition(track.trackerSurfacePosition());
       (*theSimTracks)[ myTracks[trackId] ].setTkMomentum(track.trackerSurfaceMomentum());
     }
     
@@ -548,10 +554,14 @@ FBaseSimEvent::addParticles(const reco::CandidateCollection& myGenParticles) {
   int offset = nTracks();
 
   // Skip the incoming protons
+  nGenParticles = 0;
   unsigned int ip = 0;
   if ( nParticles > 1 && 
        myGenParticles[0].pdgId() == 2212 &&
-       myGenParticles[1].pdgId() == 2212 ) ip = 2;
+       myGenParticles[1].pdgId() == 2212 ) { 
+    ip = 2;
+    nGenParticles = 2;
+  }
 
   // Primary vertex (already smeared by the SmearedVtx module)
   XYZTLorentzVector primaryVertex (myGenParticles[ip].vx(),
@@ -578,7 +588,7 @@ FBaseSimEvent::addParticles(const reco::CandidateCollection& myGenParticles) {
   // Loop on the particles of the generated event
   for ( ; ip<nParticles; ++ip ) { 
     
-    nGenParticles = ip;
+    nGenParticles++;
     
     const reco::Candidate& p = myGenParticles[ip];
 
@@ -589,10 +599,12 @@ FBaseSimEvent::addParticles(const reco::CandidateCollection& myGenParticles) {
     // 2) or particles with stable daughters
     bool testDaugh = false;
     unsigned int nDaughters = p.numberOfDaughters();
-    if ( !testStable && nDaughters ) {  
+    if ( !testStable && 
+	 p.status() == 2 &&
+	 nDaughters ) {  
       for ( unsigned iDaughter=0; iDaughter<nDaughters; ++iDaughter ) {
 	const reco::Candidate* daughter = p.daughter(iDaughter);
-	if ( daughter->status()==1 ) {
+	if ( daughter->status()%1000==1 ) {
 	  testDaugh=true;
 	  break;
 	}
@@ -622,7 +634,7 @@ FBaseSimEvent::addParticles(const reco::CandidateCollection& myGenParticles) {
       part.setID(p.pdgId());
 
       // Add the particle to the event and to the various lists
-      int theTrack = addSimTrack(&part,originVertex, nTracks()-offset);
+      int theTrack = addSimTrack(&part,originVertex, nGenParts()-offset);
 
       // It there an end vertex ?
       if ( !nDaughters ) continue; 
@@ -641,7 +653,7 @@ FBaseSimEvent::addParticles(const reco::CandidateCollection& myGenParticles) {
   }
 
   // There is no GenParticle's in that case...
-  nGenParticles=0;
+  // nGenParticles=0;
 
 }
 
@@ -649,7 +661,8 @@ int
 FBaseSimEvent::addSimTrack(const RawParticle* p, int iv, int ig) { 
   
   // Check that the particle is in the Famos "acceptance"
-  if ( !myFilter->accept(p) ) return -1;
+  // Keep all primaries of pile-up events, though
+  if ( !myFilter->accept(p) && ig >= -1 ) return -1;
 
   // The new track index
   int trackId = nSimTracks++;

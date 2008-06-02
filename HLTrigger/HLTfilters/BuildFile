@@ -12,12 +12,12 @@
 <use name=FWCore/ParameterSet>
 <use name=FWCore/PluginManager>
 <use name=HLTrigger/HLTcore>
-<use name=PhysicsTools/Parser>
+<use name=PhysicsTools/Utilities>
 <export>
   <use name=FWCore/Framework>
   <use name=FWCore/ParameterSet>
   <use name=HLTrigger/HLTcore>
-  <use name=PhysicsTools/Parser>
+  <use name=PhysicsTools/Utilities>
   <lib name=HLTriggerHLTfilters>
 </export>
 

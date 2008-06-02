@@ -119,31 +119,35 @@ void  DigiCheck::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup
 
   std::map<EcalTrigTowerDetId,double> mapTow_et;
   
-  EBDigiCollection::const_iterator i;
+  //EBDigiCollection::const_iterator i;
   //  std::cout << " Barrel digis " << std::endl;
-  for(i=ebDigis->begin();i!=ebDigis->end();++i)
+  //for(i=ebDigis->begin();i!=ebDigis->end();++i)
+  for(unsigned int idigi = 0; idigi < ebDigis->size(); ++idigi)
     {
-      h0b->Fill(simHitsBarrel[i->id().hashedIndex()],i->sample(0).gainId());
-      EcalTrigTowerDetId towid1= eTTmap_->towerOf(i->id());
+      EBDataFrame ebdf = (*ebDigis)[idigi];
+      EBDetId  ebId( ebdf.id() );
+      //h0b->Fill(simHitsBarrel[i->id().hashedIndex()],i->sample(0).gainId());
+      h0b->Fill(simHitsBarrel[ebId.hashedIndex()],ebdf.sample(0).gainId());
+      EcalTrigTowerDetId towid1= eTTmap_->towerOf(ebId);
       //      float  theta=myGeometry.getEcalBarrelGeometry()->getGeometry(i->id())->getPosition().theta();
       float et=0.;
       
-      if(i->sample(0).gainId()==3)
+      if(ebdf.sample(0).gainId()==3)
 	{
-	  h1b->Fill(simHitsBarrel[i->id().hashedIndex()],i->sample(0).adc());
-	  et = (i->sample(0).adc()-200)*0.035*12.;
-	  //	  et = (i->sample(0).adc()-200)*0.035;
+	  h1b->Fill(simHitsBarrel[ebId.hashedIndex()],ebdf.sample(0).adc());
+	  et = (ebdf.sample(0).adc()-200)*0.035*12.;
+	  //	  et = (ebdf.sample(0).adc()-200)*0.035;
 	}
-      else if(i->sample(0).gainId()==2)
+      else if(ebdf.sample(0).gainId()==2)
 	{
-	  h2b->Fill(simHitsBarrel[i->id().hashedIndex()],i->sample(0).adc());
-	  et = (i->sample(0).adc()-200)*0.035*2.;
-	  //	  et = (i->sample(0).adc()-200)*0.035;
+	  h2b->Fill(simHitsBarrel[ebId.hashedIndex()],ebdf.sample(0).adc());
+	  et = (ebdf.sample(0).adc()-200)*0.035*2.;
+	  //	  et = (ebdf.sample(0).adc()-200)*0.035;
 	}
-      else if(i->sample(0).gainId()==1)
+      else if(ebdf.sample(0).gainId()==1)
 	{
-	  h3b->Fill(simHitsBarrel[i->id().hashedIndex()],i->sample(0).adc());
-	  et = (i->sample(0).adc()-200)*0.035*1.;
+	  h3b->Fill(simHitsBarrel[ebId.hashedIndex()],ebdf.sample(0).adc());
+	  et = (ebdf.sample(0).adc()-200)*0.035*1.;
 	}
       //      et*=sin(theta);
       std::map<EcalTrigTowerDetId,double>::iterator itcheck=mapTow_et.find(towid1);
@@ -153,30 +157,33 @@ void  DigiCheck::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup
 	itcheck->second+=et;
 	   
     }
-  EEDigiCollection::const_iterator j;
+  //EEDigiCollection::const_iterator j;
   //  std::cout << " Encap digis " << std::endl;
-  for(j=eeDigis->begin();j!=eeDigis->end();++j)
+  //for(j=eeDigis->begin();j!=eeDigis->end();++j)
+  for(unsigned int idigi = 0; idigi < eeDigis->size(); ++idigi)
     {
-      h0e->Fill(simHitsEndcap[j->id().hashedIndex()],j->sample(0).gainId());
-      EcalTrigTowerDetId towid1= eTTmap_->towerOf(j->id());
-      //      float  theta=myGeometry.getEcalEndcapGeometry()->getGeometry(j->id())->getPosition().theta();
+      EEDataFrame eedf = (*eeDigis)[idigi];
+      EEDetId  eeId( eedf.id() );
+      h0e->Fill(simHitsEndcap[eeId.hashedIndex()],eedf.sample(0).gainId());
+      EcalTrigTowerDetId towid1= eTTmap_->towerOf(eeId);
+      //      float  theta=myGeometry.getEcalEndcapGeometry()->getGeometry(eeId)->getPosition().theta();
       float et=0.;
-      if(j->sample(0).gainId()==3)
+      if(eedf.sample(0).gainId()==3)
 	{
-	  h1e->Fill(simHitsEndcap[j->id().hashedIndex()],j->sample(0).adc());
-	  et = (j->sample(0).adc()-200)*0.060*12.;
-	  //	  et = (j->sample(0).adc()-200)*0.060;
+	  h1e->Fill(simHitsEndcap[eeId.hashedIndex()],eedf.sample(0).adc());
+	  et = (eedf.sample(0).adc()-200)*0.060*12.;
+	  //	  et = (eedf.sample(0).adc()-200)*0.060;
 	}
-      else if(j->sample(0).gainId()==2)
+      else if(eedf.sample(0).gainId()==2)
 	{
-	  h2e->Fill(simHitsEndcap[j->id().hashedIndex()],j->sample(0).adc());
-	  et = (j->sample(0).adc()-200)*0.060*2.;
-	  //	  et = (j->sample(0).adc()-200)*0.060;
+	  h2e->Fill(simHitsEndcap[eeId.hashedIndex()],eedf.sample(0).adc());
+	  et = (eedf.sample(0).adc()-200)*0.060*2.;
+	  //	  et = (eedf.sample(0).adc()-200)*0.060;
 	}
-      else if(j->sample(0).gainId()==1)
+      else if(eedf.sample(0).gainId()==1)
 	{
-	  h3e->Fill(simHitsEndcap[j->id().hashedIndex()],j->sample(0).adc());
-	  et = (j->sample(0).adc()-200)*0.060;
+	  h3e->Fill(simHitsEndcap[eeId.hashedIndex()],eedf.sample(0).adc());
+	  et = (eedf.sample(0).adc()-200)*0.060;
 	}
       //      et*=sin(theta);
       std::map<EcalTrigTowerDetId,double>::iterator itcheck=mapTow_et.find(towid1);

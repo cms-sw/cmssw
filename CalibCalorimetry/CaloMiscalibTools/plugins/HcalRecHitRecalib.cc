@@ -5,6 +5,7 @@
 
 #include "FWCore/Framework/interface/ESHandle.h"
 #include "DataFormats/Common/interface/Handle.h"
+#include "FWCore/ParameterSet/interface/FileInPath.h"
 
 #include "DataFormats/HcalRecHit/interface/HcalRecHitCollections.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
@@ -31,6 +32,9 @@ HcalRecHitRecalib::HcalRecHitRecalib(const edm::ParameterSet& iConfig)
   RecalibHFHits_ = iConfig.getParameter< std::string > ("RecalibHFHitCollection");
   RecalibHOHits_ = iConfig.getParameter< std::string > ("RecalibHOHitCollection");
 
+  refactor_ = iConfig.getUntrackedParameter<double> ("Refactor",(double)1);
+  refactor_mean_ = iConfig.getUntrackedParameter<double> ("Refactor_mean",(double)1);
+
   //register your products
   produces< HBHERecHitCollection >(RecalibHBHEHits_);
   produces< HFRecHitCollection >(RecalibHFHits_);
@@ -38,7 +42,13 @@ HcalRecHitRecalib::HcalRecHitRecalib(const edm::ParameterSet& iConfig)
 
   // here read them from xml (particular to HCAL)
   mapHcal_.prefillMap();
-  hcalfile_=iConfig.getUntrackedParameter<std::string> ("fileNameHcal","");
+
+  hcalfileinpath_=iConfig.getUntrackedParameter<std::string> ("fileNameHcal","");
+  edm::FileInPath hcalfiletmp("CalibCalorimetry/CaloMiscalibTools/data/"+hcalfileinpath_);
+
+  hcalfile_=hcalfiletmp.fullPath();
+
+
   MiscalibReaderFromXMLHcal hcalreader_(mapHcal_);
   if(!hcalfile_.empty()) hcalreader_.parseXMLMiscalibFile(hcalfile_);
   mapHcal_.print();
@@ -128,6 +138,7 @@ HcalRecHitRecalib::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
 	float icalconst=(mapHcal_.get().find(itHBHE->id().rawId()))->second;
           // make the rechit with rescaled energy and put in the output collection
 
+	icalconst=refactor_mean_+(icalconst-refactor_mean_)*refactor_; //apply additional scaling factor (works if gaussian)	
 	HBHERecHit aHit(itHBHE->id(),itHBHE->energy()*icalconst,itHBHE->time());
 	
 	RecalibHBHERecHitCollection->push_back( aHit);
@@ -158,6 +169,7 @@ HcalRecHitRecalib::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
           // make the rechit with rescaled energy and put in the output collection
 	
 	float icalconst=(mapHcal_.get().find(itHF->id().rawId()))->second;
+	icalconst=refactor_mean_+(icalconst-refactor_mean_)*refactor_; //apply additional scaling factor (works if gaussian)	
 	HFRecHit aHit(itHF->id(),itHF->energy()*icalconst,itHF->time());
 	
 	RecalibHFRecHitCollection->push_back( aHit);
@@ -188,6 +200,7 @@ HcalRecHitRecalib::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
           // make the rechit with rescaled energy and put in the output collection
 
 	float icalconst=(mapHcal_.get().find(itHO->id().rawId()))->second;
+	icalconst=refactor_mean_+(icalconst-refactor_mean_)*refactor_; //apply additional scaling factor (works if gaussian)	
 	HORecHit aHit(itHO->id(),itHO->energy()*icalconst,itHO->time());
 	  
 	  RecalibHORecHitCollection->push_back( aHit);

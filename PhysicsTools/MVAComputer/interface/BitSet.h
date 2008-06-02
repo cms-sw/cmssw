@@ -9,7 +9,7 @@
 //
 // Author:	Christophe Saout <christophe.saout@cern.ch>
 // Created:     Sat Apr 24 15:18 CEST 2007
-// $Id: BitSet.h,v 1.2 2007/05/25 16:37:58 saout Exp $
+// $Id: BitSet.h,v 1.4 2007/12/08 16:11:10 saout Exp $
 //
 
 #include <string.h>
@@ -46,6 +46,8 @@ class BitSet {
 	 ************************************************************/
 	struct Manipulator {
 	    public:
+		inline Manipulator(const Manipulator &orig) :
+			word(orig.word), mask(orig.mask) {}
 		inline ~Manipulator() {}
 
 		/// implicit cast to pointed-at boolean bit value
@@ -62,8 +64,6 @@ class BitSet {
 			word(word), mask((Word_t)1 << bit) {}
 
 	    private:
-		Manipulator(const Manipulator &orig);
-
 		Word_t		*word;
 		Word_t		mask;
 	};
@@ -167,7 +167,7 @@ class BitSet {
 	{ return Manipulator(&store[bit / wordSize], bit % wordSize); }
 
 	/// provide read access to bit with index \a bit via reference
-	inline Manipulator operator [] (size_t bit) const
+	inline const Manipulator operator [] (size_t bit) const
 	{ return Manipulator(&store[bit / wordSize], bit % wordSize); }
 
 	/// returns the number of all bits in the container

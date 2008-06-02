@@ -10,7 +10,7 @@
  *
  * \author Luca Lista, Claudio Campagnari, Dmytro Kovalskyi, Jake Ribnik
  *
- * \version $Id: Muon.h,v 1.33 2007/05/16 09:32:37 dmytro Exp $
+ * \version $Id: Muon.h,v 1.34.4.1 2008/01/10 01:31:12 dmytro Exp $
  *
  */
 #include "DataFormats/RecoCandidate/interface/RecoCandidate.h"
@@ -85,6 +85,42 @@ namespace reco {
     /// same as above for given number of sigmas
     unsigned int stationGapMaskPull( float sigmaCut = 3. ) const;
      
+    /// muon type - type of the algorithm that reconstructed this muon
+    /// multiple algorithms can reconstruct the same muon
+    static const unsigned int GlobalMuon     =  1<<1;
+    static const unsigned int TrackerMuon    =  1<<2;
+    static const unsigned int StandAloneMuon =  1<<3;
+    static const unsigned int CaloMuon =  1<<4;
+    void setType( unsigned int type ) {}
+    unsigned int getType() const { 
+       unsigned int type(0);
+       if ( isMatchesValid() ) type |= TrackerMuon;
+       if ( combinedMuon_.isNonnull() ) type |= ( GlobalMuon | StandAloneMuon );
+       return type;
+    }
+    bool isGlobalMuon()     const { return getType() & GlobalMuon; }
+    bool isTrackerMuon()    const { return getType() & TrackerMuon; }
+    bool isStandAloneMuon() const { return getType() & StandAloneMuon; }
+    bool isCaloMuon() const { return getType() & CaloMuon; }
+    
+    /// ====================== SELECTOR BLOCK ===========================
+    ///
+    /// simple muon selection based on stored information inside the muon
+    /// object
+    enum SelectionType {
+         All,                      // dummy options - always true
+         AllGlobalMuons,           // checks isGlobalMuon flag
+         AllStandAloneMuons,       // checks isStandAloneMuon flag
+         AllTrackerMuons,          // checks isTrackerMuon flag
+	 TrackerMuonArbitrated,    // resolve ambiguity of sharing segments
+         AllArbitrated,            // all muons with the tracker muon arbitrated
+         GlobalMuonPromptTight,    // global muons with tighter fit requirements
+	 TMLastStationLoose,       // penetration depth loose selector
+	 TMLastStationTight,       // penetration depth tight selector
+	 TM2DCompatibilityLoose,   // likelihood based loose selector
+	 TM2DCompatibilityTight    // likelihood based tight selector
+    };
+    bool isGood( SelectionType type = AllArbitrated ) const;
      
   private:
     /// check overlap with another candidate
@@ -110,7 +146,7 @@ namespace reco {
     /// Isolation information for two cones with dR=0.3 and dR=0.5
     MuonIsolation isolationR03_;
     MuonIsolation isolationR05_;
-     
+
     // FixMe: Still missing trigger information
 
     /// get vector of muon chambers for given station and detector

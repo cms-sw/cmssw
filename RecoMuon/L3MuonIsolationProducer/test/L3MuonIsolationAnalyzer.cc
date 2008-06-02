@@ -100,7 +100,6 @@ void L3MuonIsolationAnalyzer::endJob(){
             Puts("\tEfficiency in cone index= %d (size=%f): %f"
                         , k, theConeCases[k-1], eff);
   }
-  hEffVsCone->Write();
 
   Puts("");
   overflow_bin = hEffVsPt->GetNbinsX()+1;
@@ -170,17 +169,16 @@ void L3MuonIsolationAnalyzer::analyze(const Event & event, const EventSetup& eve
             if (ptsum<ptthr) hEffVsPt->Fill(ptthr);
       }
 
+      unsigned int n = 0;
       for (unsigned int j=0; j<theConeCases.size() ; j++) {
             float ptsum = dep.depositWithin(theConeCases[j]);
             for (unsigned int k=0; k<theCuts.size() ; k++) {
-                  unsigned int n = theCuts.size()*j + k;
-                  if (fabs(tk->eta())<theCuts[k].etaRange.min()) continue;
-                  if (fabs(tk->eta())>theCuts[k].etaRange.max()) continue;
                   hEffVsPtArray[n]->Fill(thePtMax+999.);
                   for (unsigned int l=0; l<thePtBins; l++) {
                         float ptthr = thePtMin + (l+0.5)/thePtBins*(thePtMax-thePtMin);
                         if (ptsum<ptthr) hEffVsPtArray[n]->Fill(ptthr);
                   }
+                  n++;
             }
       }
   }

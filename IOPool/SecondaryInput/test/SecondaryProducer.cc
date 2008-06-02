@@ -5,11 +5,12 @@
 //--------------------------------------------
 
 #include "IOPool/SecondaryInput/test/SecondaryProducer.h"
+#include "FWCore/Framework/interface/Event.h" 
+#include "FWCore/ParameterSet/interface/ParameterSet.h" 
 #include "FWCore/Utilities/interface/TypeID.h"
 #include "FWCore/Framework/interface/EventPrincipal.h"
 #include "FWCore/Framework/interface/MakerMacros.h"
 #include "FWCore/Framework/interface/InputSourceDescription.h"
-#include "DataFormats/Provenance/interface/ProductRegistry.h"
 #include "FWCore/Sources/interface/VectorInputSourceFactory.h"
 #include "DataFormats/TestObjects/interface/OtherThingCollection.h"
 #include "DataFormats/TestObjects/interface/ThingCollection.h"

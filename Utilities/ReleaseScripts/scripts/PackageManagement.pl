@@ -6,7 +6,7 @@
 # Author: Shaun ASHBY <Shaun.Ashby@cern.ch>
 # (Tagcollector interface taken from CmsTCPackageList.pl (author D.Lange))
 # Update: 2006-04-10 16:15:32+0200
-# Revision: $Id: PackageManagement.pl,v 1.10 2007/07/18 15:25:15 sashby Exp $ 
+# Revision: $Id: PackageManagement.pl,v 1.11 2007/07/18 15:47:33 sashby Exp $ 
 #
 # Copyright: 2006 (C) Shaun ASHBY
 #
@@ -351,7 +351,7 @@ sub getpklistfromtc() {
     my $pass="CmsTC";
     my $gotpacks=0;
     
-    open(CMSTCQUERY,"wget $options  -nv -o /dev/null -O- 'http://$user:$pass\@cmsdoc.cern.ch/swdev/CmsTC/cgi-bin/CreateTagList?release=$releaseid' |");
+    open(CMSTCQUERY,"wget $options  -nv -o /dev/null -O- 'https://$user:$pass\@cmstags.cern.ch/cgi-bin/CmsTC/CreateTagList?release=$releaseid' |");
     
     my %tags;
     while ( <CMSTCQUERY> ) {

@@ -4,7 +4,7 @@
 #include "DataFormats/Math/interface/Point3D.h"
 #include "DataFormats/DetId/interface/DetId.h"
 
-class MuonSegmentMatch {
+class  MuonSegmentMatch {
  public:
    math::XYZPoint  segmentGlobalPosition;
    math::XYZPoint  segmentLocalPosition;

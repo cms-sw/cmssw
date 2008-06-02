@@ -10,26 +10,14 @@ RefCountedVertexTrack KalmanVertexTrackUpdator::update
 	(const CachingVertex & vertex , RefCountedVertexTrack track) const
 
 {
-  /*
-  cout << "[KalmanVertexTrackUpdator] updating " << track->linearizedTrack()->track().id()
-       << endl; */
   pair<RefCountedRefittedTrackState, AlgebraicMatrix> thePair = 
-  	trackRefit(vertex.vertexState(), track->linearizedTrack(), track->weight() );
+  	trackRefit(vertex.vertexState(), track->linearizedTrack());
 
   CachingVertex rVert = updator.remove(vertex, track);
 
   float smoothedChi2 = helper.vertexChi2(rVert, vertex) +
 	helper.trackParameterChi2(track->linearizedTrack(), thePair.first);
 
-  /*
-  RefCountedVertexTrack t = theVTFactory.vertexTrack(track->linearizedTrack(),
-  	vertex.vertexState(), thePair.first, smoothedChi2, thePair.second,
-	track->weight());
-  cout << "[KalmanVertexTrackUpdator] returning " <<  t->linearizedTrack()->track().id()                      
-       << " refitted " << t->refittedState()->transientTrack().id()
-       << endl; 
-  return t;
-        */
   return theVTFactory.vertexTrack(track->linearizedTrack(),
   	vertex.vertexState(), thePair.first, smoothedChi2, thePair.second,
 	track->weight());
@@ -37,7 +25,7 @@ RefCountedVertexTrack KalmanVertexTrackUpdator::update
 
 pair<RefCountedRefittedTrackState, AlgebraicMatrix> 
 KalmanVertexTrackUpdator::trackRefit(const VertexState & vertex,
-	 RefCountedLinearizedTrackState linTrackState, float weight ) const
+	 RefCountedLinearizedTrackState linTrackState) const
 
 {
   //Vertex position 
@@ -72,7 +60,7 @@ KalmanVertexTrackUpdator::trackRefit(const VertexState & vertex,
   AlgebraicMatrix refittedPositionMomentumConvariance = 
     -vertexErrorMatrix * a.T() * trackParametersWeight * b * s;
 
-  AlgebraicSymMatrix refittedMomentumConvariance = s / weight +  
+  AlgebraicSymMatrix refittedMomentumConvariance = s +  
      vertex.weight().matrix().similarityT(refittedPositionMomentumConvariance);
 
   

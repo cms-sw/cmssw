@@ -17,14 +17,14 @@
 #include "TrackingTools/TrackAssociator/interface/MuonSegmentMatch.h"
 #include "TrackingTools/TrajectoryState/interface/TrajectoryStateOnSurface.h"
 
-class MuonChamberMatch {
+class  MuonChamberMatch {
  public:
    int station() const;
    std::string info() const;
    int detector() const { return id.subdetId(); }
 
    /// distance sign convention: negative - crossed chamber, positive - missed chamber
-   std::vector<MuonSegmentMatch> segments;
+   std::vector< ::MuonSegmentMatch> segments;
    float localDistanceX;
    float localDistanceY;
    TrajectoryStateOnSurface tState;

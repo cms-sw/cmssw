@@ -20,18 +20,18 @@ public:
    *  compatible() is used.
    */
 
-  static bool add( const GeometricSearchDet& det,
+  bool add( const GeometricSearchDet& det,
 	    const TrajectoryStateOnSurface& tsos, 
 	    const Propagator& prop,
 	    const MeasurementEstimator& est,
-	    std::vector<DetGroup>& result);
+	    std::vector<DetGroup>& result) const;
   
 
-  static bool add( const GeomDet& det,
+  bool add( const GeomDet& det,
 	    const TrajectoryStateOnSurface& tsos, 
 	    const Propagator& prop,
 	    const MeasurementEstimator& est,
-	    std::vector<DetGroup>& result);
+	    std::vector<DetGroup>& result) const;
 
 };
 

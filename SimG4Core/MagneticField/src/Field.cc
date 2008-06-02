@@ -14,8 +14,8 @@ using namespace sim;
 
 G4Mag_UsualEqRhs * Field::fieldEquation() { return theFieldEquation; }
 
-Field::Field(const MagneticField * f,const edm::ParameterSet & p) 
-    : G4MagneticField(), theCMSMagneticField(f),m_pField(p)
+Field::Field(const MagneticField * f, double d) 
+    : G4MagneticField(), theCMSMagneticField(f),theDelta(d)
 {
 }
 
@@ -32,15 +32,13 @@ void Field::GetFieldValue(const double xyz[3],double bfield[3]) const
        throw SimG4Exception( "SimG4CoreMagneticField: Corrupted Event - NaN detected (position)" ) ;
     }
     
-    double delta = 1.;
-
     static float oldx[3] = {1.0e12,1.0e12,1.0e12};
     static double b[3];
 
-    if (delta>0. &&
-	fabs(oldx[0]-xyz[0])<delta &&
-	fabs(oldx[1]-xyz[1])<delta &&
-	fabs(oldx[2]-xyz[2])<delta) 
+    if (theDelta>0. &&
+	fabs(oldx[0]-xyz[0])<theDelta &&
+	fabs(oldx[1]-xyz[1])<theDelta &&
+	fabs(oldx[2]-xyz[2])<theDelta) 
     {
 	// old b good enough
 	bfield[0] = b[0]; 
@@ -64,5 +62,5 @@ void Field::GetFieldValue(const double xyz[3],double bfield[3]) const
     bfield[2] = b[2];
 }
 
-void Field::fieldEquation(G4Mag_UsualEqRhs * e) { theFieldEquation = e; }
+void Field::fieldEquation(G4Mag_UsualEqRhs* e) { theFieldEquation = e; }
 

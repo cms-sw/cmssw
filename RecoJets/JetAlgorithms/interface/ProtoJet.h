@@ -28,7 +28,7 @@ public:
 
   typedef math::XYZTLorentzVector LorentzVector;
   /** Default Constructor */
-  ProtoJet() {};
+  ProtoJet();
 
   //**Constructor. Runs off an array of CaloTower* */
   ProtoJet(const Constituents& theConstituents);
@@ -76,7 +76,8 @@ public:
   
   
   /** Returns the list of tower in a particular protojet */
-  const Constituents& getTowerList() const {return mConstituents;} 
+  const Constituents& getTowerList();
+  const Constituents getTowerList() const;
   
   /** Sets the list of towers in a protojet */
   void putTowers(const Constituents& towers);
@@ -97,6 +98,7 @@ private:
   LorentzVector mP4;
   /** Jet constituents */
   Constituents mConstituents;
+  bool mOrdered;
 };
 
 #endif

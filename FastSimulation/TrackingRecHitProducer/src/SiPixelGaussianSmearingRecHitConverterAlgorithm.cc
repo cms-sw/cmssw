@@ -297,6 +297,7 @@ void SiPixelGaussianSmearingRecHitConverterAlgorithm::smearHit(
 	    << std::endl;	
 #endif
 
+  unsigned int counter = 0;
   do {
   //
   // Smear the hit Position
@@ -319,6 +320,13 @@ void SiPixelGaussianSmearingRecHitConverterAlgorithm::smearHit(
             << "\ty = " << thePosition.y()
             << std::endl;       
 #endif  
+    counter++;
+    if(counter > 20) {
+       thePosition = Local3DPoint(simHit.localPosition().x(), 
+                                  simHit.localPosition().y(), 
+                                  simHit.localPosition().z());
+       break;
+    }
   } while(fabs(thePosition.x()) > boundX  || fabs(thePosition.y()) > boundY);
   
 

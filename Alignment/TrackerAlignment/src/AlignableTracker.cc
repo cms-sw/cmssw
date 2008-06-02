@@ -437,7 +437,7 @@ void AlignableTracker::buildTPE( const TrackerGeometry::DetContainer& dets )
   {
     Alignable* sensor = sensors[i];
 
-    PXFDetId id = sensor->geomDetId();
+    PXFDetId id = sensor->id();
 
     unsigned int e = id.side() - 1;
     unsigned int d = e * maxDisk  + id.disk()  - 1;
@@ -448,7 +448,7 @@ void AlignableTracker::buildTPE( const TrackerGeometry::DetContainer& dets )
 
     if (0 == panel)
     { // create new panel with id and rot of 1st sensor
-      panel = new AlignableComposite( id, AlignableObjectId::Panel,
+      panel = new AlignableComposite( id.rawId(), AlignableObjectId::Panel,
 				      sensor->globalRotation() );
       panels.push_back(panel);
     }
@@ -464,7 +464,7 @@ void AlignableTracker::buildTPE( const TrackerGeometry::DetContainer& dets )
   {
     Alignable* panel = panels[i];
 
-    PXFDetId id = panel->geomDetId();
+    PXFDetId id = panel->id();
 
     unsigned int e = id.side() - 1;
     unsigned int d = e * maxDisk  + id.disk()  - 1;
@@ -474,7 +474,7 @@ void AlignableTracker::buildTPE( const TrackerGeometry::DetContainer& dets )
 
     if (0 == blade)
     { // create new blade with id and rot of 1st panel
-      blade = new AlignableComposite( id, AlignableObjectId::Blade,
+      blade = new AlignableComposite( id.rawId(), AlignableObjectId::Blade,
 				      panel->globalRotation() );
       blades.push_back(blade);
     }
@@ -490,7 +490,7 @@ void AlignableTracker::buildTPE( const TrackerGeometry::DetContainer& dets )
   {
     Alignable* blade = blades[i];
 
-    PXFDetId id = blade->geomDetId();
+    PXFDetId id = blade->id();
 
     unsigned int b = id.blade(); // 1 to 24 in increasing phi
     unsigned int e = id.side() - 1;
@@ -501,7 +501,7 @@ void AlignableTracker::buildTPE( const TrackerGeometry::DetContainer& dets )
 
     if (0 == halfDisk)
     {  // create new half disk with id of 1st blade and identity rot
-      halfDisk = new AlignableComposite(id, AlignableObjectId::HalfDisk);
+      halfDisk = new AlignableComposite(id.rawId(), AlignableObjectId::HalfDisk);
       halfDisks.push_back(halfDisk);
     }
 
@@ -516,7 +516,7 @@ void AlignableTracker::buildTPE( const TrackerGeometry::DetContainer& dets )
   {
     Alignable* halfDisk = halfDisks[i];
 
-    PXFDetId id = halfDisk->geomDetId();
+    PXFDetId id = halfDisk->id();
 
     unsigned int b = id.blade(); // 1 to 24 in increasing phi
     unsigned int e = id.side() - 1;
@@ -526,7 +526,7 @@ void AlignableTracker::buildTPE( const TrackerGeometry::DetContainer& dets )
 
     if (0 == halfCylinder)
     {  // create new half cylinder with id of 1st half disk and identity rot
-      halfCylinder = new AlignableComposite(id, AlignableObjectId::HalfCylinder);
+      halfCylinder = new AlignableComposite(id.rawId(), AlignableObjectId::HalfCylinder);
       halfCylinders.push_back(halfCylinder);
     }
 
@@ -541,7 +541,7 @@ void AlignableTracker::buildTPE( const TrackerGeometry::DetContainer& dets )
   {
     Alignable* halfCylinder = halfCylinders[i];
 
-    PXFDetId id = halfCylinder->geomDetId();
+    PXFDetId id = halfCylinder->id();
 
     unsigned int e = id.side() - 1;
 
@@ -549,7 +549,7 @@ void AlignableTracker::buildTPE( const TrackerGeometry::DetContainer& dets )
 
     if (0 == endcap)
     {  // create new endcap with id of 1st half cylinder and identity rot
-      endcap = new AlignableComposite(id, AlignableObjectId::PixelEndcap);
+      endcap = new AlignableComposite(id.rawId(), AlignableObjectId::PixelEndcap);
       endcaps.push_back(endcap);
     }
 

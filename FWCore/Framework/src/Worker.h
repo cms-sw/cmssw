@@ -6,7 +6,7 @@
 Worker: this is a basic scheduling unit - an abstract base class to
 something that is really a producer or filter.
 
-$Id: Worker.h,v 1.22 2007/06/05 04:02:32 wmtan Exp $
+$Id: Worker.h,v 1.25 2007/08/03 16:25:59 wmtan Exp $
 
 A worker will not actually call through to the module unless it is
 in a Ready state.  After a module is actually run, the state will not
@@ -89,10 +89,14 @@ namespace edm {
 
     class CallPrePost {
     public:
-      CallPrePost(Worker::Sigs& s, ModuleDescription& md):s_(&s),md_(&md)
-      { (*(s_->preModuleSignal))(*md_); }
-      ~CallPrePost()
-      { (*(s_->postModuleSignal))(*md_); }
+      CallPrePost(EventPrincipal const& , Worker::Sigs& s, ModuleDescription& md) : s_(&s), md_(&md) {
+	(*(s_->preModuleSignal))(*md_);
+      }
+      CallPrePost(LuminosityBlockPrincipal const& , Worker::Sigs&, ModuleDescription& md) : s_(0), md_(&md) {}
+      CallPrePost(RunPrincipal const& , Worker::Sigs&, ModuleDescription& md):s_(0),md_(&md) {}
+      ~CallPrePost() {
+	if (s_ != 0) (*(s_->postModuleSignal))(*md_);
+      }
     private:
       Worker::Sigs* s_;
       ModuleDescription* md_;
@@ -187,7 +191,7 @@ namespace edm {
 
     try {
 
-	CallPrePost cpp(sigs_,md_);
+	CallPrePost cpp(ep, sigs_, md_);
 	rc = implDoWork(ep, es, bat, cpc);
 
 	if (rc) {
@@ -247,13 +251,23 @@ namespace edm {
 	}
       }
     
+    catch(std::bad_alloc& bda) {
+	if (isEvent) ++timesExcept_;
+	state_ = Exception;
+	cached_exception_.reset(new cms::Exception("std::bad_alloc"));
+	*cached_exception_
+	  << "An std::bad_alloc exception occurred during a call to the module ";
+	exceptionContext(md_, ep, *cached_exception_)
+	  << "The job has probably exhausted the virtual memory available to the process.\n";
+	throw *cached_exception_;
+    }
     catch(std::exception& e) {
 	if (isEvent) ++timesExcept_;
 	state_ = Exception;
 	cached_exception_.reset(new cms::Exception("StdException"));
 	*cached_exception_
 	  << "An std::exception occurred during a call to the module ";
-        exceptionContext(md_, ep, *cached_exception_) << "module and cannot be repropagated.\n"
+        exceptionContext(md_, ep, *cached_exception_) << "and cannot be repropagated.\n"
 	  << "Previous information:\n" << e.what();
 	throw *cached_exception_;
     }

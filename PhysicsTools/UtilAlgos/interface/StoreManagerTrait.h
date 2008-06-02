@@ -10,6 +10,8 @@
 #include "DataFormats/Common/interface/RefToBase.h"
 #include "DataFormats/Common/interface/RefToBaseVector.h"
 #include <memory>
+#include "boost/static_assert.hpp"
+#include "boost/type_traits.hpp"
 
 namespace helper {
 
@@ -23,7 +25,7 @@ namespace helper {
   };
   
   template<typename T>
-   struct IteratorToObjectConverter<edm::OwnVector<T> > {
+  struct IteratorToObjectConverter<edm::OwnVector<T> > {
     typedef std::auto_ptr<T> value_type;
     template<typename I>
     static value_type convert( const I & i ) {
@@ -32,7 +34,7 @@ namespace helper {
   };
 
   template<typename C>
-   struct IteratorToObjectConverter<edm::RefVector<C> > {
+  struct IteratorToObjectConverter<edm::RefVector<C> > {
     typedef edm::Ref<C> value_type;
     template<typename I>
     static value_type convert( const I & i ) {
@@ -41,7 +43,7 @@ namespace helper {
   };
 
   template<typename T>
-   struct IteratorToObjectConverter<edm::RefToBaseVector<T> > {
+  struct IteratorToObjectConverter<edm::RefToBaseVector<T> > {
     typedef edm::RefToBase<T> value_type;
     template<typename I>
     static value_type convert( const I & i ) {
@@ -49,11 +51,40 @@ namespace helper {
     }
   };
 
+  /*
+  template<typename OutputCollection, typename InputCollection>
+  struct OutputCollectionCreator {
+    static std::auto_ptr<OutputCollection> createNewCollection( const edm::Handle<InputCollection> & ) {
+      return std::auto_ptr<OutputCollection>( new OutputCollection );
+    }
+  };
+
+  template<typename T, typename InputCollection>
+  struct OutputCollectionCreator<edm::RefToBaseVector<T>, InputCollection> {
+    static std::auto_ptr<edm::RefToBaseVector<T> > createNewCollection( const edm::Handle<InputCollection> & h ) {
+      return std::auto_ptr<edm::RefToBaseVector<T> >( new edm::RefToBaseVector<T>(h) );
+    }
+  };
+  */
+
+  /*
+  template<typename T1, typename T2>
+  struct OutputCollectionCreator<RefToBaseVector<T1>, RefToBaseVector<T2> > {
+    static RefToBaseVector<T1> * createNewCollection( const edm::Handle<RefToBaseVector<T2> > & h ) {
+      return new RefToBaseVector<T1>(h);
+    }
+  };
+  */
+
   template<typename OutputCollection, 
 	   typename ClonePolicy = IteratorToObjectConverter<OutputCollection> >
   struct CollectionStoreManager {
     typedef OutputCollection collection;
-    CollectionStoreManager() : selected_( new collection ) { }
+    template<typename C>
+    CollectionStoreManager( const edm::Handle<C> & h ) :
+    selected_( new OutputCollection ) { 
+      //      selected_ = OutputCollectionCreator<OutputCollection, C>::createNewCollection(h);
+    }
     template<typename I>
     void cloneAndStore( const I & begin, const I & end, edm::Event & ) {
       using namespace std;

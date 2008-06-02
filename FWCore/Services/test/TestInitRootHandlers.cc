@@ -18,16 +18,13 @@
 // system include files
 #include <iostream>
 #include <iomanip>
-#include <map>
 #include <sstream>
 #include <algorithm>
 
 // user include files
-#include "FWCore/Framework/interface/Frameworkfwd.h"
 #include "FWCore/Framework/interface/MakerMacros.h"
 
 #include "FWCore/Framework/interface/Event.h"
-#include "DataFormats/Provenance/interface/BranchDescription.h"
 #include "DataFormats/Provenance/interface/Provenance.h"
 
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
@@ -38,7 +35,6 @@
 #include "FWCore/MessageLogger/interface/ELseverityLevel.h"
 #include "FWCore/Utilities/interface/EDMException.h"
 
-#include "boost/lexical_cast.hpp"
 
 #include "FWCore/Framework/interface/GenericHandle.h"
 //
@@ -300,12 +296,21 @@ void RootErrorHandler( int level, bool die, const char* location, const char* me
         }
     }
 
-// Intercept "dictionary not found" error-level message and alter its severity
+// Intercept some Root messages and downgrade the severity
 
   if (el_severity >= edm::ELseverityLevel::ELsev_error)
     { if (el_message.find("dictionary") != std::string::npos)
-        { el_severity = edm::ELseverityLevel::ELsev_warning ;
+        { el_severity = edm::ELseverityLevel::ELsev_info ;
         }
+    }
+
+    if (el_message.find("already in TClassTable") != std::string::npos) {
+      el_severity = edm::ELseverityLevel::ELsev_info;
+    }
+
+    if ((el_message.find("ShowMembers")    != std::string::npos)
+     && (el_message.find("TrackingRecHit") != std::string::npos)) {
+      el_severity = edm::ELseverityLevel::ELsev_info;
     }
 
 // Feed the message to the MessageLogger... let it choose to suppress or not.

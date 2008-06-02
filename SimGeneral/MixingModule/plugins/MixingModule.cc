@@ -48,16 +48,16 @@ namespace edm
       // See FWCore/Framework/interface/BranchDescription.h
       // BranchDescription contains all the information for the product.
       edm::BranchDescription desc = it->second;
-      if (!desc.friendlyClassName_.compare(0,8,"PCaloHit")) {
+      if (!desc.friendlyClassName_.compare(0,9,"PCaloHits")) {
 	caloSubdetectors_.push_back(desc.productInstanceName_);
 	LogInfo("Constructor") <<"Adding calo container "<<desc.productInstanceName_ <<" for pileup treatment";
       }
-      else if (!desc.friendlyClassName_.compare(0,7,"PSimHit") && desc.productInstanceName_.compare(0,11,"TrackerHits")) {
+      else if (!desc.friendlyClassName_.compare(0,8,"PSimHits") && desc.productInstanceName_.compare(0,11,"TrackerHits")) {
 	simHitSubdetectors_.push_back(desc.productInstanceName_);
 	nonTrackerPids_.push_back(desc.productInstanceName_);
         LogInfo("Constructor") <<"Adding simhit container "<<desc.productInstanceName_ <<" for pileup treatment";
       }
-      else if (!desc.friendlyClassName_.compare(0,7,"PSimHit") && !desc.productInstanceName_.compare(0,11,"TrackerHits")) {
+      else if (!desc.friendlyClassName_.compare(0,8,"PSimHits") && !desc.productInstanceName_.compare(0,11,"TrackerHits")) {
 	simHitSubdetectors_.push_back(desc.productInstanceName_);
 	// here we store the tracker subdetector name  for low and high part
 	int slow=(desc.productInstanceName_).find("LowTof");
@@ -138,7 +138,6 @@ namespace edm
   }
 
   void MixingModule::addPileups(const int bcr, Event *e, unsigned int eventId) {
-  
     LogDebug("MixingModule") <<"===============> adding pileups from event  "<<e->id()<<" for bunchcrossing "<<bcr;
 
     // SimHits
@@ -157,7 +156,7 @@ namespace edm
     for(std::vector <std::string>::iterator it = nonTrackerPids_.begin(); it != nonTrackerPids_.end(); ++it) {
         const std::vector<PSimHit> * simhits = simproducts[(*it)];
 	if (simhits) {
-	  simcf_->addPileupSimHits(bcr,(*it),simhits,eventId,false);
+	  simcf_->addPileupSimHits(bcr,(*it),simhits,eventId);
 	  LogDebug("MixingModule") <<"For "<<(*it)<<", "<<simhits->size()<<" Simhits added";
 	}
     }
@@ -172,8 +171,8 @@ namespace edm
 
 	const std::vector<PSimHit> * simhitshigh = simproducts[subdethigh];
 	if (simhitshigh) {
-	  simcf_->addPileupSimHits(bcr,subdethigh,simhitshigh,eventId,checktof_);
-	  simcf_->addPileupSimHits(bcr,subdetlow,simhitshigh,eventId,checktof_);
+	  simcf_->addPileupSimHits(bcr,subdethigh,simhitshigh,eventId,checktof_,true);
+	  simcf_->addPileupSimHits(bcr,subdetlow,simhitshigh,eventId,checktof_,false);
 	  LogDebug("MixingModule") <<"For "<<subdethigh<<" and "<<subdetlow<<", "<<simhitshigh->size()<<" Simhits added";
 	}
       }
@@ -183,8 +182,8 @@ namespace edm
 	//	const std::vector<PSimHit> * simhitslow = simproducts[(*itstr).second.second];
 	const std::vector<PSimHit> * simhitslow = simproducts[subdetlow];
 	if (simhitslow) {
-	  simcf_->addPileupSimHits(bcr,subdethigh,simhitslow,eventId, checktof_);
-	  simcf_->addPileupSimHits(bcr,subdetlow,simhitslow,eventId, checktof_);
+	  simcf_->addPileupSimHits(bcr,subdethigh,simhitslow,eventId, checktof_,true);
+	  simcf_->addPileupSimHits(bcr,subdetlow,simhitslow,eventId, checktof_,false);
 	  LogDebug("MixingModule") <<"For "<<subdethigh<<" and "<<subdetlow<<", "<<simhitslow->size()<<" Simhits added";
 	}
       }

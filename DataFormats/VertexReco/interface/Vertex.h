@@ -7,7 +7,7 @@
  *
  * \author Luca Lista, INFN
  *
- * \version $Id: Vertex.h,v 1.26 2007/05/30 07:44:32 llista Exp $
+ * \version $Id: Vertex.h,v 1.23 2006/11/15 10:59:48 llista Exp $
  *
  */
 #include <Rtypes.h>
@@ -111,6 +111,9 @@ namespace reco {
     const std::vector<Track> & refittedTracks() const { return refittedTracks_;}
 
   private:
+    void createTracks() const;
+
+  private:
     class TrackEqual {
       public:
 	TrackEqual( const Track & t) : track_( t ) { }
@@ -127,7 +130,7 @@ namespace reco {
     /// covariance matrix (3x3) as vector
     Double32_t covariance_[ size ];
     /// reference to tracks
-    TrackRefVector tracks_;
+    mutable TrackRefVector tracks_;
     /// The vector of refitted tracks
     std::vector<Track> refittedTracks_;
     edm::AssociationMap< edm::OneToValue<reco::TrackCollection, float> > weights_;

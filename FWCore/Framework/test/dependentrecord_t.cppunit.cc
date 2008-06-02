@@ -21,7 +21,6 @@
 #include "FWCore/Framework/interface/DataProxyProvider.h"
 #include "FWCore/Framework/interface/EventSetupRecordProvider.h"
 #include "FWCore/Framework/interface/NoRecordException.h"
-#include "FWCore/Framework/interface/DataProxyProvider.h"
 
 #include <cppunit/extensions/HelperMacros.h>
 

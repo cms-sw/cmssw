@@ -19,6 +19,8 @@
 #include "PhysicsTools/MVATrainer/interface/SourceVariable.h"
 #include "PhysicsTools/MVATrainer/interface/TrainProcessor.h"
 
+#include "MLP.h"
+
 XERCES_CPP_NAMESPACE_USE
 
 using namespace PhysicsTools;
@@ -45,14 +47,20 @@ class ProcMLP : public TrainProcessor {
 	virtual void cleanup();
 
     private:
+	void runMLPTrainer();
+
 	enum Iteration {
+		ITER_COUNT,
 		ITER_TRAIN,
+		ITER_WAIT,
 		ITER_DONE
 	} iteration;
 
 	std::string		layout;
 	unsigned int		steps;
 	unsigned int		count, row;
+	double			weightSum;
+	std::auto_ptr<MLP>	mlp;
 	std::vector<double>	vars;
 	std::vector<double>	targets;
 	bool			needCleanup;
@@ -63,8 +71,9 @@ static ProcMLP::Registry registry("ProcMLP");
 ProcMLP::ProcMLP(const char *name, const AtomicId *id,
                  MVATrainer *trainer) :
 	TrainProcessor(name, id, trainer),
-	iteration(ITER_TRAIN),
+	iteration(ITER_COUNT),
 	count(0),
+	weightSum(0.0),
 	needCleanup(false)
 {
 }
@@ -121,6 +130,7 @@ bool ProcMLP::load()
 	if (!ok)
 		return false;
 
+//	mlp->load(trainer->trainFileName(this, "txt"));
 	iteration = ITER_DONE;
 	trained = true;
 	return true;
@@ -129,6 +139,10 @@ bool ProcMLP::load()
 Calibration::VarProcessor *ProcMLP::getCalibration() const
 {
 	Calibration::ProcMLP *calib = new Calibration::ProcMLP;
+
+	std::auto_ptr<MLP> mlp(new MLP(getInputs().size(),
+	                               getOutputs().size(), layout));
+	mlp->load(trainer->trainFileName(this, "txt"));
 
 	std::string fileName = trainer->trainFileName(this, "txt");
 	std::ifstream in(fileName.c_str(), std::ios::binary | std::ios::in);
@@ -139,37 +153,20 @@ Calibration::VarProcessor *ProcMLP::getCalibration() const
 
 	char linebuf[128];
 	linebuf[127] = 0;
-	in.getline(linebuf, 127);
-	if (std::strncmp(linebuf, "# network structure ", 20) != 0)
-		throw cms::Exception("ProcMLP")
-			<< "Weights file " << fileName
-			<< "has invalid header." << std::endl;
+	do
+		in.getline(linebuf, 127);
+	while(linebuf[0] == '#');
 
-	std::istringstream is(linebuf + 20);
-	std::vector<unsigned int> layout;
-	for(;;) {
-		unsigned int layer = 0;
-		is >> layer;
-		if (!layer)
-			break;
-		layout.push_back(layer);
-	}
+	int layers = mlp->getLayers();
+	const int *neurons = mlp->getLayout();
 
-	if (layout.size() < 2 || layout.front() != getInputs().size()
-	    || layout.back() != 1)
-		throw cms::Exception("ProcMLP")
-			<< "Weights file " << fileName
-			<< "network layout does not match." << std::endl;
-
-	in.getline(linebuf, 127);
-
-	for(unsigned int layer = 1; layer < layout.size(); layer++) {
+	for(int layer = 1; layer < layers; layer++) {
 		Calibration::ProcMLP::Layer layerConf;
 
-		for(unsigned int i = 0; i < layout[layer]; i++) {
+		for(int i = 0; i < neurons[layer]; i++) {
 			Calibration::ProcMLP::Neuron neuron;
 
-			for(unsigned int j = 0; j <= layout[layer - 1]; j++) {
+			for(int j = 0; j <= neurons[layer - 1]; j++) {
 				in.getline(linebuf, 127);
 				std::istringstream ss(linebuf);
 				double weight;
@@ -182,7 +179,7 @@ Calibration::VarProcessor *ProcMLP::getCalibration() const
 			}
 			layerConf.first.push_back(neuron);
 		}
-		layerConf.second = layer < layout.size() - 1;
+		layerConf.second = layer < layers - 1;
 
 		calib->layers.push_back(layerConf);
 	}
@@ -195,11 +192,21 @@ Calibration::VarProcessor *ProcMLP::getCalibration() const
 void ProcMLP::trainBegin()
 {
 	switch(iteration) {
+	    case ITER_COUNT:
+		count = 0;
+		weightSum = 0.0;
+		break;
 	    case ITER_TRAIN:
-		throw cms::Exception("ProcMLP")
-			<< "Actual training for ProcMLP not provided"
-			   "inside CMSSW. Please provide network weights"
-			   "file in mlpfit format." << std::endl;
+		try {
+			mlp = std::auto_ptr<MLP>(
+					new MLP(getInputs().size(),
+					getOutputs().size(), layout));
+			mlp->init(count);
+			row = 0;
+		} catch(cms::Exception e) {
+			// MLP probably busy (or layout invalid, aaaack)
+			iteration = ITER_WAIT;
+		}
 		break;
 	    default:
 		/* shut up */;
@@ -209,11 +216,51 @@ void ProcMLP::trainBegin()
 void ProcMLP::trainData(const std::vector<double> *values,
                         bool target, double weight)
 {
+	if (iteration == ITER_COUNT)
+		count++;
+		weightSum += weight;
+
+	if (iteration != ITER_TRAIN)
+		return;
+
+	for(unsigned int i = 0; i < vars.size(); i++, values++)
+		vars[i] = values->front();
+
+	for(unsigned int i = 0; i < targets.size(); i++)
+		targets[i] = target;
+
+	mlp->set(row++, &vars.front(), &targets.front(), weight);
+}
+
+void ProcMLP::runMLPTrainer()
+{
+	for(unsigned int i = 0; i < steps; i++) {
+		double error = mlp->train();
+		if ((i % 10) == 0)
+			std::cout << "Training MLP epoch " << mlp->getEpoch()
+			          << ", rel chi^2: " << (error / weightSum)
+			          << std::endl;
+	}
 }
 
 void ProcMLP::trainEnd()
 {
 	switch(iteration) {
+	    case ITER_COUNT:
+	    case ITER_WAIT:
+		iteration = ITER_TRAIN;
+		std::cout << "Training with " << count << " events. "
+		              "(weighted " << weightSum << ")" << std::endl;
+		break;
+	    case ITER_TRAIN:
+		runMLPTrainer();
+		mlp->save(trainer->trainFileName(this, "txt"));
+		mlp->clear();
+		mlp.reset();
+		needCleanup = true;
+		iteration = ITER_DONE;
+		trained = true;
+		break;
 	    default:
 		/* shut up */;
 	}

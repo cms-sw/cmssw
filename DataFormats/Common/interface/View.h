@@ -14,7 +14,7 @@ EDProduct that is a sequence.
 //
 // Original Author:  
 //         Created:  Mon Dec 18 09:48:30 CST 2006
-// $Id: View.h,v 1.8 2007/06/20 15:54:13 paterno Exp $
+// $Id: View.h,v 1.3 2007/09/20 09:52:59 llista Exp $
 //
 
 #include <vector>
@@ -132,6 +132,10 @@ namespace edm
     // The following is for testing only.
     static void fill_from_range(T* first, T* last, View& output);
 
+    const void * product() const {
+      return refs_.product();
+    }
+
   private:
     seq_t items_;
     RefToBaseVector<T> refs_;
@@ -168,13 +172,16 @@ namespace edm
     // If the two input vectors are not of the same size, there is a
     // logic error in the framework code that called this.
     // constructor.
-    assert (numElements == helpers->size());
-
-    items_.reserve(numElements);
-    for (std::vector<void const*>::size_type i = 0; i < pointers.size(); ++i) {
+    if( helpers.get() != 0 ) {
+      assert (numElements == helpers->size());
+      
+      items_.reserve(numElements);
+      for (std::vector<void const*>::size_type i = 0; i < pointers.size(); ++i) {
 	items_.push_back(static_cast<pointer>(pointers[i]));
+      }
+      RefToBaseVector<T> temp( helpers );
+      refs_.swap(temp); 
     }
-    refs_ = RefToBaseVector<T>( helpers );
   }
 
   template <class T>

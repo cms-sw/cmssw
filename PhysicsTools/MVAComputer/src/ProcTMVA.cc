@@ -12,12 +12,15 @@
 //
 // Author:      Christophe Saout
 // Created:     Sat Apr 24 15:18 CEST 2007
-// $Id: ProcTMVA.cc,v 1.3 2007/05/17 21:42:16 saout Exp $
+// $Id: ProcTMVA.cc,v 1.4.2.2 2008/02/25 16:16:24 saout Exp $
 //
 
 #include <string>
 #include <vector>
 #include <memory>
+
+// ROOT version magic to support TMVA interface changes in newer ROOT
+#include <RVersion.h>
 
 #include <TMVA/DataSet.h>
 #include <TMVA/Types.h>
@@ -71,6 +74,9 @@ static TMVA::MethodBase *methodInst(TMVA::DataSet *data, TMVA::Types::EMVA type)
 		SWITCH_METHOD(TMlpANN)
 		SWITCH_METHOD(BDT)
 		SWITCH_METHOD(MLP)
+#if ROOT_VERSION_CODE >= ROOT_VERSION(5, 15, 0)
+		SWITCH_METHOD(SVM)
+#endif
 		SWITCH_METHOD(RuleFit)
 		SWITCH_METHOD(BayesClassifier)
 	    default:
@@ -119,10 +125,19 @@ void ProcTMVA::configure(ConfIterator iter, unsigned int n)
 void ProcTMVA::eval(ValueIterator iter, unsigned int n) const
 {
 	for(unsigned int i = 0; i < n; i++)
+#if ROOT_VERSION_CODE >= ROOT_VERSION(5, 15, 0)
+		data.GetEvent().SetVal(i, *iter++);
+#else
 		data.Event().SetVal(i, *iter++);
+#endif
 
+#if ROOT_VERSION_CODE >= ROOT_VERSION(5, 15, 0)
+	method->GetVarTransform().GetEventRaw().CopyVarValues(data.GetEvent());
+	method->GetVarTransform().ApplyTransformation(TMVA::Types::kSignal);
+#else
 	data.ApplyTransformation(method->GetPreprocessingMethod(), kTRUE);
-	iter << method->GetMvaValue();
+#endif
+	iter(method->GetMvaValue());
 }
 
 } // anonymous namespace

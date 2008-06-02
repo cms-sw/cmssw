@@ -6,21 +6,21 @@
  * 
  * \author Javier Fernandez, IFCA
  *
- * \version $Revision: 1.1 $
+ * \version $Revision: 1.2 $
  *
- * $Id: AlignmentMuonSelectorModule.h,v 1.1 2007/04/11 11:44:54 jfernan2 Exp $
+ * $Id: AlignmentMuonSelectorModule.cc,v 1.2 2007/12/04 23:39:24 ratnik Exp $
  *
  */
 
 #include "FWCore/Framework/interface/MakerMacros.h"
 #include "PhysicsTools/UtilAlgos/interface/ObjectSelector.h"
 #include "Alignment/CommonAlignmentProducer/interface/AlignmentMuonSelector.h"
+#include "DataFormats/MuonReco/interface/MuonFwd.h" 
 
 // the following include is necessary to clone all track branches
 // including recoTrackExtras and TrackingRecHitsOwned.
 // if you remove it the code will compile, but the cloned
 // tracks have only the recoMuons branch!
-#include "PhysicsTools/RecoAlgos/interface/MuonSelector.h"
 
 struct MuonConfigSelector {
 
@@ -35,13 +35,15 @@ struct MuonConfigSelector {
   const_iterator end() const { return selected_.end(); }
   size_t size() const { return selected_.size(); }
 
-  void select( const edm::Handle<reco::MuonCollection> & c,  const edm::Event & evt) {
+  void select( const edm::Handle<reco::MuonCollection> & c,  const edm::Event & evt, const edm::EventSetup &/* dummy*/)
+  {
     all_.clear();
     selected_.clear();
-    for( reco::MuonCollection::const_iterator i=c.product()->begin();i!=c.product()->end();++i){
+    for (collection::const_iterator i = c.product()->begin(), iE = c.product()->end();
+         i != iE; ++i){
       all_.push_back(& * i );
     }
-    selected_=theSelector.select(all_,evt);
+    selected_ = theSelector.select(all_, evt); // might add dummy 
   }
 
 private:

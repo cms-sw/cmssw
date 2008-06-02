@@ -23,7 +23,7 @@
 #include "DataFormats/HcalDigi/interface/HBHEDataFrame.h"
 #include "DataFormats/HcalDigi/interface/HFDataFrame.h"
 #include "DataFormats/HcalDigi/interface/HODataFrame.h"
-#include "SimDataFormats/HepMCProduct/interface/HepMCProduct.h"
+
 #include <vector>
 #include <utility>
 #include <ostream>
@@ -31,205 +31,176 @@
 #include <algorithm>
 #include <cmath>
 
+using namespace cms;
+using namespace edm;
+using namespace std;
+
+
+
 
 template<class Digi>
 void HcalDigiTester::reco(const edm::Event& iEvent, const edm::EventSetup& iSetup) 
 {
-  double fphi_mc = -999999.;  // phi of initial particle from HepMC
-  double feta_mc = -999999.;  // eta of initial particle from HepMC
-  int inumTower = 0; // number of towers where sum 4567(4-HF) greater 10;
-  bool MC=false;
-
-  edm::Handle<edm::HepMCProduct> evtMC;
-  try{
-    //  iEvent.getByLabel("VtxSmeared",evtMC);
-    iEvent.getByLabel("source",evtMC);
-    MC=true;
-    //    std::cout << "source HepMCProduct found"<< std::endl;
-  }
-  catch( char * str ) {
-    MC=false;
-    std::cout << "no HepMCProduct found"<<str<< std::endl;    
-  }
-  
-  HepMC::GenEvent * myGenEvent = new  HepMC::GenEvent(*(evtMC->GetEvent()));
-  for ( HepMC::GenEvent::particle_iterator p = myGenEvent->particles_begin();
-	p != myGenEvent->particles_end(); ++p ) {
-    fphi_mc = (*p)->momentum().phi();
-    feta_mc = (*p)->momentum().eta();
-  }
-
  
   typename   edm::Handle<edm::SortedCollection<Digi> > hbhe;
   typename edm::SortedCollection<Digi>::const_iterator ihbhe;
+  using namespace edm;
+
+ 
+
   
-  ievent++;
-   
+  
   // ADC2fC 
 
+
   const HcalQIEShape* shape = conditions->getHcalShape();
+
   HcalCalibrations calibrations;
+ 
   CaloSamples tool;
 
   // loop over the digis
   int ndigis=0;
   
-  float sumamplfC = 0;
+  float fAdcSum = 0;// sum of all ADC counts in terms of fC
   iEvent.getByType (hbhe) ;
 
   int subdet = 1;
+  
   if (hcalselector_ == "HB"  ) subdet = 1;
   if (hcalselector_ == "HE"  ) subdet = 2;
   if (hcalselector_ == "HO"  ) subdet = 3;
   if (hcalselector_ == "HF"  ) subdet = 4; 
 
   for (ihbhe=hbhe->begin();ihbhe!=hbhe->end();ihbhe++)
-    {
-
-      HcalDetId cell(ihbhe->id()); 
-      
-      if (cell.subdet()== subdet   ) 
-     	{
-	  const CaloCellGeometry* cellGeometry =
-	    geometry->getSubdetectorGeometry (cell)->getGeometry (cell) ;
-	  double fEta = cellGeometry->getPosition ().eta () ;
-	  double fPhi = cellGeometry->getPosition ().phi () ;
-
+	{
+	  HcalDetId cell(ihbhe->id()); 
+	  if (cell.subdet()== subdet  ) 
+	    {
+	      const CaloCellGeometry* cellGeometry =
+          geometry->getSubdetectorGeometry (cell)->getGeometry (cell) ;
+	      double fEta = cellGeometry->getPosition ().eta () ;
+	      double fPhi = cellGeometry->getPosition ().phi () ;
+        monitor()->fillEta(fEta);
+        monitor()->fillPhi(fPhi);
 	      
-	  conditions->makeHcalCalibration(cell, &calibrations);
-	  const HcalQIECoder* channelCoder = conditions->getHcalCoder(cell);
-	  HcalCoderDb coder (*channelCoder, *shape);
-	  coder.adc2fC(*ihbhe,tool);
+	      conditions->makeHcalCalibration(cell, &calibrations);
+	      const HcalQIECoder* channelCoder = conditions->getHcalCoder(cell);
+	      HcalCoderDb coder (*channelCoder, *shape);
+	      coder.adc2fC(*ihbhe,tool);
 	      
-	  float amplRecHitfC = 0;
-	  float amplfC = 0;
+        float fDigiSum = 0;
+	      for  (int ii=0;ii<tool.size();ii++)
+        {
+          int capid = (*ihbhe)[ii].capid();
+          if (subpedvalue_) fDigiSum+=(tool[ii]-calibrations.pedestal(capid));
+          if (!subpedvalue_) fDigiSum+=(tool[ii] - pedvalue);
+        }
+        fAdcSum += fDigiSum;
 
-	
-	  for  (int ii=0;ii<tool.size();ii++)
-	    {
-	      int capid = (*ihbhe)[ii].capid();
-	      amplfC+=(tool[ii]-calibrations.pedestal(capid));
-	      if ( fabs(feta_mc-fEta) < 0.087/2. && acos(cos(fphi_mc-fPhi))<0.087/2.  ) 
-		                            monitor()->fillTimeSlice( ii , tool[ii]);
- 	       
-	      if (hcalselector_ != "HF" && ii>=4 && ii<=7)
-		{
-		  amplRecHitfC+=(tool[ii]-calibrations.pedestal(capid));	   
-		  monitor()->fillPedestalfC(calibrations.pedestal(capid));
-		  monitor()->fillDigiMinusPedfC(tool[ii]-calibrations.pedestal(capid));
-		}
-	      if (hcalselector_ == "HF" && ii==3 && ii)
-		{
-		  amplRecHitfC+=(tool[3]-calibrations.pedestal(capid));
-		  monitor()->fillPedestalfC(calibrations.pedestal(capid));
-		  monitor()->fillDigiMinusPedfC(tool[3]-calibrations.pedestal(capid));
-		}
+        monitor()->fillPedestal((*ihbhe)[0].adc());
+        monitor()->fillPedestal((*ihbhe)[1].adc());
+ 
+        if(fDigiSum > 50.)
+        {
+//std::cout << (*ihbhe) << std::endl;
+//std::cout << tool << std::endl;
+//std::cout << pedvalue << std::endl;
+          // now do a few selected individual bins, if it's big enough
+          float fBin5  = tool[4];
+          float fBin67 = tool[5] + tool[6];
+
+          if(subpedvalue_)
+          {
+             fBin5 -= calibrations.pedestal((*ihbhe)[4].capid());
+
+             fBin67 -= (calibrations.pedestal((*ihbhe)[5].capid())
+                      + calibrations.pedestal((*ihbhe)[6].capid()));
+          }
+          else 
+          {
+            fBin5 -= pedvalue;
+            fBin67 -= 2*pedvalue;
+          }
+
+          //fBin12 is a pedestal, others are percentages
+          if(fDigiSum > 0)
+          {
+            fBin5 /= fDigiSum;
+            fBin67 /= fDigiSum;
+          }
+
+          monitor()->fillBin5Frac(fBin5);
+          monitor()->fillBin67Frac(fBin67);
+        }
+	      ndigis++;
 	    }
-
-	  monitor()->fillADC0count((*ihbhe)[0].adc());
-	  monitor()->fillADC0fC(tool[0]);
-	  
-	  if (amplRecHitfC>10.)
-	    {
-	      sumamplfC += amplRecHitfC;	  
-	      inumTower++;  // count towers with sum in main bins greater that 10 fC 
-	      monitor()->fillEta(fEta);  // eta of tower 
-	      monitor()->fillPhi(fPhi);  // phi of tower
-	    }
-
-	  monitor()->fillPhiMC(fphi_mc);
-	  monitor()->fillEtaMC(feta_mc);
-	  ndigis++;
-
-	  if(amplfC > 50.)
-	    {
-	      // now do a few selected individual bins, if it's big enough
-	      float fBin5  = tool[4];
-	      float fBin67 = tool[5] + tool[6];
-
-
-	      fBin5 -= calibrations.pedestal((*ihbhe)[4].capid());
-	  
-	      fBin67 -= (calibrations.pedestal((*ihbhe)[5].capid())
-			 + calibrations.pedestal((*ihbhe)[6].capid()));
-      
-	      //fBin12 is a pedestal, others are percentages
-	      if(amplfC > 0)
-		{
-		  fBin5 /= amplfC;
-		  fBin67 /= amplfC;
-		}
-
-	      monitor()->fillBin5Frac(fBin5);
-	      monitor()->fillBin67Frac(fBin67);
-	    }
-	
-	}
     }
-  monitor()->fillBin4567Frac(sumamplfC);
-  monitor()->fillNTowersGt10(inumTower);
 
-  edm::Handle<edm::PCaloHitContainer> hcalHits ;
-  // iEvent.getByLabel("SimG4Object","HcalHits",hcalHits);
-  iEvent.getByLabel("g4SimHits","HcalHits",hcalHits);
+        
+    
+      edm::Handle<PCaloHitContainer> hcalHits ;
+     // iEvent.getByLabel("SimG4Object","HcalHits",hcalHits);
+      iEvent.getByLabel("g4SimHits","HcalHits",hcalHits);
       
-  const edm::PCaloHitContainer * simhitResult = hcalHits.product () ;
+      const PCaloHitContainer * simhitResult = hcalHits.product () ;
       
-  float fEnergySimHits = 0; 
-  for (std::vector<PCaloHit>::const_iterator simhits = simhitResult->begin () ;
+      float fEnergySimHits = 0; 
+      for (std::vector<PCaloHit>::const_iterator simhits = simhitResult->begin () ;
        simhits != simhitResult->end () ;
        ++simhits)
-    {    
-      HcalDetId detId(simhits->id());
-      //  1 == HB
-      if (detId.subdet()== subdet  ){  
-	fEnergySimHits += simhits->energy(); 
+      {    
+	      HcalDetId detId(simhits->id());
+        //  1 == HB
+        if (detId.subdet()== subdet  ){  
+          fEnergySimHits += simhits->energy(); 
+        }
       }
-    }
 
-  monitor()->fillDigiSimhit(fEnergySimHits, sumamplfC);
-  monitor()->fillRatioDigiSimhit(sumamplfC/fEnergySimHits);
-  monitor()->fillDigiSimhitProfile(fEnergySimHits, sumamplfC);
-  monitor()->fillSumDigis(sumamplfC);
+  monitor()->fillDigiSimhit(fEnergySimHits, fAdcSum);
+  monitor()->fillRatioDigiSimhit(fAdcSum/fEnergySimHits);
+  monitor()->fillDigiSimhitProfile(fEnergySimHits, fAdcSum);
+  monitor()->fillSumDigis(fAdcSum);
+  monitor()->fillSumDigis_noise(fAdcSum);
   monitor()->fillNDigis(ndigis);
-
 }
 
 
 
 HcalDigiTester::HcalDigiTester(const edm::ParameterSet& iConfig)
-  : dbe_(edm::Service<DaqMonitorBEInterface>().operator->()),
-    outputFile_(iConfig.getUntrackedParameter<std::string>("outputFile", "")),
-    hcalselector_(iConfig.getUntrackedParameter<std::string>("hcalselector", "all")),
-    subpedvalue_(iConfig.getUntrackedParameter<bool>("subpedvalue", "true")),
-    monitors_()
+: dbe_(edm::Service<DaqMonitorBEInterface>().operator->()),
+  outputFile_(iConfig.getUntrackedParameter<string>("outputFile", "")),
+  hcalselector_(iConfig.getUntrackedParameter<string>("hcalselector", "all")),
+  subpedvalue_(iConfig.getUntrackedParameter<bool>("subpedvalue", "true")),
+  monitors_()
 {
   if ( outputFile_.size() != 0 ) {
     edm::LogInfo("OutputInfo") << " Hcal Digi Task histograms will be saved to '" << outputFile_.c_str() << "'";
   } else {
-    edm::LogInfo("OutputInfo") << " Hcal Digi Task histograms will NOT be saved";
+    LogInfo("OutputInfo") << " Hcal Digi Task histograms will NOT be saved";
   }
 
 
-  if ( dbe_ ) {
-    dbe_->setCurrentFolder("HcalDigiTask");
-  }
-
+ if ( dbe_ ) {
+   dbe_->setCurrentFolder("HcalDigiTask");
+ }
 }
    
 
+
+
 HcalDigiTester::~HcalDigiTester()
 {
-  std::cout << " outputFile_.size() =  " << outputFile_.size() << std::endl;
-  std::cout << " dbe_ = " << dbe_ << std::endl; 
-  if ( outputFile_.size() != 0 && dbe_ ) dbe_->save(outputFile_);
+  cout << " outputFile_.size() =  " << outputFile_.size() << endl;
+  cout << " dbe_ = " << dbe_ << endl; 
+ if ( outputFile_.size() != 0 && dbe_ ) dbe_->save(outputFile_);
 
 }
 
 void HcalDigiTester::endJob() {
-  std::cout << " outputFile_.size() =  " << outputFile_.size() << std::endl;
-  std::cout << " dbe_ = " << dbe_ << std::endl; 
-  if ( outputFile_.size() != 0 && dbe_ ) dbe_->save(outputFile_);
+ cout << " outputFile_.size() =  " << outputFile_.size() << endl;
+  cout << " dbe_ = " << dbe_ << endl; 
+ if ( outputFile_.size() != 0 && dbe_ ) dbe_->save(outputFile_);
 }
 
 void HcalDigiTester::beginJob(const edm::EventSetup& c){
@@ -240,15 +211,15 @@ void HcalDigiTester::beginJob(const edm::EventSetup& c){
 HcalSubdetDigiMonitor * HcalDigiTester::monitor()
 {
   std::map<std::string, HcalSubdetDigiMonitor*>::iterator monitorItr
-    = monitors_.find(hcalselector_);
+   = monitors_.find(hcalselector_);
 
   if(monitorItr == monitors_.end())
-    {
-      HcalSubdetDigiMonitor* m = new HcalSubdetDigiMonitor(dbe_, hcalselector_);
-      std::pair<std::string, HcalSubdetDigiMonitor*> mapElement(
-								hcalselector_, m);
-      monitorItr = monitors_.insert(mapElement).first;
-    }
+  {
+    HcalSubdetDigiMonitor* m = new HcalSubdetDigiMonitor(dbe_, hcalselector_);
+    std::pair<std::string, HcalSubdetDigiMonitor*> mapElement(
+      hcalselector_, m);
+    monitorItr = monitors_.insert(mapElement).first;
+  }
   return monitorItr->second;
 }
 
@@ -257,14 +228,17 @@ HcalDigiTester::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
 {
   iSetup.get<IdealGeometryRecord>().get (geometry);
   iSetup.get<HcalDbRecord>().get(conditions);
-
+  //  reco<HBHEDataFrame>(iEvent,iSetup);
+  pedvalue = 4.5;
   if (hcalselector_ == "HB" ) reco<HBHEDataFrame>(iEvent,iSetup);
   if (hcalselector_ == "HE" ) reco<HBHEDataFrame>(iEvent,iSetup);
   if (hcalselector_ == "HO" ) reco<HODataFrame>(iEvent,iSetup);
+  pedvalue = 1.73077;
   if (hcalselector_ == "HF" ) reco<HFDataFrame>(iEvent,iSetup);  
                                                           
   if (hcalselector_ == "noise") 
     {
+      pedvalue = 4.5;
       hcalselector_ = "HB";
       reco<HBHEDataFrame>(iEvent,iSetup);
       hcalselector_ = "HE";
@@ -272,6 +246,7 @@ HcalDigiTester::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
       hcalselector_ = "HO";
       reco<HODataFrame>(iEvent,iSetup);
       hcalselector_ = "HF";
+      pedvalue = 1.73077;
       reco<HFDataFrame>(iEvent,iSetup);
       hcalselector_ = "noise";
     }

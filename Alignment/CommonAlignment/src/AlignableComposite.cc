@@ -15,7 +15,7 @@ AlignableComposite::AlignableComposite( const GeomDet* geomDet ) :
 {
 }
 
-AlignableComposite::AlignableComposite(const DetId& id,
+AlignableComposite::AlignableComposite(uint32_t id,
 				       AlignableObjectIdType structureType,
 				       const RotationType& rot):
   Alignable(id, rot),
@@ -30,16 +30,11 @@ AlignableComposite::~AlignableComposite()
 
 void AlignableComposite::addComponent(Alignable* ali)
 {
-  const Alignables& newComps = ali->deepComponents();
-
-  theDeepComponents.insert( theDeepComponents.end(), newComps.begin(), newComps.end() );
-
-  Scalar k = static_cast<Scalar>( newComps.size() ) / theDeepComponents.size();
-
-  theSurface.move( ( ali->globalPosition() - globalPosition() ) * k );
-
   ali->setMother(this);
   theComponents.push_back(ali);
+
+  theSurface.move( ( ali->globalPosition() - globalPosition() ) /
+		   static_cast<Scalar>( theComponents.size() ) );
 }
 
 //__________________________________________________________________________________________________

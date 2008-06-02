@@ -2,7 +2,7 @@
 #define FWCore_ParameterSet_ParameterSet_h
 
 // ----------------------------------------------------------------------
-// $Id: ParameterSet.h,v 1.37 2007/07/03 02:09:28 rpw Exp $
+// $Id: ParameterSet.h,v 1.38 2007/07/09 00:48:51 lsexton Exp $
 //
 // Declaration for ParameterSet(parameter set) and related types
 // ----------------------------------------------------------------------
@@ -127,6 +127,9 @@ namespace edm {
     // 'trackiness' is false, w return untracked parameters.
     size_t getParameterSetVectorNames(std::vector<std::string>& output,
 				      bool trackiness=true) const;
+
+    // need a simple interface for python
+    std::string dump() const;
 
     friend std::ostream & operator<<(std::ostream & os, const ParameterSet & pset);
 

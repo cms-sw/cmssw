@@ -4,6 +4,6 @@
 #include <vector>
 #include "TrackingTools/TrackAssociator/interface/MuonSegmentMatch.h"
 
-typedef std::vector<MuonSegmentMatch> MuonSegmentMatchCollection;
+typedef std::vector< ::MuonSegmentMatch> MuonSegmentMatchCollection;
 
 #endif

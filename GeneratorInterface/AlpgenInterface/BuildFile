@@ -1,17 +1,19 @@
 <use name=boost>
 <use name=FWCore/Framework>
+<use name=FWCore/Sources>
 <use name=SimDataFormats/HepMCProduct>
 <use name=clhep> 
 <use name=hepmc> 
 <use name=pythia6>
 #<use name=photos215>
 
-#<flags EDM_PLUGIN=1> 
-<flags SEAL_PLUGIN_NAME="GeneratorInterfaceAlpgenInterface">
+<flags EDM_PLUGIN=1> 
+#<flags SEAL_PLUGIN_NAME="GeneratorInterfaceAlpgenInterface">
 <export>
  <lib name=GeneratorInterfaceAlpgenInterface>
  <use name=boost>
  <use name=FWCore/Framework>
+ <use name=FWCore/Sources>
  <use name=SimDataFormats/HepMCProduct>
  <use name=clhep> 
  <use name=hepmc> 

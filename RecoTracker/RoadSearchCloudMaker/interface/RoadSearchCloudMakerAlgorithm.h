@@ -50,9 +50,9 @@
 // Original Author: Oliver Gutsche, gutsche@fnal.gov
 // Created:         Sat Jan 14 22:00:00 UTC 2006
 //
-// $Author: gutsche $
-// $Date: 2007/06/29 23:52:15 $
-// $Revision: 1.23 $
+// $Author: burkett $
+// $Date: 2007/08/27 16:37:55 $
+// $Revision: 1.27 $
 //
 
 #include <string>
@@ -123,6 +123,13 @@ class RoadSearchCloudMakerAlgorithm
   void makecircle(double x1_cs, double y1_cs,double x2_cs, double y2_cs,
                                              double x3_cs, double y3_cs);
 
+  double CheckXYIntersection(LocalPoint& ip1, LocalPoint& op1, LocalPoint& ip2, LocalPoint& op2);
+
+  double CheckZPhiIntersection(double iPhi1, double iZ1, double oPhi1, double oZ1,
+			       double iPhi2, double iZ2, double oPhi2, double oZ2);
+
+  double ZPhiDeltaPhi(double phi1, double phi2, double phiExpect);
+
   RoadSearchCloudCollection Clean(RoadSearchCloudCollection *rawColl);
 
   SiStripMatchedRecHit2D*  CorrectMatchedHit(const TrackingRecHit* originalRH,
@@ -149,8 +156,11 @@ class RoadSearchCloudMakerAlgorithm
   bool UsePixels;
   bool NoFieldCosmic;
   unsigned int maxDetHitsInCloudPerDetId;
-  unsigned int minNumberOfUsedLayersPerRoad;
-  unsigned int maxNumberOfMissedLayersPerRoad;
+  double       minFractionOfUsedLayersPerCloud;
+  double       maxFractionOfMissedLayersPerCloud;
+  double       maxFractionOfConsecutiveMissedLayersPerCloud;
+  unsigned int increaseMaxNumberOfConsecutiveMissedLayersPerCloud;
+  unsigned int increaseMaxNumberOfMissedLayersPerCloud;
 
   bool doCleaning_;
   double mergingFraction_;

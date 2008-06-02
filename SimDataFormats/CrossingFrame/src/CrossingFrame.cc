@@ -8,7 +8,7 @@ using namespace edm;
 
 const int  CrossingFrame::lowTrackTof = -36;
 const int  CrossingFrame::highTrackTof = 36;
-const int  CrossingFrame::minLowTof =0;
+//const int  CrossingFrame::minLowTof =0;
 const int  CrossingFrame::limHighLowTof =36;
 
 
@@ -73,7 +73,7 @@ void CrossingFrame::addSignalVertices(const SimVertexContainer *simvertices) {
 }
 
 
-void CrossingFrame::addPileupSimHits(const int bcr, const std::string subdet, const PSimHitContainer *simhits, int evtId, bool checkTof) { 
+void CrossingFrame::addPileupSimHits(const int bcr, const std::string subdet, const PSimHitContainer *simhits, int evtId, bool checkTof,bool high) { 
   // add individual PSimHits to this bunchcrossing
   // eliminate those which a TOF outside of the bounds to be considered for corresponding detectors only
   // fill EncodedEventId
@@ -84,7 +84,8 @@ void CrossingFrame::addPileupSimHits(const int bcr, const std::string subdet, co
     float newtof;
     if (checkTof) {
       newtof=(*simhits)[i].timeOfFlight() + bcr*bunchSpace_;
-      accept=newtof>=lowTrackTof && newtof <=highTrackTof;
+      accept=high ? newtof>= limHighLowTof : newtof < limHighLowTof;
+      //accept=newtof>=lowTrackTof && newtof <=highTrackTof;
     }
     if (!checkTof || accept) {
       PSimHit hit((*simhits)[i].entryPoint(), (*simhits)[i].exitPoint(),(*simhits)[i].pabs(),

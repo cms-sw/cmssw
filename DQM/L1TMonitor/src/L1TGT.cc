@@ -1,8 +1,8 @@
 /*
  * \file L1TGT.cc
  *
- * $Date: 2007/05/29 20:21:55 $
- * $Revision: 1.7 $
+ * $Date: 2007/07/19 16:48:23 $
+ * $Revision: 1.8 $
  * \author J. Berryhill
  *
  */
@@ -154,7 +154,7 @@ void L1TGT::analyze(const Event& e, const EventSetup& c)
    if(verbose_) cout << "L1TGT: gtfe size " << mygtfeWord.getSize() << endl;
    gtfesize->Fill(mygtfeWord.getSize());
 
-   if (0)
+   if (1)
      {
      L1GtPsbWord mygtPsbWord = myGTReadoutRecord->gtPsbWord(0,0);
      //   boost::uint16_t boardIdValue,
@@ -181,7 +181,7 @@ void L1TGT::analyze(const Event& e, const EventSetup& c)
 
      }
 
-   if (0)
+   if (1)
      {
      L1GtFdlWord mygtFdlWord = myGTReadoutRecord->gtFdlWord();
    if(verbose_) cout << "L1TGT: gtfdl board Id " << mygtFdlWord.boardId() << endl;

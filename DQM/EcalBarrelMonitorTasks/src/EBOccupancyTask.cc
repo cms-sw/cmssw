@@ -1,8 +1,8 @@
 /*
  * \file EBOccupancyTask.cc
  *
- * $Date: 2007/05/24 12:21:41 $
- * $Revision: 1.23 $
+ * $Date: 2007/05/24 12:24:23 $
+ * $Revision: 1.24 $
  * \author G. Della Ricca
  * \author G. Franzoni
  *
@@ -123,6 +123,8 @@ void EBOccupancyTask::endJob(void) {
 
 void EBOccupancyTask::analyze(const Event& e, const EventSetup& c){
 
+  Numbers::initGeometry(c);
+
   if ( ! init_ ) this->setup();
 
   ievt_++;
@@ -178,8 +180,13 @@ void EBOccupancyTask::analyze(const Event& e, const EventSetup& c){
 
     for ( EcalPnDiodeDigiCollection::const_iterator pnItr = PNs->begin(); pnItr != PNs->end(); ++pnItr ) {
 
-      int   ism   = Numbers::iSM( (*pnItr).id() );
+      EcalPnDiodeDigi pn = (*pnItr);
+      EcalPnDiodeDetId id = pn.id();
+
+      int   ism   = Numbers::iSM( id );
+
       float PnId  = (*pnItr).id().iPnId();
+
       PnId        = PnId - 0.5;
       float st    = 0.0;
 

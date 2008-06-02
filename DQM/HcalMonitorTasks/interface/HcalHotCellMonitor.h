@@ -7,8 +7,8 @@
 
 /** \class HcalHotCellMonitor
   *  
-  * $Date: 2006/12/12 19:10:27 $
-  * $Revision: 1.2 $
+  * $Date: 2006/09/01 15:39:27 $
+  * $Revision: 1.1 $
   * \author W. Fisher - FNAL
   */
 class HcalHotCellMonitor: public HcalBaseMonitor {
@@ -23,19 +23,14 @@ public:
 private:  ///Monitoring elements
 
   int ievt_;
-  double occThresh0_;
-  double occThresh1_;
+  double occThresh_;
 
   double etaMax_, etaMin_, phiMax_, phiMin_;
   int etaBins_, phiBins_;
 
   struct{
-    MonitorElement* meOCC_MAP_GEO_Thr0;
-    MonitorElement* meEN_MAP_GEO_Thr0;
-    MonitorElement* meOCC_MAP_GEO_Thr1;
-    MonitorElement* meEN_MAP_GEO_Thr1;
-    MonitorElement* meOCC_MAP_GEO_Max;
-    MonitorElement* meEN_MAP_GEO_Max;
+    MonitorElement* meOCC_MAP_GEO;
+    MonitorElement* meEN_MAP_GEO;
     MonitorElement* meMAX_E;
     MonitorElement* meMAX_T;
     MonitorElement* meMAX_ID;

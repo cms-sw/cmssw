@@ -1,5 +1,5 @@
 /**----------------------------------------------------------------------
-  $Id: Principal.cc,v 1.11 2007/06/29 03:43:21 wmtan Exp $
+  $Id: Principal.cc,v 1.12 2007/07/09 07:29:51 llista Exp $
   ----------------------------------------------------------------------*/
 
 #include <algorithm>
@@ -63,7 +63,7 @@ namespace edm {
     if (groups_[index].get() != 0) {
       if(!groups_[index]->replace(*g)) {
 	throw edm::Exception(edm::errors::InsertFailure,"AlreadyPresent")
-	  << "addGroup_: Problem found while adding product provanence, "
+	  << "addGroup_: Problem found while adding product provenance, "
 	  << "product already exists for ("
 	  << bd.friendlyClassName() << ","
 	  << bd.moduleLabel() << ","

@@ -45,7 +45,6 @@
    <class name="std::map<CSCDetId,std::vector<CSCDCCStatusDigi> >"/>
    <class name="std::map<CSCDetId,std::vector<CSCALCTStatusDigi> >"/>
 
-
    <class name="MuonDigiCollection<CSCDetId,CSCWireDigi>"/>
    <class name="MuonDigiCollection<CSCDetId,CSCRPCDigi>"/>
    <class name="MuonDigiCollection<CSCDetId,CSCStripDigi>"/>
@@ -61,36 +60,19 @@
    <class name="MuonDigiCollection<CSCDetId,CSCDDUStatusDigi>"/>
    <class name="MuonDigiCollection<CSCDetId,CSCALCTStatusDigi>"/>
 
-
-
-   <class name="edm::Wrapper<MuonDigiCollection<CSCDetId,CSCWireDigi>>"  
-            id="44B8B226-38C3-41D1-B899-51FF287E7B12"/>
-   <class name="edm::Wrapper<MuonDigiCollection<CSCDetId,CSCRPCDigi>>"
-            id="CC8EAE31-9392-E820-80EE-553429E85E76"/>
-   <class name="edm::Wrapper<MuonDigiCollection<CSCDetId,CSCStripDigi>>"  
-            id="E2E2098B-3BCD-EAD6-0650-D7F1D9743B74"/>
-   <class name="edm::Wrapper<MuonDigiCollection<CSCDetId,CSCComparatorDigi>>"  
-            id="C7788770-A736-05CF-A345-B776F93DCBBC"/>
-   <class name="edm::Wrapper<MuonDigiCollection<CSCDetId,CSCCorrelatedLCTDigi> >"
-            id="9773C98F-5524-F4B4-BE38-BEF2EECDA6BE"/> 
-   <class name="edm::Wrapper<MuonDigiCollection<CSCDetId,CSCCLCTDigi> >"
-            id="D2FEBCC4-B972-52EC-19D6-2EBE098521ED"/>
-   <class name="edm::Wrapper<MuonDigiCollection<CSCDetId,CSCALCTDigi> >"
-            id="3823A40F-F8EA-962E-3C92-601CEA154041"/>
-   <class name="edm::Wrapper<MuonDigiCollection<CSCDetId,CSCCFEBStatusDigi> >"
-            id="2A8D61CE-9C55-2BF3-BE08-896269A1A841"/>
-   <class name="edm::Wrapper<MuonDigiCollection<CSCDetId,CSCTMBStatusDigi> >"
-            id="F814736C-54BF-E690-9A8F-FD299010F2EF"/>
-   <class name="edm::Wrapper<MuonDigiCollection<CSCDetId,CSCDCCFormatStatusDigi> >"
-            id="45AE5C60-B8D8-A2AE-5484-1E3BE10AED61"/>
-   <class name="edm::Wrapper<MuonDigiCollection<CSCDetId,CSCDMBStatusDigi> >"
-            id="DE13F013-00D1-24DA-03A8-8305C02E0F51"/>
-   <class name="edm::Wrapper<MuonDigiCollection<CSCDetId,CSCDCCStatusDigi> >"
-            id="265513A5-59AE-E1A6-4B14-829DC0F1FE52"/>
-   <class name="edm::Wrapper<MuonDigiCollection<CSCDetId,CSCDDUStatusDigi> >"
-            id="E27E6E00-75DF-5BC1-C1A9-D5865E4C2E2A"/>
-   <class name="edm::Wrapper<MuonDigiCollection<CSCDetId,CSCALCTStatusDigi> >"
-            id="E98B2763-9E46-334E-9559-4770B434CA7A"/>
-
+   <class name="edm::Wrapper<MuonDigiCollection<CSCDetId,CSCWireDigi>>"  splitLevel="0"/>
+   <class name="edm::Wrapper<MuonDigiCollection<CSCDetId,CSCRPCDigi>>" splitLevel="0"/>
+   <class name="edm::Wrapper<MuonDigiCollection<CSCDetId,CSCStripDigi>>"  splitLevel="0"/>
+   <class name="edm::Wrapper<MuonDigiCollection<CSCDetId,CSCComparatorDigi>>"  splitLevel="0"/>
+   <class name="edm::Wrapper<MuonDigiCollection<CSCDetId,CSCCorrelatedLCTDigi> >" splitLevel="0"/> 
+   <class name="edm::Wrapper<MuonDigiCollection<CSCDetId,CSCCLCTDigi> >" splitLevel="0"/>
+   <class name="edm::Wrapper<MuonDigiCollection<CSCDetId,CSCALCTDigi> >" splitLevel="0"/>
+   <class name="edm::Wrapper<MuonDigiCollection<CSCDetId,CSCCFEBStatusDigi> >" splitLevel="0"/>
+   <class name="edm::Wrapper<MuonDigiCollection<CSCDetId,CSCTMBStatusDigi> >" splitLevel="0"/>
+   <class name="edm::Wrapper<MuonDigiCollection<CSCDetId,CSCDCCFormatStatusDigi> >" splitLevel="0"/>
+   <class name="edm::Wrapper<MuonDigiCollection<CSCDetId,CSCDMBStatusDigi> >" splitLevel="0"/>
+   <class name="edm::Wrapper<MuonDigiCollection<CSCDetId,CSCDCCStatusDigi> >" splitLevel="0"/>
+   <class name="edm::Wrapper<MuonDigiCollection<CSCDetId,CSCDDUStatusDigi> >" splitLevel="0"/>
+   <class name="edm::Wrapper<MuonDigiCollection<CSCDetId,CSCALCTStatusDigi> >" splitLevel="0"/>
 
 </lcgdict>

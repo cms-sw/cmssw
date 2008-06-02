@@ -1,7 +1,6 @@
 #ifndef DATAFORMATS_ECALDETID_ECALELECTRONICSID_H
 #define DATAFORMATS_ECALDETID_ECALELECTRONICSID_H 1
 
-#include <boost/cstdint.hpp>
 #include <ostream>
 
 #include "DataFormats/EcalDetId/interface/EcalSubdetector.h"
@@ -54,7 +53,7 @@ class EcalElectronicsId {
   
   static const int MAX_DCCID = 54; //To be updated with correct and final number
   static const int MIN_DCCID = 1;
-  static const int MAX_TOWERID = 68;
+  static const int MAX_TOWERID = 70;
   static const int MIN_TOWERID = 1;
   static const int MAX_STRIPID = 5;
   static const int MIN_STRIPID = 1;

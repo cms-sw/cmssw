@@ -5,7 +5,7 @@
   
 RefBase: Base class for a single interproduct reference.
 
-$Id: RefBase.h,v 1.8 2007/05/24 16:35:46 paterno Exp $
+$Id: RefBase.h,v 1.10 2007/10/18 10:38:24 chrjones Exp $
 
 ----------------------------------------------------------------------*/
 
@@ -24,8 +24,8 @@ namespace edm {
 
     /// General purpose constructor. 
     RefBase(ProductID const& productID, void const* prodPtr, key_type itemKey,
-            void const* itemPtr = 0, EDProductGetter const* prodGetter = 0):
-      product_(productID, prodPtr, prodGetter), item_(itemKey, itemPtr) {}
+            void const* itemPtr, EDProductGetter const* prodGetter, bool transient):
+      product_(productID, prodPtr, prodGetter, transient), item_(itemKey, itemPtr) {}
 
     /// Constructor from RefVector. 
     RefBase(RefCore const& prod, RefItem<KEY> const& itm) :
@@ -39,9 +39,6 @@ namespace edm {
 
     /// Accessor for index and pointer
     RefItem<KEY> const& item() const {return item_;}
-
-    typedef typename RefItem<KEY>::key_type key_type;
-
 
     // /// Return the index for the referenced element.
     // key_type key() const { return item_.key(); }

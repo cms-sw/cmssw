@@ -6,6 +6,8 @@
 #include <xercesc/dom/DOM.hpp>
 
 #include <TMatrixD.h>
+#include <TMatrixF.h>
+#include <TH2.h>
 
 #include "FWCore/Utilities/interface/Exception.h"
 
@@ -119,7 +121,7 @@ Calibration::VarProcessor *ProcMatrix::getCalibration() const
 
 	for(unsigned int i = 0; i < n; i++)
 		for(unsigned int j = 0; j < n; j++)
-			calib->matrix.elements.push_back(rotation(i, j));
+			calib->matrix.elements.push_back(rotation(j, i));
 
 	return calib;
 }
@@ -158,6 +160,34 @@ void ProcMatrix::trainEnd()
 	    default:
 		/* shut up */;
 	}
+
+	if (iteration == ITER_DONE && monitoring) {
+		TMatrixF matrix(ls->getCorrelations());
+		TH2F *histo = monitoring->book<TH2F>("CorrMatrix", matrix);
+		histo->SetNameTitle("CorrMatrix",
+			(fillSignal && fillBackground)
+			? "correlation matrix (signal + background)"
+			: (fillSignal ? "correlation matrix (signal)"
+			              : "correlation matrix (background)"));
+
+		std::vector<SourceVariable*> inputs = getInputs().get();
+		for(std::vector<SourceVariable*>::const_iterator iter =
+			inputs.begin(); iter != inputs.end(); ++iter) {
+
+			unsigned int idx = iter - inputs.begin();
+			SourceVariable *var = *iter;
+			std::string name =
+				(const char*)var->getSource()->getName()
+				+ std::string("_")
+				+ (const char*)var->getName();
+
+			histo->GetXaxis()->SetBinLabel(idx + 1, name.c_str());
+			histo->GetYaxis()->SetBinLabel(idx + 1, name.c_str());
+		}
+		histo->LabelsOption("d");
+		histo->SetMinimum(-1.0);
+		histo->SetMaximum(+1.0);
+	}
 }
 
 void *ProcMatrix::requestObject(const std::string &name) const
@@ -170,16 +200,12 @@ void *ProcMatrix::requestObject(const std::string &name) const
 
 bool ProcMatrix::load()
 {
-	std::auto_ptr<XMLDocument> xml;
-
-	try {
-		xml = std::auto_ptr<XMLDocument>(new XMLDocument(
-				trainer->trainFileName(this, "xml")));
-	} catch(...) {
+	std::string filename = trainer->trainFileName(this, "xml");
+	if (!exists(filename))
 		return false;
-	}
 
-	DOMElement *elem = xml->getRootNode();
+	XMLDocument xml(filename);
+	DOMElement *elem = xml.getRootNode();
 	if (std::strcmp(XMLSimpleStr(elem->getNodeName()), "ProcMatrix") != 0)
 		throw cms::Exception("ProcMatrix")
 			<< "XML training data file has bad root node."

@@ -11,6 +11,9 @@
 
 #include <xercesc/dom/DOM.hpp>
 
+// ROOT version magic to support TMVA interface changes in newer ROOT   
+#include <RVersion.h>
+
 #include <TDirectory.h>
 #include <TTree.h>
 #include <TFile.h>
@@ -69,12 +72,19 @@ class ProcTMVA : public TrainProcessor {
     private:
 	void runTMVATrainer();
 
+	struct Method {
+		TMVA::Types::EMVA	type;
+		std::string		name;
+		std::string		description;
+	};
+
 	std::string getTreeName() const
 	{ return trainer->getName() + '_' + (const char*)getName(); }
-	std::string getWeightsFile(const char *ext) const
+
+	std::string getWeightsFile(const Method &meth, const char *ext) const
 	{
 		return "weights/" + getTreeName() + '_' +
-		       methodName + ".weights." + ext;
+		       meth.name + ".weights." + ext;
 	}
 
 	enum Iteration {
@@ -82,18 +92,15 @@ class ProcTMVA : public TrainProcessor {
 		ITER_DONE
 	} iteration;
 
-	TMVA::Types::EMVA		methodType;
-	std::string			methodName;
-	std::string			methodDescription;
+	std::vector<Method>		methods;
 	std::vector<std::string>	names;
 	std::auto_ptr<TFile>		file;
-	TTree				*tree;
-	Bool_t				target;
+	TTree				*treeSig, *treeBkg;
 	Double_t			weight;
 	std::vector<Double_t>		vars;
 	bool				needCleanup;
-	unsigned int			nSignal;
-	unsigned int			nBackground;
+	unsigned long			nSignal;
+	unsigned long			nBackground;
 };
 
 static ProcTMVA::Registry registry("ProcTMVA");
@@ -101,7 +108,7 @@ static ProcTMVA::Registry registry("ProcTMVA");
 ProcTMVA::ProcTMVA(const char *name, const AtomicId *id,
                    MVATrainer *trainer) :
 	TrainProcessor(name, id, trainer),
-	iteration(ITER_EXPORT), tree(0), needCleanup(false)
+	iteration(ITER_EXPORT), treeSig(0), treeBkg(0), needCleanup(false)
 {
 }
 
@@ -133,46 +140,49 @@ void ProcTMVA::configure(DOMElement *elem)
 		names.push_back(name);
 	}
 
-	DOMNode *node = elem->getFirstChild();
-	while(node && node->getNodeType() != DOMNode::ELEMENT_NODE)
-		node = node->getNextSibling();
+	for(DOMNode *node = elem->getFirstChild();
+	    node; node = node->getNextSibling()) {
+		if (node->getNodeType() != DOMNode::ELEMENT_NODE)
+			continue;
 
-	if (!node)
-		throw cms::Exception("ProcTMVA")
-			<< "Expected TMVA method in config section."
-			<< std::endl;
-
-	if (std::strcmp(XMLSimpleStr(node->getNodeName()), "method") != 0)
-		throw cms::Exception("ProcTMVA")
+		if (std::strcmp(XMLSimpleStr(node->getNodeName()),
+		                "method") != 0)
+			throw cms::Exception("ProcTMVA")
 				<< "Expected method tag in config section."
 				<< std::endl;
 
-	elem = static_cast<DOMElement*>(node);
+		elem = static_cast<DOMElement*>(node);
 
-	methodType = TMVA::Types::Instance().GetMethodType(
-		XMLDocument::readAttribute<std::string>(elem,
+		Method method;
+		method.type = TMVA::Types::Instance().GetMethodType(
+			XMLDocument::readAttribute<std::string>(elem,
 		                                        "type").c_str());
 
-	methodName = XMLDocument::readAttribute<std::string>(elem, "name");
+		method.name =
+			XMLDocument::readAttribute<std::string>(elem, "name");
 
-	methodDescription = (const char*)XMLSimpleStr(node->getTextContent());
+		method.description =
+			(const char*)XMLSimpleStr(node->getTextContent());
 
-	node = node->getNextSibling();
-	while(node && node->getNodeType() != DOMNode::ELEMENT_NODE)
-		node = node->getNextSibling();
+		methods.push_back(method);
+	}
 
-	if (node)
+	if (!methods.size())
 		throw cms::Exception("ProcTMVA")
-			<< "Superfluous tags in config section."
+			<< "Expected TMVA method in config section."
 			<< std::endl;
 }
 
 bool ProcTMVA::load()
 {
-	bool ok = false;
-	/* test for weights file */ {
-		std::ifstream in(getWeightsFile("txt").c_str());
-		ok = in.good();
+	bool ok = true;
+	for(std::vector<Method>::const_iterator iter = methods.begin();
+	    iter != methods.end(); ++iter) {
+		std::ifstream in(getWeightsFile(*iter, "txt").c_str());
+		if (!in.good()) {
+			ok = false;
+			break;
+		}
 	}
 
 	if (!ok)
@@ -197,11 +207,11 @@ Calibration::VarProcessor *ProcTMVA::getCalibration() const
 {
 	Calibration::ProcTMVA *calib = new Calibration::ProcTMVA;
 
-	std::ifstream in(getWeightsFile("txt").c_str(),
+	std::ifstream in(getWeightsFile(methods[0], "txt").c_str(),
 	                 std::ios::binary | std::ios::in);
 	if (!in.good())
 		throw cms::Exception("ProcTMVA")
-			<< "Weights file " << getWeightsFile("txt")
+			<< "Weights file " << getWeightsFile(methods[0], "txt")
 			<< " cannot be opened for reading." << std::endl;
 
 	std::size_t size = getStreamSize(in);
@@ -226,7 +236,7 @@ Calibration::VarProcessor *ProcTMVA::getCalibration() const
 	delete[] buffer;
 	in.close();
 
-	calib->method = methodName;
+	calib->method = methods[0].name;
 	calib->variables = names;
 
 	return calib;
@@ -247,18 +257,24 @@ void ProcTMVA::trainBegin()
 				<< std::endl;
 
 		file->cd();
-		tree = new TTree(getTreeName().c_str(), "MVATrainer");
+		treeSig = new TTree((getTreeName() + "_sig").c_str(),
+		                    "MVATrainer signal");
+		treeBkg = new TTree((getTreeName() + "_bkg").c_str(),
+		                    "MVATrainer background");
 
-		tree->Branch("__TARGET__", &target, "__TARGET__/B");
-		tree->Branch("__WEIGHT__", &weight, "__WEIGHT__/D");
+		treeSig->Branch("__WEIGHT__", &weight, "__WEIGHT__/D");
+		treeBkg->Branch("__WEIGHT__", &weight, "__WEIGHT__/D");
 
 		vars.resize(names.size());
 
 		std::vector<Double_t>::iterator pos = vars.begin();
 		for(std::vector<std::string>::const_iterator iter =
-			names.begin(); iter != names.end(); iter++, pos++)
-			tree->Branch(iter->c_str(), &*pos,
-			             (*iter + "/D").c_str());
+			names.begin(); iter != names.end(); iter++, pos++) {
+			treeSig->Branch(iter->c_str(), &*pos,
+			                (*iter + "/D").c_str());
+			treeBkg->Branch(iter->c_str(), &*pos,
+			                (*iter + "/D").c_str());
+		}
 
 		nSignal = nBackground = 0;
 	}
@@ -270,17 +286,17 @@ void ProcTMVA::trainData(const std::vector<double> *values,
 	if (iteration != ITER_EXPORT)
 		return;
 
-	this->target = target;
 	this->weight = weight;
 	for(unsigned int i = 0; i < vars.size(); i++, values++)
 		vars[i] = values->front();
 
-	tree->Fill();
-
-	if (target)
+	if (target) {
+		treeSig->Fill();
 		nSignal++;
-	else
+	} else {
+		treeBkg->Fill();
 		nBackground++;
+	}
 }
 
 void ProcTMVA::runTMVATrainer()
@@ -292,9 +308,9 @@ void ProcTMVA::runTMVATrainer()
 			<< "Not going to run TMVA: "
 			   "No signal or background events!" << std::endl;
 
-	std::auto_ptr<TFile> file(std::auto_ptr<TFile>(TFile::Open(
+	std::auto_ptr<TFile> file(TFile::Open(
 		trainer->trainFileName(this, "root", "output").c_str(),
-		"RECREATE")));
+		"RECREATE"));
 	if (!file.get())
 		throw cms::Exception("ProcTMVA")
 			<< "Could not open TMVA ROOT file for writing."
@@ -303,10 +319,9 @@ void ProcTMVA::runTMVATrainer()
 	std::auto_ptr<TMVA::Factory> factory(
 		new TMVA::Factory(getTreeName().c_str(), file.get(), ""));
 
-	if (!factory->SetInputTrees(tree, TCut("__TARGET__"),
-	                                  TCut("!__TARGET__")))
+	if (!factory->SetInputTrees(treeSig, treeBkg))
 		throw cms::Exception("ProcTMVA")
-			<< "TMVA rejecte input trees." << std::endl;
+			<< "TMVA rejected input trees." << std::endl;
 
 	for(std::vector<std::string>::const_iterator iter = names.begin();
 	    iter != names.end(); iter++)
@@ -314,11 +329,22 @@ void ProcTMVA::runTMVATrainer()
 
 	factory->SetWeightExpression("__WEIGHT__");
 
+#if ROOT_VERSION_CODE >= ROOT_VERSION(5, 15, 0)
+	factory->PrepareTrainingAndTestTree("", nSignal, nBackground, 1, 1,
+	                                    "SplitMode=Block:!V");
+#else
 	factory->PrepareTrainingAndTestTree("", -1);
+#endif
 
-	factory->BookMethod(methodType, methodName, methodDescription);
+	for(std::vector<Method>::const_iterator iter = methods.begin();
+	    iter != methods.end(); ++iter)
+		factory->BookMethod(iter->type, iter->name, iter->description);
 
 	factory->TrainAllMethods();
+
+#if ROOT_VERSION_CODE >= ROOT_VERSION(5, 15, 0)
+	factory.release(); // ROOT seems to take care of destruction?!
+#endif
 
 	file->Close();
 }
@@ -327,10 +353,16 @@ void ProcTMVA::trainEnd()
 {
 	switch(iteration) {
 	    case ITER_EXPORT:
+#if ROOT_VERSION_CODE >= ROOT_VERSION(5, 15, 0)
+		// work around TMVA issue: fill 1 dummy sig and bkg test event
+		treeSig->Fill();
+		treeBkg->Fill();
+#endif
 		/* ROOT context-safe */ {
 			ROOTContextSentinel ctx;
 			file->cd();
-			tree->Write();
+			treeSig->Write();
+			treeBkg->Write();
 
 			file->Close();
 			file.reset();
@@ -341,13 +373,16 @@ void ProcTMVA::trainEnd()
 				throw cms::Exception("ProcTMVA")
 					<< "Could not open ROOT file for "
 					   "reading." << std::endl;
-			tree = dynamic_cast<TTree*>(
-					file->Get(getTreeName().c_str()));
+			treeSig = dynamic_cast<TTree*>(
+				file->Get((getTreeName() + "_sig").c_str()));
+			treeBkg = dynamic_cast<TTree*>(
+				file->Get((getTreeName() + "_bkg").c_str()));
 
 			runTMVATrainer();
 
 			file->Close();
-			tree = 0;
+			treeSig = 0;
+			treeBkg = 0;
 			file.reset();
 		}
 		vars.clear();
@@ -367,8 +402,11 @@ void ProcTMVA::cleanup()
 
 	std::remove(trainer->trainFileName(this, "root", "input").c_str());
 	std::remove(trainer->trainFileName(this, "root", "output").c_str());
-	std::remove(getWeightsFile("txt").c_str());
-	std::remove(getWeightsFile("root").c_str());
+	for(std::vector<Method>::const_iterator iter = methods.begin();
+	    iter != methods.end(); ++iter) {
+		std::remove(getWeightsFile(*iter, "txt").c_str());
+		std::remove(getWeightsFile(*iter, "root").c_str());
+	}
 	rmdir("weights");
 }
 

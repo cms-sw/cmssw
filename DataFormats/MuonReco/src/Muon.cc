@@ -1,5 +1,6 @@
 #include "DataFormats/MuonReco/interface/Muon.h"
 #include "DataFormats/MuonDetId/interface/MuonSubdetId.h"
+#include "DataFormats/MuonReco/interface/MuonSelectors.h"
 using namespace reco;
 
 Muon::Muon(  Charge q, const LorentzVector & p4, const Point & vtx ) :
@@ -650,4 +651,9 @@ void Muon::setIsolation( const MuonIsolation& isoR03, const MuonIsolation& isoR0
    isolationR03_ = isoR03;
    isolationR05_ = isoR05;
    isolationValid_ = true; 
+}
+
+bool Muon::isGood( SelectionType type ) const
+{
+   return muon::isGoodMuon( *this, type );
 }

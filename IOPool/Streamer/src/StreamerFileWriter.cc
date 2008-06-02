@@ -1,13 +1,14 @@
-// $Id: StreamerFileWriter.cc,v 1.14 2007/02/01 07:56:54 klute Exp $
+// $Id: StreamerFileWriter.cc,v 1.15 2007/06/29 16:41:23 wmtan Exp $
 
 #include "IOPool/Streamer/src/StreamerFileWriter.h"
 
 namespace edm
 {
 StreamerFileWriter::StreamerFileWriter(edm::ParameterSet const& ps):
-  stream_writer_(new StreamerOutputFile(ps.getParameter<std::string>("fileName"))),
+  stream_writer_(new StreamerOutputFile(
+                    ps.getUntrackedParameter<std::string>("fileName","teststreamfile.dat"))),
   index_writer_(new StreamerOutputIndexFile(
-                    ps.getParameter<std::string>("indexFileName"))),
+                    ps.getUntrackedParameter<std::string>("indexFileName","testindexfile.ind"))),
   hltCount_(0),
   index_eof_size_(0),
   stream_eof_size_(0)

@@ -1,8 +1,8 @@
 /*
  * \file SiStripAnalyser.cc
  * 
- * $Date: 2007/07/12 21:13:30 $
- * $Revision: 1.2 $
+ * $Date: 2007/08/13 19:27:23 $
+ * $Revision: 1.6 $
  * \author  S. Dutta INFN-Pisa
  *
  */
@@ -29,9 +29,9 @@
 
 #include "CondFormats/DataRecord/interface/SiStripFedCablingRcd.h"
 #include "CondFormats/SiStripObjects/interface/SiStripFedCabling.h"
-#include "CommonTools/TrackerMap/interface/FedTrackerMap.h"
 
 #include "DQM/SiStripMonitorClient/interface/SiStripWebInterface.h"
+#include "DQM/SiStripMonitorClient/interface/TrackerMapCreator.h"
 #include "DQM/SiStripMonitorClient/interface/SiStripUtility.h"
 
 #include <SealBase/Callback.h>
@@ -72,8 +72,7 @@ SiStripAnalyser::SiStripAnalyser(const edm::ParameterSet& ps) :
 
   // instantiate web interface
   sistripWebInterface_ = new SiStripWebInterface("dummy", "dummy", &mui_);
-  //  xgi::bind(this, &SiStripAnalyser::handleWebRequest, "Request");
-  
+  defaultPageCreated_ = false;
 }
 //
 // -- Destructor
@@ -82,7 +81,7 @@ SiStripAnalyser::~SiStripAnalyser(){
 
   edm::LogInfo("SiStripAnalyser") <<  " Deleting SiStripAnalyser " << "\n" ;
   if (sistripWebInterface_) delete sistripWebInterface_;
-  if (fedTrackerMap_) delete fedTrackerMap_;
+  if (trackerMapCreator_) delete trackerMapCreator_;
 
 }
 //
@@ -100,17 +99,20 @@ void SiStripAnalyser::beginJob(const edm::EventSetup& eSetup){
 
   nevents = 0;
   runNumber_ = 0;
-  sistripWebInterface_->readConfiguration(tkMapFrequency_, summaryFrequency_);
+  sistripWebInterface_->readConfiguration(summaryFrequency_);
   edm::LogInfo("SiStripAnalyser") << " Configuration files read out correctly" 
                                   << "\n" ;
-  cout  << " Update Fruquencies are " << tkMapFrequency_ << " " 
+  cout  << " Update Frequencies are " << tkMapFrequency_ << " " 
                                       << summaryFrequency_ << endl ;
 
   collationFlag_ = parameters.getUntrackedParameter<int>("CollationtionFlag",0); 
 
   // Get Fed cabling
   eSetup.get<SiStripFedCablingRcd>().get(fedCabling_);
-  fedTrackerMap_ = new FedTrackerMap(fedCabling_);
+  trackerMapCreator_ = new TrackerMapCreator();
+  if (trackerMapCreator_->readConfiguration()) {
+    tkMapFrequency_ = trackerMapCreator_->getFrequency();
+  }
 }
 //
 //  -- Analyze 
@@ -118,10 +120,9 @@ void SiStripAnalyser::beginJob(const edm::EventSetup& eSetup){
 void SiStripAnalyser::analyze(const edm::Event& e, const edm::EventSetup& eSetup){
   nevents++;
   runNumber_ = e.id().run();
-
   eSetup.get<SiStripFedCablingRcd>().get(fedCabling_);
  
-  if (nevents <= 5) return;
+  if (nevents <= 3) return;
 
   cout << " ===> Iteration #" << nevents << endl;
   // -- Create summary monitor elements according to the frequency
@@ -133,9 +134,8 @@ void SiStripAnalyser::analyze(const edm::Event& e, const edm::EventSetup& eSetup
   // -- Create TrackerMap  according to the frequency
   if (tkMapFrequency_ != -1 && nevents%tkMapFrequency_ == 1) {
     cout << " Creating Tracker Map " << endl;
-    sistripWebInterface_->setActionFlag(SiStripWebInterface::CreateTkMap);
-    sistripWebInterface_->performAction();
-    createFedTrackerMap();
+    //    trackerMapCreator_->create(dbe);
+    trackerMapCreator_->create(fedCabling_, dbe);
   }
   // Create predefined plots
   if (nevents%10  == 1) {
@@ -164,34 +164,8 @@ void SiStripAnalyser::saveAll() {
 //
 void SiStripAnalyser::defaultWebPage(xgi::Input *in, xgi::Output *out)
 {
-      std::string path;
-      std::string mname;
-      try 
-	{
-           cgicc::Cgicc cgi(in);
-	  //	  if ( xgi::Utils::hasFormElement(cgi,"mybut") )
-	  cgicc::CgiEnvironment cgie(in);
-	  path = cgie.getPathInfo() + "?" + cgie.getQueryString();
-	}
-      catch (const std::exception & e) 
-    {
-      // don't care if it did not work
-    }
-
-      /*
-  *out << "<html>"                                                   << endl;
-  *out << "<head>"                                                   << endl;
-
-  *out << "<title>" << typeid(SiStripAnalyser).name()
-       << " MAIN</title>"                                             << endl;
-  *out << "<script type=\"text/javascript\" language=\"JavaScript\">" << endl;
-  *out << "alert(window.location.href);"                              << endl;
-  *out << "window.location=\"http://lxplus208.cern.ch:40001/temporary/Online.html\";"                << endl; 
-  *out << "</script>"                                                 << endl;
-  *out << "</head>"                                                  << endl;
-  *out << "</html>"                                                  << endl;
-  */
-
+      
+  if (!defaultPageCreated_) {
     static const int BUF_SIZE = 256;
     ifstream fin("loader.html", ios::in);
     if (!fin) {
@@ -201,74 +175,15 @@ void SiStripAnalyser::defaultWebPage(xgi::Input *in, xgi::Output *out)
     char buf[BUF_SIZE];
     ostringstream html_dump;
     while (fin.getline(buf, BUF_SIZE, '\n')) { // pops off the newline character 
-     html_dump << buf << std::endl;
+      html_dump << buf << std::endl;
     }
     fin.close();
-
-    *out << html_dump.str() << std::endl;
-
-   
-      /*  using std::endl;
-  *out << "<html>"                                                   << endl;
-  *out << "<head>"                                                   << endl;
-
-  *out << "<title>" << typeid(SiStripAnalyser).name()
-       << " MAIN</title>"                                            << endl;
-  *out << "</head>"                                                  << endl;
-  *out << "<body>"                                                   << endl;
-  *out << "SiStripClient" << " Default web page "                    << endl;
-  *out << "</body>"                                                  << endl;
-  *out << "</html>"                                                  << endl;
-
-  *out << cgicc::form().set("method","GET").set("action", "javascript:void%200") 
-       << std::endl;
-  *out << cgicc::input().set("type","submit").set("value","test").set("onclick", "javascript:alert('hello');return false;")
-       << std::endl;
-  *out << cgicc::form()						   
-       << std::endl;  
-  *out << "<p>Run: " << runNumber_ << " Total updates: " << nevents << std::endl;
-
-  *out << "<\br> "<< std::endl;
-  *out << cgicc::a().set("href", "temporary/Online.html") << "MyPage" << cgicc::a() << std::endl;
-
-
-  *out << "</body>"
-       << std::endl;
-  *out << "</html>" 
-  << std::endl;*/
-
-}
-//
-// Handles all HTTP requests of the form ..../Request?RequestID=
-//
-//void SiStripAnalyser::handleWebRequest(xgi::Input *in, xgi::Output *out) {
-//  sistripWebInterface_->handleCustomRequest(in, out);
-//}
-//
-// -- create FED Tracker Map
-//
-void SiStripAnalyser::createFedTrackerMap() {
     
-  const vector<uint16_t>& feds = fedCabling_->feds(); 
-  for(vector<unsigned short>::const_iterator ifed = feds.begin(); 
-                      ifed < feds.end(); ifed++){
-    const std::vector<FedChannelConnection> fedChannels = fedCabling_->connections( *ifed );
-    for(std::vector<FedChannelConnection>::const_iterator iconn = fedChannels.begin(); iconn < fedChannels.end(); iconn++){
-      
-      uint32_t detId = iconn->detId();
-      vector<MonitorElement*> all_mes = dbe->get(detId);
-      for (vector<MonitorElement *>::const_iterator it = all_mes.begin();
-	   it!= all_mes.end(); it++) {
-	if (!(*it)) continue;
-	string me_name = (*it)->getName();        
-        if (me_name.find("NumberOfDigis") != string::npos) {
-	  int istat =  SiStripUtility::getStatus(*it);   
-	  int rval, gval, bval;
-	  SiStripUtility::getStatusColor(istat, rval, gval, bval);
-	  fedTrackerMap_->fillc(iconn->fedId(), iconn->fedCh(), rval, gval, bval);
-        }
-      }      
-    }
+    *out << html_dump.str() << std::endl;
+    defaultPageCreated_ = true;
   }
-  fedTrackerMap_->print();
+  
+  // Handles all HTTP requests of the form
+  sistripWebInterface_->handleAnalyserRequest(in, out,nevents);
+
 }

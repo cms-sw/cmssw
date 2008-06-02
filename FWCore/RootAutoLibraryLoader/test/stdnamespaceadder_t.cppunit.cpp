@@ -3,7 +3,7 @@
 Test program for edm::TypeIDBase class.
 Changed by Viji on 29-06-2005
 
-$Id: stdnamespaceadder_t.cppunit.cpp,v 1.2 2006/05/30 21:48:43 chrjones Exp $
+$Id: stdnamespaceadder_t.cppunit.cpp,v 1.1 2006/12/16 13:31:42 wmtan Exp $
  ----------------------------------------------------------------------*/
 
 #include <cassert>
@@ -29,22 +29,18 @@ public:
 ///registration of the test so that the runner can find it
 CPPUNIT_TEST_SUITE_REGISTRATION(testSTDNamespaceAdder);
 
-using std::cout;
-using std::endl;
-
 void testSTDNamespaceAdder::tests()
 {
-   using std::string;
   using namespace edm::root;
 
-   static const string kVectorBlahNoNS("vector<Blah>");
-   static const string kVectorBlahNS("std::vector<Blah>");
-   static const string kTVectorBlah("Tvector<Blah>");
-   static const string kVectorVectorBlahNoNS("vector<vector<Blah> >");
-   static const string kVectorVectorBlahNS("std::vector<std::vector<Blah> >");
+   static const std::string kVectorBlahNoNS("vector<Blah>");
+   static const std::string kVectorBlahNS("std::vector<Blah>");
+   static const std::string kTVectorBlah("Tvector<Blah>");
+   static const std::string kVectorVectorBlahNoNS("vector<vector<Blah> >");
+   static const std::string kVectorVectorBlahNS("std::vector<std::vector<Blah> >");
 
    //cout <<" substitution \""<<kVectorVectorBlahNoNS<<"\" \""
-   //     <<stdNamespaceAdder(kVectorVectorBlahNoNS)<<"\""<<endl;
+   //     <<stdNamespaceAdder(kVectorVectorBlahNoNS)<<"\""<< std::endl;
 
    CPPUNIT_ASSERT(stdNamespaceAdder(kVectorBlahNoNS) == kVectorBlahNS);
    CPPUNIT_ASSERT(stdNamespaceAdder(kVectorBlahNS) == kVectorBlahNS);

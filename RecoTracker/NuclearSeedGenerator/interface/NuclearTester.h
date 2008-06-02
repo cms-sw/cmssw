@@ -11,7 +11,7 @@
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "FWCore/Framework/interface/EventSetup.h"
 #include "Geometry/TrackerGeometryBuilder/interface/TrackerGeometry.h"
-#include "TrackingTools/PatternTools/interface/MeasurementEstimator.h"
+#include "FWCore/Framework/interface/ESHandle.h"
 
 class NuclearTester {
 private:
@@ -23,7 +23,7 @@ private:
   typedef std::vector< TMPair >  TMPairVector;
 
 public :
-  NuclearTester(unsigned int max_hits, const MeasurementEstimator* est, const TrackerGeometry* track_geom); 
+  NuclearTester(const edm::EventSetup& es, const edm::ParameterSet& iConfig);
 
   bool isNuclearInteraction();
 
@@ -31,7 +31,7 @@ public :
 
   std::vector<GlobalPoint> HitPositions(const std::vector<TrajectoryMeasurement>& vecTM) const;
 
-  double fwdEstimate(const std::vector<TrajectoryMeasurement>& vecTM) const;
+  double meanEstimate(const std::vector<TrajectoryMeasurement>& vecTM) const;
 
   std::vector<TM>::const_iterator lastValidTM(const std::vector<TM>& vecTM) const;
 
@@ -44,7 +44,7 @@ public :
 
   double meanHitDistance() const { return meanHitDistance( back() ); }
 
-  double fwdEstimate() const { return fwdEstimate( back() ); }
+  double meanEstimate() const { return meanEstimate( back() ); }
 
   void reset(unsigned int nMeasurements) { 
                allTM.clear(); 
@@ -62,16 +62,11 @@ public :
   
 private :
 
-  // data members
+  edm::ESHandle<TrackerGeometry>  trackerGeom;
   TMPairVector allTM;
   std::vector< int > compatible_hits;
   int NuclearIndex;
-
-  // input parameters
   unsigned int maxHits;
-  const MeasurementEstimator*     theEstimator;
-  const TrackerGeometry*          trackerGeom;
-
   bool checkWithMultiplicity();
 };
 #endif

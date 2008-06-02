@@ -10,12 +10,17 @@
 #include "DataFormats/Common/interface/AssociationMap.h"
 #include "DataFormats/Common/interface/OneToOne.h"
 #include "FWCore/Utilities/interface/EDMException.h"
+#include "PhysicsTools/CandUtils/interface/CandMapTrait.h"
 
-template<typename C>
+template<typename C1, typename C2 = C1>
 class CandMatcherBase {
 public:
   /// map type
-  typedef edm::AssociationMap<edm::OneToOne<C, reco::CandidateCollection> > map_type;
+  typedef typename reco::helper::CandMapTrait<C1, C2>::type map_type;
+  /// ref type
+  typedef typename reco::helper::CandRefTrait<C2>::ref_type ref_type;
+  /// refProd type
+  typedef typename reco::helper::CandRefTrait<C2>::refProd_type refProd_type;
   /// map vector
   typedef std::vector<const map_type *> map_vector;
   /// concrete candidate reference type
@@ -29,7 +34,7 @@ public:
  /// destructor
   virtual ~CandMatcherBase();
   /// get match from transient reference
-  reco::CandidateRef operator()( const reco::Candidate & ) const;
+  ref_type operator()( const reco::Candidate & ) const;
 
 protected:
   /// get ultimate daughter (can skip status = 3 in MC)
@@ -45,11 +50,11 @@ private:
   /// pointers to stored maps
   std::vector<const map_type *> maps_;
   /// reference to matched collectino
-  reco::CandidateRefProd matched_;
+  refProd_type matched_;
   /// pointer map type
   typedef std::map<const reco::Candidate *, reference_type> CandRefMap;
   /// pointer map type
-  typedef std::map<const reco::Candidate *, reco::CandidateRef> MatchedRefMap;
+  typedef std::map<const reco::Candidate *, ref_type> MatchedRefMap;
   /// pointer map of candidates (e.g.: reco)
   CandRefMap candRefs_;
   /// pointer map of matched candidates (e.g.: MC truth)
@@ -60,13 +65,13 @@ private:
   void init();
 };
 
-template<typename C>
-class CandMatcher : public CandMatcherBase<C> {
+template<typename C1, typename C2 = C1>
+class CandMatcher : public CandMatcherBase<C1, C2> {
 public:
   /// constructor
-  explicit CandMatcher( const typename CandMatcherBase<C>::map_vector & maps );
+  explicit CandMatcher( const typename CandMatcherBase<C1, C2>::map_vector & maps );
   /// constructor
-  explicit CandMatcher( const typename CandMatcherBase<C>::map_type & map );
+  explicit CandMatcher( const typename CandMatcherBase<C1, C2>::map_type & map );
   /// destructor
   virtual ~CandMatcher();
 
@@ -80,8 +85,8 @@ protected:
 #include <algorithm>
 #include <iterator>
 
-template<typename C>
-void CandMatcherBase<C>::init() {
+template<typename C1, typename C2>
+void CandMatcherBase<C1, C2>::init() {
   matched_ = maps_.front()->refProd().val;
   for( typename map_vector::const_iterator m = maps_.begin() + 1; 
        m != maps_.end(); ++ m ) {
@@ -93,32 +98,32 @@ void CandMatcherBase<C>::init() {
   }
 }
 
-template<typename C>
-CandMatcherBase<C>::CandMatcherBase( const typename CandMatcherBase<C>::map_vector & maps ):
+template<typename C1, typename C2>
+CandMatcherBase<C1, C2>::CandMatcherBase( const typename CandMatcherBase<C1, C2>::map_vector & maps ):
   maps_( maps ) {
   init();
 }
 
-template<typename C>
-CandMatcherBase<C>::CandMatcherBase( const typename CandMatcherBase<C>::map_type & map ):
+template<typename C1, typename C2>
+CandMatcherBase<C1, C2>::CandMatcherBase( const typename CandMatcherBase<C1, C2>::map_type & map ):
   maps_( 1, & map ) {
   init();
 }
 
-template<typename C>
-void CandMatcherBase<C>::initMaps() {
+template<typename C1, typename C2>
+void CandMatcherBase<C1, C2>::initMaps() {
   using namespace reco;
   using namespace std;
   for( typename map_vector::const_iterator m = maps_.begin(); 
        m != maps_.end(); ++ m ) {
-    edm::RefProd<C> cands = (*m)->refProd().key;
+    typename CandMatcherBase<C1, C2>::map_type::ref_type::key_type cands = (*m)->refProd().key;
     for( size_t i = 0; i < cands->size(); ++ i ) {
       candRefs_[ & (*cands)[ i ] ] = reference_type( cands, i );
     } 
-    const CandidateCollection & matched = * matched_;
+    const C2 & matched = * matched_;
     size_t matchedSize = matched.size();
     for( size_t i = 0; i < matchedSize; ++ i )
-      matchedRefs_[ & matched[ i ] ] = CandidateRef( matched_, i );
+      matchedRefs_[ & matched[ i ] ] = ref_type( matched_, i );
     matchedMothers_.resize( matchedSize );
     for( size_t i = 0; i < matchedSize; ++ i ) {
       const Candidate & c = matched[ i ];
@@ -137,27 +142,27 @@ void CandMatcherBase<C>::initMaps() {
   }
 }
 
-template<typename C>
-CandMatcherBase<C>::~CandMatcherBase() {
+template<typename C1, typename C2>
+CandMatcherBase<C1, C2>::~CandMatcherBase() {
 }
 
-template<typename C>
-reco::CandidateRef CandMatcherBase<C>::operator()( const reco::Candidate & c ) const {
+template<typename C1, typename C2>
+typename CandMatcherBase<C1, C2>::ref_type CandMatcherBase<C1, C2>::operator()( const reco::Candidate & c ) const {
   using namespace reco;
   using namespace std;
   if ( c.hasMasterClone() )
     return (*this)( * c.masterClone() );
   unsigned int nDau = c.numberOfDaughters();
-  const CandidateCollection & matched = * matched_;
+  const C2 & matched = * matched_;
   if ( nDau > 0 ) {
     // check for composite candidate c
     // navigate to daughters and find parent matches
     set<size_t> momsIntersection, momDaughters, tmp;
     for( Candidate::const_iterator d = c.begin(); d != c.end(); ++ d ) {
       // check here generically if status == 3, then descend down to one more level
-      CandidateRef m = (*this)( * d );
+      ref_type m = (*this)( * d );
       // if a daughter does not match, return a null ref.
-      if ( m.isNull() ) return CandidateRef();
+      if ( m.isNull() ) return ref_type();
       // get matched mother indices (fetched previously)
       const set<size_t> & allMomDaughters = matchedMothers_[ m.key() ];
       momDaughters.clear();
@@ -168,7 +173,7 @@ reco::CandidateRef CandMatcherBase<C>::operator()( const reco::Candidate & c ) c
 	  momDaughters.insert( m );
       }
       // if no mother was found return null reference
-      if ( momDaughters.size() == 0 ) return CandidateRef();
+      if ( momDaughters.size() == 0 ) return ref_type();
       // the first time, momsIntersection is set to momDaughters
       if ( momsIntersection.size() == 0 ) momsIntersection = momDaughters;
       else {
@@ -178,12 +183,12 @@ reco::CandidateRef CandMatcherBase<C>::operator()( const reco::Candidate & c ) c
 			 inserter( tmp, tmp.begin() ) );
 	swap( momsIntersection, tmp );
       }
-      if ( momsIntersection.size() == 0 ) return CandidateRef();
+      if ( momsIntersection.size() == 0 ) return ref_type();
     }
     // if multiple mothers are found, return a null reference
-    if ( momsIntersection.size() > 1 ) return CandidateRef();
+    if ( momsIntersection.size() > 1 ) return ref_type();
     // return a reference to the unique mother
-    return CandidateRef( matched_, * momsIntersection.begin() );
+    return ref_type( matched_, * momsIntersection.begin() );
   } else {
     // check for non-composite (leaf) candidate 
     // if one of the maps contains the candidate c
@@ -198,35 +203,35 @@ reco::CandidateRef CandMatcherBase<C>::operator()( const reco::Candidate & c ) c
 	}
       }
     }
-    return CandidateRef();
+    return ref_type();
   }
 }
 
-template<typename C>
-CandMatcher<C>::CandMatcher( const typename CandMatcherBase<C>::map_vector & maps ) :
-  CandMatcherBase<C>( maps ) {
-  CandMatcherBase<C>::initMaps();
+template<typename C1, typename C2>
+CandMatcher<C1, C2>::CandMatcher( const typename CandMatcherBase<C1, C2>::map_vector & maps ) :
+  CandMatcherBase<C1, C2>( maps ) {
+  CandMatcherBase<C1, C2>::initMaps();
 }
 
-template<typename C>
-CandMatcher<C>::CandMatcher( const typename CandMatcherBase<C>::map_type & map ) :
-  CandMatcherBase<C>( map ) {
-  CandMatcherBase<C>::initMaps();
+template<typename C1, typename C2>
+CandMatcher<C1, C2>::CandMatcher( const typename CandMatcherBase<C1, C2>::map_type & map ) :
+  CandMatcherBase<C1, C2>( map ) {
+  CandMatcherBase<C1, C2>::initMaps();
 }
 
-template<typename C>
-CandMatcher<C>::~CandMatcher() {
+template<typename C1, typename C2>
+CandMatcher<C1, C2>::~CandMatcher() {
 }
 
-template<typename C>
-std::vector<const reco::Candidate *> CandMatcher<C>::getDaughters( const reco::Candidate * c ) const {
+template<typename C1, typename C2>
+std::vector<const reco::Candidate *> CandMatcher<C1, C2>::getDaughters( const reco::Candidate * c ) const {
   std::vector<const reco::Candidate *> v;
   v.push_back( c );
   return v;
 }
 
-template<typename C>
-bool CandMatcher<C>::compositePreselect( const reco::Candidate & c, const reco::Candidate & m ) const {
+template<typename C1, typename C2>
+bool CandMatcher<C1, C2>::compositePreselect( const reco::Candidate & c, const reco::Candidate & m ) const {
   // By default, check that the number of daughters is identical
   return( c.numberOfDaughters() == m.numberOfDaughters() );
 }

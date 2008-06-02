@@ -8,12 +8,13 @@
  * 
  * \author Javier Fernandez, IFCA
  *
- * \version $Revision: 1.3 $
+ * \version $Revision: 1.6 $
  *
- * $Id: MuonSelector.h,v 1.3 2007/05/21 17:56:07 jfernan2 Exp $
+ * $Id: MuonSelector.h,v 1.6 2007/09/20 18:48:28 llista Exp $
  *
  */
 #include "DataFormats/MuonReco/interface/Muon.h"
+#include "DataFormats/MuonReco/interface/MuonFwd.h"
 #include "DataFormats/TrackReco/interface/Track.h"
 #include "DataFormats/TrackReco/interface/TrackExtra.h"
 #include "DataFormats/TrackingRecHit/interface/TrackingRecHit.h"
@@ -22,7 +23,7 @@
 namespace helper {
   struct MuonCollectionStoreManager {
     typedef reco::MuonCollection collection;
-    MuonCollectionStoreManager() :
+    MuonCollectionStoreManager(const edm::Handle<reco::MuonCollection>&) :
       selMuons_( new reco::MuonCollection ),
       selTracks_( new reco::TrackCollection ),
       selTracksExtras_( new reco::TrackExtraCollection ),
@@ -67,9 +68,10 @@ namespace helper {
 	Track & trk= selTracks_->back();
 
 	selTracksExtras_->push_back( TrackExtra( trk.outerPosition(), trk.outerMomentum(), trk.outerOk(),
-						trk.innerPosition(), trk.innerMomentum(), trk.innerOk(),
-						trk.outerStateCovariance(), trk.outerDetId(),
-						trk.innerStateCovariance(), trk.innerDetId() ) );
+						 trk.innerPosition(), trk.innerMomentum(), trk.innerOk(),
+						 trk.outerStateCovariance(), trk.outerDetId(),
+						 trk.innerStateCovariance(), trk.innerDetId(),
+						 trk.seedDirection() ) );
 
 	TrackExtra & tx = selTracksExtras_->back();
 
@@ -92,7 +94,7 @@ namespace helper {
 	selGlobalMuonTracksExtras_->push_back( TrackExtra( trk.outerPosition(), trk.outerMomentum(), trk.outerOk(),
 						trk.innerPosition(), trk.innerMomentum(), trk.innerOk(),
 						trk.outerStateCovariance(), trk.outerDetId(),
-						trk.innerStateCovariance(), trk.innerDetId() ) );
+						trk.innerStateCovariance(), trk.innerDetId(), trk.seedDirection() ) );
 	TrackExtra & tx = selGlobalMuonTracksExtras_->back();
 	for( trackingRecHit_iterator hit = trk.recHitsBegin(); hit != trk.recHitsEnd(); ++ hit ) {
 	  selGlobalMuonTracksHits_->push_back( (*hit)->clone() );
@@ -112,7 +114,7 @@ namespace helper {
 	selStandAloneTracksExtras_->push_back( TrackExtra( trk.outerPosition(), trk.outerMomentum(), trk.outerOk(),
 						trk.innerPosition(), trk.innerMomentum(), trk.innerOk(),
 						trk.outerStateCovariance(), trk.outerDetId(),
-						trk.innerStateCovariance(), trk.innerDetId() ) );
+						trk.innerStateCovariance(), trk.innerDetId(), trk.seedDirection() ) );
 	TrackExtra & tx = selStandAloneTracksExtras_->back();
 	for( trackingRecHit_iterator hit = trk.recHitsBegin(); hit != trk.recHitsEnd(); ++ hit ) {
 	  selStandAloneTracksHits_->push_back( (*hit)->clone() );

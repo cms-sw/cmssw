@@ -16,7 +16,7 @@
 //
 // Original Author:  Lorenzo AGOSTINO
 //         Created:  Mon Jul 17 18:07:01 CEST 2006
-// $Id: CaloMiscalibTools.h,v 1.1 2006/09/11 12:50:53 malgeri Exp $
+// $Id: CaloMiscalibTools.h,v 1.2 2006/11/21 13:13:01 malgeri Exp $
 //
 // Modified       : Luca Malgeri 
 // Date:          : 11/09/2006 
@@ -63,6 +63,9 @@ class CaloMiscalibTools : public edm::ESProducer, public edm::EventSetupRecordIn
     CaloMiscalibMapEcal map_;
     std::string barrelfile_; 
     std::string endcapfile_; 
+    std::string barrelfileinpath_; 
+    std::string endcapfileinpath_; 
+
 };
 
 #endif

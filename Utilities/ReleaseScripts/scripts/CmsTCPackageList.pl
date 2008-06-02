@@ -92,7 +92,7 @@ $options="--no-check-certificate" if ( $wgetVersion>1009);
 my $user="cmstcreader";
 my $pass="CmsTC";
 
-open(CMSTCQUERY,"wget ${options}  -nv -o /dev/null -O- 'http://${user}:${pass}\@cmsdoc.cern.ch/swdev/CmsTC/cgi-bin/CreateTagList?release=${rel}' |");
+open(CMSTCQUERY,"wget ${options}  -nv -o /dev/null -O- 'https://${user}:${pass}\@cmstags.cern.ch/cgi-bin/CmsTC/CreateTagList?release=${rel}' |");
 
 my %tags;
 while ( <CMSTCQUERY> ) {

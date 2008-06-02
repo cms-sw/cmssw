@@ -2,13 +2,17 @@
 #define DQM_HCALMONITORTASKS_HCALPEDESTALMONITOR_H
 
 #include "DQM/HcalMonitorTasks/interface/HcalBaseMonitor.h"
-#include "CondFormats/HcalObjects/interface/HcalPedestal.h"
-#include "CondFormats/HcalObjects/interface/HcalPedestalWidth.h"
+#include "DataFormats/HcalDigi/interface/HcalDigiCollections.h"
+#include "CalibFormats/HcalObjects/interface/HcalCoderDb.h"
+#include "CalibFormats/HcalObjects/interface/HcalCalibrations.h"
+#include "CalibFormats/HcalObjects/interface/HcalDbService.h"
+#include "CalibFormats/HcalObjects/interface/HcalDbRecord.h"
+#include "CondFormats/HcalObjects/interface/HcalQIECoder.h"
 
 /** \class HcalPedestalMonitor
   *  
-  * $Date: 2007/04/14 20:20:25 $
-  * $Revision: 1.9 $
+  * $Date: 2006/08/24 23:44:59 $
+  * $Revision: 1.5 $
   * \author W. Fisher - FNAL
   */
 class HcalPedestalMonitor: public HcalBaseMonitor {
@@ -25,7 +29,7 @@ public:
   void clearME();
 
 private: 
-  void perChanHists(int id, const HcalDetId detid, const HcalQIESample& qie, map<HcalDetId, map<int, MonitorElement*> > &toolP, map<HcalDetId, map<int, MonitorElement*> > &toolS);
+  void perChanHists(int id, const HcalDetId detid, const HcalQIESample& qie, map<HcalDetId, map<int, MonitorElement*> > &tool);
 
   bool m_doPerChannel;
   map<HcalDetId, map<int,MonitorElement*> >::iterator _meo;
@@ -33,7 +37,6 @@ private:
   string m_outputFile;
   const HcalQIEShape* m_shape;
   const HcalQIECoder* m_coder;
-  HcalCalibrations calibs_;
 
   MonitorElement* meEVT_;
   int ievt_;
@@ -42,39 +45,11 @@ private:
   int etaBins_, phiBins_;
   map<HcalDetId,bool> REG;
 
-  MonitorElement* MEAN_MAP_L1;
-  MonitorElement*  RMS_MAP_L1;
-
-  MonitorElement* MEAN_MAP_L2;
-  MonitorElement*  RMS_MAP_L2;
-
-  MonitorElement* MEAN_MAP_L3;
-  MonitorElement*  RMS_MAP_L3;
-
-  MonitorElement* MEAN_MAP_L4;
-  MonitorElement*  RMS_MAP_L4;
-
-  MonitorElement* MEAN_MAP_CR;
-  MonitorElement*  RMS_MAP_CR;
-
-  MonitorElement* MEAN_MAP_FIB;
-  MonitorElement*  RMS_MAP_FIB;
-
-  MonitorElement* MEAN_MAP_SP;
-  MonitorElement*  RMS_MAP_SP;
-
-  MonitorElement* PEDESTAL_REFS;
-  MonitorElement* WIDTH_REFS;
-
   struct{
     map<HcalDetId,map<int, MonitorElement*> > PEDVALS;
-    map<HcalDetId,map<int, MonitorElement*> > SUBVALS;
     MonitorElement* ALLPEDS;
     MonitorElement* PEDRMS;
     MonitorElement* PEDMEAN;    
-
-    MonitorElement* SUBMEAN;    
-    MonitorElement* NSIGMA;    
 
     MonitorElement* CAPIDRMS;
     MonitorElement* CAPIDMEAN;    
@@ -84,11 +59,7 @@ private:
 
     MonitorElement* ERRGEO;
     MonitorElement* ERRELEC;    
-
-    MonitorElement* PEDESTAL_REFS;
-    MonitorElement* WIDTH_REFS;
-
-  } hbHists, heHists, hfHists, hoHists;
+  } hbHists, hfHists, hoHists;
 
 };
 

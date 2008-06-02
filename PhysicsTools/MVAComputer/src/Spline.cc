@@ -9,7 +9,7 @@
 //
 // Author:      Christophe Saout
 // Created:     Sat Apr 24 15:18 CEST 2007
-// $Id: Spline.cc,v 1.1 2007/05/07 18:30:55 saout Exp $
+// $Id: Spline.cc,v 1.3 2007/12/07 15:04:44 saout Exp $
 //
 
 #include <cstring>
@@ -61,6 +61,17 @@ void Spline::set(unsigned int n_, const double *vals)
 
 	delete[] segments;
 	segments = new Segment[n];
+
+	if (n == 1) {
+		Segment *seg = &segments[0];
+		seg->coeffs[0] = vals[0];
+		seg->coeffs[1] = vals[1] - vals[0];
+		seg->coeffs[2] = 0.0;
+		seg->coeffs[3] = 0.0;
+		seg->area = 0.0;
+		area = seg->integral(1.0);
+		return;
+	}
 
 	double m0, m1;
 	Segment *seg = &segments[0];

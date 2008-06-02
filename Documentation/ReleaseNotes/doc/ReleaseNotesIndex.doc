@@ -1,0 +1,55 @@
+/*!
+\page ReleaseNotes Release Notes
+
+
+\htmlonly
+<table class="doctable">
+<caption>
+</caption>
+<tr valign=top><th class="domain">Domain</th><th class="contact">Contact</th></tr>
+<tr>
+
+<td>  \endhtmlonly \ref FrameworkReleaseNotes \htmlonly  </td> 
+  <td class="contact"> 
+    <a href="mailto:">Liz Sexton Kennedy</a>
+  </td> </tr>
+<td>  \endhtmlonly \ref SimulationReleaseNotes \htmlonly  </td> 
+  <td class="contact">
+    <a href="mailto:">Daniel Elvira</a>,
+    <a href="mailto:">Fabio Cossutti</a>
+  </td> </tr>
+<td>  \endhtmlonly \ref FastSimulationReleaseNotes \htmlonly  </td> 
+  <td class="contact">
+    <a href="mailto:">Florian Beaudette</a>,
+    <a href="mailto:">Patrick Janot</a>
+  </td> </tr>
+<td>  \endhtmlonly \ref L1SoftwareReleaseNotes \htmlonly  </td>
+   <td class="contact">
+    <a href="mailto:">Jim Brooke</a>,
+    <a href="mailto:">Werner Sun</a>
+  </td> </tr>
+<td>  \endhtmlonly \ref HLTDQMReleaseNotes \htmlonly  </td> 
+  <td class="contact">
+    <a href="mailto:">Emilio Meschi</a>,
+    <a href="mailto:">Andreas Meier</a>
+  </td> </tr>
+<td>  \endhtmlonly \ref ReconstructionReleaseNotes \htmlonly  </td>
+   <td class="contact">
+    <a href="mailto:">Tommaso Boccali</a>,
+    <a href="mailto:">Shahram Rahatlou</a>
+  </td> </tr>
+<td>  \endhtmlonly \ref AnalysisToolsReleaseNotes \htmlonly  </td>
+   <td class="contact">
+    <a href="mailto:">Luca Lista</a>,
+    <a href="mailto:">Chris Jones</a>
+  </td> </tr>
+<td>  \endhtmlonly \ref VisualizationReleaseNotes \htmlonly  </td> 
+<td class="contact"> <a href="mailto:">Ianna Osborne</a>
+</tr>
+</table>
+\endhtmlonly
+
+<hr>
+Last updated: @DATE@ K. Lassila-Perini
+ 
+*/

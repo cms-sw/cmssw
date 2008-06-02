@@ -1,0 +1,47 @@
+#include "PhysicsTools/PatAlgos/plugins/PATMETCleaner.h"
+
+template<typename METIn, typename METOut>
+pat::PATMETCleaner<METIn,METOut>::PATMETCleaner(const edm::ParameterSet & iConfig) :
+  metSrc_(iConfig.getParameter<edm::InputTag>( "metSource" )),
+  helper_(metSrc_)
+{
+  helper_.configure(iConfig);      // learn whether to save good, bad, all, ...
+  helper_.registerProducts(*this); // issue the produces<>() commands
+}
+
+
+template<typename METIn, typename METOut>
+pat::PATMETCleaner<METIn,METOut>::~PATMETCleaner() {
+}
+
+
+template<typename METIn, typename METOut>
+void pat::PATMETCleaner<METIn,METOut>::produce(edm::Event & iEvent, const edm::EventSetup & iSetup) {     
+  // start a new event
+  helper_.newEvent(iEvent);
+
+  typedef typename edm::Ref< std::vector<METIn> > METInRef;
+  for (size_t idx = 0, size = helper_.srcSize(); idx < size; ++idx) {
+    // read the source met
+    const METIn & srcMET = helper_.srcAt(idx);
+
+    // clone the met and convert it to the new type
+    METOut ourMET = static_cast<METOut>(srcMET);
+
+    // write the muon
+    helper_.addItem(idx, ourMET);
+  }
+
+  helper_.done();
+ 
+}
+
+template<typename METIn, typename METOut>
+void pat::PATMETCleaner<METIn,METOut>::endJob() { 
+    edm::LogVerbatim("PATLayer0Summary|PATMETCleaner") << "PATMETCleaner end job. \n" <<
+            "Input tag was " << metSrc_.encode() <<
+            "\nCleaner summary information:\n" <<
+            helper_.printSummary();
+    helper_.endJob(); 
+}
+

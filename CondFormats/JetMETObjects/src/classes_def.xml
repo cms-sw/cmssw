@@ -1,3 +1,11 @@
 <lcgdict>
+<selection>
   <class name="SimpleMCJetCorrector"/>
+  <class name="SimpleZSPJetCorrector"/>
+  <class name="Simple3DMCJetCorrector"/>
+  <class name="SimpleL2RelativeCorrector"/>
+  <class name="SimpleL3AbsoluteCorrector"/>
+  <class name="SimpleL4EMFCorrector"/>
+  <class name="SimpleL5FlavorCorrector"/>
+</selection>
 </lcgdict>

@@ -1,8 +1,8 @@
 /*
  * \file EEBeamCaloTask.cc
  *
- * $Date: 2007/05/24 13:26:12 $
- * $Revision: 1.9 $
+ * $Date: 2007/06/13 18:01:29 $
+ * $Revision: 1.10 $
  * \author A. Ghezzi
  *
  */
@@ -38,8 +38,6 @@ using namespace edm;
 using namespace std;
 
 EEBeamCaloTask::EEBeamCaloTask(const ParameterSet& ps){
-
-  Numbers::maxSM = 18;
 
   init_ = false;
 
@@ -342,6 +340,9 @@ void EEBeamCaloTask::endJob(void){
 }
 
 void EEBeamCaloTask::analyze(const Event& e, const EventSetup& c){
+
+  Numbers::initGeometry(c);
+
   bool enable = false;
   map<int, EcalDCCHeaderBlock> dccMap;
 
@@ -641,7 +642,7 @@ void EEBeamCaloTask::analyze(const Event& e, const EventSetup& c){
     EBDataFrame dataframe = (*digiItr);
     EBDetId id = dataframe.id();
 
-    //int ism = Numbers::iSM( id ); if ( ism > 18 ) continue;
+    //int ism = Numbers::iSM( id );
     // FIX this if can not work on the 2004 data since they do not fill in the  EcalDCCHeaderBlock
     //if ( dccMap[ism].getRunType() != EcalDCCHeaderBlock::BEAMH4 ) continue;//FIX ME add the autoscan runtype
 
@@ -745,7 +746,7 @@ void EEBeamCaloTask::analyze(const Event& e, const EventSetup& c){
     EcalUncalibratedRecHit hit = (*hitItr);
     EBDetId id = hit.id();
 
-    //int ism = Numbers::iSM( id ); if ( ism > 18 ) continue;
+    //int ism = Numbers::iSM( id );
     // FIX this if can not work on the 2004 data since they do not fill in the  EcalDCCHeaderBlock
     //if ( dccMap[ism].getRunType() != EcalDCCHeaderBlock::BEAMH4 ) continue;//FIX ME add the autoscan runtype
 

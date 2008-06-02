@@ -385,5 +385,8 @@ AlCaPi0RecHitsProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSetu
       timers.pop_and_push(timerName);
 
       timers.clear_stack();
+      
+      delete recHitsEB_map;
+      delete topology_p;
 
 }

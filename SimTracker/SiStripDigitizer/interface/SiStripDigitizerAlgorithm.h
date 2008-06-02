@@ -74,6 +74,8 @@ class SiStripDigitizerAlgorithm
   bool noise;
   int theFedAlgo;
   bool zeroSuppression;
+  float theTOFCutForPeak;
+  float theTOFCutForDeconvolution;
   float tofCut;                // Cut on the particle TOF
 
 
@@ -86,6 +88,7 @@ class SiStripDigitizerAlgorithm
   int numStrips; 
   int strip;     
   float noiseRMS;
+  float cosmicShift;
 
   void push_link(const DigitalVecType&,
 		 const HitToDigisMapType&,
@@ -98,6 +101,9 @@ class SiStripDigitizerAlgorithm
 		     unsigned int);
  
   CLHEP::HepRandomEngine& rndEngine;
+
+  DigitalVecType digis;
+  DigitalRawVecType rawdigis;
 };
 
 #endif

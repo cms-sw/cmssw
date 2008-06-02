@@ -29,12 +29,11 @@ L1GctConfigProducers::L1GctConfigProducers(const edm::ParameterSet& iConfig) :
   m_htScaleLSB(iConfig.getParameter<double>("L1CaloHtScaleLsbInGeV")), // get the CalibrationFunction parameters
   m_threshold (iConfig.getParameter<double>("L1CaloJetZeroSuppressionThresholdInGeV")),
   m_jetCalibFunc(), m_tauCalibFunc(),
-  m_jetScale(),
   m_corrFunType(L1GctJetEtCalibrationFunction::POWER_SERIES_CORRECTION)
 {
    //the following lines are needed to tell the framework what
    // data is being produced
-   setWhatProduced(this,&L1GctConfigProducers::produceCalibFun,dependsOn(&L1GctConfigProducers::doWhenChanged));
+   setWhatProduced(this,&L1GctConfigProducers::produceCalibFun);
    setWhatProduced(this,&L1GctConfigProducers::produceJfParams);
 
    //now do what ever other initialization is needed
@@ -109,8 +108,6 @@ L1GctConfigProducers::produceCalibFun(const L1GctJetCalibFunRcd& iRecord)
 					     m_jetCalibFunc,
 					     m_tauCalibFunc);
 
-   pL1GctJetEtCalibrationFunction->setOutputEtScale(m_jetScale);
-
    pL1GctJetEtCalibrationFunction->setCorrectionFunctionType(m_corrFunType);
 
    return pL1GctJetEtCalibrationFunction ;
@@ -127,14 +124,6 @@ L1GctConfigProducers::produceJfParams(const L1GctJetFinderParamsRcd&)
                                                                        m_EtaBoundry));
 
    return pL1GctJetFinderParams ;
-}
-
-/// Add a dependency on the JetEtScale
-void L1GctConfigProducers::doWhenChanged(const L1JetEtScaleRcd& jetScaleRcd)
-{
-  edm::ESHandle<L1CaloEtScale> jsc;
-  jetScaleRcd.get(jsc);
-  m_jetScale = *jsc.product();
 }
 
 //--------------------------------------------------------------------------

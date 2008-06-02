@@ -2,7 +2,7 @@
 // Author:  Jan Heyninck
 // Created: Tue Apr  3 17:33:23 PDT 2007
 //
-// $Id: TtSemiLRSignalSelCalc.h,v 1.1 2007/06/01 09:10:19 heyninck Exp $
+// $Id: TtSemiLRSignalSelCalc.h,v 1.1 2007/06/15 08:49:19 heyninck Exp $
 //
 
 #ifndef TtSemiLRSignalSelCalc_h
@@ -13,9 +13,8 @@
   \brief    Class to calculate the jet combination LR value and purity from a root-file with fit functions
 
   \author   Jan Heyninck
-  \version  $Id: TtSemiLRSignalSelCalc.h,v 1.1 2007/06/01 09:10:19 heyninck Exp $
+  \version  $Id: TtSemiLRSignalSelCalc.h,v 1.1 2007/06/15 08:49:19 heyninck Exp $
 */
-
 
 #include "FWCore/Framework/interface/EventSetup.h"
 #include "FWCore/Framework/interface/Event.h"
@@ -30,20 +29,20 @@
 #include "TKey.h"
 #include "TString.h"
 
-
 class TtSemiLRSignalSelCalc {
 
-  public:
-    TtSemiLRSignalSelCalc();
-    TtSemiLRSignalSelCalc(TString,std::vector<int>);
-    ~TtSemiLRSignalSelCalc();	
+ public:
+  
+  TtSemiLRSignalSelCalc();
+  TtSemiLRSignalSelCalc(TString,std::vector<int>);
+  ~TtSemiLRSignalSelCalc();	
+  
+  void  operator()(TtSemiEvtSolution&);
+  
+ private:
 
-    void  operator()(TtSemiEvtSolution&);
-
-  private:
-    LRHelpFunctions  * myLR;
-    bool addPurity;
-
+  LRHelpFunctions  * myLR;
+  bool addPurity;
 };
 
 #endif

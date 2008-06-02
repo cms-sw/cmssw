@@ -192,149 +192,6 @@ MonitorElement* SiPixelInformationExtractor::getModuleME(MonitorUserInterface* m
 }
 
 //------------------------------------------------------------------------------
-/*! \brief (Documentation under construction).
- *
- *  Returns a stringstream containing an HTML-formatted list of ME in the current
- *  directory. 
- *  This is a recursive method.
- */
-void SiPixelInformationExtractor::printSummaryHistoList(MonitorUserInterface * mui, ostringstream& str_val){
-//cout<<"entering SiPixelInformationExtractor::printSummaryHistoList"<<endl;
-  static string indent_str = "";
-  string currDir = mui->pwd();
-  string dname = currDir.substr(currDir.find_last_of("/")+1);
-  if (dname.find("Module_") ==0) return;
-  str_val << " <li>\n"
-          << "  <a href=\"#\" id=\"" << currDir << "\">\n   " 
-	  <<     dname 
-	  << "  </a>" 
-	  << endl;
-  vector<string> meVec     = mui->getMEs(); 
-  vector<string> subDirVec = mui->getSubdirs();
-  if ( meVec.size()== 0  && subDirVec.size() == 0 ) {
-    str_val << " </li> "<< endl;    
-    return;
-  }
-  str_val << "\n   <ul>" << endl;      
-  for (vector<string>::const_iterator it = meVec.begin();
-       it != meVec.end(); it++) {
-    if ((*it).find("Summary") == 0) {
-      QString qit = (*it) ;
-      QRegExp rx("(\\w+)_siPixel") ;
-      if( rx.search(qit) > -1 ) {qit = rx.cap(1);} 
-      str_val << "    <li class=\"dhtmlgoodies_sheet.gif\">\n"
-	      << "     <input id      = \"selectedME\""
-	      << "            folder  = \"" << currDir << "\""
-	      << "            type    = \"checkbox\""
-	      << "            name    = \"selected\""
-	      << "            class   = \"smallCheckBox\""
-	      << "            value   = \"" << (*it) << "\""
-	      << "            onclick = \"javascript:IMGC.selectedIMGCItems()\" />\n"
-              << "     <a href=\"javascript:IMGC.updateIMGC('" << currDir << "')\">\n       " 
-	      <<        qit << "\n"
-	      << "     </a>\n"
-	      << "    </li>" 
-	      << endl;
-    }
-  }
-
-  for (vector<string>::const_iterator ic = subDirVec.begin();
-       ic != subDirVec.end(); ic++) {
-    mui->cd(*ic);
-    printSummaryHistoList(mui, str_val);
-    mui->goUp();
-  }
-  str_val << "   </ul> "<< endl;  
-  str_val << "  </li> "<< endl;  
-//cout<<"leaving SiPixelInformationExtractor::printSummaryHistoList"<<endl;
-}
-
-//------------------------------------------------------------------------------
-/*! \brief (Documentation under construction).
- *  
- *  Returns a stringstream containing an HTML-formatted list of alarms for the current
- *  directory. 
- *  This is a recursive method.
- */
-void SiPixelInformationExtractor::printAlarmList(MonitorUserInterface * mui, ostringstream& str_val){
-//cout<<"entering SiPixelInformationExtractor::printAlarmList"<<endl;
-//   cout << ACRed << ACBold
-//        << "[SiPixelInformationExtractor::printAlarmList()]"
-//        << ACPlain
-//        << " Enter" 
-//        << endl ;
-  static string indent_str = "";
-  string currDir = mui->pwd();
-  string dname = currDir.substr(currDir.find_last_of("/")+1);
-  string image_name;
-  selectImage(image_name,mui->getStatus(currDir));
-  if(image_name!="images/LI_green.gif")
-    str_val << " <li>\n"
-            << "  <a href=\"#\" id=\"" << currDir << "\">\n   " 
-	    <<     dname 
-	    << "  </a>\n"
-	    << "  <img src=\"" 
-            <<     image_name 
-	    << "\">" << endl;
-  vector<string> subDirVec = mui->getSubdirs();
-  vector<string> meVec = mui->getMEs(); 
-  if (subDirVec.size() == 0 && meVec.size() == 0) {
-    str_val <<  "</li> "<< endl;    
-    return;
-  }
-  str_val << "<ul>" << endl;
-  for (vector<string>::const_iterator it = meVec.begin();
-	   it != meVec.end(); it++) {
-    string full_path = currDir + "/" + (*it);
-    MonitorElement * me = mui->get(full_path);
-    if (!me) continue;
-    dqm::qtests::QR_map my_map = me->getQReports();
-    if (my_map.size() > 0) {
-      string image_name1;
-      selectImage(image_name1,my_map);
-      if(image_name1!="images/LI_green.gif") {
-         QString qit = (*it) ;
-        QRegExp rx("(\\w+)_siPixel") ;
-        if( rx.search(qit) > -1 ) {qit = rx.cap(1);} 
-//        str_val << "<li class=\"dhtmlgoodies_sheet.gif\"><a href=\"javascript:RequestPlot.ReadStatus('"
-//		<< full_path<< "')\">" << (*it) << "</a><img src=\""
-//		<< image_name1 << "\""<< "</li>" << endl;
-        str_val << "	<li class=\"dhtmlgoodies_sheet.gif\">\n"
-        	<< "	 <input id	= \"selectedME\""
-        	<< "		folder  = \"" << currDir << "\""
-        	<< "		type	= \"checkbox\""
-        	<< "		name	= \"selected\""
-        	<< "		class	= \"smallCheckBox\""
-        	<< "		value	= \"" << (*it) << "\""
-        	<< "		onclick = \"javascript:IMGC.selectedIMGCItems()\" />\n"
-        	<< "	 <a href=\"javascript:IMGC.updateIMGC('" << currDir << "')\">\n       " 
-        	<<	  qit << "\n"
-        	<< "	 </a>\n"
-		<< "     <img src=\""
-		<<        image_name1 
-		<< "\">"
-        	<< "	</li>" 
-        	<< endl;
-	}	
-    }
-  }
-  for (vector<string>::const_iterator ic = subDirVec.begin();
-       ic != subDirVec.end(); ic++) {
-    mui->cd(*ic);
-    printAlarmList(mui, str_val);
-    mui->goUp();
-  }
-  str_val << "</ul> "<< endl;  
-  str_val << "</li> "<< endl;  
-//   cout << ACGreen << ACBold
-//        << "[SiPixelInformationExtractor::printAlarmList()]"
-//        << ACPlain
-//        << " Done" 
-//        << endl ;
-//cout<<"leaving SiPixelInformationExtractor::printAlarmList"<<endl;
-}
-
-//------------------------------------------------------------------------------
 /*! \brief Monitor elements extractor. 
  *
  *  This method returns a vector of pointers to MonitorElements (mes) satisfying an 
@@ -351,7 +208,9 @@ void SiPixelInformationExtractor::selectSingleModuleHistos(MonitorUserInterface 
 							   vector<MonitorElement*> & mes) 
 {  
   string currDir = mui->pwd();
-  QRegExp rx("(\\w+)_siPixel") ;
+  //QRegExp rx1("(\\w+)_siPixel") ;
+  //QRegExp rx2("(\\w+)_ctfWithMaterialTracks") ;
+  QRegExp rx("(\\w+)_3") ;
   QString theME ;
   if (currDir.find("Module_") != string::npos)  
   {
@@ -364,11 +223,9 @@ void SiPixelInformationExtractor::selectSingleModuleHistos(MonitorUserInterface 
 	{
 	  theME = *it ;
           string temp_s ; 
-          if( rx.search(theME) != -1 )
-          {
-	   temp_s = rx.cap(1).latin1() ;
-	  }
-	  //	if ((*it).find((*ih)) != string::npos) {
+          //if( rx1.search(theME) != -1 ) { temp_s = rx1.cap(1).latin1() ; }
+          //else if( rx2.search(theME) != -1 ) { temp_s = rx2.cap(1).latin1() ; }
+          if( rx.search(theME) != -1 ) { temp_s = rx.cap(1).latin1() ; }
 	  if (temp_s == (*ih)) 
 	  {
 	    string full_path = currDir + "/" + (*it);
@@ -476,7 +333,7 @@ void SiPixelInformationExtractor::plotTkMapHisto(MonitorUserInterface * mui,
 //	<< " --> "
 //	<< (*it)->getName() 
 //	<< endl ;
-   plotHisto(*it, theMEName,"800","600") ;
+   plotHisto(*it, theMEName,"800","800") ;
   }
     
 }
@@ -825,12 +682,13 @@ void SiPixelInformationExtractor::fillModuleAndHistoList(MonitorUserInterface * 
       for (vector<string>::const_iterator it = contents.begin();
 	   it != contents.end(); it++) {
 	string hname = (*it).substr(0, (*it).find("_siPixel"));
+	if (hname==" ") hname = (*it).substr(0, (*it).find("_ctfWithMaterialTracks"));
 	//cout<<"hname="<<hname<<endl;
         histos.push_back(hname);
         string mId=" ";
 	if(hname.find("ndigis")!=string::npos) mId = (*it).substr((*it).find("ndigis_siPixelDigis_")+20, 9);
 	if(mId==" " && hname.find("nclusters")!=string::npos) mId = (*it).substr((*it).find("nclusters_siPixelClusters_")+26, 9);
-        if(mId==" " && hname.find("hitResidual-x")!=string::npos) mId = (*it).substr((*it).find("hitResidual-x_siPixelTrack_")+27, 9);
+        if(mId==" " && hname.find("residualX")!=string::npos) mId = (*it).substr((*it).find("residualX_ctfWithMaterialTracks_")+32, 9);
         if(mId!=" ") modules.push_back(mId);
         //cout<<"mId="<<mId<<endl;
       }    
@@ -906,10 +764,16 @@ void SiPixelInformationExtractor::printModuleHistoList(MonitorUserInterface * mu
   str_val << "\n   <ul>" << endl; 
   for (vector<string>::const_iterator it  = meVec.begin();
                                       it != meVec.end(); it++) {
-    if ((*it).find("_siPixel")!=string::npos) {
+    //if ((*it).find("_siPixel")!=string::npos ||
+    //    (*it).find("_ctfWithMaterialTracks")!=string::npos) {
+    if (currDir.find("Pixel")!=string::npos && (*it).find("_3")!=string::npos) {
       QString qit = (*it) ;
-      QRegExp rx("(\\w+)_siPixel") ;
+      //QRegExp rx1("(\\w+)_siPixel") ;
+      //QRegExp rx2("(\\w+)_ctfWithMaterialTracks") ;
+      QRegExp rx("(\\w+)_3") ;
+      //if( rx1.search(qit) > -1 ) {qit = rx1.cap(1);} 
       if( rx.search(qit) > -1 ) {qit = rx.cap(1);} 
+      //else if( rx2.search(qit) > -1 ) {qit = rx2.cap(1);} 
       str_val << "    <li class=\"dhtmlgoodies_sheet.gif\">\n"
 	      << "     <input id      = \"selectedME\""
 	      << "            folder  = \"" << currDir << "\""
@@ -965,6 +829,68 @@ void SiPixelInformationExtractor::readSummaryHistoTree(MonitorUserInterface* mui
    mui->cd();
 //cout<<"leaving  SiPixelInformationExtractor::readSummaryHistoTree"<<endl;
 }
+//------------------------------------------------------------------------------
+/*! \brief (Documentation under construction).
+ *
+ *  Returns a stringstream containing an HTML-formatted list of ME in the current
+ *  directory. 
+ *  This is a recursive method.
+ */
+void SiPixelInformationExtractor::printSummaryHistoList(MonitorUserInterface * mui, ostringstream& str_val){
+//cout<<"entering SiPixelInformationExtractor::printSummaryHistoList"<<endl;
+  static string indent_str = "";
+  string currDir = mui->pwd();
+  string dname = currDir.substr(currDir.find_last_of("/")+1);
+  if (dname.find("Module_") ==0) return;
+  str_val << " <li>\n"
+          << "  <a href=\"#\" id=\"" << currDir << "\">\n   " 
+	  <<     dname 
+	  << "  </a>" 
+	  << endl;
+  vector<string> meVec     = mui->getMEs(); 
+  vector<string> subDirVec = mui->getSubdirs();
+  if ( meVec.size()== 0  && subDirVec.size() == 0 ) {
+    str_val << " </li> "<< endl;    
+    return;
+  }
+  str_val << "\n   <ul>" << endl;      
+  for (vector<string>::const_iterator it = meVec.begin();
+       it != meVec.end(); it++) {
+    if ((*it).find("Summary") == 0) {
+      QString qit = (*it) ;
+      //QRegExp rx1("(\\w+)_siPixel") ;
+      //QRegExp rx2("(\\w+)_ctfWithMaterialTracks") ;
+      QRegExp rx("(\\w+)_3") ;
+      //if( rx1.search(qit) > -1 ) {qit = rx1.cap(1);} 
+      //else if( rx2.search(qit) > -1 ) {qit = rx2.cap(1);} 
+      if( rx.search(qit) > -1 ) {qit = rx.cap(1);} 
+      str_val << "    <li class=\"dhtmlgoodies_sheet.gif\">\n"
+	      << "     <input id      = \"selectedME\""
+	      << "            folder  = \"" << currDir << "\""
+	      << "            type    = \"checkbox\""
+	      << "            name    = \"selected\""
+	      << "            class   = \"smallCheckBox\""
+	      << "            value   = \"" << (*it) << "\""
+	      << "            onclick = \"javascript:IMGC.selectedIMGCItems()\" />\n"
+              << "     <a href=\"javascript:IMGC.updateIMGC('" << currDir << "')\">\n       " 
+	      <<        qit << "\n"
+	      << "     </a>\n"
+	      << "    </li>" 
+	      << endl;
+    }
+  }
+
+  for (vector<string>::const_iterator ic = subDirVec.begin();
+       ic != subDirVec.end(); ic++) {
+    mui->cd(*ic);
+    printSummaryHistoList(mui, str_val);
+    mui->goUp();
+  }
+  str_val << "   </ul> "<< endl;  
+  str_val << "  </li> "<< endl;  
+//cout<<"leaving SiPixelInformationExtractor::printSummaryHistoList"<<endl;
+}
+
 
 //------------------------------------------------------------------------------
 /*! \brief (Documentation under construction).
@@ -977,7 +903,9 @@ void SiPixelInformationExtractor::readAlarmTree(MonitorUserInterface* mui,
   ostringstream alarmtree;
   if (goToDir(mui, str_name, coll_flag)) {
     alarmtree << "<ul id=\"dhtmlgoodies_tree\" class=\"dhtmlgoodies_tree\">" << endl;
+    alarmCounter_=0;
     printAlarmList(mui,alarmtree);
+    if(alarmCounter_==0) alarmtree <<"<li>No problematic modules found, all ok!</li>" << endl;
     alarmtree <<"</ul>" << endl; 
   } else {
     alarmtree << "Desired Directory does not exist";
@@ -1001,6 +929,96 @@ void SiPixelInformationExtractor::readAlarmTree(MonitorUserInterface* mui,
        << endl ;
 //cout<<"leaving SiPixelInformationExtractor::readAlarmTree"<<endl;
 }
+//------------------------------------------------------------------------------
+/*! \brief (Documentation under construction).
+ *  
+ *  Returns a stringstream containing an HTML-formatted list of alarms for the current
+ *  directory. 
+ *  This is a recursive method.
+ */
+void SiPixelInformationExtractor::printAlarmList(MonitorUserInterface * mui, ostringstream& str_val){
+//cout<<"entering SiPixelInformationExtractor::printAlarmList"<<endl;
+//   cout << ACRed << ACBold
+//        << "[SiPixelInformationExtractor::printAlarmList()]"
+//        << ACPlain
+//        << " Enter" 
+//        << endl ;
+  static string indent_str = "";
+  string currDir = mui->pwd();
+  string dname = currDir.substr(currDir.find_last_of("/")+1);
+  string image_name;
+  selectImage(image_name,mui->getStatus(currDir));
+  if(image_name!="images/LI_green.gif")
+    str_val << " <li>\n"
+            << "  <a href=\"#\" id=\"" << currDir << "\">\n   " 
+	    <<     dname 
+	    << "  </a>\n"
+	    << "  <img src=\"" 
+            <<     image_name 
+	    << "\">" << endl;
+  vector<string> subDirVec = mui->getSubdirs();
+  vector<string> meVec = mui->getMEs(); 
+  if (subDirVec.size() == 0 && meVec.size() == 0) {
+    str_val <<  "</li> "<< endl;    
+    return;
+  }
+  str_val << "<ul>" << endl;
+  for (vector<string>::const_iterator it = meVec.begin();
+	   it != meVec.end(); it++) {
+    string full_path = currDir + "/" + (*it);
+    MonitorElement * me = mui->get(full_path);
+    if (!me) continue;
+    dqm::qtests::QR_map my_map = me->getQReports();
+    if (my_map.size() > 0) {
+      string image_name1;
+      selectImage(image_name1,my_map);
+      if(image_name1!="images/LI_green.gif") {
+        alarmCounter_++;
+        QString qit = (*it) ;
+        //QRegExp rx1("(\\w+)_siPixel") ;
+        //QRegExp rx2("(\\w+)_ctfWithMaterialTracks") ;
+        QRegExp rx("(\\w+)_3") ;
+        //if( rx1.search(qit) > -1 ) {qit = rx1.cap(1);} 
+        //else if( rx2.search(qit) > -1 ) {qit = rx2.cap(1);} 
+        if( rx.search(qit) > -1 ) {qit = rx.cap(1);} 
+//        str_val << "<li class=\"dhtmlgoodies_sheet.gif\"><a href=\"javascript:RequestPlot.ReadStatus('"
+//		<< full_path<< "')\">" << (*it) << "</a><img src=\""
+//		<< image_name1 << "\""<< "</li>" << endl;
+        str_val << "	<li class=\"dhtmlgoodies_sheet.gif\">\n"
+        	<< "	 <input id	= \"selectedME\""
+        	<< "		folder  = \"" << currDir << "\""
+        	<< "		type	= \"checkbox\""
+        	<< "		name	= \"selected\""
+        	<< "		class	= \"smallCheckBox\""
+        	<< "		value	= \"" << (*it) << "\""
+        	<< "		onclick = \"javascript:IMGC.selectedIMGCItems()\" />\n"
+        	<< "	 <a href=\"javascript:IMGC.updateIMGC('" << currDir << "')\">\n       " 
+        	<<	  qit << "\n"
+        	<< "	 </a>\n"
+		<< "     <img src=\""
+		<<        image_name1 
+		<< "\">"
+        	<< "	</li>" 
+        	<< endl;
+	}	
+    }
+  }
+  for (vector<string>::const_iterator ic = subDirVec.begin();
+       ic != subDirVec.end(); ic++) {
+    mui->cd(*ic);
+    printAlarmList(mui, str_val);
+    mui->goUp();
+  }
+  str_val << "</ul> "<< endl;  
+  str_val << "</li> "<< endl;  
+//   cout << ACGreen << ACBold
+//        << "[SiPixelInformationExtractor::printAlarmList()]"
+//        << ACPlain
+//        << " Done" 
+//        << endl ;
+//cout<<"leaving SiPixelInformationExtractor::printAlarmList"<<endl;
+}
+
 
 //------------------------------------------------------------------------------
 /*! \brief (Documentation under construction).
@@ -1552,7 +1570,9 @@ void SiPixelInformationExtractor::selectMEList(MonitorUserInterface    * mui,
 {  
   string currDir = mui->pwd();
    
-  QRegExp rx("(\\w+)_siPixel") ;
+  //QRegExp rx1("(\\w+)_siPixel") ;
+  //QRegExp rx2("(\\w+)_ctfWithMaterialTracks") ;
+  QRegExp rx("(\\w+)_3") ;
   QString theME ;
    
   // Get ME from Collector/FU0/Tracker/PixelEndcap/HalfCylinder_pX/Disk_X/Blade_XX/Panel_XX/Module_XX
@@ -1562,8 +1582,11 @@ void SiPixelInformationExtractor::selectMEList(MonitorUserInterface    * mui,
     for (vector<string>::const_iterator it = contents.begin(); it != contents.end(); it++) 
     {
       theME = *it ;
-      if( rx.search(theME) == -1 ) {continue ;} // If the ME is not a siPixel one, skip
-      if (rx.cap(1).latin1() == theMEName)      // Found the ME we were looking for
+      //if( rx1.search(theME) == -1 && rx2.search(theME) == -1 ) {continue ;} // If the ME is not a siPixel or ctfWithMaterialTrack one, skip
+      if( rx.search(theME) == -1 ) {continue ;} // If the ME is not a siPixel or ctfWithMaterialTrack one, skip
+      //if (rx1.cap(1).latin1() == theMEName || 
+      //    rx2.cap(1).latin1() == theMEName)      // Found the ME we were looking for
+      if (rx.cap(1).latin1() == theMEName)  
       {
         string full_path = currDir + "/" + (*it);
         MonitorElement * me = mui->get(full_path.c_str());
@@ -1603,7 +1626,9 @@ void SiPixelInformationExtractor::sendTkUpdatedStatus(MonitorUserInterface  * mu
 
   string detId = "undefined";
 
-  QRegExp rx("\\w+_siPixel\\w+_(\\d+)") ;
+  //QRegExp rx1("\\w+_siPixel\\w+_(\\d+)") ;
+  //QRegExp rx2("\\w+_ctfWithMaterialTracks\\w+_(\\d+)") ;
+  QRegExp rx("\\w+_\\w+_(\\d+)") ;
 
   cout << ACYellow << ACBold
        << "[SiPixelInformationExtractor::sendTkUpdatedStatus()] "
@@ -1619,8 +1644,12 @@ void SiPixelInformationExtractor::sendTkUpdatedStatus(MonitorUserInterface  * mu
   {
     QString meName    = (*it)->getName() ;
     QString theMEType = getMEType(*it) ;
-    if( rx.search(meName) != -1 )
+    //if( rx1.search(meName) != -1 || 
+    //    rx2.search(meName) != -1 )
+    if( rx.search(meName) != -1 ) 
     {
+     //detId = rx1.cap(1).latin1() ;
+     //if (detId=="undefined") detId = rx2.cap(1).latin1() ;
      detId = rx.cap(1).latin1() ;
      if( theTKType == "Continuous") 
      {
@@ -1702,14 +1731,20 @@ void SiPixelInformationExtractor::sendTkUpdatedStatus(MonitorUserInterface  * mu
  */
 int SiPixelInformationExtractor::getDetId(MonitorElement * mE) 
 {
- QRegExp rx("siPixel(\\w+)_(\\d+)") ;
+ //QRegExp rx1("siPixel(\\w+)_(\\d+)") ;
+ //QRegExp rx2("ctfWithMaterialTracks(\\w+)_(\\d+)") ;
+ QRegExp rx("(\\w+)_(\\w+)_(\\d+)") ;
  QString mEName = mE->getName() ;
 
  int detId = 0;
  
+ //if( rx1.search(mEName) != -1 ||
+ //    rx2.search(mEName) != -1 )
  if( rx.search(mEName) != -1 )
  {
-  detId = rx.cap(2).toInt() ;
+  //detId = rx1.cap(2).toInt() ;
+  //if (detId==0) detId = rx2.cap(2).toInt() ;
+  detId = rx.cap(3).toInt() ;
  } else {
   cout << ACYellow << ACBold
        << "[SiPixelInformationExtractor::getDetId()] "
@@ -1732,7 +1767,9 @@ void SiPixelInformationExtractor::getMEList(MonitorUserInterface     * mui,
 {
   string currDir = mui->pwd();
    
-  QRegExp rx("(\\w+)_siPixel") ;
+  //QRegExp rx1("(\\w+)_siPixel") ;
+  //QRegExp rx2("(\\w+)_ctfWithMaterialTracks") ;
+  QRegExp rx("(\\w+)_3") ;
   QString theME ;
    
   // Get ME from Collector/FU0/Tracker/PixelEndcap/HalfCylinder_pX/Disk_X/Blade_XX/Panel_XX/Module_XX
@@ -1742,8 +1779,11 @@ void SiPixelInformationExtractor::getMEList(MonitorUserInterface     * mui,
     for (vector<string>::const_iterator it = contents.begin(); it != contents.end(); it++) 
     {
       theME = *it ;
-      if( rx.search(theME) == -1 ) {continue ;} // If the ME is not a siPixel one, skip
+      //if( rx1.search(theME) == -1 && rx2.search(theME) == -1 ) {continue ;} // If the ME is not a siPixel or ctfWithMaterialTracks one, skip
+      if( rx.search(theME) == -1 ) {continue ;} // If the ME is not a siPixel or ctfWithMaterialTracks one, skip
       string full_path = currDir + "/" + (*it);
+      //string mEName = rx1.cap(1).latin1() ;
+      //if(mEName==" ") mEName = rx2.cap(1).latin1() ;
       string mEName = rx.cap(1).latin1() ;
       mEHash[mEName]++ ;
     }

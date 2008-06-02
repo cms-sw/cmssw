@@ -13,7 +13,7 @@
 //
 // Original Author:  Gregory Heath
 //         Created:  Thu Mar  1 15:10:47 CET 2007
-// $Id: L1GctConfigProducers.h,v 1.2 2007/04/26 11:22:52 heath Exp $
+// $Id: L1GctConfigProducers.h,v 1.3 2007/07/10 11:43:59 heath Exp $
 //
 //
 
@@ -54,8 +54,6 @@ class L1GctConfigProducers : public edm::ESProducer {
       CalibFunReturnType produceCalibFun(const L1GctJetCalibFunRcd&);
       JfParamsReturnType produceJfParams(const L1GctJetFinderParamsRcd&);
 
-      /// Add a dependency on the JetEtScale
-      void doWhenChanged(const L1JetEtScaleRcd& jetScaleRcd);
    private:
       // ----------member data ---------------------------
 
@@ -74,9 +72,6 @@ class L1GctConfigProducers : public edm::ESProducer {
   /// the calibration function - converts jet Et to linear 
   std::vector< std::vector<double> > m_jetCalibFunc;
   std::vector< std::vector<double> > m_tauCalibFunc;
-
-  /// the jet Et scale to be used
-  L1CaloEtScale m_jetScale; 
 
   /// type of correction function to apply
   L1GctJetEtCalibrationFunction::CorrectionFunctionType m_corrFunType; 

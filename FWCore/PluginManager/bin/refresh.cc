@@ -113,7 +113,7 @@ int main (int argc, char **argv)
     std::vector<std::string> requestedPaths(vm[kPathsOpt].as<std::vector<std::string> >());
     
     //first find the directory and create a list of files to look at in that directory
-    path directory(requestedPaths[0]);
+    path directory(requestedPaths[0],boost::filesystem::no_check);
     std::vector<std::string> files;
     bool removeMissingFiles = false;
     if(boost::filesystem::is_directory(directory)) {

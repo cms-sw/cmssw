@@ -39,10 +39,11 @@ XMLDocument::XercesPlatform::XercesPlatform()
 	if (!instances++) {
 		try {
 			XMLPlatformUtils::Initialize();
-		} catch(...) {
+		} catch(const XMLException &e) {
 			throw cms::Exception("XMLDocument")
-				<< "XMLPlatformUtils::Initialize failed."
-				<< std::endl;
+				<< "XMLPlatformUtils::Initialize failed "
+				   "because of: "
+				<< XMLSimpleStr(e.getMessage()) << std::endl;
 		}
 	}
 }
@@ -113,10 +114,12 @@ void XMLDocument::openForRead(const std::string &fileName)
 		throw cms::Exception("XMLDocument")
 			<< "XML parser reported DOM error no. "
 			<< (unsigned long)e.getCode()
-			<< "." << std::endl;
-	} catch(...) {
+			<< ": " << XMLSimpleStr(e.getMessage()) << "."
+			<< std::endl;
+	} catch(const SAXException &e) {
 		throw cms::Exception("XMLDocument")
-			<< "XML parser reported an unknown error."
+			<< "XML parser reported: "
+			<< XMLSimpleStr(e.getMessage()) << "."
 			<< std::endl;
 	}
 
@@ -176,6 +179,13 @@ static bool isBool(std::string value)
 static const char *makeBool(bool value)
 {
 	return value ? "true" : "false";
+}
+
+bool XMLDocument::hasAttribute(XERCES_CPP_NAMESPACE_QUALIFIER DOMElement *elem,
+                               const char *name)
+{
+	XMLUniStr uniName(name);
+	return elem->hasAttribute(uniName);
 }
 
 template<>

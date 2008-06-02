@@ -1,11 +1,15 @@
-<use name=CondFormats/PhysicsToolsObjects>
+<use name=FWCore/Framework>
+<use name=FWCore/ParameterSet>
 <use name=FWCore/Utilities>
+<use name=CondFormats/PhysicsToolsObjects>
 <use name=rootcore>
+<use name=boost>
 <use name=zlib>
 <flags LDFLAGS="-lTMVA">
 <export>
+  <use name=FWCore/Framework>
+  <use name=FWCore/ParameterSet>
   <use name=CondFormats/PhysicsToolsObjects>
-  <use name=zlib>
+  <use name=boost>
   <lib name=PhysicsToolsMVAComputer>
 </export>
-

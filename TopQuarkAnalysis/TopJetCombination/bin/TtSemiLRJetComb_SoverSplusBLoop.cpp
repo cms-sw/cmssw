@@ -15,7 +15,7 @@
 #include <TStyle.h>
 #include <TKey.h>
 #include <vector>
-#include "FWCore/FWLite/src/AutoLibraryLoader.h"
+#include "FWCore/FWLite/interface/AutoLibraryLoader.h"
 #include "AnalysisDataFormats/TopObjects/interface/TtSemiEvtSolution.h"
 #include "TopQuarkAnalysis/TopTools/interface/LRHelpFunctions.h"
 
@@ -161,7 +161,7 @@ void doEventloop(){
 	      // Fill the observables for each jet combination if a good matching exists
 	      // signal: best matching solution
               // background: all other solutions 
-	      if(sols[s].getMCCorrJetComb()==s) {
+	      if(sols[s].getMCBestJetComb()==s) {
 	        myLRhelper -> fillToSignalHists(obsVals);
 	        ++okEvents;
 	      }

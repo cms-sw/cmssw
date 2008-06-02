@@ -98,15 +98,18 @@ void TrackProducerAlgorithm::runWithTrack(const TrackingGeometry * theG,
       try{
 	const reco::Track * theT = &(*i);
 	float ndof=0;
+	PropagationDirection seedDir = theT->seedDirection();
+	//LogDebug("TrackProducer") << "theT->seedDirection()=" << seedDir;
 
-	TransientTrackingRecHit::RecHitContainer hits = getHitVector(theT,ndof,builder);
+	TransientTrackingRecHit::RecHitContainer hits = getHitVector(theT,seedDir,ndof,builder);
 
 	TrajectoryStateOnSurface theInitialStateForRefitting = getInitialState(theT,hits,theG,theMF);
 
 	// the seed has dummy state and hits.What matters for the fitting is the seedDirection;
 	const TrajectorySeed seed = TrajectorySeed(PTrajectoryStateOnDet(),
-						   BasicTrajectorySeed::recHitContainer(), theT->seedDirection());
+						   BasicTrajectorySeed::recHitContainer(), seedDir);
 	// =========================
+	//LogDebug("TrackProducer") << "seed.direction()=" << seed.direction();
 
 	//=====  the hits are in the same order as they were in the track::extra.        
 	bool ok = buildTrack(theFitter,thePropagator,algoResults, hits, theInitialStateForRefitting, seed, ndof);
@@ -141,8 +144,9 @@ void TrackProducerAlgorithm::runWithMomentum(const TrackingGeometry * theG,
 	LogDebug("TrackProducer") << "Running Refitter with Momentum Constraint. p=" << i->val->first << " err=" << i->val->second;
 
 	float ndof=0;
+	PropagationDirection seedDir = theT->seedDirection();
 
-	TransientTrackingRecHit::RecHitContainer hits = getHitVector(theT,ndof,builder);
+	TransientTrackingRecHit::RecHitContainer hits = getHitVector(theT,seedDir,ndof,builder);
 
 	TrajectoryStateOnSurface theInitialStateForRefitting = getInitialState(theT,hits,theG,theMF);
 
@@ -163,8 +167,9 @@ void TrackProducerAlgorithm::runWithMomentum(const TrackingGeometry * theG,
 	
 	// the seed has dummy state and hits.What matters for the fitting is the seedDirection;
 	const TrajectorySeed seed = TrajectorySeed(PTrajectoryStateOnDet(),
-						   BasicTrajectorySeed::recHitContainer(), theT->seedDirection());
+						   BasicTrajectorySeed::recHitContainer(), seedDir);
 	// =========================
+	//LogDebug("TrackProducer") << "seed.direction()=" << seed.direction();
 	
 	//=====  the hits are in the same order as they were in the track::extra.        
 	bool ok = buildTrack(theFitter,thePropagator,algoResults, hits, theInitialStateForRefitting, seed, ndof);
@@ -199,8 +204,9 @@ void TrackProducerAlgorithm::runWithVertex(const TrackingGeometry * theG,
 	LogDebug("TrackProducer") << "Running Refitter with Vertex Constraint. pos=" << i->val->first << " err=" << i->val->second.matrix();
 
 	float ndof=0;
+	PropagationDirection seedDir = theT->seedDirection();
 
-	TransientTrackingRecHit::RecHitContainer hits = getHitVector(theT,ndof,builder);
+	TransientTrackingRecHit::RecHitContainer hits = getHitVector(theT,seedDir,ndof,builder);
 
 	TrajectoryStateOnSurface theInitialStateForRefitting = getInitialState(theT,hits,theG,theMF);
 
@@ -229,7 +235,7 @@ void TrackProducerAlgorithm::runWithVertex(const TrackingGeometry * theG,
 	//push constraining hit and sort along seed direction
 	hits.push_back(testhit);
 	RecHitSorter sorter = RecHitSorter();
-	hits = sorter.sortHits(hits,theT->seedDirection());
+	hits = sorter.sortHits(hits,seedDir);
 
 	//use the state on the surface of the first hit (could be the constraint or not)
 	theInitialStateForRefitting = myPropagator->propagate(*theInitialStateForRefitting.freeState(), *(hits[0]->surface()) );	  
@@ -237,10 +243,9 @@ void TrackProducerAlgorithm::runWithVertex(const TrackingGeometry * theG,
 
 	// the seed has dummy state and hits.What matters for the fitting is the seedDirection;
 	const TrajectorySeed seed = TrajectorySeed(PTrajectoryStateOnDet(),
-						   BasicTrajectorySeed::recHitContainer(), theT->seedDirection());
+						   BasicTrajectorySeed::recHitContainer(), seedDir);
 	// =========================
-
-	LogDebug("TrackProducer") << "seed.direction()=" << seed.direction();
+	//LogDebug("TrackProducer") << "seed.direction()=" << seed.direction();
 
 	//=====  the hits are in the same order as they were in the track::extra.        
 	bool ok = buildTrack(theFitter,thePropagator,algoResults, hits, theInitialStateForRefitting, seed, ndof);
@@ -292,8 +297,7 @@ bool TrackProducerAlgorithm::buildTrack (const TrajectoryFitter * theFitter,
     TSCPBuilderNoMaterial tscpBuilder;
     LogDebug("TrackProducer") << "innertsos=" << innertsos ;
     TrajectoryStateClosestToPoint tscp = tscpBuilder(*(innertsos.freeState()),
-						     GlobalPoint(0,0,0) );//FIXME Correct?
-    
+						     GlobalPoint(0,0,0) );//FIXME Correct?   
     GlobalPoint v = tscp.theState().position();
     math::XYZPoint  pos( v.x(), v.y(), v.z() );
     GlobalVector p = tscp.theState().momentum();
@@ -327,7 +331,6 @@ TrajectoryStateOnSurface TrackProducerAlgorithm::getInitialState(const reco::Tra
 
   TrajectoryStateOnSurface theInitialStateForRefitting;
   //the starting state is the state closest to the first hit along seedDirection.
-  //it assumes the hits at least follow the track path.
   TrajectoryStateTransform transformer;
   //avoiding to use transientTrack, it should be faster;
   TrajectoryStateOnSurface innerStateFromTrack=transformer.innerStateOnSurface(*theT,*theG,theMF);
@@ -347,7 +350,8 @@ TrajectoryStateOnSurface TrackProducerAlgorithm::getInitialState(const reco::Tra
 }
 
 TransientTrackingRecHit::RecHitContainer 
-TrackProducerAlgorithm::getHitVector(const reco::Track * theT, 
+TrackProducerAlgorithm::getHitVector(const reco::Track * theT,   
+				     PropagationDirection& seedDir,
 				     float& ndof,
 				     const TransientTrackingRecHitBuilder* builder){
 
@@ -369,14 +373,19 @@ TrackProducerAlgorithm::getHitVector(const reco::Track * theT,
     }else LogDebug("TrackProducer") << "==== debug:this hit of a reco::Track is not valid!! =======";
   }
   GlobalVector delta = secondHit->globalPosition() - firstHit->globalPosition() ;
-  PropagationDirection seedDir = theT->seedDirection();
   PropagationDirection trackHitsSort = ( (delta.dot(GlobalVector(theT->momentum().x(),theT->momentum().y(),theT->momentum().z()))
 					  > 0) ? alongMomentum : oppositeToMomentum);
   
   //convert the TrackingRecHit vector to a TransientTrackingRecHit vector
   //meanwhile computes the number of degrees of freedom
   //========  Sorted as seed direction (refit in the same ordeer of original final fit)
-  if (seedDir==trackHitsSort){//keep same order
+  if (seedDir==anyDirection){//if anyDirection the seed direction is not stored in the root file: keep same order
+    for (trackingRecHit_iterator i=theT->recHitsBegin(); i!=theT->recHitsEnd(); i++){
+      hits.push_back(builder->build(&**i ));
+      if ((*i)->isValid()) ndof = ndof + ((*i)->dimension())*((*i)->weight());
+    }
+    seedDir=trackHitsSort;
+  } else if (seedDir==trackHitsSort){//keep same order
     for (trackingRecHit_iterator i=theT->recHitsBegin(); i!=theT->recHitsEnd(); i++){
       hits.push_back(builder->build(&**i ));
       if ((*i)->isValid()) ndof = ndof + ((*i)->dimension())*((*i)->weight());

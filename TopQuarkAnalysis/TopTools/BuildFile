@@ -1,15 +1,15 @@
-<use name=FWCore/Framework>
-<use name=Foundation/PluginManager>
-<use name=FWCore/ParameterSet>
-<use name=rootcint>
 <use name=root>
+<use name=rootcintex>
+<use name=FWCore/Framework>
+<use name=FWCore/ParameterSet>
+<use name=AnalysisDataFormats/TopObjects>
 
 <export>
-  <lib name=TopQuarkAnalysisTopTools>
-  <use name=FWCore/Framework>
-  <use name=Foundation/PluginManager>
-  <use name=FWCore/ParameterSet>
-  <use name=rootcint>
   <use name=root>
+  <use name=rootcintex>
+  <use name=FWCore/Framework>
+  <use name=FWCore/ParameterSet>
+  <use name=AnalysisDataFormats/TopObjects>
+  <lib name=TopQuarkAnalysisTopTools>
 </export>
 

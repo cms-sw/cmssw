@@ -46,7 +46,8 @@ class FamosManager
 
   /// The real thing is done here
   void reconstruct(const HepMC::GenEvent* evt, 
-		   const reco::CandidateCollection* particles);
+		   const reco::CandidateCollection* particles,
+		   const HepMC::GenEvent* pu);
 
   /// The tracker 
   TrajectoryManager * trackerManager() const {return myTrajectoryManager;}
@@ -69,7 +70,7 @@ class FamosManager
   bool m_pUseMagneticField;
   bool m_Tracking;
   bool m_Calorimetry;
-  bool m_PileUp;
+  bool m_TRandom;
   double weight_;    
   int m_pRunNumber;
   int m_pVerbose;

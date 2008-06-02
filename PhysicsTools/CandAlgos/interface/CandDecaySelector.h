@@ -12,7 +12,7 @@ namespace helper {
   class CandDecayStoreManager {
   public:
     typedef reco::CandidateCollection collection;
-    CandDecayStoreManager() :
+    CandDecayStoreManager( const edm::Handle<reco::CandidateCollection> & ) :
       selCands_( new reco::CandidateCollection ) {
     }
     template<typename I>

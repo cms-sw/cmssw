@@ -37,11 +37,13 @@ class TrackAssociatorByHits : public TrackAssociatorBase {
   reco::SimToRecoCollection associateSimToReco (edm::Handle<reco::TrackCollection>&, 
 						edm::Handle<TrackingParticleCollection>&, 
 						const edm::Event * event = 0) const;
+
  
  private:
   // ----- member data
   const edm::ParameterSet& conf_;
-  const double theMinHitFraction;    
+  const bool AbsoluteNumberOfHits;    
+  const double theMinHitCut;    
   int LayerFromDetid(const DetId&) const;
 };
 

@@ -2,8 +2,8 @@
  *
  * See header file for documentation
  *
- *  $Date: 2007/05/10 13:14:13 $
- *  $Revision: 1.3 $
+ *  $Date: 2007/05/14 14:19:08 $
+ *  $Revision: 1.4 $
  *
  *  \author S. Gennai
  *
@@ -12,7 +12,7 @@
 #include "HLTrigger/btau/interface/HLTTauL25DoubleFilter.h"
 
 #include "DataFormats/Common/interface/Handle.h"
-#include "DataFormats/JetReco/interface/CaloJet.h"
+#include "DataFormats/JetReco/interface/CaloJetCollection.h"
 #include "DataFormats/BTauReco/interface/JetTag.h"
 
 #include "DataFormats/Common/interface/RefToBase.h"

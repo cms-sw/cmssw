@@ -1,5 +1,5 @@
 //
-// $Id: EgammaSCEnergyCorrectionAlgo.cc,v 1.5 2006/08/09 14:43:05 rahatlou Exp $
+// $Id: EgammaSCEnergyCorrectionAlgo.cc,v 1.6 2007/05/31 16:24:46 futyand Exp $
 // Author: David Evans, Bristol
 //
 #include "RecoEcal/EgammaClusterAlgos/interface/EgammaSCEnergyCorrectionAlgo.h"
@@ -123,15 +123,16 @@ float EgammaSCEnergyCorrectionAlgo::fNCrystals(int nCry, reco::AlgoId theAlgo, E
   float x  = (float) nCry;
   float result =1.;
  
-  if((theBase == EcalBarrel) && (theAlgo == reco::hybrid)) {
-    if (nCry<=10) 
-      {
-        p0 =  6.32879e-01; 
-        p1 =  1.14893e-01; 
-        p2 = -2.45705e-02; 
-        p3 =  2.53074e-03; 
-        p4 = -9.29654e-05; 
-      } 
+  if((theBase == EcalBarrel) && (theAlgo == reco::hybrid)) 
+    {
+      if (nCry<=10) 
+	{
+	  p0 =  6.32879e-01; 
+	  p1 =  1.14893e-01; 
+	  p2 = -2.45705e-02; 
+	  p3 =  2.53074e-03; 
+	  p4 = -9.29654e-05; 
+	} 
       else if (nCry>10 && nCry<=30) 
         {
           p0 =  6.93196e-01; 
@@ -148,6 +149,7 @@ float EgammaSCEnergyCorrectionAlgo::fNCrystals(int nCry, reco::AlgoId theAlgo, E
           p3 = -6.84256e-04; 
           p4 =  5.50659e-06; 
         }
+      if (x > 40.) x = 40.;
       result = p0 + p1*x + p2*x*x + p3*x*x*x + p4*x*x*x*x;
     }
           

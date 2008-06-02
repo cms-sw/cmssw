@@ -1,0 +1,29 @@
+<use name=RecoVertex/VertexPrimitives>
+<use name=RecoVertex/KinematicFit>
+<use name=TrackingTools/TransientTrack>
+<use name=MagneticField/Records>
+<use name=DataFormats/EgammaCandidates>
+<use name=DataFormats/MuonReco>
+<use name=DataFormats/JetReco>
+<use name=DataFormats/METReco>
+<use name=DataFormats/RecoCandidate>
+<use name=PhysicsTools/CandUtils>
+<use name=PhysicsTools/KinFitter>
+<use name=FWCore/ParameterSet>
+<use name=boost>
+<export>
+  <lib name=PhysicsToolsRecoUtils>
+  <use name=RecoVertex/VertexPrimitives>
+  <use name=RecoVertex/KinematicFit>
+  <use name=TrackingTools/TransientTrack>
+  <use name=MagneticField/Records>
+  <use name=DataFormats/EgammaCandidates>
+  <use name=DataFormats/MuonReco>
+  <use name=DataFormats/JetReco>
+  <use name=DataFormats/METReco>
+  <use name=DataFormats/RecoCandidate>
+  <use name=PhysicsTools/KinFitter>
+  <use name=PhysicsTools/CandUtils>
+  <use name=FWCore/ParameterSet>
+  <use name=boost>
+</export>

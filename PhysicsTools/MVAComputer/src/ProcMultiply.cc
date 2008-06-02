@@ -9,9 +9,10 @@
 //
 // Author:      Christophe Saout
 // Created:     Sat Apr 24 15:18 CEST 2007
-// $Id: ProcMultiply.cc,v 1.2 2007/05/17 15:04:08 saout Exp $
+// $Id: ProcMultiply.cc,v 1.4 2007/09/16 22:55:34 saout Exp $
 //
 
+#include <stdlib.h>
 #include <algorithm>
 #include <iterator>
 #include <vector>

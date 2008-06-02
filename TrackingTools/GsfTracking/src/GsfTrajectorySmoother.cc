@@ -94,7 +94,7 @@ GsfTrajectorySmoother::trajectories(const Trajectory& aTraj) const {
   }
   
   for(std::vector<TM>::reverse_iterator itm = avtm.rbegin() + 1; 
-      itm != avtm.rend() - 1; itm++) {
+      itm < avtm.rend() - 1; ++itm) {
     {
       //       TimeMe t(*propTimer,false);
       //       //

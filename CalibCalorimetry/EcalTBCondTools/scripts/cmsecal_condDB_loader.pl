@@ -1,4 +1,4 @@
-#!/usr/bin/perl
+#!/usr/bin/env perl
 
 # A script to generate cfg files for the loading of the offline condDB
 

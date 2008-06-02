@@ -20,46 +20,6 @@
 lclphidat* CSCSectorReceiverLUT::me_lcl_phi = NULL;
 bool CSCSectorReceiverLUT::me_lcl_phi_loaded = false;
 
-///KK
-#include "CondFormats/L1TObjects/interface/L1MuCSCDTLut.h"
-#include "CondFormats/DataRecord/interface/L1MuCSCDTLutRcd.h"
-#include "CondFormats/L1TObjects/interface/L1MuCSCLocalPhiLut.h"
-#include "CondFormats/DataRecord/interface/L1MuCSCLocalPhiLutRcd.h"
-#include "CondFormats/L1TObjects/interface/L1MuCSCGlobalLuts.h"
-#include "CondFormats/DataRecord/interface/L1MuCSCGlobalLutsRcd.h"
-#include "FWCore/Framework/interface/ESHandle.h"
-CSCSectorReceiverLUT::CSCSectorReceiverLUT(int endcap, int sector, int subsector, int station,
-					   const edm::EventSetup& c):_endcap(endcap),_sector(sector),
-									   _subsector(subsector),
-									   _station(station)
-{
-	mb_global_phi = new gblphidat[1<<CSCBitWidths::kGlobalPhiAddressWidth];
-	me_global_phi = new gblphidat[1<<CSCBitWidths::kGlobalPhiAddressWidth];
-	me_global_eta = new gbletadat[1<<CSCBitWidths::kGlobalEtaAddressWidth];
-
-	edm::ESHandle<L1MuCSCGlobalLuts> globalLUTs;
-	c.get<L1MuCSCGlobalLutsRcd>().get(globalLUTs);
-	const L1MuCSCGlobalLuts *myConfigGlobal_ = globalLUTs.product();
-	int mpc = (station==1?subsector-1:station); 
-	if( mpc<0 || mpc>4 ) throw cms::Exception("Configuration error")<<"CSCSectorReceiverLUT|ctor: station="<<station<<" subsector="<<subsector<<" doesn't exist. Initialization error in CSCTFTrackProducer|CSCTFTrackBuilder|CSCTFSectorProcessor.";
-	memcpy((void*)me_global_phi,(void*)myConfigGlobal_->phi_lut(mpc),(1<<19)*sizeof(gblphidat));
-	memcpy((void*)me_global_eta,(void*)myConfigGlobal_->eta_lut(mpc),(1<<19)*sizeof(gbletadat));
-
-	edm::ESHandle<L1MuCSCDTLut> dtLUTs;
-	c.get<L1MuCSCDTLutRcd>().get(dtLUTs);
-	const L1MuCSCDTLut *myConfigDT_ = dtLUTs.product();
-	memcpy((void*)mb_global_phi,(void*)myConfigDT_->lut(0),(1<<19)*sizeof(gblphidat));
-
-//std::ofstream file("/tmp/kkotov/test.bin",std::ios::binary);
-////unsigned short *tmp = (unsigned short *)pt_lut;
-////const unsigned short *tmp = myConfigPt_->lut();
-////for(int address=0; address<1<<21; address++)
-////   file<<tmp[address]<<std::endl;
-//file.write((char*)pt_lut,(1<<21)*sizeof(ptdat));
-//file.close();
-}
-///
-
 CSCSectorReceiverLUT::CSCSectorReceiverLUT(int endcap, int sector, int subsector, int station,
 					   const edm::ParameterSet & pset):_endcap(endcap),_sector(sector),
 									   _subsector(subsector),

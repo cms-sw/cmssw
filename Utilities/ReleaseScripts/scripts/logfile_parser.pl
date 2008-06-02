@@ -5,7 +5,7 @@
 #  
 # Author: Shaun ASHBY <Shaun.Ashby@cern.ch>
 # Update: 2005-11-16 11:45:09+0100
-# Revision: $Id: logfile_parser.pl,v 1.1 2007/03/21 15:25:33 cmsbuild Exp $ 
+# Revision: $Id: logfile_parser.pl,v 1.1 2007/05/07 12:54:49 sashby Exp $ 
 #
 # Copyright: 2005 (C) Shaun ASHBY
 #
@@ -494,7 +494,7 @@ sub getpklistfromtc() {
     my $pass="CmsTC";
     my $gotpacks=0;
     
-    open(CMSTCQUERY,"wget $options  -nv -o /dev/null -O- 'http://$user:$pass\@cmsdoc.cern.ch/swdev/CmsTC/cgi-bin/CreateTagList?release=$projectversion' |");
+    open(CMSTCQUERY,"wget $options  -nv -o /dev/null -O- 'https://$user:$pass\@cmstags.cern.ch/cgi-bin/CmsTC/CreateTagList?release=$projectversion' |");
     
     my %tags;
     while ( <CMSTCQUERY> ) {

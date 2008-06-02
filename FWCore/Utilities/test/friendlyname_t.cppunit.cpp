@@ -63,6 +63,8 @@ void testfriendlyName::test()
   classToFriendly.insert( Values("edm::RefVector< edm::OwnVector<reco::Candidate,edm::ClonePolicy<reco::Candidate> >,reco::Candidate, edm::refhelper::FindUsingAdvance<edm::OwnVector<reco::Candidate,edm::ClonePolicy<reco::Candidate> >, reco::Candidate> >","recoCandidatesOwnedRefs"));
   classToFriendly.insert( Values("edm::RefVector< std::vector<reco::Track>, reco::Track, edm::refhelper::FindUsingAdvance<std::vector<reco::Track>, reco::Track> >","recoTracksRefs"));
   classToFriendly.insert( Values("edm::RefVector<Col, Type, edm::refhelper::FindUsingAdvance<Col, Type> >","ColTypeRefs"));
+  classToFriendly.insert( Values("edm::AssociationMap<edm::OneToMany<std::vector<reco::PixelMatchGsfElectron>,edm::SortedCollection<EcalRecHit,edm::StrictWeakOrdering<EcalRecHit> >,unsigned int> >",
+                                 "recoPixelMatchGsfElectronsEcalRecHitsSorteduintedmOneToManyedmAssociationMap"));
   for(std::map<std::string, std::string>::iterator itInfo = classToFriendly.begin(),
       itInfoEnd = classToFriendly.end();
       itInfo != itInfoEnd;

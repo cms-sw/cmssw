@@ -2,7 +2,7 @@
 #define FWCore_Catalog_FileCatalog_h
 //////////////////////////////////////////////////////////////////////
 //
-// $Id: FileCatalog.h,v 1.6 2006/10/05 22:00:25 wmtan Exp $
+// $Id: FileCatalog.h,v 1.1 2007/03/04 04:43:30 wmtan Exp $
 //
 // Class FileCatalog. Common services to manage File catalog
 //
@@ -47,32 +47,6 @@ namespace edm {
     pool::IFileCatalog catalog_;
     std::string url_;
     bool active_;
-  };
-
-  class InputFileCatalog : public FileCatalog {
-  public:
-    explicit InputFileCatalog(ParameterSet const& pset, bool noThrow = false);
-    virtual ~InputFileCatalog();
-    std::vector<FileCatalogItem> const& fileCatalogItems() const {return fileCatalogItems_;}
-    std::vector<std::string> const& logicalFileNames() const {return logicalFileNames_;}
-    std::vector<std::string> const& fileNames() const {return fileNames_;}
-  private:
-    void findFile(std::string & pfn, std::string const& lfn, bool noThrow);
-    std::vector<std::string> logicalFileNames_;
-    std::vector<std::string> fileNames_;
-    std::vector<FileCatalogItem> fileCatalogItems_;
-  };
-
-  class OutputFileCatalog : public FileCatalog {
-  public:
-    explicit OutputFileCatalog(ParameterSet const& pset);
-    virtual ~OutputFileCatalog();
-    std::string const& logicalFileName() const {return logicalFileName_;}
-    std::string const& fileName() const {return fileName_;}
-    pool::FileCatalog::FileID registerFile(std::string const& pfn, std::string const& lfn);
-  private:
-    std::string fileName_;
-    std::string logicalFileName_;
   };
 }
 

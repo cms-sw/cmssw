@@ -63,7 +63,7 @@ class TrackDetMatchInfo {
    std::vector<DetId>      crossedHOIds;
    std::vector<DetId>      crossedTowerIds;
    
-   std::vector<MuonChamberMatch> chambers;
+   std::vector< ::MuonChamberMatch> chambers;
 
    /// track info
    FreeTrajectoryState stateAtIP;

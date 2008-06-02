@@ -9,8 +9,8 @@
  *
  * \file DCCSRPBlock.h
  *
- * $Date: 2007/04/02 11:09:45 $
- * $Revision: 1.3 $
+ * $Date: 2007/04/10 17:33:48 $
+ * $Revision: 1.4 $
  *
  * \author N. Almeida
  *
@@ -40,7 +40,7 @@ class DCCSRPBlock : public DCCDataBlockPrototype {
 	 
     void display(std::ostream & o); 
 
-    void unpack(uint64_t ** data, uint * dwToEnd, uint numbFlags = SRP_NUMBFLAGS);     	 
+    int unpack(uint64_t ** data, uint * dwToEnd, uint numbFlags = SRP_NUMBFLAGS);     	 
 
     ushort srFlag(uint feChannel){ return srFlags_[feChannel-1]; }
     			
@@ -48,7 +48,7 @@ class DCCSRPBlock : public DCCDataBlockPrototype {
     
     virtual void addSRFlagToCollection(){};
 	 
-    virtual void checkSrpIdAndNumbSRFlags(){};
+    virtual bool checkSrpIdAndNumbSRFlags(){ return true; };
 	 
     uint srpId_         ;  
     uint bx_            ;  

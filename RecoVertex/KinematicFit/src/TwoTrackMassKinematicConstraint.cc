@@ -109,7 +109,7 @@ AlgebraicMatrix TwoTrackMassKinematicConstraint::parametersDerivative(const vect
  
 //mass components: 7th and 14th elements:
  res(1,7)  = 2*m1*(1+e2/e1);
- res(1,14) = 2*m1*(1+e1/e2);
+ res(1,14) = 2*m2*(1+e1/e2);
 
   return res;
 }			

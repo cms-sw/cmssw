@@ -2,16 +2,23 @@
 // Author:  Jan Heyninck
 // Created: Tue Apr  3 17:33:23 PDT 2007
 //
-// $Id: LRHelpFunctions.cc,v 1.8 2007/06/18 11:40:21 heyninck Exp $
+// $Id: LRHelpFunctions.cc,v 1.14 2007/11/14 09:37:57 speer Exp $
 //
 #include "TopQuarkAnalysis/TopTools/interface/LRHelpFunctions.h"
-#include "TopQuarkAnalysis/TopEventProducers/bin/tdrstyle.C"
+#include "TopQuarkAnalysis/TopTools/test/tdrstyle.C"
+
+using namespace std;
 
 // constructors
-LRHelpFunctions::LRHelpFunctions() {}
+LRHelpFunctions::LRHelpFunctions() {
+  constructPurity = false;
+  setTDRStyle();
+  gStyle->SetCanvasDefW(900);
+}
 
 
 LRHelpFunctions::LRHelpFunctions(std::vector<int> obsNr, int nrBins, std::vector<double> obsMin, std::vector<double> obsMax, std::vector<const char*> functions) { 
+  obsNumbers = obsNr;
   constructPurity = false;
   setTDRStyle();
   gStyle->SetCanvasDefW(900);
@@ -36,6 +43,14 @@ LRHelpFunctions::LRHelpFunctions(std::vector<int> obsNr, int nrBins, std::vector
   }
 }
 
+void LRHelpFunctions::recreateFitFct(std::vector<int> obsNr, std::vector<const char*> functions) {
+  if (!fObsSoverSplusB.empty()) fObsSoverSplusB.clear();
+  for(size_t o=0; o<obsNr.size(); o++){
+    // create fit functions
+    TString ftSB = "F_Obs"; ftSB += obsNr[o]; ftSB += "_SoverSplusB";
+    fObsSoverSplusB.push_back( new TF1(ftSB,functions[o],hObsS[o]->GetXaxis()->GetXmin(),hObsS[o]->GetXaxis()->GetXmax()) );
+  }
+}
 
 LRHelpFunctions::LRHelpFunctions(int nrLRbins, double LRmin, double LRmax, const char* LRfunction) { 
   constructPurity = true;
@@ -44,7 +59,9 @@ LRHelpFunctions::LRHelpFunctions(int nrLRbins, double LRmin, double LRmax, const
 
   // create LR histograms
   hLRtotS = new TH1F("hLRtotS","hLRtotS",nrLRbins,LRmin,LRmax);
+  hLRtotS->GetXaxis()->SetTitle("Combined LR");
   hLRtotB = new TH1F("hLRtotB","hLRtotB",nrLRbins,LRmin,LRmax);
+  hLRtotB->GetXaxis()->SetTitle("Combined LR");
   hLRtotSoverSplusB = new TH1F("hLRtotSoverSplusB","hLRtotSoverSplusB",nrLRbins,LRmin,LRmax);
     
   // create LR fit function
@@ -55,6 +72,17 @@ LRHelpFunctions::LRHelpFunctions(int nrLRbins, double LRmin, double LRmax, const
 // destructor
 LRHelpFunctions::~LRHelpFunctions() {}
 
+
+// member function to initialize the LR hists and fits
+void LRHelpFunctions::initLRHistsAndFits(int nrLRbins, double LRmin, double LRmax, const char* LRfunction){ 
+  constructPurity = true;
+  // create LR histograms
+  hLRtotS = new TH1F("hLRtotS","hLRtotS",nrLRbins,LRmin,LRmax);
+  hLRtotB = new TH1F("hLRtotB","hLRtotB",nrLRbins,LRmin,LRmax);
+  hLRtotSoverSplusB = new TH1F("hLRtotSoverSplusB","hLRtotSoverSplusB",nrLRbins,LRmin,LRmax);    
+  // create LR fit function
+  fLRtotSoverSplusB = new TF1("fLRtotSoverSplusB",LRfunction,LRmin,LRmax);
+}
 
 
 
@@ -75,32 +103,71 @@ void LRHelpFunctions::setObsFitParameters(int obs,std::vector<double> fitPars){
 
 
 // member function to add observable values to the signal histograms
-void LRHelpFunctions::fillToSignalHists(std::vector<double> obsVals){
+void LRHelpFunctions::fillToSignalHists(std::vector<double> obsVals, double weight){
   int hIndex = 0;
   for(size_t o=0; o<obsVals.size(); o++) {
-    hObsS[o]->Fill(obsVals[o]);
+    hObsS[o]->Fill(obsVals[o], weight);
     for(size_t o2=o+1; o2<obsVals.size(); o2++) {
-      hObsCorr[hIndex] -> Fill(obsVals[o],obsVals[o2]);
+      hObsCorr[hIndex] -> Fill(obsVals[o],obsVals[o2], weight);
       ++hIndex;
     }
   }
 }
-  
-  
-    
+
+// member function to add observable values to the signal histograms
+void LRHelpFunctions::fillToSignalHists(int obsNbr, double obsVal, double weight){
+  TString obs = "Obs"; obs += obsNbr; obs += "_";
+  for(size_t f = 0; f<hObsS.size(); f++){
+    if(((TString)(hObsS[f]->GetName())).Contains(obs)) {
+      hObsS[f]->Fill(obsVal, weight);
+      return;
+    }
+  }
+}
+
+// member function to add observable values to the signal histograms
+void LRHelpFunctions::fillToSignalCorrelation(int obsNbr1, double obsVal1, int obsNbr2,
+	double obsVal2, double weight){
+  TString hcorr  = "Corr_Obs"; hcorr  += (obsNbr1 <? obsNbr2) ; hcorr += "_Obs";  hcorr  += (obsNbr1 >? obsNbr2);
+  for(size_t i=0; i<hObsCorr.size(); i++) {
+    if(((TString)(hObsCorr[i]->GetName())) == hcorr) {
+      if (obsNbr1 < obsNbr2) {
+	hObsCorr[i] -> Fill(obsVal1,obsVal2, weight);
+      } else {
+	hObsCorr[i] -> Fill(obsVal2,obsVal1, weight);
+      }
+      return;
+    }
+  }
+}
+
+
 // member function to add observable values to the background histograms
-void LRHelpFunctions::fillToBackgroundHists(std::vector<double> obsVals){
-  for(size_t o=0; o<obsVals.size(); o++) hObsB[o]->Fill(obsVals[o]);
-} 
- 
- 
- 
-    
+void LRHelpFunctions::fillToBackgroundHists(std::vector<double> obsVals, double weight){
+  for(size_t o=0; o<obsVals.size(); o++) hObsB[o]->Fill(obsVals[o], weight);
+}
+
+// member function to add observable values to the signal histograms
+void LRHelpFunctions::fillToBackgroundHists(int obsNbr, double obsVal, double weight){
+  TString obs = "Obs"; obs += obsNbr; obs += "_";
+  for(size_t f = 0; f<hObsB.size(); f++){
+    if(((TString)(hObsB[f]->GetName())).Contains(obs)) {
+      hObsB[f]->Fill(obsVal, weight);
+      return;
+    }
+  }
+}
+
 // member function to normalize the S and B spectra
 void LRHelpFunctions::normalizeSandBhists(){
   for(size_t o=0; o<hObsS.size(); o++){
-    double nrSignEntries = hObsS[o]->GetEntries();
-    double nrBackEntries = hObsB[o]->GetEntries();
+    // count entries in each histo. Do it this way instead of GetEntries method,
+    // since the latter does not account for the weights.
+    double nrSignEntries = 0, nrBackEntries = 0;
+    for (int i=0; i<=hObsS[o]->GetNbinsX()+1; i++){
+      nrSignEntries += hObsS[o]->GetBinContent(i);
+      nrBackEntries += hObsB[o]->GetBinContent(i);
+     }
     for(int b=0; b <= hObsS[o]->GetNbinsX()+1; b++){
       hObsS[o]->SetBinContent(b,hObsS[o]->GetBinContent(b)/(nrSignEntries));
       hObsB[o]->SetBinContent(b,hObsB[o]->GetBinContent(b)/(nrBackEntries));
@@ -117,7 +184,7 @@ void LRHelpFunctions::normalizeSandBhists(){
 void LRHelpFunctions::makeAndFitSoverSplusBHists(){
   for(size_t o=0; o<hObsS.size(); o++){
     for(int b=0; b <= hObsS[o]->GetNbinsX()+1; b++){
-      if (hObsS[o]->GetBinContent(b) > 0 && hObsB[o]->GetBinContent(b) > 0) {
+      if ((hObsS[o]->GetBinContent(b)+ hObsB[o]->GetBinContent(b)) > 0) {
         hObsSoverSplusB[o]->SetBinContent(b, hObsS[o]->GetBinContent(b) / (hObsS[o]->GetBinContent(b) + hObsB[o]->GetBinContent(b)));
         double error = sqrt( pow(hObsS[o]->GetBinError(b) * hObsB[o]->GetBinContent(b)/pow(hObsS[o]->GetBinContent(b) + hObsB[o]->GetBinContent(b),2),2)
 	                   + pow(hObsB[o]->GetBinError(b) * hObsS[o]->GetBinContent(b)/pow(hObsS[o]->GetBinContent(b) + hObsB[o]->GetBinContent(b),2),2) );
@@ -161,6 +228,7 @@ void LRHelpFunctions::readObsHistsAndFits(TString fileName, std::vector<int> obs
     }
   }
   else{
+    obsNumbers = observables;
     for(unsigned int obs = 0; obs < observables.size(); obs++){
       std::cout<<"  ... will read hists and fit for obs "<<observables[obs]<<" from file "<<fileName<<std::endl;
       TString hStitle  = "Obs";   hStitle  += observables[obs];   hStitle += "_S";
@@ -180,6 +248,8 @@ void LRHelpFunctions::readObsHistsAndFits(TString fileName, std::vector<int> obs
   }
   
   if(readLRplots){
+    constructPurity = true;
+    std::cout<<"  ... will LR s and B histos from file "<<fileName<<std::endl;
     hLRtotS = new TH1F(*((TH1F*)fitFile->GetKey("hLRtotS")->ReadObj()));
     hLRtotB = new TH1F(*((TH1F*)fitFile->GetKey("hLRtotB")->ReadObj()));
     hLRtotSoverSplusB = new TH1F(*((TH1F*)fitFile->GetKey("hLRtotSoverSplusB")->ReadObj()));
@@ -295,7 +365,7 @@ void  LRHelpFunctions::storeControlPlots(TString fname){
 
 
 
-// member function to fill a signal contribution to the LR histogram 
+// member function to calculate the LR value, using the S/N definition
 double 	LRHelpFunctions::calcLRval(std::vector<double> vals){
   double logLR = 0.;
   for(size_t o=0; o<fObsSoverSplusB.size(); o++){
@@ -305,41 +375,82 @@ double 	LRHelpFunctions::calcLRval(std::vector<double> vals){
   }  
   return logLR;
 }
+
+
+// member function to calculate the LR value, using the definition that was
+// used in the P-TDR: S/(S+N)
  
- 
-   
-// member function to fill a signal contribution to the LR histogram 
-void  LRHelpFunctions::fillLRSignalHist(double val){
-  hLRtotS -> Fill(val);
-}   
-  
-  
-   
-// member function to fill a background contribution to the LR histogram 
-void  LRHelpFunctions::fillLRBackgroundHist(double val){
-  hLRtotB -> Fill(val);
-}    
+double LRHelpFunctions::calcPtdrLRval(std::vector<double> vals, bool useCorrelation) {
+  double logLR = 1.;
+  for(size_t o=0; o<fObsSoverSplusB.size(); o++){
+    double SoverSplusN = fObsSoverSplusB[o]->Eval(vals[o]);
+    if (SoverSplusN<0.0001) SoverSplusN=0.0001;
+    if (useCorrelation){
+      double corr = 0;
+      for(size_t j=0; j<fObsSoverSplusB.size(); j++){
+        if (o==j) ++corr;
+	else {
+	  TString hcorr  = "Corr_Obs"; hcorr  += (obsNumbers[o]<?obsNumbers[j]) ; hcorr += "_Obs";  hcorr  += (obsNumbers[o]>?obsNumbers[j]);
+	  for(size_t i=0; i<hObsCorr.size(); i++) {
+	    if(((TString)(hObsCorr[i]->GetName())) == hcorr)
+	      corr += fabs(hObsCorr[i]->GetCorrelationFactor());
+	  }
+	}
+      }
+     logLR *= pow(SoverSplusN/fObsSoverSplusB[o]->GetMaximum(), 1./corr);
+    }
+    else logLR *= SoverSplusN/fObsSoverSplusB[o]->GetMaximum();
+  }
+  //cout <<logLR<<endl;
+  return logLR;
+}
+
+
+// member function to fill a signal contribution to the LR histogram
+void  LRHelpFunctions::fillLRSignalHist(double val, double weight){
+  //  std::cout<< "@@@===> LRHelpf Signal LRval = "<< val<<std::endl;
+  hLRtotS -> Fill(val, weight);
+}
+
+
+
+// member function to fill a background contribution to the LR histogram
+void  LRHelpFunctions::fillLRBackgroundHist(double val, double weight){
+  // std::cout<< "@@@===> LRHelpf Backgroud LRval = "<< val<<std::endl;
+  hLRtotB -> Fill(val, weight);
+}
   
   
    
 // member function to make and fit the purity vs. LRval histogram, and the purity vs. efficiency graph
 void  LRHelpFunctions::makeAndFitPurityHists(){
+
   for(int b=0; b<=hLRtotS->GetNbinsX(); b++) {
-    if(!(hLRtotS->GetBinContent(b)==0 && hLRtotB->GetBinContent(b)==0)) {
-      hLRtotSoverSplusB->SetBinContent(b,hLRtotS->GetBinContent(b)/(hLRtotS->GetBinContent(b)+hLRtotB->GetBinContent(b)));
-      Float_t error = sqrt((pow(hLRtotS->GetBinContent(b)*hLRtotB->GetBinError(b),2)+pow(hLRtotB->GetBinContent(b)*hLRtotS->GetBinError(b),2)))/
-      				pow((hLRtotS->GetBinContent(b)+hLRtotB->GetBinContent(b)),2);
-      hLRtotSoverSplusB->SetBinError(b,error);
+    float Sint = hLRtotS->Integral(b, hLRtotS->GetNbinsX()+1);
+    float Bint = hLRtotB->Integral(b, hLRtotB->GetNbinsX()+1);
+    if (Sint + Bint > 0) {
+      hLRtotSoverSplusB->SetBinContent(b,1. * Sint / (Sint + Bint));
+      hLRtotSoverSplusB->SetBinError(b,sqrt((pow(Sint*sqrt(Bint),2)+pow(Bint*sqrt(Sint),2)))/pow((Sint+Bint),2));
     }
   }
+
+  hLRtotS->GetXaxis()->SetTitle("Combined LR ratio");
+  hLRtotB->GetXaxis()->SetTitle("Combined LR ratio");
+  hLRtotSoverSplusB->GetXaxis()->SetTitle("Cut on Combined LR");
+  hLRtotSoverSplusB->GetYaxis()->SetTitle("Purity");
+
   hLRtotSoverSplusB -> Fit(fLRtotSoverSplusB->GetName(),"RQ");  
-  
-  double Eff[100], Pur[100], LRVal[100];
-  for(int cut=0; cut<=hLRtotS->GetNbinsX(); cut ++){
- 	double LRcutVal = hLRtotS->GetBinCenter(cut+1);
-	Eff[cut]   = 1.- hLRtotS->Integral(0,cut+1)/hLRtotS->Integral(0,50);
-	Pur[cut]   = fLRtotSoverSplusB->Eval(LRcutVal);
-	LRVal[cut] = hLRtotS->GetBinCenter(cut+1);
+  double totSignal = hLRtotS->Integral(0,hLRtotS->GetNbinsX()+1);
+  double Eff[200], Pur[200], LRVal[200];
+  if (hLRtotS->GetNbinsX()>200) {
+    std::cout << "Number of bins of LR histograms can not execeed 200!"<<std::endl;
+    return;
+  }
+  for(int cut=0; (cut<=hLRtotS->GetNbinsX())&&(cut<200) ; cut ++){
+ 	double LRcutVal = hLRtotS->GetBinLowEdge(cut);
+	Eff[cut]   = hLRtotS->Integral(cut,hLRtotS->GetNbinsX()+1)/totSignal;
+ 	Pur[cut]   = fLRtotSoverSplusB->Eval(LRcutVal);
+	LRVal[cut] = LRcutVal;
   }
   hEffvsPur = new TGraph(hLRtotS->GetNbinsX(),Eff,Pur);
   hEffvsPur -> SetName("hEffvsPur");
@@ -381,4 +492,134 @@ bool 	LRHelpFunctions::obsFitIncluded(int o){
     if(((TString)(fObsSoverSplusB[f]->GetName())).Contains(obs)) included = true;
   }
   return included;
+}
+
+void LRHelpFunctions::setXlabels(const std::vector<std::string> & xLabels)
+{
+  if (hObsS.size() != xLabels.size()) {
+    cout << "LRHelpFunctions::setXlabels: Number of labels ("
+         << xLabels.size()<< ") does not match number of obervables("
+         << hObsS.size()<<").\n";
+    return;
+  }
+  for(size_t i = 0; i<hObsS.size(); ++i){
+    hObsS[i]->GetXaxis()->SetTitle(TString(xLabels[i]));
+    hObsB[i]->GetXaxis()->SetTitle(TString(xLabels[i]));
+    hObsSoverSplusB[i]->GetXaxis()->SetTitle(TString(xLabels[i]));
+    hObsSoverSplusB[i]->GetYaxis()->SetTitle(TString("S/(S+B)"));
+  }
+}
+
+void LRHelpFunctions::setYlabels(const std::vector<std::string> & yLabels)
+{
+  if (hObsS.size() != yLabels.size()) {
+    cout << "LRHelpFunctions::setYlabels: Number of labels ("
+	 << yLabels.size()<< ") does not match number of obervables("
+	 << hObsS.size()<<").\n";
+    return;
+  }
+  for(size_t i = 0; i<hObsS.size(); ++i){
+    hObsS[i]->GetYaxis()->SetTitle(TString(yLabels[i]));
+    hObsB[i]->GetYaxis()->SetTitle(TString(yLabels[i]));
+  }
+}
+
+void  LRHelpFunctions::singlePlot(TString fname, int obsNbr, TString extension) {
+  if (!obsFitIncluded(obsNbr)) return;
+
+  TStyle *tdrStyle = gROOT->GetStyle("tdrStyle");
+  tdrStyle->SetOptFit(0);
+  tdrStyle->SetOptStat(0);
+  tdrStyle->SetOptTitle(0);
+//   tdrStyle->SetPadTopMargin(0.01);
+//   tdrStyle->SetPadBottomMargin(0.01);
+//   tdrStyle->SetPadLeftMargin(0.01);
+//   tdrStyle->SetPadRightMargin(0.01);
+
+  TCanvas c2("c2","",600,300);
+  c2.SetTopMargin(0.01);
+  c2.SetBottomMargin(0.01);
+  c2.SetLeftMargin(0.01);
+  c2.SetRightMargin(0.01);
+  cout <<fname<<endl;
+  c2.Divide(2,1);
+
+  TString obs = "Obs"; obs += obsNbr; obs += "_";
+  for(size_t o = 0; o<hObsB.size(); ++o){
+    if(((TString)(hObsB[o]->GetName())).Contains(obs)) {
+      c2.cd(1);
+      hObsS[o] -> SetLineColor(2);
+      if(hObsB[o]->GetMaximum() > hObsS[o]->GetMaximum()){
+	hObsB[o] -> Draw("hist");
+	hObsS[o] -> Draw("histsame");
+      }
+      else
+      {
+	hObsS[o] -> Draw("hist");
+	hObsB[o] -> Draw("histsame");
+      }
+      c2.cd(2);
+
+      hObsSoverSplusB[o] -> Draw();
+      fObsSoverSplusB[o] -> Draw("same");
+    }
+  }
+  cout << fname+"."+extension<<endl;
+  c2.Print(fname+"."+extension);
+}
+
+void  LRHelpFunctions::purityPlot(TString fname, TString extension)
+{
+  TStyle *tdrStyle = gROOT->GetStyle("tdrStyle");
+  tdrStyle->SetOptFit(0);
+  tdrStyle->SetOptStat(0);
+  tdrStyle->SetOptTitle(0);
+//   tdrStyle->SetPadTopMargin(0.01);
+//   tdrStyle->SetPadBottomMargin(0.01);
+//   tdrStyle->SetPadLeftMargin(0.01);
+//   tdrStyle->SetPadRightMargin(0.01);
+
+  TCanvas c2("c2","",600,300);
+  c2.SetTopMargin(0.01);
+  c2.SetBottomMargin(0.01);
+  c2.SetLeftMargin(0.01);
+  c2.SetRightMargin(0.01);
+  cout <<fname<<endl;
+  c2.Divide(2,1);
+
+  c2.cd(1);
+  hLRValvsPur->Draw("AP");
+  c2.cd(2);
+  hEffvsPur->Draw("AP");
+  c2.Print(fname+"Purity."+extension);
+
+  hLRtotS->GetXaxis()->SetNdivisions(505);
+  hLRtotB->GetXaxis()->SetNdivisions(505);
+  TCanvas c3("c2","",300,300);
+//   c3.SetTopMargin(0.01);
+//   c3.SetBottomMargin(0.01);
+//   c3.SetLeftMargin(0.01);
+//   c3.SetRightMargin(0.01);
+  hLRtotS->GetXaxis()->SetTitle("Combined LR");
+  hLRtotB->GetXaxis()->SetTitle("Combined LR");
+
+    hLRtotB -> Draw();
+    hLRtotS -> SetLineColor(2);
+    hLRtotS -> Draw("same");
+  c3.Print(fname+"Dist."+extension);
+
+
+    TCanvas c5("c3","",900,600);
+    c5.Divide(2,2);
+    c5.cd(1);
+    hLRtotB -> Draw();
+    hLRtotS -> SetLineColor(2);
+    hLRtotS -> Draw("same");
+    c5.cd(3);
+    hLRValvsEff -> Draw("AP");
+    c5.cd(2);
+    hEffvsPur -> Draw("AP");
+    c5.cd(4);
+    hLRtotSoverSplusB -> Draw();
+    c5.Print(fname+"all."+extension);
 }

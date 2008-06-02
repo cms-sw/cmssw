@@ -4,8 +4,8 @@
 /*
  * \file HcalMonitorModule.h
  *
- * $Date: 2007/05/15 20:53:32 $
- * $Revision: 1.14 $
+ * $Date: 2006/10/23 19:31:23 $
+ * $Revision: 1.9 $
  * \author W. Fisher
  *
 */
@@ -21,9 +21,7 @@
 #include "FWCore/Framework/interface/ESHandle.h"
 #include "Geometry/Records/interface/IdealGeometryRecord.h"
 #include "Geometry/CaloGeometry/interface/CaloGeometry.h"
-#include "DataFormats/Provenance/interface/EventID.h"  //for use in 1_4_0
-#include "DataFormats/HcalDigi/interface/HcalUnpackerReport.h"
-
+#include "DataFormats/Provenance/interface/EventID.h"
 
 #include "DQM/HcalMonitorModule/interface/HcalMonitorSelector.h"
 #include "DQM/HcalMonitorTasks/interface/HcalDigiMonitor.h"
@@ -33,8 +31,6 @@
 #include "DQM/HcalMonitorTasks/interface/HcalLEDMonitor.h"
 #include "DQM/HcalMonitorTasks/interface/HcalMTCCMonitor.h"
 #include "DQM/HcalMonitorTasks/interface/HcalHotCellMonitor.h"
-#include "DQM/HcalMonitorTasks/interface/HcalCommissioningMonitor.h"
-#include "DQM/HcalMonitorTasks/interface/HcalTemplateAnalysis.h"
 #include "TBDataFormats/HcalTBObjects/interface/HcalTBRunData.h"
 
 #include <memory>
@@ -90,8 +86,6 @@ private:
   HcalLEDMonitor*         m_ledMon;
   HcalMTCCMonitor*        m_mtccMon;
   HcalHotCellMonitor*     m_hotMon;
-  HcalCommissioningMonitor*     m_commisMon;
-  HcalTemplateAnalysis*   m_tempAnalysis;
   
   edm::ESHandle<HcalDbService> m_conditions;
   const HcalElectronicsMap* m_readoutMap;

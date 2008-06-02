@@ -7,48 +7,38 @@ class TtGenEvent: public TopGenEvent {
  public:
   
   TtGenEvent();
-  TtGenEvent(reco::CandidateRefProd&);
+  TtGenEvent(reco::GenParticleRefProd&, reco::GenParticleRefProd&);
   virtual ~TtGenEvent();
 
-  int numberOfLeptons() const;
-  int numberOfBQuarks() const;
-  bool isFullHadronic() const { return (numberOfLeptons()==0);}
-  bool isSemiLeptonic() const { return (numberOfLeptons()==1);}
-  bool isFullLeptonic() const { return (numberOfLeptons()==2);}
+  bool isTtBar() const {return (top() && topBar());}
+  bool isFullHadronic() const { return (isTtBar() && numberOfLeptons()==0);}
+  bool isSemiLeptonic() const { return (isTtBar() && numberOfLeptons()==1);}
+  bool isFullLeptonic() const { return (isTtBar() && numberOfLeptons()==2);}
   
   //semi-leptonic getters
-  const reco::Candidate* singleLepton() const;
-  const reco::Candidate* singleNeutrino() const;
-  const reco::Candidate* leptonicW() const;
-  const reco::Candidate* leptonicB() const;
-  const reco::Candidate* leptonicTop() const;
-  const reco::Candidate* hadronicW() const;
-  const reco::Candidate* hadronicB() const;
-  const reco::Candidate* hadronicTop() const;
-  const reco::Candidate* hadronicQuark() const;
-  const reco::Candidate* hadronicQuarkBar() const;
+  const reco::GenParticle* leptonicDecayW() const;
+  const reco::GenParticle* leptonicDecayB() const;
+  const reco::GenParticle* leptonicDecayTop() const;
+  const reco::GenParticle* hadronicDecayW() const;
+  const reco::GenParticle* hadronicDecayB() const;
+  const reco::GenParticle* hadronicDecayTop() const;
+  const reco::GenParticle* hadronicDecayQuark() const;
+  const reco::GenParticle* hadronicDecayQuarkBar() const;
   
   //full-leptonic getters
-  const reco::Candidate* lepton() const;
-  const reco::Candidate* leptonBar() const;
-  const reco::Candidate* neutrino() const;
-  const reco::Candidate* neutrinoBar() const;
+  const reco::GenParticle* lepton() const;
+  const reco::GenParticle* leptonBar() const;
+  const reco::GenParticle* neutrino() const;
+  const reco::GenParticle* neutrinoBar() const;
   
   //full-hadronic getters
-  const reco::Candidate* quarkFromTop() const;
-  const reco::Candidate* quarkFromTopBar() const;
-  const reco::Candidate* quarkFromAntiTop() const;
-  const reco::Candidate* quarkFromAntiTopBar() const;
+  const reco::GenParticle* quarkFromTop() const;
+  const reco::GenParticle* quarkFromTopBar() const;
+  const reco::GenParticle* quarkFromAntiTop() const;
+  const reco::GenParticle* quarkFromAntiTopBar() const;
   
  private:
   
-  bool isLepton(const reco::Candidate& part) const 
-  {return (abs(part.pdgId())==11 || abs(part.pdgId())==13 || abs(part.pdgId())==15);}
-  bool isNeutrino(const reco::Candidate& part) const 
-  {return (abs(part.pdgId())==12 || abs(part.pdgId())==14 || abs(part.pdgId())==16);}
-  double flavour(const reco::Candidate& part) const 
-  {return (double)(part.pdgId() / abs(part.pdgId()) );}
 };
-
 
 #endif

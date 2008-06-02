@@ -1,10 +1,27 @@
 #include <iostream>
+#include <sstream>
+#include <fstream>
 #include <algorithm>
 #include <cstddef>
+#include <cstring>
 #include <vector>
 #include <set>
 
+// ROOT version magic to support TMVA interface changes in newer ROOT   
+#include <RVersion.h>
+
+#if ROOT_VERSION_CODE >= ROOT_VERSION(5, 15, 0)
+#	include <TBufferFile.h>
+#	define MVARootBuffer TBufferFile
+#else
+#	include <TBuffer.h>
+#	define MVARootBuffer TBuffer
+#endif
+#include <TClass.h>
+
 #include "FWCore/Utilities/interface/Exception.h"
+
+#include "PhysicsTools/MVAComputer/interface/zstream.h"
 
 #include "PhysicsTools/MVAComputer/interface/MVAComputer.h"
 #include "PhysicsTools/MVAComputer/interface/VarProcessor.h"
@@ -18,13 +35,34 @@
 #	include <Reflex/Tools.h>
 #endif
 
+#define STANDALONE_HEADER "MVAComputer calibration\n"
+
 namespace PhysicsTools {
 
-MVAComputer::MVAComputer(
-			const Calibration::MVAComputer *calib) :
+MVAComputer::MVAComputer(const Calibration::MVAComputer *calib) :
 	nVars(0), output(0)
 {
 	setup(calib);
+}
+
+MVAComputer::MVAComputer(Calibration::MVAComputer *calib, bool owned) :
+	nVars(0), output(0)
+{
+	if (owned)
+		this->owned.reset(calib);
+	setup(calib);
+}
+
+MVAComputer::MVAComputer(const char *filename) :
+	nVars(0), output(0), owned(readCalibration(filename))
+{
+	setup(owned.get());
+}
+
+MVAComputer::MVAComputer(std::istream &is) :
+	nVars(0), output(0), owned(readCalibration(is))
+{
+	setup(owned.get());
 }
 
 void MVAComputer::setup(const Calibration::MVAComputer *calib)
@@ -186,6 +224,84 @@ void MVAComputer::eval(double *values, int *conf, unsigned int n) const
 			}
 		}
 	}
+}
+
+Calibration::MVAComputer *MVAComputer::readCalibration(const char *filename)
+{
+	std::ifstream file(filename);
+	return readCalibration(file);
+}
+
+Calibration::MVAComputer *MVAComputer::readCalibration(std::istream &is)
+{
+	if (!is.good())
+		throw cms::Exception("InvalidFileState")
+			<< "Stream passed to MVAComputer::readCalibration "
+			   "has an invalid state." << std::endl;
+
+	char header[sizeof STANDALONE_HEADER - 1] = { 0, };
+	if (is.readsome(header, sizeof header) != sizeof header ||
+	    std::memcmp(header, STANDALONE_HEADER, sizeof header) != 0)
+		throw cms::Exception("InvalidFileFormat")
+			<< "Stream passed to MVAComputer::readCalibration "
+			   "is not a valid calibration file." << std::endl;
+
+	TClass *rootClass =
+		TClass::GetClass("PhysicsTools::Calibration::MVAComputer");
+	if (!rootClass)
+		throw cms::Exception("DictionaryMissing")
+			<< "CondFormats dictionary for "
+			   "PhysicsTools::Calibration::MVAComputer missing"
+			<< std::endl;
+
+	ext::izstream izs(&is);
+	std::ostringstream ss;
+	ss << izs.rdbuf();
+	std::string buf = ss.str();
+
+	MVARootBuffer buffer(TBuffer::kRead, buf.size(), const_cast<void*>(
+			static_cast<const void*>(buf.c_str())), kFALSE);
+	buffer.InitMap();
+
+	std::auto_ptr<Calibration::MVAComputer> calib(
+					new Calibration::MVAComputer());
+	buffer.StreamObject(static_cast<void*>(calib.get()), rootClass);
+
+	return calib.release();
+}
+
+void MVAComputer::writeCalibration(const char *filename,
+                                   const Calibration::MVAComputer *calib)
+{
+	std::ofstream file(filename);
+	writeCalibration(file, calib);
+}
+
+void MVAComputer::writeCalibration(std::ostream &os,
+                                   const Calibration::MVAComputer *calib)
+{
+	if (!os.good())
+		throw cms::Exception("InvalidFileState")
+			<< "Stream passed to MVAComputer::writeCalibration "
+			   "has an invalid state." << std::endl;
+
+	os << STANDALONE_HEADER;
+
+	TClass *rootClass =
+		TClass::GetClass("PhysicsTools::Calibration::MVAComputer");
+	if (!rootClass)
+		throw cms::Exception("DictionaryMissing")
+			<< "CondFormats dictionary for "
+			   "PhysicsTools::Calibration::MVAComputer missing"
+			<< std::endl;
+
+	MVARootBuffer buffer(TBuffer::kWrite);
+	buffer.StreamObject(const_cast<void*>(static_cast<const void*>(calib)),
+	                    rootClass);
+
+	ext::ozstream ozs(&os);
+	ozs.write(buffer.Buffer(), buffer.Length());
+	ozs.flush();
 }
 
 } // namespace PhysicsTools

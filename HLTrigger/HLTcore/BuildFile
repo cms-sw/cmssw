@@ -6,6 +6,7 @@
 <use name=FWCore/ParameterSet>
 <use name=FWCore/ServiceRegistry>
 <use name=FWCore/PluginManager>
+<use name=FWCore/PrescaleService>
 <export>
   <use name=DataFormats/Candidate>
   <use name=DataFormats/Common>

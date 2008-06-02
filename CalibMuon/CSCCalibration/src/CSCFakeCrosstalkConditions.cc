@@ -93,7 +93,6 @@ CSCFakeCrosstalkConditions::CSCFakeCrosstalkConditions(const edm::ParameterSet& 
   //the following line is needed to tell the framework what
   // data is being produced
   prefillFakeCrosstalk();
-  // added by Zhen (changed since 1_2_0)
   setWhatProduced(this,&CSCFakeCrosstalkConditions::produceCrosstalk);
   findingRecord<CSCcrosstalkRcd>();
   //now do what ever other initialization is needed
@@ -117,10 +116,7 @@ CSCFakeCrosstalkConditions::~CSCFakeCrosstalkConditions()
 CSCFakeCrosstalkConditions::ReturnType
 CSCFakeCrosstalkConditions::produceCrosstalk(const CSCcrosstalkRcd& iRecord)
 {
-  // Added by Zhen, need a new object so to not be deleted at exit
-  CSCcrosstalk* mydata=new CSCcrosstalk( *cncrosstalk );
-  return mydata;
-  
+  return cncrosstalk;  
 }
 
  void CSCFakeCrosstalkConditions::setIntervalFor(const edm::eventsetup::EventSetupRecordKey &, const edm::IOVSyncValue&,

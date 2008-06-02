@@ -26,6 +26,15 @@
 #include "CondFormats/EcalObjects/interface/EcalADCToGeVConstant.h"
 #include "CondFormats/DataRecord/interface/EcalADCToGeVConstantRcd.h"
 
+#include "CondFormats/EcalObjects/interface/EcalLaserAlphas.h"
+#include "CondFormats/DataRecord/interface/EcalLaserAlphasRcd.h"
+
+#include "CondFormats/EcalObjects/interface/EcalLaserAPDPNRatios.h"
+#include "CondFormats/DataRecord/interface/EcalLaserAPDPNRatiosRcd.h"
+
+#include "CondFormats/EcalObjects/interface/EcalLaserAPDPNRatiosRef.h"
+#include "CondFormats/DataRecord/interface/EcalLaserAPDPNRatiosRefRcd.h"
+
 DEFINE_SEAL_MODULE();
 REGISTER_PLUGIN(EcalPedestalsRcd,EcalPedestals);
 REGISTER_PLUGIN(EcalWeightXtalGroupsRcd,EcalWeightXtalGroups);
@@ -33,3 +42,6 @@ REGISTER_PLUGIN(EcalTBWeightsRcd,EcalTBWeights);
 REGISTER_PLUGIN(EcalGainRatiosRcd,EcalGainRatios);
 REGISTER_PLUGIN(EcalIntercalibConstantsRcd,EcalIntercalibConstants);
 REGISTER_PLUGIN(EcalADCToGeVConstantRcd,EcalADCToGeVConstant);
+REGISTER_PLUGIN(EcalLaserAlphasRcd,EcalLaserAlphas);
+REGISTER_PLUGIN(EcalLaserAPDPNRatiosRcd,EcalLaserAPDPNRatios);
+REGISTER_PLUGIN(EcalLaserAPDPNRatiosRefRcd,EcalLaserAPDPNRatiosRef);

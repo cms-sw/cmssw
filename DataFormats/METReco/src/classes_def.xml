@@ -40,4 +40,8 @@
   <class name="edm::reftobase::Holder<reco::Candidate, edm::Ref<std::vector<reco::CaloMET>,reco::CaloMET,edm::refhelper::FindUsingAdvance<std::vector<reco::CaloMET>,reco::CaloMET> > >" />
   <class name="edm::reftobase::Holder<reco::Candidate, edm::Ref<std::vector<reco::GenMET>,reco::GenMET,edm::refhelper::FindUsingAdvance<std::vector<reco::GenMET>,reco::GenMET> > >" />
 
+  <class name="edm::reftobase::RefHolder<reco::METRef>" />
+  <class name="edm::reftobase::RefHolder<reco::CaloMETRef>" />
+  <class name="edm::reftobase::RefHolder<reco::GenMETRef>" />
+
 </lcgdict>

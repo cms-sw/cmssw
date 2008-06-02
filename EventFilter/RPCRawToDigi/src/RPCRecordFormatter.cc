@@ -1,8 +1,8 @@
 /** \file
  * Implementation of class RPCRecordFormatter
  *
- *  $Date: 2007/04/05 15:51:06 $
- *  $Revision: 1.28 $
+ *  $Date: 2007/03/28 22:35:27 $
+ *  $Revision: 1.27 $
  *
  * \author Ilaria Segoni
  */
@@ -109,8 +109,8 @@ void RPCRecordFormatter::recordUnpack(
   eleIndex.tbLinkInputNum = currentTbLinkInputNumber;
   eleIndex.lbNumInLink = lbData.lbNumber();
 
-  if(readoutMapping == 0) return;
   const LinkBoardSpec* linkBoard = readoutMapping->location(eleIndex);
+
   if (!linkBoard) {
     throw cms::Exception("Invalid Linkboard location!") 
               << "dccId: "<<eleIndex.dccId

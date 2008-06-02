@@ -7,7 +7,7 @@
  *
  * \author U.Berthon, ClaudeCharlot,LLR
  *
- * \version $Id: PixelMatchGsfElectron.h,v 1.19 2007/06/14 17:35:16 uberthon Exp $
+ * \version $Id: PixelMatchGsfElectron.h,v 1.20 2007/06/20 08:33:38 llista Exp $
  *
  */
 
@@ -25,6 +25,9 @@
 // Ursula Berthon - LLR Ecole polytechnique
 // 
 // $Log: PixelMatchGsfElectron.h,v $
+// Revision 1.20  2007/06/20 08:33:38  llista
+// fixed electron content
+//
 // Revision 1.19  2007/06/14 17:35:16  uberthon
 // separate algorithmic from data part
 //
@@ -232,6 +235,8 @@ class PixelMatchGsfElectron : public RecoCandidate {
   virtual bool overlap( const Candidate & ) const;
 
 };
+
+  typedef PixelMatchGsfElectron GsfElectron;
 
 }
 #endif

@@ -1,8 +1,8 @@
 /*
  * \file EBLaserTask.cc
  *
- * $Date: 2007/06/12 18:18:06 $
- * $Revision: 1.82 $
+ * $Date: 2007/08/14 17:43:06 $
+ * $Revision: 1.86 $
  * \author G. Della Ricca
  *
 */
@@ -515,6 +515,8 @@ void EBLaserTask::endJob(void){
 
 void EBLaserTask::analyze(const Event& e, const EventSetup& c){
 
+  Numbers::initGeometry(c);
+
   bool enable = false;
   map<int, EcalDCCHeaderBlock> dccMap;
 
@@ -527,7 +529,7 @@ void EBLaserTask::analyze(const Event& e, const EventSetup& c){
 
       EcalDCCHeaderBlock dcch = (*dcchItr);
 
-      int ism = Numbers::iSM( dcch );
+      int ism = Numbers::iSM( dcch, EcalBarrel );
 
       map<int, EcalDCCHeaderBlock>::iterator i = dccMap.find( ism );
       if ( i != dccMap.end() ) continue;
@@ -816,7 +818,7 @@ void EBLaserTask::analyze(const Event& e, const EventSetup& c){
 
       float xval = hit.amplitude();
       if ( xval <= 0. ) xval = 0.0;
-      float yval = hit.jitter();
+      float yval = hit.jitter() + 6.0;
       if ( yval <= 0. ) yval = 0.0;
       float zval = hit.pedestal();
       if ( zval <= 0. ) zval = 0.0;

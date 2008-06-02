@@ -6,7 +6,7 @@
 // Implementation:
 //
 // Original Author:  Jim Kowalkowski
-// $Id: Memory.cc,v 1.8 2007/03/04 05:55:26 wmtan Exp $
+// $Id: Memory.cc,v 1.10 2007/08/16 02:53:15 elmer Exp $
 //
 
 #include "FWCore/Services/src/Memory.h"
@@ -14,6 +14,7 @@
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include "FWCore/Utilities/interface/Exception.h"
 
+#include <malloc.h>
 #include <sstream>
 
 #ifdef __linux__
@@ -144,6 +145,8 @@ namespace edm {
       current_(&a_),previous_(&b_),
       pg_size_(sysconf(_SC_PAGESIZE)), // getpagesize();
       num_to_skip_(iPS.getUntrackedParameter<int>("ignoreTotal",1)),
+      showMallocInfo(iPS.getUntrackedParameter<bool>("showMallocInfo",false)),
+      oncePerEventMode(iPS.getUntrackedParameter<bool>("oncePerEventMode",false)),
       count_()
     {
       // pg_size = (double)getpagesize();
@@ -159,14 +162,36 @@ namespace edm {
 	    << "Memory checker server: Failed to open " << ost.str() << std::endl;
 	}
 #endif
-      iReg.watchPostBeginJob(this,&SimpleMemoryCheck::postBeginJob);
-      iReg.watchPostEndJob(this,&SimpleMemoryCheck::postEndJob);
-      
-      iReg.watchPreProcessEvent(this,&SimpleMemoryCheck::preEventProcessing);
-      iReg.watchPostProcessEvent(this,&SimpleMemoryCheck::postEventProcessing);
+      if (!oncePerEventMode) { // default, prints on increases
+        iReg.watchPreSourceConstruction(this,
+             &SimpleMemoryCheck::preSourceConstruction);
+        iReg.watchPostSourceConstruction(this,
+             &SimpleMemoryCheck::postSourceConstruction);
+        iReg.watchPostSource(this,
+             &SimpleMemoryCheck::postSource);
+        iReg.watchPostModuleConstruction(this,
+             &SimpleMemoryCheck::postModuleConstruction);
+        iReg.watchPostModuleBeginJob(this,
+             &SimpleMemoryCheck::postModuleBeginJob);
+        iReg.watchPostProcessEvent(this,
+             &SimpleMemoryCheck::postEventProcessing);
+        iReg.watchPostModule(this,
+             &SimpleMemoryCheck::postModule);
+      } else { 
+        iReg.watchPostProcessEvent(this,
+             &SimpleMemoryCheck::postEventProcessing);
+      }
+      // The following are not currenty used/implemented below for either
+      // of the print modes (but are left here for reference)
+      //  iReg.watchPostBeginJob(this,
+      //       &SimpleMemoryCheck::postBeginJob);
+      //  iReg.watchPostEndJob(this,
+      //       &SimpleMemoryCheck::postEndJob);
+      //  iReg.watchPreProcessEvent(this,
+      //       &SimpleMemoryCheck::preEventProcessing);
+      //  iReg.watchPreModule(this,
+      //       &SimpleMemoryCheck::preModule);
 
-      iReg.watchPreModule(this,&SimpleMemoryCheck::preModule);
-      iReg.watchPostModule(this,&SimpleMemoryCheck::postModule);
     }
 
     SimpleMemoryCheck::~SimpleMemoryCheck()
@@ -179,47 +204,100 @@ namespace edm {
     void SimpleMemoryCheck::postBeginJob()
     {
     }
-
-    void SimpleMemoryCheck::postEndJob()
+ 
+    void SimpleMemoryCheck::preSourceConstruction(const ModuleDescription& md) 
+    {
+      updateAndPrint("pre-ctor", md.moduleLabel_, md.moduleName_);
+    }
+ 
+ 
+    void SimpleMemoryCheck::postSourceConstruction(const ModuleDescription& md)
+    {
+      updateAndPrint("ctor", md.moduleLabel_, md.moduleName_);
+    }
+ 
+    void SimpleMemoryCheck::postSource() 
+    {
+      updateAndPrint("module", "source", "source");
+    }
+ 
+    void SimpleMemoryCheck::postModuleConstruction(const ModuleDescription& md)
+    {
+      updateAndPrint("ctor", md.moduleLabel_, md.moduleName_);
+    }
+ 
+    void SimpleMemoryCheck::postModuleBeginJob(const ModuleDescription& md) 
+    {
+      updateAndPrint("beginJob", md.moduleLabel_, md.moduleName_);
+    }
+ 
+    void SimpleMemoryCheck::postEndJob() 
     {
     }
-
+ 
     void SimpleMemoryCheck::preEventProcessing(const edm::EventID& iID,
-					       const edm::Timestamp& iTime)
+          				       const edm::Timestamp& iTime) 
     {
     }
+
     void SimpleMemoryCheck::postEventProcessing(const Event& e,
-						const EventSetup&)
+          					const EventSetup&) 
     {
-	  ++count_;
+      ++count_;
+      if (oncePerEventMode) {
+        // should probably use be Run:Event or count_ for the label and name
+        updateAndPrint("event", "", ""); 
+      } 
     }
-
-    void SimpleMemoryCheck::preModule(const ModuleDescription& md)
-    {
+ 
+    void SimpleMemoryCheck::preModule(const ModuleDescription& md) {
     }
-
-    void SimpleMemoryCheck::postModule(const ModuleDescription& md)
+ 
+    void SimpleMemoryCheck::postModule(const ModuleDescription& md) {
+      updateAndPrint("module", md.moduleLabel_, md.moduleName_);
+    }
+ 
+ 
+    void SimpleMemoryCheck::updateAndPrint(const std::string& type, 
+                    const std::string& mdlabel, const std::string& mdname) 
     {
       std::swap(current_,previous_);
       *current_ = fetch();
-
-      if(*current_ > max_)
-	{
-	  if(count_ >= num_to_skip_)
-	  LogWarning("MemoryIncrease")
-	    << "Memory increased from "
-	    << "VSIZE=" << max_.vsize << "MB "
-	    << "and RSS=" << max_.rss << "MB "
-	    << "to VSIZE=" << current_->vsize << "MB"
-	    << " and RSS=" << current_->rss << "MB\n"
-	    << "after module "
-	    << md.moduleLabel_ << "/"
-	    << md.moduleName_ << "\n";
-	  
-	  max_ = *current_;
-	}
-
+ 
+      if ((*current_ > max_) || oncePerEventMode)
+        {
+          if(count_ >= num_to_skip_) {
+            double deltaVSIZE = current_->vsize - max_.vsize;
+            double deltaRSS   = current_->rss - max_.rss;
+            if (!showMallocInfo) {  // default
+              LogWarning("MemoryCheck")
+              << "MemoryCheck: " << type << " "
+              << mdname << ":" << mdlabel 
+              << " VSIZE " << current_->vsize << " " << deltaVSIZE
+              << " RSS " << current_->rss << " " << deltaRSS
+              << "\n";
+            } else {
+              struct mallinfo minfo = mallinfo();
+              LogWarning("MemoryCheck")
+              << "MemoryCheck: " << type << " "
+              << mdname << ":" << mdlabel 
+              << " VSIZE " << current_->vsize << " " << deltaVSIZE
+              << " RSS " << current_->rss << " " << deltaRSS
+              << " HEAP-ARENA [ SIZE-BYTES " << minfo.arena
+              << " N-UNUSED-CHUNKS " << minfo.ordblks
+              << " TOP-FREE-BYTES " << minfo.keepcost << " ]"
+              << " HEAP-MAPPED [ SIZE-BYTES " << minfo.hblkhd
+              << " N-CHUNKS " << minfo.hblks << " ]"
+              << " HEAP-USED-BYTES " << minfo.uordblks
+              << " HEAP-UNUSED-BYTES " << minfo.fordblks
+              << "\n";
+            }
+          }
+          max_ = *current_;
+        }
     }
+
 
   }
 }
+

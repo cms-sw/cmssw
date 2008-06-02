@@ -211,11 +211,7 @@ CSCFakeNoiseMatrixConditions::~CSCFakeNoiseMatrixConditions()
 CSCFakeNoiseMatrixConditions::ReturnType
 CSCFakeNoiseMatrixConditions::produceNoiseMatrix(const CSCNoiseMatrixRcd& iRecord)
 {
-  // Copy the CSCNoiseMatrix so it can be made persistent (this is a memory leak if nobody else takes control)
-  CSCNoiseMatrix* mydata=new CSCNoiseMatrix( *cnmatrix );
-  
-  return mydata;
-  
+  return cnmatrix;
 }
 
 void CSCFakeNoiseMatrixConditions::setIntervalFor(const edm::eventsetup::EventSetupRecordKey &, const edm::IOVSyncValue&,

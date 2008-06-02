@@ -1,22 +1,14 @@
 #ifndef DCACHE_ADAPTOR_DCACHE_FILE_H
-# define DCACHE_ADAPTOR_DCACHE_FILE_H
-
-//<<<<<< INCLUDES                                                       >>>>>>
+#define DCACHE_ADAPTOR_DCACHE_FILE_H
 
 # include "SealBase/Storage.h"
 # include "SealBase/FileAcl.h"
-# include "SealBase/IOChannel.h"
 # include "SealBase/IOFlags.h"
 
-//<<<<<< PUBLIC DEFINES                                                 >>>>>>
-//<<<<<< PUBLIC CONSTANTS                                               >>>>>>
-//<<<<<< PUBLIC TYPES                                                   >>>>>>
-//<<<<<< PUBLIC VARIABLES                                               >>>>>>
-//<<<<<< PUBLIC FUNCTIONS                                               >>>>>>
-//<<<<<< CLASS DECLARATIONS                                             >>>>>>
+#include <string>
 
 using namespace seal;
-/** DCache #Storage object.  */
+
 class DCacheFile : public seal::Storage
 {
 public:
@@ -55,9 +47,8 @@ public:
 private:
     IOFD		m_fd;
     bool		m_close;
-};
 
-//<<<<<< INLINE PUBLIC FUNCTIONS                                        >>>>>>
-//<<<<<< INLINE MEMBER FUNCTIONS                                        >>>>>>
+    std::string m_name;
+};
 
 #endif // DCACHE_ADAPTOR_DCACHE_FILE_H

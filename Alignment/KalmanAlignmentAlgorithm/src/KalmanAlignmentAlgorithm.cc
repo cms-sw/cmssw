@@ -172,7 +172,7 @@ KalmanAlignmentAlgorithm::refitTracks( const edm::EventSetup& setup,
     // The resulting collection contains either no or just one refitted trajectory/track-pair
     if ( !algoResult.empty() )
     {
-      ConstTrajTrackPair aTrajTrackPair( algoResult.front().first, algoResult.front().second );
+      ConstTrajTrackPair aTrajTrackPair( algoResult.front().first, algoResult.front().second.first );
       result.push_back( aTrajTrackPair );
 
       if ( theRefitterDebugFlag )
@@ -189,11 +189,11 @@ KalmanAlignmentAlgorithm::refitTracks( const edm::EventSetup& setup,
 	KalmanAlignmentDataCollector::fillHistogram( "OrigTrack_NormChi2", origNormChi2 );
 	KalmanAlignmentDataCollector::fillHistogram( "OrigTrack_DZ", origDz );
 
-	float refitPt = algoResult.front().second->pt();
-	float refitEta = algoResult.front().second->eta();
-	float refitPhi = algoResult.front().second->phi();
-	float refitNormChi2 = algoResult.front().second->normalizedChi2();
-	float refitDz = algoResult.front().second->dz();
+	float refitPt = algoResult.front().second.first->pt();
+	float refitEta = algoResult.front().second.first->eta();
+	float refitPhi = algoResult.front().second.first->phi();
+	float refitNormChi2 = algoResult.front().second.first->normalizedChi2();
+	float refitDz = algoResult.front().second.first->dz();
 
 	KalmanAlignmentDataCollector::fillHistogram( "RefitTrack_Pt", refitPt );
 	KalmanAlignmentDataCollector::fillHistogram( "RefitTrack_Eta", refitEta );

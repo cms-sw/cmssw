@@ -3,7 +3,7 @@
 // Class  :     SiStripDetCabling
 // Original Author:  dkcira
 //         Created:  Wed Mar 22 12:24:33 CET 2006
-// $Id: SiStripDetCabling.cc,v 1.7 2007/02/15 11:22:38 dkcira Exp $
+// $Id: SiStripDetCabling.cc,v 1.8 2007/05/16 08:22:28 dkcira Exp $
 #include "FWCore/Framework/interface/eventsetupdata_registration_macro.h"
 #include "CalibFormats/SiStripObjects/interface/SiStripDetCabling.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
@@ -207,7 +207,7 @@ void SiStripDetCabling::addFromSpecificConnection( std::map<uint32_t, std::vecto
           existing_apv_vector.push_back(*inew);   
           std::sort(existing_apv_vector.begin(),existing_apv_vector.end()); // not very efficient sort, time consuming?
         }else{
-          edm::LogWarning("Logical") << "apv "<<*inew<<" already exists in the detector module "<<new_detid;
+          //edm::LogWarning("Logical") << "apv "<<*inew<<" already exists in the detector module "<<new_detid;
         }
       }
     }

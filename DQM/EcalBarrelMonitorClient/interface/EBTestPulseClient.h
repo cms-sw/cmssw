@@ -4,8 +4,8 @@
 /*
  * \file EBTestPulseClient.h
  *
- * $Date: 2007/06/01 17:06:49 $
- * $Revision: 1.49 $
+ * $Date: 2007/07/21 00:28:20 $
+ * $Revision: 1.51 $
  * \author G. Della Ricca
  * \author F. Cossutti
  *
@@ -74,7 +74,7 @@ void cleanup(void);
 void htmlOutput(int run, string htmlDir, string htmlName);
 
 /// WriteDB
-bool writeDb(EcalCondDBInterface* econn, RunIOV* runiov, MonRunIOV* moniov, int ism);
+bool writeDb(EcalCondDBInterface* econn, RunIOV* runiov, MonRunIOV* moniov);
 
 /// Get Functions
 inline int getEvtPerJob() { return ievt_; }
@@ -109,10 +109,6 @@ CollateMonitorElement* me_hs01_[36];
 CollateMonitorElement* me_hs02_[36];
 CollateMonitorElement* me_hs03_[36];
 
-CollateMonitorElement* me_he01_[36];
-CollateMonitorElement* me_he02_[36];
-CollateMonitorElement* me_he03_[36];
-
 TProfile2D* ha01_[36];
 TProfile2D* ha02_[36];
 TProfile2D* ha03_[36];
@@ -129,10 +125,6 @@ MEContentsProf2DWithinRangeROOT* qtha07_[36];
 TProfile2D* hs01_[36];
 TProfile2D* hs02_[36];
 TProfile2D* hs03_[36];
-
-TH2F* he01_[36];
-TH2F* he02_[36];
-TH2F* he03_[36];
 
 MonitorElement* meg01_[36];
 MonitorElement* meg02_[36];
@@ -162,7 +154,6 @@ TProfile2D* i04_[36];
 
 float percentVariation_;
 float RMSThreshold_;
-float threshold_on_AmplitudeErrorsNumber_;
 
 // Quality check on PNs
 

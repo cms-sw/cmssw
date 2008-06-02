@@ -9,14 +9,22 @@
 #include "FWCore/ParameterSet/interface/InputTag.h"
 #include "FWCore/Framework/interface/MakerMacros.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
+#include "DataFormats/HepMCCandidate/interface/GenParticle.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
-#include "DataFormats/HepMCCandidate/interface/GenParticleCandidate.h"
 
 class TtGenEventReco : public edm::EDProducer {
+
  public:
+
   explicit TtGenEventReco(const edm::ParameterSet&);
   ~TtGenEventReco();
   virtual void produce(edm::Event&, const edm::EventSetup&);
+
  private:
-  edm::InputTag src_;  
+
+  void fillInitialPartons(const reco::GenParticle*, std::vector<const reco::GenParticle*>&);
+
+ private:
+
+  edm::InputTag src_, init_; 
 };

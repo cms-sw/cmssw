@@ -4,358 +4,596 @@ using namespace reco;
 using namespace std;
 using namespace math;
 
-
-/************** Definition of the functions of the class ***************/
-
-//Constructor
-TtSemiLRSignalSelObservables::TtSemiLRSignalSelObservables(){}
-// Destructor
-TtSemiLRSignalSelObservables::~TtSemiLRSignalSelObservables(){}
-
-void TtSemiLRSignalSelObservables::operator() (TtSemiEvtSolution &TS)
+TtSemiLRSignalSelObservables::TtSemiLRSignalSelObservables()
 {
-	evtselectVarVal.clear();
-	
-	//cout<<"New event being processed"<<endl;
-	
-	vector<TopJet> TopJets;
-	TopJets.clear();
-	TopJets.push_back(TS.getHadp());
-	TopJets.push_back(TS.getHadq());
-	TopJets.push_back(TS.getHadb());
-	TopJets.push_back(TS.getLepb());
+}
 
-	//sort the TopJets in Et
-	std::sort(TopJets.begin(),TopJets.end(),EtComparator);
+TtSemiLRSignalSelObservables::~TtSemiLRSignalSelObservables()
+{
+}
 
-// Calculation of the pz of the neutrino due to W-mass constraint
-
-	TLorentzVector *Hadp = new TLorentzVector();
-	Hadp->SetPxPyPzE(TopJets[3].getRecJet().px(),TopJets[3].getRecJet().py(),TopJets[3].getRecJet().pz(),TopJets[3].getRecJet().energy());
-	
-	TLorentzVector *Hadq = new TLorentzVector();
-	Hadp->SetPxPyPzE(TopJets[2].getRecJet().px(),TopJets[2].getRecJet().py(),TopJets[2].getRecJet().pz(),TopJets[2].getRecJet().energy());
-
-	TLorentzVector *Hadb = new TLorentzVector();
-	Hadp->SetPxPyPzE(TopJets[1].getRecJet().px(),TopJets[1].getRecJet().py(),TopJets[1].getRecJet().pz(),TopJets[1].getRecJet().energy());
-
-	TLorentzVector *Lepb = new TLorentzVector();
-	Lepb->SetPxPyPzE(TopJets[0].getRecJet().px(),TopJets[0].getRecJet().py(),TopJets[0].getRecJet().pz(),TopJets[0].getRecJet().energy());
-	
-	TLorentzVector *Lept = new TLorentzVector();
-	Lept->SetPxPyPzE(TS.getRecLept().px(),TS.getRecLept().py(),TS.getRecLept().pz(),TS.getRecLept().energy());
-	
-	TLorentzVector *Lepn = new TLorentzVector();
-	Lepn->SetPxPyPzE(TS.getRecLepn().px(),TS.getRecLepn().py(),TS.getRecLepn().pz(),TS.getRecLepn().energy());
-	
-	double alpha = pow(Lept->E(),2)-pow(Lept->Pz(),2);
-	double zeta  = pow(Lept->E(),2)-pow(80.41,2)-2*(Lept->Px()*Lepn->Px()+Lept->Py()*Lepn->Py());
-	double beta  = Lept->Pz()*zeta;	
-	double gamma = pow(Lept->E(),2)*(pow(Lepn->Pt(),2))-pow(zeta/2,2);	
-	double Delta = pow(beta,2)-4*alpha*gamma;
-	double LepnPt= Lepn->Pt();
-	int    it    = 0;	
-
-	while(Delta<0 && it<1000)
+void TtSemiLRSignalSelObservables::operator() (TtSemiEvtSolution &TS,const std::vector<pat::Jet>& SelectedTopJets)
+{
+  evtselectVarVal.clear();
+  
+  // choice the B-tag algorithm
+  const char *BtagAlgo = "trackCountingJetTags";
+  
+  // activate the "debug mode"
+  bool DEBUG = false;
+  
+  if(DEBUG) cout<<"---------- Start calculating the LR observables ----------"<<endl;
+  
+  
+  vector<pat::Jet> TopJets;
+  TopJets.clear();
+  
+  for(unsigned int i = 0 ; i<SelectedTopJets.size() ; i++)
+    {
+      TopJets.push_back(SelectedTopJets[i]);
+    }
+  
+  //sort the TopJets in Et
+  std::sort(TopJets.begin(),TopJets.end(),EtComparator);
+  
+  TLorentzVector * Hadp = new TLorentzVector();
+  Hadp->SetPxPyPzE(TopJets[3].px(),TopJets[3].py(),TopJets[3].pz(),TopJets[3].energy());
+  
+  TLorentzVector * Hadq = new TLorentzVector();
+  Hadq->SetPxPyPzE(TopJets[2].px(),TopJets[2].py(),TopJets[2].pz(),TopJets[2].energy());
+  
+  TLorentzVector * Hadb = new TLorentzVector();
+  Hadb->SetPxPyPzE(TopJets[1].px(),TopJets[1].py(),TopJets[1].pz(),TopJets[1].energy());
+  
+  TLorentzVector * Lepb = new TLorentzVector();
+  Lepb->SetPxPyPzE(TopJets[0].px(),TopJets[0].py(),TopJets[0].pz(),TopJets[0].energy());
+  
+  TLorentzVector * Lept = new TLorentzVector();
+  if(TS.getDecay() == "muon") Lept->SetPxPyPzE(TS.getMuon().px(),TS.getMuon().py(),TS.getMuon().pz(),TS.getMuon().energy());
+  else if(TS.getDecay() == "electron") Lept->SetPxPyPzE(TS.getElectron().px(),TS.getElectron().py(),TS.getElectron().pz(),TS.getElectron().energy());
+  
+  TLorentzVector *Lepn = new TLorentzVector();
+  Lepn->SetPxPyPzE(TS.getNeutrino().px(),TS.getNeutrino().py(),TS.getNeutrino().pz(),TS.getNeutrino().energy());
+  
+  // Calculation of the pz of the neutrino due to W-mass constraint
+  
+  MEzCalculator *Mez = new MEzCalculator();
+  Mez->SetMET(TS.getNeutrino());
+  if(TS.getDecay() == "muon") Mez->SetMuon(TS.getMuon());
+  else Mez->SetMuon(TS.getElectron());
+  double MEZ = Mez->Calculate();
+  Lepn->SetPz(MEZ);
+  
+  // Pt of the lepton
+  
+  double Obs1 = Lept->Pt();
+  evtselectVarVal.push_back(pair<unsigned int,double>(1,Obs1));
+  if(DEBUG) cout<<"------ LR observable 1 "<<Obs1<<" calculated ------"<<endl;
+  
+  // Missing transverse energy
+  
+  double Obs2 = TS.getNeutrino().et();
+  evtselectVarVal.push_back(pair<unsigned int,double>(2,Obs2));	
+  if(DEBUG) cout<<"------ LR observable 2 "<<Obs2<<" calculated ------"<<endl;
+  
+  //HT variable (Et-sum of the four jets)
+  
+  double HT=0;
+  for(unsigned int i=0;i<4;i++)
+    {
+      HT += TopJets[i].et();
+    }
+  
+  double Obs3 = HT;
+  evtselectVarVal.push_back(pair<unsigned int,double>(3,Obs3));
+  if(DEBUG) cout<<"------ LR observable 3 "<<Obs3<<" calculated ------"<<endl;
+  
+  //Et-Sum of the lightest jets
+  
+  double EtSum = TopJets[2].et()+TopJets[3].et();
+  double Obs4 = EtSum;
+  evtselectVarVal.push_back(pair<unsigned int,double>(4,Obs4));
+  if(DEBUG) cout<<"------ LR observable 4 "<<Obs4<<" calculated ------"<<endl;
+  
+  // Et-Ratio between the two lowest jets in Et and four highest jets
+  
+  double Obs5 = EtSum/HT;
+  evtselectVarVal.push_back(pair<unsigned int,double>(5,Obs5));
+  if(DEBUG) cout<<"------ LR observable 5 "<<Obs5<<" calculated ------"<<endl;
+  
+  // Et-Ratio between the two highest jets in Et and four highest jets
+  
+  double Obs6 = (HT-EtSum)/HT;
+  evtselectVarVal.push_back(pair<unsigned int,double>(6,Obs6));
+  if(DEBUG) cout<<"------ LR observable 6 "<<Obs6<<" calculated ------"<<endl;
+  
+  // Transverse Mass of the system
+  
+  TLorentzVector TtbarSystem = (*Hadp)+(*Hadq)+(*Hadb)+(*Lepb)+(*Lept)+(*Lepn);
+  double MT = TtbarSystem.Mt();
+  double Obs7 = MT;
+  evtselectVarVal.push_back(pair<unsigned int,double>(7,Obs7));
+  if(DEBUG) cout<<"------ LR observable 7 "<<Obs7<<" calculated ------"<<endl;
+  
+  // Observables related to the b-disc (jets ordered in Bdisc)
+  
+  //sort the TopJets in Bdiscriminant
+  std::sort(TopJets.begin(),TopJets.end(),BdiscComparator);
+  
+  double Obs8;
+  double Obs9;	
+  double Obs10;
+  double Obs11;	
+  
+  // Difference in bdisc between the 2nd and the 3rd jets
+  double BGap = TopJets[1].bDiscriminator(BtagAlgo) - TopJets[2].bDiscriminator(BtagAlgo);
+  
+  // Sum of the bdisc of the two highest/lowest jets
+  double BjetsBdiscSum = TopJets[0].bDiscriminator(BtagAlgo) + TopJets[1].bDiscriminator(BtagAlgo);
+  double LjetsBdiscSum = TopJets[2].bDiscriminator(BtagAlgo) + TopJets[3].bDiscriminator(BtagAlgo);
+  
+  Obs8  = (TopJets[2].bDiscriminator(BtagAlgo) > -10 ? log(BGap) : -5);
+  if(DEBUG) cout<<"------ LR observable 8 "<<Obs8<<" calculated ------"<<endl;
+  Obs9  = (BjetsBdiscSum*BGap);	
+  if(DEBUG) cout<<"------ LR observable 9 "<<Obs9<<" calculated ------"<<endl;
+  Obs10 = (BjetsBdiscSum/LjetsBdiscSum);
+  if(DEBUG) cout<<"------ LR observable 10 "<<Obs10<<" calculated ------"<<endl;
+  // Distance from the origin in the (BjetsBdiscSum, LjetsBdiscSum) plane
+  Obs11 = 0.707*((BjetsBdiscSum+LjetsBdiscSum)/2 +10);	
+  if(DEBUG) cout<<"------ LR observable 11 "<<Obs11<<" calculated ------"<<endl;
+  
+  
+  evtselectVarVal.push_back(pair<unsigned int,double>(8,Obs8));
+  evtselectVarVal.push_back(pair<unsigned int,double>(9,Obs9));
+  evtselectVarVal.push_back(pair<unsigned int,double>(10,Obs10));
+  evtselectVarVal.push_back(pair<unsigned int,double>(11,Obs11));
+  
+  //sort the TopJets in Et
+  std::sort(TopJets.begin(),TopJets.end(),EtComparator);
+  
+  // Circularity of the event
+  
+  double N=0,D=0,C_tmp=0,C=10000;
+  double N_NoNu=0,D_NoNu=0,C_NoNu_tmp=0,C_NoNu=10000;
+  double nx,ny,nz;
+  
+  // C = 2min(E(pt.n)^2/E(pt)^2) = 2*N/D but it is theorically preferable to use C'=PI/2*min(E|pt.n|/E|pt|), sum over all jets+lepton+MET (cf PhysRevD 48 R3953(Nov 1993))
+  
+  for(unsigned int i=0;i<4;i++)
+    {
+      D += fabs(TopJets[i].pt());
+    }
+  // modified the 26th of September to calculate also the circularity without the neutrino contribution
+  D += fabs(Lept->Pt());
+  D_NoNu = D;
+  D += fabs(Lepn->Pt());
+  
+  if((D>0))
+    {
+      
+      // Loop over all the unit vectors in the transverse plane in order to find the miminum : 
+      for(unsigned int i=0; i<720; i++)
 	{
-		LepnPt = LepnPt-0.1;
-		gamma = pow(Lept->E(),2)*(pow(LepnPt,2))-pow(zeta/2,2);
-		Delta = pow(beta,2)-4*alpha*gamma;
-		//cout<<"Look for another solution, Pt of the neutrino over estimated"<<endl;
-		it++;
+	  
+	  nx = cos((2*PI/720)*i);
+	  ny = sin((2*PI/720)*i);
+	  nz = 0;
+	  N=0;
+	  
+	  for(unsigned int i=0;i<4;i++)
+	    {
+	      N += fabs(TopJets[i].px()*nx+TopJets[i].py()*ny+TopJets[i].pz()*nz);
+	    }
+	  // modified the 26th of September to calculate also the circularity without the neutrino contribution
+	  N += fabs(Lept->Px()*nx+Lept->Py()*ny+Lept->Pz()*nz);
+	  N_NoNu = N;
+	  N += fabs(Lepn->Px()*nx+Lepn->Py()*ny+Lepn->Pz()*nz);
+	  
+	  C_tmp = 2*N/D;
+	  
+	  // modified the 26th of September to calculate also the circularity without the neutrino contribution
+	  C_NoNu_tmp = 2*N_NoNu/D_NoNu;
+	  
+	  if(C_tmp<C) C = C_tmp;
+	  
+	  // modified the 26th of September to calculate also the circularity without the neutrino contribution
+	  if(C_NoNu_tmp<C_NoNu) C_NoNu = C_NoNu_tmp;
 	}
-
-	double Solution1 = (-beta-sqrt(Delta))/(2*alpha);
-	double Solution2 = (-beta+sqrt(Delta))/(2*alpha);
-	
-	Lepn->SetPz(Solution1);	
-	TLorentzVector *LepTop1 = new TLorentzVector();
-	LepTop1->SetPxPyPzE(Lepb->Px()+Lept->Px()+Lepn->Px(),Lepb->Py()+Lept->Py()+Lepn->Py(),Lepb->Pz()+Lept->Pz()+Solution1,Lepb->E()+Lept->E()+Lepn->E());	
-	double DiffLepTopMass1 = fabs(LepTop1->M()-175);
-	
-	Lepn->SetPz(Solution2);	
-	TLorentzVector *LepTop2 = new TLorentzVector();
-	LepTop2->SetPxPyPzE(Lepb->Px()+Lept->Px()+Lepn->Px(),Lepb->Py()+Lept->Py()+Lepn->Py(),Lepb->Pz()+Lept->Pz()+Solution2,Lepb->E()+Lept->E()+Lepn->E());		
-	double DiffLepTopMass2 = fabs(LepTop2->M()-175);
-	
-	double Solution = (DiffLepTopMass1<DiffLepTopMass2 ? Solution1 : Solution2);
-	
-	Lepn->SetPz(Solution);
-	
-	//cout<<"Pz of the neutrino ="<<Solution<<endl;
-	//cout<<"Pz of the gen-neutrino ="<<(double)TS.getGenLepn().pz()<<endl;
-	//cout<<"Solution1 = "<<Solution1<<endl;
-	//cout<<"Solution2 = "<<Solution2<<endl;
-
-//Et-Sum of the lightest jets
-
-	double EtSum = TopJets[2].getRecJet().et()+TopJets[3].getRecJet().et();
-	//double HT    = TopJets[0].getRecJet().et()+TopJets[1].getRecJet().et()+TopJets[2].getRecJet().et()+TopJets[3].getRecJet().et();
-	double Obs1 = (EtSum>0 ? EtSum : -1);
-	evtselectVarVal.push_back(pair<unsigned int,double>(1,Obs1));
-	
-//Log of the difference in Bdisc between the 2nd and the 3rd jets (ordered in Bdisc)
-
-	//sort the TopJets in Bdiscriminant
-	std::sort(TopJets.begin(),TopJets.end(),BdiscComparator);
-	
-	double BGap = TopJets[1].getBDiscriminator("trackCountingJetTags") - TopJets[2].getBDiscriminator("trackCountingJetTags");
-	double Obs2 = (BGap>0 ? log(BGap) : -1);
-	evtselectVarVal.push_back(pair<unsigned int,double>(2,Obs2));
-	
-//Circularity of the event
-
-	double N=0,D=0,C_tmp=0,C=1000;
-	double nx,ny,nz;
-	
-	// C = 2min(E(pt.n)^2/E(pt)^2) = 2*N/D but it is theorically preferable to use C'=PI/2*min(E|pt.n|/E|pt|), sum over all jets+lepton+MET (cf PhysRevD 48 R3953(Nov 1993))
-	
-	for(unsigned int i=0;i<4;i++)
+    }
+  
+  double Obs12 = ( C!=10000 ? C : 0);
+  evtselectVarVal.push_back(pair<unsigned int,double>(12,Obs12));
+  if(DEBUG) cout<<"------ LR observable 12 "<<Obs12<<" calculated ------"<<endl;
+  
+  // Circularity of the event without neutrino
+  
+  double Obs13 = ( C_NoNu != 10000 ? C_NoNu : 0);
+  evtselectVarVal.push_back(pair<unsigned int,double>(13,Obs13));
+  if(DEBUG) cout<<"------ LR observable 13 "<<Obs13<<" calculated ------"<<endl;
+  
+  // Centrality of the four highest jets
+  
+  double H=0;
+  for(unsigned int i=0;i<4;i++)
+    {
+      H += TopJets[i].energy();
+    }
+  
+  double Obs14 = HT/H;
+  evtselectVarVal.push_back(pair<unsigned int,double>(14,Obs14));
+  if(DEBUG) cout<<"------ LR observable 14 "<<Obs14<<" calculated ------"<<endl;
+  
+  // Sphericity and Aplanarity without boosting back the system to CM frame
+  
+  TMatrixDSym Matrix(3);
+  
+  double PX2 = pow(Hadp->Px(),2)+pow(Hadq->Px(),2)+pow(Hadb->Px(),2)+pow(Lepb->Px(),2)+pow(Lept->Px(),2)+pow(Lepn->Px(),2);
+  double PY2 = pow(Hadp->Py(),2)+pow(Hadq->Py(),2)+pow(Hadb->Py(),2)+pow(Lepb->Py(),2)+pow(Lept->Py(),2)+pow(Lepn->Py(),2);
+  double PZ2 = pow(Hadp->Pz(),2)+pow(Hadq->Pz(),2)+pow(Hadb->Pz(),2)+pow(Lepb->Pz(),2)+pow(Lept->Pz(),2)+pow(Lepn->Pz(),2);
+  
+  double P2  = PX2+PY2+PZ2;
+  
+  double PXY = Hadp->Px()*Hadp->Py()+Hadq->Px()*Hadq->Py()+Hadb->Px()*Hadb->Py()+Lepb->Px()*Lepb->Py()+Lept->Px()*Lept->Py()+Lepn->Px()*Lepn->Py();
+  double PXZ = Hadp->Px()*Hadp->Pz()+Hadq->Px()*Hadq->Pz()+Hadb->Px()*Hadb->Pz()+Lepb->Px()*Lepb->Pz()+Lept->Px()*Lept->Pz()+Lepn->Px()*Lepn->Pz();
+  double PYZ = Hadp->Py()*Hadp->Pz()+Hadq->Py()*Hadq->Pz()+Hadb->Py()*Hadb->Pz()+Lepb->Py()*Lepb->Pz()+Lept->Py()*Lept->Pz()+Lepn->Py()*Lepn->Pz();
+  
+  Matrix(0,0) = PX2/P2; Matrix(0,1) = PXY/P2; Matrix(0,2) = PXZ/P2;
+  Matrix(1,0) = PXY/P2; Matrix(1,1) = PY2/P2; Matrix(1,2) = PYZ/P2;
+  Matrix(2,0) = PXZ/P2; Matrix(2,1) = PYZ/P2; Matrix(2,2) = PZ2/P2;
+  
+  TMatrixDSymEigen pTensor(Matrix);
+  
+  vector<double> EigValues;
+  EigValues.clear();
+  for(int i=0;i<3;i++)
+    {
+      EigValues.push_back(pTensor.GetEigenValues()[i]);
+    }
+  
+  std::sort(EigValues.begin(),EigValues.end(),dComparator);
+  
+  double Sphericity = 1.5*(EigValues[1]+EigValues[2]);
+  double Aplanarity = 1.5*EigValues[2];
+  
+  double Obs15 = (isnan(Sphericity) ? 0 : Sphericity);
+  evtselectVarVal.push_back(pair<unsigned int,double>(15,Obs15));
+  if(DEBUG) cout<<"------ LR observable 15 "<<Obs15<<" calculated ------"<<endl;
+  
+  double Obs16 = (isnan(Aplanarity) ? 0 : Aplanarity);
+  evtselectVarVal.push_back(pair<unsigned int,double>(16,Obs16));
+  if(DEBUG) cout<<"------ LR observable 16 "<<Obs16<<" calculated ------"<<endl;
+  
+  
+  // Sphericity and Aplanarity with boosting back the system to CM frame	
+  
+  TVector3 BoostBackToCM = -(TtbarSystem.BoostVector());
+  Hadp->Boost(BoostBackToCM);
+  Hadq->Boost(BoostBackToCM);
+  Hadb->Boost(BoostBackToCM);
+  Lepb->Boost(BoostBackToCM);
+  Lept->Boost(BoostBackToCM);
+  Lepn->Boost(BoostBackToCM);
+  
+  
+  double BOOST_PX2 = pow(Hadp->Px(),2)+pow(Hadq->Px(),2)+pow(Hadb->Px(),2)+pow(Lepb->Px(),2)+pow(Lept->Px(),2)+pow(Lepn->Px(),2);
+  double BOOST_PY2 = pow(Hadp->Py(),2)+pow(Hadq->Py(),2)+pow(Hadb->Py(),2)+pow(Lepb->Py(),2)+pow(Lept->Py(),2)+pow(Lepn->Py(),2);
+  double BOOST_PZ2 = pow(Hadp->Pz(),2)+pow(Hadq->Pz(),2)+pow(Hadb->Pz(),2)+pow(Lepb->Pz(),2)+pow(Lept->Pz(),2)+pow(Lepn->Pz(),2);
+  
+  double BOOST_P2  = BOOST_PX2+BOOST_PY2+BOOST_PZ2;
+  
+  double BOOST_PXY = Hadp->Px()*Hadp->Py()+Hadq->Px()*Hadq->Py()+Hadb->Px()*Hadb->Py()+Lepb->Px()*Lepb->Py()+Lept->Px()*Lept->Py()+Lepn->Px()*Lepn->Py();
+  double BOOST_PXZ = Hadp->Px()*Hadp->Pz()+Hadq->Px()*Hadq->Pz()+Hadb->Px()*Hadb->Pz()+Lepb->Px()*Lepb->Pz()+Lept->Px()*Lept->Pz()+Lepn->Px()*Lepn->Pz();
+  double BOOST_PYZ = Hadp->Py()*Hadp->Pz()+Hadq->Py()*Hadq->Pz()+Hadb->Py()*Hadb->Pz()+Lepb->Py()*Lepb->Pz()+Lept->Py()*Lept->Pz()+Lepn->Py()*Lepn->Pz();
+  
+  TMatrixDSym BOOST_Matrix(3);
+  
+  BOOST_Matrix(0,0) = BOOST_PX2/BOOST_P2; BOOST_Matrix(0,1) = BOOST_PXY/BOOST_P2; BOOST_Matrix(0,2) = BOOST_PXZ/BOOST_P2;
+  BOOST_Matrix(1,0) = BOOST_PXY/BOOST_P2; BOOST_Matrix(1,1) = BOOST_PY2/BOOST_P2; BOOST_Matrix(1,2) = BOOST_PYZ/BOOST_P2;
+  BOOST_Matrix(2,0) = BOOST_PXZ/BOOST_P2; BOOST_Matrix(2,1) = BOOST_PYZ/BOOST_P2; BOOST_Matrix(2,2) = BOOST_PZ2/BOOST_P2;
+  
+  TMatrixDSymEigen BOOST_pTensor(BOOST_Matrix);
+  
+  vector<double> BOOST_EigValues;
+  BOOST_EigValues.clear();
+  for(int i=0;i<3;i++)
+    {
+      BOOST_EigValues.push_back(BOOST_pTensor.GetEigenValues()[i]);
+    }
+  
+  std::sort(BOOST_EigValues.begin(),BOOST_EigValues.end(),dComparator);
+  
+  double BOOST_Sphericity = 1.5*(BOOST_EigValues[1]+BOOST_EigValues[2]);
+  double BOOST_Aplanarity = 1.5*BOOST_EigValues[2];
+  
+  double Obs17 = ( isnan(BOOST_Sphericity) ? 0 : BOOST_Sphericity );
+  evtselectVarVal.push_back(pair<unsigned int,double>(17,Obs17));
+  if(DEBUG) cout<<"------ LR observable 17 "<<Obs17<<" calculated ------"<<endl;
+  
+  double Obs18 = ( isnan(BOOST_Aplanarity) ? 0 : BOOST_Aplanarity );
+  evtselectVarVal.push_back(pair<unsigned int,double>(18,Obs18));
+  if(DEBUG) cout<<"------ LR observable 18 "<<Obs18<<" calculated ------"<<endl;
+  
+  //ratio between ET of the fifth jet and HT
+  
+  double Obs19 = (TopJets.size() > 4) ? TopJets[4].et()/HT : 1.0;
+  evtselectVarVal.push_back(pair<unsigned int,double>(19,Obs19));
+  if(DEBUG) cout<<"------ LR observable 19 "<<Obs19<<" calculated ------"<<endl;
+  
+  // HT variable calculated with all the jets in the event.
+  
+  double HT_alljets = 0;
+  double  H_alljets = 0;
+  for(unsigned int i=0;i<TopJets.size();i++)
+    {
+      HT_alljets += TopJets[i].et();
+      H_alljets  += TopJets[i].energy();
+    }
+  double Obs20 = HT_alljets;
+  evtselectVarVal.push_back(pair<unsigned int,double>(20,Obs20));
+  if(DEBUG) cout<<"------ LR observable 20 "<<Obs20<<" calculated ------"<<endl;
+  
+  // HT3 = HT calculated with all jets except the two leading jets
+  
+  double HT3_alljets = 0;
+  for(unsigned int i=2;i<TopJets.size();i++)
+    {
+      HT3_alljets += TopJets[i].et();
+    }
+  double Obs21 = HT3_alljets;
+  evtselectVarVal.push_back(pair<unsigned int,double>(21,Obs21));
+  if(DEBUG) cout<<"------ LR observable 21 "<<Obs21<<" calculated ------"<<endl;
+  
+  // ET0, ratio of the Et of the leading and HT_alljets
+  
+  double ET0 = TopJets[0].et()/HT_alljets;
+  double Obs22 = ET0;
+  evtselectVarVal.push_back(pair<unsigned int,double>(22,Obs22));
+  if(DEBUG) cout<<"------ LR observable 22 "<<Obs22<<" calculated ------"<<endl;
+  
+  // Centrality of the event computed with all jets
+  
+  double Obs23 = ( (H_alljets>0) ? HT_alljets/H_alljets : 0);
+  evtselectVarVal.push_back(pair<unsigned int,double>(23,Obs23));
+  if(DEBUG) cout<<"------ LR observable 23 "<<Obs23<<" calculated ------"<<endl;
+  
+  //Fox-Wolfram momenta (1st to 6th), modified for hadron collider and using a Legendre polynomials expansion
+  
+  double FW_momentum_0=0, FW_momentum_1=0, FW_momentum_2=0, FW_momentum_3=0, FW_momentum_4=0, FW_momentum_5=0, FW_momentum_6=0;
+  
+  for(unsigned int i=0;i<TopJets.size();i++)
+    {
+      for(unsigned int j=0;j<TopJets.size();j++)
 	{
-		D += fabs(TopJets[i].getRecJet().pt());
+	  double ET_ij_over_ETSum2= TopJets[i].et()*TopJets[j].et()/(pow(HT_alljets,2));
+	  double cosTheta_ij = (TopJets[i].px()*TopJets[j].px()+
+				TopJets[i].py()*TopJets[j].py()+
+				TopJets[i].pz()*TopJets[j].pz())
+	    /(TopJets[i].p4().R()*TopJets[j].p4().R());
+	  FW_momentum_0 += ET_ij_over_ETSum2;
+	  FW_momentum_1 += ET_ij_over_ETSum2 * cosTheta_ij;
+	  FW_momentum_2 += ET_ij_over_ETSum2 * 0.5   * (  3*pow(cosTheta_ij,2)- 1);
+	  FW_momentum_3 += ET_ij_over_ETSum2 * 0.5   * (  5*pow(cosTheta_ij,3)-  3*cosTheta_ij);
+	  FW_momentum_4 += ET_ij_over_ETSum2 * 0.125 * ( 35*pow(cosTheta_ij,4)- 30*pow(cosTheta_ij,2)+3);
+	  FW_momentum_5 += ET_ij_over_ETSum2 * 0.125 * ( 63*pow(cosTheta_ij,5)- 70*pow(cosTheta_ij,3)+15*cosTheta_ij);
+	  FW_momentum_6 += ET_ij_over_ETSum2 * 0.0625* (231*pow(cosTheta_ij,6)-315*pow(cosTheta_ij,4)+105*pow(cosTheta_ij,2)-5);
 	}
-		D += fabs(TS.getRecLept().pt())+fabs(TS.getRecLepn().pt());
-
-	if((D>0))
+    }
+  
+  double Obs24 = FW_momentum_0;
+  evtselectVarVal.push_back(pair<unsigned int,double>(24,Obs24));
+  if(DEBUG) cout<<"------ LR observable 24 "<<Obs24<<" calculated ------"<<endl;
+  double Obs25 = FW_momentum_1;
+  evtselectVarVal.push_back(pair<unsigned int,double>(25,Obs25));
+  if(DEBUG) cout<<"------ LR observable 25 "<<Obs25<<" calculated ------"<<endl;
+  double Obs26 = FW_momentum_2;
+  evtselectVarVal.push_back(pair<unsigned int,double>(26,Obs26));
+  if(DEBUG) cout<<"------ LR observable 26 "<<Obs26<<" calculated ------"<<endl;
+  double Obs27 = FW_momentum_3;
+  evtselectVarVal.push_back(pair<unsigned int,double>(27,Obs27));
+  if(DEBUG) cout<<"------ LR observable 27 "<<Obs27<<" calculated ------"<<endl;
+  double Obs28 = FW_momentum_4;
+  evtselectVarVal.push_back(pair<unsigned int,double>(28,Obs28));
+  if(DEBUG) cout<<"------ LR observable 28 "<<Obs28<<" calculated ------"<<endl;
+  double Obs29 = FW_momentum_5;
+  evtselectVarVal.push_back(pair<unsigned int,double>(29,Obs29));
+  if(DEBUG) cout<<"------ LR observable 29 "<<Obs29<<" calculated ------"<<endl;
+  double Obs30 = FW_momentum_6;
+  evtselectVarVal.push_back(pair<unsigned int,double>(30,Obs30));
+  if(DEBUG) cout<<"------ LR observable 30 "<<Obs30<<" calculated ------"<<endl;
+  
+  // Thrust, thrust major and thrust minor
+  
+  TVector3 n(0,0,0), n_tmp(0,0,0);
+  
+  double Thrust_D = 0,      Thrust_N = 0;
+  double Thrust = -1,       Thrust_tmp =0;
+  double Thrust_Major = -1, Thrust_Major_tmp =0;
+  double Thrust_Minor = -1;
+  
+  for(unsigned int i=0;i<TopJets.size();i++)
+    {
+      Thrust_D += TopJets[i].p();
+    }
+  
+  Thrust_D += Lept->P();
+  
+  if(Thrust_D>0)
+    {
+      // Calculation of the thrust :
+      for(unsigned int i=0;i<720;i++)
 	{
-
-		// Loop over all the unit vectors in the transverse plane in order to find the miminum : 
-		for(unsigned int i=0; i<360; i++)
+	  for(unsigned int j=0;j<360;j++)
+	    {
+	      n_tmp.SetX(cos((2*PI/720)*i)*sin((PI/360)*j));
+	      n_tmp.SetY(sin((2*PI/720)*i)*sin((PI/360)*j));
+	      n_tmp.SetZ(cos((PI/360)*j));
+	      
+	      for(unsigned int k=0;k<TopJets.size();k++)
 		{
-
-			nx = cos((2*PI/360)*i);
-			ny = sin((2*PI/360)*i);
-			nz = 0;
-			N=0;
-			
-			for(unsigned int i=0;i<4;i++)
-			{
-				N += fabs(TopJets[i].getRecJet().px()*nx+TopJets[i].getRecJet().py()*ny+TopJets[i].getRecJet().pz()*nz);
-			}
-				N += fabs(Lept->Px()*nx+Lept->Py()*ny+Lept->Pz()*nz)+fabs(Lepn->Px()*nx+Lepn->Py()*ny+Lepn->Pz()*nz);
-	
-			C_tmp = 2*N/D;
-			if(C_tmp<C) C = C_tmp;
-			
+		  Thrust_N += fabs(TopJets[k].px()*(n_tmp.x())+TopJets[k].py()*(n_tmp.y())+TopJets[k].pz()*(n_tmp.z()));
 		}
+	      Thrust_N += fabs(Lept->Px()*(n_tmp.x())+Lept->Py()*(n_tmp.y())+Lept->Pz()*(n_tmp.z()));
+	      
+	      Thrust_tmp = Thrust_N/Thrust_D;
+	      
+	      Thrust_N = 0;
+	      if(Thrust_tmp > Thrust)
+		{
+		  Thrust = Thrust_tmp;
+		  n.SetXYZ(n_tmp.x(),n_tmp.y(),n_tmp.z());
+		}	
+	    }
 	}
-	
-	double Obs3 = ( C!=1000 ? C : -1);
-	evtselectVarVal.push_back(pair<unsigned int,double>(3,Obs3));
-
-//HT variable (Et-sum of the four jets)
-
-	double HT=0;
-	for(unsigned int i=0;i<4;i++)
+      
+      // Calculation of the thrust major :
+      TVector3 nT = n.Orthogonal();
+      nT = nT.Unit();
+      for(unsigned int i=0;i<720;i++)
 	{
-		HT += TopJets[i].getRecJet().et();
+	  nT.Rotate((2*PI/720)*i,n);
+	  for(unsigned int j=0;j<TopJets.size();j++)
+	    {
+	      Thrust_N += fabs(TopJets[j].px()*(nT.x())+TopJets[j].py()*(nT.y())+TopJets[j].pz()*(nT.z()));
+	    }
+	  Thrust_N += fabs(Lept->Px()*nT.x()+Lept->Py()*(nT.y())+Lept->Pz()*(nT.z()));
+	  
+	  Thrust_Major_tmp = Thrust_N/Thrust_D;
+	  Thrust_N = 0;
+	  
+	  if(Thrust_Major_tmp > Thrust_Major)
+	    {
+	      Thrust_Major = Thrust_Major_tmp;
+	    }
 	}
-	
-	double Obs4 = ( HT!=0 ? HT : -1);
-	evtselectVarVal.push_back(pair<unsigned int,double>(4,Obs4));
-
-//Transverse Mass of the system
-
-	XYZTLorentzVector pjets;
-	// for the four jets 
-	for(unsigned int i=0;i<4;i++)
+      
+      // Calculation of the thrust minor :
+      
+      TVector3 nMinor = nT.Cross(n);
+      nMinor = nMinor.Unit();
+      
+      for(unsigned int i=0;i<TopJets.size();i++)
 	{
-		pjets += TopJets[i].getRecJet().p4();
+	  Thrust_N += fabs(TopJets[i].px()*(nMinor.x())+TopJets[i].py()*(nMinor.y())+TopJets[i].pz()*(nMinor.z()));
 	}
-	// for the lepton
-	pjets += TS.getRecLept().p4();
-	// for the ~"neutrino"	
-	double MET = TS.getMET().et();
-
-	double MT = sqrt(pow(pjets.mass(),2)+pow(MET,2))+MET;
-	
-	double Obs5 = ( MT>0 ? MT : -1);
-	evtselectVarVal.push_back(pair<unsigned int,double>(5,Obs5));
-
-//CosTheta(Hadp,Hadq) 
-
-	//sort the TopJets in Et
-	std::sort(TopJets.begin(),TopJets.end(),EtComparator);
-	
-	double px1 = TopJets[2].getRecJet().px();     double px2 = TopJets[3].getRecJet().px();
-	double py1 = TopJets[2].getRecJet().py();     double py2 = TopJets[3].getRecJet().py();
-	double pz1 = TopJets[2].getRecJet().pz();     double pz2 = TopJets[3].getRecJet().pz();
-	double E1  = TopJets[2].getRecJet().energy(); double E2 = TopJets[3].getRecJet().energy();
-	//TLorentzVector *pjj = new TLorentzVector();
-	//pjj->SetPxPyPzE(px1+px2,py1+py2,pz1+pz2,E1+E2);
-	//TVector3 BoostBackToCM = -pjj->BoostVector();
-	//pjj->Px()=0 if ppj back boosted ,checked!
-	//pjj->Boost(BoostBackToCM);
-	//cout<<pjj->Px()<<endl;
-	TLorentzVector *LightJet1 = new TLorentzVector();
-	LightJet1->SetPxPyPzE(px1,py1,pz1,E1);
-	//LightJet1->Boost(BoostBackToCM);
-	TLorentzVector *LightJet2 = new TLorentzVector();
-	LightJet2->SetPxPyPzE(px2,py2,pz2,E2);
-	//LightJet2->Boost(BoostBackToCM);
-	
-	//double DR = sqrt(pow(LightJet1->Eta()-LightJet2->Eta(),2)+pow(LightJet1->Phi()-LightJet2->Phi(),2));
-	//double CosTheta = (LightJet1->X()*LightJet2->X()+LightJet1->Y()*LightJet2->Y()+LightJet1->Z()*LightJet2->Z())/(sqrt(pow(LightJet1->X(),2)+pow(LightJet1->Y(),2)+pow(LightJet1->Z(),2))*sqrt(pow(LightJet2->Y(),2)+pow(LightJet2->Y(),2)+pow(LightJet2->Z(),2)));
-	double CosTheta = cos(LightJet2->Angle(LightJet1->Vect()));
-	
-	double Obs6 = ( -1<CosTheta ? CosTheta : -2);
-	evtselectVarVal.push_back(pair<unsigned int,double>(6,Obs6));
-	
-	//delete pjj;
-	delete LightJet1;
-	delete LightJet2;
-
-// try to find out more powerful observables related to the b-disc
-	
-	//sort the TopJets in Bdiscriminant
-	std::sort(TopJets.begin(),TopJets.end(),BdiscComparator);
-		
-	double BjetsBdiscSum = TopJets[0].getBDiscriminator("trackCountingJetTags") + TopJets[1].getBDiscriminator("trackCountingJetTags");
-	double LjetsBdiscSum = TopJets[2].getBDiscriminator("trackCountingJetTags") + TopJets[3].getBDiscriminator("trackCountingJetTags");
-	
-	//cout<<"BjetsBdiscSum = "<<BjetsBdiscSum<<endl;
-	//cout<<"LjetsBdiscSum = "<<LjetsBdiscSum<<endl;
-	
-	double Obs7 = (LjetsBdiscSum !=0 ? log(BjetsBdiscSum/LjetsBdiscSum) : -1);
-	evtselectVarVal.push_back(pair<unsigned int,double>(7,Obs7));
-	
-	double Obs8 = (BGap>0 ? log(BjetsBdiscSum*BGap) : -1);
-	evtselectVarVal.push_back(pair<unsigned int,double>(8,Obs8));
-
-// Missing transverse energy
-
-	double Obs9 = (MET!=0 ? MET : -1);
-	evtselectVarVal.push_back(pair<unsigned int,double>(9,Obs9));	
-
-// Et-Ratio between the two highest in Et jets and four highest jets
-
-	double Obs10 = (HT!=0 ? (HT-EtSum)/HT : -1);
-	evtselectVarVal.push_back(pair<unsigned int,double>(10,Obs10));
-	
-// Pt of the lepton
-
-	double Obs11 = TS.getRecLept().pt();
-	evtselectVarVal.push_back(pair<unsigned int,double>(11,Obs11));
-	
-	
-//Sphericity and Aplanarity without boosting back the system to CM frame
-
-	TMatrixDSym Matrix(3);
-	
-	double PX2 = pow(Hadp->Px(),2)+pow(Hadq->Px(),2)+pow(Hadb->Px(),2)+pow(Lepb->Px(),2)+pow(Lept->Px(),2)+pow(Lepn->Px(),2);
-	double PY2 = pow(Hadp->Py(),2)+pow(Hadq->Py(),2)+pow(Hadb->Py(),2)+pow(Lepb->Py(),2)+pow(Lept->Py(),2)+pow(Lepn->Py(),2);
-	double PZ2 = pow(Hadp->Pz(),2)+pow(Hadq->Pz(),2)+pow(Hadb->Pz(),2)+pow(Lepb->Pz(),2)+pow(Lept->Pz(),2)+pow(Lepn->Pz(),2);
-	
-	double P2  = PX2+PY2+PZ2;
-	
-	double PXY = Hadp->Px()*Hadp->Py()+Hadq->Px()*Hadq->Py()+Hadb->Px()*Hadb->Py()+Lepb->Px()*Lepb->Py()+Lept->Px()*Lept->Py()+Lepn->Px()*Lepn->Py();
-	double PXZ = Hadp->Px()*Hadp->Pz()+Hadq->Px()*Hadq->Pz()+Hadb->Px()*Hadb->Pz()+Lepb->Px()*Lepb->Pz()+Lept->Px()*Lept->Pz()+Lepn->Px()*Lepn->Pz();
-	double PYZ = Hadp->Py()*Hadp->Pz()+Hadq->Py()*Hadq->Pz()+Hadb->Py()*Hadb->Pz()+Lepb->Py()*Lepb->Pz()+Lept->Py()*Lept->Pz()+Lepn->Py()*Lepn->Pz();
-
-	Matrix(0,0) = PX2/P2; Matrix(0,1) = PXY/P2; Matrix(0,2) = PXZ/P2;
-	Matrix(1,0) = PXY/P2; Matrix(1,1) = PY2/P2; Matrix(1,2) = PYZ/P2;
-	Matrix(2,0) = PXZ/P2; Matrix(2,1) = PYZ/P2; Matrix(2,2) = PZ2/P2;
-	
-	TMatrixDSymEigen pTensor(Matrix);
-
-	//if(fabs(pTensor.GetEigenValues().Sum()-1) > 0.01) cout<<"Sum of the eigen values not equal to 1!!!"<<endl;
-	
-	vector<double> EigValues;
-	EigValues.clear();
-	for(int i=0;i<3;i++)
-	{
-		EigValues.push_back(pTensor.GetEigenValues()[i]);
-	}
-	
-	std::sort(EigValues.begin(),EigValues.end(),dComparator);
-	
-	double Sphericity = 1.5*(EigValues[1]+EigValues[2]);
-	double Aplanarity = 1.5*EigValues[2];
-	
-	double Obs12 = (isnan(Sphericity) ? -1 : Sphericity);
-	evtselectVarVal.push_back(pair<unsigned int,double>(12,Obs12));
-
-	double Obs13 = (isnan(Aplanarity) ? -1 : Aplanarity);
-	evtselectVarVal.push_back(pair<unsigned int,double>(13,Obs13));
-
-
-//Sphericity and Aplanarity with boosting back the system to CM frame	
-
-	TLorentzVector *TtbarSystem = new TLorentzVector();
-	TtbarSystem->SetPx(Hadp->Px()+Hadq->Px()+Hadb->Px()+Lepb->Px()+Lept->Px()+Lepn->Px());
-	TtbarSystem->SetPy(Hadp->Py()+Hadq->Py()+Hadb->Py()+Lepb->Py()+Lept->Py()+Lepn->Py());
-	TtbarSystem->SetPz(Hadp->Pz()+Hadq->Pz()+Hadb->Pz()+Lepb->Pz()+Lept->Pz()+Lepn->Pz());
-	TtbarSystem->SetE(Hadp->E()+Hadq->E()+Hadb->E()+Lepb->E()+Lept->E()+Lepn->E());
-
-	TVector3 BoostBackToCM = -(TtbarSystem->BoostVector());
-	Hadp->Boost(BoostBackToCM);
-	Hadq->Boost(BoostBackToCM);
-	Hadb->Boost(BoostBackToCM);
-	Lepb->Boost(BoostBackToCM);
-	Lept->Boost(BoostBackToCM);
-	Lepn->Boost(BoostBackToCM);
-
-
-	double BOOST_PX2 = pow(Hadp->Px(),2)+pow(Hadq->Px(),2)+pow(Hadb->Px(),2)+pow(Lepb->Px(),2)+pow(Lept->Px(),2)+pow(Lepn->Px(),2);
-	double BOOST_PY2 = pow(Hadp->Py(),2)+pow(Hadq->Py(),2)+pow(Hadb->Py(),2)+pow(Lepb->Py(),2)+pow(Lept->Py(),2)+pow(Lepn->Py(),2);
-	double BOOST_PZ2 = pow(Hadp->Pz(),2)+pow(Hadq->Pz(),2)+pow(Hadb->Pz(),2)+pow(Lepb->Pz(),2)+pow(Lept->Pz(),2)+pow(Lepn->Pz(),2);
-	
-	double BOOST_P2  = BOOST_PX2+BOOST_PY2+BOOST_PZ2;
-	
-	double BOOST_PXY = Hadp->Px()*Hadp->Py()+Hadq->Px()*Hadq->Py()+Hadb->Px()*Hadb->Py()+Lepb->Px()*Lepb->Py()+Lept->Px()*Lept->Py()+Lepn->Px()*Lepn->Py();
-	double BOOST_PXZ = Hadp->Px()*Hadp->Pz()+Hadq->Px()*Hadq->Pz()+Hadb->Px()*Hadb->Pz()+Lepb->Px()*Lepb->Pz()+Lept->Px()*Lept->Pz()+Lepn->Px()*Lepn->Pz();
-	double BOOST_PYZ = Hadp->Py()*Hadp->Pz()+Hadq->Py()*Hadq->Pz()+Hadb->Py()*Hadb->Pz()+Lepb->Py()*Lepb->Pz()+Lept->Py()*Lept->Pz()+Lepn->Py()*Lepn->Pz();
-
-	TMatrixDSym BOOST_Matrix(3);
-
-	BOOST_Matrix(0,0) = BOOST_PX2/BOOST_P2; BOOST_Matrix(0,1) = BOOST_PXY/BOOST_P2; BOOST_Matrix(0,2) = BOOST_PXZ/BOOST_P2;
-	BOOST_Matrix(1,0) = BOOST_PXY/BOOST_P2; BOOST_Matrix(1,1) = BOOST_PY2/BOOST_P2; BOOST_Matrix(1,2) = BOOST_PYZ/BOOST_P2;
-	BOOST_Matrix(2,0) = BOOST_PXZ/BOOST_P2; BOOST_Matrix(2,1) = BOOST_PYZ/BOOST_P2; BOOST_Matrix(2,2) = BOOST_PZ2/BOOST_P2;
-	
-	TMatrixDSymEigen BOOST_pTensor(BOOST_Matrix);
-
-	//if(fabs(pTensor.GetEigenValues().Sum()-1) > 0.01) cout<<"Sum of the eigen values not equal to 1!!!"<<endl;
-	
-	vector<double> BOOST_EigValues;
-	BOOST_EigValues.clear();
-	for(int i=0;i<3;i++)
-	{
-		BOOST_EigValues.push_back(BOOST_pTensor.GetEigenValues()[i]);
-	}
-	
-	std::sort(BOOST_EigValues.begin(),BOOST_EigValues.end(),dComparator);
-
-	double BOOST_Sphericity = 1.5*(BOOST_EigValues[1]+BOOST_EigValues[2]);
-	double BOOST_Aplanarity = 1.5*BOOST_EigValues[2];
-
-	double Obs14 = ( isnan(BOOST_Sphericity) ? -1 : BOOST_Sphericity );
-	evtselectVarVal.push_back(pair<unsigned int,double>(14,Obs14));
-
-	double Obs15 = ( isnan(BOOST_Aplanarity) ? -1 : BOOST_Aplanarity );
-	evtselectVarVal.push_back(pair<unsigned int,double>(15,Obs15));
-
-// Centrality of the four jets
-
-	double H=0;
-	for(unsigned int i=0;i<4;i++)
-	{
-		H += TopJets[i].getRecJet().energy();
-	}
-
-	double Obs16 = ( H != 0 ? HT/H : -1 );
-	evtselectVarVal.push_back(pair<unsigned int,double>(16,Obs16));
-
-// distance from the origin in the (BjetsBdiscSum, LjetsBdiscSum)
-
-	double Obs17 = ( BjetsBdiscSum != 0 && LjetsBdiscSum != 0 ? 0.707*(BjetsBdiscSum-LjetsBdiscSum) : -1 );
-	evtselectVarVal.push_back(pair<unsigned int,double>(17,Obs17));
-
-// Ratio of the Et Sum of the two lightest jets over HT=Sum of the Et of the four highest jets in Et
-
-	double Obs18 = ( HT != 0 ? EtSum/HT : -1 );
-	evtselectVarVal.push_back(pair<unsigned int,double>(18,Obs18));
-
-// Put the vector in the TtSemiEvtSolution
-	TS.setLRSignalEvtObservables(evtselectVarVal);
-
+      Thrust_N += fabs(Lept->Px()*nMinor.x()+Lept->Py()*(nMinor.y())+Lept->Pz()*(nMinor.z()));
+      
+      Thrust_Minor =  Thrust_N/Thrust_D;
+    }
+  
+  double Obs31 = Thrust;
+  evtselectVarVal.push_back(pair<unsigned int,double>(31,Obs31));
+  if(DEBUG) cout<<"------ LR observable 31 "<<Obs31<<" calculated ------"<<endl;
+  double Obs32 = Thrust_Major;
+  evtselectVarVal.push_back(pair<unsigned int,double>(32,Obs32));
+  if(DEBUG) cout<<"------ LR observable 32 "<<Obs32<<" calculated ------"<<endl;
+  double Obs33 = Thrust_Minor;
+  evtselectVarVal.push_back(pair<unsigned int,double>(33,Obs33));
+  if(DEBUG) cout<<"------ LR observable 33 "<<Obs33<<" calculated ------"<<endl;
+  
+  // Oblateness
+  
+  double Obs34 = Thrust_Major-Thrust_Minor;
+  evtselectVarVal.push_back(pair<unsigned int,double>(34,Obs34));
+  if(DEBUG) cout<<"------ LR observable 34 "<<Obs34<<" calculated ------"<<endl;
+  
+  // Sphericity and Aplanarity without boosting back the system to CM frame and without neutrino
+  
+  TMatrixDSym Matrix_NoNu(3);
+  
+  double PX2_NoNu = pow(Hadp->Px(),2)+pow(Hadq->Px(),2)+pow(Hadb->Px(),2)+pow(Lepb->Px(),2)+pow(Lept->Px(),2);
+  double PY2_NoNu = pow(Hadp->Py(),2)+pow(Hadq->Py(),2)+pow(Hadb->Py(),2)+pow(Lepb->Py(),2)+pow(Lept->Py(),2);
+  double PZ2_NoNu = pow(Hadp->Pz(),2)+pow(Hadq->Pz(),2)+pow(Hadb->Pz(),2)+pow(Lepb->Pz(),2)+pow(Lept->Pz(),2);
+  
+  double P2_NoNu  = PX2_NoNu+PY2_NoNu+PZ2_NoNu;
+  
+  double PXY_NoNu = Hadp->Px()*Hadp->Py()+Hadq->Px()*Hadq->Py()+Hadb->Px()*Hadb->Py()+Lepb->Px()*Lepb->Py()+Lept->Px()*Lept->Py();
+  double PXZ_NoNu = Hadp->Px()*Hadp->Pz()+Hadq->Px()*Hadq->Pz()+Hadb->Px()*Hadb->Pz()+Lepb->Px()*Lepb->Pz()+Lept->Px()*Lept->Pz();
+  double PYZ_NoNu = Hadp->Py()*Hadp->Pz()+Hadq->Py()*Hadq->Pz()+Hadb->Py()*Hadb->Pz()+Lepb->Py()*Lepb->Pz()+Lept->Py()*Lept->Pz();
+  
+  Matrix_NoNu(0,0) = PX2_NoNu/P2_NoNu; Matrix_NoNu(0,1) = PXY_NoNu/P2_NoNu; Matrix_NoNu(0,2) = PXZ_NoNu/P2_NoNu;
+  Matrix_NoNu(1,0) = PXY_NoNu/P2_NoNu; Matrix_NoNu(1,1) = PY2_NoNu/P2_NoNu; Matrix_NoNu(1,2) = PYZ_NoNu/P2_NoNu;
+  Matrix_NoNu(2,0) = PXZ_NoNu/P2_NoNu; Matrix_NoNu(2,1) = PYZ_NoNu/P2_NoNu; Matrix_NoNu(2,2) = PZ2_NoNu/P2_NoNu;
+  
+  TMatrixDSymEigen pTensor_NoNu(Matrix_NoNu);
+  
+  vector<double> EigValues_NoNu;
+  EigValues_NoNu.clear();
+  for(int i=0;i<3;i++)
+    {
+      EigValues_NoNu.push_back(pTensor_NoNu.GetEigenValues()[i]);
+    }
+  
+  std::sort(EigValues_NoNu.begin(),EigValues_NoNu.end(),dComparator);
+  
+  double Sphericity_NoNu = 1.5*(EigValues_NoNu[1]+EigValues_NoNu[2]);
+  double Aplanarity_NoNu = 1.5*EigValues_NoNu[2];
+  
+  double Obs35 = (isnan(Sphericity_NoNu) ? 0 : Sphericity_NoNu);
+  evtselectVarVal.push_back(pair<unsigned int,double>(35,Obs35));
+  if(DEBUG) cout<<"------ LR observable 35 "<<Obs35<<" calculated ------"<<endl;
+  
+  double Obs36 = (isnan(Aplanarity_NoNu) ? 0 : Aplanarity_NoNu);
+  evtselectVarVal.push_back(pair<unsigned int,double>(36,Obs36));
+  if(DEBUG) cout<<"------ LR observable 36 "<<Obs36<<" calculated ------"<<endl;
+  
+  // Sphericity and Aplanarity without boosting back the system to CM frame and without neutrino or lepton
+  
+  TMatrixDSym Matrix_NoNuNoLep(3);
+  
+  double PX2_NoNuNoLep = pow(Hadp->Px(),2)+pow(Hadq->Px(),2)+pow(Hadb->Px(),2)+pow(Lepb->Px(),2);
+  double PY2_NoNuNoLep = pow(Hadp->Py(),2)+pow(Hadq->Py(),2)+pow(Hadb->Py(),2)+pow(Lepb->Py(),2);
+  double PZ2_NoNuNoLep = pow(Hadp->Pz(),2)+pow(Hadq->Pz(),2)+pow(Hadb->Pz(),2)+pow(Lepb->Pz(),2);
+  
+  double P2_NoNuNoLep  = PX2_NoNuNoLep+PY2_NoNuNoLep+PZ2_NoNuNoLep;
+  
+  double PXY_NoNuNoLep = Hadp->Px()*Hadp->Py()+Hadq->Px()*Hadq->Py()+Hadb->Px()*Hadb->Py()+Lepb->Px()*Lepb->Py();
+  double PXZ_NoNuNoLep = Hadp->Px()*Hadp->Pz()+Hadq->Px()*Hadq->Pz()+Hadb->Px()*Hadb->Pz()+Lepb->Px()*Lepb->Pz();
+  double PYZ_NoNuNoLep = Hadp->Py()*Hadp->Pz()+Hadq->Py()*Hadq->Pz()+Hadb->Py()*Hadb->Pz()+Lepb->Py()*Lepb->Pz();
+  
+  Matrix_NoNuNoLep(0,0) = PX2_NoNuNoLep/P2_NoNuNoLep; Matrix_NoNuNoLep(0,1) = PXY_NoNuNoLep/P2_NoNuNoLep; Matrix_NoNuNoLep(0,2) = PXZ_NoNuNoLep/P2_NoNuNoLep;
+  Matrix_NoNuNoLep(1,0) = PXY_NoNuNoLep/P2_NoNuNoLep; Matrix_NoNuNoLep(1,1) = PY2_NoNuNoLep/P2_NoNuNoLep; Matrix_NoNuNoLep(1,2) = PYZ_NoNuNoLep/P2_NoNuNoLep;
+  Matrix_NoNuNoLep(2,0) = PXZ_NoNuNoLep/P2_NoNuNoLep; Matrix_NoNuNoLep(2,1) = PYZ_NoNuNoLep/P2_NoNuNoLep; Matrix_NoNuNoLep(2,2) = PZ2_NoNuNoLep/P2_NoNuNoLep;
+  
+  TMatrixDSymEigen pTensor_NoNuNoLep(Matrix_NoNuNoLep);
+  
+  vector<double> EigValues_NoNuNoLep;
+  EigValues_NoNuNoLep.clear();
+  for(int i=0;i<3;i++)
+    {
+      EigValues_NoNuNoLep.push_back(pTensor_NoNuNoLep.GetEigenValues()[i]);
+    }
+  
+  std::sort(EigValues_NoNuNoLep.begin(),EigValues_NoNuNoLep.end(),dComparator);
+  
+  double Sphericity_NoNuNoLep = 1.5*(EigValues_NoNuNoLep[1]+EigValues_NoNuNoLep[2]);
+  double Aplanarity_NoNuNoLep = 1.5*EigValues_NoNuNoLep[2];
+  
+  double Obs37 = (isnan(Sphericity_NoNuNoLep) ? 0 : Sphericity_NoNuNoLep);
+  evtselectVarVal.push_back(pair<unsigned int,double>(37,Obs37));
+  if(DEBUG) cout<<"------ LR observable 37 "<<Obs37<<" calculated ------"<<endl;
+  
+  double Obs38 = (isnan(Aplanarity_NoNuNoLep) ? 0 : Aplanarity_NoNuNoLep);
+  evtselectVarVal.push_back(pair<unsigned int,double>(38,Obs38));
+  if(DEBUG) cout<<"------ LR observable 38 "<<Obs38<<" calculated ------"<<endl;
+  
+  
+  // Put the vector in the TtSemiEvtSolution
+  TS.setLRSignalEvtObservables(evtselectVarVal);
+  if(DEBUG) cout<<"------  Observable values stored in the event  ------"<<endl;
+  
+  delete Hadp;
+  if(DEBUG) cout<<"------     Pointer to Hadp deleted             ------"<<endl;
+  delete Hadq;
+  if(DEBUG) cout<<"------     Pointer to Hadq deleted             ------"<<endl;
+  delete Hadb;
+  if(DEBUG) cout<<"------     Pointer to Hadb deleted             ------"<<endl;
+  delete Lepb;
+  if(DEBUG) cout<<"------     Pointer to Lepb deleted      ------"<<endl;
+  delete Lept;
+  if(DEBUG) cout<<"------     Pointer to Lepn deleted      ------"<<endl;
+  delete Lepn;
+  if(DEBUG) cout<<"------     Pointer to Mez deleted       ------"<<endl;
+  delete Mez;
+  
+  if(DEBUG) cout<<"------------ LR observables calculated -----------"<<endl;  
 }

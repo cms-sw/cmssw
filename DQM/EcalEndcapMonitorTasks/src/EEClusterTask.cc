@@ -1,8 +1,8 @@
 /*
  * \file EEClusterTask.cc
  *
- * $Date: 2007/05/22 15:08:13 $
- * $Revision: 1.7 $
+ * $Date: 2007/05/24 16:57:27 $
+ * $Revision: 1.8 $
  * \author G. Della Ricca
  * \author E. Di Marco
  *
@@ -29,6 +29,8 @@
 #include "DataFormats/EgammaReco/interface/BasicCluster.h"
 #include "DataFormats/EgammaReco/interface/SuperCluster.h"
 #include "DataFormats/Math/interface/Point3D.h"
+
+#include <DQM/EcalCommon/interface/Numbers.h>
 
 #include <DQM/EcalEndcapMonitorTasks/interface/EEClusterTask.h>
 
@@ -119,61 +121,61 @@ void EEClusterTask::setup(void){
     meSiz_ = dbe_->book1D(histo, histo, 10, 0., 10.);
 
     sprintf(histo, "EECLT BC energy");
-    meEneBasic_ = dbe_->book1D(histo, histo, 100, 0., 20.);
+    meEneBasic_ = dbe_->book1D(histo, histo, 100, 0., 150.);
 
     sprintf(histo, "EECLT BC number");
-    meNumBasic_ = dbe_->book1D(histo, histo, 100, 100., 1200.);
+    meNumBasic_ = dbe_->book1D(histo, histo, 100, 100., 100.);
 
     sprintf(histo, "EECLT BC size");
     meSizBasic_ = dbe_->book1D(histo, histo, 10, 0., 10.);
 
     sprintf(histo, "EECLT SC energy map EE +");
-    meEneFwdMap_ = dbe_->bookProfile2D(histo, histo, 144, -171.1, 171.1, 144, -171.1, 171.1, 100, 0., 500., "s");
+    meEneFwdMap_ = dbe_->bookProfile2D(histo, histo, 20, -150.0, 150.0, 20, -150.0, 150.0, 100, 0., 500., "s");
 
     sprintf(histo, "EECLT SC number map EE +");
-    meNumFwdMap_ = dbe_->book2D(histo, histo, 144, -171.1, 171.1, 144, -171.1, 171.1);
+    meNumFwdMap_ = dbe_->book2D(histo, histo, 20, -150.0, 150.0, 20, -150.0, 150.0);
 
     sprintf(histo, "EECLT SC energy polar map EE +");
-    meEneFwdPolarMap_ = dbe_->bookProfile2D(histo, histo, 144, 0., 171.1, 180, -M_PI, M_PI, 100, 0., 500., "s");
+    meEneFwdPolarMap_ = dbe_->bookProfile2D(histo, histo, 20, 0., 150.0, 50, -M_PI, M_PI, 100, 0., 500., "s");
 
     sprintf(histo, "EECLT SC number polar map EE +");
-    meNumFwdPolarMap_ = dbe_->book2D(histo, histo, 144, 0., 171.1, 180, -M_PI, M_PI);
+    meNumFwdPolarMap_ = dbe_->book2D(histo, histo, 20, 0., 150.0, 50, -M_PI, M_PI);
 
     sprintf(histo, "EECLT SC energy map EE -");
-    meEneBwdMap_ = dbe_->bookProfile2D(histo, histo, 144, -171.1, 171.1, 144, -171.1, 171.1, 100, 0., 500., "s");
+    meEneBwdMap_ = dbe_->bookProfile2D(histo, histo, 20, -150.0, 150.0, 20, -150.0, 150.0, 100, 0., 500., "s");
 
     sprintf(histo, "EECLT SC number map EE -");
-    meNumBwdMap_ = dbe_->book2D(histo, histo, 144, -171.1, 171.1, 144, -171.1, 171.1);
+    meNumBwdMap_ = dbe_->book2D(histo, histo, 20, -150.0, 150.0, 20, -150.0, 150.0);
 
     sprintf(histo, "EECLT SC energy polar map EE -");
-    meEneBwdPolarMap_ = dbe_->bookProfile2D(histo, histo, 144, 0., 171.1, 180, -M_PI, M_PI, 100, 0., 500., "s");
+    meEneBwdPolarMap_ = dbe_->bookProfile2D(histo, histo, 20, 0., 150.0, 50, -M_PI, M_PI, 100, 0., 500., "s");
 
     sprintf(histo, "EECLT SC number polar map EE -");
-    meNumBwdPolarMap_ = dbe_->book2D(histo, histo, 144, 0., 171.1, 180, -M_PI, M_PI);
+    meNumBwdPolarMap_ = dbe_->book2D(histo, histo, 20, 0., 150.0, 50, -M_PI, M_PI);
 
     sprintf(histo, "EECLT BC energy map EE +");
-    meEneFwdMapBasic_ = dbe_->bookProfile2D(histo, histo, 144, -171.1, 171.1, 144, -171.1, 171.1, 100, 0., 500., "s");
+    meEneFwdMapBasic_ = dbe_->bookProfile2D(histo, histo, 20, -150.0, 150.0, 20, -150.0, 150.0, 100, 0., 500., "s");
 
     sprintf(histo, "EECLT BC number map EE +");
-    meNumFwdMapBasic_ = dbe_->book2D(histo, histo, 144, -171.1, 171.1, 144, -171.1, 171.1);
+    meNumFwdMapBasic_ = dbe_->book2D(histo, histo, 20, -150.0, 150.0, 20, -150.0, 150.0);
 
     sprintf(histo, "EECLT BC energy polar map EE +");
-    meEneFwdPolarMapBasic_ = dbe_->bookProfile2D(histo, histo, 144, 0., 171.1, 180, -M_PI, M_PI, 100, 0., 500., "s");
+    meEneFwdPolarMapBasic_ = dbe_->bookProfile2D(histo, histo, 20, 0., 150.0, 50, -M_PI, M_PI, 100, 0., 500., "s");
 
     sprintf(histo, "EECLT BC number polar map EE +");
-    meNumFwdPolarMapBasic_ = dbe_->book2D(histo, histo, 144, 0., 171.1, 180, -M_PI, M_PI);
+    meNumFwdPolarMapBasic_ = dbe_->book2D(histo, histo, 20, 0., 150.0, 50, -M_PI, M_PI);
 
     sprintf(histo, "EECLT BC energy map EE -");
-    meEneBwdMapBasic_ = dbe_->bookProfile2D(histo, histo, 144, -171.1, 171.1, 144, -171.1, 171.1, 100, 0., 500., "s");
+    meEneBwdMapBasic_ = dbe_->bookProfile2D(histo, histo, 20, -150.0, 150.0, 20, -150.0, 150.0, 100, 0., 500., "s");
 
     sprintf(histo, "EECLT BC number map EE -");
-    meNumBwdMapBasic_ = dbe_->book2D(histo, histo, 144, -171.1, 171.1, 144, -171.1, 171.1);
+    meNumBwdMapBasic_ = dbe_->book2D(histo, histo, 20, -150.0, 150.0, 20, -150.0, 150.0);
 
     sprintf(histo, "EECLT BC energy polar map EE -");
-    meEneBwdPolarMapBasic_ = dbe_->bookProfile2D(histo, histo, 144, 0., 171.1, 180, -M_PI, M_PI, 100, 0., 500., "s");
+    meEneBwdPolarMapBasic_ = dbe_->bookProfile2D(histo, histo, 20, 0., 150.0, 50, -M_PI, M_PI, 100, 0., 500., "s");
 
     sprintf(histo, "EECLT BC number polar map EE -");
-    meNumBwdPolarMapBasic_ = dbe_->book2D(histo, histo, 144, 0., 171.1, 180, -M_PI, M_PI);
+    meNumBwdPolarMapBasic_ = dbe_->book2D(histo, histo, 20, 0., 150.0, 50, -M_PI, M_PI);
 
     sprintf(histo, "EECLT dicluster invariant mass");
     meInvMass_ = dbe_->book1D(histo, histo, 100, 0., 200.);
@@ -273,6 +275,8 @@ void EEClusterTask::endJob(void){
 }
 
 void EEClusterTask::analyze(const Event& e, const EventSetup& c){
+
+  Numbers::initGeometry(c);
 
   if ( ! init_ ) this->setup();
 

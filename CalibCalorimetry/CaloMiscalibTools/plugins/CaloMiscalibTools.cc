@@ -13,7 +13,7 @@
 //
 // Original Author:  Lorenzo AGOSTINO
 //         Created:  Wed May 31 10:37:45 CEST 2006
-// $Id: CaloMiscalibTools.cc,v 1.3 2007/05/16 16:12:00 malgeri Exp $
+// $Id: CaloMiscalibTools.cc,v 1.1 2007/07/14 21:25:58 malgeri Exp $
 //
 // Modified       : Luca Malgeri 
 // Date:          : 11/09/2006 
@@ -31,6 +31,7 @@
 #include "FWCore/Framework/interface/SourceFactory.h"
 #include "FWCore/Framework/interface/ESProducer.h"
 #include "FWCore/Framework/interface/EventSetupRecordIntervalFinder.h"
+#include "FWCore/ParameterSet/interface/FileInPath.h"
 
 #include "FWCore/Framework/interface/ESHandle.h"
 #include "FWCore/Framework/interface/EventSetup.h"
@@ -46,9 +47,18 @@ CaloMiscalibTools::CaloMiscalibTools(const edm::ParameterSet& iConfig)
 {
    //the following line is needed to tell the framework what
    // data is being produced
-   map_.prefillMap();
-   barrelfile_=iConfig.getUntrackedParameter<std::string> ("fileNameBarrel","");
-   endcapfile_=iConfig.getUntrackedParameter<std::string> ("fileNameEndcap","");
+  map_.prefillMap();
+
+  barrelfileinpath_=iConfig.getUntrackedParameter<std::string> ("fileNameBarrel","");
+  endcapfileinpath_=iConfig.getUntrackedParameter<std::string> ("fileNameEndcap","");
+
+  edm::FileInPath barrelfiletmp("CalibCalorimetry/CaloMiscalibTools/data/"+barrelfileinpath_);
+  edm::FileInPath endcapfiletmp("CalibCalorimetry/CaloMiscalibTools/data/"+endcapfileinpath_);
+  
+  
+  barrelfile_=barrelfiletmp.fullPath();
+  endcapfile_=endcapfiletmp.fullPath();
+
    // added by Zhen (changed since 1_2_0)
    setWhatProduced(this,&CaloMiscalibTools::produce);
    findingRecord<EcalIntercalibConstantsRcd>();

@@ -4,7 +4,7 @@ This is a generic main that can be used with any plugin and a
 PSet script.   See notes in EventProcessor.cpp for details about
 it.
 
-$Id: cmsRun.cpp,v 1.36 2007/06/28 23:23:25 wmtan Exp $
+$Id: cmsRun.cpp,v 1.43 2007/08/09 22:12:45 wmtan Exp $
 
 ----------------------------------------------------------------------*/  
 
@@ -17,21 +17,19 @@ $Id: cmsRun.cpp,v 1.36 2007/06/28 23:23:25 wmtan Exp $
 #include <boost/shared_ptr.hpp>
 #include <boost/program_options.hpp>
 
-#include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "FWCore/ParameterSet/interface/MakeParameterSets.h"
 #include "FWCore/Framework/interface/EventProcessor.h"
 #include "FWCore/PluginManager/interface/PluginManager.h"
 #include "FWCore/PluginManager/interface/standard.h"
 #include "FWCore/Utilities/interface/Exception.h"
 #include "FWCore/Utilities/interface/Presence.h"
+#include "FWCore/MessageLogger/interface/ExceptionMessages.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include "FWCore/MessageLogger/interface/MessageDrop.h"
 #include "FWCore/PluginManager/interface/PresenceFactory.h"
 #include "FWCore/MessageLogger/interface/JobReport.h"
 #include "FWCore/ServiceRegistry/interface/ServiceRegistry.h"
-#include "FWCore/ServiceRegistry/interface/Service.h"
 
-#include "FWCore/Framework/bin/pythonFileToConfigure.h"
 
 static char const* const kParameterSetOpt = "parameter-set";
 static char const* const kParameterSetCommandOpt = "parameter-set,p";
@@ -52,7 +50,23 @@ namespace {
       ep_(ep),
       callEndJob_(false) { }
     ~EventProcessorWithSentry() {
-      if (callEndJob_ && ep_.get()) ep_->endJob();
+      if (callEndJob_ && ep_.get()) {
+	try {
+	  ep_->endJob();
+	}
+	catch (cms::Exception& e) {
+	  edm::printCmsException(e, kProgramName);
+	}
+	catch (std::bad_alloc& e) {
+	  edm::printBadAllocException(kProgramName);
+	}
+	catch (std::exception& e) {
+	  edm::printStdException(e, kProgramName);
+	}
+	catch (...) {
+	  edm::printUnknownException(kProgramName);
+        }
+      }
     }
     void on() {
       callEndJob_ = true;
@@ -69,7 +83,6 @@ namespace {
     bool callEndJob_;
   };
 }
-
 
 int main(int argc, char* argv[])
 {
@@ -106,8 +119,9 @@ int main(int argc, char* argv[])
   // 
   // The parameters for these can be overridden from the configuration files.
   std::vector<std::string> defaultServices;
-  defaultServices.reserve(5);
+  defaultServices.reserve(6);
   defaultServices.push_back("MessageLogger");
+  defaultServices.push_back("LoadAllDictionaries");
   defaultServices.push_back("InitRootHandlers");
   defaultServices.push_back("AdaptorConfig");
   defaultServices.push_back("EnableFloatingPointExceptions");
@@ -152,9 +166,26 @@ int main(int argc, char* argv[])
     
   if(vm.count(kHelpOpt)) {
     std::cout << desc <<std::endl;
+    if(!vm.count(kParameterSetOpt)) edm::HaltMessageLogging();
     return 0;
   }
   
+  if(!vm.count(kParameterSetOpt)) {
+    std::string shortDesc("ConfigFileNotFound");
+    std::ostringstream longDesc;
+    longDesc << "cmsRun: No configuration file given.\n"
+	     << "For usage and an options list, please do '"
+	     << argv[0]
+	     <<  " --"
+	     << kHelpOpt
+	     << "'.";
+    int exitCode = 7001;
+    edm::LogAbsolute(shortDesc) << longDesc.str() << "\n";
+    edm::HaltMessageLogging();
+    return exitCode;
+  }
+
+#ifdef CHANGED_FROM
   if(!vm.count(kParameterSetOpt)) {
     std::string shortDesc("ConfigFileNotFound");
     std::ostringstream longDesc;
@@ -169,45 +200,25 @@ int main(int argc, char* argv[])
     edm::LogSystem(shortDesc) << longDesc.str() << "\n";
     return exitCode;
   }
+#endif
 
-  std::string configstring;
   std::string fileName(vm[kParameterSetOpt].as<std::string>());
-  if (fileName.size() > 3 && fileName.substr(fileName.size()-3) == ".py") {
-    try {
-      configstring = edm::pythonFileToConfigure(fileName);
-    } catch(cms::Exception& iException) {
-      std::string shortDesc("ConfigFileReadError");
-      std::ostringstream longDesc;
-      longDesc << "Python found a problem\n" << iException.what();
-      int exitCode = 7002;
-      jobRep->reportError(shortDesc, longDesc.str(), exitCode);
-      edm::LogSystem(shortDesc) << longDesc.str() << "\n";
-      return exitCode;
-    }
-  } else {
-    std::ifstream configFile(fileName.c_str());
-    if(!configFile) {
-      std::string shortDesc("ConfigFileReadError");
-      std::ostringstream longDesc;
-      longDesc << "Unable to open configuration file "
-        << vm[kParameterSetOpt].as<std::string>();
-      int exitCode = 7002;
-      jobRep->reportError(shortDesc, longDesc.str(), exitCode);
-      edm::LogSystem(shortDesc) << longDesc.str() << "\n";
-      return exitCode;
-    }
-    
-    
-    // Create the several parameter sets that will be used to configure
-    // the program.
-    std::string line;
-    
-    while(std::getline(configFile,line)) {
-      configstring += line; 
-      configstring += "\n"; 
-    }
+  boost::shared_ptr<edm::ProcessDesc> processDesc;
+  try {
+    processDesc = edm::readConfigFile(fileName);
+  }
+  catch(cms::Exception& iException) {
+    std::string shortDesc("ConfigFileReadError");
+    std::ostringstream longDesc;
+    longDesc << "Problem with configuration file " << fileName
+             <<  "\n" << iException.what();
+    int exitCode = 7002;
+    jobRep->reportError(shortDesc, longDesc.str(), exitCode);
+    edm::LogSystem(shortDesc) << longDesc.str() << "\n";
+    return exitCode;
   }
 
+  processDesc->addServices(defaultServices, forcedServices);
   //
   // Decide what mode of hardcoded MessageLogger defaults to use 
   // 
@@ -239,9 +250,8 @@ int main(int argc, char* argv[])
   try {
     std::auto_ptr<edm::EventProcessor> 
 	procP(new 
-	      edm::EventProcessor(configstring, jobReportToken, 
-			     edm::serviceregistry::kTokenOverrides,
-			     defaultServices, forcedServices));
+	      edm::EventProcessor(processDesc, jobReportToken, 
+			     edm::serviceregistry::kTokenOverrides));
     EventProcessorWithSentry procTmp(procP);
     proc = procTmp;
     proc->beginJob();
@@ -252,37 +262,20 @@ int main(int argc, char* argv[])
     rc = 0;
   }
   catch (cms::Exception& e) {
-    std::string shortDesc("CMSException");
-    std::ostringstream longDesc;
-    longDesc << "cms::Exception caught in " 
-	     << kProgramName
-	     << "\n"
-	     << e.explainSelf();
     rc = 8001;
-    jobRep->reportError(shortDesc, longDesc.str(), rc);
-    edm::LogSystem(shortDesc) << longDesc.str() << "\n";
+    edm::printCmsException(e, kProgramName, jobRep.get(), rc);
+  }
+  catch(std::bad_alloc& bda) {
+    rc = 8004;
+    edm::printBadAllocException(kProgramName, jobRep.get(), rc);
   }
   catch (std::exception& e) {
-    std::string shortDesc("StdLibException");
-    std::ostringstream longDesc;
-    longDesc << "Standard library exception caught in " 
-	     << kProgramName
-	     << "\n"
-	     << e.what();
     rc = 8002;
-    jobRep->reportError(shortDesc, longDesc.str(), rc);
-    edm::LogSystem(shortDesc) << longDesc.str() << "\n";
-         
+    edm::printStdException(e, kProgramName, jobRep.get(), rc);
   }
   catch (...) {
-    std::string shortDesc("UnknownException");
-    std::ostringstream longDesc;
-    longDesc << "Unknown exception caught in "
-	     << kProgramName
-	     << "\n";
     rc = 8003;
-    jobRep->reportError(shortDesc, longDesc.str(), rc);
-    edm::LogSystem(shortDesc) << longDesc.str() << "\n";
+    edm::printUnknownException(kProgramName, jobRep.get(), rc);
   }
   
   return rc;

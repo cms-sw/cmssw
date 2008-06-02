@@ -29,10 +29,10 @@ void HcaluLUTTPGCoder::compress(const IntegerCaloSamples& ics, const std::vector
 
 HcaluLUTTPGCoder::~HcaluLUTTPGCoder() {
   for (int i = 0; i < nluts; i++) {
-    if (inputLUT[i] != 0) delete inputLUT[i];
+    if (inputLUT[i] != 0) delete [] inputLUT[i];
   }
-  delete _gain;
-  delete _ped;
+  delete [] _gain;
+  delete [] _ped;
 }
 
 void HcaluLUTTPGCoder::AllocateLUTs() {
@@ -169,7 +169,7 @@ void HcaluLUTTPGCoder::update(const HcalDbService& conditions) {
 	     coder.adc2fC(frame,samples);
 	     float adc2fC_ = samples[0];
 	     if ( ieta < 0 ) inputLUT[id][j] = (LUT) std::min(std::max(0,int((adc2fC_ - ped_)*gain_*Rcalib[abs(ieta)+1]/divide)), 0x3FF);
-	     else inputLUT[id][j] = (LUT) std::min(std::max(0,int((adc2fC_ - ped_)*gain_*Rcalib[abs(ieta)+43]/divide)), 0x3FF);
+	     else inputLUT[id][j] = (LUT) std::min(std::max(0,int((adc2fC_ - ped_)*gain_*Rcalib[abs(ieta)+44]/divide)), 0x3FF);
 	   }
 	 }
        }        

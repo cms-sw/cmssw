@@ -8,12 +8,12 @@
 //
 // Original Author:  
 //         Created:  Sun Aug  7 20:26:31 EDT 2005
-// $Id: decayParser.cc,v 1.1 2005/10/24 12:59:00 llista Exp $
+// $Id: decayParser.cc,v 1.2 2007/10/15 17:59:01 llista Exp $
 //
 #include <boost/spirit/core.hpp>
 #include <boost/spirit/actor/push_back_actor.hpp>
 #include <vector>
-#include "PhysicsTools/CandAlgos/src/decayParser.h"
+#include "PhysicsTools/CandAlgos/interface/decayParser.h"
 
 using namespace boost::spirit;
 using namespace std;

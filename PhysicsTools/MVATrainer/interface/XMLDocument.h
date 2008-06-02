@@ -24,6 +24,8 @@ class XMLDocument {
 	XERCES_CPP_NAMESPACE_QUALIFIER DOMDocument *
 	createDocument(const std::string &root);
 
+	static bool hasAttribute(XERCES_CPP_NAMESPACE_QUALIFIER DOMElement *elem,
+	                         const char *name);
 	template<typename T>
 	static T readAttribute(XERCES_CPP_NAMESPACE_QUALIFIER DOMElement *elem,
 	                       const char *name);

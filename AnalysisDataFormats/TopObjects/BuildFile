@@ -1,21 +1,29 @@
 <use name=FWCore/Utilities>
 <use name=DataFormats/Common>
-<use name=DataFormats/MuonReco>
+<use name=DataFormats/TauReco>
 <use name=DataFormats/JetReco>
 <use name=DataFormats/METReco>
-<use name=DataFormats/EgammaCandidates>
+<use name=DataFormats/MuonReco>
 <use name=DataFormats/TrackReco>
+<use name=DataFormats/PatCandidates>
 <use name=DataFormats/HepMCCandidate>
+<use name=DataFormats/EgammaCandidates>
+<use name=PhysicsTools/CandUtils>
 <use name=rootrflx>
 <use name=root>
+
 <export>
   <use name=DataFormats/Common>
-  <use name=DataFormats/MuonReco>
+  <use name=DataFormats/TauReco>
   <use name=DataFormats/JetReco>
   <use name=DataFormats/METReco>
-  <use name=DataFormats/EgammaCandidates>
+  <use name=DataFormats/MuonReco>
   <use name=DataFormats/TrackReco>
+  <use name=DataFormats/PatCandidates>
   <use name=DataFormats/HepMCCandidate>
+  <use name=DataFormats/EgammaCandidates>
+  <use name=PhysicsTools/CandUtils>
   <use name=root>
+
   <lib name=AnalysisDataFormatsTopObjects>
 </export>

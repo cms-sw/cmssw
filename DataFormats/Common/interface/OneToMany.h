@@ -1,5 +1,5 @@
-#ifndef Common_OneToMany_h
-#define Common_OneToMany_h
+#ifndef DataFormats_Common_OneToMany_h
+#define DataFormats_Common_OneToMany_h
 #include "DataFormats/Common/interface/AssociationMapHelpers.h"
 #include "DataFormats/Common/interface/Ref.h"
 #include "DataFormats/Common/interface/RefVector.h"

@@ -1,6 +1,5 @@
 <use name=DataFormats/Common>
 <use name=DataFormats/DetId>
-<use name=DataFormats/EgammaReco>
 <use name=DataFormats/GsfTrackReco>
 <use name=DataFormats/Math>
 <use name=DataFormats/TrackReco>
@@ -10,7 +9,6 @@
 <export>
   <use name=DataFormats/Common>
   <use name=DataFormats/DetId>
-  <use name=DataFormats/EgammaReco>
   <use name=DataFormats/Math>
   <use name=DataFormats/TrackReco>
   <use name=rootmath>

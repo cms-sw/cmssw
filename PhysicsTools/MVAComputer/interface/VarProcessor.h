@@ -9,14 +9,14 @@
 //
 // Author:	Christophe Saout <christophe.saout@cern.ch>
 // Created:     Sat Apr 24 15:18 CEST 2007
-// $Id: VarProcessor.h,v 1.3 2007/05/25 16:37:58 saout Exp $
+// $Id: VarProcessor.h,v 1.6 2007/12/08 16:11:11 saout Exp $
 //
 
 #include <algorithm>
 #include <vector>
 
 #include "PhysicsTools/MVAComputer/interface/ProcessRegistry.h"
-#include "PhysicsTools/MVAComputer/interface/Calibration.h"
+#include "PhysicsTools/MVAComputer/interface/CalibrationFwd.h"
 #include "PhysicsTools/MVAComputer/interface/Variable.h"
 #include "PhysicsTools/MVAComputer/interface/BitSet.h"
 
@@ -176,6 +176,9 @@ class VarProcessor :
 
 		/// end of value array for current input variable
 		inline double *end() const { return values + size(); }
+
+		/// checks for existence of values for current input variable
+		inline bool empty() const { return begin() == end(); }
 
 		/// the (first or only) value for the current input variable
 		inline double operator * ()

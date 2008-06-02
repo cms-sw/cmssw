@@ -1,6 +1,6 @@
 /** \class HLTElectronPixelMatchFilter
  *
- * $Id: HLTElectronPixelMatchFilter.cc,v 1.3 2007/03/07 10:44:05 monicava Exp $
+ * $Id: HLTElectronPixelMatchFilter.cc,v 1.4 2007/05/08 13:22:44 ghezzi Exp $
  *
  *  \author Monica Vazquez Acosta (CERN)
  *
@@ -22,6 +22,7 @@
 #include "DataFormats/EgammaReco/interface/SeedSuperClusterAssociation.h"
 
 #include "DataFormats/RecoCandidate/interface/RecoEcalCandidate.h"
+#include "DataFormats/RecoCandidate/interface/RecoEcalCandidateFwd.h"
 #include "DataFormats/RecoCandidate/interface/RecoCandidate.h"
 
 #include "DataFormats/TrajectorySeed/interface/TrajectorySeedCollection.h"

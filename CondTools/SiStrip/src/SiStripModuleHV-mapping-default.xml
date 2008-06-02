@@ -1,9 +1,0 @@
-<?xml version='1.0' encoding="UTF-8"?>
-<!DOCTYPE Mapping SYSTEM "InMemory">
-<Mapping version="SiStripModuleHV-1.0" >
-  <Class table="SISTRIPMODULEHV" id_columns="ID" name="SiStripModuleHV" >
-    <Container table="SISTRIPMODULEHV_V__1" id_columns="ID_ID" name="v_hvoff" position_column="POS" >
-      <Primitive column="V_HVOFF_VALUE_TYPE" name="value_type" />
-    </Container >
-  </Class >
-</Mapping >

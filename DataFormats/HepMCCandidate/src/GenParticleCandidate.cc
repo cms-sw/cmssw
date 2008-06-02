@@ -1,9 +1,14 @@
-// $Id: GenParticleCandidate.cc,v 1.12 2007/05/08 13:11:17 llista Exp $
+// $Id: GenParticleCandidate.cc,v 1.13 2007/05/14 11:47:17 llista Exp $
 #include "DataFormats/HepMCCandidate/interface/GenParticleCandidate.h"
 #include <iostream>
 using namespace reco;
 
 GenParticleCandidate::GenParticleCandidate( Charge q, const LorentzVector & p4, 
+					    const Point & vtx, int pdgId, int status, bool integerCharge ) : 
+  CompositeRefCandidate( q, p4, vtx, pdgId, status, integerCharge ) {
+}
+
+GenParticleCandidate::GenParticleCandidate( Charge q, const PolarLorentzVector & p4, 
 					    const Point & vtx, int pdgId, int status, bool integerCharge ) : 
   CompositeRefCandidate( q, p4, vtx, pdgId, status, integerCharge ) {
 }

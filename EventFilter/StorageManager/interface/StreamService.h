@@ -1,7 +1,7 @@
 #ifndef STREAMSERVICE_H
 #define STREAMSERVICE_H
 
-// $Id: StreamService.h,v 1.1 2007/02/05 11:19:56 klute Exp $
+// $Id: StreamService.h,v 1.2 2007/02/05 16:39:40 klute Exp $
 
 // - handling output files per stream make the problem 1-dimensional 
 // - allows to use different file handling rules per stream
@@ -47,9 +47,15 @@ namespace edm {
       void   stop();
       void   report(std::ostream &os, int indentation) const;
 
-      void   setNumberOfFileSystems(int i) { numberOfFileSystems_ = i; } 
-      void   setCatalog(std::string s)     { catalog_  = s; }
-      void   setSourceId(std::string s)    { sourceId_ = s; }
+      void   setNumberOfFileSystems(int i)   { numberOfFileSystems_ = i; } 
+      void   setCatalog(std::string s)       { catalog_  = s; }
+      void   setSourceId(std::string s)      { sourceId_ = s; }
+      void   setFileName(std::string s)      { fileName_ = s; }
+      void   setFilePath(std::string s)      { filePath_ = s; }
+      void   setMathBoxPath(std::string s)   { mailboxPath_ = s; }
+      void   setSetupLabel(std::string s)    { setupLabel_ = s; }
+      void   setHighWaterMark(double d)      { highWaterMark_ = d; }
+      void   setLumiSectionTimeOut(double d) { lumiSectionTimeOut_ = d; }
 
       std::list<std::string> getFileList();
       std::list<std::string> getCurrentFileList();

@@ -9,7 +9,7 @@
 //
 // Author:	Christophe Saout <christophe.saout@cern.ch>
 // Created:     Sat Apr 24 15:18 CEST 2007
-// $Id: AtomicId.h,v 1.2 2007/05/25 16:37:58 saout Exp $
+// $Id: AtomicId.h,v 1.4 2007/12/08 16:11:10 saout Exp $
 //
 
 #include <ostream>
@@ -69,10 +69,10 @@ class AtomicId {
 	const char	*string;
 };
 
-} // namespace PhysicsTools
-
 /// STL streaming operator
 inline std::ostream &operator << (std::ostream &os, const PhysicsTools::AtomicId &id)
 { return os << (const char*)id; }
+
+} // namespace PhysicsTools
 
 #endif // PhysicsTools_MVAComputer_AtomicId_h

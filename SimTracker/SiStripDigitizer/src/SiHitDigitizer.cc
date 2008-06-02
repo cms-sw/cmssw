@@ -30,7 +30,6 @@ SiHitDigitizer::SiHitDigitizer(const edm::ParameterSet& conf,CLHEP::HepRandomEng
   
   theSiChargeCollectionDrifter = 
     new SiLinearChargeCollectionDrifter(diffusionConstant,
-					temperature,
 					chargeDistributionRMS,
 					depletionVoltage,
 					appliedVoltage);
@@ -47,7 +46,8 @@ SiHitDigitizer::~SiHitDigitizer(){
 
 
 void 
-SiHitDigitizer::processHit(const PSimHit& hit, const StripGeomDetUnit& det, GlobalVector bfield,float langle, SiPileUpSignals::signal_map_type &map){
+SiHitDigitizer::processHit(const PSimHit& hit, const StripGeomDetUnit& det, GlobalVector bfield,float langle,
+			   SiPileUpSignals::signal_map_type &map,SiPileUpSignals::signal_map_type &map_temp){
   //
   // Fully process one SimHit
   //
@@ -63,7 +63,7 @@ SiHitDigitizer::processHit(const PSimHit& hit, const StripGeomDetUnit& det, Glob
   
   LocalVector driftDir = DriftDirection(&det,bfield,langle);
  
-  theSiInduceChargeOnStrips->induce(theSiChargeCollectionDrifter->drift(ion,driftDir,moduleThickness,timeNormalisation),det,map);
+  theSiInduceChargeOnStrips->induce(theSiChargeCollectionDrifter->drift(ion,driftDir,moduleThickness,timeNormalisation),det,map,map_temp);
 }
 
 LocalVector SiHitDigitizer::DriftDirection(const StripGeomDetUnit* _detp,GlobalVector _bfield,float langle){

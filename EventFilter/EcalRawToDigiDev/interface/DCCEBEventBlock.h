@@ -10,8 +10,8 @@
  *
  * \file DCCEBEventBlock.h
  *
- * $Date: 2007/04/02 11:09:45 $
- * $Revision: 1.3 $
+ * $Date: 2007/04/10 17:33:48 $
+ * $Revision: 1.4 $
  *
  * \author N. Almeida
  * 
@@ -32,7 +32,7 @@ class DCCEBEventBlock : public DCCEventBlock{
   	
   protected :
   
-    void unpackTCCBlocks();
+    int unpackTCCBlocks();
    
 };
 

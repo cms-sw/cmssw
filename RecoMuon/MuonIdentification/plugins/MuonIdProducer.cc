@@ -5,7 +5,7 @@
 // 
 //
 // Original Author:  Dmytro Kovalskyi
-// $Id: MuonIdProducer.cc,v 1.4 2007/05/16 09:41:46 dmytro Exp $
+// $Id: MuonIdProducer.cc,v 1.8 2007/08/06 16:59:36 dmytro Exp $
 //
 //
 
@@ -102,7 +102,7 @@ MuonIdProducer::~MuonIdProducer()
 {
    if (muIsoExtractorCalo_) delete muIsoExtractorCalo_;
    if (muIsoExtractorTrack_) delete muIsoExtractorTrack_;
-   TimingReport::current()->dump(std::cout);
+   // TimingReport::current()->dump(std::cout);
 }
 
 void MuonIdProducer::init(edm::Event& iEvent, const edm::EventSetup& iSetup)
@@ -157,7 +157,7 @@ reco::Muon* MuonIdProducer::nextMuon(edm::Event& iEvent, const edm::EventSetup& 
 	 if ( muonCollectionHandle_.isValid() ) {
 	    for( reco::MuonCollection::const_iterator muon = muonCollectionHandle_->begin();
 		 muon != muonCollectionHandle_->end(); ++muon )
-	      if ( muon->track().id() == aMuon->track().id() ) {
+	      if ( muon->track() == aMuon->track() ) {
 		 aMuon->setStandAlone(muon->standAloneMuon());
 		 aMuon->setCombined(muon->combinedMuon());
 		 break;
@@ -166,7 +166,7 @@ reco::Muon* MuonIdProducer::nextMuon(edm::Event& iEvent, const edm::EventSetup& 
 	    if ( linkCollectionHandle_.isValid() )
 	      for( reco::MuonTrackLinksCollection::const_iterator link = linkCollectionHandle_->begin();
 		   link != linkCollectionHandle_->end(); ++link )
-		if ( link->trackerTrack().id() == aMuon->track().id() ) {
+		if ( link->trackerTrack() == aMuon->track() ) {
 		   aMuon->setStandAlone(link->standAloneTrack());
 		   aMuon->setCombined(link->globalTrack());
 		   break;
@@ -326,12 +326,12 @@ void MuonIdProducer::fillMuonId(edm::Event& iEvent, const edm::EventSetup& iSetu
 	   aMatch.xErr = sqrt( localError.xx() );
 	   aMatch.yErr = sqrt( localError.yy() );
 	                                                                                                                                                    
-	   aMatch.dXdZ = chamber->tState.localDirection().x();
-	   aMatch.dYdZ = chamber->tState.localDirection().y();
+	   aMatch.dXdZ = chamber->tState.localDirection().z()!=0?chamber->tState.localDirection().x()/chamber->tState.localDirection().z():9999;
+	   aMatch.dYdZ = chamber->tState.localDirection().z()!=0?chamber->tState.localDirection().y()/chamber->tState.localDirection().z():9999;
 	   // DANGEROUS - compiler cannot guaranty parameters ordering
 	   AlgebraicSymMatrix55 trajectoryCovMatrix = chamber->tState.localError().matrix();
-	   aMatch.dXdZErr = trajectoryCovMatrix(1,1);
-	   aMatch.dYdZErr = trajectoryCovMatrix(2,2);
+	   aMatch.dXdZErr = trajectoryCovMatrix(1,1)>0?sqrt(trajectoryCovMatrix(1,1)):0;
+	   aMatch.dYdZErr = trajectoryCovMatrix(2,2)>0?sqrt(trajectoryCovMatrix(2,2)):0;
 	
 	   aMatch.edgeX = chamber->localDistanceX;
 	   aMatch.edgeY = chamber->localDistanceY;

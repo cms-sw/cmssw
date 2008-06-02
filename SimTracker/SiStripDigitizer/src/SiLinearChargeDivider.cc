@@ -92,8 +92,8 @@ void SiLinearChargeDivider::fluctuateEloss(int pid, float particleMomentum,
   double particleMass = 139.57;              // Mass in MeV, Assume pion
   if(particle == 0)
     {
-      edm::LogWarning("SiLinearChargeDivider") << "Cannot find particle of type "<<pid
-					       << " in the PDT we assign to this particle the mass of the Pion";
+      LogDebug("SiLinearChargeDivider") << "Cannot find particle of type "<<pid
+					<< " in the PDT we assign to this particle the mass of the Pion";
     }
   else
     {
@@ -162,7 +162,7 @@ float SiLinearChargeDivider::DeconvolutionShape(const PSimHit& hit, const StripG
   float dist = det.surface().toGlobal(hit.localPosition()).mag();
   float t0 = dist/30.;  // light velocity = 30 cm/ns
   float SigmaShape = timeResDeco; // 12.06 ns from fit made by I.Tomalin to APV25 data presented by M.Raymond at LEB2000 conference.
-  float tofNorm = (hit.tof() - t0)/SigmaShape;
+  float tofNorm = (hit.tof() - cosmicShift - t0)/SigmaShape;
   // Time when read out relative to time hit produced.
   float readTimeNorm = -tofNorm;
   // return the energyLoss weighted with a gaussian centered at t0 

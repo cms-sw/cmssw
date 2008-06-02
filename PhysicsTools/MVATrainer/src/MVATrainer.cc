@@ -14,6 +14,8 @@
 
 #include <xercesc/dom/DOM.hpp>
 
+#include <TRandom.h>
+
 #include "FWCore/Utilities/interface/Exception.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 
@@ -29,6 +31,7 @@
 #include "PhysicsTools/MVATrainer/interface/Source.h"
 #include "PhysicsTools/MVATrainer/interface/SourceVariable.h"
 #include "PhysicsTools/MVATrainer/interface/TrainProcessor.h"
+#include "PhysicsTools/MVATrainer/interface/TrainerMonitoring.h"
 #include "PhysicsTools/MVATrainer/interface/MVATrainer.h"
 
 XERCES_CPP_NAMESPACE_USE
@@ -38,16 +41,45 @@ namespace PhysicsTools {
 namespace { // anonymous
 	class MVATrainerComputer;
 
-	class TrainInterceptor : public Calibration::Interceptor {
+	class BaseInterceptor : public Calibration::Interceptor {
 	    public:
-		TrainInterceptor(TrainProcessor *proc) :
-			proc(proc), calib(0) {}
-		virtual ~TrainInterceptor() {}
-
-		inline TrainProcessor *getProcessor() const { return proc; }
+		BaseInterceptor() : calib(0) {}
+		virtual ~BaseInterceptor() {}
 
 		inline void setCalibration(MVATrainerComputer *calib)
 		{ this->calib = calib; }
+
+		virtual std::vector<Variable::Flags>
+		configure(const MVAComputer *computer, unsigned int n) = 0;
+
+		virtual double
+		intercept(const std::vector<double> *values) const = 0;
+
+		virtual void init() {}
+		virtual void finish(bool save) {}
+
+	    protected:
+		MVATrainerComputer	*calib;
+	};
+
+	class InitInterceptor : public BaseInterceptor {
+	    public:
+		InitInterceptor() {}
+		virtual ~InitInterceptor() {}
+
+		virtual std::vector<Variable::Flags>
+		configure(const MVAComputer *computer, unsigned int n);
+
+		virtual double
+		intercept(const std::vector<double> *values) const;
+	};
+
+	class TrainInterceptor : public BaseInterceptor {
+	    public:
+		TrainInterceptor(TrainProcessor *proc) : proc(proc) {}
+		virtual ~TrainInterceptor() {}
+
+		inline TrainProcessor *getProcessor() const { return proc; }
 
 		virtual std::vector<Variable::Flags>
 		configure(const MVAComputer *computer, unsigned int n);
@@ -55,34 +87,42 @@ namespace { // anonymous
 		virtual double
 		intercept(const std::vector<double> *values) const;
 
-		void init();
-		void finish(bool save);
+		virtual void init();
+		virtual void finish(bool save);
 
 	    private:
 		TrainProcessor		*const proc;
-		MVATrainerComputer	*calib;
 	};
 
 	class MVATrainerComputer : public Calibration::MVAComputer {
 	    public:
-		MVATrainerComputer(const std::vector<TrainInterceptor*>
-						&interceptors, bool autoSave);
+		MVATrainerComputer(const std::vector<BaseInterceptor*>
+							&interceptors,
+		                   bool autoSave, UInt_t seed, double split);
 
 		virtual ~MVATrainerComputer();
 
 		virtual std::vector<Calibration::VarProcessor*>
-		getProcessors() const;
+							getProcessors() const;
 
-		void configured(TrainInterceptor *interceptor) const;
+		void configured(BaseInterceptor *interceptor) const;
+		void next();
 		void done();
+
+		inline bool useForTraining() const { return splitResult; }
+		inline bool useForTesting() const
+		{ return split <= 0.0 || !splitResult; }
 
 		inline bool isConfigured() const
 		{ return nConfigured == interceptors.size(); }
 
 	    private:
-		std::vector<TrainInterceptor*>	interceptors;
+		std::vector<BaseInterceptor*>	interceptors;
 		mutable unsigned int		nConfigured;
 		bool				doAutoSave;
+		TRandom				random;
+		double				split;
+		bool				splitResult;
 	};
 
 	// useful litte helpers
@@ -133,6 +173,22 @@ static std::string stdStringPrintf(const char *format, ...)
 	return result;
 }
 
+// implementation for InitInterceptor
+
+std::vector<Variable::Flags>
+InitInterceptor::configure(const MVAComputer *computer, unsigned int n)
+{
+	calib->configured(this);
+	return std::vector<Variable::Flags>(n, Variable::FLAG_NONE);
+}
+
+double
+InitInterceptor::intercept(const std::vector<double> *values) const
+{
+	calib->next();
+	return 0.0;
+}
+
 // implementation for TrainInterceptor
 
 std::vector<Variable::Flags>
@@ -153,7 +209,7 @@ void TrainInterceptor::init()
 		<< "TrainProcessor \"" << (const char*)proc->getName()
 		<< "\" training iteration starting...";
 
-	proc->trainBegin();
+	proc->doTrainBegin();
 }
 
 double
@@ -179,14 +235,15 @@ TrainInterceptor::intercept(const std::vector<double> *values) const
 	else if (values[1].size() == 1)
 		weight = values[1].front();
 
-	proc->trainData(values + 2, target > 0.5, weight);
+	proc->doTrainData(values + 2, target > 0.5, weight,
+	                  calib->useForTraining(), calib->useForTesting());
 
 	return target;
 }
 
 void TrainInterceptor::finish(bool save)
 {
-	proc->trainEnd();
+	proc->doTrainEnd();
 
 	edm::LogInfo("MVATrainer")
 		<< "... processor \"" << (const char*)proc->getName()
@@ -204,13 +261,15 @@ void TrainInterceptor::finish(bool save)
 
 // implementation for MVATrainerComputer
 
-MVATrainerComputer::MVATrainerComputer(const std::vector<TrainInterceptor*>
-						&interceptors, bool autoSave) :
-	interceptors(interceptors), nConfigured(0), doAutoSave(autoSave)
+MVATrainerComputer::MVATrainerComputer(const std::vector<BaseInterceptor*>
+						&interceptors, bool autoSave,
+                                       UInt_t seed, double split) :
+	interceptors(interceptors), nConfigured(0), doAutoSave(autoSave),
+	random(seed), split(split)
 {
 	std::for_each(interceptors.begin(), interceptors.end(),
 	              std::bind2nd(
-	              	std::mem_fun(&TrainInterceptor::setCalibration),
+	              	std::mem_fun(&BaseInterceptor::setCalibration),
 	              	this));
 }
 
@@ -218,7 +277,7 @@ MVATrainerComputer::~MVATrainerComputer()
 {
 	done();
 	std::for_each(interceptors.begin(), interceptors.end(),
-	              deleter<TrainInterceptor>());
+	              deleter<BaseInterceptor>());
 }
 
 std::vector<Calibration::VarProcessor*>
@@ -233,12 +292,17 @@ MVATrainerComputer::getProcessors() const
 	return processors;
 }
 
-void MVATrainerComputer::configured(TrainInterceptor *interceptor) const
+void MVATrainerComputer::configured(BaseInterceptor *interceptor) const
 {
 	nConfigured++;
 	if (isConfigured())
 		std::for_each(interceptors.begin(), interceptors.end(),
-		              std::mem_fun(&TrainInterceptor::init));
+		              std::mem_fun(&BaseInterceptor::init));
+}
+
+void MVATrainerComputer::next()
+{
+	splitResult = random.Uniform(1.0) >= split;
 }
 
 void MVATrainerComputer::done()
@@ -246,7 +310,7 @@ void MVATrainerComputer::done()
 	if (isConfigured()) {
 		std::for_each(interceptors.begin(), interceptors.end(),
 		              std::bind2nd(
-		              	std::mem_fun(&TrainInterceptor::finish),
+		              	std::mem_fun(&BaseInterceptor::finish),
 		              	doAutoSave));
 		nConfigured = 0;
 	}
@@ -257,9 +321,12 @@ void MVATrainerComputer::done()
 const AtomicId MVATrainer::kTargetId("__TARGET__");
 const AtomicId MVATrainer::kWeightId("__WEIGHT__");
 
+static const AtomicId kOutputId("__OUTPUT__");
+
 MVATrainer::MVATrainer(const std::string &fileName) :
 	input(0), output(0), name("MVATrainer"),
-	doAutoSave(true), doCleanup(false)
+	doAutoSave(true), doCleanup(false), doMonitoring(false),
+	randomSeed(65539), crossValidation(0.0)
 {
 	xml = std::auto_ptr<XMLDocument>(new XMLDocument(fileName));
 
@@ -337,7 +404,9 @@ MVATrainer::MVATrainer(const std::string &fileName) :
 		    }	break;
 		    case STATE_MIDDLE: {
 			if (name == "output") {
-				output = new Source(0);
+				AtomicId zero;
+				output = new TrainProcessor("output",
+				                            &zero, this);
 				fillInputVars(output->getInputs(), elem);
 				state = STATE_LAST;
 				continue;
@@ -375,6 +444,9 @@ MVATrainer::MVATrainer(const std::string &fileName) :
 
 MVATrainer::~MVATrainer()
 {
+	if (monitoring.get())
+		monitoring->write();
+
 	for(std::map<AtomicId, Source*>::const_iterator iter = sources.begin();
 	    iter != sources.end(); iter++) {
 		TrainProcessor *proc =
@@ -485,7 +557,9 @@ void MVATrainer::makeProcessor(DOMElement *elem, AtomicId id, const char *name)
 	if (!proc.get())
 		throw cms::Exception("MVATrainer")
 			<< "Variable processor trainer " << name
-			<< " could not be instantiated." << std::endl;
+			<< " could not be instantiated. Most likely because"
+			   " the trainer plugin for \"" << name << "\""
+			   " \" does not exist." << std::endl;
 
 	if (sources.find(id) != sources.end())
 		throw cms::Exception("MVATrainer")
@@ -513,6 +587,21 @@ std::string MVATrainer::trainFileName(const TrainProcessor *proc,
 	return stdStringPrintf(trainFileMask.c_str(),
 	                       (const char*)proc->getName(),
 	                       arg_.c_str(), ext.c_str());
+}
+
+TrainerMonitoring::Module *MVATrainer::bookMonitor(const std::string &name)
+{
+	if (!doMonitoring)
+		return 0;
+
+	if (!monitoring.get()) {
+		std::string fileName = 
+			stdStringPrintf(trainFileMask.c_str(),
+			                "monitoring", "", "root");
+		monitoring.reset(new TrainerMonitoring(fileName));
+	}
+
+	return monitoring->book(name);
 }
 
 SourceVariable *MVATrainer::getVariable(AtomicId source, AtomicId name) const
@@ -608,10 +697,12 @@ void MVATrainer::fillOutputVars(SourceVariableSet &vars, Source *source,
 		Variable::Flags flags = Variable::FLAG_NONE;
 
 		if (XMLDocument::readAttribute<bool>(elem, "optional", true))
-			(int&)flags |= Variable::FLAG_OPTIONAL;
+			flags = (PhysicsTools::Variable::Flags)
+				(flags | Variable::FLAG_OPTIONAL);
 
 		if (XMLDocument::readAttribute<bool>(elem, "multiple", true))
-			(int&)flags |= Variable::FLAG_MULTIPLE;
+			flags = (PhysicsTools::Variable::Flags)
+				(flags | Variable::FLAG_MULTIPLE);
 
 		SourceVariable *var = createVariable(source, name, flags);
 		if (!var)
@@ -656,14 +747,15 @@ MVATrainer::connectProcessors(Calibration::MVAComputer *calib,
 
 	for(std::vector<CalibratedProcessor>::const_iterator iter =
 				procs.begin(); iter != procs.end(); iter++) {
-		bool isInterceptor = dynamic_cast<TrainInterceptor*>(
+		bool isInterceptor = dynamic_cast<BaseInterceptor*>(
 							iter->calib) != 0;
 
 		BitSet inputSet(size);
 
 		unsigned int last = 0;
-		std::vector<SourceVariable*> inoutVars =
-					iter->processor->getInputs().get();
+		std::vector<SourceVariable*> inoutVars;
+		if (iter->processor)
+			inoutVars = iter->processor->getInputs().get();
 		for(std::vector<SourceVariable*>::const_iterator iter2 =
 			inoutVars.begin(); iter2 != inoutVars.end(); iter2++) {
 			std::map<SourceVariable*,
@@ -722,25 +814,29 @@ Calibration::MVAComputer *
 MVATrainer::makeTrainCalibration(const AtomicId *compute,
                                  const AtomicId *train) const
 {
-	std::vector<TrainInterceptor*> interceptors;
+	std::vector<BaseInterceptor*> interceptors;
 	std::vector<CalibratedProcessor> processors;
 
+	interceptors.push_back(new InitInterceptor);
+
 	for(const AtomicId *iter = train; *iter; iter++) {
-		std::map<AtomicId, Source*>::const_iterator pos =
+		TrainProcessor *source;
+		if (*iter == kOutputId)
+			source = output;
+		else {
+			std::map<AtomicId, Source*>::const_iterator pos =
 							sources.find(*iter);
-		assert(pos != sources.end());
-		TrainProcessor *source =
-				dynamic_cast<TrainProcessor*>(pos->second);
+			assert(pos != sources.end());
+			source = dynamic_cast<TrainProcessor*>(pos->second);
+		}
 		assert(source);
 
-		TrainInterceptor *interceptor =
-					new TrainInterceptor(source);
-
-		interceptors.push_back(interceptor);
+		interceptors.push_back(new TrainInterceptor(source));
 	}
 
 	std::auto_ptr<Calibration::MVAComputer> calib(
-			new MVATrainerComputer(interceptors, doAutoSave));
+		new MVATrainerComputer(interceptors, doAutoSave,
+		                       randomSeed, crossValidation));
 
 	auto_cleaner<Calibration::VarProcessor> autoClean;
 
@@ -759,10 +855,15 @@ MVATrainer::makeTrainCalibration(const AtomicId *compute,
 		processors.push_back(CalibratedProcessor(source, proc));
 	}
 
-	for(std::vector<TrainInterceptor*>::const_iterator iter =
-		interceptors.begin(); iter != interceptors.end(); iter++)
-		processors.push_back(
-			CalibratedProcessor((*iter)->getProcessor(), *iter));
+	for(std::vector<BaseInterceptor*>::const_iterator iter =
+		interceptors.begin(); iter != interceptors.end(); iter++) {
+
+		TrainInterceptor *interceptor =
+				dynamic_cast<TrainInterceptor*>(*iter);
+		TrainProcessor *proc =
+			interceptor ? interceptor->getProcessor() : 0;
+		processors.push_back(CalibratedProcessor(proc, *iter));
+	}
 
 	connectProcessors(calib.get(), processors, true);
 
@@ -850,6 +951,10 @@ void MVATrainer::findUntrainedComputers(std::vector<AtomicId> &compute,
 		} else
 			train.push_back(proc->getName());
 	}
+
+	if (doMonitoring && !output->isTrained() &&
+	    output->getInputs().get()[0]->getSource()->isTrained())
+		train.push_back(kOutputId);
 }
 
 Calibration::MVAComputer *MVATrainer::getTrainCalibration() const

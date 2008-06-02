@@ -1,8 +1,5 @@
 //
-// Author:  Jan Heyninck
-// Created: Tue Apr  3 17:33:23 PDT 2007
-//
-// $Id: TtSemiSimpleBestJetComb.h,v 1.1 2007/05/19 09:54:38 heyninck Exp $
+// $Id: TtSemiSimpleBestJetComb.h,v 1.3 2007/09/20 18:03:21 lowette Exp $
 //
 
 #ifndef TtSemiSimpleBestJetComb_h
@@ -10,15 +7,15 @@
 
 /**
   \class    TtSemiSimpleBestJetComb TtSemiSimpleBestJetComb.h "TopQuarkAnalysis/TopLeptonSelection/interface/TtSemiSimpleBestJetComb.h"
-  \brief    Steering class for the overall top-lepton likelihood
+  \brief    Simple method to get the correct jet combination in semileptonic ttbar events
 
-   TtSemiSimpleBestJetComb allows to calculate and retrieve the overall top-lepton
-   likelihood as defined in CMS Note 2006/024
+   This method starts from a vector of fitted TtSemiEvtSolutions. This class returns the solution with the highest probChi^2 value. In case
+   that there are more possibilities (eg when only a hadrW constraint was applied), the correct hadronic b is assumed to be the one with the
+   smallest DR angle wrt the Whadr direction. 
 
   \author   Jan Heyninck
-  \version  $Id: TtSemiSimpleBestJetComb.h,v 1.1 2007/05/19 09:54:38 heyninck Exp $
+  \version  $Id: TtSemiSimpleBestJetComb.h,v 1.3 2007/09/20 18:03:21 lowette Exp $
 */
-
 
 #include "FWCore/Framework/interface/EventSetup.h"
 #include "FWCore/Framework/interface/Event.h"
@@ -33,17 +30,17 @@
 #include "TString.h"
 #include <Math/VectorUtil.h>
 
-
 class TtSemiSimpleBestJetComb {
 
-  public:
-    TtSemiSimpleBestJetComb();
-    ~TtSemiSimpleBestJetComb();	
-
-    int  operator()(std::vector<TtSemiEvtSolution> &);
-
-  private:
-
+ public:
+  
+  TtSemiSimpleBestJetComb();
+  ~TtSemiSimpleBestJetComb();	
+  
+  int  operator()(std::vector<TtSemiEvtSolution> &);
+  
+ private:
+  
 };
 
 #endif

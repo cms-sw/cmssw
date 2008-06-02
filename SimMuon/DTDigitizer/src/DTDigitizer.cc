@@ -1,7 +1,7 @@
 /** \file
  *
- *  $Date: 2007/05/11 14:43:48 $
- *  $Revision: 1.25 $
+ *  $Date: 2007/09/05 16:38:05 $
+ *  $Revision: 1.28.2.1 $
  *  \authors: G. Bevilacqua, N. Amapane, G. Cerminara, R. Bellan
  */
 
@@ -533,11 +533,12 @@ void DTDigitizer::storeDigis(DTWireId &wireId,
       // theAssociationMap.createLinks(localId, stat->det().simDet());
 
       //************ 7D ***************
-
-      DTLayerId layerID = wireId.layerId();  //taking the layer in which reside the wire
-      output.insertDigi(layerID, digi); // ordering Digis by layer
-      digiN++;
-      wakeTime = time + deadTime;
+      if(digi.countsTDC() < pow(2.,16)){
+	DTLayerId layerID = wireId.layerId();  //taking the layer in which reside the wire
+	output.insertDigi(layerID, digi); // ordering Digis by layer
+	digiN++;
+	wakeTime = time + deadTime;
+      }
     }
   }
   

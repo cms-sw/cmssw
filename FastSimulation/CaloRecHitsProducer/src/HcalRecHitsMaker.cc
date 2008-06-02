@@ -17,6 +17,7 @@
 #include "FastSimulation/Utilities/interface/RandomEngine.h"
 #include "TFile.h"
 #include "TGraph.h"
+#include <fstream>
 
 class RandomEngine;
 
@@ -37,6 +38,11 @@ HcalRecHitsMaker::HcalRecHitsMaker(edm::ParameterSet const & p,
   thresholdHE_ = RecHitsParameters.getParameter<double>("ThresholdHE");
   thresholdHO_ = RecHitsParameters.getParameter<double>("ThresholdHO");
   thresholdHF_ = RecHitsParameters.getParameter<double>("ThresholdHF");
+
+  satHB_ = RecHitsParameters.getParameter<double>("SaturationHB");
+  satHE_ = RecHitsParameters.getParameter<double>("SaturationHE");
+  satHO_ = RecHitsParameters.getParameter<double>("SaturationHO");
+  satHF_ = RecHitsParameters.getParameter<double>("SaturationHF");
 
   // Computes the fraction of HCAL above the threshold
   Genfun::Erf myErf;
@@ -177,6 +183,7 @@ void HcalRecHitsMaker::loadHcalRecHits(edm::Event &iEvent,HBHERecHitCollection& 
 
   loadPCaloHits(iEvent);
   noisify();
+  hbheHits.reserve(hbRecHits_.size()+heRecHits_.size());
 
   // HB
   std::map<uint32_t,std::pair<float,bool> >::const_iterator it=hbRecHits_.begin();
@@ -188,8 +195,11 @@ void HcalRecHitsMaker::loadHcalRecHits(edm::Event &iEvent,HBHERecHitCollection& 
       if(it->second.second) continue;
       // Check if it is above the threshold
       if(it->second.first<thresholdHB_) continue; 
+
+      float energy=it->second.first;
+      if(energy>satHB_) energy=satHB_;
       HcalDetId detid(it->first);
-      hbheHits.push_back(HBHERecHit(detid,it->second.first,0.));      
+      hbheHits.push_back(HBHERecHit(detid,energy,0.));      
       if(doDigis_)
 	{
 	  HBHEDataFrame myDataFrame(detid);
@@ -211,8 +221,11 @@ void HcalRecHitsMaker::loadHcalRecHits(edm::Event &iEvent,HBHERecHitCollection& 
       if(it->second.second) continue;
       // Check if it is above the threshold
       if(it->second.first<thresholdHE_) continue;
+
+      float energy=it->second.first;
+      if(energy>satHE_) energy=satHE_;
       HcalDetId detid(it->first);
-      hbheHits.push_back(HBHERecHit(detid,it->second.first,0.));
+      hbheHits.push_back(HBHERecHit(detid,energy,0.));
       if(doDigis_)
 	{
 	  HBHEDataFrame myDataFrame(detid);
@@ -225,7 +238,7 @@ void HcalRecHitsMaker::loadHcalRecHits(edm::Event &iEvent,HBHERecHitCollection& 
 	}
     }
 
-  
+  hoHits.reserve(hoRecHits_.size());
   // HO
   it = hoRecHits_.begin();
   itend = hoRecHits_.end();
@@ -233,11 +246,14 @@ void HcalRecHitsMaker::loadHcalRecHits(edm::Event &iEvent,HBHERecHitCollection& 
     {
       if(it->second.second) continue;
       if(it->second.first<thresholdHE_) continue;
+      float energy=it->second.first;
+      if(energy>satHO_) energy=satHO_;
       HcalDetId detid(it->first);
-      hoHits.push_back(HORecHit(detid,it->second.first,0));
+      hoHits.push_back(HORecHit(detid,energy,0));
     }
   
   // HF
+  hfHits.reserve(hfRecHits_.size());
   it = hfRecHits_.begin();
   itend = hfRecHits_.end();
   for(;it!=itend;++it)
@@ -245,7 +261,9 @@ void HcalRecHitsMaker::loadHcalRecHits(edm::Event &iEvent,HBHERecHitCollection& 
       if(it->second.second) continue;
       if(it->second.first<thresholdHF_) continue;
       HcalDetId detid(it->first);
-      hfHits.push_back(HFRecHit(detid,it->second.first,0));
+      float energy=it->second.first;
+      if(energy>satHF_) energy=satHF_;
+      hfHits.push_back(HFRecHit(detid,energy,0));
       if(doDigis_)
 	{
 	  HFDataFrame myDataFrame(detid);
@@ -372,8 +390,8 @@ void HcalRecHitsMaker::noisify()
 void HcalRecHitsMaker::noisifySubdet(std::map<uint32_t,std::pair<float,bool> >& theMap, const std::vector<uint32_t>& thecells, unsigned ncells, double hcalHotFraction_)
 {
 
-  unsigned mean=(unsigned)((double)(ncells-theMap.size())*hcalHotFraction_);
-  unsigned nhcal = (unsigned)(random_->poissonShoot(mean));
+  double mean = (double)(ncells-theMap.size())*hcalHotFraction_;
+  unsigned nhcal = random_->poissonShoot(mean);
   
   unsigned ncell=0;
   unsigned cellindex=0;

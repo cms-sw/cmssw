@@ -4,8 +4,8 @@
 /*
  * \file EELedTask.h
  *
- * $Date: 2007/05/12 09:28:32 $
- * $Revision: 1.4 $
+ * $Date: 2007/07/02 19:51:04 $
+ * $Revision: 1.1 $
  * \author G. Della Ricca
  *
 */
@@ -51,7 +51,7 @@ DaqMonitorBEInterface* dbe_;
 bool enableCleanup_;
 
 edm::InputTag EcalRawDataCollection_;
-edm::InputTag EBDigiCollection_;
+edm::InputTag EEDigiCollection_;
 edm::InputTag EcalPnDiodeDigiCollection_;
 edm::InputTag EcalUncalibratedRecHitCollection_;
 

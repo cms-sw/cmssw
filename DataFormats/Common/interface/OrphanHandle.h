@@ -19,12 +19,13 @@ OrphanHandles can have:
 
 To check validity, one can use the isValid() function.
 
-$Id: OrphanHandle.h,v 1.4 2007/04/29 14:50:10 wmtan Exp $
+$Id: OrphanHandle.h,v 1.5 2007/06/14 04:56:29 wmtan Exp $
 
 ----------------------------------------------------------------------*/
 
 #include "DataFormats/Provenance/interface/ProductID.h"
 #include "FWCore/Utilities/interface/EDMException.h"
+#include <cassert>
 
 namespace edm {
   class EDProduct;

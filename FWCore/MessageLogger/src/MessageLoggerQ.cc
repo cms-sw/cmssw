@@ -19,6 +19,14 @@
 //	Addition of JOB command, to be used by --jobreport
 // 2 - 6/19/07 mf
 //	Addition of MOD command, to be used by --mode
+// 3 - 7/24/07 mf
+//	Addition of SHT command, to be used when no .cfg file was given
+// 4 - 7/25/07 mf
+//	Change of each mommand function to start with MLq, e.g. MLqLOG
+// 5 - 8/7/07 mf
+//	Addition of FLS command, to be used by FlushMessageLog
+// 6 - 8/16/07 mf
+//	Addition of GRP command, to be used by GroupLogStatistics
 
 using namespace edm;
 
@@ -42,7 +50,7 @@ MessageLoggerQ *
 }  // MessageLoggerQ::instance()
 
 void
-  MessageLoggerQ::END()
+  MessageLoggerQ::MLqEND()
 {
   SingleConsumerQ::ProducerBuffer b(buf);
   char * slot_p = static_cast<char *>(b.buffer());
@@ -55,9 +63,22 @@ void
   b.commit(buf_size);
 }  // MessageLoggerQ::END()
 
+void
+  MessageLoggerQ::MLqSHT()
+{
+  SingleConsumerQ::ProducerBuffer b(buf);
+  char * slot_p = static_cast<char *>(b.buffer());
+
+  OpCode o(SHUT_UP);
+  void * v(0);
+
+  std::memcpy(slot_p               , &o, sizeof(OpCode));
+  std::memcpy(slot_p+sizeof(OpCode), &v, sizeof(void *));
+  b.commit(buf_size);
+}  // MessageLoggerQ::SHT()
 
 void
-  MessageLoggerQ::LOG( ErrorObj * p )
+  MessageLoggerQ::MLqLOG( ErrorObj * p )
 {
   SingleConsumerQ::ProducerBuffer b(buf);
   char * slot_p = static_cast<char *>(b.buffer());
@@ -72,7 +93,7 @@ void
 
 
 void
-  MessageLoggerQ::CFG( ParameterSet * p )
+  MessageLoggerQ::MLqCFG( ParameterSet * p )
 {
   Place_for_passing_exception_ptr epp = new Pointer_to_new_exception_on_heap(0);
   ConfigurationHandshake h(p,epp);
@@ -106,7 +127,7 @@ void
 }  // MessageLoggerQ::CFG()
 
 void
-MessageLoggerQ::EXT( service::NamedDestination* p )
+MessageLoggerQ::MLqEXT( service::NamedDestination* p )
 {
   SingleConsumerQ::ProducerBuffer b(buf);
   char * slot_p = static_cast<char *>(b.buffer());
@@ -120,7 +141,7 @@ MessageLoggerQ::EXT( service::NamedDestination* p )
 }
 
 void
-  MessageLoggerQ::SUM( )
+  MessageLoggerQ::MLqSUM( )
 {
   SingleConsumerQ::ProducerBuffer b(buf);
   char * slot_p = static_cast<char *>(b.buffer());
@@ -134,7 +155,7 @@ void
 }  // MessageLoggerQ::SUM()
 
 void
-  MessageLoggerQ::JOB( std::string * j )
+  MessageLoggerQ::MLqJOB( std::string * j )
 {
   SingleConsumerQ::ProducerBuffer b(buf);
   char * slot_p = static_cast<char *>(b.buffer());
@@ -148,7 +169,7 @@ void
 }  // MessageLoggerQ::JOB()
 
 void
-  MessageLoggerQ::MOD( std::string * jm )
+  MessageLoggerQ::MLqMOD( std::string * jm )
 {
   SingleConsumerQ::ProducerBuffer b(buf);
   char * slot_p = static_cast<char *>(b.buffer());
@@ -159,7 +180,7 @@ void
   std::memcpy(slot_p+0             , &o, sizeof(OpCode));
   std::memcpy(slot_p+sizeof(OpCode), &v, sizeof(void *));
   b.commit(buf_size);
-}  // MessageLoggerQ::JOB()
+}  // MessageLoggerQ::MOD()
 
 
 void
@@ -172,3 +193,46 @@ void
   std::memcpy(&operand, slot_p+sizeof(OpCode), sizeof(void *));
   b.commit(buf_size);
 }  // MessageLoggerQ::consume()
+
+void
+  MessageLoggerQ::MLqFLS(  )			// Change Log 5
+{
+  // The ConfigurationHandshake, developed for synchronous CFG, contains a
+  // place to convey exception information.  FLS does not need this, nor does
+  // it need the parameter set, but we are reusing ConfigurationHandshake 
+  // rather than reinventing the mechanism.
+  Place_for_passing_exception_ptr epp = new Pointer_to_new_exception_on_heap(0);
+  ParameterSet * p = 0;
+  ConfigurationHandshake h(p,epp);
+  SingleConsumerQ::ProducerBuffer b(buf);
+  char * slot_p = static_cast<char *>(b.buffer());
+
+  OpCode o(FLUSH_LOG_Q);
+  void * v(static_cast<void *>(&h));
+
+  std::memcpy(slot_p+0             , &o, sizeof(OpCode));
+  std::memcpy(slot_p+sizeof(OpCode), &v, sizeof(void *));
+  {
+    boost::mutex::scoped_lock sl(h.m);       // get lock
+    b.commit(buf_size);
+    // wait for result to appear (in epp)
+    h.c.wait(sl); // c.wait(sl) unlocks the scoped lock and sleeps till notified
+    // ... and once the MessageLoggerScribe does h.c.notify_all() ... 
+    // finally, release the scoped lock by letting it go out of scope 
+  }
+}  // MessageLoggerQ::FLS()
+
+void
+  MessageLoggerQ::MLqGRP( std::string * cat_p )  	// Change Log 6
+{
+  SingleConsumerQ::ProducerBuffer b(buf);
+  char * slot_p = static_cast<char *>(b.buffer());
+
+  OpCode o(GROUP_STATS);
+  void * v(static_cast<void *>(cat_p));
+
+  std::memcpy(slot_p+0             , &o, sizeof(OpCode));
+  std::memcpy(slot_p+sizeof(OpCode), &v, sizeof(void *));
+  b.commit(buf_size);
+}  // MessageLoggerQ::GRP()
+

@@ -14,7 +14,7 @@
 //
 // Original Author:  Dmytro Kovalskyi
 //         Created:  Fri Apr 21 10:59:41 PDT 2006
-// $Id: TrackDetectorAssociator.h,v 1.8 2007/04/13 03:09:27 dmytro Exp $
+// $Id: TrackDetectorAssociator.h,v 1.9 2007/05/16 09:26:23 dmytro Exp $
 //
 //
 
@@ -168,11 +168,11 @@ class TrackDetectorAssociator {
 			TrackDetMatchInfo&,
 			const AssociatorParameters&);
    
-   void addMuonSegmentMatch(MuonChamberMatch&,
+   void addMuonSegmentMatch( ::MuonChamberMatch&,
 			    const RecSegment*,
 			    const AssociatorParameters&);
    
-   void getMuonChamberMatches(std::vector<MuonChamberMatch>& matches,
+   void getMuonChamberMatches(std::vector< ::MuonChamberMatch>& matches,
 			      const float dRMuonPreselection,
 			      const float maxDistanceX,
 			      const float maxDistanceY);

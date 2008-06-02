@@ -8,7 +8,7 @@
 #include "DataFormats/Common/interface/Handle.h"
 #include "DataFormats/Common/interface/OwnVector.h"
 #include "DataFormats/TrackCandidate/interface/TrackCandidateCollection.h"
-#include "DataFormats/TrackerRecHit2D/interface/SiTrackerGSRecHit2DCollection.h"
+#include "DataFormats/TrackerRecHit2D/interface/SiTrackerGSRecHit2DCollection.h" 
 #include "DataFormats/SiPixelDetId/interface/PixelSubdetector.h"
 
 #include "Geometry/TrackerGeometryBuilder/interface/TrackerGeometry.h"
@@ -137,11 +137,14 @@ GSTrackCandidateMaker::produce(edm::Event& e, const edm::EventSetup& es) {
   edm::Handle<SiTrackerGSRecHit2DCollection> theGSRecHits;
   e.getByLabel(hitProducer, theGSRecHits);
   
-  // No tracking attempted if no hits !
+  // No tracking attempted if no hits (but put an empty collection in the event)!
 #ifdef FAMOS_DEBUG
   std::cout << " Step B: Full GS RecHits found " << theGSRecHits->size() << std::endl;
 #endif
-  if(theGSRecHits->size() == 0) return;
+  if(theGSRecHits->size() == 0) {
+    e.put(output);
+    return;
+  }
   
   
 #ifdef FAMOS_DEBUG

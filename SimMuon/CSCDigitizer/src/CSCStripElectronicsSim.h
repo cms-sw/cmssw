@@ -43,7 +43,7 @@ private:
   float calculateAmpResponse(float t) const;
   CSCStripAmpResponse theAmpResponse;
 
-  std::vector<CSCComparatorDigi> runComparator();
+  void runComparator(std::vector<CSCComparatorDigi> & result);
 
   /// calculates the comparator reading, including saturation and offsets
   float comparatorReading(const CSCAnalogSignal & signal, float time) const;
@@ -72,7 +72,7 @@ private:
 
   void selfTest() const;
 
-  CSCStripDigi createDigi(int istrip, float startTime);
+  void createDigi(int istrip, float startTime, std::vector<CSCStripDigi> & result);
 
   // saturation of the 12-bit ADC.  Max reading is 4095
   void doSaturation(CSCStripDigi & digi);
@@ -103,7 +103,9 @@ private:
   // that's really the 5th, since We start counting at 0
   int   sca_peak_bin;
   // which time bin the trigger crossing goes in
-  int theComparatorTimeBinOffset;
+  double theComparatorTimeBinOffset;
+  // to center comparator signals
+  double theComparatorTimeOffset;
 
 };
 

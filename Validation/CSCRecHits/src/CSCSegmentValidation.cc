@@ -26,6 +26,7 @@ CSCSegmentValidation::CSCSegmentValidation(DaqMonitorBEInterface* dbe, const edm
   theTypePlot6HitsShowerSeg( dbe_->book1D("CSCSegments6HitsShowerSeg", "", 100, 0, 10) )
 {
    dbe_->setCurrentFolder("CSCRecHitTask");
+std::cout << "SEVAL CTOPR" << std::endl;
    for(int i = 0; i < 10; ++i)
   {
     char title1[200], title2[200], title3[200], title4[200],  
@@ -50,6 +51,7 @@ CSCSegmentValidation::CSCSegmentValidation(DaqMonitorBEInterface* dbe, const edm
     thedYdZPullPlots[i] = dbe_->book1D(title8, title8, 100, -5, 5);
 
   }
+std::cout << "end SEVAL CTOPR" << std::endl;
 }
 
 void CSCSegmentValidation::analyze(const edm::Event&e, const edm::EventSetup& eventSetup)

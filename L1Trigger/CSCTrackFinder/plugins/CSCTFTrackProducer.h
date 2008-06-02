@@ -6,7 +6,6 @@
 #include <FWCore/Framework/interface/EDProducer.h>
 #include <FWCore/ParameterSet/interface/ParameterSet.h>
 #include <FWCore/ParameterSet/interface/InputTag.h>
-#include <FWCore/Framework/interface/EventSetup.h>
 
 class CSCTFTrackBuilder;
 
@@ -19,9 +18,7 @@ class CSCTFTrackProducer : public edm::EDProducer
   virtual ~CSCTFTrackProducer();
 
   void produce(edm::Event & e, const edm::EventSetup& c);
-///KK
-  void beginJob(const edm::EventSetup& es);
-///
+
  private:
   edm::InputTag input_module;
   CSCTFTrackBuilder* my_builder;

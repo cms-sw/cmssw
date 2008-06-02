@@ -16,9 +16,9 @@
 //
 // Original Author:  Chris Jones
 //         Created:  Tue May  8 15:01:20 EDT 2007
-// $Id: Event.h,v 1.4 2007/05/23 21:23:11 chrjones Exp $
+// $Id: ChainEvent.h,v 1.1 2007/06/18 16:21:57 chrjones Exp $
 //
-#if !defined(__CINT__) || defined(__MAKECINT__)
+#if !defined(__CINT__) && !defined(__MAKECINT__)
 // system include files
 #include <vector>
 #include <string>

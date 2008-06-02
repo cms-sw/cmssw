@@ -1,0 +1,69 @@
+#include "PhysicsTools/PatAlgos/plugins/PATTauCleaner.h"
+
+
+template<typename TauIn, typename TauOut, typename TauTag>
+pat::PATTauCleaner<TauIn,TauOut,TauTag>::PATTauCleaner(const edm::ParameterSet & iConfig) :
+  tauSrc_(iConfig.getParameter<edm::InputTag>( "tauSource" )),
+  tauDiscSrc_(iConfig.getParameter<edm::InputTag>( "tauDiscriminatorSource")),
+  helper_(tauSrc_)
+{
+  helper_.configure(iConfig);      // learn whether to save good, bad, all, ...
+  helper_.registerProducts(*this); // issue the produces<>() commands
+
+  if (iConfig.exists("removeOverlaps")) {
+    edm::ParameterSet overlapConf = iConfig.getParameter<edm::ParameterSet>("removeOverlaps");
+    overlapHelper_ = pat::helper::OverlapHelper(overlapConf);
+  }
+}
+
+
+template<typename TauIn, typename TauOut, typename TauTag>
+pat::PATTauCleaner<TauIn,TauOut,TauTag>::~PATTauCleaner() {
+}
+
+
+template<typename TauIn, typename TauOut, typename TauTag>
+void pat::PATTauCleaner<TauIn,TauOut,TauTag>::produce(edm::Event & iEvent, const edm::EventSetup & iSetup) {     
+  // start a new event
+  helper_.newEvent(iEvent);
+  edm::Handle<TauTag> TauIsolator;
+  iEvent.getByLabel(tauDiscSrc_, TauIsolator);
+
+  typedef typename edm::Ref< std::vector<TauIn> > TauInRef;
+  for (size_t idx = 0, size = helper_.srcSize(); idx < size; ++idx) {
+    // read the source tau
+    const TauIn & srcTau = helper_.srcAt(idx);
+    TauInRef      srcRef = helper_.srcRefAt(idx).template castTo<TauInRef>();
+
+    // clone the tau and convert it to the new type
+    TauOut ourTau = static_cast<TauOut>(srcTau);
+
+    // write the tau
+    size_t selIdx = helper_.addItem(idx, ourTau);
+
+    // perform the selection
+    if (!(*TauIsolator)[srcRef]) {
+        helper_.addMark(selIdx, pat::Flags::Core::Preselection); 
+    }
+  }
+
+  if (overlapHelper_.enabled()) {
+     typedef typename pat::helper::OverlapHelper::Result Result;
+     std::auto_ptr<Result> result = overlapHelper_.test( iEvent, helper_.selected() );
+     for (size_t i = 0, n = helper_.size(); i < n; ++i) {
+        helper_.setMark( i, (*result)[i] );
+     }
+  }
+
+  helper_.done();
+ 
+}
+
+template<typename TauIn, typename TauOut, typename TauTag>
+void pat::PATTauCleaner<TauIn,TauOut,TauTag>::endJob() { 
+    edm::LogVerbatim("PATLayer0Summary|PATTauCleaner") << "PATTauCleaner end job. \n" <<
+            "Input tag was " << tauSrc_.encode() <<
+            "\nCleaner summary information:\n" <<
+            helper_.printSummary();
+    helper_.endJob(); 
+}

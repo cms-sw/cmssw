@@ -15,7 +15,7 @@
 #include <TStyle.h>
 #include <TKey.h>
 #include <vector>
-#include "FWCore/FWLite/src/AutoLibraryLoader.h"
+#include "FWCore/FWLite/interface/AutoLibraryLoader.h"
 #include "AnalysisDataFormats/TopObjects/interface/TtSemiEvtSolution.h"
 #include "TopQuarkAnalysis/TopTools/interface/LRHelpFunctions.h"
 
@@ -144,7 +144,7 @@ void doEventloop(){
 	      double logLR =  myLRhelper -> calcLRval(obsVals);
 	      if(logLR>maxLogLRVal) { maxLogLRVal = logLR; maxLogLRSol = s; };
 	    }
-	    if(sols[maxLogLRSol].getMCBestSumAngles()<SumAlphaCut && sols[maxLogLRSol].getMCCorrJetComb()==maxLogLRSol) {
+	    if(sols[maxLogLRSol].getMCBestSumAngles()<SumAlphaCut && sols[maxLogLRSol].getMCBestJetComb()==maxLogLRSol) {
 	      myLRhelper -> fillLRSignalHist(maxLogLRVal);
 	      //cout << "mxLR " << maxLogLRVal << endl;
 	    }

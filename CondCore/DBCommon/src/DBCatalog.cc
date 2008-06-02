@@ -1,5 +1,6 @@
 #include "CondCore/DBCommon/interface/DBCatalog.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
+#include "FWCore/ParameterSet/interface/FileInPath.h"
 #include "FileCatalog/IFileCatalog.h"
 //#include "FileCatalog/FCException.h"
 #include "FileCatalog/IFCAction.h"
@@ -42,8 +43,9 @@ cond::DBCatalog::defaultDevCatalogName(){
 }
 std::string 
 cond::DBCatalog::defaultLocalCatalogName(){
-  edm::FileInPath fip("localCondDBCatalog.xml");
-  std::string result=std::string("xmlcatalog_file://")+fip.fullPath();
+  //edm::FileInPath fip("localCondDBCatalog.xml");
+  //std::string result=std::string("xmlcatalog_file://")+fip.fullPath();
+  std::string result=std::string("xmlcatalog_file://localCondDBCatalog.xml");
   return result;
 }
 pool::IFileCatalog&

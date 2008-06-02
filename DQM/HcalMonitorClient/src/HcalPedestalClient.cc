@@ -125,7 +125,7 @@ void HcalPedestalClient::beginJob(const EventSetup& eventSetup){
   jevt_ = 0;
   this->setup();
   this->subscribe();
-  this->resetAllME();
+  this->resetME();
   return;
 }
 
@@ -136,7 +136,7 @@ void HcalPedestalClient::beginRun(void){
   jevt_ = 0;
   this->setup();
   this->subscribe();
-  this->resetAllME();
+  this->resetME();
   return;
 }
 
@@ -153,6 +153,8 @@ void HcalPedestalClient::endRun(void) {
 
   if ( verbose_ ) cout << "HcalPedestalClient: endRun, jevt = " << jevt_ << endl;
 
+  //  this->resetME();
+  //  this->unsubscribe();
   this->cleanup();
   return;
 }
@@ -663,28 +665,10 @@ void HcalPedestalClient::createTests(){
   return;
 }
 
-void HcalPedestalClient::resetAllME(){
+void HcalPedestalClient::resetME(){
   if(!mui_) return;
   Char_t name[150];    
-
-  for(int i=1; i<5; i++){
-    sprintf(name,"%sHcalMonitor/PedestalMonitor/Ped Mean Depth %d",process_.c_str(),i);
-    resetME(name,mui_);
-    sprintf(name,"%sHcalMonitor/PedestalMonitor/Ped RMS Depth %d",process_.c_str(),i);
-    resetME(name,mui_);
-    sprintf(name,"%sHcalMonitor/PedestalMonitor/Ped Mean by Crate-Slot",process_.c_str());
-    resetME(name,mui_);
-    sprintf(name,"%sHcalMonitor/PedestalMonitor/Ped RMS by Crate-Slot",process_.c_str());
-    resetME(name,mui_);
-    sprintf(name,"%sHcalMonitor/PedestalMonitor/Ped Mean by Fiber-Chan",process_.c_str());
-    resetME(name,mui_);
-    sprintf(name,"%sHcalMonitor/PedestalMonitor/Ped RMS by Fiber-Chan",process_.c_str());
-    resetME(name,mui_);
-    sprintf(name,"%sHcalMonitor/PedestalMonitor/Pedestal Mean Reference Values",process_.c_str());
-    resetME(name,mui_);
-    sprintf(name,"%sHcalMonitor/PedestalMonitor/Pedestal RMS Reference Values",process_.c_str());
-    resetME(name,mui_);
-  }
+  MonitorElement* me;
 
   for(int i=0; i<4; i++){
     if(!subDetsOn_[i]) continue;    
@@ -692,55 +676,24 @@ void HcalPedestalClient::resetAllME(){
     if(i==1) type = "HE"; 
     else if(i==2) type = "HF"; 
     else if(i==3) type = "HO"; 
-    
-    sprintf(name,"%sHcalMonitor/PedestalMonitor/%s/%s All Pedestal Values",
-	    process_.c_str(),type.c_str(),type.c_str());
-    resetME(name,mui_);
-    sprintf(name,"%sHcalMonitor/PedestalMonitor/%s/%s Pedestal RMS Values",
-	    process_.c_str(),type.c_str(),type.c_str());
-    resetME(name,mui_);
-    sprintf(name,"%sHcalMonitor/PedestalMonitor/%s/%s Pedestal Mean Values",
-	    process_.c_str(),type.c_str(),type.c_str());
-    resetME(name,mui_);
-    sprintf(name,"%sHcalMonitor/PedestalMonitor/%s/%s Normalized RMS Values",
-	    process_.c_str(),type.c_str(),type.c_str());
-    resetME(name,mui_);
-    sprintf(name,"%sHcalMonitor/PedestalMonitor/%s/%s Subtracted Mean Values",
-	    process_.c_str(),type.c_str(),type.c_str());
-    resetME(name,mui_);
-    sprintf(name,"%sHcalMonitor/PedestalMonitor/%s/%s CapID RMS Variance",
-	    process_.c_str(),type.c_str(),type.c_str());
-    resetME(name,mui_);
-    sprintf(name,"%sHcalMonitor/PedestalMonitor/%s/%s CapID Mean Variance",
-	    process_.c_str(),type.c_str(),type.c_str());
-    resetME(name,mui_);
-    sprintf(name,"%sHcalMonitor/PedestalMonitor/%s/%s QIE RMS Values",
-	    process_.c_str(),type.c_str(),type.c_str());
-    resetME(name,mui_);
-    sprintf(name,"%sHcalMonitor/PedestalMonitor/%s/%s QIE Mean Values",
-	    process_.c_str(),type.c_str(),type.c_str());
-    resetME(name,mui_);
-    sprintf(name,"%sHcalMonitor/PedestalMonitor/%s/%s Pedestal Geo Error Map",
-	    process_.c_str(),type.c_str(),type.c_str());
-    resetME(name,mui_);
-    sprintf(name,"%sHcalMonitor/PedestalMonitor/%s/%s Pedestal Elec Error Map",
-	    process_.c_str(),type.c_str(),type.c_str());
-    resetME(name,mui_);
-    sprintf(name,"%sHcalMonitor/PedestalMonitor/%s/%s Pedestal Mean Reference Values",
-	    process_.c_str(),type.c_str(),type.c_str());
-    resetME(name,mui_);
-    sprintf(name,"%sHcalMonitor/PedestalMonitor/%s/%s Pedestal RMS Reference Values",
-	    process_.c_str(),type.c_str(),type.c_str());
-    resetME(name,mui_);
-    
+
+    sprintf(name,"%sHcalMonitor/PedestalMonitor/%s/%s All Pedestal Values",process_.c_str(),type.c_str(),type.c_str());
+    me = mui_->get(name);
+    if(me) mui_->softReset(me);
+
     for(int ieta=-42; ieta<42; ieta++){
       for(int iphi=0; iphi<72; iphi++){
 	for(int depth=0; depth<4; depth++){
 	  for(int capid=0; capid<4; capid++){
-	    sprintf(name,"%sHcalMonitor/PedestalMonitor/%s/%s Pedestal Value (ADC) ieta=%d iphi=%d depth=%d CAPID=%d",process_.c_str(), type.c_str(),type.c_str(),ieta,iphi,depth,capid);  
-	    resetME(name,mui_);
-	    sprintf(name,"%sHcalMonitor/PedestalMonitor/%s/%s Pedestal Value (Subtracted) ieta=%d iphi=%d depth=%d CAPID=%d",process_.c_str(), type.c_str(),type.c_str(),ieta,iphi,depth,capid);  
-	    resetME(name,mui_);
+	    sprintf(name,"%sHcalMonitor/PedestalMonitor/%s/%s Pedestal Value (ADC) ieta=%d iphi=%d depth=%d CAPID=%d",process_.c_str(),
+		    type.c_str(),type.c_str(),ieta,iphi,depth,capid);  
+	    me = mui_->get(name);
+	    if(me) mui_->softReset(me);
+
+	    sprintf(name,"%sHcalMonitor/PedestalMonitor/%s/%s Pedestal Value (Subtracted) ieta=%d iphi=%d depth=%d CAPID=%d",process_.c_str(),
+		    type.c_str(),type.c_str(),ieta,iphi,depth,capid);  
+	    me = mui_->get(name);
+	    if(me) mui_->softReset(me);
 	  }
 	}
       }

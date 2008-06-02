@@ -19,12 +19,18 @@ Handles can have:
 
 To check validity, one can use the isValid() function.
 
-$Id: BasicHandle.h,v 1.5 2007/06/01 21:14:38 wmtan Exp $
+If failedToGet() returns true then the requested data is not available
+If failedToGet() returns false but isValid() is also false then no attempt 
+  to get data has occurred
+
+$Id: BasicHandle.h,v 1.6 2007/06/14 04:56:29 wmtan Exp $
 
 ----------------------------------------------------------------------*/
 
 #include "DataFormats/Provenance/interface/Provenance.h"
 #include "DataFormats/Provenance/interface/ProductID.h"
+#include "FWCore/Utilities/interface/Exception.h"
+#include <boost/shared_ptr.hpp>
 
 namespace edm {
   class EDProduct;
@@ -36,17 +42,26 @@ namespace edm {
 
     BasicHandle(BasicHandle const& h) :
       wrap_(h.wrap_),
-      prov_(h.prov_) {}
+      prov_(h.prov_),
+      whyFailed_(h.whyFailed_){}
 
     BasicHandle(EDProduct const* prod, Provenance const* prov) :
       wrap_(prod), prov_(prov) {
     }
 
+    ///Used when the attempt to get the data failed
+    BasicHandle(const boost::shared_ptr<cms::Exception>& iWhyFailed):
+    wrap_(0),
+    prov_(0),
+    whyFailed_(iWhyFailed) {}
+    
     ~BasicHandle() {}
 
     void swap(BasicHandle& other) {
+      using std::swap;
       std::swap(wrap_, other.wrap_);
       std::swap(prov_, other.prov_);
+      swap(whyFailed_,other.whyFailed_);
     }
 
     
@@ -60,6 +75,10 @@ namespace edm {
       return wrap_ && prov_;
     }
 
+    bool failedToGet() const {
+      return 0 != whyFailed_.get();
+    }
+    
     EDProduct const* wrapper() const {
       return wrap_;
     }
@@ -75,9 +94,13 @@ namespace edm {
       return prov_->productID();
     }
 
+    boost::shared_ptr<cms::Exception> whyFailed() const {
+      return whyFailed_;
+    }
   private:
     EDProduct const* wrap_;
-    Provenance const* prov_;    
+    Provenance const* prov_;
+    boost::shared_ptr<cms::Exception> whyFailed_;
   };
 
   // Free swap function

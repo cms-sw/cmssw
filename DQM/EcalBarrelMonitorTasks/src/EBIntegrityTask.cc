@@ -1,8 +1,8 @@
 /*
  * \file EBIntegrityTask.cc
  *
- * $Date: 2007/05/11 15:05:05 $
- * $Revision: 1.38 $
+ * $Date: 2007/05/21 09:57:44 $
+ * $Revision: 1.39 $
  * \author G. Della Ricca
  *
  */
@@ -268,6 +268,8 @@ void EBIntegrityTask::endJob(void){
 
 void EBIntegrityTask::analyze(const Event& e, const EventSetup& c){
 
+  Numbers::initGeometry(c);
+
   if ( ! init_ ) this->setup();
 
   ievt_++;
@@ -485,9 +487,10 @@ void EBIntegrityTask::analyze(const Event& e, const EventSetup& c){
 
       EcalElectronicsId id = (*idItr);
 
+      int ism = Numbers::iSM( id );
+
       int itt   = id.towerId();
       float iTt = itt + 0.5 - 69;
-      int ism = Numbers::iSM( id );
 
       if ( meIntegrityMemTTId[ism-1] ) meIntegrityMemTTId[ism-1]->Fill(iTt,0);
 
@@ -508,9 +511,10 @@ void EBIntegrityTask::analyze(const Event& e, const EventSetup& c){
 
       EcalElectronicsId id = (*idItr);
 
+      int ism = Numbers::iSM( id );
+
       int itt   = id.towerId();
       float iTt = itt + 0.5 - 69;
-      int ism = Numbers::iSM( id );
 
       if ( meIntegrityMemTTBlockSize[ism-1] ) meIntegrityMemTTBlockSize[ism-1]->Fill(iTt,0);
 

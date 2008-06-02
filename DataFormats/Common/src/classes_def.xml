@@ -4,21 +4,18 @@
  <class name="edm::RefCore">
    <field name="prodGetter_" transient="true"/>
    <field name="prodPtr_" transient="true"/>
+   <field name="transient_" transient="true"/>
  </class>
- <class name="edm::RefItem<unsigned int>">
+ <class name="edm::RefItem<unsigned int>" />
+ <class name="edm::RefItem<int>" />
+ <class name="edm::RefItem<unsigned long>" />
+ <class name="edm::RefItem<std::pair<unsigned int,unsigned int> >" />
+ <class name="edm::RefItem<std::pair<unsigned int,unsigned long> >" />
+ <class name="edm::ConstPtrCache">
    <field name="ptr_" transient="true"/>
  </class>
- <class name="edm::RefItem<int>">
-   <field name="ptr_" transient="true"/>
- </class>
- <class name="edm::RefItem<unsigned long>">
-   <field name="ptr_" transient="true"/>
- </class>
- <class name="edm::RefItem<std::pair<unsigned int,unsigned int> >">
-   <field name="ptr_" transient="true"/>
- </class>
- <class name="edm::RefItem<std::pair<unsigned int,unsigned long> >">
-   <field name="ptr_" transient="true"/>
+ <class name="edm::BoolCache">
+   <field name="isCached_" transient="true"/>
  </class>
  <class name="std::vector<edm::RefItem<int> >"/>
  <class name="std::vector<edm::RefItem<std::pair<unsigned int,unsigned int> > >"/>
@@ -42,105 +39,20 @@
  <class name="edm::Wrapper<edm::RefVector<std::vector<int>,int,edm::refhelper::FindUsingAdvance<std::vector<int>,int> > >"/>
  <class name="std::vector<edm::RefItem<unsigned int> >"/>
  <class name="std::vector<edm::RefItem<unsigned long> >"/>
- <class name="std::vector<float>"/>
- <class name="std::vector<double>"/>
- <class name="std::vector<long double>"/>
- <class name="std::vector<long>"/>
- <class name="std::vector<long long>"/>
- <class name="std::vector<unsigned long>"/>
- <class name="std::vector<unsigned long long>"/>
- <class name="std::vector<int>"/>
- <class name="std::vector<unsigned int>"/>
- <class name="std::vector<short>"/>
- <class name="std::vector<unsigned short>"/>
- <class name="std::vector<char>"/>
- <class name="std::vector<unsigned char>"/>
- <class name="std::vector<bool>"/>
- <class name="std::vector<std::pair<std::basic_string<char>,double> >"/>
- <class name="std::vector<std::pair<unsigned int,double> >" />
- <class name="std::vector<std::vector<unsigned short> >"/>
- <class name="std::vector<unsigned char*>"/>
- <class name="std::vector<char*>"/>
- <class name="std::list<int>"/>
- <class name="std::deque<int>"/>
- <class name="std::set<int>"/>
- <class name="std::pair<int,int>"/>
- <class name="std::pair<unsigned long,unsigned long>"/>
- <class name="std::pair<unsigned int,unsigned int>"/>
- <class name="std::pair<unsigned int,unsigned long>"/>
- <class name="std::pair<unsigned short,unsigned short>"/>
- <class name="std::pair<unsigned int, int>" />
- <class name="std::pair<unsigned int,float>"/>
- <class name="std::pair<unsigned int,bool>"/>
- <class name="std::pair<double,double>"/>
- <class name="std::pair<unsigned int,double>"/>
- <class name="std::pair<unsigned long long,std::basic_string<char> >"/>
- <class name="std::pair<std::basic_string<char>,double>"/>
- <class name="std::pair<std::basic_string<char>,int>"/>
- <class name="std::pair<std::basic_string<char>,std::vector<std::pair<std::basic_string<char>,double> > >"/>
- <class name="std::multimap<double,double>"/>
- <class name="std::map<unsigned int,bool>"/>
- <class name="std::map<int,int>"/>
- <class name="std::map<unsigned long,unsigned long>"/>
- <class name="std::map<unsigned int,unsigned int>"/>
- <class name="std::map<unsigned int,int>"/>
- <class name="std::map<unsigned short,unsigned short>"/>
- <class name="std::map<unsigned int,float>"/>
- <class name="std::map<unsigned long,std::vector<unsigned long> >"/>
- <class name="std::map<unsigned int,std::vector<unsigned int> >"/>
- <class name="std::map<unsigned int,std::vector<std::pair<unsigned int,double> > >" />
- <class name="std::map<unsigned short,std::vector<unsigned short> >"/>
- <class name="std::map<unsigned long long,std::basic_string<char> >"/>
- <class name="std::map<std::basic_string<char>,std::vector<std::pair<std::basic_string<char>,double> > >"/>
- <class name="std::map<std::basic_string<char>,int>"/>
- <class name="std::map<int,std::pair<unsigned int,unsigned int> >"/>
- <class name="std::map<int,std::pair<unsigned long,unsigned long> >"/>
- <class name="edm::Wrapper<std::basic_string<char> >"/>
- <class name="edm::Wrapper<float>"/>
- <class name="edm::Wrapper<double>"/>
- <class name="edm::Wrapper<long double>"/>
- <class name="edm::Wrapper<long long>"/>
- <class name="edm::Wrapper<unsigned long long>"/>
- <class name="edm::Wrapper<long>"/>
- <class name="edm::Wrapper<unsigned long>"/>
- <class name="edm::Wrapper<int>"/>
- <class name="edm::Wrapper<unsigned int>"/>
- <class name="edm::Wrapper<short>"/>
- <class name="edm::Wrapper<unsigned short>"/>
- <class name="edm::Wrapper<char>"/>
- <class name="edm::Wrapper<unsigned char>"/>
- <class name="edm::Wrapper<bool>"/>
- <class name="edm::Wrapper<std::vector<std::basic_string<char> > >"/>
- <class name="edm::Wrapper<std::vector<float> >"/>
- <class name="edm::Wrapper<std::vector<double> >"/>
- <class name="edm::Wrapper<std::vector<long double> >"/>
- <class name="edm::Wrapper<std::vector<long long> >"/>
- <class name="edm::Wrapper<std::vector<unsigned long long> >"/>
- <class name="edm::Wrapper<std::vector<int> >"/>
- <class name="edm::Wrapper<std::vector<unsigned int> >"/>
- <class name="edm::Wrapper<std::vector<short> >"/>
- <class name="edm::Wrapper<std::vector<unsigned short> >"/>
- <class name="edm::Wrapper<std::vector<char> >"/>
- <class name="edm::Wrapper<std::vector<unsigned char> >"/>
- <class name="edm::Wrapper<std::vector<bool> >"/>
- <class name="edm::Wrapper<std::list<int> >"/>
- <class name="edm::Wrapper<std::deque<int> >"/>
- <class name="edm::Wrapper<std::set<int> >"/>
- <class name="edm::Wrapper<std::pair<unsigned long,unsigned long> >"/>
- <class name="edm::Wrapper<std::pair<unsigned int,unsigned int> >"/>
- <class name="edm::Wrapper<std::pair<unsigned int,int> >"/>
- <class name="edm::Wrapper<std::pair<unsigned short,unsigned short> >"/>
- <class name="edm::Wrapper<std::map<int,int> >"/>
- <class name="edm::Wrapper<std::map<unsigned long,unsigned long> >"/>
- <class name="edm::Wrapper<std::map<unsigned int,unsigned int> >"/>
- <class name="edm::Wrapper<std::map<unsigned int,int> >"/>
- <class name="edm::Wrapper<std::map<unsigned short,unsigned short> >"/>
- <class name="edm::Wrapper<std::map<unsigned int,float> >"/>
- <class name="edm::Wrapper<std::map<unsigned long,std::vector<unsigned long> > >"/>
- <class name="edm::Wrapper<std::map<unsigned int,std::vector<unsigned int> > >"/>
- <class name="edm::Wrapper<std::map<std::basic_string<char>,std::vector<std::pair<std::basic_string<char>,double> > > >"/>
- <class name="edm::Wrapper<std::map<unsigned short,std::vector<unsigned short> > >"/>
- <class name="edm::Wrapper<std::map<unsigned long long,std::basic_string<char> > >"/>
+ <class name="edm::PtrVectorBase" >
+   <field name ="cachedItems_" transient = "true"/>
+ </class>
+<class name="edmNew::dstvdetails::DetSetVectorTrans">
+   <field name="filling" transient="true"/>
+   <field name="getter" transient="true"/>
+</class>
+<class name="edmNew::dstvdetails::DetSetVectorTrans::Item"/>
+<class name="std::vector<edmNew::dstvdetails::DetSetVectorTrans::Item>"/>
+
+
+<class name="edm::DataFrame"/>
+<class name="edm::DataFrameContainer"/>
+<class name="edm::Wrapper<edm::DataFrameContainer>"/>
 
  <class name="edm::HLTPathStatus"/>
  <class name="edm::Wrapper<edm::HLTPathStatus>"/>
@@ -157,14 +69,16 @@
    <field name="fixed_" transient="true"/>
  </class>
  <class name="edm::RangeMap<int,std::vector<float>,edm::CopyPolicy<float> >"/>
- <class name="std::allocator<char>"/>
- <class name="std::allocator<short>"/>
- <class name="std::allocator<int>"/>
- <class name="std::allocator<double>"/>
- <class name="std::less<int>"/>
- <class name="std::input_iterator_tag"/>
- <class name="std::output_iterator_tag"/>
- <class name="std::forward_iterator_tag"/>
- <class name="std::bidirectional_iterator_tag"/>
- <class name="std::random_access_iterator_tag"/>
+ <class name="std::pair<edm::ProductID, unsigned int>" />
+ <class name="std::vector<std::pair<edm::ProductID, unsigned int> >" />
+ <class name="edm::ValueMap<int>" />
+ <class name="edm::ValueMap<unsigned int>" />
+ <class name="edm::ValueMap<bool>" />
+ <class name="edm::ValueMap<float>" />
+ <class name="edm::ValueMap<double>" />
+ <class name="edm::Wrapper<edm::ValueMap<int> >" />
+ <class name="edm::Wrapper<edm::ValueMap<bool> >" />
+ <class name="edm::Wrapper<edm::ValueMap<unsigned int> >" />
+ <class name="edm::Wrapper<edm::ValueMap<float> >" />
+ <class name="edm::Wrapper<edm::ValueMap<double> >" />
 </lcgdict>

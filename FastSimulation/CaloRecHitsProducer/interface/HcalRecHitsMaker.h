@@ -69,6 +69,11 @@ class HcalRecHitsMaker
   unsigned nhocells_;
   unsigned nhfcells_;
 
+  double  satHB_;
+  double  satHE_;
+  double  satHO_;
+  double  satHF_;
+
   const RandomEngine* random_;
   const GaussianTail* myGaussianTailGenerator_;
 

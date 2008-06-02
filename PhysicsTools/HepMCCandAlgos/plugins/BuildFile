@@ -1,50 +1,15 @@
-<use name=FWCore/Framework>
-<use name=FWCore/ParameterSet>
-<use name=PhysicsTools/UtilAlgos>
-<use name=DataFormats/HepMCCandidate>
-
-<library file=GenEventWeightProducer.cc>
-  <use name=SimDataFormats/HepMCProduct>
-</library>
-
-<library file=FastGenParticleCandidateProducer.cc>
-  <use name=SimGeneral/HepPDTRecord>
-  <use name=SimDataFormats/HepMCProduct>
-</library>
-
-<library file=GenParticleCandidateSelector.cc>
-  <use name=SimGeneral/HepPDTRecord>
-</library>
-
-<library file=ParticleTreeDrawer.cc>
-  <use name=SimGeneral/HepPDTRecord>
-</library>
-
-<library file=ParticleDecayDrawer.cc>
-  <use name=SimGeneral/HepPDTRecord>
-</library>
-
-<library file=MCTruthDeltaRMatcher.cc>
-  <use name=PhysicsTools/CandAlgos>
-</library>
-
-<library file=MCTruthCompositeMatcher.cc>
-</library>
-
-<library file=MCTruthMuonCompositeMatcher.cc>
-  <use name=DataFormats/MuonReco>
-</library>
-
-<library file=MCTruthPixelMatchGsfElectronCompositeMatcher.cc>
-  <use name=DataFormats/EgammaCandidates>
-</library>
-
-<library file=MCTruthCaloJetCompositeMatcher.cc>
+<export></export>
+<library name=PhysicsToolsHepMCCandAlgos_plugins file=*.cc>
+  <use name=FWCore/Framework>
+  <use name=FWCore/ParameterSet>
+  <use name=DataFormats/HepMCCandidate>
+  <use name=DataFormats/WrappedStdDictionaries>
   <use name=DataFormats/JetReco>
-</library>
-
-<library file=ParticleListDrawer.cc>
+  <use name=SimDataFormats/HepMCProduct>
   <use name=SimGeneral/HepPDTRecord>
+  <use name=PhysicsTools/UtilAlgos>
+  <use name=PhysicsTools/CandAlgos>
+  <use name=PhysicsTools/JetMCUtils>
 </library>
 
 

@@ -11,6 +11,8 @@
 //   6/15/00    web     using -> USING
 //  11/01/01    web     Fixed mixed-type comparisons
 //   5/18/06	mf	setInterval
+//  11/2/07	mf	add:  Changed ivl = wildcardLimit to wildcardInterval.
+//			Probably moot and never reached, but a clear correction.
 //
 // ----------------------------------------------------------------------
 
@@ -102,7 +104,7 @@ bool ELlimitsTable::add( const ELextendedID & xid )  {
       if ( ivl < 0 )  {                                    
         ivl = severityIntervals[xid.severity.getLevel()];
         if ( ivl < 0 )  {
-          ivl = wildcardLimit;
+          ivl = wildcardInterval;			// mf 11/02/07
         }
       }
       if ( ts < 0 )  {

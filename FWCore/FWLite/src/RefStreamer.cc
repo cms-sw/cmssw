@@ -1,17 +1,28 @@
 #include "RefStreamer.h"
 #include "DataFormats/Common/interface/RefCore.h"
+#include "FWCore/Utilities/interface/EDMException.h"
+#include "TROOT.h"
+#include <assert.h>
+
 class TBuffer;
 
 namespace fwlite {
   void 
   RefStreamer::operator()(TBuffer &R__b, void *objp) {
     using edm::RefCore;
+    using edm::Exception;
+    using edm::errors::InvalidReference;
     if (R__b.IsReading()) {
       cl_->ReadBuffer(R__b, objp);
       RefCore* obj = static_cast<RefCore *>(objp);
       obj->setProductGetter(prodGetter_);
-      obj->setProductPointer(0);
+      obj->setProductPtr(0);
     } else {
+      RefCore* obj = static_cast<RefCore *>(objp);
+      if (obj->isTransient()) {
+        throw Exception(InvalidReference,"Inconsistency")
+          << "RefStreamer: transient Ref or Ptr cannot be made persistent.";
+      }
       cl_->WriteBuffer(R__b, objp);
     }
   }

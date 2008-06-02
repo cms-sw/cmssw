@@ -58,10 +58,18 @@ private:
   void erase ( const TransientVertex & newvtx,
              std::set < reco::TransientTrack > & remainingtrks ) const;
 
+  /**
+   *  cleanup reconstructed vertices. discard all with too few significant
+   *  tracks.
+   */
+  std::vector<TransientVertex> cleanUpVertices ( 
+      const std::vector < TransientVertex > & ) const;
+
 private:
   float thePrimCut;
   float theSecCut;
   float theMinWeight;
+  float theWeightThreshold;
 };
 
 #endif

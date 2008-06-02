@@ -1,45 +1,45 @@
 #ifndef TopObjects_TopGenEvent_h
 #define TopObjects_TopGenEvent_h
 #include "DataFormats/Candidate/interface/Candidate.h"
+#include "DataFormats/HepMCCandidate/interface/GenParticle.h"
 
 class TopGenEvent {
 
  public:
 
   TopGenEvent(){};
-  TopGenEvent(reco::CandidateRefProd& vec){parts_ = vec;};
+  TopGenEvent(reco::GenParticleRefProd&, reco::GenParticleRefProd&);
   virtual ~TopGenEvent(){};
-  
-  const reco::CandidateCollection & particles() const { return *parts_; }
-  const reco::Candidate* candidate(int) const;
-  
-  //common getters
-  const reco::Candidate* electron() const { return candidate( 11 );}
-  const reco::Candidate* positron() const { return candidate(-11 );}
-  const reco::Candidate* muon() const     { return candidate( 13 );}
-  const reco::Candidate* muonBar() const  { return candidate(-13 );}
-  const reco::Candidate* tau() const      { return candidate( 15 );}
-  const reco::Candidate* tauBar() const   { return candidate(-15 );}
-  const reco::Candidate* top() const      { return candidate( 6 );}
-  const reco::Candidate* topBar() const   { return candidate(-6 );}
-  const reco::Candidate* w() const        { return candidate( 24 );}
-  const reco::Candidate* wBar() const     { return candidate(-24 );}
-  const reco::Candidate* b() const        { return candidate( 5 );}
-  const reco::Candidate* bBar() const     { return candidate(-5 );}
-  
- protected:
-  
-  bool isLepton(const reco::Candidate& part) const 
-  {return (abs(part.pdgId())==11 || abs(part.pdgId())==13 || abs(part.pdgId())==15);}
-  bool isNeutrino(const reco::Candidate& part) const 
-  {return (abs(part.pdgId())==12 || abs(part.pdgId())==14 || abs(part.pdgId())==16);}
-  double flavour(const reco::Candidate& part) const 
-  {return (double)(part.pdgId() / abs(part.pdgId()) );}
-  
- protected:
-  
-  reco::CandidateRefProd parts_;
-};
 
+  void dumpEventContent() const;
+  const reco::GenParticleCollection& particles() const { return *parts_; }
+  const reco::GenParticleCollection& initialPartons() const { return *initPartons_;}
+  std::vector<const reco::GenParticle*> lightQuarks(bool plusB=false) const;
+  const reco::GenParticle* candidate(int) const;
+
+  int numberOfLeptons() const;
+  int numberOfBQuarks() const;
+
+  const reco::GenParticle* singleLepton() const;
+  const reco::GenParticle* singleNeutrino() const;
+
+  const reco::GenParticle* eMinus() const   { return candidate( 11 );}
+  const reco::GenParticle* ePlus() const    { return candidate(-11 );}
+  const reco::GenParticle* muMinus() const  { return candidate( 13 );}
+  const reco::GenParticle* muPlus() const   { return candidate(-13 );}
+  const reco::GenParticle* tauMinus() const { return candidate( 15 );}
+  const reco::GenParticle* tauPlus() const  { return candidate(-15 );}
+  const reco::GenParticle* wMinus() const   { return candidate( 24 );}
+  const reco::GenParticle* wPlus() const    { return candidate(-24 );}
+  const reco::GenParticle* top() const      { return candidate(  6 );}
+  const reco::GenParticle* topBar() const   { return candidate( -6 );}
+  const reco::GenParticle* b() const        { return candidate(  5 );}
+  const reco::GenParticle* bBar() const     { return candidate( -5 );}
+
+ protected:
+
+  reco::GenParticleRefProd parts_;       //top decay chain
+  reco::GenParticleRefProd initPartons_; //initial partons
+};
 
 #endif

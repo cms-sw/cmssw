@@ -2,10 +2,10 @@
 #define Demo_PFClusterAlgo_PFLayer_h
 
 /**\class PFLayer
-\brief layer definition for PFRecHit and PFCluster
+   \brief layer definition for PFRecHit and PFCluster
 
-\author Colin Bernet
-\date   July 2006
+   \author Colin Bernet
+   \date   July 2006
 */
 class PFLayer {
 
@@ -18,13 +18,13 @@ class PFLayer {
 
   /// layer definition
   enum Layer {PS2 = -12, 
-	      PS1 = -11,
-	      ECAL_ENDCAP = -2,
-	      ECAL_BARREL = -1,
-	      HCAL_BARREL1 = 1,
-	      HCAL_BARREL2 = 2,
-	      HCAL_ENDCAP = 3,
-	      VFCAL = 11 };
+              PS1 = -11,
+              ECAL_ENDCAP = -2,
+              ECAL_BARREL = -1,
+              HCAL_BARREL1 = 1,
+              HCAL_BARREL2 = 2,
+              HCAL_ENDCAP = 3,
+              VFCAL = 11 };
 };
 
 #endif

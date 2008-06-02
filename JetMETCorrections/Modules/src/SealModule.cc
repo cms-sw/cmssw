@@ -21,6 +21,12 @@ DEFINE_ANOTHER_FWK_MODULE(PlotJetCorrections);
 DEFINE_JET_CORRECTION_SERVICE (SimpleJetCorrector, SimpleJetCorrectionService);
 #include "JetMETCorrections/MCJet/interface/MCJetCorrector.h"
 DEFINE_JET_CORRECTION_SERVICE (MCJetCorrector, MCJetCorrectionService);
+#include "JetMETCorrections/MCJet/interface/MCJetCorrector3D.h"
+DEFINE_JET_CORRECTION_SERVICE (MCJetCorrector, MCJetCorrectionService3D);
+#include "JetMETCorrections/MCJet/interface/L4EMFCorrector.h"
+DEFINE_JET_CORRECTION_SERVICE (L4EMFCorrector, L4EMFCorrectionService);
+#include "JetMETCorrections/MCJet/interface/L5FlavorCorrector.h"
+DEFINE_JET_CORRECTION_SERVICE (L5FlavorCorrector, L5FlavorCorrectionService);
 #include "JetMETCorrections/GammaJet/interface/GammaJetCorrector.h"
 DEFINE_JET_CORRECTION_SERVICE (GammaJetCorrector, GammaJetCorrectionService);
 #include "JetMETCorrections/JetParton/interface/JetPartonCorrector.h"

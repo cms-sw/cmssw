@@ -6,7 +6,7 @@
  *
  * \author N.Marinelli  University of Notre Dame, US
  *
- * \version $Id: ConvertedPhoton.h,v 1.4 2007/01/26 16:24:39 nancy Exp $
+ * \version $Id: ConvertedPhoton.h,v 1.11 2007/08/28 17:25:25 nancy Exp $
  *
  */
 #include "DataFormats/RecoCandidate/interface/RecoCandidate.h"
@@ -35,7 +35,7 @@ namespace reco {
     reco::SuperClusterRef superCluster() const ;
 
     /// vector of references to  tracks
-    std::vector<reco::TrackRef> tracks() const ; 
+    virtual std::vector<reco::TrackRef> tracks() const ; 
     /// reference to one of multiple Tracks: implements the method inherited from RecoCandidate
     reco::TrackRef track( size_t ) const;
     /// Bool flagging objects having track size >0
@@ -61,7 +61,7 @@ namespace reco {
     /// returns the position of the conversion vertex
     const Point & convVertexPosition() const { return theConversionVertex_ ; }
     /// positions of the track extrapolation at the ECAL front face
-    std::vector<math::XYZPoint> ecalImpactPosition() const {return thePositionAtEcal_;} 
+    std::vector<math::XYZPoint> const & ecalImpactPosition()  {return thePositionAtEcal_;}
     /// set primary event vertex used to define photon direction
     void setVertex(const Point & vertex);
 

@@ -15,6 +15,7 @@ class  TrackerRecoGeometryESProducer: public edm::ESProducer{
   boost::shared_ptr<GeometricSearchTracker> produce(const TrackerRecoGeometryRecord &);
  private:
  boost::shared_ptr<GeometricSearchTracker> _tracker;
+ std::string geoLabel;
 };
 
 

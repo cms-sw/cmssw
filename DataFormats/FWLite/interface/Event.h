@@ -16,9 +16,9 @@
 //
 // Original Author:  Chris Jones
 //         Created:  Tue May  8 15:01:20 EDT 2007
-// $Id: Event.h,v 1.5 2007/06/18 16:20:29 chrjones Exp $
+// $Id: Event.h,v 1.6 2007/06/28 23:32:45 wmtan Exp $
 //
-#if !defined(__CINT__) || defined(__MAKECINT__)
+#if !defined(__CINT__) && !defined(__MAKECINT__)
 // system include files
 #include <typeinfo>
 #include <map>
