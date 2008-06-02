@@ -69,7 +69,7 @@ namespace edm {
             << "'setRunNumber' was " << setRun_ <<", while the first run was "
             << setRun_ - forcedRunOffset_ << ".\n";
         }
-        if (primarySequence_) updateProductRegistry();
+        updateProductRegistry();
       }
     } else {
       Service<RandomNumberGenerator> rng;

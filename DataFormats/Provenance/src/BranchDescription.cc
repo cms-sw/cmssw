@@ -321,12 +321,8 @@ namespace edm {
       differences << "Products on branch '" << b.branchName() << "' have type '" << b.fullClassName() << "'\n";
       differences << "    in file '" << fileName << "', but '" << a.fullClassName() << "' in previous files.\n";
     }
-    if (a.present() != b.present()) {
-      if (a.present()) {
-	differences << "Branch '" << a.branchName() << "' was dropped in file '" << fileName << "' but is present in previous files.\n";
-      } else {
-	differences << "Branch '" << a.branchName() << "' was dropped in previous files but is present in '" << fileName << "'.\n";
-      }
+    if (b.present() && !a.present()) {
+      differences << "Branch '" << a.branchName() << "' was dropped in previous files but is present in '" << fileName << "'.\n";
     }
     if (m == BranchDescription::Strict) {
 	if (b.psetIDs().size() > 1) {

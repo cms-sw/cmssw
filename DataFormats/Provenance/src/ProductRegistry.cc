@@ -134,8 +134,7 @@ namespace edm {
 	differences << "    but not in previous files.\n";
 	++i;
       } else if (i == e || j->first < i->first) {
-	differences << "Branch '" << j->second.branchName() << "' is in previous files\n";
-	differences << "    but not in file '" << fileName << "'.\n";
+	// Allow branch to be missing in new file
 	++j;
       } else {
 	std::string difs = match(j->second, i->second, fileName, m);
