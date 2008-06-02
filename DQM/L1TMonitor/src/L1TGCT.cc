@@ -1,11 +1,14 @@
 /*
  * \file L1TGCT.cc
  *
- * $Date: 2008/05/09 16:42:27 $
- * $Revision: 1.26 $
+ * $Date: 2008/05/12 12:52:46 $
+ * $Revision: 1.27 $
  * \author J. Berryhill
  *
  * $Log: L1TGCT.cc,v $
+ * Revision 1.27  2008/05/12 12:52:46  tapper
+ * Fixed problem when no GCT data in the event.
+ *
  * Revision 1.26  2008/05/09 16:42:27  ameyer
  * *** empty log message ***
  *
@@ -124,6 +127,11 @@ const float R10MAX = 1023.5;
 const unsigned int R12BINS = 4096;
 const float R12MIN = -0.5;
 const float R12MAX = 4095.5;
+//and for 5 bits for the HF Ring stuff
+const unsigned int R5BINS = 32;
+const float R5MIN = -0.5;
+const float R5MAX = 31.5;
+
 
 L1TGCT::L1TGCT(const edm::ParameterSet & ps) :
   gctCenJetsSource_(ps.getParameter<edm::InputTag>("gctCentralJetsSource")),
@@ -147,7 +155,7 @@ L1TGCT::L1TGCT(const edm::ParameterSet & ps) :
     dbe->setVerbose(0);
   }
 
-  outputFile_ = ps.getUntrackedParameter < std::string > ("outputFile", "");
+  outputFile_ = ps.getUntrackedParameter < std::string > ("outputFile", "l1tgct.root");
   if (outputFile_.size() != 0) {
     std::cout << "L1T Monitoring histograms will be saved to "
 	      << outputFile_ << std::endl;
@@ -229,6 +237,16 @@ void L1TGCT::beginJob(const edm::EventSetup & c)
 					  PHIBINS, PHIMIN, PHIMAX, 
 					  ETABINS, ETAMIN, ETAMAX);
 
+    l1GctHFRing0PosEtaNegEta_ = dbe->book2D("HFRing0Corr", "HF RING0 CORRELATION NEG POS ETA",
+                                            PHIBINS, PHIMIN, PHIMAX, 
+                                            ETABINS, ETAMIN, ETAMAX);
+    l1GctHFRing1PosEtaNegEta_ = dbe->book2D("HFRing1Corr", "HF RING1 CORRELATION NEG POS ETA",
+                                            PHIBINS, PHIMIN, PHIMAX, 
+                                            ETABINS, ETAMIN, ETAMAX);
+    l1GctHFTowerCountPosEtaNegEta_ = dbe->book2D("HFTowerCountCorr", "HF TOWER COUNT CORRELATION NEG POS ETA",
+                                                 PHIBINS, PHIMIN, PHIMAX, 
+                                                 ETABINS, ETAMIN, ETAMAX);
+
     // For Qtests need 1D eta and phi histograms (would be better if Qtests ran on 2D histograms too!)
     l1GctCenJetsOccEta_  = dbe->book1D("CenJetsOccEta", "CENTRAL JET ETA OCCUPANCY", ETABINS, ETAMIN, ETAMAX);
     l1GctCenJetsOccPhi_  = dbe->book1D("CenJetsOccPhi", "CENTRAL JET PHI OCCUPANCY", PHIBINS, PHIMIN, PHIMAX); 
@@ -240,7 +258,17 @@ void L1TGCT::beginJob(const edm::EventSetup & c)
     l1GctIsoEmOccPhi_    = dbe->book1D("IsoEmOccPhi", "ISO EM PHI OCCUPANCY", PHIBINS, PHIMIN, PHIMAX); 
     l1GctNonIsoEmOccEta_ = dbe->book1D("NonIsoEmOccEta", "NON-ISO EM ETA OCCUPANCY", ETABINS, ETAMIN, ETAMAX);
     l1GctNonIsoEmOccPhi_ = dbe->book1D("NonIsoEmOccPhi", "NON-ISO EM PHI OCCUPANCY", PHIBINS, PHIMIN, PHIMAX); 
-
+	
+    //HF Ring stuff
+    l1GctHFTowerCountPosEta_ = dbe->book1D("HFTowerCountPosEta", "POS ETA HFRING BIT", R5BINS, R5MIN, R5MAX);
+    l1GctHFTowerCountNegEta_ = dbe->book1D("HFTowerCountNegEta", "NEG ETA HFRING BIT", R5BINS, R5MIN, R5MAX);
+    l1GctHFRing0ETSumPosEta_ = dbe->book1D("HFRing0ETSumPosEta", "POS ETA RING0 ET SUM", R5BINS, R5MIN, R5MAX);
+    l1GctHFRing0ETSumNegEta_ = dbe->book1D("HFRing0ETSumNegEta", "NEG ETA RING0 ET SUM", R5BINS, R5MIN, R5MAX);
+    l1GctHFRing1ETSumPosEta_ = dbe->book1D("HFRing1ETSumPosEta", "POS ETA RING1 ET SUM", R5BINS, R5MIN, R5MAX);
+    l1GctHFRing1ETSumNegEta_ = dbe->book1D("HFRing1ETSumNegEta", "NEG ETA RING1 ET SUM", R5BINS, R5MIN, R5MAX);
+    l1GctHFRingRatioPosEta_  = dbe->book1D("HFRingRatioPosEta", "RING RATIO POS ETA", R5BINS, R5MIN, R5MAX);
+    l1GctHFRingRatioNegEta_  = dbe->book1D("HFRingRatioNegEta", "RING RATIO NEG ETA", R5BINS, R5MIN, R5MAX);
+    
     // Rank histograms
     l1GctCenJetsRank_  = dbe->book1D("CenJetsRank", "CENTRAL JET RANK", R6BINS, R6MIN, R6MAX);
     l1GctForJetsRank_  = dbe->book1D("ForJetsRank", "FORWARD JET RANK", R6BINS, R6MIN, R6MAX);
@@ -324,6 +352,7 @@ void L1TGCT::analyze(const edm::Event & e, const edm::EventSetup & c)
   edm::Handle < L1GctJetCandCollection > l1CenJets;
   edm::Handle < L1GctJetCandCollection > l1ForJets;
   edm::Handle < L1GctJetCandCollection > l1TauJets;
+  edm::Handle < L1GctJetCountsCollection > l1JetCounts;
   edm::Handle < L1GctEtMiss >  l1EtMiss;
   edm::Handle < L1GctEtHad >   l1EtHad;
   edm::Handle < L1GctEtTotal > l1EtTotal;
@@ -337,11 +366,11 @@ void L1TGCT::analyze(const edm::Event & e, const edm::EventSetup & c)
   e.getByLabel(gctCenJetsSource_, l1CenJets);
   e.getByLabel(gctForJetsSource_, l1ForJets);
   e.getByLabel(gctTauJetsSource_, l1TauJets);
-  
+  e.getByLabel(gctEnergySumsSource_, l1JetCounts);  
   e.getByLabel(gctEnergySumsSource_, l1EtMiss);
   e.getByLabel(gctEnergySumsSource_, l1EtHad);
   e.getByLabel(gctEnergySumsSource_, l1EtTotal);
-   
+
   if (!l1CenJets.isValid())  {
     edm::LogInfo("DataNotFound") << " Could not find l1CenJets"
       ", label was " << gctCenJetsSource_ ;
@@ -357,6 +386,12 @@ void L1TGCT::analyze(const edm::Event & e, const edm::EventSetup & c)
   if (!l1TauJets.isValid())  {
     edm::LogInfo("DataNotFound") << " Could not find l1TauJets"
       ", label was " << gctTauJetsSource_ ;
+    doJet = false;
+  }
+
+  if (!l1JetCounts.isValid())  {
+    edm::LogInfo("DataNotFound") << " Could not find l1JetCounts"
+      ", label was " << gctEnergySumsSource_ ;
     doJet = false;
   }
    
@@ -379,7 +414,6 @@ void L1TGCT::analyze(const edm::Event & e, const edm::EventSetup & c)
   }
 
   // EM data
-  
   e.getByLabel(gctIsoEmSource_, l1IsoEm);
   e.getByLabel(gctNonIsoEmSource_, l1NonIsoEm);
   
@@ -388,6 +422,7 @@ void L1TGCT::analyze(const edm::Event & e, const edm::EventSetup & c)
       " elements, label was " << gctIsoEmSource_ ;
     doEm = false;
   }
+
   if (!l1NonIsoEm.isValid()) {
     edm::LogInfo("DataNotFound") << " Could not find l1NonIsoEm "
       " elements, label was " << gctNonIsoEmSource_ ;
@@ -401,6 +436,7 @@ void L1TGCT::analyze(const edm::Event & e, const edm::EventSetup & c)
   }
     
   // Fill the histograms for the jets
+ 
   if ( doJet ) {
     // Central jets
     if ( verbose_ ) {
@@ -469,6 +505,28 @@ void L1TGCT::analyze(const edm::Event & e, const edm::EventSetup & c)
     // these don't have phi values
     l1GctEtHad_->Fill(l1EtHad->et());
     l1GctEtTotal_->Fill(l1EtTotal->et());
+	
+    //Fill HF Ring Histograms
+    if ( verbose_ ) {
+      std::cout << "L1TGCT: number of jet counts cands: " 
+		<< l1JetCounts->size() << std::endl;
+    }
+
+    for (L1GctJetCountsCollection::const_iterator jc=l1JetCounts->begin(); jc!=l1JetCounts->end(); jc++){ 
+      l1GctHFTowerCountPosEta_->Fill(jc->hfTowerCountPositiveEta());
+      l1GctHFTowerCountNegEta_->Fill(jc->hfTowerCountNegativeEta());
+      l1GctHFRing0ETSumPosEta_->Fill(jc->hfRing0EtSumPositiveEta());
+      l1GctHFRing0ETSumNegEta_->Fill(jc->hfRing0EtSumNegativeEta());
+      l1GctHFRing1ETSumPosEta_->Fill(jc->hfRing1EtSumPositiveEta());
+      l1GctHFRing1ETSumNegEta_->Fill(jc->hfRing1EtSumNegativeEta());
+	
+      if (jc->hfRing1EtSumPositiveEta()!=0) l1GctHFRingRatioPosEta_->Fill((jc->hfRing0EtSumPositiveEta())/(jc->hfRing1EtSumPositiveEta()));
+      if (jc->hfRing1EtSumNegativeEta()!=0) l1GctHFRingRatioNegEta_->Fill((jc->hfRing0EtSumNegativeEta())/(jc->hfRing1EtSumNegativeEta()));
+
+      l1GctHFRing0PosEtaNegEta_->Fill(jc->hfRing0EtSumPositiveEta(),jc->hfRing0EtSumNegativeEta());
+      l1GctHFRing1PosEtaNegEta_->Fill(jc->hfRing1EtSumPositiveEta(),jc->hfRing1EtSumNegativeEta());
+      l1GctHFTowerCountPosEtaNegEta_->Fill(jc->hfTowerCountPositiveEta(),jc->hfTowerCountNegativeEta());
+    }
 
   }
 
