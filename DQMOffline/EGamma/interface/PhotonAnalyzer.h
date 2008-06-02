@@ -21,8 +21,8 @@
  **  
  **
  **  $Id: PhotonAnalyzer
- **  $Date: $ 
- **  $Revision: $
+ **  $Date: 2008/05/23 05:09:27 $ 
+ **  $Revision: 1.5 $
  **  \author Nancy Marinelli, U. of Notre Dame, US
  **
  ***/
@@ -132,8 +132,8 @@ class PhotonAnalyzer : public edm::EDAnalyzer
   MonitorElement* h_DPhiTracksAtVtx_[2][3];
   MonitorElement* h_DCotTracks_[2][3];
   MonitorElement* h_invMass_[2][3];
-  MonitorElement* h_DPhiBCTrackAtEcal_[2][3];
-  MonitorElement* h_DEtaBCTrackAtEcal_[2][3];
+  MonitorElement* h_DPhiTracksAtEcal_[2][3];
+  MonitorElement* h_DEtaTracksAtEcal_[2][3];
 
   MonitorElement* h_convVtxRvsZ_[2]; 
   MonitorElement* h_zPVFromTracks_[2]; 
