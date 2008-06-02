@@ -202,8 +202,8 @@ void CalorimetryManager::reconstruct()
       } // pid < 1000000 
     } // myTrack.noEndVertex()
   } // particle loop
-  LogInfo("FastCalorimetry") << " Number of  hits (barrel)" << EBMapping_.size() << std::endl;
-  LogInfo("FastCalorimetry") << " Number of  hits (Hcal)" << HMapping_.size() << std::endl;
+  //  LogInfo("FastCalorimetry") << " Number of  hits (barrel)" << EBMapping_.size() << std::endl;
+  //  LogInfo("FastCalorimetry") << " Number of  hits (Hcal)" << HMapping_.size() << std::endl;
   //  std::cout << " Nombre de hit (endcap)" << EEMapping_.size() << std::endl;
 
 } // reconstruct
