@@ -107,7 +107,11 @@ $saveAlignmentConstants = "    replace AlignmentProducer.saveToDB = true\n"
                      ."                           { string record = \"TrackerAlignmentErrorRcd\" string tag = \"AlignmentErrors\" } \n"
                      ."                         }  \n"
                      ."           string connect = \"sqlite_file:alignments_MP.db\" \n"
-                     ."           string timetype = \"runnumber\" \n"
+###
+#                     ."           string timetype = \"runnumber\" \n"
+# AP. The following line replaces the previous one since CMSSW_207
+                     ."           untracked string timetype = \"runnumber\" \n"
+###
                      ."         }"; 
 # 
 $nn = ($body =~ /AlignmentProducer\.saveToDB.+?false/);
