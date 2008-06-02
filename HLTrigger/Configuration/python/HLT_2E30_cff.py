@@ -634,7 +634,10 @@ hltEcalRegionalJetsWeightUncalibRecHit = cms.EDProducer( "EcalWeightUncalibRecHi
 )
 hltEcalRegionalJetsRecHitTmp = cms.EDProducer( "EcalRecHitProducer",
     EBuncalibRecHitCollection = cms.InputTag( 'hltEcalRegionalJetsWeightUncalibRecHit','EcalUncalibRecHitsEB' ),
-    EEuncalibRecHitCollection = cms.InputTag( 'hltEcalRegionalJetsWeightUncalibRecHit','EcalUncalibRecHitsEE' )
+    EEuncalibRecHitCollection = cms.InputTag( 'hltEcalRegionalJetsWeightUncalibRecHit','EcalUncalibRecHitsEE' ),
+    EBrechitCollection = cms.string( "EcalRecHitsEB" ),
+    EErechitCollection = cms.string( "EcalRecHitsEE" ),
+    ChannelStatusToBeExcluded = cms.vint32(  )
 )
 hltEcalRegionalJetsRecHit = cms.EDProducer( "EcalRecHitsMerger",
     debug = cms.untracked.bool( False ),
@@ -791,7 +794,10 @@ hltEcalRegionalRestWeightUncalibRecHit = cms.EDProducer( "EcalWeightUncalibRecHi
 )
 hltEcalRegionalRestRecHitTmp = cms.EDProducer( "EcalRecHitProducer",
     EBuncalibRecHitCollection = cms.InputTag( 'hltEcalRegionalRestWeightUncalibRecHit','EcalUncalibRecHitsEB' ),
-    EEuncalibRecHitCollection = cms.InputTag( 'hltEcalRegionalRestWeightUncalibRecHit','EcalUncalibRecHitsEE' )
+    EEuncalibRecHitCollection = cms.InputTag( 'hltEcalRegionalRestWeightUncalibRecHit','EcalUncalibRecHitsEE' ),
+    EBrechitCollection = cms.string( "EcalRecHitsEB" ),
+    EErechitCollection = cms.string( "EcalRecHitsEE" ),
+    ChannelStatusToBeExcluded = cms.vint32(  )
 )
 hltEcalRecHitAll = cms.EDProducer( "EcalRecHitsMerger",
     debug = cms.untracked.bool( False ),
@@ -1176,7 +1182,10 @@ hltEcalRegionalEgammaWeightUncalibRecHit = cms.EDProducer( "EcalWeightUncalibRec
 )
 hltEcalRegionalEgammaRecHitTmp = cms.EDProducer( "EcalRecHitProducer",
     EBuncalibRecHitCollection = cms.InputTag( 'hltEcalRegionalEgammaWeightUncalibRecHit','EcalUncalibRecHitsEB' ),
-    EEuncalibRecHitCollection = cms.InputTag( 'hltEcalRegionalEgammaWeightUncalibRecHit','EcalUncalibRecHitsEE' )
+    EEuncalibRecHitCollection = cms.InputTag( 'hltEcalRegionalEgammaWeightUncalibRecHit','EcalUncalibRecHitsEE' ),
+    EBrechitCollection = cms.string( "EcalRecHitsEB" ),
+    EErechitCollection = cms.string( "EcalRecHitsEE" ),
+    ChannelStatusToBeExcluded = cms.vint32(  )
 )
 hltEcalRegionalEgammaRecHit = cms.EDProducer( "EcalRecHitsMerger",
     debug = cms.untracked.bool( False ),
@@ -3791,7 +3800,10 @@ hltEcalRegionalMuonsWeightUncalibRecHit = cms.EDProducer( "EcalWeightUncalibRecH
 )
 hltEcalRegionalMuonsRecHitTmp = cms.EDProducer( "EcalRecHitProducer",
     EBuncalibRecHitCollection = cms.InputTag( 'hltEcalRegionalMuonsWeightUncalibRecHit','EcalUncalibRecHitsEB' ),
-    EEuncalibRecHitCollection = cms.InputTag( 'hltEcalRegionalMuonsWeightUncalibRecHit','EcalUncalibRecHitsEE' )
+    EEuncalibRecHitCollection = cms.InputTag( 'hltEcalRegionalMuonsWeightUncalibRecHit','EcalUncalibRecHitsEE' ),
+    EBrechitCollection = cms.string( "EcalRecHitsEB" ),
+    EErechitCollection = cms.string( "EcalRecHitsEE" ),
+    ChannelStatusToBeExcluded = cms.vint32(  )
 )
 hltEcalRegionalMuonsRecHit = cms.EDProducer( "EcalRecHitsMerger",
     debug = cms.untracked.bool( False ),
@@ -6312,7 +6324,10 @@ hltEcalRegionalTausWeightUncalibRecHit = cms.EDProducer( "EcalWeightUncalibRecHi
 )
 hltEcalRegionalTausRecHitTmp = cms.EDProducer( "EcalRecHitProducer",
     EBuncalibRecHitCollection = cms.InputTag( 'hltEcalRegionalTausWeightUncalibRecHit','EcalUncalibRecHitsEB' ),
-    EEuncalibRecHitCollection = cms.InputTag( 'hltEcalRegionalTausWeightUncalibRecHit','EcalUncalibRecHitsEE' )
+    EEuncalibRecHitCollection = cms.InputTag( 'hltEcalRegionalTausWeightUncalibRecHit','EcalUncalibRecHitsEE' ),
+    EBrechitCollection = cms.string( "EcalRecHitsEB" ),
+    EErechitCollection = cms.string( "EcalRecHitsEE" ),
+    ChannelStatusToBeExcluded = cms.vint32(  )
 )
 hltEcalRegionalTausRecHit = cms.EDProducer( "EcalRecHitsMerger",
     debug = cms.untracked.bool( False ),
@@ -7756,7 +7771,10 @@ hltEcalWeightUncalibRecHit = cms.EDProducer( "EcalWeightUncalibRecHitProducer",
 )
 hltEcalRecHit = cms.EDProducer( "EcalRecHitProducer",
     EBuncalibRecHitCollection = cms.InputTag( 'hltEcalWeightUncalibRecHit','EcalUncalibRecHitsEB' ),
-    EEuncalibRecHitCollection = cms.InputTag( 'hltEcalWeightUncalibRecHit','EcalUncalibRecHitsEE' )
+    EEuncalibRecHitCollection = cms.InputTag( 'hltEcalWeightUncalibRecHit','EcalUncalibRecHitsEE' ),
+    EBrechitCollection = cms.string( "EcalRecHitsEB" ),
+    EErechitCollection = cms.string( "EcalRecHitsEE" ),
+    ChannelStatusToBeExcluded = cms.vint32(  )
 )
 hltAlCaPhiSymStream = cms.EDFilter( "HLTEcalPhiSymFilter",
     barrelHitCollection = cms.InputTag( 'hltEcalRecHit','EcalRecHitsEB' ),
