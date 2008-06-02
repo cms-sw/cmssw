@@ -230,24 +230,33 @@ cond::Logger::LookupLastEntryByProvenance(const std::string& provenance,
 }
 void 
 cond::Logger::LookupLastEntryByTag( const std::string& iovtag,
-				    LogDBEntry& logentry,
-				    bool filterFailedOp ) const{
+				    const std::string & connectionStr,
+				    cond::LogDBEntry& logentry,
+				    bool filterFailedOp) const{
   /**
      select * from "COND_LOG_TABLE" where "LOGID"=(select max("LOGID") AS "max_logid" from "COND_LOG_TABLE" where "IOVTAG"='mytag1' and "EXECMESSAGE"='OK');
      
   */
   std::string whereClause=cond::LogDBNames::LogTableName();
   whereClause+=std::string(".IOVTAG=:iovtag");
+  coral::AttributeList BindVariableList;
+  BindVariableList.extend("iovtag",typeid(std::string) );
+  BindVariableList["iovtag"].data<std::string>()=iovtag;
+  if(connectionStr!=""){
+    whereClause+=std::string(" AND ");
+    whereClause+=cond::LogDBNames::LogTableName();
+    whereClause+=std::string(".DESTINATIONDB=:destinationdb");
+    BindVariableList.extend("destinationdb",typeid(std::string) ); 
+    BindVariableList["destinationdb"].data<std::string>()=connectionStr;
+  }
   if(filterFailedOp){
     whereClause+=std::string(" AND ");
     whereClause+=cond::LogDBNames::LogTableName();
     whereClause+=std::string(".EXECMESSAGE=:execmessage");
+    BindVariableList.extend("execmessage",typeid(std::string) );
+    BindVariableList["execmessage"].data<std::string>()="OK"; 
   }
-  coral::AttributeList BindVariableList;
-  BindVariableList.extend("iovtag",typeid(std::string) );
-  BindVariableList.extend("execmessage",typeid(std::string) );
-  BindVariableList["iovtag"].data<std::string>()=iovtag;
-  BindVariableList["execmessage"].data<std::string>()="OK";
+  
   m_coraldb.start(true);
   //coral::IQuery* query = m_coraldb.nominalSchema().tableHandle(cond::LogDBNames::LogTableName()).newQuery();
   coral::IQuery* query = m_coraldb.nominalSchema().newQuery();
@@ -291,11 +300,17 @@ cond::Logger::LookupLastEntryByTag( const std::string& iovtag,
     logentry.payloadContainer=row[cond::LogDBNames::LogTableName()+".PAYLOADCONTAINER"].data<std::string>();
     logentry.exectime=row[cond::LogDBNames::LogTableName()+".EXECTIME"].data<std::string>();
     logentry.execmessage=row[cond::LogDBNames::LogTableName()+".EXECMESSAGE"].data<std::string>();
-
+    
     //row.toOutputStream( std::cout ) << std::endl;
   }
   delete query;  
   m_coraldb.commit();
+}
+void 
+cond::Logger::LookupLastEntryByTag( const std::string& iovtag,
+				    LogDBEntry& logentry,
+				    bool filterFailedOp ) const{
+  LookupLastEntryByTag(iovtag,"",logentry,filterFailedOp);
 }
 void
 cond::Logger::insertLogRecord(unsigned long long logId,

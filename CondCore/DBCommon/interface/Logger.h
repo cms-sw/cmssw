@@ -79,6 +79,11 @@ namespace cond{
 			       LogDBEntry& logentry,
 			       bool filterFailedOp=true) const;
     
+    void LookupLastEntryByTag( const std::string& iovtag,
+                               const std::string & connectionStr,
+			       LogDBEntry& logentry,
+			       bool filterFailedOp=true) const;
+
   private:
     void insertLogRecord(unsigned long long logId,
 			 const std::string& localtime,
