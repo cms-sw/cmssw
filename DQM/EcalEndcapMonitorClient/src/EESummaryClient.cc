@@ -1,8 +1,8 @@
 /*
  * \file EESummaryClient.cc
  *
- * $Date: 2008/05/30 16:18:53 $
- * $Revision: 1.130 $
+ * $Date: 2008/05/30 16:24:31 $
+ * $Revision: 1.131 $
  * \author G. Della Ricca
  *
 */
@@ -1270,29 +1270,29 @@ void EESummaryClient::analyze(void){
         else if(val_po == 2 || val_ls == 2 || val_tm == 2 || val_sf == 2 || val_ee == 2) xval = 2;
         else xval=1;
 
-	bool validCry = false;
+        bool validCry = false;
 
-	// if the SM is entirely not read, the masked channels
+        // if the SM is entirely not read, the masked channels
         // are reverted back to yellow
-	float iEntries=0;
-	for(int ism = 1; ism <= 9; ism++) {
-	  if ( Numbers::validEE(ism, jx, jy) ) {
-	    validCry = true;
-	    for ( unsigned int i=0; i<clients_.size(); i++ ) {
-	      EEIntegrityClient* eeic = dynamic_cast<EEIntegrityClient*>(clients_[i]);
-	      if ( eeic ) {
-		TH2F* h2 = eeic->h_[ism-1];
-		if ( h2 ) {
-		  iEntries = h2->GetEntries();
-		}
-	      }
-	    }
-	  }
-	}
+        float iEntries=0;
+        for(int ism = 1; ism <= 9; ism++) {
+          if ( Numbers::validEE(ism, jx, jy) ) {
+            validCry = true;
+            for ( unsigned int i=0; i<clients_.size(); i++ ) {
+              EEIntegrityClient* eeic = dynamic_cast<EEIntegrityClient*>(clients_[i]);
+              if ( eeic ) {
+                TH2F* h2 = eeic->h_[ism-1];
+                if ( h2 ) {
+                  iEntries = h2->GetEntries();
+                }
+              }
+            }
+          }
+        }
 
-	if ( validCry && iEntries==0 ) {
-	  xval=2;
-	}
+        if ( validCry && iEntries==0 ) {
+          xval=2;
+        }
 
         meGlobalSummary_[0]->setBinContent( jx, jy, xval );
 
@@ -1343,28 +1343,29 @@ void EESummaryClient::analyze(void){
         else if(val_po == 2 || val_ls == 2 || val_tm == 2 || val_sf == 2 || val_ee == 2) xval = 2;
         else xval=1;
 
-	bool validCry = false;
+        bool validCry = false;
 
-	// if the SM is entirely not read, the masked channels reverted back in yellow
-	float iEntries=0;
-	for(int ism = 10; ism <= 18; ism++) {
-	  if ( Numbers::validEE(ism, jx, jy) ) {
-	    validCry = true;
-	    for ( unsigned int i=0; i<clients_.size(); i++ ) {
-	      EEIntegrityClient* eeic = dynamic_cast<EEIntegrityClient*>(clients_[i]);
-	      if ( eeic ) {
-		TH2F *h2 = eeic->h_[ism-1];
-		if ( h2 ) {
-		  iEntries = h2->GetEntries();
-		}
-	      }
-	    }
-	  }
-	}
+        // if the SM is entirely not read, the masked channels
+        // are reverted back in yellow
+        float iEntries=0;
+        for(int ism = 10; ism <= 18; ism++) {
+          if ( Numbers::validEE(ism, jx, jy) ) {
+            validCry = true;
+            for ( unsigned int i=0; i<clients_.size(); i++ ) {
+              EEIntegrityClient* eeic = dynamic_cast<EEIntegrityClient*>(clients_[i]);
+              if ( eeic ) {
+                TH2F *h2 = eeic->h_[ism-1];
+                if ( h2 ) {
+                  iEntries = h2->GetEntries();
+                }
+              }
+            }
+          }
+        }
 
-	if ( validCry && iEntries==0 ) {
-	  xval=2;
-	}
+        if ( validCry && iEntries==0 ) {
+          xval=2;
+        }
 
         meGlobalSummary_[1]->setBinContent( jx, jy, xval );
 

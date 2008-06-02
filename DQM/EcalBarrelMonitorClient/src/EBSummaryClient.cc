@@ -1,8 +1,8 @@
 /*
  * \file EBSummaryClient.cc
  *
- * $Date: 2008/05/30 15:18:59 $
- * $Revision: 1.150 $
+ * $Date: 2008/05/30 16:13:40 $
+ * $Revision: 1.151 $
  * \author G. Della Ricca
  *
 */
@@ -1132,26 +1132,26 @@ void EBSummaryClient::analyze(void){
         else if(val_po == 2 || val_ls == 2 || val_tm == 2 || val_sf == 2 || val_ee == 2) xval = 2;
         else xval=1;
 
-	// if the SM is entirely not read, the masked channels
+        // if the SM is entirely not read, the masked channels
         // are reverted back to yellow
-	float iEntries=0;
+        float iEntries=0;
 
-	int ism = (ipx-1)/20 + 1 ;
-	if ( iex>85 ) ism+=18;
+        int ism = (ipx-1)/20 + 1 ;
+        if ( iex>85 ) ism+=18;
 
-	for ( unsigned int i=0; i<clients_.size(); i++ ) {
-	  EBIntegrityClient* ebic = dynamic_cast<EBIntegrityClient*>(clients_[i]);
-	  if ( ebic ) {
-	    TH2F* h2 = ebic->h_[ism-1];
-	    if ( h2 ) {
-	      iEntries = h2->GetEntries();
-	    }
-	  }
-	}
+        for ( unsigned int i=0; i<clients_.size(); i++ ) {
+          EBIntegrityClient* ebic = dynamic_cast<EBIntegrityClient*>(clients_[i]);
+          if ( ebic ) {
+            TH2F* h2 = ebic->h_[ism-1];
+            if ( h2 ) {
+              iEntries = h2->GetEntries();
+            }
+          }
+        }
 
-	if ( iEntries==0 ) {
-	  xval=2;
-	}
+        if ( iEntries==0 ) {
+          xval=2;
+        }
 
         meGlobalSummary_->setBinContent( ipx, iex, xval );
 
