@@ -4,7 +4,7 @@
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 
 
-#include<iostream>
+//#include<iostream>
 #include<sstream>
 #include<vector>
 #include<string>
@@ -26,9 +26,9 @@ namespace {
 
 popcon::ExPedestalSource::ExPedestalSource(const edm::ParameterSet& pset) :
   m_name(pset.getUntrackedParameter<std::string>("name","ExPedestalSource")),
-  m_since(pset.getUntrackedParameter<double >("firstSince",5)),
-  m_increment(pset.getUntrackedParameter<double >("increment",10.)),
-  m_number(pset.getUntrackedParameter<double >("number",3)){
+  m_since(pset.getUntrackedParameter<unsigned long long>("firstSince",5)),
+  m_increment(pset.getUntrackedParameter<unsigned long long>("increment",10)),
+  m_number(pset.getUntrackedParameter<unsigned long long>("number",3)){
 }
 
 popcon::ExPedestalSource::~ExPedestalSource()
@@ -48,7 +48,7 @@ void popcon::ExPedestalSource::getNewObjects() {
             << tagInfo().lastPayloadToken << std::endl;
 
    edm::LogInfo ("ExPedestalsSource")<< " ------ last entry info regarding the payload (if existing): " <<logDBEntry().usertext<< 
-        "; last record with the corrent tag (if existing) has been written in the db: " <<logDBEntry().destinationDB<< std::endl; 
+        "; last record with the correct tag (if existing) has been written in the db: " <<logDBEntry().destinationDB<< std::endl; 
 
   if (tagInfo().size>0) {
     Ref payload = lastPayload();
