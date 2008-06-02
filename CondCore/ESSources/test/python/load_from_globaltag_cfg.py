@@ -7,7 +7,7 @@ process.CondDBCommon.DBParameters.messageLevel = 0
 
 process.PoolDBESSource = cms.ESSource("PoolDBESSource",
     process.CondDBCommon,
-    globaltag = cms.untracked.string('MYTREE1::All')
+    globaltag = cms.string('MYTREE1::All')
 )
 
 process.source = cms.Source("EmptyIOVSource",
