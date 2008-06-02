@@ -19,10 +19,10 @@
 #include "SealBase/SharedLibraryError.h"
 
 
-#include "CondCore/DBOutputService/interface/Logger.h"
-#include "CondCore/DBOutputService/interface/LogDBEntry.h"
-#include "CondCore/DBOutputService/interface/UserLogInfo.h"
-#include "CondCore/DBOutputService/interface/TagInfo.h"
+#include "CondCore/DBCommon/interface/Logger.h"
+#include "CondCore/DBCommon/interface/LogDBEntry.h"
+#include "CondCore/DBCommon/interface/UserLogInfo.h"
+#include "CondCore/DBCommon/interface/TagInfo.h"
 
 
 #include "CondCore/DBCommon/interface/ObjectRelationalMappingUtility.h"
@@ -280,7 +280,7 @@ int main( int argc, char** argv ){
       logdb->createLogDBIfNonExist();
       logdb->releaseWriteLock();
     }
-    cond::service::UserLogInfo a;
+    cond::UserLogInfo a;
     a.provenance=sourceConnect+"/"+inputTag;
     a.usertext="exportIOV V1.0;";
     {
