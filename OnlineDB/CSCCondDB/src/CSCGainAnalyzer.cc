@@ -1,7 +1,7 @@
 /** 
  * Analyzer for reading CSC pedestals.
  * author S. Durkin, O.Boeriu 18/03/06 
- * ripped from Jeremy's and Rick's analyzers
+ * ripped from Jeremys and Rick's analyzers
  *   
  */
 #include <iostream>
@@ -220,7 +220,8 @@ CSCGainAnalyzer::~CSCGainAnalyzer(){
   clock = localtime(&(attrib.st_mtime));  
   std::string myTime=asctime(clock);
   std::ofstream myGainsFile(myFileName,std::ios::out);
-  std::ofstream badstripsFile("badstrips.dat",std::ios::out);
+  std::ofstream badstripsFile1("badstrips1.dat",std::ios::out);
+  std::ofstream badstripsFile2("badstrips2.dat",std::ios::out);
   
   ///old DB map
   //cscmap *map = new cscmap();
@@ -236,12 +237,20 @@ CSCGainAnalyzer::~CSCGainAnalyzer(){
   TFile calibfile(myNewName, "RECREATE");
   TTree calibtree("Calibration","Gains");
   calibtree.Branch("EVENT", &calib_evt, "slope/F:intercept/F:chi2/F:strip/I:layer/I:cham/I:id/I:flagGain/I:flagIntercept/I:flagRun/I");
+ 
+  int pointer=0;
+  int bad_chan=0;
+  int my_pointer=0;
+  int maxBadChan=0;
+  int nrBadChanCounter=0;
+  int chanCounter=0;
+  std::vector<int> badChanVector(9);
 
   for (int dduiter=0;dduiter<Nddu;dduiter++){
      for(int chamberiter=0; chamberiter<myNcham; chamberiter++){
        for (int cham=0;cham<myNcham;cham++){
 	 if (cham !=chamberiter) continue;
- 
+	 int nrBadChan=0; 
 	//get chamber ID from DB mapping        
 	int new_crateID = crateID[cham];
 	int new_dmbID   = dmbID[cham];
@@ -265,6 +274,8 @@ CSCGainAnalyzer::~CSCGainAnalyzer(){
 	
 	calib_evt.id=chamber_num;
 
+	//badstripsFile<<"  "<<chamberIndex<<"  "<<*my_pointer<<"  "<<*totalBadChan<<std::endl;
+
 	for (int layeriter=0; layeriter<LAYERS_ga; layeriter++){
 	  for (int stripiter=0; stripiter<STRIPS_ga; stripiter++){
 	      
@@ -284,14 +295,15 @@ CSCGainAnalyzer::~CSCGainAnalyzer(){
 		float gainSlope = 0.0;
 		float gainIntercept = 0.0;
 		float chi2      = 0.0;
-		int bad_chan=0;
-		int bad=0;
-		int maxBadChan=0;
-		std::vector<int> BadChan;
+		//pointer=0;
+		bad_chan=0;
+		
+		//		maxBadChan=0;
+		//std::vector<int> BadChan;
 		int flag1=0;
 		int flag2=0;
 		int flag3=0;
-		int pointer=0;
+
 		
 		//now start at 0.1V and step 0.25 inbetween
 		float charge[NUMBERPLOTTED_ga]={11.2, 39.2, 67.2, 95.2, 123.2, 151.2, 179.2, 207.2, 235.2, 263.2, 291.2, 319.2, 347.2, 375.2, 403.2, 431.2, 459.2, 487.2, 515.2, 543.2};
@@ -345,23 +357,27 @@ CSCGainAnalyzer::~CSCGainAnalyzer(){
 
 		//BadStripChannels!!!!
 		myGainsFile <<"  "<<myIndex-1<<"  "<<gainSlope<<"  "<<gainIntercept<<"  "<<chi2<<std::endl;
+
 		if(gainSlope<4.0){
 		  gainSlope=0.0;
-		  bad +=bad_chan++;
-		  flag1=1;
+		  nrBadChan++;
+		  nrBadChanCounter++;
+		  flag1=1;  
+		  //dead channel
+		  badstripsFile2<<"  "<<j+1<<"  "<<k+1<<"  "<<flag1<<"  "<<flag2<<"  "<<flag3<<std::endl;
 		}
-		maxBadChan=bad;
-		for(bad=0;bad<maxBadChan;bad++){
-		  BadChan[bad]=bad_chan;
-		  pointer = BadChan[bad];
-		}
+		if(gainSlope>9.0 && gainSlope<10.0){
+		  flag2=2;
+		}//noisy channel
+		if(gainSlope>10.0){
+		  flag3=3; 
+		}// hot channel
+		 
+		maxBadChan=nrBadChan;
+		chanCounter=nrBadChanCounter;
 
-		if(gainSlope>9.0) flag2=2;
-		
-		if(gainSlope<4.0 || gainSlope>9.0){
-		  badstripsFile<<"  "<<chamberIndex<<"  "<<pointer<<"  "<<bad_chan<<"  "<<j<<"  "<<k<<"  "<<flag1<<"  "<<flag2<<"  "<<flag3<<std::endl;
-		    }
-		
+		  //badstripsFile<<"  "<<chamberIndex<<"  "<<pointer<<"  "<<bad_chan<<"  "<<j<<"  "<<k<<"  "<<flag1<<"  "<<flag2<<"  "<<flag3<<std::endl;
+
 		calib_evt.slope     = gainSlope;
 		calib_evt.intercept = gainIntercept;
 		calib_evt.chi2      = chi2;
@@ -382,6 +398,13 @@ CSCGainAnalyzer::~CSCGainAnalyzer(){
 	    }//j loop
 	  }//stripiter loop
 	}//layiter loop
+	int firstPointer=0;
+	badChanVector[cham]=chanCounter;
+	//my_pointer = &chanCounter;
+	if (cham==0) my_pointer=firstPointer;
+	if (cham>0)  my_pointer=badChanVector[cham-1];
+	pointer = my_pointer;
+	if (maxBadChan !=0) badstripsFile1<<"  "<<chamberIndex<<"  "<<pointer+1<<"  "<<maxBadChan<<std::endl;
       }//cham 
     }//chamberiter
   }//dduiter
