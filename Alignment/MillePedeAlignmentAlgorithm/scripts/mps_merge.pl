@@ -108,8 +108,9 @@ $saveAlignmentConstants = "    replace AlignmentProducer.saveToDB = true\n"
                      ."                         }  \n"
                      ."           string connect = \"sqlite_file:alignments_MP.db\" \n"
 ###
+# AP. Uncomment the following line to use MPS with CMSSW < 207
 #                     ."           string timetype = \"runnumber\" \n"
-# AP. The following line replaces the previous one since CMSSW_207
+# AP. Comment the following line to use MPS with CMSSW >= 207
                      ."           untracked string timetype = \"runnumber\" \n"
 ###
                      ."         }"; 
