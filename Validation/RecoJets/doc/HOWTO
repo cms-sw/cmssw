@@ -1,5 +1,5 @@
 Questions -> Fedor Ratnikov: ratnikov@fnal.gov
-$Id$
+$Id: HOWTO,v 1.2 2007/10/11 00:48:07 fedor Exp $
 
 The purpose of jet validation package is to provide a tool to quickly
 and automatically produce distributions reflecting sanity of jet objects.
@@ -27,16 +27,12 @@ cvs co Validation/RecoJets
 cd Validation/RecoJets
 scramv1 b
 cd analysis
-./fill_histograms.sh /store/CSA07/mc/2007/10/4/CSA07-CSA07JetMET-Tier0-A1-Chowder/0000/02DD858C-CC72-DC11-9824-000423D6CA02.root
+[make appropriate modifications in allJets_validation.cfg - at least 
+ modify the input data list]
+cmsRun allJets_validation.cfg
 
 Notes:
-- the argument is a list of files to run over. May be long list.
-- if filename starts with "/store" the file is searched in DBS, and 
-  is searched locally otherwise.
-- the script runs CaloJetTester sequentially for every jet algorithm, 
-  and create separate ROOT file for every algorithm. It is a sequence of
-  bug in DQM software which doesn't allow redirect different histograms
-  independently into different files.
+- all jet algorithms are processed in one pass - results are stored in different directories of the produced ROOT file.
 
 Step 2a.
 
@@ -51,8 +47,8 @@ possible inconsistency will reflect rather difference in physics, then differenc
 reconstruction.
 For test, let's compare midPointCone5CaloJets with themselves:
 
-cp midPointCone5CaloJets_validation.root midPointCone5CaloJets_validation_reference.root
-../../../../test/slc4_ia32_gcc345/compareHists midPointCone5CaloJets_validation.root midPointCone5CaloJets_validation_reference.root 'TEST: Comparing midPointCone5CaloJets with themselves'
+cp allCaloJets_validation.root allCaloJets_validation_reference.root
+../../../../test/slc4_ia32_gcc345/compareHists allCaloJets_validation.root allCaloJets_validation_reference.root midPointCone5CaloJets 'TEST: Comparing midPointCone5CaloJets with themselves'
 
 A set of .gif files with relevant names is created. Of course, all histograms are expected 
 to have probability exactly one in this case.
