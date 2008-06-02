@@ -15,7 +15,7 @@
 //
 // Original Author:  Vincenzo Chiochia
 //         Created:  
-// $Id: SiPixelDigiModule.h,v 1.5 2007/03/30 15:10:46 chiochia Exp $
+// $Id: SiPixelDigiModule.h,v 1.7 2008/04/16 17:08:01 merkelp Exp $
 //
 //
 #include "DQMServices/Core/interface/MonitorElement.h"

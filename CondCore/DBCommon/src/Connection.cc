@@ -6,6 +6,7 @@
 #include "CondCore/DBCommon/interface/ConnectionConfiguration.h"
 #include "PoolConnectionProxy.h"
 #include "CoralConnectionProxy.h"
+//#include <iostream>
 cond::Connection::Connection(const std::string& con,
 			     int connectionTimeOut):
   m_con( con ),

@@ -18,4 +18,3 @@ source = cms.Source("FlatRandomEGunSource",
 )
 
 
-

@@ -1,7 +1,7 @@
 
 /*
-*  $Date: 2008/03/18 15:55:36 $
-*  $Revision: 1.8 $
+*  $Date: 2007/05/10 02:46:40 $
+*  $Revision: 1.6 $
 */
 
 #include "IOMC/EventVertexGenerators/interface/BaseEvtVtxGenerator.h"
@@ -15,9 +15,6 @@
 #include "FWCore/Utilities/interface/RandomNumberGenerator.h"
 
 #include "FWCore/Utilities/interface/Exception.h"
-
-#include "DataFormats/Provenance/interface/Provenance.h"
-#include "FWCore/Utilities/interface/EDMException.h"
 
 //#include "HepMC/GenEvent.h"
 // #include "CLHEP/Vector/ThreeVector.h"
@@ -73,55 +70,8 @@ void BaseEvtVtxGenerator::produce( Event& evt, const EventSetup& )
    
    
    Handle<HepMCProduct> HepMCEvt ;
-   
-   /// evt.getByLabel( "source", HepMCEvt ) ;
-   
-   // WARNING !!!
-   // this is temporary hack, to deal with incorporating 
-   // EvtGenInterface, in its current implementation, into
-   // cycles 18x & 20x ONLY !
-   // 
-   std::vector<edm::Handle<edm::HepMCProduct> > AllHepMCEvt;
-   evt.getManyByType(AllHepMCEvt);   
-   bool EvtGenFound = false;         
-   
-   for (unsigned int i = 0; i < AllHepMCEvt.size(); ++i) 
-   {
-       HepMCEvt = AllHepMCEvt[i];
-       if ( (HepMCEvt.provenance()->product()).moduleLabel() == "evtgenproducer")
-       {
-          EvtGenFound = true ;
-	  break;
-       }
-   }
-
-   // attempt once more, this time look for basic "source"-made one
-   //
-   // if (!HepMCEvt.isValid()) 
-   if ( !EvtGenFound )
-   {
-      for (unsigned int i = 0; i < AllHepMCEvt.size(); ++i) 
-      {
-         HepMCEvt = AllHepMCEvt[i];
-         if ( (HepMCEvt.provenance()->product()).moduleLabel() == "source" )
-         {
-            break ;
-         }
-      }
-   }
-  
-  
-   // OK, this time throw
-   //
-   if (!HepMCEvt.isValid())   
-   {
-      throw edm::Exception(edm::errors::ProductNotFound) 
-      << "BaseEvtVtxGenerators can NOT find HepMCProduct" ;
-   }
-
-
-   // We gt here if everything is OK
-
+   evt.getByLabel( "source", HepMCEvt ) ;
+            
    // generate new vertex & apply the shift 
    //
    HepMCEvt->applyVtxGen( newVertex() ) ;

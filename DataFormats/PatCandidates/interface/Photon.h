@@ -1,5 +1,5 @@
 //
-// $Id: Photon.h,v 1.5 2008/03/05 14:47:33 fronga Exp $
+// $Id: Photon.h,v 1.4 2008/02/07 18:16:13 lowette Exp $
 //
 
 #ifndef DataFormats_PatCandidates_Photon_h
@@ -13,12 +13,11 @@
    namespace.
 
   \author   Steven Lowette
-  \version  $Id: Photon.h,v 1.5 2008/03/05 14:47:33 fronga Exp $
+  \version  $Id: Photon.h,v 1.4 2008/02/07 18:16:13 lowette Exp $
 */
 
 #include "DataFormats/PatCandidates/interface/PATObject.h"
 #include "DataFormats/EgammaCandidates/interface/Photon.h"
-#include "DataFormats/PatCandidates/interface/Isolation.h"
 
 
 namespace pat {
@@ -40,15 +39,21 @@ namespace pat {
 
       void setGenPhoton(const reco::Particle & gp);
 
+      float trackIso() const { return trackIso_; }
+      float caloIso()  const { return caloIso_; }
       float photonID() const { return photonID_; }
+
+      void setTrackIso(float trackIso) { trackIso_ = trackIso; }
+      void setCaloIso(float caloIso)   { caloIso_ = caloIso; }
       void setPhotonID(float photonID) { photonID_ = photonID; }
 
     protected:
 
       std::vector<reco::Particle> genPhoton_;
 
+      float trackIso_;
+      float caloIso_;
       float photonID_;
-#include "DataFormats/PatCandidates/interface/isolation_impl.h"
   };
 
 

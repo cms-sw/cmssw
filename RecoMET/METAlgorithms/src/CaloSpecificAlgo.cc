@@ -53,7 +53,7 @@ reco::CaloMET CaloSpecificAlgo::addInfo(edm::Handle<edm::View<Candidate> > tower
 
   if( towers->size() == 0 )  // if there are no towers, return specific = 0
     {
-      cout << "[CaloMET] Number of Candidate CaloTowers is zero : Unable to calculate calo specific info. " << endl;
+   //   LogDebug("CaloMET") << "Number of Candidate CaloTowers is zero : Unable to calculate calo specific info. " ;
       const LorentzVector p4( met.mex, met.mey, 0.0, met.met );
       const Point vtx( 0.0, 0.0, 0.0 );
       CaloMET specificmet( specific, met.sumet, p4, vtx );

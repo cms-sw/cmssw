@@ -70,7 +70,7 @@ EcalUncalibRecHitMaxSampleAlgo<C>::makeRecHit(const C& dataFrame, const double* 
   }// loop on samples
       
       
-  return EcalUncalibratedRecHit( dataFrame.id(), static_cast<double>(amplitude_-pedestal_) , static_cast<double>(pedestal_), static_cast<double>(jitter_ - 6), chi2_);
+  return EcalUncalibratedRecHit( dataFrame.id(), static_cast<double>(amplitude_-pedestal_) , static_cast<double>(pedestal_), static_cast<double>(jitter_ - 5), chi2_);
 }
 
 #endif

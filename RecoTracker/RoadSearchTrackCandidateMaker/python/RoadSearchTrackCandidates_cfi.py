@@ -12,7 +12,8 @@ rsTrackCandidates = cms.EDFilter("RoadSearchTrackCandidateMaker",
     CosmicTrackMerging = cms.bool(False),
     nFoundMin = cms.int32(4),
     # cloud module label
-    CloudProducer = cms.InputTag("roadSearchClouds")
+    CloudProducer = cms.InputTag("roadSearchClouds"),
+    SplitMatchedHits = cms.bool(False)
 )
 
 

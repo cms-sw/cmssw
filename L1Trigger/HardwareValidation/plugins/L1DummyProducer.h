@@ -37,8 +37,6 @@
 #include "CLHEP/Random/RandGaussQ.h"
 
 
-using dedefs::DEnsys;
-
 class L1DummyProducer : public edm::EDProducer {
 
  public:
@@ -63,8 +61,8 @@ class L1DummyProducer : public edm::EDProducer {
   int verbose() {return verbose_;}
   int nevt_;
 
-  bool m_doSys[DEnsys];
-  std::string instName[DEnsys][5];
+  bool m_doSys[dedefs::DEnsys];
+  std::string instName[dedefs::DEnsys][5];
 
   CLHEP::RandFlat   *rndFlat_;
   CLHEP::RandGaussQ *rndGaus_;

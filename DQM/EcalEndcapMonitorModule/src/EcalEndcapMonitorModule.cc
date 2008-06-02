@@ -1,8 +1,8 @@
 /*
  * \file EcalEndcapMonitorModule.cc
  *
- * $Date: 2008/03/22 08:32:46 $
- * $Revision: 1.48 $
+ * $Date: 2008/05/11 09:50:52 $
+ * $Revision: 1.56 $
  * \author G. Della Ricca
  * \author G. Franzoni
  *
@@ -39,17 +39,21 @@ using namespace std;
 
 EcalEndcapMonitorModule::EcalEndcapMonitorModule(const ParameterSet& ps){
 
+  // verbose switch
+  verbose_ = ps.getUntrackedParameter<bool>("verbose", false);
+
+  if ( verbose_ ) {
+    cout << endl;
+    cout << " *** Ecal Endcap Generic Monitor ***" << endl;
+    cout << endl;
+  }
+
   init_ = false;
 
-  EcalTBEventHeader_ = ps.getParameter<edm::InputTag>("EcalTBEventHeader");
   EcalRawDataCollection_ = ps.getParameter<edm::InputTag>("EcalRawDataCollection");
   EEDigiCollection_ = ps.getParameter<edm::InputTag>("EEDigiCollection");
   EcalRecHitCollection_ = ps.getParameter<edm::InputTag>("EcalRecHitCollection");
   EcalTrigPrimDigiCollection_ = ps.getParameter<edm::InputTag>("EcalTrigPrimDigiCollection");
-
-  cout << endl;
-  cout << " *** Ecal Endcap Generic Monitor ***" << endl;
-  cout << endl;
 
   // this should come from the event header
   runNumber_ = ps.getUntrackedParameter<int>("runNumber", 0);
@@ -75,27 +79,23 @@ EcalEndcapMonitorModule::EcalEndcapMonitorModule(const ParameterSet& ps){
     LogInfo("EcalBarrelMonitorModule") << " using fixed Run Type = " << runType_ << endl;
   }
 
-  // verbosity switch
-  verbose_ = ps.getUntrackedParameter<bool>("verbose", false);
+  // debug switch
+  debug_ = ps.getUntrackedParameter<bool>("debug", false);
 
-  if ( verbose_ ) {
-    LogInfo("EcalEndcapMonitorModule") << " verbose switch is ON";
+  if ( debug_ ) {
+    LogInfo("EcalEndcapMonitorModule") << " debug switch is ON";
   } else {
-    LogInfo("EcalEndcapMonitorModule") << " verbose switch is OFF";
+    LogInfo("EcalEndcapMonitorModule") << " debug switch is OFF";
   }
 
-  // get hold of back-end interface
-  dbe_ = Service<DQMStore>().operator->();
+  // prefixME path
+  prefixME_ = ps.getUntrackedParameter<string>("prefixME", "");
 
-  if ( dbe_ ) {
-    if ( verbose_ ) {
-      dbe_->setVerbose(1);
-    } else {
-      dbe_->setVerbose(0);
-    }
-  }
-
+  // enableCleanup switch
   enableCleanup_ = ps.getUntrackedParameter<bool>("enableCleanup", false);
+
+  // mergeRuns switch
+  mergeRuns_ = ps.getUntrackedParameter<bool>("mergeRuns", false);
 
   if ( enableCleanup_ ) {
     LogInfo("EcalBarrelMonitorModule") << " enableCleanup switch is ON";
@@ -132,14 +132,54 @@ EcalEndcapMonitorModule::~EcalEndcapMonitorModule(){
 
 void EcalEndcapMonitorModule::beginJob(const EventSetup& c){
 
+  if ( debug_ ) cout << "EcalEndcapMonitorModule: beginJob" << endl;
+
   ievt_ = 0;
 
-  if ( dbe_ ) {
-    dbe_->setCurrentFolder("EcalEndcap/EcalInfo");
-    dbe_->rmdir("EcalEndcap/EcalInfo");
+  dqmStore_ = Service<DQMStore>().operator->();
+
+  if ( dqmStore_ ) {
+    dqmStore_->setCurrentFolder(prefixME_ + "/EcalInfo");
+    dqmStore_->rmdir(prefixME_ + "/EcalInfo");
     if ( enableEventDisplay_ ) {
-      dbe_->setCurrentFolder("EcalEndcap/EcalEvent");
-      dbe_->rmdir("EcalEndcap/EcalEvent");
+      dqmStore_->setCurrentFolder(prefixME_ + "/EcalEvent");
+      dqmStore_->rmdir(prefixME_ + "/EcalEvent");
+    }
+  }
+
+}
+
+void EcalEndcapMonitorModule::beginRun(const Run& r, const EventSetup& c) {
+
+  if ( debug_ ) cout << "EcalEndcapMonitorModule: beginRun" << endl;
+
+  if ( ! mergeRuns_ ) this->reset();
+  
+}
+  
+void EcalEndcapMonitorModule::endRun(const Run& r, const EventSetup& c) {
+
+  if ( debug_ ) cout << "EcalEndcapMonitorModule: endRun" << endl;
+
+}
+
+void EcalEndcapMonitorModule::reset(void) {
+
+  if ( meEvtType_ ) meEvtType_->Reset();
+
+  if ( meEEDCC_ ) meEEDCC_->Reset();
+
+  for (int i = 0; i < 2; i++) {
+    if ( meEEdigis_[i] ) meEEdigis_[i]->Reset();
+
+    if ( meEEhits_[i] ) meEEdigis_[i]->Reset();
+
+    if ( meEEtpdigis_[i] ) meEEtpdigis_[i]->Reset();
+  }
+
+  if ( enableEventDisplay_ ) {
+    for (int i = 0; i < 18; i++) {
+      if ( meEvent_[i] ) meEvent_[i]->Reset();
     }
   }
 
@@ -149,16 +189,16 @@ void EcalEndcapMonitorModule::setup(void){
 
   init_ = true;
 
-  if ( dbe_ ) {
-    dbe_->setCurrentFolder("EcalEndcap/EcalInfo");
+  if ( dqmStore_ ) {
+    dqmStore_->setCurrentFolder(prefixME_ + "/EcalInfo");
 
-    meStatus_ = dbe_->bookInt("STATUS");
+    meStatus_ = dqmStore_->bookInt("STATUS");
 
-    meRun_ = dbe_->bookInt("RUN");
-    meEvt_ = dbe_->bookInt("EVT");
+    meRun_ = dqmStore_->bookInt("RUN");
+    meEvt_ = dqmStore_->bookInt("EVT");
 
-    meRunType_ = dbe_->bookInt("RUNTYPE");
-    meEvtType_ = dbe_->book1D("EVTTYPE", "EVTTYPE", 31, -1., 30.);
+    meRunType_ = dqmStore_->bookInt("RUNTYPE");
+    meEvtType_ = dqmStore_->book1D("EVTTYPE", "EVTTYPE", 31, -1., 30.);
     meEvtType_->setBinLabel(1, "UNKNOWN", 1);
     meEvtType_->setBinLabel(2+EcalDCCHeaderBlock::COSMIC, "COSMIC", 1);
     meEvtType_->setBinLabel(2+EcalDCCHeaderBlock::BEAMH4, "BEAMH4", 1);
@@ -193,48 +233,45 @@ void EcalEndcapMonitorModule::setup(void){
 
   if ( meRunType_ ) meRunType_->Fill(-1);
 
-  // this should give enough time to our control MEs to reach the Collector,
-  // and then hopefully the Client
-
   char histo[20];
 
-  if ( dbe_ ) {
-    dbe_->setCurrentFolder("EcalEndcap/EcalInfo");
+  if ( dqmStore_ ) {
+    dqmStore_->setCurrentFolder(prefixME_ + "/EcalInfo");
 
-    meEEDCC_ = dbe_->book1D("EEMM DCC", "EEMM DCC", 18, 1, 19.);
+    meEEDCC_ = dqmStore_->book1D("EEMM DCC", "EEMM DCC", 18, 1, 19.);
     for (int i = 0; i < 18; i++) {
       meEEDCC_->setBinLabel(i+1, Numbers::sEE(i+1).c_str(), 1);
     }
 
-    meEEdigis_[0] = dbe_->book1D("EEMM digi number", "EEMM digi number", 100, 0., 13299.);
+    meEEdigis_[0] = dqmStore_->book1D("EEMM digi number", "EEMM digi number", 100, 0., 13299.);
 
-    meEEdigis_[1] = dbe_->bookProfile("EEMM digi number profile", "EEMM digi number profile", 18, 1, 19., 850, 0., 851., "s");
+    meEEdigis_[1] = dqmStore_->bookProfile("EEMM digi number profile", "EEMM digi number profile", 18, 1, 19., 850, 0., 851., "s");
     for (int i = 0; i < 18; i++) {
       meEEdigis_[1]->setBinLabel(i+1, Numbers::sEE(i+1).c_str(), 1);
     }
 
-    meEEhits_[0] = dbe_->book1D("EEMM hit number", "EEMM hit number", 100, 0., 13299.);
+    meEEhits_[0] = dqmStore_->book1D("EEMM hit number", "EEMM hit number", 100, 0., 13299.);
 
-    meEEhits_[1] = dbe_->bookProfile("EEMM hit number profile", "EEMM hit number profile", 18, 1, 19., 850, 0., 851., "s");
+    meEEhits_[1] = dqmStore_->bookProfile("EEMM hit number profile", "EEMM hit number profile", 18, 1, 19., 850, 0., 851., "s");
     for (int i = 0; i < 18; i++) {
       meEEhits_[1]->setBinLabel(i+1, Numbers::sEE(i+1).c_str(), 1);
     }
 
-    meEEtpdigis_[0] = dbe_->book1D("EEMM TP digi number", "EEMM TP digi number", 100, 0., 631.);
+    meEEtpdigis_[0] = dqmStore_->book1D("EEMM TP digi number", "EEMM TP digi number", 100, 0., 631.);
 
-    meEEtpdigis_[1] = dbe_->bookProfile("EEMM TP digi number profile", "EEMM TP digi number profile", 18, 1, 19., 34, 0., 35., "s");
+    meEEtpdigis_[1] = dqmStore_->bookProfile("EEMM TP digi number profile", "EEMM TP digi number profile", 18, 1, 19., 34, 0., 35., "s");
     for (int i = 0; i < 18; i++) {
       meEEtpdigis_[1]->setBinLabel(i+1, Numbers::sEE(i+1).c_str(), 1);
     }
 
     if ( enableEventDisplay_ ) {
-      dbe_->setCurrentFolder("EcalEndcap/EcalEvent");
+      dqmStore_->setCurrentFolder(prefixME_ + "/EcalEvent");
       for (int i = 0; i < 18; i++) {
         sprintf(histo, "EEMM event %s", Numbers::sEE(i+1).c_str());
-        meEvent_[i] = dbe_->book2D(histo, histo, 50, Numbers::ix0EE(i+1)+0., Numbers::ix0EE(i+1)+50., 50, Numbers::iy0EE(i+1)+0., Numbers::iy0EE(i+1)+50.);
+        meEvent_[i] = dqmStore_->book2D(histo, histo, 50, Numbers::ix0EE(i+1)+0., Numbers::ix0EE(i+1)+50., 50, Numbers::iy0EE(i+1)+0., Numbers::iy0EE(i+1)+50.);
         meEvent_[i]->setAxisTitle("jx", 1);
         meEvent_[i]->setAxisTitle("jy", 2);
-        dbe_->tag(meEvent_[i], i+1);
+        dqmStore_->tag(meEvent_[i], i+1);
         if ( meEvent_[i] ) meEvent_[i]->setResetMe(true);
       }
     }
@@ -247,48 +284,48 @@ void EcalEndcapMonitorModule::cleanup(void){
 
   if ( ! enableCleanup_ ) return;
 
-  if ( dbe_ ) {
+  if ( dqmStore_ ) {
 
-    dbe_->setCurrentFolder("EcalEndcap/EcalInfo");
+    dqmStore_->setCurrentFolder(prefixME_ + "/EcalInfo");
 
-    if ( meStatus_ ) dbe_->removeElement( meStatus_->getName() );
+    if ( meStatus_ ) dqmStore_->removeElement( meStatus_->getName() );
     meStatus_ = 0;
 
-    if ( meRun_ ) dbe_->removeElement( meRun_->getName() );
+    if ( meRun_ ) dqmStore_->removeElement( meRun_->getName() );
     meRun_ = 0;
 
-    if ( meEvt_ ) dbe_->removeElement( meEvt_->getName() );
+    if ( meEvt_ ) dqmStore_->removeElement( meEvt_->getName() );
     meEvt_ = 0;
 
-    if ( meRunType_ ) dbe_->removeElement( meRunType_->getName() );
+    if ( meRunType_ ) dqmStore_->removeElement( meRunType_->getName() );
     meRunType_ = 0;
 
-    if ( meEvtType_ ) dbe_->removeElement( meEvtType_->getName() );
+    if ( meEvtType_ ) dqmStore_->removeElement( meEvtType_->getName() );
     meEvtType_ = 0;
 
-    if ( meEEDCC_ ) dbe_->removeElement( meEEDCC_->getName() );
+    if ( meEEDCC_ ) dqmStore_->removeElement( meEEDCC_->getName() );
     meEEDCC_ = 0;
 
     for (int i = 0; i < 2; i++) {
 
-      if ( meEEdigis_[i] ) dbe_->removeElement( meEEdigis_[i]->getName() );
+      if ( meEEdigis_[i] ) dqmStore_->removeElement( meEEdigis_[i]->getName() );
       meEEdigis_[i] = 0;
 
-      if ( meEEhits_[i] ) dbe_->removeElement( meEEhits_[i]->getName() );
+      if ( meEEhits_[i] ) dqmStore_->removeElement( meEEhits_[i]->getName() );
       meEEhits_[i] = 0;
 
-      if ( meEEtpdigis_[i] ) dbe_->removeElement( meEEtpdigis_[i]->getName() );
+      if ( meEEtpdigis_[i] ) dqmStore_->removeElement( meEEtpdigis_[i]->getName() );
       meEEtpdigis_[i] = 0;
 
     }
 
     if ( enableEventDisplay_ ) {
 
-      dbe_->setCurrentFolder("EcalEndcap/EcalEvent");
+      dqmStore_->setCurrentFolder(prefixME_ + "/EcalEvent");
 
       for (int i = 0; i < 18; i++) {
 
-        if ( meEvent_[i] ) dbe_->removeElement( meEvent_[i]->getName() );
+        if ( meEvent_[i] ) dqmStore_->removeElement( meEvent_[i]->getName() );
         meEvent_[i] = 0;
 
       }
@@ -303,7 +340,7 @@ void EcalEndcapMonitorModule::cleanup(void){
 
 void EcalEndcapMonitorModule::endJob(void) {
 
-  LogInfo("EcalEndcapMonitorModule") << "analyzed " << ievt_ << " events";
+  if ( debug_ ) cout << "EcalEndcapMonitorModule: endJob, ievt = " << ievt_ << endl;
 
   // end-of-run
   if ( meStatus_ ) meStatus_->Fill(2);
@@ -311,18 +348,13 @@ void EcalEndcapMonitorModule::endJob(void) {
   if ( meRun_ ) meRun_->Fill(runNumber_);
   if ( meEvt_ ) meEvt_->Fill(evtNumber_);
 
-  // this should give enough time to meStatus_ to reach the Collector,
-  // and then hopefully the Client, and to allow the Client to complete
-
-  // we should always sleep at least a little ...
-
   if ( init_ ) this->cleanup();
 
 }
 
 void EcalEndcapMonitorModule::analyze(const Event& e, const EventSetup& c){
 
-  Numbers::initGeometry(c);
+  Numbers::initGeometry(c, verbose_);
 
   if ( ! init_ ) this->setup();
 
@@ -403,9 +435,6 @@ void EcalEndcapMonitorModule::analyze(const Event& e, const EventSetup& c){
 
   if ( meRun_ ) meRun_->Fill(runNumber_);
   if ( meEvt_ ) meEvt_->Fill(evtNumber_);
-
-  // this should give enough time to all the MEs to reach the Collector,
-  // and then hopefully the Client, even for short runs
 
   Handle<EEDigiCollection> digis;
 

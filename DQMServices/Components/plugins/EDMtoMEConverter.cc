@@ -2,8 +2,8 @@
  *  
  *  See header file for description of class
  *
- *  $Date: 2008/03/27 18:10:23 $
- *  $Revision: 1.8 $
+ *  $Date: 2008/04/11 22:28:50 $
+ *  $Revision: 1.10 $
  *  \author M. Strang SUNY-Buffalo
  */
 
@@ -107,14 +107,6 @@ void EDMtoMEConverter::beginRun(const edm::Run& iRun,
     }
   }
 
-  return;
-}
-
-void EDMtoMEConverter::endRun(const edm::Run& iRun, 
-			      const edm::EventSetup& iSetup)
-{
-  std::string MsgLoggerCat = "EDMtoMEConverter_endRun";
-  
   if (verbosity >= 0)
     edm::LogInfo (MsgLoggerCat) << "\nRestoring MonitorElements.";
   
@@ -130,7 +122,8 @@ void EDMtoMEConverter::endRun(const edm::Run& iRun,
         continue;
       }
       
-      std::vector<MEtoEDM<TH1F>::MEtoEDMObject> metoedmobject = metoedm->getMEtoEdmObject(); 
+      std::vector<MEtoEDM<TH1F>::MEtoEDMObject> metoedmobject = 
+	metoedm->getMEtoEdmObject(); 
       
       me1.resize(metoedmobject.size());
       
@@ -148,7 +141,8 @@ void EDMtoMEConverter::endRun(const edm::Run& iRun,
 	      dbe->cd();	
 	      dbe->bookString(
 	        "ReleaseTag",
-	        metoedmobject[i].release.substr(1,metoedmobject[i].release.size()-2)
+	        metoedmobject[i].
+		release.substr(1,metoedmobject[i].release.size()-2)
 	      );
 	      releaseTag = true;
 	    }
@@ -166,7 +160,8 @@ void EDMtoMEConverter::endRun(const edm::Run& iRun,
 	    // define new monitor element
 	    if (dbe) {
 	      dbe->setCurrentFolder(dir);
-	      me1[i] = dbe->clone1D(metoedmobject[i].object.GetName(), &metoedmobject[i].object);
+	      me1[i] = dbe->book1D(metoedmobject[i].object.GetName(), 
+				   &metoedmobject[i].object);
 	    } // end define new monitor elements
 	    
 	    // attach taglist
@@ -189,7 +184,8 @@ void EDMtoMEConverter::endRun(const edm::Run& iRun,
       	continue;
       }
       
-      std::vector<MEtoEDM<TH2F>::MEtoEDMObject> metoedmobject = metoedm->getMEtoEdmObject(); 
+      std::vector<MEtoEDM<TH2F>::MEtoEDMObject> metoedmobject = 
+	metoedm->getMEtoEdmObject(); 
       
       me2.resize(metoedmobject.size());
       
@@ -207,7 +203,8 @@ void EDMtoMEConverter::endRun(const edm::Run& iRun,
 	      dbe->cd();	
 	      dbe->bookString(
 	        "ReleaseTag",
-	        metoedmobject[i].release.substr(1,metoedmobject[i].release.size()-2)
+	        metoedmobject[i].
+		release.substr(1,metoedmobject[i].release.size()-2)
 	      );
 	      releaseTag = true;
 	    }
@@ -225,7 +222,8 @@ void EDMtoMEConverter::endRun(const edm::Run& iRun,
 	    // define new monitor element
 	    if (dbe) {
 	      dbe->setCurrentFolder(dir);
-	      me2[i] = dbe->clone2D(metoedmobject[i].object.GetName(), &metoedmobject[i].object);
+	      me2[i] = dbe->book2D(metoedmobject[i].object.GetName(), 
+				   &metoedmobject[i].object);
         } // end define new monitor elements
         
         // attach taglist
@@ -248,7 +246,8 @@ void EDMtoMEConverter::endRun(const edm::Run& iRun,
         continue;
       }
       
-      std::vector<MEtoEDM<TH3F>::MEtoEDMObject> metoedmobject = metoedm->getMEtoEdmObject(); 
+      std::vector<MEtoEDM<TH3F>::MEtoEDMObject> metoedmobject = 
+	metoedm->getMEtoEdmObject(); 
       
       me3.resize(metoedmobject.size());
  
@@ -267,7 +266,8 @@ void EDMtoMEConverter::endRun(const edm::Run& iRun,
 	      dbe->cd();
 	      dbe->bookString(
 	        "ReleaseTag",
-	        metoedmobject[i].release.substr(1,metoedmobject[i].release.size()-2)
+	        metoedmobject[i].
+		release.substr(1,metoedmobject[i].release.size()-2)
 	      );
 	      releaseTag = true;
 	    }
@@ -284,7 +284,8 @@ void EDMtoMEConverter::endRun(const edm::Run& iRun,
         // define new monitor element
         if (dbe) {
           dbe->setCurrentFolder(dir);
-          me3[i] = dbe->clone3D(metoedmobject[i].object.GetName(), &metoedmobject[i].object);
+          me3[i] = dbe->book3D(metoedmobject[i].object.GetName(), 
+			       &metoedmobject[i].object);
         } // end define new monitor elements
         
         // attach taglist
@@ -305,7 +306,8 @@ void EDMtoMEConverter::endRun(const edm::Run& iRun,
       	continue;
       }
       
-      std::vector<MEtoEDM<TProfile>::MEtoEDMObject> metoedmobject = metoedm->getMEtoEdmObject(); 
+      std::vector<MEtoEDM<TProfile>::MEtoEDMObject> metoedmobject = 
+	metoedm->getMEtoEdmObject(); 
 
       me4.resize(metoedmobject.size());
       
@@ -323,7 +325,8 @@ void EDMtoMEConverter::endRun(const edm::Run& iRun,
 	      dbe->cd();
 	      dbe->bookString(
 	        "ReleaseTag",
-	        metoedmobject[i].release.substr(1,metoedmobject[i].release.size()-2)
+	        metoedmobject[i].
+		release.substr(1,metoedmobject[i].release.size()-2)
 	      );
 	      releaseTag = true;
 	    }
@@ -341,7 +344,8 @@ void EDMtoMEConverter::endRun(const edm::Run& iRun,
 	    // define new monitor element
 	    if (dbe) {
 	      dbe->setCurrentFolder(dir);
-	      me4[i] = dbe->cloneProfile(metoedmobject[i].object.GetName(), &metoedmobject[i].object);
+	      me4[i] = dbe->bookProfile(metoedmobject[i].object.GetName(), 
+					&metoedmobject[i].object);
 	    } // end define new monitor elements
 	
         // attach taglist
@@ -363,7 +367,8 @@ void EDMtoMEConverter::endRun(const edm::Run& iRun,
       	continue;
       }
       
-      std::vector<MEtoEDM<TProfile2D>::MEtoEDMObject> metoedmobject = metoedm->getMEtoEdmObject(); 
+      std::vector<MEtoEDM<TProfile2D>::MEtoEDMObject> metoedmobject = 
+	metoedm->getMEtoEdmObject(); 
       
       me5.resize(metoedmobject.size());
       
@@ -381,7 +386,8 @@ void EDMtoMEConverter::endRun(const edm::Run& iRun,
 	      dbe->cd();
 	      dbe->bookString(
 	        "ReleaseTag",
-	        metoedmobject[i].release.substr(1,metoedmobject[i].release.size()-2)
+	        metoedmobject[i].
+		release.substr(1,metoedmobject[i].release.size()-2)
 	      );
 	      releaseTag = true;
 	    }
@@ -398,7 +404,8 @@ void EDMtoMEConverter::endRun(const edm::Run& iRun,
         // define new monitor element
         if (dbe) {
           dbe->setCurrentFolder(dir);
-          me5[i] = dbe->cloneProfile2D(metoedmobject[i].object.GetName(), &metoedmobject[i].object);
+          me5[i] = dbe->bookProfile2D(metoedmobject[i].object.GetName(), 
+				      &metoedmobject[i].object);
         } // end define new monitor elements
         
         // attach taglist
@@ -419,7 +426,8 @@ void EDMtoMEConverter::endRun(const edm::Run& iRun,
         continue;
       }
       
-      std::vector<MEtoEDM<double>::MEtoEDMObject> metoedmobject = metoedm->getMEtoEdmObject(); 
+      std::vector<MEtoEDM<double>::MEtoEDMObject> metoedmobject = 
+	metoedm->getMEtoEdmObject(); 
       
       me6.resize(metoedmobject.size());
       
@@ -437,7 +445,8 @@ void EDMtoMEConverter::endRun(const edm::Run& iRun,
 	      dbe->cd();	
 	      dbe->bookString(
 	        "ReleaseTag",
-	        metoedmobject[i].release.substr(1,metoedmobject[i].release.size()-2)
+	        metoedmobject[i].
+		release.substr(1,metoedmobject[i].release.size()-2)
 	      );
 	      releaseTag = true;
 	    }
@@ -481,7 +490,8 @@ void EDMtoMEConverter::endRun(const edm::Run& iRun,
         continue;
       }
       
-      std::vector<MEtoEDM<int>::MEtoEDMObject> metoedmobject = metoedm->getMEtoEdmObject(); 
+      std::vector<MEtoEDM<int>::MEtoEDMObject> metoedmobject = 
+	metoedm->getMEtoEdmObject(); 
       
       me7.resize(metoedmobject.size());
       
@@ -500,7 +510,8 @@ void EDMtoMEConverter::endRun(const edm::Run& iRun,
 	      dbe->cd();	
 	      dbe->bookString(
 	        "ReleaseTag",
-	        metoedmobject[i].release.substr(1,metoedmobject[i].release.size()-2)
+	        metoedmobject[i].
+		release.substr(1,metoedmobject[i].release.size()-2)
 	      );
 	      releaseTag = true;
 	    }
@@ -544,7 +555,8 @@ void EDMtoMEConverter::endRun(const edm::Run& iRun,
       	continue;
       }
       
-      std::vector<MEtoEDM<TString>::MEtoEDMObject> metoedmobject = metoedm->getMEtoEdmObject(); 
+      std::vector<MEtoEDM<TString>::MEtoEDMObject> metoedmobject = 
+	metoedm->getMEtoEdmObject(); 
       
       me8.resize(metoedmobject.size());
       
@@ -562,7 +574,8 @@ void EDMtoMEConverter::endRun(const edm::Run& iRun,
 	      dbe->cd();	
 	      dbe->bookString(
 	        "ReleaseTag",
-	        metoedmobject[i].release.substr(1,metoedmobject[i].release.size()-2)
+	        metoedmobject[i].
+		release.substr(1,metoedmobject[i].release.size()-2)
 	      );
 	      releaseTag = true;
 	    }
@@ -604,11 +617,20 @@ void EDMtoMEConverter::endRun(const edm::Run& iRun,
       std::cout << "Tags: " << stags[i] << std::endl;
     }
   }
-  
+
   return;
 }
 
-void EDMtoMEConverter::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
+void EDMtoMEConverter::endRun(const edm::Run& iRun, 
+			      const edm::EventSetup& iSetup)
+{
+  std::string MsgLoggerCat = "EDMtoMEConverter_endRun";
+    
+  return;
+}
+
+void EDMtoMEConverter::analyze(const edm::Event& iEvent, 
+			       const edm::EventSetup& iSetup)
 {
   return;
 }

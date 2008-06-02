@@ -20,10 +20,11 @@
 
 HLTPi0RecHitsFilter::HLTPi0RecHitsFilter(const edm::ParameterSet& iConfig)
 {
-//  ecalHitsProducer_ = iConfig.getParameter< std::string > ("ecalRecHitsProducer");
-//  barrelHits_ = iConfig.getParameter< std::string > ("barrelHitCollection");
-// replace the 2 strings with 1 InputTag of form label:instance
+  //  ecalHitsProducer_ = iConfig.getParameter< std::string > ("ecalRecHitsProducer");
+  //  barrelHits_ = iConfig.getParameter< std::string > ("barrelHitCollection");
+ // replace the 2 strings with 1 InputTag of form label:instance 
   barrelHits_ = iConfig.getParameter< edm::InputTag > ("barrelHits");
+
   pi0BarrelHits_ = iConfig.getParameter< std::string > ("pi0BarrelHitCollection");
 
   gammaCandEtaSize_ = iConfig.getParameter<int> ("gammaCandEtaSize");
@@ -75,8 +76,8 @@ HLTPi0RecHitsFilter::filter(edm::Event& iEvent, const edm::EventSetup& iSetup)
 
   Handle<EBRecHitCollection> barrelRecHitsHandle;
 
-//  iEvent.getByLabel(ecalHitsProducer_,barrelHits_,barrelRecHitsHandle);
-// replace the 2 strings with 1 InputTag of form label:instance
+  //  iEvent.getByLabel(ecalHitsProducer_,barrelHits_,barrelRecHitsHandle);
+  // replace the 2 strings with 1 InputTag of form label:instance 	 
   iEvent.getByLabel(barrelHits_,barrelRecHitsHandle);
   if (!barrelRecHitsHandle.isValid()) {
     LogDebug("") << "AlCaPi0RecHitsProducer: Error! can't get product!" << std::endl;

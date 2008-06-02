@@ -1,7 +1,6 @@
 # The following comments couldn't be translated into the new config version:
 
-#List of known hot cells to veto using DetId
-
+# orig vale was 0.02
 import FWCore.ParameterSet.Config as cms
 
 hcalMonitor = cms.EDFilter("HcalMonitorModule",
@@ -10,7 +9,8 @@ hcalMonitor = cms.EDFilter("HcalMonitorModule",
     RecHitOccThresh = cms.untracked.double(2.0),
     # NADA params updated for Jan DQM challenge using GREN data
     NADA_Ecand_cut0 = cms.untracked.double(1.5),
-    NADA_Ecand_cut1 = cms.untracked.double(2.5),
+    NADA_Ecand_cut1 = cms.untracked.double(2.5), ## orig value was 2.5
+
     NADA_Ecand_cut2 = cms.untracked.double(500.0),
     checkHF = cms.untracked.bool(True),
     thresholds = cms.untracked.vdouble(1.0, 1.5, 2.0, 5.0, 15.0),
@@ -39,7 +39,8 @@ hcalMonitor = cms.EDFilter("HcalMonitorModule",
     DataFormatMonitor = cms.untracked.bool(True),
     #Flags for HotCellMonitor.  Thresholds are in GeV
     HotCellMonitor = cms.untracked.bool(True),
-    deadcellmindiff = cms.untracked.double(1.0),
+    deadcellmindiff = cms.untracked.double(1.0), ## cell must be at least this much below neighbors to be considered a cool cell candidate 
+
     # Labels for input products
     digiLabel = cms.InputTag("hcalDigis"),
     checkNevents = cms.untracked.int32(25),
@@ -55,14 +56,16 @@ hcalMonitor = cms.EDFilter("HcalMonitorModule",
     NADA_maxphi = cms.untracked.int32(1),
     DumpPhiLow = cms.untracked.int32(10),
     checkHE = cms.untracked.bool(True),
-    coolcellfrac = cms.untracked.double(0.5),
+    coolcellfrac = cms.untracked.double(0.5), ## fraction of cell's neighbors that must be significantly hotter than the cell for the cell to be considered "cool"
+
     DigiOccThresh = cms.untracked.int32(0),
     hfRecHitLabel = cms.InputTag("hfreco"),
     RecHitsPerChannel = cms.untracked.bool(False),
     checkHO = cms.untracked.bool(True),
     MaxPhi = cms.untracked.double(73.5),
     checkHB = cms.untracked.bool(True),
-    DigisPerChannel = cms.untracked.bool(True),
+    DigisPerChannel = cms.untracked.bool(False), ## set DigisPerChannel off by default -- JT, 08 May 2008
+
     LED_ADC_Thresh = cms.untracked.double(-1000.0),
     # Operate every N lumi sections
     diagnosticPrescaleLS = cms.untracked.int32(-1),
@@ -70,7 +73,9 @@ hcalMonitor = cms.EDFilter("HcalMonitorModule",
     ped_Nsigma = cms.untracked.double(0.0),
     #Flags for CaloTower Monitor
     CaloTowerMonitor = cms.untracked.bool(False),
-    NADA_Ecube_cut = cms.untracked.double(0.5),
+    NADA_Ecube_cut = cms.untracked.double(0.5), ## orig value was 0.1
+
+    #List of known hot cells to veto using DetId
     HotCells = cms.untracked.vstring(),
     #Flags for DeadCellMonitor
     DeadCellMonitor = cms.untracked.bool(True),
@@ -87,7 +92,8 @@ hcalMonitor = cms.EDFilter("HcalMonitorModule",
     #Sets range of iEta/iPhi plots
     MaxEta = cms.untracked.double(42.5),
     NADA_Ecube_frac = cms.untracked.double(0.3),
-    deadcellfloor = cms.untracked.double(-10.0),
+    deadcellfloor = cms.untracked.double(-10.0), ## cells below this energy are automatically set as "cool"
+
     # Operate every N minutes
     diagnosticPrescaleTime = cms.untracked.int32(-1),
     # Verbosity Switch

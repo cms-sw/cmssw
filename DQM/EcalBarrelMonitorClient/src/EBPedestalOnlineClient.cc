@@ -1,8 +1,8 @@
 /*
  * \file EBPedestalOnlineClient.cc
  *
- * $Date: 2008/03/15 14:07:44 $
- * $Revision: 1.128 $
+ * $Date: 2008/04/08 18:04:49 $
+ * $Revision: 1.136 $
  * \author G. Della Ricca
  * \author F. Cossutti
  *
@@ -21,6 +21,7 @@
 
 #include "OnlineDB/EcalCondDB/interface/MonPedestalsOnlineDat.h"
 #include "OnlineDB/EcalCondDB/interface/RunCrystalErrorsDat.h"
+#include "OnlineDB/EcalCondDB/interface/RunTTErrorsDat.h"
 
 #include "OnlineDB/EcalCondDB/interface/EcalCondDBInterface.h"
 
@@ -42,8 +43,14 @@ EBPedestalOnlineClient::EBPedestalOnlineClient(const ParameterSet& ps){
   // cloneME switch
   cloneME_ = ps.getUntrackedParameter<bool>("cloneME", true);
 
-  // verbosity switch
-  verbose_ = ps.getUntrackedParameter<bool>("verbose", false);
+  // verbose switch
+  verbose_ = ps.getUntrackedParameter<bool>("verbose", true);
+
+  // debug switch
+  debug_ = ps.getUntrackedParameter<bool>("debug", false);
+
+  // prefixME path
+  prefixME_ = ps.getUntrackedParameter<string>("prefixME", "");
 
   // enableCleanup_ switch
   enableCleanup_ = ps.getUntrackedParameter<bool>("enableCleanup", false);
@@ -85,11 +92,11 @@ EBPedestalOnlineClient::~EBPedestalOnlineClient(){
 
 }
 
-void EBPedestalOnlineClient::beginJob(DQMStore* dbe){
+void EBPedestalOnlineClient::beginJob(DQMStore* dqmStore){
 
-  dbe_ = dbe;
+  dqmStore_ = dqmStore;
 
-  if ( verbose_ ) cout << "EBPedestalOnlineClient: beginJob" << endl;
+  if ( debug_ ) cout << "EBPedestalOnlineClient: beginJob" << endl;
 
   ievt_ = 0;
   jevt_ = 0;
@@ -98,7 +105,7 @@ void EBPedestalOnlineClient::beginJob(DQMStore* dbe){
 
 void EBPedestalOnlineClient::beginRun(void){
 
-  if ( verbose_ ) cout << "EBPedestalOnlineClient: beginRun" << endl;
+  if ( debug_ ) cout << "EBPedestalOnlineClient: beginRun" << endl;
 
   jevt_ = 0;
 
@@ -108,7 +115,7 @@ void EBPedestalOnlineClient::beginRun(void){
 
 void EBPedestalOnlineClient::endJob(void) {
 
-  if ( verbose_ ) cout << "EBPedestalOnlineClient: endJob, ievt = " << ievt_ << endl;
+  if ( debug_ ) cout << "EBPedestalOnlineClient: endJob, ievt = " << ievt_ << endl;
 
   this->cleanup();
 
@@ -116,7 +123,7 @@ void EBPedestalOnlineClient::endJob(void) {
 
 void EBPedestalOnlineClient::endRun(void) {
 
-  if ( verbose_ ) cout << "EBPedestalOnlineClient: endRun, jevt = " << jevt_ << endl;
+  if ( debug_ ) cout << "EBPedestalOnlineClient: endRun, jevt = " << jevt_ << endl;
 
   this->cleanup();
 
@@ -126,26 +133,26 @@ void EBPedestalOnlineClient::setup(void) {
 
   char histo[200];
 
-  dbe_->setCurrentFolder( "EcalBarrel/EBPedestalOnlineClient" );
+  dqmStore_->setCurrentFolder( prefixME_ + "/EBPedestalOnlineClient" );
 
   for ( unsigned int i=0; i<superModules_.size(); i++ ) {
 
     int ism = superModules_[i];
 
-    if ( meg03_[ism-1] ) dbe_->removeElement( meg03_[ism-1]->getName() );
+    if ( meg03_[ism-1] ) dqmStore_->removeElement( meg03_[ism-1]->getName() );
     sprintf(histo, "EBPOT pedestal quality G12 %s", Numbers::sEB(ism).c_str());
-    meg03_[ism-1] = dbe_->book2D(histo, histo, 85, 0., 85., 20, 0., 20.);
+    meg03_[ism-1] = dqmStore_->book2D(histo, histo, 85, 0., 85., 20, 0., 20.);
     meg03_[ism-1]->setAxisTitle("ieta", 1);
     meg03_[ism-1]->setAxisTitle("iphi", 2);
 
-    if ( mep03_[ism-1] ) dbe_->removeElement( mep03_[ism-1]->getName() );
+    if ( mep03_[ism-1] ) dqmStore_->removeElement( mep03_[ism-1]->getName() );
     sprintf(histo, "EBPOT pedestal mean G12 %s", Numbers::sEB(ism).c_str());
-    mep03_[ism-1] = dbe_->book1D(histo, histo, 100, 150., 250.);
+    mep03_[ism-1] = dqmStore_->book1D(histo, histo, 100, 150., 250.);
     mep03_[ism-1]->setAxisTitle("mean", 1);
 
-    if ( mer03_[ism-1] ) dbe_->removeElement( mer03_[ism-1]->getName() );
+    if ( mer03_[ism-1] ) dqmStore_->removeElement( mer03_[ism-1]->getName() );
     sprintf(histo, "EBPOT pedestal rms G12 %s", Numbers::sEB(ism).c_str());
-    mer03_[ism-1] = dbe_->book1D(histo, histo, 100, 0.,  10.);
+    mer03_[ism-1] = dqmStore_->book1D(histo, histo, 100, 0.,  10.);
     mer03_[ism-1]->setAxisTitle("rms", 1);
 
   }
@@ -189,19 +196,19 @@ void EBPedestalOnlineClient::cleanup(void) {
 
   }
 
-  dbe_->setCurrentFolder( "EcalBarrel/EBPedestalOnlineClient" );
+  dqmStore_->setCurrentFolder( prefixME_ + "/EBPedestalOnlineClient" );
 
   for ( unsigned int i=0; i<superModules_.size(); i++ ) {
 
     int ism = superModules_[i];
 
-    if ( meg03_[ism-1] ) dbe_->removeElement( meg03_[ism-1]->getName() );
+    if ( meg03_[ism-1] ) dqmStore_->removeElement( meg03_[ism-1]->getName() );
     meg03_[ism-1] = 0;
 
-    if ( mep03_[ism-1] ) dbe_->removeElement( mep03_[ism-1]->getName() );
+    if ( mep03_[ism-1] ) dqmStore_->removeElement( mep03_[ism-1]->getName() );
     mep03_[ism-1] = 0;
 
-    if ( mer03_[ism-1] ) dbe_->removeElement( mer03_[ism-1]->getName() );
+    if ( mer03_[ism-1] ) dqmStore_->removeElement( mer03_[ism-1]->getName() );
     mer03_[ism-1] = 0;
 
   }
@@ -221,10 +228,11 @@ bool EBPedestalOnlineClient::writeDb(EcalCondDBInterface* econn, RunIOV* runiov,
 
     int ism = superModules_[i];
 
-    cout << " " << Numbers::sEB(ism) << " (ism=" << ism << ")" << endl;
-    cout << endl;
-
-    UtilsClient::printBadChannels(meg03_[ism-1], h03_[ism-1]);
+    if ( verbose_ ) {
+      cout << " " << Numbers::sEB(ism) << " (ism=" << ism << ")" << endl;
+      cout << endl;
+      UtilsClient::printBadChannels(meg03_[ism-1], h03_[ism-1]);
+    }
 
     float num03;
     float mean03;
@@ -241,11 +249,11 @@ bool EBPedestalOnlineClient::writeDb(EcalCondDBInterface* econn, RunIOV* runiov,
 
           if ( Numbers::icEB(ism, ie, ip) == 1 ) {
 
-            cout << "Preparing dataset for " << Numbers::sEB(ism) << " (ism=" << ism << ")" << endl;
-
-            cout << "G12 (" << ie << "," << ip << ") " << num03  << " " << mean03 << " " << rms03  << endl;
-
-            cout << endl;
+            if ( verbose_ ) {
+              cout << "Preparing dataset for " << Numbers::sEB(ism) << " (ism=" << ism << ")" << endl;
+              cout << "G12 (" << ie << "," << ip << ") " << num03  << " " << mean03 << " " << rms03  << endl;
+              cout << endl;
+            }
 
           }
 
@@ -276,9 +284,9 @@ bool EBPedestalOnlineClient::writeDb(EcalCondDBInterface* econn, RunIOV* runiov,
 
   if ( econn ) {
     try {
-      cout << "Inserting MonPedestalsOnlineDat ..." << endl;
+      if ( verbose_ ) cout << "Inserting MonPedestalsOnlineDat ..." << endl;
       if ( dataset.size() != 0 ) econn->insertDataArraySet(&dataset, moniov);
-      cout << "done." << endl;
+      if ( verbose_ ) cout << "done." << endl;
     } catch (runtime_error &e) {
       cerr << e.what() << endl;
     }
@@ -293,7 +301,7 @@ void EBPedestalOnlineClient::analyze(void){
   ievt_++;
   jevt_++;
   if ( ievt_ % 10 == 0 ) {
-    if ( verbose_ ) cout << "EBPedestalOnlineClient: ievt/jevt = " << ievt_ << "/" << jevt_ << endl;
+    if ( debug_ ) cout << "EBPedestalOnlineClient: ievt/jevt = " << ievt_ << "/" << jevt_ << endl;
   }
 
   uint64_t bits03 = 0;
@@ -302,9 +310,11 @@ void EBPedestalOnlineClient::analyze(void){
   bits03 |= EcalErrorDictionary::getMask("PEDESTAL_ONLINE_HIGH_GAIN_MEAN_ERROR");
   bits03 |= EcalErrorDictionary::getMask("PEDESTAL_ONLINE_HIGH_GAIN_RMS_ERROR");
 
-  map<EcalLogicID, RunCrystalErrorsDat> mask;
+  map<EcalLogicID, RunCrystalErrorsDat> mask1;
+  map<EcalLogicID, RunTTErrorsDat> mask2;
 
-  EcalErrorMask::fetchDataSet(&mask);
+  EcalErrorMask::fetchDataSet(&mask1);
+  EcalErrorMask::fetchDataSet(&mask2);
 
   char histo[200];
 
@@ -314,8 +324,8 @@ void EBPedestalOnlineClient::analyze(void){
 
     int ism = superModules_[i];
 
-    sprintf(histo, "EcalBarrel/EBPedestalOnlineTask/Gain12/EBPOT pedestal %s G12", Numbers::sEB(ism).c_str());
-    me = dbe_->get(histo);
+    sprintf(histo, (prefixME_ + "/EBPedestalOnlineTask/Gain12/EBPOT pedestal %s G12").c_str(), Numbers::sEB(ism).c_str());
+    me = dqmStore_->get(histo);
     h03_[ism-1] = UtilsClient::getHisto<TProfile2D*>( me, cloneME_, h03_[ism-1] );
     meh03_[ism-1] = me;
 
@@ -354,9 +364,9 @@ void EBPedestalOnlineClient::analyze(void){
 
         // masking
 
-        if ( mask.size() != 0 ) {
+        if ( mask1.size() != 0 ) {
           map<EcalLogicID, RunCrystalErrorsDat>::const_iterator m;
-          for (m = mask.begin(); m != mask.end(); m++) {
+          for (m = mask1.begin(); m != mask1.end(); m++) {
 
             EcalLogicID ecid = m->first;
 
@@ -374,6 +384,26 @@ void EBPedestalOnlineClient::analyze(void){
           }
         }
 
+	// TT masking
+
+	if ( mask2.size() != 0 ) {
+          map<EcalLogicID, RunTTErrorsDat>::const_iterator m;
+          for (m = mask2.begin(); m != mask2.end(); m++) {
+
+            EcalLogicID ecid = m->first;
+
+            int itt = Numbers::iTT(ism, EcalBarrel, ie, ip);
+
+            if ( ecid.getLogicID() == LogicID::getEcalLogicID("EB_trigger_tower", Numbers::iSM(ism, EcalBarrel), itt).getLogicID() ) {
+	      if ( meg03_[ism-1] ) {
+		float val = int(meg03_[ism-1]->getBinContent(ie, ip)) % 3;
+		meg03_[ism-1]->setBinContent( ie, ip, val+3 );
+	      }
+            }
+
+          }
+        }
+
       }
     }
 
@@ -383,7 +413,7 @@ void EBPedestalOnlineClient::analyze(void){
 
 void EBPedestalOnlineClient::htmlOutput(int run, string& htmlDir, string& htmlName){
 
-  cout << "Preparing EBPedestalOnlineClient html output ..." << endl;
+  if ( verbose_ ) cout << "Preparing EBPedestalOnlineClient html output ..." << endl;
 
   ofstream htmlFile;
 
@@ -501,14 +531,14 @@ void EBPedestalOnlineClient::htmlOutput(int run, string& htmlDir, string& htmlNa
       gStyle->SetOptStat("euomr");
       obj1f->SetStats(kTRUE);
       if ( obj1f->GetMaximum(histMax) > 0. ) {
-        gPad->SetLogy(1);
+        gPad->SetLogy(kTRUE);
       } else {
-        gPad->SetLogy(0);
+        gPad->SetLogy(kFALSE);
       }
       obj1f->Draw();
       cMean->Update();
       cMean->SaveAs(imgName.c_str());
-      gPad->SetLogy(0);
+      gPad->SetLogy(kFALSE);
 
     }
 
@@ -531,14 +561,14 @@ void EBPedestalOnlineClient::htmlOutput(int run, string& htmlDir, string& htmlNa
       gStyle->SetOptStat("euomr");
       obj1f->SetStats(kTRUE);
       if ( obj1f->GetMaximum(histMax) > 0. ) {
-        gPad->SetLogy(1);
+        gPad->SetLogy(kTRUE);
       } else {
-        gPad->SetLogy(0);
+        gPad->SetLogy(kFALSE);
       }
       obj1f->Draw();
       cRMS->Update();
       cRMS->SaveAs(imgName.c_str());
-      gPad->SetLogy(0);
+      gPad->SetLogy(kFALSE);
 
     }
 

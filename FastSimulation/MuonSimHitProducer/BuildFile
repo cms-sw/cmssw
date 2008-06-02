@@ -22,7 +22,6 @@
 <use name=SimDataFormats/TrackingHit>
 <use name=SimDataFormats/Vertex>
 <use name=TrackingTools/GeomPropagators>
-<use name=rootcore>
 
 <flags EDM_PLUGIN=1>
 <export>

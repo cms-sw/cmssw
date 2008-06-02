@@ -5,8 +5,8 @@
  *   Configuration parameters for L1MuDTTrackFinder
  *
  *
- *   $Date: 2007/03/30 09:05:32 $
- *   $Revision: 1.2 $
+ *   $Date: 2008/02/25 16:35:32 $
+ *   $Revision: 1.3 $
  *
  *   N. Neumeister            CERN EP
  */
@@ -59,6 +59,7 @@ class L1MuDTTFConfig {
     static int  getBxMax() { return m_BxMax; }
     static bool overlap() { return m_overlap; }
     static int getExtTSFilter() { return m_extTSFilter; } 
+    static bool getopenLUTs() { return m_openLUTs; } 
     static bool getUseEX21() { return m_useEX21; }
     static bool getEtaTF() { return m_etaTF; }
     static bool getTSOutOfTimeFilter() { return m_TSOutOfTimeFilter; }
@@ -91,6 +92,8 @@ class L1MuDTTFConfig {
 
     static int    m_extTSFilter;       // Extrapolation TS-Quality Filter
  
+    static bool   m_openLUTs;          // use open LUTs
+
     static bool   m_useEX21;           // perform EX21 extrapolation (cross-check EX12)
 
     static bool   m_etaTF;             // use eta track finder

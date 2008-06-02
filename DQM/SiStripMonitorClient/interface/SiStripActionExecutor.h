@@ -2,7 +2,6 @@
 #define _SiStripActionExecutor_h_
 
 #include "DQMServices/Core/interface/MonitorElement.h"
-#include "CondFormats/SiStripObjects/interface/SiStripFedCabling.h"
 #include "FWCore/Framework/interface/ESHandle.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 
@@ -15,6 +14,8 @@ class SiStripSummaryCreator;
 class DQMStore;
 class MonitorUserInterface;
 class SiStripTrackerMapCreator;
+class SiStripFedCabling;
+class SiStripDetCabling;
 
 class SiStripActionExecutor {
 
@@ -32,11 +33,28 @@ class SiStripActionExecutor {
  void createSummary(DQMStore* dqm_store);
  void createTkMap(const edm::ParameterSet & tkmapPset, 
 		  const edm::ESHandle<SiStripFedCabling>& fedcabling, DQMStore* dqm_store);
+
+ void bookGlobalStatus(DQMStore* dqm_store);     
+ void fillGlobalStatus(const edm::ESHandle<SiStripDetCabling>& detcabling, DQMStore* dqm_store);
+ void resetGlobalStatus();
+
  private:
+
+ void fillSubDetStatus(DQMStore* dqm_store, std::string& dname, int xbin);
 
   std::vector<std::string> tkMapMENames;
 
   SiStripSummaryCreator* summaryCreator_;
   SiStripTrackerMapCreator* tkMapCreator_;
+
+  MonitorElement * SummaryReport;
+  MonitorElement * SummaryReportMap;
+  MonitorElement * SummaryTIB;
+  MonitorElement * SummaryTOB;
+  MonitorElement * SummaryTIDF;
+  MonitorElement * SummaryTIDB;
+  MonitorElement * SummaryTECF;
+  MonitorElement * SummaryTECB;
+
 };
 #endif

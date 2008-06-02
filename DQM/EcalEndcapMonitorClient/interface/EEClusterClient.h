@@ -4,8 +4,8 @@
 /*
  * \file EEClusterClient.h
  *
- * $Date: 2008/03/14 14:38:57 $
- * $Revision: 1.17 $
+ * $Date: 2008/04/08 15:06:24 $
+ * $Revision: 1.21 $
  * \author G. Della Ricca
  * \author F. Cossutti
  * \author E. Di Marco
@@ -45,7 +45,7 @@ virtual ~EEClusterClient();
 void analyze(void);
 
 /// BeginJob
-void beginJob(DQMStore* dbe);
+void beginJob(DQMStore* dqmStore);
 
 /// EndJob
 void endJob(void);
@@ -80,12 +80,15 @@ int jevt_;
 bool cloneME_;
 
 bool verbose_;
+bool debug_;
+
+std::string prefixME_;
 
 bool enableCleanup_;
 
 std::vector<int> superModules_;
 
-DQMStore* dbe_;
+DQMStore* dqmStore_;
 
 TH1F* h01_[3];
 TProfile2D* h04_[3][2];

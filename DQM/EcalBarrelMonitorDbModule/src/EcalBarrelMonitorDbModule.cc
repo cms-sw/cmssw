@@ -1,8 +1,8 @@
 /*
  * \file EcalBarrelMonitorDbModule.cc
- * 
- * $Date: 2008/02/15 10:40:25 $
- * $Revision: 1.15 $
+ *
+ * $Date: 2008/04/08 15:06:22 $
+ * $Revision: 1.17 $
  * \author G. Della Ricca
  *
 */
@@ -30,8 +30,9 @@
 
 EcalBarrelMonitorDbModule::EcalBarrelMonitorDbModule(const edm::ParameterSet& ps){
 
-  // get hold of back-end interface
-  dbe_ = edm::Service<DQMStore>().operator->();
+  dqmStore_ = edm::Service<DQMStore>().operator->();
+
+  prefixME_ = ps.getUntrackedParameter<std::string>("prefixME", "");
 
   xmlFile_ = ps.getUntrackedParameter<std::string>( "xmlFile", "" );
   if ( xmlFile_.size() != 0 ) {
@@ -40,7 +41,7 @@ EcalBarrelMonitorDbModule::EcalBarrelMonitorDbModule(const edm::ParameterSet& ps
 
   sleepTime_ = ps.getUntrackedParameter<int>( "sleepTime", 0 );
   std::cout << "Sleep time is " << sleepTime_ << " second(s)." << std::endl;
-  
+
   // html output directory
   htmlDir_ = ps.getUntrackedParameter<std::string>("htmlDir", ".");
 
@@ -52,9 +53,9 @@ EcalBarrelMonitorDbModule::EcalBarrelMonitorDbModule(const edm::ParameterSet& ps
   }
 
   ME_Db_ = new MonitorElementsDb( ps, xmlFile_ );
-  
-  if ( dbe_ ) dbe_->showDirStructure();
-  
+
+  if ( dqmStore_ ) dqmStore_->showDirStructure();
+
 }
 
 EcalBarrelMonitorDbModule::~EcalBarrelMonitorDbModule(){
@@ -80,9 +81,9 @@ void EcalBarrelMonitorDbModule::endJob(void) {
 }
 
 void EcalBarrelMonitorDbModule::analyze(const edm::Event& e, const edm::EventSetup& c){
-  
+
   icycle_++;
-  
+
   std::cout << "EcalBarrelMonitorDbModule: icycle = " << icycle_ << std::endl;
 
   try {
@@ -100,9 +101,9 @@ void EcalBarrelMonitorDbModule::analyze(const edm::Event& e, const edm::EventSet
       msgSvc->setOutputLevel(seal::Msg::Error);
       //msgSvc->setOutputLevel(seal::Msg::Debug);
     }
-    
+
     loader->load("CORAL/Services/ConnectionService");
-    
+
     loader->load("CORAL/Services/EnvironmentAuthenticationService");
 
     seal::IHandle<coral::IConnectionService> connectionService = context->query<coral::IConnectionService>("CORAL/Services/ConnectionService");
@@ -114,10 +115,10 @@ void EcalBarrelMonitorDbModule::analyze(const edm::Event& e, const edm::EventSet
     config.setConnectionRetrialPeriod(1);
     config.setConnectionRetrialTimeOut(10);
 
-    session_ = connectionService->connect("ECAL CondDB", coral::ReadOnly);    
+    session_ = connectionService->connect("ECAL CondDB", coral::ReadOnly);
 
     if ( ME_Db_ ) ME_Db_->analyze(e, c, session_ );
-    
+
   } catch (coral::Exception& e) {
     std::cerr << "CORAL Exception : " << e.what() << std::endl;
   } catch (std::exception& e) {
@@ -130,7 +131,6 @@ void EcalBarrelMonitorDbModule::analyze(const edm::Event& e, const edm::EventSet
 
   }
 
-  
   delete session_;
 
   sleep( sleepTime_ );

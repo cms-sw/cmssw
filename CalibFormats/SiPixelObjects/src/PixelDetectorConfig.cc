@@ -63,6 +63,7 @@ PixelDetectorConfig::PixelDetectorConfig(std::vector< std::vector < std::string>
 PixelDetectorConfig::PixelDetectorConfig(std::string filename):
   PixelConfigBase("","",""){
 
+
   if (filename[filename.size()-1]=='t'){
 
     std::ifstream in(filename.c_str());
@@ -88,7 +89,6 @@ PixelDetectorConfig::PixelDetectorConfig(std::string filename):
     in >> module;
 
     if (module=="Rocs:") {
-      std::cout << "[PixelDetectorConfig::PixelDetectorConfig()]\t\tNew format of detconfig"<<std::endl;
       //new format with list of ROCs.
       std::string rocname;
       in >> rocname;
@@ -124,7 +124,6 @@ PixelDetectorConfig::PixelDetectorConfig(std::string filename):
     if (in.eof()) std::cout << "[PixelDetectorConfig::PixelDetectorConfig()]\t\teof after reading first module name"
 			    << std::endl;
 
-    std::cout << "[PixelDetectorConfig::PixelDetectorConfig()]\t\tOld format of detconfig"<<std::endl;
     while (!in.eof()){
 
       //std::cout << "Read module:"<<module<<std::endl;
@@ -323,38 +322,7 @@ void PixelDetectorConfig::writeASCII(std::string dir) const {
 
 }
 
-//=============================================================================================
-void PixelDetectorConfig::addROC(   PixelROCName &theROC)  // Added by Dario (March 3, 2008)
-{
- std::string mthn = "[PixelDetectorConfig::addROC()]\t\t\t\t" ;
- std::map<PixelROCName, PixelROCStatus>::iterator theROCIt = rocs_.find(theROC) ;
- if( theROCIt == rocs_.end() ) // if theROC was not there, add it and turn it on
- {
-  PixelROCStatus  theStatus ;
-  theStatus.reset() ;
-  rocs_[theROC] = theStatus ; 
-//  cout << mthn << "Non existing ROC (" << theROC.rocname() << "): adding it"  << endl ;  
- } else {
-  theROCIt->second.reset() ;  // otherwise just turn it on by resetting it to zero
-//  cout << mthn << "Already existing ROC (" << theROC.rocname() << "): switching it on"  << endl ;  
- }
-}
-//=============================================================================================
-void PixelDetectorConfig::removeROC(PixelROCName &theROC)  // Added by Dario (March 3, 2008)
-{
- std::string mthn = "[PixelDetectorConfig::removeROC()]\t\t\t\t" ;
- std::map<PixelROCName, PixelROCStatus>::iterator theROCIt = rocs_.find(theROC) ;
- if( theROCIt != rocs_.end() ) // if theROC was there remove it, otherwise ignore
- {
-  theROCIt->second.set("off") ;  
-//  cout << mthn << "Already existing ROC (" << theROC.rocname() << "): switching it off"  << endl ;  
- } else {
-  PixelROCStatus  theStatus ;
-  theStatus.set("off") ;
-  rocs_[theROC] = theStatus ; 
-//  cout << mthn << "ROC " << theROC.rocname() << " was not individually declared in the file: declare and switch off"  << endl ;  
- }
-}
+
 
 //std::ostream& operator<<(std::ostream& s, const PixelDetectorConfig& dacs){
 //

@@ -785,9 +785,9 @@ process.schedule = cms.Schedule(process.p2,process.p)
             path = Path(p.a+ p.b*p.c)
             self.assertEqual(str(path),'a+b*c')
             path = Path(p.a*(p.b+p.c))
-            self.assertEqual(str(path),'a*b+c')
+            self.assertEqual(str(path),'a*(b+c)')
             path = Path(p.a*(p.b+~p.c)) 
-            self.assertEqual(str(path),'a*b+~c')
+            self.assertEqual(str(path),'a*(b+~c)')
             p.es = ESProducer("AnESProducer")
             self.assertRaises(TypeError,Path,p.es)
 
@@ -819,6 +819,34 @@ process.schedule = cms.Schedule(process.p2,process.p)
             self.assertEqual(s[0],p.path1)
             self.assertEqual(s[1],p.path2)
             p.schedule = s
+
+        def testImplicitSchedule(self):
+            p = Process("test")
+            p.a = EDAnalyzer("MyAnalyzer")
+            p.b = EDAnalyzer("YourAnalyzer")
+            p.c = EDAnalyzer("OurAnalyzer")
+            p.path1 = Path(p.a)
+            p.path2 = Path(p.b)
+            self.assert_(p.schedule is None)
+            pths = p.paths
+            print pths
+            keys = pths.keys()
+            self.assertEqual(pths[keys[0]],p.path1)
+            self.assertEqual(pths[keys[1]],p.path2)
+
+            p = Process("test")
+            p.a = EDAnalyzer("MyAnalyzer")
+            p.b = EDAnalyzer("YourAnalyzer")
+            p.c = EDAnalyzer("OurAnalyzer")
+            p.path2 = Path(p.b)
+            p.path1 = Path(p.a)
+            self.assert_(p.schedule is None)
+            pths = p.paths
+            print pths
+            keys = pths.keys()
+            self.assertEqual(pths[keys[1]],p.path1)
+            self.assertEqual(pths[keys[0]],p.path2)
+
 
         def testUsing(self):
             p = Process('test')

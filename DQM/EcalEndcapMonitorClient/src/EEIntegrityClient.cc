@@ -2,8 +2,8 @@
 /*
  * \file EEIntegrityClient.cc
  *
- * $Date: 2008/03/15 14:07:45 $
- * $Revision: 1.68 $
+ * $Date: 2008/04/08 19:06:53 $
+ * $Revision: 1.75 $
  * \author G. Della Ricca
  * \author G. Franzoni
  *
@@ -55,8 +55,14 @@ EEIntegrityClient::EEIntegrityClient(const ParameterSet& ps){
   // cloneME switch
   cloneME_ = ps.getUntrackedParameter<bool>("cloneME", true);
 
-  // verbosity switch
-  verbose_ = ps.getUntrackedParameter<bool>("verbose", false);
+  // verbose switch
+  verbose_ = ps.getUntrackedParameter<bool>("verbose", true);
+
+  // debug switch
+  debug_ = ps.getUntrackedParameter<bool>("debug", false);
+
+  // prefixME path
+  prefixME_ = ps.getUntrackedParameter<string>("prefixME", "");
 
   // enableCleanup_ switch
   enableCleanup_ = ps.getUntrackedParameter<bool>("enableCleanup", false);
@@ -105,11 +111,11 @@ EEIntegrityClient::~EEIntegrityClient(){
 
 }
 
-void EEIntegrityClient::beginJob(DQMStore* dbe){
+void EEIntegrityClient::beginJob(DQMStore* dqmStore){
 
-  dbe_ = dbe;
+  dqmStore_ = dqmStore;
 
-  if ( verbose_ ) cout << "EEIntegrityClient: beginJob" << endl;
+  if ( debug_ ) cout << "EEIntegrityClient: beginJob" << endl;
 
   ievt_ = 0;
   jevt_ = 0;
@@ -118,7 +124,7 @@ void EEIntegrityClient::beginJob(DQMStore* dbe){
 
 void EEIntegrityClient::beginRun(void){
 
-  if ( verbose_ ) cout << "EEIntegrityClient: beginRun" << endl;
+  if ( debug_ ) cout << "EEIntegrityClient: beginRun" << endl;
 
   jevt_ = 0;
 
@@ -128,7 +134,7 @@ void EEIntegrityClient::beginRun(void){
 
 void EEIntegrityClient::endJob(void) {
 
-  if ( verbose_ ) cout << "EEIntegrityClient: endJob, ievt = " << ievt_ << endl;
+  if ( debug_ ) cout << "EEIntegrityClient: endJob, ievt = " << ievt_ << endl;
 
   this->cleanup();
 
@@ -136,7 +142,7 @@ void EEIntegrityClient::endJob(void) {
 
 void EEIntegrityClient::endRun(void) {
 
-  if ( verbose_ ) cout << "EEIntegrityClient: endRun, jevt = " << jevt_ << endl;
+  if ( debug_ ) cout << "EEIntegrityClient: endRun, jevt = " << jevt_ << endl;
 
   this->cleanup();
 
@@ -146,21 +152,21 @@ void EEIntegrityClient::setup(void) {
 
   char histo[200];
 
-  dbe_->setCurrentFolder( "EcalEndcap/EEIntegrityClient" );
+  dqmStore_->setCurrentFolder( prefixME_ + "/EEIntegrityClient" );
 
   for ( unsigned int i=0; i<superModules_.size(); i++ ) {
 
     int ism = superModules_[i];
 
-    if ( meg01_[ism-1] ) dbe_->removeElement( meg01_[ism-1]->getName() );
+    if ( meg01_[ism-1] ) dqmStore_->removeElement( meg01_[ism-1]->getName() );
     sprintf(histo, "EEIT data integrity quality %s", Numbers::sEE(ism).c_str());
-    meg01_[ism-1] = dbe_->book2D(histo, histo, 50, Numbers::ix0EE(ism)+0., Numbers::ix0EE(ism)+50., 50, Numbers::iy0EE(ism)+0., Numbers::iy0EE(ism)+50.);
+    meg01_[ism-1] = dqmStore_->book2D(histo, histo, 50, Numbers::ix0EE(ism)+0., Numbers::ix0EE(ism)+50., 50, Numbers::iy0EE(ism)+0., Numbers::iy0EE(ism)+50.);
     meg01_[ism-1]->setAxisTitle("jx", 1);
     meg01_[ism-1]->setAxisTitle("jy", 2);
 
-    if ( meg02_[ism-1] ) dbe_->removeElement( meg02_[ism-1]->getName() );
+    if ( meg02_[ism-1] ) dqmStore_->removeElement( meg02_[ism-1]->getName() );
     sprintf(histo, "EEIT data integrity quality MEM %s", Numbers::sEE(ism).c_str());
-    meg02_[ism-1] = dbe_->book2D(histo, histo, 10, 0., 10., 5, 0.,5.);
+    meg02_[ism-1] = dqmStore_->book2D(histo, histo, 10, 0., 10., 5, 0.,5.);
     meg02_[ism-1]->setAxisTitle("pseudo-strip", 1);
     meg02_[ism-1]->setAxisTitle("channel", 2);
 
@@ -246,16 +252,16 @@ void EEIntegrityClient::cleanup(void) {
 
   }
 
-  dbe_->setCurrentFolder( "EcalEndcap/EEIntegrityClient" );
+  dqmStore_->setCurrentFolder( prefixME_ + "/EEIntegrityClient" );
 
   for ( unsigned int i=0; i<superModules_.size(); i++ ) {
 
     int ism = superModules_[i];
 
-    if ( meg01_[ism-1] ) dbe_->removeElement( meg01_[ism-1]->getName() );
+    if ( meg01_[ism-1] ) dqmStore_->removeElement( meg01_[ism-1]->getName() );
     meg01_[ism-1] = 0;
 
-    if ( meg02_[ism-1] ) dbe_->removeElement( meg02_[ism-1]->getName() );
+    if ( meg02_[ism-1] ) dqmStore_->removeElement( meg02_[ism-1]->getName() );
     meg02_[ism-1] = 0;
 
   }
@@ -281,24 +287,26 @@ bool EEIntegrityClient::writeDb(EcalCondDBInterface* econn, RunIOV* runiov, MonR
 
     int ism = superModules_[i];
 
-    cout << " " << Numbers::sEE(ism) << " (ism=" << ism << ")" << endl;
-    cout << endl;
-
     if ( h00_ && h00_->GetBinContent(ism) != 0 ) {
-      cout << " DCC failed " << h00_->GetBinContent(ism) << " times" << endl;
-      cout << endl;
+      cerr << endl;
+      cerr << " DCC failed " << h00_->GetBinContent(ism) << " times" << endl;
+      cerr << endl;
     }
 
-    UtilsClient::printBadChannels(meg01_[ism-1], h01_[ism-1], true);
-    UtilsClient::printBadChannels(meg01_[ism-1], h02_[ism-1], true);
-    UtilsClient::printBadChannels(meg01_[ism-1], h03_[ism-1], true);
-    UtilsClient::printBadChannels(meg01_[ism-1], h04_[ism-1], true);
-    UtilsClient::printBadChannels(meg01_[ism-1], h05_[ism-1], true);
+    if ( verbose_ ) {
+      cout << " " << Numbers::sEE(ism) << " (ism=" << ism << ")" << endl;
+      cout << endl;
+      UtilsClient::printBadChannels(meg01_[ism-1], h01_[ism-1], true);
+      UtilsClient::printBadChannels(meg01_[ism-1], h02_[ism-1], true);
+      UtilsClient::printBadChannels(meg01_[ism-1], h03_[ism-1], true);
+      UtilsClient::printBadChannels(meg01_[ism-1], h04_[ism-1], true);
+      UtilsClient::printBadChannels(meg01_[ism-1], h05_[ism-1], true);
 
-    UtilsClient::printBadChannels(meg02_[ism-1], h06_[ism-1], true);
-    UtilsClient::printBadChannels(meg02_[ism-1], h07_[ism-1], true);
-    UtilsClient::printBadChannels(meg02_[ism-1], h08_[ism-1], true);
-    UtilsClient::printBadChannels(meg02_[ism-1], h09_[ism-1], true);
+      UtilsClient::printBadChannels(meg02_[ism-1], h06_[ism-1], true);
+      UtilsClient::printBadChannels(meg02_[ism-1], h07_[ism-1], true);
+      UtilsClient::printBadChannels(meg02_[ism-1], h08_[ism-1], true);
+      UtilsClient::printBadChannels(meg02_[ism-1], h09_[ism-1], true);
+    }
 
     float num00;
 
@@ -350,11 +358,11 @@ bool EEIntegrityClient::writeDb(EcalCondDBInterface* econn, RunIOV* runiov, MonR
 
           if ( Numbers::icEE(ism, jx, jy) == 1 ) {
 
-            cout << "Preparing dataset for " << Numbers::sEE(ism) << " (ism=" << ism << ")" << endl;
-
-            cout << "(" << Numbers::ix0EE(i+1)+ix << "," << Numbers::iy0EE(i+1)+iy << ") " << num00 << " " << num01 << " " << num02 << " " << num03 << endl;
-
-            cout << endl;
+            if ( verbose_ ) {
+              cout << "Preparing dataset for " << Numbers::sEE(ism) << " (ism=" << ism << ")" << endl;
+              cout << "(" << Numbers::ix0EE(i+1)+ix << "," << Numbers::iy0EE(i+1)+iy << ") " << num00 << " " << num01 << " " << num02 << " " << num03 << endl;
+              cout << endl;
+            }
 
           }
 
@@ -457,11 +465,11 @@ bool EEIntegrityClient::writeDb(EcalCondDBInterface* econn, RunIOV* runiov, MonR
 
           if ( Numbers::iTT(ism, EcalEndcap, jxt, jyt) == 1 ) {
 
-            cout << "Preparing dataset for " << Numbers::sEE(ism) << " (ism=" << ism << ")" << endl;
-
-            cout << "(" << 1+(Numbers::ix0EE(ism)+1+5*(ixt-1))/5 << "," << 1+(Numbers::iy0EE(ism)+1+5*(iyt-1))/5 << ") " << num00 << " " << num04 << " " << num05 << endl;
-
-            cout << endl;
+            if ( verbose_ ) {
+              cout << "Preparing dataset for " << Numbers::sEE(ism) << " (ism=" << ism << ")" << endl;
+              cout << "(" << 1+(Numbers::ix0EE(ism)+1+5*(ixt-1))/5 << "," << 1+(Numbers::iy0EE(ism)+1+5*(iyt-1))/5 << ") " << num00 << " " << num04 << " " << num05 << endl;
+              cout << endl;
+            }
 
           }
 
@@ -533,11 +541,11 @@ bool EEIntegrityClient::writeDb(EcalCondDBInterface* econn, RunIOV* runiov, MonR
 
           if ( ix ==1 && iy == 1 ) {
 
-            cout << "Preparing dataset for mem of SM=" << ism << endl;
-
-            cout << "(" << ix << "," << iy << ") " << num06 << " " << num07 << endl;
-
-            cout << endl;
+            if ( verbose_ ) {
+              cout << "Preparing dataset for mem of SM=" << ism << endl;
+              cout << "(" << ix << "," << iy << ") " << num06 << " " << num07 << endl;
+              cout << endl;
+            }
 
           }
 
@@ -612,11 +620,11 @@ bool EEIntegrityClient::writeDb(EcalCondDBInterface* econn, RunIOV* runiov, MonR
 
         if ( ixt == 1 ) {
 
-          cout << "Preparing dataset for " << Numbers::sEE(ism) << " (ism=" << ism << ")" << endl;
-
-          cout << "(" << ixt <<  ") " << num08 << " " << num09 << endl;
-
-          cout << endl;
+          if ( verbose_ ) {
+            cout << "Preparing dataset for " << Numbers::sEE(ism) << " (ism=" << ism << ")" << endl;
+            cout << "(" << ixt <<  ") " << num08 << " " << num09 << endl;
+            cout << endl;
+          }
 
         }
 
@@ -662,12 +670,12 @@ bool EEIntegrityClient::writeDb(EcalCondDBInterface* econn, RunIOV* runiov, MonR
 
   if ( econn ) {
     try {
-      cout << "Inserting MonConsistencyDat ..." << endl;
+      if ( verbose_ ) cout << "Inserting MonConsistencyDat ..." << endl;
       if ( dataset1.size() != 0 ) econn->insertDataArraySet(&dataset1, moniov);
       if ( dataset2.size() != 0 ) econn->insertDataArraySet(&dataset2, moniov);
       if ( dataset3.size() != 0 ) econn->insertDataArraySet(&dataset3, moniov);
       if ( dataset4.size() != 0 ) econn->insertDataArraySet(&dataset4, moniov);
-      cout << "done." << endl;
+      if ( verbose_ ) cout << "done." << endl;
     } catch (runtime_error &e) {
       cerr << e.what() << endl;
     }
@@ -682,7 +690,7 @@ void EEIntegrityClient::analyze(void){
   ievt_++;
   jevt_++;
   if ( ievt_ % 10 == 0 ) {
-    if ( verbose_ ) cout << "EEIntegrityClient: ievt/jevt = " << ievt_ << "/" << jevt_ << endl;
+    if ( debug_ ) cout << "EEIntegrityClient: ievt/jevt = " << ievt_ << "/" << jevt_ << endl;
   }
 
   uint64_t bits01 = 0;
@@ -717,56 +725,56 @@ void EEIntegrityClient::analyze(void){
 
   MonitorElement* me;
 
-  sprintf(histo, "EcalEndcap/EEIntegrityTask/EEIT DCC size error");
-  me = dbe_->get(histo);
+  sprintf(histo, (prefixME_ + "/EEIntegrityTask/EEIT DCC size error").c_str());
+  me = dqmStore_->get(histo);
   h00_ = UtilsClient::getHisto<TH1F*>( me, cloneME_, h00_ );
 
   for ( unsigned int i=0; i<superModules_.size(); i++ ) {
 
     int ism = superModules_[i];
 
-    sprintf(histo, "EcalEndcap/EEOccupancyTask/EEOT digi occupancy %s", Numbers::sEE(ism).c_str());
-    me = dbe_->get(histo);
+    sprintf(histo, (prefixME_ + "/EEOccupancyTask/EEOT digi occupancy %s").c_str(), Numbers::sEE(ism).c_str());
+    me = dqmStore_->get(histo);
     h_[ism-1] = UtilsClient::getHisto<TH2F*>( me, cloneME_, h_[ism-1] );
 
-    sprintf(histo, "EcalEndcap/EEOccupancyTask/EEOT MEM digi occupancy %s", Numbers::sEE(ism).c_str());
-    me = dbe_->get(histo);
+    sprintf(histo, (prefixME_ + "/EEOccupancyTask/EEOT MEM digi occupancy %s").c_str(), Numbers::sEE(ism).c_str());
+    me = dqmStore_->get(histo);
     hmem_[ism-1] = UtilsClient::getHisto<TH2F*>( me, cloneME_, hmem_[ism-1] );
 
-    sprintf(histo, "EcalEndcap/EEIntegrityTask/Gain/EEIT gain %s", Numbers::sEE(ism).c_str());
-    me = dbe_->get(histo);
+    sprintf(histo, (prefixME_ + "/EEIntegrityTask/Gain/EEIT gain %s").c_str(), Numbers::sEE(ism).c_str());
+    me = dqmStore_->get(histo);
     h01_[ism-1] = UtilsClient::getHisto<TH2F*>( me, cloneME_, h01_[ism-1] );
 
-    sprintf(histo, "EcalEndcap/EEIntegrityTask/ChId/EEIT ChId %s", Numbers::sEE(ism).c_str());
-    me = dbe_->get(histo);
+    sprintf(histo, (prefixME_ + "/EEIntegrityTask/ChId/EEIT ChId %s").c_str(), Numbers::sEE(ism).c_str());
+    me = dqmStore_->get(histo);
     h02_[ism-1] = UtilsClient::getHisto<TH2F*>( me, cloneME_, h02_[ism-1] );
 
-    sprintf(histo, "EcalEndcap/EEIntegrityTask/GainSwitch/EEIT gain switch %s", Numbers::sEE(ism).c_str());
-    me = dbe_->get(histo);
+    sprintf(histo, (prefixME_ + "/EEIntegrityTask/GainSwitch/EEIT gain switch %s").c_str(), Numbers::sEE(ism).c_str());
+    me = dqmStore_->get(histo);
     h03_[ism-1] = UtilsClient::getHisto<TH2F*>( me, cloneME_, h03_[ism-1] );
 
-    sprintf(histo, "EcalEndcap/EEIntegrityTask/TTId/EEIT TTId %s", Numbers::sEE(ism).c_str());
-    me = dbe_->get(histo);
+    sprintf(histo, (prefixME_ + "/EEIntegrityTask/TTId/EEIT TTId %s").c_str(), Numbers::sEE(ism).c_str());
+    me = dqmStore_->get(histo);
     h04_[ism-1] = UtilsClient::getHisto<TH2F*>( me, cloneME_, h04_[ism-1] );
 
-    sprintf(histo, "EcalEndcap/EEIntegrityTask/TTBlockSize/EEIT TTBlockSize %s", Numbers::sEE(ism).c_str());
-    me = dbe_->get(histo);
+    sprintf(histo, (prefixME_ + "/EEIntegrityTask/TTBlockSize/EEIT TTBlockSize %s").c_str(), Numbers::sEE(ism).c_str());
+    me = dqmStore_->get(histo);
     h05_[ism-1] = UtilsClient::getHisto<TH2F*>( me, cloneME_, h05_[ism-1] );
 
-    sprintf(histo, "EcalEndcap/EEIntegrityTask/MemChId/EEIT MemChId %s", Numbers::sEE(ism).c_str());
-    me = dbe_->get(histo);
+    sprintf(histo, (prefixME_ + "/EEIntegrityTask/MemChId/EEIT MemChId %s").c_str(), Numbers::sEE(ism).c_str());
+    me = dqmStore_->get(histo);
     h06_[ism-1] = UtilsClient::getHisto<TH2F*>( me, cloneME_, h06_[ism-1] );
 
-    sprintf(histo, "EcalEndcap/EEIntegrityTask/MemGain/EEIT MemGain %s", Numbers::sEE(ism).c_str());
-    me = dbe_->get(histo);
+    sprintf(histo, (prefixME_ + "/EEIntegrityTask/MemGain/EEIT MemGain %s").c_str(), Numbers::sEE(ism).c_str());
+    me = dqmStore_->get(histo);
     h07_[ism-1] = UtilsClient::getHisto<TH2F*>( me, cloneME_, h07_[ism-1] );
 
-    sprintf(histo, "EcalEndcap/EEIntegrityTask/MemTTId/EEIT MemTTId %s", Numbers::sEE(ism).c_str());
-    me = dbe_->get(histo);
+    sprintf(histo, (prefixME_ + "/EEIntegrityTask/MemTTId/EEIT MemTTId %s").c_str(), Numbers::sEE(ism).c_str());
+    me = dqmStore_->get(histo);
     h08_[ism-1] = UtilsClient::getHisto<TH2F*>( me, cloneME_, h08_[ism-1] );
 
-    sprintf(histo, "EcalEndcap/EEIntegrityTask/MemSize/EEIT MemSize %s", Numbers::sEE(ism).c_str());
-    me = dbe_->get(histo);
+    sprintf(histo, (prefixME_ + "/EEIntegrityTask/MemSize/EEIT MemSize %s").c_str(), Numbers::sEE(ism).c_str());
+    me = dqmStore_->get(histo);
     h09_[ism-1] = UtilsClient::getHisto<TH2F*>( me, cloneME_, h09_[ism-1] );
 
     float num00;
@@ -1036,7 +1044,7 @@ void EEIntegrityClient::analyze(void){
 
 void EEIntegrityClient::htmlOutput(int run, string& htmlDir, string& htmlName){
 
-  cout << "Preparing EEIntegrityClient html output ..." << endl;
+  if ( verbose_ ) cout << "Preparing EEIntegrityClient html output ..." << endl;
 
   ofstream htmlFile;
 
@@ -1137,6 +1145,9 @@ void EEIntegrityClient::htmlOutput(int run, string& htmlDir, string& htmlName){
 
     cDCC->cd();
     gStyle->SetOptStat(" ");
+    gPad->SetBottomMargin(0.2);
+    obj1f->GetXaxis()->LabelsOption("v");
+    obj1f->GetXaxis()->SetLabelSize(0.05);
     obj1f->Draw();
     cDCC->Update();
     cDCC->SaveAs(imgName.c_str());

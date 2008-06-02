@@ -5,15 +5,14 @@
  *
  * Class for DT Data Integrity.
  *  
- *  $Date: 2008/03/01 00:39:53 $
- *  $Revision: 1.14 $
+ *  $Date: 2008/04/23 13:33:14 $
+ *  $Revision: 1.18 $
  *
  * \author Marco Zanetti  - INFN Padova
  *
  */
 
 #include "EventFilter/DTRawToDigi/interface/DTDataMonitorInterface.h"
-
 #include "EventFilter/DTRawToDigi/interface/DTROChainCoding.h"
 
 #include "FWCore/Framework/interface/Frameworkfwd.h"
@@ -50,7 +49,6 @@ public:
   void processROS25(DTROS25Data & data, int dduID, int ros);
   void processFED(DTDDUData & dduData, const std::vector<DTROS25Data> & rosData, int dduID);
 
-  void beginLuminosityBlock(edm::LuminosityBlock const& lumiSeg, edm::EventSetup const& context) ;
 
   void postEndJob();
   std::multimap<std::string, std::string> names;
@@ -73,7 +71,7 @@ private:
   // <histoType, <index , histo> >    
   std::map<std::string, std::map<int, MonitorElement*> > dduHistos;
   // <histoType, histo> >    
-  std::map<std::string, MonitorElement*> rosSHistos;
+  std::map<std::string, std::map<int, MonitorElement*> > rosSHistos;
   // <histoType, <index , histo> >    
   std::map<std::string, std::map<int, MonitorElement*> > rosHistos;
   // <histoType, <tdcID, histo> >   
@@ -81,7 +79,10 @@ private:
 
   int neventsDDU;
   int neventsROS25;
-  double rob_max[25];
+  float trigger_counter;
+  std::string outputFile;
+  double rob_max[25],frequency;
+
   
   //Event counter for the graphs VS time
   int myPrevEv;

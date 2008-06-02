@@ -1,4 +1,4 @@
-// $Id: DataProcessManager.cc,v 1.8 2008/02/11 15:02:11 biery Exp $
+// $Id: DataProcessManager.cc,v 1.10 2008/04/16 16:43:13 biery Exp $
 
 #include "EventFilter/SMProxyServer/interface/DataProcessManager.h"
 #include "EventFilter/StorageManager/interface/SMCurlInterface.h"
@@ -88,8 +88,23 @@ namespace stor
     alreadyRegisteredDQM_ = false;
     headerRefetchRequested_ = false;
 
+    smList_.clear();
+    smRegMap_.clear();
+    smHeaderMap_.clear();
+    DQMsmList_.clear();
+    DQMsmRegMap_.clear();
+
     edm::ParameterSet ps = ParameterSet();
     // TODO fixme: only request event types that are requested by connected consumers?
+
+    // 16-Apr-2008, KAB: set maxEventRequestRate in the parameterSet that
+    // we send to the storage manager now that we have the fair share
+    // algorithm working in the SM.
+    Entry maxRateEntry("maxEventRequestRate",
+                       static_cast<double>(1.0 / minEventRequestInterval_),
+                       false);
+    ps.insert(true, "maxEventRequestRate", maxRateEntry);
+
     consumerPSetString_ = ps.toString();
     // TODO fixme: only request folders that connected consumers want?
     consumerTopFolderName_ = "*";
@@ -98,6 +113,12 @@ namespace stor
     receivedDQMEvents_ = 0;
     pmeter_->init(samples_);
     stats_.fullReset();
+
+    // initialize the counters that we use for statistics
+    ltEventFetchTimeCounter_.reset(new ForeverCounter());
+    stEventFetchTimeCounter_.reset(new RollingIntervalCounter(180,5,20));
+    ltDQMFetchTimeCounter_.reset(new ForeverCounter());
+    stDQMFetchTimeCounter_.reset(new RollingIntervalCounter(180,5,20));
   }
 
   void DataProcessManager::setMaxEventRequestRate(double rate)
@@ -110,6 +131,16 @@ namespace stor
     else {
       minEventRequestInterval_ = 1.0 / rate;  // seconds
     }
+
+    // 16-Apr-2008, KAB: set maxEventRequestRate in the parameterSet that
+    // we send to the storage manager now that we have the fair share
+    // algorithm working in the SM.
+    edm::ParameterSet ps = ParameterSet();
+    Entry maxRateEntry("maxEventRequestRate",
+                       static_cast<double>(1.0 / minEventRequestInterval_),
+                       false);
+    ps.insert(true, "maxEventRequestRate", maxRateEntry);
+    consumerPSetString_ = ps.toString();
   }
 
   void DataProcessManager::setMaxDQMEventRequestRate(double rate)
@@ -166,7 +197,8 @@ namespace stor
     bool alreadysaid = false;
     bool alreadysaidDQM = false;
 
-    bool gotOneHeader = false;
+    //bool gotOneHeader = false;
+    bool gotOneHeaderFromAll = false;
     unsigned int countINIT = 0; // keep of count of tries and quit after 255
     bool alreadysaidINIT = false;
 
@@ -177,7 +209,9 @@ namespace stor
       // if a header re-fetch has been requested, reset the header vars
       if (headerRefetchRequested_) {
         headerRefetchRequested_ = false;
-        gotOneHeader = false;
+        //gotOneHeader = false;
+        gotOneHeaderFromAll = false;
+        smHeaderMap_.clear();
         countINIT = 0;
       }
       // register as event consumer to all SM senders
@@ -219,20 +253,28 @@ namespace stor
       // now get one INIT header (product registry) and save it
       // as long as at least one SMsender registered with
       // TODO fixme: use the data member for got header to go across runs
-      if(!gotOneHeader)
+      // With multiple SMs, we need to get a Header from each else that consumer
+      // is counted as not initialized
+      // TODO how to we get all INIT messages from each SM (and know it!)
+      //if(!gotOneHeader)
+      if(!gotOneHeaderFromAll)
       {
         waitBetweenRegTrys();
-        bool success = getAnyHeaderFromSM();
-        if(success) gotOneHeader = true;
+        //bool success = getAnyHeaderFromSM();
+        bool success = getHeaderFromAllSM();
+        //if(success) gotOneHeader = true;
+        if(success) gotOneHeaderFromAll = true;
         ++countINIT;
       }
       if(countINIT >= maxcount) edm::LogInfo("processCommands") << "Could not get product registry!"
           << " after " << maxcount << " tries";
-      if(gotOneHeader && !alreadysaidINIT) {
+      //if(gotOneHeader && !alreadysaidINIT) {
+      if(gotOneHeaderFromAll && !alreadysaidINIT) {
         edm::LogInfo("processCommands") << "Got the product registry";
         alreadysaidINIT = true;
       }
-      if(alreadyRegistered_ && gotOneHeader && haveHeader()) {
+      //if(alreadyRegistered_ && gotOneHeader && haveHeader()) {
+      if(alreadyRegistered_ && gotOneHeaderFromAll && haveHeader()) {
         getEventFromAllSM();
       }
       if(alreadyRegisteredDQM_) {
@@ -271,6 +313,7 @@ namespace stor
     if(alreadyInList) return;
     smList_.push_back(smURL);
     smRegMap_.insert(std::make_pair(smURL,0));
+    smHeaderMap_.insert(std::make_pair(smURL,false));
     struct timeval lastRequestTime;
     lastRequestTime.tv_sec = 0;
     lastRequestTime.tv_usec = 0;
@@ -520,6 +563,29 @@ namespace stor
       return false;
     }
     return gotOneHeader;
+  }
+
+  bool DataProcessManager::getHeaderFromAllSM()
+  {
+    // Try the list of SM in order of registration to get one Header from each
+    // TODO: how do we get multiple headers if there are more than one?
+    bool gotAllHeaders = true;
+    if(smList_.size() > 0) {
+       for(unsigned int i = 0; i < smList_.size(); ++i) {
+         if(smRegMap_[smList_[i] ] > 0) { // is registered
+            if(smHeaderMap_[smList_[i] ]) continue; // already got header
+            bool success = getHeaderFromSM(smList_[i]);
+            if(success) {
+              smHeaderMap_[smList_[i] ] = true;
+            } else {
+              gotAllHeaders = false;
+            }
+         }
+       }
+    } else {
+      return false;
+    }
+    return gotAllHeaders;
   }
 
   bool DataProcessManager::getHeaderFromSM(std::string smURL)
@@ -780,6 +846,11 @@ namespace stor
     // One single try to get a event from this SM URL
     stor::ReadData data;
 
+    // start a measurement of how long the HTTP POST takes
+    eventFetchTimer_.stop();
+    eventFetchTimer_.reset();
+    eventFetchTimer_.start();
+
     data.d_.clear();
     CURL* han = curl_easy_init();
     if(han==0)
@@ -824,6 +895,12 @@ namespace stor
       edm::LogError("getOneEventFromSM") << "curl perform failed for event. "
         << "Could not get event from an already registered Storage Manager"
         << " at " << smURL;
+
+      // keep statistics for all HTTP POSTS
+      eventFetchTimer_.stop();
+      ltEventFetchTimeCounter_->addSample(eventFetchTimer_.realTime());
+      stEventFetchTimeCounter_->addSample(eventFetchTimer_.realTime());
+
       return false;
     }
 
@@ -832,11 +909,21 @@ namespace stor
     FDEBUG(9) << "getOneEventFromSM received len = " << len << std::endl;
     if(data.d_.length() == 0)
     { 
+      // keep statistics for all HTTP POSTS
+      eventFetchTimer_.stop();
+      ltEventFetchTimeCounter_->addSample(eventFetchTimer_.realTime());
+      stEventFetchTimeCounter_->addSample(eventFetchTimer_.realTime());
+
       return false;
     }
 
     buf_.resize(len);
     for (int i=0; i<len ; i++) buf_[i] = data.d_[i];
+
+    // keep statistics for all HTTP POSTS
+    eventFetchTimer_.stop();
+    ltEventFetchTimeCounter_->addSample(eventFetchTimer_.realTime());
+    stEventFetchTimeCounter_->addSample(eventFetchTimer_.realTime());
 
     // first check if done message
     OtherMessageView msgView(&buf_[0]);
@@ -962,6 +1049,11 @@ namespace stor
     // One single try to get a event from this SM URL
     stor::ReadData data;
 
+    // start a measurement of how long the HTTP POST takes
+    dqmFetchTimer_.stop();
+    dqmFetchTimer_.reset();
+    dqmFetchTimer_.start();
+
     data.d_.clear();
     CURL* han = curl_easy_init();
     if(han==0)
@@ -1001,6 +1093,12 @@ namespace stor
       edm::LogError("getOneDQMEventFromSM") << "curl perform failed for DQM event. "
         << "Could not get DQMevent from an already registered Storage Manager"
         << " at " << smURL;
+
+      // keep statistics for all HTTP POSTS
+      dqmFetchTimer_.stop();
+      ltDQMFetchTimeCounter_->addSample(eventFetchTimer_.realTime());
+      stDQMFetchTimeCounter_->addSample(eventFetchTimer_.realTime());
+
       return false;
     }
 
@@ -1009,11 +1107,21 @@ namespace stor
     FDEBUG(9) << "getOneDQMEventFromSM received len = " << len << std::endl;
     if(data.d_.length() == 0)
     { 
+      // keep statistics for all HTTP POSTS
+      dqmFetchTimer_.stop();
+      ltDQMFetchTimeCounter_->addSample(eventFetchTimer_.realTime());
+      stDQMFetchTimeCounter_->addSample(eventFetchTimer_.realTime());
+
       return false;
     }
 
     buf_.resize(len);
     for (int i=0; i<len ; i++) buf_[i] = data.d_[i];
+
+    // keep statistics for all HTTP POSTS
+    dqmFetchTimer_.stop();
+    ltDQMFetchTimeCounter_->addSample(eventFetchTimer_.realTime());
+    stDQMFetchTimeCounter_->addSample(eventFetchTimer_.realTime());
 
     // first check if done message
     OtherMessageView msgView(&buf_[0]);
@@ -1042,6 +1150,71 @@ namespace stor
     {
        stats_ = pmeter_->getStats();
     }
-}
+  }
 
+  double DataProcessManager::getSampleCount(STATS_TIME_FRAME timeFrame,
+                                            STATS_TIMING_TYPE timingType,
+                                            double currentTime)
+  {
+    if (timeFrame == SHORT_TERM) {
+      if (timingType == DQMEVENT_FETCH) {
+        return stDQMFetchTimeCounter_->getSampleCount(currentTime);
+      }
+      else {
+        return stEventFetchTimeCounter_->getSampleCount(currentTime);
+      }
+    }
+    else {
+      if (timingType == DQMEVENT_FETCH) {
+        return ltDQMFetchTimeCounter_->getSampleCount();
+      }
+      else {
+        return ltEventFetchTimeCounter_->getSampleCount();
+      }
+    }
+  }
+
+  double DataProcessManager::getAverageValue(STATS_TIME_FRAME timeFrame,
+                                             STATS_TIMING_TYPE timingType,
+                                             double currentTime)
+  {
+    if (timeFrame == SHORT_TERM) {
+      if (timingType == DQMEVENT_FETCH) {
+        return stDQMFetchTimeCounter_->getValueAverage(currentTime);
+      }
+      else {
+        return stEventFetchTimeCounter_->getValueAverage(currentTime);
+      }
+    }
+    else {
+      if (timingType == DQMEVENT_FETCH) {
+        return ltDQMFetchTimeCounter_->getValueAverage();
+      }
+      else {
+        return ltEventFetchTimeCounter_->getValueAverage();
+      }
+    }
+  }
+
+  double DataProcessManager::getDuration(STATS_TIME_FRAME timeFrame,
+                                         STATS_TIMING_TYPE timingType,
+                                         double currentTime)
+  {
+    if (timeFrame == SHORT_TERM) {
+      if (timingType == DQMEVENT_FETCH) {
+        return stDQMFetchTimeCounter_->getDuration(currentTime);
+      }
+      else {
+        return stEventFetchTimeCounter_->getDuration(currentTime);
+      }
+    }
+    else {
+      if (timingType == DQMEVENT_FETCH) {
+        return ltDQMFetchTimeCounter_->getDuration(currentTime);
+      }
+      else {
+        return ltEventFetchTimeCounter_->getDuration(currentTime);
+      }
+    }
+  }
 }

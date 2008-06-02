@@ -1,4 +1,4 @@
-// $Id: OutputService.cc,v 1.2 2007/02/05 16:39:41 klute Exp $
+// $Id: OutputService.cc,v 1.4 2008/04/21 12:15:51 loizides Exp $
 
 #include <EventFilter/StorageManager/interface/OutputService.h>
 
@@ -76,16 +76,16 @@ void OutputService::closeFile()
   file_   -> increaseFileSize(writer_->getStreamEOFSize());
   file_   -> moveFileToClosed();
   file_   -> writeToSummaryCatalog();
-  file_   -> writeToMailBox();
+// file_   -> writeToMailBox();
   file_   -> updateDatabase();
-  file_   -> notifyTier0();
+// file_   -> notifyTier0();
 }
 
 
 // 
 // *** get the current time stamp
 //
-double OutputService::getTimeStamp()
+double OutputService::getTimeStamp() const
 {
   struct timeval now;
   struct timezone dummyTZ;
@@ -110,6 +110,3 @@ void OutputService::report(ostream &os, int indentation) const
   os << prefix << "time                " << time            << " s\n";
   os << prefix << "-----------------------------------------\n";  
 }
-
-
-

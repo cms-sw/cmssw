@@ -1589,7 +1589,7 @@ void SiStripTrackingRecHitsValid::analyze(const edm::Event& e, const edm::EventS
 	    isrechitrphi = 1;
 	    //cout<<"DebugLine23"<<endl;
 	    //		const edm::Ref<edm::DetSetVector<SiStripCluster>, SiStripCluster, edm::refhelper::FindForDetSetVector<SiStripCluster> > cluster=hit->cluster();
-	    const edm::Ref<edm::DetSetVector<SiStripCluster>, SiStripCluster, edm::refhelper::FindForDetSetVector<SiStripCluster> > cluster=monohit->cluster();
+	    SiStripRecHit2D::ClusterRef cluster=monohit->cluster();
 	    clusiz=0;
 	    totcharge=0;
 	    clusiz = cluster->amplitudes().size();
@@ -1668,7 +1668,7 @@ void SiStripTrackingRecHitsValid::analyze(const edm::Event& e, const edm::EventS
 	    {
 	      //	      cout<<"stereohit from matched hit"<<endl;
 	      isrechitsas = 1;
-	      const edm::Ref<edm::DetSetVector<SiStripCluster>, SiStripCluster, edm::refhelper::FindForDetSetVector<SiStripCluster> > cluster=stereohit->cluster();
+	      SiStripRecHit2D::ClusterRef cluster=stereohit->cluster();
 	    
 	      //	      const GeomDetUnit *  det = tracker.idToDetUnit(detid2);
 	      const StripGeomDetUnit * stripdet=(const StripGeomDetUnit*)(stereodet);
@@ -1785,7 +1785,7 @@ void SiStripTrackingRecHitsValid::analyze(const edm::Event& e, const edm::EventS
 	  float anglealpha = atan(trackdirection.x()/trackdirection.z())*180/TMath::Pi();
 	  float anglebeta = atan(trackdirection.y()/trackdirection.z())*180/TMath::Pi();
 
-	  const edm::Ref<edm::DetSetVector<SiStripCluster>, SiStripCluster, edm::refhelper::FindForDetSetVector<SiStripCluster> > cluster=hit->cluster();
+	  SiStripRecHit2D::ClusterRef cluster=hit->cluster();
 
 	  position = thit->localPosition();
 	  error = thit->localPositionError();
@@ -1958,7 +1958,7 @@ void SiStripTrackingRecHitsValid::analyze(const edm::Event& e, const edm::EventS
           float anglealpha = atan(trackdirection.x()/trackdirection.z())*180/TMath::Pi();
           float anglebeta = atan(trackdirection.y()/trackdirection.z())*180/TMath::Pi();
 
-          const edm::Ref<edm::DetSetVector<SiStripCluster>, SiStripCluster, edm::refhelper::FindForDetSetVector<SiStripCluster> > cluster=hit->cluster();
+          SiStripRecHit2D::ClusterRef cluster=hit->cluster();
 
 
           position = thit->localPosition();

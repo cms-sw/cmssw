@@ -4,8 +4,8 @@
 /*
  * \file EcalBarrelMonitorModule.h
  *
- * $Date: 2008/02/15 10:40:26 $
- * $Revision: 1.50 $
+ * $Date: 2008/04/08 18:09:42 $
+ * $Revision: 1.56 $
  * \author G. Della Ricca
  *
 */
@@ -39,6 +39,15 @@ void beginJob(const edm::EventSetup& c);
 // EndJob
 void endJob(void);
 
+/// BeginRun
+void beginRun(const edm::Run & r, const edm::EventSetup & c);
+
+/// EndRun
+void endRun(const edm::Run & r, const edm::EventSetup & c);
+
+/// Reset
+void reset(void);
+
 /// Setup
 void setup(void);
 
@@ -59,19 +68,23 @@ bool fixedRunType_;
 
 int ievt_;
 
-edm::InputTag EcalTBEventHeader_;
 edm::InputTag EcalRawDataCollection_;
 edm::InputTag EBDigiCollection_;
 edm::InputTag EcalRecHitCollection_;
 edm::InputTag EcalTrigPrimDigiCollection_;
 
 bool verbose_;
+bool debug_;
 
 bool enableEventDisplay_;
 
-DQMStore* dbe_;
+DQMStore* dqmStore_;
+
+std::string prefixME_;
 
 bool enableCleanup_;
+
+bool mergeRuns_;
 
 MonitorElement* meStatus_;
 

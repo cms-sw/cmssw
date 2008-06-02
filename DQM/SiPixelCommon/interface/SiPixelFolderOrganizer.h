@@ -16,7 +16,7 @@ Usage:
 //
 // Original Author:  chiochia
 //         Created:  Thu Jan 26 23:49:46 CET 2006
-// $Id: SiPixelFolderOrganizer.h,v 1.2 2007/08/21 03:56:19 andrewdc Exp $
+// $Id: SiPixelFolderOrganizer.h,v 1.3 2008/03/01 20:19:44 lat Exp $
 #include "DQMServices/Core/interface/DQMStore.h"
 #include <boost/cstdint.hpp>
 #include <string>
@@ -33,6 +33,7 @@ class SiPixelFolderOrganizer {
   
   /// Set folder name for a module or plaquette
   bool setModuleFolder(const uint32_t& rawdetid=0);
+  void getModuleFolder(const uint32_t& rawdetid, std::string& path);
 
   /// Set folder name for a FED (used in the case of errors without detId)
   bool setFedFolder(const uint32_t FedId);

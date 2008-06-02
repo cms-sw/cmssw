@@ -10,6 +10,9 @@ DEFINE_ANOTHER_FWK_MODULE(DTTestPulsesTask);
 #include <DQM/DTMonitorModule/src/DTSegmentAnalysisTask.h>
 DEFINE_ANOTHER_FWK_MODULE(DTSegmentAnalysisTask);
 
+#include <DQM/DTMonitorModule/src/DTSegmentsTask.h>
+DEFINE_ANOTHER_FWK_MODULE(DTSegmentsTask);
+
 #include <DQM/DTMonitorModule/src/DTResolutionAnalysisTask.h>
 DEFINE_ANOTHER_FWK_MODULE(DTResolutionAnalysisTask);
 
@@ -30,6 +33,9 @@ DEFINE_ANOTHER_FWK_MODULE(DTDigiForNoiseTask);
 
 #include "DQM/DTMonitorModule/src/DTAlbertoBenvenutiTask.h"
 DEFINE_ANOTHER_FWK_MODULE(DTAlbertoBenvenutiTask);
+
+#include "DQM/DTMonitorModule/interface/DTCalibValidation.h"
+DEFINE_ANOTHER_FWK_MODULE(DTCalibValidation);
 
 
 #include <DQM/DTMonitorModule/interface/DTDataIntegrityTask.h>

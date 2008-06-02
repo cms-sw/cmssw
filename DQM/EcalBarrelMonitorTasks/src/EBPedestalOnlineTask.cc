@@ -1,8 +1,8 @@
 /*
  * \file EBPedestalOnlineTask.cc
  *
- * $Date: 2008/02/23 09:56:55 $
- * $Revision: 1.34 $
+ * $Date: 2008/04/08 15:35:12 $
+ * $Revision: 1.39 $
  * \author G. Della Ricca
  *
 */
@@ -34,10 +34,13 @@ EBPedestalOnlineTask::EBPedestalOnlineTask(const ParameterSet& ps){
 
   init_ = false;
 
-  // get hold of back-end interface
-  dbe_ = Service<DQMStore>().operator->();
+  dqmStore_ = Service<DQMStore>().operator->();
+
+  prefixME_ = ps.getUntrackedParameter<string>("prefixME", "");
 
   enableCleanup_ = ps.getUntrackedParameter<bool>("enableCleanup", false);
+
+  mergeRuns_ = ps.getUntrackedParameter<bool>("mergeRuns", false);
 
   EBDigiCollection_ = ps.getParameter<edm::InputTag>("EBDigiCollection");
 
@@ -55,12 +58,30 @@ void EBPedestalOnlineTask::beginJob(const EventSetup& c){
 
   ievt_ = 0;
 
-  if ( dbe_ ) {
-    dbe_->setCurrentFolder("EcalBarrel/EBPedestalOnlineTask");
-    dbe_->rmdir("EcalBarrel/EBPedestalOnlineTask");
+  if ( dqmStore_ ) {
+    dqmStore_->setCurrentFolder(prefixME_ + "/EBPedestalOnlineTask");
+    dqmStore_->rmdir(prefixME_ + "/EBPedestalOnlineTask");
   }
 
-  Numbers::initGeometry(c);
+  Numbers::initGeometry(c, false);
+
+}
+
+void EBPedestalOnlineTask::beginRun(const Run& r, const EventSetup& c) {
+
+  if ( ! mergeRuns_ ) this->reset();
+
+}
+
+void EBPedestalOnlineTask::endRun(const Run& r, const EventSetup& c) {
+
+}
+
+void EBPedestalOnlineTask::reset(void) {
+
+  for (int i = 0; i < 36; i++) {
+    if ( mePedMapG12_[i] ) mePedMapG12_[i]->Reset();
+  }
 
 }
 
@@ -70,16 +91,16 @@ void EBPedestalOnlineTask::setup(void){
 
   char histo[200];
 
-  if ( dbe_ ) {
-    dbe_->setCurrentFolder("EcalBarrel/EBPedestalOnlineTask");
+  if ( dqmStore_ ) {
+    dqmStore_->setCurrentFolder(prefixME_ + "/EBPedestalOnlineTask");
 
-    dbe_->setCurrentFolder("EcalBarrel/EBPedestalOnlineTask/Gain12");
+    dqmStore_->setCurrentFolder(prefixME_ + "/EBPedestalOnlineTask/Gain12");
     for (int i = 0; i < 36; i++) {
       sprintf(histo, "EBPOT pedestal %s G12", Numbers::sEB(i+1).c_str());
-      mePedMapG12_[i] = dbe_->bookProfile2D(histo, histo, 85, 0., 85., 20, 0., 20., 4096, 0., 4096., "s");
+      mePedMapG12_[i] = dqmStore_->bookProfile2D(histo, histo, 85, 0., 85., 20, 0., 20., 4096, 0., 4096., "s");
       mePedMapG12_[i]->setAxisTitle("ieta", 1);
       mePedMapG12_[i]->setAxisTitle("iphi", 2);
-      dbe_->tag(mePedMapG12_[i], i+1);
+      dqmStore_->tag(mePedMapG12_[i], i+1);
     }
 
   }
@@ -88,14 +109,14 @@ void EBPedestalOnlineTask::setup(void){
 
 void EBPedestalOnlineTask::cleanup(void){
 
-  if ( ! enableCleanup_ ) return;
+  if ( ! init_ ) return;
 
-  if ( dbe_ ) {
-    dbe_->setCurrentFolder("EcalBarrel/EBPedestalOnlineTask");
+  if ( dqmStore_ ) {
+    dqmStore_->setCurrentFolder(prefixME_ + "/EBPedestalOnlineTask");
 
-    dbe_->setCurrentFolder("EcalBarrel/EBPedestalOnlineTask/Gain12");
+    dqmStore_->setCurrentFolder(prefixME_ + "/EBPedestalOnlineTask/Gain12");
     for ( int i = 0; i < 36; i++ ) {
-      if ( mePedMapG12_[i] ) dbe_->removeElement( mePedMapG12_[i]->getName() );
+      if ( mePedMapG12_[i] ) dqmStore_->removeElement( mePedMapG12_[i]->getName() );
       mePedMapG12_[i] = 0;
     }
 
@@ -109,7 +130,7 @@ void EBPedestalOnlineTask::endJob(void){
 
   LogInfo("EBPedestalOnlineTask") << "analyzed " << ievt_ << " events";
 
-  if ( init_ ) this->cleanup();
+  if ( enableCleanup_ ) this->cleanup();
 
 }
 

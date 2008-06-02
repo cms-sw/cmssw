@@ -17,6 +17,9 @@
 #include "RecoTracker/TkSeedingLayers/interface/OrderedSeedingHits.h"
 
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
+
+#include "RecoTracker/SpecialSeedGenerators/interface/ClusterChecker.h"
+
 using namespace ctfseeding;
 
 CtfSpecialSeedGenerator::CtfSpecialSeedGenerator(const edm::ParameterSet& conf): 
@@ -139,9 +142,13 @@ void CtfSpecialSeedGenerator::produce(edm::Event& e, const edm::EventSetup& iSet
   	// get Inputs
   	std::auto_ptr<TrajectorySeedCollection> output(new TrajectorySeedCollection);
 
-  	run(iSetup, e, *output);
+	//check on the number of clusters
+	ClusterChecker check(conf_);
+	if (!check.tooManyClusters(e)){
+	  run(iSetup, e, *output);
+	}
 
-  	edm::LogVerbatim("Algorithm Performance") << " number of seeds = "<< output->size();
+	  edm::LogVerbatim("Algorithm Performance") << " number of seeds = "<< output->size();
   	e.put(output);
 }
 

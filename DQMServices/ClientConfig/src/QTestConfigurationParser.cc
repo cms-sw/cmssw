@@ -1,5 +1,4 @@
 #include "DQMServices/ClientConfig/interface/QTestConfigurationParser.h"
-#include "DQMServices/ClientConfig/interface/QTestNames.h"
 #include "DQMServices/ClientConfig/interface/QTestParameterNames.h"
 #include "DQMServices/ClientConfig/interface/ParserFunctions.h"
 
@@ -8,8 +7,8 @@
  *
  *  Implementation of QTestConfigurationParser
  *
- *  $Date: 2006/07/20 16:04:59 $
- *  $Revision: 1.2 $
+ *  $Date: 2007/01/31 18:57:42 $
+ *  $Revision: 1.3 $
  *  \author Ilaria Segoni
  */
 using namespace xercesc;
@@ -103,7 +102,7 @@ bool QTestConfigurationParser::qtestsConfig(){
 std::map<std::string, std::string> QTestConfigurationParser::getParams(DOMElement* qtestElement, std::string qtestType){
 	
 	std::map<std::string, std::string> paramNamesValues;
-	paramNamesValues[dqm::qtest_config::type]=qtestType;
+	paramNamesValues["type"]=qtestType;
 	
 	DOMNodeList *arguments = qtestElement->getElementsByTagName (qtxml::_toDOMS ("PARAM"));
 	

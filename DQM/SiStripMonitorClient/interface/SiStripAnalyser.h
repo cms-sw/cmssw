@@ -4,8 +4,8 @@
 /** \class SiStripAnalyser
  * *
  *  SiStrip SiStripAnalyser
- *  $Date: 2008/02/21 23:17:48 $
- *  $Revision: 1.19 $
+ *  $Date: 2008/05/07 19:22:09 $
+ *  $Revision: 1.22 $
  *  \author  S. Dutta INFN-Pisa
  *   
  */
@@ -15,7 +15,7 @@
 #include "FWCore/Framework/interface/ESHandle.h"
 #include "FWCore/Framework/interface/LuminosityBlock.h"
 #include "FWCore/Framework/interface/Run.h"
-
+#include "FWCore/Framework/interface/EventSetup.h"
 #include "EventFilter/Utilities/interface/ModuleWeb.h"
 
 #include <iostream>
@@ -72,7 +72,6 @@ protected:
 
 private:
 
-  void fillGlobalStatus();
 
   DQMStore* dqmStore_;
 
@@ -82,6 +81,7 @@ private:
   int summaryFrequency_;
   int tkMapFrequency_;
   int staticUpdateFrequency_;
+  bool globalStatusFilling_;
 
   std::string outputFilePath_;
   std::string outputFileName_;

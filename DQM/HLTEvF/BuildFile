@@ -1,4 +1,3 @@
-<use name=DQMServices/Components>
 <use name=DQMServices/Core>
 <use name=DQMServices/XdaqCollector>
 <use name=DQMServices/WebComponents>
@@ -13,7 +12,6 @@
 <use name=DataFormats/EgammaReco>
 <use name=DataFormats/TrackReco>
 <use name=DataFormats/HepMCCandidate>
-<use name=L1TriggerConfig/L1Geometry>
 <use name=DataFormats/TrajectorySeed>
 <use name=DataFormats/L1GlobalTrigger>
 <use name=DataFormats/L1Trigger>
@@ -37,7 +35,6 @@
   <use name=DataFormats/EgammaReco>
   <use name=DataFormats/TrackReco>
   <use name=DataFormats/HepMCCandidate>
-  <use name=L1TriggerConfig/L1Geometry>
   <use name=DataFormats/TrajectorySeed>
   <use name=DataFormats/L1GlobalTrigger>
   <use name=DataFormats/L1Trigger>

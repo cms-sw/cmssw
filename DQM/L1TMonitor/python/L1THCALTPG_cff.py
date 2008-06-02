@@ -25,20 +25,26 @@ hcalunpacker = cms.EDFilter("HcalRawToDigi",
 HcalDbProducer = cms.ESProducer("HcalDbProducer")
 
 es_hardcode = cms.ESSource("HcalHardcodeCalibrations",
-    toGet = cms.untracked.vstring('Gains', 'GainWidths', 'QIEShape', 'QIEData', 'ChannelQuality')
+    toGet = cms.untracked.vstring('Gains', 
+        'GainWidths', 
+        'QIEShape', 
+        'QIEData', 
+        'ChannelQuality')
 )
 
 es_ascii = cms.ESSource("HcalTextCalibrations",
     input = cms.VPSet(cms.PSet(
         object = cms.string('Pedestals'),
         file = cms.FileInPath('DQM/HcalMonitorModule/test/peds_ADC_hfplus_000269.txt')
-    ), cms.PSet(
-        object = cms.string('PedestalWidths'),
-        file = cms.FileInPath('DQM/HcalMonitorModule/test/widths_ADC_hfplus_000269.txt')
-    ), cms.PSet(
-        object = cms.string('ElectronicsMap'),
-        file = cms.FileInPath('DQM/HcalMonitorModule/data/test_tp_map.txt')
-    ))
+    ), 
+        cms.PSet(
+            object = cms.string('PedestalWidths'),
+            file = cms.FileInPath('DQM/HcalMonitorModule/test/widths_ADC_hfplus_000269.txt')
+        ), 
+        cms.PSet(
+            object = cms.string('ElectronicsMap'),
+            file = cms.FileInPath('DQM/HcalMonitorModule/data/test_tp_map.txt')
+        ))
 )
 
 l1thcaltpgpath = cms.Path(hcalunpacker*l1thcaltpg)

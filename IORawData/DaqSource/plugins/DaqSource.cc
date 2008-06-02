@@ -1,13 +1,15 @@
 /** \file 
  *
- *  $Date: 2008/01/31 04:54:45 $
- *  $Revision: 1.18 $
+ *  $Date: 2008/02/29 21:23:15 $
+ *  $Revision: 1.20 $
  *  \author N. Amapane - S. Argiro'
  */
 
 #include "DaqSource.h"
 
 #include "DataFormats/FEDRawData/interface/FEDRawDataCollection.h"
+#include "DataFormats/FEDRawData/interface/FEDNumbering.h"
+#include "EventFilter/Utilities/interface/GlobalEventNumber.h"
 
 #include "IORawData/DaqSource/interface/DaqBaseReader.h"
 #include "IORawData/DaqSource/interface/DaqReaderPluginFactory.h"
@@ -33,6 +35,9 @@
 ////////////////////////////////////////////////////////////////////////////////
 
 namespace edm {
+ namespace daqsource{
+  static unsigned int gtpEvmId_ =  FEDNumbering::getTriggerGTPFEDIds().first;
+ }
 
   //______________________________________________________________________________
   DaqSource::DaqSource(const ParameterSet& pset, 
@@ -125,6 +130,17 @@ namespace edm {
 	luminosityBlockNumber_ = (eventId.event() - 1)/lumiSegmentSizeInEvents_ + 1;
         newLumi_ = true;
 	resetLuminosityBlockPrincipal();
+    }
+    else if(!fakeLSid_){ 
+      unsigned char *fedAddr = fedCollection->FEDData(daqsource::gtpEvmId_).data();
+      if(evf::evtn::evm_board_sense(fedAddr)){
+	unsigned int thisEventLSid = evf::evtn::getlbn(fedAddr);
+	if(luminosityBlockNumber_ != (thisEventLSid + 1)){
+	  luminosityBlockNumber_ = thisEventLSid + 1;
+	  newLumi_ = true;
+	  resetLuminosityBlockPrincipal();
+	}
+      }
     }
 
     eventId = EventID(runNumber_, eventId.event());

@@ -29,16 +29,14 @@ namespace cond{
     cond::Time_t globalTill() const;
 
     std::string exportIOVWithPayload( cond::PoolTransaction& destDB,
-			       const std::string& iovToken,
-			       const std::string& payloadObjectName );
+			       const std::string& iovToken );
 
 
     std::string exportIOVRangeWithPayload( cond::PoolTransaction& destDB,
 					   const std::string& iovToken,
 					   const std::string& destToken,
 					   cond::Time_t since,
-					   cond::Time_t till,
-					   const std::string& payloadObjectName );
+					   cond::Time_t till );
   private:
     cond::PoolTransaction* m_pooldb;
     cond::TimeType m_timetype;

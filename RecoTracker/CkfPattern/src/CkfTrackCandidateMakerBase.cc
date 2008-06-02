@@ -170,7 +170,9 @@ namespace cms{
 	  if( it->isValid() ) {
 	    it->setSeedRef(collseed->refAt(j));
 	    rawResult.push_back(*it);
-            if (theSeedCleaner) theSeedCleaner->add( & (*it) );
+            //TO BE FIXED: this cut should be configurable via cfi file
+            if (theSeedCleaner && it->foundHits()>3) theSeedCleaner->add( & (*it) );
+            //if (theSeedCleaner ) theSeedCleaner->add( & (*it) );
 	  }
 	}
 
@@ -255,11 +257,19 @@ namespace cms{
       LogTrace("TrackingRegressionTest") << "number of finalTrajectories: " << unsmoothedResult.size();
       for (vector<Trajectory>::const_iterator it = unsmoothedResult.begin();
 	   it != unsmoothedResult.end(); it++) {
-	LogTrace("TrackingRegressionTest") << "candidate's n valid and invalid hit, chi2, pt : " 
-				       << it->foundHits() << " , " 
-				       << it->lostHits() <<" , " 
-				       <<it->chiSquared() << " , "
-				       <<it->lastMeasurement().predictedState().globalMomentum().perp();
+	if (it->lastMeasurement().updatedState().isValid()) {
+	  LogTrace("TrackingRegressionTest") << "candidate's n valid and invalid hit, chi2, pt : " 
+					     << it->foundHits() << " , " 
+					     << it->lostHits() <<" , " 
+					     << it->chiSquared() << " , "
+					     << it->lastMeasurement().updatedState().globalMomentum().perp();
+	} else if (it->lastMeasurement().predictedState().isValid()) {
+	  LogTrace("TrackingRegressionTest") << "candidate's n valid and invalid hit, chi2, pt : " 
+					     << it->foundHits() << " , " 
+					     << it->lostHits() <<" , " 
+					     << it->chiSquared() << " , "
+					     << it->lastMeasurement().predictedState().globalMomentum().perp();
+	} else LogTrace("TrackingRegressionTest") << "candidate with invalid last measurement state!";
       }
       LogTrace("TrackingRegressionTest") << "=================================================";
      

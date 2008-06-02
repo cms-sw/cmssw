@@ -3,8 +3,8 @@
 /*
  *  See header file for a description of this class.
  *
- *  $Date: 2007/06/05 14:47:59 $
- *  $Revision: 1.6 $
+ *  $Date: 2007/03/09 14:38:23 $
+ *  $Revision: 1.5 $
  *  \author N. Amapane - INFN Torino
  */
 
@@ -91,7 +91,6 @@ MagGeoBuilderFromDDD::volumeHandle::volumeHandle(const DDExpandedView &fv, bool 
       magFile = temp[0];
     } else {
       cout << "*** WARNING: volume does not have a SpecPar " << pname << endl;
-      cout << " DDsvalues_type:  " << fv.mergedSpecifics() << endl;
     }
   }
 
@@ -100,7 +99,7 @@ MagGeoBuilderFromDDD::volumeHandle::volumeHandle(const DDExpandedView &fv, bool 
     cout << " RMax =  " << theRMax <<endl;
       
     if (theRMin < 0 || theRN < theRMin || theRMax < theRN) 
-      cout << "*** WARNING: wrong RMin/RN/RMax , shape: " << (int) shape() << endl;
+      cout << "***WARNING: wrong RMin/RN/RMax " << endl;
 
     cout << "Summary: " << name << " " << copyno
 	 << " Shape= " << (int) shape()
@@ -128,7 +127,7 @@ void MagGeoBuilderFromDDD::volumeHandle::referencePlane(const DDExpandedView &fv
   // The refPlane is the "main plane" for the solid. It corresponds to the 
   // x,y plane in the DDD local frame, and defines a frame where the local
   // coordinates are the same as in DDD. 
-  // In the geometry version 85l_030919, this plane is normal to the 
+  // In the current magn geometry, this plane is normal to the 
   // beam line for all volumes but pseudotraps, so that global R is along Y,
   // global phi is along -X and global Z along Z:
   //
@@ -152,9 +151,21 @@ void MagGeoBuilderFromDDD::volumeHandle::referencePlane(const DDExpandedView &fv
   // The global position
   Surface::PositionType & posResult = center_;
 
-  // The reference plane rotation
+  // We currently use a null (unit) rotation for all shapes
+  DDRotationMatrix orcaCorrection;
+
+  // This rotation would define the z,x plane, i.e. parallel to the beam line
+  // for the convention used for the magnetic DDD geometry.
+  //     orcaCorrection.set(DDTranslation(0.,0.,1.),
+  // 		       DDTranslation(1.,0.,0.),
+  // 		       DDTranslation(0.,1.,0.));
+
+  // === DDD uses 'active' rotations - see CLHEP user guide ===
+  //     ORCA seems to use 'passive' rotation. 
+  //     'active' and 'passive' rotations are inverse to each other
+  DDRotationMatrix result = (fv.rotation()*orcaCorrection);//.Inverse();
   DD3Vector x, y, z;
-  fv.rotation().GetComponents(x,y,z);
+  result.GetComponents(x,y,z);
   if (MagGeoBuilderFromDDD::debug) {
     if (x.Cross(y).Dot(z) < 0.5) {
       cout << "*** WARNING: Rotation is not RH "<< endl;
@@ -169,23 +180,27 @@ void MagGeoBuilderFromDDD::volumeHandle::referencePlane(const DDExpandedView &fv
 
   refPlane = new GloballyPositioned<float>(posResult, rotResult);
 
-  // See comments above for the conventions for orientation.
-  LocalVector globalRdir(0.,1.,0.); // Local direction of the axis closer to global R
-  LocalVector globalZdir(0.,0.,1.); // Local direction of the axis along global Z (used for check only)
+  LocalVector globalRdir; // Local direction of global R
+  LocalVector globalZdir; // Local direction of global Z
   if (solid.shape() == ddpseudotrap) {
     globalRdir = LocalVector(0.,0.,1.);
     globalZdir = LocalVector(0.,1.,0.);    
-  }
-  if (refPlane->toGlobal(globalZdir).z()<0.) {
-    globalZdir=-globalZdir;
+  } else {
+    globalRdir = LocalVector(0.,1.,0.);
+    globalZdir = LocalVector(0.,0.,1.);
   }
 
   // Check correct orientation
   if (MagGeoBuilderFromDDD::debug) {
     float chk = refPlane->toGlobal(globalZdir).dot(GlobalVector(0,0,1));
-    if (chk < .999) cout << "*** WARNING RefPlane check failed!***"
-			 << chk << endl;
+    if (fabs(chk) < .999) cout << "*** WARNING RefPlane check failed!***"
+			       << endl;
   }
+  
+//   // Check that the reference plane is orthogonal to the CMS beam line.
+//   float chk = ((refPlane->normalVector()).unit()).dot(GlobalVector(0,0,1));
+//   if (fabs(chk) < .999) cout << "*** WARNING RefPlane check failed!***"
+// 			     << endl;
 
   if (MagGeoBuilderFromDDD::debug) cout << "Refplane pos  " << refPlane->position() << endl;
 
@@ -406,16 +421,12 @@ MagGeoBuilderFromDDD::volumeHandle::surface(int which_side) const {
 
 
 std::vector<VolumeSide>
-MagGeoBuilderFromDDD::volumeHandle::sides() const{
+MagGeoBuilderFromDDD::volumeHandle::sides(){
   std::vector<VolumeSide> result;
   for (int i=0; i<6; ++i){
     // If this is just a master volume out of wich a 2pi volume
     // should be built (e.g. central cylinder), skip the phi boundaries.
     if (expand && (i==phiplus || i==phiminus)) continue;
-
-    // FIXME: Skip null inner degenerate cylindrical surface
-    if (solid.shape() == ddtubs && i == SurfaceOrientation::inner && theRMin < 0.001) continue;
-
     ReferenceCountingPointer<Surface> s = const_cast<Surface*> (surfaces[i].get());
     result.push_back(VolumeSide(s, GlobalFace(i),
 				surfaces[i]->side(center_,0.3)));

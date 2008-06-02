@@ -168,8 +168,8 @@ void SiPixelTrackerMapCreator::create(DQMStore * bei)
 //
 void SiPixelTrackerMapCreator::paintTkMap(MonitorElement * mE) 
 {
-  double sts;
-  int    rval, gval, bval, detId;
+//  double sts;
+//  int    rval, gval, bval, detId;
 }
 
 //==============================================================================

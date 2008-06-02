@@ -23,4 +23,3 @@ MuFilter = cms.EDFilter("PythiaFilter",
 )
 
 
-

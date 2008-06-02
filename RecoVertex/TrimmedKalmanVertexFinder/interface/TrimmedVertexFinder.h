@@ -46,14 +46,6 @@ public:
    */
   std::vector<TransientVertex> 
     vertices(std::vector<reco::TransientTrack> & remain) const;
-  
-  /** Same as above,
-   * only with the extra information of the beamspot
-   * constraint.
-   */
-  std::vector<TransientVertex> 
-    vertices(std::vector<reco::TransientTrack> & remain,
-        const reco::BeamSpot & s, bool use_beamspot=true ) const;
 
   /** Access to parameter
    */

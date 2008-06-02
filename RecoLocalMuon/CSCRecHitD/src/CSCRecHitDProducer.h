@@ -36,6 +36,9 @@ public:
   unsigned iRun; 
   bool useCalib;
   //bool isData;
+  bool debug;
+  bool useCleanWireCollection;
+  bool useCleanStripCollection;
 
   std::string stripDigiProducer_;
   std::string wireDigiProducer_;

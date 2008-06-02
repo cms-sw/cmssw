@@ -9,9 +9,10 @@ CondDBCommon = cms.PSet(
         enablePoolAutomaticCleanUp = cms.untracked.bool(False),
         enableConnectionSharing = cms.untracked.bool(True),
         connectionRetrialTimeOut = cms.untracked.int32(60),
-        connectionTimeOut = cms.untracked.int32(0),
+        connectionTimeOut = cms.untracked.int32(60),
         enableReadOnlySessionOnUpdateConnection = cms.untracked.bool(False)
     ),
-    connect = cms.string('protocol://db/schema')
+    connect = cms.string('protocol://db/schema') ##db/schema"
+
 )
 

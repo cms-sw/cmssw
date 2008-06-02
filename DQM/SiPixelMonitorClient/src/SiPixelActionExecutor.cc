@@ -134,7 +134,7 @@ void SiPixelActionExecutor::createTkMap(DQMStore* bei,
 
 //=============================================================================================================
 void SiPixelActionExecutor::createSummary(DQMStore* bei) {
-cout<<"entering SiPixelActionExecutor::createSummary..."<<endl;
+//cout<<"entering SiPixelActionExecutor::createSummary..."<<endl;
   string barrel_structure_name;
   vector<string> barrel_me_names;
   if (!configParser_->getMENamesForBarrelSummary(barrel_structure_name, barrel_me_names)){
@@ -142,7 +142,7 @@ cout<<"entering SiPixelActionExecutor::createSummary..."<<endl;
     return;
   }
   configParser_->getSourceType(source_type_); 
-  cout<<"Found source_type_="<<source_type_<<endl;
+  //cout<<"Found source_type_="<<source_type_<<endl;
   bei->cd();
   fillBarrelSummary(bei, barrel_structure_name, barrel_me_names);
   bei->cd();
@@ -172,7 +172,7 @@ cout<<"entering SiPixelActionExecutor::createSummary..."<<endl;
   configWriter_->write(fname);
   if (configWriter_) delete configWriter_;
   configWriter_ = 0;
-cout<<"leaving SiPixelActionExecutor::createSummary..."<<endl;
+//cout<<"leaving SiPixelActionExecutor::createSummary..."<<endl;
 }
 
 
@@ -210,9 +210,9 @@ void SiPixelActionExecutor::fillBarrelSummary(DQMStore* bei,
 	  prefix="SUMHIT";
 	else if((*iv)=="Gain1d"||(*iv)=="GainChi2NDF1d"||
 	   (*iv)=="GainChi2Prob1d"||(*iv)=="Pedestal1d"||
-	   (*iv)=="ScurveChi2NDFSummary"||(*iv)=="ScurveFitResultSummary"||
+	   (*iv)=="ScurveChi2ProbSummary"||(*iv)=="ScurveFitResultSummary"||
 	   (*iv)=="ScurveSigmasSummary"||(*iv)=="ScurveThresholdSummary"||
-	   (*iv)=="pixelAliveSummary")
+	   (*iv)=="pixelAliveSummary"  || (*iv) == "SiPixelErrorsCalibDigis") 
 	  prefix="SUMCAL"; 
       }
       if((*iv).find("residual")!=string::npos ||        // track residuals
@@ -221,9 +221,11 @@ void SiPixelActionExecutor::fillBarrelSummary(DQMStore* bei,
                                 + currDir.substr(currDir.find(dir_name));
         MonitorElement* temp = getSummaryME(bei, tag);
         sum_mes.push_back(temp);
-        if((*iv)!="pixelAliveSummary"){
+        if((*iv)!="pixelAliveSummary" && (*iv) != "SiPixelErrorsCalibDigis"){
 	  tag = prefix + "_" + (*iv) + "_RMS_" 
                                 + currDir.substr(currDir.find(dir_name));
+	}else if((*iv) == "SiPixelErrorsCalibDigis"){
+	  tag = prefix + "_" + (*iv) + "_NCalibErrors_" + currDir.substr(currDir.find(dir_name));
 	}else{
 	  tag = prefix + "_" + (*iv) + "_FracOfPerfectPix_"
                                 + currDir.substr(currDir.find(dir_name));
@@ -267,11 +269,14 @@ void SiPixelActionExecutor::fillBarrelSummary(DQMStore* bei,
 	      if (sname.find("_RMS_")!=string::npos){
 	        (*isum)->Fill(ndet, me->getRMS());
 	      }else if (sname.find("_FracOfPerfectPix_")!=string::npos){
-	        cout<<"nbins = "<<me->getNbinsX()<<" , "<<me->getBinEntries(me->getNbinsX()-1)<<" , "<<me->getBinEntries(me->getNbinsX())<<endl;
-		float nlast = me->getBinEntries(me->getNbinsX());
+	        //cout<<"nbins = "<<me->getNbinsX()<<" , "<<me->getBinContent(me->getNbinsX()-1)<<" , "<<me->getBinContent(me->getNbinsX())<<endl;
+		float nlast = me->getBinContent(me->getNbinsX());
 		float nall = me->getEntries();
 	        (*isum)->Fill(ndet, nlast/nall);
-              }else{
+              }else if (sname.find("_NCalibErrors_")!=string::npos){
+		float nall = me->getEntries();
+		(*isum)->Fill(ndet, nall);
+	      }else{
 	        (*isum)->Fill(ndet, me->getMean());
 	      }
               (*isum)->setAxisTitle("modules",1);
@@ -280,6 +285,8 @@ void SiPixelActionExecutor::fillBarrelSummary(DQMStore* bei,
                 title = "RMS of " + sname.substr(7,(sname.find("_",7)-7)) + " per module"; 
 	      }else if (sname.find("_FracOfPerfectPix_")!=string::npos){
                 title = "FracOfPerfectPix " + sname.substr(7,(sname.find("_",7)-7)) + " per module"; 
+	      }else if(sname.find("_NCalibErrors_")!=string::npos){
+		title = "Number of CalibErrors " + sname.substr(7,(sname.find("_",7)-7)) + " per module"; 
               }else{
                 title = "Mean " + sname.substr(7,(sname.find("_",7)-7)) + " per module"; 
 	      }
@@ -311,7 +318,7 @@ void SiPixelActionExecutor::fillBarrelSummary(DQMStore* bei,
     }
     fillGrandBarrelSummaryHistos(bei, grandbarrel_me_names);
   }
- // cout<<"...leaving SiPixelActionExecutor::fillBarrelSummary!"<<endl;
+  //cout<<"...leaving SiPixelActionExecutor::fillBarrelSummary!"<<endl;
 }
 
 void SiPixelActionExecutor::fillEndcapSummary(DQMStore* bei,
@@ -349,9 +356,9 @@ void SiPixelActionExecutor::fillEndcapSummary(DQMStore* bei,
 	  prefix="SUMHIT";
 	else if((*iv)=="Gain1d"||(*iv)=="GainChi2NDF1d"||
 	   (*iv)=="GainChi2Prob1d"||(*iv)=="Pedestal1d"||
-	   (*iv)=="ScurveChi2NDFSummary"||(*iv)=="ScurveFitResultSummary"||
+	   (*iv)=="ScurveChi2ProbSummary"||(*iv)=="ScurveFitResultSummary"||
 	   (*iv)=="ScurveSigmasSummary"||(*iv)=="ScurveThresholdSummary"||
-	   (*iv)=="pixelAliveSummary")
+	   (*iv)=="pixelAliveSummary" || (*iv)=="SiPixelErrorsCalibDigis")
 	  prefix="SUMCAL"; 
       }
       if((*iv).find("residual")!=string::npos ||            // track residuals
@@ -360,9 +367,11 @@ void SiPixelActionExecutor::fillEndcapSummary(DQMStore* bei,
                                 + currDir.substr(currDir.find(dir_name));
         MonitorElement* temp = getSummaryME(bei, tag);
         sum_mes.push_back(temp);
-        if((*iv)!="pixelAliveSummary"){
+        if((*iv)!="pixelAliveSummary" && (*iv)!="SiPixelErrorsCalibDigis"){
 	  tag = prefix + "_" + (*iv) + "_RMS_" 
                                 + currDir.substr(currDir.find(dir_name));
+	}else if((*iv) == "SiPixelErrorsCalibDigis"){
+	  tag = prefix + "_" + (*iv) + "_NCalibErrors_" + currDir.substr(currDir.find(dir_name));
 	}else{
 	  tag = prefix + "_" + (*iv) + "_FracOfPerfectPix_"
                                 + currDir.substr(currDir.find(dir_name));
@@ -406,10 +415,13 @@ void SiPixelActionExecutor::fillEndcapSummary(DQMStore* bei,
 	      if (sname.find("_RMS_")!=string::npos){
 	        (*isum)->Fill(ndet, me->getRMS());
 	      }else if (sname.find("_FracOfPerfectPix_")!=string::npos){
-		float nlast = me->getBinEntries(me->getNbinsX());
+		float nlast = me->getBinContent(me->getNbinsX());
 		float nall = me->getEntries();
 	        (*isum)->Fill(ndet, nlast/nall);
-              }else{
+              }else if (sname.find("_NCalibErrors_")!=string::npos){
+		float nall = me->getEntries();
+		(*isum)->Fill(ndet, nall);
+	      }else{
 	        (*isum)->Fill(ndet, me->getMean());
 	      }
               (*isum)->setAxisTitle("modules",1);
@@ -418,7 +430,9 @@ void SiPixelActionExecutor::fillEndcapSummary(DQMStore* bei,
                 title = "RMS of " + sname.substr(7,(sname.find("_",7)-7)) + " per module"; 
 	      }else if (sname.find("_FracOfPerfectPix_")!=string::npos){
                 title = "FracOfPerfectPix " + sname.substr(7,(sname.find("_",7)-7)) + " per module"; 
-              }else{
+              }else if (sname.find("_NCalibErrors_")!=string::npos){
+		title = "NCalibErrors " + sname.substr(7,(sname.find("_",7)-7)) + " per module"; 
+	      }else{
                 title = "Mean " + sname.substr(7,(sname.find("_",7)-7)) + " per module"; 
 	      }
               (*isum)->setAxisTitle(title,2);
@@ -449,7 +463,7 @@ void SiPixelActionExecutor::fillEndcapSummary(DQMStore* bei,
     }
     fillGrandEndcapSummaryHistos(bei, grandendcap_me_names);
   }
- // cout<<"...leaving SiPixelActionExecutor::fillEndcapSummary!"<<endl;
+  //cout<<"...leaving SiPixelActionExecutor::fillEndcapSummary!"<<endl;
 }
 
 
@@ -590,13 +604,14 @@ void SiPixelActionExecutor::fillGrandBarrelSummaryHistos(DQMStore* bei,
 	    prefix="SUMHIT";
 	  else if((*iv)=="Gain1d_mean"||(*iv)=="GainChi2NDF1d_mean"||
 	     (*iv)=="GainChi2Prob1d_mean"||(*iv)=="Pedestal1d_mean"||
-	     (*iv)=="ScurveChi2NDFSummary_mean"||(*iv)=="ScurveFitResultSummary_mean"||
+	     (*iv)=="ScurveChi2ProbSummary_mean"||(*iv)=="ScurveFitResultSummary_mean"||
 	     (*iv)=="ScurveSigmasSummary_mean"||(*iv)=="ScurveThresholdSummary_mean"||
 	     (*iv)=="Gain1d_RMS"||(*iv)=="GainChi2NDF1d_RMS"||
 	     (*iv)=="GainChi2Prob1d_RMS"||(*iv)=="Pedestal1d_RMS"||
-	     (*iv)=="ScurveChi2NDFSummary_RMS"||(*iv)=="ScurveFitResultSummary_RMS"||
+	     (*iv)=="ScurveChi2ProbSummary_RMS"||(*iv)=="ScurveFitResultSummary_RMS"||
 	     (*iv)=="ScurveSigmasSummary_RMS"||(*iv)=="ScurveThresholdSummary_RMS"||
-	     (*iv)=="pixelAliveSummary_mean"||(*iv)=="pixelAliveSummary_FracOfPerfectPix")
+	     (*iv)=="pixelAliveSummary_mean"||(*iv)=="pixelAliveSummary_FracOfPerfectPix" ||
+	     (*iv)=="SiPixelErrorsCalibDigis_NCalibErrors" )
 	    prefix="SUMCAL";
         }
 	string var = "_" + (*iv) + "_";
@@ -714,13 +729,14 @@ void SiPixelActionExecutor::fillGrandEndcapSummaryHistos(DQMStore* bei,
 	    prefix="SUMHIT";
 	  else if((*iv)=="Gain1d_mean"||(*iv)=="GainChi2NDF1d_mean"||
 	     (*iv)=="GainChi2Prob1d_mean"||(*iv)=="Pedestal1d_mean"||
-	     (*iv)=="ScurveChi2NDFSummary_mean"||(*iv)=="ScurveFitResultSummary_mean"||
+	     (*iv)=="ScurveChi2ProbSummary_mean"||(*iv)=="ScurveFitResultSummary_mean"||
 	     (*iv)=="ScurveSigmasSummary_mean"||(*iv)=="ScurveThresholdSummary_mean"||
 	     (*iv)=="Gain1d_RMS"||(*iv)=="GainChi2NDF1d_RMS"||
 	     (*iv)=="GainChi2Prob1d_RMS"||(*iv)=="Pedestal1d_RMS"||
-	     (*iv)=="ScurveChi2NDFSummary_RMS"||(*iv)=="ScurveFitResultSummary_RMS"||
+	     (*iv)=="ScurveChi2ProbSummary_RMS"||(*iv)=="ScurveFitResultSummary_RMS"||
 	     (*iv)=="ScurveSigmasSummary_RMS"||(*iv)=="ScurveThresholdSummary_RMS"||
-	     (*iv)=="pixelAliveSummary_mean"||(*iv)=="pixelAliveSummary_FracOfPerfectPix")
+	     (*iv)=="pixelAliveSummary_mean"||(*iv)=="pixelAliveSummary_FracOfPerfectPix"
+		  || (*iv) == "SiPixelErrorsCalibDigis_NCalibErrors")
 	    prefix="SUMCAL"; 
         }
 	string var = "_" + (*iv) + "_";
@@ -841,9 +857,10 @@ MonitorElement* SiPixelActionExecutor::getSummaryME(DQMStore* bei,
       }
     }
   }
+  contents.clear();
   me = bei->book1D(me_name.c_str(), me_name.c_str(),4,1.,5.);
+ // cout<<"...leaving SiPixelActionExecutor::getSummaryME!"<<endl;
   return me;
-  //cout<<"...leaving SiPixelActionExecutor::getSummaryME!"<<endl;
 }
 
 

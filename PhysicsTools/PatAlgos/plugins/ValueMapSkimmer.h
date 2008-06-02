@@ -89,12 +89,8 @@ void ValueMapSkimmer<value_type,AssoContainer,KeyType>::produce(edm::Event & iEv
             failSilently_(iConfig.getUntrackedParameter<bool>("failSilently", false)),
             collection_(iConfig.getParameter<edm::InputTag>("collection")),
             backrefs_(iConfig.getParameter<edm::InputTag>("backrefs")),
-            sublabels_(iConfig.exists("commonLabel")),
-            associations_(iConfig.getParameter<std::vector<edm::InputTag> >("associations"))
+            associations_(iConfig.getParameter<edm::InputTag>("associations"))
             { 
-                if (sublabels_) {
-                    motherLabel_  = iConfig.getParameter<edm::InputTag>("commonLabel");
-                }
                 for (std::vector<edm::InputTag>::const_iterator it = associations_.begin(), ed = associations_.end(); it != ed; ++it) {
                     produces< OutputMap >(it->label() + it->instance());
                 }
@@ -106,9 +102,7 @@ void ValueMapSkimmer<value_type,AssoContainer,KeyType>::produce(edm::Event & iEv
     private:
       bool failSilently_;
       edm::InputTag collection_, backrefs_;
-      bool sublabels_; 
       std::vector<edm::InputTag> associations_;
-      edm::InputTag motherLabel_;
   };
 
 template<typename value_type, typename AssoContainer, typename KeyType> 
@@ -124,9 +118,8 @@ void ManyValueMapsSkimmer<value_type,AssoContainer,KeyType>::produce(edm::Event 
         edm::Handle< AssoContainer > association;
         // needed in 16X as getByLabel throws immediatly
         try {
-            const edm::InputTag & tag = (sublabels_ ? edm::InputTag(motherLabel_.label(), it->label() + it->instance()) : *it);
-            iEvent.getByLabel(tag, association);
-            if (association.failedToGet() && failSilently_) continue; 
+        iEvent.getByLabel(*it, association);
+        if (association.failedToGet() && failSilently_) continue; 
         } catch (cms::Exception &e) { if (failSilently_) return; throw; }
 
         size_t size = collection->size();

@@ -1,8 +1,8 @@
 /*
  * \file EEPedestalClient.cc
  *
- * $Date: 2008/03/15 14:07:45 $
- * $Revision: 1.68 $
+ * $Date: 2008/05/09 08:07:54 $
+ * $Revision: 1.77 $
  * \author G. Della Ricca
  * \author F. Cossutti
  *
@@ -24,7 +24,9 @@
 #include "OnlineDB/EcalCondDB/interface/MonPedestalsDat.h"
 #include "OnlineDB/EcalCondDB/interface/MonPNPedDat.h"
 #include "OnlineDB/EcalCondDB/interface/RunCrystalErrorsDat.h"
+#include "OnlineDB/EcalCondDB/interface/RunTTErrorsDat.h"
 #include "OnlineDB/EcalCondDB/interface/RunPNErrorsDat.h"
+#include "OnlineDB/EcalCondDB/interface/RunMemTTErrorsDat.h"
 
 #include "OnlineDB/EcalCondDB/interface/EcalCondDBInterface.h"
 
@@ -46,8 +48,14 @@ EEPedestalClient::EEPedestalClient(const ParameterSet& ps){
   // cloneME switch
   cloneME_ = ps.getUntrackedParameter<bool>("cloneME", true);
 
-  // verbosity switch
-  verbose_ = ps.getUntrackedParameter<bool>("verbose", false);
+  // verbose switch
+  verbose_ = ps.getUntrackedParameter<bool>("verbose", true);
+
+  // debug switch
+  debug_ = ps.getUntrackedParameter<bool>("debug", false);
+
+  // prefixME path
+  prefixME_ = ps.getUntrackedParameter<string>("prefixME", "");
 
   // enableCleanup_ switch
   enableCleanup_ = ps.getUntrackedParameter<bool>("enableCleanup", false);
@@ -137,11 +145,11 @@ EEPedestalClient::~EEPedestalClient(){
 
 }
 
-void EEPedestalClient::beginJob(DQMStore* dbe){
+void EEPedestalClient::beginJob(DQMStore* dqmStore){
 
-  dbe_ = dbe;
+  dqmStore_ = dqmStore;
 
-  if ( verbose_ ) cout << "EEPedestalClient: beginJob" << endl;
+  if ( debug_ ) cout << "EEPedestalClient: beginJob" << endl;
 
   ievt_ = 0;
   jevt_ = 0;
@@ -150,7 +158,7 @@ void EEPedestalClient::beginJob(DQMStore* dbe){
 
 void EEPedestalClient::beginRun(void){
 
-  if ( verbose_ ) cout << "EEPedestalClient: beginRun" << endl;
+  if ( debug_ ) cout << "EEPedestalClient: beginRun" << endl;
 
   jevt_ = 0;
 
@@ -160,7 +168,7 @@ void EEPedestalClient::beginRun(void){
 
 void EEPedestalClient::endJob(void) {
 
-  if ( verbose_ ) cout << "EEPedestalClient: endJob, ievt = " << ievt_ << endl;
+  if ( debug_ ) cout << "EEPedestalClient: endJob, ievt = " << ievt_ << endl;
 
   this->cleanup();
 
@@ -168,7 +176,7 @@ void EEPedestalClient::endJob(void) {
 
 void EEPedestalClient::endRun(void) {
 
-  if ( verbose_ ) cout << "EEPedestalClient: endRun, jevt = " << jevt_ << endl;
+  if ( debug_ ) cout << "EEPedestalClient: endRun, jevt = " << jevt_ << endl;
 
   this->cleanup();
 
@@ -178,103 +186,103 @@ void EEPedestalClient::setup(void) {
 
   char histo[200];
 
-  dbe_->setCurrentFolder( "EcalEndcap/EEPedestalClient" );
+  dqmStore_->setCurrentFolder( prefixME_ + "/EEPedestalClient" );
 
   for ( unsigned int i=0; i<superModules_.size(); i++ ) {
 
     int ism = superModules_[i];
 
-    if ( meg01_[ism-1] ) dbe_->removeElement( meg01_[ism-1]->getName() );
+    if ( meg01_[ism-1] ) dqmStore_->removeElement( meg01_[ism-1]->getName() );
     sprintf(histo, "EEPT pedestal quality G01 %s", Numbers::sEE(ism).c_str());
-    meg01_[ism-1] = dbe_->book2D(histo, histo, 50, Numbers::ix0EE(ism)+0., Numbers::ix0EE(ism)+50., 50, Numbers::iy0EE(ism)+0., Numbers::iy0EE(ism)+50.);
+    meg01_[ism-1] = dqmStore_->book2D(histo, histo, 50, Numbers::ix0EE(ism)+0., Numbers::ix0EE(ism)+50., 50, Numbers::iy0EE(ism)+0., Numbers::iy0EE(ism)+50.);
     meg01_[ism-1]->setAxisTitle("jx", 1);
     meg01_[ism-1]->setAxisTitle("jy", 2);
-    if ( meg02_[ism-1] ) dbe_->removeElement( meg02_[ism-1]->getName() );
+    if ( meg02_[ism-1] ) dqmStore_->removeElement( meg02_[ism-1]->getName() );
     sprintf(histo, "EEPT pedestal quality G06 %s", Numbers::sEE(ism).c_str());
-    meg02_[ism-1] = dbe_->book2D(histo, histo, 50, Numbers::ix0EE(ism)+0., Numbers::ix0EE(ism)+50., 50, Numbers::iy0EE(ism)+0., Numbers::iy0EE(ism)+50.);
+    meg02_[ism-1] = dqmStore_->book2D(histo, histo, 50, Numbers::ix0EE(ism)+0., Numbers::ix0EE(ism)+50., 50, Numbers::iy0EE(ism)+0., Numbers::iy0EE(ism)+50.);
     meg02_[ism-1]->setAxisTitle("jx", 1);
     meg02_[ism-1]->setAxisTitle("jy", 2);
-    if ( meg03_[ism-1] ) dbe_->removeElement( meg03_[ism-1]->getName() );
+    if ( meg03_[ism-1] ) dqmStore_->removeElement( meg03_[ism-1]->getName() );
     sprintf(histo, "EEPT pedestal quality G12 %s", Numbers::sEE(ism).c_str());
-    meg03_[ism-1] = dbe_->book2D(histo, histo, 50, Numbers::ix0EE(ism)+0., Numbers::ix0EE(ism)+50., 50, Numbers::iy0EE(ism)+0., Numbers::iy0EE(ism)+50.);
+    meg03_[ism-1] = dqmStore_->book2D(histo, histo, 50, Numbers::ix0EE(ism)+0., Numbers::ix0EE(ism)+50., 50, Numbers::iy0EE(ism)+0., Numbers::iy0EE(ism)+50.);
     meg03_[ism-1]->setAxisTitle("jx", 1);
     meg03_[ism-1]->setAxisTitle("jy", 2);
 
-    if ( meg04_[ism-1] ) dbe_->removeElement( meg04_[ism-1]->getName() );
+    if ( meg04_[ism-1] ) dqmStore_->removeElement( meg04_[ism-1]->getName() );
     sprintf(histo, "EEPT pedestal quality PNs G01 %s", Numbers::sEE(ism).c_str());
-    meg04_[ism-1] = dbe_->book2D(histo, histo, 10, 0., 10., 1, 0., 5.);
+    meg04_[ism-1] = dqmStore_->book2D(histo, histo, 10, 0., 10., 1, 0., 5.);
     meg04_[ism-1]->setAxisTitle("pseudo-strip", 1);
     meg04_[ism-1]->setAxisTitle("channel", 2);
-    if ( meg05_[ism-1] ) dbe_->removeElement( meg05_[ism-1]->getName() );
+    if ( meg05_[ism-1] ) dqmStore_->removeElement( meg05_[ism-1]->getName() );
     sprintf(histo, "EEPT pedestal quality PNs G16 %s", Numbers::sEE(ism).c_str());
-    meg05_[ism-1] = dbe_->book2D(histo, histo, 10, 0., 10., 1, 0., 5.);
+    meg05_[ism-1] = dqmStore_->book2D(histo, histo, 10, 0., 10., 1, 0., 5.);
     meg05_[ism-1]->setAxisTitle("pseudo-strip", 1);
     meg05_[ism-1]->setAxisTitle("channel", 2);
 
-    if ( mep01_[ism-1] ) dbe_->removeElement( mep01_[ism-1]->getName() );
+    if ( mep01_[ism-1] ) dqmStore_->removeElement( mep01_[ism-1]->getName() );
     sprintf(histo, "EEPT pedestal mean G01 %s", Numbers::sEE(ism).c_str());
-    mep01_[ism-1] = dbe_->book1D(histo, histo, 100, 150., 250.);
+    mep01_[ism-1] = dqmStore_->book1D(histo, histo, 100, 150., 250.);
     mep01_[ism-1]->setAxisTitle("mean", 1);
-    if ( mep02_[ism-1] ) dbe_->removeElement( mep02_[ism-1]->getName() );
+    if ( mep02_[ism-1] ) dqmStore_->removeElement( mep02_[ism-1]->getName() );
     sprintf(histo, "EEPT pedestal mean G06 %s", Numbers::sEE(ism).c_str());
-    mep02_[ism-1] = dbe_->book1D(histo, histo, 100, 150., 250.);
+    mep02_[ism-1] = dqmStore_->book1D(histo, histo, 100, 150., 250.);
     mep02_[ism-1]->setAxisTitle("mean", 1);
-    if ( mep03_[ism-1] ) dbe_->removeElement( mep03_[ism-1]->getName() );
+    if ( mep03_[ism-1] ) dqmStore_->removeElement( mep03_[ism-1]->getName() );
     sprintf(histo, "EEPT pedestal mean G12 %s", Numbers::sEE(ism).c_str());
-    mep03_[ism-1] = dbe_->book1D(histo, histo, 100, 150., 250.);
+    mep03_[ism-1] = dqmStore_->book1D(histo, histo, 100, 150., 250.);
     mep03_[ism-1]->setAxisTitle("mean", 1);
 
-    if ( mer01_[ism-1] ) dbe_->removeElement( mer01_[ism-1]->getName() );
+    if ( mer01_[ism-1] ) dqmStore_->removeElement( mer01_[ism-1]->getName() );
     sprintf(histo, "EEPT pedestal rms G01 %s", Numbers::sEE(ism).c_str());
-    mer01_[ism-1] = dbe_->book1D(histo, histo, 100, 0., 10.);
+    mer01_[ism-1] = dqmStore_->book1D(histo, histo, 100, 0., 10.);
     mer01_[ism-1]->setAxisTitle("rms", 1);
-    if ( mer02_[ism-1] ) dbe_->removeElement( mer02_[ism-1]->getName() );
+    if ( mer02_[ism-1] ) dqmStore_->removeElement( mer02_[ism-1]->getName() );
     sprintf(histo, "EEPT pedestal rms G06 %s", Numbers::sEE(ism).c_str());
-    mer02_[ism-1] = dbe_->book1D(histo, histo, 100, 0., 10.);
+    mer02_[ism-1] = dqmStore_->book1D(histo, histo, 100, 0., 10.);
     mer02_[ism-1]->setAxisTitle("rms", 1);
-    if ( mer03_[ism-1] ) dbe_->removeElement( mer03_[ism-1]->getName() );
+    if ( mer03_[ism-1] ) dqmStore_->removeElement( mer03_[ism-1]->getName() );
     sprintf(histo, "EEPT pedestal rms G12 %s", Numbers::sEE(ism).c_str());
-    mer03_[ism-1] = dbe_->book1D(histo, histo, 100, 0., 10.);
+    mer03_[ism-1] = dqmStore_->book1D(histo, histo, 100, 0., 10.);
     mer03_[ism-1]->setAxisTitle("rms", 1);
 
-    if ( mer04_[ism-1] ) dbe_->removeElement( mer04_[ism-1]->getName() );
+    if ( mer04_[ism-1] ) dqmStore_->removeElement( mer04_[ism-1]->getName() );
     sprintf(histo, "EEPDT PNs pedestal rms %s G01", Numbers::sEE(ism).c_str());
-    mer04_[ism-1] = dbe_->book1D(histo, histo, 100, 0., 10.);
+    mer04_[ism-1] = dqmStore_->book1D(histo, histo, 100, 0., 10.);
     mer04_[ism-1]->setAxisTitle("rms", 1);
-    if ( mer05_[ism-1] ) dbe_->removeElement( mer05_[ism-1]->getName() );
+    if ( mer05_[ism-1] ) dqmStore_->removeElement( mer05_[ism-1]->getName() );
     sprintf(histo, "EEPDT PNs pedestal rms %s G16", Numbers::sEE(ism).c_str());
-    mer05_[ism-1] = dbe_->book1D(histo, histo, 100, 0., 10.);
+    mer05_[ism-1] = dqmStore_->book1D(histo, histo, 100, 0., 10.);
     mer05_[ism-1]->setAxisTitle("rms", 1);
 
-    if ( mes01_[ism-1] ) dbe_->removeElement( mes01_[ism-1]->getName() );
+    if ( mes01_[ism-1] ) dqmStore_->removeElement( mes01_[ism-1]->getName() );
     sprintf(histo, "EEPT pedestal 3sum G01 %s", Numbers::sEE(ism).c_str());
-    mes01_[ism-1] = dbe_->book2D(histo, histo, 50, Numbers::ix0EE(ism)+0., Numbers::ix0EE(ism)+50., 50, Numbers::iy0EE(ism)+0., Numbers::iy0EE(ism)+50.);
+    mes01_[ism-1] = dqmStore_->book2D(histo, histo, 50, Numbers::ix0EE(ism)+0., Numbers::ix0EE(ism)+50., 50, Numbers::iy0EE(ism)+0., Numbers::iy0EE(ism)+50.);
     mes01_[ism-1]->setAxisTitle("jx", 1);
     mes01_[ism-1]->setAxisTitle("jy", 2);
-    if ( mes02_[ism-1] ) dbe_->removeElement( mes02_[ism-1]->getName() );
+    if ( mes02_[ism-1] ) dqmStore_->removeElement( mes02_[ism-1]->getName() );
     sprintf(histo, "EEPT pedestal 3sum G06 %s", Numbers::sEE(ism).c_str());
-    mes02_[ism-1] = dbe_->book2D(histo, histo, 50, Numbers::ix0EE(ism)+0., Numbers::ix0EE(ism)+50., 50, Numbers::iy0EE(ism)+0., Numbers::iy0EE(ism)+50.);
+    mes02_[ism-1] = dqmStore_->book2D(histo, histo, 50, Numbers::ix0EE(ism)+0., Numbers::ix0EE(ism)+50., 50, Numbers::iy0EE(ism)+0., Numbers::iy0EE(ism)+50.);
     mes02_[ism-1]->setAxisTitle("jx", 1);
     mes02_[ism-1]->setAxisTitle("jy", 2);
-    if ( mes03_[ism-1] ) dbe_->removeElement( mes03_[ism-1]->getName() );
+    if ( mes03_[ism-1] ) dqmStore_->removeElement( mes03_[ism-1]->getName() );
     sprintf(histo, "EEPT pedestal 3sum G12 %s", Numbers::sEE(ism).c_str());
-    mes03_[ism-1] = dbe_->book2D(histo, histo, 50, Numbers::ix0EE(ism)+0., Numbers::ix0EE(ism)+50., 50, Numbers::iy0EE(ism)+0., Numbers::iy0EE(ism)+50.);
+    mes03_[ism-1] = dqmStore_->book2D(histo, histo, 50, Numbers::ix0EE(ism)+0., Numbers::ix0EE(ism)+50., 50, Numbers::iy0EE(ism)+0., Numbers::iy0EE(ism)+50.);
     mes03_[ism-1]->setAxisTitle("jx", 1);
     mes03_[ism-1]->setAxisTitle("jy", 2);
 
-    if ( met01_[ism-1] ) dbe_->removeElement( met01_[ism-1]->getName() );
+    if ( met01_[ism-1] ) dqmStore_->removeElement( met01_[ism-1]->getName() );
     sprintf(histo, "EEPT pedestal 5sum G01 %s", Numbers::sEE(ism).c_str());
-    met01_[ism-1] = dbe_->book2D(histo, histo, 50, Numbers::ix0EE(ism)+0., Numbers::ix0EE(ism)+50., 50, Numbers::iy0EE(ism)+0., Numbers::iy0EE(ism)+50.);
+    met01_[ism-1] = dqmStore_->book2D(histo, histo, 50, Numbers::ix0EE(ism)+0., Numbers::ix0EE(ism)+50., 50, Numbers::iy0EE(ism)+0., Numbers::iy0EE(ism)+50.);
     met01_[ism-1]->setAxisTitle("jx", 1);
     met01_[ism-1]->setAxisTitle("jy", 2);
-    if ( met02_[ism-1] ) dbe_->removeElement( met02_[ism-1]->getName() );
+    if ( met02_[ism-1] ) dqmStore_->removeElement( met02_[ism-1]->getName() );
     sprintf(histo, "EEPT pedestal 5sum G06 %s", Numbers::sEE(ism).c_str());
-    met02_[ism-1] = dbe_->book2D(histo, histo, 50, Numbers::ix0EE(ism)+0., Numbers::ix0EE(ism)+50., 50, Numbers::iy0EE(ism)+0., Numbers::iy0EE(ism)+50.);
+    met02_[ism-1] = dqmStore_->book2D(histo, histo, 50, Numbers::ix0EE(ism)+0., Numbers::ix0EE(ism)+50., 50, Numbers::iy0EE(ism)+0., Numbers::iy0EE(ism)+50.);
     met02_[ism-1]->setAxisTitle("jx", 1);
     met02_[ism-1]->setAxisTitle("jy", 2);
-    if ( met03_[ism-1] ) dbe_->removeElement( met03_[ism-1]->getName() );
+    if ( met03_[ism-1] ) dqmStore_->removeElement( met03_[ism-1]->getName() );
     sprintf(histo, "EEPT pedestal 5sum G12 %s", Numbers::sEE(ism).c_str());
-    met03_[ism-1] = dbe_->book2D(histo, histo, 50, Numbers::ix0EE(ism)+0., Numbers::ix0EE(ism)+50., 50, Numbers::iy0EE(ism)+0., Numbers::iy0EE(ism)+50.);
+    met03_[ism-1] = dqmStore_->book2D(histo, histo, 50, Numbers::ix0EE(ism)+0., Numbers::ix0EE(ism)+50., 50, Numbers::iy0EE(ism)+0., Numbers::iy0EE(ism)+50.);
     met03_[ism-1]->setAxisTitle("jx", 1);
     met03_[ism-1]->setAxisTitle("jy", 2);
 
@@ -398,55 +406,55 @@ void EEPedestalClient::cleanup(void) {
 
   }
 
-  dbe_->setCurrentFolder( "EcalEndcap/EEPedestalClient" );
+  dqmStore_->setCurrentFolder( prefixME_ + "/EEPedestalClient" );
 
   for ( unsigned int i=0; i<superModules_.size(); i++ ) {
 
     int ism = superModules_[i];
 
-    if ( meg01_[ism-1] ) dbe_->removeElement( meg01_[ism-1]->getName() );
+    if ( meg01_[ism-1] ) dqmStore_->removeElement( meg01_[ism-1]->getName() );
     meg01_[ism-1] = 0;
-    if ( meg02_[ism-1] ) dbe_->removeElement( meg02_[ism-1]->getName() );
+    if ( meg02_[ism-1] ) dqmStore_->removeElement( meg02_[ism-1]->getName() );
     meg02_[ism-1] = 0;
-    if ( meg03_[ism-1] ) dbe_->removeElement( meg03_[ism-1]->getName() );
+    if ( meg03_[ism-1] ) dqmStore_->removeElement( meg03_[ism-1]->getName() );
     meg03_[ism-1] = 0;
 
-    if ( meg04_[ism-1] ) dbe_->removeElement( meg04_[ism-1]->getName() );
+    if ( meg04_[ism-1] ) dqmStore_->removeElement( meg04_[ism-1]->getName() );
     meg04_[ism-1] = 0;
-    if ( meg05_[ism-1] ) dbe_->removeElement( meg05_[ism-1]->getName() );
+    if ( meg05_[ism-1] ) dqmStore_->removeElement( meg05_[ism-1]->getName() );
     meg05_[ism-1] = 0;
 
-    if ( mep01_[ism-1] ) dbe_->removeElement( mep01_[ism-1]->getName() );
+    if ( mep01_[ism-1] ) dqmStore_->removeElement( mep01_[ism-1]->getName() );
     mep01_[ism-1] = 0;
-    if ( mep02_[ism-1] ) dbe_->removeElement( mep02_[ism-1]->getName() );
+    if ( mep02_[ism-1] ) dqmStore_->removeElement( mep02_[ism-1]->getName() );
     mep02_[ism-1] = 0;
-    if ( mep03_[ism-1] ) dbe_->removeElement( mep03_[ism-1]->getName() );
+    if ( mep03_[ism-1] ) dqmStore_->removeElement( mep03_[ism-1]->getName() );
     mep03_[ism-1] = 0;
 
-    if ( mer01_[ism-1] ) dbe_->removeElement( mer01_[ism-1]->getName() );
+    if ( mer01_[ism-1] ) dqmStore_->removeElement( mer01_[ism-1]->getName() );
     mer01_[ism-1] = 0;
-    if ( mer02_[ism-1] ) dbe_->removeElement( mer02_[ism-1]->getName() );
+    if ( mer02_[ism-1] ) dqmStore_->removeElement( mer02_[ism-1]->getName() );
     mer02_[ism-1] = 0;
-    if ( mer03_[ism-1] ) dbe_->removeElement( mer03_[ism-1]->getName() );
+    if ( mer03_[ism-1] ) dqmStore_->removeElement( mer03_[ism-1]->getName() );
     mer03_[ism-1] = 0;
 
-    if ( mer04_[ism-1] ) dbe_->removeElement( mer04_[ism-1]->getName() );
+    if ( mer04_[ism-1] ) dqmStore_->removeElement( mer04_[ism-1]->getName() );
     mer04_[ism-1] = 0;
-    if ( mer05_[ism-1] ) dbe_->removeElement( mer05_[ism-1]->getName() );
+    if ( mer05_[ism-1] ) dqmStore_->removeElement( mer05_[ism-1]->getName() );
     mer05_[ism-1] = 0;
 
-    if ( mes01_[ism-1] ) dbe_->removeElement( mes01_[ism-1]->getName() );
+    if ( mes01_[ism-1] ) dqmStore_->removeElement( mes01_[ism-1]->getName() );
     mes01_[ism-1] = 0;
-    if ( mes02_[ism-1] ) dbe_->removeElement( mes02_[ism-1]->getName() );
+    if ( mes02_[ism-1] ) dqmStore_->removeElement( mes02_[ism-1]->getName() );
     mes02_[ism-1] = 0;
-    if ( mes03_[ism-1] ) dbe_->removeElement( mes03_[ism-1]->getName() );
+    if ( mes03_[ism-1] ) dqmStore_->removeElement( mes03_[ism-1]->getName() );
     mes03_[ism-1] = 0;
 
-    if ( met01_[ism-1] ) dbe_->removeElement( met01_[ism-1]->getName() );
+    if ( met01_[ism-1] ) dqmStore_->removeElement( met01_[ism-1]->getName() );
     met01_[ism-1] = 0;
-    if ( met02_[ism-1] ) dbe_->removeElement( met02_[ism-1]->getName() );
+    if ( met02_[ism-1] ) dqmStore_->removeElement( met02_[ism-1]->getName() );
     met02_[ism-1] = 0;
-    if ( met03_[ism-1] ) dbe_->removeElement( met03_[ism-1]->getName() );
+    if ( met03_[ism-1] ) dqmStore_->removeElement( met03_[ism-1]->getName() );
     met03_[ism-1] = 0;
 
   }
@@ -466,12 +474,13 @@ bool EEPedestalClient::writeDb(EcalCondDBInterface* econn, RunIOV* runiov, MonRu
 
     int ism = superModules_[i];
 
-    cout << " " << Numbers::sEE(ism) << " (ism=" << ism << ")" << endl;
-    cout << endl;
-
-    UtilsClient::printBadChannels(meg01_[ism-1], h01_[ism-1]);
-    UtilsClient::printBadChannels(meg02_[ism-1], h02_[ism-1]);
-    UtilsClient::printBadChannels(meg03_[ism-1], h03_[ism-1]);
+    if ( verbose_ ) {
+      cout << " " << Numbers::sEE(ism) << " (ism=" << ism << ")" << endl;
+      cout << endl;
+      UtilsClient::printBadChannels(meg01_[ism-1], h01_[ism-1]);
+      UtilsClient::printBadChannels(meg02_[ism-1], h02_[ism-1]);
+      UtilsClient::printBadChannels(meg03_[ism-1], h03_[ism-1]);
+    }
 
     for ( int ix = 1; ix <= 50; ix++ ) {
       for ( int iy = 1; iy <= 50; iy++ ) {
@@ -499,13 +508,13 @@ bool EEPedestalClient::writeDb(EcalCondDBInterface* econn, RunIOV* runiov, MonRu
 
           if ( Numbers::icEE(ism, jx, jy) == 1 ) {
 
-            cout << "Preparing dataset for " << Numbers::sEE(ism) << " (ism=" << ism << ")" << endl;
-
-            cout << "G01 (" << Numbers::ix0EE(i+1)+ix << "," << Numbers::iy0EE(i+1)+iy << ") " << num01  << " " << mean01 << " " << rms01  << endl;
-            cout << "G06 (" << Numbers::ix0EE(i+1)+ix << "," << Numbers::iy0EE(i+1)+iy << ") " << num02  << " " << mean02 << " " << rms02  << endl;
-            cout << "G12 (" << Numbers::ix0EE(i+1)+ix << "," << Numbers::iy0EE(i+1)+iy << ") " << num03  << " " << mean03 << " " << rms03  << endl;
-
-            cout << endl;
+            if ( verbose_ ) {
+              cout << "Preparing dataset for " << Numbers::sEE(ism) << " (ism=" << ism << ")" << endl;
+              cout << "G01 (" << Numbers::ix0EE(i+1)+ix << "," << Numbers::iy0EE(i+1)+iy << ") " << num01  << " " << mean01 << " " << rms01  << endl;
+              cout << "G06 (" << Numbers::ix0EE(i+1)+ix << "," << Numbers::iy0EE(i+1)+iy << ") " << num02  << " " << mean02 << " " << rms02  << endl;
+              cout << "G12 (" << Numbers::ix0EE(i+1)+ix << "," << Numbers::iy0EE(i+1)+iy << ") " << num03  << " " << mean03 << " " << rms03  << endl;
+              cout << endl;
+            }
 
           }
 
@@ -548,15 +557,15 @@ bool EEPedestalClient::writeDb(EcalCondDBInterface* econn, RunIOV* runiov, MonRu
 
   if ( econn ) {
     try {
-      cout << "Inserting MonPedestalsDat ..." << endl;
+      if ( verbose_ ) cout << "Inserting MonPedestalsDat ..." << endl;
       if ( dataset1.size() != 0 ) econn->insertDataArraySet(&dataset1, moniov);
-      cout << "done." << endl;
+      if ( verbose_ ) cout << "done." << endl;
     } catch (runtime_error &e) {
       cerr << e.what() << endl;
     }
   }
 
-  cout << endl;
+  if ( verbose_ ) cout << endl;
 
   MonPNPedDat pn;
   map<EcalLogicID, MonPNPedDat> dataset2;
@@ -565,11 +574,12 @@ bool EEPedestalClient::writeDb(EcalCondDBInterface* econn, RunIOV* runiov, MonRu
 
     int ism = superModules_[i];
 
-    cout << " " << Numbers::sEE(ism) << " (ism=" << ism << ")" << endl;
-    cout << endl;
-
-    UtilsClient::printBadChannels(meg04_[ism-1], i01_[ism-1]);
-    UtilsClient::printBadChannels(meg05_[ism-1], i02_[ism-1]);
+    if ( verbose_ ) {
+      cout << " " << Numbers::sEE(ism) << " (ism=" << ism << ")" << endl;
+      cout << endl;
+      UtilsClient::printBadChannels(meg04_[ism-1], i01_[ism-1]);
+      UtilsClient::printBadChannels(meg05_[ism-1], i02_[ism-1]);
+    }
 
     for ( int i = 1; i <= 10; i++ ) {
 
@@ -587,12 +597,12 @@ bool EEPedestalClient::writeDb(EcalCondDBInterface* econn, RunIOV* runiov, MonRu
 
         if ( i == 1 ) {
 
-          cout << "Preparing dataset for " << Numbers::sEE(ism) << " (ism=" << ism << ")" << endl;
-
-          cout << "PNs (" << i << ") G01 " << num01  << " " << mean01 << " " << rms01  << endl;
-          cout << "PNs (" << i << ") G16 " << num01  << " " << mean01 << " " << rms01  << endl;
-
-          cout << endl;
+          if ( verbose_ ) {
+            cout << "Preparing dataset for " << Numbers::sEE(ism) << " (ism=" << ism << ")" << endl;
+            cout << "PNs (" << i << ") G01 " << num01  << " " << mean01 << " " << rms01  << endl;
+            cout << "PNs (" << i << ") G16 " << num01  << " " << mean01 << " " << rms01  << endl;
+            cout << endl;
+          }
 
         }
 
@@ -625,9 +635,9 @@ bool EEPedestalClient::writeDb(EcalCondDBInterface* econn, RunIOV* runiov, MonRu
 
   if ( econn ) {
     try {
-      cout << "Inserting MonPNPedDat ..." << endl;
+      if ( verbose_ ) cout << "Inserting MonPNPedDat ..." << endl;
       if ( dataset2.size() != 0 ) econn->insertDataArraySet(&dataset2, moniov);
-      cout << "done." << endl;
+      if ( verbose_ ) cout << "done." << endl;
     } catch (runtime_error &e) {
       cerr << e.what() << endl;
     }
@@ -642,7 +652,7 @@ void EEPedestalClient::analyze(void){
   ievt_++;
   jevt_++;
   if ( ievt_ % 10 == 0 ) {
-    if ( verbose_ ) cout << "EEPedestalClient: ievt/jevt = " << ievt_ << "/" << jevt_ << endl;
+    if ( debug_ ) cout << "EEPedestalClient: ievt/jevt = " << ievt_ << "/" << jevt_ << endl;
   }
 
   uint64_t bits01 = 0;
@@ -665,9 +675,13 @@ void EEPedestalClient::analyze(void){
 
   map<EcalLogicID, RunCrystalErrorsDat> mask1;
   map<EcalLogicID, RunPNErrorsDat> mask2;
+  map<EcalLogicID, RunTTErrorsDat> mask3;
+  map<EcalLogicID, RunMemTTErrorsDat> mask4;
 
   EcalErrorMask::fetchDataSet(&mask1);
   EcalErrorMask::fetchDataSet(&mask2);
+  EcalErrorMask::fetchDataSet(&mask3);
+  EcalErrorMask::fetchDataSet(&mask4);
 
   char histo[200];
 
@@ -677,48 +691,48 @@ void EEPedestalClient::analyze(void){
 
     int ism = superModules_[i];
 
-    sprintf(histo, "EcalEndcap/EEPedestalTask/Gain01/EEPT pedestal %s G01", Numbers::sEE(ism).c_str());
-    me = dbe_->get(histo);
+    sprintf(histo, (prefixME_ + "/EEPedestalTask/Gain01/EEPT pedestal %s G01").c_str(), Numbers::sEE(ism).c_str());
+    me = dqmStore_->get(histo);
     h01_[ism-1] = UtilsClient::getHisto<TProfile2D*>( me, cloneME_, h01_[ism-1] );
 
-    sprintf(histo, "EcalEndcap/EEPedestalTask/Gain06/EEPT pedestal %s G06", Numbers::sEE(ism).c_str());
-    me = dbe_->get(histo);
+    sprintf(histo, (prefixME_ + "/EEPedestalTask/Gain06/EEPT pedestal %s G06").c_str(), Numbers::sEE(ism).c_str());
+    me = dqmStore_->get(histo);
     h02_[ism-1] = UtilsClient::getHisto<TProfile2D*>( me, cloneME_, h02_[ism-1] );
 
-    sprintf(histo, "EcalEndcap/EEPedestalTask/Gain12/EEPT pedestal %s G12", Numbers::sEE(ism).c_str());
-    me = dbe_->get(histo);
+    sprintf(histo, (prefixME_ + "/EEPedestalTask/Gain12/EEPT pedestal %s G12").c_str(), Numbers::sEE(ism).c_str());
+    me = dqmStore_->get(histo);
     h03_[ism-1] = UtilsClient::getHisto<TProfile2D*>( me, cloneME_, h03_[ism-1] );
 
-    sprintf(histo, "EcalEndcap/EEPedestalTask/Gain01/EEPT pedestal 3sum %s G01", Numbers::sEE(ism).c_str());
-    me = dbe_->get(histo);
+    sprintf(histo, (prefixME_ + "/EEPedestalTask/Gain01/EEPT pedestal 3sum %s G01").c_str(), Numbers::sEE(ism).c_str());
+    me = dqmStore_->get(histo);
     j01_[ism-1] = UtilsClient::getHisto<TProfile2D*>( me, cloneME_, j01_[ism-1] );
 
-    sprintf(histo, "EcalEndcap/EEPedestalTask/Gain06/EEPT pedestal 3sum %s G06", Numbers::sEE(ism).c_str());
-    me = dbe_->get(histo);
+    sprintf(histo, (prefixME_ + "/EEPedestalTask/Gain06/EEPT pedestal 3sum %s G06").c_str(), Numbers::sEE(ism).c_str());
+    me = dqmStore_->get(histo);
     j02_[ism-1] = UtilsClient::getHisto<TProfile2D*>( me, cloneME_, j02_[ism-1] );
 
-    sprintf(histo, "EcalEndcap/EEPedestalTask/Gain12/EEPT pedestal 3sum %s G12", Numbers::sEE(ism).c_str());
-    me = dbe_->get(histo);
+    sprintf(histo, (prefixME_ + "/EEPedestalTask/Gain12/EEPT pedestal 3sum %s G12").c_str(), Numbers::sEE(ism).c_str());
+    me = dqmStore_->get(histo);
     j03_[ism-1] = UtilsClient::getHisto<TProfile2D*>( me, cloneME_, j03_[ism-1] );
 
-    sprintf(histo, "EcalEndcap/EEPedestalTask/Gain01/EEPT pedestal 5sum %s G01", Numbers::sEE(ism).c_str());
-    me = dbe_->get(histo);
+    sprintf(histo, (prefixME_ + "/EEPedestalTask/Gain01/EEPT pedestal 5sum %s G01").c_str(), Numbers::sEE(ism).c_str());
+    me = dqmStore_->get(histo);
     k01_[ism-1] = UtilsClient::getHisto<TProfile2D*>( me, cloneME_, k01_[ism-1] );
 
-    sprintf(histo, "EcalEndcap/EEPedestalTask/Gain06/EEPT pedestal 5sum %s G06", Numbers::sEE(ism).c_str());
-    me = dbe_->get(histo);
+    sprintf(histo, (prefixME_ + "/EEPedestalTask/Gain06/EEPT pedestal 5sum %s G06").c_str(), Numbers::sEE(ism).c_str());
+    me = dqmStore_->get(histo);
     k02_[ism-1] = UtilsClient::getHisto<TProfile2D*>( me, cloneME_, k02_[ism-1] );
 
-    sprintf(histo, "EcalEndcap/EEPedestalTask/Gain12/EEPT pedestal 5sum %s G12", Numbers::sEE(ism).c_str());
-    me = dbe_->get(histo);
+    sprintf(histo, (prefixME_ + "/EEPedestalTask/Gain12/EEPT pedestal 5sum %s G12").c_str(), Numbers::sEE(ism).c_str());
+    me = dqmStore_->get(histo);
     k03_[ism-1] = UtilsClient::getHisto<TProfile2D*>( me, cloneME_, k03_[ism-1] );
 
-    sprintf(histo, "EcalEndcap/EEPedestalTask/PN/Gain01/EEPDT PNs pedestal %s G01", Numbers::sEE(ism).c_str());
-    me = dbe_->get(histo);
+    sprintf(histo, (prefixME_ + "/EEPedestalTask/PN/Gain01/EEPDT PNs pedestal %s G01").c_str(), Numbers::sEE(ism).c_str());
+    me = dqmStore_->get(histo);
     i01_[ism-1] = UtilsClient::getHisto<TProfile*>( me, cloneME_, i01_[ism-1] );
 
-    sprintf(histo, "EcalEndcap/EEPedestalTask/PN/Gain16/EEPDT PNs pedestal %s G16", Numbers::sEE(ism).c_str());
-    me = dbe_->get(histo);
+    sprintf(histo, (prefixME_ + "/EEPedestalTask/PN/Gain16/EEPDT PNs pedestal %s G16").c_str(), Numbers::sEE(ism).c_str());
+    me = dqmStore_->get(histo);
     i02_[ism-1] = UtilsClient::getHisto<TProfile*>( me, cloneME_, i02_[ism-1] );
 
     if ( meg01_[ism-1] ) meg01_[ism-1]->Reset();
@@ -868,6 +882,34 @@ void EEPedestalClient::analyze(void){
           }
         }
 
+	// TT masking
+
+        if ( mask3.size() != 0 ) {
+          map<EcalLogicID, RunTTErrorsDat>::const_iterator m;
+          for (m = mask3.begin(); m != mask3.end(); m++) {
+
+            EcalLogicID ecid = m->first;
+
+            int itt = Numbers::iTT(ism, EcalEndcap, ix, iy);
+
+            if ( ecid.getLogicID() == LogicID::getEcalLogicID("EE_readout_tower", Numbers::iSM(ism, EcalEndcap), itt).getLogicID() ) {
+	      if ( meg01_[ism-1] ) {
+		float val = int(meg01_[ism-1]->getBinContent(ix, iy)) % 3;
+		meg01_[ism-1]->setBinContent( ix, iy, val+3 );
+	      }
+	      if ( meg02_[ism-1] ) {
+		float val = int(meg02_[ism-1]->getBinContent(ix, iy)) % 3;
+		meg02_[ism-1]->setBinContent( ix, iy, val+3 );
+	      }
+	      if ( meg03_[ism-1] ) {
+		float val = int(meg03_[ism-1]->getBinContent(ix, iy)) % 3;
+		meg03_[ism-1]->setBinContent( ix, iy, val+3 );
+	      }
+            }
+
+          }
+        }
+
       }
     }
 
@@ -946,6 +988,31 @@ void EEPedestalClient::analyze(void){
           }
 
         }
+      }
+
+      // TT masking
+
+      if ( mask4.size() != 0 ) {
+	map<EcalLogicID, RunMemTTErrorsDat>::const_iterator m;
+	for (m = mask4.begin(); m != mask4.end(); m++) {
+
+	  EcalLogicID ecid = m->first;
+
+	  int it = 1 + ((i-1)/5);
+	  int itt = 68 + it;
+
+	  if ( ecid.getLogicID() == LogicID::getEcalLogicID("EE_mem_TT", Numbers::iSM(ism, EcalEndcap), itt).getLogicID() ) {
+	    if ( meg04_[ism-1] ) {
+	      float val = int(meg04_[ism-1]->getBinContent(i, 1)) % 3;
+	      meg04_[ism-1]->setBinContent( i, 1, val+3 );
+	    }
+	    if ( meg05_[ism-1] ) {
+	      float val = int(meg05_[ism-1]->getBinContent(i, 1)) % 3;
+	      meg05_[ism-1]->setBinContent( i, 1, val+3 );
+	    }
+	  }
+
+	}
       }
 
     }
@@ -1111,7 +1178,7 @@ void EEPedestalClient::analyze(void){
 
 void EEPedestalClient::htmlOutput(int run, string& htmlDir, string& htmlName){
 
-  cout << "Preparing EEPedestalClient html output ..." << endl;
+  if ( verbose_ ) cout << "Preparing EEPedestalClient html output ..." << endl;
 
   ofstream htmlFile;
 
@@ -1290,14 +1357,14 @@ void EEPedestalClient::htmlOutput(int run, string& htmlDir, string& htmlName){
         gStyle->SetOptStat("euomr");
         obj1f->SetStats(kTRUE);
         if ( obj1f->GetMaximum(histMax) > 0. ) {
-          gPad->SetLogy(1);
+          gPad->SetLogy(kTRUE);
         } else {
-          gPad->SetLogy(0);
+          gPad->SetLogy(kFALSE);
         }
         obj1f->Draw();
         cMean->Update();
         cMean->SaveAs(imgName.c_str());
-        gPad->SetLogy(0);
+        gPad->SetLogy(kFALSE);
 
       }
 
@@ -1332,14 +1399,14 @@ void EEPedestalClient::htmlOutput(int run, string& htmlDir, string& htmlName){
         gStyle->SetOptStat("euomr");
         obj1f->SetStats(kTRUE);
         if ( obj1f->GetMaximum(histMax) > 0. ) {
-          gPad->SetLogy(1);
+          gPad->SetLogy(kTRUE);
         } else {
-          gPad->SetLogy(0);
+          gPad->SetLogy(kFALSE);
         }
         obj1f->Draw();
         cRMS->Update();
         cRMS->SaveAs(imgName.c_str());
-        gPad->SetLogy(0);
+        gPad->SetLogy(kFALSE);
 
       }
 
@@ -1535,15 +1602,15 @@ void EEPedestalClient::htmlOutput(int run, string& htmlDir, string& htmlName){
         gStyle->SetOptStat("euo");
         objp->SetStats(kTRUE);
 //        if ( objp->GetMaximum(histMax) > 0. ) {
-//          gPad->SetLogy(1);
+//          gPad->SetLogy(kTRUE);
 //        } else {
-//          gPad->SetLogy(0);
+//          gPad->SetLogy(kFALSE);
 //        }
         objp->SetMinimum(0.0);
         objp->Draw();
         cPed->Update();
         cPed->SaveAs(imgName.c_str());
-        gPad->SetLogy(0);
+        gPad->SetLogy(kFALSE);
 
       }
 
@@ -1573,14 +1640,14 @@ void EEPedestalClient::htmlOutput(int run, string& htmlDir, string& htmlName){
         gStyle->SetOptStat("euomr");
         obj1f->SetStats(kTRUE);
         //        if ( obj1f->GetMaximum(histMax) > 0. ) {
-        //          gPad->SetLogy(1);
+        //          gPad->SetLogy(kTRUE);
         //        } else {
-        //          gPad->SetLogy(0);
+        //          gPad->SetLogy(kFALSE);
         //        }
         obj1f->Draw();
         cPed->Update();
         cPed->SaveAs(imgName.c_str());
-        gPad->SetLogy(0);
+        gPad->SetLogy(kFALSE);
       }
 
     }

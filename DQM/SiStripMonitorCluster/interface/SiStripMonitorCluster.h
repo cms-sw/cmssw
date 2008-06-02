@@ -8,7 +8,7 @@
 */
 // Original Author:  dkcira
 //         Created:  Wed Feb  1 16:47:14 CET 2006
-// $Id: SiStripMonitorCluster.h,v 1.14 2007/12/03 18:13:12 giordano Exp $
+// $Id: SiStripMonitorCluster.h,v 1.15 2008/03/01 00:38:06 dutta Exp $
 #include <memory>
 #include "FWCore/Framework/interface/Frameworkfwd.h"
 #include "FWCore/Framework/interface/EDAnalyzer.h"
@@ -32,7 +32,6 @@ class SiStripMonitorCluster : public edm::EDAnalyzer {
         MonitorElement* ClusterPosition;
         MonitorElement* ClusterWidth;
         MonitorElement* ClusterCharge;
-        MonitorElement* ClusterSignal;
         MonitorElement* ClusterNoise;
         MonitorElement* ClusterSignalOverNoise;
         MonitorElement* ModuleLocalOccupancy;
@@ -45,7 +44,6 @@ class SiStripMonitorCluster : public edm::EDAnalyzer {
        DQMStore* dqmStore_;
        edm::ParameterSet conf_;
        std::map<uint32_t, ModMEs> ClusterMEs;
-       MonitorElement* charge_of_each_cluster;
        // flags
        bool show_mechanical_structure_view, show_readout_view, show_control_view, select_all_detectors, reset_each_run, fill_signal_noise;
        unsigned long long m_cacheID_;

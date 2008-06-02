@@ -3,6 +3,7 @@ import FWCore.ParameterSet.parsecf.pyparsing as pp
 import FWCore.ParameterSet.Config as cms
 from FWCore.ParameterSet.DictTypes import SortedKeysDict
 from Mixins import PrintOptions
+import copy
 # Questions
 #  If an include includes a parameter already defined is that an error?
 #  If a 'using' block includes a parameter already defined, is that an error?
@@ -171,7 +172,7 @@ def _handleUsing(using,otherUsings,process,allUsingLabels):
     """recursively go through the using blocks and return all the contained valued"""
     if using.value() in otherUsings:
         raise pp.ParseFatalException(using.s,using.loc,
-    "the using.value()led '"+using.value()+"' recursively uses itself"+
+    "the using.labelled '"+using.value()+"' recursively uses itself"+
     "\n from file "+using.file)
     allUsingLabels.add(using.value())
     values = []
@@ -180,7 +181,7 @@ def _handleUsing(using,otherUsings,process,allUsingLabels):
     otherUsings.add(using.value())
     if using.value() not in process:
         raise pp.ParseFatalException(using.s,using.loc,
-                "the using.value()led '"+using.value()+"' does not correspond to a known block or PSet"
+                "the using.labelled '"+using.value()+"' does not correspond to a known block or PSet"
                 +"\n from file "+using.file)
     d = process[using.value()].__dict__
     usingLabels=[]
@@ -191,7 +192,7 @@ def _handleUsing(using,otherUsings,process,allUsingLabels):
             values.extend(newValues)
             usingLabels.append(label)
         else:
-            values.append((label,param))
+            values.append((label,copy.deepcopy(param)))
     for label in usingLabels:
         #remove the using nodes
         delattr(process[using.value()],label)
@@ -227,7 +228,7 @@ def _findAndHandleUsingBlocksRecursive(label,item,process,allUsingLabels):
         if hasattr(item,plabel):
             using = usingForValues[index]
             raise pp.ParseFatalException(using.s,using.loc,
-                "the labelledled '"+using.value()+"' tried to add the label '"+
+                "the using labelled '"+using.value()+"' tried to add the label '"+
                 plabel+"' which already exists in this block"
                 +"\n from file "+using.file)
         setattr(item,plabel,param)
@@ -310,8 +311,15 @@ def _makeLabeledVInputTag(s,loc,toks):
     if len(toks[0])==4:
         tracked = False
         del toks[0][0]
+
     values = list(iter(toks[0][2]))
-    items = [cms.InputTag(*x) for x in values]
+    items = []
+    for x in values:
+        if isinstance(x, str):
+            items.append(cms.InputTag(x))
+        else:
+            items.append(cms.InputTag(*x))
+    #items = [cms.InputTag(*x) for x in values]
     p = cms.VInputTag(*items)
     if not tracked:
         cms.untracked(p)
@@ -435,8 +443,7 @@ def _makeUsing(s,loc,toks):
     #TEMP:usings are hard, lets wait
     #raise pp.ParseFatalException(s,loc,"using not yet implemented")
     options = PrintOptions()
-    return ('using_'+toks[0][1],cms.UsingBlock(toks[0][1]))
-
+    return ('using_'+toks[0][1],cms.UsingBlock(toks[0][1], s, loc, _fileStack[-1]))
 
 class _IncludeNode(cms._ParameterTypeBase):
     """For injection purposes, pretend this is a new parameter type
@@ -560,11 +567,11 @@ class _IncludeFromNode(_IncludeNode):
                                          +"\n from file "+_fileStack[-1])
         return expandedValues
     def dumpPythonAs(self, newLabel, options):
-        result = "import copy\n" +_IncludeNode.dumpPython(self, options) + "\n"
-        result += newLabel + " = copy.deepcopy("
+        result = "import "+self.pythonModuleName() +"\n"
+        result += newLabel + " = "
         if options.isCfg:
             result += "process."
-        result += self._fromLabel+")\n"
+        result += self.pythonModuleName() + '.' + self._fromLabel+".clone()\n"
         return result
 
 
@@ -631,7 +638,7 @@ inputTagParameter = pp.Group(untracked+pp.Keyword('InputTag')+label+_equalTo+
 
 vinputTagParameter =pp.Group(untracked+pp.Keyword("VInputTag")+label+_equalTo
                              +_scopeBegin
-                               +pp.Group(pp.Optional(pp.delimitedList(inputTagFormat)))
+                               +pp.Group(pp.Optional(pp.delimitedList(anyInputTag)))
                              +_scopeEnd
                           ).setParseAction(_makeLabeledVInputTag)
 
@@ -793,7 +800,9 @@ plugin.ignore(pp.pythonStyleComment)
 # so instead, I reverse the order of the tokens and then do the parsing
 # and then build the parse tree from right to left
 pathexp = pp.Forward()
-_pathAtom = pp.Combine(pp.Optional("!")+letterstart)
+# Really want either ! or -
+_pathAtom = pp.Combine(pp.Optional("!")+pp.Optional("-")+letterstart)
+#_pathAtom = pp.Combine(pp.Optional("!")+letterstart)
 worker = (_pathAtom)^pp.Group(pp.Suppress(')')+pathexp+pp.Suppress('('))
 pathseq = pp.Forward()
 pathseq << pp.Group(worker + pp.ZeroOrMore(','+pathseq))
@@ -802,20 +811,29 @@ pathexp << pp.Group(pathseq + pp.ZeroOrMore('&'+pathexp))
 class _LeafNode(object):
     def __init__(self,label):
         self.__isNot = False
+        self.__isIgnore = False
         self._label = label
         if self._label[0]=='!':
             self._label=self._label[1:]
             self.__isNot = True
+        elif self._label[0]=='-':
+            self._label=self._label[1:]
+            self.__isIgnore = True
+
     def __str__(self):
         v=''
         if self.__isNot:
             v='!'
+        elif self.__isIgnore:
+            v += '-'
         return v+self._label
     def make(self,process):
         #print getattr(process,self.__label).label()
         v = getattr(process,self._label)
         if self.__isNot:
             v= ~v
+        elif self.__isIgnore:
+            v= cms.ignore(v)
         return v
     def getLeaves(self, leaves):
         leaves.append(self)
@@ -823,9 +841,14 @@ class _LeafNode(object):
         result = ''
         if self.__isNot:
             result += '~'
+        elif self.__isIgnore:
+            result += 'cms.ignore('
         if options.isCfg:
             result += "process."
-        return result + self._label
+        result += self._label
+        if self.__isIgnore:
+            result += ')'
+        return result
 
 class _AidsOp(object):
     def __init__(self,left,right):
@@ -939,8 +962,8 @@ class _MakeSeries(object):
         self.factory = factory
     def __call__(self,s,loc,toks):
         return (toks[0][0],self.factory(toks[0][1],s,loc,toks))
-
-pathtoken = (pp.Combine(pp.Optional("!")+letterstart))|'&'|','|'('|')'
+# really want either ! or -, not both
+pathtoken = (pp.Combine(pp.Optional("!")+pp.Optional("-")+letterstart))|'&'|','|'('|')'
 pathbody = pp.Group(letterstart+_equalTo
                     +_scopeBegin
                     +pp.Group(pp.OneOrMore(pathtoken)).setParseAction(_parsePathInReverse)
@@ -1582,6 +1605,13 @@ def parseCffFile(fileName):
     finally:
         _fileStack.pop()
 
+def parseConfigString(aString):
+    """Read an old style config string and return a dictionary"""
+    t=onlyFragment.parseString(aString)
+    global _allUsingLabels
+    d=_finalizeProcessFragment(t,_allUsingLabels)
+    return _ConfigReturn(d)
+                    
 def dumpCfg(fileName):
     return cfgDumper.parseFile(_fileFactory(fileName))[0]
 
@@ -1770,6 +1800,11 @@ if __name__=="__main__":
             d=dict(iter(t))
             self.assertEqual(type(d['blah']),cms.VInputTag)
             self.assertEqual(d['blah'],[cms.InputTag('abc'),cms.InputTag('def')])
+            t=onlyParameters.parseString("VInputTag blah = {'abc', def}")
+            d=dict(iter(t))
+            self.assertEqual(type(d['blah']),cms.VInputTag)
+            self.assertEqual(d['blah'],[cms.InputTag('abc'),cms.InputTag('def')])
+
 
             t=onlyParameters.parseString("EventID eid= 1:2")
             d=dict(iter(t))
@@ -2097,10 +2132,10 @@ process RECO = {
    module foo = FooProd {}
    module bar = BarProd {}
    module fii = FiiProd {}
-   path p = {!s&!fii}
+   path p = {s&!fii}
    sequence s = {foo,bar}
 }""")
-            self.assertEqual(str(t[0].p),'~foo*bar+~fii')
+            self.assertEqual(str(t[0].p),'foo*bar+~fii')
             self.assertEqual(str(t[0].s),'foo*bar')
             t[0].dumpConfig()
             
@@ -2632,6 +2667,33 @@ process USER =
             #make sure dump succeeds
             t[0].dumpConfig()
 
+            t=process.parseString("""
+process p = {
+
+  block roster = {
+    string thirdBase = 'Some dude'
+    PSet outfielders = {
+      string rightField = 'Some dude'
+    }
+  }
+
+  module bums = Ballclub {
+    using roster
+  }
+
+
+  module allstars = Ballclub {
+    using roster
+  }
+
+  replace allstars.thirdBase = 'Chuck Norris'
+  replace allstars.outfielders.rightField = 'Babe Ruth'
+}""")
+            self.assertEqual(t[0].bums.thirdBase.value(), 'Some dude')
+            self.assertEqual(t[0].bums.outfielders.rightField.value(), 'Some dude')
+            self.assertEqual(t[0].allstars.thirdBase.value(), 'Chuck Norris')
+            self.assertEqual(t[0].allstars.outfielders.rightField.value(), 'Babe Ruth')
+
             _allUsingLabels = set()
 
             input= """process RECO = {
@@ -2715,12 +2777,12 @@ process RECO = {
             t=path.parseString('path p = {(a&b),c}')
             self.assertEqual(str(t[0][1]),'((a&b),c)')
             pth = t[0][1].make(p)
-            self.assertEqual(str(pth),'a+b*c')
+            self.assertEqual(str(pth),'(a+b)*c')
 #            print t[0][1]
             t=path.parseString('path p = {a,(b&c)}')
             self.assertEqual(str(t[0][1]),'(a,(b&c))')
             pth = t[0][1].make(p)
-            self.assertEqual(str(pth),'a*b+c')
+            self.assertEqual(str(pth),'a*(b+c)')
 #            print t[0][1]
             t=path.parseString('path p = {a&(b,c)}')
             self.assertEqual(str(t[0][1]),'(a&(b,c))')
@@ -2742,6 +2804,12 @@ process RECO = {
             self.assertEqual(str(t[0][1]),'((!a&!b)&!c)')
             pth = t[0][1].make(p)
             self.assertEqual(str(pth),'~a+~b+~c')
+
+            t=path.parseString('path p = {a&-b}')
+            self.assertEqual(str(t[0][1]),'(a&-b)')
+            pth = t[0][1].make(p)
+            self.assertEqual(str(pth),'a+cms.ignore(b)')
+
         @staticmethod
         def strip(value):
             """strip out whitespace & newlines"""

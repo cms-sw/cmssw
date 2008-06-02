@@ -243,8 +243,8 @@ EcalTrigPrimProducer::produce(edm::Event& e, const edm::EventSetup&  iSetup)
     }
     if (print) LogDebug("EcalTPG") <<" For tower  "<<(((*pOut)[i])).id()<<", TP is "<<(*pOut)[i];
   }
-  if (barrelOnly_)  edm::LogInfo("EcalTPG") <<"\n =================> For Barrel , "<<pOut->size()<<" TP  Digis were produced (including zero ones)";
-  else      edm::LogInfo("EcalTPG") <<"\n =================> For Barrel + Endcap, "<<pOut->size()<<" TP  Digis were produced (including zero ones)";
+  if (barrelOnly_)  LogDebug("EcalTPG") <<"\n =================> For Barrel , "<<pOut->size()<<" TP  Digis were produced (including zero ones)";
+  else      LogDebug("EcalTPG") <<"\n =================> For Barrel + Endcap, "<<pOut->size()<<" TP  Digis were produced (including zero ones)";
 
   // put result into the Event
 

@@ -17,13 +17,13 @@ namespace reco {
 
     PFBlockElementBrem() {} 
 
-    PFBlockElementBrem(const PFRecTrackRef& ref , TrackType tracktype, double DeltaP, double SigmaDeltaP, uint indTrajPoint):
-      PFBlockElementTrack( ref ),
+    PFBlockElementBrem(const PFRecTrackRef& ref , TrackType tracktype):
+      PFBlockElementTrack( ref, tracktype  ),
       BremtrackRefPF_( ref ), 
       BremtrackRef_( ref->trackRef() ),
-      deltaP_(DeltaP),
-      sigmadeltaP_(SigmaDeltaP),
-      indPoint_(indTrajPoint){ setTrackType(tracktype, true); }
+      deltaP_(DeltaP()),
+      sigmadeltaP_(SigmaDeltaP()),
+      indPoint_(indTrajPoint()){}
 
       
     PFBlockElement* clone() const { return new PFBlockElementBrem(*this); }

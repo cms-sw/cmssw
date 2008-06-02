@@ -17,7 +17,6 @@
 #include "PhysicsTools/MVATrainer/interface/XMLDocument.h"
 #include "PhysicsTools/MVATrainer/interface/SourceVariable.h"
 #include "PhysicsTools/MVATrainer/interface/SourceVariableSet.h"
-#include "PhysicsTools/MVATrainer/interface/TrainerMonitoring.h"
 
 namespace PhysicsTools {
 
@@ -31,9 +30,6 @@ class MVATrainer {
 
 	inline void setAutoSave(bool autoSave) { doAutoSave = autoSave; }
 	inline void setCleanup(bool cleanup) { doCleanup = cleanup; }
-	inline void setMonitoring(bool monitoring) { doMonitoring = monitoring; }
-	inline void setRandomSeed(UInt_t seed) { randomSeed = seed; }
-	inline void setCrossValidation(double split) { crossValidation = split; }
 
 	void loadState();
 	void saveState();
@@ -50,8 +46,6 @@ class MVATrainer {
 	                          const std::string &arg = "") const;
 
 	inline const std::string &getName() const { return name; }
-
-	TrainerMonitoring::Module *bookMonitor(const std::string &name);
 
 	// constants
 
@@ -94,22 +88,17 @@ class MVATrainer {
 	findUntrainedComputers(std::vector<AtomicId> &compute,
 	                       std::vector<AtomicId> &train) const;
 
-	std::map<AtomicId, Source*>		sources;
-	std::vector<SourceVariable*>		variables;
-	std::vector<AtomicId>			processors;
-	Source					*input;
-	TrainProcessor				*output;
+	std::map<AtomicId, Source*>	sources;
+	std::vector<SourceVariable*>	variables;
+	std::vector<AtomicId>		processors;
+	Source				*input;
+	Source				*output;
 
-	std::auto_ptr<TrainerMonitoring>	monitoring;
-	std::auto_ptr<XMLDocument>		xml;
-	std::string				trainFileMask;
-	std::string				name;
-	bool					doAutoSave;
-	bool					doCleanup;
-	bool					doMonitoring;
-
-	UInt_t					randomSeed;
-	double					crossValidation;
+	std::auto_ptr<XMLDocument>	xml;
+	std::string			trainFileMask;
+	std::string			name;
+	bool				doAutoSave;
+	bool				doCleanup;
 };
 
 } // namespace PhysicsTools

@@ -3,8 +3,8 @@
 /*
  *  See header file for a description of this class.
  *
- *  $Date: 2008/01/22 18:45:23 $
- *  $Revision: 1.8 $
+ *  $Date: 2008/04/22 16:49:18 $
+ *  $Revision: 1.10 $
  *  \author G. Mila - INFN Torino
  */
 
@@ -40,7 +40,6 @@ DTChamberEfficiencyTest::DTChamberEfficiencyTest(const edm::ParameterSet& ps){
   parameters = ps;
 
   dbe = edm::Service<DQMStore>().operator->();
-  dbe->setVerbose(1);
 
   prescaleFactor = parameters.getUntrackedParameter<int>("diagnosticPrescale", 1);
 
@@ -178,7 +177,8 @@ void DTChamberEfficiencyTest::endLuminosityBlock(LuminosityBlock const& lumiSeg,
 	   channel != badChannels.end(); channel++) {
 	edm::LogError ("chamberEfficiency") << "Chamber : " << (*hXEff).first << " Bad XChamberEfficiency channels: "<<(*channel).getBin()<<"  Contents : "<<(*channel).getContents();
       }
-      edm::LogWarning ("chamberEfficiency") << "-------- Chamber : "<<(*hXEff).first<<"  "<<theXEfficiencyQReport->getMessage()<<" ------- "<<theXEfficiencyQReport->getStatus();
+      // FIXME: getMessage() sometimes returns and invalid string (null pointer inside QReport data member)
+      // edm::LogWarning ("chamberEfficiency") << "-------- Chamber : "<<(*hXEff).first<<"  "<<theXEfficiencyQReport->getMessage()<<" ------- "<<theXEfficiencyQReport->getStatus();
     }
   }
 
@@ -195,7 +195,8 @@ void DTChamberEfficiencyTest::endLuminosityBlock(LuminosityBlock const& lumiSeg,
 	   channel != badChannels.end(); channel++) {
 	edm::LogError ("chamberEfficiency") << "Chamber : " << (*hYEff).first <<" Bad YChamberEfficiency channels: "<<(*channel).getBin()<<"  Contents : "<<(*channel).getContents();
       }
-      edm::LogWarning ("chamberEfficiency") << "-------- Chamber : "<<(*hYEff).first<<"  "<<theYEfficiencyQReport->getMessage()<<" ------- "<<theYEfficiencyQReport->getStatus();
+      // FIXME: getMessage() sometimes returns and invalid string (null pointer inside QReport data member)
+      // edm::LogWarning ("chamberEfficiency") << "-------- Chamber : "<<(*hYEff).first<<"  "<<theYEfficiencyQReport->getMessage()<<" ------- "<<theYEfficiencyQReport->getStatus();
     }
   }
 

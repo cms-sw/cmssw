@@ -34,8 +34,6 @@
 
 template <class T> class DEcompare;
 
-using dedefs::DEnsys;
-
 class L1Comparator : public edm::EDProducer {
 
 public:
@@ -80,14 +78,14 @@ private:
   int verbose_;
   bool dumpEvent_;
 
-  edm::InputTag m_DEsource[DEnsys][4];
-  bool m_doSys[DEnsys];
+  edm::InputTag m_DEsource[dedefs::DEnsys][4];
+  bool m_doSys[dedefs::DEnsys];
   std::string m_dumpFileName;
   std::ofstream m_dumpFile;
   int m_dumpMode;
   bool m_match;
-  bool DEmatchEvt[DEnsys]; 
-  int DEncand[DEnsys][2];
+  bool DEmatchEvt[dedefs::DEnsys]; 
+  int DEncand[dedefs::DEnsys][2];
   L1DEDigiCollection m_dedigis;
 
   int m_fedId;

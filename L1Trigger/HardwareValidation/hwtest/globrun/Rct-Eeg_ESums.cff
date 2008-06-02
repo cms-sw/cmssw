@@ -1,0 +1,31 @@
+replace RCTConfigProducers.eGammaLSB = 1.0
+replace RCTConfigProducers.jetMETLSB = 1.0
+replace RCTConfigProducers.eMinForFGCut = 999.  # FG cut not used, this serves
+replace RCTConfigProducers.eMaxForFGCut = -999. # to disable it.
+replace RCTConfigProducers.hOeCut = 999.          # H/E not used
+replace RCTConfigProducers.eMinForHoECut = 999.     # H/E cut not used,
+replace RCTConfigProducers.eMaxForHoECut = -999.    # disabled here
+replace RCTConfigProducers.hMinForHoECut = 999.     #
+replace RCTConfigProducers.eActivityCut = 999.   # Activity bits for tau calc
+replace RCTConfigProducers.hActivityCut = 999.   # not used
+replace RCTConfigProducers.eicIsolationThreshold = 0.  # Force non-isolation
+
+replace RCTConfigProducers.eGammaECalScaleFactors = {
+	1., 1., 1., 1., 1., 1., 1., 1., 1., 1., 
+	1., 1., 1., 1., 1., 1., 1., 1., 1., 1., 
+	1., 1., 1., 1., 1., 1., 1., 1.
+}
+
+replace RCTConfigProducers.eGammaHCalScaleFactors = {
+	0., 0., 0., 0., 0., 0., 0., 0., 0., 0.,
+	0., 0., 0., 0., 0., 0., 0., 0., 0., 0.,
+	0., 0., 0., 0., 0., 0., 0., 0.
+}
+
+replace RCTConfigProducers.jetMETHCalScaleFactors = {
+	0., 0., 0., 0., 0., 0., 0., 0., 0., 0.,
+	0., 0., 0., 0., 0., 0., 0., 0., 0., 0.,
+	0., 0., 0., 0., 0., 0., 0., 0.
+}
+
+replace maskedRctInputDigis.maskFile = "L1Trigger/RegionalCaloTrigger/test/data/emptyMask.txt"

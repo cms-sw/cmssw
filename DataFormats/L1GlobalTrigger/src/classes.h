@@ -20,7 +20,7 @@
 #include <vector>
 #include <map>
 
-namespace { namespace {
+namespace { struct dictionary {
     // dictionary for L1GtfeWord
     L1GtfeWord dummy20;
     edm::Wrapper<L1GtfeWord> dummy21;
@@ -88,5 +88,5 @@ namespace { namespace {
     L1GtLogicParser::OperandToken dummy110;
     std::vector<L1GtLogicParser::OperandToken> dummy111;
 
-} }
+}; }
 

@@ -1,36 +1,4 @@
-/* GMT */
+# Trigger configuration data
+# please include 'replace' statements 
+# as appropriate for the subsystem
 
-include "L1TriggerConfig/L1GtConfigProducers/data/L1GtConfig.cff"
-include "L1TriggerConfig/L1ScalesProducers/data/L1MuTriggerScalesConfig.cff"
-include "L1TriggerConfig/L1ScalesProducers/data/L1MuGMTScalesConfig.cff"
-include "L1TriggerConfig/GMTConfigProducers/data/L1MuGMTParametersConfig.cff"
-
-### emulator
-
-#include "L1Trigger/GlobalMuonTrigger/data/l1GmtEmulDigis.cfi"
-module l1GmtEmulDigis = L1MuGlobalMuonTrigger {
-    InputTag DTCandidates   = gtUnpack:DT   //l1DttfEmulDigis:DT
-    InputTag CSCCandidates  = gtUnpack:CSC  //l1CscTfEmulDigis:CSC
-    InputTag RPCbCandidates = gtUnpack:RPCb //l1RpcEmulDigis:RPCb
-    InputTag RPCfCandidates = gtUnpack:RPCf //l1RpcEmulDigis:RPCf
-    InputTag MipIsoData = L1RCTRegionSumsEmCands
-    untracked int32 Debug   = 0
-    int32 BX_min            = -4            // bx's to be processed
-    int32 BX_max            =  4
-    int32 BX_min_readout    = -1            // bx's to be readout
-    int32 BX_max_readout    =  1
-    untracked bool WriteLUTsAndRegs = false
-}
-
-### unpacking
-
-#include "EventFilter/L1GlobalTriggerRawToDigi/data/l1GtUnpack.cfi"
-module gtUnpack = L1GlobalTriggerRawToDigi {
-    untracked InputTag DaqGtInputTag = source
-    //untracked InputTag DaqGtInputTag = "rawDataCollector"
-    untracked int32 DaqGtFedId = 813
-    uint32 ActiveBoardsMask = 0xFFFF //65535
-    int32 UnpackBxInEvent = -1
-}
-
-//es_module L1MuTriggerScales = L1MuTriggerScalesProducer {}

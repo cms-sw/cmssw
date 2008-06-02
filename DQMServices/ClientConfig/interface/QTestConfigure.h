@@ -7,8 +7,8 @@
  *  the xml configuration file parsed by QTestConfigurationParser.
  *
  * 
- *  $Date: 2008/02/21 03:26:44 $
- *  $Revision: 1.7 $
+ *  $Date: 2008/05/13 13:12:00 $
+ *  $Revision: 1.8.2.6 $
  *  \author Ilaria Segoni
   */
 
@@ -39,9 +39,15 @@ class QTestConfigure{
   ///Creates ContentsXRangeROOT test
   void EnableXRangeTest(std::string testName, 
                         std::map<std::string, std::string>params,DQMStore * bei); 
+  ///Creates ContentsXRangeASROOT test
+//  void EnableXRangeASTest(std::string testName, 
+//                        std::map<std::string, std::string>params,DQMStore * bei); 
   ///Creates ContentsYRangeROOT test
   void EnableYRangeTest(std::string testName, 
                         std::map<std::string, std::string>params,DQMStore * bei); 
+  ///Creates ContentsYRangeASROOT test
+//  void EnableYRangeASTest(std::string testName, 
+//                        std::map<std::string, std::string>params,DQMStore * bei); 
    ///Creates DeadChannelROOT test
   void EnableDeadChannelTest(std::string testName, 
                              std::map<std::string,std::string> params,DQMStore * bei); 
@@ -51,21 +57,33 @@ class QTestConfigure{
     ///Creates MeanWithinExpectedROOT test
   void EnableMeanWithinExpectedTest(std::string testName, 
                                     std::map<std::string,std::string> params,DQMStore * bei);
+
+  //===================== new quality tests in the parser =============================//
+///Creates Comp2RefEqualH test
+ void EnableComp2RefEqualHTest(std::string testName, 
+                     std::map<std::string, std::string>params,DQMStore * bei); 
+
+///Creates Comp2RefChi2 test
+ void EnableComp2RefChi2Test(std::string testName, 
+                     std::map<std::string, std::string>params,DQMStore * bei); 
+
+ ///Creates EnableComp2RefKolmogorov test
+ void EnableComp2RefKolmogorovTest(std::string testName, 
+                     std::map<std::string, std::string>params,DQMStore * bei); 
+
+  /*
     ///Creates MostProbableLandauROOT test
   void EnableMostProbableLandauTest( const std::string &roTEST_NAME,
                                      std::map<std::string, std::string> &roMParams, DQMStore *bei);
+  */
 
-    /// Creates ContentsTH2FWithinRangeROOT test
-  void EnableTH2FContentsInRangeTest(std::string testName,
-                                     std::map<std::string,std::string> params,DQMStore * bei);
+    /// Creates ContentsWithinRangeROOT test
+  void EnableContentsWithinExpectedTest(std::string testName,
+                                        std::map<std::string,std::string> params,DQMStore * bei);
 
-    /// Creates ContentsProfWithinRangeROOT test
-  void EnableProfContentsInRangeTest(std::string testName,
-                                     std::map<std::string,std::string> params,DQMStore * bei);
-
-    /// Creates ContentsProf2DWithinRangeROOT test
-  void EnableProf2DContentsInRangeTest(std::string testName,
-                                       std::map<std::string,std::string> params,DQMStore * bei);
+    /// Creates ContentsWithinRangeROOT test
+//  void EnableContentsWithinExpectedASTest(std::string testName,
+//                                        std::map<std::string,std::string> params,DQMStore * bei);
 
 
  private:

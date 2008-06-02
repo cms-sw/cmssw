@@ -5,8 +5,8 @@
 //   Description: DTTrackFinder parameters for L1MuDTTrackFinder
 //
 //
-//   $Date: 2007/02/27 11:44:00 $
-//   $Revision: 1.4 $
+//   $Date: 2008/02/25 16:35:32 $
+//   $Revision: 1.7 $
 //
 //   Author :
 //   N. Neumeister            CERN EP
@@ -76,6 +76,9 @@ void L1MuDTTFConfig::setDefaults() {
   // set Filter for Extrapolator
   m_extTSFilter = m_ps->getUntrackedParameter<int>("Extrapolation_Filter",1);
 
+  // set switch for open LUTs usage
+  m_openLUTs = m_ps->getUntrackedParameter<bool>("Open_LUTs",false);
+
   // set switch for EX21 usage
   m_useEX21 = m_ps->getUntrackedParameter<bool>("Extrapolation_21",false);
 
@@ -122,6 +125,13 @@ void L1MuDTTFConfig::setDefaults() {
 
   if ( Debug(1) ) cout << "L1 barrel Track Finder : Extrapolation Filter : " << m_extTSFilter << endl;
 
+  if ( Debug(1) && m_openLUTs) {
+    cout << "L1 barrel Track Finder : use open LUTs : on" << endl;
+  }
+  if ( Debug(1) && !m_openLUTs) {
+    cout << "L1 barrel Track Finder : use open LUTs : off" << endl;
+  }
+
   if ( Debug(1) && m_useEX21 ) {
     cout << "L1 barrel Track Finder : use EX21 extrapolations : on" << endl;
   }
@@ -165,6 +175,7 @@ bool L1MuDTTFConfig::m_overlap = true;
 int  L1MuDTTFConfig::m_BxMin = -9;
 int  L1MuDTTFConfig::m_BxMax =  7;
 int  L1MuDTTFConfig::m_extTSFilter  = 1;
+bool L1MuDTTFConfig::m_openLUTs  = false;
 bool L1MuDTTFConfig::m_useEX21 = false;
 bool L1MuDTTFConfig::m_etaTF = true;
 bool L1MuDTTFConfig::m_TSOutOfTimeFilter = false;

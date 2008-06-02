@@ -1,7 +1,7 @@
 /** \file
  *
- *  $Date: 2006/10/27 01:35:34 $
- *  $Revision: 1.2 $
+ *  $Date: 2006/05/31 13:43:26 $
+ *  $Revision: 1.1 $
  *  \author N. Amapane - CERN
  */
 
@@ -15,7 +15,7 @@
 using namespace magneticfield;
 
 UniformMagneticFieldESProducer::UniformMagneticFieldESProducer(const edm::ParameterSet& pset) : value(pset.getParameter<double>("ZFieldInTesla")) {
-  setWhatProduced(this, pset.getUntrackedParameter<std::string>("label",""));
+  setWhatProduced(this);
 }
 
 

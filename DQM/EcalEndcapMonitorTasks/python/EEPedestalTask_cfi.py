@@ -4,7 +4,9 @@ ecalEndcapPedestalTask = cms.EDFilter("EEPedestalTask",
     EcalPnDiodeDigiCollection = cms.InputTag("ecalEBunpacker"),
     EEDigiCollection = cms.InputTag("ecalEBunpacker","eeDigis"),
     EcalRawDataCollection = cms.InputTag("ecalEBunpacker"),
-    enableCleanup = cms.untracked.bool(True)
+    mergeRuns = cms.untracked.bool(False),    
+    enableCleanup = cms.untracked.bool(False),
+    prefixME = cms.untracked.string('EcalEndcap')
 )
 
 

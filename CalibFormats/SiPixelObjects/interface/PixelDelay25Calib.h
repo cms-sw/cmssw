@@ -1,11 +1,12 @@
 #ifndef PixelDELAY25CALIB_h
 #define PixelDELAY25CALIB_h
-/**
-*   \file CalibFormats/SiPixelObjects/interface/PixelDelay25Calib.h
-*   \brief This class manages data and files used in the Delay25 calibration
-*
-*   A longer explanation will be placed here later
-*/
+//
+// This class manages data and files used
+// in the Delay25 calibration
+//
+//
+//
+//
 #include <vector>
 #include <string>
 #include <set>
@@ -14,13 +15,6 @@
 #include "CalibFormats/SiPixelObjects/interface/PixelConfigBase.h"
 
 namespace pos{
-/*!  \ingroup ConfigurationObjects "Configuration Objects"
-*    
-*  @{
-*
-*  \class PixelDelay25Calib PixelDelay25Calib.h
-*  \brief This class manages data and files used in the Delay25 calibration
-*/
   class PixelDelay25Calib : public PixelCalibBase, public PixelConfigBase{
 
   public:
@@ -39,8 +33,7 @@ namespace pos{
     int getNumberTests() {return numTests_;}
     int getNextOrigSDa(int n);
     int getNextOrigRDa(int n);
-    void openFiles(std::string portcardName, std::string moduleName, 
-		   std::string path="");
+    void openFiles(std::string portcardName, std::string moduleName);
     void writeSettings(std::string portcardName, std::string moduleName);
     void writeFiles(std::string tmp);
     void writeFiles(int currentSDa, int currentRDa, int number);
@@ -71,5 +64,4 @@ namespace pos{
 
   };
 }
-/* @} */
 #endif

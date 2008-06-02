@@ -5,7 +5,7 @@
 // 
 //
 // Original Author:  Dmytro Kovalskyi
-// $Id: MuonIdProducer.cc,v 1.20 2008/03/02 21:16:56 slava77 Exp $
+// $Id: MuonIdProducer.cc,v 1.19 2008/01/22 09:51:28 bellan Exp $
 //
 //
 
@@ -111,20 +111,20 @@ MuonIdProducer::~MuonIdProducer()
 
 void MuonIdProducer::init(edm::Event& iEvent, const edm::EventSetup& iSetup)
 {
-   // TimerStack timers;
-   // timers.push("MuonIdProducer::produce::init");
+   TimerStack timers;
+   timers.push("MuonIdProducer::produce::init");
    
    innerTrackCollectionHandle_.clear();
    outerTrackCollectionHandle_.clear();
    linkCollectionHandle_.clear();
    muonCollectionHandle_.clear();
    
-   // timers.push("MuonIdProducer::produce::init::getPropagator");
+   timers.push("MuonIdProducer::produce::init::getPropagator");
    edm::ESHandle<Propagator> propagator;
    iSetup.get<TrackingComponentsRecord>().get("SteppingHelixPropagatorAny", propagator);
    trackAssociator_.setPropagator(propagator.product());
    
-   // timers.pop_and_push("MuonIdProducer::produce::init::getInputCollections");
+   timers.pop_and_push("MuonIdProducer::produce::init::getInputCollections");
    for ( unsigned int i = 0; i < inputCollectionLabels_.size(); ++i ) {
       if ( inputCollectionTypes_[i] == "inner tracks" ) {
 	 iEvent.getByLabel(inputCollectionLabels_[i], innerTrackCollectionHandle_);
@@ -270,8 +270,8 @@ void MuonIdProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
 {
    using namespace edm;
    
-   // TimerStack timers;
-   // timers.push("MuonIdProducer::produce");
+   TimerStack timers;
+   timers.push("MuonIdProducer::produce");
    
    std::auto_ptr<reco::MuonCollection> outputMuons(new reco::MuonCollection);
    init(iEvent, iSetup);
@@ -318,7 +318,7 @@ void MuonIdProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
 	   if ( ! isGoodTrack( innerTrackCollectionHandle_->at(i) ) ) continue;
 	   
 	   // make muon
-	   // timers.push("MuonIdProducer::produce::fillMuonId");
+	   timers.push("MuonIdProducer::produce::fillMuonId");
 	   reco::Muon trackerMuon( makeMuon(iEvent, iSetup, reco::TrackRef( innerTrackCollectionHandle_, i ), InnerTrack ) );
 	   trackerMuon.setType( reco::Muon::TrackerMuon );
 	   fillMuonId(iEvent, iSetup, trackerMuon);
@@ -326,7 +326,7 @@ void MuonIdProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
 	      LogTrace("MuonIdentification") << "track failed minimal number of muon matches requirement";
 	      continue;
 	   }
-	   // timers.pop();
+	   timers.pop();
 	  
 	   if ( debugWithTruthMatching_ ) {
 	      // add MC hits to a list of matched segments. 
@@ -398,24 +398,24 @@ void MuonIdProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
    for ( reco::MuonCollection::iterator muon = outputMuons->begin(); muon != outputMuons->end(); ++muon )
      {
 	// Fill muonID
-	// timers.push("MuonIdProducer::produce::fillMuonId");
+	timers.push("MuonIdProducer::produce::fillMuonId");
 	if ( ( fillMatching_ && ! muon->isMatchesValid() ) || 
 	     ( fillEnergy_ && !muon->isEnergyValid() ) ) fillMuonId(iEvent, iSetup, *muon);
-	// timers.pop();
+	timers.pop();
 	
-	// timers.push("MuonIdProducer::produce::fillCaloCompatibility");
+	timers.push("MuonIdProducer::produce::fillCaloCompatibility");
 	if ( fillCaloCompatibility_ ) muon->setCaloCompatibility( muonCaloCompatibility_.evaluate(*muon) );
-	// timers.pop();
+	timers.pop();
 	
-	// timers.push("MuonIdProducer::produce::fillIsolation");
+	timers.push("MuonIdProducer::produce::fillIsolation");
 	if ( fillIsolation_ ) fillMuonIsolation(iEvent, iSetup, *muon);
-	// timers.pop();
+	timers.pop();
      }
 	
    LogTrace("MuonIdentification") << "number of muons produced: " << outputMuons->size();
-   // timers.push("MuonIdProducer::produce::fillArbitration");
+   timers.push("MuonIdProducer::produce::fillArbitration");
    if ( fillMatching_ ) fillArbitrationInfo( outputMuons.get() );
-   // timers.pop();
+   timers.pop();
    iEvent.put(outputMuons);
 }
 

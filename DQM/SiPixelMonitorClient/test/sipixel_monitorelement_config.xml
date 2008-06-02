@@ -14,46 +14,11 @@
      <MonElement name="ROCNmbr">	</MonElement> 
      <MonElement name="ndigis">         </MonElement> 
      <MonElement name="adc">            </MonElement> 
-     <MonElement name="nclusters">      </MonElement>
-     <MonElement name="y">              </MonElement>
-     <MonElement name="x">              </MonElement>
-     <MonElement name="charge">         </MonElement>
-     <MonElement name="size">           </MonElement>
-     <MonElement name="sizeX">          </MonElement>
-     <MonElement name="sizeY">          </MonElement>
-     <MonElement name="minrow">         </MonElement>
-     <MonElement name="maxrow">         </MonElement>
-     <MonElement name="mincol">         </MonElement>
-     <MonElement name="maxcol">         </MonElement>
-     <MonElement name="residualX_RMS">  </MonElement>
-     <MonElement name="residualY_RMS">  </MonElement>
-     <MonElement name="residualX_mean"> </MonElement>
-     <MonElement name="residualY_mean"> </MonElement>
-     <MonElement name="ClusX">          </MonElement>
-     <MonElement name="ClusY">          </MonElement>
-     <MonElement name="Gain1d_RMS">	             </MonElement> 
-     <MonElement name="Gain1d_mean">	             </MonElement> 
-     <MonElement name="GainChi2NDF1d_RMS">	     </MonElement> 
-     <MonElement name="GainChi2NDF1d_mean">	     </MonElement> 
-     <MonElement name="GainChi2Prob1d_RMS">	     </MonElement> 
-     <MonElement name="GainChi2Prob1d_mean">	     </MonElement> 
-     <MonElement name="Pedestal1d_RMS">	             </MonElement> 
-     <MonElement name="Pedestal1d_mean">	     </MonElement> 
-     <MonElement name="ScurveChi2NDFSummary_RMS">    </MonElement> 
-     <MonElement name="ScurveChi2NDFSummary_mean">   </MonElement> 
-     <MonElement name="ScurveFitResultSummary_RMS">  </MonElement> 
-     <MonElement name="ScurveFitResultSummary_mean"> </MonElement> 
-     <MonElement name="ScurveSigmasSummary_RMS">     </MonElement> 
-     <MonElement name="ScurveSigmasSummary_mean">    </MonElement> 
-     <MonElement name="ScurveThresholdSummary_RMS">  </MonElement> 
-     <MonElement name="ScurveThresholdSummary_mean"> </MonElement> 
-     <MonElement name="pixelAliveSummary_mean">      </MonElement> 
-     <MonElement name="pixelAliveSummary_FracOfPerfectPix"></MonElement> 
 </TkMap>
 <SummaryPlot>
 <SubStructureBarrelLevel name="Ladder_" update_frequency="300"> 
      <MonElement name="errorType">	</MonElement> 
-     <MonElement name="NErrors">	</MonElement> 
+     <MonElement name="NErrors">	</MonElement>
      <MonElement name="fullType">	</MonElement> 
      <MonElement name="chanNmbr">	</MonElement> 
      <MonElement name="TBMType">	</MonElement> 
@@ -66,34 +31,10 @@
      <MonElement name="ROCNmbr">	</MonElement> 
      <MonElement name="ndigis">    	</MonElement> 
      <MonElement name="adc">       	</MonElement> 
-     <MonElement name="nclusters"> 	</MonElement>
-     <MonElement name="y">         	</MonElement>
-     <MonElement name="x">         	</MonElement>
-     <MonElement name="charge">    	</MonElement>
-     <MonElement name="size">      	</MonElement>
-     <MonElement name="sizeX">     	</MonElement>
-     <MonElement name="sizeY">     	</MonElement>
-     <MonElement name="minrow">    	</MonElement>
-     <MonElement name="maxrow">    	</MonElement>
-     <MonElement name="mincol">    	</MonElement>
-     <MonElement name="maxcol">    	</MonElement>
-     <MonElement name="residualX"> 	</MonElement>
-     <MonElement name="residualY"> 	</MonElement>
-     <MonElement name="ClusX">          </MonElement>
-     <MonElement name="ClusY">          </MonElement>
-     <MonElement name="Gain1d">	                 </MonElement> 
-     <MonElement name="GainChi2NDF1d">	         </MonElement> 
-     <MonElement name="GainChi2Prob1d">	         </MonElement> 
-     <MonElement name="Pedestal1d">	         </MonElement> 
-     <MonElement name="ScurveChi2NDFSummary">    </MonElement> 
-     <MonElement name="ScurveFitResultSummary">  </MonElement> 
-     <MonElement name="ScurveSigmasSummary">     </MonElement> 
-     <MonElement name="ScurveThresholdSummary">  </MonElement> 
-     <MonElement name="pixelAliveSummary">       </MonElement> 
 </SubStructureBarrelLevel> 
 <SubStructureGrandBarrelLevel name="Layer_" update_frequency="300"> 
      <MonElement name="errorType">	</MonElement> 
-     <MonElement name="NErrors">	</MonElement> 
+     <MonElement name="NErrors">	</MonElement>
      <MonElement name="fullType">	</MonElement> 
      <MonElement name="chanNmbr">	</MonElement> 
      <MonElement name="TBMType">	</MonElement> 
@@ -106,45 +47,10 @@
      <MonElement name="ROCNmbr">	</MonElement> 
      <MonElement name="ndigis">         </MonElement> 
      <MonElement name="adc">            </MonElement> 
-     <MonElement name="nclusters">      </MonElement>
-     <MonElement name="y">              </MonElement>
-     <MonElement name="x">              </MonElement>
-     <MonElement name="charge">         </MonElement>
-     <MonElement name="size">           </MonElement>
-     <MonElement name="sizeX">          </MonElement>
-     <MonElement name="sizeY">          </MonElement>
-     <MonElement name="minrow">         </MonElement>
-     <MonElement name="maxrow">         </MonElement>
-     <MonElement name="mincol">         </MonElement>
-     <MonElement name="maxcol">         </MonElement>
-     <MonElement name="residualX_RMS">  </MonElement>
-     <MonElement name="residualY_RMS">  </MonElement>
-     <MonElement name="residualX_mean"> </MonElement>
-     <MonElement name="residualY_mean"> </MonElement>
-     <MonElement name="ClusX">          </MonElement>
-     <MonElement name="ClusY">          </MonElement>
-     <MonElement name="Gain1d_RMS">	             </MonElement> 
-     <MonElement name="Gain1d_mean">	             </MonElement> 
-     <MonElement name="GainChi2NDF1d_RMS">	     </MonElement> 
-     <MonElement name="GainChi2NDF1d_mean">	     </MonElement> 
-     <MonElement name="GainChi2Prob1d_RMS">	     </MonElement> 
-     <MonElement name="GainChi2Prob1d_mean">	     </MonElement> 
-     <MonElement name="Pedestal1d_RMS">	             </MonElement> 
-     <MonElement name="Pedestal1d_mean">	     </MonElement> 
-     <MonElement name="ScurveChi2NDFSummary_RMS">    </MonElement> 
-     <MonElement name="ScurveChi2NDFSummary_mean">   </MonElement> 
-     <MonElement name="ScurveFitResultSummary_RMS">  </MonElement> 
-     <MonElement name="ScurveFitResultSummary_mean"> </MonElement> 
-     <MonElement name="ScurveSigmasSummary_RMS">     </MonElement> 
-     <MonElement name="ScurveSigmasSummary_mean">    </MonElement> 
-     <MonElement name="ScurveThresholdSummary_RMS">  </MonElement> 
-     <MonElement name="ScurveThresholdSummary_mean"> </MonElement> 
-     <MonElement name="pixelAliveSummary_mean">      </MonElement> 
-     <MonElement name="pixelAliveSummary_FracOfPerfectPix"></MonElement> 
 </SubStructureGrandBarrelLevel> 
 <SubStructureEndcapLevel name="Panel_" update_frequency="300"> 
      <MonElement name="errorType">	</MonElement> 
-     <MonElement name="NErrors">	</MonElement> 
+     <MonElement name="NErrors">	</MonElement>
      <MonElement name="fullType">	</MonElement> 
      <MonElement name="chanNmbr">	</MonElement> 
      <MonElement name="TBMType">	</MonElement> 
@@ -157,34 +63,10 @@
      <MonElement name="ROCNmbr">	</MonElement> 
      <MonElement name="ndigis">    	</MonElement> 
      <MonElement name="adc">       	</MonElement> 
-     <MonElement name="nclusters"> 	</MonElement>
-     <MonElement name="y">         	</MonElement>
-     <MonElement name="x">         	</MonElement>
-     <MonElement name="charge">    	</MonElement>
-     <MonElement name="size">      	</MonElement>
-     <MonElement name="sizeX">     	</MonElement>
-     <MonElement name="sizeY">     	</MonElement>
-     <MonElement name="minrow">    	</MonElement>
-     <MonElement name="maxrow">    	</MonElement>
-     <MonElement name="mincol">    	</MonElement>
-     <MonElement name="maxcol">    	</MonElement>
-     <MonElement name="residualX"> 	</MonElement>
-     <MonElement name="residualY"> 	</MonElement>
-     <MonElement name="ClusX">          </MonElement>
-     <MonElement name="ClusY">          </MonElement>
-     <MonElement name="Gain1d">	                 </MonElement> 
-     <MonElement name="GainChi2NDF1d">	         </MonElement> 
-     <MonElement name="GainChi2Prob1d">	         </MonElement> 
-     <MonElement name="Pedestal1d">	         </MonElement> 
-     <MonElement name="ScurveChi2NDFSummary">    </MonElement> 
-     <MonElement name="ScurveFitResultSummary">  </MonElement> 
-     <MonElement name="ScurveSigmasSummary">     </MonElement> 
-     <MonElement name="ScurveThresholdSummary">  </MonElement> 
-     <MonElement name="pixelAliveSummary">       </MonElement> 
 </SubStructureEndcapLevel> 
 <SubStructureGrandEndcapLevel name="Blade_" update_frequency="300"> 
      <MonElement name="errorType">	</MonElement> 
-     <MonElement name="NErrors">	</MonElement> 
+     <MonElement name="NErrors">	</MonElement>
      <MonElement name="fullType">	</MonElement> 
      <MonElement name="chanNmbr">	</MonElement> 
      <MonElement name="TBMType">	</MonElement> 
@@ -197,41 +79,6 @@
      <MonElement name="ROCNmbr">	</MonElement> 
      <MonElement name="ndigis">         </MonElement> 
      <MonElement name="adc">            </MonElement> 
-     <MonElement name="nclusters">      </MonElement>
-     <MonElement name="y">              </MonElement>
-     <MonElement name="x">              </MonElement>
-     <MonElement name="charge">         </MonElement>
-     <MonElement name="size">           </MonElement>
-     <MonElement name="sizeX">          </MonElement>
-     <MonElement name="sizeY">          </MonElement>
-     <MonElement name="minrow">         </MonElement>
-     <MonElement name="maxrow">         </MonElement>
-     <MonElement name="mincol">         </MonElement>
-     <MonElement name="maxcol">         </MonElement>
-     <MonElement name="residualX_RMS">  </MonElement>
-     <MonElement name="residualY_RMS">  </MonElement>
-     <MonElement name="residualX_mean"> </MonElement>
-     <MonElement name="residualY_mean"> </MonElement>
-     <MonElement name="ClusX">          </MonElement>
-     <MonElement name="ClusY">          </MonElement>
-     <MonElement name="Gain1d_RMS">	             </MonElement> 
-     <MonElement name="Gain1d_mean">	             </MonElement> 
-     <MonElement name="GainChi2NDF1d_RMS">	     </MonElement> 
-     <MonElement name="GainChi2NDF1d_mean">	     </MonElement> 
-     <MonElement name="GainChi2Prob1d_RMS">	     </MonElement> 
-     <MonElement name="GainChi2Prob1d_mean">	     </MonElement> 
-     <MonElement name="Pedestal1d_RMS">	             </MonElement> 
-     <MonElement name="Pedestal1d_mean">	     </MonElement> 
-     <MonElement name="ScurveChi2NDFSummary_RMS">    </MonElement> 
-     <MonElement name="ScurveChi2NDFSummary_mean">   </MonElement> 
-     <MonElement name="ScurveFitResultSummary_RMS">  </MonElement> 
-     <MonElement name="ScurveFitResultSummary_mean"> </MonElement> 
-     <MonElement name="ScurveSigmasSummary_RMS">     </MonElement> 
-     <MonElement name="ScurveSigmasSummary_mean">    </MonElement> 
-     <MonElement name="ScurveThresholdSummary_RMS">  </MonElement> 
-     <MonElement name="ScurveThresholdSummary_mean"> </MonElement> 
-     <MonElement name="pixelAliveSummary_mean">      </MonElement> 
-     <MonElement name="pixelAliveSummary_FracOfPerfectPix"></MonElement> 
 </SubStructureGrandEndcapLevel> 
 </SummaryPlot>
 
@@ -241,7 +88,7 @@
 </QTests>
 
 <Source>
-<SourceType name="source" code="5">
+<SourceType name="source" code="1">
 </SourceType>
 </Source>
 

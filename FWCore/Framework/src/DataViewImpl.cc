@@ -1,5 +1,5 @@
 /*----------------------------------------------------------------------
-$Id: DataViewImpl.cc,v 1.24 2008/01/30 00:32:01 wmtan Exp $
+$Id: DataViewImpl.cc,v 1.26 2008/04/04 22:46:16 wmtan Exp $
 ----------------------------------------------------------------------*/
 
 #include <algorithm>
@@ -53,9 +53,13 @@ namespace edm {
 	boost::shared_ptr<EntryDescription> entryDescriptionPtr(new EntryDescription);
 
 	// set parts of provenance
-	entryDescriptionPtr->parents_ = gotProductIDs_;
+	entryDescriptionPtr->parents_.reserve(gotProductIDs_.size());
+	for (ProductIDSet::const_iterator it = gotProductIDs_.begin(), itEnd = gotProductIDs_.end();
+	    it != itEnd; ++it) {
+	  entryDescriptionPtr->parents_.push_back(*it);
+	}
 	entryDescriptionPtr->moduleDescriptionID_ = pit->second->moduleDescriptionID();
-	std::auto_ptr<Provenance> pv(new Provenance(*pit->second, entryDescriptionPtr));
+	std::auto_ptr<Provenance> pv(new Provenance(*pit->second, entryDescriptionPtr, true));
 	dbk_.put(pr,pv);
 	++pit;
 	EntryDescriptionRegistry::instance()->insertMapped(*entryDescriptionPtr);

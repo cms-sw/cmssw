@@ -16,7 +16,7 @@
 //
 // Original Author:  Gena Kukartsev, kukarzev@fnal.gov
 //         Created:  Tue Nov 06 14:30:33 CDT 2007
-// $Id: XMLRBXPedestalsLoader.h,v 1.1 2008/02/12 17:01:59 kukartse Exp $
+// $Id: XMLRBXPedestalsLoader.h,v 1.1 2007/12/06 02:26:12 kukartse Exp $
 //
 
 // system include files
@@ -67,15 +67,13 @@ class XMLRBXPedestalsLoader : public XMLDOMBlock
   
   // ---------- member functions ---------------------------
   int addRBXSlot( datasetDBConfig * config, string brickFileName,
-		  string rbx_config_type = "pedestals",
-		  string templateFileName = "HCAL_RBX_PEDESTALS_TYPE01.dataset.template" ); // pedestals, gols, delays
+	     string templateFileName = "HCAL_RBX_PEDESTALS_TYPE01.dataset.template" );
   
  protected:
   int init( void );
   int fixRbxName( string & );
 
-  MemBufInputSource * _data_ped_delay; // a container for the XML template for a single pedestal or zero delay
-  MemBufInputSource * _data_gol; // a container for the XML template for a single gol current
+  MemBufInputSource * _data; // a container for the XML template for a single pedestal
 
  private:
   XMLRBXPedestalsLoader(const XMLRBXPedestalsLoader&); // stop default

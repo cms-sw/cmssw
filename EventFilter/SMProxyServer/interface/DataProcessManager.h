@@ -1,12 +1,15 @@
 #ifndef SMPS_DATA_PROCESS_MANAGER_HPP
 #define SMPS_DATA_PROCESS_MANAGER_HPP
-// $Id: DataProcessManager.h,v 1.4 2008/02/02 02:35:28 hcheung Exp $
+// $Id: DataProcessManager.h,v 1.5 2008/02/11 14:54:52 biery Exp $
 
 #include "EventFilter/StorageManager/interface/EventServer.h"
 #include "EventFilter/StorageManager/interface/DQMEventServer.h"
 #include "EventFilter/StorageManager/interface/InitMsgCollection.h"
 #include "EventFilter/StorageManager/interface/DQMServiceManager.h"
 #include "EventFilter/StorageManager/interface/SMPerformanceMeter.h"
+#include "EventFilter/StorageManager/interface/ForeverCounter.h"
+#include "EventFilter/StorageManager/interface/RollingIntervalCounter.h"
+#include "FWCore/Utilities/interface/CPUTimer.h"
 
 #include "IOPool/Streamer/interface/EventBuffer.h"
 #include "IOPool/Streamer/interface/EventMessage.h"
@@ -25,8 +28,12 @@ namespace stor
   class DataProcessManager
   {
   public:
+    enum STATS_TIME_FRAME { SHORT_TERM = 0, LONG_TERM = 1 };
+    enum STATS_TIMING_TYPE { EVENT_FETCH = 10, DQMEVENT_FETCH = 11 };
+
     typedef std::vector<char> Buf;
     typedef std::map<std::string, unsigned int> RegConsumer_map;
+    typedef std::map<std::string, bool> HeaderConsumer_map;
     typedef std::map<std::string, struct timeval> LastReqTime_map;
 
     DataProcessManager();
@@ -112,6 +119,16 @@ namespace stor
     void setSamples(unsigned long num_samples) { pmeter_->setSamples(num_samples); }
     unsigned long samples() { return pmeter_->samples(); }
 
+    double getSampleCount(STATS_TIME_FRAME timeFrame = SHORT_TERM,
+                          STATS_TIMING_TYPE timingType = EVENT_FETCH,
+                          double currentTime = BaseCounter::getCurrentTime());
+    double getAverageValue(STATS_TIME_FRAME timeFrame = SHORT_TERM,
+                           STATS_TIMING_TYPE timingType = EVENT_FETCH,
+                           double currentTime = BaseCounter::getCurrentTime());
+    double getDuration(STATS_TIME_FRAME timeFrame = SHORT_TERM,
+                       STATS_TIMING_TYPE timingType = EVENT_FETCH,
+                       double currentTime = BaseCounter::getCurrentTime());
+
   private:
     void init();
     void processCommands();
@@ -130,6 +147,7 @@ namespace stor
     int registerWithSM(std::string smURL);
     int registerWithDQMSM(std::string smURL);
     bool getAnyHeaderFromSM();
+    bool getHeaderFromAllSM();
     bool getHeaderFromSM(std::string smURL);
     void waitBetweenRegTrys();
 
@@ -142,6 +160,7 @@ namespace stor
 
     std::vector<std::string> smList_;
     RegConsumer_map smRegMap_;
+    HeaderConsumer_map smHeaderMap_;
     std::vector<std::string> DQMsmList_;
     RegConsumer_map DQMsmRegMap_;
     std::string eventpage_;
@@ -182,6 +201,13 @@ namespace stor
     xdata::UnsignedInteger32 samples_; // number of samples per measurement
     stor::SMPerfStats stats_;
 
+    // statistics (long term and short term)
+    edm::CPUTimer eventFetchTimer_;
+    edm::CPUTimer dqmFetchTimer_;
+    boost::shared_ptr<ForeverCounter> ltEventFetchTimeCounter_;
+    boost::shared_ptr<RollingIntervalCounter> stEventFetchTimeCounter_;
+    boost::shared_ptr<ForeverCounter> ltDQMFetchTimeCounter_;
+    boost::shared_ptr<RollingIntervalCounter> stDQMFetchTimeCounter_;
   };
 }
 

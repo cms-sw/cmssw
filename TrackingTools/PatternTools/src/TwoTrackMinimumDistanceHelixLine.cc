@@ -49,7 +49,7 @@ bool TwoTrackMinimumDistanceHelixLine::updateCoeffs()
 
   if ( Bc2kH == 0. )
   {
-    edm::LogWarning ("TwoTrackMinimumDistanceHelixLine")
+    LogDebug ("TwoTrackMinimumDistanceHelixLine")
       << "Magnetic field at point " << hOrig << " is zero.";
     return true;
   };

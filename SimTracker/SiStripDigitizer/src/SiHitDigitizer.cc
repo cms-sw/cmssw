@@ -48,11 +48,7 @@ SiHitDigitizer::~SiHitDigitizer(){
 void 
 SiHitDigitizer::processHit(const PSimHit& hit, const StripGeomDetUnit& det, GlobalVector bfield,float langle,
 			   SiPileUpSignals::signal_map_type &map,SiPileUpSignals::signal_map_type &map_temp){
-  //
-  // Fully process one SimHit
-  //
 
-  SiChargeCollectionDrifter::ionization_type ion = theSiChargeDivider->divide(hit, det);
 
   //
   // Compute the drift direction for this det
@@ -62,6 +58,12 @@ SiHitDigitizer::processHit(const PSimHit& hit, const StripGeomDetUnit& det, Glob
   double timeNormalisation = (moduleThickness*moduleThickness)/(2.*depletionVoltage*chargeMobility);
   
   LocalVector driftDir = DriftDirection(&det,bfield,langle);
+
+  //
+  // Fully process one SimHit
+  //
+
+  SiChargeCollectionDrifter::ionization_type ion = theSiChargeDivider->divide(hit, driftDir, moduleThickness, det);
  
   theSiInduceChargeOnStrips->induce(theSiChargeCollectionDrifter->drift(ion,driftDir,moduleThickness,timeNormalisation),det,map,map_temp);
 }

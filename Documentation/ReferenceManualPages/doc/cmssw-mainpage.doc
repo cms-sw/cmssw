@@ -1,5 +1,4 @@
 /** \mainpage
-This is main page of the CMSSW Reference Manual.
 
 \htmlonly
 <script type="text/javascript">
@@ -59,7 +58,7 @@ Definition of the event content (the packages where the contents are defined are
   <td>  \endhtmlonly \ref SimData "SIM Data"  \htmlonly  </td>
   <td>Simulation output and Monte Carlo truth</td>
   <td class="contact">
-    <a href="mailto:">Daniel Elvira</a>,
+    <a href="mailto:">Filippo Ambroglini</a>,
     <a href="mailto:">Fabio Cossutti</a>
   </td>
 </tr>
@@ -88,13 +87,14 @@ Definition of packages according to the different functionalities.
   <td>Core Framework and Event Data Model components</td>
   <td class="contact">
     <a href="mailto:">Liz Sexton Kennedy</a>
+    <a href="mailto:">Peter Elmer</a>
   </td>
 </tr>
 <tr>
   <td>  \endhtmlonly \ref Reconstruction "Reconstruction"   \htmlonly  </td>
   <td>Reconstruction sofware</td>
   <td class="contact">
-    <a href="mailto:">Tommaso Boccali</a>
+    <a href="mailto:">Andrea Rizzi</a>
     <a href="mailto:">Shahram Rahatlou</a>
   </td>
 </tr>
@@ -102,7 +102,7 @@ Definition of packages according to the different functionalities.
   <td>  \endhtmlonly \ref Simulation "Simulation" \htmlonly  </td>
   <td>Simulation Software</td>
   <td class="contact">
-    <a href="mailto:">Daniel Elvira</a>,
+    <a href="mailto:">Filipp Ambroglini</a>,
     <a href="mailto:">Fabio Cossutti</a>
   </td>
 </tr>
@@ -111,7 +111,7 @@ Definition of packages according to the different functionalities.
   <td>Physics Analysis Softare Tools</td>
   <td class="contact">
      <a href="mailto:">Luca Lista</a>
-     <a href="mailto:">Chris Jones</a>
+     <a href="mailto:">Petar Maksimovic</a>
   </td>
 </tr>
 <tr>
@@ -168,6 +168,8 @@ Definition of packages by detector.
 
 <br><br>
 Learn \ref ReferenceManual "how to contribute to this Reference Manual"
+<br>
+Learn \ref ReferenceManualHowTo "how this Reference Manual is built and configured"
 <br>
 
 */

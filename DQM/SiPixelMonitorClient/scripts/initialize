@@ -68,12 +68,8 @@ copy("$ENV{PWD}/../test/pixel_dqm_sourceclient-file.cfg", "$ENV{PWD}/cfg/source_
 # make source xml input
 
 copy("$ENV{PWD}/../test/MESubscriptionList.xml", "$ENV{PWD}/cfg/.");
-copy("$ENV{PWD}/../test/sipixel_qualitytest_config_digi.xml", "$ENV{PWD}/cfg/sipixel_qualitytest_config.xml");
-copy("$ENV{PWD}/../test/sipixel_monitorelement_config_digi.xml", "$ENV{PWD}/cfg/sipixel_monitorelement_config.xml");
-copy("$ENV{PWD}/../test/sipixel_qualitytest_config_digi.xml", "$ENV{PWD}/../test/sipixel_qualitytest_config.xml");
-copy("$ENV{PWD}/../test/sipixel_monitorelement_config_digi.xml", "$ENV{PWD}/../test/sipixel_monitorelement_config.xml");
-copy("$ENV{PWD}/../test/pixel_qualitytests.xml", "$ENV{PWD}/cfg/sipixel_qualitytest_config.xml");
-copy("$ENV{PWD}/../test/pixel_qualitytests.xml", "$ENV{PWD}/../test/sipixel_qualitytest_config.xml");
+copy("$ENV{PWD}/../test/sipixel_qualitytest_config.xml", "$ENV{PWD}/cfg/sipixel_qualitytest_config.xml");
+copy("$ENV{PWD}/../test/sipixel_monitorelement_config.xml", "$ENV{PWD}/cfg/sipixel_monitorelement_config.xml");
 copy("$ENV{PWD}/../test/trackermap.txt", "$ENV{PWD}/.");
 copy("$ENV{PWD}/../test/tracker.dat", "$ENV{PWD}/.");
 copy("$ENV{PWD}/../test/TrackerMapHeader.txt", "$ENV{PWD}/.");

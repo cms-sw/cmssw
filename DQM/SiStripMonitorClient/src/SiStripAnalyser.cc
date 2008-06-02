@@ -1,8 +1,8 @@
 /*
  * \file SiStripAnalyser.cc
  * 
- * $Date: 2008/03/11 19:20:12 $
- * $Revision: 1.27 $
+ * $Date: 2008/05/14 21:20:53 $
+ * $Revision: 1.34 $
  * \author  S. Dutta INFN-Pisa
  *
  */
@@ -13,7 +13,7 @@
 
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 
-#include "FWCore/Framework/interface/EventSetup.h"
+
 #include "FWCore/Framework/interface/LuminosityBlock.h"
 #include "FWCore/ServiceRegistry/interface/Service.h"
 #include "FWCore/ParameterSet/interface/FileInPath.h"
@@ -36,8 +36,6 @@
 #include "DQM/SiStripMonitorClient/interface/SiStripWebInterface.h"
 #include "DQM/SiStripMonitorClient/interface/SiStripActionExecutor.h"
 #include "DQM/SiStripMonitorClient/interface/SiStripUtility.h"
-
-#include <SealBase/Callback.h>
 
 #include "xgi/Method.h"
 #include "xgi/Utils.h"
@@ -86,8 +84,7 @@ SiStripAnalyser::SiStripAnalyser(edm::ParameterSet const& ps) :
   summaryFrequency_      = ps.getUntrackedParameter<int>("SummaryCreationFrequency",20);
   tkMapFrequency_        = ps.getUntrackedParameter<int>("TkMapCreationFrequency",50); 
   staticUpdateFrequency_ = ps.getUntrackedParameter<int>("StaticUpdateFrequency",10);
-
-
+  globalStatusFilling_   = ps.getUntrackedParameter<int>("GlobalStatusFilling", true);
   // get back-end interface
   dqmStore_ = Service<DQMStore>().operator->();
 
@@ -145,6 +142,9 @@ void SiStripAnalyser::beginRun(Run const& run, edm::EventSetup const& eSetup) {
     }
     eSetup.get<SiStripFedCablingRcd>().get(fedCabling_);
     eSetup.get<SiStripDetCablingRcd>().get(detCabling_);
+    if (globalStatusFilling_) actionExecutor_->bookGlobalStatus(dqmStore_);
+  } else {
+    if (globalStatusFilling_) actionExecutor_->resetGlobalStatus();
   }
 }
 //
@@ -158,6 +158,21 @@ void SiStripAnalyser::beginLuminosityBlock(edm::LuminosityBlock const& lumiSeg, 
 //
 void SiStripAnalyser::analyze(edm::Event const& e, edm::EventSetup const& eSetup){
   nEvents_++;  
+  unsigned int nval = sistripWebInterface_->getNumberOfConDBPlotRequest();
+  if (nval > 0) {
+    for (unsigned int ival = 0; ival < nval; ival++) {
+      uint32_t det_id;
+      string   subdet_type;
+      uint32_t subdet_side;
+      uint32_t layer_number;
+      sistripWebInterface_->getConDBPlotParameters(ival, det_id, subdet_type, subdet_side, layer_number);
+      cout << " DetId " << det_id << " type " << subdet_type  
+	   << " side "  << subdet_side << " layer " << layer_number << endl;
+    }
+    sistripWebInterface_->clearConDBPlotRequests();
+   }
+  sistripWebInterface_->setActionFlag(SiStripWebInterface::CreatePlots);
+  sistripWebInterface_->performAction();
 }
 //
 // -- End Luminosity Block
@@ -190,7 +205,7 @@ void SiStripAnalyser::endLuminosityBlock(edm::LuminosityBlock const& lumiSeg, ed
     sistripWebInterface_->setActionFlag(SiStripWebInterface::PlotHistogramFromLayout);
     sistripWebInterface_->performAction();
   }
-  fillGlobalStatus();
+  if (globalStatusFilling_) actionExecutor_->fillGlobalStatus(detCabling_, dqmStore_);
 }
 
 //
@@ -225,106 +240,6 @@ void SiStripAnalyser::defaultWebPage(xgi::Input *in, xgi::Output *out)
     // Handles all HTTP requests of the form
     int iter = nEvents_/100;
     sistripWebInterface_->handleAnalyserRequest(in, out, detCabling_, iter);
-  }
-}
-//
-// -- Get Global Status of Tracker
-//
-void SiStripAnalyser::fillGlobalStatus() {
-  float gStatus = 0.0;
-  // get connected detectors
-  std::vector<uint32_t> SelectedDetIds;
-  detCabling_->addActiveDetectorsRawIds(SelectedDetIds);
-  int nDetsWithErr = 0;
-  int nDetsTotal = 0;
-  int nSubDetsWithErr[6] = {0, 0, 0, 0, 0, 0};
-  int nSubDetsTotal[6]   = {0, 0, 0, 0, 0, 0};
-
-  SiStripFolderOrganizer folder_organizer;
-  for (std::vector<uint32_t>::const_iterator idetid=SelectedDetIds.begin(), iEnd=SelectedDetIds.end();idetid!=iEnd;++idetid){    
-    uint32_t detId = *idetid;
-    if (detId == 0 || detId == 0xFFFFFFFF){
-      edm::LogError("SiStripAnalyser") 
-                          << "SiStripAnalyser::fillGlobalStatus : " 
-                          << "Wrong DetId !!!!!! " <<  detId << " Neglecting !!!!!! ";
-      continue;
-    }
-    StripSubdetector subdet(*idetid);
-    folder_organizer.setDetectorFolder(detId);     
-    vector<MonitorElement*> detector_mes = dqmStore_->getContents(dqmStore_->pwd());
-    int error_me = 0;
-    for (vector<MonitorElement *>::const_iterator it = detector_mes.begin();
-	 it!= detector_mes.end(); it++) {
-      MonitorElement * me = (*it);     
-      if (!me) continue;
-      if (me->getQReports().size() == 0) continue;
-      int istat =  SiStripUtility::getMEStatus((*it)); 
-      if (istat == dqm::qstatus::ERROR)  error_me++;
-    }
-    dqmStore_->cd();
-    nDetsTotal++;
-        
-    if (error_me > 0) {
-     nDetsWithErr++;
-    }
-    switch (subdet.subdetId()) 
-      {
-      case StripSubdetector::TIB:
-	{
-	  nSubDetsTotal[0]++;
-	  if (error_me > 0) nSubDetsWithErr[0]++;
-	  break;       
-	}
-      case StripSubdetector::TID:
-	{
-	  TIDDetId tidId(detId);
-	  if (tidId.isZPlusSide()) {
-	    nSubDetsTotal[1]++;
-	    if (error_me > 0) nSubDetsWithErr[1]++;
-	  }  else if (tidId.isZMinusSide()) {
-	    nSubDetsTotal[2]++;
-	    if (error_me > 0) nSubDetsWithErr[2]++;
-	  }
-	  break;       
-	}
-      case StripSubdetector::TOB:
-	{
-	  nSubDetsTotal[3]++;
-	  if (error_me > 0) nSubDetsWithErr[3]++;
-	  break;       
-	}
-      case StripSubdetector::TEC:
-	{
-	  TECDetId tecId(detId);
-	  if (tecId.isZPlusSide()) {
-	    nSubDetsTotal[4]++;
-	    if (error_me > 0) nSubDetsWithErr[4]++;
-	  }  else if (tecId.isZMinusSide()) {
-	    nSubDetsTotal[5]++;
-	    if (error_me > 0) nSubDetsWithErr[5]++;
-	  }
-	  break;       
-	}
-      }
-  }
-  gStatus = (1 - nDetsWithErr*1.0/nDetsTotal) *100.0;
-  dqmStore_->cd();
-  MonitorElement* err_summ_me = dqmStore_->get("SiStrip/EventInfo/errorSummary");
-  if(err_summ_me) err_summ_me->Fill(gStatus);
-  for (unsigned int i = 0; i < 6; i++) {
-    ostringstream hname;
-    hname << setiosflags(ios::fixed);
-    hname.fill('0');
-    hname << "SiStrip/EventInfo/errorSummarySegments/Segment" << setw(2) << i;
-    
-    MonitorElement* seg_me = dqmStore_->get(hname.str());
-    if (seg_me) {
-      float eff = -1.0;
-      if (nSubDetsTotal[i] > 0) {
-	eff = (1 - nSubDetsWithErr[i] * 1.0 / nSubDetsTotal[i]) *100.0 ;
-      }
-      seg_me->Fill(eff);
-    }
   }
 }
 

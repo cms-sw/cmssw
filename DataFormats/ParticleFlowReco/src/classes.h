@@ -9,7 +9,6 @@
 #include "Math/Polar3D.h" 
 #include "Math/CylindricalEta3D.h" 
 #include "DataFormats/ParticleFlowReco/interface/PFRecTrack.h"
-#include "DataFormats/ParticleFlowReco/interface/GsfPFRecTrack.h"
 #include "Math/GenVector/PositionVector3D.h" 
 #include "DataFormats/Math/interface/Point3D.h" 
 #include "Rtypes.h" 
@@ -29,6 +28,7 @@
 #include "DataFormats/ParticleFlowReco/interface/PFBlockElementTrack.h"
 #include "DataFormats/ParticleFlowReco/interface/PFBlockElementGsfTrack.h"  //Daniele
 #include "DataFormats/ParticleFlowReco/interface/PFBlockElementBrem.h"  //Daniele
+#include "DataFormats/ParticleFlowReco/interface/PFBlockElementTrackNuclear.h"
 #include "DataFormats/ParticleFlowReco/interface/PFBlockElementCluster.h"
 #
 #include "DataFormats/ParticleFlowReco/interface/PFBlock.h"
@@ -46,9 +46,6 @@ namespace {
 
     std::vector<reco::PFRecTrack>                        dummy6;
     edm::Wrapper< std::vector<reco::PFRecTrack> >        dummy7;
-
-    std::vector<reco::GsfPFRecTrack>                     dummy6a;
-    edm::Wrapper< std::vector<reco::GsfPFRecTrack> >     dummy7a;
 
 /*     edm::RefToBase<reco::Track>                          dummy7b; */
 /*     edm::reftobase::BaseHolder<reco::Track>              dummy7c; */
@@ -73,8 +70,6 @@ namespace {
     edm::Ref< std::vector<reco::PFBlock>, reco::PFBlock, edm::refhelper::FindUsingAdvance< std::vector<reco::PFBlock>, reco::PFBlock> >  dummy18;
     edm::Ref<std::vector<reco::PFRecTrack>,reco::PFRecTrack,edm::refhelper::FindUsingAdvance<std::vector<reco::PFRecTrack>,reco::PFRecTrack> > dummy19;
     edm::RefVector<std::vector<reco::PFRecTrack>,reco::PFRecTrack,edm::refhelper::FindUsingAdvance<std::vector<reco::PFRecTrack>,reco::PFRecTrack> > dummy19b;
-    edm::Ref<std::vector<reco::GsfPFRecTrack>,reco::GsfPFRecTrack,edm::refhelper::FindUsingAdvance<std::vector<reco::GsfPFRecTrack>,reco::GsfPFRecTrack> > dummy19c;
-    edm::RefVector<std::vector<reco::GsfPFRecTrack>,reco::GsfPFRecTrack,edm::refhelper::FindUsingAdvance<std::vector<reco::GsfPFRecTrack>,reco::GsfPFRecTrack> > dummy19d;
     edm::Ref<std::vector<reco::PFCluster>,reco::PFCluster,edm::refhelper::FindUsingAdvance<std::vector<reco::PFCluster>,reco::PFCluster> > dummy20;
 
     /* NuclearInteraction stuffs  */

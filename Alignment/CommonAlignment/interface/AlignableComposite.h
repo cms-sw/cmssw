@@ -89,9 +89,9 @@ protected:
 
   void setSurface( const AlignableSurface& s) { theSurface = s; }
   
-  StructureType theStructureType;
-
 private:
+
+  StructureType theStructureType;
 
   Alignables theComponents; // direct daughters
 };

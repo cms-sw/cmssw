@@ -220,7 +220,7 @@ void CalibrationAnalysis::extract( const std::vector<TH1*>& histos) {
     
     // Extract calibration histo
     histo_[cnt].first = *ihis;
-    histo_[cnt].second = (*ihis)->GetTitle();
+    histo_[cnt].second = (*ihis)->GetTitle(); //CD was GetName
     
   }
   

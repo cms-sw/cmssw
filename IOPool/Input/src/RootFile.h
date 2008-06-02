@@ -5,7 +5,7 @@
 
 RootFile.h // used by ROOT input sources
 
-$Id: RootFile.h,v 1.53 2008/03/11 21:12:43 wmtan Exp $
+$Id: RootFile.h,v 1.57 2008/04/16 22:02:32 wdd Exp $
 
 ----------------------------------------------------------------------*/
 
@@ -51,8 +51,12 @@ namespace edm {
 	     unsigned int eventsToSkip,
 	     std::vector<LuminosityBlockID> const& whichLumisToSkip,
 	     int remainingEvents,
+	     unsigned int treeCacheSize,
+             int treeMaxVirtualSize,
 	     int forcedRunOffset,
-	     std::vector<EventID> const& whichEventsToProcess);
+	     std::vector<EventID> const& whichEventsToProcess,
+             bool dropMetaData,
+             bool csa08Kludge);
     void reportOpened();
     void close(bool reallyClose);
     std::auto_ptr<EventPrincipal> readCurrentEvent(
@@ -137,6 +141,7 @@ namespace edm {
     std::vector<EventID> whichEventsToProcess_;
     std::vector<EventID>::const_iterator eventListIter_;
     bool fastClonable_;
+    bool dropMetaData_;
     JobReport::Token reportToken_;
     EventAuxiliary eventAux_;
     LuminosityBlockAuxiliary lumiAux_;

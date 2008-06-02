@@ -283,14 +283,14 @@ L1RCTElectronIsolationCard::calcElectronCandidates(L1RCTRegion* region, int regi
 	bool e = false;
 
 	// individual neighbor vetoes set if neighbor is over threshold
-	if (nwEt > quietThreshold) nw = true;
-	if (neEt > quietThreshold) ne = true;
-	if (swEt > quietThreshold) sw = true;
-	if (seEt > quietThreshold) se = true;
-	if (northEt > quietThreshold) n = true;
-	if (southEt > quietThreshold) s = true;
-	if (westEt > quietThreshold) w = true;
-	if (eastEt > quietThreshold) e = true;
+	if (nwEt >= quietThreshold) nw = true;
+	if (neEt >= quietThreshold) ne = true;
+	if (swEt >= quietThreshold) sw = true;
+	if (seEt >= quietThreshold) se = true;
+	if (northEt >= quietThreshold) n = true;
+	if (southEt >= quietThreshold) s = true;
+	if (westEt >= quietThreshold) w = true;
+	if (eastEt >= quietThreshold) e = true;
 
 	// veto TRUE for each corner set if any individual tower in each set is over threshold
 	bool nwC = (sw || w || nw || n || ne);
@@ -303,8 +303,8 @@ L1RCTElectronIsolationCard::calcElectronCandidates(L1RCTRegion* region, int regi
 	bool quietVeto = (nwC && neC && seC && swC);
 
 	// only isolated if both vetoes are false
-	// BUT: quietThreshold = 0 forces all candidates to be non-iso
-	if(!(quietVeto || neighborVeto || (quietThreshold == 0))){
+	// Note: quietThreshold = 0 forces all candidates to be non-iso
+	if(!(quietVeto || neighborVeto)){
 	  if(candidateEt > isoElectron)
 	    isoElectron = candidateEt;
 	}

@@ -107,7 +107,7 @@ NuclearInteractionSimulator::NuclearInteractionSimulator(
       //std::cout << "iname/iene " << iname << " " << iene << std::endl; 
       std::ostringstream filename;
       double theEne = thePionEN[iene];
-      filename << "NuclearInteractions_" << thePionNA[iname] << "_E"<< theEne << ".root";
+      filename << "NuclearInteractionsVal_" << thePionNA[iname] << "_E"<< theEne << ".root";
       theFileNames[iname][iene] = filename.str();
       //std::cout << "thePid/theEne " << thePionID[iname] << " " << theEne << std::endl; 
 
@@ -185,7 +185,9 @@ NuclearInteractionSimulator::NuclearInteractionSimulator(
   //  hinel = dbe->book1D("Inelastic", "Inelastic interactions",150,0.,150.);
   //  hscatter = dbe->book1D("Scattering","Elastic Scattering angle",200,0.,2.); 
   //  hscatter2 = dbe->book2D("Scattering2","Elastic Scattering angle vs p",100,0.,10.,200,0.,2.); 
-
+  //  hAfter = dbe->book1D("eAfter","Energy after collision",200,0.,4.); 
+  //  hAfter2 = dbe->book2D("eAfter2","Energy after collision",100,-2.5,2.5,100,0.,4); 
+  //  hAfter3 = dbe->book2D("eAfter3","Energy after collision",100,0.,1000.,100,0.,4); 
 
 }
 
@@ -298,7 +300,7 @@ void NuclearInteractionSimulator::compute(ParticlePropagator& Particle)
 	const std::vector<double>& aRatios = theRatios[thePidIndex];
 	// Find the file with the closest c.m energy
 	// The target nucleon
-	XYZTLorentzVector Proton(0.,0.,0.,0.986);
+	XYZTLorentzVector Proton(0.,0.,0.,0.939);
 	// The current particle
 	const XYZTLorentzVector& Hadron = (const XYZTLorentzVector&)Particle;
 	// The smallest momentum for inelastic interactions
@@ -344,6 +346,7 @@ void NuclearInteractionSimulator::compute(ParticlePropagator& Particle)
 	  ratio1 = aRatios[ene2];
 	  ratio2 = aRatios[ene2];
 	} 
+
 	
 	// The inelastic part of the cross section depends cm energy
 	double slope = (std::log10(ecm )-std::log10(ecm1)) 
@@ -388,12 +391,6 @@ void NuclearInteractionSimulator::compute(ParticlePropagator& Particle)
 	  XYZTLorentzVector theBoost = Proton + Hadron;
 	  theBoost /= theBoost.e();
 	  
-	  // Some rotation arount the boost axis, for more randomness
-	  XYZVector theAxis = theBoost.Vect().Unit();
-	  double theAngle = random->flatShoot() * 2. * 3.14159265358979323;
-	  RawParticle::Rotation axisRotation(theAxis,theAngle);
-	  RawParticle::Boost axisBoost(theBoost.x(),theBoost.y(),theBoost.z());
-
 	  // std::cout << "File chosen : " << thePid << "/" << ene 
 	  //	    << " Current interaction = " << aCurrentInteraction[ene] 
 	  //	    << " Total interactions = " << aNumberOfInteractions[ene]
@@ -436,6 +433,23 @@ void NuclearInteractionSimulator::compute(ParticlePropagator& Particle)
 	  _theUpdatedState.resize(lastTrack-firstTrack+1);
 
 	  double distMin = 1E99;
+
+	  // Some rotation around the boost axis, for more randomness
+	  XYZVector theAxis = theBoost.Vect().Unit();
+	  double theAngle = random->flatShoot() * 2. * 3.14159265358979323;
+	  RawParticle::Rotation axisRotation(theAxis,theAngle);
+	  RawParticle::Boost axisBoost(theBoost.x(),theBoost.y(),theBoost.z());
+
+	  // A rotation to bring the particles back to the pion direction
+	  XYZVector zAxis(0.,0.,1.); 
+	  XYZVector orthAxis = (zAxis.Cross(theBoost.Vect())).Unit(); 
+	  double orthAngle = acos(theBoost.Vect().Unit().Z());
+	  RawParticle::Rotation orthRotation(orthAxis,orthAngle);
+
+	  // A few checks
+	  // double eAfter = 0.;
+	  
+	  // Loop on the nuclear interaction products
 	  for ( unsigned iTrack=firstTrack; iTrack<=lastTrack; ++iTrack ) {
 	    
 	    unsigned idaugh = iTrack - firstTrack;
@@ -460,7 +474,10 @@ void NuclearInteractionSimulator::compute(ParticlePropagator& Particle)
 			      aParticle.pz*ecm,energy*ecm);	    
 	    aDaughter.setID(aParticle.id);
 
-	    // Rotate around the boost axis
+	    // Rotate to the collision axis
+	    aDaughter.rotate(orthRotation);
+
+	    // Rotate around the boost axis for more randomness
 	    aDaughter.rotate(axisRotation);
 	    
 	    // Boost it in the lab frame
@@ -474,8 +491,20 @@ void NuclearInteractionSimulator::compute(ParticlePropagator& Particle)
 	      theClosestChargedDaughterId = idaugh;
 	    }
 
+	    // eAfter += aDaughter.E();
+
 	  }
- 
+
+	  /*
+	  double eBefore = Particle.E();
+	  double rapid = Particle.momentum().Eta();
+	  if ( eBefore > 0. ) { 
+	    hAfter->Fill(eAfter/eBefore);
+	    hAfter2->Fill(rapid,eAfter/eBefore);
+	    hAfter3->Fill(eBefore,eAfter/eBefore);
+	  }
+	  */
+
 	  // Increment for next time
 	  ++aCurrentInteraction[ene];
 	  

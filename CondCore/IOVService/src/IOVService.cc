@@ -59,11 +59,9 @@ cond::IOVService::globalTill() const{
 }
 std::string 
 cond::IOVService::exportIOVWithPayload( cond::PoolTransaction& destDB,
-					const std::string& iovToken,
-					const std::string& payloadObjectName ){
+					const std::string& iovToken ){
   return m_impl->exportIOVWithPayload( destDB,
-				       iovToken,
-				payloadObjectName); 
+				       iovToken); 
 }
 
 std::string
@@ -71,13 +69,11 @@ cond::IOVService::exportIOVRangeWithPayload( cond::PoolTransaction& destDB,
 					     const std::string& iovToken,
 					     const std::string& destToken,
 					     cond::Time_t since,
-					     cond::Time_t till,
-					     const std::string& payloadObjectName ){
+					     cond::Time_t till){
   return  m_impl->exportIOVRangeWithPayload( destDB,
 					     iovToken,
 					     destToken,
 					     since,
-					     till,
-					     payloadObjectName); 
+					     till); 
 }
 

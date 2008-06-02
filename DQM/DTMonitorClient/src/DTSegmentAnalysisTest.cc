@@ -3,8 +3,8 @@
 /*
  *  See header file for a description of this class.
  *
- *  $Date: 2007/12/17 09:59:29 $
- *  $Revision: 1.2 $
+ *  $Date: 2008/04/23 15:02:10 $
+ *  $Revision: 1.4 $
  *  \author G. Mila - INFN Torino
  */
 
@@ -47,7 +47,6 @@ DTSegmentAnalysisTest::DTSegmentAnalysisTest(const edm::ParameterSet& ps){
   parameters = ps;
 
   dbe = edm::Service<DQMStore>().operator->();
-  dbe->setVerbose(1);
 
   prescaleFactor = parameters.getUntrackedParameter<int>("diagnosticPrescale", 1);
   badChpercentual = parameters.getUntrackedParameter<int>("badChpercentual", 10);
@@ -207,7 +206,7 @@ void DTSegmentAnalysisTest::bookHistos(int wh) {
   dbe->setCurrentFolder("DT/Tests/DTSegmentAnalysisTest/SummaryPlot");
 
   if(wheelHistos.find(3) == wheelHistos.end()){
-    string histoName =  "chi2Summary_testFailedByAtLeast%BadCH";
+    string histoName =  "chi2Summary_testFailedByAtLeastBadCH";
     wheelHistos[3] = dbe->book2D(histoName.c_str(),histoName.c_str(),14,0,14,5,-2,2);
     wheelHistos[3]->setBinLabel(1,"Sector1",1);
     wheelHistos[3]->setBinLabel(1,"Sector1",1);

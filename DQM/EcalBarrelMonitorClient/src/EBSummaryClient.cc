@@ -1,8 +1,8 @@
 /*
  * \file EBSummaryClient.cc
  *
- * $Date: 2008/03/22 12:13:25 $
- * $Revision: 1.126 $
+ * $Date: 2008/05/30 15:18:59 $
+ * $Revision: 1.150 $
  * \author G. Della Ricca
  *
 */
@@ -47,8 +47,14 @@ EBSummaryClient::EBSummaryClient(const ParameterSet& ps){
   // cloneME switch
   cloneME_ = ps.getUntrackedParameter<bool>("cloneME", true);
 
-  // verbosity switch
-  verbose_ = ps.getUntrackedParameter<bool>("verbose", false);
+  // verbose switch
+  verbose_ = ps.getUntrackedParameter<bool>("verbose", true);
+
+  // debug switch
+  debug_ = ps.getUntrackedParameter<bool>("debug", false);
+
+  // prefixME path
+  prefixME_ = ps.getUntrackedParameter<string>("prefixME", "");
 
   // enableCleanup_ switch
   enableCleanup_ = ps.getUntrackedParameter<bool>("enableCleanup", false);
@@ -94,11 +100,11 @@ EBSummaryClient::~EBSummaryClient(){
 
 }
 
-void EBSummaryClient::beginJob(DQMStore* dbe){
+void EBSummaryClient::beginJob(DQMStore* dqmStore){
 
-  dbe_ = dbe;
+  dqmStore_ = dqmStore;
 
-  if ( verbose_ ) cout << "EBSummaryClient: beginJob" << endl;
+  if ( debug_ ) cout << "EBSummaryClient: beginJob" << endl;
 
   ievt_ = 0;
   jevt_ = 0;
@@ -107,7 +113,7 @@ void EBSummaryClient::beginJob(DQMStore* dbe){
 
 void EBSummaryClient::beginRun(void){
 
-  if ( verbose_ ) cout << "EBSummaryClient: beginRun" << endl;
+  if ( debug_ ) cout << "EBSummaryClient: beginRun" << endl;
 
   jevt_ = 0;
 
@@ -117,7 +123,7 @@ void EBSummaryClient::beginRun(void){
 
 void EBSummaryClient::endJob(void) {
 
-  if ( verbose_ ) cout << "EBSummaryClient: endJob, ievt = " << ievt_ << endl;
+  if ( debug_ ) cout << "EBSummaryClient: endJob, ievt = " << ievt_ << endl;
 
   this->cleanup();
 
@@ -125,7 +131,7 @@ void EBSummaryClient::endJob(void) {
 
 void EBSummaryClient::endRun(void) {
 
-  if ( verbose_ ) cout << "EBSummaryClient: endRun, jevt = " << jevt_ << endl;
+  if ( debug_ ) cout << "EBSummaryClient: endRun, jevt = " << jevt_ << endl;
 
   this->cleanup();
 
@@ -135,176 +141,197 @@ void EBSummaryClient::setup(void) {
 
   char histo[200];
 
-  dbe_->setCurrentFolder( "EcalBarrel/EBSummaryClient" );
+  dqmStore_->setCurrentFolder( prefixME_ + "/EBSummaryClient" );
 
-  if ( meIntegrity_ ) dbe_->removeElement( meIntegrity_->getName() );
+  if ( meIntegrity_ ) dqmStore_->removeElement( meIntegrity_->getName() );
   sprintf(histo, "EBIT integrity quality summary");
-  meIntegrity_ = dbe_->book2D(histo, histo, 360, 0., 360., 170, -85., 85.);
+  meIntegrity_ = dqmStore_->book2D(histo, histo, 360, 0., 360., 170, -85., 85.);
   meIntegrity_->setAxisTitle("jphi", 1);
   meIntegrity_->setAxisTitle("jeta", 2);
 
-  if ( meIntegrityErr_ ) dbe_->removeElement( meIntegrityErr_->getName() );
+  if ( meIntegrityErr_ ) dqmStore_->removeElement( meIntegrityErr_->getName() );
   sprintf(histo, "EBIT integrity quality errors summary");
-  meIntegrityErr_ = dbe_->book1D(histo, histo, 36, 1, 37);
+  meIntegrityErr_ = dqmStore_->book1D(histo, histo, 36, 1, 37);
   for (int i = 0; i < 36; i++) {
     meIntegrityErr_->setBinLabel(i+1, Numbers::sEB(i+1).c_str(), 1);
   }
 
-  if ( meOccupancy_ ) dbe_->removeElement( meOccupancy_->getName() );
+  if ( meOccupancy_ ) dqmStore_->removeElement( meOccupancy_->getName() );
   sprintf(histo, "EBOT digi occupancy summary");
-  meOccupancy_ = dbe_->book2D(histo, histo, 360, 0., 360., 170, -85., 85.);
+  meOccupancy_ = dqmStore_->book2D(histo, histo, 360, 0., 360., 170, -85., 85.);
   meOccupancy_->setAxisTitle("jphi", 1);
   meOccupancy_->setAxisTitle("jeta", 2);
 
-  if ( meOccupancy1D_ ) dbe_->removeElement( meOccupancy1D_->getName() );
+  if ( meOccupancy1D_ ) dqmStore_->removeElement( meOccupancy1D_->getName() );
   sprintf(histo, "EBOT digi occupancy summary 1D");
-  meOccupancy1D_ = dbe_->book1D(histo, histo, 36, 1, 37);
+  meOccupancy1D_ = dqmStore_->book1D(histo, histo, 36, 1, 37);
   for (int i = 0; i < 36; i++) {
     meOccupancy1D_->setBinLabel(i+1, Numbers::sEB(i+1).c_str(), 1);
   }
 
-  if ( meStatusFlags_ ) dbe_->removeElement( meStatusFlags_->getName() );
+  if ( meStatusFlags_ ) dqmStore_->removeElement( meStatusFlags_->getName() );
   sprintf(histo, "EBSFT front-end status summary");
-  meStatusFlags_ = dbe_->book2D(histo, histo, 72, 0., 72., 34, -17., 17.);
+  meStatusFlags_ = dqmStore_->book2D(histo, histo, 72, 0., 72., 34, -17., 17.);
   meStatusFlags_->setAxisTitle("jphi'", 1);
   meStatusFlags_->setAxisTitle("jeta'", 2);
 
-  if ( meStatusFlagsErr_ ) dbe_->removeElement( meStatusFlagsErr_->getName() );
+  if ( meStatusFlagsErr_ ) dqmStore_->removeElement( meStatusFlagsErr_->getName() );
   sprintf(histo, "EBSFT front-end status errors summary");
-  meStatusFlagsErr_ = dbe_->book1D(histo, histo, 36, 1, 37);
+  meStatusFlagsErr_ = dqmStore_->book1D(histo, histo, 36, 1, 37);
   for (int i = 0; i < 36; i++) {
     meStatusFlagsErr_->setBinLabel(i+1, Numbers::sEB(i+1).c_str(), 1);
   }
 
-  if ( mePedestalOnline_ ) dbe_->removeElement( mePedestalOnline_->getName() );
+  if ( mePedestalOnline_ ) dqmStore_->removeElement( mePedestalOnline_->getName() );
   sprintf(histo, "EBPOT pedestal quality summary G12");
-  mePedestalOnline_ = dbe_->book2D(histo, histo, 360, 0., 360., 170, -85., 85.);
+  mePedestalOnline_ = dqmStore_->book2D(histo, histo, 360, 0., 360., 170, -85., 85.);
   mePedestalOnline_->setAxisTitle("jphi", 1);
   mePedestalOnline_->setAxisTitle("jeta", 2);
 
-  if ( mePedestalOnlineErr_ ) dbe_->removeElement( mePedestalOnlineErr_->getName() );
+  if ( mePedestalOnlineErr_ ) dqmStore_->removeElement( mePedestalOnlineErr_->getName() );
   sprintf(histo, "EBPOT pedestal quality errors summary G12");
-  mePedestalOnlineErr_ = dbe_->book1D(histo, histo, 36, 1, 37);
+  mePedestalOnlineErr_ = dqmStore_->book1D(histo, histo, 36, 1, 37);
   for (int i = 0; i < 36; i++) {
     mePedestalOnlineErr_->setBinLabel(i+1, Numbers::sEB(i+1).c_str(), 1);
   }
 
-  if ( meLaserL1_ ) dbe_->removeElement( meLaserL1_->getName() );
+  if ( meLaserL1_ ) dqmStore_->removeElement( meLaserL1_->getName() );
   sprintf(histo, "EBLT laser quality summary L1");
-  meLaserL1_ = dbe_->book2D(histo, histo, 360, 0., 360., 170, -85., 85.);
+  meLaserL1_ = dqmStore_->book2D(histo, histo, 360, 0., 360., 170, -85., 85.);
   meLaserL1_->setAxisTitle("jphi", 1);
   meLaserL1_->setAxisTitle("jeta", 2);
 
-  if ( meLaserL1Err_ ) dbe_->removeElement( meLaserL1Err_->getName() );
+  if ( meLaserL1Err_ ) dqmStore_->removeElement( meLaserL1Err_->getName() );
   sprintf(histo, "EBLT laser quality errors summary L1");
-  meLaserL1Err_ = dbe_->book1D(histo, histo, 36, 1, 37);
+  meLaserL1Err_ = dqmStore_->book1D(histo, histo, 36, 1, 37);
   for (int i = 0; i < 36; i++) {
     meLaserL1Err_->setBinLabel(i+1, Numbers::sEB(i+1).c_str(), 1);
   }
 
-  if ( meLaserL1PN_ ) dbe_->removeElement( meLaserL1PN_->getName() );
+  if ( meLaserL1PN_ ) dqmStore_->removeElement( meLaserL1PN_->getName() );
   sprintf(histo, "EBLT PN laser quality summary L1");
-  meLaserL1PN_ = dbe_->book2D(histo, histo, 90, 0., 90., 20, -10., 10.);
+  meLaserL1PN_ = dqmStore_->book2D(histo, histo, 90, 0., 90., 20, -10., 10.);
   meLaserL1PN_->setAxisTitle("jphi", 1);
   meLaserL1PN_->setAxisTitle("jeta", 2);
 
-  if ( meLaserL1PNErr_ ) dbe_->removeElement( meLaserL1PNErr_->getName() );
+  if ( meLaserL1PNErr_ ) dqmStore_->removeElement( meLaserL1PNErr_->getName() );
   sprintf(histo, "EBLT PN laser quality errors summary L1");
-  meLaserL1PNErr_ = dbe_->book1D(histo, histo, 36, 1, 37);
+  meLaserL1PNErr_ = dqmStore_->book1D(histo, histo, 36, 1, 37);
   for (int i = 0; i < 36; i++) {
     meLaserL1PNErr_->setBinLabel(i+1, Numbers::sEB(i+1).c_str(), 1);
   }
 
-  if( mePedestal_ ) dbe_->removeElement( mePedestal_->getName() );
+  if( mePedestal_ ) dqmStore_->removeElement( mePedestal_->getName() );
   sprintf(histo, "EBPT pedestal quality summary");
-  mePedestal_ = dbe_->book2D(histo, histo, 360, 0., 360., 170, -85., 85.);
+  mePedestal_ = dqmStore_->book2D(histo, histo, 360, 0., 360., 170, -85., 85.);
   mePedestal_->setAxisTitle("jphi", 1);
   mePedestal_->setAxisTitle("jeta", 2);
 
-  if( mePedestalErr_ ) dbe_->removeElement( mePedestalErr_->getName() );
+  if( mePedestalErr_ ) dqmStore_->removeElement( mePedestalErr_->getName() );
   sprintf(histo, "EBPT pedestal quality errors summary");
-  mePedestalErr_ = dbe_->book1D(histo, histo, 36, 1, 37);
+  mePedestalErr_ = dqmStore_->book1D(histo, histo, 36, 1, 37);
   for (int i = 0; i < 36; i++) {
     mePedestalErr_->setBinLabel(i+1, Numbers::sEB(i+1).c_str(), 1);
   }
 
-  if( mePedestalPN_ ) dbe_->removeElement( mePedestalPN_->getName() );
+  if( mePedestalPN_ ) dqmStore_->removeElement( mePedestalPN_->getName() );
   sprintf(histo, "EBPT PN pedestal quality summary");
-  mePedestalPN_ = dbe_->book2D(histo, histo, 90, 0., 90., 20, -10, 10.);
+  mePedestalPN_ = dqmStore_->book2D(histo, histo, 90, 0., 90., 20, -10, 10.);
   mePedestalPN_->setAxisTitle("jphi", 1);
   mePedestalPN_->setAxisTitle("jeta", 2);
 
-  if( mePedestalPNErr_ ) dbe_->removeElement( mePedestalPNErr_->getName() );
+  if( mePedestalPNErr_ ) dqmStore_->removeElement( mePedestalPNErr_->getName() );
   sprintf(histo, "EBPT PN pedestal quality errors summary");
-  mePedestalPNErr_ = dbe_->book1D(histo, histo, 36, 1, 37);
+  mePedestalPNErr_ = dqmStore_->book1D(histo, histo, 36, 1, 37);
   for (int i = 0; i < 36; i++) {
     mePedestalPNErr_->setBinLabel(i+1, Numbers::sEB(i+1).c_str(), 1);
   }
 
-  if( meTestPulse_ ) dbe_->removeElement( meTestPulse_->getName() );
+  if( meTestPulse_ ) dqmStore_->removeElement( meTestPulse_->getName() );
   sprintf(histo, "EBTPT test pulse quality summary");
-  meTestPulse_ = dbe_->book2D(histo, histo, 360, 0., 360., 170, -85., 85.);
+  meTestPulse_ = dqmStore_->book2D(histo, histo, 360, 0., 360., 170, -85., 85.);
   meTestPulse_->setAxisTitle("jphi", 1);
   meTestPulse_->setAxisTitle("jeta", 2);
 
-  if( meTestPulseErr_ ) dbe_->removeElement( meTestPulseErr_->getName() );
+  if( meTestPulseErr_ ) dqmStore_->removeElement( meTestPulseErr_->getName() );
   sprintf(histo, "EBTPT test pulse quality errors summary");
-  meTestPulseErr_ = dbe_->book1D(histo, histo, 36, 1, 37);
+  meTestPulseErr_ = dqmStore_->book1D(histo, histo, 36, 1, 37);
   for (int i = 0; i < 36; i++) {
     meTestPulseErr_->setBinLabel(i+1, Numbers::sEB(i+1).c_str(), 1);
   }
 
-  if( meTestPulsePN_ ) dbe_->removeElement( meTestPulsePN_->getName() );
+  if( meTestPulsePN_ ) dqmStore_->removeElement( meTestPulsePN_->getName() );
   sprintf(histo, "EBTPT PN test pulse quality summary");
-  meTestPulsePN_ = dbe_->book2D(histo, histo, 90, 0., 90., 20, -10., 10.);
+  meTestPulsePN_ = dqmStore_->book2D(histo, histo, 90, 0., 90., 20, -10., 10.);
   meTestPulsePN_->setAxisTitle("jphi", 1);
   meTestPulsePN_->setAxisTitle("jeta", 2);
 
-  if( meTestPulsePNErr_ ) dbe_->removeElement( meTestPulsePNErr_->getName() );
+  if( meTestPulsePNErr_ ) dqmStore_->removeElement( meTestPulsePNErr_->getName() );
   sprintf(histo, "EBTPT PN test pulse quality errors summary");
-  meTestPulsePNErr_ = dbe_->book1D(histo, histo, 36, 1, 37);
+  meTestPulsePNErr_ = dqmStore_->book1D(histo, histo, 36, 1, 37);
   for (int i = 0; i < 36; i++) {
     meTestPulsePNErr_->setBinLabel(i+1, Numbers::sEB(i+1).c_str(), 1);
   }
 
-  if( meCosmic_ ) dbe_->removeElement( meCosmic_->getName() );
+  if( meCosmic_ ) dqmStore_->removeElement( meCosmic_->getName() );
   sprintf(histo, "EBCT cosmic summary");
-  meCosmic_ = dbe_->book2D(histo, histo, 360, 0., 360., 170, -85., 85.);
+  meCosmic_ = dqmStore_->book2D(histo, histo, 360, 0., 360., 170, -85., 85.);
   meCosmic_->setAxisTitle("jphi", 1);
   meCosmic_->setAxisTitle("jeta", 2);
 
-  if( meTiming_ ) dbe_->removeElement( meTiming_->getName() );
+  if( meTiming_ ) dqmStore_->removeElement( meTiming_->getName() );
   sprintf(histo, "EBTMT timing quality summary");
-  meTiming_ = dbe_->book2D(histo, histo, 360, 0., 360., 170, -85., 85.);
+  meTiming_ = dqmStore_->book2D(histo, histo, 360, 0., 360., 170, -85., 85.);
   meTiming_->setAxisTitle("jphi", 1);
   meTiming_->setAxisTitle("jeta", 2);
 
-  if( meTriggerTowerEt_ ) dbe_->removeElement( meTriggerTowerEt_->getName() );
+  if( meTriggerTowerEt_ ) dqmStore_->removeElement( meTriggerTowerEt_->getName() );
   sprintf(histo, "EBTTT Et trigger tower summary");
-  meTriggerTowerEt_ = dbe_->book2D(histo, histo, 72, 0., 72., 34, -17., 17.);
+  meTriggerTowerEt_ = dqmStore_->book2D(histo, histo, 72, 0., 72., 34, -17., 17.);
   meTriggerTowerEt_->setAxisTitle("jphi'", 1);
   meTriggerTowerEt_->setAxisTitle("jeta'", 2);
 
-  if( meTriggerTowerEmulError_ ) dbe_->removeElement( meTriggerTowerEmulError_->getName() );
+  if( meTriggerTowerEmulError_ ) dqmStore_->removeElement( meTriggerTowerEmulError_->getName() );
   sprintf(histo, "EBTTT emulator error quality summary");
-  meTriggerTowerEmulError_ = dbe_->book2D(histo, histo, 72, 0., 72., 34, -17., 17.);
+  meTriggerTowerEmulError_ = dqmStore_->book2D(histo, histo, 72, 0., 72., 34, -17., 17.);
   meTriggerTowerEmulError_->setAxisTitle("jphi'", 1);
   meTriggerTowerEmulError_->setAxisTitle("jeta'", 2);
 
-  if( meGlobalSummary_ ) dbe_->removeElement( meGlobalSummary_->getName() );
+  if( meGlobalSummary_ ) dqmStore_->removeElement( meGlobalSummary_->getName() );
   sprintf(histo, "EB global summary");
-  meGlobalSummary_ = dbe_->book2D(histo, histo, 360, 0., 360., 170, -85., 85.);
+  meGlobalSummary_ = dqmStore_->book2D(histo, histo, 360, 0., 360., 170, -85., 85.);
   meGlobalSummary_->setAxisTitle("jphi", 1);
   meGlobalSummary_->setAxisTitle("jeta", 2);
 
   // summary for DQM GUI
 
-  dbe_->setCurrentFolder( "EcalBarrel/EventInfo" );
-
   MonitorElement* me;
 
-  sprintf(histo, "errorSummaryPhiEta_EB");
-  me = dbe_->book2D(histo, histo, 72, 0., 72., 34, 0., 34);
+  dqmStore_->setCurrentFolder( prefixME_ + "/EventInfo" );
+
+  sprintf(histo, "reportSummary");
+  if ( me = dqmStore_->get(prefixME_ + "/EventInfo/" + histo) ) {
+    dqmStore_->removeElement(me->getName());
+  }
+  me = dqmStore_->bookFloat(histo);
+
+  dqmStore_->setCurrentFolder( prefixME_ + "/EventInfo/reportSummaryContents" );
+
+  for (int i = 0; i < 36; i++) {
+    sprintf(histo, "status %s", Numbers::sEB(i+1).c_str());
+    if ( me = dqmStore_->get(prefixME_ + "/EventInfo/reportSummaryContents/" + histo) ) {
+      dqmStore_->removeElement(me->getName());
+    }
+    me = dqmStore_->bookFloat(histo);
+  }
+
+  dqmStore_->setCurrentFolder( prefixME_ + "/EventInfo" );
+
+  sprintf(histo, "reportSummaryMap");
+  if ( me = dqmStore_->get(prefixME_ + "/EventInfo/" + histo) ) {
+    dqmStore_->removeElement(me->getName());
+  }
+  me = dqmStore_->book2D(histo, histo, 72, 0., 72., 34, 0., 34);
   me->setAxisTitle("jphi", 1);
   me->setAxisTitle("jeta", 2);
 
@@ -314,82 +341,100 @@ void EBSummaryClient::cleanup(void) {
 
   if ( ! enableCleanup_ ) return;
 
-  dbe_->setCurrentFolder( "EcalBarrel/EBSummaryClient" );
+  dqmStore_->setCurrentFolder( prefixME_ + "/EBSummaryClient" );
 
-  if ( meIntegrity_ ) dbe_->removeElement( meIntegrity_->getName() );
+  if ( meIntegrity_ ) dqmStore_->removeElement( meIntegrity_->getName() );
   meIntegrity_ = 0;
 
-  if ( meIntegrityErr_ ) dbe_->removeElement( meIntegrityErr_->getName() );
+  if ( meIntegrityErr_ ) dqmStore_->removeElement( meIntegrityErr_->getName() );
   meIntegrityErr_ = 0;
 
-  if ( meOccupancy_ ) dbe_->removeElement( meOccupancy_->getName() );
+  if ( meOccupancy_ ) dqmStore_->removeElement( meOccupancy_->getName() );
   meOccupancy_ = 0;
 
-  if ( meOccupancy1D_ ) dbe_->removeElement( meOccupancy1D_->getName() );
+  if ( meOccupancy1D_ ) dqmStore_->removeElement( meOccupancy1D_->getName() );
   meOccupancy1D_ = 0;
 
-  if ( meStatusFlags_ ) dbe_->removeElement( meStatusFlags_->getName() );
+  if ( meStatusFlags_ ) dqmStore_->removeElement( meStatusFlags_->getName() );
   meStatusFlags_ = 0;
 
-  if ( meStatusFlagsErr_ ) dbe_->removeElement( meStatusFlagsErr_->getName() );
+  if ( meStatusFlagsErr_ ) dqmStore_->removeElement( meStatusFlagsErr_->getName() );
   meStatusFlagsErr_ = 0;
 
-  if ( mePedestalOnline_ ) dbe_->removeElement( mePedestalOnline_->getName() );
+  if ( mePedestalOnline_ ) dqmStore_->removeElement( mePedestalOnline_->getName() );
   mePedestalOnline_ = 0;
 
-  if ( mePedestalOnlineErr_ ) dbe_->removeElement( mePedestalOnlineErr_->getName() );
+  if ( mePedestalOnlineErr_ ) dqmStore_->removeElement( mePedestalOnlineErr_->getName() );
   mePedestalOnlineErr_ = 0;
 
-  if ( meLaserL1_ ) dbe_->removeElement( meLaserL1_->getName() );
+  if ( meLaserL1_ ) dqmStore_->removeElement( meLaserL1_->getName() );
   meLaserL1_ = 0;
 
-  if ( meLaserL1Err_ ) dbe_->removeElement( meLaserL1Err_->getName() );
+  if ( meLaserL1Err_ ) dqmStore_->removeElement( meLaserL1Err_->getName() );
   meLaserL1Err_ = 0;
 
-  if ( meLaserL1PN_ ) dbe_->removeElement( meLaserL1PN_->getName() );
+  if ( meLaserL1PN_ ) dqmStore_->removeElement( meLaserL1PN_->getName() );
   meLaserL1PN_ = 0;
 
-  if ( meLaserL1PNErr_ ) dbe_->removeElement( meLaserL1PNErr_->getName() );
+  if ( meLaserL1PNErr_ ) dqmStore_->removeElement( meLaserL1PNErr_->getName() );
   meLaserL1PNErr_ = 0;
 
-  if ( mePedestal_ ) dbe_->removeElement( mePedestal_->getName() );
+  if ( mePedestal_ ) dqmStore_->removeElement( mePedestal_->getName() );
   mePedestal_ = 0;
 
-  if ( mePedestalErr_ ) dbe_->removeElement( mePedestalErr_->getName() );
+  if ( mePedestalErr_ ) dqmStore_->removeElement( mePedestalErr_->getName() );
   mePedestalErr_ = 0;
 
-  if ( mePedestalPN_ ) dbe_->removeElement( mePedestalPN_->getName() );
+  if ( mePedestalPN_ ) dqmStore_->removeElement( mePedestalPN_->getName() );
   mePedestalPN_ = 0;
 
-  if ( mePedestalPNErr_ ) dbe_->removeElement( mePedestalPNErr_->getName() );
+  if ( mePedestalPNErr_ ) dqmStore_->removeElement( mePedestalPNErr_->getName() );
   mePedestalPNErr_ = 0;
 
-  if ( meTestPulse_ ) dbe_->removeElement( meTestPulse_->getName() );
+  if ( meTestPulse_ ) dqmStore_->removeElement( meTestPulse_->getName() );
   meTestPulse_ = 0;
 
-  if ( meTestPulseErr_ ) dbe_->removeElement( meTestPulseErr_->getName() );
+  if ( meTestPulseErr_ ) dqmStore_->removeElement( meTestPulseErr_->getName() );
   meTestPulseErr_ = 0;
 
-  if ( meTestPulsePN_ ) dbe_->removeElement( meTestPulsePN_->getName() );
+  if ( meTestPulsePN_ ) dqmStore_->removeElement( meTestPulsePN_->getName() );
   meTestPulsePN_ = 0;
 
-  if ( meTestPulsePNErr_ ) dbe_->removeElement( meTestPulsePNErr_->getName() );
+  if ( meTestPulsePNErr_ ) dqmStore_->removeElement( meTestPulsePNErr_->getName() );
   meTestPulsePNErr_ = 0;
 
-  if ( meCosmic_ ) dbe_->removeElement( meCosmic_->getName() );
+  if ( meCosmic_ ) dqmStore_->removeElement( meCosmic_->getName() );
   meCosmic_ = 0;
 
-  if ( meTiming_ ) dbe_->removeElement( meTiming_->getName() );
+  if ( meTiming_ ) dqmStore_->removeElement( meTiming_->getName() );
   meTiming_ = 0;
 
-  if ( meTriggerTowerEt_ ) dbe_->removeElement( meTriggerTowerEt_->getName() );
+  if ( meTriggerTowerEt_ ) dqmStore_->removeElement( meTriggerTowerEt_->getName() );
   meTriggerTowerEt_ = 0;
 
-  if ( meTriggerTowerEmulError_ ) dbe_->removeElement( meTriggerTowerEmulError_->getName() );
+  if ( meTriggerTowerEmulError_ ) dqmStore_->removeElement( meTriggerTowerEmulError_->getName() );
   meTriggerTowerEmulError_ = 0;
 
-  if ( meGlobalSummary_ ) dbe_->removeElement( meGlobalSummary_->getName() );
+  if ( meGlobalSummary_ ) dqmStore_->removeElement( meGlobalSummary_->getName() );
   meGlobalSummary_ = 0;
+
+  // summary for DQM GUI
+
+  MonitorElement* me;
+
+  if ( me = dqmStore_->get(prefixME_ + "/EventInfo/reportSummary") ) {
+    dqmStore_->removeElement(me->getName());
+  }
+
+  for (int i = 0; i < 36; i++) {
+    if ( me = dqmStore_->get(prefixME_ + "/EventInfo/reportSummaryContents/status " + Numbers::sEB(i+1)) ) {
+      dqmStore_->removeElement(me->getName());
+    }
+  }
+
+  if ( me = dqmStore_->get(prefixME_ + "/EventInfo/reportSummaryMap") ) {
+    dqmStore_->removeElement(me->getName());
+  }
 
 }
 
@@ -406,7 +451,7 @@ void EBSummaryClient::analyze(void){
   ievt_++;
   jevt_++;
   if ( ievt_ % 10 == 0 ) {
-    if ( verbose_ ) cout << "EBSummaryClient: ievt/jevt = " << ievt_ << "/" << jevt_ << endl;
+    if ( debug_ ) cout << "EBSummaryClient: ievt/jevt = " << ievt_ << "/" << jevt_ << endl;
   }
 
   for ( int iex = 1; iex <= 170; iex++ ) {
@@ -489,20 +534,21 @@ void EBSummaryClient::analyze(void){
     EBTimingClient* ebtmc = dynamic_cast<EBTimingClient*>(clients_[i]);
     EBTriggerTowerClient* ebtttc = dynamic_cast<EBTriggerTowerClient*>(clients_[i]);
 
-    MonitorElement* me;
+    MonitorElement *me;
     MonitorElement *me_01, *me_02, *me_03;
     MonitorElement *me_04, *me_05;
+    //    MonitorElement *me_f[6], *me_fg[2];
     TH2F* h2;
     TProfile2D* h2d;
 
     // fill the gain value priority map<id,priority>
-    std::map<float,float> priority;
-    priority.insert( make_pair(0,3) );
-    priority.insert( make_pair(1,1) );
-    priority.insert( make_pair(2,2) );
-    priority.insert( make_pair(3,2) );
-    priority.insert( make_pair(4,3) );
-    priority.insert( make_pair(5,1) );
+    map<float,float> priority;
+    priority.insert( pair<float,float>(0,3) );
+    priority.insert( pair<float,float>(1,1) );
+    priority.insert( pair<float,float>(2,2) );
+    priority.insert( pair<float,float>(3,2) );
+    priority.insert( pair<float,float>(4,3) );
+    priority.insert( pair<float,float>(5,1) );
 
     for ( unsigned int i=0; i<superModules_.size(); i++ ) {
 
@@ -625,14 +671,15 @@ void EBSummaryClient::analyze(void){
               float val_02=me_02->getBinContent(ie,ip);
               float val_03=me_03->getBinContent(ie,ip);
 
-              std::vector<float> maskedVal, unmaskedVal;
+              vector<float> maskedVal, unmaskedVal;
               (val_01>2) ? maskedVal.push_back(val_01) : unmaskedVal.push_back(val_01);
               (val_02>2) ? maskedVal.push_back(val_02) : unmaskedVal.push_back(val_02);
               (val_03>2) ? maskedVal.push_back(val_03) : unmaskedVal.push_back(val_03);
 
               float brightColor=-1, darkColor=-1;
               float maxPriority=-1;
-              std::vector<float>::const_iterator Val;
+
+              vector<float>::const_iterator Val;
               for(Val=unmaskedVal.begin(); Val<unmaskedVal.end(); Val++) {
                 if(priority[*Val]>maxPriority) brightColor=*Val;
               }
@@ -640,8 +687,8 @@ void EBSummaryClient::analyze(void){
               for(Val=maskedVal.begin(); Val<maskedVal.end(); Val++) {
                 if(priority[*Val]>maxPriority) darkColor=*Val;
               }
-              if(unmaskedVal.size()==3)  xval = brightColor;
-              else if(maskedVal.size()==3)  xval = darkColor;
+              if(unmaskedVal.size()==3) xval = brightColor;
+              else if(maskedVal.size()==3) xval = darkColor;
               else {
                 if(brightColor==1 && darkColor==5) xval = 5;
                 else xval = brightColor;
@@ -679,14 +726,15 @@ void EBSummaryClient::analyze(void){
               float val_02=me_02->getBinContent(ie,ip);
               float val_03=me_03->getBinContent(ie,ip);
 
-              std::vector<float> maskedVal, unmaskedVal;
+              vector<float> maskedVal, unmaskedVal;
               (val_01>2) ? maskedVal.push_back(val_01) : unmaskedVal.push_back(val_01);
               (val_02>2) ? maskedVal.push_back(val_02) : unmaskedVal.push_back(val_02);
               (val_03>2) ? maskedVal.push_back(val_03) : unmaskedVal.push_back(val_03);
 
               float brightColor=-1, darkColor=-1;
               float maxPriority=-1;
-              std::vector<float>::const_iterator Val;
+
+              vector<float>::const_iterator Val;
               for(Val=unmaskedVal.begin(); Val<unmaskedVal.end(); Val++) {
                 if(priority[*Val]>maxPriority) brightColor=*Val;
               }
@@ -723,7 +771,7 @@ void EBSummaryClient::analyze(void){
 
           if ( ebcc ) {
 
-            h2d = ebcc->h01_[ism-1];
+            h2d = ebcc->h02_[ism-1];
 
             if ( h2d ) {
 
@@ -817,7 +865,7 @@ void EBSummaryClient::analyze(void){
 
             if ( me ) {
 
-              float xval = me->getBinContent( ie, ip );
+              float xval = me->getBinContent( ie, ip ) - 0.5;
 
               TProfile2D* obj = UtilsClient::getHisto<TProfile2D*>(me);
               if(obj && obj->GetBinEntries(obj->GetBin( ie, ip ))!=0) hasRealDigi = true;
@@ -837,33 +885,64 @@ void EBSummaryClient::analyze(void){
 
             }
 
-            h2 = ebtttc->l01_[ism-1];
+            float xval = -1;
+            if(!hasRealDigi) xval = 2;
+            else {
 
-            if ( h2 ) {
+              h2 = ebtttc->l01_[ism-1];
 
-              float xval = -1;
-              float emulErrorVal = h2->GetBinContent( ie, ip );
+              if ( h2 ) {
 
-              if(!hasRealDigi) xval = 2;
-              else if(hasRealDigi && emulErrorVal!=0) xval = 0;
-              else xval = 1;
+                float emulErrorVal = h2->GetBinContent( ie, ip );
+                if( emulErrorVal!=0 ) xval = 0;
 
-              int iex;
-              int ipx;
-
-              if ( ism <= 18 ) {
-                iex = 1+(17-ie);
-                ipx = ip+4*(ism-1);
-              } else {
-                iex = 17+ie;
-                ipx = 1+(4-ip)+4*(ism-19);
               }
 
-              meTriggerTowerEmulError_->setBinContent( ipx, iex, xval );
+              // do not propagate the flag bits to the summary for now
+//               for ( int iflag=0; iflag<6; iflag++ ) {
+
+//                 me_f[iflag] = ebtttc->me_m01_[ism-1][iflag];
+
+//                 if ( me_f[iflag] ) {
+
+//                   float emulFlagErrorVal = me_f[iflag]->getBinContent( ie, ip );
+//                   if ( emulFlagErrorVal!=0 ) xval = 0;
+
+//                 }
+
+//               }
+
+//               for ( int ifg=0; ifg<2; ifg++) {
+
+//                 me_fg[ifg] = ebtttc->me_n01_[ism-1][ifg];
+//                 if ( me_fg[ifg] ) {
+
+//                   float emulFineGrainVetoErrorVal = me_fg[ifg]->getBinContent( ie, ip );
+//                   if ( emulFineGrainVetoErrorVal!=0 ) xval = 0;
+
+//                 }
+
+//               }
+
+              if ( xval!=0 ) xval = 1;
 
             }
 
+            int iex;
+            int ipx;
+
+            if ( ism <= 18 ) {
+              iex = 1+(17-ie);
+              ipx = ip+4*(ism-1);
+            } else {
+              iex = 17+ie;
+              ipx = 1+(4-ip)+4*(ism-19);
+            }
+
+            meTriggerTowerEmulError_->setBinContent( ipx, iex, xval );
+
           }
+
         }
       }
 
@@ -881,14 +960,14 @@ void EBSummaryClient::analyze(void){
               float val_04=me_04->getBinContent(i,1);
               float val_05=me_05->getBinContent(i,1);
 
-              std::vector<float> maskedVal, unmaskedVal;
+              vector<float> maskedVal, unmaskedVal;
               (val_04>2) ? maskedVal.push_back(val_04) : unmaskedVal.push_back(val_04);
               (val_05>2) ? maskedVal.push_back(val_05) : unmaskedVal.push_back(val_05);
 
               float brightColor=-1, darkColor=-1;
               float maxPriority=-1;
 
-              std::vector<float>::const_iterator Val;
+              vector<float>::const_iterator Val;
               for(Val=unmaskedVal.begin(); Val<unmaskedVal.end(); Val++) {
                 if(priority[*Val]>maxPriority) brightColor=*Val;
               }
@@ -896,8 +975,8 @@ void EBSummaryClient::analyze(void){
               for(Val=maskedVal.begin(); Val<maskedVal.end(); Val++) {
                 if(priority[*Val]>maxPriority) darkColor=*Val;
               }
-              if(unmaskedVal.size()==2)  xval = brightColor;
-              else if(maskedVal.size()==2)  xval = darkColor;
+              if(unmaskedVal.size()==2) xval = brightColor;
+              else if(maskedVal.size()==2) xval = darkColor;
               else {
                 if(brightColor==1 && darkColor==5) xval = 5;
                 else xval = brightColor;
@@ -933,14 +1012,14 @@ void EBSummaryClient::analyze(void){
               float val_04=me_04->getBinContent(i,1);
               float val_05=me_05->getBinContent(i,1);
 
-              std::vector<float> maskedVal, unmaskedVal;
+              vector<float> maskedVal, unmaskedVal;
               (val_04>2) ? maskedVal.push_back(val_04) : unmaskedVal.push_back(val_04);
               (val_05>2) ? maskedVal.push_back(val_05) : unmaskedVal.push_back(val_05);
 
               float brightColor=-1, darkColor=-1;
               float maxPriority=-1;
 
-              std::vector<float>::const_iterator Val;
+              vector<float>::const_iterator Val;
               for(Val=unmaskedVal.begin(); Val<unmaskedVal.end(); Val++) {
                 if(priority[*Val]>maxPriority) brightColor=*Val;
               }
@@ -948,8 +1027,8 @@ void EBSummaryClient::analyze(void){
               for(Val=maskedVal.begin(); Val<maskedVal.end(); Val++) {
                 if(priority[*Val]>maxPriority) darkColor=*Val;
               }
-              if(unmaskedVal.size()==2)  xval = brightColor;
-              else if(maskedVal.size()==2)  xval = darkColor;
+              if(unmaskedVal.size()==2) xval = brightColor;
+              else if(maskedVal.size()==2) xval = darkColor;
               else {
                 if(brightColor==1 && darkColor==5) xval = 5;
                 else xval = brightColor;
@@ -1010,9 +1089,16 @@ void EBSummaryClient::analyze(void){
   } // loop on clients
 
   // The global-summary
-  // Integrity, PedestalOnline, Laser, TPG EmulError, Status Flags contribute
-  int nGlobalErrors = 0, nGlobalErrorsEBP = 0, nGlobalErrorsEBM = 0;
-  int nValidChannels = 0, nValidChannelsEBP = 0, nValidChannelsEBM = 0;
+  int nGlobalErrors = 0;
+  int nGlobalErrorsEB[36];
+  int nValidChannels = 0;
+  int nValidChannelsEB[36];
+
+  for (int i = 0; i < 36; i++) {
+    nGlobalErrorsEB[i] = 0;
+    nValidChannelsEB[i] = 0;
+  }
+
   for ( int iex = 1; iex <= 170; iex++ ) {
     for ( int ipx = 1; ipx <= 360; ipx++ ) {
 
@@ -1027,13 +1113,13 @@ void EBSummaryClient::analyze(void){
         float val_ee = meTriggerTowerEmulError_->getBinContent((ipx-1)/5+1,(iex-1)/5+1);
 
         // turn each dark color (masked channel) to bright green
-        // for laser turn also yellow into bright green
-        if(val_in>2)  val_in=1;
-        if(val_po>2)  val_po=1;
+        // for laser&timing turn also yellow into bright green
+        if(val_in> 2) val_in=1;
+        if(val_po> 2) val_po=1;
         if(val_ls>=2) val_ls=1;
-        if(val_tm>2)  val_tm=1;
-        if(val_sf>2)  val_sf=1;
-        if(val_ee>2)  val_ee=1;
+        if(val_tm>=2) val_tm=1;
+        if(val_sf> 2) val_sf=1;
+        if(val_ee> 2) val_ee=1;
 
         // -1 = unknown
         //  0 = red
@@ -1043,20 +1129,45 @@ void EBSummaryClient::analyze(void){
         if(val_in==-1) xval=-1;
         else if(val_in == 0) xval=0;
         else if(val_po == 0 || val_ls == 0 || val_tm == 0 || val_sf == 0 || val_ee == 0) xval = 0;
-        else if(val_po == 2 || val_tm == 2 || val_sf == 2 || val_ee == 2) xval = 2;
+        else if(val_po == 2 || val_ls == 2 || val_tm == 2 || val_sf == 2 || val_ee == 2) xval = 2;
         else xval=1;
+
+	// if the SM is entirely not read, the masked channels
+        // are reverted back to yellow
+	float iEntries=0;
+
+	int ism = (ipx-1)/20 + 1 ;
+	if ( iex>85 ) ism+=18;
+
+	for ( unsigned int i=0; i<clients_.size(); i++ ) {
+	  EBIntegrityClient* ebic = dynamic_cast<EBIntegrityClient*>(clients_[i]);
+	  if ( ebic ) {
+	    TH2F* h2 = ebic->h_[ism-1];
+	    if ( h2 ) {
+	      iEntries = h2->GetEntries();
+	    }
+	  }
+	}
+
+	if ( iEntries==0 ) {
+	  xval=2;
+	}
 
         meGlobalSummary_->setBinContent( ipx, iex, xval );
 
         if ( xval > -1 ) {
-          ++nValidChannels;
-          if ( iex <= 85 ) ++nValidChannelsEBM;
-          else ++nValidChannelsEBP;
-        }
-        if ( xval == 0 ) {
-          ++nGlobalErrors;
-          if ( iex <= 85 ) ++nGlobalErrorsEBM;
-          else ++nGlobalErrorsEBP;
+          if ( xval != 2 && xval != 5 ) ++nValidChannels;
+          if ( iex <= 85 ) {
+            if ( xval != 2 && xval != 5 ) ++nValidChannelsEB[(ipx-1)/20];
+          } else {
+            if ( xval != 2 && xval != 5 ) ++nValidChannelsEB[18+(ipx-1)/20];
+          }
+          if ( xval == 0 ) ++nGlobalErrors;
+          if ( iex <= 85 ) {
+            if ( xval == 0 ) ++nGlobalErrorsEB[(ipx-1)/20];
+          } else {
+            if ( xval == 0 ) ++nGlobalErrorsEB[18+(ipx-1)/20];
+          }
         }
 
       }
@@ -1064,37 +1175,34 @@ void EBSummaryClient::analyze(void){
     }
   }
 
-  float errorSummary = -1.0;
-  float errorSummaryEBM = -1.0;
-  float errorSummaryEBP = -1.0;
-
-  if ( nValidChannels != 0 )
-    errorSummary = 1.0 - float(nGlobalErrors)/float(nValidChannels);
-  if ( nValidChannelsEBM != 0 )
-    errorSummaryEBM = 1.0 - float(nGlobalErrorsEBM)/float(nValidChannelsEBM);
-  if ( nValidChannelsEBP != 0 )
-    errorSummaryEBP = 1.0 - float(nGlobalErrorsEBP)/float(nValidChannelsEBP);
-
   MonitorElement* me;
 
-  me = dbe_->get("EcalBarrel/EventInfo/errorSummary");
-  if (me) me->Fill(errorSummary);
+  float reportSummary = -1.0;
+  if ( nValidChannels != 0 )
+    reportSummary = 1.0 - float(nGlobalErrors)/float(nValidChannels);
+  me = dqmStore_->get(prefixME_ + "/EventInfo/reportSummary");
+  if (me) me->Fill(reportSummary);
 
-  me = dbe_->get("EcalBarrel/EventInfo/errorSummarySegments/Segment00");
-  if (me) me->Fill(errorSummaryEBM);
+  char histo[200];
 
-  me = dbe_->get("EcalBarrel/EventInfo/errorSummarySegments/Segment01");
-  if (me) me->Fill(errorSummaryEBP);
+  for (int i = 0; i < 36; i++) {
+    float reportSummaryEB = -1.0;
+    if ( nValidChannelsEB[i] != 0 )
+      reportSummaryEB = 1.0 - float(nGlobalErrorsEB[i])/float(nValidChannelsEB[i]);
+    sprintf(histo, "status %s", Numbers::sEB(i+1).c_str());
+    me = dqmStore_->get(prefixME_ + "/EventInfo/reportSummaryContents/" + histo);
+    if (me) me->Fill(reportSummaryEB);
+  }
 
-  me = dbe_->get("EcalBarrel/EventInfo/errorSummaryPhiEta_EB");
+  me = dqmStore_->get(prefixME_ + "/EventInfo/reportSummaryMap");
   if (me) {
 
     int nValidChannelsTT[72][34];
     int nGlobalErrorsTT[72][34];
     for ( int iettx = 0; iettx < 34; iettx++ ) {
       for ( int ipttx = 0; ipttx < 72; ipttx++ ) {
-        nValidChannelsTT[ipttx][iettx]=0;
-        nGlobalErrorsTT[ipttx][iettx]=0;
+        nValidChannelsTT[ipttx][iettx] = 0;
+        nGlobalErrorsTT[ipttx][iettx] = 0;
       }
     }
 
@@ -1106,8 +1214,10 @@ void EBSummaryClient::analyze(void){
 
         float xval = meGlobalSummary_->getBinContent( ipx, iex );
 
-        if ( xval != 2 && xval != 5 ) nValidChannelsTT[ipttx-1][iettx-1]++;
-        if ( xval == 0 ) nGlobalErrorsTT[ipttx-1][iettx-1]++;
+        if ( xval > -1 ) {
+          if ( xval != 2 && xval != 5 ) ++nValidChannelsTT[ipttx-1][iettx-1];
+          if ( xval == 0 ) ++nGlobalErrorsTT[ipttx-1][iettx-1];
+        }
 
       }
     }
@@ -1130,7 +1240,7 @@ void EBSummaryClient::analyze(void){
 
 void EBSummaryClient::htmlOutput(int run, string& htmlDir, string& htmlName){
 
-  cout << "Preparing EBSummaryClient html output ..." << endl;
+  if ( verbose_ ) cout << "Preparing EBSummaryClient html output ..." << endl;
 
   ofstream htmlFile;
 
@@ -1198,7 +1308,7 @@ void EBSummaryClient::htmlOutput(int run, string& htmlDir, string& htmlName){
   labelGridTT.SetMinimum(-18.01);
 
   string imgNameMapI, imgNameMapO;
-  string imgNameMapDF;
+  string imgNameMapSF;
   string imgNameMapPO;
   string imgNameMapLL1, imgNameMapLL1_PN;
   string imgNameMapP, imgNameMapP_PN;
@@ -1285,7 +1395,7 @@ void EBSummaryClient::htmlOutput(int run, string& htmlDir, string& htmlName){
 
   }
 
-  imgNameMapDF = "";
+  imgNameMapSF = "";
 
   gStyle->SetPaintTextFormat("+g");
 
@@ -1297,8 +1407,8 @@ void EBSummaryClient::htmlOutput(int run, string& htmlDir, string& htmlName){
     meName = obj2f->GetName();
 
     replace(meName.begin(), meName.end(), ' ', '_');
-    imgNameMapDF = meName + ".png";
-    imgName = htmlDir + imgNameMapDF;
+    imgNameMapSF = meName + ".png";
+    imgName = htmlDir + imgNameMapSF;
 
     cMap->cd();
     gStyle->SetOptStat(" ");
@@ -1717,11 +1827,11 @@ void EBSummaryClient::htmlOutput(int run, string& htmlDir, string& htmlName){
     htmlFile << "<br>" << endl;
   }
 
-  if ( imgNameMapDF.size() != 0 ) {
+  if ( imgNameMapSF.size() != 0 ) {
     htmlFile << "<table border=\"0\" cellspacing=\"0\" " << endl;
     htmlFile << "cellpadding=\"10\" align=\"center\"> " << endl;
     htmlFile << "<tr align=\"center\">" << endl;
-    htmlFile << "<td><img src=\"" << imgNameMapDF << "\" usemap=\"#StatusFlags\" border=0></td>" << endl;
+    htmlFile << "<td><img src=\"" << imgNameMapSF << "\" usemap=\"#StatusFlags\" border=0></td>" << endl;
     htmlFile << "</tr>" << endl;
     htmlFile << "</table>" << endl;
     htmlFile << "<br>" << endl;
@@ -1844,7 +1954,7 @@ void EBSummaryClient::htmlOutput(int run, string& htmlDir, string& htmlName){
 
   if ( imgNameMapI.size() != 0 ) this->writeMap( htmlFile, "Integrity" );
   if ( imgNameMapO.size() != 0 ) this->writeMap( htmlFile, "Occupancy" );
-  if ( imgNameMapDF.size() != 0 ) this->writeMap( htmlFile, "StatusFlags" );
+  if ( imgNameMapSF.size() != 0 ) this->writeMap( htmlFile, "StatusFlags" );
   if ( imgNameMapPO.size() != 0 ) this->writeMap( htmlFile, "PedestalOnline" );
   if ( imgNameMapLL1.size() != 0 ) this->writeMap( htmlFile, "LaserL1" );
   if ( imgNameMapP.size() != 0 ) this->writeMap( htmlFile, "Pedestal" );
@@ -1866,9 +1976,9 @@ void EBSummaryClient::htmlOutput(int run, string& htmlDir, string& htmlName){
 
 }
 
-void EBSummaryClient::writeMap( std::ofstream& hf, const char* mapname ) {
+void EBSummaryClient::writeMap( ofstream& hf, const char* mapname ) {
 
-  std::map<std::string, std::string> refhtml;
+  map<string, string> refhtml;
   refhtml["Integrity"] = "EBIntegrityClient.html";
   refhtml["Occupancy"] = "EBIntegrityClient.html";
   refhtml["StatusFlags"] = "EBStatusFlagsClient.html";
@@ -1886,7 +1996,7 @@ void EBSummaryClient::writeMap( std::ofstream& hf, const char* mapname ) {
   const int B0 =  35;
   const int B1 = 334;
 
-  hf << "<map name=\"" << mapname << "\">" << std::endl;
+  hf << "<map name=\"" << mapname << "\">" << endl;
   for( unsigned int sm=0; sm<superModules_.size(); sm++ ) {
     int i=(superModules_[sm]-1)/18;
     int j=(superModules_[sm]-1)%18;
@@ -1899,9 +2009,9 @@ void EBSummaryClient::writeMap( std::ofstream& hf, const char* mapname ) {
        << "#" << Numbers::sEB(superModules_[sm])
        << "\" coords=\"" << x0 << ", " << y0 << ", "
                          << x1 << ", " << y1 << "\">"
-       << std::endl;
+       << endl;
   }
-  hf << "</map>" << std::endl;
+  hf << "</map>" << endl;
 
 }
 

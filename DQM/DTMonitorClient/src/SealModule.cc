@@ -31,5 +31,17 @@ DEFINE_ANOTHER_FWK_MODULE(DTNoiseTest);
 #include "DQM/DTMonitorClient/src/DTLocalTriggerTest.h"
 DEFINE_ANOTHER_FWK_MODULE(DTLocalTriggerTest);
 
+#include "DQM/DTMonitorClient/src/DTLocalTriggerEfficiencyTest.h"
+DEFINE_ANOTHER_FWK_MODULE(DTLocalTriggerEfficiencyTest);
+
+#include "DQM/DTMonitorClient/src/DTLocalTriggerLutTest.h"
+DEFINE_ANOTHER_FWK_MODULE(DTLocalTriggerLutTest);
+
 #include "DQM/DTMonitorClient/src/DTCreateSummaryHistos.h"
 DEFINE_ANOTHER_FWK_MODULE(DTCreateSummaryHistos);
+
+#include "DQM/DTMonitorClient/src/DTOccupancyTest.h"
+DEFINE_ANOTHER_FWK_MODULE(DTOccupancyTest);
+
+#include "DQM/DTMonitorClient/src/DTSummaryClients.h"
+DEFINE_ANOTHER_FWK_MODULE(DTSummaryClients);

@@ -4,8 +4,8 @@
 /*
  * \file EcalBarrelMonitorClient.h
  *
- * $Date: 2008/03/14 14:38:54 $
- * $Revision: 1.99 $
+ * $Date: 2008/05/11 09:35:06 $
+ * $Revision: 1.106 $
  * \author G. Della Ricca
  * \author F. Cossutti
  *
@@ -47,9 +47,6 @@ EcalBarrelMonitorClient(const edm::ParameterSet & ps);
 /// Destructor
 ~EcalBarrelMonitorClient();
 
-// Initialize
-void initialize(const edm::ParameterSet & ps);
-
 /// Analyze
 void analyze(void);
 void analyze(const edm::Event & e, const edm::EventSetup & c);
@@ -73,6 +70,9 @@ void beginLuminosityBlock(const edm::LuminosityBlock & l, const edm::EventSetup 
 
 /// EndLumiBlock
 void endLuminosityBlock(const edm::LuminosityBlock & l, const edm::EventSetup & c);
+
+/// Reset
+void reset(void);
 
 /// Setup
 void setup(void);
@@ -120,6 +120,7 @@ int jevt_;
 bool cloneME_;
 
 bool verbose_;
+bool debug_;
 
 bool enableMonitorDaemon_;
 
@@ -145,15 +146,17 @@ bool mergeRuns_;
 RunIOV runiov_;
 MonRunIOV moniov_;
 
-bool enableSubRunDb_;
-bool enableSubRunHtml_;
 int subrun_;
  
 time_t current_time_;
+
+time_t last_time_update_;
 time_t last_time_db_;
 time_t last_time_html_;
-time_t dbRefreshTime_;
-time_t htmlRefreshTime_;
+
+time_t updateTime_;
+time_t dbUpdateTime_;
+time_t htmlUpdateTime_;
  
 std::string baseHtmlDir_;
 
@@ -170,7 +173,9 @@ std::map<std::string,int> clientsStatus_;
 EBSummaryClient* summaryClient_;
 
 DQMOldReceiver* mui_;
-DQMStore* dbe_;
+DQMStore* dqmStore_;
+
+std::string prefixME_;
  
 bool enableUpdate_;
  

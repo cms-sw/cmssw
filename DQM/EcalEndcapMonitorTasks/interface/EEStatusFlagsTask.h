@@ -4,8 +4,8 @@
 /*
  * \file EEStatusFlagsTask.h
  *
- * $Date: 2008/01/13 18:24:26 $
- * $Revision: 1.2 $
+ * $Date: 2008/04/08 15:32:10 $
+ * $Revision: 1.5 $
  * \author G. Della Ricca
  *
 */
@@ -38,6 +38,15 @@ void beginJob(const edm::EventSetup& c);
 /// EndJob
 void endJob(void);
 
+/// BeginRun
+void beginRun(const edm::Run & r, const edm::EventSetup & c);
+
+/// EndRun
+void endRun(const edm::Run & r, const edm::EventSetup & c);
+
+/// Reset
+void reset(void);
+
 /// Setup
 void setup(void);
 
@@ -48,9 +57,13 @@ private:
 
 int ievt_;
 
-DQMStore* dbe_;
+DQMStore* dqmStore_;
+
+std::string prefixME_;
 
 bool enableCleanup_;
+
+bool mergeRuns_;
 
 edm::InputTag EcalRawDataCollection_;
 

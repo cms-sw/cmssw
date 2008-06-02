@@ -11,6 +11,11 @@ class SiStripRecHit2D;
 class ProjectedRecHit2D : public GenericTransientTrackingRecHit {
 public:
 
+  virtual void getKfComponents( KfComponentsHolder & holder ) const {
+      HelpertRecHit2DLocalPos().getKfComponents(holder, *hit(), *det()); 
+  }
+
+
   virtual AlgebraicSymMatrix parametersError() const {
     return HelpertRecHit2DLocalPos().parError( localPositionError(), *det()); 
   }
@@ -36,6 +41,8 @@ public:
   RecHitPointer clone( const TrajectoryStateOnSurface& ts) const;
 
   const SiStripRecHit2D& originalHit() const { return static_cast<const ProjectedSiStripRecHit2D*>( hit() )->originalHit();}
+
+  virtual ConstRecHitContainer 	transientHits () const;
 
 private:
   const StripClusterParameterEstimator* theCPE;

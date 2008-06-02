@@ -12,13 +12,11 @@ int main(int argc, char** argv)
   dqm_test->generateData();
   
   float prob_chi2, prob_ks, prob_xrange, prob_yrange, prob_deadChan, 
-    prob_noisyChan, probH1_equal,probInt_equal, prob_mean, 
-    probZH2, probZProf, probZProf2D = 0;
+    prob_noisyChan, probH_equal, prob_mean = 0;
   // run tests, obtain probabilities
   dqm_test->runTests(&prob_chi2, &prob_ks, &prob_xrange, &prob_yrange,
-		     &prob_deadChan, &prob_noisyChan, &probH1_equal, 
-		     &probInt_equal, &prob_mean, &probZH2, &probZProf,
-		     &probZProf2D);
+		     &prob_deadChan, &prob_noisyChan, &probH_equal, 
+		     &prob_mean);
 
   delete dqm_test;
   return 0;

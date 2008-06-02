@@ -16,7 +16,7 @@
 //
 // Original Author:  Chris Jones
 //         Created:  Fri Sep  2 14:17:17 EDT 2005
-// $Id: TestBeginEndJobAnalyzer.h,v 1.1 2005/09/02 19:26:08 chrjones Exp $
+// $Id: TestBeginEndJobAnalyzer.h,v 1.2 2006/05/03 21:12:14 wmtan Exp $
 //
 
 // system include files
@@ -32,11 +32,19 @@ public:
    
    virtual void analyze(const edm::Event&, const edm::EventSetup&);
    
-   virtual void beginJob(const edm::EventSetup&);
+   virtual void beginJob(edm::EventSetup const&);
    virtual void endJob();
-   
+   virtual void beginRun(edm::Run const&, edm::EventSetup const&);
+   virtual void endRun(edm::Run const&, edm::EventSetup const&);
+   virtual void beginLuminosityBlock(edm::LuminosityBlock const&, edm::EventSetup const&);
+   virtual void endLuminosityBlock(edm::LuminosityBlock const&, edm::EventSetup const&);
+  
    static bool beginJobCalled;
    static bool endJobCalled;
+   static bool beginRunCalled;
+   static bool endRunCalled;
+   static bool beginLumiCalled;
+   static bool endLumiCalled;
    static bool destructorCalled;
 private:
       // ----------member data ---------------------------

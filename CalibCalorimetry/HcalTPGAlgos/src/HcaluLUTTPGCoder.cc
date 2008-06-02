@@ -1,12 +1,23 @@
-#include "CalibCalorimetry/HcalTPGAlgos/interface/HcaluLUTTPGCoder.h"
-#include "Geometry/HcalTowerAlgo/src/HcalHardcodeGeometryData.h"
-#include "FWCore/Utilities/interface/Exception.h"
 #include <iostream>
 #include <fstream>
+#include <cmath>
+#include <string>
+#include "CalibCalorimetry/HcalTPGAlgos/interface/HcaluLUTTPGCoder.h"
+#include "Geometry/HcalTowerAlgo/src/HcalHardcodeGeometryData.h"
 #include "CalibFormats/HcalObjects/interface/HcalCoderDb.h"
 #include "CalibFormats/HcalObjects/interface/HcalCalibrations.h"
 #include "CalibFormats/HcalObjects/interface/HcalDbService.h"
-#include <cmath>
+#include "Geometry/HcalTowerAlgo/interface/HcalTrigTowerGeometry.h"
+#include "Geometry/Records/interface/IdealGeometryRecord.h"
+#include "Geometry/CaloGeometry/interface/CaloGeometry.h"
+#include "FWCore/Framework/interface/ESHandle.h"
+#include "FWCore/Utilities/interface/Exception.h"
+#include "FWCore/MessageLogger/interface/MessageLogger.h"
+#include "FWCore/Framework/interface/Event.h"
+#include "FWCore/Framework/interface/EventSetup.h"
+#include "FWCore/Framework/interface/Frameworkfwd.h"
+#include "FWCore/Framework/interface/MakerMacros.h"
+#include "FWCore/ParameterSet/interface/ParameterSet.h"
 
 const float HcaluLUTTPGCoder::nominal_gain = 0.177; 
 
@@ -21,7 +32,167 @@ HcaluLUTTPGCoder::HcaluLUTTPGCoder(const char* filename, bool read_Ascii_LUTs) {
   }
 }
 
+void HcaluLUTTPGCoder::PrintTPGMap() {
+	HcalTopology theTopo;
+	HcalDetId did;
+//	std::string HCAL[3] = {"HB", "HE", "HF"};  
 
+	//std::cout << "HB Calorimeter Tower Mapping" << std::endl;
+	//std::cout << "ieta depth phi span" << std::endl;
+	for (int ieta=1; ieta <= 41; ieta++) {
+		for (int depth = 1; depth <= 3; depth++) {
+			bool newdepth = true, OK = false;
+			int lastphi = 0;
+			for (int iphi = 1; iphi <= 72; iphi++) {
+		       	did=HcalDetId(HcalBarrel,ieta,iphi,depth);
+			    if (theTopo.valid(did)) {
+					if (newdepth) {
+					  std::cout << "eta/depth = " << ieta << "/" << depth << ": ";
+						newdepth = false;
+						OK = true;
+					}
+					if (lastphi == 0) std::cout << iphi << " ";
+					lastphi = iphi;
+	        	}  else lastphi = 0;
+			}
+			if (lastphi != 0) std::cout << "- " << lastphi;
+			if (OK) std::cout << std::endl;
+		}
+	}
+	std::cout << "--------------------------------------------------------------" << std::endl;
+
+	std::cout << "HE Calorimeter Tower Mapping" << std::endl;
+	std::cout << "ieta depth phi span" << std::endl;
+	for (int ieta=-41; ieta <= 41; ieta++) {
+		for (int depth = 1; depth <= 3; depth++) {
+			bool newdepth = true, OK = false;
+			int lastphi = 0;
+			for (int iphi = 1; iphi <= 72; iphi++) {
+		       	did=HcalDetId(HcalEndcap,ieta,iphi,depth);
+			    if (theTopo.valid(did)) {
+					if (newdepth) {
+						std::cout << "eta/depth = " << ieta << "/" << depth << ": ";
+						newdepth = false;
+						OK = true;
+					}
+					if (lastphi == 0) std::cout << iphi << " ";
+					lastphi = iphi;
+	        	}  else lastphi = 0;
+			}
+			if (lastphi != 0) std::cout << "- " << lastphi;
+			if (OK) std::cout << std::endl;
+		}
+	}
+	std::cout << "--------------------------------------------------------------" << std::endl;
+
+	std::cout << "HF Calorimeter Tower Mapping" << std::endl;
+	std::cout << "ieta depth phi span" << std::endl;
+	for (int ieta=1; ieta <= 41; ieta++) {
+		for (int depth = 1; depth <= 3; depth++) {
+			bool newdepth = true, OK = false;
+			int lastphi = 0;
+			for (int iphi = 1; iphi <= 72; iphi++) {
+		      	did=HcalDetId(HcalForward,ieta,iphi,depth);
+			    if (theTopo.valid(did)) {
+					if (newdepth) {
+						std::cout << "eta/depth = " << ieta << "/" << depth << ": ";
+						newdepth = false;
+						OK = true;
+					}
+					if (lastphi == 0) std::cout << iphi << " ";
+					lastphi = iphi;
+	        	}  else lastphi = 0;
+			}
+			if (lastphi != 0) std::cout << "- " << lastphi;
+			if (OK) std::cout << std::endl;
+		}
+	}
+	std::cout << "--------------------------------------------------------------" << std::endl;
+
+	HcalDetId dd;
+	HcalTrigTowerDetId tt;
+	HcalTrigTowerGeometry tg;
+	std::vector<HcalTrigTowerDetId> towerids;
+	std::vector<HcalDetId> detids;
+	std::vector<HcalDetId> ttmap[64][72];
+	
+//	std::cout << "HB Tower Mapping:" << std::endl;
+	for (int ieta=1; ieta <= 41; ieta++) {
+		for (int depth = 1; depth <= 3; depth++) {
+			for (int iphi = 1; iphi <= 72; iphi++) {
+				did=HcalDetId(HcalBarrel,ieta,iphi,depth);
+				if (theTopo.valid(did)) {
+					tt = HcalTrigTowerDetId(did.rawId());
+//					std::cout << "ieta, depth, iphi = " << ieta << ", " << depth << ", " << iphi;
+					towerids = tg.towerIds(did.rawId());
+					for(unsigned int n = 0; n < towerids.size(); ++n)
+					{
+//						std::cout << "Towerid[" << n << "]:" << towerids[n] << " HcalDetId:" << did << std::endl;
+						int ie = towerids[n].ieta();
+						if (ie < 0) ie = 32 - ie;
+						int ip = towerids[n].iphi();
+						ttmap[ie-1][ip-1].push_back(did);
+					}
+				}
+			}
+		}
+	}
+//	std::cout << "HE Tower Mapping:" << std::endl;
+	for (int ieta=1; ieta <= 41; ieta++) {
+		for (int depth = 1; depth <= 3; depth++) {
+			for (int iphi = 1; iphi <= 72; iphi++) {
+				did=HcalDetId(HcalEndcap,ieta,iphi,depth);
+				if (theTopo.valid(did)) {
+					tt = HcalTrigTowerDetId(did.rawId());
+//					std::cout << "ieta, depth, iphi = " << ieta << ", " << depth << ", " << iphi;
+					towerids = tg.towerIds(did.rawId());
+					for(unsigned int n = 0; n < towerids.size(); ++n)
+					{
+						int ie = towerids[n].ieta();
+						if (ie < 0) ie = 32 - ie;
+						int ip = towerids[n].iphi();
+						ttmap[ie-1][ip-1].push_back(did);
+//						std::cout << "Towerid[" << n << "]:" << towerids[n] << " HcalDetId:" << did << std::endl;
+					}
+				}
+			}
+		}
+	}
+//	std::cout << "HF Tower Mapping:" << std::endl;
+	for (int ieta=1; ieta <= 41; ieta++) {
+		for (int iphi = 1; iphi <= 72; iphi++) {
+			for (int depth = 1; depth <= 3; depth++) {
+				did=HcalDetId(HcalForward,ieta,iphi,depth);
+				if (theTopo.valid(did)) {
+					tt = HcalTrigTowerDetId(did.rawId());
+//					std::cout << "ieta, iphi, depth = " << ieta << ", " << iphi << ", " << depth << " ";
+					towerids = tg.towerIds(did.rawId());
+					for(unsigned int n = 0; n < towerids.size(); ++n)
+					{
+						int ie = towerids[n].ieta();
+						if (ie < 0) ie = 32 - ie;
+						int ip = towerids[n].iphi();
+						ttmap[ie-1][ip-1].push_back(did);
+//						detids = tg.detIds(towerids[n]);
+//						for(unsigned int m = 0; m < detids.size(); ++m) std::cout << detids[m] << "; ";
+//						std::cout << towerids[n] << " HcalDetId:" << did << "; ";
+					}
+//					std::cout << std::endl;
+				}
+			}
+		}
+	}
+	
+	for (int ieta = 1; ieta <= 32; ieta++) {
+		for (int iphi = 1; iphi <=72; iphi++) {
+			if (ttmap[ieta-1][iphi-1].size() > 0) {
+				std::cout << "Trigger tower [" << ieta << "," << iphi << "] contains: ";
+				for(std::vector<HcalDetId>::const_iterator itr = (ttmap[ieta-1][iphi-1]).begin(); itr != (ttmap[ieta-1][iphi-1]).end(); ++itr) std::cout << (*itr) << ", ";
+				std::cout << std::endl;
+			}
+		}
+	}
+}
 
 void HcaluLUTTPGCoder::compress(const IntegerCaloSamples& ics, const std::vector<bool>& featureBits, HcalTriggerPrimitiveDigi& tp) const {
   throw cms::Exception("PROBLEM: This method should never be invoked!");
@@ -38,6 +209,8 @@ HcaluLUTTPGCoder::~HcaluLUTTPGCoder() {
 void HcaluLUTTPGCoder::AllocateLUTs() {
   HcalTopology theTopo;
   HcalDetId did;
+
+//  PrintTPGMap();
 
   _ped = new float[nluts];
   _gain = new float[nluts];
@@ -107,91 +280,117 @@ void HcaluLUTTPGCoder::getRecHitCalib(const char* filename) {
    else  std::cout << "File " << filename << " with RecHit calibration factors not found" << std::endl;
 }
 
-
 void HcaluLUTTPGCoder::update(const char* filename) {
-  int id;
   HcalTopology theTopo;
   int tool;
-  
+  std::string HCAL[3] = {"HB", "HE", "HF"};  
   std::ifstream userfile;
   userfile.open(filename);
-  //  std::cout << filename << std::endl;
+  std::cout << filename << std::endl;
   if( userfile ) {
-    int nluts;
+    int nluts = 0;
+	std::string s;
     std::vector<int> loieta,hiieta;
-    userfile >> nluts;
+    std::vector<int> loiphi,hiiphi;    
+	std::vector<int> loidep,hiidep;
+	std::vector<int> idet;
+    getline(userfile,s);
+	std::cout << "Reading LUT's for: " << s << std::endl;
+    getline(userfile,s);
+//
+	unsigned int index = s.find("H",0);	
+	while (index < s.length()) {
+		std::string det = s.substr(index,2);
+		if (det == "HB") idet.push_back(0); // HB
+		else if (det == "HE") idet.push_back(1); //HE
+		else if (det == "HF") idet.push_back(2); // HF
+		else std::cout << "Wrong LUT detector description in " << s << std::endl;
+		std::cout << det.data() << " ";
+		nluts++;
+		index +=2;
+		index = s.find("H",index);
+	}
+	if (nluts != 0) std::cout << std::endl;
+	std::cout << "Found " << nluts << " LUTs" << std::endl;
 
     inputluts_.resize(nluts);
     for (int i=0; i<nluts; i++) {
       inputluts_[i].resize(INPUT_LUT_SIZE); 
     }
     
+	std::cout << "EtaMin = ";
     for (int i=0; i<nluts; i++) {
       userfile >> tool;
       loieta.push_back(tool);
+	  std::cout << tool << " ";
     }
+	std::cout << std::endl << "EtaMax = ";
     for (int i=0; i<nluts; i++) {
       userfile >> tool;
       hiieta.push_back(tool);
+	  std::cout << tool << " ";
     }
-    
+	std::cout << std::endl << "PhiMin = ";
+    for (int i=0; i<nluts; i++) {
+      userfile >> tool;
+      loiphi.push_back(tool);
+	  std::cout << tool << " ";
+    }
+	std::cout << std::endl << "PhiMax = ";
+    for (int i=0; i<nluts; i++) {
+      userfile >> tool;
+      hiiphi.push_back(tool);
+	  std::cout << tool << " ";
+    }
+	std::cout << std::endl << "DepMin = ";
+    for (int i=0; i<nluts; i++) {
+      userfile >> tool;
+      loidep.push_back(tool);
+	  std::cout << tool << " ";
+    }
+	std::cout << std::endl << "DepMax = ";
+    for (int i=0; i<nluts; i++) {
+      userfile >> tool;
+      hiidep.push_back(tool);
+	  std::cout << tool << " ";
+    }    
+	std::cout << std::endl;
+	
     for (int j=0; j<INPUT_LUT_SIZE; j++) { 
       for(int i = 0; i <nluts; i++) {
-	userfile >> inputluts_[i][j];}
+		userfile >> inputluts_[i][j];
+		if (userfile.eof()) std::cout << "Error: LUT file is truncated or has a wrong format: " << i << "," << j << std::endl;
+	  }
     }
-    
     userfile.close();
-          
-    //  std::cout << "nluts:" << nluts << std::endl;
-
-    for (int depth = 1; depth <= 3; depth++) {
-     for (int iphi = 1; iphi <= 72; iphi++) {
-      
-       for (int ieta=-16; ieta <= 16; ieta++) {
-	 HcalDetId cell(HcalBarrel,ieta,iphi,depth);
-	 if (theTopo.valid(cell)) {  
-	   id = GetLUTID(HcalBarrel,ieta,iphi,depth);
-	   if (inputLUT[id] == 0) throw cms::Exception("PROBLEM: inputLUT has not been initialized for HB, ieta, iphi, depth, id = ") << ieta << "," << iphi << "," << depth << "," << id << std::endl;
 	
-	    for (int j = 0; j <= 0x7F; j++) {
-	      inputLUT[id][j] = inputluts_[0][j];  //Using LUT 0 for HB
-	    }
-	 }
+	HcalDetId cell;
+	int id, ntot = 0;
+	for (int i=0; i < nluts; i++) {
+		int nini = 0;
+    	for (int depth = loidep[i]; depth <= hiidep[i]; depth++) {
+     		for (int iphi = loiphi[i]; iphi <= hiiphi[i]; iphi++) {      
+       			for (int ieta=loieta[i]; ieta <= hiieta[i]; ieta++) {
+	 				if (idet[i] == 0) cell = HcalDetId(HcalBarrel,ieta,iphi,depth);
+	 				else if (idet[i] == 1) cell = HcalDetId(HcalEndcap,ieta,iphi,depth);
+	 				else if (idet[i] == 2) cell = HcalDetId(HcalForward,ieta,iphi,depth);
+	 				if (theTopo.valid(cell)) {  
+	   					if (idet[i] == 0) id = GetLUTID(HcalBarrel,ieta,iphi,depth);
+		 				else if (idet[i] == 1) id = GetLUTID(HcalEndcap,ieta,iphi,depth);
+		 				else if (idet[i] == 2) id = GetLUTID(HcalForward,ieta,iphi,depth);
+	   					if (inputLUT[id] == 0) throw cms::Exception("PROBLEM: inputLUT has not been initialized for idet, ieta, iphi, depth, id = ") << idet[i] << "," << ieta << "," << iphi << "," << depth << "," << id << std::endl;
+		    			for (int j = 0; j <= 0x7F; j++) inputLUT[id][j] = inputluts_[i][j];
+						nini++;
+						ntot++;
+	 				}
+       			}
+			}
        }
-
-       
-       for (int ieta=-29; ieta <= 29; ieta++) {
-	 HcalDetId cell(HcalEndcap,ieta,iphi,depth);
-	 if (theTopo.valid(cell)) { 
-	   id = GetLUTID(HcalEndcap,ieta,iphi,depth);
-	   if (inputLUT[id] == 0) throw cms::Exception("PROBLEM: inputLUT has not been initialized for HE, ieta, iphi, depth, id = ") << ieta << "," << iphi << "," << depth << "," << id << std::endl;
-	   for (int j = 0; j <= 0x7F; j++) {
-	     if (abs(ieta) < 21) inputLUT[id][j] = inputluts_[0][j];  // LUT0 for HE upto ieta=21
-	     if (abs(ieta) >= 21 && abs(ieta) < 27) inputLUT[id][j] = inputluts_[1][j];  // LUT1 for HE for ieta 21-26
-	     if (abs(ieta) >= 27 && abs(ieta) < 29) inputLUT[id][j] = inputluts_[2][j];  // LUT2 for HE for ieta 27-28
-	    }
-	 }
-       }
-      
-     
-       for (int ieta=-41; ieta <= 41; ieta++) {
-	 HcalDetId cell(HcalForward,ieta,iphi,depth);
-	 if (theTopo.valid(cell)) { 
-	   id = GetLUTID(HcalForward,ieta,iphi,depth);
-	   if (inputLUT[id] == 0) throw cms::Exception("PROBLEM: inputLUT has not been initialized for HF, ieta, iphi, depth, id = ") << ieta << "," << iphi << "," << depth << "," << id << std::endl;
-	   for (int j = 0; j <= 0x7F; j++) {
-	     if (depth==1)inputLUT[id][j] = inputluts_[abs(ieta)-26][j];    // LUT for long fibers; use LUT3 for abs(ieta)=29 for eg. 
-	     if (depth==2)inputLUT[id][j] = inputluts_[abs(ieta)-26+13][j]; // LUT for short fibers (LUT16 is for abs(ieta)=29 for eg.)
-	    }
-	 }
-       }
-       
-     }
-
+	   std::cout << nini << " LUT's have been initialized for " << HCAL[idet[i]] << ": eta = [" << loieta[i] << "," << hiieta[i] << "]; iphi = [" << loiphi[i] << "," << hiiphi[i] << "]; depth = [" << loidep[i] << "," << hiidep[i] << "]" << std::endl;
     }
-  }
+    std::cout << "Total of " << ntot << " have been initialized" << std::endl;
+  } 
 }
-
 
 void HcaluLUTTPGCoder::update(const HcalDbService& conditions) {
    const HcalQIEShape* shape = conditions.getHcalShape();

@@ -10,17 +10,19 @@ veryHighEtDQM = cms.EDFilter("HLTMonElectron",
         HLTCollectionLabels = cms.InputTag("l1seedRelaxedSingle"),
         IsoCollections = cms.VInputTag(cms.InputTag("none")),
         theHLTOutputTypes = cms.uint32(82)
-    ), cms.PSet(
-        PlotBounds = cms.vdouble(0.0, 0.0),
-        HLTCollectionLabels = cms.InputTag("hltL1NonIsoSingleEMVeryHighEtL1MatchFilterRegional"),
-        IsoCollections = cms.VInputTag(cms.InputTag("none")),
-        theHLTOutputTypes = cms.uint32(100)
-    ), cms.PSet(
-        PlotBounds = cms.vdouble(0.0, 0.0),
-        HLTCollectionLabels = cms.InputTag("hltL1NonIsoSinglePhotonEMVeryHighEtEtFilter"),
-        IsoCollections = cms.VInputTag(cms.InputTag("none")),
-        theHLTOutputTypes = cms.uint32(100)
-    )),
+    ), 
+        cms.PSet(
+            PlotBounds = cms.vdouble(0.0, 0.0),
+            HLTCollectionLabels = cms.InputTag("hltL1NonIsoSingleEMVeryHighEtL1MatchFilterRegional"),
+            IsoCollections = cms.VInputTag(cms.InputTag("none")),
+            theHLTOutputTypes = cms.uint32(100)
+        ), 
+        cms.PSet(
+            PlotBounds = cms.vdouble(0.0, 0.0),
+            HLTCollectionLabels = cms.InputTag("hltL1NonIsoSinglePhotonEMVeryHighEtEtFilter"),
+            IsoCollections = cms.VInputTag(cms.InputTag("none")),
+            theHLTOutputTypes = cms.uint32(100)
+        )),
     disableROOToutput = cms.untracked.bool(True),
     PtMax = cms.untracked.double(4000.0)
 )

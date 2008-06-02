@@ -5,19 +5,20 @@
 #include "DQM/SiStripMonitorHardware/interface/Fed9UDebugEvent.hh"
 #include "DQM/SiStripMonitorHardware/interface/Fed9UEventAnalyzer.hh"
 
-Fed9UEventAnalyzer::Fed9UEventAnalyzer(std::pair<int,int> newFedBoundaries, bool doSwap) {
+Fed9UEventAnalyzer::Fed9UEventAnalyzer(std::pair<int,int> newFedBoundaries, bool doSwap, bool doPreSwap) {
   // First of all we instantiate the Fed9U object of the event
   fedEvent_ = new Fed9U::Fed9UDebugEvent(); 
   fedIdBoundaries_ = newFedBoundaries;
   swapOn_=doSwap;
+  preSwapOn_=doPreSwap;
   thisFedId_=0;
 }
 
 
 Fed9UEventAnalyzer::Fed9UEventAnalyzer(Fed9U::u32* data_u32, Fed9U::u32 size_u32,
 				       std::pair<int,int> newFedBoundaries,
-				       bool doSwap) {
-  Fed9UEventAnalyzer(newFedBoundaries,doSwap);
+				       bool doSwap, bool doPreSwap) {
+  Fed9UEventAnalyzer(newFedBoundaries,doSwap, doPreSwap);
 
   Initialize(data_u32, size_u32);
 }
@@ -39,6 +40,22 @@ bool Fed9UEventAnalyzer::Initialize(Fed9U::u32* data_u32, Fed9U::u32 size_u32) {
     edm::LogInfo("MissingData") << "Fed9U data size is zero";
     return false;
   }
+
+
+  // Adjusts the buffer pointers for the DAQ header and trailer present when FRLs are running
+  // additonally preforms "flipping" of the bytes in the buffer
+  if(preSwapOn_){
+    Fed9U::u32 temp1,temp2;
+		
+    // 32 bit word swapping for the real FED buffers	
+    for(unsigned int i = 0; i < (size_u32 - 1); i+=2){	
+      temp1 = *(data_u32+i);
+      temp2 = *(data_u32+i+1);
+      *(data_u32+i) = temp2;
+      *(data_u32+i+1) = temp1;
+    }
+  }
+
 
   // We are now initializing the fedHeader in order to check that
   // the buffer is SiStripTracker's and it is valid
@@ -63,7 +80,7 @@ bool Fed9UEventAnalyzer::Initialize(Fed9U::u32* data_u32, Fed9U::u32 size_u32) {
 
     Fed9U::u32 temp1,temp2;
 		
-    //32 bit word swapping for the real FED buffers	
+    // 32 bit word swapping for the real FED buffers	
     for(unsigned int i = 0; i < (size_u32 - 1); i+=2){	
       temp1 = *(data_u32+i);
       temp2 = *(data_u32+i+1);
@@ -71,7 +88,27 @@ bool Fed9UEventAnalyzer::Initialize(Fed9U::u32* data_u32, Fed9U::u32 size_u32) {
       *(data_u32+i+1) = temp1;
     }
   }
-    
+
+
+  //#define DO_DUMP_BUFFERS
+#ifdef DO_DUMP_BUFFERS
+
+  //dumps a specified number of 32 bit words to the screen prior ot initalization			
+  std::cerr << "BUFFERD FED NUMBER " << std::dec << thisFedId_ << std::endl;
+	
+  for(int i = 0; i<int(size_u32/2.); i++)  { // prints out the specified number of 32 bit words
+    std::cerr << std::setiosflags(std::ios::right)
+	      << "64 Bit Word #  " 
+	      << std::dec << std::setfill(' ') << std::setw(4) 
+	      << i << " "
+	      << std::hex << std::setfill('0') << std::setw(8) 
+	      << (data_u32[2*i] & 0xFFFFFFFF) << " "
+	      << std::hex << std::setfill('0') << std::setw(8) 
+	      << (data_u32[(2*i + 1)] & 0xFFFFFFFF) << " "
+	      << std::endl;
+  }
+#endif
+  
   // The actual event initialization, catching its possible exceptions
   try{
     // Initialize the fedEvent with offset for slink

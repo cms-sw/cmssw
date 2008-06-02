@@ -10,8 +10,8 @@
  *   in the muon system and the tracker.
  *
  *
- *  $Date: 2008/03/14 19:12:07 $
- *  $Revision: 1.6 $
+ *  $Date: 2008/03/24 20:07:54 $
+ *  $Revision: 1.7 $
  *
  *  Authors :
  *  Patrick Janot - CERN
@@ -207,7 +207,13 @@ FastL3MuonTrajectoryBuilder::makeTkCandCollection(const TrackCand& staCand) {
 
   // Loop on simulated muons
   for ( unsigned amuon=0; amuon<nmuons; ++amuon ) {
+    // The sim track can be a muon or a decaying hadron
     const SimTrack& simTrack = (*simMuons)[amuon];
+    // The daughter muons in case of a decaying hadron is just after the muon in the list
+    // We skip the daughter muon in the loop to be more time-efficient
+    int pid = simTrack.type();        
+    if ( fabs(pid) != 13 ) ++amuon;
+
 #ifdef FAMOS_DEBUG
     if ( simTrack.momentum().Pt() > 10. ) simuMuons->Fill(simTrack.momentum().Eta());
 #endif

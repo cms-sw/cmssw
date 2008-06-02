@@ -1,5 +1,6 @@
 #include "DataFormats/ParticleFlowReco/interface/PFBlockElement.h"
 #include "DataFormats/ParticleFlowReco/interface/PFBlockElementTrack.h"
+#include "DataFormats/ParticleFlowReco/interface/PFBlockElementTrackNuclear.h"
 #include "DataFormats/ParticleFlowReco/interface/PFBlockElementCluster.h"
 
 
@@ -31,11 +32,14 @@ std::ostream& reco::operator<<( std::ostream& out,
         const reco::PFBlockElementTrack& et =
           dynamic_cast<const reco::PFBlockElementTrack &>( element );
         et.Dump(out);
-        if( et.trackType(PFBlockElement::T_GSF) ) out<<" from gsf;";
-        if( et.trackType(PFBlockElement::T_BREM) ) out<<" from brem;";
-        if( et.trackType(PFBlockElement::T_FROM_NUCL) ) out<<" from nucl;";
-        if( et.trackType(PFBlockElement::T_TO_NUCL) ) out<<" to nucl;";
-	if( et.trackType(PFBlockElement::T_FROM_GAMMACONV) ) out<<" from gammaconv;";  
+        switch( et.trackType() ) {
+	case PFBlockElement::T_FROM_GSF : out<<" from gsf"; break;
+	case PFBlockElement::T_FROM_BREM : out<<" from brem"; break;
+	case PFBlockElement::T_FROM_NUCL : out<<" from nucl"; break;
+	case PFBlockElement::T_TO_NUCL : out<<" to nucl"; break;
+	case PFBlockElement::T_FROM_GAMMACONV : out<<" from gammaconv"; break; 
+	default : break;
+        }
         break;
       }
     case PFBlockElement::ECAL:

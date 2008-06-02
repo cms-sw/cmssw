@@ -1168,12 +1168,15 @@ IMGC.selectedIMGCItems = function ()
  {
   if( selection[i].checked )
   {
+   var fullPath = selection[i].getAttribute("folder") + "/" + selection[i].value ;
    var qs = url                                    + 
             //"/Request?RequestID=getIMGCPlot&Plot=" + 
-            "RequestID=getIMGCPlot&Plot=" + 
-	    selection[i].value  		   +
-	    "&Folder="  			   +
-	    selection[i].getAttribute("folder")    +
+//            "RequestID=getIMGCPlot&Plot=" + 
+//	    selection[i].value  		   +
+//	    "&Folder="  			   +
+//	    selection[i].getAttribute("folder")    +
+            "RequestID=getIMGCPlot&Path="          + 
+	    fullPath             		   +
             '&canvasW=' 			   +
             IMGC.THUMB_IMAGE_WIDTH + 1		   +
             '&canvasH=' 			   +
@@ -1181,6 +1184,12 @@ IMGC.selectedIMGCItems = function ()
             "&Date="				   +
             date;
    imageURLs.push(qs) ;
+//   var getMEURLS = new Ajax.Request(qs,                    
+// 	 		            {			  
+// 	 		             method: 'get',	  
+// 			             parameters: '', 
+// 			             onComplete: IMGC.processImageURLs // <-- call-back function
+// 			            });
   }
  }
 
@@ -1188,6 +1197,7 @@ IMGC.selectedIMGCItems = function ()
  $('imageCanvas').titlesList    = imageURLs;
  $('imageCanvas').current_start = 0;
  IMGC.PATH_TO_PICTURES = "" ; 
+// setTimeout('IMGC.computeCanvasSize()',10000) ;
  IMGC.computeCanvasSize() ;
 }
 
@@ -1205,4 +1215,85 @@ IMGC.clearSelection = function ()
  }
  
  IMGC.selectedIMGCItems() ;
+}
+
+
+//__________________________________________________________________________________________________________________________________
+//
+IMGC.plotFromPath = function (path)	
+{
+ var url      = IMGC.getApplicationURL();
+ queryString  = 'RequestID=PlotHistogramFromPath';
+ queryString += '&Path='   + path;
+ queryString += '&width='  + IMGC.BASE_IMAGE_WIDTH +
+                '&height=' + IMGC.BASE_IMAGE_HEIGHT ;
+ url         += queryString;
+ 
+ var getMEURLS = new Ajax.Request(url,                    
+ 	 		         {			  
+ 	 		          method: 'get',	  
+ 			          parameters: '', 
+// 			          onComplete: IMGC.processIMGCPlots // <-- call-back function
+ 			          onComplete: IMGC.processImageURLs // <-- call-back function
+ 			         });
+}
+
+//__________________________________________________________________________________________________________________________________
+//__________________________________________________________________________________________________________________________________
+// This is an Ajax callback function. It is activated when the web server responds to the request of 
+// providing a list of ME available in a particular DQM folder. The response is packaged by the server
+// as a vector of strings containing the ME names. This list is explored and a new vector is created
+// with each element containing the complete QUERY-STRING to ask the server to provide the corresponding
+// ME plot in the form of a PNG chunk of data. Once this vector is ready (imageURLs) the canvas is 
+// refreshed with a call to IMGC.computeCanvasSize().
+IMGC.processImageURLs = function (ajax)	
+{
+ var imageURLs;
+ var url = IMGC.getApplicationURL();
+// var url = "";
+
+ try	 
+ { 
+  imageURLs = ajax.responseText.split(/\s+/) ;
+ } catch(errorMessage) {
+  alert('[IMGC.js::IMGC.processImageURLs()]\nImage URLs list load failed. Reason: '+error.errorMessage);
+  return 0;	  
+ }
+
+ try	 
+ { 
+  date = new Date() ; // This is extremely important: adding a date to the QUERY_STRING of the
+  		      // URL, forces the browser to reload the picture even if the Plot, Folder
+  		      // and canvas size are the same (e.g. by clicking twice the same plot)
+  		      // The reload is forced because the browser is faked to think that the
+  		      // URL is ALWAYS different from an already existing one.
+  		      // This was rather tricky... (Dario)
+  date = date.toString() ;
+  date = date.replace(/\s+/g,"_") ;
+
+  var canvasW		  = window.innerWidth * IMGC.GLOBAL_RATIO ;
+  IMGC.DEF_IMAGE_WIDTH    = parseInt(canvasW);
+  IMGC.BASE_IMAGE_WIDTH   = IMGC.DEF_IMAGE_WIDTH;
+  IMGC.BASE_IMAGE_HEIGHT  = parseInt(IMGC.BASE_IMAGE_WIDTH / IMGC.ASPECT_RATIO) ;
+  IMGC.THUMB_IMAGE_WIDTH  = parseInt(IMGC.BASE_IMAGE_WIDTH  / IMGC.IMAGES_PER_ROW);
+  IMGC.THUMB_IMAGE_HEIGHT = parseInt(IMGC.BASE_IMAGE_HEIGHT / IMGC.IMAGES_PER_COL);
+ 
+  var theFolder = imageURLs[0] ;
+  var tempURLs  = new Array() ;
+  var tempTitles = new Array() ;
+  for( var i=1; i<imageURLs.length-1; i++)
+  {
+    var fullPath = theFolder + "/" + imageURLs[i] ;
+    tempURLs[i-1] = url + "RequestID=getIMGCPlot&Path=" + fullPath + "&Date=" + date ;
+    tempTitles[i-1] = theFolder + "|" + imageURLs[i] ; 
+  }
+
+  $('imageCanvas').imageList	 = tempURLs;
+  $('imageCanvas').titlesList	 = tempTitles;
+  $('imageCanvas').current_start = 0;
+  IMGC.PATH_TO_PICTURES = "" ; 
+  setTimeout('IMGC.computeCanvasSize()',10000) ;
+ } catch(errorMessage) {
+  alert('[IMGC.js::IMGC.processImageURLs()]\nExecution/syntax error: '+error.errorMessage);
+ }
 }

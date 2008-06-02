@@ -35,51 +35,27 @@ cat > ${MACRO}<<EOF
   Compare1DPlots2("Digis/hStripCodeNarrow2","Digis/hWireCodeNarrow2",f1,f2,"hStripCodeNarrow (Station 2)","hWireCodeNarrow (Station 2)","digi_stripswires_hCodeNarrow2.gif");
   Compare1DPlots2("Digis/hStripCodeNarrow3","Digis/hWireCodeNarrow3",f1,f2,"hStripCodeNarrow (Station 3)","hWireCodeNarrow (Station 3)","digi_stripswires_hCodeNarrow3.gif");
   Compare1DPlots2("Digis/hStripCodeNarrow4","Digis/hWireCodeNarrow4",f1,f2,"hStripCodeNarrow (Station 4)","hWireCodeNarrow (Station 4)","digi_stripswires_hCodeNarrow4.gif");
-  Compare1DPlots2("Digis/hStripLayer11a","Digis/hWireLayer11a",f1,f2,"Strips Fired per Layer(ME 11a)","Wires Fired per Layer(ME 11a)","digi_stripswires_perlayer11a.gif");
-  Compare1DPlots2("Digis/hStripLayer11b","Digis/hWireLayer11b",f1,f2,"Strips Fired per Layer(ME 11b)","Wires Fired per Layer(ME 11b)","digi_stripswires_perlayer11b.gif");
-  Compare1DPlots2("Digis/hStripLayer12","Digis/hWireLayer12",f1,f2,"Strips Fired per Layer(ME 12)","Wires Fired per Layer(ME 12)","digi_stripswires_perlayer12.gif");
-  Compare1DPlots2("Digis/hStripLayer13","Digis/hWireLayer13",f1,f2,"Strips Fired per Layer(ME 13)","Wires Fired per Layer(ME 13)","digi_stripswires_perlayer13.gif");
-  Compare1DPlots2("Digis/hStripLayer21","Digis/hWireLayer21",f1,f2,"Strips Fired per Layer(ME 21)","Wires Fired per Layer(ME 21)","digi_stripswires_perlayer21.gif");
-  Compare1DPlots2("Digis/hStripLayer22","Digis/hWireLayer22",f1,f2,"Strips Fired per Layer(ME 22)","Wires Fired per Layer(ME 22)","digi_stripswires_perlayer22.gif");
-  Compare1DPlots2("Digis/hStripLayer31","Digis/hWireLayer31",f1,f2,"Strips Fired per Layer(ME 31)","Wires Fired per Layer(ME 31)","digi_stripswires_perlayer31.gif");
-  Compare1DPlots2("Digis/hStripLayer32","Digis/hWireLayer32",f1,f2,"Strips Fired per Layer(ME 32)","Wires Fired per Layer(ME 32)","digi_stripswires_perlayer32.gif");
-  Compare1DPlots2("Digis/hStripLayer41","Digis/hWireLayer41",f1,f2,"Strips Fired per Layer(ME 41)","Wires Fired per Layer(ME 41)","digi_stripswires_perlayer41.gif");
-  Compare1DPlots2("Digis/hStripLayer42","Digis/hWireLayer42",f1,f2,"Strips Fired per Layer(ME 42)","Wires Fired per Layer(ME 42)","digi_stripswires_perlayer42.gif");
+  Compare1DPlots2("Digis/hStripLayer1","Digis/hWireLayer1",f1,f2,"Strips Fired per Layer(Station 1)","Wires Fired per Layer(Station 1)","digi_stripswires_perlayer1.gif");
+  Compare1DPlots2("Digis/hStripLayer2","Digis/hWireLayer2",f1,f2,"Strips Fired per Layer(Station 2)","Wires Fired per Layer(Station 2)","digi_stripswires_perlayer2.gif");
+  Compare1DPlots2("Digis/hStripLayer3","Digis/hWireLayer3",f1,f2,"Strips Fired per Layer(Station 3)","Wires Fired per Layer(Station 3)","digi_stripswires_perlayer3.gif");
+  Compare1DPlots2("Digis/hStripLayer4","Digis/hWireLayer4",f1,f2,"Strips Fired per Layer(Station 4)","Wires Fired per Layer(Station 4)","digi_stripswires_perlayer4.gif");
   Compare1DPlots2("Digis/hStripNFired","Digis/hWirenGroupsTotal",f1,f2,"Number of Fired Strips per Event","Number of Fired Wiregroups per Event","digi_stripswires_perevent.gif");
-  Compare1DPlots2("Digis/hStripStrip11a","Digis/hWireWire11a",f1,f2,"Strip Numbers Fired(ME 11a)","Wiregroup Numbers Fired (ME 11a)","digi_stripswires_11a.gif");
-  Compare1DPlots2("Digis/hStripStrip11b","Digis/hWireWire11b",f1,f2,"Strip Numbers Fired(ME 11b)","Wiregroup Numbers Fired (ME 11b)","digi_stripswires_11b.gif");
-  Compare1DPlots2("Digis/hStripStrip12","Digis/hWireWire12",f1,f2,"Strip Numbers Fired(ME 12)","Wiregroup Numbers Fired (ME 12)","digi_stripswires_12.gif");
-  Compare1DPlots2("Digis/hStripStrip13","Digis/hWireWire13",f1,f2,"Strip Numbers Fired(ME 13)","Wiregroup Numbers Fired (ME 13)","digi_stripswires_13.gif");
-  Compare1DPlots2("Digis/hStripStrip21","Digis/hWireWire21",f1,f2,"Strip Numbers Fired(ME 21)","Wiregroup Numbers Fired (ME 21)","digi_stripswires_21.gif");
-  Compare1DPlots2("Digis/hStripStrip22","Digis/hWireWire22",f1,f2,"Strip Numbers Fired(ME 22)","Wiregroup Numbers Fired (ME 22)","digi_stripswires_22.gif");
-  Compare1DPlots2("Digis/hStripStrip31","Digis/hWireWire31",f1,f2,"Strip Numbers Fired(ME 31)","Wiregroup Numbers Fired (ME 31)","digi_stripswires_31.gif");
-  Compare1DPlots2("Digis/hStripStrip32","Digis/hWireWire32",f1,f2,"Strip Numbers Fired(ME 32)","Wiregroup Numbers Fired (ME 32)","digi_stripswires_32.gif");
-  Compare1DPlots2("Digis/hStripStrip41","Digis/hWireWire41",f1,f2,"Strip Numbers Fired(ME 41)","Wiregroup Numbers Fired (ME 41)","digi_stripswires_41.gif");
-  Compare1DPlots2("Digis/hStripStrip42","Digis/hWireWire42",f1,f2,"Strip Numbers Fired(ME 42)","Wiregroup Numbers Fired (ME 42)","digi_stripswires_42.gif");
+  Compare1DPlots2("Digis/hStripStrip1","Digis/hWireWire1",f1,f2,"Strip Numbers Fired (Station 1)","Wiregroup Numbers Fired (Station 1)","digi_stripswires_1.gif");
+  Compare1DPlots2("Digis/hStripStrip2","Digis/hWireWire2",f1,f2,"Strip Numbers Fired (Station 2)","Wiregroup Numbers Fired (Station 2)","digi_stripswires_2.gif");
+  Compare1DPlots2("Digis/hStripStrip3","Digis/hWireWire3",f1,f2,"Strip Numbers Fired (Station 3)","Wiregroup Numbers Fired (Station 3)","digi_stripswires_3.gif");
+  Compare1DPlots2("Digis/hStripStrip4","Digis/hWireWire4",f1,f2,"Strip Numbers Fired (Station 4)","Wiregroup Numbers Fired (Station 4)","digi_stripswires_4.gif");
+  Compare1DPlots1("Digis/hStripADCAll",f1,f2,"All ADC Values Above Cutoff","digi_stripadcs.gif");
   Compare1DPlots1("Digis/hWireTBinAll",f1,f2,"Signal Time Bin for All Wires","digi_wireTB.gif");
-
-  //produce pedestal noise plots
-  Compare1DPlots2("PedestalNoise/hStripPedME11","PedestalNoise/hStripPedME11",f1,f2,"Pedestal Noise Distribution Chamber ME11","Pedestal Noise Distribution Chamber ME11","noise_ME11.gif");
-  Compare1DPlots2("PedestalNoise/hStripPedME12","PedestalNoise/hStripPedME13",f1,f2,"Pedestal Noise Distribution Chamber ME12","Pedestal Noise Distribution Chamber ME13","noise_ME12_ME13.gif");
-  Compare1DPlots2("PedestalNoise/hStripPedME21","PedestalNoise/hStripPedME22",f1,f2,"Pedestal Noise Distribution Chamber ME21","Pedestal Noise Distribution Chamber ME22","noise_ME21_ME22.gif");
-  Compare1DPlots2("PedestalNoise/hStripPedME31","PedestalNoise/hStripPedME32",f1,f2,"Pedestal Noise Distribution Chamber ME31","Pedestal Noise Distribution Chamber ME32","noise_ME31_ME32.gif");
-  Compare1DPlots2("PedestalNoise/hStripPedME41","PedestalNoise/hStripPedME42",f1,f2,"Pedestal Noise Distribution Chamber ME41","Pedestal Noise Distribution Chamber ME42","noise_ME41_ME42.gif");
 
 
   //produce rechit comparison plots
   Compare1DPlots1("recHits/hRHCodeBroad",f1,f2,"hRHCodeBroad","rH_hRHCodeBroad.gif"); 
   Compare1DPlots2("recHits/hRHCodeNarrow1","recHits/hRHCodeNarrow2",f1,f2,"hRHCodeNarrow (Station 1)","hRHCodeNarrow (Station 2)","rH_hRHCodeNarrow_1a2.gif");
   Compare1DPlots2("recHits/hRHCodeNarrow3","recHits/hRHCodeNarrow4",f1,f2,"hRHCodeNarrow (Station 3)","hRHCodeNarrow (Station 4)","rH_hRHCodeNarrow_3a4.gif");
-  Compare1DPlots2("recHits/hRHX11a","recHits/hRHX11b",f1,f2,"recHits, LocalX, ME 11a","recHits, LocalX, ME 11b","rH_local_X_ME11.gif");
-  Compare1DPlots2("recHits/hRHY11a","recHits/hRHY11b",f1,f2,"recHits, LocalY, ME 11a","recHits, LocalY, ME 11b","rH_local_Y_ME11.gif");
-  Compare1DPlots2("recHits/hRHX12","recHits/hRHX13",f1,f2,"recHits, LocalX, ME 12","recHits, LocalX, ME 13","rH_local_X_ME12_ME13.gif");
-  Compare1DPlots2("recHits/hRHY12","recHits/hRHY13",f1,f2,"recHits, LocalY, ME 12","recHits, LocalY, ME 13","rH_local_Y_ME12_ME13.gif");
-  Compare1DPlots2("recHits/hRHX21","recHits/hRHX22",f1,f2,"recHits, LocalX, ME 21","recHits, LocalX, ME 22","rH_local_X_ME21_ME22.gif");
-  Compare1DPlots2("recHits/hRHY21","recHits/hRHY22",f1,f2,"recHits, LocalY, ME 21","recHits, LocalY, ME 22","rH_local_Y_ME21_ME22.gif");
-  Compare1DPlots2("recHits/hRHX31","recHits/hRHX32",f1,f2,"recHits, LocalX, ME 31","recHits, LocalX, ME 32","rH_local_X_ME31_ME32.gif");
-  Compare1DPlots2("recHits/hRHY31","recHits/hRHY32",f1,f2,"recHits, LocalY, ME 31","recHits, LocalY, ME 32","rH_local_Y_ME31_ME32.gif");
-  Compare1DPlots2("recHits/hRHX41","recHits/hRHX42",f1,f2,"recHits, LocalX, ME 41","recHits, LocalX, ME 42","rH_local_X_ME41_ME42.gif");
-  Compare1DPlots2("recHits/hRHY41","recHits/hRHY42",f1,f2,"recHits, LocalY, ME 41","recHits, LocalY, ME 42","rH_local_Y_ME41_ME42.gif");
+  Compare1DPlots2("recHits/hRHX1","recHits/hRHY1",f1,f2,"recHits, LocalX, Station 1","recHits, LocalY, Station 1","rH_local_pos_station1.gif");
+  Compare1DPlots2("recHits/hRHX2","recHits/hRHY2",f1,f2,"recHits, LocalX, Station 2","recHits, LocalY, Station 2","rH_local_pos_station2.gif");
+  Compare1DPlots2("recHits/hRHX3","recHits/hRHY3",f1,f2,"recHits, LocalX, Station 3","recHits, LocalY, Station 3","rH_local_pos_station3.gif");
+  Compare1DPlots2("recHits/hRHX4","recHits/hRHY4",f1,f2,"recHits, LocalX, Station 4","recHits, LocalY, Station 4","rH_local_pos_station4.gif");
   if (datatype == 2){
     Compare1DPlots2("recHits/hRHResid11a","recHits/hRHResid11b",f1,f2,"SimHit X - Reco X (ME11a)","SimHit X - Reco X (ME11b)","rH_resid_ME11.gif");
     Compare1DPlots2("recHits/hRHResid12","recHits/hRHResid13",f1,f2,"SimHit X - Reco X (ME12)","SimHit X - Reco X (ME13)","rH_sH_resid_ME12_ME13.gif"); 
@@ -87,11 +63,8 @@ cat > ${MACRO}<<EOF
     Compare1DPlots2("recHits/hRHResid31","recHits/hRHResid32",f1,f2,"SimHit X - Reco X (ME31)","SimHit X - Reco X (ME32)","rH_sH_resid_ME31_ME32.gif"); 
     Compare1DPlots2("recHits/hRHResid41","recHits/hRHResid42",f1,f2,"SimHit X - Reco X (ME41)","SimHit X - Reco X (ME42)","rH_sH_resid_ME41_ME42.gif"); 
   }
-  Compare1DPlots2("recHits/hRHLayer11a","recHits/hRHLayer11b",f1,f2,"recHits in a Layer, ME 11a","recHits in a Layer, ME 11b","rH_per_layer_ME11.gif");
-  Compare1DPlots2("recHits/hRHLayer12","recHits/hRHLayer13",f1,f2,"recHits in a Layer, ME 12","recHits in a Layer, ME 13","rH_per_layer_ME12_ME13.gif");
-  Compare1DPlots2("recHits/hRHLayer21","recHits/hRHLayer22",f1,f2,"recHits in a Layer, ME 21","recHits in a Layer, ME 22","rH_per_layer_ME21_ME22.gif");
-  Compare1DPlots2("recHits/hRHLayer31","recHits/hRHLayer32",f1,f2,"recHits in a Layer, ME 31","recHits in a Layer, ME 32","rH_per_layer_ME31_ME32.gif");
-  Compare1DPlots2("recHits/hRHLayer41","recHits/hRHLayer42",f1,f2,"recHits in a Layer, ME 41","recHits in a Layer, ME 42","rH_per_layer_ME41_ME42.gif");
+  Compare1DPlots2("recHits/hRHLayer1","recHits/hRHLayer2",f1,f2,"recHits in a Layer, Station 1","recHits in a Layer, Station 2","rH_per_layer_stations1and2.gif");
+  Compare1DPlots2("recHits/hRHLayer3","recHits/hRHLayer4",f1,f2,"recHits in a Layer, Station 3","recHits in a Layer, Station 4","rH_per_layer_stations3and4.gif");
   Compare1DPlots2("recHits/hSResid11a","recHits/hSResid11b",f1,f2,"Fitted Position on Strip - Reco Pos (ME11a)","Fitted Position on Strip - Reco Pos (ME11b)","rH_fit_resid_ME11.gif");
   Compare1DPlots2("recHits/hSResid12","recHits/hSResid13",f1,f2,"Fitted Position on Strip - Reco Pos (ME12)","Fitted Position on Strip - Reco Pos (ME13)","rH_fit_resid_ME12_ME13.gif");
   Compare1DPlots2("recHits/hSResid21","recHits/hSResid22",f1,f2,"Fitted Position on Strip - Reco Pos (ME21)","Fitted Position on Strip - Reco Pos (ME22)","rH_fit_resid_ME21_ME22.gif");
@@ -112,18 +85,17 @@ cat > ${MACRO}<<EOF
   Compare1DPlots2("recHits/hRHTiming21","recHits/hRHTiming22",f1,f2,"recHit Timing from Strip (ME21)","recHit Timing from Strip (ME22)","rH_timing_ME21_ME22.gif");
   Compare1DPlots2("recHits/hRHTiming31","recHits/hRHTiming32",f1,f2,"recHit Timing from Strip (ME31)","recHit Timing from Strip (ME32)","rH_timing_ME31_ME32.gif");
   Compare1DPlots2("recHits/hRHTiming41","recHits/hRHTiming42",f1,f2,"recHit Timing from Strip (ME41)","recHit Timing from Strip (ME42)","rH_timing_ME41_ME42.gif");
-  Compare1DPlots1("recHits/hRHnrechits",f1,f2,"Number of RecHits per Event","rH_nrH.gif");
+
 
   //produce segment comparison plots
   Compare1DPlots2("Segments/hSCodeNarrow1","Segments/hSCodeNarrow2",f1,f2,"hSCodeNarrow (Station 1)","hSCodeNarrow (Station 2)","seg_hSCodeNarrow_1a2.gif");
   Compare1DPlots2("Segments/hSCodeNarrow3","Segments/hSCodeNarrow4",f1,f2,"hSCodeNarrow (Station 3)","hSCodeNarrow (Station 4)","seg_hSCodeNarrow_3a4.gif");
   Compare1DPlots1("Segments/hSCodeBroad",f1,f2,"hSCodeBroad","seg_hSCodeBroad.gif");
   Compare1DPlots2("Segments/hSGlobalPhi","Segments/hSGlobalTheta",f1,f2,"Segment Global Phi (all stations)","Segment Global Theta (all stations)","seg_globthetaphi.gif");
-  Compare1DPlots2("Segments/hSnHits11a","Segments/hSnHits11b",f1,f2,"recHits per Segment (ME 11a)","recHits per Segment (ME 11b)","seg_nhits_ME11.gif");
-  Compare1DPlots2("Segments/hSnHits12","Segments/hSnHits13",f1,f2,"recHits per Segment (ME 12)","recHits per Segment (ME 13)","seg_nhits_ME12_ME13.gif");
-  Compare1DPlots2("Segments/hSnHits21","Segments/hSnHits22",f1,f2,"recHits per Segment (ME 21)","recHits per Segment (ME 22)","seg_nhits_ME21_ME22.gif");
-  Compare1DPlots2("Segments/hSnHits31","Segments/hSnHits32",f1,f2,"recHits per Segment (ME 31)","recHits per Segment (ME 32)","seg_nhits_ME31_ME32.gif");
-  Compare1DPlots2("Segments/hSnHits41","Segments/hSnHits42",f1,f2,"recHits per Segment (ME 41)","recHits per Segment (ME 42)","seg_nhits_ME41_ME42.gif");
+  Compare1DPlots2("Segments/hSTheta1","Segments/hSTheta2",f1,f2,"Segment Local Theta (Station 1)","Segment Local Theta (Station 2)","seg_localtheta_1a2.gif");
+  Compare1DPlots2("Segments/hSTheta3","Segments/hSTheta4",f1,f2,"Segment Local Theta (Station 3)","Segment Local Theta (Station 4)","seg_localtheta_3a4.gif");
+  Compare1DPlots2("Segments/hSnHits1","Segments/hSnHits2",f1,f2,"recHits per Segment (Station 1)","recHits per Segment (Station 2)","seg_nhits_1a2.gif");
+  Compare1DPlots2("Segments/hSnHits3","Segments/hSnHits4",f1,f2,"recHits per Segment (Station 3)","recHits per Segment (Station 4)","seg_nhits_3a4.gif");
   Compare1DPlots2("Segments/hSnSegments","Segments/hSnhits",f1,f2,"Segments per Event","recHits per Segment (all stations)","seg_nhits_all.gif");
 
  
@@ -146,7 +118,7 @@ cat > ${MACRO}<<EOF
 
 EOF
 
-root -l -q -b ${MACRO}
+root -l -q ${MACRO}
 
 rm makePlots.C
 

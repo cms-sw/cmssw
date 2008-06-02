@@ -5,6 +5,7 @@
 #include "DataFormats/Provenance/interface/BranchKey.h"
 #include "DataFormats/Provenance/interface/BranchDescription.h"
 #include "DataFormats/Provenance/interface/ConstBranchDescription.h"
+#include "Rtypes.h"
 #include "TTree.h"
 #include "TFile.h"
 #include "TVirtualIndex.h"
@@ -55,6 +56,15 @@ namespace edm {
   }
 
   void
+  RootTree::setPresence(
+		      BranchDescription const& prod) {
+      assert(isValid());
+      prod.init();
+      prod.provenancePresent_ = (metaTree_->GetBranch(prod.branchName().c_str()) != 0);
+      prod.present_ = (tree_->GetBranch(prod.branchName().c_str()) != 0);
+  }
+
+  void
   RootTree::addBranch(BranchKey const& key,
 		      BranchDescription const& prod,
 		      std::string const& oldBranchName) {
@@ -62,9 +72,9 @@ namespace edm {
       prod.init();
       //use the translated branch name 
       TBranch * provBranch = metaTree_->GetBranch(oldBranchName.c_str());
-      prod.provenancePresent_ = (metaTree_->GetBranch(oldBranchName.c_str()) != 0);
+      assert (prod.provenancePresent_ == (provBranch != 0));
       TBranch * branch = tree_->GetBranch(oldBranchName.c_str());
-      prod.present_ = (branch != 0);
+      assert (prod.present_ == (branch != 0));
       if (prod.provenancePresent()) {
         input::EventBranchInfo info = input::EventBranchInfo(ConstBranchDescription(prod));
         info.provenanceBranch_ = provBranch;
@@ -92,6 +102,11 @@ namespace edm {
     } else {
       for (; pit != pitEnd; ++pit) {
         ConstBranchDescription const& bd = pit->second.branchDescription_;
+	if (bd.productID().id() == 1U &&
+	   productstatus::invalid(productStatuses_[0]) &&
+	   bd.friendlyClassName() == std::string("FEDRawDataCollection")) {
+	  productStatuses_[0] = productstatus::present();
+	}
         item.addGroup(bd, productStatuses_[bd.productID().id() - 1]);
       }
     }
@@ -101,5 +116,15 @@ namespace edm {
   RootTree::makeDelayedReader(FileFormatVersion const& fileFormatVersion) const {
     boost::shared_ptr<DelayedReader> store(new RootDelayedReader(entryNumber_, branches_, filePtr_, fileFormatVersion));
     return store;
+  }
+
+  void
+  RootTree::setCacheSize(unsigned int cacheSize) const {
+    tree_->SetCacheSize(static_cast<Long64_t>(cacheSize));
+  }
+
+  void
+  RootTree::setTreeMaxVirtualSize(int treeMaxVirtualSize) {
+    if (treeMaxVirtualSize >= 0) tree_->SetMaxVirtualSize(static_cast<Long64_t>(treeMaxVirtualSize));
   }
 }

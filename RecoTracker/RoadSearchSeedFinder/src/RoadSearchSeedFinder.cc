@@ -9,8 +9,8 @@
 // Created:         Sat Jan 14 22:00:00 UTC 2006
 //
 // $Author: noeding $
-// $Date: 2007/11/07 23:42:18 $
-// $Revision: 1.11 $
+// $Date: 2008/04/05 08:58:12 $
+// $Revision: 1.15 $
 //
 
 #include <iostream>
@@ -30,6 +30,7 @@
 #include "FWCore/Framework/interface/EventSetup.h"
 
 #include "FWCore/ParameterSet/interface/InputTag.h"
+#include "RecoTracker/SpecialSeedGenerators/interface/ClusterChecker.h"
 
 RoadSearchSeedFinder::RoadSearchSeedFinder(edm::ParameterSet const& conf) : 
   roadSearchSeedFinderAlgorithm_(conf) ,
@@ -73,25 +74,16 @@ void RoadSearchSeedFinder::produce(edm::Event& e, const edm::EventSetup& es)
   if( e.getByLabel(pixelRecHitsInputTag, pixelRecHits)) {
     pixelRecHitCollection = pixelRecHits.product();
   } else {
-    edm::LogWarning("RoadSearch") << "Collection SiPixelRecHitCollection with InputTag " << pixelRecHitsInputTag << " cannot be found, using empty collection of same type. The RoadSearch algorithm is also fully functional without Pixel RecHits.";
+    LogDebug("RoadSearch") << "Collection SiPixelRecHitCollection with InputTag " << pixelRecHitsInputTag << " cannot be found, using empty collection of same type. The RoadSearch algorithm is also fully functional without Pixel RecHits.";
   }
-  
-  //get special input for cluster multiplicity filter
-  edm::Handle<edm::DetSetVector<SiStripCluster> > clusterDSV;
-  e.getByLabel(clusterCollectionInputTag,clusterDSV);
-  const edm::DetSetVector<SiStripCluster> *clusters = clusterDSV.product();
 
   // create empty output collection
   std::auto_ptr<RoadSearchSeedCollection> output(new RoadSearchSeedCollection);
- 
 
-   //special parameters for cosmic track reconstruction
-  bool cosmicTracking              = conf_.getParameter<bool>("CosmicTracking");
-  unsigned int maxNumberOfClusters = conf_.getParameter<unsigned int>("MaxNumberOfClusters");
-
+  ClusterChecker check(conf_);
+    
   // invoke the seed finding algorithm: check number of clusters per event *only* in cosmic tracking mode
-  if(!cosmicTracking 
-     || (cosmicTracking && roadSearchSeedFinderAlgorithm_.ClusterCounter(clusters)<maxNumberOfClusters)) {
+  if (!check.tooManyClusters(e)) {
 
     roadSearchSeedFinderAlgorithm_.run(rphiRecHits.product(),  
 				       stereoRecHits.product(),

@@ -1,8 +1,8 @@
 /*
  * \file DTtTrigCalibrationTest.cc
  * 
- * $Date: 2008/01/22 18:45:23 $
- * $Revision: 1.13 $
+ * $Date: 2008/04/23 15:02:10 $
+ * $Revision: 1.16 $
  * \author M. Zanetti - CERN
  * Modified by G. Mila - INFN Torino
  *
@@ -43,7 +43,6 @@ DTtTrigCalibrationTest::DTtTrigCalibrationTest(const edm::ParameterSet& ps){
   parameters = ps;
   
   dbe = edm::Service<DQMStore>().operator->();
-  dbe->setVerbose(1);
 
   theFitter = new DTTimeBoxFitter();
 
@@ -187,7 +186,8 @@ void DTtTrigCalibrationTest::endLuminosityBlock(LuminosityBlock const& lumiSeg, 
 	    wheelHistos[3]->Fill((*ch_it)->id().sector()-1,(*ch_it)->id().wheel());
 	  }
 	}
-	edm::LogWarning ("tTrigCalibration") <<"-------- "<<theQReport->getMessage()<<" ------- "<<theQReport->getStatus();
+	// FIXME: getMessage() sometimes returns and invalid string (null pointer inside QReport data member)
+	// edm::LogWarning ("tTrigCalibration") <<"-------- "<<theQReport->getMessage()<<" ------- "<<theQReport->getStatus();
       } 
     }
 
@@ -252,7 +252,7 @@ void DTtTrigCalibrationTest::bookHistos(const DTChamberId & ch, int wh) {
   dbe->setCurrentFolder("DT/Tests/DTtTrigCalibration/SummaryPlot");
 
   if(wheelHistos.find(3) == wheelHistos.end()){
-    string histoName =  "t_TrigSummary_testFailedByAtLeast%BadSL";
+    string histoName =  "t_TrigSummary_testFailedByAtLeastBadSL";
     wheelHistos[3] = dbe->book2D(histoName.c_str(),histoName.c_str(),14,0,14,5,-2,2);
     wheelHistos[3]->setBinLabel(1,"Sector1",1);
     wheelHistos[3]->setBinLabel(1,"Sector1",1);

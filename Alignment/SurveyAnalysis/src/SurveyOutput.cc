@@ -4,6 +4,7 @@
 
 #include "Alignment/CommonAlignment/interface/Alignable.h"
 // #include "Alignment/CommonAlignment/interface/AlignmentParameters.h"
+#include "Alignment/CommonAlignment/interface/SurveyDet.h"
 
 #include "Alignment/SurveyAnalysis/interface/SurveyOutput.h"
 

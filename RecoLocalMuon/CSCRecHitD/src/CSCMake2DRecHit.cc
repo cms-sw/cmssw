@@ -28,6 +28,7 @@
  */
 CSCMake2DRecHit::CSCMake2DRecHit(const edm::ParameterSet& ps){
     
+  debug                      = ps.getUntrackedParameter<bool>("CSCDebug");
   useCalib                   = ps.getUntrackedParameter<bool>("CSCUseCalibrations");
   stripWireDeltaTime         = ps.getUntrackedParameter<int>("CSCstripWireDeltaTime");
 
@@ -59,6 +60,7 @@ CSCRecHit2D CSCMake2DRecHit::hitFromStripAndWire(const CSCDetId& id, const CSCLa
   
   const float sqrt_12 = 3.4641;
   
+  double sigma = 0.0;
   float tpeak = -99.;
   
   CSCRecHit2D::ADCContainer adcMap;
@@ -67,47 +69,23 @@ CSCRecHit2D CSCMake2DRecHit::hitFromStripAndWire(const CSCDetId& id, const CSCLa
   
   // Find wire hit position and wire properties
   wgroups = wHit.wgroups();
- 
-
-
-  int wg_left = wgroups[0];;
-  int wg_right = wgroups[wgroups.size()-1];
+  int nWG = wgroups.size();
+  int wireg1 = wgroups[0];
+  int wireg2 = wgroups[nWG-1];
   
-  int Nwires1 = layergeom_->numberOfWiresPerGroup( wg_left );
-  int Nwires2 = layergeom_->numberOfWiresPerGroup( wg_right );
+  int Nwires1 = layergeom_->numberOfWiresPerGroup( wireg1 );
+  int Nwires2 = layergeom_->numberOfWiresPerGroup( wireg2 );
   
-  float Mwire1 = layergeom_->middleWireOfGroup( wg_left );
-  float Mwire2 = layergeom_->middleWireOfGroup( wg_right );
+  float Mwire1 = layergeom_->middleWireOfGroup( wireg1 );
+  float Mwire2 = layergeom_->middleWireOfGroup( wireg2 );
   
-  int centerWire_left = (int) (Mwire1 - Nwires1 / 2. + 0.5);
-  int centerWire_right = (int) (Mwire2 + Nwires2 / 2.);
+  int wire1 = (int) (Mwire1 - Nwires1 / 2. + 0.5);
+  int wire2 = (int) (Mwire2 + Nwires2 / 2.);
   
-  float centerWire = (centerWire_left + centerWire_right) / 2.;
-
-  //---- WGs around dead HV segment regions may need special treatment...
-  //---- This is not addressed here.
-    
-  float sigmaWire = 0.;
-  if(1==wgroups.size()){
-    //---- simple - just 1 WG
-    sigmaWire  = layergeom_->yResolution( wgroups[0]);
-  }
-  else if(2==wgroups.size()){
-    //---- 2 WGs - get the larger error (overestimation if a single track is passing
-    //---- between the WGs; underestimation if there are two separate signal sources)
-    if(layergeom_->yResolution( wgroups[0] ) > layergeom_->yResolution( wgroups[1] )){
-      sigmaWire  = layergeom_->yResolution( wgroups[0]);
-    }    
-    else{
-      sigmaWire  = layergeom_->yResolution( wgroups[1]);
-    }
-  }  
-  else{
-    //---- worst possible case; take most conservative approach
-    for(unsigned int iWG=0;iWG<wgroups.size();iWG++){
-      sigmaWire+=layergeom_->yResolution( wgroups[iWG] );
-    }
-  }
+  float centerWire = (wire1 + wire2) / 2.;
+  
+  float sigmaWire  = (layergeom_->yResolution( wireg1 ) + layergeom_->yResolution( wireg2 )) / 2.;
+  
   
   // Find strips position and properties
   
@@ -130,45 +108,61 @@ CSCRecHit2D CSCMake2DRecHit::hitFromStripAndWire(const CSCDetId& id, const CSCLa
     if (iStrip == nStrip/2 ) 
       tpeak = 50. * ( adc2[0]*(tmax-1) + adc2[1]*tmax + adc2[2]*(tmax+1) ) / (adc2[0]+adc2[1]+adc2[2]);
   }
-
-  float positionWithinTheStrip= -99.;
-  float sigmaWithinTheStrip = -99.;
-  int quality = -1;
-  LocalPoint lp0(0., 0.);
-  
   
   // If at the edge, then used 1 strip cluster only :
   if ( ch == 1 || ch == specs_->nStrips() || nStrip < 2 ) {
-    lp0 = layergeom_->stripWireIntersection( centerStrip, centerWire);
-    positionWithinTheStrip = 0.;
-    sigmaWithinTheStrip = layergeom_->stripPitch(lp0) / sqrt_12;
-    quality = 2;
-  }
-  else {
+    
+    LocalPoint lp1 = layergeom_->stripWireIntersection( centerStrip, centerWire);
+    
+    float x = lp1.x();
+    float y = lp1.y();
+    
+    LocalPoint lp0(x, y);
+    
+    sigma =  layergeom_->stripPitch(lp0) / sqrt_12; 
+    
+    // Now compute the errors properly on local x and y
+    LocalError localerr = layergeom_->localError( centerStrip, sigma, sigmaWire );
+    int quality = 2; 
+    CSCRecHit2D rechit( id, lp0, localerr, strips, adcMap, wgroups, tpeak, 0., sigma,quality);
+    return rechit;  
+  } 
+  else{
+    
     // If not at the edge, used cluster of size ClusterSize:
+    
     int ch0 = strips[idCenterStrip];
     LocalPoint lp11  = layergeom_->stripWireIntersection( ch0, centerWire);
-    float stripWidth = layergeom_->stripPitch( lp11 );
+    
+    float x = lp11.x();
+    float y = lp11.y();
+    
+    LocalPoint lpTest(x, y);
+    
+    float stripWidth = layergeom_->stripPitch( lpTest );  
+    sigma =  stripWidth / sqrt_12;
     
     //---- Calculate local position within the strip
-    float xWithinChamber = lp11.x();
-    quality = 0;
-    xMatchGatti_->findXOnStrip( id, layer_, sHit, centerStrip, 
-				xWithinChamber,
-				stripWidth, tpeak, positionWithinTheStrip, 
-				sigmaWithinTheStrip, quality);
-    lp0 = LocalPoint( xWithinChamber, layergeom_->yOfWire(centerWire, xWithinChamber) );
+    float xWithinChamber = x;   
+    float PositionWithinTheStrip= -99.;
+    float SigmaWithinTheStrip = -99.;
+    int quality = 0;
+    xMatchGatti_->findXOnStrip( id, layer_, sHit, centerStrip, xWithinChamber, stripWidth, tpeak, PositionWithinTheStrip, SigmaWithinTheStrip, quality);
+    
+    x     = xWithinChamber;
+    sigma = SigmaWithinTheStrip;
+    
+    y = layergeom_->yOfWire(centerWire, x);
+    
+    LocalPoint lp0(x, y);
+    
+    // Now compute the errors properly on local x and y
+    LocalError localerr = layergeom_->localError( centerStrip, sigma, sigmaWire );
+    
+    // store rechit    
+    CSCRecHit2D rechit( id, lp0, localerr, strips, adcMap, wgroups, tpeak, PositionWithinTheStrip, SigmaWithinTheStrip, quality);
+    return rechit;
   }
-  
-  // compute the errors in local x and y
-  LocalError localerr = layergeom_->localError( centerStrip, 
-						sigmaWithinTheStrip, sigmaWire );
-  
-  // store rechit
-  CSCRecHit2D rechit( id, lp0, localerr, strips,
-		      adcMap, wgroups, tpeak, positionWithinTheStrip, 
-		      sigmaWithinTheStrip, quality);
-  return rechit;
 }
 
 /* isHitInFiducial

@@ -13,7 +13,7 @@
 //
 // Original Author:  Vincenzo Chiochia
 //         Created:  
-// $Id: SiPixelDigiSource.cc,v 1.17 2008/01/22 18:54:58 muzaffar Exp $
+// $Id: SiPixelDigiSource.cc,v 1.21 2008/05/21 10:47:19 merkelp Exp $
 //
 //
 #include "DQM/SiPixelMonitorDigi/interface/SiPixelDigiSource.h"
@@ -31,6 +31,8 @@
 // DataFormats
 #include "DataFormats/DetId/interface/DetId.h"
 #include "DataFormats/SiPixelDetId/interface/PixelSubdetector.h"
+#include "DataFormats/SiPixelDetId/interface/PixelBarrelName.h"
+#include "DataFormats/SiPixelDetId/interface/PixelEndcapName.h"
 //
 #include <string>
 #include <stdlib.h>
@@ -41,7 +43,9 @@ using namespace edm;
 SiPixelDigiSource::SiPixelDigiSource(const edm::ParameterSet& iConfig) :
   conf_(iConfig),
   src_( conf_.getParameter<edm::InputTag>( "src" ) ),
-  saveFile( conf_.getUntrackedParameter<bool>("saveFile",false) )
+  isPIB( conf_.getUntrackedParameter<bool>("isPIB",false) ),
+  saveFile( conf_.getUntrackedParameter<bool>("saveFile",false) ),
+  slowDown( conf_.getUntrackedParameter<bool>("slowDown",false) )
 {
    theDMBE = edm::Service<DQMStore>().operator->();
    LogInfo ("PixelDQM") << "SiPixelDigiSource::SiPixelDigiSource: Got DQM BackEnd interface"<<endl;
@@ -89,7 +93,8 @@ SiPixelDigiSource::analyze(const edm::Event& iEvent, const edm::EventSetup& iSet
   // get input data
   edm::Handle< edm::DetSetVector<PixelDigi> >  input;
   iEvent.getByLabel( src_, input );
-
+  if (!input.isValid()) return; 
+   
   std::map<uint32_t,SiPixelDigiModule*>::iterator struct_iter;
   for (struct_iter = thePixelStructure.begin() ; struct_iter != thePixelStructure.end() ; struct_iter++) {
     
@@ -98,7 +103,7 @@ SiPixelDigiSource::analyze(const edm::Event& iEvent, const edm::EventSetup& iSet
   }
 
   // slow down...
-  //usleep(100000);
+  if(slowDown) usleep(10000);
   
 }
 
@@ -126,7 +131,8 @@ void SiPixelDigiSource::buildStructure(const edm::EventSetup& iSetup){
       int ncols = (pixDet->specificTopology()).ncolumns();
 
       if(detId.subdetId() == static_cast<int>(PixelSubdetector::PixelBarrel)) {
-        LogDebug ("PixelDQM") << " ---> Adding Barrel Module " <<  detId.rawId() << endl;
+        if(isPIB) continue;
+	LogDebug ("PixelDQM") << " ---> Adding Barrel Module " <<  detId.rawId() << endl;
 	uint32_t id = detId();
 	SiPixelDigiModule* theModule = new SiPixelDigiModule(id, ncols, nrows);
 	thePixelStructure.insert(pair<uint32_t,SiPixelDigiModule*> (id,theModule));
@@ -135,6 +141,26 @@ void SiPixelDigiSource::buildStructure(const edm::EventSetup& iSetup){
 	LogDebug ("PixelDQM") << " ---> Adding Endcap Module " <<  detId.rawId() << endl;
 	uint32_t id = detId();
 	SiPixelDigiModule* theModule = new SiPixelDigiModule(id, ncols, nrows);
+       
+        PixelEndcapName::HalfCylinder side = PixelEndcapName::PixelEndcapName(DetId::DetId(id)).halfCylinder();
+        int disk   = PixelEndcapName::PixelEndcapName(DetId::DetId(id)).diskName();
+        int blade  = PixelEndcapName::PixelEndcapName(DetId::DetId(id)).bladeName();
+        int panel  = PixelEndcapName::PixelEndcapName(DetId::DetId(id)).pannelName();
+        int module = PixelEndcapName::PixelEndcapName(DetId::DetId(id)).plaquetteName();
+
+        char sside[80];  sprintf(sside,  "HalfCylinder_%i",side);
+        char sdisk[80];  sprintf(sdisk,  "Disk_%i",disk);
+        char sblade[80]; sprintf(sblade, "Blade_%02i",blade);
+        char spanel[80]; sprintf(spanel, "Panel_%i",panel);
+        char smodule[80];sprintf(smodule,"Module_%i",module);
+        std::string side_str = sside;
+	std::string disk_str = sdisk;
+	bool mask = side_str.find("HalfCylinder_1")!=string::npos||
+	            side_str.find("HalfCylinder_2")!=string::npos||
+		    side_str.find("HalfCylinder_4")!=string::npos||
+		    disk_str.find("Disk_2")!=string::npos;
+	if(isPIB && mask) continue;
+	
 	thePixelStructure.insert(pair<uint32_t,SiPixelDigiModule*> (id,theModule));
       }
 
@@ -158,8 +184,9 @@ void SiPixelDigiSource::bookMEs(){
     if(theSiPixelFolder.setModuleFolder((*struct_iter).first)){
       (*struct_iter).second->book( conf_ );
     } else {
-      throw cms::Exception("LogicError")
-	<< "[SiPixelDigiSource::bookMEs] Creation of DQM folder failed";
+      //std::cout<<"PIB! not booking histograms for non-PIB modules!"<<std::endl;
+      if(!isPIB) throw cms::Exception("LogicError")
+                	<< "[SiPixelDigiSource::bookMEs] Creation of DQM folder failed";
     }
     
   }

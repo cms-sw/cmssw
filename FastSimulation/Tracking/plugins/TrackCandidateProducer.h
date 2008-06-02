@@ -45,7 +45,8 @@ class TrackCandidateProducer : public edm::EDProducer
 
   edm::InputTag seedProducer;
   edm::InputTag hitProducer;
-  edm::InputTag trackProducer;
+  // edm::InputTag trackProducer;
+  std::vector<edm::InputTag> trackProducers;
   
   unsigned int minNumberOfCrossedLayers;
   unsigned int maxNumberOfCrossedLayers;
@@ -53,6 +54,7 @@ class TrackCandidateProducer : public edm::EDProducer
   bool rejectOverlaps;
   bool splitHits;
   bool seedCleaning;
+  bool keepFittedTracks;
 
 };
 

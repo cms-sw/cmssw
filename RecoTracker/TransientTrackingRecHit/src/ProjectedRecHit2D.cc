@@ -54,3 +54,10 @@ ProjectedRecHit2D::clone( const TrajectoryStateOnSurface& ts) const
   else return clone();
 }
   
+TransientTrackingRecHit::ConstRecHitContainer 	
+ProjectedRecHit2D::transientHits () const {
+  ConstRecHitContainer result;
+  result.push_back(TSiStripRecHit2DLocalPos::build( theOriginalDet,&originalHit(),theCPE));
+						    
+  return result;
+}

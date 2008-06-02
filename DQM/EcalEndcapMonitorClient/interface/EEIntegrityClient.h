@@ -4,8 +4,8 @@
 /*
  * \file EEIntegrityClient.h
  *
- * $Date: 2008/03/14 14:38:57 $
- * $Revision: 1.15 $
+ * $Date: 2008/04/08 15:06:24 $
+ * $Revision: 1.19 $
  * \author G. Della Ricca
  * \author G. Franzoni
  *
@@ -44,7 +44,7 @@ virtual ~EEIntegrityClient();
 void analyze(void);
 
 /// BeginJob
-void beginJob(DQMStore* dbe);
+void beginJob(DQMStore* dqmStore);
 
 /// EndJob
 void endJob(void);
@@ -79,12 +79,15 @@ int jevt_;
 bool cloneME_;
 
 bool verbose_;
+bool debug_;
+
+std::string prefixME_;
 
 bool enableCleanup_;
 
 std::vector<int> superModules_;
 
-DQMStore* dbe_;
+DQMStore* dqmStore_;
 
 TH1F* h00_;
 

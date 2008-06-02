@@ -1,25 +1,22 @@
-// $Id: SealModule.cc,v 1.2 2008/01/24 15:25:37 muriel Exp $
-// 
+// $Id: SealModule.cc,v 1.4 2008/05/13 13:51:39 fwyzard Exp $
 
 #include "DQM/HLTEvF/interface/HltAnalyzer.h"
 #include "DQM/HLTEvF/interface/PathTimerService.h"
 #include "DQM/HLTEvF/interface/PathTimerInserter.h"
 #include "DQM/HLTEvF/interface/HLTMuonDQMSource.h"
 #include "DQM/HLTEvF/interface/HLTMonElectron.h"
-
-#include "FWCore/ServiceRegistry/interface/ServiceMaker.h"
-
-#include "FWCore/PluginManager/interface/ModuleDef.h"
-#include "FWCore/Framework/interface/MakerMacros.h"
+#include "DQM/HLTEvF/interface/FourVectorHLT.h"
 
 using edm::service::PathTimerService;
 
-DEFINE_SEAL_MODULE();
-DEFINE_ANOTHER_FWK_MODULE(HltAnalyzer);
-DEFINE_ANOTHER_FWK_MODULE(PathTimerInserter);
-DEFINE_ANOTHER_FWK_SERVICE(PathTimerService);
-DEFINE_ANOTHER_FWK_MODULE(HLTMuonDQMSource);
-DEFINE_ANOTHER_FWK_MODULE(HLTMonElectron);
+#include "FWCore/ServiceRegistry/interface/ServiceMaker.h"
+DEFINE_FWK_SERVICE(PathTimerService);
+//DEFINE_FWK_SERVICE_MAKER(PathTimerService,PathTimerServiceMaker);
 
-//DEFINE_ANOTHER_FWK_SERVICE_MAKER(PathTimerService,PathTimerServiceMaker);
- 
+#include "FWCore/Framework/interface/MakerMacros.h"
+DEFINE_FWK_MODULE(PathTimerInserter);
+DEFINE_FWK_MODULE(HltAnalyzer);
+DEFINE_FWK_MODULE(HLTMuonDQMSource);
+DEFINE_FWK_MODULE(HLTMonElectron);
+DEFINE_FWK_MODULE(FourVectorHLT);
+

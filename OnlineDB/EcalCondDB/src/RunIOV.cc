@@ -127,10 +127,12 @@ int RunIOV::fetchID()
     stmt->setSQL("SELECT iov_id FROM run_iov "
 		 "WHERE tag_id = :tag_id AND "
 		 "run_num = :run_num AND "
-		 "run_start = :run_start  " );
+		 "run_start = :run_start AND "
+		 "run_end = :run_end");
     stmt->setInt(1, tagID);
     stmt->setInt(2, m_runNum);
     stmt->setDate(3, dh.tmToDate(m_runStart));
+    stmt->setDate(4, dh.tmToDate(m_runEnd));
   
     ResultSet* rset = stmt->executeQuery();
 
@@ -197,6 +199,8 @@ int RunIOV::writeDB()
     return m_ID;
   }
   
+  
+
   m_runTag.setConnection(m_env, m_conn);
   int tagID = m_runTag.writeDB();
   
@@ -220,51 +224,6 @@ int RunIOV::writeDB()
     stmt->setInt(2, m_runNum);
     stmt->setDate(3, dh.tmToDate(m_runStart));
     stmt->setDate(4, dh.tmToDate(m_runEnd));
-
-    stmt->executeUpdate();
-
-    m_conn->terminateStatement(stmt);
-  } catch (SQLException &e) {
-    throw(runtime_error("RunIOV::writeDB:  "+e.getMessage()));
-  }
-
-  // Now get the ID
-  if (!this->fetchID()) {
-    throw(runtime_error("RunIOV::writeDB:  Failed to write"));
-  }
-  
-  return m_ID;
-}
-
-
-int RunIOV::updateEndTimeDB()
-  throw(runtime_error)
-{
-  this->checkConnection();
-
-  // Check if this IOV has already been written
-  if(!this->fetchID()){
-    this->writeDB();
-  }
-
-
-  m_runTag.setConnection(m_env, m_conn);
-  int tagID = m_runTag.writeDB();
-  
-  // Validate the data, use infinity-till convention
-  DateHandler dh(m_env, m_conn);
-
-  // we only update the run end here   
-  if (m_runEnd.isNull()) {
-    m_runEnd = dh.getPlusInfTm();
-  }
-
-  try {
-    Statement* stmt = m_conn->createStatement();
-    
-    stmt->setSQL("UPDATE run_iov set run_end=:1 where iov_id=:2 " );
-    stmt->setDate(1, dh.tmToDate(m_runEnd));
-    stmt->setInt(2, m_ID);
 
     stmt->executeUpdate();
 

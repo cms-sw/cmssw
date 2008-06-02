@@ -7,9 +7,13 @@
 #include "StorageSvc/DbType.h"
 #include "PersistencySvc/Placement.h"
 #include "DataSvc/AnyPtr.h"
+#include "StorageSvc/DbReflex.h"
+
 cond::GenericRef::GenericRef():m_datasvc(0),m_place(0){
 }
-cond::GenericRef::GenericRef( cond::PoolTransaction& transaction ):m_datasvc(&(transaction.poolDataSvc())),m_place(0){
+
+cond::GenericRef::GenericRef( cond::PoolTransaction& transaction ):
+  m_datasvc(&(transaction.poolDataSvc())),m_place(0){
   std::string con=transaction.parentConnection().connectStr();
   if( !transaction.isReadOnly() ){
     m_place=new pool::Placement;
@@ -17,6 +21,17 @@ cond::GenericRef::GenericRef( cond::PoolTransaction& transaction ):m_datasvc(&(t
     m_place->setDatabase(con, pool::DatabaseSpecification::PFN);
   }
 }
+
+cond::GenericRef::GenericRef( cond::PoolTransaction& pooldb, 
+			      const std::string& tokenStr) :
+  m_datasvc(&(pooldb.poolDataSvc())),m_place(0) {
+  pool::Token token;
+  const pool::Guid& classID=token.fromString(tokenStr).classID();
+  pool::RefBase myobj(m_datasvc,tokenStr, pool::DbReflex::forGuid(classID).TypeInfo());
+  m_data=myobj;
+}
+
+
 cond::GenericRef::GenericRef(cond::PoolTransaction& pooldb, 
 			     const std::string& token,
 			     const std::string& className
@@ -35,28 +50,34 @@ cond::GenericRef::GenericRef( cond::PoolTransaction& pooldb,
   pool::RefBase myobj(m_datasvc,token, objType);
   m_data=myobj;
 }
+
 const std::string 
 cond::GenericRef::token() const{
   return m_data.toString();
 }
+
 std::string
 cond::GenericRef::className() const{
   ROOT::Reflex::Type mytype=m_data.objectType();
   return mytype.Name();
 }
+
 std::string
 cond::GenericRef::containerName() const{
   return m_data.token()->contID();  
 }
+
 void 
 cond::GenericRef::markWrite(const std::string& container){
   m_place->setContainerName(container);
   m_data.markWrite(*m_place);
 }
+
 void 
 cond::GenericRef::markUpdate(){
   m_data.markUpdate();
 }
+
 void 
 cond::GenericRef::markDelete(){
   m_data.markDelete();

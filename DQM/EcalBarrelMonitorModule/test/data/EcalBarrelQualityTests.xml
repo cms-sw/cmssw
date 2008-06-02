@@ -1,14 +1,14 @@
 <TESTSCONFIGURATION>
 
 <QTEST name="EB_Integrity_Gain_Quality">
-        <TYPE>ContentsWithinExpectedTH2F</TYPE>
+        <TYPE>ContentsWithinExpected</TYPE>
         <PARAM name="error">1.00</PARAM>
         <PARAM name="warning">0.00</PARAM>
         <PARAM name="minMean">-1.0</PARAM>
         <PARAM name="maxMean">0.0</PARAM>
         <PARAM name="minRMS">0.0</PARAM>
         <PARAM name="maxRMS">0.0</PARAM>
-        <PARAM name="toleranceMean">0.00</PARAM>
+        <PARAM name="toleranceMean">-1.0</PARAM>
         <PARAM name="minEntries">0</PARAM>
 </QTEST>
 
@@ -17,14 +17,14 @@
 </LINK>
 
 <QTEST name="EB_Integrity_ChId_Quality">
-        <TYPE>ContentsWithinExpectedTH2F</TYPE>
+        <TYPE>ContentsWithinExpected</TYPE>
         <PARAM name="error">1.00</PARAM>
         <PARAM name="warning">0.00</PARAM>
         <PARAM name="minMean">-1.0</PARAM>
         <PARAM name="maxMean">0.0</PARAM>
         <PARAM name="minRMS">0.0</PARAM>
         <PARAM name="maxRMS">0.0</PARAM>
-        <PARAM name="toleranceMean">0.00</PARAM>
+        <PARAM name="toleranceMean">-1.0</PARAM>
         <PARAM name="minEntries">0</PARAM>
 </QTEST>
 
@@ -33,14 +33,14 @@
 </LINK>
 
 <QTEST name="EB_Integrity_Gain_Switch_Quality">
-        <TYPE>ContentsWithinExpectedTH2F</TYPE>
+        <TYPE>ContentsWithinExpected</TYPE>
         <PARAM name="error">1.00</PARAM>
         <PARAM name="warning">0.00</PARAM>
         <PARAM name="minMean">-1.0</PARAM>
         <PARAM name="maxMean">0.0</PARAM>
         <PARAM name="minRMS">0.0</PARAM>
         <PARAM name="maxRMS">0.0</PARAM>
-        <PARAM name="toleranceMean">0.00</PARAM>
+        <PARAM name="toleranceMean">-1.0</PARAM>
         <PARAM name="minEntries">0</PARAM>
 </QTEST>
 
@@ -49,14 +49,14 @@
 </LINK>
 
 <QTEST name="EB_Integrity_TtId_Quality">
-        <TYPE>ContentsWithinExpectedTH2F</TYPE>
+        <TYPE>ContentsWithinExpected</TYPE>
         <PARAM name="error">1.00</PARAM>
         <PARAM name="warning">0.00</PARAM>
         <PARAM name="minMean">-1.0</PARAM>
         <PARAM name="maxMean">0.0</PARAM>
         <PARAM name="minRMS">0.0</PARAM>
         <PARAM name="maxRMS">0.0</PARAM>
-        <PARAM name="toleranceMean">0.00</PARAM>
+        <PARAM name="toleranceMean">-1.0</PARAM>
         <PARAM name="minEntries">0</PARAM>
 </QTEST>
 
@@ -65,14 +65,14 @@
 </LINK>
 
 <QTEST name="EB_Integrity_TtBlockSize_Quality">
-        <TYPE>ContentsWithinExpectedTH2F</TYPE>
+        <TYPE>ContentsWithinExpected</TYPE>
         <PARAM name="error">1.00</PARAM>
         <PARAM name="warning">0.00</PARAM>
         <PARAM name="minMean">-1.0</PARAM>
         <PARAM name="maxMean">0.0</PARAM>
         <PARAM name="minRMS">0.0</PARAM>
         <PARAM name="maxRMS">0.0</PARAM>
-        <PARAM name="toleranceMean">0.00</PARAM>
+        <PARAM name="toleranceMean">-1.0</PARAM>
         <PARAM name="minEntries">0</PARAM>
 </QTEST>
 
@@ -81,14 +81,14 @@
 </LINK>
 
 <QTEST name="EB_Integrity_MemChId_Quality">
-        <TYPE>ContentsWithinExpectedTH2F</TYPE>
+        <TYPE>ContentsWithinExpected</TYPE>
         <PARAM name="error">1.00</PARAM>
         <PARAM name="warning">0.00</PARAM>
         <PARAM name="minMean">-1.0</PARAM>
         <PARAM name="maxMean">0.0</PARAM>
         <PARAM name="minRMS">0.0</PARAM>
         <PARAM name="maxRMS">0.0</PARAM>
-        <PARAM name="toleranceMean">0.00</PARAM>
+        <PARAM name="toleranceMean">-1.0</PARAM>
         <PARAM name="minEntries">0</PARAM>
 </QTEST>
 
@@ -97,14 +97,14 @@
 </LINK>
 
 <QTEST name="EB_Integrity_MemGain_Quality">
-        <TYPE>ContentsWithinExpectedTH2F</TYPE>
+        <TYPE>ContentsWithinExpected</TYPE>
         <PARAM name="error">1.00</PARAM>
         <PARAM name="warning">0.00</PARAM>
         <PARAM name="minMean">-1.0</PARAM>
         <PARAM name="maxMean">0.0</PARAM>
         <PARAM name="minRMS">0.0</PARAM>
         <PARAM name="maxRMS">0.0</PARAM>
-        <PARAM name="toleranceMean">0.00</PARAM>
+        <PARAM name="toleranceMean">-1.0</PARAM>
         <PARAM name="minEntries">0</PARAM>
 </QTEST>
 
@@ -113,14 +113,14 @@
 </LINK>
 
 <QTEST name="EB_Integrity_MemTtId_Quality">
-        <TYPE>ContentsWithinExpectedTH2F</TYPE>
+        <TYPE>ContentsWithinExpected</TYPE>
         <PARAM name="error">1.00</PARAM>
         <PARAM name="warning">0.00</PARAM>
         <PARAM name="minMean">-1.0</PARAM>
         <PARAM name="maxMean">0.0</PARAM>
         <PARAM name="minRMS">0.0</PARAM>
         <PARAM name="maxRMS">0.0</PARAM>
-        <PARAM name="toleranceMean">0.00</PARAM>
+        <PARAM name="toleranceMean">-1.0</PARAM>
         <PARAM name="minEntries">0</PARAM>
 </QTEST>
 
@@ -129,14 +129,14 @@
 </LINK>
 
 <QTEST name="EB_Integrity_MemSize_Quality">
-        <TYPE>ContentsWithinExpectedTH2F</TYPE>
+        <TYPE>ContentsWithinExpected</TYPE>
         <PARAM name="error">1.00</PARAM>
         <PARAM name="warning">0.00</PARAM>
         <PARAM name="minMean">-1.0</PARAM>
         <PARAM name="maxMean">0.0</PARAM>
         <PARAM name="minRMS">0.0</PARAM>
         <PARAM name="maxRMS">0.0</PARAM>
-        <PARAM name="toleranceMean">0.00</PARAM>
+        <PARAM name="toleranceMean">-1.0</PARAM>
         <PARAM name="minEntries">0</PARAM>
 </QTEST>
 
@@ -145,14 +145,14 @@
 </LINK>
 
 <QTEST name="EB_StatusFlags_Quality">
-        <TYPE>ContentsWithinExpectedTH2F</TYPE>
+        <TYPE>ContentsWithinExpected</TYPE>
         <PARAM name="error">1.00</PARAM>
         <PARAM name="warning">0.00</PARAM>
         <PARAM name="minMean">-1.0</PARAM>
         <PARAM name="maxMean">0.0</PARAM>
         <PARAM name="minRMS">0.0</PARAM>
         <PARAM name="maxRMS">0.0</PARAM>
-        <PARAM name="toleranceMean">0.00</PARAM>
+        <PARAM name="toleranceMean">-1.0</PARAM>
         <PARAM name="minEntries">0</PARAM>
 </QTEST>
 
@@ -161,14 +161,14 @@
 </LINK>
 
 <QTEST name="EB_PedestalOnline_G12_Quality">
-        <TYPE>ContentsWithinExpectedProf2D</TYPE>
+        <TYPE>ContentsWithinExpected</TYPE>
         <PARAM name="error">1.00</PARAM>
         <PARAM name="warning">0.00</PARAM>
         <PARAM name="minMean">175.0</PARAM>
         <PARAM name="maxMean">225.0</PARAM>
         <PARAM name="minRMS">0.0</PARAM>
         <PARAM name="maxRMS">2.0</PARAM>
-        <PARAM name="toleranceMean">0.00</PARAM>
+        <PARAM name="toleranceMean">-1.0</PARAM>
         <PARAM name="minEntries">17000</PARAM>
 </QTEST>
 
@@ -177,14 +177,14 @@
 </LINK>
 
 <QTEST name="EB_Pedestal_G01_Quality">
-        <TYPE>ContentsWithinExpectedProf2D</TYPE>
+        <TYPE>ContentsWithinExpected</TYPE>
         <PARAM name="error">1.00</PARAM>
         <PARAM name="warning">0.00</PARAM>
         <PARAM name="minMean">175.0</PARAM>
         <PARAM name="maxMean">225.0</PARAM>
         <PARAM name="minRMS">0.0</PARAM>
         <PARAM name="maxRMS">1.0</PARAM>
-        <PARAM name="toleranceMean">0.00</PARAM>
+        <PARAM name="toleranceMean">-1.0</PARAM>
         <PARAM name="minEntries">17000</PARAM>
 </QTEST>
 
@@ -193,14 +193,14 @@
 </LINK>
 
 <QTEST name="EB_Pedestal_G06_Quality">
-        <TYPE>ContentsWithinExpectedProf2D</TYPE>
+        <TYPE>ContentsWithinExpected</TYPE>
         <PARAM name="error">1.00</PARAM>
         <PARAM name="warning">0.00</PARAM>
         <PARAM name="minMean">175.0</PARAM>
         <PARAM name="maxMean">225.0</PARAM>
         <PARAM name="minRMS">0.0</PARAM>
         <PARAM name="maxRMS">1.2</PARAM>
-        <PARAM name="toleranceMean">0.00</PARAM>
+        <PARAM name="toleranceMean">-1.0</PARAM>
         <PARAM name="minEntries">17000</PARAM>
 </QTEST>
 
@@ -209,14 +209,14 @@
 </LINK>
 
 <QTEST name="EB_Pedestal_G12_Quality">
-        <TYPE>ContentsWithinExpectedProf2D</TYPE>
+        <TYPE>ContentsWithinExpected</TYPE>
         <PARAM name="error">1.00</PARAM>
         <PARAM name="warning">0.00</PARAM>
         <PARAM name="minMean">175.0</PARAM>
         <PARAM name="maxMean">225.0</PARAM>
         <PARAM name="minRMS">0.0</PARAM>
         <PARAM name="maxRMS">2.0</PARAM>
-        <PARAM name="toleranceMean">0.00</PARAM>
+        <PARAM name="toleranceMean">-1.0</PARAM>
         <PARAM name="minEntries">17000</PARAM>
 </QTEST>
 
@@ -225,14 +225,14 @@
 </LINK>
 
 <QTEST name="EB_Pedestal_PN_G01_Quality">
-        <TYPE>ContentsWithinExpectedProf2D</TYPE>
+        <TYPE>ContentsWithinExpected</TYPE>
         <PARAM name="error">1.00</PARAM>
         <PARAM name="warning">0.00</PARAM>
         <PARAM name="minMean">650.0</PARAM>
         <PARAM name="maxMean">850.0</PARAM>
         <PARAM name="minRMS">0.0</PARAM>
         <PARAM name="maxRMS">1.0</PARAM>
-        <PARAM name="toleranceMean">0.00</PARAM>
+        <PARAM name="toleranceMean">-1.0</PARAM>
         <PARAM name="minEntries">100</PARAM>
 </QTEST>
 
@@ -241,14 +241,14 @@
 </LINK>
 
 <QTEST name="EB_Pedestal_PN_G16_Quality">
-        <TYPE>ContentsWithinExpectedProf2D</TYPE>
+        <TYPE>ContentsWithinExpected</TYPE>
         <PARAM name="error">1.00</PARAM>
         <PARAM name="warning">0.00</PARAM>
         <PARAM name="minMean">650.0</PARAM>
         <PARAM name="maxMean">850.0</PARAM>
         <PARAM name="minRMS">0.0</PARAM>
         <PARAM name="maxRMS">3.0</PARAM>
-        <PARAM name="toleranceMean">0.00</PARAM>
+        <PARAM name="toleranceMean">-1.0</PARAM>
         <PARAM name="minEntries">100</PARAM>
 </QTEST>
 
@@ -257,7 +257,7 @@
 </LINK>
 
 <QTEST name="EB_Laser_L1_Quality">
-        <TYPE>ContentsWithinExpectedProf2D</TYPE>
+        <TYPE>ContentsWithinExpected</TYPE>
         <PARAM name="error">1.00</PARAM>
         <PARAM name="warning">0.00</PARAM>
         <PARAM name="minMean">100.0</PARAM>
@@ -272,31 +272,15 @@
         <TestName activate="true">EB_Laser_L1_Quality</TestName>
 </LINK>
 
-<QTEST name="EB_Laser_L4_Quality">
-        <TYPE>ContentsWithinExpectedProf2D</TYPE>
-        <PARAM name="error">1.00</PARAM>
-        <PARAM name="warning">0.00</PARAM>
-        <PARAM name="minMean">100.0</PARAM>
-        <PARAM name="maxMean">49152.0</PARAM>
-        <PARAM name="minRMS">0.0</PARAM>
-        <PARAM name="maxRMS">0.0</PARAM>
-        <PARAM name="toleranceMean">0.40</PARAM>
-        <PARAM name="minEntries">100</PARAM>
-</QTEST>
-
-<LINK name="*EcalBarrel/EBLaserTask/Laser4/EBLT amplitude EB* L4*">
-        <TestName activate="true">EB_Laser_L4_Quality</TestName>
-</LINK>
-
 <QTEST name="EB_Laser_L1_PN_Pedestal_G01_Quality">
-        <TYPE>ContentsWithinExpectedProf2D</TYPE>
+        <TYPE>ContentsWithinExpected</TYPE>
         <PARAM name="error">1.00</PARAM>
         <PARAM name="warning">0.00</PARAM>
         <PARAM name="minMean">650.0</PARAM>
         <PARAM name="maxMean">850.0</PARAM>
         <PARAM name="minRMS">0.0</PARAM>
         <PARAM name="maxRMS">1.0</PARAM>
-        <PARAM name="toleranceMean">0.00</PARAM>
+        <PARAM name="toleranceMean">-1.0</PARAM>
         <PARAM name="minEntries">100</PARAM>
 </QTEST>
 
@@ -305,14 +289,14 @@
 </LINK>
 
 <QTEST name="EB_Laser_L1_PN_Pedestal_G16_Quality">
-        <TYPE>ContentsWithinExpectedProf2D</TYPE>
+        <TYPE>ContentsWithinExpected</TYPE>
         <PARAM name="error">1.00</PARAM>
         <PARAM name="warning">0.00</PARAM>
         <PARAM name="minMean">650.0</PARAM>
         <PARAM name="maxMean">850.0</PARAM>
         <PARAM name="minRMS">0.0</PARAM>
         <PARAM name="maxRMS">3.0</PARAM>
-        <PARAM name="toleranceMean">0.00</PARAM>
+        <PARAM name="toleranceMean">-1.0</PARAM>
         <PARAM name="minEntries">100</PARAM>
 </QTEST>
 
@@ -321,7 +305,7 @@
 </LINK>
 
 <QTEST name="EB_Laser_L1_PN_Amplitude_G01_Quality">
-        <TYPE>ContentsWithinExpectedProf2D</TYPE>
+        <TYPE>ContentsWithinExpected</TYPE>
         <PARAM name="error">1.00</PARAM>
         <PARAM name="warning">0.00</PARAM>
         <PARAM name="minMean">50.0</PARAM>
@@ -337,7 +321,7 @@
 </LINK>
 
 <QTEST name="EB_Laser_L1_PN_Amplitude_G16_Quality">
-        <TYPE>ContentsWithinExpectedProf2D</TYPE>
+        <TYPE>ContentsWithinExpected</TYPE>
         <PARAM name="error">1.00</PARAM>
         <PARAM name="warning">0.00</PARAM>
         <PARAM name="minMean">50.0</PARAM>
@@ -352,15 +336,31 @@
         <TestName activate="true">EB_Laser_L1_PN_Amplitude_G16_Quality</TestName>
 </LINK>
 
+<QTEST name="EB_Laser_L4_Quality">
+        <TYPE>ContentsWithinExpected</TYPE>
+        <PARAM name="error">1.00</PARAM>
+        <PARAM name="warning">0.00</PARAM>
+        <PARAM name="minMean">100.0</PARAM>
+        <PARAM name="maxMean">49152.0</PARAM>
+        <PARAM name="minRMS">0.0</PARAM>
+        <PARAM name="maxRMS">0.0</PARAM>
+        <PARAM name="toleranceMean">0.40</PARAM>
+        <PARAM name="minEntries">100</PARAM>
+</QTEST>
+
+<LINK name="*EcalBarrel/EBLaserTask/Laser4/EBLT amplitude EB* L4*">
+        <TestName activate="true">EB_Laser_L4_Quality</TestName>
+</LINK>
+
 <QTEST name="EB_Laser_L4_PN_Pedestal_G01_Quality">
-        <TYPE>ContentsWithinExpectedProf2D</TYPE>
+        <TYPE>ContentsWithinExpected</TYPE>
         <PARAM name="error">1.00</PARAM>
         <PARAM name="warning">0.00</PARAM>
         <PARAM name="minMean">650.0</PARAM>
         <PARAM name="maxMean">850.0</PARAM>
         <PARAM name="minRMS">0.0</PARAM>
         <PARAM name="maxRMS">1.0</PARAM>
-        <PARAM name="toleranceMean">0.00</PARAM>
+        <PARAM name="toleranceMean">-1.0</PARAM>
         <PARAM name="minEntries">100</PARAM>
 </QTEST>
 
@@ -369,14 +369,14 @@
 </LINK>
 
 <QTEST name="EB_Laser_L4_PN_Pedestal_G16_Quality">
-        <TYPE>ContentsWithinExpectedProf2D</TYPE>
+        <TYPE>ContentsWithinExpected</TYPE>
         <PARAM name="error">1.00</PARAM>
         <PARAM name="warning">0.00</PARAM>
         <PARAM name="minMean">650.0</PARAM>
         <PARAM name="maxMean">850.0</PARAM>
         <PARAM name="minRMS">0.0</PARAM>
         <PARAM name="maxRMS">3.0</PARAM>
-        <PARAM name="toleranceMean">0.00</PARAM>
+        <PARAM name="toleranceMean">-1.0</PARAM>
         <PARAM name="minEntries">100</PARAM>
 </QTEST>
 
@@ -385,7 +385,7 @@
 </LINK>
 
 <QTEST name="EB_Laser_L4_PN_Amplitude_G01_Quality">
-        <TYPE>ContentsWithinExpectedProf2D</TYPE>
+        <TYPE>ContentsWithinExpected</TYPE>
         <PARAM name="error">1.00</PARAM>
         <PARAM name="warning">0.00</PARAM>
         <PARAM name="minMean">50.0</PARAM>
@@ -401,7 +401,7 @@
 </LINK>
 
 <QTEST name="EB_Laser_L4_PN_Amplitude_G16_Quality">
-        <TYPE>ContentsWithinExpectedProf2D</TYPE>
+        <TYPE>ContentsWithinExpected</TYPE>
         <PARAM name="error">1.00</PARAM>
         <PARAM name="warning">0.00</PARAM>
         <PARAM name="minMean">50.0</PARAM>
@@ -417,7 +417,7 @@
 </LINK>
 
 <QTEST name="EB_TestPulse_G01_Quality">
-        <TYPE>ContentsWithinExpectedProf2D</TYPE>
+        <TYPE>ContentsWithinExpected</TYPE>
         <PARAM name="error">1.00</PARAM>
         <PARAM name="warning">0.00</PARAM>
         <PARAM name="minMean">0.0</PARAM>
@@ -433,7 +433,7 @@
 </LINK>
 
 <QTEST name="EB_TestPulse_G06_Quality">
-        <TYPE>ContentsWithinExpectedProf2D</TYPE>
+        <TYPE>ContentsWithinExpected</TYPE>
         <PARAM name="error">1.00</PARAM>
         <PARAM name="warning">0.00</PARAM>
         <PARAM name="minMean">0.0</PARAM>
@@ -449,7 +449,7 @@
 </LINK>
 
 <QTEST name="EB_TestPulse_G12_Quality">
-        <TYPE>ContentsWithinExpectedProf2D</TYPE>
+        <TYPE>ContentsWithinExpected</TYPE>
         <PARAM name="error">1.00</PARAM>
         <PARAM name="warning">0.00</PARAM>
         <PARAM name="minMean">0.0</PARAM>
@@ -465,14 +465,14 @@
 </LINK>
 
 <QTEST name="EB_TestPulse_PN_Pedestal_G01_Quality">
-        <TYPE>ContentsWithinExpectedProf2D</TYPE>
+        <TYPE>ContentsWithinExpected</TYPE>
         <PARAM name="error">1.00</PARAM>
         <PARAM name="warning">0.00</PARAM>
         <PARAM name="minMean">650.0</PARAM>
         <PARAM name="maxMean">850.0</PARAM>
         <PARAM name="minRMS">0.0</PARAM>
         <PARAM name="maxRMS">1.0</PARAM>
-        <PARAM name="toleranceMean">0.00</PARAM>
+        <PARAM name="toleranceMean">-1.0</PARAM>
         <PARAM name="minEntries">100</PARAM>
 </QTEST>
 
@@ -481,14 +481,14 @@
 </LINK>
 
 <QTEST name="EB_TestPulse_PN_Pedestal_G16_Quality">
-        <TYPE>ContentsWithinExpectedProf2D</TYPE>
+        <TYPE>ContentsWithinExpected</TYPE>
         <PARAM name="error">1.00</PARAM>
         <PARAM name="warning">0.00</PARAM>
         <PARAM name="minMean">650.0</PARAM>
         <PARAM name="maxMean">850.0</PARAM>
         <PARAM name="minRMS">0.0</PARAM>
         <PARAM name="maxRMS">3.0</PARAM>
-        <PARAM name="toleranceMean">0.00</PARAM>
+        <PARAM name="toleranceMean">-1.0</PARAM>
         <PARAM name="minEntries">100</PARAM>
 </QTEST>
 
@@ -497,7 +497,7 @@
 </LINK>
 
 <QTEST name="EB_TestPulse_PN_Amplitude_G01_Quality">
-        <TYPE>ContentsWithinExpectedProf2D</TYPE>
+        <TYPE>ContentsWithinExpected</TYPE>
         <PARAM name="error">1.00</PARAM>
         <PARAM name="warning">0.00</PARAM>
         <PARAM name="minMean">12.5</PARAM>
@@ -513,7 +513,7 @@
 </LINK>
 
 <QTEST name="EB_TestPulse_PN_Amplitude_G16_Quality">
-        <TYPE>ContentsWithinExpectedProf2D</TYPE>
+        <TYPE>ContentsWithinExpected</TYPE>
         <PARAM name="error">1.00</PARAM>
         <PARAM name="warning">0.00</PARAM>
         <PARAM name="minMean">200.0</PARAM>
@@ -529,14 +529,14 @@
 </LINK>
 
 <QTEST name="EB_Timing_Quality">
-        <TYPE>ContentsWithinExpectedProf2D</TYPE>
+        <TYPE>ContentsWithinExpected</TYPE>
         <PARAM name="error">1.00</PARAM>
         <PARAM name="warning">0.00</PARAM>
         <PARAM name="minMean">4.8</PARAM>
         <PARAM name="maxMean">7.2</PARAM>
         <PARAM name="minRMS">0.0</PARAM>
         <PARAM name="maxRMS">2.5</PARAM>
-        <PARAM name="toleranceMean">0.00</PARAM>
+        <PARAM name="toleranceMean">-1.0</PARAM>
         <PARAM name="minEntries">17000</PARAM>
 </QTEST>
 
@@ -545,14 +545,14 @@
 </LINK>
 
 <QTEST name="EB_Quality_Summary">
-        <TYPE>ContentsWithinExpectedTH2F</TYPE>
+        <TYPE>ContentsWithinExpected</TYPE>
         <PARAM name="error">1.00</PARAM>
         <PARAM name="warning">0.00</PARAM>
         <PARAM name="minMean">1.0</PARAM>
         <PARAM name="maxMean">6.0</PARAM>
         <PARAM name="minRMS">0.0</PARAM>
         <PARAM name="maxRMS">0.0</PARAM>
-        <PARAM name="toleranceMean">0.00</PARAM>
+        <PARAM name="toleranceMean">-1.0</PARAM>
         <PARAM name="minEntries">0</PARAM>
 </QTEST>
 

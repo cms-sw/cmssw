@@ -4,8 +4,8 @@
 /*
  * \file DTLocalTriggerTask.h
  *
- * $Date: 2008/01/07 14:33:38 $
- * $Revision: 1.15 $
+ * $Date: 2008/03/01 00:39:53 $
+ * $Revision: 1.16 $
  * \author M. Zanetti - INFN Padova
  *
 */
@@ -24,6 +24,9 @@
 #include "DQMServices/Core/interface/DQMStore.h"
 #include "DQMServices/Core/interface/MonitorElement.h"
 #include "FWCore/ServiceRegistry/interface/Service.h"
+
+#include "DataFormats/DTDigi/interface/DTLocalTriggerCollection.h"
+#include "DataFormats/DTRecHit/interface/DTRecSegment4DCollection.h"
 
 #include <vector>
 #include <string>
@@ -69,18 +72,21 @@ class DTLocalTriggerTask: public edm::EDAnalyzer{
   /// Convert phib to global angle coordinate
   float phib2Ang(const DTChamberId & id, int phib, double phi); 
 
+  /// Set Quality labels
+  void setQLabels(MonitorElement* me, short int iaxis);
+
   /// Run analysis on DCC data
-  void runDCCAnalysis(const edm::Event& e, std::string& trigsrc);
+  void runDCCAnalysis(std::vector<L1MuDTChambPhDigi>* phTrigs, std::vector<L1MuDTChambThDigi>* thTrigs);
 
   /// Run analysis on ROS data
-  void runDDUAnalysis(const edm::Event& e, std::string& trigsrc);
+  void runDDUAnalysis(edm::Handle<DTLocalTriggerCollection>& trigsDDU);
 
   /// Run analysis using DT 4D segments
-  void runSegmentAnalysis(const edm::Event& e, std::string& trigsrc);
+  void runSegmentAnalysis(edm::Handle<DTRecSegment4DCollection>& segments4D);
 
   /// Run analysis on ROS data
   void runDDUvsDCCAnalysis(std::string& trigsrc);
-   
+
   /// Load DTTF map correction
   void loadDTTFMap();
 
@@ -97,15 +103,13 @@ class DTLocalTriggerTask: public edm::EDAnalyzer{
   void endJob(void);
   
   /// Get the L1A source
-  std::string triggerSource(const edm::Event& e);
+  void triggerSource(const edm::Event& e);
   
  private:
   
   bool debug;
-  std::string dcc_label;
-  std::string ros_label;
-  std::string seg_label;
-  std::string outputFile;  
+  bool useDCC, useDDU, useSEG;
+  std::string trigsrc;
   int nevents;
  
   int phcode_best[6][5][13];
@@ -121,7 +125,7 @@ class DTLocalTriggerTask: public edm::EDAnalyzer{
   DQMStore* dbe;
   edm::ParameterSet parameters;
   edm::ESHandle<DTGeometry> muonGeom;
-  std::map<std::string, std::map<uint32_t, MonitorElement*> > digiHistos;
+  std::map<uint32_t, std::map<std::string, MonitorElement*> > digiHistos;
   
   
 };

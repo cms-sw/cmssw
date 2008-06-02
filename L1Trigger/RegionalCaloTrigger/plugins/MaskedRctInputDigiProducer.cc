@@ -245,12 +245,11 @@ MaskedRctInputDigiProducer::produce(edm::Event& iEvent, const edm::EventSetup& i
      maskedHcalTPs(new HcalTrigPrimDigiCollection());
    maskedEcalTPs->reserve(56*72);
    maskedHcalTPs->reserve(56*72+18*8);
-   int nEcalSamples = 0;
+   const int nEcalSamples = 1;
    int nHcalSamples = 0;
 
    for (unsigned int i = 0; i < ecalColl.size(); i++)
      {
-       nEcalSamples = ecalColl[i].size();
        short ieta = (short) ecalColl[i].id().ieta();
        unsigned short absIeta = (unsigned short) abs(ieta);
        int sign = ieta / absIeta;
@@ -258,33 +257,28 @@ MaskedRctInputDigiProducer::produce(edm::Event& iEvent, const edm::EventSetup& i
        //if (i < 20) {std::cout << "ieta is " << ieta << ", absIeta is " << absIeta
        //		      << ", iphi is " << iphi << endl;}
 
+       int energy;
+       bool fineGrain;
+
+       if (sign < 0)
+	 {
+	   //std::cout << "eta-: mask is " << ecalMask.at(0).at(iphi-1).at(absIeta-1) << endl;
+	   energy = ecalMask.at(0).at(iphi-1).at(absIeta-1) * ecalColl[i].compressedEt();
+	   fineGrain = ecalMask.at(0).at(iphi-1).at(absIeta-1) * ecalColl[i].fineGrain();
+	 }
+       else if (sign > 0)
+	 {
+	   //std::cout << "eta+: mask is " << ecalMask.at(1).at(iphi-1).at(absIeta-1) << endl;	   
+	   energy = ecalMask.at(1).at(iphi-1).at(absIeta-1) * ecalColl[i].compressedEt();
+	   fineGrain = ecalMask.at(1).at(iphi-1).at(absIeta-1) * ecalColl[i].fineGrain();
+	 }
+
        EcalTriggerPrimitiveDigi
 	 ecalDigi(EcalTrigTowerDetId(sign, EcalTriggerTower, absIeta,iphi));
        ecalDigi.setSize(nEcalSamples);
-
-       for (int nSample = 0; nSample < nEcalSamples; nSample++)
-	 {
-	   
-	   int energy;
-	   bool fineGrain;
-	   
-	   if (sign < 0)
-	     {
-	       //std::cout << "eta-: mask is " << ecalMask.at(0).at(iphi-1).at(absIeta-1) << endl;
-	       energy = ecalMask.at(0).at(iphi-1).at(absIeta-1) * ecalColl[i].sample(nSample).compressedEt();
-	       fineGrain = ecalMask.at(0).at(iphi-1).at(absIeta-1) * ecalColl[i].sample(nSample).fineGrain();
-	     }
-	   else if (sign > 0)
-	     {
-	       //std::cout << "eta+: mask is " << ecalMask.at(1).at(iphi-1).at(absIeta-1) << endl;	   
-	       energy = ecalMask.at(1).at(iphi-1).at(absIeta-1) * ecalColl[i].sample(nSample).compressedEt();
-	       fineGrain = ecalMask.at(1).at(iphi-1).at(absIeta-1) * ecalColl[i].sample(nSample).fineGrain();
-	     }
-	   
-	   ecalDigi.setSample(nSample, EcalTriggerPrimitiveSample(energy,
+       ecalDigi.setSample(0, EcalTriggerPrimitiveSample(energy,
 							fineGrain,
 							0));
-	 }
        maskedEcalTPs->push_back(ecalDigi);
      }
    //std::cout << "End of ecal digi masking" << endl;
@@ -300,13 +294,14 @@ MaskedRctInputDigiProducer::produce(edm::Event& iEvent, const edm::EventSetup& i
        short iphi = (unsigned short) hcalColl[i].id().iphi();
        //if (i < 20) {std::cout << "ieta is " << ieta << ", absIeta is " << absIeta
        //      << ", iphi is " << iphi << endl;}
+       /*
        if (hcalColl[i].SOI_compressedEt() != 0)
 	 {
 	   std::cout << "original et " << hcalColl[i].SOI_compressedEt() 
 		     << "  fg " << hcalColl[i].SOI_fineGrain() << "  iphi " 
 		     << iphi << "  ieta " << ieta << std::endl;
 	 }
-
+       */
        HcalTriggerPrimitiveDigi
 	 hcalDigi(HcalTrigTowerDetId(ieta,iphi));
        hcalDigi.setSize(nHcalSamples);

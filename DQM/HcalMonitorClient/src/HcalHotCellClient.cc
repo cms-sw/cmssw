@@ -1,5 +1,6 @@
 #include <DQM/HcalMonitorClient/interface/HcalHotCellClient.h>
 #include <DQM/HcalMonitorClient/interface/HcalClientUtils.h>
+#include <DQM/HcalMonitorClient/interface/HcalHistoUtils.h>
 #include "DQMServices/Core/interface/DQMStore.h"
 #include "DQMServices/Core/interface/MonitorElement.h"
 
@@ -49,6 +50,9 @@ void HcalHotCellClient::init(const ParameterSet& ps, DQMStore* dbe,string client
   } // for (unsigned int i=0; i<subdets.size();i++)
   hcalhists.thresholds=max(hbhists.thresholds,max(hehists.thresholds,max(hohists.thresholds,hfhists.thresholds)));
 
+  // Until I can figure out what the $*!@$%@!%^ is wrong with saving floats in the code, hardcode the number of thresholds
+  hcalhists.thresholds=5;
+
 } // void HcalHotCellClient::init()
 
 
@@ -85,11 +89,14 @@ void HcalHotCellClient::endJob(void) {
   return;
 }
 
-void HcalHotCellClient::endRun(void) {
+void HcalHotCellClient::endRun(void) 
+{
 
   if ( debug_ ) cout << "HcalHotCellClient: endRun, jevt = " << jevt_ << endl;
 
+  cout <<"Cleaning up"<<endl;
   this->cleanup();  
+  cout <<"Finished cleanup"<<endl;
   return;
 }
 
@@ -104,6 +111,7 @@ void HcalHotCellClient::cleanup(void) {
     cout <<"HcalHotCellClient::cleanup"<<endl;
   if ( cloneME_ ) 
     {
+      cout <<"Deleting histos"<<endl;
       deleteHists(hbhists);
       deleteHists(hehists);
       deleteHists(hohists);
@@ -111,21 +119,27 @@ void HcalHotCellClient::cleanup(void) {
       deleteHists(hcalhists);
     }    
     
+  cout <<"Clearing histos"<<endl;
   clearHists(hbhists);
   clearHists(hehists);
   clearHists(hohists);
   clearHists(hfhists);
   clearHists(hcalhists);
 
-  dqmReportMapErr_.clear(); dqmReportMapWarn_.clear(); dqmReportMapOther_.clear();
+  cout <<"Clearing test"<<endl;
+  dqmReportMapErr_.clear(); 
+  dqmReportMapWarn_.clear(); 
+  dqmReportMapOther_.clear();
   dqmQtests_.clear();
+  
   if (debug_)
     cout <<"<HcalHotCellClient> finished cleanup"<<endl;
   return;
 }
 
 
-void HcalHotCellClient::report(){
+void HcalHotCellClient::report()
+{
 
   if ( debug_ ) cout << "HcalHotCellClient: report" << endl;
 
@@ -143,10 +157,11 @@ void HcalHotCellClient::report(){
   getHistograms();
 
   return;
-}
+}//void HcalHotCellClient::report()
 
-void HcalHotCellClient::analyze(void){
 
+void HcalHotCellClient::analyze(void)
+{
   jevt_++;
   int updates = 0;
 
@@ -189,7 +204,7 @@ void HcalHotCellClient::resetAllME(){
   }
   sprintf(name,"%sHcal/HotCellMonitor/HotCellOccupancyMap",process_.c_str());
   resetME(name,dbe_);
-  sprintf(name,"%sHcal/HotCellMonitor/HotCellEnergyMap",process_.c_str());
+  sprintf(name,"%sHcal/HotCellMonitor/_HotCell_EnergyMap_",process_.c_str());
   resetME(name,dbe_);
 
   if (subDetsOn_[0]) resetSubDetHistograms(hbhists);
@@ -200,7 +215,8 @@ void HcalHotCellClient::resetAllME(){
   return;
 }
 
-void HcalHotCellClient::htmlOutput(int runNo, string htmlDir, string htmlName){
+void HcalHotCellClient::htmlOutput(int runNo, string htmlDir, string htmlName)
+{
 
   cout << "Preparing HcalHotCellClient html output ..." << endl;
   string client = "HotCellMonitor";
@@ -272,12 +288,21 @@ void HcalHotCellClient::htmlOutput(int runNo, string htmlDir, string htmlName){
   htmlFile <<"<td>Isolated Hot Cells</td>"<<endl;
   htmlFile <<"<td>Negative-Energy Cells</td></tr>"<<endl;
   htmlFile << "<tr align=\"left\">" << endl;
-  
-  // Histogram Row
-  histoHTML2(runNo,hcalhists.threshOccMap[hcalhists.threshOccMap.size()-1],"iEta","iPhi", 92, htmlFile,htmlDir);
-  histoHTML2(runNo,hcalhists.nadaOccMap,"iEta","iPhi", 92, htmlFile,htmlDir);
-  histoHTML2(runNo,hcalhists.nadaNegOccMap,"iEta","iPhi", 92, htmlFile,htmlDir);
+
+
+
+  for (unsigned int fu=0;fu<hcalhists.threshOccMap.size();++fu)
+    {
+      htmlAnyHisto(runNo,hcalhists.threshOccMap[fu],"iEta","iPhi",
+		   92, htmlFile,htmlDir);
+    }
+
+ // Histogram Row
+  htmlAnyHisto(runNo,hcalhists.threshOccMap[hcalhists.threshOccMap.size()-1],"iEta","iPhi", 92, htmlFile,htmlDir);
+  htmlAnyHisto(runNo,hcalhists.nadaOccMap,"iEta","iPhi", 92, htmlFile,htmlDir);
+  htmlAnyHisto(runNo,hcalhists.nadaNegOccMap,"iEta","iPhi", 92, htmlFile,htmlDir);
   htmlFile<<"</tr>"<<endl;
+
 
   // Description row
 
@@ -300,10 +325,12 @@ void HcalHotCellClient::htmlOutput(int runNo, string htmlDir, string htmlName){
   htmlFile << "<table border=\"0\" cellspacing=\"0\" " << endl;
   htmlFile << "cellpadding=\"10\"> " << endl;
   // Divide histograms by number of events to express hot cells as fraction
+  
   for (unsigned int i=hcalhists.threshOccMap.size();i>0;i--)
     {
       //hcalhists.threshOccMap[i-1]->Scale(1./ievt_);
-      histoHTML2(runNo,hcalhists.threshOccMap[i-1],"iEta","iPhi", 92, htmlFile,htmlDir);
+      //cout <<"i = "<<i<<endl;
+      htmlAnyHisto(runNo,hcalhists.threshOccMap[i-1],"iEta","iPhi", 92, htmlFile,htmlDir);
     }
   htmlFile << "</tr>" << endl;
   htmlFile << "</table>" << endl; // end of table
@@ -396,7 +423,7 @@ void HcalHotCellClient::createSubDetTests(HotCellHists& hist)
     type="HCAL";
 
   // Check NADA Hot Cell
-  sprintf(meTitle,"%sHcal/HotCellMonitor/%s/%snadaOccMap",process_.c_str(),type.c_str(), type.c_str());
+  sprintf(meTitle,"%sHcal/HotCellMonitor/%s/%s_OccupancyMap_NADA",process_.c_str(),type.c_str(), type.c_str());
   sprintf(name,"%s NADA Hot Cell Test",type.c_str()); 
   if (debug_) cout <<"Checking for histogram named: "<<name<<endl;
   if(dqmQtests_.find(name)==dqmQtests_.end())
@@ -441,7 +468,8 @@ void HcalHotCellClient::createSubDetTests(HotCellHists& hist)
   // Jan. 2008 DQM Challenge -- instead of Maximum Energy histogram
   // Check for Cells > final (highest?) threshold
   //sprintf(meTitle,"%sHcal/HotCellMonitor/%s/%sHotCellOccMapMaxCell",process_.c_str(),type.c_str(), type.c_str());
-  sprintf(meTitle,"%sHcal/HotCellMonitor/%s/%sHotCellOccMapThresh%i",process_.c_str(),type.c_str(), type.c_str(),hist.thresholds);
+  cout <<"FUCK OFFF "<<hist.thresholds<<endl;
+  sprintf(meTitle,"%sHcal/HotCellMonitor/%s/%s_OccupancyMap_HotCell_Threshold%i",process_.c_str(),type.c_str(), type.c_str(),hist.thresholds);
   //sprintf(name,"%s Maximum Energy Cell",type.c_str()); 
   sprintf(name,"%s Threshold #%i Cell",type.c_str(),hist.thresholds);
   if (debug_) cout <<"Checking for histogram named: "<<name<<endl;
@@ -519,7 +547,9 @@ void HcalHotCellClient::clearHists(HotCellHists& hist)
   hist.maxCellTime=0;
   hist.maxCellID=0;
 
+  /*
   unsigned int mysize=hist.threshOccMap.size();
+  
   for (unsigned int i=0;i<mysize;i++)
     {
       hist.threshOccMap[i]=0;
@@ -533,6 +563,7 @@ void HcalHotCellClient::clearHists(HotCellHists& hist)
       hist.threshOccMapDepth4[i]=0;
       hist.threshEnergyMapDepth4[i]=0;
     }
+  */
 
   hist.threshOccMap.clear();
   hist.threshEnergyMap.clear();
@@ -574,7 +605,7 @@ void HcalHotCellClient::deleteHists(HotCellHists& hist)
       if (hist.threshOccMapDepth1[i]) delete hist.threshOccMapDepth1[i];
       if (hist.threshEnergyMapDepth1[i]) delete hist.threshEnergyMapDepth1[i];
       if (hist.threshOccMapDepth2[i]) delete hist.threshOccMapDepth2[i];
-      if (hist.threshEnergyMapDepth2[i]) delete hist.threshEnergyMapDepth2[i];
+      //if (hist.threshEnergyMapDepth2[i]) delete hist.threshEnergyMapDepth2[i];
       if (hist.threshOccMapDepth3[i]) delete hist.threshOccMapDepth3[i];
       if (hist.threshEnergyMapDepth3[i]) delete hist.threshEnergyMapDepth3[i];
       if (hist.threshOccMapDepth4[i]) delete hist.threshOccMapDepth4[i];
@@ -587,7 +618,7 @@ void HcalHotCellClient::deleteHists(HotCellHists& hist)
   hist.threshOccMapDepth1.clear();
   hist.threshEnergyMapDepth1.clear();
   hist.threshOccMapDepth2.clear();
-  hist.threshEnergyMapDepth2.clear();
+  //hist.threshEnergyMapDepth2.clear();
   hist.threshOccMapDepth3.clear();
   hist.threshEnergyMapDepth3.clear();
   hist.threshOccMapDepth4.clear();
@@ -634,91 +665,98 @@ void HcalHotCellClient::getSubDetHistograms(HotCellHists& hist)
   if (debug_)
     cout <<"Getting HcalHotCell Subdetector Histograms for Subdetector:  "<<type<<endl;
 
+  // Make dummy histogram that is used by template function getAnyHisto to determine hist type -- is there a better way to get this info?
+
+  TH2F* dummy2D = new TH2F();
+  
   for (int i=0;i<hist.thresholds;i++)
     {
-      sprintf(name,"HotCellMonitor/%s/%sHotCellOccMapThresh%i",type.c_str(),type.c_str(),i);
-      //cout <<name<<endl;
-      hist.threshOccMap.push_back(getHisto2(name,process_,dbe_,debug_,cloneME_));
-      sprintf(name,"HotCellMonitor/%s/%sHotCellEnergyMapThresh%i",type.c_str(),type.c_str(),i);
-      //cout <<name<<endl;
-      hist.threshEnergyMap.push_back(getHisto2(name,process_,dbe_,debug_,cloneME_));
+      sprintf(name,"HotCellMonitor/%s/%s_OccupancyMap_HotCell_Threshold%i",type.c_str(),type.c_str(),i);
+      // cout <<name<<endl;
       
-      sprintf(name,"HotCellMonitor/%s/Depth1/%sHotCellOccMapThresh%iDepth1",type.c_str(),type.c_str(),i);
-      //cout <<name<<endl;
-      hist.threshOccMapDepth1.push_back(getHisto2(name,process_,dbe_,debug_,cloneME_));
-      sprintf(name,"HotCellMonitor/%s/Depth1/%sHotCellEnergyMapThresh%iDepth1",type.c_str(),type.c_str(),i);
-      //cout <<name<<endl;
-      hist.threshEnergyMapDepth1.push_back(getHisto2(name,process_,dbe_,debug_,cloneME_));
+      hist.threshOccMap.push_back(getAnyHisto(dummy2D, name,process_,dbe_,debug_,cloneME_));
+      sprintf(name,"HotCellMonitor/%s/%s_HotCell_EnergyMap_Thresh%i",type.c_str(),type.c_str(),i);
+      // cout <<name<<endl;
+      hist.threshEnergyMap.push_back(getAnyHisto(dummy2D, name,process_,dbe_,debug_,cloneME_));
       
-      sprintf(name,"HotCellMonitor/%s/Depth2/%sHotCellOccMapThresh%iDepth2",type.c_str(),type.c_str(),i);
-      //cout <<name<<endl;
-      hist.threshOccMapDepth2.push_back(getHisto2(name,process_,dbe_,debug_,cloneME_));
-      sprintf(name,"HotCellMonitor/%s/Depth2/%sHotCellEnergyMapThresh%iDepth2",type.c_str(),type.c_str(),i);
-      //cout <<name<<endl;
-      hist.threshEnergyMapDepth2.push_back(getHisto2(name,process_,dbe_,debug_,cloneME_));
+      sprintf(name,"HotCellMonitor/%s/Depth1/%s_OccupancyMap_HotCell_Threshold%iDepth1",type.c_str(),type.c_str(),i);
+      // cout <<name<<endl;
+      hist.threshOccMapDepth1.push_back(getAnyHisto(dummy2D, name,process_,dbe_,debug_,cloneME_));
+      sprintf(name,"HotCellMonitor/%s/Depth1/%s_HotCell_EnergyMap_Thresh%iDepth1",type.c_str(),type.c_str(),i);
+      // cout <<name<<endl;
+      hist.threshEnergyMapDepth1.push_back(getAnyHisto(dummy2D, name,process_,dbe_,debug_,cloneME_));
       
-      sprintf(name,"HotCellMonitor/%s/Depth3/%sHotCellOccMapThresh%iDepth3",type.c_str(),type.c_str(),i);
-      //cout <<name<<endl;
-      hist.threshOccMapDepth3.push_back(getHisto2(name,process_,dbe_,debug_,cloneME_));
-      sprintf(name,"HotCellMonitor/%s/Depth3/%sHotCellEnergyMapThresh%iDepth3",type.c_str(),type.c_str(),i);
-      //cout <<name<<endl;
-      hist.threshEnergyMapDepth3.push_back(getHisto2(name,process_,dbe_,debug_,cloneME_));
+      sprintf(name,"HotCellMonitor/%s/Depth2/%s_OccupancyMap_HotCell_Threshold%iDepth2",type.c_str(),type.c_str(),i);
+      // cout <<name<<endl;
+      hist.threshOccMapDepth2.push_back(getAnyHisto(dummy2D, name,process_,dbe_,debug_,cloneME_));
+      sprintf(name,"HotCellMonitor/%s/Depth2/%s_HotCell_EnergyMap_Thresh%iDepth2",type.c_str(),type.c_str(),i);
+      // cout <<name<<endl;
+      // Something is wrong with this histogram -- causes seg fault in HE?
+      //hist.threshEnergyMapDepth2.push_back(getAnyHisto(dummy2D, name,process_,dbe_,debug_,cloneME_));
+
+
+      sprintf(name,"HotCellMonitor/%s/Depth3/%s_OccupancyMap_HotCell_Threshold%iDepth3",type.c_str(),type.c_str(),i);
+      // cout <<name<<endl;
+      hist.threshOccMapDepth3.push_back(getAnyHisto(dummy2D, name,process_,dbe_,debug_,cloneME_));
+      sprintf(name,"HotCellMonitor/%s/Depth3/%s_HotCell_EnergyMap_Thresh%iDepth3",type.c_str(),type.c_str(),i);
+      // cout <<name<<endl;
+      hist.threshEnergyMapDepth3.push_back(getAnyHisto(dummy2D, name,process_,dbe_,debug_,cloneME_));
       
-      sprintf(name,"HotCellMonitor/%s/Depth4/%sHotCellOccMapThresh%iDepth4",type.c_str(),type.c_str(),i);
-      //cout <<name<<endl;
-      hist.threshOccMapDepth4.push_back(getHisto2(name,process_,dbe_,debug_,cloneME_));
-      sprintf(name,"HotCellMonitor/%s/Depth4/%sHotCellEnergyMapThresh%iDepth4",type.c_str(),type.c_str(),i);
-      //cout <<name<<endl;
-      hist.threshEnergyMapDepth4.push_back(getHisto2(name,process_,dbe_,debug_,cloneME_));
-    }
+      sprintf(name,"HotCellMonitor/%s/Depth4/%s_OccupancyMap_HotCell_Threshold%iDepth4",type.c_str(),type.c_str(),i);
+      // cout <<name<<endl;
+      hist.threshOccMapDepth4.push_back(getAnyHisto(dummy2D, name,process_,dbe_,debug_,cloneME_));
+      sprintf(name,"HotCellMonitor/%s/Depth4/%s_HotCell_EnergyMap_Thresh%iDepth4",type.c_str(),type.c_str(),i);
+      // cout <<name<<endl;
+      hist.threshEnergyMapDepth4.push_back(getAnyHisto(dummy2D, name,process_,dbe_,debug_,cloneME_));
+    } //for (int i=0;i<hist.thresholds.size();++i)
 
   sprintf(name,"HotCellMonitor/%s/%sHotCellOccMapMaxCell",type.c_str(),type.c_str());
-  //cout <<name<<endl;
-  hist.maxCellOccMap = getHisto2(name, process_, dbe_,debug_,cloneME_);      
-  sprintf(name,"HotCellMonitor/%s/%sHotCellEnergyMapMaxCell",type.c_str(),type.c_str());
-  //cout <<name<<endl;
-  hist.maxCellEnergyMap = getHisto2(name, process_, dbe_,debug_,cloneME_);
+  // cout <<name<<endl;
+  hist.maxCellOccMap = getAnyHisto(dummy2D, name, process_, dbe_,debug_,cloneME_);      
+  sprintf(name,"HotCellMonitor/%s/%s_HotCell_EnergyMap_MaxCell",type.c_str(),type.c_str());
+  // cout <<name<<endl;
+  hist.maxCellEnergyMap = getAnyHisto(dummy2D, name, process_, dbe_,debug_,cloneME_);
   
   sprintf(name,"HotCellMonitor/%s/%sHotCellEnergyMaxCell",type.c_str(),type.c_str());
-  hist.maxCellEnergy = getHisto(name, process_, dbe_,debug_,cloneME_);
-  //cout <<name<<endl;
+  hist.maxCellEnergy = getAnyHisto( new TH1F(), name, process_, dbe_,debug_,cloneME_);
+  // cout <<name<<endl;
   sprintf(name,"HotCellMonitor/%s/%sHotCellTimeMaxCell",type.c_str(),type.c_str());
-  hist.maxCellTime = getHisto(name, process_, dbe_,debug_,cloneME_);    
-  //cout <<name<<endl;
+  hist.maxCellTime = getAnyHisto( new TH1F(), name, process_, dbe_,debug_,cloneME_);    
+  // cout <<name<<endl;
   sprintf(name,"HotCellMonitor/%s/%sHotCellIDMaxCell",type.c_str(),type.c_str());
-  hist.maxCellID = getHisto(name, process_, dbe_,debug_,cloneME_);    
-  //cout <<name<<endl;
+  hist.maxCellID = getAnyHisto( new TH1F(), name, process_, dbe_,debug_,cloneME_);    
+  // cout <<name<<endl;
 
   // NADA histograms
-  sprintf(name,"HotCellMonitor/%s/%snadaOccMap",type.c_str(),type.c_str());
-  hist.nadaOccMap=getHisto2(name, process_, dbe_,debug_,cloneME_);
+  sprintf(name,"HotCellMonitor/%s/%s_OccupancyMap_NADA",type.c_str(),type.c_str());
+  hist.nadaOccMap=getAnyHisto(dummy2D, name, process_, dbe_,debug_,cloneME_);
   //cout <<"NAME = "<<name<<endl;
   sprintf(name,"HotCellMonitor/%s/%snadaEnergyMap",type.c_str(),type.c_str());
-  hist.nadaEnergyMap=getHisto2(name, process_, dbe_,debug_,cloneME_);
-  //cout <<name<<endl;
+  hist.nadaEnergyMap=getAnyHisto(dummy2D, name, process_, dbe_,debug_,cloneME_);
+  // cout <<name<<endl;
   sprintf(name,"HotCellMonitor/%s/NADA_%s_NumHotCells",type.c_str(),type.c_str());
-  hist.nadaNumHotCells = getHisto(name, process_, dbe_,debug_,cloneME_);
-   //cout <<name<<endl;
+  hist.nadaNumHotCells = getAnyHisto( new TH1F(), name, process_, dbe_,debug_,cloneME_);
+   // cout <<name<<endl;
 
   sprintf(name,"HotCellMonitor/%s/NADA_%s_testcell",type.c_str(),type.c_str());
-  hist.nadaTestCell = getHisto(name, process_, dbe_,debug_,cloneME_); 
-  //cout <<name<<endl;
+  hist.nadaTestCell = getAnyHisto( new TH1F(), name, process_, dbe_,debug_,cloneME_); 
+  // cout <<name<<endl;
 
   sprintf(name,"HotCellMonitor/%s/NADA_%s_Energy",type.c_str(),type.c_str());
-  hist.nadaEnergy = getHisto(name, process_, dbe_,debug_,cloneME_); 
-  //cout <<name<<endl;
+  hist.nadaEnergy = getAnyHisto( new TH1F(), name, process_, dbe_,debug_,cloneME_); 
+  // cout <<name<<endl;
 
   sprintf(name,"HotCellMonitor/%s/NADA_%s_NumNegCells",type.c_str(),type.c_str());
-  hist.nadaNumNegCells = getHisto(name, process_, dbe_,debug_,cloneME_); 
-  //cout <<name<<endl;
+  hist.nadaNumNegCells = getAnyHisto( new TH1F(), name, process_, dbe_,debug_,cloneME_); 
+  // cout <<name<<endl;
 
   sprintf(name,"HotCellMonitor/%s/%snadaNegOccMap",type.c_str(),type.c_str());
-  hist.nadaNegOccMap = getHisto2(name, process_, dbe_,debug_,cloneME_); 
-  //cout <<name<<endl;
+  hist.nadaNegOccMap = getAnyHisto(dummy2D, name, process_, dbe_,debug_,cloneME_); 
+  // cout <<name<<endl;
 
   sprintf(name,"HotCellMonitor/%s/%snadaNegEnergyMap",type.c_str(),type.c_str());
-  hist.nadaNegEnergyMap = getHisto2(name, process_, dbe_,debug_,cloneME_); 
-  //cout <<name<<endl;
+  hist.nadaNegEnergyMap = getAnyHisto(dummy2D, name, process_, dbe_,debug_,cloneME_); 
+  // cout <<name<<endl;
 
   return;
 }
@@ -750,33 +788,33 @@ void HcalHotCellClient::getSubDetHistogramsFromFile(HotCellHists& hist, TFile* i
   hist.threshEnergyMapDepth4.clear();
   
 
-  for (int i=0;i<hist.thresholds;i++)
+  for (int i=0;i<hist.thresholds;++i)
     {
-      sprintf(name,"HotCellMonitor/%s/%sHotCellOccMapThresh%i",type.c_str(),type.c_str(),i);
+      sprintf(name,"HotCellMonitor/%s/%s_OccupancyMap_HotCell_Threshold%i",type.c_str(),type.c_str(),i);
       hist.threshOccMap.push_back((TH2F*)infile->Get(name));
-      sprintf(name,"HotCellMonitor/%s/%sHotCellEnergyMapThresh%i",type.c_str(),type.c_str(),i);
+      sprintf(name,"HotCellMonitor/%s/%s_HotCell_EnergyMap_Thresh%i",type.c_str(),type.c_str(),i);
       hist.threshEnergyMap.push_back((TH2F*)infile->Get(name));
-      sprintf(name,"HotCellMonitor/%s/Depth1/%sHotCellOccMapThresh%iDepth1",type.c_str(),type.c_str(),i);
+      sprintf(name,"HotCellMonitor/%s/Depth1/%s_OccupancyMap_HotCell_Threshold%iDepth1",type.c_str(),type.c_str(),i);
       hist.threshOccMapDepth1.push_back((TH2F*)infile->Get(name));
-      sprintf(name,"HotCellMonitor/%s/Depth1/%sHotCellEnergyMapThresh%iDepth1",type.c_str(),type.c_str(),i);
+      sprintf(name,"HotCellMonitor/%s/Depth1/%s_HotCell_EnergyMap_Thresh%iDepth1",type.c_str(),type.c_str(),i);
       hist.threshEnergyMapDepth1.push_back((TH2F*)infile->Get(name));
-      sprintf(name,"HotCellMonitor/%s/Depth2/%sHotCellOccMapThresh%iDepth2",type.c_str(),type.c_str(),i);
+      sprintf(name,"HotCellMonitor/%s/Depth2/%s_OccupancyMap_HotCell_Threshold%iDepth2",type.c_str(),type.c_str(),i);
       hist.threshOccMapDepth2.push_back((TH2F*)infile->Get(name));
-      sprintf(name,"HotCellMonitor/%s/Depth2/%sHotCellEnergyMapThresh%iDepth2",type.c_str(),type.c_str(),i);
+      sprintf(name,"HotCellMonitor/%s/Depth2/%s_HotCell_EnergyMap_Thresh%iDepth2",type.c_str(),type.c_str(),i);
       hist.threshEnergyMapDepth2.push_back((TH2F*)infile->Get(name));
-  sprintf(name,"HotCellMonitor/%s/Depth3/%sHotCellOccMapThresh%iDepth3",type.c_str(),type.c_str(),i);
+  sprintf(name,"HotCellMonitor/%s/Depth3/%s_OccupancyMap_HotCell_Threshold%iDepth3",type.c_str(),type.c_str(),i);
       hist.threshOccMapDepth3.push_back((TH2F*)infile->Get(name));
-      sprintf(name,"HotCellMonitor/%s/Depth3/%sHotCellEnergyMapThresh%iDepth3",type.c_str(),type.c_str(),i);
+      sprintf(name,"HotCellMonitor/%s/Depth3/%s_HotCell_EnergyMap_Thresh%iDepth3",type.c_str(),type.c_str(),i);
       hist.threshEnergyMapDepth3.push_back((TH2F*)infile->Get(name));
-      sprintf(name,"HotCellMonitor/%s/Depth4/%sHotCellOccMapThresh%iDepth4",type.c_str(),type.c_str(),i);
+      sprintf(name,"HotCellMonitor/%s/Depth4/%s_OccupancyMap_HotCell_Threshold%iDepth4",type.c_str(),type.c_str(),i);
       hist.threshOccMapDepth4.push_back((TH2F*)infile->Get(name));
-      sprintf(name,"HotCellMonitor/%s/Depth4/%sHotCellEnergyMapThresh%iDepth4",type.c_str(),type.c_str(),i);
+      sprintf(name,"HotCellMonitor/%s/Depth4/%s_HotCell_EnergyMap_Thresh%iDepth4",type.c_str(),type.c_str(),i);
       hist.threshEnergyMapDepth4.push_back((TH2F*)infile->Get(name));
     }
 
   sprintf(name,"HotCellMonitor/%s/%sHotCellOccMapMaxCell",type.c_str(),type.c_str());
   hist.maxCellOccMap = (TH2F*)infile->Get(name);      
-  sprintf(name,"HotCellMonitor/%s/%sHotCellEnergyMapMaxCell",type.c_str(),type.c_str());
+  sprintf(name,"HotCellMonitor/%s/%s_HotCell_EnergyMap_MaxCell",type.c_str(),type.c_str());
   hist.maxCellEnergyMap = (TH2F*)infile->Get(name);
   
   sprintf(name,"HotCellMonitor/%s/%sHotCellEnergyMaxCell",type.c_str(),type.c_str());
@@ -787,7 +825,7 @@ void HcalHotCellClient::getSubDetHistogramsFromFile(HotCellHists& hist, TFile* i
   hist.maxCellID = (TH1F*)infile->Get(name);    
 
   // NADA histograms
-  sprintf(name,"HotCellMonitor/%s/%snadaOccMap",type.c_str(),type.c_str());
+  sprintf(name,"HotCellMonitor/%s/%s_OccupancyMap_NADA",type.c_str(),type.c_str());
   hist.nadaOccMap=(TH2F*)infile->Get(name);
   sprintf(name,"HotCellMonitor/%s/%snadaEnergyMap",type.c_str(),type.c_str());
   hist.nadaEnergyMap=(TH2F*)infile->Get(name);
@@ -825,91 +863,91 @@ void HcalHotCellClient::resetSubDetHistograms(HotCellHists& hist){
   }
   if (debug_) cout <<"Reset subdet "<<type.c_str()<<endl;
   for (int i=0;i<hist.thresholds;i++){
-    sprintf(name,"HotCellMonitor/%s/%sHotCellEnergyMapThresh%i",type.c_str(),type.c_str(),i);
+    sprintf(name,"HotCellMonitor/%s/%s_HotCell_EnergyMap_Thresh%i",type.c_str(),type.c_str(),i);
     //cout <<"NAME = "<<name<<endl;
     resetME(name,dbe_);
-    sprintf(name,"HotCellMonitor/%s/%sHotCellOccMapThresh%i",type.c_str(),type.c_str(),i);
+    sprintf(name,"HotCellMonitor/%s/%s_OccupancyMap_HotCell_Threshold%i",type.c_str(),type.c_str(),i);
     //cout <<"NAME = "<<name<<endl;
     resetME(name,dbe_);
-    sprintf(name,"HotCellMonitor/%s/Depth1/%sHotCellEnergyMapThresh%iDepth1",type.c_str(),type.c_str(),i);
+    sprintf(name,"HotCellMonitor/%s/Depth1/%s_HotCell_EnergyMap_Thresh%iDepth1",type.c_str(),type.c_str(),i);
     //cout <<"NAME = "<<name<<endl;
     resetME(name,dbe_);
-    sprintf(name,"HotCellMonitor/%s/Depth1/%sHotCellOccMapThresh%iDepth1",type.c_str(),type.c_str(),i);
+    sprintf(name,"HotCellMonitor/%s/Depth1/%s_OccupancyMap_HotCell_Threshold%iDepth1",type.c_str(),type.c_str(),i);
     //cout <<"NAME = "<<name<<endl;
     resetME(name,dbe_);
-    sprintf(name,"HotCellMonitor/%s/Depth2/%sHotCellEnergyMapThresh%iDepth2",type.c_str(),type.c_str(),i);
+    sprintf(name,"HotCellMonitor/%s/Depth2/%s_HotCell_EnergyMap_Thresh%iDepth2",type.c_str(),type.c_str(),i);
     //cout <<"NAME = "<<name<<endl;
     resetME(name,dbe_);
-    sprintf(name,"HotCellMonitor/%s/Depth2/%sHotCellOccMapThresh%iDepth2",type.c_str(),type.c_str(),i);
+    sprintf(name,"HotCellMonitor/%s/Depth2/%s_OccupancyMap_HotCell_Threshold%iDepth2",type.c_str(),type.c_str(),i);
     //cout <<"NAME = "<<name<<endl;
     resetME(name,dbe_);
-    sprintf(name,"HotCellMonitor/%s/Depth3/%sHotCellEnergyMapThresh%iDepth3",type.c_str(),type.c_str(),i);
+    sprintf(name,"HotCellMonitor/%s/Depth3/%s_HotCell_EnergyMap_Thresh%iDepth3",type.c_str(),type.c_str(),i);
     //cout <<"NAME = "<<name<<endl;
     resetME(name,dbe_);
-    sprintf(name,"HotCellMonitor/%s/Depth3/%sHotCellOccMapThresh%iDepth3",type.c_str(),type.c_str(),i);
+    sprintf(name,"HotCellMonitor/%s/Depth3/%s_OccupancyMap_HotCell_Threshold%iDepth3",type.c_str(),type.c_str(),i);
     //cout <<"NAME = "<<name<<endl;
     resetME(name,dbe_);
-sprintf(name,"HotCellMonitor/%s/Depth4/%sHotCellEnergyMapThresh%iDepth4",type.c_str(),type.c_str(),i);
+sprintf(name,"HotCellMonitor/%s/Depth4/%s_HotCell_EnergyMap_Thresh%iDepth4",type.c_str(),type.c_str(),i);
     //cout <<"NAME = "<<name<<endl;
     resetME(name,dbe_);
-    sprintf(name,"HotCellMonitor/%s/Depth4/%sHotCellOccMapThresh%iDepth4",type.c_str(),type.c_str(),i);
+    sprintf(name,"HotCellMonitor/%s/Depth4/%s_OccupancyMap_HotCell_Threshold%iDepth4",type.c_str(),type.c_str(),i);
     //cout <<"NAME = "<<name<<endl;
     resetME(name,dbe_);
 
 
   }
   
-  sprintf(name,"HotCellMonitor/%s/%sHotCellEnergyMapMaxCell",type.c_str(),type.c_str());
-  //cout <<name<<endl;
+  sprintf(name,"HotCellMonitor/%s/%s_HotCell_EnergyMap_MaxCell",type.c_str(),type.c_str());
+  //// cout <<name<<endl;
   resetME(name,dbe_);
   
   sprintf(name,"HotCellMonitor/%s/%sHotCellOccMapMaxCell",type.c_str(),type.c_str());
-  //cout <<name<<endl;
+  //// cout <<name<<endl;
   resetME(name,dbe_);
   
   sprintf(name,"HotCellMonitor/%s/%sHotCellEnergyMaxCell",type.c_str(),type.c_str());
-  //cout <<name<<endl;
+  //// cout <<name<<endl;
   resetME(name,dbe_);
 
   sprintf(name,"HotCellMonitor/%s/%s HotCellTimeMaxCell",type.c_str(),type.c_str());
-  //cout <<name<<endl;
+  //// cout <<name<<endl;
   resetME(name,dbe_);
 
   sprintf(name,"HotCellMonitor/%s/%sHotCellIDMaxCell",type.c_str(),type.c_str());
-  //cout <<name<<endl;
+  //// cout <<name<<endl;
   resetME(name,dbe_);
 
   // NADA histograms
-  sprintf(name,"HotCellMonitor/%s/%snadaOccMap",type.c_str(),type.c_str());
-  //cout <<name<<endl;
+  sprintf(name,"HotCellMonitor/%s/%s_OccupancyMap_NADA",type.c_str(),type.c_str());
+  //// cout <<name<<endl;
   resetME(name,dbe_);
 
   sprintf(name,"HotCellMonitor/%s/%snadaEnergyMap",type.c_str(),type.c_str());
-  //cout <<name<<endl;
+  //// cout <<name<<endl;
   resetME(name,dbe_);
 
   sprintf(name,"HotCellMonitor/%s/#NADA_%s_NumHotCells",type.c_str(),type.c_str());
-  //cout <<name<<endl;
+  //// cout <<name<<endl;
   resetME(name,dbe_);
 
   sprintf(name,"HotCellMonitor/%s/NADA_%s_testcell",type.c_str(),type.c_str());
-  //cout <<name<<endl;
+  //// cout <<name<<endl;
   resetME(name,dbe_);
   
   sprintf(name,"HotCellMonitor/%s/NADA_%s_Energy",type.c_str(),type.c_str());
-  //cout <<name<<endl;
+  //// cout <<name<<endl;
   resetME(name,dbe_);
   
   sprintf(name,"HotCellMonitor/%s/NADA_%s_NumNegCells",type.c_str(),type.c_str());
-  //cout <<name<<endl;
+  //// cout <<name<<endl;
   resetME(name,dbe_);
   
   sprintf(name,"HotCellMonitor/%s/%snadaNegOccMap",type.c_str(),type.c_str());
-  //cout <<name<<endl;
+  //// cout <<name<<endl;
   resetME(name,dbe_);
   
   sprintf(name,"HotCellMonitor/%s/%snadaNegEnergyMap",type.c_str(),type.c_str());
-  //cout <<name<<endl;
+  //// cout <<name<<endl;
   resetME(name,dbe_);
 
   return;
@@ -935,11 +973,15 @@ void HcalHotCellClient::getSubDetThresholds(HotCellHists& hist)
       return;
     }
 
-  int dummy=0; // counter to keep track of number of thresholds
+  /*
+  int dummy=1; // counter to keep track of number of thresholds
+  // for some !@#%* reason, the 0 counter isn't getting saved in the root file
+  // investigate this later!  -- Jeff, 5/26/08
+  
   while (1)
     {
       char name[256];
-      sprintf(name, "%sHcal/HotCellMonitor/%s/%sThreshold%i",process_.c_str(),type.c_str(),type.c_str(),dummy);
+      sprintf(name, "%sHcal/HotCellMonitor/%s/%s_Threshold%i",process_.c_str(),type.c_str(),type.c_str(),dummy);
       MonitorElement* me = 0;
       if(dbe_) 
 	{
@@ -952,6 +994,10 @@ void HcalHotCellClient::getSubDetThresholds(HotCellHists& hist)
       else break;
     }
   hist.thresholds=dummy;
+  */
+  // This isn't working anymore!  Hard code the stupid threshold values for now
+  hist.thresholds=5;
+
   return;
 } //void HcalHotCellClient::getSubDetThresholds(HotCellHists& hist)
 
@@ -1026,26 +1072,26 @@ void HcalHotCellClient::htmlSubDetOutput(HotCellHists& hist, int runNo,
   htmlSubFile << "cellpadding=\"10\"> " << endl;
   
   htmlSubFile << "<tr align=\"left\">" << endl;	
-  histoHTML2(runNo,hist.nadaOccMap,"iEta","iPhi", 92, htmlSubFile,htmlDir);
-  histoHTML2(runNo,hist.nadaEnergyMap,"iEta","iPhi", 100, htmlSubFile,htmlDir);
+  htmlAnyHisto(runNo,hist.nadaOccMap,"iEta","iPhi", 92, htmlSubFile,htmlDir);
+  htmlAnyHisto(runNo,hist.nadaEnergyMap,"iEta","iPhi", 100, htmlSubFile,htmlDir);
   htmlSubFile << "</tr>" << endl;
 
   htmlSubFile << "<tr align=\"left\">" << endl;	
-  histoHTML2(runNo,hist.nadaNegOccMap,"iEta","iPhi", 92, htmlSubFile,htmlDir);
-  histoHTML2(runNo,hist.nadaNegEnergyMap,"iEta","iPhi", 100, htmlSubFile,htmlDir);
+  htmlAnyHisto(runNo,hist.nadaNegOccMap,"iEta","iPhi", 92, htmlSubFile,htmlDir);
+  htmlAnyHisto(runNo,hist.nadaNegEnergyMap,"iEta","iPhi", 100, htmlSubFile,htmlDir);
   htmlSubFile << "</tr>" << endl;
 
 
   for (int i=0;i<hist.thresholds;i++){
     htmlSubFile << "<tr align=\"left\">" << endl;	
-    histoHTML2(runNo,hist.threshOccMap[i],"iEta","iPhi", 92, htmlSubFile,htmlDir);
-    histoHTML2(runNo,hist.threshEnergyMap[i],"iEta","iPhi", 100, htmlSubFile,htmlDir);
+    htmlAnyHisto(runNo,hist.threshOccMap[i],"iEta","iPhi", 92, htmlSubFile,htmlDir);
+    htmlAnyHisto(runNo,hist.threshEnergyMap[i],"iEta","iPhi", 100, htmlSubFile,htmlDir);
     htmlSubFile << "</tr>" << endl;
   }
   
   htmlSubFile << "<tr align=\"left\">" << endl;	
-  histoHTML(runNo,hist.maxCellEnergy,"GeV","Evts", 92, htmlSubFile,htmlDir);
-  histoHTML(runNo,hist.maxCellTime,"nS","Evts", 100, htmlSubFile,htmlDir);
+  htmlAnyHisto(runNo,hist.maxCellEnergy,"GeV","Evts", 92, htmlSubFile,htmlDir);
+  htmlAnyHisto(runNo,hist.maxCellTime,"nS","Evts", 100, htmlSubFile,htmlDir);
   htmlSubFile << "</tr></table>" << endl;
   htmlSubFile << "<hr>" << endl;
   htmlSubFile.close();

@@ -15,15 +15,13 @@ using namespace pos;
 
 PixelDACScanRange::PixelDACScanRange(std::string name, unsigned int first, 
                                      unsigned int last, unsigned int step,
-                                     unsigned int index, bool mixValuesAcrossROCs){
+                                     unsigned int index){
   
   name_=name;
   first_=first;
   last_=last;
   step_=step;
   index_=index;
-  mixValuesAcrossROCs_=mixValuesAcrossROCs;
-  if (first_==last_) assert( mixValuesAcrossROCs==false );
   
   if (name==pos::k_DACName_Vdd) {
     dacchannel_=pos::k_DACAddress_Vdd;

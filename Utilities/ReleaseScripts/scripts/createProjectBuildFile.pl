@@ -34,6 +34,7 @@ if($dir!~/^\//){$dir="${pwd}/${dir}";}
 $dir=&SCRAMGenUtils::fixPath($dir);
 my $release=&SCRAMGenUtils::scramReleaseTop($dir);
 if(!-d "${release}/.SCRAM"){print STDERR "ERROR: $dir is not under a SCRAM-based project.\n"; exit 1;}
+&SCRAMGenUtils::scramVersion($release);
 my $project=lc(&SCRAMGenUtils::getFromEnvironmentFile("SCRAM_PROJECTNAME",$release));
 if($project eq ""){print STDERR "ERROR: Can not find SCRAM_PROJECTNAME in ${release}.SCRAM/Environment file.\n"; exit 1;}
 

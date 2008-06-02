@@ -1,45 +1,4 @@
-/* RPC */
+# Trigger configuration data
+# please include 'replace' statements 
+# as appropriate for the subsystem
 
-include "Geometry/RPCGeometry/data/rpcGeometry.cfi"
-include "Geometry/CMSCommonData/data/cmsIdealGeometryXML.cfi"
-#include "Geometry/MuonCommonData/data/muonIdealGeometryXML.cfi"
-include "Geometry/MuonNumbering/data/muonNumberingInitialization.cfi"
-
-### unpacking
-
-module muonRPCDigis = RPCUnpackingModule {
-    untracked InputTag InputLabel = source
-}
-
-### emulator
-
-module rpcTriggerDigis = RPCTrigger {
-    string label = "muonRPCDigis" 	 
-    untracked int32 RPCTriggerDebug = 0
-    bool fixRPCGeo = false
-}
-
-#include "L1TriggerConfig/RPCTriggerConfig/data/RPCPatSourceGREN.cfi"
-es_module rpcconf = RPCTriggerConfig {
-    untracked int32 PACsPerTower = 1
-    untracked string filedir = "L1Trigger/RPCTrigger/data/CosmicPats4.dqm/"
-}
-es_source rpcconfsrc = EmptyESSource {
-    string recordName = "L1RPCConfigRcd" 
-    vuint32 firstValid = { 1 }
-    bool iovIsRunNotTime = true
-}
-
-es_source rpcConditions = PoolDBESSource {
-    string timetype = "runnumber"
-    string connect = "frontier://(serverurl=http://frontier1.cms:8000/FrontierOn)(serverurl=http://frontier2.cms:8000/FrontierOn)(retrieve-ziplevel=0)/CMS_COND_ON_170_RPC"
-    PSet DBParameters = {
-	untracked int32 messageLevel = 0
-	
-    }
-    VPSet toGet = {
-	{ string record = "RPCEMapRcd"
-	    string tag = "RPCEMap_v2" }
-    }
-    untracked bool siteLocalConfig = false
-}

@@ -23,6 +23,10 @@ namespace cond{
     void registerConnection(const std::string& name,
 			    const std::string& con,
 			    int timeOutInSec=0);
+    /// register userconnection string. This method will translate the userconnect to the real connect using technology proxy. It also initialised the session for the given technology. timeout value can be -1,0 and n sec
+    void registerConnection(const std::string& userconnect,
+			    cond::DBSession& session,
+			    int timeOutInSec=0);
     /// remove connection from connection pool
     void removeConnection( const std::string& name );
     /// global connect

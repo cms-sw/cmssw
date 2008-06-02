@@ -58,6 +58,7 @@ class HcalDataFormatClient : public HcalBaseClient {
   TH1F* unmappedTPDs_;
   TH1F* fedErrMap_;
   TH1F* BCN_;
+  TH1F* dccBCN_;
   
   TH1F* BCNCheck_;
   TH1F* EvtNCheck_;
@@ -69,10 +70,17 @@ class HcalDataFormatClient : public HcalBaseClient {
   TH2F* CDF_Violation_;
   TH2F* DCC_Evt_Fmt_;
   TH2F* DCC_Spigot_Err_;
+  TH2F* DCC_Status_Flags_;
+
   TH2F* BCNMap_;
   TH2F* EvtMap_;
   TH2F* ErrMapbyCrate_;
   TH2F* FWVerbyCrate_;
+
+  //TProfile* FWVerbyCrate_;
+  TProfile* EvFragSize_;
+  TH2F* EvFragSize2_;
+
   TH2F* ErrCrate0_;
   TH2F* ErrCrate1_;
   TH2F* ErrCrate2_;
@@ -91,6 +99,8 @@ class HcalDataFormatClient : public HcalBaseClient {
   TH2F* ErrCrate15_;
   TH2F* ErrCrate16_;
   TH2F* ErrCrate17_;
+
+  TH2F* InvHTRData_;
 
 };
 

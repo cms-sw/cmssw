@@ -1,11 +1,11 @@
-// $Id: MonitorXMLParser.h,v 1.5 2007/12/18 11:26:38 dellaric Exp $
+// $Id: MonitorXMLParser.h,v 1.6 2007/12/20 10:56:45 dellaric Exp $
 
 /*!
   \file MonitorXMLParser.h
   \brief monitor db xml elements parsing tool
   \author B. Gobbo 
-  \version $Revision: 1.5 $
-  \date $Date: 2007/12/18 11:26:38 $
+  \version $Revision: 1.6 $
+  \date $Date: 2007/12/20 10:56:45 $
 */
 
 #ifndef MonitorXMLParser_h
@@ -30,11 +30,18 @@ enum { ERROR_ARGS = 1 ,
 
 // - - - - - - - - - - - - - - - - - - - -
 
-typedef struct { std::string query; std::string arg; std::string alias; } DbQuery;
+struct DbQuery { std::string query;
+                 std::string arg;
+                 std::string alias; };
 
-typedef struct { std::string type; std::string title; int xbins; double xfrom; double xto; 
-  int ybins; double yfrom; double yto; int zbins; double zfrom; double zto; unsigned int ncycle; unsigned int loop;
-  std::vector< DbQuery > queries; } DB_ME;
+struct DB_ME { std::string type;
+               std::string title;
+               int xbins; double xfrom; double xto; 
+               int ybins; double yfrom; double yto;
+               int zbins; double zfrom; double zto;
+               unsigned int ncycle;
+               unsigned int loop;
+               std::vector< DbQuery > queries; };
 
 // - - - - - - - - - - - - - - - - - - - -
 

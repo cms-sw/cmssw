@@ -2,7 +2,7 @@
 #define Framework_EPStates_h
 
 /*
-$Id: EPStates.h,v 1.3 2008/02/27 20:08:12 wmtan Exp $
+$Id: EPStates.h,v 1.5 2008/04/08 18:13:36 wdd Exp $
 
 The state machine that controls the processing of runs, luminosity
 blocks, events, and loops is implemented using the boost statechart
@@ -84,6 +84,7 @@ namespace statemachine {
     bool handleEmptyLumis() const;
 
     void startingNewLoop(const File& file);
+    void startingNewLoop(const Stop& stop);
     void rewindAndPrepareForNextLoop(const Restart & restart);
 
   private:
@@ -96,6 +97,7 @@ namespace statemachine {
 
   class Error;
   class HandleFiles;
+  class EndingLoop;
 
   class Starting : public sc::state< Starting, Machine >
   {
@@ -108,19 +110,17 @@ namespace statemachine {
       sc::transition< Lumi, Error >,
       sc::transition< Run, Error >,
       sc::transition< File, HandleFiles, Machine, &Machine::startingNewLoop >,
-      sc::custom_reaction< Stop >,
+      sc::transition< Stop, EndingLoop, Machine, &Machine::startingNewLoop >,
       sc::transition< Restart, Error > > reactions;
-
-    sc::result react( const Stop& stop);
   };
 
   class FirstFile;
-  class EndingLoop;
 
   class HandleFiles : public sc::state< HandleFiles, Machine, FirstFile >
   {
   public:
     HandleFiles(my_context ctx);
+    void exit();
     ~HandleFiles();
  
     typedef mpl::list<
@@ -136,6 +136,7 @@ namespace statemachine {
     bool shouldWeCloseOutput();
   private:
     edm::IEventProcessor & ep_;
+    bool exitCalled_;
   };
 
   class EndingLoop : public sc::state< EndingLoop, Machine >
@@ -218,6 +219,7 @@ namespace statemachine {
   {
   public:
     HandleRuns(my_context ctx);
+    void exit();
     ~HandleRuns();
 
     typedef sc::transition< File, NewInputAndOutputFiles > reactions;
@@ -233,6 +235,7 @@ namespace statemachine {
     void beginRunIfNotDoneAlready();
   private:
     edm::IEventProcessor & ep_;
+    bool exitCalled_;
     bool beginRunCalled_;
     int currentRun_;
     bool runException_;
@@ -294,6 +297,7 @@ namespace statemachine {
   {
   public:
     HandleLumis(my_context ctx);
+    void exit();
     ~HandleLumis();
     bool checkInvariant();
 
@@ -310,6 +314,7 @@ namespace statemachine {
 
   private:
     edm::IEventProcessor & ep_;
+    bool exitCalled_;
     bool currentLumiEmpty_;
     int currentLumi_;
     std::vector<int> unhandledLumis_;

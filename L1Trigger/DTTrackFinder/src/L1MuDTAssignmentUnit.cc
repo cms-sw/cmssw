@@ -5,8 +5,8 @@
 //   Description: Assignment Unit
 //
 //
-//   $Date: 2007/02/27 11:44:00 $
-//   $Revision: 1.2 $
+//   $Date: 2008/05/09 15:01:59 $
+//   $Revision: 1.5 $
 //
 //   Author :
 //   N. Neumeister            CERN EP
@@ -85,23 +85,28 @@ void L1MuDTAssignmentUnit::run(const edm::EventSetup& c) {
 
   // enable track candidate
   m_sp.track(m_id)->enable();
+  m_sp.tracK(m_id)->enable();
 
   // set track class
   TrackClass tc = m_sp.TA()->trackClass(m_id);
   m_sp.track(m_id)->setTC(tc);
+  m_sp.tracK(m_id)->setTC(tc);
 
   // get relative addresses of matching track segments
   m_addArray = m_sp.TA()->address(m_id);
   m_sp.track(m_id)->setAddresses(m_addArray);
+  m_sp.tracK(m_id)->setAddresses(m_addArray);
 
   // get track segments (track segment router)
   TSR();
   m_sp.track(m_id)->setTSphi(m_TSphi);
+  m_sp.tracK(m_id)->setTSphi(m_TSphi);
 
   // set bunch-crossing (use first track segment)
   vector<const L1MuDTTrackSegPhi*>::const_iterator iter = m_TSphi.begin();
   int bx = (*iter)->bx();
   m_sp.track(m_id)->setBx(bx);
+  m_sp.tracK(m_id)->setBx(bx);
 
   // assign phi
   PhiAU(c);
@@ -116,6 +121,7 @@ void L1MuDTAssignmentUnit::run(const edm::EventSetup& c) {
   for ( iter = m_TSphi.begin(); iter != m_TSphi.end(); iter++ ) {
     int wheel = abs((*iter)->wheel());
     if ( wheel == 3 && (*iter)->etaFlag() ) m_sp.track(m_id)->disable();
+    if ( wheel == 3 && (*iter)->etaFlag() ) m_sp.tracK(m_id)->disable();
   }
 
 }
@@ -183,9 +189,14 @@ void L1MuDTAssignmentUnit::PhiAU(const edm::EventSetup& c) {
     phi_8 = phi_8 + thePhiLUTs->getDeltaPhi(1,bend_angle);
   }
 
+  if (phi_8 >  15) phi_8 =  15;
+  if (phi_8 < -16) phi_8 = -16;
+
   int phi = (sector_8 + phi_8 + 144)%144;
+  phi_8 = (phi_8 + 32)%32;
 
   m_sp.track(m_id)->setPhi(phi);
+  m_sp.tracK(m_id)->setPhi(phi_8);
 
 }
 
@@ -209,11 +220,13 @@ void L1MuDTAssignmentUnit::PtAU(const edm::EventSetup& c) {
   int pt = thePtaLUTs->getPt(lut_idx,bend_angle );
 
   m_sp.track(m_id)->setPt(pt);
+  m_sp.tracK(m_id)->setPt(pt);
 
   // assign charge
   int chsign = getCharge(m_ptAssMethod);
   int charge = ( bend_carga >= 0 ) ? chsign : -1 * chsign;
   m_sp.track(m_id)->setCharge(charge);
+  m_sp.tracK(m_id)->setCharge(charge);
 
 }
 
@@ -243,6 +256,7 @@ void L1MuDTAssignmentUnit::QuaAU() {
   }
 
   m_sp.track(m_id)->setQuality(quality);
+  m_sp.tracK(m_id)->setQuality(quality);
 
 }
 

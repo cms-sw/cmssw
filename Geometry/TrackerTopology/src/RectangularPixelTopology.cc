@@ -336,13 +336,7 @@ float RectangularPixelTopology::localX(const float mpx) const {
   float local_pitchx = m_pitchx;      // defaultpitch
   //if(fractionX<0.) cout<<" fractionx m "<<fractionX<<" "<<mpx<<endl;
   
-  if (binoffx>159) {   // too large
-    if(TP_DEBUG) { 
-      cout<<" very bad, binx "<<binoffx<<endl;
-      cout<<mpx<<" "<<binoffx<<" "
-	  <<fractionX<<" "<<local_pitchx<<" "<<m_xoffset<<endl;
-    }
-  } else if (binoffx>80) {     // ROC 1
+	if (binoffx>80) {            // ROC 1 - handles x on edge cluster
     binoffx=binoffx+2;
   } else if (binoffx==80) {    // ROC 1
     binoffx=binoffx+1;
@@ -385,12 +379,12 @@ float RectangularPixelTopology::localY(const float mpy) const {
   float local_pitchy = m_pitchy;      // defaultpitch
   //if(fractionY<0.) cout<<" fractiony m "<<fractionY<<" "<<mpy<<endl;
 
-  if (binoffy>415) {   // too large
-    if(TP_DEBUG) { 
-      cout<<" very bad, biny "<<binoffy<<endl;
-      cout<<mpy<<" "<<binoffy<<" "
-	  <<fractionY<<" "<<local_pitchy<<" "<<m_yoffset<<endl;
-    }
+  if (binoffy>416) {            // ROC 8, not real ROC
+    binoffy=binoffy+17;
+  } else if (binoffy==416) {    // ROC 8
+    binoffy=binoffy+16;
+    local_pitchy = 2 * m_pitchy;
+		
   } else if (binoffy==415) {    // ROC 7, last big pixel
     binoffy=binoffy+15;
     local_pitchy = 2 * m_pitchy;

@@ -1,8 +1,8 @@
 /*
  * \file EBOccupancyClient.cc
  *
- * $Date: 2008/03/15 14:07:44 $
- * $Revision: 1.20 $
+ * $Date: 2008/04/08 15:06:21 $
+ * $Revision: 1.25 $
  * \author G. Della Ricca
  * \author F. Cossutti
  *
@@ -34,8 +34,14 @@ EBOccupancyClient::EBOccupancyClient(const ParameterSet& ps){
   // cloneME switch
   cloneME_ = ps.getUntrackedParameter<bool>("cloneME", true);
 
-  // verbosity switch
-  verbose_ = ps.getUntrackedParameter<bool>("verbose", false);
+  // verbose switch
+  verbose_ = ps.getUntrackedParameter<bool>("verbose", true);
+
+  // debug switch
+  debug_ = ps.getUntrackedParameter<bool>("debug", false);
+
+  // prefixME path
+  prefixME_ = ps.getUntrackedParameter<string>("prefixME", "");
 
   // enableCleanup_ switch
   enableCleanup_ = ps.getUntrackedParameter<bool>("enableCleanup", false);
@@ -63,11 +69,11 @@ EBOccupancyClient::~EBOccupancyClient(){
 
 }
 
-void EBOccupancyClient::beginJob(DQMStore* dbe){
+void EBOccupancyClient::beginJob(DQMStore* dqmStore){
 
-  dbe_ = dbe;
+  dqmStore_ = dqmStore;
 
-  if ( verbose_ ) cout << "EBOccupancyClient: beginJob" << endl;
+  if ( debug_ ) cout << "EBOccupancyClient: beginJob" << endl;
 
   ievt_ = 0;
   jevt_ = 0;
@@ -76,7 +82,7 @@ void EBOccupancyClient::beginJob(DQMStore* dbe){
 
 void EBOccupancyClient::beginRun(void){
 
-  if ( verbose_ ) cout << "EBOccupancyClient: beginRun" << endl;
+  if ( debug_ ) cout << "EBOccupancyClient: beginRun" << endl;
 
   jevt_ = 0;
 
@@ -86,7 +92,7 @@ void EBOccupancyClient::beginRun(void){
 
 void EBOccupancyClient::endJob(void) {
 
-  if ( verbose_ ) cout << "EBOccupancyClient: endJob, ievt = " << ievt_ << endl;
+  if ( debug_ ) cout << "EBOccupancyClient: endJob, ievt = " << ievt_ << endl;
 
   this->cleanup();
 
@@ -94,7 +100,7 @@ void EBOccupancyClient::endJob(void) {
 
 void EBOccupancyClient::endRun(void) {
 
-  if ( verbose_ ) cout << "EBOccupancyClient: endRun, jevt = " << jevt_ << endl;
+  if ( debug_ ) cout << "EBOccupancyClient: endRun, jevt = " << jevt_ << endl;
 
   this->cleanup();
 
@@ -102,7 +108,7 @@ void EBOccupancyClient::endRun(void) {
 
 void EBOccupancyClient::setup(void) {
 
-  dbe_->setCurrentFolder( "EcalBarrel/EBOccupancyClient" );
+  dqmStore_->setCurrentFolder( prefixME_ + "/EBOccupancyClient" );
 
 }
 
@@ -153,78 +159,78 @@ void EBOccupancyClient::analyze(void){
   ievt_++;
   jevt_++;
   if ( ievt_ % 10 == 0 ) {
-    if ( verbose_ ) cout << "EBOccupancyClient: ievt/jevt = " << ievt_ << "/" << jevt_ << endl;
+    if ( debug_ ) cout << "EBOccupancyClient: ievt/jevt = " << ievt_ << "/" << jevt_ << endl;
   }
 
   char histo[200];
 
   MonitorElement* me;
 
-  sprintf(histo, "EcalBarrel/EBOccupancyTask/EBOT digi occupancy");
-  me = dbe_->get(histo);
+  sprintf(histo, (prefixME_ + "/EBOccupancyTask/EBOT digi occupancy").c_str());
+  me = dqmStore_->get(histo);
   h01_[0] = UtilsClient::getHisto<TH2F*> ( me, cloneME_, h01_[0] );
 
-  sprintf(histo, "EcalBarrel/EBOccupancyTask/EBOT digi occupancy projection eta");
-  me = dbe_->get(histo);
+  sprintf(histo, (prefixME_ + "/EBOccupancyTask/EBOT digi occupancy projection eta").c_str());
+  me = dqmStore_->get(histo);
   h01ProjEta_[0] = UtilsClient::getHisto<TH1F*> ( me, cloneME_, h01ProjEta_[0] );
 
-  sprintf(histo, "EcalBarrel/EBOccupancyTask/EBOT digi occupancy projection phi");
-  me = dbe_->get(histo);
+  sprintf(histo, (prefixME_ + "/EBOccupancyTask/EBOT digi occupancy projection phi").c_str());
+  me = dqmStore_->get(histo);
   h01ProjPhi_[0] = UtilsClient::getHisto<TH1F*> ( me, cloneME_, h01ProjPhi_[0] );
 
-  sprintf(histo, "EcalBarrel/EBOccupancyTask/EBOT rec hit occupancy");
-  me = dbe_->get(histo);
+  sprintf(histo, (prefixME_ + "/EBOccupancyTask/EBOT rec hit occupancy").c_str());
+  me = dqmStore_->get(histo);
   h01_[1] = UtilsClient::getHisto<TH2F*> ( me, cloneME_, h01_[1] );
 
-  sprintf(histo, "EcalBarrel/EBOccupancyTask/EBOT rec hit occupancy projection eta");
-  me = dbe_->get(histo);
+  sprintf(histo, (prefixME_ + "/EBOccupancyTask/EBOT rec hit occupancy projection eta").c_str());
+  me = dqmStore_->get(histo);
   h01ProjEta_[1] = UtilsClient::getHisto<TH1F*> ( me, cloneME_, h01ProjEta_[1] );
 
-  sprintf(histo, "EcalBarrel/EBOccupancyTask/EBOT rec hit occupancy projection phi");
-  me = dbe_->get(histo);
+  sprintf(histo, (prefixME_ + "/EBOccupancyTask/EBOT rec hit occupancy projection phi").c_str());
+  me = dqmStore_->get(histo);
   h01ProjPhi_[1] = UtilsClient::getHisto<TH1F*> ( me, cloneME_, h01ProjPhi_[1] );
 
-  sprintf(histo, "EcalBarrel/EBOccupancyTask/EBOT TP digi occupancy");
-  me = dbe_->get(histo);
+  sprintf(histo, (prefixME_ + "/EBOccupancyTask/EBOT TP digi occupancy").c_str());
+  me = dqmStore_->get(histo);
   h01_[2] = UtilsClient::getHisto<TH2F*> ( me, cloneME_, h01_[2] );
 
-  sprintf(histo, "EcalBarrel/EBOccupancyTask/EBOT TP digi occupancy projection eta");
-  me = dbe_->get(histo);
+  sprintf(histo, (prefixME_ + "/EBOccupancyTask/EBOT TP digi occupancy projection eta").c_str());
+  me = dqmStore_->get(histo);
   h01ProjEta_[2] = UtilsClient::getHisto<TH1F*> ( me, cloneME_, h01ProjEta_[2] );
 
-  sprintf(histo, "EcalBarrel/EBOccupancyTask/EBOT TP digi occupancy projection phi");
-  me = dbe_->get(histo);
+  sprintf(histo, (prefixME_ + "/EBOccupancyTask/EBOT TP digi occupancy projection phi").c_str());
+  me = dqmStore_->get(histo);
   h01ProjPhi_[2] = UtilsClient::getHisto<TH1F*> ( me, cloneME_, h01ProjPhi_[2] );
 
-  sprintf(histo, "EcalBarrel/EBOccupancyTask/EBOT rec hit thr occupancy");
-  me = dbe_->get(histo);
+  sprintf(histo, (prefixME_ + "/EBOccupancyTask/EBOT rec hit thr occupancy").c_str());
+  me = dqmStore_->get(histo);
   h02_[0] = UtilsClient::getHisto<TH2F*> ( me, cloneME_, h02_[0] );
 
-  sprintf(histo, "EcalBarrel/EBOccupancyTask/EBOT rec hit thr occupancy projection eta");
-  me = dbe_->get(histo);
+  sprintf(histo, (prefixME_ + "/EBOccupancyTask/EBOT rec hit thr occupancy projection eta").c_str());
+  me = dqmStore_->get(histo);
   h02ProjEta_[0] = UtilsClient::getHisto<TH1F*> ( me, cloneME_, h02ProjEta_[0] );
 
-  sprintf(histo, "EcalBarrel/EBOccupancyTask/EBOT rec hit thr occupancy projection phi");
-  me = dbe_->get(histo);
+  sprintf(histo, (prefixME_ + "/EBOccupancyTask/EBOT rec hit thr occupancy projection phi").c_str());
+  me = dqmStore_->get(histo);
   h02ProjPhi_[0] = UtilsClient::getHisto<TH1F*> ( me, cloneME_, h02ProjPhi_[0] );
 
-  sprintf(histo, "EcalBarrel/EBOccupancyTask/EBOT TP digi thr occupancy");
-  me = dbe_->get(histo);
+  sprintf(histo, (prefixME_ + "/EBOccupancyTask/EBOT TP digi thr occupancy").c_str());
+  me = dqmStore_->get(histo);
   h02_[1] = UtilsClient::getHisto<TH2F*> ( me, cloneME_, h02_[1] );
 
-  sprintf(histo, "EcalBarrel/EBOccupancyTask/EBOT TP digi thr occupancy projection eta");
-  me = dbe_->get(histo);
+  sprintf(histo, (prefixME_ + "/EBOccupancyTask/EBOT TP digi thr occupancy projection eta").c_str());
+  me = dqmStore_->get(histo);
   h02ProjEta_[1] = UtilsClient::getHisto<TH1F*> ( me, cloneME_, h02ProjEta_[1] );
 
-  sprintf(histo, "EcalBarrel/EBOccupancyTask/EBOT TP digi thr occupancy projection phi");
-  me = dbe_->get(histo);
+  sprintf(histo, (prefixME_ + "/EBOccupancyTask/EBOT TP digi thr occupancy projection phi").c_str());
+  me = dqmStore_->get(histo);
   h02ProjPhi_[1] = UtilsClient::getHisto<TH1F*> ( me, cloneME_, h02ProjPhi_[1] );
 
 }
 
 void EBOccupancyClient::htmlOutput(int run, string& htmlDir, string& htmlName){
 
-  cout << "Preparing EBOccupancyClient html output ..." << endl;
+  if ( verbose_ ) cout << "Preparing EBOccupancyClient html output ..." << endl;
 
   ofstream htmlFile;
 

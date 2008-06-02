@@ -1,9 +1,16 @@
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include "Alignment/CommonAlignment/interface/SurveyDet.h"
+#include <boost/cstdint.hpp> 
 #include "Geometry/DTGeometry/interface/DTGeometry.h"
+#include <Geometry/CommonDetUnit/interface/GeomDetType.h> 
+#include <DataFormats/GeometrySurface/interface/LocalError.h> 
 #include "Geometry/Records/interface/MuonGeometryRecord.h"
 #include "Alignment/MuonAlignment/interface/AlignableMuon.h"
+#include <FWCore/Framework/interface/EDAnalyzer.h> 
 #include <FWCore/Framework/interface/ESHandle.h> 
+#include <Geometry/CommonDetUnit/interface/GeomDetUnit.h> 
+#include <Geometry/DTGeometry/interface/DTLayer.h> 
+#include <FWCore/Framework/interface/Frameworkfwd.h> 
 #include "Alignment/CommonAlignment/interface/AlignableNavigator.h"
 #include "FWCore/Framework/interface/EventSetup.h"
 #include "Geometry/Records/interface/IdealGeometryRecord.h"
@@ -11,6 +18,8 @@
 
 #include "Alignment/MuonAlignment/interface/AlignableCSCChamber.h"
 #include "Alignment/MuonAlignment/interface/AlignableCSCStation.h"
+#include "Geometry/CommonDetUnit/interface/GeomDet.h" 
+#include "DataFormats/GeometryVector/interface/Basic3DVector.h" 
 
 #include <iostream>
 #include <fstream>

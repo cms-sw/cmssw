@@ -1,14 +1,11 @@
 #ifndef _SiPixelInformationExtractor_h_
 #define _SiPixelInformationExtractor_h_
 
-#include "DQMServices/Core/interface/DQMOldReceiver.h"
 #include "DQMServices/Core/interface/MonitorElement.h"
-#include "DQMServices/Core/interface/DQMStore.h"
 #include "DQM/SiPixelMonitorClient/interface/SiPixelConfigParser.h"
 #include "DQM/SiPixelMonitorClient/interface/SiPixelConfigWriter.h"
 #include "DQM/SiPixelMonitorClient/interface/SiPixelActionExecutor.h"
 #include "DQM/SiPixelMonitorClient/interface/SiPixelLayoutParser.h"
-#include "DQM/SiPixelMonitorClient/interface/SiPixelQTestsParser.h"
 
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/EventSetup.h"
@@ -30,9 +27,10 @@
 #include <vector>
 #include <string>
 #include <map>
+class DQMStore;
 class SiPixelEDAClient;
 class SiPixelWebInterface;
-
+class SiPixelHistoPlotter;
 class SiPixelInformationExtractor {
 
  public:
@@ -40,18 +38,19 @@ class SiPixelInformationExtractor {
   SiPixelInformationExtractor();
  ~SiPixelInformationExtractor();
 
+  void getSingleModuleHistos(   DQMStore                                * bei, 
+                                const std::multimap<std::string, std::string>& req_map, 
+				xgi::Output                             * out);
+  void getHistosFromPath(       DQMStore                                * bei, 
+                                const std::multimap<std::string, std::string>& req_map, 
+				xgi::Output                             * out);
+  void getTrackerMapHistos(     DQMStore                                * bei, 
+                                const std::multimap<std::string, std::string>& req_map, 
+				xgi::Output                             * out);
+				
+				
   void readModuleAndHistoList(	DQMStore				* bei,
                               	xgi::Output				* out);
-  void plotSingleModuleHistos(	DQMStore				* bei,
-                              	std::multimap<std::string, std::string> & req_map);
-  void plotHistosFromPath(      DQMStore               	                * bei,
-                                std::multimap<std::string, std::string> & req_map);  
-  void plotTkMapHistos(       	DQMStore				* bei,
-                              	std::multimap<std::string, std::string> & req_map, 
-			      	std::string				  sName);
-  void plotTkMapHisto(       	DQMStore				* bei,
-                              	std::string                               theModI, 
-			      	std::string				  theMEName);
   void readModuleHistoTree(   	DQMStore				* bei, 
                               	std::string				& str_name, 
 			      	xgi::Output				* out);
@@ -61,12 +60,9 @@ class SiPixelInformationExtractor {
   void readAlarmTree(         	DQMStore				* bei, 
                               	std::string				& str_name, 
                               	xgi::Output				* out);
-  void plotSingleHistogram(   	DQMStore				* bei,
-                              	std::multimap<std::string, std::string> & req_map);
-  void readStatusMessage(     	DQMStore				* bei, 
-                              	std::string				& path,
-			      	xgi::Output				* out);
-  void createModuleTree(      	DQMStore				* bei);
+  void readStatusMessage(       DQMStore                                * bei, 
+                                std::multimap<std::string, std::string>& req_map, 
+				xgi::Output * out);
   void computeStatus(           MonitorElement                          * mE,
                                 double                                  & colorValue,
 				std::pair<double,double>                & norm) ;
@@ -87,21 +83,18 @@ class SiPixelInformationExtractor {
   void getMEList(               DQMStore                                * bei,  
 				std::map<std::string, int>              & mEHash);
   int getDetId(                 MonitorElement                          * mE) ;				
-  const std::ostringstream& getImage(                                     void)        const;
-  const std::ostringstream& getIMGCImage(DQMStore			* bei,
-  				std::string				  theFullPath,
-				std::string				  canvasW,
-				std::string				  canvasH);
-  const std::ostringstream& getNamedImage( std::string                    theName);
+  void getIMGCImage(            const std::multimap<std::string, std::string>& req_map, 
+                                xgi::Output                             * out);
+  void getIMGCImage(            std::multimap<std::string, std::string>& req_map, 
+                                xgi::Output                             * out);
   std::string getMEType(        MonitorElement                          * mE) ;
-  
-  void   readLayoutNames(       xgi::Output                             * out);
-  void   plotErrorOverviewHistos(DQMStore                               * bei);
-  
+    
   void readConfiguration();
   bool readConfiguration(        std::map<std::string,std::vector< std::string> >   & layoutMap,
 				 std::map<std::string,std::map<std::string,std::string> >                & qtestsMap,
 				 std::map<std::string,std::vector<std::string> >    & meQTestsMap);
+
+  void bookGlobalQualityFlag    (DQMStore                               * bei);
 
   void computeGlobalQualityFlag (DQMStore                               * bei,
                                  bool                                     init);
@@ -110,89 +103,50 @@ class SiPixelInformationExtractor {
                                  bool                                     init,
                                  edm::EventSetup const                  & eSetup);
   
+  void createImages             (DQMStore                               * bei);
   
  private:
 
-  void fillBarrelList(        	DQMStore				* bei, 
-                              	std::string				  dir_name,
-                              	std::vector<std::string>		& me_names);
-  void fillEndcapList(        	DQMStore				* bei, 
-                              	std::string				  dir_name,
-                              	std::vector<std::string>		& me_names);
   void fillModuleAndHistoList(	DQMStore				* bei,
                               	std::vector<std::string>		& modules, 
 			      	std::map<std::string,std::string>	& histos);
-  void selectSingleModuleHistos(DQMStore                                * bei,  
-                                std::string                               mid, 
-                                std::vector<std::string>                & names, 
-				std::vector<MonitorElement*>            & mes);
-  void getItemList(             std::multimap<std::string, std::string> & req_map,
+  void getItemList(             const std::multimap<std::string, std::string> & req_map,
                                 std::string                               item_name, 
 				std::vector<std::string>                & items);
-  void fillImageBuffer();
-  void fillImageBuffer(         TCanvas                                 & c1);
-  void fillNamedImageBuffer(    TCanvas                                 * c1,
-                                std::string                               theName);
-  void plotHistos(              std::multimap<std::string, std::string> & req_map, 
-                                std::vector<MonitorElement*>              me_list);
-  void plotHisto(               DQMStore 				* bei, 
-                                MonitorElement                          * theMe,
-                                std::string                               theName,
-				std::string 				  canvasW,
-				std::string 				  canvasH);
   void printModuleHistoList(    DQMStore 				* bei, 
                                 std::ostringstream                      & str_val);
   void printSummaryHistoList(   DQMStore 				* bei, 
                                 std::ostringstream                      & str_val);
   void printAlarmList(          DQMStore 				* bei, 
                                 std::ostringstream                      & str_val);
-  void selectImage(		std::string				& name, 
-                                int                                      status);
-  void selectImage(		std::string				& name, 
-                                std::vector<QReport *>                     & test_map);
   bool goToDir(                 DQMStore                                * bei, 
                                 std::string                             & sname);
   bool hasItem(                 std::multimap<std::string, std::string> & req_map,
 	                        std::string                               item_name);
+  std::string getItemValue(     const std::multimap<std::string, std::string> & req_map,
+	                        std::string                               item_name);
   std::string getItemValue(     std::multimap<std::string, std::string> & req_map,
 	                        std::string                               item_name);
-  MonitorElement* getModuleME(  DQMStore                                * bei, 
-                                std::string                               me_name);
-  void setCanvasMessage(        const std::string                       & error_string);
   void createDummiesFromLayout();  
-  void   fillErrorOverviewHistos(DQMStore                               * bei,
-				 TH1F                                   * errorHisto,
-				 string                                 & subDet,
-				 vector<int>                            & hotModuleList);
-  int    computeCode(            DQMStore                               * bei,
-				 string                                 & path);
-  int    computeSourceCode(      string                                 & source);
-  void   fillPaveTextForErrorCode(TPaveText                             * pave);
-  void   coloredHotModules(      TH1F                                   * histo,
-				 vector<int>                            & binList,
-				 int                                      range,
-				 int                                      color);
-  void setSubDetAxisDrawing(   std::string                                detector, 
-                               TH1F                                     * histo);
-  void setLines(               MonitorElement                           * me, 
-                               std::string                              & meName, 
-			       double                                   & ymin, 
-			       double                                   & ymax, 
-			       double                                   & warning, 
-			       double                                   & error, 
-			       double                                   & channelFraction);
+  void selectImage(            std::string                              & name, 
+                               int                                        status);
+  void selectImage(            std::string                              & name, 
+                               std::vector<QReport*>                    & reports);
+  void selectColor(            std::string                              & col, 
+                               int                                        status);
+  void selectColor(            std::string                              & col, 
+                               std::vector<QReport*>                    & reports);
   
-  
-  std::ostringstream                     pictureBuffer_ ;
-  map<std::string, std::string>          namedPictureBuffer ;
-  
+  void setHTMLHeader(          xgi::Output                              * out);
+  void setXMLHeader(           xgi::Output                              * out);
+  void setPlainHeader(         xgi::Output                              * out);
+ 
   int                                    alarmCounter_;
 
   SiPixelConfigParser   	       * configParser_  ;
   SiPixelConfigWriter   	       * configWriter_  ;
   SiPixelActionExecutor 	       * actionExecutor_;
   SiPixelLayoutParser                  * layoutParser_  ;
-  SiPixelQTestsParser                  * qtestsParser_  ;
 
   std::map<std::string, 
            std::vector< std::string> >  layoutMap;
@@ -229,5 +183,19 @@ class SiPixelInformationExtractor {
   int count;
   int errcount;
   
+  MonitorElement * SummaryReport;
+  MonitorElement * SummaryReportMap;
+  MonitorElement * SummaryBarrel;
+  MonitorElement * SummaryShellmI;
+  MonitorElement * SummaryShellmO;
+  MonitorElement * SummaryShellpI;
+  MonitorElement * SummaryShellpO;
+  MonitorElement * SummaryEndcap;
+  MonitorElement * SummaryHCmI;
+  MonitorElement * SummaryHCmO;
+  MonitorElement * SummaryHCpI;
+  MonitorElement * SummaryHCpO;
+  
+  SiPixelHistoPlotter* histoPlotter_;
 };
 #endif

@@ -9,22 +9,13 @@
 
 #include "FWCore/Utilities/interface/Exception.h"
 
-using namespace std;
-
 //DEFINE STATICS
 const int L1GctJetLeafCard::MAX_JET_FINDERS = 3;  
 
 L1GctJetLeafCard::L1GctJetLeafCard(int id, int iphi, jetFinderType jfType):
-  L1GctProcessor(),
   m_id(id),
   m_whichJetFinder(jfType),
-  phiPosition(iphi),
-  m_exSum(0), m_eySum(0),
-  m_etSum(0), m_htSum(0),
-  m_hfSums(),
-  m_exSumPipe(), m_eySumPipe(),
-  m_etSumPipe(), m_htSumPipe(),
-  m_hfSumsPipe()
+  phiPosition(iphi)
 {
   //Check jetLeafCard setup
   if(m_id < 0 || m_id > 5)
@@ -75,7 +66,7 @@ L1GctJetLeafCard::~L1GctJetLeafCard()
 /// set pointers to neighbours
 void L1GctJetLeafCard::setNeighbourLeafCards(std::vector<L1GctJetLeafCard*> neighbours)
 {
-  vector<L1GctJetFinderBase*> jfNeighbours(2);
+  std::vector<L1GctJetFinderBase*> jfNeighbours(2);
 
   if (neighbours.size()==2) {
 
@@ -100,6 +91,8 @@ void L1GctJetLeafCard::setNeighbourLeafCards(std::vector<L1GctJetLeafCard*> neig
 
 std::ostream& operator << (std::ostream& s, const L1GctJetLeafCard& card)
 {
+  using std::endl;
+
   s << "===L1GctJetLeafCard===" << endl;
   s << "ID = " << card.m_id << endl;
   s << "i_phi = " << card.phiPosition << endl;;
@@ -115,45 +108,16 @@ std::ostream& operator << (std::ostream& s, const L1GctJetLeafCard& card)
   return s;
 }
 
-/// clear buffers
-void L1GctJetLeafCard::reset() {
-  L1GctProcessor::reset();
+void L1GctJetLeafCard::reset()
+{
   m_jetFinderA->reset();
   m_jetFinderB->reset();
   m_jetFinderC->reset();
-}
-
-/// partially clear buffers
-void L1GctJetLeafCard::setBxRange(const int firstBx, const int numberOfBx) {
-  L1GctProcessor::setBxRange(firstBx, numberOfBx);
-  m_jetFinderA->setBxRange(firstBx, numberOfBx);
-  m_jetFinderB->setBxRange(firstBx, numberOfBx);
-  m_jetFinderC->setBxRange(firstBx, numberOfBx);
-}
-
-void L1GctJetLeafCard::setNextBx(const int bx) {
-  L1GctProcessor::setNextBx(bx);
-  m_jetFinderA->setNextBx(bx);
-  m_jetFinderB->setNextBx(bx);
-  m_jetFinderC->setNextBx(bx);
-}
-
-void L1GctJetLeafCard::resetProcessor()
-{
   m_exSum.reset();
   m_eySum.reset();
   m_etSum.reset();
   m_htSum.reset();
   m_hfSums.reset();
-}
-
-void L1GctJetLeafCard::resetPipelines()
-{
-  m_exSumPipe.reset(numOfBx());
-  m_eySumPipe.reset(numOfBx());
-  m_etSumPipe.reset(numOfBx());
-  m_htSumPipe.reset(numOfBx());
-  m_hfSumsPipe.reset(numOfBx());
 }
 
 void L1GctJetLeafCard::fetchInput() {
@@ -173,7 +137,7 @@ void L1GctJetLeafCard::process() {
   m_jetFinderC->process();
 
   // Finish Et and Ht sums for the Leaf Card
-  vector< etTotalType > etStripSum(6);
+  std::vector< etTotalType > etStripSum(6);
   etStripSum.at(0) = m_jetFinderA->getEtStrip0();
   etStripSum.at(1) = m_jetFinderA->getEtStrip1();
   etStripSum.at(2) = m_jetFinderB->getEtStrip0();
@@ -187,8 +151,12 @@ void L1GctJetLeafCard::process() {
 
   for (unsigned i=0; i<6; ++i) {
     m_etSum = m_etSum + etStripSum.at(i);
-    m_exSum = m_exSum + exComponent(etStripSum.at(i), (phiPosition*6+i));
-    m_eySum = m_eySum + eyComponent(etStripSum.at(i), (phiPosition*6+i));
+  }
+
+  for (unsigned i=0; i<3; ++i) {
+    unsigned jphi = 2*(phiPosition*3+i);
+    m_exSum = m_exSum + exComponent(etStripSum.at(2*i), etStripSum.at(2*i+1), jphi);
+    m_eySum = m_eySum + eyComponent(etStripSum.at(2*i), etStripSum.at(2*i+1), jphi);
   }
 
   m_htSum =
@@ -201,12 +169,6 @@ void L1GctJetLeafCard::process() {
     m_jetFinderB->getHfSums() +
     m_jetFinderC->getHfSums();
 
-  // Store the outputs in pipelines
-  m_exSumPipe.store  (m_exSum,  bxRel());
-  m_eySumPipe.store  (m_eySum,  bxRel());
-  m_etSumPipe.store  (m_etSum,  bxRel());
-  m_htSumPipe.store  (m_htSum,  bxRel());
-  m_hfSumsPipe.store (m_hfSums, bxRel());
 }
 
 bool L1GctJetLeafCard::setupOk() const {
@@ -227,54 +189,77 @@ L1GctJetLeafCard::getOutputJetsC() const { return m_jetFinderC->getJets(); }  //
 // factors to find the corresponding Ex and Ey
 
 L1GctJetLeafCard::etComponentType
-L1GctJetLeafCard::exComponent(const L1GctJetLeafCard::etTotalType etStrip, const unsigned jphi) const {
-  unsigned fact = (2*jphi+10) % 36;
-  return rotateEtValue(etStrip, fact);
+L1GctJetLeafCard::exComponent(const L1GctJetLeafCard::etTotalType etStrip0,
+                              const L1GctJetLeafCard::etTotalType etStrip1,
+			      const unsigned jphi) const {
+  unsigned fact0 = (2*jphi+10) % 36;
+  unsigned fact1 = (2*jphi+12) % 36;
+  return etValueForJetFinder(etStrip0, fact0, etStrip1, fact1);
 }
 
 L1GctJetLeafCard::etComponentType
-L1GctJetLeafCard::eyComponent(const L1GctJetLeafCard::etTotalType etStrip, const unsigned jphi) const {
-  unsigned fact = (2*jphi+19) % 36;
-  return rotateEtValue(etStrip, fact);
+L1GctJetLeafCard::eyComponent(const L1GctJetLeafCard::etTotalType etStrip0,
+                              const L1GctJetLeafCard::etTotalType etStrip1,
+			      const unsigned jphi) const {
+  unsigned fact0 = (2*jphi+19) % 36;
+  unsigned fact1 = (2*jphi+21) % 36;
+  return etValueForJetFinder(etStrip0, fact0, etStrip1, fact1);
 }
 
 // Here is where the rotations are actually done
 // Procedure suitable for implementation in hardware, using
 // integer multiplication and bit shifting operations
 L1GctJetLeafCard::etComponentType
-L1GctJetLeafCard::rotateEtValue(const L1GctJetLeafCard::etTotalType etStrip, const unsigned fact) const {
+L1GctJetLeafCard::etValueForJetFinder(const etTotalType etStrip0, const unsigned fact0,
+                                      const etTotalType etStrip1, const unsigned fact1) const{
   // These factors correspond to the sine of angles from -90 degrees to
-  // 90 degrees in 10 degree steps, multiplied by 512 and written in 22 bits
-  const int factors[19] = {0x3ffe00, 0x3ffe08, 0x3ffe1f, 0x3ffe45, 0x3ffe78,
-                           0x3ffeb7, 0x3fff00, 0x3fff51, 0x3fffa7, 0x000000,
-                           0x000059, 0x0000af, 0x000100, 0x000149, 0x000188,
-                           0x0001bb, 0x0001e1, 0x0001f8, 0x000200};
-  const int maxEt=1<<etComponentSize;
-  int myValue, myFact;
+  // 90 degrees in 10 degree steps, multiplied by 16383 and written in 28 bits
+  const int factors[19] = {0xfffc001, 0xfffc0fa, 0xfffc3dd, 0xfffc894, 0xfffcefa,
+                           0xfffd6dd, 0xfffe000, 0xfffea1d, 0xffff4e3, 0x0000000,
+                           0x0000b1d, 0x00015e3, 0x0002000, 0x0002923, 0x0003106,
+                           0x000376c, 0x0003c23, 0x0003f06, 0x0003fff};
 
-  if (fact >= 36) {
+  static const int internalComponentSize=15;
+  static const int maxEt=1<<internalComponentSize;
+
+  int rotatedValue0, rotatedValue1, myFact;
+  int etComponentSum;
+
+  if (fact0 >= 36 || fact1 >= 36) {
     throw cms::Exception("L1GctProcessingError")
-      << "L1GctJetLeafCard::rotateEtValue() has been called with factor number "
-      << fact << "; should be less than 36 \n";
+      << "L1GctJetLeafCard::rotateEtValue() has been called with factor numbers "
+      << fact0 << " and " << fact1 << "; should be less than 36 \n";
   } 
 
-  // Choose the required multiplication factor
-  if (fact>18) { myFact = factors[(36-fact)]; }
-  else { myFact = factors[fact]; }
+  // First strip - choose the required multiplication factor
+  if (fact0>18) { myFact = factors[(36-fact0)]; }
+  else { myFact = factors[fact0]; }
 
-  // Multiply the 12-bit Et value by the 22-bit factor.
-  // Discard the eight LSB and interpret the result as
-  // a 14-bit twos complement integer.
+  // Multiply the 14-bit Et value by the 28-bit factor.
+  rotatedValue0 = static_cast<int>(etStrip0.value()) * myFact;
+
+  // Second strip - choose the required multiplication factor
+  if (fact1>18) { myFact = factors[(36-fact1)]; }
+  else { myFact = factors[fact1]; }
+
+  // Multiply the 14-bit Et value by the 28-bit factor.
+  rotatedValue1 = static_cast<int>(etStrip1.value()) * myFact;
+
+  // Add the two scaled values together, with full resolution including
+  // fractional parts from the sin(phi), cos(phi) scaling.
   // Adjust the value to avoid truncation errors since these
   // accumulate and cause problems for the missing Et measurement.
-  myValue = (( static_cast<int>(etStrip.value()) * myFact ) + 0x80)>>8;
-  myValue = myValue & (maxEt-1);
-  if (myValue >= (maxEt/2)) {
-    myValue = myValue - maxEt;
+  // Then discard the 13 LSB and interpret the result as
+  // a 15-bit twos complement integer.
+  etComponentSum = ((rotatedValue0 + rotatedValue1) + 0x1000)>>13;
+
+  etComponentSum = etComponentSum & (maxEt-1);
+  if (etComponentSum >= (maxEt/2)) {
+    etComponentSum = etComponentSum - maxEt;
   }
 
-  etComponentType temp(myValue);
-  temp.setOverFlow(temp.overFlow() || etStrip.overFlow());
+  // Store as a TwosComplement format integer and return
+  etComponentType temp(etComponentSum);
+  temp.setOverFlow(temp.overFlow() || etStrip0.overFlow() || etStrip1.overFlow());
   return temp;
-
 }

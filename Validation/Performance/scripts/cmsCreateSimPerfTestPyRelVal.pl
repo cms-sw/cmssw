@@ -6,6 +6,30 @@ $CMSSW_RELEASE_BASE=$ENV{'CMSSW_RELEASE_BASE'};
 $CMSSW_VERSION=$ENV{'CMSSW_VERSION'};
 $HOST=$ENV{'HOST'};
 
+#CASTOR directory handling:
+if ($#ARGV==0)
+{
+    $CASTOR_DIR=$ARGV[0];
+    print "User provided the following custom CASTOR directory where to archive the results of the performance suite:\n$CASTOR_DIR\n";
+}
+elsif ($#ARGV<0)
+{
+    #Define here the default CASTOR directory:
+    $CASTOR_DIR="/castor/cern.ch/cms/store/relval/performance";
+    print "Default CASTOR directory where the tarball with the results will be archived is:\n$CASTOR_DIR\n";
+}
+else
+{
+    print "Usage: cmsCreateSimPerfTestPyRelVal.pl [optional CASTOR directory argument]:
+E.G.:
+cmsCreateSimPerfTestPyRelVal.pl
+(this will archive the results in a tarball on /castor/cern.ch/user/r/relval/performance/)
+OR
+cmsCreateSimPerfTestPyRelVal.pl \"/castor/cern.ch/user/y/yourusername/yourdirectory/\"
+(this will archive the results in a tarball on /castor/cern.ch/user/y/yourusername/yourdirectory/)\n";
+    exit;
+}
+
 #Default number of events for each set of tests:
 $TimeSizeNumOfEvts=100;
 $IgProfNumOfEvts=5;
@@ -43,9 +67,12 @@ else
 $Taskset="taskset -c 1";
 
 #Setting the path for the commands (and cpu core affinity for some):
-$cmsDriver="$Taskset $BASE_PYRELVAL/scripts/cmsDriver.py";
-$cmsSimPyRelVal="$Taskset $BASE_PERFORMANCE/scripts/cmsSimPyRelVal.pl";
-$cmsRelvalreport="$Taskset $BASE_PYRELVAL/scripts/cmsRelvalreport.py";
+#$cmsDriver="$Taskset $BASE_PYRELVAL/scripts/cmsDriver.py";
+$cmsDriver="$Taskset cmsDriver.py";
+#$cmsSimPyRelVal="$Taskset $BASE_PERFORMANCE/scripts/cmsSimPyRelVal.pl";
+$cmsSimPyRelVal="$Taskset cmsSimPyRelVal.pl";
+#$cmsRelvalreport="$Taskset $BASE_PYRELVAL/scripts/cmsRelvalreport.py";
+$cmsRelvalreport="$Taskset cmsRelvalreport.py";
 $cmsScimarkLaunch="$BASE_PERFORMANCE/scripts/cmsScimarkLaunch.csh";
 $cmsScimarkParser="$BASE_PERFORMANCE/scripts/cmsScimarkParser.py";
 $cmsScimarkStop="$BASE_PERFORMANCE/scripts/cmsScimarkStop.pl";
@@ -169,11 +196,11 @@ cd ..\n";
 if ($ValgrindNumOfEvts>0)
 {
     print "Launching the Valgrind tests with $ValgrindNumOfEvts events each\n";
-#Running ValgrindFCE callgrind and memcheck on $ValgrindNumOfEvts ZPrimeJJ event (DIGI only)
+#Running ValgrindFCE callgrind and memcheck on $ValgrindNumOfEvts QCD_80_120 event (everything but GEN,SIM)
     print "mkdir QCD_80_120_Valgrind
 cd QCD_80_120_Valgrind
-cp -pR ../QCD_80_120_IgProf/QCD_80_120_SIM.root .
-$cmsSimPyRelVal $ValgrindNumOfEvts "."$CmsDriverCandle{$Candle[6]}"." 89;grep -v SIM SimulationCandles_"."$CMSSW_VERSION".".txt \>tmp
+cp -pR ../QCD_80_120_IgProf/QCD_80_120_GEN,SIM.root .
+$cmsSimPyRelVal $ValgrindNumOfEvts "."$CmsDriverCandle{$Candle[6]}"." 89;grep -v \"step\=GEN\,SIM\" SimulationCandles_"."$CMSSW_VERSION".".txt \>tmp
 mv tmp SimulationCandles_"."$CMSSW_VERSION".".txt
 $cmsRelvalreport -i SimulationCandles_"."$CMSSW_VERSION".".txt -t perfreport_tmp -R -P >& QCD_80_120.log
 cd ..\n";
@@ -182,30 +209,28 @@ cd ..\n";
 	   "mkdir QCD_80_120_Valgrind;
            cd QCD_80_120_Valgrind;
            #Copying over the SIM.root file from the IgProf profiling directory to avoid re-running it
-           cp -pR ../QCD_80_120_IgProf/QCD_80_120_SIM.root .;
-           $cmsSimPyRelVal $ValgrindNumOfEvts "."$CmsDriverCandle{$Candle[6]}"." 89;grep -v SIM SimulationCandles_"."$CMSSW_VERSION".".txt \>tmp; 
+           cp -pR ../QCD_80_120_IgProf/QCD_80_120_GEN,SIM.root .;
+           $cmsSimPyRelVal $ValgrindNumOfEvts "."$CmsDriverCandle{$Candle[6]}"." 89;grep -v \"step\=GEN\,SIM\" SimulationCandles_"."$CMSSW_VERSION".".txt \>tmp; 
            mv tmp SimulationCandles_"."$CMSSW_VERSION".".txt;
            $cmsRelvalreport -i SimulationCandles_"."$CMSSW_VERSION".".txt -t perfreport_tmp -R -P >& QCD_80_120.log;
            cd .."
 	  );
 
-#Running ValgrindFCE callgrind and memcheck on $ValgrindNumOfEvts SingleMuMinus event (SIM only)
+#Running ValgrindFCE callgrind and memcheck on $ValgrindNumOfEvts SingleMuMinus event (GEN,SIM only)
     print "mkdir SingleMuMinusPt10_Valgrind
 cd SingleMuMinusPt10_Valgrind
-$cmsSimPyRelVal $ValgrindNumOfEvts "."$CmsDriverCandle{$Candle[3]}"." 89;grep -v DIGI SimulationCandles_"."$CMSSW_VERSION".".txt \>tmp
+$cmsSimPyRelVal $ValgrindNumOfEvts "."$CmsDriverCandle{$Candle[3]}"." 89;
+grep \"step\=GEN\,SIM\" SimulationCandles_"."$CMSSW_VERSION".".txt >tmp
 mv tmp SimulationCandles_"."$CMSSW_VERSION".".txt
-cp -pR ../SingleMuMinusPt10_TimeSize/MU-_pt10_DIGI.root .
 $cmsRelvalreport -i SimulationCandles_"."$CMSSW_VERSION".".txt -t perfreport_tmp -R -P >& SingleMuMinusPt10.log\n
 cd ..\n";
 
     system(
 	   "mkdir SingleMuMinusPt10_Valgrind;
            cd SingleMuMinusPt10_Valgrind;
-           $cmsSimPyRelVal $ValgrindNumOfEvts "."$CmsDriverCandle{$Candle[3]}"." 89;grep -v DIGI SimulationCandles_"."$CMSSW_VERSION".".txt \>tmp; 
+           $cmsSimPyRelVal $ValgrindNumOfEvts "."$CmsDriverCandle{$Candle[3]}"." 89;
+           grep \"step\=GEN\,SIM\" SimulationCandles_"."$CMSSW_VERSION".".txt \>tmp;
            mv tmp SimulationCandles_"."$CMSSW_VERSION".".txt;
-           #Adding RECO step, so DIGI root file is needed!
-           #Copying over the DIGI.root file from the TimeSize profiling directory to avoid re-running it
-           cp -pR ../SingleMuMinusPt10_TimeSize/MU-_pt10_DIGI.root .;
            $cmsRelvalreport -i SimulationCandles_"."$CMSSW_VERSION".".txt -t perfreport_tmp -R -P >& SingleMuMinusPt10.log;
            cd .."
 	  );
@@ -218,7 +243,7 @@ for ($i=0;$i<$cmsScimark2NumOfTimes;$i++)
 {
         $j=$i+1;
     print "$Taskset cmsScimark2 \[$j/$cmsScimark2NumOfTimes\]\n";
-    #$scimark=`$Taskset cmsScimark2`;
+    $scimark=`$Taskset cmsScimark2`;
     print SCIMARK "$Taskset cmsScimark2 \[$j/$cmsScimark2NumOfTimes\]\n";
     print SCIMARK "$scimark\n";
 }
@@ -231,7 +256,7 @@ for ($i=0;$i<$cmsScimark2LargeNumOfTimes;$i++)
 {
         $j=$i+1;
     print "$Taskset cmsScimark2 -large \[$j/$cmsScimark2NumOfTimes\]\n";
-    #$scimarklarge=`$Taskset cmsScimark2 -large`;
+    $scimarklarge=`$Taskset cmsScimark2 -large`;
     print SCIMARKLARGE "$Taskset cmsScimark2 -large \[$j/$cmsScimark2NumOfTimes\]\n";
     print SCIMARKLARGE "$scimarklarge\n";
 }
@@ -242,5 +267,14 @@ close SCIMARKLARGE;
 print "Stop all cmsScimarkLaunch jobs\n";
 print "$cmsScimarkStop\n";
 system("$cmsScimarkStop");
+#Create a tarball of the work directory 
+$TarFile=$CMSSW_VERSION.'_'.$HOST.'_work.tar';
+print "tar -cvf $TarFile *; gzip $TarFile\n";
+system("tar -cvf $TarFile *; gzip $TarFile");
+$TarFileGzip=$TarFile.".gz";
+$CastorFile=$CASTOR_DIR.$TarFileGzip;
+#Archive the tarball in CASTOR
+print "rfcp $TarFileGzip $CastorFile \n";
+system("rfcp $TarFileGzip $CastorFile");
 exit;
 

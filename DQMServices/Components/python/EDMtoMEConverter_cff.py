@@ -3,14 +3,15 @@
 # needed backend
 
 import FWCore.ParameterSet.Config as cms
+
+# needed output
+from DQMServices.Components.test.dqm_onlineEnv_cfi import *
 # actual producer
 from DQMServices.Components.EDMtoMEConverter_cfi import *
-
 DQMStore = cms.Service("DQMStore",
-    # default ""
     referenceFileName = cms.untracked.string(''),
-    # default 0
     verbose = cms.untracked.int32(0),
-    # default true
     collateHistograms = cms.untracked.bool(True)
 )
+
+

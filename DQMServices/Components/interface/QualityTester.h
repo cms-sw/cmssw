@@ -8,8 +8,8 @@
  * - they receive ME data from the SM 
  * - they are run together with the producers (standalone mode)
  *
- * $Date: 2007/11/09 07:25:14 $
- * $Revision: 1.4 $
+ * $Date: 2008/05/17 16:22:28 $
+ * $Revision: 1.6 $
  * \author M. Zanetti - CERN PH
  *
  */
@@ -43,16 +43,25 @@ public:
 protected:
 
   /// Analyze
-  void analyze(const edm::Event& e, const edm::EventSetup& c) {};
+  void analyze(const edm::Event& e, const edm::EventSetup& c) ;
 
   /// perform the actual quality tests
   void endLuminosityBlock(edm::LuminosityBlock const& lumiSeg, edm::EventSetup const& c);
 
+  void endRun(const edm::Run& r, const edm::EventSetup& c);
+  void endJob();
 
 private:
 
+
+  void performTests(void);
+  
+  int nEvents;
   int prescaleFactor;
   bool getQualityTestsFromFile;
+  bool testInEventloop;
+  bool qtestOnEndRun;
+  bool qtestOnEndJob;
   std::string reportThreshold;
 
   DQMStore * bei;

@@ -1,5 +1,5 @@
 /*----------------------------------------------------------------------
-$Id: RootFile.cc,v 1.125 2008/03/20 18:47:47 wmtan Exp $
+$Id: RootFile.cc,v 1.133.4.3 2008/05/15 18:35:06 wmtan Exp $
 ----------------------------------------------------------------------*/
 
 #include "RootFile.h"
@@ -49,8 +49,12 @@ namespace edm {
 		     unsigned int eventsToSkip,
 		     std::vector<LuminosityBlockID> const& whichLumisToSkip,
 		     int remainingEvents,
+		     unsigned int treeCacheSize,
+                     int treeMaxVirtualSize,
 		     int forcedRunOffset,
-		     std::vector<EventID> const& whichEventsToProcess) :
+		     std::vector<EventID> const& whichEventsToProcess,
+		     bool dropMetaData,
+                     bool csa08Kludge) :
       file_(fileName),
       logicalFile_(logicalFileName),
       catalog_(catalogName),
@@ -73,6 +77,7 @@ namespace edm {
       whichEventsToProcess_(whichEventsToProcess),
       eventListIter_(whichEventsToProcess_.begin()),
       fastClonable_(false),
+      dropMetaData_(dropMetaData),
       reportToken_(0),
       eventAux_(),
       lumiAux_(),
@@ -87,6 +92,12 @@ namespace edm {
       sortedNewBranchNames_(),
       oldBranchNames_(),
       eventHistoryTree_(0) {
+    eventTree_.setCacheSize(treeCacheSize);
+
+    eventTree_.setTreeMaxVirtualSize(treeMaxVirtualSize);
+    lumiTree_.setTreeMaxVirtualSize(treeMaxVirtualSize);
+    runTree_.setTreeMaxVirtualSize(treeMaxVirtualSize);
+
     treePointers_[InEvent] = &eventTree_;
     treePointers_[InLumi]  = &lumiTree_;
     treePointers_[InRun]   = &runTree_;
@@ -131,7 +142,9 @@ namespace edm {
 
     metaDataTree->GetEntry(0);
 
-    readEventDescriptionTree();
+    if (!csa08Kludge) { 
+      readEventDescriptionTree();
+    }
 
     validateFile();
     fileIndexIter_ = fileIndexBegin_ = fileIndex_.begin();
@@ -139,6 +152,27 @@ namespace edm {
     eventProcessHistoryIter_ = eventProcessHistoryIDs_.begin();
 
     readEventHistoryTree();
+
+    // Set product presence information in the product registry.
+    // We must do this before calling deleteDroppedProducts().
+    ProductRegistry::ProductList const& pList = tempReg.productList();
+    for (ProductRegistry::ProductList::const_iterator it = pList.begin(), itEnd = pList.end();
+        it != itEnd; ++it) {
+      BranchDescription const& prod = it->second;
+      // This is a KLUDGE for 2_0_X only to facilitate merging.
+      if (fileFormatVersion_.value_ == 7 &&
+          prod.friendlyClassName() == std::string("FEDRawDataCollection") &&
+          prod.moduleLabel() == std::string("source")) {
+	BranchDescription *p = const_cast<BranchDescription *>(&it->second);
+	p->productID_.id_ = 1U;
+      }
+      treePointers_[prod.branchType()]->setPresence(prod);
+    }
+
+    if (dropMetaData_) {
+      // delete all dropped products from the registry.
+      tempReg.deleteDroppedProducts();
+    }
 
     // freeze our temporary product registry
     tempReg.setFrozen();
@@ -326,81 +360,113 @@ namespace edm {
 
   FileIndex::EntryType
   RootFile::getNextEntryTypeWanted() {
-    if (!whichEventsToProcess_.empty() && eventListIter_ == whichEventsToProcess_.end()) {
+    bool specifiedEvents = !whichEventsToProcess_.empty();
+    if (specifiedEvents && eventListIter_ == whichEventsToProcess_.end()) {
+      // We are processing specified events, and we are done with them.
       fileIndexIter_ = fileIndexEnd_;
       return FileIndex::kEnd;
     }
     FileIndex::EntryType entryType = getEntryTypeSkippingDups();
     if (entryType == FileIndex::kEnd) {
       return FileIndex::kEnd;
-    } else if (entryType == FileIndex::kRun) {
-      // Skip any runs before the first run specified, startAtRun_.
-      RunNumber_t currentRun = (fileIndexIter_->run_ ? fileIndexIter_->run_ : 1U);
-      // Skip any runs before the first run specified in the event list.
-      if (!whichEventsToProcess_.empty()) {
-	if (currentRun < eventListIter_->run()){
-	  fileIndexIter_ = fileIndex_.findRunPosition(eventListIter_->run(), false);      
-	  return getNextEntryTypeWanted();
-	}
+    }
+    RunNumber_t const& currentRun = fileIndexIter_->run_;
+    RunNumber_t correctedCurrentRun = (currentRun ? currentRun : 1U);
+    if (specifiedEvents) {
+       // We are processing specified events.
+      if (correctedCurrentRun > eventListIter_->run()) {
+	// The next specified event is in a run not in the file or already passed.  Skip the event
+	++eventListIter_;
+	return getNextEntryTypeWanted();
       }
-      if (currentRun < startAtRun_) {
+      // Skip any runs before the next specified event.
+      if (correctedCurrentRun < eventListIter_->run()) {
+	fileIndexIter_ = fileIndex_.findRunPosition(eventListIter_->run(), false);      
+	return getNextEntryTypeWanted();
+      }
+    }
+    if (entryType == FileIndex::kRun) {
+      // Skip any runs before the first run specified, startAtRun_.
+      if (correctedCurrentRun < startAtRun_) {
         fileIndexIter_ = fileIndex_.findRunPosition(startAtRun_, false);      
 	return getNextEntryTypeWanted();
       }
-    } else if (entryType == FileIndex::kLumi) {
+      return FileIndex::kRun;
+    } 
+    LuminosityBlockNumber_t const& currentLumi = fileIndexIter_->lumi_;
+    if (specifiedEvents) {
+      // We are processing specified events.
+      assert (correctedCurrentRun == eventListIter_->run());
+      // Get the luminosity block number of the next specified event.
+      FileIndex::const_iterator iter = fileIndex_.findEventPosition(currentRun, 0U, eventListIter_->event(), true);      
+      if (iter == fileIndexEnd_ || currentLumi > iter->lumi_) {
+	// Event Not Found or already passed. Skip the next specified event;
+	++eventListIter_;
+	return getNextEntryTypeWanted();
+      }
+      // Skip any lumis before the next specified event.
+      if (currentLumi < iter->lumi_) {
+        fileIndexIter_ = fileIndex_.findPosition(eventListIter_->run(), iter->lumi_, 0U);
+        return getNextEntryTypeWanted();
+      }
+    }
+    if (entryType == FileIndex::kLumi) {
       // Skip any lumis before the first lumi specified, startAtLumi_.
-      RunNumber_t currentRun = (fileIndexIter_->run_ ? fileIndexIter_->run_ : 1U);
-      assert(currentRun >= startAtRun_);
-      if (currentRun == startAtRun_ && fileIndexIter_->lumi_ < startAtLumi_) {
-        fileIndexIter_ = fileIndex_.findPosition(fileIndexIter_->run_, startAtLumi_, 0U);      
+      assert(correctedCurrentRun >= startAtRun_);
+      if (correctedCurrentRun == startAtRun_ && currentLumi < startAtLumi_) {
+        fileIndexIter_ = fileIndex_.findPosition(currentRun, startAtLumi_, 0U);      
 	return getNextEntryTypeWanted();
       }
       // Skip the lumi if it is in whichLumisToSkip_.
-      if (binary_search_all(whichLumisToSkip_, LuminosityBlockID(currentRun, fileIndexIter_->lumi_))) {
-        fileIndexIter_ = fileIndex_.findPosition(fileIndexIter_->run_, fileIndexIter_->lumi_ + 1, 0U);      
-	return getNextEntryTypeWanted();
-	
-      }
-    } else if (entryType == FileIndex::kEvent) {
-      // Skip any events before the first event specified, startAtEvent_.
-      RunNumber_t currentRun = (fileIndexIter_->run_ ? fileIndexIter_->run_ : 1U);
-      assert(currentRun >= startAtRun_);
-      assert(currentRun > startAtRun_ || fileIndexIter_->lumi_ >= startAtLumi_);
-      if (currentRun == startAtRun_ &&
-	  fileIndexIter_->event_ < startAtEvent_) {
-        fileIndexIter_ = fileIndex_.findPosition(fileIndexIter_->run_,
-						      fileIndexIter_->lumi_,
-						      startAtEvent_);      
+      if (binary_search_all(whichLumisToSkip_, LuminosityBlockID(correctedCurrentRun, currentLumi))) {
+        fileIndexIter_ = fileIndex_.findPosition(currentRun, currentLumi + 1, 0U);      
 	return getNextEntryTypeWanted();
       }
-      // If we have specified a count of events to skip, keep skipping events in this lumi block
-      // until we reach the end of the lumi block or the full count of the number of events to skip.
-      if (eventsToSkip_ != 0) {
-        while (eventsToSkip_ != 0 && fileIndexIter_ != fileIndexEnd_ &&
-	  getEntryTypeSkippingDups() == FileIndex::kEvent) {
-          ++fileIndexIter_;
-          --eventsToSkip_;
-        }
-	return getNextEntryTypeWanted();
-      }
-      // If we have a list of events to process and we're here then we've already positioned the file 
-      // to execute the run and lumi entry for the current event in the list so just position to the 
-      // right event and return.
-      if (!whichEventsToProcess_.empty()){
-	fileIndexIter_ = fileIndex_.findEventPosition(fileIndexIter_->run_,
-						  fileIndexIter_->lumi_,
+      return FileIndex::kLumi;
+    }
+    assert (entryType == FileIndex::kEvent);
+    // Skip any events before the first event specified, startAtEvent_.
+    assert(correctedCurrentRun >= startAtRun_);
+    assert(correctedCurrentRun > startAtRun_ || currentLumi >= startAtLumi_);
+    if (correctedCurrentRun == startAtRun_ &&
+	fileIndexIter_->event_ < startAtEvent_) {
+      fileIndexIter_ = fileIndex_.findPosition(currentRun, currentLumi, startAtEvent_);      
+      return getNextEntryTypeWanted();
+    }
+    if (specifiedEvents) {
+      // We have specified events to process and we've already positioned the file 
+      // to execute the run and lumi entry for the current event in the list.
+      // Just position to the right event.
+      assert (correctedCurrentRun == eventListIter_->run());
+      fileIndexIter_ = fileIndex_.findEventPosition(currentRun, currentLumi,
 						  eventListIter_->event(), 
 						  false);
-	if (fileIndexIter_->event_ != eventListIter_->event()) {
-	  // event was not found.
-	  ++eventListIter_;
-	  return getNextEntryTypeWanted();
-	}
-	// for next time around move to the next request
+      if (fileIndexIter_->event_ != eventListIter_->event()) {
+	// Event was not found.
 	++eventListIter_;
+	return getNextEntryTypeWanted();
       }
+      // Event was found.
+      // For the next time around move to the next specified event
+      ++eventListIter_;
+      if (eventsToSkip_ != 0) {
+	// We have specified a count of events to skip.  So decrement the count and skip this event.
+        --eventsToSkip_;
+	return getNextEntryTypeWanted();
+      }
+      return FileIndex::kEvent;
     }
-    return entryType;
+    if (eventsToSkip_ != 0) {
+      // We have specified a count of events to skip, keep skipping events in this lumi block
+      // until we reach the end of the lumi block or the full count of the number of events to skip.
+      while (eventsToSkip_ != 0 && fileIndexIter_ != fileIndexEnd_ &&
+	getEntryTypeSkippingDups() == FileIndex::kEvent) {
+        ++fileIndexIter_;
+        --eventsToSkip_;
+      }
+      return getNextEntryTypeWanted();
+    }
+    return FileIndex::kEvent;
   }
 
   void
@@ -592,6 +658,9 @@ namespace edm {
       if (fileIndexIter_->getEntryType() == FileIndex::kEvent) {
         ++offset;
       }
+    }
+    while (fileIndexIter_ != fileIndexEnd_ && fileIndexIter_->getEntryType() != FileIndex::kEvent) {
+      ++fileIndexIter_;
     }
     return offset;
   }

@@ -1,7 +1,7 @@
 /*
  * 
- * $Date: 2008/01/22 18:45:23 $
- * $Revision: 1.15 $
+ * $Date: 2008/04/22 16:49:18 $
+ * $Revision: 1.17 $
  * \authors:
  *  A. Gresele - INFN Trento
  *  G. Mila - INFN Torino
@@ -42,7 +42,6 @@ DTNoiseTest::DTNoiseTest(const edm::ParameterSet& ps){
   parameters = ps;
   
   dbe = edm::Service<DQMStore>().operator->();
-  dbe->setVerbose(1);
   dbe->setCurrentFolder("DT/Tests/Noise");
 
   prescaleFactor = parameters.getUntrackedParameter<int>("diagnosticPrescale", 1);
@@ -243,7 +242,8 @@ void DTNoiseTest::endLuminosityBlock(LuminosityBlock const& lumiSeg, EventSetup 
       for (vector<dqm::me_util::Channel>::iterator channel = badChannels.begin(); 
 	   channel != badChannels.end(); channel++) {
 	LogVerbatim ("tTrigCalibration")<<"LayerId : "<<(*hMean).first<<" Bad mean channels: "<<(*channel).getBin()<<"  Contents : "<<(*channel).getContents();
-	LogVerbatim ("tTrigCalibration") << "-------- LayerId : "<<(*hMean).first<<"  "<<theMeanQReport->getMessage()<<" ------- "<<theMeanQReport->getStatus(); 
+	// FIXME: getMessage() sometimes returns and invalid string (null pointer inside QReport data member)
+	// LogVerbatim ("tTrigCalibration") << "-------- LayerId : "<<(*hMean).first<<"  "<<theMeanQReport->getMessage()<<" ------- "<<theMeanQReport->getStatus(); 
       }
     }
   }

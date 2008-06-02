@@ -133,8 +133,7 @@ cond::IOVServiceImpl::globalTill() const{
 
 std::string
 cond::IOVServiceImpl::exportIOVWithPayload( cond::PoolTransaction& destDB,
-					    const std::string& iovToken,
-					    const std::string& payloadObjectName ){
+					    const std::string& iovToken){
 
   std::map< std::string,cond::TypedRef<cond::IOV> >::iterator it=m_iovcache.find(iovToken);
   if(it==m_iovcache.end()){
@@ -148,7 +147,7 @@ cond::IOVServiceImpl::exportIOVWithPayload( cond::PoolTransaction& destDB,
 
   for( IOV::iterator it=iov->iov.begin();
        it!=iov->iov.end(); ++it){
-    cond::GenericRef payloadRef(*m_pooldb,it->second,payloadObjectName);
+    cond::GenericRef payloadRef(*m_pooldb,it->second);
     std::string newPToken=payloadRef.exportTo(destDB);
     newiov->add(it->first,newPToken);
   }
@@ -162,8 +161,7 @@ cond::IOVServiceImpl::exportIOVRangeWithPayload( cond::PoolTransaction& destDB,
 						 const std::string& iovToken,
 						 const std::string& destToken,
 						 cond::Time_t since,
-						 cond::Time_t till,
-						 const std::string& payloadObjectName ){
+						 cond::Time_t till){
 
   std::map< std::string,cond::TypedRef<cond::IOV> >::iterator it=m_iovcache.find(iovToken);
 
@@ -215,7 +213,7 @@ cond::IOVServiceImpl::exportIOVRangeWithPayload( cond::PoolTransaction& destDB,
   cond::IOV & newiov = *newiovref;
   for( IOV::const_iterator it=ifirstTill;
        it!=isecondTill; ++it){
-    cond::GenericRef payloadRef(*m_pooldb,it->second,payloadObjectName);
+    cond::GenericRef payloadRef(*m_pooldb,it->second);
     std::string newPtoken=payloadRef.exportTo(destDB);
     newiov.add(it->first,newPtoken);
   }
