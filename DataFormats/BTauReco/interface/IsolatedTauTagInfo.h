@@ -39,7 +39,7 @@ namespace reco {
     const TrackRefVector allTracks() const { return tracks(); }
 
     //get the selected tracks used to computed the isolation
-    const TrackRefVector & selectedTracks() const {return selectedTracks_;}
+    const TrackRefVector  selectedTracks() const {return selectedTracks_;}
     
     virtual IsolatedTauTagInfo* clone() const { return new IsolatedTauTagInfo( *this ); }
   
@@ -60,10 +60,10 @@ namespace reco {
     const TrackRefVector tracksInCone(const math::XYZVector myVector, const float size, const float pt_min, const float z_pv, const float dz_lt ) const;
     
     // return the leading track in a given cone around the jet axis or a given direction
-    void setLeadingTrack(const TrackRef &) ; 
-    const TrackRef & leadingSignalTrack() const;
-    const TrackRef & leadingSignalTrack(const float rm_cone, const float pt_min) const;
-    const TrackRef & leadingSignalTrack(math::XYZVector myVector, const float rm_cone, const float pt_min) const;
+    void setLeadingTrack(const TrackRef) ; 
+    const TrackRef leadingSignalTrack() const;
+    const TrackRef  leadingSignalTrack(const float rm_cone, const float pt_min) const;
+    const TrackRef  leadingSignalTrack(math::XYZVector myVector, const float rm_cone, const float pt_min) const;
      
   private:
     double m_discriminator;

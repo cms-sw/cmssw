@@ -41,16 +41,16 @@ const RefVector<TrackCollection> IsolatedTauTagInfo::tracksInCone( const math::X
 }
 
 
-void IsolatedTauTagInfo::setLeadingTrack(const TrackRef& leadTk) {
-  leadTrack_ = leadTk;
+void IsolatedTauTagInfo::setLeadingTrack(const TrackRef leadTk) {
+  leadTrack_ = leadTk ;
 
 }
 
-const TrackRef & IsolatedTauTagInfo::leadingSignalTrack() const {
+const TrackRef  IsolatedTauTagInfo::leadingSignalTrack() const {
   return leadTrack_;
 }
 
-const TrackRef& IsolatedTauTagInfo::leadingSignalTrack(const float rm_cone, const float pt_min) const {
+const TrackRef IsolatedTauTagInfo::leadingSignalTrack(const float rm_cone, const float pt_min) const {
 
   const Jet & myjet = * jet(); 
   math::XYZVector jet3Vec   (myjet.px(),myjet.py(),myjet.pz()) ;
@@ -73,7 +73,7 @@ const TrackRef& IsolatedTauTagInfo::leadingSignalTrack(const float rm_cone, cons
 }
 
 
-const TrackRef & IsolatedTauTagInfo::leadingSignalTrack(const math::XYZVector myVector, const float rm_cone, const float pt_min) const {
+const TrackRef  IsolatedTauTagInfo::leadingSignalTrack(const math::XYZVector myVector, const float rm_cone, const float pt_min) const {
   const RefVector<TrackCollection> sTracks = tracksInCone(myVector, rm_cone, pt_min);
   TrackRef leadTk;
   float pt_cut = pt_min;
