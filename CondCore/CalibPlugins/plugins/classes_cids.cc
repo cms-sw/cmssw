@@ -1,5 +1,5 @@
-#include "CondFormats/Common/interface/ClassIDCapability.h"
-#include "../src/classes.h"
+#include "CondCore/PluginSystem/interface/ClassIDCapability.h"
+#include "CondFormats/Calibration/src/classes.h"
 
 CLASS_ID(Pedestals);
 CLASS_ID(BlobPedestals);
