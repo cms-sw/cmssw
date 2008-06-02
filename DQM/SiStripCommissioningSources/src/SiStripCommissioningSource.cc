@@ -30,8 +30,6 @@
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "FWCore/ServiceRegistry/interface/Service.h"
 #include "FWCore/Utilities/interface/Exception.h"
-//#include "OnlineDB/SiStripConfigDb/interface/SiStripConfigDb.h"
-//#include "OnlineDB/SiStripESSources/interface/SiStripFedCablingBuilderFromDb.h"
 #include <boost/cstdint.hpp>
 #include <memory>
 #include <iomanip>
@@ -418,13 +416,13 @@ void SiStripCommissioningSource::fillCablingHistos( const SiStripEventSummary* c
       if ( digis != raw.end() ) { 
 	if ( digis->data.empty() ) { continue; }
 	
-// 	if ( digis->data[0].adc() > 500 ) {
-// 	  std::stringstream ss;
-// 	  ss << " HIGH SIGNAL " << digis->data[0].adc() << " FOR"
-// 	     << " FedKey: 0x" << std::hex << std::setw(8) << std::setfill('0') << fed_key << std::dec
-// 	     << " FedId/Ch: " << *ifed << "/" << ichan;
-// 	  LogTrace(mlDqmSource_) << ss.str();
-// 	}
+	// 	if ( digis->data[0].adc() > 500 ) {
+	// 	  std::stringstream ss;
+	// 	  ss << " HIGH SIGNAL " << digis->data[0].adc() << " FOR"
+	// 	     << " FedKey: 0x" << std::hex << std::setw(8) << std::setfill('0') << fed_key << std::dec
+	// 	     << " FedId/Ch: " << *ifed << "/" << ichan;
+	// 	  LogTrace(mlDqmSource_) << ss.str();
+	// 	}
 	
 	Averages ave;
 	for ( uint16_t idigi = 0; idigi < digis->data.size(); idigi++ ) { 
@@ -435,22 +433,22 @@ void SiStripCommissioningSource::fillCablingHistos( const SiStripEventSummary* c
 	medians[ichan] = params.median_; // Store median signal level
 	medians1[ichan] = digis->data[0].adc(); 
 
-// 	if ( !digis->data.empty() ) { medians[ichan] = digis->data[0].adc(); }
-// 	else { 
-// 	  edm::LogWarning(mlTest_) << "TEST : NO DIGIS!";
-// 	}
+	// 	if ( !digis->data.empty() ) { medians[ichan] = digis->data[0].adc(); }
+	// 	else { 
+	// 	  edm::LogWarning(mlTest_) << "TEST : NO DIGIS!";
+	// 	}
 	
-// 		std::stringstream ss;
-// 		ss << "Channel Averages:" << std::endl
-// 		   << "  nDigis: " << digis->data.size() << std::endl
-// 		   << "  num/mean/MEDIAN/rms/max/min: "
-// 		   << params.num_ << "/"
-// 		   << params.mean_ << "/"
-// 		   << params.median_ << "/"
-// 		   << params.rms_ << "/"
-// 		   << params.max_ << "/"
-// 		   << params.min_ << std::endl;
-// 		LogTrace(mlDqmSource_) << ss.str();
+	// 		std::stringstream ss;
+	// 		ss << "Channel Averages:" << std::endl
+	// 		   << "  nDigis: " << digis->data.size() << std::endl
+	// 		   << "  num/mean/MEDIAN/rms/max/min: "
+	// 		   << params.num_ << "/"
+	// 		   << params.mean_ << "/"
+	// 		   << params.median_ << "/"
+	// 		   << params.rms_ << "/"
+	// 		   << params.max_ << "/"
+	// 		   << params.min_ << std::endl;
+	// 		LogTrace(mlDqmSource_) << ss.str();
 
       }
       
@@ -463,17 +461,17 @@ void SiStripCommissioningSource::fillCablingHistos( const SiStripEventSummary* c
     Averages::Params tmp;
     average.calc(tmp);
       
-//     std::stringstream ss;
-//     ss << "FED Averages:" << std::endl
-//        << "  nChans: " << medians.size() << std::endl
-//        << "  num/mean/median/rms/max/min: "
-//        << tmp.num_ << "/"
-//        << tmp.mean_ << "/"
-//        << tmp.median_ << "/"
-//        << tmp.rms_ << "/"
-//        << tmp.max_ << "/"
-//        << tmp.min_ << std::endl;
-//     LogTrace(mlDqmSource_) << ss.str();
+    //     std::stringstream ss;
+    //     ss << "FED Averages:" << std::endl
+    //        << "  nChans: " << medians.size() << std::endl
+    //        << "  num/mean/median/rms/max/min: "
+    //        << tmp.num_ << "/"
+    //        << tmp.mean_ << "/"
+    //        << tmp.median_ << "/"
+    //        << tmp.rms_ << "/"
+    //        << tmp.max_ << "/"
+    //        << tmp.min_ << std::endl;
+    //     LogTrace(mlDqmSource_) << ss.str();
       
     // Calculate mean and spread on "filtered" data
     Averages truncated;
@@ -486,31 +484,31 @@ void SiStripCommissioningSource::fillCablingHistos( const SiStripEventSummary* c
     Averages::Params params;
     truncated.calc(params);
       
-//     std::stringstream ss1;
-//     ss1 << "Truncated Averages:" << std::endl
-// 	<< "  nChans: " << medians.size() << std::endl
-// 	<< "  num/mean/median/rms/max/min: "
-// 	<< params.num_ << "/"
-// 	<< params.mean_ << "/"
-// 	<< params.median_ << "/"
-// 	<< params.rms_ << "/"
-// 	<< params.max_ << "/"
-// 	<< params.min_ << std::endl;
-//     LogTrace(mlDqmSource_) << ss1.str();
+    //     std::stringstream ss1;
+    //     ss1 << "Truncated Averages:" << std::endl
+    // 	<< "  nChans: " << medians.size() << std::endl
+    // 	<< "  num/mean/median/rms/max/min: "
+    // 	<< params.num_ << "/"
+    // 	<< params.mean_ << "/"
+    // 	<< params.median_ << "/"
+    // 	<< params.rms_ << "/"
+    // 	<< params.max_ << "/"
+    // 	<< params.min_ << std::endl;
+    //     LogTrace(mlDqmSource_) << ss1.str();
 
     // Identify channels with signal
     std::stringstream ss2;
     std::stringstream ss3;
-//     ss2 << "Number of possible connections: " << medians.size()
-// 	<< " channel/signal: ";
+    //     ss2 << "Number of possible connections: " << medians.size()
+    // 	<< " channel/signal: ";
     std::map<uint16_t,float> channels;
     std::map<uint16_t,float>::const_iterator ichan = medians.begin();
     for ( ; ichan != medians.end(); ichan++ ) { 
-//             cout << " mean: " << params.mean_
-//       	   << " rms: " << params.rms_
-//       	   << " thresh: " << params.mean_ + 5.*params.rms_
-//       	   << " value: " << ichan->second
-//       	   << " strip: " << ichan->first << std::endl;
+      //             cout << " mean: " << params.mean_
+      //       	   << " rms: " << params.rms_
+      //       	   << " thresh: " << params.mean_ + 5.*params.rms_
+      //       	   << " value: " << ichan->second
+      //       	   << " strip: " << ichan->first << std::endl;
       //if ( ichan->second > params.mean_ + 5.*params.rms_ ) { 
       if ( ichan->second > 200. ) { 
 	LogTrace(mlTest_) << "TEST FOUND SIGNAL HIGH: " << *ifed << " " << ichan->first << " " << ichan->second;
@@ -527,22 +525,22 @@ void SiStripCommissioningSource::fillCablingHistos( const SiStripEventSummary* c
     LogTrace(mlTest_) << "DUMP for FED  " << *ifed << ": " << ss2.str();
     LogTrace(mlTest_) << "FIRST ADC VAL " << *ifed << ": " << ss3.str();
 
-//     LogTrace(mlDqmSource_)
-//       << "[FedCablingTask::" << __func__ << "]"
-//       << " Found candidate connection between device: 0x"
-//       << std::setfill('0') << std::setw(8) << std::hex << summary.deviceId() << std::dec
-//       << " with Crate/FEC/Ring/CCU/Module/LLDchannel: " 
-//       << connection().fecCrate() << "/"
-//       << connection().fecSlot() << "/"
-//       << connection().fecRing() << "/"
-//       << connection().ccuAddr() << "/"
-//       << connection().ccuChan() << "/"
-//       << connection().lldChannel()
-//       << " and FedId/Ch: "
-//       << fed_id << "/" << ichan->first
-//       << " with signal " << ichan->second 
-//       << " [adc] over background " << "XXX +/- YYY [adc]" 
-//       << " (S/N = " << "ZZZ" << ")";
+    //     LogTrace(mlDqmSource_)
+    //       << "[FedCablingTask::" << __func__ << "]"
+    //       << " Found candidate connection between device: 0x"
+    //       << std::setfill('0') << std::setw(8) << std::hex << summary.deviceId() << std::dec
+    //       << " with Crate/FEC/Ring/CCU/Module/LLDchannel: " 
+    //       << connection().fecCrate() << "/"
+    //       << connection().fecSlot() << "/"
+    //       << connection().fecRing() << "/"
+    //       << connection().ccuAddr() << "/"
+    //       << connection().ccuChan() << "/"
+    //       << connection().lldChannel()
+    //       << " and FedId/Ch: "
+    //       << fed_id << "/" << ichan->first
+    //       << " with signal " << ichan->second 
+    //       << " [adc] over background " << "XXX +/- YYY [adc]" 
+    //       << " (S/N = " << "ZZZ" << ")";
 
     
     // Fill cabling histograms
@@ -928,78 +926,78 @@ void SiStripCommissioningSource::createTasks( sistrip::RunType run_type, const e
       
       // Create commissioning task objects
       if ( !tasks_[iconn->fedId()][iconn->fedCh()] ) { 
-	if ( task_ == sistrip::FAST_CABLING ) { 
-	  tasks_[iconn->fedId()][iconn->fedCh()] = new FastFedCablingTask( dqm(), *iconn ); 
-	} else if ( task_ == sistrip::APV_TIMING ) { 
-	  tasks_[iconn->fedId()][iconn->fedCh()] = new ApvTimingTask( dqm(), *iconn ); 
-	} else if ( task_ == sistrip::FED_TIMING ) { 
-	  tasks_[iconn->fedId()][iconn->fedCh()] = new FedTimingTask( dqm(), *iconn );
-	} else if ( task_ == sistrip::OPTO_SCAN ) { 
-	  tasks_[iconn->fedId()][iconn->fedCh()] = new OptoScanTask( dqm(), *iconn );
-	} else if ( task_ == sistrip::VPSP_SCAN ) { 
-	  tasks_[iconn->fedId()][iconn->fedCh()] = new VpspScanTask( dqm(), *iconn );
-	} else if ( task_ == sistrip::PEDESTALS ) { 
-	  tasks_[iconn->fedId()][iconn->fedCh()] = new PedestalsTask( dqm(), *iconn );
-	} else if ( task_ == sistrip::PEDS_ONLY ) { 
-	  tasks_[iconn->fedId()][iconn->fedCh()] = new PedsOnlyTask( dqm(), *iconn );
-	} else if ( task_ == sistrip::NOISE ) { 
-	  tasks_[iconn->fedId()][iconn->fedCh()] = new NoiseTask( dqm(), *iconn );
-	} else if ( task_ == sistrip::DAQ_SCOPE_MODE ) { 
-	  tasks_[iconn->fedId()][iconn->fedCh()] = new DaqScopeModeTask( dqm(), *iconn );
-        } else if ( task_ == sistrip::APV_LATENCY ) { 
-	  tasks_[iconn->fedId()][iconn->fedCh()] = new LatencyTask( dqm(), *iconn );
-        } else if ( task_ == sistrip::FINE_DELAY ) { 
-	  tasks_[iconn->fedId()][iconn->fedCh()] = new FineDelayTask( dqm(), *iconn );
-        } else if ( task_ == sistrip::CALIBRATION_SCAN || 
+        if ( task_ == sistrip::FAST_CABLING ) { 
+          tasks_[iconn->fedId()][iconn->fedCh()] = new FastFedCablingTask( dqm(), *iconn ); 
+        } else if ( task_ == sistrip::APV_TIMING ) { 
+          tasks_[iconn->fedId()][iconn->fedCh()] = new ApvTimingTask( dqm(), *iconn ); 
+        } else if ( task_ == sistrip::FED_TIMING ) { 
+          tasks_[iconn->fedId()][iconn->fedCh()] = new FedTimingTask( dqm(), *iconn );
+        } else if ( task_ == sistrip::OPTO_SCAN ) { 
+          tasks_[iconn->fedId()][iconn->fedCh()] = new OptoScanTask( dqm(), *iconn );
+        } else if ( task_ == sistrip::VPSP_SCAN ) { 
+          tasks_[iconn->fedId()][iconn->fedCh()] = new VpspScanTask( dqm(), *iconn );
+        } else if ( task_ == sistrip::PEDESTALS ) { 
+          tasks_[iconn->fedId()][iconn->fedCh()] = new PedestalsTask( dqm(), *iconn );
+        } else if ( task_ == sistrip::PEDS_ONLY ) { 
+          tasks_[iconn->fedId()][iconn->fedCh()] = new PedsOnlyTask( dqm(), *iconn );
+        } else if ( task_ == sistrip::NOISE ) { 
+          tasks_[iconn->fedId()][iconn->fedCh()] = new NoiseTask( dqm(), *iconn );
+        } else if ( task_ == sistrip::DAQ_SCOPE_MODE ) { 
+          tasks_[iconn->fedId()][iconn->fedCh()] = new DaqScopeModeTask( dqm(), *iconn );
+	} else if ( task_ == sistrip::APV_LATENCY ) { 
+          tasks_[iconn->fedId()][iconn->fedCh()] = new LatencyTask( dqm(), *iconn );
+	} else if ( task_ == sistrip::FINE_DELAY ) { 
+          tasks_[iconn->fedId()][iconn->fedCh()] = new FineDelayTask( dqm(), *iconn );
+	} else if ( task_ == sistrip::CALIBRATION_SCAN || 
 		    task_ == sistrip::CALIBRATION_SCAN_DECO ) { 
-	  tasks_[iconn->fedId()][iconn->fedCh()] = new CalibrationScanTask( dqm(), 
+          tasks_[iconn->fedId()][iconn->fedCh()] = new CalibrationScanTask( dqm(), 
 									    *iconn, 
 									    task_, 
 									    filename_.c_str(), 
 									    run_, 
 									    setup );
-        } else if ( task_ == sistrip::CALIBRATION || 
+	} else if ( task_ == sistrip::CALIBRATION || 
 		    task_ == sistrip::CALIBRATION_DECO ) { 
-	  tasks_[iconn->fedId()][iconn->fedCh()] = new CalibrationTask( dqm(), 
+          tasks_[iconn->fedId()][iconn->fedCh()] = new CalibrationTask( dqm(), 
 									*iconn, 
 									task_, 
 									filename_.c_str(), 
 									run_, 
 									setup );
-	} else if ( task_ == sistrip::UNDEFINED_RUN_TYPE ) { 
-	  edm::LogWarning(mlDqmSource_)  
-	    << "[SiStripCommissioningSource::" << __func__ << "]"
-	    << " Undefined CommissioningTask" 
-	    << " Unable to create CommissioningTask object!";
-	} else { 
-	  edm::LogWarning(mlDqmSource_)
-	    << "[SiStripCommissioningSource::" << __func__ << "]"
-	    << " Unknown CommissioningTask" 
-	    << " Unable to create CommissioningTask object!";
-	}
-	
-	// Check if fed_key is found and, if so, book histos and set update freq
-	if ( tasks_[iconn->fedId()][iconn->fedCh()] ) {
-	  tasks_[iconn->fedId()][iconn->fedCh()]->eventSetup( &setup );
-	  tasks_[iconn->fedId()][iconn->fedCh()]->bookHistograms(); 
-	  tasks_[iconn->fedId()][iconn->fedCh()]->updateFreq( updateFreq_ ); 
-	  booked++;
-	  //std::stringstream ss;
-	  //ss << "[SiStripCommissioningSource::" << __func__ << "]"
-	  //<< " Booking histograms for '" << tasks_[iconn->fedId()][iconn->fedCh()]->myName()
-	  //<< "' object with key 0x" << std::hex << std::setfill('0') << std::setw(8) << fed_key.key() << std::dec
-	  //<< " in directory " << dir.str();
-	  //LogTrace(mlDqmSource_) << ss.str();
-	} else {
-	  std::stringstream ss;
-	  ss << "[SiStripCommissioningSource::" << __func__ << "]"
-	     << " NULL pointer to CommissioningTask for key 0x"
-	     << std::hex << std::setfill('0') << std::setw(8) << fed_key.key() << std::dec
-	     << " in directory " << dir.str() 
-	     << " Unable to book histograms!";
-	  edm::LogWarning(mlDqmSource_) << ss.str();
-	}
-	
+        } else if ( task_ == sistrip::UNDEFINED_RUN_TYPE ) { 
+          edm::LogWarning(mlDqmSource_)  
+            << "[SiStripCommissioningSource::" << __func__ << "]"
+            << " Undefined CommissioningTask" 
+            << " Unable to create CommissioningTask object!";
+        } else { 
+          edm::LogWarning(mlDqmSource_)
+            << "[SiStripCommissioningSource::" << __func__ << "]"
+            << " Unknown CommissioningTask" 
+            << " Unable to create CommissioningTask object!";
+        }
+        
+        // Check if fed_key is found and, if so, book histos and set update freq
+        if ( tasks_[iconn->fedId()][iconn->fedCh()] ) {
+          tasks_[iconn->fedId()][iconn->fedCh()]->eventSetup( &setup );
+          tasks_[iconn->fedId()][iconn->fedCh()]->bookHistograms(); 
+          tasks_[iconn->fedId()][iconn->fedCh()]->updateFreq( updateFreq_ ); 
+          booked++;
+          //std::stringstream ss;
+          //ss << "[SiStripCommissioningSource::" << __func__ << "]"
+          //<< " Booking histograms for '" << tasks_[iconn->fedId()][iconn->fedCh()]->myName()
+          //<< "' object with key 0x" << std::hex << std::setfill('0') << std::setw(8) << fed_key.key() << std::dec
+          //<< " in directory " << dir.str();
+          //LogTrace(mlDqmSource_) << ss.str();
+        } else {
+          std::stringstream ss;
+          ss << "[SiStripCommissioningSource::" << __func__ << "]"
+             << " NULL pointer to CommissioningTask for key 0x"
+             << std::hex << std::setfill('0') << std::setw(8) << fed_key.key() << std::dec
+             << " in directory " << dir.str() 
+             << " Unable to book histograms!";
+          edm::LogWarning(mlDqmSource_) << ss.str();
+        }
+        
       } else {
 	std::stringstream ss;
 	ss << "[SiStripCommissioningSource::" << __func__ << "]"
@@ -1107,7 +1105,7 @@ void SiStripCommissioningSource::directory( std::stringstream& dir,
 	<< std::setfill('0') 
 	<< run_number
 	<< "_";
-      }
+  }
   dir << ip.str()
       << "_"
       << std::setw(5) 
