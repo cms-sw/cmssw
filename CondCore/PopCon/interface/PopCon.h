@@ -68,6 +68,8 @@ namespace popcon {
     
     bool m_LoggingOn;
     
+    bool m_IsDestDbCheckedInQueryLog;
+
     std::string m_tag;
     
     cond::TagInfo m_tagInfo;
