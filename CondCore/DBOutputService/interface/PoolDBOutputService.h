@@ -7,9 +7,9 @@
 #include "CondCore/DBCommon/interface/Time.h"
 #include "CondCore/MetaDataService/interface/MetaData.h"
 #include "serviceCallbackRecord.h"
-#include "Logger.h"
-#include "UserLogInfo.h"
-#include "TagInfo.h"
+#include "CondCore/DBCommon/interface/Logger.h"
+#include "CondCore/DBCommon/interface/UserLogInfo.h"
+#include "CondCore/DBCommon/interface/TagInfo.h"
 #include <string>
 #include <map>
 //#include <iostream>
@@ -286,7 +286,7 @@ namespace cond{
       //			    const std::string& EventSetupRecordName);
       
       serviceCallbackRecord& lookUpRecord(const std::string& EventSetupRecordName);
-      UserLogInfo& lookUpUserLogInfo(const std::string& EventSetupRecordName);
+      cond::UserLogInfo& lookUpUserLogInfo(const std::string& EventSetupRecordName);
       
     private:
       cond::TimeType m_timetype; 
@@ -299,7 +299,7 @@ namespace cond{
       bool m_dbstarted;
       cond::Logger* m_logdb;
       bool m_logdbOn;
-      std::map<size_t, cond::service::UserLogInfo> m_logheaders;
+      std::map<size_t, cond::UserLogInfo> m_logheaders;
       //cond::IOVService* m_iovservice;
       //edm::ParameterSet m_connectionPset;
     };//PoolDBOutputService

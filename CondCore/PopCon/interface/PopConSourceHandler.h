@@ -5,8 +5,8 @@
 #include "CondCore/DBCommon/interface/TypedRef.h"
 
 #include "CondCore/DBCommon/interface/Time.h"
-#include "CondCore/DBOutputService/interface/TagInfo.h"
-#include "CondCore/DBOutputService/interface/LogDBEntry.h"
+#include "CondCore/DBCommon/interface/TagInfo.h"
+#include "CondCore/DBCommon/interface/LogDBEntry.h"
 
 #include <boost/bind.hpp>
 #include <algorithm>

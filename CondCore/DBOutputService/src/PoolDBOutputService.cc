@@ -1,5 +1,5 @@
 #include "CondCore/DBOutputService/interface/PoolDBOutputService.h"
-#include "CondCore/DBOutputService/interface/TagInfo.h"
+#include "CondCore/DBCommon/interface/TagInfo.h"
 #include "DataFormats/Provenance/interface/EventID.h"
 #include "DataFormats/Provenance/interface/Timestamp.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
@@ -21,7 +21,7 @@
 //POOL include
 //#include "FileCatalog/IFileCatalog.h"
 #include "serviceCallbackToken.h"
-#include "CondCore/DBOutputService/interface/UserLogInfo.h"
+#include "CondCore/DBCommon/interface/UserLogInfo.h"
 //#include <iostream>
 #include <vector>
 
@@ -71,7 +71,7 @@ cond::service::PoolDBOutputService::PoolDBOutputService(const edm::ParameterSet 
     thisrecord.m_tag = itToPut->getParameter<std::string>("tag");
     m_callbacks.insert(std::make_pair(cond::service::serviceCallbackToken::build(thisrecord.m_containerName),thisrecord));
     if(m_logdbOn){
-      cond::service::UserLogInfo userloginfo;
+      cond::UserLogInfo userloginfo;
       m_logheaders.insert(std::make_pair(cond::service::serviceCallbackToken::build(thisrecord.m_containerName),userloginfo));
     }
   }
@@ -229,13 +229,13 @@ cond::service::PoolDBOutputService::createNewIOV( GetToken const & payloadToken,
     if(withlogging){
       if(!m_logdb)throw cond::Exception("cannot log to non-existing log db");
       std::string destconnect=m_connection->connectStr();
-      cond::service::UserLogInfo a=this->lookUpUserLogInfo(EventSetupRecordName);
+      cond::UserLogInfo a=this->lookUpUserLogInfo(EventSetupRecordName);
       m_logdb->logOperationNow(a,destconnect,objToken,myrecord.m_tag,m_timetypestr,payloadIdx);
     }
   }catch(const std::exception& er){ 
     if(withlogging){
       std::string destconnect=m_connection->connectStr();
-      cond::service::UserLogInfo a=this->lookUpUserLogInfo(EventSetupRecordName);
+      cond::UserLogInfo a=this->lookUpUserLogInfo(EventSetupRecordName);
       m_logdb->logFailedOperationNow(a,destconnect,objToken,myrecord.m_tag,m_timetypestr,payloadIdx,std::string(er.what()));
       m_logdb->releaseWriteLock();
     }
@@ -274,14 +274,14 @@ cond::service::PoolDBOutputService::add( bool sinceNotTill,
     if(withlogging){
       if(!m_logdb)throw cond::Exception("cannot log to non-existing log db");
       std::string destconnect=m_connection->connectStr();
-      cond::service::UserLogInfo a=this->lookUpUserLogInfo(EventSetupRecordName);
+      cond::UserLogInfo a=this->lookUpUserLogInfo(EventSetupRecordName);
       m_logdb->logOperationNow(a,destconnect,objToken,myrecord.m_tag,m_timetypestr,payloadIdx);
     }
   }catch(const std::exception& er){
     if(withlogging){
       if(!m_logdb)throw cond::Exception("cannot log to non-existing log db");
       std::string destconnect=m_connection->connectStr();
-      cond::service::UserLogInfo a=this->lookUpUserLogInfo(EventSetupRecordName);
+      cond::UserLogInfo a=this->lookUpUserLogInfo(EventSetupRecordName);
       m_logdb->logFailedOperationNow(a,destconnect,objToken,myrecord.m_tag,m_timetypestr,payloadIdx,std::string(er.what()));
       m_logdb->releaseWriteLock();
     }
@@ -300,10 +300,10 @@ cond::service::PoolDBOutputService::lookUpRecord(const std::string& EventSetupRe
   return it->second;
 }
 
-cond::service::UserLogInfo& 
+cond::UserLogInfo& 
 cond::service::PoolDBOutputService::lookUpUserLogInfo(const std::string& EventSetupRecordName){
   size_t callbackToken=this->callbackToken( EventSetupRecordName );
-  std::map<size_t,cond::service::UserLogInfo>::iterator it=m_logheaders.find(callbackToken);
+  std::map<size_t,cond::UserLogInfo>::iterator it=m_logheaders.find(callbackToken);
   if(it==m_logheaders.end()) throw cond::UnregisteredRecordException(EventSetupRecordName);
   return it->second;
 }
@@ -347,7 +347,7 @@ cond::service::PoolDBOutputService::insertIOV( cond::PoolTransaction& pooldb,
 void
 cond::service::PoolDBOutputService::setLogHeaderForRecord(const std::string& EventSetupRecordName,const std::string& dataprovenance,const std::string& usertext)
 {
-  cond::service::UserLogInfo& myloginfo=this->lookUpUserLogInfo(EventSetupRecordName);
+  cond::UserLogInfo& myloginfo=this->lookUpUserLogInfo(EventSetupRecordName);
   myloginfo.provenance=dataprovenance;
   myloginfo.usertext=usertext;
 }

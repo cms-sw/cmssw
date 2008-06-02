@@ -9,8 +9,8 @@
 #include "CondCore/DBOutputService/interface/PoolDBOutputService.h"
 #include "FWCore/ServiceRegistry/interface/Service.h"
 
-#include "CondCore/DBOutputService/interface/TagInfo.h"
-#include "CondCore/DBOutputService/interface/LogDBEntry.h"
+#include "CondCore/DBCommon/interface/TagInfo.h"
+#include "CondCore/DBCommon/interface/LogDBEntry.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 
 #include "FWCore/ParameterSet/interface/ParameterSetfwd.h"
