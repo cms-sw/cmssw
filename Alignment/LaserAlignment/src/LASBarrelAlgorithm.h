@@ -4,7 +4,9 @@
 
 #include <vector>
 #include <cmath>
+#include <string>
 #include <iostream>
+#include <iomanip>
 #include <fstream>
 
 #include <TMinuit.h>
@@ -27,6 +29,7 @@ class LASBarrelAlgorithm {
   
  private:
   void ReadMisalignmentFromFile( const char*, LASGlobalData<LASCoordinateSet>&, LASGlobalData<LASCoordinateSet>& );
+  void ReadStartParametersFromFile( const char*, float[52] );
   TMinuit* minuit;
 
 };

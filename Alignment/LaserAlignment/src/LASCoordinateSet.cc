@@ -65,6 +65,21 @@ void LASCoordinateSet::SetCoordinates( double aPhi, double aPhiError, double aR,
 ///
 ///
 ///
+void LASCoordinateSet::SetErrors( double aPhiError, double aRError, double aZError ) {
+
+  phiError = aPhiError;
+  rError = aRError;
+  zError = aZError;
+
+}
+
+
+
+
+
+///
+///
+///
 void LASCoordinateSet::Dump( void ) {
 
   std::cout << " [LASCoordinateSet::Dump] -- phi: " << phi << ", phiE: " << phiError

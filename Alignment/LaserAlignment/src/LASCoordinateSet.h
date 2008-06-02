@@ -25,6 +25,7 @@ class LASCoordinateSet {
   double GetZError( void ) const { return zError; }
 
   void SetCoordinates( double, double, double, double, double, double );
+  void SetErrors( double, double, double );
   void SetPhi( double aPhi ) { phi = aPhi; }
   void SetPhi( double aPhi, double aPhiError ) { phi = aPhi; phiError = aPhiError; }
   void SetPhiError( double aPhiError ) { phiError = aPhiError; }

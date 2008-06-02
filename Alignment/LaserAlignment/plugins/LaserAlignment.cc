@@ -1,8 +1,8 @@
 /** \file LaserAlignment.cc
  *  LAS reconstruction module
  *
- *  $Date: 2008/05/01 08:12:26 $
- *  $Revision: 1.23 $
+ *  $Date: 2008/05/10 15:36:26 $
+ *  $Revision: 1.24 $
  *  \author Maarten Thomas
  *  \author Jan Olzem
  */
@@ -366,12 +366,12 @@ void LaserAlignment::produce(edm::Event& theEvent, edm::EventSetup const& theSet
 
   // now come the beam finders
   bool isTECMode = isTECBeam();
-  LogDebug( "[LaserAlignment::produce]" ) << "LaserAlignment::isTECBeam declares this event " << ( isTECMode ? "" : "NOT " ) << "a TEC event." << std::endl;
-  std::cout << "[LaserAlignment::produce] -- LaserAlignment::isTECBeam declares this event " << ( isTECMode ? "" : "NOT " ) << "a TEC event." << std::endl;
+  LogDebug( " [LaserAlignment::produce]" ) << "LaserAlignment::isTECBeam declares this event " << ( isTECMode ? "" : "NOT " ) << "a TEC event." << std::endl;
+  std::cout << " [LaserAlignment::produce] -- LaserAlignment::isTECBeam declares this event " << ( isTECMode ? "" : "NOT " ) << "a TEC event." << std::endl;
 
   bool isATMode  = isATBeam();
-  LogDebug( "[LaserAlignment::produce]" ) << "LaserAlignment::isATBeam declares this event "  << ( isATMode ? "" : "NOT " )  << "an AT event." << std::endl;
-  std::cout << "[LaserAlignment::produce] -- LaserAlignment::isATBeam declares this event "  << ( isATMode ? "" : "NOT " )  << "an AT event." << std::endl;
+  LogDebug( " [LaserAlignment::produce]" ) << "LaserAlignment::isATBeam declares this event "  << ( isATMode ? "" : "NOT " )  << "an AT event." << std::endl;
+  std::cout << " [LaserAlignment::produce] -- LaserAlignment::isATBeam declares this event "  << ( isATMode ? "" : "NOT " )  << "an AT event." << std::endl;
 
 
 
@@ -1433,11 +1433,9 @@ void LaserAlignment::CalculateNominalCoordinates( void ) {
   // hard coded data
   //
 
-  // nominal phi values of alignment tube hits (parameter is beam 0-7)
-  const double tobPhiPositions[8]   = { 0.3927, 1.2903, 1.8513, 2.7488, 3.6465, 4.3197, 5.2172, 5.7782 }; // the first three are
-  const double tibPhiPositions[8]   = { 0.3927, 1.2903, 1.8513, 2.7488, 3.6465, 4.3197, 5.2172, 5.7782 }; // identical (determined
-  const double tecATPhiPositions[8] = { 0.3927, 1.2903, 1.8513, 2.7489, 3.6465, 4.3197, 5.2173, 5.7783 }; // by the AT positions)
+  // nominal phi values of tec beam / alignment tube hits (parameter is beam 0-7)
   const double tecPhiPositions[8]   = { 0.3927, 1.1781, 1.9635, 2.7489, 3.5343, 4.3197, 5.1051, 5.8905 };
+  const double atPhiPositions[8]    = { 0.392699, 1.289799, 1.851794, 2.748894, 3.645995, 4.319690, 5.216791, 5.778784 }; // new values calculated by maple
 
   // nominal r values (mm) of hits
   const double tobRPosition = 600.;
@@ -1467,13 +1465,9 @@ void LaserAlignment::CalculateNominalCoordinates( void ) {
     
     if( det == 0 ) { // this is TEC+
       nominalCoordinates.SetTECEntry( det, ring, beam, disk, LASCoordinateSet( tecPhiPositions[beam], 0., tecRPosition[ring], 0., tecZPosition[disk], 0. ) );
-      //std:: cout << " [LaserAlignment::CalculateNominalCoordinates] -- Filling TEC+ ring: " << ring << ", beam: " << beam << ", disk: " << disk << std::endl; /////////////////////
-      //nominalCoordinates.GetTEC2TECEntry( det, ring, beam, disk ).Dump(); /////////////////////////////////
     }
     else { // now TEC-
       nominalCoordinates.SetTECEntry( det, ring, beam, disk, LASCoordinateSet( tecPhiPositions[beam], 0., tecRPosition[ring], 0., -1. * tecZPosition[disk], 0. ) ); // just * -1.
-      //std:: cout << " [LaserAlignment::CalculateNominalCoordinates] -- Filling TEC- ring: " << ring << ", beam: " << beam << ", disk: " << disk << std::endl; /////////////////////
-      //nominalCoordinates.GetTECEntry( det, ring, beam, disk ).Dump(); /////////////////////////////////
     }
     
   } while( moduleLoop.TECLoop( det, ring, beam, disk ) );
@@ -1483,16 +1477,11 @@ void LaserAlignment::CalculateNominalCoordinates( void ) {
   // TIB & TOB section
   det = 2; beam = 0; pos = 0;
   do {
-
     if( det == 2 ) { // this is TIB
-      nominalCoordinates.SetTIBTOBEntry( det, beam, pos, LASCoordinateSet( tibPhiPositions[beam], 0., tibRPosition, 0., tibZPosition[pos], 0. ) );
-      //std:: cout << " [LASBarrelAlgorithm::CalculateNominalCoordinates] -- Filling TIB beam: " << beam << ", pos: " << pos << std::endl; /////////////////////////////////
-      //nominalCoordinates.GetTIBTOBEntry( det, beam, pos ).Dump(); /////////////////////////////////
+      nominalCoordinates.SetTIBTOBEntry( det, beam, pos, LASCoordinateSet( atPhiPositions[beam], 0., tibRPosition, 0., tibZPosition[pos], 0. ) );
     }
     else { // now TOB
-      nominalCoordinates.SetTIBTOBEntry( det, beam, pos, LASCoordinateSet( tobPhiPositions[beam], 0., tobRPosition, 0., tobZPosition[pos], 0. ) );
-      //std:: cout << " [LASBarrelAlgorithm::CalculateNominalCoordinates] -- Filling TOB beam: " << beam << ", pos: " << pos << std::endl; /////////////////////////////////
-      //nominalCoordinates.GetTIBTOBEntry( det, beam, pos ).Dump(); /////////////////////////////////
+      nominalCoordinates.SetTIBTOBEntry( det, beam, pos, LASCoordinateSet( atPhiPositions[beam], 0., tobRPosition, 0., tobZPosition[pos], 0. ) );
     }
 
   } while( moduleLoop.TIBTOBLoop( det, beam, pos ) );
@@ -1505,14 +1494,10 @@ void LaserAlignment::CalculateNominalCoordinates( void ) {
   do {
     
     if( det == 0 ) { // this is TEC+, ring4 only
-      nominalCoordinates.SetTEC2TECEntry( det, beam, disk, LASCoordinateSet( tecATPhiPositions[beam], 0., tecRPosition[0], 0., tecZPosition[disk], 0. ) );
-      //std:: cout << " [LASBarrelAlgorithm::CalculateNominalCoordinates] -- Filling TEC+ beam: " << beam << ", disk: " << disk << std::endl; /////////////////////////////////
-      //nominalCoordinates.GetTEC2TECEntry( det, beam, disk ).Dump(); /////////////////////////////////
+      nominalCoordinates.SetTEC2TECEntry( det, beam, disk, LASCoordinateSet( atPhiPositions[beam], 0., tecRPosition[0], 0., tecZPosition[disk], 0. ) );
     }
     else { // now TEC-
-      nominalCoordinates.SetTEC2TECEntry( det, beam, disk, LASCoordinateSet( tecATPhiPositions[beam], 0., tecRPosition[0], 0., -1. * tecZPosition[disk], 0. ) ); // just * -1.
-      //std:: cout << " [LASBarrelAlgorithm::CalculateNominalCoordinates] -- Filling TEC- beam: " << beam << ", disk: " << disk << std::endl; /////////////////////////////////
-      //nominalCoordinates.GetTEC2TECEntry( det, beam, disk ).Dump(); /////////////////////////////////
+      nominalCoordinates.SetTEC2TECEntry( det, beam, disk, LASCoordinateSet( atPhiPositions[beam], 0., tecRPosition[0], 0., -1. * tecZPosition[disk], 0. ) ); // just * -1.
     }
     
   } while( moduleLoop.TEC2TECLoop( det, beam, disk ) );

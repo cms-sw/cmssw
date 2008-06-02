@@ -38,7 +38,7 @@ LASBarrelAlignmentParameterSet LASBarrelAlgorithm::CalculateParameters( LASGloba
 
   ///////////////////////////////////////////////////////////////////////////////////////////////////
   // for testing..
-  // ReadMisalignmentFromFile( "misalign-0.txt", measuredCoordinates, nominalCoordinates );
+  ReadMisalignmentFromFile( "misalign-var.txt", measuredCoordinates, nominalCoordinates );
   ///////////////////////////////////////////////////////////////////////////////////////////////////
     
 
@@ -61,10 +61,10 @@ LASBarrelAlignmentParameterSet LASBarrelAlgorithm::CalculateParameters( LASGloba
 
 
   //
-  // define 40 parameters
+  // define 52 parameters
   //
 
-  // start values
+  // start values: to be evacuated to cfg
   static float _vstart[52] = {
     0.00, 0.00, 0.0, 0.0, 0.0, 0.0, // subdet for TIB+
     0.00, 0.00, 0.0, 0.0, 0.0, 0.0, // subdet for TIB-
@@ -76,16 +76,22 @@ LASBarrelAlignmentParameterSet LASBarrelAlgorithm::CalculateParameters( LASGloba
     0.00, 0.00,  0.00, 0.00,  0.00, 0.00,  0.00, 0.00  // beams 4-7
   };
 
-  // step sizes: to be tuned
+
+  ///////////////////////////////////////////////////////////////////////////////////////////////////
+  // ReadStartParametersFromFile( "startParameters.txt", _vstart ); // debug
+  ///////////////////////////////////////////////////////////////////////////////////////////////////
+
+
+  // step sizes: to be tuned, to be evacuated to cfg
   static float _vstep[52] = { 
-    0.1, 0.1, 0.1, 0.1, 0.1, 0.1, // subdet for TIB+
-    0.1, 0.1, 0.1, 0.1, 0.1, 0.1, // subdet for TIB-
-    0.1, 0.1, 0.1, 0.1, 0.1, 0.1, // subdet for TOB+
-    0.1, 0.1, 0.1, 0.1, 0.1, 0.1, // subdet for TOB-
-    0.1, 0.1, 0.1, 0.1, 0.1, 0.1, // subdet for TEC+
-    0.1, 0.1, 0.1, 0.1, 0.1, 0.1, // subdet for TEC-
-    0.1, 0.1,  0.1, 0.1,  0.1, 0.1,  0.1, 0.1, // beams 0-3
-    0.1, 0.1,  0.1, 0.1,  0.1, 0.1,  0.1, 0.1  // beams 4-7
+    0.0001, 0.0001, 0.1, 0.1, 0.1, 0.1, // subdet for TIB+
+    0.0001, 0.0001, 0.1, 0.1, 0.1, 0.1, // subdet for TIB-
+    0.0001, 0.0001, 0.1, 0.1, 0.1, 0.1, // subdet for TOB+
+    0.0001, 0.0001, 0.1, 0.1, 0.1, 0.1, // subdet for TOB-
+    0.0001, 0.0001, 0.1, 0.1, 0.1, 0.1, // subdet for TEC+
+    0.0001, 0.0001, 0.1, 0.1, 0.1, 0.1, // subdet for TEC-
+    0.0001, 0.0001,  0.0001, 0.0001,  0.0001, 0.0001,  0.0001, 0.0001, // beams 0-3
+    0.0001, 0.0001,  0.0001, 0.0001,  0.1000, 0.0001,  0.0001, 0.0001  // beams 4-7
   };
 
 
@@ -232,17 +238,24 @@ LASBarrelAlignmentParameterSet LASBarrelAlgorithm::CalculateParameters( LASGloba
   minuit->mnexcm( "FIX", arglist ,3, _ierflg ); // TEC-
 
 
+  ///////////////////////////////////////////////////////////////////////////////////////////////////
+  // DEBUG: FIX BEAM PARAMETERS /////////////////////////////////////////////////////////////////////
+//   double parlist[16];
+//   for( int par = 37; par <= 52; ++par ) parlist[par-37] = par;
+//   minuit->mnexcm( "FIX", parlist ,16, _ierflg );
+  ///////////////////////////////////////////////////////////////////////////////////////////////////
+
+
   // now ready for minimization step
   arglist[0] = 5000;
   arglist[1] = 0.01;
   minuit->mnexcm( "MIGRAD", arglist , 2, _ierflg );
 
+  Dump();
 
-
-  // now fill the result vector
+  // now fill the result vector.
   // turned out that the parameter numbering is stupid, change this later..
   LASBarrelAlignmentParameterSet theResult;
-  // LASBarrelAlignmentParameterSet::GetParameter( int aSubdetector, int aDisk, int aParameter )
   double par = 0., parError = 0.;
 
   // TEC+ rot
@@ -404,22 +417,22 @@ void fcn( int &npar, double *gin, double &f, double *par, int iflag )  {
     }
 
     // par[0] ("subRot1"): rotation around z of first end face
-    calculatedResidual += detReducedZ[1] * par[indexBase+0]; //(det==2 ? par[0] : par[6]);
+    calculatedResidual += detReducedZ[1] * par[indexBase+0];
     
     // par[1] ("subRot2"): rotation around z of second end face
-    calculatedResidual += detReducedZ[0] * par[indexBase+1]; //(det==2 ? par[1] : par[7]);
+    calculatedResidual += detReducedZ[0] * par[indexBase+1];
     
     // par[2] ("subTransX1"): translation along x of first end face
-    calculatedResidual += detReducedZ[1] * sin( currentPhi ) / currentR * par[indexBase+2]; //(det==2 ? par[2] : par[8]) ;
+    calculatedResidual += detReducedZ[1] * sin( currentPhi ) / currentR * par[indexBase+2];
 
     // par[3] ("subTransX2"): translation along x of second end face
-    calculatedResidual += detReducedZ[0] * sin( currentPhi ) / currentR * par[indexBase+3]; //(det==2 ? par[3] : par[9]);
+    calculatedResidual += detReducedZ[0] * sin( currentPhi ) / currentR * par[indexBase+3];
 
     // par[4] ("subTransY1"): translation along y of first end face
-    calculatedResidual += -1. * detReducedZ[1] * cos( currentPhi ) / currentR * par[indexBase+4]; //(det==2 ? par[4] : par[10]) ;
+    calculatedResidual += -1. * detReducedZ[1] * cos( currentPhi ) / currentR * par[indexBase+4];
 
     // par[5] ("subTransY2"): translation along y of second end face
-    calculatedResidual += -1. * detReducedZ[0] * cos( currentPhi ) / currentR * par[indexBase+5]; //(det==2 ? par[5] : par[11]) ;
+    calculatedResidual += -1. * detReducedZ[0] * cos( currentPhi ) / currentR * par[indexBase+5];
 
 
     // now come the 8*2 beam parameters, calculate the respective parameter index base first (-> which beam)
@@ -509,7 +522,8 @@ void fcn( int &npar, double *gin, double &f, double *par, int iflag )  {
     calculatedResidual +=  beamReducedZ[0] * par[indexBase+1];
  
 
-    // now calculate the chisquare
+    // now calculate the chisquare 
+    // TODO: check for phi != 0 !!!
     chisquare += pow( measuredResidual - calculatedResidual, 2 ) / pow( aMeasuredCoordinates->GetTEC2TECEntry( det, beam, disk ).GetPhiError(), 2 );
 
   } while( moduleLoop.TEC2TECLoop( det, beam, disk ) );
@@ -525,7 +539,8 @@ void fcn( int &npar, double *gin, double &f, double *par, int iflag )  {
 
 
 ///
-///
+/// Print resulting parameters to stdout
+/// and to a file - for debugging only
 ///
 void LASBarrelAlgorithm::Dump( void ) {
   
@@ -534,15 +549,95 @@ void LASBarrelAlgorithm::Dump( void ) {
     return;
   }
 
-  std:: cout << " [LASBarrelAlgorithm::Dump] -- Parameter dump: " << std::endl;
-  double par, parError;
+  std::cout << std::endl << " [LASBarrelAlgorithm::Dump] -- Parameter dump: " << std::endl;
 
-  for( int i = 0; i < 52; ++i ) {
-    minuit->GetParameter( i, par, parError );
-    std::cout << " par " << i << ": " << par << " ± " << parError << std::endl;
-    if( i < 36 && (i+1)%6 == 0 ) std::cout << std::endl;
+  const int subdetParMap[6] = { 24, 30, 0, 6, 12, 18 }; // map to one-dim array
+  const std::string subdetNames[6] = { " TEC+  ", " TEC-  ", " TIB+  ", " TIB-  ", " TOB+  ", " TOB-  " };
+  double value, error;
+
+  std::cout << " Detector parameters: " << std::endl;
+  std::cout << " -------------------" << std::endl;
+  std::cout << " Values:     PHI1         X1          Y1         PHI2         X2          Y2   " << std::endl;
+  for( int subdet = 0; subdet < 6; ++subdet ) {
+    std::cout <<subdetNames[subdet];
+    for( int par = subdetParMap[subdet]; par <= subdetParMap[subdet] + 4; par += 2 ) {
+      minuit->GetParameter( par, value, error );
+      std::cout << std::setw( 12 ) << std::setprecision( 6 ) << std::fixed << value;
+    }
+    for( int par = subdetParMap[subdet] + 1; par <= subdetParMap[subdet] + 5; par += 2 ) {
+      minuit->GetParameter( par, value, error );
+      std::cout << std::setw( 12 ) << std::setprecision( 6 ) << std::fixed << value;
+    }
+    std::cout << std::endl;
   }
 
+  std::cout << " Errors:     PHI1         X1          Y1         PHI2         X2          Y2   " << std::endl;
+  for( int subdet = 0; subdet < 6; ++subdet ) {
+    std::cout <<subdetNames[subdet];
+    for( int par = subdetParMap[subdet]; par <= subdetParMap[subdet] + 4; par += 2 ) {
+      minuit->GetParameter( par, value, error );
+      std::cout << std::setw( 12 ) << std::setprecision( 6 ) << std::fixed << error;
+    }
+    for( int par = subdetParMap[subdet] + 1; par <= subdetParMap[subdet] + 5; par += 2 ) {
+      minuit->GetParameter( par, value, error );
+      std::cout << std::setw( 12 ) << std::setprecision( 6 ) << std::fixed << error;
+    }
+    std::cout << std::endl;
+  }
+
+  std::cout << std::endl;
+  std::cout << " Beam parameters: " << std::endl;
+  std::cout << " ---------------" << std::endl;
+  std::cout << " Values:  PHI1        PHI2" << std::endl;
+  for( int beam = 0; beam < 8; ++beam ) {
+    std::cout << " " << beam << "  ";
+    for( int z = 0; z < 2; ++z ) {
+      minuit->GetParameter( 36 + beam + z, value, error );
+      std::cout << std::setw( 12 ) << std::setprecision( 6 ) << std::fixed << value;
+    }
+    std::cout << std::endl;
+  }  
+
+  std::cout << " Errors:  PHI1        PHI2" << std::endl;
+  for( int beam = 0; beam < 8; ++beam ) {
+    std::cout << " " << beam << "  ";
+    for( int z = 0; z < 2; ++z ) {
+      minuit->GetParameter( 36 + beam + z, value, error );
+      std::cout << std::setw( 12 ) << std::setprecision( 6 ) << std::fixed << error;
+    }
+    std::cout << std::endl;
+  }
+
+
+
+  // det parameters once again without leading column (for easy read-in), into a file
+  ofstream file( "/afs/cern.ch/user/o/olzem/public/parameters_det.txt" );
+  for( int subdet = 0; subdet < 6; ++subdet ) {
+    for( int par = subdetParMap[subdet]; par <= subdetParMap[subdet] + 4; par += 2 ) {
+      minuit->GetParameter( par, value, error );
+      file << std::setw( 12 ) << std::setprecision( 6 ) << std::fixed << value;
+    }
+    for( int par = subdetParMap[subdet] + 1; par <= subdetParMap[subdet] + 5; par += 2 ) {
+      minuit->GetParameter( par, value, error );
+      file << std::setw( 12 ) << std::setprecision( 6 ) << std::fixed << value;
+    }
+    file << std::endl;
+  }
+  file.close();
+
+  // same for beam parameters
+  file.open( "/afs/cern.ch/user/o/olzem/public/parameters_beam.txt" );
+  for( int beam = 0; beam < 8; ++beam ) {
+    for( int z = 0; z < 2; ++z ) {
+      minuit->GetParameter( 36 + beam + z, value, error );
+      file << std::setw( 12 ) << std::setprecision( 6 ) << std::fixed << value;
+    }
+    file << std::endl;
+  }  
+  file.close();
+
+
+  std:: cout << " [LASBarrelAlgorithm::Dump] -- End parameter dump." << std::endl;
   std::cout << std::endl;
 
 }
@@ -552,7 +647,7 @@ void LASBarrelAlgorithm::Dump( void ) {
 
 
 ///
-/// allows to push in a aimple simulated misalignment for quick internal testing purposes;
+/// allows to push in a simple simulated misalignment for quick internal testing purposes;
 /// overwrites LASGlobalData<LASCoordinateSet>& measuredCoordinates;
 /// call at beginning of LASBarrelAlgorithm::CalculateParameters method
 ///
@@ -564,21 +659,44 @@ void LASBarrelAlgorithm::ReadMisalignmentFromFile( const char* filename,
 						   LASGlobalData<LASCoordinateSet>& measuredCoordinates,
 						   LASGlobalData<LASCoordinateSet>& nominalCoordinates  ) {
 
-  std::cerr << " @@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@" << std::endl;
-  std::cerr << " @@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@" << std::endl;
-  std::cerr << " [LASBarrelAlgorithm::ReadMisalignmentFromFile] ** WARNING: you are reading a fake measurement from a file!" << std::endl;
-  std::cerr << " @@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@" << std::endl;
-  std::cerr << " @@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@" << std::endl;
-
   ifstream file( filename );
   if( file.bad() ) {
     std::cerr << " [LASBarrelAlgorithm::ReadMisalignmentFromFile] ** ERROR: cannot open file \"" << filename << "\"." << std::endl;
     return;
   }
 
+  std::cerr << " @@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@" << std::endl;
+  std::cerr << " @@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@" << std::endl;
+  std::cerr << " [LASBarrelAlgorithm::ReadMisalignmentFromFile] ** WARNING: you are reading a fake measurement from a file!" << std::endl;
+  std::cerr << " @@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@" << std::endl;
+  std::cerr << " @@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@" << std::endl;
+
+
   // the measured coordinates will finally be overwritten;
   // first, set them to the nominal values
   measuredCoordinates = nominalCoordinates;
+
+  // and put large errors on all values;
+  {
+    LASGlobalLoop moduleLoop;
+    int det, ring, beam, disk, pos;
+    
+    det = 0; ring = 0; beam = 0; disk = 0;
+    do {
+      measuredCoordinates.GetTECEntry( det, ring, beam, disk ).SetPhiError( 1000. );
+    } while( moduleLoop.TECLoop( det, ring, beam, disk ) );
+    
+    det = 2; beam = 0; pos = 0;
+    do {
+      measuredCoordinates.GetTIBTOBEntry( det, beam, pos ).SetPhiError( 1000. );
+    } while( moduleLoop.TIBTOBLoop( det, beam, pos  ) );
+    
+    det = 0; beam = 0; disk = 0;
+    do {
+      measuredCoordinates.GetTEC2TECEntry( det, beam, disk ).SetPhiError( 1000. );
+    } while( moduleLoop.TEC2TECLoop( det, beam, disk ) );
+  }
+
 
   // buffers for read-in
   int det, beam, z, ring;
@@ -611,5 +729,43 @@ void LASBarrelAlgorithm::ReadMisalignmentFromFile( const char* filename,
   file.close();
 
 }
-  
 
+
+
+
+
+///
+/// this function is here only for debugging, don't use.
+/// file format:
+/// <phi1> <x1> <y1> <phi2> <x2> <y2> // for TEC*
+///   "     "    "     "     "    "   // TEC-
+/// .. then for TIB+, TIB-, TOB+, TOB-
+/// index 1 if for lower z, 2 for higher z
+///
+void LASBarrelAlgorithm::ReadStartParametersFromFile( const char* filename, float values[52] ) {
+  
+  ifstream file( filename );
+  if( file.bad() ) {
+    std::cerr << " [LASBarrelAlgorithm::ReadStartParametersFromFile] ** ERROR: cannot open file \"" << filename << "\"." << std::endl;
+    return;
+  }
+
+  std::cerr << " @@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@" << std::endl;
+  std::cerr << " @@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@" << std::endl;
+  std::cerr << " [LASBarrelAlgorithm::ReadStartParametersFrom File] ** WARNING: you are reading parameter start values from a file!" << std::endl;
+  std::cerr << " @@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@" << std::endl;
+  std::cerr << " @@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@" << std::endl;
+
+  // map to the minuit par array
+  const int subdetParMap[6] = { 24, 30, 0, 6, 12, 18 };
+  
+  for( int det = 0; det < 6; ++det ) {
+    file >> values[subdetParMap[det]];   // phi1
+    file >> values[subdetParMap[det]+2]; // x1
+    file >> values[subdetParMap[det]+4]; // y1
+    file >> values[subdetParMap[det]+1]; // phi2
+    file >> values[subdetParMap[det]+3]; // x2
+    file >> values[subdetParMap[det]+5]; // y2
+  }
+  
+}

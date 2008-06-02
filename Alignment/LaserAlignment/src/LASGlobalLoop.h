@@ -15,6 +15,7 @@
 /// } while ( loop.TECLoop( det, ring, beam, disk ) );
 /// int pos = 0;
 /// det = 2; // set subdetector to TIB
+/// beam = 0;
 /// do {
 ///   // dto.
 /// } while( loop.TIBTOBLoop( det, beam, disk ) );
