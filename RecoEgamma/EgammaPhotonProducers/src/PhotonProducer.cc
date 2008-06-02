@@ -290,9 +290,9 @@ void PhotonProducer::fillPhotonCollection(
       if ( risolveAmbiguity_ ) { 
 	
         reco::ConversionRef bestRef=solveAmbiguity( conversionHandle , scRef);	
-	
-	newCandidate.addConversion(bestRef);     
-	
+
+	if (bestRef.isNonnull() ) newCandidate.addConversion(bestRef);	
+		
 	
       } else {
 	
