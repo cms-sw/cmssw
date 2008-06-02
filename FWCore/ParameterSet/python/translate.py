@@ -45,7 +45,7 @@ for fileName in files:
         if os.path.exists(newName) and not overwrite:
             continue
         newPath = os.path.dirname(newName)
-        if not os.path.exists(newPath):
+        if newPath != '' and not os.path.exists(newPath):
             os.makedirs(newPath)
         f = open(newName, 'w')
         try:
