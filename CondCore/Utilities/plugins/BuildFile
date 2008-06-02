@@ -1,5 +1,5 @@
 <library file="CondPyWrappers.cc" name=CondDBPyInterface>
-<use name=CondFormats/Common>
+<use name=CondCore/DBCommon>
 <use name=CondCore/Utilities>
 <use name=boost>
 <use name=boost_filesystem>
