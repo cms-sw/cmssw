@@ -39,11 +39,10 @@ HcalHitMaker::addHit(double r,double phi,unsigned layer)
   //  getClosestCell in case of large (eta beyond HF ...)  and in EM showers 
   if(fabs(point.Z())>2000 || fabs(point.X())>2000 || fabs(point.Y())>2000) 
     { 
-      edm::LogWarning("HcalHitMaker") << " received a hit very far from the detector " << point << " coming from a";
       if(EMSHOWER) 
-	edm::LogWarning("HcalHitMaker") << "n electromagnetic shower. - Ignoring it" << std::endl;
+	edm::LogWarning("HcalHitMaker") << "received a hit very far from the detector " << point << " coming from an electromagnetic shower. - Ignoring it" << std::endl;
       else
-	edm::LogWarning("HcalHitMaker") << "a hadron shower. - Ignoring it" << std::endl;
+	edm::LogWarning("HcalHitMaker") << "received a hit very far from the detector " << point << " coming from an hadron shower. - Ignoring it" << std::endl;
       return false; 
     } 
 
