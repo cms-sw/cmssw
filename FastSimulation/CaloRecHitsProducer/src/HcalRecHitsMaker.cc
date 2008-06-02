@@ -477,7 +477,7 @@ void HcalRecHitsMaker::Fill(int id, float energy, std::vector<int>& theHits,floa
     hcalRecHits_[id]+=energy;
   else
     {
-      // the noise is injected only in the first cell 
+      // the noise is injected only the first time
       hcalRecHits_[id]=energy + random_->gaussShoot(0.,noise);
       theHits.push_back(id);
     }
@@ -492,7 +492,7 @@ void HcalRecHitsMaker::noisify()
 	// No need to do it anymore. The noise on the signal has been added 
 	// when loading the PCaloHits
 	// noisifySignal(hbheRecHits_);      
-	total+=noisifySubdet(hcalRecHits_,firedCellsHB_,hbhi_,nhbcells_,hcalHotFractionHB_,myGaussianTailGeneratorHB_);
+	total+=noisifySubdet(hcalRecHits_,firedCellsHB_,hbhi_,nhbcells_,hcalHotFractionHB_,myGaussianTailGeneratorHB_,noiseHB_,thresholdHB_);
       }
     else
       edm::LogWarning("CaloRecHitsProducer") << "All HCAL (HB) cells on ! " << std::endl;
@@ -505,7 +505,7 @@ void HcalRecHitsMaker::noisify()
 	// No need to do it anymore. The noise on the signal has been added 
 	// when loading the PCaloHits
 	// noisifySignal(hbheRecHits_);      
-	total+=noisifySubdet(hcalRecHits_,firedCellsHE_,hehi_,nhecells_,hcalHotFractionHE_,myGaussianTailGeneratorHE_);
+	total+=noisifySubdet(hcalRecHits_,firedCellsHE_,hehi_,nhecells_,hcalHotFractionHE_,myGaussianTailGeneratorHE_,noiseHE_,thresholdHE_);
       }
     else
       edm::LogWarning("CaloRecHitsProducer") << "All HCAL (HE) cells on ! " << std::endl;
@@ -515,7 +515,7 @@ void HcalRecHitsMaker::noisify()
     if( firedCellsHO_.size()<nhocells_)
       {
 	//      noisifySignal(hoRecHits_);
-	total+=noisifySubdet(hcalRecHits_,firedCellsHO_,hohi_,nhocells_,hcalHotFractionHO_,myGaussianTailGeneratorHO_);
+	total+=noisifySubdet(hcalRecHits_,firedCellsHO_,hohi_,nhocells_,hcalHotFractionHO_,myGaussianTailGeneratorHO_,noiseHO_,thresholdHO_);
       }
     else
       edm::LogWarning("CaloRecHitsProducer") << "All HCAL(HO) cells on ! " << std::endl;
@@ -525,7 +525,7 @@ void HcalRecHitsMaker::noisify()
     if(firedCellsHF_.size()<nhfcells_)
       {
 	//      noisifySignal(hfRecHits_);
-	total+=noisifySubdet(hcalRecHits_,firedCellsHF_,hfhi_,nhfcells_,hcalHotFractionHF_,myGaussianTailGeneratorHF_);
+	total+=noisifySubdet(hcalRecHits_,firedCellsHF_,hfhi_,nhfcells_,hcalHotFractionHF_,myGaussianTailGeneratorHF_,noiseHF_,thresholdHF_);
       }
     else
       edm::LogWarning("CaloRecHitsProducer") << "All HCAL(HF) cells on ! " << std::endl;
@@ -534,27 +534,54 @@ void HcalRecHitsMaker::noisify()
    edm::LogInfo("CaloRecHitsProducer") << "CaloRecHitsProducer : added noise in "<<  total << " HCAL cells "  << std::endl;
 }
 
-unsigned HcalRecHitsMaker::noisifySubdet(std::vector<float>& theMap, std::vector<int>& theHits, const std::vector<int>& thecells, unsigned ncells, double hcalHotFraction,const GaussianTail *myGT)
+unsigned HcalRecHitsMaker::noisifySubdet(std::vector<float>& theMap, std::vector<int>& theHits, const std::vector<int>& thecells, unsigned ncells, double hcalHotFraction,const GaussianTail *myGT,double sigma,double threshold)
 {
-  double mean = (double)(ncells-theHits.size())*hcalHotFraction;
-  unsigned nhcal = random_->poissonShoot(mean);
-  
-  unsigned ncell=0;
-  unsigned cellindex=0;
-  uint32_t cellhashedindex=0;
+ // If the fraction of "hot " is small, use an optimzed method to inject noise only in noisy cells. The 30% has not been tuned
 
-  while(ncell < nhcal)
+  if(hcalHotFraction<0.3)
     {
-      cellindex = (unsigned)(random_->flatShoot()*ncells);
-      cellhashedindex = thecells[cellindex];
-      if(hcalRecHits_[cellhashedindex]==0.) // new cell
+      double mean = (double)(ncells-theHits.size())*hcalHotFraction;
+      unsigned nhcal = random_->poissonShoot(mean);
+  
+      unsigned ncell=0;
+      unsigned cellindex=0;
+      uint32_t cellhashedindex=0;
+      
+      while(ncell < nhcal)
 	{
-	 hcalRecHits_[cellhashedindex]=myGT->shoot();
-	 theHits.push_back(cellhashedindex);
-	  ++ncell;
+	  cellindex = (unsigned)(random_->flatShoot()*ncells);
+	  cellhashedindex = thecells[cellindex];
+	  if(hcalRecHits_[cellhashedindex]==0.) // new cell
+	    {
+	      hcalRecHits_[cellhashedindex]=myGT->shoot();
+	      theHits.push_back(cellhashedindex);
+	      ++ncell;
+	    }
 	}
+      return ncell;
     }
-  return nhcal;
+  else // otherwise, inject noise everywhere
+    {
+      uint32_t cellhashedindex=0;
+      unsigned nhcal=thecells.size();
+
+
+      for(unsigned ncell=0;ncell<nhcal;++ncell)
+	{
+	  cellhashedindex = thecells[ncell];
+	  if(hcalRecHits_[cellhashedindex]==0.) // new cell
+	    {
+	      double noise =random_->gaussShoot(0.,sigma);
+	      if(noise>threshold)
+		{
+		  hcalRecHits_[cellhashedindex]=noise;		    
+		  theHits.push_back(cellhashedindex);
+		}
+	    }
+	}
+      return nhcal;
+    }
+  return 0;
 }
 
 void HcalRecHitsMaker::clean()

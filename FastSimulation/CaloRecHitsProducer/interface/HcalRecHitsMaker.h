@@ -33,7 +33,7 @@ class HcalRecHitsMaker
  private:
   unsigned createVectorsOfCells(const edm::EventSetup &es);
   unsigned createVectorOfSubdetectorCells( const CaloGeometry&,int subdetn,std::vector<int>&);
-  unsigned noisifySubdet(std::vector<float >& theMap, std::vector<int>& theHits,const std::vector<int>& thecells, unsigned ncells, double  hcalHotFraction_, const GaussianTail *); 
+  unsigned noisifySubdet(std::vector<float >& theMap, std::vector<int>& theHits,const std::vector<int>& thecells, unsigned ncells, double  hcalHotFraction_, const GaussianTail *,double sigma,double threshold); 
   // Not currently used. Will probably be removed soon.
   //  void noisifySignal(std::map<uint32_t,std::pair<float,bool> >& theMap); 
   void noisify();
