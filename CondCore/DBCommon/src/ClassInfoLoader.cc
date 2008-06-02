@@ -1,5 +1,5 @@
 #include "CondCore/DBCommon/interface/ClassInfoLoader.h"
-#include "CondFormats/Common/interface/ClassIDRegistry.h"
+#include "CondCore/DBCommon/interface/ClassID.h"
 #include "CondCore/DBCommon/interface/Exception.h"
 
 #include "StorageSvc/DbReflex.h"
