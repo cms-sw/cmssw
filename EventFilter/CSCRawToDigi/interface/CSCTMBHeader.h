@@ -332,7 +332,7 @@ class CSCTMBHeader {
 
 
   ///returns CLCT digis
-  std::vector<CSCCLCTDigi> CLCTDigis(uint32_t idlayer) const;
+  std::vector<CSCCLCTDigi> CLCTDigis(uint32_t idlayer);
   ///returns CorrelatedLCT digis
   std::vector<CSCCorrelatedLCTDigi> CorrelatedLCTDigis(uint32_t idlayer) const;
  
@@ -409,11 +409,15 @@ class CSCTMBHeader {
   friend std::ostream & operator<<(std::ostream & os, const CSCTMBHeader & hdr);
 
 private:
-  // helper method to reverse the strip numbers inthe ME1 readout
-  void offlineStripNumbering(int & strip, int & cfeb) const;
+  // helper method to reverse the strip numbers in the ME1 readout
+  void offlineStripNumbering(const int firmwareVersion,
+			     int & strip, int & cfeb,
+			     int& pattern, int& bend) const;
   void hardwareStripNumbering(int & strip, int & cfeb) const;
   void offlineHalfStripNumbering(int & strip) const;
   void hardwareHalfStripNumbering(int & strip) const;
+
+  void swapCLCTs(CSCCLCTDigi& digi1, CSCCLCTDigi& digi2);
 
   CSCTMBHeader2006 header2006;
   CSCTMBHeader2007 header2007;

@@ -55,7 +55,7 @@ CSCTMBHeader::CSCTMBHeader(const unsigned short * buf) {
 }	
     
 
-std::vector<CSCCLCTDigi> CSCTMBHeader::CLCTDigis(uint32_t idlayer) const {
+std::vector<CSCCLCTDigi> CSCTMBHeader::CLCTDigis(uint32_t idlayer) {
   std::vector<CSCCLCTDigi> result;
   theChamberId = CSCDetId(idlayer);
 
@@ -76,10 +76,11 @@ std::vector<CSCCLCTDigi> CSCTMBHeader::CLCTDigis(uint32_t idlayer) const {
     }
     int strip = header2006.clct0_key;
     int cfeb = (header2006.clct0_cfeb_low)|(header2006.clct0_cfeb_high<<1);
-    offlineStripNumbering(strip, cfeb);
+    int bend = header2006.clct0_bend;
+    offlineStripNumbering(firmwareVersion, strip, cfeb, shape, bend);
 
-    CSCCLCTDigi digi0(header2006.clct0_valid, header2006.clct0_quality, shape, type, header2006.clct0_bend, 
-		      strip, cfeb, header2006.clct0_bxn, 1);
+    CSCCLCTDigi digi0(header2006.clct0_valid, header2006.clct0_quality, shape,
+		      type, bend, strip, cfeb, header2006.clct0_bxn, 1);
     digi0.setFullBX(header2006.bxnPreTrigger);
     result.push_back(digi0);
     
@@ -94,30 +95,39 @@ std::vector<CSCCLCTDigi> CSCTMBHeader::CLCTDigis(uint32_t idlayer) const {
 
     strip = header2006.clct1_key;
     cfeb = (header2006.clct1_cfeb_low)|(header2006.clct1_cfeb_high<<1);
-    offlineStripNumbering(strip, cfeb);
+    bend = header2006.clct1_bend;
+    offlineStripNumbering(firmwareVersion, strip, cfeb, shape, bend);
 
-    CSCCLCTDigi digi1(header2006.clct1_valid, header2006.clct1_quality, shape, type, header2006.clct1_bend,
-		      strip, cfeb, header2006.clct1_bxn, 2);
+    CSCCLCTDigi digi1(header2006.clct1_valid, header2006.clct1_quality, shape,
+		      type, bend, strip, cfeb, header2006.clct1_bxn, 2);
     digi1.setFullBX(header2006.bxnPreTrigger);
     result.push_back(digi1);
     break;
   }
   case 2007: {
-    int strip = header2007.clct0_key;
-    int cfeb = (header2007.clct0_cfeb_low)|(header2007.clct0_cfeb_high<<1);
-    offlineStripNumbering(strip, cfeb);
+    int strip   = header2007.clct0_key;
+    int cfeb    = (header2007.clct0_cfeb_low)|(header2007.clct0_cfeb_high<<1);
+    int pattern = header2007.clct0_shape;
+    int bend    = header2007.clct0_bend;
+    offlineStripNumbering(firmwareVersion, strip, cfeb, pattern, bend);
 
-    CSCCLCTDigi digi0(header2007.clct0_valid, header2007.clct0_quality, header2007.clct0_shape, 1, 
-		      header2007.clct0_bend, strip, cfeb, header2007.clct0_bxn, 1);
+    CSCCLCTDigi digi0(header2007.clct0_valid, header2007.clct0_quality,
+		      pattern, 1, bend, strip, cfeb, header2007.clct0_bxn, 1);
     digi0.setFullBX(header2007.bxnPreTrigger);
-    result.push_back(digi0);
+
     strip = header2007.clct1_key;
     cfeb = (header2007.clct1_cfeb_low)|(header2007.clct1_cfeb_high<<1);
-    offlineStripNumbering(strip, cfeb);
+    pattern = header2007.clct1_shape;
+    bend    = header2007.clct1_bend;
+    offlineStripNumbering(firmwareVersion, strip, cfeb, pattern, bend);
 
-    CSCCLCTDigi digi1(header2007.clct1_valid, header2007.clct1_quality, header2007.clct1_shape, 1,
-                      header2007.clct1_bend, strip, cfeb, header2007.clct1_bxn, 2);
+    CSCCLCTDigi digi1(header2007.clct1_valid, header2007.clct1_quality,
+		      pattern, 1, bend, strip, cfeb, header2007.clct1_bxn, 2);
     digi1.setFullBX(header2007.bxnPreTrigger);
+
+    if (digi0.isValid() && digi1.isValid()) swapCLCTs(digi0, digi1);
+
+    result.push_back(digi0);
     result.push_back(digi1);
     break;
   }
@@ -130,17 +140,80 @@ std::vector<CSCCLCTDigi> CSCTMBHeader::CLCTDigis(uint32_t idlayer) const {
 }
 
 
-void CSCTMBHeader::offlineStripNumbering(int & strip, int & cfeb) const
+void CSCTMBHeader::offlineStripNumbering(const int firmwareVersion,
+					 int & strip, int & cfeb,
+					 int & pattern, int & bend) const
 {
-  bool me1a = (theChamberId.station()==1 && theChamberId.ring() == 4);
-  bool zplus = (theChamberId.endcap() == 1);
-  bool me1b = (theChamberId.station()==1 && theChamberId.ring() == 1);
+  bool me11 = (theChamberId.station() == 1 && 
+	       (theChamberId.ring() == 1 || theChamberId.ring() == 4));
+  if (!me11) return;
 
-  if ( me1a ) cfeb = 0; // reset cfeb 4 to 0
-  if ( me1a && zplus ) { strip = 31-strip; } // 0-31 -> 31-0
-  if ( me1b && !zplus) { cfeb = 4 - cfeb; strip = 31 - strip;} // 0-127 -> 127-0 ...
+  // SV, 30/05/2008: Rely directly on CFEB number instead of DetId
+  // ring to tell ME1/a from ME1/b.  For the time being (May 2008),
+  // the CLCT trigger logic combines comparators in ME1/a with
+  // comparators in ME1/b and performs seamless search for CLCTs in
+  // all 5 CFEBs.  In order to reproduce this in the trigger emulator,
+  // keep both comparators and CLCTs in the same DetId (ring=1)
+  // regardless of whether they belong to ME1/a or ME1/b.  So this
+  // method is called with theChamberId.ring()=1 for both ME1/a and
+  // ME1/b.
+  bool me1a = (cfeb == 4);
+  bool me1b = (cfeb != 4);
+  bool zplus = (theChamberId.endcap() == 1);
+
+  // Keep CFEB=4 for now.
+  // if ( me1a ) cfeb = 0; // reset cfeb 4 to 0
+  if ( me1a && zplus  ) { strip = 31-strip; } // 0-31 -> 31-0
+  if ( me1b && !zplus ) { cfeb = 3-cfeb; strip = 31-strip;} // 0-127 -> 127-0
+  if ((me1a && zplus) || (me1b && !zplus)) {
+    switch (firmwareVersion) {
+    case 2006: 
+      if (pattern > 0 && pattern < 6) {
+	if (pattern % 2 == 0) {pattern--; bend++;}
+	else                  {pattern++; bend--;}
+      }
+      break;
+    case 2007: 
+      if (pattern > 1 && pattern < 10) {
+	if (pattern % 2 == 0) {pattern++; bend++;}
+	else                  {pattern--; bend--;}
+      }
+      break;
+    default:
+      break;
+    }
+  }
 }
 
+void CSCTMBHeader::swapCLCTs(CSCCLCTDigi& digi1, CSCCLCTDigi& digi2)
+{
+  bool me11 = (theChamberId.station() == 1 && 
+	       (theChamberId.ring() == 1 || theChamberId.ring() == 4));
+  if (!me11) return;
+
+  int cfeb1 = digi1.getCFEB();
+  int cfeb2 = digi2.getCFEB();
+  if (cfeb1 != cfeb2) return;
+
+  bool me1a = (cfeb1 == 4);
+  bool me1b = (cfeb1 != 4);
+  bool zplus = (theChamberId.endcap() == 1);
+
+  if ( (me1a && zplus) || (me1b && !zplus)) {
+    // Swap CLCTs if they have the same quality and pattern # (priority
+    // has to be given to the lower key).
+    if (digi1.getQuality() == digi2.getQuality() &&
+	digi1.getPattern() == digi2.getPattern()) {
+      CSCCLCTDigi temp = digi1;
+      digi1 = digi2;
+      digi2 = temp;
+
+      // Also re-number them.
+      digi1.setTrknmb(1);
+      digi2.setTrknmb(2);
+    }
+  }
+}
 
 void CSCTMBHeader::hardwareStripNumbering(int & strip, int & cfeb) const
 {
@@ -156,13 +229,20 @@ void CSCTMBHeader::hardwareStripNumbering(int & strip, int & cfeb) const
 
 void CSCTMBHeader::offlineHalfStripNumbering(int & strip) const
 {
-  bool me1a = (theChamberId.station()==1 && theChamberId.ring() == 4);
-  bool zplus = (theChamberId.endcap() == 1);
-  bool me1b = (theChamberId.station()==1 && theChamberId.ring() == 1);
+  bool me11 = (theChamberId.station() == 1 && 
+	       (theChamberId.ring() == 1 || theChamberId.ring() == 4));
+  if (!me11) return;
 
-  if ( me1a ) strip = strip%128; // reset strip 128-159 -> 0-31
-  if ( me1a && zplus ) { strip = 31-strip; } // 0-31 -> 31-0
-  if ( me1b && !zplus) { strip = 127 - strip;} // 0-127 -> 127-0 ...
+  // SV, 30/05/2008: Rely directly on half-strip number to tell ME1/a from
+  // ME1/b; see comments to offlineStripNumbering().
+  bool me1a = (strip >= 128);
+  bool me1b = (strip <  128);
+  bool zplus = (theChamberId.endcap() == 1);
+
+  //if ( me1a ) strip = strip%128; // reset strip 128-159 -> 0-31
+  //if ( me1a && zplus ) { strip = 31-strip; } // 0-31 -> 31-0
+  if ( me1a && zplus ) { strip = 128 + (159 - strip); } // 128-159 -> 159-128
+  if ( me1b && !zplus) { strip = 127 - strip; } // 0-127 -> 127-0 ...
 }
 
 
