@@ -75,7 +75,8 @@ namespace evf {
     void   dropEvent();
     
     // dump event to ascii file
-    void   handleErrorEvent(UInt_t runNumber,pid_t pid);
+    void   handleCrashedEP(UInt_t runNumber,pid_t pid);
+    void   handleRestartedEP(UInt_t runNumber,UInt_t iRawCell);
     void   dumpEvent(evf::FUShmRawCell* cell);
     
     // send empty events to notify clients to shutdown
@@ -101,7 +102,6 @@ namespace evf {
     // check if resource table can be savely destroyed
     bool   isReadyToShutDown() const { return isReadyToShutDown_; }
 
-    
     // various counters
     UInt_t   nbResources()        const { return resources_.size(); }
     UInt_t   nbFreeSlots()        const { return freeResourceIds_.size(); }

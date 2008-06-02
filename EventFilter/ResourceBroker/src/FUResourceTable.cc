@@ -172,13 +172,13 @@ bool FUResourceTable::sendData(toolbox::task::WorkLoop* /* wl */)
 		      cellPayloadAddr,cellEventSize);
       }
       else if (cell->type()==2) {
-	UInt_t cellIndex=cell->index();
+	UInt_t   cellIndex       = cell->index();
 	UInt_t   cellRunNumber   = cell->runNumber();
 	UInt_t   cellEvtNumber   = cell->evtNumber();
 	UChar_t *cellPayloadAddr = cell->payloadAddr();
 	UInt_t   cellEventSize   = cell->eventSize();
 	shmBuffer_->finishReadingRecoCell(cell);	
-
+	
 	sendErrorEvent(cellIndex,cellRunNumber,cellEvtNumber,
 		       cellPayloadAddr,cellEventSize);
       }
@@ -472,7 +472,7 @@ void FUResourceTable::dropEvent()
 
 
 //______________________________________________________________________________
-void FUResourceTable::handleErrorEvent(UInt_t runNumber,pid_t pid)
+void FUResourceTable::handleCrashedEP(UInt_t runNumber,pid_t pid)
 {
   lockShm();
   vector<pid_t> pids=cellPrcIds();
@@ -484,6 +484,13 @@ void FUResourceTable::handleErrorEvent(UInt_t runNumber,pid_t pid)
     shmBuffer_->writeErrorEventData(runNumber,iRawCell);
   
   shmBuffer_->removeClientPrcId(pid);
+}
+
+
+//______________________________________________________________________________
+void FUResourceTable::handleRestartedEP(UInt_t runNumber,UInt_t iRawCell)
+{
+  shmBuffer_->writeErrorEventData(runNumber,iRawCell);
 }
 
 

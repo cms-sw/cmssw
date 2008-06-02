@@ -1,3 +1,10 @@
+2008-06-02  Philipp SCHIEFERDECKER  <philipp.schieferdecker@cern.ch>
+
+	* tag V00-09-08
+	* handle restarted EP: if an event has timed-out and the assigned
+	process id is assigned to another cell as well, write the event to
+	the error stream and discard it.
+
 2008-05-23  Philipp SCHIEFERDECKER  <philipp.schieferdecker@cern.ch>
 
 	* tag V00-09-07

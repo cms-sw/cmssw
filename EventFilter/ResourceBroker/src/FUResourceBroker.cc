@@ -602,12 +602,21 @@ bool FUResourceBroker::watching(toolbox::task::WorkLoop* wl)
   if (0==resourceTable_) return false;
   
   vector<pid_t> prcids=resourceTable_->clientPrcIds();
+  vector<pid_t> cllids=resourceTable_->cellPrcIds();
+  set<pid_t>    dupids;
   for (UInt_t i=0;i<prcids.size();i++) {
     pid_t pid   =prcids[i];
     int   status=kill(pid,0);
     if (status!=0) {
       LOG4CPLUS_ERROR(log_,"EP prc "<<pid<<" died, send raw data to err stream.");
-      resourceTable_->handleErrorEvent(runNumber_,pid);
+      resourceTable_->handleCrashedEP(runNumber_,pid);
+    }
+    UInt_t count(0);
+    for (vector<pid_t>::const_iterator it=cllids.begin();it!=cllids.end();++it)
+      if ((*it)==pid) count++;
+    if (count>1) {
+      LOG4CPLUS_WARN(log_,"EP prc "<<pid<<" was restarted!");
+      dupids.insert(pid);
     }
   }
   
@@ -616,20 +625,26 @@ bool FUResourceBroker::watching(toolbox::task::WorkLoop* wl)
   vector<UInt_t> evt_numbers=resourceTable_->cellEvtNumbers();
   vector<time_t> evt_tstamps=resourceTable_->cellTimeStamps(); 
   resourceTable_->unlockShm();
-  time_t tcurr = time(0);
+
+  time_t tcurr=time(0);  
   for (UInt_t i=0;i<evt_tstamps.size();i++) {
     pid_t  pid   =evt_prcids[i];
     UInt_t evt   =evt_numbers[i];
     time_t tstamp=evt_tstamps[i]; if (tstamp==0) continue;
     double tdiff =difftime(tcurr,tstamp);
     if (tdiff>timeOutSec_) {
-      if(processKillerEnabled_)
-	{
-	  LOG4CPLUS_ERROR(log_,"evt "<<evt<<" timed out, "<<"kill prc " <<pid);
-	  kill(pid,9);
-	}
-      else
-	LOG4CPLUS_INFO(log_,"evt "<<evt<<" under processing for more than " << timeOutSec_ << "sec for process " <<pid);
+      if (dupids.find(pid)!=dupids.end()) {
+	LOG4CPLUS_ERROR(log_,"Send evt "<<evt<<" of restarted EP to err stream.");
+	resourceTable_->handleRestartedEP(runNumber_,i);
+      }
+      else if(processKillerEnabled_)	{
+	LOG4CPLUS_ERROR(log_,"evt "<<evt<<" timed out, "<<"kill prc "<<pid);
+	kill(pid,9);
+      }
+      else {
+	LOG4CPLUS_INFO(log_,"evt "<<evt<<" under processing for more than "
+		       <<timeOutSec_<<"sec for process "<<pid);
+      }
     }
   }
   
