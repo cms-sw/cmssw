@@ -6,6 +6,8 @@
 #include "DQM/SiStripCommon/interface/UpdateTProfile.h"
 #include "DQMServices/Core/interface/MonitorElement.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
+#include "TAxis.h"
+#include <iostream>
 #include <iostream>
 
 using namespace sistrip;
@@ -77,6 +79,43 @@ CommissioningTask::~CommissioningTask() {
     << connection_.fedId() << "/" 
     << connection_.fedCh();
   //@@ do not delete EventSetup pointer!
+}
+
+// -----------------------------------------------------------------------------
+//
+CommissioningTask::HistoSet::HistoSet() : 
+  vNumOfEntries_(), 
+  vSumOfContents_(), 
+  vSumOfSquares_(), 
+  isProfile_(true),
+  histo_(0),
+  axis_(0)
+{;}
+
+// -----------------------------------------------------------------------------
+//
+MonitorElement* CommissioningTask::HistoSet::histo() { return histo_; }
+
+// -----------------------------------------------------------------------------
+//
+void CommissioningTask::HistoSet::histo( MonitorElement* me ) {
+  histo_   = me;
+  TH1* histo = ExtractTObject<TH1>().extract( histo_ );
+  axis_ = histo->GetXaxis();
+}
+
+// -----------------------------------------------------------------------------
+//
+uint32_t CommissioningTask::HistoSet::bin( float value ) {
+  if ( !axis_ ) { return 0; }
+  float range = axis_->GetXmax() - axis_->GetXmin();
+  if ( range > 0. ) {
+    int32_t bin = static_cast<int32_t>( ( value - axis_->GetXmin() ) * 
+					( axis_->GetNbins() / range ) ) + 1;
+    if ( bin < 0 ) { return 0; }
+    else if ( bin > axis_->GetNbins() ) { return static_cast<uint32_t>( axis_->GetNbins() + 1 ); }
+    else { return bin; }
+  } else { return 0; }      
 }
 
 // -----------------------------------------------------------------------------
@@ -175,6 +214,14 @@ void CommissioningTask::updateHistoSet( HistoSet& histo_set,
 // -----------------------------------------------------------------------------
 //
 void CommissioningTask::updateHistoSet( HistoSet& histo_set, 
+					const float& value ) {
+  float weight = 1.;
+  updateHistoSet( histo_set, histo_set.bin(value), weight );
+}
+
+// -----------------------------------------------------------------------------
+//
+void CommissioningTask::updateHistoSet( HistoSet& histo_set, 
 					const uint32_t& bin,
 					const float& value ) {
   
@@ -216,7 +263,7 @@ void CommissioningTask::updateHistoSet( HistoSet& histo_set,
 void CommissioningTask::updateHistoSet( HistoSet& histo_set ) {
   
   // Check if histo exists
-  if ( !histo_set.histo_ ) {
+  if ( !histo_set.histo() ) {
     edm::LogWarning(mlDqmSource_)
       << "[CommissioningTask::" << __func__ << "]"
       << " NULL pointer to MonitorElement!";
@@ -225,7 +272,7 @@ void CommissioningTask::updateHistoSet( HistoSet& histo_set ) {
 
   if ( histo_set.isProfile_ ) {
 
-    TProfile* prof = ExtractTObject<TProfile>().extract( histo_set.histo_ );
+    TProfile* prof = ExtractTObject<TProfile>().extract( histo_set.histo() );
     // if ( prof ) { prof->SetErrorOption("s"); } //@@ necessary?
     static UpdateTProfile profile;
     for ( uint32_t ibin = 0; ibin < histo_set.vNumOfEntries_.size(); ibin++ ) {
@@ -239,11 +286,9 @@ void CommissioningTask::updateHistoSet( HistoSet& histo_set ) {
   } else {
 
     for ( uint32_t ibin = 0; ibin < histo_set.vNumOfEntries_.size(); ibin++ ) {
-      histo_set.histo_->setBinContent( ibin+1, histo_set.vNumOfEntries_[ibin] );
+      histo_set.histo()->setBinContent( ibin+1, histo_set.vNumOfEntries_[ibin] );
     }
     
   }
   
 }
-
-

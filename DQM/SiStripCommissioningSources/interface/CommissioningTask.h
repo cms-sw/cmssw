@@ -10,6 +10,7 @@
 #include <string>
 #include <iomanip>
 
+class TAxis;
 class DQMStore;
 class MonitorElement;
 namespace edm { class EventSetup; }
@@ -35,25 +36,24 @@ class CommissioningTask {
       vectors in which data are cached and used to update histo. */
   class HistoSet {
   public:
-    HistoSet() : 
-      vNumOfEntries_(), 
-      vSumOfContents_(), 
-      vSumOfSquares_(), 
-      histo_(0), 
-      isProfile_(true) {;}
-    // public data member
+    HistoSet();
+    void histo( MonitorElement* );
+    MonitorElement* histo();
+    uint32_t bin( float value );
     std::vector<float> vNumOfEntries_;
     std::vector<float> vSumOfContents_;
     std::vector<double> vSumOfSquares_;
-    MonitorElement* histo_;
     bool isProfile_;
+  private:
+    MonitorElement* histo_;
+    TAxis* axis_;
   };
   
   // ---------- Public methods ----------
-
+  
   /** Books histograms and constructs HistoSet cache. */
   void bookHistograms();
-
+  
   /** Fills HistoSet cache. */
   void fillHistograms( const SiStripEventSummary&, 
 		       const edm::DetSet<SiStripRawDigi>& );
@@ -90,6 +90,9 @@ class CommissioningTask {
 
   /** Updates the vectors of HistoSet. */
   void updateHistoSet( HistoSet&, const uint32_t& bin );
+
+  /** Updates the vectors of HistoSet. */
+  void updateHistoSet( HistoSet&, const float& value );
 
   /** Updates the MonitorElements of HistoSet. */
   void updateHistoSet( HistoSet& );
@@ -129,11 +132,11 @@ class CommissioningTask {
   // ---------- Private member data ----------
 
   DQMStore* dqm_;
-
+  
   uint32_t updateFreq_;
-
+  
   uint32_t fillCntr_;
-
+  
   FedChannelConnection connection_;
 
   uint32_t fedKey_;

@@ -1,29 +1,36 @@
-#ifndef DQM_SiStripCommissioningSources_PedsOnlyTask_h
-#define DQM_SiStripCommissioningSources_PedsOnlyTask_h
+#ifndef DQM_SISTRIPCOMMISSIONINGSOURCES_PEDSONLYTASK_H
+#define DQM_SISTRIPCOMMISSIONINGSOURCES_PEDSONLYTASK_H
 
-#include "DQM/SiStripCommissioningSources/interface/CommissioningTask.h"
 #include <vector>
+
+#include "DataFormats/Common/interface/DetSet.h"
+#include "DQM/SiStripCommissioningSources/interface/CommissioningTask.h"
+
+// Forward Declarations
+class ApvAnalysisFactory;
+class DQMStore;
+class FedChannelConnection;
+class SiStripEventSummary;
+class SiStripRawDigi;
 
 /**
    @class PedsOnlyTask
 */
-class PedsOnlyTask : public CommissioningTask {
+class PedsOnlyTask : public CommissioningTask 
+{
+  public:
+    PedsOnlyTask( DQMStore *, const FedChannelConnection &);
+    virtual ~PedsOnlyTask();
 
- public:
-  
-  PedsOnlyTask( DQMStore*, const FedChannelConnection& );
-  virtual ~PedsOnlyTask();
-  
- private:
-  
-  virtual void book();
-  virtual void fill( const SiStripEventSummary&,
-		     const edm::DetSet<SiStripRawDigi>& );
-  virtual void update();
-  
-  std::vector<HistoSet> peds_;
-  
+  private:
+    virtual void book();
+    virtual void fill( const SiStripEventSummary &,
+                       const edm::DetSet<SiStripRawDigi> &);
+    virtual void update();
+
+    std::vector<HistoSet> peds_;
+
+    ApvAnalysisFactory *pApvFactory_; 
 };
 
-#endif // DQM_SiStripCommissioningSources_PedsOnlyTask_h
-
+#endif // DQM_SISTRIPCOMMISSIONINGSOURCES_PEDSONLYTASK_H
