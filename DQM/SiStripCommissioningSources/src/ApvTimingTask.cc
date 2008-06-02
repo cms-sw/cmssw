@@ -35,10 +35,10 @@ void ApvTimingTask::book() {
 					 sistrip::LLD_CHAN, 
 					 connection().lldChannel() ).title();
   
-  timing_.histo_ = dqm()->bookProfile( title, title, 
-				       nbins, -0.5, nBins_*25.-0.5, 
-				       1025, 0., 1025. );
-  
+  timing_.histo( dqm()->bookProfile( title, title, 
+				     nbins, -0.5, nBins_*25.-0.5, 
+				     1025, 0., 1025. ) );
+		 
   timing_.vNumOfEntries_.resize(nbins,0);
   timing_.vSumOfContents_.resize(nbins,0);
   timing_.vSumOfSquares_.resize(nbins,0);

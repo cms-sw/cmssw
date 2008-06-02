@@ -54,9 +54,9 @@ void PedestalsTask::book() {
 			     connection().lldChannel(),
 			     extra_info ).title();
   
-  peds_[0].histo_ = dqm()->bookProfile( title, title, 
-					nbins, -0.5, nbins*1.-0.5,
-					1025, 0., 1025. );
+  peds_[0].histo( dqm()->bookProfile( title, title, 
+				      nbins, -0.5, nbins*1.-0.5,
+				      1025, 0., 1025. ) );
   
   peds_[0].vNumOfEntries_.resize(nbins,0);
   peds_[0].vSumOfContents_.resize(nbins,0);
@@ -74,9 +74,9 @@ void PedestalsTask::book() {
 			     connection().lldChannel(),
 			     extra_info ).title();
   
-  peds_[1].histo_ = dqm()->bookProfile( title, title, 
-   					nbins, -0.5, nbins*1.-0.5,
-   					1025, 0., 1025. );
+  peds_[1].histo( dqm()->bookProfile( title, title, 
+				      nbins, -0.5, nbins*1.-0.5,
+				      1025, 0., 1025. ) );
   
   peds_[1].vNumOfEntries_.resize(nbins,0);
   peds_[1].vSumOfContents_.resize(nbins,0);
@@ -95,7 +95,7 @@ void PedestalsTask::book() {
 			       connection().i2cAddr(iapv),
 			       sistrip::extrainfo::commonMode_ ).title();
     
-    cm_[iapv].histo_ = dqm()->book1D( title, title, nbins, -0.5, nbins*1.-0.5 );
+    cm_[iapv].histo( dqm()->book1D( title, title, nbins, -0.5, nbins*1.-0.5 ) );
     cm_[iapv].isProfile_ = false;
     
     cm_[iapv].vNumOfEntries_.resize(nbins,0);
@@ -164,7 +164,7 @@ void PedestalsTask::update() {
   updateHistoSet( peds_[0] );
   
   // Noise (cannot use HistoSet directly, as want to plot noise as "contents", not "error")
-  TProfile* histo = ExtractTObject<TProfile>().extract( peds_[1].histo_ );
+  TProfile* histo = ExtractTObject<TProfile>().extract( peds_[1].histo() );
   for ( uint16_t ii = 0; ii < peds_[1].vNumOfEntries_.size(); ++ii ) {
     float entries =  peds_[1].vNumOfEntries_[ii];
     if ( entries > 0. ) {

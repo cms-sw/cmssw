@@ -59,9 +59,9 @@ void OptoScanTask::book() {
 				 extra_info.str() ).title();
 
       // Book histo
-      opto_[igain][ihisto].histo_ = dqm()->bookProfile( title, title, 
-							nbins, 0.5, nbins*1.+0.5, // range is bias setting (1-50)
-							1024, -0.5, 1023.5 );
+      opto_[igain][ihisto].histo( dqm()->bookProfile( title, title, 
+						      nbins, 0.5, nbins*1.+0.5, // range is bias setting (1-50)
+						      1024, -0.5, 1023.5 ) );
       
       opto_[igain][ihisto].vNumOfEntries_.resize(nbins,0);
       opto_[igain][ihisto].vSumOfContents_.resize(nbins,0);

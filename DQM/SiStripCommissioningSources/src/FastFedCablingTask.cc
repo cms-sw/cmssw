@@ -34,9 +34,9 @@ void FastFedCablingTask::book() {
 					 connection().lldChannel() ).title();
   
   uint16_t nbins = 34;
-  histo_.histo_ = dqm()->bookProfile( title, title, 
-				      nbins, -0.5, nbins*1.-0.5,
-				      1025, 0., 1025. );
+  histo_.histo( dqm()->bookProfile( title, title, 
+				    nbins, -0.5, nbins*1.-0.5,
+				    1025, 0., 1025. ) );
   
   histo_.vNumOfEntries_.resize(nbins,0);
   histo_.vSumOfContents_.resize(nbins,0);

@@ -64,7 +64,7 @@ void CalibrationScanTask::book() {
 					 connection().detId(),
 					 sistrip::APV, 
 					 connection().i2cAddr(0) ).title(); 
-  calib1_.histo_ = dqm()->book1D( title1, title1, nBins_, 0, 203.125);
+  calib1_.histo( dqm()->book1D( title1, title1, nBins_, 0, 203.125) );
   calib1_.isProfile_=false;
   calib1_.vNumOfEntries_.resize(nBins_,0);
   std::string title2 = SiStripHistoTitle( sistrip::EXPERT_HISTO, 
@@ -73,7 +73,7 @@ void CalibrationScanTask::book() {
 					 connection().detId(),
 					 sistrip::APV, 
 					 connection().i2cAddr(1) ).title(); 
-  calib2_.histo_ = dqm()->book1D( title2, title2, nBins_, 0, 203.125);
+  calib2_.histo( dqm()->book1D( title2, title2, nBins_, 0, 203.125) );
   calib2_.isProfile_=false;
   calib2_.vNumOfEntries_.resize(nBins_,0);
 
@@ -161,7 +161,7 @@ void CalibrationScanTask::checkAndSave(const uint16_t& isha, const uint16_t& vfs
 					    sistrip::APV, 
 					    connection().i2cAddr(0),
 					    complement.str() ).title(); 
-    calib1_.histo_->setTitle(title1);
+    calib1_.histo()->setTitle(title1);
 
     std::string title2 = SiStripHistoTitle( sistrip::EXPERT_HISTO, 
 			 		    runType_, 
@@ -170,7 +170,7 @@ void CalibrationScanTask::checkAndSave(const uint16_t& isha, const uint16_t& vfs
 					    sistrip::APV, 
 					    connection().i2cAddr(1),
 					    complement.str() ).title(); 
-    calib2_.histo_->setTitle(title2);
+    calib2_.histo()->setTitle(title2);
 
     // set the calchan value in the correspond string
     ishaElement_->Fill(lastISHA_);

@@ -32,9 +32,9 @@ void DaqScopeModeTask::book() {
 					 sistrip::LLD_CHAN, 
 					 connection().lldChannel() ).title();
 
-  scope_.histo_ = dqm()->book1D( title, title, 
-				 nBins_, -0.5, nBins_-0.5 );
-  
+  scope_.histo( dqm()->book1D( title, title, 
+			       nBins_, -0.5, nBins_-0.5 ) );
+		
   scope_.vNumOfEntries_.resize(nBins_,0);
   scope_.vSumOfContents_.resize(nBins_,0);
   scope_.vSumOfSquares_.resize(nBins_,0);

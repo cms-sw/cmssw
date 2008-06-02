@@ -44,9 +44,9 @@ void VpspScanTask::book() {
 				 connection().lldChannel(),
 				 extra_info.str() ).title();
       
-      vpsp_[iapv].histo_ = dqm()->bookProfile( title, title, 
-					       nbins, -0.5, nbins*1.-0.5,
-					       1025, 0., 1025. );
+      vpsp_[iapv].histo( dqm()->bookProfile( title, title, 
+					     nbins, -0.5, nbins*1.-0.5,
+					     1025, 0., 1025. ) );
       
       vpsp_[iapv].vNumOfEntries_.resize(nbins,0);
       vpsp_[iapv].vSumOfContents_.resize(nbins,0);

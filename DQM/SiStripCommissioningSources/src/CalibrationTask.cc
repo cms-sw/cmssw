@@ -69,7 +69,7 @@ void CalibrationTask::book() {
       std::stringstream complement;
       complement << "_" << i ;
       title += complement.str();			
-      calib_[apv*16+i].histo_ = dqm()->book1D( title, title, nBins_, 0, 203.125);
+      calib_[apv*16+i].histo( dqm()->book1D( title, title, nBins_, 0, 203.125) );
       calib_[apv*16+i].isProfile_=false;
       calib_[apv*16+i].vNumOfEntries_.resize(nBins_,0);
     }
@@ -150,8 +150,8 @@ void CalibrationTask::checkAndSave(const uint16_t& calchan) {
                                                sistrip::APV, 
                                                connection().i2cAddr(apv),
                                                complement.str() ).title(); 
-        calib_[apv*16+i].histo_->setTitle(title);
-	calib_[apv*16+i].histo_->setAxisTitle(title);
+        calib_[apv*16+i].histo()->setTitle(title);
+	calib_[apv*16+i].histo()->setAxisTitle(title);
       }
     }
     // set the calchan value in the correspond string

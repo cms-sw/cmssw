@@ -50,9 +50,9 @@ void FedCablingTask::book() {
 			       connection().lldChannel(),
 			       extra_info ).title();
       
-    histos_[iter].histo_ = dqm()->bookProfile( title, title, 
-					      nbins, -0.5, nbins*1.-0.5,
-					      1025, 0., 1025. );
+    histos_[iter].histo( dqm()->bookProfile( title, title, 
+					     nbins, -0.5, nbins*1.-0.5,
+					     1025, 0., 1025. ) );
       
     histos_[iter].vNumOfEntries_.resize(nbins,0);
     histos_[iter].vSumOfContents_.resize(nbins,0);

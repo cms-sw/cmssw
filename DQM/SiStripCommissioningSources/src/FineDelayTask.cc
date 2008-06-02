@@ -54,9 +54,9 @@ void FineDelayTask::book() {
     // if not, book it
     int nBins = NBINS;
     LogDebug("Commissioning") << "[LatencyTask::book] booking a new histogram.";
-    timingMap_[title].histo_ = dqm()->bookProfile( title, title,    // name and title
-                                         nBins, LOWBIN, HIGHBIN,   // binning + range
-                                         100, 0., -1. );  // Y range : automatic
+    timingMap_[title].histo( dqm()->bookProfile( title, title,    // name and title
+						 nBins, LOWBIN, HIGHBIN,   // binning + range
+						 100, 0., -1. ) );  // Y range : automatic
 
     timingMap_[title].vNumOfEntries_.resize(nBins,0);
     timingMap_[title].vSumOfContents_.resize(nBins,0);

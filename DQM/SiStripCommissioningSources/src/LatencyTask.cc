@@ -51,9 +51,9 @@ void LatencyTask::book() {
     timingMap_[title] = HistoSet();
     int nBins = NBINS;
     LogDebug("Commissioning") << "[LatencyTask::book] booking a new histogram.";
-    timingMap_[title].histo_ = dqm()->bookProfile( title, title,    // name and title
-  				         nBins, LOWBIN, HIGHBIN,   // binning + range
-				         100, 0., -1. );  // Y range : automatic
+    timingMap_[title].histo( dqm()->bookProfile( title, title,    // name and title
+						 nBins, LOWBIN, HIGHBIN,   // binning + range
+						 100, 0., -1. ) );  // Y range : automatic
   
     timingMap_[title].vNumOfEntries_.resize(nBins,0);
     timingMap_[title].vSumOfContents_.resize(nBins,0);
@@ -80,9 +80,9 @@ void LatencyTask::book() {
     clusterMap_[title] = HistoSet();
     int nBins = NBINS;
     LogDebug("Commissioning") << "[LatencyTask::book] booking a new histogram.";
-    clusterMap_[title].histo_ = dqm()->bookProfile( title, title,    // name and title
-  				         nBins, LOWBIN, HIGHBIN,   // binning + range
-				         100, 0., -1. );  // Y range : automatic
+    clusterMap_[title].histo( dqm()->bookProfile( title, title,    // name and title
+						  nBins, LOWBIN, HIGHBIN,   // binning + range
+						  100, 0., -1. ) );  // Y range : automatic
   
     clusterMap_[title].vNumOfEntries_.resize(nBins,0);
     clusterMap_[title].vSumOfContents_.resize(nBins,0);
@@ -96,10 +96,10 @@ void LatencyTask::book() {
 // -----------------------------------------------------------------------------
 //
 void LatencyTask::fill( const SiStripEventSummary& summary,
-			  const edm::DetSet<SiStripRawDigi>& digis ) {
+			const edm::DetSet<SiStripRawDigi>& digis ) {
   LogDebug("Commissioning") << "[LatencyTask::fill]";
   // retrieve the delay from the EventSummary
-  uint32_t delay = const_cast<SiStripEventSummary&>(summary).latency();
+  int32_t delay = static_cast<int32_t>( const_cast<SiStripEventSummary&>(summary).latency() );
   if(firstReading_==-1) firstReading_ = delay;
   float correctedDelay = 0.;
   LogDebug("Commissioning") << "[LatencyTask::fill]; the delay is " << delay;
