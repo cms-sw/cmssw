@@ -105,22 +105,40 @@ std::vector<CSCComparatorDigi>  CSCCLCTData::comparatorDigis(uint32_t idlayer, u
       //we do not have to check over the last couple of time bins if there are no hits since
       //comparators take 3 time bins
 
-      ///Store digis each of possible four halfstrips for given distrip:
-      unsigned int cfeb_corr    = cfeb;
-      unsigned int distrip_corr = distrip;
-      if ( me1a )           { cfeb_corr = 0; } // reset 4 to 0
-      if ( me1a &&  zplus ) { distrip_corr = 7-distrip; } // 0-7 -> 7-0
-      if ( me1b && !zplus ) {
-	cfeb_corr    = 3-cfeb;
-	distrip_corr = 7-distrip;
+      // Store digis each of possible four halfstrips for given distrip:
+      if (tbinbitsS0HS0 || tbinbitsS0HS1 || tbinbitsS1HS0 || tbinbitsS1HS1) {
+	unsigned int cfeb_corr    = cfeb;
+	unsigned int distrip_corr = distrip;
+
+	// Fix ordering of strips and CFEBs in ME1/1.
+	// SV, 27/05/08: keep CFEB=4 for ME1/a until CLCT trigger logic
+	// stops combining it with the info from the other 4 CFEBs (ME1/b).
+	// if ( me1a )           { cfeb_corr = 0; } // reset 4 to 0
+	if ( me1a &&  zplus ) { distrip_corr = 7-distrip; } // 0-7 -> 7-0
+	if ( me1b && !zplus ) { distrip_corr = 7-distrip; cfeb_corr = 3-cfeb; }
+
+	int strip = 16*cfeb_corr + 2*distrip_corr + 1;
+
+	if (debug)
+	  edm::LogInfo ("CSCCLCTData")
+	    << "fillComparatorOutputs: cfeb_corr = " << cfeb_corr
+	    << " distrip_corr = " << distrip_corr << " strip = " << strip;
+
+	if (( me1a && zplus ) || ( me1b && !zplus )) {
+	  // Half-strips need to be flipped too.
+	  if (tbinbitsS1HS1) result.push_back(CSCComparatorDigi(strip, 0, tbinbitsS1HS1));
+	  if (tbinbitsS1HS0) result.push_back(CSCComparatorDigi(strip, 1, tbinbitsS1HS0));
+	  if (tbinbitsS0HS1) result.push_back(CSCComparatorDigi(strip+1, 0, tbinbitsS0HS1));
+	  if (tbinbitsS0HS0) result.push_back(CSCComparatorDigi(strip+1, 1, tbinbitsS0HS0));
+	}
+	else {
+	  if (tbinbitsS0HS0) result.push_back(CSCComparatorDigi(strip, 0, tbinbitsS0HS0));
+	  if (tbinbitsS0HS1) result.push_back(CSCComparatorDigi(strip, 1, tbinbitsS0HS1));
+	  if (tbinbitsS1HS0) result.push_back(CSCComparatorDigi(strip+1, 0, tbinbitsS1HS0));
+	  if (tbinbitsS1HS1) result.push_back(CSCComparatorDigi(strip+1, 1, tbinbitsS1HS1));
+	}
+	//uh oh ugly ugly ugly!
       }
-      int strip = 16*cfeb_corr + 2*distrip_corr + 1;
-      if (tbinbitsS0HS0) result.push_back(CSCComparatorDigi(strip, 0, tbinbitsS0HS0));
-      if (tbinbitsS0HS1) result.push_back(CSCComparatorDigi(strip, 1, tbinbitsS0HS1));
-      if (tbinbitsS1HS0) result.push_back(CSCComparatorDigi(strip+1, 0, tbinbitsS1HS0));
-      if (tbinbitsS1HS1) result.push_back(CSCComparatorDigi(strip+1, 1, tbinbitsS1HS1));
-      //uh oh ugly ugly ugly!
-      
     }//end of loop over distrips
   
   return result;
