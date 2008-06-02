@@ -528,7 +528,8 @@ void FUShmBuffer::scheduleRawEmptyCellForDiscard(FUShmRawCell* cell)
 
 
 //______________________________________________________________________________
-bool FUShmBuffer::writeRecoInitMsg(unsigned char *data,
+bool FUShmBuffer::writeRecoInitMsg(unsigned int   outModId,
+				   unsigned char *data,
 				   unsigned int   dataSize)
 {
   if (dataSize>recoCellPayloadSize_) {
@@ -539,7 +540,7 @@ bool FUShmBuffer::writeRecoInitMsg(unsigned char *data,
   waitRecoWrite();
   unsigned int   iCell=nextRecoWriteIndex();
   FUShmRecoCell* cell =recoCell(iCell);
-  cell->writeInitMsg(data,dataSize);
+  cell->writeInitMsg(outModId,data,dataSize);
   postRecoIndexToRead(iCell);
   if (segmentationMode_) shmdt(cell);
   postRecoRead();

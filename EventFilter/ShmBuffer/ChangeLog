@@ -1,3 +1,9 @@
+2008-06-02  Philipp SCHIEFERDECKER  <philipp.schieferdecker@cern.ch>
+
+	* tag V00-06-05
+	* update FUShmBuffer/FUShmRecoCell, pass outModId when the INIT
+	message is written
+
 2008-05-30  Philipp SCHIEFERDECKER  <philipp.schieferdecker@cern.ch>
 
 	* tag V00-06-04
