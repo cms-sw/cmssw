@@ -124,7 +124,7 @@ void PedestalsTask::fill( const SiStripEventSummary& summary,
 
   //@@ Inefficient!!!
   uint16_t napvs = nbins / 128;
-  std::vector<uint16_t> cm; cm.resize(napvs,0);
+  std::vector<uint32_t> cm; cm.resize(napvs,0);
   
   // Calc common mode for both APVs
   std::vector<uint16_t> adc;
@@ -137,7 +137,7 @@ void PedestalsTask::fill( const SiStripEventSummary& summary,
     }
     sort( adc.begin(), adc.end() ); 
     uint16_t index = adc.size()%2 ? adc.size()/2 : adc.size()/2-1;
-    if ( !adc.empty() ) { cm[iapv] = adc[index]; }
+    if ( !adc.empty() ) { cm[iapv] = static_cast<uint32_t>( adc[index] ); }
   }
   
   for ( uint16_t ibin = 0; ibin < nbins; ibin++ ) {
