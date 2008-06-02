@@ -9,7 +9,7 @@
 </library>
 <library file="classes_cids.cc" name=CondCoreDBCalibrationCIDS>
 <use name=FWCore/Framework>
-<use name=CondFormats/Common>
+<use name=CondCore/DBCommon>
 <use name=CondFormats/Calibration>
 <use name=rootrflx>
 <flags EDM_PLUGIN=1>
