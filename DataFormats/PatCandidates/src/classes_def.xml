@@ -1,4 +1,5 @@
 <lcgdict>
+ <selection>
 
   <!-- To check: -->
   <!-- These dont belong here, and maybe they already exist in the meantime -->
@@ -12,8 +13,6 @@
   <class name="std::vector<std::pair<std::string, float> >" />
   <class name="std::vector<std::pair<unsigned int, float> >" />
   <class name="std::pair<unsigned int, float>" />
-<!--  <class name="std::vector<std::pair<std::string, reco::JetTagRef> >" /> -->
-<!--  <class name="std::pair<std::string, reco::JetTagRef>" /> -->
 
   <class name="pat::PATObject<pat::ElectronType>" />
   <class name="pat::PATObject<pat::MuonType>" />
@@ -22,6 +21,7 @@
   <class name="pat::PATObject<pat::JetType>" />
   <class name="pat::PATObject<pat::METType>" />
   <class name="pat::PATObject<pat::ParticleType>" />
+  <class name="pat::PATObject<reco::RecoCandidate>" />
   <class name="pat::Lepton<pat::ElectronType>" />
   <class name="pat::Lepton<pat::MuonType>" />
   <class name="pat::Lepton<pat::TauType>" />
@@ -34,6 +34,7 @@
      <class name="std::vector<reco::PFJet::Specific>"   />
   <class name="pat::MET" />
   <class name="pat::Particle" />
+  <class name="pat::GenericParticle" />
   <class name="pat::Hemisphere" />
   <class name="std::vector<pat::Electron>" />
   <class name="std::vector<pat::Muon>" />
@@ -42,6 +43,7 @@
   <class name="std::vector<pat::Jet>" />
   <class name="std::vector<pat::MET>" />
   <class name="std::vector<pat::Particle>" />
+  <class name="std::vector<pat::GenericParticle>" />
   <class name="std::vector<pat::Hemisphere>" />
   <class name="edm::Wrapper<std::vector<pat::Electron> >" />
   <class name="edm::Wrapper<std::vector<pat::Muon> >" />
@@ -50,6 +52,7 @@
   <class name="edm::Wrapper<std::vector<pat::Jet> >" />
   <class name="edm::Wrapper<std::vector<pat::MET> >" />
   <class name="edm::Wrapper<std::vector<pat::Particle> >" />
+  <class name="edm::Wrapper<std::vector<pat::GenericParticle> >" />
   <class name="edm::Wrapper<std::vector<pat::Hemisphere> >" />
   <class name="pat::ElectronRef" />
   <class name="pat::MuonRef" />
@@ -58,35 +61,44 @@
   <class name="pat::JetRef" />
   <class name="pat::METRef" />
   <class name="pat::ParticleRef" />
+  <class name="pat::GenericParticleRef" />
   <class name="pat::HemisphereRef" />
 
   <class name="pat::JetCorrFactors" />
   <class name="std::vector<pat::JetCorrFactors>" />
-  <class name="edm::Wrapper<pat::JetCorrFactors>" />
   <class name="edm::ValueMap<pat::JetCorrFactors>" />
   <class name="edm::Wrapper<edm::ValueMap<pat::JetCorrFactors> >" />
+
+  <class name="std::vector<reco::CandidatePtr>" />
+  <class name="edm::ValueMap<reco::CandidatePtr>" />
+  <class name="edm::Wrapper<edm::ValueMap<reco::CandidatePtr> >" />
 
   <class name="std::pair<std::string,int32_t>" />
   <class name="std::vector<std::pair<std::string,int32_t> >" />
   <class name="StringMap" />
   <class name="edm::Wrapper<StringMap>" />
 
-  <class name="std::pair<std::string,edm::RefToBase<reco::Candidate> >" />
-  <class name="std::vector<std::pair<std::string,edm::RefToBase<reco::Candidate> > >" />
+  <class name="std::pair<std::string,edm::Ptr<reco::Candidate> >" />
+  <class name="std::vector<std::pair<std::string,edm::Ptr<reco::Candidate> > >" />
   <class name="pat::EventHypothesis" />
   <class name="std::vector<pat::EventHypothesis>" />
   <class name="edm::Wrapper<std::vector<pat::EventHypothesis> >" />
-
-  <class name="edm::reftobase::RefHolder<edm::Ref<std::vector<reco::MET>,reco::MET,edm::refhelper::FindUsingAdvance<std::vector<reco::MET>,reco::MET> > >" />
-  <class name="edm::reftobase::RefHolder<edm::Ref<std::vector<reco::CaloMET>,reco::CaloMET,edm::refhelper::FindUsingAdvance<std::vector<reco::CaloMET>,reco::CaloMET> > >" />
-  <class name="edm::reftobase::RefHolder<edm::Ref<std::vector<reco::GenMET>,reco::GenMET,edm::refhelper::FindUsingAdvance<std::vector<reco::GenMET>,reco::GenMET> > >" />
-
-<!--  <class name="std::vector<reco::JetTagRef> "/> -->
-<!--  <class name="edm::ValueMap<reco::JetTagRef>" /> -->
-<!--  <class name="edm::Wrapper<edm::ValueMap<reco::JetTagRef> >" /> -->
-
-
-
+  
+  <class name="std::string" />
+  <class name="pat::TriggerPrimitive" />
+  <class name="std::vector<pat::TriggerPrimitive>" />
+  <class name="std::vector<pat::TriggerPrimitive *>" />
+  <class name="pat::TriggerPrimitiveCollection" />
+  <class name="edm::Wrapper<pat::TriggerPrimitiveCollection>" />
+  <class name="pat::TriggerPrimitiveMatch" />
+  <class name="edm::Wrapper<pat::TriggerPrimitiveMatch>" />
+  <class name="pat::TriggerPrimitiveRef" />
+  <class name="pat::TriggerPrimitiveRefProd" />
+  <class name="pat::TriggerPrimitiveRefVector" />
+  <class name="edm::reftobase::Holder<reco::Candidate, pat::TriggerPrimitiveRef>" />
+  <class name="edm::reftobase::RefHolder<pat::TriggerPrimitiveRef>" />
+  <class name="edm::reftobase::VectorHolder<reco::Candidate, pat::TriggerPrimitiveRefVector>" />
+  <class name="edm::reftobase::RefVectorHolder<pat::TriggerPrimitiveRefVector>" />
 
   <class name="std::vector<edm::Ref<std::vector<reco::SecondaryVertexTagInfo>,reco::SecondaryVertexTagInfo,edm::refhelper::FindUs ingAdvance<std::vector<reco::SecondaryVertexTagInfo>,reco::SecondaryVertexTagInfo> > >" />
 
@@ -98,7 +110,6 @@
 
 
   <class name="std::pair<pat::IsolationKeys,reco::IsoDeposit>" />
-
 
   <class name="edm::Association<reco::GenJetCollection>" />
   <class name="edm::Wrapper<edm::Association<reco::GenJetCollection> >" />
@@ -137,10 +148,6 @@
   <class name="edm::reftobase::RefHolder<pat::PhotonRef>" />
   <class name="edm::reftobase::Holder<reco::Candidate, pat::PhotonRef>" />
 
-  <class name="edm::RefToBase<pat::JetType>" />
-  <class name="edm::reftobase::BaseHolder<pat::JetType>" />
-  <class name="edm::reftobase::IndirectHolder<pat::JetType>" />
-  <class name="edm::reftobase::Holder<pat::JetType, pat::JetTypeRef>" />
   <class name="edm::reftobase::Holder<pat::JetType, pat::JetRef>" />
   <class name="edm::reftobase::RefHolder<pat::JetRef>" />
   <class name="edm::reftobase::Holder<reco::Candidate, pat::JetRef>" />
@@ -153,13 +160,11 @@
   <class name="edm::reftobase::RefHolder<pat::METRef>" />
   <class name="edm::reftobase::Holder<reco::Candidate, pat::METRef>" />
 
-  <class name="edm::RefToBase<pat::ParticleType>" />
-  <class name="edm::reftobase::BaseHolder<pat::ParticleType>" />
-  <class name="edm::reftobase::IndirectHolder<pat::ParticleType>" />
-  <class name="edm::reftobase::Holder<pat::ParticleType, pat::ParticleTypeRef>" />
-  <class name="edm::reftobase::Holder<pat::ParticleType, pat::ParticleRef>" />
+  <class name="edm::reftobase::Holder<reco::Candidate,pat::ParticleRef>" />
   <class name="edm::reftobase::RefHolder<pat::ParticleRef>" />
 
+  <class name="edm::reftobase::Holder<reco::Candidate,pat::GenericParticleRef>" />
+  <class name="edm::reftobase::RefHolder<pat::GenericParticleRef>" />
 
   <class name="std::vector<reco::TrackRefVector>" />
   <class name="edm::ValueMap<reco::TrackRefVector>" />
@@ -169,5 +174,12 @@
   <class name="std::vector<edm::Ptr<reco::BaseTagInfo> >" />
   <class name="edm::ValueMap<edm::Ptr<reco::BaseTagInfo> >" />
   <class name="edm::Wrapper<edm::ValueMap<edm::Ptr<reco::BaseTagInfo> > >" />
+ 
+ </selection>
+ <exclusion>
+  <class name="edm::OwnVector<pat::TriggerPrimitive, edm::ClonePolicy<pat::TriggerPrimitive> >">
+   <method name="sort" />
+  </class>
+ </exclusion>
 </lcgdict>
 

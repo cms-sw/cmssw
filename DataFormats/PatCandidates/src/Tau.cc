@@ -1,5 +1,5 @@
 //
-// $Id$
+// $Id: Tau.cc,v 1.5.2.1 2008/06/03 20:08:24 gpetrucc Exp $
 //
 
 #include "DataFormats/PatCandidates/interface/Tau.h"
@@ -51,6 +51,21 @@ Tau::Tau(const edm::RefToBase<TauType> & aTauRef) :
     HtotOverP_(0.)
 {
 }
+
+/// constructor from ref to TauType
+Tau::Tau(const edm::Ptr<TauType> & aTauRef) :
+    Lepton<TauType>(aTauRef),
+    embeddedIsolationTracks_(false),
+    embeddedLeadTrack_(false),
+    embeddedSignalTracks_(false),
+    emEnergyFraction_(0.),
+    eOverP_(0.),
+    leadeOverP_(0.),
+    HhotOverP_(0.),
+    HtotOverP_(0.)
+{
+}
+
 
 
 /// destructor

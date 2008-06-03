@@ -1,5 +1,5 @@
 //
-// $Id$
+// $Id: Electron.h,v 1.11.2.1 2008/06/03 20:08:23 gpetrucc Exp $
 //
 
 #ifndef DataFormats_PatCandidates_Electron_h
@@ -13,7 +13,7 @@
    namespace.
 
   \author   Steven Lowette
-  \version  $Id$
+  \version  $Id: Electron.h,v 1.11.2.1 2008/06/03 20:08:23 gpetrucc Exp $
 */
 
 
@@ -37,6 +37,7 @@ namespace pat {
       Electron();
       Electron(const ElectronType & anElectron);
       Electron(const edm::RefToBase<ElectronType> & anElectronRef);
+      Electron(const edm::Ptr<ElectronType> & anElectronRef);
       virtual ~Electron();
 
       virtual Electron * clone() const { return new Electron(*this); }

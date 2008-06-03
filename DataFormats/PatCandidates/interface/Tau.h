@@ -1,5 +1,5 @@
 //
-// $Id$
+// $Id: Tau.h,v 1.12.2.1 2008/06/03 20:08:24 gpetrucc Exp $
 //
 
 #ifndef DataFormats_PatCandidates_Tau_h
@@ -12,7 +12,7 @@
    Tau implements the analysis-level tau class within the 'pat' namespace.
 
   \author   Steven Lowette
-  \version  $Id$
+  \version  $Id: Tau.h,v 1.12.2.1 2008/06/03 20:08:24 gpetrucc Exp $
 */
 
 
@@ -34,6 +34,7 @@ namespace pat {
       Tau();
       Tau(const TauType & aTau);
       Tau(const edm::RefToBase<TauType> & aTauRef);
+      Tau(const edm::Ptr<TauType> & aTauRef);
       virtual ~Tau();
 
       virtual Tau * clone() const { return new Tau(*this); }

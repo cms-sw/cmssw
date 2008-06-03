@@ -1,5 +1,5 @@
 //
-// $Id: Jet.h,v 1.17 2008/04/29 12:22:37 gpetrucc Exp $
+// $Id: Jet.h,v 1.18 2008/05/26 11:22:12 arizzi Exp $
 //
 
 #ifndef DataFormats_PatCandidates_Jet_h
@@ -13,7 +13,7 @@
    'pat' namespace
 
   \author   Steven Lowette
-  \version  $Id: Jet.h,v 1.17 2008/04/29 12:22:37 gpetrucc Exp $
+  \version  $Id: Jet.h,v 1.18 2008/05/26 11:22:12 arizzi Exp $
 */
 
 
@@ -61,6 +61,8 @@ namespace pat {
       Jet(const JetType & aJet);
       /// constructor from ref to JetType
       Jet(const edm::RefToBase<JetType> & aJetRef);
+      /// constructor from ref to JetType
+      Jet(const edm::Ptr<JetType> & aJetRef);
       /// destructor
       virtual ~Jet();
 

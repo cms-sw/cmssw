@@ -1,5 +1,5 @@
 //
-// $Id$
+// $Id: Electron.cc,v 1.6.2.1 2008/06/03 20:08:24 gpetrucc Exp $
 //
 
 #include "DataFormats/PatCandidates/interface/Electron.h"
@@ -30,6 +30,15 @@ Electron::Electron(const ElectronType & anElectron) :
 
 /// constructor from ref to ElectronType
 Electron::Electron(const edm::RefToBase<ElectronType> & anElectronRef) :
+    Lepton<ElectronType>(anElectronRef),
+    embeddedGsfTrack_(false),
+    embeddedSuperCluster_(false),
+    embeddedTrack_(false)
+{
+}
+
+/// constructor from ref to ElectronType
+Electron::Electron(const edm::Ptr<ElectronType> & anElectronRef) :
     Lepton<ElectronType>(anElectronRef),
     embeddedGsfTrack_(false),
     embeddedSuperCluster_(false),

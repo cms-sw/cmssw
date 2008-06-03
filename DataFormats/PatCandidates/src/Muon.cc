@@ -1,5 +1,5 @@
 //
-// $Id$
+// $Id: Muon.cc,v 1.7.2.1 2008/06/03 20:08:24 gpetrucc Exp $
 //
 
 #include "DataFormats/PatCandidates/interface/Muon.h"
@@ -30,6 +30,16 @@ Muon::Muon(const MuonType & aMuon) :
 
 /// constructor from ref to MuonType
 Muon::Muon(const edm::RefToBase<MuonType> & aMuonRef) :
+    Lepton<MuonType>(aMuonRef),
+    embeddedTrack_(false),
+    embeddedStandAloneMuon_(false),
+    embeddedCombinedMuon_(false)
+{
+}
+
+
+/// constructor from ref to MuonType
+Muon::Muon(const edm::Ptr<MuonType> & aMuonRef) :
     Lepton<MuonType>(aMuonRef),
     embeddedTrack_(false),
     embeddedStandAloneMuon_(false),

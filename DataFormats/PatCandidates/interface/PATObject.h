@@ -9,11 +9,13 @@
  *
  *  \author   Steven Lowette
  *
- *  \version  $Id: PATObject.h,v 1.7 2008/03/05 14:47:33 fronga Exp $
+ *  \version  $Id: PATObject.h,v 1.8.2.1 2008/06/03 20:08:24 gpetrucc Exp $
  *
  */
 
-#include "DataFormats/Common/interface/RefToBase.h"
+#include "DataFormats/Common/interface/Ptr.h"
+#include "DataFormats/Candidate/interface/CandidateFwd.h"
+#include "DataFormats/Candidate/interface/Candidate.h"
 #include <vector>
 
 
@@ -29,14 +31,17 @@ namespace pat {
       PATObject(const ObjectType & obj);
       /// constructor from reference
       PATObject(const edm::RefToBase<ObjectType> & ref);
+      /// constructor from reference
+      PATObject(const edm::Ptr<ObjectType> & ref);
       /// destructor
-      virtual ~PATObject() {}
-    /// returns a clone
-      virtual PATObject<ObjectType> * clone() const ; 
+      virtual ~PATObject() {}    
+    // returns a clone                                  // NO: ObjectType can be an abstract type like reco::Candidate
+    //  virtual PATObject<ObjectType> * clone() const ; //     for which the clone() can't be defined
+
       /// access to the original object; returns zero for null Ref and throws for unavailable collection
-      const ObjectType * originalObject() const;
+      const reco::Candidate * originalObject() const;
       /// reference to original object. Returns a null reference if not available
-      const edm::RefToBase<ObjectType> & originalObjectRef() const;
+      const edm::Ptr<reco::Candidate> & originalObjectRef() const;
       /// standard deviation on A (see CMS Note 2006/023)
       float resolutionA() const;
       /// standard deviation on B (see CMS Note 2006/023)
@@ -76,7 +81,7 @@ namespace pat {
       
     protected:
       // reference back to the original object
-      edm::RefToBase<ObjectType> refToOrig_;
+      edm::Ptr<reco::Candidate> refToOrig_;
       /// standard deviation on transverse energy
       float resEt_;
       /// standard deviation on pseudorapidity
@@ -111,34 +116,32 @@ namespace pat {
 
   template <class ObjectType> PATObject<ObjectType>::PATObject(const edm::RefToBase<ObjectType> & ref) :
     ObjectType(*ref),
+    refToOrig_(ref.id(), ref.get(), ref.key()), // correct way to convert RefToBase=>Ptr, if ref is guaranteed to be available
+                                                // which happens to be true, otherwise the line before this throws ex. already
+    resEt_(0), resEta_(0), resPhi_(0), resA_(0), resB_(0), resC_(0), resD_(0),  resTheta_(0) {
+  }
+
+  template <class ObjectType> PATObject<ObjectType>::PATObject(const edm::Ptr<ObjectType> & ref) :
+    ObjectType(*ref),
     refToOrig_(ref),
     resEt_(0), resEta_(0), resPhi_(0), resA_(0), resB_(0), resC_(0), resD_(0),  resTheta_(0) {
   }
 
-  template <class ObjectType> const ObjectType * PATObject<ObjectType>::originalObject() const {
+
+  template <class ObjectType> const reco::Candidate * PATObject<ObjectType>::originalObject() const {
     if (refToOrig_.isNull()) {
       // this object was not produced from a reference, so no link to the
       // original object exists -> return a 0-pointer
       return 0;
-    // GIO: temporary disable the following: I have to find out why there is no "isAvailable()" in RefToBase...
-    //     vvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvv
-    //} else if (!refToOrig_.isAvailable()) {
-    //  throw edm::Exception(edm::errors::ProductNotFound) << "The original collection from which this PAT object was made is not present any more in the event, hence you cannot access the originating object anymore.";
-    //  return 0;
-    //      ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    } else if (!refToOrig_.isAvailable()) {
+      throw edm::Exception(edm::errors::ProductNotFound) << "The original collection from which this PAT object was made is not present any more in the event, hence you cannot access the originating object anymore.";
     } else {
       return refToOrig_.get();
     }
   }
 
-
   template <class ObjectType> 
-  PATObject<ObjectType> * PATObject<ObjectType>::clone() const {
-    return new PATObject<ObjectType> ( *this );
-  }
-
-  template <class ObjectType> 
-  const edm::RefToBase<ObjectType> & PATObject<ObjectType>::originalObjectRef() const { return refToOrig_; }
+  const edm::Ptr<reco::Candidate> & PATObject<ObjectType>::originalObjectRef() const { return refToOrig_; }
 
   template <class ObjectType> 
   float PATObject<ObjectType>::resolutionEt() const { return resEt_; }

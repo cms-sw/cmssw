@@ -9,6 +9,7 @@
 #include "DataFormats/PatCandidates/interface/Jet.h"
 #include "DataFormats/PatCandidates/interface/MET.h"
 #include "DataFormats/PatCandidates/interface/Particle.h"
+#include "DataFormats/PatCandidates/interface/GenericParticle.h"
 #include "DataFormats/PatCandidates/interface/Hemisphere.h"
 
 #include "DataFormats/PatCandidates/interface/JetCorrFactors.h"
@@ -16,6 +17,7 @@
 #include "DataFormats/PatCandidates/interface/StringMap.h"
 #include "DataFormats/PatCandidates/interface/EventHypothesis.h"
 #include "DataFormats/PatCandidates/interface/EventHypothesisLooper.h"
+#include "DataFormats/PatCandidates/interface/TriggerPrimitive.h"
 
 // vvvv Needed to fix dictionaries missing in 169pre2
 #include "DataFormats/METReco/interface/MET.h"
@@ -47,6 +49,7 @@ namespace pat {
   typedef edm::Ref<std::vector<pat::Jet> >      JetRef;
   typedef edm::Ref<std::vector<pat::MET> >      METRef;
   typedef edm::Ref<std::vector<pat::Particle> > ParticleRef;
+  typedef edm::Ref<std::vector<pat::GenericParticle> > GenericParticleRef;
   typedef edm::Ref<std::vector<pat::Hemisphere> > HemisphereRef;
 
   typedef edm::Ref<std::vector<pat::ElectronType> > ElectronTypeRef;
@@ -67,11 +70,30 @@ namespace {
     StringMap smap;
     edm::Wrapper<StringMap> smap_w;
 
-    std::pair<std::string, edm::RefToBase<reco::Candidate> > hypo0;
-    std::vector<std::pair<std::string, edm::RefToBase<reco::Candidate> > > hypo1;
+    std::pair<std::string, edm::Ptr<reco::Candidate> > hypo0;
+    std::vector<std::pair<std::string, edm::Ptr<reco::Candidate> > > hypo1;
     pat::EventHypothesis hypot;
     std::vector<pat::EventHypothesis> hypots;
     edm::Wrapper<std::vector<pat::EventHypothesis> > hypots_w;
+   
+    edm::Wrapper<edm::ValueMap<reco::CandidatePtr> >  candPtrMap_w;
+
+    std::string tp_st;
+//     int tp_int;
+    pat::TriggerPrimitive tp;
+    std::vector<pat::TriggerPrimitive> tpv;
+    std::vector<pat::TriggerPrimitive *> tppv;
+    pat::TriggerPrimitiveCollection tpc;
+    edm::Wrapper<pat::TriggerPrimitiveCollection> tpc_w;
+    pat::TriggerPrimitiveMatch tpm;
+    edm::Wrapper<pat::TriggerPrimitiveMatch> tpm_w;
+    pat::TriggerPrimitiveRef tpr;
+    pat::TriggerPrimitiveRefProd tprp;
+    pat::TriggerPrimitiveRefVector tprv;
+    edm::reftobase::Holder<reco::Candidate, pat::TriggerPrimitiveRef> tpr_h;
+    edm::reftobase::RefHolder<pat::TriggerPrimitiveRef> tpr_rh;
+    edm::reftobase::VectorHolder<reco::Candidate, pat::TriggerPrimitiveRefVector> tprv_h;
+    edm::reftobase::RefVectorHolder<pat::TriggerPrimitiveRefVector> tprv_rh;
 
 
     // To check:
@@ -86,35 +108,7 @@ namespace {
     std::vector<std::pair<std::string, float> >           v_p_str_dbl;
     std::vector<std::pair<unsigned int, float> >          v_p_uint_dbl;
     std::pair<unsigned int, float>                        p_uint_dbl;
-    //    std::vector<std::pair<std::string, reco::JetTagRef> > v_p_str_jtr;
-    //    std::pair<std::string, reco::JetTagRef>               p_str_jtr;
 
-    pat::PATObject<pat::ElectronType>           po_el;
-    pat::PATObject<pat::MuonType>               po_mu;
-    pat::PATObject<pat::TauType>                po_tau;
-    pat::PATObject<pat::PhotonType>             po_photon;
-    pat::PATObject<pat::JetType>                po_jet;
-    pat::PATObject<pat::METType>                po_met;
-    pat::PATObject<pat::ParticleType>           po_part;
-    pat::Lepton<pat::ElectronType>              tl_el;
-    pat::Lepton<pat::MuonType>                  tl_mu;
-    pat::Lepton<pat::TauType>                   tl_tau;
-    pat::Electron                               el;
-    pat::Muon                                   mu;
-    pat::Tau                                    tau;
-    pat::Photon                                 photon;
-    pat::Jet                                    jet;
-    pat::MET                                    met;
-    pat::Particle                               part;
-    pat::Hemisphere                             hemisphere;
-    std::vector<pat::Electron>                  v_el;
-    std::vector<pat::Muon>                      v_mu;
-    std::vector<pat::Tau>                       v_tau;
-    std::vector<pat::Photon>                    v_photon;
-    std::vector<pat::Jet>                       v_jet;
-    std::vector<pat::MET>                       v_met;
-    std::vector<pat::Particle>                  v_part;
-    std::vector<pat::Hemisphere>                v_hemi;
     edm::Wrapper<std::vector<pat::Electron> >   w_v_el;
     edm::Wrapper<std::vector<pat::Muon> >       w_v_mu;
     edm::Wrapper<std::vector<pat::Tau> >        w_v_tau;
@@ -122,7 +116,8 @@ namespace {
     edm::Wrapper<std::vector<pat::Jet> >        w_v_jet;
     edm::Wrapper<std::vector<pat::MET> >        w_v_met;
     edm::Wrapper<std::vector<pat::Particle> >   w_v_part;
-    edm::Wrapper<std::vector<pat::Hemisphere> >   w_v_hemi;
+    edm::Wrapper<std::vector<pat::GenericParticle> > w_v_gpart;
+    edm::Wrapper<std::vector<pat::Hemisphere> > w_v_hemi;
     edm::Ref<std::vector<pat::Electron> >       r_el;
     edm::Ref<std::vector<pat::Muon> >           r_mu;
     edm::Ref<std::vector<pat::Tau> >            r_tau;
@@ -130,22 +125,10 @@ namespace {
     edm::Ref<std::vector<pat::Jet> >            r_jet;
     edm::Ref<std::vector<pat::MET> >            r_met;
     edm::Ref<std::vector<pat::Particle> >       r_part;
+    edm::Ref<std::vector<pat::GenericParticle> > r_gpart;
     edm::Ref<std::vector<pat::Hemisphere> >     r_hemi;
 
-    pat::JetCorrFactors jcf;
-    std::vector<pat::JetCorrFactors> v_jcf;
-    edm::Wrapper<pat::JetCorrFactors> w_jcf;
-    edm::ValueMap<pat::JetCorrFactors> vm_jcf;
     edm::Wrapper<edm::ValueMap<pat::JetCorrFactors> > wvm_jcf;
-
-    //=========================================================
-    //=== Dictionaries missing in 169pre2, we add them here ===
-    //=========================================================
-    edm::reftobase::RefHolder<reco::METRef> rb1a;
-    edm::reftobase::RefHolder<reco::CaloMETRef> rb2a;
-    edm::reftobase::RefHolder<reco::GenMETRef> rb3a;
-
-    //    edm::Wrapper<edm::ValueMap<reco::JetTagRef> > rjtvm1; 
 
     edm::Wrapper<edm::Association<reco::GenJetCollection> > rgjc;
     
@@ -180,9 +163,6 @@ namespace {
     edm::reftobase::RefHolder<pat::PhotonRef> rhPhoton;
     edm::reftobase::Holder<reco::Candidate, pat::PhotonRef> rbh3Photon;
 
-    edm::RefToBase<pat::JetType>  rbJet;
-    edm::reftobase::IndirectHolder<pat::JetType> rbihJet;
-    edm::reftobase::Holder<pat::JetType, pat::JetTypeRef> rbh1Jet;
     edm::reftobase::Holder<pat::JetType, pat::JetRef>     rbh2Jet;
     edm::reftobase::RefHolder<pat::JetRef> rhJet;
     edm::reftobase::Holder<reco::Candidate, pat::JetRef> rbh3Jet;
@@ -194,11 +174,11 @@ namespace {
     edm::reftobase::RefHolder<pat::METRef> rhMET;
     edm::reftobase::Holder<reco::Candidate, pat::METRef> rbh3MET;
 
-    edm::RefToBase<pat::ParticleType>  rbParticle;
-    edm::reftobase::IndirectHolder<pat::ParticleType> rbihParticle;
-    edm::reftobase::Holder<pat::ParticleType, pat::ParticleTypeRef> rbh1Particle;
-    edm::reftobase::Holder<pat::ParticleType, pat::ParticleRef>     rbh2Particle;
+    edm::reftobase::Holder<reco::Candidate, pat::ParticleRef> hParticle;
     edm::reftobase::RefHolder<pat::ParticleRef> rhParticle;
+
+    edm::reftobase::Holder<reco::Candidate, pat::GenericParticleRef> rGParticle;
+    edm::reftobase::RefHolder<pat::GenericParticleRef> rhGParticle;
 
     edm::Wrapper<edm::ValueMap<reco::TrackRefVector> > patJTA;
    

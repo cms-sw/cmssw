@@ -1,5 +1,5 @@
 //
-// $Id: Jet.cc,v 1.15 2008/04/29 12:22:38 gpetrucc Exp $
+// $Id: Jet.cc,v 1.16 2008/05/26 11:22:13 arizzi Exp $
 //
 
 #include "DataFormats/PatCandidates/interface/Jet.h"
@@ -27,6 +27,14 @@ Jet::Jet(const JetType & aJet) :
     tryImportSpecific(aJet);
 }
 
+/// constructor from ref to JetType
+Jet::Jet(const edm::Ptr<JetType> & aJetRef) :
+  PATObject<JetType>(aJetRef),
+  embeddedCaloTowers_(false),
+  partonFlavour_(0), lrPhysicsJetLRval_(-999.), lrPhysicsJetProb_(-1),
+  jetCharge_(0.0) {
+    tryImportSpecific(*aJetRef);
+}
 
 /// constructor from ref to JetType
 Jet::Jet(const edm::RefToBase<JetType> & aJetRef) :

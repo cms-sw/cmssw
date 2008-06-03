@@ -1,5 +1,5 @@
 //
-// $Id: MET.cc,v 1.5 2008/01/26 20:19:45 gpetrucc Exp $
+// $Id: MET.cc,v 1.6.4.1 2008/06/03 20:08:24 gpetrucc Exp $
 //
 
 #include "DataFormats/PatCandidates/interface/MET.h"
@@ -20,6 +20,10 @@ MET::MET(const METType & aMET) : PATObject<METType>(aMET) {
 
 /// constructor from ref to METType
 MET::MET(const edm::RefToBase<METType> & aMETRef) : PATObject<METType>(aMETRef) {
+}
+
+/// constructor from ref to METType
+MET::MET(const edm::Ptr<METType> & aMETRef) : PATObject<METType>(aMETRef) {
 }
 
 
