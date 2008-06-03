@@ -20,7 +20,6 @@ using namespace std;
 
 
 std::map<std::string, MonitorElement*> RPCMonitorDigi::bookDetUnitME(RPCDetId & detId, const edm::EventSetup & iSetup) {
-  edm::LogVerbatim ("prova") << "kkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkk ";
   // std::cout <<"Booking ME "<<detId<<std::endl; 
   std::map<std::string, MonitorElement*> meMap;  
   std::string regionName;
@@ -44,8 +43,6 @@ std::map<std::string, MonitorElement*> RPCMonitorDigi::bookDetUnitME(RPCDetId & 
 
   //get number of strips in current roll
   int nstrips = this->stripsInRoll(detId, iSetup);
- edm::LogVerbatim ("prova") << "kkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkk "<< nstrips;
-
   if (nstrips == 0 ) nstrips = 1;
 
   //  char layer[128];
