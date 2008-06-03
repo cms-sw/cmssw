@@ -3,8 +3,8 @@
 /*
  *  See header file for a description of this class.
  *
- *  $Date: 2008/05/27 12:56:03 $
- *  $Revision: 1.1 $
+ *  $Date: 2008/05/27 16:25:09 $
+ *  $Revision: 1.2 $
  *  \author G. Mila - INFN Torino
  */
 
@@ -31,7 +31,7 @@ using namespace edm;
 using namespace std;
 
 
-DTSummaryClients::DTSummaryClients(const edm::ParameterSet& ps){
+DTSummaryClients::DTSummaryClients(const edm::ParameterSet& ps) : nevents(0) {
 
   edm::LogVerbatim ("summary") << "[DTSummaryClients]: Constructor";
   
