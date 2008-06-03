@@ -16,7 +16,7 @@
 //
 // Original Author:  Chris Jones
 //         Created:  Tue May 23 11:03:27 EDT 2006
-// $Id: BareRootProductGetter.h,v 1.6 2007/05/04 18:41:37 chrjones Exp $
+// $Id: BareRootProductGetter.h,v 1.7 2007/08/17 20:36:30 chrjones Exp $
 //
 
 // system include files
@@ -29,6 +29,7 @@
 #include "DataFormats/Common/interface/EDProductGetter.h"
 #include "DataFormats/Provenance/interface/BranchDescription.h"
 #include "DataFormats/Common/interface/EDProduct.h"
+#include "FWCore/FWLite/interface/BranchMapReader.h"
 
 // forward declarations
 class TBranch;
@@ -72,15 +73,14 @@ class BareRootProductGetter : public edm::EDProductGetter
       TBranch* findBranch(const edm::ProductID& ) const;
       Buffer* createNewBuffer(const edm::ProductID& ) const;
       
-      mutable TFile* presentFile_;
-      mutable TTree* eventTree_;
-      mutable Long_t eventEntry_;
-      typedef std::map<edm::ProductID,edm::BranchDescription> IdToBranchDesc;
-      mutable IdToBranchDesc idToBranchDesc_;
+//      mutable TFile* presentFile_;
+//      mutable TTree* eventTree_;
+//      mutable Long_t eventEntry_;
+//      typedef std::map<edm::ProductID,edm::BranchDescription> IdToBranchDesc;
+//      mutable IdToBranchDesc idToBranchDesc_;
       typedef std::map<edm::ProductID, Buffer> IdToBuffers;
       mutable IdToBuffers idToBuffers_;
-      mutable TUUID fileUUID_;
-      
+      mutable fwlite::BranchMapReader branchMap_;
 };
 
 
