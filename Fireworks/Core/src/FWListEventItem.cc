@@ -8,7 +8,7 @@
 //
 // Original Author:  Chris Jones
 //         Created:  Thu Feb 28 11:13:37 PST 2008
-// $Id: FWListEventItem.cc,v 1.11 2008/03/17 14:20:06 chrjones Exp $
+// $Id: FWListEventItem.cc,v 1.12 2008/03/17 16:36:34 chrjones Exp $
 //
 
 // system include files
@@ -227,37 +227,18 @@ FWListEventItem::doSelection(bool iToggleSelection)
 void 
 FWListEventItem::SetMainColor(Color_t iColor)
 {
-   FWChangeSentry sentry(*(m_item->changeManager()));
    FWDisplayProperties prop(iColor,m_item->defaultDisplayProperties().isVisible());
    m_item->setDefaultDisplayProperties(prop);
    TEveElementList::SetMainColor(iColor);
-   
-   for(int index=0; index <static_cast<int>(m_item->size()); ++index) {
-      FWDisplayProperties prop=m_item->modelInfo(index).displayProperties();
-      if(iColor !=prop.color()) {
-          prop.setColor(iColor);
-         m_item->setDisplayProperties(index,prop);
-      }
-   }
 }
 
 
 void 
 FWListEventItem::SetRnrState(Bool_t rnr)
 {
-   FWChangeSentry sentry(*(m_item->changeManager()));
    FWDisplayProperties prop(m_item->defaultDisplayProperties().color(),rnr);
    m_item->setDefaultDisplayProperties(prop);
    TEveElementList::SetRnrState(rnr);
-
-   for(int index=0; index <static_cast<int>(m_item->size()); ++index) {
-      FWDisplayProperties prop=m_item->modelInfo(index).displayProperties();
-      if(rnr !=prop.isVisible()) {
-          prop.setIsVisible(rnr);
-         m_item->setDisplayProperties(index,prop);
-      }
-   }
-   
 }
 Bool_t 
 FWListEventItem::SingleRnrState() const
