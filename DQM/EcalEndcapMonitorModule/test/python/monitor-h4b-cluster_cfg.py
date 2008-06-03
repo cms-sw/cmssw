@@ -66,7 +66,9 @@ process.maxEvents = cms.untracked.PSet(
     input = cms.untracked.int32(150)
 )
 process.source = cms.Source("PoolSource",
+#--
     fileNames = cms.untracked.vstring('/store/users/dellaric/data/h4b.00020937.A.0.0.root')
+#--
 )
 
 process.src1 = cms.ESSource("EcalTrivialConditionRetriever",
