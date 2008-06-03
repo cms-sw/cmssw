@@ -6,6 +6,7 @@
 ////////////////////////////////////////////////////////////////////////////////
 
 #include "EventFilter/Processor/interface/FUEventProcessor.h"
+
 #include "EventFilter/Utilities/interface/ModuleWebRegistry.h"
 #include "EventFilter/Utilities/interface/TimeProfilerService.h"
 #include "EventFilter/Utilities/interface/Exception.h"
@@ -36,6 +37,10 @@
 #include "xoap/SOAPBody.h"
 #include "xoap/domutils.h"
 #include "xoap/Method.h"
+#include "xmas/xmas.h"
+#include "xdata/TableIterator.h"
+#include "xdata/exdr/Serializer.h"
+#include "xdata/exdr/AutoSizeOutputStreamBuffer.h"
 
 #include <typeinfo>
 #include <stdlib.h>
@@ -85,6 +90,8 @@ FUEventProcessor::FUEventProcessor(xdaq::ApplicationStub *s)
   , evtProcessor_(0)
   , serviceToken_()
   , servicesDone_(false)
+  , inRecovery_(false)
+  , triggerReportIncomplete_(false)
   , prescaleSvc_(0)
   , runNumber_(0)
   , epInitialized_(false)
@@ -101,6 +108,12 @@ FUEventProcessor::FUEventProcessor(xdaq::ApplicationStub *s)
   , asMonitoring_(0)
   , reasonForFailedState_()
 {
+  //list of variables for scalers flashlist
+  names_.push_back("lumiSectionIndex");
+  names_.push_back("prescaleSetIndex");
+  names_.push_back("scalersTable");
+
+
   // bind relevant callbacks to finite state machine
   fsm_.initialize<evf::FUEventProcessor>(this);
   
@@ -119,11 +132,6 @@ FUEventProcessor::FUEventProcessor(xdaq::ApplicationStub *s)
 
   ostringstream ns;  ns << "EP" << instance_.toString();
 
-  dqmCollectorAddr_       = "localhost";
-  dqmCollectorPort_       = 9090;
-  dqmCollectorDelay_      = 5000;
-  dqmCollectorReconDelay_ = 5;
-  dqmCollectorSourceName_ = ns.str();
 
   //some initialization of state data
   epMAltState_ = -1;
@@ -148,14 +156,9 @@ FUEventProcessor::FUEventProcessor(xdaq::ApplicationStub *s)
 
   ispace->fireItemAvailable("foundRcmsStateListener",fsm_.foundRcmsStateListener());
   
-  ispace->fireItemAvailable("collectorAddr",        &dqmCollectorAddr_);
-  ispace->fireItemAvailable("collectorPort",        &dqmCollectorPort_);
-  ispace->fireItemAvailable("collSendUs",           &dqmCollectorDelay_);
-  ispace->fireItemAvailable("collReconnSec",        &dqmCollectorReconDelay_);
-  ispace->fireItemAvailable("monSourceName",        &dqmCollectorSourceName_);
   
   ispace->fireItemAvailable("prescalerAsString",    &prescalerAsString_);
-  ispace->fireItemAvailable("triggerReportAsString",&triggerReportAsString_);
+  //  ispace->fireItemAvailable("triggerReportAsString",&triggerReportAsString_);
   
   // Add infospace listeners for exporting data values
   getApplicationInfoSpace()->addItemChangedListener("parameterSet",        this);
@@ -187,11 +190,22 @@ FUEventProcessor::FUEventProcessor(xdaq::ApplicationStub *s)
   
   monitorInfoSpace_->fireItemAvailable("macroStateLegend",      &macro_state_legend_);
   monitorInfoSpace_->fireItemAvailable("microStateLegend",      &micro_state_legend_);
-  
+
+  std::stringstream oss3;
+  oss3<<"urn:xdaq-scalers-"<<class_.toString();
+  string monInfoSpaceName2=oss3.str();
+  toolbox::net::URN urn2 = this->createQualifiedInfoSpace(monInfoSpaceName2);
+  xdata::Table &stbl = trh_.getTable(); 
+  scalersInfoSpace_ = xdata::getInfoSpaceFactory()->get(urn2.toString());
+  scalersInfoSpace_->fireItemAvailable("scalersTable",      &stbl);
+  scalersComplete_.addColumn("lsid", "unsigned int 32");
+  scalersComplete_.addColumn("psid", "unsigned int 32");
+  scalersComplete_.addColumn("triggerReport", "table");  
+
   // bind prescale related soap callbacks
-  xoap::bind(this,&FUEventProcessor::getPsReport ,"GetPsReport",XDAQ_NS_URI);
-  xoap::bind(this,&FUEventProcessor::getLsReport ,"GetLsReport",XDAQ_NS_URI);
-  xoap::bind(this,&FUEventProcessor::putPrescaler,"PutPrescaler",XDAQ_NS_URI);
+  //  xoap::bind(this,&FUEventProcessor::getPsReport ,"GetPsReport",XDAQ_NS_URI);
+  //  xoap::bind(this,&FUEventProcessor::getLsReport ,"GetLsReport",XDAQ_NS_URI);
+  //  xoap::bind(this,&FUEventProcessor::putPrescaler,"PutPrescaler",XDAQ_NS_URI);
   
   // Bind web interface
   xgi::bind(this, &FUEventProcessor::css           ,   "styles.css");
@@ -236,225 +250,87 @@ FUEventProcessor::~FUEventProcessor()
 ////////////////////////////////////////////////////////////////////////////////
 
 //______________________________________________________________________________
-void FUEventProcessor::getTriggerReport(toolbox::Event::Reference e)
+bool FUEventProcessor::getTriggerReport(bool useLock)
   throw (toolbox::fsm::exception::Exception)
 {
   // Calling this method results in calling 
   // evtProcessor_->getTriggerReport, the value returned is encoded as
-  // a string. This value is used to set the exported SOAP param :
-  // 'triggerReportAsString_'. The FM then picks up this value use getParam...
+  // a xdata::Table.
   LOG4CPLUS_DEBUG(getApplicationLogger(),"getTriggerReport action invoked");
   
   //Get the trigger report.
-  edm::TriggerReport tr; 
-  evtProcessor_->getTriggerReport(tr);
-  
-  triggerReportAsString_ = triggerReportToString(tr);
-  
-  //Print the trigger report message in debug format.
-  printTriggerReport(tr);
-}
-
-
-//______________________________________________________________________________
-xoap::MessageReference FUEventProcessor::getPsReport(xoap::MessageReference msg)
-  throw (xoap::exception::Exception)
-{
-  // callback to return the trigger statistics as a string
-  // cout <<"getPsReport from cout " <<endl;
-  LOG4CPLUS_DEBUG(getApplicationLogger(),"getPsReport from log4");
-
-  // print request
-  //msg->writeTo(std::cout);
-  
-  //Get the trigger report.
-  edm::TriggerReport tr; 
-  monitorInfoSpace_->lock();
-  if(evtProcessor_)
-    evtProcessor_->getTriggerReport(tr);
-  monitorInfoSpace_->unlock();  
-  // xdata::String ReportAsString = triggerReportToString(tr);
-  string s = triggerReportToString(tr);
-  
-  // reply message
-  try {
-      xoap::MessageReference reply = xoap::createMessage();
-      xoap::SOAPEnvelope envelope = reply->getSOAPPart().getEnvelope();
-      xoap::SOAPBody body = envelope.getBody();
-      xoap::SOAPName responseName = envelope.createName("getPsReportResponse", "xdaq", "XDAQ_NS_URI");
-      xoap::SOAPBodyElement responseElement = body.addBodyElement(responseName);
-      xoap::SOAPName attributeName = envelope.createName("state", "xdaq", "XDAQ_NS_URI");
-      xoap::SOAPElement keyElement = responseElement.addChildElement(attributeName);
-      keyElement.addTextNode(s);
-      xoap::SOAPName attributeName2 = envelope.createName("psstatus", "xdaq", "XDAQ_NS_URI");
-      xoap::SOAPElement keyElement2 = responseElement.addChildElement(attributeName2);
-      //if(prescaleSvc_ != 0) {
-      //keyElement2.addTextNode(prescaleSvc_->getStatus());
-      //} else {
-      keyElement2.addTextNode("!prescaleSvc_");
-      //}
-      return reply;
-
+  ModuleWebRegistry *mwr = 0;
+  try{
+    if(edm::Service<ModuleWebRegistry>().isAvailable())
+      mwr = edm::Service<ModuleWebRegistry>().operator->();
   }
-  catch (xcept::Exception &e) {
-    XCEPT_RETHROW(xoap::exception::Exception,
-		  "Failed to create getPsReport response message",e);
-  }
-}
-
-
-//______________________________________________________________________________
-xoap::MessageReference FUEventProcessor::getLsReport(xoap::MessageReference msg)
-  throw (xoap::exception::Exception)
-{
-  // callback to return the trigger statistics as a string
-  // LOG4CPLUS_DEBUG(this->getApplicationLogger(), "setPsUpdate from log4");
-  // cout <<"setPsUpdate from cout " <<endl;
-  // msg->writeTo(std::cout);
-  
-  // decode 
-  xoap::SOAPPart part = msg->getSOAPPart();
-  xoap::SOAPEnvelope env = part.getEnvelope();
-  xoap::SOAPBody msgbody = env.getBody();
-  DOMNode* node = msgbody.getDOMNode();
-  
-  string requestString = "-1";
-  DOMNodeList* bodyList = node->getChildNodes();
-  for (unsigned int i = 0; i < bodyList->getLength(); i++) {
-    DOMNode* command = bodyList->item(i);
-    if (command->getNodeType() == DOMNode::ELEMENT_NODE) {
-      std::string commandName = xoap::XMLCh2String (command->getLocalName());
-      if ( commandName == "GetLsReport" ) {
-	if ( command->hasAttributes() ) {
-	  DOMNamedNodeMap * map = command->getAttributes();
-	  for (int l=0 ; l< (int)map->getLength() ; l++) {
-	    // loop over attributes of node
-	    DOMNode * anode = map->item(l);
-	    string attributeName = XMLString::transcode(anode->getNodeName());
-	    if (attributeName == "lsAsString")
-	      requestString = xoap::XMLCh2String(anode->getNodeValue());
-	  }
-	}
-      }
-    }
-  }
-  
-  // reply message
-  try {
-      xoap::MessageReference reply = xoap::createMessage();
-      xoap::SOAPEnvelope envelope = reply->getSOAPPart().getEnvelope();
-      xoap::SOAPBody body = envelope.getBody();
-      xoap::SOAPName responseName = envelope.createName("getLsReportResponse", "xdaq", "XDAQ_NS_URI");
-      xoap::SOAPBodyElement responseElement = body.addBodyElement(responseName);
-      xoap::SOAPName attributeName = envelope.createName("LS1", "xdaq", "XDAQ_NS_URI");
-      xoap::SOAPElement keyElement = responseElement.addChildElement(attributeName);
-      //if(prescaleSvc_ != 0) {
-      //keyElement.addTextNode(prescaleSvc_->getLs(requestString));
-      //} else {
-      keyElement.addTextNode("!prescaleSvc_");
-      //}
-      xoap::SOAPName attributeName2 = envelope.createName("psstatus", "xdaq", "XDAQ_NS_URI");
-      xoap::SOAPElement keyElement2 = responseElement.addChildElement(attributeName2);
-      //if(prescaleSvc_ != 0) {
-      //keyElement2.addTextNode(prescaleSvc_->getStatus());
-      //} else {
-      keyElement2.addTextNode("!prescaleSvc_");
-      //}
-      xoap::SOAPName attributeName3 = envelope.createName("psdebug", "xdaq", "XDAQ_NS_URI");
-      xoap::SOAPElement keyElement3 = responseElement.addChildElement(attributeName3);
-      keyElement3.addTextNode(requestString);
-      return reply;
+  catch(...) { 
+    LOG4CPLUS_INFO(getApplicationLogger(),
+		   "exception when trying to get service ModuleWebRegistry");
     
   }
-  catch (xcept::Exception &e) {
-    XCEPT_RETHROW(xoap::exception::Exception,
-		  "Failed to create getLsUpdate response message", e);
-  }
-}
-
-
-//______________________________________________________________________________
-xoap::MessageReference FUEventProcessor::putPrescaler(xoap::MessageReference msg)
-  throw (xoap::exception::Exception)
-{
-  //The EPSM has an exported SOAP param 'nextPrescalerAsString_' this is always
-  //set first from the FM with the new prescaler value encoded as a string.
-  //Next this function is called to pick up the new string value and fill the 
-  //appropriate prescaler structure for addition to the prescaler cache...
-  
-  //  LOG4CPLUS_INFO(getApplicationLogger(),"putPrescaler action invoked");
-  
-  //  msg->writeTo(std::cout);
-  //  cout << endl;
-  
-  string prescalerAsString = "INITIAL_VALUE";
-  
-  // decode 
-  xoap::SOAPPart part = msg->getSOAPPart();
-  xoap::SOAPEnvelope env = part.getEnvelope();
-  xoap::SOAPBody msgbody = env.getBody();
-  DOMNode* node = msgbody.getDOMNode();
-  
-  DOMNodeList* bodyList = node->getChildNodes();
-  for (unsigned int i = 0; i < bodyList->getLength(); i++) {
-    DOMNode* command = bodyList->item(i);
-    if (command->getNodeType() == DOMNode::ELEMENT_NODE) {
-      std::string commandName = xoap::XMLCh2String (command->getLocalName());
-      if ( commandName == "PutPrescaler" ) {
-	if ( command->hasAttributes() ) {
-	  DOMNamedNodeMap * map = command->getAttributes();
-	  for (int l=0 ; l< (int)map->getLength() ; l++) {
-	    // loop over attributes of node
-	    DOMNode * anode = map->item(l);
-	    string attributeName = XMLString::transcode(anode->getNodeName());
-	    if (attributeName == "prescalerAsString")
-	      prescalerAsString =  xoap::XMLCh2String(anode->getNodeValue());
-	  }
+  edm::TriggerReport tr; 
+  if(mwr)
+    {
+      std::cout << "called getTriggerReport, inRecovery_ " << inRecovery_ << std::endl; 
+      xdata::InfoSpace *ispace = getApplicationInfoSpace();
+      unsigned int ls = 0;
+      unsigned int ps = 0;
+      xdata::Table::iterator it = scalersComplete_.begin();
+      if( it == scalersComplete_.end())
+	{
+	  it = scalersComplete_.append();
 	}
+      if(useLock) {
+	mwr->openBackDoor("DaqSource");
+	std::cout << "backdoor now open" << std::endl; 
       }
+      if(!inRecovery_)evtProcessor_->getTriggerReport(tr);
+      try{
+	xdata::Serializable *lsid = ispace->find("lumiSectionIndex");
+	if(lsid) ls = ((xdata::UnsignedInteger32*)(lsid))->value_;
+	xdata::Serializable *psid = ispace->find("prescaleSetIndex");
+	if(psid) ps = ((xdata::UnsignedInteger32*)(psid))->value_;
+	it->setField("lsid",*lsid);
+	it->setField("psid",*psid);
+      }
+      catch(xdata::exception::Exception e){
+      }
+
+      if(useLock){
+	mwr->closeBackDoor("DaqSource");
+	std::cout << "backdoor now closed" << std::endl; 
+      }
+
+
+      if(inRecovery_) { return false;}
+      trh_.formatReportTable(tr,descs_);
+      if(trh_.checkLumiSection(ls))
+	{
+	  trh_.triggerReportToTable(tr,ls,false);
+	}
+      else
+	{
+	  if(triggerReportIncomplete_)
+	    {
+	      triggerReportIncomplete_ = false;
+	      trh_.printReportTable();
+	      //send xmas message with data
+	    }
+	  trh_.triggerReportToTable(tr,ls);
+	}
+      it->setField("triggerReport",trh_.getTable());
+      // send xmas message with data
+      //      triggerReportAsString_ = triggerReportToString(tr);
+      
+      //Print the trigger report message in debug format.
+		   //      trh_.printTriggerReport(tr);
+
+      }
+  std::cout << "getTriggerReport completed" << std::endl; 
+  return true;
     }
-  }
-  
-  //Get the prescaler string value. (Which was set by the FM)
-  //  LOG4CPLUS_INFO(getApplicationLogger(),
-  //		 "Using new prescaler string setting: "<<prescalerAsString);
 
-
-  if ( prescalerAsString == "INITIAL_VALUE" ) {
-    // cout << "prescalerAsString not updated, is " << prescalerAsString << endl;
-  }
-  else {
-    //if(prescaleSvc_ != 0) {
-    //The number of LS# to prescale module set associations in the prescale
-    //cache.
-    //int storeSize = prescaleSvc_->putPrescale(prescalerAsString);
-    //LOG4CPLUS_DEBUG(getApplicationLogger(),
-    //	      "prescaleSvc_->putPrescale(s): " << storeSize);
-    //}
-    //else {
-    //LOG4CPLUS_DEBUG(getApplicationLogger(),"PrescaleService pointer == 0"); 
-    //}
-  }
-  
-  xoap::MessageReference reply = xoap::createMessage();
-  xoap::SOAPEnvelope envelope = reply->getSOAPPart().getEnvelope();
-  xoap::SOAPBody body = envelope.getBody();
-  xoap::SOAPName responseName = envelope.createName("PutPrescalerResponse", "xdaq", "XDAQ_NS_URI");
-  xoap::SOAPBodyElement responseElement = body.addBodyElement(responseName);
-  xoap::SOAPName attributeName = envelope.createName("prescalerAsString", "xdaq", "XDAQ_NS_URI");
-  xoap::SOAPElement keyElement = responseElement.addChildElement(attributeName);
-  keyElement.addTextNode(prescalerAsString);
-  xoap::SOAPName attributeName2 = envelope.createName("psstatus", "xdaq", "XDAQ_NS_URI");
-  xoap::SOAPElement keyElement2 = responseElement.addChildElement(attributeName2);
-  //if(prescaleSvc_ != 0) {
-  //keyElement2.addTextNode(prescaleSvc_->getStatus());
-  //} else {
-  keyElement2.addTextNode("!prescaleSvc_");
-  //}
-  
-  
-  return reply;
-}
 
 
 //______________________________________________________________________________
@@ -532,7 +408,7 @@ bool FUEventProcessor::enabling(toolbox::task::WorkLoop* wl)
     reasonForFailedState_ = "enabling FAILED: " + (string)e.what();
     fsm_.fireFailed(reasonForFailedState_,this);
   }
-  
+  startScalersWorkLoop();
   return false;
 }
 
@@ -643,11 +519,11 @@ void FUEventProcessor::initEventProcessor()
     LOG4CPLUS_INFO(getApplicationLogger(),"CMSSW_BASE:"<<getenv("CMSSW_BASE"));
   }
   
-  
+  cout << "before getting configuration " <<endl;
   // job configuration string
   ParameterSetRetriever pr(configString_.value_);
   configuration_ = pr.getAsString();
-  
+  cout << "after getting configuration " <<endl;
   
   boost::shared_ptr<edm::ParameterSet> params; // change this name!
   boost::shared_ptr<vector<edm::ParameterSet> > pServiceSets;
@@ -658,10 +534,12 @@ void FUEventProcessor::initEventProcessor()
     reasonForFailedState_ = e.explainSelf();
     fsm_.fireFailed(reasonForFailedState_,this);
     return;
-  }  
+  } 
+  cout << "before making services " <<endl;
   // add default set of services
   if(!servicesDone_) {
-    //    internal::addServiceMaybe(*pServiceSets,"DaqMonitorROOTBackEnd");
+    cout << "making services " <<endl;
+    internal::addServiceMaybe(*pServiceSets,"DQMStore");
     //    internal::addServiceMaybe(*pServiceSets,"MonitorDaemon");
     internal::addServiceMaybe(*pServiceSets,"MLlog4cplus");
     internal::addServiceMaybe(*pServiceSets,"MicroStateService");
@@ -681,43 +559,32 @@ void FUEventProcessor::initEventProcessor()
     }
     servicesDone_ = true;
   }
-
+  cout << "after making services " <<endl;
   
   edm::ServiceRegistry::Operate operate(serviceToken_);
 
-  /* this part is obsolete
-  try{
-    edm::Service<MonitorDaemon>()->rmt(dqmCollectorAddr_,
-				       dqmCollectorPort_,
-				       dqmCollectorDelay_,
-				       dqmCollectorSourceName_,
-				       dqmCollectorReconDelay_);
-  }
-  catch(...) { 
-    LOG4CPLUS_DEBUG(getApplicationLogger(),
-		   "exception when trying to get service MonitorDaemon");
-  }
-  */
 
   //test rerouting of fwk logging to log4cplus
   edm::LogInfo("FUEventProcessor")<<"started MessageLogger Service.";
   edm::LogInfo("FUEventProcessor")<<"Using config string \n"<<configuration_;
 
-
+  cout << "after logger info " <<endl;
   // instantiate the event processor
   try{
     vector<string> defaultServices;
     defaultServices.push_back("MessageLogger");
     defaultServices.push_back("InitRootHandlers");
     defaultServices.push_back("JobReportService");
-    
+    cout << "before deleting eventprocessor" << endl;
     monitorInfoSpace_->lock();
     if (0!=evtProcessor_) delete evtProcessor_;
-    
+    cout << "after deleting eventprocessor" << endl;
+    cout << "before making eventprocessor " <<endl;
     evtProcessor_ = new edm::EventProcessor(configuration_,
 					    serviceToken_,
 					    edm::serviceregistry::kTokenOverrides,
 					    defaultServices);
+    cout << "after making eventprocessor " <<endl;
     monitorInfoSpace_->unlock();
     //    evtProcessor_->setRunNumber(runNumber_.value_);
 
@@ -739,10 +606,14 @@ void FUEventProcessor::initEventProcessor()
       LOG4CPLUS_INFO(getApplicationLogger(),
 		     "exception when trying to get service ModuleWebRegistry");
     }
-
+    cout << "after publishing stuff " <<endl;
     if(mwr) 
       {
 	mwr->publish(getApplicationInfoSpace());
+      }
+    if(mwr) 
+      {
+	mwr->publishToXmas(scalersInfoSpace_);
       }
     // get the prescale service
     LOG4CPLUS_INFO(getApplicationLogger(),
@@ -792,7 +663,7 @@ void FUEventProcessor::initEventProcessor()
   macro_state_legend_ = oss.str();
   //fill microstate legend information
   descs_ = evtProcessor_->getAllModuleDescriptions();
-  
+  trh_.resetFormat();
   std::stringstream oss2;
   unsigned int outcount = 0;
   oss2 << 0 << "=In ";
@@ -896,189 +767,14 @@ void FUEventProcessor::actionPerformed(xdata::Event& e)
 
 }
 
-
 //______________________________________________________________________________
-string FUEventProcessor::triggerReportToString(const edm::TriggerReport& tr)
-{
-  // Add an array length indicator so that the resulting string will have a 
-  // little more readability.
-  string ARRAY_LEN = "_";
-  string SEPARATOR = " ";
-  
-  ostringstream oss;
-  
-  //TriggerReport::eventSummary
-  oss<<tr.eventSummary.totalEvents<<SEPARATOR 
-     <<tr.eventSummary.totalEventsPassed<<SEPARATOR
-     <<tr.eventSummary.totalEventsFailed<<SEPARATOR;
-  
-  //TriggerReport::trigPathSummaries
-  oss<<ARRAY_LEN<<tr.trigPathSummaries.size()<<SEPARATOR;
-  for(unsigned int i=0; i<tr.trigPathSummaries.size(); i++) {
-    oss<<tr.trigPathSummaries[i].bitPosition<<SEPARATOR 
-       <<tr.trigPathSummaries[i].timesRun<<SEPARATOR
-       <<tr.trigPathSummaries[i].timesPassed<<SEPARATOR
-       <<tr.trigPathSummaries[i].timesFailed<<SEPARATOR
-       <<tr.trigPathSummaries[i].timesExcept<<SEPARATOR
-       <<tr.trigPathSummaries[i].name<<SEPARATOR;
-    
-    //TriggerReport::trigPathSummaries::moduleInPathSummaries
-    oss<<ARRAY_LEN<<tr.trigPathSummaries[i].moduleInPathSummaries.size()<<SEPARATOR;
-    for(unsigned int j=0;j<tr.trigPathSummaries[i].moduleInPathSummaries.size();j++) {
-      oss<<tr.trigPathSummaries[i].moduleInPathSummaries[j].timesVisited<<SEPARATOR
-	 <<tr.trigPathSummaries[i].moduleInPathSummaries[j].timesPassed <<SEPARATOR
-	 <<tr.trigPathSummaries[i].moduleInPathSummaries[j].timesFailed <<SEPARATOR
-	 <<tr.trigPathSummaries[i].moduleInPathSummaries[j].timesExcept <<SEPARATOR
-	 <<tr.trigPathSummaries[i].moduleInPathSummaries[j].moduleLabel <<SEPARATOR;
-    }
-  }
-  
-  //TriggerReport::endPathSummaries
-  oss<<ARRAY_LEN<<tr.endPathSummaries.size()<<SEPARATOR;
-  for(unsigned int i=0; i<tr.endPathSummaries.size(); i++) {
-    oss<<tr.endPathSummaries[i].bitPosition<<SEPARATOR 
-       <<tr.endPathSummaries[i].timesRun<<SEPARATOR
-       <<tr.endPathSummaries[i].timesPassed<<SEPARATOR
-       <<tr.endPathSummaries[i].timesFailed<<SEPARATOR
-       <<tr.endPathSummaries[i].timesExcept<<SEPARATOR
-       <<tr.endPathSummaries[i].name<<SEPARATOR;
-    
-    //TriggerReport::endPathSummaries::moduleInPathSummaries
-    oss<<ARRAY_LEN<<tr.endPathSummaries[i].moduleInPathSummaries.size()<<SEPARATOR;
-    for(unsigned int j=0;j<tr.endPathSummaries[i].moduleInPathSummaries.size();j++) {
-      oss<<tr.endPathSummaries[i].moduleInPathSummaries[j].timesVisited<<SEPARATOR
-	 <<tr.endPathSummaries[i].moduleInPathSummaries[j].timesPassed <<SEPARATOR
-	 <<tr.endPathSummaries[i].moduleInPathSummaries[j].timesFailed <<SEPARATOR
-	 <<tr.endPathSummaries[i].moduleInPathSummaries[j].timesExcept <<SEPARATOR
-	 <<tr.endPathSummaries[i].moduleInPathSummaries[j].moduleLabel <<SEPARATOR;
-    }
-  }
-  
-  //TriggerReport::workerSummaries
-  oss<<ARRAY_LEN<<tr.workerSummaries.size()<<SEPARATOR;
-  for(unsigned int i=0; i<tr.workerSummaries.size(); i++) {
-    oss<<tr.workerSummaries[i].timesVisited<<SEPARATOR 
-       <<tr.workerSummaries[i].timesRun    <<SEPARATOR
-       <<tr.workerSummaries[i].timesPassed <<SEPARATOR
-       <<tr.workerSummaries[i].timesFailed <<SEPARATOR
-       <<tr.workerSummaries[i].timesExcept <<SEPARATOR
-       <<tr.workerSummaries[i].moduleLabel <<SEPARATOR;
-  }
-  
-  return oss.str();
-}
-
-
-//______________________________________________________________________________
-void FUEventProcessor::printTriggerReport(const edm::TriggerReport& tr)
-{
-  ostringstream oss;
-  
-  oss<<"================================="<<"\n";
-  oss<<"== BEGINNING OF TRIGGER REPORT =="<<"\n";
-  oss<<"================================="<<"\n";
-  oss<<"tr.eventSummary.totalEvents= "<<tr.eventSummary.totalEvents<<"\n" 
-     <<"tr.eventSummary.totalEventsPassed= "<<tr.eventSummary.totalEventsPassed<<"\n"
-     <<"tr.eventSummary.totalEventsFailed= "<<tr.eventSummary.totalEventsFailed<<"\n";
-  
-  oss<<"TriggerReport::trigPathSummaries"<<"\n";
-  for(unsigned int i=0; i<tr.trigPathSummaries.size(); i++) {
-    oss<<"tr.trigPathSummaries["<<i<<"].bitPosition = "
-       <<tr.trigPathSummaries[i].bitPosition <<"\n" 
-       <<"tr.trigPathSummaries["<<i<<"].timesRun = "
-       <<tr.trigPathSummaries[i].timesRun <<"\n"
-       <<"tr.trigPathSummaries["<<i<<"].timesPassed = "
-       <<tr.trigPathSummaries[i].timesPassed <<"\n"
-       <<"tr.trigPathSummaries["<<i<<"].timesFailed = "
-       <<tr.trigPathSummaries[i].timesFailed <<"\n"
-       <<"tr.trigPathSummaries["<<i<<"].timesExcept = "
-       <<tr.trigPathSummaries[i].timesExcept <<"\n"
-       <<"tr.trigPathSummaries["<<i<<"].name = "
-       <<tr.trigPathSummaries[i].name <<"\n";
-    
-    //TriggerReport::trigPathSummaries::moduleInPathSummaries
-    for(unsigned int j=0;j<tr.trigPathSummaries[i].moduleInPathSummaries.size();j++) {
-      oss<<"tr.trigPathSummaries["<<i
-	 <<"].moduleInPathSummaries["<<j<<"].timesVisited = "
-	 <<tr.trigPathSummaries[i].moduleInPathSummaries[j].timesVisited<<"\n"
-	 <<"tr.trigPathSummaries["<<i
-	 <<"].moduleInPathSummaries["<<j<<"].timesPassed = "
-	 <<tr.trigPathSummaries[i].moduleInPathSummaries[j].timesPassed<<"\n"
-	 <<"tr.trigPathSummaries["<<i
-	 <<"].moduleInPathSummaries["<<j<<"].timesFailed = "
-	 <<tr.trigPathSummaries[i].moduleInPathSummaries[j].timesFailed<<"\n"
-	 <<"tr.trigPathSummaries["<<i
-	 <<"].moduleInPathSummaries["<<j<<"].timesExcept = "
-	 <<tr.trigPathSummaries[i].moduleInPathSummaries[j].timesExcept<<"\n"
-	 <<"tr.trigPathSummaries["<<i
-	 <<"].moduleInPathSummaries["<<j<<"].moduleLabel = "
-	 <<tr.trigPathSummaries[i].moduleInPathSummaries[j].moduleLabel<<"\n";
-    }
-  }
-  
-  //TriggerReport::endPathSummaries
-  for(unsigned int i=0;i<tr.endPathSummaries.size();i++) {
-    oss<<"tr.endPathSummaries["<<i<<"].bitPosition = "
-       <<tr.endPathSummaries[i].bitPosition <<"\n" 
-       <<"tr.endPathSummaries["<<i<<"].timesRun = "
-       <<tr.endPathSummaries[i].timesRun <<"\n"
-       <<"tr.endPathSummaries["<<i<<"].timesPassed = "
-       <<tr.endPathSummaries[i].timesPassed <<"\n"
-       <<"tr.endPathSummaries["<<i<<"].timesFailed = "
-       <<tr.endPathSummaries[i].timesFailed <<"\n"
-       <<"tr.endPathSummaries["<<i<<"].timesExcept = "
-       <<tr.endPathSummaries[i].timesExcept <<"\n"
-       <<"tr.endPathSummaries["<<i<<"].name = "
-       <<tr.endPathSummaries[i].name <<"\n";
-    
-    //TriggerReport::endPathSummaries::moduleInPathSummaries
-    for(unsigned int j=0;j<tr.endPathSummaries[i].moduleInPathSummaries.size();j++) {
-      oss<<"tr.endPathSummaries["<<i
-	 <<"].moduleInPathSummaries["<<j<<"].timesVisited = "
-	 <<tr.endPathSummaries[i].moduleInPathSummaries[j].timesVisited <<"\n"
-	 <<"tr.endPathSummaries["<<i
-	 <<"].moduleInPathSummaries["<<j<<"].timesPassed = "
-	 <<tr.endPathSummaries[i].moduleInPathSummaries[j].timesPassed <<"\n"
-	 <<"tr.endPathSummaries["<<i
-	 <<"].moduleInPathSummaries["<<j<<"].timesFailed = "
-	 <<tr.endPathSummaries[i].moduleInPathSummaries[j].timesFailed <<"\n"
-	 <<"tr.endPathSummaries["<<i
-	 <<"].moduleInPathSummaries["<<j<<"].timesExcept = "
-	 <<tr.endPathSummaries[i].moduleInPathSummaries[j].timesExcept <<"\n"
-	 <<"tr.endPathSummaries["<<i
-	 <<"].moduleInPathSummaries["<<j<<"].moduleLabel = "
-	 <<tr.endPathSummaries[i].moduleInPathSummaries[j].moduleLabel <<"\n";
-    }
-  }
-  
-  //TriggerReport::workerSummaries
-  for(unsigned int i=0; i<tr.workerSummaries.size(); i++) {
-    oss<<"tr.workerSummaries["<<i<<"].timesVisited = "
-       <<tr.workerSummaries[i].timesVisited<<"\n" 
-       <<"tr.workerSummaries["<<i<<"].timesRun = "
-       <<tr.workerSummaries[i].timesRun<<"\n"
-       <<"tr.workerSummaries["<<i<<"].timesPassed = "
-       <<tr.workerSummaries[i].timesPassed <<"\n"
-       <<"tr.workerSummaries["<<i<<"].timesFailed = "
-       <<tr.workerSummaries[i].timesFailed <<"\n"
-       <<"tr.workerSummaries["<<i<<"].timesExcept = "
-       <<tr.workerSummaries[i].timesExcept <<"\n"
-       <<"tr.workerSummaries["<<i<<"].moduleLabel = "
-       <<tr.workerSummaries[i].moduleLabel <<"\n";
-  }
-  
-  oss<<"==========================="<<"\n";
-  oss<<"== END OF TRIGGER REPORT =="<<"\n";
-  oss<<"==========================="<<"\n";
-  
-  LOG4CPLUS_DEBUG(getApplicationLogger(),oss.str());
-}
-
 
 //______________________________________________________________________________
 void FUEventProcessor::defaultWebPage(xgi::Input  *in, xgi::Output *out)
   throw (xgi::exception::Exception)
 {
+  cout << "getting infospace " << endl;
+  xdata::InfoSpace *ispace = getApplicationInfoSpace();
   string urn = getApplicationDescriptor()->getURN();
   ostringstream ourl;
   ourl << "'/" <<  urn << "/microState'";
@@ -1208,6 +904,21 @@ void FUEventProcessor::defaultWebPage(xgi::Input  *in, xgi::Output *out)
   *out << runNumber_.toString() << endl;
   *out << "</td>" << endl;
   *out << "</tr>"                                            << endl;
+  cout << "trying to get lsid " << endl;
+  try{
+    xdata::Serializable *lsid = ispace->find("lumiSectionIndex");
+    *out << "<tr>" << endl;
+    *out << "<td >" << endl;
+    *out << "Luminosity Section" << endl;
+    *out << "</td>" << endl;
+    *out << "<td>" << endl;
+    *out << lsid->toString() << endl;
+    cout << "got lsid " << endl;
+    *out << "</td>" << endl;
+    *out << "</tr>"                                            << endl;
+  }
+  catch(xdata::exception::Exception e){
+  }
   *out << "<tr>" << endl;
   *out << "<td >" << endl;
   *out << "Output Enabled" << endl;
@@ -1673,6 +1384,25 @@ void FUEventProcessor::detachDqmFromShm() throw (evf::Exception)
 }
 
 
+void FUEventProcessor::startScalersWorkLoop() throw (evf::Exception)
+{
+  
+  try {
+    wlScalers_=
+      toolbox::task::getWorkLoopFactory()->getWorkLoop(sourceId_+"Scalers",
+						       "waiting");
+    if (!wlScalers_->isActive()) wlScalers_->activate();
+    asScalers_ = toolbox::task::bind(this,&FUEventProcessor::scalers,
+				      sourceId_+"Scalers");
+    wlScalers_->submit(asScalers_);
+  }
+  catch (xcept::Exception& e) {
+    string msg = "Failed to start workloop 'Scalers'.";
+    XCEPT_RETHROW(evf::Exception,msg,e);
+  }
+}
+
+
 void FUEventProcessor::startMonitoringWorkLoop() throw (evf::Exception)
 {
   struct timezone timezone;
@@ -1695,26 +1425,119 @@ void FUEventProcessor::startMonitoringWorkLoop() throw (evf::Exception)
 
 
 //______________________________________________________________________________
+bool FUEventProcessor::scalers(toolbox::task::WorkLoop* wl)
+{
+  edm::ServiceRegistry::Operate operate(serviceToken_);
+  if(evtProcessor_)
+    {
+      ::sleep(1);
+      edm::event_processor::State st = evtProcessor_->getState();
+      if(st == edm::event_processor::sRunning)
+	{
+	  if(!getTriggerReport(true)) {std::cout << "getTriggerReport returns false " << std::endl; return false;}
+	  trh_.printReportTable();
+	  scalersComplete_.writeTo(std::cout);
+	  fireScalersUpdate();
+	}
+    }
+  return true;
+}
+
+//______________________________________________________________________________
 bool FUEventProcessor::monitoring(toolbox::task::WorkLoop* wl)
 {
   
   struct timeval  monEndTime;
   struct timezone timezone;
   gettimeofday(&monEndTime,&timezone);
-
-  //detect failures of edm event processor and fire failed transition
+  edm::ServiceRegistry::Operate operate(serviceToken_);
+  //detect failures of edm event processor and attempts recovery procedure
   if(evtProcessor_)
     {
       edm::event_processor::State st = evtProcessor_->getState();
       if(fsm_.stateName()->toString()=="Enabled" && 
 	 !(st == edm::event_processor::sRunning || st == edm::event_processor::sStopping))
 	{
-	  reasonForFailedState_ = "edm failure, EP state ";
-	  reasonForFailedState_ += evtProcessor_->currentStateName();
-	  fsm_.fireFailed(reasonForFailedState_,this);
+	  inRecovery_ = true;
+	  ModuleWebRegistry *mwr = 0;
+	  try{
+	    if(edm::Service<ModuleWebRegistry>().isAvailable())
+	      mwr = edm::Service<ModuleWebRegistry>().operator->();
+	  }
+	  catch(...) { 
+	    LOG4CPLUS_INFO(getApplicationLogger(),
+			   "exception when trying to get service ModuleWebRegistry");
+	  }
+	  //update table for lumi section before going out of scope
+	  std::cout << " update trigger report table before recovery " << std::endl;
+	  triggerReportIncomplete_ = true;
+	  edm::TriggerReport tr; 
+	  evtProcessor_->getTriggerReport(tr);
+	  xdata::InfoSpace *ispace = getApplicationInfoSpace();
+	  unsigned int ls = 0;
+	  try{
+	    xdata::Serializable *lsid = ispace->find("lumiSectionIndex");
+	    ls = ((xdata::UnsignedInteger32*)(lsid))->value_;
+	  }
+	  catch(xdata::exception::Exception e){
+	  }
+	  trh_.triggerReportToTable(tr,ls);
+	  //	  trh_.printReportTable();
+	  if(mwr) 
+	    {
+	      mwr->clear();
+	    }
+	  int sc = 0;
+	  if(hasShMem_) detachDqmFromShm();
+	  //	  delete evtProcessor_;
+	  epInitialized_ = false;
+	  cout << "before initeventprocessor " << endl;
+	  initEventProcessor();
+	  cout << "after initeventprocessor " << endl;
+	  evtProcessor_->beginJob();
+	  cout << "after beginjob " << endl;
+	  if(hasShMem_) attachDqmToShm();
+	  cout << "after attachdqm " << endl;
+	  if(isRunNumberSetter_)
+	    evtProcessor_->setRunNumber(runNumber_.value_);
+	  else
+	    evtProcessor_->declareRunNumber(runNumber_.value_);
+	  try {
+	    evtProcessor_->runAsync();
+	    sc = evtProcessor_->statusAsync();
+	  }
+	  catch(cms::Exception &e) {
+	    reasonForFailedState_ = e.explainSelf();
+	    fsm_.fireFailed(reasonForFailedState_,this);
+	    return false;
+	  }    
+	  catch(std::exception &e) {
+	    reasonForFailedState_  = e.what();
+	    fsm_.fireFailed(reasonForFailedState_,this);
+	    return false;
+	  }
+	  catch(...) {
+	    reasonForFailedState_ = "Unknown Exception";
+	    fsm_.fireFailed(reasonForFailedState_,this);
+	    return false;
+	  }
+	  
+	  if(sc != 0) {
+	    ostringstream oss;
+	    oss<<"EventProcessor::runAsync returned status code " << sc;
+	    reasonForFailedState_ = oss.str();
+	    fsm_.fireFailed(reasonForFailedState_,this);
+	    return false;
+	  }
+
+	  //	  reasonForFailedState_ = "edm failure, EP state ";
+	  //	  reasonForFailedState_ += evtProcessor_->currentStateName();
+	  //	  fsm_.fireFailed(reasonForFailedState_,this);
+	  inRecovery_ = false;
+	  startScalersWorkLoop();
 	}
     }
-  edm::ServiceRegistry::Operate operate(serviceToken_);
+
   MicroStateService *mss = 0;
 
   monitorInfoSpace_->lock();
@@ -1758,5 +1581,73 @@ bool FUEventProcessor::monitoring(toolbox::task::WorkLoop* wl)
 }
 
 
+void FUEventProcessor::fireScalersUpdate()
+{
+  typedef set<xdaq::ApplicationDescriptor*> AppDescSet_t;
+  typedef AppDescSet_t::iterator            AppDescIter_t;
+  
+  // locate input BU
+  AppDescSet_t rcms=
+    getApplicationContext()->getDefaultZone()->
+    getApplicationDescriptors("MonitorReceiver");
+  if(rcms.size()==0) std::cout << "Application MonitorReceiver not found" << std::endl;
+  AppDescIter_t it = rcms.begin();
+
+  xdata::exdr::Serializer serializer;
+  toolbox::net::URL at(getApplicationContext()->getContextDescriptor()->getURL() + "/" + getApplicationDescriptor()->getURN());
+  xoap::MessageReference msg = xoap::createMessage();
+  xoap::SOAPEnvelope envelope = msg->getSOAPPart().getEnvelope();
+  xoap::SOAPName responseName = envelope.createName( "report", xmas::NamespacePrefix, xmas::NamespaceUri);
+  (void) envelope.getBody().addBodyElement ( responseName );		
+  xoap::SOAPName reportName ("report", xmas::NamespacePrefix, xmas::NamespaceUri);
+  xoap::SOAPElement reportElement = envelope.getBody().getChildElements(reportName)[0];
+  reportElement.addNamespaceDeclaration (xmas::sensor::NamespacePrefix, xmas::sensor::NamespaceUri);
+  xoap::SOAPName sampleName = envelope.createName( "sample", xmas::NamespacePrefix, xmas::NamespaceUri);
+  xoap::SOAPElement sampleElement = reportElement.addChildElement(sampleName);
+  xoap::SOAPName flashListName = envelope.createName( "flashlist", "", "");
+  sampleElement.addAttribute(flashListName,"urn:xdaq-flashlist:scalers");
+  xoap::SOAPName tagName = envelope.createName( "tag", "", "");
+  sampleElement.addAttribute(tagName,"tag");
+  xoap::MimeHeaders* headers = msg->getMimeHeaders();
+  headers->removeHeader("x-xdaq-tags");
+  headers->addHeader("x-xdaq-tags", "tag");
+  tagName = envelope.createName( "originator", "", "");
+  sampleElement.addAttribute(tagName,at.toString());
+
+  xdata::exdr::AutoSizeOutputStreamBuffer outBuffer;
+  try
+    {
+      serializer.exportAll( &scalersComplete_, &outBuffer );
+    }
+  catch(xdata::exception::Exception & e)
+    {
+      std::cout << " BOH ? " << std::endl;
+    }
+  
+  xoap::AttachmentPart * attachment = msg->createAttachmentPart(outBuffer.getBuffer(), outBuffer.tellp(), "application/x-xdata+exdr");
+  attachment->setContentEncoding("binary");
+  tagName = envelope.createName( "tag", "", "");
+  sampleElement.addAttribute(tagName,"tag");
+  std::stringstream contentId;
+
+  contentId << "<" <<  "urn:xdaq-flashlist:scalers" << "@" << at.getHost() << ">";
+  attachment->setContentId(contentId.str());
+  std::stringstream contentLocation;
+  contentId << at.toString();
+  attachment->setContentLocation(contentLocation.str());
+  
+  std::stringstream disposition;
+  disposition << "attachment; filename=" << "urn:xdaq-flashlist:scalers" << ".exdr; creation-date=" << "\"" << "dummy" << "\"";
+  attachment->addMimeHeader("Content-Disposition",disposition.str());
+  msg->addAttachmentPart(attachment);
+  msg->writeTo(std::cout);
+  try{
+    this->getApplicationContext()->postSOAP(msg,*(getApplicationDescriptor()),*(*it));
+  }
+  catch(xdaq::exception::Exception &ex)
+    {
+      std::cout << "Exception caught, message " << ex.what() << std::endl;
+    }
+}
 
 XDAQ_INSTANTIATOR_IMPL(evf::FUEventProcessor)

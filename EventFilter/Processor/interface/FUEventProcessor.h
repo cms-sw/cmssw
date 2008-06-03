@@ -1,6 +1,7 @@
 #ifndef FUEVENTPROCESSOR_H
 #define FUEVENTPROCESSOR_H 1
 
+#include "EventFilter/Processor/src/TriggerReportHelpers.h"
 
 #include "EventFilter/Utilities/interface/StateMachine.h"
 #include "EventFilter/Utilities/interface/RunBase.h"
@@ -28,6 +29,7 @@
 
 #include <sys/time.h>
 
+#include <list>
 #include <vector>
 #include <map>
 
@@ -60,16 +62,8 @@ namespace evf
     //
 
     // trigger report callback
-    void getTriggerReport(toolbox::Event::Reference e)
+    bool getTriggerReport(bool useLock)
       throw (toolbox::fsm::exception::Exception);
-
-    // trigger prescale callbacks
-    xoap::MessageReference getPsReport(xoap::MessageReference msg)
-      throw (xoap::exception::Exception);
-    xoap::MessageReference getLsReport(xoap::MessageReference msg)
-      throw (xoap::exception::Exception);
-    xoap::MessageReference putPrescaler(xoap::MessageReference msg)
-      throw (xoap::exception::Exception);
 
     // work loop functions to be executed during transitional states (async)
     bool configuring(toolbox::task::WorkLoop* wl);
@@ -89,8 +83,9 @@ namespace evf
     void actionPerformed(xdata::Event& e);
     
     // trigger report related helper functions
-    std::string triggerReportToString(const edm::TriggerReport& tr);
-    void        printTriggerReport(const edm::TriggerReport& tr);
+    //    std::string triggerReportToString(const edm::TriggerReport& tr);
+    //    void triggerReportToTable(const edm::TriggerReport& tr);
+    //    void        printTriggerReport(const edm::TriggerReport& tr);
 
     // HyperDAQ related functions
     void defaultWebPage(xgi::Input *in,xgi::Output *out)
@@ -114,8 +109,12 @@ namespace evf
     void startMonitoringWorkLoop() throw (evf::Exception);
     bool monitoring(toolbox::task::WorkLoop* wl);
 
-    
+    void startScalersWorkLoop() throw (evf::Exception);
+    bool scalers(toolbox::task::WorkLoop* wl);
+
   private:
+    void fireScalersUpdate();
+
     //
     // member data
     //
@@ -127,6 +126,8 @@ namespace evf
     edm::EventProcessor             *evtProcessor_;
     edm::ServiceToken                serviceToken_;    
     bool                             servicesDone_;
+    bool                             inRecovery_;
+    bool                             triggerReportIncomplete_;
 
     // prescale (cmssw framework-) service
     edm::service::PrescaleService*  prescaleSvc_;
@@ -151,15 +152,8 @@ namespace evf
     std::vector<edm::ModuleDescription const*> descs_; //module description array
     std::map<std::string,int>        modmap_;
     
-    // dqm monitor thread configuration
-    xdata::String                    dqmCollectorAddr_;
-    xdata::Integer                   dqmCollectorPort_;
-    xdata::Integer                   dqmCollectorDelay_;
-    xdata::Integer                   dqmCollectorReconDelay_;
-    xdata::String                    dqmCollectorSourceName_;
-
     // xdaq parameters relevant to trigger-report / prescales
-    xdata::String                    triggerReportAsString_;
+    //    xdata::String                    triggerReportAsString_;
     xdata::String                    prescalerAsString_;
 
     // xdaq monitoring
@@ -169,6 +163,10 @@ namespace evf
     // workloop / action signature for monitoring
     toolbox::task::WorkLoop         *wlMonitoring_;      
     toolbox::task::ActionSignature  *asMonitoring_;
+
+    // workloop / action signature for scalerMonitor
+    toolbox::task::WorkLoop         *wlScalers_;      
+    toolbox::task::ActionSignature  *asScalers_;
 
     // application identifier
     std::string                      sourceId_;
@@ -190,13 +188,18 @@ namespace evf
     xdata::String                    micro_state_legend_;
     xdata::InfoSpace                *monitorInfoSpaceLegend_;
 
+    // flahslist variables, scalers
+    xdata::InfoSpace                *scalersInfoSpace_;
+    xdata::Table                     scalersComplete_;
+
     
     // HyperDAQ related
     Css                              css_;
 
     // Misc
     std::string                      reasonForFailedState_;
-    
+    fuep::TriggerReportHelpers       trh_;
+    std::list<std::string>           names_;
   };
   
 } // namespace evf
