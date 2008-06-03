@@ -272,7 +272,7 @@ bool FUEventProcessor::getTriggerReport(bool useLock)
   edm::TriggerReport tr; 
   if(mwr)
     {
-      std::cout << "called getTriggerReport, inRecovery_ " << inRecovery_ << std::endl; 
+
       xdata::InfoSpace *ispace = getApplicationInfoSpace();
       unsigned int ls = 0;
       unsigned int ps = 0;
@@ -283,7 +283,6 @@ bool FUEventProcessor::getTriggerReport(bool useLock)
 	}
       if(useLock) {
 	mwr->openBackDoor("DaqSource");
-	std::cout << "backdoor now open" << std::endl; 
       }
       if(!inRecovery_)evtProcessor_->getTriggerReport(tr);
       try{
@@ -299,7 +298,6 @@ bool FUEventProcessor::getTriggerReport(bool useLock)
 
       if(useLock){
 	mwr->closeBackDoor("DaqSource");
-	std::cout << "backdoor now closed" << std::endl; 
       }
 
 
@@ -314,7 +312,7 @@ bool FUEventProcessor::getTriggerReport(bool useLock)
 	  if(triggerReportIncomplete_)
 	    {
 	      triggerReportIncomplete_ = false;
-	      trh_.printReportTable();
+	      //	      trh_.printReportTable();
 	      //send xmas message with data
 	    }
 	  trh_.triggerReportToTable(tr,ls);
@@ -327,7 +325,6 @@ bool FUEventProcessor::getTriggerReport(bool useLock)
 		   //      trh_.printTriggerReport(tr);
 
       }
-  std::cout << "getTriggerReport completed" << std::endl; 
   return true;
     }
 
@@ -1434,9 +1431,9 @@ bool FUEventProcessor::scalers(toolbox::task::WorkLoop* wl)
       edm::event_processor::State st = evtProcessor_->getState();
       if(st == edm::event_processor::sRunning)
 	{
-	  if(!getTriggerReport(true)) {std::cout << "getTriggerReport returns false " << std::endl; return false;}
-	  trh_.printReportTable();
-	  scalersComplete_.writeTo(std::cout);
+	  if(!getTriggerReport(true)) {return false;}
+	  //	  trh_.printReportTable();
+	  //	  scalersComplete_.writeTo(std::cout);
 	  fireScalersUpdate();
 	}
     }
@@ -1469,7 +1466,7 @@ bool FUEventProcessor::monitoring(toolbox::task::WorkLoop* wl)
 			   "exception when trying to get service ModuleWebRegistry");
 	  }
 	  //update table for lumi section before going out of scope
-	  std::cout << " update trigger report table before recovery " << std::endl;
+
 	  triggerReportIncomplete_ = true;
 	  edm::TriggerReport tr; 
 	  evtProcessor_->getTriggerReport(tr);
@@ -1640,7 +1637,7 @@ void FUEventProcessor::fireScalersUpdate()
   disposition << "attachment; filename=" << "urn:xdaq-flashlist:scalers" << ".exdr; creation-date=" << "\"" << "dummy" << "\"";
   attachment->addMimeHeader("Content-Disposition",disposition.str());
   msg->addAttachmentPart(attachment);
-  msg->writeTo(std::cout);
+  //  msg->writeTo(std::cout);
   try{
     this->getApplicationContext()->postSOAP(msg,*(getApplicationDescriptor()),*(*it));
   }
