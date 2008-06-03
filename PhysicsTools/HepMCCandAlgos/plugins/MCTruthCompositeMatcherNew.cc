@@ -58,10 +58,12 @@ namespace reco {
       if(size != 0) {
 	GenParticleMatch::Filler filler(*matchMap);
 	vector<int> indices(size);
-	for( int i = 0; i != size; ++ i ) {
+	for(int i = 0; i != size; ++ i) {
 	  const Candidate & cand = (* cands)[i];
 	  GenParticleRef mc = match[cand];
-	  bool ok = mc.isNonnull() && find(begin, end, abs(mc->pdgId())) != end;
+	  bool found = true;
+	  if(begin!=end) found =  find(begin, end, abs(mc->pdgId())) != end;
+	  bool ok = mc.isNonnull() && found;
 	  indices[i] = ok ? int(mc.key()) : -1;
 	}
 	CandidateBaseRefProd ref(cands->refAt(0));
