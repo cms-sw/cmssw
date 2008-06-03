@@ -267,9 +267,9 @@ XYZVector HardTauAlgorithm::trackEcalHitPoint(const TransientTrack& transientTra
         GlobalPoint ecalHitPosition(0,0,0);
 
         double maxTowerEt = 0;
-        vector<CaloTowerRef> towers = caloJet.getConstituents();
-        for(vector<CaloTowerRef>::const_iterator iTower = towers.begin();
-                                                 iTower != towers.end(); iTower++){
+	vector<CaloTowerPtr> towers = caloJet.getCaloConstituents();
+        for(vector<CaloTowerPtr>::const_iterator iTower = towers.begin();
+                                                 iTower!= towers.end(); ++iTower){
                 if((*iTower)->et() > maxTowerEt){
                         maxTowerEt = (*iTower)->et();
                         ecalHitPosition = GlobalPoint((*iTower)->momentum().x(),
@@ -298,10 +298,10 @@ pair<XYZVector,XYZVector> HardTauAlgorithm::getClusterEnergy(const CaloJet& calo
         XYZVector ecalCluster(0,0,0);
         XYZVector hcalCluster(0,0,0);
 
-        vector<CaloTowerRef> towers = caloJet.getConstituents();
+        vector<CaloTowerPtr> towers = caloJet.getCaloConstituents();
 
-        for(vector<CaloTowerRef>::const_iterator iTower = towers.begin();
-                                                 iTower != towers.end(); iTower++){
+        for(vector<CaloTowerPtr>::const_iterator iTower = towers.begin();
+                                                 iTower!= towers.end(); ++iTower){
                 vector<XYZVector> ECALCells;
                 vector<XYZVector> HCALCells;
 
