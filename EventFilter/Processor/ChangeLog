@@ -1,3 +1,10 @@
+2008-06-13  Emilio Meschi  <emilio.meschi@cern.ch>
+
+	* tag V01-03-01
+	* removed all soap callbacks for prescales etc
+	* introduced retrieval of hlt scalers and push to runcontrol
+	* added TriggerReportHelpers
+	
 2008-05-04  Philipp Schieferdecler  <philipp.schieferdecker@cern.ch>
 
 	* tag V01-02-04
