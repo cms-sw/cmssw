@@ -39,6 +39,7 @@ process.dqmSaverEB = cms.EDFilter("DQMFileSaver",
 )
 
 process.maxEvents = cms.untracked.PSet(
+#    input = cms.untracked.int32(150)
     input = cms.untracked.int32(300)
 )
 process.source = cms.Source("PoolSource",

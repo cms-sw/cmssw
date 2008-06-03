@@ -45,6 +45,10 @@ process.dqmSaverEB = cms.EDFilter("DQMFileSaver",
     convention = cms.untracked.string('Online')
 )
 
+process.maxEvents = cms.untracked.PSet(
+#    input = cms.untracked.int32(150)
+#    input = cms.untracked.int32(300)
+)
 process.source = cms.Source("PoolSource",
 #---
 #    fileNames = cms.untracked.vstring('/store/users/dellaric/data/5E883D60-4B98-DC11-BD17-000423D6A6F4.root')

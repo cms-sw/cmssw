@@ -18,7 +18,7 @@ process.load("DQM.EcalBarrelMonitorTasks.EcalBarrelMonitorTasks_cfi")
 
 process.load("DQM.EcalBarrelMonitorClient.EcalBarrelMonitorClient_cfi")
 
-process.load("RecoEcal.EgammaClusterProducers.ecalClusteringSequence_cff")
+process.load("FWCore.Modules.printContent_cfi")
 
 process.load("CalibCalorimetry.EcalLaserCorrection.ecalLaserCorrectionService_cfi")
 
@@ -52,15 +52,32 @@ process.maxEvents = cms.untracked.PSet(
 )
 process.source = cms.Source("DAQEcalTBInputService",
 #---
-    fileNames = cms.untracked.vstring('/store/users/dellaric/data/H4-000017188-SM5-COSMIC-STD'),
-    isBinary = cms.untracked.bool(True)
+#    fileNames = cms.untracked.vstring('/store/users/dellaric/data/H4-000006100-SM5-COSMIC-STD'),
+#    runNumber = cms.untracked.uint32(6100),
+#    isBinary = cms.untracked.bool(False)
+#--
+#    fileNames = cms.untracked.vstring('/store/users/dellaric/data/H4-000008203-SM5-PEDESTAL-STD'),
+#    runNumber = cms.untracked.uint32(8203),
+#    isBinary = cms.untracked.bool(False)
+#---
+    fileNames = cms.untracked.vstring('/store/users/dellaric/data/H4-000008205-SM5-TEST_PULSE-MGPA'),
+    runNumber = cms.untracked.uint32(8205),
+    isBinary = cms.untracked.bool(False)
+#---
+#    fileNames = cms.untracked.vstring('/store/users/dellaric/data/H4-000008206-SM5-PEDESTAL-STD'),
+#    runNumber = cms.untracked.uint32(8206),
+#    isBinary = cms.untracked.bool(False)
+#---
+#    fileNames = cms.untracked.vstring('/store/users/dellaric/data/H4-000015188-SM5-PEDESTAL-STD'),
+#    runNumber = cms.untracked.uint32(15188),
+#    isBinary = cms.untracked.bool(True)
 #---
 )
 
 process.EcalTrivialConditionRetriever = cms.ESSource("EcalTrivialConditionRetriever",
     adcToGeVEBConstant = cms.untracked.double(0.00875), ## 0.035
-    pedWeights = cms.untracked.vdouble(0.333, 0.333, 0.333, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0),
     amplWeights = cms.untracked.vdouble(-0.333, -0.333, -0.333, 0.0, 0.0, 1.0, 0.0, 0.0, 0.0, 0.0),
+    pedWeights = cms.untracked.vdouble(0.333, 0.333, 0.333, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0),
     jittWeights = cms.untracked.vdouble(0.041, 0.041, 0.041, 0.0, 1.325, -0.05, -0.504, -0.502, -0.390, 0.0)
 )
 
@@ -192,11 +209,11 @@ process.MessageLogger = cms.Service("MessageLogger",
     destinations = cms.untracked.vstring('cout')
 )
 
-process.ecalBarrelDataSequence = cms.Sequence(process.preScaler*process.ecalEBunpacker*process.ecalUncalibHit*process.ecalRecHit*process.islandBasicClusters*process.islandSuperClusters*process.hybridSuperClusters)
+process.ecalBarrelDataSequence = cms.Sequence(process.preScaler*process.ecalEBunpacker*process.ecalUncalibHit*process.ecalRecHit)
 process.ecalBarrelMonitorSequence = cms.Sequence(process.ecalBarrelMonitorModule*process.dqmInfoEB*process.ecalBarrelMonitorClient*process.dqmQTestEB*process.dqmSaverEB)
 
 process.p = cms.Path(process.ecalBarrelDataSequence*process.ecalBarrelMonitorSequence)
-process.q = cms.EndPath(process.ecalBarrelCosmicTasksSequence*process.ecalBarrelClusterTask)
+process.q = cms.EndPath(process.ecalBarrelCosmicTasksSequence)
 
 process.ecalUncalibHit.MinAmplBarrel = 12.
 process.ecalUncalibHit.MinAmplEndcap = 16.
@@ -206,20 +223,10 @@ process.ecalUncalibHit.EEdigiCollection = cms.InputTag("ecalEBunpacker","eeDigis
 process.ecalRecHit.EBuncalibRecHitCollection = cms.InputTag("ecalUncalibHit","EcalUncalibRecHitsEB")
 process.ecalRecHit.EEuncalibRecHitCollection = cms.InputTag("ecalUncalibHit","EcalUncalibRecHitsEE")
 
-process.ecalBarrelMonitorClient.maskFile = ''
+process.ecalBarrelMonitorClient.maskFile = 'maskfile.dat'
 process.ecalBarrelMonitorClient.location = 'H4'
 process.ecalBarrelMonitorClient.baseHtmlDir = '.'
-process.ecalBarrelMonitorClient.enabledClients = ['Integrity', 'Occupancy', 'StatusFlags', 'PedestalOnline', 'Cosmic', 'Timing', 'Cluster', 'Summary']
 process.ecalBarrelMonitorClient.superModules = [19]
-
-process.islandBasicClusters.IslandBarrelSeedThr = 0.150
-process.islandBasicClusters.IslandEndcapSeedThr = 0.150
-
-process.hybridSuperClusters.HybridBarrelSeedThr = 0.150
-process.hybridSuperClusters.step = 1
-process.hybridSuperClusters.eseed = 0.150
-
-process.islandSuperClusters.seedTransverseEnergyThreshold = 0.150
 
 process.DQM.collectorHost = ''
 
