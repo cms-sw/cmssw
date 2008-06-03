@@ -6,8 +6,8 @@
  * *
  *  DQM Test Client
  *
- *  $Date: 2008/03/01 00:39:51 $
- *  $Revision: 1.7 $
+ *  $Date: 2008/05/22 07:10:05 $
+ *  $Revision: 1.1 $
  *  \author  G. Cerminara - University and INFN Torino
  *   
  */
@@ -58,41 +58,6 @@ protected:
   /// Analyze
   void analyze(const edm::Event& event, const edm::EventSetup& context);
 
-
-  template<class T>
-  T getHisto(const MonitorElement* me, bool clone = true) {
-    T ret = 0;
-    if(me) {
-      TObject* ob = const_cast<MonitorElement*>(me)->getRootObject();
-      if(ob) { // check this is valid
-	if(clone) { // clone
-	  if(ret) { 
-	    delete ret;
-	  }
-	  std::string s = "Hist " + me->getName();
-	  ret = dynamic_cast<T>(ob->Clone(s.c_str())); 
-	  if(ret) {
-	    ret->SetDirectory(0);
-	  }
-	} else {
-	  ret = dynamic_cast<T>(ob); 
-	}
-      } else {
-	ret = 0;
-      }
-    } else {
-      if(!clone) {
-	ret = 0;
-      }
-    }
-    return ret;
-  }
-
-
-
-
-
-
 private:
 
   /// book the summary histograms
@@ -112,7 +77,8 @@ private:
 
   // wheel summary histograms  
   std::map< int, MonitorElement* > wheelHistos;  
-
+  MonitorElement* summaryHisto;
+  
   
 };
 

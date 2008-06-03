@@ -3,14 +3,13 @@
 /*
  *  See header file for a description of this class.
  *
- *  $Date: 2008/05/22 07:10:05 $
- *  $Revision: 1.1 $
+ *  $Date: 2008/05/27 15:21:38 $
+ *  $Revision: 1.2 $
  *  \author G. Cerminara - University and INFN Torino
  */
 
 
 #include <DQM/DTMonitorClient/src/DTOccupancyTest.h>
-
 
 #include "FWCore/ServiceRegistry/interface/Service.h"
 #include <FWCore/Framework/interface/LuminosityBlock.h>
@@ -63,7 +62,10 @@ void DTOccupancyTest::beginJob(const EventSetup& context){
     bookHistos(wh, string("Occupancies"), "OccupancySummary");
   }
 
-
+  dbe->setCurrentFolder("DT/Digi/");
+  summaryHisto = dbe->book2D("OccupancySummary","Occupancy Summary",12,1,13,5,-2,3);
+  summaryHisto->setAxisTitle("sector",1);
+  summaryHisto->setAxisTitle("wheel",2);
 
 }
 
@@ -78,8 +80,9 @@ void DTOccupancyTest::beginLuminosityBlock(LuminosityBlock const& lumiSeg, Event
 
 
 void DTOccupancyTest::analyze(const Event& e, const EventSetup& context) {
-  LogVerbatim ("DTOccupancyTest") << "[DTOccupancyTest]: "<<nevents<<" events";
   nevents++;
+  LogVerbatim ("DTOccupancyTest") << "[DTOccupancyTest]: "<<nevents<<" events";
+
 
 }
 
@@ -89,6 +92,10 @@ void DTOccupancyTest::analyze(const Event& e, const EventSetup& context) {
 void DTOccupancyTest::endLuminosityBlock(LuminosityBlock const& lumiSeg, EventSetup const& context) {
   LogVerbatim ("DTOccupancyTest")
     <<"[DTOccupancyTest]: End of LS transition, performing the DQM client operation";
+  
+  // Reset the global summary
+//   summaryHisto->Reset();
+
 
   // Get all the DT chambers
   vector<DTChamber*> chambers = muonGeom->chambers();
@@ -99,21 +106,33 @@ void DTOccupancyTest::endLuminosityBlock(LuminosityBlock const& lumiSeg, EventSe
 
     MonitorElement * chamberOccupancyHisto = dbe->get(getMEName("OccupancyAllHits_perCh", chId));	
 
-    // Run the tests on the plot for the various ganularities
+    // Run the tests on the plot for the various granularities
     if(chamberOccupancyHisto != 0) {
       // Get the 2D histo
-      TH2F* histo = getHisto<TH2F*>(chamberOccupancyHisto, true);
+      TH2F* histo = chamberOccupancyHisto->getTH2F();
       int result = runOccupancyTest(histo, chId);
-      wheelHistos[chId.wheel()]->setBinContent(chId.sector(), chId.station(),result);  
-
-      
-      delete histo;
+      int sector = chId.sector();
+      if(sector == 13) { // FIXME: overwriting the previous value
+	sector = 4;
+      } else if(sector == 14) { // FIXME: overwriting the previous value
+	sector = 10;
+      }
+      wheelHistos[chId.wheel()]->setBinContent(sector, chId.station(),result);
+      if(result > summaryHisto->getBinContent(sector, chId.wheel())) {
+	summaryHisto->setBinContent(sector, chId.wheel()+3, result);
+      }
     } else {
-      LogVerbatim ("DTOccupancyTest") << "[DTOccupancyTest] ME: " << getMEName("OccupancyAllHits_perCh", chId) << " not found!" << endl;
+      LogVerbatim ("DTOccupancyTest") << "[DTOccupancyTest] ME: "
+				      << getMEName("OccupancyAllHits_perCh", chId) << " not found!" << endl;
     }
 
-
   }
+
+  // Fill the global summary
+  // Check for entire sectors off and report them on the global summary
+  //FIXME: TODO
+
+
 
 }
 
@@ -122,7 +141,7 @@ void DTOccupancyTest::endJob(){
 
   LogVerbatim ("DTOccupancyTest") << "[DTOccupancyTest] endjob called!";
 
-  if(dbe != 0) dbe->rmdir("DT/Tests/DTEfficiency");
+//   if(dbe != 0) dbe->rmdir("DT/Digi");
 
 }
 
@@ -132,14 +151,14 @@ void DTOccupancyTest::endJob(){
 void DTOccupancyTest::bookHistos(const int wheelId, string folder, string histoTag) {
   // Set the current folder
   stringstream wheel; wheel << wheelId;	
-  dbe->setCurrentFolder("DT/DTDigiTask/");
+  dbe->setCurrentFolder("DT/Digi/");
 
   // build the histo name
   string histoName = histoTag + "_W" + wheel.str(); 
   
   
   LogVerbatim ("DTOccupancyTest") <<"[DTOccupancyTest]: booking wheel histo:"<< endl
-				  <<"              folder "<< "DT/DTDigiTask/Wheel"
+				  <<"              folder "<< "DT/Digi/Wheel"
     + wheel.str() + "/" + folder << endl
 				  <<"              histoTag "<<histoTag << endl
 				  <<"              histoName "<<histoName<<endl;
@@ -162,7 +181,7 @@ string DTOccupancyTest::getMEName(string histoTag, const DTChamberId& chId) {
   stringstream sector; sector << chId.sector();
 
 
-  string folderRoot = "DT/DTDigiTask/Wheel" + wheel.str() +
+  string folderRoot = "DT/Digi/Wheel" + wheel.str() +
     "/Station" + station.str() +
     "/Sector" + sector.str() + "/";
 
