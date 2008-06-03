@@ -2,17 +2,21 @@
 #include "TrackingTools/TrajectoryParametrization/interface/GlobalTrajectoryParameters.h"
 #include "DataFormats/GeometryVector/interface/GlobalVector.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
+#include "MagneticField/Engine/interface/MagneticField.h"
 
-using namespace std;
 
 bool TwoTrackMinimumDistanceLineLine::calculate(
     const GlobalTrajectoryParameters & theG,
     const GlobalTrajectoryParameters & theH)
 {
-  if ( theH.charge() != 0. || theG.charge() != 0. )
+  GlobalPoint gOrig = theG.position();
+  GlobalPoint hOrig = theH.position();
+  if ( ( ( theH.charge() != 0. || theG.charge() != 0. ) ) && 
+    ((theG.magneticField().inTesla(gOrig).z() == 0.)|| 
+  	(theH.magneticField().inTesla(hOrig).z() == 0.)) )
   {
     edm::LogWarning ("TwoTrackMinimumDistanceLineLine")
-      << "charge of input track is not zero.";
+      << "charge of input track is not zero or field non zero";
     return true;
   };
 
@@ -41,8 +45,6 @@ bool TwoTrackMinimumDistanceLineLine::calculate(
     return true;
   }
 
-  GlobalPoint gOrig = theG.position();
-  GlobalPoint hOrig = theH.position();
   GlobalVector posDiff = gOrig - hOrig;
 
   double tG = (posDiff.dot(gVec) * hMag2 - gVec_Dot_hVec * posDiff.dot(hVec))/ norm;

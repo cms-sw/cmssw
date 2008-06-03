@@ -3,6 +3,7 @@
 #include "TrackingTools/TrajectoryState/interface/FreeTrajectoryState.h" 
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include "FWCore/Utilities/interface/Exception.h"
+#include "MagneticField/Engine/interface/MagneticField.h"
 
 using namespace std;
 
@@ -79,7 +80,10 @@ bool
 TwoTrackMinimumDistance::calculate(const GlobalTrajectoryParameters & sta,
                                 const GlobalTrajectoryParameters & stb)
 {
-  if ( sta.charge() != 0. && stb.charge() != 0. ) {
+  if ((sta.magneticField().inTesla(sta.position()).z() == 0.)|| 
+  	(stb.magneticField().inTesla(stb.position()).z() == 0.)) {
+    status_ = pointsLineLine(sta, stb);
+  } else if ( sta.charge() != 0. && stb.charge() != 0. ) {
     status_ = pointsHelixHelix(sta, stb);
   } else if ( sta.charge() == 0. && stb.charge() == 0. ) {
     status_ = pointsLineLine(sta, stb);
