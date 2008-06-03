@@ -232,7 +232,7 @@ void RPCMonitorDigi::analyze(const edm::Event& iEvent,
 
       //get bx number for this digi
       std::vector<int>::iterator existingBX = find( bxs.begin(),bxs.end(),bx);
-      if(existingBX!=bxs.end())bxs.push_back(bx);
+      if(existingBX==bxs.end())bxs.push_back(bx);
 
 
 
@@ -297,7 +297,11 @@ void RPCMonitorDigi::analyze(const edm::Event& iEvent,
 
 	BarrelOccupancy -> setBinLabel(detId.sector(), sector1, 1);
 	BarrelOccupancy -> setBinLabel(detId.ring()+3, Wheel1, 2);
+<<<<<<< RPCMonitorDigi.cc
+
+=======
 	
+>>>>>>> 1.45
 	os.str("");
 	os<<"Sec"<<detId.sector();
 	Yaxis= os.str();
