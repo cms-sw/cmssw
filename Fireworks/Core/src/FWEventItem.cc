@@ -8,7 +8,7 @@
 //
 // Original Author:  
 //         Created:  Thu Jan  3 14:59:23 EST 2008
-// $Id: FWEventItem.cc,v 1.11 2008/03/05 15:11:32 chrjones Exp $
+// $Id: FWEventItem.cc,v 1.12 2008/03/19 15:18:05 chrjones Exp $
 //
 
 // system include files
@@ -190,6 +190,35 @@ FWEventItem::setName(const std::string& iName)
 void 
 FWEventItem::setDefaultDisplayProperties(const FWDisplayProperties& iProp)
 {
+   bool visChange = m_displayProperties.isVisible() == iProp.isVisible();
+   bool colorChanged = m_displayProperties.color() == iProp.color();
+   
+   if(!visChange && !colorChanged) {
+      return;
+   }
+   //If the default visibility is changed, we want to also change the the visibility of the children
+   // BUT we want to remember the old visibility so if the visibility is changed again we return
+   // to the previous state.
+   // only the visible ones need to be marked as 'changed'
+   FWChangeSentry sentry(*(changeManager()));
+   
+   for(int index=0; index <static_cast<int>(size()); ++index) {
+      FWDisplayProperties prp = m_itemInfos[index].displayProperties();
+      bool vis=prp.isVisible();
+      bool changed = false;
+      changed = visChange && vis;
+      if(colorChanged) {
+         if(m_displayProperties.color()==prp.color()) {
+            prp.setColor(m_displayProperties.color());
+            m_itemInfos[index].m_displayProperties=prp;
+            changed = true;
+         }
+      }
+      if(changed) {
+         FWModelId id(this,index);
+         changeManager()->changed(id);
+      }
+   }
    m_displayProperties= iProp;
 }
 
@@ -385,11 +414,17 @@ FWEventItem::processName() const
   return m_processName;
 }
 
-const FWEventItem::ModelInfo& 
+FWEventItem::ModelInfo
 FWEventItem::modelInfo(int iIndex) const
 {
    getPrimaryData();
-   return m_itemInfos.at(iIndex);
+   if(m_displayProperties.isVisible()) {
+      return m_itemInfos.at(iIndex);
+   }
+   FWDisplayProperties dp(m_itemInfos.at(iIndex).displayProperties());
+   dp.setIsVisible(false);
+   ModelInfo t(dp,m_itemInfos.at(iIndex).isSelected());
+   return t;
 }
 
 size_t
