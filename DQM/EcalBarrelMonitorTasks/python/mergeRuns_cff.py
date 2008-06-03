@@ -9,21 +9,27 @@ from DQM.EcalBarrelMonitorTasks.EBLaserTask_cfi import *
 from DQM.EcalBarrelMonitorTasks.EBOccupancyTask_cfi import *
 from DQM.EcalBarrelMonitorTasks.EBPedestalOnlineTask_cfi import *
 from DQM.EcalBarrelMonitorTasks.EBPedestalTask_cfi import *
+from DQM.EcalBarrelMonitorTasks.EBStatusFlagsTask import *
 from DQM.EcalBarrelMonitorTasks.EBTestPulseTask_cfi import *
 from DQM.EcalBarrelMonitorTasks.EBTimingTask_cfi import *
 from DQM.EcalBarrelMonitorTasks.EBTriggerTowerTask_cfi import *
 
 ecalBarrelOccupancyTask.mergeRuns = True
 ecalBarrelIntegrityTask.mergeRuns = True
+
 ecalBarrelStatusFlagsTask.mergeRuns = True
+
 ecalBarrelCosmicTask.mergeRuns = True
 ecalBarrelLaserTask.mergeRuns = True
 ecalBarrelPedestalOnlineTask.mergeRuns = True
 ecalBarrelPedestalTask.mergeRuns = True
 ecalBarrelTestPulseTask.mergeRuns = True
+
 ecalBarrelTriggerTowerTask.mergeRuns = True
 ecalBarrelTimingTask.mergeRuns = True
+
 ecalBarrelBeamHodoTask.mergeRuns = True
 ecalBarrelBeamCaloTask.mergeRuns = True
+
 ecalBarrelClusterTask.mergeRuns = True
 

@@ -10,21 +10,28 @@ from DQM.EcalEndcapMonitorTasks.EELedTask_cfi import *
 from DQM.EcalEndcapMonitorTasks.EEOccupancyTask_cfi import *
 from DQM.EcalEndcapMonitorTasks.EEPedestalOnlineTask_cfi import *
 from DQM.EcalEndcapMonitorTasks.EEPedestalTask_cfi import *
+from DQM.EcalEndcapMonitorTasks.EEStatusFlagsTask_cfi import *
 from DQM.EcalEndcapMonitorTasks.EETestPulseTask_cfi import *
 from DQM.EcalEndcapMonitorTasks.EETimingTask_cfi import *
 from DQM.EcalEndcapMonitorTasks.EETriggerTowerTask_cfi import *
+
 ecalEndcapOccupancyTask.enableCleanup = True
 ecalEndcapIntegrityTask.enableCleanup = True
+
 ecalEndcapStatusFlagsTask.enableCleanup = True
+
 ecalEndcapCosmicTask.enableCleanup = True
 ecalEndcapLaserTask.enableCleanup = True
 ecalEndcapLedTask.enableCleanup = True
 ecalEndcapPedestalOnlineTask.enableCleanup = True
 ecalEndcapPedestalTask.enableCleanup = True
 ecalEndcapTestPulseTask.enableCleanup = True
+
 ecalEndcapTriggerTowerTask.enableCleanup = True
 ecalEndcapTimingTask.enableCleanup = True
+
 ecalEndcapBeamHodoTask.enableCleanup = True
 ecalEndcapBeamCaloTask.enableCleanup = True
+
 ecalEndcapClusterTask.enableCleanup = True
 
