@@ -29,6 +29,11 @@ class LHERunInfoProduct {
 		const_iterator begin() const { return lines_.begin(); }
 		const_iterator end() const { return lines_.end(); }
 
+		bool operator == (const Header &other) const
+		{ return tag_ == other.tag_ && lines_ == other.lines_; }
+		inline bool operator != (const Header &other) const
+		{ return !(*this == other); }
+
 	    private:
 		std::string			tag_;
 		std::vector<std::string>	lines_;
@@ -105,6 +110,15 @@ class LHERunInfoProduct {
 	inline const_iterator end() const { return const_iterator(); }
 
 	static const std::string &endOfFile();
+
+	bool operator == (const LHERunInfoProduct &other) const
+	{ return heprup_ == other.heprup_ && headers_ == other.headers_ && comments_ == other.comments_; }
+	inline bool operator != (const LHERunInfoProduct &other) const
+	{ return !(*this == other); }
+
+	bool mergeProduct(const LHERunInfoProduct &other);
+    	bool isProductEqual(const LHERunInfoProduct &other)
+    	{ return *this == other; }
 
     private:
 	lhef::HEPRUP			heprup_;

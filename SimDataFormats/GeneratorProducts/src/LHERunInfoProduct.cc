@@ -1,7 +1,13 @@
+#include <algorithm>
+#include <iterator>
 #include <iostream>
 #include <iomanip>
 #include <sstream>
 #include <string>
+#include <cmath>
+#include <map>
+
+#include "FWCore/Utilities/interface/Exception.h"
 
 #include "SimDataFormats/GeneratorProducts/interface/LesHouches.h"
 #include "SimDataFormats/GeneratorProducts/interface/LHERunInfoProduct.h"
@@ -148,4 +154,78 @@ const std::string &LHERunInfoProduct::endOfFile()
 	static const std::string theEnd("</LesHouchesEvents>\n");
 
 	return theEnd;
+}
+
+namespace {
+	struct XSec {
+		inline XSec() : xsec(0.0), err(0.0), max(0.0) {}
+
+		double	xsec;
+		double	err;
+		double	max;
+	};
+}
+
+bool LHERunInfoProduct::mergeProduct(const LHERunInfoProduct &other)
+{
+	if (headers_ != other.headers_ ||
+	    comments_ != other.comments_ ||
+	    heprup_.IDBMUP != other.heprup_.IDBMUP ||
+	    heprup_.EBMUP != other.heprup_.EBMUP ||
+	    heprup_.PDFGUP != other.heprup_.PDFGUP ||
+	    heprup_.PDFSUP != other.heprup_.PDFSUP ||
+	    heprup_.IDWTUP != other.heprup_.IDWTUP)
+		throw cms::Exception("ProductsNotMergeable")
+			<< "Error in LHERunInfoProduct: LHE headers differ. "
+			   "Cannot merge products." << std::endl;
+
+	// it is exactly the same, so merge
+	if (heprup_ == other.heprup_)
+		return true;
+
+
+	// the input files are different ones, presumably generation
+	// of the same process in different runs with identical run number
+	// attempt merge of processes and cross-sections
+
+	std::map<int, XSec> processes;
+
+	for(int i = 0; i < heprup_.NPRUP; i++) {
+		int id = heprup_.LPRUP[i];
+		XSec &x = processes[id];
+		x.xsec = heprup_.XSECUP[i];
+		x.err = heprup_.XERRUP[i];
+		x.max = heprup_.XMAXUP[i];
+	}
+
+	for(int i = 0; i < other.heprup_.NPRUP; i++) {
+		int id = other.heprup_.LPRUP[i];
+		XSec &x = processes[id];
+		if (x.xsec) {
+			double wgt1 = 1.0 / (x.err * x.err);
+			double wgt2 = 1.0 / (other.heprup_.XERRUP[i] *
+			                     other.heprup_.XERRUP[i]);
+			x.xsec = (wgt1 * x.xsec +
+			          wgt2 * other.heprup_.XSECUP[i]) /
+			         (wgt1 + wgt2);
+			x.err = 1.0 / std::sqrt(wgt1 + wgt2);
+			x.max = std::max(x.max, other.heprup_.XMAXUP[i]);
+		} else {
+			x.xsec = other.heprup_.XSECUP[i];
+			x.err = other.heprup_.XERRUP[i];
+			x.max = other.heprup_.XMAXUP[i];
+		}
+	}
+
+	heprup_.resize(processes.size());
+	unsigned int i = 0;
+	for(std::map<int, XSec>::const_iterator iter = processes.begin();
+	    iter != processes.end(); ++iter, i++) {
+		heprup_.LPRUP[i] = iter->first;
+		heprup_.XSECUP[i] = iter->second.xsec;
+		heprup_.XERRUP[i] = iter->second.err;
+		heprup_.XMAXUP[i] = iter->second.max;
+	}
+
+	return true;
 }
