@@ -1,5 +1,10 @@
 2008-06-03  Harry Cheung <cheung@fnal.gov>
 
+	* tag V03-12-07
+	* Quick fix for registration problem with 2 rails (threads)
+
+2008-06-03  Harry Cheung <cheung@fnal.gov>
+
 	* tag V03-12-06
 	* Fixes from Kurt for DQM ME receiving (still has wrong run and LS numbers though)
 

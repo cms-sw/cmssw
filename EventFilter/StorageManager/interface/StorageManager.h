@@ -10,7 +10,7 @@
 
      See CMS EventFilter wiki page for further notes.
 
-   $Id: StorageManager.h,v 1.31 2008/05/12 15:55:17 hcheung Exp $
+   $Id: StorageManager.h,v 1.32 2008/05/13 18:06:46 loizides Exp $
 */
 
 #include <string>
@@ -252,6 +252,7 @@ namespace stor {
 
     unsigned int lastEventSeen_; // report last seen event id
     unsigned int lastErrorEventSeen_; // report last error event id seen
+    boost::mutex fulist_lock_;  // quick (temporary) fix for registration problem
 
     enum
     {

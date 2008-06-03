@@ -1,4 +1,4 @@
-// $Id: StorageManager.cc,v 1.58 2008/05/14 16:00:00 biery Exp $
+// $Id: StorageManager.cc,v 1.59 2008/05/15 13:57:44 hcheung Exp $
 
 #include <iostream>
 #include <iomanip>
@@ -337,6 +337,10 @@ void StorageManager::receiveRegistryMessage(toolbox::mem::Reference *ref)
   std::string dmoduleLabel = dummymsg.outputModuleLabel();
   uint32 dmoduleId = dummymsg.outputModuleId();
 
+  {
+  // a quick fix for registration problem TODO find real problem and fix!
+  boost::mutex::scoped_lock sl(fulist_lock_);
+
   int status = smfusenders_.registerFUSender(&msg->hltURL[0], &msg->hltClassName[0],
                  msg->hltLocalId, msg->hltInstance, msg->hltTid,
                  msg->frameCount, msg->numFrames, ref, dmoduleLabel, dmoduleId);
@@ -473,6 +477,7 @@ void StorageManager::receiveRegistryMessage(toolbox::mem::Reference *ref)
                        I2O_FU_DATA_DISCARD,
                        hltClassName);
   } // end of test on if registryFUSender returned that registry is complete
+  } // end of scope for mutex to protect registration
 }
 
 void StorageManager::receiveDataMessage(toolbox::mem::Reference *ref)
