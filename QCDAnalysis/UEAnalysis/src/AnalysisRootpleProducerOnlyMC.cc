@@ -1,4 +1,4 @@
-// Authors: F. Ambroglini, L. Fano'
+// Authors: F. Ambroglini, L. Fano', F. Bechtel
 #include <QCDAnalysis/UEAnalysis/interface/AnalysisRootpleProducerOnlyMC.h>
  
 using namespace edm;
