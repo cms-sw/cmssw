@@ -67,7 +67,10 @@ class PFIsolation : public edm::EDProducer {
   
   /// isolation cone
   double isolation_Cone_DeltaR_;
-
+  
+  /// within the inner cone, PFCandidates are not counted for the isolation.
+  /// protects against self isolation
+  double isolation_InnerCone_DeltaR_;
 };
 
 #endif

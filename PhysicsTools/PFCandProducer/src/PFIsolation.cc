@@ -41,6 +41,9 @@ PFIsolation::PFIsolation(const edm::ParameterSet& iConfig) {
   isolation_Cone_DeltaR_
     = iConfig.getParameter<double>("isolation_Cone_DeltaR");  
 
+  isolation_InnerCone_DeltaR_
+    = iConfig.getParameter<double>("isolation_InnerCone_DeltaR");  
+
 //   LogDebug("PFIsolation")
 //     <<" input collection : "<<inputTagPFCandidates_ <<"\t"
 //     <<" max_ptFraction_InCone : "<<max_ptFraction_InCone_<<"\t";
@@ -127,7 +130,7 @@ PFIsolation::computeIsolation( const PFCandidate& cand,
     // need a clean way to compare candidates for equality... 
     // maybe checking the components as well: same blocks, same elements
     // need to wait 
-    if( dR < 1e-12 ) continue;
+    if( dR < isolation_InnerCone_DeltaR_ ) continue;
 
     if( verbose_ ) {
       cout<<"\t"<<candsForIsolation[i]<<endl;
