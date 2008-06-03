@@ -1,3 +1,8 @@
+2008-06-03  Harry Cheung <cheung@fnal.gov>
+
+	* tag V03-12-06
+	* Fixes from Kurt for DQM ME receiving (still has wrong run and LS numbers though)
+
 2008-05-15  Harry Cheung <cheung@fnal.gov>
 
 	* tag V03-12-05
