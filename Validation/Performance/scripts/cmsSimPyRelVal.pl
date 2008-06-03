@@ -314,7 +314,7 @@ foreach (@Candle)
 		$OutputFileOption="--fileout=$FileName{$candle}"."_DIGI_PILEUP.root";
 		#Adding .cfi to use new method of using cmsDriver.py
 		#$Command="$cmsDriver $candle -n $NumberOfEvents --step=$step $FileIn{$step}$InputFile --customise=$CustomiseFragment{$step} ";
-		$Command="$cmsDriver $KeywordToCfi{$candle} -n $NumberOfEvents --step=DIGI $InputFileOption $OutputFileOption --PU --eventcontent=$EventContent{$step} --customise=Configuration/PyReleaseValidation/MixingModule.py $cmsDriverOptions";
+		$Command="$cmsDriver $KeywordToCfi{$candle} -n $NumberOfEvents --step=DIGI $InputFileOption $OutputFileOption --PU --eventcontent=FEVTSIMDIGI --customise=Configuration/PyReleaseValidation/MixingModule.py $cmsDriverOptions";
 	    }
 	    print SIMCANDLES "$Command @@@ $Profiler{$_} @@@ $FileName{$candle}_DIGI_PILEUP_"."$_"."\n";
 	}
