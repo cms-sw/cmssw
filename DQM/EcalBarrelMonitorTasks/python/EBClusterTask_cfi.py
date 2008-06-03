@@ -1,12 +1,11 @@
 import FWCore.ParameterSet.Config as cms
 
 ecalBarrelClusterTask = cms.EDFilter("EBClusterTask",
-    ClusterShapeAssociation = cms.InputTag("hybridSuperClusters","hybridShapeAssoc"),
-    BasicClusterCollection = cms.InputTag("islandBasicClusters","islandBarrelBasicClusters"),
+    prefixME = cms.untracked.string('EcalBarrel'),
     enableCleanup = cms.untracked.bool(False),
     mergeRuns = cms.untracked.bool(False),    
-    prefixME = cms.untracked.string('EcalBarrel'),
-    SuperClusterCollection = cms.InputTag("hybridSuperClusters")
+    BasicClusterCollection = cms.InputTag("islandBasicClusters","islandBarrelBasicClusters"),
+    SuperClusterCollection = cms.InputTag("hybridSuperClusters"),
+    ClusterShapeAssociation = cms.InputTag("hybridSuperClusters","hybridShapeAssoc")
 )
-
 

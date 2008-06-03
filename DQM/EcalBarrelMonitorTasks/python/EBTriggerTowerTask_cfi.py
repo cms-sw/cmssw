@@ -1,12 +1,11 @@
 import FWCore.ParameterSet.Config as cms
 
 ecalBarrelTriggerTowerTask = cms.EDFilter("EBTriggerTowerTask",
-    EcalTrigPrimDigiCollectionReal = cms.InputTag("ecalEBunpacker","EcalTriggerPrimitives"),
-    OutputRootFile = cms.untracked.string(''),
+    prefixME = cms.untracked.string('EcalBarrel'),
     enableCleanup = cms.untracked.bool(False),
     mergeRuns = cms.untracked.bool(False),    
-    prefixME = cms.untracked.string('EcalBarrel'),
+    OutputRootFile = cms.untracked.string(''),
+    EcalTrigPrimDigiCollectionReal = cms.InputTag("ecalEBunpacker","EcalTriggerPrimitives"),
     EcalTrigPrimDigiCollectionEmul = cms.InputTag("ecalTriggerPrimitiveDigis")
 )
-
 

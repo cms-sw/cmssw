@@ -1,16 +1,15 @@
 import FWCore.ParameterSet.Config as cms
 
 ecalEndcapBeamHodoTask = cms.EDFilter("EEBeamHodoTask",
-    EcalTBEventHeader = cms.InputTag("ecalEBunpacker"),
-    EcalRawDataCollection = cms.InputTag("ecalEBunpacker"),
-    EcalTBHodoscopeRawInfo = cms.InputTag("ecalEBunpacker"),
-    EcalUncalibratedRecHitCollection = cms.InputTag("ecalUncalibHit","EcalUncalibRecHitsEB"),
+    prefixME = cms.untracked.string('EcalEndcap'),
     enableCleanup = cms.untracked.bool(False),
     mergeRuns = cms.untracked.bool(False),    
-    prefixME = cms.untracked.string('EcalEndcap'),
+    EcalRawDataCollection = cms.InputTag("ecalEBunpacker"),
+    EcalTBEventHeader = cms.InputTag("ecalEBunpacker"),
     EcalTBTDCRawInfo = cms.InputTag("ecalEBunpacker"),
-    EcalTBHodoscopeRecInfo = cms.InputTag("ecal2006TBHodoscopeReconstructor","EcalTBHodoscopeRecInfo"),
     EcalTBTDCRecInfo = cms.InputTag("ecal2006TBTDCReconstructor","EcalTBTDCRecInfo")
+    EcalTBHodoscopeRawInfo = cms.InputTag("ecalEBunpacker"),
+    EcalTBHodoscopeRecInfo = cms.InputTag("ecal2006TBHodoscopeReconstructor","EcalTBHodoscopeRecInfo"),
+    EcalUncalibratedRecHitCollection = cms.InputTag("ecalUncalibHit","EcalUncalibRecHitsEB")
 )
-
 

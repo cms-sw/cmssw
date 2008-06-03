@@ -1,10 +1,9 @@
 import FWCore.ParameterSet.Config as cms
 
 ecalEndcapPedestalOnlineTask = cms.EDFilter("EEPedestalOnlineTask",
-    EEDigiCollection = cms.InputTag("ecalEBunpacker","eeDigis"),
+    prefixME = cms.untracked.string('EcalEndcap'),
     enableCleanup = cms.untracked.bool(False),
     mergeRuns = cms.untracked.bool(False),    
-    prefixME = cms.untracked.string('EcalEndcap')
+    EEDigiCollection = cms.InputTag("ecalEBunpacker","eeDigis")
 )
-
 
