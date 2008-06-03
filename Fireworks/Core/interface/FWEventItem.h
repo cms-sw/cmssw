@@ -16,7 +16,7 @@
 //
 // Original Author:  Chris Jones
 //         Created:  Thu Jan  3 14:02:21 EST 2008
-// $Id: FWEventItem.h,v 1.15 2008/03/05 17:29:14 chrjones Exp $
+// $Id: FWEventItem.h,v 1.16 2008/03/19 15:18:05 chrjones Exp $
 //
 
 // system include files
@@ -106,7 +106,7 @@ class FWEventItem
       const std::string& processName() const;
    
       const TClass* modelType() const;
-      const ModelInfo& modelInfo(int iIndex) const;
+      ModelInfo modelInfo(int iIndex) const; //return copy for now since want to be able to change visibility
       size_t size() const;
       const void* modelData(int iIndex) const;
    
