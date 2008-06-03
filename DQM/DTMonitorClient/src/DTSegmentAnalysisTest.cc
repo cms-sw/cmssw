@@ -250,7 +250,19 @@ void DTSegmentAnalysisTest::bookHistos() {
       stringstream wheel; wheel << wh;
       string histoName =  "segmentSummary_W" + wheel.str();
       summaryHistos[wh] = dbe->book2D(histoName.c_str(),histoName.c_str(),12,1,13,4,1,5);
-      summaryHistos[wh]->setAxisTitle("sector",1);
+      summaryHistos[wh]->setAxisTitle("Sector",1);
+      summaryHistos[wh]->setBinLabel(1,"1",1);
+      summaryHistos[wh]->setBinLabel(2,"2",1);
+      summaryHistos[wh]->setBinLabel(3,"3",1);
+      summaryHistos[wh]->setBinLabel(4,"4",1);
+      summaryHistos[wh]->setBinLabel(5,"5",1);
+      summaryHistos[wh]->setBinLabel(6,"6",1);
+      summaryHistos[wh]->setBinLabel(7,"7",1);
+      summaryHistos[wh]->setBinLabel(8,"8",1);
+      summaryHistos[wh]->setBinLabel(9,"9",1);
+      summaryHistos[wh]->setBinLabel(10,"10",1);
+      summaryHistos[wh]->setBinLabel(11,"11",1);
+      summaryHistos[wh]->setBinLabel(12,"12",1);
       summaryHistos[wh]->setBinLabel(1,"MB1",2);
       summaryHistos[wh]->setBinLabel(2,"MB2",2);
       summaryHistos[wh]->setBinLabel(3,"MB3",2);
@@ -259,15 +271,23 @@ void DTSegmentAnalysisTest::bookHistos() {
   
 
   string histoName =  "segmentSummary";
-    summaryHistos[3] = dbe->book2D(histoName.c_str(),histoName.c_str(),12,1,13,5,1,6);
-    summaryHistos[3]->setAxisTitle("sector",1);
-    summaryHistos[3]->setAxisTitle("wheel",2);
-    summaryHistos[3]->setBinLabel(1,"-2",2);
-    summaryHistos[3]->setBinLabel(2,"-1",2);
-    summaryHistos[3]->setBinLabel(3,"0",2);
-    summaryHistos[3]->setBinLabel(4,"+1",2);
-    summaryHistos[3]->setBinLabel(5,"+2",2);
-
+    summaryHistos[3] = dbe->book2D(histoName.c_str(),histoName.c_str(),12,1,13,5,-2,3);
+    summaryHistos[3]->setAxisTitle("Sector",1);
+    summaryHistos[3]->setBinLabel(1,"1",1);
+    summaryHistos[3]->setBinLabel(1,"1",1);
+    summaryHistos[3]->setBinLabel(2,"2",1);
+    summaryHistos[3]->setBinLabel(3,"3",1);
+    summaryHistos[3]->setBinLabel(4,"4",1);
+    summaryHistos[3]->setBinLabel(5,"5",1);
+    summaryHistos[3]->setBinLabel(6,"6",1);
+    summaryHistos[3]->setBinLabel(7,"7",1);
+    summaryHistos[3]->setBinLabel(8,"8",1);
+    summaryHistos[3]->setBinLabel(9,"9",1);
+    summaryHistos[3]->setBinLabel(10,"10",1);
+    summaryHistos[3]->setBinLabel(11,"11",1);
+    summaryHistos[3]->setBinLabel(12,"12",1);
+    summaryHistos[3]->setAxisTitle("Wheel",2);
+ 
 
 
   if(detailedAnalysis){ // switch on detailed analysis
