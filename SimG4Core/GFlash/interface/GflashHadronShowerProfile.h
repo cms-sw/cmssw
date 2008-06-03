@@ -34,7 +34,6 @@ private:
   void loadParameters(const G4FastTrack& fastTrack);
   G4double longitudinalProfile(G4double showerDepth, G4double pathLength, G4double transDepth);
   void samplingFluctuation(G4double &de, G4double einc);
-  inline Gflash::CalorimeterNumber getCalorimeterNumber() {return jCalorimeter;}
   G4bool insideSampling(const G4ThreeVector pos);
   void doCholeskyReduction(G4double **cc, G4double **vv, const G4int ndim);
   void fillFluctuationVector();
@@ -45,6 +44,7 @@ private:
   G4int showerType ; 
   Gflash::CalorimeterNumber jCalorimeter ;
   std::vector<GflashEnergySpot> aEnergySpotList;
+  G4double theBField;
 
   G4double energyToDeposit; 
   //lateral and longitudinal parameters

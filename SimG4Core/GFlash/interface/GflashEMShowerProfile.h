@@ -2,6 +2,7 @@
 #define GflashEMShowerProfile_H 
 
 #include "SimG4Core/GFlash/interface/GflashTrajectory.h"
+#include "SimG4Core/GFlash/interface/GflashNameSpace.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "G4VFastSimulationModel.hh"
 #include "CLHEP/Random/RandGaussQ.h"
@@ -22,6 +23,7 @@ public:
   void clearSpotList() { aEnergySpotList.clear(); }
   void parameterization(const G4FastTrack& fastTrack);
   std::vector<GflashEnergySpot> &getEnergySpotList() {return aEnergySpotList;}; 
+  Gflash::CalorimeterNumber getCalorimeterNumber(const G4ThreeVector position);
 
 private:  
 
@@ -32,6 +34,8 @@ private:
   GflashTrajectory* theHelix;
 
   CLHEP::RandGaussQ* theRandGauss;
+  Gflash::CalorimeterNumber jCalorimeter;
+  G4double theBField;
 
   // temporary addition for tuning parameters
   double theLateral_p[4];

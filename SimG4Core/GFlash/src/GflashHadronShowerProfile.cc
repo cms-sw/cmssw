@@ -20,6 +20,7 @@ GflashHadronShowerProfile::GflashHadronShowerProfile(G4Region* envelope, edm::Pa
   jCalorimeter = Gflash::kNULL;
   theHelix = new GflashTrajectory;
   theHisto = GflashHistogram::instance();
+  theBField = parSet.getParameter<double>("bField");
 
   edm::Service<edm::RandomNumberGenerator> rng;
   if ( ! rng.isAvailable()) {
@@ -109,12 +110,8 @@ void GflashHadronShowerProfile::hadronicParameterization(const G4FastTrack& fast
 
   // The direction of shower is assumed to be along the showino trajectory 
   // inside the magnetic field;
-
-  const G4double bField = 4.0*tesla; 
-
   double charge = fastTrack.GetPrimaryTrack()->GetStep()->GetPreStepPoint()->GetCharge();
-
-  theHelix->initializeTrajectory(momentumShower,positionShower,charge,bField/tesla);
+  theHelix->initializeTrajectory(momentumShower,positionShower,charge,theBField/tesla);
 
   //path Length from the origin to the shower starting point in cm
 
@@ -172,7 +169,6 @@ void GflashHadronShowerProfile::hadronicParameterization(const G4FastTrack& fast
   aEnergySpotList.clear();
 
   double scaleLateral = 0.0;
-  const double rMoliere = 2.19; //Moliere Radius in [cm]
 
   while(stepLengthLeft > 0.0) {
 
@@ -234,19 +230,19 @@ void GflashHadronShowerProfile::hadronicParameterization(const G4FastTrack& fast
 
     //@@@this should be each spot basis
     if(showerType == 4 || showerType == 8) {
-      scaleLateral = (3.5+1.0*showerDepth)*rMoliere;
+      scaleLateral = (3.5+1.0*showerDepth)*Gflash::rMoliere[jCalorimeter];
     }
     else {
       //@@@need better division for showerDepth arosse the Hcal front face
       if(showerDepthR50 < 2.0 ) {
-	scaleLateral = (5.5-0.4*std::log(einc))*rMoliere;
+	scaleLateral = (5.5-0.4*std::log(einc))*Gflash::rMoliere[jCalorimeter];
       }
       else {
-	scaleLateral = ( 14-1.5*std::log(einc))*rMoliere;
+	scaleLateral = ( 14-1.5*std::log(einc))*Gflash::rMoliere[jCalorimeter];
       }
     }
-    // region0 && inside Ecal: scaleLateral = (5.5-0.4*logEinc)*rMoliere;
-    // region0 && inside Hcal: scaleLateral = (14-1.5*logEinc)*rMoliere;
+    // region0 && inside Ecal: scaleLateral = (5.5-0.4*logEinc)*Gflash::rMoliere[jCalorimeter];
+    // region0 && inside Hcal: scaleLateral = (14-1.5*logEinc)*Gflash::rMoliere[jCalorimeter];
     // region1                 
 
     R50 *= scaleLateral;
