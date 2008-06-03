@@ -1,6 +1,11 @@
 #include <fstream>
 #include <sstream>
 #include <sys/time.h>
+
+#include "xgi/Utils.h"
+#include "toolbox/string.h"
+#include "occi.h"
+
 #include "CaloOnlineTools/HcalOnlineDb/interface/HcalLutManager.h"
 #include "CaloOnlineTools/HcalOnlineDb/interface/XMLProcessor.h"
 #include "CaloOnlineTools/HcalOnlineDb/interface/XMLDOMBlock.h"
@@ -10,6 +15,8 @@
 #include "DataFormats/HcalDetId/interface/HcalDetId.h"
 
 using namespace std;
+using namespace oracle::occi;
+using namespace hcal;
 
 /**
 
@@ -559,17 +566,66 @@ std::vector<unsigned int> HcalLutManager::getLutFromXml( string tag, uint32_t _r
 
 
 
-int HcalLutManager::get_brickSet_from_oracle( void )
+std::map<int, shared_ptr<LutXml> > HcalLutManager::get_brickSet_from_oracle( string tag )
 {
-  string * brick_set = new string();
-  brick_set -> append("<BrickSet><Brick>huj</Brick></BrickSet>");
-  const char * bs = brick_set->c_str();
-  const XMLByte * _template2 = (const XMLByte *)bs;
-  MemBufInputSource * _data_gol = new MemBufInputSource( _template2, strlen( (const char *)_template2 ), "_data_gol", false );
-  XMLDOMBlock * _xml = new XMLDOMBlock( *_data_gol );
-  _xml -> write("stdout");
-  //delete _xml;
-  return 0;
+  HCALConfigDB * db = new HCALConfigDB();
+  XMLProcessor::getInstance(); // initialize xerces-c engine
+  const std::string _accessor = "occi://CMS_HCL_PRTTYPE_HCAL_READER@anyhost/int2r?PASSWORD=HCAL_Reader_88,LHWM_VERSION=22";
+  db -> connect( _accessor );
+  oracle::occi::Connection * _connection = db -> getConnection();  
+
+  cout << "Preparing to request the LUT CLOBs from the database..." << endl;
+
+  int crate = 0;
+
+  std::string query = ("SELECT TRIG_PRIM_LOOKUPTBL_DATA_CLOB, CRATE FROM CMS_HCL_HCAL_CONDITION_OWNER.V_HCAL_TRIG_LOOKUP_TABLES");
+  //query+=toolbox::toString(" WHERE TAG_NAME='%s' AND CRATE=%d", tag.c_str(), crate);
+  query+=toolbox::toString(" WHERE TAG_NAME='%s'", tag.c_str() );
+
+  std::string brick_set;
+
+  std::map<int, shared_ptr<LutXml> > lut_map;
+
+  try {
+    //SELECT
+    cout << "Executing the query..." << endl;
+    Statement* stmt = _connection -> createStatement();
+    ResultSet *rs = stmt->executeQuery(query.c_str());
+    cout << "Executing the query... done" << endl;
+    
+    cout << "Processing the query results..." << endl;
+    //RooGKCounter _lines;
+    while (rs->next()) {
+      //_lines.count();
+      oracle::occi::Clob clob = rs->getClob (1);
+      int crate = rs->getInt(2);
+      if ( crate != -1 ){ // not a brick with checksums
+	cout << "Getting LUTs for crate #" << crate << "out of the database...";
+	brick_set = db -> clobToString(clob);
+	const char * bs = brick_set . c_str();
+	MemBufInputSource * lut_clob = new MemBufInputSource( (const XMLByte *)bs, strlen( bs ), "lut_clob", false );
+	//XMLDOMBlock * _xml = new XMLDOMBlock( *lut_clob );
+	//new LutXml();
+	shared_ptr<LutXml> lut_xml = shared_ptr<LutXml>( new LutXml( *lut_clob ) );
+	stringstream file_name;
+	file_name << tag << "_" << crate << ".xml";
+	lut_xml -> write(file_name.str().c_str());
+	lut_map[crate] = lut_xml;
+        cout << " done" << endl;
+      }
+    }
+    //Always terminate statement
+    _connection -> terminateStatement(stmt);
+    //cout << "Query line count: " << _lines.getCount() << endl;
+  } catch (SQLException& e) {
+    XCEPT_RAISE(hcal::exception::ConfigurationDatabaseException,::toolbox::toString("Oracle  exception : %s",e.getMessage().c_str()));
+  }
+
+  cout << lut_map.size() << endl;
+
+  db -> disconnect();
+  //delete db;
+  return lut_map;
 }
 
 

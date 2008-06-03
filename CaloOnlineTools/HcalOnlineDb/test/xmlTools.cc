@@ -251,8 +251,13 @@ int main( int argc, char **argv )
     
     if (vm.count("get-lut-xml-from-oracle")) {
       cout << "Getting LUTs from Oracle database..." << "\n";
+      if (!vm.count("tag-name")){
+	cout << "tag name is not specified...exiting" << endl;
+	exit(-1);
+      }
+      string _tag = vm["tag-name"].as<string>();
       HcalLutManager manager;
-      manager . get_brickSet_from_oracle();
+      manager . get_brickSet_from_oracle( _tag );
       return 0;
     }
     

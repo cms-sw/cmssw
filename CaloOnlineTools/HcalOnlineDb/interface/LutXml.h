@@ -16,7 +16,7 @@
 //
 // Original Author:  Gena Kukartsev, kukarzev@fnal.gov
 //         Created:  Tue Mar 18 14:30:33 CDT 2008
-// $Id: LutXml.h,v 1.2 2008/05/18 12:29:56 kukartse Exp $
+// $Id: LutXml.h,v 1.3 2008/05/28 12:07:00 kukartse Exp $
 //
 
 #include <vector>
@@ -43,6 +43,7 @@ class LutXml : public XMLDOMBlock
   } Config;
   
   LutXml();
+  LutXml( InputSource & _source );
   virtual ~LutXml();
   
   void init( void );

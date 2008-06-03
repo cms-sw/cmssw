@@ -8,7 +8,7 @@
 //
 // Original Author:  Gena Kukartsev, kukarzev@fnal.gov
 //         Created:  Tue Mar 18 14:30:20 CDT 2008
-// $Id: LutXml.cc,v 1.3 2008/05/18 12:29:56 kukartse Exp $
+// $Id: LutXml.cc,v 1.4 2008/05/28 12:07:01 kukartse Exp $
 //
 
 #include <iostream>
@@ -65,6 +65,12 @@ LutXml::Config::_Config()
 }
 
 LutXml::LutXml() : XMLDOMBlock( "CFGBrickSet", 1 )
+{
+  init();
+}
+
+
+LutXml::LutXml(InputSource & _source ) : XMLDOMBlock( _source )
 {
   init();
 }

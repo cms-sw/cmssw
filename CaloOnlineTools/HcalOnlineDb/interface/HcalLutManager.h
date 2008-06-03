@@ -72,7 +72,7 @@ class HcalLutManager{
   // hcal::ConfigurationDatabase::CompressionLUT
   std::vector<unsigned int> getLutFromXml( string tag, uint32_t _rawid, hcal::ConfigurationDatabase::LUTType _lt );
 
-  int get_brickSet_from_oracle( void );
+  std::map<int, shared_ptr<LutXml> > get_brickSet_from_oracle( string tag );
 
   // get md5 checksums for LUTs
   std::string get_checksum( std::vector<unsigned int> & lut );
@@ -80,6 +80,7 @@ class HcalLutManager{
   static int getInt( string number );
   static HcalSubdetector get_subdetector( string _subdet );
   static string get_time_stamp( time_t _time );
+
 
  protected:
   

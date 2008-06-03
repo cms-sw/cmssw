@@ -37,6 +37,7 @@ class HCALConfigDB{
   oracle::occi::Connection * getConnection( void );
   oracle::occi::Environment * getEnvironment( void );
 
+  std::string clobToString(oracle::occi::Clob);
   
  protected:
 
