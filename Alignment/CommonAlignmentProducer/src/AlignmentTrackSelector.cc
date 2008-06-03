@@ -37,6 +37,8 @@ AlignmentTrackSelector::AlignmentTrackSelector(const edm::ParameterSet & cfg) :
   multiplicityOnInput_ ( cfg.getParameter<bool>( "multiplicityOnInput" ) ),
   ptMin_( cfg.getParameter<double>( "ptMin" ) ),
   ptMax_( cfg.getParameter<double>( "ptMax" ) ),
+  pMin_( cfg.getParameter<double>( "pMin" ) ),
+  pMax_( cfg.getParameter<double>( "pMax" ) ),
   etaMin_( cfg.getParameter<double>( "etaMin" ) ),
   etaMax_( cfg.getParameter<double>( "etaMax" ) ),
   phiMin_( cfg.getParameter<double>( "phiMin" ) ),
@@ -61,6 +63,7 @@ AlignmentTrackSelector::AlignmentTrackSelector(const edm::ParameterSet & cfg) :
       edm::LogInfo("AlignmentTrackSelector") 
 	<< "applying basic track cuts ..."
 	<< "\nptmin,ptmax:     " << ptMin_   << "," << ptMax_ 
+	<< "\npmin,pmax:       " << pMin_    << "," << pMax_ 
 	<< "\netamin,etamax:   " << etaMin_  << "," << etaMax_
 	<< "\nphimin,phimax:   " << phiMin_  << "," << phiMax_
 	<< "\nnhitmin,nhitmax: " << nHitMin_ << "," << nHitMax_
@@ -148,6 +151,7 @@ AlignmentTrackSelector::basicCuts(const Tracks& tracks, const edm::Event& evt) c
   for (Tracks::const_iterator it=tracks.begin(); it != tracks.end(); ++it) {
     const reco::Track* trackp=*it;
     float pt=trackp->pt();
+    float p=trackp->p();
     float eta=trackp->eta();
     float phi=trackp->phi();
     int nhit = trackp->numberOfValidHits(); 
@@ -157,6 +161,7 @@ AlignmentTrackSelector::basicCuts(const Tracks& tracks, const edm::Event& evt) c
     //  <<pt<<","<<eta<<","<<phi<<","<<nhit;
 
     if (pt>ptMin_ && pt<ptMax_ 
+       && p>pMin_ && p<pMax_ 
        && eta>etaMin_ && eta<etaMax_ 
        && phi>phiMin_ && phi<phiMax_ 
        && nhit>=nHitMin_ && nhit<=nHitMax_
