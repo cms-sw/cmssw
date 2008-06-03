@@ -3,11 +3,11 @@
    Implementation of calss ProcessDesc
 
    \author Stefano ARGIRO
-   \version $Id: ProcessDesc.cc,v 1.27 2008/05/20 01:24:41 rpw Exp $
+   \version $Id: ProcessDesc.cc,v 1.28 2008/06/03 16:44:08 wmtan Exp $
    \date 17 Jun 2005
 */
 
-static const char CVSId[] = "$Id: ProcessDesc.cc,v 1.27 2008/05/20 01:24:41 rpw Exp $";
+static const char CVSId[] = "$Id: ProcessDesc.cc,v 1.28 2008/06/03 16:44:08 wmtan Exp $";
 
 
 #include "FWCore/ParameterSet/interface/ProcessDesc.h"
@@ -142,7 +142,12 @@ namespace edm
 
   void ProcessDesc::writeBookkeeping(const std::string & name)
   {
-    pset_->addParameter(name, bookkeeping_[name]);
+    std::vector<std::string> moduleList = bookkeeping_[name];
+    // event setup objects have their order preserved in both C++ and python
+    if(name.substr(0,1) != "es") {
+      std::sort(moduleList.begin(), moduleList.end());
+    }
+    pset_->addParameter(name, moduleList);
   }
  
 
