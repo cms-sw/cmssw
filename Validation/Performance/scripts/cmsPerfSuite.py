@@ -52,11 +52,11 @@ def usage():
 def main(argv):
     
     castordir = "/castor/cern.ch/cms/store/relval/performance/"
-    TimeSizeEvents = 100
-    IgProfEvents = 5
-    ValgrindEvents = 1
-    cmsScimark = 10
-    cmsScimarkLarge = 10
+    TimeSizeEvents = "100"
+    IgProfEvents = "5"
+    ValgrindEvents = "1"
+    cmsScimark = "10"
+    cmsScimarkLarge = "10"
     cmsdriverOptions = ""
     candleoption=""
     
