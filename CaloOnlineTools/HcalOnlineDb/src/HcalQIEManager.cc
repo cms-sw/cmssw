@@ -372,10 +372,10 @@ int HcalQIEManager::getHfQieTable( string input_file, string output_file )
 	query2 . append("vadcs.cap1_range0_offset,vadcs.cap1_range1_offset,vadcs.cap1_range2_offset,vadcs.cap1_range3_offset,\n");
 	query2 . append("vadcs.cap2_range0_offset,vadcs.cap2_range1_offset,vadcs.cap2_range2_offset,vadcs.cap2_range3_offset,\n");
 	query2 . append("vadcs.cap3_range0_offset,vadcs.cap3_range1_offset,vadcs.cap3_range2_offset,vadcs.cap3_range3_offset,\n");
-	query2 . append("vadcs.cap0_range0_slope,vadcs.cap1_range0_slope,vadcs.cap2_range0_slope,vadcs.cap3_range0_slope,\n");
-	query2 . append("vadcs.cap0_range1_slope,vadcs.cap1_range1_slope,vadcs.cap2_range1_slope,vadcs.cap3_range1_slope,\n");
-	query2 . append("vadcs.cap0_range2_slope,vadcs.cap1_range2_slope,vadcs.cap2_range2_slope,vadcs.cap3_range2_slope,\n");
-	query2 . append("vadcs.cap0_range3_slope,vadcs.cap1_range3_slope,vadcs.cap2_range3_slope,vadcs.cap3_range3_slope\n");
+	query2 . append("vadcs.cap0_range0_slope,vadcs.cap0_range1_slope,vadcs.cap0_range2_slope,vadcs.cap0_range3_slope,\n");
+	query2 . append("vadcs.cap1_range0_slope,vadcs.cap1_range1_slope,vadcs.cap1_range2_slope,vadcs.cap1_range3_slope,\n");
+	query2 . append("vadcs.cap2_range0_slope,vadcs.cap2_range1_slope,vadcs.cap2_range2_slope,vadcs.cap2_range3_slope,\n");
+	query2 . append("vadcs.cap3_range0_slope,vadcs.cap3_range1_slope,vadcs.cap3_range2_slope,vadcs.cap3_range3_slope\n");
 	query2 . append("from CMS_HCL_HCAL_CONDITION_OWNER.V_QIECARD_ADC_NORMMODE vadcs\n");
 	query2 . append("where substr(vadcs.name_label,14,6)='%d'\n");
 	query2 . append("and substr(vadcs.name_label,21,1)='%d'\n");

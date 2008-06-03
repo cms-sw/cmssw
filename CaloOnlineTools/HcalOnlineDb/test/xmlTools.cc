@@ -193,7 +193,7 @@ int main( int argc, char **argv )
       return 0;
     }
     
-    if (vm.count("qie-hf")) {
+    if (vm.count("hf-qie")) {
       cout << "Retrieving HCAL HF QIE ADC data..." << "\n";
       cout << "Input file (from DB)... ";
       string _in = vm["input-file"].as<string>();
