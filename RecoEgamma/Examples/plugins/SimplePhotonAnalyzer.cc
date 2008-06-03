@@ -1,7 +1,7 @@
 /**\class PhotonSimpleAnalyzer
  **
- ** $Date: 2008/04/25 23:42:29 $ 
- ** $Revision: 1.12 $
+ ** $Date: 2008/04/30 10:51:07 $ 
+ ** $Revision: 1.13 $
  ** \author Nancy Marinelli, U. of Notre Dame, US
 */
 
@@ -20,6 +20,8 @@
 #include "DataFormats/VertexReco/interface/Vertex.h"
 #include "DataFormats/VertexReco/interface/VertexFwd.h"
 #include "SimDataFormats/HepMCProduct/interface/HepMCProduct.h"
+#include "Geometry/CaloEventSetup/interface/CaloTopologyRecord.h"
+#include "RecoEcal/EgammaCoreTools/interface/EcalClusterTools.h"
 //
 #include "CLHEP/Units/PhysicalConstants.h"
 #include "TFile.h"
@@ -30,6 +32,10 @@ SimplePhotonAnalyzer::SimplePhotonAnalyzer( const edm::ParameterSet& ps )
 {
   photonCollectionProducer_ = ps.getParameter<std::string>("phoProducer");
   photonCollection_ = ps.getParameter<std::string>("photonCollection");
+
+  barrelEcalHits_   = ps.getParameter<edm::InputTag>("barrelEcalHits");
+  endcapEcalHits_   = ps.getParameter<edm::InputTag>("endcapEcalHits");
+
 
 
   mcProducer_ = ps.getParameter<std::string>("mcProducer");
@@ -127,7 +133,11 @@ SimplePhotonAnalyzer::analyze( const edm::Event& evt, const edm::EventSetup& es 
   using namespace edm; // needed for all fwk related classes
   edm::LogInfo("PhotonAnalyzer") << "Analyzing event number: " << evt.id() << "\n";
 
-  //  ----- barrel with island
+
+ // get the  calo topology  from the event setup:
+  edm::ESHandle<CaloTopology> pTopology;
+  es.get<CaloTopologyRecord>().get(theCaloTopo_);
+  const CaloTopology *topology = theCaloTopo_.product();
 
 
   // Get the  corrected  photon collection (set in the configuration) which also contains infos about conversions
@@ -205,6 +215,43 @@ SimplePhotonAnalyzer::analyze( const edm::Event& evt, const edm::EventSetup& es 
       /// Plot kinematic disctributions for matched photons
       if (iMatch>-1) {
 
+	bool  phoIsInBarrel=false;
+	bool  phoIsInEndcap=false;
+	if ( fabs(localPhotons[iMatch].superCluster()->position().eta() ) <  1.479 ) {
+	  phoIsInBarrel=true;
+	} else {
+	  phoIsInEndcap=true;
+	}
+	edm::Handle<EcalRecHitCollection>   ecalRecHitHandle;
+
+
+        if (  phoIsInBarrel ) {
+	  // Get handle to rec hits ecal barrel  
+	  evt.getByLabel(barrelEcalHits_, ecalRecHitHandle);
+	  if (!ecalRecHitHandle.isValid()) {
+	    edm::LogError("PhotonProducer") << "Error! Can't get the product "<<barrelEcalHits_.label();
+	    return;
+	  }
+	  
+	}  else if ( phoIsInEndcap ) {  
+
+	  // Get handle to rec hits ecal encap 
+	  evt.getByLabel(endcapEcalHits_, ecalRecHitHandle);
+	  if (!ecalRecHitHandle.isValid()) {
+	    edm::LogError("PhotonProducer") << "Error! Can't get the product "<<endcapEcalHits_.label();
+	    return;
+	  }
+	  
+
+	}
+	const EcalRecHitCollection ecalRecHitCollection = *(ecalRecHitHandle.product());
+	float e5x5= EcalClusterTools::e5x5( *( localPhotons[iMatch].superCluster()->seed()), &ecalRecHitCollection, &(*topology)); 
+	float e3x3=   EcalClusterTools::e3x3(  *(    localPhotons[iMatch].superCluster()->seed()  ), &ecalRecHitCollection, &(*topology)); 
+	float r9 =e3x3/(  localPhotons[iMatch].superCluster()->rawEnergy()+  localPhotons[iMatch].superCluster()->preshowerEnergy());
+
+	std::cout << " Ciola 1 " << std::endl;
+
+
 	h1_scE_->Fill( localPhotons[iMatch].superCluster()->energy() );
 	h1_scEt_->Fill( localPhotons[iMatch].superCluster()->energy()/cosh(localPhotons[iMatch].superCluster()->position().eta()) );
 	h1_scEta_->Fill( localPhotons[iMatch].superCluster()->position().eta() );
@@ -222,35 +269,38 @@ SimplePhotonAnalyzer::analyze( const edm::Event& evt, const edm::EventSetup& es 
 	h1_deltaEta_ -> Fill(  localPhotons[iMatch].eta()- (*p)->momentum().eta()  );
 	h1_deltaPhi_ -> Fill(  localPhotons[iMatch].phi()- (*p)->momentum().phi()  );
 
+	std::cout << " Ciola 2 " << std::endl;
 
-        if ( fabs(localPhotons[iMatch].superCluster()->eta() ) < 1.479 ) { 
+
+	if ( phoIsInBarrel ) {
 	  h1_recEoverTrueEBarrel_ -> Fill (localPhotons[iMatch].energy() / (*p)->momentum().e() );
 	  h1_recESCoverTrueEBarrel_ -> Fill (localPhotons[iMatch].superCluster()->energy() / (*p)->momentum().e() );
-	  //	  h1_pho_R9Barrel_->Fill( localPhotons[iMatch].r9() );
+	  h1_pho_R9Barrel_->Fill( r9 );
 
 
-	  ///  Waiting for better EcalClusterTools usage
-	  //if ( localPhotons[iMatch].r9() > 0.93 ) 
-	  //h1_e5x5_unconvBarrel_ -> Fill (  localPhotons[iMatch].e5x5()/ (*p)->momentum().e() );
-	  //else
-	  // h1_ePho_convBarrel_ -> Fill (  localPhotons[iMatch].energy()/ (*p)->momentum().e() );
+	 
+	  if ( r9 > 0.93 ) 
+	    h1_e5x5_unconvBarrel_ -> Fill (  e5x5/ (*p)->momentum().e() );
+	  else
+	    h1_ePho_convBarrel_ -> Fill (  localPhotons[iMatch].energy()/ (*p)->momentum().e() );
 
 	} else { 
 	  h1_recEoverTrueEEndcap_ -> Fill (localPhotons[iMatch].energy() / (*p)->momentum().e() );
 	  h1_recESCoverTrueEEndcap_ -> Fill (localPhotons[iMatch].energy() / (*p)->momentum().e() );
-	  //	  h1_pho_R9Endcap_->Fill( localPhotons[iMatch].r9() );
+	  h1_pho_R9Endcap_->Fill( r9 );
 
-	  ///  Waiting for better EcalClusterTools usage
-	  //if ( localPhotons[iMatch].r9() > 0.93 ) 
-	  //  h1_e5x5_unconvEndcap_ -> Fill (  localPhotons[iMatch].e5x5()/ (*p)->momentum().e() );
-          //else
-	  // h1_ePho_convEndcap_ -> Fill (  localPhotons[iMatch].energy()/ (*p)->momentum().e() );
+
+	  if ( r9 > 0.93 ) 
+	    h1_e5x5_unconvEndcap_ -> Fill ( e5x5/ (*p)->momentum().e() );
+          else
+	    h1_ePho_convEndcap_ -> Fill (  localPhotons[iMatch].energy()/ (*p)->momentum().e() );
 
 	}
 
 
       }    
 
+      std::cout << " Ciola 3 " << std::endl;
 
 
     } // End loop over MC particles

@@ -3,8 +3,8 @@
 /**\class SimplePhotonAnalyzer
  **
  ** Description: Get Photon collection from the event and make very basic histos
- ** $Date: 2008/03/16 23:13:52 $
- ** $Revision: 1.6 $
+ ** $Date: 2008/04/25 23:42:33 $
+ ** $Revision: 1.7 $
  ** \author Nancy Marinelli, U. of Notre Dame, US
  **
  **/
@@ -15,10 +15,13 @@
 // system include files
 #include <memory>
 
+#include "Geometry/CaloGeometry/interface/CaloGeometry.h"
+#include "Geometry/CaloTopology/interface/CaloTopology.h"
+
 // user include files
 #include "FWCore/Framework/interface/Frameworkfwd.h"
 #include "FWCore/Framework/interface/EDAnalyzer.h"
-
+#include "FWCore/Framework/interface/ESHandle.h"
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/MakerMacros.h"
 
@@ -47,6 +50,10 @@ class SimplePhotonAnalyzer : public edm::EDAnalyzer {
       std::string photonCollectionProducer_;       
       std::string photonCollection_;       
 
+      edm::InputTag barrelEcalHits_;
+      edm::InputTag endcapEcalHits_;
+
+      edm::ESHandle<CaloTopology> theCaloTopo_;
 
       std::string vertexProducer_;
       float sample_;
