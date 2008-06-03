@@ -1,4 +1,4 @@
-// Last commit: $Id: SiStripDbParams.cc,v 1.7 2008/05/26 14:56:47 giordano Exp $
+// Last commit: $Id: SiStripDbParams.cc,v 1.8 2008/05/29 13:11:05 bainbrid Exp $
 
 #include "OnlineDB/SiStripConfigDb/interface/SiStripDbParams.h"
 #include "DataFormats/SiStripCommon/interface/SiStripEnumsAndStrings.h"
@@ -164,28 +164,36 @@ void SiStripDbParams::pset( const edm::ParameterSet& cfg ) {
   tnsAdmin_     = cfg.getUntrackedParameter<std::string>( "TNS_ADMIN", "" );
   confdb( cfg.getUntrackedParameter<std::string>( "ConfDb", "") );
 
-  // Retrieve top-level PSet containing partition-level Psets
-  edm::ParameterSet psets = cfg.getUntrackedParameter<edm::ParameterSet>( "Partitions" );
-  
-  // Extract names of partition-level PSets
-  std::vector<std::string> names = psets.getParameterNamesForType<edm::ParameterSet>(false);
-  
-  // Iterator through PSets names, retrieve PSet for each partition and extract info
-  std::vector<std::string>::iterator iname = names.begin();
-  std::vector<std::string>::iterator jname = names.end();
-  for ( ; iname != jname; ++iname ) {
-    edm::ParameterSet pset = psets.getUntrackedParameter<edm::ParameterSet>( *iname );
-    SiStripPartition tmp;
-    tmp.pset( pset );
-    SiStripPartitions::iterator iter = partitions_.find( tmp.partitionName() ); 
-    if ( iter == partitions_.end() ) { partitions_[tmp.partitionName()] = tmp; }
-    else {
-      edm::LogWarning(mlConfigDb_)
-	<< "[SiStripConfigDb::" << __func__ << "]"
-	<< " Found PSet called \"" << *iname 
-	<< "\" that contains a partition name \"" << tmp.partitionName() 
-	<< "\" that already exists! Ignoring...";
+  // Check if top-level PSet (containing partition-level Psets) exists
+  std::string partitions = "Partitions";
+  std::vector<std::string> str = cfg.getParameterNamesForType<edm::ParameterSet>(false);
+  std::vector<std::string>::const_iterator istr = std::find( str.begin(), str.end(), partitions );
+  if ( istr != str.end() ) {
+
+    // Retrieve top-level PSet containing partition-level Psets
+    edm::ParameterSet psets = cfg.getUntrackedParameter<edm::ParameterSet>( partitions );
+    
+    // Extract names of partition-level PSets
+    std::vector<std::string> names = psets.getParameterNamesForType<edm::ParameterSet>(false);
+    
+    // Iterator through PSets names, retrieve PSet for each partition and extract info
+    std::vector<std::string>::iterator iname = names.begin();
+    std::vector<std::string>::iterator jname = names.end();
+    for ( ; iname != jname; ++iname ) {
+      edm::ParameterSet pset = psets.getUntrackedParameter<edm::ParameterSet>( *iname );
+      SiStripPartition tmp;
+      tmp.pset( pset );
+      SiStripPartitions::iterator iter = partitions_.find( tmp.partitionName() ); 
+      if ( iter == partitions_.end() ) { partitions_[tmp.partitionName()] = tmp; }
+      else {
+	edm::LogWarning(mlConfigDb_)
+	  << "[SiStripConfigDb::" << __func__ << "]"
+	  << " Found PSet called \"" << *iname 
+	  << "\" that contains a partition name \"" << tmp.partitionName() 
+	  << "\" that already exists! Ignoring...";
+      }
     }
+
   }
   
   // Ensure at least one "default" partition
