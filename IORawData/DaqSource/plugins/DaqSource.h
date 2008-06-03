@@ -5,8 +5,8 @@
  *  An input service for raw data. 
  *  The actual source can be the real DAQ, a file, a random generator, etc.
  *
- *  $Date: 2007/12/03 00:43:40 $
- *  $Revision: 1.6 $
+ *  $Date: 2007/12/11 00:32:37 $
+ *  $Revision: 1.7 $
  *  \author N. Amapane - S. Argiro'
  */
 
@@ -14,6 +14,11 @@
 #include "boost/shared_ptr.hpp"
 #include "FWCore/Framework/interface/InputSource.h"
 #include "FWCore/Framework/interface/Frameworkfwd.h"
+#include "EventFilter/Utilities/interface/ModuleWeb.h"
+
+#include "xdata/UnsignedInteger32.h"
+
+#include <pthread.h>
 
 class DaqBaseReader;
 
@@ -24,14 +29,14 @@ namespace edm {
   class EventPrincipal;
 
 
-  class DaqSource : public InputSource {
+  class DaqSource : public InputSource, private evf::ModuleWeb {
 
    public:
     explicit DaqSource(const ParameterSet& pset, 
   		     const InputSourceDescription& desc);
   
     virtual ~DaqSource();
-  
+    
    private:
   
     virtual std::auto_ptr<EventPrincipal> readEvent_(boost::shared_ptr<LuminosityBlockPrincipal>);
@@ -43,6 +48,13 @@ namespace edm {
     virtual void setRun(RunNumber_t r);
     virtual InputSource::ItemType getNextItemType();
   
+
+    virtual void publish(xdata::InfoSpace *);
+    virtual void publishToXmas(xdata::InfoSpace *);
+    virtual void openBackDoor();
+    virtual void closeBackDoor();
+
+
     DaqBaseReader*  reader_;
     unsigned int    lumiSegmentSizeInEvents_; //temporary kludge, LS# will come from L1 Global record
     bool            fakeLSid_;
@@ -53,6 +65,13 @@ namespace edm {
     bool newRun_;
     bool newLumi_;
     std::auto_ptr<EventPrincipal> ep_;
+    
+    pthread_mutex_t mutex_;
+    xdata::UnsignedInteger32         lumiSectionIndex_;
+    xdata::UnsignedInteger32         prescaleSetIndex_;
+    xdata::InfoSpace                *is_;
+    xdata::InfoSpace                *mis_;
+    int count;
   };
   
 }
