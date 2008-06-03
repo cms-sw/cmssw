@@ -75,7 +75,7 @@ TestEventHypothesisWriter::produce(edm::Event &iEvent, const edm::EventSetup &iS
     using namespace edm;
     using namespace std;
     using reco::Candidate; 
-    using reco::CandidateBaseRef;
+    using reco::CandidatePtr;
 
     auto_ptr<vector<pat::EventHypothesis> > hyps(new vector<pat::EventHypothesis>());;
     vector<double>  deltaRs;
@@ -89,12 +89,12 @@ TestEventHypothesisWriter::produce(edm::Event &iEvent, const edm::EventSetup &iS
     // fake analysis
     for (size_t imu = 0, nmu = hMu->size(); imu < nmu; ++imu) {
         pat::EventHypothesis h;
-        CandidateBaseRef mu = hMu->refAt(imu);
+        CandidatePtr mu = hMu->ptrAt(imu);
         h.add(mu, "mu");
         
         int bestj = -1; double drmin = 99.0;
         for (size_t ij = 0, nj = hJet->size(); ij < nj; ++ij) {
-            CandidateBaseRef jet = hJet->refAt(ij);
+            CandidatePtr jet = hJet->ptrAt(ij);
             if (jet->et() < 10) break;
             double dr = deltaR(*jet, *mu);
             if (dr < drmin) {
@@ -103,11 +103,11 @@ TestEventHypothesisWriter::produce(edm::Event &iEvent, const edm::EventSetup &iS
         }
         if (bestj == -1) continue;
 
-        h.add(hJet->refAt(bestj), "nearest jet");
+        h.add(hJet->ptrAt(bestj), "nearest jet");
 
         for (size_t ij = 0, nj = hJet->size(); ij < nj; ++ij) {
             if (ij == size_t(bestj)) continue;
-            CandidateBaseRef jet = hJet->refAt(ij);
+            CandidatePtr jet = hJet->ptrAt(ij);
             if (jet->et() < 10) break;
             h.add(jet, "other jet");
         }

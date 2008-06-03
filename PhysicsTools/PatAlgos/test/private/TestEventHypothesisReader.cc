@@ -73,7 +73,7 @@ void
 TestEventHypothesisReader::analyze(const edm::Event &iEvent, const edm::EventSetup &iSetup) {
     using namespace edm; using namespace std;
     using reco::Candidate; 
-    using reco::CandidateBaseRef;
+    using reco::CandidatePtr;
 
     Handle<vector<pat::EventHypothesis> > hyps;
     iEvent.getByLabel(events_, hyps);
@@ -86,9 +86,9 @@ TestEventHypothesisReader::analyze(const edm::Event &iEvent, const edm::EventSet
         const pat::EventHypothesis &h = (*hyps)[i];
 
         std::cout << "Hypothesis " << (i+1) << ": " << std::endl;
-        CandidateBaseRef  mu = h["mu"];
+        CandidatePtr  mu = h["mu"];
         std::cout << "   muon : pt = " << mu->pt() << ", eta = " << mu->eta() << ", phi = " << mu->phi() << std::endl;
-        CandidateBaseRef jet = h["nearest jet"];
+        CandidatePtr jet = h["nearest jet"];
         std::cout << "   n jet: pt = " << jet->pt() << ", eta = " << jet->eta() << ", phi = " << jet->phi() << std::endl;
    
         for (pat::EventHypothesis::CandLooper j2 = h.loop("other jet"); j2; ++j2) {

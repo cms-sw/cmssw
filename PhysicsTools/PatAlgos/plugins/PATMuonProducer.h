@@ -1,5 +1,5 @@
 //
-// $Id: PATMuonProducer.h,v 1.5 2008/05/15 17:22:25 lowette Exp $
+// $Id: PATMuonProducer.h,v 1.5.2.1 2008/05/31 19:32:57 lowette Exp $
 //
 
 #ifndef PhysicsTools_PatAlgos_PATMuonProducer_h
@@ -13,7 +13,7 @@
    a collection of objects of MuonType.
 
   \author   Steven Lowette, Roger Wolf
-  \version  $Id: PATMuonProducer.h,v 1.5 2008/05/15 17:22:25 lowette Exp $
+  \version  $Id: PATMuonProducer.h,v 1.5.2.1 2008/05/31 19:32:57 lowette Exp $
 */
 
 

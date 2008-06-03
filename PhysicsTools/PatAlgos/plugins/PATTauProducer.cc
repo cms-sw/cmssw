@@ -1,5 +1,5 @@
 //
-// $Id: PATTauProducer.cc,v 1.5 2008/05/15 17:22:25 lowette Exp $
+// $Id: PATTauProducer.cc,v 1.5.2.1 2008/05/31 19:33:38 lowette Exp $
 //
 
 #include "PhysicsTools/PatAlgos/plugins/PATTauProducer.h"

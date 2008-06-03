@@ -1,5 +1,5 @@
 //
-// $Id: PATTauProducer.h,v 1.4 2008/05/15 17:22:25 lowette Exp $
+// $Id: PATTauProducer.h,v 1.4.2.1 2008/05/31 19:32:57 lowette Exp $
 //
 
 #ifndef PhysicsTools_PatAlgos_PATTauProducer_h
@@ -13,7 +13,7 @@
    a collection of objects of TauType.
 
   \author   Steven Lowette, Christophe Delaere
-  \version  $Id: PATTauProducer.h,v 1.4 2008/05/15 17:22:25 lowette Exp $
+  \version  $Id: PATTauProducer.h,v 1.4.2.1 2008/05/31 19:32:57 lowette Exp $
 */
 
 

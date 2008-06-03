@@ -40,6 +40,7 @@ class CleanerHelper {
     public:
         typedef CleanerHelper<T,T2,Collection,Comparator> cleaner_type;
         typedef Collection                                collection_type;
+        typedef typename edm::ValueMap<reco::CandidatePtr> CandPtrValueMap;
 
         CleanerHelper() { } // needed for EDM Modules
         CleanerHelper(const edm::InputTag &src, const std::string &instanceName="") ;
@@ -73,6 +74,8 @@ class CleanerHelper {
         const T & srcAt(size_t i) const { return (*sourceView_)[i]; }
         /// a reference to an item in the source collection
         edm::RefToBase<T> srcRefAt(size_t i) const { return sourceView_->refAt(i); }
+        /// a reference to an item in the source collection
+        edm::Ptr<T> srcPtrAt(size_t i) const { return sourceView_->ptrAt(i); }
 
         /// A const reference to the selected items. 
         /// Must be const, to avoid people doing push_back or remove by hand and breaking the refs.
@@ -198,7 +201,7 @@ class CleanerHelper {
         // new at every event
         edm::Event *event_;
         edm::Handle< edm::View<T> > sourceView_;
-        std::vector<reco::CandidateBaseRef> originalRefs_;
+        std::vector<reco::CandidatePtr> originalRefs_;
         Collection selected_;
         std::vector<uint32_t> marks_;
         uint32_t bitsToIgnore_;
@@ -281,14 +284,14 @@ void CleanerHelper<T,T2,Collection,Comparator>::configure(const edm::ParameterSe
 template<typename T, typename T2, typename Collection, typename Comparator>
 void CleanerHelper<T,T2,Collection,Comparator>::registerProducts(edm::ProducerBase &producer) {
     producer.produces<Collection>(label_).setBranchAlias(moduleLabel_+label_);
-    producer.produces<reco::CandRefValueMap>(label_);
+    producer.produces<CandPtrValueMap>(label_);
     if (saveRejected_) {
         producer.produces<Collection>(labelRejected_).setBranchAlias(moduleLabel_+labelRejected_);
-        producer.produces<reco::CandRefValueMap>(labelRejected_); 
+        producer.produces<CandPtrValueMap>(labelRejected_); 
     }
     if (saveAll_) {
         producer.produces<Collection>(labelAll_).setBranchAlias(moduleLabel_+labelAll_);
-        producer.produces<reco::CandRefValueMap>(labelAll_); 
+        producer.produces<CandPtrValueMap>(labelAll_); 
     }
 }
     
@@ -309,54 +312,14 @@ size_t CleanerHelper<T,T2,Collection,Comparator>::addItem(size_t idx, const T2 &
     selected_.push_back(value);
     marks_.push_back(mark);
 
-    edm::RefToBase<T> backRef(sourceView_, idx); // That's all I can get from a View
-
-    // === OPTION 1 ===
-    //
-    // originalRefs_.push_back(reco::CandidateBaseRef(backRef));   // <== DOES NOT WORK
-    // 
-    //   NOTE: the above apparently creates problems with dictionaries as it look like it requires a dictionary for
-    //      edm::reftobase::Holder<Candidate, edm::RefToBase<T> >
-    //   which is usually not provided (if T is a final type like CaloJet usually there is not even the dict for RefToBase<T>!)
-    //   if the RefToBase constructor from RefToBase gets fixed as in
-    //     https://hypernews.cern.ch/HyperNews/CMS/get/edmFramework/1308.html 
-    //   then it should work
-
-    // === OPTION 2 ===
-    //
-    // edm::Ref< std::vector<T> > plainRef = backRef.template castTo< edm::Ref< std::vector<T> > >();
-    // originalRefs_.push_back(reco::CandidateBaseRef(plainRef));    
-    //  
-    //   NOTE:: this works if I'm reading a std::vector<T>, but I don't think it works in the general case
-
-    // === OPTION 3 ===
-    boost::shared_ptr<edm::reftobase::RefHolderBase> holderBase(backRef.holder().release());
-    originalRefs_.push_back(reco::CandidateBaseRef(holderBase));
-    //
-    //   NOTE: this should force the conversion into and IndirectHolder,
-    //     and avoid dictionary problems even if we can't fix RefToBase directly.
-    //
-    // May the Source be with you, Luke
+    edm::Ptr<T> backRef = sourceView_->ptrAt(idx);
+    originalRefs_.push_back(reco::CandidatePtr(backRef));
 
     return selected_.size() - 1;
 }
 
 template<typename T, typename T2, typename Collection, typename Comparator>
 void CleanerHelper<T,T2,Collection,Comparator>::reallyMarkItem(int idx) {
-    // vvvv DOES NOT WORK
-    //   struct NotMarker { static void mark(T2 &t, int mark) { assert(false);     } };
-    //   struct Marker    { static void mark(T2 &t, int mark) { t.setStatus(mark); } };
-    //   typedef typename boost::mpl::if_c<typename boost::mpl::is_base_of<typename reco::Particle,T2>, Marker, NotMarker>::type MaybeMarker;
-    //   MaybeMarker::mark(selected_[idx], marks_[idx]);
-    // ^^^^^
-    // vvvvv try again with templates... but it still does not work
-    //                                   I should put it in global scope
-    //   using reco::Particle;
-    //   template<typename X> struct Marker           { static void mark(X &t, int mark)        { assert(false);     } };
-    //   template<>           struct Marker<Particle> { static void mark(Particle &t, int mark) { t.setStatus(mark); } };
-    //   Marker<T2>::mark(selected_[idx], marks_[idx]);
-    // ^^^^
-    // so we just assume that T2 inherits from Particle, period.
     selected_[idx].setStatus(marks_[idx]);
 }
 
@@ -365,10 +328,10 @@ void CleanerHelper<T,T2,Collection,Comparator>::done() {
     if (event_ == 0) throw cms::Exception("CleanerHelper") << 
         "You're calling done() without calling newEvent() before";
 
-    std::auto_ptr<reco::CandRefValueMap> backRefs(new reco::CandRefValueMap());
-    std::auto_ptr<reco::CandRefValueMap> backRefsRejected, backRefsAll;
-    if (saveRejected_) backRefsRejected = std::auto_ptr<reco::CandRefValueMap>(new reco::CandRefValueMap());
-    if (saveAll_)      backRefsAll      = std::auto_ptr<reco::CandRefValueMap>(new reco::CandRefValueMap());
+    std::auto_ptr<CandPtrValueMap> backRefs(new CandPtrValueMap());
+    std::auto_ptr<CandPtrValueMap> backRefsRejected, backRefsAll;
+    if (saveRejected_) backRefsRejected = std::auto_ptr<CandPtrValueMap>(new CandPtrValueMap());
+    if (saveAll_)      backRefsAll      = std::auto_ptr<CandPtrValueMap>(new CandPtrValueMap());
 
     // step 1: make list of indices
     size_t nselected = selected_.size();
@@ -380,10 +343,10 @@ void CleanerHelper<T,T2,Collection,Comparator>::done() {
 
     // step 3: use sorted indices
     std::auto_ptr<Collection> sorted(new Collection()); sorted->reserve(nselected);
-    std::vector<reco::CandidateBaseRef> sortedRefs;     sortedRefs.reserve(nselected); 
+    std::vector<reco::CandidatePtr> sortedRefs;     sortedRefs.reserve(nselected); 
 
     std::auto_ptr<Collection> sortedRejected, sortedAll;
-    std::vector<reco::CandidateBaseRef> sortedRefsRejected, sortedRefsAll;
+    std::vector<reco::CandidatePtr> sortedRefsRejected, sortedRefsAll;
     if (saveRejected_) { sortedRejected = std::auto_ptr<Collection>(new Collection());  }
     if (saveAll_     ) { sortedAll      = std::auto_ptr<Collection>(new Collection());  }
 
@@ -414,18 +377,18 @@ void CleanerHelper<T,T2,Collection,Comparator>::done() {
 
     // THEN fill the map and put it in the event
     // fill in backrefs
-    reco::CandRefValueMap::Filler backRefFiller(*backRefs);
+    CandPtrValueMap::Filler backRefFiller(*backRefs);
     backRefFiller.insert(newRefProd, sortedRefs.begin(), sortedRefs.end());
     backRefFiller.fill();
     event_->put(backRefs, label_);
     if (saveRejected_) {
-        reco::CandRefValueMap::Filler backRefFiller(*backRefsRejected);
+        CandPtrValueMap::Filler backRefFiller(*backRefsRejected);
         backRefFiller.insert(newRefProdRejected, sortedRefsRejected.begin(), sortedRefsRejected.end());
         backRefFiller.fill();
         event_->put(backRefsRejected, labelRejected_);
     }
     if (saveAll_) {
-        reco::CandRefValueMap::Filler backRefFiller(*backRefsAll);
+        CandPtrValueMap::Filler backRefFiller(*backRefsAll);
         backRefFiller.insert(newRefProdAll, sortedRefsAll.begin(), sortedRefsAll.end());
         backRefFiller.fill();
         event_->put(backRefsAll, labelAll_);
@@ -446,16 +409,6 @@ void CleanerHelper<T,T2,Collection,Comparator>::cleanup() {
 template<typename T, typename T2, typename Collection, typename Comparator>
 void CleanerHelper<T,T2,Collection,Comparator>::setStatusMark(bool setIt) {
     markItems_ = setIt;
-    if (markItems_) {
-        // I check that T2 derives from reco::Particle
-        // this would be needed if we relaxed the constraint that T2 must inherit from Candidate
-        //if (! boost::is_base_of<reco::Particle,T2>::value ) {
-        //    throw cms::Exception("Wrong Type") << "You can't use 'setStatusMark' " << 
-        //        " when producting objects of type " << typeid(T2).name() << 
-        //        " because they don't inherit from reco::Particle.\n" <<
-        //        " hint: use c++filt demangle the type name in this error message.\n";
-        //}
-    }      
 }
 
 

@@ -21,7 +21,7 @@ namespace pat { namespace helper {
       typedef typename edm::ValueMap<value_type> OutputMap;
       typedef typename OutputMap::Filler         MapFiller;
       typedef typename edm::View<KeyType>        ViewType;
-      typedef typename edm::RefToBase<KeyType>   RefType;
+      typedef typename edm::Ptr<KeyType>         RefType;
       typedef typename edm::ValueMap<RefType>    BackRefMap;
 
       explicit ValueMapSkimmer(const edm::ParameterSet & iConfig) :
@@ -64,7 +64,7 @@ void ValueMapSkimmer<value_type,AssoContainer,KeyType>::produce(edm::Event & iEv
     ::pat::helper::RefHelper<KeyType> refhelper(*backrefs) ;
 
     for (size_t i = 0; i < size; ++i) {
-        RefType newRef = collection->refAt(i);
+        RefType newRef = collection->ptrAt(i);
         ret.push_back( refhelper.recursiveLookup(newRef, *association) );
     }
 
@@ -82,7 +82,7 @@ void ValueMapSkimmer<value_type,AssoContainer,KeyType>::produce(edm::Event & iEv
       typedef typename edm::ValueMap<value_type> OutputMap;
       typedef typename OutputMap::Filler         MapFiller;
       typedef typename edm::View<KeyType>        ViewType;
-      typedef typename edm::RefToBase<KeyType>   RefType;
+      typedef typename edm::Ptr<KeyType>   RefType;
       typedef typename edm::ValueMap<RefType>    BackRefMap;
 
       explicit ManyValueMapsSkimmer(const edm::ParameterSet & iConfig) :
@@ -131,7 +131,7 @@ void ManyValueMapsSkimmer<value_type,AssoContainer,KeyType>::produce(edm::Event 
 
         std::vector<value_type> ret;
         for (size_t i = 0; i < size; ++i) {
-            RefType newRef = collection->refAt(i);
+            RefType newRef = collection->ptrAt(i);
             ret.push_back( refhelper.recursiveLookup(newRef, *association) );
         }
 

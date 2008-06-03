@@ -1,5 +1,5 @@
 //
-// $Id: PATPhotonCleaner.h,v 1.2 2008/03/13 09:08:38 llista Exp $
+// $Id: PATPhotonCleaner.h,v 1.3.2.1 2008/06/03 20:14:49 gpetrucc Exp $
 //
 
 #ifndef PhysicsTools_PatAlgos_PATPhotonCleaner_h
@@ -13,7 +13,7 @@
    a collection of objects of PhotonType.
 
   \author   Steven Lowette, Jeremy Andrea
-  \version  $Id: PATPhotonCleaner.h,v 1.2 2008/03/13 09:08:38 llista Exp $
+  \version  $Id: PATPhotonCleaner.h,v 1.3.2.1 2008/06/03 20:14:49 gpetrucc Exp $
 */
 
 #include "FWCore/Framework/interface/EDProducer.h"
@@ -64,10 +64,7 @@ namespace pat {
       void removeElectrons(const edm::Event &iEvent) ;
   };
 
-  // now I'm typedeffing eveything, but I don't think we really need all them
-  typedef PATPhotonCleaner<reco::Photon,reco::Photon>                   PATBasePhotonCleaner;
-  //  typedef PATPhotonCleaner<reco::ConvertedPhoton,reco::ConvertedPhoton> PATConvertedPhotonCleaner;
-
+  typedef PATPhotonCleaner<reco::Photon,reco::Photon> PATBasePhotonCleaner;
 }
 
 template<typename PhotonIn, typename PhotonOut>
@@ -93,10 +90,8 @@ pat::PATPhotonCleaner<PhotonIn,PhotonOut>::PATPhotonCleaner(const edm::Parameter
   helper_(photonSrc_),
   isolator_(iConfig.exists("isolation") ? iConfig.getParameter<edm::ParameterSet>("isolation") : edm::ParameterSet() )
 {
-  // produces vector of electrons
-  produces<std::vector<PhotonOut> >();
-  // producers also backmatch to the electrons
-  produces<reco::CandRefValueMap>();
+  helper_.configure(iConfig);      // learn whether to save good, bad, all, ...
+  helper_.registerProducts(*this); // issue the produces<>() commands
 
   if (removeElectrons_ != None) {
     if (!iConfig.exists("electrons")) throw cms::Exception("Configuraton Error") <<
