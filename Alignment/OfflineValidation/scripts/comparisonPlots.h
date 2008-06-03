@@ -28,8 +28,8 @@ class comparisonPlots
 		comparisonPlots(std::string filename, std::string outputDir, std::string outputFilename = "OUTPUT_comparison.root");
 		
 		void readTree();
-		void plot3x5(TCut Cut, bool savePlot = false, std::string plotName = "plot3x5.eps");
-		void plot3x5Profile(TCut Cut, int nBins, bool savePlot = false, std::string plotName = "plot3x5Profile.eps");
+		void plot3x5(TCut Cut, char* dirName, bool savePlot = false, std::string plotName = "plot3x5.eps");
+		void plot3x5Profile(TCut Cut, char* dirName, int nBins, bool savePlot = false, std::string plotName = "plot3x5Profile.eps");
 		
 		float arrowSize;
 		void Write();
