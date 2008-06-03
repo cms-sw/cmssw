@@ -50,8 +50,8 @@ class Process(object):
         self.__dict__['_Process__endpaths'] = DictTypes.SortedKeysDict() # of definition
         self.__dict__['_Process__sequences'] = {}
         self.__dict__['_Process__services'] = {}
-        self.__dict__['_Process__essources'] = {}
-        self.__dict__['_Process__esproducers'] = {}
+        self.__dict__['_Process__essources'] = DictTypes.SortedKeysDict()
+        self.__dict__['_Process__esproducers'] = DictTypes.SortedKeysDict()
         self.__dict__['_Process__esprefers'] = {}
         self.__dict__['_Process__psets']={}
         self.__dict__['_Process__vpsets']={}
@@ -131,11 +131,11 @@ class Process(object):
     services = property(services_,doc="dictionary containing the services for the process")
     def es_producers_(self):
         """returns a dict of the esproducers which have been added to the Process"""
-        return DictTypes.FixedKeysDict(self.__esproducers)
+        return DictTypes.SortedAndFixedKeysDict(self.__esproducers)
     es_producers = property(es_producers_,doc="dictionary containing the es_producers for the process")
     def es_sources_(self):
         """returns a the es_sources which have been added to the Process"""
-        return DictTypes.FixedKeysDict(self.__essources)
+        return DictTypes.SortedAndFixedKeysDict(self.__essources)
     es_sources = property(es_sources_,doc="dictionary containing the es_sources for the process")
     def es_prefers_(self):
         """returns a dict of the es_prefers which have been added to the Process"""
@@ -643,7 +643,12 @@ if __name__=="__main__":
             self.assert_('geom' in p.es_sources_())
             p.add_(ESSource("ConfigDB"))
             self.assert_('ConfigDB' in p.es_sources_())
-
+            p.aGeo = ESSource("GeomProd")
+            #the order should be preserved
+            self.assert_('geom' == p.es_sources_().keys()[0])
+            self.assert_('ConfigDB' == p.es_sources_().keys()[1])
+            self.assert_('aGeo' == p.es_sources_().keys()[2])
+            
         def testProcessExtend(self):
             class FromArg(object):
                 def __init__(self,*arg,**args):
