@@ -16,7 +16,7 @@
 //
 // Original Author:  Chris Jones
 //         Created:  Thu Oct 18 14:41:33 CEST 2007
-// $Id: Ptr.h,v 1.6 2008/02/16 17:25:48 wmtan Exp $
+// $Id: Ptr.h,v 1.7 2008/03/18 12:48:31 wmtan Exp $
 //
 
 // system include files
@@ -28,6 +28,7 @@
 #include "DataFormats/Common/interface/traits.h"
 #include "DataFormats/Common/interface/GetProduct.h"
 #include "DataFormats/Common/interface/EDProduct.h"
+#include "DataFormats/Common/interface/EDProductGetter.h"
 #include "DataFormats/Common/interface/Handle.h"
 #include "DataFormats/Common/interface/OrphanHandle.h"
 #include "DataFormats/Common/interface/TestHandle.h"
@@ -73,7 +74,7 @@ namespace edm {
      but have a pointer to a product getter (such as the EventPrincipal).
      prodGetter will ususally be a pointer to the event principal. */
     Ptr(ProductID const& productID, key_type itemKey, EDProductGetter const* prodGetter) :
-    core_(productID, 0, prodGetter, false), key_(itemKey) {
+    core_(productID, 0, mustBeNonZero(prodGetter, "Ptr", productID), false), key_(itemKey) {
     }
     
     /** Constructor for use in the various X::fillView(...) functions

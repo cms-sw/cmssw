@@ -14,7 +14,7 @@ EDProduct that is a sequence.
 //
 // Original Author:  
 //         Created:  Mon Dec 18 09:48:30 CST 2006
-// $Id: View.h,v 1.6 2008/01/16 16:00:51 llista Exp $
+// $Id: View.h,v 1.7 2008/03/02 17:30:14 gpetrucc Exp $
 //
 
 #include <vector>
@@ -193,7 +193,13 @@ namespace edm
       ptrs_.reserve(refs_.size());
       for(typename RefToBaseVector<T>::const_iterator i = refs_.begin(); i != refs_.end(); ++i) {
 	RefToBase<T> ref = *i;
-	ptrs_.push_back(Ptr<T>(ref.id(), ref.key(), ref.productGetter()));
+	if (ref.get() != 0) {
+	  ptrs_.push_back(Ptr<T>(ref.id(), ref.get(), ref.key()));
+	} else if (ref.productGetter() != 0) {
+	  ptrs_.push_back(Ptr<T>(ref.id(), ref.key(), ref.productGetter()));
+	} else {
+	  ptrs_.push_back(Ptr<T>(ref.id(), 0, ref.key()));
+	}
       }
     }
   }
