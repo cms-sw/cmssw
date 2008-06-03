@@ -8,7 +8,7 @@
 //
 // Original Author:  Chris Jones
 //         Created:  Tue May  8 15:07:03 EDT 2007
-// $Id: Event.cc,v 1.14 2008/03/05 05:55:28 wmtan Exp $
+// $Id: Event.cc,v 1.15 2008/05/14 02:05:05 wmtan Exp $
 //
 
 // system include files
@@ -64,39 +64,30 @@ private:
 // constructors and destructor
 //
   Event::Event(TFile* iFile):
-  file_(iFile),
-  eventTree_(0),
+//  file_(iFile),
+//  eventTree_(0),
   eventHistoryTree_(0),
-  eventIndex_(-1),
+//  eventIndex_(-1),
+  branchMap_(iFile),
   pAux_(&aux_),
   pOldAux_(0),
-  fileVersion_(-1),
-  prodReg_(0)
+  fileVersion_(-1)
 {
-    if(0==file_) {
+    if(0==iFile) {
       throw cms::Exception("NoFile")<<"The TFile pointer passed to the constructor was null";
     }
     
-    eventTree_ = dynamic_cast<TTree*>(iFile->Get(edm::poolNames::eventTreeName().c_str()));
-    if(0==eventTree_) {
+    if(0==branchMap_.getEventTree()) {
       throw cms::Exception("NoEventTree")<<"The TFile contains no TTree named "<<edm::poolNames::eventTreeName();
     }
     //need to know file version in order to determine how to read the basic event info
-    {
-      TTree* metaDataTree = dynamic_cast<TTree*>(file_->Get(edm::poolNames::metaDataTreeName().c_str()) );
-      assert(0!=metaDataTree);
-      
-      edm::FileFormatVersion v;
-      edm::FileFormatVersion* pV=&v;
-      TBranch* bVer = metaDataTree->GetBranch(edm::poolNames::fileFormatVersionBranchName().c_str());
-      bVer->SetAddress(&pV);
-      bVer->GetEntry(0);
-      fileVersion_ = v.value_;
-    }
+    fileVersion_ = branchMap_.getFileVersion(iFile);
+
     //got this logic from IOPool/Input/src/RootFile.cc
     
+    TTree* eventTree = branchMap_.getEventTree();
     if(fileVersion_ >= 3 ) {
-      auxBranch_ = eventTree_->GetBranch(edm::BranchTypeToAuxiliaryBranchName(edm::InEvent).c_str());
+      auxBranch_ = eventTree->GetBranch(edm::BranchTypeToAuxiliaryBranchName(edm::InEvent).c_str());
       if(0==auxBranch_) {
         throw cms::Exception("NoEventAuxilliary")<<"The TTree "
         <<edm::poolNames::eventTreeName()
@@ -105,7 +96,7 @@ private:
       auxBranch_->SetAddress(&pAux_);
     } else {
       pOldAux_ = new edm::EventAux();
-      auxBranch_ = eventTree_->GetBranch(edm::BranchTypeToAuxBranchName(edm::InEvent).c_str());
+      auxBranch_ = eventTree->GetBranch(edm::BranchTypeToAuxBranchName(edm::InEvent).c_str());
       if(0==auxBranch_) {
         throw cms::Exception("NoEventAux")<<"The TTree "
           <<edm::poolNames::eventTreeName()
@@ -113,7 +104,7 @@ private:
       }
       auxBranch_->SetAddress(&pOldAux_);
     }
-    eventIndex_=0;
+    branchMap_.updateEvent(0);
 
     if(fileVersion_ >= 7 ) {
       eventHistoryTree_ = dynamic_cast<TTree*>(iFile->Get(edm::poolNames::eventHistoryTreeName().c_str()));
@@ -134,7 +125,6 @@ Event::~Event()
       ++it) {
     delete [] *it;
   }
-  delete prodReg_;
   delete pOldAux_;
 }
 
@@ -156,8 +146,9 @@ Event::~Event()
 const Event& 
 Event::operator++()
 {
-  if(eventIndex_ < size()) {
-    ++eventIndex_;
+  Long_t eventIndex = branchMap_.getEventEntry();
+  if(eventIndex < size()) {
+    branchMap_.updateEvent(++eventIndex);
   }
   return *this;
 }
@@ -165,14 +156,14 @@ Event::operator++()
 const Event& 
 Event::to(Long64_t iEntry)
 {
-  eventIndex_ = iEntry;
+  branchMap_.updateEvent(iEntry);
   return *this;
 }
 
 const Event& 
 Event::toBegin()
 {
-  eventIndex_ = 0;
+  branchMap_.updateEvent(0);
   return *this;
 }
 
@@ -182,13 +173,14 @@ Event::toBegin()
 Long64_t
 Event::size() const 
 {
-  return eventTree_->GetEntries();
+  return branchMap_.getEventTree()->GetEntries();
 }
 
 bool
 Event::isValid() const
 {
-  return eventIndex_!=-1 and eventIndex_ < size(); 
+  Long_t eventIndex = branchMap_.getEventEntry();
+  return eventIndex!=-1 and eventIndex < size(); 
 }
 
 
@@ -200,7 +192,8 @@ Event::operator bool() const
 bool
 Event::atEnd() const
 {
-  return eventIndex_==-1 or eventIndex_ == size();
+  Long_t eventIndex = branchMap_.getEventEntry();
+  return eventIndex==-1 or eventIndex == size();
 }
 
 /*
@@ -282,6 +275,7 @@ Event::getByLabel(const std::type_info& iInfo,
     //if we have to lookup the process label, remember it and register the product again
     std::string foundProcessLabel;
     TBranch* branch = 0;
+    TTree* eventTree = branchMap_.getEventTree();
     if (0==iProcessLabel || iProcessLabel==internal::DataKey::kEmpty ||
         strlen(iProcessLabel)==0) 
     {
@@ -293,7 +287,7 @@ Event::getByLabel(const std::type_info& iInfo,
            iproc != eproc;
            ++iproc) {
         lastLabel = &(iproc->processName());
-        branch=findBranch(eventTree_,name,iproc->processName());
+        branch=findBranch(eventTree,name,iproc->processName());
         if(0!=branch) { break; }
       }
       if(0==branch) {
@@ -317,7 +311,7 @@ Event::getByLabel(const std::type_info& iInfo,
       }
     }else {
       //we have all the pieces
-      branch = findBranch(eventTree_,name,key.process());
+      branch = findBranch(eventTree,name,key.process());
       if(0==branch){
         throw cms::Exception("NoBranch")<<"The file does not contain a branch named '"<<name<<key.process()<<"'";
       }
@@ -375,10 +369,11 @@ Event::getByLabel(const std::type_info& iInfo,
       data_.insert(std::make_pair(newKey,theData));
     }
   }
-  if(eventIndex_ != itFind->second->lastEvent_) {
+  Long_t eventIndex = branchMap_.getEventEntry();
+  if(eventIndex != itFind->second->lastEvent_) {
     //haven't gotten the data for this event
     //std::cout <<" getByLabel getting data"<<std::endl;
-    getBranchData(getter_.get(), eventIndex_, *(itFind->second));
+    getBranchData(getter_.get(), eventIndex, *(itFind->second));
   }
   *pOData = itFind->second->obj_.Address();
 
@@ -391,8 +386,9 @@ Event::history() const
 
   bool newFormat = (fileVersion_ >= 5);
 
-  if(auxBranch_->GetEntryNumber() != eventIndex_) {
-    auxBranch_->GetEntry(eventIndex_);
+  Long_t eventIndex = branchMap_.getEventEntry();
+  if(auxBranch_->GetEntryNumber() != eventIndex) {
+    auxBranch_->GetEntry(eventIndex);
     //handling dealing with old version
     if(0 != pOldAux_) {
       conversion(*pOldAux_,aux_);
@@ -402,7 +398,7 @@ Event::history() const
     processHistoryID = aux_.processHistoryID();
   }
   if(historyMap_.empty() || newFormat) {
-    TTree *meta = dynamic_cast<TTree*>(file_->Get(edm::poolNames::metaDataTreeName().c_str()));
+    TTree *meta = dynamic_cast<TTree*>(branchMap_.getFile()->Get(edm::poolNames::metaDataTreeName().c_str()));
     if(0==meta) {
       throw cms::Exception("NoMetaTree")<<"The TFile does not appear to contain a TTree named "
       <<edm::poolNames::metaDataTreeName();
@@ -422,7 +418,7 @@ Event::history() const
           throw edm::Exception(edm::errors::FatalRootError)
             << "Failed to find history branch in event history tree";
         eventHistoryBranch->SetAddress(&pHistory);
-        eventHistoryTree_->GetEntry(eventIndex_);
+        eventHistoryTree_->GetEntry(eventIndex);
         processHistoryID = history.processHistoryID();
       } else {
         std::vector<edm::EventProcessHistoryID> *pEventProcessHistoryIDs = &eventProcessHistoryIDs_;
@@ -446,55 +442,23 @@ Event::getByProductID(edm::ProductID const& iID) const
   std::map<edm::ProductID,boost::shared_ptr<internal::Data> >::const_iterator itFound = idToData_.find(iID);
   if(itFound == idToData_.end() ) {
     //std::cout <<" not found"<<std::endl;
-    if(0==prodReg_) {
-      //std::cout <<" getting product registry"<<std::endl;
-      prodReg_ = new edm::ProductRegistry;
-
-      TTree* metaDataTree = dynamic_cast<TTree*>(file_->Get(edm::poolNames::metaDataTreeName().c_str()) );
-      assert(0!=metaDataTree);
-
-      TBranch* bReg = metaDataTree->GetBranch(edm::poolNames::productDescriptionBranchName().c_str());
-      bReg->SetAddress(&prodReg_);
-      bReg->GetEntry(0);
-      prodReg_->setFrozen();
-      
-      //std::cout <<"  caching"<<std::endl;
-      //cache some info
-      const edm::ProductRegistry::ProductList& prodList = prodReg_->productList();
-      for(edm::ProductRegistry::ProductList::const_iterator itProd = prodList.begin(),
-	  itProdEnd = prodList.end();
-          itProd != itProdEnd;
-          ++itProd) {
-        //this has to be called since 'branchName' is not stored and the 'init' method is supposed to
-        // regenerate it
-        itProd->second.init();
-	// WMTAN: Kludge for building
-        //idToBD_[itProd->second.productID()] = &(itProd->second);
-        idToBD_[itProd->second.oldProductID()] = &(itProd->second);
-      }
-      //std::cout <<"  cached"<<std::endl;
-    }
-    //std::cout <<"  find branch description"<<std::endl;
-    std::map<edm::ProductID,const edm::BranchDescription*>::iterator itCacheFind = idToBD_.find(iID);
-    if(idToBD_.end() == itCacheFind) {
-      throw cms::Exception("ProductNotFound")<<"No data item with productID "<<iID.id()<<" was found in the file.";
-    }
+    edm::BranchDescription bDesc = branchMap_.productToBranch(iID);
 
     //std::cout <<"  get Type for class"<<std::endl;
     //Calculate the key from the branch description
-    ROOT::Reflex::Type type( ROOT::Reflex::Type::ByName(edm::wrappedClassName(itCacheFind->second->fullClassName())));
+    ROOT::Reflex::Type type( ROOT::Reflex::Type::ByName(edm::wrappedClassName(bDesc.fullClassName())));
     assert( ROOT::Reflex::Type() != type) ;
 
     //std::cout <<"  build key"<<std::endl;
     //Only the product instance label may be empty
-    const char* pIL = itCacheFind->second->productInstanceName().c_str();
+    const char* pIL = bDesc.productInstanceName().c_str();
     if(pIL[0] == 0) {
       pIL = 0;
     }
     internal::DataKey k(edm::TypeID(type.TypeInfo()), 
-                        itCacheFind->second->moduleLabel().c_str(),
+                        bDesc.moduleLabel().c_str(),
                         pIL,
-                        itCacheFind->second->processName().c_str());
+                        bDesc.processName().c_str());
     
     //has this already been gotten?
     KeyToDataMap::iterator itData = data_.find(k);
@@ -515,9 +479,10 @@ Event::getByProductID(edm::ProductID const& iID) const
     }
     itFound = idToData_.insert(std::make_pair(iID,itData->second)).first;
   }
-  if(eventIndex_ != itFound->second->lastEvent_) {
+  Long_t eventIndex = branchMap_.getEventEntry();
+  if(eventIndex != itFound->second->lastEvent_) {
     //haven't gotten the data for this event
-    getBranchData(getter_.get(), eventIndex_, *(itFound->second));
+    getBranchData(getter_.get(), eventIndex, *(itFound->second));
   }  
   if(0==itFound->second->pProd_) {
     //std::cout <<"  need to convert"<<std::endl;

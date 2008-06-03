@@ -16,7 +16,7 @@
 //
 // Original Author:  Chris Jones
 //         Created:  Tue May  8 15:01:20 EDT 2007
-// $Id: Event.h,v 1.8 2007/12/07 23:22:49 wmtan Exp $
+// $Id: Event.h,v 1.9 2008/03/05 05:55:27 wmtan Exp $
 //
 #if !defined(__CINT__) && !defined(__MAKECINT__)
 // system include files
@@ -36,6 +36,7 @@
 #include "DataFormats/Provenance/interface/EventProcessHistoryID.h"
 #include "DataFormats/Provenance/interface/EventAuxiliary.h"
 #include "DataFormats/Provenance/interface/ProductID.h"
+#include "FWCore/FWLite/interface/BranchMapReader.h"
 
 // forward declarations
 namespace edm {
@@ -154,10 +155,12 @@ class Event
       
       edm::EDProduct const* getByProductID(edm::ProductID const&) const;
       // ---------- member data --------------------------------
-      TFile* file_;
-      TTree* eventTree_;
+//      TFile* file_;
+//      TTree* eventTree_;
       TTree* eventHistoryTree_;
-      Long64_t eventIndex_;
+//      Long64_t eventIndex_;
+      mutable fwlite::BranchMapReader branchMap_;
+      
 
       typedef std::map<internal::DataKey, boost::shared_ptr<internal::Data> > KeyToDataMap;
       mutable KeyToDataMap data_;
@@ -173,9 +176,9 @@ class Event
       
       //references data in data_;
       mutable std::map<edm::ProductID,boost::shared_ptr<internal::Data> > idToData_; 
-      mutable edm::ProductRegistry* prodReg_;
+//      mutable edm::ProductRegistry* prodReg_;
       //references branch descriptions in prodReg_;
-      mutable std::map<edm::ProductID,const edm::BranchDescription*> idToBD_;
+//      mutable std::map<edm::ProductID,const edm::BranchDescription*> idToBD_;
       
       std::auto_ptr<edm::EDProductGetter> getter_;
 };
