@@ -179,7 +179,7 @@ g4SimHits = cms.EDProducer("OscarProducer",
         Verbosity = cms.untracked.int32(2)
     ),
     Physics = cms.PSet(
-        type = cms.string('SimG4Core/Physics/QGSP_EMV'),
+        type = cms.string('SimG4Core/Physics/QGSP_BERT_EMV'),
         G4BremsstrahlungThreshold = cms.double(0.5), ## cut in GeV
         DefaultCutValue = cms.double(1.0), ## cuts in cm
         Verbosity = cms.untracked.int32(0),
