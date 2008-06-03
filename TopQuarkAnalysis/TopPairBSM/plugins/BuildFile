@@ -1,0 +1,12 @@
+<export></export>
+<library name=TopQuarkAnalysisTopPairBSM_plugins file=*.cc>
+  <flags CXXFLAGS="-Os">
+   <use name=FWCore/Framework>
+   <use name=FWCore/PluginManager>
+   <use name=FWCore/ParameterSet>
+   <use name=DataFormats/Candidate>
+   <use name=DataFormats/PatCandidates>
+   <use name=TopQuarkAnalysis/TopTools>
+   <use name=AnalysisDataFormats/TopObjects>
+   <use name=PhysicsTools/CandUtils>
+</library>
