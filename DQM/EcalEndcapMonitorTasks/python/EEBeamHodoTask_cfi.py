@@ -7,6 +7,7 @@ ecalEndcapBeamHodoTask = cms.EDFilter("EEBeamHodoTask",
     EcalUncalibratedRecHitCollection = cms.InputTag("ecalUncalibHit","EcalUncalibRecHitsEB"),
     enableCleanup = cms.untracked.bool(False),
     mergeRuns = cms.untracked.bool(False),    
+    prefixME = cms.untracked.string('EcalEndcap'),
     EcalTBTDCRawInfo = cms.InputTag("ecalEBunpacker"),
     EcalTBHodoscopeRecInfo = cms.InputTag("ecal2006TBHodoscopeReconstructor","EcalTBHodoscopeRecInfo"),
     EcalTBTDCRecInfo = cms.InputTag("ecal2006TBTDCReconstructor","EcalTBTDCRecInfo")
