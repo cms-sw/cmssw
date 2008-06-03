@@ -2,8 +2,8 @@
 /*
  * \file DTDataIntegrityTest.cc
  * 
- * $Date: 2008/03/01 00:39:51 $
- * $Revision: 1.15 $
+ * $Date: 2008/05/06 14:02:08 $
+ * $Revision: 1.16 $
  * \author S. Bolognesi - CERN
  *
  */
@@ -25,18 +25,25 @@ using namespace std;
 using namespace edm;
 
 
-DTDataIntegrityTest::DTDataIntegrityTest(const ParameterSet& ps){
+DTDataIntegrityTest::DTDataIntegrityTest(const ParameterSet& ps) : nevents(0) {
   
   edm::LogVerbatim ("dataIntegrity") << "[DTDataIntegrityTest]: Constructor";
 
+  //Number of bin in time histo
   nTimeBin =  ps.getUntrackedParameter<int>("nTimeBin", 10);
-  doTimeHisto =  ps.getUntrackedParameter<bool>("doTimeHisto", true);
+ //If you want info VS time histos
+  doTimeHisto =  ps.getUntrackedParameter<bool>("doTimeHisto", false);
+  // switch to write histos to file
+  writeHisto = ps.getUntrackedParameter<bool>("writeHisto", false);
+  // prefix of the name of the root file (lumi# and run# will be appended)
+  outputFile = ps.getUntrackedParameter<string>("outputFile", "DTDataIntegrityTest");
+  // prescale on the # of LS to update the test
+  prescaleFactor = ps.getUntrackedParameter<int>("diagnosticPrescale", 1);
 
-  parameters = ps;
 
   dbe = Service<DQMStore>().operator->();
 
-  prescaleFactor = parameters.getUntrackedParameter<int>("diagnosticPrescale", 1);
+
 
 }
 
@@ -50,18 +57,28 @@ DTDataIntegrityTest::~DTDataIntegrityTest(){
 
 void DTDataIntegrityTest::beginJob(const edm::EventSetup& context){
 
-  edm::LogVerbatim ("dataIntegrity") << "[DTtTrigCalibrationTest]: BeginJob";
+  edm::LogVerbatim ("dataIntegrity") << "[DTDataIntegrityTest]: BeginJob";
 
   //nSTAEvents = 0;
   nupdates = 0;
   run=0;
+  
+  // book the summary histogram
+  dbe->setCurrentFolder("DT/DataIntegrity");
+  summaryHisto = dbe->book2D("DataIntegritySummary","Summary Data Integrity",12,1,13,5,770,775);
+  summaryHisto->setAxisTitle("ROS",1);
+  summaryHisto->setBinLabel(1,"FED770",2);
+  summaryHisto->setBinLabel(2,"FED771",2);
+  summaryHisto->setBinLabel(3,"FED772",2);
+  summaryHisto->setBinLabel(4,"FED773",2);
+  summaryHisto->setBinLabel(5,"FED774",2);
 }
 
 
 
 void DTDataIntegrityTest::beginLuminosityBlock(LuminosityBlock const& lumiSeg, EventSetup const& context) {
 
-  edm::LogVerbatim ("dataIntegrity") <<"[DTtTrigCalibrationTest]: Begin of LS transition";
+  edm::LogVerbatim ("dataIntegrity") <<"[DTDataIntegrityTest]: Begin of LS transition";
 
   // Get the run number
   run = lumiSeg.run();
@@ -73,7 +90,7 @@ void DTDataIntegrityTest::beginLuminosityBlock(LuminosityBlock const& lumiSeg, E
 void DTDataIntegrityTest::analyze(const edm::Event& e, const edm::EventSetup& context){
 
   nevents++;
-  edm::LogVerbatim ("dataIntegrity") << "[DTtTrigCalibrationTest]: "<<nevents<<" events";
+  edm::LogVerbatim ("dataIntegrity") << "[DTDataIntegrityTest]: "<<nevents<<" events";
 
 }
 
@@ -86,7 +103,8 @@ void DTDataIntegrityTest::endLuminosityBlock(LuminosityBlock const& lumiSeg, Eve
   //if ( parameters.getUntrackedParameter<bool>("runningStandalone", false) && 
   //   nSTAEvents%parameters.getUntrackedParameter<int>("diagnosticPrescale", 1000) != 0 ) return;
  
-  edm::LogVerbatim ("dataIntegrity") <<"[DTDataIntegrityTest]: End of LS transition, performing the DQM client operation";
+  edm::LogVerbatim ("dataIntegrity")
+    <<"[DTDataIntegrityTest]: End of LS transition, performing the DQM client operation";
 
   // counts number of lumiSegs 
   nLumiSegs = lumiSeg.id().luminosityBlock();
@@ -102,12 +120,12 @@ void DTDataIntegrityTest::endLuminosityBlock(LuminosityBlock const& lumiSeg, Eve
   edm::LogVerbatim ("dataIntegrity") <<"[DTDataIntegrityTest]: "<<nupdates<<" updates";
   edm::LogVerbatim ("dataIntegrity") <<"[DTDataIntegrityTest]: "<<nLumiSegs<<" luminosity block number";
 
-  if(nupdates%nTimeBin == 0 && parameters.getUntrackedParameter<bool>("writeHisto", true)){
+  if(writeHisto && nupdates%nTimeBin == 0){
     edm::LogVerbatim ("dataIntegrity") <<"[DTDataIntegrityTest]: saving all histos";
     stringstream runNumber; runNumber << run;
     stringstream lumiNumber; lumiNumber << nLumiSegs;
-    string rootFile = "DTDataIntegrityTest_" + lumiNumber.str() + "_" + runNumber.str() + ".root";
-    dbe->save(parameters.getUntrackedParameter<string>("outputFile", rootFile));
+    string rootFile = outputFile + "_" + lumiNumber.str() + "_" + runNumber.str() + ".root";
+    dbe->save(rootFile);
   }
   
   //Counter for x bin in the timing histos
@@ -119,7 +137,7 @@ void DTDataIntegrityTest::endLuminosityBlock(LuminosityBlock const& lumiSeg, Eve
  
     //Each nTimeBin onUpdate remove timing histos and book a new bunch of them
     stringstream dduId_s; dduId_s << dduId;
-    if(nupdates%nTimeBin == 1 && doTimeHisto){
+    if(doTimeHisto && nupdates%nTimeBin == 1){
       edm::LogVerbatim ("dataIntegrity") <<"[DTDataIntegrityTest]: booking a new bunch of time histos";
       //if(nupdates>nTimeBin)
       //dbe->rmdir("DT/Tests/DTDataIntegrity/FED" + dduId_s.str() + "/TimeInfo"); //FIXME: it doesn't work anymore
@@ -237,7 +255,34 @@ void DTDataIntegrityTest::endLuminosityBlock(LuminosityBlock const& lumiSeg, Eve
 	   setBinLabel(counter, nLumiSegs_s.str(), 1);
        }
      }
+
+     // Fill the summary histo   
+     // Get the error summary histo
+     string wheelSummaryName = "DT/DataIntegrity/FED" + dduId_s.str() + "_ROSSummary";
+     MonitorElement * FED_ROSSummary = dbe->get(wheelSummaryName);
+     if(FED_ROSSummary) {
+       TH2F * histo_FEDSummary = FED_ROSSummary->getTH2F();
+       for(int rosNumber = 1; rosNumber <= 12; ++rosNumber) { // loop on the ROS
+	 int result = -2;
+	 if(histo_FEDSummary->Integral(1,11) == 0) { // no errors
+	   result = 0;
+	 } else { // there are errors
+	   result = 2;
+	 }
+	 summaryHisto->setBinContent(rosNumber-769,dduId,result);
+       }
+     } else { // no data in this FED: it is off
+       for(int rosNumber = 1; rosNumber <= 12; ++rosNumber) {
+	 summaryHisto->setBinContent(rosNumber-769,dduId,1);
+       }
+     }
+  
   }
+
+
+     
+
+
   
 }
 
@@ -247,7 +292,7 @@ void DTDataIntegrityTest::endJob(){
 
   edm::LogVerbatim ("dataIntegrity") <<"[DTDataIntegrityTest] endjob called!";
 
-  dbe->rmdir("DT/Tests/DTDataIntegrity");
+//   dbe->rmdir("DT/DTDataIntegrity");
 }
 
 
@@ -256,8 +301,7 @@ string DTDataIntegrityTest::getMEName(string histoType, int FEDId){
   //Use the DDU name to find the ME
   stringstream dduID_s; dduID_s << FEDId;
 
-  string folderRoot = parameters.getUntrackedParameter<string>("folderRoot", "Collector/FU0/");
-  string folderName = folderRoot + "DT/DataIntegrity/FED" + dduID_s.str(); 
+  string folderName = "DT/DataIntegrity/FED" + dduID_s.str(); 
 
   string histoName = folderName + "/FED" + dduID_s.str() + "_" + histoType;
   return histoName;
@@ -267,7 +311,7 @@ string DTDataIntegrityTest::getMEName(string histoType, int FEDId){
 
 void DTDataIntegrityTest::bookHistos(string histoType, int dduId){
   stringstream dduId_s; dduId_s << dduId;
-  dbe->setCurrentFolder("DT/Tests/DTDataIntegrity/FED" + dduId_s.str());
+  dbe->setCurrentFolder("DT/DataIntegrity/FED" + dduId_s.str());
   string histoName;
 
   if(histoType == "TTSValues_Percent"){
@@ -293,7 +337,7 @@ void DTDataIntegrityTest::bookTimeHistos(string histoType, int dduId, int nLumiS
   counter = 1;//assuming synchronized booking for all histo VS time
 
   if(histoType == "TTSVSTime"){
-    dbe->setCurrentFolder("DT/Tests/DTDataIntegrity/FED" + dduId_s.str()+ "/TimeInfo/TTSVSTime");
+    dbe->setCurrentFolder("DT/DataIntegrity/FED" + dduId_s.str()+ "/TimeInfo/TTSVSTime");
     histoName = "FED" + dduId_s.str() + "_" + histoType + "_disconn_LumBlock" + nLumiSegs_s.str();
     ((dduVectorHistos[histoType])[dduId]).push_back(dbe->book1D(histoName,histoName,nTimeBin,nLumiSegs,nLumiSegs+nTimeBin));
     histoName = "FED" + dduId_s.str() + histoType + "_overflow_LumBlock" + nLumiSegs_s.str();
@@ -310,17 +354,17 @@ void DTDataIntegrityTest::bookTimeHistos(string histoType, int dduId, int nLumiS
     ((dduVectorHistos[histoType])[dduId]).push_back(dbe->book1D(histoName,histoName,nTimeBin,nLumiSegs,nLumiSegs+nTimeBin));
   }
   else if(histoType == "ROSVSTime"){
-    dbe->setCurrentFolder("DT/Tests/DTDataIntegrity/FED" + dduId_s.str()+ "/TimeInfo/ROSVSTime");
+    dbe->setCurrentFolder("DT/DataIntegrity/FED" + dduId_s.str()+ "/TimeInfo/ROSVSTime");
     histoName = "FED" + dduId_s.str() + "_" + histoType + "_LumBlock" + nLumiSegs_s.str();
     (dduHistos[histoType])[dduId] = dbe->book1D(histoName,histoName,nTimeBin,nLumiSegs,nLumiSegs+nTimeBin);
   }
   else if(histoType == "EvLenghtVSTime"){
-    dbe->setCurrentFolder("DT/Tests/DTDataIntegrity/FED" + dduId_s.str()+ "/TimeInfo/EvLenghtVSTime");
+    dbe->setCurrentFolder("DT/DataIntegrity/FED" + dduId_s.str()+ "/TimeInfo/EvLenghtVSTime");
     histoName = "FED" + dduId_s.str() + "_" + histoType + "_LumBlock" +  nLumiSegs_s.str();
     (dduHistos[histoType])[dduId] = dbe->book1D(histoName,histoName,nTimeBin,nLumiSegs,nLumiSegs+nTimeBin);
   }
   else if(histoType == "FIFOVSTime"){
-    dbe->setCurrentFolder("DT/Tests/DTDataIntegrity/FED" + dduId_s.str()+ "/TimeInfo/FIFOVSTime");
+    dbe->setCurrentFolder("DT/DataIntegrity/FED" + dduId_s.str()+ "/TimeInfo/FIFOVSTime");
     histoName = "FED" + dduId_s.str() + "_" + histoType + "_Input1_LumBlock" + nLumiSegs_s.str();
     ((dduVectorHistos[histoType])[dduId]).push_back(dbe->book1D(histoName,histoName,nTimeBin,nLumiSegs,nLumiSegs+nTimeBin));
     histoName = "FED" + dduId_s.str() + "_" + histoType + "_Input2_LumBlock" + nLumiSegs_s.str();
