@@ -22,10 +22,10 @@ class UEAnalysisJets {
 
   UEAnalysisJets();
   ~UEAnalysisJets(){}
-  void jetCalibAnalysis(float ,float,TClonesArray *,TClonesArray *,TClonesArray *,TClonesArray *, TClonesArray* );
-  void writeToFile(TFile *);
 
-  void Begin(TFile *);
+  void jetCalibAnalysis(float ,float,TClonesArray *,TClonesArray *,TClonesArray *,TClonesArray *, TClonesArray* , TFile* , string );
+
+  void Begin(TFile *, string );
 
   //Charged Jet caharacterization
   TH1F* dr_chgcalo;
@@ -114,6 +114,9 @@ class UEAnalysisJets {
   //
 
   float piG;
+
+  vector<string> HLTBits;
+
 };
 
 #endif

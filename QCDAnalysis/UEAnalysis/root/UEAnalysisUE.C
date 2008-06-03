@@ -9,10 +9,9 @@ UEAnalysisUE::UEAnalysisUE()
   cc = new UEAnalysisCorrCali();
 }
 
-void UEAnalysisUE::Begin(TFile * f)
+void UEAnalysisUE::Begin(TFile * f, string hltBit)
 {
-
-  f->cd();
+  f->cd( hltBit.c_str() );
 
   //Underlying Event analysis
   fHistPtDistMC   = new TH1F(  "HistPtDistMC"  , "Pt Spectra", 100,  0., 4. ) ;
@@ -91,10 +90,10 @@ void UEAnalysisUE::Begin(TFile * f)
 
 }
 
-//       ue->ueAnalysisMC(we,tkpt,etaRegion,ptThreshold,MonteCarlo,ChargedJet);
-void UEAnalysisUE::ueAnalysisMC(float weight,string tkpt,float etaRegion, float ptThreshold, TClonesArray* MonteCarlo, TClonesArray* ChargedJet)
+void UEAnalysisUE::ueAnalysisMC(float weight,string tkpt,float etaRegion, float ptThreshold, 
+				TClonesArray* MonteCarlo, TClonesArray* ChargedJet, TFile* f, string hltBit)
 {
-
+  f->cd( hltBit.c_str() );
   //cout << "UEAnalysisUE::ueAnalysisMC(...)" << endl;
 
   TLorentzVector* leadingJet;
@@ -259,8 +258,9 @@ void UEAnalysisUE::ueAnalysisMC(float weight,string tkpt,float etaRegion, float 
 
 }
 
-void UEAnalysisUE::ueAnalysisRECO(float weight,string tkpt,float etaRegion,float ptThreshold, TClonesArray* Track, TClonesArray* TracksJet)
+void UEAnalysisUE::ueAnalysisRECO(float weight,string tkpt,float etaRegion,float ptThreshold, TClonesArray* Track, TClonesArray* TracksJet, TFile* f, string hltBit)
 {
+  f->cd( hltBit.c_str() );
   
   TLorentzVector* leadingJet;
   Float_t PTLeadingTJ = -10;
@@ -541,6 +541,3 @@ void UEAnalysisUE::ueAnalysisRECO(float weight,string tkpt,float etaRegion,float
 
 }
 
-void UEAnalysisUE::writeToFile(TFile * file){
-  file->Write();
-}

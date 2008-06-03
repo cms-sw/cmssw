@@ -24,12 +24,10 @@ class UEAnalysisUE {
   UEAnalysisUE();
   ~UEAnalysisUE(){}
 
-  void ueAnalysisMC(float,string,float,float,TClonesArray*,TClonesArray*);
-  void ueAnalysisRECO(float,string,float,float,TClonesArray*,TClonesArray*);
+  void ueAnalysisMC(float,string,float,float,TClonesArray*,TClonesArray* , TFile* , string );
+  void ueAnalysisRECO(float,string,float,float,TClonesArray*,TClonesArray* , TFile* , string );
 
-  void Begin(TFile *);
-
-  void writeToFile(TFile *);
+  void Begin(TFile *, string );
 
   //Underlying Event analysis
   TH1F*       fHistPtDistMC;

@@ -19,6 +19,7 @@
 
 #include "UEAnalysisUE.h"
 #include "UEAnalysisJets.h"
+#include "UEAnalysisAntiKtJets.h"
 #include "UEAnalysisMPI.h"
 
 using namespace std;
@@ -71,8 +72,33 @@ public :
   Float_t etaRegion;
   Float_t ptThreshold;
 
-  UEAnalysisUE * ue;
-  UEAnalysisJets* jets;
+  UEAnalysisUE* ueHLTMinBiasPixel;
+  UEAnalysisUE* ueHLTMinBiasHcal ;
+  UEAnalysisUE* ueHLTMinBiasEcal ;
+  UEAnalysisUE* ueHLTMinBias     ;
+  UEAnalysisUE* ueHLTZeroBias    ;
+  UEAnalysisUE* ueHLT1jet30      ;
+  UEAnalysisUE* ueHLT1jet50      ;
+  UEAnalysisUE* ueHLT1jet80      ;
+  UEAnalysisUE* ueHLT1jet110     ;
+  UEAnalysisUE* ueHLT1jet180     ;
+  UEAnalysisUE* ueHLT1jet250     ;
+  UEAnalysisUE* ueAll            ;
+
+  UEAnalysisJets* jetsHLTMinBiasPixel;
+  UEAnalysisJets* jetsHLTMinBiasHcal ;
+  UEAnalysisJets* jetsHLTMinBiasEcal ;
+  UEAnalysisJets* jetsHLTMinBias     ;
+  UEAnalysisJets* jetsHLTZeroBias    ;
+  UEAnalysisJets* jetsHLT1jet30      ;
+  UEAnalysisJets* jetsHLT1jet50      ;
+  UEAnalysisJets* jetsHLT1jet80      ;
+  UEAnalysisJets* jetsHLT1jet110     ;
+  UEAnalysisJets* jetsHLT1jet180     ;
+  UEAnalysisJets* jetsHLT1jet250     ;
+  UEAnalysisJets* jetsAll            ;
+
+  UEAnalysisAntiKtJets* antiKtJets;
   UEAnalysisMPI* mpi;
 
 
