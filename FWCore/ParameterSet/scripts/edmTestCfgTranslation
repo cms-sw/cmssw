@@ -11,7 +11,7 @@ if(! -e $1) then
   exit 1
 endif
 
-set psetDir=$CMSSW_RELEASE_BASE/src/FWCore/ParameterSet/python
+set psetDir=$CMSSW_BASE/src/FWCore/ParameterSet/python
 #set psetDir=FWCore/ParameterSet/python
 set pyFile=`python $psetDir/cfgName2py.py $1`
 
