@@ -1,8 +1,8 @@
  /*
  * \file DTDigiTask.cc
  * 
- * $Date: 2008/05/22 07:00:39 $
- * $Revision: 1.41 $
+ * $Date: 2008/05/22 07:22:54 $
+ * $Revision: 1.42 $
  * \author M. Zanetti - INFN Padova
  *
  */
@@ -99,7 +99,7 @@ DTDigiTask::~DTDigiTask(){
 void DTDigiTask::endJob(){
   if(debug) cout<<"[DTDigiTask] endjob called!"<<endl;
   
-  dbe->rmdir("DT/DTDigiTask");
+  dbe->rmdir("DT/Digi");
 }
 
 
@@ -198,7 +198,7 @@ void DTDigiTask::bookHistos(const DTSuperLayerId& dtSL, string folder, string hi
   stringstream station; station << dtSL.station();	
   stringstream sector; sector << dtSL.sector();	
   stringstream superLayer; superLayer << dtSL.superlayer();
-  dbe->setCurrentFolder("DT/DTDigiTask/Wheel" + wheel.str() +
+  dbe->setCurrentFolder("DT/Digi/Wheel" + wheel.str() +
 			"/Station" + station.str() +
 			"/Sector" + sector.str() + "/" + folder);
 
@@ -212,7 +212,7 @@ void DTDigiTask::bookHistos(const DTSuperLayerId& dtSL, string folder, string hi
 
   if (debug) {
     cout<<"[DTDigiTask]: booking SL histo:"<<endl;
-    cout<<"              folder "<< "DT/DTDigiTask/Wheel" + wheel.str() +
+    cout<<"              folder "<< "DT/Digi/Wheel" + wheel.str() +
       "/Station" + station.str() +
       "/Sector" + sector.str() + "/" + folder<<endl;
     cout<<"              histoTag "<<histoTag<<endl;
@@ -253,7 +253,7 @@ void DTDigiTask::bookHistos(const DTChamberId& dtCh, string folder, string histo
   stringstream wheel; wheel << dtCh.wheel();	
   stringstream station; station << dtCh.station();	
   stringstream sector; sector << dtCh.sector();
-  dbe->setCurrentFolder("DT/DTDigiTask/Wheel" + wheel.str() +
+  dbe->setCurrentFolder("DT/Digi/Wheel" + wheel.str() +
 			"/Station" + station.str() +
 			"/Sector" + sector.str() + "/" + folder);
 
@@ -265,7 +265,7 @@ void DTDigiTask::bookHistos(const DTChamberId& dtCh, string folder, string histo
 
   if (debug){
     cout<<"[DTDigiTask]: booking chamber histo:"<<endl;
-    cout<<"              folder "<< "DT/DTDigiTask/Wheel" + wheel.str() +
+    cout<<"              folder "<< "DT/Digi/Wheel" + wheel.str() +
       "/Station" + station.str() +
       "/Sector" + sector.str() + "/" + folder<<endl;
     cout<<"              histoTag "<<histoTag<<endl;
@@ -346,14 +346,14 @@ void DTDigiTask::bookHistos(const DTChamberId& dtCh, string folder, string histo
 void DTDigiTask::bookHistos(const int wheelId, string folder, string histoTag) {
   // Set the current folder
   stringstream wheel; wheel << wheelId;	
-  dbe->setCurrentFolder("DT/DTDigiTask/Wheel" + wheel.str());
+  dbe->setCurrentFolder("DT/Digi/Wheel" + wheel.str());
 
   // build the histo name
   string histoName = histoTag + "_W" + wheel.str(); 
   
   if(debug) {
     cout<<"[DTDigiTask]: booking wheel histo:"<<endl;
-    cout<<"              folder "<< "DT/DTDigiTask/Wheel" + wheel.str() + "/" + folder<<endl;
+    cout<<"              folder "<< "DT/Digi/Wheel" + wheel.str() + "/" + folder<<endl;
     cout<<"              histoTag "<<histoTag<<endl;
     cout<<"              histoName "<<histoName<<endl;
   }
