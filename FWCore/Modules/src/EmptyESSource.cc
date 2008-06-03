@@ -1,8 +1,8 @@
 #include <sstream>
 
-#include <stdexcept>
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "FWCore/Modules/src/EmptyESSource.h"
+#include "FWCore/Utilities/interface/EDMException.h"
 
 namespace edm {
 
@@ -25,10 +25,9 @@ EmptyESSource::EmptyESSource(const edm::ParameterSet & pset) :
    
    eventsetup::EventSetupRecordKey recordKey = eventsetup::EventSetupRecordKey::TypeTag::findType(recordName_);
    if (recordKey == edm::eventsetup::EventSetupRecordKey()) {
-      std::ostringstream errorMessage;
-      errorMessage<<" The Record type named \""<<recordName_<<"\" could not be found. Please check the spelling. \n"
-         <<"If the spelling is fine, try to move the declaration of the TestingIntevalFinder to the end of the configuration file.";
-      throw std::runtime_error(errorMessage.str().c_str());
+      throw edm::Exception(errors::Configuration)<<" The Record type named \""<<recordName_<<"\" could not be found. Please check the spelling. \n"
+         <<"If the spelling is fine, try to move the declaration of the EmptyESSource with label'"
+         <<pset.getParameter<std::string>("@module_label")<<"' to the end of the configuration file.";
    }
    findingRecordWithKey(recordKey);
 }
