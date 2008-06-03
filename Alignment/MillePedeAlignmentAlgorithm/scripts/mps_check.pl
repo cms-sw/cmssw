@@ -116,10 +116,12 @@ for ($i=0; $i<@JOBID; ++$i) {
     }
 
     # for mille jobs checks that milleBinary file is not empty
-    if ( @JOBDIR[$i] ne "jobm" && !($mOutSize>0) ) {
+    if ( @JOBDIR[$i] ne "jobm" ) {
       $milleOut = sprintf("$mssDir/milleBinary%03d.dat",$i+1);
       $mOutSize = `nsls -l $milleOut | awk '{print \$5}'`;
-      $emptyDatErr = 1;
+      if ( !($mOutSize>0) ) {
+	$emptyDatErr = 1;
+      }
     }
 
     # additional checks for merging job
