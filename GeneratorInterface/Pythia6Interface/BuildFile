@@ -7,6 +7,7 @@
 <use name=lhapdf>
 <use name=tauola>
 <use name=photos>
+<use name=GeneratorInterface/CommonInterface>
 <use name=f77compiler>
 
 <flags EDM_PLUGIN=1>
@@ -20,5 +21,6 @@
  <use name=lhapdf>
  <use name=tauola>
  <use name=photos>
+ <use name=GeneratorInterface/CommonInterface>
 </export>
 
