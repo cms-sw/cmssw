@@ -1,7 +1,7 @@
 /**\class PhotonSimpleAnalyzer
  **
- ** $Date: 2008/04/30 10:51:07 $ 
- ** $Revision: 1.13 $
+ ** $Date: 2008/06/03 13:55:17 $ 
+ ** $Revision: 1.14 $
  ** \author Nancy Marinelli, U. of Notre Dame, US
 */
 
@@ -249,7 +249,7 @@ SimplePhotonAnalyzer::analyze( const edm::Event& evt, const edm::EventSetup& es 
 	float e3x3=   EcalClusterTools::e3x3(  *(    localPhotons[iMatch].superCluster()->seed()  ), &ecalRecHitCollection, &(*topology)); 
 	float r9 =e3x3/(  localPhotons[iMatch].superCluster()->rawEnergy()+  localPhotons[iMatch].superCluster()->preshowerEnergy());
 
-	std::cout << " Ciola 1 " << std::endl;
+
 
 
 	h1_scE_->Fill( localPhotons[iMatch].superCluster()->energy() );
@@ -269,7 +269,7 @@ SimplePhotonAnalyzer::analyze( const edm::Event& evt, const edm::EventSetup& es 
 	h1_deltaEta_ -> Fill(  localPhotons[iMatch].eta()- (*p)->momentum().eta()  );
 	h1_deltaPhi_ -> Fill(  localPhotons[iMatch].phi()- (*p)->momentum().phi()  );
 
-	std::cout << " Ciola 2 " << std::endl;
+
 
 
 	if ( phoIsInBarrel ) {
@@ -300,7 +300,7 @@ SimplePhotonAnalyzer::analyze( const edm::Event& evt, const edm::EventSetup& es 
 
       }    
 
-      std::cout << " Ciola 3 " << std::endl;
+
 
 
     } // End loop over MC particles
