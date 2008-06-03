@@ -28,9 +28,14 @@ public:
 
 private:    
 
+  typedef std::pair<double,double> Doubles;
+  typedef std::map<G4LogicalVolume*,Doubles> DimensionMap;
+
   void   initMap(G4String, const DDCompactView &);
   double curve_LY(G4Step*); 
-  double crystalLength(G4LogicalVolume*);
+  const double crystalLength(G4LogicalVolume*) const;
+  const double crystalWidth(G4LogicalVolume*) const;
+
   /// Returns the total energy due to Cherenkov radiation
   double cherenkovDeposit_( G4Step* aStep );
   /// Returns average number of photons created by track
@@ -40,14 +45,14 @@ private:
                                            const G4MaterialPropertyVector* rIndex ) const;
   /// Returns energy deposit for a given photon
   const double getPhotonEnergyDeposit_( const G4ParticleMomentum& p, const G4ThreeVector& x,
-                                        const G4Step* aStep ) const;
+                                        const G4Step* aStep );
   /// Sets material properties at run-time...
   bool setPbWO2MaterialProperties_( G4Material* aMaterial );
 
-  bool                              useBirk,doCherenkov_;
-  double                            birk1, birk2, birk3;
-  double                            slopeLY;
-  std::map<G4LogicalVolume*,double> xtalLMap;
+  bool      useBirk,doCherenkov_;
+  double    birk1, birk2, birk3;
+  double    slopeLY;
+  DimensionMap xtalLMap; // Store length and width
 
   /// Table of Cherenkov angle integrals vs photon momentum
   std::auto_ptr<G4PhysicsOrderedFreeVector> chAngleIntegrals_;
