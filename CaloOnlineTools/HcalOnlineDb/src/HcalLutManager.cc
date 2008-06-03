@@ -334,12 +334,6 @@ void HcalLutManager::addLutMap(std::map<int, shared_ptr<LutXml> > & result, cons
       result . insert( *lut );
     }
     else{
-      //LutXml a;
-      //(*(result[lut->first])) . write("stdout");
-      //LutXml b;
-      //(*(lut->second)) . write("stdout");
-      //a.write("stdout");
-      //a+=b;
       *(result[lut->first]) += *(lut->second);
     }
   }
@@ -564,13 +558,30 @@ std::vector<unsigned int> HcalLutManager::getLutFromXml( string tag, uint32_t _r
   return result;
 }
 
+int HcalLutManager::get_xml_files_from_db( std::string tag, const std::string db_accessor, bool split_by_crate )
+{
+  std::map<int, shared_ptr<LutXml> > lut_map = get_brickSet_from_oracle( tag, db_accessor );
+  if (split_by_crate){
+    writeLutXmlFiles( lut_map, tag, split_by_crate );
+  }      
+  else{
+    LutXml result;
+    for( std::map<int, shared_ptr<LutXml> >::const_iterator xml = lut_map.begin(); xml != lut_map.end(); xml++ ){
+      result += *(xml->second);
+    }
+    stringstream out_file;
+    out_file << tag << ".xml";
+    result . write(out_file.str());    
+  }
 
+  return 0;
+}
 
-std::map<int, shared_ptr<LutXml> > HcalLutManager::get_brickSet_from_oracle( string tag )
+std::map<int, shared_ptr<LutXml> > HcalLutManager::get_brickSet_from_oracle( std::string tag, const std::string _accessor )
 {
   HCALConfigDB * db = new HCALConfigDB();
   XMLProcessor::getInstance(); // initialize xerces-c engine
-  const std::string _accessor = "occi://CMS_HCL_PRTTYPE_HCAL_READER@anyhost/int2r?PASSWORD=HCAL_Reader_88,LHWM_VERSION=22";
+  //const std::string _accessor = "occi://CMS_HCL_PRTTYPE_HCAL_READER@anyhost/int2r?PASSWORD=HCAL_Reader_88,LHWM_VERSION=22";
   db -> connect( _accessor );
   oracle::occi::Connection * _connection = db -> getConnection();  
 
@@ -609,7 +620,7 @@ std::map<int, shared_ptr<LutXml> > HcalLutManager::get_brickSet_from_oracle( str
 	shared_ptr<LutXml> lut_xml = shared_ptr<LutXml>( new LutXml( *lut_clob ) );
 	stringstream file_name;
 	file_name << tag << "_" << crate << ".xml";
-	lut_xml -> write(file_name.str().c_str());
+	//lut_xml -> write(file_name.str().c_str());
 	lut_map[crate] = lut_xml;
         cout << " done" << endl;
       }
@@ -621,7 +632,7 @@ std::map<int, shared_ptr<LutXml> > HcalLutManager::get_brickSet_from_oracle( str
     XCEPT_RAISE(hcal::exception::ConfigurationDatabaseException,::toolbox::toString("Oracle  exception : %s",e.getMessage().c_str()));
   }
 
-  cout << lut_map.size() << endl;
+  //cout << lut_map.size() << endl;
 
   db -> disconnect();
   //delete db;

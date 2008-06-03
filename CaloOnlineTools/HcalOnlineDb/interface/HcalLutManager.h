@@ -72,7 +72,9 @@ class HcalLutManager{
   // hcal::ConfigurationDatabase::CompressionLUT
   std::vector<unsigned int> getLutFromXml( string tag, uint32_t _rawid, hcal::ConfigurationDatabase::LUTType _lt );
 
-  std::map<int, shared_ptr<LutXml> > get_brickSet_from_oracle( string tag );
+  std::map<int, shared_ptr<LutXml> > get_brickSet_from_oracle( string tag, const std::string _accessor = "occi://CMS_HCL_PRTTYPE_HCAL_READER@anyhost/int2r?PASSWORD=HCAL_Reader_88,LHWM_VERSION=22" );
+
+  int get_xml_files_from_db( std::string tag, const std::string db_accessor = "occi://CMS_HCL_PRTTYPE_HCAL_READER@anyhost/int2r?PASSWORD=HCAL_Reader_88,LHWM_VERSION=22", bool split_by_crate = true );
 
   // get md5 checksums for LUTs
   std::string get_checksum( std::vector<unsigned int> & lut );

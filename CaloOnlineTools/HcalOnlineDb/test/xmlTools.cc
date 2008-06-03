@@ -64,6 +64,7 @@ int main( int argc, char **argv )
   //===> command line options parser using boost  
   //
   int crate;
+  std::string db_accessor;
   po::options_description general("General options");
   general.add_options()
     ("help", "produce help message")
@@ -79,6 +80,7 @@ int main( int argc, char **argv )
     ("lut-type", po::value<int>(&crate)->default_value( 1 ), "LUT type: 1 - linearization, 2 - compression")
     ("create-lut-xml", "create XML file(s) with LUTs, arg=crate number, default arg=-1 stands for all crates")
     ("get-lut-xml-from-oracle", "Get LUTs from Oracle database")
+    ("database-accessor", po::value<string>(&db_accessor)->default_value("occi://CMS_HCL_PRTTYPE_HCAL_READER@anyhost/int2r?PASSWORD=HCAL_Reader_88,LHWM_VERSION=22"), "Database accessor string")
     ("lin-lut-master-file", po::value<string>(), "Linearizer LUT ASCII master file name")
     ("comp-lut-master-file", po::value<string>(), "Compression LUT ASCII master file name")
     ("do-not-split-by-crate", "output LUTs as a single XML instead of making a separate file for each crate")
@@ -256,8 +258,12 @@ int main( int argc, char **argv )
 	exit(-1);
       }
       string _tag = vm["tag-name"].as<string>();
+      string _accessor = vm["database-accessor"].as<string>();
       HcalLutManager manager;
-      manager . get_brickSet_from_oracle( _tag );
+      //manager . get_brickSet_from_oracle( _tag );
+      cout << "Accessing the database as " << _accessor << endl;
+      cout << "Tag name: " << _tag << endl;
+      manager . get_xml_files_from_db( _tag, _accessor, !vm.count("do-not-split-by-crate") );
       return 0;
     }
     
