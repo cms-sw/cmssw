@@ -193,7 +193,7 @@ sub split_external_name{
 
 foreach my $tool ( sort keys %scram_tools ){
     if ( $tool =~ /gccxml/i && $core_mode){
-	system("cp -r /afs/cern.ch/sw/lcg/external/gccxml/0.7.0_20070615/slc4_ia32_gcc34 $dir/external/gccxml");
+	system("cp -r $gccxml $dir/external/gccxml");
 #	# open tool file and parse it
 #	if ( `cat $dir/tools/gccxml | grep GCCXML_BASE` =~ /GCCXML_BASE=(\S+)/ ){
 #	    my ($path,$name,$fullpath) = split_external_name($1);
