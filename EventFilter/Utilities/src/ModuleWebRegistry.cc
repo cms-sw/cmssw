@@ -26,12 +26,53 @@ void ModuleWebRegistry::invoke(xgi::Input *in, xgi::Output *out, const std::stri
     }
 }
 
+void ModuleWebRegistry::openBackDoor(const std::string &name)
+{
+  std::cout <<"mwr openbackdoor called " << std::endl;
+  idct i = clm_.find(name);
+  if(i != clm_.end())
+    {
+      try{
+	(*i).second->openBackDoor();
+      }
+      catch(...)
+	{
+	  std::cout << "exception caught when calling open backdoor for " << name << std::endl;
+	}
+    }
+}
+
+void ModuleWebRegistry::closeBackDoor(const std::string &name)
+{
+  idct i = clm_.find(name);
+  if(i != clm_.end())
+    {
+      try{
+	(*i).second->closeBackDoor();
+      }
+      catch(...)
+	{
+	  std::cout << "exception caught when calling close backdoor for " << name << std::endl;
+	}
+    }
+}
+
 void ModuleWebRegistry::publish(xdata::InfoSpace *is)
 {
     idct i = clm_.begin();
     while (i != clm_.end())
       {
 	(*i).second->publish(is);
+	i++;
+      }
+
+}
+void ModuleWebRegistry::publishToXmas(xdata::InfoSpace *is)
+{
+    idct i = clm_.begin();
+    while (i != clm_.end())
+      {
+	(*i).second->publishToXmas(is);
 	i++;
       }
 

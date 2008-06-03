@@ -36,12 +36,14 @@ namespace evf
 	} 
       void invoke(xgi::Input *, xgi::Output *, const std::string &);
       void publish(xdata::InfoSpace *);
+      void publishToXmas(xdata::InfoSpace *);
       bool checkWeb(const std::string &);
 
     private:
       typedef std::map<std::string, ModuleWeb*> dct;
       typedef dct::iterator idct;
-
+      void openBackDoor(const std::string &);
+      void closeBackDoor(const std::string &);
       void clear();
       dct clm_;
       friend class FUEventProcessor;
