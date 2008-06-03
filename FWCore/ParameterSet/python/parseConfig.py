@@ -498,7 +498,7 @@ class _IncludeNode(cms._ParameterTypeBase):
         # translate, e.g., "SimMuon/DT/data/my-mod.cfi" to "SimMuon/DT/data/my_mod_cfi"
         return self.filename.replace('.','_').replace('-','_')
     def pythonFileName(self):
-        return self.pythonFileRoot().replace('/data/','/python/')+".py"
+        return self.pythonFileRoot().replace('/data/','/python/').replace('/test/','/python/test/')+".py"
     def pythonModuleName(self):
         # we want something like "SimMuon.DT.mod_cfi"
         return self.pythonFileRoot().replace('/','.').replace('.data.','.')
