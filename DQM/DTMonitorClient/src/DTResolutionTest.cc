@@ -51,6 +51,8 @@ DTResolutionTest::DTResolutionTest(const edm::ParameterSet& ps){
 
   dbe = edm::Service<DQMStore>().operator->();
   dbe->setVerbose(1);
+  if(ps.getUntrackedParameter<bool>("calibModule", false))
+    dbe->open(ps.getUntrackedParameter<string>("inputFile", "residuals.root"));
 
   prescaleFactor = parameters.getUntrackedParameter<int>("diagnosticPrescale", 1);
 
