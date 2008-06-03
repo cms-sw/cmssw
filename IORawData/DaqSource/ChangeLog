@@ -1,10 +1,10 @@
-2008-03-14  Emilio Meschi  <emilio.meschi@cern.ch>
-	* tag V01-05-04
-	* get LS id from L1 EVM block
-	
 2008-01-29  Emilio Meschi  <emilio.meschi@cern.ch>
 	* tag V01-06-04
 	* added access from xdaq and locks to get hold of hlt counters, and ls,ps id
+
+2008-03-14  Emilio Meschi  <emilio.meschi@cern.ch>
+	* tag V01-05-04
+	* get LS id from L1 EVM block
 	
 2008-01-29  Emilio Meschi  <emilio.meschi@cern.ch>
 	* tag V01-05-02
