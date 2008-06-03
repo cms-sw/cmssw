@@ -3,6 +3,7 @@
 
 #include "SimG4Core/GFlash/interface/GflashNameSpace.h"
 #include "SimG4Core/GFlash/interface/GflashTrajectory.h"
+#include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "CLHEP/Random/RandGaussQ.h"
 #include "CLHEP/Random/RandGamma.h"
 
@@ -21,7 +22,7 @@ public:
   //-------------------------
   // Constructor, destructor
   //-------------------------
-  GflashHadronShowerProfile (G4Region* envelope);
+  GflashHadronShowerProfile (G4Region* envelope, edm::ParameterSet parSet);
   ~GflashHadronShowerProfile ();
 
   Gflash::CalorimeterNumber getCalorimeterNumber(const G4ThreeVector position);
@@ -40,6 +41,7 @@ private:
 
 private:  
 
+  edm::ParameterSet theParSet;
   G4int showerType ; 
   Gflash::CalorimeterNumber jCalorimeter ;
   std::vector<GflashEnergySpot> aEnergySpotList;

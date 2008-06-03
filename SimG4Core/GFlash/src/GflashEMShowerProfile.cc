@@ -1,5 +1,5 @@
 //
-// $Id: GflashEMShowerProfile.cc,v 1.3 2008/02/29 23:40:56 syjun Exp $
+// $Id: GflashEMShowerProfile.cc,v 1.4 2008/04/25 20:27:39 dwjang Exp $
 // initial setup : Soon Jun & Dongwook Jang
 // Translated from Fortran code.
 
@@ -17,7 +17,7 @@
 #include "SimG4Core/GFlash/interface/GflashTrajectory.h"
 #include "SimG4Core/GFlash/interface/GflashTrajectoryPoint.h"
 
-GflashEMShowerProfile::GflashEMShowerProfile(G4Region* envelope)
+GflashEMShowerProfile::GflashEMShowerProfile(G4Region* envelope, edm::ParameterSet parSet) : theParSet(parSet)
 {
   theHelix = new GflashTrajectory;
   theHisto = GflashHistogram::instance();
@@ -31,13 +31,21 @@ GflashEMShowerProfile::GflashEMShowerProfile(G4Region* envelope)
       << "remove the modules that require it.";
   }
   theRandGauss = new CLHEP::RandGaussQ(rng->getEngine());
+
+  std::vector<double> params = parSet.getParameter<std::vector<double> >("emLateral_pList");
+  int i=0;
+  for(std::vector<double>::iterator it = params.begin(); it != params.end(); it++, i++){
+    theLateral_p[i] = *it;
+  }//for
 }
+
 
 GflashEMShowerProfile::~GflashEMShowerProfile()
 {
   delete theHelix;
   delete theRandGauss;
 }
+
 
 void GflashEMShowerProfile::parameterization(const G4FastTrack& fastTrack)
 {
@@ -121,7 +129,9 @@ void GflashEMShowerProfile::parameterization(const G4FastTrack& fastTrack)
   G4double p3=1.313 -0.0686*logEinc;
 
   //@@@ dwjang, intial tuning by comparing 20GeV TB data
-  p1 = 2.47;
+  p1 = theLateral_p[0] -0.00094*Z;
+  p2 = theLateral_p[1] +0.00187*Z;
+  p3 = theLateral_p[2] + theLateral_p[3]*logEinc;
  
   // preparation of longitudinal integration
   G4double stepLengthLeft = fastTrack.GetEnvelopeSolid()->DistanceToOut(fastTrack.GetPrimaryTrackLocalPosition(),

@@ -24,8 +24,8 @@
 // ********************************************************************
 //
 //
-// $Id: GflashEMShowerModel.h,v 1.3 2007/12/07 23:01:28 dwjang Exp $
-// GEANT4 tag $Name: V00-06-02 $
+// $Id: GflashEMShowerModel.h,v 1.4 2008/02/29 23:40:55 syjun Exp $
+// GEANT4 tag $Name:  $
 //
 //
 //---------------------------------------------------------------
@@ -38,6 +38,7 @@
 //  GFlash parameterisation shower model.
 
 // Authors: E.Barberio & Joanna Weng - 9.11.04
+// other authors : Soon Yung Jun & Dongwook Jang - 2007/12/07
 //---------------------------------------------------------------
 #ifndef GflashEMShowerModel_h
 #define GflashEMShowerModel_h
@@ -45,6 +46,7 @@
 #include "G4VFastSimulationModel.hh"
 #include "G4TouchableHandle.hh"
 #include "G4Navigator.hh"
+#include "FWCore/ParameterSet/interface/ParameterSet.h"
 
 class GflashEMShowerProfile;
 class G4Step;
@@ -53,7 +55,7 @@ class GflashEMShowerModel : public G4VFastSimulationModel {
 
  public:
   
-  GflashEMShowerModel (G4String name, G4Envelope* env);
+  GflashEMShowerModel (G4String name, G4Envelope* env, edm::ParameterSet parSet);
   ~GflashEMShowerModel ();  
 
   G4bool ModelTrigger(const G4FastTrack &); 
@@ -64,6 +66,7 @@ class GflashEMShowerModel : public G4VFastSimulationModel {
 
 private:
 
+  edm::ParameterSet theParSet;
   GflashEMShowerProfile *theProfile;
   G4Step *theGflashStep;
   G4Navigator *theGflashNavigator;

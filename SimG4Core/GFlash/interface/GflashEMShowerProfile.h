@@ -2,6 +2,7 @@
 #define GflashEMShowerProfile_H 
 
 #include "SimG4Core/GFlash/interface/GflashTrajectory.h"
+#include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "G4VFastSimulationModel.hh"
 #include "CLHEP/Random/RandGaussQ.h"
 #include <vector>
@@ -15,7 +16,7 @@ public:
   //-------------------------
   // Constructor, destructor
   //-------------------------
-  GflashEMShowerProfile (G4Region* envelope);
+  GflashEMShowerProfile (G4Region* envelope, edm::ParameterSet parSet);
   ~GflashEMShowerProfile ();
 
   void clearSpotList() { aEnergySpotList.clear(); }
@@ -24,12 +25,17 @@ public:
 
 private:  
 
+  edm::ParameterSet theParSet;
   std::vector<GflashEnergySpot> aEnergySpotList;
 
   GflashHistogram* theHisto;
   GflashTrajectory* theHelix;
 
   CLHEP::RandGaussQ* theRandGauss;
+
+  // temporary addition for tuning parameters
+  double theLateral_p[4];
+
 };
 
 #endif

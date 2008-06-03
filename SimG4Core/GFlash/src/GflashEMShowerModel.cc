@@ -16,10 +16,10 @@
 #include "SimG4Core/GFlash/interface/GflashEMShowerProfile.h"
 #include "SimG4Core/GFlash/interface/GflashEnergySpot.h"
 
-GflashEMShowerModel::GflashEMShowerModel(G4String modelName, G4Envelope* envelope)
-  : G4VFastSimulationModel(modelName, envelope) {
+GflashEMShowerModel::GflashEMShowerModel(G4String modelName, G4Envelope* envelope, edm::ParameterSet parSet)
+  : G4VFastSimulationModel(modelName, envelope), theParSet(parSet) {
 
-  theProfile = new GflashEMShowerProfile(envelope);
+  theProfile = new GflashEMShowerProfile(envelope,parSet);
   theGflashStep = new G4Step();
   theGflashNavigator = new G4Navigator();
   theGflashTouchableHandle = new G4TouchableHistory();

@@ -19,10 +19,10 @@
 #include "SimG4Core/GFlash/interface/GflashTrajectory.h"
 #include "SimG4Core/GFlash/interface/GflashTrajectoryPoint.h"
 
-GflashHadronShowerModel::GflashHadronShowerModel(G4String modelName, G4Region* envelope)
-  : G4VFastSimulationModel(modelName, envelope)
+GflashHadronShowerModel::GflashHadronShowerModel(G4String modelName, G4Region* envelope, edm::ParameterSet parSet)
+  : G4VFastSimulationModel(modelName, envelope), theParSet(parSet)
 {
-  theProfile = new GflashHadronShowerProfile(envelope);
+  theProfile = new GflashHadronShowerProfile(envelope,parSet);
   theHisto = GflashHistogram::instance();
 
   theGflashStep = new G4Step();

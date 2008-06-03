@@ -14,7 +14,7 @@
 
 #include <math.h>
 
-GflashHadronShowerProfile::GflashHadronShowerProfile(G4Region* envelope)
+GflashHadronShowerProfile::GflashHadronShowerProfile(G4Region* envelope, edm::ParameterSet parSet) : theParSet(parSet)
 {
   showerType   = 0;
   jCalorimeter = Gflash::kNULL;

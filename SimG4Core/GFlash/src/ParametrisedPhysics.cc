@@ -60,11 +60,11 @@ void ParametrisedPhysics::ConstructProcess() {
 
   //Electromagnetic Shower Model
   if(theParSet.getParameter<bool>("GflashEMShowerModel")) {
-    theEMShowerModel  = new GflashEMShowerModel("GflashEMShowerModel",aRegion);
+    theEMShowerModel  = new GflashEMShowerModel("GflashEMShowerModel",aRegion,theParSet);
   }    
 
   //Hadronic Shower Model
   if(theParSet.getParameter<bool>("GflashHadronShowerModel")) {
-    theHadronShowerModel = new GflashHadronShowerModel("GflashHadronShowerModel",aRegion);
+    theHadronShowerModel = new GflashHadronShowerModel("GflashHadronShowerModel",aRegion,theParSet);
   }
 }
