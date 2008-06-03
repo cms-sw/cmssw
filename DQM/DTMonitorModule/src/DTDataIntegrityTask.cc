@@ -2,8 +2,8 @@
 /*
  * \file DTDataIntegrityTask.cc
  * 
- * $Date: 2008/05/27 16:24:01 $
- * $Revision: 1.43 $
+ * $Date: 2008/05/31 15:26:11 $
+ * $Revision: 1.44 $
  * \author M. Zanetti (INFN Padova), S. Bolognesi (INFN Torino)
  *
  */
@@ -765,7 +765,7 @@ void DTDataIntegrityTask::processROS25(DTROS25Data & data, int ddu, int ros) {
     } else {
       cout << " TDC error code not known " << ((*tdc_it).second).tdcError() << endl;
     }
-    cout << "D1" << endl;
+
     histoType = "ROSError";
     codeAndME = rosHistos[histoType].find(code.getROSID());
     if (codeAndME == rosHistos[histoType].end()) {
