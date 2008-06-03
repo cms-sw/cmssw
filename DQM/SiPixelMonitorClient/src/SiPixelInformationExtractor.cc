@@ -1515,6 +1515,9 @@ void SiPixelInformationExtractor::fillGlobalQualityPlot(DQMStore * bei, bool ini
       SummaryReportMap->setBinContent(i,j,contents);
     }
   }
+  if(allmodsEtaPhi) allmodsEtaPhi->Clear();
+  if(goodmodsEtaPhi) goodmodsEtaPhi->Clear();
+  if(errmodsEtaPhi) errmodsEtaPhi->Clear();
   //cout<<"counters: "<<count<<" , "<<errcount<<endl;
 }
 
