@@ -5,8 +5,9 @@
  *  An input source for DQM consumers using cmsRun that connect to
  *  the StorageManager or SMProxyServer to get DQM data.
  *
- *  $Id: DQMHttpSource.h,v 1.6 2007/09/14 13:18:31 hcheung Exp $
+ *  $Id: DQMHttpSource.h,v 1.7 2008/03/04 17:12:38 hcheung Exp $
  */
+#include "IOPool/Streamer/interface/MsgTools.h"
 #include "IOPool/Streamer/interface/EventBuffer.h"
 #include "IOPool/Streamer/interface/StreamerInputSource.h"
 #include "DQMServices/Core/interface/DQMStore.h"
@@ -53,6 +54,8 @@ namespace edm
     struct timeval lastDQMRequestTime_;
 
     bool alreadySaidHalted_;
+
+    Strings firstHistoExtractDone_;
 
     protected:
       DQMStore *bei_;
