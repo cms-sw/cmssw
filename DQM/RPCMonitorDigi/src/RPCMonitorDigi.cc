@@ -297,11 +297,8 @@ void RPCMonitorDigi::analyze(const edm::Event& iEvent,
 
 	BarrelOccupancy -> setBinLabel(detId.sector(), sector1, 1);
 	BarrelOccupancy -> setBinLabel(detId.ring()+3, Wheel1, 2);
-<<<<<<< RPCMonitorDigi.cc
 
-=======
-	
->>>>>>> 1.45
+
 	os.str("");
 	os<<"Sec"<<detId.sector();
 	Yaxis= os.str();
