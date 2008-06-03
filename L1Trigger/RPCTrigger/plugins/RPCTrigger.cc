@@ -1,7 +1,7 @@
 /** \file RPCTrigger.cc
  *
- *  $Date: 2008/03/03 14:35:06 $
- *  $Revision: 1.8 $
+ *  $Date: 2008/04/09 15:17:35 $
+ *  $Revision: 1.9 $
  *  \author Tomasz Fruboes
  */
 #include "L1Trigger/RPCTrigger/interface/RPCTrigger.h"
@@ -32,7 +32,7 @@ RPCTrigger::RPCTrigger(const edm::ParameterSet& iConfig):
   m_cacheID = 0;
 
 
-  m_triggerDebug = iConfig.getUntrackedParameter("RPCTriggerDebug",0);
+  m_triggerDebug = iConfig.getUntrackedParameter<int>("RPCTriggerDebug",0);
   
   // 0 - no debug
   // 2 - technical debug
