@@ -11,6 +11,7 @@
 <use name=Geometry/EcalAlgo>
 <use name=RecoParticleFlow/PFClusterAlgo>
 < flags EDM_PLUGIN=1 >
+<flags CXXFLAGS="-g -O0">
 <export>
    <lib name=RecoParticleFlowPFClusterProducer>
    <use name=FWCore/Framework>

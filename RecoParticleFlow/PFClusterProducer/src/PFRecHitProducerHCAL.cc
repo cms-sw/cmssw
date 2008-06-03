@@ -132,7 +132,8 @@ void PFRecHitProducerHCAL::createRecHits(vector<reco::PFRecHit>& rechits,
 	  caloTowerGeometry = geoHandle->getSubdetectorGeometry(ct.id());
 	  
 	// get the hadronic energy.
-	double energy = ct.hadEnergy();
+	double energy = ct.hadEnergy()+ct.emEnergy();
+
 	if( energy < 1e-9 ) continue;  
 	  
 	  
@@ -314,6 +315,7 @@ PFRecHitProducerHCAL::createHcalRecHit( const DetId& detid,
   
   const GlobalPoint& position = thisCell->getPosition();
   
+  
   unsigned id = detid;
   if(newDetId) id = newDetId;
   reco::PFRecHit *rh = 
@@ -321,6 +323,9 @@ PFRecHitProducerHCAL::createHcalRecHit( const DetId& detid,
 			position.x(), position.y(), position.z(), 
 			0,0,0 );
  
+  
+  
+  
   // set the corners
   const CaloCellGeometry::CornersVec& corners = thisCell->getCorners();
 
