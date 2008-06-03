@@ -233,7 +233,6 @@ process.q = cms.EndPath(process.ecalEndcapCosmicTasksSequence)
 
 process.ecalUncalibHit.MinAmplBarrel = 12.
 process.ecalUncalibHit.MinAmplEndcap = 16.
-
 process.ecalUncalibHit.EBdigiCollection = cms.InputTag("ecalEBunpacker","ebDigis")
 process.ecalUncalibHit.EEdigiCollection = cms.InputTag("ecalEBunpacker","eeDigis")
 
@@ -244,4 +243,5 @@ process.ecalEndcapMonitorClient.maskFile = ''
 process.ecalEndcapMonitorClient.location = 'H4'
 process.ecalEndcapMonitorClient.baseHtmlDir = '.'
 process.ecalEndcapMonitorClient.superModules = [10]
+#process.ecalEndcapMonitorClient.superModules = [4, 5, 6]
 

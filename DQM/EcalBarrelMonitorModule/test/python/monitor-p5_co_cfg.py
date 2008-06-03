@@ -203,7 +203,6 @@ process.q = cms.EndPath(process.ecalBarrelCosmicTasksSequence)
 
 process.ecalUncalibHit2.MinAmplBarrel = 12.
 process.ecalUncalibHit2.MinAmplEndcap = 16.
-
 process.ecalUncalibHit2.EBdigiCollection = cms.InputTag("ecalEBunpacker","ebDigis")
 process.ecalUncalibHit2.EEdigiCollection = cms.InputTag("ecalEBunpacker","eeDigis")
 

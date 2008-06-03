@@ -79,7 +79,6 @@ process.q = cms.EndPath(process.ecalBarrelDefaultTasksSequence*process.ecalBarre
 
 process.ecalUncalibHit.MinAmplBarrel = 12.
 process.ecalUncalibHit.MinAmplEndcap = 16.
-
 process.ecalUncalibHit.EBdigiCollection = cms.InputTag("ecalDigis","ebDigis")
 process.ecalUncalibHit.EEdigiCollection = cms.InputTag("ecalDigis","eeDigis")
 
