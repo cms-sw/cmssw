@@ -6,6 +6,7 @@
 <use name=herwig>
 <use name=lhapdf>
 <use name=jimmy>
+<use name=GeneratorInterface/CommonInterface>
 <use name=f77compiler>
 <flags EDM_PLUGIN=1>
 <export>
@@ -18,6 +19,7 @@
  <use name=herwig>
  <use name=lhapdf>
  <use name=jimmy>
+ <use name=GeneratorInterface/CommonInterface>
 </export>
 
 
