@@ -3,7 +3,6 @@ import FWCore.ParameterSet.Config as cms
 process = cms.Process("ECALDQM")
 
 process.load("EventFilter.EcalRawToDigiDev.EcalUnpackerMapping_cfi")
-
 process.load("EventFilter.EcalRawToDigiDev.EcalUnpackerData_cfi")
 
 import RecoLocalCalo.EcalRecProducers.ecalFixedAlphaBetaFitUncalibRecHit_cfi
