@@ -10,17 +10,11 @@ process.load("RecoLocalCalo.EcalRecProducers.ecalRecHit_cfi")
 #import RecoLocalCalo.EcalRecProducers.ecalWeightUncalibRecHit_cfi
 #process.ecalUncalibHit = RecoLocalCalo.EcalRecProducers.ecalWeightUncalibRecHit_cfi.ecalWeightUncalibRecHit.clone()
 
-process.load("DQM.EcalEndcapMonitorModule.EcalEndcapMonitorModule_cfi")
+process.load("DQM.EcalBarrelMonitorModule.EcalBarrelMonitorModule_cfi")
 
-process.load("DQM.EcalEndcapMonitorTasks.EcalEndcapMonitorTasks_cfi")
+process.load("DQM.EcalBarrelMonitorTasks.EcalBarrelMonitorTasks_cfi")
 
-process.load("DQM.EcalEndcapMonitorTasks.mergeRuns_cff")
-
-process.load("Geometry.CaloEventSetup.CaloGeometry_cfi")
-
-process.load("Geometry.CaloEventSetup.EcalTrigTowerConstituents_cfi")
-
-process.load("Geometry.CMSCommonData.cmsIdealGeometryXML_cfi")
+process.load("DQM.EcalBarrelMonitorTasks.mergeRuns_cff")
 
 process.load("SimCalorimetry.EcalTrigPrimProducers.ecalTriggerPrimitiveDigis_cff")
 
@@ -29,7 +23,7 @@ process.load("Geometry.EcalMapping.EcalMapping_cfi")
 import SimCalorimetry.EcalTrigPrimProducers.ecalTriggerPrimitiveDigis_cfi
 process.ecalTriggerPrimitiveDigis2 = SimCalorimetry.EcalTrigPrimProducers.ecalTriggerPrimitiveDigis_cfi.ecalTriggerPrimitiveDigis.clone()
 
-process.load("DQM.EcalEndcapMonitorClient.EcalEndcapMonitorClient_cfi")
+process.load("DQM.EcalBarrelMonitorClient.EcalBarrelMonitorClient_cfi")
 
 process.load("RecoEcal.EgammaClusterProducers.ecalClusteringSequence_cff")
 
@@ -41,19 +35,19 @@ process.preScaler = cms.EDFilter("Prescaler",
     prescaleFactor = cms.int32(1)
 )
 
-process.dqmInfoEE = cms.EDFilter("DQMEventInfo",
-    subSystemFolder = cms.untracked.string('EcalEndcap')
+process.dqmInfoEB = cms.EDFilter("DQMEventInfo",
+    subSystemFolder = cms.untracked.string('EcalBarrel')
 )
 
-process.dqmQTestEE = cms.EDFilter("QualityTester",
+process.dqmQTestEB = cms.EDFilter("QualityTester",
     reportThreshold = cms.untracked.string('red'),
     prescaleFactor = cms.untracked.int32(1),
-    qtList = cms.untracked.FileInPath('DQM/EcalEndcapMonitorModule/test/data/EcalEndcapQualityTests.xml'),
+    qtList = cms.untracked.FileInPath('DQM/EcalBarrelMonitorModule/test/data/EcalBarrelQualityTests.xml'),
     getQualityTestsFromFile = cms.untracked.bool(True)
 )
 
-process.dqmSaverEE = cms.EDFilter("DQMFileSaver",
-    fileName = cms.untracked.string('EcalEndcap'),
+process.dqmSaverEB = cms.EDFilter("DQMFileSaver",
+    fileName = cms.untracked.string('EcalBarrel'),
     dirName = cms.untracked.string('.'),
     convention = cms.untracked.string('Online')
 )
@@ -94,20 +88,20 @@ process.MessageLogger = cms.Service("MessageLogger",
             limit = cms.untracked.int32(0)
         ),
         noTimeStamps = cms.untracked.bool(True),
-        noLineBreaks = cms.untracked.bool(True),
-        EcalEndcapMonitorModule = cms.untracked.PSet(
+        EcalBarrelMonitorModule = cms.untracked.PSet(
             limit = cms.untracked.int32(0)
-        )
+        ),
+        noLineBreaks = cms.untracked.bool(True)
     ),
-    categories = cms.untracked.vstring('EcalEndcapMonitorModule'),
+    categories = cms.untracked.vstring('EcalBarrelMonitorModule'),
     destinations = cms.untracked.vstring('cout')
 )
 
-process.ecalEndcapDataSequence = cms.Sequence(process.preScaler*process.ecalUncalibHit*process.ecalRecHit*process.ecalTriggerPrimitiveDigis*process.ecalTriggerPrimitiveDigis2*process.islandBasicClusters*process.islandSuperClusters*process.hybridSuperClusters)
-process.ecalEndcapMonitorSequence = cms.Sequence(process.ecalEndcapMonitorModule*process.dqmInfoEE*process.ecalEndcapMonitorClient*process.dqmQTestEE*process.dqmSaverEE)
+process.ecalBarrelDataSequence = cms.Sequence(process.preScaler*process.ecalUncalibHit*process.ecalRecHit*process.ecalTriggerPrimitiveDigis*process.ecalTriggerPrimitiveDigis2*process.islandBasicClusters*process.islandSuperClusters*process.hybridSuperClusters)
+process.ecalBarrelMonitorSequence = cms.Sequence(process.ecalBarrelMonitorModule*process.dqmInfoEB*process.ecalBarrelMonitorClient*process.dqmQTestEB*process.dqmSaverEB)
 
-process.p = cms.Path(process.ecalEndcapDataSequence*process.ecalEndcapMonitorSequence)
-process.q = cms.EndPath(process.ecalEndcapDefaultTasksSequence*process.ecalEndcapClusterTask)
+process.p = cms.Path(process.ecalBarrelDataSequence*process.ecalBarrelMonitorSequence)
+process.q = cms.EndPath(process.ecalBarrelDefaultTasksSequence*process.ecalBarrelClusterTask)
 
 process.ecalUncalibHit.MinAmplBarrel = 12.
 process.ecalUncalibHit.MinAmplEndcap = 16.
@@ -117,30 +111,33 @@ process.ecalUncalibHit.EEdigiCollection = cms.InputTag("ecalDigis","eeDigis")
 process.ecalRecHit.EBuncalibRecHitCollection = cms.InputTag("ecalUncalibHit","EcalUncalibRecHitsEB")
 process.ecalRecHit.EEuncalibRecHitCollection = cms.InputTag("ecalUncalibHit","EcalUncalibRecHitsEE")
 
-process.ecalEndcapMonitorModule.mergeRuns = True
-process.ecalEndcapMonitorModule.EEDigiCollection = cms.InputTag("ecalDigis","eeDigis")
-process.ecalEndcapMonitorModule.runType = 3 # MTCC/PHYSICS
+process.ecalBarrelMonitorModule.mergeRuns = True
+process.ecalBarrelMonitorModule.EBDigiCollection = cms.InputTag("ecalDigis","ebDigis")
+process.ecalBarrelMonitorModule.runType = 3 # MTCC/PHYSICS
 
 process.ecalTriggerPrimitiveDigis.Label = 'ecalDigis'
 process.ecalTriggerPrimitiveDigis.InstanceEB = 'ebDigis'
 process.ecalTriggerPrimitiveDigis.InstanceEE = 'eeDigis'
+process.ecalTriggerPrimitiveDigis.BarrelOnly = True
 
 process.ecalTriggerPrimitiveDigis2.Label = 'ecalDigis'
 process.ecalTriggerPrimitiveDigis2.InstanceEB = 'ebDigis'
 process.ecalTriggerPrimitiveDigis2.InstanceEE = 'eeDigis'
+process.ecalTriggerPrimitiveDigis2.BarrelOnly = True
 
-process.ecalEndcapTriggerTowerTask.EcalTrigPrimDigiCollectionReal = 'ecalTriggerPrimitiveDigis2'
+process.ecalBarrelTriggerTowerTask.EcalTrigPrimDigiCollectionReal = 'ecalTriggerPrimitiveDigis2'
 
-process.ecalEndcapMonitorModule.EcalTrigPrimDigiCollection = 'ecalTriggerPrimitiveDigis2'
+process.ecalBarrelMonitorModule.EcalTrigPrimDigiCollection = 'ecalTriggerPrimitiveDigis2'
 
-process.ecalEndcapOccupancyTask.EEDigiCollection = cms.InputTag("ecalDigis","eeDigis")
-process.ecalEndcapOccupancyTask.EcalTrigPrimDigiCollection = 'ecalTriggerPrimitiveDigis'
+process.ecalBarrelOccupancyTask.EBDigiCollection = cms.InputTag("ecalDigis","ebDigis")
+process.ecalBarrelOccupancyTask.EcalTrigPrimDigiCollection = 'ecalTriggerPrimitiveDigis'
 
-process.ecalEndcapPedestalOnlineTask.EEDigiCollection = cms.InputTag("ecalDigis","eeDigis")
+process.ecalBarrelPedestalOnlineTask.EBDigiCollection = cms.InputTag("ecalDigis","ebDigis")
 
-process.ecalEndcapMonitorClient.maskFile = 'maskfile-EE.dat'
-process.ecalEndcapMonitorClient.mergeRuns = True
-process.ecalEndcapMonitorClient.location = 'H4'
-process.ecalEndcapMonitorClient.baseHtmlDir = '.'
-process.ecalEndcapMonitorClient.enabledClients = ['Integrity', 'Occupancy', 'PedestalOnline', 'Timing', 'TriggerTower', 'Cluster', 'Summary']
+process.ecalBarrelMonitorClient.maskFile = 'maskfile-EB.dat'
+process.ecalBarrelMonitorClient.mergeRuns = True
+process.ecalBarrelMonitorClient.location = 'H4'
+process.ecalBarrelMonitorClient.baseHtmlDir = '.'
+
+process.ecalBarrelMonitorClient.enabledClients = ['Integrity', 'Occupancy', 'PedestalOnline', 'Timing', 'TriggerTower', 'Cluster', 'Summary']
 

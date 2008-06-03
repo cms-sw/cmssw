@@ -104,7 +104,7 @@ process.ecalRecHit.EEuncalibRecHitCollection = cms.InputTag("ecalUncalibHit","Ec
 
 process.ecalBarrelMonitorModule.mergeRuns = True
 process.ecalBarrelMonitorModule.EBDigiCollection = cms.InputTag("ecalDigis","ebDigis")
-process.ecalBarrelMonitorModule.runType = 3
+process.ecalBarrelMonitorModule.runType = 3 # MTCC/PHYSICS
 process.ecalBarrelMonitorModule.EcalTrigPrimDigiCollection = 'ecalTriggerPrimitiveDigis'
 
 process.ecalBarrelOccupancyTask.EBDigiCollection = cms.InputTag("ecalDigis","ebDigis")
