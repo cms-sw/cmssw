@@ -159,25 +159,12 @@ process TESTGRAPHDUMPER = {
 
 $input_module
 
-  module ecalPedHists = EcalPedHists {
-
-# selection on EB-+ numbering
-    untracked vstring listEBs = {"${ieb}"}
-
-# selection on FED number (601...654)
-    untracked vint32 listFEDs = {${fed}}
-
-# specify list of channels to be dumped
-    untracked vint32  listChannels = {${cry_ic}}
-
-# sepecify list of samples to use
-    untracked vint32 listSamples = {${sample}}
-
-    untracked string fileName =  '$data_file.$$'
-    InputTag EBdigiCollection = ecalEBunpacker:ebDigis
-    InputTag EEdigiCollection = ecalEBunpacker:eeDigis
-    InputTag headerProducer = ecalEBunpacker
-  }
+  include "CaloOnlineTools/EcalTools/data/ecalPedHists.cfi"
+    replace ecalPedHists.listEBs = {"${ieb}"}
+    replace ecalPedHists.listFEDs = {${fed}}
+    replace ecalPedHists.listChannels = {${cry_ic}}
+    replace ecalPedHists.listSamples = {${sample}}
+    replace ecalPedHists.fileName =  '$data_file.$$'
 
   path p = {ecalEBunpacker, ecalPedHists}
 
@@ -199,9 +186,9 @@ cmsRun "$cfg_path$data_file".graph.$$.cfg >& "$log_dir$data_file".$$.graph
 echo ""
 echo ""
 
-mv *.graph.root log/
+mv *.graph.root log/pedHists.$data_file.$$.root
 echo "File root with graphs was created:" 
-ls -ltrFh $preferred_dir/log/*.graph.root | tail -1 | awk '{print $9}'
+ls -ltrFh $preferred_dir/log/pedHists.$data_file.$$.root | tail -1 | awk '{print $9}'
 
 echo ""
 echo ""
@@ -209,4 +196,4 @@ echo "Now you can look at the plots (TBrowser)..."
 echo ""
 echo ""
 
-root -l `ls -ltrFh $preferred_dir/log/*.graph.root | tail -1 | awk '{print $9}'`
+root -l `ls -ltrFh $preferred_dir/log/pedHists.$data_file.$$.root | tail -1 | awk '{print $9}'`
