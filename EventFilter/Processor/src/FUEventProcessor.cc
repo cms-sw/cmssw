@@ -198,6 +198,7 @@ FUEventProcessor::FUEventProcessor(xdaq::ApplicationStub *s)
   xdata::Table &stbl = trh_.getTable(); 
   scalersInfoSpace_ = xdata::getInfoSpaceFactory()->get(urn2.toString());
   scalersInfoSpace_->fireItemAvailable("scalersTable",      &stbl);
+  scalersComplete_.addColumn("instance", "unsigned int 32");
   scalersComplete_.addColumn("lsid", "unsigned int 32");
   scalersComplete_.addColumn("psid", "unsigned int 32");
   scalersComplete_.addColumn("triggerReport", "table");  
@@ -281,6 +282,7 @@ bool FUEventProcessor::getTriggerReport(bool useLock)
 	{
 	  it = scalersComplete_.append();
 	}
+      it->setField("instance",instance_);
       if(useLock) {
 	mwr->openBackDoor("DaqSource");
       }
