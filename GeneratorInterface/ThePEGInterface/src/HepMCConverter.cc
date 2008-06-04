@@ -13,6 +13,8 @@
 
 // C. Saout: Copied from ThePEG and slightly modified
 
+#include <set>
+
 #include <HepMC/GenEvent.h>
 #include <HepMC/GenVertex.h>
 #include <HepMC/GenParticle.h>
@@ -80,6 +82,31 @@ void HepMCConverter<HepMCEventT,Traits>::init(const Event &ev, bool nocopies)
 	tcPVector all;
 	ev.select(back_inserter(all), SelectAll());
 	vertices.reserve(all.size()*2);
+
+	// order the particles topologically
+	std::set<tcPPtr> visited;
+	for(unsigned int head = 0; head < all.size(); head++) {
+		bool vetoed = true;
+		for(unsigned int cur = head; cur < all.size(); cur++) {
+			vetoed = false;
+			for(tParticleVector::const_iterator iter =
+						all[cur]->parents().begin();
+			    iter != all[cur]->parents().end(); ++iter) {
+				if (visited.find(*iter) == visited.end()) {
+					vetoed = true;
+					break;
+				}
+			}
+			if (!vetoed) {
+				if (cur != head)
+					std::swap(all[head], all[cur]);
+				break;
+			}
+		}
+
+		visited.insert(all[head]);
+	}
+	visited.clear();
 
 	GenParticle *beam1 = 0, *beam2 = 0;
 
@@ -157,6 +184,11 @@ void HepMCConverter<HepMCEventT,Traits>::init(const Event &ev, bool nocopies)
 		if ( !member(vmap, it->second) )
 			vmap[it->second] = createVertex(it->second);
 
+	// Add the vertices.
+	for ( typename GenVertexMap::iterator it = vmap.begin();
+	it != vmap.end(); ++it )
+		Traits::addVertex(*geneve, it->second);
+
 	// Now find the primary signal process vertex defined to be the
 	// decay vertex of the first parton coming into the primary hard
 	// sub-collision.
@@ -164,13 +196,7 @@ void HepMCConverter<HepMCEventT,Traits>::init(const Event &ev, bool nocopies)
 	if ( sub && sub->incoming().first ) {
 		const Vertex *prim = decv[sub->incoming().first];
 		Traits::setSignalProcessVertex(*geneve, vmap[prim]);
-		vmap.erase(prim);
 	}
-	
-	// Then add the rest of the vertices.
-	for ( typename GenVertexMap::iterator it = vmap.begin();
-	it != vmap.end(); ++it )
-		Traits::addVertex(*geneve, it->second);
 
 	if (beam1 && beam2)
 		geneve->set_beam_particles(beam1, beam2);
