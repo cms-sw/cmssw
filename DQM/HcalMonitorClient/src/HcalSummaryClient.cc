@@ -253,10 +253,12 @@ void HcalSummaryClient::incrementCounters(void)
 void HcalSummaryClient::analyze(void)
 {
 
+  if (debug_)
+    cout <<"HcalSummaryClient:  Running analyze..."<<endl;
   if ( ievt_ % 10 == 0 ) 
     {
-      //if ( debug_ )
-      cout << "HcalSummaryClient: ievt/jevt = " << ievt_ << "/" << jevt_ << endl;
+      if ( debug_ )
+	cout << "HcalSummaryClient: ievt/jevt = " << ievt_ << "/" << jevt_ << endl;
     }
 
   if (deadCellClient_)
@@ -266,7 +268,15 @@ void HcalSummaryClient::analyze(void)
       if (checkHO_) analyze_deadcell("HO",status_HO_);
       if (checkHF_) analyze_deadcell("HF",status_HF_);
     }
-
+  
+  if (hotCellClient_)
+    {
+      if (checkHB_) analyze_hotcell("HB",status_HB_);
+      if (checkHE_) analyze_hotcell("HE",status_HE_);
+      if (checkHO_) analyze_hotcell("HO",status_HO_);
+      if (checkHF_) analyze_hotcell("HF",status_HF_);
+    }
+  
 
   MonitorElement* me;
   dqmStore_->setCurrentFolder( prefixME_ + "/EventInfo" );
@@ -293,6 +303,7 @@ void HcalSummaryClient::analyze(void)
 
 float HcalSummaryClient::analyze_deadcell(std::string subdetname, float& subdet)
 {
+  if (debug_) cout <<"<HcalSummaryClient> Running analyze_deadcell"<<endl;
   float status = -1;
   //dqmStore_->setCurrentFolder( prefixME_ + "/EventInfo/reportSummaryContents" );
   MonitorElement* me;
@@ -332,13 +343,13 @@ float HcalSummaryClient::analyze_deadcell(std::string subdetname, float& subdet)
 	  if (origbincontent==-1)
 	    me->setBinContent(ieta,iphi,newbincontent);
 	  else
-	    //me->setBinContent(ieta,iphi,min(1., newbincontent));
 	    if (newbincontent>0)
 	      {
 		//me->Fill(eta,phi,newbincontent);
 		me->setBinContent(ieta,iphi,min(1.,newbincontent+origbincontent));
 	      }
 
+	  // newbincontent is total number of bad entries for a particular cell in this test
 	  if (newbincontent>0)
 	    {
 	      badcells+=newbincontent;
@@ -374,6 +385,95 @@ float HcalSummaryClient::analyze_deadcell(std::string subdetname, float& subdet)
 
   return status;
 } // void HcalSummaryClient::analyze_deadcell(std::string subdetname)
+
+
+float HcalSummaryClient::analyze_hotcell(std::string subdetname, float& subdet)
+{
+  if (debug_) cout <<"<HcalSummaryClient> Running analyze_hotcell"<<endl;
+  float status = -1;
+  
+  MonitorElement* me;
+  me = dqmStore_->get(prefixME_ + "/EventInfo/reportSummaryMap");
+  if (!me)
+    {
+      if (debug_) cout <<"<HcalSummaryClient>  Could not get reportSummaryMap"<<endl;
+      return status;
+    }
+
+  char name[150];
+  sprintf(name,"%s/HotCellMonitor/%s/%sProblemHotCells",prefixME_.c_str(),
+	  subdetname.c_str(),subdetname.c_str());
+   MonitorElement* me_temp = dqmStore_->get(name); // get Monitor Element named 'name'
+  if (!me_temp) 
+    {
+       if (debug_) cout <<"<HcalSummaryClient>  Could not get ProblemHotCells"<<endl;
+      return status;
+    }
+
+  double origbincontent=0; // stores value from report
+  double newbincontent=0;
+  float badcells=0.; 
+  float eta, phi;
+
+  for (int ieta=1;ieta<=etaBins_;++ieta)
+    {   
+      eta=ieta+int(etaMin_)-1;
+      if (eta==0) continue; // skip eta=0 bin -- unphysical
+      if (abs(eta)>41) continue; // skip unphysical "boundary" bins in histogram
+
+      for (int iphi=1; iphi<=phiBins_;++iphi)
+	{
+	  origbincontent=me->getBinContent(ieta,iphi);
+	  //newbincontent=temp->GetBinContent(ieta,iphi)/maxval;
+	  newbincontent=me_temp->getBinContent(ieta,iphi)/ievt_; // normalize to number of events
+
+	  phi=iphi+int(phiMin_)-1;
+
+	  if (origbincontent==-1)
+	    me->setBinContent(ieta,iphi,newbincontent);
+	  else
+	    if (newbincontent>0)
+	      {
+		me->setBinContent(ieta,iphi,min(1.,newbincontent+origbincontent));
+	      }
+
+	  if (newbincontent>0)
+	    {
+	      badcells+=newbincontent;
+	    }
+	} // loop over iphi
+    } // loop over ieta
+  
+  // Normalize badcells to give avg # of bad cells per event
+  badcells=1.*badcells/ievt_;
+  
+  std::map<std::string, int>::const_iterator it;
+  it =subdetCells_.find(subdetname);
+  // didn't find subdet in map
+  if (it==subdetCells_.end())
+    return -1;
+  // # of cells in subdetector < # of bad cells (should obviously never happen)
+  if (it->second == 0 || (it->second)<badcells)
+    return -1;
+
+  // Status is 1 if no bad cells found
+  // Otherwise, status = 1 - (avg fraction of bad cells/event)
+  status=1.-(1.*badcells)/it->second;
+ 
+ // The only way to change the overall subdet, global status words is 
+  // if the hotcell status word is reasonable (i.e., not = -1)
+  if (subdet==-1)
+    subdet=status;
+  else
+    subdet*=status;
+  if (status_global_==-1)
+    status_global_=status;
+  else
+    status_global_*=status;
+
+  return status;
+} // void HcalSummaryClient::analyze_hotcell(std::string subdetname)
+
 
 
 void HcalSummaryClient::htmlOutput(int run, string& htmlDir, string& htmlName)

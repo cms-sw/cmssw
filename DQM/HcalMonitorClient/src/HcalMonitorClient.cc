@@ -23,6 +23,8 @@ HcalMonitorClient::~HcalMonitorClient(){
   if( tp_client_ )         delete tp_client_;
   if (ct_client_ )         delete ct_client_;
   if( mui_ )               delete mui_;
+ 
+  if (debug_) cout <<"HcalMonitorClient: Finished destructor..."<<endl;
 }
 
 //--------------------------------------------------------
@@ -494,7 +496,6 @@ void HcalMonitorClient::report(bool doUpdate) {
 
   //create html output if specified...
   if( baseHtmlDir_.size() != 0 && ievt_>0) htmlOutput();
-
   return;
 }
 

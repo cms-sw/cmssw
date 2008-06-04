@@ -88,6 +88,7 @@ myHist* getAnyHisto(myHist* hist,
       TH2F* out;
       if (clone) out = dynamic_cast<TH2F*>(me->getTH2F()->Clone(clonehisto));
       else out = me->getTH2F();
+  
       return dynamic_cast<myHist*>(out);
     }
 
@@ -289,7 +290,8 @@ void htmlAnyHisto(int runNo, myHist *hist,
 
   else  // if no image found, make a blank table entry (maybe improve on this later? -- write an error message?)
     {
-      htmlFile << "<td><img src=\"" << " " << "\"></td>" << endl;
+       htmlFile<<"<td align=\"center\"><br><br> Histogram does not exist in ROOT file!<br>Diagnostic flag may be off.<br>(This is normal in online running.)</td>"<<endl;
+       //htmlFile << "<td><img src=\"" << " " << "\"></td>" << endl;
     }
   return;
 } //void htmlAnyHisto(...)

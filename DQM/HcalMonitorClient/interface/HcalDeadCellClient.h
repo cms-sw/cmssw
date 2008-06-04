@@ -7,7 +7,14 @@
 struct DeadCellHists{
   int type;
   TH2F* problemDeadCells;
+  TH2F* problemDeadCells_depth1;
+  TH2F* problemDeadCells_depth2;
+  TH2F* problemDeadCells_depth3;
+  TH2F* problemDeadCells_depth4;
+
+  std::vector <TH2F*> problemDeadCells_DEPTH;
  
+
   // Dead cell routine #1:  low ADC counts for cell
   TH2F* deadADC_map;
   std::vector<TH2F*> deadADC_map_depth; // individual depth plots

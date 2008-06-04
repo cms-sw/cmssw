@@ -5,8 +5,8 @@
  * \file HcalSummaryClient.h
  *
  * Code ported from DQM/EcalBarrelMonitorClient/interface/EBSummaryClient.h
- * $Date: 2008/05/27 20:11:13 $
- * $Revision: 1.2 $
+ * $Date: 2008/05/28 14:39:36 $
+ * $Revision: 1.3 $
  * \author Jeff Temple
  *
 */
@@ -57,6 +57,8 @@ class HcalSummaryClient : public HcalBaseClient {
   // Analyze
   void analyze(void);
   float analyze_deadcell(std::string name, float& subdet); 
+  float analyze_hotcell(std::string name, float& subdet);  
+
   void incrementCounters(void);
 
   // HtmlOutput

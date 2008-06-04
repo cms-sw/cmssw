@@ -27,8 +27,8 @@
 using namespace std;
 /** \class HcalBaseMonitor
   *  
-  * $Date: 2008/03/01 00:39:58 $
-  * $Revision: 1.9 $
+  * $Date: 2008/05/27 03:08:57 $
+  * $Revision: 1.10 $
   * \author W. Fisher - FNAL
   */
 class HcalBaseMonitor {
@@ -42,11 +42,17 @@ public:
 
   void setVerbosity(int verb) { fVerbosity = verb; }
   int getVerbosity() const { return fVerbosity; }
+  
+  void setDiagnostics(bool myval) { makeDiagnostics=myval;}
+  bool getDiagnostics() const { return makeDiagnostics;}
+
   bool vetoCell(HcalDetId id);
 
 protected:
   
   int fVerbosity;
+  bool makeDiagnostics; // controls whether to make diagnostic plots
+
   DQMStore* m_dbe;
   vector<string> hotCells_;
   string rootFolder_;

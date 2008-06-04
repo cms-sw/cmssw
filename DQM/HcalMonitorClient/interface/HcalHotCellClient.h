@@ -6,13 +6,17 @@
 
 struct HotCellHists{
   int type;
-  int thresholds;
+  int Nthresholds;
+
+  TH2F* problemHotCells;
+  std::vector<TH2F*> problemHotCells_DEPTH;
 
   TH2F* maxCellOccMap;
   TH2F* maxCellEnergyMap;
   TH1F* maxCellEnergy;
   TH1F* maxCellTime;
   TH1F* maxCellID;
+  std::vector<std::string> thresholds;
   std::vector<TH2F*> threshOccMap;
   std::vector<TH2F*> threshEnergyMap;
   
@@ -25,11 +29,15 @@ struct HotCellHists{
   std::vector<TH2F*>  threshOccMapDepth4;
   std::vector<TH2F*>  threshEnergyMapDepth4;
 
+   // Digi Plots
+  TH2F* abovePedSigma;
+  //std::vector <std::vector<TH2F*> > digiPedestalPlots_depth;
+
+
   // NADA histograms
   TH2F* nadaOccMap;
   TH2F* nadaEnergyMap;
   TH1F* nadaNumHotCells;
-  TH1F* nadaTestCell;
   TH1F* nadaEnergy;
   TH1F* nadaNumNegCells;
   TH2F* nadaNegOccMap;
@@ -74,6 +82,10 @@ class HcalHotCellClient : public HcalBaseClient{
   /// WriteDB
   void htmlOutput(int run, std::string htmlDir, std::string htmlName);
   void htmlSubDetOutput(HotCellHists& hist, int run, std::string htmlDir, std::string htmlName);
+  void drawThresholdPlots(HotCellHists& hist, int run, string htmlDir);
+  void drawDigiPlots(HotCellHists& hist, int run, string htmlDir);
+  void drawNADAPlots(HotCellHists& hist, int run, string htmlDir);
+
   void getHistograms();
   void loadHistograms(TFile* f);
 
@@ -93,12 +105,15 @@ class HcalHotCellClient : public HcalBaseClient{
   // Count hot cell thresholds
   void getSubDetThresholds(HotCellHists& hist);
   void drawSubDetThresholds(HotCellHists& hist);
+
+
   
 private:
 
   // Can we get threshold information from same .cfi file that HotCellMonitor uses?  
   int thresholds_;
-
+  
+  float errorFrac_;
   
   HotCellHists hbhists;
   HotCellHists hehists;

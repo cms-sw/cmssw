@@ -73,11 +73,13 @@ namespace HcalDeadCellCheck
 
     // Fill (eta,phi) map if digi is found for that cell
     hist.digiCheck->Fill(digi_eta,digi_phi);
-
     all.digiCheck->Fill(digi_eta,digi_phi);
-    hist.digiCheck_depth[digi_depth-1]->Fill(digi_eta,digi_phi);
-    all.digiCheck_depth[digi_depth-1]->Fill(digi_eta,digi_phi);
 
+    if (hist.makeDiagnostics)
+      {
+	hist.digiCheck_depth[digi_depth-1]->Fill(digi_eta,digi_phi);
+	all.digiCheck_depth[digi_depth-1]->Fill(digi_eta,digi_phi);
+      }
 
     /* Update on 21 May 2008 -- code modified to compare digi values to 
        pedestals regardless of whether ped hits are in ADCs or fC.
@@ -182,16 +184,24 @@ namespace HcalDeadCellCheck
     // If ADCsum <= mincount, cell is considered dead
     if (ADCsum<=mincount)
       {
-	hist.deadADC_map->Fill(digi_eta,digi_phi);
-	hist.deadADC_map_depth[digi_depth-1]->Fill(digi_eta,digi_phi);
-	hist.deadADC_temp_depth[digi_depth-1]->Fill(digi_eta,digi_phi);
+	hist.deadADC_map->Fill(digi_eta,digi_phi)
+;
+	if (hist.makeDiagnostics)
+	  {
+	    hist.deadADC_map_depth[digi_depth-1]->Fill(digi_eta,digi_phi);
+	    all.deadADC_map_depth[digi_depth-1]->Fill(digi_eta,digi_phi); 
+	  }
+	//hist.deadADC_temp_depth[digi_depth-1]->Fill(digi_eta,digi_phi);
 	hist.deadADC_eta->Fill(digi_eta);
 	all.deadADC_map->Fill(digi_eta,digi_phi);
-	all.deadADC_map_depth[digi_depth-1]->Fill(digi_eta,digi_phi);
 	all.deadADC_eta->Fill(digi_eta);
+
 	// Dead cell is potentially problematic -- add it to combined "problem cell" histogram
 	hist.problemDeadCells->Fill(digi_eta,digi_phi);
 	all.problemDeadCells->Fill(digi_eta,digi_phi);
+	hist.problemDeadCells_depth[digi_depth-1]->Fill(digi_eta,digi_phi);
+	all.problemDeadCells_depth[digi_depth-1]->Fill(digi_eta,digi_phi);
+	
       }
 
     // look for individual dead caps
@@ -239,8 +249,11 @@ namespace HcalDeadCellCheck
 	
 	hist.cellCheck->Fill(cell_eta,cell_phi);
 	all.cellCheck->Fill(cell_eta,cell_phi);
-	hist.cellCheck_depth[cell_depth-1]->Fill(cell_eta,cell_phi);
-	all.cellCheck_depth[ cell_depth-1]->Fill(cell_eta,cell_phi);
+	if (hist.makeDiagnostics)
+	  {
+	    hist.cellCheck_depth[cell_depth-1]->Fill(cell_eta,cell_phi);
+	    all.cellCheck_depth[ cell_depth-1]->Fill(cell_eta,cell_phi);
+	  }
 
 	// if (_cell->id().depth()==2) continue; // skip depth=2 for now
 	// if (vetoCell(_cell->id())) continue;
@@ -252,6 +265,8 @@ namespace HcalDeadCellCheck
 	double neighborE=0; // total energy found from neighbors
 
 	int etaFactor;  // correct for eta regions where phi segmentation is > 5 degrees/cell
+	
+	int dPhi;
 
 	for (typename Hits::const_iterator neighbor=hits.begin();neighbor!=hits.end();++neighbor)
 	  {
@@ -288,7 +303,12 @@ namespace HcalDeadCellCheck
 
 	    // Check just against nearest neighbors (+/-1 in eta, phi, same depth)
 
-	    if ( (abs(neighbor->id().iphi()-temp_cell_phi)%72)<(1+etaFactor) && 
+	    // Find minimum distance in phi between neighbors
+	    dPhi = (abs(neighbor->id().iphi()-temp_cell_phi));
+	    if (dPhi>36)
+	      dPhi=72-dPhi;
+
+	    if (dPhi<(1+etaFactor) && 
 		 (abs(neighbor->id().ieta()-cell_eta))<2)
 	      {
 		// Skip neighbors with negative energy?
@@ -311,9 +331,11 @@ namespace HcalDeadCellCheck
 	  {
 	    hist.NADA_cool_cell_map->Fill(cell_eta,cell_phi);
 	    all.NADA_cool_cell_map->Fill(cell_eta,cell_phi);
-	    hist.NADA_cool_cell_map_depth[cell_depth-1]->Fill(cell_eta,cell_phi);
-	    all.NADA_cool_cell_map_depth[ cell_depth-1]->Fill(cell_eta,cell_phi);
-
+	    if (hist.makeDiagnostics)
+	      {
+		hist.NADA_cool_cell_map_depth[cell_depth-1]->Fill(cell_eta,cell_phi);
+		all.NADA_cool_cell_map_depth[ cell_depth-1]->Fill(cell_eta,cell_phi);
+	      }
 	  }
 	
 	else
@@ -328,8 +350,11 @@ namespace HcalDeadCellCheck
 	    {
 	      hist.NADA_cool_cell_map->Fill(cell_eta, cell_phi);
 	      all.NADA_cool_cell_map->Fill( cell_eta, cell_phi);
-	      hist.NADA_cool_cell_map_depth[cell_depth-1]->Fill(cell_eta,cell_phi);
-	      all.NADA_cool_cell_map_depth[ cell_depth-1]->Fill(cell_eta,cell_phi);
+	      if (hist.makeDiagnostics)
+		{
+		  hist.NADA_cool_cell_map_depth[cell_depth-1]->Fill(cell_eta,cell_phi);
+		  all.NADA_cool_cell_map_depth[ cell_depth-1]->Fill(cell_eta,cell_phi);
+		}
 	    } 
  
 	  } // else (_cell->energy()>=hist.floor)
@@ -403,6 +428,19 @@ void HcalDeadCellMonitor::setup(const edm::ParameterSet& ps,
   floor_ = ps.getUntrackedParameter<double>("deadcellfloor",-0.5);
   mindiff_ = ps.getUntrackedParameter<double>("deadcellmindiff",0.5);
 
+  // Set up subdetector histograms 
+  hbHists.check=ps.getUntrackedParameter<bool>("checkHB", 1); 
+  heHists.check=ps.getUntrackedParameter<bool>("checkHE", 1); 
+  hoHists.check=ps.getUntrackedParameter<bool>("checkHO", 1); 
+  hfHists.check=ps.getUntrackedParameter<bool>("checkHF", 1); 
+  hcalHists.check=(hbHists.check || heHists.check || hoHists.check || hfHists.check); 
+  
+  hcalHists.makeDiagnostics=ps.getUntrackedParameter<bool>("MakeDeadCellDiagnosticPlots",makeDiagnostics);
+  hbHists.makeDiagnostics=hcalHists.makeDiagnostics;
+  heHists.makeDiagnostics=hcalHists.makeDiagnostics; 
+  hoHists.makeDiagnostics=hcalHists.makeDiagnostics; 
+  hfHists.makeDiagnostics=hcalHists.makeDiagnostics; 
+
 
   ievt_=0;
   if (m_dbe !=NULL) 
@@ -414,14 +452,7 @@ void HcalDeadCellMonitor::setup(const edm::ParameterSet& ps,
 
       meCheckN_ = m_dbe->bookInt("CheckNevents");
       meCheckN_ -> Fill(checkNevents_);
-
-      // Set up subdetector histograms
-      hbHists.check=ps.getUntrackedParameter<bool>("checkHB", 1);
-      heHists.check=ps.getUntrackedParameter<bool>("checkHE", 1);
-      hoHists.check=ps.getUntrackedParameter<bool>("checkHO", 1);
-      hfHists.check=ps.getUntrackedParameter<bool>("checkHF", 1);
-      hcalHists.check=(hbHists.check || heHists.check || hoHists.check || hfHists.check);
-      
+          
       hbHists.type=1;
       setupHists(hbHists,m_dbe);
       heHists.type=2;
@@ -481,18 +512,36 @@ void HcalDeadCellMonitor::setupHists(DeadCellHists& hist,  DQMStore* dbe)
   consec=out2.str();
 
 
-  // Show summary plot in main DeadCellMonitor folder
-  m_dbe->setCurrentFolder(baseFolder_);
-				    
-
   // Set main directory showing occupancy plots
   m_dbe->setCurrentFolder(baseFolder_+"/"+hist.subdet.c_str());
 
   hist.problemDeadCells = m_dbe->book2D(hist.subdet+"ProblemDeadCells",
 					hist.subdet+" Dead Cell rate for potentially bad cells",
 					etaBins_, etaMin_, etaMax_,
-					 phiBins_, phiMin_, phiMax_);
+					phiBins_, phiMin_, phiMax_);
 
+  std::stringstream histname;
+  std::stringstream histtitle;
+  for (int depth=0;depth<4;++depth)
+    {
+      m_dbe->setCurrentFolder(baseFolder_+"/"+hist.subdet.c_str()+"/expertPlots");
+      histname.str("");
+      histtitle.str("");
+      histname<<hist.subdet+"ProblemDeadCells_depth"<<depth+1;
+      histtitle<<hist.subdet+" Dead Cell rate for potentially bad cells (depth "<<depth+1<<")";
+      hist.problemDeadCells_depth.push_back(m_dbe->book2D(histname.str().c_str(),histtitle.str().c_str(),
+						      etaBins_,etaMin_,etaMax_,
+						      phiBins_,phiMin_,phiMax_));
+    } // for (int depth=0;...)
+
+  
+
+
+  char DepthName[256];
+  char DepthTitle[256];
+
+
+  m_dbe->setCurrentFolder(baseFolder_+"/"+hist.subdet.c_str());
   hist.deadADC_map = m_dbe->book2D(hist.subdet+"_OccupancyMap_deadADC",
 				   hist.subdet+" No ADC Count Occupancy Map",
 				   etaBins_,etaMin_,etaMax_,
@@ -535,43 +584,54 @@ void HcalDeadCellMonitor::setupHists(DeadCellHists& hist,  DQMStore* dbe)
 
 
   // Create histograms for each depth
-  char DepthName[256];
-  char DepthTitle[256];
+
   for (unsigned int d=0;d<4;++d)
     {
+      sprintf(DepthName,"%s/%s/expertPlots/BelowPedestal",baseFolder_.c_str(),hist.subdet.c_str()); 
+      m_dbe->setCurrentFolder(DepthName); 
+      
+
+      // Always form pedestal plots for each depth
+      // Cell is below pedestal+Nsigma
+      sprintf(DepthName,"%s_coolcell_below_pedestal_Depth%i",hist.subdet.c_str(),d+1);
+      hist.coolcell_below_pedestal_depth.push_back(m_dbe->book2D(DepthName,DepthName,etaBins_,etaMin_,etaMax_,phiBins_,phiMin_,phiMax_));
+
+
+      // Cell above pedestal+Nsigma 
+      sprintf(DepthName,"%s_cell_above_pedestal_Depth%i",hist.subdet.c_str(), 
+              d+1); 
+      sprintf(DepthTitle,"%s Depth%i Cell Above Pedestal + %.2f sigma",hist.subdet.c_str(), 
+              d+1,Nsigma_); 
+      hist.above_pedestal_depth.push_back( m_dbe->book2D(DepthName, 
+                                                         DepthTitle, 
+                                                         etaBins_,etaMin_,etaMax_, 
+                                                         phiBins_,phiMin_,phiMax_)); 
+      sprintf(DepthName,"%s_cell_above_pedestal_Depth%i_temp",hist.subdet.c_str(), 
+              d+1); 
+      sprintf(DepthTitle,"(Temp) %s Depth%i Cell Above Pedestal + %.2f sigma",hist.subdet.c_str(), 
+              d+1,Nsigma_); 
+      hist.above_pedestal_temp_depth.push_back(new TH2F(DepthName, 
+                                                        DepthTitle, 
+                                                        etaBins_,etaMin_,etaMax_, 
+                                                        phiBins_,phiMin_,phiMax_)); 
+
+      if (!hist.makeDiagnostics) continue; // skip remaining depth plots if diagnostics are off
+
+
       // ADC count <= min value
-      sprintf(DepthName,"%s/%s/depth%i",baseFolder_.c_str(),hist.subdet.c_str(),d+1);
+      sprintf(DepthName,"%s/%s/Diagnostics/Depth%i",baseFolder_.c_str(),hist.subdet.c_str(),d+1);
       m_dbe->setCurrentFolder(DepthName);
 
       sprintf(DepthName,"%s_DeadADCmap_Depth%i",hist.subdet.c_str(),d+1);
       hist.deadADC_map_depth.push_back( m_dbe->book2D(DepthName,DepthName,etaBins_,etaMin_,etaMax_,phiBins_,phiMin_,phiMax_));
       
-      sprintf(DepthName,"%s_DeadADCmap_Depth%i_temp",hist.subdet.c_str(),d+1);
-      hist.deadADC_temp_depth.push_back(new TH2F(DepthName,DepthName,etaBins_,etaMin_,etaMax_,phiBins_,phiMin_,phiMax_));
+      //sprintf(DepthName,"%s_DeadADCmap_Depth%i_temp",hist.subdet.c_str(),d+1);
+      //hist.deadADC_temp_depth.push_back(new TH2F(DepthName,DepthName,etaBins_,etaMin_,etaMax_,phiBins_,phiMin_,phiMax_));
+      
       // Cell is cool compared to neighbors
       sprintf(DepthName,"%s_NADACoolCell_Depth%i",hist.subdet.c_str(),d+1);
       hist.NADA_cool_cell_map_depth.push_back(m_dbe->book2D(DepthName,DepthName,etaBins_,etaMin_,etaMax_,phiBins_,phiMin_,phiMax_));
-      // Cell is below pedestal+Nsigma
-      sprintf(DepthName,"%s_coolcell_below_pedestal_Depth%i",hist.subdet.c_str(),d+1);
-      hist.coolcell_below_pedestal_depth.push_back(m_dbe->book2D(DepthName,DepthName,etaBins_,etaMin_,etaMax_,phiBins_,phiMin_,phiMax_));
-      // Cell above pedestal+Nsigma
-      sprintf(DepthName,"%s_cell_above_pedestal_Depth%i",hist.subdet.c_str(),
-	      d+1);
-      sprintf(DepthTitle,"%s Depth%i Cell Above Pedestal + %.2f sigma",hist.subdet.c_str(),
-	      d+1,Nsigma_);
-      hist.above_pedestal_depth.push_back( m_dbe->book2D(DepthName,
-							 DepthTitle,
-							 etaBins_,etaMin_,etaMax_,
-							 phiBins_,phiMin_,phiMax_));
-      sprintf(DepthName,"%s_cell_above_pedestal_Depth%i_temp",hist.subdet.c_str(),
-	      d+1);
-      sprintf(DepthTitle,"(Temp) %s Depth%i Cell Above Pedestal + %.2f sigma",hist.subdet.c_str(),
-	      d+1,Nsigma_);
-      hist.above_pedestal_temp_depth.push_back(new TH2F(DepthName,
-							DepthTitle,
-							etaBins_,etaMin_,etaMax_,
-							phiBins_,phiMin_,phiMax_));
-
+ 
       // Digi occupancy plot (redundant?)
       sprintf(DepthName,"%s_digiCheck_Depth%i",hist.subdet.c_str(),d+1);
       hist.digiCheck_depth.push_back(m_dbe->book2D(DepthName,DepthName,etaBins_,etaMin_,etaMax_,phiBins_,phiMin_,phiMax_));
@@ -600,6 +660,7 @@ void HcalDeadCellMonitor::setupHists(DeadCellHists& hist,  DQMStore* dbe)
     }
   for (unsigned int depth=0;depth<4;++depth)
     {
+      if (!hist.makeDiagnostics) continue; 
       hist.deadADC_map_depth[depth]->setAxisTitle("i#eta", 1);
       hist.deadADC_map_depth[depth]->setAxisTitle("i#phi",2);
       hist.NADA_cool_cell_map_depth[depth]->setAxisTitle("i#eta", 1);
@@ -703,7 +764,8 @@ void HcalDeadCellMonitor::processEvent_digi(const HBHEDigiCollection& hbhedigi,
 	    HcalDeadCellCheck::CheckForDeadDigis(digi,heHists,hcalHists,
 						 Nsigma_,minADCcount_,
 						 cond,m_dbe,doFCpeds_);
-	}
+
+	} // for (HBHEDigiCollection::const_iterator j...)
     }
   catch(...)
     {
@@ -879,6 +941,12 @@ void HcalDeadCellMonitor::reset_Nevents(DeadCellHists &h)
 		      // Cells consistently below pedestal go to combined "problem cell" histogram
 		      hcalHists.problemDeadCells->Fill(eta,phi,checkNevents_);
 		      h.problemDeadCells->Fill(eta,phi,checkNevents_);
+
+
+		      hcalHists.problemDeadCells_depth[d]->Fill(eta,phi,checkNevents_);
+		      h.problemDeadCells_depth[d]->Fill(eta,phi,checkNevents_);
+
+
 		    }
 		}
 	    } // for (int d=0;d<4;++d)
@@ -922,7 +990,7 @@ void HcalDeadCellMonitor::clearME()
 
 	  for (int d=1;d<5;++d)
 	    {
-	      sprintf(depthName,"%s/%s/depth%i",baseFolder_.c_str(),subdets[i].c_str(), d);
+	      sprintf(depthName,"%s/%s/Diagnostics/Depth%i",baseFolder_.c_str(),subdets[i].c_str(), d);
 	      m_dbe->setCurrentFolder(depthName);
 	      m_dbe->removeContents();
 	    }
@@ -948,11 +1016,12 @@ void HcalDeadCellMonitor::done()
 	  eta=ieta+int(etaMin_)-1;
 	  phi=iphi+int(phiMin_)-1;
 	  
-
-	  binval=hcalHists.problemDeadCells->getBinContent(ieta,iphi);
+	  for (int d=0;d<4;++d)
+	    {
+	      binval=hcalHists.problemDeadCells_depth[d]->getBinContent(ieta,iphi);
+	      if (fVerbosity && binval>0) cout <<"Dead Cell ("<<eta<<", "<<phi<<", 1) in "<<binval<<"/"<<ievt_<<" events"<<endl;
+	    }
 	  
-	  if (fVerbosity) cout <<"Dead Cell ("<<eta<<", "<<phi<<") in "<<binval<<"/"<<ievt_<<" events"<<endl;
-		
 	} // for (int iphi=1...)
     } // for (int ieta = 1...)
 

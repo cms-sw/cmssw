@@ -9,21 +9,24 @@
 
 /** \class HcalDeadCellMonitor
   *  
-  * $Date: 2008/05/23 20:40:32 $
-  * $Revision: 1.8 $
+  * $Date: 2008/05/27 03:08:58 $
+  * $Revision: 1.9 $
   * \author J. Temple - Univ. of Maryland
   */
 
 struct DeadCellHists{
 
   bool check; // determine whether to run DeadCell checks on this subdetector
-  bool fVerbosity; // not yet implemented for subdetectors -- use later?
+  int fVerbosity; // not yet implemented for subdetectors -- use later?
+  bool makeDiagnostics; // determine whether or not to make diagnostic plots
 
   int type; // store subdetector type (1=hb, 2=he, 3=ho, 4=hf, 10=hcal)
   std::string subdet; // store subdetector name (HB, HE,...)
 
   // Global histogram to keep track of all bad histograms in a given subdetector
   MonitorElement* problemDeadCells;
+  std::vector<MonitorElement*> problemDeadCells_depth;
+ 
 
   // Dead cell routine #1:  low ADC counts for cell
   MonitorElement* deadADC_map;

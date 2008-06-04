@@ -11,8 +11,8 @@
 
 /** \class HcalHotCellMonitor
   *  
-  * $Date: 2008/03/01 00:39:58 $
-  * $Revision: 1.13 $
+  * $Date: 2008/05/27 03:08:58 $
+  * $Revision: 1.14 $
   * \author W. Fisher - FNAL
   * \ updated by J. Temple - Univ. of Maryland
   */
@@ -20,7 +20,15 @@
 
 // Structure holds all hot cell data for a subdetector
 struct HotCellHists{
-  //Miscellaneous hot cell plots
+
+  // Main problem cell histogram
+  MonitorElement* problemHotCells;
+  std::vector<MonitorElement*> problemHotCells_depth;
+
+  double hotDigiSigma; // digi values - pedestal must be > hotDigiSigma * pedestal to be considered hot
+  bool makeDiagnostics; // if disabled, don't make 
+
+  //Miscellaneous hot cell plots -- could remove these?
   MonitorElement* maxCellOccMap;
   MonitorElement* maxCellEnergyMap;
   MonitorElement* maxCellEnergy;
@@ -31,30 +39,40 @@ struct HotCellHists{
   std::vector<double> thresholds;
   std::vector<MonitorElement*> threshOccMap;
   std::vector<MonitorElement*> threshEnergyMap;
-  // Are these histograms overkill?
-  std::vector <std::vector<MonitorElement*> > threshOccMapDepth;
-  std::vector <std::vector<MonitorElement*> > threshEnergyMapDepth;
   
   // NADA hot cell info
   MonitorElement* nadaOccMap;
   MonitorElement* nadaEnergyMap;
   MonitorElement* nadaNumHotCells;
-  MonitorElement* nadaTestPlot;
   MonitorElement* nadaEnergy;
   MonitorElement* nadaNumNegCells;
   MonitorElement* nadaNegOccMap;
   MonitorElement* nadaNegEnergyMap;
-  std::vector<MonitorElement*> nadaOccMapDepth;
-  std::vector<MonitorElement*> nadaEnergyMapDepth;
-  std::vector<MonitorElement*> nadaNegOccMapDepth;
-  std::vector<MonitorElement*> nadaNegEnergyMapDepth;
+  
 
   // Digi Plots
+  MonitorElement* abovePedSigma;
   std::vector<MonitorElement*> digiPedestalPlots;
-  std::vector <std::vector<MonitorElement*> > digiPedestalPlots_Depth;
-
+  
   // diagnostic histograms (remove eventually?)
   std::vector<MonitorElement*> diagnostic;
+  MonitorElement* RecHitEnergyDist;
+  MonitorElement* DigiEnergyDist;
+  MonitorElement* EnergyVsNADAcube;
+  MonitorElement* HOT_EnergyVsNADAcube;
+
+  std::vector<MonitorElement*> pedestalValues_depth;
+  std::vector<MonitorElement*> pedestalWidths_depth;
+  std::vector<MonitorElement*> RecHitEnergyDist_depth;
+
+  // Depth plots -- these are diagnostics
+  std::vector <std::vector<MonitorElement*> > threshOccMap_depth;
+  std::vector <std::vector<MonitorElement*> > threshEnergyMap_depth;
+  std::vector<MonitorElement*> nadaOccMap_depth;
+  std::vector<MonitorElement*> nadaEnergyMap_depth;
+  std::vector<MonitorElement*> nadaNegOccMap_depth;
+  std::vector<MonitorElement*> nadaNegEnergyMap_depth;
+  std::vector <std::vector<MonitorElement*> > digiPedestalPlots_depth;
 
   // Parameters used in setting NADA cube sizes, thresholds
   double nadaEnergyCandCut0,nadaEnergyCandCut1, nadaEnergyCandCut2;
@@ -76,7 +94,7 @@ struct HotCellHists{
   std::vector<std::string> vetoCells;
   int numhotcells;
   int numnegcells;
-  bool fVerbosity;
+  int fVerbosity; //0 = no message, 1 = basic messages, 2 = full verbosity
 };
 
 
@@ -105,6 +123,7 @@ public:
 private:  ///Monitoring elements
 
   bool debug_;
+  
   int ievt_;
 
   float HF_offsets[13][36][2];
