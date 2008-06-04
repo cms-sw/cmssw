@@ -230,11 +230,7 @@ int JetPartonMatcher::fillPhysicsDefinition( const Jet& theJet ) {
       tempParticle = m;
       nInTheCone++;
     }
-<<<<<<< JetPartonMatcher.cc
-    // Look heavy for partons in TheBiggerConeSize now
-=======
     // Look for heavy partons in TheBiggerConeSize now
->>>>>>> 1.7
     if( aParticle.numberOfDaughters() > 0  && ( aParticle.daughter(0)->pdgId() == 91 || aParticle.daughter(0)->pdgId() == 92 ) ) {
       if( flavour ==  1 ||
           flavour ==  2 ||
