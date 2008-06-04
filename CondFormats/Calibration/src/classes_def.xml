@@ -40,5 +40,14 @@
  <class name="boostTypeObj"/>
  <class name="fixedArray<unsigned short,2097>"/>
  <class name="mypt"/>
+ <class name="Algo"/>
+ <class name="AlgoMap"/>
+ <class name="fakeMenu"/>
+ <class name="Algob"/>
+ <class name="strKeyMap"/>
+ <class name="mybase"/>
+ <class name="child"/>
+ <class pattern="*pair*"/>
+ <class pattern="*map*"/>
 </lcgdict>   
 
