@@ -16,7 +16,7 @@
 //
 // Original Author:  Chris Jones
 //         Created:  Sat Jun 25 17:23:12 EDT 2005
-// $Id: EmptyESSource.h,v 1.6 2005/10/03 23:23:09 chrjones Exp $
+// $Id: EmptyESSource.h,v 1.1 2005/10/11 17:09:22 wmtan Exp $
 //
 
 // system include files
@@ -50,6 +50,7 @@ class EmptyESSource : public  EventSetupRecordIntervalFinder
 
       const EmptyESSource& operator=(const EmptyESSource&); // stop default
       
+      void delaySettingRecords();
       // ---------- member data --------------------------------
       std::string recordName_;
       std::set <edm::IOVSyncValue> setOfIOV_;

@@ -21,17 +21,21 @@ EmptyESSource::EmptyESSource(const edm::ParameterSet & pset) :
       }
    }
    //copy_all(temp, inserter(setOfIOV_ , setOfIOV_.end()));
+}
+  
    
-   
+void 
+EmptyESSource::delaySettingRecords()
+{
    eventsetup::EventSetupRecordKey recordKey = eventsetup::EventSetupRecordKey::TypeTag::findType(recordName_);
    if (recordKey == edm::eventsetup::EventSetupRecordKey()) {
       throw edm::Exception(errors::Configuration)<<" The Record type named \""<<recordName_<<"\" could not be found. Please check the spelling. \n"
-         <<"If the spelling is fine, try to move the declaration of the EmptyESSource with label'"
-         <<pset.getParameter<std::string>("@module_label")<<"' to the end of the configuration file.";
+      <<"If the spelling is fine, try to move the declaration of the EmptyESSource with label'"
+      <<descriptionForFinder().label_<<"' to the end of the configuration file.";
    }
    findingRecordWithKey(recordKey);
 }
-  
+
 void 
 EmptyESSource::setIntervalFor(const edm::eventsetup::EventSetupRecordKey&,
                                const edm::IOVSyncValue& iTime, 
