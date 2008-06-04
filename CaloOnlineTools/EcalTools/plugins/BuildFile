@@ -6,11 +6,15 @@
 <use name=DataFormats/EcalRawData>
 <use name=DataFormats/EcalRecHit>
 <use name=DataFormats/FEDRawData>
+<use name=DataFormats/L1GlobalMuonTrigger>
+<use name=DataFormats/L1GlobalTrigger>
 <use name=Geometry/EcalMapping>
 <use name=Geometry/CaloTopology>
 <use name=Geometry/CaloEventSetup>
+<use name=PhysicsTools/UtilAlgos>
+<use name=TrackingTools/TrackAssociator>
 <use name=root>
 <use name=rootcore>
-<library file="plugins.cc EcalDCCHeaderDisplay.cc EcalDigiDisplay.cc EcalMipGraphs.cc EcalPedHists.cc EcalPnGraphs.cc EcalURecHitHists.cc EcalHexDisplay.cc" name=CaloOnlineToolsEcalToolsPlugins>
+<library file="plugins.cc EcalDCCHeaderDisplay.cc EcalDigiDisplay.cc EcalMipGraphs.cc EcalPedHists.cc EcalPnGraphs.cc EcalURecHitHists.cc EcalHexDisplay.cc EcalCosmicsHists.cc EcalExclusiveTrigFilter.cc EcalHighEnCosmicFilter.cc EcalTPGAnalyzer.cc EcalPulseShapeGrapher.cc EcalChannelCheckerTreeHists.cc EcalChannelChecker.cc" name=CaloOnlineToolsEcalToolsPlugins>
   <flags EDM_PLUGIN=1>
 </library>
