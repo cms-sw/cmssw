@@ -59,6 +59,8 @@ private:
   void initialize();
   
   MonitorElement * m_phipackedbad;
+  MonitorElement * m_deadChannels;
+  MonitorElement * m_noisyChannels;
   
   edm::ParameterSet parameters_;
   DQMStore* dbe_;  

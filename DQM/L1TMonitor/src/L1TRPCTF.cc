@@ -1,8 +1,8 @@
 /*
  * \file L1TRPCTF.cc
  *
- * $Date: 2008/04/24 12:55:14 $
- * $Revision: 1.15 $
+ * $Date: 2008/06/04 09:46:12 $
+ * $Revision: 1.16 $
  * \author J. Berryhill
  *
  */
@@ -10,12 +10,20 @@
 #include "DQM/L1TMonitor/interface/L1TRPCTF.h"
 #include "DQMServices/Core/interface/DQMStore.h"
 
+#include "DataFormats/RPCDigi/interface/RPCDigi.h"
+#include "DataFormats/RPCDigi/interface/RPCDigiCollection.h"
+#include "DataFormats/MuonDetId/interface/RPCDetId.h"
+
+
 using namespace std;
 using namespace edm;
 
 L1TRPCTF::L1TRPCTF(const ParameterSet& ps)
   : rpctfSource_( ps.getParameter< InputTag >("rpctfSource") ),
-                  m_ntracks(0)
+   digiSource_( ps.getParameter< InputTag >("rpctfRPCDigiSource") ),
+                  m_ntracks(0),
+                  m_rpcDigiWithBX0(0),
+                  m_rpcDigiWithBXnon0(0)
  {
 
   // verbosity switch
@@ -57,6 +65,7 @@ void L1TRPCTF::beginJob(const EventSetup& c)
 {
 
   nev_ = 0;
+  nevRPC_ = 0;
 
   // get hold of back-end interface
   DQMStore* dbe = 0;
@@ -106,7 +115,13 @@ void L1TRPCTF::beginJob(const EventSetup& c)
        "RPCTF ntrack", 20, -0.5, 19.5 ) ;
     rpctfbx = dbe->book1D("RPCTF_bx", 
        "RPCTF bx", 3, -1.5, 1.5 ) ;
+
+    m_digiBx = dbe->book1D("RPCDigi_bx", 
+       "RPC digis bx", 9, -4.5, 4.5 ) ;
     
+    m_digiBxLast = dbe->book1D("RPCDigi_bx_last", 
+       "RPC digis bx (last X events)", 9, -4.5, 4.5 ) ;
+
     m_qualVsEta = dbe->book2D("RPCTF_quality_vs_eta_value", 
                               "RPCTF quality vs eta", 
                               100, -2.5, 2.5,
@@ -131,6 +146,8 @@ void L1TRPCTF::beginJob(const EventSetup& c)
     m_phipackednorm = dbe->book1D("RPCTF_phi_valuepacked_norm",
                                    "RPCTF phi valuepacked", 144, -0.5, 143.5 ) ;
     
+    //m_floatSynchro = dbe->bookFloat("RPCTF_bx0vsOther"); // no qtests for float
+    m_floatSynchro = dbe->book1D("RPCTF_synchronization", "RPCTF synchronization", 3, -1.5, 1.5 );
         
   }  
 }
@@ -144,6 +161,7 @@ void L1TRPCTF::endJob(void)
  if ( outputFile_.size() != 0  && dbe ) dbe->save(outputFile_);
 
  return;
+
 }
 
 void L1TRPCTF::analyze(const Event& e, const EventSetup& c)
@@ -159,6 +177,16 @@ void L1TRPCTF::analyze(const Event& e, const EventSetup& c)
 			       << rpctfSource_.label() ;
     return;
   }
+
+  edm::Handle<RPCDigiCollection> rpcdigis;
+  e.getByLabel(digiSource_, rpcdigis);
+
+  if (!rpcdigis.isValid()) {
+    edm::LogInfo("DataNotFound") << "can't find RPCDigiCollection with label "<< digiSource_ << endl;
+    return;
+  }
+
+ 
 
   L1MuGMTReadoutCollection const* gmtrc = pCollection.product();
   vector<L1MuGMTReadoutRecord> gmt_records = gmtrc->getRecords();
@@ -230,8 +258,43 @@ void L1TRPCTF::analyze(const Event& e, const EventSetup& c)
   rpctfntrack->Fill(nrpctftrack);
   
   m_ntracks += nrpctftrack;
-  
-  
+ 
+
+  if (nrpctftrack!=0) { // events in which  muons cands were found by rpc trigger
+
+    ++nevRPC_;
+    RPCDigiCollection::DigiRangeIterator collectionItr;
+    for(collectionItr=rpcdigis->begin(); collectionItr!=rpcdigis->end(); ++collectionItr){
+
+      //RPCDetId detId=(*collectionItr ).first;
+
+      RPCDigiCollection::const_iterator digiItr;
+      for (digiItr = ((*collectionItr ).second).first;
+          digiItr!=((*collectionItr).second).second; ++digiItr){
+
+          int bx=(*digiItr).bx();
+          m_digiBx->Fill(bx);
+          m_digiBxLast->Fill(bx);
+          m_bxs.insert(bx);
+          if (bx == 0) {
+            ++m_rpcDigiWithBX0;
+          } else {
+            ++m_rpcDigiWithBXnon0;
+          }
+      }
+
+
+     }
+
+
+
+
+  }
+  if (nevRPC_%3000 == 0) {
+    std::cout.flush();
+    m_digiBxLast->Reset();
+  }
+
   if (verbose_) cout << "\tRPCTFCand ntrack " << nrpctftrack << endl;
 	
 }
@@ -241,6 +304,9 @@ void L1TRPCTF::beginLuminosityBlock(const edm::LuminosityBlock& lumiSeg,
                                     const edm::EventSetup& context)
 {
    m_ntracks = 0;
+   m_rpcDigiWithBX0=0;
+   m_rpcDigiWithBXnon0=0;
+   m_bxs.clear();
                           
 }
 
@@ -263,7 +329,14 @@ void L1TRPCTF::endLuminosityBlock(const edm::LuminosityBlock& lumiSeg,
       }
 
    }
-   
+
+  int nBX =  m_bxs.size();
+  float fs = 0;
+  if (nBX > 1){
+   fs = (float)m_rpcDigiWithBXnon0/(nBX-1)/m_rpcDigiWithBX0;
+  }
+
+  m_floatSynchro->setBinContent(2,fs);  
    
 }
 
