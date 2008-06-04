@@ -4,8 +4,8 @@
 /*
  * \file L1TRPCTF.h
  *
- * $Date: 2008/04/11 15:26:10 $
- * $Revision: 1.6 $
+ * $Date: 2008/04/24 12:55:13 $
+ * $Revision: 1.7 $
  * \author J. Berryhill
  *
 */
@@ -83,7 +83,7 @@ private:
   MonitorElement* m_muonsEtaPhi;
   MonitorElement* m_phipacked;
   MonitorElement * m_phipackednorm;
-  
+  MonitorElement * m_muonsEtaPhiNorm;
   
   int nev_; // Number of events processed
   std::string outputFile_; //file name for ROOT ouput

@@ -1,8 +1,8 @@
 /*
  * \file L1TRPCTF.cc
  *
- * $Date: 2008/04/11 15:26:10 $
- * $Revision: 1.14 $
+ * $Date: 2008/04/24 12:55:14 $
+ * $Revision: 1.15 $
  * \author J. Berryhill
  *
  */
@@ -112,10 +112,18 @@ void L1TRPCTF::beginJob(const EventSetup& c)
                               100, -2.5, 2.5,
                                10, -0.5, 9.5);
     
-    m_muonsEtaPhi = dbe->book2D("RPCTF_muons_eta_phipacked", 
-                                "RPCTF muons(eta,phipacked)",  
-                                100, -2.5, 2.5,
+    m_muonsEtaPhi = dbe->book2D("RPCTF_muons_tower_phipacked", 
+                                "RPCTF muons(tower,phi)",  
+                               // 100, -2.5, 2.5,
+                                33, -16.5, 16.5,
                                 144,  -0.5, 143.5);
+
+    m_muonsEtaPhiNorm = dbe->book2D("RPCTF_muons_tower_phipacked_norm", 
+                                "RPCTF muons(tower,phi) normalized", 
+                               // 100, -2.5, 2.5,
+                                33, -16.5, 16.5,
+                                144,  -0.5, 143.5);
+   
     
     m_phipacked = dbe->book1D("RPCTF_phi_valuepacked", 
                            "RPCTF phi valuepacked", 144, -0.5, 143.5 ) ;
@@ -205,7 +213,13 @@ void L1TRPCTF::analyze(const Event& e, const EventSetup& c)
           
           m_qualVsEta->Fill(ECItr->etaValue(), ECItr->quality());
           
-          m_muonsEtaPhi->Fill(ECItr->etaValue(), ECItr->phi_packed());
+          int tower = ECItr->eta_packed();
+          if (tower > 16) {
+            tower = - ( (~tower & 63) + 1);
+          }
+
+          //m_muonsEtaPhi->Fill(ECItr->etaValue(), ECItr->phi_packed());
+          m_muonsEtaPhi->Fill(tower, ECItr->phi_packed());
           m_phipacked->Fill(ECItr->phi_packed());
           
         } // if !empty
@@ -241,6 +255,13 @@ void L1TRPCTF::endLuminosityBlock(const edm::LuminosityBlock& lumiSeg,
       for (int bin = 0; bin <= m_phipackednorm->getNbinsX(); ++bin) {
          m_phipackednorm->setBinContent(bin, m_phipacked->getBinContent(bin)/ntracks);
       }
+
+      for (int binX = 0; binX <= m_muonsEtaPhi->getNbinsX(); ++binX) {
+        for (int binY = 0; binY <= m_muonsEtaPhi->getNbinsY(); ++binY) {
+          m_muonsEtaPhiNorm->setBinContent(binX, binY, m_muonsEtaPhi->getBinContent(binX, binY)/ntracks);
+        }
+      }
+
    }
    
    
