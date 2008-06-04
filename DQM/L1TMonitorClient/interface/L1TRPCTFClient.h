@@ -59,6 +59,7 @@ private:
   void initialize();
   
   MonitorElement * m_phipackedbad;
+  MonitorElement * m_phipackeddead;
   MonitorElement * m_deadChannels;
   MonitorElement * m_noisyChannels;
   

@@ -70,6 +70,8 @@ void L1TRPCTFClient::beginJob(const EventSetup& context){
   
   m_phipackedbad = dbe_->book1D("RPCTF_phi_valuepacked_bad",
                                 "RPCTF bad channels in phipacked", 144, -0.5, 143.5 ) ;
+  m_phipackeddead = dbe_->book1D("RPCTF_phi_valuepacked_dead",
+                                "RPCTF dead channels in phipacked", 144, -0.5, 143.5 ) ;
 
 
   m_deadChannels = dbe_->book2D("RPCTF_deadchannels",
@@ -126,10 +128,27 @@ void L1TRPCTFClient::endLuminosityBlock(const edm::LuminosityBlock& lumiSeg,
 
   }
   
+  {
+
+    MonitorElement *me = dbe_->get("L1T/L1TRPCTF/RPCTF_phi_valuepacked_norm");
+    if (me){
+      const QReport *qreport = me->getQReport("DeadChannels");
+      if (qreport) {
+        vector<dqm::me_util::Channel> badChannels = qreport->getBadChannels();
+        for (vector<dqm::me_util::Channel>::iterator channel = badChannels.begin();
+             channel != badChannels.end(); ++channel) {
+                  m_phipackeddead->setBinContent( (*channel).getBinX(),1);
+        } // for(badchannels)
+      } //if (qreport)
+    } // if (me)
+
+  }
+
+
   // L1T/L1TRPCTF/RPCTF_muons_tower_phipacked_norm
   {
 
-    MonitorElement *me = dbe_->get("L1T/L1TRPCTF/RPCTF_muons_tower_phipacked_norm");
+    MonitorElement *me = dbe_->get("L1T/L1TRPCTF/RPCTF_muons_tower_phipacked");
     if (me){
       const QReport *qreport = me->getQReport("DeadChannels");
       if (qreport) {
@@ -145,7 +164,7 @@ void L1TRPCTFClient::endLuminosityBlock(const edm::LuminosityBlock& lumiSeg,
 
   {
 
-    MonitorElement *me = dbe_->get("L1T/L1TRPCTF/RPCTF_muons_tower_phipacked_norm");
+    MonitorElement *me = dbe_->get("L1T/L1TRPCTF/RPCTF_muons_tower_phipacked");
     if (me){
       const QReport *qreport = me->getQReport("HotChannels");
       if (qreport) {
