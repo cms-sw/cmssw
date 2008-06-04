@@ -4,7 +4,7 @@
      the resource broker to send to the Storage Manager.
      See the CMS EvF Storage Manager wiki page for further notes.
 
-   $Id: FUShmOutputModule.cc,v 1.5 2007/07/02 09:51:09 meschi Exp $
+   $Id: FUShmOutputModule.cc,v 1.6 2008/01/29 15:25:26 biery Exp $
 */
 
 #include "EventFilter/Utilities/interface/i2oEvfMsgs.h"
@@ -54,7 +54,11 @@ namespace edm
       unsigned char* buffer = (unsigned char*) initMessage.startAddress();
       unsigned int size = initMessage.size();
       FDEBUG(10) << "writing out INIT message with size = " << size << std::endl;
-      bool ret = shmBuffer_->writeRecoInitMsg(buffer, size);
+      // no method in InitMsgBuilder to get the output module id, recast
+      InitMsgView dummymsg(buffer);
+      uint32 dmoduleId = dummymsg.outputModuleId();
+
+      bool ret = shmBuffer_->writeRecoInitMsg(dmoduleId, buffer, size);
       if(!ret) edm::LogError("FUShmOutputModule") << " Error writing preamble to ShmBuffer";
     }
   }
