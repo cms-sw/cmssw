@@ -12,7 +12,7 @@
 //
 // Original Author:  Ursula Berthon, Claude Charlot
 //         Created:  Thu july 6 13:22:06 CEST 2006
-// $Id: GlobalGsfElectronAlgo.cc,v 1.1 2008/04/21 10:01:57 uberthon Exp $
+// $Id: GlobalGsfElectronAlgo.cc,v 1.2 2008/05/21 13:10:46 uberthon Exp $
 //
 //
 
@@ -40,7 +40,7 @@
 #include "Geometry/TrackerGeometryBuilder/interface/TrackerGeometry.h"
 #include "Geometry/CaloGeometry/interface/CaloSubdetectorGeometry.h"
 #include "Geometry/CaloGeometry/interface/CaloCellGeometry.h"
-#include "Geometry/Records/interface/IdealGeometryRecord.h"
+#include "Geometry/Records/interface/CaloGeometryRecord.h"
 
 
 #include "TrackingTools/PatternTools/interface/Trajectory.h"
@@ -133,9 +133,9 @@ void GlobalGsfElectronAlgo::setupES(const edm::EventSetup& es) {
     es.get<TrackerDigiGeometryRecord>().get(trackerHandle_);
   }
 
-  if (cacheIDGeom_!=es.get<IdealGeometryRecord>().cacheIdentifier()){
-    cacheIDGeom_=es.get<IdealGeometryRecord>().cacheIdentifier();
-    es.get<IdealGeometryRecord>().get(theCaloGeom);
+  if (cacheIDGeom_!=es.get<CaloGeometryRecord>().cacheIdentifier()){
+    cacheIDGeom_=es.get<CaloGeometryRecord>().cacheIdentifier();
+    es.get<CaloGeometryRecord>().get(theCaloGeom);
   }
   
 
