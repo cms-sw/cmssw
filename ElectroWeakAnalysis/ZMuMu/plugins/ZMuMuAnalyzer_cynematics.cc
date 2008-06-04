@@ -16,7 +16,7 @@
  * \modified by Davide Piccolo, INFN Naples to include gerarchyc selection of Z and histos as a finction of eta pt phi
  * 
  *
- * \id $Id: ZMuMuAnalyzer.cc,v 1.2 2007/10/12 11:28:57 llista Exp $
+ * \id $Id: ZMuMuAnalyzer_cynematics.cc,v 1.1 2008/05/13 09:43:50 piccolo Exp $
  *
  */
 #include "FWCore/Framework/interface/EDAnalyzer.h"
@@ -219,7 +219,7 @@ void ZMuMuAnalyzer_cynematics::analyze(const edm::Event& event, const edm::Event
   size_t nZMuMu = zMuMu->size();
   size_t nZTrackMu = zMuTrack->size();
   size_t nZStandAloneMu = zMuStandAlone->size();
-  static const double zMass = 91.1876; // PDG Z mass
+  //  static const double zMass = 91.1876; // PDG Z mass
 
   cout << "++++++++++++++++++++++++++" << endl;
   cout << "nZMuMu = " << nZMuMu << endl;
@@ -276,7 +276,7 @@ void ZMuMuAnalyzer_cynematics::analyze(const edm::Event& event, const edm::Event
   ProductID standAloneIsoId = standAloneIso->keyProduct().id();
 
   if (nZMuMu > 0) {
-    double mass = 1000000.;
+    // double mass = 1000000.;
     for( size_t i = 0; i < nZMuMu; i++ ) {
       bool ptcutAccept = false;
       bool etacutAccept = false;
