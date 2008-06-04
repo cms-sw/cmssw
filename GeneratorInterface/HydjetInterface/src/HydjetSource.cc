@@ -1,5 +1,5 @@
 /*
- * $Id: HydjetSource.cc,v 1.19 2008/04/09 15:40:34 marafino Exp $
+ * $Id: HydjetSource.cc,v 1.20 2008/04/11 08:49:31 yilmaz Exp $
  *
  * Interface to the HYDJET generator, produces HepMC events
  *
@@ -46,6 +46,7 @@ HydjetSource::HydjetSource(const ParameterSet &pset, InputSourceDescription cons
     comenergy(pset.getParameter<double>("comEnergy")),
     doradiativeenloss_(pset.getParameter<bool>("doRadiativeEnLoss")),
     docollisionalenloss_(pset.getParameter<bool>("doCollisionalEnLoss")),
+    emptyEvents_(pset.getUntrackedParameter<bool>("allowEmptyEvents",false)),
     fracsoftmult_(pset.getParameter<double>("fracSoftMultiplicity")),
     hadfreeztemp_(pset.getParameter<double>("hadronFreezoutTemperature")),
     hymode_(pset.getParameter<string>("hydjetMode")),
@@ -431,19 +432,25 @@ bool HydjetSource::produce(Event & e)
   edm::LogInfo("HYDJETinTau") << "##### HYDJET: QGP formation time,tau0 ="<<pyqpar.tau0u;
 
   // generate a HYDJET event
-  int ntry = 0;
-  while(nsoft_ == 0 && nhard_ == 0){
-     if(ntry > 100){
+
+  if(emptyEvents_){
+    HYEVNT();
+    nsoft_    = hyfpar.nhyd;
+    nhard_    = hyfpar.npyt;
+  }else{
+    int ntry = 0;
+    while(nsoft_ == 0 && nhard_ == 0){
+      if(ntry > 100){
 	edm::LogError("HydjetEmptyEvent") << "##### HYDJET: No Particles generated, Number of tries ="<<ntry;
 	return false;
-     }else{
+      }else{
 	HYEVNT();
 	nsoft_    = hyfpar.nhyd;
 	nhard_    = hyfpar.npyt;
 	ntry++;
-     }
+      }
+    }
   }
-  
   nsub_     = hyjpar.njet;
 
   std::vector<SubEvent> subvector;

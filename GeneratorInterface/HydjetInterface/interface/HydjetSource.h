@@ -1,7 +1,7 @@
 #ifndef HydjetSource_h
 #define HydjetSource_h
 
-// $Id: HydjetSource.h,v 1.12 2008/01/09 16:59:24 yilmaz Exp $
+// $Id: HydjetSource.h,v 1.13 2008/01/21 12:03:08 yilmaz Exp $
 
 /** \class HydjetSource
 *
@@ -62,6 +62,7 @@ namespace edm
     double            comenergy;              // collision energy   
     bool              doradiativeenloss_;     //! DEFAULT = true
     bool              docollisionalenloss_;   //! DEFAULT = true   
+    bool              emptyEvents_;           // Switch to allow empty events
     double            fracsoftmult_;          // fraction of soft hydro induced hadronic multiplicity
                                               // proportional to no of nucleon participants
                                               // (1-fracsoftmult_)--- fraction of soft 
