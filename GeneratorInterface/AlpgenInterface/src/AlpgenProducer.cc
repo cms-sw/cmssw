@@ -1,6 +1,6 @@
 /*
- *  $Date: 2007/11/28 16:30:39 $
- *  $Revision: 1.11 $
+ *  $Date: 2008/06/03 19:01:06 $
+ *  $Revision: 1.1.2.1 $
  *  
  *  Filip Moorgat & Hector Naves 
  *  26/10/05
@@ -14,8 +14,10 @@
 #include "GeneratorInterface/AlpgenInterface/interface/AlpgenProducer.h"
 #include "GeneratorInterface/AlpgenInterface/interface/PYR.h"
 #include "SimDataFormats/HepMCProduct/interface/HepMCProduct.h"
-#include "SimDataFormats/HepMCProduct/interface/AlpgenInfoProduct.h"
-#include "SimDataFormats/HepMCProduct/interface/AlpWgtFileInfoProduct.h"
+#include "SimDataFormats/GeneratorProducts/interface/LesHouches.h"
+#include "SimDataFormats/GeneratorProducts/interface/LHECommonBlocks.h"
+#include "SimDataFormats/GeneratorProducts/interface/LHERunInfoProduct.h"
+#include "SimDataFormats/GeneratorProducts/interface/LHEEventProduct.h"
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/Run.h"
 #include "FWCore/ServiceRegistry/interface/Service.h"
@@ -57,7 +59,8 @@ AlpgenProducer::AlpgenProducer( const ParameterSet & pset) :
   maxEventsToPrint_ (pset.getUntrackedParameter<int>("maxEventsToPrint",1)),
 // JMM experimenting
   fileNames_ (pset.getUntrackedParameter<std::vector<std::string> >("fileNames")),
-  eventsRead_(0)
+  eventsRead_(0),
+  lheAlpgenUnwParHeader("AlpgenUnwParFile")  
 // end JMM experimenting
 {
   
@@ -69,13 +72,15 @@ AlpgenProducer::AlpgenProducer( const ParameterSet & pset) :
 
   // open the .unw file to store additional 
   // informations in the AlpgenInfoProduct
-  unwfile = new ifstream((fileName_+".unw").c_str());
+//  unwfile = new ifstream((fileName_+".unw").c_str());
   // get the number of input events from  _unw.par files
   char buffer[256];
   ifstream reader((fileName_+"_unw.par").c_str());
   char sNev[80];
+  lheAlpgenUnwParHeader.addLine("\n");
   while ( reader.getline (buffer,256) ) {
     istringstream is(buffer);
+    lheAlpgenUnwParHeader.addLine(std::string(buffer) + "\n");
     is >> sNev;
     Nev_ = atoi(sNev);
   }
@@ -128,7 +133,7 @@ AlpgenProducer::AlpgenProducer( const ParameterSet & pset) :
   }
 
   // Read the Alpgen parameters
-  
+
   // read External Generator parameters
   {   ParameterSet generator_params = 
 	pset.getParameter<ParameterSet>("GeneratorParameters") ;
@@ -161,9 +166,10 @@ AlpgenProducer::AlpgenProducer( const ParameterSet & pset) :
   //********                                      
   
   produces<HepMCProduct>();
-  produces<AlpgenInfoProduct>();
+  produces<LHEEventProduct>();
 
-  produces<AlpWgtFileInfoProduct, edm::InRun>();
+//  produces<AlpWgtFileInfoProduct, edm::InRun>();
+  produces<LHERunInfoProduct, edm::InRun>();
 }
 
 
@@ -179,15 +185,30 @@ void AlpgenProducer::clear() {
 }
 
 void AlpgenProducer::beginRun(Run & r) {
+  // get the LHE init information from Fortran code
+  lhef::HEPRUP heprup;
+  lhef::CommonBlocks::readHEPRUP(&heprup);
+  auto_ptr<LHERunInfoProduct> runInfo(new LHERunInfoProduct(heprup));
+
   // information on weighted events
-  auto_ptr<AlpWgtFileInfoProduct> wgtFile(new AlpWgtFileInfoProduct());
-  
+  LHERunInfoProduct::Header lheAlpgenWgtHeader("AlpgenWgtFile");
+  lheAlpgenWgtHeader.addLine("\n");
   ifstream wgtascii((fileName_+".wgt").c_str());
   char buffer[512];
   while(wgtascii.getline(buffer,512)) {
-    wgtFile->AddEvent(buffer);
+    lheAlpgenWgtHeader.addLine(std::string(buffer) + "\n");
   }
-  r.put(wgtFile);
+
+  // comments on top
+  LHERunInfoProduct::Header comments;
+  comments.addLine("\n");
+  comments.addLine("\tExtracted by AlpgenInterface\n");
+
+  // build the final Run info object
+  runInfo->addHeader(comments);
+  runInfo->addHeader(lheAlpgenUnwParHeader);
+  runInfo->addHeader(lheAlpgenWgtHeader);
+  r.put(runInfo);
 }
 
 void AlpgenProducer::produce(Event & e, const EventSetup& es) {
@@ -199,27 +220,36 @@ void AlpgenProducer::produce(Event & e, const EventSetup& es) {
     
     auto_ptr<HepMCProduct> bare_product(new HepMCProduct());  
     
-    // Additional information from unweighted file
-    auto_ptr<AlpgenInfoProduct> alp_product(new AlpgenInfoProduct());
+//    // Additional information from unweighted file
+//    auto_ptr<AlpgenInfoProduct> alp_product(new AlpgenInfoProduct());
 
     // Extract from .unw file the info for AlpgenInfoProduct
     
-    char buffer[512];
-    if(unwfile->getline(buffer,512)) {
-      alp_product->EventInfo(buffer);
-    }
-    if(unwfile->getline(buffer,512)) 
-      alp_product->InPartonInfo(buffer);
-    if(unwfile->getline(buffer,512)) 
-      alp_product->InPartonInfo(buffer);
-    for(int i_out = 0; i_out <  alp_product->nTot()-2; i_out++) {
-      if(unwfile->getline(buffer,512)) 
-	alp_product->OutPartonInfo(buffer);
-    }
+//    char buffer[512];
+//    if(unwfile->getline(buffer,512)) {
+//      alp_product->EventInfo(buffer);
+//    }
+//    if(unwfile->getline(buffer,512)) 
+//      alp_product->InPartonInfo(buffer);
+//    if(unwfile->getline(buffer,512)) 
+//      alp_product->InPartonInfo(buffer);
+//    for(int i_out = 0; i_out <  alp_product->nTot()-2; i_out++) {
+//      if(unwfile->getline(buffer,512)) 
+//	alp_product->OutPartonInfo(buffer);
+//    }
 
     call_pyevnt();      // generate one event with Pythia
     //        call_pretauola(0);  // tau-lepton decays with TAUOLA 
-    
+
+    // fill the parton level LHE event information
+    lhef::HEPEUP hepeup;
+    lhef::CommonBlocks::readHEPEUP(&hepeup);
+    hepeup.AQEDUP = hepeup.AQCDUP = -1.0; // alphas are not saved by Alpgen
+    for(int i = 0; i < hepeup.NUP; i++)
+      hepeup.SPINUP[i] = -9;	// Alpgen does not store spin information
+    auto_ptr<LHEEventProduct> lheEvent(new LHEEventProduct(hepeup));
+    e.put(lheEvent);
+
     call_pyhepc( 1 );
     
     //    HepMC::GenEvent* evt = conv2.getGenEventfromHEPEVT();
@@ -268,7 +298,7 @@ void AlpgenProducer::produce(Event & e, const EventSetup& es) {
     if(evt)  bare_product->addHepMCData(evt );
     
     e.put(bare_product);
-    e.put(alp_product);
+//    e.put(alp_product);
 
     return;
   }

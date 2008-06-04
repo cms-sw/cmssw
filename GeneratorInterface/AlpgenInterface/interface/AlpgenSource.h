@@ -22,6 +22,8 @@
 #include <fstream>
 #include "HepMC/GenEvent.h"
 
+#include "SimDataFormats/GeneratorProducts/interface/LHERunInfoProduct.h"
+
 namespace CLHEP
 {
   class RandFlat ;
@@ -47,7 +49,7 @@ namespace edm
     int Nev_; // number of events in the input file
 
     // .unw file with infos for AlpgenInfoProduct
-    std::ifstream* unwfile;
+//    std::ifstream* unwfile;
 
   private:
     
@@ -75,6 +77,7 @@ namespace edm
     CLHEP::HepRandomEngine* fRandomEngine;
     CLHEP::RandFlat*        fRandomGenerator; 
 
+    LHERunInfoProduct::Header lheAlpgenUnwParHeader;
   };
 } 
 
@@ -83,10 +86,5 @@ namespace edm
     extern "C" {
         void alpgen_end();
       }
-
-
-
-
-
 
 #endif
