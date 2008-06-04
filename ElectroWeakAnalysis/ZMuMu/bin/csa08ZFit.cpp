@@ -48,6 +48,8 @@ void fix(TH1* histo) {
 
 typedef funct::GaussIntegrator IntegratorConv;
 typedef funct::GaussIntegrator IntegratorNorm;
+//typedef funct::TrapezoidIntegrator IntegratorConv;
+//typedef funct::TrapezoidIntegrator IntegratorNorm;
 
 typedef funct::Product<funct::Exponential, 
 		       funct::Convolution<funct::ZLineShape, funct::Gaussian, IntegratorConv>::type>::type ZPeakNoNorm;
@@ -103,19 +105,19 @@ int main(int ac, char *av[]) {
     typedef funct::Product<funct::Constant, funct::Sum<ZMuTkSig, ZMuTkBkg>::type>::type ZMuTk;
     typedef funct::Product<funct::Constant, funct::Sum<ZMuSaSig, ZMuSaBkg>::type>::type ZMuSa;
     typedef fit::MultiHistoChiSquare<ZMuMu, ZMuTk, ZMuSa, ZMuMuNoIso> ChiSquared;
-    fit::RootMinuitCommands<ChiSquared> commands("fit.txt");
+    fit::RootMinuitCommands<ChiSquared> commands("csa08ZFit.txt");
 
     double fMin, fMax;
     string ext;
     po::options_description desc("Allowed options");
     desc.add_options()
-      ("help", "produce help message")
+      ("help,h", "produce help message")
       ("include-path,I", po::value< vector<string> >(), 
        "include path")
       ("input-file,i", po::value< vector<string> >(), "input file")
       ("min,m", po::value<double>(&fMin)->default_value(60), "minimum value for fit range")
       ("max,M", po::value<double>(&fMax)->default_value(120), "maximum value for fit range")
-      ("output-file,O", po::value<string>(&ext)->default_value(".ps"), 
+      ("output-file,O", po::value<string>(&ext)->default_value("ps"), 
        "output file format")
       ;
     
@@ -169,7 +171,8 @@ int main(int ac, char *av[]) {
 	cout << ">>> histogram loaded\n";
 	string f_string = *it;
 	replace(f_string.begin(), f_string.end(), '.', '_');
-	string plot_string = f_string + ext;
+	replace(f_string.begin(), f_string.end(), '/', '_');
+	string plot_string = f_string + "." + ext;
 	cout << ">>> Input files loaded\n";
 	
 	const char * kYieldZMuMu = "YieldZMuMu";
@@ -191,7 +194,7 @@ int main(int ac, char *av[]) {
 	const char * kA1 = "A1"; 
 	const char * kA2 = "A2"; 
 	const char * kSigmaZMuSa = "SigmaZMuSa";
-	const char * kSigmaZMuMuNotIso = "SigmaZMuMuNotIso";
+	//	const char * kSigmaZMuMuNotIso = "SigmaZMuMuNotIso";
 	
 	funct::Parameter lambdaZMuMu(kLambdaZMuMu, commands.par(kLambdaZMuMu));
 	funct::Parameter mass(kMass, commands.par(kMass));
@@ -208,7 +211,7 @@ int main(int ac, char *av[]) {
 	funct::Parameter meanZMuMu(kMeanZMuMu, commands.par(kMeanZMuMu));
 	funct::Parameter sigmaZMuMu(kSigmaZMuMu, commands.par(kSigmaZMuMu)); 
 	funct::Parameter sigmaZMuSa(kSigmaZMuSa, commands.par(kSigmaZMuSa)); 
-	funct::Parameter sigmaZMuMuNotIso(kSigmaZMuMuNotIso, commands.par(kSigmaZMuMuNotIso)); 
+	//	funct::Parameter sigmaZMuMuNotIso(kSigmaZMuMuNotIso, commands.par(kSigmaZMuMuNotIso)); 
 	funct::Parameter lambda(kLambda, commands.par(kLambda));
 	funct::Parameter a0(kA0, commands.par(kA0));
 	funct::Parameter a1(kA1, commands.par(kA1));
@@ -216,8 +219,10 @@ int main(int ac, char *av[]) {
 	                
 	funct::Constant cFMin(fMin), cFMax(fMax);
 
-	IntegratorConv integratorConv(1.e-5);
-	IntegratorNorm integratorNorm(1.e-5);
+	//IntegratorConv integratorConv(20);
+	//IntegratorNorm integratorNorm(20);
+	IntegratorConv integratorConv(1.e-4);
+	IntegratorNorm integratorNorm(1.e-4);
 
 	ZPeakNoNorm zPeakNN = funct::Exponential(lambdaZMuMu) * 
 	  funct::conv(funct::ZLineShape(mass, gamma, photonFactorZMuMu, interferenceFactorZMuMu), 
@@ -268,9 +273,9 @@ int main(int ac, char *av[]) {
 	commands.add(minuit, a1);
 	commands.add(minuit, a2);
 	commands.add(minuit, sigmaZMuSa);
-	commands.add(minuit, sigmaZMuMuNotIso);
+	//	commands.add(minuit, sigmaZMuMuNotIso);
 	commands.run(minuit);
-	const unsigned int nPar = 20;//WARNIG cambiare il numero di parametri!!!
+	const unsigned int nPar = 19;//WARNIG: this must be updated manually for now
 	ROOT::Math::SMatrix<double, nPar, nPar, ROOT::Math::MatRepSym<double, nPar> > err;
 	minuit.getErrorMatrix(err);
 	std::cout << "error matrix:" << std::endl;
@@ -282,7 +287,6 @@ int main(int ac, char *av[]) {
 	} 
 	minuit.printFitResults();
 
-	/*
 	double s;
 	s = 0;
 	for(int i = 1; i <= histoZMuMuNoIso->GetNbinsX(); ++i)
@@ -299,7 +303,7 @@ int main(int ac, char *av[]) {
 	for(int i = 1; i <= histoZMuSa->GetNbinsX(); ++i)
 	  s += histoZMuSa->GetBinContent(i);
 	histoZMuSa->SetEntries(s);
-	string ZMuMuPlot = "ZMuMuFit" + plot_string;
+	string ZMuMuPlot = "ZMuMuFit_" + plot_string;
 	root::plot<ZMuMu>(ZMuMuPlot.c_str(), *histoZMuMu, zMuMu, fMin, fMax, 
 			  efficiencyTk, efficiencySa, efficiencyIso,
 			  yieldZMuMu, lambdaZMuMu, mass, gamma, photonFactorZMuMu, interferenceFactorZMuMu, 
@@ -308,7 +312,7 @@ int main(int ac, char *av[]) {
 			  "Z -> #mu #mu mass", "#mu #mu invariant mass (GeV/c^{2})", 
 			  "Events");
 
-	string ZMuMuNoIsoPlot = "ZMuMuNoIsoFit" + plot_string;
+	string ZMuMuNoIsoPlot = "ZMuMuNoIsoFit_" + plot_string;
 		root::plot<ZMuMuNoIso>(ZMuMuNoIsoPlot.c_str(), *histoZMuMuNoIso, zMuMuNoIso, fMin, fMax, 
 		  efficiencyTk, efficiencySa, efficiencyIso, 
 		  yieldZMuMu, lambdaZMuMu, mass, gamma, photonFactorZMuMu, interferenceFactorZMuMu, 
@@ -317,7 +321,7 @@ int main(int ac, char *av[]) {
 			  "Z -> #mu #mu Not Iso mass", "#mu #mu invariant mass (GeV/c^{2})", 
 			  "Events");	
 
-	string ZMuTkPlot = "ZMuTkFit" + plot_string;
+	string ZMuTkPlot = "ZMuTkFit_" + plot_string;
 	TF1 funZMuTk = root::tf1<ZMuTk>("ZMuTkFunction", zMuTk, fMin, fMax, 
 					efficiencyTk, efficiencySa,efficiencyIso,
 					yieldZMuMu, lambdaZMuMu, mass, gamma, photonFactorZMuMu, interferenceFactorZMuMu, 
@@ -344,7 +348,7 @@ int main(int ac, char *av[]) {
 	canvas->SetLogy();
 	string logZMuTkPlot = "log_" + ZMuTkPlot;
 	canvas->SaveAs(logZMuTkPlot.c_str());
-	string ZMuSaPlot = "ZMuSaFit" + plot_string;
+	string ZMuSaPlot = "ZMuSaFit_" + plot_string;
 	root::plot<ZMuSa>(ZMuSaPlot.c_str(), *histoZMuSa, zMuSa, fMin, fMax, 
 			  efficiencySa, efficiencyTk, efficiencyIso,
 			  yieldZMuMu, mass, sigmaZMuSa, yieldBkgZMuSa, 
@@ -352,7 +356,6 @@ int main(int ac, char *av[]) {
 			  "Z -> #mu + (unmatched) standalone mass", 
 			  "#mu + (unmatched) standalone invariant mass (GeV/c^{2})", 
 			  "Events");
-	*/
       }
     }
     
