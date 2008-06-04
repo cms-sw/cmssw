@@ -63,6 +63,8 @@
       gra ->Draw("A*");
       can.Update();
     }
+    else
+      cout << "Graph: " << name << " not found." << endl;
   }
   can.cd((width*height+1)/2);
   can.Update();
