@@ -1,3 +1,11 @@
+2008-06-04  Emilio Meschi <emilio.meschi@cern.ch>
+	
+	* tag V00-14-11
+	* modified ModuleWeb and ModuleWebRegistry to allow modules registered 
+	to publish to xmas and to give access to a lock or other types of "back door"
+	interaction with the dataflow. This is currently used in DaqSource to lock
+	the scalers update to the lumi section change
+
 2008-05-30  Philipp SCHIEFERDECKER  <philipp.schieferdecker@cern.ch>
 
 	* tag V00-14-10
