@@ -82,7 +82,7 @@ void HistoTau::fill( const Tau *tau, uint iTau, double weight )
   h_eOverP_ ->fill( tau->eOverP() , iTau, weight );
 }
 
-void HistoTau::fill( const reco::ShallowCloneCandidate * pshallow, uint iTau, double weight )
+void HistoTau::fill( const reco::ShallowClonePtrCandidate * pshallow, uint iTau, double weight )
 {
 
   // Get the underlying object that the shallow clone represents

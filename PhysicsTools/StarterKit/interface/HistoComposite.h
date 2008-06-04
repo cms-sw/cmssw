@@ -43,8 +43,9 @@
 #include "PhysicsTools/StarterKit/interface/HistoPhoton.h"
 #include "PhysicsTools/StarterKit/interface/HistoTrack.h"
 #include "PhysicsTools/StarterKit/interface/HistoParticle.h"
-#include "DataFormats/Candidate/interface/NamedCompositeCandidate.h"
-#include "DataFormats/Candidate/interface/CandidateWithRef.h"
+#include "DataFormats/Candidate/interface/CompositeCandidate.h"
+#include "DataFormats/Candidate/interface/ShallowClonePtrCandidate.h"
+#include "DataFormats/Common/interface/Ptr.h"
 
 // STL include files
 #include <string>
@@ -66,17 +67,17 @@ namespace pat {
     map_type map;
   };
 
-  class HistoComposite : public HistoGroup<reco::NamedCompositeCandidate> {
+  class HistoComposite : public HistoGroup<reco::CompositeCandidate> {
 
    public:
 
 
-    typedef reco::CandidateWithRef<edm::Ref<std::vector<pat::Muon> > >        MuonRef;
-    typedef reco::CandidateWithRef<edm::Ref<std::vector<pat::Electron> > >    ElectronRef;
-    typedef reco::CandidateWithRef<edm::Ref<std::vector<pat::Tau> > >         TauRef;
-    typedef reco::CandidateWithRef<edm::Ref<std::vector<pat::Photon> > >      PhotonRef;
-    typedef reco::CandidateWithRef<edm::Ref<std::vector<pat::Jet> > >         JetRef;
-    typedef reco::CandidateWithRef<edm::Ref<std::vector<pat::MET> > >         METRef;
+    typedef edm::Ptr<pat::Muon>        MuonPtr;
+    typedef edm::Ptr<pat::Electron>    ElectronPtr;
+    typedef edm::Ptr<pat::Tau>         TauPtr;
+    typedef edm::Ptr<pat::Photon>      PhotonPtr;
+    typedef edm::Ptr<pat::Jet>         JetPtr;
+    typedef edm::Ptr<pat::MET>         METPtr;
     
     
     HistoComposite(std::string dir, std::string candTitle, std::string candName,
@@ -84,8 +85,8 @@ namespace pat {
     virtual ~HistoComposite();
 
     // void fill( reco::CompositeCandidate * cand );
-    void fill( const reco::NamedCompositeCandidate * cand );
-    void fill( const reco::NamedCompositeCandidate & cand ) { return fill(&cand); }
+    void fill( const reco::CompositeCandidate * cand );
+    void fill( const reco::CompositeCandidate & cand ) { return fill(&cand); }
 
    protected:
     std::string       candName_;

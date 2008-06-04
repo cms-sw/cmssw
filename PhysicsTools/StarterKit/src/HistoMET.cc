@@ -83,7 +83,7 @@ void HistoMET::fill( const MET * met, uint iPart, double weight)
 }
 
 
-void HistoMET::fill( const reco::ShallowCloneCandidate * pshallow, uint iPart, double weight)
+void HistoMET::fill( const reco::ShallowClonePtrCandidate * pshallow, uint iPart, double weight)
 {
 
   // Get the underlying object that the shallow clone represents

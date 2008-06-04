@@ -43,7 +43,7 @@ void HistoPhoton::fill( const Photon * photon, uint iE, double weight )
 
 
 
-void HistoPhoton::fill( const reco::ShallowCloneCandidate * pshallow, uint iE, double weight )
+void HistoPhoton::fill( const reco::ShallowClonePtrCandidate * pshallow, uint iE, double weight )
 {
 
 

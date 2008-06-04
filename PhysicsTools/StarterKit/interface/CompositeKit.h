@@ -12,14 +12,14 @@
 */
 //-------------------------------------------------------------------------------------
 //!\class CompositeKit CompositeKit.cc PhysicsTools/StarterKit/test/CompositeKit.cc
-//!\brief CompositeKit is a plotting kit to plot a collection of NamedCompositeCandidates
+//!\brief CompositeKit is a plotting kit to plot a collection of CompositeCandidates
 //!
 //!
 //-------------------------------------------------------------------------------------
 //
 // Original Author:  Sal Rappoccio
 //         Created:  Wed Nov 28 15:31:57 CST 2007
-// $Id: CompositeKit.h,v 1.1 2008/05/13 21:43:45 srappocc Exp $
+// $Id: CompositeKit.h,v 1.1 2008/05/19 15:51:36 srappocc Exp $
 //
 // Revision History:
 //       -  Sal Rappoccio, Fri Nov 30 12:49:44 CST 2007: Added other objects as first
@@ -32,16 +32,16 @@
 #include <fstream>
 
 // user include files
-#include "PhysicsTools/StarterKit/interface/StarterKit.h"
+#include "PhysicsTools/StarterKit/interface/PatAnalyzerKit.h"
 #include "PhysicsTools/StarterKit/interface/HistoComposite.h"
 #include "PhysicsTools/StarterKit/interface/PhysVarHisto.h"
-#include "DataFormats/Candidate/interface/NamedCompositeCandidate.h"
+#include "DataFormats/Candidate/interface/CompositeCandidate.h"
 
 //
 // class declaration
 //
 
-class CompositeKit : public StarterKit
+class CompositeKit : public PatAnalyzerKit
 {
 public:
   explicit CompositeKit(const edm::ParameterSet&);
@@ -55,7 +55,7 @@ protected:
   // ----------member data ---------------------------
 
   // Input tag
-  edm::InputTag              compositeCandTag_;
+  edm::InputTag              source_;
 
   // description
   std::string                description_;
@@ -64,9 +64,9 @@ protected:
   double pt1_, pt2_, m1_, m2_, mm1_, mm2_;
 
   // Input handle
-  edm::Handle<std::vector<reco::NamedCompositeCandidate> >  compositeCandHandle_;
+  edm::Handle<std::vector<reco::CompositeCandidate> >  compositeCandHandle_;
 
-  // NamedComposite variable histograms
+  // Composite variable histograms
   // NOTE! Should be replaced in the future with configurable settings
   pat::HistoComposite *      compositeCandHist_;
 

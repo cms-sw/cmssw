@@ -46,7 +46,7 @@ void HistoJet::fill( const Jet * jet, uint iJet, double weight )
 
 }
 
-void HistoJet::fill( const reco::ShallowCloneCandidate * pshallow, uint iJet, double weight )
+void HistoJet::fill( const reco::ShallowClonePtrCandidate * pshallow, uint iJet, double weight )
 {
 
   // Get the underlying object that the shallow clone represents

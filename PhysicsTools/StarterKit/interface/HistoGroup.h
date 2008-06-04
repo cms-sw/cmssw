@@ -45,7 +45,7 @@
 #include "DataFormats/Candidate/interface/Candidate.h"
 #include "FWCore/ServiceRegistry/interface/Service.h"
 #include "PhysicsTools/UtilAlgos/interface/TFileService.h"
-#include "DataFormats/Candidate/interface/ShallowCloneCandidate.h"
+#include "DataFormats/Candidate/interface/ShallowClonePtrCandidate.h"
 
 // STL include files
 #include <string>
@@ -72,8 +72,8 @@ namespace pat {
     { fill( &obj, imulti, weight ); } // call the one above
 
     //!  Fill all histograms for one Physics Object
-    virtual void fill( const reco::ShallowCloneCandidate     * obj, uint imulti = 1, double weight = 1.0);
-    virtual void fill( const reco::ShallowCloneCandidate     & obj, uint imulti = 1, double weight = 1.0)
+    virtual void fill( const reco::ShallowClonePtrCandidate     * obj, uint imulti = 1, double weight = 1.0);
+    virtual void fill( const reco::ShallowClonePtrCandidate     & obj, uint imulti = 1, double weight = 1.0)
     { fill( &obj, imulti, weight ); } // call the one above
 
     //!  Fill all histograms for *all* Phys Objects sitting in a collection!
@@ -258,7 +258,7 @@ namespace pat {
   inline
   void
   HistoGroup<PHYS_OBJECT>::
-  fill( const reco::ShallowCloneCandidate    * obj, uint imulti, double weight)
+  fill( const reco::ShallowClonePtrCandidate    * obj, uint imulti, double weight)
   {
     if ( verboseLevel_ > 10) {
       std::cout << "HistoGroup(" << dir_ << "/" << prepend_ << ")::fill: imulti = " << imulti

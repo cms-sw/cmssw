@@ -63,8 +63,8 @@ namespace pat {
 
     // fill a track that is a shallow clone, and take kinematics from 
     // shallow clone but detector plots from the track itself
-    virtual void fill( const reco::ShallowCloneCandidate *track, uint iPart = 1, double weight = 1.0 );
-    virtual void fill( const reco::ShallowCloneCandidate &track, uint iPart = 1, double weight = 1.0 )
+    virtual void fill( const reco::ShallowClonePtrCandidate *track, uint iPart = 1, double weight = 1.0 );
+    virtual void fill( const reco::ShallowClonePtrCandidate &track, uint iPart = 1, double weight = 1.0 )
     { fill(&track, iPart, weight); }
 
     virtual void fillCollection( const std::vector<reco::RecoChargedCandidate> & coll, double weight = 1.0 );

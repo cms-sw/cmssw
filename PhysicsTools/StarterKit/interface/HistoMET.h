@@ -61,8 +61,8 @@ namespace pat {
 
     // fill a met that is a shallow clone, and take kinematics from 
     // shallow clone but detector plots from the met itself
-    virtual void fill( const reco::ShallowCloneCandidate *met, uint iPart = 1, double weight = 1.0 );
-    virtual void fill( const reco::ShallowCloneCandidate &met, uint iPart = 1, double weight = 1.0 )
+    virtual void fill( const reco::ShallowClonePtrCandidate *met, uint iPart = 1, double weight = 1.0 );
+    virtual void fill( const reco::ShallowClonePtrCandidate &met, uint iPart = 1, double weight = 1.0 )
     { fill(&met, iPart,weight); }
 
     virtual void fillCollection( const std::vector<MET> & coll, double weight = 1.0 );

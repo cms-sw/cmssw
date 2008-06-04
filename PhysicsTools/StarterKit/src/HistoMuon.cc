@@ -69,7 +69,7 @@ void HistoMuon::fill( const Muon *muon, uint iMu, double weight )
 
 // fill a muon that is a shallow clone, and take kinematics from 
 // shallow clone but detector plots from the muon itself
-void HistoMuon::fill( const reco::ShallowCloneCandidate *pshallow, uint iMu, double weight )
+void HistoMuon::fill( const reco::ShallowClonePtrCandidate *pshallow, uint iMu, double weight )
 {
 
   // Get the underlying object that the shallow clone represents

@@ -1,21 +1,21 @@
-#ifndef StarterKit_test_StarterKit_h
-#define StarterKit_test_StarterKit_h
+#ifndef StarterKit_test_PatAnalyzerKit_h
+#define StarterKit_test_PatAnalyzerKit_h
 
 
 
 // -*- C++ -*-
 //// -*- C++ -*-
 //
-// Package:    StarterKit
-// Class:      StarterKit
+// Package:    PatAnalyzerKit
+// Class:      PatAnalyzerKit
 //
 /**
 
 
 */
 //-------------------------------------------------------------------------------------
-//!\class StarterKit StarterKit.cc PhysicsTools/StarterKit/src/StarterKit.cc
-//!\brief StarterKit is a generic ED analyzer with predefined physics histograms.
+//!\class PatAnalyzerKit PatAnalyzerKit.cc PhysicsTools/StarterKit/plugins/PatAnalyzerKit.cc
+//!\brief PatAnalyzerKit is a generic ED analyzer with predefined physics histograms.
 //!
 //!  This is an ED analyzer which creates and fills a bunch of
 //!  histograms of various physics quantities.  However, in order to
@@ -41,16 +41,17 @@
 //!
 //-------------------------------------------------------------------------------------
 //
-// Original Author:  Eric Vaandering
+// Original Author:  Eric Vaandering, Salvatore Rappoccio
 //         Created:  Wed Nov 28 15:31:57 CST 2007
-// $Id: StarterKit.h,v 1.4 2008/04/14 18:56:05 srappocc Exp $
+// $Id: PatAnalyzerKit.h,v 1.1 2008/05/19 15:51:36 srappocc Exp $
 //
 // Revision History:
 //       -  Sal Rappoccio, Fri Nov 30 12:49:44 CST 2007: Added other objects as first
 //          stab of full analysis toolkit.
 //       -  Sal Rappoccio, Mon Mar 03 12:00:00 CST 2008: Added photons and taus
 //       -  Sal Rappoccio, Mon Apr 14 13:45:59 CDT 2008: Added CSA07 information.
-
+//       -  Sal Rappoccio, Thu May 29 12:05:58 CDT 2008: Restructured SK, renamed this to PatAnalyzerKit
+//-------------------------------------------------------------------------------------
 
 // system include files
 #include <memory>
@@ -74,11 +75,11 @@
 // class declaration
 //
 
-class StarterKit : public edm::EDProducer  // public edm::EDAnalyzer
+class PatAnalyzerKit : public edm::EDProducer  // public edm::EDAnalyzer
 {
 public:
-  explicit StarterKit(const edm::ParameterSet&);
-  virtual ~StarterKit();
+  explicit PatAnalyzerKit(const edm::ParameterSet&);
+  virtual ~PatAnalyzerKit();
 
 
   // Function to print out candidates
@@ -118,10 +119,6 @@ protected:
   ofstream        outputFile_;
   // Verbosity
   int             verboseLevel_;
-  // If isCSA07Soup is true, then the StarterKit will bring out some
-  // event weighting information and information regarding the
-  // sample composition
-  bool            isCSA07Soup_;
 
   // Histogram server
   edm::Service<TFileService> fs;
@@ -138,8 +135,8 @@ protected:
   edm::Handle<std::vector<pat::Photon> >   photonHandle_;
 
   // CSA07 "soup" specific information
-  pat::PhysVarHisto *  h_csa07Id_;
-  pat::PhysVarHisto *  h_csa07Weight_;
+  pat::PhysVarHisto *  h_runNumber_;
+  pat::PhysVarHisto *  h_eventNumber_;
 
   // ----------member data ---------------------------
 };

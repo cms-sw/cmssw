@@ -61,8 +61,8 @@ namespace pat {
 
     // fill a photon that is a shallow clone, and take kinematics from 
     // shallow clone but detector plots from the photon itself
-    virtual void fill( const reco::ShallowCloneCandidate *photon, uint iPart = 1, double weight = 1.0 );
-    virtual void fill( const reco::ShallowCloneCandidate &photon, uint iPart = 1, double weight = 1.0 )
+    virtual void fill( const reco::ShallowClonePtrCandidate *photon, uint iPart = 1, double weight = 1.0 );
+    virtual void fill( const reco::ShallowClonePtrCandidate &photon, uint iPart = 1, double weight = 1.0 )
     { fill(&photon, iPart, weight); }
 
     virtual void fillCollection( const std::vector<Photon> & coll, double weight = 1.0 );

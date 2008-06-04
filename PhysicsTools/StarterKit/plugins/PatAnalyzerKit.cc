@@ -1,4 +1,4 @@
-#include "PhysicsTools/StarterKit/interface/StarterKit.h"
+#include "PhysicsTools/StarterKit/interface/PatAnalyzerKit.h"
 
 using namespace std;
 using namespace pat;
@@ -7,7 +7,7 @@ using namespace pat;
 //
 // constructors and destructor
 //
-StarterKit::StarterKit(const edm::ParameterSet& iConfig)
+PatAnalyzerKit::PatAnalyzerKit(const edm::ParameterSet& iConfig)
   :
   physHistos_(),
   verboseLevel_(0),
@@ -30,6 +30,20 @@ StarterKit::StarterKit(const edm::ParameterSet& iConfig)
   physHistos_.configure( histos_to_disable, histos_to_enable );
 
 
+  physHistos_.addHisto( h_runNumber_ = 
+			new PhysVarHisto( "runNumber", "Run Number",
+					  10000, 0, 10000, 
+					  &summary ,"", "I") 
+			);
+  physHistos_.addHisto( h_eventNumber_ = 
+			new PhysVarHisto( "eventNumber", "Event Number",
+					  10000, 0, 10000, 
+					  &summary ,"", "I") 
+			);
+
+  // Be sure to make the histograms!
+  h_runNumber_->makeTH1();
+  h_eventNumber_->makeTH1();
 
   // &&& Ntuple booking begin
 
@@ -60,7 +74,7 @@ StarterKit::StarterKit(const edm::ParameterSet& iConfig)
 }
 
 
-StarterKit::~StarterKit()
+PatAnalyzerKit::~PatAnalyzerKit()
 {
 }
 
@@ -70,14 +84,14 @@ StarterKit::~StarterKit()
 //
 
 // ------------ method called to for each event  ------------
-// void StarterKit::analyze(const edm::Event& evt, const edm::EventSetup& iSetup)
-void StarterKit::produce( edm::Event & evt, const edm::EventSetup & es )
+// void PatAnalyzerKit::analyze(const edm::Event& evt, const edm::EventSetup& iSetup)
+void PatAnalyzerKit::produce( edm::Event & evt, const edm::EventSetup & es )
 {
   using namespace edm;
   using namespace std;
 
   if ( verboseLevel_ > 10 )
-    std::cout << "StarterKit:: in analyze()." << std::endl;
+    std::cout << "PatAnalyzerKit:: in analyze()." << std::endl;
 
   // --------------------------------------------------
   //    Step 1: Retrieve objects from data stream
@@ -98,7 +112,7 @@ void StarterKit::produce( edm::Event & evt, const edm::EventSetup & es )
   //    so the collections are not copied...
   // --------------------------------------------------
   if ( verboseLevel_ > 10 )
-    std::cout << "StarterKit::analyze: calling fillCollection()." << std::endl;
+    std::cout << "PatAnalyzerKit::analyze: calling fillCollection()." << std::endl;
   physHistos_.clearVec();  // clears ntuple cache
   physHistos_.fillCollection( *muonHandle_ );
   physHistos_.fillCollection( *electronHandle_ );
@@ -113,7 +127,7 @@ void StarterKit::produce( edm::Event & evt, const edm::EventSetup & es )
 }
 
 void
-StarterKit::saveNtuple( const std::vector<pat::PhysVarHisto*> & ntvars,
+PatAnalyzerKit::saveNtuple( const std::vector<pat::PhysVarHisto*> & ntvars,
 			edm::Event & evt )
 {
   //  Ntuplization
@@ -194,7 +208,7 @@ StarterKit::saveNtuple( const std::vector<pat::PhysVarHisto*> & ntvars,
       // &&&   produces<math::XYZTLorentzVector> ( name ).setBranchAlias( name );
       // &&& }
       else {
-	std::cout << "StarterKit::addNtupleVar (ERROR): "
+	std::cout << "PatAnalyzerKit::addNtupleVar (ERROR): "
 		  << "unknown type " << std::endl;
 
 	// &&& Throw an exception in order to abort the job!
@@ -225,7 +239,7 @@ StarterKit::saveNtuple( const std::vector<pat::PhysVarHisto*> & ntvars,
 //             - L : a 64 bit signed integer (Long64_t)
 //             - l : a 64 bit unsigned integer (ULong64_t)
 void
-StarterKit::addNtupleVar( std::string name, std::string type )
+PatAnalyzerKit::addNtupleVar( std::string name, std::string type )
 {
   if      (type == "D") {
     produces<double>( name ).setBranchAlias( name );
@@ -279,7 +293,7 @@ StarterKit::addNtupleVar( std::string name, std::string type )
   // &&&   produces<math::XYZTLorentzVector> ( name ).setBranchAlias( name );
   // &&& }
   else {
-    std::cout << "StarterKit::addNtupleVar (ERROR): "
+    std::cout << "PatAnalyzerKit::addNtupleVar (ERROR): "
 	      << "unknown type " << type << std::endl;
 
     // &&& Throw an exception in order to abort the job!
@@ -288,7 +302,7 @@ StarterKit::addNtupleVar( std::string name, std::string type )
 
 template <class T>
 void
-StarterKit::saveNtupleVar( std::string name, T value,
+PatAnalyzerKit::saveNtupleVar( std::string name, T value,
 			      edm::Event & evt )
 {
   std::auto_ptr<T> aptr( new T (value ) );
@@ -298,7 +312,7 @@ StarterKit::saveNtupleVar( std::string name, T value,
 
 template <class T>
 void
-StarterKit::saveNtupleVec( std::string name, const vector<T> & value,
+PatAnalyzerKit::saveNtupleVec( std::string name, const vector<T> & value,
 			      edm::Event & evt )
 {
   std::auto_ptr<vector<T> > aptr( new vector<T> ( value ) );
@@ -312,7 +326,7 @@ StarterKit::saveNtupleVec( std::string name, const vector<T> & value,
 
 // ------------ method called once each job just before starting event loop  ------------
 void
-StarterKit::beginJob(const edm::EventSetup&)
+PatAnalyzerKit::beginJob(const edm::EventSetup&)
 {
 }
 
@@ -320,7 +334,7 @@ StarterKit::beginJob(const edm::EventSetup&)
 
 // ------------ method called once each job just after ending the event loop  ------------
 void
-StarterKit::endJob() {
+PatAnalyzerKit::endJob() {
 }
 
 
@@ -335,4 +349,4 @@ std::ostream & operator<<( std::ostream & out, const reco::Candidate & cand )
 }
 
 //define this as a plug-in
-DEFINE_FWK_MODULE(StarterKit);
+DEFINE_FWK_MODULE(PatAnalyzerKit);

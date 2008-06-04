@@ -47,7 +47,7 @@ void HistoTrack::fill( const RecoChargedCandidate *track, uint iTrk, double weig
 }
 
 
-void HistoTrack::fill( const reco::ShallowCloneCandidate * pshallow, uint iTrk, double weight )
+void HistoTrack::fill( const reco::ShallowClonePtrCandidate * pshallow, uint iTrk, double weight )
 {
 
 

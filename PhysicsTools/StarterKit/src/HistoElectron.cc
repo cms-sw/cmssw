@@ -42,7 +42,7 @@ void HistoElectron::fill( const Electron * electron, uint iE, double weight )
 }
 
 
-void HistoElectron::fill( const reco::ShallowCloneCandidate * pshallow, uint iE, double weight )
+void HistoElectron::fill( const reco::ShallowClonePtrCandidate * pshallow, uint iE, double weight )
 {
 
   // Get the underlying object that the shallow clone represents

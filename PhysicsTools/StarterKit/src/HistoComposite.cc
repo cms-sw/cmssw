@@ -10,7 +10,7 @@ HistoComposite::
 HistoComposite( std::string dir, std::string candTitle, std::string candName,
 		double pt1, double pt2, double m1, double m2)
   :
-  HistoGroup<NamedCompositeCandidate>( dir, candTitle, candName, pt1, pt2, m1, m2 ),
+  HistoGroup<reco::CompositeCandidate>( dir, candTitle, candName, pt1, pt2, m1, m2 ),
   candName_(candName)
 {
 }
@@ -74,12 +74,12 @@ HistoComposite::~HistoComposite()
   }
 }
 
-void HistoComposite::fill( const reco::NamedCompositeCandidate * cand )
+void HistoComposite::fill( const reco::CompositeCandidate * cand )
 {
 
 
   // Fill 4-vector information for candidate
-  HistoGroup<NamedCompositeCandidate>::fill( cand );
+  HistoGroup<reco::CompositeCandidate>::fill( cand );
 
   const vector<string> & roles = cand->roles();
 
@@ -107,27 +107,11 @@ void HistoComposite::fill( const reco::NamedCompositeCandidate * cand )
     const MET *        pcmet = dynamic_cast<const MET*>( c );
     const Photon *     pcphoton = dynamic_cast<const Photon *>( c );
     const reco::RecoChargedCandidate *    pctrack = dynamic_cast<const reco::RecoChargedCandidate*>(c);
-    const reco::NamedCompositeCandidate * pccomposite = dynamic_cast<const reco::NamedCompositeCandidate*>(c);
+    const reco::CompositeCandidate * pccomposite = dynamic_cast<const reco::CompositeCandidate*>(c);
 
     // The pointers might be in shallow clones, so check for that too
-    const reco::ShallowCloneCandidate * pshallow = dynamic_cast<const reco::ShallowCloneCandidate *>(c);
-    if ( pccomposite == 0 && c->hasMasterClone() )  pccomposite = dynamic_cast<const reco::NamedCompositeCandidate*>( &*(c->masterClone()) );
-
-    // The pointers might be in a ref, so check for that too
-    const MuonRef    * prmuon     = dynamic_cast<const MuonRef*>    ( c );
-    const ElectronRef* prelectron = dynamic_cast<const ElectronRef*>( c );
-    const TauRef     * prtau      = dynamic_cast<const TauRef*>     ( c );
-    const PhotonRef  * prphoton   = dynamic_cast<const PhotonRef*>  ( c );
-    const JetRef     * prjet      = dynamic_cast<const JetRef*>     ( c );
-    const METRef     * prmet      = dynamic_cast<const METRef*>     ( c );
-    // Pick out the ref's kinematics and ignore the candidate's kinematics 
-    // (why are they not the same???)
-    if ( prmuon != 0 )       pcmuon     = &(*(prmuon->ref()));
-    if ( prelectron != 0 )   pcelectron = &(*(prelectron->ref()));
-    if ( prtau != 0 )        pctau      = &(*(prtau->ref()));
-    if ( prjet != 0 )        pcjet      = &(*(prjet->ref()));
-    if ( prmet != 0 )        pcmet      = &(*(prmet->ref()));
-    if ( prphoton != 0 )     pcphoton   = &(*(prphoton->ref()));
+    const reco::ShallowClonePtrCandidate * pshallow = dynamic_cast<const reco::ShallowClonePtrCandidate *>(c);
+    if ( pccomposite == 0 && c->hasMasterClone() )  pccomposite = dynamic_cast<const reco::CompositeCandidate*>( &*(c->masterClone()) );
 
     // ------------------------------------------------------
     // Fill histograms if the candidate is a muon

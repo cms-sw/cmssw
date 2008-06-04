@@ -10,8 +10,8 @@ using namespace reco;
 //
 CompositeKit::CompositeKit(const edm::ParameterSet& iConfig)
   :
-  StarterKit        ( iConfig ),
-  compositeCandTag_ ( iConfig.getParameter<edm::InputTag> ("compositeCandTag") ),
+  PatAnalyzerKit    ( iConfig ),
+  source_           ( iConfig.getParameter<edm::InputTag> ("source") ),
   description_      ( iConfig.getParameter<std::string>   ("description") ),
   pt1_              ( iConfig.getParameter<double>        ("pt1") ),
   pt2_              ( iConfig.getParameter<double>        ("pt2") ),
@@ -26,13 +26,13 @@ CompositeKit::CompositeKit(const edm::ParameterSet& iConfig)
 
   // NOTE: These are hard-coded for now, change to something meaningful in future
   std::string alias;
-  compositeCandMassName_ = std::string( compositeCandTag_.label() );
+  compositeCandMassName_ = std::string( source_.label() );
   compositeCandMassName_.append( "ResonanceMass");
 
   // Composite histograms
-  compositeCandHist_ = new pat::HistoComposite(compositeCandTag_.label(), 
+  compositeCandHist_ = new pat::HistoComposite(source_.label(), 
 					       description_,
-					       compositeCandTag_.label(),
+					       source_.label(),
 					       pt1_,pt2_,m1_,m2_ );
   // Slight kludge until we get expression histograms working
 
@@ -83,7 +83,7 @@ void CompositeKit::produce( edm::Event& iEvent, const edm::EventSetup& iSetup)
   using namespace edm;
   using namespace std;
 
-  StarterKit::produce( iEvent, iSetup );
+  PatAnalyzerKit::produce( iEvent, iSetup );
 
 
   // INSIDE OF StarterKit::analyze:
@@ -109,7 +109,7 @@ void CompositeKit::produce( edm::Event& iEvent, const edm::EventSetup& iSetup)
   // --------------------------------------------------
 
   // Get the composite candidates from upstream
-  iEvent.getByLabel(compositeCandTag_,   compositeCandHandle_ );
+  iEvent.getByLabel(source_,   compositeCandHandle_ );
 
   if ( compositeCandHandle_->size() > 0 ) {
 
@@ -118,7 +118,7 @@ void CompositeKit::produce( edm::Event& iEvent, const edm::EventSetup& iSetup)
     vector<double> compositeCandMassVector;
 
     // Loop over the composite candidates
-    vector<NamedCompositeCandidate>::const_iterator i = compositeCandHandle_->begin(),
+    vector<reco::CompositeCandidate>::const_iterator i = compositeCandHandle_->begin(),
       iend = compositeCandHandle_->end();
     for ( ; i != iend; ++i ) {
       compositeCandHist_->fill( *i );
@@ -138,7 +138,7 @@ void CompositeKit::produce( edm::Event& iEvent, const edm::EventSetup& iSetup)
 void
 CompositeKit::beginJob(const edm::EventSetup& iSetup)
 {
-  StarterKit::beginJob(iSetup);
+  PatAnalyzerKit::beginJob(iSetup);
 }
 
 
@@ -146,7 +146,7 @@ CompositeKit::beginJob(const edm::EventSetup& iSetup)
 // ------------ method called once each job just after ending the event loop  ------------
 void
 CompositeKit::endJob() {
-  StarterKit::endJob();
+  PatAnalyzerKit::endJob();
 }
 
 //define this as a plug-in
