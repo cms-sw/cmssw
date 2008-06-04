@@ -17,11 +17,11 @@ using namespace edm;
 CSCValidation::CSCValidation(const ParameterSet& pset){
 
   // Get the various input parameters
-  rootFileName         = pset.getUntrackedParameter<string>("rootFileName");
-  isSimulation         = pset.getUntrackedParameter<bool>("isSimulation");
-  writeTreeToFile      = pset.getUntrackedParameter<bool>("writeTreeToFile");
-  makePlots            = pset.getUntrackedParameter<bool>("makePlots");
-  makeComparisonPlots  = pset.getUntrackedParameter<bool>("makeComparisonPlots");
+  rootFileName         = pset.getUntrackedParameter<string>("rootFileName","valHists.root");
+  isSimulation         = pset.getUntrackedParameter<bool>("isSimulation",false);
+  writeTreeToFile      = pset.getUntrackedParameter<bool>("writeTreeToFile",true);
+  makePlots            = pset.getUntrackedParameter<bool>("makePlots",false);
+  makeComparisonPlots  = pset.getUntrackedParameter<bool>("makeComparisonPlots",false);
   refRootFile          = pset.getUntrackedParameter<string>("refRootFile","null");
 
   // flags to switch on/off individual modules
@@ -34,6 +34,10 @@ CSCValidation::CSCValidation(const ParameterSet& pset){
   makePedNoisePlots    = pset.getUntrackedParameter<bool>("makePedNoisePlots",true);
   makeEfficiencyPlots  = pset.getUntrackedParameter<bool>("makeEfficiencyPlots",true);
   makeGasGainPlots     = pset.getUntrackedParameter<bool>("makeGasGainPlots",true);
+  makeAFEBTimingPlots  = pset.getUntrackedParameter<bool>("makeAFEBTimingPlots",true);
+  makeCompTimingPlots  = pset.getUntrackedParameter<bool>("makeCompTimingPlots",true);
+  makeADCTimingPlots   = pset.getUntrackedParameter<bool>("makeADCTimingPlots",true);
+  makeRHNoisePlots     = pset.getUntrackedParameter<bool>("makeRHNoisePlots",false);
 
   // set counter to zero
   nEventsAnalyzed = 0;
@@ -97,8 +101,10 @@ void CSCValidation::analyze(const Event & event, const EventSetup& eventSetup){
   // Get the Digis
   edm::Handle<CSCWireDigiCollection> wires;
   edm::Handle<CSCStripDigiCollection> strips;
+  edm::Handle<CSCComparatorDigiCollection> compars;
   event.getByLabel("muonCSCDigis","MuonCSCWireDigi",wires);
   event.getByLabel("muonCSCDigis","MuonCSCStripDigi",strips);
+  event.getByLabel("muonCSCDigis","MuonCSCComparatorDigi",compars);
 
   // Get the CSC Geometry :
   ESHandle<CSCGeometry> cscGeom;
@@ -149,6 +155,18 @@ void CSCValidation::analyze(const Event & event, const EventSetup& eventSetup){
 
   // gas gain
   if (makeGasGainPlots) doGasGain(*wires,*strips,*recHits);
+
+  // AFEB timing
+  if (makeAFEBTimingPlots) doAFEBTiming(*wires);
+
+  // Comparators timing
+  if (makeCompTimingPlots) doCompTiming(*compars);
+
+  // strip ADC timing
+  if (makeADCTimingPlots) doADCTiming(*strips,*recHits);
+
+  // recHit Noise
+  if (makeRHNoisePlots) doNoiseHits(recHits,cscSegments,cscGeom,strips);
 
 }
 
@@ -418,8 +436,6 @@ void CSCValidation::doPedestalNoise(edm::Handle<CSCStripDigiCollection> strips){
     if (kEndcap == 2) cEndcap = -1;
     int kRing    = id.ring();
     int kStation = id.station();
-    int kChamber = id.chamber();
-    int kLayer   = id.layer();
     std::vector<CSCStripDigi>::const_iterator digiItr = (*j).second.first;
     std::vector<CSCStripDigi>::const_iterator last = (*j).second.second;
     for( ; digiItr != last; ++digiItr) {
@@ -435,7 +451,6 @@ void CSCValidation::doPedestalNoise(edm::Handle<CSCStripDigiCollection> strips){
 	  kRing = 1;
 	  if(myStrip <= 16) myStrip += 64; // no trapping for any bizarreness
 	}
-      int globalStrip = cEndcap*( kStation*1000000 + kRing*100000 + kChamber*1000 + kLayer*100 + myStrip);
       if (TotalADC > threshold) { thisStripFired = true;}
       if (!thisStripFired){
 	float ADC = thisSignal - thisPedestal;
@@ -483,12 +498,12 @@ void CSCValidation::doRecHits(edm::Handle<CSCRecHit2DCollection> recHits, edm::H
     LocalPoint rhitlocal = (*recIt).localPosition();  
     float xreco = rhitlocal.x();
     float yreco = rhitlocal.y();
-    float zreco = rhitlocal.z();
-    float phireco = rhitlocal.phi();
-    LocalError rerrlocal = (*recIt).localPositionError();  
-    float xxerr = rerrlocal.xx();
-    float yyerr = rerrlocal.yy();
-    float xyerr = rerrlocal.xy();
+    //float zreco = rhitlocal.z();
+    //float phireco = rhitlocal.phi();
+    //LocalError rerrlocal = (*recIt).localPositionError();  
+    //float xxerr = rerrlocal.xx();
+    //float yyerr = rerrlocal.yy();
+    //float xyerr = rerrlocal.xy();
 
     // Find the strip containing this hit
     CSCRecHit2D::ChannelContainer hitstrips = (*recIt).channels();
@@ -524,9 +539,9 @@ void CSCValidation::doRecHits(edm::Handle<CSCRecHit2DCollection> recHits, edm::H
     GlobalPoint rhitglobal= csclayer->toGlobal(rhitlocal);
     float grecx   =  rhitglobal.x();
     float grecy   =  rhitglobal.y();
-    float grecz   =  rhitglobal.z();
-    float grecphi =  rhitglobal.phi();
-    float grecr   =  sqrt(grecx*grecx + grecy+grecy);
+    //float grecz   =  rhitglobal.z();
+    //float grecphi =  rhitglobal.phi();
+    //float grecr   =  sqrt(grecx*grecx + grecy+grecy);
 
     // Fill the rechit position branch
     if (writeTreeToFile) histos->fillRechitTree(xreco, yreco, grecx, grecy, kEndcap, kStation, kRing, kChamber, kLayer);
@@ -637,11 +652,11 @@ void CSCValidation::doSegments(edm::Handle<CSCSegmentCollection> cscSegments, ed
     LocalPoint localPos = (*it).localPosition();
     float segX     = localPos.x();
     float segY     = localPos.y();
-    float segZ     = localPos.z();
-    float segPhi   = localPos.phi();
+    //float segZ     = localPos.z();
+    //float segPhi   = localPos.phi();
     LocalVector segDir = (*it).localDirection();
     double theta   = segDir.theta();
-    double phi     = segDir.phi();
+    //double phi     = segDir.phi();
 
     //
     // try to get the CSC recHits that contribute to this segment.
@@ -653,10 +668,10 @@ void CSCValidation::doSegments(edm::Handle<CSCSegmentCollection> cscSegments, ed
     for ( vector<CSCRecHit2D>::const_iterator iRH = theseRecHits.begin(); iRH != theseRecHits.end(); iRH++) {
       jRH++;
       CSCDetId idRH = (CSCDetId)(*iRH).cscDetId();
-      int kEndcap  = idRH.endcap();
+      //int kEndcap  = idRH.endcap();
       int kRing    = idRH.ring();
       int kStation = idRH.station();
-      int kChamber = idRH.chamber();
+      //int kChamber = idRH.chamber();
       int kLayer   = idRH.layer();
 
       // Find the strip containing this hit
@@ -825,11 +840,11 @@ float CSCValidation::getTiming(const CSCStripDigiCollection& stripdigis, CSCDetI
   float normADC;
   for (int i = 0; i < 8; i++){
     normADC = ADC[i]/ADC[peakTime];
-    histos->fillProfileByChamber(i,normADC,"signal_profile","Normalized Signal Profile",idRH,8,-0.5,7.5,-0.1,1.1,"Digis");
+    histos->fillProfileByChamber(i,normADC,"signal_profile","Normalized Signal Profile",idRH,8,-0.5,7.5,-0.1,1.1,"ADCTiming");
   }
 
-  histos->fill1DHistByChamber(ADC[0],"ped_subtracted","ADC in first time bin",idRH,400,-300,100,"Digis");
-  histos->fill1DHist(ADC[0],"ped_subtracted_all","ADC in first time bin",400,-300,100,"Digis");
+  histos->fill1DHistByChamber(ADC[0],"ped_subtracted","ADC in first time bin",idRH,400,-300,100,"ADCTiming");
+  histos->fill1DHist(ADC[0],"ped_subtracted_all","ADC in first time bin",400,-300,100,"ADCTiming");
 
   timing = (ADC[2]*2 + ADC[3]*3 + ADC[4]*4 + ADC[5]*5 + ADC[6]*6)/(ADC[2] + ADC[3] + ADC[4] + ADC[5] + ADC[6]);
 
@@ -916,6 +931,39 @@ void CSCValidation::doEfficiencies(edm::Handle<CSCRecHit2DCollection> recHits, e
 
 }
 
+void CSCValidation::getEfficiency(float bin, float Norm, std::vector<float> &eff){
+  //---- Efficiency with binomial error
+  float Efficiency = 0.;
+  float EffError = 0.;
+  if(fabs(Norm)>0.000000001){
+    Efficiency = bin/Norm;
+    if(bin<Norm){
+      EffError = sqrt( (1.-Efficiency)*Efficiency/Norm );
+    }
+  }
+  eff[0] = Efficiency;
+  eff[1] = EffError;
+}
+
+void CSCValidation::histoEfficiency(TH1F *readHisto, TH1F *writeHisto){
+  std::vector<float> eff(2);
+  int Nbins =  readHisto->GetSize()-2;//without underflows and overflows
+  std::vector<float> bins(Nbins);
+  std::vector<float> Efficiency(Nbins);
+  std::vector<float> EffError(Nbins);
+  float Num = 1;
+  float Den = 1;
+  for (int i=0;i<10;i++){
+    Num = readHisto->GetBinContent(i+1);
+    Den = readHisto->GetBinContent(i+11);
+    getEfficiency(Num, Den, eff);
+    Efficiency[i] = eff[0];
+    EffError[i] = eff[1];
+    writeHisto->SetBinContent(i+1, Efficiency[i]);
+    writeHisto->SetBinError(i+1, EffError[i]);
+  }
+}
+
 
 //---------------------------------------------------------------------------------------
 // Given a set of digis, the CSCDetId, and the central strip of your choosing, returns
@@ -985,196 +1033,413 @@ float CSCValidation::getSignal(const CSCStripDigiCollection& stripdigis, CSCDetI
   return TotalADC;
 }
 
-void CSCValidation::getEfficiency(float bin, float Norm, std::vector<float> &eff){
-  //---- Efficiency with binomial error
-  float Efficiency = 0.;
-  float EffError = 0.;
-  if(fabs(Norm)>0.000000001){
-    Efficiency = bin/Norm;
-    if(bin<Norm){
-      EffError = sqrt( (1.-Efficiency)*Efficiency/Norm );
+//---------------------------------------------------------------------------------------
+// Look at non-associated recHits
+// Author: P. Jindal
+//---------------------------------------------------------------------------------------
+
+void CSCValidation::doNoiseHits(edm::Handle<CSCRecHit2DCollection> recHits, edm::Handle<CSCSegmentCollection> cscSegments,
+                                edm::ESHandle<CSCGeometry> cscGeom,  edm::Handle<CSCStripDigiCollection> strips){
+
+  CSCRecHit2DCollection::const_iterator recIt;
+  for (recIt = recHits->begin(); recIt != recHits->end(); recIt++) {
+
+    CSCDetId idrec = (CSCDetId)(*recIt).cscDetId();
+
+    //Store the Rechits into a Map
+    AllRechits.insert(pair<CSCDetId , CSCRecHit2D>(idrec,*recIt));
+
+    // Find the strip containing this hit
+    CSCRecHit2D::ChannelContainer hitstrips = (*recIt).channels();
+    int nStrips     =  hitstrips.size();
+    //std::cout << " no of strips in Rec Hit " << nStrips << std::endl;
+    int centerid    =  nStrips/2 + 1;
+    int centerStrip =  hitstrips[centerid - 1];
+
+    float  rHsignal = getthisSignal(*strips, idrec, centerStrip);
+    histos->fill1DHist(rHsignal,"hrHSignal", "Signal in the 4th time bin for centre strip",1100,-99,1000,"recHits");
+
+  }
+
+  for(CSCSegmentCollection::const_iterator it=cscSegments->begin(); it != cscSegments->end(); it++) {
+
+    std::vector<CSCRecHit2D> theseRecHits = (*it).specificRecHits();
+    for ( vector<CSCRecHit2D>::const_iterator iRH = theseRecHits.begin(); iRH != theseRecHits.end(); iRH++) {
+      CSCDetId idRH = (CSCDetId)(*iRH).cscDetId();
+      LocalPoint lpRH = (*iRH).localPosition();
+      float xrec = lpRH.x();
+      float yrec = lpRH.y();
+      float zrec = lpRH.z();
+      bool RHalreadyinMap = false;
+      //Store the rechits associated with segments into a Map
+      multimap<CSCDetId , CSCRecHit2D>::iterator segRHit;
+      segRHit = SegRechits.find(idRH);
+      if (segRHit != SegRechits.end()){
+	for( ; segRHit != SegRechits.upper_bound(idRH); ++segRHit){
+	  //for( segRHit = SegRechits.begin(); segRHit != SegRechits.end() ;++segRHit){
+	  LocalPoint lposRH = (segRHit->second).localPosition();
+	  float xpos = lposRH.x();
+	  float ypos = lposRH.y();
+	  float zpos = lposRH.z();
+	  if ( xrec == xpos && yrec == ypos && zrec == zpos){
+	  RHalreadyinMap = true;
+	  //std::cout << " Already exists " <<std ::endl;
+	  break;}
+	}
+      }
+      if(!RHalreadyinMap){ SegRechits.insert(pair<CSCDetId , CSCRecHit2D>(idRH,*iRH));}
     }
   }
-  eff[0] = Efficiency;
-  eff[1] = EffError;
+
+  findNonAssociatedRecHits(cscGeom,strips);
+
 }
 
-void CSCValidation::histoEfficiency(TH1F *readHisto, TH1F *writeHisto){
-  std::vector<float> eff(2);
-  int Nbins =  readHisto->GetSize()-2;//without underflows and overflows
-  std::vector<float> bins(Nbins);
-  std::vector<float> Efficiency(Nbins);
-  std::vector<float> EffError(Nbins);
-  float Num = 1;
-  float Den = 1;
-  for (int i=0;i<10;i++){
-    Num = readHisto->GetBinContent(i+1);
-    Den = readHisto->GetBinContent(i+11);
-    getEfficiency(Num, Den, eff);
-    Efficiency[i] = eff[0];
-    EffError[i] = eff[1];
-    writeHisto->SetBinContent(i+1, Efficiency[i]);
-    writeHisto->SetBinError(i+1, EffError[i]);
+//---------------------------------------------------------------------------------------
+// Given  the list of all rechits and the rechits on a segment finds the rechits 
+// not associated to a segment and stores in a list
+//
+//---------------------------------------------------------------------------------------
+
+void CSCValidation::findNonAssociatedRecHits(edm::ESHandle<CSCGeometry> cscGeom,  edm::Handle<CSCStripDigiCollection> strips){
+ 
+  for(multimap<CSCDetId , CSCRecHit2D>::iterator allRHiter =  AllRechits.begin();allRHiter != AllRechits.end(); ++allRHiter){
+	CSCDetId idRH = allRHiter->first;
+    LocalPoint lpRH = (allRHiter->second).localPosition();
+    float xrec = lpRH.x();
+    float yrec = lpRH.y();
+    float zrec = lpRH.z();
+    
+    bool foundmatch = false;
+    multimap<CSCDetId , CSCRecHit2D>::iterator segRHit;
+    segRHit = SegRechits.find(idRH);
+    if (segRHit != SegRechits.end()){
+		for( ; segRHit != SegRechits.upper_bound(idRH); ++segRHit){
+			
+			LocalPoint lposRH = (segRHit->second).localPosition();
+			float xpos = lposRH.x();
+			float ypos = lposRH.y();
+			float zpos = lposRH.z();
+
+			if ( xrec == xpos && yrec == ypos && zrec == zpos){
+				foundmatch = true;}
+	  
+			float d      = 0.;
+			float dclose =1000.;
+
+			if ( !foundmatch) {
+				
+				d = sqrt(pow(xrec-xpos,2)+pow(yrec-ypos,2)+pow(zrec-zpos,2));
+				if (d < dclose) {
+					dclose = d;
+					if( distRHmap.find((allRHiter->second)) ==  distRHmap.end() ) { // entry for rechit does not yet exist, create one
+						distRHmap.insert(make_pair(allRHiter->second,dclose) );
+					}
+					else {
+						// we already have an entry for the detid.
+						distRHmap.erase(allRHiter->second);
+						distRHmap.insert(make_pair(allRHiter->second,dclose)); // fill rechits for the segment with the given detid
+					}
+				}
+			} 	    
+		}
+    }
+    if(!foundmatch){NonAssociatedRechits.insert(pair<CSCDetId , CSCRecHit2D>(idRH,allRHiter->second));}
   }
+
+  for(map<CSCRecHit2D,float,ltrh>::iterator iter =  distRHmap.begin();iter != distRHmap.end(); ++iter){
+    histos->fill1DHist(iter->second,"hdistRH","Distance of Non Associated RecHit from closest Segment RecHit",500,0.,100.,"NonAssociatedRechits");
+  }
+
+  for(multimap<CSCDetId , CSCRecHit2D>::iterator iter =  NonAssociatedRechits.begin();iter != NonAssociatedRechits.end(); ++iter){
+    CSCDetId idrec = iter->first;
+    int kEndcap  = idrec.endcap();
+    int cEndcap  = idrec.endcap();
+    if (kEndcap == 2)cEndcap = -1;
+    int kRing    = idrec.ring();
+    int kStation = idrec.station();
+    int kChamber = idrec.chamber();
+    int kLayer   = idrec.layer();
+
+    // Store rechit as a Local Point:
+    LocalPoint rhitlocal = (iter->second).localPosition();  
+    float xreco = rhitlocal.x();
+    float yreco = rhitlocal.y();
+
+    // Find the strip containing this hit
+    CSCRecHit2D::ChannelContainer hitstrips = (iter->second).channels();
+    int nStrips     =  hitstrips.size();
+    int centerid    =  nStrips/2 + 1;
+    int centerStrip =  hitstrips[centerid - 1];
+
+
+    // Find the charge associated with this hit
+
+    CSCRecHit2D::ADCContainer adcs = (iter->second).adcs();
+    int adcsize = adcs.size();
+    float rHSumQ = 0;
+    float sumsides = 0;
+    for (int i = 0; i < adcsize; i++){
+      if (i != 3 && i != 7 && i != 11){
+        rHSumQ = rHSumQ + adcs[i]; 
+      }
+      if (adcsize == 12 && (i < 3 || i > 7) && i < 12){
+        sumsides = sumsides + adcs[i];
+      }
+    }
+    float rHratioQ = sumsides/rHSumQ;
+    if (adcsize != 12) rHratioQ = -99;
+
+    // Get the signal timing of this hit
+    //float rHtime = (iter->second).tpeak();
+    float rHtime = getTiming(*strips, idrec, centerStrip);
+
+    // Get the width of this hit
+    int rHwidth = getWidth(*strips, idrec, centerStrip);
+
+
+    // Get pointer to the layer:
+    const CSCLayer* csclayer = cscGeom->layer( idrec );
+
+    // Transform hit position from local chamber geometry to global CMS geom
+    GlobalPoint rhitglobal= csclayer->toGlobal(rhitlocal);
+    float grecx   =  rhitglobal.x();
+    float grecy   =  rhitglobal.y();
+
+
+
+   // Simple occupancy variables
+    int kCodeBroad  = cEndcap * ( 4*(kStation-1) + kRing) ;
+    int kCodeNarrow = cEndcap * ( 100*(kRing-1) + kChamber) ;
+
+    //Fill the non-associated rechits parameters in histogram
+    histos->fill1DHist(kCodeBroad,"hNARHCodeBroad","broad scope code for recHits",33,-16.5,16.5,"NonAssociatedRechits");
+    if (kStation == 1) histos->fill1DHist(kCodeNarrow,"hNARHCodeNarrow1","narrow scope recHit code station 1",801,-400.5,400.5,"NonAssociatedRechits");
+    if (kStation == 2) histos->fill1DHist(kCodeNarrow,"hNARHCodeNarrow2","narrow scope recHit code station 2",801,-400.5,400.5,"NonAssociatedRechits");
+    if (kStation == 3) histos->fill1DHist(kCodeNarrow,"hNARHCodeNarrow3","narrow scope recHit code station 3",801,-400.5,400.5,"NonAssociatedRechits");
+    if (kStation == 4) histos->fill1DHist(kCodeNarrow,"hNARHCodeNarrow4","narrow scope recHit code station 4",801,-400.5,400.5,"NonAssociatedRechits");
+    histos->fill1DHistByType(kLayer,"hNARHLayer","RecHits per Layer",idrec,8,-0.5,7.5,"NonAssociatedRechits");
+    histos->fill1DHistByType(xreco,"hNARHX","Local X of recHit",idrec,160,-80.,80.,"NonAssociatedRechits");
+    histos->fill1DHistByType(yreco,"hNARHY","Local Y of recHit",idrec,60,-180.,180.,"NonAssociatedRechits");
+    if (kStation == 1 && (kRing == 1 || kRing == 4)) histos->fill1DHistByType(rHSumQ,"hNARHSumQ","Sum 3x3 recHit Charge",idrec,250,0,4000,"NonAssociatedRechits");
+    else histos->fill1DHistByType(rHSumQ,"hNARHSumQ","Sum 3x3 recHit Charge",idrec,250,0,2000,"NonAssociatedRechits");
+    histos->fill1DHistByType(rHratioQ,"hNARHRatioQ","Ratio (Ql+Qr)/Qt)",idrec,120,-0.1,1.1,"NonAssociatedRechits");
+    histos->fill1DHistByType(rHtime,"hNARHTiming","recHit Timing",idrec,100,0,10,"NonAssociatedRechits");
+    histos->fill2DHistByStation(grecx,grecy,"hNARHGlobal","recHit Global Position",idrec,400,-800.,800.,400,-800.,800.,"NonAssociatedRechits");
+    histos->fill1DHistByType(rHwidth,"hNARHwidth","width for Non associated recHit",idrec,21,-0.5,20.5,"NonAssociatedRechits");
+    
+  }
+
+   for(multimap<CSCDetId , CSCRecHit2D>::iterator iter =  SegRechits.begin();iter != SegRechits.end(); ++iter){
+	   CSCDetId idrec = iter->first;
+	   int kEndcap  = idrec.endcap();
+	   int cEndcap  = idrec.endcap();
+	   if (kEndcap == 2)cEndcap = -1;
+	   int kRing    = idrec.ring();
+	   int kStation = idrec.station();
+	   int kChamber = idrec.chamber();
+	   int kLayer   = idrec.layer();
+
+	   // Store rechit as a Local Point:
+	   LocalPoint rhitlocal = (iter->second).localPosition();  
+	   float xreco = rhitlocal.x();
+	   float yreco = rhitlocal.y();
+
+	   // Find the strip containing this hit
+	   CSCRecHit2D::ChannelContainer hitstrips = (iter->second).channels();
+	   int nStrips     =  hitstrips.size();
+	   int centerid    =  nStrips/2 + 1;
+	   int centerStrip =  hitstrips[centerid - 1];
+
+
+	   // Find the charge associated with this hit
+	   
+	   CSCRecHit2D::ADCContainer adcs = (iter->second).adcs();
+	   int adcsize = adcs.size();
+	   float rHSumQ = 0;
+	   float sumsides = 0;
+	   for (int i = 0; i < adcsize; i++){
+		   if (i != 3 && i != 7 && i != 11){
+			   rHSumQ = rHSumQ + adcs[i]; 
+		   }
+		   if (adcsize == 12 && (i < 3 || i > 7) && i < 12){
+			   sumsides = sumsides + adcs[i];
+		   }
+	   }
+	   float rHratioQ = sumsides/rHSumQ;
+	   if (adcsize != 12) rHratioQ = -99;
+	   
+	   // Get the signal timing of this hit
+	   //float rHtime = (iter->second).tpeak();
+	   float rHtime = getTiming(*strips, idrec, centerStrip);
+
+	   // Get the width of this hit
+	   int rHwidth = getWidth(*strips, idrec, centerStrip);
+
+
+	   // Get pointer to the layer:
+	   const CSCLayer* csclayer = cscGeom->layer( idrec );
+	   
+	   // Transform hit position from local chamber geometry to global CMS geom
+	   GlobalPoint rhitglobal= csclayer->toGlobal(rhitlocal);
+	   float grecx   =  rhitglobal.x();
+	   float grecy   =  rhitglobal.y();
+
+	   // Simple occupancy variables
+	   int kCodeBroad  = cEndcap * ( 4*(kStation-1) + kRing) ;
+	   int kCodeNarrow = cEndcap * ( 100*(kRing-1) + kChamber) ;
+
+	   //Fill the non-associated rechits global position in histogram
+           histos->fill1DHist(kCodeBroad,"hSegRHCodeBroad","broad scope code for recHits",33,-16.5,16.5,"AssociatedRechits");
+           if (kStation == 1) histos->fill1DHist(kCodeNarrow,"hSegRHCodeNarrow1","narrow scope recHit code station 1",801,-400.5,400.5,"AssociatedRechits");
+           if (kStation == 2) histos->fill1DHist(kCodeNarrow,"hSegRHCodeNarrow2","narrow scope recHit code station 2",801,-400.5,400.5,"AssociatedRechits");
+           if (kStation == 3) histos->fill1DHist(kCodeNarrow,"hSegRHCodeNarrow3","narrow scope recHit code station 3",801,-400.5,400.5,"AssociatedRechits");
+           if (kStation == 4) histos->fill1DHist(kCodeNarrow,"hSegRHCodeNarrow4","narrow scope recHit code station 4",801,-400.5,400.5,"AssociatedRechits");
+           histos->fill1DHistByType(kLayer,"hSegRHLayer","RecHits per Layer",idrec,8,-0.5,7.5,"AssociatedRechits");
+           histos->fill1DHistByType(xreco,"hSegRHX","Local X of recHit",idrec,160,-80.,80.,"AssociatedRechits");
+           histos->fill1DHistByType(yreco,"hSegRHY","Local Y of recHit",idrec,60,-180.,180.,"AssociatedRechits");
+           if (kStation == 1 && (kRing == 1 || kRing == 4)) histos->fill1DHistByType(rHSumQ,"hSegRHSumQ","Sum 3x3 recHit Charge",idrec,250,0,4000,"AssociatedRechits");
+           else histos->fill1DHistByType(rHSumQ,"hSegRHSumQ","Sum 3x3 recHit Charge",idrec,250,0,2000,"AssociatedRechits");
+           histos->fill1DHistByType(rHratioQ,"hSegRHRatioQ","Ratio (Ql+Qr)/Qt)",idrec,120,-0.1,1.1,"AssociatedRechits");
+           histos->fill1DHistByType(rHtime,"hSegRHTiming","recHit Timing",idrec,100,0,10,"AssociatedRechits");
+           histos->fill2DHistByStation(grecx,grecy,"hSegRHGlobal","recHit Global Position",idrec,400,-800.,800.,400,-800.,800.,"AssociatedRechits");
+           histos->fill1DHistByType(rHwidth,"hSegRHwidth","width for Non associated recHit",idrec,21,-0.5,20.5,"AssociatedRechits");
+	   
+   }
+
+   distRHmap.clear();
+   AllRechits.clear();
+   SegRechits.clear();
+   NonAssociatedRechits.clear();
 }
+
+
+
+float CSCValidation::getthisSignal(const CSCStripDigiCollection& stripdigis, CSCDetId idRH, int centerStrip){
+	// Loop over strip digis responsible for this recHit
+	CSCStripDigiCollection::DigiRangeIterator sIt;
+	float thisADC = 0.;
+	bool foundRHid = false;
+	// std::cout<<"iD   S/R/C/L = "<<idRH<<"    "<<idRH.station()<<"/"<<idRH.ring()<<"/"<<idRH.chamber()<<"/"<<idRH.layer()<<std::endl;
+	for (sIt = stripdigis.begin(); sIt != stripdigis.end(); sIt++){
+		CSCDetId id = (CSCDetId)(*sIt).first;
+		//std::cout<<"STRIPS: id    S/R/C/L = "<<id<<"     "<<id.station()<<"/"<<id.ring()<<"/"<<id.chamber()<<"/"<<id.layer()<<std::endl;
+		if (id == idRH){
+			foundRHid = true;
+			vector<CSCStripDigi>::const_iterator digiItr = (*sIt).second.first;
+			vector<CSCStripDigi>::const_iterator last = (*sIt).second.second;
+			//if(digiItr == last ) {std::cout << " Attention1 :: Size of digi collection is zero " << std::endl;}
+			int St = idRH.station();
+			int Rg    = idRH.ring();
+			if (St == 1 && Rg == 4){
+				while(centerStrip> 16) centerStrip -= 16;
+			}
+			for ( ; digiItr != last; ++digiItr ) {
+				int thisStrip = digiItr->getStrip();
+				//std::cout<<" thisStrip = "<<thisStrip<<" centerStrip = "<<centerStrip<<std::endl;
+				std::vector<int> myADCVals = digiItr->getADCCounts();
+				float thisPedestal = 0.5*(float)(myADCVals[0]+myADCVals[1]);
+				float Signal = (float) myADCVals[3];
+				if (thisStrip == (centerStrip)){
+					thisADC = Signal-thisPedestal;
+					//if(thisADC >= 0. && thisADC <2.) {std::cout << " Attention2 :: The Signal is equal to the pedestal " << std::endl;
+					//}
+					//if(thisADC < 0.) {std::cout << " Attention3 :: The Signal is less than the pedestal " << std::endl;
+					//}
+				}
+				if (thisStrip == (centerStrip+1)){
+					std::vector<int> myADCVals = digiItr->getADCCounts();
+				}
+				if (thisStrip == (centerStrip-1)){
+					std::vector<int> myADCVals = digiItr->getADCCounts();
+				}
+			}
+		}
+	}
+	//if(!foundRHid){std::cout << " Attention4 :: Did not find a matching RH id in the Strip Digi collection " << std::endl;}
+	return thisADC;
+}
+
+//---------------------------------------------------------------------------------------
+//
+// Function is meant to take the DetId and center strip number of a recHit and return
+// the width in terms of strips
+//---------------------------------------------------------------------------------------
+
+int CSCValidation::getWidth(const CSCStripDigiCollection& stripdigis, CSCDetId idRH, int centerStrip){
+
+  int width = 1;
+  int widthpos = 0;
+  int widthneg = 0;
+
+  // Loop over strip digis responsible for this recHit and sum charge
+  CSCStripDigiCollection::DigiRangeIterator sIt;
+
+  for (sIt = stripdigis.begin(); sIt != stripdigis.end(); sIt++){
+	  CSCDetId id = (CSCDetId)(*sIt).first;
+	  if (id == idRH){
+		  vector<CSCStripDigi>::const_iterator digiItr = (*sIt).second.first;
+		  vector<CSCStripDigi>::const_iterator first = (*sIt).second.first;
+		  vector<CSCStripDigi>::const_iterator last = (*sIt).second.second;
+		  vector<CSCStripDigi>::const_iterator it = (*sIt).second.first;
+		  vector<CSCStripDigi>::const_iterator itr = (*sIt).second.first;
+		  //std::cout << " IDRH " << id <<std::endl;
+		  int St = idRH.station();
+		  int Rg    = idRH.ring();
+		  if (St == 1 && Rg == 4){
+			  while(centerStrip> 16) centerStrip -= 16;
+		  }
+		  for ( ; digiItr != last; ++digiItr ) {
+			  int thisStrip = digiItr->getStrip();
+			  if (thisStrip == (centerStrip)){
+				  it = digiItr;
+				  for( ; it != last; ++it ) {
+					  int strip = it->getStrip();
+					  std::vector<int> myADCVals = it->getADCCounts();
+					  float thisPedestal = 0.5*(float)(myADCVals[0]+myADCVals[1]);
+					  if(((float)myADCVals[3]-thisPedestal) < 6 || widthpos == 10 || it==last){break;}
+					   if(strip != centerStrip){ widthpos += 1;
+					   }
+				  }
+				  itr = digiItr;
+				  for( ; itr != first; --itr) {
+					  int strip = itr->getStrip();
+					  std::vector<int> myADCVals = itr->getADCCounts();
+					  float thisPedestal = 0.5*(float)(myADCVals[0]+myADCVals[1]);
+					  if(((float)myADCVals[3]-thisPedestal) < 6 || widthneg == 10 || itr==first){break;}	 
+					  if(strip != centerStrip) {widthneg += 1 ; 
+					  }
+				  }
+			  }
+		  }
+	  }
+  }
+  //std::cout << "Widthneg - " <<  widthneg << "Widthpos + " <<  widthpos << std::endl;
+  width =  width + widthneg +  widthpos ;
+  //std::cout << "Width " <<  width << std::endl;
+  return width;
+}
+
 
 //---------------------------------------------------------------------------
 // Module for looking at gas gains
 // Author N. Terentiev
 //---------------------------------------------------------------------------
-void CSCValidation::bookForId(int casenmb, const int& idint,
-                         const std::string& idstring ) {
-  std::ostringstream ss;
-    
-  switch (casenmb) {
-  
-  case 6001:
-  ss <<"gas_gain_wires_strips_rechits_present";
-  mh_gas_gain_wires_strips_rechits_present[idint]=new TH1F(ss.str().c_str(),"",16, 0.0, 16.0);
-  mh_gas_gain_wires_strips_rechits_present[idint]->GetXaxis()->SetTitle("Bit 1-Wire, 2-Strip, 3-RecHit");
-  mh_gas_gain_wires_strips_rechits_present[idint]->GetYaxis()->SetTitle("Entries");
-  mh_gas_gain_wires_strips_rechits_present[idint]->SetFillColor(4);
-  ss.str(""); // clear
-  break;
- 
-  case 6002:
-  ss <<"gas_gain_wires_per_layer";
-  mh_gas_gain_wires_per_layer[idint]=new TH1F(ss.str().c_str(),"",32,0.0,32.0);
-  mh_gas_gain_wires_per_layer[idint]->GetXaxis()->SetTitle("Wire multiplicity per CSC layer"); 
-  mh_gas_gain_wires_per_layer[idint]->GetYaxis()->SetTitle("Entries");
-  mh_gas_gain_wires_per_layer[idint]->SetFillColor(4);
-  ss.str(""); // clear
-  break;
-
-  case 6003:
-  ss <<"gas_gain_rechits_per_layer";
-  mh_gas_gain_rechits_per_layer[idint]=new TH1F(ss.str().c_str(),"",32,0.0,32.0);
-  mh_gas_gain_rechits_per_layer[idint]->GetXaxis()->SetTitle("Rechit multiplicity per CSC layer");  
-  mh_gas_gain_rechits_per_layer[idint]->GetYaxis()->SetTitle("Entries");
-  mh_gas_gain_rechits_per_layer[idint]->SetFillColor(4);
-  ss.str(""); // clear
-  break;
-
-  case 6004:
-  ss <<idint<<"_gas_gain_rechit_adc_3_3_sum_location";
-  mh_gas_gain_rechit_adc_3_3_sum_location[idint]=new TH2F(ss.str().c_str(),"",30,1.0,31.0,50,0.0,2000.0);  
-  mh_gas_gain_rechit_adc_3_3_sum_location[idint]->GetXaxis()->SetTitle("Location=(layer-1)*nsegm+segm");
-  mh_gas_gain_rechit_adc_3_3_sum_location[idint]->GetYaxis()->SetTitle("Rechit 3X3 ADC sum");
-  mh_gas_gain_rechit_adc_3_3_sum_location[idint]->SetFillColor(4);
-  mh_gas_gain_rechit_adc_3_3_sum_location[idint]->SetOption("BOX");
-  ss.str(""); // clear
-  break;
-
-  case 6011:
-  ss <<idint<<"_gas_gain_mean";
-  mh_gas_gain_mean[idint]=new TH2F(ss.str().c_str(),"",40,0.0,40.0,30,1.0,31.0);
-  mh_gas_gain_mean[idint]->GetXaxis()->SetTitle("CSC");   
-  mh_gas_gain_mean[idint]->GetYaxis()->SetTitle("Location=(layer-1)*nsegm+segm");
-  mh_gas_gain_mean[idint]->SetFillColor(4);
-  mh_gas_gain_mean[idint]->SetOption("BOX");
-  ss.str(""); // clear
-  break;
-
-  case 6012:
-  ss <<idint<<"_gas_gain_entries";
-  mh_gas_gain_entries[idint]=new TH2F(ss.str().c_str(),"",40,0.0,40.0,30,1.0,31.0);
-  mh_gas_gain_entries[idint]->GetXaxis()->SetTitle("CSC");
-  mh_gas_gain_entries[idint]->GetYaxis()->SetTitle("Location=(layer-1)*nsegm+segm");
-  mh_gas_gain_entries[idint]->SetFillColor(4);
-  mh_gas_gain_entries[idint]->SetOption("BOX");
-  ss.str(""); // clear
-  break;
-
-  case 6101:
-  ss <<idint<<"_wire_timing_mean";
-  mh_wire_timing_mean[idint]=new TH2F(ss.str().c_str(),"",40,0.0,40.0,42,1.0,43.0);  
-  mh_wire_timing_mean[idint]->GetXaxis()->SetTitle("CSC");
-  mh_wire_timing_mean[idint]->GetYaxis()->SetTitle("AFEB");
-  mh_wire_timing_mean[idint]->SetFillColor(4);
-  mh_wire_timing_mean[idint]->SetOption("BOX");
-  ss.str(""); // clear
-  break;
-
-  case 6102:
-  ss <<idint<<"_wire_timing_entries";
-  mh_wire_timing_entries[idint]=new TH2F(ss.str().c_str(),"",40,0.0,40.0,42,1.0,43.0);  
-  mh_wire_timing_entries[idint]->GetXaxis()->SetTitle("CSC");
-  mh_wire_timing_entries[idint]->GetYaxis()->SetTitle("AFEB");
-  mh_wire_timing_entries[idint]->SetFillColor(4);
-  mh_wire_timing_entries[idint]->SetOption("BOX");
-  ss.str(""); // clear
-  break;
-
-
-  default:  std::cout<<"CSCValHists::bookForId:  No booked hist for case nmb "
-                     <<casenmb<<std::endl;
-  }
-}
-
-// Fill 1D histograms for gas gain
-void CSCValidation::hf1ForId(std::map<int, TH1*>& mp, 
-                             std::vector<TH1*>& th1, 
-                             int flag, const int& id, float& x, float w) {
-  std::map<int,TH1*>::iterator h;
-  h=mp.find(id);
-  if (h==mp.end()) {
-     bookForId(flag,id,"");
-     h=mp.find(id);
-     th1.push_back(h->second);
-     int nentries=0;
-     for(Int_t i=1;i<=h->second->GetNbinsX();i++) {
-        int m=(int)h->second->GetEntries();
-        nentries=nentries+m;
-     }
-     if(nentries>0)
-       std::cout<<"Hist "<<flag<<" "<<id<<" not empty when booking"<<std::endl;
- }
-  h->second->Fill(x,w);
-}
-
-// Fill 2D histograms for gas gain
-void CSCValidation::hf2ForId(std::map<int, TH2*>& mp, 
-                             std::vector<TH2*>& th2,
-                        int flag, const int& id, float& x, float& y,  float w) {
-  std::map<int,TH2*>::iterator h;
-  h=mp.find(id);
-  if (h==mp.end()) {
-     bookForId(flag,id,"");
-     h=mp.find(id);
-     th2.push_back(h->second);
-     int nentries=0;
-     for(Int_t i=1;i<=h->second->GetNbinsX();i++)
-        for(Int_t j=1;j<=h->second->GetNbinsY();j++) {
-           int m=(int)h->second->GetEntries();
-        nentries=nentries+m;
-       }
-     if(nentries>0)
-       std::cout<<"Hist "<<flag<<" "<<id<<" not empty when booking"<<std::endl;
- }
-  h->second->Fill(x,y,w);
-}
 
 void CSCValidation::doGasGain(const CSCWireDigiCollection& wirecltn, 
                               const CSCStripDigiCollection&   strpcltn,
                               const CSCRecHit2DCollection& rechitcltn) {
-     float x,adcsum;
-     int channel,mult,wire,wiretbin,strip,layer,idafeb,idlayer,idchamber,wire_strip_rechit_present;
+     float y;
+     int channel=0,mult,wire,layer,idlayer,idchamber,ring;
+     int wire_strip_rechit_present;
+     string name,title,endcapstr;
+     ostringstream ss;
      CSCIndexer indexer;
      std::map<int,int>::iterator intIt;
 
      m_single_wire_layer.clear();
-     m_nmbrechit_layer.clear();
-     m_rechit_adc_3_3_sum.clear();
-     m_rechit_strip.clear();
-     m_csc_type.clear();
 
   if(nEventsAnalyzed==1) {
-
-  m_mean_adc_3_3_sum.clear();
-  m_nmb_adc_3_3_sum.clear();
-  m_mean_wire_timing.clear();
-  m_nmb_wire_timing.clear();
-  m_index_csc.clear();
 
   // HV segments, their # and location in terms of wire groups
 
@@ -1290,11 +1555,10 @@ void CSCValidation::doGasGain(const CSCWireDigiCollection& wirecltn,
      if(rechitcltn.begin() != rechitcltn.end())
        wire_strip_rechit_present= wire_strip_rechit_present+4;
 
-     x=wire_strip_rechit_present;
-     
-  hf1ForId(mh_gas_gain_wires_strips_rechits_present,th1_gas_gain,6001,0,x,1.0); 
-
      if(wire_strip_rechit_present==7) {
+
+//       std::cout<<"Event "<<nEventsAnalyzed<<std::endl;
+//       std::cout<<std::endl;
 
        // cycle on wire collection for all CSC to select single wire hit layers
        CSCWireDigiCollection::DigiRangeIterator wiredetUnitIt;
@@ -1311,77 +1575,31 @@ void CSCValidation::doGasGain(const CSCWireDigiCollection& wirecltn,
           for(CSCWireDigiCollection::const_iterator digiIt =
              range.first; digiIt!=range.second; ++digiIt){
              wire=(*digiIt).getWireGroup();
-             wiretbin=(*digiIt).getTimeBin();
              mult++;
           }     // end of digis loop in layer
-
-          x=mult;
-          hf1ForId(mh_gas_gain_wires_per_layer,th1_gas_gain,6002,0,x,1.0);
 
           // select layers with single wire hit
           if(mult==1) {
             if(m_single_wire_layer.find(idlayer) == m_single_wire_layer.end())
               m_single_wire_layer[idlayer]=wire;
-
-            // calculate average timing per afeb
-            idafeb=idchamber*100+3*((wire-1)/8)+(layer+1)/2;
-//            std::cout<<"Event "<<nEventsAnalyzed<<"   ";
-//            std::cout<<idafeb<<"   "<<idchamber<<" "<<wire<<" "<<layer<<
-//                       " "<<wiretbin<<std::endl;
-            if(m_nmb_wire_timing.find(idafeb)==m_nmb_wire_timing.end())
-              m_nmb_wire_timing[idafeb]=0.0;
-            m_nmb_wire_timing[idafeb]=m_nmb_wire_timing[idafeb]+1.0;
-            float entries= m_nmb_wire_timing[idafeb];
-            if(m_mean_wire_timing.find(idafeb)==m_mean_wire_timing.end())
-              m_mean_wire_timing[idafeb]=0.0;
-            float mean_prev=m_mean_wire_timing[idafeb];
-            m_mean_wire_timing[idafeb]=((entries-1.0)*mean_prev+wiretbin)/entries;
-            //std::cout<<"idafeb mean entries   "<<idafeb<<"   "<<m_mean_wire_timing[idafeb]<<"  "<<entries<<std::endl;
           } // end of if(mult==1)
        }   // end of cycle on detUnit
 
-       // The first pass thru rechit collection to count # rechits per layer
+       // Looping thru rechit collection
        CSCRecHit2DCollection::const_iterator recIt;
-       for(recIt = rechitcltn.begin(); recIt != rechitcltn.end(); ++recIt) {
-          CSCDetId id = (CSCDetId)(*recIt).cscDetId();
-          idlayer=indexer.dbIndex(id, channel);
-          if(m_single_wire_layer.find(idlayer) != m_single_wire_layer.end()) {
-            if(m_nmbrechit_layer.find(idlayer) == m_nmbrechit_layer.end())
-              m_nmbrechit_layer[idlayer]=0;
-              m_nmbrechit_layer[idlayer]=m_nmbrechit_layer[idlayer]+1;
-          }
-       } // end of the first pass thru rechit collection
-
-       for(intIt=m_nmbrechit_layer.begin();intIt!=m_nmbrechit_layer.end();++intIt) {
-          x=(*intIt).second;
-          hf1ForId(mh_gas_gain_rechits_per_layer,th1_gas_gain,6003,0,x,1.0);
-       }
-
-       // The second pass thru rechit collection, selecting single rechit/layer
        CSCRecHit2D::ADCContainer m_adc;
        CSCRecHit2D::ChannelContainer m_strip;
        for(recIt = rechitcltn.begin(); recIt != rechitcltn.end(); ++recIt) {
           CSCDetId id = (CSCDetId)(*recIt).cscDetId();
           idlayer=indexer.dbIndex(id, channel);
           idchamber=idlayer/10;
-          // select layer with single rechit
-          if(m_nmbrechit_layer.find(idlayer) != m_nmbrechit_layer.end() &&
-            m_nmbrechit_layer[idlayer]==1 )  {          
+          layer=id.layer();
+          // select layer with single wire rechit
+          if(m_single_wire_layer.find(idlayer) != m_single_wire_layer.end()) {
 
             // getting strips comprising rechit
             m_strip=(CSCRecHit2D::ChannelContainer)(*recIt).channels(); 
-            if(m_strip.size()==3 &&  
-               m_rechit_strip.find(idlayer) == m_rechit_strip.end()) {        
-
-              m_rechit_strip[idlayer]=m_strip[1]; //take central from 3 strips
-              // save chamber type
-              if(m_csc_type.find(idchamber) == m_csc_type.end())
-                m_csc_type[idchamber]=histos->tempChamberType(id.station(),id.ring());
-              // save chamber index
-              if(id.station() != 1 && id.ring() !=4) 
-                if(m_index_csc.find(idchamber) == m_index_csc.end())
-                   m_index_csc[idchamber]=indexer.chamberIndex(id);
-
+            if(m_strip.size()==3)  {        
               // get 3X3 ADC Sum
               m_adc=(CSCRecHit2D::ADCContainer)(*recIt).adcs();
               std::vector<float> adc_left,adc_center,adc_right;
@@ -1397,117 +1615,279 @@ void CSCValidation::doGasGain(const CSCWireDigiCollection& wirecltn,
                     if(i==2) adc_right.push_back(m_adc[k]);
                     k=k+1;
                  }
-        
-              if(m_rechit_adc_3_3_sum.find(idlayer)==m_rechit_adc_3_3_sum.end()) {
-                m_rechit_adc_3_3_sum[idlayer]=0.0;
+                float adc_3_3_sum=0.0;
                 for(int j=binmx-1;j<=binmx+1;j++) {
-                   m_rechit_adc_3_3_sum[idlayer]=m_rechit_adc_3_3_sum[idlayer]
-                                                +adc_left[j]
-                                                +adc_center[j]
-                                                +adc_right[j];
+                   adc_3_3_sum=adc_3_3_sum+adc_left[j]
+                                          +adc_center[j]
+                                          +adc_right[j];
                 }
-              }  // end of if (m_rechit_adc_3_3_sum.find(idlayer)==
-            } // end of if if(m_strip.size()==3
-          } // end of if if(m_nmbrechit_layer.find(idlayer) !=
-       } // end of the second pass thru CSCRecHit2DCollection
 
-       // Add 3X3 ADC Sum to corresponding location of gas gain
-       // calculating average at the same time
-       if(m_rechit_adc_3_3_sum.size() > 0) {
-         std::map<int,float>::iterator floatIt;
-         for(floatIt=m_rechit_adc_3_3_sum.begin();floatIt!=
-m_rechit_adc_3_3_sum.end();++floatIt) {          
-            idlayer=(*floatIt).first;
-            if(m_single_wire_layer.find(idlayer) !=m_single_wire_layer.end() &&
-               m_rechit_strip.find(idlayer) != m_rechit_strip.end()) {
-               adcsum=(*floatIt).second;
-               if(adcsum>0.0 && adcsum<2000.0) {
-                 idchamber=idlayer/10;
-                 layer=idlayer-idchamber*10;
+               if(adc_3_3_sum > 0.0 &&  adc_3_3_sum < 2000.0) {
+
+                 // temporary fix for ME1/1a to avoid triple entries
+                 int flag=0;
+                 if(id.station()==1 && id.ring()==4 &&  m_strip[1]>16)  flag=1;
+                 // end of temporary fix
+                 if(flag==0) {
+
                  wire= m_single_wire_layer[idlayer];
-                 strip= m_rechit_strip[idlayer];
-
-                 int chambertype=m_csc_type[idchamber];
+                 int chambertype=histos->tempChamberType(id.station(),id.ring());
                  int hvsgmtnmb=m_wire_hvsegm[chambertype][wire];
                  int nmbofhvsegm=nmbhvsegm[chambertype-1];
                  int location= (layer-1)*nmbofhvsegm+hvsgmtnmb;
-                 int idlocation=idchamber*100+location;
                  float x=location;
-                 hf2ForId(mh_gas_gain_rechit_adc_3_3_sum_location,th2_gas_gain,6004,idchamber,x,adcsum,1.0);                 
-/*
- std::cout<<"idchamber layer wire strip chambertype hvsgmtnmb nmbofhvsegm location idlocation  "<<std::endl;  
-std::cout<<idchamber<<" "<<layer<<" "<< wire<<" "<<strip<<" "<< chambertype<<" "<< 
-hvsgmtnmb<<" "<< nmbofhvsegm<<" "<< location<<" "<< idlocation<<std::endl;
-*/
-                 if(m_nmb_adc_3_3_sum.find(idlocation)==m_nmb_adc_3_3_sum.end())
-                   m_nmb_adc_3_3_sum[idlocation]=0.0;
-                 m_nmb_adc_3_3_sum[idlocation]=m_nmb_adc_3_3_sum[idlocation]+1.0;
-                 float entries= m_nmb_adc_3_3_sum[idlocation];
-                 if(m_mean_adc_3_3_sum.find(idlocation)==m_mean_adc_3_3_sum.end())
-                   m_mean_adc_3_3_sum[idlocation]=0.0;
-                 float adc_prev=m_mean_adc_3_3_sum[idlocation];
-                 m_mean_adc_3_3_sum[idlocation]=
-                 ((entries-1.0)*adc_prev+adcsum)/entries;
+                
+                 ss<<"gas_gain_rechit_adc_3_3_sum_location_ME_"<<idchamber;
+                 name=ss.str(); ss.str("");
+                 if(id.endcap()==1) endcapstr = "+";
+                 ring=id.ring();
+                 if(id.station()==1 && id.ring()==4) ring=1;
+                 if(id.endcap()==2) endcapstr = "-"; 
+                 ss<<"Gas Gain Rechit ADC3X3 Sum ME"<<endcapstr<<
+                   id.station()<<"/"<<ring<<"/"<<id.chamber();
+                 title=ss.str(); ss.str("");
+                 x=location;
+                 y=adc_3_3_sum;
+                 histos->fill2DHist(x,y,name.c_str(),title.c_str(),30,1.0,31.0,50,0.0,2000.0,"GasGain");
+
+                 /*
+                   std::cout<<idchamber<<"   "<<id.station()<<" "<<id.ring()<<" "
+                   <<id.chamber()<<"    "<<layer<<" "<< wire<<" "<<m_strip[1]<<" "<<
+                   chambertype<<" "<< hvsgmtnmb<<" "<< nmbofhvsegm<<" "<< 
+                   location<<"   "<<adc_3_3_sum<<std::endl;
+                 */
+               } // end of if flag==0
                } // end if(adcsum>0.0 && adcsum<2000.0)
-//....................              
-            } // end of if(m_single_wire_layer.find(idlayer) !=
-         } // end of for(floatIt=m_rechit_adc_3_3_sum.begin()
-       }
-     }   // end of if wire and strip present 
+            } // end of if if(m_strip.size()==3
+          } // end of if single wire
+        } // end of looping thru rechit collection
+     }   // end of if wire and strip and rechit present 
+}
+
+//---------------------------------------------------------------------------
+// Module for looking at AFEB Timing
+// Author N. Terentiev
+//---------------------------------------------------------------------------
+
+void CSCValidation::doAFEBTiming(const CSCWireDigiCollection& wirecltn) {
+     ostringstream ss;
+     string name,title,endcapstr;
+     float x,y;
+     int wire,wiretbin,nmbwiretbin,layer,afeb,idlayer,idchamber;
+     int channel=0; // for  CSCIndexer::dbIndex(id, channel); irrelevant here
+     CSCIndexer indexer;
+
+     if(wirecltn.begin() != wirecltn.end())  {
+
+       //std::cout<<std::endl;
+       //std::cout<<"Event "<<nEventsAnalyzed<<std::endl;
+       //std::cout<<std::endl;
+
+       // cycle on wire collection for all CSC
+       CSCWireDigiCollection::DigiRangeIterator wiredetUnitIt;
+       for(wiredetUnitIt=wirecltn.begin();wiredetUnitIt!=wirecltn.end();
+          ++wiredetUnitIt) {
+          const CSCDetId id = (*wiredetUnitIt).first;
+          idlayer=indexer.dbIndex(id, channel);
+          idchamber=idlayer/10;
+          layer=id.layer();
+
+          if (id.endcap() == 1) endcapstr = "+";
+          if (id.endcap() == 2) endcapstr = "-";
+
+          // looping in the layer of given CSC
+ 
+          const CSCWireDigiCollection::Range& range = (*wiredetUnitIt).second;
+          for(CSCWireDigiCollection::const_iterator digiIt =
+             range.first; digiIt!=range.second; ++digiIt){
+             wire=(*digiIt).getWireGroup();
+             wiretbin=(*digiIt).getTimeBin();
+             nmbwiretbin=(*digiIt).getTimeBinsOn().size();
+             afeb=3*((wire-1)/8)+(layer+1)/2;
+             
+             // Anode wire group time bin vs afeb for each CSC
+             x=afeb;
+             y=wiretbin;
+             ss<<"afeb_time_bin_vs_afeb_occupancy_ME_"<<idchamber;
+             name=ss.str(); ss.str("");
+             ss<<"Time Bin vs AFEB Occupancy ME"<<endcapstr<<id.station()<<"/"<<id.ring()<<"/"<< id.chamber();
+             title=ss.str(); ss.str("");
+             histos->fill2DHist(x,y,name.c_str(),title.c_str(),42,1.,43.,16,0.,16.,"AFEBTiming");
+
+             // Number of anode wire group time bin vs afeb for each CSC
+             x=afeb;
+             y=nmbwiretbin;
+             ss<<"nmb_afeb_time_bins_vs_afeb_ME_"<<idchamber;
+             name=ss.str(); ss.str("");
+             ss<<"Number of Time Bins vs AFEB ME"<<endcapstr<<id.station()<<"/"<<id.ring()<<"/"<< id.chamber();
+             title=ss.str(); 
+             ss.str("");
+             histos->fill2DHist(x,y,name.c_str(),title.c_str(),42,1.,43.,16,0.,16.,"AFEBTiming");
+             
+          }     // end of digis loop in layer
+       } // end of wire collection loop
+     } // end of      if(wirecltn.begin() != wirecltn.end())
+}
+
+//---------------------------------------------------------------------------
+// Module for looking at Comparitor Timing
+// Author N. Terentiev
+//---------------------------------------------------------------------------
+
+void CSCValidation::doCompTiming(const CSCComparatorDigiCollection& compars) {
+
+     ostringstream ss;      string name,title,endcap;
+     float x,y;
+     int strip,tbin,layer,cfeb,idlayer,idchamber,idum;
+     int channel=0; // for  CSCIndexer::dbIndex(id, channel); irrelevant here
+     CSCIndexer indexer;
+                                                                                
+     if(compars.begin() != compars.end())  {
+                                                                                
+       //std::cout<<std::endl;
+       //std::cout<<"Event "<<nEventsAnalyzed<<std::endl;
+       //std::cout<<std::endl;
+                                                                                
+       // cycle on comparators collection for all CSC
+       CSCComparatorDigiCollection::DigiRangeIterator compdetUnitIt;
+       for(compdetUnitIt=compars.begin();compdetUnitIt!=compars.end();
+          ++compdetUnitIt) {
+          const CSCDetId id = (*compdetUnitIt).first;
+          idlayer=indexer.dbIndex(id, channel); // channel irrelevant here
+          idchamber=idlayer/10;
+          layer=id.layer();
+                                                                                
+          if (id.endcap() == 1) endcap = "+";
+          if (id.endcap() == 2) endcap = "-";
+          // looping in the layer of given CSC
+          const CSCComparatorDigiCollection::Range& range = 
+          (*compdetUnitIt).second;
+          for(CSCComparatorDigiCollection::const_iterator digiIt =
+             range.first; digiIt!=range.second; ++digiIt){
+             strip=(*digiIt).getStrip();
+          /*
+          if(id.station()==1 && (id.ring()==1 || id.ring()==4))
+             std::cout<<idchamber<<" "<<id.station()<<" "<<id.ring()<<" "
+                      <<strip <<std::endl;  
+          */
+             idum=indexer.dbIndex(id, strip); // strips 1-16 of ME1/1a 
+                                              // become strips 65-80 of ME1/1 
+             tbin=(*digiIt).getTimeBin();
+             cfeb=(strip-1)/16+1;
+                                                                                
+             // time bin vs cfeb for each CSC
+
+             x=cfeb;
+             y=tbin;
+             ss<<"comp_time_bin_vs_cfeb_occupancy_ME_"<<idchamber;
+             name=ss.str(); ss.str("");
+             ss<<"Comparator Time Bin vs CFEB Occupancy ME"<<endcap<<
+                 id.station()<<"/"<< id.ring()<<"/"<< id.chamber();             
+             title=ss.str(); ss.str("");
+             histos->fill2DHist(x,y,name.c_str(),title.c_str(),5,1.,6.,16,0.,16.,"CompTiming");
+
+         }     // end of digis loop in layer
+       } // end of collection loop
+     } // end of      if(compars.begin() !=compars.end())
+}
+
+//---------------------------------------------------------------------------
+// Module for looking at Strip Timing
+// Author N. Terentiev
+//---------------------------------------------------------------------------
+
+void CSCValidation::doADCTiming(const CSCStripDigiCollection&   strpcltn,
+                                const CSCRecHit2DCollection& rechitcltn) {
+     float  adc_3_3_sum,adc_3_3_wtbin,x,y;
+     int cfeb,idchamber,ring;
+
+     string name,title,endcapstr;
+     ostringstream ss;
+     std::vector<float> zer(6,0.0);
+
+     CSCIndexer indexer;
+     std::map<int,int>::iterator intIt;
+
+     if(rechitcltn.begin() != rechitcltn.end()) {
+
+  //   std::cout<<"Event "<<nEventsAnalyzed <<std::endl;
+
+       // Looping thru rechit collection
+       CSCRecHit2DCollection::const_iterator recIt;
+       CSCRecHit2D::ADCContainer m_adc;
+       CSCRecHit2D::ChannelContainer m_strip;
+       for(recIt = rechitcltn.begin(); recIt != rechitcltn.end(); ++recIt) {
+          CSCDetId id = (CSCDetId)(*recIt).cscDetId();
+          // getting strips comprising rechit
+          m_strip=(CSCRecHit2D::ChannelContainer)(*recIt).channels();
+          if(m_strip.size()==3) {
+            // get 3X3 ADC Sum
+            m_adc=(CSCRecHit2D::ADCContainer)(*recIt).adcs();
+            std::vector<float> adc_left,adc_center,adc_right;
+            int binmx=0;
+            float adcmax=0.0;
+            unsigned k=0;
+              
+            for(int i=0;i<3;i++)
+               for(int j=0;j<4;j++){
+                  if(m_adc[k]>adcmax) {adcmax=m_adc[k]; binmx=j;}
+                  if(i==0) adc_left.push_back(m_adc[k]);
+                  if(i==1) adc_center.push_back(m_adc[k]);
+                  if(i==2) adc_right.push_back(m_adc[k]);
+                  k=k+1;
+               }
+
+               adc_3_3_sum=0.0;
+               for(int j=binmx-1;j<=binmx+1;j++) { 
+                  adc_3_3_sum=adc_3_3_sum+adc_left[j]
+                                          +adc_center[j]
+                                          +adc_right[j];
+               }
+
+                // ADC weighted time bin
+                if(adc_3_3_sum > 100.0) {
+                  
+                  int centerStrip=m_strip[1]; //take central from 3 strips;
+                // temporary fix
+                  int flag=0;
+                  if(id.station()==1 && id.ring()==4 &&  centerStrip>16) flag=1;
+                // end of temporary fix
+                  if(flag==0) {
+                  adc_3_3_wtbin=getTiming(strpcltn, id, centerStrip);
+                  idchamber=indexer.dbIndex(id, centerStrip)/10; //strips 1-16 ME1/1a
+                                              // become strips 65-80 ME1/1 !!!
+                  /*
+                  if(id.station()==1 && (id.ring()==1 || id.ring()==4))
+                  std::cout<<idchamber<<" "<<id.station()<<" "<<id.ring()<<" "<<m_strip[1]<<" "<<
+                      "      "<<centerStrip<<
+                         " "<<adc_3_3_wtbin<<"     "<<adc_3_3_sum<<std::endl;    
+                  */      
+                 ss<<"adc_3_3_weight_time_bin_vs_cfeb_occupancy_ME_"<<idchamber;
+                 name=ss.str(); ss.str("");
+
+                 string endcapstr;
+                 if(id.endcap() == 1) endcapstr = "+";
+                 if(id.endcap() == 2) endcapstr = "-";
+                 ring=id.ring(); if(id.ring()==4) ring=1;
+                 ss<<"ADC 3X3 Weighted Time Bin vs CFEB Occupancy ME"
+                   <<endcapstr<<id.station()<<"/"<<ring<<"/"<<id.chamber();
+                 title=ss.str(); ss.str("");
+
+                 cfeb=(centerStrip-1)/16+1;
+                 x=cfeb; y=adc_3_3_wtbin;
+                 histos->fill2DHist(x,y,name.c_str(),title.c_str(),5,1.,6.,40,0.,8.,"ADCTiming");                                     
+                 } // end of if flag==0
+                } // end of if (adc_3_3_sum > 100.0)
+            } // end of if if(m_strip.size()==3
+       } // end of the  pass thru CSCRecHit2DCollection
+     }  // end of if (rechitcltn.begin() != rechitcltn.end())
 }
 
 
 void CSCValidation::endJob() {
 
      std::cout<<"Events in "<<nEventsAnalyzed<<std::endl;
-
-     // filling mean gas gain hists
-     if(m_mean_adc_3_3_sum.size()>0) {
-       std::map<int,float>::iterator floatIt;
-       for(floatIt=m_mean_adc_3_3_sum.begin();floatIt!=m_mean_adc_3_3_sum.end();++floatIt) {
-            int idlocation=(*floatIt).first;
-            int idchamber=idlocation/100;
-            float y=idlocation-idchamber*100;
-            float wmean=(*floatIt).second;
-            float wentr=m_nmb_adc_3_3_sum[idlocation];
-            int endcap=idchamber/10000;
-            int station=idchamber/1000-endcap*10;
-            int idint=idchamber/100;
-            int csc=idchamber/100; csc=idchamber-csc*100; float x=csc;
-            hf2ForId(mh_gas_gain_mean,th2_gas_gain,6011,idint,x,y,wmean);
-            hf2ForId(mh_gas_gain_entries,th2_gas_gain,6012,idint,x,y,wentr);
-       }
-     }     
-
-     // filling mean and entries for wire timing hists
-     if(m_mean_wire_timing.size()>0) {
-       std::map<int,float>::iterator floatIt;
-       for(floatIt=m_mean_wire_timing.begin();floatIt!=m_mean_wire_timing.end();++floatIt) {
-            int idafeb=(*floatIt).first;
-            int idchamber=idafeb/100;
-            float y=idafeb-idchamber*100;
-            float wmean=(*floatIt).second;
-            float wentr=m_nmb_wire_timing[idafeb];
-            int endcap=idchamber/10000;
-            int station=idchamber/1000-endcap*10;
-            int idint=idchamber/100;
-            int csc=idchamber/100; csc=idchamber-csc*100; 
-            float x=csc;
-            hf2ForId(mh_wire_timing_mean,th2_gas_gain,6101,idint,x,y,wmean);
-            hf2ForId(mh_wire_timing_entries,th2_gas_gain,6102,idint,x,y,wentr);
-       }
-     }
-     // writing gas gain hists to folder GasGain
-     theFile->cd();
-     theFile->mkdir("GasGain");
-     theFile->cd("GasGain");
-     if(th1_gas_gain.size() > 0) 
-       for(unsigned int i=0;i<th1_gas_gain.size();i++) th1_gas_gain[i]->Write();
-     if(th2_gas_gain.size() > 0) 
-       for(unsigned int i=0;i<th2_gas_gain.size();i++) th2_gas_gain[i]->Write();
-
 }
-
 
 DEFINE_FWK_MODULE(CSCValidation);
 

@@ -92,16 +92,6 @@
 #include "TString.h"
 #include "TTree.h"
 
-//namespace edm {
-//  class ParameterSet;
-// class Event;
-//  class EventSetup;
-//}
-
-//class PSimHit;
-//class TFile;
-//class CSCLayer;
-//class CSCDetId;
 
 class CSCValidation : public edm::EDAnalyzer {
 public:
@@ -116,6 +106,16 @@ public:
   /// Perform the real analysis
   void analyze(const edm::Event & event, const edm::EventSetup& eventSetup);
   void endJob();
+
+  // for noise module
+  struct ltrh
+  {
+    bool operator()(const CSCRecHit2D rh1, const CSCRecHit2D rh2) const
+    {
+      return ((rh1.localPosition()).x()-(rh2.localPosition()).x()) < 0;
+    }
+  };
+
 
 protected:
 
@@ -136,11 +136,19 @@ private:
   void  doEfficiencies(edm::Handle<CSCRecHit2DCollection> recHits, edm::Handle<CSCSegmentCollection> cscSegments);
   void  doGasGain(const CSCWireDigiCollection &, const CSCStripDigiCollection &, const CSCRecHit2DCollection &);
   void  doCalibrations(const edm::EventSetup& eventSetup);
+  void  doAFEBTiming(const CSCWireDigiCollection &);
+  void  doCompTiming(const CSCComparatorDigiCollection &);
+  void  doADCTiming(const CSCStripDigiCollection &, const CSCRecHit2DCollection  &);
+  void  doNoiseHits(edm::Handle<CSCRecHit2DCollection> recHits, edm::Handle<CSCSegmentCollection> cscSegments,
+                    edm::ESHandle<CSCGeometry> cscGeom,  edm::Handle<CSCStripDigiCollection> strips);
 
   // some useful functions
   float  fitX(HepMatrix sp, HepMatrix ep);
   float  getTiming(const CSCStripDigiCollection& stripdigis, CSCDetId idRH, int centerStrip);
   float  getSignal(const CSCStripDigiCollection& stripdigis, CSCDetId idRH, int centerStrip);
+  float  getthisSignal(const CSCStripDigiCollection& stripdigis, CSCDetId idRH, int centerStrip);
+  int    getWidth(const CSCStripDigiCollection& stripdigis, CSCDetId idRH, int centerStrip);
+  void   findNonAssociatedRecHits(edm::ESHandle<CSCGeometry> cscGeom,  edm::Handle<CSCStripDigiCollection> strips);
 
   // these functions handle Stoyan's efficiency code
   void  fillEfficiencyHistos(int bin, int flag);
@@ -174,6 +182,10 @@ private:
   bool makePedNoisePlots;
   bool makeEfficiencyPlots;
   bool makeGasGainPlots;
+  bool makeAFEBTimingPlots;
+  bool makeCompTimingPlots;
+  bool makeADCTimingPlots;
+  bool makeRHNoisePlots;
 
   // The histo managing object
   CSCValHists *histos;
@@ -184,51 +196,16 @@ private:
   TH1F *hSEff;
   TH1F *hRHEff;
 
-  /// Vectors of stored pointers to TH1 and TH2
-                                                                                
-  std::vector<TH1*>   th1;
-  std::vector<TH2*>   th2;
-  /// Book histograms
-  void bookForId(int casenmb, const int& idint,const std::string& ids);
- 
-  /// Fill 1D histograms
-  void hf1ForId(std::map<int, TH1*>& mp, std::vector<TH1*>& th1,
-                int casenmb, const int& id, float& x, float w);
- 
-  /// Fill 2D histograms
-  void hf2ForId(std::map<int, TH2*>& mp,  std::vector<TH2*>& th2,
-                int casenmb, const int& id, float& x, float& y, float w);
- 
-  /// Vectors of stored pointers to TH1 and TH2 in their maps in gas gain
-
-  std::vector<TH1*>   th1_gas_gain;
-  std::vector<TH2*>   th2_gas_gain;
-
-  /// Histogram maps for gas gain
-  std::map<int, TH1*> mh_gas_gain_wires_strips_rechits_present;
-  std::map<int, TH1*> mh_gas_gain_wires_per_layer;
-  std::map<int, TH1*> mh_gas_gain_rechits_per_layer;
-  std::map<int, TH2*> mh_gas_gain_rechit_adc_3_3_sum_location;
-  std::map<int, TH2*> mh_gas_gain_mean;
-  std::map<int, TH2*> mh_gas_gain_entries;
-
-  std::map<int, TH2*> mh_wire_timing_mean;
-  std::map<int, TH2*> mh_wire_timing_entries;
-
-  /// Maps and vectors for gas gain
+  /// Maps and vectors for module doGasGain()
   std::vector<int>     nmbhvsegm;
   std::map<int, std::vector<int> >   m_wire_hvsegm;
   std::map<int, int>   m_single_wire_layer;
-  std::map<int, int>   m_nmbrechit_layer;
-  std::map<int, float> m_rechit_adc_3_3_sum;
-  std::map<int, int>   m_rechit_strip;
-  std::map<int, float> m_mean_adc_3_3_sum;
-  std::map<int, float> m_nmb_adc_3_3_sum;
-  std::map<int, int>   m_csc_type;
-  std::map<int, int>   m_index_csc;
 
-  std::map<int, float> m_mean_wire_timing;
-  std::map<int, float> m_nmb_wire_timing;
+  //maps to store the DetId and associated RecHits  
+  std::multimap<CSCDetId , CSCRecHit2D> AllRechits;
+  std::multimap<CSCDetId , CSCRecHit2D> SegRechits;
+  std::multimap<CSCDetId , CSCRecHit2D> NonAssociatedRechits;
+  std::map<CSCRecHit2D,float,ltrh> distRHmap;
 
 };
 #endif

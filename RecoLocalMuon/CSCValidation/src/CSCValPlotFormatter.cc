@@ -101,106 +101,242 @@
 
     gStyle = getStyle();
     TGraph *result;
+    int np = 0;
     if (type == "rechits"){
       TCanvas *c = new TCanvas("c","my canvas",1);
       c->SetCanvasSize(700,700);
       //station 1 +side
-      t1->Draw("rHpos.globaly:rHpos.globalx","rHpos.station == 1 && rHpos.endcap == 1","goff");
-      result = new TGraph(t1->GetSelectedRows(),t1->GetV2(),t1->GetV1());
-      result->GetXaxis()->SetLimits(-720,720);
-      result->GetYaxis()->SetLimits(-720,720);
-      result->GetXaxis()->SetRangeUser(-720,720);
-      result->GetYaxis()->SetRangeUser(-720,720);
-      result->SetTitle("RecHit Global Position (Station +1)");
-      result->Draw("AP");
-      drawChamberLines(1,1);
-      c->Update();
-      c->Print("rHglobal_station_+1.gif");
+      np = t1->Draw("rHpos.globaly:rHpos.globalx","rHpos.station == 1 && rHpos.endcap == 1","goff");
+      if (np > 0){
+        result = new TGraph(t1->GetSelectedRows(),t1->GetV2(),t1->GetV1());
+        result->GetXaxis()->SetLimits(-720,720);
+        result->GetYaxis()->SetLimits(-720,720);
+        result->GetXaxis()->SetRangeUser(-720,720);
+        result->GetYaxis()->SetRangeUser(-720,720);
+        result->SetTitle("RecHit Global Position (Station +1)");
+        result->Draw("AP");
+        drawChamberLines(1,1);
+        c->Update();
+        c->Print("rHglobal_station_+1.gif");
+      }
       //station 2 +side
-      t1->Draw("rHpos.globaly:rHpos.globalx","rHpos.station == 2 && rHpos.endcap == 1","goff");
-      result = new TGraph(t1->GetSelectedRows(),t1->GetV2(),t1->GetV1());
-      result->GetXaxis()->SetLimits(-720,720);
-      result->GetYaxis()->SetLimits(-720,720);
-      result->GetXaxis()->SetRangeUser(-720,720);
-      result->GetYaxis()->SetRangeUser(-720,720);
-      result->SetTitle("RecHit Global Position (Station +2)");
-      result->Draw("AP");
-      drawChamberLines(2,1);
-      c->Update();
-      c->Print("rHglobal_station_+2.gif");
+      np = t1->Draw("rHpos.globaly:rHpos.globalx","rHpos.station == 2 && rHpos.endcap == 1","goff");
+      if (np > 0){
+        result = new TGraph(t1->GetSelectedRows(),t1->GetV2(),t1->GetV1());
+        result->GetXaxis()->SetLimits(-720,720);
+        result->GetYaxis()->SetLimits(-720,720);
+        result->GetXaxis()->SetRangeUser(-720,720);
+        result->GetYaxis()->SetRangeUser(-720,720);
+        result->SetTitle("RecHit Global Position (Station +2)");
+        result->Draw("AP");
+        drawChamberLines(2,1);
+        c->Update();
+        c->Print("rHglobal_station_+2.gif");
+      }
       //station 3 +side
-      t1->Draw("rHpos.globaly:rHpos.globalx","rHpos.station == 3 && rHpos.endcap == 1","goff");
-      result = new TGraph(t1->GetSelectedRows(),t1->GetV2(),t1->GetV1());
-      result->GetXaxis()->SetLimits(-720,720);
-      result->GetYaxis()->SetLimits(-720,720);
-      result->GetXaxis()->SetRangeUser(-720,720);
-      result->GetYaxis()->SetRangeUser(-720,720);
-      result->SetTitle("RecHit Global Position (Station +3)");
-      result->Draw("AP");
-      drawChamberLines(3,1);
-      c->Update();
-      c->Print("rHglobal_station_+3.gif");
+      np = t1->Draw("rHpos.globaly:rHpos.globalx","rHpos.station == 3 && rHpos.endcap == 1","goff");
+      if (np > 0){
+        result = new TGraph(t1->GetSelectedRows(),t1->GetV2(),t1->GetV1());
+        result->GetXaxis()->SetLimits(-720,720);
+        result->GetYaxis()->SetLimits(-720,720);
+        result->GetXaxis()->SetRangeUser(-720,720);
+        result->GetYaxis()->SetRangeUser(-720,720);
+        result->SetTitle("RecHit Global Position (Station +3)");
+        result->Draw("AP");
+        drawChamberLines(3,1);
+        c->Update();
+        c->Print("rHglobal_station_+3.gif");
+      }
       //station 4 +side
-      t1->Draw("rHpos.globaly:rHpos.globalx","rHpos.station == 4 && rHpos.endcap == 1","goff");
-      result = new TGraph(t1->GetSelectedRows(),t1->GetV2(),t1->GetV1());
-      result->GetXaxis()->SetLimits(-720,720);
-      result->GetYaxis()->SetLimits(-720,720);
-      result->GetXaxis()->SetRangeUser(-720,720);
-      result->GetYaxis()->SetRangeUser(-720,720);
-      result->SetTitle("RecHit Global Position (Station +4)");
-      result->Draw("AP");
-      drawChamberLines(4,1);
-      c->Update();
-      c->Print("rHglobal_station_+4.gif");
+      np = t1->Draw("rHpos.globaly:rHpos.globalx","rHpos.station == 4 && rHpos.endcap == 1","goff");
+      if (np > 0){
+        result = new TGraph(t1->GetSelectedRows(),t1->GetV2(),t1->GetV1());
+        result->GetXaxis()->SetLimits(-720,720);
+        result->GetYaxis()->SetLimits(-720,720);
+        result->GetXaxis()->SetRangeUser(-720,720);
+        result->GetYaxis()->SetRangeUser(-720,720);
+        result->SetTitle("RecHit Global Position (Station +4)");
+        result->Draw("AP");
+        drawChamberLines(4,1);
+        c->Update();
+        c->Print("rHglobal_station_+4.gif");
+      }
 
       //station 1 -side
-      t1->Draw("rHpos.globaly:rHpos.globalx","rHpos.station == 1 && rHpos.endcap == 2","goff");
-      result = new TGraph(t1->GetSelectedRows(),t1->GetV2(),t1->GetV1());
-      result->GetXaxis()->SetLimits(-720,720);
-      result->GetYaxis()->SetLimits(-720,720);
-      result->GetXaxis()->SetRangeUser(-720,720);
-      result->GetYaxis()->SetRangeUser(-720,720);
-      result->SetTitle("RecHit Global Position (Station -1)");
-      result->Draw("AP");
-      drawChamberLines(1,1);
-      c->Update();
-      c->Print("rHglobal_station_-1.gif");
+      np = t1->Draw("rHpos.globaly:rHpos.globalx","rHpos.station == 1 && rHpos.endcap == 2","goff");
+      if (np > 0){
+        result = new TGraph(t1->GetSelectedRows(),t1->GetV2(),t1->GetV1());
+        result->GetXaxis()->SetLimits(-720,720);
+        result->GetYaxis()->SetLimits(-720,720);
+        result->GetXaxis()->SetRangeUser(-720,720);
+        result->GetYaxis()->SetRangeUser(-720,720);
+        result->SetTitle("RecHit Global Position (Station -1)");
+        result->Draw("AP");
+        drawChamberLines(1,1);
+        c->Update();
+        c->Print("rHglobal_station_-1.gif");
+      }
       //station 2 +side
-      t1->Draw("rHpos.globaly:rHpos.globalx","rHpos.station == 2 && rHpos.endcap == 2","goff");
-      result = new TGraph(t1->GetSelectedRows(),t1->GetV2(),t1->GetV1());
-      result->GetXaxis()->SetLimits(-720,720);
-      result->GetYaxis()->SetLimits(-720,720);
-      result->GetXaxis()->SetRangeUser(-720,720);
-      result->GetYaxis()->SetRangeUser(-720,720);
-      result->SetTitle("RecHit Global Position (Station -2)");
-      result->Draw("AP");
-      drawChamberLines(2,1);
-      c->Update();
-      c->Print("rHglobal_station_-2.gif");
+      np = t1->Draw("rHpos.globaly:rHpos.globalx","rHpos.station == 2 && rHpos.endcap == 2","goff");
+      if (np > 0){
+        result = new TGraph(t1->GetSelectedRows(),t1->GetV2(),t1->GetV1());
+        result->GetXaxis()->SetLimits(-720,720);
+        result->GetYaxis()->SetLimits(-720,720);
+        result->GetXaxis()->SetRangeUser(-720,720);
+        result->GetYaxis()->SetRangeUser(-720,720);
+        result->SetTitle("RecHit Global Position (Station -2)");
+        result->Draw("AP");
+        drawChamberLines(2,1);
+        c->Update();
+        c->Print("rHglobal_station_-2.gif");
+      }
       //station 3 +side
-      t1->Draw("rHpos.globaly:rHpos.globalx","rHpos.station == 3 && rHpos.endcap == 2","goff");
-      result = new TGraph(t1->GetSelectedRows(),t1->GetV2(),t1->GetV1());
-      result->GetXaxis()->SetLimits(-720,720);
-      result->GetYaxis()->SetLimits(-720,720);
-      result->GetXaxis()->SetRangeUser(-720,720);
-      result->GetYaxis()->SetRangeUser(-720,720);
-      result->SetTitle("RecHit Global Position (Station -3)");
-      result->Draw("AP");
-      drawChamberLines(3,1);
-      c->Update();
-      c->Print("rHglobal_station_-3.gif");
+      np = t1->Draw("rHpos.globaly:rHpos.globalx","rHpos.station == 3 && rHpos.endcap == 2","goff");
+      if (np > 0){
+        result = new TGraph(t1->GetSelectedRows(),t1->GetV2(),t1->GetV1());
+        result->GetXaxis()->SetLimits(-720,720);
+        result->GetYaxis()->SetLimits(-720,720);
+        result->GetXaxis()->SetRangeUser(-720,720);
+        result->GetYaxis()->SetRangeUser(-720,720);
+        result->SetTitle("RecHit Global Position (Station -3)");
+        result->Draw("AP");
+        drawChamberLines(3,1);
+        c->Update();
+        c->Print("rHglobal_station_-3.gif");
+      }
       //station 4 +side
-      t1->Draw("rHpos.globaly:rHpos.globalx","rHpos.station == 4 && rHpos.endcap == 2","goff");
-      result = new TGraph(t1->GetSelectedRows(),t1->GetV2(),t1->GetV1());
-      result->GetXaxis()->SetLimits(-720,720);
-      result->GetYaxis()->SetLimits(-720,720);
-      result->GetXaxis()->SetRangeUser(-720,720);
-      result->GetYaxis()->SetRangeUser(-720,720);
-      result->SetTitle("RecHit Global Position (Station -4)");
-      result->Draw("AP");
-      drawChamberLines(4,1);
-      c->Update();
+      np = t1->Draw("rHpos.globaly:rHpos.globalx","rHpos.station == 4 && rHpos.endcap == 2","goff");
+      if (np > 0){
+        result = new TGraph(t1->GetSelectedRows(),t1->GetV2(),t1->GetV1());
+        result->GetXaxis()->SetLimits(-720,720);
+        result->GetYaxis()->SetLimits(-720,720);
+        result->GetXaxis()->SetRangeUser(-720,720);
+        result->GetYaxis()->SetRangeUser(-720,720);
+        result->SetTitle("RecHit Global Position (Station -4)");
+        result->Draw("AP");
+        drawChamberLines(4,1);
+        c->Update();
       c->Print("rHglobal_station_-4.gif");
+      }
+    }
+
+    // SEGMENTS
+    if (type == "segments"){
+      TCanvas *c = new TCanvas("c","my canvas",1);
+      c->SetCanvasSize(700,700);
+      //station 1 +side
+      np = t1->Draw("segpos.globaly:segpos.globalx","segpos.station == 1 && segpos.endcap == 1","goff");
+      if (np > 0){
+        result = new TGraph(t1->GetSelectedRows(),t1->GetV2(),t1->GetV1());
+        result->GetXaxis()->SetLimits(-720,720);
+        result->GetYaxis()->SetLimits(-720,720);
+        result->GetXaxis()->SetRangeUser(-720,720);
+        result->GetYaxis()->SetRangeUser(-720,720);
+        result->SetTitle("Segment Global Position (Station +1)");
+        result->Draw("AP");
+        drawChamberLines(1,1);
+        c->Update();
+        c->Print("Sglobal_station_+1.gif");
+      }
+      //station 2 +side
+      np = t1->Draw("segpos.globaly:segpos.globalx","segpos.station == 2 && segpos.endcap == 1","goff");
+      if (np > 0){
+        result = new TGraph(t1->GetSelectedRows(),t1->GetV2(),t1->GetV1());
+        result->GetXaxis()->SetLimits(-720,720);
+        result->GetYaxis()->SetLimits(-720,720);
+        result->GetXaxis()->SetRangeUser(-720,720);
+        result->GetYaxis()->SetRangeUser(-720,720);
+        result->SetTitle("Segment Global Position (Station +2)");
+        result->Draw("AP");
+        drawChamberLines(2,1);
+        c->Update();
+        c->Print("Sglobal_station_+2.gif");
+      }
+      //station 3 +side
+      np = t1->Draw("segpos.globaly:segpos.globalx","segpos.station == 3 && segpos.endcap == 1","goff");
+      if (np > 0){
+        result = new TGraph(t1->GetSelectedRows(),t1->GetV2(),t1->GetV1());
+        result->GetXaxis()->SetLimits(-720,720);
+        result->GetYaxis()->SetLimits(-720,720);
+        result->GetXaxis()->SetRangeUser(-720,720);
+        result->GetYaxis()->SetRangeUser(-720,720);
+        result->SetTitle("Segment Global Position (Station +3)");
+        result->Draw("AP");
+        drawChamberLines(3,1);
+        c->Update();
+        c->Print("Sglobal_station_+3.gif");
+      }
+      //station 4 +side
+      np = t1->Draw("segpos.globaly:segpos.globalx","segpos.station == 4 && segpos.endcap == 1","goff");
+      if (np > 0){
+        result = new TGraph(t1->GetSelectedRows(),t1->GetV2(),t1->GetV1());
+        result->GetXaxis()->SetLimits(-720,720);
+        result->GetYaxis()->SetLimits(-720,720);
+        result->GetXaxis()->SetRangeUser(-720,720);
+        result->GetYaxis()->SetRangeUser(-720,720);
+        result->SetTitle("Segment Global Position (Station +4)");
+        result->Draw("AP");
+        drawChamberLines(4,1);
+        c->Update();
+        c->Print("Sglobal_station_+4.gif");
+      }
+
+      //station 1 -side
+      np = t1->Draw("segpos.globaly:segpos.globalx","segpos.station == 1 && segpos.endcap == 2","goff");
+      if (np > 0){
+        result = new TGraph(t1->GetSelectedRows(),t1->GetV2(),t1->GetV1());
+        result->GetXaxis()->SetLimits(-720,720);
+        result->GetYaxis()->SetLimits(-720,720);
+        result->GetXaxis()->SetRangeUser(-720,720);
+        result->GetYaxis()->SetRangeUser(-720,720);
+        result->SetTitle("Segment Global Position (Station -1)");
+        result->Draw("AP");
+        drawChamberLines(1,1);
+        c->Update();
+        c->Print("Sglobal_station_-1.gif");
+      }
+      //station 2 +side
+      np = t1->Draw("segpos.globaly:segpos.globalx","segpos.station == 2 && segpos.endcap == 2","goff");
+      if (np > 0){
+        result = new TGraph(t1->GetSelectedRows(),t1->GetV2(),t1->GetV1());
+        result->GetXaxis()->SetLimits(-720,720);
+        result->GetYaxis()->SetLimits(-720,720);
+        result->GetXaxis()->SetRangeUser(-720,720);
+        result->GetYaxis()->SetRangeUser(-720,720);
+        result->SetTitle("Segment Global Position (Station -2)");
+        result->Draw("AP");
+        drawChamberLines(2,1);
+        c->Update();
+        c->Print("Sglobal_station_-2.gif");
+      }
+      //station 3 +side
+      np = t1->Draw("segpos.globaly:segpos.globalx","segpos.station == 3 && segpos.endcap == 2","goff");
+      if (np > 0){
+        result = new TGraph(t1->GetSelectedRows(),t1->GetV2(),t1->GetV1());
+        result->GetXaxis()->SetLimits(-720,720);
+        result->GetYaxis()->SetLimits(-720,720);
+        result->GetXaxis()->SetRangeUser(-720,720);
+        result->GetYaxis()->SetRangeUser(-720,720);
+        result->SetTitle("Segment Global Position (Station -3)");
+        result->Draw("AP");
+        drawChamberLines(3,1);
+        c->Update();
+        c->Print("Sglobal_station_-3.gif");
+      }
+      //station 4 +side
+      np = t1->Draw("segpos.globaly:segpos.globalx","segpos.station == 4 && segpos.endcap == 2","goff");
+      if (np > 0){
+        result = new TGraph(t1->GetSelectedRows(),t1->GetV2(),t1->GetV1());
+        result->GetXaxis()->SetLimits(-720,720);
+        result->GetYaxis()->SetLimits(-720,720);
+        result->GetXaxis()->SetRangeUser(-720,720);
+        result->GetYaxis()->SetRangeUser(-720,720);
+        result->SetTitle("Segment Global Position (Station -4)");
+        result->Draw("AP");
+        drawChamberLines(4,1);
+        c->Update();
+      c->Print("Sglobal_station_-4.gif");
+      }
     }
 
   }
