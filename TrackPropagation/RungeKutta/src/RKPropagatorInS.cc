@@ -52,6 +52,43 @@ GlobalParametersWithPath
 RKPropagatorInS::propagateParametersOnPlane( const FreeTrajectoryState& ts, 
 					     const Plane& plane) const
 {
+
+  GlobalPoint gpos( ts.position());
+  GlobalVector gmom( ts.momentum());
+  double startZ = plane.localZ(gpos);
+  // (transverse) curvature
+  double rho = ts.transverseCurvature();
+  //
+  // Straight line approximation? |rho|<1.e-10 equivalent to ~ 1um 
+  // difference in transversal position at 10m.
+  //
+  if( fabs(rho)<1.e-10 ) {
+    //
+    // Instantiate auxiliary object for finding intersection.
+    // Frame-independant point and vector are created explicitely to 
+    // avoid confusing gcc (refuses to compile with temporary objects
+    // in the constructor).
+    //
+    StraightLinePlaneCrossing::PositionType pos(gpos);
+    StraightLinePlaneCrossing::DirectionType dir(gmom);
+    StraightLinePlaneCrossing planeCrossing(pos,dir, propagationDirection());
+    //
+    // get solution
+    //
+    std::pair<bool,double> propResult = planeCrossing.pathLength(plane);
+    if ( propResult.first && theVolume !=0) {
+      double s = propResult.second;
+      // point (reconverted to GlobalPoint)
+      GlobalPoint x (planeCrossing.position(s));
+      GlobalTrajectoryParameters res( x, gmom, ts.charge(), theVolume);
+      return GlobalParametersWithPath( res, s);
+    } else {
+      //do someting 
+      std::cout << "Straight line propgation to plane failed !!" << std::endl;
+      return GlobalParametersWithPath( );
+    }
+  }
+
   if (theVolume != 0) {
     LogDebug("RKPropagatorInS")  << "RKPropagatorInS: starting prop to plane in volume with pos " << theVolume->position()
 	      << " Z axis " << theVolume->toGlobal( LocalVector(0,0,1)) ;
@@ -72,11 +109,7 @@ RKPropagatorInS::propagateParametersOnPlane( const FreeTrajectoryState& ts,
 
   typedef RKAdaptiveSolver<double,RKOneCashKarpStep, 6>   Solver;
   typedef Solver::Vector                                  RKVector;
-
-  GlobalPoint gpos( ts.position());
-  GlobalVector gmom( ts.momentum());
-  double startZ = plane.localZ(gpos);
-
+  
   RKLocalFieldProvider field( fieldProvider());
   PathToPlane2Order pathLength( field, &field.frame());
   CartesianLorentzForce deriv(field, ts.charge());
