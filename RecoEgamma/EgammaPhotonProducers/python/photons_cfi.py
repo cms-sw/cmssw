@@ -2,13 +2,13 @@ import FWCore.ParameterSet.Config as cms
 
 #
 # producer for photons
-# $Id: photons.cfi,v 1.26 2008/05/30 12:52:31 rahatlou Exp $
+# $Id: photons.cfi,v 1.27 2008/06/02 21:33:28 nancy Exp $
 #
 photons = cms.EDProducer("PhotonProducer",
     scHybridBarrelProducer = cms.InputTag("correctedHybridSuperClusters"),
     minR9 = cms.double(0.93),
     usePrimaryVertex = cms.bool(True),
-    scIslandEndcapProducer = cms.InputTag("multi5x5SuperClustersWithPreshower"),
+    scIslandEndcapProducer = cms.InputTag("correctedMulti5x5SuperClustersWithPreshower"),
     primaryVertexProducer = cms.string('offlinePrimaryVerticesWithBS'),
     conversionCollection = cms.string(''),
     posCalc_t0_endcPresh = cms.double(3.6),
