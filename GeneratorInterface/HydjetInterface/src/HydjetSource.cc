@@ -1,5 +1,5 @@
 /*
- * $Id: HydjetSource.cc,v 1.20 2008/04/11 08:49:31 yilmaz Exp $
+ * $Id: HydjetSource.cc,v 1.21 2008/06/04 09:15:46 yilmaz Exp $
  *
  * Interface to the HYDJET generator, produces HepMC events
  *
@@ -46,7 +46,7 @@ HydjetSource::HydjetSource(const ParameterSet &pset, InputSourceDescription cons
     comenergy(pset.getParameter<double>("comEnergy")),
     doradiativeenloss_(pset.getParameter<bool>("doRadiativeEnLoss")),
     docollisionalenloss_(pset.getParameter<bool>("doCollisionalEnLoss")),
-    emptyEvents_(pset.getUntrackedParameter<bool>("allowEmptyEvents",false)),
+    emptyEvents_(pset.getParameter<bool>("allowEmptyEvents")),
     fracsoftmult_(pset.getParameter<double>("fracSoftMultiplicity")),
     hadfreeztemp_(pset.getParameter<double>("hadronFreezoutTemperature")),
     hymode_(pset.getParameter<string>("hydjetMode")),
