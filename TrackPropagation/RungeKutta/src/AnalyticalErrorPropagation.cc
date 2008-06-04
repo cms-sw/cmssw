@@ -3,7 +3,7 @@
 #include "TrackingTools/AnalyticalJacobians/interface/AnalyticalCurvilinearJacobian.h"
 #include "TrackingTools/TrajectoryState/interface/SurfaceSideDefinition.h"
 
-#include "FWCore/MessageLogger/interface/MessageLogger.h"
+//#include "FWCore/MessageLogger/interface/MessageLogger.h"
 
 
 std::pair<TrajectoryStateOnSurface,double>
@@ -13,6 +13,7 @@ AnalyticalErrorPropagation::operator()( const FreeTrajectoryState& startingState
 					const double& s) const
 {
   if (startingState.hasError()) {
+
     //
     // compute jacobian
     //
@@ -23,9 +24,9 @@ AnalyticalErrorPropagation::operator()( const FreeTrajectoryState& startingState
     GlobalVector h1  = destParameters.magneticFieldInInverseGeV(xStart);
     GlobalVector h2  = destParameters.magneticFieldInInverseGeV(xDest);
     GlobalVector h = 0.5*(h1+h2);
-    LogDebug("RungeKutta") << "AnalyticalErrorPropagation: The Fields are: " << h1 << ", " << h2 << ", " << h ; 
+    //LogDebug("RungeKutta") << "AnalyticalErrorPropagation: The Fields are: " << h1 << ", " << h2 << ", " << h ; 
     
-  // 
+    // 
     AnalyticalCurvilinearJacobian analyticalJacobian(startingState.parameters(), 
 						     destParameters.position(), 
 						     destParameters.momentum(), s);
