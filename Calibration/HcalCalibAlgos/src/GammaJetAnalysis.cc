@@ -11,7 +11,7 @@
 #include "DataFormats/Common/interface/Ref.h"
 #include "DataFormats/DetId/interface/DetId.h" 
 
-#include "Geometry/Records/interface/IdealGeometryRecord.h" 
+#include "Geometry/Records/interface/CaloGeometryRecord.h" 
 #include "Geometry/CaloGeometry/interface/CaloGeometry.h" 
 #include "DataFormats/GeometryVector/interface/GlobalPoint.h" 
 #include "DataFormats/CaloTowers/interface/CaloTowerCollection.h" 
@@ -122,7 +122,7 @@ void GammaJetAnalysis::beginJob( const edm::EventSetup& iSetup)
 // end of tree declaration
 
    edm::ESHandle<CaloGeometry> pG;
-   iSetup.get<IdealGeometryRecord>().get(pG);
+   iSetup.get<CaloGeometryRecord>().get(pG);
    geo = pG.product();
 
   myout_part = new ofstream((myName+"_part.dat").c_str()); 

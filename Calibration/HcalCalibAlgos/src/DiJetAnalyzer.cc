@@ -1,7 +1,7 @@
 #include "Calibration/HcalCalibAlgos/interface/DiJetAnalyzer.h"
 
 #include "DataFormats/GeometryVector/interface/GlobalPoint.h"
-#include "Geometry/Records/interface/IdealGeometryRecord.h"
+#include "Geometry/Records/interface/CaloGeometryRecord.h"
 
 #include "DataFormats/JetReco/interface/CaloJet.h"
 #include "DataFormats/JetReco/interface/CaloJetCollection.h"
@@ -243,7 +243,7 @@ DiJetAnalyzer::beginJob(const edm::EventSetup& iSetup)
 
 
    edm::ESHandle<CaloGeometry> pG;
-   iSetup.get<IdealGeometryRecord>().get(pG);
+   iSetup.get<CaloGeometryRecord>().get(pG);
    geo = pG.product();
 
 

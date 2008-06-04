@@ -15,7 +15,7 @@
 // Original Author:  Andrey Pozdnyakov
 //                   ... and Sergey Petrushanko (all lines between M+ and M-)
 //         Created:  Thu Jul 12 18:12:19 CEST 2007
-// $Id: HcalIsoTrkAnalyzer.cc,v 1.4 2007/10/10 06:18:25 dlange Exp $
+// $Id: HcalIsoTrkAnalyzer.cc,v 1.7 2008/05/01 15:45:59 kodolova Exp $
 //
 //
 
@@ -35,7 +35,7 @@
 #include "FWCore/Framework/interface/EventSetup.h"
 
 #include "DataFormats/DetId/interface/DetId.h"
-#include "Geometry/Records/interface/IdealGeometryRecord.h"
+#include "Geometry/Records/interface/CaloGeometryRecord.h"
 #include "DataFormats/GeometryVector/interface/GlobalPoint.h"
 #include "DataFormats/HcalRecHit/interface/HcalRecHitCollections.h"
 #include "DataFormats/EcalRecHit/interface/EcalRecHitCollections.h"
@@ -239,7 +239,7 @@ HcalIsoTrkAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& iSe
 //  LogInfo("HBHE: ")<<" Size of HBHE "<<(Hithbhe).size();
 
   ESHandle<CaloGeometry> pG;
-  iSetup.get<IdealGeometryRecord>().get(pG);
+  iSetup.get<CaloGeometryRecord>().get(pG);
   geo = pG.product();
   
 

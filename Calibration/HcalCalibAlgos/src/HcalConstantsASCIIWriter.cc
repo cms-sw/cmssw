@@ -4,7 +4,7 @@
 #include <iostream>
 
 // user include files
-#include "Geometry/Records/interface/IdealGeometryRecord.h"
+#include "Geometry/Records/interface/CaloGeometryRecord.h"
 #include "Calibration/HcalCalibAlgos/interface/HcalConstantsASCIIWriter.h"
 #include "DataFormats/Provenance/interface/Provenance.h"
 #include "Geometry/CaloGeometry/interface/CaloGeometry.h"
@@ -82,7 +82,7 @@ HcalConstantsASCIIWriter::analyze(const edm::Event& iEvent, const edm::EventSetu
 //    std::vector<DetId> dd = oldRespCorrs->getAllChannels();
   
    edm::ESHandle<CaloGeometry> pG;
-   iSetup.get<IdealGeometryRecord>().get(pG);
+   iSetup.get<CaloGeometryRecord>().get(pG);
    const CaloGeometry* geo = pG.product();
 //   iSetup.get<HcalDbRecord>().get(conditions);
    

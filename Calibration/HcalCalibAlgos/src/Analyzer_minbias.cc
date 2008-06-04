@@ -6,7 +6,7 @@
 // user include files
 //#include "CalibCalorimetry/CaloMiscalibTools/interface/CaloMiscalibMapHcal.h"
 //#include "CalibCalorimetry/CaloMiscalibTools/interface/MiscalibReaderFromXMLHcal.h"
-#include "Geometry/Records/interface/IdealGeometryRecord.h"
+#include "Geometry/Records/interface/CaloGeometryRecord.h"
 #include "Calibration/HcalCalibAlgos/interface/Analyzer_minbias.h"
 #include "DataFormats/Provenance/interface/Provenance.h"
 //#include "CondFormats/HcalObjects/interface/HcalGain.h"
@@ -112,7 +112,7 @@ void Analyzer_minbias::beginJob( const edm::EventSetup& iSetup)
    hHOEta    = new TH1D( "hHOEta", "HOEta", 100,  -3., 3. );
    hHOPhi    = new TH1D( "hHOPhi", "HOPhi", 100,  -1.*phibound, phibound );
    edm::ESHandle<CaloGeometry> pG;
-   iSetup.get<IdealGeometryRecord>().get(pG);
+   iSetup.get<CaloGeometryRecord>().get(pG);
    geo = pG.product();
 //   iSetup.get<HcalDbRecord>().get(conditions);
    
