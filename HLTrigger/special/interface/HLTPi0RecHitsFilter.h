@@ -33,6 +33,7 @@
 #include "Geometry/CaloEventSetup/interface/CaloTopologyRecord.h"
 #include "Geometry/CaloTopology/interface/CaloTopology.h"
 #include "Geometry/CaloTopology/interface/CaloSubdetectorTopology.h"
+#include "Geometry/Records/interface/IdealGeometryRecord.h"
 #include "Geometry/CaloGeometry/interface/CaloSubdetectorGeometry.h"
 #include "Geometry/CaloGeometry/interface/CaloCellGeometry.h"
 #include "Geometry/CaloGeometry/interface/CaloGeometry.h"
@@ -98,7 +99,13 @@ class HLTPi0RecHitsFilter : public HLTFilter {
  double ParameterX0_;
  double ParameterT0_barl_;
  double ParameterW0_;
+  double detaL1_;
+  double dphiL1_;
+  bool UseMatchedL1Seed_;
 
+  edm::InputTag l1IsolatedTag_;
+  edm::InputTag l1NonIsolatedTag_;
+  edm::InputTag l1SeedFilterTag_;
 
 
  std::map<DetId, EcalRecHit> *recHitsEB_map;

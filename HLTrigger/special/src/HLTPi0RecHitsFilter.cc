@@ -6,16 +6,26 @@
 #include "RecoEcal/EgammaCoreTools/interface/PositionCalc.h"
 #include "DataFormats/Math/interface/Point3D.h"
 
-#include "Geometry/Records/interface/CaloGeometryRecord.h"
-
-
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/EventSetup.h"
 #include "DataFormats/Common/interface/Handle.h"
 #include "FWCore/Framework/interface/ESHandle.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 
+#include "DataFormats/RecoCandidate/interface/RecoEcalCandidate.h"
+#include "DataFormats/RecoCandidate/interface/RecoEcalCandidateFwd.h"
+
+#include "DataFormats/L1Trigger/interface/L1EmParticle.h"
+#include "DataFormats/L1Trigger/interface/L1EmParticleFwd.h"
+#include "CondFormats/L1TObjects/interface/L1CaloGeometry.h"
+#include "CondFormats/DataRecord/interface/L1CaloGeometryRecord.h"
+#include "DataFormats/HLTReco/interface/TriggerFilterObjectWithRefs.h"
+#include "Geometry/Records/interface/CaloGeometryRecord.h"
+
+
 #include "TVector3.h"
+
+#define TWOPI 6.283185308
 
 HLTPi0RecHitsFilter::HLTPi0RecHitsFilter(const edm::ParameterSet& iConfig)
 {
@@ -53,6 +63,13 @@ HLTPi0RecHitsFilter::HLTPi0RecHitsFilter(const edm::ParameterSet& iConfig)
   ParameterT0_barl_ = iConfig.getParameter<double> ("ParameterT0_barl");
   ParameterW0_ = iConfig.getParameter<double> ("ParameterW0");
 
+  detaL1_ = iConfig.getParameter<double> ("detaL1");
+  dphiL1_ = iConfig.getParameter<double> ("dphiL1");
+
+  l1IsolatedTag_ = iConfig.getParameter< edm::InputTag > ("l1IsolatedTag");
+  l1NonIsolatedTag_ = iConfig.getParameter< edm::InputTag > ("l1NonIsolatedTag");
+  l1SeedFilterTag_ = iConfig.getParameter< edm::InputTag > ("l1SeedFilterTag");
+  UseMatchedL1Seed_ = iConfig.getParameter<bool> ("UseMatchedL1Seed"); 
 
   //register your products
   produces< EBRecHitCollection >(pi0BarrelHits_);
@@ -73,6 +90,19 @@ HLTPi0RecHitsFilter::filter(edm::Event& iEvent, const edm::EventSetup& iSetup)
 {
   using namespace edm;
   using namespace std;
+  using namespace trigger;
+
+  
+  edm::Handle<trigger::TriggerFilterObjectWithRefs> L1SeedOutput;
+  iEvent.getByLabel (l1SeedFilterTag_,L1SeedOutput);
+
+  edm::Handle< l1extra::L1EmParticleCollection > l1EGIso;
+  iEvent.getByLabel(l1IsolatedTag_, l1EGIso ) ;
+  edm::Handle< l1extra::L1EmParticleCollection > l1EGNonIso ;
+  iEvent.getByLabel(l1NonIsolatedTag_, l1EGNonIso ) ;
+
+
+  cout<< "  L1EmIso L1EmNonIso coll # "<<l1EGIso->size()<<" "<<l1EGNonIso->size()<<endl;
 
  //To Deal with Geometry:
   edm::ESHandle<CaloTopology> theCaloTopology;
@@ -107,16 +137,48 @@ HLTPi0RecHitsFilter::filter(edm::Event& iEvent, const edm::EventSetup& iSetup)
 
   //Select interesting EcalRecHits (barrel)
   EBRecHitCollection::const_iterator itb;
-  //cout<< "   EB RecHits #: "<<barrelRecHitsHandle->size()<<endl;
+  cout<< "   EB RecHits #: "<<barrelRecHitsHandle->size()<<endl;
   for (itb=barrelRecHitsHandle->begin(); itb!=barrelRecHitsHandle->end(); itb++) {
 
     double energy = itb->energy();
     if (energy > seleXtalMinEnergy_) {
       std::pair<DetId, EcalRecHit> map_entry(itb->id(), *itb);
       recHitsEB_map->insert(map_entry);
-      if (energy > clusSeedThr_) seeds.push_back(*itb);
+
+      if(UseMatchedL1Seed_){
+	l1extra::L1EmParticleCollection::const_iterator itl1EGIso;
+        bool MatchedToL1Iso=false;
+        for (itl1EGIso = l1EGIso->begin(); itl1EGIso!=l1EGIso->end(); itl1EGIso++) {
+          float deltaphi=fabs(((EBDetId)itb->id()).iphi()*0.0175 -itl1EGIso->phi());
+          if(deltaphi>TWOPI) deltaphi-=TWOPI;
+          if(deltaphi>TWOPI/2.) deltaphi=TWOPI-deltaphi;
+          if(fabs(itl1EGIso->eta() - ((EBDetId)itb->id()).ieta()*0.0175) < detaL1_ &&   
+             deltaphi < dphiL1_){
+            MatchedToL1Iso=true;
+            double energy = itb->energy();
+            if (energy > clusSeedThr_) seeds.push_back(*itb);
+          }
+        }
+
+        if(MatchedToL1Iso)continue;
+	l1extra::L1EmParticleCollection::const_iterator itl1EGNonIso;
+        for (itl1EGNonIso = l1EGNonIso->begin(); itl1EGNonIso!=l1EGNonIso->end(); itl1EGNonIso++) {
+          float deltaphi=fabs(((EBDetId)itb->id()).iphi()*0.0175 -itl1EGNonIso->phi());
+          if(deltaphi>TWOPI) deltaphi-=TWOPI;
+          if(deltaphi>TWOPI/2.) deltaphi=TWOPI-deltaphi;
+          if(fabs(itl1EGNonIso->eta() - ((EBDetId)itb->id()).ieta()*0.0175) < detaL1_ &&   
+             deltaphi < dphiL1_){
+            double energy = itb->energy();
+            if (energy > clusSeedThr_) seeds.push_back(*itb);
+          }
+        }
+      }else{
+        double energy = itb->energy();
+        if (energy > clusSeedThr_) seeds.push_back(*itb);
+      }
     }
   }
+
 
   //timerName = category + "::readEBRecHitsCollection";
   //timers.push(timerName);
@@ -129,6 +191,8 @@ HLTPi0RecHitsFilter::filter(edm::Event& iEvent, const edm::EventSetup& iSetup)
   const EcalRecHitCollection *hitCollection_p = barrelRecHitsHandle.product();
 
   edm::ESHandle<CaloGeometry> geoHandle;
+  // changes in 210pre5 to move to alignable geometry
+  //  iSetup.get<IdealGeometryRecord>().get(geoHandle);
   iSetup.get<CaloGeometryRecord>().get(geoHandle);     
   geometry_p = geoHandle->getSubdetectorGeometry(DetId::Ecal,EcalBarrel);
   geometryES_p = geoHandle->getSubdetectorGeometry(DetId::Ecal, EcalPreshower);
@@ -229,7 +293,7 @@ HLTPi0RecHitsFilter::filter(edm::Event& iEvent, const edm::EventSetup& iSetup)
     //We are not sure to have 9 RecHits so need to check eta and phi:
     float s4s9_[4];
     for(int i=0;i<4;i++)s4s9_[i]= itseed->energy();
-    for(int j=0; j<RecHitsInWindow.size();j++){
+    for(unsigned int j=0; j<RecHitsInWindow.size();j++){
       //cout << " Simple cluster rh, ieta, iphi : "<<((EBDetId)RecHitsInWindow[j].id()).ieta()<<" "<<((EBDetId)RecHitsInWindow[j].id()).iphi()<<endl;
       if((((EBDetId)RecHitsInWindow[j].id()).ieta() == seed_id.ieta()-1 && seed_id.ieta()!=1 ) || ( seed_id.ieta()==1 && (((EBDetId)RecHitsInWindow[j].id()).ieta() == seed_id.ieta()-2))){
 	if(((EBDetId)RecHitsInWindow[j].id()).iphi() == seed_id.iphi()-1 ||((EBDetId)RecHitsInWindow[j].id()).iphi()-360 == seed_id.iphi()-1 ){
@@ -339,16 +403,16 @@ HLTPi0RecHitsFilter::filter(edm::Event& iEvent, const edm::EventSetup& iSetup)
 	  }
 	  //	  cout<<"  Iso/pt_pi0 "<<Iso/pt_pi0<<endl;
 	  if(Iso/pt_pi0<selePi0Iso_){
-	    for(int Rec=0;Rec<RecHitsCluster[i].size();Rec++)pi0EBRecHitCollection->push_back(RecHitsCluster[i][Rec]);
-	    for(int Rec2=0;Rec2<RecHitsCluster[j].size();Rec2++)pi0EBRecHitCollection->push_back(RecHitsCluster[j][Rec2]);
+	    for(unsigned int Rec=0;Rec<RecHitsCluster[i].size();Rec++)pi0EBRecHitCollection->push_back(RecHitsCluster[i][Rec]);
+	    for(unsigned int Rec2=0;Rec2<RecHitsCluster[j].size();Rec2++)pi0EBRecHitCollection->push_back(RecHitsCluster[j][Rec2]);
 	    
      
-	    for(Int_t iii=0 ; iii<IsoClus.size() ; iii++){   
+	    for(unsigned int iii=0 ; iii<IsoClus.size() ; iii++){   
 	      //cout<< "    Iso cluster: # "<<iii<<" "<<IsoClus[iii]<<endl;  
-	      for(int Rec3=0;Rec3<RecHitsCluster[IsoClus[iii]].size();Rec3++)pi0EBRecHitCollection->push_back(RecHitsCluster[IsoClus[iii]][Rec3]);
+	      for(unsigned int Rec3=0;Rec3<RecHitsCluster[IsoClus[iii]].size();Rec3++)pi0EBRecHitCollection->push_back(RecHitsCluster[IsoClus[iii]][Rec3]);
 	    }   
 	    
-	    //cout <<"  Simple Clustering: pi0 Candidate pt,m_inv,i,j :   "<<pt_pi0<<" "<<m_inv<<" "<<i<<" "<<j<<" "<<endl;  
+	    cout <<"  Simple Clustering: pi0 Candidate pt,m_inv,i,j :   "<<pt_pi0<<" "<<m_inv<<" "<<i<<" "<<j<<" "<<endl;  
 
 	    npi0_s++;
 	  }
@@ -363,7 +427,7 @@ HLTPi0RecHitsFilter::filter(edm::Event& iEvent, const edm::EventSetup& iSetup)
   //timers.pop_and_push(timerName);
 
 
-  //cout<<"  (Simple Clustering) Pi0 candidates #: "<<npi0_s<<endl;
+    cout<<"  (Simple Clustering) Pi0 candidates #: "<<npi0_s<<endl;
 
 
 
@@ -373,7 +437,7 @@ HLTPi0RecHitsFilter::filter(edm::Event& iEvent, const edm::EventSetup& iSetup)
 
       //Put selected information in the event
       int pi0_collsize = pi0EBRecHitCollection->size();
-      //cout<< "   EB RecHits # in Collection: "<<pi0EBRecHitCollection->size()<<endl;
+      cout<< "   EB RecHits # in Collection: "<<pi0EBRecHitCollection->size()<<endl;
       if ( pi0_collsize > seleNRHMax_ ) return accept;
       if ( pi0_collsize < 1 ) return accept;
       if( npi0_s ==0 )return accept; 
