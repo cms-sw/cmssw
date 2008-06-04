@@ -8,7 +8,7 @@
 
 #include "Geometry/CaloGeometry/interface/CaloGeometry.h"
 #include "Geometry/CaloTopology/interface/CaloTopology.h"
-#include "Geometry/Records/interface/IdealGeometryRecord.h"
+#include "Geometry/Records/interface/CaloGeometryRecord.h"
 #include "Geometry/CaloEventSetup/interface/CaloTopologyRecord.h"
 
 EcalClusterLazyTools::EcalClusterLazyTools( const edm::Event &ev, const edm::EventSetup &es, edm::InputTag redEBRecHits, edm::InputTag redEERecHits )
@@ -30,7 +30,7 @@ EcalClusterLazyTools::~EcalClusterLazyTools()
 void EcalClusterLazyTools::getGeometry( const edm::EventSetup &es )
 {
         edm::ESHandle<CaloGeometry> pGeometry;
-        es.get<IdealGeometryRecord>().get(pGeometry);
+        es.get<CaloGeometryRecord>().get(pGeometry);
         geometry_ = pGeometry.product();
 }
 
