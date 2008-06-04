@@ -70,12 +70,10 @@ namespace pos{
       assert(in.good());
 
       // Added by Dario, May 28th, 2008 =====================================================================
-//      std::cout << "[PixelAliasList::readfile()]\t\tClearing old data" <<std::endl;
-//      pixelConfigAliases_.clear() ;
-//      pixelVersionAliases_.clear() ;   
-//      aliasMmap.clear() ;
-//      versionMmap.clear() ;
-//      std::cout << "[PixelAliasList::readfile()]\t\tDone" <<std::endl;
+      pixelConfigAliases_.clear() ;
+      pixelVersionAliases_.clear() ;   
+      aliasMmap.clear() ;
+      versionMmap.clear() ;
       // End of Dario's addition ============================================================================
 
       std::string tag;
@@ -106,6 +104,11 @@ namespace pos{
       
         // Added by Dario, May 20th, 2008 =====================================================================
         pathAliasPair tmpPAPair ;
+	if( tag == ";" )
+	{
+	 tmpPAPair[""]       = " " ;
+	 aliasMmap[theAlias] = tmpPAPair ;
+	}
         // End of Dario's addition ============================================================================
 	while(tag  != ";") {
 	  std::string path;
@@ -257,7 +260,6 @@ namespace pos{
      }
      return configAliasVector ;
     } 
-    pathAliasMmap getAllConfigAliases() {return aliasMmap ;}
     // End of Dario's addition ============================================================================
 
     unsigned int nAliases() { return pixelConfigAliases_.size(); }

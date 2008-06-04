@@ -104,7 +104,6 @@ namespace pos{
     static std::vector<pathAliasPair> getConfigAliases(std::string path) {
      return getAlias().getConfigAliases(path) ;
     }
-    static pathAliasMmap getAllConfigAliases() {return getAlias().getAllConfigAliases() ;}
     // End of Dario's addition ============================================================================
 
     static void addAlias(std::string alias, unsigned int key){
@@ -212,20 +211,30 @@ namespace pos{
     
       static PixelAliasList aliases;
     
+      directory=getenv("PIXELCONFIGURATIONBASE");
+      std::string filename=directory+"/aliases.txt";
+
       if (first) {
 	first=0;
-	directory=getenv("PIXELCONFIGURATIONBASE");
-      
-	std::string filename=directory+"/aliases.txt";
-
 	aliases.readfile(filename);
+	
+	forceAliasesReload(false) ;
+      } else {
+        if( getForceAliasesReload() ) {
+	 aliases.readfile(filename);
+	 forceAliasesReload(false) ;
+ 	}
       }
-
+      
       return aliases;
 
     }
 
-
+    static void forceAliasesReload(bool m){
+      if(getForceAliasesReload() != m){
+    	getForceAliasesReload() = m;
+      }
+    }
 
     //Returns the path the the configuration data.
     static std::string getPath(std::string path, PixelConfigKey key){
@@ -795,8 +804,12 @@ namespace pos{
     }
 
   private:
-
-  };
+    static bool& getForceAliasesReload(){
+      static bool forceAliasesReload = false; 
+      return forceAliasesReload;
+    }
+  
+ };
 
 }
 #endif
