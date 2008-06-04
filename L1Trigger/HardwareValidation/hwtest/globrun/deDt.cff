@@ -2,3 +2,11 @@
 # please include 'replace' statements 
 # as appropriate for the subsystem
 
+replace valDttfDigis.Open_LUTs = true
+
+replace L1DTConfig.DTTPGParameters.TUParameters.TracoParameters.FHTMSK = 1
+replace L1DTConfig.DTTPGParameters.TUParameters.TracoParameters.SHTMSK = 1
+replace L1DTConfig.DTTPGParameters.TUParameters.TracoParameters.BTIC = 31   
+replace L1DTConfig.DTTPGParameters.TUParameters.BtiParameters.ST43 = 41
+replace L1DTConfig.DTTPGParameters.TUParameters.BtiParameters.RE43 = 1
+replace L1DTConfig.DTTPGParameters.TUParameters.BtiParameters.DEAD = 30

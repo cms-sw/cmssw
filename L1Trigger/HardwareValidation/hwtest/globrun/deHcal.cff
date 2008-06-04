@@ -2,3 +2,6 @@
 # please include 'replace' statements 
 # as appropriate for the subsystem
 
+replace HcalTPGCoderULUT.read_Ascii_LUTs = true
+replace HcalTPGCoderULUT.inputLUTs = "CalibCalorimetry/HcalTPGAlgos/data/inputLUTcoder_CRUZET_v2.1.dat"
+replace CaloTPGTranscoder.hcalLUT1 = "CalibCalorimetry/CaloTPG/data/outputLUTtranscoder_CRUZET_v2.1.dat"
