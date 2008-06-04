@@ -3,8 +3,8 @@
 /*
  *  See header file for a description of this class.
  *
- *  $Date: 2008/05/27 15:21:38 $
- *  $Revision: 1.2 $
+ *  $Date: 2008/06/03 16:35:12 $
+ *  $Revision: 1.3 $
  *  \author G. Cerminara - University and INFN Torino
  */
 
@@ -94,7 +94,7 @@ void DTOccupancyTest::endLuminosityBlock(LuminosityBlock const& lumiSeg, EventSe
     <<"[DTOccupancyTest]: End of LS transition, performing the DQM client operation";
   
   // Reset the global summary
-//   summaryHisto->Reset();
+  summaryHisto->Reset();
 
 
   // Get all the DT chambers
