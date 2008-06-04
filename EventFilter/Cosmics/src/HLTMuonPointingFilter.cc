@@ -1,7 +1,7 @@
 /** \file
  *
- * $Date:  07/11/2007 15:14:20 CET $
- * $Revision: 1.0 $
+ * $Date: 2007/11/12 16:21:14 $
+ * $Revision: 1.1 $
  * \author Stefano Lacaprara - INFN Legnaro <stefano.lacaprara@pd.infn.it>
  */
 
@@ -15,7 +15,7 @@
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 
 #include "DataFormats/TrackReco/interface/Track.h"
-#include "DataFormats/GeometrySurface/interface/Cylinder.h"
+
 #include "Geometry/Records/interface/GlobalTrackingGeometryRecord.h"
 #include "Geometry/CommonDetUnit/interface/GlobalTrackingGeometry.h"
 #include "MagneticField/Engine/interface/MagneticField.h"
@@ -43,6 +43,18 @@ HLTMuonPointingFilter::HLTMuonPointingFilter(const edm::ParameterSet& pset) {
 
   theRadius = pset.getParameter<double>("radius"); // cyl's radius (cm)
   theMaxZ = pset.getParameter<double>("maxZ"); // cyl's half lenght (cm)
+
+
+  // Get a surface (here a cylinder of radius 1290mm) ECAL
+  Cylinder::PositionType pos0;
+  Cylinder::RotationType rot0;
+  theCyl = Cylinder::build(pos0, rot0, theRadius);
+    
+  Plane::PositionType posPos(0,0,theMaxZ);
+  Plane::PositionType posNeg(0,0,-theMaxZ);
+
+  thePosPlane = Plane::build(posPos,rot0);
+  thePosPlane = Plane::build(posNeg,rot0);
 
   LogDebug("HLTMuonPointing") << " SALabel : " << theSTAMuonLabel 
     << " Radius : " << theRadius
@@ -82,13 +94,8 @@ bool HLTMuonPointingFilter::filter(edm::Event& event, const edm::EventSetup& eve
 
     LogDebug("HLTMuonPointing") << " InnerTSOS " << innerTSOS;
 
-    // Get a surface (here a cylinder of radius 1290mm) ECAL
-    Cylinder::PositionType pos0;
-    Cylinder::RotationType rot0;
-    const Cylinder::CylinderPointer cyl = Cylinder::build(pos0, rot0, theRadius);
-
     TrajectoryStateOnSurface tsosAtCyl =
-      thePropagator->propagate(*innerTSOS.freeState(), *cyl);
+      thePropagator->propagate(*innerTSOS.freeState(), *theCyl);
 
     if ( tsosAtCyl.isValid() ) {
       LogDebug("HLTMuonPointing") << " extrap TSOS " << tsosAtCyl;
@@ -98,6 +105,20 @@ bool HLTMuonPointingFilter::filter(edm::Event& event, const edm::EventSetup& eve
       }
       else { 
         LogDebug("HLTMuonPointing") << " extrap TSOS z too big " << tsosAtCyl.globalPosition().z();
+	TrajectoryStateOnSurface tsosAtPlane;
+	if (tsosAtCyl.globalPosition().z()>0)
+	  tsosAtPlane=thePropagator->propagate(*innerTSOS.freeState(), *thePosPlane);
+	else
+	  tsosAtPlane=thePropagator->propagate(*innerTSOS.freeState(), *theNegPlane);
+
+	if (tsosAtPlane.isValid()){
+	  if (tsosAtPlane.globalPosition().perp()< theRadius){
+	    accept=true;
+	    return accept;
+	  }
+	}
+	else
+	  LogDebug("HLTMuonPointing") << " extrap to plane failed ";
       }
     } else {
       LogDebug("HLTMuonPointing") << " extrap to cyl failed ";
