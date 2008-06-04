@@ -33,15 +33,15 @@ simMuonCSCDigis = cms.EDProducer("CSCDigiProducer",
         doCorrelatedNoise = cms.bool(True)
     ),
     doNeutrons = cms.bool(False),
-    neutrons = cms.PSet(
-        luminosity = cms.double(0.1),
-        eventOccupancy = cms.vdouble(0.000709, 0.000782, 0.000162, 0.000162, 0.00238, 
-            0.000141, 0.00101, 0.000126, 0.000129),
-        startTime = cms.double(-400.0),
-        reader = cms.string('ROOT'),
-        input = cms.FileInPath('SimMuon/CSCDigitizer/data/CSCNeutronHits.root'),
-        endTime = cms.double(200.0)
-    ),
+#    neutrons = cms.PSet(
+#        luminosity = cms.double(0.1),
+#        eventOccupancy = cms.vdouble(0.000709, 0.000782, 0.000162, 0.000162, 0.00238, 
+#            0.000141, 0.00101, 0.000126, 0.000129),
+#        startTime = cms.double(-400.0),
+#        reader = cms.string('ROOT'),
+#        input = cms.FileInPath('SimMuon/CSCDigitizer/data/CSCNeutronHits.root'),
+#        endTime = cms.double(200.0)
+#    ),
     wires = cms.PSet(
         signalStopTime = cms.double(150.0),
         wireTimingError = cms.double(0.0),
