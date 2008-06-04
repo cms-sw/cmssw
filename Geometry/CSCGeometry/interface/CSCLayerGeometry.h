@@ -213,7 +213,7 @@ public:
     return theWireTopology->yOfWireGroup( wireGroup, x ); }
 
   /**
-   * Local coordinates of center of a wire group
+   * Local coordinates of center of a wire group.
    * \WARNING Used to be centerOfWireGroup in ORCA
    * but that version now returns GlobalPoint.
    */
@@ -256,7 +256,7 @@ public:
   LocalPoint intersectionOfTwoLines( std::pair<float, float> p1, std::pair<float, float> p2 ) const;
 
   /**
-   * Transform strip and wire errors to local x, y frame
+   * Transform strip and wire errors to local x, y frame.
    * Need to supply (central) strip of the hit.
    * The sigma's are in distance units.
    */
