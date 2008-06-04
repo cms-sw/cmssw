@@ -8,7 +8,7 @@
 //
 // Author:      Chris Jones
 // Created:     Wed Mar 30 14:27:26 EST 2005
-// $Id: EventSetupRecordIntervalFinder.cc,v 1.6 2007/01/19 05:25:11 wmtan Exp $
+// $Id: EventSetupRecordIntervalFinder.cc,v 1.7 2007/10/25 07:52:08 elmer Exp $
 //
 
 // system include files
@@ -74,12 +74,22 @@ EventSetupRecordIntervalFinder::findingRecordWithKey(const EventSetupRecordKey& 
    intervals_.insert(Intervals::value_type(iKey, ValidityInterval()));
 }
 
+void 
+EventSetupRecordIntervalFinder::delaySettingRecords()
+{
+}
+
 //
 // const member functions
 //
 std::set<EventSetupRecordKey> 
 EventSetupRecordIntervalFinder::findingForRecords() const
 {
+   if(intervals_.empty()) {
+      //we are delaying our reading
+      const_cast<EventSetupRecordIntervalFinder*>(this)->delaySettingRecords();
+   }
+   
    std::set<EventSetupRecordKey> returnValue;
    
    for(Intervals::const_iterator itEntry = intervals_.begin(), itEntryEnd = intervals_.end();
