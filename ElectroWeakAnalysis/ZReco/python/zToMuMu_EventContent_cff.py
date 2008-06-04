@@ -9,6 +9,8 @@ zToMuMuEventContent = cms.PSet(
         'keep *_goodTracks_*_*', 
         'keep *_goodStandAloneMuonTracks_*_*', 
         'keep *_muonIsolations_*_*', 
+        'keep *_EcalIsolationForTracks_*_*', 
+        'keep *_HcalIsolationForTracks_*_*', 
         'keep *_goodZToMuMu_*_*', 
         'keep *_goodZToMuMuOneTrack_*_*', 
         'keep *_goodZToMuMuOneStandAloneMuonTrack_*_*', 

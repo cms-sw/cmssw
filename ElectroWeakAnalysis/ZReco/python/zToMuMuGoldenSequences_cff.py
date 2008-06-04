@@ -5,12 +5,10 @@ from PhysicsTools.RecoAlgos.allMuons_cfi import *
 from PhysicsTools.IsolationAlgos.allMuonIsolations_cfi import *
 from PhysicsTools.HepMCCandAlgos.allMuonsGenParticlesMatch_cfi import *
 from PhysicsTools.HepMCCandAlgos.allTracksGenParticlesLeptonMatch_cfi import *
-import copy
-from ElectroWeakAnalysis.ZReco.zToMuMu_cfi import *
-zToMuMuGolden = copy.deepcopy(zToMuMu)
-import copy
-from ElectroWeakAnalysis.ZReco.zToMuMuGenParticlesMatch_cfi import *
-zToMuMuGoldenGenParticlesMatch = copy.deepcopy(zToMuMuGenParticlesMatch)
+import ElectroWeakAnalysis.ZReco.zToMuMu_cfi
+zToMuMuGolden = ElectroWeakAnalysis.ZReco.zToMuMu_cfi.zToMuMu.clone()
+import ElectroWeakAnalysis.ZReco.zToMuMuGenParticlesMatch_cfi
+zToMuMuGoldenGenParticlesMatch = ElectroWeakAnalysis.ZReco.zToMuMuGenParticlesMatch_cfi.zToMuMuGenParticlesMatch.clone()
 muonRecoForZToMuMuGolden = cms.Sequence(allTracks+allMuons+allMuonIsolations)
 zToMuMuGoldenAnalysisSequenceData = cms.Sequence(muonRecoForZToMuMuGolden+zToMuMuGolden)
 muonMCTruthForZToMuMuGolden = cms.Sequence(allMuonsGenParticlesMatch+allTracksGenParticlesLeptonMatch+zToMuMuGoldenGenParticlesMatch)

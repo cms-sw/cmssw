@@ -1,14 +1,12 @@
 import FWCore.ParameterSet.Config as cms
 
-import copy
-from RecoMuon.L3MuonIsolationProducer.L3MuonIsolationProducer_cfi import *
+import RecoMuon.L3MuonIsolationProducer.L3MuonIsolationProducer_cfi
 # TDR selection procedure for Z->MuMu events
 # Tested on 2007/10/08/ by J.A.
 # Track isolation
-zMuMuIsolations = copy.deepcopy(L3MuonIsolations)
-import copy
-from RecoMuon.L3MuonIsolationProducer.L3MuonIsolationProducer_cfi import *
-zMuMuTrackerIsolations = copy.deepcopy(L3MuonIsolations)
+zMuMuIsolations = RecoMuon.L3MuonIsolationProducer.L3MuonIsolationProducer_cfi.L3MuonIsolations.clone()
+import RecoMuon.L3MuonIsolationProducer.L3MuonIsolationProducer_cfi
+zMuMuTrackerIsolations = RecoMuon.L3MuonIsolationProducer.L3MuonIsolationProducer_cfi.L3MuonIsolations.clone()
 zMuMuSelFilter = cms.EDFilter("ZToMuMuSelector",
     MassZMin = cms.double(83.7),
     TrackerTag = cms.untracked.InputTag("ctfWithMaterialTracks"),
