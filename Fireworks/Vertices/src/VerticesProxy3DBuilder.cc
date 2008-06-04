@@ -40,9 +40,9 @@ void VerticesProxy3DBuilder::build(const FWEventItem* item, TEveElementList** pr
   for (unsigned int i = 0; i < vertices->size(); ++i) {
     const reco::Vertex & vertex = (*vertices)[i];
     std::cerr << "Vertex " << i << ":" << std::endl;
-    std::cerr << "\tx:" << std::setw(6) << std::setprecision(1) << std::fixed << vertex.x() * 10000. << " ± " << std::setw(6) << std::setprecision(1) << std::fixed << vertex.xError() * 10000. << " um" << std::endl;
-    std::cerr << "\ty:" << std::setw(6) << std::setprecision(1) << std::fixed << vertex.y() * 10000. << " ± " << std::setw(6) << std::setprecision(1) << std::fixed << vertex.yError() * 10000. << " um" << std::endl;
-    std::cerr << "\tz:" << std::setw(6) << std::setprecision(1) << std::fixed << vertex.z() * 10000. << " ± " << std::setw(6) << std::setprecision(1) << std::fixed << vertex.zError() * 10000. << " um" << std::endl;
+    std::cerr << "\tx:" << std::setw(6) << std::setprecision(1) << std::fixed << vertex.x() * 10000. << " um ± " << std::setw(6) << std::setprecision(1) << std::fixed << vertex.xError() * 10000. << " um" << std::endl;
+    std::cerr << "\ty:" << std::setw(6) << std::setprecision(1) << std::fixed << vertex.y() * 10000. << " um ± " << std::setw(6) << std::setprecision(1) << std::fixed << vertex.yError() * 10000. << " um" << std::endl;
+    std::cerr << "\tz:" << std::setw(6) << std::setprecision(1) << std::fixed << vertex.z()          << " cm ± " << std::setw(6) << std::setprecision(1) << std::fixed << vertex.zError() * 10000. << " um" << std::endl;
     std::cerr << std::endl;
 
     std::stringstream s;
