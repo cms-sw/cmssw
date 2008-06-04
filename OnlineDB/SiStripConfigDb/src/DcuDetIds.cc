@@ -1,4 +1,4 @@
-// Last commit: $Id: DcuDetIds.cc,v 1.3 2008/05/06 12:36:55 bainbrid Exp $
+// Last commit: $Id: DcuDetIds.cc,v 1.4 2008/05/08 10:23:10 bainbrid Exp $
 
 #include "OnlineDB/SiStripConfigDb/interface/SiStripConfigDb.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
@@ -53,7 +53,7 @@ SiStripConfigDb::DcuDetIdsRange SiStripConfigDb::getDcuDetIds( std::string parti
 
       }
       
-    } else {
+    } else { // Using database cache
       
 #ifdef USING_NEW_DATABASE_MODEL
       
@@ -67,7 +67,7 @@ SiStripConfigDb::DcuDetIdsRange SiStripConfigDb::getDcuDetIds( std::string parti
 	clone( *src, dst ); 
 	
 	// Add to cache
-	dcuDetIds_.loadNext( "", dst );
+	dcuDetIds_.loadNext( SiStripDbParams::defaultPartitionName_, dst );
 	
       } else {
 	edm::LogWarning(mlConfigDb_)
@@ -286,7 +286,7 @@ void SiStripConfigDb::clearDcuDetIds( std::string partition ) {
     stringstream ss; 
     ss << "[SiStripConfigDb::" << __func__ << "]" 
        << " Found no cached DCU-DetId map!"; 
-    edm::LogWarning(mlConfigDb_) << ss.str(); 
+    //edm::LogWarning(mlConfigDb_) << ss.str(); 
     return; 
   }
   
@@ -366,7 +366,7 @@ void SiStripConfigDb::printDcuDetIds( std::string partition ) {
     if ( partition == "" || partition == idcu->first ) {
       
       ss << "  Partition number      : " << cntr << " (out of " << dcuDetIds_.size() << ")" << std::endl;
-      ss << "  Partition name        : " << idcu->first << std::endl;
+      ss << "  Partition name        : \"" << idcu->first << "\"" << std::endl;
       ss << "  Size of DCU-DetId map : " << idcu->second.size() << std::endl;
       
     }

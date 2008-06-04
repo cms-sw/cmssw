@@ -1,4 +1,4 @@
-// Last commit: $Id: FedConnections.cc,v 1.27 2008/05/13 14:18:27 bainbrid Exp $
+// Last commit: $Id: FedConnections.cc,v 1.28 2008/05/21 15:18:56 bainbrid Exp $
 
 #include "OnlineDB/SiStripConfigDb/interface/SiStripConfigDb.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
@@ -94,7 +94,7 @@ SiStripConfigDb::FedConnectionsRange SiStripConfigDb::getFedConnections( std::st
 	ConnectionFactory::vectorCopyI( tmp2, *tmp1, true );
 	
 	// Add to cache
-	connections_.loadNext( "", tmp2 );
+	connections_.loadNext( SiStripDbParams::defaultPartitionName_, tmp2 );
 	
       } else {
 	edm::LogWarning(mlConfigDb_)
@@ -337,7 +337,7 @@ void SiStripConfigDb::clearFedConnections( std::string partition ) {
     stringstream ss; 
     ss << "[SiStripConfigDb::" << __func__ << "]" 
        << " Found no cached FED connections!"; 
-    edm::LogWarning(mlConfigDb_) << ss.str(); 
+    //edm::LogWarning(mlConfigDb_) << ss.str(); 
     return; 
   }
   
@@ -406,7 +406,7 @@ void SiStripConfigDb::printFedConnections( std::string partition ) {
   ss << "[SiStripConfigDb::" << __func__ << "]"
      << " Contents of FedConnections container:" << std::endl;
   ss << " Number of partitions: " << connections_.size() << std::endl;
-
+  
   // Loop through partitions
   uint16_t cntr = 0;
   FedConnections::const_iterator iconn = connections_.begin();
@@ -417,7 +417,7 @@ void SiStripConfigDb::printFedConnections( std::string partition ) {
     if ( partition == "" || partition == iconn->first ) {
       
       ss << "  Partition number   : " << cntr << " (out of " << connections_.size() << ")" << std::endl;
-      ss << "  Partition name     : " << iconn->first << std::endl;
+      ss << "  Partition name     : \"" << iconn->first << "\"" << std::endl;
       ss << "  Num of connections : " << iconn->second.size() << std::endl;
 
       // Extract FED ids and channels

@@ -1,4 +1,4 @@
-// Last commit: $Id: SiStripConfigDb.cc,v 1.67 2008/05/13 14:18:36 bainbrid Exp $
+// Last commit: $Id: SiStripConfigDb.cc,v 1.68 2008/05/16 15:29:20 bainbrid Exp $
 
 #include "OnlineDB/SiStripConfigDb/interface/SiStripConfigDb.h"
 #include "DataFormats/SiStripCommon/interface/SiStripConstants.h"
@@ -452,7 +452,7 @@ void SiStripConfigDb::usingDatabase() {
   SiStripDbParams::SiStripPartitions::iterator ip = dbParams_.partitions().begin();
   SiStripDbParams::SiStripPartitions::iterator jp = dbParams_.partitions().end();
   for ( ; ip != jp; ++ip ) { ip->second.update( this ); }
-
+  
 }
 
 // -----------------------------------------------------------------------------
@@ -466,6 +466,9 @@ void SiStripConfigDb::usingDatabaseCache() {
   dbParams_.usingDb( temp.usingDb() );
   dbParams_.usingDbCache( temp.usingDbCache() );
   dbParams_.sharedMemory( temp.sharedMemory() );
+
+  // Add default partition 
+  dbParams_.addPartition( SiStripPartition( SiStripDbParams::defaultPartitionName_ ) );
   
   // Check shared memory name from .cfg file
   if ( dbParams_.sharedMemory().empty() ) {

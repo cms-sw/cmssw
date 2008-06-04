@@ -1,4 +1,4 @@
-// Last commit: $Id: DeviceDescriptions.cc,v 1.29 2008/05/13 14:18:27 bainbrid Exp $
+// Last commit: $Id: DeviceDescriptions.cc,v 1.30 2008/05/16 15:29:20 bainbrid Exp $
 
 #include "OnlineDB/SiStripConfigDb/interface/SiStripConfigDb.h"
 #include "DataFormats/SiStripCommon/interface/SiStripFecKey.h"
@@ -80,7 +80,7 @@ SiStripConfigDb::DeviceDescriptionsRange SiStripConfigDb::getDeviceDescriptions(
 	FecFactory::vectorCopyI( tmp2, *tmp1, true );
 	
 	// Add to cache
-	devices_.loadNext( "", tmp2 );
+	devices_.loadNext( SiStripDbParams::defaultPartitionName_, tmp2 );
 
       } else {
 	edm::LogWarning(mlConfigDb_)
@@ -355,7 +355,7 @@ void SiStripConfigDb::clearDeviceDescriptions( std::string partition ) {
     stringstream ss; 
     ss << "[SiStripConfigDb::" << __func__ << "]" 
        << " Found no cached device descriptions!"; 
-    edm::LogWarning(mlConfigDb_) << ss.str(); 
+    //edm::LogWarning(mlConfigDb_) << ss.str(); 
     return; 
   }
   
@@ -435,7 +435,7 @@ void SiStripConfigDb::printDeviceDescriptions( std::string partition ) {
     if ( partition == "" || partition == idev->first ) {
       
       ss << "  Partition number : " << cntr << " (out of " << devices_.size() << ")" << std::endl;
-      ss << "  Partition name   : " << idev->first << std::endl;
+      ss << "  Partition name   : \"" << idev->first << "\"" << std::endl;
       ss << "  Num of devices   : " << idev->second.size() << std::endl;
       
       // Extract FEC crate, slot, etc

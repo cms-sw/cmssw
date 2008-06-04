@@ -1,4 +1,4 @@
-// Last commit: $Id: AnalysisDescriptions.cc,v 1.9 2008/04/30 13:32:13 bainbrid Exp $
+// Last commit: $Id: AnalysisDescriptions.cc,v 1.10 2008/05/06 12:36:55 bainbrid Exp $
 // Latest tag:  $Name:  $
 // Location:    $Source: /cvs_server/repositories/CMSSW/CMSSW/OnlineDB/SiStripConfigDb/src/AnalysisDescriptions.cc,v $
 
@@ -333,7 +333,7 @@ void SiStripConfigDb::clearAnalysisDescriptions( std::string partition ) {
     stringstream ss; 
     ss << "[SiStripConfigDb::" << __func__ << "]" 
        << " Found no cached analysis descriptions!"; 
-    edm::LogWarning(mlConfigDb_) << ss.str(); 
+    //edm::LogWarning(mlConfigDb_) << ss.str(); 
     return; 
   }
   
@@ -409,7 +409,7 @@ void SiStripConfigDb::printAnalysisDescriptions( std::string partition ) {
     if ( partition == "" || partition == ianal->first ) {
       
       ss << "  Partition number : " << cntr << " (out of " << analyses_.size() << ")" << std::endl;
-      ss << "  Partition name   : " << ianal->first << std::endl;
+      ss << "  Partition name   : \"" << ianal->first << "\"" << std::endl;
       ss << "  Num of analyses  : " << ianal->second.size() << std::endl;
       
       // Extract FEC crate, slot, etc

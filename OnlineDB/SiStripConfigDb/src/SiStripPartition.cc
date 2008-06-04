@@ -1,4 +1,4 @@
-// Last commit: $Id: SiStripPartition.cc,v 1.8 2008/05/26 13:35:51 giordano Exp $
+// Last commit: $Id: SiStripPartition.cc,v 1.9 2008/05/29 13:11:05 bainbrid Exp $
 
 #include "OnlineDB/SiStripConfigDb/interface/SiStripPartition.h"
 #include "DataFormats/SiStripCommon/interface/SiStripEnumsAndStrings.h"
@@ -696,7 +696,7 @@ void SiStripPartition::update( const SiStripConfigDb* const db ) {
 // 
 void SiStripPartition::print( std::stringstream& ss, bool using_db ) const {
 
-  ss << "  Partition                  : " << partitionName_ << std::endl;
+  ss << "  Partition                  : \"" << partitionName_ << "\"" << std::endl;
   
   if ( using_db ) {
     

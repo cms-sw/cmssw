@@ -1,4 +1,4 @@
-// Last commit: $Id: FedDescriptions.cc,v 1.28 2008/04/30 13:32:13 bainbrid Exp $
+// Last commit: $Id: FedDescriptions.cc,v 1.29 2008/05/06 12:36:55 bainbrid Exp $
 
 #include "OnlineDB/SiStripConfigDb/interface/SiStripConfigDb.h"
 #include "CondFormats/SiStripObjects/interface/SiStripFedCabling.h"
@@ -76,7 +76,7 @@ SiStripConfigDb::FedDescriptionsRange SiStripConfigDb::getFedDescriptions( std::
 
       }
 	    
-    } else {
+    } else { // Using database cache
 
 #ifdef USING_NEW_DATABASE_MODEL
 
@@ -89,7 +89,7 @@ SiStripConfigDb::FedDescriptionsRange SiStripConfigDb::getFedDescriptions( std::
 	Fed9U::Fed9UDeviceFactory::vectorCopy( tmp2, *tmp1 );
 	
 	// Add to cache
-	feds_.loadNext( "", tmp2 );
+	feds_.loadNext( SiStripDbParams::defaultPartitionName_, tmp2 );
 	
       } else {
 	edm::LogWarning(mlConfigDb_)
@@ -286,12 +286,13 @@ void SiStripConfigDb::uploadFedDescriptions( std::string partition ) {
 // -----------------------------------------------------------------------------
 // 
 void SiStripConfigDb::clearFedDescriptions( std::string partition ) {
+  LogTrace(mlConfigDb_) << "[SiStripConfigDb::" << __func__ << "]";
   
   if ( feds_.empty() ) { 
     stringstream ss; 
     ss << "[SiStripConfigDb::" << __func__ << "]" 
        << " Found no cached FED descriptions!"; 
-    edm::LogWarning(mlConfigDb_) << ss.str(); 
+    //edm::LogWarning(mlConfigDb_) << ss.str(); 
     return; 
   }
   
@@ -374,7 +375,7 @@ void SiStripConfigDb::printFedDescriptions( std::string partition ) {
     if ( partition == "" || partition == iconn->first ) {
       
       ss << "  Partition number : " << cntr << " (out of " << feds_.size() << ")" << std::endl;
-      ss << "  Partition name   : " << iconn->first << std::endl;
+      ss << "  Partition name   : \"" << iconn->first << "\"" << std::endl;
       ss << "  Num of FED ids   : " << iconn->second.size() << std::endl;
 
       // Extract FED crates and ids

@@ -1,4 +1,4 @@
-// Last commit: $Id: SiStripDbParams.cc,v 1.8 2008/05/29 13:11:05 bainbrid Exp $
+// Last commit: $Id: SiStripDbParams.cc,v 1.9 2008/06/03 10:14:00 bainbrid Exp $
 
 #include "OnlineDB/SiStripConfigDb/interface/SiStripDbParams.h"
 #include "DataFormats/SiStripCommon/interface/SiStripEnumsAndStrings.h"
@@ -6,6 +6,10 @@
 #include <iostream>
 
 using namespace sistrip;
+
+// -----------------------------------------------------------------------------
+//
+std::string SiStripDbParams::defaultPartitionName_ = "DefaultPartition";
 
 // -----------------------------------------------------------------------------
 // 
@@ -124,33 +128,38 @@ void SiStripDbParams::reset() {
 // -----------------------------------------------------------------------------
 // 
 void SiStripDbParams::addPartition( const SiStripPartition& in ) {
+
   if ( in.partitionName() == "" ) {
     std::stringstream ss;
     ss << "[SiStripDbParams::" << __func__ << "]"
        << " Attempting to add partition with null name!";
-    edm::LogWarning(mlConfigDb_) << ss.str();
+    //edm::LogWarning(mlConfigDb_) << ss.str();
   }
+
   SiStripPartitions::const_iterator iter = partitions_.find( in.partitionName() );
-  if ( iter != partitions_.end() ) { 
+  if ( iter == partitions_.end() ) { 
     partitions_[in.partitionName()] = in; 
-    std::stringstream ss;
-    ss << "[SiStripDbParams::" << __func__ << "]"
-       << " Added new partition with name \""
-       << partitions_[in.partitionName()] 
-       << "\"! (Currently have " 
-       << partitions_.size()
-       << " partitions)";
-    edm::LogVerbatim(mlConfigDb_) << ss.str();
-  }
-  else {
+    if ( in.partitionName() != SiStripDbParams::defaultPartitionName_ ) {
+      std::stringstream ss;
+      ss << "[SiStripDbParams::" << __func__ << "]"
+	 << " Added new partition with name \"" 
+	 << in.partitionName() << "\"";
+      //ss << std::endl << partitions_[in.partitionName()];
+      ss << " (Currently have " 
+	 << partitions_.size()
+	 << " partitions in cache...)";
+      edm::LogVerbatim(mlConfigDb_) << ss.str();
+    }
+  } else {
     std::stringstream ss;
     ss << "[SiStripDbParams::" << __func__ << "]"
        << " Partition with name \""
        << in.partitionName()
        << "\" already found!"
-       << " Not adding...";
+       << " Not adding to cache...";
     edm::LogWarning(mlConfigDb_) << ss.str();
   }
+
 }
 
 // -----------------------------------------------------------------------------
@@ -183,21 +192,13 @@ void SiStripDbParams::pset( const edm::ParameterSet& cfg ) {
       edm::ParameterSet pset = psets.getUntrackedParameter<edm::ParameterSet>( *iname );
       SiStripPartition tmp;
       tmp.pset( pset );
-      SiStripPartitions::iterator iter = partitions_.find( tmp.partitionName() ); 
-      if ( iter == partitions_.end() ) { partitions_[tmp.partitionName()] = tmp; }
-      else {
-	edm::LogWarning(mlConfigDb_)
-	  << "[SiStripConfigDb::" << __func__ << "]"
-	  << " Found PSet called \"" << *iname 
-	  << "\" that contains a partition name \"" << tmp.partitionName() 
-	  << "\" that already exists! Ignoring...";
-      }
+      addPartition( tmp );
     }
 
   }
   
   // Ensure at least one "default" partition
-  if ( partitions_.empty() ) { partitions_["DefaultPartition"] = SiStripPartition(); }
+  if ( partitions_.empty() ) { addPartition( SiStripPartition(defaultPartitionName_) ); }
 
   // Set output XML files
   outputModuleXml_  = cfg.getUntrackedParameter<std::string>( "OutputModuleXml", "/tmp/module.xml" );
