@@ -119,7 +119,6 @@ void PreshowerClusterProducer::produce(edm::Event& evt, const edm::EventSetup& e
   const EcalRecHitCollection* rechits = pRecHits.product(); // EcalRecHitCollection hit_collection = *rhcHandle;
   if ( debugL == PreshowerClusterAlgo::pDEBUG ) std::cout << "PreshowerClusterProducerInfo: ### Total # of preshower RecHits: " 
                                                           << rechits->size() << std::endl;
-  if ( rechits->size() <= 0 ) return;
 
   // make the map of rechits:
   std::map<DetId, EcalRecHit> rechits_map;
