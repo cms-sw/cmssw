@@ -2,8 +2,8 @@
 /*
  * \file DTDataIntegrityTest.cc
  * 
- * $Date: 2008/06/03 16:33:51 $
- * $Revision: 1.17 $
+ * $Date: 2008/06/04 16:18:48 $
+ * $Revision: 1.19 $
  * \author S. Bolognesi - CERN
  *
  */
@@ -269,11 +269,11 @@ void DTDataIntegrityTest::endLuminosityBlock(LuminosityBlock const& lumiSeg, Eve
 	 } else { // there are errors
 	   result = 2;
 	 }
-	 summaryHisto->setBinContent(rosNumber-769,dduId,result);
+	 summaryHisto->setBinContent(rosNumber,dduId-769,result);
        }
      } else { // no data in this FED: it is off
        for(int rosNumber = 1; rosNumber <= 12; ++rosNumber) {
-	 summaryHisto->setBinContent(rosNumber-769,dduId,1);
+	 summaryHisto->setBinContent(rosNumber,dduId-769,1);
        }
      }
   
