@@ -1,5 +1,6 @@
 #include "EventFilter/CSCRawToDigi/interface/CSCTMBHeader.h"
 #include "EventFilter/CSCRawToDigi/interface/CSCDMBHeader.h"
+#include "EventFilter/CSCRawToDigi/src/cscPackerCompare.h"
 #include "DataFormats/CSCDigi/interface/CSCCLCTDigi.h"
 #include "DataFormats/CSCDigi/interface/CSCCorrelatedLCTDigi.h"
 #include <math.h>
@@ -223,7 +224,7 @@ void CSCTMBHeader::hardwareStripNumbering(int & strip, int & cfeb) const
 
   if ( me1a ) cfeb = 4; 
   if ( me1a && zplus ) { strip = 31-strip; } // 0-31 -> 31-0
-  if ( me1b && !zplus) { cfeb = 4 - cfeb; strip = 31 - strip;} // 0-127 -> 127-0 ...
+  if ( me1b && !zplus) { cfeb = 3 - cfeb; strip = 31 - strip;} // 0-127 -> 127-0 ...
 }
 
 
@@ -394,30 +395,33 @@ void CSCTMBHeader::selfTest()
   // tests packing and unpacking
   for(int station = 1; station <= 4; ++station)
   {
-    CSCDetId detId(1, station, 1, 1, 0);
-    CSCCLCTDigi clct0(true, 1, 2, 1, 2, 30, 3, 6, 1);
-    CSCCLCTDigi clct1(true, 1, 2, 3, 4, 31, 2, 6, 1);
+    for(int iendcap = 0; iendcap <= 1; ++iendcap) 
+    {
+      CSCDetId detId(iendcap, station, 1, 1, 0);
+      // the next-to-last is the BX, which only gets
+      // saved in two bits... I guess the bxnPreTrigger is involved?
+      CSCCLCTDigi clct0(1, 1, 2, 0, 0, 30, 3, 6, 1);
+      CSCCLCTDigi clct1(1, 1, 2, 1, 1, 31, 2, 7, 1);
 
-    CSCCorrelatedLCTDigi lct0(1, 1, 2, 10, 8, 5, 1, 6, 0, 0, 0, 0);
-    CSCCorrelatedLCTDigi lct1(1, 1, 2, 20, 15, 5, 1, 6, 0, 0, 0, 0);
+      CSCCorrelatedLCTDigi lct0(1, 1, 2, 10, 8, 5, 1, 6, 0, 0, 0, 0);
+      CSCCorrelatedLCTDigi lct1(1, 1, 2, 20, 15, 5, 1, 6, 0, 0, 0, 0);
 
-    CSCTMBHeader tmbHeader;
+      CSCTMBHeader tmbHeader;
 
-    tmbHeader.addCLCT0(clct0);
-    tmbHeader.addCLCT1(clct1);
-    tmbHeader.addCorrelatedLCT0(lct0);
-    tmbHeader.addCorrelatedLCT1(lct1);
+      tmbHeader.addCLCT0(clct0);
+      tmbHeader.addCLCT1(clct1);
+      tmbHeader.addCorrelatedLCT0(lct0);
+      tmbHeader.addCorrelatedLCT1(lct1);
 
-    std::vector<CSCCLCTDigi> clcts = tmbHeader.CLCTDigis(detId.rawId());
-    assert(clcts[0] == clct0);
-    assert(clcts[0] == clct1);
+      std::vector<CSCCLCTDigi> clcts = tmbHeader.CLCTDigis(detId.rawId());
+      assert(cscPackerCompare(clcts[0],clct0));
+      assert(cscPackerCompare(clcts[0],clct1));
 
-    std::vector<CSCCorrelatedLCTDigi> lcts = tmbHeader.CorrelatedLCTDigis(detId.rawId());
-    assert(lcts[0] == lct0);
-    assert(lcts[0] == lct1);
-
+      std::vector<CSCCorrelatedLCTDigi> lcts = tmbHeader.CorrelatedLCTDigis(detId.rawId());
+      assert(cscPackerCompare(lcts[0], lct0));
+      assert(cscPackerCompare(lcts[0], lct1));
+    }
   }
-
 }
 
 

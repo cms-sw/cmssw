@@ -437,16 +437,17 @@ CSCTMBHeader::addCLCT0(const CSCCLCTDigi & digi, T & t)
 {
   int strip = digi.getStrip();
   int cfeb = digi.getCFEB();
-std::cout << "ADD LCT " << strip ;
   hardwareStripNumbering(strip, cfeb);
 
-std::cout << " " << strip << std::endl;
   t.clct0_valid = digi.isValid();
   t.clct0_quality = digi.getQuality();
   t.clct0_shape = digi.getPattern();
   t.clct0_bend = digi.getBend();
   t.clct0_key = strip;
-  t.clct0_cfeb_low = cfeb;
+  t.clct0_cfeb_low = (cfeb & 0x1);
+  //t.clct0_cfeb_high = (cfeb>>1);
+  t.clct0_bxn = digi.getBX();
+  t.bxnPreTrigger = digi.getFullBX();
 }
 
 template<typename T> void
@@ -461,7 +462,10 @@ CSCTMBHeader::addCLCT1(const CSCCLCTDigi & digi, T & t)
   t.clct1_shape = digi.getPattern();
   t.clct1_bend = digi.getBend();
   t.clct1_key = strip;
-  t.clct1_cfeb_low = cfeb;
+  t.clct1_cfeb_low = (cfeb & 0x1);
+  //t.clct1_cfeb_high = (cfeb>>1);
+  t.clct1_bxn = digi.getBX();
+  t.bxnPreTrigger = digi.getFullBX();
 }
 
 template<typename T> void
