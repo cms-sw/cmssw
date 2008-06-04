@@ -43,11 +43,13 @@ void fix(TH1* histo) {
   }
 }
 
+typedef funct::GaussIntegrator IntegratorConv;
+
 int main(int ac, char *av[]) {
   gROOT->SetStyle("Plain");
   try {
     typedef funct::Product<funct::Exponential, 
-                           funct::Convolution<funct::ZLineShape, funct::Gaussian>::type >::type ZPeak;
+                           funct::Convolution<funct::ZLineShape, funct::Gaussian, IntegratorConv>::type>::type ZPeak;
     typedef funct::Product<funct::Parameter, ZPeak>::type ZMuMuSig;
     typedef funct::Product<funct::Power<funct::Parameter, funct::Numerical<2> >::type, 
                            funct::Power<funct::Parameter, funct::Numerical<2> >::type >::type ZMuMuEfficiency;
@@ -146,6 +148,8 @@ int main(int ac, char *av[]) {
 	const char * kA2 = "A2"; 
 	const char * kSigmaZMuSa = "SigmaZMuSa";
 	
+	IntegratorConv integratorConv(1.e-5);
+
 	funct::Parameter lambdaZMuMu(kLambdaZMuMu, commands.par(kLambdaZMuMu));
 	funct::Parameter mass(kMass, commands.par(kMass));
 	funct::Parameter gamma(kGamma, commands.par(kGamma));
@@ -169,7 +173,7 @@ int main(int ac, char *av[]) {
 	ZPeak zPeak = funct::Exponential(lambdaZMuMu) * 
 	              funct::conv(funct::ZLineShape(mass, gamma, photonFactorZMuMu, interferenceFactorZMuMu), 
 			 	  funct::Gaussian(meanZMuMu, sigmaZMuMu), 
-				  -3*sigmaZMuMu.value(), 3*sigmaZMuMu.value(), 2000);
+				  -3*sigmaZMuMu.value(), 3*sigmaZMuMu.value(), integratorConv);
 	ZMuMuSig zMuMuSig = yieldZMuMu * zPeak; 
 	ZMuMuEfficiency zMuMuEfficiency = (efficiencyTk ^ funct::Numerical<2>(2)) * 
 	                                  (efficiencySa ^ funct::Numerical<2>(2)); 

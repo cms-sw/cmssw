@@ -21,16 +21,17 @@
 #include "TROOT.h"
 #include <boost/shared_ptr.hpp>
 #include <boost/program_options.hpp>
-using namespace boost;
-namespace po = boost::program_options;
-
 #include <iostream>
 #include <algorithm> 
 #include <exception>
 #include <iterator>
 #include <string>
 #include <vector>
+using namespace boost;
+namespace po = boost::program_options;
 using namespace std;
+
+typedef funct::GaussIntegrator IntegratorConv;
 
 // A helper function to simplify the main part.
 template<class T>
@@ -108,6 +109,8 @@ int main(int ac, char *av[]) {
       cout << v_file.size() << ", " << v_ZMassHistos.size() << ", " << v_eps.size() << endl;
       cout <<">>> Input files loaded\n";
     }
+
+    IntegratorConv integratorConv(1.e-5);
     //Values for Z mass and width
     funct::Parameter mass("Mass", 91.364);
     funct::Parameter gamma("Gamma", 4.11);
@@ -138,10 +141,11 @@ int main(int ac, char *av[]) {
 	funct::ZLineShape zls(mass, gamma, f_gamma, f_int);
 	funct::Gaussian gauss(mean, sigma1);
 	double range = 3 * sigma1.value();
-	funct::Convolution<funct::ZLineShape, funct::Gaussian>::type czg(zls, gauss, -range , range, 1000);
+	funct::Convolution<funct::ZLineShape, funct::Gaussian, IntegratorConv>::type 
+	  czg(zls, gauss, -range , range, integratorConv);
 	funct::Constant c(yield);
 	typedef funct::Product<funct::Constant, 
-	  funct::Convolution<funct::ZLineShape, funct::Gaussian>::type >::type FitFunction;
+	  funct::Convolution<funct::ZLineShape, funct::Gaussian, IntegratorConv>::type >::type FitFunction;
 	FitFunction f = c * czg;
 	cout << "set functions" << endl;
 	typedef fit::HistoChiSquare<FitFunction> ChiSquared;
@@ -204,9 +208,9 @@ int main(int ac, char *av[]) {
 	typedef funct::Product<funct::Exponential, funct::ZLineShape>::type ExpZLS;
 	ExpZLS expz = expo * zls;
 	double range = 3 * sigma1.value();
-	funct::Convolution<ExpZLS, funct::Gaussian>::type cezg(expz, gauss, -range , range, 1000);
+	funct::Convolution<ExpZLS, funct::Gaussian, IntegratorConv>::type cezg(expz, gauss, -range , range, integratorConv);
 	funct::Constant c(yield);
-	typedef funct::Product<funct::Constant, funct::Convolution<ExpZLS, funct::Gaussian>::type >::type FitFunction;
+	typedef funct::Product<funct::Constant, funct::Convolution<ExpZLS, funct::Gaussian, IntegratorConv>::type >::type FitFunction;
 	FitFunction f = c * cezg;
 	cout << "set functions" << endl;
 	typedef fit::HistoChiSquare<FitFunction> ChiSquared;
@@ -280,9 +284,9 @@ int main(int ac, char *av[]) {
 	typedef funct::Product<funct::Constant, funct::Sum<G1, G2>::type>::type GaussComb;
 	funct::Constant c_alpha(alpha), c_yield(yield);
 	GaussComb gc = c_yield*(c_alpha*gaus1 + (_1 - c_alpha)*gaus2);
-	typedef funct::Convolution<funct::ZLineShape, GaussComb>::type FitFunction;
+	typedef funct::Convolution<funct::ZLineShape, GaussComb, IntegratorConv>::type FitFunction;
 	double range = 3 * max(sigma1.value(), sigma2.value());
-	FitFunction f(zls, gc, -range , range, 1000);
+	FitFunction f(zls, gc, -range , range, integratorConv);
 	cout << "set functions" << endl;
 	typedef fit::HistoChiSquare<FitFunction> ChiSquared;
 	ChiSquared chi2(f, zMass, fMin, fMax);
