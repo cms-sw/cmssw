@@ -52,7 +52,7 @@ import helpfunctions  # displays text in new window
 from pyDBSRunClass import DBSRun  # Gets class that holds information as to whether a given run has been processed through DQM
 
 from pydbsAccessor import dbsAccessor  # sends queries to DBS
-
+import pyRunSummaryBaseClass # accesses html output from RunSummary page
     
 
 ###################################################################
@@ -477,6 +477,7 @@ class dbsBaseGui:
 
         # For the moment ( 12 May 2008), keep this disabled, until we
         # understand how lumi blocks are arranged in files
+        # Lumi setting will now run over all lumi blocks by default -- usual way of running
         #self.dqmmenu.add_cascade(label="Set Lum'y Block Range",
         #                        menu=self.lumiBlockRangeMenu.choices)
 
@@ -1656,15 +1657,26 @@ class dbsBaseGui:
         if (self.debug):
             print self.parseDBSInfo.__doc__
 
+
+        
+        # Added on 4 June 2008:  Try to get run list by explicitly check the RunSummary page to make sure that HCAL was included in the run.  Not yet enabled(need to generalize for non-HCAL running?)
+
+        #hcalRunSummary=pyRunSummaryBaseClass.goodHCALList(self.lastFoundDBS.get(),self.lastFoundDBS.get()+self.dbsRange.get(),debug=False)
+        #hcalrunlist=hcalRunSummary.hcalruns
+        #print hcalRunSummary.allruns
+
+
         runlist=[]
         begin=self.lastFoundDBS.get()
         end=begin+self.dbsRange.get()
         runs=string.split(self.myDBS.searchResult,"\n")
+
         for r in runs:
             if (len(r)==0):
                 continue # skip blank output lines
             # Use "Found ... runs" output line to determine # of runs found
             if (r.startswith("Found")):
+
                 self.foundfiles=string.atoi(string.split(r)[1])
                 if (self.foundfiles==0):
                     self.commentLabel.configure(text="WARNING!  No runs found in the run range %i-%i"%(self.lastFoundDBS.get(),self.lastFoundDBS.get()+self.dbsRange.get()))
@@ -1676,14 +1688,22 @@ class dbsBaseGui:
             try:
                 r.strip("\n")
                 r=string.atoi(r)
+
                 if r not in runlist:
+                    # Skip runs which don't include HCAL
+                    #if r not in hcalrunlist:
+                    #    continue 
                     runlist.append(r)
             except:
                 continue
+
+
             
         if len(runlist)==0:
             self.commentLabel.configure(text="ODD BEHAVIOR!  Runs apparently found, but cannot be parsed!\nDBS output being redirected to screen")
             print "DBS Run search result: ",self.myDBS.searchResult
+            print "\n\nRunSummary page search result: "
+            hcalrunlist.printRuns()
             self.dbsProgress.configure(text="No runs in (%i-%i) could be parsed!"%(self.lastFoundDBS.get(),self.lastFoundDBS.get()+self.dbsRange.get()),
                                        bg="black")
             self.commentLabel.update_idletasks()
@@ -1695,7 +1715,7 @@ class dbsBaseGui:
         self.foundfiles=0
         badcount=0
         for r in runlist:
-                        
+
             self.dbsProgress.configure(text="Found run %i in range (%i-%i)..."%(r,self.lastFoundDBS.get(),self.lastFoundDBS.get()+self.dbsRange.get()))
             self.commentLabel.update_idletasks()
 
@@ -1777,28 +1797,28 @@ class dbsBaseGui:
                 
             # Now we have to repeat search again, this time looking for luminosity blocks:  (We could perform both searches at once, but that results in a huge number of files (# files * # lumi blocks, I think).  It's easier (but slower?) to just search twice.)
 
-            text="find lumi where %s run=%i"%(self.myDBS.formParsedString(),r)
-            x.searchDBS(mytext=text)
-            lumiinfo=string.split(x.searchResult,"\n")
-            maxlumi=0
+            #text="find lumi where %s run=%i"%(self.myDBS.formParsedString(),r)
+            #x.searchDBS(mytext=text)
+            #lumiinfo=string.split(x.searchResult,"\n")
+            #maxlumi=0
             # Lumi blocks should be returned in descending order, so it's not really necessary to loop through all of them.  However, the loop offers some protections should the ordering be changed, and I don't think it takes too much extra time.
-            for lumi in lumiinfo:
-                if (self.debug):
-                    print "lumi = '%s'"%lumi
-                try:
-                    templumi=string.atoi(string.strip(lumi))
-                    if templumi>maxlumi:
-                        maxlumi=templumi
-                    if (self.debug):
-                        print "Max. lumi block is now: ",maxlumi
-                except:
-                    continue
-            self.filesInDBS[r].numLumiBlocks=max(maxlumi,
-                                                 self.filesInDBS[r].numLumiBlocks)
-            tmpvar=self.lumiBlockRange.get()
-            if (tmpvar=="All"):
-                tmpvar="0"
-            self.filesInDBS[r].lumiBlockIncrement=string.atoi(tmpvar)
+            #for lumi in lumiinfo:
+            #    if (self.debug):
+            #        print "lumi = '%s'"%lumi
+            #    try:
+            #        templumi=string.atoi(string.strip(lumi))
+            #        if templumi>maxlumi:
+            #            maxlumi=templumi
+            #        if (self.debug):
+            #            print "Max. lumi block is now: ",maxlumi
+            #    except:
+            #        continue
+            #self.filesInDBS[r].numLumiBlocks=max(maxlumi,
+            #                                     self.filesInDBS[r].numLumiBlocks)
+            #tmpvar=self.lumiBlockRange.get()
+            #if (tmpvar=="All"):
+            #    tmpvar="0"
+            #self.filesInDBS[r].lumiBlockIncrement=string.atoi(tmpvar)
 
         # Set lastFoundDBS to most recent run in filesInDBS 
         

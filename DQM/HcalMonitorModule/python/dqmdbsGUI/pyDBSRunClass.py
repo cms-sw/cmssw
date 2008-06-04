@@ -7,12 +7,12 @@ class DBSRun:
     Stores information about a given run
     (Run number, files in run, whether DQM has been performed on run.)
     '''
-
+    
     def __init__(self,filelist=None):
-
+        
         '''
         Class stores all files associated with a given run number, as
-        given by DBS.  Also stores local DQM status (checking whether
+        given by DBS.  Also stores local DQM status, checking whether
         DQM has run on the set of files, and whether it has successfully
         completed.
         '''
@@ -32,6 +32,7 @@ class DBSRun:
         self.numLumiBlocks=0
         self.lumiBlockIncrement=0
         self.currentLumiBlock=1
+
         return
 
 
