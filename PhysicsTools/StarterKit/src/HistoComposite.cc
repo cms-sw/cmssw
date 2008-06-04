@@ -3,7 +3,7 @@
 #include <iostream>
 
 using namespace std;
-
+using namespace reco;
 using namespace pat;
 
 HistoComposite::

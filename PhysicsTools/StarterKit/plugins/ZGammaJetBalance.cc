@@ -4,6 +4,7 @@
 #include "DataFormats/Math/interface/LorentzVector.h"
 
 using namespace std;
+using namespace reco;
 //
 // constructors and destructor
 //
