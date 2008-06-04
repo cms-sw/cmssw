@@ -264,16 +264,16 @@ void DTDataIntegrityTest::endLuminosityBlock(LuminosityBlock const& lumiSeg, Eve
        TH2F * histo_FEDSummary = FED_ROSSummary->getTH2F();
        for(int rosNumber = 1; rosNumber <= 12; ++rosNumber) { // loop on the ROS
 	 int result = -2;
-	 if(histo_FEDSummary->Integral(1,11) == 0) { // no errors
+	 if(histo_FEDSummary->Integral(1,11,1,12) == 0) { // no errors
 	   result = 0;
 	 } else { // there are errors
 	   result = 2;
 	 }
-	 summaryHisto->setBinContent(rosNumber,dduId-769,result);
+	 summaryHisto->setBinContent(rosNumber-769,dduId,result);
        }
      } else { // no data in this FED: it is off
        for(int rosNumber = 1; rosNumber <= 12; ++rosNumber) {
-	 summaryHisto->setBinContent(rosNumber,dduId-769,1);
+	 summaryHisto->setBinContent(rosNumber-769,dduId,1);
        }
      }
   
