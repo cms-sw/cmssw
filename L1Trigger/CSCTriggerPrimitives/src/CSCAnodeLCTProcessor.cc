@@ -20,8 +20,8 @@
 //                Porting from ORCA by S. Valuev (Slava.Valuev@cern.ch),
 //                May 2006.
 //
-//   $Date: 2008/05/02 16:21:35 $
-//   $Revision: 1.21 $
+//   $Date: 2008/05/07 14:13:33 $
+//   $Revision: 1.22 $
 //
 //   Modifications: 
 //
@@ -723,8 +723,10 @@ void CSCAnodeLCTProcessor::ghostCancellationLogic() {
 	  else if (dt > 0 && dt <= 4) {
 	    // Next "if" check accounts for firmware bug and should be
 	    // removed once the next firmware version is used.
-	    if (qual_prev >= qual_this)
-	      ghost_cleared[key_wire][i_pattern] = 1;
+	    // The bug is fixed in 5/5/2008 version of ALCT firmware,
+	    // which is used in all chambers starting with 26/05/2008.
+	    ////if (qual_prev >= qual_this)
+	    ghost_cleared[key_wire][i_pattern] = 1;
 	  }
 	}
 
@@ -749,8 +751,10 @@ void CSCAnodeLCTProcessor::ghostCancellationLogic() {
 	  else if (dt > 0 && dt <= 4) {
 	    // Next "if" check accounts for firmware bug and should be
 	    // removed once the next firmware version is used.
-	    if (qual_next > qual_this)
-	      ghost_cleared[key_wire][i_pattern] = 1;
+	    // The bug is fixed in 5/5/2008 version of ALCT firmware,
+	    // which is used in all chambers starting with 26/05/2008.
+	    ////if (qual_next > qual_this)
+	    ghost_cleared[key_wire][i_pattern] = 1;
 	  }
 	}
 	if (ghost_cleared[key_wire][i_pattern] == 1) {
