@@ -58,12 +58,12 @@ unsigned short L1CaloEcalScale::rank(double et,
     for (unsigned i=0; i<nBinRank; i++) {
       if ( et >= m_scale[i][eta] ) { out = i; }
     }
-    return out & nBinRank;
+    return out & (nBinRank-1);
   }
   else {
     // throw
   }
-
+  return nBinRank ;
 }
 
 // convert from rank to Et/GeV
