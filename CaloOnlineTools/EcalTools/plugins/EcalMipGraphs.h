@@ -13,7 +13,7 @@
 //
 // Original Author:  Seth COOPER
 //         Created:  Th Nov 22 5:46:22 CEST 2007
-// $Id: EcalMipGraphs.h,v 1.4 2008/04/10 18:18:08 scooper Exp $
+// $Id: EcalMipGraphs.h,v 1.5 2008/05/06 18:38:08 scooper Exp $
 //
 //
 
@@ -35,7 +35,7 @@
 #include "Geometry/EcalMapping/interface/EcalMappingRcd.h"
 
 #include "DataFormats/EcalDigi/interface/EcalDigiCollections.h"
-#include "DataFormats/EcalRecHit/interface/EcalUncalibratedRecHit.h"
+#include "DataFormats/EcalRecHit/interface/EcalRecHit.h"
 #include "DataFormats/EcalRecHit/interface/EcalRecHitCollections.h"
 #include "DataFormats/DetId/interface/DetId.h"
 #include "DataFormats/EcalRawData/interface/EcalRawDataCollections.h"
@@ -68,11 +68,12 @@ class EcalMipGraphs : public edm::EDAnalyzer {
       virtual void analyze(const edm::Event&, const edm::EventSetup&);
       virtual void endJob() ;
       std::string intToString(int num);
+      std::string floatToString(float num);
       void writeGraphs();
       void initHists(int);
-      void selectEBHits(edm::Handle<EcalUncalibratedRecHitCollection> EBhits,
+      void selectEBHits(edm::Handle<EcalRecHitCollection> EBhits,
           int ievt, edm::ESHandle<CaloTopology> caloTopo);
-      void selectEEHits(edm::Handle<EcalUncalibratedRecHitCollection> EEhits,
+      void selectEEHits(edm::Handle<EcalRecHitCollection> EEhits,
           int ievt, edm::ESHandle<CaloTopology> caloTopo);
       void selectEBDigis(edm::Handle<EBDigiCollection> EBdigisHandle, int ievt,
           std::map<int,EcalDCCHeaderBlock> FEDsAndDCCHeaders_);
@@ -82,8 +83,8 @@ class EcalMipGraphs : public edm::EDAnalyzer {
 
     // ----------member data ---------------------------
 
-  edm::InputTag EBUncalibratedRecHitCollection_;
-  edm::InputTag EEUncalibratedRecHitCollection_;
+  edm::InputTag EBRecHitCollection_;
+  edm::InputTag EERecHitCollection_;
   edm::InputTag EBDigis_;
   edm::InputTag EEDigis_;
   edm::InputTag headerProducer_;

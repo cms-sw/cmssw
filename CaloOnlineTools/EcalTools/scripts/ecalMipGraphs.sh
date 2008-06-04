@@ -40,7 +40,7 @@ echo "      -l|--last_ev          l_ev            last  (as written to file) eve
 echo "      -mfed|--mask_fed_id   mask_fed_id     list of FEDids to mask; default is no masking"
 echo "      -meb|--mask_ieb_id    mask_ieb_id     list of sm barrel ids to mask; default is no masking"
 echo "      -mcry|--mask_cry      mask_cry        list of channels (use hashedIndex) to mask; default is no masking"
-echo "      -t|--threshold        threshold       ADC count threshold to trigger graphing of cluster around seed channel; default is 12.0"
+echo "      -t|--threshold        threshold       GeV threshold to trigger graphing of cluster around seed channel; default is 0.110"
 echo "      -s|--side             side            side of the square centered on seed cry to graph; default is 3"
 echo "      -cry|--seed_cry       seed_crystal    crystal number (use hashedIndex) to fix as center cry (disables automatic threshold selection)"
 echo ""
@@ -60,7 +60,7 @@ mfed=-1
 mieb="-1"
 mcry=-1
 
-threshold=12.0
+threshold=0.110
 side=3
 seed_cry=0
 
@@ -221,9 +221,9 @@ cmsRun "$cfg_path$data_file".graph.$$.cfg >& "$log_dir$data_file".$$.graph
 echo ""
 echo ""
 
-mv *.graph.root log/
+mv *.graph.root log/ecalMipGraphs.$data_file.$$.root
 echo "File root with graphs was created:" 
-ls -ltrFh $preferred_dir/log/*.graph.root | tail -1 | awk '{print $9}'
+ls -ltrFh $preferred_dir/log/ecalMipGraphs.$data_file.$$.root | tail -1 | awk '{print $9}'
 
 echo ""
 echo ""
