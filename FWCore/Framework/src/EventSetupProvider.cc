@@ -42,7 +42,8 @@ EventSetupProvider::EventSetupProvider(const PreferredProviderInfo* iInfo) :
 eventSetup_(),
 providers_(),
 mustFinishConfiguration_(true),
-preferredProviderInfo_((0!=iInfo) ? (new PreferredProviderInfo(*iInfo)): 0)
+preferredProviderInfo_((0!=iInfo) ? (new PreferredProviderInfo(*iInfo)): 0),
+finders_(new std::vector<boost::shared_ptr<EventSetupRecordIntervalFinder> >() )
 {
 }
 
@@ -105,20 +106,7 @@ EventSetupProvider::add(boost::shared_ptr<EventSetupRecordIntervalFinder> iFinde
 {
    mustFinishConfiguration_ = true;
    assert(&(*iFinder) != 0);
-   typedef std::set<EventSetupRecordKey> Keys;
-   const Keys recordsUsing = iFinder->findingForRecords();
-   
-   for(Keys::const_iterator itKey = recordsUsing.begin(), itKeyEnd = recordsUsing.end();
-       itKey != itKeyEnd;
-       ++itKey) {
-      Providers::iterator itFound = providers_.find(*itKey);
-      if(providers_.end() == itFound) {
-         //create a provider for this record
-         insert(*itKey, EventSetupRecordProviderFactoryManager::instance().makeRecordProvider(*itKey));
-         itFound = providers_.find(*itKey);
-      }
-      itFound->second->addFinder(iFinder);
-   }
+   finders_->push_back(iFinder);
 }
 
 typedef std::map<EventSetupRecordKey, boost::shared_ptr<EventSetupRecordProvider> > Providers;
@@ -265,6 +253,30 @@ RecordToPreferred determinePreferred(const EventSetupProvider::PreferredProvider
 void
 EventSetupProvider::finishConfiguration()
 {
+   //we delayed adding finders to the system till here so that everything would be loaded first
+   for(std::vector<boost::shared_ptr<EventSetupRecordIntervalFinder> >::iterator itFinder=finders_->begin(),
+       itEnd = finders_->end();
+       itFinder != itEnd;
+       ++itFinder) {
+      typedef std::set<EventSetupRecordKey> Keys;
+      const Keys recordsUsing = (*itFinder)->findingForRecords();
+      
+      for(Keys::const_iterator itKey = recordsUsing.begin(), itKeyEnd = recordsUsing.end();
+          itKey != itKeyEnd;
+          ++itKey) {
+         Providers::iterator itFound = providers_.find(*itKey);
+         if(providers_.end() == itFound) {
+            //create a provider for this record
+            insert(*itKey, EventSetupRecordProviderFactoryManager::instance().makeRecordProvider(*itKey));
+            itFound = providers_.find(*itKey);
+         }
+         itFound->second->addFinder(*itFinder);
+      }      
+   }
+   //we've transfered our ownership so this is no longer needed
+   finders_.release();
+   
+   
    //used for the case where no preferred Providers have been specified for the Record
    static const EventSetupRecordProvider::DataToPreferredProviderMap kEmptyMap;
    
