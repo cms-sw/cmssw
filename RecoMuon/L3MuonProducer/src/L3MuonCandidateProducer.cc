@@ -71,7 +71,7 @@ void L3MuonCandidateProducer::produce(Event& event, const EventSetup& eventSetup
       Particle::Charge q = tkref->charge();
       Particle::LorentzVector p4(tkref->px(), tkref->py(), tkref->pz(), tkref->p());
       Particle::Point vtx(tkref->vx(),tkref->vy(), tkref->vz());
-      int id=(q<0)?(13:-13);
+      int id = q < 0  ?  13 : -13;
       RecoChargedCandidate cand(q, p4, vtx, id); 
       cand.setTrack(tkref);
       candidates->push_back(cand);
