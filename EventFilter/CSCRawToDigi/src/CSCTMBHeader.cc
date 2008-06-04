@@ -78,7 +78,7 @@ std::vector<CSCCLCTDigi> CSCTMBHeader::CLCTDigis(uint32_t idlayer) {
     int strip = header2006.clct0_key;
     int cfeb = (header2006.clct0_cfeb_low)|(header2006.clct0_cfeb_high<<1);
     int bend = header2006.clct0_bend;
-    offlineStripNumbering(firmwareVersion, strip, cfeb, shape, bend);
+    offlineStripNumbering(strip, cfeb, shape, bend);
 
     CSCCLCTDigi digi0(header2006.clct0_valid, header2006.clct0_quality, shape,
 		      type, bend, strip, cfeb, header2006.clct0_bxn, 1);
@@ -97,7 +97,7 @@ std::vector<CSCCLCTDigi> CSCTMBHeader::CLCTDigis(uint32_t idlayer) {
     strip = header2006.clct1_key;
     cfeb = (header2006.clct1_cfeb_low)|(header2006.clct1_cfeb_high<<1);
     bend = header2006.clct1_bend;
-    offlineStripNumbering(firmwareVersion, strip, cfeb, shape, bend);
+    offlineStripNumbering(strip, cfeb, shape, bend);
 
     CSCCLCTDigi digi1(header2006.clct1_valid, header2006.clct1_quality, shape,
 		      type, bend, strip, cfeb, header2006.clct1_bxn, 2);
@@ -110,7 +110,7 @@ std::vector<CSCCLCTDigi> CSCTMBHeader::CLCTDigis(uint32_t idlayer) {
     int cfeb    = (header2007.clct0_cfeb_low)|(header2007.clct0_cfeb_high<<1);
     int pattern = header2007.clct0_shape;
     int bend    = header2007.clct0_bend;
-    offlineStripNumbering(firmwareVersion, strip, cfeb, pattern, bend);
+    offlineStripNumbering(strip, cfeb, pattern, bend);
 
     CSCCLCTDigi digi0(header2007.clct0_valid, header2007.clct0_quality,
 		      pattern, 1, bend, strip, cfeb, header2007.clct0_bxn, 1);
@@ -120,7 +120,7 @@ std::vector<CSCCLCTDigi> CSCTMBHeader::CLCTDigis(uint32_t idlayer) {
     cfeb = (header2007.clct1_cfeb_low)|(header2007.clct1_cfeb_high<<1);
     pattern = header2007.clct1_shape;
     bend    = header2007.clct1_bend;
-    offlineStripNumbering(firmwareVersion, strip, cfeb, pattern, bend);
+    offlineStripNumbering(strip, cfeb, pattern, bend);
 
     CSCCLCTDigi digi1(header2007.clct1_valid, header2007.clct1_quality,
 		      pattern, 1, bend, strip, cfeb, header2007.clct1_bxn, 2);
@@ -141,8 +141,7 @@ std::vector<CSCCLCTDigi> CSCTMBHeader::CLCTDigis(uint32_t idlayer) {
 }
 
 
-void CSCTMBHeader::offlineStripNumbering(const int firmwareVersion,
-					 int & strip, int & cfeb,
+void CSCTMBHeader::offlineStripNumbering(int & strip, int & cfeb,
 					 int & pattern, int & bend) const
 {
   bool me11 = (theChamberId.station() == 1 && 
@@ -186,6 +185,38 @@ void CSCTMBHeader::offlineStripNumbering(const int firmwareVersion,
   }
 }
 
+
+void CSCTMBHeader::hardwareStripNumbering(int & strip, int & cfeb, int & pattern, int & bend) const
+{
+  assert(theChamberId.station() != 0);
+  bool me1a = (theChamberId.station()==1 && theChamberId.ring() == 4);
+  bool zplus = (theChamberId.endcap() == 1);
+  bool me1b = (theChamberId.station()==1 && theChamberId.ring() == 1);
+
+  if ( me1a ) cfeb = 4;
+  if ( me1a && zplus ) { strip = 31-strip; } // 0-31 -> 31-0
+  if ( me1b && !zplus) { cfeb = 3 - cfeb; strip = 31 - strip;} // 0-127 -> 127-0 ...
+  if ((me1a && zplus) || (me1b && !zplus)) {
+    switch (firmwareVersion) {
+    case 2006:
+      if (pattern > 1 && pattern < 7) {
+        if (pattern % 2 == 0) {pattern--; bend++;}
+        else                  {pattern++; bend--;}
+      }
+      break;
+    case 2007:
+      if (pattern > 2 && pattern < 9) {
+        if (pattern % 2 == 0) {pattern++; bend++;}
+        else                  {pattern--; bend--;}
+      }
+      break;
+    default:
+      break;
+    }
+  }
+
+}
+
 void CSCTMBHeader::swapCLCTs(CSCCLCTDigi& digi1, CSCCLCTDigi& digi2)
 {
   bool me11 = (theChamberId.station() == 1 && 
@@ -214,17 +245,6 @@ void CSCTMBHeader::swapCLCTs(CSCCLCTDigi& digi1, CSCCLCTDigi& digi2)
       digi2.setTrknmb(2);
     }
   }
-}
-
-void CSCTMBHeader::hardwareStripNumbering(int & strip, int & cfeb) const
-{
-  bool me1a = (theChamberId.station()==1 && theChamberId.ring() == 4);
-  bool zplus = (theChamberId.endcap() == 1);
-  bool me1b = (theChamberId.station()==1 && theChamberId.ring() == 1);
-
-  if ( me1a ) cfeb = 4; 
-  if ( me1a && zplus ) { strip = 31-strip; } // 0-31 -> 31-0
-  if ( me1b && !zplus) { cfeb = 3 - cfeb; strip = 31 - strip;} // 0-127 -> 127-0 ...
 }
 
 
@@ -400,14 +420,14 @@ void CSCTMBHeader::selfTest()
       CSCDetId detId(iendcap, station, 1, 1, 0);
       // the next-to-last is the BX, which only gets
       // saved in two bits... I guess the bxnPreTrigger is involved?
-      CSCCLCTDigi clct0(1, 1, 2, 0, 0, 30, 3, 6, 1);
-      CSCCLCTDigi clct1(1, 1, 2, 1, 1, 31, 2, 7, 1);
+      CSCCLCTDigi clct0(1, 1, 2, 0, 0, 30, 3, 0, 1);
+      CSCCLCTDigi clct1(1, 1, 2, 1, 1, 31, 1, 2, 1);
 
       CSCCorrelatedLCTDigi lct0(1, 1, 2, 10, 8, 5, 1, 6, 0, 0, 0, 0);
       CSCCorrelatedLCTDigi lct1(1, 1, 2, 20, 15, 5, 1, 6, 0, 0, 0, 0);
 
       CSCTMBHeader tmbHeader;
-
+      tmbHeader.theChamberId = detId;
       tmbHeader.addCLCT0(clct0);
       tmbHeader.addCLCT1(clct1);
       tmbHeader.addCorrelatedLCT0(lct0);
@@ -415,11 +435,11 @@ void CSCTMBHeader::selfTest()
 
       std::vector<CSCCLCTDigi> clcts = tmbHeader.CLCTDigis(detId.rawId());
       assert(cscPackerCompare(clcts[0],clct0));
-      assert(cscPackerCompare(clcts[0],clct1));
+      assert(cscPackerCompare(clcts[1],clct1));
 
       std::vector<CSCCorrelatedLCTDigi> lcts = tmbHeader.CorrelatedLCTDigis(detId.rawId());
       assert(cscPackerCompare(lcts[0], lct0));
-      assert(cscPackerCompare(lcts[0], lct1));
+      assert(cscPackerCompare(lcts[1], lct1));
     }
   }
 }

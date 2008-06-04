@@ -410,10 +410,10 @@ class CSCTMBHeader {
 
 private:
   // helper method to reverse the strip numbers in the ME1 readout
-  void offlineStripNumbering(const int firmwareVersion,
-			     int & strip, int & cfeb,
+  void offlineStripNumbering(int & strip, int & cfeb,
 			     int& pattern, int& bend) const;
-  void hardwareStripNumbering(int & strip, int & cfeb) const;
+  void hardwareStripNumbering(int & strip, int & cfeb,
+                              int& pattern, int& bend) const;
   void offlineHalfStripNumbering(int & strip) const;
   void hardwareHalfStripNumbering(int & strip) const;
 
@@ -437,15 +437,16 @@ CSCTMBHeader::addCLCT0(const CSCCLCTDigi & digi, T & t)
 {
   int strip = digi.getStrip();
   int cfeb = digi.getCFEB();
-  hardwareStripNumbering(strip, cfeb);
-
+  int bend = digi.getBend();
+  int pattern = digi.getPattern();
+  hardwareStripNumbering(strip, cfeb, pattern, bend);
   t.clct0_valid = digi.isValid();
   t.clct0_quality = digi.getQuality();
-  t.clct0_shape = digi.getPattern();
-  t.clct0_bend = digi.getBend();
+  t.clct0_shape = pattern;
+  t.clct0_bend = bend;
   t.clct0_key = strip;
   t.clct0_cfeb_low = (cfeb & 0x1);
-  //t.clct0_cfeb_high = (cfeb>>1);
+  t.clct0_cfeb_high = (cfeb>>1);
   t.clct0_bxn = digi.getBX();
   t.bxnPreTrigger = digi.getFullBX();
 }
@@ -455,15 +456,17 @@ CSCTMBHeader::addCLCT1(const CSCCLCTDigi & digi, T & t)
 {
   int strip = digi.getStrip();
   int cfeb = digi.getCFEB();
-  hardwareStripNumbering(strip, cfeb);
+  int bend = digi.getBend();
+  int pattern = digi.getPattern();
+  hardwareStripNumbering(strip, cfeb, pattern, bend);
 
   t.clct1_valid = digi.isValid();
   t.clct1_quality = digi.getQuality();
-  t.clct1_shape = digi.getPattern();
-  t.clct1_bend = digi.getBend();
+  t.clct1_shape = pattern;
+  t.clct1_bend = bend;
   t.clct1_key = strip;
   t.clct1_cfeb_low = (cfeb & 0x1);
-  //t.clct1_cfeb_high = (cfeb>>1);
+  t.clct1_cfeb_high = (cfeb>>1);
   t.clct1_bxn = digi.getBX();
   t.bxnPreTrigger = digi.getFullBX();
 }
