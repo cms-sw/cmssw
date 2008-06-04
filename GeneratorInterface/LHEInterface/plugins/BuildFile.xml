@@ -24,8 +24,9 @@
 	<use name="PhysicsTools/UtilAlgos"/>
 	<flags EDM_PLUGIN="1"/>
 </library>
-<library name="GeneratorInterfacePythia6Hadronisation" file="Pythia6Hadronisation.cc FortranTools.F">
+<library name="GeneratorInterfacePythia6Hadronisation" file="Pythia6Hadronisation.cc">
 	<use name="SimDataFormats/GeneratorProducts"/>
+	<use name="GeneratorInterface/CommonInterface"/>
 	<use name="pythia6"/>
 	<use name="lhapdf"/>
 	<flags EDM_PLUGIN="1"/>
