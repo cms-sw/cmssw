@@ -39,6 +39,11 @@ void VerticesProxy3DBuilder::build(const FWEventItem* item, TEveElementList** pr
   
   for (unsigned int i = 0; i < vertices->size(); ++i) {
     const reco::Vertex & vertex = (*vertices)[i];
+    std::cerr << "Vertex " << i << ":" << std::endl;
+    std::cerr << "\tx:" << std::setw(6) << std::setprecision(1) << std::fixed << vertex.x() * 10000. << " ± " << std::setw(6) << std::setprecision(1) << std::fixed << vertex.xError() * 10000. << " um" << std::endl;
+    std::cerr << "\ty:" << std::setw(6) << std::setprecision(1) << std::fixed << vertex.y() * 10000. << " ± " << std::setw(6) << std::setprecision(1) << std::fixed << vertex.yError() * 10000. << " um" << std::endl;
+    std::cerr << "\tz:" << std::setw(6) << std::setprecision(1) << std::fixed << vertex.z() * 10000. << " ± " << std::setw(6) << std::setprecision(1) << std::fixed << vertex.zError() * 10000. << " um" << std::endl;
+    std::cerr << std::endl;
 
     std::stringstream s;
     s << "Primary Vertex " << i;
@@ -49,7 +54,10 @@ void VerticesProxy3DBuilder::build(const FWEventItem* item, TEveElementList** pr
     TGeoSphere * sphere = new TGeoSphere(0.0, 1.0);
 
     // this is just an approximation - the full 3D covariance matrix could be used to show the correct correlations
-    TGeoScale       dimension(vertex.xError() * scaleError, vertex.yError() * scaleError, vertex.zError() * scaleError);
+    TGeoScale dimension(
+        (vertex.xError() ? vertex.xError() : 0.0015) * scaleError,      // use a default error of 15 um
+        (vertex.yError() ? vertex.yError() : 0.0015) * scaleError,      // use a default error of 15 um
+        (vertex.zError() ? vertex.zError() : 5.0000) * scaleError);     // use a default error of  5 cm
     TGeoTranslation position(vertex.x(), vertex.y(), vertex.z());
 
     // EVE-managed shape
