@@ -45,16 +45,16 @@ class CSCGeometry : public TrackingGeometry {
   // Return a vector of all det types
   virtual const DetTypeContainer&  detTypes() const;
 
-  // Returm a vector of all GeomDetUnit
+  // Return a vector of all GeomDetUnit
   virtual const DetUnitContainer& detUnits() const;
 
-  // Returm a vector of all GeomDet (including all GeomDetUnits)
+  // Return a vector of all GeomDet (including all GeomDetUnits)
   virtual const DetContainer& dets() const;
   
-  // Returm a vector of all GeomDetUnit DetIds
+  // Return a vector of all GeomDetUnit DetIds
   virtual const DetIdContainer&    detUnitIds() const;
 
-  // Returm a vector of all GeomDet DetIds (including those of GeomDetUnits)
+  // Return a vector of all GeomDet DetIds (including those of GeomDetUnits)
   virtual const DetIdContainer& detIds() const;
 
   // Return the pointer to the GeomDetUnit corresponding to a given DetId
@@ -68,7 +68,7 @@ class CSCGeometry : public TrackingGeometry {
   /// Return the chamber corresponding to given DetId
   const CSCChamber* chamber(CSCDetId id) const;
 
-  /// Return the orresponding to given DetId
+  /// Return the layer corresponding to given DetId
   const CSCLayer* layer(CSCDetId id) const;
 
   /// Return a vector of all chambers
@@ -115,7 +115,8 @@ class CSCGeometry : public TrackingGeometry {
    * Wire geometry modelled as real hardware (complex
    * groupings of wires and dead regions) or as a pseudo
    * geometry with just one wire grouping per chamber type
-   * (as was done in ORCA versions up to and including ORCA_8_8_1.)
+   * (as was done in ORCA versions up to and including ORCA_8_8_1).
+   *
    */
   bool realWireGeometry() const { return useRealWireGeometry; }
 
