@@ -113,6 +113,9 @@ namespace HcalHotCellCheck
 
     if (total_digival-total_pedestal>h.hotDigiSigma*total_pedwidth)
       {
+	h.abovePedSigma->Fill(digi_eta,digi_phi);
+	hcal.abovePedSigma->Fill(digi_eta,digi_phi);
+
 	h.problemHotCells->Fill(digi_eta,digi_phi);
 	hcal.problemHotCells->Fill(digi_eta,digi_phi);
 
@@ -389,8 +392,8 @@ namespace HcalHotCellCheck
 	  // -------------------------------
 	  // Case 2:  Energy is > negative cutoff, but less than minimum threshold -- skip the cell
 	  
-	  else if (cellenergy<=h.nadaEnergyCandCut0)
-	    continue;
+	  //else if (cellenergy<=h.nadaEnergyCandCut0)
+	  //  continue;
 	  
 	  // -------------------------------
 	  // Case 3:  Set thresholds according to input variables
@@ -497,7 +500,6 @@ namespace HcalHotCellCheck
 	  // Hot cells found -- Identify hot cells by value of Ecube
 	  if (Ecube <= ECubeCut*cubeComp/cubeSize)
 	    {   
-
 	      h.problemHotCells->Fill(CellEta,CellPhi);
 	      hcal.problemHotCells->Fill(CellEta,CellPhi);
 	      h.problemHotCells_depth[CellDepth-1]->Fill(CellEta,CellPhi);
@@ -946,9 +948,9 @@ void HcalHotCellMonitor::setupHists(HotCellHists& h, DQMStore* dbe)
 
 
 
-  h.nadaNumHotCells = m_dbe->book1D(subdet+"nadaNumHotCells",subdet+" # of NADA Hot Cells/Event",1000,0,1000);
+  h.nadaNumHotCells = m_dbe->book1D(subdet+"nadaNumHotCells",subdet+" # of NADA Hot Cells Per Event",1000,0,1000);
   h.nadaEnergy = m_dbe->book1D(subdet+"Energy",subdet+" Energy for all cells",1000,-10,90);
-  h.nadaNumNegCells = m_dbe->book1D(subdet+"nadaNumNegCells",subdet+" # of NADA Negative-Energy Cells/Event",1000,0,1000);
+  h.nadaNumNegCells = m_dbe->book1D(subdet+"nadaNumNegCells",subdet+" # of NADA Negative-Energy Cells Per Event",1000,0,1000);
   
   h.nadaNumHotCells->setAxisTitle("# of NADA Hot Cells",1);
   h.nadaNumHotCells->setAxisTitle("# of Events",2);
@@ -1055,6 +1057,8 @@ void HcalHotCellMonitor::setupHists(HotCellHists& h, DQMStore* dbe)
 	  tempname.str(""); //resets tempname
 
 	} // for (int depth =1 ; depth<=4; ++depth)
+      diagFoldername<<baseFolder_+"/"+subdet.c_str()+"/Diagnostics";
+      m_dbe->setCurrentFolder(diagFoldername.str().c_str());
       h.DigiEnergyDist=m_dbe->book1D(subdet+"DigiEnergyDist","Digi Energy/#sigma_{pedestal}",100,-10,10);
       h.EnergyVsNADAcube=m_dbe->book2D(subdet+"EnergyVsNADAcube","Cell energy vs surrounding cube energy",300,-10,20,300,-10,20);
       h.EnergyVsNADAcube->setAxisTitle("Cell Energy",2);

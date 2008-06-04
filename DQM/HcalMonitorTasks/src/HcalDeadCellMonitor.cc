@@ -249,11 +249,12 @@ namespace HcalDeadCellCheck
 	
 	hist.cellCheck->Fill(cell_eta,cell_phi);
 	all.cellCheck->Fill(cell_eta,cell_phi);
-	if (hist.makeDiagnostics)
-	  {
-	    hist.cellCheck_depth[cell_depth-1]->Fill(cell_eta,cell_phi);
-	    all.cellCheck_depth[ cell_depth-1]->Fill(cell_eta,cell_phi);
-	  }
+
+	//This can't be a diagnostic, because we need to know which cells 
+	// are present in each depth for cool cell algorithm
+	hist.cellCheck_depth[cell_depth-1]->Fill(cell_eta,cell_phi);
+	all.cellCheck_depth[ cell_depth-1]->Fill(cell_eta,cell_phi);
+	
 
 	// if (_cell->id().depth()==2) continue; // skip depth=2 for now
 	// if (vetoCell(_cell->id())) continue;
@@ -615,6 +616,10 @@ void HcalDeadCellMonitor::setupHists(DeadCellHists& hist,  DQMStore* dbe)
                                                         etaBins_,etaMin_,etaMax_, 
                                                         phiBins_,phiMin_,phiMax_)); 
 
+      // Rechit occupancy plot -- needed for checking for valid consistent dead cells
+      sprintf(DepthName,"%s_cellCheck_Depth%i",hist.subdet.c_str(),d+1);
+      hist.cellCheck_depth.push_back(m_dbe->book2D(DepthName,DepthName,etaBins_,etaMin_,etaMax_,phiBins_,phiMin_,phiMax_));
+
       if (!hist.makeDiagnostics) continue; // skip remaining depth plots if diagnostics are off
 
 
@@ -635,9 +640,7 @@ void HcalDeadCellMonitor::setupHists(DeadCellHists& hist,  DQMStore* dbe)
       // Digi occupancy plot (redundant?)
       sprintf(DepthName,"%s_digiCheck_Depth%i",hist.subdet.c_str(),d+1);
       hist.digiCheck_depth.push_back(m_dbe->book2D(DepthName,DepthName,etaBins_,etaMin_,etaMax_,phiBins_,phiMin_,phiMax_));
-      // Rechit occupancy plot (redundant?)
-      sprintf(DepthName,"%s_cellCheck_Depth%i",hist.subdet.c_str(),d+1);
-      hist.cellCheck_depth.push_back(m_dbe->book2D(DepthName,DepthName,etaBins_,etaMin_,etaMax_,phiBins_,phiMin_,phiMax_));
+
     }
   
   // Set Axis Labels
@@ -886,6 +889,8 @@ void HcalDeadCellMonitor::reset_Nevents(DeadCellHists &h)
     Every N events, look for cells that have been persistently below pedestal + Nsigma, and plot them in our ped histogram.  Reset the transient histograms that are checking that cells are persistently below pedestal.
   */
 
+  if (fVerbosity)
+    cout <<"<HcalDeadCellMonitor> Entered reset_Nevents routine"<<endl;
   if (h.check==0) return;
   
   int eta, phi; // these will store detector eta, phi
