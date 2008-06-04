@@ -1,4 +1,5 @@
 #include "RecoTauTag/RecoTau/interface/CaloRecoTauTagInfoAlgorithm.h"
+#include "Geometry/Records/interface/CaloGeometryRecord.h"
 
 CaloRecoTauTagInfoAlgorithm::CaloRecoTauTagInfoAlgorithm(const ParameterSet& parameters){
   // parameters of the considered rec. Tracks (catched through a JetTracksAssociation object) :
@@ -43,7 +44,7 @@ vector<pair<math::XYZPoint,float> > CaloRecoTauTagInfoAlgorithm::getPositionAndE
   vector<pair<math::XYZPoint,float> > thePositionAndEnergyEcalRecHits;
   vector<CaloTowerPtr> theCaloTowers=theCaloJet->getCaloConstituents();
   ESHandle<CaloGeometry> theCaloGeometry;
-  theEventSetup.get<IdealGeometryRecord>().get(theCaloGeometry);
+  theEventSetup.get<CaloGeometryRecord>().get(theCaloGeometry);
   const CaloSubdetectorGeometry* theCaloSubdetectorGeometry;  
   Handle<EBRecHitCollection> EBRecHits;
   Handle<EERecHitCollection> EERecHits; 

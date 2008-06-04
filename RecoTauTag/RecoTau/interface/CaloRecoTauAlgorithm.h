@@ -13,7 +13,6 @@
 #include "Geometry/CaloGeometry/interface/CaloGeometry.h"
 #include "Geometry/CaloGeometry/interface/CaloSubdetectorGeometry.h"
 #include "Geometry/CaloTopology/interface/CaloTowerTopology.h"
-#include "Geometry/Records/interface/IdealGeometryRecord.h"
 
 #include "RecoTauTag/TauTagTools/interface/CaloTauElementsOperators.h"
 #include "RecoTauTag/TauTagTools/interface/TauTagTools.h"

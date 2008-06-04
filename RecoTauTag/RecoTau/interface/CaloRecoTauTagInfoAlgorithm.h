@@ -21,7 +21,6 @@
 #include "Geometry/CaloGeometry/interface/CaloGeometry.h"
 #include "Geometry/CaloGeometry/interface/CaloCellGeometry.h"
 #include "Geometry/CaloGeometry/interface/CaloSubdetectorGeometry.h"
-#include "Geometry/Records/interface/IdealGeometryRecord.h"
 
 #include "MagneticField/Records/interface/IdealMagneticFieldRecord.h"
 

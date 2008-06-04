@@ -1,4 +1,5 @@
 #include "RecoTauTag/RecoTau/interface/CaloRecoTauAlgorithm.h"
+#include "Geometry/Records/interface/CaloGeometryRecord.h"
 
 CaloRecoTauAlgorithm::CaloRecoTauAlgorithm() : TransientTrackBuilder_(0),MagneticField_(0),chargedpi_mass_(0.13957018){}  
 CaloRecoTauAlgorithm::CaloRecoTauAlgorithm(const ParameterSet& iConfig) : TransientTrackBuilder_(0),MagneticField_(0),chargedpi_mass_(0.13957018){
@@ -72,7 +73,7 @@ CaloTau CaloRecoTauAlgorithm::buildCaloTau(Event& iEvent,const EventSetup& iSetu
 	double myleadTrackHCAL3x3hottesthitEt=0.;
 	double myleadTrackHCAL3x3hitsEtSum=0.;
 	ESHandle<CaloGeometry> myCaloGeometry;
-	iSetup.get<IdealGeometryRecord>().get(myCaloGeometry);
+	iSetup.get<CaloGeometryRecord>().get(myCaloGeometry);
 	const CaloSubdetectorGeometry* myCaloSubdetectorGeometry=(*myCaloGeometry).getSubdetectorGeometry(DetId::Calo,CaloTowerDetId::SubdetId);
 	CaloTowerDetId mypropagleadTrack_closestCaloTowerId((*myCaloSubdetectorGeometry).getClosestCell(GlobalPoint(mypropagleadTrackECALSurfContactPoint.x(),
 														    mypropagleadTrackECALSurfContactPoint.y(),
