@@ -1,8 +1,8 @@
 /*
  * \file EESummaryClient.cc
  *
- * $Date: 2008/05/30 16:24:31 $
- * $Revision: 1.131 $
+ * $Date: 2008/06/02 19:03:53 $
+ * $Revision: 1.132 $
  * \author G. Della Ricca
  *
 */
@@ -1453,8 +1453,6 @@ void EESummaryClient::analyze(void){
           if ( nOutOfGeometryTT[iside][jxdcc][jydcc] < 25 ) {
             if ( nValidChannelsTT[iside][jxdcc][jydcc] != 0 )
               xval = 1.0 - float(nGlobalErrorsTT[iside][jxdcc][jydcc])/float(nValidChannelsTT[iside][jxdcc][jydcc]);
-          } else {
-            xval = 0.0;
           }
 
           me->setBinContent( 20*iside+jxdcc+1, jydcc+1, xval );
