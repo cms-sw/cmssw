@@ -8,15 +8,12 @@ import FWCore.ParameterSet.Config as cms
 # Material effects to be simulated in the tracker material and associated cuts
 MaterialEffectsBlock = cms.PSet(
     MaterialEffects = cms.PSet(
-        # Enable electron Bremsstrahlung
         Bremsstrahlung = cms.bool(True),
-        distCut = cms.double(0.02), ## Default is 0.020 for algo 1;
-
+        Density = cms.double(2.329),
         # The corresponding particle masses
         pionMasses = cms.untracked.vdouble(0.13957, 0.13957, 0.497648, 0.493677, 0.493677, 
             0.93827, 0.93827, 0.939565, 0.939565),
         K0Ls = cms.untracked.vint32(130, 310),
-        # Enable Nuclear Interactions
         NuclearInteraction = cms.bool(True),
         Kplusses = cms.untracked.vint32(321),
         antiprotons = cms.untracked.vint32(-2212, -3222),
@@ -25,24 +22,20 @@ MaterialEffectsBlock = cms.PSet(
             7.0, 9.0, 12.0, 15.0, 20.0, 
             30.0, 50.0, 100.0, 200.0, 300.0, 
             500.0, 700.0, 1000.0),
-        # The algorihm to detrmine the distance between the primary and the secondaries
-        # 0 = no link
-        # 1 = sin(theta12) - ~ ok at all momenta
-        # 2 = sin(theta12) * p1/p2 - bad, should not be used
-        distAlgo = cms.uint32(1),
-        # Enable photon pair conversion 
+        RadiationLength = cms.double(9.36),
         PairProduction = cms.bool(True),
         # The file with the last nuclear interaction read in the previous run
         # to be put in the local running directory (if desired)
         inputFile = cms.untracked.string('NuclearInteractionInputFile.txt'),
         Piminusses = cms.untracked.vint32(-211),
+        bremEnergy = cms.double(0.1),
         antineutrons = cms.untracked.vint32(-2112, -3122, -3112, -3312, -3322, 
             -3334),
-        # Smallest photon energy allowed for conversion
+        distCut = cms.double(0.02), ## Default is 0.020 for algo 1;
+
         photonEnergy = cms.double(0.1),
-        # Smallest bremsstrahlung energy fraction (wrt to the electron energy)
+        A = cms.double(28.0855),
         bremEnergyFraction = cms.double(0.005),
-        # Enable Multiple Scattering
         MultipleScattering = cms.bool(True),
         # The particle types simulated
         pionTypes = cms.untracked.vint32(211, -211, 130, 321, -321, 
@@ -83,11 +76,15 @@ MaterialEffectsBlock = cms.PSet(
             0.742556115, 0.758504713),
         # and a global fudge factor for TEC Layers to make it fit
         fudgeFactor = cms.double(1.2),
-        # Smallest bremstrahlung photon energy
-        bremEnergy = cms.double(0.1),
+        # The algorihm to detrmine the distance between the primary and the secondaries
+        # 0 = no link
+        # 1 = sin(theta12) - ~ ok at all momenta
+        # 2 = sin(theta12) * p1/p2 - bad, should not be used
+        distAlgo = cms.uint32(1),
         # The corresponding smallest momenta for which an inleatic interaction may occur
         pionMinP = cms.untracked.vdouble(0.7, 0.0, 1.0, 1.0, 0.0, 
             1.1, 0.0, 1.1, 0.0),
+        Z = cms.double(14.0),
         neutrons = cms.untracked.vint32(2112, 3122, 3112, 3312, 3322, 
             3334),
         # The ratio between radiation lengths and interation lengths in the tracker at 15 GeV
@@ -99,10 +96,8 @@ MaterialEffectsBlock = cms.PSet(
         #
         # The smallest pion energy for which nuclear interactions are simulated
         pionEnergy = cms.double(0.5),
-        # Smallest pT for the Mutliple Scattering 
         pTmin = cms.double(0.3),
         Piplusses = cms.untracked.vint32(211),
-        # Enable dE/dx
         EnergyLoss = cms.bool(True),
         Kminusses = cms.untracked.vint32(-321),
         # The corresponding particle names
@@ -115,6 +110,23 @@ MaterialEffectsBlock = cms.PSet(
             'pbar', 
             'n', 
             'nbar')
+    )
+)
+MaterialEffectsForMuonsBlock = cms.PSet(
+    MaterialEffectsForMuons = cms.PSet(
+        A = cms.double(55.8455),
+        bremEnergyFraction = cms.double(0.005),
+        Bremsstrahlung = cms.bool(False),
+        bremEnergy = cms.double(0.1),
+        Density = cms.double(7.87),
+        MultipleScattering = cms.bool(True),
+        NuclearInteraction = cms.bool(False),
+        photonEnergy = cms.double(0.1),
+        PairProduction = cms.bool(False),
+        EnergyLoss = cms.bool(False),
+        pTmin = cms.double(0.3),
+        RadiationLength = cms.double(1.76),
+        Z = cms.double(26.0)
     )
 )
 
