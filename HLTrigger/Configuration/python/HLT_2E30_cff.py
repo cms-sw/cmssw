@@ -1,4 +1,4 @@
-# /dev/CMSSW_2_1_0_pre5/HLT/V12 (CMSSW_2_1_0_pre5)
+# /dev/CMSSW_2_1_0_pre5/HLT/V13 (CMSSW_2_1_0_pre5)
 
 import FWCore.ParameterSet.Config as cms
 
@@ -7745,24 +7745,21 @@ hltSubdetFED = cms.EDProducer( "SubdetFEDSelector",
 )
 hltL1sHcalPhiSym = cms.EDFilter( "HLTLevel1GTSeed",
     L1TechTriggerSeeding = cms.bool( False ),
-    L1SeedsLogicalExpression = cms.string( "L1_ZeroBias OR L1_SingleJetCountsHFTow OR L1_DoubleJetCountsHFTow OR L1_SingleEG2 OR L1_DoubleEG1 OR L1_SingleJetCountsHFRing0Sum3 OR L1_DoubleJetCountsHFRing0Sum3 OR L1_SingleJetCountsHFRing0Sum6 OR L1_DoubleJetCountsHFRing0Sum6" ),
+    L1SeedsLogicalExpression = cms.string( "L1_SingleEG2 OR L1_DoubleEG1" ),
     L1GtReadoutRecordTag = cms.InputTag( "hltGtDigis" ),
     L1GtObjectMapTag = cms.InputTag( "hltL1GtObjectMap" ),
     L1CollectionsTag = cms.InputTag( "hltL1extraParticles" ),
     L1MuonCollectionTag = cms.InputTag( "hltL1extraParticles" )
 )
 hltHcalPhiSymPresc = cms.EDFilter( "HLTPrescaler" )
-hltAlCaHcalPhiSymStream = cms.EDFilter( "HLTHcalPhiSymFilter",
-    HBHEHitCollection = cms.InputTag( "hltHbhereco" ),
-    HOHitCollection = cms.InputTag( "hltHoreco" ),
-    HFHitCollection = cms.InputTag( "hltHfreco" ),
-    phiSymHBHEHitCollection = cms.string( "phiSymHcalRecHitsHBHE" ),
-    phiSymHOHitCollection = cms.string( "phiSymHcalRecHitsHO" ),
-    phiSymHFHitCollection = cms.string( "phiSymHcalRecHitsHF" ),
-    eCut_HB = cms.double( -10.0 ),
-    eCut_HE = cms.double( -10.0 ),
-    eCut_HO = cms.double( -10.0 ),
-    eCut_HF = cms.double( -10.0 )
+hcalFED = cms.EDProducer( "SubdetFEDSelector",
+    getECAL = cms.bool( False ),
+    getSiStrip = cms.bool( False ),
+    getSiPixel = cms.bool( False ),
+    getHCAL = cms.bool( True ),
+    getMuon = cms.bool( False ),
+    getTrigger = cms.bool( True ),
+    rawInputLabel = cms.InputTag( "rawDataCollector" )
 )
 hltL1sEcalPhiSym = cms.EDFilter( "HLTLevel1GTSeed",
     L1TechTriggerSeeding = cms.bool( False ),
@@ -11221,7 +11218,7 @@ HLT1Electron8_L1R_NI = cms.Path( HLTSingleElectronEt8L1NonIsoHLTNonIsoSequence +
 HLT2Electron5_L1R_NI = cms.Path( HLTDoubleElectronEt5L1NonIsoHLTnonIsoSequence + HLTEndSequence )
 HLT1Photon10_L1R = cms.Path( HLTSinglePhotonEt10L1NonIsolatedSequence + HLTEndSequence )
 AlCaIsoTrack = cms.Path( HLTBeginSequence + HLTL1SeedFilterSequence + hltPreIsolTrackNoEcalIso + HLTL3PixelIsolFilterSequence + HLTIsoTrRegFEDSelection + HLTEndSequence )
-AlCaHcalPhiSym = cms.Path( HLTBeginSequence + hltL1sHcalPhiSym + hltHcalPhiSymPresc + HLTDoLocalHcalSequence + hltAlCaHcalPhiSymStream + HLTEndSequence )
+AlCaHcalPhiSym = cms.Path( HLTBeginSequence + hltL1sHcalPhiSym + hltHcalPhiSymPresc + hcalFED + HLTEndSequence )
 AlCaEcalPhiSym = cms.Path( HLTBeginSequence + hltL1sEcalPhiSym + hltEcalPhiSymPresc + hltEcalDigis + hltEcalWeightUncalibRecHit + hltEcalRecHit + hltAlCaPhiSymStream + HLTEndSequence )
 AlCaEcalPi0 = cms.Path( HLTBeginSequence + hltPrePi0Ecal + hltL1sEcalPi0 + HLTDoRegionalEgammaEcalSequence + hltAlCaPi0RegRecHits + HLTEndSequence )
 HLT1MuonLevel2 = cms.Path( HLTL1muonrecoSequence + hltPrescaleSingleMuLevel2 + hltSingleMuNoIsoLevel1Seed + hltSingleMuNoIsoL1Filtered + HLTL2muonrecoSequence + hltSingleMuLevel2NoIsoL2PreFiltered + HLTEndSequence )
