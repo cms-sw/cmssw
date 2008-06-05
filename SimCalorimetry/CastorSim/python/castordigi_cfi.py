@@ -6,6 +6,8 @@ castorDigis = cms.EDProducer("CastorDigiProducer",
     castor = cms.PSet(
         readoutFrameSize = cms.int32(6),
         binOfMaximum = cms.int32(4),
+        samplingFactor = cms.double(0.267), ## pe/GeV
+
         doPhotoStatistics = cms.bool(True),
         photoelectronsToAnalog = cms.double(1.843),
         simHitToPhotoelectrons = cms.double(6.0),
