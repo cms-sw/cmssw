@@ -4,8 +4,8 @@
 #include "DataFormats/TauReco/interface/PFTauDiscriminatorByIsolation.h"
 #include "DataFormats/TauReco/interface/CaloTau.h"
 #include "DataFormats/TauReco/interface/CaloTauDiscriminatorByIsolation.h"
-#include "DataFormats/EgammaCandidates/interface/PixelMatchGsfElectron.h"
-#include "DataFormats/EgammaCandidates/interface/PixelMatchGsfElectronFwd.h"
+#include "DataFormats/EgammaCandidates/interface/GsfElectron.h"
+#include "DataFormats/EgammaCandidates/interface/GsfElectronFwd.h"
 #include "DataFormats/MuonReco/interface/Muon.h"
 #include "DataFormats/JetReco/interface/CaloJet.h"
 
@@ -162,7 +162,7 @@ HLTTauRefInfo::doElectrons(edm::Event& iEvent,const edm::EventSetup& iES)
 {
      auto_ptr<LorentzVectorCollection> product_Electrons(new LorentzVectorCollection);
       //Retrieve the collection
-      edm::Handle<PixelMatchGsfElectronCollection> electrons;
+      edm::Handle<GsfElectronCollection> electrons;
       iEvent.getByLabel(Electrons_,electrons);
 
     

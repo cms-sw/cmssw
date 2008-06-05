@@ -40,7 +40,7 @@ class HLTTauValidation : public edm::EDAnalyzer {
 
   //helper functions
   bool match(const LV&,const LVColl&,double);
-  double* calcEfficiency(int,int);
+  std::vector<double> calcEfficiency(int,int);
   
 
 

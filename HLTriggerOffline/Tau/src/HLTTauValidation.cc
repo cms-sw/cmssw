@@ -441,19 +441,19 @@ HLTTauValidation::match(const LV& jet,const LVColl& McInfo,double dr)
   return matched;
 }
 
-double* 
+std::vector<double>
 HLTTauValidation::calcEfficiency(int num,int denom)
 {
-  double a[2];
+  std::vector<double> a;
   if(denom==0)
     {
-      a[0]=0;
-      a[1]=0;
+      a.push_back(0.);
+      a.push_back(0.);
     }
   else
     {    
-      a[0] = ((double)num)/((double)denom);
-      a[1] = sqrt(a[0]*(1-a[0])/((double)denom));
+      a.push_back(((double)num)/((double)denom));
+      a.push_back(sqrt(a[0]*(1-a[0])/((double)denom)));
     }
   return a;
 }
