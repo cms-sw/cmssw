@@ -11,19 +11,18 @@ class TrackInformation;
  *  Currently done from StackingAction...
  */
 
-class NewTrackAction 
-{
+class NewTrackAction {
+
 public:
-    NewTrackAction(bool saveDPandConv);
-    void primary(const G4Track * aSecondary) const;
-    void primary(G4Track * aSecondary) const;
-    void secondary(const G4Track * aSecondary,const G4Track & mother) const;
-    void secondary(G4Track * aSecondary,const G4Track & mother) const;
+  NewTrackAction();
+  void primary(const G4Track * aSecondary) const;
+  void primary(G4Track * aSecondary) const;
+  void secondary(const G4Track * aSecondary,const G4Track & mother, int) const;
+  void secondary(G4Track * aSecondary,const G4Track & mother, int) const;
 private:
-    void addUserInfoToPrimary(G4Track * aTrack) const;
-    void addUserInfoToSecondary(G4Track * aTrack,
-				const TrackInformation & motherInfo) const;
-    bool savePrimaryDecayProductsAndConversions;
+  void addUserInfoToPrimary(G4Track * aTrack) const;
+  void addUserInfoToSecondary(G4Track * aTrack, 
+			      const TrackInformation & motherInfo, int) const;
 };
 
 #endif
