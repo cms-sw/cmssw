@@ -1,8 +1,8 @@
 /*
  *  See header file for a description of this class.
  *
- *  $Date: 2008/05/30 13:48:59 $
- *  $Revision: 1.20 $
+ *  $Date: 2008/06/05 08:00:50 $
+ *  $Revision: 1.21 $
  *  \author C. Battilana S. Marcellini - INFN Bologna
  */
 
@@ -242,14 +242,19 @@ void DTLocalTriggerTest::endLuminosityBlock(LuminosityBlock const& lumiSeg, Even
 	  cmsME.find(fullName("CorrFractionSummary"))->second->setBinContent(sector,wheel+3,err);
       
 	  vector<dqm::me_util::Channel> badChannels = corrQReport->getBadChannels();
-	  for (vector<dqm::me_util::Channel>::iterator channel = badChannels.begin(); 
-	       channel != badChannels.end(); channel++) {
-	    err = entries>=1 ? 2 : 1; 
-	    whME.find(wheel)->second.find(fullName("CorrFractionSummary"))->second->setBinContent(sector,
-												  (*channel).getBin(),
-												  err);
-
+	  int cherr[4];
+	  for (int i=0;i<4;++i) 
+	    cherr[i] = entries>=1 ? 0 : 1;
+	  if (entries>=1) {
+	      for (vector<dqm::me_util::Channel>::iterator channel = badChannels.begin(); 
+		   channel != badChannels.end(); channel++) {
+		     cherr[(*channel).getBin()-1] = 2 ; 
+		   }
 	  }
+	  for (int i=0;i<4;++i)
+	    whME.find(wheel)->second.find(fullName("CorrFractionSummary"))->second->setBinContent(sector,
+												  i+1,
+												  cherr[i]);
 	}
       }
     }
