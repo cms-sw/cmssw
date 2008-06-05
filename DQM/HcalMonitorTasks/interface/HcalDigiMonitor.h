@@ -8,8 +8,8 @@
 
 /** \class HcalDigiMonitor
   *  
-  * $Date: 2008/05/03 14:56:34 $
-  * $Revision: 1.20 $
+  * $Date: 2008/05/08 17:09:49 $
+  * $Revision: 1.21 $
   * \author W. Fisher - FNAL
   */
 class HcalDigiMonitor: public HcalBaseMonitor {
@@ -18,6 +18,7 @@ public:
   ~HcalDigiMonitor(); 
 
   void setup(const edm::ParameterSet& ps, DQMStore* dbe);
+  void EmptyDigiFill();
 
   void processEvent(const HBHEDigiCollection& hbhe,
 		    const HODigiCollection& ho,
@@ -38,6 +39,7 @@ private:  ///Methods
   int etaBins_, phiBins_;
   bool doPerChannel_;
   int occThresh_;
+  double occMinFraction_;
   HcalCalibrations calibs_;
 
 private:  ///Monitoring elements
@@ -62,6 +64,10 @@ private:  ///Monitoring elements
   MonitorElement* BQDIGI_FRAC;
 
   struct{
+    // Problem cells will be those cells with an error or with low occupancy
+    MonitorElement* PROBLEMDIGICELLS;
+    std::vector<MonitorElement*> PROBLEMDIGICELLS_DEPTH;
+
     MonitorElement* DIGI_NUM;
     MonitorElement* DIGI_SIZE;
     MonitorElement* DIGI_PRESAMPLE;
@@ -90,10 +96,9 @@ private:  ///Monitoring elements
 
     std::vector<MonitorElement*> TS_SUM_P, TS_SUM_M;
 
-    // Turn these histograms off for CRUZET? -- Jeff
-    // or just use flag for perChannel digi?
+
     std::map<HcalDetId, MonitorElement*> SHAPE;
-  } hbHists, heHists, hfHists, hoHists;
+  } hbHists, heHists, hfHists, hoHists, hcalHists;
 
 };
 

@@ -6,6 +6,7 @@
 HcalDigiMonitor::HcalDigiMonitor() {
   doPerChannel_ = false;
   occThresh_ = 1;
+  occMinFraction_=0.;
   ievt_=0;
 }
 
@@ -99,6 +100,7 @@ namespace HcalDigiMap{
       last = thisCapid;
       if(digi.sample(i).er()) err=true;
       if(!digi.sample(i).dv()) err=true;
+      // Occupancy set true if ADC count above pedestal for at least one time slice
       pval = digi.sample(i).adc()-calibs.pedestal(thisCapid);
       vals[i] = pval;
       //      if(pval>occThr) occ=true;
@@ -130,6 +132,9 @@ void HcalDigiMonitor::setup(const edm::ParameterSet& ps,
   phiMin_ = ps.getUntrackedParameter<double>("MinPhi", -0.5);
   phiBins_ = (int)(phiMax_ - phiMin_);
   cout << "Digi phi min/max set to " << phiMin_ << "/" <<phiMax_ << endl;
+
+  // Set minimum fraction of events digi must be present in order not to be marked as "bad"
+  occMinFraction_=ps.getUntrackedParameter<double>("occMinFraction",0.);
 
   ievt_=0;
   
@@ -565,7 +570,125 @@ void HcalDigiMonitor::setup(const edm::ParameterSet& ps,
     hoHists.TS_SUM_M.push_back( m_dbe->book1D("HOM Timeslices 4 and 5", "HOM Timeslices 4 and 5", 50, -5, 45) );
     hoHists.TS_SUM_M.back()->setAxisTitle("Sum of ADC counts", 1);
 
-}
+    // Summary histograms for storing problem info (cells with either a digi error or with low digi occupancy)
+    m_dbe->setCurrentFolder(baseFolder_+"/HCAL");
+    hcalHists.PROBLEMDIGICELLS=m_dbe->book2D("HCALProblemDigiCells", 
+					  "HCAL Bad Digi rate for potentially bad cells", 
+					  etaBins_, etaMin_, etaMax_, 
+					  phiBins_, phiMin_, phiMax_); 
+    std::stringstream histname; 
+    std::stringstream histtitle; 
+
+    for (int d=0;d<4;++d)
+      {
+	m_dbe->setCurrentFolder(baseFolder_+"/HCAL/expertPlots"); 
+	histname.str(""); 
+	histtitle.str(""); 
+	histname<<"HCALProblemDigiCells_depth"<<d+1; 
+	histtitle<<"HCAL Bad Digi rate for potentially bad cells (depth "<<d+1<<")"; 
+	hcalHists.PROBLEMDIGICELLS_DEPTH.push_back(m_dbe->book2D(histname.str().c_str(),histtitle.str().c_str(), 
+								 etaBins_,etaMin_,etaMax_, 
+								 phiBins_,phiMin_,phiMax_)); 
+      }
+
+    //HB 
+    m_dbe->setCurrentFolder(baseFolder_+"/HB");
+    hbHists.PROBLEMDIGICELLS=m_dbe->book2D("HBProblemDigiCells", 
+					  "HB Bad Digi rate for potentially bad cells", 
+					  etaBins_, etaMin_, etaMax_, 
+					  phiBins_, phiMin_, phiMax_); 
+    for (int d=0;d<4;++d)
+      {
+	m_dbe->setCurrentFolder(baseFolder_+"/HB/expertPlots"); 
+	histname.str(""); 
+	histtitle.str(""); 
+	histname<<"HBProblemDigiCells_depth"<<d+1; 
+	histtitle<<"HB Bad Digi rate for potentially bad cells (depth "<<d+1<<")"; 
+	hbHists.PROBLEMDIGICELLS_DEPTH.push_back(m_dbe->book2D(histname.str().c_str(),histtitle.str().c_str(), 
+							       etaBins_,etaMin_,etaMax_, 
+							       phiBins_,phiMin_,phiMax_)); 
+      }
+
+   //HE 
+    m_dbe->setCurrentFolder(baseFolder_+"/HE");
+    heHists.PROBLEMDIGICELLS=m_dbe->book2D("HEProblemDigiCells", 
+					  "HE Bad Digi rate for potentially bad cells", 
+					  etaBins_, etaMin_, etaMax_, 
+					  phiBins_, phiMin_, phiMax_); 
+    for (int d=0;d<4;++d)
+      {
+	m_dbe->setCurrentFolder(baseFolder_+"/HE/expertPlots"); 
+	histname.str(""); 
+	histtitle.str(""); 
+	histname<<"HEProblemDigiCells_depth"<<d+1; 
+	histtitle<<"HE Bad Digi rate for potentially bad cells (depth "<<d+1<<")"; 
+	heHists.PROBLEMDIGICELLS_DEPTH.push_back(m_dbe->book2D(histname.str().c_str(),histtitle.str().c_str(), 
+							       etaBins_,etaMin_,etaMax_, 
+							       phiBins_,phiMin_,phiMax_)); 
+      }
+
+    //HO 
+    m_dbe->setCurrentFolder(baseFolder_+"/HO");
+    hoHists.PROBLEMDIGICELLS=m_dbe->book2D("HOProblemDigiCells", 
+					  "HO Bad Digi rate for potentially bad cells", 
+					  etaBins_, etaMin_, etaMax_, 
+					  phiBins_, phiMin_, phiMax_); 
+    for (int d=0;d<4;++d)
+      {
+	m_dbe->setCurrentFolder(baseFolder_+"/HO/expertPlots"); 
+	histname.str(""); 
+	histtitle.str(""); 
+	histname<<"HOProblemDigiCells_depth"<<d+1; 
+	histtitle<<"HO Bad Digi rate for potentially bad cells (depth "<<d+1<<")"; 
+	hoHists.PROBLEMDIGICELLS_DEPTH.push_back(m_dbe->book2D(histname.str().c_str(),histtitle.str().c_str(), 
+							       etaBins_,etaMin_,etaMax_, 
+							       phiBins_,phiMin_,phiMax_)); 
+      }
+
+   //HF 
+    m_dbe->setCurrentFolder(baseFolder_+"/HF");
+    hfHists.PROBLEMDIGICELLS=m_dbe->book2D("HFProblemDigiCells", 
+					  "HF Bad Digi rate for potentially bad cells", 
+					  etaBins_, etaMin_, etaMax_, 
+					  phiBins_, phiMin_, phiMax_); 
+    for (int d=0;d<4;++d)
+      {
+	m_dbe->setCurrentFolder(baseFolder_+"/HF/expertPlots"); 
+	histname.str(""); 
+	histtitle.str(""); 
+	histname<<"HFProblemDigiCells_depth"<<d+1; 
+	histtitle<<"HF Bad Digi rate for potentially bad cells (depth "<<d+1<<")"; 
+	hfHists.PROBLEMDIGICELLS_DEPTH.push_back(m_dbe->book2D(histname.str().c_str(),histtitle.str().c_str(), 
+							       etaBins_,etaMin_,etaMax_, 
+							       phiBins_,phiMin_,phiMax_)); 
+      }
+
+    hcalHists.PROBLEMDIGICELLS -> setAxisTitle("ieta",1);  
+    hcalHists.PROBLEMDIGICELLS -> setAxisTitle("iphi",2);
+    hbHists.PROBLEMDIGICELLS -> setAxisTitle("ieta",1);  
+    hbHists.PROBLEMDIGICELLS -> setAxisTitle("iphi",2);
+    heHists.PROBLEMDIGICELLS -> setAxisTitle("ieta",1);  
+    heHists.PROBLEMDIGICELLS -> setAxisTitle("iphi",2);
+    hoHists.PROBLEMDIGICELLS -> setAxisTitle("ieta",1);  
+    hoHists.PROBLEMDIGICELLS -> setAxisTitle("iphi",2);
+    hfHists.PROBLEMDIGICELLS -> setAxisTitle("ieta",1);  
+    hfHists.PROBLEMDIGICELLS -> setAxisTitle("iphi",2);
+    
+    for (int d=0;d<4;++d)
+      {
+	hcalHists.PROBLEMDIGICELLS_DEPTH[d] -> setAxisTitle("ieta",1);  
+	hcalHists.PROBLEMDIGICELLS_DEPTH[d] -> setAxisTitle("iphi",2);
+	hbHists.PROBLEMDIGICELLS_DEPTH[d] -> setAxisTitle("ieta",1);  
+	hbHists.PROBLEMDIGICELLS_DEPTH[d] -> setAxisTitle("iphi",2);
+	heHists.PROBLEMDIGICELLS_DEPTH[d] -> setAxisTitle("ieta",1);  
+	heHists.PROBLEMDIGICELLS_DEPTH[d] -> setAxisTitle("iphi",2);
+	hoHists.PROBLEMDIGICELLS_DEPTH[d] -> setAxisTitle("ieta",1);  
+	hoHists.PROBLEMDIGICELLS_DEPTH[d] -> setAxisTitle("iphi",2);
+	hfHists.PROBLEMDIGICELLS_DEPTH[d] -> setAxisTitle("ieta",1);  
+	hfHists.PROBLEMDIGICELLS_DEPTH[d] -> setAxisTitle("iphi",2);
+      }
+
+  }// if (m_dbe)
 
   return;
 }
@@ -574,7 +697,8 @@ void HcalDigiMonitor::processEvent(const HBHEDigiCollection& hbhe,
 				   const HODigiCollection& ho,
 				   const HFDigiCollection& hf,
 				   const HcalDbService& cond,
-				   const HcalUnpackerReport& report){
+				   const HcalUnpackerReport& report)
+{
   
   if(!m_dbe) { 
     if(fVerbosity) printf("HcalDigiMonitor::processEvent   DQMStore not instantiated!!!\n");  
@@ -583,6 +707,8 @@ void HcalDigiMonitor::processEvent(const HBHEDigiCollection& hbhe,
   
   ievt_++;
   meEVT_->Fill(ievt_);
+
+  EmptyDigiFill(); // fill all cells as being empty; "unfill" for all digis that are found
 
   int nbqdigi_report = report.badQualityDigis();
   if (nbqdigi_report != 0)BQDIGI_NUM->Fill(nbqdigi_report);
@@ -597,14 +723,30 @@ void HcalDigiMonitor::processEvent(const HBHEDigiCollection& hbhe,
     int firsthbcap = -1; int firsthecap = -1;
     for (HBHEDigiCollection::const_iterator j=hbhe.begin(); j!=hbhe.end(); j++){
       const HBHEDataFrame digi = (const HBHEDataFrame)(*j);
+      
+
+      
       calibs_= cond.getHcalCalibrations(digi.id());  // Old method was made private. 
 
       HcalDigiMap::digiStats(digi, calibs_, occThresh_, normVals, digiErr, digiOcc, digiUpset);      
       if((HcalSubdetector)(digi.id().subdet())==HcalBarrel){	
 	nhbdigi++;  ndigi++;
-	
+	// Digi found; "unfill it" so that it doesn't appear empty:
+	if (digiOcc) // require digi to have a value (don't know if this is the best way to proceed?)
+	  {
+	    hbHists.PROBLEMDIGICELLS->Fill(digi.id().ieta(),digi.id().iphi(),-1);
+	    hbHists.PROBLEMDIGICELLS_DEPTH[digi.id().depth()-1]->Fill(digi.id().ieta(),digi.id().iphi(),-1);
+	    hcalHists.PROBLEMDIGICELLS->Fill(digi.id().ieta(),digi.id().iphi(),-1);
+	    hcalHists.PROBLEMDIGICELLS_DEPTH[digi.id().depth()-1]->Fill(digi.id().ieta(),digi.id().iphi(),-1);
+	  }
 	if(digiErr){
 	  nhbbqdigi++; nbqdigi++;
+
+	  hbHists.PROBLEMDIGICELLS->Fill(digi.id().ieta(),digi.id().iphi());
+	  hbHists.PROBLEMDIGICELLS_DEPTH[digi.id().depth()-1]->Fill(digi.id().ieta(),digi.id().iphi());
+	  hcalHists.PROBLEMDIGICELLS->Fill(digi.id().ieta(),digi.id().iphi());
+	  hcalHists.PROBLEMDIGICELLS_DEPTH[digi.id().depth()-1]->Fill(digi.id().ieta(),digi.id().iphi());
+
 	  HcalDigiMap::fillErrors<HBHEDataFrame>(digi,normVals,
 						 hbHists.ERR_MAP_GEO,hbHists.ERR_MAP_VME,
 						 hbHists.ERR_MAP_DCC);	  
@@ -678,9 +820,21 @@ void HcalDigiMonitor::processEvent(const HBHEDigiCollection& hbhe,
       }
       else if((HcalSubdetector)(digi.id().subdet())==HcalEndcap){	
 	nhedigi++;  ndigi++;
+	   // Digi found; "unfill it" so that it doesn't appear empty:
+	if (digiOcc)
+	  {
+	    heHists.PROBLEMDIGICELLS->Fill(digi.id().ieta(),digi.id().iphi(),-1);
+	    heHists.PROBLEMDIGICELLS_DEPTH[digi.id().depth()-1]->Fill(digi.id().ieta(),digi.id().iphi(),-1);
+	    hcalHists.PROBLEMDIGICELLS->Fill(digi.id().ieta(),digi.id().iphi(),-1);
+	    hcalHists.PROBLEMDIGICELLS_DEPTH[digi.id().depth()-1]->Fill(digi.id().ieta(),digi.id().iphi(),-1);
+	  }
 
 	if(digiErr){
 	  nhebqdigi++; nbqdigi++;
+	  heHists.PROBLEMDIGICELLS->Fill(digi.id().ieta(),digi.id().iphi());
+	  heHists.PROBLEMDIGICELLS_DEPTH[digi.id().depth()-1]->Fill(digi.id().ieta(),digi.id().iphi());
+	  hcalHists.PROBLEMDIGICELLS->Fill(digi.id().ieta(),digi.id().iphi());
+	  hcalHists.PROBLEMDIGICELLS_DEPTH[digi.id().depth()-1]->Fill(digi.id().ieta(),digi.id().iphi());
 	  HcalDigiMap::fillErrors<HBHEDataFrame>(digi,normVals,
 						 heHists.ERR_MAP_GEO,heHists.ERR_MAP_VME,
 						 heHists.ERR_MAP_DCC);	  
@@ -775,8 +929,22 @@ void HcalDigiMonitor::processEvent(const HBHEDigiCollection& hbhe,
     for (HODigiCollection::const_iterator j=ho.begin(); j!=ho.end(); j++){
       const HODataFrame digi = (const HODataFrame)(*j);	
       HcalDigiMap::digiStats(digi, calibs_, occThresh_, normVals, digiErr, digiOcc, digiUpset);      
-	
+
+      // Digi found; "unfill it" so that it doesn't appear empty:
+
+      if (digiOcc)
+	{
+	  hoHists.PROBLEMDIGICELLS->Fill(digi.id().ieta(),digi.id().iphi(),-1);
+	  hoHists.PROBLEMDIGICELLS_DEPTH[digi.id().depth()-1]->Fill(digi.id().ieta(),digi.id().iphi(),-1);
+	  hcalHists.PROBLEMDIGICELLS->Fill(digi.id().ieta(),digi.id().iphi(),-1);
+	  hcalHists.PROBLEMDIGICELLS_DEPTH[digi.id().depth()-1]->Fill(digi.id().ieta(),digi.id().iphi(),-1);
+	}
       if(digiErr){
+	hoHists.PROBLEMDIGICELLS->Fill(digi.id().ieta(),digi.id().iphi());
+	hoHists.PROBLEMDIGICELLS_DEPTH[digi.id().depth()-1]->Fill(digi.id().ieta(),digi.id().iphi());
+	hcalHists.PROBLEMDIGICELLS->Fill(digi.id().ieta(),digi.id().iphi());
+	hcalHists.PROBLEMDIGICELLS_DEPTH[digi.id().depth()-1]->Fill(digi.id().ieta(),digi.id().iphi());
+
 	nhobqdigi++; nbqdigi++;
 	HcalDigiMap::fillErrors<HODataFrame>(digi,normVals,
 					       hoHists.ERR_MAP_GEO,hoHists.ERR_MAP_VME,
@@ -865,9 +1033,22 @@ void HcalDigiMonitor::processEvent(const HBHEDigiCollection& hbhe,
     //    hfHists.DIGI_NUM->Fill(hf.size());
     for (HFDigiCollection::const_iterator j=hf.begin(); j!=hf.end(); j++){
       const HFDataFrame digi = (const HFDataFrame)(*j);	
+      // Digi found; "unfill it" so that it doesn't appear empty:
+      if (digiOcc)
+	{
+	  hfHists.PROBLEMDIGICELLS->Fill(digi.id().ieta(),digi.id().iphi(),-1);
+	  hfHists.PROBLEMDIGICELLS_DEPTH[digi.id().depth()-1]->Fill(digi.id().ieta(),digi.id().iphi(),-1);
+	  hcalHists.PROBLEMDIGICELLS->Fill(digi.id().ieta(),digi.id().iphi(),-1);
+	  hcalHists.PROBLEMDIGICELLS_DEPTH[digi.id().depth()-1]->Fill(digi.id().ieta(),digi.id().iphi(),-1);
+	}
+
       HcalDigiMap::digiStats(digi, calibs_, occThresh_, normVals, digiErr, digiOcc, digiUpset);      
 	
       if(digiErr){
+	hfHists.PROBLEMDIGICELLS->Fill(digi.id().ieta(),digi.id().iphi());
+	hfHists.PROBLEMDIGICELLS_DEPTH[digi.id().depth()-1]->Fill(digi.id().ieta(),digi.id().iphi());
+	hcalHists.PROBLEMDIGICELLS->Fill(digi.id().ieta(),digi.id().iphi());
+	hcalHists.PROBLEMDIGICELLS_DEPTH[digi.id().depth()-1]->Fill(digi.id().ieta(),digi.id().iphi());
 	nhfbqdigi++;  nbqdigi++;
 	HcalDigiMap::fillErrors<HFDataFrame>(digi,normVals,
 					       hfHists.ERR_MAP_GEO,hfHists.ERR_MAP_VME,
@@ -965,4 +1146,131 @@ void HcalDigiMonitor::processEvent(const HBHEDigiCollection& hbhe,
     BQDIGI_FRAC->Fill(bqfrac);
   }
   return;
-}
+} // void HcalDigiMonitor::processEvent(const HBHEDigiCollection& hbhe,...)
+
+void HcalDigiMonitor::EmptyDigiFill()
+{
+  int eta, phi;
+
+  // Fill all digi values with 1 every event
+  // Digis that are found will then fill a -1, cancelling this out
+  // (so that histogram should be filled with 0's if all digis are in every eent)
+
+  // In the case of no digis seen, this will
+  for (int ieta=1;ieta<=etaBins_;++ieta)
+    {
+      for (int iphi=1; iphi<=phiBins_;++iphi)
+	{
+	  eta=ieta+int(etaMin_)-1;
+	  phi=iphi+int(phiMin_)-1;
+
+	  // ignore unphysical values
+	  if (phi==0) continue; 
+	  if (phi>72) continue;
+	  if (eta==0) continue; 
+	  if (abs(eta)>41) continue;
+
+	  // HB first
+	  if (abs(eta)<17)
+	    {
+	      hbHists.PROBLEMDIGICELLS->Fill(eta,phi,1);
+	      hbHists.PROBLEMDIGICELLS_DEPTH[0]->Fill(eta,phi,1);
+	      hcalHists.PROBLEMDIGICELLS->Fill(eta,phi,1);
+	      hcalHists.PROBLEMDIGICELLS_DEPTH[0]->Fill(eta,phi,1);
+	    
+	  
+	      if (abs(eta)>14) // last two rows of HB have two depths
+		{
+		  hbHists.PROBLEMDIGICELLS->Fill(eta,phi,1);
+		  hbHists.PROBLEMDIGICELLS_DEPTH[1]->Fill(eta,phi,1);
+		  hcalHists.PROBLEMDIGICELLS->Fill(eta,phi,1);
+		  hcalHists.PROBLEMDIGICELLS_DEPTH[1]->Fill(eta,phi,1);
+		}
+	    } // if (abs(eta)<17)  // HB Block
+
+	  // HO loop -- depth = 4
+	  if (abs(eta)<16)
+	    {
+	      hoHists.PROBLEMDIGICELLS->Fill(eta,phi,1);
+	      hoHists.PROBLEMDIGICELLS_DEPTH[3]->Fill(eta,phi,1);
+	      hcalHists.PROBLEMDIGICELLS->Fill(eta,phi,1);
+	      hcalHists.PROBLEMDIGICELLS_DEPTH[3]->Fill(eta,phi,1);
+	    } // if (abs(eta)<16)
+	  
+	  // HE loop (careful; phi values are odd only for eta>20)
+
+	  if (abs(eta)==16) // at eta=16, HE depth=3
+	    {
+	      heHists.PROBLEMDIGICELLS->Fill(eta,phi,1);
+	      heHists.PROBLEMDIGICELLS_DEPTH[2]->Fill(eta,phi,1);
+	      hcalHists.PROBLEMDIGICELLS->Fill(eta,phi,1);
+	      hcalHists.PROBLEMDIGICELLS_DEPTH[2]->Fill(eta,phi,1);
+	    }
+
+	  if (abs(eta)>16 && abs(eta)<30) // HE has depth = 1-2 for eta=18-29; 27-28 also depth=3
+	    // This differs from documentation, which claimed that depth=3 for eta=28-29
+	    {
+	      if (abs(eta)<21 ||(abs(eta)>20 && (phi%2)==1)) // decreased phi segementation above eta=20
+		{
+		  heHists.PROBLEMDIGICELLS->Fill(eta,phi,1);
+		  heHists.PROBLEMDIGICELLS_DEPTH[0]->Fill(eta,phi,1);
+		  hcalHists.PROBLEMDIGICELLS->Fill(eta,phi,1);
+		  hcalHists.PROBLEMDIGICELLS_DEPTH[0]->Fill(eta,phi,1);
+		}  
+	      if (abs(eta)>17) // only one layer for HE in eta=17 -- skip it when filling depth=2
+		{
+		  if (abs(eta)>20 && (phi%2)==0)
+		    continue;
+		  heHists.PROBLEMDIGICELLS->Fill(eta,phi,1);
+		  heHists.PROBLEMDIGICELLS_DEPTH[1]->Fill(eta,phi,1);
+		  hcalHists.PROBLEMDIGICELLS->Fill(eta,phi,1);
+		  hcalHists.PROBLEMDIGICELLS_DEPTH[1]->Fill(eta,phi,1);
+		}
+
+	      if (abs(eta)>26 && abs(eta)<29 && (phi%2)==1) // depth 3
+		{
+		  heHists.PROBLEMDIGICELLS->Fill(eta,phi,1);
+		  heHists.PROBLEMDIGICELLS_DEPTH[2]->Fill(eta,phi,1);
+		  hcalHists.PROBLEMDIGICELLS->Fill(eta,phi,1);
+		  hcalHists.PROBLEMDIGICELLS_DEPTH[2]->Fill(eta,phi,1);
+		} // if (abs(eta)>26 && abs(eta)<29 ...)
+	    } //  if (abs(eta)>15 && abs(eta)<30) // ends HE loop
+	  
+
+
+	  // HF Loop
+	  if (abs(eta)>28 && abs(eta)<40 && (phi%2)==1)
+	    {
+	      //depth1
+	      hfHists.PROBLEMDIGICELLS->Fill(eta,phi,1);
+	      hfHists.PROBLEMDIGICELLS_DEPTH[0]->Fill(eta,phi,1);
+	      hcalHists.PROBLEMDIGICELLS->Fill(eta,phi,1);
+	      hcalHists.PROBLEMDIGICELLS_DEPTH[0]->Fill(eta,phi,1);
+
+	      //depth2
+	      hfHists.PROBLEMDIGICELLS->Fill(eta,phi,1);
+	      hfHists.PROBLEMDIGICELLS_DEPTH[1]->Fill(eta,phi,1);
+	      hcalHists.PROBLEMDIGICELLS->Fill(eta,phi,1);
+	      hcalHists.PROBLEMDIGICELLS_DEPTH[1]->Fill(eta,phi,1);
+
+	    }
+	  else if (abs(eta)>39 && (phi%4)==3)
+	    {
+	      //depth1
+	      hfHists.PROBLEMDIGICELLS->Fill(eta,phi,1);
+	      hfHists.PROBLEMDIGICELLS_DEPTH[0]->Fill(eta,phi,1);
+	      hcalHists.PROBLEMDIGICELLS->Fill(eta,phi,1);
+	      hcalHists.PROBLEMDIGICELLS_DEPTH[0]->Fill(eta,phi,1);
+	      
+	      //depth2
+	      hfHists.PROBLEMDIGICELLS->Fill(eta,phi,1);
+	      hfHists.PROBLEMDIGICELLS_DEPTH[1]->Fill(eta,phi,1);
+	      hcalHists.PROBLEMDIGICELLS->Fill(eta,phi,1);
+	      hcalHists.PROBLEMDIGICELLS_DEPTH[1]->Fill(eta,phi,1);
+
+	    } // end HF loop
+
+	} //for (int iphi=1; ...)
+    } // for (int ieta=1; ...)
+} // void HcalDigiMonitor::done()
+
