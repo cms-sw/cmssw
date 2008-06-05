@@ -19,7 +19,8 @@ namespace helper
     selStripClusters_( new edmNew::DetSetVector<SiStripCluster> ),
     selPixelClusters_( new edmNew::DetSetVector<SiPixelCluster> ),
     rTracks_(), rTrackExtras_(), rHits_(), rStripClusters_(), rPixelClusters_(),
-    idx_(0), hidx_(0), scidx_(), pcidx_()
+    idx_(0), hidx_(0), scidx_(), pcidx_(),
+    cloneClusters_ (true)
   {
   }
   
@@ -44,8 +45,17 @@ namespace helper
       selHits_->push_back( (*hit)->clone() );
       TrackingRecHit * newHit = & (selHits_->back());
       tx.add( TrackingRecHitRef( rHits_, hidx_ ++ ) );
+
+      //--- Skip the rest for this hit if we don't want to clone the cluster.
+      //--- The copy constructer in the rec hit will copy the link properly.
+      //    FIXME: check whether this is true.
       //
-      //--- New: copy strip or pixel cluster.  This is a bit tricky since
+      if (cloneClusters() == false)
+	continue;       // go to the next hit on the track
+
+     
+
+      //--- Copy strip or pixel cluster.  This is a bit tricky since
       //--- the TrackingRecHit could be either a SiStripRecHit of some kind
       //--- or the SiPixelRecHit.
       
@@ -131,13 +141,12 @@ namespace helper
 	  << "SiStripMatchedRecHit2D nor ProjectedSiStripRecHit2D.";
 	// &&& throw an exception?
 	return;
-      }
-    
-      //--- What needs to be done is to retrieve clusters from the 
-      //--- TrackingRecHit.
-      std::cout << hidx_ << " " << scidx_ << " " << pcidx_ << std::endl;
 
-    } // end of for loop
+      } // end of if (PixelBarrel || PixelEndcap) (namely pixel hit) -- else strip hit
+
+
+
+    } // end of for loop over tracking rec hits on this track
   }
   
 

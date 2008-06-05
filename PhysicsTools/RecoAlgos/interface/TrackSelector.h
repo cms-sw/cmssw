@@ -7,9 +7,9 @@
  * 
  * \author Luca Lista, INFN
  *         Reorganized by Petar Maksimovic, JHU
- * \version $Revision: 1.19 $
+ * \version $Revision: 1.20 $
  *
- * $Id: TrackSelector.h,v 1.19 2007/09/20 18:48:28 llista Exp $
+ * $Id: TrackSelector.h,v 1.20 2008/06/05 16:54:03 petar Exp $
  *
  */
 #include "DataFormats/TrackReco/interface/Track.h"
@@ -37,6 +37,15 @@ namespace helper {
     typedef reco::TrackCollection collection;
 
     TrackCollectionStoreManager(const edm::Handle<reco::TrackCollection> & );
+
+    //------------------------------------------------------------------
+    //!  Use these to turn off/on the cloning of clusters.  The default
+    //!  is to clone them.  To not clone (and save space in a quick local
+    //!  job, do:  
+    //!              setCloneClusters(false);
+    //------------------------------------------------------------------
+    inline bool cloneClusters() {return cloneClusters_ ; } 
+    inline void setCloneClusters(bool w) { cloneClusters_ = w; }
 
     //------------------------------------------------------------------
     //!  Put tracks, track extras and hits+clusters into the event.
@@ -110,6 +119,9 @@ namespace helper {
     size_t hidx_  ;      //!<  index to tracking rec hits
     size_t scidx_ ;      //!<  index to strip cluster coll
     size_t pcidx_ ;      //!<  index to pixel cluster coll
+
+    //--- Switches 
+    bool   cloneClusters_ ;  //!< Clone clusters, or not?  Default: true.
   };
   // (end of struct TrackCollectionStoreManager)
 
