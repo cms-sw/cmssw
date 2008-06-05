@@ -5,6 +5,7 @@
 
 #include "G4UserStackingAction.hh"
 #include "G4Track.hh"
+#include "G4VPhysicalVolume.hh"
 
 class StackingAction : public G4UserStackingAction {
 
@@ -15,8 +16,14 @@ public:
   virtual void NewStage();
   virtual void PrepareNewEvent();
 private:
-  bool   savePrimaryDecayProductsAndConversions;
-  bool   killHeavy, trackNeutrino;
+  void   initPointer();
+  bool   isThisVolume(const G4VTouchable*, G4VPhysicalVolume* ) const;
+  int    isItPrimaryDecayProductOrConversion(const G4Track*, const G4Track &) const;
+  int    isItFromPrimary(const G4Track &, int) const;
+private:
+  G4VPhysicalVolume *tracker, *calo, *muon;
+  bool   savePDandCinTracker, savePDandCinCalo, savePDandCinMuon;
+  bool   killHeavy, trackNeutrino, saveFirstSecondary;
   double kmaxIon, kmaxNeutron, kmaxProton;
 };
 

@@ -110,8 +110,8 @@ g4SimHits = cms.EDProducer("OscarProducer",
         UseHF = cms.untracked.bool(True),
         UseLayerWt = cms.untracked.bool(False),
         UseShowerLibrary = cms.bool(True),
-        BirkC1 = cms.double(0.013),
-        BirkC2 = cms.double(0.0568),
+        BirkC1 = cms.double(0.0052),
+        BirkC2 = cms.double(0.142),
         BirkC3 = cms.double(1.75),
         UseBirkLaw = cms.bool(True)
     ),
@@ -179,7 +179,7 @@ g4SimHits = cms.EDProducer("OscarProducer",
         Verbosity = cms.untracked.int32(2)
     ),
     Physics = cms.PSet(
-        type = cms.string('SimG4Core/Physics/QGSP_BERT_EMV'),
+        type = cms.string('SimG4Core/Physics/QGSP_BERT'),
         G4BremsstrahlungThreshold = cms.double(0.5), ## cut in GeV
         DefaultCutValue = cms.double(1.0), ## cuts in cm
         Verbosity = cms.untracked.int32(0),
@@ -198,15 +198,18 @@ g4SimHits = cms.EDProducer("OscarProducer",
            GflashEMShowerModel = cms.bool(False),
            GflashHadronShowerModel = cms.bool(False),
            GflashHistogram = cms.bool(False),
-           GflashHadronPhysics = cms.string('QGSP')
+           GflashHadronPhysics = cms.string('QGSP_BERT')
        )
     ),
     G4Commands = cms.vstring(),
     StackingAction = cms.PSet(
         common_heavy_suppression,
         TrackNeutrino = cms.bool(False),
-        KillHeavy = cms.bool(False),
-        SavePrimaryDecayProductsAndConversions = cms.untracked.bool(True)
+        KillHeavy     = cms.bool(False),
+        SavePrimaryDecayProductsAndConversionsInTracker = cms.untracked.bool(True),
+	SavePrimaryDecayProductsAndConversionsInCalo = cms.untracked.bool(False),
+	SavePrimaryDecayProductsAndConversionsInMuon = cms.untracked.bool(False),
+	SaveFirstLevelSecondary = cms.untracked.bool(False)
     ),
     CastorSD = cms.PSet(
         Verbosity = cms.untracked.int32(0)
