@@ -2,8 +2,8 @@
 /*
  * \file DTDataIntegrityTest.cc
  * 
- * $Date: 2008/06/04 16:18:48 $
- * $Revision: 1.19 $
+ * $Date: 2008/06/04 16:25:49 $
+ * $Revision: 1.20 $
  * \author S. Bolognesi - CERN
  *
  */
@@ -264,7 +264,7 @@ void DTDataIntegrityTest::endLuminosityBlock(LuminosityBlock const& lumiSeg, Eve
        TH2F * histo_FEDSummary = FED_ROSSummary->getTH2F();
        for(int rosNumber = 1; rosNumber <= 12; ++rosNumber) { // loop on the ROS
 	 int result = -2;
-	 if(histo_FEDSummary->Integral(1,11,1,12) == 0) { // no errors
+	 if(histo_FEDSummary->Integral(1,11,rosNumber,rosNumber) == 0) { // no errors
 	   result = 0;
 	 } else { // there are errors
 	   result = 2;
