@@ -1,5 +1,5 @@
 //
-// $Id: PATPhotonCleaner.h,v 1.3.2.1 2008/06/03 20:14:49 gpetrucc Exp $
+// $Id: PATPhotonCleaner.h,v 1.4 2008/06/03 22:37:04 gpetrucc Exp $
 //
 
 #ifndef PhysicsTools_PatAlgos_PATPhotonCleaner_h
@@ -13,7 +13,7 @@
    a collection of objects of PhotonType.
 
   \author   Steven Lowette, Jeremy Andrea
-  \version  $Id: PATPhotonCleaner.h,v 1.3.2.1 2008/06/03 20:14:49 gpetrucc Exp $
+  \version  $Id: PATPhotonCleaner.h,v 1.4 2008/06/03 22:37:04 gpetrucc Exp $
 */
 
 #include "FWCore/Framework/interface/EDProducer.h"
@@ -41,6 +41,7 @@ namespace pat {
       ~PATPhotonCleaner();
 
       virtual void produce(edm::Event & iEvent, const edm::EventSetup & iSetup);
+      virtual void endJob();
 
     private:
       // configurables
@@ -188,4 +189,16 @@ void pat::PATPhotonCleaner<PhotonIn,PhotonOut>::removeDuplicates() {
     }
 }
 
+
+template<typename PhotonIn, typename PhotonOut>
+void pat::PATPhotonCleaner<PhotonIn,PhotonOut>::endJob() {
+    edm::LogVerbatim("PATLayer0Summary|PATPhotonCleaner") << "PATPhotonCleaner end job. \n" <<
+            "Input tag was " << photonSrc_.encode() <<
+            "\nIsolation information:\n" <<
+            isolator_.printSummary() <<
+            "\nCleaner summary information:\n" <<
+            helper_.printSummary();
+    helper_.endJob(); 
+
+}
 #endif
