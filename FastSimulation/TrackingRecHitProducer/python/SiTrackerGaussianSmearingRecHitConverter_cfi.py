@@ -111,7 +111,7 @@ siTrackerGaussianSmearingRecHits = cms.EDFilter("SiTrackerGaussianSmearingRecHit
     TID3y = cms.double(3.4352), ## 11.9/sqrt(12.)
 
     TID3x = cms.double(0.00391),
-    BetaBarrelMultiplicityNew = cms.int32(6),
+    BetaBarrelMultiplicityNew = cms.int32(7),
     BetaBarrel_BinMin = cms.double(0.0),
     HitFindingProbability_TEC1 = cms.double(1.0),
     HitFindingProbability_TEC2 = cms.double(1.0),
