@@ -9,13 +9,15 @@ Usage: ./TestReproDIGI.py [options]
 Options:
   -c ..., --candle=... specify a wanted candle (via .cfi)
   -n ...               specify the wanted number of events to run the test on
-  -s ..., --skip=...   specify the number of events to skip when running the 2nd time 
+  -s ..., --skip=...   specify the number of events to skip when running the 2nd time
+  --step=...           specify the step to test for reproducibility
   -h, --help           show this help
   -d                   show debugging information while parsing
 
 Examples:
-  TestReproDIGI.py                  Defaults to TTbar.cfi
-  TestReproDIGI.py -c MinBias.cfi
+  TestSimDigiRepro.py                  Defaults to TTbar.cfi
+  TestSimDigiRepro.py -c MinBias.cfi
+  TestSimDigiRepro.py --step=DIGI
 
 Note:
   This script relies on code in the following packages:
@@ -75,7 +77,8 @@ def RestoreSkipEventSetting(myRestoreFragment,mySkipEvents):
     return NewFragmentFilename
 
 def MakeCfg(myCfgFile,myOldRootFile,myNewRootFile):
-    NewCfgFileName=myCfgFile.split(".")[0]+myNewRootFile.split("_")[0]+myNewRootFile.split("_")[3].split(".")[0]+"."+myCfgFile.split(".")[1]
+    
+    NewCfgFileName=myCfgFile.split(".")[0]+myNewRootFile.split("_")[0]+myNewRootFile.split("_")[1]+myNewRootFile.split("_")[2]+"."+myCfgFile.split(".")[1]
     NewCfgFile=open(NewCfgFileName,"w")
     NewCfgFileContent=""
     for line in open(myCfgFile,"r").readlines():
@@ -90,7 +93,7 @@ def CompareDumps(myDumpType,myCandle,mySkipEvents):
     myRestoredSeedsFile=myDumpType+myCandle.split(".")[0]+"RestoredSeeds.log"
     Event=0
     FirstGoodEvent=0
-    Different=True
+    Different=False
     lineSavedSeeds=iter(open(mySavedSeedsFile,"r"))
     lineRestoredSeeds=iter(open(myRestoredSeedsFile,"r"))
     FirstGoodEvent=str(int(mySkipEvents)+1)
@@ -117,20 +120,56 @@ def CompareDumps(myDumpType,myCandle,mySkipEvents):
             print "The following two lines are different in the two files above:"
             print "< %s" % l1
             print "> %s" % l2
-        else:
-            Different=False
-    if not Different:
+    if Different==False:
         print "The content dumped in %s and %s is identical" % (mySavedSeedsFile,myRestoredSeedsFile)
-    
+def ExecuteStartingCommand(myStep,candle,numEvents):
+    myFile=candle.split('.')[0]+"_"+StartingSteps[myStep]
+    myCommand="cmsDriver.py "+candle+" -n "+numEvents+" -s "+StartingSteps[myStep]+" --customise="+CustomiseFiles[StartingSteps[myStep]]+" --fileout="+myFile+".root>& "+myFile+".log"
+    print "Executing starting command:\n%s" % myCommand
+    ExitCode=os.system(myCommand)
+    if ExitCode != 0:
+        print "Exit code for %s was %s" % (myCommand, ExitCode)
+        ExitCode=0
+    return(myFile)
+
+def TestRepro(myStep,myInputFile,candle,numEvents,skipEvents):
+    #First round saving seeds:
+    mySavedSeedsFile=candle.split('.')[0]+"_"+myStep+"_SavedSeeds"
+    mySaveSeedsCommand="cmsDriver.py "+candle+" -n "+numEvents+" -s "+myStep+" --customise=Configuration/PyReleaseValidation/"+CustomiseFiles[myStep][0]+" --filein file:"+myInputFile+".root --fileout="+mySavedSeedsFile+".root >& "+mySavedSeedsFile+".log"
+    print "Executing %s step, saving random seeds with command:\n%s" % (myStep,mySaveSeedsCommand)
+    ExitCode=os.system(mySaveSeedsCommand)
+    if ExitCode != 0:
+        print "Exit code for %s was %s" % (mySaveSeedsCommand, ExitCode)
+        ExitCode=0
+    #Second round restoring seeds:
+    #For SaveRandomSeeds.py it's OK to use the version in the release
+    #but for RestoreRandomSeeds.py we want to access the number of events to skip
+    #Get the RestoreRandomSeeds.py locally (it could be done without copying the file locally, just using the path...)
+    RestorePy=CustomiseFiles[myStep][1]
+    GetFile(RestorePy,"/src/Configuration/PyReleaseValidation/python/")
+
+    #Edit the fragment to start from the wanted event:
+    NewRestorePy=RestoreSkipEventSetting(RestorePy,skipEvents)
+
+    #Run the step restoring seeds
+    myRestoredSeedsFile=candle.split('.')[0]+"_"+myStep+"_RestoredSeeds_Skip"+str(skipEvents)+"Evts"
+    myRestoreSeedsCommand="cmsDriver.py "+candle+" -n "+numEvents+" -s "+myStep+" --customise="+NewRestorePy+" --filein file:"+mySavedSeedsFile+".root --fileout="+myRestoredSeedsFile+".root >& "+myRestoredSeedsFile+".log"
+    print "Executing %s step, restoring random seeds with command:\n%s" % (myStep,myRestoreSeedsCommand)
+    ExitCode=os.system(myRestoreSeedsCommand)
+    if ExitCode != 0:
+        print "Exit code for %s was %s" % (myRestoreSeedsCommand, ExitCode)
+        ExitCode=0
+    return(mySavedSeedsFile,myRestoredSeedsFile)
+
 def main(argv):
     #Let's define some defaults:
     candle = "TTbar.cfi"
     numEvents = 10
     skipEvents = 3
-
+    step="SIM"
     #Let's check the command line arguments
     try:                                
-        opts, args = getopt.getopt(argv, "c:n:s:hd", ["candle=","skip=","help"])
+        opts, args = getopt.getopt(argv, "c:n:s:hd", ["candle=","skip=","step=","help"])
     except getopt.GetoptError:
         print "This argument option is not accepted"
         usage()                          
@@ -154,6 +193,9 @@ def main(argv):
                 print "You chose a number of events to skip larger or equal than the number of events!"
                 sys.exit()
             print "You chose to run the test skipping %s events the second time" % skipEvents
+        elif opt == "--step":
+            step = arg
+            print "You chose to run the test on %s step" % step
     #Case with no arguments (using defaults)
     if opts == []:
         print "No arguments given, so DEFAULT test will be run:"
@@ -162,44 +204,10 @@ def main(argv):
         print "Number of Events to skip on the second run: %s" % skipEvents
 
     #Let's do the tests!
-    
-    #First we need to generate the events:
-    GENFile=candle.split('.')[0]+"_GEN"
-    GENCommand="cmsDriver.py "+candle+" -n "+numEvents+" -s GEN --customise=Configuration/PyReleaseValidation/Simulation.py --fileout="+GENFile+".root>& "+GENFile+".log"
-    print "Executing %s" % GENCommand
-    ExitCode=os.system(GENCommand)
-    if ExitCode != 0:
-        print "Exit code for %s was %s" % (GENCommand, ExitCode)
-        ExitCode=0
-        
-    #For SaveRandomSeeds.py it's OK to use the version in the release
-    #but for RestoreRandomSeeds.py we want to access the number of events to skip
-    
-    #First round SIM+DIGI saving seeds:
-    SIMDIGISavedSeedsFile=candle.split('.')[0]+"_SIM_DIGI_SavedSeeds"
-    SIMDIGISaveSeedsCommand="cmsDriver.py "+candle+" -n "+numEvents+" -s SIM --customise=Configuration/PyReleaseValidation/SaveRandomSeeds.py --filein file:"+GENFile+".root --fileout="+SIMDIGISavedSeedsFile+".root >& "+SIMDIGISavedSeedsFile+".log"
-    print "Executing %s" % SIMDIGISaveSeedsCommand
-    ExitCode=os.system(SIMDIGISaveSeedsCommand)
-    if ExitCode != 0:
-        print "Exit code for %s was %s" % (SIMDIGISaveSeedsCommand, ExitCode)
-        ExitCode=0
-        
-    #Second round SIM+DIGI restoring seeds:
-    #Get the RestoreRandomSeeds.py locally (it could be done without copying the file locally, just use the link...)
-    RestorePy="RestoreRandomSeeds.py"
-    GetFile(RestorePy,"/src/Configuration/PyReleaseValidation/python/")
-
-    #Edit the fragment to start from the wanted event:
-    NewRestorePy=RestoreSkipEventSetting(RestorePy,skipEvents)
-
-    #Run the SIM+DIGI restoring seeds
-    SIMDIGIRestoredSeedsFile=candle.split('.')[0]+"_SIM_DIGI_RestoredSeeds_Skip"+str(skipEvents)+"Evts"
-    SIMDIGIRestoreSeedsCommand="cmsDriver.py "+candle+" -n "+numEvents+" -s SIM --customise="+NewRestorePy+" --filein file:"+SIMDIGISavedSeedsFile+".root --fileout="+SIMDIGIRestoredSeedsFile+".root >& "+SIMDIGIRestoredSeedsFile+".log"
-    print "Executing %s" % SIMDIGIRestoreSeedsCommand
-    ExitCode=os.system(SIMDIGIRestoreSeedsCommand)
-    if ExitCode != 0:
-        print "Exit code for %s was %s" % (SIMDIGIRestoreSeedsCommand, ExitCode)
-        ExitCode=0
+    #Depending on the step launch the starting command to provide the input file for the step to be tested
+    InputFile=ExecuteStartingCommand(step,candle,numEvents)
+    #Depending on the step launch the actual reproducibility test, saving and restoring seeds:
+    (SavedSeedsFile,RestoredSeedsFile)=TestRepro(step,InputFile,candle,numEvents,skipEvents)
     
     #Get the cfg files necessary to run the dumpers(use python version of them!):
     CfgFilesLocation={"runSimHitCaloHitDumper_cfg.py":"/src/SimG4Core/Application/test/","runSimTrackSimVertexDumper_cfg.py":"/src/SimG4Core/Application/test/","runSimDigiDumper_cfg.py":"/src/Validation/Performance/test/"}
@@ -207,13 +215,13 @@ def main(argv):
     for CfgFile in CfgFilesLocation.keys():
         GetFile(CfgFile,CfgFilesLocation[CfgFile])
 
-    #Modify the cfgs as needed 1 copy of each pointing to the SIMDIGISavedSeedsFile, 1 copy of each pointing to the SIMIDIGIRestoredSeedsFile:
+    #Modify the cfgs as needed 1 copy of each pointing to the SIMSavedSeedsFile, 1 copy of each pointing to the SIMRestoredSeedsFile:
     #Function MakeCfg takes the cfg, the default root filename and the new root filename to point to,
     #replaces the root filename, saves a new cfg file with and obvious filename.
     #At the moment we are assuming the name of these files to be always myfile.root, should make this more robust
     #and read it directly from the file!
     
-    RootFiles=[SIMDIGISavedSeedsFile+".root",SIMDIGIRestoredSeedsFile+".root"]
+    RootFiles=[SavedSeedsFile+".root",RestoredSeedsFile+".root"]
     
     for CfgFile in CfgFilesLocation.keys():
         for RootFile in RootFiles: 
@@ -231,14 +239,25 @@ def main(argv):
     #Use the function CompareDumps that skips to the wanted event before starting comparison
     #and excludes a number or irrelevant lines from the comparison.
 
-    Tests=["runSimHitCaloHitDumper","runSimTrackSimVertexDumper","runSimDigiDumper"]
+    Tests={
+        "SIM":["runSimHitCaloHitDumper","runSimTrackSimVertexDumper"],
+        "DIGI":["runSimDigiDumper"]
+        }
 
-    for Test in Tests:
+    for Test in Tests[step]:
         DumpType=Test+"_cfg"
         CompareDumps(DumpType,candle,skipEvents)
         
     
 if __name__ == "__main__":
+    #Some needed global variables
+    StartingSteps={"SIM":"GEN","DIGI":"GEN,SIM"}
+    CustomiseFiles={
+        "GEN":"Configuration/PyReleaseValidation/Simulation.py",
+        "GEN,SIM":"Configuration/PyReleaseValidation/SimulationG4.py",
+        "SIM":["SaveRandomSeedsSim.py","RestoreRandomSeedsSim.py"],
+        "DIGI":["SaveRandomSeedsDigi.py","RestoreRandomSeedsDigi.py"]
+        }
     main(sys.argv[1:])
 #os.system("cmsDriver.py pippo")
 #usage()
