@@ -24,6 +24,7 @@
 		     const char* xlab, const char* ylab, 
 		     int width, ofstream& htmlFile, 
 		     std::string htmlDir)
+ 
  *
  *****************************************************************************
  */
@@ -156,6 +157,7 @@ std::string getAnyIMG(int runNo,myHist* hist, int size, std::string htmlDir,
 
   // Run cleanString algorithm  -- direct call of cleanString causes a crash 
   std::string name = (std::string)hist->GetTitle();
+  //cout <<"TITLE = "<<name<<endl;
   for ( unsigned int i = 0; i < name.size(); ++i ) {
     if ( name.substr(i, 6) == " - Run" ){
       name.replace(i, name.size()-i, "");

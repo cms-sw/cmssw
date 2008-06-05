@@ -9,6 +9,9 @@ void HcalDigiClient::init(const ParameterSet& ps, DQMStore* dbe, string clientNa
   //Call the base class first
   HcalBaseClient::init(ps,dbe,clientName);
 
+  errorFrac_=ps.getUntrackedParameter<double>("digiErrorFrac",0.05);
+
+
   for(int i=0; i<4; i++){
     gl_occ_geo_[i]=0;
     if(i<3) gl_occ_elec_[i]=0;
@@ -34,14 +37,16 @@ void HcalDigiClient::init(const ParameterSet& ps, DQMStore* dbe, string clientNa
     sub_capid_t0_[i] = 0;
     sub_digi_shape_[i] = 0;
   }
-    gl_err_geo_=0;
-    gl_occ_eta_ = 0;
-    gl_occ_phi_ = 0;
-
-    gl_num_digi_ = 0;
-    gl_num_bqdigi_ = 0;
-    gl_bqdigi_frac_ = 0;
-    gl_capid_t0_ = 0;
+  
+  ProblemDigiCells=0;
+  gl_err_geo_=0;
+  gl_occ_eta_ = 0;
+  gl_occ_phi_ = 0;
+  
+  gl_num_digi_ = 0;
+  gl_num_bqdigi_ = 0;
+  gl_bqdigi_frac_ = 0;
+  gl_capid_t0_ = 0;
 }
 
 HcalDigiClient::~HcalDigiClient(){
@@ -103,6 +108,7 @@ void HcalDigiClient::cleanup(void) {
     if(gl_bqdigi_frac_) delete gl_bqdigi_frac_;
     if(gl_capid_t0_) delete gl_capid_t0_;
     
+
     for(int i=0; i<4; i++){
       if(gl_occ_geo_[i]) delete gl_occ_geo_[i];
       if(i<3){
@@ -137,7 +143,7 @@ void HcalDigiClient::cleanup(void) {
     }    
   }
 
-
+  ProblemDigiCells=0;
   gl_err_geo_=0;
   gl_occ_eta_ = 0;
   gl_occ_phi_ = 0;
@@ -213,6 +219,9 @@ void HcalDigiClient::getHistograms(){
   if(!dbe_) return;
 
   char name[150];    
+  sprintf(name,"DigiMonitor/HCAL/HCALProblemDigiCells");
+  ProblemDigiCells=getHisto2(name,process_,dbe_,debug_,cloneME_);
+  
   sprintf(name,"DigiMonitor/Digi Geo Error Map");
   gl_err_geo_ = getHisto2(name, process_, dbe_,debug_,cloneME_);
   
@@ -348,6 +357,9 @@ void HcalDigiClient::resetAllME(){
     sprintf(name,"%sHcal/DigiMonitor/Digi Depth %d Occupancy Map",process_.c_str(),i);
     resetME(name,dbe_);
   }
+
+  sprintf(name,"%sHcal/DigMonitor/HCAL/HCALProblemDigiCells",process_.c_str());
+  resetME(name,dbe_);
   sprintf(name,"%sHcal/DigiMonitor/Digi Eta Occupancy Map",process_.c_str());
   resetME(name,dbe_);
   sprintf(name,"%sHcal/DigiMonitor/Digi Phi Occupancy Map",process_.c_str());
@@ -440,14 +452,16 @@ void HcalDigiClient::resetAllME(){
   return;
 }
 
-void HcalDigiClient::htmlOutput(int runNo, string htmlDir, string htmlName){
+void HcalDigiClient::htmlExpertOutput(int runNo, string htmlDir, string htmlName){
 
-  cout << "Preparing HcalDigiClient html output ..." << endl;
+  
+  if (debug_) cout << "Preparing HcalDigiClient Expert html output ..." << endl;
+
   string client = "DigiMonitor";
   htmlErrors(runNo,htmlDir,client,process_,dbe_,dqmReportMapErr_,dqmReportMapWarn_,dqmReportMapOther_);
   
   ofstream htmlFile;
-  htmlFile.open((htmlDir + htmlName).c_str());
+  htmlFile.open((htmlDir +"_expert_"+ htmlName).c_str());
 
   // html page header
   htmlFile << "<!DOCTYPE html PUBLIC \"-//W3C//DTD HTML 4.01 Transitional//EN\">  " << endl;
@@ -490,16 +504,22 @@ void HcalDigiClient::htmlOutput(int runNo, string htmlDir, string htmlName){
 
   htmlFile << "<table border=\"0\" cellspacing=\"0\" " << endl;
   htmlFile << "cellpadding=\"10\"> " << endl;
+  htmlFile << "<tr align=\"left\">" << endl;
+  histoHTML2(runNo,ProblemDigiCells,"iEta","iPhi", 92, htmlFile,htmlDir);
+  htmlFile<<"</tr></table><br>"<<endl;
 
-     htmlFile << "<tr align=\"left\">" << endl;	
-    histoHTML(runNo,sub_digi_shape_[0],"Time Slice","Entries", 92, htmlFile,htmlDir);
-    histoHTML(runNo,sub_digi_shape_[1],"Time Slice","Entries", 100, htmlFile,htmlDir);
-    htmlFile << "</tr>" << endl;
+  htmlFile << "<table border=\"0\" cellspacing=\"0\" " << endl;
+  htmlFile << "cellpadding=\"10\"> " << endl;
 
-     htmlFile << "<tr align=\"left\">" << endl;	
-    histoHTML(runNo,sub_digi_shape_[2],"Time Slice","Entries", 92, htmlFile,htmlDir);
-    histoHTML(runNo,sub_digi_shape_[3],"Time Slice","Entries", 100, htmlFile,htmlDir);
-    htmlFile << "</tr>" << endl;
+  htmlFile << "<tr align=\"left\">" << endl;	
+  histoHTML(runNo,sub_digi_shape_[0],"Time Slice","Entries", 92, htmlFile,htmlDir);
+  histoHTML(runNo,sub_digi_shape_[1],"Time Slice","Entries", 100, htmlFile,htmlDir);
+  htmlFile << "</tr>" << endl;
+  
+  htmlFile << "<tr align=\"left\">" << endl;	
+  histoHTML(runNo,sub_digi_shape_[2],"Time Slice","Entries", 92, htmlFile,htmlDir);
+  histoHTML(runNo,sub_digi_shape_[3],"Time Slice","Entries", 100, htmlFile,htmlDir);
+  htmlFile << "</tr>" << endl;
 
   htmlFile << "<td>&nbsp;&nbsp;&nbsp;<h3>Global Histograms</h3></td></tr>" << endl;
 
@@ -833,5 +853,112 @@ void HcalDigiClient::loadHistograms(TFile* infile){
     sub_bqdigi_frac_[i] = (TH1F*)infile->Get(name);
 
   }
+  return;
+} // void HcalDigiClient::loadHistograms()
+
+
+
+
+void HcalDigiClient::htmlOutput(int runNo, string htmlDir, string htmlName){
+
+  
+  if (debug_) cout << "Preparing HcalDigiClient html output ..." << endl;
+
+  string client = "DigiMonitor";
+  htmlErrors(runNo,htmlDir,client,process_,dbe_,dqmReportMapErr_,dqmReportMapWarn_,dqmReportMapOther_);
+  
+  ofstream htmlFile;
+  htmlFile.open((htmlDir + htmlName).c_str());
+
+  // html page header
+  htmlFile << "<!DOCTYPE html PUBLIC \"-//W3C//DTD HTML 4.01 Transitional//EN\">  " << endl;
+  htmlFile << "<html>  " << endl;
+  htmlFile << "<head>  " << endl;
+  htmlFile << "  <meta content=\"text/html; charset=ISO-8859-1\"  " << endl;
+  htmlFile << " http-equiv=\"content-type\">  " << endl;
+  htmlFile << "  <title>Monitor: Hcal Digi Task output</title> " << endl;
+  htmlFile << "</head>  " << endl;
+  htmlFile << "<style type=\"text/css\"> td { font-weight: bold } </style>" << endl;
+  htmlFile << "<body>  " << endl;
+  htmlFile << "<br>  " << endl;
+  htmlFile << "<h2>Run:&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;" << endl;
+  htmlFile << "&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; <span " << endl;
+  htmlFile << " style=\"color: rgb(0, 0, 153);\">" << runNo << "</span></h2>" << endl;
+  htmlFile << "<h2>Monitoring task:&nbsp;&nbsp;&nbsp;&nbsp; <span " << endl;
+  htmlFile << " style=\"color: rgb(0, 0, 153);\">Hcal Digis</span></h2> " << endl;
+  htmlFile << "<h2>Events processed:&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;" << endl;
+  htmlFile << "&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span " << endl;
+  htmlFile << " style=\"color: rgb(0, 0, 153);\">" << ievt_ << "</span></h2>" << endl;
+  htmlFile << "<hr>" << endl;
+  htmlFile << "<table width=100%  border=1><tr>" << endl;
+  if(hasErrors())htmlFile << "<td bgcolor=red><a href=\"DigiMonitorErrors.html\">Errors in this task</a></td>" << endl;
+  else htmlFile << "<td bgcolor=lime>No Errors</td>" << endl;
+  if(hasWarnings()) htmlFile << "<td bgcolor=yellow><a href=\"DigiMonitorWarnings.html\">Warnings in this task</a></td>" << endl;
+  else htmlFile << "<td bgcolor=lime>No Warnings</td>" << endl;
+  if(hasOther()) htmlFile << "<td bgcolor=aqua><a href=\"DigiMonitorMessages.html\">Messages in this task</a></td>" << endl;
+  else htmlFile << "<td bgcolor=lime>No Messages</td>" << endl;
+  htmlFile << "</tr></table>" << endl;
+  htmlFile << "<hr>" << endl;
+
+  htmlFile << "<h2><strong>Hcal Digi Histograms</strong></h2>" << endl;
+  htmlFile << "<h3>" << endl;
+  if(subDetsOn_[0]) htmlFile << "<a href=\"#HB_Plots\">HB Plots </a></br>" << endl;
+  if(subDetsOn_[1]) htmlFile << "<a href=\"#HE_Plots\">HE Plots </a></br>" << endl;
+  if(subDetsOn_[2]) htmlFile << "<a href=\"#HF_Plots\">HF Plots </a></br>" << endl;
+  if(subDetsOn_[3]) htmlFile << "<a href=\"#HO_Plots\">HO Plots </a></br>" << endl;
+  htmlFile << "</h3>" << endl;
+  htmlFile << "<hr>" << endl;
+
+  // Scale to number of events
+  ProblemDigiCells->Scale(1./ievt_); 
+  ProblemDigiCells->SetMinimum(errorFrac_); 
+
+  htmlFile << "<table border=\"0\" cellspacing=\"0\" " << endl;
+  htmlFile << "cellpadding=\"10\"> " << endl;
+  htmlFile << "<tr align=\"center\">" << endl;
+  histoHTML2(runNo,ProblemDigiCells,"iEta","iPhi", 92, htmlFile,htmlDir);
+  htmlFile<<"</tr>"<<endl;
+  htmlFile<<"<tr><td> A digi cell is considered bad if there was no digi for that cell in the event, or if the capid rotation for that digi was incorrect.  <br> If zero-suppression of the HCAL is enabled for a run, this plot may have high occupancy, and you should check the expert plots for more detailed information.</td></tr>"<<endl;
+  htmlFile<<"<tr><td><a href=\"Expert_"<< htmlName<<"\">ExpertPlots </a></br></td>"<<endl;
+  htmlFile<<"</tr></table><br>"<<endl;
+
+  ProblemDigiCells->Scale(ievt_); 
+  ProblemDigiCells->SetMinimum(0);
+  htmlFile <<"<h2>List of Problem Digi Cells</h2>"<<endl; 
+  htmlFile <<"<table width=75%align = \"center\"><tr align=\"center\">" <<endl; 
+  htmlFile <<"<td> Problem Cells</td><td align=\"center\"> Fraction of Events in wh\
+ich cells are bad (%)</td></tr>"<<endl; 
+
+  int etabins = ProblemDigiCells->GetNbinsX(); 
+  int phibins = ProblemDigiCells->GetNbinsY(); 
+  float etaMin=ProblemDigiCells->GetXaxis()->GetXmin(); 
+  float phiMin=ProblemDigiCells->GetYaxis()->GetXmin(); 
+  
+  int eta,phi; 
+  for (int ieta=1;ieta<=etabins;++ieta) 
+    { 
+      for (int iphi=1; iphi<=phibins;++iphi) 
+	{
+	  eta=ieta+int(etaMin)-1; 
+	  phi=iphi+int(phiMin)-1; 
+	  
+	  if (ProblemDigiCells->GetBinContent(ieta,iphi))
+	    cout <<eta<<"  "<<phi<<"  "<<ProblemDigiCells->GetBinContent(ieta,iphi)<<endl;
+	  if (ProblemDigiCells->GetBinContent(ieta,iphi)>errorFrac_*ievt_)
+	    htmlFile<<"<td align=\"center\"> ("<<eta<<", "<<phi<<") </td><td align=\"center\"> "<<100.*ProblemDigiCells->GetBinContent(ieta,iphi)/ievt_<<"%</td></tr>"<<endl; 
+
+	}
+    }
+
+  htmlFile << "</table>" <<endl; 
+
+  // html page footer
+  htmlFile << "</body> " << endl;
+  htmlFile << "</html> " << endl;
+
+  htmlFile.close();
+
+
+  htmlExpertOutput(runNo, htmlDir, htmlName);
   return;
 }

@@ -44,6 +44,7 @@ class HcalDigiClient : public HcalBaseClient {
   
   /// WriteDB
   void htmlOutput(int run, string htmlDir, string htmlName);
+  void htmlExpertOutput(int run, string htmlDir, string htmlName);
   void getHistograms();
   void loadHistograms(TFile* f);
   
@@ -84,6 +85,8 @@ private:
   TH1F* qie_capid_[4];
   TH1F* qie_dverr_[4];
 
+  TH2F* ProblemDigiCells;
+  double errorFrac_;
 };
 
 #endif

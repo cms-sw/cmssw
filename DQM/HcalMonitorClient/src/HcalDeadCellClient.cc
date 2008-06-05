@@ -601,7 +601,7 @@ void HcalDeadCellClient::htmlOutput(int runNo, string htmlDir, string htmlName)
   
   hcalhists.problemDeadCells->Scale(1./ievt_);
   hcalhists.problemDeadCells->SetMinimum(errorFrac_);
-  htmlAnyHisto(runNo,hcalhists.problemDeadCells,"iEta","iPhi", 92, htmlFile,htmlDir);
+  htmlAnyHisto(runNo,hcalhists.problemDeadCells,"i#eta","i#phi", 92, htmlFile,htmlDir);
   htmlFile<<"</tr>"<<endl;
 
   htmlFile << "<tr align=\"left\">" << endl;

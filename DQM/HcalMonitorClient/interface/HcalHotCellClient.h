@@ -3,6 +3,8 @@
 
 #include "DQM/HcalMonitorClient/interface/HcalBaseClient.h"
 #include "DQMServices/Core/interface/DQMStore.h"
+#include <DQM/HcalMonitorClient/interface/HcalClientUtils.h>
+#include <DQM/HcalMonitorClient/interface/HcalHistoUtils.h>
 
 struct HotCellHists{
   int type;
@@ -42,6 +44,11 @@ struct HotCellHists{
   TH1F* nadaNumNegCells;
   TH2F* nadaNegOccMap;
   TH2F* nadaNegEnergyMap;
+
+  std::vector<TH2F*> nadaOccMapDepth;
+  std::vector<TH2F*> nadaNegOccMapDepth;
+  std::vector<TH2F*> nadaEnergyMapDepth;
+  std::vector<TH2F*> nadaNegEnergyMapDepth;
 };
 
 class HcalHotCellClient : public HcalBaseClient{
@@ -85,6 +92,7 @@ class HcalHotCellClient : public HcalBaseClient{
   void drawThresholdPlots(HotCellHists& hist, int run, string htmlDir);
   void drawDigiPlots(HotCellHists& hist, int run, string htmlDir);
   void drawNADAPlots(HotCellHists& hist, int run, string htmlDir);
+  void drawProblemPlots(HotCellHists& hist, int run, string htmlDir); 
 
   void getHistograms();
   void loadHistograms(TFile* f);
