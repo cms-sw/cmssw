@@ -8,7 +8,7 @@
 //
 // Original Author:  
 //         Created:  Sun Jan  6 23:57:00 EST 2008
-// $Id: CaloJetProxyEveLegoBuilder.cc,v 1.1 2008/03/20 09:39:25 dmytro Exp $
+// $Id: CaloJetProxyEveLegoBuilder.cc,v 1.2 2008/05/12 15:38:00 dmytro Exp $
 //
 
 // system include files
@@ -19,6 +19,7 @@
 #include "TEveTrans.h"
 #include "TEveGeoNode.h"
 #include "TROOT.h"
+#include "TEveStraightLineSet.h"
 
 // user include files
 #include "Fireworks/Calo/interface/CaloJetProxyEveLegoBuilder.h"
@@ -94,31 +95,25 @@ CaloJetProxyEveLegoBuilder::build(const FWEventItem* iItem, TEveElementList** pr
       rgba[2] = c->GetBlue();
    }
 
+   const unsigned int nLineSegments = 20;
+   const double jetRadius = 0.5;
    for(reco::CaloJetCollection::const_iterator jet = jets->begin(); 
        jet != jets->end(); ++jet, ++counter) {
-      TEveElementList* container = new TEveElementList( counter.str().c_str() );
+      TEveStraightLineSet* container = new TEveStraightLineSet( counter.str().c_str() );
+      // container->SetLineWidth(4);
+      container->SetLineColor(  iItem->defaultDisplayProperties().color() );
       
-      TGeoTube *shape = new TGeoTube(0.48, 0.5, 0.0001);
-      TEveTrans t;
-      t.RotateLF(1,2,M_PI/2);
-      t(1,4) = jet->eta(); 
-      t(2,4) = jet->phi();
-      t(3,4) = 0.1;
-      TEveGeoShapeExtract *extract = new TEveGeoShapeExtract("outline");
-      extract->SetTrans(t.Array());
-      extract->SetRGBA(rgba);
-      extract->SetRnrSelf(true);
-      extract->SetRnrElements(true);
-      extract->SetShape(shape);
-      TEveElement* element = TEveGeoShape::ImportShapeExtract(extract, container);
-      element->SetPickable(kTRUE);
-      /* if ( jet->et()<15)
-	element->SetMainTransparency(90);
-      else
-	element->SetMainTransparency(50);
-       */
+      for ( unsigned int iphi = 0; iphi < nLineSegments; ++iphi ) {
+	 container->AddLine(jet->eta()+jetRadius*cos(2*M_PI/nLineSegments*iphi),
+			    jet->phi()+jetRadius*sin(2*M_PI/nLineSegments*iphi),
+			    0.1,
+			    jet->eta()+jetRadius*cos(2*M_PI/nLineSegments*(iphi+1)),
+			    jet->phi()+jetRadius*sin(2*M_PI/nLineSegments*(iphi+1)),
+			    0.1);
+      }
       tList->AddElement(container);
    }
 }
+
 
 

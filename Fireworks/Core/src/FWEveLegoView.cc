@@ -8,7 +8,7 @@
 //
 // Original Author:  Chris Jones
 //         Created:  Thu Feb 21 11:22:41 EST 2008
-// $Id: FWEveLegoView.cc,v 1.4 2008/03/27 11:05:17 dmytro Exp $
+// $Id: FWEveLegoView.cc,v 1.5 2008/04/01 15:46:31 dmytro Exp $
 //
 
 // system include files
@@ -36,6 +36,9 @@
 #include "TEveElement.h"
 #include "TEveRGBAPalette.h"
 #include "TGLPerspectiveCamera.h"
+#include "TEveLegoEventHandler.h"
+#include "TGLWidget.h"
+
 // user include files
 #include "Fireworks/Core/interface/FWEveLegoView.h"
 #include "Fireworks/Core/interface/FWConfiguration.h"
@@ -65,6 +68,7 @@ FWEveLegoView::FWEveLegoView(TGFrame* iParent, TEveElementList* list):
    nv->IncDenyDestroy();
    // ev->SetCurrentCamera(TGLViewer::kCameraOrthoXOY);
    ev->SetCurrentCamera(TGLViewer::kCameraPerspXOY);
+   ev->SetEventHandler(new TEveLegoEventHandler("Lego", ev->GetGLWidget(), ev));
    m_cameraMatrix = const_cast<TGLMatrix*>(&(ev->CurrentCamera().GetCamTrans()));
    m_cameraMatrixBase = const_cast<TGLMatrix*>(&(ev->CurrentCamera().GetCamBase()));
 
@@ -81,7 +85,10 @@ FWEveLegoView::FWEveLegoView(TGFrame* iParent, TEveElementList* list):
    
    m_lego = new TEveCaloLego();
    m_lego->SetPalette(pal);
-   m_lego->SetMainColor(Color_t(TColor::GetColor("#0A0A0A")));
+   // m_lego->SetMainColor(Color_t(TColor::GetColor("#0A0A0A")));
+   m_lego->SetGridColor(Color_t(TColor::GetColor("#202020")));
+   m_lego->Set2DMode(TEveCaloLego::kValSize);
+   m_lego->SetBinWidth(6);
    // lego->SetEtaLimits(etaLimLow, etaLimHigh);
    // lego->SetTitle("caloTower Et distribution");
    gEve->AddElement(m_lego, ns);
