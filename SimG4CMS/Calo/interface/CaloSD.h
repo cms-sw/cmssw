@@ -50,8 +50,8 @@ public:
 	 SensitiveDetectorCatalog & clg, 
 	 edm::ParameterSet const & p, const SimTrackManager*);
   virtual ~CaloSD();
-  virtual bool ProcessHits(G4Step * step,G4TouchableHistory * tHistory);
-  virtual bool ProcessHits(G4GFlashSpot*aSpot,G4TouchableHistory*);
+  virtual bool   ProcessHits(G4Step * step,G4TouchableHistory * tHistory);
+  virtual bool   ProcessHits(G4GFlashSpot*aSpot,G4TouchableHistory*);
   virtual double getEnergyDeposit(G4Step* step); 
   virtual uint32_t setDetUnitId(G4Step* step)=0;
   
@@ -61,26 +61,26 @@ public:
   virtual void   DrawAll();
   virtual void   PrintAll();
 
-  void fillHits(edm::PCaloHitContainer&,std::string n);
+  void           fillHits(edm::PCaloHitContainer&,std::string n);
 
 protected:
 
-  G4bool        getStepInfo(G4Step* aStep);
-  G4ThreeVector setToLocal(G4ThreeVector, const G4VTouchable*);
-  G4bool        hitExists();
-  G4bool        checkHit();
-  CaloG4Hit*    createNewHit();
-  void          updateHit(CaloG4Hit*);
-  void          resetForNewPrimary(G4ThreeVector, double);
-  double        getAttenuation(G4Step* aStep, double birk1, double birk2,
-			       double birk3);
+  virtual G4bool getStepInfo(G4Step* aStep);
+  G4ThreeVector  setToLocal(G4ThreeVector, const G4VTouchable*);
+  G4bool         hitExists();
+  G4bool         checkHit();
+  CaloG4Hit*     createNewHit();
+  void           updateHit(CaloG4Hit*);
+  void           resetForNewPrimary(G4ThreeVector, double);
+  double         getAttenuation(G4Step* aStep, double birk1, double birk2,
+				double birk3);
 
-  virtual void  update(const BeginOfRun *);
-  virtual void  update(const BeginOfEvent *);
-  virtual void  update(const EndOfTrack * trk);
-  virtual void  update(const ::EndOfEvent *);
-  virtual void  clearHits();
-  virtual void  initRun();
+  virtual void   update(const BeginOfRun *);
+  virtual void   update(const BeginOfEvent *);
+  virtual void   update(const EndOfTrack * trk);
+  virtual void   update(const ::EndOfEvent *);
+  virtual void   clearHits();
+  virtual void   initRun();
 
 private:
 
