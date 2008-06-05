@@ -1,8 +1,8 @@
 /*
  *  See header file for a description of this class.
  *
- *  $Date: 2008/05/22 10:49:59 $
- *  $Revision: 1.1 $
+ *  $Date: 2008/05/30 13:48:59 $
+ *  $Revision: 1.2 $
  *  \author C. Battilana S. Marcellini - INFN Bologna
  */
 
@@ -80,13 +80,13 @@ void DTLocalTriggerEfficiencyTest::beginJob(const edm::EventSetup& c){
 	      bookChambHistos(chId,"TrigEffAngleTheta");
 	      bookChambHistos(chId,"TrigEffAngleHTheta");
 	    }
-	    bookSectorHistos(wh,sect,"Segment","TrigEffPhi");  
-	    bookSectorHistos(wh,sect,"Segment","TrigEffTheta");  
+	    bookSectorHistos(wh,sect,"","TrigEffPhi");  
+	    bookSectorHistos(wh,sect,"","TrigEffTheta");  
 	  }
-	  bookWheelHistos(wh,"Segment","TrigEffPhi");  
-	  bookWheelHistos(wh,"Segment","TrigEffHHHLPhi");  
-	  bookWheelHistos(wh,"Segment","TrigEffTheta");  
-	  bookWheelHistos(wh,"Segment","TrigEffHTheta");  
+	  bookWheelHistos(wh,"","TrigEffPhi");  
+	  bookWheelHistos(wh,"","TrigEffHHHLPhi");  
+	  bookWheelHistos(wh,"","TrigEffTheta");  
+	  bookWheelHistos(wh,"","TrigEffHTheta");  
 	}
       }
     }
@@ -137,11 +137,11 @@ void DTLocalTriggerEfficiencyTest::endLuminosityBlock(LuminosityBlock const& lum
 		bookChambHistos(chId,"TrigEffAngleHHHLPhi");
 	      }
 	      if( secME[sector_id].find(fullName("TrigEffPhi")) == secME[sector_id].end() ){
-		bookSectorHistos(wh,sect,"Segment","TrigEffPhi");  
+		bookSectorHistos(wh,sect,"","TrigEffPhi");  
 	      }
 	      if( whME[wh].find(fullName("TrigEffPhi")) == whME[wh].end() ){
-		bookWheelHistos(wh,"Segment","TrigEffPhi");  
-		bookWheelHistos(wh,"Segment","TrigEffHHHLPhi");  
+		bookWheelHistos(wh,"","TrigEffPhi");  
+		bookWheelHistos(wh,"","TrigEffHHHLPhi");  
 	      }
 
 	      std::map<std::string,MonitorElement*> *innerME = &(secME[sector_id]);
@@ -195,11 +195,11 @@ void DTLocalTriggerEfficiencyTest::endLuminosityBlock(LuminosityBlock const& lum
 		bookChambHistos(chId,"TrigEffAngleHTheta");
 	      }
 	      if( secME[sector_id].find(fullName("TrigEffTheta")) == secME[sector_id].end() ){
-		bookSectorHistos(wh,sect,"Segment","TrigEffTheta");  
+		bookSectorHistos(wh,sect,"","TrigEffTheta");  
 	      }
 	      if( whME[wh].find(fullName("TrigEffTheta")) == whME[wh].end() ){
-		bookWheelHistos(wh,"Segment","TrigEffTheta");  
-		bookWheelHistos(wh,"Segment","TrigEffHTheta");  
+		bookWheelHistos(wh,"","TrigEffTheta");  
+		bookWheelHistos(wh,"","TrigEffHTheta");  
 	      }
 
 	      std::map<std::string,MonitorElement*> *innerME = &(secME[sector_id]);

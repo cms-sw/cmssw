@@ -1,8 +1,8 @@
 /*
  *  See header file for a description of this class.
  *
- *  $Date: 2008/05/22 10:49:59 $
- *  $Revision: 1.19 $
+ *  $Date: 2008/05/30 13:48:59 $
+ *  $Revision: 1.20 $
  *  \author C. Battilana S. Marcellini - INFN Bologna
  */
 
@@ -64,18 +64,18 @@ void DTLocalTriggerTest::beginJob(const edm::EventSetup& c){
 	// Loop over the TriggerUnits
 	for (int wh=-2; wh<=2; ++wh){
 	  for (int sect=1; sect<=12; ++sect){
-	    bookSectorHistos(wh,sect,"LocalTriggerPhi","CorrectBXPhi");
-	    bookSectorHistos(wh,sect,"LocalTriggerPhi","CorrFractionPhi");
-	    bookSectorHistos(wh,sect,"LocalTriggerPhi","2ndFractionPhi");
-	    bookSectorHistos(wh,sect,"LocalTriggerTheta","CorrectBXTheta");
-	    bookSectorHistos(wh,sect,"LocalTriggerTheta","HFractionTheta");
+	    bookSectorHistos(wh,sect,"","CorrectBXPhi");
+	    bookSectorHistos(wh,sect,"","CorrFractionPhi");
+	    bookSectorHistos(wh,sect,"","2ndFractionPhi");
+	    bookSectorHistos(wh,sect,"","CorrectBXTheta");
+	    bookSectorHistos(wh,sect,"","HFractionTheta");
 	  }
-	  bookWheelHistos(wh,"LocalTriggerPhi","CorrectBXPhi");
-	  bookWheelHistos(wh,"LocalTriggerPhi","CorrFractionPhi");
-	  bookWheelHistos(wh,"LocalTriggerPhi","2ndFractionPhi");
-	  bookWheelHistos(wh,"LocalTriggerPhi","TriggerInclusivePhi");
-	  bookWheelHistos(wh,"LocalTriggerTheta","CorrectBXTheta");
-	  bookWheelHistos(wh,"LocalTriggerTheta","HFractionTheta");
+	  bookWheelHistos(wh,"","CorrectBXPhi");
+	  bookWheelHistos(wh,"","CorrFractionPhi");
+	  bookWheelHistos(wh,"","2ndFractionPhi");
+	  bookWheelHistos(wh,"","TriggerInclusivePhi");
+	  bookWheelHistos(wh,"","CorrectBXTheta");
+	  bookWheelHistos(wh,"","HFractionTheta");
 	}
       }
     }
@@ -87,7 +87,7 @@ void DTLocalTriggerTest::beginJob(const edm::EventSetup& c){
       hwSource = (*iHw);
       // Loop over the TriggerUnits
       for (int wh=-2; wh<=2; ++wh){
-	bookWheelHistos(wh,"","CorrFractionSummaryPhi");
+	bookWheelHistos(wh,"","CorrFractionSummary");
       }
       bookCmsHistos("CorrFractionSummary");
     }	
@@ -140,15 +140,15 @@ void DTLocalTriggerTest::endLuminosityBlock(LuminosityBlock const& lumiSeg, Even
 		besttrigsCorr+=BestQual->GetBinContent(i);
 	      
 	      if( secME[sector_id].find(fullName("CorrectBXPhi")) == secME[sector_id].end() ){
-		bookSectorHistos(wh,sect,"LocalTriggerPhi","CorrectBXPhi");
-		bookSectorHistos(wh,sect,"LocalTriggerPhi","CorrFractionPhi");
-		bookSectorHistos(wh,sect,"LocalTriggerPhi","2ndFractionPhi");
+		bookSectorHistos(wh,sect,"","CorrectBXPhi");
+		bookSectorHistos(wh,sect,"","CorrFractionPhi");
+		bookSectorHistos(wh,sect,"","2ndFractionPhi");
 	      }
 	      if( whME[wh].find(fullName("CorrectBXPhi")) == whME[wh].end() ){
-		bookWheelHistos(wh,"LocalTriggerPhi","CorrectBXPhi");
-		bookWheelHistos(wh,"LocalTriggerPhi","CorrFractionPhi");
-		bookWheelHistos(wh,"LocalTriggerPhi","2ndFractionPhi");
-		bookWheelHistos(wh,"LocalTriggerPhi","TriggerInclusivePhi");
+		bookWheelHistos(wh,"","CorrectBXPhi");
+		bookWheelHistos(wh,"","CorrFractionPhi");
+		bookWheelHistos(wh,"","2ndFractionPhi");
+		bookWheelHistos(wh,"","TriggerInclusivePhi");
 	      }
 	      std::map<std::string,MonitorElement*> *innerME = &(secME[sector_id]);
 	      innerME->find(fullName("CorrectBXPhi"))->second->setBinContent(stat,BX_OK);
@@ -196,16 +196,16 @@ void DTLocalTriggerTest::endLuminosityBlock(LuminosityBlock const& lumiSeg, Even
 	      double trigsH   = ThetaBestQual->GetBinContent(4);
 	      
 	      if( secME[sector_id].find(fullName("HFractionTheta")) == secME[sector_id].end() ){
-		bookSectorHistos(wh,sect,"LocalTriggerTheta","CorrectBXTheta");
-		bookSectorHistos(wh,sect,"LocalTriggerTheta","HFractionTheta");
+		bookSectorHistos(wh,sect,"","CorrectBXTheta");
+		bookSectorHistos(wh,sect,"","HFractionTheta");
 	      }
 	      std::map<std::string,MonitorElement*> *innerME = &(secME.find(sector_id)->second);
 	      innerME->find(fullName("CorrectBXTheta"))->second->setBinContent(stat,BX_OK);
 	      innerME->find(fullName("HFractionTheta"))->second->setBinContent(stat,trigsH/trigs);
 
 	      if( whME[wh].find(fullName("HFractionTheta")) == whME[wh].end() ){
-		bookWheelHistos(wh,"LocalTriggerTheta","CorrectBXTheta");
-		bookWheelHistos(wh,"LocalTriggerTheta","HFractionTheta");
+		bookWheelHistos(wh,"","CorrectBXTheta");
+		bookWheelHistos(wh,"","HFractionTheta");
 	      }
 	      innerME = &(whME.find(wh)->second);
 	      innerME->find(fullName("CorrectBXTheta"))->second->setBinContent(sect,stat,BX_OK);
@@ -233,6 +233,7 @@ void DTLocalTriggerTest::endLuminosityBlock(LuminosityBlock const& lumiSeg, Even
 	hwSource = (*iHw);
 
 	MonitorElement *corrME = (*imapIt).second.find(fullName("CorrFractionPhi"))->second;
+	double entries = corrME->getEntries();
 	const QReport *corrQReport = corrME->getQReport("TrigCorrFracInRange");
 	if (corrQReport) {
 
@@ -243,10 +244,10 @@ void DTLocalTriggerTest::endLuminosityBlock(LuminosityBlock const& lumiSeg, Even
 	  vector<dqm::me_util::Channel> badChannels = corrQReport->getBadChannels();
 	  for (vector<dqm::me_util::Channel>::iterator channel = badChannels.begin(); 
 	       channel != badChannels.end(); channel++) {
-	    err = (*channel).getContents()<.3 ? 4 : 2;
-	    whME.find(wheel)->second.find(fullName("CorrFractionSummaryPhi"))->second->setBinContent(sector,
-												     (*channel).getBin(),
-												     err);
+	    err = entries>=1 ? 2 : 1; 
+	    whME.find(wheel)->second.find(fullName("CorrFractionSummary"))->second->setBinContent(sector,
+												  (*channel).getBin(),
+												  err);
 
 	  }
 	}
