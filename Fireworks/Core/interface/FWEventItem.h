@@ -16,7 +16,7 @@
 //
 // Original Author:  Chris Jones
 //         Created:  Thu Jan  3 14:02:21 EST 2008
-// $Id: FWEventItem.h,v 1.16 2008/03/19 15:18:05 chrjones Exp $
+// $Id: FWEventItem.h,v 1.17 2008/06/03 20:00:56 chrjones Exp $
 //
 
 // system include files
@@ -150,6 +150,10 @@ class FWEventItem
        only intended to be used by the FWSelectionManager
        */
       mutable FWItemChangeSignal preItemChanged_;
+   
+      /** connect to this signal if you want to know that the default display properties of the item have changed.
+       This is only useful if you are displaying these properties and not just the underlying models.*/
+      mutable FWItemChangeSignal defaultDisplayPropertiesChanged_;
    private:
       //FWEventItem(const FWEventItem&); // stop default
 

@@ -8,7 +8,7 @@
 //
 // Original Author:  
 //         Created:  Thu Jan  3 14:59:23 EST 2008
-// $Id: FWEventItem.cc,v 1.12 2008/03/19 15:18:05 chrjones Exp $
+// $Id: FWEventItem.cc,v 1.13 2008/06/03 20:02:07 chrjones Exp $
 //
 
 // system include files
@@ -220,6 +220,7 @@ FWEventItem::setDefaultDisplayProperties(const FWDisplayProperties& iProp)
       }
    }
    m_displayProperties= iProp;
+   defaultDisplayPropertiesChanged_(this);
 }
 
 void 
@@ -287,12 +288,33 @@ void
 FWEventItem::setDisplayProperties(int iIndex, const FWDisplayProperties& iProps) const
 {
    FWDisplayProperties& prop = m_itemInfos.at(iIndex).m_displayProperties;
-   if( prop
-      != iProps ) {
-      prop = iProps;
-      FWModelId id(this,iIndex);
-      //m_selectionManager->select(id);
-      m_changeManager->changed(id);
+   if(m_displayProperties.isVisible()) {
+      if( prop
+         != iProps ) {
+         prop = iProps;
+         FWModelId id(this,iIndex);
+         //m_selectionManager->select(id);
+         m_changeManager->changed(id);
+      }
+   } else {
+      if(iProps.isVisible()) {
+         FWChangeSentry sentry(*(this->changeManager()));
+         int size = m_colProxy->Size();
+         std::vector<ModelInfo>::iterator itInfo = m_itemInfos.begin();
+         for(int index = 0; index != size; ++index,++itInfo) {
+            if( itInfo->m_displayProperties.isVisible() ) {
+               itInfo->m_displayProperties.setIsVisible(false);
+               FWModelId id(this,index);
+               m_changeManager->changed(id);
+            }
+         }
+         m_itemInfos.at(iIndex).m_displayProperties.setIsVisible(true);
+         FWModelId id(this,iIndex);
+         m_changeManager->changed(id);
+         const_cast<FWEventItem*>(this)->m_displayProperties.setIsVisible(true);
+         //NOTE: need to send out a signal here
+         defaultDisplayPropertiesChanged_(this);
+      }
    }
 }
 
