@@ -1,4 +1,4 @@
-# /dev/CMSSW_2_1_0_pre5/HLT/V6 (CMSSW_2_1_0_pre5)
+# /dev/CMSSW_2_1_0_pre5/HLT/V10 (CMSSW_2_1_0_pre5)
 
 import FWCore.ParameterSet.Config as cms
 
@@ -745,6 +745,7 @@ hltMCJetCorJetIcone5Regional = cms.EDProducer( "JetCorrectionProducer",
 )
 hlt2jet150 = cms.EDFilter( "HLT1CaloJet",
     inputTag = cms.InputTag( "hltMCJetCorJetIcone5Regional" ),
+    saveTag = cms.untracked.bool( True ),
     MinPt = cms.double( 150.0 ),
     MaxEta = cms.double( 5.0 ),
     MinN = cms.int32( 2 )
@@ -760,6 +761,7 @@ hltL1s3jet = cms.EDFilter( "HLTLevel1GTSeed",
 hltPre3jet = cms.EDFilter( "HLTPrescaler" )
 hlt3jet85 = cms.EDFilter( "HLT1CaloJet",
     inputTag = cms.InputTag( "hltMCJetCorJetIcone5Regional" ),
+    saveTag = cms.untracked.bool( True ),
     MinPt = cms.double( 85.0 ),
     MaxEta = cms.double( 5.0 ),
     MinN = cms.int32( 3 )
@@ -882,6 +884,7 @@ hltHtMet = cms.EDProducer( "METProducer",
 )
 hlt4jet60 = cms.EDFilter( "HLT1CaloJet",
     inputTag = cms.InputTag( "hltMCJetCorJetIcone5" ),
+    saveTag = cms.untracked.bool( True ),
     MinPt = cms.double( 60.0 ),
     MaxEta = cms.double( 5.0 ),
     MinN = cms.int32( 4 )
@@ -904,6 +907,7 @@ hlt2jet125 = cms.EDFilter( "HLT1CaloJet",
 hlt2jetAco = cms.EDFilter( "HLT2JetJet",
     inputTag1 = cms.InputTag( "hlt2jet125" ),
     inputTag2 = cms.InputTag( "hlt2jet125" ),
+    saveTags = cms.untracked.bool( True ),
     MinDphi = cms.double( 0.0 ),
     MaxDphi = cms.double( 2.1 ),
     MinDeta = cms.double( 0.0 ),
@@ -923,6 +927,7 @@ hltL1s1jet1METAco = cms.EDFilter( "HLTLevel1GTSeed",
 hltPre1jet1METAco = cms.EDFilter( "HLTPrescaler" )
 hlt1MET60 = cms.EDFilter( "HLT1CaloMET",
     inputTag = cms.InputTag( "hltMet" ),
+    saveTag = cms.untracked.bool( True ),
     MinPt = cms.double( 60.0 ),
     MaxEta = cms.double( -1.0 ),
     MinN = cms.int32( 1 )
@@ -936,6 +941,7 @@ hlt1jet100 = cms.EDFilter( "HLT1CaloJet",
 hlt1jet1METAco = cms.EDFilter( "HLT2JetMET",
     inputTag1 = cms.InputTag( "hlt1jet100" ),
     inputTag2 = cms.InputTag( "hlt1MET60" ),
+    saveTags = cms.untracked.bool( True ),
     MinDphi = cms.double( 0.0 ),
     MaxDphi = cms.double( 2.1 ),
     MinDeta = cms.double( 0.0 ),
@@ -955,6 +961,7 @@ hltL1s1jet1MET = cms.EDFilter( "HLTLevel1GTSeed",
 hltPre1jet1MET = cms.EDFilter( "HLTPrescaler" )
 hlt1jet180 = cms.EDFilter( "HLT1CaloJet",
     inputTag = cms.InputTag( "hltMCJetCorJetIcone5" ),
+    saveTag = cms.untracked.bool( True ),
     MinPt = cms.double( 180.0 ),
     MaxEta = cms.double( 5.0 ),
     MinN = cms.int32( 1 )
@@ -970,6 +977,7 @@ hltL1s2jet1MET = cms.EDFilter( "HLTLevel1GTSeed",
 hltPre2jet1MET = cms.EDFilter( "HLTPrescaler" )
 hlt2jet125New = cms.EDFilter( "HLT1CaloJet",
     inputTag = cms.InputTag( "hltMCJetCorJetIcone5" ),
+    saveTag = cms.untracked.bool( True ),
     MinPt = cms.double( 125.0 ),
     MaxEta = cms.double( 5.0 ),
     MinN = cms.int32( 2 )
@@ -985,6 +993,7 @@ hltL1s3jet1MET = cms.EDFilter( "HLTLevel1GTSeed",
 hltPre3jet1MET = cms.EDFilter( "HLTPrescaler" )
 hlt3jet60 = cms.EDFilter( "HLT1CaloJet",
     inputTag = cms.InputTag( "hltMCJetCorJetIcone5" ),
+    saveTag = cms.untracked.bool( True ),
     MinPt = cms.double( 60.0 ),
     MaxEta = cms.double( 5.0 ),
     MinN = cms.int32( 3 )
@@ -1000,6 +1009,7 @@ hltL1s4jet1MET = cms.EDFilter( "HLTLevel1GTSeed",
 hltPre4jet1MET = cms.EDFilter( "HLTPrescaler" )
 hlt4jet35 = cms.EDFilter( "HLT1CaloJet",
     inputTag = cms.InputTag( "hltMCJetCorJetIcone5" ),
+    saveTag = cms.untracked.bool( True ),
     MinPt = cms.double( 35.0 ),
     MaxEta = cms.double( 5.0 ),
     MinN = cms.int32( 4 )
@@ -1015,12 +1025,14 @@ hltL1s1MET1HT = cms.EDFilter( "HLTLevel1GTSeed",
 hltPre1MET1HT = cms.EDFilter( "HLTPrescaler" )
 hlt1MET65 = cms.EDFilter( "HLT1CaloMET",
     inputTag = cms.InputTag( "hltMet" ),
+    saveTag = cms.untracked.bool( True ),
     MinPt = cms.double( 65.0 ),
     MaxEta = cms.double( -1.0 ),
     MinN = cms.int32( 1 )
 )
 hlt1HT350 = cms.EDFilter( "HLTGlobalSumHT",
     inputTag = cms.InputTag( "hltHtMet" ),
+    saveTag = cms.untracked.bool( True ),
     observable = cms.string( "sumEt" ),
     Min = cms.double( 350.0 ),
     Max = cms.double( -1.0 ),
@@ -1349,8 +1361,7 @@ hltCorrectedHybridSuperClustersL1Isolated = cms.EDProducer( "EgammaSCCorrectionM
     corectedSuperClusterCollection = cms.string( "" ),
     hyb_fCorrPset = cms.PSet( 
       fBremVec = cms.vdouble( -0.01217, 0.031, 0.9887, -3.776E-4, 1.598 ),
-      fEtEtaVec = cms.vdouble( 1.001, -0.8654, 3.131, 0.0, 0.735, 20.72, 1.169, 8.0, 1.023, -0.00181, 0.0 ),
-      corrF = cms.vint32( 1, 1, 0 ),
+      fEtEtaVec = cms.vdouble( 1.001, -0.8654, 3.131, 0.0, 0.735, 20.72, 1.169, 8.0, 1.023, -0.00181, 0.0, 1.0, 0.0 ),
       brLinearLowThr = cms.double( 0.7 ),
       brLinearHighThr = cms.double( 8.0 )
     ),
@@ -1750,8 +1761,7 @@ hltCorrectedHybridSuperClustersL1NonIsolated = cms.EDProducer( "EgammaSCCorrecti
     corectedSuperClusterCollection = cms.string( "" ),
     hyb_fCorrPset = cms.PSet( 
       fBremVec = cms.vdouble( -0.01217, 0.031, 0.9887, -3.776E-4, 1.598 ),
-      fEtEtaVec = cms.vdouble( 1.001, -0.8654, 3.131, 0.0, 0.735, 20.72, 1.169, 8.0, 1.023, -0.00181, 0.0 ),
-      corrF = cms.vint32( 1, 1, 0 ),
+      fEtEtaVec = cms.vdouble( 1.001, -0.8654, 3.131, 0.0, 0.735, 20.72, 1.169, 8.0, 1.023, -0.00181, 0.0, 1.0, 0.0 ),
       brLinearLowThr = cms.double( 0.7 ),
       brLinearHighThr = cms.double( 8.0 )
     ),
@@ -5630,24 +5640,28 @@ hltL1IsoEJetSingleETrackIsolFilter = cms.EDFilter( "HLTElectronTrackIsolFilterRe
 )
 hltej1jet40 = cms.EDFilter( "HLT1CaloJet",
     inputTag = cms.InputTag( "hltMCJetCorJetIcone5" ),
+    saveTag = cms.untracked.bool( True ),
     MinPt = cms.double( 40.0 ),
     MaxEta = cms.double( 5.0 ),
     MinN = cms.int32( 1 )
 )
 hltej2jet80 = cms.EDFilter( "HLT1CaloJet",
     inputTag = cms.InputTag( "hltMCJetCorJetIcone5" ),
+    saveTag = cms.untracked.bool( True ),
     MinPt = cms.double( 80.0 ),
     MaxEta = cms.double( 5.0 ),
     MinN = cms.int32( 2 )
 )
 hltej3jet60 = cms.EDFilter( "HLT1CaloJet",
     inputTag = cms.InputTag( "hltMCJetCorJetIcone5" ),
+    saveTag = cms.untracked.bool( True ),
     MinPt = cms.double( 60.0 ),
     MaxEta = cms.double( 5.0 ),
     MinN = cms.int32( 3 )
 )
 hltej4jet35 = cms.EDFilter( "HLT1CaloJet",
     inputTag = cms.InputTag( "hltMCJetCorJetIcone5" ),
+    saveTag = cms.untracked.bool( True ),
     MinPt = cms.double( 35.0 ),
     MaxEta = cms.double( 5.0 ),
     MinN = cms.int32( 4 )
@@ -5707,6 +5721,7 @@ hltMuJetsL3IsoFiltered = cms.EDFilter( "HLTMuonIsoFilter",
 )
 hltMuJetsHLT1jet40 = cms.EDFilter( "HLT1CaloJet",
     inputTag = cms.InputTag( "hltMCJetCorJetIcone5" ),
+    saveTag = cms.untracked.bool( True ),
     MinPt = cms.double( 40.0 ),
     MaxEta = cms.double( 5.0 ),
     MinN = cms.int32( 1 )
@@ -5761,6 +5776,7 @@ hltMuNoL2IsoJetsL3IsoFiltered = cms.EDFilter( "HLTMuonIsoFilter",
 )
 hltMuNoL2IsoJetsHLT1jet40 = cms.EDFilter( "HLT1CaloJet",
     inputTag = cms.InputTag( "hltMCJetCorJetIcone5" ),
+    saveTag = cms.untracked.bool( True ),
     MinPt = cms.double( 40.0 ),
     MaxEta = cms.double( 5.0 ),
     MinN = cms.int32( 1 )
@@ -5810,6 +5826,7 @@ hltMuNoIsoJetsL3PreFiltered = cms.EDFilter( "HLTMuonL3PreFilter",
 )
 hltMuNoIsoJetsHLT1jet50 = cms.EDFilter( "HLT1CaloJet",
     inputTag = cms.InputTag( "hltMCJetCorJetIcone5" ),
+    saveTag = cms.untracked.bool( True ),
     MinPt = cms.double( 50.0 ),
     MaxEta = cms.double( 5.0 ),
     MinN = cms.int32( 1 )
@@ -9420,6 +9437,7 @@ hltL1s4jet30 = cms.EDFilter( "HLTLevel1GTSeed",
 hltPre4jet30 = cms.EDFilter( "HLTPrescaler" )
 hlt4jet30 = cms.EDFilter( "HLT1CaloJet",
     inputTag = cms.InputTag( "hltMCJetCorJetIcone5" ),
+    saveTag = cms.untracked.bool( True ),
     MinPt = cms.double( 30.0 ),
     MaxEta = cms.double( 5.0 ),
     MinN = cms.int32( 4 )
@@ -10052,6 +10070,7 @@ hltL1s1SumET = cms.EDFilter( "HLTLevel1GTSeed",
 hltPre1MET1SumET = cms.EDFilter( "HLTPrescaler" )
 hlt1SumET120 = cms.EDFilter( "HLTGlobalSumMET",
     inputTag = cms.InputTag( "hltMet" ),
+    saveTag = cms.untracked.bool( True ),
     observable = cms.string( "sumEt" ),
     Min = cms.double( 120.0 ),
     Max = cms.double( -1.0 ),
@@ -10585,6 +10604,7 @@ hltL1IsoEJetSingleEEt5TrackIsolFilter = cms.EDFilter( "HLTElectronTrackIsolFilte
 )
 hltej3jet30 = cms.EDFilter( "HLT1CaloJet",
     inputTag = cms.InputTag( "hltMCJetCorJetIcone5" ),
+    saveTag = cms.untracked.bool( True ),
     MinPt = cms.double( 30.0 ),
     MaxEta = cms.double( 5.0 ),
     MinN = cms.int32( 3 )
@@ -10633,6 +10653,7 @@ hltMuNoIsoJetsMinPtL3PreFiltered = cms.EDFilter( "HLTMuonL3PreFilter",
 )
 hltMuNoIsoHLTJets3jet30 = cms.EDFilter( "HLT1CaloJet",
     inputTag = cms.InputTag( "hltMCJetCorJetIcone5" ),
+    saveTag = cms.untracked.bool( True ),
     MinPt = cms.double( 30.0 ),
     MaxEta = cms.double( 5.0 ),
     MinN = cms.int32( 3 )
