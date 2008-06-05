@@ -38,6 +38,7 @@ class CnBAnalyzer : public edm::EDAnalyzer {
  private:
   
   void beginJob(const edm::EventSetup&);
+  void beginRun(const edm::Run&, const edm::EventSetup&); 
   void analyze(const edm::Event&, const edm::EventSetup&);
   void endJob();
 

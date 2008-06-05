@@ -130,6 +130,19 @@ void CnBAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetu
 	const std::vector<FedChannelConnection> conns = cabling_->connections(static_cast<int>(*ifed));
 	// TODO: check here if the connections are actually there.
 	//       if not you should fill a corresponding error
+	
+	// ????????????????????????????????
+	if ( iEvent.id().event() == 1 ) {
+	  std::cout << "analyzing event 1 with cabling for FED " << std::dec << (*ifed) << std::endl;
+	  for (int channelIndex=0; channelIndex<96; channelIndex++) {
+	    std::cout << std::dec << std::setfill('0') << std::setw(2)
+		      << (channelIndex+1) << "  "
+		      << ((conns.at(95-channelIndex)).isConnected() ? "-" : "X" )
+		      << std::endl;
+	  }
+	}
+	// ????????????????????????????????
+
 	thisFedEventErrs = myEventAnalyzer.Analyze(true, &conns);
       } else {
 	thisFedEventErrs = myEventAnalyzer.Analyze(false, NULL);
@@ -218,14 +231,22 @@ CnBAnalyzer::beginJob(const edm::EventSetup& iSetup)
 
   // Summary histograms
   createRootFedHistograms();
+  std::cout << "CCCCCCCCCCCCCCCCCCCCCCCCCAAAAAAAAAAAA" << std::endl;
 
+}
+
+// ------------ method called once each job just before starting event loop  ------------
+void CnBAnalyzer::beginRun(const edm::Run& r, const edm::EventSetup& iSetup)
+{
+  std::cout << "AAAAAAAAAAAA" << std::endl;
   // Create and populate the FED cabling object if needed
   if (useCablingDb_) {
     edm::ESHandle<SiStripFedCabling> myCabling;
     iSetup.get<SiStripFedCablingRcd>().get(myCabling);
     cabling_ = new SiStripFedCabling (*myCabling);
   }
-
+  std::cout << "BBBBBBBBBBBBBBBB" << std::endl;
+  
 }
 
 // The following method should be called

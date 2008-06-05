@@ -145,7 +145,7 @@ Fed9UErrorCondition Fed9UEventAnalyzer::Analyze(bool useConns, const std::vector
     if (conns) {
       //FedChannelConnection aFedConn;
       for (int channelIndex=0; channelIndex<96; channelIndex++) {
-	if ((conns->at(channelIndex)).isConnected()) result.totalChannels++;
+	if ((conns->at(95-channelIndex)).isConnected()) result.totalChannels++;
       }
     } else {
       // TODO: add proper error handling here
@@ -237,7 +237,7 @@ Fed9UErrorCondition Fed9UEventAnalyzer::Analyze(bool useConns, const std::vector
 	  bool readChannel = true;
 	  if (useConns) {
 	    if (conns) {
-	      if ((conns->at(channelIndex)).isConnected()) {
+	      if (!(conns->at(95-channelIndex)).isConnected()) {
 		readChannel = false;
 	      }
 	    } else {
