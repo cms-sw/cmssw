@@ -47,10 +47,7 @@ def customise(process):
 
     del process.schedule[:]
 
-    process.local_pgen = cms.Sequence(process.randomEngineStateProducer+process.VertexSmearing)
-    process.local_generation = cms.Path(process.local_pgen)
-
-    process.schedule.append(process.local_generation)
+    process.schedule.append(process.generation_step)
     process.schedule.append(process.simulation_step)
 
     process.ecalWeightUncalibRecHit.EBdigiCollection = cms.InputTag("simEcalDigis","ebDigis")
