@@ -1,18 +1,16 @@
 import FWCore.ParameterSet.Config as cms
 
-import copy
-from RecoTracker.TrackProducer.CTFFinalFitWithMaterial_cfi import *
-iterativeSecondTracksWithTriplets = copy.deepcopy(ctfWithMaterialTracks)
-import copy
-from RecoTracker.TrackProducer.CTFFinalFitWithMaterial_cfi import *
-iterativeSecondTracksWithPairs = copy.deepcopy(ctfWithMaterialTracks)
-iterativeSecondTracks = cms.Sequence(iterativeSecondTracksWithTriplets+iterativeSecondTracksWithPairs)
+import RecoTracker.TrackProducer.CTFFinalFitWithMaterial_cfi
+iterativeSecondTracksWithTriplets = RecoTracker.TrackProducer.CTFFinalFitWithMaterial_cfi.ctfWithMaterialTracks.clone()
+import RecoTracker.TrackProducer.CTFFinalFitWithMaterial_cfi
+iterativeSecondTracksWithPlTriplets = RecoTracker.TrackProducer.CTFFinalFitWithMaterial_cfi.ctfWithMaterialTracks.clone()
+iterativeSecondTracks = cms.Sequence(iterativeSecondTracksWithTriplets+iterativeSecondTracksWithPlTriplets)
 iterativeSecondTracksWithTriplets.src = 'iterativeSecondTrackCandidatesWithTriplets'
 iterativeSecondTracksWithTriplets.TTRHBuilder = 'WithoutRefit'
 iterativeSecondTracksWithTriplets.Fitter = 'KFFittingSmoother'
 iterativeSecondTracksWithTriplets.Propagator = 'PropagatorWithMaterial'
-iterativeSecondTracksWithPairs.src = 'iterativeSecondTrackCandidatesWithPairs'
-iterativeSecondTracksWithPairs.TTRHBuilder = 'WithoutRefit'
-iterativeSecondTracksWithPairs.Fitter = 'KFFittingSmoother'
-iterativeSecondTracksWithPairs.Propagator = 'PropagatorWithMaterial'
+iterativeSecondTracksWithPlTriplets.src = 'iterativeSecondTrackCandidatesWithPlTriplets'
+iterativeSecondTracksWithPlTriplets.TTRHBuilder = 'WithoutRefit'
+iterativeSecondTracksWithPlTriplets.Fitter = 'KFFittingSmoother'
+iterativeSecondTracksWithPlTriplets.Propagator = 'PropagatorWithMaterial'
 
