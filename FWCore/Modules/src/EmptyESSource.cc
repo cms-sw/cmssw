@@ -30,8 +30,9 @@ EmptyESSource::delaySettingRecords()
    eventsetup::EventSetupRecordKey recordKey = eventsetup::EventSetupRecordKey::TypeTag::findType(recordName_);
    if (recordKey == edm::eventsetup::EventSetupRecordKey()) {
       throw edm::Exception(errors::Configuration)<<" The Record type named \""<<recordName_<<"\" could not be found. Please check the spelling. \n"
-      <<"If the spelling is fine, try to move the declaration of the EmptyESSource with label'"
-      <<descriptionForFinder().label_<<"' to the end of the configuration file.";
+      <<"If the spelling is fine, then no module in the job requires this Record and therefore EmptyESSource can not function.\n"
+      "In such a case please either remove the EmptyESSource with label'"
+      <<descriptionForFinder().label_<<"' from your job or add a module which needs the Record to your job.";
    }
    findingRecordWithKey(recordKey);
 }
