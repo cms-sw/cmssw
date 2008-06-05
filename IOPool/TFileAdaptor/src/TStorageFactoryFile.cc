@@ -5,6 +5,7 @@
 #include "FWCore/Utilities/interface/EDMException.h"
 #include "TFileCacheRead.h"
 #include "TFileCacheWrite.h"
+#include "TFileCacheRead.h"
 #include "TSystem.h"
 #include "TROOT.h"
 #include <errno.h>
@@ -12,14 +13,68 @@
 #include <unistd.h>
 #include <fcntl.h>
 
-ClassImp(TStorageFactoryFile)
-bool TStorageFactoryFile::s_bufferDefault = false;
-Int_t TStorageFactoryFile::s_cacheDefaultCacheSize = kDefaultCacheSize;
-Int_t TStorageFactoryFile::s_cacheDefaultPageSize = kDefaultPageSize;
+#if 0
+#include "TTreeCache.h"
+#include "TTree.h"
+#include <iostream>
 
+class TTreeCacheDebug : public TTreeCache {
+public:
+  void dump(const char *label, const char *trailer)
+  {
+    Long64_t entry = fOwner->GetReadEntry();
+    std::cerr
+      << label << ": " << entry << " "
+      << "{ fEntryMin=" << fEntryMin
+      << ", fEntryMax=" << fEntryMax
+      << ", fEntryNext=" << fEntryNext
+      << ", fZipBytes=" << fZipBytes
+      << ", fNbranches=" << fNbranches
+      << ", fNReadOk=" << fNReadOk
+      << ", fNReadMiss=" << fNReadMiss
+      << ", fNReadPref=" << fNReadPref
+      << ", fBranches=" << fBranches
+      << ", fBrNames=" << fBrNames
+      << ", fOwner=" << fOwner
+      << ", fTree=" << fTree
+      << ", fIsLearning=" << fIsLearning
+      << ", fIsManual=" << fIsManual
+      << "; fBufferSizeMin=" << fBufferSizeMin
+      << ", fBufferSize=" << fBufferSize
+      << ", fBufferLen=" << fBufferLen
+      << ", fBytesToPrefetch=" << fBytesToPrefetch
+      << ", fFirstIndexToPrefetch=" << fFirstIndexToPrefetch
+      << ", fAsyncReading=" << fAsyncReading
+      << ", fNseek=" << fNseek
+      << ", fNtot=" << fNtot
+      << ", fNb=" << fNb
+      << ", fSeekSize=" << fSeekSize
+      << ", fSeek=" << fSeek
+      << ", fSeekIndex=" << fSeekIndex
+      << ", fSeekSort=" << fSeekSort
+      << ", fPos=" << fPos
+      << ", fSeekLen=" << fSeekLen
+      << ", fSeekSortLen=" << fSeekSortLen
+      << ", fSeekPos=" << fSeekPos
+      << ", fLen=" << fLen
+      << ", fFile=" << fFile
+      << ", fBuffer=" << (void *) fBuffer
+      << ", fIsSorted=" << fIsSorted
+      << " }\n" << trailer;
+  }
+};
+#endif
+
+ClassImp(TStorageFactoryFile)
+static StorageAccount::Counter *s_statsCtor = 0;
+static StorageAccount::Counter *s_statsOpen = 0;
+static StorageAccount::Counter *s_statsClose = 0;
+static StorageAccount::Counter *s_statsFlush = 0;
+static StorageAccount::Counter *s_statsStat = 0;
 static StorageAccount::Counter *s_statsSeek = 0;
 static StorageAccount::Counter *s_statsRead = 0;
 static StorageAccount::Counter *s_statsCRead = 0;
+static StorageAccount::Counter *s_statsCPrefetch = 0;
 static StorageAccount::Counter *s_statsARead = 0;
 static StorageAccount::Counter *s_statsXRead = 0;
 static StorageAccount::Counter *s_statsVRead = 0;
@@ -28,50 +83,32 @@ static StorageAccount::Counter *s_statsCWrite = 0;
 static StorageAccount::Counter *s_statsXWrite = 0;
 
 static inline StorageAccount::Counter &
-storageCounter (StorageAccount::Counter **c, const char *label)
+storageCounter(StorageAccount::Counter *&c, const char *label)
 {
-  if (c && *c) return **c;
-  StorageAccount::Counter &x = StorageAccount::counter ("tstoragefile", label);
-  if (c) *c = &x;
-  return x;
+  if (! c) c = &StorageAccount::counter("tstoragefile", label);
+  return *c;
 }
 
-void
-TStorageFactoryFile::DefaultBuffering (bool useit)
+TStorageFactoryFile::TStorageFactoryFile(void)
+  : storage_(0)
 {
-  s_bufferDefault = useit;
-}
-
-void
-TStorageFactoryFile::DefaultCaching (Int_t cacheSize /* = kDefaultCacheSize */,
-				     Int_t pageSize /* = kDefaultPageSize */)
-{
-  s_cacheDefaultCacheSize = cacheSize;
-  s_cacheDefaultPageSize = pageSize;
-}
-
-TStorageFactoryFile::TStorageFactoryFile (void)
-  : m_storage (0),
-    m_offset (0)
-{
-  StorageAccount::Stamp stats (storageCounter (0, "construct"));
-  stats.tick (0);
+  StorageAccount::Stamp stats(storageCounter(s_statsCtor, "construct"));
+  stats.tick(0);
 }
 
 
-TStorageFactoryFile::TStorageFactoryFile (const char *path,
-					  Option_t *option /* = "" */,
-					  const char *ftitle /* = "" */,
-					  Int_t compress /* = 1 */)
-  : TFile (path, "NET", ftitle, compress), // Pass "NET" to prevent local access in base class
-    m_storage (0),
-    m_offset (0)
+TStorageFactoryFile::TStorageFactoryFile(const char *path,
+					 Option_t *option /* = "" */,
+					 const char *ftitle /* = "" */,
+					 Int_t compress /* = 1 */)
+  : TFile(path, "NET", ftitle, compress), // Pass "NET" to prevent local access in base class
+    storage_(0)
 {
-  StorageAccount::Stamp stats (storageCounter (0, "construct"));
+  StorageAccount::Stamp stats(storageCounter(s_statsCtor, "construct"));
 
   // Parse options; at the moment we only accept read!
   fOption = option;
-  fOption.ToUpper ();
+  fOption.ToUpper();
 
   if (fOption == "NEW")
     fOption = "CREATE";
@@ -108,16 +145,8 @@ TStorageFactoryFile::TStorageFactoryFile (const char *path,
   if (create)   openFlags |= IOFlags::OpenCreate;
   if (recreate) openFlags |= IOFlags::OpenCreate | IOFlags::OpenTruncate;
 
-  // Set flags.  If we are caching ourselves, turn off lower-level
-  // buffering.  This is somewhat of an abuse of the flag (docs say
-  // it turns off *write* buffering) but we use it also to turn off
-  // internal buffering in RFIO and dCache.  Note that turning off
-  // the caching on one file turns it off globally with RFIO.
-  if (s_cacheDefaultCacheSize || ! s_bufferDefault)
-    openFlags |= IOFlags::OpenUnbuffered;
-
   // Open storage
-  if (! (m_storage = StorageFactory::get ()->open (path, openFlags)))
+  if (! (storage_ = StorageFactory::get()->open(path, openFlags)))
   {
      MakeZombie();
      gDirectory = gROOT;
@@ -129,23 +158,22 @@ TStorageFactoryFile::TStorageFactoryFile (const char *path,
   fD = 0; // sorry, meaningless
   fWritable = read ? kFALSE : kTRUE;
 
-  UseCache (s_cacheDefaultCacheSize, s_cacheDefaultPageSize);
-  Init (create);
+  Init(create);
 
-  stats.tick (0);
+  stats.tick(0);
 }
 
-TStorageFactoryFile::~TStorageFactoryFile (void)
+TStorageFactoryFile::~TStorageFactoryFile(void)
 {
-  Close ();
-  delete m_storage;
+  Close();
+  delete storage_;
 }
 
 //////////////////////////////////////////////////////////////////////
 //////////////////////////////////////////////////////////////////////
 //////////////////////////////////////////////////////////////////////
 Bool_t
-TStorageFactoryFile::ReadBuffer (char *buf, Int_t len)
+TStorageFactoryFile::ReadBuffer(char *buf, Int_t len)
 {
   // Check that it's valid to access this file.
   if (IsZombie())
@@ -168,45 +196,52 @@ TStorageFactoryFile::ReadBuffer (char *buf, Int_t len)
   // cache, "readu" indicates how much we failed to read from the
   // cache (excluding those recursive reads), and "readx" counts
   // the amount actually passed to read from the storage object.
-  StorageAccount::Stamp stats(storageCounter(&s_statsRead, "read"));
+  StorageAccount::Stamp stats(storageCounter(s_statsRead, "read"));
 
   // If we have a cache, read from there first.  This returns 0
   // if the block hasn't been prefetched, 1 if it was in cache,
   // and 2 if there was an error.
-  Int_t st = 0;
-  if (GetCacheRead())
+  if (TFileCacheRead *c = GetCacheRead())
   {
-    StorageAccount::Stamp cstats(storageCounter(&s_statsCRead, "read-via-cache"));
-    if (false /* GetCacheRead()->IsAsyncReading() */
-	&& (st = ReadBufferViaCache(0, len)) == 1)
-    {
-      m_offset -= len;
-      cstats.tick(len);
-    }
-    else if ((st = ReadBufferViaCache(buf, len)) == 1)
-    {
-      cstats.tick(len);
-      stats.tick(len);
-      return kFALSE;
-    }
+    Long64_t here = GetRelOffset();
+    Bool_t   async = c->IsAsyncReading();
+
+    StorageAccount::Stamp cstats(async
+				 ? storageCounter(s_statsCPrefetch, "read-prefetch-to-cache")
+				 : storageCounter(s_statsCRead, "read-via-cache"));
+
+    Int_t st = ReadBufferViaCache(async ? 0 : buf, len);
+
+    if (st == 2)
+      return kTRUE;
+
+    if (st == 1)
+      if (async)
+      {
+        cstats.tick(len);
+	Seek(here);
+      }
+      else
+      {
+        cstats.tick(len);
+        stats.tick(len);
+        return kFALSE;
+      }
   }
 
   // FIXME: Re-enable read-ahead if the data wasn't in cache.
-  // if (! st) m_storage->caching(true, -1, s_readahead);
+  // if (! st) storage_->caching(true, -1, s_readahead);
 
   // A real read
-  StorageAccount::Stamp xstats(storageCounter(&s_statsXRead, "read-actual"));
-  IOSize n = m_storage->xread(buf, len);
-  m_offset += n;
+  StorageAccount::Stamp xstats(storageCounter(s_statsXRead, "read-actual"));
+  IOSize n = storage_->xread(buf, len);
   xstats.tick(n);
   stats.tick(n);
-  if (! n)
-    return kTRUE;
-  return kFALSE;
+  return n ? kFALSE : kTRUE;
 }
 
 Bool_t
-TStorageFactoryFile::ReadBufferAsync (Long64_t off, Int_t len)
+TStorageFactoryFile::ReadBufferAsync(Long64_t off, Int_t len)
 {
   // Check that it's valid to access this file.
   if (IsZombie())
@@ -221,7 +256,7 @@ TStorageFactoryFile::ReadBufferAsync (Long64_t off, Int_t len)
     return kTRUE;
   }
 
-  StorageAccount::Stamp stats(storageCounter(&s_statsARead, "read-async"));
+  StorageAccount::Stamp stats(storageCounter(s_statsARead, "read-async"));
 
   // Let the I/O method indicate if it can do client-side prefetch.
   // If it does, then for example TTreeCache will drop its own cache
@@ -229,11 +264,11 @@ TStorageFactoryFile::ReadBufferAsync (Long64_t off, Int_t len)
   // If len is zero ROOT is probing for prefetch support.
   if (len)
     // FIXME: Synchronise caching.
-    // m_storage->caching(true, -1, 0);
+    // storage_->caching(true, -1, 0);
     ;
 
-  IOPosBuffer iov(off, (void *) 0, len);
-  if (m_storage->prefetch(&iov, 1))
+  IOPosBuffer iov(off, (void *) 0, len ? len : 4096);
+  if (storage_->prefetch(&iov, 1))
   {
     stats.tick(len);
     return kFALSE;
@@ -244,7 +279,7 @@ TStorageFactoryFile::ReadBufferAsync (Long64_t off, Int_t len)
 }
 
 Bool_t
-TStorageFactoryFile::ReadBuffers (char *buf, Long64_t *pos, Int_t *len, Int_t nbuf)
+TStorageFactoryFile::ReadBuffers(char *buf, Long64_t *pos, Int_t *len, Int_t nbuf)
 {
   // Check that it's valid to access this file.
   if (IsZombie())
@@ -261,11 +296,11 @@ TStorageFactoryFile::ReadBuffers (char *buf, Long64_t *pos, Int_t *len, Int_t nb
 
   // Read from underlying storage.
   Int_t total = 0;
-  std::vector<IOPosBuffer> iov (nbuf);
-  iov.reserve (nbuf);
+  std::vector<IOPosBuffer> iov(nbuf);
+  iov.reserve(nbuf);
   for (Int_t i = 0; i < nbuf; ++i)
   {
-    iov.push_back (IOPosBuffer(pos[i], buf ? buf + total : 0, len[i]));
+    iov.push_back(IOPosBuffer(pos[i], buf ? buf + total : 0, len[i]));
     total += len[i];
   }
 
@@ -273,19 +308,19 @@ TStorageFactoryFile::ReadBuffers (char *buf, Long64_t *pos, Int_t *len, Int_t nb
   bool success;
   if (buf)
   {
-    StorageAccount::Stamp stats(storageCounter(&s_statsRead, "read"));
-    StorageAccount::Stamp vstats(storageCounter(&s_statsVRead, "readv-actual"));
-    IOSize n = m_storage->readv(&iov[0], nbuf);
+    StorageAccount::Stamp stats(storageCounter(s_statsRead, "read"));
+    StorageAccount::Stamp vstats(storageCounter(s_statsVRead, "readv-actual"));
+    IOSize n = storage_->readv(&iov[0], nbuf);
     success = (n > 0); // FIXME: what if it's short!?
     vstats.tick(n);
     stats.tick(n);
   }
   else
   {
-    StorageAccount::Stamp astats(storageCounter(&s_statsARead, "read-async"));
+    StorageAccount::Stamp astats(storageCounter(s_statsARead, "read-async"));
     // Synchronise low-level cache with the supposed cache in TFile.
-    // m_storage->caching(true, -1, 0);
-    success = m_storage->prefetch(&iov[0], nbuf);
+    // storage_->caching(true, -1, 0);
+    success = storage_->prefetch(&iov[0], nbuf);
     astats.tick(total);
   }
 
@@ -294,7 +329,7 @@ TStorageFactoryFile::ReadBuffers (char *buf, Long64_t *pos, Int_t *len, Int_t nb
 }
 
 Bool_t
-TStorageFactoryFile::WriteBuffer (const char *buf, Int_t len)
+TStorageFactoryFile::WriteBuffer(const char *buf, Int_t len)
 {
   // Check that it's valid to access this file.
   if (IsZombie())
@@ -315,8 +350,8 @@ TStorageFactoryFile::WriteBuffer (const char *buf, Int_t len)
     return kTRUE;
   }
 
-  StorageAccount::Stamp stats (storageCounter (&s_statsWrite, "write"));
-  StorageAccount::Stamp cstats (storageCounter (&s_statsCWrite, "write-via-cache"));
+  StorageAccount::Stamp stats(storageCounter(s_statsWrite, "write"));
+  StorageAccount::Stamp cstats(storageCounter(s_statsCWrite, "write-via-cache"));
 
   // Try first writing via a cache, and if that's not possible, directly.
   Int_t st;
@@ -325,24 +360,23 @@ TStorageFactoryFile::WriteBuffer (const char *buf, Int_t len)
   case 0:
     // Actual write.
     {
-      StorageAccount::Stamp xstats(storageCounter(&s_statsXWrite, "write-actual"));
-      IOSize n = m_storage->xwrite(buf, len);
-      m_offset += n;
-      xstats.tick (n);
-      stats.tick (n);
+      StorageAccount::Stamp xstats(storageCounter(s_statsXWrite, "write-actual"));
+      IOSize n = storage_->xwrite(buf, len);
+      xstats.tick(n);
+      stats.tick(n);
 
       // FIXME: What if it's a short write?
       return n > 0 ? kFALSE : kTRUE;
     }
 
   case 1:
-    cstats.tick (len);
-    stats.tick (len);
+    cstats.tick(len);
+    stats.tick(len);
     return kFALSE;
 
   case 2:
   default:
-    Error ("WriteBuffer", "Error writing to cache");
+    Error("WriteBuffer", "Error writing to cache");
     return kTRUE;
   }
 }
@@ -358,15 +392,15 @@ TStorageFactoryFile::WriteBuffer (const char *buf, Int_t len)
 //////////////////////////////////////////////////////////////////////
 //////////////////////////////////////////////////////////////////////
 Int_t
-TStorageFactoryFile::SysOpen (const char *pathname, Int_t flags, UInt_t mode)
+TStorageFactoryFile::SysOpen(const char *pathname, Int_t flags, UInt_t mode)
 {
-  StorageAccount::Stamp stats (storageCounter (0, "open"));
+  StorageAccount::Stamp stats(storageCounter(s_statsOpen, "open"));
 
-  if (m_storage)
+  if (storage_)
   {
-    m_storage->close ();
-    delete m_storage;
-    m_storage = 0;
+    storage_->close();
+    delete storage_;
+    storage_ = 0;
   }
 
   int                      openFlags = IOFlags::OpenRead;
@@ -378,10 +412,7 @@ TStorageFactoryFile::SysOpen (const char *pathname, Int_t flags, UInt_t mode)
   if (flags & O_TRUNC)     openFlags |= IOFlags::OpenTruncate;
   if (flags & O_NONBLOCK)  openFlags |= IOFlags::OpenNonBlock;
 
-  if (s_cacheDefaultCacheSize || ! s_bufferDefault)
-    openFlags |= IOFlags::OpenUnbuffered;
-
-  if (! (m_storage = StorageFactory::get ()->open (pathname, openFlags)))
+  if (! (storage_ = StorageFactory::get()->open(pathname, openFlags)))
   {
      MakeZombie();
      gDirectory = gROOT;
@@ -389,64 +420,64 @@ TStorageFactoryFile::SysOpen (const char *pathname, Int_t flags, UInt_t mode)
        << "Cannot open file '" << pathname << "'";
   }
 
-  stats.tick ();
+  stats.tick();
   return 0;
 }
 
 Int_t
-TStorageFactoryFile::SysClose (Int_t /* fd */)
+TStorageFactoryFile::SysClose(Int_t /* fd */)
 {
-  StorageAccount::Stamp stats (storageCounter (0, "close"));
+  StorageAccount::Stamp stats(storageCounter(s_statsClose, "close"));
 
-  if (m_storage)
+  if (storage_)
   {
-    m_storage->close ();
-    delete m_storage;
-    m_storage = 0;
+    storage_->close();
+    delete storage_;
+    storage_ = 0;
   }
 
-  stats.tick ();
+  stats.tick();
   return 0;
 }
 
 Long64_t
-TStorageFactoryFile::SysSeek (Int_t /* fd */, Long64_t offset, Int_t whence)
+TStorageFactoryFile::SysSeek(Int_t /* fd */, Long64_t offset, Int_t whence)
 {
-  StorageAccount::Stamp stats (storageCounter (&s_statsSeek, "seek"));
+  StorageAccount::Stamp stats(storageCounter(s_statsSeek, "seek"));
   Storage::Relative rel = (whence == SEEK_SET ? Storage::SET
     	    	           : whence == SEEK_CUR ? Storage::CURRENT
     		           : Storage::END);
 
-  m_offset = m_storage->position (offset, rel);
-  stats.tick ();
-  return m_offset;
+  offset = storage_->position(offset, rel);
+  stats.tick();
+  return offset;
 }
 
 Int_t
-TStorageFactoryFile::SysSync (Int_t /* fd */)
+TStorageFactoryFile::SysSync(Int_t /* fd */)
 {
-  StorageAccount::Stamp stats (storageCounter (0, "flush"));
-  m_storage->flush ();
-  stats.tick ();
+  StorageAccount::Stamp stats(storageCounter(s_statsFlush, "flush"));
+  storage_->flush();
+  stats.tick();
   return 0;
 }
 
 Int_t
-TStorageFactoryFile::SysStat (Int_t /* fd */, Long_t *id, Long64_t *size,
+TStorageFactoryFile::SysStat(Int_t /* fd */, Long_t *id, Long64_t *size,
     		      Long_t *flags, Long_t *modtime)
 {
-  StorageAccount::Stamp stats (storageCounter (0, "stat"));
+  StorageAccount::Stamp stats(storageCounter(s_statsStat, "stat"));
   // FIXME: Most of this is unsupported or makes no sense with Storage
-  *id = ::Hash (fRealName);
-  *size = m_storage->size ();
+  *id = ::Hash(fRealName);
+  *size = storage_->size();
   *flags = 0;
   *modtime = 0;
-  stats.tick ();
+  stats.tick();
   return 0;
 }
 
 void
-TStorageFactoryFile::ResetErrno (void) const
+TStorageFactoryFile::ResetErrno(void) const
 {
-  TSystem::ResetErrno ();
+  TSystem::ResetErrno();
 }

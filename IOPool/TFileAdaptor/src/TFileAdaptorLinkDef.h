@@ -1,14 +1,11 @@
 #include "IOPool/TFileAdaptor/interface/TStorageFactoryFile.h"
 #include "IOPool/TFileAdaptor/interface/TStorageFactorySystem.h"
-#include "IOPool/TFileAdaptor/src/TFileAdaptorUI.h"
 
 #ifdef __CINT__
 
 #pragma link off all globals;
 #pragma link off all classes;
 #pragma link off all functions;
-
-#pragma link C++ class TFileAdaptorUI;
 
 #pragma link C++ class TStorageFactoryFile;
 #pragma link C++ class TStorageFactorySystem;

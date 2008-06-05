@@ -11,22 +11,22 @@ class TStorageFactorySystem : public TSystem
 {
 private:
   void			*fDirp;	// Directory handle
-  void *		GetDirPt (void) const { return fDirp; }
+  void *		GetDirPt(void) const { return fDirp; }
 
 public:
-  ClassDef (TStorageFactorySystem, 0); // ROOT System operating on CMS Storage.
+  ClassDef(TStorageFactorySystem, 0); // ROOT System operating on CMS Storage.
 
-  TStorageFactorySystem (void);
-  ~TStorageFactorySystem (void);
+  TStorageFactorySystem(void);
+  ~TStorageFactorySystem(void);
 
-  virtual Int_t		MakeDirectory (const char *name);
-  virtual void *	OpenDirectory (const char *name);
-  virtual void		FreeDirectory (void *dirp);
-  virtual const char *	GetDirEntry (void *dirp);
+  virtual Int_t		MakeDirectory(const char *name);
+  virtual void *	OpenDirectory(const char *name);
+  virtual void		FreeDirectory(void *dirp);
+  virtual const char *	GetDirEntry(void *dirp);
 
-  virtual Int_t		GetPathInfo (const char *path, FileStat_t &info);
+  virtual Int_t		GetPathInfo(const char *path, FileStat_t &info);
 
-  virtual Bool_t	AccessPathName (const char *path, EAccessMode mode);
+  virtual Bool_t	AccessPathName(const char *path, EAccessMode mode);
 };
 
 #endif // TFILE_ADAPTOR_TSTORAGE_FACTORY_SYSTEM_H

@@ -3,53 +3,53 @@
 
 ClassImp(TStorageFactorySystem)
 
-TStorageFactorySystem::TStorageFactorySystem (void)
-  : TSystem ("-StorageFactory", "Storage Factory System"),
-    fDirp (0)
-{ SetName ("StorageFactory"); }
+TStorageFactorySystem::TStorageFactorySystem(void)
+  : TSystem("-StorageFactory", "Storage Factory System"),
+    fDirp(0)
+{ SetName("StorageFactory"); }
 
-TStorageFactorySystem::~TStorageFactorySystem (void)
+TStorageFactorySystem::~TStorageFactorySystem(void)
 {}
 
 //////////////////////////////////////////////////////////////////////
 //////////////////////////////////////////////////////////////////////
 //////////////////////////////////////////////////////////////////////
 Int_t
-TStorageFactorySystem::MakeDirectory (const char *name)
+TStorageFactorySystem::MakeDirectory(const char *name)
 {
-  Error ("MakeDirectory", "Unsupported");
+  Error("MakeDirectory", "Unsupported");
   return -1;
 }
 
 void *
-TStorageFactorySystem::OpenDirectory (const char *name)
+TStorageFactorySystem::OpenDirectory(const char *name)
 {
-  Error ("OpenDirectory", "Unsupported");
+  Error("OpenDirectory", "Unsupported");
   return 0;
 }
 
 void
-TStorageFactorySystem::FreeDirectory (void * /* dirp */)
+TStorageFactorySystem::FreeDirectory(void * /* dirp */)
 {
-  Error ("FreeDirectory", "Unsupported");
+  Error("FreeDirectory", "Unsupported");
 }
 
 const char *
-TStorageFactorySystem::GetDirEntry (void * /* dirp */)
+TStorageFactorySystem::GetDirEntry(void * /* dirp */)
 {
-  Error ("GetDirEntry", "Unsupported");
+  Error("GetDirEntry", "Unsupported");
   return 0;
 }
 
 Bool_t
-TStorageFactorySystem::AccessPathName (const char *name, EAccessMode /* mode */)
+TStorageFactorySystem::AccessPathName(const char *name, EAccessMode /* mode */)
 {
   // NB: This return reverse of check(): kTRUE if access *fails*
-  return name ? !StorageFactory::get ()->check (name) : kTRUE;
+  return name ? !StorageFactory::get()->check(name) : kTRUE;
 }
 
 Int_t
-TStorageFactorySystem::GetPathInfo (const char *name, FileStat_t &info)
+TStorageFactorySystem::GetPathInfo(const char *name, FileStat_t &info)
 {
   info.fDev = 0;
   info.fIno = 0;
@@ -60,7 +60,7 @@ TStorageFactorySystem::GetPathInfo (const char *name, FileStat_t &info)
   info.fMtime = 0;
 
   IOOffset storageSize;
-  if (StorageFactory::get ()->check (name, &storageSize))
+  if (StorageFactory::get()->check(name, &storageSize))
   {
     info.fSize = storageSize;
     return 0;

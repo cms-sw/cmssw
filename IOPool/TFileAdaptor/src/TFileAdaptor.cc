@@ -1,146 +1,134 @@
-#include "IOPool/TFileAdaptor/interface/TFileAdaptor.h"
 #include "IOPool/TFileAdaptor/interface/TStorageFactoryFile.h"
 #include "Utilities/StorageFactory/interface/StorageAccount.h"
 #include "Utilities/StorageFactory/interface/StorageFactory.h"
+#include "FWCore/ServiceRegistry/interface/ServiceMaker.h"
+#include "FWCore/ParameterSet/interface/ParameterSet.h"
+#include "FWCore/ServiceRegistry/interface/Service.h"
+#include "FWCore/MessageLogger/interface/JobReport.h"
 #include <TROOT.h>
 #include <TPluginManager.h>
 #include <TFile.h>
+#include <sstream>
 #include <iostream>
 #include <algorithm>
+#include <vector>
+#include <string>
 
-void
-TFileAdaptorParams::init (void) const
+// Driver for configuring ROOT plug-in manager to use TStorageFactoryFile.
+class TFileAdaptor
 {
-  const_cast<TFileAdaptorParams*>(this)->pinit();
-}
+  bool enabled_;
+  bool doStats_;
+  std::string mode_;
+  std::vector<std::string> native_;
 
-void
-TFileAdaptorParams::pinit (void)
-{
-  if (doCaching)
-    cacheSize = cachePageSize = 0;
-
-  //   mode:NAME
-  //   pick pre-canned configuration where NAME is one of:
-  //      default  = adaptor:on stats:on buffering:off caching:off
-  //      raw      = adaptor:on stats:on buffering:off caching:off
-
-  if (mode == "default")
+  static void addType(TPluginManager *mgr, const char *type)
   {
-    doStats = true;
-    doBuffering = false;
-    doCaching = false;
-    cacheSize = TStorageFactoryFile::kDefaultCacheSize;
-    cachePageSize = TStorageFactoryFile::kDefaultPageSize;
+    mgr->AddHandler("TFile", 
+		    type, 
+		    "TStorageFactoryFile", 
+		    "IOPoolTFileAdaptor",
+		    "TStorageFactoryFile(const char*,Option_t*,const char*,Int_t)"); 
+
+    mgr->AddHandler("TSystem", 
+		    type, 
+		    "TStorageFactorySystem", 
+		    "IOPoolTFileAdaptor",
+		    "TStorageFactorySystem()"); 
   }
-  else if (mode == "raw")
-  { 
-    doStats = true;
-    doBuffering = false;
-    doCaching = false;
-    cacheSize = 0;
-    cachePageSize = 0;
+
+  bool native(const char *proto) const
+  {
+    return std::find(native_.begin(), native_.end(), "all") != native_.end()
+      || std::find(native_.begin(), native_.end(), proto) != native_.end();
   }
-}
 
-bool
-TFileAdaptorParams::native (const char *prot) const
-{
-  return std::find(m_native.begin(), m_native.end(), "all") != m_native.end()
-    || std::find(m_native.begin(), m_native.end(), prot) != m_native.end();
-}
+public:
+  TFileAdaptor(const edm::ParameterSet &p, edm::ActivityRegistry &ar)
+    : enabled_(true),
+      doStats_(true),
+      mode_("none")
+  {
+    if (! (enabled_ = p.getUntrackedParameter<bool> ("enable", enabled_)))
+      return;
 
-void
-TFileAdaptor::addType (TPluginManager *mgr, const char *type)
-{
-  mgr->AddHandler ("TFile", 
-		   type, 
-		   "TStorageFactoryFile", 
-		   "IOPoolTFileAdaptor",
-		   "TStorageFactoryFile(const char*,Option_t*,const char*,Int_t)"); 
+    doStats_ = p.getUntrackedParameter<bool> ("stats", doStats_);
+    mode_ = p.getUntrackedParameter<std::string> ("mode", mode_);
+    native_ = p.getUntrackedParameter<std::vector<std::string> >("native", native_);
+    ar.watchPostEndJob(this, &TFileAdaptor::termination);
 
-  mgr->AddHandler ("TSystem", 
-		   type, 
-		   "TStorageFactorySystem", 
-		   "IOPoolTFileAdaptor",
-		   "TStorageFactorySystem()"); 
-}
+    // Handle standard modes (none available right now).
+    //   default = adaptor:on stats:on
+    if (mode_ == "default")
+      doStats_ = true;
 
-bool
-TFileAdaptor::native (const char *prot) const
-{
-  return m_params.native(prot);
-}
+    // enable file access stats accounting if requested
+    StorageFactory::get()->enableAccounting(doStats_);
 
-TFileAdaptor::TFileAdaptor (const TFileAdaptorParams& iparams)
-  : m_params(iparams)
-{ 
-  m_params.init();
+    // set our own root plugins
+    TPluginManager *mgr = gROOT->GetPluginManager();
+    mgr->LoadHandlersFromPluginDirs();
 
-  // enable file access stats accounting if requested
-  StorageFactory::get()->enableAccounting (m_params.doStats);
+    if (!native("file"))    addType(mgr, "^file:");
+    if (!native("http"))    addType(mgr, "^http:");
+    if (!native("ftp"))     addType(mgr, "^ftp:");
+    /* always */            addType(mgr, "^web:");
+    /* always */            addType(mgr, "^gsiftp:");
+    /* always */            addType(mgr, "^sfn:");
+    if (!native("rfio"))    addType(mgr, "^rfio:");
+    if (!native("dcache"))  addType(mgr, "^dcache:");
+    if (!native("dcap"))    addType(mgr, "^dcap:");
+    if (!native("gsidcap")) addType(mgr, "^gsidcap:");
+  }
 
-  // enable file access caching in ROOT if requested
-  TStorageFactoryFile::DefaultBuffering (m_params.doBuffering);
-  TStorageFactoryFile::DefaultCaching (m_params.cacheSize, m_params.cachePageSize);
+  // Write current Storage statistics on a ostream
+  void termination(void) const
+  {
+    std::ostringstream os;
+    statsXML(os);
+    if (! os.str().empty())
+    {
+      edm::Service<edm::JobReport> jr;
+      jr->reportStorageStats(os.str());
+    }
+  }
 
-  // set our own root plugins
-  TPluginManager *mgr = gROOT->GetPluginManager();
-  if (!native("file"))    addType (mgr, "^file:");
-  if (!native("http"))    addType (mgr, "^http:");
-  if (!native("ftp"))     addType (mgr, "^ftp:");
-  /* always */            addType (mgr, "^web:");
-  /* always */            addType (mgr, "^gsiftp:");
-  /* always */            addType (mgr, "^sfn:");
-  if (!native("rfio"))    addType (mgr, "^rfio:");
-  if (!native("dcache"))  addType (mgr, "^dcache:");
-  if (!native("dcap"))    addType (mgr, "^dcap:");
-  if (!native("gsidcap")) addType (mgr, "^gsidcap:");
-}
+  void stats(std::ostream &o) const
+  {
+    if (! doStats_)
+      return;
 
-TFileAdaptor::~TFileAdaptor (void)
-{}
+    o << "Storage parameters: adaptor: true"
+      << " Stats:" << (doStats_ ? "true" : "false") << '\n'
+      << "Storage statistics: "
+      << StorageAccount::summaryText()
+      << "; tfile/read=?/?/" << (TFile::GetFileBytesRead() / 1048576.0) << "MB/?ms/?ms/?ms"
+      << "; tfile/write=?/?/" << (TFile::GetFileBytesWritten() / 1048576.0) << "MB/?ms/?ms/?ms";
+  }
 
-void
-TFileAdaptor::stats (std::ostream &o) const
-{
-  if (! m_params.doStats)
-    return;
+  void statsXML(std::ostream &o) const
+  {
+    if (! doStats_)
+      return;
 
-  o << "Storage parameters: adaptor: true"
-    << " Stats:" << (m_params.doStats ? "true" : "false")
-    << " Buffering:" << (m_params.doBuffering ? "true" : "false")
-    << " Caching:" << m_params.cacheSize << "," << m_params.cachePageSize << '\n'
+    o << "<storage-factory-summary>\n"
+      << " <storage-factory-params>\n"
+      << "  <param name='enabled' value='true' unit='boolean'/>\n"
+      << "  <param name='stats' value='" << (doStats_ ? "true" : "false") << "' unit='boolean'/>\n"
+      << " </storage-factory-params>\n"
 
-    << "Storage statistics: "
-    << StorageAccount::summaryText ()
-    << "; tfile/read=?/?/" << (TFile::GetFileBytesRead () / 1048576.0) << "MB/?ms/?ms/?ms"
-    << "; tfile/write=?/?/" << (TFile::GetFileBytesWritten () / 1048576.0) << "MB/?ms/?ms/?ms";
-}
+      << " <storage-factory-stats>\n"
+      << StorageAccount::summaryXML() << std::endl
+      << "  <storage-root-summary>\n"
+      << "   <counter-value subsystem='tfile' counter-name='read' total-megabytes='"
+      << (TFile::GetFileBytesRead() / 1048576.0) << "'/>\n"
+      << "   <counter-value subsystem='tfile' counter-name='write' total-megabytes='"
+      << (TFile::GetFileBytesWritten() / 1048576.0) << "'/>\n"
+      << "  </storage-root-summary>\n"
+      << " </storage-factory-stats>\n"
+      << "</storage-factory-summary>";
+  }
+};
 
-void
-TFileAdaptor::statsXML (std::ostream &o) const
-{
-  if (! m_params.doStats)
-    return;
-
-  o << "<storage-factory-summary>\n"
-    << " <storage-factory-params>\n"
-    << "  <param name='enabled' value='true' unit='boolean'/>\n"
-    << "  <param name='stats' value='" << (m_params.doStats ? "true" : "false") << "' unit='boolean'/>\n"
-    << "  <param name='buffering' value='" << (m_params.doBuffering ? "true" : "false") << "' unit='boolean'/>\n"
-    << "  <param name='cache-size' value='" << (m_params.cacheSize * 1048576) << "' unit='bytes'/>\n"
-    << "  <param name='cache-pages' value='" << m_params.cachePageSize << "' unit='bytes'/>\n"
-    << " </storage-factory-params>\n"
-
-    << " <storage-factory-stats>\n"
-    << StorageAccount::summaryXML () << std::endl
-    << "  <storage-root-summary>\n"
-    << "   <counter-value subsystem='tfile' counter-name='read' total-megabytes='"
-    << (TFile::GetFileBytesRead () / 1048576.0) << "'/>\n"
-    << "   <counter-value subsystem='tfile' counter-name='write' total-megabytes='"
-    << (TFile::GetFileBytesWritten() / 1048576.0) << "'/>\n"
-    << "  </storage-root-summary>\n"
-    << " </storage-factory-stats>\n"
-    << "</storage-factory-summary>";
-}
+typedef TFileAdaptor AdaptorConfig;
+DEFINE_FWK_SERVICE(AdaptorConfig);
