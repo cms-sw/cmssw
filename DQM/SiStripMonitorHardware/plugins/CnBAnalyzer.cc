@@ -223,7 +223,6 @@ CnBAnalyzer::beginJob(const edm::EventSetup& iSetup)
   if (useCablingDb_) {
     edm::ESHandle<SiStripFedCabling> myCabling;
     iSetup.get<SiStripFedCablingRcd>().get(myCabling);
-    // TODO: understand why this can't be put in the class declaration !!!
     cabling_ = new SiStripFedCabling (*myCabling);
   }
 
@@ -274,7 +273,9 @@ void CnBAnalyzer::createRootFedHistograms() {
     binNameS.str(""); if (i%10==0) binNameS << i; fedBx_->setBinLabel(i-fedIdBoundaries_.first+1, binNameS.str(), 1);
   }
 
-  // TODO: corrupt buffer
+  // TODO: corrupt buffer ?
+  
+  // TODO: missing connections ?
 
   // Trend plots:
   totalChannels_  = dqm()->book1D( "TotalChannelsVsEvent",
