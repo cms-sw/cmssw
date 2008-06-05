@@ -11,7 +11,6 @@ from FastSimulation.PileUpProducer.PileUpSimulator_cfi import *
 famosPileUp = cms.EDProducer("PileUpProducer",
     # The conditions for pile-up event generation
     PileUpSimulatorBlock,
-    UseTRandomEngine = cms.bool(True),
     VertexGenerator = cms.PSet(
         myVertexGenerator
     )
