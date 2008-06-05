@@ -11,6 +11,7 @@ L2TauValidation::L2TauValidation(const edm::ParameterSet& iConfig):
  matchLevel_(iConfig.getParameter<int>("MatchLevel")),
  matchDeltaRMC_(iConfig.getParameter<double>("MatchDeltaRMC")),
  matchDeltaRL1_(iConfig.getParameter<double>("MatchDeltaRL1")),
+ triggerTag_((iConfig.getParameter<std::string>("TriggerTag"))),
  outFile_(iConfig.getParameter<std::string>("OutputFileName"))
 {
 
@@ -19,7 +20,7 @@ L2TauValidation::L2TauValidation(const edm::ParameterSet& iConfig):
   if(store)
     {
       //Create the histograms
-      store->setCurrentFolder("HLTTauL2"+l2TauInfoAssoc_.label());
+      store->setCurrentFolder(triggerTag_+l2TauInfoAssoc_.label());
 
       jetEt= store->book1D("tauCandEt","tauCandEt",50,0,100);
       jetEta= store->book1D("tauCandEta","tauCandEta",50,-2.5,2.5);
@@ -129,6 +130,7 @@ void
 L2TauValidation::endJob() {
  
   //Write file
+  if(outFile_.size()>0)
 if (&*edm::Service<DQMStore>()) edm::Service<DQMStore>()->save (outFile_);
 
 }

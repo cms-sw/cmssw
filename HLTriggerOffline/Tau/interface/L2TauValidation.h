@@ -60,6 +60,9 @@ class L2TauValidation : public edm::EDAnalyzer {
       double matchDeltaRMC_;
       double matchDeltaRL1_;
       
+      //Tag to save in DQM File
+      std::string triggerTag_;
+      
       //Output file
       std::string outFile_;
 

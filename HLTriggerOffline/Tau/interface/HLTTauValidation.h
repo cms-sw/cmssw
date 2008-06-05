@@ -18,6 +18,8 @@ bachtis@hep.wisc.edu
 #include "DataFormats/HLTReco/interface/TriggerRefsCollections.h"
 #include "DataFormats/L1Trigger/interface/L1JetParticle.h"
 #include "DataFormats/L1Trigger/interface/L1JetParticleFwd.h"
+#include "DataFormats/EgammaCandidates/interface/Electron.h"
+#include "DataFormats/RecoCandidate/interface/RecoChargedCandidate.h"
 //Include DQM core
 #include "DQMServices/Core/interface/DQMStore.h"
 #include "DQMServices/Core/interface/MonitorElement.h"
@@ -37,7 +39,7 @@ class HLTTauValidation : public edm::EDAnalyzer {
 
 
   //helper functions
-  bool match(const reco::Candidate&,const LVColl&,double);
+  bool match(const LV&,const LVColl&,double);
   double* calcEfficiency(int,int);
   
 
@@ -47,11 +49,10 @@ class HLTTauValidation : public edm::EDAnalyzer {
 
   //reference Collection
   edm::InputTag refCollection_;
+  edm::InputTag refLeptonCollection_;
     
   //Just a tag for better file organization
   std::string triggerTag_;
-  
-
 
   //The four basic filters
   std::string l1seedFilter_;
@@ -59,11 +60,16 @@ class HLTTauValidation : public edm::EDAnalyzer {
   std::string l25filter_;
   std::string l3filter_;
 
-  
+
+  //electron filter
+  std::string electronFilter_;
+  //muon filter
+  std::string muonFilter_;
 
 
   //Parameters
-  int nTriggeredTaus_;
+  unsigned nTriggeredTaus_;
+  unsigned nTriggeredLeptons_;
   bool doRefAnalysis_;
   std::string outFile_;
   std::string logFile_;
@@ -72,20 +78,16 @@ class HLTTauValidation : public edm::EDAnalyzer {
 
   //MonitorElements
 
-  /*Trigger Bits for Tau and Reference(electron) Trigger*/
+  /*Trigger Bits for Tau and Reference Trigger*/
   MonitorElement *triggerBits_Tau;
   MonitorElement *triggerBits_Ref;
   MonitorElement *etVsTriggerPath_Tau;
   MonitorElement *etVsTriggerPath_Ref;
 
-
-
-
-
-
   //Define Numbers 
-  
   int NRefEvents;
+  int NLeptonEvents;
+  int NLeptonEvents_Matched;
   int NL1Events;
   int NL1Events_Matched;
   int NL2Events;
