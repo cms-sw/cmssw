@@ -102,7 +102,7 @@ HLTPi0RecHitsFilter::filter(edm::Event& iEvent, const edm::EventSetup& iSetup)
   iEvent.getByLabel(l1NonIsolatedTag_, l1EGNonIso ) ;
 
 
-  cout<< "  L1EmIso L1EmNonIso coll # "<<l1EGIso->size()<<" "<<l1EGNonIso->size()<<endl;
+  //cout<< "  L1EmIso L1EmNonIso coll # "<<l1EGIso->size()<<" "<<l1EGNonIso->size()<<endl;
 
  //To Deal with Geometry:
   edm::ESHandle<CaloTopology> theCaloTopology;
@@ -137,7 +137,7 @@ HLTPi0RecHitsFilter::filter(edm::Event& iEvent, const edm::EventSetup& iSetup)
 
   //Select interesting EcalRecHits (barrel)
   EBRecHitCollection::const_iterator itb;
-  cout<< "   EB RecHits #: "<<barrelRecHitsHandle->size()<<endl;
+  //cout<< "   EB RecHits #: "<<barrelRecHitsHandle->size()<<endl;
   for (itb=barrelRecHitsHandle->begin(); itb!=barrelRecHitsHandle->end(); itb++) {
 
     double energy = itb->energy();
@@ -412,7 +412,7 @@ HLTPi0RecHitsFilter::filter(edm::Event& iEvent, const edm::EventSetup& iSetup)
 	      for(unsigned int Rec3=0;Rec3<RecHitsCluster[IsoClus[iii]].size();Rec3++)pi0EBRecHitCollection->push_back(RecHitsCluster[IsoClus[iii]][Rec3]);
 	    }   
 	    
-	    cout <<"  Simple Clustering: pi0 Candidate pt,m_inv,i,j :   "<<pt_pi0<<" "<<m_inv<<" "<<i<<" "<<j<<" "<<endl;  
+	    //cout <<"  Simple Clustering: pi0 Candidate pt,m_inv,i,j :   "<<pt_pi0<<" "<<m_inv<<" "<<i<<" "<<j<<" "<<endl;  
 
 	    npi0_s++;
 	  }
@@ -427,7 +427,7 @@ HLTPi0RecHitsFilter::filter(edm::Event& iEvent, const edm::EventSetup& iSetup)
   //timers.pop_and_push(timerName);
 
 
-    cout<<"  (Simple Clustering) Pi0 candidates #: "<<npi0_s<<endl;
+  //cout<<"  (Simple Clustering) Pi0 candidates #: "<<npi0_s<<endl;
 
 
 
@@ -437,7 +437,7 @@ HLTPi0RecHitsFilter::filter(edm::Event& iEvent, const edm::EventSetup& iSetup)
 
       //Put selected information in the event
       int pi0_collsize = pi0EBRecHitCollection->size();
-      cout<< "   EB RecHits # in Collection: "<<pi0EBRecHitCollection->size()<<endl;
+      //cout<< "   EB RecHits # in Collection: "<<pi0EBRecHitCollection->size()<<endl;
       if ( pi0_collsize > seleNRHMax_ ) return accept;
       if ( pi0_collsize < 1 ) return accept;
       if( npi0_s ==0 )return accept; 
