@@ -36,16 +36,18 @@ DreamSD::DreamSD(G4String name, const DDCompactView & cpv,
   birk2  = m_EC.getParameter<double>("BirkC2");
   birk3  = m_EC.getParameter<double>("BirkC3");
   slopeLY= m_EC.getParameter<double>("SlopeLightYield");
+  readBothSide_ = m_EC.getUntrackedParameter<bool>("ReadBothSide", false);
   
   edm::LogInfo("EcalSim")  << "Constructing a DreamSD  with name " << GetName() << "\n"
 			   << "DreamSD:: Use of Birks law is set to      " 
 			   << useBirk << "  with three constants kB = "
 			   << birk1 << ", C1 = " << birk2 << ", C2 = " 
 			   << birk3 << "\n"
-			   << "         Slope for Light yield is set to "
+			   << "          Slope for Light yield is set to "
 			   << slopeLY << "\n"
-                           << "         Parameterization of Cherenkov is set to " 
-                           << doCherenkov_;
+                           << "          Parameterization of Cherenkov is set to " 
+                           << doCherenkov_ << " and readout both sides is "
+			   << readBothSide_;
 
   initMap(name,cpv);
 
@@ -70,32 +72,110 @@ DreamSD::DreamSD(G4String name, const DDCompactView & cpv,
 }
 
 //________________________________________________________________________________________
-double DreamSD::getEnergyDeposit(G4Step * aStep) {
+bool DreamSD::ProcessHits(G4Step * aStep, G4TouchableHistory *) {
 
-  double edep = 0;
-
-  if ( aStep ) {
-    preStepPoint        = aStep->GetPreStepPoint();
-    G4String nameVolume = preStepPoint->GetPhysicalVolume()->GetName();
-
-    // take into account light collection curve for crystals
-    double weight = 1.;
-    weight *= curve_LY(aStep);
-    if (useBirk)   weight *= getAttenuation(aStep, birk1, birk2, birk3);
-    edep    = aStep->GetTotalEnergyDeposit() * weight;
-    LogDebug("EcalSim") << "DreamSD:: " << nameVolume
-			<<" Light Collection Efficiency " << weight 
-			<< " Weighted Energy Deposit " << edep/MeV << " MeV";
-
-    // Get cherenkov contribution
-    if ( doCherenkov_ ) {
-      edep += cherenkovDeposit_( aStep );
+  if (aStep == NULL) {
+    return true;
+  } else {
+    side = 1;
+    if (getStepInfo(aStep)) {
+      if (hitExists() == false && edepositEM+edepositHAD>0.)
+        currentHit = createNewHit();
+      if (readBothSide_) {
+	side = -1;
+	getStepInfo(aStep);
+	if (hitExists() == false && edepositEM+edepositHAD>0.)
+	  currentHit = createNewHit();
+      }
     }
+  }
+  return true;
+}
 
-  } 
 
-  return edep;
+//________________________________________________________________________________________
+bool DreamSD::getStepInfo(G4Step* aStep) {
 
+  preStepPoint = aStep->GetPreStepPoint();
+  theTrack     = aStep->GetTrack();
+  G4String nameVolume = preStepPoint->GetPhysicalVolume()->GetName();
+
+  // take into account light collection curve for crystals
+  double weight = 1.;
+  weight *= curve_LY(aStep, side);
+  if (useBirk)   weight *= getAttenuation(aStep, birk1, birk2, birk3);
+  edepositEM  = aStep->GetTotalEnergyDeposit() * weight;
+  LogDebug("EcalSim") << "DreamSD:: " << nameVolume << " Side " << side
+		      <<" Light Collection Efficiency " << weight 
+		      << " Weighted Energy Deposit " << edepositEM/MeV 
+		      << " MeV";
+  // Get cherenkov contribution
+  if ( doCherenkov_ ) {
+    edepositHAD = cherenkovDeposit_( aStep );
+  } else {
+    edepositHAD = 0;
+  }
+
+  double       time  = (aStep->GetPostStepPoint()->GetGlobalTime())/nanosecond;
+  unsigned int unitID= setDetUnitId(aStep);
+  if (side < 0) unitID++;
+  TrackInformation * trkInfo = (TrackInformation *)(theTrack->GetUserInformation());
+  int      primaryID;
+
+  if (trkInfo)
+    primaryID = trkInfo->getIDonCaloSurface();
+  else
+    primaryID = 0;
+
+  if (primaryID == 0) {
+    edm::LogWarning("EcalSim") << "CaloSD: Problem with primaryID **** set by "
+                               << "force to TkID **** "
+                               << theTrack->GetTrackID() << " in Volume "
+                               << preStepPoint->GetTouchable()->GetVolume(0)->GetName();
+    primaryID = theTrack->GetTrackID();
+  }
+
+  bool flag = (unitID > 0);
+  G4TouchableHistory* touch =(G4TouchableHistory*)(theTrack->GetTouchable());
+  if (flag) {
+    currentID.setID(unitID, time, primaryID, 0);
+
+    LogDebug("EcalSim") << "CaloSD:: GetStepInfo for"
+                        << " PV "     << touch->GetVolume(0)->GetName()
+                        << " PVid = " << touch->GetReplicaNumber(0)
+                        << " MVid = " << touch->GetReplicaNumber(1)
+                        << " Unit   " << currentID.unitID()
+                        << " Edeposit = " << edepositEM << " " << edepositHAD;
+  } else {
+    LogDebug("EcalSim") << "CaloSD:: GetStepInfo for"
+                        << " PV "     << touch->GetVolume(0)->GetName()
+                        << " PVid = " << touch->GetReplicaNumber(0)
+                        << " MVid = " << touch->GetReplicaNumber(1)
+                        << " Unit   " << std::hex << unitID << std::dec
+                        << " Edeposit = " << edepositEM << " " << edepositHAD;
+  }
+  return flag;
+
+}
+
+
+//________________________________________________________________________________________
+void DreamSD::initRun() {
+
+  // Get the material and set properties if needed
+  DimensionMap::const_iterator ite = xtalLMap.begin();
+  G4LogicalVolume* lv = (ite->first);
+  G4Material* material = lv->GetMaterial();
+  edm::LogInfo("EcalSim") << "DreamSD::initRun: Initializes for material " 
+			  << material->GetName() << " in " << lv->GetName();
+  materialPropertiesTable = material->GetMaterialPropertiesTable();
+  if ( !materialPropertiesTable ) {
+    if ( !setPbWO2MaterialProperties_( material ) ) {
+      edm::LogWarning("EcalSim") << "Couldn't retrieve material properties table\n"
+                                 << " Material = " << material->GetName();
+    }
+    materialPropertiesTable = material->GetMaterialPropertiesTable();
+  }
 }
 
 
@@ -157,7 +237,7 @@ void DreamSD::initMap(G4String sd, const DDCompactView & cpv) {
 }
 
 //________________________________________________________________________________________
-double DreamSD::curve_LY(G4Step* aStep) {
+double DreamSD::curve_LY(G4Step* aStep, int flag) {
 
   G4StepPoint*     stepPoint = aStep->GetPreStepPoint();
   G4LogicalVolume* lv        = stepPoint->GetTouchable()->GetVolume(0)->GetLogicalVolume();
@@ -168,7 +248,7 @@ double DreamSD::curve_LY(G4Step* aStep) {
 					 stepPoint->GetTouchable());
   double crlength = crystalLength(lv);
   double localz   = localPoint.x();
-  double dapd = 0.5 * crlength - localz; // Distance from closest APD
+  double dapd = 0.5 * crlength - flag*localz; // Distance from closest APD
   if (dapd >= -0.1 || dapd <= crlength+0.1) {
     if (dapd <= 100.)
       weight = 1.0 + slopeLY - dapd * 0.01 * slopeLY;
@@ -214,18 +294,8 @@ const double DreamSD::crystalWidth(G4LogicalVolume* lv) const {
 double DreamSD::cherenkovDeposit_( G4Step* aStep ) {
 
   double cherenkovEnergy = 0;
-
-  // Get the material and set properties if needed
+  if (!materialPropertiesTable) return cherenkovEnergy;
   G4Material* material = aStep->GetTrack()->GetMaterial();
-  G4MaterialPropertiesTable* materialPropertiesTable = material->GetMaterialPropertiesTable();
-  if ( !materialPropertiesTable ) {
-    if ( !setPbWO2MaterialProperties_( material ) ) {
-      edm::LogWarning("EcalSim") << "Couldn't retrieve material properties table\n"
-                                 << " Material = " << material->GetName();
-      return cherenkovEnergy;
-    }
-    materialPropertiesTable = material->GetMaterialPropertiesTable();
-  }
 
   // Retrieve refractive index
   const G4MaterialPropertyVector* Rindex = materialPropertiesTable->GetProperty("RINDEX"); 

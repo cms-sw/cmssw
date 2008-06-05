@@ -38,6 +38,16 @@
    <Parameter name="SensitiveDetector" value="DreamSensitiveDetector" eval="false"/>
    <Parameter name="ReadOutName" value="EcalHitsEB" eval="false"/>
  </SpecPar>
+ <SpecPar name="calo">
+   <PartSelector path="//Crystal" />
+   <Parameter name="SensitiveDetector" value="CaloTrkProcessing" eval="false"/>
+   <Parameter name="ReadOutName" value="CaloHitsTk" eval="false"/>
+   <Parameter name="Calorimeter" value="Crystal"    eval="false"/>
+   <Parameter name="Levels"      value="2"          eval="true"/>
+   <Parameter name="Neighbours"  value="1"          eval="true"/>
+   <Parameter name="Inside"      value="NotFound"   eval="false"/>
+   <Parameter name="InsideLevel" value="2"          eval="true"/>
+ </SpecPar>
 </SpecParSection>
 
 </DDDefinition>
