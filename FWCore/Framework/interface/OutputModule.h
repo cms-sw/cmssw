@@ -19,6 +19,7 @@ output stream.
 
 #include "FWCore/Framework/interface/CachedProducts.h"
 #include "FWCore/Framework/interface/Frameworkfwd.h"
+#include "FWCore/Framework/interface/GroupSelectorRules.h"
 #include "FWCore/Framework/interface/GroupSelector.h"
 #include "FWCore/Framework/interface/OutputModuleDescription.h"
 #include "FWCore/Framework/src/OutputWorker.h"
@@ -128,6 +129,7 @@ namespace edm {
     boost::array<bool, NumBranchTypes> hasNewlyDroppedBranch_;
 
     std::string process_name_;
+    GroupSelectorRules groupSelectorRules_;
     GroupSelector groupSelector_;
 
     ModuleDescription moduleDescription_;

@@ -122,7 +122,8 @@ namespace edm {
     droppedProducedProducts_(),
     hasNewlyDroppedBranch_(),
     process_name_(),
-    groupSelector_(pset),
+    groupSelectorRules_(pset, "outputCommands", "OutputModule"),
+    groupSelector_(),
     moduleDescription_(),
     current_context_(0),
     prodsValid_(false),
@@ -173,7 +174,7 @@ namespace edm {
 
   void OutputModule::selectProducts() {
     if (groupSelector_.initialized()) return;
-    groupSelector_.initialize(getAllBranchDescriptions());
+    groupSelector_.initialize(groupSelectorRules_, getAllBranchDescriptions());
     Service<ConstProductRegistry> reg;
     nextID_ = reg->nextID();
 

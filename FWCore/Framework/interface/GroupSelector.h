@@ -1,9 +1,9 @@
-#ifndef Framework_GroupSelector_h
-#define Framework_GroupSelector_h
+#ifndef FWCore_Framework_GroupSelector_h
+#define FWCore_Framework_GroupSelector_h
 
 //////////////////////////////////////////////////////////////////////
 //
-// $Id: GroupSelector.h,v 1.10 2006/04/15 04:45:42 wmtan Exp $
+// $Id: GroupSelector.h,v 1.11 2007/01/10 22:41:46 wdd Exp $
 //
 // Class GroupSelector. Class for user to select specific groups in event.
 //
@@ -19,15 +19,16 @@
 
 namespace edm {
   class BranchDescription;
+  class GroupSelectorRules;
   class ParameterSet;
 
   class GroupSelector {
   public:
-    // N.B.: we assume there are not null pointers in the vector allBranches.
-    explicit GroupSelector(ParameterSet const& ps);
+    GroupSelector();
 
-    void initialize(std::vector<BranchDescription const*> const& 
-		     branchDescriptions);
+    // N.B.: we assume there are not null pointers in the vector allBranches.
+    void initialize(GroupSelectorRules const& rules,
+		    std::vector<BranchDescription const*> const& branchDescriptions);
 
     bool selected(BranchDescription const& desc) const;
 
@@ -38,71 +39,16 @@ namespace edm {
 
   private:
 
-    //--------------------------------------------------
-    // BranchWriteState is a struct which associates a BranchDescription
-    // (*desc) with a bool indicating whether or not the branch with
-    // that name is to be written.  Note that desc may not be null.
-    struct BranchWriteState
-    {
-      edm::BranchDescription const* desc;
-      bool                          writeMe;
-  
-      // N.B.: We assume bd is not null.
-      explicit BranchWriteState (edm::BranchDescription const* bd) : 
-        desc(bd), 
-        writeMe(false)
-      { }
-    };
-  
-    class Rule
-    {
-    public:
-      explicit Rule(std::string const& s);
-  
-      // Apply the rule to all the given branch states. This may modify
-      // the given branch states.
-      void applyToAll(std::vector<GroupSelector::BranchWriteState>& branchstates) const;
-  
-      // Apply the rule to the given BranchDescription. The return value
-      // is the value to which the 'write bit' should be set, according
-      // to application of this rule.
-      //bool applyToOne(edm::BranchDescription const* branch) const;
-  
-      // If this rule applies to the given BranchDescription, then
-      // modify 'result' to match the rule's write flag. If the rule does
-      // not apply, do not modify 'result'.
-      void applyToOne(edm::BranchDescription const* branch,
-  		    bool& result) const;
-  
-      // Return the answer to the question: "Does the rule apply to this
-      // BranchDescription?"
-      bool appliesTo(edm::BranchDescription const* branch) const;
-  
-    private:
-  
-  
-      // writeflag_ carries the value to which we should set the 'write
-      // bit' if this rule matches.
-      bool   writeflag_;
-      boost::regex productType_;
-      boost::regex moduleLabel_;
-      boost::regex instanceName_;
-      boost::regex processName_;
-    };
-
-   void fill_rules(edm::ParameterSet const& params);
-  
     // We keep a sorted collection of branch names, indicating the
-    // groups which are to be written.
+    // groups which are to be selected.
 
     // TODO: See if we can keep pointer to (const) BranchDescriptions,
     // so that we can do pointer comparison rather than string
     // comparison. This will work if the BranchDescription we are
     // given in the 'selected' member function is one of the instances
     // that are managed by the ProductRegistry used to initialize the
-    // OutputModule that contains this GroupSelector.
-    std::vector<std::string> groupsToWrite_;
-    std::vector<Rule> rules_;
+    // entity that contains this GroupSelector.
+    std::vector<std::string> groupsToSelect_;
     bool initialized_;
   };
 
