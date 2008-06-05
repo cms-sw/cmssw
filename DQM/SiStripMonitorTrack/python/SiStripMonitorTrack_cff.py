@@ -6,8 +6,7 @@ from RecoTracker.TrackProducer.RefitterWithMaterial_cff import *
 #-----------------------
 #  Reconstruction Modules
 #-----------------------
-from RecoLocalTracker.SiStripZeroSuppression.SiStripZeroSuppression_SimData_cfi import *
-#include "RecoLocalTracker/SiStripZeroSuppression/data/SiStripZeroSuppression.cfi"
+from RecoLocalTracker.SiStripZeroSuppression.SiStripZeroSuppression_cfi import *
 from EventFilter.SiStripRawToDigi.SiStripDigis_cfi import *
 DQMSiStripMonitorTrack_Sim = cms.Sequence(siStripDigis*siStripZeroSuppression*TrackRefitter*SiStripMonitorTrack)
 DQMSiStripMonitorTrack_Real = cms.Sequence(SiStripMonitorTrack)
