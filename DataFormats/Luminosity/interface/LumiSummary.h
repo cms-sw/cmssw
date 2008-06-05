@@ -11,7 +11,7 @@
  *         David Dagenhart
  *
  * \version   1st Version June 7 2007
- * $Id: LumiSummary.h,v 1.1 2007/07/13 20:13:02 wdd Exp $
+ * $Id: LumiSummary.h,v 1.2 2008/02/06 20:56:43 wdd Exp $
  *
  ************************************************************/
  
@@ -58,6 +58,7 @@ class LumiSummary {
  
     int    lsNumber() const { return lsnumber_; }
 
+    bool isValid() const { return (lsnumber_ != -1); }
 
     // other inline have to be made to return 
     // the rate counter and scalers based on the label
