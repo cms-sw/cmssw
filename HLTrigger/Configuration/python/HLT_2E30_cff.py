@@ -1,4 +1,4 @@
-# /dev/CMSSW_2_1_0_pre5/HLT/V13 (CMSSW_2_1_0_pre5)
+# /dev/CMSSW_2_1_0_pre5/HLT/V14 (CMSSW_2_1_0_pre5)
 
 import FWCore.ParameterSet.Config as cms
 
@@ -900,6 +900,7 @@ hltL1s2jetAco = cms.EDFilter( "HLTLevel1GTSeed",
 hltPre2jetAco = cms.EDFilter( "HLTPrescaler" )
 hlt2jet125 = cms.EDFilter( "HLT1CaloJet",
     inputTag = cms.InputTag( "hltMCJetCorJetIcone5Regional" ),
+    saveTag = cms.untracked.bool( True ),
     MinPt = cms.double( 125.0 ),
     MaxEta = cms.double( 5.0 ),
     MinN = cms.int32( 2 )
@@ -934,6 +935,7 @@ hlt1MET60 = cms.EDFilter( "HLT1CaloMET",
 )
 hlt1jet100 = cms.EDFilter( "HLT1CaloJet",
     inputTag = cms.InputTag( "hltMCJetCorJetIcone5" ),
+    saveTag = cms.untracked.bool( True ),
     MinPt = cms.double( 100.0 ),
     MaxEta = cms.double( 5.0 ),
     MinN = cms.int32( 1 )
