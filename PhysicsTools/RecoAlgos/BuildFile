@@ -4,6 +4,10 @@
 <use name=FWCore/ParameterSet>
 <use name=DataFormats/TrackReco>
 <use name=DataFormats/VertexReco>
+<use name=DataFormats/TrackingRecHit>
+<use name=DataFormats/SiStripCluster>
+<use name=DataFormats/SiPixelCluster>
+<use name=DataFormats/TrackerRecHit2D>
 <export>
   <lib name=PhysicsToolsRecoAlgos>
   <use name=SimGeneral/HepPDTRecord>
@@ -12,4 +16,8 @@
   <use name=FWCore/ParameterSet>
   <use name=DataFormats/TrackReco>
   <use name=DataFormats/VertexReco>
+  <use name=DataFormats/TrackingRecHit>
+  <use name=DataFormats/SiStripCluster>
+  <use name=DataFormats/SiPixelCluster>
+  <use name=DataFormats/TrackerRecHit2D>
 </export>
