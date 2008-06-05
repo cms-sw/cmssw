@@ -6,7 +6,9 @@ using pat::helper::OverlapHelper;
 
 pat::helper::OverlapHelper::Worker::Worker(const edm::ParameterSet &pset) : 
     tag_(pset.getParameter<edm::InputTag>("collection")),
+    byComponent_(pset.exists("checkRecoComponents") ? pset.getParameter<bool>("checkRecoComponents") : false),
     finder_(pset.getParameter<double>("deltaR")),
+    finderReco_(pset.getParameter<double>("deltaR")),
     cut_()
 {
     if (pset.exists("cut")) {

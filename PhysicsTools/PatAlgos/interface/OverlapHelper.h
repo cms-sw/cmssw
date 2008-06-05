@@ -3,7 +3,7 @@
 /**
     \class pat::helper::OverlapHelper "PhysicsTools/PatAlgos/interface/OverlapHelper.h"
     \brief Helper class for removing overlaps. 
-    Can only check overlaps between already existing* collections.
+    Can only check overlaps between already existing collections.
     Full framework only. 
 */
 
@@ -13,6 +13,7 @@
 
 //#include "PhysicsTools/PatUtils/interface/SimpleOverlapFinder.h"
 #include "PhysicsTools/PatUtils/interface/GenericOverlapFinder.h"
+#include "DataFormats/Candidate/interface/OverlapChecker.h"
 
 #include "PhysicsTools/PatUtils/interface/PatSelectorByFlags.h"
 
@@ -30,14 +31,31 @@ namespace pat {
             OverlapWithPointerByDeltaR(double deltaR) :  scale_(1.0/(deltaR*deltaR)) {}
             template<typename T1, typename T2>
             double operator()(const T1 &t1, const T2 &t2) const {
-                return deltaR2(t1,*t2) * scale_;
+                return ::deltaR2(t1,*t2) * scale_;
             }
         private:
             double scale_;
     };
+    struct OverlapWithPointerByComponent {
+        public:
+            OverlapWithPointerByComponent(double deltaR) :  scale_(1.0/(deltaR*deltaR)) {}
+            template<typename T1, typename T2>
+            double operator()(const T1 &t1, const T2 &t2) const {
+                double dr = ::deltaR2(t1,*t2) * scale_;
+                if (dr < 1.0) {
+                    OverlapChecker overlaps;
+                    if (!overlaps(t1,*t2)) return 2.0;
+                }
+                return dr;
+            }
+        private:
+            double scale_;
+    };
+
 class OverlapHelper {
     public:
-        typedef pat::GenericOverlapFinder<pat::helper::OverlapWithPointerByDeltaR> SimpleOverlapFinder;
+        typedef pat::GenericOverlapFinder<pat::helper::OverlapWithPointerByDeltaR>    SimpleOverlapFinder;
+        typedef pat::GenericOverlapFinder<pat::helper::OverlapWithPointerByComponent> RecoOverlapFinder;
 
         // == Generic worker class ==
         class Worker {
@@ -48,7 +66,9 @@ class OverlapHelper {
                     run( const edm::Event &iEvent, const Collection &items) const ;
             protected:
                 edm::InputTag tag_;
+                bool byComponent_;
                 SimpleOverlapFinder finder_;
+                RecoOverlapFinder   finderReco_;
                 boost::shared_ptr<StringCutObjectSelector<reco::Candidate> > cut_;
                 boost::shared_ptr<pat::SelectorByFlags > flags_;
                 mutable std::vector<const reco::Candidate *> tmp_;
@@ -94,7 +114,7 @@ pat::helper::OverlapHelper::Worker::run(const edm::Event &iEvent, const Collecti
             if (flags_.get() && ! (*flags_)(*it) ) continue;
             tmp_.push_back( & *it );
         }
-        std::auto_ptr<pat::OverlapList> ret = finder_.find(items, tmp_);
+        std::auto_ptr<pat::OverlapList> ret = (byComponent_ ? finderReco_.find(items, tmp_) : finder_.find(items, tmp_));
         tmp_.clear(); 
         return ret;
 }
