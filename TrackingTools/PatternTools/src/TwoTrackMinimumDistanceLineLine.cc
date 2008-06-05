@@ -59,12 +59,12 @@ bool TwoTrackMinimumDistanceLineLine::calculate(
   return false;
 }
 
-pair <GlobalPoint, GlobalPoint> TwoTrackMinimumDistanceLineLine::points() const
+std::pair<GlobalPoint, GlobalPoint> TwoTrackMinimumDistanceLineLine::points() const
 {
-  return pair <GlobalPoint, GlobalPoint > ( gPos, hPos );
+  return std::pair<GlobalPoint, GlobalPoint > ( gPos, hPos );
 }
 
-pair <double, double> TwoTrackMinimumDistanceLineLine::pathLength() const
+std::pair<double, double> TwoTrackMinimumDistanceLineLine::pathLength() const
 {
-  return pair <double, double> ( pathG, pathH);
+  return std::pair<double, double> ( pathG, pathH);
 }
