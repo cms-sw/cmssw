@@ -1,30 +1,24 @@
 import FWCore.ParameterSet.Config as cms
 
-import copy
-from DQM.TrackingMonitor.TrackingMonitor_cfi import *
+import DQM.TrackingMonitor.TrackingMonitor_cfi
 #Below all DQM modules for TrackerAlignment AlCaRecos are instanciated.
 #TkAlZMuMu
-ALCARECOTkAlZMuMuDQM = copy.deepcopy(TrackMon)
-import copy
-from DQM.TrackingMonitor.TrackingMonitor_cfi import *
+ALCARECOTkAlZMuMuDQM = DQM.TrackingMonitor.TrackingMonitor_cfi.TrackMon.clone()
+import DQM.TrackingMonitor.TrackingMonitor_cfi
 #TkAlJpsiMuMu
-ALCARECOTkAlJpsiMuMuDQM = copy.deepcopy(TrackMon)
-import copy
-from DQM.TrackingMonitor.TrackingMonitor_cfi import *
+ALCARECOTkAlJpsiMuMuDQM = DQM.TrackingMonitor.TrackingMonitor_cfi.TrackMon.clone()
+import DQM.TrackingMonitor.TrackingMonitor_cfi
 #TkAlUpsilonMuMu
-ALCARECOTkAlUpsilonMuMuDQM = copy.deepcopy(TrackMon)
-import copy
-from DQM.TrackingMonitor.TrackingMonitor_cfi import *
+ALCARECOTkAlUpsilonMuMuDQM = DQM.TrackingMonitor.TrackingMonitor_cfi.TrackMon.clone()
+import DQM.TrackingMonitor.TrackingMonitor_cfi
 #TkAlBeamHalo
-ALCARECOTkAlBeamHaloDQM = copy.deepcopy(TrackMon)
-import copy
-from DQM.TrackingMonitor.TrackingMonitor_cfi import *
+ALCARECOTkAlBeamHaloDQM = DQM.TrackingMonitor.TrackingMonitor_cfi.TrackMon.clone()
+import DQM.TrackingMonitor.TrackingMonitor_cfi
 #TkAlMinBias
-ALCARECOTkAlMinBiasDQM = copy.deepcopy(TrackMon)
-import copy
-from DQM.TrackingMonitor.TrackingMonitor_cfi import *
+ALCARECOTkAlMinBiasDQM = DQM.TrackingMonitor.TrackingMonitor_cfi.TrackMon.clone()
+import DQM.TrackingMonitor.TrackingMonitor_cfi
 #TkAlMuonIsolated
-ALCARECOTkAlMuonIsolatedDQM = copy.deepcopy(TrackMon)
+ALCARECOTkAlMuonIsolatedDQM = DQM.TrackingMonitor.TrackingMonitor_cfi.TrackMon.clone()
 #names & designations  
 ALCARECOTkAlZMuMuDQM.TrackProducer = 'ALCARECOTkAlZMuMu'
 ALCARECOTkAlZMuMuDQM.AlgoName = 'ALCARECOTkAlZMuMu'
