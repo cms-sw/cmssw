@@ -53,6 +53,7 @@ namespace edm {
 		     int forcedRunOffset,
 		     std::vector<EventID> const& whichEventsToProcess,
 		     bool dropMetaData,
+		     GroupSelectorRules const& groupSelectorRules,
 		     std::vector<std::string> const& wantedBranches) :
       file_(fileName),
       logicalFile_(logicalFileName),
@@ -77,6 +78,7 @@ namespace edm {
       eventListIter_(whichEventsToProcess_.begin()),
       fastClonable_(false),
       dropMetaData_(dropMetaData),
+      groupSelector_(),
       reportToken_(0),
       eventAux_(),
       lumiAux_(),
@@ -203,6 +205,8 @@ namespace edm {
       newReg->setNextID(tempReg.nextID());
       newReg->setFrozen();
       productRegistry_ = boost::shared_ptr<ProductRegistry const>(newReg);
+      // This is the elector for drop on input.  It is not yet used.
+      groupSelector_.initialize(groupSelectorRules, productRegistry()->allBranchDescriptions());
     }
 
     // Merge into the registries. For now, we do NOT merge the product registry.

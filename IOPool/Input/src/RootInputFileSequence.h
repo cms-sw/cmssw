@@ -5,7 +5,7 @@
 
 RootInputFileSequence: This is an InputSource
 
-$Id: RootInputFileSequence.h,v 1.11 2008/04/16 23:31:37 wmtan Exp $
+$Id: RootInputFileSequence.h,v 1.12 2008/05/29 16:16:03 wmtan Exp $
 
 ----------------------------------------------------------------------*/
 
@@ -16,6 +16,7 @@ $Id: RootInputFileSequence.h,v 1.11 2008/04/16 23:31:37 wmtan Exp $
 #include "Inputfwd.h"
 
 #include "FWCore/Framework/interface/Frameworkfwd.h"
+#include "FWCore/Framework/interface/GroupSelectorRules.h"
 #include "FWCore/Sources/interface/VectorInputSource.h"
 #include "DataFormats/Provenance/interface/BranchDescription.h"
 #include "DataFormats/Provenance/interface/EventID.h"
@@ -98,6 +99,7 @@ namespace edm {
     int const treeMaxVirtualSize_;
     int forcedRunOffset_;
     RunNumber_t setRun_;
+    GroupSelectorRules groupSelectorRules_;
     bool dropMetaData_;
     bool primarySequence_;
     bool randomAccess_;

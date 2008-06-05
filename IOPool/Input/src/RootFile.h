@@ -16,6 +16,7 @@ RootFile.h // used by ROOT input sources
 
 #include "RootTree.h"
 #include "FWCore/Framework/interface/Frameworkfwd.h"
+#include "FWCore/Framework/interface/GroupSelector.h"
 #include "DataFormats/Provenance/interface/BranchMapper.h"
 #include "DataFormats/Provenance/interface/EventAuxiliary.h"
 #include "DataFormats/Provenance/interface/EventProcessHistoryID.h"
@@ -61,6 +62,7 @@ namespace edm {
 	     int forcedRunOffset,
 	     std::vector<EventID> const& whichEventsToProcess,
              bool dropMetaData,
+	     GroupSelectorRules const& groupSelectorRules,
 	     std::vector<std::string> const& wantedBranches);
     void reportOpened();
     void close(bool reallyClose);
@@ -149,6 +151,7 @@ namespace edm {
     std::vector<EventID>::const_iterator eventListIter_;
     bool fastClonable_;
     bool dropMetaData_;
+    GroupSelector groupSelector_;
     JobReport::Token reportToken_;
     EventAuxiliary eventAux_;
     LuminosityBlockAuxiliary lumiAux_;

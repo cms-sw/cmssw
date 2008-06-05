@@ -47,6 +47,7 @@ namespace edm {
     treeMaxVirtualSize_(pset.getUntrackedParameter<int>("treeMaxVirtualSize", -1)),
     forcedRunOffset_(0),
     setRun_(pset.getUntrackedParameter<unsigned int>("setRunNumber", 0U)),
+    groupSelectorRules_(pset, "inputCommands", "InputSource"),
     dropMetaData_(pset.getUntrackedParameter<bool>("dropMetaData", false)),
     primarySequence_(primarySequence),
     randomAccess_(false),
@@ -142,7 +143,8 @@ namespace edm {
       rootFile_ = RootFileSharedPtr(new RootFile(fileIter_->fileName(), catalog_.url(),
 	  processConfiguration(), fileIter_->logicalFileName(), filePtr,
 	  startAtRun_, startAtLumi_, startAtEvent_, eventsToSkip_, whichLumisToSkip_,
-	  remainingEvents(), treeCacheSize_, treeMaxVirtualSize_, forcedRunOffset_, eventsToProcess_, dropMetaData_, wantedBranches_));
+	  remainingEvents(), treeCacheSize_, treeMaxVirtualSize_, forcedRunOffset_, eventsToProcess_,
+	  dropMetaData_, groupSelectorRules_, wantedBranches_));
       fileIndexes_[fileIter_ - fileIterBegin_] = rootFile_->fileIndexSharedPtr();
     } else {
       if (!skipBadFiles) {
