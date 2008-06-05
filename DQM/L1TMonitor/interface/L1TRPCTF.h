@@ -4,8 +4,8 @@
 /*
  * \file L1TRPCTF.h
  *
- * $Date: 2008/06/04 09:46:11 $
- * $Revision: 1.8 $
+ * $Date: 2008/06/04 13:17:26 $
+ * $Revision: 1.9 $
  * \author J. Berryhill
  *
 */
@@ -69,6 +69,9 @@ void endLuminosityBlock(const edm::LuminosityBlock& lumiSeg,
 
 
 private:
+
+  void fillNorm(); /// fills  normalized histograms
+
   // ----------member data ---------------------------
   DQMStore * dbe;
 

@@ -1,8 +1,8 @@
 /*
  * \file L1TRPCTF.cc
  *
- * $Date: 2008/06/04 09:46:12 $
- * $Revision: 1.16 $
+ * $Date: 2008/06/04 13:17:27 $
+ * $Revision: 1.17 $
  * \author J. Berryhill
  *
  */
@@ -105,12 +105,14 @@ void L1TRPCTF::beginJob(const EventSetup& c)
        "RPCTF charge value bx +1", 3, -1.5, 1.5 ) ;
     rpctfchargevalue[0] = dbe->book1D("RPCTF_charge_value_-1", 
        "RPCTF charge value bx -1", 3, -1.5, 1.5 ) ;
+
     rpctfquality[1] = dbe->book1D("RPCTF_quality", 
-       "RPCTF quality", 20, -0.5, 19.5 ) ;
+       "RPCTF quality", 6, -0.5, 5.5 ) ;
     rpctfquality[2] = dbe->book1D("RPCTF_quality_+1", 
-       "RPCTF quality bx +1", 20, -0.5, 19.5 ) ;
+       "RPCTF quality bx +1", 6, -0.5, 5.5 ) ;
     rpctfquality[0] = dbe->book1D("RPCTF_quality_-1", 
-       "RPCTF quality bx -1", 20, -0.5, 19.5 ) ;
+       "RPCTF quality bx -1", 6, -0.5, 5.5 ) ;
+
     rpctfntrack = dbe->book1D("RPCTF_ntrack", 
        "RPCTF ntrack", 20, -0.5, 19.5 ) ;
     rpctfbx = dbe->book1D("RPCTF_bx", 
@@ -122,10 +124,11 @@ void L1TRPCTF::beginJob(const EventSetup& c)
     m_digiBxLast = dbe->book1D("RPCDigi_bx_last", 
        "RPC digis bx (last X events)", 9, -4.5, 4.5 ) ;
 
-    m_qualVsEta = dbe->book2D("RPCTF_quality_vs_eta_value", 
+    m_qualVsEta = dbe->book2D("RPCTF_quality_vs_tower", 
                               "RPCTF quality vs eta", 
-                              100, -2.5, 2.5,
-                               10, -0.5, 9.5);
+                              //100, -2.5, 2.5,
+                               33, -16.5, 16.5,
+                               6, -0.5, 5.5); // Currently only 0...3 quals are possible
     
     m_muonsEtaPhi = dbe->book2D("RPCTF_muons_tower_phipacked", 
                                 "RPCTF muons(tower,phi)",  
@@ -239,7 +242,6 @@ void L1TRPCTF::analyze(const Event& e, const EventSetup& c)
           rpctfquality[bxindex]->Fill(ECItr->quality());
           if (verbose_) cout << "\tRPCTFCand quality " << ECItr->quality() << endl;
           
-          m_qualVsEta->Fill(ECItr->etaValue(), ECItr->quality());
           
           int tower = ECItr->eta_packed();
           if (tower > 16) {
@@ -247,6 +249,8 @@ void L1TRPCTF::analyze(const Event& e, const EventSetup& c)
           }
 
           //m_muonsEtaPhi->Fill(ECItr->etaValue(), ECItr->phi_packed());
+          //m_qualVsEta->Fill(ECItr->etaValue(), ECItr->quality());
+          m_qualVsEta->Fill(tower, ECItr->quality());
           m_muonsEtaPhi->Fill(tower, ECItr->phi_packed());
           m_phipacked->Fill(ECItr->phi_packed());
           
@@ -295,6 +299,9 @@ void L1TRPCTF::analyze(const Event& e, const EventSetup& c)
     m_digiBxLast->Reset();
   }
 
+
+  if (nev_%100 == 0) fillNorm();
+
   if (verbose_) cout << "\tRPCTFCand ntrack " << nrpctftrack << endl;
 	
 }
@@ -310,9 +317,17 @@ void L1TRPCTF::beginLuminosityBlock(const edm::LuminosityBlock& lumiSeg,
                           
 }
 
-// Fill normalized histograms.  
+
 void L1TRPCTF::endLuminosityBlock(const edm::LuminosityBlock& lumiSeg, 
                         const edm::EventSetup& c)
+{
+ fillNorm();
+
+}
+
+
+// Fill normalized histograms. 
+void L1TRPCTF::fillNorm()
 {
    
    float ntracks = m_ntracks; 
@@ -332,7 +347,7 @@ void L1TRPCTF::endLuminosityBlock(const edm::LuminosityBlock& lumiSeg,
 
   int nBX =  m_bxs.size();
   float fs = 0;
-  if (nBX > 1){
+  if (nBX > 1 && m_rpcDigiWithBX0 != 0){
    fs = (float)m_rpcDigiWithBXnon0/(nBX-1)/m_rpcDigiWithBX0;
   }
 
