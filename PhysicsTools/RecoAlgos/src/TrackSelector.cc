@@ -97,41 +97,38 @@ namespace helper
       } 
       //
       else { 
-        // should be SiStrip now
-	const SiStripRecHit2D * sHit1 
+	//
+        //--- should be a SiStrip hit (one-dimensional) 
+	//
+ 	const SiStripRecHit2D * sHit1 
 	  = dynamic_cast<const SiStripRecHit2D*>( &**hit );
 	if (sHit1) {
-	  //
-	  //--- Get the strip cluster, clone it, save a ref.  
-	  //--- In edmNew::DSV, we need to use the FastFiller
-	  //--- to add a copy of the cluster to a new DSV<SiStripCluster>
-	  DetId detid = sHit1->geographicalId();
-	  edmNew::DetSetVector<SiStripCluster>::FastFiller pixFF( *selStripClusters_, detid );
-	  
-	  // Get the cluster. (cluster() returns an edm::Ref<edm::DetSetVector<SiStripCluster>, SiStripCluster >  
-	  const SiStripCluster * strCl = &* (sHit1->cluster());
-	  pixFF.push_back( *strCl );
-	  
-	  // Create a persistent edm::Ref to the cluster
-	  edm::Ref<edmNew::DetSetVector<SiStripCluster>,SiStripCluster > 
-	    strClRef( rStripClusters_ , scidx_ ++ );
-
-	  // We must cast since setClusterRef() is not in the base class
-	  SiStripRecHit2D * newStrHit = dynamic_cast<SiStripRecHit2D*>( newHit );
-	  newStrHit->setClusterRef( strClRef );
-	  //
+	  cloneStripHit( newHit, sHit1 );
  	  continue;       // go to the next hit on the track
 	}
+	//
+	//--- Either matched or projected
+	//
 	const SiStripMatchedRecHit2D * sHit2 
 	  = dynamic_cast<const SiStripMatchedRecHit2D*>( &**hit ); 
 	if (sHit2) {
-	  // &&& get cluster and clone
+	  //--- Clone stereo side
+	  const SiStripRecHit2D * stereoHit1 = sHit2->stereoHit();
+	  cloneStripHit( newHit, stereoHit1 );
+	  //--- Clone mono side
+	  const SiStripRecHit2D * monoHit1 = sHit2->monoHit();
+	  cloneStripHit( newHit, monoHit1 );
 	  continue;       // go to the next hit on the track
 	}
+	//
+	//--- Must be the projected one...
+	//
 	const ProjectedSiStripRecHit2D * sHit3 
 	  = dynamic_cast<const ProjectedSiStripRecHit2D*>( &**hit );
 	if (sHit3) {
-	  // &&& get cluster and clone
+	  //--- Get the original hit and clone the cluster from that one
+	  const SiStripRecHit2D & oHit1 = sHit3->originalHit();
+	  cloneStripHit( newHit, &oHit1 );
 	  continue;       // go to the next hit on the track
 	}
 	//--- If we are here, we are in trouble
@@ -148,6 +145,37 @@ namespace helper
 
     } // end of for loop over tracking rec hits on this track
   }
+
+
+  void
+  TrackCollectionStoreManager::
+  cloneStripHit( TrackingRecHit * newHit,          // new hit we just cloned
+		 const SiStripRecHit2D * sHit1 )   // old one (or its component), cast
+  {
+    //
+    //--- Get the strip cluster, clone it, save a ref.  
+    //--- In edmNew::DSV, we need to use the FastFiller
+    //--- to add a copy of the cluster to a new DSV<SiStripCluster>
+    DetId detid = sHit1->geographicalId();
+    edmNew::DetSetVector<SiStripCluster>::FastFiller siFF( *selStripClusters_, detid );
+    
+    // Get the cluster. (cluster() returns an edm::Ref<edm::DetSetVector<SiStripCluster>, SiStripCluster >  
+    const SiStripCluster * strCl = &* (sHit1->cluster());
+    siFF.push_back( *strCl );
+    
+    // Create a persistent edm::Ref to the cluster
+    edm::Ref<edmNew::DetSetVector<SiStripCluster>,SiStripCluster > 
+      strClRef( rStripClusters_ , scidx_ ++ );
+    
+    // We must cast since setClusterRef() is not in the base class
+    SiStripRecHit2D * newStrHit = dynamic_cast<SiStripRecHit2D*>( newHit );
+    newStrHit->setClusterRef( strClRef );
+  }
+
+
+
+
+
   
 
   //------------------------------------------------------------------

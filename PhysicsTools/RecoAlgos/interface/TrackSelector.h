@@ -7,9 +7,9 @@
  * 
  * \author Luca Lista, INFN
  *         Reorganized by Petar Maksimovic, JHU
- * \version $Revision: 1.20 $
+ * \version $Revision: 1.21 $
  *
- * $Id: TrackSelector.h,v 1.20 2008/06/05 16:54:03 petar Exp $
+ * $Id: TrackSelector.h,v 1.21 2008/06/05 17:45:47 petar Exp $
  *
  */
 #include "DataFormats/TrackReco/interface/Track.h"
@@ -20,8 +20,8 @@
 #include "DataFormats/SiPixelCluster/interface/SiPixelCluster.h"
 #include "DataFormats/Common/interface/DetSetVectorNew.h"
 #include "PhysicsTools/UtilAlgos/interface/ObjectSelector.h"
+#include "DataFormats/TrackerRecHit2D/interface/SiStripRecHit2D.h"
 
-#include "DataFormats/SiPixelCluster/interface/SiPixelCluster.h"
 
 #include "DataFormats/SiStripCluster/interface/SiStripClusterCollection.h"
 // Apparently this is not anywhere defined
@@ -96,10 +96,11 @@ namespace helper {
       }
     }
     
-    
-    
-
   private:
+    //--- A little helper method for strip cloning
+    void cloneStripHit( TrackingRecHit * newHit,  
+			const SiStripRecHit2D * sHit1 );   // same thing, after the cast
+
     //--- Collections:
     std::auto_ptr<reco::TrackCollection>                   selTracks_;
     std::auto_ptr<reco::TrackExtraCollection>              selTrackExtras_;
