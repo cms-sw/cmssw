@@ -101,7 +101,7 @@ g4SimHits = cms.EDProducer("OscarProducer",
         Verbosity = cms.untracked.int32(0)
     ),
     HCalSD = cms.PSet(
-        BetaThreshold = cms.double(0.9),
+        BetaThreshold = cms.double(0.7),
         TestNumberingScheme = cms.bool(False),
         UsePMTHits = cms.bool(False),
         UseParametrize = cms.bool(False),
@@ -118,17 +118,17 @@ g4SimHits = cms.EDProducer("OscarProducer",
     HFShowerLibrary = cms.PSet(
         BranchPost = cms.untracked.string('_R.obj'),
         BranchEvt = cms.untracked.string('HFShowerLibraryEventInfos_hfshowerlib_HFShowerLibraryEventInfo'),
+        TreeEMID  = cms.string('emParticles'),
         TreeHadID = cms.string('hadParticles'),
         Verbosity = cms.untracked.bool(False),
         BackProbability = cms.double(0.2),
         FileName = cms.FileInPath('SimG4CMS/Calo/data/hfshowerlibrary_lhep_140_edm.root'),
-        TreeEMID = cms.string('emParticles'),
         BranchPre = cms.untracked.string('HFShowerPhotons_hfshowerlib_')
     ),
     CaloSD = cms.PSet(
         common_heavy_suppression,
         SuppressHeavy = cms.bool(False),
-        TnaxHit       = cms.double(1000.0),
+        TmaxHit       = cms.double(1000.0),
         DetailedTiming = cms.untracked.bool(False),
         Verbosity = cms.untracked.int32(0),
         CheckHits = cms.untracked.int32(25),
