@@ -30,7 +30,7 @@ BoostedTopProducer::BoostedTopProducer(const edm::ParameterSet& iConfig) :
   mTop_       (iConfig.getParameter<double>         ("mTop") )
 {
   //register products
-  produces<std::vector<reco::CompositeCandidate> > ();
+  produces<std::vector<reco::NamedCompositeCandidate> > ();
 }
 
 
@@ -192,7 +192,7 @@ BoostedTopProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
    
    // -----------------------------------------------------
    //
-   // CompositeCandidates to store the event solution.
+   // NamedCompositeCandidates to store the event solution.
    // This will take one of two forms:
    //    a) lv jj jj   Full reconstruction.
    //       
@@ -216,7 +216,7 @@ BoostedTopProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
    //    b2)           Lepton is nonisolated: High ttbar mass. 
    //
    // -----------------------------------------------------
-   reco::CompositeCandidate ttbar("ttbar");
+   reco::NamedCompositeCandidate ttbar("ttbar");
    AddFourMomenta addFourMomenta;
 
 
@@ -265,7 +265,7 @@ BoostedTopProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
        // ------------------------------------------------------------------
        // First create a leptonic W candidate
        // ------------------------------------------------------------------
-       reco::CompositeCandidate lepW("lepW");
+       reco::NamedCompositeCandidate lepW("lepW");
        
        if ( isMuon ) {
 	 if ( debug ) cout << "Adding muon as daughter" << endl;
@@ -296,8 +296,8 @@ BoostedTopProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
        // Next ensure that there is a jet within the hemisphere of the 
        // leptonic W, and one in the opposite hemisphere
        // ------------------------------------------------------------------
-       reco::CompositeCandidate hadt("hadt");
-       reco::CompositeCandidate lept("lept");
+       reco::NamedCompositeCandidate hadt("hadt");
+       reco::NamedCompositeCandidate lept("lept");
        if ( debug ) cout << "Adding lepW as daughter" << endl;
        lept.addDaughter( lepW, "lepW" );
 
@@ -359,12 +359,12 @@ BoostedTopProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
    } // end if preselection is satisfied
 
    // Write the solution to the event record   
-   std::vector<reco::CompositeCandidate> ttbarList;
+   std::vector<reco::NamedCompositeCandidate> ttbarList;
    if ( write ) {
      if ( debug ) cout << "Writing out" << endl;
      ttbarList.push_back( ttbar );
    }
-   std::auto_ptr<std::vector<reco::CompositeCandidate> > pTtbar ( new std::vector<reco::CompositeCandidate>(ttbarList) );
+   std::auto_ptr<std::vector<reco::NamedCompositeCandidate> > pTtbar ( new std::vector<reco::NamedCompositeCandidate>(ttbarList) );
    iEvent.put( pTtbar );
 
    

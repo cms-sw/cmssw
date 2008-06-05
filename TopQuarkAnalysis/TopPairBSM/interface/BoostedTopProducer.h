@@ -46,7 +46,7 @@
 //
 // Original Author:  "Salvatore Rappoccio"
 //         Created:  Thu May  1 11:37:48 CDT 2008
-// $Id: BoostedTopProducer.h,v 1.1 2008/05/02 14:57:04 srappocc Exp $
+// $Id: BoostedTopProducer.h,v 1.1 2008/06/03 16:55:18 srappocc Exp $
 //
 //
 
@@ -63,7 +63,7 @@
 
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 
-#include "DataFormats/Candidate/interface/CompositeCandidate.h"
+#include "DataFormats/Candidate/interface/NamedCompositeCandidate.h"
 #include "DataFormats/PatCandidates/interface/Muon.h"
 #include "DataFormats/PatCandidates/interface/Electron.h"
 #include "DataFormats/PatCandidates/interface/Jet.h"
