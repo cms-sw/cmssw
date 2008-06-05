@@ -1,5 +1,5 @@
 #!/usr/bin/perl -w
-# $Id: InjectWorker.pl,v 1.9 2008/05/19 13:37:18 loizides Exp $
+# $Id: InjectWorker.pl,v 1.10 2008/05/21 09:14:53 loizides Exp $
 
 use strict;
 use DBI;
@@ -10,7 +10,7 @@ use Cwd;
 use Cwd 'abs_path';
 
 ############################################################################################################
-my $debug=0;
+my $debug=1;
 ############################################################################################################
 my $endflag=0; 
 
@@ -39,6 +39,33 @@ sub getdatestr()
     }
     $datestr=$datestr . $mday;
     return $datestr;
+}
+
+#time routine for SQL commands timestamp
+sub gettimestamp($)
+{
+
+    my $stime = shift;
+    my @ltime = localtime($stime);
+    my ($sec,$min,$hour,$mday,$mon,$year,$wday,$yday,$isdst) = @ltime;
+
+    $year += 1900;
+    $mon++;
+
+
+    my $timestr = $year."-";
+    if ($mon < 10) {
+	$timestr=$timestr . "0";
+    }
+
+    $timestr=$timestr . $mon . "-";
+
+    if ($mday < 10) {
+	$timestr=$timestr . "0";
+    }
+
+    $timestr=$timestr . $mday . " " . $hour . ":" . $min . ":" . $sec;
+    return $timestr;
 }
 
 # time routine for printouts
@@ -96,7 +123,7 @@ sub TERMINATE
 # if called from closeFile msg, 2nd arg is 1: updates DB, notifies file to be transferred
 sub inject($$)
 {
-    my $dbh = $_[0];      #shift;
+    my $sth = $_[0];      #shift;
     my $doNotify = $_[1]; #shift;
 
     my $filename    = $ENV{'SM_FILENAME'};
@@ -119,19 +146,40 @@ sub inject($$)
     my $type        = $ENV{'SM_TYPE'};
     my $checksum    = $ENV{'SM_CHECKSUM'};
     my $producer    = 'StorageManager';
+    my $destination = 'Global';
+    if($dataset =~  'TransferTest') {
+	$destination = 'TransferTestWithSafety';
+    }
 
-    my $SQL;
+    my $stime;
+
     if ($doNotify==0) {
-        $SQL = "INSERT INTO CMS_STOMGR.TIER0_INJECTION (" .
-            "RUNNUMBER,LUMISECTION,INSTANCE,COUNT,START_TIME,STOP_TIME,FILENAME,PATHNAME," .
-            "HOSTNAME,DATASET,PRODUCER,STREAM,STATUS,TYPE,SAFETY,NEVENTS,FILESIZE,CHECKSUM) " .
-            "VALUES ($runnumber,$lumisection,$instance,$count,'$starttime','$stoptime'," .
-            "'$filename','$pathname','$hostname','$dataset','$producer','$stream','$status'," .
-            "'$type',$safety,$nevents,$filesize,$checksum)";
+	$stime = gettimestamp($starttime);
+
+	$sth->bind_param(1,$filename);
+	$sth->bind_param(2,$pathname);
+	$sth->bind_param(3,$hostname);
+	$sth->bind_param(4,$dataset);
+	$sth->bind_param(5,$stream);
+	$sth->bind_param(6,$type);
+	$sth->bind_param(7,$producer);
+	$sth->bind_param(8,$appname);
+	$sth->bind_param(9,$appversion);
+	$sth->bind_param(10,$runnumber);
+	$sth->bind_param(11,$lumisection);
+	$sth->bind_param(12,$count);
+	$sth->bind_param(13,$instance);
+	$sth->bind_param(14,$stime);
     } else {
-        $SQL = "UPDATE CMS_STOMGR.TIER0_INJECTION SET FILESIZE=$filesize, STATUS='$status'," .
-               "STOP_TIME='$stoptime',NEVENTS=$nevents,CHECKSUM=$checksum,PATHNAME='$pathname'," . 
-               "SAFETY=$safety WHERE FILENAME = '$filename'";
+        $stime = gettimestamp($stoptime);
+
+	$sth->bind_param(1,$filename);
+	$sth->bind_param(2,$pathname);
+	$sth->bind_param(3,$destination);
+	$sth->bind_param(4,$nevents);
+	$sth->bind_param(5,$filesize);
+	$sth->bind_param(6,$checksum);
+	$sth->bind_param(7,$stime);
     }
 
     my $notscript = $ENV{'SM_NOTIFYSCRIPT'};
@@ -145,26 +193,29 @@ sub inject($$)
     my $TIERZERO = "$notscript --APP_NAME=$appname --APP_VERSION=$appversion --RUNNUMBER $runnumber " . 
         "--LUMISECTION $lumisection --INSTANCE $instance --COUNT $count --START_TIME $starttime " . 
         "--STOP_TIME $stoptime --FILENAME $filename --PATHNAME $pathname --HOSTNAME $hostname " .
-        "--DATASET $dataset --STREAM $stream --STATUS $status --TYPE $type --SAFETY $safety " .
-        "--NEVENTS $nevents --FILESIZE $filesize --CHECKSUM $checksum --INDEX $indfile";
+        "--DESTINATION $destination --SETUPLABEL $dataset --STREAM $stream --STATUS $status --TYPE $type " .
+        "--SAFETY $safety --NEVENTS $nevents --FILESIZE $filesize --CHECKSUM $checksum --INDEX $indfile";
     
-    if (!defined $dbh) { 
-        if ($debug) { print "DB not defined, just printing and returning 0\n";}
-        print "$SQL\n";
-        if ($doNotify) {
-            print "$TIERZERO\n";
+    if (!defined $sth) { 
+        if ($debug) { 
+            print "DB not defined, just returning 0\n";
+            if ($doNotify) {
+                print "$TIERZERO\n";
+            }
         }
         return 0;
     }
 
     my $errflag=0;
-    my $rows = $dbh->do($SQL) or $errflag=1;
+    my $rows = $sth->execute() or $errflag=1;
+
     if ($errflag>0) {
-        print "Error in DB access when executing $SQL, DB returned $dbh->errstr\n";
+        print "Error in DB access when executing , DB returned $sth->errstr\n";
         return -1;
     }
+
     if ($rows!=1) {
-        print "Strange error related to DB access when executing $SQL, DB returned rows=$rows\n";
+        print "Strange error related to DB access when executing , DB returned rows=$rows\n";
         if ($doNotify) {
             print "Error related to DB: Since rows!=1, did not execute $TIERZERO\n";
         }
@@ -172,6 +223,7 @@ sub inject($$)
     }
 
     if ($doNotify) {
+	if($debug) {print "Executing notification: $TIERZERO\n";}
         system($TIERZERO);
     }
     return 0;
@@ -270,6 +322,9 @@ while (!(-e "$infile") && !$endflag) {
 # if told to exit while waiting for input, we exit here
 if($endflag) {
     system("rm -f $lockfile");
+    open(STDOUT,">>/dev/null");
+    open(STDERR,">>/dev/null");
+    system("rm -f $errfile");
     exit 0;
 }
 
@@ -293,7 +348,7 @@ open(INDATA, $infile) or
 if (defined($lastline)) {
     if ($debug) {print "Last line done was:\n $lastline\n"; print "Skipping previously done work\n";}
     while($line = <INDATA>) {
-        if ($line =~ /$lastline/) {
+        if ($lastline =~ /$line/) {
             if ($debug) {print "Found last line previously done\n";} 
             last;
         }
@@ -313,20 +368,38 @@ select $ofh;
 $ENV{'TNS_ADMIN'} = '/etc/tnsnames.ora';
 
 # connect to DB
-my $dbh; #my DB handle
+my $dbh;          #my DB handle
+my $newHandle;    #for new files
+my $injectHandle; #for injections
+my $SQL;
+my $dbi;
+my $reader;
 if (!defined $ENV{'SM_DONTACCESSDB'}) { 
-    my $dbi    = "DBI:Oracle:cms_rcms";
-    my $reader = "CMS_STOMGR_W";
+    $dbi    = "DBI:Oracle:cms_rcms";
+    $reader = "CMS_STOMGR_W";
     if ($debug) {print "Setting up DB connection for $dbi and $reader\n";}
     $dbh = DBI->connect($dbi,$reader,"qwerty") or 
         mydie("Error: Connection to Oracle failed: $DBI::errstr\n",$lockfile);
 
     my $timestr = gettimestr();
     print "$timestr: Setup DB connection\n";
+    $SQL = "INSERT INTO CMS_STOMGR.FILES_CREATED (" .
+	"FILENAME,CPATH,HOSTNAME,SETUPLABEL,STREAM,TYPE,PRODUCER,APP_NAME,APP_VERSION," .
+	"RUNNUMBER,LUMISECTION,COUNT,INSTANCE,CTIME) " .
+	"VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?," .
+	"TO_DATE(?,'YYYY-MM-DD HH24:MI:SS'))";
+    $newHandle = $dbh->prepare($SQL) or mydie("Error: Prepare failed for $SQL: $dbh->errstr \n",$lockfile);
+
+    $SQL = "INSERT INTO CMS_STOMGR.FILES_INJECTED (" .
+	"FILENAME,PATHNAME,DESTINATION,NEVENTS,FILESIZE,CHECKSUM,ITIME) " .
+	"VALUES (?,?,?,?,?,?," . 
+	"TO_DATE(?,'YYYY-MM-DD HH24:MI:SS'))";
+    $injectHandle = $dbh->prepare($SQL) or mydie("Error: Prepare failed for $SQL: $dbh->errstr \n",$lockfile);
 } else { 
     print "Don't access DB flag set \n".
           "Following commands would have been processed: \n";
 }
+
 
 #loop over input files: sleep and try to reread file once end is reached
 my $lnum=0;
@@ -346,12 +419,15 @@ while( !$endflag ) {
         if ($debug) {print $line;}
 	chomp($line);
         my $type=-1;
+	my $useHandle;
 	if ($line =~ m/insertFile/i) {
 	    if ($debug) {print "Found file insert\n";}
             $type=0;
+	    $useHandle=$newHandle;
 	} elsif ($line =~ m/closeFile/i) {
 	    if ($debug) {print "Found file close\n";}
             $type=1;
+	    $useHandle=$injectHandle;
         } else {
 	    if ($debug) {print "Unknown line: $line\n";}
             next;
@@ -376,7 +452,7 @@ while( !$endflag ) {
 
         } 
 	
-        my $ret=inject($dbh,$type);
+        my $ret=inject($useHandle,$type);
 	    
         if ($ret == 0) {
             print OUTDATA "$line\n";
@@ -420,6 +496,25 @@ while( !$endflag ) {
 
     # seek nowhere in file to reset EOF flag
     seek(INDATA,0,1);
+
+    #If can't ping the db will reconnect and re-prepare statements
+    unless(defined($dbh) && $dbh->ping()) {
+	$dbh = DBI->connect($dbi,$reader,"qwerty") or 
+	    mydie("Error: Connection to Oracle failed: $DBI::errstr\n",$lockfile);
+        $SQL = "INSERT INTO CMS_STOMGR.FILES_CREATED (" .
+            "FILENAME,CPATH,HOSTNAME,SETUPLABEL,STREAM,TYPE,PRODUCER,APP_NAME,APP_VERSION," .
+            "RUNNUMBER,LUMISECTION,COUNT,INSTANCE,CTIME) " .
+            "VALUES (?,?,?,?,?,?,?," .
+            "?,?,?,?,?,?," .
+            "TO_DATE(?,'YYYY-MM-DD HH24:MI:SS'))";
+	$newHandle = $dbh->prepare($SQL) or mydie("Error: Prepare failed for $SQL: $dbh->errstr \n",$lockfile);
+
+        $SQL = "INSERT INTO CMS_STOMGR.FILES_INJECTED (" .
+               "FILENAME,PATHNAME,DESTINATION,NEVENTS,FILESIZE,CHECKSUM,ITIME) " .
+               "VALUES (?,?,?,?,?,?," . 
+               "TO_DATE(?,'YYYY-MM-DD HH24:MI:SS'))";
+	$injectHandle = $dbh->prepare($SQL) or mydie("Error: Prepare failed for $SQL: $dbh->errstr \n",$lockfile);
+    }
 
     # check live counter
     $livecounter++;
