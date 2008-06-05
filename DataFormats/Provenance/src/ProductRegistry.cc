@@ -113,6 +113,33 @@ namespace edm {
   ProductRegistry::addCalled(BranchDescription const&, bool) {
   }
 
+  std::vector<std::string>
+  ProductRegistry::allBranchNames() const
+  {
+    std::vector<std::string> result;
+    result.reserve( productList().size() ); 
+
+    ProductList::const_iterator it  = productList().begin();
+    ProductList::const_iterator end = productList().end();
+
+    for ( ; it != end; ++it ) result.push_back(it->second.branchName());
+
+  return result;
+  }
+
+  std::vector<BranchDescription const*> 
+  ProductRegistry::allBranchDescriptions() const
+  {
+    std::vector<BranchDescription const*> result;
+    result.reserve( productList().size() );
+
+    ProductList::const_iterator it  = productList().begin();
+    ProductList::const_iterator end = productList().end();
+    
+    for ( ; it != end; ++it) result.push_back(&(it->second));    
+    return result;
+  }
+  
   std::string
   ProductRegistry::merge(ProductRegistry const& other,
 	std::string const& fileName,

@@ -81,6 +81,17 @@ namespace edm {
       return elementLookup_;
     }
 
+    // Return all the branch names currently known to *this.  This
+    // does a return-by-value of the vector so that it may be used in
+    // a colon-initialization list.
+    std::vector<std::string> allBranchNames() const;
+
+    // Return pointers to (const) BranchDescriptions for all the
+    // BranchDescriptions known to *this.  This does a
+    // return-by-value of the vector so that it may be used in a
+    // colon-initialization list.
+    std::vector<BranchDescription const*> allBranchDescriptions() const;
+     
     //NOTE: this is not const since we only want items that have non-const access to this class to be 
     // able to call this internal iteration
     template<class T>

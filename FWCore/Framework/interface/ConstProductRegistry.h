@@ -16,7 +16,7 @@ Usage:
 //
 // Original Author:  Chris Jones
 //         Created:  Thu Sep 22 18:01:21 CEST 2005
-// $Id: ConstProductRegistry.h,v 1.4 2006/07/31 23:42:21 wmtan Exp $
+// $Id: ConstProductRegistry.h,v 1.5 2006/12/19 00:28:17 wmtan Exp $
 //
 
 // system include files
@@ -45,13 +45,13 @@ namespace edm {
     // Return all the branch names currently known to *this.  This
     // does a return-by-value of the vector so that it may be used in
     // a colon-initialization list.
-    std::vector<std::string> allBranchNames() const;
+    std::vector<std::string> allBranchNames() const {return reg_->allBranchNames();}
 
     // Return pointers to (const) BranchDescriptions for all the
     // BranchDescriptions known to *this.  This does a
     // return-by-value of the vector so that it may be used in a
     // colon-initialization list.
-    std::vector<BranchDescription const*> allBranchDescriptions() const;
+    std::vector<BranchDescription const*> allBranchDescriptions() const {return reg_->allBranchDescriptions();}
      
     unsigned int nextID() const {return reg_->nextID();}
      
