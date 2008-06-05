@@ -3,8 +3,8 @@
 /*
  *  See header file for a description of this class.
  *
- *  $Date: 2008/06/03 16:35:12 $
- *  $Revision: 1.3 $
+ *  $Date: 2008/06/04 15:41:48 $
+ *  $Revision: 1.4 $
  *  \author G. Cerminara - University and INFN Torino
  */
 
@@ -118,7 +118,7 @@ void DTOccupancyTest::endLuminosityBlock(LuminosityBlock const& lumiSeg, EventSe
 	sector = 10;
       }
       wheelHistos[chId.wheel()]->setBinContent(sector, chId.station(),result);
-      if(result > summaryHisto->getBinContent(sector, chId.wheel())) {
+      if(result > summaryHisto->getBinContent(sector, chId.wheel()+3)) {
 	summaryHisto->setBinContent(sector, chId.wheel()+3, result);
       }
     } else {
@@ -193,7 +193,7 @@ string DTOccupancyTest::getMEName(string histoTag, const DTChamberId& chId) {
     + "_St" + station.str() 
     + "_Sec" + sector.str();
 
-  string histoname = folderRoot + folder + histoName;
+  string histoname = folderRoot + histoName;
 
   return histoname;
 }

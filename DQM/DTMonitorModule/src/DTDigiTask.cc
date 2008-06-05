@@ -1,8 +1,8 @@
  /*
  * \file DTDigiTask.cc
  * 
- * $Date: 2008/05/22 07:22:54 $
- * $Revision: 1.42 $
+ * $Date: 2008/06/03 16:30:17 $
+ * $Revision: 1.43 $
  * \author M. Zanetti - INFN Padova
  *
  */
@@ -200,7 +200,7 @@ void DTDigiTask::bookHistos(const DTSuperLayerId& dtSL, string folder, string hi
   stringstream superLayer; superLayer << dtSL.superlayer();
   dbe->setCurrentFolder("DT/Digi/Wheel" + wheel.str() +
 			"/Station" + station.str() +
-			"/Sector" + sector.str() + "/" + folder);
+			"/Sector" + sector.str());
 
   // Build the histo name
   string histoName = histoTag 
@@ -239,9 +239,12 @@ void DTDigiTask::bookHistos(const DTSuperLayerId& dtSL, string folder, string hi
     }
   }
 
-  if ( folder == "CathodPhotoPeaks" ) 
+  if ( folder == "CathodPhotoPeaks" ) {
+    dbe->setCurrentFolder("DT/Digi/Wheel" + wheel.str() +
+			  "/Station" + station.str() +
+			  "/Sector" + sector.str() + "/" + folder);
     (digiHistos[histoTag])[dtSL.rawId()] = dbe->book1D(histoName,histoName,500,0,1000);
-
+  }
   
 }
 
@@ -255,7 +258,7 @@ void DTDigiTask::bookHistos(const DTChamberId& dtCh, string folder, string histo
   stringstream sector; sector << dtCh.sector();
   dbe->setCurrentFolder("DT/Digi/Wheel" + wheel.str() +
 			"/Station" + station.str() +
-			"/Sector" + sector.str() + "/" + folder);
+			"/Sector" + sector.str());
 
   // build the histo name
   string histoName = histoTag 
@@ -267,7 +270,7 @@ void DTDigiTask::bookHistos(const DTChamberId& dtCh, string folder, string histo
     cout<<"[DTDigiTask]: booking chamber histo:"<<endl;
     cout<<"              folder "<< "DT/Digi/Wheel" + wheel.str() +
       "/Station" + station.str() +
-      "/Sector" + sector.str() + "/" + folder<<endl;
+      "/Sector" + sector.str()<<endl;
     cout<<"              histoTag "<<histoTag<<endl;
     cout<<"              histoName "<<histoName<<endl;
   }
