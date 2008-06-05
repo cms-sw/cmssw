@@ -60,6 +60,12 @@
 
 #
 #
+# FEVTSIMDIGI Data Tier re-definition
+#
+#
+
+#
+#
 # RECOSIM Data Tier re-definition
 #
 #
@@ -71,6 +77,18 @@
 #
 #
 #replace AODSIMEventContent.outputCommands -= SimG4CoreAOD.outputCommands
+
+#
+#
+# FEVTSIMHLTDEBUG Data Tier re-definition
+#
+#
+
+#
+#
+# FEVTSIMDIGIHLTDEBUG  Data Tier re-definition
+#
+#
 
 import FWCore.ParameterSet.Config as cms
 
@@ -209,6 +227,11 @@ FEVTSIMEventContent.outputCommands.extend(FastSimRecoLocalTrackerFEVT.outputComm
 FEVTSIMEventContent.outputCommands.extend(FastSimRecoLocalCaloFEVT.outputCommands)
 FEVTSIMEventContent.outputCommands.extend(FastSimRecoTrackerFEVT.outputCommands)
 FEVTSIMEventContent.outputCommands.extend(FastSimParamMuonFEVT.outputCommands)
+FEVTSIMDIGIEventContent.outputCommands.extend(FastSimCoreFEVT.outputCommands)
+FEVTSIMDIGIEventContent.outputCommands.extend(FastSimRecoLocalTrackerFEVT.outputCommands)
+FEVTSIMDIGIEventContent.outputCommands.extend(FastSimRecoLocalCaloFEVT.outputCommands)
+FEVTSIMDIGIEventContent.outputCommands.extend(FastSimRecoTrackerFEVT.outputCommands)
+FEVTSIMDIGIEventContent.outputCommands.extend(FastSimParamMuonFEVT.outputCommands)
 RECOSIMEventContent.outputCommands.extend(FastSimCoreRECO.outputCommands)
 RECOSIMEventContent.outputCommands.extend(FastSimRecoLocalTrackerRECO.outputCommands)
 RECOSIMEventContent.outputCommands.extend(FastSimRecoLocalCaloRECO.outputCommands)
@@ -219,4 +242,7 @@ AODSIMEventContent.outputCommands.extend(FastSimRecoLocalTrackerAOD.outputComman
 AODSIMEventContent.outputCommands.extend(FastSimRecoLocalCaloAOD.outputCommands)
 AODSIMEventContent.outputCommands.extend(FastSimRecoTrackerAOD.outputCommands)
 AODSIMEventContent.outputCommands.extend(FastSimParamMuonAOD.outputCommands)
+FEVTSIMHLTDEBUGEventContent.outputCommands.extend(FEVTSIMEventContent.outputCommands)
+FEVTSIMDIGIHLTDEBUGEventContent.outputCommands.extend(FEVTSIMDIGIEventContent.outputCommands)
+
 
