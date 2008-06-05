@@ -8,7 +8,7 @@
 //
 // Original Author:  Chris Jones
 //         Created:  Thu Feb 28 11:13:37 PST 2008
-// $Id: FWListEventItem.cc,v 1.12 2008/03/17 16:36:34 chrjones Exp $
+// $Id: FWListEventItem.cc,v 1.13 2008/06/03 19:59:48 chrjones Exp $
 //
 
 // system include files
@@ -191,6 +191,7 @@ m_memberFunction(findDefaultMember(iItem->modelType()))
 {
    m_item->itemChanged_.connect(boost::bind(&FWListEventItem::itemChanged,this,_1));
    m_item->changed_.connect(boost::bind(&FWListEventItem::modelsChanged,this,_1));
+   m_item->defaultDisplayPropertiesChanged_.connect(boost::bind(&FWListEventItem::defaultDisplayPropertiesChanged,this,_1));
    TEveElementList::SetMainColor(iItem->defaultDisplayProperties().color());
 }
 
@@ -246,6 +247,12 @@ FWListEventItem::SingleRnrState() const
    return kTRUE;
 }
 
+void 
+FWListEventItem::defaultDisplayPropertiesChanged(const FWEventItem* iItem)
+{
+   TEveElementList::SetMainColor(iItem->defaultDisplayProperties().color());
+   TEveElementList::SetRnrState(iItem->defaultDisplayProperties().isVisible());
+}
 
 void 
 FWListEventItem::itemChanged(const FWEventItem* iItem)

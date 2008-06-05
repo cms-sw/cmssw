@@ -16,7 +16,7 @@
 //
 // Original Author:  Chris Jones
 //         Created:  Thu Feb 28 11:05:02 PST 2008
-// $Id: FWListEventItem.h,v 1.6 2008/03/17 14:20:06 chrjones Exp $
+// $Id: FWListEventItem.h,v 1.7 2008/03/17 16:36:34 chrjones Exp $
 //
 
 // system include files
@@ -59,7 +59,8 @@ class FWListEventItem : public TEveElementList, public FWListItemBase
    private:
       void itemChanged(const FWEventItem*);
       void modelsChanged( const std::set<FWModelId>& );
-
+      void defaultDisplayPropertiesChanged(const FWEventItem*);
+   
       FWListEventItem(const FWListEventItem&); // stop default
 
       const FWListEventItem& operator=(const FWListEventItem&); // stop default
