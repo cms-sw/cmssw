@@ -1,4 +1,4 @@
-// Last commit: $Id: DeviceDescriptions.cc,v 1.30 2008/05/16 15:29:20 bainbrid Exp $
+// Last commit: $Id: DeviceDescriptions.cc,v 1.31 2008/06/04 14:11:42 bainbrid Exp $
 
 #include "OnlineDB/SiStripConfigDb/interface/SiStripConfigDb.h"
 #include "DataFormats/SiStripCommon/interface/SiStripFecKey.h"
@@ -527,7 +527,7 @@ SiStripConfigDb::DeviceAddress SiStripConfigDb::deviceAddress( const deviceDescr
   DeviceAddress addr;
   try {
 #ifdef USING_NEW_DATABASE_MODEL
-    addr.fecCrate_ = static_cast<uint16_t>( desc.getCrateSlot() + sistrip::FEC_CRATE_OFFSET ); //@@ temporary offset?
+    addr.fecCrate_ = static_cast<uint16_t>( desc.getCrateId() + sistrip::FEC_CRATE_OFFSET ); //@@ temporary offset?
 #else
     addr.fecCrate_ = static_cast<uint16_t>( 0 + sistrip::FEC_CRATE_OFFSET ); //@@ temporary offset?
 #endif

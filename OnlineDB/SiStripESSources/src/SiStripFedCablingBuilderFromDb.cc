@@ -1,4 +1,4 @@
-// Last commit: $Id: SiStripFedCablingBuilderFromDb.cc,v 1.49 2008/05/06 12:37:14 bainbrid Exp $
+// Last commit: $Id: SiStripFedCablingBuilderFromDb.cc,v 1.50 2008/05/16 15:30:07 bainbrid Exp $
 
 #include "OnlineDB/SiStripESSources/interface/SiStripFedCablingBuilderFromDb.h"
 #include "CalibFormats/SiStripObjects/interface/SiStripFecCabling.h"
@@ -270,7 +270,7 @@ void SiStripFedCablingBuilderFromDb::buildFecCablingFromFedConnections( SiStripC
     
 #ifdef USING_NEW_DATABASE_MODEL
     //uint16_t fec_id    = static_cast<uint16_t>( (*ifed)->getFecHardwareId() );
-    uint16_t fec_crate = static_cast<uint16_t>( (*ifed)->getFecCrateSlot() + sistrip::FEC_CRATE_OFFSET ); //@@ temporary offset!
+    uint16_t fec_crate = static_cast<uint16_t>( (*ifed)->getFecCrateId() + sistrip::FEC_CRATE_OFFSET ); //@@ temporary offset!
     uint16_t fec_slot  = static_cast<uint16_t>( (*ifed)->getFecSlot() );
     uint16_t fec_ring  = static_cast<uint16_t>( (*ifed)->getRingSlot() + sistrip::FEC_RING_OFFSET ); //@@ temporary offset!
     uint16_t ccu_addr  = static_cast<uint16_t>( (*ifed)->getCcuAddress() );
@@ -306,7 +306,7 @@ void SiStripFedCablingBuilderFromDb::buildFecCablingFromFedConnections( SiStripC
 			       length );
 
 #ifdef USING_NEW_DATABASE_MODEL
-    uint16_t fed_crate = static_cast<uint16_t>( (*ifed)->getFedCrateSlot() );
+    uint16_t fed_crate = static_cast<uint16_t>( (*ifed)->getFedCrateId() );
     uint16_t fed_slot = static_cast<uint16_t>( (*ifed)->getFedSlot() );
     conn.fedCrate( fed_crate );
     conn.fedSlot( fed_slot );
