@@ -80,6 +80,12 @@
 #include "Geometry/CaloGeometry/interface/CaloSubdetectorGeometry.h"
 #include "Geometry/CaloGeometry/interface/CaloGeometry.h"
 #include "Geometry/CaloGeometry/interface/CaloCellGeometry.h"
+#include "Geometry/EcalAlgo/interface/EcalBarrelGeometry.h"
+#include "Geometry/EcalAlgo/interface/EcalEndcapGeometry.h"
+#include "Geometry/EcalAlgo/interface/EcalPreshowerGeometry.h"
+#include "Geometry/EcalCommonData/interface/EcalBarrelNumberingScheme.h"
+#include "Geometry/EcalCommonData/interface/EcalEndcapNumberingScheme.h"
+#include "Geometry/EcalCommonData/interface/EcalPreshowerNumberingScheme.h"
 
 #include "DataFormats/HcalDetId/interface/HcalDetId.h"
 #include "DataFormats/EcalDetId/interface/EcalSubdetector.h"
@@ -94,10 +100,12 @@
 //
 
 class DumpGeom : public edm::EDAnalyzer {
+
    public:
       explicit DumpGeom(const edm::ParameterSet&);
       ~DumpGeom();
 
+  template <class T> friend class CaloGeometryLoader;//<EcalBarralGeometry>;
 
    private:
       virtual void beginJob(const edm::EventSetup&) ;
@@ -115,11 +123,9 @@ class DumpGeom : public edm::EDAnalyzer {
 			 const MuonDDDConstants& muonConstants);
       void mapTrackerGeometry(const DDCompactView& cview,
 			      const GeometricDet& gd);
-  //mec: this is set by the file CMSSW Geometry/CaloGeometry/interface/CaloSubdetectorGeometry.h
-#ifdef ECALDDDINFODUMP
       void mapEcalGeometry(const DDCompactView& cview,
 			      const CaloGeometry& cg);
-#endif
+
       // ----------member data ---------------------------
       int level_;
       bool verbose_;
@@ -648,107 +654,219 @@ void DumpGeom::mapTrackerGeometry(const DDCompactView& cview,
  **   The 169 series.  The correction WILL be different for 18X.  The files should
  **   be located on /afs/cern.ch/user/c/case/public/fwevtstuff/.
  **/
-#ifdef ECALDDDINFODUMP
 void DumpGeom::mapEcalGeometry(const DDCompactView& cview,
 			       const CaloGeometry& cg) {
-  std::cout << "in mapEcalGeometry" << std::endl;
-  //  build(*pG,DetId::Ecal,EcalBarrel,*pDD);
   {
-  const CaloSubdetectorGeometry* geom=cg.getSubdetectorGeometry(DetId::Ecal, EcalBarrel);
-  //  std::cout << "just got the EcalBarrel Geometry as a CaloSubdetectorGeometry*" << std::endl;
-//   int n=0;
-  std::vector<DetId> ids=geom->getValidDetIds(DetId::Ecal, EcalBarrel);
+    const CaloSubdetectorGeometry* geom=cg.getSubdetectorGeometry(DetId::Ecal, EcalBarrel);
+    
+    // This code comes from CaloGeometryLoader and must be updated when CaloGeometryLoader changes.
+    // it is cut-pasted (logic wise).
+    DDSpecificsFilter filter;
+    filter.setCriteria( DDValue( "SensitiveDetector",
+				 "EcalSensitiveDetector",
+				 0                        ),
+			DDSpecificsFilter::equals,
+			DDSpecificsFilter::AND,
+			true,
+			true                               ) ;
+    
+    filter.setCriteria( DDValue( "ReadOutName",
+				 (dynamic_cast<const EcalBarrelGeometry*>(geom))->hitString(),
+				 0                  ),
+			DDSpecificsFilter::equals,
+			DDSpecificsFilter::AND,
+			true,
+			true                       ) ;
+    size_t tid;
+    DDFilteredView fview(cview);
+    fview.addFilter(filter);
+    bool doSubDets = fview.firstChild();
+    EcalBarrelNumberingScheme scheme;
+    while (doSubDets) {
+      const DDGeoHistory& parents ( fview.geoHistory() ) ;
+      const DDGeoHistory::size_type psize ( parents.size() ) ;
+      EcalBaseNumber baseNumber ;
+      baseNumber.setSize( psize ) ;
 
-  for (std::vector<DetId>::iterator i=ids.begin(); i!=ids.end(); i++) {
-//     n++;
-//     const CaloCellGeometry* cell=geom->getGeometry(*i);
-//     EBDetId closestCell = EBDetId(geom->getClosestCell(dynamic_cast<const TruncatedPyramid*>(cell)->getPosition(0.))) ;
-//     assert (closestCell == EBDetId(*i) );
-    unsigned int tid(*i);
-    std::vector<int> tint = geom->getDDNavType(tid);
-    DDExpandedView epv(cview);
-    epv.goTo(tint);
-    //    std::cout << "id: " << tid << " path: " << epv.geoHistory() << std::endl;	    
-    // build map here
-    std::stringstream s;
-    s << "/cms:World_1";
-    DDGeoHistory::const_iterator ancestor = epv.geoHistory().begin();
-    ++ancestor; // skip the first ancestor
-    for ( ; ancestor != epv.geoHistory().end(); ++ ancestor )
-      s << "/" << ancestor->logicalPart().name() << "_" << ancestor->copyno();
-      
-    std::string name = s.str();
-    idToName_[tid] = name;
+    for( unsigned int i=1 ; i<=psize ; ++i )
+      {
+	baseNumber.addLevel( parents[psize-i].logicalPart().name().name(),
+			     parents[psize-i].copyno() ) ;
+      }
 
-  }
+     tid = scheme.getUnitID( baseNumber );
+     std::stringstream s;
+     s << "/cms:World_1";
+     DDGeoHistory::const_iterator ancestor = fview.geoHistory().begin();
+     ++ancestor; // skip the first ancestor
+     for ( ; ancestor != fview.geoHistory().end(); ++ ancestor )
+       s << "/" << ancestor->logicalPart().name() << "_" << ancestor->copyno();
+     
+     std::string name = s.str();
+     idToName_[tid] = name;
+     doSubDets = fview.nextSibling(); // go to next
+    }
   }
 
   //  build(*pG,DetId::Ecal,EcalEndcap,*pDD);
   {
   const CaloSubdetectorGeometry* geom=cg.getSubdetectorGeometry(DetId::Ecal, EcalEndcap);
+    // This code comes from CaloGeometryLoader and must be updated when CaloGeometryLoader changes.
+    // it is cut-pasted (logic wise).
+    DDSpecificsFilter filter;
+    filter.setCriteria( DDValue( "SensitiveDetector",
+				 "EcalSensitiveDetector",
+				 0                        ),
+			DDSpecificsFilter::equals,
+			DDSpecificsFilter::AND,
+			true,
+			true                               ) ;
+    
+    filter.setCriteria( DDValue( "ReadOutName",
+				 (dynamic_cast<const EcalPreshowerGeometry*>(geom))->hitString(),
+				 0                  ),
+			DDSpecificsFilter::equals,
+			DDSpecificsFilter::AND,
+			true,
+			true                       ) ;
+    size_t tid;
+    DDFilteredView fview(cview);
+    fview.addFilter(filter);
+    bool doSubDets = fview.firstChild();
+    EcalPreshowerNumberingScheme scheme;
+    while (doSubDets) {
+      const DDGeoHistory& parents ( fview.geoHistory() ) ;
+      const DDGeoHistory::size_type psize ( parents.size() ) ;
+      EcalBaseNumber baseNumber ;
+      baseNumber.setSize( psize ) ;
 
-//   int n=0;
-  std::vector<DetId> ids=geom->getValidDetIds(DetId::Ecal,EcalEndcap);
-  for (std::vector<DetId>::iterator i=ids.begin(); i!=ids.end(); i++) {
-//     n++;
-//     const CaloCellGeometry* cell=geom->getGeometry(*i);
-//     EEDetId closestCell= EEDetId(geom->getClosestCell(dynamic_cast<const TruncatedPyramid*>(cell)->getPosition(0.)));
-//     assert (closestCell == EEDetId(*i) );
-    unsigned int tid(*i);
-    std::vector<int> tint = geom->getDDNavType(tid);
-    DDExpandedView epv(cview);
-    epv.goTo(tint);
-//     if (tid == 872420050 || tid == 872420051 ) {
-//       std::cout << "DumpGeom::detId = " << tid ;
-//       std::cout << " fvgeohist: " << epv.geoHistory() << std::endl;
-//     }
+    for( unsigned int i=1 ; i<=psize ; ++i )
+      {
+	baseNumber.addLevel( parents[psize-i].logicalPart().name().name(),
+			     parents[psize-i].copyno() ) ;
+      }
 
-//    std::cout << "id: " << tid << " path: " << epv.geoHistory() << std::endl;	    
-    // build map here
-    std::stringstream s;
-    s << "/cms:World_1";
-    DDGeoHistory::const_iterator ancestor = epv.geoHistory().begin();
-    ++ancestor; // skip the first ancestor
-    for ( ; ancestor != epv.geoHistory().end(); ++ ancestor )
-      s << "/" << ancestor->logicalPart().name() << "_" << ancestor->copyno();
+     tid = scheme.getUnitID( baseNumber );  
+     std::stringstream s;
+     s << "/cms:World_1";
+     DDGeoHistory::const_iterator ancestor = fview.geoHistory().begin();
+     ++ancestor; // skip the first ancestor
+     for ( ; ancestor != fview.geoHistory().end(); ++ ancestor )
+       s << "/" << ancestor->logicalPart().name() << "_" << ancestor->copyno();
+     
+     std::string name = s.str();
+     idToName_[tid] = name;
+     doSubDets = fview.nextSibling(); // go to next
+    }
+
+// //   int n=0;
+//   std::vector<DetId> ids=geom->getValidDetIds(DetId::Ecal,EcalEndcap);
+//   for (std::vector<DetId>::iterator i=ids.begin(); i!=ids.end(); i++) {
+// //     n++;
+// //     const CaloCellGeometry* cell=geom->getGeometry(*i);
+// //     EEDetId closestCell= EEDetId(geom->getClosestCell(dynamic_cast<const TruncatedPyramid*>(cell)->getPosition(0.)));
+// //     assert (closestCell == EEDetId(*i) );
+//     unsigned int tid(*i);
+//     std::vector<int> tint = geom->getDDNavType(tid);
+//     DDExpandedView epv(cview);
+//     epv.goTo(tint);
+// //     if (tid == 872420050 || tid == 872420051 ) {
+// //       std::cout << "DumpGeom::detId = " << tid ;
+// //       std::cout << " fvgeohist: " << epv.geoHistory() << std::endl;
+// //     }
+
+// //    std::cout << "id: " << tid << " path: " << epv.geoHistory() << std::endl;	    
+//     // build map here
+//     std::stringstream s;
+//     s << "/cms:World_1";
+//     DDGeoHistory::const_iterator ancestor = epv.geoHistory().begin();
+//     ++ancestor; // skip the first ancestor
+//     for ( ; ancestor != epv.geoHistory().end(); ++ ancestor )
+//       s << "/" << ancestor->logicalPart().name() << "_" << ancestor->copyno();
       
-    std::string name = s.str();
-    idToName_[tid] = name;
-  }
+//     std::string name = s.str();
+//     idToName_[tid] = name;
+//   }
   }
 
   // preshower
   {
   const CaloSubdetectorGeometry* geom=cg.getSubdetectorGeometry(DetId::Ecal, EcalPreshower);
+    // This code comes from CaloGeometryLoader and must be updated when CaloGeometryLoader changes.
+    // it is cut-pasted (logic wise).
+    DDSpecificsFilter filter;
+    filter.setCriteria( DDValue( "SensitiveDetector",
+				 "EcalSensitiveDetector",
+				 0                        ),
+			DDSpecificsFilter::equals,
+			DDSpecificsFilter::AND,
+			true,
+			true                               ) ;
+    
+    filter.setCriteria( DDValue( "ReadOutName",
+				 (dynamic_cast<const EcalEndcapGeometry*>(geom))->hitString(),
+				 0                  ),
+			DDSpecificsFilter::equals,
+			DDSpecificsFilter::AND,
+			true,
+			true                       ) ;
+    size_t tid;
+    DDFilteredView fview(cview);
+    fview.addFilter(filter);
+    bool doSubDets = fview.firstChild();
+    EcalEndcapNumberingScheme scheme;
+    while (doSubDets) {
+      const DDGeoHistory& parents ( fview.geoHistory() ) ;
+      const DDGeoHistory::size_type psize ( parents.size() ) ;
+      EcalBaseNumber baseNumber ;
+      baseNumber.setSize( psize ) ;
 
-//   int n=0;
-  std::vector<DetId> ids=geom->getValidDetIds(DetId::Ecal,EcalPreshower);
-  for (std::vector<DetId>::iterator i=ids.begin(); i!=ids.end(); i++) {
-//     n++;
-//     const CaloCellGeometry* cell=geom->getGeometry(*i);
-//     EEDetId closestCell= EEDetId(geom->getClosestCell(dynamic_cast<const TruncatedPyramid*>(cell)->getPosition(0.)));
-//     assert (closestCell == EEDetId(*i) );
-    unsigned int tid(*i);
-    std::vector<int> tint = geom->getDDNavType(tid);
-    DDExpandedView epv(cview);
-    epv.goTo(tint);
-    //    std::cout << "id: " << tid << " path: " << epv.geoHistory() << std::endl;	    
-    // build map here
-    std::stringstream s;
-    s << "/cms:World_1";
-    DDGeoHistory::const_iterator ancestor = epv.geoHistory().begin();
-    ++ancestor; // skip the first ancestor
-    for ( ; ancestor != epv.geoHistory().end(); ++ ancestor )
-      s << "/" << ancestor->logicalPart().name() << "_" << ancestor->copyno();
+    for( unsigned int i=1 ; i<=psize ; ++i )
+      {
+	baseNumber.addLevel( parents[psize-i].logicalPart().name().name(),
+			     parents[psize-i].copyno() ) ;
+      }
+
+     tid = scheme.getUnitID( baseNumber );  
+     std::stringstream s;
+     s << "/cms:World_1";
+     DDGeoHistory::const_iterator ancestor = fview.geoHistory().begin();
+     ++ancestor; // skip the first ancestor
+     for ( ; ancestor != fview.geoHistory().end(); ++ ancestor )
+       s << "/" << ancestor->logicalPart().name() << "_" << ancestor->copyno();
+     
+     std::string name = s.str();
+     idToName_[tid] = name;
+     doSubDets = fview.nextSibling(); // go to next
+    }
+
+// //   int n=0;
+//   std::vector<DetId> ids=geom->getValidDetIds(DetId::Ecal,EcalPreshower);
+//   for (std::vector<DetId>::iterator i=ids.begin(); i!=ids.end(); i++) {
+// //     n++;
+// //     const CaloCellGeometry* cell=geom->getGeometry(*i);
+// //     EEDetId closestCell= EEDetId(geom->getClosestCell(dynamic_cast<const TruncatedPyramid*>(cell)->getPosition(0.)));
+// //     assert (closestCell == EEDetId(*i) );
+//     unsigned int tid(*i);
+//     std::vector<int> tint = geom->getDDNavType(tid);
+//     DDExpandedView epv(cview);
+//     epv.goTo(tint);
+//     //    std::cout << "id: " << tid << " path: " << epv.geoHistory() << std::endl;	    
+//     // build map here
+//     std::stringstream s;
+//     s << "/cms:World_1";
+//     DDGeoHistory::const_iterator ancestor = epv.geoHistory().begin();
+//     ++ancestor; // skip the first ancestor
+//     for ( ; ancestor != epv.geoHistory().end(); ++ ancestor )
+//       s << "/" << ancestor->logicalPart().name() << "_" << ancestor->copyno();
       
-    std::string name = s.str();
-    idToName_[tid] = name;
-  }
+//     std::string name = s.str();
+//     idToName_[tid] = name;
+//   }
   }
 
 }
 
-#endif
 
 // ------------ method called to for each event  ------------
 void
@@ -766,10 +884,8 @@ DumpGeom::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
    edm::ESHandle<GeometricDet> rDD;
    iSetup.get<IdealGeometryRecord>().get( rDD );
 
-#ifdef ECALDDDINFODUMP   
    edm::ESHandle<CaloGeometry> pG;
    iSetup.get<IdealGeometryRecord>().get(pG);     
-#endif
 
 //    if ( pG.isValid() ) {
 //      std::cout << "pG is valid" << std::endl;
@@ -905,10 +1021,9 @@ DumpGeom::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
   std::cout << "In the DumpGeom::analyze method...done with CSC" << std::endl;
    mapTrackerGeometry(*viewH, *rDD);
   std::cout << "In the DumpGeom::analyze method...done with Tracker" << std::endl;
-#ifdef ECALDDDINFODUMP
    mapEcalGeometry(*viewH, *pG);
   std::cout << "In the DumpGeom::analyze method...done with Ecal" << std::endl;
-#endif
+
    TCanvas * canvas = new TCanvas( );
    top->Draw("ogle");
 
