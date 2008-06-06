@@ -6,5 +6,4 @@
 namespace cond{
   typedef edmplugin::PluginFactory< cond::TechnologyProxy*(const std::string&) > TechnologyProxyFactory;
 }
-EDM_REGISTER_PLUGINFACTORY(cond::TechnologyProxyFactory,"DBTechnologyPlugin");
 #endif
