@@ -25,8 +25,8 @@ EnergyLossSimulator::compute(ParticlePropagator &Particle)
 
   //  FamosHistos* myHistos = FamosHistos::instance();
 
-  double gamma_e = 0.577215664901532861;  // Euler constant
-
+  // double gamma_e = 0.577215664901532861;  // Euler constant
+  
   // The thickness in cm
   double thick = radLengths * radLenIncm();
   
@@ -45,21 +45,26 @@ EnergyLossSimulator::compute(ParticlePropagator &Particle)
   
   // Energy loss spread in GeV
   double eSpread  = 0.1536E-3*charge2*(theZ()/theA())*rho()*thick/beta2;
-  
+ 
   // Most probable energy loss (from the integrated Bethe-Bloch equation)
-  double mostProbableLoss = 
-    eSpread * ( log ( 2.*eMass()*beta2*gama2*eSpread/thick
-		      / (excitE()*excitE()) )
-		- beta2 + 1. - gamma_e );
-  
+  mostProbableLoss = eSpread * ( log ( 2.*eMass()*beta2*gama2*eSpread
+		                     / (excitE()*excitE()) )
+                                 - beta2 + 0.200 );
+
+  // This one can be needed on output (but is not used internally)
+  // meanEnergyLoss = 2.*eSpread * ( log ( 2.*eMass()*beta2*gama2 /excitE() ) - beta2 );
+
   // Generate the energy loss with Landau fluctuations
   double dedx = mostProbableLoss + eSpread * theGenerator->landau();
 
   // Compute the new energy and momentum
   double newE = std::max(Particle.mass(),Particle.e()-dedx);
   double fac  = std::sqrt((newE*newE-m2)/p2);
+
   
   // Update the momentum
+  deltaP.SetXYZT(Particle.Px()*(1.-fac),Particle.Py()*(1.-fac),
+		 Particle.Pz()*(1.-fac),Particle.E()-newE);
   Particle.SetXYZT(Particle.Px()*fac,Particle.Py()*fac, 
 		   Particle.Pz()*fac,newE);
   
