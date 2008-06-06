@@ -25,7 +25,7 @@ sub usage
 
   Destination determines where file ends up on Tier0. This corresponds to the 'dataset' 
   parameter of the previous system. It will be set to default if not set by user. 
-  If you are not sure about what you are doing please send an inquery to hn-tier0-ops@cern.ch.
+  If you are not sure about what you are doing please send an inquery to hn-tier0-ops\@cern.ch.
 
   -------------------------------------------------------------------------------------------- 
   Other parameters:
