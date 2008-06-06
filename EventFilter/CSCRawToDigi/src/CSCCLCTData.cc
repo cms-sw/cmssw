@@ -40,6 +40,7 @@ CSCCLCTData::CSCCLCTData(int ncfebs, int ntbins, const unsigned short * buf)
 
 std::vector<CSCComparatorDigi>  CSCCLCTData::comparatorDigis(uint32_t idlayer, unsigned cfeb) 
 {
+  static const bool doStripSwapping = false;
   bool me1a = (CSCDetId::station(idlayer)==1) && (CSCDetId::ring(idlayer)==4);
   bool zplus = (CSCDetId::endcap(idlayer) == 1); 
   bool me1b = (CSCDetId::station(idlayer)==1) && (CSCDetId::ring(idlayer)==1);
@@ -110,12 +111,14 @@ std::vector<CSCComparatorDigi>  CSCCLCTData::comparatorDigis(uint32_t idlayer, u
 	unsigned int cfeb_corr    = cfeb;
 	unsigned int distrip_corr = distrip;
 
-	// Fix ordering of strips and CFEBs in ME1/1.
-	// SV, 27/05/08: keep CFEB=4 for ME1/a until CLCT trigger logic
-	// stops combining it with the info from the other 4 CFEBs (ME1/b).
-	// if ( me1a )           { cfeb_corr = 0; } // reset 4 to 0
-	if ( me1a &&  zplus ) { distrip_corr = 7-distrip; } // 0-7 -> 7-0
-	if ( me1b && !zplus ) { distrip_corr = 7-distrip; cfeb_corr = 3-cfeb; }
+	if (doStripSwapping) {
+	  // Fix ordering of strips and CFEBs in ME1/1.
+	  // SV, 27/05/08: keep CFEB=4 for ME1/a until CLCT trigger logic
+	  // stops combining it with the info from the other 4 CFEBs (ME1/b).
+	  // if ( me1a )           { cfeb_corr = 0; } // reset 4 to 0
+	  if ( me1a &&  zplus ) {distrip_corr = 7-distrip;} // 0-7 -> 7-0
+	  if ( me1b && !zplus ) {distrip_corr = 7-distrip; cfeb_corr = 3-cfeb;}
+	}
 
 	int strip = 16*cfeb_corr + 2*distrip_corr + 1;
 
@@ -124,7 +127,7 @@ std::vector<CSCComparatorDigi>  CSCCLCTData::comparatorDigis(uint32_t idlayer, u
 	    << "fillComparatorOutputs: cfeb_corr = " << cfeb_corr
 	    << " distrip_corr = " << distrip_corr << " strip = " << strip;
 
-	if (( me1a && zplus ) || ( me1b && !zplus )) {
+	if (doStripSwapping && (( me1a && zplus ) || ( me1b && !zplus ))) {
 	  // Half-strips need to be flipped too.
 	  if (tbinbitsS1HS1) result.push_back(CSCComparatorDigi(strip, 0, tbinbitsS1HS1));
 	  if (tbinbitsS1HS0) result.push_back(CSCComparatorDigi(strip, 1, tbinbitsS1HS0));
