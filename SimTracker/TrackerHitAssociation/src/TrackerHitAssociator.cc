@@ -199,7 +199,7 @@ std::vector<PSimHit> TrackerHitAssociator::associateHit(const TrackingRecHit & t
     //USE THIS FOR STRIPS
     //  std::cout << "NEW SIZE =  " << simhitCFPos.size() << std::endl;
     
-    for(int i=0; i<simhitCFPos.size(); i++){
+    for(size_t i=0; i<simhitCFPos.size(); i++){
       //std::cout << "NEW CFPOS " << simhitCFPos[i] << endl;
       //std::cout << "NEW LOCALPOS " <<  TrackerHits.getObject(simhitCFPos[i]).localPosition()  << endl;
       result.push_back( TrackerHits.getObject(simhitCFPos[i]));
@@ -338,7 +338,7 @@ std::vector< SimHitIdpr > TrackerHitAssociator::associateHitId(const TrackingRec
 std::vector<SimHitIdpr>  TrackerHitAssociator::associateSimpleRecHit(const SiStripRecHit2D * simplerechit)
 {
   //  std::cout <<"ASSOCIATE SIMPLE RECHIT" << std::endl;	    
-  StripHits ==true;	  
+  StripHits =true;	  
 
   DetId detid=  simplerechit->geographicalId();
   uint32_t detID = detid.rawId();
@@ -356,7 +356,7 @@ std::vector<SimHitIdpr>  TrackerHitAssociator::associateSimpleRecHit(const SiStr
     edm::DetSet<StripDigiSimLink> link_detset = (*stripdigisimlink)[detID];
     
     //Modification for regional clustering from Jean-Roch Vlimant
-    const SiStripCluster* clust; 
+    const SiStripCluster* clust = 0; 
     if(simplerechit->cluster().isNonnull())
     {
       clust=&(*simplerechit->cluster());
@@ -367,6 +367,7 @@ std::vector<SimHitIdpr>  TrackerHitAssociator::associateSimpleRecHit(const SiStr
     else 
       {
 	edm::LogError("TrackerHitAssociator")<<"no cluster reference attached";
+	return simtrackid;
       }
   //    const edm::Ref<edm::DetSetVector<SiStripCluster>, SiStripCluster, edm::refhelper::FindForDetSetVector<SiStripCluster> > clust=simplerechit->cluster();
   
@@ -500,6 +501,16 @@ std::vector<SimHitIdpr>  TrackerHitAssociator::associatePixelRecHit(const SiPixe
     edm::DetSet<PixelDigiSimLink> link_detset = (*pixeldigisimlink)[detID];
     //    edm::Ref< edm::DetSetVector<SiPixelCluster>, SiPixelCluster> const& cluster = pixelrechit->cluster();
     SiPixelRecHit::ClusterRef const& cluster = pixelrechit->cluster();
+
+    //check the reference is valid
+
+    if(pixelrechit->cluster().isNull()){
+      edm::LogError("TrackerHitAssociator")<<"no Pixel cluster reference attached";
+      return simtrackid;
+    }
+    
+
+
     int minPixelRow = (*cluster).minPixelRow();
     int maxPixelRow = (*cluster).maxPixelRow();
     int minPixelCol = (*cluster).minPixelCol();
