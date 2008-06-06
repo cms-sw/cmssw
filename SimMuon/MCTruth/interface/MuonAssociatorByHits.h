@@ -5,6 +5,7 @@
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/EventSetup.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
+#include "FWCore/ParameterSet/interface/InputTag.h"
 #include "DataFormats/Common/interface/Handle.h"
 #include "DataFormats/Common/interface/EDProduct.h"
 #include "DataFormats/Common/interface/Ref.h"
@@ -13,14 +14,16 @@
 #include "DataFormats/TrackingRecHit/interface/TrackingRecHit.h"
 #include "DataFormats/RecoCandidate/interface/TrackAssociation.h"
 #include "SimDataFormats/TrackingAnalysis/interface/TrackingParticle.h"
-#include "SimTracker/TrackerHitAssociation/interface/TrackerHitAssociator.h"
 #include "SimMuon/MCTruth/interface/DTHitAssociator.h"
 #include "SimMuon/MCTruth/interface/MuonTruth.h"
 #include "SimMuon/MCTruth/interface/RPCHitAssociator.h"
+#include "SimTracker/TrackerHitAssociation/interface/TrackerHitAssociator.h"
 
 class MuonAssociatorByHits {
   
  public:
+  typedef std::pair <uint32_t, EncodedEventId> SimHitIdpr;
+
   MuonAssociatorByHits( const edm::ParameterSet& );  
   ~MuonAssociatorByHits();
   
@@ -72,26 +75,36 @@ class MuonAssociatorByHits {
 		       int& n_matched_hits,int& n_tracker_matched_hits,int& n_dt_matched_hits,int& n_csc_matched_hits,int& n_rpc_matched_hits,
 		       iter begin, iter end,
 		       TrackerHitAssociator* trackertruth, 
-		       DTHitAssociator& dttruth, MuonTruth& csctruth, RPCHitAssociator& rpctruth) const;
+		       DTHitAssociator& dttruth, MuonTruth& csctruth, RPCHitAssociator& rpctruth, bool printRts) const;
   
   int getShared(std::vector<SimHitIdpr>& matchedIds, std::vector<SimHitIdpr>& idcachev,
 		TrackingParticleCollection::const_iterator trpart) const;
   
  private:
-  const bool AbsoluteNumberOfHits;
-  const std::string SimToRecoDenominator;
-  const double theMinHitCut;    
+  const bool AbsoluteNumberOfHits_track;
+  const unsigned int MinHitCut_track;    
+  const bool AbsoluteNumberOfHits_muon;
+  const unsigned int MinHitCut_muon;    
+  const double PurityCut_track;
+  const double PurityCut_muon;
+  const double EfficiencyCut_track;
+  const double EfficiencyCut_muon;
   const bool UsePixels;
   const bool UseGrouped;
   const bool UseSplitting;
   const bool ThreeHitTracksAreSpecial;
-  const bool debug;
+  const bool dumpDT;
+  const bool dumpInputCollections;
   const bool crossingframe;
+  edm::InputTag simtracksTag;
+  edm::InputTag simtracksXFTag;
   const edm::ParameterSet& conf_;
 
   int LayerFromDetid(const DetId&) const;
   const TrackingRecHit* getHitPtr(edm::OwnVector<TrackingRecHit>::const_iterator iter) const {return &*iter;}
   const TrackingRecHit* getHitPtr(trackingRecHit_iterator iter) const {return &**iter;}
+
+  std::string write_matched_simtracks(const std::vector<SimHitIdpr>&) const;
 
 };
 
