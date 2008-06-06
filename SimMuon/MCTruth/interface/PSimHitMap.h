@@ -9,8 +9,8 @@
 class PSimHitMap
 {
 public:
-  PSimHitMap(const std::string & collectionName);
-
+  PSimHitMap(const edm::InputTag &);
+  
   void fill(const edm::Event & e);
 
   const edm::PSimHitContainer & hits(int detId) const;
@@ -18,9 +18,9 @@ public:
   std::vector<int> detsWithHits() const;
 
 private:
-  std::string theCollectionName;
   std::map<int, edm::PSimHitContainer> theMap;
   edm::PSimHitContainer theEmptyContainer;
+  edm::InputTag simHitsTag;
 };
 
 #endif

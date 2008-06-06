@@ -3,6 +3,7 @@
 
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/ESHandle.h"
+#include "FWCore/ParameterSet/interface/InputTag.h"
 #include "DataFormats/Common/interface/Handle.h"
 #include "SimDataFormats/EncodedEventId/interface/EncodedEventId.h"
 #include "SimDataFormats/TrackingHit/interface/PSimHit.h"
@@ -47,6 +48,9 @@ class RPCHitAssociator {
  private:
    std::map<int, edm::PSimHitContainer> _SimHitMap;
    edm::Handle< edm::DetSetVector<RPCDigiSimLink> > _thelinkDigis;
+ 
+   edm::InputTag RPCsimhitsTag;
+   edm::InputTag RPCdigisimlinkTag;
  };
 
 #endif
