@@ -12,10 +12,10 @@ namespace edm {
   namespace {
     struct TypeCompare {
        typedef DataFrameContainer::id_type id_type;
-       std::vector<id_type> const* ids_;
-       TypeCompare(std::vector<id_type> const& iType): ids_(&iType) {}
+       std::vector<id_type> const& ids_;
+       TypeCompare(std::vector<id_type> const& iType): ids_(iType) {}
         bool operator()(id_type const& iLHS, id_type const& iRHS) const {
-          return (*ids_)[iLHS] < (*ids_)[iRHS];
+          return ids_[iLHS] < ids_[iRHS];
         }
     };
   }
