@@ -419,6 +419,15 @@ private:
 
   void swapCLCTs(CSCCLCTDigi& digi1, CSCCLCTDigi& digi2);
 
+  void setCLCT0PatternType(CSCTMBHeader2006& header,
+			   const int pattern, const int type);
+  void setCLCT1PatternType(CSCTMBHeader2006& header,
+			   const int pattern, const int type);
+  void setCLCT0PatternType(CSCTMBHeader2007& header,
+			   const int pattern, const int type);
+  void setCLCT1PatternType(CSCTMBHeader2007& header,
+			   const int pattern, const int type);
+
   CSCTMBHeader2006 header2006;
   CSCTMBHeader2007 header2007;
 
@@ -439,10 +448,10 @@ CSCTMBHeader::addCLCT0(const CSCCLCTDigi & digi, T & t)
   int cfeb = digi.getCFEB();
   int bend = digi.getBend();
   int pattern = digi.getPattern();
-  hardwareStripNumbering(strip, cfeb, pattern, bend);
+  //hardwareStripNumbering(strip, cfeb, pattern, bend);
   t.clct0_valid = digi.isValid();
   t.clct0_quality = digi.getQuality();
-  t.clct0_shape = pattern;
+  setCLCT0PatternType(t, pattern, digi.getStripType());
   t.clct0_bend = bend;
   t.clct0_key = strip;
   t.clct0_cfeb_low = (cfeb & 0x1);
@@ -458,11 +467,10 @@ CSCTMBHeader::addCLCT1(const CSCCLCTDigi & digi, T & t)
   int cfeb = digi.getCFEB();
   int bend = digi.getBend();
   int pattern = digi.getPattern();
-  hardwareStripNumbering(strip, cfeb, pattern, bend);
-
+  //hardwareStripNumbering(strip, cfeb, pattern, bend);
   t.clct1_valid = digi.isValid();
   t.clct1_quality = digi.getQuality();
-  t.clct1_shape = pattern;
+  setCLCT1PatternType(t, pattern, digi.getStripType());
   t.clct1_bend = bend;
   t.clct1_key = strip;
   t.clct1_cfeb_low = (cfeb & 0x1);
@@ -475,10 +483,11 @@ template<typename T> void
 CSCTMBHeader::addCorrelatedLCT0(const CSCCorrelatedLCTDigi & digi, T & t)
 {
   int halfStrip = digi.getStrip();
-  hardwareHalfStripNumbering(halfStrip);
+  //hardwareHalfStripNumbering(halfStrip);
 
+  t.MPC_Muon0_vpf_ = digi.isValid();
   t.MPC_Muon0_wire_ = digi.getKeyWG();
-  t.MPC_Muon0_clct_pattern_ = digi.getCLCTPattern();
+  t.MPC_Muon0_clct_pattern_ = digi.getPattern();
   t.MPC_Muon0_quality_ = digi.getQuality();
   t.MPC_Muon0_halfstrip_clct_pattern = halfStrip;
   t.MPC_Muon0_bend_ = digi.getBend();
@@ -492,10 +501,11 @@ template<typename T> void
 CSCTMBHeader::addCorrelatedLCT1(const CSCCorrelatedLCTDigi & digi, T & t)
 {
   int halfStrip = digi.getStrip();
-  hardwareHalfStripNumbering(halfStrip);
+  //hardwareHalfStripNumbering(halfStrip);
 
+  t.MPC_Muon1_vpf_ = digi.isValid();
   t.MPC_Muon1_wire_ = digi.getKeyWG();
-  t.MPC_Muon1_clct_pattern_ = digi.getCLCTPattern();
+  t.MPC_Muon1_clct_pattern_ = digi.getPattern();
   t.MPC_Muon1_quality_ = digi.getQuality();
   t.MPC_Muon1_halfstrip_clct_pattern = halfStrip;
   t.MPC_Muon1_bend_ = digi.getBend();
