@@ -115,6 +115,7 @@ void UEAnalysisOnRootple::MultiAnalysis(char* filelist,char* outname,vector<floa
       else 
 	{
 	  cout << "!!! ERROR !!! Cannot determine dataset range (expect MinBias, JetET20, JetET30, ...)" << endl;
+	  pThatMax = 14000.;
 	}
 
       //TFile *f =  new TFile(RootTupleName);
@@ -244,8 +245,8 @@ void UEAnalysisOnRootple::Loop(Float_t we,Float_t ptThreshold,string type,string
 							     hFile, "HLTMinBias");
 	    if(type=="UE") 
 	      {
-		ueHLTMinBias->ueAnalysisMC(we,tkpt,etaRegion,ptThreshold,MonteCarlo,ChargedJet, hFile, "HLTMinBias");
-		ueHLTMinBias->ueAnalysisRECO(we,tkpt,etaRegion,ptThreshold,Track,TracksJet, hFile, "HLTMinBias");
+ 		ueHLTMinBias->ueAnalysisMC(we,tkpt,etaRegion,ptThreshold,MonteCarlo,ChargedJet, hFile, "HLTMinBias");
+ 		ueHLTMinBias->ueAnalysisRECO(we,tkpt,etaRegion,ptThreshold,Track,TracksJet, hFile, "HLTMinBias");
 	      }
 	  }
 	else if ( filterName=="HLTZeroBias"     )

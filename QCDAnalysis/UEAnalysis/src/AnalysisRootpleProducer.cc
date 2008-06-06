@@ -33,7 +33,6 @@ public:
   }
 };
  
-
 void AnalysisRootpleProducer::store(){
 
   AnalysisTree->Fill();
@@ -71,6 +70,7 @@ AnalysisRootpleProducer::AnalysisRootpleProducer( const ParameterSet& pset )
   //   triggerName       = pset.getParameter<InputTag>("triggerName");
 
   piG = acos(-1.);
+  pdgidList.reserve(200);
 }
 
 void AnalysisRootpleProducer::beginJob( const EventSetup& )
@@ -241,6 +241,28 @@ void AnalysisRootpleProducer::analyze( const Event& e, const EventSetup& )
       for (vector<GenParticle>::const_iterator it(CandHandleMC->begin()), itEnd(CandHandleMC->end());
 	   it != itEnd;it++)
 	{
+
+
+	  //======
+	  bool found( false );
+	  for (int iParticle(0), iParticleEnd( pdgidList.size() ); iParticle<iParticleEnd; ++iParticle) 
+	    {
+	      //cout << "Particle pdgid " << it->pdgId() << " charge " << it->charge() << endl; 
+	      if ( it->pdgId()==pdgidList[iParticle] )
+		{
+		  found = true;
+		  break;
+		}
+	    }
+	  if (!found) 
+	    {
+	      //cout << "Particle pdgid " << it->pdgId() << " status " << it->status() << endl; 
+	      //cout << "Particle pdgid " << it->pdgId() << " charge " << it->charge() << endl;
+	      pdgidList.push_back( it->pdgId() );
+	    }
+	  //======
+
+
 	  GenPart.push_back(it->p4());
 	}
 
@@ -334,5 +356,11 @@ void AnalysisRootpleProducer::analyze( const Event& e, const EventSetup& )
 
 void AnalysisRootpleProducer::endJob()
 {
+  //   cout << "Printing list of PDG id's: " << endl;
+  //   std::sort(pdgidList.begin(), pdgidList.end());
+  //   for (int iParticle(0), iParticleEnd( pdgidList.size() ); iParticle<iParticleEnd; ++iParticle)
+  //     {
+  //       cout << pdgidList[iParticle] << endl;
+  //     }
 }
 

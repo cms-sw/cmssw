@@ -132,6 +132,11 @@ class UEAnalysisUE {
   TH1F*       temp3RECO;
   TH1F*       temp4RECO;
   
+  TH1D* h_dN_TransMC;
+  TH1D* h_dPt_TransMC;
+  TH1D* h_dN_TransRECO;
+  TH1D* h_dPt_TransRECO;
+
   float piG;
 
   UEAnalysisCorrCali* cc;

@@ -104,6 +104,10 @@ private:
   TClonesArray* acceptedTriggers;
 
   double genEventScale;
+
+
+  vector<int>  pdgidList;
+
 };
 
 #endif
