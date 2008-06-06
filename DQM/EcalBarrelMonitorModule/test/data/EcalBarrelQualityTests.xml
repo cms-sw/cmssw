@@ -10,6 +10,7 @@
         <PARAM name="maxRMS">0.0</PARAM>
         <PARAM name="toleranceMean">-1.0</PARAM>
         <PARAM name="minEntries">0</PARAM>
+        <PARAM name="useEmptyBins">1</PARAM>
 </QTEST>
 
 <LINK name="*EcalBarrel/EBIntegrityTask/Gain/EBIT gain EB*">
@@ -26,6 +27,7 @@
         <PARAM name="maxRMS">0.0</PARAM>
         <PARAM name="toleranceMean">-1.0</PARAM>
         <PARAM name="minEntries">0</PARAM>
+        <PARAM name="useEmptyBins">1</PARAM>
 </QTEST>
 
 <LINK name="*EcalBarrel/EBIntegrityTask/ChId/EBIT ChId EB*">
@@ -42,6 +44,7 @@
         <PARAM name="maxRMS">0.0</PARAM>
         <PARAM name="toleranceMean">-1.0</PARAM>
         <PARAM name="minEntries">0</PARAM>
+        <PARAM name="useEmptyBins">1</PARAM>
 </QTEST>
 
 <LINK name="*EcalBarrel/EBIntegrityTask/GainSwitch/EBIT gain switch EB*">
@@ -58,6 +61,7 @@
         <PARAM name="maxRMS">0.0</PARAM>
         <PARAM name="toleranceMean">-1.0</PARAM>
         <PARAM name="minEntries">0</PARAM>
+        <PARAM name="useEmptyBins">1</PARAM>
 </QTEST>
 
 <LINK name="*EcalBarrel/EBIntegrityTask/TTId/EBIT TTId EB*">
@@ -74,6 +78,7 @@
         <PARAM name="maxRMS">0.0</PARAM>
         <PARAM name="toleranceMean">-1.0</PARAM>
         <PARAM name="minEntries">0</PARAM>
+        <PARAM name="useEmptyBins">1</PARAM>
 </QTEST>
 
 <LINK name="*EcalBarrel/EBIntegrityTask/TTBlockSize/EBIT TTBlockSize EB*">
@@ -90,6 +95,7 @@
         <PARAM name="maxRMS">0.0</PARAM>
         <PARAM name="toleranceMean">-1.0</PARAM>
         <PARAM name="minEntries">0</PARAM>
+        <PARAM name="useEmptyBins">1</PARAM>
 </QTEST>
 
 <LINK name="*EcalBarrel/EBIntegrityTask/MemChId/EBIT MemChId EB*">
@@ -106,6 +112,7 @@
         <PARAM name="maxRMS">0.0</PARAM>
         <PARAM name="toleranceMean">-1.0</PARAM>
         <PARAM name="minEntries">0</PARAM>
+        <PARAM name="useEmptyBins">1</PARAM>
 </QTEST>
 
 <LINK name="*EcalBarrel/EBIntegrityTask/MemGain/EBIT MemGain EB*">
@@ -122,6 +129,7 @@
         <PARAM name="maxRMS">0.0</PARAM>
         <PARAM name="toleranceMean">-1.0</PARAM>
         <PARAM name="minEntries">0</PARAM>
+        <PARAM name="useEmptyBins">1</PARAM>
 </QTEST>
 
 <LINK name="*EcalBarrel/EBIntegrityTask/MemTTId/EBIT MemTTId EB*">
@@ -138,6 +146,7 @@
         <PARAM name="maxRMS">0.0</PARAM>
         <PARAM name="toleranceMean">-1.0</PARAM>
         <PARAM name="minEntries">0</PARAM>
+        <PARAM name="useEmptyBins">1</PARAM>
 </QTEST>
 
 <LINK name="*EcalBarrel/EBIntegrityTask/MemSize/EBIT MemSize EB*">
@@ -154,6 +163,7 @@
         <PARAM name="maxRMS">0.0</PARAM>
         <PARAM name="toleranceMean">-1.0</PARAM>
         <PARAM name="minEntries">0</PARAM>
+        <PARAM name="useEmptyBins">1</PARAM>
 </QTEST>
 
 <LINK name="*EcalBarrel/EBStatusFlagsTask/FEStatus/EBSFT front-end status EB*">
@@ -170,6 +180,7 @@
         <PARAM name="maxRMS">2.0</PARAM>
         <PARAM name="toleranceMean">-1.0</PARAM>
         <PARAM name="minEntries">17000</PARAM>
+        <PARAM name="useEmptyBins">1</PARAM>
 </QTEST>
 
 <LINK name="*EcalBarrel/EBPedestalOnlineTask/Gain12/EBPOT pedestal EB* G12">
@@ -186,6 +197,7 @@
         <PARAM name="maxRMS">1.0</PARAM>
         <PARAM name="toleranceMean">-1.0</PARAM>
         <PARAM name="minEntries">17000</PARAM>
+        <PARAM name="useEmptyBins">1</PARAM>
 </QTEST>
 
 <LINK name="*EcalBarrel/EBPedestalTask/Gain01/EBPT pedestal EB* G01">
@@ -202,6 +214,7 @@
         <PARAM name="maxRMS">1.2</PARAM>
         <PARAM name="toleranceMean">-1.0</PARAM>
         <PARAM name="minEntries">17000</PARAM>
+        <PARAM name="useEmptyBins">1</PARAM>
 </QTEST>
 
 <LINK name="*EcalBarrel/EBPedestalTask/Gain06/EBPT pedestal EB* G06">
@@ -218,6 +231,7 @@
         <PARAM name="maxRMS">2.0</PARAM>
         <PARAM name="toleranceMean">-1.0</PARAM>
         <PARAM name="minEntries">17000</PARAM>
+        <PARAM name="useEmptyBins">1</PARAM>
 </QTEST>
 
 <LINK name="*EcalBarrel/EBPedestalTask/Gain12/EBPDT pedestal EB* G12">
@@ -234,6 +248,7 @@
         <PARAM name="maxRMS">1.0</PARAM>
         <PARAM name="toleranceMean">-1.0</PARAM>
         <PARAM name="minEntries">100</PARAM>
+        <PARAM name="useEmptyBins">1</PARAM>
 </QTEST>
 
 <LINK name="*EcalBarrel/EBPedestalTask/PN/Gain01/EBPDT PNs pedestal EB* G01">
@@ -250,6 +265,7 @@
         <PARAM name="maxRMS">3.0</PARAM>
         <PARAM name="toleranceMean">-1.0</PARAM>
         <PARAM name="minEntries">100</PARAM>
+        <PARAM name="useEmptyBins">1</PARAM>
 </QTEST>
 
 <LINK name="*EcalBarrel/EBPedestalTask/PN/Gain16/EBPDT PNs pedestal EB* G16">
@@ -266,6 +282,7 @@
         <PARAM name="maxRMS">0.0</PARAM>
         <PARAM name="toleranceMean">0.40</PARAM>
         <PARAM name="minEntries">100</PARAM>
+        <PARAM name="useEmptyBins">1</PARAM>
 </QTEST>
 
 <LINK name="*EcalBarrel/EBLaserTask/Laser1/EBLT amplitude EB* L1*">
@@ -282,6 +299,7 @@
         <PARAM name="maxRMS">1.0</PARAM>
         <PARAM name="toleranceMean">-1.0</PARAM>
         <PARAM name="minEntries">100</PARAM>
+        <PARAM name="useEmptyBins">1</PARAM>
 </QTEST>
 
 <LINK name="*EcalBarrel/EBLaserTask/Laser1/PN/Gain01/EBPDT PNs pedestal EB* G01">
@@ -298,6 +316,7 @@
         <PARAM name="maxRMS">3.0</PARAM>
         <PARAM name="toleranceMean">-1.0</PARAM>
         <PARAM name="minEntries">100</PARAM>
+        <PARAM name="useEmptyBins">1</PARAM>
 </QTEST>
 
 <LINK name="*EcalBarrel/EBLaserTask/Laser1/PN/Gain16/EBPDT PNs pedestal EB* G16">
@@ -314,6 +333,7 @@
         <PARAM name="maxRMS">4096.0</PARAM>
         <PARAM name="toleranceMean">0.20</PARAM>
         <PARAM name="minEntries">100</PARAM>
+        <PARAM name="useEmptyBins">1</PARAM>
 </QTEST>
 
 <LINK name="*EcalBarrel/EBLaserTask/Laser1/PN/Gain01/EBPDT PNs amplitude EB* G01">
@@ -330,6 +350,7 @@
         <PARAM name="maxRMS">4096.0</PARAM>
         <PARAM name="toleranceMean">0.20</PARAM>
         <PARAM name="minEntries">100</PARAM>
+        <PARAM name="useEmptyBins">1</PARAM>
 </QTEST>
 
 <LINK name="*EcalBarrel/EBLaserTask/Laser1/PN/Gain16/EBPDT PNs amplitude EB* G16">
@@ -346,6 +367,7 @@
         <PARAM name="maxRMS">0.0</PARAM>
         <PARAM name="toleranceMean">0.40</PARAM>
         <PARAM name="minEntries">100</PARAM>
+        <PARAM name="useEmptyBins">1</PARAM>
 </QTEST>
 
 <LINK name="*EcalBarrel/EBLaserTask/Laser4/EBLT amplitude EB* L4*">
@@ -362,6 +384,7 @@
         <PARAM name="maxRMS">1.0</PARAM>
         <PARAM name="toleranceMean">-1.0</PARAM>
         <PARAM name="minEntries">100</PARAM>
+        <PARAM name="useEmptyBins">1</PARAM>
 </QTEST>
 
 <LINK name="*EcalBarrel/EBLaserTask/Laser4/PN/Gain01/EBPDT PNs pedestal EB* G01">
@@ -378,6 +401,7 @@
         <PARAM name="maxRMS">3.0</PARAM>
         <PARAM name="toleranceMean">-1.0</PARAM>
         <PARAM name="minEntries">100</PARAM>
+        <PARAM name="useEmptyBins">1</PARAM>
 </QTEST>
 
 <LINK name="*EcalBarrel/EBLaserTask/Laser4/PN/Gain16/EBPDT PNs pedestal EB* G16">
@@ -394,6 +418,7 @@
         <PARAM name="maxRMS">4096.0</PARAM>
         <PARAM name="toleranceMean">0.20</PARAM>
         <PARAM name="minEntries">100</PARAM>
+        <PARAM name="useEmptyBins">1</PARAM>
 </QTEST>
 
 <LINK name="*EcalBarrel/EBLaserTask/Laser4/PN/Gain01/EBPDT PNs amplitude EB* G01">
@@ -410,6 +435,7 @@
         <PARAM name="maxRMS">4096.0</PARAM>
         <PARAM name="toleranceMean">0.20</PARAM>
         <PARAM name="minEntries">100</PARAM>
+        <PARAM name="useEmptyBins">1</PARAM>
 </QTEST>
 
 <LINK name="*EcalBarrel/EBLaserTask/Laser4/PN/Gain16/EBPDT PNs amplitude EB* G16">
@@ -426,6 +452,7 @@
         <PARAM name="maxRMS">300.0</PARAM>
         <PARAM name="toleranceMean">0.20</PARAM>
         <PARAM name="minEntries">17000</PARAM>
+        <PARAM name="useEmptyBins">1</PARAM>
 </QTEST>
 
 <LINK name="*EcalBarrel/EBTestPulseTask/Gain01/EBTPT amplitude EB* G01">
@@ -442,6 +469,7 @@
         <PARAM name="maxRMS">300.0</PARAM>
         <PARAM name="toleranceMean">0.20</PARAM>
         <PARAM name="minEntries">17000</PARAM>
+        <PARAM name="useEmptyBins">1</PARAM>
 </QTEST>
 
 <LINK name="*EcalBarrel/EBTestPulseTask/Gain06/EBTPT amplitude EB* G06">
@@ -458,6 +486,7 @@
         <PARAM name="maxRMS">300.0</PARAM>
         <PARAM name="toleranceMean">0.20</PARAM>
         <PARAM name="minEntries">17000</PARAM>
+        <PARAM name="useEmptyBins">1</PARAM>
 </QTEST>
 
 <LINK name="*EcalBarrel/EBTestPulseTask/Gain12/EBTPT amplitude EB* G12">
@@ -474,6 +503,7 @@
         <PARAM name="maxRMS">1.0</PARAM>
         <PARAM name="toleranceMean">-1.0</PARAM>
         <PARAM name="minEntries">100</PARAM>
+        <PARAM name="useEmptyBins">1</PARAM>
 </QTEST>
 
 <LINK name="*EcalBarrel/EBTestPulseTask/PN/Gain01/EBPDT PNs pedestal EB* G01">
@@ -490,6 +520,7 @@
         <PARAM name="maxRMS">3.0</PARAM>
         <PARAM name="toleranceMean">-1.0</PARAM>
         <PARAM name="minEntries">100</PARAM>
+        <PARAM name="useEmptyBins">1</PARAM>
 </QTEST>
 
 <LINK name="*EcalBarrel/EBTestPulseTask/PN/Gain16/EBPDT PNs pedestal EB* G16">
@@ -506,6 +537,7 @@
         <PARAM name="maxRMS">4096.0</PARAM>
         <PARAM name="toleranceMean">0.20</PARAM>
         <PARAM name="minEntries">100</PARAM>
+        <PARAM name="useEmptyBins">1</PARAM>
 </QTEST>
 
 <LINK name="*EcalBarrel/EBTestPulseTask/PN/Gain01/EBPDT PNs amplitude EB* G01">
@@ -522,6 +554,7 @@
         <PARAM name="maxRMS">4096.0</PARAM>
         <PARAM name="toleranceMean">0.20</PARAM>
         <PARAM name="minEntries">100</PARAM>
+        <PARAM name="useEmptyBins">1</PARAM>
 </QTEST>
 
 <LINK name="*EcalBarrel/EBTestPulseTask/PN/Gain16/EBPDT PNs amplitude EB* G16">
@@ -538,6 +571,7 @@
         <PARAM name="maxRMS">2.5</PARAM>
         <PARAM name="toleranceMean">-1.0</PARAM>
         <PARAM name="minEntries">17000</PARAM>
+        <PARAM name="useEmptyBins">1</PARAM>
 </QTEST>
 
 <LINK name="*EcalBarrel/EBTimingTask/EBTMT timing EB*">
@@ -554,6 +588,7 @@
         <PARAM name="maxRMS">0.0</PARAM>
         <PARAM name="toleranceMean">-1.0</PARAM>
         <PARAM name="minEntries">0</PARAM>
+        <PARAM name="useEmptyBins">1</PARAM>
 </QTEST>
 
 <LINK name="*EcalBarrel/EBIntegrityClient/EBIT data integrity quality EB*">
@@ -691,5 +726,166 @@
 <LINK name="*EcalBarrel/EBSummaryClient/EB global summary">
         <TestName activate="true">EB_Quality_Summary</TestName>
 </LINK>
+
+<QTEST name="EB_Occupancy_Digis_Comp2RefKolmogorov">
+        <TYPE>Comp2RefKolmogorov</TYPE>
+        <PARAM name="testparam">0</PARAM>
+        <PARAM name="error">0.70</PARAM>
+        <PARAM name="warning">0.90</PARAM>
+</QTEST>
+
+<LINK name="*EcalBarrel/EBOccupancyTask/EBOT digi occupancy projection eta">
+        <TestName activate="true">EB_Occupancy_Digis_Comp2RefKolmogorov</TestName>
+</LINK>
+
+<LINK name="*EcalBarrel/EBOccupancyTask/EBOT digi occupancy projection phi">
+        <TestName activate="true">EB_Occupancy_Digis_Comp2RefKolmogorov</TestName>
+</LINK>
+
+<QTEST name="EB_Occupancy_Rechits_Comp2RefKolmogorov">
+        <TYPE>Comp2RefKolmogorov</TYPE>
+        <PARAM name="testparam">0</PARAM>
+        <PARAM name="error">0.60</PARAM>
+        <PARAM name="warning">0.80</PARAM>
+</QTEST>
+
+<LINK name="*EcalBarrel/EBOccupancyTask/EBOT rec hit occupancy projection eta">
+        <TestName activate="true">EB_Occupancy_Rechits_Comp2RefKolmogorov</TestName>
+</LINK>
+
+<LINK name="*EcalBarrel/EBOccupancyTask/EBOT rec hit occupancy projection phi">
+        <TestName activate="true">EB_Occupancy_Rechits_Comp2RefKolmogorov</TestName>
+</LINK>
+
+<QTEST name="EB_Occupancy_RechitsThr_Comp2RefKolmogorov">
+        <TYPE>Comp2RefKolmogorov</TYPE>
+        <PARAM name="testparam">0</PARAM>
+        <PARAM name="error">0.60</PARAM>
+        <PARAM name="warning">0.80</PARAM>
+</QTEST>
+
+<LINK name="*EcalBarrel/EBOccupancyTask/EBOT rec hit thr occupancy projection eta">
+        <TestName activate="true">EB_Occupancy_RechitsThr_Comp2RefKolmogorov</TestName>
+</LINK>
+
+<LINK name="*EcalBarrel/EBOccupancyTask/EBOT rec hit thr occupancy projection phi">
+        <TestName activate="true">EB_Occupancy_RechitsThr_Comp2RefKolmogorov</TestName>
+</LINK>
+
+<QTEST name="EB_Occupancy_TP_Comp2RefKolmogorov">
+        <TYPE>Comp2RefKolmogorov</TYPE>
+        <PARAM name="testparam">0</PARAM>
+        <PARAM name="error">0.50</PARAM>
+        <PARAM name="warning">0.70</PARAM>
+</QTEST>
+
+<LINK name="*EcalBarrel/EBOccupancyTask/EBOT TP digi occupancy projection eta">
+        <TestName activate="true">EB_Occupancy_TP_Comp2RefKolmogorov</TestName>
+</LINK>
+
+<LINK name="*EcalBarrel/EBOccupancyTask/EBOT TP digi occupancy projection phi">
+        <TestName activate="true">EB_Occupancy_TP_Comp2RefKolmogorov</TestName>
+</LINK>
+
+<QTEST name="EB_Occupancy_TPThr_Comp2RefKolmogorov">
+        <TYPE>Comp2RefKolmogorov</TYPE>
+        <PARAM name="testparam">0</PARAM>
+        <PARAM name="error">0.50</PARAM>
+        <PARAM name="warning">0.70</PARAM>
+</QTEST>
+
+<LINK name="*EcalBarrel/EBOccupancyTask/EBOT TP digi thr occupancy projection eta">
+        <TestName activate="true">EB_Occupancy_TPThr_Comp2RefKolmogorov</TestName>
+</LINK>
+
+<LINK name="*EcalBarrel/EBOccupancyTask/EBOT TP digi thr occupancy projection phi">
+        <TestName activate="true">EB_Occupancy_TPThr_Comp2RefKolmogorov</TestName>
+</LINK>
+
+<QTEST name="EB_BasicClusters_Energy_Comp2RefKolmogorov">
+        <TYPE>Comp2RefKolmogorov</TYPE>
+        <PARAM name="testparam">0</PARAM>
+        <PARAM name="error">0.70</PARAM>
+        <PARAM name="warning">0.90</PARAM>
+</QTEST>
+
+<LINK name="*EcalBarrel/EBClusterTask/EBCLT BC energy">
+        <TestName activate="true">EB_BasicClusters_Energy_Comp2RefKolmogorov</TestName>
+</LINK>
+
+<LINK name="*EcalBarrel/EBClusterTask/EBCLT BC energy projection eta">
+        <TestName activate="true">EB_BasicClusters_Energy_Comp2RefKolmogorov</TestName>
+</LINK>
+
+<LINK name="*EcalBarrel/EBClusterTask/EBCLT BC energy projection phi">
+        <TestName activate="true">EB_BasicClusters_Energy_Comp2RefKolmogorov</TestName>
+</LINK>
+
+<LINK name="*EcalBarrel/EBClusterTask/EBCLT BC ET projection eta">
+        <TestName activate="true">EB_BasicClusters_Energy_Comp2RefKolmogorov</TestName>
+</LINK>
+
+<LINK name="*EcalBarrel/EBClusterTask/EBCLT BC ET projection phi">
+        <TestName activate="true">EB_BasicClusters_Energy_Comp2RefKolmogorov</TestName>
+</LINK>
+
+<QTEST name="EB_BasicClusters_Occupancy_Comp2RefKolmogorov">
+        <TYPE>Comp2RefKolmogorov</TYPE>
+        <PARAM name="testparam">0</PARAM>
+        <PARAM name="error">0.70</PARAM>
+        <PARAM name="warning">0.90</PARAM>
+</QTEST>
+
+<LINK name="*EcalBarrel/EBClusterTask/EBCLT BC number">
+        <TestName activate="true">EB_BasicClusters_Occupancy_Comp2RefKolmogorov</TestName>
+</LINK>
+
+<LINK name="*EcalBarrel/EBClusterTask/EBCLT BC size">
+        <TestName activate="true">EB_BasicClusters_Occupancy_Comp2RefKolmogorov</TestName>
+</LINK>
+
+<LINK name="*EcalBarrel/EBClusterTask/EBCLT BC number projection eta">
+        <TestName activate="true">EB_BasicClusters_Occupancy_Comp2RefKolmogorov</TestName>
+</LINK>
+
+<LINK name="*EcalBarrel/EBClusterTask/EBCLT BC number projection phi">
+        <TestName activate="true">EB_BasicClusters_Occupancy_Comp2RefKolmogorov</TestName>
+</LINK>
+
+<LINK name="*EcalBarrel/EBClusterTask/EBCLT BC size projection eta">
+        <TestName activate="true">EB_BasicClusters_Occupancy_Comp2RefKolmogorov</TestName>
+</LINK>
+
+<LINK name="*EcalBarrel/EBClusterTask/EBCLT BC size projection phi">
+        <TestName activate="true">EB_BasicClusters_Occupancy_Comp2RefKolmogorov</TestName>
+</LINK>
+
+<QTEST name="EB_SuperClusters_Energy_Comp2RefKolmogorov">
+        <TYPE>Comp2RefKolmogorov</TYPE>
+        <PARAM name="testparam">0</PARAM>
+        <PARAM name="error">0.70</PARAM>
+        <PARAM name="warning">0.90</PARAM>
+</QTEST>
+
+<LINK name="*EcalBarrel/EBClusterTask/EBCLT SC energy">
+        <TestName activate="true">EB_SuperClusters_Energy_Comp2RefKolmogorov</TestName>
+</LINK>
+
+<QTEST name="EB_SuperClusters_Occupancy_Comp2RefKolmogorov">
+        <TYPE>Comp2RefKolmogorov</TYPE>
+        <PARAM name="testparam">0</PARAM>
+        <PARAM name="error">0.70</PARAM>
+        <PARAM name="warning">0.90</PARAM>
+</QTEST>
+
+<LINK name="*EcalBarrel/EBClusterTask/EBCLT SC number">
+        <TestName activate="true">EB_SuperClusters_Occupancy_Comp2RefKolmogorov</TestName>
+</LINK>
+
+<LINK name="*EcalBarrel/EBClusterTask/EBCLT SC size">
+        <TestName activate="true">EB_SuperClusters_Occupancy_Comp2RefKolmogorov</TestName>
+</LINK>
+
+
 
 </TESTSCONFIGURATION>
