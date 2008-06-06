@@ -2,8 +2,8 @@
  *
  *  Implementation of QTestConfigure
  *
- *  $Date: 2008/05/13 13:10:59 $
- *  $Revision: 1.12.2.7 $
+ *  $Date: 2008/05/14 12:38:47 $
+ *  $Revision: 1.14 $
  *  \author Ilaria Segoni
  */
 #include "DQMServices/ClientConfig/interface/QTestConfigure.h"
@@ -23,9 +23,7 @@ bool QTestConfigure::enableTests(std::map<std::string, std::map<std::string, std
 		std::string testType = params["type"]; 
 
 		if(!std::strcmp(testType.c_str(),ContentsXRange::getAlgoName().c_str())) this->EnableXRangeTest(testName, params,bei);       
-//		if(!std::strcmp(testType.c_str(),ContentsXRangeAS::getAlgoName().c_str())) this->EnableXRangeASTest(testName, params,bei);       
 		if(!std::strcmp(testType.c_str(),ContentsYRange::getAlgoName().c_str())) this->EnableYRangeTest(testName, params,bei);       
-//		if(!std::strcmp(testType.c_str(),ContentsYRangeAS::getAlgoName().c_str())) this->EnableYRangeASTest(testName, params,bei);       
 		if(!std::strcmp(testType.c_str(),DeadChannel::getAlgoName().c_str()))   this->EnableDeadChannelTest(testName, params,bei);       
 		if(!std::strcmp(testType.c_str(),NoisyChannel::getAlgoName().c_str()))  this->EnableNoisyChannelTest(testName, params,bei);       
 		if(!std::strcmp(testType.c_str(),MeanWithinExpected::getAlgoName().c_str()))  this->EnableMeanWithinExpectedTest(testName, params,bei);     
@@ -34,8 +32,6 @@ bool QTestConfigure::enableTests(std::map<std::string, std::map<std::string, std
                 if(!std::strcmp(testType.c_str(),Comp2RefEqualH::getAlgoName().c_str())) this->EnableComp2RefEqualHTest(testName, params,bei);
                 if(!std::strcmp(testType.c_str(),  Comp2RefChi2::getAlgoName().c_str())) this->EnableComp2RefChi2Test(testName, params,bei); 
                 if(!std::strcmp(testType.c_str(),Comp2RefKolmogorov::getAlgoName().c_str())) this->EnableComp2RefKolmogorovTest(testName, params,bei);
-
-
 
   
 /*
@@ -128,27 +124,6 @@ void QTestConfigure::EnableXRangeTest(std::string testName, std::map<std::string
 	me_qc1->setErrorProb(error);
 }
 
-/* void QTestConfigure::EnableXRangeASTest(std::string testName, std::map<std::string, std::string> params, DQMStore *bei){
-	QCriterion * qc1;	
-  	if(! bei->getQCriterion(testName) ){
-		testsConfigured.push_back(testName);
-		qc1 = bei->createQTest(ContentsXRangeAS::getAlgoName(),testName);
-	}else{
-		qc1 = bei->getQCriterion(testName);
-		
-	}	
-	ContentsXRangeAS * me_qc1 = (ContentsXRangeAS *) qc1;
-	
-	double xmin=atof(params["xmin"].c_str());
-	double xmax=atof(params["xmax"].c_str());
-	
-	me_qc1->setAllowedXRange(xmin,xmax);
-	
-	double warning=atof(params["warning"].c_str());
-	double error=atof(params["error"].c_str());
-	me_qc1->setWarningProb(warning);
-	me_qc1->setErrorProb(error);
-}*/
 
 void QTestConfigure::EnableYRangeTest(std::string testName, std::map<std::string, std::string> params, DQMStore *bei){
 	QCriterion * qc1;	
@@ -164,31 +139,15 @@ void QTestConfigure::EnableYRangeTest(std::string testName, std::map<std::string
 	double ymax=atof(params["ymax"].c_str());
 	me_qc1->setAllowedYRange(ymin,ymax);
 
+        //do a Normal test or AS ?
+        unsigned int useEmptyBins=(unsigned int)atof(params["useEmptyBins"].c_str());	
+	me_qc1->setUseEmptyBins(useEmptyBins);
+
 	double warning=atof(params["warning"].c_str());
 	double error=atof(params["error"].c_str());
 	me_qc1->setWarningProb(warning);
 	me_qc1->setErrorProb(error);
 }
-
-/*void QTestConfigure::EnableYRangeASTest(std::string testName, std::map<std::string, std::string> params, DQMStore *bei){
-	QCriterion * qc1;	
-  	if(! bei->getQCriterion(testName) ){
-		testsConfigured.push_back(testName);
-		qc1 = bei->createQTest(ContentsYRangeAS::getAlgoName(),testName);
-	}else{
-		qc1 = bei->getQCriterion(testName);	
-	}	
-	ContentsYRangeAS * me_qc1 = (ContentsYRangeAS *) qc1;
-	
-	double ymin=atof(params["ymin"].c_str());
-	double ymax=atof(params["ymax"].c_str());
-	me_qc1->setAllowedYRange(ymin,ymax);
-
-	double warning=atof(params["warning"].c_str());
-	double error=atof(params["error"].c_str());
-	me_qc1->setWarningProb(warning);
-	me_qc1->setErrorProb(error);
-}*/
 
 void QTestConfigure::EnableDeadChannelTest(std::string testName, std::map<std::string, std::string> params, DQMStore *bei){
 	QCriterion * qc1;
@@ -315,6 +274,11 @@ void QTestConfigure::EnableContentsWithinExpectedTest(std::string testName, std:
                 qc1 = bei->getQCriterion(testName);
         }
         ContentsWithinExpected * me_qc1 = (ContentsWithinExpected *) qc1;
+
+
+        //do a Normal test or AS ?
+        unsigned int useEmptyBins=(unsigned int)atof(params["useEmptyBins"].c_str());	
+	me_qc1->setUseEmptyBins(useEmptyBins);
 
         double warning=atof(params["warning"].c_str());
         double error=atof(params["error"].c_str());
