@@ -1,8 +1,8 @@
 /*
  *  See header file for a description of this class.
  *
- *  $Date: 2007/07/11 12:21:00 $
- *  $Revision: 1.1 $
+ *  $Date: 2008/01/18 17:48:39 $
+ *  $Revision: 1.2 $
  *  \author S. Bolognesi
  */
 
@@ -49,6 +49,9 @@ DTTTrigWriter::DTTTrigWriter(const ParameterSet& pset) {
   theFitter = new DTTimeBoxFitter();
   if(debug)
     theFitter->setVerbosity(1);
+
+  double sigmaFit = pset.getUntrackedParameter<double>("sigmaTTrigFit",10.);
+  theFitter->setFitSigma(sigmaFit);
 
   // Create the object to be written to DB
   tTrig = new DTTtrig();

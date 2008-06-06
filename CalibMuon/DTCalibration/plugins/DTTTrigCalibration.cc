@@ -1,8 +1,8 @@
 /*
  *  See header file for a description of this class.
  *
- *  $Date: 2007/08/01 08:46:40 $
- *  $Revision: 1.2 $
+ *  $Date: 2008/01/18 17:48:39 $
+ *  $Revision: 1.3 $
  *  \author G. Cerminara - INFN Torino
  */
 #include "CalibMuon/DTCalibration/plugins/DTTTrigCalibration.h"
@@ -64,6 +64,9 @@ DTTTrigCalibration::DTTTrigCalibration(const edm::ParameterSet& pset) {
   theFitter = new DTTimeBoxFitter();
   if(debug)
     theFitter->setVerbosity(1);
+  
+  double sigmaFit = pset.getUntrackedParameter<double>("sigmaTTrigFit",10.);
+  theFitter->setFitSigma(sigmaFit);
 
   doSubtractT0 = pset.getUntrackedParameter<bool>("doSubtractT0","false");
   // Get the synchronizer

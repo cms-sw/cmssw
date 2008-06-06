@@ -2,8 +2,8 @@
 /*
  *  See header file for a description of this class.
  *
- *  $Date: 2007/12/18 15:40:15 $
- *  $Revision: 1.6 $
+ *  $Date: 2008/04/07 13:02:09 $
+ *  $Revision: 1.7 $
  *  \author G. Cerminara - INFN Torino
  */
 
@@ -21,7 +21,8 @@
 using namespace std;
 
 DTTimeBoxFitter::DTTimeBoxFitter(const TString& debugFileName) : hDebugFile(0),
-								 theVerbosityLevel(0) {
+								 theVerbosityLevel(0),
+								 theSigma(10.) {
   // Create a root file for debug output only if needed
   if(debugFileName != "") hDebugFile = new TFile(debugFileName.Data(), "RECREATE");
   interactiveFit = false;
@@ -113,7 +114,7 @@ void DTTimeBoxFitter::getInteractiveFitSeeds(TH1F *hTBox, double& mean, double& 
   cout << "Inser the fit mean:" << endl;
   cin >> mean;
 
-  sigma = 10; //FIXME: estimate it!
+  sigma = theSigma; //FIXME: estimate it!
 
   tBoxMax = hTBox->GetMaximum();
 
@@ -153,12 +154,13 @@ void DTTimeBoxFitter::getFitSeeds(TH1F *hTBox, double& mean, double& sigma, doub
   if(theVerbosityLevel >= 2)
     cout << "   Threshold for logic time box is (# entries): " <<  threshold << endl;
     
-
-  while(threshold > hTBox->GetMaximum()/2.) {
+  int nRebins = 0; // protection for infinite loop
+  while(threshold > hTBox->GetMaximum()/2. && nRebins < 5) {
     cout << " Rebinning!" << endl;
     hTBox->Rebin(2);
     nBins = hTBox->GetNbinsX();
     binValue = (double)(xMax-xMin)/(double)nBins;
+    nRebins++;
   }
 
   if(hDebugFile != 0) hDebugFile->cd();
@@ -220,7 +222,7 @@ void DTTimeBoxFitter::getFitSeeds(TH1F *hTBox, double& mean, double& sigma, doub
   }
 
   mean = xMin + beginning*binValue;
-  sigma = 10; //FIXME: estimate it!
+  sigma = theSigma; //FIXME: estimate it!
 
   tBoxMax = hTBox->GetMaximum();
 
