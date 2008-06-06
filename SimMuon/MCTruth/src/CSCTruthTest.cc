@@ -6,6 +6,7 @@
 
 
 CSCTruthTest::CSCTruthTest(const edm::ParameterSet& iConfig)
+  : theTruth(iConfig)
 {
 
 }
