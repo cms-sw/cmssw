@@ -19,7 +19,7 @@ SiPixelFolderOrganizer::SiPixelFolderOrganizer() :
 
 SiPixelFolderOrganizer::~SiPixelFolderOrganizer() {}
 
-bool SiPixelFolderOrganizer::setModuleFolder(const uint32_t& rawdetid) {
+bool SiPixelFolderOrganizer::setModuleFolder(const uint32_t& rawdetid, int type) {
 
   bool flag = false;
 
@@ -31,7 +31,10 @@ bool SiPixelFolderOrganizer::setModuleFolder(const uint32_t& rawdetid) {
    /// Pixel Barrel
    ///
    else if(DetId::DetId(rawdetid).subdetId() == static_cast<int>(PixelSubdetector::PixelBarrel)) {
-     
+
+     //for endcap types there is nothing to do: 
+     if(type>3) return true;
+
      std::string subDetectorFolder = "Barrel";
      PixelBarrelName::Shell DBshell = PixelBarrelName::PixelBarrelName(DetId::DetId(rawdetid)).shell();
      int DBlayer  = PixelBarrelName::PixelBarrelName(DetId::DetId(rawdetid)).layerName();
@@ -44,10 +47,15 @@ bool SiPixelFolderOrganizer::setModuleFolder(const uint32_t& rawdetid) {
      
      std::ostringstream sfolder;
      
-     sfolder << rootFolder << "/" << subDetectorFolder << "/Shell_" <<DBshell<< "/" << slayer << "/" << sladder;
-     if ( PixelBarrelName::PixelBarrelName(DetId::DetId(rawdetid)).isHalfModule() ) sfolder <<"H"; 
-     else sfolder <<"F";
-     sfolder << "/" <<smodule;
+     sfolder << rootFolder << "/" << subDetectorFolder << "/Shell_" <<DBshell
+	     << "/" << slayer;
+     if(type<2){
+       sfolder << "/" << sladder;
+       if ( PixelBarrelName::PixelBarrelName(DetId::DetId(rawdetid)).isHalfModule() ) sfolder <<"H"; 
+       else sfolder <<"F";
+     }
+     if(type==0) sfolder << "/" <<smodule;
+     //if(type==3) sfolder << "/all_" << smodule;
      
      dbe_->setCurrentFolder(sfolder.str().c_str());
      flag = true;
@@ -56,6 +64,9 @@ bool SiPixelFolderOrganizer::setModuleFolder(const uint32_t& rawdetid) {
    /// Pixel Endcap
    ///
    else if(DetId::DetId(rawdetid).subdetId() == static_cast<int>(PixelSubdetector::PixelEndcap)) {
+
+     //for barrel types there is nothing to do: 
+     if(type>0 && type < 4) return true;
 
      std::string subDetectorFolder = "Endcap";
      PixelEndcapName::HalfCylinder side = PixelEndcapName::PixelEndcapName(DetId::DetId(rawdetid)).halfCylinder();
@@ -72,9 +83,16 @@ bool SiPixelFolderOrganizer::setModuleFolder(const uint32_t& rawdetid) {
       std::ostringstream sfolder;
 
       sfolder <<rootFolder <<"/" << subDetectorFolder << 
-	"/HalfCylinder_" << side << "/" << sdisk << 
-	"/" << sblade << "/" << spanel << "/" << smodule;
-
+	"/HalfCylinder_" << side << "/" << sdisk; 
+      if(type==0 || type ==4){
+	sfolder << "/" << sblade; 
+      }
+      if(type==0){
+	sfolder << "/" << spanel << "/" << smodule;
+      }
+//       if(type==6){
+// 	sfolder << "/" << spanel << "_all_" << smodule;
+//       }
       dbe_->setCurrentFolder(sfolder.str().c_str());
       flag = true;
 

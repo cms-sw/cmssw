@@ -15,7 +15,7 @@
 //
 // Original Author:  Vincenzo Chiochia
 //         Created:  
-// $Id: SiPixelDigiModule.h,v 1.7 2008/04/16 17:08:01 merkelp Exp $
+// $Id: SiPixelDigiModule.h,v 1.8 2008/05/21 10:47:04 merkelp Exp $
 //
 //
 #include "DQMServices/Core/interface/MonitorElement.h"
@@ -40,9 +40,9 @@ class SiPixelDigiModule {
   typedef edm::DetSet<PixelDigi>::const_iterator    DigiIterator;
 
   /// Book histograms
-  void book(const edm::ParameterSet& iConfig);
+  void book(const edm::ParameterSet& iConfig, int type=0);
   /// Fill histograms
-  void fill(const edm::DetSetVector<PixelDigi> & input);
+  void fill(const edm::DetSetVector<PixelDigi> & input, bool modon=true, bool ladon=false, bool layon=false, bool phion=false, bool bladeon=false, bool diskon=false, bool ringon=false);
   
  private:
 
@@ -52,6 +52,23 @@ class SiPixelDigiModule {
   MonitorElement* meNDigis_;
   MonitorElement* meADC_;
   MonitorElement* mePixDigis_;
-  
+  //barrel:
+  MonitorElement* meNDigisLad_;
+  MonitorElement* meADCLad_;
+  MonitorElement* mePixDigisLad_;
+  MonitorElement* meNDigisLay_;
+  MonitorElement* meADCLay_;
+  MonitorElement* mePixDigisLay_;
+  MonitorElement* meNDigisPhi_;
+  MonitorElement* meADCPhi_;
+  MonitorElement* mePixDigisPhi_;
+  //forward:
+  MonitorElement* meNDigisBlade_;
+  MonitorElement* meADCBlade_;
+  MonitorElement* meNDigisDisk_;
+  MonitorElement* meADCDisk_;
+  MonitorElement* meNDigisRing_;
+  MonitorElement* meADCRing_;
+  MonitorElement* mePixDigisRing_;
 };
 #endif

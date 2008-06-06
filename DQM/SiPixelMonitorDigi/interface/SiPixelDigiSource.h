@@ -16,7 +16,7 @@
 //
 // Original Author:  Vincenzo Chiochia
 //         Created:  
-// $Id: SiPixelDigiSource.h,v 1.7 2008/04/16 17:08:09 merkelp Exp $
+// $Id: SiPixelDigiSource.h,v 1.8 2008/05/26 15:04:43 merkelp Exp $
 //
 
 #include <memory>
@@ -66,6 +66,11 @@
        bool saveFile;
        bool isPIB;
        bool slowDown;
+       bool modOn; 
+       //barrel:
+       bool ladOn, layOn, phiOn;
+       //forward:
+       bool ringOn, bladeOn, diskOn; 
        int eventNo;
        DQMStore* theDMBE;
        std::map<uint32_t,SiPixelDigiModule*> thePixelStructure;
