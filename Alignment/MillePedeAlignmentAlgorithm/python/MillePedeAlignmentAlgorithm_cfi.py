@@ -11,6 +11,7 @@ import FWCore.ParameterSet.Config as cms
 # MillePedeAlignmentAlgorithm
 # ---------------------------
 from Alignment.ReferenceTrajectories.TrajectoryFactories_cff import *
+
 MillePedeAlignmentAlgorithm = cms.PSet(
     algoName = cms.string('MillePedeAlignmentAlgorithm'),
     useTrackTsos = cms.bool(False), ## Tsos from track or from reference trajectory for global derivatives
