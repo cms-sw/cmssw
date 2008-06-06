@@ -8,8 +8,8 @@
 
 /** \class HcalDigiMonitor
   *  
-  * $Date: 2008/05/08 17:09:49 $
-  * $Revision: 1.21 $
+  * $Date: 2008/06/05 23:31:52 $
+  * $Revision: 1.22 $
   * \author W. Fisher - FNAL
   */
 class HcalDigiMonitor: public HcalBaseMonitor {
@@ -18,8 +18,6 @@ public:
   ~HcalDigiMonitor(); 
 
   void setup(const edm::ParameterSet& ps, DQMStore* dbe);
-  void EmptyDigiFill();
-
   void processEvent(const HBHEDigiCollection& hbhe,
 		    const HODigiCollection& ho,
 		    const HFDigiCollection& hf,
@@ -33,14 +31,16 @@ private:  ///Methods
   void fillErrors(const HBHEDataFrame& hb);
   void fillErrors(const HODataFrame& ho);
   void fillErrors(const HFDataFrame& hf);
+  void EmptyDigiFill();
+  void reset_Nevents(void);
 
   int ievt_;
   double etaMax_, etaMin_, phiMax_, phiMin_;
   int etaBins_, phiBins_;
   bool doPerChannel_;
   int occThresh_;
-  double occMinFraction_;
   HcalCalibrations calibs_;
+  int checkNevents_;
 
 private:  ///Monitoring elements
   MonitorElement* meEVT_;
@@ -67,6 +67,9 @@ private:  ///Monitoring elements
     // Problem cells will be those cells with an error or with low occupancy
     MonitorElement* PROBLEMDIGICELLS;
     std::vector<MonitorElement*> PROBLEMDIGICELLS_DEPTH;
+
+    TH2F* PROBLEMDIGICELLS_TEMP;
+    std::vector<TH2F*> PROBLEMDIGICELLS_TEMP_DEPTH;
 
     MonitorElement* DIGI_NUM;
     MonitorElement* DIGI_SIZE;

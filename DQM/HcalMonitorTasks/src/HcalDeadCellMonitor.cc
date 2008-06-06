@@ -247,14 +247,17 @@ namespace HcalDeadCellCheck
 	int cell_depth=_cell->id().depth();
 	int temp_cell_phi = cell_phi;  // temporary variable for dealing with neighbors at boundaries between different phi segmentations
 	
+
 	hist.cellCheck->Fill(cell_eta,cell_phi);
 	all.cellCheck->Fill(cell_eta,cell_phi);
 
-	//This can't be a diagnostic, because we need to know which cells 
-	// are present in each depth for cool cell algorithm
-	hist.cellCheck_depth[cell_depth-1]->Fill(cell_eta,cell_phi);
-	all.cellCheck_depth[ cell_depth-1]->Fill(cell_eta,cell_phi);
-	
+	// Don't need these any more (or the cellCheck histos above),
+	// but keep them around in case extra diagnostics are desired
+	if (hist.makeDiagnostics)
+	  {
+	    hist.cellCheck_depth[cell_depth-1]->Fill(cell_eta,cell_phi);
+	    all.cellCheck_depth[ cell_depth-1]->Fill(cell_eta,cell_phi);
+	  }
 
 	// if (_cell->id().depth()==2) continue; // skip depth=2 for now
 	// if (vetoCell(_cell->id())) continue;
@@ -616,11 +619,11 @@ void HcalDeadCellMonitor::setupHists(DeadCellHists& hist,  DQMStore* dbe)
                                                         etaBins_,etaMin_,etaMax_, 
                                                         phiBins_,phiMin_,phiMax_)); 
 
-      // Rechit occupancy plot -- needed for checking for valid consistent dead cells
+      if (!hist.makeDiagnostics) continue; // skip remaining depth plots if diagnostics are off
+
+      // RecHit Occupancy Plots
       sprintf(DepthName,"%s_cellCheck_Depth%i",hist.subdet.c_str(),d+1);
       hist.cellCheck_depth.push_back(m_dbe->book2D(DepthName,DepthName,etaBins_,etaMin_,etaMax_,phiBins_,phiMin_,phiMax_));
-
-      if (!hist.makeDiagnostics) continue; // skip remaining depth plots if diagnostics are off
 
 
       // ADC count <= min value
@@ -759,7 +762,7 @@ void HcalDeadCellMonitor::processEvent_digi(const HBHEDigiCollection& hbhedigi,
 	  const HBHEDataFrame digi = (const HBHEDataFrame)(*j);
 
 	  // HB goes out to ieta=16; ieta=16 is shared with HE
-	  if (abs(digi.id().ieta())<16 || (abs(digi.id().ieta())==16 && ((HcalSubdetector)(digi.id().subdet()) == HcalBarrel)))
+	  if ((HcalSubdetector)(digi.id().subdet()) == HcalBarrel)
 	    HcalDeadCellCheck::CheckForDeadDigis(digi,hbHists,hcalHists,
 						 Nsigma_,minADCcount_,
 						 cond,m_dbe,doFCpeds_);
@@ -898,6 +901,7 @@ void HcalDeadCellMonitor::reset_Nevents(DeadCellHists &h)
     {
       // convert ieta  from histograms to eta (HCAL coordinates)
       eta=ieta+int(etaMin_)-1;
+      
       if (eta==0) continue; // skip eta=0 bin -- unphysical
       if (abs(eta)>41) continue; // skip unphysical "boundary" bins in histogram
       
@@ -906,7 +910,7 @@ void HcalDeadCellMonitor::reset_Nevents(DeadCellHists &h)
       else if (h.type==2 && (abs(eta)<16 || abs(eta)>29)) // skip events outside range of HE
 	continue;
       else if (h.type==3 && abs(eta)>15) continue; // ho should extend to eta=15?
-      else if (h.type==4 && abs(eta)<30) continue; //
+      else if (h.type==4 && abs(eta)<29) continue; //
 
       for (int iphi=1;iphi<=phiBins_;++iphi)
 	{
@@ -915,6 +919,8 @@ void HcalDeadCellMonitor::reset_Nevents(DeadCellHists &h)
 
 	  if (phi<1) continue; 
 	  if (phi>72) continue; // detector phi runs from 1-72
+
+	  // Now cut on physical detector boundaries
 
 	  // At larger eta, phi segmentation is more coarse
 	  if (h.type==2) 
@@ -930,31 +936,62 @@ void HcalDeadCellMonitor::reset_Nevents(DeadCellHists &h)
 
 	  double temp;
 
-	  for (int d=0;d<4;++d)
+	  for (int d=1;d<5;++d)
 	    {
+	      if (h.type==1) // HB -- runs from eta=1-16
+		{
+		  if (d>2) 
+		    continue;  //HB only has two depths
+		  if (d==2 && abs(eta)<15)
+		    continue; // depth=2 only for eta=15,16
+		}
+	      if (h.type==2) // HE -- runs from eta=16-29
+		{
+		  if (d==4)
+		    continue; // HE only has 3 depths
+		  
+		  if (d==3)
+		    {
+		      if (abs(eta)!=16 && abs(eta)!=27 && abs(eta)!=28)
+			continue; // HE has depth=3 only for eta=16,27,28
+		    }
+		  if (abs(eta)==16 && d!=3)
+		    continue; // one layer only for HE at eta=16 -- depth=3
+		  if (abs(eta)==17 && d!=1) 
+		    continue; // one layer only for HE at eta=17 -- depth=1
+		} // if h.type==2
+
+
+	      if (h.type==3 && d<4)
+		continue;  // HO -- only has depth=4
+
+	      if (h.type==4 && d>2) 
+		continue;  // HF -- only has depth=1,2
+
 	      // Check last N events to see which cells were above pedestal
-	      temp=h.above_pedestal_temp_depth[d]->GetBinContent(ieta,iphi);
+	      temp=h.above_pedestal_temp_depth[d-1]->GetBinContent(ieta,iphi);
+	      //if (h.type==3) cout <<"\t\ttemp = "<<temp<<endl;
 	      if (temp==0)
 		{
-		  if (h.cellCheck_depth[d]->getBinContent(ieta,iphi)!=0)
-		    // only fill cool cell histogram if rechit exists for that cell
+		  //if (h.cellCheck_depth[d-1]->getBinContent(ieta,iphi)!=0) // no longer require a rechit for the cell -- zero suppression means not all cells will have hits
+		    
 		    {
 		      h.coolcell_below_pedestal->Fill(eta,phi,checkNevents_);
 		      hcalHists.coolcell_below_pedestal->Fill(eta,phi,checkNevents_);
-		      h.coolcell_below_pedestal_depth[d]->Fill(eta,phi,checkNevents_);
-		      hcalHists.coolcell_below_pedestal_depth[d]->Fill(eta,phi,checkNevents_);
+		      h.coolcell_below_pedestal_depth[d-1]->Fill(eta,phi,checkNevents_);
+		      hcalHists.coolcell_below_pedestal_depth[d-1]->Fill(eta,phi,checkNevents_);
 		      // Cells consistently below pedestal go to combined "problem cell" histogram
 		      hcalHists.problemDeadCells->Fill(eta,phi,checkNevents_);
 		      h.problemDeadCells->Fill(eta,phi,checkNevents_);
 
 
-		      hcalHists.problemDeadCells_depth[d]->Fill(eta,phi,checkNevents_);
-		      h.problemDeadCells_depth[d]->Fill(eta,phi,checkNevents_);
+		      hcalHists.problemDeadCells_depth[d-1]->Fill(eta,phi,checkNevents_);
+		      h.problemDeadCells_depth[d-1]->Fill(eta,phi,checkNevents_);
 
 
 		    }
 		}
-	    } // for (int d=0;d<4;++d)
+	    } // for (int d=1;d<5;++d)
 
 	} // for (int iphi=1; iphi<phiBins_+1;++iphi)
     } // for (int ieta=1;ieta<etaBins_+1;++ieta)
