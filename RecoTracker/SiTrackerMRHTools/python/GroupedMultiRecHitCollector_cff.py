@@ -5,10 +5,6 @@ from TrackingTools.KalmanUpdators.Chi2MeasurementEstimatorESProducer_cfi import 
 # Chi2MeasurementEstimatorESProducer
 RelaxedChi2 = copy.deepcopy(Chi2MeasurementEstimator)
 #replace RelaxedChi2.nSigma = 3.
-# PropagatorWithMaterialESProducer
-from TrackingTools.MaterialEffects.MaterialPropagator_cfi import *
-# PropagatorWithMaterialESProducer
-from TrackingTools.MaterialEffects.OppositeMaterialPropagator_cfi import *
 # MeasurementTracker
 from RecoTracker.MeasurementDet.MeasurementTrackerESProducer_cfi import *
 # MultiRecHitUpdator
