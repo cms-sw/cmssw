@@ -287,8 +287,7 @@ RPCGeomServ::chambernr()
   
 }
 
-=======
->>>>>>> 1.9
+
 int 
 RPCGeomServ::segment(){
   int seg=0;
@@ -296,20 +295,11 @@ RPCGeomServ::segment(){
   int nsub=6;
   if ( _id->ring()==1 &&  _id->station() > 1) {
     nsub=3;
-<<<<<<< RPCGeomServ.cc
     nsec=18;
   }
   seg =_id->subsector()+nsub*(_id->sector()-1)+1;
   if(seg=nsec+1)seg=1;
   return seg;
-=======
-    nsec=18;
-  }
-  seg=_id->subsector()+nsub*(_id->sector()-1) + 1;
-  if (seg==nsec+1) seg=1;
-  return seg;
-      
->>>>>>> 1.9
 }
 
 bool
