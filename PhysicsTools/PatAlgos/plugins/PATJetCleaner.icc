@@ -65,7 +65,7 @@ void pat::PATJetCleaner<JetIn,JetOut>::produce(edm::Event & iEvent, const edm::E
      typedef typename pat::helper::OverlapHelper::Result Result;
      std::auto_ptr<Result> result = overlapHelper_.test( iEvent, helper_.selected() );
      for (size_t i = 0, n = helper_.size(); i < n; ++i) {
-        helper_.setMark( i, (*result)[i] );
+        helper_.addMark( i, (*result)[i] );
      }
   }
 

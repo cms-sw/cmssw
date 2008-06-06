@@ -54,7 +54,7 @@ void pat::PATPhotonCleaner::produce(edm::Event & iEvent, const edm::EventSetup &
     // read the source photon
     const reco::Photon & srcPhoton = helper_.srcAt(idx);
 
-    // clone the photon and convert it to the new type
+    // clone the photon
     reco::Photon ourPhoton = srcPhoton;
 
     // write the photon
@@ -97,7 +97,7 @@ void pat::PATPhotonCleaner::removeElectrons(const edm::Event &iEvent) {
                 it != ed;
                 ++it) {
             size_t idx = it->first;
-            helper_.setMark(idx, helper_.mark(idx) + bit);
+            helper_.addMark(idx, bit);
         }
     }
 }
@@ -115,7 +115,7 @@ void pat::PATPhotonCleaner::removeDuplicates() {
                                              ed = duplicates->end();
                                 it != ed;
                                 ++it) {
-        helper_.setMark(*it, 1);
+        helper_.addMark(*it, 1);
     }
 }
 
