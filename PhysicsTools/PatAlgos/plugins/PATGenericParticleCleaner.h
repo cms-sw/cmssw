@@ -1,9 +1,8 @@
-//
-// $Id: PATGenericParticleCleaner.h,v 1.1.4.2 2008/06/03 22:24:27 gpetrucc Exp $
-//
-
 #ifndef PhysicsTools_PatAlgos_PATGenericParticleCleaner_h
 #define PhysicsTools_PatAlgos_PATGenericParticleCleaner_h
+//
+// $Id: PATGenericParticleCleaner.h,v 1.2 2008/06/05 20:05:13 gpetrucc Exp $
+//
 
 /**
   \class    PATGenericParticleCleaner PATGenericParticleCleaner.h "PhysicsTools/PatAlgos/interface/PATGenericParticleCleaner.h"
@@ -13,7 +12,7 @@
    a collection of objects of GenericParticleType.
 
   \author   Steven Lowette, Jeremy Andrea
-  \version  $Id: PATGenericParticleCleaner.h,v 1.1.4.2 2008/06/03 22:24:27 gpetrucc Exp $
+  \version  $Id: PATGenericParticleCleaner.h,v 1.2 2008/06/05 20:05:13 gpetrucc Exp $
 */
 
 #include "FWCore/Framework/interface/EDProducer.h"
@@ -25,14 +24,13 @@
 #include "PhysicsTools/PatAlgos/interface/MultiIsolator.h"
 #include "PhysicsTools/PatAlgos/interface/OverlapHelper.h"
 
+#include <DataFormats/Candidate/interface/CandidateFwd.h>
 #include <DataFormats/Candidate/interface/Candidate.h>
-//#include <DataFormats/RecoCandidate/interface/RecoCandidate.h>
 
 #include "PhysicsTools/Utilities/interface/EtComparator.h"
 
 namespace pat {
 
-  template<typename GP>
   class PATGenericParticleCleaner : public edm::EDProducer {
     public:
       explicit PATGenericParticleCleaner(const edm::ParameterSet & iConfig);
@@ -46,10 +44,10 @@ namespace pat {
       edm::InputTag               src_;
         
       // helper
-      typedef typename pat::helper::CleanerHelper<reco::Candidate, // need to read CandidateCollection
-                                 GP,
-                                 std::vector<GP>, // but want to write concrete collection
-                                 GreaterByEt<GP> > MyCleanerHelper;
+      typedef pat::helper::CleanerHelper<reco::Candidate, // need to read CandidateCollection
+                                 reco::Candidate,
+                                 edm::OwnVector<reco::Candidate>, 
+                                 GreaterByEt<reco::Candidate> > MyCleanerHelper;
       MyCleanerHelper helper_;
 
       // Isolation    

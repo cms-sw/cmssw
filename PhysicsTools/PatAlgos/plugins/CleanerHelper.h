@@ -32,6 +32,21 @@ struct NullSorter {
         }
 }; 
 
+// vvvv---- This fragment is necessary because we can't push_back a value on an OwnVector like CandidateCollection ---
+// Concept: We define a CleanerHelperAdder<T,C> that can be used to push_back a T on top of a collection C
+// Implementation: Generic case, good for C=std::vector<T>
+template<typename T, typename C> 
+struct CleanerHelperAdder {
+    void push_back( C &to, const T & item) {  to.push_back(item);  }
+};
+// Implementation: Specialization for C=OwnVector<T>
+template<typename T>
+struct CleanerHelperAdder<T, edm::OwnVector<T> > {
+    void push_back( edm::OwnVector<T> &to, const T & item) {  to.push_back(item.clone());  }
+};
+// ^^^^---- end of fragment necessary because we can't push_back a value on an OwnVector like CandidateCollection ---
+
+
 template<typename T, typename T2=T, typename Collection = std::vector<T2>, typename Comparator = NullSorter<T2> >
 class CleanerHelper {
     // make sure our template arguments T and T2 inherits from Candidate. The extra () is needed!.
@@ -105,7 +120,17 @@ class CleanerHelper {
         /// and it's value in the new collection is "value" (that can just be original object if you only select)
         /// It also allows to set a transient marks on the items (in the end only items with mark == 0 will be saved)
         /// Returns the index in the collection of selected items.
+        /// NOTE: use this version if you're writing a concrete collection (std::vector<T2>)
+        //  NOTE FOR DEVELOPERS ONLY: it won't even compile if Collection is not a std::vector<T2> or an alike object
         size_t addItem(size_t sourceIdx, const T2 &value, uint32_t mark=0) ;
+
+        /// Inform the helper that item with index sourceIdx in the source collection is selected,
+        /// and it's value in the new collection is "value" (that can just be original object if you only select)
+        /// It also allows to set a transient marks on the items (in the end only items with mark == 0 will be saved)
+        /// Returns the index in the collection of selected items.
+        /// NOTE: use this version if you're writing a polymorphic collection (edm::OwnVector, CandidateCollection)
+        /// NOTE: the CleanerHelper takes ownership of the pointer, it does not clone it.
+        size_t addItem(size_t sourceIdx, T2 * value, uint32_t mark=0) ;
 
         /// Returns the index of the last selected item, in case you forgot it
         /// Note that if there are no items it will return -1!
@@ -319,6 +344,19 @@ size_t CleanerHelper<T,T2,Collection,Comparator>::addItem(size_t idx, const T2 &
 }
 
 template<typename T, typename T2, typename Collection, typename Comparator>
+size_t CleanerHelper<T,T2,Collection,Comparator>::addItem(size_t idx, T2 *value, const uint32_t mark) 
+{
+    selected_.push_back(value);
+    marks_.push_back(mark);
+
+    edm::Ptr<T> backRef = sourceView_->ptrAt(idx);
+    originalRefs_.push_back(reco::CandidatePtr(backRef));
+
+    return selected_.size() - 1;
+}
+
+
+template<typename T, typename T2, typename Collection, typename Comparator>
 void CleanerHelper<T,T2,Collection,Comparator>::reallyMarkItem(int idx) {
     selected_[idx].setStatus(marks_[idx]);
 }
@@ -353,18 +391,19 @@ void CleanerHelper<T,T2,Collection,Comparator>::done() {
     for (size_t i = 0; i < nselected; ++i) {
         size_t idx = indices[i];
 
-        bool ok = ( ( marks_[idx] & (~bitsToIgnore_) ) == 0);
+        bool ok = ( ( marks_[idx] & (~bitsToIgnore_) ) == 0); 
         if (makeSummary_) { addToSummary(marks_[idx], ok); }
 
+        CleanerHelperAdder<T2,Collection> pusher; // this allows us to push_back both on std::vector and OwnVector
         if (ok) { // save only unmarked items
-            sorted->push_back( selected_[idx] );
-            sortedRefs.push_back( originalRefs_[idx] );
+            pusher.push_back( *sorted, selected_[idx] ); // this means:  (*sorted).push_back( selected_[idx] );
+            sortedRefs.push_back( originalRefs_[idx] );  //   (but works with OwnVector too)
         } else if (saveRejected_) {
-            sortedRejected->push_back( selected_[idx] );
+            pusher.push_back( *sortedRejected, selected_[idx] );
             sortedRefsRejected.push_back( originalRefs_[idx] );
         }
         if (saveAll_) {
-            sortedAll->push_back( selected_[idx] );
+            pusher.push_back( *sortedAll, selected_[idx] );
             sortedRefsAll.push_back( originalRefs_[idx] );
         }
     }
