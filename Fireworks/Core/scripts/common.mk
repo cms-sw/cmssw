@@ -54,6 +54,7 @@ tmp/%.out:  %
 # gmake manual, with slight tweaks for the location of the output
 tmp/%.d:   %.cc
 	$(QUIET) echo "dependencies for $<"; \
+	mkdir -p $(dir $@); \
 	$(CC) -M $(CFLAGS) $< \
                        | sed 's/.*\.o[ :]*\(.*\)\(\.c*\)/tmp\/\1.o tmp\/\1.d : \1\2/g' > $@; \
                      [ -s $@ ] || rm -f $@
@@ -61,6 +62,7 @@ tmp/%.d:   %.cc
 
 tmp/%LinkDef.d:  %LinkDef.h
 	$(QUIET) echo "dependencies for ROOT dictionaries based on $<"; \
+	mkdir -p $(dir $@); \
 	$(CXX) -M $(CFLAGS) $(INCLUDE) $< \
                        | sed 's/.*\.o[ :]*\(.*\)\(\.c*\)/tmp\/\1.o tmp\/\1.d : \1\2/g' > $@; \
                      [ -s $@ ] || rm -f $@
