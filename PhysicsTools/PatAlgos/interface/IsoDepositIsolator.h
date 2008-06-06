@@ -27,9 +27,6 @@ class IsoDepositIsolator : public BaseIsolator {
         bool skipDefaultVeto_;
 
         virtual float getValue(const edm::ProductID &id, size_t index) const ;
-    private:
-        reco::isodeposit::AbsVeto * makeVeto(const char *string) const ; 
-        
 }; // class IsoDepositIsolator
 } } // namespaces
 

@@ -19,6 +19,7 @@
 <use name=PhysicsTools/PatUtils>
 <use name=PhysicsTools/UtilAlgos>
 <use name=PhysicsTools/Utilities>
+<use name=PhysicsTools/IsolationAlgos>
 <use name=clhep>
 <export>
   <lib name=PhysicsToolsPatAlgos>
