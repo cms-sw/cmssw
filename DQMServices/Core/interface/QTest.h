@@ -24,14 +24,11 @@ class Comp2RefEqualH;			typedef Comp2RefEqualH Comp2RefEqualHROOT;
 //class Comp2RefEqualFloat;		typedef Comp2RefEqualFloat Comp2RefEqualFloatROOT;
 
 class ContentsXRange;			typedef ContentsXRange ContentsXRangeROOT;
-//class ContentsXRangeAS;                   typedef ContentsXRangeAS ContentsXRangeASROOT;
 class ContentsYRange;			typedef ContentsYRange ContentsYRangeROOT;
-//class ContentsYRangeAS;			typedef ContentsYRangeAS ContentsYRangeASROOT;
 class NoisyChannel;			typedef NoisyChannel NoisyChannelROOT;
 class DeadChannel;			typedef DeadChannel DeadChannelROOT;
 
 class ContentsWithinExpected;		typedef ContentsWithinExpected ContentsWithinExpectedROOT;
-//class ContentsWithinExpectedAS;		typedef ContentsWithinExpectedAS ContentsWithinExpectedASROOT;
 //class ContentsWithinExpected;		typedef ContentsWithinExpected ContentsWithinExpectedROOT;
 //class ContentsProfWithinRange;		typedef ContentsProfWithinRange ContentsProfWithinRangeROOT;
 //class ContentsProf2DWithinRange;	typedef ContentsProf2DWithinRange ContentsProf2DWithinRangeROOT;
@@ -371,6 +368,8 @@ public:
 
   float runTest(const MonitorElement *me);
 
+  void setUseEmptyBins(unsigned int useEmptyBins) { useEmptyBins_ = useEmptyBins; }
+
   static std::string getAlgoName(void)
   { return "ContentsYRange"; }
 
@@ -394,47 +393,10 @@ protected:
   bool deadChanAlgo_;
   /// init-flag for ymin_, ymax_
   bool rangeInitialized_;
+  //do a Normal test or AS ?
+  unsigned int useEmptyBins_;
+
 };
-
-//==================== ContentsYRangeAS =========================//
-//== Check that histogram contents are between [Ymin, Ymax] ==//
-class ContentsYRangeAS : public SimpleTest
-{
-public:
-  ContentsYRangeAS(const std::string &name) : SimpleTest(name,true)
-  {
-   rangeInitialized_ = false;
-   deadChanAlgo_ = false;
-   setAlgoName(getAlgoName());
-  }
-
-  float runTest(const MonitorElement *me);
-
-  static std::string getAlgoName(void)
-  { return "ContentsYRangeAS"; }
-
-  /// set allowed range in Y-axis (default values: histogram's FULL Y-range)
-  virtual void setAllowedYRange(float ymin, float ymax)
-  { ymin_ = ymin; ymax_ = ymax; rangeInitialized_ = true; }
-
-
-protected:
-
-  void setMessage(void) {
-      std::ostringstream message;
-      message << " Test " << qtname_ << " (" << algoName_
-	      << "): Bin fraction within Y range = " << prob_;
-      message_ = message.str();
-    }
-
-  /// allowed range in Y-axis
-  float ymin_; float ymax_;
-  /// to be used to run derived-class algorithm
-  bool deadChanAlgo_;
-  /// init-flag for ymin_, ymax_
-  bool rangeInitialized_;
-};
-
 
 //==================== NoisyChannel =========================//
 /// Check if any channels are noisy compared to neighboring ones.
@@ -486,11 +448,11 @@ protected:
       message_ = message.str();
     }
 
-    TH1F*h    ; //define test histogram
+    TH1*h    ; //define test histogram
 
   /// get average for bin under consideration
   /// (see description of method setNumNeighbors)
-  Double_t getAverage(int bin, const TH1F *h) const;
+  Double_t getAverage(int bin, const TH1 *h) const;
 
   float tolerance_;        /*< tolerance for considering a channel noisy */
   unsigned numNeighbors_;  /*< # of neighboring channels for calculating average to be used
@@ -498,10 +460,8 @@ protected:
   bool rangeInitialized_;  /*< init-flag for tolerance */
 };
 
-//----------------------------------------------------------------------------//
-//============================== DeadChannel =================================//
-//----------------------------------------------------------------------------//
 
+//============================== DeadChannel =================================//
 /// the ContentsYRange algorithm w/o a check for Ymax and excluding Ymin
 class DeadChannel : public ContentsYRange
 {
@@ -529,50 +489,6 @@ protected:
     }
 };
 
-
-//==================== ContentsWithinExpectedAS  =========================//
-// Check that every TH2F channels are within range
-class ContentsWithinExpectedAS : public SimpleTest
-{
-public:
-  ContentsWithinExpectedAS(const std::string &name) : SimpleTest(name,true)
-    {
-      rangeInitialized_ = false;
-      minCont_ = maxCont_ = 0.0;
-      setAlgoName(getAlgoName());
-    }
-
-  float runTest(const MonitorElement *me);
-
-  static std::string getAlgoName(void)
-  { return "ContentsWithinExpectedAS"; }
-
-  /// set expected value for contents
-  void setContentsRange(float xmin, float xmax)
-    {
-      minCont_ = xmin;
-      maxCont_ = xmax;
-      rangeInitialized_ = true;
-    }
-
-protected:
-
-   bool isInvalid(const TH2F *h)
-    { return false; } // any scenarios for invalid test?
-
-  TH1*h    ; //define test histogram
-
-  void setMessage(void) {
-      std::ostringstream message;
-      message << " Test " << qtname_ << " (" << algoName_
-	      << "): Entry fraction within range = " << prob_;
-      message_ = message.str();
-    }
-
-  float minCont_, maxCont_; //< allowed range 
-  bool rangeInitialized_;
-};
-
 //==================== ContentsWithinExpected  =========================//
 // Check that every TH2F channel has mean, RMS within allowed range.
 class ContentsWithinExpected : public SimpleTest
@@ -588,6 +504,9 @@ public:
     }
 
   float runTest(const MonitorElement *me);
+
+  void setUseEmptyBins(unsigned int useEmptyBins) { useEmptyBins_ = useEmptyBins; }
+
 
   static std::string getAlgoName(void)
   { return "ContentsWithinExpected"; }
@@ -644,6 +563,9 @@ protected:
   float minMean_, maxMean_; //< allowed range for mean (use only if checkMean_ = true)
   float minRMS_, maxRMS_;   //< allowed range for mean (use only if checkRMS_ = true)
   bool validMethod_;        //< true if method has been chosen
+  //do a Normal test or AS ?
+  unsigned int useEmptyBins_;
+
 };
 
 //==================== MeanWithinExpected  =========================//
