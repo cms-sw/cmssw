@@ -79,12 +79,20 @@ void HcalUnpacker::unpack(const FEDRawData& raw, const HcalElectronicsMap& emap,
       edm::LogWarning("Invalid Data") << "Invalid HTR data observed on spigot " << spigot << " of DCC with source id " << dccHeader->getSourceId();
       report.countSpigotFormatError();
       continue;
-    }
+    }  
     if (htr.isHistogramEvent()) {
       edm::LogWarning("Invalid Data") << "Histogram data passed to non-histogram unpacker on spigot " << spigot << " of DCC with source id " << dccHeader->getSourceId();
       continue;
-
     }
+    if (htr.getFirmwareFlavor()==0x81) {
+      LogDebug("HcalTechTrigProcessor") << "Skipping data on spigot " << spigot << " of DCC with source id " << dccHeader->getSourceId() << " which is from the TechTrigProcessor (use separate unpacker!)";
+      continue;
+    }
+    if (htr.getFirmwareFlavor()>=0x80) {
+      edm::LogWarning("HcalUnpacker") << "Skipping data on spigot " << spigot << " of DCC with source id " << dccHeader->getSourceId() << " which is of unknown flavor " << htr.getFirmwareFlavor();
+      continue;
+    }
+
     // calculate "real" number of presamples
     int nps=htr.getNPS()-startSample_;
     
