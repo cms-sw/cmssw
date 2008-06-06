@@ -3,6 +3,7 @@
 
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/ESHandle.h"
+#include "FWCore/ParameterSet/interface/InputTag.h"
 #include "DataFormats/Common/interface/Handle.h"
 #include "SimDataFormats/EncodedEventId/interface/EncodedEventId.h"
 #include "SimDataFormats/TrackingHit/interface/PSimHitContainer.h"
@@ -16,7 +17,6 @@
 
 #include <vector>
 #include <map>
-#include <string>
 
 class DTHitAssociator {
 
@@ -28,13 +28,13 @@ class DTHitAssociator {
   typedef std::map<DTWireId, std::vector<DTDigi> > DigiMap;
   typedef std::map<DTWireId, std::vector<DTDigiSimLink> > LinksMap;
 
-  DTHitAssociator(const edm::Event&, const edm::EventSetup&, const edm::ParameterSet&); 
+  DTHitAssociator(const edm::Event&, const edm::EventSetup&, const edm::ParameterSet&, bool printRtS); 
   virtual ~DTHitAssociator(){}
 
   std::vector<SimHitIdpr> associateHitId(const TrackingRecHit & hit);
   std::vector<SimHitIdpr> associateDTHitId(const DTRecHit1D * dtrechit);
   
-  std::vector<const PSimHit *> associateHit(const TrackingRecHit & hit);
+  std::vector<PSimHit> associateHit(const TrackingRecHit & hit);
 
   SimHitMap mapOfSimHit;
   RecHitMap mapOfRecHit;
@@ -42,12 +42,19 @@ class DTHitAssociator {
   LinksMap mapOfLinks;
 
  private:
+  edm::InputTag DTsimhitsTag;
+  edm::InputTag DTsimhitsXFTag;
+  edm::InputTag DTdigiTag;
+  edm::InputTag DTdigisimlinkTag;
+  edm::InputTag DTrechitTag;
+  
   bool dumpDT;
   bool crossingframe;
   bool links_exist;
   bool associatorByWire;
   
   bool SimHitOK(const edm::ESHandle<DTGeometry> &, const PSimHit &);
+  bool printRtS;
 
 };
 

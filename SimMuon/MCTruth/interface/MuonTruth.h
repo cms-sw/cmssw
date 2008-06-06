@@ -10,6 +10,10 @@
 #include "DataFormats/Common/interface/DetSetVector.h"
 #include "SimDataFormats/TrackerDigiSimLink/interface/StripDigiSimLink.h"
 #include "SimMuon/MCTruth/interface/PSimHitMap.h"
+#include "FWCore/ParameterSet/interface/ParameterSet.h"
+#include "FWCore/ParameterSet/interface/InputTag.h"
+#include "SimDataFormats/CrossingFrame/interface/CrossingFrame.h"
+#include "SimDataFormats/CrossingFrame/interface/MixCollection.h"
 
 
 class MuonTruth
@@ -20,7 +24,7 @@ public:
   typedef edm::DetSet<StripDigiSimLink> LayerLinks;
   typedef std::pair <uint32_t, EncodedEventId> SimHitIdpr;
 
-  MuonTruth();
+  MuonTruth(const edm::ParameterSet&);
 
   void eventSetup(const edm::Event & event);
 
@@ -31,18 +35,17 @@ public:
   /// analyze() must be called before any of the following
   float muonFraction();
 
-  std::vector<const PSimHit *> muonHits();
+  std::vector<PSimHit> muonHits();
 
-  std::vector<const PSimHit *> simHits();
+  std::vector<PSimHit> simHits();
 
   std::vector<SimHitIdpr> associateHitId(const TrackingRecHit &);
 
 private:
 
-  std::vector<const PSimHit *> hitsFromSimTrack(int simTrack) const;
-
+  std::vector<PSimHit> hitsFromSimTrack(int simTrack);
   // goes to SimHits for information
-  int particleType(int simTrack) const;
+  int particleType(int simTrack);
 
   void addChannel(const LayerLinks &layerLinks, int channel, float weight=1.);
 
@@ -50,12 +53,16 @@ private:
   float theTotalCharge;
   int theDetId;
 
-  const edm::SimTrackContainer * theSimTrackContainer;
+  const MixCollection<SimTrack> * theSimTracks;
 
   const DigiSimLinks  * theDigiSimLinks;
   const DigiSimLinks  * theWireDigiSimLinks;
 
   PSimHitMap theSimHitMap;
+
+  edm::InputTag simTracksXFTag;
+  edm::InputTag linksTag;
+  edm::InputTag wireLinksTag;
 };
 
 #endif
