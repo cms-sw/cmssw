@@ -19,6 +19,10 @@ import copy
 from TrackingTools.MaterialEffects.MaterialPropagator_cfi import *
 # PropagatorWithMaterialESProducer
 RungeKuttaTrackerPropagator = copy.deepcopy(MaterialPropagator)
+import copy
+from TrackingTools.MaterialEffects.OppositeMaterialPropagator_cfi import *
+# PropagatorWithMaterialESProducer
+OppositeRungeKuttaTrackerPropagator = copy.deepcopy(OppositeMaterialPropagator)
 # KFTrajectoryFitterESProducer
 from TrackingTools.TrackFitters.DAFTrajectoryFitterESProducer_cfi import *
 # KFTrajectorySmootherESProducer
@@ -43,4 +47,6 @@ from RecoTracker.TransientTrackingRecHit.TransientTrackingRecHitBuilder_cfi impo
 from RecoTracker.TrackProducer.CTFFinalFitWithMaterialDAF_cfi import *
 RungeKuttaTrackerPropagator.ComponentName = 'RungeKuttaTrackerPropagator'
 RungeKuttaTrackerPropagator.useRungeKutta = True
+OppositeRungeKuttaTrackerPropagator.ComponentName = 'OppositeRungeKuttaTrackerPropagator'
+OppositeRungeKuttaTrackerPropagator.useRungeKutta = True
 
