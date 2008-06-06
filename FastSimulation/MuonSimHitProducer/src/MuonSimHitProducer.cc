@@ -15,7 +15,7 @@
 //         Created:  Wed Jul 30 11:37:24 CET 2007
 //         Working:  Fri Nov  9 09:39:33 CST 2007
 //
-// $Id: MuonSimHitProducer.cc,v 1.14 2008/05/26 10:49:47 mulders Exp $
+// $Id: MuonSimHitProducer.cc,v 1.15 2008/05/28 11:17:19 pjanot Exp $
 //
 //
 
@@ -29,6 +29,7 @@
 #include "FastSimulation/MuonSimHitProducer/interface/MuonSimHitProducer.h"
 #include "FastSimulation/MaterialEffects/interface/MaterialEffects.h"
 #include "FastSimulation/MaterialEffects/interface/MultipleScatteringSimulator.h"
+#include "FastSimulation/MaterialEffects/interface/EnergyLossSimulator.h"
 #include "FastSimulation/ParticlePropagator/interface/ParticlePropagator.h"
 
 // SimTrack
@@ -49,6 +50,7 @@
 
 // Tracking Tools
 #include "TrackingTools/GeomPropagators/interface/HelixArbitraryPlaneCrossing.h"
+#include "TrackPropagation/SteppingHelixPropagator/interface/SteppingHelixPropagator.h"
 
 // Data Formats
 #include "DataFormats/MuonDetId/interface/DTWireId.h"
@@ -119,6 +121,7 @@ MuonSimHitProducer::beginRun(edm::Run & run, const edm::EventSetup & es) {
   edm::ESHandle<DTGeometry>             dtGeometry;
   edm::ESHandle<CSCGeometry>            cscGeometry;
   edm::ESHandle<RPCGeometry>            rpcGeometry;
+  edm::ESHandle<Propagator>             propagator;
 
   es.get<IdealMagneticFieldRecord>().get(magField);
   es.get<MuonGeometryRecord>().get(dtGeometry);
@@ -131,6 +134,12 @@ MuonSimHitProducer::beginRun(edm::Run & run, const edm::EventSetup & es) {
   rpcGeom = &(*rpcGeometry);
 
   theService->update(es);
+
+  // A few propagators
+  propagatorWithMaterial = &(*(theService->propagator("SteppingHelixPropagatorAny")));
+  propagatorWithoutMaterial = propagatorWithMaterial->clone();
+  SteppingHelixPropagator* SHpropagator = dynamic_cast<SteppingHelixPropagator*> (propagatorWithoutMaterial); // Beuark!
+  SHpropagator->setMaterialMode(true); // switches OFF material effects;
 
 }
   
@@ -254,8 +263,10 @@ MuonSimHitProducer::produce(edm::Event& iEvent,const edm::EventSetup& iSetup) {
       navLayers = navigation.compatibleLayers(*(startingState.freeState()),
                                                alongMomentum);
     }
+    /*
     edm::ESHandle<Propagator> propagator =
       theService->propagator("SteppingHelixPropagatorAny");
+    */
 
     if ( navLayers.empty() ) continue;
 
@@ -273,28 +284,46 @@ MuonSimHitProducer::produce(edm::Event& iEvent,const edm::EventSetup& iSetup) {
 		<< std::endl;
 #endif
       
-      std::vector<DetWithState> comps = navLayers[ilayer]->compatibleDets(propagatedState,*propagator,*(theUpdator->estimator()));
+      std::vector<DetWithState> comps = 
+	navLayers[ilayer]->compatibleDets(propagatedState,*propagatorWithMaterial,*(theUpdator->estimator()));
       if ( comps.empty() ) continue;
 
 #ifdef FAMOS_DEBUG
       std::cout << "Propagating " << propagatedState << std::endl;
 #endif
 
-      std::pair<TrajectoryStateOnSurface,double> 
-	next = propagator->propagateWithPath(propagatedState,navLayers[ilayer]->surface());
-      double pi = propagatedState.globalMomentum().mag();
+      // Strating momentum
+      double pi = propagatedState.globalMomentum().mag(); 
 
-      // Insert multiple scattering if propagated state is valid.
+      // Propgate with material effects (dE/dx average only)
+      SteppingHelixStateInfo shsStart(*(propagatedState.freeTrajectoryState()));
+      const SteppingHelixStateInfo& shsDest = 
+	((const SteppingHelixPropagator*)propagatorWithMaterial)->propagate(shsStart,navLayers[ilayer]->surface());
+      std::pair<TrajectoryStateOnSurface,double> next(shsDest.getStateOnSurface(navLayers[ilayer]->surface()),
+						      shsDest.path());
+      // No need to continue if there is no valid propagation available.
       if ( !next.first.isValid() ) continue; 
-      propagatedState = next.first;
+      // This is the estimate of the number of radiation lengths traversed, 
+      // together with the total path length 
+      double radPath = shsDest.radPath();
       double pathLength = next.second;
-      if ( theMaterialEffects ) applyScattering(propagatedState,pathLength);
+
+      // Now propagate without dE/dx (average) 
+      // [To add the dE/dx fluctuations to the actual dE/dx]
+      std::pair<TrajectoryStateOnSurface,double> nextNoMaterial = 
+	propagatorWithoutMaterial->propagateWithPath(propagatedState,navLayers[ilayer]->surface());
+
+      // Update the propagated state
+      propagatedState = next.first;
+      double pf = propagatedState.globalMomentum().mag();
+
+      // Insert dE/dx fluctuations and multiple scattering
+      if ( theMaterialEffects ) applyMaterialEffects(propagatedState,nextNoMaterial.first,radPath);
 //
 //  Consider this... 1 GeV muon has a velocity that is only 0.5% slower than c...
 //  We probably can safely ignore the mass for anything that makes it out to the
 //  muon chambers.
 //
-      double pf = propagatedState.globalMomentum().mag();
       double pavg = 0.5*(pi+pf);
       double m = mySimP4.M();
       double rbeta = sqrt(1+m*m/(pavg*pavg))/29.98;
@@ -527,30 +556,69 @@ MuonSimHitProducer::readParameters(const edm::ParameterSet& fastMuons,
 }
 
 void	
-MuonSimHitProducer::applyScattering(TrajectoryStateOnSurface& tsos,
-				    double pathLength) { 
+MuonSimHitProducer::applyMaterialEffects(TrajectoryStateOnSurface& tsosWithdEdx,
+					 TrajectoryStateOnSurface& tsos,
+					 double radPath) { 
 
-  // Initialiaze the Particle needed as input for Multiple Scattering
+  // The energy loss simulator
+  EnergyLossSimulator* energyLoss = theMaterialEffects->energyLossSimulator();
+
+  // The multiple scattering simulator
+  MultipleScatteringSimulator* multipleScattering = theMaterialEffects->multipleScatteringSimulator();
+
+  // Initialize the Particle position, momentum and energy
   const Surface& nextSurface = tsos.surface();
-  GlobalPoint gPos = tsos.globalPosition();
-  GlobalVector gMom = tsos.globalMomentum();
+  GlobalPoint gPos = energyLoss ? tsos.globalPosition() : tsosWithdEdx.globalPosition();
+  GlobalVector gMom = energyLoss ? tsos.globalMomentum() : tsosWithdEdx.globalMomentum();  
   double mu = 0.1056583692;
   double en = std::sqrt(gMom.mag2()+mu*mu);
+
+  // And now create the Particle
   XYZTLorentzVector position(gPos.x(),gPos.y(),gPos.z(),0.);
   XYZTLorentzVector momentum(gMom.x(),gMom.y(),gMom.z(),en);
   float charge = (float)(tsos.charge());
   ParticlePropagator theMuon(momentum,position,charge,0);
   theMuon.setID(-(int)charge*13);
-  // The multiple scattering simulator
-  MultipleScatteringSimulator* multipleScattering = theMaterialEffects->multipleScatteringSimulator();
+
+  // Recompute the energy loss to get the fluctuations
+  if ( energyLoss ) { 
+    // Difference between with and without dE/dx (average only)
+    // (for corrections once fluctuations are applied)
+    GlobalPoint gPosWithdEdx = tsosWithdEdx.globalPosition();
+    GlobalVector gMomWithdEdx = tsosWithdEdx.globalMomentum();
+    double enWithdEdx = std::sqrt(gMomWithdEdx.mag2()+mu*mu);
+    XYZTLorentzVector 
+      deltaPos(gPosWithdEdx.x()-gPos.x(),gPosWithdEdx.y()-gPos.y(),
+	       gPosWithdEdx.z()-gPos.z(),0.);
+    XYZTLorentzVector 
+      deltaMom(gMomWithdEdx.x()-gMom.x(),gMomWithdEdx.y()-gMom.y(),
+	       gMomWithdEdx.z()-gMom.z(), enWithdEdx      -en);
+
+    // Energy loss in iron (+ fluctuations)
+    energyLoss->updateState(theMuon,radPath);
+
+    // Correcting factors to account for slight differences in material descriptions
+    // (Material description is more accurate in the stepping helix propagator)
+    radPath *= -deltaMom.E()/energyLoss->mostLikelyLoss();
+    double fac = energyLoss->deltaMom().E()/energyLoss->mostLikelyLoss();
+
+    // Particle momentum & position after energy loss + fluctuation
+    XYZTLorentzVector theNewMomentum = theMuon.momentum() + energyLoss->deltaMom() + fac * deltaMom;
+    XYZTLorentzVector theNewPosition = theMuon.vertex() + fac * deltaPos;
+    fac  = std::sqrt((theNewMomentum.E()*theNewMomentum.E()-mu*mu)/theNewMomentum.Vect().Mag2());
+    theMuon.SetXYZT(theNewMomentum.Px()*fac,theNewMomentum.Py()*fac,
+                    theNewMomentum.Pz()*fac,theNewMomentum.E());    
+    theMuon.setVertex(theNewPosition);
+
+  }
+
   // Does the actual mutliple scattering
   if ( multipleScattering ) {
     // Pass the vector normal to the "next" surface 
     GlobalVector normal = nextSurface.tangentPlane(tsos.globalPosition())->normalVector();
     multipleScattering->setNormalVector(normal);
     // Compute the amount of multiple scattering after a given path length
-    double radLen = multipleScattering->radLenIncm();
-    multipleScattering->updateState(theMuon,pathLength/radLen);
+    multipleScattering->updateState(theMuon,radPath);
   }
   
   // Fill the propagated state
@@ -560,6 +628,7 @@ MuonSimHitProducer::applyScattering(TrajectoryStateOnSurface& tsos,
   tsos = TrajectoryStateOnSurface(propagatedGtp,nextSurface);
 
 }
+
 
 
 //define this as a plug-in

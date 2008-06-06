@@ -15,7 +15,7 @@
 //
 //  Author:  Martijn Mulders
 // Created:  Wed July 11 12:37:24 CET 2007
-// $Id: MuonSimHitProducer.h,v 1.5 2008/05/25 16:37:04 pjanot Exp $
+// $Id: MuonSimHitProducer.h,v 1.6 2008/05/28 11:17:18 pjanot Exp $
 //
 
 
@@ -36,6 +36,7 @@ class RPCGeometry;
 class MuonServiceProxy;
 class MaterialEffects;
 class TrajectoryStateOnSurface;
+class Propagator;
 
 /*
 namespace reco { 
@@ -69,6 +70,8 @@ class MuonSimHitProducer : public edm::EDProducer {
       const DTGeometry*     dtGeom;
       const CSCGeometry*    cscGeom;
       const RPCGeometry*    rpcGeom;
+      const Propagator*     propagatorWithMaterial;
+            Propagator* propagatorWithoutMaterial;
 
       MaterialEffects* theMaterialEffects;
   
@@ -79,8 +82,10 @@ class MuonSimHitProducer : public edm::EDProducer {
 			  const edm::ParameterSet&,
 			  const edm::ParameterSet& );
 
-      void applyScattering(TrajectoryStateOnSurface& tsos,
-			   double pathLength);
+      /// Simulate material effects in iron (dE/dx, multiple scattering)
+      void applyMaterialEffects(TrajectoryStateOnSurface& tsosWithdEdx,
+				TrajectoryStateOnSurface& tsos,
+				double radPath);
 
           
   // ----------- parameters ---------------------------- 
