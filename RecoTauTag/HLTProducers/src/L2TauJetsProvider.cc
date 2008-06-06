@@ -3,7 +3,7 @@
 #include "DataFormats/L1Trigger/interface/L1JetParticle.h"
 #include "DataFormats/L1Trigger/interface/L1JetParticleFwd.h"
 #include "DataFormats/HLTReco/interface/TriggerTypeDefs.h"
-
+#include "FWCore/Utilities/interface/EDMException.h"
 //
 // class decleration
 //
@@ -18,6 +18,7 @@ L2TauJetsProvider::L2TauJetsProvider(const edm::ParameterSet& iConfig)
   l1Particles = iConfig.getParameter<InputTag>("L1Particles");
   tauTrigger = iConfig.getParameter<InputTag>("L1TauTrigger");
   mEt_Min = iConfig.getParameter<double>("EtMin");
+  L1Collection_ = iConfig.getParameter<string>("L1Object");
 
   
   
@@ -101,8 +102,24 @@ void L2TauJetsProvider::produce(edm::Event& iEvent, const edm::EventSetup& iES)
     //    typedef std::vector<l1extra::L1JetParticleRef>     VRl1jet;
 vector<L1JetParticleRef> tauCandRefVec;
     L1JetParticleRef tauCandRef;
-    l1TriggeredTaus->getObjects(trigger::TriggerL1TauJet,tauCandRefVec);
+    trigger::TriggerObjectType myL1Object;
+    if(L1Collection_ == "Tau")
+      {
+	myL1Object = trigger::TriggerL1TauJet;
+      }else if(L1Collection_ == "Jet") 
+      {
+	myL1Object = trigger::TriggerL1CenJet;
+      }else if(L1Collection_ == "Electron")
+      {
+	myL1Object = trigger::TriggerL1IsoEG;
+      }else{
+      //Throw an exception
 
+      throw edm::Exception(edm::errors::Configuration) <<"No " <<L1Collection_ << " Found";
+      
+    }
+
+    l1TriggeredTaus->getObjects(myL1Object,tauCandRefVec);
 
     for( unsigned int iL1Tau=0; iL1Tau <tauCandRefVec.size();iL1Tau++)
       {  
@@ -130,6 +147,8 @@ vector<L1JetParticleRef> tauCandRefVec;
     }
 
   }
+//    cout <<"Size of L2 jets "<<tauL2jets->size()<<endl;
+
   iEvent.put(tauL2jets);
 
 }
