@@ -9,8 +9,8 @@ Deposition::Deposition(DetectorElementPtr element, double eta, double phi,
 Deposition::~Deposition() {
 }
 
-std::ostream& operator<<(std::ostream& s, const Deposition& d) {
-	s << "Deposit's type: "<< d.getDetectorElement() << "\tE:\t"<< d.getEnergy()
+std::ostream& pftools::operator<<(std::ostream& s, const Deposition& d) {
+	s << "Deposit's type: "<< *(d.getDetectorElement()) << "\tE:\t"<< d.getEnergy()
 			<< ", \teta:\t"<< d.getEta() << ", \tmyPhi:\t"<< d.getPhi() << "\n";
 	return s;
 }

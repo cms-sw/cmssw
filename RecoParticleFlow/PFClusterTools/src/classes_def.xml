@@ -10,11 +10,11 @@
   <class name="pftools::ParticleDeposit"/>
   <class name="pftools::SpaceVoxel"/>
   <class name="pftools::SingleParticleWrapper"/>
-  <class name="pftools::Exercises"/>
+  <!-- class name="pftools::Exercises"/-->
+  <class name="pftools::Exercises2"/>
   <class name="pftools::CalibrationResultWrapper"/>
   <class name="pftools::Calibratable" />
   <class name="std::vector<pftools::CalibrationResultWrapper> "/>
-  <class name="std::vector<pftools::DetectorElement*>"/>
   <class name="std::vector<pftools::ParticleDeposit*>"/>
   <class name="std::vector<boost::shared_ptr<pftools::DetectorElement> >"/>
   <class name="std::vector<boost::shared_ptr<pftools::ParticleDeposit> >"/>

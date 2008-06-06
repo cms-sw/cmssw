@@ -9,13 +9,14 @@
  
 	gSystem->Load("libRecoParticleFlowPFClusterTools.so");
 	
-	TFile f("singleParticle.root");
+	//TFile f("singleParticle.root");
  
 	using namespace std;
 	
 	using namespace pftools;
 	
-	Exercises e;
+	Exercises2 e;
 
 	
+e.calibrateCalibratables("/afs/cern.ch/user/b/ballin/scratch0/CMSSW_2_1_0_pre4/src/SingleParticleExtraction/Extraction/test/Extraction_famosPions_0to50GeV_1k.root", "Exercises.root");
 }

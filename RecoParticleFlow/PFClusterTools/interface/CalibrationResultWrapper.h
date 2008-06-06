@@ -28,14 +28,18 @@ public:
 
 	virtual ~CalibrationResultWrapper() {
 	}
-	;
+	
 
 	void reset() {
 		resetCore();
 	}
-	;
 	
-	double bias() {
+	
+	void compute() {
+		computeCore();
+	}
+	
+	double bias() const {
 		return (particleEnergy_ -  truthEnergy_) / truthEnergy_;
 	}
 	
@@ -67,8 +71,15 @@ public:
 	 * What objects did this optimise on?
 	 */
 	CalibrationTarget target_;
+	
+	double bias_;
 
 private:
+	
+	virtual void computeCore() {
+		bias_ = bias();
+	}
+	
 	virtual void resetCore() {
 		truthEnergy_ = 0;
 		ecalEnergy_ = 0;
@@ -76,6 +87,7 @@ private:
 		particleEnergy_ = 0;
 		provenance_ = UNCALIBRATED;
 		target_ = UNDEFINED;
+		bias_ = 0;
 	}
 
 };

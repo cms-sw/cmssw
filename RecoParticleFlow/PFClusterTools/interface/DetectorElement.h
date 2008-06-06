@@ -79,12 +79,6 @@ private:
 	DetectorElementType myType;
 	double myCalib;
 
-	/*
-	 * For general ROOT dictionary building happiness!
-	 */
-	std::vector<DetectorElement*> deps_;
-	std::vector<boost::shared_ptr<DetectorElement> > rootFudge1_;
-	//std::vector<DetectorElement> des_;
 };
 
 typedef boost::shared_ptr<DetectorElement> DetectorElementPtr;

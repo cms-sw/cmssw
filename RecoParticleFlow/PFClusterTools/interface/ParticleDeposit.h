@@ -3,10 +3,6 @@
 
 #include <vector>
 
-#ifdef __MAKECINT__
-#pragma link C++ class vector<minmiser::ParticleDeposit>
-#endif
-
 #include "RecoParticleFlow/PFClusterTools/interface/Deposition.h"
 #include "RecoParticleFlow/PFClusterTools/interface/DetectorElement.h"
 
@@ -28,34 +24,34 @@ public:
 	ParticleDeposit(double truthEnergy = -1.0, double eta = 0, double phi = 0);
 	virtual ~ParticleDeposit();
 
-	void addRecDeposition(Deposition rec);
-	void addTruthDeposition(Deposition truth);
+	virtual void addRecDeposition(Deposition rec);
+	virtual void addTruthDeposition(Deposition truth);
 
-	const std::vector<Deposition>& getRecDepositions() const;
-	std::vector<Deposition> getTruthDepositions() const;
+	virtual const std::vector<Deposition>& getRecDepositions() const;
+	virtual std::vector<Deposition> getTruthDepositions() const;
 
 	/*
 	 * Returns the overall MC particle energy.
 	 */
-	inline double getTruthEnergy() const {
+	virtual double getTruthEnergy() const {
 		return myTruthEnergy;
 	}
 
 	/* 
 	 * Returns the detected energy from this detector element, including calibration.
 	 */
-	double getRecEnergy(const DetectorElementPtr de) const;
+	virtual double getRecEnergy(const DetectorElementPtr de) const;
 
-	double getRecEnergy() const;
+	virtual double getRecEnergy() const;
 
-	double getEnergyResolution() const;
+	virtual double getEnergyResolution() const;
 
 	/*
 	 * Returns the raw MC energy input into this detector element.
 	 */
-	double getTruthEnergy(const DetectorElementPtr de) const;
+	virtual double getTruthEnergy(const DetectorElementPtr de) const;
 
-	inline unsigned getId() const {
+	virtual unsigned getId() const {
 		return myId;
 	}
 
@@ -63,8 +59,20 @@ public:
 		return myEta;
 	}
 
-	inline double getPhi() const {
+	virtual double getPhi() const {
 		return myPhi;
+	}
+	
+	void setTruthEnergy(const double truth) {
+		myTruthEnergy = truth;
+	}
+	
+	void setPhi(const double phi) {
+		myPhi = phi;
+	}
+	
+	void setEta(const double eta) {
+		myEta = eta;
 	}
 
 	friend std::ostream& operator<<(std::ostream& s, const ParticleDeposit& p);

@@ -2,12 +2,118 @@
 #include "TBranch.h"
 #include "TTree.h"
 #include "RecoParticleFlow/PFClusterTools/interface/SingleParticleWrapper.h"
+#include "RecoParticleFlow/PFClusterTools/interface/Calibratable.h"
+#include <cmath>
 
 using namespace pftools;
 TreeUtility::TreeUtility() {
 }
 
 TreeUtility::~TreeUtility() {
+}
+
+unsigned TreeUtility::getCalibratablesFromRootFile(TFile& f,
+		std::vector<Calibratable>& toBeFilled) {
+
+	f.cd("extraction");
+	TTree* tree = (TTree*) f.Get("extraction/Extraction");
+	if (tree == 0) {
+		PFToolsException me("Couldn't open tree!");
+		throw me;
+	}
+	std::cout << "Successfully opened file. Getting branches..."<< std::endl;
+	CalibratablePtr calib_ptr(new Calibratable());
+	TBranch* calibBr = tree->GetBranch("Calibratable");
+	//spwBr->SetAddress(&spw);
+	calibBr->SetAddress(&calib_ptr);
+	std::cout << "Looping over tree's "<< tree->GetEntries() << " entries...\n";
+	for (unsigned entries(0); entries < tree->GetEntries(); entries++) {
+		tree->GetEntry(entries);
+		Calibratable c(*calib_ptr);
+		toBeFilled.push_back(c);
+	}
+
+	return tree->GetEntries();
+
+}
+
+unsigned TreeUtility::convertCalibratablesToParticleDeposits(
+		const std::vector<Calibratable>& input,
+		std::vector<ParticleDepositPtr>& toBeFilled, CalibrationTarget target, DetectorElementPtr offset, 
+		DetectorElementPtr ecal, DetectorElementPtr hcal) {
+
+	std::cout << __PRETTY_FUNCTION__ << std::endl;
+	//neither of these two are supported yet
+	if (target == UNDEFINED || target == PFELEMENT)
+		return 0;
+	unsigned count(0);
+	for (std::vector<Calibratable>::const_iterator cit = input.begin(); cit
+			!= input.end(); ++cit) {
+		Calibratable c = *cit;
+		ParticleDepositPtr pd(new ParticleDeposit());
+		bool veto(false);
+		if (c.sim_isMC_) {
+			pd->setTruthEnergy(c.sim_energyEvent_);
+			pd->setEta(c.cand_eta_);
+			pd->setPhi(c.cand_phi_);
+			//TODO:: sort this out
+			if (c.cand_eta_ == NAN|| c.cand_phi_ == NAN|| c.sim_energyEvent_ == 0)
+				veto = true;
+		}
+
+		if (target == CLUSTER) {
+			Deposition decal(ecal, c.cluster_etaEcal_, c.cluster_phiEcal_,
+					c.cluster_energyEcal_, 0);
+			Deposition dhcal(hcal, c.cluster_etaHcal_, c.cluster_phiHcal_,
+					c.cluster_energyHcal_, 0);
+			Deposition doffset(offset, c.cluster_etaHcal_, c.cluster_phiHcal_,
+					1.0, 0);
+			pd->addTruthDeposition(doffset);
+			pd->addTruthDeposition(decal);
+			pd->addTruthDeposition(dhcal);
+			pd->addRecDeposition(decal);
+			pd->addRecDeposition(dhcal);
+			pd->addRecDeposition(doffset);
+
+		}
+
+		if (target == PFCANDIDATE) {
+			Deposition decal(ecal, c.cand_eta_, c.cand_phi_,
+					c.cluster_energyEcal_, 0);
+			Deposition dhcal(hcal, c.cand_eta_, c.cand_phi_,
+					c.cluster_energyHcal_, 0);
+			Deposition doffset(offset, c.cand_eta_, c.cand_phi_,
+								1.0, 0);
+			pd->addTruthDeposition(doffset);
+			pd->addTruthDeposition(decal);
+			pd->addTruthDeposition(dhcal);
+			pd->addRecDeposition(decal);
+			pd->addRecDeposition(dhcal);
+			pd->addRecDeposition(doffset);
+		}
+
+		if (target == RECHIT) {
+			Deposition decal(ecal, c.rechits_etaEcal_, c.rechits_phiEcal_,
+					c.rechits_energyEcal_, 0);
+			Deposition dhcal(hcal, c.rechits_etaHcal_, c.rechits_phiHcal_,
+					c.rechits_energyHcal_, 0);
+			Deposition doffset(offset, c.rechits_etaEcal_, c.rechits_phiEcal_,
+								1.0, 0);
+			pd->addTruthDeposition(doffset);
+			pd->addTruthDeposition(decal);
+			pd->addTruthDeposition(dhcal);
+			pd->addRecDeposition(decal);
+			pd->addRecDeposition(dhcal);
+			pd->addRecDeposition(doffset);
+
+		}
+		if (!veto)
+			toBeFilled.push_back(pd);
+		++count;
+	}
+
+	return toBeFilled.size();
+
 }
 
 void TreeUtility::recreateFromRootFile(TFile& file,
