@@ -605,7 +605,8 @@ void HcalDeadCellClient::htmlOutput(int runNo, string htmlDir, string htmlName)
   htmlFile<<"</tr>"<<endl;
 
   htmlFile << "<tr align=\"left\">" << endl;
-  htmlFile <<"<tr><td>This histogram shows cells that satisfy at least one dead cell condition in at least "<<(int)(errorFrac_*100)<<"% of events.  A cell is considered dead if its ADC count = 0 for an event or if it reads below pedestal for "<<checkNevents_<<" consecutive events.  Detailed plots for each type of dead cell are given in the links below."<<endl;
+  htmlFile <<"<tr><td>This histogram shows cells that satisfy at least one dead cell condition in at least "<<(int)(errorFrac_*100)<<"% of events.  A cell is considered dead if its ADC count = 0 for an event or if it reads below pedestal for "<<checkNevents_<<" consecutive events.  ";
+  htmlFile<<"(A cell may also be considered bad if it has no digi -- check the <a href=\"HcalDigiClient.html\">Digi Monitor</a> for more details.)<br><br>Detailed plots for each type of dead cell are given in the links below."<<endl;
   
   
   htmlFile << "</tr></table><br>" << endl;
