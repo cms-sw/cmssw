@@ -11,6 +11,8 @@ Options:
   --cmsScimarkLarge=...  specify the number of times the cmsScimarkLarge benchmark is run before and after the performance suite on cpu1
   --cmsdriver=...        specify special options to use with the cmsDriver.py commands (designed for integration build use)
   --candle=...           specify the candle(s) to run (instead of all 7 default candles)
+  --cpu=...        spedify the core on which to run the performance suite
+  --cores=...            specify the number of cores of the machine
   -h, --help           show this help
   -d                   show debugging information
 
@@ -33,14 +35,13 @@ cmssw_base=os.environ["CMSSW_BASE"]
 cmssw_release_base=os.environ["CMSSW_RELEASE_BASE"]
 cmssw_version=os.environ["CMSSW_VERSION"]
 host=os.environ["HOST"]
+user=os.environ["USER"]
 
 #Scripts used by the suite:
 Scripts=["cmsDriver.py","cmsRelvalreport.py","cmsSimPyRelVal.pl","cmsScimark2"]
 AuxiliaryScripts=["cmsScimarkLaunch.csh","cmsScimarkParser.py","cmsScimarkStop.pl"]
-#Number of cpu cores on the machine
-cores=4
-#Cpu core on which the suite is run:
-cpu=1
+#Some defaults:
+
 
 #Options handling
 import getopt
@@ -50,7 +51,7 @@ def usage():
     print __doc__
 
 def main(argv):
-    
+    #Some default values:
     castordir = "/castor/cern.ch/cms/store/relval/performance/"
     TimeSizeEvents = "100"
     IgProfEvents = "5"
@@ -59,10 +60,13 @@ def main(argv):
     cmsScimarkLarge = "10"
     cmsdriverOptions = ""
     candleoption=""
-    
+    #Number of cpu cores on the machine
+    cores=4
+    #Cpu core on which the suite is run:
+    cpu=1
     #Let's check the command line arguments
     try:
-        opts, args = getopt.getopt(argv, "o:t:i:v:hd", ["output=","timesize=","igprof=","valgrind=","cmsScimark=","cmsScimarkLarge=","cmsdriver=","candle=","help"])
+        opts, args = getopt.getopt(argv, "o:t:i:v:hd", ["output=","timesize=","igprof=","valgrind=","cmsScimark=","cmsScimarkLarge=","cmsdriver=","candle=","cpu=","cores=","help"])
     except getopt.GetoptError:
         print "This argument option is not accepted"
         usage()
@@ -90,6 +94,10 @@ def main(argv):
             cmsdriverOptions= arg
         elif opt == "--candle":
             candleoption=arg
+        elif opt == "--cpu":
+            cpu=arg
+        elif opt == "--cores":
+            cores=arg
     #Case with no arguments (using defaults)
     if opts == []:
         print "No arguments given, so DEFAULT test will be run:"
@@ -97,7 +105,7 @@ def main(argv):
     import time
     date=time.ctime()
     path=os.path.abspath(".")
-    print "Performance Suite started running at %s on %s in directory %s" % (date,host,path)
+    print "Performance Suite started running at %s on %s in directory %s, run by user %s" % (date,host,path,user)
     showtags=os.popen4("showtags -r")[1].read()
     print showtags
     #For the log:
@@ -113,6 +121,7 @@ def main(argv):
         cmsdriverOptions='"'+cmsdriverOptions+'"'
     if candleoption !="":
         print "Running only %s candle, instead of the whole suite" % candleoption
+    print "This machine ( %s ) is assumed to have %s cores, and the suite will be run on cpu %s" %(host,cores,cpu)
     #Actual script actions!
     #Will have to fix the issue with the matplotlib pie-charts:
     #Used to source /afs/cern.ch/user/d/dpiparo/w0/perfreport2.1installation/share/perfreport/init_matplotlib.sh
@@ -131,7 +140,7 @@ def main(argv):
             command="taskset -c "+str(cpu)+" "+script
             Commands.append(command)
         elif script == "cmsScimarkLaunch.csh":
-            for core in range(cores):
+            for core in range(int(cores)):
                 if core != cpu:
                     command="taskset -c "+str(core)+" "+script+" "+str(core)
                     AuxiliaryCommands.append(command)
@@ -142,7 +151,7 @@ def main(argv):
     #print AuxiliaryCommands
     sys.stdout.flush()
     #First submit the cmsScimark benchmarks on the unused cores:
-    for core in range(cores):
+    for core in range(int(cores)):
         if core != cpu:
             print "Submitting cmsScimarkLaunch.csh to run on core cpu"+str(core)
             command="taskset -c "+str(core)+" cmsScimarkLaunch.csh "+str(core)+"&"
@@ -188,9 +197,13 @@ def main(argv):
                 cmd = 'mkdir '+candle+'_TimeSize;cd '+candle+'_TimeSize;'+Commands[2]+' '+TimeSizeEvents+' "'+Candles[candle]+'" 0123 '+cmsdriverOptions+';'+Commands[1]+' -i SimulationCandles_'+cmssw_version+'.txt -t perfreport_tmp -R -P >& '+candle+'.log'
                 for subcmd in cmd.split(";"):
                     print subcmd
+                    date=time.ctime()
+                    print date
                     sys.stdout.flush()
                 TimeSizecmdstdout=os.popen4(cmd)[1].read()
                 print TimeSizecmdstdout
+                date=time.ctime()
+                print date
                 sys.stdout.flush()
         else:
             usercandles=candleoption.split(",")
@@ -198,9 +211,13 @@ def main(argv):
                 cmd = 'mkdir '+candle+'_TimeSize;cd '+candle+'_TimeSize;'+Commands[2]+' '+TimeSizeEvents+' "'+Candles[candle]+'" 0123 '+cmsdriverOptions+';'+Commands[1]+' -i SimulationCandles_'+cmssw_version+'.txt -t perfreport_tmp -R -P >& '+candle+'.log'
                 for subcmd in cmd.split(";"):
                     print subcmd
+                    date=time.ctime()
+                    print date
                     sys.stdout.flush()
                 TimeSizecmdstdout=os.popen4(cmd)[1].read()
                 print TimeSizecmdstdout
+                date=time.ctime()
+                print date
                 sys.stdout.flush()
     #IgProf tests:
     if int(IgProfEvents)>0:
@@ -213,9 +230,13 @@ def main(argv):
             cmd = 'mkdir '+candle+'_IgProf;cd '+candle+'_IgProf;'+Commands[2]+' '+IgProfEvents+' "'+Candles[candle]+'" 4567 '+cmsdriverOptions+';'+Commands[1]+' -i SimulationCandles_'+cmssw_version+'.txt -t perfreport_tmp -R -P >& '+candle+'.log'
             for subcmd in cmd.split(";"):
                 print subcmd
+                date=time.ctime()
+                print date
                 sys.stdout.flush()
             IgProfstdout=os.popen4(cmd)[1].read()
             print IgProfstdout
+            date=time.ctime()
+            print date
             sys.stdout.flush()
         else:
             #In the user-defined candles a different behavior: do IgProf for all specified candles (usually it will only be 1)
@@ -224,9 +245,13 @@ def main(argv):
                 cmd = 'mkdir '+candle+'_IgProf;cd '+candle+'_IgProf;'+Commands[2]+' '+IgProfEvents+' "'+Candles[candle]+'" 4567 '+cmsdriverOptions+';'+Commands[1]+' -i SimulationCandles_'+cmssw_version+'.txt -t perfreport_tmp -R -P >& '+candle+'.log'
                 for subcmd in cmd.split(";"):
                     print subcmd
+                    date=time.ctime()
+                    print date
                     sys.stdout.flush()
                 IgProfstdout=os.popen4(cmd)[1].read()
                 print IgProfstdout
+                date=time.ctime()
+                print date
                 sys.stdout.flush()
     #Valgrind tests:
     if int(ValgrindEvents)>0:
@@ -240,9 +265,13 @@ def main(argv):
             cmd = 'mkdir '+candle+'_Valgrind;cd '+candle+'_Valgrind;cp -pR ../'+candle+'_IgProf/'+candle+'_GEN,SIM.root .;'+Commands[2]+' '+ValgrindEvents+' "'+Candles[candle]+'" 89 '+cmsdriverOptions+';grep -v "step=GEN,SIM" SimulationCandles_'+cmssw_version+'.txt > tmp;mv tmp SimulationCandles_'+cmssw_version+'.txt;'+Commands[1]+' -i SimulationCandles_'+cmssw_version+'.txt -t perfreport_tmp -R -P >& '+candle+'.log'
             for subcmd in cmd.split(";"):
                 print subcmd
+                date=time.ctime()
+                print date
                 sys.stdout.flush()
             Valgrindstdout=os.popen4(cmd)[1].read()
             print Valgrindstdout
+            date=time.ctime()
+            print date
             sys.stdout.flush()
             #By default run Valgring GEN,SIM profiling only on SingleMu (fastest) candle
             candle = "SingleMuMinusPt10"
@@ -250,9 +279,13 @@ def main(argv):
             cmd = 'mkdir '+candle+'_Valgrind;cd '+candle+'_Valgrind;'+Commands[2]+' '+ValgrindEvents+' "'+Candles[candle]+'" 89 '+cmsdriverOptions+';grep "step=GEN,SIM" SimulationCandles_'+cmssw_version+'.txt > tmp;mv tmp SimulationCandles_'+cmssw_version+'.txt;'+Commands[1]+' -i SimulationCandles_'+cmssw_version+'.txt -t perfreport_tmp -R -P >& '+candle+'.log'
             for subcmd in cmd.split(";"):
                 print subcmd
+                date=time.ctime()
+                print date
                 sys.stdout.flush()
             Valgrindstdout=os.popen4(cmd)[1].read()
             print Valgrindstdout
+            date=time.ctime()
+            print date
             sys.stdout.flush()
         else:
             #In the user-defined candles a different behavior: do Valgrind for all specified candles (usually it will only be 1)
@@ -262,9 +295,13 @@ def main(argv):
                 cmd = 'mkdir '+candle+'_Valgrind;cd '+candle+'_Valgrind;cp -pR ../'+candle+'_IgProf/'+candle+'_GEN,SIM.root .;'+Commands[2]+' '+ValgrindEvents+' "'+Candles[candle]+'" 89 '+cmsdriverOptions+';grep -v "step=GEN,SIM" SimulationCandles_'+cmssw_version+'.txt > tmp;mv tmp SimulationCandles_'+cmssw_version+'.txt;'+Commands[1]+' -i SimulationCandles_'+cmssw_version+'.txt -t perfreport_tmp -R -P >& '+candle+'.log'
                 for subcmd in cmd.split(";"):
                     print subcmd
+                    date=time.ctime()
+                    print date
                     sys.stdout.flush()
                 Valgrindstdout=os.popen4(cmd)[1].read()
                 print Valgrindstdout
+                date=time.ctime()
+                print date
                 sys.stdout.flush()
             #Besides always run, only once the GEN,SIM step on SingleMu:
             candle = "SingleMuMinusPt10"
@@ -272,9 +309,13 @@ def main(argv):
             cmd = 'mkdir '+candle+'_Valgrind;cd '+candle+'_Valgrind;'+Commands[2]+' '+ValgrindEvents+' "'+Candles[candle]+'" 89 '+cmsdriverOptions+';grep "step=GEN,SIM" SimulationCandles_'+cmssw_version+'.txt > tmp;mv tmp SimulationCandles_'+cmssw_version+'.txt;'+Commands[1]+' -i SimulationCandles_'+cmssw_version+'.txt -t perfreport_tmp -R -P >& '+candle+'.log'
             for subcmd in cmd.split(";"):
                 print subcmd
+                date=time.ctime()
+                print date
                 sys.stdout.flush()
             Valgrindstdout=os.popen4(cmd)[1].read()
             print Valgrindstdout
+            date=time.ctime()
+            print date
             sys.stdout.flush()
         
 
@@ -296,13 +337,12 @@ def main(argv):
         print cmsScimarkstdoutLarge
         sys.stdout.flush()
     #Stopping all cmsScimark jobs and analysing automatically the logfiles
-    if int(cmsScimark)>0 or int(cmsScimarkLarge)>0:
-        print "Stopping all cmsScimark jobs"
-        print AuxiliaryScripts[2]
-        sys.stdout.flush()
-        cmsScimarkStopstdout=os.popen4(AuxiliaryScripts[2])[1].read()
-        print cmsScimarkStopstdout
-        sys.stdout.flush()
+    print "Stopping all cmsScimark jobs"
+    print AuxiliaryScripts[2]
+    sys.stdout.flush()
+    cmsScimarkStopstdout=os.popen4(AuxiliaryScripts[2])[1].read()
+    print cmsScimarkStopstdout
+    sys.stdout.flush()
 
     #Create a tarball of the work directory
     TarFile=cmssw_version+"_"+host+"_"+user+".tar"

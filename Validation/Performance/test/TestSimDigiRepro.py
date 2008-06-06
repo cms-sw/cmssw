@@ -87,10 +87,10 @@ def MakeCfg(myCfgFile,myOldRootFile,myNewRootFile):
     NewCfgFile.write(NewCfgFileContent)
     return NewCfgFileName
 
-def CompareDumps(myDumpType,myCandle,mySkipEvents):
+def CompareDumps(myDumpType,myCandle,myStep,mySkipEvents):
     print "Comparing %s for %s after skipping %s" % (myDumpType,myCandle,mySkipEvents)
-    mySavedSeedsFile=myDumpType+myCandle.split(".")[0]+"SavedSeeds.log"
-    myRestoredSeedsFile=myDumpType+myCandle.split(".")[0]+"RestoredSeeds.log"
+    mySavedSeedsFile=myDumpType+myCandle.split(".")[0]+myStep+"SavedSeeds.log"
+    myRestoredSeedsFile=myDumpType+myCandle.split(".")[0]+myStep+"RestoredSeeds.log"
     Event=0
     FirstGoodEvent=0
     Different=False
@@ -246,7 +246,7 @@ def main(argv):
 
     for Test in Tests[step]:
         DumpType=Test+"_cfg"
-        CompareDumps(DumpType,candle,skipEvents)
+        CompareDumps(DumpType,candle,step,skipEvents)
         
     
 if __name__ == "__main__":
