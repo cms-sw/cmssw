@@ -5,11 +5,17 @@ using namespace std;
 typedef std::pair<uint32_t, EncodedEventId> SimHitIdpr;
 
 // Constructor
-RPCHitAssociator::RPCHitAssociator(const edm::Event& e, const edm::EventSetup& eventSetup, const edm::ParameterSet& conf) {
+RPCHitAssociator::RPCHitAssociator(const edm::Event& e, const edm::EventSetup& eventSetup, const edm::ParameterSet& conf):
 
+  RPCsimhitsTag(conf.getParameter<edm::InputTag>("RPCsimhitsXFTag")),
+  RPCdigisimlinkTag(conf.getParameter<edm::InputTag>("RPCdigisimlinkTag"))
+
+{
+  
   edm::Handle<CrossingFrame<PSimHit> > cf;
-  e.getByLabel("mix", "MuonRPCHits", cf);
-
+  LogTrace("RPCHitAssociator") <<"getting CrossingFrame<PSimHit> collection - "<<RPCsimhitsTag;
+  e.getByLabel(RPCsimhitsTag, cf);
+  
   std::auto_ptr<MixCollection<PSimHit> > 
     hits( new MixCollection<PSimHit>(cf.product()) );
   MixCollection<PSimHit> & simHits = *hits;
@@ -21,7 +27,8 @@ RPCHitAssociator::RPCHitAssociator(const edm::Event& e, const edm::EventSetup& e
   }
 
   edm::Handle< edm::DetSetVector<RPCDigiSimLink> > thelinkDigis;
-  e.getByLabel("muonRPCDigis","RPCDigiSimLink", thelinkDigis);
+  LogTrace("RPCHitAssociator") <<"getting RPCDigiSimLink collection - "<<RPCdigisimlinkTag;
+  e.getByLabel(RPCdigisimlinkTag, thelinkDigis);
   _thelinkDigis = thelinkDigis;
 }
 // end of constructor
