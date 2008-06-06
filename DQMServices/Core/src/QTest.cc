@@ -67,6 +67,8 @@ float Comp2RefEqualH::runTest(const MonitorElement*me)
  badChannels_.clear();
 
  if (!me) return -1;
+ if( ! me->getRootObject() ||  ! me->getRefRootObject() ) return -1;
+ 
 
  int nbins=0;
  int nbinsref=0;
@@ -130,19 +132,19 @@ float Comp2RefEqualH::runTest(const MonitorElement*me)
 float Comp2RefChi2::runTest(const MonitorElement *me)
 {
    if (!me) return -1;
+   if( ! me->getRootObject() ||  ! me->getRefRootObject() ) return -1;
 
    //-- TH1
    if (me->kind()==MonitorElement::DQM_KIND_TH1F){ 
     h = me->getTH1F(); // access Test histo
     ref_ = me->getRefTH1F(); //access Ref histo
-    if(!h || !ref_) return -1; 
    } 
    //-- TProfile
    else if (me->kind()==MonitorElement::DQM_KIND_TPROFILE){
     h = me->getTProfile(); // access Test histo
     ref_ = me->getRefTProfile(); //access Ref histo
-    if(!h || !ref_) return -1;
    } 
+  
    else{ 
     std::cout<< "Comp2RefChi2 ERROR: ME does not contain TH1F/TProfile" << std::endl; 
     return -1;
@@ -180,10 +182,15 @@ float Comp2RefChi2::runTest(const MonitorElement *me)
   }
 
   //check that the histograms are not empty
-  if (sum1 == 0 || sum2 == 0){
-    std::cout << " Comp2RefChi2 ERROR: one of the histograms is empty" << std::endl;
+  if (sum1 == 0){
+    std::cout << "Comp2RefChi2 ERROR : Test Histogram " << h->GetName() << " is empty " << std::endl;
     return -1;
   }
+  if (sum2 == 0){
+    std::cout << "Comp2RefChi2 ERROR: Ref Histogram " << ref_->GetName() << " is empty " << std::endl;
+    return -1;
+  }
+
 
   Double_t bin1, bin2, err1, err2, temp;
   for (i=i_start; i<=i_end; i++){
@@ -221,24 +228,23 @@ const Double_t Comp2RefKolmogorov::difprec = 1e-5;
 float Comp2RefKolmogorov::runTest(const MonitorElement *me)
 {
    if (!me) return -1;
+   if( ! me->getRootObject() ||  ! me->getRefRootObject() ) return -1;
 
    //-- TH1
    if (me->kind()==MonitorElement::DQM_KIND_TH1F){ 
     h = me->getTH1F(); // access Test histo
     ref_ = me->getRefTH1F(); //access Ref histo
-    if(!h || !ref_) return -1; 
    } 
    //-- TProfile
    else if (me->kind()==MonitorElement::DQM_KIND_TPROFILE){
     h = me->getTProfile(); // access Test histo
     ref_ = me->getRefTProfile(); //access Ref histo
-    if(!h || !ref_) return -1;
-   }
+    }
    else{ 
     std::cout<< "Comp2RefKolmogorov ERROR: ME does not contain TH1F/TProfile" << std::endl; 
     return -1;
    } 
-
+   
    //-- isInvalid ? - Check consistency in number of channels
   ncx1  = h->GetXaxis()->GetNbins(); 
   ncx2   = ref_->GetXaxis()->GetNbins();
@@ -269,11 +275,11 @@ float Comp2RefKolmogorov::runTest(const MonitorElement *me)
     w2   += ew2*ew2;
   }
   if (sum1 == 0){
-    std::cout << "Comp2RefKolmogorov ERROR: Histogram " << h->GetName() << " integral is zero" << std::endl;
+    std::cout << "Comp2RefKolmogorov ERROR: Test Histogram " << h->GetName() << " integral is zero" << std::endl;
     return -1;
   }
   if (sum2 == 0){
-    std::cout << "Comp2RefKolmogorov ERROR: Histogram " << ref_->GetName() << " integral is zero" << std::endl;
+    std::cout << "Comp2RefKolmogorov ERROR: Ref Histogram " << ref_->GetName() << " integral is zero" << std::endl;
     return -1;
   }
 
@@ -355,14 +361,15 @@ float ContentsXRange::runTest(const MonitorElement*me)
  badChannels_.clear();
 
  if (!me) return -1;
+ if( ! me->getRootObject() ) return -1;
 
  if (me->kind()!=MonitorElement::DQM_KIND_TH1F) { 
  std::cout<< "ContentsXRange ERROR: ME " << me->getFullname() << " does not contain TH1F" << std::endl; 
  return -1;} 
 
- TH1F *h = me->getTH1F(); //access Test histo
- if (!h) return -1;
  
+ TH1F *h = me->getTH1F(); //access Test histo
+
 
  if (!rangeInitialized_)
  {
@@ -387,63 +394,11 @@ float ContentsXRange::runTest(const MonitorElement*me)
   if (x < xmin_ || x > xmax_)fail += contents;
  }
 
+   if(sum==0) return 1;
   // return fraction of entries within allowed X-range
   return (sum - fail)/sum; 
 
 }
-
-// //----------------------------------------------------//
-// //--------------- ContentsXRangeAS ---------------------//
-// //----------------------------------------------------//
-// // run the test (result: fraction of entries [*not* bins!] within X-range)
-// // [0, 1] or <0 for failure, if hist is empty returns  o.k.
-// // this is the only difference from ContentsXRange (see ContentsYRangeAS)
-// // Alexander.Savin@cern.ch
-// 
-// float ContentsXRangeAS::runTest(const MonitorElement*me)
-// {
-// 
-//  badChannels_.clear();
-// 
-//  if (!me) return -1;
-// 
-//  if (me->kind()!=MonitorElement::DQM_KIND_TH1F) { 
-//  std::cout<< "ContentsXRangeAS ERROR: ME " << me->getFullname() << " does not contain TH1F" << std::endl; 
-//  return -1;} 
-// 
-//  TH1F *h = me->getTH1F(); //access Test histo
-//  if (!h) return -1;
-//  
-// 
-//  if (!rangeInitialized_)
-//  {
-//   if ( h->GetXaxis() ) setAllowedXRange(h->GetXaxis()->GetXmin(), h->GetXaxis()->GetXmax());
-//   else return -1;
-//  }
-//  Int_t ncx = h->GetXaxis()->GetNbins();
-//  // use underflow bin
-//  Int_t first = 0; // 1
-//  // use overflow bin
-//  Int_t last  = ncx+1; // ncx
-//  // all entries
-//  Double_t sum = 0;
-//  // entries outside X-range
-//  Double_t fail = 0;
-//  Double_t empty = 1.;
-//  Int_t bin;
-//  for (bin = first; bin <= last; ++bin)
-//  {
-//   Double_t contents = h->GetBinContent(bin);
-//   float x = h->GetBinCenter(bin);
-//   sum += contents;
-//   if (x < xmin_ || x > xmax_)fail += contents;
-//  }
-// 
-//   // return fraction of entries within allowed X-range
-//   if(sum==0) return empty;
-//   return (sum - fail)/sum; 
-// 
-// }
 
 //-----------------------------------------------------//
 //--------------- ContentsYRange ---------------------//
@@ -454,16 +409,15 @@ float ContentsYRange::runTest(const MonitorElement*me)
  badChannels_.clear();
 
  if (!me) return -1;
+ if( ! me->getRootObject() ) return -1;
 
  if (me->kind()!=MonitorElement::DQM_KIND_TH1F) { 
  std::cout<< "ContentsYRange ERROR: ME " << me->getFullname() << " does not contain TH1F" << std::endl; 
  return -1;} 
+
+  TH1F *h = me->getTH1F(); //access Test histo
  
- TH1F *h = me->getTH1F(); //access Test histo
- if (!h) return -1;
-
-
- if (!rangeInitialized_ || !h->GetXaxis()) return 1; // all bins are accepted if no initialization
+  if (!rangeInitialized_ || !h->GetXaxis()) return 1; // all bins are accepted if no initialization
   Int_t ncx = h->GetXaxis()->GetNbins();
   // do NOT use underflow bin
   Int_t first = 1;
@@ -472,102 +426,43 @@ float ContentsYRange::runTest(const MonitorElement*me)
   // bins outside Y-range
   Int_t fail = 0;
   Int_t bin;
-  for (bin = first; bin <= last; ++bin)
-  {
+
+ if(useEmptyBins_)
+ {
+    std::cout<< "!!! ContentsYRange Normal Test !!!" << std::endl; 
+   for (bin = first; bin <= last; ++bin)
+   {
     Double_t contents = h->GetBinContent(bin);
     bool failure = false;
-    if (deadChanAlgo_) {
-      // dead channel: equal to or less than ymin_
-      failure = contents <= ymin_;
-    }
-    else
-      // allowed y-range: [ymin_, ymax_]
-      failure = (contents < ymin_ || contents > ymax_);
-
+    if (deadChanAlgo_)  failure = contents <= ymin_; // dead channel: equal to or less than ymin_
+    else failure = (contents < ymin_ || contents > ymax_); // allowed y-range: [ymin_, ymax_]
     if (failure)
-    {
-      DQMChannel chan(bin, 0, 0, contents, h->GetBinError(bin));
-      badChannels_.push_back(chan);
-      ++fail;
+    { 
+     DQMChannel chan(bin, 0, 0, contents, h->GetBinError(bin));
+     badChannels_.push_back(chan);
+     ++fail;
     }
-  }
+   }
+   // return fraction of bins that passed test
+   return 1.*(ncx - fail)/ncx;
+ } /// end of Normal Tests
 
-  // return fraction of bins that passed test
-  return 1.*(ncx - fail)/ncx;
- }
-// //-----------------------------------------------------//
-// //--------------- ContentsYRangeAS  -------------------//
-// //----------------------------------------------------//
-// //////////////////////////////////////////////////////////////////////
-// //////////////////////////////////////////////////////////////////////
-// //////////////////////////////////////////////////////////////////////
-// // returns fraction of bins  which did not pass the test [0;1] from the
-// // total number of bins! or <0 for failure, 
-// // ignore bins with 0's, empty hist will return no bad channels.
-// // The check is useful for any kind of efficiency plots.
-// // Efficiency is the ratio of what you have / to what you expect
-// // If you observed all what you expected the efficiency is 1, with 
-// // one exception is you did not expect anything, 0, and observed it, 0,
-// // than the efficiency will be 0, but you have to consider it
-// // as O.K., therefore this code ignores 0's, e.g. if you will have channel
-// // where you see nothing and expected many you will also measure 0 efficiency
-// // but since you can not distinguish this with the 0s mentioned above it
-// // will be also ignored. To solve this problem you need to calculate inefficiency
-// // e.g. number of signals from expected which you did not observe to
-// // the number of expected. If you observed all what expected , inefficiency
-// // will be 0, if you did not expect and did not observed it will be also 0,
-// // if you did not observe many signals expected the inefficiency will be 1.
-// // So you can safely use the ContentsYRangeAS to analyse your inefficiencies.
-// // 
-// // The routine is prepared to return just number of the failed channels,
-// // unfortunately the rest of the QT envoirenment does not like it, so
-// // we had to use the standard convention, where the output
-// // of the routine gives a value between 0 and 1, If
-// // If you have a question "why?" number of channels will be better just 
-// // simple task for you : your system
-// // has 1033 channels, 5 are bad, 2 unstable on top of them you do not want to 
-// // have more than 2 bad channels - try to set your percentages levels for the
-// // warning and error levels. 
-// // By the way AS means not what you think, but AdvancedSolution.
-// // Alexander.Savin@cern.ch
-// 
-// float ContentsYRangeAS::runTest(const MonitorElement*me)
-// {
-// 
-//  badChannels_.clear();
-// 
-//  if (!me) return -1;
-// 
-//  if (me->kind()!=MonitorElement::DQM_KIND_TH1F) { 
-//  std::cout<< "ContentsYRangeAS ERROR: ME does not contain TH1F" << std::endl; 
-//  return -1;} 
-// 
-//  TH1F *h = me->getTH1F(); //access Test histo
-//  if (!h) return -1;
-// 
-// 
-//  if (!rangeInitialized_ || !h->GetXaxis()) return 1; // all bins are accepted if no initialization
-//   Int_t ncx = h->GetXaxis()->GetNbins();
-//   // do NOT use underflow bin
-//   Int_t first = 1;
-//   // do NOT use overflow bin
-//   Int_t last  = ncx;
-//   // bins outside Y-range
-//   Int_t fail = 0;
-//   Int_t bin;
-//   for (bin = first; bin <= last; ++bin)
-//   {
-//     Double_t contents = h->GetBinContent(bin);
-//     bool failure = false;
-//       // allowed y-range: [ymin_, ymax_]
-//       if(contents) failure = (contents < ymin_ || contents > ymax_);
-// 
-//     if (failure) ++fail;
-//   }
-// 
-//   // return fraction of bins that passed test
-//   return 1.*(ncx - fail)/ncx;
-//  }
+ else     ///AS quality test !!!  
+ {
+   std::cout<< "!!! ContentsYRange AS !!!" << std::endl; 
+   for (bin = first; bin <= last; ++bin)
+   {
+    Double_t contents = h->GetBinContent(bin);
+    bool failure = false;
+     if(contents) failure = (contents < ymin_ || contents > ymax_); // allowed y-range: [ymin_, ymax_]
+     if (failure) ++fail;
+   }
+   // return fraction of bins that passed test
+   return 1.*(ncx - fail)/ncx;
+  }  ///end of AS quality tests 
+
+}
+
 
 //-----------------------------------------------------//
 //----------------  NoisyChannel ---------------------//
@@ -575,26 +470,38 @@ float ContentsYRange::runTest(const MonitorElement*me)
 // run the test (result: fraction of channels not appearing noisy or "hot")
 // [0, 1] or <0 for failure
 float NoisyChannel::runTest(const MonitorElement *me)
-{
-  badChannels_.clear();
+ {
+
+ badChannels_.clear();
 
  if (!me) return -1;
+ if( ! me->getRootObject() ) return -1; 
 
- if (me->kind()!=MonitorElement::DQM_KIND_TH1F) { 
- std::cout<< "NoisyChannel ERROR: ME " << me->getFullname() << " does not contain TH1F" << std::endl; 
- return -1;} 
+ int nbins=0;
+ //-- TH1
+ if (me->kind()==MonitorElement::DQM_KIND_TH1F){ 
+  nbins = me->getTH1F()->GetXaxis()->GetNbins(); 
+  h  = me->getTH1F(); // access Test histo
+ } 
+ //-- TH2
+ else if (me->kind()==MonitorElement::DQM_KIND_TH2F){ 
+  nbins = me->getTH2F()->GetXaxis()->GetNbins() *
+          me->getTH2F()->GetYaxis()->GetNbins();
+  h  = me->getTH2F(); // access Test histo
+  } 
+ else{  
+ std::cout<< "NoisyChannel ERROR: ME " << me->getFullname() << " does not contain TH1F or TH2F" << std::endl; 
+ return -1;
+  }
 
-  h = me->getTH1F(); //access Test histo
-  if (!h) return -1;
+ //--  QUALITY TEST itself 
 
-  if ( !rangeInitialized_ || !h->GetXaxis() )
-    return 1; // all channels are accepted if tolerance has not been set
+ if ( !rangeInitialized_ || !h->GetXaxis() ) return 1; // all channels are accepted if tolerance has not been set
 
-  Int_t ncx =  h->GetXaxis()->GetNbins();
   // do NOT use underflow bin
   Int_t first = 1;
   // do NOT use overflow bin
-  Int_t last  = ncx;
+  Int_t last  = nbins;
   // bins outside Y-range
   Int_t fail = 0;
   Int_t bin;
@@ -615,25 +522,79 @@ float NoisyChannel::runTest(const MonitorElement *me)
   }
 
   // return fraction of bins that passed test
-  return 1.*(ncx - fail)/ncx;
-}
+  return 1.*(nbins - fail)/nbins;
+
+ }
+
+
+//-------------------- OLD -----------------------------//
+//-----------------------------------------------------//
+//----------------  NoisyChannel ---------------------//
+//----------------------------------------------------//
+// run the test (result: fraction of channels not appearing noisy or "hot")
+// [0, 1] or <0 for failure
+//float NoisyChannel::runTest(const MonitorElement *me)
+//{
+//
+//  badChannels_.clear();
+//
+//  if (!me) return -1;
+//
+// if (me->kind()!=MonitorElement::DQM_KIND_TH1F) { 
+// std::cout<< "NoisyChannel ERROR: ME " << me->getFullname() << " does not contain TH1F" << std::endl; 
+// return -1;} 
+//
+//  h = me->getTH1F(); //access Test histo
+//  if (!h) return -1;
+//
+//  if ( !rangeInitialized_ || !h->GetXaxis() )
+//    return 1; // all channels are accepted if tolerance has not been set
+//
+//  Int_t ncx =  h->GetXaxis()->GetNbins();
+//  /// do NOT use underflow bin
+//  Int_t first = 1;
+//  /// do NOT use overflow bin
+//  Int_t last  = ncx;
+//  /// bins outside Y-range
+//  Int_t fail = 0;
+//  Int_t bin;
+//  for (bin = first; bin <= last; ++bin)
+//  {
+//    Double_t contents = h->GetBinContent(bin);
+//    Double_t average = getAverage(bin, h);
+//    bool failure = false;
+//    if (average != 0)
+//      failure = (((contents-average)/TMath::Abs(average)) > tolerance_);
+//
+//     if (failure)
+//     {
+//      ++fail;
+//       DQMChannel chan(bin, 0, 0, contents, h->GetBinError(bin));
+//       badChannels_.push_back(chan);
+//     }
+//   }
+//
+//  /// return fraction of bins that passed test
+//   return 1.*(ncx - fail)/ncx;
+// }
+//========================================================//
 
 // get average for bin under consideration
 // (see description of method setNumNeighbors)
-Double_t NoisyChannel::getAverage(int bin, const TH1F *h) const
+Double_t NoisyChannel::getAverage(int bin, const TH1 *h) const
 {
-  // do NOT use underflow bin
+  /// do NOT use underflow bin
   Int_t first = 1;
-  // do NOT use overflow bin
+  /// do NOT use overflow bin
   Int_t ncx  = h->GetXaxis()->GetNbins();
 
   Double_t sum = 0; int bin_low, bin_hi;
   for (unsigned i = 1; i <= numNeighbors_; ++i)
   {
-    // use symmetric-to-bin bins to calculate average
+    /// use symmetric-to-bin bins to calculate average
     bin_low = bin-i;  bin_hi = bin+i;
-    // check if need to consider bins on other side of spectrum
-    // (ie. if bins below 1 or above ncx)
+    /// check if need to consider bins on other side of spectrum
+    /// (ie. if bins below 1 or above ncx)
 
     while (bin_low < first) // shift bin by +ncx
       bin_low = ncx + bin_low;
@@ -643,59 +604,10 @@ Double_t NoisyChannel::getAverage(int bin, const TH1F *h) const
       sum += h->GetBinContent(bin_low) + h->GetBinContent(bin_hi);
   }
 
-  // average is sum over the # of bins used
+  /// average is sum over the # of bins used
   return sum/(numNeighbors_ * 2);
 }
 
-
-// //-----------------------------------------------------------//
-// //----------------  ContentsWithinExpectedAS ---------------------//
-// //-----------------------------------------------------------//
-// // run the test (result: fraction of  channels that passed test);
-// // or <0 for failure. See explanation to the ContentsYRangeAS.
-// // Alexander.Savin@cern.ch
-// float ContentsWithinExpectedAS::runTest(const MonitorElement*me)
-// {
-//   badChannels_.clear();
-// 
-//   if (!me) return -1;
-// 
-//   int ncx;
-//   int ncy;
-// 
-//   //-- TH2
-//   if (me->kind()==MonitorElement::DQM_KIND_TH2F){
-//     ncx = me->getTH2F()->GetXaxis()->GetNbins();
-//     ncy = me->getTH2F()->GetYaxis()->GetNbins();
-//     h  = me->getTH2F(); // access Test histo
-//   }
-// 
-//   else{
-//   std::cout<< " ContentsWithinExpectedAS ERROR: ME does not contain TH2F/TPROFILE/TPROFILE2D" << std::endl; 
-//   return -1;
-//   } 
-// 
-// //do we need it still ? 
-//   if (!rangeInitialized_)
-//   return 0; // all accepted if no initialization
-// 
-//   int fail = 0;
-// 
-// 
-//   for (int cx = 1; cx <= ncx; ++cx)
-//   {
-//     for (int cy = 1; cy <= ncy; ++cy)
-//     {
-//       bool failure = false;
-//       float Content = h->GetBinContent(h->GetBin(cx, cy));
-//       if(Content) failure = (Content < minCont_ || Content > maxCont_);
-// 
-//     if (failure) ++fail;
-//     }
-//   }
-// 
-//   return 1.*(ncx*ncy-fail)/(ncx*ncy);
-// }
 
 //-----------------------------------------------------------//
 //----------------  ContentsWithinExpected ---------------------//
@@ -707,16 +619,23 @@ float ContentsWithinExpected::runTest(const MonitorElement*me)
   badChannels_.clear();
 
   if (!me) return -1;
+  if( ! me->getRootObject() ) return -1;
 
   int ncx;
   int ncy;
 
-  //-- TH2
+ if(useEmptyBins_)
+ {
+ 
+ std::cout<< "!!! ContentsWithinExpected Normal Test !!!" << std::endl; 
+
+   //-- TH2
   if (me->kind()==MonitorElement::DQM_KIND_TH2F){
     ncx = me->getTH2F()->GetXaxis()->GetNbins();
-    ncy = me->getTH2F()->GetYaxis()->GetNbins();
+    ncy = me->getTH2F()->GetYaxis()->GetNbins(); 
     h  = me->getTH2F(); // access Test histo
   }
+
 
   //-- TProfile
   else if (me->kind()==MonitorElement::DQM_KIND_TPROFILE){
@@ -736,10 +655,10 @@ float ContentsWithinExpected::runTest(const MonitorElement*me)
   std::cout<< " ContentsWithinExpected ERROR: ME does not contain TH2F/TPROFILE/TPROFILE2D" << std::endl; 
   return -1;
   } 
-
-  int nsum = 0;
-  float sum = 0.0;
-  float average = 0.0;
+ 
+   int nsum = 0;
+   float sum = 0.0;
+   float average = 0.0;
 
   if (checkMeanTolerance_){ // calculate average value of all bin contents
 
@@ -833,6 +752,39 @@ float ContentsWithinExpected::runTest(const MonitorElement*me)
   }
 
   return 1.*(ncx*ncy - fail)/(ncx*ncy);
+  } /// end of normal Test
+
+else     /// AS quality test !!!  
+{
+  std::cout<< "!!! ContentsWithinExpected AS !!!" << std::endl; 
+
+  if (me->kind()==MonitorElement::DQM_KIND_TH2F){
+  ncx = me->getTH2F()->GetXaxis()->GetNbins();
+  ncy = me->getTH2F()->GetYaxis()->GetNbins();
+   h  = me->getTH2F(); // access Test histo
+  }
+
+  else{
+   std::cout<< " ContentsWithinExpected AS! ERROR: ME does not contain TH2F" << std::endl; 
+   return -1;
+   } 
+
+  // if (!rangeInitialized_) return 0; // all accepted if no initialization
+   int fail = 0;
+   for (int cx = 1; cx <= ncx; ++cx)
+   {
+     for (int cy = 1; cy <= ncy; ++cy)
+     {
+       bool failure = false;
+       float Content = h->GetBinContent(h->GetBin(cx, cy));
+       if(Content) failure = (Content <  minMean_ || Content >  maxMean_);
+       if (failure) ++fail;
+      }
+    }
+ 
+    return 1.*(ncx*ncy-fail)/(ncx*ncy);
+ } /// end of AS quality test 
+
 
 }
 
@@ -866,14 +818,14 @@ ContentsWithinExpected::checkRange(const float xmin, const float xmax)
 float MeanWithinExpected::runTest(const MonitorElement *me )
 {
   if (!me) return -1;
+  if( ! me->getRootObject() ) return -1;
 
   if (me->kind()!=MonitorElement::DQM_KIND_TH1F) { 
   std::cout<< " MeanWithinExpected ERROR: ME " << me->getFullname() << " does not contain TH1F" << std::endl; 
   return -1;} 
-
-   h = me->getTH1F(); //access Test histo
-   if (!h) return -1;
-
+  
+  h = me->getTH1F(); //access Test histo
+   
   if (isInvalid()) return -1;
 
   if (useRange_) return doRangeTest(h);
