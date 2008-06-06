@@ -69,7 +69,6 @@ float Comp2RefEqualH::runTest(const MonitorElement*me)
  if (!me) return -1;
  if( ! me->getRootObject() ||  ! me->getRefRootObject() ) return -1;
  
-
  int nbins=0;
  int nbinsref=0;
  //-- TH1
@@ -106,8 +105,8 @@ float Comp2RefEqualH::runTest(const MonitorElement*me)
  } 
 
  else{ 
- std::cout<< "Comp2RefEqualH ERROR: ME does not contain TH1F/TH2F/TH3F" << std::endl; 
- return -1;
+  std::cout<< "Comp2RefEqualH ERROR: ME does not contain TH1F/TH2F/TH3F" << std::endl; 
+  return -1;
  } 
  
  //--  QUALITY TEST itself 
@@ -115,12 +114,12 @@ float Comp2RefEqualH::runTest(const MonitorElement*me)
  Int_t last  = nbins+1; //(use overflow bin)
  bool failure = false;
   for (Int_t bin=first;bin<=last;bin++) {
-    float contents = h->GetBinContent(bin);
-    if (contents != ref_->GetBinContent(bin)) {
+   float contents = h->GetBinContent(bin);
+   if (contents != ref_->GetBinContent(bin)) {
     failure = true;
     DQMChannel chan(bin, 0, 0, contents, h->GetBinError(bin));
     badChannels_.push_back(chan);
-    }
+   }
   }
  if (failure) return 0;
  return 1;
@@ -154,9 +153,9 @@ float Comp2RefChi2::runTest(const MonitorElement *me)
   ncx1  = h->GetXaxis()->GetNbins(); 
   ncx2   = ref_->GetXaxis()->GetNbins();
   if ( ncx1 !=  ncx2){
-  std::cout<<"Comp2RefChi2 ERROR: different number of channels! ("
-  << ncx1 << ", " << ncx2 << ") " << std::endl;
-  return -1;
+   std::cout<<"Comp2RefChi2 ERROR: different number of channels! ("
+            << ncx1 << ", " << ncx2 << ") " << std::endl;
+   return -1;
   } 
 
   //--  QUALITY TEST itself 
@@ -215,9 +214,6 @@ float Comp2RefChi2::runTest(const MonitorElement *me)
   chi2_ = chi2;  Ndof_ = ndof;
   return TMath::Prob(0.5*chi2, Int_t(0.5*ndof));
 }
-
-   
-
 
 //-------------------------------------------------------//
 //-----------------  Comp2RefKolmogorov    --------------//
@@ -429,7 +425,6 @@ float ContentsYRange::runTest(const MonitorElement*me)
 
  if(useEmptyBins_)
  {
-    std::cout<< "!!! ContentsYRange Normal Test !!!" << std::endl; 
    for (bin = first; bin <= last; ++bin)
    {
     Double_t contents = h->GetBinContent(bin);
@@ -449,7 +444,6 @@ float ContentsYRange::runTest(const MonitorElement*me)
 
  else     ///AS quality test !!!  
  {
-   std::cout<< "!!! ContentsYRange AS !!!" << std::endl; 
    for (bin = first; bin <= last; ++bin)
    {
     Double_t contents = h->GetBinContent(bin);
@@ -626,9 +620,6 @@ float ContentsWithinExpected::runTest(const MonitorElement*me)
 
  if(useEmptyBins_)
  {
- 
- std::cout<< "!!! ContentsWithinExpected Normal Test !!!" << std::endl; 
-
    //-- TH2
   if (me->kind()==MonitorElement::DQM_KIND_TH2F){
     ncx = me->getTH2F()->GetXaxis()->GetNbins();
@@ -756,8 +747,6 @@ float ContentsWithinExpected::runTest(const MonitorElement*me)
 
 else     /// AS quality test !!!  
 {
-  std::cout<< "!!! ContentsWithinExpected AS !!!" << std::endl; 
-
   if (me->kind()==MonitorElement::DQM_KIND_TH2F){
   ncx = me->getTH2F()->GetXaxis()->GetNbins();
   ncy = me->getTH2F()->GetYaxis()->GetNbins();
