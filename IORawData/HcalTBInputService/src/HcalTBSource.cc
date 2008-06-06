@@ -5,6 +5,7 @@
 #include "CDFEventInfo.h"
 #include "DataFormats/FEDRawData/interface/FEDRawDataCollection.h"
 #include "FWCore/PluginManager/interface/PluginCapabilities.h"
+#include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include <iostream>
 
 ClassImp(CDFChunk)
@@ -15,14 +16,15 @@ using namespace std;
 
 HcalTBSource::HcalTBSource(const edm::ParameterSet & pset, edm::InputSourceDescription const& desc) : 
   edm::ExternalInputSource(pset,desc),
-  m_quiet( pset.getUntrackedParameter<bool>("quiet",true))
+  m_quiet( pset.getUntrackedParameter<bool>("quiet",true)),
+  m_onlyRemapped( pset.getUntrackedParameter<bool>("onlyRemapped",false))
 {
   m_tree=0;
   m_fileCounter=-1;
   m_file=0;
   m_i=0;
 
-  unpackSetup(pset.getUntrackedParameter<std::vector<std::string> >("streams"));
+  unpackSetup(pset.getUntrackedParameter<std::vector<std::string> >("streams",std::vector<std::string>()));
   produces<FEDRawDataCollection>();
 }
 
@@ -36,9 +38,9 @@ void HcalTBSource::unpackSetup(const std::vector<std::string>& params) {
     
     m_sourceIdRemap.insert(std::pair<std::string,int>(streamName,remapTo));
     if (remapTo!=-1) 
-      cout << streamName << " --> " << remapTo << endl;
+      edm::LogInfo("HCAL") << streamName << " --> " << remapTo << endl;
     else
-      cout << streamName << " using fedid in file" << endl;
+      edm::LogInfo("HCAL") << streamName << " using fedid in file" << endl;
   }
 }
 
@@ -52,7 +54,7 @@ void HcalTBSource::openFile(const std::string& filename) {
   //  try {
   m_file=TFile::Open(filename.c_str());
   if (m_file==0) {
-    cout << "Unable to open " << filename << endl;
+    edm::LogError("HCAL") << "Unable to open " << filename << endl;
     m_tree=0;
     return;
   } 
@@ -62,12 +64,12 @@ void HcalTBSource::openFile(const std::string& filename) {
   if (m_tree==0) {
     m_file->Close();
     m_file=0;
-    cout << "Unable to find CMSRAW tree" << endl;
+    edm::LogError("HCAL") << "Unable to find CMSRAW tree" << endl;
     return;
   }
   
   if (!m_quiet) {
-    cout << "Opening '" << filename << "' with " << m_tree->GetEntries() << " events.\n";
+    edm::LogInfo("HCAL") << "Opening '" << filename << "' with " << m_tree->GetEntries() << " events.\n";
   }
   
   TObjArray* lb=m_tree->GetListOfBranches();
@@ -80,7 +82,11 @@ void HcalTBSource::openFile(const std::string& filename) {
       b->SetAddress(&m_eventInfo);
     } else {
       if (strcmp(b->GetClassName(),"CDFChunk")) continue;
-      if (m_sourceIdRemap.find(b->GetName())==m_sourceIdRemap.end()) continue;
+      if (m_sourceIdRemap.find(b->GetName())==m_sourceIdRemap.end()) {
+	if (m_onlyRemapped) continue;
+	m_sourceIdRemap.insert(std::pair<std::string,int>(b->GetName(),-1));
+	edm::LogInfo("HCAL") << "Also reading branch " << b->GetName();
+      }
       
       m_chunks[n_chunks]=0; // allow ROOT to allocate 
       b->SetAddress(&(m_chunks[n_chunks]));
@@ -116,7 +122,8 @@ void HcalTBSource::setRunAndEventInfo() {
       if (m_eventInfo->getEventNumber()==0) m_eventNumberOffset=1;
       else m_eventNumberOffset=0;
     }
-    setRunNumber(m_eventInfo->getRunNumber());
+    if (m_eventInfo->getRunNumber()==0) setRunNumber(1); // ZERO is unacceptable from a technical point of view
+    else setRunNumber(m_eventInfo->getRunNumber());
     setEventNumber(m_eventInfo->getEventNumber()+m_eventNumberOffset);
   } else {
     setRunNumber(m_fileCounter+10);
@@ -131,8 +138,11 @@ void HcalTBSource::setRunAndEventInfo() {
 
 bool HcalTBSource::produce(edm::Event& e) {
 
-  if (m_tree==0) return false;
- 
+  if (m_tree==0) {
+    edm::LogError("HCAL") << "Null TTree";
+    return false;
+  }
+
   std::auto_ptr<FEDRawDataCollection> bare_product(new  FEDRawDataCollection());
   for (int i=0; i<n_chunks; i++) {
     const unsigned char* data=(const unsigned char*)m_chunks[i]->getData();
@@ -152,7 +162,7 @@ bool HcalTBSource::produce(edm::Event& e) {
       // TODO: patch CRC after this change!
     }
     if (!m_quiet) 
-      std::cout << "Reading " << len << " bytes for FED " << id << std::endl;
+      edm::LogInfo("HCAL") << "Reading " << len << " bytes for FED " << id << std::endl;
   }
 
   e.put(bare_product);
