@@ -1,5 +1,5 @@
-// Last commit: $Id: SiStripPedestalsBuilderFromDb.cc,v 1.7 2008/05/16 15:30:07 bainbrid Exp $
-// Latest tag:  $Name: V02-00-02 $
+// Last commit: $Id: SiStripPedestalsBuilderFromDb.cc,v 1.8 2008/05/26 13:37:26 giordano Exp $
+// Latest tag:  $Name:  $
 // Location:    $Source: /cvs_server/repositories/CMSSW/CMSSW/OnlineDB/SiStripESSources/src/SiStripPedestalsBuilderFromDb.cc,v $
 
 #include "OnlineDB/SiStripESSources/interface/SiStripPedestalsBuilderFromDb.h"
@@ -53,17 +53,13 @@ SiStripPedestals* SiStripPedestalsBuilderFromDb::makePedestals() {
   
   // Build and retrieve SiStripConfigDb object using service
   db_ = edm::Service<SiStripConfigDb>().operator->(); //@@ NOT GUARANTEED TO BE THREAD SAFE! 
-
-  LogTrace(mlConfigDb_) 
-    << "TEST db: " << db_;
   
   // Check if DB connection is made 
   if ( db_ ) { 
-    
-    LogTrace(mlConfigDb_) 
-      << "TEST dv: " << db_->deviceFactory();
-    
-    if ( db_->deviceFactory() ) { 
+
+    // Check if DB connection is made 
+    if ( db_->deviceFactory() || 
+	 db_->databaseCache() ) { 
       
       // Build FEC cabling object
       SiStripFecCabling fec_cabling;

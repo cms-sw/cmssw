@@ -1,4 +1,4 @@
-// Last commit: $Id: SiStripCondObjBuilderFromDb.cc,v 1.5 2008/05/26 14:58:44 giordano Exp $
+// Last commit: $Id: SiStripCondObjBuilderFromDb.cc,v 1.6 2008/05/30 12:42:54 giordano Exp $
 // Latest tag:  $Name:  $
 // Location:    $Source: /cvs_server/repositories/CMSSW/CMSSW/OnlineDB/SiStripESSources/src/SiStripCondObjBuilderFromDb.cc,v $
 
@@ -65,20 +65,12 @@ void SiStripCondObjBuilderFromDb::buildCondObj() {
   LogTrace(mlESSources_) 
     << "[SiStripCondObjBuilderFromDb::" << __func__ << "]";
 
-  /*
-  LogTrace(mlConfigDb_) 
-    << "TEST db: " << db_;
-  */
-
   // Check if DB connection is made 
   if ( db_ ) { 
-
-    /*    
-    LogTrace(mlConfigDb_) 
-      << "TEST dv: " << db_->deviceFactory();
-    */
-
-    if ( db_->deviceFactory() ) { 
+    
+    // Check if DB connection is made 
+    if ( db_->deviceFactory() || 
+	 db_->databaseCache() ) { 
       
       // Build FEC cabling object
       SiStripFecCabling fec_cabling;
@@ -90,12 +82,6 @@ void SiStripCondObjBuilderFromDb::buildCondObj() {
       fed_cabling_=new SiStripFedCabling;
       SiStripFedCablingBuilderFromDb::getFedCabling( fec_cabling, *fed_cabling_ );
       SiStripDetCabling det_cabling( *fed_cabling_ );
-      
-      /* 
-      // Populate Pedestals object
-      LogTrace(mlConfigDb_) 
-	<< "TEST db1: " << db_;
-      */
 
       buildStripRelatedObjects( &*db_, det_cabling );
       

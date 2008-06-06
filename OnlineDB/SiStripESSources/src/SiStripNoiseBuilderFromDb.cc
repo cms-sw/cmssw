@@ -1,5 +1,5 @@
-// Last commit: $Id: SiStripNoiseBuilderFromDb.cc,v 1.8 2008/05/16 15:30:07 bainbrid Exp $
-// Latest tag:  $Name: V02-00-02 $
+// Last commit: $Id: SiStripNoiseBuilderFromDb.cc,v 1.9 2008/05/26 13:37:26 giordano Exp $
+// Latest tag:  $Name:  $
 // Location:    $Source: /cvs_server/repositories/CMSSW/CMSSW/OnlineDB/SiStripESSources/src/SiStripNoiseBuilderFromDb.cc,v $
 
 #include "OnlineDB/SiStripESSources/interface/SiStripNoiseBuilderFromDb.h"
@@ -57,7 +57,9 @@ SiStripNoises* SiStripNoiseBuilderFromDb::makeNoise() {
   // Check if DB connection is made 
   if ( db_ ) { 
 
-    if ( db_->deviceFactory() ) { 
+    // Check if DB connection is made 
+    if ( db_->deviceFactory() || 
+	 db_->databaseCache() ) { 
       
       // Build FEC cabling object
       SiStripFecCabling fec_cabling;
