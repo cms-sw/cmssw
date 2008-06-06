@@ -1,7 +1,7 @@
 /**\class PhotonSimpleAnalyzer
  **
- ** $Date: 2008/06/03 13:55:17 $ 
- ** $Revision: 1.14 $
+ ** $Date: 2008/06/03 14:16:07 $ 
+ ** $Revision: 1.15 $
  ** \author Nancy Marinelli, U. of Notre Dame, US
 */
 
@@ -85,7 +85,15 @@ SimplePhotonAnalyzer::beginJob(edm::EventSetup const&) {
     dPhi=0.05;
     loRes=0.7;
     hiRes=1.2;
-  } 
+  }  else if (sample_==4) {
+    loE=0.;
+    hiE=6000.;
+    loEt=0.;
+    hiEt=1200.;
+    dPhi=0.05;
+    loRes=0.7;
+    hiRes=1.2;
+  }
 
 
 
@@ -99,9 +107,9 @@ SimplePhotonAnalyzer::beginJob(edm::EventSetup const&) {
   h1_pho_Phi_ = fs->make<TH1F>("phoPhi","Photon  Phi ",40,-3.14, 3.14);
 
 
-  h1_scEt_ = fs->make<TH1F>("scEt"," SC Et ",100,0.,hiEt);
-  h1_scE_ = fs->make<TH1F>("scE"," SC Energy ",100,0.,hiE);
-  h1_pho_E_ = fs->make<TH1F>("phoE","Photon Energy ",100,0.,hiE);
+  h1_scEt_ = fs->make<TH1F>("scEt"," SC Et ",100,loEt,hiEt);
+  h1_scE_ = fs->make<TH1F>("scE"," SC Energy ",100,loE,hiE);
+  h1_pho_E_ = fs->make<TH1F>("phoE","Photon Energy ",100,loE,hiE);
   
   h1_e5x5_unconvBarrel_ = fs->make<TH1F>("e5x5_unconvBarrelOverEtrue"," Photon rec/true energy if R9>0.93 Barrel ",100,loRes, hiRes);
   h1_e5x5_unconvEndcap_ = fs->make<TH1F>("e5x5_unconvEndcapOverEtrue"," Photon rec/true energy if R9>0.93 Endcap ",100,loRes, hiRes);
