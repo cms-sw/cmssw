@@ -65,6 +65,8 @@ class L2TauValidation : public edm::EDAnalyzer {
       
       //Output file
       std::string outFile_;
+      
+      std::vector<double> cuts_;
 
       //Monitor elements main
       MonitorElement* jetEt;
@@ -77,6 +79,11 @@ class L2TauValidation : public edm::EDAnalyzer {
       MonitorElement* clusterPhiRMS;
       MonitorElement* clusterDeltaRRMS;
       MonitorElement* nClusters;
+      
+      MonitorElement* EtEffNum;
+      MonitorElement* EtEffDenom;
+      MonitorElement* EtEff;
+
      
       bool match(const reco::Jet&,const LVColl&);//See if this Jet Is Matched
       bool matchL1(const reco::Jet&,std::vector<l1extra::L1JetParticleRef>&);//See if this Jet Is Matched to L1

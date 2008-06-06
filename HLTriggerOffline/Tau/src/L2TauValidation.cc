@@ -12,7 +12,9 @@ L2TauValidation::L2TauValidation(const edm::ParameterSet& iConfig):
  matchDeltaRMC_(iConfig.getParameter<double>("MatchDeltaRMC")),
  matchDeltaRL1_(iConfig.getParameter<double>("MatchDeltaRL1")),
  triggerTag_((iConfig.getParameter<std::string>("TriggerTag"))),
- outFile_(iConfig.getParameter<std::string>("OutputFileName"))
+ outFile_(iConfig.getParameter<std::string>("OutputFileName")),
+ cuts_(iConfig.getParameter<std::vector <double> >("Cuts"))
+  
 {
 
   DQMStore* store = &*edm::Service<DQMStore>();
@@ -20,8 +22,7 @@ L2TauValidation::L2TauValidation(const edm::ParameterSet& iConfig):
   if(store)
     {
       //Create the histograms
-      store->setCurrentFolder(triggerTag_+l2TauInfoAssoc_.label());
-
+      store->setCurrentFolder(triggerTag_);
       jetEt= store->book1D("tauCandEt","tauCandEt",50,0,100);
       jetEta= store->book1D("tauCandEta","tauCandEta",50,-2.5,2.5);
       jetPhi= store->book1D("tauCandPhi","tauCandPhi",63,-3.14,3.14);
@@ -32,8 +33,10 @@ L2TauValidation::L2TauValidation(const edm::ParameterSet& iConfig):
       clusterEtaRMS=store->book1D("clusterEtaRMS","clusterEtaRMS",25,0,0.5);
       clusterPhiRMS=store->book1D("clusterPhiRMS","clusterPhiRMS",25,0,0.5);
       clusterDeltaRRMS=store->book1D("clusterDeltaRRMS","clusterDeltaRRMS",25,0,0.5);
-
-
+      EtEffNum=store->book1D("EtEffNum","Efficiency vs E_{t}(Numerator)",50,0,100);
+      EtEffDenom=store->book1D("EtEffDenom","Efficiency vs E_{t}(Denominator)",50,0,100);
+      EtEff=store->book1D("EtEff","Efficiency vs E_{t}",50,0,100);
+      
     }
   
 
@@ -106,6 +109,25 @@ L2TauValidation::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup
 	      jetEt->Fill(jet.et());
 	      jetEta->Fill(jet.eta());
 	      jetPhi->Fill(jet.phi());
+	      
+	      EtEffDenom->Fill(jet.et());
+	      if(cuts_[0] >= l2info.ECALIsolConeCut)
+		if(cuts_[1] >= l2info.TowerIsolConeCut)
+		  if(cuts_[2] <= l2info.SeedTowerEt)
+		    if(cuts_[3] >= l2info.ECALClusterNClusters)
+		      if(cuts_[4] >= l2info.ECALClusterEtaRMS)
+			if(cuts_[5] >= l2info.ECALClusterPhiRMS)
+			  if(cuts_[6] >= l2info.ECALClusterDRRMS)
+			    EtEffNum->Fill(jet.et());
+
+
+		    
+
+
+
+
+
+
 	    }
 
 	   
@@ -129,6 +151,9 @@ L2TauValidation::beginJob(const edm::EventSetup&)
 void 
 L2TauValidation::endJob() {
  
+  //Get Efficiency
+  EtEff->getTH1F()->Divide(EtEffNum->getTH1F(),EtEffDenom->getTH1F(),1.,1.,"b");
+
   //Write file
   if(outFile_.size()>0)
 if (&*edm::Service<DQMStore>()) edm::Service<DQMStore>()->save (outFile_);

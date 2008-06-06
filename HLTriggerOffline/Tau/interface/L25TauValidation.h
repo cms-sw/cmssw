@@ -1,6 +1,6 @@
-// Original Author:  Michail Bachtis
+// Original Author:  Eduardo Luigi
 //         Created:  Sun Jan 20 20:10:02 CST 2008
-// University of Wisconsin-Madison
+
 
 
 // system include files
@@ -55,6 +55,7 @@ class L25TauValidation : public edm::EDAnalyzer {
       edm::InputTag caloJets_;
 
       //Output file
+      std::string triggerTag_;
       std::string outFile_;
 
       //Monitor elements main

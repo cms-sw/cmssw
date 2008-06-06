@@ -16,6 +16,7 @@ L25TauValidation::L25TauValidation(const edm::ParameterSet& iConfig){
    nTracksInIsolationRing_ = iConfig.getParameter<int>("MaximumNumberOfTracksIsolationRing");
    mcMatch_ = iConfig.getParameter<double>("MCMatching");
    signal_ = iConfig.getParameter<bool>("Signal");
+   triggerTag_ = iConfig.getParameter<std::string>("TriggerTag");
    outFile_ = iConfig.getParameter<std::string>("OutputFileName");
 
 
@@ -23,7 +24,7 @@ L25TauValidation::L25TauValidation(const edm::ParameterSet& iConfig){
   
    if(store){		//Create the histograms
       
-      store->setCurrentFolder("HLTTauL25");
+      store->setCurrentFolder(triggerTag_);
 
       jetPt = store->book1D("jetPt", "jetPt", 75, 0, 150);
       jetEt = store->book1D("jetEt", "jetEt", 75, 0, 150);

@@ -8,7 +8,6 @@
 #include "DataFormats/EgammaCandidates/interface/GsfElectronFwd.h"
 #include "DataFormats/MuonReco/interface/Muon.h"
 #include "DataFormats/JetReco/interface/CaloJet.h"
-
 #include "SimDataFormats/HepMCProduct/interface/HepMCProduct.h"
 #include "DataFormats/HepMCCandidate/interface/GenParticleCandidate.h"
 #include "TLorentzVector.h"
@@ -61,7 +60,6 @@ HLTTauRefInfo::HLTTauRefInfo(const edm::ParameterSet& iConfig)
   ptMinMCElectron_ = mc.getUntrackedParameter<double>("ptMinElectron",5);
   m_PDG_   = mc.getUntrackedParameter<int>("BosonID",23);
 
-
   etaMax = iConfig.getUntrackedParameter<double>("EtaMax",2.5);
   
 
@@ -109,7 +107,7 @@ HLTTauRefInfo::doPFTaus(edm::Event& iEvent,const edm::EventSetup& iES)
       edm::Handle<PFTauCollection> pftaus;
       iEvent.getByLabel(PFTaus_,pftaus);
       edm::Handle<PFTauDiscriminatorByIsolation> pftaudis;
-      iEvent.getByLabel(PFTauDis_,pftaudis);
+      if(iEvent.getByLabel(PFTauDis_,pftaudis))
       for(size_t i = 0 ;i<pftaus->size();++i)
 	{
 
@@ -138,7 +136,7 @@ HLTTauRefInfo::doCaloTaus(edm::Event& iEvent,const edm::EventSetup& iES)
       edm::Handle<CaloTauCollection> calotaus;
       iEvent.getByLabel(CaloTaus_,calotaus);
       edm::Handle<CaloTauDiscriminatorByIsolation> calotaudis;
-      iEvent.getByLabel(CaloTauDis_,calotaudis);
+      if(iEvent.getByLabel(CaloTauDis_,calotaudis))
       for(size_t i = 0 ;i<calotaus->size();++i)
 	{
 	  if((*calotaudis)[i].second==1)
@@ -163,9 +161,7 @@ HLTTauRefInfo::doElectrons(edm::Event& iEvent,const edm::EventSetup& iES)
      auto_ptr<LorentzVectorCollection> product_Electrons(new LorentzVectorCollection);
       //Retrieve the collection
       edm::Handle<GsfElectronCollection> electrons;
-      iEvent.getByLabel(Electrons_,electrons);
-
-    
+      if(iEvent.getByLabel(Electrons_,electrons))    
       for(size_t i = 0 ;i<electrons->size();++i)
 	{
 	 
@@ -188,9 +184,8 @@ HLTTauRefInfo::doMuons(edm::Event& iEvent,const edm::EventSetup& iES)
      auto_ptr<LorentzVectorCollection> product_Muons(new LorentzVectorCollection);
       //Retrieve the collection
       edm::Handle<MuonCollection> muons;
-      iEvent.getByLabel(Muons_,muons);
-
-    
+      if(iEvent.getByLabel(Muons_,muons))
+   
       for(size_t i = 0 ;i<muons->size();++i)
 	{
 	 
@@ -213,9 +208,7 @@ HLTTauRefInfo::doJets(edm::Event& iEvent,const edm::EventSetup& iES)
       auto_ptr<LorentzVectorCollection> product_Jets(new LorentzVectorCollection);
       //Retrieve the collection
       edm::Handle<CaloJetCollection> jets;
-      iEvent.getByLabel(Jets_,jets);
-
-    
+      if(iEvent.getByLabel(Jets_,jets))
       for(size_t i = 0 ;i<jets->size();++i)
 	{
 
