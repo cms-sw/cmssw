@@ -44,8 +44,8 @@ class NuclearVertexBuilder {
                                   const GlobalPoint& crossPoint ) const;
        void cleanTrackCollection( const reco::TrackRef& primTrack,
                                   std::vector<reco::TrackRef>& tC) const;
-
-
+       void checkEnergy( const reco::TrackRef& primTrack,
+                         std::vector<reco::TrackRef>& tC) const;
 
        reco::Vertex  the_vertex;
 
@@ -57,6 +57,14 @@ class NuclearVertexBuilder {
        double DPtovPtCut_;
        double minDistFromVtx_;
        double shareFrac_;
+
+       class cmpTracks {
+          public:
+                bool operator () (const reco::TrackRef& a, const reco::TrackRef& b) {
+                  if( a->numberOfValidHits() != b->numberOfValidHits()) return (a->numberOfValidHits()> b->numberOfValidHits());
+                  else return (a->normalizedChi2()<b->normalizedChi2());
+                }
+        };
 
 };
 

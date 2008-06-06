@@ -10,6 +10,8 @@
 void NuclearVertexBuilder::build( const reco::TrackRef& primTrack, std::vector<reco::TrackRef>& secTracks) {
 
      cleanTrackCollection(primTrack, secTracks); 
+     std::sort(secTracks.begin(),secTracks.end(),cmpTracks());
+     checkEnergy(primTrack, secTracks);
 
      if( secTracks.size() != 0) {
          if( FillVertexWithAdaptVtxFitter(primTrack, secTracks) ) return;
@@ -150,12 +152,12 @@ bool NuclearVertexBuilder::isGoodSecondaryTrack( const reco::TrackRef& secTrack,
           std::cout << "1)" << distOfClosestApp << " < " << minDistFromPrim_ << " " << (distOfClosestApp < minDistFromPrim_)  << "\n";
           std::cout << "2)" << secTrack->normalizedChi2() << " < " << chi2Cut_ << " " << (secTrack->normalizedChi2() < chi2Cut_) << "\n";
           std::cout << "3)" << crossPoint.perp() << " < " << TRACKER_RADIUS << " " << (crossPoint.perp() < TRACKER_RADIUS) << "\n";
-          std::cout << "4)" << (pt2/Dpt2) << " < " << DPtovPtCut_ << " " << ((pt2/Dpt2) < DPtovPtCut_)  << "\n";
+          std::cout << "4)" << (Dpt2/pt2) << " < " << DPtovPtCut_ << " " << ((Dpt2/pt2) < DPtovPtCut_)  << "\n";
           std::cout << "5)" << (p2-2*Dp2) << " < " << (p1+2*Dp1) << " " << ((p2-2*Dp2) < (p1+2*Dp1))<< "\n";
           if( distOfClosestApp < minDistFromPrim_ &&
               secTrack->normalizedChi2() < chi2Cut_ && 
               crossPoint.perp() < TRACKER_RADIUS && 
-              (pt2/Dpt2) < DPtovPtCut_ &&
+              (Dpt2/pt2) < DPtovPtCut_ &&
               (p2-2*Dp2) < (p1+2*Dp1)) return true;
           else return false;
 }
@@ -177,7 +179,7 @@ bool NuclearVertexBuilder::isCompatible( const reco::TrackRef& secTrack ) const{
                                   the_vertex.yError()*the_vertex.yError() +
                                   the_vertex.zError()*the_vertex.zError());
  
-           std::cout << "Distance between Additional track and vertex =" << dist << " +/- " << distError << std::endl;
+           //std::cout << "Distance between Additional track and vertex =" << dist << " +/- " << distError << std::endl;
            // TODO : add condition on distance between last rechit of the primary and the first rec hit of the secondary
  
            result = (isGoodSecondaryTrack(secTrack, primTrack, theApproach->distance(), crp) 
@@ -266,4 +268,16 @@ void NuclearVertexBuilder::cleanTrackCollection( const reco::TrackRef& primTrack
          ++i;
    }
    tC = newTrackColl;
+}
+
+void NuclearVertexBuilder::checkEnergy( const reco::TrackRef& primTrack,
+                                        std::vector<reco::TrackRef>& tC) const {
+   float totalEnergy=0;
+   for(int i=0; i< tC.size(); ++i) {
+     totalEnergy += tC[i]->p();
+   }
+   if( totalEnergy > primTrack->p()+0.1*primTrack->p() ) {
+           tC.pop_back();
+           checkEnergy(primTrack,tC);
+   }
 }
