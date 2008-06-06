@@ -4,34 +4,36 @@
 #include "SimDataFormats/TrackerDigiSimLink/interface/StripDigiSimLink.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 
-MuonTruth::MuonTruth()
-: theSimTrackContainer(0),
-  theDigiSimLinks(0),
+MuonTruth::MuonTruth(const edm::ParameterSet& conf)
+: theDigiSimLinks(0),
   theWireDigiSimLinks(0),
-  theSimHitMap("MuonCSCHits")
+  theSimHitMap(conf.getParameter<edm::InputTag>("CSCsimHitsXFTag")),
+  simTracksXFTag(conf.getParameter<edm::InputTag>("simtracksXFTag")),
+  linksTag(conf.getParameter<edm::InputTag>("CSClinksTag")),
+  wireLinksTag(conf.getParameter<edm::InputTag>("CSCwireLinksTag"))
 {
 }
 
 void MuonTruth::eventSetup(const edm::Event & event)
 {
-  edm::Handle<edm::SimTrackContainer> simTrackCollection;
-  event.getByLabel("g4SimHits", simTrackCollection);
-  theSimTrackContainer = simTrackCollection.product();
+  edm::Handle<CrossingFrame<SimTrack> > xFrame;
+  LogTrace("MuonTruth") <<"getting CrossingFrame<SimTrack> collection - "<<simTracksXFTag;
+  event.getByLabel(simTracksXFTag,xFrame);
+  std::auto_ptr<MixCollection<SimTrack> > 
+    theSimTracks( new MixCollection<SimTrack>(xFrame.product()) );
 
   edm::Handle<DigiSimLinks> digiSimLinks;
-  edm::InputTag linksTag("muonCSCDigis" , "MuonCSCStripDigiSimLinks");
+  LogTrace("MuonTruth") <<"getting CSC Strip DigiSimLink collection - "<<linksTag;
   event.getByLabel(linksTag, digiSimLinks);
   theDigiSimLinks = digiSimLinks.product();
 
   edm::Handle<DigiSimLinks> wireDigiSimLinks;
-  edm::InputTag wireLinksTag("muonCSCDigis" , "MuonCSCWireDigiSimLinks");
+  LogTrace("MuonTruth") <<"getting CSC Wire DigiSimLink collection - "<<wireLinksTag;
   event.getByLabel(wireLinksTag, wireDigiSimLinks);
   theWireDigiSimLinks = wireDigiSimLinks.product();
 
   theSimHitMap.fill(event);
 }
-
-
 
 float MuonTruth::muonFraction()
 {
@@ -51,28 +53,29 @@ float MuonTruth::muonFraction()
 }
 
 
-std::vector<const PSimHit *> MuonTruth::simHits()
+std::vector<PSimHit> MuonTruth::simHits()
 {
-  std::vector<const PSimHit *> result;
+  std::vector<PSimHit> result;
   for(std::map<int, float>::const_iterator chargeMapItr = theChargeMap.begin();
       chargeMapItr != theChargeMap.end(); ++chargeMapItr)
   {
-    std::vector<const PSimHit *> trackHits = hitsFromSimTrack(chargeMapItr->first);
+    std::vector<PSimHit> trackHits = hitsFromSimTrack(chargeMapItr->first);
     result.insert(result.end(), trackHits.begin(), trackHits.end());
   }
+  
   return result;
 }
 
 
-std::vector<const PSimHit *> MuonTruth::muonHits()
+std::vector<PSimHit> MuonTruth::muonHits()
 {
-  std::vector<const PSimHit *> result;
-  std::vector<const PSimHit *> allHits = simHits();
-  std::vector<const PSimHit *>::const_iterator hitItr = allHits.begin(), lastHit = allHits.end();
+  std::vector<PSimHit> result;
+  std::vector<PSimHit> allHits = simHits();
+  std::vector<PSimHit>::const_iterator hitItr = allHits.begin(), lastHit = allHits.end();
 
   for( ; hitItr != lastHit; ++hitItr)
   {
-    if(abs((**hitItr).particleType()) == 13)
+    if(abs((*hitItr).particleType()) == 13)
     {
       result.push_back(*hitItr);
     }
@@ -83,32 +86,28 @@ std::vector<const PSimHit *> MuonTruth::muonHits()
 
 std::vector<MuonTruth::SimHitIdpr> MuonTruth::associateHitId(const TrackingRecHit & hit)
 {
-  //  LogTrace("MuonAssociatorByHits")<<"CSCassociateHitId";
   std::vector<SimHitIdpr> simtrackids;
   simtrackids.clear();
   const TrackingRecHit * hitp = &hit;
   const CSCRecHit2D * cscrechit = dynamic_cast<const CSCRecHit2D *>(hitp);
 
   if (cscrechit) {
-    //    LogTrace("MuonAssociatorByHits")<<"cscrechit : "<<*cscrechit;
     analyze(*cscrechit);
-    std::vector<const PSimHit *> matchedSimHits = simHits();
-    //    LogTrace("MuonAssociatorByHits")<<"matchedSimHits.size() = "<<matchedSimHits.size();
-    for(std::vector<const PSimHit *>::const_iterator hIT=matchedSimHits.begin(); hIT != matchedSimHits.end(); hIT++) {
-      SimHitIdpr currentId((*hIT)->trackId(), (*hIT)->eventId());
+    std::vector<PSimHit> matchedSimHits = simHits();
+    for(std::vector<PSimHit>::const_iterator hIT=matchedSimHits.begin(); hIT != matchedSimHits.end(); hIT++) {
+      SimHitIdpr currentId(hIT->trackId(), hIT->eventId());
       simtrackids.push_back(currentId);
     }
   } else {
-    edm::LogWarning("MuonAssociatorByHits")<<"WARNING in CSCassociateHitId, null dynamic_cast !";
+    edm::LogWarning("MuonTruth")<<"WARNING in MuonTruth::associateHitId, null dynamic_cast !";
   }
   return simtrackids;
 }
 
 
-
-std::vector<const PSimHit *> MuonTruth::hitsFromSimTrack(int index) const
+std::vector<PSimHit> MuonTruth::hitsFromSimTrack(int index)
 {
-  std::vector<const PSimHit *> result;
+  std::vector<PSimHit> result;
   edm::PSimHitContainer hits = theSimHitMap.hits(theDetId);
   edm::PSimHitContainer::const_iterator hitItr = hits.begin(), lastHit = hits.end();
 
@@ -117,24 +116,23 @@ std::vector<const PSimHit *> MuonTruth::hitsFromSimTrack(int index) const
     int hitTrack = hitItr->trackId();
     if(hitTrack == index) 
     {
-      result.push_back(&*hitItr);
+      result.push_back(*hitItr);
     }
   }
   return result;
 }
 
 
-int MuonTruth::particleType(int simTrack) const
+int MuonTruth::particleType(int simTrack)
 {
   int result = 0;
-  std::vector<const PSimHit *> hits = hitsFromSimTrack(simTrack);
+  std::vector<PSimHit> hits = hitsFromSimTrack(simTrack);
   if(!hits.empty())
   {
-    result = hits[0]->particleType();
+    result = hits[0].particleType();
   }
   return result;
 }
-
 
 
 void MuonTruth::analyze(const CSCRecHit2D & recHit)
@@ -149,7 +147,6 @@ void MuonTruth::analyze(const CSCRecHit2D & recHit)
   {
     int channel = recHit.channels()[idigi];
     float weight = adcContainer[idigi];
-
 
     DigiSimLinks::const_iterator layerLinks = theDigiSimLinks->find(theDetId);
 
@@ -191,7 +188,8 @@ void MuonTruth::analyze(const CSCWireDigi & wireDigi, int rawDetIdCorrespondingT
     addChannel(*layerLinks, wireDigiInSimulation, 1.);
   }
 }
-//
+
+
 void MuonTruth::addChannel(const LayerLinks &layerLinks, int channel, float weight)
 {
   LayerLinks::const_iterator linkItr = layerLinks.begin(), 
