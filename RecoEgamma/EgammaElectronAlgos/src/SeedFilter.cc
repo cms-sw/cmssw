@@ -111,23 +111,24 @@ void SeedFilter::seeds(edm::Event& e, const edm::EventSetup& setup, const reco::
   }
  
   //seeds selection
-  float et = (scRef->energy()/cosh(scRef->eta()));
-  //if (et < 3.)
-  //  return;
+  float energy = scRef->energy(); 
   
   const GlobalPoint clusterPos(scRef->position().x(), scRef->position().y(), scRef->position().z());   
   
   // EtaPhiRegion and seeds for electron hypothesis    
-  FreeTrajectoryState fts = myFTS(&(*theMagField), clusterPos, vtxPos, et, (TrackCharge)-1.);
+  TrackCharge aCharge = -1.; 
+  FreeTrajectoryState fts = myFTS(&(*theMagField), clusterPos, vtxPos, energy, aCharge);
 
   RectangularEtaPhiTrackingRegion etaphiRegionMinus(fts.momentum(),
                                                     vtxPos, 
                                                     ptmin_,
                                                     originradius_,
                                                     deltaZVertex,
-                                                    deltaEta_,
-                                                    deltaPhi_,-1);
-  
+						    //                                                    deltaEta_,
+						    //                                                    deltaPhi_,-1);
+						    RectangularEtaPhiTrackingRegion::Margin(fabs(deltaEta_),fabs(deltaEta_)), 
+						    RectangularEtaPhiTrackingRegion::Margin(fabs(deltaPhi_),fabs(deltaPhi_))
+						    ,-1);
   combinatorialSeedGenerator->run(*seedColl, etaphiRegionMinus, e, setup);
   
   for (unsigned int i = 0; i<seedColl->size(); ++i)
@@ -136,20 +137,48 @@ void SeedFilter::seeds(edm::Event& e, const edm::EventSetup& setup, const reco::
   seedColl->clear();
 
   // EtaPhiRegion and seeds for positron hypothesis
-  fts = myFTS(&(*theMagField), clusterPos, vtxPos, et, (TrackCharge)1.);
+  TrackCharge aChargep = 1.; 
+  fts = myFTS(&(*theMagField), clusterPos, vtxPos, energy, aChargep);
   
   RectangularEtaPhiTrackingRegion etaphiRegionPlus(fts.momentum(),
                                                    vtxPos, 
                                                    ptmin_,
                                                    originradius_,
                                                    deltaZVertex,
-                                                   deltaEta_,
-                                                   deltaPhi_,-1);
+						   //                                                   deltaEta_,
+						   //                                                   deltaPhi_,-1);
+						    RectangularEtaPhiTrackingRegion::Margin(fabs(deltaEta_),fabs(deltaEta_)), 
+						    RectangularEtaPhiTrackingRegion::Margin(fabs(deltaPhi_),fabs(deltaPhi_))
+						    ,-1);
   
   combinatorialSeedGenerator->run(*seedColl, etaphiRegionPlus, e, setup);
   
-  for (unsigned int i = 0; i<seedColl->size(); ++i)
-    output->push_back((*seedColl)[i]); 
+  for (unsigned int i = 0; i<seedColl->size(); ++i){
+    TrajectorySeed::range r = (*seedColl)[i].recHits();
+    // first Hit 
+    TrajectorySeed::const_iterator it = r.first;
+    const TrackingRecHit* a1 = &(*it); 
+    // now second Hit
+    it++;
+    const TrackingRecHit* a2 = &(*it);
+    // check if the seed is already in the collection
+    bool isInCollection = false;
+    for(unsigned int j=0; j<output->size(); ++j) {
+      TrajectorySeed::range r = (*seedColl)[i].recHits();
+      // first Hit       
+      TrajectorySeed::const_iterator it = r.first;
+      const TrackingRecHit* b1 = &(*it);
+      // now second Hit
+      it++;
+      const TrackingRecHit* b2 = &(*it); 
+      if ((b1->sharesInput(a1, TrackingRecHit::all)) && (b2->sharesInput(a2, TrackingRecHit::all))) {
+	isInCollection = true;
+	break;
+      }
+    }
+    if (!isInCollection)
+      output->push_back((*seedColl)[i]); 
+  }
   
   seedColl->clear();
 }
