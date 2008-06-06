@@ -123,8 +123,8 @@ TransientTrackingRecHit::RecHitPointer  SiTrackerMultiRecHitUpdator::update( Tra
 	TransientTrackingRecHit::ConstRecHitContainer finalcomponents;
   	for(std::vector<TransientTrackingRecHit::RecHitPointer>::iterator ihit = updatedcomponents.begin(); ihit != updatedcomponents.end(); ihit++) {
 		//uncomment lines below to have like ORCA
-		//float p = ((mymap[counter].second)/total_sum > 1.e-6 ? (mymap[counter].second)/total_sum : 1.e-6);
-		float p = ((mymap[counter].second)/total_sum > 0.01 ? (mymap[counter].second)/total_sum : 1.e-6);
+		float p = ((mymap[counter].second)/total_sum > 1.e-6 ? (mymap[counter].second)/total_sum : 1.e-6);
+		//float p = ((mymap[counter].second)/total_sum > 0.01 ? (mymap[counter].second)/total_sum : 1.e-6);
 		normmap.push_back(std::pair<const TrackingRecHit*, float>(mymap[counter].first, p));
 		//let's store the weight in the component TransientTrackingRecHit too
 		(*ihit)->setWeight(p);
@@ -155,7 +155,7 @@ LocalError SiTrackerMultiRecHitUpdator::calcParametersError(TransientTrackingRec
                 AlgebraicSymMatrix W(V.inverse(ierr));
 
                 if(ierr != 0) {
-                        std::cout<<"MultiRecHit::checkParametersError: W not valid!"<<std::endl;
+		  edm::LogError("SiTrackerMultiRecHitUpdator")<<"MultiRecHit::checkParametersError: W not valid!"<<std::endl;
                 }
 
                 W_sum += ((*ihit)->weight()*W);
@@ -173,7 +173,7 @@ LocalPoint SiTrackerMultiRecHitUpdator::calcParameters(TransientTrackingRecHit::
                 AlgebraicSymMatrix W(V.inverse(ierr));
 
                 if(ierr != 0) {
-                        std::cout<<"MultiRecHit::checkParameters: W not valid!"<<std::endl;
+                        edm::LogError("SiTrackerMultiRecHitUpdator")<<"MultiRecHit::checkParameters: W not valid!"<<std::endl;
                 }
 
                 //m_sum += ihit->weight()*(W*m);      

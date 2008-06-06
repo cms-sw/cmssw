@@ -5,13 +5,13 @@
 #include "FWCore/Utilities/interface/Exception.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 
-#define debug_ 
+#define debug_MeasurementByLayerGrouper_ 
 
 using namespace std;
 
 vector<pair<const DetLayer*, vector<TrajectoryMeasurement> > > MeasurementByLayerGrouper::operator()(const vector<TM>& vtm) const{
 	if(vtm.empty()) 
-    		return vector<pair<const DetLayer*, vector<TrajectoryMeasurement> > >();
+    		return vector<pair<const DetLayer*, vector<TM> > >();
 
   	vector<pair<const DetLayer*, vector<TM> > > result;
   	result.reserve(vtm.size());
@@ -23,7 +23,13 @@ vector<pair<const DetLayer*, vector<TrajectoryMeasurement> > > MeasurementByLaye
 		do {ipart++;}
     		while(ipart != vtm.end() && 
 	  		getDetLayer(*start)==getDetLayer(*ipart) &&
-			getDetLayer(*start) != 0  //this is needed because hits with no associated det layer are always 1 per layer 
+			getDetLayer(*start) != 0  //the returned pointer will be 0 in case
+                                                  //the measurement contains an invalid hit with no associated detid.
+						  //This kind of hits are at most one per layer.
+						  //this last condition avoids that 2 consecutive measurements of this kind
+                                                  //are grouped in the same layer.
+					          //it would be useful if invalid hit out of the active area were 
+						  //given the detid reserved for the whole layer instead of 0    
 			) ;
     
     		vector<TM> group(start, ipart);
@@ -31,7 +37,7 @@ vector<pair<const DetLayer*, vector<TrajectoryMeasurement> > > MeasurementByLaye
 							group));
     		start = ipart;
   	}
-#ifdef debug_
+#ifdef debug_MeasurementByLayerGrouper_
 	//debug
 	LogDebug("MeasurementByLayerGrouper|SiTrackerMultiRecHitUpdator") << "measurements divided by layer:";
 	for (vector<pair<const DetLayer*, vector<TM> > >::const_iterator iter = result.begin(); iter != result.end(); iter++){

@@ -14,12 +14,48 @@
 
 #define _debug_GroupedDAFHitCollector_ 
 
-using namespace std;
+ using namespace std;
+
+// #include "DataFormats/SiStripDetId/interface/TIBDetId.h"
+// #include "DataFormats/SiStripDetId/interface/TIDDetId.h"
+// #include "DataFormats/SiStripDetId/interface/TOBDetId.h"
+// #include "DataFormats/SiStripDetId/interface/TECDetId.h"
+// #include "DataFormats/SiPixelDetId/interface/PXBDetId.h"
+// #include "DataFormats/SiPixelDetId/interface/PXFDetId.h"
+
+// string giulioGetLayer(const DetId& detId){
+//         unsigned int iSubDet = detId.subdetId();
+// 	stringstream out;
+
+// 	if (iSubDet == PixelSubdetector::PixelBarrel){
+// 		PXBDetId pxbId(detId);
+// 		out << pxbId;
+//         } else if (iSubDet == PixelSubdetector::PixelEndcap){
+// 		PXFDetId pxfId(detId);
+// 		out << pxfId;
+// 	} else if (iSubDet == StripSubdetector::TIB){
+//                 TIBDetId  tibId(detId);
+// 		out << tibId;
+//         } else if (iSubDet == StripSubdetector::TID){
+//                 TIDDetId tidId(detId);
+// 		out << tidId;
+//         } else if (iSubDet == StripSubdetector::TOB){
+//                 TOBDetId tobId(detId);
+// 		out << tobId;
+//         } else if(iSubDet == StripSubdetector::TEC){
+//                 TECDetId tecId(detId);
+// 		out << tecId;
+//         }
+//         return out.str();
+	
+// }
+
+
 
 vector<TrajectoryMeasurement> GroupedDAFHitCollector::recHits(const Trajectory& traj) const{
 
 	//it assumes that the measurements are sorted in the smoothing direction
-	vector<TrajectoryMeasurement> meas = traj.measurements();
+	const vector<TrajectoryMeasurement>& meas = traj.measurements();
 	const Propagator* forwardPropagator = getPropagator();
 	const Propagator* backwardPropagator = getReversePropagator();
 	if (traj.direction() == alongMomentum){
@@ -40,6 +76,7 @@ vector<TrajectoryMeasurement> GroupedDAFHitCollector::recHits(const Trajectory& 
 	//it assumes that the measurements are sorted in the smoothing direction
 	//TrajectoryStateOnSurface current = (*(mol.begin()+1)).second.front().updatedState();
 	TrajectoryStateOnSurface current = (*(mol.rbegin()+1)).second.back().updatedState();
+	//if (current.isValid()) current.rescaleError(10);
 
 	
 	vector<TrajectoryMeasurementGroup> groupedMeas;
@@ -48,33 +85,59 @@ vector<TrajectoryMeasurement> GroupedDAFHitCollector::recHits(const Trajectory& 
 	//for the moment no hit are lookerd for in these layers
 	//remind that:
 	//groupedMeasurements will return at least a measurement with an invalid hit with no detid
-	LogDebug("MultiRecHitCollector") << "Layer "  << mol.front().first  << " has " << mol.front().second.size() << " measurements"; 	 
-	if (mol.front().first) groupedMeas = theLM.groupedMeasurements(*(mol.back().first), current, *backwardPropagator, *(getEstimator()));
+	LogDebug("MultiRecHitCollector") << "Layer "  << mol.back().first  << " has " << mol.back().second.size() << " measurements";
+	//debug
+        LogTrace("MultiRecHitCollector") << "Original measurements are:";
+        vector<TrajectoryMeasurement>::const_iterator ibeg = mol.back().second.begin();
+        vector<TrajectoryMeasurement>::const_iterator iend = mol.back().second.end();
+        for (vector<TrajectoryMeasurement>::const_iterator imeas = ibeg; imeas != iend; ++imeas){
+        	if (imeas->recHit()->isValid()){
+                  LogTrace("MultiRecHitCollector") << "Valid Hit with DetId " << imeas->recHit()->geographicalId().rawId()
+                                                   << " local position " << imeas->recHit()->hit()->localPosition();
+		    //						   << " on " << giulioGetLayer(imeas->recHit()->geographicalId());
+                } else {
+                  LogTrace("MultiRecHitCollector") << "Invalid Hit with DetId " << imeas->recHit()->geographicalId().rawId(); 
+		    //" on " << giulioGetLayer(imeas->recHit()->geographicalId());
+                }
+        }
+        //debug 	 
+	if (mol.back().first) groupedMeas = theLM.groupedMeasurements(*(mol.back().first), current, *backwardPropagator, *(getEstimator()));
 	//in this case we have to sort the detGroups in the opposite way (according the forward propagator, not the backward one)
 	vector<TrajectoryMeasurementGroup> sortedgroupedMeas; 
 	for (vector<TrajectoryMeasurementGroup>::reverse_iterator iter = groupedMeas.rbegin();  iter != groupedMeas.rend(); iter++){
 		sortedgroupedMeas.push_back(*iter);
 	}
-	//TransientTrackingRecHit::ConstRecHitContainer rhits = buildMultiRecHits(groupedMeas);
 	buildMultiRecHits(sortedgroupedMeas, result);
 		
 
-	//result.insert(result.end(),rhits.begin(),rhits.end());
-
 	//other layers
 	current = mol.back().second.front().updatedState();
-	//for(vector<pair<const DetLayer*, vector<TrajectoryMeasurement> > >::iterator imol = mol.begin() + 1; imol != mol.end(); imol++) {
+	//if (current.isValid()) current.rescaleError(10);
 	for(vector<pair<const DetLayer*, vector<TrajectoryMeasurement> > >::reverse_iterator imol = mol.rbegin() + 1; imol != mol.rend(); imol++) {
 		const DetLayer* lay = (*imol).first;
-		LogDebug("MultiRecHitCollector") << "Layer "  << lay << " has " << (*imol).second.size() << " measurements"; 	 
+		LogDebug("MultiRecHitCollector") << "Layer "  << lay << " has " << (*imol).second.size() << " measurements";
+		//debug
+                LogTrace("MultiRecHitCollector") << "Original measurements are:";
+                vector<TrajectoryMeasurement>::const_iterator ibeg = (*imol).second.begin();
+                vector<TrajectoryMeasurement>::const_iterator iend = (*imol).second.end();
+                for (vector<TrajectoryMeasurement>::const_iterator imeas = ibeg; imeas != iend; ++imeas){
+                        if (imeas->recHit()->isValid()){
+                          LogTrace("MultiRecHitCollector") << "Valid Hit with DetId " << imeas->recHit()->geographicalId().rawId()
+							   << " local position " << imeas->recHit()->hit()->localPosition();
+			    //<< " on " << giulioGetLayer(imeas->recHit()->geographicalId());
+                        } else {
+                          LogTrace("MultiRecHitCollector") << "Invalid Hit with DetId " << imeas->recHit()->geographicalId().rawId();
+			  //<< " on " << giulioGetLayer(imeas->recHit()->geographicalId());
+                        }
+                }
+                //debug 
 		vector<TrajectoryMeasurementGroup> currentLayerMeas;
-		if (mol.front().first) currentLayerMeas = theLM.groupedMeasurements(*lay, current, *forwardPropagator, *(getEstimator()));
-	        //TransientTrackingRecHit::ConstRecHitContainer curhits = buildMultiRecHits(currentLayerMeas);
+		if (lay) currentLayerMeas = theLM.groupedMeasurements(*lay, current, *forwardPropagator, *(getEstimator()));
 	        buildMultiRecHits(currentLayerMeas, result);
-		//result.insert(result.end(),rhits.begin(),rhits.end()); 
-		current= (*imol).second.front().updatedState();
+		current = (*imol).second.front().updatedState();
+		//if (current.isValid()) current.rescaleError(10);
 	}
-	LogTrace("MultiRecHitCollector") << "Original Measurement size "  << meas.size() << " GroupedDAFHitCollector returned " << result.size() << " rechits";
+	LogTrace("MultiRecHitCollector") << "Original Measurement size "  << meas.size() << " GroupedDAFHitCollector returned " << result.size() << " measurements";
 	//results are sorted in the fitting direction
 	return result;	
 }
@@ -84,37 +147,34 @@ void GroupedDAFHitCollector::buildMultiRecHits(const vector<TrajectoryMeasuremen
 	unsigned int initial_size = result.size();
 	//TransientTrackingRecHit::ConstRecHitContainer rhits;
 	if (measgroup.empty()) {
-		LogTrace("MultiRecHitCollector") << "This is a layer with only an invalid hit with no detid associated" ; 
+		LogTrace("MultiRecHitCollector") << "No TrajectoryMeasurementGroups found for this layer" ; 
 		//should we do something?
 		//result.push_back(InvalidTransientRecHit::build(0,TrackingRecHit::missing));
 		return;
 	} 
 
 	//we build a MultiRecHit out of each group
-	//groups are sorted along momentum of opposite to momentum, 
+	//groups are sorted along momentum or opposite to momentum, 
 	//measurements in groups are sorted with increating chi2
 	LogTrace("MultiRecHitCollector") << "Found " << measgroup.size() << " groups for this layer";
 	//trajectory state to store the last valid TrajectoryState (if present) to be used 
 	//to add an invalid Measurement in case no valid state or no valid hits are found in any group
-	TrajectoryStateOnSurface cachedstate;
-	uint32_t cacheddetid=0;
 	for (vector<TrajectoryMeasurementGroup>::const_iterator igroup = measgroup.begin(); igroup != measgroup.end(); igroup++ ){
 		//the TrajectoryState is the first one
 		TrajectoryStateOnSurface state = igroup->measurements().front().predictedState();
 		if (!state.isValid()){
 			LogTrace("MultiRecHitCollector") << "Something wrong! no valid TSOS found in current group ";
-                        //is the following the right thing?
-                        //rhits.push_back(InvalidTransientRecHit::build(igroup->detGroup().front().det(), TrackingRecHit::missing));
-                        //result.push_back(InvalidTransientRecHit::build(igroup->detGroup().front().det(), TrackingRecHit::missing));
                         continue;		
 		}
-		//every time a valid tsoso is found 
-		//the cached state and detid are updated	
-		cachedstate = state;
-		cacheddetid = igroup->measurements().front().recHit()->geographicalId().rawId();
+		//debug
+                LogTrace("MultiRecHitCollector") << "This group has " << igroup->measurements().size() << " measurements";
+                LogTrace("MultiRecHitCollector") << "This group has the following " << igroup->detGroup().size() << " detector ids: " << endl;
+                for (DetGroup::const_iterator idet = igroup->detGroup().begin(); idet != igroup->detGroup().end(); ++idet){
+		  LogTrace("MultiRecHitCollector") << idet->det()->geographicalId().rawId();
+			  // " on " << giulioGetLayer(idet->det()->geographicalId());
+                }
+                //debug
 		vector<const TrackingRecHit*> hits;
-				//	TransientTrackingRecHit::ConstRecHitContainer hits;
-		LogTrace("MultiRecHitCollector") << "This group has " << igroup->measurements().size() << " measurements";
 		for (vector<TrajectoryMeasurement>::const_iterator imeas = igroup->measurements().begin(); imeas != igroup->measurements().end(); imeas++){
 			//collect the non missing hits to build the MultiRecHits
 			//we ese the recHits method; anyway only simple hits, not MultiHits should be present 
@@ -125,15 +185,12 @@ void GroupedDAFHitCollector::buildMultiRecHits(const vector<TrajectoryMeasuremen
 		}
 		if (hits.empty()){
 			LogTrace("MultiRecHitCollector") << "No valid hits found in current group ";
-			//is the following the right thing?
-			//result.push_back(TrajectoryMeasurement(state,InvalidTransientRecHit::build(igroup->detGroup().front().det()),0.F));
 			continue;
 		}
 		LogTrace("MultiRecHitCollector") << "The best TSOS in this group is " << state << " it lays on surface located at " << state.surface().position();
 #ifdef _debug_GroupedDAFHitCollector_	
 		LogTrace("MultiRecHitCollector") << "For the MRH on this group the following hits will be used"; 
 		for (vector<const TrackingRecHit*>::iterator iter = hits.begin(); iter != hits.end(); iter++){  
-		  //		for (TransientTrackingRecHit::ConstRecHitContainer::iterator iter = hits.begin(); iter != hits.end(); iter++){  
 			string validity = "valid";
 			if ((*iter)->getType() == TrackingRecHit::missing ) validity = "missing !should not happen!";
 			else if ((*iter)->getType() == TrackingRecHit::inactive) validity = "inactive";
@@ -144,7 +201,6 @@ void GroupedDAFHitCollector::buildMultiRecHits(const vector<TrajectoryMeasuremen
 		}
 #endif
 		
-		//result.push_back(TrajectoryMeasurement(state,TSiTrackerMultiRecHit::build(getMeasurementTracker()->geomTracker()->idToDet(hits.front()->geographicalId()), hits, theUpdator, state)));
 		result.push_back(TrajectoryMeasurement(state,theUpdator->buildMultiRecHit(hits, state)));
 	}
 
@@ -152,13 +208,11 @@ void GroupedDAFHitCollector::buildMultiRecHits(const vector<TrajectoryMeasuremen
 	//in this case we add an invalid measuremnt for this layer 
 	if (result.size() == initial_size){
 		LogTrace("MultiRecHitCollector") << "no valid measuremnt or no valid TSOS in none of the groups";
-		//should we do something?
-		result.push_back(TrajectoryMeasurement(cachedstate, 
-						       InvalidTransientRecHit::build(cacheddetid > 0 ? 
-										     getMeasurementTracker()->geomTracker()->idToDet(DetId(cacheddetid)): 
-										     0), 0.F));
+		//measgroup has been already checked for size != 0
+		if (measgroup.back().measurements().size() != 0){	
+			result.push_back(measgroup.back().measurements().back());
+		} 
 	}
-	//return rhits;
 }
 
 
