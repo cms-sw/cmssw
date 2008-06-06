@@ -953,7 +953,8 @@ void MVATrainer::findUntrainedComputers(std::vector<AtomicId> &compute,
 	}
 
 	if (doMonitoring && !output->isTrained() &&
-	    output->getInputs().get()[0]->getSource()->isTrained())
+	    trainedSources.find(output->getInputs().get()[0]->getSource())
+						!= trainedSources.end())
 		train.push_back(kOutputId);
 }
 
