@@ -143,7 +143,6 @@ RPCGeomServ::eta_partition()
   return _t;
 } 
 
-<<<<<<< RPCGeomServ.cc
 int
 RPCGeomServ::chambernr()
 {
