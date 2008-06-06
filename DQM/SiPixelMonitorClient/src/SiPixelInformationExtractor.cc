@@ -1290,9 +1290,24 @@ void SiPixelInformationExtractor::bookGlobalQualityFlag(DQMStore * bei) {
   bei->cd();
   bei->setCurrentFolder("Pixel/EventInfo");
   SummaryReport = bei->bookFloat("reportSummary");
-  SummaryReportMap = bei->book2D("reportSummaryMap","Pixel EtaPhi Summary Map",60,-3.,3.,64,-3.2,3.2);
+  //SummaryReportMap = bei->book2D("reportSummaryMap","Pixel EtaPhi Summary Map",60,-3.,3.,64,-3.2,3.2);
+  SummaryReportMap = bei->book2D("reportSummaryMap","Pixel Summary Map",28,0.,28.,48,0.,48.);
   SummaryReportMap->setAxisTitle("Eta",1);
   SummaryReportMap->setAxisTitle("Phi",2);
+  SummaryReportMap->setBinLabel(1,"Endcap",1);
+  SummaryReportMap->setBinLabel(2,"+z Disk_2",1);
+  SummaryReportMap->setBinLabel(6,"Endcap",1);
+  SummaryReportMap->setBinLabel(7,"+z Disk_1",1);
+  SummaryReportMap->setBinLabel(12,"Barrel +z",1);
+  SummaryReportMap->setBinLabel(16,"Barrel -z",1);
+  SummaryReportMap->setBinLabel(20,"Endcap",1);
+  SummaryReportMap->setBinLabel(21,"-z Disk_1",1);
+  SummaryReportMap->setBinLabel(25,"Endcap",1);
+  SummaryReportMap->setBinLabel(26,"-z Disk_2",1);
+  SummaryReportMap->setBinLabel(13,"Toward",2);
+  SummaryReportMap->setBinLabel(12,"LHC center",2);
+  SummaryReportMap->setBinLabel(37,"Away from",2);
+  SummaryReportMap->setBinLabel(36,"LHC center",2);
   bei->setCurrentFolder("Pixel/EventInfo/reportSummaryContents");
   SummaryBarrel = bei->bookFloat("SummaryBarrel");
   SummaryShellmI = bei->bookFloat("SummaryShellmI");
@@ -1347,20 +1362,33 @@ void SiPixelInformationExtractor::computeGlobalQualityFlag(DQMStore * bei,
     if(currDir.find("HalfCylinder_pI")!=string::npos) hcylpI_mods_++;
     if(currDir.find("HalfCylinder_pO")!=string::npos) hcylpO_mods_++;
       
+    //checking for FED errors only:
     vector<string> meVec = bei->getMEs();
-    bool gotcha = false;
-    for (vector<string>::const_iterator it = meVec.begin();
-	 it != meVec.end(); it++) {
+    for (vector<string>::const_iterator it = meVec.begin(); it != meVec.end(); it++) {
       string full_path = currDir + "/" + (*it);
-      MonitorElement * me = bei->get(full_path);
-    
-      if (!me) continue;
-      std::vector<QReport *> my_map = me->getQReports();
-      if (my_map.size() > 0) {
-        string image_name;
-        selectImage(image_name,my_map);
-        if(image_name!="images/LI_green.gif") {
-          if(!gotcha){
+      if(full_path.find("NErrors")!=string::npos){
+        MonitorElement * me = bei->get(full_path);
+        if (!me) continue;
+	
+	//if(me->getEntries()>0) cout<<"I am here: "<<currDir<<" and have the NErrors-ME. It has this many entries: "<<me->getEntries()<<endl;
+	
+        if(me->getEntries()>0){
+	
+    //if you want to check for QTest results instead:
+    //vector<string> meVec = bei->getMEs();
+    //bool gotcha = false;
+    //for (vector<string>::const_iterator it = meVec.begin();
+    //	 it != meVec.end(); it++) {
+    //  string full_path = currDir + "/" + (*it);
+    // MonitorElement * me = bei->get(full_path);
+    // if (!me) continue;
+    // std::vector<QReport *> my_map = me->getQReports();
+    // if (my_map.size() > 0) {
+       // string image_name;
+       // selectImage(image_name,my_map);
+       // if(image_name!="images/LI_green.gif") {
+       
+       //   if(!gotcha){
             if(currDir.find("Pixel")!=string::npos) errorMods_++;
             if(currDir.find("Barrel")!=string::npos) err_bpix_mods_++;
             if(currDir.find("Shell_mI")!=string::npos) err_shellmI_mods_++;
@@ -1372,8 +1400,8 @@ void SiPixelInformationExtractor::computeGlobalQualityFlag(DQMStore * bei,
             if(currDir.find("HalfCylinder_mO")!=string::npos) err_hcylmO_mods_++;
             if(currDir.find("HalfCylinder_pI")!=string::npos) err_hcylpI_mods_++;
             if(currDir.find("HalfCylinder_pO")!=string::npos) err_hcylpO_mods_++;
-	  }
-	  gotcha = true;
+	//  }
+	//  gotcha = true;
         }	
       }
     }
@@ -1428,9 +1456,12 @@ void SiPixelInformationExtractor::fillGlobalQualityPlot(DQMStore * bei, bool ini
   //calculate eta and phi of the modules and fill a 2D plot:
   
   if(init){
-    allmodsEtaPhi = new TH2F("allmodsEtaPhi","allmodsEtaPhi",60,-3.,3.,64,-3.2,3.2);
-    errmodsEtaPhi = new TH2F("errmodsEtaPhi","errmodsEtaPhi",60,-3.,3.,64,-3.2,3.2);
-    goodmodsEtaPhi = new TH2F("goodmodsEtaPhi","goodmodsEtaPhi",60,-3.,3.,64,-3.2,3.2);
+    //allmodsEtaPhi = new TH2F("allmodsEtaPhi","allmodsEtaPhi",60,-3.,3.,64,-3.2,3.2);
+    //errmodsEtaPhi = new TH2F("errmodsEtaPhi","errmodsEtaPhi",60,-3.,3.,64,-3.2,3.2);
+    //goodmodsEtaPhi = new TH2F("goodmodsEtaPhi","goodmodsEtaPhi",60,-3.,3.,64,-3.2,3.2);
+    allmodsMap = new TH2F("allmodsMap","allmodsMap",28,0.,28.,48,0.,48.);
+    errmodsMap = new TH2F("errmodsMap","errmodsMap",28,0.,28.,48,0.,48.);
+    goodmodsMap = new TH2F("goodmodsMap","goodmodsMap",28,0.,28.,48,0.,48.);
     count=0; errcount=0;
     init=false;
   }
@@ -1443,13 +1474,14 @@ void SiPixelInformationExtractor::fillGlobalQualityPlot(DQMStore * bei, bool ini
     vector<string> meVec = bei->getMEs();
     float detEta=-5.; float detPhi=-5.;
     bool first=true; bool once=true;
+    int xbin = -1; int ybin =-1; int xoffA = 0; int xoffB = 0; int yoffA = 0; int yoffB = 0;
     for (vector<string>::const_iterator it = meVec.begin();
 	 it != meVec.end(); it++) {
       if(!once) continue;
       string full_path = currDir + "/" + (*it);
       MonitorElement * me = bei->get(full_path);
       if (!me) continue;
-      int id=0;
+/*      int id=0;
       if(first){ id = getDetId(me); first=false; }
       DetId detid = DetId(id);
       if(detid.det()!=1) continue;
@@ -1470,11 +1502,77 @@ void SiPixelInformationExtractor::fillGlobalQualityPlot(DQMStore * bei, bool ini
 	  //cout<<"Module: "<<currDir<<" , Eta= "<<detEta<<" , Phi= "<<detPhi<<endl;
 	  once=false;
 	}
+      }*/
+      if(full_path.find("Endcap")!=string::npos){ // Endcaps
+        if(full_path.find("_m")!=string::npos) xoffA = 19; // the -z endcaps are on the right hand side in x
+	if(full_path.find("_m")!=string::npos && full_path.find("Disk_2")!=string::npos) xoffB = 5; // on -z Disk_2 is right of Disk_1
+	if(full_path.find("_p")!=string::npos && full_path.find("Disk_1")!=string::npos) xoffB = 5; // on +z Disk_2 is left of Disk_1
+	if(full_path.find("_p")!=string::npos){
+	  if(full_path.find("Module_4")!=string::npos) xbin = 1+xoffA+xoffB;
+	  else if(full_path.find("Module_3")!=string::npos) xbin = 2+xoffA+xoffB;
+	  else if(full_path.find("Module_2")!=string::npos) xbin = 3+xoffA+xoffB;
+	  else if(full_path.find("Module_1")!=string::npos) xbin = 4+xoffA+xoffB;
+	}else if(full_path.find("_m")!=string::npos){
+	  if(full_path.find("Module_1")!=string::npos) xbin = 1+xoffA+xoffB;
+	  else if(full_path.find("Module_2")!=string::npos) xbin = 2+xoffA+xoffB;
+	  else if(full_path.find("Module_3")!=string::npos) xbin = 3+xoffA+xoffB;
+	  else if(full_path.find("Module_4")!=string::npos) xbin = 4+xoffA+xoffB;
+	}
+	if(full_path.find("Panel_2")!=string::npos) yoffA = 1; // Panel_2's are shifted by 1 bin in y w.r.t. their Panel_1 partner
+	if(full_path.find("HalfCylinder_mO")!=string::npos || full_path.find("HalfCylinder_pO")!=string::npos) yoffB = 24; // outer HC's have offset off 24 bins in y
+	if(full_path.find("Blade_01")!=string::npos) ybin = 1+yoffA+yoffB;
+	else if(full_path.find("Blade_02")!=string::npos) ybin = 3+yoffA+yoffB;
+	else if(full_path.find("Blade_03")!=string::npos) ybin = 5+yoffA+yoffB;
+	else if(full_path.find("Blade_04")!=string::npos) ybin = 7+yoffA+yoffB;
+	else if(full_path.find("Blade_05")!=string::npos) ybin = 9+yoffA+yoffB;
+	else if(full_path.find("Blade_06")!=string::npos) ybin = 11+yoffA+yoffB;
+	else if(full_path.find("Blade_07")!=string::npos) ybin = 13+yoffA+yoffB;
+	else if(full_path.find("Blade_08")!=string::npos) ybin = 15+yoffA+yoffB;
+	else if(full_path.find("Blade_09")!=string::npos) ybin = 17+yoffA+yoffB;
+	else if(full_path.find("Blade_10")!=string::npos) ybin = 19+yoffA+yoffB;
+	else if(full_path.find("Blade_11")!=string::npos) ybin = 21+yoffA+yoffB;
+	else if(full_path.find("Blade_12")!=string::npos) ybin = 23+yoffA+yoffB;
+      }else if(full_path.find("Barrel")!=string::npos){ // Barrel
+        if(full_path.find("_m")!=string::npos) xoffA = 1; 
+	if(full_path.find("Module_4")!=string::npos) xbin = 11+xoffA*7;
+	else if(full_path.find("Module_3")!=string::npos) xbin = 12+xoffA*5;
+	else if(full_path.find("Module_2")!=string::npos) xbin = 13+xoffA*3;
+	else if(full_path.find("Module_1")!=string::npos) xbin = 14+xoffA*1;
+	if(full_path.find("Layer_3")!=string::npos) yoffA = 2;
+	if(full_path.find("Layer_2")!=string::npos) yoffA = 8;
+	if(full_path.find("Layer_1")!=string::npos) yoffA = 14;
+	if(full_path.find("_mO")!=string::npos || full_path.find("_pO")!=string::npos) yoffB = 22;
+	if(full_path.find("Ladder_01")!=string::npos) ybin = 1+yoffA+yoffB;
+	else if(full_path.find("Ladder_02")!=string::npos) ybin = 2+yoffA+yoffB;
+	else if(full_path.find("Ladder_03")!=string::npos) ybin = 3+yoffA+yoffB;
+	else if(full_path.find("Ladder_04")!=string::npos) ybin = 4+yoffA+yoffB;
+	else if(full_path.find("Ladder_05")!=string::npos) ybin = 5+yoffA+yoffB;
+	else if(full_path.find("Ladder_06")!=string::npos) ybin = 6+yoffA+yoffB;
+	else if(full_path.find("Ladder_07")!=string::npos) ybin = 7+yoffA+yoffB;
+	else if(full_path.find("Ladder_08")!=string::npos) ybin = 8+yoffA+yoffB;
+	else if(full_path.find("Ladder_09")!=string::npos) ybin = 9+yoffA+yoffB;
+	else if(full_path.find("Ladder_10")!=string::npos) ybin = 10+yoffA+yoffB;
+	else if(full_path.find("Ladder_11")!=string::npos) ybin = 11+yoffA+yoffB;
+	else if(full_path.find("Ladder_12")!=string::npos) ybin = 12+yoffA+yoffB;
+	else if(full_path.find("Ladder_13")!=string::npos) ybin = 13+yoffA+yoffB;
+	else if(full_path.find("Ladder_14")!=string::npos) ybin = 14+yoffA+yoffB;
+	else if(full_path.find("Ladder_15")!=string::npos) ybin = 15+yoffA+yoffB;
+	else if(full_path.find("Ladder_16")!=string::npos) ybin = 16+yoffA+yoffB;
+	else if(full_path.find("Ladder_17")!=string::npos) ybin = 17+yoffA+yoffB;
+	else if(full_path.find("Ladder_18")!=string::npos) ybin = 18+yoffA+yoffB;
+	else if(full_path.find("Ladder_19")!=string::npos) ybin = 19+yoffA+yoffB;
+	else if(full_path.find("Ladder_20")!=string::npos) ybin = 20+yoffA+yoffB;
+	else if(full_path.find("Ladder_21")!=string::npos) ybin = 21+yoffA+yoffB;
+	else if(full_path.find("Ladder_22")!=string::npos) ybin = 22+yoffA+yoffB;
       }
-    }  
+      once=false;
+		
+    } 
+    //cout<<"module: "<<bei->pwd()<<" , xbin="<<xbin<<" , ybin="<<ybin<<endl; 
     //got module ID and eta and phi now! time to count:
     count++;
-    allmodsEtaPhi->Fill(detEta,detPhi);
+    //allmodsEtaPhi->Fill(detEta,detPhi);
+    allmodsMap->Fill(xbin-1,ybin-1);
     bool anyerr=false;
     for (vector<string>::const_iterator it = meVec.begin();
 	 it != meVec.end(); it++){
@@ -1482,11 +1580,15 @@ void SiPixelInformationExtractor::fillGlobalQualityPlot(DQMStore * bei, bool ini
       string full_path = currDir + "/" + (*it);
       MonitorElement * me = bei->get(full_path);
       if (!me) continue;
-      if(me->hasError()||me->hasWarning()||me->hasOtherReport()) anyerr=true;
+      //use only presence of any FED error as error flag here:
+      if(full_path.find("NErrors")!=string::npos) if(me->getEntries()>0) anyerr=true;
+      //use QTest results for error flag here:
+      //if(me->hasError()||me->hasWarning()||me->hasOtherReport()) anyerr=true;
     }
     if(anyerr){
       errcount++;
-      errmodsEtaPhi->Fill(detEta,detPhi);
+      //errmodsEtaPhi->Fill(detEta,detPhi);
+      errmodsMap->Fill(xbin-1,ybin-1);
     }
   }
 
@@ -1502,22 +1604,30 @@ void SiPixelInformationExtractor::fillGlobalQualityPlot(DQMStore * bei, bool ini
   SummaryReportMap = bei->get("Pixel/EventInfo/reportSummaryMap");
   if(SummaryReportMap){ 
     float contents=0.;
-    for(int i=1; i!=61; i++)for(int j=1; j!=65; j++){
-      contents = (allmodsEtaPhi->GetBinContent(i,j))-(errmodsEtaPhi->GetBinContent(i,j));
-      //cout<<"all: "<<allmodsEtaPhi->GetBinContent(i,j)<<" , error: "<<errmodsEtaPhi->GetBinContent(i,j)<<" , contents: "<<contents<<endl;
-      goodmodsEtaPhi->SetBinContent(i,j,contents);
-      if(allmodsEtaPhi->GetBinContent(i,j)>0){
-        //contents = allmodsEtaPhi->GetBinContent(i,j);
-	contents = (goodmodsEtaPhi->GetBinContent(i,j))/(allmodsEtaPhi->GetBinContent(i,j));
+    //for(int i=1; i!=61; i++)for(int j=1; j!=65; j++){
+    for(int i=1; i!=29; i++)for(int j=1; j!=49; j++){
+      //contents = (allmodsEtaPhi->GetBinContent(i,j))-(errmodsEtaPhi->GetBinContent(i,j));
+      contents = (allmodsMap->GetBinContent(i,j))-(errmodsMap->GetBinContent(i,j));
+      //cout<<"all: "<<allmodsMap->GetBinContent(i,j)<<" , error: "<<errmodsMap->GetBinContent(i,j)<<" , contents: "<<contents<<endl;
+      //goodmodsEtaPhi->SetBinContent(i,j,contents);
+      goodmodsMap->SetBinContent(i,j,contents);
+      //if(allmodsEtaPhi->GetBinContent(i,j)>0){
+      if(allmodsMap->GetBinContent(i,j)>0){
+	//contents = (goodmodsEtaPhi->GetBinContent(i,j))/(allmodsEtaPhi->GetBinContent(i,j));
+	contents = (goodmodsMap->GetBinContent(i,j))/(allmodsMap->GetBinContent(i,j));
       }else{
         contents = -1.;
       }
+      //cout<<"MAP: "<<i<<","<<j<<","<<contents<<endl;
       SummaryReportMap->setBinContent(i,j,contents);
     }
   }
-  if(allmodsEtaPhi) allmodsEtaPhi->Clear();
-  if(goodmodsEtaPhi) goodmodsEtaPhi->Clear();
-  if(errmodsEtaPhi) errmodsEtaPhi->Clear();
+  //if(allmodsEtaPhi) allmodsEtaPhi->Clear();
+  //if(goodmodsEtaPhi) goodmodsEtaPhi->Clear();
+  //if(errmodsEtaPhi) errmodsEtaPhi->Clear();
+  if(allmodsMap) allmodsMap->Clear();
+  if(goodmodsMap) goodmodsMap->Clear();
+  if(errmodsMap) errmodsMap->Clear();
   //cout<<"counters: "<<count<<" , "<<errcount<<endl;
 }
 
