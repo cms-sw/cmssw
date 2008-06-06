@@ -135,7 +135,7 @@ if ( $core_mode ){
     }
     close pIN;
 } else {
-    foreach my $buildfile(`find $dir/src/ -type f -maxdepth 3 -name BuildFile`){
+    foreach my $buildfile(`find $dir/src/ -maxdepth 3 -type f -name BuildFile`){
 	push @list, $1 if ( $buildfile =~ /([^\/]+\/[^\/]+)\/BuildFile$/);
     }
     if ( @list == 0 ){
