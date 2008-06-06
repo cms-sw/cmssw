@@ -78,7 +78,7 @@ std::vector<CSCCLCTDigi> CSCTMBHeader::CLCTDigis(uint32_t idlayer) {
     int strip = header2006.clct0_key;
     int cfeb = (header2006.clct0_cfeb_low)|(header2006.clct0_cfeb_high<<1);
     int bend = header2006.clct0_bend;
-    offlineStripNumbering(strip, cfeb, shape, bend);
+    //offlineStripNumbering(strip, cfeb, shape, bend);
 
     CSCCLCTDigi digi0(header2006.clct0_valid, header2006.clct0_quality, shape,
 		      type, bend, strip, cfeb, header2006.clct0_bxn, 1);
@@ -88,7 +88,7 @@ std::vector<CSCCLCTDigi> CSCTMBHeader::CLCTDigis(uint32_t idlayer) {
     /// for the first clct:
     if ( header2006.firmRevCode < 3769 ) { 
       shape = header2006.clct1_shape;
-      type  = header2006.clct1_strip_type;;
+      type  = header2006.clct1_strip_type;
     } else {
       shape = (header2006.clct1_strip_type<<3)+header2006.clct1_shape;
       type = 1;
@@ -97,8 +97,7 @@ std::vector<CSCCLCTDigi> CSCTMBHeader::CLCTDigis(uint32_t idlayer) {
     strip = header2006.clct1_key;
     cfeb = (header2006.clct1_cfeb_low)|(header2006.clct1_cfeb_high<<1);
     bend = header2006.clct1_bend;
-    offlineStripNumbering(strip, cfeb, shape, bend);
-
+    //offlineStripNumbering(strip, cfeb, shape, bend);
     CSCCLCTDigi digi1(header2006.clct1_valid, header2006.clct1_quality, shape,
 		      type, bend, strip, cfeb, header2006.clct1_bxn, 2);
     digi1.setFullBX(header2006.bxnPreTrigger);
@@ -110,8 +109,7 @@ std::vector<CSCCLCTDigi> CSCTMBHeader::CLCTDigis(uint32_t idlayer) {
     int cfeb    = (header2007.clct0_cfeb_low)|(header2007.clct0_cfeb_high<<1);
     int pattern = header2007.clct0_shape;
     int bend    = header2007.clct0_bend;
-    offlineStripNumbering(strip, cfeb, pattern, bend);
-
+    //offlineStripNumbering(strip, cfeb, pattern, bend);
     CSCCLCTDigi digi0(header2007.clct0_valid, header2007.clct0_quality,
 		      pattern, 1, bend, strip, cfeb, header2007.clct0_bxn, 1);
     digi0.setFullBX(header2007.bxnPreTrigger);
@@ -120,13 +118,12 @@ std::vector<CSCCLCTDigi> CSCTMBHeader::CLCTDigis(uint32_t idlayer) {
     cfeb = (header2007.clct1_cfeb_low)|(header2007.clct1_cfeb_high<<1);
     pattern = header2007.clct1_shape;
     bend    = header2007.clct1_bend;
-    offlineStripNumbering(strip, cfeb, pattern, bend);
-
+    //offlineStripNumbering(strip, cfeb, pattern, bend);
     CSCCLCTDigi digi1(header2007.clct1_valid, header2007.clct1_quality,
 		      pattern, 1, bend, strip, cfeb, header2007.clct1_bxn, 2);
     digi1.setFullBX(header2007.bxnPreTrigger);
 
-    if (digi0.isValid() && digi1.isValid()) swapCLCTs(digi0, digi1);
+    //if (digi0.isValid() && digi1.isValid()) swapCLCTs(digi0, digi1);
 
     result.push_back(digi0);
     result.push_back(digi1);
@@ -289,7 +286,7 @@ std::vector<CSCCorrelatedLCTDigi> CSCTMBHeader::CorrelatedLCTDigis(uint32_t idla
   case 2006: {
     /// for the zeroth MPC word:
     int strip = header2006.MPC_Muon0_halfstrip_clct_pattern;//this goes from 0-159
-    offlineHalfStripNumbering(strip);
+    //offlineHalfStripNumbering(strip);
     CSCCorrelatedLCTDigi digi(1, header2006.MPC_Muon0_vpf_, header2006.MPC_Muon0_quality_, 
 			      header2006.MPC_Muon0_wire_, strip, header2006.MPC_Muon0_clct_pattern_,
 			      header2006.MPC_Muon0_bend_, header2006.MPC_Muon0_bx_, 0, 
@@ -298,7 +295,7 @@ std::vector<CSCCorrelatedLCTDigi> CSCTMBHeader::CorrelatedLCTDigis(uint32_t idla
     result.push_back(digi);  
     /// for the first MPC word:
     strip = header2006.MPC_Muon1_halfstrip_clct_pattern;//this goes from 0-159
-    offlineHalfStripNumbering(strip);
+    //offlineHalfStripNumbering(strip);
     digi = CSCCorrelatedLCTDigi(2, header2006.MPC_Muon1_vpf_, header2006.MPC_Muon1_quality_, 
 				header2006.MPC_Muon1_wire_, strip, header2006.MPC_Muon1_clct_pattern_,
 				header2006.MPC_Muon1_bend_, header2006.MPC_Muon1_bx_, 0, 
@@ -310,7 +307,7 @@ std::vector<CSCCorrelatedLCTDigi> CSCTMBHeader::CorrelatedLCTDigis(uint32_t idla
   case 2007: {
     /// for the zeroth MPC word:
     int strip = header2007.MPC_Muon0_halfstrip_clct_pattern;//this goes from 0-159
-    offlineHalfStripNumbering(strip);
+    //offlineHalfStripNumbering(strip);
     CSCCorrelatedLCTDigi digi(1, header2007.MPC_Muon0_vpf_, header2007.MPC_Muon0_quality_,
                               header2007.MPC_Muon0_wire_, strip, header2007.MPC_Muon0_clct_pattern_, 
 			      header2007.MPC_Muon0_bend_, header2007.MPC_Muon0_bx_, 0, 
@@ -319,7 +316,7 @@ std::vector<CSCCorrelatedLCTDigi> CSCTMBHeader::CorrelatedLCTDigis(uint32_t idla
     result.push_back(digi);
     /// for the first MPC word:
     strip = header2007.MPC_Muon1_halfstrip_clct_pattern;//this goes from 0-159
-    offlineHalfStripNumbering(strip);
+    //offlineHalfStripNumbering(strip);
     digi = CSCCorrelatedLCTDigi(2, header2007.MPC_Muon1_vpf_, header2007.MPC_Muon1_quality_,
                                 header2007.MPC_Muon1_wire_, strip, header2007.MPC_Muon1_clct_pattern_, 
 				header2007.MPC_Muon1_bend_, header2007.MPC_Muon1_bx_, 0, 
@@ -409,24 +406,56 @@ void CSCTMBHeader::addCorrelatedLCT1(const CSCCorrelatedLCTDigi & digi)
     addCorrelatedLCT1(digi, header2007);
 }
 
+// These four methods are to cheat the compiler.
+void CSCTMBHeader::setCLCT0PatternType(CSCTMBHeader2006& header,
+				       const int pattern, const int type) {
+  // In 2006 header, pattern has 3 bits, type has 1 bit.
+  header.clct0_shape = pattern;
+  header.clct0_strip_type = type;
+}
+
+void CSCTMBHeader::setCLCT1PatternType(CSCTMBHeader2006& header,
+				       const int pattern, const int type) {
+  header.clct1_shape = pattern;
+  header.clct1_strip_type = type;
+}
+
+void CSCTMBHeader::setCLCT0PatternType(CSCTMBHeader2007& header,
+				       const int pattern, const int type) {
+  // In 2007 header, pattern has 4 bits, and there is no type.
+  header.clct0_shape = pattern;
+}
+
+void CSCTMBHeader::setCLCT1PatternType(CSCTMBHeader2007& header,
+				       const int pattern, const int type) {
+  header.clct1_shape = pattern;
+}
 
 void CSCTMBHeader::selfTest()
 {
+  static bool debug = false;
+  const int testversion = 2007; // version to be tested; default is 2006.
+
   // tests packing and unpacking
-  for(int station = 1; station <= 4; ++station)
-  {
-    for(int iendcap = 0; iendcap <= 1; ++iendcap) 
-    {
+  for(int station = 1; station <= 4; ++station) {
+    for(int iendcap = 1; iendcap <= 2; ++iendcap) {
       CSCDetId detId(iendcap, station, 1, 1, 0);
+
       // the next-to-last is the BX, which only gets
       // saved in two bits... I guess the bxnPreTrigger is involved?
-      CSCCLCTDigi clct0(1, 1, 2, 0, 0, 30, 3, 0, 1);
-      CSCCLCTDigi clct1(1, 1, 2, 1, 1, 31, 1, 2, 1);
+      //CSCCLCTDigi clct0(1, 1, 4, 0, 0, 30, 3, 0, 1); // valid for 2006
+      // In 2007 firmware, there are no distrips, so the 4th argument (strip
+      // type) should always be set to 1 (halfstrips).
+      CSCCLCTDigi clct0(1, 1, 4, 1, 0, 30, 3, 0, 1); // valid for 2007
+      CSCCLCTDigi clct1(1, 1, 2, 1, 1, 31, 1, 2, 2);
 
-      CSCCorrelatedLCTDigi lct0(1, 1, 2, 10, 8, 5, 1, 6, 0, 0, 0, 0);
-      CSCCorrelatedLCTDigi lct1(1, 1, 2, 20, 15, 5, 1, 6, 0, 0, 0, 0);
+      // BX of LCT (8th argument) is 1-bit word (the least-significant bit
+      // of ALCT's bx).
+      CSCCorrelatedLCTDigi lct0(1, 1, 2, 10, 98, 5, 0, 1, 0, 0, 0, 0);
+      CSCCorrelatedLCTDigi lct1(2, 1, 2, 20, 15, 9, 1, 0, 0, 0, 0, 0);
 
       CSCTMBHeader tmbHeader;
+      tmbHeader.firmwareVersion = testversion;
       tmbHeader.theChamberId = detId;
       tmbHeader.addCLCT0(clct0);
       tmbHeader.addCLCT1(clct1);
@@ -436,10 +465,18 @@ void CSCTMBHeader::selfTest()
       std::vector<CSCCLCTDigi> clcts = tmbHeader.CLCTDigis(detId.rawId());
       assert(cscPackerCompare(clcts[0],clct0));
       assert(cscPackerCompare(clcts[1],clct1));
+      if (debug) {
+	std::cout << "Match for: " << clct0 << "\n";
+	std::cout << "           " << clct1 << "\n \n";
+      }
 
       std::vector<CSCCorrelatedLCTDigi> lcts = tmbHeader.CorrelatedLCTDigis(detId.rawId());
       assert(cscPackerCompare(lcts[0], lct0));
       assert(cscPackerCompare(lcts[1], lct1));
+      if (debug) {
+	std::cout << "Match for: " << lct0 << "\n";
+	std::cout << "           " << lct1 << "\n";
+      }
     }
   }
 }
