@@ -1403,7 +1403,7 @@ DQMStore::readDirectory(TFile *file,
       dirpart.clear();
     else if (dirpart[s_monitorDirName.size()] == '/')
       dirpart.erase(0, s_monitorDirName.size()+1);
-
+      
   // See if we are going to skip this directory.
   bool skip = (! onlypath.empty() && ! isSubdirectory(onlypath, dirpart));
 
@@ -1412,11 +1412,6 @@ DQMStore::readDirectory(TFile *file,
   size_t slash = dirpart.find('/');
   if (prepend == s_collateDirName || prepend == s_referenceDirName)
   {
-    // Skip EventInfo subdirectory.
-    if (slash != std::string::npos
-	&& slash + 10 == dirpart.size()
-	&& dirpart.compare(slash+1, 9, "EventInfo") == 0)
-      return 0;
 
     // If we are reading reference, skip previous reference.
     if (slash != std::string::npos
@@ -1433,11 +1428,22 @@ DQMStore::readDirectory(TFile *file,
     if (slash != std::string::npos && pos !=std::string::npos) 
 	dirpart.erase(pos,12);
     
+    slash=dirpart.find('/');    
+    // Skip reading of EventInfo subdirectory.
+    if (slash != std::string::npos
+        && slash + 10 == dirpart.size()
+	&& dirpart.compare( slash+1 , 9 , "EventInfo") == 0) {
+      if (verbose_)
+            std::cout << "DQMStore::readDirectory: skipping" << dirpart << "'\n";
+      return 0;
+    }
+
     // Add prefix.
     if (dirpart.empty())
       dirpart = prepend;
     else
       dirpart = prepend + '/' + dirpart;
+
   }
   else if (! prepend.empty())
   {
