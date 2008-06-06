@@ -7,20 +7,22 @@
  * 
  * \author Luca Lista, INFN
  *         Reorganized by Petar Maksimovic, JHU
- * \version $Revision: 1.21 $
+ *         Reorganized again by Giovanni Petrucciani
+ * \version $Revision: 1.22 $
  *
- * $Id: TrackSelector.h,v 1.21 2008/06/05 17:45:47 petar Exp $
+ * $Id: TrackSelector.h,v 1.22 2008/06/05 20:55:08 petar Exp $
  *
  */
 #include "DataFormats/TrackReco/interface/Track.h"
 #include "DataFormats/TrackReco/interface/TrackFwd.h"
 #include "DataFormats/TrackReco/interface/TrackExtra.h"
 #include "DataFormats/TrackingRecHit/interface/TrackingRecHit.h"
+#include "DataFormats/TrackerRecHit2D/interface/SiPixelRecHit.h"
+#include "DataFormats/TrackerRecHit2D/interface/SiStripRecHit2D.h"
 #include "DataFormats/SiStripCluster/interface/SiStripCluster.h"
 #include "DataFormats/SiPixelCluster/interface/SiPixelCluster.h"
 #include "DataFormats/Common/interface/DetSetVectorNew.h"
 #include "PhysicsTools/UtilAlgos/interface/ObjectSelector.h"
-#include "DataFormats/TrackerRecHit2D/interface/SiStripRecHit2D.h"
 
 
 #include "DataFormats/SiStripCluster/interface/SiStripClusterCollection.h"
@@ -57,10 +59,6 @@ namespace helper {
     //------------------------------------------------------------------
     inline size_t size() const { return selTracks_->size(); }
     
-    //------------------------------------------------------------------
-    //!  Process a single track.  THIS IS WHERE ALL THE ACTION HAPPENS!
-    //------------------------------------------------------------------
-    void processTrack( const reco::Track & trk );
 
     //------------------------------------------------------------------
     //! \brief Method to clone tracks, track extras and their hits and clusters.
@@ -68,38 +66,34 @@ namespace helper {
     //! to dereference into a Track.
     //------------------------------------------------------------------
     template<typename I>
-    void cloneAndStore( const I & begin, const I & end, edm::Event & evt ) {
-      using namespace reco;
-      
-      rTracks_       = evt.template getRefBeforePut<TrackCollection>();      
-      rTrackExtras_  = evt.template getRefBeforePut<TrackExtraCollection>();
-      rHits_         = evt.template getRefBeforePut<TrackingRecHitCollection>();
-      //--- New: save clusters too
-      rStripClusters_ 
-	= evt.template getRefBeforePut< edmNew::DetSetVector<SiStripCluster> >();
-      
-      rPixelClusters_ 
-	= evt.template getRefBeforePut< edmNew::DetSetVector<SiPixelCluster> >();
-      
-      //--- Indices into collections handled with RefProd
-      idx_ = 0;         //!<  index to track extra coll
-      hidx_ = 0;        //!<  index to tracking rec hits
-      scidx_ = 0;       //!<  index to strip cluster coll
-      pcidx_ = 0;       //!<  index to pixel cluster coll
-      
-      //--- Loop over tracks
-      for( I i = begin; i != end; ++ i ) {
-	//--- Whatever type the iterator i is, deref to reco::Track &
-	const reco::Track & trk = * * i;
-	//--- Clone this track & fix refs.  (This is where all the work is done.)
-	processTrack( trk );
-      }
-    }
+    void cloneAndStore( const I & begin, const I & end, edm::Event & evt ) ;
     
   private:
-    //--- A little helper method for strip cloning
-    void cloneStripHit( TrackingRecHit * newHit,  
-			const SiStripRecHit2D * sHit1 );   // same thing, after the cast
+    //--- A struct for clusters associated to hits
+    template<typename RecHitType, typename ClusterRefType = typename RecHitType::ClusterRef>
+    class ClusterHitRecord {
+        public:
+            /// Create a record for a hit with a given index in the TrackingRecHitCollection
+            ClusterHitRecord(const RecHitType &hit, size_t idx) : 
+                detid_(hit.geographicalId().rawId()), index_(idx), ref_(hit.cluster()) {}
+            /// returns the detid
+            uint32_t detid() const { return detid_; }
+            /// this method is to be able to compare and see if two refs are the same
+            const ClusterRefType & clusterRef() const { return ref_; }
+            /// this one is to sort by detid and then by index of the rechit
+            bool operator<(const ClusterHitRecord<RecHitType,ClusterRefType> &other) const { 
+                return (detid_ != other.detid_) ? detid_ < other.detid_ : ref_  < other.ref_;
+            }
+            /// correct the corresponding hit in the TrackingRecHitCollection with the new cluster ref
+            /// will not modify the ref stored in this object
+            void rekey(TrackingRecHitCollection &hits, const ClusterRefType &newRef) const ;
+        private:
+            uint32_t detid_;
+            size_t   index_;
+            ClusterRefType ref_;
+    };
+    typedef ClusterHitRecord<SiPixelRecHit>   PixelClusterHitRecord;
+    typedef ClusterHitRecord<SiStripRecHit2D> StripClusterHitRecord;
 
     //--- Collections:
     std::auto_ptr<reco::TrackCollection>                   selTracks_;
@@ -107,7 +101,9 @@ namespace helper {
     std::auto_ptr<TrackingRecHitCollection>                selHits_;
     std::auto_ptr< edmNew::DetSetVector<SiStripCluster> >  selStripClusters_;
     std::auto_ptr< edmNew::DetSetVector<SiPixelCluster> >  selPixelClusters_;
-
+    //--- Information about the cloned clusters
+    std::vector<StripClusterHitRecord>                     stripClusterRecords_;
+    std::vector<PixelClusterHitRecord>                     pixelClusterRecords_;
     //--- RefProd<>'s
     reco::TrackRefProd           rTracks_ ;
     reco::TrackExtraRefProd      rTrackExtras_ ;
@@ -118,14 +114,70 @@ namespace helper {
     //--- Indices into collections handled with RefProd
     size_t idx_   ;      //!<  index to track extra coll
     size_t hidx_  ;      //!<  index to tracking rec hits
-    size_t scidx_ ;      //!<  index to strip cluster coll
-    size_t pcidx_ ;      //!<  index to pixel cluster coll
 
     //--- Switches 
     bool   cloneClusters_ ;  //!< Clone clusters, or not?  Default: true.
+    
+    //--- Methods
+    //------------------------------------------------------------------
+    //!  Process a single track.  
+    //------------------------------------------------------------------
+    void processTrack( const reco::Track & trk );
+
+    //------------------------------------------------------------------
+    //!  Processes all the clusters of the tracks 
+    //!  (after the tracks have been dealt with)
+    //------------------------------------------------------------------
+    void processAllClusters() ;
+
+    //------------------------------------------------------------------
+    //!  Processes all the clusters of a specific type
+    //!  (after the tracks have been dealt with)
+    //------------------------------------------------------------------
+    template<typename HitType, typename ClusterType>
+    void processClusters( std::vector<ClusterHitRecord<HitType> > & clusterRecords,
+              edmNew::DetSetVector<ClusterType>                   & dsv,
+              edm::RefProd< edmNew::DetSetVector<ClusterType> >   & refprod ) ;
+
+
   };
   // (end of struct TrackCollectionStoreManager)
 
+  
+  template<typename I>
+  void 
+  TrackCollectionStoreManager::cloneAndStore( const I & begin, const I & end, edm::Event & evt ) 
+  {
+      using namespace reco;
+
+      rTracks_       = evt.template getRefBeforePut<TrackCollection>();      
+      rTrackExtras_  = evt.template getRefBeforePut<TrackExtraCollection>();
+      rHits_         = evt.template getRefBeforePut<TrackingRecHitCollection>();
+      //--- New: save clusters too
+      rStripClusters_ 
+          = evt.template getRefBeforePut< edmNew::DetSetVector<SiStripCluster> >();
+
+      rPixelClusters_ 
+          = evt.template getRefBeforePut< edmNew::DetSetVector<SiPixelCluster> >();
+
+      //--- Indices into collections handled with RefProd
+      idx_ = 0;         //!<  index to track extra coll
+      hidx_ = 0;        //!<  index to tracking rec hits
+
+      //--- Records about the clusters we want to clone
+      stripClusterRecords_.clear();      
+      pixelClusterRecords_.clear();      
+
+      //--- Loop over tracks
+      for( I i = begin; i != end; ++ i ) {
+          //--- Whatever type the iterator i is, deref to reco::Track &
+          const reco::Track & trk = * * i;
+          //--- Clone this track, and store references aside
+          processTrack( trk );
+      }
+      //--- Clone the clusters and fixup refs
+      processAllClusters();
+  }
 
 
   //----------------------------------------------------------------------
