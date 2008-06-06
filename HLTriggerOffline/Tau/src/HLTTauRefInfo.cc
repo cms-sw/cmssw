@@ -105,24 +105,26 @@ HLTTauRefInfo::doPFTaus(edm::Event& iEvent,const edm::EventSetup& iES)
       auto_ptr<LorentzVectorCollection> product_PFTaus(new LorentzVectorCollection);
       //Retrieve the collection
       edm::Handle<PFTauCollection> pftaus;
-      iEvent.getByLabel(PFTaus_,pftaus);
-      edm::Handle<PFTauDiscriminatorByIsolation> pftaudis;
-      if(iEvent.getByLabel(PFTauDis_,pftaudis))
-      for(size_t i = 0 ;i<pftaus->size();++i)
+      if(iEvent.getByLabel(PFTaus_,pftaus))
 	{
-
-	  if((*pftaudis)[i].second==1)
-	    if((*pftaus)[i].pt()>ptMinPFTau_&&fabs((*pftaus)[i].eta())<etaMax)
+	  edm::Handle<PFTauDiscriminatorByIsolation> pftaudis;
+	  if(iEvent.getByLabel(PFTauDis_,pftaudis))
+	    for(size_t i = 0 ;i<pftaus->size();++i)
 	      {
 
-		LorentzVector vec((*pftaus)[i].px(),(*pftaus)[i].py(),(*pftaus)[i].pz(),(*pftaus)[i].energy());
-		product_PFTaus->push_back(vec);
+		if((*pftaudis)[i].second==1)
+		  if((*pftaus)[i].pt()>ptMinPFTau_&&fabs((*pftaus)[i].eta())<etaMax)
+		    {
+		      
+		      LorentzVector vec((*pftaus)[i].px(),(*pftaus)[i].py(),(*pftaus)[i].pz(),(*pftaus)[i].energy());
+		      product_PFTaus->push_back(vec);
 	
+		    }
 	      }
+      iEvent.put(product_PFTaus,"PFTaus");
+
 	}
 
-
-      iEvent.put(product_PFTaus,"PFTaus");
 
 
 
@@ -134,22 +136,27 @@ HLTTauRefInfo::doCaloTaus(edm::Event& iEvent,const edm::EventSetup& iES)
       auto_ptr<LorentzVectorCollection> product_CaloTaus(new LorentzVectorCollection);
       //Retrieve the collection
       edm::Handle<CaloTauCollection> calotaus;
-      iEvent.getByLabel(CaloTaus_,calotaus);
-      edm::Handle<CaloTauDiscriminatorByIsolation> calotaudis;
-      if(iEvent.getByLabel(CaloTauDis_,calotaudis))
-      for(size_t i = 0 ;i<calotaus->size();++i)
+      if(iEvent.getByLabel(CaloTaus_,calotaus))
 	{
-	  if((*calotaudis)[i].second==1)
-	    if((*calotaus)[i].pt()>ptMinCaloTau_&&fabs((*calotaus)[i].eta())<etaMax)
+	  edm::Handle<CaloTauDiscriminatorByIsolation> calotaudis;
+	  if(iEvent.getByLabel(CaloTauDis_,calotaudis))
+	    for(size_t i = 0 ;i<calotaus->size();++i)
 	      {
-		LorentzVector vec((*calotaus)[i].px(),(*calotaus)[i].py(),(*calotaus)[i].pz(),(*calotaus)[i].energy());
-		product_CaloTaus->push_back(vec);
+		if((*calotaudis)[i].second==1)
+		  if((*calotaus)[i].pt()>ptMinCaloTau_&&fabs((*calotaus)[i].eta())<etaMax)
+		    {
+		      LorentzVector vec((*calotaus)[i].px(),(*calotaus)[i].py(),(*calotaus)[i].pz(),(*calotaus)[i].energy());
+		      product_CaloTaus->push_back(vec);
 	
+		    }
 	      }
+	
+
+
+ iEvent.put(product_CaloTaus,"CaloTaus");
 	}
 
-
-      iEvent.put(product_CaloTaus,"CaloTaus");
+     
 }
 
 

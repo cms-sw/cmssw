@@ -6,12 +6,12 @@ HLTTauValidation::HLTTauValidation(const edm::ParameterSet& ps) :
   refCollection_(ps.getUntrackedParameter<edm::InputTag>("refTauCollection")),
   refLeptonCollection_(ps.getUntrackedParameter<edm::InputTag>("refLeptonCollection")),
   triggerTag_(ps.getUntrackedParameter<std::string>("TriggerTag","DoubleTau")),
-  l1seedFilter_(ps.getUntrackedParameter<std::string>("L1SeedFilter","D")),
-  l2filter_(ps.getUntrackedParameter<std::string>("L2EcalIsolFilter","D")),
-  l25filter_(ps.getUntrackedParameter<std::string>("L25PixelIsolFilter","D")),
-  l3filter_(ps.getUntrackedParameter<std::string>("L3SiliconIsolFilter","D")),
-  electronFilter_(ps.getUntrackedParameter<std::string>("ElectronFilter","D")),
-  muonFilter_(ps.getUntrackedParameter<std::string>("MuonFilter","D")),
+  l1seedFilter_(ps.getUntrackedParameter<edm::InputTag>("L1SeedFilter")),
+  l2filter_(ps.getUntrackedParameter<edm::InputTag>("L2EcalIsolFilter")),
+  l25filter_(ps.getUntrackedParameter<edm::InputTag>("L25PixelIsolFilter")),
+  l3filter_(ps.getUntrackedParameter<edm::InputTag>("L3SiliconIsolFilter")),
+  electronFilter_(ps.getUntrackedParameter<edm::InputTag>("ElectronFilter")),
+  muonFilter_(ps.getUntrackedParameter<edm::InputTag>("MuonFilter")),
   nTriggeredTaus_(ps.getUntrackedParameter<unsigned>("NTriggeredTaus",2)),
   nTriggeredLeptons_(ps.getUntrackedParameter<unsigned>("NTriggeredLeptons",0)),
   doRefAnalysis_(ps.getUntrackedParameter<bool>("DoReferenceAnalysis",false)),
@@ -204,7 +204,7 @@ HLTTauValidation::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetu
 
   if (trigEv.isValid()) 
     {
-     
+
       //LEPTONS 
       unsigned Leptons = 0;
       unsigned Leptons_Matched = 0;
@@ -261,7 +261,7 @@ HLTTauValidation::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetu
     //L1Analysis Seed
       size_t L1ID=0;
       L1ID =trigEv->filterIndex(l1seedFilter_);
-
+      printf("L1id = %d\n",L1ID);
       if(L1ID!=trigEv->size())
 	{
 	  //Get L1Objects
@@ -302,7 +302,8 @@ HLTTauValidation::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetu
     //L2Analysis Seed
       size_t L2ID=0;
       L2ID =trigEv->filterIndex(l2filter_);
-
+      printf("L2id = %d\n",L2ID);
+   
       if(L2ID!=trigEv->size())
 	{
 	  //Get L2Objects

@@ -55,16 +55,16 @@ class HLTTauValidation : public edm::EDAnalyzer {
   std::string triggerTag_;
 
   //The four basic filters
-  std::string l1seedFilter_;
-  std::string l2filter_;
-  std::string l25filter_;
-  std::string l3filter_;
+  edm::InputTag l1seedFilter_;
+  edm::InputTag l2filter_;
+  edm::InputTag l25filter_;
+  edm::InputTag l3filter_;
 
 
   //electron filter
-  std::string electronFilter_;
+  edm::InputTag electronFilter_;
   //muon filter
-  std::string muonFilter_;
+  edm::InputTag muonFilter_;
 
 
   //Parameters

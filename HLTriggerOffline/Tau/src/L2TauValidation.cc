@@ -65,60 +65,60 @@ L2TauValidation::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup
 
    std::vector<l1extra::L1JetParticleRef> tauCandRefVec;
 
-   iEvent.getByLabel(l2TauInfoAssoc_,l2TauInfoAssoc);//get the Association class
- 
+   if(iEvent.getByLabel(l2TauInfoAssoc_,l2TauInfoAssoc))//get the Association class
+     {
 
-    //Lets see if we have MC w matching or real data
-    if(matchLevel_>0) //get MC Match
-      {
-	iEvent.getByLabel(mcColl_,McInfo);
-      }
-    if(matchLevel_>1) //get L1 Objects
-      {
-	iEvent.getByLabel(l1taus_,l1TriggeredTaus);
-        l1TriggeredTaus->getObjects(trigger::TriggerL1TauJet,tauCandRefVec);
+       //Lets see if we have MC w matching or real data
+       if(matchLevel_>0) //get MC Match
+	 {
+	   iEvent.getByLabel(mcColl_,McInfo);
+	 }
+       if(matchLevel_>1) //get L1 Objects
+	 {
+	   iEvent.getByLabel(l1taus_,l1TriggeredTaus);
+	   l1TriggeredTaus->getObjects(trigger::TriggerL1TauJet,tauCandRefVec);
   
-      }
+	 }
     
 
 
 
 
        //If the Collection exists do work
-    if(l2TauInfoAssoc->size()>0)
-     for(L2TauInfoAssociation::const_iterator p = l2TauInfoAssoc->begin();p!=l2TauInfoAssoc->end();++p)
-     {
-       //Retrieve The L2TauIsolationInfo Class from the AssociationMap
-       const L2TauIsolationInfo l2info = p->val;
+       if(l2TauInfoAssoc->size()>0)
+	 for(L2TauInfoAssociation::const_iterator p = l2TauInfoAssoc->begin();p!=l2TauInfoAssoc->end();++p)
+	   {
+	     //Retrieve The L2TauIsolationInfo Class from the AssociationMap
+	     const L2TauIsolationInfo l2info = p->val;
        
-        //Retrieve the Jet From the AssociationMap
-       const Jet& jet =*(p->key);
+	     //Retrieve the Jet From the AssociationMap
+	     const Jet& jet =*(p->key);
 
   
       
-	  if((matchLevel_>0&&match(jet,*McInfo))||matchLevel_==0)
-	    if((matchLevel_>1&&matchL1(jet,tauCandRefVec))||matchLevel_<2)
-	    {
-	      ecalIsolEt->Fill(l2info.ECALIsolConeCut);
-	      towerIsolEt->Fill(l2info.TowerIsolConeCut);
-	      nClusters->Fill(l2info.ECALClusterNClusters);
-	      seedTowerEt->Fill(l2info.SeedTowerEt);
-	      clusterEtaRMS->Fill(l2info.ECALClusterEtaRMS);
-	      clusterPhiRMS->Fill(l2info.ECALClusterPhiRMS);
-	      clusterDeltaRRMS->Fill(l2info.ECALClusterDRRMS);
-	      jetEt->Fill(jet.et());
-	      jetEta->Fill(jet.eta());
-	      jetPhi->Fill(jet.phi());
+	     if((matchLevel_>0&&match(jet,*McInfo))||matchLevel_==0)
+	       if((matchLevel_>1&&matchL1(jet,tauCandRefVec))||matchLevel_<2)
+		 {
+		   ecalIsolEt->Fill(l2info.ECALIsolConeCut);
+		   towerIsolEt->Fill(l2info.TowerIsolConeCut);
+		   nClusters->Fill(l2info.ECALClusterNClusters);
+		   seedTowerEt->Fill(l2info.SeedTowerEt);
+		   clusterEtaRMS->Fill(l2info.ECALClusterEtaRMS);
+		   clusterPhiRMS->Fill(l2info.ECALClusterPhiRMS);
+		   clusterDeltaRRMS->Fill(l2info.ECALClusterDRRMS);
+		   jetEt->Fill(jet.et());
+		   jetEta->Fill(jet.eta());
+		   jetPhi->Fill(jet.phi());
 	      
-	      EtEffDenom->Fill(jet.et());
-	      if(cuts_[0] >= l2info.ECALIsolConeCut)
-		if(cuts_[1] >= l2info.TowerIsolConeCut)
-		  if(cuts_[2] <= l2info.SeedTowerEt)
-		    if(cuts_[3] >= l2info.ECALClusterNClusters)
-		      if(cuts_[4] >= l2info.ECALClusterEtaRMS)
-			if(cuts_[5] >= l2info.ECALClusterPhiRMS)
-			  if(cuts_[6] >= l2info.ECALClusterDRRMS)
-			    EtEffNum->Fill(jet.et());
+		   EtEffDenom->Fill(jet.et());
+		   if(cuts_[0] >= l2info.ECALIsolConeCut)
+		     if(cuts_[1] >= l2info.TowerIsolConeCut)
+		       if(cuts_[2] <= l2info.SeedTowerEt)
+			 if(cuts_[3] >= l2info.ECALClusterNClusters)
+			   if(cuts_[4] >= l2info.ECALClusterEtaRMS)
+			     if(cuts_[5] >= l2info.ECALClusterPhiRMS)
+			       if(cuts_[6] >= l2info.ECALClusterDRRMS)
+				 EtEffNum->Fill(jet.et());
 
 
 		    
@@ -128,12 +128,12 @@ L2TauValidation::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup
 
 
 
-	    }
+		 }
 
 	   
-     } 
+	   } 
 	       
-     
+     }
 
 
 

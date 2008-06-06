@@ -57,60 +57,62 @@ void L25TauValidation::analyze(const edm::Event& iEvent, const edm::EventSetup& 
    using namespace reco;
    
    Handle<IsolatedTauTagInfoCollection> tauTagInfoHandle;
-   iEvent.getByLabel(jetTagSrc_, tauTagInfoHandle);
+   if(iEvent.getByLabel(jetTagSrc_, tauTagInfoHandle))
+     {
    
-   Handle<LVColl> mcInfo;							 
-   if(signal_){ 								 
-      iEvent.getByLabel(jetMCTagSrc_, mcInfo);				 
-   } 									 
+       Handle<LVColl> mcInfo;							 
+       if(signal_){ 								 
+	 iEvent.getByLabel(jetMCTagSrc_, mcInfo);				 
+       } 									 
    
-   Handle<CaloJetCollection> caloJetHandle;			   
-   iEvent.getByLabel(caloJets_, caloJetHandle);  	   
-   const CaloJetCollection & caloJets = *(caloJetHandle.product());
-   bool l2Match = 0;	
-   unsigned int cjIt;
-   for(cjIt = 0; cjIt != caloJets.size(); ++cjIt){
-      LV lVL2Calo = caloJets[cjIt].p4();
-      if(signal_ )l2Match = match(lVL2Calo, *mcInfo);
-      else l2Match = 1;
+       Handle<CaloJetCollection> caloJetHandle;			   
+       iEvent.getByLabel(caloJets_, caloJetHandle);  	   
+       const CaloJetCollection & caloJets = *(caloJetHandle.product());
+       bool l2Match = 0;	
+       unsigned int cjIt;
+       for(cjIt = 0; cjIt != caloJets.size(); ++cjIt){
+	 LV lVL2Calo = caloJets[cjIt].p4();
+	 if(signal_ )l2Match = match(lVL2Calo, *mcInfo);
+	 else l2Match = 1;
       
-      bool l25Match = 0;
-      if(&(*tauTagInfoHandle)){
-         const IsolatedTauTagInfoCollection & tauTagInfoColl = *(tauTagInfoHandle.product());
-         IsolatedTauTagInfo tauTagInfo = tauTagInfoColl[cjIt];	    
-         LV theJet(tauTagInfo.jet()->px(), tauTagInfo.jet()->py(),
-	            tauTagInfo.jet()->pz(),tauTagInfo.jet()->energy());  		         
+	 bool l25Match = 0;
+	 if(&(*tauTagInfoHandle)){
+	   const IsolatedTauTagInfoCollection & tauTagInfoColl = *(tauTagInfoHandle.product());
+	   IsolatedTauTagInfo tauTagInfo = tauTagInfoColl[cjIt];	    
+	   LV theJet(tauTagInfo.jet()->px(), tauTagInfo.jet()->py(),
+		     tauTagInfo.jet()->pz(),tauTagInfo.jet()->energy());  		         
          												         
-         if(signal_)l25Match = match(theJet, *mcInfo); 						         
-         else l25Match = 1;												         
-         
-	 if(l2Match&&l25Match){
-            jetPt->Fill(theJet.Pt()); 		  						         
-            jetEt->Fill(theJet.Et()); 		  							         
-            jetEta->Fill(theJet.Eta());		  						         
-            jetPhi->Fill(theJet.Phi());
-            nL2EcalIsoJets->Fill(caloJets.size());
-	    nL25Jets->Fill(tauTagInfoColl.size());											         
-	    nPxlTrksInL25Jet->Fill(tauTagInfo.allTracks().size());								    
-            nQPxlTrksInL25Jet->Fill(tauTagInfo.selectedTracks().size());							    
-                        													    
-            const TrackRef leadTrk = tauTagInfo.leadingSignalTrack(rMatch_, ptLeadTk_);
-            if(!leadTrk) std::cout <<  "No leading track found " << std::endl;
-	    else{
-               												    
+	   if(signal_)l25Match = match(theJet, *mcInfo); 						         
+	   else l25Match = 1;												         
+	   
+	   if(l2Match&&l25Match){
+	     jetPt->Fill(theJet.Pt()); 		  						         
+	     jetEt->Fill(theJet.Et()); 		  							         
+	     jetEta->Fill(theJet.Eta());		  						         
+	     jetPhi->Fill(theJet.Phi());
+	     nL2EcalIsoJets->Fill(caloJets.size());
+	     nL25Jets->Fill(tauTagInfoColl.size());											         
+	     nPxlTrksInL25Jet->Fill(tauTagInfo.allTracks().size());								    
+	     nQPxlTrksInL25Jet->Fill(tauTagInfo.selectedTracks().size());							    
+	     
+	     const TrackRef leadTrk = tauTagInfo.leadingSignalTrack(rMatch_, ptLeadTk_);
+	     if(!leadTrk) std::cout <<  "No leading track found " << std::endl;
+	     else{
+	       
                signalLeadTrkPt->Fill(leadTrk->pt());				 
 
                if(tauTagInfo.discriminator(rMatch_, rSig_, rIso_, ptLeadTk_, minPtIsoRing_,
 	                                   nTracksInIsolationRing_)==1){
-                  l25IsoJetEta->Fill(theJet.Eta());
-		  l25IsoJetPt->Fill(theJet.Pt());
-		  l25IsoJetPhi->Fill(theJet.Phi());
-		  l25IsoJetEt->Fill(theJet.Et());
+		 l25IsoJetEta->Fill(theJet.Eta());
+		 l25IsoJetPt->Fill(theJet.Pt());
+		 l25IsoJetPhi->Fill(theJet.Phi());
+		 l25IsoJetEt->Fill(theJet.Et());
 	       }
-	    }
+	     }
+	   }
 	 }
-      }
-   }   												      	      
+       }   	
+     }											      	      
 }
 
 
