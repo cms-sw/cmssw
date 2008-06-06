@@ -1,4 +1,4 @@
-// Last commit: $Id: DcuDetIds.cc,v 1.4 2008/05/08 10:23:10 bainbrid Exp $
+// Last commit: $Id: DcuDetIds.cc,v 1.5 2008/06/04 14:11:42 bainbrid Exp $
 
 #include "OnlineDB/SiStripConfigDb/interface/SiStripConfigDb.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
@@ -26,6 +26,8 @@ SiStripConfigDb::DcuDetIdsRange SiStripConfigDb::getDcuDetIds( std::string parti
 	
 	if ( partition == "" || partition == iter->second.partitionName() ) {
 	  
+	  if ( iter->second.partitionName() == SiStripPartition::defaultPartitionName_ ) { continue; }
+
 	  DcuDetIdsRange range = dcuDetIds_.find( iter->second.partitionName() );
 	  if ( range == dcuDetIds_.emptyRange() ) {
 	    
@@ -67,7 +69,7 @@ SiStripConfigDb::DcuDetIdsRange SiStripConfigDb::getDcuDetIds( std::string parti
 	clone( *src, dst ); 
 	
 	// Add to cache
-	dcuDetIds_.loadNext( SiStripDbParams::defaultPartitionName_, dst );
+	dcuDetIds_.loadNext( SiStripPartition::defaultPartitionName_, dst );
 	
       } else {
 	edm::LogWarning(mlConfigDb_)

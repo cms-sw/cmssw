@@ -1,4 +1,4 @@
-// Last commit: $Id: AnalysisDescriptions.cc,v 1.10 2008/05/06 12:36:55 bainbrid Exp $
+// Last commit: $Id: AnalysisDescriptions.cc,v 1.11 2008/06/04 14:11:42 bainbrid Exp $
 // Latest tag:  $Name:  $
 // Location:    $Source: /cvs_server/repositories/CMSSW/CMSSW/OnlineDB/SiStripConfigDb/src/AnalysisDescriptions.cc,v $
 
@@ -41,6 +41,8 @@ SiStripConfigDb::AnalysisDescriptionsRange SiStripConfigDb::getAnalysisDescripti
 	
 	if ( partition == "" || partition == iter->second.partitionName() ) {
 	  
+	  if ( iter->second.partitionName() == SiStripPartition::defaultPartitionName_ ) { continue; }
+
 	  AnalysisDescriptionsRange range = analyses_.find( iter->second.partitionName() );
 	  if ( range == analyses_.emptyRange() ) {
     

@@ -1,4 +1,4 @@
-// Last commit: $Id: SiStripConfigDb.cc,v 1.68 2008/05/16 15:29:20 bainbrid Exp $
+// Last commit: $Id: SiStripConfigDb.cc,v 1.69 2008/06/04 14:11:42 bainbrid Exp $
 
 #include "OnlineDB/SiStripConfigDb/interface/SiStripConfigDb.h"
 #include "DataFormats/SiStripCommon/interface/SiStripConstants.h"
@@ -468,7 +468,7 @@ void SiStripConfigDb::usingDatabaseCache() {
   dbParams_.sharedMemory( temp.sharedMemory() );
 
   // Add default partition 
-  dbParams_.addPartition( SiStripPartition( SiStripDbParams::defaultPartitionName_ ) );
+  dbParams_.addPartition( SiStripPartition( SiStripPartition::defaultPartitionName_ ) );
   
   // Check shared memory name from .cfg file
   if ( dbParams_.sharedMemory().empty() ) {

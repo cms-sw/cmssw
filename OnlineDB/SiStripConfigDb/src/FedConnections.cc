@@ -1,4 +1,4 @@
-// Last commit: $Id: FedConnections.cc,v 1.28 2008/05/21 15:18:56 bainbrid Exp $
+// Last commit: $Id: FedConnections.cc,v 1.29 2008/06/04 14:11:42 bainbrid Exp $
 
 #include "OnlineDB/SiStripConfigDb/interface/SiStripConfigDb.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
@@ -26,6 +26,8 @@ SiStripConfigDb::FedConnectionsRange SiStripConfigDb::getFedConnections( std::st
       for ( ; iter != jter; ++iter ) {
 	
 	if ( partition == "" || partition == iter->second.partitionName() ) {
+
+	  if ( iter->second.partitionName() == SiStripPartition::defaultPartitionName_ ) { continue; }
 	  
 	  FedConnectionsRange range = connections_.find( iter->second.partitionName() );
 	  if ( range == connections_.emptyRange() ) {
@@ -94,7 +96,7 @@ SiStripConfigDb::FedConnectionsRange SiStripConfigDb::getFedConnections( std::st
 	ConnectionFactory::vectorCopyI( tmp2, *tmp1, true );
 	
 	// Add to cache
-	connections_.loadNext( SiStripDbParams::defaultPartitionName_, tmp2 );
+	connections_.loadNext( SiStripPartition::defaultPartitionName_, tmp2 );
 	
       } else {
 	edm::LogWarning(mlConfigDb_)

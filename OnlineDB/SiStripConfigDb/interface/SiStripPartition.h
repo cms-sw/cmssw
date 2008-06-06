@@ -1,4 +1,4 @@
-// Last commit: $Id: SiStripPartition.h,v 1.6 2008/05/26 13:35:51 giordano Exp $
+// Last commit: $Id: SiStripPartition.h,v 1.7 2008/05/29 13:11:05 bainbrid Exp $
 
 #ifndef OnlineDB_SiStripConfigDb_SiStripPartition_h
 #define OnlineDB_SiStripConfigDb_SiStripPartition_h
@@ -40,8 +40,10 @@ class SiStripPartition {
   
   ~SiStripPartition();
 
+  static std::string defaultPartitionName_;
+
   typedef std::pair<uint32_t,uint32_t> Versions; 
-  
+
   void reset(); 
   
   void pset( const edm::ParameterSet& );

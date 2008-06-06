@@ -1,4 +1,4 @@
-// Last commit: $Id: DeviceDescriptions.cc,v 1.31 2008/06/04 14:11:42 bainbrid Exp $
+// Last commit: $Id: DeviceDescriptions.cc,v 1.32 2008/06/05 13:30:01 bainbrid Exp $
 
 #include "OnlineDB/SiStripConfigDb/interface/SiStripConfigDb.h"
 #include "DataFormats/SiStripCommon/interface/SiStripFecKey.h"
@@ -27,6 +27,8 @@ SiStripConfigDb::DeviceDescriptionsRange SiStripConfigDb::getDeviceDescriptions(
 	
 	if ( partition == "" || partition == iter->second.partitionName() ) {
 	  
+	  if ( iter->second.partitionName() == SiStripPartition::defaultPartitionName_ ) { continue; }
+
 	  DeviceDescriptionsRange range = devices_.find( iter->second.partitionName() );
 	  if ( range == devices_.emptyRange() ) {
 	    
@@ -80,7 +82,7 @@ SiStripConfigDb::DeviceDescriptionsRange SiStripConfigDb::getDeviceDescriptions(
 	FecFactory::vectorCopyI( tmp2, *tmp1, true );
 	
 	// Add to cache
-	devices_.loadNext( SiStripDbParams::defaultPartitionName_, tmp2 );
+	devices_.loadNext( SiStripPartition::defaultPartitionName_, tmp2 );
 
       } else {
 	edm::LogWarning(mlConfigDb_)

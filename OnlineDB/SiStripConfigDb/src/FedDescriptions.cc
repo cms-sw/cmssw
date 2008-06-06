@@ -1,4 +1,4 @@
-// Last commit: $Id: FedDescriptions.cc,v 1.29 2008/05/06 12:36:55 bainbrid Exp $
+// Last commit: $Id: FedDescriptions.cc,v 1.30 2008/06/04 14:11:42 bainbrid Exp $
 
 #include "OnlineDB/SiStripConfigDb/interface/SiStripConfigDb.h"
 #include "CondFormats/SiStripObjects/interface/SiStripFedCabling.h"
@@ -27,7 +27,9 @@ SiStripConfigDb::FedDescriptionsRange SiStripConfigDb::getFedDescriptions( std::
       for ( ; iter != jter; ++iter ) {
 	
 	if ( partition == "" || partition == iter->second.partitionName() ) {
-	  
+
+	  if ( iter->second.partitionName() == SiStripPartition::defaultPartitionName_ ) { continue; }
+
 	  FedDescriptionsRange range = feds_.find( iter->second.partitionName() );
 	  if ( range == feds_.emptyRange() ) {
 
@@ -89,7 +91,7 @@ SiStripConfigDb::FedDescriptionsRange SiStripConfigDb::getFedDescriptions( std::
 	Fed9U::Fed9UDeviceFactory::vectorCopy( tmp2, *tmp1 );
 	
 	// Add to cache
-	feds_.loadNext( SiStripDbParams::defaultPartitionName_, tmp2 );
+	feds_.loadNext( SiStripPartition::defaultPartitionName_, tmp2 );
 	
       } else {
 	edm::LogWarning(mlConfigDb_)

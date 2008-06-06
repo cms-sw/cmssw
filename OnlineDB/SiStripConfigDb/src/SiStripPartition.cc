@@ -1,4 +1,4 @@
-// Last commit: $Id: SiStripPartition.cc,v 1.9 2008/05/29 13:11:05 bainbrid Exp $
+// Last commit: $Id: SiStripPartition.cc,v 1.10 2008/06/04 14:11:42 bainbrid Exp $
 
 #include "OnlineDB/SiStripConfigDb/interface/SiStripPartition.h"
 #include "DataFormats/SiStripCommon/interface/SiStripEnumsAndStrings.h"
@@ -10,9 +10,13 @@
 using namespace sistrip;
 
 // -----------------------------------------------------------------------------
+//
+std::string SiStripPartition::defaultPartitionName_ = "DefaultPartition";
+
+// -----------------------------------------------------------------------------
 // 
 SiStripPartition::SiStripPartition() :
-  partitionName_(""), 
+  partitionName_(defaultPartitionName_), 
   runNumber_(0),
   runType_(sistrip::UNDEFINED_RUN_TYPE),
   forceVersions_(false),
@@ -65,7 +69,9 @@ SiStripPartition::SiStripPartition( std::string partition ) :
   inputDcuInfoXml_(""),
   inputFecXml_(),
   inputFedXml_()
-{;}
+{
+  if ( partitionName_.empty() ) { partitionName_ = defaultPartitionName_; }
+}
 
 // -----------------------------------------------------------------------------
 // 
@@ -259,9 +265,12 @@ void SiStripPartition::update( const SiStripConfigDb* const db ) {
     return;
   }
 
+  // Check partition name
+  if ( partitionName_ == defaultPartitionName_ ) { return; }
+
   // Debug
   std::stringstream ss;
-  ss << "[SiStripDbParams::" << __func__ << "]"
+  ss << "[SiStripPartition::" << __func__ << "]"
      << " Updating description versions for partition \""
      << partitionName_
      << "\"...";
@@ -646,14 +655,15 @@ void SiStripPartition::update( const SiStripConfigDb* const db ) {
 		    << " Unable to match content to any AnalysisType!";
 		  edm::LogWarning(mlConfigDb_) << ss.str();
 		}
+	      } else {
+		std::stringstream ss;
+		edm::LogError(mlConfigDb_)
+		  << "[SiStripPartition::" << __func__ << "]"
+		  << " Unable to find run number " << runNumber_
+		  << " in \"history\" hash map ";
+		edm::LogWarning(mlConfigDb_) << ss.str();
 	      }
-	    } else {
-	      std::stringstream ss;
-	      edm::LogError(mlConfigDb_)
-		<< "[SiStripPartition::" << __func__ << "]"
-		<< " Unable to find run number " << runNumber_
-		<< " in \"history\" hash map ";
-	      edm::LogWarning(mlConfigDb_) << ss.str();
+
 	    }
 	    
 #endif

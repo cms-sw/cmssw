@@ -1,4 +1,4 @@
-// Last commit: $Id: SiStripDbParams.cc,v 1.9 2008/06/03 10:14:00 bainbrid Exp $
+// Last commit: $Id: SiStripDbParams.cc,v 1.10 2008/06/04 14:11:42 bainbrid Exp $
 
 #include "OnlineDB/SiStripConfigDb/interface/SiStripDbParams.h"
 #include "DataFormats/SiStripCommon/interface/SiStripEnumsAndStrings.h"
@@ -6,10 +6,6 @@
 #include <iostream>
 
 using namespace sistrip;
-
-// -----------------------------------------------------------------------------
-//
-std::string SiStripDbParams::defaultPartitionName_ = "DefaultPartition";
 
 // -----------------------------------------------------------------------------
 // 
@@ -139,7 +135,7 @@ void SiStripDbParams::addPartition( const SiStripPartition& in ) {
   SiStripPartitions::const_iterator iter = partitions_.find( in.partitionName() );
   if ( iter == partitions_.end() ) { 
     partitions_[in.partitionName()] = in; 
-    if ( in.partitionName() != SiStripDbParams::defaultPartitionName_ ) {
+    if ( in.partitionName() != SiStripPartition::defaultPartitionName_ ) {
       std::stringstream ss;
       ss << "[SiStripDbParams::" << __func__ << "]"
 	 << " Added new partition with name \"" 
@@ -198,7 +194,7 @@ void SiStripDbParams::pset( const edm::ParameterSet& cfg ) {
   }
   
   // Ensure at least one "default" partition
-  if ( partitions_.empty() ) { addPartition( SiStripPartition(defaultPartitionName_) ); }
+  if ( partitions_.empty() ) { addPartition( SiStripPartition() ); }
 
   // Set output XML files
   outputModuleXml_  = cfg.getUntrackedParameter<std::string>( "OutputModuleXml", "/tmp/module.xml" );

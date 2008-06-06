@@ -1,4 +1,4 @@
-// Last commit: $Id: SiStripDbParams.h,v 1.10 2008/05/29 13:11:05 bainbrid Exp $
+// Last commit: $Id: SiStripDbParams.h,v 1.11 2008/06/04 14:11:34 bainbrid Exp $
 
 #ifndef OnlineDB_SiStripConfigDb_SiStripDbParams_h
 #define OnlineDB_SiStripConfigDb_SiStripDbParams_h
@@ -96,9 +96,6 @@ class SiStripDbParams {
   
   /** Construct string from (non-zero) partition names. */
   std::string partitionNames( const std::vector<std::string>& ) const;
-
-  /** Public static default partition name. */
-  static std::string defaultPartitionName_;
   
   // ---------- setters ----------
 
