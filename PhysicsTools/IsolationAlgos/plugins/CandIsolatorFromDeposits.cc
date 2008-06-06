@@ -21,6 +21,8 @@
 #include <string>
 #include <boost/regex.hpp>
 
+#include "PhysicsTools/IsolationAlgos/interface/IsoDepositVetoFactory.h"
+
 using namespace edm;
 using namespace std;
 using namespace reco;
@@ -54,32 +56,7 @@ CandIsolatorFromDeposits::SingleDeposit::SingleDeposit(const edm::ParameterSet &
   typedef std::vector<std::string> vstring;
   vstring vetos = iConfig.getParameter< vstring >("vetos");
   for (vstring::const_iterator it = vetos.begin(), ed = vetos.end(); it != ed; ++it) {
-    if (!isNumber(*it)) {
-      static boost::regex threshold("Threshold\\((\\d+\\.\\d+)\\)"), 
-	cone("ConeVeto\\((\\d+\\.\\d+)\\)"),
-	angleCone("AngleCone\\((\\d+\\.\\d+)\\)"),
-	angleVeto("AngleVeto\\((\\d+\\.\\d+)\\)"),
-	rectangularEtaPhiVeto("RectangularEtaPhiVeto\\(([+-]?\\d+\\.\\d+),([+-]?\\d+\\.\\d+),([+-]?\\d+\\.\\d+),([+-]?\\d+\\.\\d+)\\)");
-      boost::cmatch match;
-      if (regex_match(it->c_str(), match, threshold)) {
-	vetos_.push_back(new ThresholdVeto(toNumber(match[1].first)));
-      } else if (regex_match(it->c_str(), match, cone)) {
-	vetos_.push_back(new ConeVeto(reco::isodeposit::Direction(), toNumber(match[1].first)));
-      } else if (regex_match(it->c_str(), match, angleCone)) {
-	vetos_.push_back(new AngleCone(reco::isodeposit::Direction(), toNumber(match[1].first)));
-      } else if (regex_match(it->c_str(), match, angleVeto)) {
-	vetos_.push_back(new AngleConeVeto(reco::isodeposit::Direction(), toNumber(match[1].first)));
-      } else if (regex_match(it->c_str(), match, rectangularEtaPhiVeto)) {
-	vetos_.push_back(new RectangularEtaPhiVeto(reco::isodeposit::Direction(), 
-											   toNumber(match[1].first), toNumber(match[2].first), 
-											   toNumber(match[3].first), toNumber(match[4].first)));
-      } else {
-	throw cms::Exception("Not Implemented") << "Veto " << it->c_str() << " not implemented yet...";
-      }
-    }  else {
-      //std::cout << "Adding veto of radius " << toNumber(*it) << std::endl;
-      vetos_.push_back(new ConeVeto(reco::isodeposit::Direction(), toNumber(*it)));
-    }
+    vetos_.push_back(IsoDepositVetoFactory::make(it->c_str()));
   }
   std::string weight = iConfig.getParameter<std::string>("weight");
   if (isNumber(weight)) {
