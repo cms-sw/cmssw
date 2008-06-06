@@ -63,10 +63,6 @@ void DCCEBTCCBlock::addTriggerPrimitivesToCollection(){
     }
    
     pTP_ =  mapper_->getTPPointer(tccId_,theTT);
-
-//    std::cout << "in dcc: " << mapper_->getActiveSM()  << " index was: " << i << " is: " << theTT << std::endl;
-    edm::LogWarning("EcalRawToDigiDevTCC")<< "in dcc: " << mapper_->getActiveSM()
-                                          << " index was: " << i << " is: " << theTT << std::endl;
     for(uint ns = 0; ns<nTSamples_;ns++,tccP_++){
       
       pTP_->setSampleValue(ns, (*tccP_));
