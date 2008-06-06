@@ -100,8 +100,8 @@ namespace HcalDigiMap{
       last = thisCapid;
       if(digi.sample(i).er()) err=true;
       if(!digi.sample(i).dv()) err=true;
-      // Occupancy set true if ADC count above pedestal for at least one time slice
-      pval = digi.sample(i).adc()-calibs.pedestal(thisCapid);
+      // Occupancy was set true if ADC count above pedestal for at least one time slice
+      pval = digi.sample(i).adc(); // Just want to know it's alive. //-calibs.pedestal(thisCapid);
       vals[i] = pval;
       //      if(pval>occThr) occ=true;
       if(digi.sample(i).adc()) occ=true;
@@ -708,7 +708,7 @@ void HcalDigiMonitor::processEvent(const HBHEDigiCollection& hbhe,
   ievt_++;
   meEVT_->Fill(ievt_);
 
-  EmptyDigiFill(); // fill all cells as being empty; "unfill" for all digis that are found
+  //EmptyDigiFill(); // fill all cells as being empty; "unfill" for all digis that are found
 
   int nbqdigi_report = report.badQualityDigis();
   if (nbqdigi_report != 0)BQDIGI_NUM->Fill(nbqdigi_report);
