@@ -18,6 +18,7 @@
         <PARAM name="maxRMS">0.0</PARAM>
         <PARAM name="toleranceMean">0</PARAM>
         <PARAM name="minEntries">1000</PARAM>
+	<PARAM name="useEmptyBins">1</PARAM>
 </QTEST>
 
 <!--QTEST name="ResidualsDistributionGaussianTest">
