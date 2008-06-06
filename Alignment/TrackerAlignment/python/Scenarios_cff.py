@@ -62,6 +62,7 @@ NoMovementsScenario = cms.PSet(
 # -----------------------------------------------------------------------
 # Short term misalignment scenario as it is (wrongly) implemented in ORCA
 # Layer movements applied at structure level instead of layer level
+# WARNING: Not adjusted to removal of Det/DetUnit duplication!
 obsoleteTrackerORCAShortTermScenario = cms.PSet(
     MisalignmentScenarioSettings,
     TIBs = cms.PSet(
@@ -193,6 +194,7 @@ obsoleteTrackerORCAShortTermScenario = cms.PSet(
 # -----------------------------------------------------------------------
 # Short term misalignment scenario (as interpreted from AN-2005-036)
 # Layer movements applied at layer level
+# WARNING: Not adjusted to removal of Det/DetUnit duplication!
 obsoleteTrackerShortTermScenario = cms.PSet(
     MisalignmentScenarioSettings,
     TIBs = cms.PSet(
@@ -336,6 +338,7 @@ obsoleteTrackerShortTermScenario = cms.PSet(
 # -----------------------------------------------------------------------
 # Long term misalignment scenario (as interpreted from AN-2005-036)
 # Layer movements applied at layer level
+# WARNING: Not adjusted to removal of Det/DetUnit duplication!
 obsoleteTrackerLongTermScenario = cms.PSet(
     MisalignmentScenarioSettings,
     TIBs = cms.PSet(
@@ -467,6 +470,29 @@ obsoleteTrackerLongTermScenario = cms.PSet(
 # -----------------------------------------------------------------------
 # 10 pb-1 misalignment scenario
 # See CMS IN 2007/036
+#
+# first helper blocks for TEC:
+TECRings10pb_1D = cms.PSet(
+    DetUnits = cms.PSet(
+        dZlocal = cms.double(0.0022),
+        phiXlocal = cms.double(5e-05),
+        dYlocal = cms.double(0.0022),
+        phiZlocal = cms.double(5e-05),
+        dXlocal = cms.double(0.0022),
+        phiYlocal = cms.double(5e-05)
+    )
+)
+TECRings10pb_2D = cms.PSet(
+    Dets = cms.PSet(
+        dZlocal = cms.double(0.0022),
+        phiXlocal = cms.double(5e-05),
+        dYlocal = cms.double(0.0022),
+        phiZlocal = cms.double(5e-05),
+        dXlocal = cms.double(0.0022),
+        phiYlocal = cms.double(5e-05)
+    )
+)
+# now real scenario:
 Tracker10pbScenario = cms.PSet(
     MisalignmentScenarioSettings,
     TIBs = cms.PSet(
@@ -479,7 +505,27 @@ Tracker10pbScenario = cms.PSet(
             phiYlocal = cms.double(6.5e-05)
         ),
         scale = cms.double(1.0),
+        TIBLayer3_4 = cms.PSet(
+            DetUnits = cms.PSet(
+                dZlocal = cms.double(0.018),
+                phiXlocal = cms.double(0.000412),
+                dYlocal = cms.double(0.018),
+                phiZlocal = cms.double(0.000412),
+                dXlocal = cms.double(0.018),
+                phiYlocal = cms.double(0.000412)
+            )
+        ),
         scaleError = cms.double(1.0),
+        TIBLayer1_2 = cms.PSet(
+            Dets = cms.PSet(
+                dZlocal = cms.double(0.018),
+                phiXlocal = cms.double(0.000412),
+                dYlocal = cms.double(0.018),
+                phiZlocal = cms.double(0.000412),
+                dXlocal = cms.double(0.018),
+                phiYlocal = cms.double(0.000412)
+            )
+        ),
         distribution = cms.string('gaussian'),
         TIBStrings = cms.PSet(
             dZlocal = cms.double(0.01),
@@ -488,18 +534,11 @@ Tracker10pbScenario = cms.PSet(
             phiZlocal = cms.double(6.5e-05),
             dXlocal = cms.double(0.01),
             phiYlocal = cms.double(6.5e-05)
-        ),
-        Dets = cms.PSet(
-            dZlocal = cms.double(0.018),
-            phiXlocal = cms.double(0.000412),
-            dYlocal = cms.double(0.018),
-            phiZlocal = cms.double(0.000412),
-            dXlocal = cms.double(0.018),
-            phiYlocal = cms.double(0.000412)
         )
     ),
     TPBs = cms.PSet(
-        Dets = cms.PSet(
+        scale = cms.double(1.0),
+        DetUnits = cms.PSet(
             dZlocal = cms.double(0.006),
             phiXlocal = cms.double(0.00027),
             dYlocal = cms.double(0.006),
@@ -508,7 +547,6 @@ Tracker10pbScenario = cms.PSet(
             dXlocal = cms.double(0.006),
             phiYlocal = cms.double(0.00027)
         ),
-        scale = cms.double(1.0),
         TPBLayers = cms.PSet(
             phiXlocal = cms.double(7e-06),
             phiZlocal = cms.double(7e-06),
@@ -531,11 +569,31 @@ Tracker10pbScenario = cms.PSet(
     ),
     TOBs = cms.PSet(
         scale = cms.double(1.0),
+        TOBLayer3_4_5_6 = cms.PSet(
+            DetUnits = cms.PSet(
+                dZlocal = cms.double(0.0032),
+                phiXlocal = cms.double(7.5e-05),
+                dYlocal = cms.double(0.0032),
+                phiZlocal = cms.double(7.5e-05),
+                dXlocal = cms.double(0.0032),
+                phiYlocal = cms.double(7.5e-05)
+            )
+        ),
         scaleError = cms.double(1.0),
         TOBLayers = cms.PSet(
             dXlocal = cms.double(0.0),
             dZlocal = cms.double(0.0),
             dYlocal = cms.double(0.0)
+        ),
+        TOBLayer1_2 = cms.PSet(
+            Dets = cms.PSet(
+                dZlocal = cms.double(0.0032),
+                phiXlocal = cms.double(7.5e-05),
+                dYlocal = cms.double(0.0032),
+                phiZlocal = cms.double(7.5e-05),
+                dXlocal = cms.double(0.0032),
+                phiYlocal = cms.double(7.5e-05)
+            )
         ),
         TOBRods = cms.PSet(
             dZlocal = cms.double(0.01),
@@ -553,18 +611,18 @@ Tracker10pbScenario = cms.PSet(
             dXlocal = cms.double(0.006),
             phiYlocal = cms.double(1e-05)
         ),
-        distribution = cms.string('gaussian'),
-        Dets = cms.PSet(
-            dZlocal = cms.double(0.0032),
-            phiXlocal = cms.double(7.5e-05),
-            dYlocal = cms.double(0.0032),
-            phiZlocal = cms.double(7.5e-05),
-            dXlocal = cms.double(0.0032),
-            phiYlocal = cms.double(7.5e-05)
-        )
+        distribution = cms.string('gaussian')
     ),
     TECs = cms.PSet(
         scale = cms.double(1.0),
+        TECDisk9 = cms.PSet(
+            TECRing2 = cms.PSet(
+                TECRings10pb_2D
+            ),
+            TECRing1_3_4 = cms.PSet(
+                TECRings10pb_1D
+            )
+        ),
         scaleError = cms.double(1.0),
         TECPetals = cms.PSet(
             dZlocal = cms.double(0.007),
@@ -582,14 +640,30 @@ Tracker10pbScenario = cms.PSet(
             dXlocal = cms.double(0.006),
             phiYlocal = cms.double(1.5e-05)
         ),
+        TECDisk4_5_6 = cms.PSet(
+            TECRing2_3_5_6 = cms.PSet(
+                TECRings10pb_1D
+            ),
+            TECRing1_4 = cms.PSet(
+                TECRings10pb_2D
+            )
+        ),
+        TECDisk7_8 = cms.PSet(
+            TECRing3 = cms.PSet(
+                TECRings10pb_2D
+            ),
+            TECRing1_2_4_5 = cms.PSet(
+                TECRings10pb_1D
+            )
+        ),
         distribution = cms.string('gaussian'),
-        Dets = cms.PSet(
-            dZlocal = cms.double(0.0022),
-            phiXlocal = cms.double(5e-05),
-            dYlocal = cms.double(0.0022),
-            phiZlocal = cms.double(5e-05),
-            dXlocal = cms.double(0.0022),
-            phiYlocal = cms.double(5e-05)
+        TECDisk1_2_3 = cms.PSet(
+            TECRing3_4_6_7 = cms.PSet(
+                TECRings10pb_1D
+            ),
+            TECRing1_2_5 = cms.PSet(
+                TECRings10pb_2D
+            )
         )
     ),
     TPEs = cms.PSet(
@@ -611,6 +685,14 @@ Tracker10pbScenario = cms.PSet(
             dXlocal = cms.double(0.001),
             phiYlocal = cms.double(1.5e-05)
         ),
+        DetUnits = cms.PSet(
+            dZlocal = cms.double(0.0005),
+            phiXlocal = cms.double(0.0001),
+            dYlocal = cms.double(0.0005),
+            phiZlocal = cms.double(0.0001),
+            dXlocal = cms.double(0.0005),
+            phiYlocal = cms.double(0.0001)
+        ),
         TPEBlades = cms.PSet(
             dZlocal = cms.double(0.001),
             phiXlocal = cms.double(1.5e-05),
@@ -619,19 +701,29 @@ Tracker10pbScenario = cms.PSet(
             dXlocal = cms.double(0.001),
             phiYlocal = cms.double(1.5e-05)
         ),
-        distribution = cms.string('gaussian'),
-        Dets = cms.PSet(
-            dZlocal = cms.double(0.0005),
-            phiXlocal = cms.double(0.0001),
-            dYlocal = cms.double(0.0005),
-            phiZlocal = cms.double(0.0001),
-            dXlocal = cms.double(0.0005),
-            phiYlocal = cms.double(0.0001)
-        )
+        distribution = cms.string('gaussian')
     ),
     TIDs = cms.PSet(
         scale = cms.double(1.0),
         scaleError = cms.double(1.0),
+        TIDRings = cms.PSet(
+            dZlocal = cms.double(0.0185),
+            phiXlocal = cms.double(0.00085),
+            dYlocal = cms.double(0.0185),
+            phiZlocal = cms.double(0.00085),
+            dXlocal = cms.double(0.0185),
+            phiYlocal = cms.double(0.00085)
+        ),
+        TIDRing1_2 = cms.PSet(
+            Dets = cms.PSet(
+                dZlocal = cms.double(0.0054),
+                phiXlocal = cms.double(0.00025),
+                dYlocal = cms.double(0.0054),
+                phiZlocal = cms.double(0.00025),
+                dXlocal = cms.double(0.0054),
+                phiYlocal = cms.double(0.00025)
+            )
+        ),
         TIDDisks = cms.PSet(
             dZlocal = cms.double(0.025),
             phiXlocal = cms.double(0.00038),
@@ -641,26 +733,42 @@ Tracker10pbScenario = cms.PSet(
             phiYlocal = cms.double(0.00038)
         ),
         distribution = cms.string('gaussian'),
-        TIDRings = cms.PSet(
-            dZlocal = cms.double(0.0185),
-            phiXlocal = cms.double(0.00085),
-            dYlocal = cms.double(0.0185),
-            phiZlocal = cms.double(0.00085),
-            dXlocal = cms.double(0.0185),
-            phiYlocal = cms.double(0.00085)
-        ),
-        Dets = cms.PSet(
-            dZlocal = cms.double(0.0054),
-            phiXlocal = cms.double(0.00025),
-            dYlocal = cms.double(0.0054),
-            phiZlocal = cms.double(0.00025),
-            dXlocal = cms.double(0.0054),
-            phiYlocal = cms.double(0.00025)
+        TIDRing3 = cms.PSet(
+            DetUnits = cms.PSet(
+                dZlocal = cms.double(0.0054),
+                phiXlocal = cms.double(0.00025),
+                dYlocal = cms.double(0.0054),
+                phiZlocal = cms.double(0.00025),
+                dXlocal = cms.double(0.0054),
+                phiYlocal = cms.double(0.00025)
+            )
         )
     )
 )
 # 100 pb-1 misalignment scenario
 # See CMS IN 2007/036
+# first helper blocks for TEC:
+TECRings100pb_1D = cms.PSet(
+    DetUnits = cms.PSet(
+        dZlocal = cms.double(0.0022),
+        phiXlocal = cms.double(5e-05),
+        dYlocal = cms.double(0.0022),
+        phiZlocal = cms.double(5e-05),
+        dXlocal = cms.double(0.0022),
+        phiYlocal = cms.double(5e-05)
+    )
+)
+TECRings100pb_2D = cms.PSet(
+    Dets = cms.PSet(
+        dZlocal = cms.double(0.0022),
+        phiXlocal = cms.double(5e-05),
+        dYlocal = cms.double(0.0022),
+        phiZlocal = cms.double(5e-05),
+        dXlocal = cms.double(0.0022),
+        phiYlocal = cms.double(5e-05)
+    )
+)
+# now real scenario:
 Tracker100pbScenario = cms.PSet(
     MisalignmentScenarioSettings,
     TIBs = cms.PSet(
@@ -673,7 +781,27 @@ Tracker100pbScenario = cms.PSet(
             phiYlocal = cms.double(1e-05)
         ),
         scale = cms.double(1.0),
+        TIBLayer3_4 = cms.PSet(
+            DetUnits = cms.PSet(
+                dZlocal = cms.double(0.003),
+                phiXlocal = cms.double(7e-05),
+                dYlocal = cms.double(0.003),
+                phiZlocal = cms.double(7e-05),
+                dXlocal = cms.double(0.003),
+                phiYlocal = cms.double(7e-05)
+            )
+        ),
         scaleError = cms.double(1.0),
+        TIBLayer1_2 = cms.PSet(
+            Dets = cms.PSet(
+                dZlocal = cms.double(0.003),
+                phiXlocal = cms.double(7e-05),
+                dYlocal = cms.double(0.003),
+                phiZlocal = cms.double(7e-05),
+                dXlocal = cms.double(0.003),
+                phiYlocal = cms.double(7e-05)
+            )
+        ),
         distribution = cms.string('gaussian'),
         TIBStrings = cms.PSet(
             dZlocal = cms.double(0.003),
@@ -682,18 +810,11 @@ Tracker100pbScenario = cms.PSet(
             phiZlocal = cms.double(2e-05),
             dXlocal = cms.double(0.003),
             phiYlocal = cms.double(2e-05)
-        ),
-        Dets = cms.PSet(
-            dZlocal = cms.double(0.003),
-            phiXlocal = cms.double(7e-05),
-            dYlocal = cms.double(0.003),
-            phiZlocal = cms.double(7e-05),
-            dXlocal = cms.double(0.003),
-            phiYlocal = cms.double(7e-05)
         )
     ),
     TPBs = cms.PSet(
-        Dets = cms.PSet(
+        scale = cms.double(1.0),
+        DetUnits = cms.PSet(
             dZlocal = cms.double(0.001),
             phiXlocal = cms.double(4.5e-05),
             dYlocal = cms.double(0.001),
@@ -702,7 +823,6 @@ Tracker100pbScenario = cms.PSet(
             dXlocal = cms.double(0.001),
             phiYlocal = cms.double(4.5e-05)
         ),
-        scale = cms.double(1.0),
         TPBLayers = cms.PSet(
             phiXlocal = cms.double(3e-06),
             phiZlocal = cms.double(3e-06),
@@ -725,11 +845,31 @@ Tracker100pbScenario = cms.PSet(
     ),
     TOBs = cms.PSet(
         scale = cms.double(1.0),
+        TOBLayer3_4_5_6 = cms.PSet(
+            DetUnits = cms.PSet(
+                dZlocal = cms.double(0.0032),
+                phiXlocal = cms.double(7e-05),
+                dYlocal = cms.double(0.0032),
+                phiZlocal = cms.double(7e-05),
+                dXlocal = cms.double(0.0032),
+                phiYlocal = cms.double(7e-05)
+            )
+        ),
         scaleError = cms.double(1.0),
         TOBLayers = cms.PSet(
             dXlocal = cms.double(0.0),
             dZlocal = cms.double(0.0),
             dYlocal = cms.double(0.0)
+        ),
+        TOBLayer1_2 = cms.PSet(
+            Dets = cms.PSet(
+                dZlocal = cms.double(0.0032),
+                phiXlocal = cms.double(7e-05),
+                dYlocal = cms.double(0.0032),
+                phiZlocal = cms.double(7e-05),
+                dXlocal = cms.double(0.0032),
+                phiYlocal = cms.double(7e-05)
+            )
         ),
         TOBRods = cms.PSet(
             dZlocal = cms.double(0.004),
@@ -747,18 +887,18 @@ Tracker100pbScenario = cms.PSet(
             dXlocal = cms.double(0.002),
             phiYlocal = cms.double(5e-06)
         ),
-        distribution = cms.string('gaussian'),
-        Dets = cms.PSet(
-            dZlocal = cms.double(0.0032),
-            phiXlocal = cms.double(7e-05),
-            dYlocal = cms.double(0.0032),
-            phiZlocal = cms.double(7e-05),
-            dXlocal = cms.double(0.0032),
-            phiYlocal = cms.double(7e-05)
-        )
+        distribution = cms.string('gaussian')
     ),
     TECs = cms.PSet(
         scale = cms.double(1.0),
+        TECDisk9 = cms.PSet(
+            TECRing2 = cms.PSet(
+                TECRings100pb_2D
+            ),
+            TECRing1_3_4 = cms.PSet(
+                TECRings100pb_1D
+            )
+        ),
         scaleError = cms.double(1.0),
         TECPetals = cms.PSet(
             dZlocal = cms.double(0.0055),
@@ -776,14 +916,30 @@ Tracker100pbScenario = cms.PSet(
             dXlocal = cms.double(0.003),
             phiYlocal = cms.double(5e-06)
         ),
+        TECDisk4_5_6 = cms.PSet(
+            TECRing2_3_5_6 = cms.PSet(
+                TECRings100pb_1D
+            ),
+            TECRing1_4 = cms.PSet(
+                TECRings100pb_2D
+            )
+        ),
+        TECDisk7_8 = cms.PSet(
+            TECRing3 = cms.PSet(
+                TECRings100pb_2D
+            ),
+            TECRing1_2_4_5 = cms.PSet(
+                TECRings100pb_1D
+            )
+        ),
         distribution = cms.string('gaussian'),
-        Dets = cms.PSet(
-            dZlocal = cms.double(0.0022),
-            phiXlocal = cms.double(5e-05),
-            dYlocal = cms.double(0.0022),
-            phiZlocal = cms.double(5e-05),
-            dXlocal = cms.double(0.0022),
-            phiYlocal = cms.double(5e-05)
+        TECDisk1_2_3 = cms.PSet(
+            TECRing3_4_6_7 = cms.PSet(
+                TECRings100pb_1D
+            ),
+            TECRing1_2_5 = cms.PSet(
+                TECRings100pb_2D
+            )
         )
     ),
     TPEs = cms.PSet(
@@ -805,6 +961,14 @@ Tracker100pbScenario = cms.PSet(
             dXlocal = cms.double(0.001),
             phiYlocal = cms.double(1.5e-05)
         ),
+        DetUnits = cms.PSet(
+            dZlocal = cms.double(0.0005),
+            phiXlocal = cms.double(1.1e-05),
+            dYlocal = cms.double(0.0005),
+            phiZlocal = cms.double(1.1e-05),
+            dXlocal = cms.double(0.0005),
+            phiYlocal = cms.double(1.1e-05)
+        ),
         TPEBlades = cms.PSet(
             dZlocal = cms.double(0.001),
             phiXlocal = cms.double(1.5e-05),
@@ -813,19 +977,31 @@ Tracker100pbScenario = cms.PSet(
             dXlocal = cms.double(0.001),
             phiYlocal = cms.double(1.5e-05)
         ),
-        distribution = cms.string('gaussian'),
-        Dets = cms.PSet(
-            dZlocal = cms.double(0.0005),
-            phiXlocal = cms.double(1.1e-05),
-            dYlocal = cms.double(0.0005),
-            phiZlocal = cms.double(1.1e-05),
-            dXlocal = cms.double(0.0005),
-            phiYlocal = cms.double(1.1e-05)
-        )
+        distribution = cms.string('gaussian')
     ),
     TIDs = cms.PSet(
         scale = cms.double(1.0),
         scaleError = cms.double(1.0),
+        TIDRing3 = cms.PSet(
+            DetUnits = cms.PSet(
+                dZlocal = cms.double(0.005),
+                phiXlocal = cms.double(0.00023),
+                dYlocal = cms.double(0.005),
+                phiZlocal = cms.double(0.00023),
+                dXlocal = cms.double(0.005),
+                phiYlocal = cms.double(0.00023)
+            )
+        ),
+        TIDRing1_2 = cms.PSet(
+            Dets = cms.PSet(
+                dZlocal = cms.double(0.005),
+                phiXlocal = cms.double(0.00023),
+                dYlocal = cms.double(0.005),
+                phiZlocal = cms.double(0.00023),
+                dXlocal = cms.double(0.005),
+                phiYlocal = cms.double(0.00023)
+            )
+        ),
         TIDDisks = cms.PSet(
             dZlocal = cms.double(0.0025),
             phiXlocal = cms.double(4e-05),
@@ -842,20 +1018,34 @@ Tracker100pbScenario = cms.PSet(
             phiZlocal = cms.double(0.00023),
             dXlocal = cms.double(0.005),
             phiYlocal = cms.double(0.00023)
-        ),
-        Dets = cms.PSet(
-            dZlocal = cms.double(0.005),
-            phiXlocal = cms.double(0.00023),
-            dYlocal = cms.double(0.005),
-            phiZlocal = cms.double(0.00023),
-            dXlocal = cms.double(0.005),
-            phiYlocal = cms.double(0.00023)
         )
     )
 )
 # -----------------------------------------------------------------------
 # 1000 pb-1 misalignment scenario
 # See CMS IN 2007/036
+# first helper blocks for TEC:
+TECRings1000pb_1D = cms.PSet(
+    DetUnits = cms.PSet(
+        dZlocal = cms.double(0.0022),
+        phiXlocal = cms.double(5e-05),
+        dYlocal = cms.double(0.0022),
+        phiZlocal = cms.double(5e-05),
+        dXlocal = cms.double(0.0022),
+        phiYlocal = cms.double(5e-05)
+    )
+)
+TECRings1000pb_2D = cms.PSet(
+    Dets = cms.PSet(
+        dZlocal = cms.double(0.0022),
+        phiXlocal = cms.double(5e-05),
+        dYlocal = cms.double(0.0022),
+        phiZlocal = cms.double(5e-05),
+        dXlocal = cms.double(0.0022),
+        phiYlocal = cms.double(5e-05)
+    )
+)
+# now real scenario:
 Tracker1000pbScenario = cms.PSet(
     MisalignmentScenarioSettings,
     TIBs = cms.PSet(
@@ -868,7 +1058,27 @@ Tracker1000pbScenario = cms.PSet(
             phiYlocal = cms.double(5e-06)
         ),
         scale = cms.double(1.0),
+        TIBLayer3_4 = cms.PSet(
+            DetUnits = cms.PSet(
+                dZlocal = cms.double(0.001),
+                phiXlocal = cms.double(2e-05),
+                dYlocal = cms.double(0.001),
+                phiZlocal = cms.double(2e-05),
+                dXlocal = cms.double(0.001),
+                phiYlocal = cms.double(2e-05)
+            )
+        ),
         scaleError = cms.double(1.0),
+        TIBLayer1_2 = cms.PSet(
+            Dets = cms.PSet(
+                dZlocal = cms.double(0.001),
+                phiXlocal = cms.double(2e-05),
+                dYlocal = cms.double(0.001),
+                phiZlocal = cms.double(2e-05),
+                dXlocal = cms.double(0.001),
+                phiYlocal = cms.double(2e-05)
+            )
+        ),
         distribution = cms.string('gaussian'),
         TIBStrings = cms.PSet(
             dZlocal = cms.double(0.001),
@@ -877,18 +1087,11 @@ Tracker1000pbScenario = cms.PSet(
             phiZlocal = cms.double(5e-06),
             dXlocal = cms.double(0.001),
             phiYlocal = cms.double(5e-06)
-        ),
-        Dets = cms.PSet(
-            dZlocal = cms.double(0.001),
-            phiXlocal = cms.double(2e-05),
-            dYlocal = cms.double(0.001),
-            phiZlocal = cms.double(2e-05),
-            dXlocal = cms.double(0.001),
-            phiYlocal = cms.double(2e-05)
         )
     ),
     TPBs = cms.PSet(
-        Dets = cms.PSet(
+        scale = cms.double(1.0),
+        DetUnits = cms.PSet(
             dZlocal = cms.double(0.0005),
             phiXlocal = cms.double(2.2e-05),
             dYlocal = cms.double(0.0005),
@@ -897,7 +1100,6 @@ Tracker1000pbScenario = cms.PSet(
             dXlocal = cms.double(0.0005),
             phiYlocal = cms.double(2.2e-05)
         ),
-        scale = cms.double(1.0),
         TPBLayers = cms.PSet(
             phiXlocal = cms.double(3e-06),
             phiZlocal = cms.double(3e-06),
@@ -920,11 +1122,31 @@ Tracker1000pbScenario = cms.PSet(
     ),
     TOBs = cms.PSet(
         scale = cms.double(1.0),
+        TOBLayer3_4_5_6 = cms.PSet(
+            DetUnits = cms.PSet(
+                dZlocal = cms.double(0.0018),
+                phiXlocal = cms.double(4e-05),
+                dYlocal = cms.double(0.0018),
+                phiZlocal = cms.double(4e-05),
+                dXlocal = cms.double(0.0018),
+                phiYlocal = cms.double(4e-05)
+            )
+        ),
         scaleError = cms.double(1.0),
         TOBLayers = cms.PSet(
             dXlocal = cms.double(0.0),
             dZlocal = cms.double(0.0),
             dYlocal = cms.double(0.0)
+        ),
+        TOBLayer1_2 = cms.PSet(
+            Dets = cms.PSet(
+                dZlocal = cms.double(0.0018),
+                phiXlocal = cms.double(4e-05),
+                dYlocal = cms.double(0.0018),
+                phiZlocal = cms.double(4e-05),
+                dXlocal = cms.double(0.0018),
+                phiYlocal = cms.double(4e-05)
+            )
         ),
         TOBRods = cms.PSet(
             dZlocal = cms.double(0.0018),
@@ -942,18 +1164,18 @@ Tracker1000pbScenario = cms.PSet(
             dXlocal = cms.double(0.001),
             phiYlocal = cms.double(2e-06)
         ),
-        distribution = cms.string('gaussian'),
-        Dets = cms.PSet(
-            dZlocal = cms.double(0.0018),
-            phiXlocal = cms.double(4e-05),
-            dYlocal = cms.double(0.0018),
-            phiZlocal = cms.double(4e-05),
-            dXlocal = cms.double(0.0018),
-            phiYlocal = cms.double(4e-05)
-        )
+        distribution = cms.string('gaussian')
     ),
     TECs = cms.PSet(
         scale = cms.double(1.0),
+        TECDisk9 = cms.PSet(
+            TECRing2 = cms.PSet(
+                TECRings1000pb_2D
+            ),
+            TECRing1_3_4 = cms.PSet(
+                TECRings1000pb_1D
+            )
+        ),
         scaleError = cms.double(1.0),
         TECPetals = cms.PSet(
             dZlocal = cms.double(0.004),
@@ -971,14 +1193,30 @@ Tracker1000pbScenario = cms.PSet(
             dXlocal = cms.double(0.002),
             phiYlocal = cms.double(5e-06)
         ),
+        TECDisk4_5_6 = cms.PSet(
+            TECRing2_3_5_6 = cms.PSet(
+                TECRings1000pb_1D
+            ),
+            TECRing1_4 = cms.PSet(
+                TECRings1000pb_2D
+            )
+        ),
+        TECDisk7_8 = cms.PSet(
+            TECRing3 = cms.PSet(
+                TECRings1000pb_2D
+            ),
+            TECRing1_2_4_5 = cms.PSet(
+                TECRings1000pb_1D
+            )
+        ),
         distribution = cms.string('gaussian'),
-        Dets = cms.PSet(
-            dZlocal = cms.double(0.0022),
-            phiXlocal = cms.double(5e-05),
-            dYlocal = cms.double(0.0022),
-            phiZlocal = cms.double(5e-05),
-            dXlocal = cms.double(0.0022),
-            phiYlocal = cms.double(5e-05)
+        TECDisk1_2_3 = cms.PSet(
+            TECRing3_4_6_7 = cms.PSet(
+                TECRings1000pb_1D
+            ),
+            TECRing1_2_5 = cms.PSet(
+                TECRings1000pb_2D
+            )
         )
     ),
     TPEs = cms.PSet(
@@ -1000,6 +1238,14 @@ Tracker1000pbScenario = cms.PSet(
             dXlocal = cms.double(0.0005),
             phiYlocal = cms.double(7e-06)
         ),
+        DetUnits = cms.PSet(
+            dZlocal = cms.double(0.0005),
+            phiXlocal = cms.double(1.1e-05),
+            dYlocal = cms.double(0.0005),
+            phiZlocal = cms.double(1.1e-05),
+            dXlocal = cms.double(0.0005),
+            phiYlocal = cms.double(1.1e-05)
+        ),
         TPEBlades = cms.PSet(
             dZlocal = cms.double(0.0005),
             phiXlocal = cms.double(7e-06),
@@ -1008,19 +1254,31 @@ Tracker1000pbScenario = cms.PSet(
             dXlocal = cms.double(0.0005),
             phiYlocal = cms.double(7e-06)
         ),
-        distribution = cms.string('gaussian'),
-        Dets = cms.PSet(
-            dZlocal = cms.double(0.0005),
-            phiXlocal = cms.double(1.1e-05),
-            dYlocal = cms.double(0.0005),
-            phiZlocal = cms.double(1.1e-05),
-            dXlocal = cms.double(0.0005),
-            phiYlocal = cms.double(1.1e-05)
-        )
+        distribution = cms.string('gaussian')
     ),
     TIDs = cms.PSet(
         scale = cms.double(1.0),
         scaleError = cms.double(1.0),
+        TIDRing3 = cms.PSet(
+            DetUnits = cms.PSet(
+                dZlocal = cms.double(0.0025),
+                phiXlocal = cms.double(0.00011),
+                dYlocal = cms.double(0.0025),
+                phiZlocal = cms.double(0.00011),
+                dXlocal = cms.double(0.0025),
+                phiYlocal = cms.double(0.00011)
+            )
+        ),
+        TIDRing1_2 = cms.PSet(
+            Dets = cms.PSet(
+                dZlocal = cms.double(0.0025),
+                phiXlocal = cms.double(0.00011),
+                dYlocal = cms.double(0.0025),
+                phiZlocal = cms.double(0.00011),
+                dXlocal = cms.double(0.0025),
+                phiYlocal = cms.double(0.00011)
+            )
+        ),
         TIDDisks = cms.PSet(
             dZlocal = cms.double(0.0012),
             phiXlocal = cms.double(2e-05),
@@ -1037,20 +1295,34 @@ Tracker1000pbScenario = cms.PSet(
             phiZlocal = cms.double(0.00011),
             dXlocal = cms.double(0.0025),
             phiYlocal = cms.double(0.00011)
-        ),
-        Dets = cms.PSet(
-            dZlocal = cms.double(0.0025),
-            phiXlocal = cms.double(0.00011),
-            dYlocal = cms.double(0.0025),
-            phiZlocal = cms.double(0.00011),
-            dXlocal = cms.double(0.0025),
-            phiYlocal = cms.double(0.00011)
         )
     )
 )
 # -----------------------------------------------------------------------
 # Survey&LAS only misalignment scenario
 # See CMS IN 2007/036, table 6, "Updated initial uncertainties"
+# first helper blocks for TEC:
+TECRingsSurveyLASOnly_1D = cms.PSet(
+    DetUnits = cms.PSet(
+        dZlocal = cms.double(0.0022),
+        phiXlocal = cms.double(5e-05),
+        dYlocal = cms.double(0.0022),
+        phiZlocal = cms.double(5e-05),
+        dXlocal = cms.double(0.0022),
+        phiYlocal = cms.double(5e-05)
+    )
+)
+TECRingsSurveyLASOnly_2D = cms.PSet(
+    Dets = cms.PSet(
+        dZlocal = cms.double(0.0022),
+        phiXlocal = cms.double(5e-05),
+        dYlocal = cms.double(0.0022),
+        phiZlocal = cms.double(5e-05),
+        dXlocal = cms.double(0.0022),
+        phiYlocal = cms.double(5e-05)
+    )
+)
+# now real scenario:
 TrackerSurveyLASOnlyScenario = cms.PSet(
     MisalignmentScenarioSettings,
     TIBs = cms.PSet(
@@ -1063,7 +1335,27 @@ TrackerSurveyLASOnlyScenario = cms.PSet(
             phiYlocal = cms.double(0.000488)
         ),
         scale = cms.double(1.0),
+        TIBLayer3_4 = cms.PSet(
+            DetUnits = cms.PSet(
+                dZlocal = cms.double(0.018),
+                phiXlocal = cms.double(0.000412),
+                dYlocal = cms.double(0.018),
+                phiZlocal = cms.double(0.000412),
+                dXlocal = cms.double(0.018),
+                phiYlocal = cms.double(0.000412)
+            )
+        ),
         scaleError = cms.double(1.0),
+        TIBLayer1_2 = cms.PSet(
+            Dets = cms.PSet(
+                dZlocal = cms.double(0.018),
+                phiXlocal = cms.double(0.000412),
+                dYlocal = cms.double(0.018),
+                phiZlocal = cms.double(0.000412),
+                dXlocal = cms.double(0.018),
+                phiYlocal = cms.double(0.000412)
+            )
+        ),
         distribution = cms.string('gaussian'),
         TIBStrings = cms.PSet(
             dZlocal = cms.double(0.045),
@@ -1072,18 +1364,11 @@ TrackerSurveyLASOnlyScenario = cms.PSet(
             phiZlocal = cms.double(0.000293),
             dXlocal = cms.double(0.045),
             phiYlocal = cms.double(0.000293)
-        ),
-        Dets = cms.PSet(
-            dZlocal = cms.double(0.018),
-            phiXlocal = cms.double(0.000412),
-            dYlocal = cms.double(0.018),
-            phiZlocal = cms.double(0.000412),
-            dXlocal = cms.double(0.018),
-            phiYlocal = cms.double(0.000412)
         )
     ),
     TPBs = cms.PSet(
-        Dets = cms.PSet(
+        scale = cms.double(1.0),
+        DetUnits = cms.PSet(
             dZlocal = cms.double(0.006),
             phiXlocal = cms.double(0.00027),
             dYlocal = cms.double(0.006),
@@ -1092,7 +1377,6 @@ TrackerSurveyLASOnlyScenario = cms.PSet(
             dXlocal = cms.double(0.006),
             phiYlocal = cms.double(0.00027)
         ),
-        scale = cms.double(1.0),
         TPBLayers = cms.PSet(
             phiXlocal = cms.double(1e-05),
             phiZlocal = cms.double(1e-05),
@@ -1115,11 +1399,31 @@ TrackerSurveyLASOnlyScenario = cms.PSet(
     ),
     TOBs = cms.PSet(
         scale = cms.double(1.0),
+        TOBLayer3_4_5_6 = cms.PSet(
+            DetUnits = cms.PSet(
+                dZlocal = cms.double(0.0032),
+                phiXlocal = cms.double(7.5e-05),
+                dYlocal = cms.double(0.0032),
+                phiZlocal = cms.double(7.5e-05),
+                dXlocal = cms.double(0.0032),
+                phiYlocal = cms.double(7.5e-05)
+            )
+        ),
         scaleError = cms.double(1.0),
         TOBLayers = cms.PSet(
             dXlocal = cms.double(0.0),
             dZlocal = cms.double(0.0),
             dYlocal = cms.double(0.0)
+        ),
+        TOBLayer1_2 = cms.PSet(
+            Dets = cms.PSet(
+                dZlocal = cms.double(0.0032),
+                phiXlocal = cms.double(7.5e-05),
+                dYlocal = cms.double(0.0032),
+                phiZlocal = cms.double(7.5e-05),
+                dXlocal = cms.double(0.0032),
+                phiYlocal = cms.double(7.5e-05)
+            )
         ),
         TOBRods = cms.PSet(
             dZlocal = cms.double(0.01),
@@ -1137,18 +1441,18 @@ TrackerSurveyLASOnlyScenario = cms.PSet(
             dXlocal = cms.double(0.006),
             phiYlocal = cms.double(1e-05)
         ),
-        distribution = cms.string('gaussian'),
-        Dets = cms.PSet(
-            dZlocal = cms.double(0.0032),
-            phiXlocal = cms.double(7.5e-05),
-            dYlocal = cms.double(0.0032),
-            phiZlocal = cms.double(7.5e-05),
-            dXlocal = cms.double(0.0032),
-            phiYlocal = cms.double(7.5e-05)
-        )
+        distribution = cms.string('gaussian')
     ),
     TECs = cms.PSet(
         scale = cms.double(1.0),
+        TECDisk9 = cms.PSet(
+            TECRing2 = cms.PSet(
+                TECRingsSurveyLASOnly_2D
+            ),
+            TECRing1_3_4 = cms.PSet(
+                TECRingsSurveyLASOnly_1D
+            )
+        ),
         scaleError = cms.double(1.0),
         TECPetals = cms.PSet(
             dZlocal = cms.double(0.007),
@@ -1166,14 +1470,30 @@ TrackerSurveyLASOnlyScenario = cms.PSet(
             dXlocal = cms.double(0.006),
             phiYlocal = cms.double(1.5e-05)
         ),
+        TECDisk4_5_6 = cms.PSet(
+            TECRing2_3_5_6 = cms.PSet(
+                TECRingsSurveyLASOnly_1D
+            ),
+            TECRing1_4 = cms.PSet(
+                TECRingsSurveyLASOnly_2D
+            )
+        ),
+        TECDisk7_8 = cms.PSet(
+            TECRing3 = cms.PSet(
+                TECRingsSurveyLASOnly_2D
+            ),
+            TECRing1_2_4_5 = cms.PSet(
+                TECRingsSurveyLASOnly_1D
+            )
+        ),
         distribution = cms.string('gaussian'),
-        Dets = cms.PSet(
-            dZlocal = cms.double(0.0022),
-            phiXlocal = cms.double(5e-05),
-            dYlocal = cms.double(0.0022),
-            phiZlocal = cms.double(5e-05),
-            dXlocal = cms.double(0.0022),
-            phiYlocal = cms.double(5e-05)
+        TECDisk1_2_3 = cms.PSet(
+            TECRing3_4_6_7 = cms.PSet(
+                TECRingsSurveyLASOnly_1D
+            ),
+            TECRing1_2_5 = cms.PSet(
+                TECRingsSurveyLASOnly_2D
+            )
         )
     ),
     TPEs = cms.PSet(
@@ -1203,6 +1523,14 @@ TrackerSurveyLASOnlyScenario = cms.PSet(
             dXlocal = cms.double(0.005),
             phiYlocal = cms.double(0.001)
         ),
+        DetUnits = cms.PSet(
+            dZlocal = cms.double(0.0005),
+            phiXlocal = cms.double(0.0001),
+            dYlocal = cms.double(0.0005),
+            phiZlocal = cms.double(0.0001),
+            dXlocal = cms.double(0.0005),
+            phiYlocal = cms.double(0.0001)
+        ),
         TPEBlades = cms.PSet(
             dZlocal = cms.double(0.001),
             phiXlocal = cms.double(0.0002),
@@ -1211,15 +1539,7 @@ TrackerSurveyLASOnlyScenario = cms.PSet(
             dXlocal = cms.double(0.001),
             phiYlocal = cms.double(0.0002)
         ),
-        distribution = cms.string('gaussian'),
-        Dets = cms.PSet(
-            dZlocal = cms.double(0.0005),
-            phiXlocal = cms.double(0.0001),
-            dYlocal = cms.double(0.0005),
-            phiZlocal = cms.double(0.0001),
-            dXlocal = cms.double(0.0005),
-            phiYlocal = cms.double(0.0001)
-        )
+        distribution = cms.string('gaussian')
     ),
     TIDs = cms.PSet(
         scale = cms.double(1.0),
@@ -1231,6 +1551,26 @@ TrackerSurveyLASOnlyScenario = cms.PSet(
             phiZlocal = cms.double(0.000649),
             dXlocal = cms.double(0.045),
             phiYlocal = cms.double(0.000649)
+        ),
+        TIDRing3 = cms.PSet(
+            DetUnits = cms.PSet(
+                dZlocal = cms.double(0.0054),
+                phiXlocal = cms.double(0.00025),
+                dYlocal = cms.double(0.0054),
+                phiZlocal = cms.double(0.00025),
+                dXlocal = cms.double(0.0054),
+                phiYlocal = cms.double(0.00025)
+            )
+        ),
+        TIDRing1_2 = cms.PSet(
+            Dets = cms.PSet(
+                dZlocal = cms.double(0.0054),
+                phiXlocal = cms.double(0.00025),
+                dYlocal = cms.double(0.0054),
+                phiZlocal = cms.double(0.00025),
+                dXlocal = cms.double(0.0054),
+                phiYlocal = cms.double(0.00025)
+            )
         ),
         TIDDisks = cms.PSet(
             dZlocal = cms.double(0.035),
@@ -1248,18 +1588,56 @@ TrackerSurveyLASOnlyScenario = cms.PSet(
             phiZlocal = cms.double(0.00085),
             dXlocal = cms.double(0.0185),
             phiYlocal = cms.double(0.00085)
-        ),
-        Dets = cms.PSet(
-            dZlocal = cms.double(0.0054),
-            phiXlocal = cms.double(0.00025),
-            dYlocal = cms.double(0.0054),
-            phiZlocal = cms.double(0.00025),
-            dXlocal = cms.double(0.0054),
-            phiYlocal = cms.double(0.00025)
         )
     )
 )
 # -----------------------------------------------------------------------
+# Survey&LAS&Cosmics scenario
+# ----------------------------------------
+# ----------------- NOTE -----------------
+# Sufficient studies do not yet exist to
+# provide a reliable version of this 
+# scenario (Survey+LAS+Cosmics alignment).
+#
+# This scenario is not supposed to be used
+# to make public(?) estimates of the 
+# performance of the CMS.  
+#
+# This scenario contains lots of guesses,
+# especially concerning the improvement
+# one can reach by using Cosmics in
+# track based alignment.
+# The guess is that with Cosmics, one 
+# can reach for largest barrel-like parts
+# the average alignment accuracy of the 
+# 10pb-1 and the SurveyLASOnly scenarios.
+#
+# The same applies also,but to a lesser
+# extent, to the 10pb-1 scenario.
+# ------------- NOTE ends ----------------
+# ----------------------------------------
+# first helper blocks for TEC:
+TECRingsSurveyLASCosmics_1D = cms.PSet(
+    DetUnits = cms.PSet(
+        dZlocal = cms.double(0.0022),
+        phiXlocal = cms.double(5e-05),
+        dYlocal = cms.double(0.0022),
+        phiZlocal = cms.double(5e-05),
+        dXlocal = cms.double(0.0022),
+        phiYlocal = cms.double(5e-05)
+    )
+)
+TECRingsSurveyLASCosmics_2D = cms.PSet(
+    Dets = cms.PSet(
+        dZlocal = cms.double(0.0022),
+        phiXlocal = cms.double(5e-05),
+        dYlocal = cms.double(0.0022),
+        phiZlocal = cms.double(5e-05),
+        dXlocal = cms.double(0.0022),
+        phiYlocal = cms.double(5e-05)
+    )
+)
+# now real scenario:
 TrackerSurveyLASCosmicsScenario = cms.PSet(
     MisalignmentScenarioSettings,
     TIBs = cms.PSet(
@@ -1272,7 +1650,27 @@ TrackerSurveyLASCosmicsScenario = cms.PSet(
             phiYlocal = cms.double(0.000277)
         ),
         scale = cms.double(1.0),
+        TIBLayer3_4 = cms.PSet(
+            DetUnits = cms.PSet(
+                dZlocal = cms.double(0.018),
+                phiXlocal = cms.double(0.000412),
+                dYlocal = cms.double(0.018),
+                phiZlocal = cms.double(0.000412),
+                dXlocal = cms.double(0.018),
+                phiYlocal = cms.double(0.000412)
+            )
+        ),
         scaleError = cms.double(1.0),
+        TIBLayer1_2 = cms.PSet(
+            Dets = cms.PSet(
+                dZlocal = cms.double(0.018),
+                phiXlocal = cms.double(0.000412),
+                dYlocal = cms.double(0.018),
+                phiZlocal = cms.double(0.000412),
+                dXlocal = cms.double(0.018),
+                phiYlocal = cms.double(0.000412)
+            )
+        ),
         distribution = cms.string('gaussian'),
         TIBStrings = cms.PSet(
             dZlocal = cms.double(0.0275),
@@ -1281,18 +1679,11 @@ TrackerSurveyLASCosmicsScenario = cms.PSet(
             phiZlocal = cms.double(0.000179),
             dXlocal = cms.double(0.0275),
             phiYlocal = cms.double(0.000179)
-        ),
-        Dets = cms.PSet(
-            dZlocal = cms.double(0.018),
-            phiXlocal = cms.double(0.000412),
-            dYlocal = cms.double(0.018),
-            phiZlocal = cms.double(0.000412),
-            dXlocal = cms.double(0.018),
-            phiYlocal = cms.double(0.000412)
         )
     ),
     TPBs = cms.PSet(
-        Dets = cms.PSet(
+        scale = cms.double(1.0),
+        DetUnits = cms.PSet(
             dZlocal = cms.double(0.006),
             phiXlocal = cms.double(0.00027),
             dYlocal = cms.double(0.006),
@@ -1301,7 +1692,6 @@ TrackerSurveyLASCosmicsScenario = cms.PSet(
             dXlocal = cms.double(0.006),
             phiYlocal = cms.double(0.00027)
         ),
-        scale = cms.double(1.0),
         TPBLayers = cms.PSet(
             phiXlocal = cms.double(9e-06),
             phiZlocal = cms.double(9e-06),
@@ -1324,11 +1714,31 @@ TrackerSurveyLASCosmicsScenario = cms.PSet(
     ),
     TOBs = cms.PSet(
         scale = cms.double(1.0),
+        TOBLayer3_4_5_6 = cms.PSet(
+            DetUnits = cms.PSet(
+                dZlocal = cms.double(0.0032),
+                phiXlocal = cms.double(7.5e-05),
+                dYlocal = cms.double(0.0032),
+                phiZlocal = cms.double(7.5e-05),
+                dXlocal = cms.double(0.0032),
+                phiYlocal = cms.double(7.5e-05)
+            )
+        ),
         scaleError = cms.double(1.0),
         TOBLayers = cms.PSet(
             dXlocal = cms.double(0.0),
             dZlocal = cms.double(0.0),
             dYlocal = cms.double(0.0)
+        ),
+        TOBLayer1_2 = cms.PSet(
+            Dets = cms.PSet(
+                dZlocal = cms.double(0.0032),
+                phiXlocal = cms.double(7.5e-05),
+                dYlocal = cms.double(0.0032),
+                phiZlocal = cms.double(7.5e-05),
+                dXlocal = cms.double(0.0032),
+                phiYlocal = cms.double(7.5e-05)
+            )
         ),
         TOBRods = cms.PSet(
             dZlocal = cms.double(0.01),
@@ -1346,18 +1756,18 @@ TrackerSurveyLASCosmicsScenario = cms.PSet(
             dXlocal = cms.double(0.006),
             phiYlocal = cms.double(1e-05)
         ),
-        distribution = cms.string('gaussian'),
-        Dets = cms.PSet(
-            dZlocal = cms.double(0.0032),
-            phiXlocal = cms.double(7.5e-05),
-            dYlocal = cms.double(0.0032),
-            phiZlocal = cms.double(7.5e-05),
-            dXlocal = cms.double(0.0032),
-            phiYlocal = cms.double(7.5e-05)
-        )
+        distribution = cms.string('gaussian')
     ),
     TECs = cms.PSet(
         scale = cms.double(1.0),
+        TECDisk9 = cms.PSet(
+            TECRing2 = cms.PSet(
+                TECRingsSurveyLASCosmics_2D
+            ),
+            TECRing1_3_4 = cms.PSet(
+                TECRingsSurveyLASCosmics_1D
+            )
+        ),
         scaleError = cms.double(1.0),
         TECPetals = cms.PSet(
             dZlocal = cms.double(0.007),
@@ -1375,14 +1785,30 @@ TrackerSurveyLASCosmicsScenario = cms.PSet(
             dXlocal = cms.double(0.006),
             phiYlocal = cms.double(1.5e-05)
         ),
+        TECDisk4_5_6 = cms.PSet(
+            TECRing2_3_5_6 = cms.PSet(
+                TECRingsSurveyLASCosmics_1D
+            ),
+            TECRing1_4 = cms.PSet(
+                TECRingsSurveyLASCosmics_2D
+            )
+        ),
+        TECDisk7_8 = cms.PSet(
+            TECRing3 = cms.PSet(
+                TECRingsSurveyLASCosmics_2D
+            ),
+            TECRing1_2_4_5 = cms.PSet(
+                TECRingsSurveyLASCosmics_1D
+            )
+        ),
         distribution = cms.string('gaussian'),
-        Dets = cms.PSet(
-            dZlocal = cms.double(0.0022),
-            phiXlocal = cms.double(5e-05),
-            dYlocal = cms.double(0.0022),
-            phiZlocal = cms.double(5e-05),
-            dXlocal = cms.double(0.0022),
-            phiYlocal = cms.double(5e-05)
+        TECDisk1_2_3 = cms.PSet(
+            TECRing3_4_6_7 = cms.PSet(
+                TECRingsSurveyLASCosmics_1D
+            ),
+            TECRing1_2_5 = cms.PSet(
+                TECRingsSurveyLASCosmics_2D
+            )
         )
     ),
     TPEs = cms.PSet(
@@ -1412,6 +1838,14 @@ TrackerSurveyLASCosmicsScenario = cms.PSet(
             dXlocal = cms.double(0.005),
             phiYlocal = cms.double(0.001)
         ),
+        DetUnits = cms.PSet(
+            dZlocal = cms.double(0.0005),
+            phiXlocal = cms.double(0.0001),
+            dYlocal = cms.double(0.0005),
+            phiZlocal = cms.double(0.0001),
+            dXlocal = cms.double(0.0005),
+            phiYlocal = cms.double(0.0001)
+        ),
         TPEBlades = cms.PSet(
             dZlocal = cms.double(0.001),
             phiXlocal = cms.double(0.0002),
@@ -1420,15 +1854,7 @@ TrackerSurveyLASCosmicsScenario = cms.PSet(
             dXlocal = cms.double(0.001),
             phiYlocal = cms.double(0.0002)
         ),
-        distribution = cms.string('gaussian'),
-        Dets = cms.PSet(
-            dZlocal = cms.double(0.0005),
-            phiXlocal = cms.double(0.0001),
-            dYlocal = cms.double(0.0005),
-            phiZlocal = cms.double(0.0001),
-            dXlocal = cms.double(0.0005),
-            phiYlocal = cms.double(0.0001)
-        )
+        distribution = cms.string('gaussian')
     ),
     TIDs = cms.PSet(
         scale = cms.double(1.0),
@@ -1440,6 +1866,26 @@ TrackerSurveyLASCosmicsScenario = cms.PSet(
             phiZlocal = cms.double(0.000325),
             dXlocal = cms.double(0.0225),
             phiYlocal = cms.double(0.000325)
+        ),
+        TIDRing3 = cms.PSet(
+            DetUnits = cms.PSet(
+                dZlocal = cms.double(0.0054),
+                phiXlocal = cms.double(0.00025),
+                dYlocal = cms.double(0.0054),
+                phiZlocal = cms.double(0.00025),
+                dXlocal = cms.double(0.0054),
+                phiYlocal = cms.double(0.00025)
+            )
+        ),
+        TIDRing1_2 = cms.PSet(
+            Dets = cms.PSet(
+                dZlocal = cms.double(0.0054),
+                phiXlocal = cms.double(0.00025),
+                dYlocal = cms.double(0.0054),
+                phiZlocal = cms.double(0.00025),
+                dXlocal = cms.double(0.0054),
+                phiYlocal = cms.double(0.00025)
+            )
         ),
         TIDDisks = cms.PSet(
             dZlocal = cms.double(0.03),
@@ -1457,14 +1903,6 @@ TrackerSurveyLASCosmicsScenario = cms.PSet(
             phiZlocal = cms.double(0.00085),
             dXlocal = cms.double(0.0185),
             phiYlocal = cms.double(0.00085)
-        ),
-        Dets = cms.PSet(
-            dZlocal = cms.double(0.0054),
-            phiXlocal = cms.double(0.00025),
-            dYlocal = cms.double(0.0054),
-            phiZlocal = cms.double(0.00025),
-            dXlocal = cms.double(0.0054),
-            phiYlocal = cms.double(0.00025)
         )
     )
 )
