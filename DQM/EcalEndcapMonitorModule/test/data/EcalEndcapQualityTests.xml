@@ -10,6 +10,7 @@
         <PARAM name="maxRMS">0.0</PARAM>
         <PARAM name="toleranceMean">-1.0</PARAM>
         <PARAM name="minEntries">0</PARAM>
+        <PARAM name="useEmptyBins">1</PARAM>
 </QTEST>
 
 <LINK name="*EcalEndcap/EEIntegrityTask/Gain/EEIT gain EE*">
@@ -26,6 +27,7 @@
         <PARAM name="maxRMS">0.0</PARAM>
         <PARAM name="toleranceMean">-1.0</PARAM>
         <PARAM name="minEntries">0</PARAM>
+        <PARAM name="useEmptyBins">1</PARAM>
 </QTEST>
 
 <LINK name="*EcalEndcap/EEIntegrityTask/ChId/EEIT ChId EE*">
@@ -42,6 +44,7 @@
         <PARAM name="maxRMS">0.0</PARAM>
         <PARAM name="toleranceMean">-1.0</PARAM>
         <PARAM name="minEntries">0</PARAM>
+        <PARAM name="useEmptyBins">1</PARAM>
 </QTEST>
 
 <LINK name="*EcalEndcap/EEIntegrityTask/GainSwitch/EEIT gain switch EE*">
@@ -58,6 +61,7 @@
         <PARAM name="maxRMS">0.0</PARAM>
         <PARAM name="toleranceMean">-1.0</PARAM>
         <PARAM name="minEntries">0</PARAM>
+        <PARAM name="useEmptyBins">1</PARAM>
 </QTEST>
 
 <LINK name="*EcalEndcap/EEIntegrityTask/TTId/EEIT TTId EE*">
@@ -74,6 +78,7 @@
         <PARAM name="maxRMS">0.0</PARAM>
         <PARAM name="toleranceMean">-1.0</PARAM>
         <PARAM name="minEntries">0</PARAM>
+        <PARAM name="useEmptyBins">1</PARAM>
 </QTEST>
 
 <LINK name="*EcalEndcap/EEIntegrityTask/TTBlockSize/EEIT TTBlockSize EE*">
@@ -90,6 +95,7 @@
         <PARAM name="maxRMS">0.0</PARAM>
         <PARAM name="toleranceMean">-1.0</PARAM>
         <PARAM name="minEntries">0</PARAM>
+        <PARAM name="useEmptyBins">1</PARAM>
 </QTEST>
 
 <LINK name="*EcalEndcap/EEIntegrityTask/MemChId/EEIT MemChId EE*">
@@ -106,6 +112,7 @@
         <PARAM name="maxRMS">0.0</PARAM>
         <PARAM name="toleranceMean">-1.0</PARAM>
         <PARAM name="minEntries">0</PARAM>
+        <PARAM name="useEmptyBins">1</PARAM>
 </QTEST>
 
 <LINK name="*EcalEndcap/EEIntegrityTask/MemGain/EEIT MemGain EE*">
@@ -122,6 +129,7 @@
         <PARAM name="maxRMS">0.0</PARAM>
         <PARAM name="toleranceMean">-1.0</PARAM>
         <PARAM name="minEntries">0</PARAM>
+        <PARAM name="useEmptyBins">1</PARAM>
 </QTEST>
 
 <LINK name="*EcalEndcap/EEIntegrityTask/MemTTId/EEIT MemTTId EE*">
@@ -138,6 +146,7 @@
         <PARAM name="maxRMS">0.0</PARAM>
         <PARAM name="toleranceMean">-1.0</PARAM>
         <PARAM name="minEntries">0</PARAM>
+        <PARAM name="useEmptyBins">1</PARAM>
 </QTEST>
 
 <LINK name="*EcalEndcap/EEIntegrityTask/MemSize/EEIT MemSize EE*">
@@ -154,6 +163,7 @@
         <PARAM name="maxRMS">0.0</PARAM>
         <PARAM name="toleranceMean">-1.0</PARAM>
         <PARAM name="minEntries">0</PARAM>
+        <PARAM name="useEmptyBins">1</PARAM>
 </QTEST>
 
 <LINK name="*EcalEndcap/EEStatusFlagsTask/FEStatus/EESFT front-end status EE*">
@@ -170,6 +180,7 @@
         <PARAM name="maxRMS">2.0</PARAM>
         <PARAM name="toleranceMean">-1.0</PARAM>
         <PARAM name="minEntries">17000</PARAM>
+        <PARAM name="useEmptyBins">1</PARAM>
 </QTEST>
 
 <LINK name="*EcalEndcap/EEPedestalOnlineTask/Gain12/EEPOT pedestal EE* G12">
@@ -186,6 +197,7 @@
         <PARAM name="maxRMS">1.0</PARAM>
         <PARAM name="toleranceMean">-1.0</PARAM>
         <PARAM name="minEntries">17000</PARAM>
+        <PARAM name="useEmptyBins">1</PARAM>
 </QTEST>
 
 <LINK name="*EcalEndcap/EEPedestalTask/Gain01/EEPT pedestal EE* G01">
@@ -202,6 +214,7 @@
         <PARAM name="maxRMS">1.2</PARAM>
         <PARAM name="toleranceMean">-1.0</PARAM>
         <PARAM name="minEntries">17000</PARAM>
+        <PARAM name="useEmptyBins">1</PARAM>
 </QTEST>
 
 <LINK name="*EcalEndcap/EEPedestalTask/Gain06/EEPT pedestal EE* G06">
@@ -218,6 +231,7 @@
         <PARAM name="maxRMS">2.0</PARAM>
         <PARAM name="toleranceMean">-1.0</PARAM>
         <PARAM name="minEntries">17000</PARAM>
+        <PARAM name="useEmptyBins">1</PARAM>
 </QTEST>
 
 <LINK name="*EcalEndcap/EEPedestalTask/Gain12/EEPDT pedestal EE* G12">
@@ -234,6 +248,7 @@
         <PARAM name="maxRMS">1.0</PARAM>
         <PARAM name="toleranceMean">-1.0</PARAM>
         <PARAM name="minEntries">100</PARAM>
+        <PARAM name="useEmptyBins">1</PARAM>
 </QTEST>
 
 <LINK name="*EcalEndcap/EEPedestalTask/PN/Gain01/EEPDT PNs pedestal EE* G01">
@@ -250,6 +265,7 @@
         <PARAM name="maxRMS">3.0</PARAM>
         <PARAM name="toleranceMean">-1.0</PARAM>
         <PARAM name="minEntries">100</PARAM>
+        <PARAM name="useEmptyBins">1</PARAM>
 </QTEST>
 
 <LINK name="*EcalEndcap/EEPedestalTask/PN/Gain16/EEPDT PNs pedestal EE* G16">
@@ -266,6 +282,7 @@
         <PARAM name="maxRMS">0.0</PARAM>
         <PARAM name="toleranceMean">0.40</PARAM>
         <PARAM name="minEntries">100</PARAM>
+        <PARAM name="useEmptyBins">1</PARAM>
 </QTEST>
 
 <LINK name="*EcalEndcap/EELaserTask/Laser1/EELT amplitude EE* L1*">
@@ -282,6 +299,7 @@
         <PARAM name="maxRMS">1.0</PARAM>
         <PARAM name="toleranceMean">-1.0</PARAM>
         <PARAM name="minEntries">100</PARAM>
+        <PARAM name="useEmptyBins">1</PARAM>
 </QTEST>
 
 <LINK name="*EcalEndcap/EELaserTask/Laser1/PN/Gain01/EEPDT PNs pedestal EE* G01">
@@ -298,6 +316,7 @@
         <PARAM name="maxRMS">3.0</PARAM>
         <PARAM name="toleranceMean">-1.0</PARAM>
         <PARAM name="minEntries">100</PARAM>
+        <PARAM name="useEmptyBins">1</PARAM>
 </QTEST>
 
 <LINK name="*EcalEndcap/EELaserTask/Laser1/PN/Gain16/EEPDT PNs pedestal EE* G16">
@@ -314,6 +333,7 @@
         <PARAM name="maxRMS">4096.0</PARAM>
         <PARAM name="toleranceMean">0.20</PARAM>
         <PARAM name="minEntries">100</PARAM>
+        <PARAM name="useEmptyBins">1</PARAM>
 </QTEST>
 
 <LINK name="*EcalEndcap/EELaserTask/Laser1/PN/Gain01/EEPDT PNs amplitude EE* G01">
@@ -330,6 +350,7 @@
         <PARAM name="maxRMS">4096.0</PARAM>
         <PARAM name="toleranceMean">0.20</PARAM>
         <PARAM name="minEntries">100</PARAM>
+        <PARAM name="useEmptyBins">1</PARAM>
 </QTEST>
 
 <LINK name="*EcalEndcap/EELaserTask/Laser1/PN/Gain16/EEPDT PNs amplitude EE* G16">
@@ -346,6 +367,7 @@
         <PARAM name="maxRMS">0.0</PARAM>
         <PARAM name="toleranceMean">0.40</PARAM>
         <PARAM name="minEntries">100</PARAM>
+        <PARAM name="useEmptyBins">1</PARAM>
 </QTEST>
 
 <LINK name="*EcalEndcap/EELaserTask/Laser4/EELT amplitude EE* L4*">
@@ -362,6 +384,7 @@
         <PARAM name="maxRMS">1.0</PARAM>
         <PARAM name="toleranceMean">-1.0</PARAM>
         <PARAM name="minEntries">100</PARAM>
+        <PARAM name="useEmptyBins">1</PARAM>
 </QTEST>
 
 <LINK name="*EcalEndcap/EELaserTask/Laser4/PN/Gain01/EEPDT PNs pedestal EE* G01">
@@ -378,6 +401,7 @@
         <PARAM name="maxRMS">3.0</PARAM>
         <PARAM name="toleranceMean">-1.0</PARAM>
         <PARAM name="minEntries">100</PARAM>
+        <PARAM name="useEmptyBins">1</PARAM>
 </QTEST>
 
 <LINK name="*EcalEndcap/EELaserTask/Laser4/PN/Gain16/EEPDT PNs pedestal EE* G16">
@@ -394,6 +418,7 @@
         <PARAM name="maxRMS">4096.0</PARAM>
         <PARAM name="toleranceMean">0.20</PARAM>
         <PARAM name="minEntries">100</PARAM>
+        <PARAM name="useEmptyBins">1</PARAM>
 </QTEST>
 
 <LINK name="*EcalEndcap/EELaserTask/Laser4/PN/Gain01/EEPDT PNs amplitude EE* G01">
@@ -410,6 +435,7 @@
         <PARAM name="maxRMS">4096.0</PARAM>
         <PARAM name="toleranceMean">0.20</PARAM>
         <PARAM name="minEntries">100</PARAM>
+        <PARAM name="useEmptyBins">1</PARAM>
 </QTEST>
 
 <LINK name="*EcalEndcap/EELaserTask/Laser4/PN/Gain16/EEPDT PNs amplitude EE* G16">
@@ -426,6 +452,7 @@
         <PARAM name="maxRMS">0.0</PARAM>
         <PARAM name="toleranceMean">0.40</PARAM>
         <PARAM name="minEntries">100</PARAM>
+        <PARAM name="useEmptyBins">1</PARAM>
 </QTEST>
 
 <LINK name="*EcalEndcap/EELedTask/Led1/EELDT amplitude EE* L1*">
@@ -442,6 +469,7 @@
         <PARAM name="maxRMS">1.0</PARAM>
         <PARAM name="toleranceMean">-1.0</PARAM>
         <PARAM name="minEntries">100</PARAM>
+        <PARAM name="useEmptyBins">1</PARAM>
 </QTEST>
 
 <LINK name="*EcalEndcap/EELedTask/Led1/PN/Gain01/EEPDT PNs pedestal EE* G01 L1">
@@ -458,6 +486,7 @@
         <PARAM name="maxRMS">3.0</PARAM>
         <PARAM name="toleranceMean">-1.0</PARAM>
         <PARAM name="minEntries">100</PARAM>
+        <PARAM name="useEmptyBins">1</PARAM>
 </QTEST>
 
 <LINK name="*EcalEndcap/EELedTask/Led1/PN/Gain16/EEPDT PNs pedestal EE* G16 L1">
@@ -474,6 +503,7 @@
         <PARAM name="maxRMS">4096.0</PARAM>
         <PARAM name="toleranceMean">0.20</PARAM>
         <PARAM name="minEntries">100</PARAM>
+        <PARAM name="useEmptyBins">1</PARAM>
 </QTEST>
 
 <LINK name="*EcalEndcap/EELedTask/Led1/PN/Gain01/EEPDT PNs amplitude EE* G01 L1">
@@ -490,6 +520,7 @@
         <PARAM name="maxRMS">4096.0</PARAM>
         <PARAM name="toleranceMean">0.20</PARAM>
         <PARAM name="minEntries">100</PARAM>
+        <PARAM name="useEmptyBins">1</PARAM>
 </QTEST>
 
 <LINK name="*EcalEndcap/EELedTask/Led1/PN/Gain16/EEPDT PNs amplitude EE* G16 L1">
@@ -506,6 +537,7 @@
         <PARAM name="maxRMS">0.0</PARAM>
         <PARAM name="toleranceMean">0.40</PARAM>
         <PARAM name="minEntries">100</PARAM>
+        <PARAM name="useEmptyBins">1</PARAM>
 </QTEST>
 
 <LINK name="*EcalEndcap/EELedTask/Led2/EELDT amplitude EE* L2*">
@@ -522,6 +554,7 @@
         <PARAM name="maxRMS">1.0</PARAM>
         <PARAM name="toleranceMean">-1.0</PARAM>
         <PARAM name="minEntries">100</PARAM>
+        <PARAM name="useEmptyBins">1</PARAM>
 </QTEST>
 
 <LINK name="*EcalEndcap/EELedTask/Led2/PN/Gain01/EEPDT PNs pedestal EE* G01 L2">
@@ -538,6 +571,7 @@
         <PARAM name="maxRMS">3.0</PARAM>
         <PARAM name="toleranceMean">-1.0</PARAM>
         <PARAM name="minEntries">100</PARAM>
+        <PARAM name="useEmptyBins">1</PARAM>
 </QTEST>
 
 <LINK name="*EcalEndcap/EELedTask/Led2/PN/Gain16/EEPDT PNs pedestal EE* G16 L2">
@@ -554,6 +588,7 @@
         <PARAM name="maxRMS">4096.0</PARAM>
         <PARAM name="toleranceMean">0.20</PARAM>
         <PARAM name="minEntries">100</PARAM>
+        <PARAM name="useEmptyBins">1</PARAM>
 </QTEST>
 
 <LINK name="*EcalEndcap/EELedTask/Led2/PN/Gain01/EEPDT PNs amplitude EE* G01 L2">
@@ -570,6 +605,7 @@
         <PARAM name="maxRMS">4096.0</PARAM>
         <PARAM name="toleranceMean">0.20</PARAM>
         <PARAM name="minEntries">100</PARAM>
+        <PARAM name="useEmptyBins">1</PARAM>
 </QTEST>
 
 <LINK name="*EcalEndcap/EELedTask/Led2/PN/Gain16/EEPDT PNs amplitude EE* G16 L2">
@@ -586,6 +622,7 @@
         <PARAM name="maxRMS">300.0</PARAM>
         <PARAM name="toleranceMean">0.20</PARAM>
         <PARAM name="minEntries">17000</PARAM>
+        <PARAM name="useEmptyBins">1</PARAM>
 </QTEST>
 
 <LINK name="*EcalEndcap/EETestPulseTask/Gain01/EETPT amplitude EE* G01">
@@ -602,6 +639,7 @@
         <PARAM name="maxRMS">300.0</PARAM>
         <PARAM name="toleranceMean">0.20</PARAM>
         <PARAM name="minEntries">17000</PARAM>
+        <PARAM name="useEmptyBins">1</PARAM>
 </QTEST>
 
 <LINK name="*EcalEndcap/EETestPulseTask/Gain06/EETPT amplitude EE* G06">
@@ -618,6 +656,7 @@
         <PARAM name="maxRMS">300.0</PARAM>
         <PARAM name="toleranceMean">0.20</PARAM>
         <PARAM name="minEntries">17000</PARAM>
+        <PARAM name="useEmptyBins">1</PARAM>
 </QTEST>
 
 <LINK name="*EcalEndcap/EETestPulseTask/Gain12/EETPT amplitude EE* G12">
@@ -634,6 +673,7 @@
         <PARAM name="maxRMS">1.0</PARAM>
         <PARAM name="toleranceMean">-1.0</PARAM>
         <PARAM name="minEntries">100</PARAM>
+        <PARAM name="useEmptyBins">1</PARAM>
 </QTEST>
 
 <LINK name="*EcalEndcap/EETestPulseTask/PN/Gain01/EEPDT PNs pedestal EE* G01">
@@ -650,6 +690,7 @@
         <PARAM name="maxRMS">3.0</PARAM>
         <PARAM name="toleranceMean">-1.0</PARAM>
         <PARAM name="minEntries">100</PARAM>
+        <PARAM name="useEmptyBins">1</PARAM>
 </QTEST>
 
 <LINK name="*EcalEndcap/EETestPulseTask/PN/Gain16/EEPDT PNs pedestal EE* G16">
@@ -666,6 +707,7 @@
         <PARAM name="maxRMS">4096.0</PARAM>
         <PARAM name="toleranceMean">0.20</PARAM>
         <PARAM name="minEntries">100</PARAM>
+        <PARAM name="useEmptyBins">1</PARAM>
 </QTEST>
 
 <LINK name="*EcalEndcap/EETestPulseTask/PN/Gain01/EEPDT PNs amplitude EE* G01">
@@ -682,6 +724,7 @@
         <PARAM name="maxRMS">4096.0</PARAM>
         <PARAM name="toleranceMean">0.20</PARAM>
         <PARAM name="minEntries">100</PARAM>
+        <PARAM name="useEmptyBins">1</PARAM>
 </QTEST>
 
 <LINK name="*EcalEndcap/EETestPulseTask/PN/Gain16/EEPDT PNs amplitude EE* G16">
@@ -698,6 +741,7 @@
         <PARAM name="maxRMS">2.5</PARAM>
         <PARAM name="toleranceMean">-1.0</PARAM>
         <PARAM name="minEntries">17000</PARAM>
+        <PARAM name="useEmptyBins">1</PARAM>
 </QTEST>
 
 <LINK name="*EcalEndcap/EETimingTask/EETMT timing EE*">
@@ -714,6 +758,7 @@
         <PARAM name="maxRMS">0.0</PARAM>
         <PARAM name="toleranceMean">-1.0</PARAM>
         <PARAM name="minEntries">0</PARAM>
+        <PARAM name="useEmptyBins">1</PARAM>
 </QTEST>
 
 <LINK name="*EcalEndcap/EEIntegrityClient/EEIT data integrity quality EE*">
