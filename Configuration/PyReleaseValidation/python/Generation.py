@@ -15,7 +15,7 @@ def generate(evt_type, energy, evtnumber):
     an event evt_type.
     """
     # Build the switch cases:
-    
+
     # Particle Gun
     if evt_type in ("MU+","MU-","E","DIE","GAMMA","TAU","PI0","PI+","PI-"):
        return _generate_PGUN\
@@ -42,6 +42,9 @@ def generate(evt_type, energy, evtnumber):
              
     elif evt_type in ("WE","WM","WT"):
         return _generate_Wl(evt_type, energy, evtnumber)
+
+    else:
+        return __import__('Configuration/Generator/'+evt_type).source
 
 
 #------------------------------       

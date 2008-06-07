@@ -5,7 +5,7 @@
 # creates a complete config file.
 # relval_main + the custom config for it is not needed any more
 
-__version__ = "$Revision: 1.7 $"
+__version__ = "$Revision: 1.8 $"
 __source__ = "$Source: /cvs_server/repositories/CMSSW/CMSSW/Configuration/PyReleaseValidation/python/ConfigBuilder.py,v $"
 
 import FWCore.ParameterSet.Config as cms
@@ -158,10 +158,16 @@ class ConfigBuilder(object):
         stepList = [methodName.lstrip("prepare_") for methodName in self.__class__.__dict__ if methodName.startswith('prepare_')]
         # look which steps are requested and invoke the corresponding method
         for step in self._options.step.split(","):
-            if step not in stepList:
-                raise ValueError("Step "+step+" unknown")
-            getattr(self,"prepare_"+step)()            
-
+            stepParts = step.split(":")   # for format STEP:alternativeSequence
+            stepName = stepParts[0]
+            if stepName not in stepList:
+                raise ValueError("Step "+stepName+" unknown")
+            if len(stepParts)==1:
+                getattr(self,"prepare_"+step)()            
+            elif len(stepParts)==2:
+                getattr(self,"prepare_"+stepName)(sequence = stepParts[1])
+            else:
+                raise ValueError("Step definition "+step+" invalid")
 
         if ( len(conditionsSP)>1 ):
             self.commands.append("process.GlobalTag.globaltag = '"+str(conditionsSP[1]+"'"))
@@ -200,7 +206,7 @@ class ConfigBuilder(object):
     # prepare_STEPNAME modifies self.process and what else's needed.
     #----------------------------------------------------------------------------
 
-    def prepare_GEN(self):
+    def prepare_GEN(self, sequence = None):
         """ Enrich the schedule with the generation step """    
         
         self.loadAndRemember("Configuration/StandardSequences/Generator_cff")
@@ -215,52 +221,52 @@ class ConfigBuilder(object):
         self.process.schedule.append(self.process.generation_step)
         return
 
-    def prepare_SIM(self):
+    def prepare_SIM(self, sequence = None):
         """ Enrich the schedule with the simulation step"""
         self.loadAndRemember("Configuration/StandardSequences/Simulation_cff")
         self.process.simulation_step = cms.Path( self.process.simulation )
         self.process.schedule.append(self.process.simulation_step)
         return     
 
-    def prepare_DIGI(self):
+    def prepare_DIGI(self, sequence = None):
         """ Enrich the schedule with the digitisation step"""
         self.loadAndRemember("Configuration/StandardSequences/Simulation_cff")
         self.process.digitisation_step = cms.Path(self.process.pdigi)    
         self.process.schedule.append(self.process.digitisation_step)
         return
 
-    def prepare_DIGI2RAW(self):
+    def prepare_DIGI2RAW(self, sequence = None):
         self.loadAndRemember("Configuration/StandardSequences/DigiToRaw_cff")
         self.process.digi2raw_step = cms.Path( self.process.DigiToRaw )
         self.process.schedule.append(self.process.digi2raw_step)
         return
 
-    def prepare_L1(self):
+    def prepare_L1(self, sequence = None):
         """ Enrich the schedule with the L1 simulation step"""
         self.loadAndRemember('Configuration/StandardSequences/SimL1Emulator_cff') 
         self.process.L1simulation_step = cms.Path(self.process.SimL1Emulator)
         self.process.schedule.append(self.process.L1simulation_step)
 
-    def prepare_HLT(self):
+    def prepare_HLT(self, sequence = None):
         """ Enrich the schedule with the HLT simulation step"""
         self.loadAndRemember("OHJE")
         # now we have to loop every single path in the process and check if that's an HLT path.
         # TODO
 
-    def prepare_RAW2DIGI(self):
+    def prepare_RAW2DIGI(self, sequence = None):
         self.loadAndRemember("Configuration/StandardSequences/RawToDigi_cff")
         self.process.raw2digi_step = cms.Path( self.process.RawToDigi )
         self.process.schedule.append(self.process.raw2digi_step)
         return
 
-    def prepare_RECO(self):
+    def prepare_RECO(self, sequence = "reconstruction"):
         ''' Enrich the schedule with reconstruction '''
         self.loadAndRemember("Configuration/StandardSequences/Reconstruction_cff")
-        self.process.reconstruction_step = cms.Path( self.process.reconstruction )
+        self.process.reconstruction_step = cms.Path( getattr(self.process, sequence) )
         self.process.schedule.append(self.process.reconstruction_step)
         return
 
-    def prepare_POSTRECO(self):
+    def prepare_POSTRECO(self, sequence = None):
         """ Enrich the schedule with the postreco step """
         self.loadAndRemember("Configuration/StandardSequences/PostRecoGenerator_cff")
         self.process.postreco_step = cms.Path( self.process.postreco_generator )
@@ -268,14 +274,14 @@ class ConfigBuilder(object):
         return                         
 
 
-    def prepare_PATLayer0(self):
+    def prepare_PATLayer0(self, sequence = None):
         """ In case people would like to have this"""
         pass
 
-    def prepare_DQM(self):
+    def prepare_DQM(self, sequence = None):
         pass
 
-    def prepare_FASTSIM(self):
+    def prepare_FASTSIM(self, sequence = None):
         """ Enrich the schedule with fastsim """
         self.loadAndRemember("FastSimulation/Configuration/FamosSequences_cff")
         self.process.fastsim_step = cms.Path( self.process.famosWithEverything )
@@ -283,7 +289,7 @@ class ConfigBuilder(object):
     def build_production_info(evt_type, energy, evtnumber):
         """ Add useful info for the production. """
         prod_info=cms.untracked.PSet\
-              (version=cms.untracked.string("$Revision: 1.7 $"),
+              (version=cms.untracked.string("$Revision: 1.8 $"),
                name=cms.untracked.string("PyReleaseValidation")#,
               # annotation=cms.untracked.string(self._options.evt_type+" energy:"+str(energy)+" nevts:"+str(evtnumber))
               )
