@@ -2,13 +2,12 @@
 #define L1TObjects_L1MuCSCPtLut_h
 
 #include <string.h>
-#include "CondFormats/Calibration/interface/fixedArray.h"
 
 class CSCTFConfigProducer;
 
 class L1MuCSCPtLut {
 private:
-        fixedArray< unsigned short, 1<<21 > pt_lut ;
+        unsigned short pt_lut[1<<21];
 	friend class CSCTFConfigProducer;
 
 public:

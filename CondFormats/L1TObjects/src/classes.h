@@ -49,7 +49,7 @@
 namespace {
   namespace {
     std::map< std::string, std::map< std::string, std::string > > dummy0 ;
-    std::map< std::string, std::string > dummy0a ;
+    //    std::map< std::string, std::string > dummy0a ;
     std::map<DTBtiId,DTConfigBti> dummy1 ;
     std::map<DTChamberId,std::map<DTBtiId,DTConfigBti> > dummy1a ;
     std::map<DTTracoId,DTConfigTraco> dummy2 ;
@@ -61,6 +61,5 @@ namespace {
     std::vector<L1GtJetCountsTemplate> dummy7 ;
     std::vector<L1GtCorrelationTemplate> dummy8 ;
     std::map< std::string, L1GtAlgorithm > dummy9 ;
-    fixedArray< unsigned short, 1<<21 > dummy10 ;
   }
 }

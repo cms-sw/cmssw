@@ -37,7 +37,6 @@
   <class name="L1CSCTPParameters"/>
   <class name="L1MuCSCTFConfiguration"/>
   <class name="L1MuCSCTFAlignment"/>
-  <class name="fixedArray<unsigned short,2097152>"/>
   <class name="L1MuCSCPtLut"/>
   <class name="EcalTPParameters"/>
   <class name="DTConfigBti"/>
@@ -87,6 +86,7 @@
   <class name="L1GtBoardMaps"/>
   <class name="std::vector<L1GtBoard>"/>
   <class name="std::vector<L1GtPsbQuad>"/>
+  <class name="L1GtCondition"/>
   <class name="L1GtMuonTemplate"/>
   <class name="L1GtMuonTemplate::ObjectParameter"/>
   <class name="std::vector<L1GtMuonTemplate::ObjectParameter>"/>
