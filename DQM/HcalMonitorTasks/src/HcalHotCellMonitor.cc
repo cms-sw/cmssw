@@ -80,9 +80,8 @@ namespace HcalHotCellCheck
     for (int i=max(0,maxi-1);i<=min(9,maxi+2);++i)
       {
 	ADCsum+=digi.sample(i).adc();
-
-
 	int thisCapid = digi.sample(i).capid();
+
 	total_pedestal+=calibs.pedestal(thisCapid);
 	// Add widths in quadrature; need to account for correlations between capids at some point
 	total_pedwidth+=pow(widths.pedestal(thisCapid),2);
@@ -319,7 +318,7 @@ namespace HcalHotCellCheck
       for (_cell=hits.begin(); _cell!=hits.end(); ++_cell)
 	{
 	  if (_cell->id().subdet()!=h.type) continue;
-	  if (vetosize>0 && vetoCell(_cell->id(),h.vetoCells)) continue;
+	  if (vetosize>0 && vetoCell(_cell->id(), h.vetoCells)) continue;
 	  
 	  cellenergy=_cell->energy();
 
@@ -335,7 +334,7 @@ namespace HcalHotCellCheck
 	  if (h.fVerbosity==2) cout <<"<HcalHotCellMonitor:nadaCheck> Cell Energy = "<<cellenergy<<" at position ("<<CellEta<<", "<<CellPhi<<")"<<endl;
 
 	  // --------------------------- 
-	  // Case 1:  E< -1 GeV or E>500 GeV:  Each counts as hot cell
+	  // Case 1:  E<negative cutoff or E> max cutoff:  Each counts as hot cell
 	  
 	  if (cellenergy<h.nadaNegCandCut || cellenergy>h.nadaEnergyCandCut2)
 	    {
@@ -383,7 +382,7 @@ namespace HcalHotCellCheck
 		  hcal.nadaOccMap->Fill(CellEta,CellPhi);
 		  
 		  hcal.nadaEnergyMap->Fill(CellEta,CellPhi,cellenergy);
-		}
+		} // else
 	      // Cells marked as hot; no need to complete remaining code
 	      continue;
 	      
@@ -392,8 +391,9 @@ namespace HcalHotCellCheck
 	  // -------------------------------
 	  // Case 2:  Energy is > negative cutoff, but less than minimum threshold -- skip the cell
 	  
-	  //else if (cellenergy<=h.nadaEnergyCandCut0)
-	  //  continue;
+	  // Comment this line out if you want to plot distribution of all cells  vs surroundings
+	  else if (cellenergy<=h.nadaEnergyCandCut0)
+	    continue;
 	  
 	  // -------------------------------
 	  // Case 3:  Set thresholds according to input variables
@@ -870,6 +870,7 @@ void HcalHotCellMonitor::setupHists(HotCellHists& h, DQMStore* dbe)
 	      std::stringstream depthFoldername;
 	      depthFoldername<<baseFolder_+"/"+subdet.c_str()+"/Diagnostics/Depth"<<l;
 	      m_dbe->setCurrentFolder(depthFoldername.str().c_str());
+	      depthFoldername.str("");
 	      std::stringstream occdepthname;
 	      occdepthname<<subdet+"_OccupancyMap_HotCell_Threshold"<<k<<"Depth"<<l;
 	      std::stringstream occdepthtitle;
@@ -975,6 +976,7 @@ void HcalHotCellMonitor::setupHists(HotCellHists& h, DQMStore* dbe)
 	  std::stringstream depthFoldername;
 	  depthFoldername<<baseFolder_+"/"+subdet.c_str()+"/Diagnostics/Depth"<<l;
 	  m_dbe->setCurrentFolder(depthFoldername.str().c_str());
+	  depthFoldername.str("");
 	  std::stringstream occdepthname;
 	  occdepthname<<subdet+"nadaOccMap"<<"Depth"<<l;
 	  std::stringstream occdepthtitle;
@@ -1037,6 +1039,7 @@ void HcalHotCellMonitor::setupHists(HotCellHists& h, DQMStore* dbe)
 	  diagFoldername.str("");
 	  diagFoldername<<baseFolder_+"/"+subdet.c_str()+"/Diagnostics/Depth"<<depth;
 	  m_dbe->setCurrentFolder(diagFoldername.str().c_str());
+	  diagFoldername.str("");
 	  std::stringstream tempname;
 	  tempname<<subdet+"RecHitEnergyDist_Depth"<<depth;
 	  h.RecHitEnergyDist_depth.push_back(m_dbe->book1D(tempname.str().c_str(), 
@@ -1070,8 +1073,7 @@ void HcalHotCellMonitor::setupHists(HotCellHists& h, DQMStore* dbe)
     } // if (h.makeDiagnostics)
   return;
 
-} // setupHists
-
+} // void HcalHotCellMonitor::setupHists(HotCellHists& h, DQMStore* dbe)
 
 
 void HcalHotCellMonitor::processEvent( const HBHERecHitCollection& hbHits,

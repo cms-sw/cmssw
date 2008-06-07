@@ -283,11 +283,14 @@ htmlFile << "<td align=\"center\">&nbsp;&nbsp;&nbsp;<h3>Cells matching dead cond
   htmlFile<<"</tr>"<<endl;
 
   htmlFile << "<tr align=\"left\">" << endl;
-  htmlFile <<"<tr><td>This histogram shows cells that satisfy at least one hot cell condition in at least "<<(int)(errorFrac_*100)<<"% of events.  A cell is considered hot if (A) it is above a threshold energy, (B) if it is more than 3 sigma above its pedestal value, or (C) if its energy is especially large compared to its neighbors.  Detailed plots for each type of dead cell are given in the links below."<<endl;
+  htmlFile <<"<tr><td>This histogram shows cells that satisfy at least one hot cell condition in at least "<<(int)(errorFrac_*100)<<"% of events.  A cell is considered hot if<br>:";
+  htmlFile<<" (A) it is above a threshold energy;<br>";
+  htmlFile<<" (B) if it is more than 3 sigma above its pedestal value; or <br>";
+  htmlFile<<" (C) if its energy is especially large compared to its neighbors.  Detailed plots for each type of dead cell are given in the links below.<br>"<<endl;
 
   // Links to individual hot cell algorithms
   htmlFile <<"<table width = 90% align=\"center\"><tr align=\"center\">" <<endl;
-  htmlFile <<"<td></td><td><a href=\"HcalHotCellClient_ProblemDepth_HCAL_Plots.html\">Problem Cells By Depth</td></tr><tr>"<<endl;
+  htmlFile <<"<td></td><td><a href=\"HcalHotCellClient_ProblemDepth_HCAL_Plots.html\">Problem Cells By Depth<br></td></tr><tr>"<<endl;
   htmlFile << "<td><a href=\"HcalHotCellClient_Threshold_HCAL_Plots.html\">RecHit Threshold Plots </a> </td>" << endl;
   htmlFile << "<td><a href=\"HcalHotCellClient_Digi_HCAL_Plots.html\">Digi Threshold Plots </a> </td>" << endl;
   htmlFile << "<td><a href=\"HcalHotCellClient_NADA_HCAL_Plots.html\">Neighboring Cell (NADA) Plots </a> </td>" << endl;
@@ -1807,19 +1810,22 @@ if (debug_) cout <<"HcalHotCellClient::Creating \"Problem Plot\" html output for
 	      if (hist.problemHotCells_DEPTH[depth]->GetBinContent(ieta,iphi)>0)
 		{
 		  html<<"<td align=\"center\">";
-		  hist.problemHotCells_DEPTH[depth]->GetBinContent(ieta,iphi)/ievt_ >0.01 ? color="red" : color = "black";
+		  // Mark cells as possibly problematic if >1/5 of (errorFrac)
+		  hist.problemHotCells_DEPTH[depth]->GetBinContent(ieta,iphi)>errorFrac_*ievt_/5. ? color="orange": color="black";
+		  // if > errorFrac, change color from orange to red
+		  if (hist.problemHotCells_DEPTH[depth]->GetBinContent(ieta,iphi)>ievt_*errorFrac_) color="red";
 		  html <<"<font color = '"<<color.c_str()<<"'>";
 		  html<<type<<"  ("<<eta<<", "<<phi<<", "<<depth+1<<") </font></td>";
 		  html<<"<td align=\"center\"><font color = '"<<color.c_str()<<"'>"<< 100.*hist.problemHotCells_DEPTH[depth]->GetBinContent(ieta,iphi)/ievt_<<"%</font></td>"<<endl;
-		  if (color.c_str()=="red")
+		  if (color=="red")
 		    html<<"<td align=\"center\"><font color = 'red' > POSSIBLY HOT </font></td>"<<endl;
 		  html<<"</tr>"<<endl;
 		}
 	      
-	    } // for (int iphi =1...
+	    } // for (int iphi =1; iphi<=phibins;++iphi)
 	  
-	}// for (int ieta=1...
-    } // for (int depth=0...
+	}// for (int ieta=1; ieta<=etabins; ++eta)
+    } // for (int depth=0; depth<4;++depth)
 
   html << "</table>" <<endl;
   // html page footer
