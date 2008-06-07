@@ -66,10 +66,10 @@ namespace edm {
 	<< "put: Cannot put because auto_ptr to product is null."
 	<< "\n";
     }
+    this->addToProcessHistory();
     branchMapperPtr_->insert(*entryInfo);
     // Group assumes ownership
     this->addGroup(edp, bd, entryInfo);
-    this->addToProcessHistory();
   }
 
   Provenance
