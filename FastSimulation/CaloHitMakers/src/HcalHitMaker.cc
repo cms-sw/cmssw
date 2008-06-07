@@ -52,9 +52,9 @@ HcalHitMaker::addHit(double r,double phi,unsigned layer)
 
   DetId thecellID(myCalorimeter->getClosestCell(point,false,false));
 
+  
   if(!thecellID.null())
     {
-
       uint32_t cell(thecellID.rawId());
   
       //      std::cout << " FamosHcalHitMaker::addHit - the cell num " << cell
@@ -93,6 +93,7 @@ HcalHitMaker::setDepth(double depth)
 	{
 	  segiterator= find_if(myGrid.getSegments().begin(),myGrid.getSegments().end(),CaloSegment::inL0Segment(myGrid.getSegments().back().sL0Exit()-1.));
 	  depth=segiterator->sL0Exit()-1.;
+	  currentDepth_=depth;
 	  if(segiterator==myGrid.getSegments().end())
 	    {
 	      std::cout << " Could not go at such depth " << EMSHOWER << "  " << currentDepth_ << std::endl;
@@ -107,6 +108,8 @@ HcalHitMaker::setDepth(double depth)
 	  return false; 
 	}
     }
+
+
   XYZPoint origin;
   if(EMSHOWER)
     origin=segiterator->positionAtDepthinX0(currentDepth_);
@@ -115,7 +118,6 @@ HcalHitMaker::setDepth(double depth)
 
   XYZVector zaxis(0,0,1);
   XYZVector planeVec1=(zaxis.Cross(particleDirection)).Unit();
-  
   locToGlobal_=Transform3D(Point(0,0,0),
 			   Point(0,0,1),
 			   Point(1,0,0),
