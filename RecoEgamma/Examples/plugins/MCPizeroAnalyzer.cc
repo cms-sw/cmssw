@@ -1,6 +1,6 @@
 #include <iostream>
 //
-#include "RecoEgamma/Examples/interface/MCPizeroAnalyzer.h"
+#include "RecoEgamma/Examples/plugins/MCPizeroAnalyzer.h"
 #include "RecoEgamma/EgammaMCTools/interface/PizeroMCTruthFinder.h"
 #include "RecoEgamma/EgammaMCTools/interface/PizeroMCTruth.h"
 #include "RecoEgamma/EgammaMCTools/interface/ElectronMCTruth.h"
