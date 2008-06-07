@@ -81,27 +81,41 @@ namespace edm {
     }
     doneReadAhead_ = true;
     ItemType oldState = state_;
-    if (limitReached()) {
+    if (eventLimitReached()) {
+      // If the maximum event limit has been reached, stop.
       state_ = IsStop;
-      lumiPrincipal_.reset();
-      runPrincipal_.reset();
-      return state_;
-    }
-    ItemType newState = getNextItemType();
-    if (newState == IsStop) {
-      state_ = IsStop;
-      lumiPrincipal_.reset();
-      runPrincipal_.reset();
-    } else if (newState == IsFile || oldState == IsInvalid) {
-      state_ = IsFile;
-    } else if (newState == IsRun || oldState == IsFile) {
-      setRunPrincipal(readRun_());
-      state_ = IsRun;
-    } else if (newState == IsLumi || oldState == IsRun) {
-      setLuminosityBlockPrincipal(readLuminosityBlock_());
-      state_ = IsLumi;
+    } else if (lumiLimitReached()) {
+      // If the maximum lumi limit has been reached, stop
+      // when reaching a new file, run, or lumi.
+      if (oldState == IsInvalid || oldState == IsFile || oldState == IsRun) {
+        state_ = IsStop;
+      } else {
+        ItemType newState = getNextItemType();
+	if (newState == IsEvent) {
+          state_ = IsEvent;
+	} else {
+          state_ = IsStop;
+	}
+      }
     } else {
-      state_ = IsEvent;
+      ItemType newState = getNextItemType();
+      if (newState == IsStop) {
+        state_ = IsStop;
+      } else if (newState == IsFile || oldState == IsInvalid) {
+        state_ = IsFile;
+      } else if (newState == IsRun || oldState == IsFile) {
+        setRunPrincipal(readRun_());
+        state_ = IsRun;
+      } else if (newState == IsLumi || oldState == IsRun) {
+        setLuminosityBlockPrincipal(readLuminosityBlock_());
+        state_ = IsLumi;
+      } else {
+        state_ = IsEvent;
+      }
+    }
+    if (state_ == IsStop) {
+      lumiPrincipal_.reset();
+      runPrincipal_.reset();
     }
     return state_;
   }
@@ -170,6 +184,7 @@ namespace edm {
     assert(state_ == IsLumi);
     assert(!limitReached());
     doneReadAhead_ = false;
+    --remainingLumis_;
     return lumiPrincipal_;
   }
 
@@ -177,7 +192,7 @@ namespace edm {
   InputSource::readEvent(boost::shared_ptr<LuminosityBlockPrincipal> lbp) {
     assert(doneReadAhead_);
     assert(state_ == IsEvent);
-    assert(!limitReached());
+    assert(!eventLimitReached());
     doneReadAhead_ = false;
 
     preRead();
@@ -301,7 +316,6 @@ namespace edm {
     LuminosityBlock lb(lbp, moduleDescription());
     endLuminosityBlock(lb);
     lb.commit_();
-    if (remainingLumis_ > 0) --remainingLumis_;
   }
 
   void 
