@@ -5,7 +5,7 @@
 # creates a complete config file.
 # relval_main + the custom config for it is not needed any more
 
-__version__ = "$Revision: 1.6 $"
+__version__ = "$Revision: 1.7 $"
 __source__ = "$Source: /cvs_server/repositories/CMSSW/CMSSW/Configuration/PyReleaseValidation/python/ConfigBuilder.py,v $"
 
 import FWCore.ParameterSet.Config as cms
@@ -52,7 +52,7 @@ class ConfigBuilder(object):
         self.imports = []  #could we use a set instead?
         self.commands = []
         # TODO: maybe a list of to be dumped objects would help as well        
-        
+
     def loadAndRemember(self, includeFile):
         """helper routine to load am memorize imports"""
         # we could make the imports a on-the-fly data method of the process instance itself
@@ -88,7 +88,7 @@ class ConfigBuilder(object):
     def addOutput(self):
         """ Add output module to the process """    
         
-        self.loadAndRemember("Configuration/EventContent/EventContent_cff")
+        self.loadAndRemember(self.contentFile)
         theEventContent = getattr(self.process, self._options.eventcontent+"EventContent")
  
         output = cms.OutputModule("PoolOutputModule",
@@ -127,19 +127,32 @@ class ConfigBuilder(object):
         Add selected standard sequences to the process
         """
         conditionsSP=self._options.conditions.split(',')
-    
-        # here the default includes
-        self.imports=['Configuration/StandardSequences/Services_cff',
-                            'Configuration/StandardSequences/Geometry_cff',
-                            'Configuration/StandardSequences/MagneticField_cff',
-                            'FWCore/MessageService/MessageLogger_cfi',
-                            'Configuration/StandardSequences/Generator_cff',         # rm    
-                            'Configuration/StandardSequences/'+conditionsSP[0]+'_cff']        # should get it's own block I would say     
 
-        if self._options.PU_flag:
-            self.imports.append('Configuration/StandardSequences/MixingLowLumiPileUp_cff')
+        # here we check if we have fastsim or fullsim
+        if "FAST" in self._options.step:
+            self.contentFile = "FastSimulation/Configuration/EventContent_cff"
+            self.imports=['FastSimulation/Configuration/RandomServiceInitialization_cff']
+            # fake or real conditions?
+            if len(conditionsSP)>1:
+                self.imports.append('FastSimulation/Configuration/CommonInputs_cff')
+            else:
+                self.imports.append('FastSimulation/Configuration/CommonInputsFake_cff')
+
+        # no fast sim   
         else:
-            self.imports.append('Configuration/StandardSequences/MixingNoPileUp_cff')
+            self.contentFile = "Configuration/EventContent/EventContent_cff"
+            self.imports=['Configuration/StandardSequences/Services_cff',
+                          'Configuration/StandardSequences/Geometry_cff',
+                          'Configuration/StandardSequences/MagneticField_cff',
+                          'FWCore/MessageService/MessageLogger_cfi',
+                          'Configuration/StandardSequences/Generator_cff',         # rm    
+                          'Configuration/StandardSequences/'+conditionsSP[0]+'_cff']        # should get it's own block I would say     
+           
+            if self._options.PU_flag:
+                self.imports.append('Configuration/StandardSequences/MixingLowLumiPileUp_cff')
+            else:
+                self.imports.append('Configuration/StandardSequences/MixingNoPileUp_cff')
+
 
         # what steps are provided by this class?
         stepList = [methodName.lstrip("prepare_") for methodName in self.__class__.__dict__ if methodName.startswith('prepare_')]
@@ -261,11 +274,16 @@ class ConfigBuilder(object):
 
     def prepare_DQM(self):
         pass
+
+    def prepare_FASTSIM(self):
+        """ Enrich the schedule with fastsim """
+        self.loadAndRemember("FastSimulation/Configuration/FamosSequences_cff")
+        self.process.fastsim_step = cms.Path( self.process.famosWithEverything )
     
     def build_production_info(evt_type, energy, evtnumber):
         """ Add useful info for the production. """
         prod_info=cms.untracked.PSet\
-              (version=cms.untracked.string("$Revision: 1.6 $"),
+              (version=cms.untracked.string("$Revision: 1.7 $"),
                name=cms.untracked.string("PyReleaseValidation")#,
               # annotation=cms.untracked.string(self._options.evt_type+" energy:"+str(energy)+" nevts:"+str(evtnumber))
               )
