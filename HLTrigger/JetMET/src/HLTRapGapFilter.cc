@@ -1,6 +1,6 @@
 /** \class HLTRapGapFilter
  *
- * $Id: HLTRapGapFilter.cc,v 1.5 2007/08/19 03:21:44 apana Exp $
+ * $Id: HLTRapGapFilter.cc,v 1.6 2007/12/09 23:22:11 apana Exp $
  *
  *  \author Monica Vazquez Acosta (CERN)
  *
@@ -25,10 +25,11 @@
 //
 HLTRapGapFilter::HLTRapGapFilter(const edm::ParameterSet& iConfig)
 {
-   inputTag_ = iConfig.getParameter< edm::InputTag > ("inputTag");
-   absEtaMin_   = iConfig.getParameter<double> ("minEta");
-   absEtaMax_= iConfig.getParameter<double> ("maxEta"); 
-   caloThresh_= iConfig.getParameter<double> ("caloThresh"); 
+   inputTag_   = iConfig.getParameter< edm::InputTag > ("inputTag");
+   saveTag_    = iConfig.getUntrackedParameter<bool>("saveTag",false);
+   absEtaMin_  = iConfig.getParameter<double> ("minEta");
+   absEtaMax_  = iConfig.getParameter<double> ("maxEta"); 
+   caloThresh_ = iConfig.getParameter<double> ("caloThresh"); 
 
    //register your products
    produces<trigger::TriggerFilterObjectWithRefs>();
@@ -47,6 +48,7 @@ HLTRapGapFilter::filter(edm::Event& iEvent, const edm::EventSetup& iSetup)
   // The filter object
   std::auto_ptr<trigger::TriggerFilterObjectWithRefs> 
     filterobject (new trigger::TriggerFilterObjectWithRefs(path(),module()));
+  if (saveTag_) filterobject->addCollectionTag(inputTag_);
 
   edm::Handle<CaloJetCollection> recocalojets;
   iEvent.getByLabel(inputTag_,recocalojets);

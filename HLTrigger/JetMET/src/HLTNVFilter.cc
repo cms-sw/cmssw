@@ -27,6 +27,7 @@ HLTNVFilter::HLTNVFilter(const edm::ParameterSet& iConfig)
 {
    inputJetTag_ = iConfig.getParameter< edm::InputTag > ("inputJetTag");
    inputMETTag_ = iConfig.getParameter< edm::InputTag > ("inputMETTag");
+   saveTags_    = iConfig.getUntrackedParameter<bool>("saveTags",false);
    minNV_   = iConfig.getParameter<double> ("minNV");
    minEtjet1_= iConfig.getParameter<double> ("minEtJet1"); 
    minEtjet2_ = iConfig.getParameter<double> ("minEtJet2");
@@ -48,6 +49,10 @@ HLTNVFilter::filter(edm::Event& iEvent, const edm::EventSetup& iSetup)
   // The filter object
   auto_ptr<trigger::TriggerFilterObjectWithRefs> 
     filterobject (new trigger::TriggerFilterObjectWithRefs(path(),module()));
+  if (saveTags_) {
+    filterobject->addCollectionTag(inputJetTag_);
+    filterobject->addCollectionTag(inputMETTag_);
+  }
 
   Handle<CaloJetCollection> recocalojets;
   iEvent.getByLabel(inputJetTag_,recocalojets);

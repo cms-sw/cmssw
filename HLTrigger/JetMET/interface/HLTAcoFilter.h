@@ -25,7 +25,7 @@ class HLTAcoFilter : public HLTFilter {
    private:
       edm::InputTag inputJetTag_; // input tag identifying jets
       edm::InputTag inputMETTag_; // input tag identifying for MET
-
+      bool saveTags_;             // whether to save these tags
       double minEtjet1_;
       double minEtjet2_;
       double minDPhi_;

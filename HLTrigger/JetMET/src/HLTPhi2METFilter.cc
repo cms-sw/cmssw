@@ -27,6 +27,7 @@ HLTPhi2METFilter::HLTPhi2METFilter(const edm::ParameterSet& iConfig)
 {
    inputJetTag_ = iConfig.getParameter< edm::InputTag > ("inputJetTag");
    inputMETTag_ = iConfig.getParameter< edm::InputTag > ("inputMETTag");
+   saveTags_    = iConfig.getUntrackedParameter<bool>("saveTags",false);
    minDPhi_   = iConfig.getParameter<double> ("minDeltaPhi");
    maxDPhi_   = iConfig.getParameter<double> ("maxDeltaPhi");
    minEtjet1_= iConfig.getParameter<double> ("minEtJet1"); 
@@ -51,6 +52,10 @@ HLTPhi2METFilter::filter(edm::Event& iEvent, const edm::EventSetup& iSetup)
   // The filter object
   auto_ptr<trigger::TriggerFilterObjectWithRefs> 
     filterobject (new trigger::TriggerFilterObjectWithRefs(path(),module()));
+  if (saveTags_) {
+    filterobject->addCollectionTag(inputJetTag_);
+    filterobject->addCollectionTag(inputMETTag_);
+  }
 
   Handle<CaloJetCollection> recocalojets;
   iEvent.getByLabel(inputJetTag_,recocalojets);

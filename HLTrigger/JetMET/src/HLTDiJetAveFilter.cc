@@ -26,9 +26,10 @@
 HLTDiJetAveFilter::HLTDiJetAveFilter(const edm::ParameterSet& iConfig)
 {
    inputJetTag_ = iConfig.getParameter< edm::InputTag > ("inputJetTag");
-   minEtAve_= iConfig.getParameter<double> ("minEtAve"); 
-   minEtJet3_= iConfig.getParameter<double> ("minEtJet3"); 
-   minDphi_= iConfig.getParameter<double> ("minDphi"); 
+   saveTag_     = iConfig.getUntrackedParameter<bool>("saveTag",false);
+   minEtAve_    = iConfig.getParameter<double> ("minEtAve"); 
+   minEtJet3_   = iConfig.getParameter<double> ("minEtJet3"); 
+   minDphi_     = iConfig.getParameter<double> ("minDphi"); 
    //register your products
    produces<trigger::TriggerFilterObjectWithRefs>();
 }
@@ -47,7 +48,7 @@ HLTDiJetAveFilter::filter(edm::Event& iEvent, const edm::EventSetup& iSetup)
   // The filter object
   auto_ptr<trigger::TriggerFilterObjectWithRefs> 
     filterobject (new trigger::TriggerFilterObjectWithRefs(path(),module()));
-
+  if (saveTag_) filterobject->addCollectionTag(inputJetTag_);
 
   Handle<CaloJetCollection> recocalojets;
   iEvent.getByLabel(inputJetTag_,recocalojets);
