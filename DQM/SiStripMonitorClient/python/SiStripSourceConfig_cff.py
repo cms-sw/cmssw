@@ -28,6 +28,7 @@ SiStripSourcesRealDataTIF = cms.Sequence(HardwareMonitor*CondDBMonReal*SiStripMo
 SiStripSourcesSimData = cms.Sequence(HardwareMonitor*SiStripMonitorDigi*SiStripMonitorClusterSim*QualityMonSim*TrackMon)
 HardwareMonitor.rootFile = ''
 HardwareMonitor.buildAllHistograms = False
+HardwareMonitor.preSwapOn = False
 CondDBMonSim.OutputMEsInRootFile = False
 CondDBMonSim.StripQualityLabel = ''
 CondDBMonSim.RunTypeFlag = 'ConDBPlotsOnly'

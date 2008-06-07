@@ -218,7 +218,9 @@ RequestHistos.DrawSelectedHistos = function()
     queryString += '&ModId='+value;
   } else if ($('global_histos').checked) {
     queryString  = "RequestID=PlotGlobalHisto";    
-    queryString += "&GlobalFolder=Track/GlobalParameters";
+    var obj = $('ghisto_path');
+    var value =  obj.value;
+    queryString += '&GlobalFolder='+value;
   }
   var hist_opt   = RequestHistos.SetHistosAndPlotOption();
   if (hist_opt == " ") return;
