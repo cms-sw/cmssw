@@ -283,7 +283,7 @@ htmlFile << "<td align=\"center\">&nbsp;&nbsp;&nbsp;<h3>Cells matching dead cond
   htmlFile<<"</tr>"<<endl;
 
   htmlFile << "<tr align=\"left\">" << endl;
-  htmlFile <<"<tr><td>This histogram shows cells that satisfy at least one hot cell condition in at least "<<(int)(errorFrac_*100)<<"% of events.  A cell is considered hot if<br>:";
+  htmlFile <<"<tr><td>This histogram shows cells that satisfy at least one hot cell condition in at least "<<(int)(errorFrac_*100)<<"% of events.  A cell is considered hot if:<br>";
   htmlFile<<" (A) it is above a threshold energy;<br>";
   htmlFile<<" (B) if it is more than 3 sigma above its pedestal value; or <br>";
   htmlFile<<" (C) if its energy is especially large compared to its neighbors.  Detailed plots for each type of dead cell are given in the links below.<br>"<<endl;
@@ -291,7 +291,7 @@ htmlFile << "<td align=\"center\">&nbsp;&nbsp;&nbsp;<h3>Cells matching dead cond
   // Links to individual hot cell algorithms
   htmlFile <<"<table width = 90% align=\"center\"><tr align=\"center\">" <<endl;
   htmlFile <<"<td></td><td><a href=\"HcalHotCellClient_ProblemDepth_HCAL_Plots.html\">Problem Cells By Depth<br></td></tr><tr>"<<endl;
-  htmlFile << "<td><a href=\"HcalHotCellClient_Threshold_HCAL_Plots.html\">RecHit Threshold Plots </a> </td>" << endl;
+  htmlFile << "<br><td><a href=\"HcalHotCellClient_Threshold_HCAL_Plots.html\">RecHit Threshold Plots </a> </td>" << endl;
   htmlFile << "<td><a href=\"HcalHotCellClient_Digi_HCAL_Plots.html\">Digi Threshold Plots </a> </td>" << endl;
   htmlFile << "<td><a href=\"HcalHotCellClient_NADA_HCAL_Plots.html\">Neighboring Cell (NADA) Plots </a> </td>" << endl;
   htmlFile <<"</tr></table BORDER = \"3\" CELLPADDING = \"25\"><br>"<<endl;
