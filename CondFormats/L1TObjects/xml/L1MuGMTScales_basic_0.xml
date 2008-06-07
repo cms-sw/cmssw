@@ -1,0 +1,119 @@
+<?xml version='1.0' encoding="UTF-8"?>
+<!DOCTYPE PoolDatabase SYSTEM "InMemory">
+ <PoolDatabase >
+  <PoolContainer name="L1MuGMTScalesRcd" >
+   <Class table="L1MUGMTSCALES" id_columns="ID" name="L1MuGMTScales" mapping_version="L1MuGMTScales_basic" >
+     <InlineCArray name="m_DeltaEtaScale" >
+       <Object name="m_DeltaEtaScale[0]" >
+         <Primitive column="M_DELTAETASCALE_0_M_NBINS" name="m_NBins" />
+         <Blob column="L1MUGMTSCALES_M_DE_1_BLOB" name="m_Scale" />
+         <Primitive column="M_DELTAETASCALE_0_M_IDXOFFSET" name="m_idxoffset" />
+         <Primitive column="M_DELTAETASCALE_0_M_NBITS" name="m_nbits" />
+         <Primitive column="M_DELTAETASCALE_0_M_SIGNEDPA_1" name="m_signedPacking" />
+       </Object >
+       <Object name="m_DeltaEtaScale[1]" >
+         <Primitive column="M_DELTAETASCALE_1_M_NBINS" name="m_NBins" />
+         <Blob column="L1MUGMTSCALES_M_DE_2_BLOB" name="m_Scale" />
+         <Primitive column="M_DELTAETASCALE_1_M_IDXOFFSET" name="m_idxoffset" />
+         <Primitive column="M_DELTAETASCALE_1_M_NBITS" name="m_nbits" />
+         <Primitive column="M_DELTAETASCALE_1_M_SIGNEDPA_1" name="m_signedPacking" />
+       </Object >
+       <Object name="m_DeltaEtaScale[2]" >
+         <Primitive column="M_DELTAETASCALE_2_M_NBINS" name="m_NBins" />
+         <Blob column="L1MUGMTSCALES_M_DE_3_BLOB" name="m_Scale" />
+         <Primitive column="M_DELTAETASCALE_2_M_IDXOFFSET" name="m_idxoffset" />
+         <Primitive column="M_DELTAETASCALE_2_M_NBITS" name="m_nbits" />
+         <Primitive column="M_DELTAETASCALE_2_M_SIGNEDPA_1" name="m_signedPacking" />
+       </Object >
+       <Object name="m_DeltaEtaScale[3]" >
+         <Primitive column="M_DELTAETASCALE_3_M_NBINS" name="m_NBins" />
+         <Blob column="L1MUGMTSCALES_M_DE_4_BLOB" name="m_Scale" />
+         <Primitive column="M_DELTAETASCALE_3_M_IDXOFFSET" name="m_idxoffset" />
+         <Primitive column="M_DELTAETASCALE_3_M_NBITS" name="m_nbits" />
+         <Primitive column="M_DELTAETASCALE_3_M_SIGNEDPA_1" name="m_signedPacking" />
+       </Object >
+       <Object name="m_DeltaEtaScale[4]" >
+         <Primitive column="M_DELTAETASCALE_4_M_NBINS" name="m_NBins" />
+         <Blob column="L1MUGMTSCALES_M_DE_5_BLOB" name="m_Scale" />
+         <Primitive column="M_DELTAETASCALE_4_M_IDXOFFSET" name="m_idxoffset" />
+         <Primitive column="M_DELTAETASCALE_4_M_NBITS" name="m_nbits" />
+         <Primitive column="M_DELTAETASCALE_4_M_SIGNEDPA_1" name="m_signedPacking" />
+       </Object >
+       <Object name="m_DeltaEtaScale[5]" >
+         <Primitive column="M_DELTAETASCALE_5_M_NBINS" name="m_NBins" />
+         <Blob column="L1MUGMTSCALES_M_DE_6_BLOB" name="m_Scale" />
+         <Primitive column="M_DELTAETASCALE_5_M_IDXOFFSET" name="m_idxoffset" />
+         <Primitive column="M_DELTAETASCALE_5_M_NBITS" name="m_nbits" />
+         <Primitive column="M_DELTAETASCALE_5_M_SIGNEDPA_1" name="m_signedPacking" />
+       </Object >
+     </InlineCArray >
+     <Object name="m_DeltaPhiScale" >
+       <Primitive column="M_DELTAPHISCALE_M_NBINS" name="m_NBins" />
+       <Blob column="L1MUGMTSCALES_M_DE_7_BLOB" name="m_Scale" />
+       <Primitive column="M_DELTAPHISCALE_M_IDXOFFSET" name="m_idxoffset" />
+       <Primitive column="M_DELTAPHISCALE_M_NBITS" name="m_nbits" />
+       <Primitive column="M_DELTAPHISCALE_M_SIGNEDPACK_1" name="m_signedPacking" />
+     </Object >
+     <InlineCArray name="m_OvlEtaScale" >
+       <Object name="m_OvlEtaScale[0]" >
+         <Primitive column="M_OVLETASCALE_0_M_NBINS" name="m_NBins" />
+         <Blob column="L1MUGMTSCALES_M_OV_1_BLOB" name="m_Scale" />
+         <Object name="m_packing" >
+           <Primitive column="M_OVLETASCALE_0_M_PACKING_M__1" name="m_nbits" />
+         </Object >
+       </Object >
+       <Object name="m_OvlEtaScale[1]" >
+         <Primitive column="M_OVLETASCALE_1_M_NBINS" name="m_NBins" />
+         <Blob column="L1MUGMTSCALES_M_OV_2_BLOB" name="m_Scale" />
+         <Object name="m_packing" >
+           <Primitive column="M_OVLETASCALE_1_M_PACKING_M__1" name="m_nbits" />
+         </Object >
+       </Object >
+       <Object name="m_OvlEtaScale[2]" >
+         <Primitive column="M_OVLETASCALE_2_M_NBINS" name="m_NBins" />
+         <Blob column="L1MUGMTSCALES_M_OV_3_BLOB" name="m_Scale" />
+         <Object name="m_packing" >
+           <Primitive column="M_OVLETASCALE_2_M_PACKING_M__1" name="m_nbits" />
+         </Object >
+       </Object >
+       <Object name="m_OvlEtaScale[3]" >
+         <Primitive column="M_OVLETASCALE_3_M_NBINS" name="m_NBins" />
+         <Blob column="L1MUGMTSCALES_M_OV_4_BLOB" name="m_Scale" />
+         <Object name="m_packing" >
+           <Primitive column="M_OVLETASCALE_3_M_PACKING_M__1" name="m_nbits" />
+         </Object >
+       </Object >
+     </InlineCArray >
+     <InlineCArray name="m_ReducedEtaScale" >
+       <Object name="m_ReducedEtaScale[0]" >
+         <Primitive column="M_REDUCEDETASCALE_0_M_NBINS" name="m_NBins" />
+         <Blob column="L1MUGMTSCALES_M_RE_1_BLOB" name="m_Scale" />
+         <Object name="m_packing" >
+           <Primitive column="M_REDUCEDETASCALE_0_M_PACKIN_1" name="m_nbits" />
+         </Object >
+       </Object >
+       <Object name="m_ReducedEtaScale[1]" >
+         <Primitive column="M_REDUCEDETASCALE_1_M_NBINS" name="m_NBins" />
+         <Blob column="L1MUGMTSCALES_M_RE_2_BLOB" name="m_Scale" />
+         <Object name="m_packing" >
+           <Primitive column="M_REDUCEDETASCALE_1_M_PACKIN_1" name="m_nbits" />
+         </Object >
+       </Object >
+       <Object name="m_ReducedEtaScale[2]" >
+         <Primitive column="M_REDUCEDETASCALE_2_M_NBINS" name="m_NBins" />
+         <Blob column="L1MUGMTSCALES_M_RE_3_BLOB" name="m_Scale" />
+         <Object name="m_packing" >
+           <Primitive column="M_REDUCEDETASCALE_2_M_PACKIN_1" name="m_nbits" />
+         </Object >
+       </Object >
+       <Object name="m_ReducedEtaScale[3]" >
+         <Primitive column="M_REDUCEDETASCALE_3_M_NBINS" name="m_NBins" />
+         <Blob column="L1MUGMTSCALES_M_RE_4_BLOB" name="m_Scale" />
+         <Object name="m_packing" >
+           <Primitive column="M_REDUCEDETASCALE_3_M_PACKIN_1" name="m_nbits" />
+         </Object >
+       </Object >
+     </InlineCArray >
+   </Class >
+  </PoolContainer >
+ </PoolDatabase >

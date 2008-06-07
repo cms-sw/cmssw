@@ -1,0 +1,11 @@
+<?xml version='1.0' encoding="UTF-8"?>
+<!DOCTYPE PoolDatabase SYSTEM "InMemory">
+ <PoolDatabase >
+  <PoolContainer name="L1MuDTExtLutRcd" >
+   <Class table="L1MUDTEXTLUT" id_columns="ID" name="L1MuDTExtLut" mapping_version="L1MuDTExtLut_basic" >
+     <Blob column="L1MUDTEXTLUT_EXT_LUT_BLOB" name="ext_lut" />
+     <Primitive column="NBIT_PHI" name="nbit_phi" />
+     <Primitive column="NBIT_PHIB" name="nbit_phib" />
+   </Class >
+  </PoolContainer >
+ </PoolDatabase >

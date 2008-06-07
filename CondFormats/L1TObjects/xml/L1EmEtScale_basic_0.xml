@@ -1,0 +1,10 @@
+<?xml version='1.0' encoding="UTF-8"?>
+<!DOCTYPE PoolDatabase SYSTEM "InMemory">
+ <PoolDatabase >
+  <PoolContainer name="L1EmEtScaleRcd" >
+   <Class table="L1EMETSCALE" id_columns="ID" name="L1CaloEtScale" mapping_version="L1EmEtScale_basic" >
+     <Primitive column="M_LINEARLSB" name="m_linearLsb" />
+     <Blob column="L1CALOETSCALE_M_TH_1_BLOB" name="m_thresholds" />
+   </Class >
+  </PoolContainer >
+ </PoolDatabase >

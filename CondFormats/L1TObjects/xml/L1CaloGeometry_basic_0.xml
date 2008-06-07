@@ -1,0 +1,19 @@
+<?xml version='1.0' encoding="UTF-8"?>
+<!DOCTYPE PoolDatabase SYSTEM "InMemory">
+ <PoolDatabase >
+  <PoolContainer name="L1CaloGeometryRecord" >
+   <Class table="L1CALOGEOMETRY" id_columns="ID" name="L1CaloGeometry" mapping_version="L1CaloGeometry_basic" >
+     <Primitive column="M_ETABINSPERHALF" name="m_etaBinsPerHalf" />
+     <Primitive column="M_ETASIGNBITOFFSET" name="m_etaSignBitOffset" />
+     <Primitive column="M_GCTEMJETPHIBINWIDTH" name="m_gctEmJetPhiBinWidth" />
+     <Primitive column="M_GCTEMJETPHIOFFSET" name="m_gctEmJetPhiOffset" />
+     <Primitive column="M_GCTETSUMPHIBINWIDTH" name="m_gctEtSumPhiBinWidth" />
+     <Primitive column="M_GCTETSUMPHIOFFSET" name="m_gctEtSumPhiOffset" />
+     <Blob column="L1CALOGEOMETRY_M_G_1_BLOB" name="m_gctEtaBinBoundaries" />
+     <Primitive column="M_NUMBERGCTCENTRALETABINSPER_1" name="m_numberGctCentralEtaBinsPerHalf" />
+     <Primitive column="M_NUMBERGCTEMJETPHIBINS" name="m_numberGctEmJetPhiBins" />
+     <Primitive column="M_NUMBERGCTETSUMPHIBINS" name="m_numberGctEtSumPhiBins" />
+     <Primitive column="M_NUMBERGCTFORWARDETABINSPER_1" name="m_numberGctForwardEtaBinsPerHalf" />
+   </Class >
+  </PoolContainer >
+ </PoolDatabase >
