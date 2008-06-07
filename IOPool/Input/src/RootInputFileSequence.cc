@@ -143,7 +143,8 @@ namespace edm {
       rootFile_ = RootFileSharedPtr(new RootFile(fileIter_->fileName(), catalog_.url(),
 	  processConfiguration(), fileIter_->logicalFileName(), filePtr,
 	  startAtRun_, startAtLumi_, startAtEvent_, eventsToSkip_, whichLumisToSkip_,
-	  remainingEvents(), treeCacheSize_, treeMaxVirtualSize_, forcedRunOffset_, eventsToProcess_,
+	  remainingEvents(), remainingLuminosityBlocks(), treeCacheSize_, treeMaxVirtualSize_,
+	  forcedRunOffset_, eventsToProcess_,
 	  dropMetaData_, groupSelectorRules_, wantedBranches_));
       fileIndexes_[fileIter_ - fileIterBegin_] = rootFile_->fileIndexSharedPtr();
     } else {
@@ -384,6 +385,11 @@ namespace edm {
   int
   RootInputFileSequence::remainingEvents() const {
     return input_.remainingEvents();
+  }
+
+  int
+  RootInputFileSequence::remainingLuminosityBlocks() const {
+    return input_.remainingLuminosityBlocks();
   }
 
   ProductRegistry &

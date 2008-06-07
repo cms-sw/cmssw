@@ -48,6 +48,7 @@ namespace edm {
 		     unsigned int eventsToSkip,
 		     std::vector<LuminosityBlockID> const& whichLumisToSkip,
 		     int remainingEvents,
+		     int remainingLumis,
 		     unsigned int treeCacheSize,
                      int treeMaxVirtualSize,
 		     int forcedRunOffset,
@@ -254,7 +255,7 @@ namespace edm {
     // Sort the EventID list the user supplied so that we can assume it is time ordered
     sort_all(whichEventsToProcess_);
     // Determine if this file is fast clonable.
-    fastClonable_ = setIfFastClonable(remainingEvents);
+    fastClonable_ = setIfFastClonable(remainingEvents, remainingLumis);
 
     reportOpened();
   }
@@ -290,12 +291,13 @@ namespace edm {
   }
 
   bool
-  RootFile::setIfFastClonable(int remainingEvents) const {
+  RootFile::setIfFastClonable(int remainingEvents, int remainingLumis) const {
     if (fileFormatVersion_.value_ < 8) return false; 
     if (!fileIndex_.eventsSorted()) return false; 
     if (!whichEventsToProcess_.empty()) return false; 
     if (eventsToSkip_ != 0) return false; 
     if (remainingEvents >= 0 && eventTree_.entries() > remainingEvents) return false;
+    if (remainingLumis >= 0 && lumiTree_.entries() > remainingLumis) return false;
     if (forcedRunOffset_ != 0) return false; 
     // Find entry for first event in file
     FileIndex::const_iterator it = fileIndexBegin_;

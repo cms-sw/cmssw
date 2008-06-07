@@ -57,6 +57,7 @@ namespace edm {
 	     unsigned int eventsToSkip,
 	     std::vector<LuminosityBlockID> const& whichLumisToSkip,
 	     int remainingEvents,
+	     int remainingLumis,
 	     unsigned int treeCacheSize,
              int treeMaxVirtualSize,
 	     int forcedRunOffset,
@@ -112,7 +113,7 @@ namespace edm {
     }
 
   private:
-    bool setIfFastClonable(int remainingEvents) const;
+    bool setIfFastClonable(int remainingEvents, int remainingLumis) const;
     void validateFile();
     void fillFileIndex();
     void fillEventAuxiliary();

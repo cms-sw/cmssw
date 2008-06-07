@@ -5,7 +5,7 @@
 
 RootInputFileSequence: This is an InputSource
 
-$Id: RootInputFileSequence.h,v 1.12 2008/05/29 16:16:03 wmtan Exp $
+$Id: RootInputFileSequence.h,v 1.13 2008/06/05 23:17:55 wmtan Exp $
 
 ----------------------------------------------------------------------*/
 
@@ -74,6 +74,7 @@ namespace edm {
     ProcessConfiguration const& processConfiguration() const;
     ProductRegistry & productRegistryUpdate() const;
     int remainingEvents() const;
+    int remainingLuminosityBlocks() const;
     bool const primary() const;
 
     PoolSource const& input_;
