@@ -8,11 +8,11 @@ dqmQTestEB = cms.EDFilter("QualityTester",
     getQualityTestsFromFile = cms.untracked.bool(True)
 )
 
-ecal_dqm_client-offline = cms.Sequence(ecalBarrelMonitorClient*dqmQTestEB)
+ecal_dqm_client_offline = cms.Sequence(ecalBarrelMonitorClient*dqmQTestEB)
+
 ecalBarrelMonitorClient.maskFile = ''
 ecalBarrelMonitorClient.location = 'P5'
 ecalBarrelMonitorClient.verbose = False
-ecalBarrelMonitorClient.enabledClients = ['Integrity', 'StatusFlags', 'Occupancy', 'PedestalOnline', 'Cosmic', 
-    'Cluster', 'TriggerTower', 'Summary']
+ecalBarrelMonitorClient.enabledClients = ['Integrity', 'StatusFlags', 'Occupancy', 'PedestalOnline', 'Cosmic', 'Cluster', 'TriggerTower', 'Summary']
 
 
