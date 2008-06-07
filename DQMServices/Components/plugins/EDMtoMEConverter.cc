@@ -2,8 +2,8 @@
  *  
  *  See header file for description of class
  *
- *  $Date: 2008/04/11 22:28:50 $
- *  $Revision: 1.10 $
+ *  $Date: 2008/05/06 19:00:34 $
+ *  $Revision: 1.11 $
  *  \author M. Strang SUNY-Buffalo
  */
 
@@ -92,6 +92,14 @@ void EDMtoMEConverter::beginRun(const edm::Run& iRun,
 {
   std::string MsgLoggerCat = "EDMtoMEConverter_beginRun";
   
+  return;
+}
+
+void EDMtoMEConverter::endRun(const edm::Run& iRun, 
+			      const edm::EventSetup& iSetup)
+{
+  std::string MsgLoggerCat = "EDMtoMEConverter_endRun";
+    
   int nrun = iRun.run();
   
   // keep track of number of unique runs processed
@@ -618,14 +626,6 @@ void EDMtoMEConverter::beginRun(const edm::Run& iRun,
     }
   }
 
-  return;
-}
-
-void EDMtoMEConverter::endRun(const edm::Run& iRun, 
-			      const edm::EventSetup& iSetup)
-{
-  std::string MsgLoggerCat = "EDMtoMEConverter_endRun";
-    
   return;
 }
 

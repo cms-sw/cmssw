@@ -5,7 +5,7 @@
 import FWCore.ParameterSet.Config as cms
 
 # needed output
-from DQMServices.Components.test.dqm_onlineEnv_cfi import *
+from DQMServices.Components.data.DQMEnvironment_cfi import *
 # actual producer
 from DQMServices.Components.EDMtoMEConverter_cfi import *
 DQMStore = cms.Service("DQMStore",
