@@ -198,6 +198,8 @@ dt1DRecHits.dtDigiLabel = 'simMuonDTDigis'
 GlobalTrajectoryBuilderCommon.TrackRecHitBuilder = 'WithoutRefit'
 GlobalTrajectoryBuilderCommon.TrackTransformer.TrackerRecHitBuilder = 'WithoutRefit'
 globalMuons.TrackerCollectionLabel = 'generalTracks'
+globalMuons.GLBTrajBuilderParameters.TrackRecHitBuilder = 'WithoutRefit'
+globalMuons.GLBTrajBuilderParameters.TrackTransformer.TrackerRecHitBuilder = 'WithoutRefit'
 # Use FastSim tracks and calo hits for muon id
 muons.inputCollectionLabels = cms.VInputTag('generalTracks', 'globalMuons', cms.InputTag("standAloneMuons","UpdatedAtVtx"))
 muons.TrackAssociatorParameters.EBRecHitCollectionLabel = cms.InputTag("caloRecHits","EcalRecHitsEB")
