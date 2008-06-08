@@ -39,8 +39,8 @@ process.famosSimHits.SimulateTracking = True
 # The digis are needed for the L1 simulation
 # replace caloRecHits.RecHitsFactory.doDigis=true
     
-# service = Timing { }
-    
+# process.Timing =  cms.Service("Timing")
+   
 process.p1 = cms.Path(process.famosWithTracksAndEcalClusters)
 
 
@@ -58,6 +58,6 @@ process.outpath = cms.EndPath(process.o1)
 
    
 # Keep the logging output to a nice level #
-# include "FWCore/MessageService/data/MessageLogger.cfi"
-# replace MessageLogger.destinations = {"detailedInfo.txt")   
+# process.load("FWCore/MessageService/MessageLogger_cfi")
+# process.MessageLogger.destinations = cms.untracked.vstring("detailedInfo.txt")
 
