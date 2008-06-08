@@ -106,6 +106,7 @@ HLTTauValidation::endJob()
   printf("   -L25 = %f +/- %f \n",calcEfficiency(NL25Events_Matched,NL1Events_Matched)[0],calcEfficiency(NL25Events_Matched,NL1Events_Matched)[1]);
   printf("   -L2 = %f +/- %f \n",calcEfficiency(NL3Events_Matched,NL1Events_Matched)[0],calcEfficiency(NL3Events_Matched,NL25Events_Matched)[1]);
   printf("HLT Efficiency with Ref to Matching Object):\n");
+  printf("   -L1 = %f +/- %f \n",calcEfficiency(NL1Events_Matched,NRefEvents)[0],calcEfficiency(NL1Events_Matched,NRefEvents)[1]);
   printf("   -L2 = %f +/- %f \n",calcEfficiency(NL2Events_Matched,NRefEvents)[0],calcEfficiency(NL2Events_Matched,NRefEvents)[1]);
   printf("   -L25 = %f +/- %f \n",calcEfficiency(NL25Events_Matched,NRefEvents)[0],calcEfficiency(NL25Events_Matched,NRefEvents)[1]);
   printf("   -L2 = %f +/- %f \n",calcEfficiency(NL3Events_Matched,NRefEvents)[0],calcEfficiency(NL3Events_Matched,NL25Events_Matched)[1]);
@@ -141,6 +142,7 @@ HLTTauValidation::endJob()
   fprintf(fp,"   -L25 = %f +/- %f \n",calcEfficiency(NL25Events_Matched,NL1Events_Matched)[0],calcEfficiency(NL25Events_Matched,NL1Events_Matched)[1]);
   fprintf(fp,"   -L3 = %f +/- %f \n",calcEfficiency(NL3Events_Matched,NL1Events_Matched)[0],calcEfficiency(NL3Events_Matched,NL25Events_Matched)[1]);
   fprintf(fp,"HLT Efficiency with Ref to Matching Object):\n");
+  fprintf(fp,"   -L1 = %f +/- %f \n",calcEfficiency(NL1Events_Matched,NRefEvents)[0],calcEfficiency(NL1Events_Matched,NRefEvents)[1]);
   fprintf(fp,"   -L2 = %f +/- %f \n",calcEfficiency(NL2Events_Matched,NRefEvents)[0],calcEfficiency(NL2Events_Matched,NRefEvents)[1]);
   fprintf(fp,"   -L25 = %f +/- %f \n",calcEfficiency(NL25Events_Matched,NRefEvents)[0],calcEfficiency(NL25Events_Matched,NRefEvents)[1]);
   fprintf(fp,"   -L3 = %f +/- %f \n",calcEfficiency(NL3Events_Matched,NRefEvents)[0],calcEfficiency(NL3Events_Matched,NL25Events_Matched)[1]);
