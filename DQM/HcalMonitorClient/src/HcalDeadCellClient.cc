@@ -27,7 +27,7 @@ void HcalDeadCellClient::init(const ParameterSet& ps, DQMStore* dbe,string clien
   clearHists(hcalhists);
   
   errorFrac_=ps.getUntrackedParameter<double>("deadcellErrorFrac",0.05);
-
+  return;
 }
 
 HcalDeadCellClient::~HcalDeadCellClient(){
@@ -155,13 +155,14 @@ void HcalDeadCellClient::clearHists(DeadCellHists& hist)
   hist.above_pedestal=0;
   hist.problemDeadCells=0;
 
-  hist.deadADC_map_depth.clear();
-  hist.deadcapADC_map.clear();
-  hist.NADA_cool_cell_map_depth.clear();
-  hist.coolcell_below_pedestal_depth.clear();
-  hist.above_pedestal_depth.clear();
-  hist.problemDeadCells_DEPTH.clear();
-
+  for (unsigned int i=0;i<4;++i)
+    {
+      hist.problemDeadCells_DEPTH[i]=0;
+      hist.deadADC_map_depth[i]=0;
+      hist.deadcapADC_map[i]=0;
+      hist.coolcell_below_pedestal_depth[i]=0;
+      hist.above_pedestal_depth[i]=0;
+    }
   return;
 }
 
@@ -175,12 +176,15 @@ void HcalDeadCellClient::deleteHists(DeadCellHists& hist)
   if (hist.above_pedestal) delete hist.above_pedestal;
   if (hist.problemDeadCells) delete hist.problemDeadCells;
 
-  hist.deadADC_map_depth.clear();
-  hist.deadcapADC_map.clear();
-  hist.NADA_cool_cell_map_depth.clear();
-  hist.coolcell_below_pedestal_depth.clear();
-  hist.above_pedestal_depth.clear();
-  hist.problemDeadCells_DEPTH.clear();
+  for (unsigned int i=0;i<4;++i)
+    {
+      if (hist.problemDeadCells_DEPTH[i]) delete hist.problemDeadCells_DEPTH[i];
+      if (hist.deadADC_map_depth[i]) delete hist.deadADC_map_depth[i];
+      if (hist.deadcapADC_map[i]) delete hist.deadcapADC_map[i];
+      if (hist.coolcell_below_pedestal_depth[i]) delete hist.coolcell_below_pedestal_depth[i];
+      if (hist.above_pedestal_depth[i]) delete hist.above_pedestal_depth[i];
+    }
+
   return;
 }
 
@@ -226,23 +230,13 @@ void HcalDeadCellClient::getSubDetHistograms(DeadCellHists& hist)
 
   
   // Trying to push back directly causes "target memory has disappeared error.  Do it the long way...
-  sprintf(name,"DeadCellMonitor/%s/expertPlots/%sProblemDeadCells_depth1",type.c_str(),type.c_str());
-  TH2F* temp1=getAnyHisto(new TH2F(),name,process_, dbe_, debug_, cloneME_);
-  sprintf(name,"DeadCellMonitor/%s/expertPlots/%sProblemDeadCells_depth2",type.c_str(),type.c_str());
-  TH2F* temp2=getAnyHisto(new TH2F(),name,process_, dbe_, debug_, cloneME_);
-  sprintf(name,"DeadCellMonitor/%s/expertPlots/%sProblemDeadCells_depth3",type.c_str(),type.c_str());
-  TH2F* temp3=getAnyHisto(new TH2F(),name,process_, dbe_, debug_, cloneME_);
-  sprintf(name,"DeadCellMonitor/%s/expertPlots/%sProblemDeadCells_depth4",type.c_str(),type.c_str());
-  TH2F* temp4=getAnyHisto(new TH2F(),name,process_, dbe_, debug_, cloneME_);
 
-  if (temp1!=NULL)
-    hist.problemDeadCells_DEPTH.push_back(temp1); 
-  if (temp2!=NULL)
-  hist.problemDeadCells_DEPTH.push_back(temp2);
-  if (temp3!=NULL)
-    hist.problemDeadCells_DEPTH.push_back(temp3);
-  if (temp4!=NULL)
-    hist.problemDeadCells_DEPTH.push_back(temp4);
+  for (unsigned int i=0;i<4;++i)
+    {
+      sprintf(name,"DeadCellMonitor/%s/expertPlots/%sProblemDeadCells_depth%i",type.c_str(),type.c_str(),i);
+      hist.problemDeadCells_DEPTH[i]=getAnyHisto(new TH2F(),name,process_, dbe_, debug_, cloneME_);
+    }
+
   
  // Histograms related to ADC-counting method of finding dead cells
   sprintf(name,"DeadCellMonitor/%s/%s_OccupancyMap_deadADC",type.c_str(),type.c_str());
@@ -263,21 +257,18 @@ void HcalDeadCellClient::getSubDetHistograms(DeadCellHists& hist)
     {
       sprintf(name,"DeadCellMonitor/%s/Diagnostics/Depth%i/%s_DeadADCmap_Depth%i",type.c_str(),d+1,type.c_str(),d+1);
       if (debug_) cout <<"Histogram name = "<<name<<endl;
-      TH2F* temp=getAnyHisto(new TH2F(),name,
-			     process_, dbe_, 
-			     debug_, cloneME_);
-      if (temp!=NULL)
-	hist.deadADC_map_depth.push_back(temp);
+      hist.deadADC_map_depth[d]=getAnyHisto(new TH2F(),name,
+					    process_, dbe_, 
+					    debug_, cloneME_);
+
     }
   for (int capid=0;capid<4;++capid)
     {
       sprintf(name,"DeadCellMonitor/%s/expertPlots/%s_DeadCap%i",type.c_str(),type.c_str(),capid);
       if (debug_) cout <<"Histogram name = "<<name<<endl;
-      TH2F* temp=getAnyHisto(new TH2F(),name,
+      hist.deadcapADC_map[capid]=getAnyHisto(new TH2F(),name,
 			     process_, dbe_, 
 			     debug_, cloneME_);
-      if (temp!=NULL)
-	hist.deadcapADC_map.push_back(temp);
     }
 
   // Dead Cell routine # 2:   cell cool compared to neighbors
@@ -285,18 +276,6 @@ void HcalDeadCellClient::getSubDetHistograms(DeadCellHists& hist)
   if (debug_) cout <<"Histogram name = "<<name<<endl;
   hist.NADA_cool_cell_map=getAnyHisto(new TH2F(), name, process_, dbe_,debug_,cloneME_);
 
-  for (int d=0;d<4;++d)
-    {
-      sprintf(name,"DeadCellMonitor/%s/Diagnostics/Depth%i/%s_NADACoolCell_Depth%i",type.c_str(),d+1,type.c_str(),d+1);
-      if (debug_) cout <<"Histogram name = "<<name<<endl;
-      TH2F* temp=getAnyHisto(new TH2F(),name,
-			     process_, dbe_, 
-			     debug_, 
-			     cloneME_);
-
-      if (temp!=NULL)
-	hist.NADA_cool_cell_map_depth.push_back(temp);
-}
 
   // Dead Cell routine #3:  comparison to pedestal + N sigma
   sprintf(name,"DeadCellMonitor/%s/expertPlots/%s_abovePed",type.c_str(),type.c_str());
@@ -311,51 +290,17 @@ void HcalDeadCellClient::getSubDetHistograms(DeadCellHists& hist)
   for (int d=0;d<4;++d)
     {
       sprintf(name,"DeadCellMonitor/%s/expertPlots/BelowPedestal/%s_coolcell_below_pedestal_Depth%i",type.c_str(),type.c_str(),d+1);
-      TH2F* temp=getAnyHisto(new TH2F(),
-			     name, process_,
-			     dbe_,debug_,cloneME_);
-      if (temp!=NULL)
-	hist.coolcell_below_pedestal_depth.push_back(temp);
+      hist.coolcell_below_pedestal_depth[d]=getAnyHisto(new TH2F(),
+							name, process_,
+							dbe_,debug_,cloneME_);
+
 
       sprintf(name,"DeadCellMonitor/%s/expertPlots/BelowPedestal/%s_cell_above_pedestal_Depth%i",type.c_str(),type.c_str(),d+1);
-      TH2F* temp2=getAnyHisto(new TH2F(), name,
-			      process_, dbe_,
-			      debug_,cloneME_);
-      if (temp2!=NULL)
-	hist.above_pedestal_depth.push_back(temp);
+      hist.above_pedestal_depth[d]=getAnyHisto(new TH2F(), name,
+					       process_, dbe_,
+					       debug_,cloneME_);
     }
   
-  // Diagnostic histograms
-  sprintf(name,"DeadCellMonitor/%s/expertPlots/%s_digiCheck",type.c_str(),type.c_str());
-  if (debug_) cout <<"Histogram name = "<<name<<endl;
-  hist.digiCheck=getAnyHisto(new TH2F(), name, process_, dbe_,debug_,cloneME_);
-
-  sprintf(name,"DeadCellMonitor/%s/expertPlots/%s_cellCheck",type.c_str(),type.c_str());
-  if (debug_) cout <<"Histogram name = "<<name<<endl;
-  hist.cellCheck=getAnyHisto(new TH2F(), name, process_, dbe_,debug_,cloneME_);
-  
-  for (int d=0;d<4;++d)
-    { 
-      sprintf(name,"DeadCellMonitor/%s/Diagnostics/Depth%i/%s_digiCheck_Depth%i",
-	      type.c_str(),d+1,type.c_str(),d+1);
-      if (debug_) cout <<"Histogram name = "<<name<<endl;
-      TH2F* temp = getAnyHisto(new TH2F(), name, process_, 
-			       dbe_,debug_,cloneME_);
-      if (temp !=NULL)
-	hist.digiCheck_depth.push_back(temp);
-      
-      
-      sprintf(name,"DeadCellMonitor/%s/Diagnostics/Depth%i/%s_cellCheck_Depth%i",
-	      type.c_str(),d+1,type.c_str(),d+1);
-
-      TH2F* temp2 = getAnyHisto(new TH2F(), name, process_, 
-				dbe_,debug_,cloneME_);
-      if (temp2 !=NULL)
-	hist.cellCheck_depth.push_back(temp2);
-
-    } // for (int d=0;d<4;++d)
-
-
   return;
 } // get SubDetHistograms
 
@@ -378,15 +323,14 @@ void HcalDeadCellClient::getSubDetHistogramsFromFile(DeadCellHists& hist, TFile*
   }
   
   //List of problem cells
-  sprintf(name,"DeadCellMonitor/%s/expertPlots/%sProblemDeadCells_depth1",type.c_str(),type.c_str());
-  hist.problemDeadCells_DEPTH.push_back((TH2F*)infile->Get(name));
-  sprintf(name,"DeadCellMonitor/%s/expertPlots/%sProblemDeadCells_depth2",type.c_str(),type.c_str());
-  hist.problemDeadCells_DEPTH.push_back((TH2F*)infile->Get(name));
-  sprintf(name,"DeadCellMonitor/%s/expertPlots/%sProblemDeadCells_depth3",type.c_str(),type.c_str());
-  hist.problemDeadCells_DEPTH.push_back((TH2F*)infile->Get(name));
-  sprintf(name,"DeadCellMonitor/%s/expertPlots/%sProblemDeadCells_depth4",type.c_str(),type.c_str());
-  hist.problemDeadCells_DEPTH.push_back((TH2F*)infile->Get(name));
-
+  for (unsigned int i=0;i<4;++i)
+    {
+      sprintf(name,"DeadCellMonitor/%s/expertPlots/%sProblemDeadCells_depth%i",type.c_str(),type.c_str(),i+1);
+      hist.problemDeadCells_DEPTH[i]=(TH2F*)infile->Get(name);
+      sprintf(name,"DeadCellMonitor/%s/Diagnostics/Depth%i/%s_DeadADCmap_Depth%i",type.c_str(),
+	      i+1,type.c_str(),i+1);
+      hist.deadADC_map_depth[i]=(TH2F*)infile->Get(name);
+    }
 
   // Histograms related to ADC-counting method of finding dead cells
   sprintf(name,"DeadCellMonitor/%s/%s_OccupancyMap_deadADC",type.c_str(),type.c_str());
@@ -403,18 +347,12 @@ void HcalDeadCellClient::getSubDetHistogramsFromFile(DeadCellHists& hist, TFile*
   for (int capid=0;capid<4;++capid)
     {
       sprintf(name,"DeadCellMonitor/%s/expertPlots/%s_DeadCap%i",type.c_str(),type.c_str(),capid);
-      hist.deadcapADC_map.push_back((TH2F*)infile->Get(name));
+      hist.deadcapADC_map[capid]=((TH2F*)infile->Get(name));
     }
 
   // Dead Cell routine # 2:   cell cool compared to neighbors
   sprintf(name,"DeadCellMonitor/%s/%s_NADA_CoolCellMap",type.c_str(),type.c_str());
   hist.NADA_cool_cell_map=(TH2F*)infile->Get(name);
-
-  for (int d=0;d<4;++d)
-    {
-      sprintf(name,"DeadCellMonitor/%s/Diagnostics/Depth%i/%s_NADACoolCell_Depth%i",type.c_str(),d+1,type.c_str(),d+1);
-      hist.NADA_cool_cell_map_depth.push_back((TH2F*)infile->Get(name));
-    }
 
   // Dead Cell routine #3:  comparison to pedestal + N sigma
   sprintf(name,"DeadCellMonitor/%s/%s_abovePed",type.c_str(),type.c_str());
@@ -426,25 +364,12 @@ void HcalDeadCellClient::getSubDetHistogramsFromFile(DeadCellHists& hist, TFile*
   for (int d=0;d<4;++d)
     {
       sprintf(name,"DeadCellMonitor/%s/Diagnostics/Depth%i/%s_coolcell_below_pedestal_Depth%i",type.c_str(),d+1,type.c_str(),d+1);
-      hist.coolcell_below_pedestal_depth.push_back((TH2F*)infile->Get(name));
+      hist.coolcell_below_pedestal_depth[d]=((TH2F*)infile->Get(name));
       sprintf(name,"DeadCellMonitor/%s/Diagnostics/Depth%i/%s_cell_above_pedestal_Depth%i",type.c_str(),d+1,type.c_str(),d+1);
-      hist.above_pedestal_depth.push_back((TH2F*)infile->Get(name));
+      hist.above_pedestal_depth[d]=((TH2F*)infile->Get(name));
+
     }
   
-  // Diagnostic histograms
-  sprintf(name,"DeadCellMonitor/%s/expertPlots/%s_digiCheck",type.c_str(),type.c_str());
-  hist.digiCheck=(TH2F*)infile->Get(name);
-  sprintf(name,"DeadCellMonitor/%s/expertPlots/%s_cellCheck",type.c_str(),type.c_str());
-  hist.cellCheck=(TH2F*)infile->Get(name);
-  for (int d=0;d<4;++d)
-    {
-      sprintf(name,"DeadCellMonitor/%s/Diagnostics/Depth%i/%s_digiCheck_Depth%i",type.c_str(),d+1,
-	      type.c_str(),d+1);
-      hist.digiCheck_depth.push_back((TH2F*)infile->Get(name));
-      sprintf(name,"DeadCellMonitor/%s/Diagnostics/Depth%i/%s_cellCheck_Depth%i",
-	      type.c_str(),d+1,type.c_str(),d+1);
-      hist.cellCheck_depth.push_back((TH2F*)infile->Get(name));
-    }
   return;
 } // void HcalDeadCellClient::getSubDetHistogramsFromFile
 
@@ -491,11 +416,6 @@ void HcalDeadCellClient::resetSubDetHistograms(DeadCellHists& hist)
   sprintf(name,"DeadCellMonitor/%s/%s_CoolCell_belowPed",type.c_str(),type.c_str());
   resetME(name,dbe_);
 
-  // Diagnostic plots
-  sprintf(name,"DeadCellMonitor/%s/expertPlots/%s_digiCheck",type.c_str(),type.c_str());
-  resetME(name,dbe_);
-  sprintf(name,"DeadCellMonitor/%s/expertPlots/%s_cellCheck",type.c_str(),type.c_str());
-  resetME(name,dbe_);
   
   // Loop over individual depths, capids
   for (int i=0;i<4;i++)
@@ -508,14 +428,12 @@ void HcalDeadCellClient::resetSubDetHistograms(DeadCellHists& hist)
       resetME(name,dbe_);
       sprintf(name,"DeadCellMonitor/%s/Diagnostics/Depth%i/%s_NADACoolCell_Depth%i",type.c_str(),i+1,type.c_str(),i+1);
       resetME(name,dbe_);
-      sprintf(name,"DeadCellMonitor/%s/Diagnostics/Depth%i/%s_cellCheck_Depth%i",type.c_str(),i+1,type.c_str(),i+1);
-      resetME(name,dbe_);
+
       sprintf(name,"DeadCellMonitor/%s/Diagnostics/Depth%i/%s_cell_above_pedestal_Depth%i",type.c_str(),i+1,type.c_str(),i+1);
       resetME(name,dbe_);
       sprintf(name,"DeadCellMonitor/%s/Diagnostics/Depth%i/%s_coolcell_below_pedestal_Depth%i",type.c_str(),i+1,type.c_str(),i+1);
       resetME(name,dbe_);
-      sprintf(name,"DeadCellMonitor/%s/Diagnostics/Depth%i/%s_digiCheck_Depth%i",type.c_str(),i+1,type.c_str(),i+1);
-      resetME(name,dbe_);
+
     }
 
   return;
@@ -698,6 +616,8 @@ void HcalDeadCellClient::htmlOutput(int runNo, string htmlDir, string htmlName)
 
   return;
 } //void HcalDeadCellClient::htmlOutput()
+
+
 
 
 
@@ -975,7 +895,7 @@ void HcalDeadCellClient::htmlSubDetOutput(DeadCellHists& hist, int runNo,
 
   htmlSubFile << "<h3> (Possibly) Bad Cells by depth" << endl;
   htmlSubFile << "<table  width=100% border=1>" << endl;
-  for (unsigned int count=0;count<hist.problemDeadCells_DEPTH.size();++count)
+  for (unsigned int count=0;count<4;++count)
     {
       if (count%2==0)
 	htmlSubFile << "<tr align=\"center\">" << endl;	
@@ -986,40 +906,9 @@ void HcalDeadCellClient::htmlSubDetOutput(DeadCellHists& hist, int runNo,
   htmlSubFile << "</table><br>" << endl;
   htmlSubFile <<"<hr>"<<endl;
 
-  htmlSubFile << "<h3> Digi Occupancy Plots" << endl;
-  htmlSubFile << "<table  width=100% border=1>" << endl;
-  htmlSubFile << "<tr align=\"left\">" << endl;	
-  for (unsigned int count=0;count<hist.digiCheck_depth.size();++count)
-    {
-      if (count%2==0)
-	htmlSubFile << "<tr align=\"center\">" << endl;	
-      htmlAnyHisto(runNo,hist.digiCheck_depth[count],"i#eta","i#phi", 92, htmlSubFile,htmlDir);
-      if (count%2==1)
-	htmlSubFile<<"</tr>"<<endl;
-    }
-  htmlSubFile << "</table><br>" << endl;
-  htmlSubFile <<"<hr>"<<endl;
-
-  /*
-  // RecHits no longer used 
-  htmlSubFile << "<h3> RecHit Occupancy Plots" << endl;
-  htmlSubFile << "<table  width=100% border=1>" << endl; 
-  for (unsigned int count=0;count<hist.cellCheck_depth.size();++count)
-    {
-      if (count%2==0) 
-	htmlSubFile << "<tr align=\"center\">" << endl;	
-      htmlAnyHisto(runNo,hist.cellCheck_depth[count],"i#eta","i#phi", 92, htmlSubFile,htmlDir);
-      if (count%2==1)
-	htmlSubFile<<"</tr>"<<endl;
-    }
-
-  htmlSubFile << "</table><br>" << endl;
-  htmlSubFile <<"<hr>"<<endl;
-  */
-
   htmlSubFile << "<h3> Plots for cells with low ADC counts" << endl;
   htmlSubFile << "<table  width=100% border=1>" << endl;
-  for (unsigned int count=0;count<hist.deadADC_map_depth.size();++count)
+  for (unsigned int count=0;count<4;++count)
     {
       if (count%2==0)
 	htmlSubFile << "<tr align=\"center\">" << endl;	
@@ -1027,7 +916,7 @@ void HcalDeadCellClient::htmlSubDetOutput(DeadCellHists& hist, int runNo,
       if (count%2==1)
 	htmlSubFile<<"</tr>"<<endl;
     }
- for (unsigned int count=0;count<hist.deadcapADC_map.size();++count)
+  for (unsigned int count=0;count<4;++count)
     {
       if (count%2==0)
 	htmlSubFile << "<tr align=\"center\">" << endl;	
@@ -1044,7 +933,7 @@ void HcalDeadCellClient::htmlSubDetOutput(DeadCellHists& hist, int runNo,
   htmlSubFile << "<h3> Plots for cells consistently below pedestal" << endl;
   htmlSubFile << "<table width=100% border=1>" << endl;
 
-  for (unsigned int count=0;count<hist.coolcell_below_pedestal_depth.size();++count)
+  for (unsigned int count=0;count<4;++count)
     {
       if (count%2==0)
 	htmlSubFile << "<tr align=\"center\">" << endl;	
@@ -1053,7 +942,7 @@ void HcalDeadCellClient::htmlSubDetOutput(DeadCellHists& hist, int runNo,
 	htmlSubFile<<"</tr>"<<endl;
     }
 
-for (unsigned int count=0;count<hist.above_pedestal_depth.size();++count)
+  for (unsigned int count=0;count<4;++count)
     {
       if (count%2==0)
 	htmlSubFile << "<tr align=\"center\">" << endl;	
@@ -1068,19 +957,6 @@ for (unsigned int count=0;count<hist.above_pedestal_depth.size();++count)
   htmlSubFile << "</tr></table><br>" << endl;
   htmlSubFile <<"<hr>"<<endl;
 
-  htmlSubFile << "<h3> IN DEVELOPMENT:  Cells will low energies compared to their neighbors"<<endl;
-  htmlSubFile << "<table  width=100% border=1>" << endl;
-  for (unsigned int count=0;count<hist.NADA_cool_cell_map_depth.size();++count)
-    {
-      if (count%2==0)
-	htmlSubFile << "<tr align=\"center\">" << endl;	
-      htmlAnyHisto(runNo,hist.NADA_cool_cell_map_depth[count],"i#eta","i#phi", 92, htmlSubFile,htmlDir);
-      if (count%2==1)
-	htmlSubFile<<"</tr>"<<endl;
-    }
-
-  htmlSubFile << "</table><br>" << endl;
-  htmlSubFile <<"<hr>"<<endl;
 
   // html page footer
   htmlSubFile << "</body> " << endl;

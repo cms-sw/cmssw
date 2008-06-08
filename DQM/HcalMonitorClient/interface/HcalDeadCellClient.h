@@ -7,41 +7,38 @@
 struct DeadCellHists{
   int type;
   TH2F* problemDeadCells;
-  TH2F* problemDeadCells_depth1;
-  TH2F* problemDeadCells_depth2;
-  TH2F* problemDeadCells_depth3;
-  TH2F* problemDeadCells_depth4;
 
-  std::vector <TH2F*> problemDeadCells_DEPTH;
- 
+  //std::vector <TH2F*> problemDeadCells_DEPTH;
+  TH2F* problemDeadCells_DEPTH[4];
 
   // Dead cell routine #1:  low ADC counts for cell
   TH2F* deadADC_map;
-  std::vector<TH2F*> deadADC_map_depth; // individual depth plots
+  //std::vector<TH2F*> deadADC_map_depth; // individual depth plots
+  TH2F* deadADC_map_depth[4];
   TH1F* deadADC_eta;
   TH1F* ADCdist;
-  std::vector<TH2F*> deadcapADC_map; // plots for individual CAPIDs
+  //std::vector<TH2F*> deadcapADC_map; // plots for individual CAPIDs
+  TH2F* deadcapADC_map[4];
 
   // Dead cell routine #2:  cell cool compared to neighbors
   double floor, mindiff;
   TH2F* NADA_cool_cell_map;
-  std::vector<TH2F*> NADA_cool_cell_map_depth; // individual depth plots
+  // std::vector<TH2F*> NADA_cool_cell_map_depth; // individual depth plots
 
   // Dead cell routine #3:  cell consistently less than pedestal + N sigma
   TH2F* coolcell_below_pedestal;
   TH2F* above_pedestal;
   
-  std::vector<TH2F*> coolcell_below_pedestal_depth;
-  std::vector<TH2F*> above_pedestal_depth;
+  //std::vector<TH2F*> coolcell_below_pedestal_depth;
+  //std::vector<TH2F*> above_pedestal_depth;
+  TH2F* coolcell_below_pedestal_depth[4];
+  TH2F* above_pedestal_depth[4];
 
 // extra diagnostic plots - could be removed?  
   // Should already have these in DigiMonitor, RecHitMonitor
   TH2F* digiCheck;
   TH2F* cellCheck;
-  std::vector<TH2F*> digiCheck_depth;
-  std::vector<TH2F*> cellCheck_depth;
-
-
+  
 };
 
 class HcalDeadCellClient : public HcalBaseClient {

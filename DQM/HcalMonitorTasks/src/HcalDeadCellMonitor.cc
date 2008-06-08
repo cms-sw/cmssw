@@ -621,10 +621,12 @@ void HcalDeadCellMonitor::setupHists(DeadCellHists& hist,  DQMStore* dbe)
 
       if (!hist.makeDiagnostics) continue; // skip remaining depth plots if diagnostics are off
 
+      //sprintf(DepthName,"%s/%s/Diagnostics/Depth%i",baseFolder_.c_str(),hist.subdet.c_str(),d+1);
+      //m_dbe->setCurrentFolder(DepthName);
+
       // RecHit Occupancy Plots
       sprintf(DepthName,"%s_cellCheck_Depth%i",hist.subdet.c_str(),d+1);
       hist.cellCheck_depth.push_back(m_dbe->book2D(DepthName,DepthName,etaBins_,etaMin_,etaMax_,phiBins_,phiMin_,phiMax_));
-
 
       // ADC count <= min value
       sprintf(DepthName,"%s/%s/Diagnostics/Depth%i",baseFolder_.c_str(),hist.subdet.c_str(),d+1);
