@@ -18,10 +18,8 @@ HcalMonitorClient::~HcalMonitorClient(){
   if( rechit_client_ )     delete rechit_client_;
   if( pedestal_client_ )   delete pedestal_client_;
   if( led_client_ )        delete led_client_;
-  // This is suddenly causing a segmentation violation -- why?  hot_client_ destructor finishes fine
-  //if( hot_client_ )        delete hot_client_;
-  // And dead_client_ is causing an abort (though no seg violation) -- what am I doing wrong?
-  //if( dead_client_ )       delete dead_client_;
+  if( hot_client_ )        delete hot_client_;
+  if( dead_client_ )       delete dead_client_;
   if( tp_client_ )         delete tp_client_;
   if (ct_client_ )         delete ct_client_;
   if( mui_ )               delete mui_;
