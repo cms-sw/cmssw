@@ -8,7 +8,7 @@
 //
 // Original Author:  Chris Jones
 //         Created:  Thu Feb 21 11:22:41 EST 2008
-// $Id: FWEveLegoView.cc,v 1.5 2008/04/01 15:46:31 dmytro Exp $
+// $Id: FWEveLegoView.cc,v 1.6 2008/06/05 14:17:24 dmytro Exp $
 //
 
 // system include files
@@ -38,6 +38,7 @@
 #include "TGLPerspectiveCamera.h"
 #include "TEveLegoEventHandler.h"
 #include "TGLWidget.h"
+#include "TEveTrans.h"
 
 // user include files
 #include "Fireworks/Core/interface/FWEveLegoView.h"
@@ -84,6 +85,9 @@ FWEveLegoView::FWEveLegoView(TGFrame* iParent, TEveElementList* list):
    pal->SetDefaultColor((Color_t)1000);
    
    m_lego = new TEveCaloLego();
+   m_lego->InitMainTrans();
+   m_lego->RefMainTrans().SetScale(2*M_PI, 2*M_PI, 2*M_PI);
+   
    m_lego->SetPalette(pal);
    // m_lego->SetMainColor(Color_t(TColor::GetColor("#0A0A0A")));
    m_lego->SetGridColor(Color_t(TColor::GetColor("#202020")));
