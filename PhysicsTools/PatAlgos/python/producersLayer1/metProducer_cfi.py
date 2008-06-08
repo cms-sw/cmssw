@@ -8,7 +8,9 @@ allLayer1METs = cms.EDProducer("PATMETProducer",
     genMETSource = cms.InputTag("genMet"),
     useNNResolutions = cms.bool(False),
     addGenMET = cms.bool(True),
-    addMuonCorrections = cms.bool(True)
+    addMuonCorrections = cms.bool(True),
+    addTrigMatch = cms.bool(True),
+    trigPrimMatch = cms.VInputTag("metTrigMatchHLT1MET65")
 )
 
 

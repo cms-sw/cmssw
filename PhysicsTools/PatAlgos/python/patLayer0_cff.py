@@ -14,8 +14,12 @@ from PhysicsTools.PatAlgos.recoLayer0.beforeLevel0Reco_cff import *
 from PhysicsTools.PatAlgos.recoLayer0.highLevelReco_cff import *
 # MC matching
 from PhysicsTools.PatAlgos.mcMatchLayer0.mcMatchSequences_cff import *
+# trigger matching
+from PhysicsTools.PatAlgos.triggerLayer0.trigMatchSequences_cff import *
 patLayer0Cleaners_withoutPFTau = cms.Sequence(allLayer0Muons*allLayer0Electrons*allLayer0Photons*allLayer0Jets*allLayer0METs)
 patLayer0Cleaners = cms.Sequence(allLayer0Muons*allLayer0Electrons*allLayer0Photons*allLayer0Taus*allLayer0Jets*allLayer0METs)
-patLayer0_withoutPFTau = cms.Sequence(patBeforeLevel0Reco_withoutPFTau*patLayer0Cleaners_withoutPFTau*patHighLevelReco_withoutPFTau*patMCTruth_withoutTau)
-patLayer0 = cms.Sequence(patBeforeLevel0Reco*patLayer0Cleaners*patHighLevelReco*patMCTruth)
+patLayer0_withoutPFTau_withoutTrigMatch = cms.Sequence(patBeforeLevel0Reco_withoutPFTau*patLayer0Cleaners_withoutPFTau*patHighLevelReco_withoutPFTau*patMCTruth_withoutTau)
+patLayer0_withoutTrigMatch = cms.Sequence(patBeforeLevel0Reco*patLayer0Cleaners*patHighLevelReco*patMCTruth)
+patLayer0_withoutPFTau = cms.Sequence(patLayer0_withoutPFTau_withoutTrigMatch*patTrigMatch_withoutBTau)
+patLayer0 = cms.Sequence(patLayer0_withoutTrigMatch*patTrigMatch)
 

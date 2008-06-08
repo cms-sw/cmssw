@@ -36,7 +36,10 @@ allLayer1Electrons = cms.EDProducer("PATElectronProducer",
     ),
     electronIDSource = cms.InputTag("electronId"),
     tracksSource = cms.InputTag("generalTracks"),
-    genParticleMatch = cms.InputTag("electronMatch")
+    genParticleMatch = cms.InputTag("electronMatch"),
+    addTrigMatch = cms.bool(True),
+    trigPrimMatch  = cms.VInputTag("electronTrigMatchHLT1ElectronRelaxed",
+        "electronTrigMatchCandHLT1ElectronStartup")
 )
 
 

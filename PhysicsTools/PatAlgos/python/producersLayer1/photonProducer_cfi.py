@@ -22,7 +22,9 @@ allLayer1Photons = cms.EDProducer("PATPhotonProducer",
         hcal = cms.InputTag("layer0PhotonIsolations","egammaPhotonTowersDeposits"),
         tracker = cms.InputTag("layer0PhotonIsolations","egammaPhotonTkDeposits"),
         ecal = cms.InputTag("layer0PhotonIsolations","egammaPhotonEcalDeposits")
-    )
+    ),
+    addTrigMatch = cms.bool(True),
+    trigPrimMatch = cms.VInputTag("photonTrigMatchHLT1PhotonRelaxed")
 )
 
 

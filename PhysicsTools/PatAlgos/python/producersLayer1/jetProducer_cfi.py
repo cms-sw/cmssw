@@ -40,7 +40,10 @@ allLayer1Jets = cms.EDProducer("PATJetProducer",
         minHits = cms.int32(8),
         tracksSource = cms.InputTag("generalTracks")
     ),
-    caliJetResoFile = cms.string('PhysicsTools/PatUtils/data/Resolutions_lJets_MCJetCorJetIcone5.root')
+    caliJetResoFile = cms.string('PhysicsTools/PatUtils/data/Resolutions_lJets_MCJetCorJetIcone5.root'),
+    addTrigMatch = cms.bool(True),
+    trigPrimMatch = cms.VInputTag("jetTrigMatchHLT1ElectronRelaxed",
+        "jetTrigMatchHLT2jet")
 )
 
 

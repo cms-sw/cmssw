@@ -14,7 +14,9 @@ allLayer1Taus = cms.EDProducer("PATTauProducer",
     tauSource = cms.InputTag("allLayer0Taus"),
     useNNResolutions = cms.bool(True),
     tauResoFile = cms.string('PhysicsTools/PatUtils/data/Resolutions_tau.root'),
-    genParticleMatch = cms.InputTag("tauMatch")
+    genParticleMatch = cms.InputTag("tauMatch"),
+    addTrigMatch = cms.bool(True),
+    trigPrimMatch = cms.VInputTag("tauTrigMatchHLT1Tau")
 )
 
 

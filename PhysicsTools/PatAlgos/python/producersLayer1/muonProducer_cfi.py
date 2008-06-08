@@ -38,7 +38,10 @@ allLayer1Muons = cms.EDProducer("PATMuonProducer",
     muonLRFile = cms.string('PhysicsTools/PatUtils/data/MuonLRDistros.root'),
     muonSource = cms.InputTag("allLayer0Muons"),
     muonResoFile = cms.string('PhysicsTools/PatUtils/data/Resolutions_muon.root'),
-    genParticleMatch = cms.InputTag("muonMatch")
+    genParticleMatch = cms.InputTag("muonMatch"),
+    addTrigMatch = cms.bool(True),
+    trigPrimMatch = cms.VInputTag("muonTrigMatchHLT1MuonNonIso",
+        "muonTrigMatchHLT1MET65")
 )
 
 
