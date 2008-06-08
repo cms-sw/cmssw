@@ -1376,7 +1376,7 @@ if (debug_) cout <<"HcalHotCellClient::Creating \"Threshold Plot\" html output f
 	{
 	  html << "<tr><td>"<<i<<"</td>";
 	  //html <<"<td>"<<hist.thresholds[i]<<"</td></tr>"<<endl;
-	  html <<"<td> Unspecified -- check other documentation </td></tr>"<<endl;
+	  html <<"<td> Check plots for thresholds </td></tr>"<<endl;
 	}
     }
   html<<"</table><hr>"<<endl;

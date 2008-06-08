@@ -233,7 +233,7 @@ void HcalDeadCellClient::getSubDetHistograms(DeadCellHists& hist)
 
   for (unsigned int i=0;i<4;++i)
     {
-      sprintf(name,"DeadCellMonitor/%s/expertPlots/%sProblemDeadCells_depth%i",type.c_str(),type.c_str(),i);
+      sprintf(name,"DeadCellMonitor/%s/expertPlots/%sProblemDeadCells_depth%i",type.c_str(),type.c_str(),i+1);
       hist.problemDeadCells_DEPTH[i]=getAnyHisto(new TH2F(),name,process_, dbe_, debug_, cloneME_);
     }
 
@@ -420,7 +420,7 @@ void HcalDeadCellClient::resetSubDetHistograms(DeadCellHists& hist)
   // Loop over individual depths, capids
   for (int i=0;i<4;i++)
     {
-      sprintf(name,"DeadCellMonitor/%s/%sProblemDeadCells_depth%i",type.c_str(),type.c_str(),i);
+      sprintf(name,"DeadCellMonitor/%s/%sProblemDeadCells_depth%i",type.c_str(),type.c_str(),i+1);
       resetME(name,dbe_);
       sprintf(name,"DeadCellMonitor/%s/expertPlots/%s_DeadCap%i",type.c_str(),type.c_str(),i);
       resetME(name,dbe_); 
@@ -582,6 +582,7 @@ void HcalDeadCellClient::htmlOutput(int runNo, string htmlDir, string htmlName)
 	    {
 	      eta=ieta+int(etaMin)-1;
 	      phi=iphi+int(phiMin)-1;
+
 	      /*
 		if (hcalhists.problemDeadCells_DEPTH[depth]->GetBinContent(ieta,iphi)>=errorFrac_)
 		cout<<" HCAL ("<<eta<<", "<<phi<<")  "<<hbhists.problemDeadCells_DEPTH[depth]->GetBinContent(ieta,iphi)<<""<<endl;

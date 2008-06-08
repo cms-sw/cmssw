@@ -391,7 +391,7 @@ namespace HcalHotCellCheck
 	  // -------------------------------
 	  // Case 2:  Energy is > negative cutoff, but less than minimum threshold -- skip the cell
 	  
-	  // Comment this line out if you want to plot distribution of all cells  vs surroundings
+	  // Comment this line out if you want to plot distribution of all cells vs surroundings
 	  else if (cellenergy<=h.nadaEnergyCandCut0)
 	    continue;
 	  
