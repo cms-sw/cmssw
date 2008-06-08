@@ -17,39 +17,42 @@ void PFRecoTauDiscriminationAgainstElectron::produce(Event& iEvent,const EventSe
     // Check if track goes to Ecal crack
     TrackRef myleadTk=(*thePFTauRef).leadPFChargedHadrCand()->trackRef();
     math::XYZPoint myleadTkEcalPos;
-    if(MagneticField!=0){ 
-      myleadTkEcalPos = TauTagTools::propagTrackECALSurfContactPoint(MagneticField,myleadTk);
-    } else {
-      // temporary: outer position is not correct!
-      myleadTkEcalPos = myleadTk->outerPosition();
+
+    if(myleadTk.isNonnull()){ 
+      if(MagneticField!=0){ 
+	myleadTkEcalPos = TauTagTools::propagTrackECALSurfContactPoint(MagneticField,myleadTk);
+      } else {
+	// temporary: outer position is not correct!
+	myleadTkEcalPos = myleadTk->outerPosition();
+      }
+      if (applyCut_ecalCrack_ && isInEcalCrack(abs((double)myleadTkEcalPos.eta()))) {
+	thePFTauDiscriminatorAgainstElectron->setValue(iPFTau,0);
+	continue;
+      }
     }
-    if (applyCut_ecalCrack_ && isInEcalCrack(abs((double)myleadTkEcalPos.eta()))) {
-      thePFTauDiscriminatorAgainstElectron->setValue(iPFTau,0);
-      continue;
-    }
-    
+
     bool decision = false;
-    bool emfPass = false, htotPass = false, hmaxPass = false; 
-    bool h3x3Pass = false, estripPass = false, erecovPass = false, epreidPass = false;
+    bool emfPass = true, htotPass = true, hmaxPass = true; 
+    bool h3x3Pass = true, estripPass = true, erecovPass = true, epreidPass = true;
 
     if (applyCut_emFraction_) {
-      if ((*thePFTauRef).emFraction() < emFraction_maxValue_) {
-	emfPass = true;
+      if ((*thePFTauRef).emFraction() > emFraction_maxValue_) {
+	emfPass = false;
       }
     }
     if (applyCut_hcalTotOverPLead_) {
-      if ((*thePFTauRef).hcalTotOverPLead() > hcalTotOverPLead_minValue_) {
-	htotPass = true;
+      if ((*thePFTauRef).hcalTotOverPLead() < hcalTotOverPLead_minValue_) {
+	htotPass = false;
       }
     }
     if (applyCut_hcalMaxOverPLead_) {
-      if ((*thePFTauRef).hcalMaxOverPLead() > hcalMaxOverPLead_minValue_) {
-	hmaxPass = true;
+      if ((*thePFTauRef).hcalMaxOverPLead() < hcalMaxOverPLead_minValue_) {
+	hmaxPass = false;
       }
     }
     if (applyCut_hcal3x3OverPLead_) {
-      if ((*thePFTauRef).hcal3x3OverPLead() > hcal3x3OverPLead_minValue_) {
-	h3x3Pass = true;
+      if ((*thePFTauRef).hcal3x3OverPLead() < hcal3x3OverPLead_minValue_) {
+	h3x3Pass = false;
       }
     }
     if (applyCut_ecalStripSumEOverPLead_) {
@@ -79,7 +82,9 @@ void PFRecoTauDiscriminationAgainstElectron::produce(Event& iEvent,const EventSe
 	    (*thePFTauRef).hcal3x3OverPLead() > elecPreID0_Hcal3x3_minValue))
 	  ){
 	epreidPass = true;
-      }      
+      }  else {
+	epreidPass = false;
+      }
     }
 
     decision = emfPass && htotPass && hmaxPass && 
