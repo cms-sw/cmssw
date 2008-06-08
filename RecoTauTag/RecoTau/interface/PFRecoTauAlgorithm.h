@@ -31,7 +31,7 @@ class  PFRecoTauAlgorithm  {
   void setMagneticField(const MagneticField*); 
   
   // PFRecTrackCollection: Temporary until integrated to PFCandidate
-  PFTau buildPFTau(const PFTauTagInfoRef&,const Vertex&,const PFRecTrackCollection&); 
+  PFTau buildPFTau(const PFTauTagInfoRef&,const Vertex&); 
  private:
   const TransientTrackBuilder* TransientTrackBuilder_;
   bool checkPos(std::vector<math::XYZPoint>,math::XYZPoint) const;

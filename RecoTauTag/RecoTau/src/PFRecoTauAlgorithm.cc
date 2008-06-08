@@ -56,7 +56,7 @@ PFRecoTauAlgorithm::PFRecoTauAlgorithm(const ParameterSet& iConfig) : TransientT
 }
 void PFRecoTauAlgorithm::setTransientTrackBuilder(const TransientTrackBuilder* x){TransientTrackBuilder_=x;}
 
-PFTau PFRecoTauAlgorithm::buildPFTau(const PFTauTagInfoRef& myPFTauTagInfoRef,const Vertex& myPV,const PFRecTrackCollection& myPFelecTks){
+PFTau PFRecoTauAlgorithm::buildPFTau(const PFTauTagInfoRef& myPFTauTagInfoRef,const Vertex& myPV){
   PFJetRef myPFJet=(*myPFTauTagInfoRef).pfjetRef();  // catch a ref to the initial PFJet  
   PFTau myPFTau(numeric_limits<int>::quiet_NaN(),myPFJet->p4());   // create the PFTau
    
@@ -238,16 +238,17 @@ PFTau PFRecoTauAlgorithm::buildPFTau(const PFTauTagInfoRef& myPFTauTagInfoRef,co
 
   typedef std::pair<reco::PFBlockRef, unsigned> ElementInBlock;
   typedef std::vector< ElementInBlock > ElementsInBlocks;
-
+  if(myleadPFCand.isNonnull()){
+    myElecTrk = myleadPFCand->trackRef();//Electron candidate
   
-  if(myleadTk.isNonnull()) {
-    math::XYZPoint myleadTkEcalPos;
-   if(MagneticField_!=0){ 
-     myleadTkEcalPos = TauTagTools::propagTrackECALSurfContactPoint(MagneticField_,myleadTk);
-   } else {
-     // temporary: outer position is not correct!
-     myleadTkEcalPos = myleadTk->outerPosition();
-  }
+    if(myElecTrk.isNonnull()) {
+      math::XYZPoint myElecTrkEcalPos;
+      if(MagneticField_!=0){ 
+	myElecTrkEcalPos = TauTagTools::propagTrackECALSurfContactPoint(MagneticField_,myElecTrk);
+      } else {
+	// temporary: outer position is not correct!
+	myElecTrkEcalPos = myElecTrk->outerPosition();
+      }
 
     // Against double counting of clusters
     std::vector<math::XYZPoint> hcalPosV; hcalPosV.clear();
@@ -266,68 +267,72 @@ PFTau PFRecoTauAlgorithm::buildPFTau(const PFTauTagInfoRef& myPFTauTagInfoRef,co
 	  math::XYZPoint clusPos = element.clusterRef()->position();
 	  double en = (double)element.clusterRef()->energy();
 	  double et = (double)element.clusterRef()->energy()*fabs(sin(clusPos.Theta()));
-	  if (en>myMaximumHCALPFClusterE) {
-	    myMaximumHCALPFClusterE = en;
-	  }
-	  if (et>myMaximumHCALPFClusterEt) {
-	    myMaximumHCALPFClusterEt = et;
-	  }
-	  if (!checkPos(hcalPosV,clusPos)) {
-	    hcalPosV.push_back(clusPos);
-	    myHCALenergy += en;
-	    double deltaR = ROOT::Math::VectorUtil::DeltaR(myleadTkEcalPos,clusPos);
-	    if (deltaR<0.184) {
-	      myHCALenergy3x3 += en;
-	    }
-	  }
-	} else if(element.type()==reco::PFBlockElement::ECAL) {
-	  double en = (double)element.clusterRef()->energy();
-	  math::XYZPoint clusPos = element.clusterRef()->position();
-	  if (!checkPos(ecalPosV,clusPos)) {
-	    ecalPosV.push_back(clusPos);
-	    myECALenergy += en;
-	    double deltaPhi = ROOT::Math::VectorUtil::DeltaPhi(myleadTkEcalPos,clusPos);
-	    double deltaEta = abs(myleadTkEcalPos.eta()-clusPos.eta());
-	    double deltaPhiOverQ = deltaPhi/(double)myleadTk->charge();
-	    if (en >= EcalStripSumE_minClusEnergy_ && deltaEta<EcalStripSumE_deltaEta_
-		&& deltaPhiOverQ > EcalStripSumE_deltaPhiOverQ_minValue_ 
-		&& deltaPhiOverQ < EcalStripSumE_deltaPhiOverQ_maxValue_) { 
-	      myStripClusterE += en;
-	    }
-	  }	  
-	}
+ 	  if (en>myMaximumHCALPFClusterE) {
+ 	    myMaximumHCALPFClusterE = en;
+ 	  }
+ 	  if (et>myMaximumHCALPFClusterEt) {
+ 	    myMaximumHCALPFClusterEt = et;
+ 	  }
+ 	  if (!checkPos(hcalPosV,clusPos)) {
+ 	    hcalPosV.push_back(clusPos);
+ 	    myHCALenergy += en;
+ 	    double deltaR = ROOT::Math::VectorUtil::DeltaR(myElecTrkEcalPos,clusPos);
+ 	    if (deltaR<0.184) {
+ 	      myHCALenergy3x3 += en;
+ 	    }
+ 	  }
+ 	} else if(element.type()==reco::PFBlockElement::ECAL) {
+ 	  double en = (double)element.clusterRef()->energy();
+ 	  math::XYZPoint clusPos = element.clusterRef()->position();
+ 	  if (!checkPos(ecalPosV,clusPos)) {
+ 	    ecalPosV.push_back(clusPos);
+ 	    myECALenergy += en;
+ 	    double deltaPhi = ROOT::Math::VectorUtil::DeltaPhi(myElecTrkEcalPos,clusPos);
+ 	    double deltaEta = abs(myElecTrkEcalPos.eta()-clusPos.eta());
+ 	    double deltaPhiOverQ = deltaPhi/(double)myElecTrk->charge();
+ 	    if (en >= EcalStripSumE_minClusEnergy_ && deltaEta<EcalStripSumE_deltaEta_
+ 		&& deltaPhiOverQ > EcalStripSumE_deltaPhiOverQ_minValue_ 
+ 		&& deltaPhiOverQ < EcalStripSumE_deltaPhiOverQ_maxValue_) { 
+ 	      myStripClusterE += en;
+ 	    }
+ 	  }	  
+ 	}
 	
-      }
-    }
+       }
+     }
 
-    
-    // PreID KF tracks
-    for (unsigned ipfele=0;ipfele<myPFelecTks.size();ipfele++) { 
-      double dR = ROOT::Math::VectorUtil::DeltaR(myPFelecTks[ipfele].trackRef()->momentum(),myleadTk->momentum());
-      if (dR<ElecPreIDLeadTkMatch_maxDR_) {
-	myElecTrk = myPFelecTks[ipfele].trackRef();
-	if (myPFelecTks[ipfele].algoType()==3) { // 3 for preIDed tracks
-	  myElecPreid = true;
-	}
-	break;
-      }
-    }
+    if (myleadPFCand->mva_e_pi()==1) { // 3 for preIDed tracks
+ 	  myElecPreid = true;
+ 	}
+	
+// //    // PreID KF tracks
+// //    for (unsigned ipfele=0;ipfele<myPFelecTks.size();ipfele++) { 
+// //      double dR = ROOT::Math::VectorUtil::DeltaR(myPFelecTks[ipfele].trackRef()->momentum(),myleadTk->momentum());
+// //      if (dR<ElecPreIDLeadTkMatch_maxDR_) {
+// //	myElecTrk = myPFelecTks[ipfele].trackRef();
+// //	if (myPFelecTks[ipfele].algoType()==3) { // 3 for preIDed tracks
+// //	  myElecPreid = true;
+// //	}
+// //	break;
+// //      }
+// //    }
+	
+     if ((myHCALenergy+myECALenergy)>0.)
+       myEmfrac = myECALenergy/(myHCALenergy+myECALenergy);
+     myPFTau.setemFraction((float)myEmfrac);
+     myPFTau.sethcalTotOverPLead((float)myHCALenergy/(float)myElecTrk->p());
+     myPFTau.sethcalMaxOverPLead((float)myMaximumHCALPFClusterE/(float)myElecTrk->p());
+     myPFTau.sethcal3x3OverPLead((float)myHCALenergy3x3/(float)myElecTrk->p());
+     myPFTau.setecalStripSumEOverPLead((float)myStripClusterE/(float)myElecTrk->p());
+     myPFTau.setmaximumHCALPFClusterEt(myMaximumHCALPFClusterEt);
+     myPFTau.setelectronPreIDDecision(myElecPreid);
+     if (myElecTrk.isNonnull()) myPFTau.setelectronPreIDTrack(myElecTrk);
 
-    if ((myHCALenergy+myECALenergy)>0.)
-      myEmfrac = myECALenergy/(myHCALenergy+myECALenergy);
-    myPFTau.setemFraction((float)myEmfrac);
-    myPFTau.sethcalTotOverPLead((float)myHCALenergy/(float)myleadTk->p());
-    myPFTau.sethcalMaxOverPLead((float)myMaximumHCALPFClusterE/(float)myleadTk->p());
-    myPFTau.sethcal3x3OverPLead((float)myHCALenergy3x3/(float)myleadTk->p());
-    myPFTau.setecalStripSumEOverPLead((float)myStripClusterE/(float)myleadTk->p());
-    myPFTau.setmaximumHCALPFClusterEt(myMaximumHCALPFClusterEt);
-    myPFTau.setelectronPreIDDecision(myElecPreid);
-    if (myElecTrk.isNonnull()) myPFTau.setelectronPreIDTrack(myElecTrk);
+     // These need to be filled!
+     //myPFTau.setbremsRecoveryEOverPLead(my...);
+     //myPFTau.setelectronPreIDOutput(my...);
 
-    // These need to be filled!
-    //myPFTau.setbremsRecoveryEOverPLead(my...);
-    //myPFTau.setelectronPreIDOutput(my...);
-
+     }
   }
   // end electron rejection
   
