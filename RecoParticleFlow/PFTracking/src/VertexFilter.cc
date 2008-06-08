@@ -35,7 +35,8 @@ VertexFilter::VertexFilter(const edm::ParameterSet& iConfig)
   chi_cut = iConfig.getParameter<double>("ChiCut");
 
   useQuality_   = iConfig.getParameter<bool>("UseQuality");
-  trackQuality_=TrackBase::qualityByName(iConfig.getParameter<std::string>("TrackQuality"));
+
+  trackQualities_=iConfig.getParameter<std::vector <std::string> >("TrackQualities");
   string tkAlgorithm =iConfig.getParameter<string>("TrackAlgorithm");
 
 
@@ -185,7 +186,10 @@ VertexFilter::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
     
     if (hasAVertex){
       Track track =(*itc);
-      if(useQuality_)  track.setQuality(trackQuality_);
+      if(useQuality_){
+	for (int itq=0; itq<trackQualities_.size();itq++) 
+ 	        track.setQuality(TrackBase::qualityByName(trackQualities_[itq]));
+      }	
       track.setAlgorithm(trackAlgo_);
       //tracks and trajectories
       selTracks->push_back( track );

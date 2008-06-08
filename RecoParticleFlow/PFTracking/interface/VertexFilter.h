@@ -33,6 +33,6 @@ class VertexFilter : public edm::EDProducer {
   float chi_cut;
 
   bool useQuality_;
-  reco::TrackBase::TrackQuality trackQuality_;
+  std::vector< std::string > trackQualities_;
   reco::TrackBase::TrackAlgorithm trackAlgo_;
 };
