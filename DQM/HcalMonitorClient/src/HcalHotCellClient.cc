@@ -1094,6 +1094,7 @@ void HcalHotCellClient::getSubDetThresholds(HotCellHists& hist)
     cout <<"HcalHotCellClient::getSubDetThresholds()"<<endl;
 
   string type;
+
   if(hist.type==1)
     type="HB";
   else if(hist.type==2)
@@ -1110,42 +1111,40 @@ void HcalHotCellClient::getSubDetThresholds(HotCellHists& hist)
       return;
     }
 
+
   int dummy=0; // counter to keep track of number of thresholds
   hist.Nthresholds=0;
   char name[256];
   while (1)
     {
-      cout <<"DUMMY = "<<dummy<<endl;
+
       sprintf(name, "%sHcal/HotCellMonitor/%s/%sHotCellThreshold%i",process_.c_str(),type.c_str(),type.c_str(),dummy);
       MonitorElement* me = 0;
       if(dbe_) 
 	{
-	  cout <<"DBE FOUND!"<<endl;
+
 	  me = dbe_->get(name);
 	  if (me)
 	    {
-	      cout <<"ME FOUND!"<<endl;
+
 	      ++dummy;
 	      string s = me->valueString();
-	      cout <<"s = ---"<<s.c_str()<<"---"<<endl;
+
 	      // Split string to get number value ( "f = 15" is split to just  "15") 
 	      //hist.thresholds.push_back(s.substr(2));
 	      // This doesn't seem to work at CERN, where value is returned as "f=15" (no space)
 	      // eventually, split with "=" sign
 	      //hist.thresholds.push_back(s.c_str());
 	      //hist.thresholds.push_back("???");
-	      cout <<"SUCCESS!"<<endl;
 	    }
 	  else break;
 	}
       
       else 
 	{
-	  cout <<"NO DBE"<<endl;
 	  break;
 	}
     }
-  cout <<"N THRESH = "<<dummy<<endl;
   hist.Nthresholds=dummy;
   return;
 } //void HcalHotCellClient::getSubDetThresholds(HotCellHists& hist)
