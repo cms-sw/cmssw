@@ -56,7 +56,7 @@ install:
 	$(QUIET) echo '#!/bin/sh' > root.sh; \
 	echo "CMSSW_BASE="`pwd` >> root.sh; \
 	echo "export CMSSW_BASE" >> root.sh; \
-	echo "ROOTSYS=$(ROOTSYS)" >> root.sh; \
+	echo "ROOTSYS="`pwd`"/$(ROOTSYS)" >> root.sh; \
 	echo "export ROOTSYS" >> root.sh; \
 	echo "LD_LIBRARY_PATH=$(LDLIBRARYPATH)" | perl -ne 's/ +/:/g;print' >> root.sh; \
 	echo "export LD_LIBRARY_PATH" >> root.sh; \
