@@ -1,5 +1,5 @@
 //
-// $Id: classes.h,v 1.26 2008/04/17 15:49:25 askew Exp $
+// $Id: classes.h,v 1.27 2008/05/08 19:40:01 nancy Exp $
 //
 #include "DataFormats/Common/interface/Wrapper.h"
 #include "DataFormats/EgammaCandidates/interface/Photon.h"
@@ -52,11 +52,36 @@ namespace {
     edm::RefProd<reco::PhotonCollection> rp1;
     edm::Wrapper<edm::RefVector<reco::PhotonCollection> > rv1;
 
+    edm::RefToBase<reco::Photon> rtbp;
+    edm::reftobase::IndirectHolder<reco::Photon> ihp;
+    edm::RefToBaseProd<reco::Photon> rtbpp;
+    edm::RefToBaseVector<reco::Photon> rtbvp;
+    edm::Wrapper<edm::RefToBaseVector<reco::Photon> > rtbvp_w;
+    edm::reftobase::BaseVectorHolder<reco::Photon> *bvhp_p;
+
+
+
     reco::ElectronCollection v2;
     edm::Wrapper<reco::ElectronCollection> w2;
     edm::Ref<reco::ElectronCollection> r2;
     edm::RefProd<reco::ElectronCollection> rp2;
     edm::Wrapper<edm::RefVector<reco::ElectronCollection> > rv2;
+
+    edm::RefToBase<reco::Electron> rtbe;
+    edm::reftobase::IndirectHolder<reco::Electron> ihe;
+    edm::RefToBaseProd<reco::Electron> rtbpe;
+    edm::RefToBaseVector<reco::Electron> rtbve;
+    edm::Wrapper<edm::RefToBaseVector<reco::Electron> > rtbve_w;
+    edm::reftobase::BaseVectorHolder<reco::Electron> *bvhe_p;
+
+    edm::RefToBase<reco::GsfElectron> rtbg;
+    edm::reftobase::IndirectHolder<reco::GsfElectron> ihg;
+    edm::RefToBaseProd<reco::GsfElectron> rtbpg;
+    edm::RefToBaseVector<reco::GsfElectron> rtbvg;
+    edm::Wrapper<edm::RefToBaseVector<reco::GsfElectron> > rtbvg_w;
+    edm::reftobase::BaseVectorHolder<reco::GsfElectron> *bvhg_p;
+
+
 
     reco::GsfElectronCollection v4;
     edm::Wrapper<reco::GsfElectronCollection> w4;

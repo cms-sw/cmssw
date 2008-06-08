@@ -14,6 +14,15 @@
   <class name="edm::RefVector<std::vector<reco::Photon>,reco::Photon,edm::refhelper::FindUsingAdvance<std::vector<reco::Photon>,reco::Photon> >"/>
   <class name="edm::Wrapper<edm::RefVector<std::vector<reco::Photon>,reco::Photon,edm::refhelper::FindUsingAdvance<std::vector<reco::Photon>,reco::Photon> > >"/>
 
+  <class name="edm::RefToBase<reco::Photon>" />
+  <class name="edm::reftobase::IndirectHolder<reco::Photon>" />
+  <class name="edm::RefToBaseProd<reco::Photon>" />
+  <class name="edm::RefToBaseVector<reco::Photon>" />
+  <class name="edm::Wrapper<edm::RefToBaseVector<reco::Photon> >" />
+  <class name="edm::reftobase::BaseVectorHolder<reco::Photon>" />
+
+
+
   <class name="std::vector<reco::Electron>"/>
   <class name="edm::Wrapper<std::vector<reco::Electron> >"/>
   <class name="edm::Ref<std::vector<reco::Electron>,reco::Electron,edm::refhelper::FindUsingAdvance<std::vector<reco::Electron>,reco::Electron> >"/>
@@ -22,12 +31,30 @@
   <class name="edm::Wrapper<edm::RefVector<std::vector<reco::Electron>,reco::Electron,edm::refhelper::FindUsingAdvance<std::vector<reco::Electron>,reco::Electron> > >"/>
 
 
+  <class name="edm::RefToBase<reco::Electron>" />
+<class name="edm::reftobase::IndirectHolder<reco::Electron>" />
+<class name="edm::RefToBaseProd<reco::Electron>" />
+<class name="edm::RefToBaseVector<reco::Electron>" />
+<class name="edm::Wrapper<edm::RefToBaseVector<reco::Electron> >" />
+<class name="edm::reftobase::BaseVectorHolder<reco::Electron>" />
+
+
+
+
   <class name="std::vector<reco::GsfElectron>"/>
   <class name="edm::Wrapper<std::vector<reco::GsfElectron> >"/>
   <class name="edm::Ref<std::vector<reco::GsfElectron>,reco::GsfElectron,edm::refhelper::FindUsingAdvance<std::vector<reco::GsfElectron>,reco::GsfElectron> >"/>
   <class name="edm::RefProd<std::vector<reco::GsfElectron> >"/>
   <class name="edm::RefVector<std::vector<reco::GsfElectron>,reco::GsfElectron,edm::refhelper::FindUsingAdvance<std::vector<reco::GsfElectron>,reco::GsfElectron> >"/>
   <class name="edm::Wrapper<edm::RefVector<std::vector<reco::GsfElectron>,reco::GsfElectron,edm::refhelper::FindUsingAdvance<std::vector<reco::GsfElectron>,reco::GsfElectron> > >"/>
+
+<class name="edm::RefToBase<reco::GsfElectron>" />
+<class name="edm::reftobase::IndirectHolder<reco::GsfElectron>" />
+<class name="edm::RefToBaseProd<reco::GsfElectron>" />
+<class name="edm::RefToBaseVector<reco::GsfElectron>" />
+<class name="edm::Wrapper<edm::RefToBaseVector<reco::GsfElectron> >" />
+<class name="edm::reftobase::BaseVectorHolder<reco::GsfElectron>" />
+
 
   <class name="std::vector<reco::Conversion>"/>
   <class name="edm::Wrapper<std::vector<reco::Conversion> >"/>
