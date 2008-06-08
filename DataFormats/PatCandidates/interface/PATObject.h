@@ -9,7 +9,7 @@
  *
  *  \author   Steven Lowette
  *
- *  \version  $Id: PATObject.h,v 1.8.2.1 2008/06/03 20:08:24 gpetrucc Exp $
+ *  \version  $Id: PATObject.h,v 1.9 2008/06/03 22:28:07 gpetrucc Exp $
  *
  */
 
@@ -17,6 +17,8 @@
 #include "DataFormats/Candidate/interface/CandidateFwd.h"
 #include "DataFormats/Candidate/interface/Candidate.h"
 #include <vector>
+
+#include "DataFormats/PatCandidates/interface/TriggerPrimitive.h"
 
 
 namespace pat {
@@ -60,6 +62,9 @@ namespace pat {
       float resolutionTheta() const;
       /// covariance matrix elements
       const std::vector<float> & covMatrix() const;
+      /// trigger matches
+      const std::vector<TriggerPrimitive> & triggerMatches() const;
+      const std::vector<TriggerPrimitive> triggerMatchesByFilter(const std::string & aFilt) const;
       /// set standard deviation on A (see CMS Note 2006/023)
       void setResolutionA(float a);
       /// set standard deviation on B (see CMS Note 2006/023)
@@ -78,6 +83,8 @@ namespace pat {
       void setResolutionTheta(float theta);
       /// set covariance matrix elements
       void setCovMatrix(const std::vector<float> & c);
+      /// add a trigger match
+      void addTriggerMatch(const pat::TriggerPrimitive & aTrigPrim);
       
     protected:
       // reference back to the original object
@@ -100,6 +107,8 @@ namespace pat {
       float resTheta_;
       // covariance matrix elements
       std::vector<float> covM_;
+      /// vector of trigger matches
+      std::vector<pat::TriggerPrimitive> triggerMatches_;
 
   };
 
@@ -169,6 +178,18 @@ namespace pat {
 
   template <class ObjectType> 
   const std::vector<float> & PATObject<ObjectType>::covMatrix() const { return covM_; }
+  
+  template <class ObjectType>
+  const std::vector<TriggerPrimitive> & PATObject<ObjectType>::triggerMatches() const { return triggerMatches_; }
+  
+  template <class ObjectType>
+  const std::vector<TriggerPrimitive> PATObject<ObjectType>::triggerMatchesByFilter(const std::string & aFilt) const {
+    std::vector<TriggerPrimitive> selectedMatches;
+    for ( size_t i = 0; i < triggerMatches_.size(); i++ ) {
+      if ( triggerMatches_.at(i).filterName() == aFilt ) selectedMatches.push_back(triggerMatches_.at(i));
+    }
+    return selectedMatches;
+  }
 
   template <class ObjectType> 
   void PATObject<ObjectType>::setResolutionEt(float et) { resEt_ = et; }
@@ -199,6 +220,11 @@ namespace pat {
     //    covM_.clear();
     //    for (size_t i = 0; i < c.size(); i++) covM_.push_back(c[i]); 
     covM_ = c;
+  }
+  
+  template <class ObjectType>
+  void PATObject<ObjectType>::addTriggerMatch(const pat::TriggerPrimitive & aTrigPrim) {
+    triggerMatches_.push_back(aTrigPrim);
   }
 
 }

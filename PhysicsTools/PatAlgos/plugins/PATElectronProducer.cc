@@ -1,5 +1,5 @@
 //
-// $Id: PATElectronProducer.cc,v 1.5.2.1 2008/05/31 19:33:38 lowette Exp $
+// $Id: PATElectronProducer.cc,v 1.7 2008/06/03 22:37:04 gpetrucc Exp $
 //
 
 #include "PhysicsTools/PatAlgos/plugins/PATElectronProducer.h"
@@ -34,9 +34,14 @@ PATElectronProducer::PATElectronProducer(const edm::ParameterSet & iConfig) :
   embedGsfTrack_    = iConfig.getParameter<bool>         ( "embedGsfTrack" );
   embedSuperCluster_= iConfig.getParameter<bool>         ( "embedSuperCluster" );
   embedTrack_       = iConfig.getParameter<bool>         ( "embedTrack" );
+  
   // MC matching configurables
   addGenMatch_      = iConfig.getParameter<bool>          ( "addGenMatch" );
   genMatchSrc_       = iConfig.getParameter<edm::InputTag>( "genParticleMatch" );
+  
+  // trigger matching configurables
+  addTrigMatch_     = iConfig.getParameter<bool>         ( "addTrigMatch" );
+  trigMatchSrc_     = iConfig.getParameter<std::vector<edm::InputTag> >( "trigPrimMatch" );
 
   // resolution configurables
   addResolutions_   = iConfig.getParameter<bool>         ( "addResolutions" );
@@ -121,6 +126,18 @@ void PATElectronProducer::produce(edm::Event & iEvent, const edm::EventSetup & i
       if (genElectron.isNonnull() && genElectron.isAvailable() ) {
         anElectron.setGenLepton(*genElectron);
       } // leave empty if no match found
+    }
+    
+    // matches to trigger primitives
+    if ( addTrigMatch_ ) {
+      for ( size_t i = 0; i < trigMatchSrc_.size(); ++i ) {
+        edm::Handle<edm::Association<TriggerPrimitiveCollection> > trigMatch;
+        iEvent.getByLabel(trigMatchSrc_[i], trigMatch);
+        TriggerPrimitiveRef trigPrim = (*trigMatch)[elecsRef];
+        if ( trigPrim.isNonnull() && trigPrim.isAvailable() ) {
+          anElectron.addTriggerMatch(*trigPrim);
+        }
+      }
     }
 
     // add resolution info

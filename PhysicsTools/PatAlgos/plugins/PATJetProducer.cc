@@ -1,5 +1,5 @@
 //
-// $Id: PATJetProducer.cc,v 1.14.2.1 2008/05/31 19:33:38 lowette Exp $
+// $Id: PATJetProducer.cc,v 1.17 2008/06/03 22:37:04 gpetrucc Exp $
 //
 
 #include "PhysicsTools/PatAlgos/plugins/PATJetProducer.h"
@@ -55,6 +55,8 @@ PATJetProducer::PATJetProducer(const edm::ParameterSet& iConfig) {
   partonJetSrc_            = iConfig.getParameter<edm::InputTag>	      ( "partonJetSource" );
   addJetCorrFactors_       = iConfig.getParameter<bool>                       ( "addJetCorrFactors" );
   jetCorrFactorsSrc_       = iConfig.getParameter<edm::InputTag>              ( "jetCorrFactorsSource" );
+  addTrigMatch_            = iConfig.getParameter<bool>                       ( "addTrigMatch" );
+  trigMatchSrc_            = iConfig.getParameter<std::vector<edm::InputTag> >( "trigPrimMatch" );
   addResolutions_          = iConfig.getParameter<bool> 		      ( "addResolutions" );
   useNNReso_               = iConfig.getParameter<bool> 		      ( "useNNResolutions" );
   caliJetResoFile_         = iConfig.getParameter<std::string>  	      ( "caliJetResoFile" );
@@ -211,6 +213,18 @@ void PATJetProducer::produce(edm::Event & iEvent, const edm::EventSetup & iSetup
 
     // TO BE IMPLEMENTED FOR >=1_5_X: do the PartonJet matching
     if (addPartonJetMatch_) {
+    }
+    
+    // matches to trigger primitives
+    if ( addTrigMatch_ ) {
+      for ( size_t i = 0; i < trigMatchSrc_.size(); ++i ) {
+        edm::Handle<edm::Association<TriggerPrimitiveCollection> > trigMatch;
+        iEvent.getByLabel(trigMatchSrc_[i], trigMatch);
+        TriggerPrimitiveRef trigPrim = (*trigMatch)[jetRef];
+        if ( trigPrim.isNonnull() && trigPrim.isAvailable() ) {
+          ajet.addTriggerMatch(*trigPrim);
+        }
+      }
     }
 
     // add resolution info if demanded

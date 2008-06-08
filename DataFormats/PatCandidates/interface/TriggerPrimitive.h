@@ -3,7 +3,7 @@
 
 
 //
-// $Id: TriggerPrimitive.h,v 1.1.4.2 2008/05/30 12:23:59 vadler Exp $
+// $Id$
 //
 
 
@@ -19,7 +19,7 @@
    to store the trigger object id from trigger::TriggerObject::id_.
 
   \author   Volker Adler
-  \version  $Id: TriggerPrimitive.h,v 1.1.4.2 2008/05/30 12:23:59 vadler Exp $
+  \version  $Id$
 */
 
 

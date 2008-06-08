@@ -1,5 +1,5 @@
 //
-// $Id: PATPhotonProducer.cc,v 1.5.2.1 2008/05/31 19:34:14 lowette Exp $
+// $Id: PATPhotonProducer.cc,v 1.7 2008/06/03 22:37:04 gpetrucc Exp $
 //
 
 #include "PhysicsTools/PatAlgos/plugins/PATPhotonProducer.h"
@@ -22,6 +22,10 @@ PATPhotonProducer::PATPhotonProducer(const edm::ParameterSet & iConfig) :
    // MC matching configurables
   addGenMatch_       = iConfig.getParameter<bool>         ( "addGenMatch" );
   genMatchSrc_       = iConfig.getParameter<edm::InputTag>( "genParticleMatch" );
+  
+  // trigger matching configurables
+  addTrigMatch_     = iConfig.getParameter<bool>         ( "addTrigMatch" );
+  trigMatchSrc_     = iConfig.getParameter<std::vector<edm::InputTag> >( "trigPrimMatch" );
   
   // produces vector of photons
   produces<std::vector<Photon> >();
@@ -79,6 +83,18 @@ void PATPhotonProducer::produce(edm::Event & iEvent, const edm::EventSetup & iSe
       if (genPhoton.isNonnull() && genPhoton.isAvailable() ) {
         aPhoton.setGenPhoton(*genPhoton);
       } // leave empty if no match found
+    }
+    
+    // matches to trigger primitives
+    if ( addTrigMatch_ ) {
+      for ( size_t i = 0; i < trigMatchSrc_.size(); ++i ) {
+        edm::Handle<edm::Association<TriggerPrimitiveCollection> > trigMatch;
+        iEvent.getByLabel(trigMatchSrc_[i], trigMatch);
+        TriggerPrimitiveRef trigPrim = (*trigMatch)[photonRef];
+        if ( trigPrim.isNonnull() && trigPrim.isAvailable() ) {
+          aPhoton.addTriggerMatch(*trigPrim);
+        }
+      }
     }
 
     // here comes the extra functionality

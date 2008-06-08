@@ -1,5 +1,5 @@
 //
-// $Id: PATMETProducer.h,v 1.1 2008/03/06 09:23:10 llista Exp $
+// $Id: PATMETProducer.h,v 1.2 2008/04/01 19:05:24 lowette Exp $
 //
 
 #ifndef PhysicsTools_PatAlgos_PATMETProducer_h
@@ -13,7 +13,7 @@
    a collection of objects of METType.
 
   \author   Steven Lowette
-  \version  $Id: PATMETProducer.h,v 1.1 2008/03/06 09:23:10 llista Exp $
+  \version  $Id: PATMETProducer.h,v 1.2 2008/04/01 19:05:24 lowette Exp $
 */
 
 
@@ -47,6 +47,8 @@ namespace pat {
       edm::InputTag metSrc_;
       bool          addGenMET_;
       edm::InputTag genMETSrc_;
+      bool          addTrigMatch_;
+      std::vector<edm::InputTag> trigMatchSrc_;
       bool          addResolutions_;
       bool          useNNReso_;
       std::string   metResoFile_;

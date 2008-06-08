@@ -1,5 +1,5 @@
 //
-// $Id: TriggerPrimitive.cc,v 1.1.4.2 2008/05/30 12:23:59 vadler Exp $
+// $Id$
 //
 
 #include "DataFormats/PatCandidates/interface/TriggerPrimitive.h"
