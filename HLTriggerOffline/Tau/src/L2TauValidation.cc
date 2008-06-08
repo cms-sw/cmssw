@@ -153,8 +153,8 @@ L2TauValidation::endJob() {
  
   //Get Efficiency
 
-  EtEffNum->getTH1F()->Sumw2();
-  EtEffDenom->getTH1F()->Sumw2();
+  //  EtEffNum->getTH1F()->Sumw2();
+  //EtEffDenom->getTH1F()->Sumw2();
   EtEff->getTH1F()->Divide(EtEffNum->getTH1F(),EtEffDenom->getTH1F(),1.,1.,"b");
 
   //Write file

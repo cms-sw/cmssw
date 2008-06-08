@@ -52,7 +52,8 @@ L25TauValidation::~L25TauValidation(){
 
 
 
-void L25TauValidation::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup){
+void 
+L25TauValidation::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup){
    using namespace edm;
    using namespace reco;
    
@@ -124,20 +125,20 @@ void L25TauValidation::beginJob(const edm::EventSetup&){
 void L25TauValidation::endJob() {
    // Get the efficiency plots
 
-  l25IsoJetEta->getTH1F()->Sumw2();
-  jetEta->getTH1F()->Sumw2();
+  //   l25IsoJetEta->getTH1F()->Sumw2();
+  // jetEta->getTH1F()->Sumw2();
    l25EtaEff->getTH1F()->Divide(l25IsoJetEta->getTH1F(), jetEta->getTH1F(), 1., 1., "b");
    
-   l25IsoJetPt->getTH1F()->Sumw2();
-   jetPt->getTH1F()->Sumw2();
+   // l25IsoJetPt->getTH1F()->Sumw2();
+   //jetPt->getTH1F()->Sumw2();
    l25PtEff->getTH1F()->Divide(l25IsoJetPt->getTH1F(), jetPt->getTH1F(), 1., 1., "b");
   
-   l25IsoJetEt->getTH1F()->Sumw2();
-   jetEt->getTH1F()->Sumw2();
+   // l25IsoJetEt->getTH1F()->Sumw2();
+   // jetEt->getTH1F()->Sumw2();
    l25EtEff->getTH1F()->Divide(l25IsoJetEt->getTH1F(), jetEt->getTH1F(), 1., 1., "b");
    
-   l25IsoJetPhi->getTH1F()->Sumw2();
-   jetPhi->getTH1F()->Sumw2();
+   // l25IsoJetPhi->getTH1F()->Sumw2();
+   // jetPhi->getTH1F()->Sumw2();
    l25PhiEff->getTH1F()->Divide(l25IsoJetPhi->getTH1F(), jetPhi->getTH1F(), 1., 1., "b");
    
    
