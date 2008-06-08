@@ -16,7 +16,7 @@
 //
 // Original Author:  Chris Jones
 //         Created:  Mon Mar 24 11:45:16 EDT 2008
-// $Id$
+// $Id: FWListMultipleModels.h,v 1.1 2008/03/24 18:02:14 chrjones Exp $
 //
 
 // system include files
@@ -46,7 +46,7 @@ class FWListMultipleModels : public TEveElement, public TNamed, public FWListIte
 
       // ---------- member functions ---------------------------
       void SetMainColor(Color_t iColor);
-      void SetRnrState(Bool_t rnr);
+      Bool_t SetRnrState(Bool_t rnr);
 
       bool doSelection(bool);
    private:

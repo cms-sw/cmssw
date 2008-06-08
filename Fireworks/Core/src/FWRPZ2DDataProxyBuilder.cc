@@ -8,7 +8,7 @@
 //
 // Original Author:  
 //         Created:  Thu Dec  6 17:49:54 PST 2007
-// $Id: FWRPZ2DDataProxyBuilder.cc,v 1.6 2008/03/12 02:58:17 chrjones Exp $
+// $Id: FWRPZ2DDataProxyBuilder.cc,v 1.7 2008/05/26 14:37:32 dmytro Exp $
 //
 
 // system include files
@@ -92,7 +92,7 @@ setUserDataElementAndChildren(TEveElement* iElement,
 static
 void
 setUserData(const FWEventItem* iItem,TEveElementList* iElements, std::vector<FWModelId>& iIds) {
-   if(iElements &&  static_cast<int>(iItem->size()) == iElements->GetNChildren() ) {
+   if(iElements &&  static_cast<int>(iItem->size()) == iElements->NumChildren() ) {
       int index=0;
       int largestIndex = iIds.size();
       if(iIds.size()<iItem->size()) {
@@ -160,12 +160,12 @@ modelChanges(const FWEventItem* iItem,
 {
    //std::cout <<"modelChanged "<<iItem->size()<<" "<<iElements->GetNChildren()<<std::endl;
    assert(iItem && "item is not set");
-   if ( static_cast<int>(iItem->size()) != iElements->GetNChildren() ) {
+   if ( static_cast<int>(iItem->size()) != iElements->NumChildren() ) {
       std::cout << "Inconsistent number of entries in the primary data collection and the proxy builder.\n" <<
 	"Item name: " << iItem->name() << "\nN(data): " << iItem->size() <<
-	"\nN(proxy): " << iElements->GetNChildren() << std::endl;
+	"\nN(proxy): " << iElements->NumChildren() << std::endl;
    }
-   assert(iItem && static_cast<int>(iItem->size()) == iElements->GetNChildren() && "can not use default modelChanges implementation");
+   assert(iItem && static_cast<int>(iItem->size()) == iElements->NumChildren() && "can not use default modelChanges implementation");
    TEveElement::List_i itElement = iElements->BeginChildren();
    int index = 0;
    for(FWModelIds::const_iterator it = iIds.begin(), itEnd = iIds.end();

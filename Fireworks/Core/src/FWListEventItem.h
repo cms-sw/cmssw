@@ -16,7 +16,7 @@
 //
 // Original Author:  Chris Jones
 //         Created:  Thu Feb 28 11:05:02 PST 2008
-// $Id: FWListEventItem.h,v 1.7 2008/03/17 16:36:34 chrjones Exp $
+// $Id: FWListEventItem.h,v 1.8 2008/06/05 14:39:50 chrjones Exp $
 //
 
 // system include files
@@ -49,7 +49,7 @@ class FWListEventItem : public TEveElementList, public FWListItemBase
 
       // ---------- member functions ---------------------------
       virtual void SetMainColor(Color_t);
-      virtual void SetRnrState(Bool_t rnr);
+      virtual Bool_t SetRnrState(Bool_t rnr);
       virtual Bool_t SingleRnrState() const;
    ClassDef(FWListEventItem,0);
 

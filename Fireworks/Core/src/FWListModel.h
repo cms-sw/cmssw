@@ -16,7 +16,7 @@
 //
 // Original Author:  Chris Jones
 //         Created:  Mon Mar  3 17:20:20 EST 2008
-// $Id: FWListModel.h,v 1.7 2008/03/17 14:18:48 chrjones Exp $
+// $Id: FWListModel.h,v 1.8 2008/03/18 15:38:04 chrjones Exp $
 //
 
 // system include files
@@ -46,7 +46,7 @@ class FWListModel : public TEveElement, public TNamed, public FWListItemBase
 
       // ---------- member functions ---------------------------
       virtual void SetMainColor(Color_t);
-      virtual void SetRnrState(Bool_t rnr);
+      virtual Bool_t SetRnrState(Bool_t rnr);
       ClassDef(FWListModel,0);
 
       virtual Bool_t CanEditMainColor() const;

@@ -8,7 +8,7 @@
 //
 // Original Author:  Chris Jones
 //         Created:  Mon Mar 24 11:45:18 EDT 2008
-// $Id$
+// $Id: FWListMultipleModels.cc,v 1.1 2008/03/24 18:02:14 chrjones Exp $
 //
 
 // system include files
@@ -76,7 +76,7 @@ FWListMultipleModels::SetMainColor(Color_t iColor)
    }
 }
 
-void 
+Bool_t 
 FWListMultipleModels::SetRnrState(Bool_t rnr)
 {
    for(std::set<FWModelId>::iterator it = m_ids.begin(), itEnd=m_ids.end();
@@ -87,8 +87,9 @@ FWListMultipleModels::SetRnrState(Bool_t rnr)
       const FWEventItem* item = it->item();
       FWDisplayProperties prop(item->modelInfo(it->index()).displayProperties().color(),rnr);
       item->setDisplayProperties(it->index(),prop);
-      TEveElement::SetRnrState(rnr);   
+      return TEveElement::SetRnrState(rnr);   
    }
+   return true;
 }
 
 Bool_t 

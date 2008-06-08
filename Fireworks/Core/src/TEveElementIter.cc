@@ -22,7 +22,7 @@ TEveElementIter::TEveElementIter( TEveElement* element, const char* regular_expr
 	}
       
       // find element without children
-      if ( (*parents.top().second)->GetNChildren() > 0 ) {
+      if ( (*parents.top().second)->NumChildren() > 0 ) {
 	 parents.push( std::pair<TEveElement*,TEveElement::List_i>( *(parents.top().second), 
 								    (*parents.top().second)->BeginChildren() ) );
 	 continue;

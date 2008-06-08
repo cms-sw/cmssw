@@ -29,7 +29,7 @@ void expand_node( TEveElement * element )
 {
   // force a TEveGeoNode to load all its children
   if (TEveGeoNode * node = dynamic_cast<TEveGeoNode *>( element )) {
-    if (node->GetNChildren() == 0 && node->GetNode()->GetVolume()->GetNdaughters() > 0) {
+    if (node->NumChildren() == 0 && node->GetNode()->GetVolume()->GetNdaughters() > 0) {
       TIter next(node->GetNode()->GetVolume()->GetNodes());
       TGeoNode* dnode;
       while ((dnode = (TGeoNode*) next()) != 0) {
@@ -103,14 +103,14 @@ bool is_leaf_node( const TEveElement * element )
 {
   // a TEveGeoNode can have unaccounted-for children
   if (const TEveGeoNode * node = dynamic_cast<const TEveGeoNode *>( element )) {
-    return ((node->GetNChildren() == 0) and (node->GetNode()->GetVolume()->GetNdaughters() == 0));
+    return ((node->NumChildren() == 0) and (node->GetNode()->GetVolume()->GetNdaughters() == 0));
   }
   // a TEveGeoShape always knows its children
   if (const TEveGeoShape * shape = dynamic_cast<const TEveGeoShape *>( element )) {
-    return (shape->GetNChildren() == 0);
+    return (shape->NumChildren() == 0);
   }
   // default implementation
-  return (element->GetNChildren() == 0);
+  return (element->NumChildren() == 0);
 }
 
 // toggle an elements's children visibility, based on their name

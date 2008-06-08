@@ -8,7 +8,7 @@
 //
 // Original Author:  
 //         Created:  Sat Jan  5 14:08:51 EST 2008
-// $Id: FWRhoPhiZViewManager.cc,v 1.24 2008/03/19 15:19:11 chrjones Exp $
+// $Id: FWRhoPhiZViewManager.cc,v 1.25 2008/05/12 15:39:45 dmytro Exp $
 //
 
 // system include files
@@ -30,6 +30,7 @@
 #include "TGeoArb8.h"
 #include "TGLEmbeddedViewer.h"
 #include "TEveSelection.h"
+#include "TGeoManager.h"
 
 #include <iostream>
 #include <exception>
@@ -559,8 +560,7 @@ void FWRhoPhiZViewManager::makeMuonGeometryRhoZAdvance()
 		  CSCDetId id(iEndcap, iStation, iRing, iChamber, iLayer);
 		  TEveGeoShapeExtract* extract = detIdToGeo()->getExtract( id.rawId() );
 		  if ( !extract ) continue;
-		  gGeoManager->cd( detIdToGeo()->getPath( id.rawId() ) );
-		  TGeoHMatrix* matrix = gGeoManager->GetCurrentMatrix();
+		  const TGeoHMatrix* matrix = detIdToGeo()->getMatrix(id.rawId());
 		  estimateProjectionSizeCSC( matrix, extract->GetShape(), min_rho, max_rho, min_z, max_z );
 	       }
 	       catch ( ... ) {} 

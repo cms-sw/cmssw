@@ -8,7 +8,7 @@
 //
 // Original Author:  
 //         Created:  Thu Dec  6 17:49:54 PST 2007
-// $Id: FWRPZDataProxyBuilder.cc,v 1.8 2008/03/01 02:16:42 chrjones Exp $
+// $Id: FWRPZDataProxyBuilder.cc,v 1.9 2008/03/12 02:58:17 chrjones Exp $
 //
 
 // system include files
@@ -96,7 +96,7 @@ FWRPZDataProxyBuilder::build(TEveElementList** iObject)
     build(m_item, iObject);
     m_elements=*iObject;
 
-     if(m_elements &&  static_cast<int>(m_item->size()) == m_elements->GetNChildren() ) {
+     if(m_elements &&  static_cast<int>(m_item->size()) == m_elements->NumChildren() ) {
         int index=0;
         int largestIndex = m_ids.size();
         if(m_ids.size()<m_item->size()) {
@@ -139,7 +139,7 @@ FWRPZDataProxyBuilder::modelChanges(const FWModelIds& iIds,
                                     TEveElement* iElements )
 {
    //std::cout <<"modelChanged "<<m_item->size()<<" "<<iElements->GetNChildren()<<std::endl;
-   assert(m_item && static_cast<int>(m_item->size()) == iElements->GetNChildren() && "can not use default modelChanges implementation");
+   assert(m_item && static_cast<int>(m_item->size()) == iElements->NumChildren() && "can not use default modelChanges implementation");
    TEveElement::List_i itElement = iElements->BeginChildren();
    int index = 0;
    for(FWModelIds::const_iterator it = iIds.begin(), itEnd = iIds.end();

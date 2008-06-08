@@ -8,7 +8,7 @@
 //
 // Original Author:  Chris Jones
 //         Created:  Thu Feb 28 11:13:37 PST 2008
-// $Id: FWListEventItem.cc,v 1.13 2008/06/03 19:59:48 chrjones Exp $
+// $Id: FWListEventItem.cc,v 1.14 2008/06/05 14:39:50 chrjones Exp $
 //
 
 // system include files
@@ -234,12 +234,12 @@ FWListEventItem::SetMainColor(Color_t iColor)
 }
 
 
-void 
+Bool_t 
 FWListEventItem::SetRnrState(Bool_t rnr)
 {
    FWDisplayProperties prop(m_item->defaultDisplayProperties().color(),rnr);
    m_item->setDefaultDisplayProperties(prop);
-   TEveElementList::SetRnrState(rnr);
+   return TEveElementList::SetRnrState(rnr);
 }
 Bool_t 
 FWListEventItem::SingleRnrState() const
@@ -320,9 +320,10 @@ FWListEventItem::modelsChanged( const std::set<FWModelId>& iModels )
          //(*itElement)->UpdateItems();  //needed to force list tree to update immediately
       }
    }
-   if(aChildChanged) {
-      this->UpdateItems();
-   }
+   // obsolete
+   // if(aChildChanged) {
+   //    this->UpdateItems();
+   // }
    //std::cout <<"modelsChanged done"<<std::endl;
 
 }

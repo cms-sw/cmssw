@@ -8,7 +8,7 @@
 //
 // Original Author:  
 //         Created:  Thu Dec  6 17:49:54 PST 2007
-// $Id: FW3DLegoDataProxyBuilder.cc,v 1.3.4.2 2008/03/18 01:40:04 dmytro Exp $
+// $Id: FW3DLegoDataProxyBuilder.cc,v 1.4 2008/03/20 09:39:26 dmytro Exp $
 //
 
 // system include files
@@ -110,7 +110,7 @@ setUserDataElementAndChildren(TEveElement* iElement,
 static
 void
 setUserData(const FWEventItem* iItem,TEveElementList* iElements, std::vector<FWModelId>& iIds) {
-   if(iElements &&  static_cast<int>(iItem->size()) == iElements->GetNChildren() ) {
+   if(iElements &&  static_cast<int>(iItem->size()) == iElements->NumChildren() ) {
       int index=0;
       int largestIndex = iIds.size();
       if(iIds.size()<iItem->size()) {
@@ -184,7 +184,7 @@ FW3DLegoDataProxyBuilder::modelChanges(const FWModelIds& iIds,
 {
    //std::cout <<"modelChanged "<<m_item->size()<<" "<<iElements->GetNChildren()<<std::endl;
    if (! iElements) return;
-   assert(m_item && static_cast<int>(m_item->size()) == iElements->GetNChildren() && "can not use default modelChanges implementation");
+   assert(m_item && static_cast<int>(m_item->size()) == iElements->NumChildren() && "can not use default modelChanges implementation");
    TEveElement::List_i itElement = iElements->BeginChildren();
    int index = 0;
    for(FWModelIds::const_iterator it = iIds.begin(), itEnd = iIds.end();

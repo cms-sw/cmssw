@@ -8,7 +8,7 @@
 //
 // Original Author:  Chris Jones
 //         Created:  Tue Feb 19 10:33:25 EST 2008
-// $Id: FWRhoPhiZView.cc,v 1.9 2008/03/21 03:58:06 dmytro Exp $
+// $Id: FWRhoPhiZView.cc,v 1.10 2008/03/23 22:03:09 dmytro Exp $
 //
 
 #define private public
@@ -216,8 +216,7 @@ FWRhoPhiZView::importElements(TEveElement* iChildren, float iLayer)
                                                                _1,oldLayer));
    m_projMgr->ImportElements(iChildren);
    TEveElement::List_i it = m_projMgr->BeginChildren();
-   std::advance(it,
-                m_projMgr->GetNChildren() -1 );
+   std::advance(it, m_projMgr->NumChildren() -1 );
    return *it;
 }
 
