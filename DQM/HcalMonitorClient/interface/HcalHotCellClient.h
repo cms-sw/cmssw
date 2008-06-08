@@ -11,7 +11,8 @@ struct HotCellHists{
   int Nthresholds;
 
   TH2F* problemHotCells;
-  std::vector<TH2F*> problemHotCells_DEPTH;
+ 
+  TH2F* problemHotCells_DEPTH[4];
 
   TH2F* maxCellOccMap;
   TH2F* maxCellEnergyMap;
@@ -45,10 +46,12 @@ struct HotCellHists{
   TH2F* nadaNegOccMap;
   TH2F* nadaNegEnergyMap;
 
-  std::vector<TH2F*> nadaOccMapDepth;
-  std::vector<TH2F*> nadaNegOccMapDepth;
-  std::vector<TH2F*> nadaEnergyMapDepth;
-  std::vector<TH2F*> nadaNegEnergyMapDepth;
+  TH2F* nadaOccMapDepth[4];
+  TH2F* nadaNegOccMapDepth[4];
+  TH2F* nadaEnergyMapDepth[4];
+  TH2F* nadaNegEnergyMapDepth[4];
+  
+
 };
 
 class HcalHotCellClient : public HcalBaseClient{
