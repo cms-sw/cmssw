@@ -5,7 +5,7 @@
 # creates a complete config file.
 # relval_main + the custom config for it is not needed any more
 
-__version__ = "$Revision: 1.8 $"
+__version__ = "$Revision: 1.9 $"
 __source__ = "$Source: /cvs_server/repositories/CMSSW/CMSSW/Configuration/PyReleaseValidation/python/ConfigBuilder.py,v $"
 
 import FWCore.ParameterSet.Config as cms
@@ -281,15 +281,16 @@ class ConfigBuilder(object):
     def prepare_DQM(self, sequence = None):
         pass
 
-    def prepare_FASTSIM(self, sequence = None):
+    def prepare_FASTSIM(self, sequence = "famosWithEverything"):
         """ Enrich the schedule with fastsim """
         self.loadAndRemember("FastSimulation/Configuration/FamosSequences_cff")
-        self.process.fastsim_step = cms.Path( self.process.famosWithEverything )
+        self.process.fastsim_step = cms.Path( getattr(self.process, sequence) )
+        self.process.schedule.append(self.process.fastsim_step)
     
     def build_production_info(evt_type, energy, evtnumber):
         """ Add useful info for the production. """
         prod_info=cms.untracked.PSet\
-              (version=cms.untracked.string("$Revision: 1.8 $"),
+              (version=cms.untracked.string("$Revision: 1.9 $"),
                name=cms.untracked.string("PyReleaseValidation")#,
               # annotation=cms.untracked.string(self._options.evt_type+" energy:"+str(energy)+" nevts:"+str(evtnumber))
               )
