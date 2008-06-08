@@ -12,8 +12,8 @@
  *  which had a problem with directories more than one level deep.
  *  (see macro hadd_old.C for this previous implementation).
  *
- *  $Date: 2007/11/08 04:11:35 $
- *  $Revision: 1.5 $
+ *  $Date: 2008/02/25 10:06:47 $
+ *  $Revision: 1.6 $
  *
  *  Authors:
  *  A. Everett Purdue University
@@ -213,7 +213,7 @@ void drawLoop( TDirectory *target, TList *sourcelist, TCanvas *c1 )
       h1->SetMarkerColor(color);
       h1->Draw();
       TString tmpName(first_source->GetName());
-      gLegend->AddEntry(h1,tmpName.Remove(tmpName.Length()-5,5),"LP");
+      gLegend->AddEntry(h1,tmpName,"LP");
       c1->Update();
 
       // loop over all source files and add the content of the
@@ -233,7 +233,7 @@ void drawLoop( TDirectory *target, TList *sourcelist, TCanvas *c1 )
 	   h2->SetMarkerColor(color);
            h2->Draw("same");
 	   TString tmpName(nextsource->GetName());
-	   gLegend->AddEntry(h2,tmpName.Remove(tmpName.Length()-5,5),"LP");
+	   gLegend->AddEntry(h2,tmpName,"LP");
 	   gLegend->Draw("same");
 	   c1->Update();
            //- delete h2;
@@ -254,7 +254,7 @@ void drawLoop( TDirectory *target, TList *sourcelist, TCanvas *c1 )
       h1->SetMarkerColor(color);
       h1->Draw();
       TString tmpName(first_source->GetName());
-      gLegend->AddEntry(h1,tmpName.Remove(tmpName.Length()-5,5),"LP");
+      gLegend->AddEntry(h1,tmpName,"LP");
       c1->Update();
 
       // loop over all source files and add the content of the
@@ -274,7 +274,7 @@ void drawLoop( TDirectory *target, TList *sourcelist, TCanvas *c1 )
 	   h2->SetMarkerColor(color);
 	   h2->Draw("same");
 	   TString tmpName(nextsource->GetName());
-	   gLegend->AddEntry(h2,tmpName.Remove(tmpName.Length()-5,5),"LP");
+	   gLegend->AddEntry(h2,tmpName,"LP");
 	   gLegend->Draw("same");
 	   c1->Update();
            //- delete h2;
@@ -295,7 +295,7 @@ void drawLoop( TDirectory *target, TList *sourcelist, TCanvas *c1 )
       h1->GetHistogram()->Draw();
       h1->Draw();
       TString tmpName(first_source->GetName());
-      gLegend->AddEntry(h1,tmpName.Remove(tmpName.Length()-5,5),"LP");
+      gLegend->AddEntry(h1,tmpName,"LP");
       c1->Update();
 
       // loop over all source files and add the content of the
@@ -315,7 +315,7 @@ void drawLoop( TDirectory *target, TList *sourcelist, TCanvas *c1 )
 	   h2->SetMarkerColor(color);
            h2->Draw("same");
 	   TString tmpName(nextsource->GetName());
-	   gLegend->AddEntry(h2,tmpName.Remove(tmpName.Length()-5,5),"LP");
+	   gLegend->AddEntry(h2,tmpName,"LP");
 	   gLegend->Draw("same");
 	   c1->Update();
            //- delete h2;
