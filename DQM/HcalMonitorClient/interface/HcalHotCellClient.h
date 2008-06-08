@@ -20,17 +20,20 @@ struct HotCellHists{
   TH1F* maxCellTime;
   TH1F* maxCellID;
   std::vector<std::string> thresholds;
-  std::vector<TH2F*> threshOccMap;
-  std::vector<TH2F*> threshEnergyMap;
+
+  // replace vectors with fixed-size arrays
+  TH2F* threshOccMap[5];
+  TH2F* threshEnergyMap[5];
   
-  std::vector<TH2F*>  threshOccMapDepth1;
-  std::vector<TH2F*>  threshEnergyMapDepth1;
-  std::vector<TH2F*>  threshOccMapDepth2;
-  std::vector<TH2F*>  threshEnergyMapDepth2;
-  std::vector<TH2F*>  threshOccMapDepth3;
-  std::vector<TH2F*>  threshEnergyMapDepth3;
-  std::vector<TH2F*>  threshOccMapDepth4;
-  std::vector<TH2F*>  threshEnergyMapDepth4;
+
+  TH2F*  threshOccMapDepth1[5];
+  TH2F*  threshEnergyMapDepth1[5];
+  TH2F*  threshOccMapDepth2[5];
+  TH2F*  threshEnergyMapDepth2[5];
+  TH2F*  threshOccMapDepth3[5];
+  TH2F*  threshEnergyMapDepth3[5];
+  TH2F*  threshOccMapDepth4[5];
+  TH2F*  threshEnergyMapDepth4[5];
 
    // Digi Plots
   TH2F* abovePedSigma;
