@@ -38,7 +38,7 @@ class CalibrationScanAnalysis
     void tuneVFS(bool tune)  { tuneVFS_  = tune; }
     void addFile(const std::string&);
     void analyze();
-    void sanitizeResult(unsigned int cut = 2);
+    void sanitizeResult(unsigned int cut = 2, bool doItForISHA = true, bool doItForVFS = true);
     void print(Option_t* option = "") const;
     void draw(Option_t* option = "") const;
     void save(const char* fileName="-");
@@ -376,7 +376,7 @@ void CalibrationScanAnalysis::sortByGeometry() {
 
       // Decode input
       int fecCrate,fecSlot,fecRing,ccuAddr,ccuChan,channel1,channel2,detid,tmp;
-      sscanf(strstr(buffer,"FEC:cr/sl/ring/ccu/mod"), "FEC:cr/sl/ring/ccu/mod=%d/%d/%d,%d/%d", &fecCrate,&fecSlot,&fecRing,&ccuAddr, &ccuChan);
+      sscanf(strstr(buffer,"FEC:cr/sl/ring/ccu/mod"), "FEC:cr/sl/ring/ccu/mod=%d/%d/%d/%d/%d", &fecCrate,&fecSlot,&fecRing,&ccuAddr, &ccuChan);
       sscanf(strstr(buffer,"apvs"), "apvs=%d/%d", &channel1,&channel2);
       sscanf(strstr(buffer,"dcu/detid"), "dcu/detid=%x/%x", &tmp,&detid);
 
@@ -432,7 +432,7 @@ void CalibrationScanAnalysis::loadPresentValues() {
 
 }
 
-void CalibrationScanAnalysis::sanitizeResult(unsigned int cut) {
+void CalibrationScanAnalysis::sanitizeResult(unsigned int cut, bool doItForISHA, bool doItForVFS) {
 
   // create and fill the utility histograms (similar to the draw method)
   std::map<int,TH2F*> histos;
@@ -462,10 +462,10 @@ void CalibrationScanAnalysis::sanitizeResult(unsigned int cut) {
                           cut*histos[geometries_[apvValue->first]]->GetRMS(2));
     highVFS  = (int)round(histos[geometries_[apvValue->first]]->GetMean(2) + 
                           cut*histos[geometries_[apvValue->first]]->GetRMS(2));
-    if(apvValue->second.first<lowISHA || apvValue->second.first>highISHA) { 
+    if((apvValue->second.first<lowISHA || apvValue->second.first>highISHA) && doItForISHA) { 
       apvValue->second.first = (int)round((lowISHA+highISHA)/2.);
     }
-    if(apvValue->second.second<lowVFS || apvValue->second.second>highVFS) {
+    if((apvValue->second.second<lowVFS || apvValue->second.second>highVFS) && doItForVFS) {
       apvValue->second.second = (int)round((lowVFS+highVFS)/2.);
     }
   }
