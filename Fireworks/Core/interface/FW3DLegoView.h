@@ -16,7 +16,7 @@
 //
 // Original Author:  Chris Jones
 //         Created:  Thu Feb 21 11:22:37 EST 2008
-// $Id: FW3DLegoView.h,v 1.2 2008/02/21 20:38:39 chrjones Exp $
+// $Id: FW3DLegoView.h,v 1.3 2008/03/07 09:06:48 dmytro Exp $
 //
 
 // system include files
@@ -52,6 +52,8 @@ class FW3DLegoView : public FWViewBase
       void DynamicCoordinates();
       void connect(const char* receiver_class, void* receiver, const char* slot);   
    
+      virtual void saveImageTo(const std::string& iName) const;
+
    private:
       FW3DLegoView(const FW3DLegoView&); // stop default
 
