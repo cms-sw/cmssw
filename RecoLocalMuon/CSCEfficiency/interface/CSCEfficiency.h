@@ -11,6 +11,7 @@
 #include "FWCore/Framework/interface/Event.h"
 #include "DataFormats/Common/interface/Handle.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
+#include <FWCore/ParameterSet/interface/InputTag.h>
 #include "FWCore/Framework/interface/EventSetup.h"
 #include "FWCore/Framework/interface/ESHandle.h"
 
@@ -161,6 +162,10 @@ public:
 protected:
 
 private:
+
+  edm::InputTag stripDigiTag_;
+  edm::InputTag wireDigiTag_;
+
   //---- Variables
 
   SetOfRecHits  (*all_RecHits)[2][4][4][ NumCh];

@@ -34,7 +34,8 @@ using namespace edm;
 // Constructor
 //CSCEfficiency::CSCEfficiency(const ParameterSet& pset){
 //---- this allows access to MC (if needed)
-CSCEfficiency::CSCEfficiency(const ParameterSet& pset) : theSimHitMap("MuonCSCHits"){
+//CSCEfficiency::CSCEfficiency(const ParameterSet& pset) : theSimHitMap("MuonCSCHits"){
+CSCEfficiency::CSCEfficiency(const ParameterSet& pset) : theSimHitMap( pset.getParameter<edm::InputTag>("MuonCSCHits") ){
   const float Xmin = XMIN;
   const float Xmax = XMAX;
   const int nXbins = int(4.*(Xmax - Xmin));
@@ -47,6 +48,8 @@ CSCEfficiency::CSCEfficiency(const ParameterSet& pset) : theSimHitMap("MuonCSCHi
   //
 
   //---- Get the input parameters
+  stripDigiTag_  = pset.getParameter<edm::InputTag>("stripDigiTag") ;
+  wireDigiTag_ = pset.getParameter<edm::InputTag>("wireDigiTag") ;
   rootFileName     = pset.getUntrackedParameter<string>("rootFileName");
   WorkInEndcap     = pset.getUntrackedParameter<int>("WorkInEndcap");
   ExtrapolateFromStation      = pset.getUntrackedParameter<int>("ExtrapolateFromStation");
@@ -1292,13 +1295,17 @@ void CSCEfficiency::analyze(const Event & event, const EventSetup& eventSetup){
   //---- zero or more than one instance exists in the event an exception is thrown.
   if (printalot) printf("\tpass handles\n");
   if(DATA){
-    event.getByLabel("muonCSCDigis","MuonCSCWireDigi",wires);
-    event.getByLabel("muonCSCDigis","MuonCSCStripDigi",strips);    
+    //event.getByLabel("muonCSCDigis","MuonCSCWireDigi",wires);
+    //event.getByLabel("muonCSCDigis","MuonCSCStripDigi",strips);    
+    event.getByLabel( stripDigiTag_, strips);
+    event.getByLabel( wireDigiTag_,  wires);
   }
   else{
     theSimHitMap.fill(event);
-    event.getByLabel(mycscunpacker,"MuonCSCWireDigi",wires);
-    event.getByLabel(mycscunpacker,"MuonCSCStripDigi",strips);
+    //event.getByLabel(mycscunpacker,"MuonCSCWireDigi",wires);
+    //event.getByLabel(mycscunpacker,"MuonCSCStripDigi",strips);
+    event.getByLabel( stripDigiTag_, strips);
+    event.getByLabel( wireDigiTag_,  wires);
   }
 
   //---- Get the CSC Geometry :
