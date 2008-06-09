@@ -61,7 +61,8 @@ install:
 	echo "LD_LIBRARY_PATH=$(LDLIBRARYPATH)" | perl -ne 's/ +/:/g;print' >> root.sh; \
 	echo "export LD_LIBRARY_PATH" >> root.sh; \
 	echo "$(ROOTSYS)/bin/root.exe" '$$*' >> root.sh; \
-	chmod u+x root.sh
+	chmod u+x root.sh 
+	$(QUIET) find tmp -name "*.d" -exec rm {} \;
 
 core:   env lib$(LibCore).so tmp/lib$(LibCore).so.out
 	
