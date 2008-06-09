@@ -272,7 +272,7 @@ void HcalHotCellClient::htmlOutput(int runNo, string htmlDir, string htmlName)
   htmlFile << "cellpadding=\"10\"> " << endl;
   
 
-htmlFile << "<td align=\"center\">&nbsp;&nbsp;&nbsp;<h3>Cells matching dead conditions in  at least "<<(int)(errorFrac_*100)<<"% of events</h3></td>"<<endl;
+htmlFile << "<td align=\"center\">&nbsp;&nbsp;&nbsp;<h3>Cells matching hot conditions in  at least "<<(int)(errorFrac_*100)<<"% of events</h3></td>"<<endl;
   htmlFile << "</tr>"<<endl;
 
   htmlFile << "<tr align=\"center\">" << endl;
@@ -286,7 +286,7 @@ htmlFile << "<td align=\"center\">&nbsp;&nbsp;&nbsp;<h3>Cells matching dead cond
   htmlFile <<"<tr><td>This histogram shows cells that satisfy at least one hot cell condition in at least "<<(int)(errorFrac_*100)<<"% of events.  A cell is considered hot if:<br>";
   htmlFile<<" (A) it is above a threshold energy;<br>";
   htmlFile<<" (B) if it is more than 3 sigma above its pedestal value; or <br>";
-  htmlFile<<" (C) if its energy is especially large compared to its neighbors.  Detailed plots for each type of dead cell are given in the links below.<br>"<<endl;
+  htmlFile<<" (C) if its energy is especially large compared to its neighbors.  Detailed plots for each type of hot cell are given in the links below.<br>"<<endl;
 
   // Links to individual hot cell algorithms
   htmlFile <<"<table width = 90% align=\"center\"><tr align=\"center\">" <<endl;
@@ -300,7 +300,7 @@ htmlFile << "<td align=\"center\">&nbsp;&nbsp;&nbsp;<h3>Cells matching dead cond
   htmlFile <<"<h2>List of Hot Cells</h2>"<<endl;
   htmlFile <<" (Because the hot cell histogram above sums over all HCAL depths, not all entries in that histogram correspond to a single HCAL cell.  The list below shows all individual cells that are hot in at least "<<(int)(errorFrac_*100)<<"% of events.  Cells are labeled by (eta, phi, depth) index.<br><br>"<<endl;
   htmlFile <<"<table width=75%align = \"center\"><tr align=\"center\">" <<endl;
-  htmlFile <<"<td> Hot Cells</td><td align=\"center\"> Fraction of Events in which cells are bad (%)</td></tr>"<<endl;
+  htmlFile <<"<td> Hot Cells</td><td align=\"center\"> Fraction of Events in which cells are hot (%)</td></tr>"<<endl;
 
   // Dump out hot cell candidates
   for (unsigned int depth=0;depth<4;++depth)
