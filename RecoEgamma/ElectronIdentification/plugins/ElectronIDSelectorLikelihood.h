@@ -1,11 +1,19 @@
 #ifndef ElectronIDSelectorLikelihood_h
 #define ElectronIDSelectorLikelihood_h
 
+#include "FWCore/Framework/interface/Frameworkfwd.h"
 #include "FWCore/Framework/interface/Event.h"
-#include "FWCore/Framework/interface/EventSetup.h"
-#include "FWCore/Framework/interface/ESHandle.h"
+#include "FWCore/Framework/interface/MakerMacros.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
+#include "FWCore/Framework/interface/ESHandle.h"
+#include "DataFormats/EcalRecHit/interface/EcalRecHitCollections.h"
+#include "DataFormats/EgammaReco/interface/BasicClusterFwd.h"
 #include "DataFormats/EgammaCandidates/interface/GsfElectron.h"
+#include "RecoEcal/EgammaCoreTools/interface/EcalClusterLazyTools.h"
+#include "Geometry/CaloGeometry/interface/CaloGeometry.h"
+#include "Geometry/CaloTopology/interface/CaloTopology.h"
+#include "Geometry/Records/interface/CaloGeometryRecord.h"
+#include "Geometry/CaloEventSetup/interface/CaloTopologyRecord.h"
 #include "RecoEgamma/ElectronIdentification/interface/ElectronLikelihood.h"
 
 class ElectronIDSelectorLikelihood
@@ -15,8 +23,8 @@ class ElectronIDSelectorLikelihood
   explicit ElectronIDSelectorLikelihood (const edm::ParameterSet& conf) ;
   virtual ~ElectronIDSelectorLikelihood () ;
 
-  void newEvent (const edm::Event& e, const edm::EventSetup& c) ;
-  double operator() (const reco::GsfElectron & electron, const edm::Event & event) ;
+  void newEvent (const edm::Event&, const edm::EventSetup&) ;
+  double operator() (const reco::GsfElectron&, const edm::Event&, const edm::EventSetup&) ;
    
  private:
   
@@ -24,8 +32,8 @@ class ElectronIDSelectorLikelihood
   
   edm::ParameterSet conf_;
   
-  edm::InputTag barrelClusterShapeAssociation_;
-  edm::InputTag endcapClusterShapeAssociation_;
+  edm::InputTag reducedBarrelRecHitCollection_;
+  edm::InputTag reducedEndcapRecHitCollection_;
 
   bool doLikelihood_;
 

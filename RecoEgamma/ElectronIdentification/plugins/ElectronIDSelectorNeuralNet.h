@@ -16,8 +16,8 @@ class ElectronIDSelectorNeuralNet
   explicit ElectronIDSelectorNeuralNet (const edm::ParameterSet& conf) ;
   virtual ~ElectronIDSelectorNeuralNet () ;
 
-  void newEvent (const edm::Event& e, const edm::EventSetup& c) ;
-  double operator() (const reco::GsfElectron & electron, const edm::Event & event) ;
+  void newEvent (const edm::Event&, const edm::EventSetup&) ;
+  double operator() (const reco::GsfElectron&, const edm::Event&, const edm::EventSetup&) ;
    
  private:
 

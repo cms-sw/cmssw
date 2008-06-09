@@ -8,6 +8,7 @@
 #include "RecoEgamma/ElectronIdentification/interface/ElectronIDAlgo.h"
 #include "RecoEgamma/ElectronIdentification/interface/LikelihoodSwitches.h"
 #include "RecoEgamma/ElectronIdentification/interface/LikelihoodPdfProduct.h"
+#include "RecoEcal/EgammaCoreTools/interface/EcalClusterLazyTools.h"
 #include "CondFormats/DataRecord/interface/ElectronLikelihoodRcd.h"
 #include "CondFormats/EgammaObjects/interface/ElectronLikelihoodCalibration.h"
 #include <TDirectory.h>
@@ -51,7 +52,7 @@ class ElectronLikelihood {
 
   //! get the result of the algorithm
   float result (const reco::GsfElectron &electron, 
-                const reco::ClusterShape &sClShape) const ;
+                EcalClusterLazyTools) const ;
 
  private:
 
@@ -81,11 +82,11 @@ class ElectronLikelihood {
   //! get the input variables from the electron and the e-Setup
   void getInputVar (const reco::GsfElectron &electron, 
                     std::vector<float> &measuremnts, 
-                    const reco::ClusterShape &sClShape) const ;
+                    EcalClusterLazyTools) const ;
 
   //! evaluate the shape Fisher discriminant
   double CalculateFisher(const reco::GsfElectron &electron,
-			 const reco::ClusterShape &sClShape) const;
+			 EcalClusterLazyTools) const ;
   
   //! likelihood below 15GeV/c
   LikelihoodPdfProduct *_EBlt15lh, *_EElt15lh;

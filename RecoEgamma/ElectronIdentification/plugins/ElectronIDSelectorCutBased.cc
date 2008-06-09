@@ -20,12 +20,12 @@ ElectronIDSelectorCutBased::~ElectronIDSelectorCutBased ()
   delete electronIDAlgo_ ;
 }
 
-void ElectronIDSelectorCutBased::newEvent (const edm::Event& e, const edm::EventSetup& c)
+void ElectronIDSelectorCutBased::newEvent (const edm::Event& e, const edm::EventSetup& es)
 {
   electronIDAlgo_->setup (conf_);
 }
 
-double ElectronIDSelectorCutBased::operator () (const reco::GsfElectron & electron, const edm::Event& event) 
+double ElectronIDSelectorCutBased::operator () (const reco::GsfElectron & ele, const edm::Event& e, const edm::EventSetup& es) 
 {
-  return electronIDAlgo_->result (& (electron), event) ;
+  return electronIDAlgo_->result (& (ele), e, es) ;
 }

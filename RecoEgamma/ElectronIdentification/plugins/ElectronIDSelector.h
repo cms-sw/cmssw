@@ -44,7 +44,7 @@ struct ElectronIDSelector{
    						       ++eleIt )
 	{
 	 edm::Ref<reco::GsfElectronCollection> electronRef(electrons,i);
-	 if (select_((*eleIt),iEvent) > threshold_)
+	 if (select_((*eleIt),iEvent,iEs) > threshold_)
 	     selected_.push_back (electronRef) ;
 	     //selected_.push_back ( & * eleIt) ;
 	 ++i;

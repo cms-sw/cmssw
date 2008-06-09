@@ -12,7 +12,7 @@ public:
   virtual ~PTDRElectronID(){};
 
   void setup(const edm::ParameterSet& conf);
-  double result(const reco::GsfElectron*, const edm::Event&);
+  double result(const reco::GsfElectron*, const edm::Event&, const edm::EventSetup&);
 
  private:
 

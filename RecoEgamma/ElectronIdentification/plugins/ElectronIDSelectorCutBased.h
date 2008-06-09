@@ -18,8 +18,8 @@ class ElectronIDSelectorCutBased
   explicit ElectronIDSelectorCutBased (const edm::ParameterSet& conf) ;
   virtual ~ElectronIDSelectorCutBased () ;
 
-  void newEvent (const edm::Event& e, const edm::EventSetup& c) ;
-  double operator() (const reco::GsfElectron & electron, const edm::Event & event) ;
+  void newEvent (const edm::Event&, const edm::EventSetup&) ;
+  double operator() (const reco::GsfElectron& , const edm::Event& , const edm::EventSetup& ) ;
    
  private:
 

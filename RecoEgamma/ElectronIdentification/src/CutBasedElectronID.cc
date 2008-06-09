@@ -43,10 +43,11 @@ int CutBasedElectronID::classify(const reco::GsfElectron* electron) {
 }
 
 double CutBasedElectronID::result(const reco::GsfElectron* electron,
-                                const edm::Event& e) { 
+                                  const edm::Event& e ,
+				  const edm::EventSetup& es) { 
   
   double eta = fabs(electron->p4().Eta());
-  const reco::ClusterShape& shapeRef = getClusterShape(electron, e);
+  //EcalClusterTools shapeRef = getClusterShape(electron, e);
   
   double eOverP = electron->eSuperClusterOverP();
   double eSeed = electron->superCluster()->seed()->energy();
@@ -56,7 +57,9 @@ double CutBasedElectronID::result(const reco::GsfElectron* electron,
   double fBrem = (pin-pout)/pin;
   
   double hOverE = electron->hadronicOverEm();
-  double sigmaee = sqrt((shapeRef).covEtaEta());
+  EcalClusterLazyTools lazyTools = getClusterShape(e,es);
+  std::vector<float> vCov = lazyTools.covariances(*(electron->superCluster()->seed())) ;
+  double sigmaee = sqrt(vCov[0]);
   double deltaPhiIn = electron->deltaPhiSuperClusterTrackAtVtx();
   double deltaEtaIn = electron->deltaEtaSuperClusterTrackAtVtx();
   

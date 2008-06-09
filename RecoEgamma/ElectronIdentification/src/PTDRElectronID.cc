@@ -39,7 +39,8 @@ void PTDRElectronID::setup(const edm::ParameterSet& conf) {
 }
 
 double PTDRElectronID::result(const reco::GsfElectron* electron,
-                              const edm::Event& e) {
+                              const edm::Event& e ,
+			      const edm::EventSetup& es) {
 
   //determine which element of the cut arrays in electronId.cfi to read
   //depending on the electron classification
@@ -121,26 +122,25 @@ double PTDRElectronID::result(const reco::GsfElectron* electron,
     if (value<mincut[icut]) return 0.;
   }
 
-  const reco::ClusterShape& cluShape = getClusterShape(electron,e);
-
+  EcalClusterLazyTools lazyTools = getClusterShape(e,es);
+  std::vector<float> vCov = lazyTools.covariances(*(electron->superCluster()->seed())) ;
+  
   if (useE9overE25_[variables_]) {
-    double value = (cluShape).e3x3()/(cluShape).e5x5();
+    double value = lazyTools.e3x3(*(electron->superCluster()->seed()))/lazyTools.e5x5(*(electron->superCluster()->seed()));
     std::vector<double> mincut = cuts_.getParameter<std::vector<double> >("E9overE25");
     if (fabs(value)<mincut[icut]) return 0.;
   }
 
   if (useSigmaEtaEta_[variables_]) {
-    double value = (cluShape).covEtaEta();
     std::vector<double> maxcut = cuts_.getParameter<std::vector<double> >("sigmaEtaEtaMax");
     std::vector<double> mincut = cuts_.getParameter<std::vector<double> >("sigmaEtaEtaMin");
-    if (sqrt(value)<mincut[icut] || sqrt(value)>maxcut[icut]) return 0.;
+    if (sqrt(vCov[0])<mincut[icut] || sqrt(vCov[0])>maxcut[icut]) return 0.;
   }
 
   if (useSigmaPhiPhi_[variables_]) {
-    double value = (cluShape).covPhiPhi();
     std::vector<double> mincut = cuts_.getParameter<std::vector<double> >("sigmaPhiPhiMin");
     std::vector<double> maxcut = cuts_.getParameter<std::vector<double> >("sigmaPhiPhiMax");
-    if (sqrt(value)<mincut[icut] || sqrt(value)>maxcut[icut]) return 0.;
+    if (sqrt(vCov[1])<mincut[icut] || sqrt(vCov[1])>maxcut[icut]) return 0.;
   }
 
   return 1.;

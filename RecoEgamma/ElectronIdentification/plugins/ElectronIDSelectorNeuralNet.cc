@@ -14,15 +14,15 @@ ElectronIDSelectorNeuralNet::~ElectronIDSelectorNeuralNet ()
     delete neuralNetAlgo_ ;
 }
 
-void ElectronIDSelectorNeuralNet::newEvent (const edm::Event& e, const edm::EventSetup& c)
+void ElectronIDSelectorNeuralNet::newEvent (const edm::Event& e, const edm::EventSetup& es)
 {
   if (doNeuralNet_) 
     neuralNetAlgo_->setup (conf_);
 }
 
-double ElectronIDSelectorNeuralNet::operator () (const reco::GsfElectron & electron, const edm::Event& event) 
+double ElectronIDSelectorNeuralNet::operator () (const reco::GsfElectron & ele, const edm::Event& e, const edm::EventSetup& es) 
 {
   if (doNeuralNet_) 
-  	return static_cast<double>(neuralNetAlgo_->result (& (electron), event)) ;
+  	return static_cast<double>(neuralNetAlgo_->result (& (ele), e) );
   return 0. ;
 }

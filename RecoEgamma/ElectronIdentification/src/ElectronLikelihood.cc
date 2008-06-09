@@ -324,7 +324,7 @@ ElectronLikelihood::Setup (const ElectronLikelihoodCalibration *calibration,
 void 
 ElectronLikelihood::getInputVar (const reco::GsfElectron &electron, 
                                  std::vector<float> &measurements, 
-                                 const reco::ClusterShape &sClShape) const 
+                                 EcalClusterLazyTools myEcalCluster) const 
 {
 
   // the variables entering the likelihood
@@ -332,9 +332,11 @@ ElectronLikelihood::getInputVar (const reco::GsfElectron &electron,
   if (m_eleIDSwitches.m_useDeltaEtaCalo) measurements.push_back ( electron.deltaEtaSeedClusterTrackAtCalo () ) ;
   if (m_eleIDSwitches.m_useEoverPOut) measurements.push_back ( electron.eSeedClusterOverPout () ) ;
   if (m_eleIDSwitches.m_useHoverE) measurements.push_back ( electron.hadronicOverEm () ) ;
-  if (m_eleIDSwitches.m_useShapeFisher) measurements.push_back ( CalculateFisher(electron, sClShape) ) ;
-  if (m_eleIDSwitches.m_useSigmaEtaEta) measurements.push_back ( sqrt (sClShape.covEtaEta ()) );
-  if (m_eleIDSwitches.m_useE9overE25)   measurements.push_back ( sClShape.e3x3 ()/sClShape.e5x5 ()) ;
+  if (m_eleIDSwitches.m_useShapeFisher) measurements.push_back ( CalculateFisher(electron, myEcalCluster) ) ;
+  std::vector<float> vCov = myEcalCluster.covariances(*(electron.superCluster()->seed())) ;
+  if (m_eleIDSwitches.m_useSigmaEtaEta) measurements.push_back ( sqrt (vCov[0]) );
+  if (m_eleIDSwitches.m_useE9overE25)   measurements.push_back ( myEcalCluster.e3x3(*(electron.superCluster()->seed()))/
+                                                                 myEcalCluster.e5x5(*(electron.superCluster()->seed()))) ;
 }
 
 
@@ -345,16 +347,19 @@ ElectronLikelihood::getInputVar (const reco::GsfElectron &electron,
 
 double 
 ElectronLikelihood::CalculateFisher(const reco::GsfElectron &electron,
-				    const reco::ClusterShape& sClShape) const
+				    EcalClusterLazyTools myEcalCluster) const
 {
 
   // the variables entering the shape fisher
   double s9s25, sigmaEtaEta, etaLat, a20;
 
-  s9s25=sClShape.e3x3 ()/sClShape.e5x5 () ;
-  sigmaEtaEta=sqrt (sClShape.covEtaEta ()) ;
-  etaLat=sClShape.etaLat() ;
-  a20=sClShape.zernike20 () ;
+  s9s25=myEcalCluster.e3x3(*(electron.superCluster()->seed()))/
+        myEcalCluster.e5x5(*(electron.superCluster()->seed())) ;
+  std::vector<float> vCov = myEcalCluster.covariances(*(electron.superCluster()->seed())) ;
+  sigmaEtaEta=sqrt (vCov[0]) ;
+  std::vector<float> vLat = myEcalCluster.lat(*(electron.superCluster()->seed())) ;
+  etaLat=vLat[0] ;
+  a20=myEcalCluster.zernike20 (*(electron.superCluster()->seed())) ;
 
 
   // evaluate the Fisher discriminant
@@ -409,7 +414,7 @@ ElectronLikelihood::CalculateFisher(const reco::GsfElectron &electron,
 
 float 
 ElectronLikelihood::result (const reco::GsfElectron &electron, 
-                            const reco::ClusterShape &sClShape) const 
+                            EcalClusterLazyTools myEcalCluster) const 
 {
 
   //=======================================================
@@ -427,7 +432,7 @@ ElectronLikelihood::result (const reco::GsfElectron &electron,
   //=======================================================
 
   std::vector<float> measurements ;
-  getInputVar (electron, measurements, sClShape) ;
+  getInputVar (electron, measurements, myEcalCluster) ;
 
   // Split using only the 10^1 bit (golden/big brem/narrow/showering)
   int bitVal=-1 ;
