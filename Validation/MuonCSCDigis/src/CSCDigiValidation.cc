@@ -13,7 +13,7 @@
 CSCDigiValidation::CSCDigiValidation(const edm::ParameterSet & ps)
 : dbe_( edm::Service<DQMStore>().operator->() ),
   outputFile_( ps.getParameter<std::string>("outputFile") ),
-  theSimHitMap("g4SimHitsMuonCSCHits"),
+  theSimHitMap(ps.getParameter<edm::InputTag>("simHitsTag")),
   theCSCGeometry(0),
   theStripDigiValidation(0),
   theWireDigiValidation(0),

@@ -1,6 +1,7 @@
 import FWCore.ParameterSet.Config as cms
 
-cscDigiValidation = cms.EDFilter("CSCDigiValidation",
+cscDigiValidation = cms.EDAnalyzer("CSCDigiValidation",
+    simHitsTag = cms.InputTag("g4SimHitsMuonCSCHits"),
     wireDigiTag = cms.InputTag("simMuonCSCDigis","MuonCSCWireDigi"),
     outputFile = cms.string('CSCDigiValidation.root'),
     stripDigiTag = cms.InputTag("simMuonCSCDigis","MuonCSCStripDigi"),
