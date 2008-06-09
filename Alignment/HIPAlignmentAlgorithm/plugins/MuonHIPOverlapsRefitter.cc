@@ -13,7 +13,7 @@
 //
 // Original Author:  Jim Pivarski
 //         Created:  Wed Dec 12 13:31:55 CST 2007
-// $Id: MuonHIPOverlapsRefitter.cc,v 1.4 2008/05/09 12:55:24 pivarski Exp $
+// $Id: MuonHIPOverlapsRefitter.cc,v 1.5 2008/06/09 15:22:00 pivarski Exp $
 //
 //
 
@@ -91,6 +91,8 @@ MuonHIPOverlapsRefitter::MuonHIPOverlapsRefitter(const edm::ParameterSet& iConfi
    m_minDOF = iConfig.getParameter<int>("minDOF");
    m_trustedR1 = iConfig.getParameter<std::vector<int> >("trustedR1");
    m_trustedR2 = iConfig.getParameter<std::vector<int> >("trustedR2");
+   m_trustedR3 = iConfig.getParameter<std::vector<int> >("trustedR3");
+   m_trustedR4 = iConfig.getParameter<std::vector<int> >("trustedR4");
 
    produces<std::vector<Trajectory> >();
    produces<TrajTrackAssociationCollection>();
