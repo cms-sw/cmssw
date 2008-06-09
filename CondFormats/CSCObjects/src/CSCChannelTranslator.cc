@@ -8,9 +8,10 @@ int CSCChannelTranslator::rawStripChannel( const CSCDetId& id, int igeo ) const 
   int iraw = igeo;
 
   bool zplus = (id.endcap()==1); 
-  bool me11 = (id.station()==1) && (id.ring()==1);
-  bool me1a = me11 && (igeo > 64);
-  bool me1b = me11 && (igeo <= 64);
+
+  // While we have separate detids for ME1a and ME1b...
+  bool me1a = (id.station()==1) && (id.ring()==4);
+  bool me1b = (id.station()==1) && (id.ring()==1);
 
   if ( me1a && zplus ) { iraw = 17 - iraw; } // 1-16 -> 16-1
   if ( me1b && !zplus) { iraw = 65 - iraw; }  // 1-64 -> 64-1
