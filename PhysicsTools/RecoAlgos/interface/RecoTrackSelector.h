@@ -4,8 +4,8 @@
  *
  * \author Giuseppe Cerati, INFN
  *
- *  $Date: 2008/04/10 10:30:52 $
- *  $Revision: 1.8 $
+ *  $Date: 2008/06/09 10:20:08 $
+ *  $Revision: 1.9 $
  *
  */
 #include "DataFormats/TrackReco/interface/Track.h"
@@ -62,7 +62,7 @@ class RecoTrackSelector {
        fabs(t.dsz(bs->position())) <= lip_  &&
        t.normalizedChi2()<=maxChi2_ &&
        t.quality(t.qualityByName(quality_)) &&
-       algorithm_ == t.algoName() );
+       (algorithm_ == t.algoName() || algorithm_ == ""));
   }
 
   size_t size() const { return selected_.size(); }
