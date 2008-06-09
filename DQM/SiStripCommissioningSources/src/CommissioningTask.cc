@@ -101,7 +101,9 @@ MonitorElement* CommissioningTask::HistoSet::histo() { return histo_; }
 void CommissioningTask::HistoSet::histo( MonitorElement* me ) {
   histo_   = me;
   TH1* histo = ExtractTObject<TH1>().extract( histo_ );
-  axis_ = histo->GetXaxis();
+  if ( histo_ ) { axis_ = histo->GetXaxis(); }
+  //TProfile* prof = ExtractTObject<TProfile>().extract( histo_ );
+  //if ( prof ) { prof->SetErrorOption("s"); }
 }
 
 // -----------------------------------------------------------------------------
