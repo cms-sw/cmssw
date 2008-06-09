@@ -69,7 +69,7 @@ TrackProducerAlgorithm<reco::Track>::buildTrack (const TrajectoryFitter * theFit
     theTraj->validRecHits(validHits);
     for (TransientTrackingRecHit::RecHitContainer::iterator h=validHits.begin();h!=validHits.end();++h)
       ndof = ndof + ((*h)->dimension())*((*h)->weight());
-    if (theTSOS.magneticField()->inTesla(GlobalPoint(0,0,0)).mag()<DBL_MIN) ndof = ndof - 4;
+    if (theTSOS.magneticField()->inTesla(GlobalPoint(0,0,0)).mag2()<DBL_MIN) ndof = ndof - 4;
     else ndof = ndof - 5;
     
     TrajectoryStateClosestToBeamLineBuilder tscblBuilder;
@@ -183,7 +183,7 @@ TrackProducerAlgorithm<reco::GsfTrack>::buildTrack (const TrajectoryFitter * the
     theTraj->validRecHits(validHits);
     for (TransientTrackingRecHit::RecHitContainer::iterator h=validHits.begin();h!=validHits.end();++h)
       ndof = ndof + ((*h)->dimension())*((*h)->weight());
-    if (theTSOS.magneticField()->inTesla(GlobalPoint(0,0,0)).mag()<DBL_MIN) ndof = ndof - 4;
+    if (theTSOS.magneticField()->inTesla(GlobalPoint(0,0,0)).mag2()<DBL_MIN) ndof = ndof - 4;
     else ndof = ndof - 5;
    
     TrajectoryStateClosestToBeamLineBuilder tscblBuilder;
