@@ -1,5 +1,5 @@
 //
-// $Id: PATTauProducer.cc,v 1.7 2008/06/03 22:37:04 gpetrucc Exp $
+// $Id: PATTauProducer.cc,v 1.8 2008/06/08 12:24:03 vadler Exp $
 //
 
 #include "PhysicsTools/PatAlgos/plugins/PATTauProducer.h"
@@ -83,8 +83,10 @@ void PATTauProducer::produce(edm::Event & iEvent, const edm::EventSetup & iSetup
     if (embedLeadTrack_) aTau.embedLeadTrack();
     if (embedSignalTracks_) aTau.embedSignalTracks();
 
-    if (typeid(originalTau) == typeid(const reco::PFTau *)) {
+    if (typeid(*originalTau) == typeid(reco::PFTau)) { // (1) typeid must be done with refs, not pointers
+                                                       // (2) const and "&" are not necessary
       const reco::PFTau *thePFTau = dynamic_cast<const reco::PFTau*>(originalTau);
+#if 0 // temporarily remove this code, as it does not run on AOD
       const reco::PFJet *pfJet    = dynamic_cast<const reco::PFJet*>(thePFTau->pfTauTagInfoRef()->pfjetRef().get());
       if(pfJet) {
         float ECALenergy=0.;
@@ -120,8 +122,10 @@ void PATTauProducer::produce(edm::Event & iEvent, const edm::EventSetup & iSetup
         aTau.setHhotOverP(thePFTau->maximumHCALPFClusterEt()/thePFTau->leadPFChargedHadrCand()->p());
         aTau.setHtotOverP(HCALenergy/thePFTau->leadPFChargedHadrCand()->p());
       }
-    } else if (typeid(originalTau) == typeid(const reco::CaloTau *)) {
+#endif
+    } else if (typeid(*originalTau) == typeid(reco::CaloTau)) {
       const reco::CaloTau *theCaloTau = dynamic_cast<const reco::CaloTau*>(originalTau);
+#if 0 // temporarily remove this code, as it does not run on AOD
       const reco::CaloJet *caloJet    = dynamic_cast<const reco::CaloJet*>(theCaloTau->caloTauTagInfoRef()->calojetRef().get());
       if(caloJet) {
         aTau.setEmEnergyFraction(caloJet->emEnergyFraction());
@@ -130,6 +134,7 @@ void PATTauProducer::produce(edm::Event & iEvent, const edm::EventSetup & iSetup
         aTau.setHhotOverP(theCaloTau->maximumHCALhitEt()/theCaloTau->leadTrack()->p());
         aTau.setHtotOverP(caloJet->energy()*caloJet->energyFractionHadronic()/theCaloTau->leadTrack()->p());
       }
+#endif
     }
 
     // store the match to the generated final state taus
