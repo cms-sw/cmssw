@@ -1,10 +1,12 @@
-# The following comments couldn't be translated into the new config version:
-
-# Apply ECAL miscalibration (ideal calibration though) and HCAL miscalibration
-
 import FWCore.ParameterSet.Config as cms
 
 process = cms.Process("PROD")
+
+# Number of events to be generated
+process.maxEvents = cms.untracked.PSet(
+    input = cms.untracked.int32(100)
+)
+
 # Include the RandomNumberGeneratorService definition
 process.load("FastSimulation.Configuration.RandomServiceInitialization_cff")
 
@@ -13,30 +15,44 @@ process.load("FastSimulation.Configuration.ttbar_cfi")
 
 # Famos sequences (NO HLT)
 process.load("FastSimulation.Configuration.CommonInputs_cff")
-
 process.load("FastSimulation.Configuration.FamosSequences_cff")
+
+# If you want to turn on/off pile-up
+process.famosPileUp.PileUpSimulator.averageNumber = 5.0
+# Parametrized magnetic field
+process.VolumeBasedMagneticFieldESProducer.useParametrizedTrackerField = True
+# You may not want to simulate everything for your study
+process.famosSimHits.SimulateCalorimetry = True
+process.famosSimHits.SimulateTracking = True
+
+# Get frontier conditions
+# Values for globaltag are "STARTUP::All", "1PB::All", "10PB::All", "IDEAL::All"
+process.GlobalTag.globaltag = "IDEAL_V1::All"
+
+# Apply ECAL miscalibration
+process.caloRecHits.RecHitsFactory.doMiscalib = True
+
+# Apply Tracker misalignment (ideal alignment though)
+process.famosSimHits.ApplyAlignment = True
+process.misalignedTrackerGeometry.applyAlignment = True
+
+# Apply HCAL miscalibration (not ideal in that case)
+process.caloRecHits.RecHitsFactory.HCAL.Refactor = 1.0
+process.caloRecHits.RecHitsFactory.HCAL.Refactor_mean = 1.0
+
+# Famos with everything !
+process.p1 = cms.Path(process.famosWithEverything)
 
 # To write out events
 process.load("FastSimulation.Configuration.EventContent_cff")
-
-process.maxEvents = cms.untracked.PSet(
-    input = cms.untracked.int32(100)
-)
 process.o1 = cms.OutputModule("PoolOutputModule",
     process.AODSIMEventContent,
     fileName = cms.untracked.string('AODIntegrationTest.root')
 )
-
-process.p1 = cms.Path(process.famosWithEverything)
 process.outpath = cms.EndPath(process.o1)
-process.famosPileUp.PileUpSimulator.averageNumber = 5.0
-process.VolumeBasedMagneticFieldESProducer.useParametrizedTrackerField = True
-process.famosSimHits.SimulateCalorimetry = True
-process.famosSimHits.SimulateTracking = True
-process.GlobalTag.globaltag = "IDEAL_V1::All"
-process.caloRecHits.RecHitsFactory.doMiscalib = True
-process.famosSimHits.ApplyAlignment = True
-process.misalignedTrackerGeometry.applyAlignment = True
-process.caloRecHits.RecHitsFactory.HCAL.Refactor = 1.0
-process.caloRecHits.RecHitsFactory.HCAL.Refactor_mean = 1.0
 
+# process.Timing =  cms.Service("Timing")
+
+# Keep output to a nice level
+# process.load("FWCore/MessageService/MessageLogger_cfi")
+# process.MessageLogger.destinations = cms.untracked.vstring("detailedInfo.txt")
