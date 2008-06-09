@@ -2,8 +2,8 @@
 /*
  *  See header file for a description of this class.
  *
- *  $Date: 2008/05/06 11:02:25 $
- *  $Revision: 1.3 $
+ *  $Date: 2008/05/28 15:39:03 $
+ *  $Revision: 1.4 $
  *  \author G. Mila - INFN Torino
  */
 
@@ -68,7 +68,7 @@ void MuonTrackResidualsTest::beginJob(const edm::EventSetup& context){
   type.push_back("phi");
 
 
-  for(int c=0; c<type.size(); c++){
+  for(unsigned int c=0; c<type.size(); c++){
 
     MeanHistoName =  "MeanTest_" + type[c]; 
     SigmaHistoName =  "SigmaTest_" + type[c];

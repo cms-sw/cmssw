@@ -2,15 +2,24 @@
 /*
  *  See header file for a description of this class.
  *
- *  $Date: 2008/05/22 13:30:21 $
- *  $Revision: 1.14 $
+ *  $Date: 2008/05/22 15:38:29 $
+ *  $Revision: 1.15 $
  *  \author G. Mila - INFN Torino
  */
 
 #include "DQMOffline/Muon/src/MuonAnalyzer.h"
 
+#include "DQMOffline/Muon/src/MuonEnergyDepositAnalyzer.h"
+#include "DQMOffline/Muon/src/MuonSeedsAnalyzer.h"
+#include "DQMOffline/Muon/src/MuonRecoAnalyzer.h"
+#include "DQMOffline/Muon/src/SegmentTrackAnalyzer.h"
+
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/EventSetup.h"
+#include "FWCore/ParameterSet/interface/ParameterSet.h"
+
+#include "DQMServices/Core/interface/DQMStore.h"
+#include "DQMServices/Core/interface/MonitorElement.h"
 
 #include "DataFormats/Common/interface/Handle.h"
 #include "DataFormats/MuonReco/interface/Muon.h"

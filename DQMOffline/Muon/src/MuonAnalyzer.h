@@ -6,27 +6,21 @@
  *
  *  DQM muon analysis monitoring
  *
- *  $Date: 2008/05/12 16:02:57 $
- *  $Revision: 1.9 $
+ *  $Date: 2008/05/22 15:38:33 $
+ *  $Revision: 1.10 $
  *  \author G. Mila - INFN Torino
  */
 
 
-#include <memory>
-#include <fstream>
 #include "FWCore/Framework/interface/Frameworkfwd.h"
 #include "FWCore/Framework/interface/EDAnalyzer.h"
-#include "FWCore/Framework/interface/Event.h"
-#include "FWCore/Framework/interface/MakerMacros.h"
-#include "FWCore/ParameterSet/interface/ParameterSet.h"
-#include "FWCore/ServiceRegistry/interface/Service.h"
-#include "DQMServices/Core/interface/DQMStore.h"
-#include "DQMServices/Core/interface/MonitorElement.h"
-#include "DQMOffline/Muon/src/MuonEnergyDepositAnalyzer.h"
-#include "DQMOffline/Muon/src/MuonSeedsAnalyzer.h"
-#include "DQMOffline/Muon/src/MuonRecoAnalyzer.h"
-#include "DQMOffline/Muon/src/SegmentTrackAnalyzer.h"
 
+class MuonEnergyDepositAnalyzer;
+class MuonSeedsAnalyzer;
+class MuonRecoAnalyzer;
+class SegmentTrackAnalyzer;
+class DQMStore;
+class MuonServiceProxy;
 
 class MuonAnalyzer : public edm::EDAnalyzer {
  public:
