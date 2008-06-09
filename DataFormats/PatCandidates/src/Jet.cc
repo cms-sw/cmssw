@@ -1,5 +1,5 @@
 //
-// $Id: Jet.cc,v 1.16 2008/05/26 11:22:13 arizzi Exp $
+// $Id: Jet.cc,v 1.17 2008/06/03 22:28:07 gpetrucc Exp $
 //
 
 #include "DataFormats/PatCandidates/interface/Jet.h"
@@ -260,15 +260,15 @@ float Jet::bDiscriminator(const std::string & aLabel) const {
 const reco::BaseTagInfo * Jet::tagInfo(const std::string &label) const {
     std::vector<std::string>::const_iterator it = std::find(tagInfoLabels_.begin(), tagInfoLabels_.end(), label);
     if (it != tagInfoLabels_.end()) {
-        return tagInfos_[it - tagInfoLabels_.begin()].get();
+        return & tagInfos_[it - tagInfoLabels_.begin()];
     }
     return 0;
 }
 template<typename T> 
 const T *  Jet::tagInfoByType() const {
     for (size_t i = 0, n = tagInfos_.size(); i < n; ++i) {
-        if (tagInfos_[i].isAvailable() && (typeid(*tagInfos_[i]) == typeid(T)) )
-             return static_cast<const T *>(tagInfos_[i].get());
+        if ( typeid(tagInfos_[i]) == typeid(T) )
+             return static_cast<const T *>(&tagInfos_[i]);
     }
     return 0;
 }
@@ -295,7 +295,7 @@ Jet::addTagInfo(const std::string &label, const edm::Ptr<reco::BaseTagInfo> &inf
     } else {
         tagInfoLabels_.push_back(label.substr(0,idx));
     }
-    tagInfos_.push_back(info);
+    tagInfos_.push_back(info->clone());
 }
 
 /// get the value of the i'th jet cleaning variable
@@ -396,33 +396,6 @@ void Jet::setBResolutions(float bResEt, float bResEta, float bResPhi, float bRes
 void Jet::addBDiscriminatorPair(std::pair<std::string, float> & thePair) {
   pairDiscriVector_.push_back(thePair);
 }
-
-#ifdef PATJet_OldTagInfo
-
-/// method to add tag ref IP taggers
-void Jet::addBTagIPTagInfoRef(const reco::TrackIPTagInfoRef & tagRef) {
-  bTagIPTagInfoRef_.push_back(tagRef);
-}
-
-
-/// method to add tag ref soft lepton taggers electron
-void Jet::addBTagSoftLeptonERef(const reco::SoftLeptonTagInfoRef & tagRef) {
-  bTagSoftLeptonERef_.push_back(tagRef);
-}
-
-
-/// method to add tag ref soft lepton taggers muon
-void Jet::addBTagSoftLeptonMRef(const reco::SoftLeptonTagInfoRef & tagRef) {
-  bTagSoftLeptonMRef_.push_back(tagRef);
-}
-
-
-/// method to add tag ref soft lepton taggers
-void Jet::addBTagSecondaryVertexTagInfoRef(const reco::SecondaryVertexTagInfoRef & tagRef) {
-  bTagSecondaryVertexTagInfoRef_.push_back(tagRef);
-}
-
-#endif
 
 /// method to set all jet cleaning variable + LR pairs
 void Jet::setLRPhysicsJetVarVal(const std::vector<std::pair<float, float> > & varValVec) {

@@ -1,5 +1,5 @@
 //
-// $Id: Jet.h,v 1.18 2008/05/26 11:22:12 arizzi Exp $
+// $Id: Jet.h,v 1.19 2008/06/03 22:28:07 gpetrucc Exp $
 //
 
 #ifndef DataFormats_PatCandidates_Jet_h
@@ -13,7 +13,7 @@
    'pat' namespace
 
   \author   Steven Lowette
-  \version  $Id: Jet.h,v 1.18 2008/05/26 11:22:12 arizzi Exp $
+  \version  $Id: Jet.h,v 1.19 2008/06/03 22:28:07 gpetrucc Exp $
 */
 
 
@@ -39,6 +39,7 @@
 #include "DataFormats/PatCandidates/interface/JetCorrFactors.h"
 
 #include "DataFormats/Common/interface/Ptr.h"
+#include "DataFormats/Common/interface/OwnVector.h"
 
 namespace pat {
 
@@ -278,9 +279,7 @@ namespace pat {
       float jetCharge_;
 
       std::vector<std::string>          tagInfoLabels_;
-      // edm::OwnVector<reco::BaseTagInfo> tagInfos_;  // no, no clone() method :-(
-      std::vector<edm::Ptr<reco::BaseTagInfo> > tagInfos_; // cheaper to store than RefToBase
-                                                           // not exposed to the user in any case
+      edm::OwnVector<reco::BaseTagInfo> tagInfos_;  
       template<typename T> const T * tagInfoByType() const ; 
 
       std::vector<CaloSpecific> specificCalo_;

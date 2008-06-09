@@ -36,6 +36,8 @@
   <class name="pat::Jet" />
      <class name="std::vector<reco::CaloJet::Specific>" />
      <class name="std::vector<reco::PFJet::Specific>"   />
+     <class name="std::vector<reco::BaseTagInfo*>" />
+     <class name="edm::OwnVector<reco::BaseTagInfo, edm::ClonePolicy<reco::BaseTagInfo> >" />
   <class name="pat::MET" />
   <class name="pat::Particle" />
   <class name="pat::GenericParticle" />
@@ -182,6 +184,9 @@
  </selection>
  <exclusion>
   <class name="edm::OwnVector<pat::TriggerPrimitive, edm::ClonePolicy<pat::TriggerPrimitive> >">
+   <method name="sort" />
+  </class>
+  <class name="edm::OwnVector<reco::BaseTagInfo, edm::ClonePolicy<reco::BaseTagInfo> >">
    <method name="sort" />
   </class>
  </exclusion>
