@@ -3,9 +3,10 @@
 #include "DQMServices/Core/interface/DQMStore.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 
-#define NBINS (100)
-#define LOWBIN (-25)
-#define HIGHBIN (25)
+#define NBINS (500)
+#define LOWBIN (-125)
+#define HIGHBIN (125)
+
 
 // -----------------------------------------------------------------------------
 //
@@ -74,7 +75,7 @@ void FineDelayTask::fill( const SiStripEventSummary& summary,
 			  const edm::DetSet<SiStripRawDigi>& digis ) {
   LogDebug("Commissioning") << "[FineDelayTask::fill]";
   // retrieve the delay from the EventSummary
-  float delay = const_cast<SiStripEventSummary&>(summary).pllCoarse()*25+const_cast<SiStripEventSummary&>(summary).pllFine();
+  float delay = const_cast<SiStripEventSummary&>(summary).ttcrx();
   float correctedDelay = delay;
   LogDebug("Commissioning") << "[FineDelayTask::fill]; the delay is " << delay;
   // loop on the strips to find the (maybe) non-zero digi
@@ -84,11 +85,11 @@ void FineDelayTask::fill( const SiStripEventSummary& summary,
       float tof = (digis.data[strip].adc()>>8)/10.;
       correctedDelay = delay - tof;
       if((digis.data[strip].adc()>>8)==255) continue; // skip hit if TOF is in overflow
-      // apply the fiber length correction
-      correctedDelay += fiberLengthCorrection_;
       // compute the bin
-      int nbins = NBINS;
-      int bin = int((correctedDelay-LOWBIN)/((HIGHBIN-LOWBIN)/nbins));
+      float nbins = NBINS;
+      float lowbin = LOWBIN;
+      float highbin = HIGHBIN;
+      int bin = int((correctedDelay-lowbin)/((highbin-lowbin)/nbins));
       LogDebug("Commissioning") << "[FineDelayTask::fill]; using a hit with value " << ( digis.data[strip].adc()&0xff )
                                 << " at corrected delay of " << correctedDelay
 				<< " in bin " << bin << "  (tof is " << tof << "( since adc = " << digis.data[strip].adc() << "))";

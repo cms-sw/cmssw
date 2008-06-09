@@ -46,7 +46,7 @@ double SiStripFineDelayTOF::timeOfFlightCosmic(double* hit, double* phit)
   // take the minimum
   return t_barrel<t_endcap ? t_barrel : t_endcap;
 #else
-  const double y_trigger = 154; //cm
+  const double y_trigger = 100; //cm
   double p = sqrt(phit[0]*phit[0]+phit[1]*phit[1]+phit[2]*phit[2]);
 //  LogDebug("TOF") << "momentum:" << phit[0] << " " << phit[1] << " " << phit[2];
 //  LogDebug("TOF") << "p/py=" << p/phit[1] << "  Y0,Y,dY = " << y_trigger << " " << hit[1] << " " << (y_trigger-hit[1]); 

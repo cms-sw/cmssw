@@ -39,6 +39,7 @@ class SiStripFineDelayHit : public edm::EDProducer {
       virtual void produce(edm::Event&, const edm::EventSetup&);
       virtual void produceNoTracking(edm::Event&, const edm::EventSetup&);
       virtual void endJob() ;
+      std::pair<uint32_t, uint32_t> deviceMask(const StripSubdetector::SubDetector subdet,const int substructure);
       std::vector< std::pair<uint32_t,std::pair<double, double> > > detId(const TrackerGeometry& tracker,const reco::Track* tk, const std::vector<Trajectory>& trajVec, const StripSubdetector::SubDetector subdet = StripSubdetector::TIB,const int substructure=0xff);
       std::vector< std::pair<uint32_t,std::pair<double, double> > > detId(const TrackerGeometry& tracker,const reco::Track* tk, const std::vector<Trajectory>& trajVec, const uint32_t& maskDetId, const uint32_t& rootDetId);
       std::pair<const SiStripCluster*,double> 

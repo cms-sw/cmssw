@@ -13,7 +13,7 @@
 //
 // Original Author:  Christophe DELAERE
 //         Created:  Fri Nov 17 10:52:42 CET 2006
-// $Id: SiStripFineDelayHit.cc,v 1.4 2008/04/16 15:24:18 delaer Exp $
+// $Id: SiStripFineDelayHit.cc,v 1.5 2008/04/18 20:06:13 delaer Exp $
 //
 //
 
@@ -112,11 +112,8 @@ SiStripFineDelayHit::~SiStripFineDelayHit()
 //
 // member functions
 //
-
-std::vector< std::pair<uint32_t,std::pair<double, double> > > SiStripFineDelayHit::detId(const TrackerGeometry& tracker,const reco::Track* tk, const std::vector<Trajectory>& trajVec, const StripSubdetector::SubDetector subdet,const int substructure)
+std::pair<uint32_t, uint32_t> SiStripFineDelayHit::deviceMask(const StripSubdetector::SubDetector subdet,const int substructure)
 {
-  if(substructure==0xff) return detId(tracker,tk,trajVec,0,0);
-  // first determine the root detId we are looking for
   uint32_t rootDetId = 0;
   uint32_t maskDetId = 0;
   switch(subdet){
@@ -145,8 +142,16 @@ std::vector< std::pair<uint32_t,std::pair<double, double> > > SiStripFineDelayHi
       break;
     }
   }
+  return std::make_pair(maskDetId,rootDetId);
+}
+
+std::vector< std::pair<uint32_t,std::pair<double, double> > > SiStripFineDelayHit::detId(const TrackerGeometry& tracker,const reco::Track* tk, const std::vector<Trajectory>& trajVec, const StripSubdetector::SubDetector subdet,const int substructure)
+{
+  if(substructure==0xff) return detId(tracker,tk,trajVec,0,0);
+  // first determine the root detId we are looking for
+  std::pair<uint32_t, uint32_t> mask = deviceMask(subdet,substructure);
   // then call the method that loops on recHits
-  return detId(tracker,tk,trajVec,maskDetId,rootDetId);
+  return detId(tracker,tk,trajVec,mask.first,mask.second);
 }
 
 std::vector< std::pair<uint32_t,std::pair<double, double> > > SiStripFineDelayHit::detId(const TrackerGeometry& tracker,const reco::Track* tk, const std::vector<Trajectory>& trajVec, const uint32_t& maskDetId, const uint32_t& rootDetId)
@@ -194,7 +199,9 @@ std::vector< std::pair<uint32_t,std::pair<double, double> > > SiStripFineDelayHi
     // if substructure was 0xff, then maskDetId and rootDetId == 0 
     // this implies all detids are accepted. (also if maskDetId=rootDetId=0 explicitely).
     // That "unusual" mode of operation allows to analyze also Latency scans
-    LogDebug("DetId") << "check the detid: " << (iter->first.first.rawId()) << " vs " << rootDetId << std::endl;
+    LogDebug("DetId") << "check the detid: " << std::hex << (iter->first.first.rawId()) << " vs " << rootDetId
+                      << " with a mask of "  << maskDetId << std::dec << std::endl;
+
     if(((iter->first.first.rawId() & maskDetId) != rootDetId)) continue;
     // check the local angle
     LogDebug("DetId") << "check the angle: " << fabs((iter->second));
@@ -384,14 +391,17 @@ SiStripFineDelayHit::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
        // check that we have something in the layer we are interested in
        std::vector< std::pair<uint32_t,std::pair<double,double> > > intersections;
        if(mode_==1) {
-         // Retrieve commissioning information from "event summary" 
+         // Retrieve and decode commissioning information from "event summary"
          edm::Handle<SiStripEventSummary> summary;
          iEvent.getByLabel( inputModuleLabel_, summary );
-         /* TODO: define the protocol with Laurent
-         uint32_t mask = const_cast<SiStripEventSummary*>(summary.product())->maskScanned();
-         uint32_t pattern = const_cast<SiStripEventSummary*>(summary.product())->deviceScanned();
-         intersections = detId(*tracker,&(*itrack),trajVec,mask,pattern);
-         */
+         uint32_t layerCode = (const_cast<SiStripEventSummary*>(summary.product())->layerScanned())>>16;
+         StripSubdetector::SubDetector subdet = StripSubdetector::TIB;
+         if(((layerCode>>6)&0x3)==0) subdet = StripSubdetector::TIB;
+         else if(((layerCode>>6)&0x3)==1) subdet = StripSubdetector::TOB;
+         else if(((layerCode>>6)&0x3)==2) subdet = StripSubdetector::TID;
+         else if(((layerCode>>6)&0x3)==3) subdet = StripSubdetector::TEC;
+         int32_t layerIdx = (layerCode&0xF)*(((layerCode>>4)&0x3) ? -1 : 1);
+         intersections = detId(*tracker,&(*itrack),trajVec,subdet,layerIdx);
        } else {
          // for latency scans, no layer is specified -> no cut on detid
          intersections = detId(*tracker,&(*itrack),trajVec);
@@ -452,12 +462,24 @@ SiStripFineDelayHit::produceNoTracking(edm::Event& iEvent, const edm::EventSetup
    // container for the selected hits
    std::vector< edm::DetSet<SiStripRawDigi> > output;
    output.reserve(100);
+   // Retrieve and decode commissioning information from "event summary"
+   edm::Handle<SiStripEventSummary> summary;
+   iEvent.getByLabel( inputModuleLabel_, summary );
+   uint32_t layerCode = (const_cast<SiStripEventSummary*>(summary.product())->layerScanned())>>16;
+   StripSubdetector::SubDetector subdet = StripSubdetector::TIB;
+   if(((layerCode>>6)&0x3)==0) subdet = StripSubdetector::TIB;
+   else if(((layerCode>>6)&0x3)==1) subdet = StripSubdetector::TOB;
+   else if(((layerCode>>6)&0x3)==2) subdet = StripSubdetector::TID;
+   else if(((layerCode>>6)&0x3)==3) subdet = StripSubdetector::TEC;
+   int32_t layerIdx = (layerCode&0xF)*(((layerCode>>4)&0x3) ? -1 : 1);
+   std::pair<uint32_t, uint32_t> mask = deviceMask(subdet,layerIdx);
    // look at the clusters 
    edm::Handle<edmNew::DetSetVector<SiStripCluster> > clusters;
    iEvent.getByLabel(clusterLabel_,clusters);
    for (edmNew::DetSetVector<SiStripCluster>::const_iterator DSViter=clusters->begin(); DSViter!=clusters->end();DSViter++ ) {
-     //TODO: define the protocol with Laurent
-     //if(mode_==1 && notInGoodLayer(cluster)) continue;
+     // check that we are in the layer of interest
+     if(mode_==1 && ((DSViter->id() & mask.first) != mask.second) ) continue;
+     // iterate over clusters
      edmNew::DetSet<SiStripCluster>::const_iterator begin=DSViter->begin();
      edmNew::DetSet<SiStripCluster>::const_iterator end  =DSViter->end();
      edm::DetSet<SiStripRawDigi> newds(connectionMap_[DSViter->id()]);
