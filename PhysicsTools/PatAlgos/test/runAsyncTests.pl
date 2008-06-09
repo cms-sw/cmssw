@@ -168,7 +168,10 @@ foreach my $f (@CFGs) {
     if ($info{$f}->{'excep'}) { print "\e[1;31m" . $info{$f}->{'exbody'} . "\e[0m"; }
 
     open LOG, $info{$f}->{'out'}; my @log = <LOG>; close LOG;
-    foreach my $l (grep(/^Input tag was|Summary info:/, @log)) { print "  $l"; }
+    foreach my $l (grep(/^Input tag was|Summary info:/, @log)) { 
+        $l =~ s/try (\d+), fail \1$/try $1, fail $1 \e[1;31m <== WARNING!!\e[0m/;
+        print "  $l"; 
+    }
     foreach my $l (grep(/TrigReport Events total =/, @log)) { print "  \e[1m$l\e[0m"; }
 
     print "\n";
