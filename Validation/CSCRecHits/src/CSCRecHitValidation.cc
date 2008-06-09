@@ -10,7 +10,7 @@
 CSCRecHitValidation::CSCRecHitValidation(const edm::ParameterSet & ps)
 : dbe_( edm::Service<DQMStore>().operator->() ),
   theOutputFile( ps.getParameter<std::string>("outputFile") ),
-  theSimHitMap("MuonCSCHits"),
+  theSimHitMap(ps.getParameter<edm::InputTag>("simHitsTag")),
   theCSCGeometry(0),
   the2DValidation(dbe_, ps.getParameter<edm::InputTag>("recHitLabel") ),
   theSegmentValidation(dbe_, ps.getParameter<edm::InputTag>("segmentLabel") )
