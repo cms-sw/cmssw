@@ -370,7 +370,7 @@ void ConvertedPhotonProducer::buildCollections (  const edm::Handle<edm::View<re
       std::vector<math::XYZPoint> trkPositionAtEcal;
       std::vector<reco::CaloClusterPtr> matchingBC;
 
-
+      scPtrVec.push_back(aClus);     
       reco::Conversion  newCandidate(scPtrVec,  trackPairRef, trkPositionAtEcal, theConversionVertex, matchingBC);
       outputConvPhotonCollection.push_back(newCandidate);
 
