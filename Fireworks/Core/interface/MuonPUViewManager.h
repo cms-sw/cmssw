@@ -16,7 +16,7 @@
 //
 // Original Author:  
 //         Created:  Sun Jan  6 22:01:21 EST 2008
-// $Id: MuonPUViewManager.h,v 1.2 2008/02/25 22:47:43 jmuelmen Exp $
+// $Id: MuonPUViewManager.h,v 1.1 2008/03/07 04:01:56 tdaniels Exp $
 //
 
 // system include files
@@ -45,6 +45,7 @@ struct MuonPUModelProxy {
     builder(iBuilder), product(0) { }
 };
 
+/*
 class MuonPUViewManager : public FWViewManagerBase {
 
 public:
@@ -79,5 +80,5 @@ private:
      TEveViewer* nv;
 };
 
-
+*/
 #endif

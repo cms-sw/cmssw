@@ -8,7 +8,7 @@
 //
 // Original Author:  
 //         Created:  Sun Jan  6 22:01:27 EST 2008
-// $Id: ElectronSCViewManager.cc,v 1.2 2008/02/25 22:47:43 jmuelmen Exp $
+// $Id: ElectronSCViewManager.cc,v 1.3 2008/02/26 02:25:33 dmytro Exp $
 //
 
 // system include files
@@ -39,7 +39,7 @@
 //
 // static data member definitions
 //
-
+/*
 //
 // constructors and destructor
 //
@@ -183,3 +183,5 @@ void ElectronSCViewManager::addElements ()
 // 	  }
      }  
 }
+*/
+

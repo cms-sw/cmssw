@@ -16,7 +16,7 @@
 //
 // Original Author:  
 //         Created:  Sun Jan  6 22:01:21 EST 2008
-// $Id: ElectronSCViewManager.h,v 1.1.2.3 2008/02/23 07:29:27 dmytro Exp $
+// $Id: ElectronSCViewManager.h,v 1.2 2008/02/25 22:47:43 jmuelmen Exp $
 //
 
 // system include files
@@ -33,6 +33,7 @@
 class FWEventItem;
 class TEveProjectionManager;
 
+/*
 struct ElectronSCModelProxy {
      boost::shared_ptr<ElectronsProxySCBuilder>   builder;
      TEveElementList                           *product; 
@@ -76,5 +77,5 @@ private:
      TEveViewer* nv;
 };
 
-
+*/
 #endif

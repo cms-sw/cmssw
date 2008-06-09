@@ -8,7 +8,7 @@
 //
 // Original Author:  
 //         Created:  Sun Jan  6 22:01:27 EST 2008
-// $Id: MuonPUViewManager.cc,v 1.3 2008/02/26 02:25:33 dmytro Exp $
+// $Id: MuonPUViewManager.cc,v 1.1 2008/03/07 04:01:59 tdaniels Exp $
 //
 
 // system include files
@@ -43,6 +43,7 @@
 //
 // constructors and destructor
 //
+#if defined(THIS_SHOULD_NOT_BE_USED)
 MuonPUViewManager::MuonPUViewManager():
   FWViewManagerBase("ProxyPUBuilder")  // Change this to 3DBuilder?  I don't know.
 {
@@ -179,3 +180,5 @@ void MuonPUViewManager::addElements ()
 // 	  }
      }  
 }
+#endif
+
