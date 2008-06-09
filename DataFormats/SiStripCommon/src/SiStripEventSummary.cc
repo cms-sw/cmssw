@@ -1,4 +1,4 @@
-// Last commit: $Id: SiStripEventSummary.cc,v 1.8 2007/12/10 16:53:53 bainbrid Exp $
+// Last commit: $Id: SiStripEventSummary.cc,v 1.9 2008/04/02 10:27:11 delaer Exp $
 
 #include "DataFormats/SiStripCommon/interface/SiStripEventSummary.h"
 #include "DataFormats/SiStripCommon/interface/SiStripEnumsAndStrings.h"
@@ -69,14 +69,17 @@ void SiStripEventSummary::commissioningInfo( const uint32_t* const buffer,
     params_[1] = buffer[12]; // opto bias
 
   } else if ( runType_ == sistrip::APV_TIMING ||
-	      runType_ == sistrip::FED_TIMING ||
-	      runType_ == sistrip::FINE_DELAY || //@@ layer
-	      runType_ == sistrip::FINE_DELAY_PLL ||
-	      runType_ == sistrip::FINE_DELAY_TTC ) { 
-
+	      runType_ == sistrip::FED_TIMING ) {
     params_[0] = buffer[11]; // pll coarse delay
     params_[1] = buffer[12]; // pll fine delay
     params_[2] = buffer[13]; // ttcrx delay
+  } else if ( runType_ == sistrip::FINE_DELAY || //@@ layer
+	      runType_ == sistrip::FINE_DELAY_PLL ||
+	      runType_ == sistrip::FINE_DELAY_TTC ) { 
+    params_[0] = buffer[11]; // pll coarse delay
+    params_[1] = buffer[12]; // pll fine delay
+    params_[2] = buffer[13]; // ttcrx delay
+    params_[3] = buffer[14]; // layer (private format: DDSSLLLL, det, side, layer)
 
   } else if ( runType_ == sistrip::FAST_CABLING ) { 
 
@@ -218,9 +221,10 @@ void SiStripEventSummary::commissioningInfo( const uint32_t& daq1,
   } else if ( runType_ == sistrip::FINE_DELAY_PLL ) { 
   } else if ( runType_ == sistrip::FINE_DELAY_TTC ) { 
   } else if ( runType_ == sistrip::FINE_DELAY ) { //@@ layer
-    params_[0] = (daq2>>0)&0xFF; // pll coarse delay
-    params_[1] = (daq2>>0)&0xFF; // pll fine delay
-    params_[2] = (daq2>>0)&0xFF; // ttcrx delay
+    params_[2] = (daq2>>0 )&0xFFFF; // ttcrx delay
+    params_[0] = params_[2]/25;   // pll coarse delay
+    params_[1] = uint32_t((params_[2]%25)*24./25.); // pll fine delay
+    params_[3] = (daq2>>0)&0xFFFF0000; // layer (private format: DDSSLLLL (det, side, layer)
   } else if ( runType_ == sistrip::FED_TIMING ) { 
     params_[1] = (daq2>>0)&0xFF; // pll fine delay
   } else if ( runType_ == sistrip::VPSP_SCAN ) { 
