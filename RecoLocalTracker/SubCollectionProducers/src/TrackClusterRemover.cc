@@ -168,10 +168,11 @@ TrackClusterRemover::cleanup(const edmNew::DetSetVector<T> &oldClusters, const s
             uint32_t index = ((&*it) - firstOffset);
             if (isGood[index]) { 
                 outds.push_back(*it);
-                refs.push_back(output->size() - 1);
+                refs.push_back(index); 
+                //std::cout << "TrackClusterRemover::cleanup " << typeid(T).name() << " reference " << index << " to " << (refs.size() - 1) << std::endl;
             }
-            if (outds.empty()) outds.abort(); // not write in an empty DSV
         }
+        if (outds.empty()) outds.abort(); // not write in an empty DSV
     }
     if (oldRefs != 0) mergeOld(refs, *oldRefs);
     return output;
@@ -275,10 +276,12 @@ TrackClusterRemover::produce(Event& iEvent, const EventSetup& iSetup)
     Handle<edmNew::DetSetVector<SiPixelCluster> > pixelClusters;
     iEvent.getByLabel(pixelClusters_, pixelClusters);
     pixelSourceProdID = pixelClusters.id();
+//DBG// std::cout << "TrackClusterRemover: Read pixel " << pixelClusters_.encode() << " = ID " << pixelSourceProdID << std::endl;
 
     Handle<edmNew::DetSetVector<SiStripCluster> > stripClusters;
     iEvent.getByLabel(stripClusters_, stripClusters);
     stripSourceProdID = stripClusters.id();
+//DBG// std::cout << "TrackClusterRemover: Read strip " << stripClusters_.encode() << " = ID " << stripSourceProdID << std::endl;
 
     Handle<ClusterRemovalInfo> oldRemovalInfo;
     if (mergeOld_) { 
@@ -334,8 +337,10 @@ TrackClusterRemover::produce(Event& iEvent, const EventSetup& iSetup)
 
     OrphanHandle<edmNew::DetSetVector<SiPixelCluster> > newPixels = iEvent.put(newPixelClusters); 
     cri->setNewPixelProdID(newPixels.id());
+//DBG// std::cout << "TrackClusterRemover: Wrote pixel " << newPixels.id() << " from " << pixelSourceProdID << std::endl;
     OrphanHandle<edmNew::DetSetVector<SiStripCluster> > newStrips = iEvent.put(newStripClusters); 
     cri->setNewStripProdID(newStrips.id());
+//DBG// std::cout << "TrackClusterRemover: Wrote strip " << newStrips.id() << " from " << stripSourceProdID << std::endl;
 
     iEvent.put(cri);
 
