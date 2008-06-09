@@ -105,7 +105,7 @@ void CSCSummary::ReadErrorChambers(TH2*& evs, TH2*& err, const double eps_max, c
  */
 void CSCSummary::Write(TH2*& h2, const unsigned int station) const {
   const CSCAddressBox* box;
-  CSCAddress adr, adr1;
+  CSCAddress adr;
 
   if(station < 1 || station > N_STATIONS) return; 
 
@@ -117,18 +117,10 @@ void CSCSummary::Write(TH2*& h2, const unsigned int station) const {
 
   while (detector.NextAddressBox(i, box, adr)) { 
 
-    adr1 = box->adr;
+    unsigned int x = 1 + (box->adr.side - 1) * 9 + (box->adr.ring - 1) * 3 + (box->adr.hv - 1);
+    unsigned int y = 1 + (box->adr.chamber - 1) * 5 + (box->adr.cfeb - 1);
 
-    unsigned int n_live_layers = 0;
-    adr1.mask.layer = true;
-    for (adr1.layer = 1; adr1.layer < N_LAYERS; adr1.layer++) {
-      if (GetValue(adr1) > 0) n_live_layers++;
-    }
-
-    unsigned int x = 1 + (adr1.side - 1) * 9 + (adr1.ring - 1) * 3 + (adr1.hv - 1);
-    unsigned int y = 1 + (adr1.chamber - 1) * 5 + (adr1.cfeb - 1);
-
-    if (n_live_layers >= 2) {
+    if (GetValue(box->adr) > 0) {
       h2->SetBinContent(x, y, 1.0);
     } else {
       h2->SetBinContent(x, y, 0.0);
@@ -471,14 +463,8 @@ const double CSCSummary::GetReportingArea(CSCAddress adr) const {
     return sum;
   }
 
-  unsigned int n_live_layers = 0;
-  adr.mask.layer = true;
-  for (adr.layer = 1; adr.layer < N_LAYERS; adr.layer++) {
-    if (GetValue(adr) > 0) n_live_layers++;
-  }
-
-  if (n_live_layers >= 2) {
-    adr.mask.layer = false; // not necessary
+  adr.mask.layer = false;
+  if (GetValue(adr) > 0) {
     return detector.Area(adr);
   }
 
@@ -486,12 +472,13 @@ const double CSCSummary::GetReportingArea(CSCAddress adr) const {
 
 }
 /**
- * @brief  Get value of some address (address must be fully filled! otherwise function returns -1)
+ * @brief  Get value of some address (address must be fully filled except layers! otherwise function returns 0) 
+ * If layer is ommited then function returns 1 if at least two layers for the HW element are active. 
  * @param  adr Address of atomic element to return value from
  * @return Value of the requested element
  */
 const int CSCSummary::GetValue(const CSCAddress& adr) const {
-  if( adr.mask.side && adr.mask.station && adr.mask.ring && 
+  if ( adr.mask.side && adr.mask.station && adr.mask.ring && 
       adr.mask.chamber && adr.mask.layer && adr.mask.cfeb && adr.mask.hv &&
       adr.side > 0 && adr.side <= N_SIDES && 
       adr.station > 0 && adr.station <= N_STATIONS && 
@@ -500,7 +487,22 @@ const int CSCSummary::GetValue(const CSCAddress& adr) const {
       adr.layer > 0 && adr.layer <= N_LAYERS && 
       adr.cfeb > 0 && adr.cfeb <= N_CFEBS && 
       adr.hv > 0 && adr.hv <= N_HVS) {
-    return map[adr.side - 1][adr.station - 1][adr.ring - 1][adr.chamber - 1][adr.layer - 1][adr.cfeb - 1][adr.hv - 1];
+
+    if (adr.mask.layer) {
+      if (adr.layer > 0 && adr.layer <= N_LAYERS) {
+        return map[adr.side - 1][adr.station - 1][adr.ring - 1][adr.chamber - 1][adr.layer - 1][adr.cfeb - 1][adr.hv - 1];
+      }
+    } else {
+      unsigned int n_live_layers = 0;
+      for (unsigned int layer = 1; layer < N_LAYERS; layer++) {
+        if (map[adr.side - 1][adr.station - 1][adr.ring - 1][adr.chamber - 1][layer - 1][adr.cfeb - 1][adr.hv - 1] > 0) {
+          n_live_layers ++;
+        }
+      }
+      if (n_live_layers >= 2) {
+        return 1;
+      }
+    }
   }
   return 0;
 }
