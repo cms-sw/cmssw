@@ -4,6 +4,7 @@
 <use name=DataFormats/FWLite>
 <use name=DataFormats/GsfTrackReco>
 <use name=DataFormats/EcalDetId>
+<use name=FWCore/PluginManager>
 <use name=rootrflx>
 <use name=sigcpp>
 <use name=SimDataFormats/HepMCProduct>
