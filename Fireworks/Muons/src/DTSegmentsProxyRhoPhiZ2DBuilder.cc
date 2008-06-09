@@ -119,3 +119,5 @@ void DTSegmentsProxyRhoPhiZ2DBuilder::build(const FWEventItem* iItem,
 	  }
      }
 }
+
+REGISTER_FWRPZ2DDATAPROXYBUILDER(DTSegmentsProxyRhoPhiZ2DBuilder,DTRecSegment4DCollection,"DTSegments");

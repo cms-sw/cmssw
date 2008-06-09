@@ -98,3 +98,7 @@ void ElectronsProxy3DBuilder::build (const FWEventItem* iItem,
 #endif
      }
 }
+
+//NOT USED ANYMORE?
+//REGISTER_FWRPZDATAPROXYBUILDER(ElectronsProxy3DBuilder,reco::GsfElectronCollection,"Electrons");
+

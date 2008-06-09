@@ -16,7 +16,7 @@
 //
 // Original Author:  
 //         Created:  Sun Jan  6 23:42:33 EST 2008
-// $Id: L1TrigProxyRhoPhiZ2DBuilder.h,v 1.3 2008/05/12 15:38:00 dmytro Exp $
+// $Id: L1TrigProxyRhoPhiZ2DBuilder.h,v 1.1 2008/06/04 05:25:37 srappocc Exp $
 //
 
 // system include files
@@ -41,6 +41,7 @@ class L1TrigProxyRhoPhiZ2DBuilder : public FWRPZ2DDataProxyBuilder
       // ---------- static member functions --------------------
 
       // ---------- member functions ---------------------------
+      REGISTER_PROXYBUILDER_METHODS();
    
    private:
       virtual void buildRhoPhi(const FWEventItem* iItem,

@@ -14,7 +14,7 @@
 //
 // Original Author:  
 //         Created:  Thu Dec  6 18:01:21 PST 2007
-// $Id: GenParticleProxy3DBuilder.cc,v 1.5 2008/01/27 01:10:42 dmytro Exp $
+// $Id: GenParticleProxy3DBuilder.cc,v 1.1 2008/05/22 05:36:34 srappocc Exp $
 //
 
 // system include files
@@ -99,4 +99,6 @@ void GenParticleProxy3DBuilder::build(const FWEventItem* iItem, TEveElementList*
     }
     
 }
+
+REGISTER_FWRPZDATAPROXYBUILDER(GenParticleProxy3DBuilder,reco::GenParticleCollection,"GenParticles");
 

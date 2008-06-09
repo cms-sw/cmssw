@@ -8,7 +8,7 @@
 //
 // Original Author:  
 //         Created:  Sun Jan  6 23:57:00 EST 2008
-// $Id: CaloJetProxyRhoPhiZ2DBuilder.cc,v 1.7 2008/05/12 15:38:00 dmytro Exp $
+// $Id: CaloJetProxyRhoPhiZ2DBuilder.cc,v 1.8 2008/05/26 14:23:58 dmytro Exp $
 //
 
 // system include files
@@ -223,3 +223,6 @@ std::pair<double,double> CaloJetProxyRhoPhiZ2DBuilder::getPhiRange( const reco::
    
    return fw::getPhiRange( phis, jet.phi() );
 }
+
+REGISTER_FWRPZ2DDATAPROXYBUILDER(CaloJetProxyRhoPhiZ2DBuilder,reco::CaloJetCollection,"Jets");
+

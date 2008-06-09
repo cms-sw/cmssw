@@ -8,7 +8,7 @@
 //
 // Original Author:  
 //         Created:  Sun Jan  6 23:57:00 EST 2008
-// $Id: L1TrigProxyRhoPhiZ2DBuilder.cc,v 1.8 2008/05/26 14:23:58 dmytro Exp $
+// $Id: L1TrigProxyRhoPhiZ2DBuilder.cc,v 1.1 2008/06/04 05:25:37 srappocc Exp $
 //
 
 // system include files
@@ -318,3 +318,5 @@ L1TrigProxyRhoPhiZ2DBuilder::buildRhoZ(const FWEventItem* iItem,
    }// End loop over triggers
 
 }
+
+REGISTER_FWRPZ2DDATAPROXYBUILDER(L1TrigProxyRhoPhiZ2DBuilder,l1extra::L1ParticleMapCollection,"L1Trig");

@@ -250,6 +250,8 @@ void MuonsProxyRhoPhiZ2DBuilder::build(const FWEventItem* iItem,
    
 }
 
+REGISTER_FWRPZ2DDATAPROXYBUILDER(MuonsProxyRhoPhiZ2DBuilder,reco::MuonCollection,"Muons");
+
 void MuonsProxyRhoPhiZ2DBuilder::addMatchInformation( const reco::Muon* muon,
 						      const FWEventItem* iItem,
 						      TEveTrack* track,
@@ -372,4 +374,3 @@ void MuonsProxyRhoPhiZ2DBuilder::addHitsAsPathMarks( const reco::TrackExtra* rec
      }
 }
 */
-

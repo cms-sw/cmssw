@@ -8,7 +8,7 @@
 //
 // Original Author:  
 //         Created:  Sun Jan  6 23:57:00 EST 2008
-// $Id: CaloJetSelectedProxyTH2LegoBuilder.cc,v 1.1 2008/03/20 09:39:26 dmytro Exp $
+// $Id: CaloJetSelectedProxyTH2LegoBuilder.cc,v 1.2 2008/05/12 15:38:01 dmytro Exp $
 //
 
 // system include files
@@ -78,6 +78,17 @@ CaloJetSelectedProxyTH2LegoBuilder::build(const FWEventItem* iItem,
 //
 // const member functions
 //
+const std::string 
+CaloJetSelectedProxyTH2LegoBuilder::typeName() const
+{
+   return "reco::CaloJetCollection";
+}
+
+const std::string 
+CaloJetSelectedProxyTH2LegoBuilder::purpose() const
+{
+   return std::string("Jets");
+}
 
 //
 // static member functions

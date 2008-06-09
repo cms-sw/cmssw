@@ -16,7 +16,7 @@
 //
 // Original Author:  
 //         Created:  Sun Jan  6 23:42:33 EST 2008
-// $Id: ElectronsProxyRhoPhiZ2DBuilder.h,v 1.1 2008/02/03 02:57:10 dmytro Exp $
+// $Id: ElectronsProxyRhoPhiZ2DBuilder.h,v 1.1 2008/02/11 19:09:17 jmuelmen Exp $
 //
 
 // system include files
@@ -36,6 +36,7 @@ class ElectronsProxyRhoPhiZ2DBuilder : public FWRPZ2DDataProxyBuilder
       virtual ~ElectronsProxyRhoPhiZ2DBuilder();
 
       // ---------- const member functions ---------------------
+      REGISTER_PROXYBUILDER_METHODS();
 
       // ---------- static member functions --------------------
 

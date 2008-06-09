@@ -3,7 +3,7 @@
 //
 // Original Author:  
 //         Created:  Thu Dec  6 18:01:21 PST 2007
-// $Id: GenParticleProxy3DBuilder.h,v 1.1 2008/01/19 19:03:48 dmytro Exp $
+// $Id: GenParticleProxy3DBuilder.h,v 1.1 2008/05/22 05:36:33 srappocc Exp $
 //
 
 // system include files
@@ -26,6 +26,8 @@ class GenParticleProxy3DBuilder : public FWRPZDataProxyBuilder
       // ---------- static member functions --------------------
 
       // ---------- member functions ---------------------------
+   REGISTER_PROXYBUILDER_METHODS();
+
    private:
       virtual void build(const FWEventItem* iItem, TEveElementList** product);
 

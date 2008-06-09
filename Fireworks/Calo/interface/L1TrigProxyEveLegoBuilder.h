@@ -16,7 +16,7 @@
 //
 // Original Author:  
 //         Created:  Sun Jan  6 23:42:33 EST 2008
-// $Id: L1TrigProxyEveLegoBuilder.h,v 1.1 2008/03/20 09:39:25 dmytro Exp $
+// $Id: L1TrigProxyEveLegoBuilder.h,v 1.1 2008/06/04 05:25:37 srappocc Exp $
 //
 
 // system include files
@@ -37,6 +37,8 @@ class L1TrigProxyEveLegoBuilder : public FW3DLegoDataProxyBuilder
       // ---------- const member functions ---------------------
 
       // ---------- static member functions --------------------
+      REGISTER_PROXYBUILDER_METHODS();
+   
    private:
       virtual void build(const FWEventItem* iItem, 
 			 TEveElementList** product);

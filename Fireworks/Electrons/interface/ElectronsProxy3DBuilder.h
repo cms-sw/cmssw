@@ -14,6 +14,8 @@ class ElectronsProxy3DBuilder : public FWRPZDataProxyBuilder
    ElectronsProxy3DBuilder();
    virtual ~ElectronsProxy3DBuilder();
 
+   //REGISTER_PROXYBUILDER_METHODS();
+
    static const reco::GsfElectronCollection *electrons;
 
  private:

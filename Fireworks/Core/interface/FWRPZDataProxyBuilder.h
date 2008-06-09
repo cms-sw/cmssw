@@ -16,13 +16,14 @@
 //
 // Original Author:  
 //         Created:  Sat Jan  5 15:02:03 EST 2008
-// $Id: FWRPZDataProxyBuilder.h,v 1.5 2008/02/21 16:09:54 chrjones Exp $
+// $Id: FWRPZDataProxyBuilder.h,v 1.6 2008/02/29 21:18:05 chrjones Exp $
 //
 
 // system include files
 #include <vector>
 
 // user include files
+#include "Fireworks/Core/interface/FWRPZDataProxyBuilderFactory.h"
 #include "Fireworks/Core/interface/FWModelChangeSignal.h"
 
 // forward declarations

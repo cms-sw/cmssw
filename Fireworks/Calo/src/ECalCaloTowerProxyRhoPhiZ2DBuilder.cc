@@ -8,7 +8,7 @@
 //
 // Original Author:  
 //         Created:  Sun Jan  6 23:57:00 EST 2008
-// $Id: ECalCaloTowerProxyRhoPhiZ2DBuilder.cc,v 1.7 2008/03/13 03:02:01 chrjones Exp $
+// $Id: ECalCaloTowerProxyRhoPhiZ2DBuilder.cc,v 1.8 2008/05/26 14:23:58 dmytro Exp $
 //
 
 // system include files
@@ -370,6 +370,7 @@ ECalCaloTowerProxyRhoPhiZ2DBuilder::getRhoZElements(const char* name,
 //
 // const member functions
 //
+REGISTER_FWRPZ2DDATAPROXYBUILDER(ECalCaloTowerProxyRhoPhiZ2DBuilder,CaloTowerCollection,"ECal");
 
 //
 // static member functions

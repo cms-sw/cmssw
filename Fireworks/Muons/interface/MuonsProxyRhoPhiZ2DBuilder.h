@@ -16,7 +16,7 @@
 //
 // Original Author:  
 //         Created:  Sun Jan  6 23:42:33 EST 2008
-// $Id: MuonsProxyRhoPhiZ2DBuilder.h,v 1.3 2008/05/13 05:23:43 dmytro Exp $
+// $Id: MuonsProxyRhoPhiZ2DBuilder.h,v 1.4 2008/05/26 14:46:41 dmytro Exp $
 //
 
 // system include files
@@ -46,6 +46,7 @@ class MuonsProxyRhoPhiZ2DBuilder : public FWRPZ2DDataProxyBuilder
       virtual ~MuonsProxyRhoPhiZ2DBuilder();
 
       // ---------- const member functions ---------------------
+      REGISTER_PROXYBUILDER_METHODS();
 
       // ---------- static member functions --------------------
       static void build(const FWEventItem* iItem, 

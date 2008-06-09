@@ -16,7 +16,7 @@
 //
 // Original Author:  
 //         Created:  Sun Jan  6 23:42:33 EST 2008
-// $Id: CaloJetProxyEveLegoBuilder.h,v 1.1.2.1 2008/03/17 02:19:58 dmytro Exp $
+// $Id: CaloJetProxyEveLegoBuilder.h,v 1.1 2008/03/20 09:39:25 dmytro Exp $
 //
 
 // system include files
@@ -33,7 +33,8 @@ class CaloJetProxyEveLegoBuilder : public FW3DLegoDataProxyBuilder
       virtual ~CaloJetProxyEveLegoBuilder();
 
       // ---------- const member functions ---------------------
-
+      REGISTER_PROXYBUILDER_METHODS();
+   
       // ---------- static member functions --------------------
    private:
       virtual void build(const FWEventItem* iItem, 

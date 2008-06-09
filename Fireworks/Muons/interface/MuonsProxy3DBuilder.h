@@ -22,6 +22,7 @@ class MuonsProxy3DBuilder : public FWRPZDataProxyBuilder
    MuonsProxy3DBuilder();
    virtual ~MuonsProxy3DBuilder();
 	
+   //REGISTER_PROXYBUILDER_METHODS();
  private:
    virtual void build(const FWEventItem* iItem, TEveElementList** product);
    

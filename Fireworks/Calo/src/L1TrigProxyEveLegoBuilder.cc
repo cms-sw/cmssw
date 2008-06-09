@@ -8,7 +8,7 @@
 //
 // Original Author:  
 //         Created:  Sun Jan  6 23:57:00 EST 2008
-// $Id: L1TrigProxyEveLegoBuilder.cc,v 1.2 2008/05/12 15:38:00 dmytro Exp $
+// $Id: L1TrigProxyEveLegoBuilder.cc,v 1.1 2008/06/04 05:25:37 srappocc Exp $
 //
 
 // system include files
@@ -191,4 +191,5 @@ L1TrigProxyEveLegoBuilder::build(const FWEventItem* iItem, TEveElementList** pro
 
 }
 
+REGISTER_FW3DLEGODATAPROXYBUILDER(L1TrigProxyEveLegoBuilder,l1extra::L1ParticleMapCollection,"L1Trig");
 

@@ -8,7 +8,7 @@
 //
 // Original Author:  
 //         Created:  Sun Jan  6 23:57:00 EST 2008
-// $Id: CaloJetProxyTH2LegoBuilder.cc,v 1.1 2008/03/20 09:39:25 dmytro Exp $
+// $Id: CaloJetProxyTH2LegoBuilder.cc,v 1.2 2008/05/12 15:38:01 dmytro Exp $
 //
 
 // system include files
@@ -155,6 +155,17 @@ void CaloJetProxyTH2LegoBuilder::message( int type, int xbin, int ybin )
 //
 // const member functions
 //
+const std::string 
+CaloJetProxyTH2LegoBuilder::typeName() const
+{
+   return "reco::CaloJetCollection";
+}
+
+const std::string 
+CaloJetProxyTH2LegoBuilder::purpose() const
+{
+   return std::string("Jets");
+}
 
 //
 // static member functions

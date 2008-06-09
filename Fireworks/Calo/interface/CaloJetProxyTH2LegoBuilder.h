@@ -16,7 +16,7 @@
 //
 // Original Author:  
 //         Created:  Sun Jan  6 23:42:33 EST 2008
-// $Id: CaloJetProxyTH2LegoBuilder.h,v 1.3 2008/03/07 09:06:47 dmytro Exp $
+// $Id: CaloJetProxyTH2LegoBuilder.h,v 1.1 2008/03/20 09:39:25 dmytro Exp $
 //
 
 // system include files
@@ -34,6 +34,8 @@ class CaloJetProxyTH2LegoBuilder : public FW3DLegoDataProxyBuilder
       virtual ~CaloJetProxyTH2LegoBuilder();
 
       // ---------- const member functions ---------------------
+      const std::string typeName() const;
+      const std::string purpose() const;
 
       // ---------- static member functions --------------------
       static void build(const FWEventItem* iItem, 

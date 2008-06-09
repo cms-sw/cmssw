@@ -16,7 +16,7 @@
 //
 // Original Author:  
 //         Created:  Sun Jan  6 23:42:33 EST 2008
-// $Id: ECalCaloTowerProxyRhoPhiZ2DBuilder.h,v 1.3 2008/03/13 03:02:01 chrjones Exp $
+// $Id: ECalCaloTowerProxyRhoPhiZ2DBuilder.h,v 1.4 2008/05/26 14:23:58 dmytro Exp $
 //
 
 // system include files
@@ -39,6 +39,7 @@ class ECalCaloTowerProxyRhoPhiZ2DBuilder : public BaseCaloTowerProxyRhoPhiZ2DBui
       virtual ~ECalCaloTowerProxyRhoPhiZ2DBuilder();
 
       // ---------- const member functions ---------------------
+      REGISTER_PROXYBUILDER_METHODS();
 
       // ---------- static member functions --------------------
 

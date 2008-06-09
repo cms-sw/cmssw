@@ -8,7 +8,7 @@
 //
 // Original Author:  
 //         Created:  Sun Jan  6 23:57:00 EST 2008
-// $Id: ElectronsProxyRhoPhiZ2DBuilder.cc,v 1.5 2008/02/28 18:29:03 dmytro Exp $
+// $Id: ElectronsProxyRhoPhiZ2DBuilder.cc,v 1.6 2008/05/12 15:43:29 dmytro Exp $
 //
 
 // system include files
@@ -167,3 +167,5 @@ ElectronsProxyRhoPhiZ2DBuilder::buildRhoZ(const FWEventItem* iItem,
 	tList->AddElement(container);
      }
 }
+
+REGISTER_FWRPZ2DDATAPROXYBUILDER(ElectronsProxyRhoPhiZ2DBuilder,reco::PixelMatchGsfElectronCollection,"Electrons");

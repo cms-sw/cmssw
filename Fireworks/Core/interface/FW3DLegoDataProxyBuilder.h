@@ -16,7 +16,7 @@
 //
 // Original Author:  
 //         Created:  Sat Jan  5 15:02:03 EST 2008
-// $Id: FW3DLegoDataProxyBuilder.h,v 1.4.4.2 2008/03/18 01:40:04 dmytro Exp $
+// $Id: FW3DLegoDataProxyBuilder.h,v 1.5 2008/03/20 09:39:26 dmytro Exp $
 //
 
 // system include files
@@ -24,6 +24,7 @@
 
 // user include files
 // #include "Fireworks/Core/interface/FWModelId.h"
+#include "Fireworks/Core/interface/FW3DLegoDataProxyBuilderFactory.h"
 #include "Fireworks/Core/interface/FWModelChangeSignal.h"
 
 // forward declarations

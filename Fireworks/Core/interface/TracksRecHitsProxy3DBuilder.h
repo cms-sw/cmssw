@@ -4,7 +4,7 @@
 // Original Author:  
 //         Created:  Thu Dec  6 18:01:21 PST 2007
 // Original name
-// $Id: TracksProxy3DBuilder.h,v 1.1 2008/01/19 19:03:48 dmytro Exp $
+// $Id: TracksRecHitsProxy3DBuilder.h,v 1.1 2008/03/07 05:39:32 tdaniels Exp $
 // New version
 // $Id: TracksRecHitsProxy3DBuilder.h, v 1.0 2008 02/21 10:53:48 Tom Danielson
 // system include files
@@ -28,6 +28,7 @@ class TracksRecHitsProxy3DBuilder : public FWRPZDataProxyBuilder
       // ---------- static member functions --------------------
 
       // ---------- member functions ---------------------------
+   REGISTER_PROXYBUILDER_METHODS();
    private:
       virtual void build(const FWEventItem* iItem, TEveElementList** product);
 

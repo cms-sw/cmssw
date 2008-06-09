@@ -16,7 +16,7 @@
 //
 // Original Author:  
 //         Created:  Sat Jan  5 15:02:03 EST 2008
-// $Id: FWRPZ2DDataProxyBuilder.h,v 1.4 2008/02/21 16:09:54 chrjones Exp $
+// $Id: FWRPZ2DDataProxyBuilder.h,v 1.5 2008/02/29 21:18:05 chrjones Exp $
 //
 
 // system include files
@@ -24,6 +24,7 @@
 
 // user include files
 #include "Fireworks/Core/interface/FWModelChangeSignal.h"
+#include "Fireworks/Core/interface/FWRPZ2DDataProxyBuilderFactory.h"
 
 // forward declarations
 class FWEventItem;

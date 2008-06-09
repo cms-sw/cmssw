@@ -16,10 +16,11 @@
 //
 // Original Author:  
 //         Created:  Thu Dec  6 17:49:40 PST 2007
-// $Id: FWDataProxyBuilder.h,v 1.2 2007/12/17 00:33:29 dmytro Exp $
+// $Id: FWDataProxyBuilder.h,v 1.3 2008/01/07 05:48:45 chrjones Exp $
 //
 
 // system include files
+#include <string>
 
 // user include files
 
@@ -40,6 +41,11 @@ class FWDataProxyBuilder
       virtual ~FWDataProxyBuilder();
 
       // ---------- const member functions ---------------------
+      //The 'main' C++ class type used by this proxy builder
+      virtual const std::string typeName() const =0;
+      //If this same C++ class is used for multiple purposes, designate to
+      // which purpose this builder is used.  If only one purpose leave it an empty string
+      virtual const std::string purpose() const;
 
       // ---------- static member functions --------------------
 

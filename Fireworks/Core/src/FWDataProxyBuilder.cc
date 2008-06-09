@@ -8,7 +8,7 @@
 //
 // Original Author:  
 //         Created:  Thu Dec  6 17:49:54 PST 2007
-// $Id: FWDataProxyBuilder.cc,v 1.1 2007/12/09 22:49:23 chrjones Exp $
+// $Id: FWDataProxyBuilder.cc,v 1.2 2008/01/07 05:48:46 chrjones Exp $
 //
 
 // system include files
@@ -73,6 +73,11 @@ FWDataProxyBuilder::build(TObject** iObject)
 //
 // const member functions
 //
+const std::string 
+FWDataProxyBuilder::purpose() const
+{
+   return std::string();
+}
 
 //
 // static member functions

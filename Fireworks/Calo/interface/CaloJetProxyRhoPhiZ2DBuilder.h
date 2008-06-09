@@ -16,7 +16,7 @@
 //
 // Original Author:  
 //         Created:  Sun Jan  6 23:42:33 EST 2008
-// $Id: CaloJetProxyRhoPhiZ2DBuilder.h,v 1.2 2008/02/24 20:39:03 dmytro Exp $
+// $Id: CaloJetProxyRhoPhiZ2DBuilder.h,v 1.3 2008/05/12 15:38:00 dmytro Exp $
 //
 
 // system include files
@@ -37,6 +37,7 @@ class CaloJetProxyRhoPhiZ2DBuilder : public FWRPZ2DDataProxyBuilder
       virtual ~CaloJetProxyRhoPhiZ2DBuilder();
 
       // ---------- const member functions ---------------------
+      REGISTER_PROXYBUILDER_METHODS();
 
       // ---------- static member functions --------------------
 

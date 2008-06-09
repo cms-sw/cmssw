@@ -29,3 +29,6 @@ void MuonsProxy3DBuilder::build(const FWEventItem* iItem,
    MuonsProxyRhoPhiZ2DBuilder::build(iItem, product, false);
 }
 
+//NOT USED ANYMORE?
+//REGISTER_FWRPZDATAPROXYBUILDER(MuonsProxy3DBuilder,reco::MuonCollection,"Muons");
+

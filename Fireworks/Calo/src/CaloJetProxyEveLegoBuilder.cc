@@ -8,7 +8,7 @@
 //
 // Original Author:  
 //         Created:  Sun Jan  6 23:57:00 EST 2008
-// $Id: CaloJetProxyEveLegoBuilder.cc,v 1.2 2008/05/12 15:38:00 dmytro Exp $
+// $Id: CaloJetProxyEveLegoBuilder.cc,v 1.3 2008/06/05 14:17:24 dmytro Exp $
 //
 
 // system include files
@@ -115,5 +115,5 @@ CaloJetProxyEveLegoBuilder::build(const FWEventItem* iItem, TEveElementList** pr
    }
 }
 
-
+REGISTER_FW3DLEGODATAPROXYBUILDER(CaloJetProxyEveLegoBuilder,reco::CaloJetCollection,"Jets");
 
