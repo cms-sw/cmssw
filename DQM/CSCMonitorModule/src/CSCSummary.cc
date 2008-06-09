@@ -72,6 +72,14 @@ void CSCSummary::ReadReportingChambers(TH2*& h2, const double threshold) {
   }
 }
 
+/**
+ * @brief  Read Error data for Chambers
+ * @param  evs Histogram for number of events (total)
+ * @param  err Histogram for number of errors
+ * @param  eps_max Maximum tolerance of errors (rate)
+ * @param  Sfail Significance threshold for failure report
+ * @return 
+ */
 void CSCSummary::ReadErrorChambers(TH2*& evs, TH2*& err, const double eps_max, const double Sfail) {
 
   if(evs->GetXaxis()->GetXmin() <= 1 && evs->GetXaxis()->GetXmax() >= 36 &&
@@ -88,7 +96,7 @@ void CSCSummary::ReadErrorChambers(TH2*& evs, TH2*& err, const double eps_max, c
         n = int(err->GetBinContent(x, y));
         if(ChamberCoords(x, y, adr)) {
           if(SignificanceAlpha(N, n, eps_max) > Sfail) { 
-            LOGINFO("ReadErrorChambers") << " N = " << N << ", n = " << n << ", Salpha = " << SignificanceAlpha(N, n, eps_max);
+            //LOGINFO("ReadErrorChambers") << " N = " << N << ", n = " << n << ", Salpha = " << SignificanceAlpha(N, n, eps_max);
             SetValue(adr, 0);
           }
         }
