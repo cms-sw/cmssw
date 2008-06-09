@@ -15,7 +15,7 @@
 //         Created:  Wed Jul 30 11:37:24 CET 2007
 //         Working:  Fri Nov  9 09:39:33 CST 2007
 //
-// $Id: MuonSimHitProducer.cc,v 1.15 2008/05/28 11:17:19 pjanot Exp $
+// $Id: MuonSimHitProducer.cc,v 1.16 2008/06/06 18:16:38 pjanot Exp $
 //
 //
 
@@ -625,7 +625,7 @@ MuonSimHitProducer::applyMaterialEffects(TrajectoryStateOnSurface& tsosWithdEdx,
   GlobalPoint propagatedPosition(theMuon.X(),theMuon.Y(),theMuon.Z());
   GlobalVector propagatedMomentum(theMuon.Px(),theMuon.Py(),theMuon.Pz());
   GlobalTrajectoryParameters propagatedGtp(propagatedPosition,propagatedMomentum,(int)charge,magfield);
-  tsos = TrajectoryStateOnSurface(propagatedGtp,nextSurface);
+  tsosWithdEdx = TrajectoryStateOnSurface(propagatedGtp,nextSurface);
 
 }
 
