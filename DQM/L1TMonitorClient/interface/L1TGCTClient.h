@@ -62,11 +62,23 @@ class L1TGCTClient: public edm::EDAnalyzer {
   MonitorElement *l1GctIsoEmDeadChannelEtaMap_;
   MonitorElement *l1GctNonIsoEmHotChannelEtaMap_;
   MonitorElement *l1GctNonIsoEmDeadChannelEtaMap_; 
+  MonitorElement *l1GctForJetsHotChannelEtaMap_;
+  MonitorElement *l1GctForJetsDeadChannelEtaMap_;
+  MonitorElement *l1GctCenJetsHotChannelEtaMap_;
+  MonitorElement *l1GctCenJetsDeadChannelEtaMap_;
+  MonitorElement *l1GctTauJetsHotChannelEtaMap_;
+  MonitorElement *l1GctTauJetsDeadChannelEtaMap_;
 
   MonitorElement *l1GctIsoEmHotChannelPhiMap_; 
   MonitorElement *l1GctIsoEmDeadChannelPhiMap_;
   MonitorElement *l1GctNonIsoEmHotChannelPhiMap_;
-  MonitorElement *l1GctNonIsoEmDeadChannelPhiMap_; 
+  MonitorElement *l1GctNonIsoEmDeadChannelPhiMap_;
+  MonitorElement *l1GctForJetsHotChannelPhiMap_;
+  MonitorElement *l1GctForJetsDeadChannelPhiMap_;
+  MonitorElement *l1GctCenJetsHotChannelPhiMap_;
+  MonitorElement *l1GctCenJetsDeadChannelPhiMap_;
+  MonitorElement *l1GctTauJetsHotChannelPhiMap_;
+  MonitorElement *l1GctTauJetsDeadChannelPhiMap_;
 
 };
 

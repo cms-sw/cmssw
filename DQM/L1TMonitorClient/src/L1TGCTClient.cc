@@ -41,7 +41,7 @@ void L1TGCTClient::beginJob(const EventSetup& context)
   dbe_->setCurrentFolder(monitorDir_);
   
   l1GctIsoEmHotChannelEtaMap_     = dbe_->book1D("IsoEmHotChannelEtaMap","ISO EM HOT ETA CHANNELS",
-                                                 ETABINS, ETAMIN, ETAMAX);
+                                                ETABINS, ETAMIN, ETAMAX);
   l1GctIsoEmHotChannelPhiMap_     = dbe_->book1D("IsoEmHotChannelPhiMap","ISO EM HOT PHI CHANNELS",
                                                  PHIBINS, PHIMIN, PHIMAX); 		    
   l1GctIsoEmDeadChannelEtaMap_    = dbe_->book1D("IsoEmDeadChannelEtaMap","ISO EM DEAD ETA CHANNELS",
@@ -55,6 +55,30 @@ void L1TGCTClient::beginJob(const EventSetup& context)
   l1GctNonIsoEmDeadChannelEtaMap_ = dbe_->book1D("NonIsoEmDeadChannelEtaMap","NON-ISO EM DEAD ETA CHANNELS",
                                                  ETABINS, ETAMIN, ETAMAX);
   l1GctNonIsoEmDeadChannelPhiMap_ = dbe_->book1D("NonIsoEmDeadChannelPhiMap","NON-ISO EM DEAD PHI CHANNELS",
+                                                 PHIBINS, PHIMIN, PHIMAX); 		    
+  l1GctForJetsHotChannelEtaMap_   = dbe_->book1D("ForJetsHotChannelEtaMap","FOR JETS HOT ETA CHANNELS",
+                                                 ETABINS, ETAMIN, ETAMAX);
+  l1GctForJetsHotChannelPhiMap_   = dbe_->book1D("ForJetsHotChannelPhiMap","FOR JETS HOT PHI CHANNELS",
+                                                 PHIBINS, PHIMIN, PHIMAX); 		    
+  l1GctForJetsDeadChannelEtaMap_  = dbe_->book1D("ForJetsDeadChannelEtaMap","FOR JETS DEAD ETA CHANNELS",
+                                                 ETABINS, ETAMIN, ETAMAX);
+  l1GctForJetsDeadChannelPhiMap_  = dbe_->book1D("ForJetsDeadChannelPhiMap","FOR JETS DEAD PHI CHANNELS",
+                                                 PHIBINS, PHIMIN, PHIMAX); 		    
+  l1GctCenJetsHotChannelEtaMap_   = dbe_->book1D("CenJetsHotChannelEtaMap","CEN JETS HOT ETA CHANNELS",
+                                                 ETABINS, ETAMIN, ETAMAX);
+  l1GctCenJetsHotChannelPhiMap_   = dbe_->book1D("CenJetsHotChannelPhiMap","CEN JETS HOT PHI CHANNELS",
+                                                 PHIBINS, PHIMIN, PHIMAX); 		    
+  l1GctCenJetsDeadChannelEtaMap_  = dbe_->book1D("CenJetsDeadChannelEtaMap","CEN JETS DEAD ETA CHANNELS",
+                                                 ETABINS, ETAMIN, ETAMAX);
+  l1GctCenJetsDeadChannelPhiMap_  = dbe_->book1D("CenJetsDeadChannelPhiMap","CEN JETS DEAD PHI CHANNELS",
+                                                 PHIBINS, PHIMIN, PHIMAX); 		
+  l1GctTauJetsHotChannelEtaMap_   = dbe_->book1D("TauJetsHotChannelEtaMap","TAU JETS HOT ETA CHANNELS",
+                                                 ETABINS, ETAMIN, ETAMAX);
+  l1GctTauJetsHotChannelPhiMap_   = dbe_->book1D("TauJetsHotChannelPhiMap","TAU JETS HOT PHI CHANNELS",
+                                                 PHIBINS, PHIMIN, PHIMAX); 		    
+  l1GctTauJetsDeadChannelEtaMap_  = dbe_->book1D("TauJetsDeadChannelEtaMap","TAU JETS DEAD ETA CHANNELS",
+                                                 ETABINS, ETAMIN, ETAMAX);
+  l1GctTauJetsDeadChannelPhiMap_  = dbe_->book1D("TauJetsDeadChannelPhiMap","TAU JETS DEAD PHI CHANNELS",
                                                  PHIBINS, PHIMIN, PHIMAX); 		    
 }
 
@@ -165,6 +189,154 @@ void L1TGCTClient::endLuminosityBlock(const edm::LuminosityBlock& lumiSeg, const
       }
     } 
   }
+  
+  // Forward Jets
+  MonitorElement *ForJetsHotEtaChannels = dbe_->get("L1T/L1TGCT/ForJetsOccEta");
+  if (ForJetsHotEtaChannels){
+    const QReport *ForJetsHotEtaQReport = ForJetsHotEtaChannels->getQReport("HotChannels");
+	if (ForJetsHotEtaQReport) {
+	vector<dqm::me_util::Channel> badChannels = ForJetsHotEtaQReport->getBadChannels();
+	for (vector<dqm::me_util::Channel>::iterator channel = badChannels.begin(); 
+	  channel != badChannels.end(); channel++ ) {
+	l1GctForJetsHotChannelEtaMap_->setBinContent((*channel).getBin(),(*channel).getContents());
+	  }
+	}
+  }
+
+  MonitorElement *ForJetsHotPhiChannels = dbe_->get("L1T/L1TGCT/ForJetsOccPhi");
+  if (ForJetsHotPhiChannels){
+    const QReport *ForJetsHotPhiQReport = ForJetsHotPhiChannels->getQReport("HotChannels");
+	if (ForJetsHotPhiQReport) {
+	vector<dqm::me_util::Channel> badChannels = ForJetsHotPhiQReport->getBadChannels();
+	for (vector<dqm::me_util::Channel>::iterator channel = badChannels.begin(); 
+	  channel != badChannels.end(); channel++ ) {
+	l1GctForJetsHotChannelPhiMap_->setBinContent((*channel).getBin(),(*channel).getContents());
+	  }
+	}
+  }
+
+  MonitorElement *ForJetsDeadEtaChannels = dbe_->get("L1T/L1TGCT/ForJetsOccEta");
+  if (ForJetsDeadEtaChannels){
+    const QReport *ForJetsDeadEtaQReport = ForJetsDeadEtaChannels->getQReport("DeadChannels");
+	if (ForJetsDeadEtaQReport) {
+	vector<dqm::me_util::Channel> badChannels = ForJetsDeadEtaQReport->getBadChannels();
+	for (vector<dqm::me_util::Channel>::iterator channel = badChannels.begin(); 
+	  channel != badChannels.end(); channel++ ) {
+	l1GctForJetsDeadChannelEtaMap_->setBinContent((*channel).getBin(),(*channel).getContents());
+	  }
+	}
+  }
+
+  MonitorElement *ForJetsDeadPhiChannels = dbe_->get("L1T/L1TGCT/ForJetsOccPhi");
+  if (ForJetsDeadPhiChannels){
+    const QReport *ForJetsDeadPhiQReport = ForJetsDeadPhiChannels->getQReport("DeadChannels");
+	if (ForJetsDeadPhiQReport) {
+	vector<dqm::me_util::Channel> badChannels = ForJetsDeadPhiQReport->getBadChannels();
+	for (vector<dqm::me_util::Channel>::iterator channel = badChannels.begin(); 
+	  channel != badChannels.end(); channel++ ) {
+	l1GctForJetsDeadChannelPhiMap_->setBinContent((*channel).getBin(),(*channel).getContents());
+	  }
+	}
+  }
+
+  //Central Jets
+  MonitorElement *CenJetsHotEtaChannels = dbe_->get("L1T/L1TGCT/CenJetsOccEta");
+  if (CenJetsHotEtaChannels){
+    const QReport *CenJetsHotEtaQReport = CenJetsHotEtaChannels->getQReport("HotChannels");
+	if (CenJetsHotEtaQReport) {
+	vector<dqm::me_util::Channel> badChannels = CenJetsHotEtaQReport->getBadChannels();
+	for (vector<dqm::me_util::Channel>::iterator channel = badChannels.begin(); 
+	  channel != badChannels.end(); channel++ ) {
+	l1GctCenJetsHotChannelEtaMap_->setBinContent((*channel).getBin(),(*channel).getContents());
+	  }
+	}
+  }
+
+  MonitorElement *CenJetsHotPhiChannels = dbe_->get("L1T/L1TGCT/CenJetsOccPhi");
+  if (CenJetsHotPhiChannels){
+    const QReport *CenJetsHotPhiQReport = CenJetsHotPhiChannels->getQReport("HotChannels");
+	if (CenJetsHotPhiQReport) {
+	vector<dqm::me_util::Channel> badChannels = CenJetsHotPhiQReport->getBadChannels();
+	for (vector<dqm::me_util::Channel>::iterator channel = badChannels.begin(); 
+	  channel != badChannels.end(); channel++ ) {
+	l1GctCenJetsHotChannelPhiMap_->setBinContent((*channel).getBin(),(*channel).getContents());
+	  }
+	}
+  }
+
+  MonitorElement *CenJetsDeadEtaChannels = dbe_->get("L1T/L1TGCT/CenJetsOccEta");
+  if (CenJetsDeadEtaChannels){
+    const QReport *CenJetsDeadEtaQReport = CenJetsDeadEtaChannels->getQReport("DeadChannels");
+	if (CenJetsDeadEtaQReport) {
+	vector<dqm::me_util::Channel> badChannels = CenJetsDeadEtaQReport->getBadChannels();
+	for (vector<dqm::me_util::Channel>::iterator channel = badChannels.begin(); 
+	  channel != badChannels.end(); channel++ ) {
+	l1GctCenJetsDeadChannelEtaMap_->setBinContent((*channel).getBin(),(*channel).getContents());
+	  }
+	}
+  }
+
+  MonitorElement *CenJetsDeadPhiChannels = dbe_->get("L1T/L1TGCT/CenJetsOccPhi");
+  if (CenJetsDeadPhiChannels){
+    const QReport *CenJetsDeadPhiQReport = CenJetsDeadPhiChannels->getQReport("DeadChannels");
+	if (CenJetsDeadPhiQReport) {
+	vector<dqm::me_util::Channel> badChannels = CenJetsDeadPhiQReport->getBadChannels();
+	for (vector<dqm::me_util::Channel>::iterator channel = badChannels.begin(); 
+	  channel != badChannels.end(); channel++ ) {
+	l1GctCenJetsDeadChannelPhiMap_->setBinContent((*channel).getBin(),(*channel).getContents());
+	  }
+	}
+  }
+
+  //Tau Jets
+  MonitorElement *TauJetsHotEtaChannels = dbe_->get("L1T/L1TGCT/TauJetsOccEta");
+  if (TauJetsHotEtaChannels){
+    const QReport *TauJetsHotEtaQReport = TauJetsHotEtaChannels->getQReport("HotChannels");
+	if (TauJetsHotEtaQReport) {
+	vector<dqm::me_util::Channel> badChannels = TauJetsHotEtaQReport->getBadChannels();
+	for (vector<dqm::me_util::Channel>::iterator channel = badChannels.begin(); 
+	  channel != badChannels.end(); channel++ ) {
+	l1GctTauJetsHotChannelEtaMap_->setBinContent((*channel).getBin(),(*channel).getContents());
+	  }
+	}
+  }
+
+  MonitorElement *TauJetsHotPhiChannels = dbe_->get("L1T/L1TGCT/TauJetsOccPhi");
+  if (TauJetsHotPhiChannels){
+    const QReport *TauJetsHotPhiQReport = TauJetsHotPhiChannels->getQReport("HotChannels");
+	if (TauJetsHotPhiQReport) {
+	vector<dqm::me_util::Channel> badChannels = TauJetsHotPhiQReport->getBadChannels();
+	for (vector<dqm::me_util::Channel>::iterator channel = badChannels.begin(); 
+	  channel != badChannels.end(); channel++ ) {
+	l1GctTauJetsHotChannelPhiMap_->setBinContent((*channel).getBin(),(*channel).getContents());
+	  }
+	}
+  }
+
+  MonitorElement *TauJetsDeadEtaChannels = dbe_->get("L1T/L1TGCT/TauJetsOccEta");
+  if (TauJetsDeadEtaChannels){
+    const QReport *TauJetsDeadEtaQReport = TauJetsDeadEtaChannels->getQReport("DeadChannels");
+	if (TauJetsDeadEtaQReport) {
+	vector<dqm::me_util::Channel> badChannels = TauJetsDeadEtaQReport->getBadChannels();
+	for (vector<dqm::me_util::Channel>::iterator channel = badChannels.begin(); 
+	  channel != badChannels.end(); channel++ ) {
+	l1GctTauJetsDeadChannelEtaMap_->setBinContent((*channel).getBin(),(*channel).getContents());
+	  }
+	}
+  }
+
+  MonitorElement *TauJetsDeadPhiChannels = dbe_->get("L1T/L1TGCT/TauJetsOccPhi");
+  if (TauJetsDeadPhiChannels){
+    const QReport *TauJetsDeadPhiQReport = TauJetsDeadPhiChannels->getQReport("DeadChannels");
+	if (TauJetsDeadPhiQReport) {
+	vector<dqm::me_util::Channel> badChannels = TauJetsDeadPhiQReport->getBadChannels();
+	for (vector<dqm::me_util::Channel>::iterator channel = badChannels.begin(); 
+	  channel != badChannels.end(); channel++ ) {
+	l1GctTauJetsDeadChannelPhiMap_->setBinContent((*channel).getBin(),(*channel).getContents());
+	  }
+	}
+  }
+
 }
 
 void L1TGCTClient::analyze(const Event& e, const EventSetup& context){}
@@ -172,12 +344,3 @@ void L1TGCTClient::analyze(const Event& e, const EventSetup& context){}
 void L1TGCTClient::endRun(const Run& r, const EventSetup& context){}
 
 void L1TGCTClient::endJob(){}
-
-
-
-
-
-
-
-
-
