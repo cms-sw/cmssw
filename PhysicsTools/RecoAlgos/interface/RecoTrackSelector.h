@@ -4,8 +4,8 @@
  *
  * \author Giuseppe Cerati, INFN
  *
- *  $Date: 2008/06/09 10:20:08 $
- *  $Revision: 1.9 $
+ *  $Date: 2008/06/09 12:26:17 $
+ *  $Revision: 1.10 $
  *
  */
 #include "DataFormats/TrackReco/interface/Track.h"
@@ -61,7 +61,7 @@ class RecoTrackSelector {
        fabs(t.dxy(bs->position())) <= tip_ &&
        fabs(t.dsz(bs->position())) <= lip_  &&
        t.normalizedChi2()<=maxChi2_ &&
-       t.quality(t.qualityByName(quality_)) &&
+       (t.quality(t.qualityByName(quality_)) || quality_ == "" ) &&
        (algorithm_ == t.algoName() || algorithm_ == ""));
   }
 
