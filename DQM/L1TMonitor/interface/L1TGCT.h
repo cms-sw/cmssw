@@ -5,11 +5,14 @@
 /*
  * \file L1TGCT.h
  *
- * $Date: 2008/04/28 09:23:07 $
- * $Revision: 1.12 $
+ * $Date: 2008/06/02 11:08:58 $
+ * $Revision: 1.13 $
  * \author J. Berryhill
- * $Id: L1TGCT.h,v 1.12 2008/04/28 09:23:07 tapper Exp $
+ * $Id: L1TGCT.h,v 1.13 2008/06/02 11:08:58 tapper Exp $
  * $Log: L1TGCT.h,v $
+ * Revision 1.13  2008/06/02 11:08:58  tapper
+ * Added HF ring histograms....
+ *
  * Revision 1.12  2008/04/28 09:23:07  tapper
  * Added 1D eta and phi histograms for electrons and jets as input to Q tests.
  *
@@ -110,10 +113,6 @@ private:
   // ----------member data ---------------------------
   DQMStore * dbe;
 
-  // Summary stuff
-  MonitorElement* l1GctSummIsoEmRankEtaPhi_;
-  MonitorElement* l1GctSummNonIsoEmRankEtaPhi_;
-
   // GCT stuff
   MonitorElement* l1GctCenJetsEtEtaPhi_; 
   MonitorElement* l1GctForJetsEtEtaPhi_;
@@ -164,9 +163,6 @@ private:
   MonitorElement* l1GctHFRingRatioNegEta_;
 
   // GCT electron stuff
-  MonitorElement* l1GctIsoEmRankBin_[22][18];
-  MonitorElement* l1GctNonIsoEmRankBin_[22][18];
-
   MonitorElement* l1GctIsoEmRankCand0_;
   MonitorElement* l1GctIsoEmRankCand1_;
   MonitorElement* l1GctIsoEmRankCand2_;

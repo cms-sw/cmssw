@@ -1,11 +1,14 @@
 /*
  * \file L1TGCT.cc
  *
- * $Date: 2008/06/02 11:08:58 $
- * $Revision: 1.28 $
+ * $Date: 2008/06/06 15:18:22 $
+ * $Revision: 1.29 $
  * \author J. Berryhill
  *
  * $Log: L1TGCT.cc,v $
+ * Revision 1.29  2008/06/06 15:18:22  tapper
+ * Removed errorSummary folder stuff.
+ *
  * Revision 1.28  2008/06/02 11:08:58  tapper
  * Added HF ring histograms....
  *
@@ -295,26 +298,6 @@ void L1TGCT::beginJob(const edm::EventSetup & c)
     l1GctNonIsoEmRankDiff12_ = dbe->book1D("GctNonIsoEmRankDiffCand12","NON-ISO EM RANK CAND 1 - CAND 2", 2*R6BINS, -R6MAX, R6MAX);
     l1GctNonIsoEmRankDiff23_ = dbe->book1D("GctNonIsoEmRankDiffCand23","NON-ISO EM RANK CAND 2 - CAND 3", 2*R6BINS, -R6MAX, R6MAX);    
 
-    dbe->setCurrentFolder("L1T/L1TGCT/ISO EM");
-
-    for (unsigned int eta=0; eta<ETABINS; eta++){
-      for (unsigned int phi=0; phi<PHIBINS; phi++){
-        std::stringstream hName; hName << "GctIsoEmRank" << "-" << eta << "-" << phi;
-        std::stringstream hTitle; hTitle << "ISO EM RANK " << "Eta=" << eta << " Phi=" << phi;
-        l1GctIsoEmRankBin_[eta][phi] = dbe->book1D(hName.str(),hTitle.str(),R6BINS,R6MIN,R6MAX);
-      }
-    }
-
-    dbe->setCurrentFolder("L1T/L1TGCT/NON-ISO EM");
-
-    for (unsigned int eta=0; eta<ETABINS; eta++){
-      for (unsigned int phi=0; phi<PHIBINS; phi++){
-        std::stringstream hName; hName << "GctNonIsoEmRank" << "-" << eta << "-" << phi;
-        std::stringstream hTitle; hTitle << "NON-ISO EM RANK " << "Eta=" << eta << " Phi=" << phi;
-        l1GctNonIsoEmRankBin_[eta][phi] = dbe->book1D(hName.str(),hTitle.str(),R6BINS,R6MIN,R6MAX);
-      }
-    }
-
   }
 
 }
@@ -538,7 +521,6 @@ void L1TGCT::analyze(const edm::Event & e, const edm::EventSetup & c)
       l1GctIsoEmOccEta_->Fill(ie->regionId().ieta());
       l1GctIsoEmOccPhi_->Fill(ie->regionId().iphi());
       l1GctIsoEmRank_->Fill(ie->rank());
-      l1GctIsoEmRankBin_[ie->regionId().ieta()][ie->regionId().iphi()]->Fill(ie->rank());
       if ( verbose_ ) {
 	std::cout << "L1TGCT: iso em " 
 		  << ie->regionId().iphi() << ", " 
@@ -573,7 +555,6 @@ void L1TGCT::analyze(const edm::Event & e, const edm::EventSetup & c)
       l1GctNonIsoEmOccEta_->Fill(ne->regionId().ieta());
       l1GctNonIsoEmOccPhi_->Fill(ne->regionId().iphi());
       l1GctNonIsoEmRank_->Fill(ne->rank());
-      l1GctNonIsoEmRankBin_[ne->regionId().ieta()][ne->regionId().iphi()]->Fill(ne->rank());
 
       if ( verbose_ ) {
 	std::cout << "L1TGCT: non-iso em " 
