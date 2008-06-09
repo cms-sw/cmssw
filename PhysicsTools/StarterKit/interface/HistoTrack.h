@@ -56,12 +56,18 @@ namespace pat {
 	       double pt1=0, double pt2=200, double m1=0, double m2=200 );
     virtual ~HistoTrack() { } ;
 
-    virtual void fill( const reco::RecoChargedCandidate *track, uint iPart = 0 );
 
-    // &&& Isn't this one already provided in the base class?
-    virtual void fill( const reco::RecoChargedCandidate &track, uint iPart = 0 ) { fill(&track, iPart); }
+    // fill a plain ol' track:
+    virtual void fill( const reco::RecoChargedCandidate *track, uint iPart = 1, double weight = 1.0 );
+    virtual void fill( const reco::RecoChargedCandidate &track, uint iPart = 1, double weight = 1.0 ) { fill(&track, iPart, weight); }
 
-    virtual void fillCollection( const std::vector<reco::RecoChargedCandidate> & coll );
+    // fill a track that is a shallow clone, and take kinematics from 
+    // shallow clone but detector plots from the track itself
+    virtual void fill( const reco::ShallowClonePtrCandidate *track, uint iPart = 1, double weight = 1.0 );
+    virtual void fill( const reco::ShallowClonePtrCandidate &track, uint iPart = 1, double weight = 1.0 )
+    { fill(&track, iPart, weight); }
+
+    virtual void fillCollection( const std::vector<reco::RecoChargedCandidate> & coll, double weight = 1.0 );
 
     // Clear ntuple cache
     void clearVec();

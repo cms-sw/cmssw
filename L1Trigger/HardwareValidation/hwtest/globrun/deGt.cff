@@ -1,23 +1,5 @@
-# gt emulator
+# Trigger configuration data
+# please include 'replace' statements 
+# as appropriate for the subsystem
 
-include "L1TriggerConfig/L1GtConfigProducers/data/L1GtConfig.cff"
-
-replace l1GtParameters = L1GtParametersTrivialProducer {
-    int32 TotalBxInEvent = 3
-    uint32 DaqActiveBoards = 0xFFE3  #default: 0xFFFF
-    uint32 EvmActiveBoards = 0xFFFF
-}
-
-replace l1GtTriggerMenuXml = L1GtTriggerMenuXmlProducer {
-    string TriggerMenuLuminosity = "lumi1x1032"
-    string DefXmlFile = "L1Menu2007NovGR.xml"              
-    string VmeXmlFile = ""
-}
-
-include "L1Trigger/GlobalTrigger/data/l1GtEmulDigis.cfi"
-replace l1GtEmulDigis.GmtInputTag = gtUnpack
-replace l1GtEmulDigis.GctInputTag = gctUnpacker
-//replace l1GtEmulDigis.ProduceL1GtDaqRecord = false
-//replace l1GtEmulDigis.ProduceL1GtEvmRecord = false
-//replace l1GtEmulDigis.ProduceL1GtObjectMapRecord = false
-//replace l1GtEmulDigis.WritePsbL1GtDaqRecord = false
+include "L1TriggerConfig/L1GtConfigProducers/data/Luminosity/lumi1x1032/L1Menu_CRUZET200805_gr7_muon.cff"

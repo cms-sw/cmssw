@@ -60,3 +60,7 @@ DEFINE_FWK_MODULE(L1TdeECAL);
 
 #include "DQM/L1TMonitor/interface/BxTiming.h"
 DEFINE_FWK_MODULE(BxTiming);
+
+#include "DQM/L1TMonitor/interface/L1TdeRCT.h"
+DEFINE_FWK_MODULE(L1TdeRCT);
+

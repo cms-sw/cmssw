@@ -2,9 +2,9 @@
  * \file DQMEventInfo.cc
  * \author M. Zanetti - CERN PH
  * Last Update:
- * $Date: 2008/03/04 22:29:06 $
- * $Revision: 1.16 $
- * $Author: ameyer $
+ * $Date: 2008/04/11 18:22:35 $
+ * $Revision: 1.19 $
+ * $Author: lat $
  *
  */
 
@@ -47,18 +47,7 @@ DQMEventInfo::DQMEventInfo(const ParameterSet& ps){
   lumisecId_ = dbe_->bookInt("iLumiSection");
   eventId_   = dbe_->bookInt("iEvent");
   eventTimeStamp_ = dbe_->bookFloat("eventTimeStamp");
-  errSummary_ = dbe_->bookFloat("errorSummary");
-  errSummary_->Fill(-1);
-  errSummaryEtaPhi_ =
-  dbe_->book2D("errorSummaryEtaPhi","errorSummaryEtaPhi",60,-3.,3.,64,-3.2,3.2);
-  string suberrfolder = currentfolder + "/errorSummarySegments" ;
-  dbe_->setCurrentFolder(suberrfolder);
-  for (int i=0 ; i<10 ; i++) {
-    char suberr[20];
-    sprintf (suberr,"Segment0%d",i);
-    errSummarySegment_[i] = dbe_->bookFloat(suberr);
-  }
-  
+
   dbe_->setCurrentFolder(currentfolder) ;
   //Process specific contents
   processTimeStamp_ = dbe_->bookFloat("processTimeStamp");
@@ -71,7 +60,6 @@ DQMEventInfo::DQMEventInfo(const ParameterSet& ps){
   processEventRate_->Fill(-1); 
   nUpdates_= dbe_->bookInt("processUpdates");
   nUpdates_->Fill(-1);
-  
 
   //Static Contents
   processId_= dbe_->bookInt("processID"); 
@@ -81,7 +69,11 @@ DQMEventInfo::DQMEventInfo(const ParameterSet& ps){
   workingDir_= dbe_->bookString("workingDir",gSystem->pwd());
   cmsswVer_= dbe_->bookString("CMSSW_Version",edm::getReleaseVersion());
   dqmPatch_= dbe_->bookString("DQM_Patch",dbe_->getDQMPatchVersion());
-    
+ 
+  // Folder to be populated by sub-systems' code
+  string subfolder = currentfolder + "/reportSummaryContents" ;
+  dbe_->setCurrentFolder(subfolder);
+
 }
 
 DQMEventInfo::~DQMEventInfo(){
@@ -95,9 +87,7 @@ void DQMEventInfo::analyze(const Event& e, const EventSetup& c){
   runId_->Fill(e.id().run());
   lumisecId_->Fill(e.luminosityBlock());
   eventId_->Fill(e.id().event());
-//  unsigned int ts_lo = (e.time().value()&0xFFFFFFFF);
-  unsigned int ts_lo = (e.time().value()/(double)0xffffffff);
-  eventTimeStamp_->Fill(ts_lo);
+  eventTimeStamp_->Fill(e.time().value()/(double)0xffffffff);
 
   pEvent_++;
   evtRateCount_++;

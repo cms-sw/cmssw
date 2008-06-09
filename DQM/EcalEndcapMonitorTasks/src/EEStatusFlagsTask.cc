@@ -1,8 +1,8 @@
 /*
  * \file EEStatusFlagsTask.cc
  *
- * $Date: 2008/04/08 15:32:10 $
- * $Revision: 1.11 $
+ * $Date: 2008/05/23 13:27:49 $
+ * $Revision: 1.15 $
  * \author G. Della Ricca
  *
 */
@@ -38,7 +38,9 @@ EEStatusFlagsTask::EEStatusFlagsTask(const ParameterSet& ps){
 
   prefixME_ = ps.getUntrackedParameter<string>("prefixME", "");
 
-  enableCleanup_ = ps.getUntrackedParameter<bool>("enableCleanup", true);
+  enableCleanup_ = ps.getUntrackedParameter<bool>("enableCleanup", false);
+
+  mergeRuns_ = ps.getUntrackedParameter<bool>("mergeRuns", false);
 
   EcalRawDataCollection_ = ps.getParameter<edm::InputTag>("EcalRawDataCollection");
 
@@ -65,6 +67,27 @@ void EEStatusFlagsTask::beginJob(const EventSetup& c){
   }
 
   Numbers::initGeometry(c, false);
+
+}
+
+void EEStatusFlagsTask::beginRun(const Run& r, const EventSetup& c) {
+
+  if ( ! mergeRuns_ ) this->reset();
+
+}
+
+void EEStatusFlagsTask::endRun(const Run& r, const EventSetup& c) {
+
+}
+
+void EEStatusFlagsTask::reset(void) {
+
+  for (int i = 0; i < 18; i++) {
+    if ( meEvtType_[i] ) meEvtType_[i]->Reset();
+
+    if ( meFEchErrors_[i][0] ) meFEchErrors_[i][0]->Reset();
+    if ( meFEchErrors_[i][1] ) meFEchErrors_[i][1]->Reset();
+  }
 
 }
 
@@ -150,7 +173,7 @@ void EEStatusFlagsTask::setup(void){
 
 void EEStatusFlagsTask::cleanup(void){
 
-  if ( ! enableCleanup_ ) return;
+  if ( ! init_ ) return;
 
   if ( dqmStore_ ) {
     dqmStore_->setCurrentFolder(prefixME_ + "/EEStatusFlagsTask");
@@ -179,7 +202,7 @@ void EEStatusFlagsTask::endJob(void){
 
   LogInfo("EEStatusFlagsTask") << "analyzed " << ievt_ << " events";
 
-  if ( init_ ) this->cleanup();
+  if ( enableCleanup_ ) this->cleanup();
 
 }
 
@@ -207,7 +230,9 @@ void EEStatusFlagsTask::analyze(const Event& e, const EventSetup& c){
 
       for ( unsigned int itt=1; itt<=status.size(); itt++ ) {
 
-        if ( itt > 34 ) continue;
+        if ( itt > 41 ) continue;
+
+        if ( ( ism == 8 || ism == 17 ) && ( itt >= 18 && itt <= 24 ) ) continue;
 
         vector<DetId> crystals = Numbers::crystals( EcalElectronicsId(dcch.id(), itt, 1, 1) );
 

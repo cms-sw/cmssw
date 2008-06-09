@@ -4,8 +4,8 @@
 /*
  * \file DTNoiseEvaluation.h
  *
- * $Date: 2007/09/07 09:03:08 $
- * $Revision: 1.2 $
+ * $Date: 2008/03/01 00:39:52 $
+ * $Revision: 1.3 $
  * \author M. Zanetti - INFN Padova
  *
 */
@@ -21,7 +21,6 @@
 
 #include "DQMServices/Core/interface/MonitorElement.h"
 #include "DQMServices/Core/interface/DQMStore.h"
-#include "DQMServices/Core/interface/QTestStatus.h"
 #include "DQMServices/Core/interface/DQMDefinitions.h"
 #include "DQMServices/Core/interface/DQMOldReceiver.h"
 #include "DQMServices/Core/interface/QTest.h"

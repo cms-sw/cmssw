@@ -35,8 +35,6 @@
 #include "CondFormats/SiStripObjects/interface/SiStripNoises.h"
 #include "CondFormats/DataRecord/interface/SiStripNoisesRcd.h"
 
-#include "FWCore/ServiceRegistry/interface/Service.h"
-#include "RecoTracker/MeasurementDet/interface/UpdaterService.h"
 
 #include <iostream>
 #include <typeinfo>
@@ -54,7 +52,8 @@ MeasurementTracker::MeasurementTracker(const edm::ParameterSet&              con
                                        int qualityFlags, 
                                        int qualityDebugFlags,
 				       bool isRegional) :
-  pset_(conf),
+  pset_(conf),lastEventNumberPixels(0),lastEventNumberStrips(0),
+  lastRunNumberPixels(0),lastRunNumberStrips(0),
   thePixelCPE(pixelCPE),theStripCPE(stripCPE),theHitMatcher(hitMatcher),
   theTrackerGeom(trackerGeom),theGeometricSearchTracker(geometricSearchTracker)
   ,isRegional_(isRegional)
@@ -195,7 +194,11 @@ void MeasurementTracker::update( const edm::Event& event) const
 void MeasurementTracker::updatePixels( const edm::Event& event) const
 {
   // avoid to update twice from the same event
-  if (!edm::Service<UpdaterService>()->checkOnce("MeasurementTracker::updatePixels")) return;
+  if( (lastEventNumberPixels == event.id().event()) && 
+      (lastRunNumberPixels   == event.id().run() )     ) return;
+  
+  lastEventNumberPixels = event.id().event();
+  lastRunNumberPixels = event.id().run();
 
   typedef edm::DetSetVector<SiPixelCluster> ::detset   PixelDetSet;
 
@@ -232,7 +235,12 @@ void MeasurementTracker::updatePixels( const edm::Event& event) const
 void MeasurementTracker::updateStrips( const edm::Event& event) const
 {
   // avoid to update twice from the same event
-  if (!edm::Service<UpdaterService>()->checkOnce("MeasurementTracker::updateStrips")) return;
+  if( (lastEventNumberStrips == event.id().event()) && 
+      (lastRunNumberStrips   == event.id().run() )     ) return;
+  
+  lastEventNumberStrips = event.id().event();
+  lastRunNumberStrips = event.id().run();
+
 
   typedef edm::DetSetVector<SiStripCluster> ::detset   StripDetSet;
 

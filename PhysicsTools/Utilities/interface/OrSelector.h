@@ -4,11 +4,17 @@
  *
  * \author Luca Lista, INFN
  *
- * $Id: OrSelector.h,v 1.4 2007/05/15 16:07:53 llista Exp $
+ * $Id: OrSelector.h,v 1.5 2007/06/18 18:33:54 llista Exp $
  */
 
 namespace helpers {
-  struct NullOrOperand { };
+  struct NullOrOperand;
+}
+
+namespace reco {
+  namespace modules {
+    template<typename T1, typename T2, typename T3, typename T4, typename T5> struct CombinedEventSetupInit;
+  }
 }
 
 template<typename S1, typename S2, 
@@ -22,6 +28,7 @@ struct OrSelector {
     return s1_( t ) || s2_( t ) || s3_( t ) || s4_( t ) || s5_( t );
   }
 private:
+  friend class reco::modules::CombinedEventSetupInit<S1, S2, S3, S4, S5>;
   S1 s1_;
   S2 s2_;
   S3 s3_;
@@ -40,6 +47,7 @@ struct OrSelector<S1, S2, helpers::NullOrOperand, helpers::NullOrOperand, helper
     return s1_( t ) || s2_( t );
   }
 private:
+  friend class reco::modules::CombinedEventSetupInit<S1, S2, helpers::NullOrOperand, helpers::NullOrOperand, helpers::NullOrOperand>;
   S1 s1_;
   S2 s2_;
 };
@@ -53,6 +61,7 @@ struct OrSelector<S1, S2, S3, helpers::NullOrOperand, helpers::NullOrOperand> {
     return s1_( t ) || s2_( t ) || s3_( t );
   }
 private:
+  friend class reco::modules::CombinedEventSetupInit<S1, S2, S3, helpers::NullOrOperand, helpers::NullOrOperand>;
   S1 s1_;
   S2 s2_;
   S3 s3_;
@@ -67,6 +76,7 @@ struct OrSelector<S1, S2, S3, S4, helpers::NullOrOperand> {
     return s1_( t ) || s2_( t ) || s3_( t ) || s4_( t );
   }
 private:
+  friend class reco::modules::CombinedEventSetupInit<S1, S2, S3, S4, helpers::NullOrOperand>;
   S1 s1_;
   S2 s2_;
   S3 s3_;

@@ -5,8 +5,8 @@
  *
  * Class for DT Data Integrity.
  *  
- *  $Date: 2008/04/03 09:33:01 $
- *  $Revision: 1.16 $
+ *  $Date: 2008/04/23 13:33:14 $
+ *  $Revision: 1.18 $
  *
  * \author Marco Zanetti  - INFN Padova
  *
@@ -49,7 +49,6 @@ public:
   void processROS25(DTROS25Data & data, int dduID, int ros);
   void processFED(DTDDUData & dduData, const std::vector<DTROS25Data> & rosData, int dduID);
 
-  void beginLuminosityBlock(edm::LuminosityBlock const& lumiSeg, edm::EventSetup const& context) ;
 
   void postEndJob();
   std::multimap<std::string, std::string> names;
@@ -72,7 +71,7 @@ private:
   // <histoType, <index , histo> >    
   std::map<std::string, std::map<int, MonitorElement*> > dduHistos;
   // <histoType, histo> >    
-  std::map<std::string, MonitorElement*> rosSHistos;
+  std::map<std::string, std::map<int, MonitorElement*> > rosSHistos;
   // <histoType, <index , histo> >    
   std::map<std::string, std::map<int, MonitorElement*> > rosHistos;
   // <histoType, <tdcID, histo> >   

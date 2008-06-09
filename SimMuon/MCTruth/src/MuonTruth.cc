@@ -2,7 +2,7 @@
 #include "FWCore/Framework/interface/ESHandle.h"
 #include "DataFormats/Common/interface/DetSetVector.h"
 #include "SimDataFormats/TrackerDigiSimLink/interface/StripDigiSimLink.h"
-#include "FWCore/MessageLogger/interface/MessageLogger.h"
+
 
 MuonTruth::MuonTruth()
 : theSimTrackContainer(0),
@@ -78,30 +78,6 @@ std::vector<const PSimHit *> MuonTruth::muonHits()
     }
   }
   return result;
-}
-
-
-std::vector<MuonTruth::SimHitIdpr> MuonTruth::associateHitId(const TrackingRecHit & hit)
-{
-  //  LogTrace("MuonAssociatorByHits")<<"CSCassociateHitId";
-  std::vector<SimHitIdpr> simtrackids;
-  simtrackids.clear();
-  const TrackingRecHit * hitp = &hit;
-  const CSCRecHit2D * cscrechit = dynamic_cast<const CSCRecHit2D *>(hitp);
-
-  if (cscrechit) {
-    //    LogTrace("MuonAssociatorByHits")<<"cscrechit : "<<*cscrechit;
-    analyze(*cscrechit);
-    std::vector<const PSimHit *> matchedSimHits = simHits();
-    //    LogTrace("MuonAssociatorByHits")<<"matchedSimHits.size() = "<<matchedSimHits.size();
-    for(std::vector<const PSimHit *>::const_iterator hIT=matchedSimHits.begin(); hIT != matchedSimHits.end(); hIT++) {
-      SimHitIdpr currentId((*hIT)->trackId(), (*hIT)->eventId());
-      simtrackids.push_back(currentId);
-    }
-  } else {
-    edm::LogWarning("MuonAssociatorByHits")<<"WARNING in CSCassociateHitId, null dynamic_cast !";
-  }
-  return simtrackids;
 }
 
 

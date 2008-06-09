@@ -28,8 +28,6 @@ class DCCFEBlock : public DCCDataBlockPrototype {
     virtual ~DCCFEBlock(){ delete [] xtalGains_;}
 
     void zsFlag(bool zs){ zs_ = zs;}
-
-    void enableFeIdChecks(){checkFeId_= true;}
 	 
     virtual void updateCollectors();
     
@@ -38,6 +36,7 @@ class DCCFEBlock : public DCCDataBlockPrototype {
     int unpack(uint64_t ** data, uint * dwToEnd, bool zs, uint expectedTowerID);
 
     uint getLength(){return blockLength_; }
+	 
     			
   protected :
 	 
@@ -45,7 +44,6 @@ class DCCFEBlock : public DCCDataBlockPrototype {
     
     
     bool zs_;
-    bool checkFeId_;
     uint expTowerID_;
     uint expXtalTSamples_;
     uint unfilteredDataBlockLength_;

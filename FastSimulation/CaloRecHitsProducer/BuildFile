@@ -25,7 +25,6 @@
 <use name=CalibCalorimetry/CaloMiscalibTools>
 <use name=boost>
 <use name=clhep>
-<use name=rootmath>
 <flags EDM_PLUGIN="1">
 <export>
   <lib name=FastSimulationCaloRecHitsProducer>

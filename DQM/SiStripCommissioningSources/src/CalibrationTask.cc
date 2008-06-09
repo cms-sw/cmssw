@@ -13,7 +13,6 @@
 #include <sys/socket.h>
 #include <netdb.h>
 #include <stdio.h>
-#include <fstream>
 
 // -----------------------------------------------------------------------------
 //
@@ -79,13 +78,9 @@ void CalibrationTask::book() {
   std::string pwd = dqm()->pwd();
   std::string rootDir = pwd.substr(0,pwd.find(sistrip::root_ + "/")+sistrip::root_.size());
   dqm()->setCurrentFolder( rootDir );
-  std::vector<std::string> existingMEs = dqm()->getMEs();
-  if(find(existingMEs.begin(),existingMEs.end(),"calchan")!=existingMEs.end()) {
-    calchanElement_ = dqm()->get(dqm()->pwd()+"/calchan");
-  } else {
-    calchanElement_ = dqm()->bookInt("calchan");
-  }
+  calchanElement_ = dqm()->bookInt( "calchan");
   dqm()->setCurrentFolder(pwd);
+
   
   LogDebug("Commissioning") << "[CalibrationTask::book] done";
   
@@ -179,18 +174,11 @@ void CalibrationTask::checkAndSave(const uint16_t& calchan) {
     ss << "_000"; // Add FU instance number (fake)
     ss << ".root"; // Append ".root" extension
     if ( !filename_.empty() ) {
-      if(ifstream(ss.str().c_str(),ifstream::in).fail()) { //save only once. Skip if the file already exist
-        dqm()->save( ss.str() ); 
-        LogTrace("DQMsource")
-          << "[SiStripCommissioningSource::" << __func__ << "]"
-          << " Saved all histograms to file \""
-          << ss.str() << "\"";
-      } else {
-        LogTrace("DQMsource")
-          << "[SiStripCommissioningSource::" << __func__ << "]"
-          << " Skipping creation of file \""
-          << ss.str() << "\" that already exists" ;
-      }
+      dqm()->save( ss.str() ); 
+      LogTrace("DQMsource")
+        << "[SiStripCommissioningSource::" << __func__ << "]"
+        << " Saved all histograms to file \""
+        << ss.str() << "\"";
     } else {
       edm::LogWarning("DQMsource")
         << "[SiStripCommissioningSource::" << __func__ << "]"

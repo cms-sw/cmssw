@@ -6,8 +6,6 @@
 #include <xercesc/dom/DOM.hpp>
 
 #include <TMatrixD.h>
-#include <TMatrixF.h>
-#include <TH2.h>
 
 #include "FWCore/Utilities/interface/Exception.h"
 
@@ -159,34 +157,6 @@ void ProcMatrix::trainEnd()
 		break;
 	    default:
 		/* shut up */;
-	}
-
-	if (iteration == ITER_DONE && monitoring) {
-		TMatrixF matrix(ls->getCorrelations());
-		TH2F *histo = monitoring->book<TH2F>("CorrMatrix", matrix);
-		histo->SetNameTitle("CorrMatrix",
-			(fillSignal && fillBackground)
-			? "correlation matrix (signal + background)"
-			: (fillSignal ? "correlation matrix (signal)"
-			              : "correlation matrix (background)"));
-
-		std::vector<SourceVariable*> inputs = getInputs().get();
-		for(std::vector<SourceVariable*>::const_iterator iter =
-			inputs.begin(); iter != inputs.end(); ++iter) {
-
-			unsigned int idx = iter - inputs.begin();
-			SourceVariable *var = *iter;
-			std::string name =
-				(const char*)var->getSource()->getName()
-				+ std::string("_")
-				+ (const char*)var->getName();
-
-			histo->GetXaxis()->SetBinLabel(idx + 1, name.c_str());
-			histo->GetYaxis()->SetBinLabel(idx + 1, name.c_str());
-		}
-		histo->LabelsOption("d");
-		histo->SetMinimum(-1.0);
-		histo->SetMaximum(+1.0);
 	}
 }
 

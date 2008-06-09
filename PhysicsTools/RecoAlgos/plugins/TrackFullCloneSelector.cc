@@ -1,24 +1,37 @@
+/* \class TrackSelector
+ *
+ * Selects track with a configurable string-based cut.
+ * Saves clones of the selected tracks, and also
+ * clones track extras and rec-hits
+ *
+ * \author: Luca Lista, INFN
+ *
+ * usage:
+ *
+ * module bestTracks = TrackFullCloneSelector {
+ *   src = ctfWithMaterialTracks
+ *   string cut = "pt > 20 & abs( eta ) < 2"
+ * }
+ *
+ * for more details about the cut syntax, see the documentation
+ * page below:
+ *
+ *   https://twiki.cern.ch/twiki/bin/view/CMS/SWGuidePhysicsCutParser
+ *
+ *
+ */
+
 #include "FWCore/Framework/interface/MakerMacros.h"
+#include "PhysicsTools/RecoAlgos/interface/TrackSelector.h"
+#include "PhysicsTools/UtilAlgos/interface/SingleObjectSelector.h"
+#include "PhysicsTools/UtilAlgos/interface/StringCutObjectSelector.h"
+#include "DataFormats/TrackReco/interface/Track.h"
+#include "DataFormats/TrackReco/interface/TrackFwd.h"
 
-#include "PhysicsTools/RecoAlgos/interface/TrackFullCloneSelectorBase.h"
-#include "PhysicsTools/Utilities/interface/StringCutObjectSelector.h"
+ typedef SingleObjectSelector<
+           reco::TrackCollection, 
+           StringCutObjectSelector<reco::Track> 
+         > TrackFullCloneSelector;
 
-namespace reco { 
-  namespace modules {
+DEFINE_FWK_MODULE(TrackFullCloneSelector);
 
-      template <class ObjType> class StringCutObjectSelectorWithEvent {
-          public:
-              StringCutObjectSelectorWithEvent<ObjType>(const edm::ParameterSet &cfg) : sel_(cfg.template getParameter<std::string>("cut")) { }
-              bool operator()( const ObjType & t, const edm::Event &evt ) const {
-                  return sel_(t);
-              }
-          private:
-              StringCutObjectSelector<ObjType> sel_;
-      };
-
-      typedef TrackFullCloneSelectorBase<
-          reco::modules::StringCutObjectSelectorWithEvent<reco::Track>
-          > TrackFullCloneSelector;
-
-      DEFINE_FWK_MODULE(TrackFullCloneSelector);
-  } }

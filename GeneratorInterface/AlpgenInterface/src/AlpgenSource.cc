@@ -1,6 +1,6 @@
 /*
- *  $Date: 2008/03/03 20:15:05 $
- *  $Revision: 1.13 $
+ *  $Date: 2008/01/22 20:57:23 $
+ *  $Revision: 1.12 $
  *  
  *  Filip Moorgat & Hector Naves 
  *  26/10/05
@@ -12,7 +12,6 @@
 
 
 #include "GeneratorInterface/AlpgenInterface/interface/AlpgenSource.h"
-#include "GeneratorInterface/AlpgenInterface/interface/PYR.h"
 #include "SimDataFormats/HepMCProduct/interface/HepMCProduct.h"
 #include "SimDataFormats/HepMCProduct/interface/AlpgenInfoProduct.h"
 #include "SimDataFormats/HepMCProduct/interface/AlpWgtFileInfoProduct.h"
@@ -137,7 +136,6 @@ AlpgenSource::AlpgenSource( const ParameterSet & pset,
   //In the future, we will get the random number seed on each event and tell 
   // pythia to use that new seed
   edm::Service<RandomNumberGenerator> rng;
-  randomEngine = fRandomEngine = &(rng->getEngine());
   uint32_t seed = rng->mySeed();
   ostringstream sRandomSet;
   sRandomSet <<"MRPY(1)="<<seed;

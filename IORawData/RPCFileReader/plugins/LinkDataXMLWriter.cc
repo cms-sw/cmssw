@@ -137,6 +137,8 @@ LinkDataXMLWriter::LinkDataXMLWriter(const edm::ParameterSet& iConfig){
     linkData.push_back(rpdvvv);
   }
 
+  cabling = new RPCReadOutMapping("");
+
   nEvents = 0; 
 }
 
@@ -160,7 +162,6 @@ LinkDataXMLWriter::~LinkDataXMLWriter(){
 #
 ############################################################################*/
 void LinkDataXMLWriter::analyze(const edm::Event& ev, const edm::EventSetup& es){
-  static RPCReadOutMapping * cabling =  new RPCReadOutMapping("");
 
   /// Get Data from all FEDs
   Handle< RPCDigiCollection > digiCollection;
@@ -209,13 +210,13 @@ void LinkDataXMLWriter::analyze(const edm::Event& ev, const edm::EventSetup& es)
     std::vector<rpcrawtodigi::EventRecords>::const_iterator CI =  myEventRecords.begin();
     for(;CI!= myEventRecords.end();CI++){ 
 
-      int dccInputChannelNum =  CI->recordSLD().rmb();
-      int opticalLinkNum =   CI->recordSLD().tbLinkInputNumber();
-      int partitionData =   CI->recordCD().partitionData(); 
-      int halfP = CI->recordCD().halfP(); 
-      int eod = CI->recordCD().eod(); 
-      int partitionNumber = CI->recordCD().partitionNumber();  
-      int lbNumber = CI->recordCD().lbInLink();
+      int dccInputChannelNum =  CI->tbRecord().rmb();
+      int opticalLinkNum =   CI->tbRecord().tbLinkInputNumber();
+      int partitionData =   CI->lbRecord().lbData().lbData(); 
+      int halfP = CI->lbRecord().lbData().halfP(); 
+      int eod = CI->lbRecord().lbData().eod(); 
+      int partitionNumber = CI->lbRecord().lbData().partitionNumber();  
+      int lbNumber = CI->lbRecord().lbData().lbNumber();
 
       std::pair<int,int> aPair = getTCandTBNumbers(dccInputChannelNum,dccFactor);
       int triggerCrateNum = aPair.first;

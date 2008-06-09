@@ -1,4 +1,5 @@
 //#include "FWCore/PluginManager/interface/ModuleDef.h"
+#include "PluginManager/ModuleDef.h"
 #include "FWCore/Framework/interface/MakerMacros.h"
 
 #include "EventFilter/ESDigiToRaw/interface/ESDigiToRaw.h"

@@ -11,25 +11,22 @@ class G4Region;
 class G4LogicalVolume;
 class G4ProductionCuts;
 
-class DDG4ProductionCuts  {
-
+class DDG4ProductionCuts 
+{
 public:
-  DDG4ProductionCuts(const G4LogicalVolumeToDDLogicalPartMap&, int);
+  DDG4ProductionCuts(const G4LogicalVolumeToDDLogicalPartMap&);
   ~DDG4ProductionCuts();
   void update();
   void SetVerbosity( int verb ) { m_Verbosity = verb; return ; }
-
 private:
-
-  void initialize();
-  void setProdCuts(const DDLogicalPart lpart, G4LogicalVolume * lvolume);
-  G4Region * getRegion(const std::string & region);
-  G4ProductionCuts * getProductionCuts(G4Region * region);
+  void SetProdCuts(const DDLogicalPart lpart, G4LogicalVolume * lvolume);
+  G4Region * GetRegion(const std::string & region);
+  G4ProductionCuts * GetProductionCuts(G4Region * region);
 
   G4LogicalVolumeToDDLogicalPartMap map_;
   std::string                       m_KeywordRegion;    
   int                               m_Verbosity;
-  G4LogicalVolumeToDDLogicalPartMap::Vector vec_;    
+    
 };
 
 #endif

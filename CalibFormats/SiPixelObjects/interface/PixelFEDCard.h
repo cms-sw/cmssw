@@ -1,27 +1,13 @@
 #ifndef TP_PIXELFEDCARD_H
 #define TP_PIXELFEDCARD_H
-/**
-*   \file CalibFormats/SiPixelObjects/interface/PixelFEDCard.h
-*   \brief This class implements..
-*
-*   A longer explanation will be placed here later
-*/
+// The structure which holds all the informations needed to setup 
+// a pixel FED. Danek Kotlinski 18/4/06
 
 #include "CalibFormats/SiPixelObjects/interface/PixelConfigBase.h"
 
 #include <string>
 
 namespace pos{
-/*!  \ingroup ConfigurationObjects "Configuration Objects"
-*    
-*  @{
-*
-*  \class PixelFEDCard PixelFEDCard.h
-*  \brief This is the documentation about PixelFEDCard...
-*
-*  The structure which holds all the informations needed to setup 
-*  a pixel FED. Danek Kotlinski 18/4/06
-*/
   class PixelFEDCard : public PixelConfigBase{
 
   public:
@@ -122,5 +108,4 @@ namespace pos{
 
   }; // end class PixelFEDCard
 }
-/* @} */
 #endif // ifdef include

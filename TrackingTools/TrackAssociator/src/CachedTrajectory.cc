@@ -9,7 +9,7 @@
 
 
 #include "TrackingTools/TrackAssociator/interface/CachedTrajectory.h"
-// #include "Utilities/Timing/interface/TimerStack.h"
+#include "Utilities/Timing/interface/TimerStack.h"
 #include "TrackPropagation/SteppingHelixPropagator/interface/SteppingHelixPropagator.h"
 #include "DataFormats/GeometrySurface/interface/Plane.h"
 #include "Geometry/DTGeometry/interface/DTChamber.h"
@@ -79,21 +79,24 @@ bool CachedTrajectory::propagateAll(const SteppingHelixStateInfo& initialState)
       reset_trajectory();
    }
 	
-//   TimerStack timers(TimerStack::Disableable);
+   TimerStack timers(TimerStack::Disableable);
 
    reset_trajectory();
    if (propagator_==0) throw cms::Exception("FatalError") << "Track propagator is not defined\n";
    SteppingHelixStateInfo currentState(initialState);
 
    while (currentState.position().perp()<maxRho_ && fabs(currentState.position().z())<maxZ_ ){
-     LogTrace("TrackAssociator") << "[propagateAll] Propagated outward from (Rho, z) (" << currentState.position().perp()
-       << "," << currentState.position().z() << ") to (";
-     propagateForward(currentState,step_);
+      LogTrace("TrackAssociator") << "[propagateAll] Propagate outward from (rho, r, z, phi) (" << 
+	currentState.position().perp() << ", " << currentState.position().mag() << ", " <<
+	currentState.position().z() << ", " << currentState.position().phi() << ")";
+      propagateForward(currentState,step_);
      if (! currentState.isValid() ) {
        LogTrace("TrackAssociator") << "Failed to propagate the track; moving on\n";
        break;
      }
-     LogTrace("TrackAssociator") << currentState.position().perp() << ", " << currentState.position().z() << ")\n";
+      LogTrace("TrackAssociator") << "\treached (rho, r, z, phi) (" << 
+	currentState.position().perp() << ", " << currentState.position().mag() << ", " <<
+	currentState.position().z() << ", " << currentState.position().phi() << ")";
      fullTrajectory_.push_back(currentState);
    }
 
@@ -111,9 +114,11 @@ bool CachedTrajectory::propagateAll(const SteppingHelixStateInfo& initialState)
 	 LogTrace("TrackAssociator") << "Error: TrackAssociator has propogated the particle past the point of closest approach to IP" << std::endl;
 	 break;
       }
-      LogTrace("TrackAssociator") << "[propagateAll] Propagated inward from (Rho, z) (" << previousState.position().perp()
-	<< "," << previousState.position().z() << ") to (";
-      LogTrace("TrackAssociator") << currentState2.position().perp() << ", " << currentState2.position().z() << ")\n";
+      LogTrace("TrackAssociator") << "[propagateAll] Propagated inward from (rho, r, z, phi) (" << 
+	previousState.position().perp() << ", " << previousState.position().mag() << ", " <<
+	previousState.position().z() << "," << previousState.position().phi() << ") to (" << 
+	currentState2.position().perp() << ", " << currentState2.position().mag() << ", " <<
+	currentState2.position().z() << ", " << currentState2.position().phi() << ")";
       fullTrajectory_.push_front(currentState2);
    }
 
@@ -137,10 +142,10 @@ bool CachedTrajectory::propagateAll(const SteppingHelixStateInfo& initialState)
 
 TrajectoryStateOnSurface CachedTrajectory::propagate(const Plane* plane)
 {
-   // TimerStack timers(TimerStack::Disableable);
+   TimerStack timers(TimerStack::Disableable);
    // timers.benchmark("CachedTrajectory::propagate::benchmark");
-   // timers.push("CachedTrajectory::propagate",TimerStack::FastMonitoring);
-   // timers.push("CachedTrajectory::propagate::findClosestPoint",TimerStack::FastMonitoring);
+   timers.push("CachedTrajectory::propagate",TimerStack::FastMonitoring);
+   timers.push("CachedTrajectory::propagate::findClosestPoint",TimerStack::FastMonitoring);
 
    // Assume that all points along the trajectory are equally spread out.
    // For simplication assume that the trajectory is just a straight
@@ -197,7 +202,7 @@ TrajectoryStateOnSurface CachedTrajectory::propagate(const Plane* plane)
         << plane->position().phi();
      
    // propagate to the plane
-   // timers.pop_and_push("CachedTrajectory::propagate::localPropagation",TimerStack::FastMonitoring);
+   timers.pop_and_push("CachedTrajectory::propagate::localPropagation",TimerStack::FastMonitoring);
    if (const SteppingHelixPropagator* shp = dynamic_cast<const SteppingHelixPropagator*>(propagator_))
      {
 	SteppingHelixStateInfo state;
@@ -339,6 +344,11 @@ void CachedTrajectory::getTrajectory(std::vector<SteppingHelixStateInfo>& trajec
    if (closestPointOnLeft == -1) throw cms::Exception("FatalError") << "This shouls never happen - internal logic error";
    
    SteppingHelixStateInfo currentState(fullTrajectory_[closestPointOnLeft]);
+   if ( currentState.position().x()*currentState.momentum().x() +
+	currentState.position().y()*currentState.momentum().y() +
+	currentState.position().z()*currentState.momentum().z() < 0 )
+     step = -step;
+   
    while (currentState.position().perp() < volume.maxR() && fabs(currentState.position().z()) < volume.maxZ() )
      {
 	propagateForward(currentState,step);

@@ -116,20 +116,24 @@ DCacheFile::open (const char *name,
   if ((newfd = dc_open (name, openflags, perms)) == -1)
     throw cms::Exception("DCacheFile::open()")
       << "dc_open(name='" << name
-      << "', flags=0x" << std::hex << openflags
-      << ", permissions=0" << std::oct << perms << std::dec
+      << "', flags=" << openflags
+      << ", permissions=" << perms
       << ") => error '" << dc_strerror(dc_errno)
       << "' (dc_errno=" << dc_errno << ")";
 
   m_fd = newfd;
 
-  // Disable buffering in dCache library?  This can make dramatic
-  // difference to the system and client performance (factors of
-  // ten difference in the amount of data read, and time spent
-  // reading). Note also that docs say the flag turns off write
-  // buffering -- this turns off all buffering.
-  if (flags & IOFlags::OpenUnbuffered)
-    dc_noBuffering (m_fd);
+  // Set the buffering readahead size for dCache.  The value chosen here was determined from
+  // a study done by Ian Fisk 31-May-2008
+  // This can make dramatic difference to the system and client
+  // performance (factors of ten difference in the amount of data
+  // read, and time spent reading). Note also that docs incorrectly
+  // say the flag turns off only write buffering -- this affects
+  // all buffering.
+  // if (flags & IOFlags::OpenUnbuffered)
+  //   dc_noBuffering (m_fd);
+
+  dc_setBufferSize(m_fd, 64000);
 
   m_close = true;
 
@@ -205,7 +209,7 @@ DCacheFile::read (void *into, IOSize n)
       // end of file
       break;
     else if (s < ssize_t (n-done))
-      edm::LogWarning("DCacheFileWarning")
+      edm::LogInfo("DCacheFileWarning")
         << "dc_read(name='" << m_name << "', n=" << (n-done)
         << ") returned a short read of " << s << " bytes; "
         << "please report a bug in dCache referencing the "

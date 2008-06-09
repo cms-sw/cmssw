@@ -45,7 +45,7 @@ void calibXMLwriter::writeLine(EEDetId const & det, float calib)
 {
 int x=det.ix();
 int y=det.iy();
-int z=det.zside()>0 ? 1 : 0;
+int z=det.zside();
 fprintf(FILENAME,"<Cell x_index=\"%d\" y_index=\"%d\" z_index=\"%d\" scale_factor=\"%f\"/>\n",x,y,z,calib);
 }
 

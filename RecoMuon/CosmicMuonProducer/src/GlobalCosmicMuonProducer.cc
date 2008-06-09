@@ -5,8 +5,8 @@
  *  reconstruct muons using dt,csc,rpc and tracker starting from cosmic muon
  *  tracks
  *
- * $Date: 2007/05/31 18:48:55 $
- * $Revision: 1.6 $
+ * $Date: 2007/09/07 14:31:43 $
+ * $Revision: 1.7 $
  * \author:  Chang Liu  - Purdue University <Chang.Liu@cern.ch>
 **/
 
@@ -82,6 +82,10 @@ GlobalCosmicMuonProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSe
   
   edm::Handle<reco::TrackCollection> cosMuons;
   iEvent.getByLabel(theTrackCollectionLabel,cosMuons);
+  if (!cosMuons.isValid()) {
+    LogTrace(metname)<< "Muon Track collection is invalid!!!";
+    return;
+  }
   
   // Update the services
   theService->update(iSetup);
@@ -96,7 +100,6 @@ GlobalCosmicMuonProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSe
     cosTrackCands.push_back(cosCand); 
   }
   theTrackFinder->reconstruct(cosTrackCands,iEvent);
-  
   LogTrace(metname)<<"Event loaded";
 
 }

@@ -6,17 +6,35 @@
 
 struct DeadCellHists{
   int type;
-  TH2F* deadADC_OccMap;
-  TH1F* deadADC_Eta;
-  TH2F* badCAPID_OccMap;
-  TH1F* badCAPID_Eta;
+  TH2F* problemDeadCells;
+ 
+  // Dead cell routine #1:  low ADC counts for cell
+  TH2F* deadADC_map;
+  std::vector<TH2F*> deadADC_map_depth; // individual depth plots
+  TH1F* deadADC_eta;
   TH1F* ADCdist;
-  TH2F* NADACoolCellMap;
+  std::vector<TH2F*> deadcapADC_map; // plots for individual CAPIDs
+
+  // Dead cell routine #2:  cell cool compared to neighbors
+  double floor, mindiff;
+  TH2F* NADA_cool_cell_map;
+  std::vector<TH2F*> NADA_cool_cell_map_depth; // individual depth plots
+
+  // Dead cell routine #3:  cell consistently less than pedestal + N sigma
+  TH2F* coolcell_below_pedestal;
+  TH2F* above_pedestal;
+  
+  std::vector<TH2F*> coolcell_below_pedestal_depth;
+  std::vector<TH2F*> above_pedestal_depth;
+
+// extra diagnostic plots - could be removed?  
+  // Should already have these in DigiMonitor, RecHitMonitor
   TH2F* digiCheck;
   TH2F* cellCheck;
-  TH2F* AbovePed;
-  TH2F* CoolCellBelowPed;
-  std::vector<TH2F*> DeadCap;
+  std::vector<TH2F*> digiCheck_depth;
+  std::vector<TH2F*> cellCheck_depth;
+
+
 };
 
 class HcalDeadCellClient : public HcalBaseClient {
@@ -74,13 +92,20 @@ public:
   void htmlSubDetOutput(DeadCellHists& hist, int runNo, 
 			std::string htmlDir, 
 			std::string htmlName);
-
+  void htmlADCSubDetOutput(DeadCellHists& hist, int runNo, 
+			   std::string htmlDir, 
+			   std::string htmlName);
+  
+  void htmlBelowPedSubDetOutput(DeadCellHists& hist, int runNo, 
+				std::string htmlDir, 
+				std::string htmlName);
 private:
 
   ofstream htmlFile;
 
   DeadCellHists hbhists, hehists, hohists, hfhists, hcalhists;
-  
+  double errorFrac_; // minimum fraction of events that must be bad to cause error
+  int checkNevents_;
 };
 
 #endif

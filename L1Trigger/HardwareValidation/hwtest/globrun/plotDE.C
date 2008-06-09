@@ -13,6 +13,7 @@
     - save_single = 0: do not save individual histos
                     1: save individual histos as .eps
                     2: save individual histos as .gif
+                    3: save individual histos as .jpg
 
                     saves into assumed directory structure
 		    figures/run-<x>/<sub-system>
@@ -20,9 +21,9 @@
 */
 
 bool save_histos = 1;
-int  save_single = 0;  // 0.none, 1.eps, 2.gif
-const int run    = 0;
-
+int  save_single = 0;  // 0.none, 1.eps, 2.gif, 3.jpg
+//TString run("grumm38414,38478");
+const int run = 0;//38414;
 
 const int DEnsys = 12;
 
@@ -78,17 +79,25 @@ void plotDE(TString finput = "l1demon.root") {
   dir += run;
 
   TFile *infile = new TFile(finput);
-  TDirectory* tdir = infile->GetDirectory("DQMData/L1T/L1DEMon");
-  gInterpreter->ExecuteMacro("/cmsnfshome0/nfshome0/nuno/sty/ScanStyle.C");
+  TDirectory* tdir = infile->GetDirectory("DQMData/L1TEMU/");
+  //gInterpreter->ExecuteMacro("/cmsnfshome0/nfshome0/nuno/sty/ScanStyle.C");
+  gInterpreter->ExecuteMacro("/afs/cern.ch/user/n/nuno/style/ScanStyle.C");
 
-  rates = (TH1F*) tdir->Get("sysrates");
-  error = (TH1F*) tdir->Get("errorflag");
+
+  TDirectory* tdircom = tdir;//->GetDirectory("common/");
+  rates = (TH1F*) tdircom->Get("sysrates");
+  error = (TH1F*) tdircom->Get("errorflag");
+
+  //gDirectory->ls();
+  //cvs->SetLogy();
+  //error->Draw();
+  //return;
 
   for(int j=0; j<2; j++) {
     std::string lbl("");
     lbl += "sysncand";
     lbl += (j==0?"Data":"Emul");
-    ncand [j] = (TH1F*) tdir->Get(lbl.data());
+    ncand [j] = (TH1F*) tdircom->Get(lbl.data());
   }
 
 
@@ -152,7 +161,7 @@ void plotDE(TString finput = "l1demon.root") {
 
   TString corrl[ncorr] = {"phi","eta","rank"};
 
-  TDirectory* tdirsys = tdir->GetDirectory("CORR");
+  TDirectory* tdirsys = tdir->GetDirectory("xcorr");
   
   for(int i=0; i<DEnsys; i++) {
     for(int j=0; j<DEnsys; j++) {
@@ -269,19 +278,26 @@ void plotDE(TString finput = "l1demon.root") {
 
   cout << "printing histos...\n" << flush;
   
-  TString ofile(dir); ofile += ".eps";
+  TString ofile(dir); ofile += ".ps";
+
+  //TCanvas *log = new TCanvas("testl","testl",0,0,500,450);
+  //log->SetLogy();
   TCanvas *cvs = new TCanvas("teste","teste",0,0,500,450);
+
   cvs->Print(TString(ofile+"["));
   Print (rates   ,cvs,ofile);
   Print (ncand[0],cvs,ofile);
   Print (ncand[1],cvs,ofile);
+  //cvs->GetPad(0)->SetLogy(1);
   Print (error   ,cvs,ofile);
+  //cvs->GetPad(0)->SetLogy(0);
   Print2(rates   ,cvs,dir);
+
   Print2(ncand[0],cvs,dir);
   Print2(ncand[1],cvs,dir);
   Print2(error   ,cvs,dir);
   for(int j=0; j<DEnsys; j++) {
-    Print(errors  [j],cvs,ofile);
+    //Print(errors  [j],log,ofile);
     Print(eta     [j],cvs,ofile);
     Print(phi     [j],cvs,ofile);
     Print(x3      [j],cvs,ofile);
@@ -312,7 +328,7 @@ void plotDE(TString finput = "l1demon.root") {
   cvs->Print(TString(ofile+"]"));
 
   TCanvas *cor = new TCanvas("correlations","correlations",0,0,500,450);
-  TString cfile(dir); cfile+= "-corr"; cfile += ".eps";
+  TString cfile(dir); cfile+= "-corr"; cfile += ".ps";
   cor->Print(TString(cfile+"["));
   for(int i=0; i<DEnsys; i++) {
     for(int j=0; j<DEnsys; j++) {
@@ -430,14 +446,31 @@ void Print2(TH1F* h, TCanvas *cvs, TString dir) {
   if(empty(h)) return; 
   Draw(h,   19,   1001,   "",  28, 1,   1,  0.8,  20);
   sign(); 
+  TString name(dir); name += "/";  name += h->GetName();
+  switch (save_single) {
+  case 0: 
+    return; break;
+  case 1: 
+    name+=".eps"; break;
+  case 2: 
+    name+=".gif"; break;
+  case 3: 
+    name+=".jpg"; break;
+  }
+  cvs->Print(name);
+  /*
   TString namee(dir);  namee += "/";  namee += h->GetName();  namee += ".eps";
   TString nameg(dir);  nameg += "/";  nameg += h->GetName();  nameg += ".gif";
+  TString namej(dir);  namej += "/";  namej += h->GetName();  namej += ".jpg";
   if(save_single==0)
     return;
   else if(save_single==1)
     cvs->Print(namee);
   else if(save_single==2)
     cvs->Print(nameg);
+  else if(save_single==2)
+    cvs->Print(nameg);
+  */
 }
 
 void Print(TH2F* h, TCanvas *cvs, TString of) {
@@ -450,6 +483,19 @@ void Print2(TH2F* h, TCanvas *cvs, TString dir) {
   if(empty(h)) return; 
   Draw(h,   38,   1001,   "col",  2, 1,   2,  0.8,  20);
   sign(); 
+  TString name(dir); name += "/";  name += h->GetName();
+  switch (save_single) {
+  case 0: 
+    return; break;
+  case 1: 
+    name+=".eps"; break;
+  case 2: 
+    name+=".gif"; break;
+  case 3: 
+    name+=".jpg"; break;
+  }
+  cvs->Print(name);
+  /*
   TString namee(dir);  namee += "/";  namee += h->GetName();  namee += ".eps";
   TString nameg(dir);  nameg += "/";  nameg += h->GetName();  nameg += ".gif";
   if(save_single==0)
@@ -458,6 +504,7 @@ void Print2(TH2F* h, TCanvas *cvs, TString dir) {
     cvs->Print(namee);
   else if(save_single==2)
     cvs->Print(nameg);
+  */
 }
 
 void sign() {
@@ -468,5 +515,6 @@ void sign() {
   ss += "  |  Run:"; ss += run; 
   if(run>20500 && run < 21010) ss += " GRES";
   if(run>29320 && run < 30635) ss += " GREN";
+  if(run>37842-1 && run < 38483+1) ss += " GRUMM";
   l.DrawTextNDC(0.25,0.04,ss);
 }

@@ -27,7 +27,7 @@ EcalBarrelRecHitsMaker::EcalBarrelRecHitsMaker(edm::ParameterSet const & p,
   refactor_mean_ = RecHitsParameters.getParameter<double> ("Refactor_mean");
   theCalorimeterHits_.resize(62000,0.);
   noisified_ = (noise_==0.);
-  double c1=pcalib.getParameter<double>("EEs25notContainment"); 
+  double c1=pcalib.getParameter<double>("EBs25notContainment"); 
   calibfactor_=1./c1;
   adcToGeV_= 0.035;
   minAdc_ = 200;

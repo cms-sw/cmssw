@@ -4,8 +4,8 @@
 /*
  * \file EBTestPulseTask.h
  *
- * $Date: 2008/04/08 15:06:23 $
- * $Revision: 1.29 $
+ * $Date: 2008/04/08 15:32:08 $
+ * $Revision: 1.30 $
  * \author G. Della Ricca
  * \author G. Franzoni
  *
@@ -39,6 +39,15 @@ void beginJob(const edm::EventSetup& c);
 /// EndJob
 void endJob(void);
 
+/// BeginRun
+void beginRun(const edm::Run & r, const edm::EventSetup & c);
+
+/// EndRun
+void endRun(const edm::Run & r, const edm::EventSetup & c);
+
+/// Reset
+void reset(void);
+
 /// Setup
 void setup(void);
 
@@ -54,6 +63,8 @@ DQMStore* dqmStore_;
 std::string prefixME_;
 
 bool enableCleanup_;
+
+bool mergeRuns_;
 
 edm::InputTag EcalRawDataCollection_;
 edm::InputTag EBDigiCollection_;

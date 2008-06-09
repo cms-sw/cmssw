@@ -1,4 +1,4 @@
-// Last commit: $Id: SiStripDigiToRaw.cc,v 1.26 2008/04/02 08:47:43 bainbrid Exp $
+// Last commit: $Id: SiStripDigiToRaw.cc,v 1.24 2007/10/22 16:53:13 bainbrid Exp $
 
 #include "EventFilter/SiStripRawToDigi/interface/SiStripDigiToRaw.h"
 #include "CondFormats/SiStripObjects/interface/SiStripFedCabling.h"
@@ -18,12 +18,9 @@ using namespace std;
 
 // -----------------------------------------------------------------------------
 /** */
-SiStripDigiToRaw::SiStripDigiToRaw( std::string mode, 
-				    int16_t nbytes,
-				    bool use_fed_key ) : 
+SiStripDigiToRaw::SiStripDigiToRaw( std::string mode, int16_t nbytes ) : 
   readoutMode_(mode),
-  nAppendedBytes_(nbytes),
-  useFedKey_(use_fed_key)
+  nAppendedBytes_(nbytes)
 {
   LogDebug("DigiToRaw") << "[SiStripDigiToRaw::SiStripDigiToRaw] Constructing object...";
 }
@@ -65,27 +62,25 @@ void SiStripDigiToRaw::createFedBuffers( edm::Event& event,
       std::vector<FedChannelConnection>::const_iterator iconn = conns.begin();
       for ( ; iconn != conns.end(); iconn++ ) {
 
-	// Determine FED key from cabling
-	uint32_t fed_key = ( ( iconn->fedId() & sistrip::invalid_ ) << 16 ) | ( iconn->fedCh() & sistrip::invalid_ );
-	
-	// Determine whether DetId or FED key should be used to index digi containers
-	uint32_t key = ( useFedKey_ || readoutMode_ == "SCOPE_MODE" ) ? fed_key : iconn->detId();
-
-	// Determine APV pair number (needed only when using DetId)
-	uint16_t ipair = ( useFedKey_ || readoutMode_ == "SCOPE_MODE" ) ? 0 : iconn->apvPairNumber();
-	
-	// Check key is non-zero and valid
-	if ( !key || ( key == sistrip::invalid32_ ) ) { continue; }
+	// Check DetID is non-zero and valid
+	if (!iconn->detId() || (iconn->detId()==sistrip::invalid32_)) { continue; } 
 
 	// Find digis for DetID in collection
-	vector< edm::DetSet<SiStripDigi> >::const_iterator digis = collection->find( key );
+	vector< edm::DetSet<SiStripDigi> >::const_iterator digis = collection->find( iconn->detId() );
 	if (digis == collection->end()) { continue; } 
+
+	/*
+	if ( digis->data.empty() ) { 
+	  edm::LogWarning("DigiToRaw") 
+	  << "[SiStripDigiToRaw::createFedBuffers] Zero digis found!"; 
+	}
+	*/
 
 	edm::DetSet<SiStripDigi>::const_iterator idigi;
 	for ( idigi = digis->data.begin(); idigi != digis->data.end(); idigi++ ) {
-	  if ( (*idigi).strip() < ipair*256 ||
-	       (*idigi).strip() > ipair*256+255 ) { continue; }
-	  unsigned short strip = iconn->fedCh()*256 + (*idigi).strip() % 256;
+	  if ( (*idigi).strip() < iconn->apvPairNumber()*256 ||
+	       (*idigi).strip() > iconn->apvPairNumber()*256+255 ) { continue; }
+	  unsigned short strip = iconn->fedCh()*256 + (*idigi).strip()%256;
 	  if ( strip >= strips_per_fed ) {
 	    std::stringstream ss;
 	    ss << "[SiStripDigiToRaw::createFedBuffers]"
@@ -108,7 +103,7 @@ void SiStripDigiToRaw::createFedBuffers( edm::Event& event,
 	  // Add digi to buffer
 	  raw_data[strip] = (*idigi).adc();
 	}
-	// if ((*idigi).strip() >= (ipair+1)*256) break;
+	// if ((*idigi).strip() >= (iconn->apvPairNumber()+1)*256) break;
       }
 
       // instantiate appropriate buffer creator object depending on readout mode
@@ -125,11 +120,6 @@ void SiStripDigiToRaw::createFedBuffers( edm::Event& event,
 	edm::LogWarning("DigiToRaw") << "UNKNOWN readout mode";
       }
   
-      if ( !creator ) { 
-	edm::LogWarning("DigiToRaw") << "NULL pointer to Fed9UBufferCreator";
-	return; 
-      }
-
       // generate FED buffer and pass to Daq
       Fed9U::Fed9UBufferGenerator generator( creator );
       generator.generateFed9UBuffer( raw_data );

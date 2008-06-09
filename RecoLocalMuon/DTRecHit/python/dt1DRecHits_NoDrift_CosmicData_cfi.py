@@ -1,7 +1,3 @@
-# The following comments couldn't be translated into the new config version:
-
-# The reconstruction algo and its parameter set
-
 import FWCore.ParameterSet.Config as cms
 
 # Module for reconstruction of cosmic data: reconstruction is performed using constant drift velocity 
@@ -9,6 +5,7 @@ import FWCore.ParameterSet.Config as cms
 # The reconstruction algo and its parameter set
 from RecoLocalMuon.DTRecHit.DTNoDriftAlgo_CosmicData_cfi import *
 dt1DRecHits = cms.EDProducer("DTRecHitProducer",
+    # The reconstruction algo and its parameter set
     DTNoDriftAlgo_CosmicData,
     debug = cms.untracked.bool(True),
     # The label to retrieve digis from the event

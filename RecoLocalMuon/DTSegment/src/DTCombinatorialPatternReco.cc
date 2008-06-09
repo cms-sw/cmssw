@@ -1,7 +1,7 @@
 /** \file
  *
- * $Date: 2008/03/31 16:23:06 $
- * $Revision: 1.16 $
+ * $Date: 2008/03/04 09:06:04 $
+ * $Revision: 1.15 $
  * \author Stefano Lacaprara - INFN Legnaro <stefano.lacaprara@pd.infn.it>
  * \author Riccardo Bellan - INFN TO <riccardo.bellan@cern.ch>
  */
@@ -23,7 +23,6 @@
 #include "RecoLocalMuon/DTSegment/src/DTSegmentCleaner.h"
 #include "RecoLocalMuon/DTSegment/src/DTHitPairForFit.h"
 #include "RecoLocalMuon/DTSegment/src/DTSegmentCand.h"
-
 
 /* C++ Headers */
 #include <iterator>
@@ -55,7 +54,6 @@ edm::OwnVector<DTSLRecSegment2D>
 DTCombinatorialPatternReco::reconstruct(const DTSuperLayer* sl,
                                         const std::vector<DTRecHit1DPair>& pairs){
 
-  theTriedPattern.clear();
   edm::OwnVector<DTSLRecSegment2D> result;
   vector<DTHitPairForFit*> hitsForFit = initHits(sl, pairs);
 
@@ -70,15 +68,17 @@ DTCombinatorialPatternReco::reconstruct(const DTSuperLayer* sl,
 
     result.push_back(segment);
 
-    if (debug) {
-      cout<<"Reconstructed 2D segments "<< result.back() <<endl;
-    }
+    if (debug) cout<<"Reconstructed 2D segments "<<*segment<<endl;
 
     delete *(cand++); // delete the candidate!
   }
 
   for (vector<DTHitPairForFit*>::iterator it = hitsForFit.begin(), ed = hitsForFit.end(); 
-        it != ed; ++it) delete *it;
+        it != ed; ++it) 
+  {
+        delete *it;
+  }
+
 
   return result;
 }
@@ -133,9 +133,7 @@ DTCombinatorialPatternReco::buildSegments(const DTSuperLayer* sl,
        ++firstHit) {
     for (hitCont::const_reverse_iterator lastHit=hits.rbegin(); 
          (*lastHit)!=(*firstHit); ++lastHit) {
-      //if ( (*lastHit)->id().layerId() == (*firstHit)->id().layerId() ) continue; // hits must be in different layers!
-      // hits must nor in the same nor in adiacent layers
-      if ( fabs((*lastHit)->id().layerId()-(*firstHit)->id().layerId())<=1 ) continue;
+      if ( (*lastHit)->id().layerId() == (*firstHit)->id().layerId() ) continue; // hits must be in different layers!
       if(debug) {
         cout << "Selected these two hits pair " << endl;
         cout << "First " << *(*firstHit) << " Layer Id: " << (*firstHit)->id().layerId() << endl;
@@ -152,10 +150,16 @@ DTCombinatorialPatternReco::buildSegments(const DTSuperLayer* sl,
       DTEnums::DTCellSide codes[2]={DTEnums::Right, DTEnums::Left};
       for (int firstLR=0; firstLR<2; ++firstLR) {
         for (int lastLR=0; lastLR<2; ++lastLR) {
-          // TODO move the global transformation in the DTHitPairForFit class
-          // when it will be moved I will able to remove the sl from the input parameter
-          GlobalPoint gposFirst=sl->toGlobal( (*firstHit)->localPosition(codes[firstLR]) );
-          GlobalPoint gposLast= sl->toGlobal( (*lastHit)->localPosition(codes[lastLR]) );
+	  // TODO move the global transformation in the DTHitPairForFit class
+	  // when it will be moved I will able to remove the sl from the input parameter
+	  GlobalPoint gposFirst=sl->toGlobal( (*firstHit)->localPosition(codes[firstLR]) );
+	  GlobalPoint gposLast= sl->toGlobal( (*lastHit)->localPosition(codes[lastLR]) );
+	  // was:
+          // const GeomDet* firstDet=dtGeom.idToDet((*firstHit)->id());
+	  // const GeomDet* lastDet=dtGeom.idToDet((*lastHit)->id());
+	  // GlobalPoint gposFirst=firstDet->globalPosition(codes[firstLR]);
+	  // GlobalPoint gposLast=lastDet->globalPosition(codes[lastLR]);
+	  // RB @ SL: is it right my substitution?
 
           GlobalVector gvec=gposLast-gposFirst;
           GlobalVector gvecIP=gposLast-IP;
@@ -235,11 +239,6 @@ DTCombinatorialPatternReco::findCompatibleHits(const LocalPoint& posIni,
   if (debug) cout << "Pos: " << posIni << " Dir: "<< dirIni << endl;
   vector<AssPoint> result;
 
-  // counter to early-avoid double counting in hits pattern
-  int tried=0;
-  int triedPos=1;
-  int nCompatibleHits=0;
-
   typedef vector<DTHitPairForFit*> hitCont;
   typedef hitCont::const_iterator  hitIter;
   for (hitIter hit=hits.begin(); hit!=hits.end(); ++hit) {
@@ -252,44 +251,15 @@ DTCombinatorialPatternReco::findCompatibleHits(const LocalPoint& posIni,
     // otherwise is undefined
 
     DTEnums::DTCellSide lrcode;
-    if (isCompatible.first && isCompatible.second) {
+    if (isCompatible.first && isCompatible.second) 
       usePairs ? lrcode=DTEnums::undefLR : lrcode=DTEnums::Left ; // if not usePairs then only use single side 
-      tried+=3*triedPos;
-      triedPos*=10;
-      nCompatibleHits++;
-    }
-    else if (isCompatible.first) {
+    else if (isCompatible.first) 
       lrcode=DTEnums::Left;
-      tried+=2*triedPos;
-      triedPos*=10;
-      nCompatibleHits++;
-    }
-    else if (isCompatible.second) {
+    else if (isCompatible.second) 
       lrcode=DTEnums::Right;
-      tried+=1*triedPos;
-      triedPos*=10;
-      nCompatibleHits++;
-    }
-    else {
-      triedPos*=10;
+    else 
       continue; // neither is compatible
-    }
     result.push_back(AssPoint(*hit, lrcode));
-  }
-  
-
-  // check if too few associated hits or pattern already tried
-  if ( nCompatibleHits < 3 || find(theTriedPattern.begin(), theTriedPattern.end(),tried) == theTriedPattern.end()) {
-    theTriedPattern.push_back(tried);
-  } else {
-    if (debug) {
-      vector<int>::const_iterator t=find(theTriedPattern.begin(),
-                                         theTriedPattern.end(),
-                                         tried);
-      cout << "Already tried" << *t  << endl;
-    }
-    // empty the result vector
-    result.clear();
   }
   return result;
 }

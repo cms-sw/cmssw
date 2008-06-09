@@ -16,43 +16,67 @@ HistoTrack::HistoTrack(std::string dir, std::string groupName, std::string group
   : HistoGroup<RecoChargedCandidate>( dir, groupName, groupLabel, pt1, pt2, m1, m2)
 {
   addHisto( h_dxy_ =
-	    new PhysVarHisto( "trkDxy", "Track Impact Parameter, x-y", 20, -3, 3, currDir_, "", "vD" )
+	    new PhysVarHisto( groupLabel + "Dxy", "Track Impact Parameter, x-y", 20, -3, 3, currDir_, "", "vD" )
 	   );
   addHisto( h_dz_ =
-	    new PhysVarHisto( "trkDz", "Track Impact Parameter, z", 20, -3, 3, currDir_, "", "vD" )
+	    new PhysVarHisto( groupLabel + "Dz", "Track Impact Parameter, z", 20, -3, 3, currDir_, "", "vD" )
 	   );
   addHisto( h_nValid_ =
-	    new PhysVarHisto( "trkNValid", "Number of Valid hits", 20, 0, 20, currDir_, "", "vD" )
+	    new PhysVarHisto( groupLabel + "NValid", "Number of Valid hits", 20, 0, 20, currDir_, "", "vD" )
 	   );
   addHisto( h_nLost_ =
-	    new PhysVarHisto( "trkNLost", "Number of Lost hits", 20, 0, 20, currDir_, "", "vD" )
+	    new PhysVarHisto( groupLabel + "NLost", "Number of Lost hits", 20, 0, 20, currDir_, "", "vD" )
 	   );
 
 }
 
 
 
-void HistoTrack::fill( const RecoChargedCandidate *track, uint iTrk )
+void HistoTrack::fill( const RecoChargedCandidate *track, uint iTrk, double weight )
 {
 
   // First fill common 4-vector histograms
 
-  HistoGroup<RecoChargedCandidate>::fill( track, iTrk);
+  HistoGroup<RecoChargedCandidate>::fill( track, iTrk, weight);
 
   // fill relevant track histograms
-  h_dxy_->fill( track->track()->dxy(), iTrk );
-  h_dz_->fill( track->track()->dsz(), iTrk );
-  h_nValid_->fill( track->track()->numberOfValidHits(), iTrk);
-  h_nLost_->fill( track->track()->numberOfLostHits(), iTrk);
+  h_dxy_->fill( track->track()->dxy(), iTrk , weight );
+  h_dz_->fill( track->track()->dsz(), iTrk , weight );
+  h_nValid_->fill( track->track()->numberOfValidHits(), iTrk, weight );
+  h_nLost_->fill( track->track()->numberOfLostHits(), iTrk, weight );
 }
 
 
-void HistoTrack::fillCollection( const std::vector<RecoChargedCandidate> & coll ) 
+void HistoTrack::fill( const reco::ShallowClonePtrCandidate * pshallow, uint iTrk, double weight )
 {
 
-  HistoGroup<RecoChargedCandidate>::fillCollection( coll );
+
+  // Get the underlying object that the shallow clone represents
+  const reco::RecoChargedCandidate * track = dynamic_cast<const reco::RecoChargedCandidate*>(pshallow);
+
+  if ( track == 0 ) {
+    cout << "Error! Was passed a shallow clone that is not at heart a track" << endl;
+    return;
+  }
+
+  
+
+  // First fill common 4-vector histograms from shallow clone
+
+  HistoGroup<reco::RecoChargedCandidate>::fill( pshallow, iTrk, weight );
+
+  // fill relevant track histograms
+  h_dxy_->fill( track->track()->dxy(), iTrk, weight );
+  h_dz_->fill( track->track()->dsz(), iTrk, weight );
+  h_nValid_->fill( track->track()->numberOfValidHits(), iTrk, weight );
+  h_nLost_->fill( track->track()->numberOfLostHits(), iTrk, weight );
+}
+
+
+void HistoTrack::fillCollection( const std::vector<RecoChargedCandidate> & coll, double weight ) 
+{
  
-  h_size_->fill( coll.size() );     //! Save the size of the collection.
+  h_size_->fill( coll.size(), 1, weight );     //! Save the size of the collection.
 
   std::vector<RecoChargedCandidate>::const_iterator
     iobj = coll.begin(),
@@ -60,7 +84,7 @@ void HistoTrack::fillCollection( const std::vector<RecoChargedCandidate> & coll 
 
   uint i = 1;              //! Fortran-style indexing
   for ( ; iobj != iend; ++iobj, ++i ) {
-    fill( &*iobj, i);      //! &*iobj dereferences to the pointer to a PHYS_OBJ*
+    fill( &*iobj, i, weight);      //! &*iobj dereferences to the pointer to a PHYS_OBJ*
   } 
 }
 

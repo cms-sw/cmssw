@@ -15,7 +15,6 @@
 #include "FastSimulation/Utilities/interface/RandomEngine.h"
 
 #include "HepMC/GenEvent.h"
-#include "TRandom3.h"
 #include "TFile.h"
 #include "TTree.h"
 #include "TROOT.h"
@@ -39,17 +38,8 @@ PileUpProducer::PileUpProducer(edm::ParameterSet const & p)
          "which is not present in the configuration file.\n"
          "You must add the service in the configuration file\n"
          "or remove the module that requires it";
-  }
-
-  // TRandom3 or CLHEP?
-  bool m_TRandom = p.getParameter<bool>("UseTRandomEngine");
-  if ( !m_TRandom ) { 
-    random = new RandomEngine(&(*rng));
-  } else {
-    TRandom3* anEngine = new TRandom3();
-    anEngine->SetSeed(rng->mySeed());
-    random = new RandomEngine(anEngine);
-  }
+  }  
+  random = new RandomEngine(&(*rng));
 
   // The pile-up event generation condition
   const edm::ParameterSet& pu = p.getParameter<edm::ParameterSet>("PileUpSimulator");

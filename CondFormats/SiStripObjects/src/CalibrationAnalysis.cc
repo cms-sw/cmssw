@@ -49,8 +49,7 @@ CalibrationAnalysis::CalibrationAnalysis( const uint32_t& key, const bool& decon
     spread_smearing_(2,sistrip::invalid_),
     spread_chi2_(2,sistrip::invalid_),
     deconv_(deconv),
-    calchan_(calchan),
-    isScan_(false)
+    calchan_(calchan)
 {
   deconv_fitter_ = new TF1("deconv_fitter",fdeconv_convoluted,-50,50,5);
   deconv_fitter_->FixParameter(0,0);
@@ -63,7 +62,7 @@ CalibrationAnalysis::CalibrationAnalysis( const uint32_t& key, const bool& decon
   peak_fitter_ = new TF1("peak_fitter",fpeak_convoluted,-50,50,5);
   peak_fitter_->FixParameter(0,0);
   peak_fitter_->SetParLimits(1,-100,0);
-  peak_fitter_->SetParLimits(2,0,400);
+  peak_fitter_->SetParLimits(2,0,200);
   peak_fitter_->SetParLimits(3,5,100);
   peak_fitter_->FixParameter(3,50);
   peak_fitter_->SetParLimits(4,0,50);
@@ -104,8 +103,7 @@ CalibrationAnalysis::CalibrationAnalysis(const bool& deconv, int calchan)
     spread_smearing_(2,sistrip::invalid_),
     spread_chi2_(2,sistrip::invalid_),
     deconv_(deconv),
-    calchan_(calchan),
-    isScan_(false)
+    calchan_(calchan)
 {
   deconv_fitter_ = new TF1("deconv_fitter",fdeconv_convoluted,-50,50,5);
   deconv_fitter_->FixParameter(0,0);
@@ -118,7 +116,7 @@ CalibrationAnalysis::CalibrationAnalysis(const bool& deconv, int calchan)
   peak_fitter_ = new TF1("peak_fitter",fpeak_convoluted,-50,50,5);
   peak_fitter_->FixParameter(0,0);
   peak_fitter_->SetParLimits(1,-100,0);
-  peak_fitter_->SetParLimits(2,0,400);
+  peak_fitter_->SetParLimits(2,0,200);
   peak_fitter_->SetParLimits(3,5,100);
   peak_fitter_->FixParameter(3,50);
   peak_fitter_->SetParLimits(4,0,50);
@@ -184,7 +182,7 @@ void CalibrationAnalysis::reset() {
   deconv_fitter_->SetParameters(0.,-2.82,0.96,50,20);
   peak_fitter_->FixParameter(0,0);
   peak_fitter_->SetParLimits(1,-100,0);
-  peak_fitter_->SetParLimits(2,0,400);
+  peak_fitter_->SetParLimits(2,0,200);
   peak_fitter_->SetParLimits(3,5,100);
   peak_fitter_->FixParameter(3,50);
   peak_fitter_->SetParLimits(4,0,50);
@@ -196,7 +194,7 @@ void CalibrationAnalysis::reset() {
 void CalibrationAnalysis::extract( const std::vector<TH1*>& histos) {
   
   // Check
-  if ( histos.size() != 32 && histos.size() !=2 ) {
+  if ( histos.size() != 32 ) {
     edm::LogWarning(mlCommissioning_) << " Unexpected number of histograms: " << histos.size();
   }
   
@@ -213,18 +211,16 @@ void CalibrationAnalysis::extract( const std::vector<TH1*>& histos) {
     
     // Check name
     SiStripHistoTitle title( (*ihis)->GetName() );
-    if ( title.runType() != sistrip::CALIBRATION && title.runType() != sistrip::CALIBRATION_DECO &&
-         title.runType() != sistrip::CALIBRATION_SCAN && title.runType() != sistrip::CALIBRATION_SCAN_DECO ) {
+    if ( title.runType() != sistrip::CALIBRATION && title.runType() != sistrip::CALIBRATION_DECO ) {
       edm::LogWarning(mlCommissioning_) 
 	<< " Unexpected commissioning task: "
 	<< SiStripEnumsAndStrings::runType(title.runType());
       continue;
     }
-    isScan_ = (title.runType()==sistrip::CALIBRATION_SCAN || title.runType()==sistrip::CALIBRATION_SCAN_DECO);
     
     // Extract calibration histo
     histo_[cnt].first = *ihis;
-    histo_[cnt].second = (*ihis)->GetTitle();
+    histo_[cnt].second = (*ihis)->GetTitle(); //CD was GetName
     
   }
   
@@ -258,10 +254,8 @@ void CalibrationAnalysis::analyse() {
   float Kmin[2]    = {2000000.,2000000.};
   float Kmax[2]    = {0.,0.};
   float Kspread[2] = {0.,0.};
- 
-  unsigned int upperLimit = isScan_ ? 2 : 32;
-  float nStrips = isScan_ ? 1. : 16.;
-  for(unsigned int i=0;i<upperLimit;++i) {
+  
+  for(unsigned int i=0;i<32;++i) {
     if ( !histo_[i].first ) {
       edm::LogWarning(mlCommissioning_) << " NULL pointer to histogram!" ;
       return;
@@ -293,13 +287,23 @@ void CalibrationAnalysis::analyse() {
     // amplitude
     amplitude_[apv][strip] = histo_[i].first->GetMaximum();
     
-    // rise time
-    riseTime_[apv][strip] = maximum(histo_[i].first) - turnOn(histo_[i].first);
-    
-    // tail 125 ns after the maximum
-    int lastBin = histo_[i].first->FindBin(histo_[i].first->GetBinCenter(histo_[i].first->GetMaximumBin())+125);
-    if(lastBin>histo_[i].first->GetNbinsX()-4) lastBin = histo_[i].first->GetNbinsX()-4;
+    // tail 
+    int lastBin = deconv_ ? 80 : 64;
     tail_[apv][strip] = 100*histo_[i].first->GetBinContent(lastBin)/histo_[i].first->GetMaximum();
+    
+    // rise time
+    int bin_a=0, bin_b=0, bin_c=0;
+    for(int bin = 1; bin<= histo_[i].first->GetNbinsX() && bin_b == 0; ++bin) {
+      if(histo_[i].first->GetBinContent(bin)<0.1*amplitude_[apv][strip]) bin_a = bin;
+      if(histo_[i].first->GetBinContent(bin)<0.6*amplitude_[apv][strip]) bin_c = bin;
+      if(histo_[i].first->GetBinContent(bin)>0.99*amplitude_[apv][strip]) bin_b = bin;
+    }
+    histo_[i].first->Fit("gaus","0Q","",histo_[i].first->GetBinCenter(bin_b)-25,histo_[i].first->GetBinCenter(bin_b)+25);
+    float time_max = ((TF1*)(TVirtualFitter::GetFitter()->GetUserFunc()))->GetMaximumX();
+    histo_[i].first->Fit("gaus","0Q","",0,histo_[i].first->GetBinCenter(bin_c));
+    TF1* tmp_f = (TF1*)(TVirtualFitter::GetFitter()->GetUserFunc());
+    float time_start = tmp_f->GetParameter(1)-3*tmp_f->GetParameter(2);
+    riseTime_[apv][strip] = time_max - time_start;
   
     // perform the fit for the next quantities
     TF1* fit = fitPulse(histo_[i].first);
@@ -318,30 +322,30 @@ void CalibrationAnalysis::analyse() {
   			       << tail_[apv][strip] << " " << amplitude_[apv][strip];
 			       
     //compute mean, max, min, spread
-    Amean[apv] += amplitude_[apv][strip]/nStrips;
+    Amean[apv] += amplitude_[apv][strip]/16.;
     Amin[apv] = Amin[apv]<amplitude_[apv][strip] ? Amin[apv] : amplitude_[apv][strip];
     Amax[apv] = Amax[apv]>amplitude_[apv][strip] ? Amax[apv] : amplitude_[apv][strip];
-    Aspread[apv] += amplitude_[apv][strip]*amplitude_[apv][strip]/nStrips;
-    Tmean[apv] += tail_[apv][strip]/nStrips;
+    Aspread[apv] += amplitude_[apv][strip]*amplitude_[apv][strip]/16.;
+    Tmean[apv] += tail_[apv][strip]/16.;
     Tmin[apv] = Tmin[apv]<tail_[apv][strip] ? Tmin[apv] : tail_[apv][strip];
     Tmax[apv] = Tmax[apv]>tail_[apv][strip] ? Tmax[apv] : tail_[apv][strip];
-    Tspread[apv] += tail_[apv][strip]*tail_[apv][strip]/nStrips;
-    Rmean[apv] += riseTime_[apv][strip]/nStrips;
+    Tspread[apv] += tail_[apv][strip]*tail_[apv][strip]/16.;
+    Rmean[apv] += riseTime_[apv][strip]/16.;
     Rmin[apv] = Rmin[apv]<riseTime_[apv][strip] ? Rmin[apv] : riseTime_[apv][strip];
     Rmax[apv] = Rmax[apv]>riseTime_[apv][strip] ? Rmax[apv] : riseTime_[apv][strip];
-    Rspread[apv] += riseTime_[apv][strip]*riseTime_[apv][strip]/nStrips;
-    Cmean[apv] += timeConstant_[apv][strip]/nStrips;
+    Rspread[apv] += riseTime_[apv][strip]*riseTime_[apv][strip]/16.;
+    Cmean[apv] += timeConstant_[apv][strip]/16.;
     Cmin[apv] = Cmin[apv]<timeConstant_[apv][strip] ? Cmin[apv] : timeConstant_[apv][strip];
     Cmax[apv] = Cmax[apv]>timeConstant_[apv][strip] ? Cmax[apv] : timeConstant_[apv][strip];
-    Cspread[apv] += timeConstant_[apv][strip]*timeConstant_[apv][strip]/nStrips;
-    Smean[apv] += smearing_[apv][strip]/nStrips;
+    Cspread[apv] += timeConstant_[apv][strip]*timeConstant_[apv][strip]/16.;
+    Smean[apv] += smearing_[apv][strip]/16.;
     Smin[apv] = Smin[apv]<smearing_[apv][strip] ? Smin[apv] : smearing_[apv][strip];
     Smax[apv] = Smax[apv]>smearing_[apv][strip] ? Smax[apv] : smearing_[apv][strip];
-    Sspread[apv] += smearing_[apv][strip]*smearing_[apv][strip]/nStrips;
-    Kmean[apv] += chi2_[apv][strip]/nStrips;
+    Sspread[apv] += smearing_[apv][strip]*smearing_[apv][strip]/16.;
+    Kmean[apv] += chi2_[apv][strip]/16.;
     Kmin[apv] = Kmin[apv]<chi2_[apv][strip] ? Kmin[apv] : chi2_[apv][strip];
     Kmax[apv] = Kmax[apv]>chi2_[apv][strip] ? Kmax[apv] : chi2_[apv][strip];
-    Kspread[apv] += chi2_[apv][strip]*chi2_[apv][strip]/nStrips;
+    Kspread[apv] += chi2_[apv][strip]*chi2_[apv][strip]/16.;
   }
 				
   // fill the mean, max, min, spread, ... histograms.
@@ -379,62 +383,18 @@ void CalibrationAnalysis::correctDistribution(TH1* histo) const
 {
   // return the curve
   histo->Scale(-1);
-  if(isScan_) histo->Scale(1/16.);
 }
 
 // ----------------------------------------------------------------------------
 //
-TF1* CalibrationAnalysis::fitPulse(TH1* histo, float rangeLow, float rangeHigh) 
+TF1* CalibrationAnalysis::fitPulse(TH1* histo) 
 {
   if(!histo) return 0;
-  float noise = 4.;
-  float N = round(histo->GetMaximum()/125.);
-  float error = sqrt(2*N)*noise;
-  //float error = sqrt(2)*noise*N; // ?????????
-  for(int i=1;i<=histo->GetNbinsX();++i) {
-    histo->SetBinError(i,error);
-  }
   if (deconv_) {
-    if(rangeLow>rangeHigh)
-      histo->Fit(deconv_fitter_,"Q");
-    else 
-      histo->Fit(deconv_fitter_,"0Q","",rangeLow,rangeHigh);
+    histo->Fit(deconv_fitter_,"Q");
     return deconv_fitter_; 
   } else {
-    if(rangeLow>rangeHigh)
-      histo->Fit(peak_fitter_,"Q");
-    else 
-      histo->Fit(peak_fitter_,"0Q","",rangeLow,rangeHigh);
+    histo->Fit(peak_fitter_,"Q");
     return peak_fitter_; 
   } 
 }
-
-float CalibrationAnalysis::maximum(TH1* h) {
-    int bin = h->GetMaximumBin();
-    // fit around the maximum with the detector response and take the max from the fit
-    TF1* fit = fitPulse(h,h->GetBinCenter(bin)-25,h->GetBinCenter(bin)+25);
-    return fit->GetMaximumX();
-}
-
-float CalibrationAnalysis::turnOn(TH1* h) {
-    // localize the rising edge
-    int bin=1;
-    float amplitude = h->GetMaximum();
-    for(; bin<= h->GetNbinsX() && h->GetBinContent(bin)<0.4*amplitude; ++bin) {}
-    float end = h->GetBinLowEdge(bin);
-    // fit the rising edge with a sigmoid
-    TF1* sigmoid = new TF1("sigmoid","[0]/(1+exp(-[1]*(x-[2])))+[3]",0,end);
-    sigmoid->SetParLimits(0,amplitude/10.,amplitude);
-    sigmoid->SetParLimits(1,0.05,0.5);
-    sigmoid->SetParLimits(2,end-10,end+10);
-    sigmoid->SetParLimits(3,-amplitude/10.,amplitude/10.);
-    sigmoid->SetParameters(amplitude/2.,0.1,end,0.);
-    h->Fit(sigmoid,"0QR");
-    // return the point where the fit = 3% signal.
-    float time = 0.;
-    float base = sigmoid->GetMinimum(0,end);
-    for(;time<end && (sigmoid->Eval(time)-base)<0.03*(amplitude-base);time += 0.1) {}
-    delete sigmoid;
-    return time-0.05;
-}
-

@@ -13,7 +13,7 @@
 //
 // Original Author:  Giuseppe Cerati
 //         Created:  Mon Sep 17 10:31:30 CEST 2007
-// $Id: TestOutliers.cc,v 1.1 2008/02/11 12:08:50 cerati Exp $
+// $Id: TestOutliers.cc,v 1.2 2008/02/13 16:04:10 cerati Exp $
 //
 //
 
@@ -136,7 +136,8 @@ TestOutliers::TestOutliers(const edm::ParameterSet& iConfig)
 				       cuts.getParameter<double>("tip"),
 				       cuts.getParameter<double>("lip"),
 				       cuts.getParameter<int>("minHit"),
-				       cuts.getParameter<double>("maxChi2"));
+				       cuts.getParameter<double>("maxChi2"),
+				       cuts.getParameter<std::string>("quality"));
   
   psetold = iConfig.getParameter<ParameterSet>("TrackAssociatorByHitsPSetOld");
   psetout = iConfig.getParameter<ParameterSet>("TrackAssociatorByHitsPSetOut");
@@ -308,7 +309,7 @@ TestOutliers::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup) {
 	    deltahitsNO->Fill(trackOld->numberOfValidHits()-trackOut->numberOfValidHits());
 	  //deltahitsNO->Fill(foundOld-trackOut->numberOfValidHits());
 
-	  RecoTrackSelector select(0.8, -2.5, 2.5, 3.5, 30, 5, 10000);
+	  RecoTrackSelector select(0.8, -2.5, 2.5, 3.5, 30, 5, 10000, "loose");
 	  if (select(*trackOut,beamSpot.product())) okcutsOut->Fill(1); else okcutsOut->Fill(0);
 	  if (select(*trackOld,beamSpot.product())) okcutsOld->Fill(1); else okcutsOld->Fill(0);
 

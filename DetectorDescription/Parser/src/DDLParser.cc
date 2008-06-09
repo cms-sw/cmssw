@@ -412,8 +412,3 @@ std::string DDLParser::getCurrFileName()
   return currFileName_;
 }
 
-void DDLParser::clearFiles ()
-{
-  fileNames_.clear();
-  parsed_.clear();
-}

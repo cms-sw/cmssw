@@ -143,6 +143,150 @@ RPCGeomServ::eta_partition()
   return _t;
 } 
 
+int
+RPCGeomServ::chambernr()
+{
+
+  // Station1
+  if( _id->station() ==1) {
+    
+    // in
+    if(_id->layer() ==1) { 
+      
+      if(_id->roll()==1) 
+	_cnr = 1;
+      else 
+	_cnr = 2;
+    }
+    //out
+    else 
+      {
+	if(_id->roll()==1) 
+	  _cnr = 3;
+	else 
+	  _cnr = 4;
+	
+      }
+  }
+
+
+  //Station 2
+  if (_id->station()==2) {
+   
+    //in
+    if(_id->layer()==1) {
+      
+      if(_id->roll()==1)
+	_cnr = 5;
+      if(_id->roll()==3)
+	_cnr=6;
+      if(_id->roll()==2)
+	_cnr=7;
+    }
+    //out
+    else {
+      
+      if(_id->roll()==2)
+	
+	_cnr=7;
+
+      if(_id->roll()==1)
+	_cnr=8;
+      if(_id->roll()==3)
+	_cnr=9;
+    
+    }
+  }
+    
+  //RB3- RB3+
+  if(_id->station()==3)
+    {
+      if(_id->subsector()==1) {
+	
+	if(_id->roll()==1)
+	  _cnr=10;
+	else 
+	  _cnr=11;
+      }
+      else {
+	
+	if(_id->roll()==1)
+	  _cnr=12;
+	else
+	  _cnr=13;
+      }
+      
+    }
+
+  //RB4
+  if(_id->station()==4) {
+    
+    if (_id->sector()== 4) {
+      
+      if ( _id->subsector()==1){
+	
+	if(_id->roll()==1)
+	  _cnr=14;
+	else
+	  _cnr=15;
+	
+      }
+      
+      if ( _id->subsector()==2){
+	
+	if(_id->roll()==1)
+	  _cnr=16;
+	else
+	  _cnr=17;
+	
+      }
+      
+      if ( _id->subsector()==3) {
+	
+	if(_id->roll()==1)
+	  _cnr=18;
+	else
+	  _cnr=19;
+      }
+      
+      if ( _id->subsector()==4){
+	
+	if(_id->roll()==1)
+	  _cnr=20;
+	else
+	  _cnr=21;
+	
+      }
+      
+    }  
+    
+    else 
+      
+      {
+	if(_id->subsector()==1) {
+	  
+	  if(_id->roll()==1)
+	    _cnr=14;
+	  else 
+	    _cnr=15;
+	}
+	else {
+	  
+	  if(_id->roll()==1)
+	    _cnr=16;
+	  else
+	    _cnr=17;
+	} 
+      } 
+  }
+  
+  
+
+  // _cnr=10;
+  return _cnr;
+  
+}
+
 int 
 RPCGeomServ::segment(){
   int nsub=6;
@@ -209,7 +353,7 @@ RPCGeomServ::aclockwise()
 
 
 
-RPCGeomServ::RPCGeomServ() : _id(0), _n(""), _t (-99), _z(false), _a(false)
+RPCGeomServ::RPCGeomServ() : _id(0), _n(""), _t (-99), _cnr(-99), _z(false), _a(false)
 {} 
 
 

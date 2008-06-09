@@ -3,7 +3,7 @@
 
 //------------------------------------------------------------
 // Title: HistoGroup.h
-// Purpose: To histogram data objects deriving from TK::Object
+// Purpose: To histogram data objects deriving from PATObject
 //          that is common (such as 4-vector information)
 //
 // Authors:
@@ -20,7 +20,7 @@
 //                desired prefix. Stores file where histograms
 //                should reside.
 //
-//   void fill( TK::Object * );
+//   void fill( PATObject * );
 //   Description: Fill object. Will fill relevant reco::Candidate
 //                variables.
 //
@@ -45,6 +45,7 @@
 #include "DataFormats/Candidate/interface/Candidate.h"
 #include "FWCore/ServiceRegistry/interface/Service.h"
 #include "PhysicsTools/UtilAlgos/interface/TFileService.h"
+#include "DataFormats/Candidate/interface/ShallowClonePtrCandidate.h"
 
 // STL include files
 #include <string>
@@ -53,17 +54,14 @@
 #include <TH1D.h>
 #include <TMath.h>
 
-//--- For temporary backwards compatibility
-#define HistoObject HistoGroup
-
-
 namespace pat {
 
-  //! PHYS_OBJECT template argument must inherit from a reco::Candidate
+  //! PHYS_OBJECT template argument must inherit from a reco::Particle
   template <class PHYS_OBJECT>
   class HistoGroup {
 
   public:
+
     HistoGroup( std::string dir = "cand", std::string groupName = "Candidate", std::string groupLabel = "cand",
 		double pt1=0, double pt2=200, double m1=0, double m2=200 );
     virtual ~HistoGroup();
@@ -73,18 +71,13 @@ namespace pat {
     virtual void fill( const PHYS_OBJECT     & obj, uint imulti = 1, double weight = 1.0)
     { fill( &obj, imulti, weight ); } // call the one above
 
-// #define ALLOW_CAND_ARGS 0
-// #if ALLOW_CAND_ARGS
-//     virtual void fill( const reco::Candidate * cand );
-//     virtual void fill( const reco::Candidate & cand );
-// #endif
-
+    //!  Fill all histograms for one Physics Object
+    virtual void fill( const reco::ShallowClonePtrCandidate     * obj, uint imulti = 1, double weight = 1.0);
+    virtual void fill( const reco::ShallowClonePtrCandidate     & obj, uint imulti = 1, double weight = 1.0)
+    { fill( &obj, imulti, weight ); } // call the one above
 
     //!  Fill all histograms for *all* Phys Objects sitting in a collection!
-    virtual void fillCollection( const std::vector<PHYS_OBJECT> & coll );
-    //    virtual void fillCollection( edm::Handle<std::vector<PHYS_OBJECT> > & h)
-    // { fillCollection( *h ); }   // handle dereferences into a vector<PHYS_OBJECT>
-
+    virtual void fillCollection( const std::vector<PHYS_OBJECT> & coll, double weight = 1.0 );
 
     //!  Register newly created HistGram objects
     virtual void addHisto( PhysVarHisto * hg );
@@ -229,37 +222,6 @@ namespace pat {
 
 
 
-// #if ALLOW_CAND_ARGS
-//   //------------------------------------------------------------------------
-//   //!  The method that actually fills histograms in the base class.
-//   //------------------------------------------------------------------------
-//   template <class PHYS_OBJECT>
-//   inline
-//   void
-//   HistoGroup<PHYS_OBJECT>::
-//   fill( const reco::Candidate * cand )
-//   {
-//     h_pt_  ->fill( cand->p4().pt() );
-//     h_eta_ ->fill( cand->p4().eta() );
-//     h_phi_ ->fill( cand->p4().phi() );
-//     h_mass_->fill( cand->p4().mass() );
-//   }
-
-
-//   //------------------------------------------------------------------------
-//   //!  Another flavor of fill(). Trivially forwards to the method above.
-//   //------------------------------------------------------------------------
-//   template <class PHYS_OBJECT>
-//   inline
-//   void
-//   HistoGroup<PHYS_OBJECT>::
-//   fill( const reco::Candidate & cand )
-//   {
-//     fill( &cand );
-//   }
-// #endif
-
-
   //------------------------------------------------------------------------
   //!  Fill the reco::Cand basic histograms: pt, eta, phi.
   //!  Plus also invoke the user-defined classes.
@@ -288,6 +250,34 @@ namespace pat {
     }
   }
 
+  //------------------------------------------------------------------------
+  //!  Fill the reco::Cand basic histograms: pt, eta, phi.
+  //!  This is done for shallow clones
+  //------------------------------------------------------------------------
+  template <class PHYS_OBJECT>
+  inline
+  void
+  HistoGroup<PHYS_OBJECT>::
+  fill( const reco::ShallowClonePtrCandidate    * obj, uint imulti, double weight)
+  {
+    if ( verboseLevel_ > 10) {
+      std::cout << "HistoGroup(" << dir_ << "/" << prepend_ << ")::fill: imulti = " << imulti
+		<< std::endl;
+    }
+    h_pt_  ->fill( obj->p4().pt()  , imulti, weight );
+    h_eta_ ->fill( obj->p4().eta() , imulti, weight );
+    h_phi_ ->fill( obj->p4().phi() , imulti, weight );
+    h_mass_->fill( obj->p4().mass(), imulti, weight );
+
+    //--- Now fill the user-defined histograms
+    typename std::vector< HistoGroup<PHYS_OBJECT> * >::const_iterator
+      hg    = histoGroups_.begin(),
+      hgend = histoGroups_.end();
+    for ( ; hg != hgend; ++hg ) {
+      (*hg)->fill( obj, imulti, weight );
+    }
+  }
+
 
   //------------------------------------------------------------------------
   //!  Fill all histograms for *all* Phys Objects sitting in a collection!
@@ -296,14 +286,14 @@ namespace pat {
   inline
   void
   HistoGroup<PHYS_OBJECT>::
-  fillCollection( const std::vector<PHYS_OBJECT> & coll )
+  fillCollection( const std::vector<PHYS_OBJECT> & coll, double weight )
   {
 
     if ( verboseLevel_ > 10) {
       std::cout << "HistoGroup(" << dir_ << "/" << prepend_ << ")::fillCollection"
 		<< std::endl;
     }
-    h_size_->fill( coll.size() );     //! Save the size of the collection.
+    h_size_->fill( coll.size(), 1, weight );     //! Save the size of the collection.
 
     typename std::vector<PHYS_OBJECT>::const_iterator
       iobj = coll.begin(),
@@ -311,7 +301,7 @@ namespace pat {
 
     uint i = 1;              //! Fortran-style indexing
     for ( ; iobj != iend; ++iobj, ++i ) {
-      fill( &*iobj, i);      //! &*iobj dereferences to the pointer to a PHYS_OBJ*
+      fill( &*iobj, i, weight);      //! &*iobj dereferences to the pointer to a PHYS_OBJ*
     }
   }
 

@@ -8,7 +8,7 @@
 //
 // Original Author:  Chris Jones, W. David Dagenhart
 //   Created:  Tue Mar  7 09:43:46 EST 2006 (originally in FWCore/Services)
-// $Id: RandomNumberGeneratorService.cc,v 1.11 2008/02/11 14:27:09 marafino Exp $
+// $Id: RandomNumberGeneratorService.cc,v 1.12 2008/02/21 15:33:15 marafino Exp $
 //
 
 #include "IOMC/RandomEngine/src/RandomNumberGeneratorService.h"
@@ -509,6 +509,17 @@ RandomNumberGeneratorService::postBeginJob()
 
   // If there is an engine state file, us it to restore all engines to that state.
   if(!restoreFileName_.empty()) restoreEngineState();
+ 
+  // Here is the right place to record engine states if that has been requested
+  if(!saveFileName_.empty())  {
+    saveEngineState();
+    if(!saveFileNameRecorded_) {
+      std::string fullName = constructSaveFileName();
+      Service<JobReport> reportSvc;
+      reportSvc->reportRandomStateFile(fullName);
+      saveFileNameRecorded_ = true;
+    }
+  }
 }
 
 void 
@@ -524,7 +535,11 @@ RandomNumberGeneratorService::preEventProcessing(const edm::EventID&, const edm:
 {
   //finished with source and now waiting for a module
   pop();
- 
+}
+
+void 
+RandomNumberGeneratorService::postEventProcessing(const Event&, const EventSetup&)
+{
   // Here is the right place to record engine states if that has been requested
   if(!saveFileName_.empty())  {
     saveEngineState();
@@ -535,11 +550,6 @@ RandomNumberGeneratorService::preEventProcessing(const edm::EventID&, const edm:
       saveFileNameRecorded_ = true;
     }
   }
-}
-
-void 
-RandomNumberGeneratorService::postEventProcessing(const Event&, const EventSetup&)
-{
   //finished processing the event so should start another one soon.  The first thing to be called will be the source
   push(sourceLabel);
 }

@@ -39,8 +39,8 @@ echo "      -l|--last_ev          l_ev            last  (as written to file) eve
 echo "      -mfed|--mask_fed_id   mask_fed_id     list of FEDids to mask; default is no masking"
 echo "      -meb|--mask_ieb_id    mask_ieb_id     list of sm barrel ids to mask; default is no masking"
 echo "      -mcry|--mask_cry      mask_cry        list of channels (use hashedIndex) to mask; default is no masking"
-echo "      -hmin|--hist_min      hist_min        min URecHit histogram range value (default is -10)"
-echo "      -hmax|--hist_max      hist_max        max URecHit histogram range value (default is 200)"
+echo "      -hmin|--hist_min      hist_min        min histogram range value (default is -10)"
+echo "      -hmax|--hist_max      hist_max        max histogram range value (default is 200)"
 echo ""
 echo "To specify multiple fed_id's/ieb_id's/cry's to mask use a comma-separated list in between double quotes, e.g., \"1,2,3\" "
 exit
@@ -123,9 +123,9 @@ echo "supermodules to mask:                         ${mieb} (-1 => no masking)"
 echo "feds to mask:                                 ${mfed} (-1 => no masking)"
 echo "crys to mask:                                 ${mcry} (-1 => no masking)"
 
-echo "URecHit hist min bin:                         $hist_min"
+echo "hist min bin:                                 $hist_min"
 
-echo "URecHit hist max bin:                         $hist_max"
+echo "hist max bin:                                 $hist_max"
 
 
 echo ""
@@ -206,6 +206,7 @@ EOF
 
 
 echo "initializing cmssw..."
+export SCRAM_ARCH=slc3_ia32_gcc323
 #. /nfshome0/cmssw/cmsset_default.sh
 cd $cmssw_dir;
 eval `scramv1 ru -sh`;
@@ -226,5 +227,4 @@ echo "Now you can look at the plots (TBrowser)"
 echo ""
 echo ""
 
-root -l $preferred_dir/log/*.graph.root
-#root -l `ls -tr $preferred_dir/log/*.graph.root| tail -n1`
+root -l $preferred_dir/log/*.graph.root 

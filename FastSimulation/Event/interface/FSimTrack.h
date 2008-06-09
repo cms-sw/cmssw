@@ -17,6 +17,7 @@ class FBaseSimEvent;
 
 namespace HepMC {
   class GenParticle;
+  class GenVertex;
 }
 
 /** A class that mimics SimTrack, with enhanced features.
@@ -32,7 +33,7 @@ class FSimTrack : public SimTrack {
   FSimTrack();
   
   /// Constructor from the EmmbSimTrack index in the FBaseSimEvent
-  FSimTrack(const RawParticle* p, int iv, int ig, int id, FBaseSimEvent* mom);
+  FSimTrack(const RawParticle* p, int iv, int ig, int id, FBaseSimEvent* mom, double dt=-1.);
   
   /// Destructor
   virtual ~FSimTrack();
@@ -169,6 +170,9 @@ class FSimTrack : public SimTrack {
   /// Simply returns the SimTrack
   inline const SimTrack& simTrack() const { return *this; }
 
+  /// Return the pre-defined decay time
+  inline double decayTime() const { return properDecayTime; }
+
  private:
 
   //  HepMC::GenParticle* me_;
@@ -199,6 +203,8 @@ class FSimTrack : public SimTrack {
   const HepPDT::ParticleData* info_; // The PDG info
 
   XYZTLorentzVector momentum_;
+
+  double properDecayTime; // The proper decay time  (default is -1)
 
 };
 

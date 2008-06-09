@@ -36,6 +36,7 @@ namespace edm {
 namespace HepMC {
   class GenEvent;
   class GenParticle;
+  class GenVertex;
 }
 
 class FBaseSimEvent  
@@ -126,7 +127,8 @@ public:
   const HepMC::GenParticle* embdGenpart(int i) const;
 
   /// Add a new track to the Event and to the various lists
-  int addSimTrack(const RawParticle* p, int iv, int ig=-1);
+  int addSimTrack(const RawParticle* p, int iv, int ig=-1, 
+		  const HepMC::GenVertex* ev=0);
 
   /// Add a new vertex to the Event and to the various lists
   int addSimVertex(const XYZTLorentzVector& decayVertex,int im=-1);

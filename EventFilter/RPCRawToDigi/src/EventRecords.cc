@@ -1,8 +1,4 @@
 #include "EventFilter/RPCRawToDigi/interface/EventRecords.h"
-#include "EventFilter/RPCRawToDigi/interface/ErrorRCDM.h"
-#include "EventFilter/RPCRawToDigi/interface/ErrorRDDM.h"
-#include "EventFilter/RPCRawToDigi/interface/ErrorRDM.h"
-#include "EventFilter/RPCRawToDigi/interface/ErrorSDDM.h"
 
 
 using namespace rpcrawtodigi;
@@ -13,37 +9,35 @@ void EventRecords::add(const DataRecord & record)
 {
   
   if (record.type() == DataRecord::StartOfBXData) {
-    theRecordBX = RecordBX(record);
+    theBXRecord = BXRecord(record);
     theValidBX = true;
-    theValidLN = false;
-    theValidCD = false;
-    theErrors.clear();
+    theValidTB = false;
+    theValidLB = false;
   }
   else if (record.type() == DataRecord::StartOfTbLinkInputNumberData) {
-    theRecordSLD = RecordSLD(record);
-    theValidLN = true;
-    theValidCD = false;
+    theTBRecord = TBRecord(record);
+    theValidTB = true;
+    theValidLB = false;
   }
-  else if (record.type() == DataRecord::ChamberData) {
-    theRecordCD = RecordCD(record);
-    theValidCD = true;
+  else if (record.type() == DataRecord::LinkBoardData) {
+    theLBRecord = LBRecord(record);
+    theValidLB = true;
   } 
   else {
 //    theValidBX = false;
-//    theValidLN = false;
-    theValidCD = false;
-    if ( record.type() > DataRecord::Empty) theErrors.push_back(record);
+//    theValidTB = false;
+    theValidLB = false;
   }
 }
 
 bool EventRecords::samePartition(const EventRecords & r) const
 {
-  if (this->recordBX().data() != r.recordBX().data() ) return false;
-  if (this->recordSLD().data() != r.recordSLD().data() ) return false;
+  if (this->bxRecord().data() != r.bxRecord().data() ) return false;
+  if (this->tbRecord().data() != r.tbRecord().data() ) return false;
   typedef DataRecord::RecordType Record; 
   Record mask = 0xFF << 8;
-  Record lb1 = this->recordCD().data() & mask;
-  Record lb2 = r.recordCD().data() & mask;
+  Record lb1 = this->lbRecord().data() & mask;
+  Record lb2 = r.lbRecord().data() & mask;
   if (lb1 != lb2) return false;
   return true;
 }
@@ -58,9 +52,9 @@ vector<EventRecords> EventRecords::mergeRecords(const vector<EventRecords> & dat
     for (IR ir = result.begin(), irEnd = result.end(); ir != irEnd; ++ir) {
       EventRecords & event = *ir;
       if (id->samePartition( event)) {
-        DataRecord::RecordType lbd = event.recordCD().data();
-        lbd |= id->recordCD().data();
-        event.add( RecordCD(lbd) );
+        DataRecord::RecordType lbd = event.lbRecord().data();
+        lbd |= id->lbRecord().data();
+        event.add( LBRecord(lbd) );
         merged = true;
       }
     }
@@ -68,21 +62,4 @@ vector<EventRecords> EventRecords::mergeRecords(const vector<EventRecords> & dat
   }
   return result;
 
-}
-
-std::string EventRecords::print(DataRecord::recordName type) const
-{
-  std::ostringstream str;
-  str <<" ==>";
-  if (type == DataRecord::StartOfBXData && theValidBX)               str << theRecordBX.print(); 
-  if (type == DataRecord::StartOfTbLinkInputNumberData&& theValidLN) str << theRecordSLD.print(); 
-  if (type == DataRecord::ChamberData && theValidCD)               str << theRecordCD.print();
-  if (type == DataRecord::Empty)                                   str <<" EPMTY";
-  for (vector<DataRecord>::const_iterator ie=theErrors.begin(); ie < theErrors.end(); ++ie) { 
-    if (type == DataRecord::RDDM)   str << ErrorRDDM(*ie).print(); 
-    if (type == DataRecord::SDDM)   str << ErrorSDDM(*ie).print(); 
-    if (type == DataRecord::RCDM)   str << ErrorRCDM(*ie).print(); 
-    if (type == DataRecord::RDM)   str << ErrorRDM(*ie).print(); 
-  }
-  return str.str();
 }

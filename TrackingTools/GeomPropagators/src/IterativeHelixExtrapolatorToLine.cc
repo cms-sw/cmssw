@@ -62,7 +62,6 @@ IterativeHelixExtrapolatorToLine::genericPathLength (const T& object) const {
     // return empty solution vector if no convergence after maxIterations iterations
     //
     if ( --iteration<0 ) {
-      std::cout << "IterativeHelixExtrapolatorToLine::pathLength : no convergence" << std::endl;
       return std::pair<bool,double>(false,0);
     }
     //

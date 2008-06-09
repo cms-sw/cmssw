@@ -865,8 +865,8 @@ void HLTLevel1GTSeed::updateAlgoLogicParser(const L1GtTriggerMenu* l1GtMenu) {
         CItAlgo itAlgo = algorithmMap.find((algOpTokenVector[i]).tokenName);
         if (itAlgo != algorithmMap.end()) {
 
-            int bitNr = (itAlgo->second).algoBitNumber();
-            int chipNr = (itAlgo->second).algoChipNumber();
+            int bitNr = (itAlgo->second)->algoBitNumber();
+            int chipNr = (itAlgo->second)->algoChipNumber();
             
             (algOpTokenVector[i]).tokenNumber = bitNr;
             
@@ -883,7 +883,7 @@ void HLTLevel1GTSeed::updateAlgoLogicParser(const L1GtTriggerMenu* l1GtMenu) {
                     (m_l1AlgoSeeds[jSeed]).tokenNumber = bitNr;
                     
                     const std::vector<L1GtLogicParser::TokenRPN>& aRpnVector = 
-                        (itAlgo->second).algoRpnVector();
+                        (itAlgo->second)->algoRpnVector();
                     size_t aRpnVectorSize = aRpnVector.size(); 
                     
                     m_l1AlgoSeedsRpn.push_back(&aRpnVector);

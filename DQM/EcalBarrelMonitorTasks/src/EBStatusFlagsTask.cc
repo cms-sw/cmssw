@@ -1,8 +1,8 @@
 /*
  * \file EBStatusFlagsTask.cc
  *
- * $Date: 2008/04/08 15:32:09 $
- * $Revision: 1.11 $
+ * $Date: 2008/04/17 04:53:15 $
+ * $Revision: 1.13 $
  * \author G. Della Ricca
  *
 */
@@ -36,7 +36,9 @@ EBStatusFlagsTask::EBStatusFlagsTask(const ParameterSet& ps){
 
   prefixME_ = ps.getUntrackedParameter<string>("prefixME", "");
 
-  enableCleanup_ = ps.getUntrackedParameter<bool>("enableCleanup", true);
+  enableCleanup_ = ps.getUntrackedParameter<bool>("enableCleanup", false);
+
+  mergeRuns_ = ps.getUntrackedParameter<bool>("mergeRuns", false);
 
   EcalRawDataCollection_ = ps.getParameter<edm::InputTag>("EcalRawDataCollection");
 
@@ -63,6 +65,27 @@ void EBStatusFlagsTask::beginJob(const EventSetup& c){
   }
 
   Numbers::initGeometry(c, false);
+
+}
+
+void EBStatusFlagsTask::beginRun(const Run& r, const EventSetup& c) {
+
+  if ( ! mergeRuns_ ) this->reset();
+
+}
+
+void EBStatusFlagsTask::endRun(const Run& r, const EventSetup& c) {
+
+}
+
+void EBStatusFlagsTask::reset(void) {
+
+  for (int i = 0; i < 36; i++) {
+    if ( meEvtType_[i] ) meEvtType_[i]->Reset();
+
+    if ( meFEchErrors_[i][0] ) meFEchErrors_[i][0]->Reset();
+    if ( meFEchErrors_[i][1] ) meFEchErrors_[i][1]->Reset();
+  }
 
 }
 
@@ -148,7 +171,7 @@ void EBStatusFlagsTask::setup(void){
 
 void EBStatusFlagsTask::cleanup(void){
 
-  if ( ! enableCleanup_ ) return;
+  if ( ! init_ ) return;
 
   if ( dqmStore_ ) {
     dqmStore_->setCurrentFolder(prefixME_ + "/EBStatusFlagsTask");
@@ -177,7 +200,7 @@ void EBStatusFlagsTask::endJob(void){
 
   LogInfo("EBStatusFlagsTask") << "analyzed " << ievt_ << " events";
 
-  if ( init_ ) this->cleanup();
+  if ( enableCleanup_ ) this->cleanup();
 
 }
 

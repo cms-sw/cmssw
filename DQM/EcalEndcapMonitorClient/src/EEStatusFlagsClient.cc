@@ -1,8 +1,8 @@
 /*
  * \file EEStatusFlagsClient.cc
  *
- * $Date: 2008/04/08 15:06:25 $
- * $Revision: 1.19 $
+ * $Date: 2008/04/08 18:05:29 $
+ * $Revision: 1.20 $
  * \author G. Della Ricca
  *
 */
@@ -152,7 +152,9 @@ bool EEStatusFlagsClient::writeDb(EcalCondDBInterface* econn, RunIOV* runiov, Mo
       UtilsClient::printBadChannels(meh01_[ism-1], UtilsClient::getHisto<TH2F*>(meh01_[ism-1]), true);
     }
 
-    if ( meh01_[ism-1]->getEntries() != 0 ) status = false;
+    if ( meh01_[ism-1] ) {
+      if ( meh01_[ism-1]->getEntries() != 0 ) status = false;
+    }
 
   }
 

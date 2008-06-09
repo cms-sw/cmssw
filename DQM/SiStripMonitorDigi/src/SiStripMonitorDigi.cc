@@ -3,7 +3,7 @@
 */
 // Original Author:  Dorian Kcira
 //         Created:  Sat Feb  4 20:49:10 CET 2006
-// $Id: SiStripMonitorDigi.cc,v 1.23 2008/01/22 19:09:42 muzaffar Exp $
+// $Id: SiStripMonitorDigi.cc,v 1.24 2008/03/01 00:37:47 dutta Exp $
 #include<fstream>
 #include "TNamed.h"
 #include "FWCore/Framework/interface/ESHandle.h"
@@ -169,6 +169,7 @@ void SiStripMonitorDigi::analyze(const edm::Event& iEvent, const edm::EventSetup
     std::string digiProducer = itDigiProducersList->getParameter<std::string>("DigiProducer");
     std::string digiLabel = itDigiProducersList->getParameter<std::string>("DigiLabel");
     iEvent.getByLabel(digiProducer,digiLabel,digi_detsetvektor);
+    if (!digi_detsetvektor.isValid()) continue; 
     // loop over all MEs
     for (std::map<uint32_t, ModMEs >::const_iterator iterMEs = DigiMEs.begin() ; iterMEs!=DigiMEs.end() ; iterMEs++) {
       uint32_t detid = iterMEs->first; ModMEs local_modmes = iterMEs->second; // get detid and type of ME

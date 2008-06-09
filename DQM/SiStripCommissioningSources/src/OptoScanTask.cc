@@ -42,11 +42,11 @@ void OptoScanTask::book() {
       
       // Extra info
       std::stringstream extra_info; 
-      extra_info << sistrip::extrainfo::gain_ << igain;
+      extra_info << sistrip::gain_ << igain;
       if ( ihisto == 0 || ihisto == 1 ) {
-	extra_info << sistrip::extrainfo::digital_ << ihisto;
+	extra_info << sistrip::digital_ << ihisto;
       } else {
-	extra_info << sistrip::extrainfo::baselineRms_;
+	extra_info << sistrip::baselineRms_;
       }
 
       // Title
@@ -172,9 +172,9 @@ void OptoScanTask::locateTicks( const edm::DetSet<SiStripRawDigi>& digis,
       range.first  = adc.front();
       range.second = adc.back();
       
-      // Construct vector to hold "baseline samples" (exclude tick mark samples and possible APV frames)
+      // Construct vector to hold "baseline samples" (exclude tick mark samples: assuming 3 per 70 samples and possible extra tick)
       std::vector<uint16_t>::const_iterator ii = adc.begin();
-      std::vector<uint16_t>::const_iterator jj = adc.end() - 8 * ( ( adc.size() / 70 ) + 1 );
+      std::vector<uint16_t>::const_iterator jj = adc.end() - 3 * ( ( adc.size() / 70 ) + 1 );
       std::vector<uint16_t> truncated; 
       truncated.resize( jj - ii );
       std::copy( ii, jj, truncated.begin() );
@@ -193,7 +193,7 @@ void OptoScanTask::locateTicks( const edm::DetSet<SiStripRawDigi>& digis,
       std::vector<uint16_t>::const_iterator jjjj = truncated.end();
       for ( ; iiii != jjjj; ++iiii ) { b_rms += fabs( *iiii - b_mean ); }
 
-      // Set baseline "noise" (requires any possible APV frames are filtered from the data!)
+      range.first = b_mean; 
       baseline_rms = sqrt ( b_rms / ( 1. * truncated.size() ) );
       
     } else {

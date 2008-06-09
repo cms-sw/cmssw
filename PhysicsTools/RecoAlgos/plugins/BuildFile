@@ -1,5 +1,4 @@
 <export></export>
-<Flags CXXFLAGS="-DDEBUG=1 -O0 -ggdb">
 <library name=PhysicsToolsRecoAlgos_plugins file=*.cc>
   <use name=FWCore/Framework>
   <use name=FWCore/ParameterSet>

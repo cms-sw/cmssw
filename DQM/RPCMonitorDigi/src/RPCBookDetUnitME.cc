@@ -5,26 +5,24 @@
 #include <map>
 #include <sstream>
 
+
+#include "Geometry/Records/interface/MuonGeometryRecord.h"
 #include <DQM/RPCMonitorDigi/interface/RPCMonitorDigi.h>
 #include <DataFormats/MuonDetId/interface/RPCDetId.h>
 #include <Geometry/RPCGeometry/interface/RPCGeomServ.h>
 #include "DQMServices/Core/interface/MonitorElement.h"
-
+#include <Geometry/RPCGeometry/interface/RPCGeometry.h>
+#include "FWCore/MessageLogger/interface/MessageLogger.h"
 using namespace std;
 
 /// Booking of MonitoringElemnt for one RPCDetId (= roll)
 
 
 
-int david=0;
-
-
-std::map<std::string, MonitorElement*> RPCMonitorDigi::bookDetUnitME(RPCDetId & detId) {
-  
+std::map<std::string, MonitorElement*> RPCMonitorDigi::bookDetUnitME(RPCDetId & detId, const edm::EventSetup & iSetup) {
+  edm::LogVerbatim ("prova") << "kkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkk ";
   // std::cout <<"Booking ME "<<detId<<std::endl; 
-  std::map<std::string, MonitorElement*> meMap;
-  
-  
+  std::map<std::string, MonitorElement*> meMap;  
   std::string regionName;
   std::string ringType;
   if(detId.region() ==  0) {
@@ -42,6 +40,14 @@ std::map<std::string, MonitorElement*> RPCMonitorDigi::bookDetUnitME(RPCDetId & 
   
   dbe->setCurrentFolder(folder);
   
+
+
+  //get number of strips in current roll
+  int nstrips = this->stripsInRoll(detId, iSetup);
+ edm::LogVerbatim ("prova") << "kkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkk "<< nstrips;
+
+  if (nstrips == 0 ) nstrips = 1;
+
   //  char layer[128];
   // sprintf(layer ,"layer_roll%d",detId.roll());
   // std::cout<<"\n rool ->"<<layer<<std::endl;
@@ -54,6 +60,9 @@ std::map<std::string, MonitorElement*> RPCMonitorDigi::bookDetUnitME(RPCDetId & 
   
   RPCGeomServ RPCname(detId);
   std::string nameRoll = RPCname.name();
+
+  RPCGeomServ RPCindex(detId);
+  int index = RPCindex.chambernr();
 
   detUnitLabel = nameRoll;
   layerUnitLabel = nameRoll;
@@ -73,7 +82,7 @@ std::map<std::string, MonitorElement*> RPCMonitorDigi::bookDetUnitME(RPCDetId & 
     meTitle = os.str();
     os.str("");
     
-    meMap[meId] = dbe->book1D(meId, meTitle, 100, 0.5, 100.5);
+    meMap[meId] = dbe->book1D(meId, meTitle, nstrips, 0.5, nstrips+0.5);
     
     os<<"BXN_"<<detUnitLabel;
     meId = os.str();
@@ -88,7 +97,7 @@ std::map<std::string, MonitorElement*> RPCMonitorDigi::bookDetUnitME(RPCDetId & 
     os<<"BXN_vs_strip_"<<detUnitLabel;
     meId = os.str();
     meTitle = meId;
-    meMap[meId] = dbe->book2D(meId, meTitle,  100, 0.5, 100.5, 21, -10.5, 10.5);
+    meMap[meId] = dbe->book2D(meId, meTitle,  nstrips , 0.5, nstrips+0.5 , 21, -10.5, 10.5);
     
   }
   
@@ -114,7 +123,8 @@ std::map<std::string, MonitorElement*> RPCMonitorDigi::bookDetUnitME(RPCDetId & 
     meId = os.str();
     meTitle = meId;
     meMap[meId] = dbe->book1D(meId, meTitle, 10, 0.5, 10.5);
-    
+
+
   }
   
   if (dqmsuperexpert) {
@@ -122,25 +132,26 @@ std::map<std::string, MonitorElement*> RPCMonitorDigi::bookDetUnitME(RPCDetId & 
     os.str("");
     os<<"ClusterSize_vs_LowerSrip_"<<detUnitLabel;
     meId =os.str();
-    meMap[meId] = dbe->book2D(meId, meTitle, 100, 0.5, 100.5,11, 0.5, 11.5);
+    meMap[meId] = dbe->book2D(meId, meTitle,  nstrips, 0.5,  nstrips+0.5,11, 0.5, 11.5);
     
     os.str("");
     os<<"ClusterSize_vs_HigherStrip_"<<detUnitLabel;
     meId = os.str();
     meTitle = meId;
-    meMap[meId] = dbe->book2D(meId, meTitle, 100, 0.5, 100.5,11, 0.5, 11.5);
+    meMap[meId] = dbe->book2D(meId, meTitle, nstrips, 0.5,  nstrips+0.5,11, 0.5, 11.5);
     
     os.str("");
     os<<"ClusterSize_vs_Strip_"<<detUnitLabel;
     meId = os.str();
     meTitle = meId;
-    meMap[meId] = dbe->book2D(meId, meTitle, 100, 0.5, 100.5,11, 0.5, 11.5);
+    meMap[meId] = dbe->book2D(meId, meTitle,nstrips, 0.5, nstrips+0.5,11, 0.5, 11.5);
     
     os.str("");
     os<<"ClusterSize_vs_CentralStrip_"<<detUnitLabel;
     meId = os.str();
     meTitle = meId;
-    meMap[meId] = dbe->book2D(meId, meTitle, 100, 0.5, 100.5,11, 0.5, 11.5);
+    meMap[meId] = dbe->book2D(meId, meTitle, nstrips, 0.5, nstrips+0.5,11, 0.5, 11.5);
+
     
   }
     
@@ -156,13 +167,13 @@ std::map<std::string, MonitorElement*> RPCMonitorDigi::bookDetUnitME(RPCDetId & 
     os<<"CrossTalkLow_"<<detUnitLabel;
     meId = os.str();
     meTitle = meId;
-    meMap[meId] = dbe->book1D(meId, meTitle, 100, 0.5, 100.5);
+    meMap[meId] = dbe->book1D(meId, meTitle,nstrips, 0.5,nstrips+0.5 );
     
     os.str("");
     os<<"CrossTalkHigh_"<<detUnitLabel;
     meId = os.str();
     meTitle = meId;
-    meMap[meId] = dbe->book1D(meId, meTitle, 100, 0.5, 100.5);
+    meMap[meId] = dbe->book1D(meId, meTitle, nstrips, 0.5, nstrips+0.5);
     
     os.str("");
     os<<"BXWithData_"<<detUnitLabel;
@@ -179,7 +190,7 @@ std::map<std::string, MonitorElement*> RPCMonitorDigi::bookDetUnitME(RPCDetId & 
     os<<"MissingHits_"<<detUnitLabel;
     meId=os.str();
     meTitle = meId;
-    meMap[meId] = dbe->book2D(meId, meTitle, 100, 0, 100, 2, 0.,2.);
+    meMap[meId] = dbe->book2D(meId, meTitle,nstrips , 0, nstrips, 2, 0.,2.);
     
     os.str("");
     os<<"RecHitX_vs_dx_"<<detUnitLabel;
@@ -207,7 +218,7 @@ std::map<std::string, MonitorElement*> RPCMonitorDigi::bookDetUnitME(RPCDetId & 
     os<<"RecHitCounter_"<<detUnitLabel;
     meId = os.str();
     meTitle = meId;
-    meMap[meId] = dbe->book1D(meId, meTitle,100,-0.5,100.5);
+    meMap[meId] = dbe->book1D(meId, meTitle,nstrips,-0.5,nstrips+0.5);
     
   }
   
@@ -241,27 +252,24 @@ std::map<std::string, MonitorElement*> RPCMonitorDigi::bookDetUnitME(RPCDetId & 
   Yaxis.erase(0,3);
   Yaxis.replace(Yaxis.find("S"),4,"");
   Yaxis.erase(Yaxis.find("_")+2,8);
-  meMap[meId]->setBinLabel(nrnr, Yaxis, 2);
+  meMap[meId]->setBinLabel(index, Yaxis, 2);
   */
-  int nrnr=2;
+  // int nrnr=2;
 
 
-   cout<<"data "<<david<<" "<<detUnitLabel<<endl;
-   david++;
-  
   if (detId.sector()==9 || detId.sector()==11 ) {
     
-    meMap[meId] = dbe->book2D(meId, meTitle,  96, 0.5, 96.5, 15, 0.5, 15.5);
+    meMap[meId] = dbe->book2D(meId, meTitle,  96, 0.5,96.5, 15, 0.5, 15.5);
     
   }
   
   else  if (detId.sector()==4) {
     
-    meMap[meId] = dbe->book2D(meId, meTitle,  96, 0.5, 96.5, 22, 0.5, 22.5);
+    meMap[meId] = dbe->book2D(meId, meTitle,  96, 0.5, 96.5, 21, 0.5, 21.5);
     
   }
   else {
-    meMap[meId] = dbe->book2D(meId, meTitle,  96, 0.5, 96.5, 16, 0.5, 16.5);
+    meMap[meId] = dbe->book2D(meId, meTitle, 96, 0.5,  96.5, 17, 0.5, 17.5);
     
   }
  
@@ -287,16 +295,40 @@ std::map<std::string, MonitorElement*> RPCMonitorDigi::bookRegionRing(int region
   os.str("");
   os<<"Wheel_Occupancy_XY_Coordinates_for_"<<ringType<<"_"<<region<<"_"<<ring;
   meTitle = os.str();
-  meMap[meId] = dbe->book2D(meId, meTitle, 1000, -800, 800, 1000, -800, 800);
+  meMap[meId] = dbe->book2D(meId, meTitle, 63, -800, 800, 63, -800, 800);
 
   os.str("");
   os<<"WheelClusterSize_"<<ringType<<"_"<<region<<"_"<<ring;
   meId = os.str();
   meTitle = os.str();
   meMap[meId] = dbe->book1D(meId, meTitle, 20, 0.5, 20.5);
+
+
+  os.str("");
+  os<<"Wheel1DOccupancy_"<<ringType<<"_"<<region<<"_"<<ring;
+  meId = os.str();
+  meTitle = os.str();
+  meMap[meId] = dbe->book1D(meId, meTitle, 12, 0.5, 12.5);
+  
+
   
   std::cout<<"end of Global folder"<<std::endl;;
   
   return meMap;
   
+}
+
+//returns the 
+int  RPCMonitorDigi::stripsInRoll(RPCDetId & id, const edm::EventSetup & iSetup) {
+
+  /// RPC Geometry
+  edm::ESHandle<RPCGeometry> rpcgeo;
+  iSetup.get<MuonGeometryRecord>().get(rpcgeo);
+
+  const RPCRoll * rpcRoll = rpcgeo->roll(id);
+
+  if (rpcRoll)
+    return  rpcRoll->nstrips();
+  else 
+    return 1;
 }

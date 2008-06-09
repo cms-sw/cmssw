@@ -8,8 +8,8 @@
 
 /** \class HcalRecHitMonitor
   *  
-  * $Date: 2007/11/21 20:45:15 $
-  * $Revision: 1.15 $
+  * $Date: 2008/03/01 00:39:58 $
+  * $Revision: 1.16 $
   * \author W. Fisher - FNAL
   */
 class HcalRecHitMonitor: public HcalBaseMonitor {
@@ -60,6 +60,10 @@ private:  ///Monitoring elements
   MonitorElement* meRECHIT_Ethresh_all;
   MonitorElement* meRECHIT_E_all;
   MonitorElement* meEVT_;
+
+  MonitorElement* hfshort_meRECHIT_E_all;
+  MonitorElement* hfshort_meRECHIT_E_low;
+  MonitorElement* hfshort_meRECHIT_T_all;
 
 
 };

@@ -160,19 +160,15 @@ DQMStore::DQMStore(const edm::ParameterSet &pset)
   initQCriterion<Comp2RefKolmogorov>(qalgos_);
   initQCriterion<ContentsXRange>(qalgos_);
   initQCriterion<ContentsYRange>(qalgos_);
-  initQCriterion<Comp2RefEqualString>(qalgos_);
-  initQCriterion<Comp2RefEqualInt>(qalgos_);
-  initQCriterion<Comp2RefEqualFloat>(qalgos_);
-  initQCriterion<Comp2RefEqualH1>(qalgos_);
-  initQCriterion<Comp2RefEqualH2>(qalgos_);
-  initQCriterion<Comp2RefEqualH3>(qalgos_);
   initQCriterion<MeanWithinExpected>(qalgos_);
+  initQCriterion<Comp2RefEqualH>(qalgos_);
   initQCriterion<DeadChannel>(qalgos_);
   initQCriterion<NoisyChannel>(qalgos_);
-  initQCriterion<MostProbableLandau>(qalgos_);
-  initQCriterion<ContentsTH2FWithinRange>(qalgos_);
-  initQCriterion<ContentsProfWithinRange>(qalgos_);
-  initQCriterion<ContentsProf2DWithinRange>(qalgos_);
+  initQCriterion<ContentsWithinExpected>(qalgos_);
+//  initQCriterion<MostProbableLandau>(qalgos_);
+//  initQCriterion<ContentsTH2FWithinRange>(qalgos_);
+//  initQCriterion<ContentsProfWithinRange>(qalgos_);
+//  initQCriterion<ContentsProf2DWithinRange>(qalgos_);
 }
 
 DQMStore::~DQMStore(void)
@@ -363,6 +359,11 @@ MonitorElement *
 DQMStore::bookInt(const std::string &dir, const std::string &name)
 {
   std::string path;
+  if (collateHistograms_)
+  {
+    if (MonitorElement *me = findObject(dir, name, path))
+      return me;
+  }
   return book(dir, name, path, "bookInt")
     ->initialise(MonitorElement::DQM_KIND_INT, path);
 }
@@ -380,6 +381,11 @@ MonitorElement *
 DQMStore::bookFloat(const std::string &dir, const std::string &name)
 {
   std::string path;
+  if (collateHistograms_)
+  {
+    if (MonitorElement *me = findObject(dir, name, path))
+      return me;
+  }
   return book(dir, name, path, "bookFloat")
     ->initialise(MonitorElement::DQM_KIND_REAL, path);
 }
@@ -399,6 +405,11 @@ DQMStore::bookString(const std::string &dir,
 		     const std::string &value)
 {
   std::string path;
+  if (collateHistograms_)
+  {
+    if (MonitorElement *me = findObject(dir, name, path))
+      return me;
+  }
   return book(dir, name, path, "bookString")
     ->initialise(MonitorElement::DQM_KIND_STRING, path, value);
 }
@@ -436,7 +447,7 @@ DQMStore::book1D(const std::string &name, const std::string &title,
 
 /// Book 1D histogram by cloning an existing histogram.
 MonitorElement *
-DQMStore::clone1D(const std::string &name, TH1F *source)
+DQMStore::book1D(const std::string &name, TH1F *source)
 {
   return book1D(pwd_, name, static_cast<TH1F *>(source->Clone()));
 }
@@ -460,9 +471,18 @@ DQMStore::book2D(const std::string &name, const std::string &title,
 				     nchY, lowY, highY));
 }
 
+/// Book 2D variable bin histogram.
+MonitorElement *
+DQMStore::book2D(const std::string &name, const std::string &title,
+		 int nchX, float *xbinsize, int nchY, float *ybinsize)
+{
+  return book2D(pwd_, name, new TH2F(name.c_str(), title.c_str(), 
+                                               nchX, xbinsize, nchY, ybinsize));
+}
+
 /// Book 2D histogram by cloning an existing histogram.
 MonitorElement *
-DQMStore::clone2D(const std::string &name, TH2F *source)
+DQMStore::book2D(const std::string &name, TH2F *source)
 {
   return book2D(pwd_, name, static_cast<TH2F *>(source->Clone()));
 }
@@ -490,7 +510,7 @@ DQMStore::book3D(const std::string &name, const std::string &title,
 
 /// Book 3D histogram by cloning an existing histogram.
 MonitorElement *
-DQMStore::clone3D(const std::string &name, TH3F *source)
+DQMStore::book3D(const std::string &name, TH3F *source)
 {
   return book3D(pwd_, name, static_cast<TH3F *>(source->Clone()));
 }
@@ -522,7 +542,7 @@ DQMStore::bookProfile(const std::string &name, const std::string &title,
 
 /// Book TProfile by cloning an existing profile.
 MonitorElement *
-DQMStore::cloneProfile(const std::string &name, TProfile *source)
+DQMStore::bookProfile(const std::string &name, TProfile *source)
 {
   return bookProfile(pwd_, name, static_cast<TProfile *>(source->Clone()));
 }
@@ -556,7 +576,7 @@ DQMStore::bookProfile2D(const std::string &name, const std::string &title,
 
 /// Book TProfile2D by cloning an existing profile.
 MonitorElement *
-DQMStore::cloneProfile2D(const std::string &name, TProfile2D *source)
+DQMStore::bookProfile2D(const std::string &name, TProfile2D *source)
 {
   return bookProfile2D(pwd_, name, static_cast<TProfile2D *>(source->Clone()));
 }
@@ -1404,6 +1424,15 @@ DQMStore::readDirectory(TFile *file,
 	&& dirpart.compare(slash+1, s_referenceDirName.size(), s_referenceDirName) == 0)
       return 0;
 
+    // Remove Run # and RunSummary dirs from Reference dir structure
+    if (slash != std::string::npos
+        && dirpart.compare(0,4,"Run ")==0) 
+        dirpart.erase(0,dirpart.find('/')+1);
+
+    size_t pos = dirpart.find("/Run summary");
+    if (slash != std::string::npos && pos !=std::string::npos) 
+	dirpart.erase(pos,12);
+    
     // Add prefix.
     if (dirpart.empty())
       dirpart = prepend;
@@ -1669,7 +1698,7 @@ DQMStore::createQTest(const std::string &algoname, const std::string &qtname)
   QAMap::iterator i = qalgos_.find(algoname);
   if (i == qalgos_.end())
     throw cms::Exception("DQMStore")
-      << "Cannot create a qualiy test using unknown algorithm '"
+      << "Cannot create a quality test using unknown algorithm '"
       << algoname << '\'';
 
   QCriterion *qc = i->second(qtname);
@@ -1753,9 +1782,9 @@ DQMStore::getQReport(MonitorElement *me, const std::string &qtname)
 void
 DQMStore::runQTests(void)
 {
-  if (! reset_)
-    std::cout << "DQMStore: WARNING: runQTests() invoked without intervening"
-	      << " call to reset().  Maybe you forgot to call doMonitoring()?\n";
+
+  std::cout << "DQMStore: running runQTests() with reset = "
+            << ( reset_ ? "true" : "false" ) << std::endl;
 
   // Apply quality tests to each monitor element, skipping references.
   MEMap::iterator mi = data_.begin();

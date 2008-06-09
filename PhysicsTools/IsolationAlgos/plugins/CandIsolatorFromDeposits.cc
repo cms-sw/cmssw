@@ -58,7 +58,8 @@ CandIsolatorFromDeposits::SingleDeposit::SingleDeposit(const edm::ParameterSet &
       static boost::regex threshold("Threshold\\((\\d+\\.\\d+)\\)"), 
 	cone("ConeVeto\\((\\d+\\.\\d+)\\)"),
 	angleCone("AngleCone\\((\\d+\\.\\d+)\\)"),
-	angleVeto("AngleVeto\\((\\d+\\.\\d+)\\)");
+	angleVeto("AngleVeto\\((\\d+\\.\\d+)\\)"),
+	rectangularEtaPhiVeto("RectangularEtaPhiVeto\\(([+-]?\\d+\\.\\d+),([+-]?\\d+\\.\\d+),([+-]?\\d+\\.\\d+),([+-]?\\d+\\.\\d+)\\)");
       boost::cmatch match;
       if (regex_match(it->c_str(), match, threshold)) {
 	vetos_.push_back(new ThresholdVeto(toNumber(match[1].first)));
@@ -68,6 +69,10 @@ CandIsolatorFromDeposits::SingleDeposit::SingleDeposit(const edm::ParameterSet &
 	vetos_.push_back(new AngleCone(reco::isodeposit::Direction(), toNumber(match[1].first)));
       } else if (regex_match(it->c_str(), match, angleVeto)) {
 	vetos_.push_back(new AngleConeVeto(reco::isodeposit::Direction(), toNumber(match[1].first)));
+      } else if (regex_match(it->c_str(), match, rectangularEtaPhiVeto)) {
+	vetos_.push_back(new RectangularEtaPhiVeto(reco::isodeposit::Direction(), 
+											   toNumber(match[1].first), toNumber(match[2].first), 
+											   toNumber(match[3].first), toNumber(match[4].first)));
       } else {
 	throw cms::Exception("Not Implemented") << "Veto " << it->c_str() << " not implemented yet...";
       }
@@ -121,7 +126,7 @@ CandIsolatorFromDeposits::CandIsolatorFromDeposits(const ParameterSet& par) {
     sources_.push_back(SingleDeposit(*it));
   }
   if (sources_.size() == 0) throw cms::Exception("Configuration Error") << "Please specify at least one deposit!";
-  produces<CandViewDoubleAssociations>();
+  produces<CandDoubleMap>();
 }
 
 /// destructor
@@ -137,7 +142,6 @@ void CandIsolatorFromDeposits::produce(Event& event, const EventSetup& eventSetu
   for (it = begin; it != end; ++it) it->open(event);
 
   const IsoDepositMap & map = begin->map();
-  typedef edm::ValueMap<double> CandDoubleMap;
 
   if (map.size()==0) { // !!???
         event.put(auto_ptr<CandDoubleMap>(new CandDoubleMap()));

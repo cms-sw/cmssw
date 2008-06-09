@@ -1,10 +1,13 @@
 #ifndef PixelCalibConfiguration_h
 #define PixelCalibConfiguration_h
-/*! \file CalibFormats/SiPixelObjects/interface/PixelCalibConfiguration.h
-*   \brief This class implements the steps that are used in a scan over Threshold and CalDelay
-*
-*   A longer explanation will be placed here later
-*/
+//
+// This class inplement the steps
+// that are used in a scan over
+// Threshold and CalDelay
+//
+//
+//
+//
 
 #include <vector>
 #include <set>
@@ -35,18 +38,6 @@
 namespace pos{
   class PixelHdwAddress;
 
-/*!  \ingroup ConfigurationObjects "Configuration Objects"
-*    \ingroup CalibrationObjects "Calibration Objects"
-*    \brief This class implements the steps that are used in a scan over Threshold and CalDelay
-*
-*    It features a double inheritance, both from ConfigurationObjects and CalibrationObjects
-*
-*  @{
-*
-*   \class PixelCalibConfiguration PixelCalibConfiguration.h "interface/PixelCalibConfiguration.h"
-*
-*   A longer explanation will be placed here later
-*/
   class PixelCalibConfiguration : public PixelCalibBase, public PixelConfigBase {
 
   public:
@@ -83,6 +74,7 @@ namespace pos{
     unsigned int nROC() const { assert(rocAndModuleListsBuilt_); return nROC_; }
     unsigned int nPixelPatterns() const { return rows_.size()*cols_.size(); }
     unsigned int nTriggersPerPattern() const { return ntrigger_; }
+    unsigned int nScanPoints(unsigned int iscan) const { return (dacs_[iscan].last()-dacs_[iscan].first())/dacs_[iscan].step()+1; }    
     unsigned int nScanPoints(std::string dac) const { return nScanPoints(iScan(dac)); }    
 
     unsigned int nScanPoints() const {unsigned int points=1;
@@ -91,43 +83,38 @@ namespace pos{
       }
       return points;
     }
-    unsigned int nConfigurations() const { return nPixelPatterns()*nScanPoints()*nROC();}
+    unsigned int nConfigurations() const { assert(rocAndModuleListsBuilt_); return nPixelPatterns()*nScanPoints()*nROC();}
     unsigned int nTriggersTotal() const {return nConfigurations()*nTriggersPerPattern();}
 
     bool noHits() const {return (maxNumHitsPerROC()==0);} // returns true if no hits will be produced
     unsigned int maxNumHitsPerROC() const; // returns the maximum number of hits that will be produced in any pixel pattern
 
-    // Return all the pixels that are enabled for this state.
-    std::set< std::pair<unsigned int, unsigned int> > pixelsWithHits(unsigned int state) const;
-    //                  column #      row #
+    //If in singleROC mode this returns the current ROC
+    unsigned int scanROC(unsigned int state) const;
 
-    // Whether this ROC is currently being scanned.  (Always true when not in SingleROC mode.)
-    bool scanningROCForState(PixelROCName roc, unsigned int state) const;
+    unsigned int scanValue(unsigned int iscan, unsigned int state) const;
+    unsigned int scanValue(std::string dac, unsigned int state) const{
+      return scanValue(iScan(dac),state);
+    }
 
+    unsigned int scanCounter(unsigned int iscan, unsigned int state) const;
     unsigned int scanCounter(std::string dac, unsigned int state) const{
       return scanCounter(iScan(dac),state);
     }
 
-    unsigned int scanValue(std::string dac, unsigned int state, PixelROCName roc) const {
-      return scanValue(iScan(dac), state, roc);
-    }
-
-    // This function should not be used -- provided for backwards compatibility only.  It asserts if the scan values for this dac are mixed across different ROCs.
-    unsigned int scanValue(std::string dac, unsigned int state) const {
-      assert( !(dacs_[iScan(dac)].mixValuesAcrossROCs()) );
-      return scanValue(iScan(dac), state, 0, 1);
-    }
-
     unsigned int numberOfScanVariables() const {return dacs_.size();}
-
-    bool containsScan(std::string name) const;
 
     std::string scanName(unsigned int iscan) const {return dacs_[iscan].name();}
 
+    bool containsScan(std::string name) const;
+
+    double scanValueMin(unsigned int iscan) const {return dacs_[iscan].first();}
     double scanValueMin(std::string dac) const {return scanValueMin(iScan(dac));}
+    double scanValueMax(unsigned int iscan) const {return dacs_[iscan].first()+
+	dacs_[iscan].step()*(nScanPoints(iscan)-1);}
     double scanValueMax(std::string dac) const {return scanValueMax(iScan(dac));}
+    double scanValueStep(unsigned int iscan) const {return dacs_[iscan].step();}
     double scanValueStep(std::string dac) const {return scanValueStep(iScan(dac));}
-    bool scanValuesMixedAcrossROCs(std::string dac) const {return scanValuesMixedAcrossROCs(iScan(dac));}
 
     unsigned int iScan(std::string dac) const;
 
@@ -135,11 +122,11 @@ namespace pos{
     const std::vector<std::vector<unsigned int> > &rowList() const {return rows_;}
     const std::vector<PixelROCName>& rocList() const {assert(rocAndModuleListsBuilt_); return rocs_;}
     const std::set <PixelModuleName>& moduleList() const {assert(rocAndModuleListsBuilt_); return modules_;}
-    const std::set <PixelChannel>& channelList() const {assert( objectsDependingOnTheNameTranslationBuilt_ ); return channels_;}
+    const std::set <PixelChannel>& channelList(const PixelNameTranslation* aNameTranslation);
 
     virtual std::string mode() {return mode_;}
 
-    bool singleROC() const {return singleROC_;}
+    bool singleROC() {return singleROC_;}
 
     unsigned int nParameters() const {return parameters_.size();}
     // get the value of parameter parameterName, or "" if parameterName is not in the list
@@ -152,35 +139,8 @@ namespace pos{
 
   private:
 
-    // Which set of rows we're on.
-    unsigned int rowCounter(unsigned int state) const;
-    
-    // Which set of columns we're on.
-    unsigned int colCounter(unsigned int state) const;
-
-    // In SingleROC mode, which ROC we're on.  In normal mode, this equals 1.
-    unsigned int scanROC(unsigned int state) const;
-
-    unsigned int nScanPoints(unsigned int iscan) const { return dacs_[iscan].getNPoints(); }
-
-    unsigned int scanCounter(unsigned int iscan, unsigned int state) const;
-
-    unsigned int scanValue(unsigned int iscan, unsigned int state, unsigned int ROCNumber, unsigned int ROCsOnChannel) const;
-    unsigned int scanValue(unsigned int iscan, unsigned int state, PixelROCName roc) const;
-
-    double scanValueMin(unsigned int iscan) const {return dacs_[iscan].first();}
-    double scanValueMax(unsigned int iscan) const {return dacs_[iscan].first()+
-                                                   dacs_[iscan].step()*(nScanPoints(iscan)-1);}
-    double scanValueStep(unsigned int iscan) const {return dacs_[iscan].step();}
-    bool scanValuesMixedAcrossROCs(unsigned int iscan) const {return dacs_[iscan].mixValuesAcrossROCs();}
-
     // Used in constructor or in buildROCAndModuleLists()
     void buildROCAndModuleListsFromROCSet(const std::set<PixelROCName>& rocSet);
-
-    void buildObjectsDependingOnTheNameTranslation(const PixelNameTranslation* aNameTranslation);
-    
-    unsigned int ROCNumberOnChannelAmongThoseCalibrated(PixelROCName roc) const;
-    unsigned int numROCsCalibratedOnChannel(PixelROCName roc) const;
 
     //Mode is one of the following: 
     //  ThresholdCalDelay
@@ -200,17 +160,15 @@ namespace pos{
 
     mutable std::vector<PixelROCName> rocs_;
     std::set <PixelModuleName> modules_;
+    std::map <PixelModuleName,unsigned int> countROC_;
     bool rocAndModuleListsBuilt_;
     std::vector<std::string> rocListInstructions_;
     
-    // Objects built using the name translation.
+    // Channel list, filled from ROC list only when needed.
     std::set <PixelChannel> channels_;
-    std::map <PixelROCName, unsigned int> ROCNumberOnChannelAmongThoseCalibrated_;
-    std::map <PixelROCName, unsigned int> numROCsCalibratedOnChannel_;
-    bool objectsDependingOnTheNameTranslationBuilt_;
-    
-    mutable std::vector<std::pair<unsigned int, std::vector<unsigned int> > > fedCardsAndChannels_;
+    bool channelListBuilt_;
 
+    mutable std::vector<std::pair<unsigned int, std::vector<unsigned int> > > fedCardsAndChannels_;
 
     //unsigned int vcal_;
 
@@ -235,11 +193,9 @@ namespace pos{
 
     void disablePixels(PixelFECConfigInterface* pixelFEC,
 		       unsigned int irows, unsigned int icols,
-		       pos::PixelROCTrimBits* trims,	
 		       PixelHdwAddress theROC) const;
 
     void disablePixels(PixelFECConfigInterface* pixelFEC,
-		       pos::PixelROCTrimBits* trims,	
 		       PixelHdwAddress theROC) const;
 
     mutable std::vector<int> old_irows;
@@ -252,5 +208,4 @@ namespace pos{
 
   };
 }
-/* @} */
 #endif

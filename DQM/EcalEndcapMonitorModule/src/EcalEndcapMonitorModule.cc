@@ -1,8 +1,8 @@
 /*
  * \file EcalEndcapMonitorModule.cc
  *
- * $Date: 2008/04/08 15:06:27 $
- * $Revision: 1.54 $
+ * $Date: 2008/05/11 09:50:52 $
+ * $Revision: 1.56 $
  * \author G. Della Ricca
  * \author G. Franzoni
  *
@@ -88,21 +88,14 @@ EcalEndcapMonitorModule::EcalEndcapMonitorModule(const ParameterSet& ps){
     LogInfo("EcalEndcapMonitorModule") << " debug switch is OFF";
   }
 
-  dqmStore_ = Service<DQMStore>().operator->();
-
-  if ( dqmStore_ ) {
-    if ( debug_ ) {
-      dqmStore_->setVerbose(1);
-    } else {
-      dqmStore_->setVerbose(0);
-    }
-  }
-
   // prefixME path
   prefixME_ = ps.getUntrackedParameter<string>("prefixME", "");
 
   // enableCleanup switch
   enableCleanup_ = ps.getUntrackedParameter<bool>("enableCleanup", false);
+
+  // mergeRuns switch
+  mergeRuns_ = ps.getUntrackedParameter<bool>("mergeRuns", false);
 
   if ( enableCleanup_ ) {
     LogInfo("EcalBarrelMonitorModule") << " enableCleanup switch is ON";
@@ -139,7 +132,11 @@ EcalEndcapMonitorModule::~EcalEndcapMonitorModule(){
 
 void EcalEndcapMonitorModule::beginJob(const EventSetup& c){
 
+  if ( debug_ ) cout << "EcalEndcapMonitorModule: beginJob" << endl;
+
   ievt_ = 0;
+
+  dqmStore_ = Service<DQMStore>().operator->();
 
   if ( dqmStore_ ) {
     dqmStore_->setCurrentFolder(prefixME_ + "/EcalInfo");
@@ -147,6 +144,42 @@ void EcalEndcapMonitorModule::beginJob(const EventSetup& c){
     if ( enableEventDisplay_ ) {
       dqmStore_->setCurrentFolder(prefixME_ + "/EcalEvent");
       dqmStore_->rmdir(prefixME_ + "/EcalEvent");
+    }
+  }
+
+}
+
+void EcalEndcapMonitorModule::beginRun(const Run& r, const EventSetup& c) {
+
+  if ( debug_ ) cout << "EcalEndcapMonitorModule: beginRun" << endl;
+
+  if ( ! mergeRuns_ ) this->reset();
+  
+}
+  
+void EcalEndcapMonitorModule::endRun(const Run& r, const EventSetup& c) {
+
+  if ( debug_ ) cout << "EcalEndcapMonitorModule: endRun" << endl;
+
+}
+
+void EcalEndcapMonitorModule::reset(void) {
+
+  if ( meEvtType_ ) meEvtType_->Reset();
+
+  if ( meEEDCC_ ) meEEDCC_->Reset();
+
+  for (int i = 0; i < 2; i++) {
+    if ( meEEdigis_[i] ) meEEdigis_[i]->Reset();
+
+    if ( meEEhits_[i] ) meEEdigis_[i]->Reset();
+
+    if ( meEEtpdigis_[i] ) meEEtpdigis_[i]->Reset();
+  }
+
+  if ( enableEventDisplay_ ) {
+    for (int i = 0; i < 18; i++) {
+      if ( meEvent_[i] ) meEvent_[i]->Reset();
     }
   }
 
@@ -307,7 +340,7 @@ void EcalEndcapMonitorModule::cleanup(void){
 
 void EcalEndcapMonitorModule::endJob(void) {
 
-  LogInfo("EcalEndcapMonitorModule") << "analyzed " << ievt_ << " events";
+  if ( debug_ ) cout << "EcalEndcapMonitorModule: endJob, ievt = " << ievt_ << endl;
 
   // end-of-run
   if ( meStatus_ ) meStatus_->Fill(2);

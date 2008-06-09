@@ -1,8 +1,8 @@
 /*
  * \file EBTestPulseTask.cc
  *
- * $Date: 2008/04/08 15:32:09 $
- * $Revision: 1.97 $
+ * $Date: 2008/04/08 15:35:12 $
+ * $Revision: 1.98 $
  * \author G. Della Ricca
  * \author G. Franzoni
  *
@@ -44,6 +44,8 @@ EBTestPulseTask::EBTestPulseTask(const ParameterSet& ps){
 
   enableCleanup_ = ps.getUntrackedParameter<bool>("enableCleanup", false);
 
+  mergeRuns_ = ps.getUntrackedParameter<bool>("mergeRuns", false);
+
   EcalRawDataCollection_ = ps.getParameter<edm::InputTag>("EcalRawDataCollection");
   EBDigiCollection_ = ps.getParameter<edm::InputTag>("EBDigiCollection");
   EcalPnDiodeDigiCollection_ = ps.getParameter<edm::InputTag>("EcalPnDiodeDigiCollection");
@@ -79,6 +81,33 @@ void EBTestPulseTask::beginJob(const EventSetup& c){
   }
 
   Numbers::initGeometry(c, false);
+
+}
+
+void EBTestPulseTask::beginRun(const Run& r, const EventSetup& c) {
+
+  if ( ! mergeRuns_ ) this->reset();
+
+}
+
+void EBTestPulseTask::endRun(const Run& r, const EventSetup& c) {
+
+}
+
+void EBTestPulseTask::reset(void) {
+
+  for (int i = 0; i < 36; i++) {
+    if ( meShapeMapG01_[i] ) meShapeMapG01_[i]->Reset();
+    if ( meAmplMapG01_[i] ) meAmplMapG01_[i]->Reset();
+    if ( meShapeMapG06_[i] ) meShapeMapG06_[i]->Reset();
+    if ( meAmplMapG06_[i] ) meAmplMapG06_[i]->Reset();
+    if ( meShapeMapG12_[i] ) meShapeMapG12_[i]->Reset();
+    if ( meAmplMapG12_[i] ) meAmplMapG12_[i]->Reset();
+    if ( mePnAmplMapG01_[i] ) mePnAmplMapG01_[i]->Reset();
+    if ( mePnPedMapG01_[i] ) mePnPedMapG01_[i]->Reset();
+    if ( mePnAmplMapG16_[i] ) mePnAmplMapG16_[i]->Reset();
+    if ( mePnPedMapG16_[i] ) mePnPedMapG16_[i]->Reset();
+  }
 
 }
 
@@ -172,7 +201,7 @@ void EBTestPulseTask::setup(void){
 
 void EBTestPulseTask::cleanup(void){
 
-  if ( ! enableCleanup_ ) return;
+  if ( ! init_ ) return;
 
   if ( dqmStore_ ) {
     dqmStore_->setCurrentFolder(prefixME_ + "/EBTestPulseTask");
@@ -229,7 +258,7 @@ void EBTestPulseTask::endJob(void){
 
   LogInfo("EBTestPulseTask") << "analyzed " << ievt_ << " events";
 
-  if ( init_ ) this->cleanup();
+  if ( enableCleanup_ ) this->cleanup();
 
 }
 

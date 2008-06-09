@@ -60,8 +60,6 @@ class CalibrationAnalysis : public CommissioningAnalysis {
   inline const VFloat& chi2Min() const { return min_chi2_; }
   inline const VFloat& chi2Max() const { return max_chi2_; }
   
-  inline bool deconvMode() const { return deconv_; }
-  inline int calchan() const { return calchan_; }
   inline const Histo& histo(int i) const { return histo_[i]; }
   void print( std::stringstream&, uint32_t not_used = 0 );
   
@@ -71,9 +69,7 @@ class CalibrationAnalysis : public CommissioningAnalysis {
   virtual void extract( const std::vector<TH1*>& );
   void analyse();
   void correctDistribution(TH1* histo) const;
-  TF1* fitPulse(TH1*, float rangeLow = 0, float rangeHigh = -1 );
-  float maximum(TH1*);
-  float turnOn(TH1*);
+  TF1* fitPulse(TH1*);
   
  private:
   
@@ -93,8 +89,6 @@ class CalibrationAnalysis : public CommissioningAnalysis {
   bool deconv_;
   /** calchan value used in that dataset */
   int calchan_;
-  /** internal mode: cal scan or standard run */
-  bool isScan_;
   
 };
 

@@ -1,8 +1,8 @@
 /*
  * \file EESummaryClient.cc
  *
- * $Date: 2008/04/08 20:09:07 $
- * $Revision: 1.108 $
+ * $Date: 2008/05/16 16:34:40 $
+ * $Revision: 1.123 $
  * \author G. Della Ricca
  *
 */
@@ -458,17 +458,33 @@ void EESummaryClient::setup(void) {
 
   // summary for DQM GUI
 
-  dqmStore_->setCurrentFolder( prefixME_ + "/EventInfo" );
-
   MonitorElement* me;
 
-  sprintf(histo, "errorSummaryXY_EEM");
-  me = dqmStore_->book2D(histo, histo, 20, 0., 20., 20, 0., 20);
-  me->setAxisTitle("jx", 1);
-  me->setAxisTitle("jy", 2);
+  dqmStore_->setCurrentFolder( prefixME_ + "/EventInfo" );
 
-  sprintf(histo, "errorSummaryXY_EEP");
-  me = dqmStore_->book2D(histo, histo, 20, 0., 20., 20, 0., 20);
+  sprintf(histo, "reportSummary");
+  if ( me = dqmStore_->get(prefixME_ + "/EventInfo/" + histo) ) {
+    dqmStore_->removeElement(me->getName());
+  }
+  me = dqmStore_->bookFloat(histo);
+
+  dqmStore_->setCurrentFolder( prefixME_ + "/EventInfo/reportSummaryContents" );
+
+  for (int i = 0; i < 18; i++) {
+    sprintf(histo, "status %s", Numbers::sEE(i+1).c_str());
+    if ( me = dqmStore_->get(prefixME_ + "/EventInfo/reportSummaryContents/" + histo) ) {
+      dqmStore_->removeElement(me->getName());
+    }
+    me = dqmStore_->bookFloat(histo);
+  }
+
+  dqmStore_->setCurrentFolder( prefixME_ + "/EventInfo" );
+
+  sprintf(histo, "reportSummaryMap");
+  if ( me = dqmStore_->get(prefixME_ + "/EventInfo/" + histo) ) {
+    dqmStore_->removeElement(me->getName());
+  }
+  me = dqmStore_->book2D(histo, histo, 40, 0., 40., 20, 0., 20);
   me->setAxisTitle("jx", 1);
   me->setAxisTitle("jy", 2);
 
@@ -620,9 +636,21 @@ void EESummaryClient::cleanup(void) {
 
   // summary for DQM GUI
 
-  dqmStore_->setCurrentFolder( prefixME_ + "/EventInfo" );
+  MonitorElement* me;
 
-  // to be done
+  if ( me = dqmStore_->get(prefixME_ + "/EventInfo/reportSummary") ) {
+    dqmStore_->removeElement(me->getName());
+  }
+
+  for (int i = 0; i < 18; i++) {
+    if ( me = dqmStore_->get(prefixME_ + "/EventInfo/reportSummaryContents/status " + Numbers::sEE(i+1)) ) {
+      dqmStore_->removeElement(me->getName());
+    }
+  }
+
+  if ( me = dqmStore_->get(prefixME_ + "/EventInfo/reportSummaryMap") ) {
+    dqmStore_->removeElement(me->getName());
+  }
 
 }
 
@@ -761,7 +789,7 @@ void EESummaryClient::analyze(void){
     EETimingClient* eetmc = dynamic_cast<EETimingClient*>(clients_[i]);
     EETriggerTowerClient* eetttc = dynamic_cast<EETriggerTowerClient*>(clients_[i]);
 
-    MonitorElement* me;
+    MonitorElement *me;
     MonitorElement *me_01, *me_02, *me_03;
 //    MonitorElement *me_04, *me_05;
 
@@ -769,13 +797,13 @@ void EESummaryClient::analyze(void){
     TProfile2D* h2d;
 
     // fill the gain value priority map<id,priority>
-    std::map<float,float> priority;
-    priority.insert( make_pair(0,3) );
-    priority.insert( make_pair(1,1) );
-    priority.insert( make_pair(2,2) );
-    priority.insert( make_pair(3,2) );
-    priority.insert( make_pair(4,3) );
-    priority.insert( make_pair(5,1) );
+    map<float,float> priority;
+    priority.insert( pair<float,float>(0,3) );
+    priority.insert( pair<float,float>(1,1) );
+    priority.insert( pair<float,float>(2,2) );
+    priority.insert( pair<float,float>(3,2) );
+    priority.insert( pair<float,float>(4,3) );
+    priority.insert( pair<float,float>(5,1) );
 
     for ( unsigned int i=0; i<superModules_.size(); i++ ) {
 
@@ -898,14 +926,15 @@ void EESummaryClient::analyze(void){
               float val_02=me_02->getBinContent(ix,iy);
               float val_03=me_03->getBinContent(ix,iy);
 
-              std::vector<float> maskedVal, unmaskedVal;
+              vector<float> maskedVal, unmaskedVal;
               (val_01>2) ? maskedVal.push_back(val_01) : unmaskedVal.push_back(val_01);
               (val_02>2) ? maskedVal.push_back(val_02) : unmaskedVal.push_back(val_02);
               (val_03>2) ? maskedVal.push_back(val_03) : unmaskedVal.push_back(val_03);
 
               float brightColor=-1, darkColor=-1;
               float maxPriority=-1;
-              std::vector<float>::const_iterator Val;
+
+              vector<float>::const_iterator Val;
               for(Val=unmaskedVal.begin(); Val<unmaskedVal.end(); Val++) {
                 if(priority[*Val]>maxPriority) brightColor=*Val;
               }
@@ -913,8 +942,8 @@ void EESummaryClient::analyze(void){
               for(Val=maskedVal.begin(); Val<maskedVal.end(); Val++) {
                 if(priority[*Val]>maxPriority) darkColor=*Val;
               }
-              if(unmaskedVal.size()==3)  xval = brightColor;
-              else if(maskedVal.size()==3)  xval = darkColor;
+              if(unmaskedVal.size()==3) xval = brightColor;
+              else if(maskedVal.size()==3) xval = darkColor;
               else {
                 if(brightColor==1 && darkColor==5) xval = 5;
                 else xval = brightColor;
@@ -945,14 +974,15 @@ void EESummaryClient::analyze(void){
               float val_02=me_02->getBinContent(ix,iy);
               float val_03=me_03->getBinContent(ix,iy);
 
-              std::vector<float> maskedVal, unmaskedVal;
+              vector<float> maskedVal, unmaskedVal;
               (val_01>2) ? maskedVal.push_back(val_01) : unmaskedVal.push_back(val_01);
               (val_02>2) ? maskedVal.push_back(val_02) : unmaskedVal.push_back(val_02);
               (val_03>2) ? maskedVal.push_back(val_03) : unmaskedVal.push_back(val_03);
 
               float brightColor=-1, darkColor=-1;
               float maxPriority=-1;
-              std::vector<float>::const_iterator Val;
+
+              vector<float>::const_iterator Val;
               for(Val=unmaskedVal.begin(); Val<unmaskedVal.end(); Val++) {
                 if(priority[*Val]>maxPriority) brightColor=*Val;
               }
@@ -982,7 +1012,7 @@ void EESummaryClient::analyze(void){
 
           if ( eecc ) {
 
-            h2d = eecc->h01_[ism-1];
+            h2d = eecc->h02_[ism-1];
 
             if ( h2d ) {
 
@@ -1062,7 +1092,7 @@ void EESummaryClient::analyze(void){
 
             if ( me ) {
 
-              float xval = me->getBinContent( ix, iy );
+              float xval = me->getBinContent( ix, iy ) - 0.5;
 
               TProfile2D* obj = UtilsClient::getHisto<TProfile2D*>(me);
               if(obj && obj->GetBinEntries(obj->GetBin( ix, iy ))!=0) hasRealDigi = true;
@@ -1166,9 +1196,16 @@ void EESummaryClient::analyze(void){
   } // loop on clients
 
   // The global-summary
-  // right now a summary of Integrity and PO
-  int nGlobalErrors = 0, nGlobalErrorsEEM = 0, nGlobalErrorsEEP = 0;
-  int nValidChannels = 0, nValidChannelsEEM = 0, nValidChannelsEEP = 0;
+  int nGlobalErrors = 0;
+  int nGlobalErrorsEE[18];
+  int nValidChannels = 0;
+  int nValidChannelsEE[18];
+
+  for (int i = 0; i < 18; i++) {
+    nGlobalErrorsEE[i] = 0;
+    nValidChannelsEE[i] = 0;
+  }
+
   for ( int jx = 1; jx <= 100; jx++ ) {
     for ( int jy = 1; jy <= 100; jy++ ) {
 
@@ -1205,12 +1242,18 @@ void EESummaryClient::analyze(void){
         meGlobalSummary_[0]->setBinContent( jx, jy, xval );
 
         if ( xval > -1 ) {
-          ++nValidChannels;
-          ++nValidChannelsEEM;
-        }
-        if ( xval == 0 ) {
-          ++nGlobalErrors;
-          ++nGlobalErrorsEEM;
+          if ( xval != 2 && xval != 5 ) ++nValidChannels;
+          for (int i = 1; i <= 9; i++) {
+            if ( xval != 2 && xval != 5 ) {
+              if ( Numbers::validEE(i, jx, jy) ) ++nValidChannelsEE[i-1];
+            }
+          }
+          if ( xval == 0 ) ++nGlobalErrors;
+          for (int i = 1; i <= 9; i++) {
+            if ( xval == 0 ) {
+              if ( Numbers::validEE(i, jx, jy) ) ++nGlobalErrorsEE[i-1];
+            }
+          }
         }
 
       }
@@ -1248,12 +1291,18 @@ void EESummaryClient::analyze(void){
         meGlobalSummary_[1]->setBinContent( jx, jy, xval );
 
         if ( xval > -1 ) {
-          ++nValidChannels;
-          ++nValidChannelsEEP;
-        }
-        if ( xval == 0 ) {
-          ++nGlobalErrors;
-          ++nGlobalErrorsEEP;
+          if ( xval != 2 && xval != 5 ) ++nValidChannels;
+          for (int i = 10; i <= 18; i++) {
+            if ( xval != 2 && xval != 5 ) {
+              if ( Numbers::validEE(i, jx, jy) ) ++nValidChannelsEE[i-1];
+            }
+          }
+          if ( xval == 0 ) ++nGlobalErrors;
+          for (int i = 10; i <= 18; i++) {
+            if ( xval == 0 ) {
+              if ( Numbers::validEE(i, jx, jy) ) ++nGlobalErrorsEE[i-1];
+            }
+          }
         }
 
       }
@@ -1261,33 +1310,28 @@ void EESummaryClient::analyze(void){
     }
   }
 
-  float errorSummary = -1.0;
-  float errorSummaryEEM = -1.0;
-  float errorSummaryEEP = -1.0;
-
-  if ( nValidChannels != 0 )
-    errorSummary = 1.0 - float(nGlobalErrors)/float(nValidChannels);
-  if ( nValidChannelsEEM != 0 )
-    errorSummaryEEM = 1.0 - float(nGlobalErrorsEEM)/float(nValidChannelsEEM);
-  if ( nValidChannelsEEP != 0 )
-    errorSummaryEEP = 1.0 - float(nGlobalErrorsEEP)/float(nValidChannelsEEP);
-
   MonitorElement* me;
 
-  me = dqmStore_->get(prefixME_ + "/EventInfo/errorSummary");
-  if (me) me->Fill(errorSummary);
+  float reportSummary = -1.0;
+  if ( nValidChannels != 0 )
+    reportSummary = 1.0 - float(nGlobalErrors)/float(nValidChannels);
+  me = dqmStore_->get(prefixME_ + "/EventInfo/reportSummary");
+  if (me) me->Fill(reportSummary);
 
-  me = dqmStore_->get(prefixME_ + "/EventInfo/errorSummarySegments/Segment00");
-  if (me) me->Fill(errorSummaryEEM);
+  char histo[200];
 
-  me = dqmStore_->get(prefixME_ + "/EventInfo/errorSummarySegments/Segment01");
-  if (me) me->Fill(errorSummaryEEP);
+  for (int i = 0; i < 18; i++) {
+    float reportSummaryEE = -1.0;
+    if ( nValidChannelsEE[i] != 0 )
+      reportSummaryEE = 1.0 - float(nGlobalErrorsEE[i])/float(nValidChannelsEE[i]);
+    sprintf(histo, "status %s", Numbers::sEE(i+1).c_str());
+    me = dqmStore_->get(prefixME_ + "/EventInfo/reportSummaryContents/" + histo);
+    if (me) me->Fill(reportSummaryEE);
+  }
 
-  MonitorElement* meside[2];
+  me = dqmStore_->get(prefixME_ + "/EventInfo/reportSummaryMap");
 
-  meside[0] = dqmStore_->get(prefixME_ + "/EventInfo/errorSummaryXY_EEM");
-  meside[1] = dqmStore_->get(prefixME_ + "/EventInfo/errorSummaryXY_EEP");
-  if (meside[0] && meside[1]) {
+  if (me) {
 
     int nValidChannelsTT[2][20][20];
     int nGlobalErrorsTT[2][20][20];
@@ -1295,9 +1339,9 @@ void EESummaryClient::analyze(void){
     for ( int jxdcc = 0; jxdcc < 20; jxdcc++ ) {
       for ( int jydcc = 0; jydcc < 20; jydcc++ ) {
         for ( int iside = 0; iside < 2; iside++ ) {
-          nValidChannelsTT[iside][jxdcc][jydcc]=0;
-          nGlobalErrorsTT[iside][jxdcc][jydcc]=0;
-          nOutOfGeometryTT[iside][jxdcc][jydcc]=0;
+          nValidChannelsTT[iside][jxdcc][jydcc] = 0;
+          nGlobalErrorsTT[iside][jxdcc][jydcc] = 0;
+          nOutOfGeometryTT[iside][jxdcc][jydcc] = 0;
         }
       }
     }
@@ -1312,8 +1356,8 @@ void EESummaryClient::analyze(void){
           float xval = meGlobalSummary_[iside]->getBinContent( jx, jy );
 
           if ( xval > -1 ) {
-            if ( xval != 2 && xval != 5 ) nValidChannelsTT[iside][jxdcc-1][jydcc-1]++;
-            if ( xval == 0 ) nGlobalErrorsTT[iside][jxdcc-1][jydcc-1]++;
+            if ( xval != 2 && xval != 5 ) ++nValidChannelsTT[iside][jxdcc-1][jydcc-1];
+            if ( xval == 0 ) ++nGlobalErrorsTT[iside][jxdcc-1][jydcc-1];
           } else {
             nOutOfGeometryTT[iside][jxdcc-1][jydcc-1]++;
           }
@@ -1334,7 +1378,7 @@ void EESummaryClient::analyze(void){
             xval = 0.0;
           }
 
-          meside[iside]->setBinContent( jxdcc+1, jydcc+1, xval );
+          me->setBinContent( 20*iside+jxdcc+1, jydcc+1, xval );
 
         }
       }
@@ -1663,7 +1707,7 @@ void EESummaryClient::htmlOutput(int run, string& htmlDir, string& htmlName){
     obj2f->GetXaxis()->SetLabelSize(0.03);
     obj2f->GetYaxis()->SetLabelSize(0.03);
     obj2f->Draw("col");
-    labelGrid1.Draw("text,same");
+    labelGrid2.Draw("text,same");
     cMap->SetBit(TGraph::kClipFrame);
     TLine l;
     l.SetLineWidth(1);
@@ -2600,9 +2644,9 @@ void EESummaryClient::htmlOutput(int run, string& htmlDir, string& htmlName){
 
 }
 
-void EESummaryClient::writeMap( std::ofstream& hf, const char* mapname ) {
+void EESummaryClient::writeMap( ofstream& hf, const char* mapname ) {
 
-  std::map<std::string, std::string> refhtml;
+  map<string, string> refhtml;
   refhtml["Integrity"] = "EEIntegrityClient.html";
   refhtml["Occupancy"] = "EEIntegrityClient.html";
   refhtml["StatusFlags"] = "EEStatusFlagsClient.html";
@@ -2624,7 +2668,7 @@ void EESummaryClient::writeMap( std::ofstream& hf, const char* mapname ) {
   const int C0 = 34;
   const int C1 = 148;
 
-  hf << "<map name=\"" << mapname << "_0\">" << std::endl;
+  hf << "<map name=\"" << mapname << "_0\">" << endl;
   for( unsigned int sm=0; sm<superModules_.size(); sm++ ) {
     if( superModules_[sm] >= 1 && superModules_[sm] <= 9 ) {
       int i=superModules_[sm]-1;
@@ -2644,12 +2688,12 @@ void EESummaryClient::writeMap( std::ofstream& hf, const char* mapname ) {
                            << x1 << ", " << y1 << ", "
                            << x2 << ", " << y2 << ", "
                            << x3 << ", " << y3 << "\">"
-         << std::endl;
+         << endl;
     }
   }
-  hf << "</map>" << std::endl;
+  hf << "</map>" << endl;
 
-  hf << "<map name=\"" << mapname << "_1\">" << std::endl;
+  hf << "<map name=\"" << mapname << "_1\">" << endl;
   for( unsigned int sm=0; sm<superModules_.size(); sm++ ) {
     if( superModules_[sm] >= 10 && superModules_[sm] <= 18 ) {
       int i=superModules_[sm]-9-1;
@@ -2669,10 +2713,10 @@ void EESummaryClient::writeMap( std::ofstream& hf, const char* mapname ) {
                            << x1 << ", " << y1 << ", "
                            << x2 << ", " << y2 << ", "
                            << x3 << ", " << y3 << "\">"
-         << std::endl;
+         << endl;
     }
   }
-  hf << "</map>" << std::endl;
+  hf << "</map>" << endl;
 
 }
 

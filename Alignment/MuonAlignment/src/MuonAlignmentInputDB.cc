@@ -8,7 +8,7 @@
 //
 // Original Author:  Jim Pivarski
 //         Created:  Thu Mar  6 17:30:46 CST 2008
-// $Id: MuonAlignmentInputDB.cc,v 1.2 2008/03/20 21:39:26 pivarski Exp $
+// $Id: MuonAlignmentInputDB.cc,v 1.1 2008/03/15 20:26:46 pivarski Exp $
 //
 
 // system include files
@@ -78,7 +78,7 @@ AlignableMuon *MuonAlignmentInputDB::newAlignableMuon(const edm::EventSetup& iSe
    iSetup.get<DTAlignmentErrorRcd>().get(m_dtLabel, dtAlignmentErrors);
    iSetup.get<CSCAlignmentRcd>().get(m_cscLabel, cscAlignments);
    iSetup.get<CSCAlignmentErrorRcd>().get(m_cscLabel, cscAlignmentErrors);
-   iSetup.get<GlobalPositionRcd>().get(globalPositionRcd);
+   iSetup.get<MuonGeometryRecord>().get(globalPositionRcd);
 
    GeometryAligner aligner;
    aligner.applyAlignments<DTGeometry>(&(*dtGeometry), &(*dtAlignments), &(*dtAlignmentErrors),

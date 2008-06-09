@@ -8,7 +8,7 @@
 //
 // Original Author:  Gena Kukartsev, kukarzev@fnal.gov
 //         Created:  Tue Oct 23 14:30:20 CDT 2007
-// $Id: XMLRBXPedestalsLoader.cc,v 1.1 2008/02/12 17:02:02 kukartse Exp $
+// $Id: XMLRBXPedestalsLoader.cc,v 1.1 2007/12/06 02:26:38 kukartse Exp $
 //
 
 // system include files
@@ -78,12 +78,11 @@ XMLRBXPedestalsLoader::XMLRBXPedestalsLoader( loaderBaseConfig * config, string 
 
 XMLRBXPedestalsLoader::~XMLRBXPedestalsLoader()
 {
-  if( _data_ped_delay ) delete _data_ped_delay;
-  if( _data_gol ) delete _data_gol;
+  if( _data ) delete _data;
 }
 
 
-int XMLRBXPedestalsLoader::addRBXSlot( datasetDBConfig * config, string brickFileName, string rbx_config_type, string templateFileName )
+int XMLRBXPedestalsLoader::addRBXSlot( datasetDBConfig * config, string brickFileName, string templateFileName )
 {
   DOMElement * root = document -> getDocumentElement();
 
@@ -107,39 +106,15 @@ int XMLRBXPedestalsLoader::addRBXSlot( datasetDBConfig * config, string brickFil
   for ( int _item = 0; _item < rbxBrick -> getElementsByTagName( XMLProcessor::_toXMLCh( "Data" ) ) -> getLength(); _item++ )
     {
       DOMElement * dataset_root = dataSet -> getDocumentElement();
-
-      string _rm = rbxBrickDoc . getTagAttribute( "Data", "rm", _item );
-      string _qie = rbxBrickDoc . getTagAttribute( "Data", "card", _item );
-      string _adc;
-
-      MemBufInputSource * _data; // a container for the XML template for a data block
-      if ( rbx_config_type == "pedestals" || rbx_config_type == "delays" ){
-	_adc = rbxBrickDoc . getTagAttribute( "Data", "qie", _item );
-	_data = _data_ped_delay;
-      }
-      else if ( rbx_config_type == "gols" ){
-	_adc = rbxBrickDoc . getTagAttribute( "Data", "gol", _item );
-	_data = _data_gol;
-      }
-      else{
-	cout << "XMLRBXPedestalsLoader::addRBXSlot(): Unknown config type... exiting" << endl;
-	exit(1);
-      }
       XMLDOMBlock dataDoc( *_data );
       DOMDocument * data = dataDoc . getDocument();
+      string _rm = rbxBrickDoc . getTagAttribute( "Data", "rm", _item );
+      string _qie = rbxBrickDoc . getTagAttribute( "Data", "card", _item );
+      string _adc= rbxBrickDoc . getTagAttribute( "Data", "qie", _item );
       string _value = rbxBrickDoc . getTagValue( "Data", _item );
       setTagValue( "MODULE_POSITION", _rm, 0, data );
       setTagValue( "QIE_CARD_POSITION", _qie, 0, data );
-      if ( rbx_config_type == "pedestals" || rbx_config_type == "delays" ){
-	setTagValue( "QIE_ADC_NUMBER", _adc, 0, data );
-      }
-      else if ( rbx_config_type == "gols" ){
-	setTagValue( "FIBER_NUMBER", _adc, 0, data );
-      }
-      else{
-	cout << "XMLRBXPedestalsLoader::addRBXSlot(): Unknown config type... exiting" << endl;
-	exit(1);
-      }
+      setTagValue( "QIE_ADC_NUMBER", _adc, 0, data );
       setTagValue( "INTEGER_VALUE", _value, 0, data );
       DOMNode * cloneData = dataSet -> importNode( data -> getDocumentElement(), true );
       dataset_root -> appendChild( cloneData );
@@ -202,7 +177,7 @@ int XMLRBXPedestalsLoader::fixRbxName( string & rbx )
 
 int XMLRBXPedestalsLoader::init( void )
 {
-  // define the <DATA/> template for pedestals and zero delays
+  // define the <DATA/> template
   static const char * _str =  "\\
   <DATA>\n\\
    <MODULE_POSITION>2</MODULE_POSITION>\n\\
@@ -212,19 +187,7 @@ int XMLRBXPedestalsLoader::init( void )
   </DATA>\n\\
   ";
   const XMLByte * _template = (const XMLByte *)_str;
-  _data_ped_delay = new MemBufInputSource( _template, strlen( (const char *)_template ), "_data_ped_delay", false );
-
-  // define the <DATA/> template for gol currents
-  static const char * _str2 =  "\\
-  <DATA>\n\\
-   <MODULE_POSITION>2</MODULE_POSITION>\n\\
-   <QIE_CARD_POSITION>1</QIE_CARD_POSITION>\n\\
-   <FIBER_NUMBER>0</FIBER_NUMBER>\n\\
-   <INTEGER_VALUE>4</INTEGER_VALUE>\n\\
-  </DATA>\n\\
-  ";
-  const XMLByte * _template2 = (const XMLByte *)_str2;
-  _data_gol = new MemBufInputSource( _template2, strlen( (const char *)_template2 ), "_data_gol", false );
+  _data = new MemBufInputSource( _template, strlen( (const char *)_template ), "_data", false );
 
   return 0;
 }

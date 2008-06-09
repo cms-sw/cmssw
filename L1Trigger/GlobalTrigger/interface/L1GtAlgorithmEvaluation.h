@@ -73,7 +73,7 @@ public:
     L1GtAlgorithmEvaluation();
 
     /// constructor from an algorithm from event setup
-    L1GtAlgorithmEvaluation(const L1GtAlgorithm&);
+    L1GtAlgorithmEvaluation(const L1GtAlgorithm*);
 
     /// copy constructor
     L1GtAlgorithmEvaluation(L1GtAlgorithmEvaluation&);

@@ -41,8 +41,6 @@
 #include <memory>
 #include <vector>
 
-#include "TRandom3.h"
-
 using namespace HepMC;
 
 FamosManager::FamosManager(edm::ParameterSet const & p)
@@ -53,7 +51,6 @@ FamosManager::FamosManager(edm::ParameterSet const & p)
       m_Tracking(p.getParameter<bool>("SimulateTracking")),
       m_Calorimetry(p.getParameter<bool>("SimulateCalorimetry")),
       m_Alignment(p.getParameter<bool>("ApplyAlignment")),
-      m_TRandom(p.getParameter<bool>("UseTRandomEngine")),
       m_pRunNumber(p.getUntrackedParameter<int>("RunNumber",1)),
       m_pVerbose(p.getUntrackedParameter<int>("Verbosity",1))
 {
@@ -70,13 +67,7 @@ FamosManager::FamosManager(edm::ParameterSet const & p)
          "or remove the module that requires it";
   }
 
-  if ( !m_TRandom ) { 
-    random = new RandomEngine(&(*rng));
-  } else {
-    TRandom3* anEngine = new TRandom3();
-    anEngine->SetSeed(rng->mySeed());
-    random = new RandomEngine(anEngine);
-  }
+  random = new RandomEngine(&(*rng));
 
   // Initialize the FSimEvent
   mySimEvent = 
@@ -110,7 +101,6 @@ FamosManager::~FamosManager()
   if ( myTrajectoryManager ) delete myTrajectoryManager; 
   if ( myPileUpSimulator ) delete myPileUpSimulator;
   if ( myCalorimetry) delete myCalorimetry;
-  if ( random->theRootEngine() ) delete random->theRootEngine();
   delete random;
 }
 

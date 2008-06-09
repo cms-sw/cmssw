@@ -1,10 +1,5 @@
 #include "DataFormats/TrackerRecHit2D/interface/BaseSiTrackerRecHit2DLocalPos.h"
 
-bool BaseSiTrackerRecHit2DLocalPos::hasPositionAndError() const {
-    return (err_.xx() != 0) || (err_.yy() != 0) || (err_.xy() != 0) ||
-           (pos_.x()  != 0) || (pos_.y()  != 0) || (pos_.z()  != 0);
-}
-
 void 
 BaseSiTrackerRecHit2DLocalPos::getKfComponents( KfComponentsHolder & holder ) const 
 {

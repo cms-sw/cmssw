@@ -2,8 +2,8 @@
 #define CosmicMuonTrajectoryBuilder_H
 /** \file CosmicMuonTrajectoryBuilder
  *
- *  $Date: 2008/02/06 03:42:07 $
- *  $Revision: 1.15 $
+ *  $Date: 2008/02/11 16:48:34 $
+ *  $Revision: 1.16 $
  *  \author Chang Liu  -  Purdue University
  */
 
@@ -20,12 +20,14 @@
 #include "RecoMuon/MeasurementDet/interface/MuonDetLayerMeasurements.h"
 #include "RecoMuon/TransientTrackingRecHit/interface/MuonTransientTrackingRecHit.h"
 #include "RecoMuon/CosmicMuonProducer/interface/CosmicMuonSmoother.h"
+#include "FWCore/ParameterSet/interface/ParameterSet.h"
 
-namespace edm {class ParameterSet; class Event; class EventSetup;}
+namespace edm {class Event; class EventSetup;}
 
 class Trajectory;
 class TrajectoryMeasurement;
 class CosmicMuonUtilities;
+class DirectMuonNavigation;
 
 typedef MuonTransientTrackingRecHit::MuonRecHitContainer MuonRecHitContainer;
 typedef TransientTrackingRecHit::ConstRecHitPointer ConstRecHitPointer;
@@ -64,6 +66,8 @@ public:
 
   CosmicMuonUtilities* utilities() const {return smoother()->utilities();}
 
+  DirectMuonNavigation* navigation() const {return theNavigation;}
+
 private:
 
   MuonTransientTrackingRecHit::MuonRecHitContainer unusedHits(const DetLayer*, const TrajectoryMeasurement&) const;
@@ -96,6 +100,9 @@ private:
   std::vector<TrajectoryMeasurement> findBestMeasurements(const DetLayer*, const TrajectoryStateOnSurface&, const MeasurementEstimator*);
 
   void incrementChamberCounters(const DetLayer *layer, int& dtChambers, int& cscChambers, int& rpcChambers, int& totalChambers);
+
+  DirectMuonNavigation* theNavigation;
+  edm::ParameterSet theNavigationPSet;
 
   MuonTrajectoryUpdator* theUpdator;
   MuonTrajectoryUpdator* theBKUpdator;

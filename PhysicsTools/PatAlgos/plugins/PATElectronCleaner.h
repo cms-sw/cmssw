@@ -1,5 +1,5 @@
 //
-// $Id: PATElectronCleaner.h,v 1.4 2008/03/14 15:13:50 gpetrucc Exp $
+// $Id: PATElectronCleaner.h,v 1.5 2008/04/09 12:05:12 llista Exp $
 //
 
 #ifndef PhysicsTools_PatAlgos_PATElectronCleaner_h
@@ -37,7 +37,7 @@
   The actual selection is performed by the ElectronSelector.
 
   \author   Steven Lowette, James Lamb
-  \version  $Id: PATElectronCleaner.h,v 1.4 2008/03/14 15:13:50 gpetrucc Exp $
+  \version  $Id: PATElectronCleaner.h,v 1.5 2008/04/09 12:05:12 llista Exp $
 */
 
 
@@ -91,14 +91,16 @@ namespace pat {
       std::string       selectionType_; ///< Selection type (none, custom, cut,...)
       bool              doSelection_;   ///< False if type = "none", true otherwise
       ElectronSelector  selector_;      ///< Actually performs the selection
-      
-      /// Returns the appropriate cluster shape.
-      /// This is a copy of the Egamma code and it should disappear in the future
-      /// (once cluster shapes are put directly in electron, should be in 2_0_0).
-      /// See EgammaAnalysis/ElectronIDAlgos/interface/ElectronIDAlgo.h
-      const reco::ClusterShapeRef& getClusterShape_( const reco::GsfElectron* electron, 
-                                                     const edm::Event&        event
-                                                     ) const;
+
+//   FIXME: This won't work in 2_1. Have to get cluster shape variables differently, 
+//          or remove "custom selection" altogether
+//       /// Returns the appropriate cluster shape.
+//       /// This is a copy of the Egamma code and it should disappear in the future
+//       /// (once cluster shapes are put directly in electron, should be in 2_0_0).
+//       /// See EgammaAnalysis/ElectronIDAlgos/interface/ElectronIDAlgo.h
+//       const reco::ClusterShapeRef& getClusterShape_( const reco::GsfElectron* electron, 
+//                                                      const edm::Event&        event
+//                                                      ) const;
   };
 
 

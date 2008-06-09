@@ -116,11 +116,11 @@ PixelNameTranslation::PixelNameTranslation(std::string filename):
   std::ifstream in(filename.c_str());
   
   if (!in.good()){
-    std::cout << "[PixelNameTranslation::PixelNameTranslation()]\t\tCould not open: " << filename <<std::endl;
+    std::cout << "[PixelNameTranslation::PixelNameTranslation()]\tCould not open: " << filename <<std::endl;
     assert(0);
   }
   else {
-    std::cout << "[PixelNameTranslation::PixelNameTranslation()]\t\tReading from: "   << filename <<std::endl;
+    std::cout << "[PixelNameTranslation::PixelNameTranslation()]\tReading from: "   << filename <<std::endl;
   }
   
   std::string dummy;
@@ -466,13 +466,13 @@ void PixelNameTranslation::writeASCII(std::string dir) const {
 
   std::ofstream out(filename.c_str());
   
-  //std::cout << "[PixelNameTranslation::writeASCII()]\t\tfilename: " 
-  //	    << filename 
-  //	    << " status: " 
-  //	    << out 
-  //	    << "   " 
-  //	    << out.is_open() 
-  //	    <<endl ;
+  std::cout << "[PixelNameTranslation::writeASCII()]\t\tfilename: " 
+	    << filename 
+	    << " status: " 
+	    << out 
+	    << "   " 
+	    << out.is_open() 
+	    <<endl ;
 
   out << "# name                          TBMchannel  FEC      mfec  mfecchannel hubaddress portadd rocid     FED     channel     roc#"<<endl;
 

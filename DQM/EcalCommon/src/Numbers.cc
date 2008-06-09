@@ -1,11 +1,11 @@
-// $Id: Numbers.cc,v 1.53 2008/03/16 19:50:38 dellaric Exp $
+// $Id: Numbers.cc,v 1.56 2008/05/20 14:40:37 dellaric Exp $
 
 /*!
   \file Numbers.cc
   \brief Some "id" conversions
   \author B. Gobbo
-  \version $Revision: 1.53 $
-  \date $Date: 2008/03/16 19:50:38 $
+  \version $Revision: 1.56 $
+  \date $Date: 2008/05/20 14:40:37 $
 */
 
 #include <sstream>
@@ -41,7 +41,7 @@ void Numbers::initGeometry( const edm::EventSetup& setup, bool verbose ) {
 
   if( Numbers::init ) return;
 
-  if ( verbose ) std::cout << "Initializing ECAL Geometry ..." << std::endl;
+  if ( verbose ) std::cout << "Initializing EcalElectronicsMapping ..." << std::endl;
 
   Numbers::init = true;
 
@@ -53,7 +53,7 @@ void Numbers::initGeometry( const edm::EventSetup& setup, bool verbose ) {
 
     if ( verbose ) std::cout << "done." << std::endl;
 
-  } catch ( edm::eventsetup::NoRecordException< EcalMappingRcd > &e ) {
+  } catch ( edm::eventsetup::NoRecordException< EcalMappingRcd >& e ) {
 
     if ( verbose ) std::cout << "NOT done." << std::endl;
 
@@ -544,9 +544,9 @@ int Numbers::RtHalf(const EBDetId& id) {
   int ie = (ic-1)/20 + 1;
   int ip = (ic-1)%20 + 1;
 
-  if( ie > 5 && ip < 11 ) return 2;
+  if( ie > 5 && ip < 11 ) return 1;
 
-  return 1;
+  return 0;
 
 }
 

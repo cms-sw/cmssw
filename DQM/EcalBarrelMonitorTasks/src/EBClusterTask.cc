@@ -1,8 +1,8 @@
 /*
  * \file EBClusterTask.cc
  *
- * $Date: 2008/04/08 15:32:09 $
- * $Revision: 1.56 $
+ * $Date: 2008/04/08 15:35:11 $
+ * $Revision: 1.57 $
  * \author G. Della Ricca
  * \author E. Di Marco
  *
@@ -47,6 +47,8 @@ EBClusterTask::EBClusterTask(const ParameterSet& ps){
   prefixME_ = ps.getUntrackedParameter<string>("prefixME", "");
 
   enableCleanup_ = ps.getUntrackedParameter<bool>("enableCleanup", false);
+
+  mergeRuns_ = ps.getUntrackedParameter<bool>("mergeRuns", false);
 
   // parameters...
   BasicClusterCollection_ = ps.getParameter<edm::InputTag>("BasicClusterCollection");
@@ -211,7 +213,7 @@ void EBClusterTask::setup(void){
 
 void EBClusterTask::cleanup(void){
 
-  if ( ! enableCleanup_ ) return;
+  if ( ! init_ ) return;
 
   if ( dqmStore_ ) {
     dqmStore_->setCurrentFolder(prefixME_ + "/EBClusterTask");
@@ -289,7 +291,63 @@ void EBClusterTask::endJob(void){
 
   LogInfo("EBClusterTask") << "analyzed " << ievt_ << " events";
 
-  if ( init_ ) this->cleanup();
+  if ( enableCleanup_ ) this->cleanup();
+
+}
+
+void EBClusterTask::beginRun(const Run& r, const EventSetup& c) {
+
+  if ( ! mergeRuns_ ) this->reset();
+
+}
+
+void EBClusterTask::endRun(const Run& r, const EventSetup& c) {
+
+}
+
+void EBClusterTask::reset(void) {
+
+  if ( meBCEne_ ) meBCEne_->Reset();
+
+  if ( meBCNum_ ) meBCNum_->Reset();
+
+  if ( meBCSiz_ ) meBCSiz_->Reset();
+
+  if ( meBCEneMap_ ) meBCEneMap_->Reset();
+
+  if ( meBCNumMap_ ) meBCNumMap_->Reset();
+
+  if ( meBCETMap_ ) meBCETMap_->Reset();
+
+  if ( meBCSizMap_ ) meBCSizMap_->Reset();
+
+  if ( meBCEneMapProjEta_ ) meBCEneMapProjEta_->Reset();
+
+  if ( meBCEneMapProjPhi_ ) meBCEneMapProjPhi_->Reset();
+
+  if ( meBCNumMapProjEta_ ) meBCNumMapProjEta_->Reset();
+
+  if ( meBCNumMapProjPhi_ ) meBCNumMapProjPhi_->Reset();
+
+  if ( meBCETMapProjEta_ ) meBCETMapProjEta_->Reset();
+
+  if ( meBCETMapProjPhi_ ) meBCETMapProjPhi_->Reset();
+
+  if ( meBCSizMapProjEta_ ) meBCSizMapProjEta_->Reset();
+
+  if ( meBCSizMapProjPhi_ ) meBCSizMapProjPhi_->Reset();
+
+  if ( meSCEne_ ) meSCEne_->Reset();
+
+  if ( meSCNum_ ) meSCNum_->Reset();
+
+  if ( meSCSiz_ ) meSCSiz_->Reset();
+
+  if ( mes1s9_ ) mes1s9_->Reset();
+
+  if ( mes9s25_ ) mes9s25_->Reset();
+
+  if ( meInvMass_ ) meInvMass_->Reset();
 
 }
 

@@ -13,9 +13,12 @@ GctBlockHeaderBase::BlockLengthPair initArray3[] = {
   GctBlockHeaderBase::BlockLengthPair(0x000,0),
   GctBlockHeaderBase::BlockLengthPair(0x583,8),
   GctBlockHeaderBase::BlockLengthPair(0x580,12),
+  GctBlockHeaderBase::BlockLengthPair(0x581,2),
   GctBlockHeaderBase::BlockLengthPair(0x587,4),
   GctBlockHeaderBase::BlockLengthPair(0x683,6),
   GctBlockHeaderBase::BlockLengthPair(0x680,16),
+  GctBlockHeaderBase::BlockLengthPair(0x681,6),
+  GctBlockHeaderBase::BlockLengthPair(0x682,2),
   GctBlockHeaderBase::BlockLengthPair(0x686,2),
   GctBlockHeaderBase::BlockLengthPair(0x687,4),
   GctBlockHeaderBase::BlockLengthPair(0x800,20),
@@ -133,13 +136,23 @@ GctBlockHeaderBase::BlockLengthPair initArray3[] = {
   GctBlockHeaderBase::BlockLengthPair(0xf8a,3),      // Leaf3JetNegEtaU2: JF1 Shared Sent
   GctBlockHeaderBase::BlockLengthPair(0xf8b,10),     // Leaf3JetNegEtaU2: JF1 Output
 //  GctBlockHeaderBase::BlockLengthPair(0x300,),     // -- START OF WHEEL FPGAS
-//  GctBlockHeaderBase::BlockLengthPair(0x303,),
+//  GctBlockHeaderBase::BlockLengthPair(0x303,), // Unknown AT 22/4/08 
 //  GctBlockHeaderBase::BlockLengthPair(0x380,),
-//  GctBlockHeaderBase::BlockLengthPair(0x383,),
-//  GctBlockHeaderBase::BlockLengthPair(0x700,),
-//  GctBlockHeaderBase::BlockLengthPair(0x703,),
+//  GctBlockHeaderBase::BlockLengthPair(0x383,), // Unknown AT 22/4/08 
+  GctBlockHeaderBase::BlockLengthPair(0x700,27),
+  GctBlockHeaderBase::BlockLengthPair(0x703,6),
 //  GctBlockHeaderBase::BlockLengthPair(0x780,),
-//  GctBlockHeaderBase::BlockLengthPair(0x783,),     // -- END OF WHEEL FPGAS
+//  GctBlockHeaderBase::BlockLengthPair(0x783,), // Unknown AT 22/4/08     // -- END OF WHEEL FPGAS
+  GctBlockHeaderBase::BlockLengthPair(0x306,32),
+  GctBlockHeaderBase::BlockLengthPair(0x307,4),
+  GctBlockHeaderBase::BlockLengthPair(0x386,32),
+  GctBlockHeaderBase::BlockLengthPair(0x387,4),
+  GctBlockHeaderBase::BlockLengthPair(0x586,32),
+  GctBlockHeaderBase::BlockLengthPair(0x686,32),
+  GctBlockHeaderBase::BlockLengthPair(0x706,32),
+  GctBlockHeaderBase::BlockLengthPair(0x707,4),
+  GctBlockHeaderBase::BlockLengthPair(0x786,32),
+  GctBlockHeaderBase::BlockLengthPair(0x787,4),
   GctBlockHeaderBase::BlockLengthPair(0x0ff,198)     // Our temp hack RCT calo block
 };
 
@@ -150,9 +163,12 @@ GctBlockHeaderBase::BlockNamePair initArray4[] = {
   GctBlockHeaderBase::BlockNamePair(0x000,"NULL"),
   GctBlockHeaderBase::BlockNamePair(0x583,"ConcJet: Jet Cands and Counts Output to Global Trigger"),
   GctBlockHeaderBase::BlockNamePair(0x580,"ConcJet: Sort Input"),
+  GctBlockHeaderBase::BlockNamePair(0x581,"ConcJet: HfRings"),
   GctBlockHeaderBase::BlockNamePair(0x587,"ConcJet: Bunch Counter Pattern Test"),
   GctBlockHeaderBase::BlockNamePair(0x683,"ConcElec: EM Cands and Energy Sums Output to Global Trigger"),
   GctBlockHeaderBase::BlockNamePair(0x680,"ConcElec: Sort Input"),
+  GctBlockHeaderBase::BlockNamePair(0x681,"ConcElec: EtSums"),
+  GctBlockHeaderBase::BlockNamePair(0x682,"ConcElec: HtSums"),
   GctBlockHeaderBase::BlockNamePair(0x686,"ConcElec: GT Serdes Loopback"),
   GctBlockHeaderBase::BlockNamePair(0x687,"ConcElec: Bunch Counter Pattern Test"),
   GctBlockHeaderBase::BlockNamePair(0x800,"Leaf0ElecPosEtaU1: Sort Input"),
@@ -273,10 +289,20 @@ GctBlockHeaderBase::BlockNamePair initArray4[] = {
 //  GctBlockHeaderBase::BlockNamePair(0x303,"WheelPosEtaJet: Output"),
 //  GctBlockHeaderBase::BlockNamePair(0x380,"WheelPosEtaEnergy: Input"),
 //  GctBlockHeaderBase::BlockNamePair(0x383,"WheelPosEtaEnergy: Output"),
-//  GctBlockHeaderBase::BlockNamePair(0x700,"WheelNegEtaJet: Input"),
-//  GctBlockHeaderBase::BlockNamePair(0x703,"WheelNegEtaJet: Output"),
+  GctBlockHeaderBase::BlockNamePair(0x700,"WheelNegEtaJet: Input"),
+  GctBlockHeaderBase::BlockNamePair(0x703,"WheelNegEtaJet: Output"),
 //  GctBlockHeaderBase::BlockNamePair(0x780,"WheelNegEtaEnergy: Input"),
 //  GctBlockHeaderBase::BlockNamePair(0x783,"WheelNegEtaEnergy: Output")
+  GctBlockHeaderBase::BlockNamePair(0x306,"Test"),
+  GctBlockHeaderBase::BlockNamePair(0x307,"Info"),
+  GctBlockHeaderBase::BlockNamePair(0x386,"Test"),
+  GctBlockHeaderBase::BlockNamePair(0x387,"Info"),
+  GctBlockHeaderBase::BlockNamePair(0x586,"Test"),
+  GctBlockHeaderBase::BlockNamePair(0x686,"Test"),
+  GctBlockHeaderBase::BlockNamePair(0x706,"Test"),
+  GctBlockHeaderBase::BlockNamePair(0x707,"Info"),
+  GctBlockHeaderBase::BlockNamePair(0x786,"Test"),
+  GctBlockHeaderBase::BlockNamePair(0x787,"Info"),
   GctBlockHeaderBase::BlockNamePair(0x0ff,"All RCT Calo Regions")  // Our temp hack RCT calo block
 };
 

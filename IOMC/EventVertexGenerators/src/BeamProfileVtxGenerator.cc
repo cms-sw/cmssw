@@ -1,5 +1,5 @@
 
-// $Id: BeamProfileVtxGenerator.cc,v 1.5 2007/11/02 21:40:34 sunanda Exp $
+// $Id: BeamProfileVtxGenerator.cc,v 1.4 2007/09/14 08:31:57 fabiocos Exp $
 
 #include "IOMC/EventVertexGenerators/interface/BeamProfileVtxGenerator.h"
 #include "FWCore/Utilities/interface/Exception.h"
@@ -10,7 +10,6 @@
 #include "CLHEP/Random/RandFlat.h"
 #include "CLHEP/Random/RandGaussQ.h"
 #include "CLHEP/Units/SystemOfUnits.h"
-#include "CLHEP/Units/PhysicalConstants.h"
 //#include "CLHEP/Vector/ThreeVector.h"
 #include "HepMC/SimpleVector.h"
 
@@ -34,8 +33,6 @@ BeamProfileVtxGenerator::BeamProfileVtxGenerator(const edm::ParameterSet & p) :
   nBinx = p.getUntrackedParameter<int>("BinX",50);
   nBiny = p.getUntrackedParameter<int>("BinY",50);
   ffile = p.getUntrackedParameter<bool>("UseFile",false);
-  fTimeOffset = p.getParameter<double>("TimeOffset")*ns*c_light;
-  
   if (ffile) {
     std::string file = p.getUntrackedParameter<std::string>("File","beam.profile");
     ifstream is(file.c_str(), std::ios::in);
@@ -84,7 +81,6 @@ BeamProfileVtxGenerator::~BeamProfileVtxGenerator() {
   delete fRandom;
 }
 
-
 //Hep3Vector * BeamProfileVtxGenerator::newVertex() {
 HepMC::FourVector* BeamProfileVtxGenerator::newVertex() {
   double aX, aY;
@@ -117,7 +113,7 @@ HepMC::FourVector* BeamProfileVtxGenerator::newVertex() {
   //if (fVertex == 0) fVertex = new CLHEP::Hep3Vector;
   //fVertex->set(xp, yp, zp);
   if (fVertex == 0 ) fVertex = new HepMC::FourVector() ;
-  fVertex->set(xp, yp, zp, fTimeOffset );
+  fVertex->set(xp, yp, zp, 0.);
 
 //  LogDebug("BeamProfileVtxGenerator") << "BeamProfileVtxGenerator: Vertex created "
 //			      << "at " << *fVertex;

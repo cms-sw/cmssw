@@ -4,11 +4,11 @@
 
    \Original author Stefano ARGIRO
    \Current author Bill Tanenbaum
-   \version $Id: ProductRegistry.cc,v 1.8 2008/03/24 02:26:03 wmtan Exp $
+   \version $Id: ProductRegistry.cc,v 1.9.4.2 2008/05/15 18:25:25 wmtan Exp $
    \date 19 Jul 2005
 */
 
-static const char CVSId[] = "$Id: ProductRegistry.cc,v 1.8 2008/03/24 02:26:03 wmtan Exp $";
+static const char CVSId[] = "$Id: ProductRegistry.cc,v 1.9.4.2 2008/05/15 18:25:25 wmtan Exp $";
 
 
 #include "DataFormats/Provenance/interface/ProductRegistry.h"
@@ -19,6 +19,10 @@ static const char CVSId[] = "$Id: ProductRegistry.cc,v 1.8 2008/03/24 02:26:03 w
 #include <sstream>
 
 namespace edm {
+
+  namespace {
+	unsigned int const numberOfFixedProductIDs = 4U;
+  }
 
   ProductRegistry::ProductRegistry() :
       productList_(),
@@ -31,10 +35,11 @@ namespace edm {
       fixedProductIDs_(),
       preExistingFixedProductIDs_() {
         fixedProductIDs_.insert(std::make_pair(std::string("FEDRawDataCollection_rawDataCollector_"), 1U));
+        fixedProductIDs_.insert(std::make_pair(std::string("FEDRawDataCollection_source_"), 1U));
         fixedProductIDs_.insert(std::make_pair(std::string("edmTriggerResults_TriggerResults_"), 2U));
         fixedProductIDs_.insert(std::make_pair(std::string("triggerTriggerEvent_triggerSummaryAOD_"), 3U));
         fixedProductIDs_.insert(std::make_pair(std::string("triggerTriggerEventWithRefs_triggerSummaryRAW_"), 4U));
-	nextID_ += fixedProductIDs_.size();
+	nextID_ += numberOfFixedProductIDs;
   }
 
   void
@@ -46,7 +51,7 @@ namespace edm {
     productList_.insert(std::make_pair(BranchKey(productDesc), productDesc));
     addCalled(productDesc,fromListener);
     // we must now check if this product must use a fixed product ID.
-    if (preExistingFixedProductIDs_.size() < fixedProductIDs_.size()) {
+    if (preExistingFixedProductIDs_.size() < numberOfFixedProductIDs) {
       // NOTE: Not the full branch name.
       std::string branchName = productDesc.friendlyClassName() + '_' +
                                productDesc.moduleLabel() + '_';
@@ -73,7 +78,7 @@ namespace edm {
       }
       // If the product ID is small enough to be a fixed ID,
       // save the fact that the ID is already used.
-      if (productDesc.productID().id_ <= fixedProductIDs_.size()) {
+      if (productDesc.productID().id_ <= numberOfFixedProductIDs) {
         preExistingFixedProductIDs_.insert(productDesc.productID().id_);
       }
     } else {
@@ -162,8 +167,7 @@ namespace edm {
 	differences << "    but not in previous files.\n";
 	++i;
       } else if (i == e || j->first < i->first) {
-	differences << "Branch '" << j->second.branchName() << "' is in previous files\n";
-	differences << "    but not in file '" << fileName << "'.\n";
+	// Allow branch in previous files to be absent in this file.
 	++j;
       } else {
 	std::string difs = match(j->second, i->second, fileName, m);

@@ -20,14 +20,12 @@
 #include "TStyle.h"
 #include "TGraph.h"
 
-const int models=5, nEnergy0=8, nEnergy1=7, nEnergy2=10, nEnergy3=8;
-std::string Models[5]      = {"LEP", "Binary", "FTFP", "QGSC", "Bertini"};
-//std::string Models[5]      = {"LEP", "QGSP", "FTFP", "QGSC", "Bertini"};
+const int models=5, nEnergy1=7, nEnergy2=10, nEnergy3=8;
+std::string Models[5]      = {"LEP", "QGSP", "FTFP", "QGSC", "Bertini"};
 int         colModel[5]    = {1, 2, 6, 3, 7};
 int         symbModel[5]   = {24, 29, 25, 27, 26};
 double      keproton[4]    = {0.09, 0.15, 0.19, 0.23};
 double      keneutron[4]   = {0.07, 0.11, 0.15, 0.17};
-double      energyScan0[8] = {5.7, 6.2, 6.5, 7.0, 7.5, 8.2, 8.5, 9.0};
 double      energyScan1[7] = {6.0, 6.5, 7.0, 7.5, 8.2, 8.5, 9.0};
 double      energyScan2[10]= {1.0, 2.0, 3.0,  5.0, 6.0, 6.5,
 			      7.0, 7.5, 8.25, 9.0};
@@ -137,33 +135,6 @@ void plotData(char element[2], char ene[6], char angle[6],
   }
 }
 
-void plotKEx(char ene[6], char angle[6], int first=0, int logy=0, int save=0, 
-	     char beam[8]="proton", char particle[8]="proton") {
-
-  setStyle();
-  TCanvas *myc = new TCanvas("myc","",800,600); myc->Divide(2,2);
-
-  myc->cd(1); if (logy != 0) gPad->SetLogy(1); gPad->SetLeftMargin(0.15);
-  plotKE("C", ene, angle, first, logy, beam, particle);
-  myc->cd(2); if (logy != 0) gPad->SetLogy(1); gPad->SetLeftMargin(0.15);
-  plotKE("Cu", ene, angle, first, logy, beam, particle);
-  myc->cd(3); if (logy != 0) gPad->SetLogy(1); gPad->SetLeftMargin(0.15);
-  plotKE("Pb", ene, angle, first, logy, beam, particle);
-  myc->cd(4); if (logy != 0) gPad->SetLogy(1); gPad->SetLeftMargin(0.15);
-  plotKE("U", ene, angle, first, logy, beam, particle);
-
-  char anglx[6], fname[60];
-  int nx = 0;
-  for (int i=0; i<6; i++) {
-    if (angle[i] != ' ') { anglx[nx] = angle[i]; nx++;}
-  }
-  if (save != 0) {
-    if (save > 0) sprintf (fname, "%sCCuPbUto%sat%sGeV%sdeg.eps", beam, particle, ene, anglx);
-    else          sprintf (fname, "%sCCuPbUto%sat%sGeV%sdeg.gif", beam, particle, ene, anglx);
-    myc->SaveAs(fname);
-  }
-}
-
 void plotKE4(char element[2], char ene[6], int first=0, int logy=0, int save=0,
 	     char beam[8]="proton", char particle[8]="proton") {
 
@@ -182,7 +153,7 @@ void plotKE4(char element[2], char ene[6], int first=0, int logy=0, int save=0,
   char fname[40];
   if (save != 0) {
     if (save > 0) sprintf (fname, "%s%sto%sat%sGeV_1.eps", beam, element, particle, ene);
-    else          sprintf (fname, "%s%sto%sat%sGeV_1.gif", beam, element, particle, ene);
+    else          sprintf (fname, "%s%sto%sat%sGeV_1.jpg", beam, element, particle, ene);
     myc->SaveAs(fname);
   }
 
@@ -204,7 +175,7 @@ void plotKE1(char element[2], char ene[6], char angle[6], int first=0,
   }
   if (save != 0) {
     if (save > 0) sprintf (fname, "%s%sto%sat%sGeV%sdeg.eps", beam, element, particle, ene, anglx);
-    else          sprintf (fname, "%s%sto%sat%sGeV%sdeg.gif", beam, element, particle, ene, anglx);
+    else          sprintf (fname, "%s%sto%sat%sGeV%sdeg.jpg", beam, element, particle, ene, anglx);
     myc->SaveAs(fname);
   }
 }
@@ -311,7 +282,7 @@ void plotCT4(char element[2], char ene[6], int first=0, int scan=1, int logy=0,
   char fname[40];
   if (save != 0) {
     if (save > 0) sprintf (fname, "%s%sto%sat%sGeV_2.eps", beam, element, particle, ene);
-    else          sprintf (fname, "%s%sto%sat%sGeV_2.gif", beam, element, particle, ene);
+    else          sprintf (fname, "%s%sto%sat%sGeV_2.jpg", beam, element, particle, ene);
     myc->SaveAs(fname);
   }
 }
@@ -328,7 +299,7 @@ void plotCT1(char element[2], char ene[6], double ke, int first=0, int scan=1,
   char fname[40];
   if (save != 0) {
     if (save > 0) sprintf (fname, "%s%sto%sat%sGeV%4.2fGeV.eps", beam, element, particle, ene, ke);
-    else          sprintf (fname, "%s%sto%sat%sGeV%4.2fGeV.gif", beam, element, particle, ene, ke);
+    else          sprintf (fname, "%s%sto%sat%sGeV%4.2fGeV.jpg", beam, element, particle, ene, ke);
     myc->SaveAs(fname);
   }
 }
@@ -454,7 +425,7 @@ void plotBE4(char element[2], int logy=0, int scan=1, int save=0,
   char fname[40];
   if (save != 0) {
     if (save > 0) sprintf (fname, "%s%sto%s_1.eps", beam, element, particle);
-    else          sprintf (fname, "%s%sto%s_1.gif", beam, element, particle);
+    else          sprintf (fname, "%s%sto%s_1.jpg", beam, element, particle);
     myc->SaveAs(fname);
   }
 }
@@ -474,7 +445,7 @@ void plotBE1(char element[2], char angle[6], double ke, int logy=0, int scan=1,
   }
   if (save != 0) {
     if (save>0) sprintf (fname, "%s%sto%sat%sdeg%4.2fGeV.eps", beam, element, particle, anglx, ke);
-    else        sprintf (fname, "%s%sto%sat%sdeg%4.2fGeV.gif", beam, element, particle, anglx, ke);
+    else        sprintf (fname, "%s%sto%sat%sdeg%4.2fGeV.jpg", beam, element, particle, anglx, ke);
     myc->SaveAs(fname);
   }
 }
@@ -484,10 +455,7 @@ void plotBE(char element[2], char angle[6], double ke, int logy=0, int scan=1,
 
   double ene[15];
   int    nene=0;
-  if (scan == 0) {
-    nene = nEnergy0;
-    for (int i=0; i<nene; i++) ene[i] = energyScan0[i];
-  } else if (scan <= 1) {
+  if (scan <= 1) {
     nene = nEnergy1;
     for (int i=0; i<nene; i++) ene[i] = energyScan1[i];
   } else if (scan == 2) {
@@ -592,8 +560,6 @@ void plotBE(char element[2], char angle[6], double ke, int logy=0, int scan=1,
   }
   gr1->GetXaxis()->SetRangeUser(xmi,xmx);
   gr1->GetYaxis()->SetRangeUser(ymi0,ymx0);
-  gr1->GetXaxis()->SetTitle("Energy (GeV)"); 
-  gr1->GetYaxis()->SetTitle("E#frac{d^{3}#sigma}{dp^{3}} (mb/GeV^{2})"); 
 
   gr1->GetYaxis()->SetTitleOffset(1.6); gr1->SetTitle("");
   gr1->Draw("ap");

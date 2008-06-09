@@ -7,7 +7,6 @@
 namespace funct {
 
   struct Exponential {
-    static const unsigned int arguments = 1;
     Exponential(const Parameter & l) : lambda(l.ptr()) { }
     Exponential(boost::shared_ptr<double> l) : lambda(l) { }
     Exponential(double l) : lambda(new double(l)) { }

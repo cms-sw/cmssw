@@ -4,8 +4,8 @@
 /*
  * \file EcalEndcapMonitorClient.h
  *
- * $Date: 2008/04/08 15:06:25 $
- * $Revision: 1.39 $
+ * $Date: 2008/05/11 09:35:09 $
+ * $Revision: 1.42 $
  * \author G. Della Ricca
  * \author F. Cossutti
  *
@@ -47,9 +47,6 @@ EcalEndcapMonitorClient(const edm::ParameterSet & ps);
 /// Destructor
 ~EcalEndcapMonitorClient();
 
-// Initialize
-void initialize(const edm::ParameterSet & ps);
-
 /// Analyze
 void analyze(void);
 void analyze(const edm::Event & e, const edm::EventSetup & c);
@@ -73,6 +70,9 @@ void beginLuminosityBlock(const edm::LuminosityBlock & l, const edm::EventSetup 
 
 /// EndLumiBlock
 void endLuminosityBlock(const edm::LuminosityBlock & l, const edm::EventSetup & c);
+
+/// Reset
+void reset(void);
 
 /// Setup
 void setup(void);
@@ -149,15 +149,17 @@ bool mergeRuns_;
 RunIOV runiov_;
 MonRunIOV moniov_;
 
-bool enableSubRunDb_;
-bool enableSubRunHtml_;
 int subrun_;
  
 time_t current_time_;
+
+time_t last_time_update_;
 time_t last_time_db_;
 time_t last_time_html_;
-time_t dbRefreshTime_;
-time_t htmlRefreshTime_; 
+
+time_t updateTime_;
+time_t dbUpdateTime_;
+time_t htmlUpdateTime_; 
 
 std::string baseHtmlDir_;
 

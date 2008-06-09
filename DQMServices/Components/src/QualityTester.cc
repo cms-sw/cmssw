@@ -1,8 +1,8 @@
 /*
  * \file QualityTester.cc
  *
- * $Date: 2008/02/21 03:26:49 $
- * $Revision: 1.10 $
+ * $Date: 2008/05/17 16:22:29 $
+ * $Revision: 1.12 $
  * \author M. Zanetti - CERN PH
  *
  */
@@ -25,7 +25,10 @@ QualityTester::QualityTester(const ParameterSet& ps)
   prescaleFactor = ps.getUntrackedParameter<int>("prescaleFactor", 1);
   getQualityTestsFromFile = ps.getUntrackedParameter<bool>("getQualityTestsFromFile", true);
   reportThreshold = ps.getUntrackedParameter<string>("reportThreshold", "");
-
+  testInEventloop = ps.getUntrackedParameter<bool>("testInEventloop",false);
+  qtestOnEndRun = ps.getUntrackedParameter<bool>("qtestOnEndRun",false);
+  qtestOnEndJob = ps.getUntrackedParameter<bool>("qtestOnEndJob",false);
+  
   bei = &*edm::Service<DQMStore>();
 
   qtHandler=new QTestHandle;
@@ -35,6 +38,9 @@ QualityTester::QualityTester(const ParameterSet& ps)
     edm::FileInPath qtlist = ps.getUntrackedParameter<edm::FileInPath>("qtList");
     qtHandler->configureTests(FileInPath(qtlist).fullPath(), bei);
   }
+
+  nEvents = 0;
+
 }
 
 
@@ -43,12 +49,39 @@ QualityTester::~QualityTester()
   delete qtHandler;
 }
 
-void
-QualityTester::endLuminosityBlock(LuminosityBlock const& lumiSeg, EventSetup const& context)
+void QualityTester::analyze(const edm::Event& e, const edm::EventSetup& c) 
 {
-  if (getQualityTestsFromFile
-      && lumiSeg.id().luminosityBlock() % prescaleFactor == 0)
-  {
+  if (testInEventloop) {
+    nEvents++;
+    if (getQualityTestsFromFile 
+        && prescaleFactor > 0 
+	&& nEvents % prescaleFactor == 0)  {
+             performTests();
+    }
+  }
+}
+
+void QualityTester::endLuminosityBlock(LuminosityBlock const& lumiSeg, EventSetup const& context)
+{
+  if (!testInEventloop) {
+    if (getQualityTestsFromFile
+        && prescaleFactor > 0
+        && lumiSeg.id().luminosityBlock() % prescaleFactor == 0) {
+             performTests();
+    }
+  }
+}
+
+void QualityTester::endRun(const Run& r, const EventSetup& context){
+  if (qtestOnEndRun) performTests();
+}
+
+void QualityTester::endJob(){
+  if (qtestOnEndJob) performTests();
+}
+
+void QualityTester::performTests(void)
+{
     // done here because new ME can appear while processing data
     qtHandler->attachTests(bei);
 
@@ -79,5 +112,4 @@ QualityTester::endLuminosityBlock(LuminosityBlock const& lumiSeg, EventSetup con
       }
       std::cout << std::endl;
     }
-  }
 }

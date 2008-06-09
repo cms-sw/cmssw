@@ -44,7 +44,8 @@ process.maxEvents = cms.untracked.PSet(
     input = cms.untracked.int32(10)
 )
 process.source = cms.Source("EventStreamHttpReader",
-    sourceURL = cms.string('http://cmsroc9.fnal.gov:50082/urn:xdaq-application:lid=29'),
+    sourceURL = cms.string('http://cmsroc9.fnal.gov:50082/urn:xdaq-application:lid=29'), ##cmsroc9.fnal.gov:50082/urn:xdaq-application:lid=29"
+
     consumerPriority = cms.untracked.string('normal'),
     #   string sourceURL = "http://lhc01n02.fnal.gov:50082/urn:xdaq-application:lid=29"
     #   string sourceURL = "http://lhc01n02.fnal.gov:50082/urn:xdaq-application:lid=29"
@@ -52,11 +53,13 @@ process.source = cms.Source("EventStreamHttpReader",
     max_event_size = cms.int32(7000000),
     consumerName = cms.untracked.string('Test Consumer'),
     max_queue_depth = cms.int32(5),
-    maxEventRequestRate = cms.untracked.double(2.5),
+    maxEventRequestRate = cms.untracked.double(2.5), ## hertz
+
     SelectEvents = cms.untracked.PSet(
         SelectEvents = cms.vstring('*')
     ),
-    headerRetryInterval = cms.untracked.int32(3)
+    headerRetryInterval = cms.untracked.int32(3) ## seconds
+
 )
 
 process.ModuleWebRegistry = cms.Service("ModuleWebRegistry")
@@ -88,8 +91,10 @@ process.MonitorDaemon = cms.Service("MonitorDaemon",
 
 process.MessageLogger = cms.Service("MessageLogger",
     testGt_Unpacker = cms.untracked.PSet(
-        threshold = cms.untracked.string('DEBUG'),
-        DEBUG = cms.untracked.PSet(
+        threshold = cms.untracked.string('DEBUG'), ## DEBUG mode 
+
+        DEBUG = cms.untracked.PSet( ## DEBUG mode, all messages  
+
             limit = cms.untracked.int32(-1)
         ),
         #        untracked PSet DEBUG = { untracked int32 limit = 10}  // DEBUG mode, max 10 messages  

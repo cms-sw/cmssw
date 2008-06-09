@@ -517,16 +517,13 @@ void DisplayManager::createGRecHit(reco::PFRecHit& rh,int ident, double maxe, do
     double ampl=0;
     if(me>0) ampl = (log(rh.energy() + 1.)/log(me + 1.));
     
-    // cout<<"rechit "<<rheta<<" "<<rhphi<<endl;
     for ( unsigned jc=0; jc<4; ++jc ) { 
 
-      if ( phiSize[jc] > 1. ) phiSize[jc] -= 2.*TMath::Pi();  // this is strange...
-      if ( phiSize[jc] < -1. ) phiSize[jc]+= 2.*TMath::Pi();
-      // cout<<"\tcorner "<<jc<<" "<<corners[jc].Eta()<<" "<<corners[jc].Phi()
-      // 	  <<" "<<phiSize[jc]<<" "<<etaSize[jc]<<endl;
- 
       phiSize[jc] = rhphi-corners[jc].Phi();
       etaSize[jc] = rheta-corners[jc].Eta();
+      if ( phiSize[jc] > 1. ) phiSize[jc] -= 2.*TMath::Pi();  
+      if ( phiSize[jc] < -1. ) phiSize[jc]+= 2.*TMath::Pi();
+ 
       phiSize[jc] *= propfact;
       etaSize[jc] *= propfact;
 

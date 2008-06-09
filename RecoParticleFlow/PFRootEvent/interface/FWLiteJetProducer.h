@@ -18,6 +18,8 @@
 // #include "DataFormats/Common/interface/ProductID.h"
 #include "DataFormats/Provenance/interface/ProductID.h"
 
+using namespace reco;
+using namespace JetReco;
 class Utils;
 class FWLiteJetProducer{
   /*!
@@ -31,17 +33,13 @@ class FWLiteJetProducer{
   ~FWLiteJetProducer();
   /// Apply Et and E cuts on input object to jet algorihms, prepare 
   /// InputCollection to Jet Algo
-  void applyCuts(const reco::CandidateCollection& Candidates, 
-		 JetReco::InputCollection* input);         
+  void applyCuts(const CandidateCollection& Candidates, InputCollection* input);         
   /// Produce jet collection using CMS Iterative Cone Algorithm 
-  void makeIterativeConeJets(const JetReco::InputCollection& fInput, 
-			     JetReco::OutputCollection* fOutput);
+  void makeIterativeConeJets(const InputCollection& fInput, OutputCollection* fOutput);
   /// Produce jet collection using CMS Fast Jet Algorithm       
-  void makeFastJets(const JetReco::InputCollection& fInput, 
-		    JetReco::OutputCollection* fOutput);
+  void makeFastJets(const InputCollection& fInput, OutputCollection* fOutput);
   /// Produce jet collection using CMS Midpoint Jet Algorithm   
-  void makeMidpointJets(const JetReco::InputCollection& fInput, 
-			JetReco::OutputCollection* fOutput);
+  void makeMidpointJets(const InputCollection& fInput, OutputCollection* fOutput);
   void print();
   void updateParameter();
   /// Jet Algos --------------------------------------------

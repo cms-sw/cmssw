@@ -16,7 +16,7 @@
 //
 // Original Author:  Chris Jones
 //         Created:  Tue May  8 15:01:26 EDT 2007
-// $Id: Handle.h,v 1.5 2007/06/18 16:21:57 chrjones Exp $
+// $Id: Handle.h,v 1.6 2007/08/06 15:01:55 chrjones Exp $
 //
 
 // system include files
@@ -36,6 +36,12 @@ class Handle
 {
 
    public:
+      // this typedef is to avoid a Cint bug where calling
+      // edm::Wrapper<T>::typeInfo() fails for some types with
+      // very long expansions.  First noticed for the expansion
+      // of reco::JetTracksAssociation::Container
+      typedef edm::Wrapper<T> TempWrapT;
+
       Handle() : data_(0){}
       //virtual ~Handle();
 
@@ -63,16 +69,16 @@ class Handle
                       const char* iModuleLabel,
                       const char* iProductInstanceLabel = 0,
                       const char* iProcessLabel=0) {
-        edm::Wrapper<T>* temp;
+        TempWrapT* temp;
         void* pTemp = &temp;
-        iEvent.getByLabel(edm::Wrapper<T>::typeInfo(),
+        iEvent.getByLabel(TempWrapT::typeInfo(),
                           iModuleLabel,
                           iProductInstanceLabel,
                           iProcessLabel,
                           pTemp);
 data_ = temp->product();
         if(data_==0) {
-          iEvent.throwProductNotFoundException(edm::Wrapper<T>::typeInfo(),
+          iEvent.throwProductNotFoundException(TempWrapT::typeInfo(),
                                                iModuleLabel,
                                                iProductInstanceLabel,
                                                iProcessLabel);
@@ -83,16 +89,16 @@ data_ = temp->product();
                   const char* iModuleLabel,
                   const char* iProductInstanceLabel = 0,
                   const char* iProcessLabel=0) {
-    edm::Wrapper<T>* temp;
+    TempWrapT* temp;
     void* pTemp = &temp;
-    iEvent.getByLabel(edm::Wrapper<T>::typeInfo(),
+    iEvent.getByLabel(TempWrapT::typeInfo(),
                       iModuleLabel,
                       iProductInstanceLabel,
                       iProcessLabel,
                       pTemp);
     data_ = temp->product();
     if(data_==0) {
-      iEvent.throwProductNotFoundException(edm::Wrapper<T>::typeInfo(),
+      iEvent.throwProductNotFoundException(TempWrapT::typeInfo(),
                                            iModuleLabel,
                                            iProductInstanceLabel,
                                            iProcessLabel);

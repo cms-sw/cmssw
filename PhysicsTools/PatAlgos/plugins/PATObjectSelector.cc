@@ -10,6 +10,7 @@ DEFINE_FWK_MODULE(PATPhotonSelector);
 DEFINE_FWK_MODULE(PATJetSelector);
 DEFINE_FWK_MODULE(PATMETSelector);
 DEFINE_FWK_MODULE(PATParticleSelector);
+DEFINE_FWK_MODULE(PATGenericParticleSelector);
 
 
 

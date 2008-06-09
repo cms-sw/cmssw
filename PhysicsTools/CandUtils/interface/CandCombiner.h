@@ -9,46 +9,68 @@
 #include "PhysicsTools/CandUtils/interface/AddFourMomenta.h"
 #include "PhysicsTools/CandUtils/interface/CandSelector.h"
 #include "PhysicsTools/UtilAlgos/interface/AnyPairSelector.h"
-#include "DataFormats/Candidate/interface/VertexCompositeCandidate.h"
+#include "DataFormats/Candidate/interface/CompositeCandidate.h"
+#include "DataFormats/Candidate/interface/NamedCompositeCandidate.h"
 #include "DataFormats/Candidate/interface/ShallowCloneCandidate.h"
+#include "DataFormats/Candidate/interface/ShallowClonePtrCandidate.h"
 
 namespace combiner {
   namespace helpers {
     struct NormalClone {
-      template<typename Ref, typename CMP>
-      static void addDaughter(CMP & cmp, const Ref & c) {
+      typedef reco::CandidateBaseRef CandPtr;
+      template<typename Ref>
+      static void addDaughter(reco::CompositeCandidate & cmp, const Ref & c, const std::string & = "") {
 	cmp.addDaughter(*c);
       }
-    };
-    
-    struct ShallowClone {
-      template<typename CMP>
-      static void addDaughter(CMP & cmp, const reco::CandidateRef & c) {
-	if(c->numberOfDaughters()==0)
-	  cmp.addDaughter(reco::ShallowCloneCandidate(reco::CandidateBaseRef(c)));
-	else
-	  cmp.addDaughter(*c);
+      template<typename Ref>
+      static void addDaughter(reco::NamedCompositeCandidate & cmp, const Ref & c, const std::string & name) {
+        cmp.addDaughter(*c, name);
       }
-      template<typename CMP>
-      static void addDaughter(CMP & cmp, const reco::CandidateBaseRef & c) {
+    };
+     
+    struct ShallowClone {
+      typedef reco::CandidateBaseRef CandPtr;
+      static void addDaughter(reco::CompositeCandidate & cmp, const reco::CandidateBaseRef & c, const std::string & = "") {
 	if(c->numberOfDaughters()==0)
 	  cmp.addDaughter(reco::ShallowCloneCandidate(c));
 	else
 	  cmp.addDaughter(*c);
       }
+      static void addDaughter(reco::NamedCompositeCandidate & cmp, const reco::CandidateBaseRef & c, const std::string & name) {
+	if(c->numberOfDaughters()==0)
+	  cmp.addDaughter(reco::ShallowCloneCandidate(c), name);
+	else
+	  cmp.addDaughter(*c, name);
+      }
+      
     };
-  }
+    struct ShallowClonePtr {
+      typedef reco::CandidatePtr CandPtr;
+      static void addDaughter(reco::CompositeCandidate & cmp, const reco::CandidatePtr & c, const std::string & name) {
+	if(c->numberOfDaughters()==0)
+	  cmp.addDaughter(reco::ShallowClonePtrCandidate(c));
+	else
+	  cmp.addDaughter(*c);
+      }
+      static void addDaughter(reco::NamedCompositeCandidate & cmp, const reco::CandidatePtr & c, const std::string & name) {
+	if(c->numberOfDaughters()==0)
+	  cmp.addDaughter(reco::ShallowClonePtrCandidate(c),name);
+	else
+	  cmp.addDaughter(*c, name);
+      }
+    };
+ }
 }
 
-template<typename InputCollection,
-         typename Selector, 
-	 typename OutputCollection = typename combiner::helpers::CandRefHelper<InputCollection>::OutputCollection,
+template<typename Selector, 
 	 typename PairSelector = AnyPairSelector,
 	 typename Cloner = combiner::helpers::NormalClone, 
+	 typename OutputCollection = reco::CompositeCandidateCollection,
 	 typename Setup = AddFourMomenta>
-class CandCombiner : public CandCombinerBase<InputCollection, OutputCollection> {
+class CandCombiner : public CandCombinerBase<OutputCollection, typename Cloner::CandPtr> {
 public:
-  typedef CandCombinerBase<InputCollection, OutputCollection> base;
+  typedef typename Cloner::CandPtr CandPtr;
+  typedef CandCombinerBase<OutputCollection, CandPtr> base;
   /// default constructor
   CandCombiner() :
   base(), 
@@ -130,9 +152,6 @@ public:
   Setup & setup() { return setup_; }
 
 private:
-  typedef typename base::Ref Ref;
-  typedef typename base::composite_type composite_type;
-
   /// select a candidate
   virtual bool select(const reco::Candidate & c) const {
     return select_(c);
@@ -142,12 +161,12 @@ private:
     return selectPair_(c1, c2);
   } 
   /// set kinematics to reconstructed composite
-  virtual void setup(composite_type & c) const {
+  virtual void setup(typename OutputCollection::value_type & c) const {
     setup_.set(c);
   }
   /// add candidate daughter
-  virtual void addDaughter(composite_type & cmp, const Ref & c) const {
-    Cloner::addDaughter(cmp, c);
+  virtual void addDaughter(typename OutputCollection::value_type & cmp, const CandPtr & c, const std::string & name = "") const {
+    Cloner::addDaughter(cmp, c, name);
   }
   /// candidate selector
   Selector select_; 

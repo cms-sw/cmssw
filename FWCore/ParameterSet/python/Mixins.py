@@ -59,8 +59,11 @@ class UsingBlock(_SimpleParameterTypeBase):
     """For injection purposes, pretend this is a new parameter type
        then have a post process step which strips these out
     """
-    def __init__(self,value):
+    def __init__(self,value, s='', loc=0, file=''):
         super(UsingBlock,self).__init__(value)
+        self.s = s
+        self.loc = loc
+        self.file = file
         self.isResolved = False
     @staticmethod
     def _isValid(value):

@@ -1,8 +1,8 @@
 /*
  * \file L1TRCT.cc
  *
- * $Date: 2008/03/14 20:35:46 $
- * $Revision: 1.12 $
+ * $Date: 2008/03/20 19:38:25 $
+ * $Revision: 1.13 $
  * \author P. Wittich
  *
  */
@@ -86,6 +86,7 @@ L1TRCT::~L1TRCT()
 void L1TRCT::beginJob(const EventSetup & c)
 {
 
+
   nev_ = 0;
 
   // get hold of back-end interface
@@ -102,28 +103,28 @@ void L1TRCT::beginJob(const EventSetup & c)
     dbe->setCurrentFolder("L1T/L1TRCT");
 
     rctIsoEmEtEtaPhi_ =
-	dbe->book2D("RctIsoEmEtEtaPhi", "ISO EM E_{T}", PHIBINS, PHIMIN,
-		    PHIMAX, ETABINS, ETAMIN, ETAMAX);
+	dbe->book2D("RctIsoEmEtEtaPhi", "ISO EM E_{T}", ETABINS, ETAMIN,
+		    ETAMAX, PHIBINS, PHIMIN, PHIMAX);
     rctIsoEmOccEtaPhi_ =
-	dbe->book2D("RctIsoEmOccEtaPhi", "ISO EM OCCUPANCY", PHIBINS,
-		    PHIMIN, PHIMAX, ETABINS, ETAMIN, ETAMAX);
+	dbe->book2D("RctIsoEmOccEtaPhi", "ISO EM OCCUPANCY", ETABINS,
+		    ETAMIN, ETAMAX, PHIBINS, PHIMIN, PHIMAX);
     rctNonIsoEmEtEtaPhi_ =
-	dbe->book2D("RctNonIsoEmEtEtaPhi", "NON-ISO EM E_{T}", PHIBINS,
-		    PHIMIN, PHIMAX, ETABINS, ETAMIN, ETAMAX);
+	dbe->book2D("RctNonIsoEmEtEtaPhi", "NON-ISO EM E_{T}", ETABINS,
+		    ETAMIN, ETAMAX, PHIBINS, PHIMIN, PHIMAX);
     rctNonIsoEmOccEtaPhi_ =
 	dbe->book2D("RctNonIsoEmOccEtaPhi", "NON-ISO EM OCCUPANCY",
-		    PHIBINS, PHIMIN, PHIMAX, ETABINS, ETAMIN, ETAMAX);
+		    ETABINS, ETAMIN, ETAMAX, PHIBINS, PHIMIN, PHIMAX);
 
     // global regions
     rctRegionsEtEtaPhi_ =
-	dbe->book2D("RctRegionsEtEtaPhi", "REGION E_{T}", PHIBINS, PHIMIN,
-		    PHIMAX, ETABINS, ETAMIN, ETAMAX);
+	dbe->book2D("RctRegionsEtEtaPhi", "REGION E_{T}", ETABINS, ETAMIN,
+		    ETAMAX, PHIBINS, PHIMIN, PHIMAX);
     rctRegionsOccEtaPhi_ =
-	dbe->book2D("RctRegionsOccEtaPhi", "REGION OCCUPANCY", PHIBINS,
-		    PHIMIN, PHIMAX, ETABINS, ETAMIN, ETAMAX);
+	dbe->book2D("RctRegionsOccEtaPhi", "REGION OCCUPANCY", ETABINS,
+		    ETAMIN, ETAMAX, PHIBINS, PHIMIN, PHIMAX);
     rctTauVetoEtaPhi_ =
-	dbe->book2D("RctTauVetoEtaPhi", "TAU VETO OCCUPANCY", PHIBINS,
-		    PHIMIN, PHIMAX, ETABINS, ETAMIN, ETAMAX);
+	dbe->book2D("RctTauVetoEtaPhi", "TAU VETO OCCUPANCY", ETABINS,
+		    ETAMIN, ETAMAX, PHIBINS, PHIMIN, PHIMAX);
 
     // local regions
     const int nlocphibins = 2; 
@@ -134,16 +135,16 @@ void L1TRCT::beginJob(const EventSetup & c)
     const float locetamax = 10.5;
     rctRegionsLocalEtEtaPhi_ =
 	dbe->book2D("RctRegionsLocalEtEtaPhi", "REGION E_{T} (Local)", 
-		    nlocphibins, locphimin, locphimax,
-		    nlocetabins, locetamin, locetamax);
+		    nlocetabins, locetamin, locetamax,
+		    nlocphibins, locphimin, locphimax);
     rctRegionsLocalOccEtaPhi_ =
 	dbe->book2D("RctRegionsLocalOccEtaPhi", "REGION OCCUPANCY (Local)", 
-		    nlocphibins, locphimin, locphimax,
-		    nlocetabins, locetamin, locetamax);
+		    nlocetabins, locetamin, locetamax,
+		    nlocphibins, locphimin, locphimax);
     rctTauVetoLocalEtaPhi_ =
 	dbe->book2D("RctTauLocalVetoEtaPhi", "TAU VETO OCCUPANCY (Local)",
-		    nlocphibins, locphimin, locphimax,
-		    nlocetabins, locetamin, locetamax);
+		    nlocetabins, locetamin, locetamax,
+		    nlocphibins, locphimin, locphimax);
 
     // rank histos
     rctRegionRank_ =
@@ -210,19 +211,21 @@ void L1TRCT::analyze(const Event & e, const EventSetup & c)
     // Regions
     for (L1CaloRegionCollection::const_iterator ireg = rgn->begin();
 	 ireg != rgn->end(); ireg++) {
-      rctRegionsOccEtaPhi_->Fill(ireg->gctPhi(), ireg->gctEta());
-      rctRegionsEtEtaPhi_->Fill(ireg->gctPhi(), ireg->gctEta(), ireg->et());
       rctRegionRank_->Fill(ireg->et());
-      rctTauVetoEtaPhi_->Fill(ireg->gctPhi(), ireg->gctEta(),
+      if(ireg->et()>0)
+      {
+      rctRegionsOccEtaPhi_->Fill(ireg->gctEta(), ireg->gctPhi());
+      rctRegionsEtEtaPhi_->Fill(ireg->gctEta(), ireg->gctPhi(), ireg->et());
+      rctTauVetoEtaPhi_->Fill(ireg->gctEta(), ireg->gctPhi(),
 			      ireg->tauVeto());
 
       // now do local coordinate eta and phi
-      rctRegionsLocalOccEtaPhi_->Fill(ireg->rctPhi(), ireg->rctEta());
-      rctRegionsLocalEtEtaPhi_->Fill(ireg->rctPhi(), ireg->rctEta(), 
+      rctRegionsLocalOccEtaPhi_->Fill(ireg->rctEta(), ireg->rctPhi());
+      rctRegionsLocalEtEtaPhi_->Fill(ireg->rctEta(), ireg->rctPhi(), 
 				     ireg->et());
-      rctTauVetoLocalEtaPhi_->Fill(ireg->rctPhi(), ireg->rctEta(),
+      rctTauVetoLocalEtaPhi_->Fill(ireg->rctEta(), ireg->rctPhi(),
 				   ireg->tauVeto());
-    
+      }
       rctRegionBx_->Fill(ireg->bx());
     
     }
@@ -245,18 +248,23 @@ void L1TRCT::analyze(const Event & e, const EventSetup & c)
 
     if (iem->isolated()) {
       rctIsoEmRank_->Fill(iem->rank());
-      rctIsoEmEtEtaPhi_->Fill(iem->regionId().iphi(),
-			      iem->regionId().ieta(), iem->rank());
-      rctIsoEmOccEtaPhi_->Fill(iem->regionId().iphi(),
-			       iem->regionId().ieta());
-
+      if(iem->rank()>0)
+      {
+      rctIsoEmEtEtaPhi_->Fill(iem->regionId().ieta(),
+			      iem->regionId().iphi(), iem->rank());
+      rctIsoEmOccEtaPhi_->Fill(iem->regionId().ieta(),
+			       iem->regionId().iphi());
+      }
     }
     else {
       rctNonIsoEmRank_->Fill(iem->rank());
-      rctNonIsoEmEtEtaPhi_->Fill(iem->regionId().iphi(),
-				 iem->regionId().ieta(), iem->rank());
-      rctNonIsoEmOccEtaPhi_->Fill(iem->regionId().iphi(),
-				  iem->regionId().ieta());
+      if(iem->rank()>0)
+      { 
+      rctNonIsoEmEtEtaPhi_->Fill(iem->regionId().ieta(),
+				 iem->regionId().iphi(), iem->rank());
+      rctNonIsoEmOccEtaPhi_->Fill(iem->regionId().ieta(),
+				  iem->regionId().iphi());
+      }
     }
     rctEmBx_->Fill(iem->bx());
 

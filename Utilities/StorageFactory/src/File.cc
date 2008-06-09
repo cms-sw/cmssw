@@ -205,16 +205,6 @@ File::attach (IOFD fd)
 }
 
 //////////////////////////////////////////////////////////////////////
-/** Prefetch data for the file.  */
-bool
-File::prefetch (const IOPosBuffer *what, IOSize n)
-{
-  IOFD fd = this->fd();
-  for (IOSize i = 0; i < n; ++i)
-    posix_fadvise(fd, what[i].offset(), what[i].size(), POSIX_FADV_WILLNEED);
-  return true;
-}
-
 /** Read from the file.  */
 IOSize
 File::read (void *into, IOSize n)

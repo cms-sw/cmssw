@@ -1,8 +1,8 @@
 /*
  * \file EETestPulseClient.cc
  *
- * $Date: 2008/04/08 15:06:26 $
- * $Revision: 1.86 $
+ * $Date: 2008/05/09 08:08:25 $
+ * $Revision: 1.88 $
  * \author G. Della Ricca
  * \author F. Cossutti
  *
@@ -25,7 +25,9 @@
 #include "OnlineDB/EcalCondDB/interface/MonPulseShapeDat.h"
 #include "OnlineDB/EcalCondDB/interface/MonPNMGPADat.h"
 #include "OnlineDB/EcalCondDB/interface/RunCrystalErrorsDat.h"
+#include "OnlineDB/EcalCondDB/interface/RunTTErrorsDat.h"
 #include "OnlineDB/EcalCondDB/interface/RunPNErrorsDat.h"
+#include "OnlineDB/EcalCondDB/interface/RunMemTTErrorsDat.h"
 
 #include "OnlineDB/EcalCondDB/interface/EcalCondDBInterface.h"
 
@@ -680,9 +682,13 @@ void EETestPulseClient::analyze(void){
 
   map<EcalLogicID, RunCrystalErrorsDat> mask1;
   map<EcalLogicID, RunPNErrorsDat> mask2;
+  map<EcalLogicID, RunTTErrorsDat> mask3;
+  map<EcalLogicID, RunMemTTErrorsDat> mask4;
 
   EcalErrorMask::fetchDataSet(&mask1);
   EcalErrorMask::fetchDataSet(&mask2);
+  EcalErrorMask::fetchDataSet(&mask3);
+  EcalErrorMask::fetchDataSet(&mask4);
 
   char histo[200];
 
@@ -746,7 +752,7 @@ void EETestPulseClient::analyze(void){
     mer04_[ism-1]->Reset();
     mer05_[ism-1]->Reset();
 
-    me_hs01_[ism-1]->Reset(); 
+    me_hs01_[ism-1]->Reset();
     me_hs02_[ism-1]->Reset();
     me_hs03_[ism-1]->Reset();
 
@@ -952,6 +958,34 @@ void EETestPulseClient::analyze(void){
           }
         }
 
+	// TT masking
+
+        if ( mask3.size() != 0 ) {
+          map<EcalLogicID, RunTTErrorsDat>::const_iterator m;
+          for (m = mask3.begin(); m != mask3.end(); m++) {
+
+            EcalLogicID ecid = m->first;
+
+            int itt = Numbers::iTT(ism, EcalEndcap, ix, iy);
+
+            if ( ecid.getLogicID() == LogicID::getEcalLogicID("EE_readout_tower", Numbers::iSM(ism, EcalEndcap), itt).getLogicID() ) {
+	      if ( meg01_[ism-1] ) {
+		float val = int(meg01_[ism-1]->getBinContent(ix, iy)) % 3;
+		meg01_[ism-1]->setBinContent( ix, iy, val+3 );
+	      }
+	      if ( meg02_[ism-1] ) {
+		float val = int(meg02_[ism-1]->getBinContent(ix, iy)) % 3;
+		meg02_[ism-1]->setBinContent( ix, iy, val+3 );
+	      }
+	      if ( meg03_[ism-1] ) {
+		float val = int(meg03_[ism-1]->getBinContent(ix, iy)) % 3;
+		meg03_[ism-1]->setBinContent( ix, iy, val+3 );
+	      }
+            }
+
+          }
+        }
+
       }
     }
 
@@ -1035,13 +1069,38 @@ void EETestPulseClient::analyze(void){
         }
       }
 
+      // TT masking
+
+      if ( mask4.size() != 0 ) {
+	map<EcalLogicID, RunMemTTErrorsDat>::const_iterator m;
+	for (m = mask4.begin(); m != mask4.end(); m++) {
+
+	  EcalLogicID ecid = m->first;
+
+	  int it = 1 + ((i-1)/5);
+	  int itt = 68 + it;
+
+	  if ( ecid.getLogicID() == LogicID::getEcalLogicID("EE_mem_TT", Numbers::iSM(ism, EcalEndcap), itt).getLogicID() ) {
+	    if ( meg04_[ism-1] ) {
+	      float val = int(meg04_[ism-1]->getBinContent(i, 1)) % 3;
+	      meg04_[ism-1]->setBinContent( i, 1, val+3 );
+	    }
+	    if ( meg05_[ism-1] ) {
+	      float val = int(meg05_[ism-1]->getBinContent(i, 1)) % 3;
+	      meg05_[ism-1]->setBinContent( i, 1, val+3 );
+	    }
+	  }
+
+	}
+      }
+
     }
 
     for ( int i = 1; i <= 10; i++ ) {
 
       if ( hs01_[ism-1] ) {
         int ic = UtilsClient::getFirstNonEmptyChannel( hs01_[ism-1] );
-        if ( me_hs01_[ism-1] ) { 
+        if ( me_hs01_[ism-1] ) {
           me_hs01_[ism-1]->setBinContent( i, hs01_[ism-1]->GetBinContent(ic, i) );
           me_hs01_[ism-1]->setBinError( i, hs01_[ism-1]->GetBinError(ic, i) );
         }
@@ -1049,7 +1108,7 @@ void EETestPulseClient::analyze(void){
 
       if ( hs02_[ism-1] ) {
         int ic = UtilsClient::getFirstNonEmptyChannel( hs02_[ism-1] );
-        if ( me_hs02_[ism-1] ) { 
+        if ( me_hs02_[ism-1] ) {
           me_hs02_[ism-1]->setBinContent( i, hs02_[ism-1]->GetBinContent(ic, i) );
           me_hs02_[ism-1]->setBinError( i, hs02_[ism-1]->GetBinError(ic, i) );
         }
@@ -1271,9 +1330,9 @@ void EETestPulseClient::htmlOutput(int run, string& htmlDir, string& htmlName){
           obj1f = UtilsClient::getHisto<TH1F*>( me_hs02_[ism-1] );
           break;
         case 3:
-          obj1f = UtilsClient::getHisto<TH1F*>( me_hs03_[ism-1] );  
+          obj1f = UtilsClient::getHisto<TH1F*>( me_hs03_[ism-1] );
           break;
-        default: 
+        default:
           break;
       }
 

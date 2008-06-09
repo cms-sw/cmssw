@@ -2,11 +2,10 @@
 #define STOR_PARAMETER_H
 
 // Created by Markus Klute on 2007 Jan 29.
-// $Id: Parameter.h,v 1.3.2.1 2008/03/07 20:36:33 biery Exp $
-
+// $Id: Parameter.h,v 1.5 2008/03/10 14:50:07 biery Exp $
+//
 // holds configuration parameter for StorageManager
-
-// should be moved to EventFilter/StorageManager
+//
 
 #include <toolbox/net/Utils.h>
 #include <string>
@@ -16,12 +15,13 @@ namespace stor
   class Parameter
     {
     public:
-      Parameter():
+      Parameter() :
 	closeFileScript_("$CMSSW_RELEASE_BASE/src/EventFilter/StorageManager/scripts/perl/closeFile.pl"),
 	notifyTier0Script_("$CMSSW_RELEASE_BASE/src/EventFilter/StorageManager/scripts/perl/notifyTier0.pl"),
 	insertFileScript_("$CMSSW_RELEASE_BASE/src/EventFilter/StorageManager/scripts/perl/insertFile.pl"),
 	fileCatalog_("summaryCatalog.txt"),
 	smInstance_("0"),
+	hostName_(toolbox::net::getHostName()),
 	initialSafetyLevel_(0),
         fileName_("storageManager"),
         filePath_("/scratch2/cheung"),
@@ -31,27 +31,32 @@ namespace stor
         highWaterMark_(0.9),
         lumiSectionTimeOut_(10.0),
         exactFileSizeTest_(false)
-	{
-	  hostName_ = toolbox::net::getHostName();
-	}
+      {
+        // strip domainame
+         std::string::size_type pos = hostName_.find('.');  
+         if ( pos != std::string::npos ) {  
+           std::string basename = hostName_.substr(0,pos);  
+           hostName_ = basename;
+         }
+      }
 
-      std::string closeFileScript()    {return closeFileScript_;}
-      std::string notifyTier0Script()  {return notifyTier0Script_;}
-      std::string insertFileScript()   {return insertFileScript_;}
-      std::string fileCatalog()        {return fileCatalog_;}
-      std::string smInstance()         {return smInstance_;}
-      std::string host()               {return hostName_;}
-      std::string fileName()           {return fileName_;}
-      std::string filePath()           {return filePath_;}
-      int    maxFileSize()             {return maxFileSize_;} 
-      std::string mailboxPath()        {return mailboxPath_;}
-      std::string setupLabel()         {return setupLabel_;}
-      double highWaterMark()           {return highWaterMark_;}
-      double lumiSectionTimeOut()      {return lumiSectionTimeOut_;}
-      bool exactFileSizeTest()         {return exactFileSizeTest_;}
+      const std::string& closeFileScript()    const {return closeFileScript_;}
+      const std::string& notifyTier0Script()  const {return notifyTier0Script_;}
+      const std::string& insertFileScript()   const {return insertFileScript_;}
+      const std::string& fileCatalog()        const {return fileCatalog_;}
+      const std::string& smInstance()         const {return smInstance_;}
+      const std::string& host()               const {return hostName_;}
+      const std::string& fileName()           const {return fileName_;}
+      const std::string& filePath()           const {return filePath_;}
+      const std::string& mailboxPath()        const {return mailboxPath_;}
+      const std::string& setupLabel()         const {return setupLabel_;}
+      int    maxFileSize()             const {return maxFileSize_;} 
+      double highWaterMark()           const {return highWaterMark_;}
+      double lumiSectionTimeOut()      const {return lumiSectionTimeOut_;}
+      bool exactFileSizeTest()         const {return exactFileSizeTest_;}
+      int initialSafetyLevel()         const {return initialSafetyLevel_;}
 
-      int initialSafetyLevel()         {return initialSafetyLevel_;}
-
+      // not efficient to pass object but tolerable
       void setCloseFileScript   (std::string x) {closeFileScript_=x;}
       void setNotifyTier0Script (std::string x) {notifyTier0Script_=x;}
       void setInsertFileScript  (std::string x) {insertFileScript_=x;}
@@ -59,13 +64,12 @@ namespace stor
       void setSmInstance        (std::string x) {smInstance_=x;}
       void setfileName          (std::string x) {fileName_=x;}
       void setfilePath          (std::string x) {filePath_=x;}
-      void setmaxFileSize               (int x) {maxFileSize_=x;}
       void setmailboxPath       (std::string x) {mailboxPath_=x;}
       void setsetupLabel        (std::string x) {setupLabel_=x;}
+      void setmaxFileSize               (int x) {maxFileSize_=x;}
       void sethighWaterMark          (double x) {highWaterMark_=x;}
       void setlumiSectionTimeOut     (double x) {lumiSectionTimeOut_=x;}
       void setExactFileSizeTest        (bool x) {exactFileSizeTest_=x;}
-
       void initialSafetyLevel   (int i)         {initialSafetyLevel_=i;}
 
    private:
@@ -80,10 +84,10 @@ namespace stor
       std::string filePath_;
       std::string mailboxPath_;
       std::string setupLabel_;
-      int    maxFileSize_; 
-      double highWaterMark_;
-      double lumiSectionTimeOut_;
-      bool exactFileSizeTest_;
+      int         maxFileSize_; 
+      double      highWaterMark_;
+      double      lumiSectionTimeOut_;
+      bool        exactFileSizeTest_;
     }; 
 }
 

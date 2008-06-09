@@ -1,8 +1,8 @@
 /*
  * \file EBPedestalTask.cc
  *
- * $Date: 2008/04/08 15:32:09 $
- * $Revision: 1.83 $
+ * $Date: 2008/04/08 15:35:12 $
+ * $Revision: 1.84 $
  * \author G. Della Ricca
  *
 */
@@ -41,6 +41,8 @@ EBPedestalTask::EBPedestalTask(const ParameterSet& ps){
 
   enableCleanup_ = ps.getUntrackedParameter<bool>("enableCleanup", false);
 
+  mergeRuns_ = ps.getUntrackedParameter<bool>("mergeRuns", false);
+
   EcalRawDataCollection_ = ps.getParameter<edm::InputTag>("EcalRawDataCollection");
   EBDigiCollection_ = ps.getParameter<edm::InputTag>("EBDigiCollection");
   EcalPnDiodeDigiCollection_ = ps.getParameter<edm::InputTag>("EcalPnDiodeDigiCollection");
@@ -75,6 +77,34 @@ void EBPedestalTask::beginJob(const EventSetup& c){
   }
 
   Numbers::initGeometry(c, false);
+
+}
+
+void EBPedestalTask::beginRun(const Run& r, const EventSetup& c) {
+
+  if ( ! mergeRuns_ ) this->reset();
+
+}
+
+void EBPedestalTask::endRun(const Run& r, const EventSetup& c) {
+
+}
+
+void EBPedestalTask::reset(void) {
+
+  for (int i = 0; i < 36; i++) {
+    if ( mePedMapG01_[i] ) mePedMapG01_[i]->Reset();
+    if ( mePedMapG06_[i] ) mePedMapG06_[i]->Reset();
+    if ( mePedMapG12_[i] ) mePedMapG12_[i]->Reset();
+    if ( mePed3SumMapG01_[i] ) mePed3SumMapG01_[i]->Reset();
+    if ( mePed3SumMapG06_[i] ) mePed3SumMapG06_[i]->Reset();
+    if ( mePed3SumMapG12_[i] ) mePed3SumMapG12_[i]->Reset();
+    if ( mePed5SumMapG01_[i] ) mePed5SumMapG01_[i]->Reset();
+    if ( mePed5SumMapG06_[i] ) mePed5SumMapG06_[i]->Reset();
+    if ( mePed5SumMapG12_[i] ) mePed5SumMapG12_[i]->Reset();
+    if ( mePnPedMapG01_[i] ) mePnPedMapG01_[i]->Reset();
+    if ( mePnPedMapG16_[i] ) mePnPedMapG16_[i]->Reset();
+  }
 
 }
 
@@ -170,7 +200,7 @@ void EBPedestalTask::setup(void){
 
 void EBPedestalTask::cleanup(void){
 
-  if ( ! enableCleanup_ ) return;
+  if ( ! init_ ) return;
 
   if ( dqmStore_ ) {
     dqmStore_->setCurrentFolder(prefixME_ + "/EBPedestalTask");
@@ -229,7 +259,7 @@ void EBPedestalTask::endJob(void){
 
   LogInfo("EBPedestalTask") << "analyzed " << ievt_ << " events";
 
-  if ( init_ ) this->cleanup();
+  if ( enableCleanup_ ) this->cleanup();
 
 }
 

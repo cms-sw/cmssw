@@ -7,7 +7,7 @@
  *
  * \author Francisco Yumiceva, Fermilab (yumiceva@fnal.gov)
  *
- * \version $Id: BeamSpot.h,v 1.4 2007/08/21 20:45:27 ratnik Exp $
+ * \version $Id: BeamSpot.h,v 1.3 2007/06/27 12:25:46 speer Exp $
  *
  */
 
@@ -22,10 +22,6 @@ namespace reco {
 
   class BeamSpot {
   public:
-	  
-    /// beam spot flags
-	enum BeamType { Unknown=-1, Fake=0, LHC=1, Tracker=2 };
-	
     /// point in the space
     typedef math::XYZPoint Point;
     enum { dimension = 7 };
@@ -44,18 +40,17 @@ namespace reco {
 	      double dxdz,
 	      double dydz,
 	      double BeamWidth,
-		  const CovarianceMatrix &error,
-		  BeamType type = Unknown) { 
+	      const CovarianceMatrix &error) { 
       position_ = point;
       sigmaZ_ = sigmaZ;
       dxdz_ = dxdz;
       dydz_ = dydz;
       BeamWidth_ = BeamWidth;
       error_ = error;
-	  type_ = type;
     };
-
-	
+    
+    /// dummy beam spot
+    void dummy();
     /// position 
     const Point & position() const { return position_; }
     /// x coordinate 
@@ -96,17 +91,15 @@ namespace reco {
     /// return only 3D position covariance matrix
     Covariance3DMatrix covariance3D() const {
 
-		Covariance3DMatrix matrix;
-		for (int j=0; j<3; j++) {
-			for (int k=j; k<3; k++) {
-				matrix(j,k) = error_(j,k);
-			}
-		}
+      Covariance3DMatrix matrix;
+      for (int j=0; j<3; j++) {
+	for (int k=j; k<3; k++) {
+	  matrix(j,k) = error_(j,k);
+	}
+      }
       return matrix;
     };
-	/// return beam type
-	BeamType type() const { return type_; }
-	///
+
     Covariance3DMatrix rotatedCovariance3D() const;
 
     /// print information
@@ -123,7 +116,6 @@ namespace reco {
 	Double32_t dxdz_;
 	Double32_t dydz_;
 	
-	BeamType type_;
 	
   };
   ///

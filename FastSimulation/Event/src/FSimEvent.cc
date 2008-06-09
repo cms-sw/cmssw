@@ -76,9 +76,8 @@ FSimEvent::load(edm::SimTrackContainer & c, edm::SimTrackContainer & m) const
       if ( track(i).mother().closestDaughterId() == (int)i ) {
 	const SimTrack& T = embdTrack(track(i).mother().id());
 	m.push_back(T);
-      } else { 
-	m.push_back(t);
-      }
+      } 
+      m.push_back(t);
     }
   }
 }

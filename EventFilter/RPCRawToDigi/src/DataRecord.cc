@@ -1,41 +1,31 @@
 #include "EventFilter/RPCRawToDigi/interface/DataRecord.h"
-#include "EventFilter/RPCRawToDigi/interface/RecordBX.h"
-#include "EventFilter/RPCRawToDigi/interface/RecordSLD.h"
-#include "EventFilter/RPCRawToDigi/interface/RecordCD.h"
-#include "EventFilter/RPCRawToDigi/interface/EmptyWord.h"
-#include "EventFilter/RPCRawToDigi/interface/ErrorRDM.h"
-#include "EventFilter/RPCRawToDigi/interface/ErrorSDDM.h"
-#include "EventFilter/RPCRawToDigi/interface/ErrorRDDM.h"
-#include "EventFilter/RPCRawToDigi/interface/ErrorRCDM.h"
 
 using namespace rpcrawtodigi;
+
+DataRecord::DataRecord()
+{
+ theData = (controlWordFlag << RECORD_TYPE_SHIFT);
+ theData |= (EmptyOrDCCDiscardedFlag << CONTROL_TYPE_SHIFT);
+ theData |= (EmptyWordFlag << EMPTY_OR_DCCDISCARDED_SHIFT);
+
+}
 
 DataRecord::recordName  DataRecord::type() const 
 {
   recordName wordType = UndefinedType;
-  if (RecordBX::matchType(theData)) wordType = StartOfBXData;
-  if (RecordSLD::matchType(theData)) wordType = StartOfTbLinkInputNumberData;
-  if (RecordCD::matchType(theData)) wordType = ChamberData;
-  if (EmptyWord::matchType(theData)) wordType = Empty;
-  if (ErrorRCDM::matchType(theData)) wordType = RCDM;
-  if (ErrorSDDM::matchType(theData)) wordType = SDDM;
-  if (ErrorRDDM::matchType(theData)) wordType = RDDM;
-  if (ErrorRDM::matchType(theData))  wordType = RDM;
+  if ( (int)((theData >> RECORD_TYPE_SHIFT) & RECORD_TYPE_MASK) <= MaxLBFlag) wordType = LinkBoardData;
+  if ( (int)((theData >> RECORD_TYPE_SHIFT) & RECORD_TYPE_MASK) == controlWordFlag) {
+    if ( (int)((theData >> BX_TYPE_SHIFT) & BX_TYPE_MASK) == BXFlag) wordType = StartOfBXData;
+    if ( (int)((theData >> CONTROL_TYPE_SHIFT) & CONTROL_TYPE_MASK) == StartOfLBInputDataFlag) wordType =  StartOfTbLinkInputNumberData;
+    if ( (int) ((theData >> CONTROL_TYPE_SHIFT) & CONTROL_TYPE_MASK) == RMBDiscardedDataFlag  ) wordType = RMBDiscarded;
+    if ( (int) ((theData >> CONTROL_TYPE_SHIFT) & CONTROL_TYPE_MASK) == RMBCorruptedDataFlag  ) wordType = RMBCorrupted;
+    // Empty or DCC Discarded
+      if ( (int)((theData >> CONTROL_TYPE_SHIFT) & CONTROL_TYPE_MASK) == EmptyOrDCCDiscardedFlag){
+
+        if ( (int)((theData >>  EMPTY_OR_DCCDISCARDED_SHIFT) & EMPTY_OR_DCCDISCARDED_MASK) == EmptyWordFlag) wordType = EmptyWord;
+        if ( (int) ((theData >> EMPTY_OR_DCCDISCARDED_SHIFT) & EMPTY_OR_DCCDISCARDED_MASK) == DCCDiscardedFlag) wordType = DCCDiscarded;
+        if ( (int) ((theData >> RMB_DISABLED_SHIFT) & RMB_DISABLED_MASK) == RMBDisabledDataFlag) wordType = RMBDisabled;
+      }
+  }
   return wordType;
-}
-
-std::string DataRecord::print(const DataRecord & data) 
-{
-  std::ostringstream str;
-  
-  if (RecordBX::matchType(data)) return RecordBX(data).print();
-  if (RecordSLD::matchType(data)) return RecordSLD(data).print();
-  if (RecordCD::matchType(data)) return RecordCD(data).print();
-  if (EmptyWord::matchType(data)) return EmptyWord().print();
-  if (ErrorRCDM::matchType(data)) return ErrorRCDM(data).print();
-  if (ErrorSDDM::matchType(data)) return ErrorSDDM().print();
-  if (ErrorRDDM::matchType(data)) return ErrorRDDM(data).print();
-  if (ErrorRDM::matchType(data))  return ErrorRDM(data).print();
-
-  return str.str();
 }

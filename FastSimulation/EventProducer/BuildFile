@@ -1,4 +1,3 @@
-<use name=rootmath>
 <use name=DataFormats/HepMCCandidate>
 <use name=DataFormats/Common>
 <use name=DataFormats/Provenance>

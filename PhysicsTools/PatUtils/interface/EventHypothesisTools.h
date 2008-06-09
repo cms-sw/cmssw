@@ -14,7 +14,7 @@ namespace pat { namespace eventhypothesis {
                     AndFilter(ParticleFilter *f1, ParticleFilter *f2) ;
                     virtual ~AndFilter() {}
                     AndFilter & operator&=(ParticleFilter *filter) { filters_.push_back(filter); return *this; }
-                    virtual bool operator()(const reco::CandidateBaseRef &cand, const std::string &role) const ;
+                    virtual bool operator()(const CandRefType &cand, const std::string &role) const ;
                 private:
                     boost::ptr_vector<ParticleFilter> filters_;
             };
@@ -26,7 +26,7 @@ namespace pat { namespace eventhypothesis {
                     OrFilter(ParticleFilter *f1, ParticleFilter *f2) ;
                     virtual ~OrFilter() {}
                     OrFilter & operator&=(ParticleFilter *filter) { filters_.push_back(filter); return *this; }
-                    virtual bool operator()(const reco::CandidateBaseRef &cand, const std::string &role) const ;
+                    virtual bool operator()(const CandRefType &cand, const std::string &role) const ;
                 private:
                     boost::ptr_vector<ParticleFilter> filters_;
             };
@@ -35,7 +35,7 @@ namespace pat { namespace eventhypothesis {
                 public:
                     explicit ByPdgId(int32_t pdgCode, bool alsoAntiparticle=true) ;
                     virtual ~ByPdgId() {}
-                    virtual bool operator()(const reco::CandidateBaseRef &cand, const std::string &role) const ;
+                    virtual bool operator()(const CandRefType &cand, const std::string &role) const ;
                 private:
                     int32_t pdgCode_;
                     bool    antiparticle_;
@@ -45,7 +45,7 @@ namespace pat { namespace eventhypothesis {
                 public:
                     ByString(const std::string &cut) ; // not putting the explicit on purpose, I want to see what happens
                     virtual ~ByString() {}
-                    virtual bool operator()(const reco::CandidateBaseRef &cand, const std::string &role) const ;
+                    virtual bool operator()(const CandRefType &cand, const std::string &role) const ;
                 private:
                     StringCutObjectSelector<reco::Candidate> sel_;
                     

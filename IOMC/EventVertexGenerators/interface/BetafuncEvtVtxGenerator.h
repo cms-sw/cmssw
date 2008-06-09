@@ -1,7 +1,7 @@
 #ifndef IOMC_BetafuncEvtVtxGenerator_H
 #define IOMC_BetafuncEvtVtxGenerator_H
 
-// $Id: BetafuncEvtVtxGenerator.h,v 1.5 2007/09/14 08:31:56 fabiocos Exp $
+// $Id: BetafuncEvtVtxGenerator.h,v 1.4 2007/04/27 14:25:34 yumiceva Exp $
 /*
 ________________________________________________________________________
 
@@ -37,8 +37,7 @@ public:
   virtual HepMC::FourVector* newVertex() ;
 
   virtual TMatrixD* GetInvLorentzBoost();
-
-    
+  
   /// set resolution in Z in cm
   void sigmaZ(double s=1.0);
 
@@ -61,7 +60,7 @@ public:
 
   /// beta function
   double BetaFunction(double z, double z0);
-    
+  
 private:
   /** Copy constructor */
   BetafuncEvtVtxGenerator(const BetafuncEvtVtxGenerator &p);
@@ -78,8 +77,8 @@ private:
   //double fdxdz, fdydz;
   double fbetastar, femittance;
   double falpha;
-  double fTimeOffset;
-    
+  
+  
   CLHEP::RandGaussQ*  fRandom ;
   
 };

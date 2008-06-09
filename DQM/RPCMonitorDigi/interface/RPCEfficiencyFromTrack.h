@@ -52,6 +52,7 @@ class RPCEfficiencyFromTrack : public edm::EDAnalyzer {
  
    private:
 
+
       TFile* fOutputFile;
       TH1F* hRecPt;
       TH1F* hGlobalRes;
@@ -62,8 +63,11 @@ class RPCEfficiencyFromTrack : public edm::EDAnalyzer {
       bool MeasureBarrel;
       bool EffSaveRootFile;
       int EffSaveRootFileEventsInterval;
-      int ringSelection;
-      bool selectwheel;
+      TH2F* ExtrapError;
+      TH1F* EffGlob1;  TH1F* EffGlob2;  TH1F* EffGlob3;  TH1F* EffGlob4;  TH1F* EffGlob5;  TH1F* EffGlob6; 
+      TH1F* EffGlob7;  TH1F* EffGlob8;  TH1F* EffGlob9;  TH1F* EffGlob10;  TH1F* EffGlob11;  TH1F* EffGlob12; 
+      int wh;
+      bool cosmic;
       int Run;
       time_t aTime;
 
@@ -75,10 +79,11 @@ class RPCEfficiencyFromTrack : public edm::EDAnalyzer {
       std::map<std::string, std::map<std::string, MonitorElement*> >  meCollection;
       std::string thePropagatorName;
       mutable Propagator* thePropagator;
-      DQMStore * dbe;
 
       std::vector<std::string> _idList;
       std::vector<std::map<RPCDetId, int> > counter;
       std::vector<int> totalcounter;
+
+      DQMStore * dbe;
 };
 #endif

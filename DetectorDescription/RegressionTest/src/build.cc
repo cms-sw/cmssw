@@ -12,6 +12,8 @@ using namespace std;
 
 #include "DetectorDescription/ExprAlgo/interface/ExprEvalSingleton.h"
 
+#include <Math/RotationX.h>
+#include <Math/RotationY.h>
 #include <Math/RotationZ.h>
 #include <Math/AxisAngle.h>
 

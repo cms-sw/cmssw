@@ -17,7 +17,7 @@
 // Original Author:  dkcira
 //         Created:  Thu Jan 26 23:49:46 CET 2006
 
-// $Id: SiStripFolderOrganizer.h,v 1.6 2008/03/03 11:50:40 maborgia Exp $
+// $Id: SiStripFolderOrganizer.h,v 1.7 2008/03/03 11:54:03 maborgia Exp $
 
 //
 
@@ -58,8 +58,10 @@ class SiStripFolderOrganizer
               // unsigned short i2c
       );
 
+      std::pair<std::string,int32_t> GetSubDetAndLayer(const uint32_t& detid);
       // detector folders
       void setDetectorFolder(uint32_t rawdetid=0);
+      void getFolderName(int32_t rawdetid, std::string& lokal_folder);
       // layer folders
       void setLayerFolder(uint32_t rawdetid=0,int32_t layer=0);
    private:

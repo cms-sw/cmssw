@@ -29,64 +29,10 @@ StorageAccountProxy::read (void *into, IOSize n)
 }
 
 IOSize
-StorageAccountProxy::read (void *into, IOSize n, IOOffset pos)
-{
-  StorageAccount::Stamp stats (m_statsRead);
-  IOSize result = m_baseStorage->read (into, n, pos);
-  stats.tick (result);
-  return result;
-}
-
-IOSize
-StorageAccountProxy::readv (IOBuffer *into, IOSize n)
-{
-  StorageAccount::Stamp stats (m_statsRead);
-  IOSize result = m_baseStorage->readv (into, n);
-  stats.tick (result);
-  return result;
-}
-
-IOSize
-StorageAccountProxy::readv (IOPosBuffer *into, IOSize n)
-{
-  StorageAccount::Stamp stats (m_statsRead);
-  IOSize result = m_baseStorage->readv (into, n);
-  stats.tick (result);
-  return result;
-}
-
-IOSize
 StorageAccountProxy::write (const void *from, IOSize n)
 {
   StorageAccount::Stamp stats (m_statsWrite);
   IOSize result = m_baseStorage->write (from, n);
-  stats.tick (result);
-  return result;
-}
-
-IOSize
-StorageAccountProxy::write (const void *from, IOSize n, IOOffset pos)
-{
-  StorageAccount::Stamp stats (m_statsWrite);
-  IOSize result = m_baseStorage->write (from, n, pos);
-  stats.tick (result);
-  return result;
-}
-
-IOSize
-StorageAccountProxy::writev (const IOBuffer *from, IOSize n)
-{
-  StorageAccount::Stamp stats (m_statsWrite);
-  IOSize result = m_baseStorage->writev (from, n);
-  stats.tick (result);
-  return result;
-}
-
-IOSize
-StorageAccountProxy::writev (const IOPosBuffer *from, IOSize n)
-{
-  StorageAccount::Stamp stats (m_statsWrite);
-  IOSize result = m_baseStorage->writev (from, n);
   stats.tick (result);
   return result;
 }
@@ -124,17 +70,9 @@ StorageAccountProxy::close (void)
   stats.tick ();
 }
 
-bool
-StorageAccountProxy::prefetch (const IOPosBuffer *what, IOSize n)
+void StorageAccountProxy::preseek (const IOBuffer *offsets, IOSize buffers)
 {
-  StorageAccount::Stamp stats (StorageAccount::counter (m_storageClass, "prefetch"));
-  bool value = m_baseStorage->prefetch(what, n);
-  if (value)
-  {
-    IOSize total = 0;
-    for (IOSize i = 0; i < n; ++i)
-      total += what[i].size();
-    stats.tick (total);
-  }
-  return value;
+  StorageAccount::Stamp stats (StorageAccount::counter (m_storageClass, "preseek"));
+  m_baseStorage->preseek (offsets, buffers);
+  stats.tick ();
 }

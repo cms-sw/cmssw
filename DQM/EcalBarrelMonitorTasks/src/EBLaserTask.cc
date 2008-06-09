@@ -1,8 +1,8 @@
 /*
  * \file EBLaserTask.cc
  *
- * $Date: 2008/04/08 15:32:09 $
- * $Revision: 1.111 $
+ * $Date: 2008/04/22 10:21:55 $
+ * $Revision: 1.114 $
  * \author G. Della Ricca
  *
 */
@@ -42,6 +42,8 @@ EBLaserTask::EBLaserTask(const ParameterSet& ps){
   prefixME_ = ps.getUntrackedParameter<string>("prefixME", "");
 
   enableCleanup_ = ps.getUntrackedParameter<bool>("enableCleanup", false);
+
+  mergeRuns_ = ps.getUntrackedParameter<bool>("mergeRuns", false);
 
   EcalRawDataCollection_ = ps.getParameter<edm::InputTag>("EcalRawDataCollection");
   EBDigiCollection_ = ps.getParameter<edm::InputTag>("EBDigiCollection");
@@ -118,6 +120,86 @@ void EBLaserTask::beginJob(const EventSetup& c){
   }
 
   Numbers::initGeometry(c, false);
+
+}
+
+void EBLaserTask::beginRun(const Run& r, const EventSetup& c) {
+
+  if ( ! mergeRuns_ ) this->reset();
+
+}
+
+void EBLaserTask::endRun(const Run& r, const EventSetup& c) {
+
+}
+
+void EBLaserTask::reset(void) {
+
+  for (int i = 0; i < 36; i++) {
+    if ( meShapeMapL1A_[i] )  meShapeMapL1A_[i]->Reset();
+    if ( meAmplMapL1A_[i] ) meAmplMapL1A_[i]->Reset();
+    if ( meTimeMapL1A_[i] ) meTimeMapL1A_[i]->Reset();
+    if ( meAmplPNMapL1A_[i] ) meAmplPNMapL1A_[i]->Reset();
+
+    if ( meShapeMapL1B_[i] )  meShapeMapL1B_[i]->Reset();
+    if ( meAmplMapL1B_[i] ) meAmplMapL1B_[i]->Reset();
+    if ( meTimeMapL1B_[i] ) meTimeMapL1B_[i]->Reset();
+    if ( meAmplPNMapL1B_[i] ) meAmplPNMapL1B_[i]->Reset();
+
+    if ( meShapeMapL2A_[i] )  meShapeMapL2A_[i]->Reset();
+    if ( meAmplMapL2A_[i] ) meAmplMapL2A_[i]->Reset();
+    if ( meTimeMapL2A_[i] ) meTimeMapL2A_[i]->Reset();
+    if ( meAmplPNMapL2A_[i] ) meAmplPNMapL2A_[i]->Reset();
+
+    if ( meShapeMapL2B_[i] )  meShapeMapL2B_[i]->Reset();
+    if ( meAmplMapL2B_[i] ) meAmplMapL2B_[i]->Reset();
+    if ( meTimeMapL2B_[i] ) meTimeMapL2B_[i]->Reset();
+    if ( meAmplPNMapL2B_[i] ) meAmplPNMapL2B_[i]->Reset();
+
+    if ( meShapeMapL3A_[i] )  meShapeMapL3A_[i]->Reset();
+    if ( meAmplMapL3A_[i] ) meAmplMapL3A_[i]->Reset();
+    if ( meTimeMapL3A_[i] ) meTimeMapL3A_[i]->Reset();
+    if ( meAmplPNMapL3A_[i] ) meAmplPNMapL3A_[i]->Reset();
+
+    if ( meShapeMapL3B_[i] )  meShapeMapL3B_[i]->Reset();
+    if ( meAmplMapL3B_[i] ) meAmplMapL3B_[i]->Reset();
+    if ( meTimeMapL3B_[i] ) meTimeMapL3B_[i]->Reset();
+    if ( meAmplPNMapL3B_[i] ) meAmplPNMapL3B_[i]->Reset();
+
+    if ( meShapeMapL4A_[i] )  meShapeMapL4A_[i]->Reset();
+    if ( meAmplMapL4A_[i] ) meAmplMapL4A_[i]->Reset();
+    if ( meTimeMapL4A_[i] ) meTimeMapL4A_[i]->Reset();
+    if ( meAmplPNMapL4A_[i] ) meAmplPNMapL4A_[i]->Reset();
+
+    if ( meShapeMapL4B_[i] )  meShapeMapL4B_[i]->Reset();
+    if ( meAmplMapL4B_[i] ) meAmplMapL4B_[i]->Reset();
+    if ( meTimeMapL4B_[i] ) meTimeMapL4B_[i]->Reset();
+    if ( meAmplPNMapL4B_[i] ) meAmplPNMapL4B_[i]->Reset();
+
+    if ( mePnAmplMapG01L1_[i] ) mePnAmplMapG01L1_[i]->Reset();
+    if ( mePnPedMapG01L1_[i] ) mePnPedMapG01L1_[i]->Reset();
+
+    if ( mePnAmplMapG16L1_[i] ) mePnAmplMapG16L1_[i]->Reset();
+    if ( mePnPedMapG16L1_[i] ) mePnPedMapG16L1_[i]->Reset();
+
+    if ( mePnAmplMapG01L2_[i] ) mePnAmplMapG01L2_[i]->Reset();
+    if ( mePnPedMapG01L2_[i] ) mePnPedMapG01L2_[i]->Reset();
+
+    if ( mePnAmplMapG16L2_[i] ) mePnAmplMapG16L2_[i]->Reset();
+    if ( mePnPedMapG16L2_[i] ) mePnPedMapG16L2_[i]->Reset();
+
+    if ( mePnAmplMapG01L3_[i] ) mePnAmplMapG01L3_[i]->Reset();
+    if ( mePnPedMapG01L3_[i] ) mePnPedMapG01L3_[i]->Reset();
+
+    if ( mePnAmplMapG16L3_[i] ) mePnAmplMapG16L3_[i]->Reset();
+    if ( mePnPedMapG16L3_[i] ) mePnPedMapG16L3_[i]->Reset();
+
+    if ( mePnAmplMapG01L4_[i] ) mePnAmplMapG01L4_[i]->Reset();
+    if ( mePnPedMapG01L4_[i] ) mePnPedMapG01L4_[i]->Reset();
+
+    if ( mePnAmplMapG16L4_[i] ) mePnAmplMapG16L4_[i]->Reset();
+    if ( mePnPedMapG16L4_[i] ) mePnPedMapG16L4_[i]->Reset();
+  }
 
 }
 
@@ -444,7 +526,7 @@ void EBLaserTask::setup(void){
 
 void EBLaserTask::cleanup(void){
 
-  if ( ! enableCleanup_ ) return;
+  if ( ! init_ ) return;
 
   if ( dqmStore_ ) {
     dqmStore_->setCurrentFolder(prefixME_ + "/EBLaserTask");
@@ -615,7 +697,7 @@ void EBLaserTask::endJob(void){
 
   LogInfo("EBLaserTask") << "analyzed " << ievt_ << " events";
 
-  if ( init_ ) this->cleanup();
+  if ( enableCleanup_ ) this->cleanup();
 
 }
 
@@ -682,8 +764,7 @@ void EBLaserTask::analyze(const Event& e, const EventSetup& c){
       if ( ! ( dccMap[ism].getRunType() == EcalDCCHeaderBlock::LASER_STD ||
                dccMap[ism].getRunType() == EcalDCCHeaderBlock::LASER_GAP ) ) continue;
 
-      if ( dccMap[ism].getRtHalf() != 3 &&
-           dccMap[ism].getRtHalf() != Numbers::RtHalf(id) ) continue;
+      if ( dccMap[ism].getRtHalf() != Numbers::RtHalf(id) ) continue;
 
       LogDebug("EBLaserTask") << " det id = " << id;
       LogDebug("EBLaserTask") << " sm, ieta, iphi " << ism << " " << ie << " " << ip;
@@ -700,14 +781,14 @@ void EBLaserTask::analyze(const Event& e, const EventSetup& c){
         if ( sample.gainId() == 2 ) gain = 1./ 6.;
         if ( sample.gainId() == 3 ) gain = 1./ 1.;
 
-        if ( dccMap[ism].getRtHalf() == 1 || ( dccMap[ism].getRtHalf() == 3 && Numbers::RtHalf(id) == 1 ) ) {
+        if ( dccMap[ism].getRtHalf() == 0 ) {
 
           if ( dccMap[ism].getEventSettings().wavelength == 0 ) meShapeMap = meShapeMapL1A_[ism-1];
           if ( dccMap[ism].getEventSettings().wavelength == 1 ) meShapeMap = meShapeMapL2A_[ism-1];
           if ( dccMap[ism].getEventSettings().wavelength == 2 ) meShapeMap = meShapeMapL3A_[ism-1];
           if ( dccMap[ism].getEventSettings().wavelength == 3 ) meShapeMap = meShapeMapL4A_[ism-1];
 
-        } else if ( dccMap[ism].getRtHalf() == 2 || ( dccMap[ism].getRtHalf() == 3 && Numbers::RtHalf(id) == 2 ) ) {
+        } else if ( dccMap[ism].getRtHalf() == 1 ) {
 
           if ( dccMap[ism].getEventSettings().wavelength == 0 ) meShapeMap = meShapeMapL1B_[ism-1];
           if ( dccMap[ism].getEventSettings().wavelength == 1 ) meShapeMap = meShapeMapL2B_[ism-1];
@@ -872,8 +953,7 @@ void EBLaserTask::analyze(const Event& e, const EventSetup& c){
       if ( ! ( dccMap[ism].getRunType() == EcalDCCHeaderBlock::LASER_STD ||
                dccMap[ism].getRunType() == EcalDCCHeaderBlock::LASER_GAP ) ) continue;
 
-      if ( dccMap[ism].getRtHalf() != 3 &&
-           dccMap[ism].getRtHalf() != Numbers::RtHalf(id) ) continue;
+      if ( dccMap[ism].getRtHalf() != Numbers::RtHalf(id) ) continue;
 
       LogDebug("EBLaserTask") << " det id = " << id;
       LogDebug("EBLaserTask") << " sm, ieta, iphi " << ism << " " << ie << " " << ip;
@@ -882,7 +962,7 @@ void EBLaserTask::analyze(const Event& e, const EventSetup& c){
       MonitorElement* meTimeMap = 0;
       MonitorElement* meAmplPNMap = 0;
 
-      if ( dccMap[ism].getRtHalf() == 1 || ( dccMap[ism].getRtHalf() == 3 && Numbers::RtHalf(id) == 1 ) ) {
+      if ( dccMap[ism].getRtHalf() == 0 ) {
 
         if ( dccMap[ism].getEventSettings().wavelength == 0 ) {
           meAmplMap = meAmplMapL1A_[ism-1];
@@ -905,7 +985,7 @@ void EBLaserTask::analyze(const Event& e, const EventSetup& c){
           meAmplPNMap = meAmplPNMapL4A_[ism-1];
         }
 
-      } else if ( dccMap[ism].getRtHalf() == 2 || ( dccMap[ism].getRtHalf() == 3 && Numbers::RtHalf(id) == 2 ) ) {
+      } else if ( dccMap[ism].getRtHalf() == 1 ) {
 
         if ( dccMap[ism].getEventSettings().wavelength == 0 ) {
           meAmplMap = meAmplMapL1B_[ism-1];
@@ -947,15 +1027,17 @@ void EBLaserTask::analyze(const Event& e, const EventSetup& c){
 
       if ( meAmplMap ) meAmplMap->Fill(xie, xip, xval);
 
-      if ( meTimeMap ) meTimeMap->Fill(xie, xip, yval);
+      if ( xval > 12. ) {
+        if ( meTimeMap ) meTimeMap->Fill(xie, xip, yval);
+      }
 
       float wval = 0.;
 
-      if ( dccMap[ism].getRtHalf() == 1 || ( dccMap[ism].getRtHalf() == 3 && Numbers::RtHalf(id) == 1 ) ) {
+      if ( dccMap[ism].getRtHalf() == 0 ) {
 
         if ( adcA[ism-1] != 0. ) wval = xval / adcA[ism-1];
 
-      } else if ( dccMap[ism].getRtHalf() == 2 || ( dccMap[ism].getRtHalf() == 3 && Numbers::RtHalf(id) == 2 ) ) {
+      } else if ( dccMap[ism].getRtHalf() == 1 ) {
 
         if ( adcB[ism-1] != 0. ) wval = xval / adcB[ism-1];
 

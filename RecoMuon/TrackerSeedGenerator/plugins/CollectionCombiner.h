@@ -1,16 +1,24 @@
 #ifndef CollectionCombiner_H
 #define CollectionCombiner_H
 
+// -*- C++ -*-
+//
+// Package:    CollectionCombiner
+// Class:      CollectionCombiner
+// 
+/**\class CollectionCombiner CollectionCombiner.cc RecoMuon/CollectionCombiner/src/CollectionCombiner.cc
 
-/** \class CollectionCombiner 
- * Description: this templated EDProducer can merge (no duplicate removal) any number of collection of the same type.
- * the usage is to declare a concrete combiner in SealModule:
- * typedef CollectionCombiner<std::vector< Trajectory> > TrajectoryCombiner;
- * DEFINE_ANOTHER_FWK_MODULE(TrajectoryCombiner);
- * edm::View cannot be used, because the template argument is used for the input and the output type.
- *
- * \author Jean-Roch Vlimant
- */
+ Description: <one line class summary>
+
+ Implementation:
+     <Notes on implementation>
+*/
+//
+// Original Author:  Jean-Roch Vlimant
+//         Created:  Tue Mar  4 02:08:53 CET 2008
+// $Id$
+//
+//
 
 
 // system include files
@@ -24,6 +32,9 @@
 #include "FWCore/Framework/interface/MakerMacros.h"
 
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
+
+//#include "TrackingTools/PatternTools/interface/Trajectory.h"
+//#include "DataFormats/MuonSeed/interface/L3MuonTrajectorySeedCollection.h"
 
 template <typename Collection>
 class CollectionCombiner : public edm::EDProducer{

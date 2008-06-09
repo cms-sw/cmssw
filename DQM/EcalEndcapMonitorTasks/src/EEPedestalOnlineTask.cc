@@ -1,8 +1,8 @@
 /*
  * \file EEPedestalOnlineTask.cc
  *
- * $Date: 2008/04/08 15:32:10 $
- * $Revision: 1.24 $
+ * $Date: 2008/04/08 18:11:28 $
+ * $Revision: 1.25 $
  * \author G. Della Ricca
  *
 */
@@ -40,6 +40,8 @@ EEPedestalOnlineTask::EEPedestalOnlineTask(const ParameterSet& ps){
 
   enableCleanup_ = ps.getUntrackedParameter<bool>("enableCleanup", false);
 
+  mergeRuns_ = ps.getUntrackedParameter<bool>("mergeRuns", false);
+
   EEDigiCollection_ = ps.getParameter<edm::InputTag>("EEDigiCollection");
 
   for (int i = 0; i < 18; i++) {
@@ -62,6 +64,24 @@ void EEPedestalOnlineTask::beginJob(const EventSetup& c){
   }
 
   Numbers::initGeometry(c, false);
+
+}
+
+void EEPedestalOnlineTask::beginRun(const Run& r, const EventSetup& c) {
+
+  if ( ! mergeRuns_ ) this->reset();
+
+}
+
+void EEPedestalOnlineTask::endRun(const Run& r, const EventSetup& c) {
+
+}
+
+void EEPedestalOnlineTask::reset(void) {
+
+  for (int i = 0; i < 18; i++) {
+    if ( mePedMapG12_[i] ) mePedMapG12_[i]->Reset();
+  }
 
 }
 
@@ -89,7 +109,7 @@ void EEPedestalOnlineTask::setup(void){
 
 void EEPedestalOnlineTask::cleanup(void){
 
-  if ( ! enableCleanup_ ) return;
+  if ( ! init_ ) return;
 
   if ( dqmStore_ ) {
     dqmStore_->setCurrentFolder(prefixME_ + "/EEPedestalOnlineTask");
@@ -110,7 +130,7 @@ void EEPedestalOnlineTask::endJob(void){
 
   LogInfo("EEPedestalOnlineTask") << "analyzed " << ievt_ << " events";
 
-  if ( init_ ) this->cleanup();
+  if ( enableCleanup_ ) this->cleanup();
 
 }
 

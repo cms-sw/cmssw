@@ -38,9 +38,9 @@ public:
   std::map<std::string, MonitorElement*> me;
 
   // Inputs from Configuration File
-  std::string METType_;
   std::string outputFile_;
-  edm::InputTag inputMETLabel_;
+  std::string inputGenMETLabel_;
+  std::string inputCaloMETLabel_;
 
 };
 

@@ -1,8 +1,8 @@
 /** \file CosmicMuonUtilities
  *
  *
- *  $Date: 2007/03/27 20:48:30 $
- *  $Revision: 1.2 $
+ *  $Date: 2007/12/16 13:56:41 $
+ *  $Revision: 1.3 $
  *  \author Chang Liu  -  Purdue University
  */
 
@@ -98,8 +98,8 @@ TrajectoryStateOnSurface CosmicMuonUtilities::stepPropagate(const TrajectoryStat
   TrajectoryStateOnSurface currTsos(tsos);
   TrajectoryStateOnSurface predTsos;
   float totalDis = StepVector.mag();
-  LogDebug(metname)<<"stepPropagate: propagate from: "<<start<<" to "<<dest;
-  LogDebug(metname)<<"stepPropagate: their distance: "<<totalDis;
+  LogTrace(metname)<<"stepPropagate: propagate from: "<<start<<" to "<<dest;
+  LogTrace(metname)<<"stepPropagate: their distance: "<<totalDis;
 
   int steps = 3; // need to optimize
 
@@ -108,13 +108,13 @@ TrajectoryStateOnSurface CosmicMuonUtilities::stepPropagate(const TrajectoryStat
   for ( int istep = 0 ; istep < steps - 1 ; istep++) {
         GP += oneStep*UnitStepVector;
         Surface::PositionType pos(GP.x(),GP.y(),GP.z());
-        LogDebug(metname)<<"stepPropagate: a middle plane: "<<pos<<endl;
+        LogTrace(metname)<<"stepPropagate: a middle plane: "<<pos<<endl;
         Surface::RotationType rot( Basic3DV , float(0));
         PlaneBuilder::ReturnType SteppingPlane = PlaneBuilder().plane(pos,rot);
         TrajectoryStateOnSurface predTsos = prop.propagate(currTsos, *SteppingPlane);
         if (predTsos.isValid()) {
             currTsos=predTsos;
-            LogDebug(metname)<<"stepPropagate: middle state "<< currTsos.globalPosition()<<endl;
+            LogTrace(metname)<<"stepPropagate: middle state "<< currTsos.globalPosition()<<endl;
         }
  }
 

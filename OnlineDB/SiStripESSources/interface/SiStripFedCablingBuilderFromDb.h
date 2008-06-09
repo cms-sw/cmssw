@@ -1,4 +1,4 @@
-// Last commit: $Id: SiStripFedCablingBuilderFromDb.h,v 1.14 2008/02/06 17:21:22 bainbrid Exp $
+// Last commit: $Id: SiStripFedCablingBuilderFromDb.h,v 1.13 2007/05/25 13:15:29 bainbrid Exp $
 
 #ifndef OnlineDB_SiStripESSources_SiStripFedCablingBuilderFromDb_H
 #define OnlineDB_SiStripESSources_SiStripFedCablingBuilderFromDb_H
@@ -10,6 +10,7 @@
 #include "boost/cstdint.hpp"
 #include <vector>
 #include <string>
+#include <ctime>
 
 class SiStripFedCablingRcd;
 class SiStripFedCabling;
@@ -101,6 +102,10 @@ class SiStripFedCablingBuilderFromDb : public SiStripFedCablingESProducer, publi
   
   /** Defines "source" (conns, devices, detids) of cabling info. */
   sistrip::CablingSource source_;
+
+ public:
+
+  static time_t timer_;
 
 };
 

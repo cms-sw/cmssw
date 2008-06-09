@@ -12,7 +12,7 @@ namespace pat {
    // real declarations
    namespace eventhypothesis { 
         // typedef for the Ref
-        typedef reco::CandidateBaseRef CandRefType; // Ptr one day in the future
+        typedef reco::CandidatePtr CandRefType; // Ptr one day in the future
         // filter
         struct ParticleFilter {
             virtual ~ParticleFilter() {}
@@ -106,12 +106,12 @@ namespace pat {
    namespace eventhypothesis {
         struct AcceptAllFilter : public ParticleFilter {
             static const AcceptAllFilter & get() { static AcceptAllFilter dummyFilter; return dummyFilter; }
-            virtual bool operator()(const reco::CandidateBaseRef &cand, const std::string &role) const { return true; }
+            virtual bool operator()(const CandRefType &cand, const std::string &role) const { return true; }
         };
         class RoleRegexpFilter : public ParticleFilter {
             public:
                 explicit RoleRegexpFilter(const std::string &roleRegexp) : re_(roleRegexp) {}
-                virtual bool operator()(const reco::CandidateBaseRef &cand, const std::string &role) const {
+                virtual bool operator()(const CandRefType &cand, const std::string &role) const {
                     return boost::regex_match(role, re_);
                 }
             private:

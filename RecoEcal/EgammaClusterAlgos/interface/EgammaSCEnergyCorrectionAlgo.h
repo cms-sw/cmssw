@@ -65,7 +65,6 @@ class EgammaSCEnergyCorrectionAlgo
     //Paramete sets for corrections functions
     std::vector<double> fBrem_; 
     std::vector<double> fEtEta_; 
-
     double brLinearThr_;
 };
 

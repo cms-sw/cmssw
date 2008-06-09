@@ -1,5 +1,5 @@
 //
-// $Id: PATPhotonCleaner.h,v 1.1 2008/03/06 09:23:11 llista Exp $
+// $Id: PATPhotonCleaner.h,v 1.3 2008/04/24 10:26:14 gpetrucc Exp $
 //
 
 #ifndef PhysicsTools_PatAlgos_PATPhotonCleaner_h
@@ -13,7 +13,7 @@
    a collection of objects of PhotonType.
 
   \author   Steven Lowette, Jeremy Andrea
-  \version  $Id: PATPhotonCleaner.h,v 1.1 2008/03/06 09:23:11 llista Exp $
+  \version  $Id: PATPhotonCleaner.h,v 1.3 2008/04/24 10:26:14 gpetrucc Exp $
 */
 
 #include "FWCore/Framework/interface/EDProducer.h"
@@ -22,6 +22,7 @@
 #include "FWCore/ParameterSet/interface/InputTag.h"
 
 #include "PhysicsTools/PatAlgos/plugins/CleanerHelper.h"
+#include "PhysicsTools/PatAlgos/interface/MultiIsolator.h"
 
 #include "DataFormats/EgammaCandidates/interface/Photon.h"
 //#include "DataFormats/EgammaCandidates/interface/ConvertedPhoton.h"
@@ -48,11 +49,13 @@ namespace pat {
       RemovalAlgo                 removeElectrons_;
       std::vector<edm::InputTag>  electronsToCheck_;
         
-      // helper
+      // helpers
       pat::helper::CleanerHelper<PhotonIn,
                                  PhotonOut,
                                  std::vector<PhotonOut>,
                                  GreaterByEt<PhotonOut> > helper_;
+      pat::helper::MultiIsolator isolator_;
+
       // duplicate removal algo
       pat::DuplicatedPhotonRemover remover_;
 
@@ -61,10 +64,7 @@ namespace pat {
       void removeElectrons(const edm::Event &iEvent) ;
   };
 
-  // now I'm typedeffing eveything, but I don't think we really need all them
-  typedef PATPhotonCleaner<reco::Photon,reco::Photon>                   PATBasePhotonCleaner;
-  //  typedef PATPhotonCleaner<reco::ConvertedPhoton,reco::ConvertedPhoton> PATConvertedPhotonCleaner;
-
+  typedef PATPhotonCleaner<reco::Photon,reco::Photon> PATBasePhotonCleaner;
 }
 
 template<typename PhotonIn, typename PhotonOut>
@@ -87,12 +87,11 @@ pat::PATPhotonCleaner<PhotonIn,PhotonOut>::PATPhotonCleaner(const edm::Parameter
   photonSrc_(iConfig.getParameter<edm::InputTag>( "photonSource" )),
   removeDuplicates_(fromString(iConfig, "removeDuplicates")),
   removeElectrons_( fromString(iConfig, "removeElectrons")),
-  helper_(photonSrc_)
+  helper_(photonSrc_),
+  isolator_(iConfig.exists("isolation") ? iConfig.getParameter<edm::ParameterSet>("isolation") : edm::ParameterSet() )
 {
-  // produces vector of electrons
-  produces<std::vector<PhotonOut> >();
-  // producers also backmatch to the electrons
-  produces<reco::CandRefValueMap>();
+  helper_.configure(iConfig);      // learn whether to save good, bad, all, ...
+  helper_.registerProducts(*this); // issue the produces<>() commands
 
   if (removeElectrons_ != None) {
     if (!iConfig.exists("electrons")) throw cms::Exception("Configuraton Error") <<
@@ -117,6 +116,7 @@ template<typename PhotonIn, typename PhotonOut>
 void pat::PATPhotonCleaner<PhotonIn,PhotonOut>::produce(edm::Event & iEvent, const edm::EventSetup & iSetup) {     
   // start a new event
   helper_.newEvent(iEvent);
+  if (isolator_.enabled()) isolator_.beginEvent(iEvent);
 
   typedef typename edm::Ref< std::vector<PhotonIn> > PhotonInRef;
   for (size_t idx = 0, size = helper_.srcSize(); idx < size; ++idx) {
@@ -126,15 +126,22 @@ void pat::PATPhotonCleaner<PhotonIn,PhotonOut>::produce(edm::Event & iEvent, con
     // clone the photon and convert it to the new type
     PhotonOut ourPhoton = static_cast<PhotonOut>(srcPhoton);
 
-    // write the muon
-    helper_.addItem(idx, ourPhoton);
+    // write the photon
+    size_t selIdx = helper_.addItem(idx, ourPhoton);
+
+    // test for isolation and set the bit if needed
+    if (isolator_.enabled()) {
+        uint32_t isolationWord = isolator_.test( helper_.source(), idx );
+        helper_.addMark(selIdx, isolationWord);
+    }
+
   }
 
   if (removeDuplicates_ != None) removeDuplicates();
   if (removeElectrons_  != None) removeElectrons(iEvent);
 
   helper_.done();
- 
+  if (isolator_.enabled()) isolator_.endEvent(); 
 }
 
 template<typename PhotonIn, typename PhotonOut>

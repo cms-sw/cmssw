@@ -35,7 +35,8 @@ TestTrackHits::TestTrackHits(const edm::ParameterSet& iConfig):
 				       cuts.getParameter<double>("tip"),
 				       cuts.getParameter<double>("lip"),
 				       cuts.getParameter<int>("minHit"),
-				       cuts.getParameter<double>("maxChi2"));
+				       cuts.getParameter<double>("maxChi2"),
+				       cuts.getParameter<std::string>("quality"));
 }
 
 TestTrackHits::~TestTrackHits(){}

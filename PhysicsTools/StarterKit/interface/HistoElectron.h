@@ -50,14 +50,22 @@ namespace pat {
   class HistoElectron : public HistoGroup<Electron> {
 
   public:
-    HistoElectron( std::string dir = "electron",
+    HistoElectron( std::string dir = "electron", std::string group = "Electron",
+		   std::string pre = "e",
 		   double pt1=0, double pt2=200, double m1=0, double m2=200 );
     virtual ~HistoElectron();
 
-    virtual void fill( const Electron * electron, uint iPart = 0 );
-    virtual void fill( const Electron & electron, uint iPart = 0 ) { fill(&electron, iPart); }
+    // fill a plain ol' electron:
+    virtual void fill( const Electron *electron, uint iPart = 1, double weight = 1.0 );
+    virtual void fill( const Electron &electron, uint iPart = 1, double weight = 1.0 ) { fill(&electron, iPart,weight); }
 
-    virtual void fillCollection( const std::vector<Electron> & coll );
+    // fill a electron that is a shallow clone, and take kinematics from 
+    // shallow clone but detector plots from the electron itself
+    virtual void fill( const reco::ShallowClonePtrCandidate *electron, uint iPart = 1, double weight = 1.0 );
+    virtual void fill( const reco::ShallowClonePtrCandidate &electron, uint iPart = 1, double weight = 1.0 )
+    { fill(&electron, iPart,weight); }
+
+    virtual void fillCollection( const std::vector<Electron> & coll, double weight = 1.0 );
 
     // Clear ntuple cache
     void clearVec();

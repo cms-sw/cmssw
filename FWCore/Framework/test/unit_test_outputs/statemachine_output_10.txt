@@ -21,6 +21,8 @@ Machine parameters:  mode = SPARSE  handleEmptyRuns = 0  handleEmptyLumis = 0
 	prepareForNextLoop
 	rewind
     *** nextItemType: Stop 1 ***
+	startingNewLoop
+	endOfLoop
 The state machine reports it has been terminated
 
 Machine parameters:  mode = SPARSE  handleEmptyRuns = 0  handleEmptyLumis = 1
@@ -45,6 +47,8 @@ Machine parameters:  mode = SPARSE  handleEmptyRuns = 0  handleEmptyLumis = 1
 	prepareForNextLoop
 	rewind
     *** nextItemType: Stop 1 ***
+	startingNewLoop
+	endOfLoop
 The state machine reports it has been terminated
 
 Machine parameters:  mode = SPARSE  handleEmptyRuns = 1  handleEmptyLumis = 0
@@ -69,6 +73,8 @@ Machine parameters:  mode = SPARSE  handleEmptyRuns = 1  handleEmptyLumis = 0
 	prepareForNextLoop
 	rewind
     *** nextItemType: Stop 1 ***
+	startingNewLoop
+	endOfLoop
 The state machine reports it has been terminated
 
 Machine parameters:  mode = SPARSE  handleEmptyRuns = 1  handleEmptyLumis = 1
@@ -93,6 +99,8 @@ Machine parameters:  mode = SPARSE  handleEmptyRuns = 1  handleEmptyLumis = 1
 	prepareForNextLoop
 	rewind
     *** nextItemType: Stop 1 ***
+	startingNewLoop
+	endOfLoop
 The state machine reports it has been terminated
 
 Machine parameters:  mode = DENSE  handleEmptyRuns = 0  handleEmptyLumis = 0
@@ -117,6 +125,8 @@ Machine parameters:  mode = DENSE  handleEmptyRuns = 0  handleEmptyLumis = 0
 	prepareForNextLoop
 	rewind
     *** nextItemType: Stop 1 ***
+	startingNewLoop
+	endOfLoop
 The state machine reports it has been terminated
 
 Machine parameters:  mode = DENSE  handleEmptyRuns = 0  handleEmptyLumis = 1
@@ -141,6 +151,8 @@ Machine parameters:  mode = DENSE  handleEmptyRuns = 0  handleEmptyLumis = 1
 	prepareForNextLoop
 	rewind
     *** nextItemType: Stop 1 ***
+	startingNewLoop
+	endOfLoop
 The state machine reports it has been terminated
 
 Machine parameters:  mode = DENSE  handleEmptyRuns = 1  handleEmptyLumis = 0
@@ -165,6 +177,8 @@ Machine parameters:  mode = DENSE  handleEmptyRuns = 1  handleEmptyLumis = 0
 	prepareForNextLoop
 	rewind
     *** nextItemType: Stop 1 ***
+	startingNewLoop
+	endOfLoop
 The state machine reports it has been terminated
 
 Machine parameters:  mode = DENSE  handleEmptyRuns = 1  handleEmptyLumis = 1
@@ -189,4 +203,6 @@ Machine parameters:  mode = DENSE  handleEmptyRuns = 1  handleEmptyLumis = 1
 	prepareForNextLoop
 	rewind
     *** nextItemType: Stop 1 ***
+	startingNewLoop
+	endOfLoop
 The state machine reports it has been terminated

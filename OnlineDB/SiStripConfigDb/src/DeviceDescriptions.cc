@@ -1,4 +1,6 @@
-// Last commit: $Id: $
+// Last commit: $Id: DeviceDescriptions.cc,v 1.14 2007/11/20 22:39:27 bainbrid Exp $
+// Latest tag:  $Name:  $
+// Location:    $Source: /cvs_server/repositories/CMSSW/CMSSW/OnlineDB/SiStripConfigDb/src/DeviceDescriptions.cc,v $
 
 #include "OnlineDB/SiStripConfigDb/interface/SiStripConfigDb.h"
 
@@ -10,49 +12,25 @@ using namespace sistrip;
 const SiStripConfigDb::DeviceDescriptions& SiStripConfigDb::getDeviceDescriptions( const enumDeviceType& device_type ) {
   
   devices_.clear();
-
-  if ( ( !dbParams_.usingDbCache_ && !deviceFactory(__func__) ) ||
-       (  dbParams_.usingDbCache_ && !databaseCache(__func__) ) ) { return devices_; }
+  
+  if ( !deviceFactory(__func__) ) { return devices_; }
   
   try { 
-
-    DeviceDescriptions all_devices;
-
-    if ( !dbParams_.usingDbCache_ ) { 
-
-      deviceFactory(__func__)->getFecDeviceDescriptions( dbParams_.partitions_.front(), 
-							 all_devices,
-							 dbParams_.fecMajor_,
-							 dbParams_.fecMinor_,
-							 false ); //@@ do not get DISABLED modules (ie, those removed from cabling). 
-      devices_ = FecFactory::getDeviceFromDeviceVector( all_devices, device_type );
-
-    } else {
-
-#ifdef USING_DATABASE_CACHE
-      DeviceDescriptions* tmp = databaseCache(__func__)->getDevices();
-      if ( tmp ) { all_devices = *tmp; }
-      else {
-	edm::LogWarning(mlConfigDb_)
-	  << "[SiStripConfigDb::" << __func__ << "]"
-	  << " NULL pointer to DeviceDescriptions vector!";
-      }
-#endif
-
-      devices_ = FecFactory::getDeviceFromDeviceVector( all_devices, device_type );
-   
-    }
-    
-  } catch (...) { handleException( __func__ ); }
+    DeviceDescriptions all;
+    deviceFactory(__func__)->getFecDeviceDescriptions( dbParams_.partition_, 
+						       all,
+						       dbParams_.fecMajor_,
+						       dbParams_.fecMinor_,
+						       false ); //@@ do not get DISABLED modules (ie, those removed from cabling). 
+    devices_ = FecFactory::getDeviceFromDeviceVector( all, device_type );
+  }
+  catch (...) { handleException( __func__ ); }
   
   stringstream ss; 
   ss << "[SiStripConfigDb::" << __func__ << "]"
      << " Found " << devices_.size()
      << " device descriptions (for devices of type " 
      << deviceType( device_type ) << ")"; 
-  if ( !dbParams_.usingDb_ ) { ss << " in " << dbParams_.inputFecXml_.size() << " 'fec.xml' file(s)"; }
-  else { if ( !dbParams_.usingDbCache_ )  { ss << " in database partition '" << dbParams_.partitions_.front() << "'"; } 
-  else { ss << " from shared memory name '" << dbParams_.sharedMemory_ << "'"; } }
   if ( devices_.empty() ) { edm::LogWarning(mlConfigDb_) << ss.str(); }
   else { LogTrace(mlConfigDb_) << ss.str(); }
 
@@ -66,42 +44,23 @@ const SiStripConfigDb::DeviceDescriptions& SiStripConfigDb::getDeviceDescription
 
   devices_.clear();
   
-  if ( ( !dbParams_.usingDbCache_ && !deviceFactory(__func__) ) ||
-       (  dbParams_.usingDbCache_ && !databaseCache(__func__) ) ) { return devices_; }
+  if ( !deviceFactory(__func__) ) { return devices_; }
   
   try { 
-
-    if ( !dbParams_.usingDbCache_ ) { 
-
-      deviceFactory(__func__)->getFecDeviceDescriptions( dbParams_.partitions_.front(), 
-							 devices_,
-							 dbParams_.fecMajor_,
-							 dbParams_.fecMinor_,
-							 false ); //@@ do not get DISABLED modules (ie, those removed from cabling). 
-      
-    } else { 
-      
-#ifdef USING_DATABASE_CACHE
-      DeviceDescriptions* tmp = databaseCache(__func__)->getDevices();
-      if ( tmp ) { devices_ = *tmp; }
-      else {
-	edm::LogWarning(mlConfigDb_)
-	  << "[SiStripConfigDb::" << __func__ << "]"
-	  << " NULL pointer to DeviceDescriptions vector!";
-      }
-#endif
-
-    }
-
-  } catch (...) { handleException( __func__ ); }
+    deviceFactory(__func__)->getFecDeviceDescriptions( dbParams_.partition_, 
+						       devices_,
+						       dbParams_.fecMajor_,
+						       dbParams_.fecMinor_,
+						       false ); //@@ do not get DISABLED modules (ie, those removed from cabling). 
+  }
+  catch (...) { handleException( __func__ ); }
   
   stringstream ss; 
   ss << "[SiStripConfigDb::" << __func__ << "]"
      << " Found " << devices_.size()
      << " device descriptions";
   if ( !dbParams_.usingDb_ ) { ss << " in " << dbParams_.inputFecXml_.size() << " 'fec.xml' file(s)"; }
-  else { if ( !dbParams_.usingDbCache_ )  { ss << " in database partition '" << dbParams_.partitions_.front() << "'"; } 
-  else { ss << " from shared memory name '" << dbParams_.sharedMemory_ << "'"; } }
+  else { ss << " in database partition '" << dbParams_.partition_ << "'"; }
   if ( devices_.empty() ) { edm::LogWarning(mlConfigDb_) << ss.str(); }
   else { LogTrace(mlConfigDb_) << ss.str(); }
   
@@ -112,16 +71,9 @@ const SiStripConfigDb::DeviceDescriptions& SiStripConfigDb::getDeviceDescription
 // -----------------------------------------------------------------------------
 // 
 void SiStripConfigDb::uploadDeviceDescriptions( bool new_major_version ) {
-
-  if ( dbParams_.usingDbCache_ ) {
-    edm::LogWarning(mlConfigDb_)
-      << "[SiStripConfigDb::" << __func__ << "]" 
-      << " Using database cache! No uploads allowed!"; 
-    return;
-  }
   
   if ( !deviceFactory(__func__) ) { return; }
-  
+
   if ( devices_.empty() ) { 
     stringstream ss; 
     ss << "[SiStripConfigDb::" << __func__ << "]" 
@@ -132,7 +84,7 @@ void SiStripConfigDb::uploadDeviceDescriptions( bool new_major_version ) {
   
   try { 
     deviceFactory(__func__)->setFecDeviceDescriptions( devices_,
-						       dbParams_.partitions_.front(), 
+						       dbParams_.partition_, 
 						       &(dbParams_.fecMajor_),
 						       &(dbParams_.fecMinor_),
 						       new_major_version );

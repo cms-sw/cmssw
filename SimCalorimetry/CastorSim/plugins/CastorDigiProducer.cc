@@ -8,8 +8,8 @@
 #include "DataFormats/HcalDigi/interface/HcalDigiCollections.h"
 #include "Geometry/CaloGeometry/interface/CaloGeometry.h"
 #include "Geometry/Records/interface/IdealGeometryRecord.h"
-#include "CalibFormats/CastorObjects/interface/CastorDbService.h"
-#include "CalibFormats/CastorObjects/interface/CastorDbRecord.h"
+#include "CalibFormats/HcalObjects/interface/HcalDbService.h"
+#include "CalibFormats/HcalObjects/interface/HcalDbRecord.h"
 #include "SimDataFormats/CrossingFrame/interface/CrossingFrame.h"
 #include "SimDataFormats/CrossingFrame/interface/MixCollection.h"
 #include "FWCore/Utilities/interface/RandomNumberGenerator.h"
@@ -32,11 +32,11 @@ CastorDigiProducer::CastorDigiProducer(const edm::ParameterSet& ps)
   theCastorHits()
 {
   
-produces<CastorDigiCollection>();
+  produces<CastorDigiCollection>();
 
-theCastorResponse->setHitFilter(&theCastorHitFilter);
+  theCastorResponse->setHitFilter(&theCastorHitFilter);
 
-bool doTimeSlew = ps.getParameter<bool>("doTimeSlew");
+  bool doTimeSlew = ps.getParameter<bool>("doTimeSlew");
   if(doTimeSlew) {
     // no time slewing for HF
     theCastorResponse->setHitCorrection(theHitCorrection);
@@ -78,41 +78,59 @@ CastorDigiProducer::~CastorDigiProducer() {
 
 void CastorDigiProducer::produce(edm::Event& e, const edm::EventSetup& eventSetup) {
   // get the appropriate gains, noises, & widths for this event
-  edm::ESHandle<CastorDbService> conditions;
-  eventSetup.get<CastorDbRecord>().get(conditions);
+  edm::ESHandle<HcalDbService> conditions;
+  eventSetup.get<HcalDbRecord>().get(conditions);
   theAmplifier->setDbService(conditions.product());
   theCoderFactory->setDbService(conditions.product());
   theParameterMap->setDbService(conditions.product());
 
   // get the correct geometry
-checkGeometry(eventSetup);
+  checkGeometry(eventSetup);
   
-theCastorHits.clear();
+  theCastorHits.clear();
 
   // Step A: Get Inputs
-edm::Handle<CrossingFrame<PCaloHit> > castorcf;
-e.getByLabel("mix", "CastorHits", castorcf);
+  edm::Handle<CrossingFrame<PCaloHit> > castorcf;
+  e.getByLabel("mix", "CastorHits", castorcf);
 
   // test access to SimHits for HcalHits and ZDC hits
-std::auto_ptr<MixCollection<PCaloHit> > colcastor(new MixCollection<PCaloHit>(castorcf.product()));
+  std::auto_ptr<MixCollection<PCaloHit> > colcastor(new MixCollection<PCaloHit>(castorcf.product()));
 
   //fillFakeHits();
 
-if(theHitCorrection != 0)
+  if(theHitCorrection != 0)
   {
-theHitCorrection->fillChargeSums(*colcastor);
+//    theHitCorrection->fillChargeSums(*col);
+//    theHitCorrection->fillChargeSums(*colzdc);
+    theHitCorrection->fillChargeSums(*colcastor);
   }
   // Step B: Create empty output
 
-std::auto_ptr<CastorDigiCollection> castorResult(new CastorDigiCollection());
+//  std::auto_ptr<HBHEDigiCollection> hbheResult(new HBHEDigiCollection());
+//  std::auto_ptr<HODigiCollection> hoResult(new HODigiCollection());
+//  std::auto_ptr<HFDigiCollection> hfResult(new HFDigiCollection());
+//  std::auto_ptr<ZDCDigiCollection> zdcResult(new ZDCDigiCollection());
+  std::auto_ptr<CastorDigiCollection> castorResult(new CastorDigiCollection());
 
   // Step C: Invoke the algorithm, passing in inputs and getting back outputs.
-theCastorDigitizer->run(*colcastor, *castorResult);
+//  theHBHEDigitizer->run(*col, *hbheResult);
+//  theHODigitizer->run(*col, *hoResult);
+//  theHFDigitizer->run(*col, *hfResult);
+//  theZDCDigitizer->run(*colzdc, *zdcResult);
+  theCastorDigitizer->run(*colcastor, *castorResult);
 
-edm::LogInfo("CastorDigiProducer") << "HCAL/Castor digis   : " << castorResult->size();
+//  edm::LogInfo("HcalDigiProducer") << "HCAL HBHE digis : " << hbheResult->size();
+//  edm::LogInfo("HcalDigiProducer") << "HCAL HO digis   : " << hoResult->size();
+//  edm::LogInfo("HcalDigiProducer") << "HCAL HF digis   : " << hfResult->size();
+//  edm::LogInfo("HcalDigiProducer") << "HCAL ZDC digis   : " << zdcResult->size();
+  edm::LogInfo("HcalDigiProducer") << "HCAL Castor digis   : " << castorResult->size();
 
   // Step D: Put outputs into event
-e.put(castorResult);
+//  e.put(hbheResult);
+//  e.put(hoResult);
+//  e.put(hfResult);
+//  e.put(zdcResult);
+  e.put(castorResult);
 }
 
 
@@ -130,23 +148,66 @@ void CastorDigiProducer::sortHits(const edm::PCaloHitContainer & hits){
 }
 
 void CastorDigiProducer::fillFakeHits() {
-HcalCastorDetId castorDetId(HcalCastorDetId::Section(2),true,1,1);
-PCaloHit castorHit(castorDetId.rawId(), 50.0, 0.);
+ /* 
+  HcalDetId barrelDetId(HcalBarrel, 1, 1, 1);
+  PCaloHit barrelHit(barrelDetId.rawId(), 0.855, 0., 0., 0);
 
-theCastorHits.push_back(castorHit);
+  HcalDetId endcapDetId(HcalEndcap, 17, 1, 1);
+  PCaloHit endcapHit(endcapDetId.rawId(), 0.9, 0., 0., 0);
+
+  HcalDetId outerDetId(HcalOuter, 1, 1, 4);
+  PCaloHit outerHit(outerDetId.rawId(), 0.45, 0., 0., 0);
+
+  HcalDetId forwardDetId1(HcalForward, 30, 1, 1);
+  PCaloHit forwardHit1(forwardDetId1.rawId(), 35., 0., 0., 0);
+
+  HcalDetId forwardDetId2(HcalForward, 30, 1, 2);
+  PCaloHit forwardHit2(forwardDetId2.rawId(), 48., 0., 0., 0);
+
+  HcalZDCDetId zdcDetId(HcalZDCDetId::Section(2),true,1);
+  PCaloHit zdcHit(zdcDetId.rawId(), 50.0, 0.);
+*/
+  HcalCastorDetId castorDetId(HcalCastorDetId::Section(2),true,1,1);
+  PCaloHit castorHit(castorDetId.rawId(), 50.0, 0.);
+
+//  theHBHEHits.push_back(barrelHit);
+//  theHBHEHits.push_back(endcapHit);
+//  theHOHits.push_back(outerHit);
+//  theHFHits.push_back(forwardHit1);
+//  theHFHits.push_back(forwardHit2);
+//  theZDCHits.push_back(zdcHit);
+  theCastorHits.push_back(castorHit);
 }
 
 
 void CastorDigiProducer::checkGeometry(const edm::EventSetup & eventSetup) {
   // TODO find a way to avoid doing this every event
-edm::ESHandle<CaloGeometry> geometry;
-eventSetup.get<IdealGeometryRecord>().get(geometry);
-theCastorResponse->setGeometry(&*geometry);
+  edm::ESHandle<CaloGeometry> geometry;
+  eventSetup.get<IdealGeometryRecord>().get(geometry);
+  //theHBHEResponse->setGeometry(&*geometry);
+  //theHOResponse->setGeometry(&*geometry);
+  //theHFResponse->setGeometry(&*geometry);
+  //theZDCResponse->setGeometry(&*geometry);
+  theCastorResponse->setGeometry(&*geometry);
 
-vector<DetId> castorCells = geometry->getValidDetIds(DetId::Calo, HcalCastorDetId::SubdetectorId);
+ // vector<DetId> hbCells =  geometry->getValidDetIds(DetId::Hcal, HcalBarrel);
+//  vector<DetId> heCells =  geometry->getValidDetIds(DetId::Hcal, HcalEndcap);
+//  vector<DetId> hoCells =  geometry->getValidDetIds(DetId::Hcal, HcalOuter);
+//  vector<DetId> hfCells =  geometry->getValidDetIds(DetId::Hcal, HcalForward);
+//  vector<DetId> zdcCells = geometry->getValidDetIds(DetId::Calo, HcalZDCDetId::SubdetectorId);
+  vector<DetId> castorCells = geometry->getValidDetIds(DetId::Calo, HcalCastorDetId::SubdetectorId);
 
-std::cout<<"HcalDigiProducer::CheckGeometry number of cells: "<<castorCells.size()<<std::endl;
-theCastorDigitizer->setDetIds(castorCells);
+  std::cout<<"HcalDigiProducer::CheckGeometry number of cells: "<<castorCells.size()<<std::endl;
+  // combine HB & HE
+
+//  vector<DetId> hbheCells = hbCells;
+//  hbheCells.insert(hbheCells.end(), heCells.begin(), heCells.end());
+
+//  theHBHEDigitizer->setDetIds(hbheCells);
+//  theHODigitizer->setDetIds(hoCells);
+//  theHFDigitizer->setDetIds(hfCells);
+//  theZDCDigitizer->setDetIds(zdcCells); 
+  theCastorDigitizer->setDetIds(castorCells);
 }
 
 

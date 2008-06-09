@@ -1,20 +1,12 @@
 #ifndef PixelTBMChannel_h
 #define PixelTBMChannel_h
-/*! \file CalibFormats/SiPixelObjects/interface/PixelTBMChannel.h
-*   \brief Simple class to hold either "A" or "B" for the TBM channel
-*
-*    A longer explanation will be placed here later
-*/
  
 #include <string>
 #include <iostream>
 
+// simple class to hold either "A" or "B" for the TBM channel
+
 namespace pos{
-/*! \class PixelTBMChannel PixelTBMChannel.h "interface/PixelTBMChannel.h"
-*   \brief Simple class to hold either "A" or "B" for the TBM channel
-*
-*   A longer explanation will be placed here later
-*/
   class PixelTBMChannel
   {
     public:

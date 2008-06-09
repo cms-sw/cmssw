@@ -11,10 +11,11 @@ namespace funct {
   template<int n, int m>
   struct FractionStruct { 
     BOOST_STATIC_ASSERT(m != 0);
-    static const int arguments = 0; 
     static const int numerator = n, denominator = m;
     double operator()() const { return double(n) / double (m); }
     operator double() const { return double(n) / double (m); }
+    double operator()(double) const { return double(n) / double (m); }
+    double operator()(double, double) const { return double(n) / double (m); }
   };
   
   template<int n, int m, unsigned gcd = boost::math::static_gcd<n, m>::value,

@@ -21,7 +21,7 @@ namespace pat { namespace helper {
       typedef typename edm::ValueMap<value_type> OutputMap;
       typedef typename OutputMap::Filler         MapFiller;
       typedef typename edm::View<KeyType>        ViewType;
-      typedef typename edm::RefToBase<KeyType>   RefType;
+      typedef typename edm::Ptr<KeyType>         RefType;
       typedef typename edm::ValueMap<RefType>    BackRefMap;
 
       explicit ValueMapSkimmer(const edm::ParameterSet & iConfig) :
@@ -64,7 +64,7 @@ void ValueMapSkimmer<value_type,AssoContainer,KeyType>::produce(edm::Event & iEv
     ::pat::helper::RefHelper<KeyType> refhelper(*backrefs) ;
 
     for (size_t i = 0; i < size; ++i) {
-        RefType newRef = collection->refAt(i);
+        RefType newRef = collection->ptrAt(i);
         ret.push_back( refhelper.recursiveLookup(newRef, *association) );
     }
 
@@ -82,7 +82,7 @@ void ValueMapSkimmer<value_type,AssoContainer,KeyType>::produce(edm::Event & iEv
       typedef typename edm::ValueMap<value_type> OutputMap;
       typedef typename OutputMap::Filler         MapFiller;
       typedef typename edm::View<KeyType>        ViewType;
-      typedef typename edm::RefToBase<KeyType>   RefType;
+      typedef typename edm::Ptr<KeyType>   RefType;
       typedef typename edm::ValueMap<RefType>    BackRefMap;
 
       explicit ManyValueMapsSkimmer(const edm::ParameterSet & iConfig) :
@@ -122,18 +122,16 @@ void ManyValueMapsSkimmer<value_type,AssoContainer,KeyType>::produce(edm::Event 
 
     for (std::vector<edm::InputTag>::const_iterator it = associations_.begin(), ed = associations_.end(); it != ed; ++it) {
         edm::Handle< AssoContainer > association;
-        // needed in 16X as getByLabel throws immediatly
-        try {
-            const edm::InputTag & tag = (sublabels_ ? edm::InputTag(motherLabel_.label(), it->label() + it->instance()) : *it);
-            iEvent.getByLabel(tag, association);
-            if (association.failedToGet() && failSilently_) continue; 
-        } catch (cms::Exception &e) { if (failSilently_) return; throw; }
+
+        const edm::InputTag & tag = (sublabels_ ? edm::InputTag(motherLabel_.label(), it->label() + it->instance()) : *it);
+        iEvent.getByLabel(tag, association);
+        if (association.failedToGet() && failSilently_) continue; 
 
         size_t size = collection->size();
 
         std::vector<value_type> ret;
         for (size_t i = 0; i < size; ++i) {
-            RefType newRef = collection->refAt(i);
+            RefType newRef = collection->ptrAt(i);
             ret.push_back( refhelper.recursiveLookup(newRef, *association) );
         }
 

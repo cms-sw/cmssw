@@ -521,11 +521,22 @@ FBaseSimEvent::addParticles(const HepMC::GenEvent& myGenEvent) {
       part.setID(p->pdg_id());
 
       // Add the particle to the event and to the various lists
-      int theTrack = addSimTrack(&part,originVertex, nGenParts()-offset);
+      
+      int theTrack = testStable && p->end_vertex() ? 
+	// The particle is scheduled to decay
+	addSimTrack(&part,originVertex, nGenParts()-offset,p->end_vertex()) :
+        // The particle is not scheduled to decay 
+	addSimTrack(&part,originVertex, nGenParts()-offset);
 
-      // It there an end vertex ?
-      if ( !p->end_vertex() ) continue; 
-
+      if ( 
+	  // This one deals with particles with no end vertex
+	  !p->end_vertex() ||
+	  // This one deals with particles that have a pre-defined
+	  // decay proper time, but have not decayed yet
+	   ( testStable && p->end_vertex() ) 
+	  // In both case, just don't add a end vertex in the FSimEvent 
+	  ) continue; 
+      
       // Add the vertex to the event and to the various lists
       XYZTLorentzVector decayVertex = 
 	XYZTLorentzVector(p->end_vertex()->position().x()/10.,
@@ -560,10 +571,14 @@ FBaseSimEvent::addParticles(const reco::GenParticleCollection& myGenParticles) {
   int offset = nTracks();
 
   // Skip the incoming protons
+  nGenParticles = 0;
   unsigned int ip = 0;
   if ( nParticles > 1 && 
        myGenParticles[0].pdgId() == 2212 &&
-       myGenParticles[1].pdgId() == 2212 ) ip = 2;
+       myGenParticles[1].pdgId() == 2212 ) { 
+    ip = 2;
+    nGenParticles = 2;
+  }
 
   // Primary vertex (already smeared by the SmearedVtx module)
   XYZTLorentzVector primaryVertex (myGenParticles[ip].vx(),
@@ -590,19 +605,24 @@ FBaseSimEvent::addParticles(const reco::GenParticleCollection& myGenParticles) {
   // Loop on the particles of the generated event
   for ( ; ip<nParticles; ++ip ) { 
     
+    // nGenParticles = ip;
+    
+    nGenParticles++;
     const reco::GenParticle& p = myGenParticles[ip];
 
     // Keep only: 
     // 1) Stable particles
-    bool testStable = p.status()==1;
+    bool testStable = p.status()%1000==1;
 
     // 2) or particles with stable daughters
     bool testDaugh = false;
     unsigned int nDaughters = p.numberOfDaughters();
-    if ( !testStable && nDaughters ) {  
+    if ( !testStable  && 
+	 //	 p.status() == 2 && 
+	 nDaughters ) {  
       for ( unsigned iDaughter=0; iDaughter<nDaughters; ++iDaughter ) {
 	const reco::Candidate* daughter = p.daughter(iDaughter);
-	if ( daughter->status()==1 ) {
+	if ( daughter->status()%1000==1 ) {
 	  testDaugh=true;
 	  break;
 	}
@@ -632,7 +652,7 @@ FBaseSimEvent::addParticles(const reco::GenParticleCollection& myGenParticles) {
       part.setID(p.pdgId());
 
       // Add the particle to the event and to the various lists
-      int theTrack = addSimTrack(&part,originVertex, nTracks()-offset);
+      int theTrack = addSimTrack(&part,originVertex, nGenParts()-offset);
 
       // It there an end vertex ?
       if ( !nDaughters ) continue; 
@@ -656,7 +676,8 @@ FBaseSimEvent::addParticles(const reco::GenParticleCollection& myGenParticles) {
 }
 
 int 
-FBaseSimEvent::addSimTrack(const RawParticle* p, int iv, int ig) { 
+FBaseSimEvent::addSimTrack(const RawParticle* p, int iv, int ig, 
+			   const HepMC::GenVertex* ev) { 
   
   // Check that the particle is in the Famos "acceptance"
   // Keep all primaries of pile-up events, though
@@ -681,7 +702,14 @@ FBaseSimEvent::addSimTrack(const RawParticle* p, int iv, int ig) {
   }
     
   // Some transient information for FAMOS internal use
-  (*theSimTracks)[trackId] = FSimTrack(p,iv,ig,trackId,this);
+  (*theSimTracks)[trackId] = ev ? 
+    // A proper decay time is scheduled
+    FSimTrack(p,iv,ig,trackId,this,
+	      ev->position().t()/10.
+	      * p->PDGmass()
+	      / std::sqrt(p->momentum().Vect().Mag2())) : 
+    // No proper decay time is scheduled
+    FSimTrack(p,iv,ig,trackId,this);
 
   return trackId;
 

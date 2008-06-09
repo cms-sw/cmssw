@@ -1,8 +1,8 @@
 /*
  * \file EBTriggerTowerTask.cc
  *
- * $Date: 2008/04/08 15:32:09 $
- * $Revision: 1.70 $
+ * $Date: 2008/04/24 18:38:05 $
+ * $Revision: 1.72 $
  * \author C. Bernet
  * \author G. Della Ricca
  * \author E. Di Marco
@@ -36,6 +36,10 @@ EBTriggerTowerTask::EBTriggerTowerTask(const ParameterSet& ps) {
 
   prefixME_ = ps.getUntrackedParameter<string>("prefixME", "");
 
+  enableCleanup_ = ps.getUntrackedParameter<bool>("enableCleanup", false);
+
+  mergeRuns_ = ps.getUntrackedParameter<bool>("mergeRuns", false);
+
   reserveArray(meEtMapReal_);
   reserveArray(meVetoReal_);
   reserveArray(meFlagsReal_);
@@ -50,23 +54,16 @@ EBTriggerTowerTask::EBTriggerTowerTask(const ParameterSet& ps) {
   emulCollection_ =  ps.getParameter<InputTag>("EcalTrigPrimDigiCollectionEmul");
 
 //   realModuleLabel_
-//     = ps.getUntrackedParameter<string>("real_digis_moduleLabel",
-//                                        "ecalEBunpacker");
+//     = ps.getUntrackedParameter<string>("real_digis_moduleLabel", "ecalEBunpacker");
 //   emulModuleLabel_
-//     = ps.getUntrackedParameter<string>("emulated_digis_moduleLabel",
-//                                        "ecalTriggerPrimitiveDigis");
-  outputFile_
-    = ps.getUntrackedParameter<string>("OutputRootFile",
-                                       "");
-
+//     = ps.getUntrackedParameter<string>("emulated_digis_moduleLabel", "ecalTriggerPrimitiveDigis");
+  outputFile_ = ps.getUntrackedParameter<string>("OutputRootFile", "");
 
   ostringstream  str;
   str<<"Module label for producer of REAL     digis: "<<realCollection_<<endl;
   str<<"Module label for producer of EMULATED digis: "<<emulCollection_<<endl;
 
   LogDebug("EBTriggerTowerTask")<<str.str()<<endl;
-
-  enableCleanup_ = ps.getUntrackedParameter<bool>("enableCleanup", false);
 
 }
 
@@ -91,6 +88,34 @@ void EBTriggerTowerTask::beginJob(const EventSetup& c){
   }
 
   Numbers::initGeometry(c, false);
+
+}
+
+void EBTriggerTowerTask::beginRun(const Run& r, const EventSetup& c) {
+
+  if ( ! mergeRuns_ ) this->reset();
+
+}
+
+void EBTriggerTowerTask::endRun(const Run& r, const EventSetup& c) {
+
+}
+
+void EBTriggerTowerTask::reset(void) {
+
+  for (int i = 0; i < 36; i++) {
+
+    if ( meEtMapReal_[i] ) meEtMapReal_[i]->Reset();
+    if ( meVetoReal_[i] ) meVetoReal_[i]->Reset();
+    if ( meFlagsReal_[i] ) meFlagsReal_[i]->Reset();
+    if ( meEtMapEmul_[i] ) meEtMapEmul_[i]->Reset();
+    if ( meVetoEmul_[i] ) meVetoEmul_[i]->Reset();
+    if ( meFlagsEmul_[i] ) meFlagsEmul_[i]->Reset();
+    if ( meEmulError_[i] ) meEmulError_[i]->Reset();
+    if ( meVetoEmulError_[i] ) meVetoEmulError_[i]->Reset();
+    if ( meFlagEmulError_[i] ) meFlagEmulError_[i]->Reset();
+
+  }
 
 }
 
@@ -178,7 +203,6 @@ void EBTriggerTowerTask::setup( const char* nameext,
     (*meFlags)[i]->setAxisTitle("iphi'", 2);
     dqmStore_->tag((*meFlags)[i], i+1);
 
-
     if(!emulated) {
 
       string  emulErrorNameSM = emulErrorName;
@@ -223,7 +247,7 @@ void EBTriggerTowerTask::setup( const char* nameext,
 
 void EBTriggerTowerTask::cleanup(void) {
 
-  if ( ! enableCleanup_ ) return;
+  if ( ! init_ ) return;
 
   if ( dqmStore_ ) {
 
@@ -241,7 +265,7 @@ void EBTriggerTowerTask::endJob(void){
 
   LogInfo("EBTriggerTowerTask") << "analyzed " << ievt_ << " events";
 
-  if ( init_ ) this->cleanup();
+  if ( enableCleanup_ ) this->cleanup();
 
 }
 
@@ -280,7 +304,6 @@ void EBTriggerTowerTask::analyze(const Event& e, const EventSetup& c){
                   meVetoEmul_,
                   meFlagsEmul_,
                   realDigis);
-
 
   } else {
     LogWarning("EBTriggerTowerTask") << emulCollection_ << " not available";
@@ -345,7 +368,6 @@ EBTriggerTowerTask::processDigis( const Handle<EcalTrigPrimDigiCollection>&
 
     xval = 0.5 + data.ttFlag();
     if ( meFlags[ismt-1] ) meFlags[ismt-1]->Fill(xiet, xipt, xval);
-
 
     if( compDigis.isValid() ) {
       bool good = true;

@@ -118,14 +118,6 @@ void HLTInfo::setup(const edm::ParameterSet& pSet, TTree* HltTree) {
   HltTree->Branch("L1MetTot",&mettot,"L1MetTot/F");
   HltTree->Branch("L1MetHad",&methad,"L1MetHad/F");
 
-  // L1GctJetCounts
-  HltTree->Branch("L1HfRing0EtSumPositiveEta",&l1hfRing0EtSumPositiveEta,"L1HfRing0EtSumPositiveEta/I");
-  HltTree->Branch("L1HfRing1EtSumPositiveEta",&l1hfRing1EtSumPositiveEta,"L1HfRing1EtSumPositiveEta/I");
-  HltTree->Branch("L1HfRing0EtSumNegativeEta",&l1hfRing0EtSumNegativeEta,"L1HfRing0EtSumNegativeEta/I");
-  HltTree->Branch("L1HfRing1EtSumNegativeEta",&l1hfRing1EtSumNegativeEta,"L1HfRing1EtSumNegativeEta/I");
-  HltTree->Branch("L1HfTowerCountPositiveEta",&l1hfTowerCountPositiveEta,"L1HfTowerCountPositiveEta/I");
-  HltTree->Branch("L1HfTowerCountNegativeEta",&l1hfTowerCountNegativeEta,"L1HfTowerCountNegativeEta/I");
-  
 }
 
 /* **Analyze the event** */
@@ -141,7 +133,6 @@ void HLTInfo::analyze(/*const HLTFilterObjectWithRefs& hltobj,*/
 //		      const l1extra::L1ParticleMapCollection& L1MapColl,
 		      const L1GlobalTriggerReadoutRecord& L1GTRR,
 		      const L1GlobalTriggerObjectMapRecord& L1GTOMRec,
-		      const L1GctJetCounts& L1GctCounts,
 		      TTree* HltTree) {
 
 //   std::cout << " Beginning HLTInfo " << std::endl;
@@ -209,16 +200,8 @@ void HLTInfo::analyze(/*const HLTFilterObjectWithRefs& hltobj,*/
 
   /////////// Analyzing L1Extra objects //////////
 
-  const int maxL1EmIsol = 4;
-  for (int i=0; i!=maxL1EmIsol; ++i){
-    l1extiemet[i] = -999.;
-    l1extieme[i] = -999.;
-    l1extiemeta[i] = -999.;
-    l1extiemphi[i] = -999.;
-  }
   if (&L1ExtEmIsol) {
-    //nl1extiem = L1ExtEmIsol.size();
-    nl1extiem = maxL1EmIsol;
+    nl1extiem = L1ExtEmIsol.size();
     l1extra::L1EmParticleCollection myl1iems;
     myl1iems=L1ExtEmIsol;
     std::sort(myl1iems.begin(),myl1iems.end(),EtGreater());
@@ -235,17 +218,8 @@ void HLTInfo::analyze(/*const HLTFilterObjectWithRefs& hltobj,*/
     nl1extiem = 0;
     if (_Debug) std::cout << "%HLTInfo -- No Isolated L1 EM object" << std::endl;
   }
-
-  const int maxL1EmNIsol = 4;
-  for (int i=0; i!=maxL1EmNIsol; ++i){
-    l1extnemet[i] = -999.;
-    l1extneme[i] = -999.;
-    l1extnemeta[i] = -999.;
-    l1extnemphi[i] = -999.;
-  }
   if (&L1ExtEmNIsol) {
-    //nl1extnem = L1ExtEmNIsol.size();
-    nl1extnem = maxL1EmNIsol;
+    nl1extnem = L1ExtEmNIsol.size();
     l1extra::L1EmParticleCollection myl1nems;
     myl1nems=L1ExtEmNIsol;
     std::sort(myl1nems.begin(),myl1nems.end(),EtGreater());
@@ -263,21 +237,8 @@ void HLTInfo::analyze(/*const HLTFilterObjectWithRefs& hltobj,*/
     if (_Debug) std::cout << "%HLTInfo -- No Non-Isolated L1 EM object" << std::endl;
   }
 
-  const int maxL1Mu = 4;
-  for (int i=0; i!=maxL1Mu; ++i){
-    l1extmupt[i] = -999.;
-    l1extmue[i] = -999.;
-    l1extmueta[i] = -999.;
-    l1extmuphi[i] = -999.;
-    l1extmuiso[i] = -999;
-    l1extmumip[i] = -999;
-    l1extmufor[i] = -999;
-    l1extmurpc[i] = -999;
-    l1extmuqul[i] = -999;
-  }
   if (&L1ExtMu) {
-    //nl1extmu = L1ExtMu.size();
-    nl1extmu = maxL1Mu;
+    nl1extmu = L1ExtMu.size();
     l1extra::L1MuonParticleCollection myl1mus;
     myl1mus=L1ExtMu;
     std::sort(myl1mus.begin(),myl1mus.end(),PtGreater());
@@ -301,16 +262,8 @@ void HLTInfo::analyze(/*const HLTFilterObjectWithRefs& hltobj,*/
     if (_Debug) std::cout << "%HLTInfo -- No L1 MU object" << std::endl;
   }
 
-  const int maxL1CenJet = 4;
-  for (int i=0; i!=maxL1CenJet; ++i){
-    l1extjtcet[i] = -999.;
-    l1extjtce[i] = -999.;
-    l1extjtceta[i] = -999.;
-    l1extjtcphi[i] = -999.;
-  }
   if (&L1ExtJetC) {
-    //nl1extjetc = L1ExtJetC.size();
-    nl1extjetc = maxL1CenJet;
+    nl1extjetc = L1ExtJetC.size();
     l1extra::L1JetParticleCollection myl1jetsc;
     myl1jetsc=L1ExtJetC;
     std::sort(myl1jetsc.begin(),myl1jetsc.end(),EtGreater());
@@ -327,17 +280,8 @@ void HLTInfo::analyze(/*const HLTFilterObjectWithRefs& hltobj,*/
     nl1extjetc = 0;
     if (_Debug) std::cout << "%HLTInfo -- No L1 Central JET object" << std::endl;
   }
-
-  const int maxL1ForJet = 4;
-  for (int i=0; i!=maxL1ForJet; ++i){
-    l1extjtfet[i] = -999.;
-    l1extjtfe[i] = -999.;
-    l1extjtfeta[i] = -999.;
-    l1extjtfphi[i] = -999.;
-  }
   if (&L1ExtJetF) {
-    //nl1extjetf = L1ExtJetF.size();
-    nl1extjetf = maxL1ForJet;
+    nl1extjetf = L1ExtJetF.size();
     l1extra::L1JetParticleCollection myl1jetsf;
     myl1jetsf=L1ExtJetF;
     std::sort(myl1jetsf.begin(),myl1jetsf.end(),EtGreater());
@@ -355,16 +299,8 @@ void HLTInfo::analyze(/*const HLTFilterObjectWithRefs& hltobj,*/
     if (_Debug) std::cout << "%HLTInfo -- No L1 Forward JET object" << std::endl;
   }
 
-  const int maxL1TauJet = 4;
-  for (int i=0; i!=maxL1TauJet; ++i){
-    l1exttauet[i] = -999.;
-    l1exttaue[i] = -999.;
-    l1exttaueta[i] = -999.;
-    l1exttauphi[i] = -999.;
-  }
   if (&L1ExtTau) {
-    //nl1exttau = L1ExtTau.size();
-    nl1exttau = maxL1TauJet;
+    nl1exttau = L1ExtTau.size();
     l1extra::L1JetParticleCollection myl1taus;
     myl1taus=L1ExtTau;
     std::sort(myl1taus.begin(),myl1taus.end(),EtGreater());
@@ -447,40 +383,4 @@ void HLTInfo::analyze(/*const HLTFilterObjectWithRefs& hltobj,*/
     if (_Debug) std::cout << "%HLTInfo -- No L1 GT ReadoutRecord or ObjectMapRecord" << std::endl;
   }
 
-  // Minbias triggers from GCT
-  // Jet Count 	 Quantity
-  //   6 	HFTowerCountPositiveEta
-  //   7 	HFTowerCountNegativeEta
-  //   8 	HFRing0EtSumPositiveEta
-  //   9 	HFRing0EtSumNegativeEta
-  //  10 	HFRing1EtSumPositiveEta
-  //  11 	HFRing1EtSumNegativeEta
-  //
-  // LSB for feature bits = 0.125 GeV.
-  // The default LSB for the ring sums is 0.5 GeV.
-  
-  if (&L1GctCounts) {
-    /*
-    for (int i=6;i<=11;i++) {
-      std::cout<<i<<" "<<L1GctCounts.count(i)<<std::endl;
-    }
-    std::cout<<"A "<<L1GctCounts.hfTowerCountPositiveEta()<<std::endl;
-    std::cout<<"B "<<L1GctCounts.hfTowerCountNegativeEta()<<std::endl;
-    std::cout<<"C "<<L1GctCounts.hfRing0EtSumPositiveEta()<<std::endl;
-    std::cout<<"D "<<L1GctCounts.hfRing0EtSumNegativeEta()<<std::endl;
-    std::cout<<"E "<<L1GctCounts.hfRing1EtSumPositiveEta()<<std::endl;
-    std::cout<<"F "<<L1GctCounts.hfRing1EtSumNegativeEta()<<std::endl;
-    */
-    
-    l1hfTowerCountPositiveEta = (int)L1GctCounts.hfTowerCountPositiveEta();
-    l1hfTowerCountNegativeEta = (int)L1GctCounts.hfTowerCountNegativeEta();
-    l1hfRing0EtSumPositiveEta = (int)L1GctCounts.hfRing0EtSumPositiveEta();
-    l1hfRing0EtSumNegativeEta = (int)L1GctCounts.hfRing0EtSumNegativeEta();
-    l1hfRing1EtSumPositiveEta = (int)L1GctCounts.hfRing1EtSumPositiveEta();
-    l1hfRing1EtSumNegativeEta = (int)L1GctCounts.hfRing1EtSumNegativeEta();
-  } else {
-    if (_Debug) std::cout << "%HLTInfo -- No L1 GctJetCounts" << std::endl;
-  }
-
-  
 }

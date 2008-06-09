@@ -1,8 +1,0 @@
-<use name=FWCore/Framework>
-<use name=FWCore/PluginManager>
-<use name=FWCore/ParameterSet>
-<use name=DataFormats/RecoCandidate>
-<use name=SimDataFormats/HepMCProduct>
-<use name=HLTrigger/HLTcore>
-<use name=root>
-<flags EDM_PLUGIN=1>

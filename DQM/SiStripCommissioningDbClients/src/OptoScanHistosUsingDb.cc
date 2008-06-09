@@ -1,4 +1,4 @@
-// Last commit: $Id: OptoScanHistosUsingDb.cc,v 1.14 2008/04/07 14:42:35 delaer Exp $
+// Last commit: $Id: OptoScanHistosUsingDb.cc,v 1.12 2008/02/20 11:26:12 bainbrid Exp $
 
 #include "DQM/SiStripCommissioningDbClients/interface/OptoScanHistosUsingDb.h"
 #include "CondFormats/SiStripObjects/interface/OptoScanAnalysis.h"
@@ -214,11 +214,7 @@ void OptoScanHistosUsingDb::create( SiStripConfigDb::AnalysisDescriptions& desc,
 
     // Create description
     OptoScanAnalysisDescription* tmp;
-    tmp = new OptoScanAnalysisDescription( anal->baseSlope()[0],
-                                           anal->baseSlope()[1],
-                                           anal->baseSlope()[2],
-                                           anal->baseSlope()[3],
-                                           anal->gain(),
+    tmp = new OptoScanAnalysisDescription( anal->gain(),
 					   anal->bias()[0],
 					   anal->bias()[1],
 					   anal->bias()[2],

@@ -70,7 +70,7 @@ void PFBlock::setLink(unsigned i1, unsigned i2, double chi2,
 
 void PFBlock::associatedElements( unsigned i, 
                                   const LinkData& linkData, 
-                                  multimap<double, unsigned>& sortedAssociates,
+                                  map<double, unsigned>& sortedAssociates,
                                   PFBlockElement::Type type,
 				  LinkTest test ) 
   const {
@@ -128,7 +128,7 @@ void PFBlock::associatedElements( unsigned i,
     if( c2 < 0 ) { 
       continue;
     }
-    sortedAssociates.insert( pair<double,unsigned>(c2, ie) );
+    sortedAssociates.insert( make_pair(c2, ie) );
   }
 } 
 
@@ -193,8 +193,6 @@ ostream& reco::operator<<(  ostream& out,
   stringstream ss;
   int iel = 0;
   int iTK =0;
-  int iGSF =0;
-  int iBREM=0;
   int iPS1 = 0;
   int iPS2 = 0;
   int iEE = 0;
@@ -202,8 +200,10 @@ ostream& reco::operator<<(  ostream& out,
   int iHE = 0;
   int iHB = 0;
   int iHF = 0;
+  int iMU = 0;
 
   // for each element in turn
+  
   for(unsigned ie=0; ie<elements.size(); ie++) {
     
     PFBlockElement::Type type = elements[ie].type();
@@ -212,14 +212,10 @@ ostream& reco::operator<<(  ostream& out,
       iTK++;
       ss << "TK" << iTK;
       break;
-    case PFBlockElement::GSF:
-      iGSF++;
-      ss << "GSF" << iGSF;
+    case PFBlockElement::MUON:
+      iMU++;
+      ss << "MU" << iMU;
       break;
-    case PFBlockElement::BREM:
-      iBREM++;
-      ss << "BREM" << iBREM;
-      break;    
     default:{
       PFClusterRef clusterref = elements[ie].clusterRef();
       int layer = clusterref->layer();

@@ -1,7 +1,6 @@
 import FWCore.ParameterSet.Config as cms
 
 # magnetic field
-from Geometry.CMSCommonData.cmsMagneticFieldXML_cfi import *
 from MagneticField.Engine.volumeBasedMagneticField_cfi import *
 # geometry
 from Geometry.CMSCommonData.cmsIdealGeometryXML_cfi import *

@@ -1,4 +1,4 @@
-#ifndef DQM_SiStripCommissioningSources_PedsAndNoiseTask_h
+#ifndef DQM_SiStripCommissioningSources_PedestalsTask_h
 #define DQM_SiStripCommissioningSources_PedestalsTask_h
 
 #include "DQM/SiStripCommissioningSources/interface/CommissioningTask.h"

@@ -16,9 +16,12 @@ L1TDEMON::L1TDEMON(const edm::ParameterSet& iConfig) {
   histFolder_ = iConfig.getUntrackedParameter<std::string>("HistFolder", "L1TEMU/");
   
   nEvt_     = 0;
-  for(int i=0; i<DEnsys; i++)
+  for(int i=0; i<DEnsys; i++) {
     deSysCount[i]=0;
+    nEvtWithSys[i]=0;
+  }
   
+
   dbe = NULL;
   if (iConfig.getUntrackedParameter<bool>("DQMStore", false)) { 
     dbe = edm::Service<DQMStore>().operator->();
@@ -44,13 +47,14 @@ L1TDEMON::beginJob(const edm::EventSetup&) {
   dbe = edm::Service<DQMStore>().operator->();
   if(dbe) {
     dbe->setCurrentFolder(histFolder_);
-    dbe->rmdir(histFolder_);
+    // dbe->rmdir(histFolder_);
   }
 
   if(dbe) {
 
-    dbe->setCurrentFolder(histFolder_);
+    dbe->setCurrentFolder(std::string(histFolder_));
     
+
     for(int j=0; j<2; j++) {
       std::string lbl("sysncand"); 
       lbl += (j==0?"Data":"Emul");
@@ -66,13 +70,13 @@ L1TDEMON::beginJob(const edm::EventSetup&) {
     const double amax=tpi+0.5;
 
     //                           ETP,  HTP,  RCT, GCT, DTP, DTF,  CTP, CTF, RPC,LTC, GMT,GLT
-    int    phiNBins[DEnsys] = { 71  , 71  , 18  ,18  ,  12, 100,   12, 100, 100,  0, 100,0};
-    double phiMinim[DEnsys] = {  0.5,  0.5,- 0.5,-0.5,-0.5,amin, -0.5,amin,amin,  0,amin,0};
-    double phiMaxim[DEnsys] = { 71.5, 71.5, 17.5,17.5,11.5,amax, 11.5,amax,amax,  0,amax,0};
+    int    phiNBins[DEnsys] = { 71  , 71  , 18  ,18  ,  12, 255,   12, 255, 255,  0, 100,0};
+    double phiMinim[DEnsys] = {  0.5,  0.5,- 0.5,-0.5,-0.5,   0, -0.5,   0,   0,  0,amin,0};
+    double phiMaxim[DEnsys] = { 71.5, 71.5, 17.5,17.5,11.5, 255, 11.5, 255, 255,  0,amax,0};
 				     	       	      		    
     int    etaNBins[DEnsys] = { 35  , 35  , 22  ,22  ,   5,  20,    4,  20,  20,  0, 100,0};
-    double etaMinim[DEnsys] = {-17.5,-17.5,- 0.5,-0.5,-2.5,-2.5, -0.5,-2.5,-2.5,  0,-2.5,0};
-    double etaMaxim[DEnsys] = { 17.5, 17.5, 21.5,21.5, 2.5, 2.5,  3.5, 2.5, 2.5,  0, 2.5,0};
+    double etaMinim[DEnsys] = {-17.5,-17.5,- 0.5,-0.5,-2.5,   0, -0.5,   0,   0,  0,-2.5,0};
+    double etaMaxim[DEnsys] = { 17.5, 17.5, 21.5,21.5, 2.5,  63,  3.5,  63,  63,  0, 2.5,0};
 					       	   
     int    x3NBins [DEnsys] = {    0,    0,    0,   0,   4,   0,    0,   0,   0,  0,   0,0};
     double x3Minim [DEnsys] = {    0,    0,    0,   0, 0.5,   0,    0,   0,   0,  0,   0,0};
@@ -300,8 +304,7 @@ L1TDEMON::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup) {
     std::cout << "[L1TDEMON] ncands d: ";
     for(int i=0; i<DEnsys; i++)
       std::cout << DEncand[i][0] << " ";
-    std::cout << std::endl;  
-    std::cout << "[L1TDEMON] ncands e: ";
+    std::cout << "\n[L1TDEMON] ncands e: ";
     for(int i=0; i<DEnsys; i++)
       std::cout << DEncand[i][1] << " ";
     std::cout << std::endl;
@@ -313,6 +316,17 @@ L1TDEMON::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup) {
   /// get the de candidates
   L1DEDigiCollection deColl;
   deColl = deRecord->getColl();
+
+  // global counters 
+  int hasSys[DEnsys]={0};
+  for(L1DEDigiCollection::const_iterator it=deColl.begin(); it!=deColl.end(); it++) 
+    if(!it->empty()) hasSys[it->sid()]++;
+  for(int i=0; i<DEnsys; i++) {
+    if(!hasSys[i]) continue;
+    nEvtWithSys[i]++;
+    if(deMatch[i])
+      deSysCount[i]++;
+  }
 
   if(verbose()) {
     std::cout << "[L1TDEMON] digis: \n";
@@ -326,22 +340,29 @@ L1TDEMON::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup) {
   // global, sub-systems d|e match, ncands
   for(int i=0; i<DEnsys; i++) {
     if(!isComp[i]) continue;
-    if(deMatch[i])
-      deSysCount[i]++;
+
     for(int j=0; j<2; j++) 
       sysncand[j]->Fill(i,DEncand[i][j]);
 
    //sysrates->Fill(i,(int)!deMatch[i]);
     int ibin = i+1;
-    double rateb = sysrates->getBinContent(ibin);
-    double nerr = (nEvt_-1) * rateb;  
-    nerr += (int)!deMatch[i]; 
-    double rate = nerr / nEvt_;
+    double rate = nEvtWithSys[i]?(nEvtWithSys[i]-1.*deSysCount[i])/nEvtWithSys[i]:0.;
     sysrates->setBinContent(ibin,rate);
-    if(verbose() && rate>1)
-      std::cout << "problem, error rate for " << SystLabel[i] 
-		<<" is "<<sysrates->getBinContent(ibin)
-		<< std::endl;
+    if(verbose()) {
+      std::cout << "[L1TDEMON] analyze "
+		<< " sysid:"   << i
+		<< " nEvt:"    << nEvt_
+		<< " match?"   << deMatch[i]
+		<< " ncands:"  << hasSys[i]
+		<< " nevtwsys:"<< nEvtWithSys[i]
+		<< " nevtgood:"<< deSysCount[i]
+		<< " rate:"    << sysrates->getBinContent(ibin) 
+		<< "\n";
+      if(rate>1)
+	std::cout << "problem, error rate for " << SystLabel[i] 
+		  <<" is "<<sysrates->getBinContent(ibin)
+		  << std::endl;
+    }
   }
   
   // container for subsystem's leading candidate
@@ -361,7 +382,7 @@ L1TDEMON::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup) {
       continue;
     assert(isComp[sid]);
 
-    int type   = it->type();
+    int type    = it->type();
     double phiv = it->x1();
     double etav = it->x2();
     double x3v  = it->x3();
@@ -482,44 +503,46 @@ L1TDEMON::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup) {
   }//close loop over dedigi-cands
 
   ///GT mon info
-  const int w64=64;
-  GltDEDigi gltdigimon = deRecord->getGlt();
-  bool ddecbit = gltdigimon.globalDBit[0];
-  bool edecbit = gltdigimon.globalDBit[1];
-  std::vector<bool> edecbitv = gltdigimon.gltDecBits[0];
-  std::vector<bool> ddecbitv = gltdigimon.gltDecBits[1];
-  std::vector<bool> etchbitv = gltdigimon.gltTchBits[0];
-  std::vector<bool> dtchbitv = gltdigimon.gltTchBits[1];
-
-  std::vector<bool> dedecbitv(2*w64,false), debitmaskv(2*w64,false), 
-    gtbitmasked(2*w64,false);
-  for(int i=0; i<2*w64; i++)
-    gtbitmasked[i] = false; //no masking!
-  for(int i=0; i<2*w64; i++) {
-    dedecbitv[i]=(ddecbitv[i]&&edecbitv[i]);
-    debitmaskv[i]=(dedecbitv[i]&& !gtbitmasked[i]);
-    if(ddecbitv[i])  dword [GLT]->Fill(i,1);
-    if(edecbitv[i])  eword [GLT]->Fill(i,1);
-    if(dedecbitv[i]) deword[GLT]->Fill(i,1);
-    if(debitmaskv[i])masked[GLT]->Fill(i,1);
+  if(isComp[GLT]) {
+    const int w64=64;
+    GltDEDigi gltdigimon = deRecord->getGlt();
+    //bool ddecbit = gltdigimon.globalDBit[0];
+    //bool edecbit = gltdigimon.globalDBit[1];
+    std::vector<bool> edecbitv = gltdigimon.gltDecBits[0];
+    std::vector<bool> ddecbitv = gltdigimon.gltDecBits[1];
+    std::vector<bool> etchbitv = gltdigimon.gltTchBits[0];
+    std::vector<bool> dtchbitv = gltdigimon.gltTchBits[1];
+    
+    std::vector<bool> dedecbitv(2*w64,false), debitmaskv(2*w64,false), 
+      gtbitmasked(2*w64,false);
+    for(int i=0; i<2*w64; i++)
+      gtbitmasked[i] = false; //no masking!
+    for(int i=0; i<2*w64; i++) {
+      dedecbitv[i]=(ddecbitv[i]&&edecbitv[i]);
+      debitmaskv[i]=(dedecbitv[i]&& !gtbitmasked[i]);
+      if(ddecbitv[i])  dword [GLT]->Fill(i,1);
+      if(edecbitv[i])  eword [GLT]->Fill(i,1);
+      if(dedecbitv[i]) deword[GLT]->Fill(i,1);
+      if(debitmaskv[i])masked[GLT]->Fill(i,1);
+    }
+    
+    std::vector<bool> detchbitv(w64,false);
+    for(int i=0; i<w64; i++) {
+      detchbitv[i]=(dtchbitv[i]&&etchbitv[i]);
+    }
+    
+    if(verbose()) {
+      std::cout << "L1TDEMON gt dec bits:\n";
+      std::cout << "\ndata:"; for(int i=0; i<2*w64; i++) std::cout << ddecbitv[i];
+      std::cout << "\nemul:"; for(int i=0; i<2*w64; i++) std::cout << edecbitv[i];
+      std::cout << "\nand :"; for(int i=0; i<2*w64; i++) std::cout << dedecbitv[i];
+      std::cout << "\nmask:"; for(int i=0; i<2*w64; i++) std::cout << debitmaskv[i];
+      std::cout << "\n gt tech trig bits:\n";
+      std::cout << "\ndata:"; for(int i=0; i<w64; i++) std::cout << dtchbitv[i];
+      std::cout << "\nemul:"; for(int i=0; i<w64; i++) std::cout << etchbitv[i];
+      std::cout << "\n";
+    }      
   }
-
-  std::vector<bool> detchbitv(w64,false);
-  for(int i=0; i<w64; i++) {
-    detchbitv[i]=(dtchbitv[i]&&etchbitv[i]);
-  }
-
-  if(verbose()) {
-    std::cout << "L1TDEMON gt dec bits:\n";
-    std::cout << "\ndata:"; for(int i=0; i<2*w64; i++) std::cout << ddecbitv[i];
-    std::cout << "\nemul:"; for(int i=0; i<2*w64; i++) std::cout << edecbitv[i];
-    std::cout << "\nand :"; for(int i=0; i<2*w64; i++) std::cout << dedecbitv[i];
-    std::cout << "\nmask:"; for(int i=0; i<2*w64; i++) std::cout << debitmaskv[i];
-    std::cout << "\n gt tech trig bits:\n";
-    std::cout << "\ndata:"; for(int i=0; i<w64; i++) std::cout << dtchbitv[i];
-    std::cout << "\nemul:"; for(int i=0; i<w64; i++) std::cout << etchbitv[i];
-    std::cout << "\n";
-  }      
 
   ///correlations: fill histograms
   double wei=1.;

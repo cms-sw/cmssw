@@ -1,13 +1,5 @@
 #ifndef PixelPortCardSettingNames_h
 #define PixelPortCardSettingNames_h
-/**
-* \file CalibFormats/SiPixelObjects/interface/PortCardSettingNames.h
-* \brief This is just a naespe populated with default values
-*
-*   A longer explanation will be placed here later
-*
-*/
- 
 
 #include <string>
 namespace pos{

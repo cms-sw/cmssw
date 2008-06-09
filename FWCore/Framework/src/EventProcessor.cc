@@ -1,12 +1,10 @@
-#include <algorithm>
-#include <fstream>
-#include <iostream>
-#include <list>
-#include <stdexcept>
-#include <utility>
-#include <cstdlib>
 
-#include <signal.h>
+#include "FWCore/Framework/interface/EventProcessor.h"
+
+#include <exception>
+#include <utility>
+#include <iostream>
+#include <iomanip>
 
 #include "boost/bind.hpp"
 #include "boost/thread/xtime.hpp"
@@ -18,7 +16,6 @@
 #include "FWCore/Utilities/interface/GetPassID.h"
 #include "FWCore/Utilities/interface/UnixSignalHandlers.h"
 
-#include "FWCore/Framework/interface/EventProcessor.h"
 #include "FWCore/Framework/interface/IOVSyncValue.h"
 #include "FWCore/Framework/interface/SourceFactory.h"
 #include "FWCore/Framework/interface/ModuleFactory.h"
@@ -29,17 +26,17 @@
 #include "FWCore/Framework/interface/ConstProductRegistry.h"
 #include "FWCore/Framework/interface/TriggerNamesService.h"
 #include "FWCore/Framework/interface/InputSourceDescription.h"
+#include "FWCore/Framework/interface/EventSetupProvider.h"
+#include "FWCore/Framework/interface/InputSource.h"
 
 #include "FWCore/Framework/src/Breakpoints.h"
 #include "FWCore/Framework/src/InputSourceFactory.h"
 
-#include "FWCore/ParameterSet/interface/ParameterSet.h"
+#include "FWCore/ParameterSet/interface/ProcessDesc.h"
 
 #include "FWCore/ServiceRegistry/interface/ServiceRegistry.h"
-#include "FWCore/MessageLogger/interface/ExceptionMessages.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 
-#include "FWCore/ServiceRegistry/interface/ActivityRegistry.h"
 #include "FWCore/Framework/interface/Schedule.h"
 #include "FWCore/Framework/interface/EDLooper.h"
 
@@ -65,128 +62,6 @@ namespace edm {
       bool success_;
     };
 
-    class LuminosityBlockSentry {
-    public:
-      LuminosityBlockSentry(EventProcessor* ep) : ep_(ep), success_(false) { }
-      ~LuminosityBlockSentry() {
-	if (!success_ && ep_->lbp_) {
-	  try {
-	    ep_->endLuminosityBlock(ep_->lbp_.get());  
-	    ep_->lbp_.reset();
-	  }
-          catch (cms::Exception& e) {
-            printCmsException(e);
-          }
-          catch (std::bad_alloc& e) {
-	    printBadAllocException();
-          }
-          catch (std::exception& e) {
-            printStdException(e);
-          }
-          catch (...) {
-            printUnknownException();
-          }
-        }
-      }
-      void succeeded() {success_ = true;}
-    private:
-      EventProcessor* ep_;
-      bool success_;
-    };
-
-    class RunSentry {
-    public:
-      RunSentry(EventProcessor* ep) : ep_(ep), success_(false)  { }
-      ~RunSentry() {
-	if (!success_ && ep_->rp_) {
-	  try {
-	    ep_->endRun(ep_->rp_.get());  
-	    ep_->rp_.reset();
-	  }
-          catch (cms::Exception& e) {
-            printCmsException(e);
-          }
-          catch (std::bad_alloc& e) {
-	    printBadAllocException();
-          }
-          catch (std::exception& e) {
-            printStdException(e);
-          }
-          catch (...) {
-            printUnknownException();
-          }
-        }
-      }
-      void succeeded() {success_ = true;}
-    private:
-      EventProcessor* ep_;
-      bool success_;
-    };
-
-    class InputFileSentry {
-    public:
-      InputFileSentry(EventProcessor* ep) : ep_(ep), success_(false)  { }
-      ~InputFileSentry() {
-	if (!success_ && ep_->fb_) {
-	  try {
-	    ep_->respondToCloseInputFile();  
-	    ep_->fb_.reset();
-	  }
-          catch (cms::Exception& e) {
-            printCmsException(e);
-          }
-          catch (std::bad_alloc& e) {
-	    printBadAllocException();
-          }
-          catch (std::exception& e) {
-            printStdException(e);
-          }
-          catch (...) {
-            printUnknownException();
-          }
-        }
-      }
-      void succeeded() {success_ = true;}
-    private:
-      EventProcessor* ep_;
-      bool success_;
-    };
-
-    class MachineSentry {
-    public:
-      MachineSentry(EventProcessor* ep) : ep_(ep), success_(false) { }
-      ~MachineSentry() {
-        if (!success_ && ep_->machine_.get() != 0) {
-          try {
-            if (!ep_->machine_->terminated()) {
-              ep_->machine_->process_event(statemachine::Stop());
-              // Two stops are needed if there is a looper running
-              if (!ep_->machine_->terminated()) {
-                ep_->machine_->process_event(statemachine::Stop());
-              }
-            }
-            ep_->machine_.reset();
-	  }
-          catch (cms::Exception& e) {
-            printCmsException(e);
-          }
-          catch (std::bad_alloc& e) {
-            printBadAllocException();
-          }
-          catch (std::exception& e) {
-            printStdException(e);
-          }
-          catch (...) {
-            printUnknownException();
-          }
-        }
-      }
-      void succeeded() {success_ = true;}
-    private:
-      EventProcessor* ep_;
-      bool success_;
-    };
-
     class PrePostSourceSignal {
     public:
       PrePostSourceSignal(EventProcessor* ep): ep_(ep) { 
@@ -202,13 +77,6 @@ namespace edm {
 
   using namespace event_processor;
   using namespace edm::service;
-
-  typedef std::vector<std::string>   StrVec;
-  typedef std::list<std::string>     StrList;
-  typedef Worker*          WorkerPtr;
-  typedef std::list<WorkerPtr>  WorkerList;
-  typedef std::list<WorkerList> PathList;
-
 
   namespace {
 
@@ -513,32 +381,6 @@ namespace edm {
   }
 
   // ---------------------------------------------------------------
-  //need a wrapper to let me 'copy' references to EventSetup
-
-  namespace eventprocessor 
-  {
-    struct ESRefWrapper 
-    {
-      EventSetup const& es_;
-      ESRefWrapper(EventSetup const& iES) : es_(iES) {}
-      operator EventSetup const&() { return es_; }
-    };
-  }
-
-  using eventprocessor::ESRefWrapper;
-
-  // ---------------------------------------------------------------
-  EventProcessor::DoPluginInit::DoPluginInit()
-  { 
-    //edmplugin::PluginManager::get()->initialise();
-    // std::cerr << "Initialized plugin manager" << std::endl;
-
-    // for now, install sigusr2 function.
-    installSig(SIGUSR2,edm::ep_sigusr2);
-  }
-
-
-  // ---------------------------------------------------------------
   boost::shared_ptr<edm::EDLooper> 
   fillLooper(edm::eventsetup::EventSetupProvider& cp,
 			 ParameterSet const& params,
@@ -572,7 +414,6 @@ namespace edm {
   }
 
   // ---------------------------------------------------------------
-
   EventProcessor::EventProcessor(std::string const& config,
 				ServiceToken const& iToken, 
 				serviceregistry::ServiceLegacy iLegacy,
@@ -580,7 +421,6 @@ namespace edm {
 				std::vector<std::string> const& forcedServices) :
     preProcessEventSignal_(),
     postProcessEventSignal_(),
-    plug_init_(),
     maxEventsPset_(),
     maxLumisPset_(),
     actReg_(new ActivityRegistry),
@@ -603,11 +443,11 @@ namespace edm {
     event_loop_id_(),
     my_sig_num_(getSigNum()),
     fb_(),
-    rp_(),
-    lbp_(),
     looper_(),
     shouldWeStop_(false),
-    sourceActive_(false)
+    sourceActive_(false),
+    alreadyHandlingException_(false),
+    forceLooperToEnd_(false)
   {
     boost::shared_ptr<edm::ProcessDesc> processDesc(new edm::ProcessDesc(config));
     processDesc->addServices(defaultServices, forcedServices);
@@ -619,7 +459,6 @@ namespace edm {
 				std::vector<std::string> const& forcedServices) :
     preProcessEventSignal_(),
     postProcessEventSignal_(),
-    plug_init_(),
     maxEventsPset_(),
     maxLumisPset_(),
     actReg_(new ActivityRegistry),
@@ -642,11 +481,11 @@ namespace edm {
     event_loop_id_(),
     my_sig_num_(getSigNum()),
     fb_(),
-    rp_(),
-    lbp_(),
     looper_(),
     shouldWeStop_(false),
-    sourceActive_(false)
+    sourceActive_(false),
+    alreadyHandlingException_(false),
+    forceLooperToEnd_(false)
   {
     boost::shared_ptr<edm::ProcessDesc> processDesc(new edm::ProcessDesc(config));
     processDesc->addServices(defaultServices, forcedServices);
@@ -658,7 +497,6 @@ namespace edm {
                  serviceregistry::ServiceLegacy legacy) :
     preProcessEventSignal_(),
     postProcessEventSignal_(),
-    plug_init_(),
     maxEventsPset_(),
     maxLumisPset_(),
     actReg_(new ActivityRegistry),
@@ -681,11 +519,11 @@ namespace edm {
     event_loop_id_(),
     my_sig_num_(getSigNum()),
     fb_(),
-    rp_(),
-    lbp_(),
     looper_(),
     shouldWeStop_(false),
-    sourceActive_(false)
+    sourceActive_(false),
+    alreadyHandlingException_(false),
+    forceLooperToEnd_(false)
   {
     init(processDesc, token, legacy);
   }
@@ -787,7 +625,7 @@ namespace edm {
     // executable the solution to this problem is for the code using
     // the EventProcessor to explicitly call EndJob or use runToCompletion,
     // then the next line of code is never executed.
-    terminateMachine(false);
+    terminateMachine();
 
     try {
       changeState(mDtor);
@@ -854,285 +692,6 @@ namespace edm {
       toerror.succeeded();
     }
     changeState(mFinished);
-    fb_.reset();
-  }
-  
-  EventProcessor::StatusCode
-  EventProcessor::processEvents(int & numberEventsToProcess) {
-    bool runforever = numberEventsToProcess < 0;
-    bool got_sig = false;
-    StatusCode rc = epSuccess;
-
-    while(state_ == sRunning) {
-
-//  Lay on a lock
-      {
-        boost::mutex::scoped_lock sl(usr2_lock);
-        if(edm::shutdown_flag) {
-          changeState(mShutdownSignal);
-          rc = epSignal;
-          got_sig = true;
-          continue;
-        }
-      }
-
-      if(numberEventsToProcess == 0) {
-	rc = epCountComplete;
-	changeState(mCountComplete);
-	continue;
-      }
-
-      FDEBUG(1) << numberEventsToProcess << std::endl;
-        
-      if(doOneEvent(lbp_).get() == 0) {
-	break;
-      }
-
-      if(!runforever) {
-        --numberEventsToProcess;
-      }
-
-      if(shouldWeStop()) {
-	changeState(mCountComplete);
-      }
-
-    }
-
-    // check once more for shutdown signal
-    {
-      boost::mutex::scoped_lock sl(usr2_lock);
-      if(!got_sig && edm::shutdown_flag) {
-        changeState(mShutdownSignal);
-        rc = epSignal;
-      }
-    }
-
-    return rc;
-  }
-
-  EventProcessor::StatusCode
-  EventProcessor::processLumis(int & numberEventsToProcess, bool repeatable) {
-    LuminosityBlockSentry lumiSentry(this);
-    bool got_sig = false;
-    StatusCode rc = epSuccess;
-
-    while(state_ == sRunning) {
-
-//  Lay on a lock
-      {
-        boost::mutex::scoped_lock sl(usr2_lock);
-        if(edm::shutdown_flag) {
-          changeState(mShutdownSignal);
-          rc = epSignal;
-          got_sig = true;
-          continue;
-        }
-      }
-
-      if(!lbp_) {
-	lbp_ = beginLuminosityBlock(rp_);
-	if(!lbp_) {
-	  break;
-        }
-      }
-      rc = processEvents(numberEventsToProcess);
-      if(repeatable && rc == epCountComplete) {
-	// Event count limit reached, if repeatable,
-	// don't terminate lumi block, so we keep our place.
-        continue;
-      }
-      endLuminosityBlock(lbp_.get());
-      lbp_.reset();
-      if(state_ == sRunning && shouldWeStop()) {
-	changeState(mCountComplete);
-      }
-    }
-
-    // check once more for shutdown signal
-    {
-      boost::mutex::scoped_lock sl(usr2_lock);
-      if(!got_sig && edm::shutdown_flag) {
-        changeState(mShutdownSignal);
-        rc = epSignal;
-      }
-    }
-
-    lumiSentry.succeeded();
-    return rc;
-  }
-
-  EventProcessor::StatusCode
-  EventProcessor::processRuns(int & numberEventsToProcess, bool repeatable) {
-    RunSentry runSentry(this);
-    bool got_sig = false;
-    StatusCode rc = epSuccess;
-
-    while(state_ == sRunning) {
-
-//  Lay on a lock
-      {
-        boost::mutex::scoped_lock sl(usr2_lock);
-        if(edm::shutdown_flag) {
-          changeState(mShutdownSignal);
-          rc = epSignal;
-          got_sig = true;
-          continue;
-        }
-      }
-
-      if(!rp_) {
-        rp_ = beginRun();
-        if(!rp_) {
-	  break;
-        }
-      }
-      rc = processLumis(numberEventsToProcess, repeatable);
-      if(repeatable && rc == epCountComplete) {
-	// Event count limit reached.  If repeatable,
-	// don't terminate run, so we keep our place.
-        continue;
-      }
-      endRun(rp_.get());
-      rp_.reset();
-    }
-
-    // check once more for shutdown signal
-    {
-      boost::mutex::scoped_lock sl(usr2_lock);
-      if(!got_sig && edm::shutdown_flag) {
-        changeState(mShutdownSignal);
-        rc = epSignal;
-      }
-    }
-
-    runSentry.succeeded();
-    return rc;
-  }
-
-  EventProcessor::StatusCode
-  EventProcessor::processInputFiles(int numberEventsToProcess, bool repeatable, Msg m) {
-    bk::beginRuns(); // routine only for breakpointing
-    InputFileSentry inputFileSentry(this);
-    StateSentry toerror(this);
-    changeState(m);
-
-    //make the services available
-    ServiceRegistry::Operate operate(serviceToken_);
-
-    bool got_sig = false;
-    StatusCode rc = epSuccess;
-
-    while(state_ == sRunning) {
-
-//  Lay on a lock
-      {
-        boost::mutex::scoped_lock sl(usr2_lock);
-        if(edm::shutdown_flag) {
-          changeState(mShutdownSignal);
-          rc = epSignal;
-          got_sig = true;
-          continue;
-        }
-      }
-
-      if(!fb_) {
-        fb_ = beginInputFile();
-        if(!fb_) {
-  	  changeState(mInputExhausted);
-	  rc = epInputComplete;
-	  continue;
-	}
-      }
-      rc = processRuns(numberEventsToProcess, repeatable);
-      if(rc == epCountComplete) {
-	// Event count limit reached.  If repeatable,
-	// don't terminate run, so we keep our place.
-        rc = epSuccess;
-        if(repeatable) continue;
-      }
-      respondToCloseInputFile();
-      closeInputFile();
-      fb_.reset();
-    }
-
-    // check once more for shutdown signal
-    {
-      boost::mutex::scoped_lock sl(usr2_lock);
-      if(!got_sig && edm::shutdown_flag) {
-        changeState(mShutdownSignal);
-        rc = epSignal;
-      }
-    }
-
-    toerror.succeeded();
-    inputFileSentry.succeeded();
-    return rc;
-  }
-
-  boost::shared_ptr<LuminosityBlockPrincipal>
-  EventProcessor::beginLuminosityBlock(boost::shared_ptr<RunPrincipal> rp) {
-    boost::shared_ptr<LuminosityBlockPrincipal> lbp;
-    if (input_->nextItemType() != InputSource::IsLumi) {
-      return lbp;
-    }
-    {
-      // CallPrePost holder(*actReg_);
-      lbp = input_->readLuminosityBlock(rp);
-    }
-    if(lbp) {
-      IOVSyncValue ts(EventID(lbp->run(),0), lbp->beginTime());
-      EventSetup const& es = esp_->eventSetupForInstance(ts);
-      schedule_->runOneEvent(*lbp, es, BranchActionBegin);
-    }
-    return lbp;
-  }
-
-  boost::shared_ptr<RunPrincipal>
-  EventProcessor::beginRun() {
-    boost::shared_ptr<RunPrincipal> rp;
-    if (input_->nextItemType() != InputSource::IsRun) {
-      return rp;
-    }
-    {
-      // CallPrePost holder(*actReg_);
-      rp = input_->readRun();
-    }
-    if(rp) {
-      IOVSyncValue ts(EventID(rp->run(),0), rp->beginTime());
-      EventSetup const& es = esp_->eventSetupForInstance(ts);
-      schedule_->runOneEvent(*rp, es, BranchActionBegin);
-    }
-    return rp;
-  }
-
-  boost::shared_ptr<FileBlock>
-  EventProcessor::beginInputFile() {
-    if (input_->nextItemType() == InputSource::IsStop) {
-      fb_ = boost::shared_ptr<FileBlock>();
-      return fb_;
-    }
-    {
-      readFile();
-    }
-    if(fb_) {
-      respondToOpenInputFile();
-      openOutputFiles();
-    }
-    return fb_;
-  }
-
-  std::auto_ptr<EventPrincipal>
-  EventProcessor::doOneEvent(boost::shared_ptr<LuminosityBlockPrincipal> lbp) {
-    CallPrePost holder(*actReg_);
-    std::auto_ptr<EventPrincipal> pep(0);
-    if (input_->nextItemType() != InputSource::IsEvent) {
-      return pep;
-    }
-    {
-      pep = input_->readEvent(lbp);
-    }
-    procOneEvent(pep.get());
-    return pep;
   }
 
   std::auto_ptr<EventPrincipal>
@@ -1153,39 +712,6 @@ namespace edm {
       EventSetup const& es = esp_->eventSetupForInstance(ts);
       schedule_->runOneEvent(*pep, es, BranchActionEvent);
     }
-  }
-
-  void 
-  EventProcessor::endLuminosityBlock(LuminosityBlockPrincipal *lbp) {
-    {
-      // CallPrePost holder(*actReg_);
-      input_->doEndLumi(*lbp);
-    }
-    IOVSyncValue ts(EventID(lbp->run(),EventID::maxEventNumber()), lbp->endTime());
-    EventSetup const& es = esp_->eventSetupForInstance(ts);
-    schedule_->runOneEvent(*lbp, es, BranchActionEnd);
-    schedule_->writeLumi(*lbp);
-
-    // This call to maybeEndFile should be uncommented when we want to
-    // allow runs to be split across files.
-
-    // schedule_->maybeEndFile();
-  }
-
-  void 
-  EventProcessor::endRun(RunPrincipal *rp) {
-    {
-      // CallPrePost holder(*actReg_);
-      input_->doEndRun(*rp);
-    }
-    IOVSyncValue ts(EventID(rp->run(), EventID::maxEventNumber()), rp->endTime());
-    EventSetup const& es = esp_->eventSetupForInstance(ts);      
-    schedule_->runOneEvent(*rp, es, BranchActionEnd);
-    schedule_->writeRun(*rp);
-    // Do we really need to call maybeEndFile() here? Are we not
-    // assured to have called endLuminosityBlock() immediately before
-    // calling endRun()?
-    schedule_->maybeEndFile();
   }
 
   EventProcessor::StatusCode
@@ -1292,7 +818,7 @@ namespace edm {
     //make the services available
     ServiceRegistry::Operate operate(serviceToken_);  
 
-    terminateMachine(false);
+    terminateMachine();
 
     if(looper_) {
        looper_->endOfJob();
@@ -1736,11 +1262,9 @@ namespace edm {
           if (edm::shutdown_flag) {
             changeState(mShutdownSignal);
             returnCode = epSignal;
+            forceLooperToEnd_ = true;
             machine_->process_event(statemachine::Stop());
-            // Two stops are needed if there is a looper running
-            if (!machine_->terminated()) {
-              machine_->process_event(statemachine::Stop());
-            }
+            forceLooperToEnd_ = false;
             break;
 	  }
         }
@@ -1782,9 +1306,55 @@ namespace edm {
       }  // End of loop over state machine events
     } // Try block 
 
+    // Some comments on exception handling related to the boost state machine:
+    //
+    // Some states used in the machine are special because they
+    // perform actions while the machine is being terminated, actions
+    // such as close files, call endRun, call endLumi etc ...  Each of these
+    // states has two functions that perform these actions.  The functions
+    // are almost identical.  The major difference is that one version
+    // catches all exceptions and the other lets exceptions pass through.
+    // The destructor catches them and the other function named "exit" lets
+    // them pass through.  On a normal termination, boost will always call
+    // "exit" and then the state destructor.  In our state classes, the
+    // the destructors do nothing if the exit function already took
+    // care of things.  Here's the interesting part.  When boost is
+    // handling an exception the "exit" function is not called (a boost
+    // feature).
+    //
+    // If an exception occurs while the boost machine is in control
+    // (which usually means inside a process_event call), then
+    // the boost state machine destroys its states and "terminates" itself.
+    // This already done before we hit the catch blocks below. In this case
+    // the call to terminateMachine below only destroys an already
+    // terminated state machine.  Because exit is not called, the state destructors
+    // handle cleaning up lumis, runs, and files.  The destructors swallow
+    // all exceptions and only pass through the exceptions messages which
+    // are tacked onto the original exception below.
+    // 
+    // If an exception occurs when the boost state machine is not
+    // in control (outside the process_event functions), then boost
+    // cannot destroy its own states.  The terminateMachine function
+    // below takes care of that.  The flag "alreadyHandlingException"
+    // is set true so that the state exit functions do nothing (and
+    // cannot throw more exceptions while handling the first).  Then the
+    // state destructors take care of this because exit did nothing.
+    //
+    // In both cases above, the EventProcessor::endOfLoop function is
+    // not called because it can throw exceptions.
+    //
+    // One tricky aspect of the state machine is that things which can
+    // throw should not be invoked by the state machine while another
+    // exception is being handled.
+    // Another tricky aspect is that it appears to be important to 
+    // terminate the state machine before invoking its destructor.
+    // We've seen crashes which are not understood when that is not
+    // done.  Maintainers of this code should be careful about this.
 
     catch (cms::Exception& e) {
-      terminateMachine(true);
+      alreadyHandlingException_ = true;
+      terminateMachine();
+      alreadyHandlingException_ = false;
       e << "cms::Exception caught in EventProcessor and rethrown\n";
       e << exceptionMessageLumis_;
       e << exceptionMessageRuns_;
@@ -1792,7 +1362,9 @@ namespace edm {
       throw e;
     }
     catch (std::bad_alloc& e) {
-      terminateMachine(true);
+      alreadyHandlingException_ = true;
+      terminateMachine();
+      alreadyHandlingException_ = false;
       throw cms::Exception("std::bad_alloc")
         << "The EventProcessor caught a std::bad_alloc exception and converted it to a cms::Exception\n"
         << "The job has probably exhausted the virtual memory available to the process.\n"
@@ -1801,7 +1373,9 @@ namespace edm {
         << exceptionMessageFiles_;
     }
     catch (std::exception& e) {
-      terminateMachine(true);
+      alreadyHandlingException_ = true;
+      terminateMachine();
+      alreadyHandlingException_ = false;
       throw cms::Exception("StdException")
         << "The EventProcessor caught a std::exception and converted it to a cms::Exception\n"
         << "Previous information:\n" << e.what() << "\n"
@@ -1810,7 +1384,9 @@ namespace edm {
         << exceptionMessageFiles_;
     }
     catch (...) {
-      terminateMachine(true);
+      alreadyHandlingException_ = true;
+      terminateMachine();
+      alreadyHandlingException_ = false;
       throw cms::Exception("Unknown")
         << "The EventProcessor caught an unknown exception type and converted it to a cms::Exception\n"
         << exceptionMessageLumis_
@@ -1886,7 +1462,7 @@ namespace edm {
   bool EventProcessor::endOfLoop() {
     if (looper_) {
       EDLooper::Status status = looper_->doEndOfLoop(esp_->eventSetup());
-      if (status != EDLooper::kContinue) return true;
+      if (status != EDLooper::kContinue || forceLooperToEnd_) return true;
       else return false;
     }
     FDEBUG(1) << "\tendOfLoop\n";
@@ -1933,7 +1509,7 @@ namespace edm {
     stateMachineWasInErrorState_ = true;
   }
 
-  void EventProcessor::smBeginRun(int run) {
+  void EventProcessor::beginRun(int run) {
     RunPrincipal& runPrincipal = principalCache_.runPrincipal(run);
     IOVSyncValue ts(EventID(runPrincipal.run(),0),
                     runPrincipal.beginTime());
@@ -1942,7 +1518,7 @@ namespace edm {
     FDEBUG(1) << "\tbeginRun " << run << "\n";
   }
 
-  void EventProcessor::smEndRun(int run) {
+  void EventProcessor::endRun(int run) {
     RunPrincipal& runPrincipal = principalCache_.runPrincipal(run);
     input_->doEndRun(runPrincipal);
     IOVSyncValue ts(EventID(runPrincipal.run(),EventID::maxEventNumber()),
@@ -2041,22 +1617,22 @@ namespace edm {
     exceptionMessageLumis_ = message;
   }
 
-  void EventProcessor::terminateMachine(bool afterException) {
+  bool EventProcessor::alreadyHandlingException() const {
+    return alreadyHandlingException_;
+  }
+
+  void EventProcessor::terminateMachine() {
     if (machine_.get() != 0) {
-      if (!afterException) {
-        if (!machine_->terminated()) {
-          machine_->process_event(statemachine::Stop());
-          // Two stops are needed if there is a looper running
-          if (!machine_->terminated()) {
-            machine_->process_event(statemachine::Stop());
-          }
-        }
+      if (!machine_->terminated()) {
+        forceLooperToEnd_ = true;
+        machine_->process_event(statemachine::Stop());
+        forceLooperToEnd_ = false;
+      }
+      else {
+        FDEBUG(1) << "EventProcess::terminateMachine  The state machine was already terminated \n";
       }
       if (machine_->terminated()) {
         FDEBUG(1) << "The state machine reports it has been terminated (3)\n";
-      }
-      else {
-        FDEBUG(1) << "Intentionally destroying the state machine without normal termination\n";
       }
       machine_.reset();
     }

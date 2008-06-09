@@ -149,6 +149,10 @@ void GctBlockUnpackerBase::blockToRctEmCand(const unsigned char * d, const GctBl
   }
 }
 
+// Input RCT region unpacking
+void GctBlockUnpackerBase::blockToRctCaloRegions(const unsigned char * d, const GctBlockHeaderBase& hdr)
+{
+}
 
 // Fibre unpacking
 void GctBlockUnpackerBase::blockToFibres(const unsigned char * d, const GctBlockHeaderBase& hdr)
@@ -179,7 +183,13 @@ void GctBlockUnpackerBase::blockToFibresAndToRctEmCand(const unsigned char * d, 
   this->blockToFibres(d, hdr);
 }
 
-void GctBlockUnpackerBase::blockToRctCaloRegions(const unsigned char * d, const GctBlockHeaderBase& hdr)
+void GctBlockUnpackerBase::blockToFibresAndToRctCaloRegions(const unsigned char * d, const GctBlockHeaderBase& hdr)
+{
+  this->blockToRctCaloRegions(d, hdr);
+  this->blockToFibres(d, hdr);
+}
+
+void GctBlockUnpackerBase::blockToAllRctCaloRegions(const unsigned char * d, const GctBlockHeaderBase& hdr)
 {
   // Don't want to do this in HLT optimisation mode!
   if(hltMode()) { LogDebug("GCT") << "HLT mode - skipping unpack of RCT Calo Regions" << std::endl; return; }

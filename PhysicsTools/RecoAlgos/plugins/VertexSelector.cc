@@ -1,15 +1,15 @@
 /* \class VertexSelector
  *
- * Selects track with a configurable string-based cut.
- * Saves clones of the selected tracks 
+ * Selects vertices with a configurable string-based cut.
+ * Saves clones of the selected vertices 
  *
  * \author: Luca Lista, INFN
  *
  * usage:
  *
- * module bestTracks = VertexSelector {
+ * module bestVertices = VertexSelector {
  *   src = ctfWithMaterialTracks
- *   string cut = "pt > 20 & abs( eta ) < 2"
+ *   string cut = "chiSquared < 5"
  * }
  *
  * for more details about the cut syntax, see the documentation
@@ -31,4 +31,4 @@
            StringCutObjectSelector<reco::Vertex> 
          > VertexSelector;
 
-DEFINE_FWK_MODULE( VertexSelector );
+DEFINE_FWK_MODULE(VertexSelector);

@@ -33,7 +33,7 @@ void HLTTauProducer::produce(edm::Event& iEvent, const edm::EventSetup& iES)
 
   HLTTauCollection * jetCollection = new HLTTauCollection;
  
-  edm::Handle<L2TauInfoAssociation> tauL2Jets;
+  edm::Handle<EMIsolatedTauTagInfoCollection> tauL2Jets;
   iEvent.getByLabel(emIsolatedJetsL2_ , tauL2Jets );
 
   edm::Handle<IsolatedTauTagInfoCollection> tauL25Jets;
@@ -42,20 +42,13 @@ void HLTTauProducer::produce(edm::Event& iEvent, const edm::EventSetup& iES)
   edm::Handle<IsolatedTauTagInfoCollection> tauL3Jets;
   iEvent.getByLabel(trackIsolatedJetsL3_, tauL3Jets );
 
+  EMIsolatedTauTagInfoCollection tauL2 = *(tauL2Jets.product());
   IsolatedTauTagInfoCollection tauL25 = *(tauL25Jets.product());
   IsolatedTauTagInfoCollection tauL3 = *(tauL3Jets.product());
   
   double metCut_= 1000.;
-  int i=0;
- for(L2TauInfoAssociation::const_iterator p = tauL2Jets->begin();p!=tauL2Jets->end();++p)
-	   {
-	     //Retrieve The L2TauIsolationInfo Class from the AssociationMap
-	     const L2TauIsolationInfo l2info = p->val;
-	     //Retrieve the Jet
-	     //	     const CaloJet& jet =*(p->key);
-	     
-
-	     double emIsol  = l2info.ECALIsolConeCut;
+  for(unsigned int i=0 ;i !=tauL2.size(); i++ ) {
+    double emIsol  = tauL2[i].pIsol(rmax_,rmin_);
 
     JetTracksAssociationRef jetTracks = tauL25[i].jtaRef();
     math::XYZVector jetDirL25(jetTracks->first->px(),jetTracks->first->py(),jetTracks->first->pz());   
@@ -80,7 +73,6 @@ void HLTTauProducer::produce(edm::Event& iEvent, const edm::EventSetup& iES)
 
     HLTTau pippo(metCut_,emIsol,trackIsolationL25,ptLeadTkL25,trackIsolationL3,ptLeadTkL3);
       jetCollection->push_back(pippo);
-      i++;
   }
   
   auto_ptr<reco::HLTTauCollection> selectedTaus(jetCollection);

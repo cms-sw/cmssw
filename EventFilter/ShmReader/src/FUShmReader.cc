@@ -10,7 +10,9 @@
 #include "EventFilter/ShmReader/interface/FUShmReader.h"
 
 #include "DataFormats/FEDRawData/interface/FEDRawDataCollection.h"
+#include "DataFormats/FEDRawData/interface/FEDNumbering.h"
 
+#include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 
 #include "IORawData/DaqSource/interface/DaqReaderPluginFactory.h"

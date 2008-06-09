@@ -4,8 +4,8 @@
 /*
  * \file EETriggerTowerTask.h
  *
- * $Date: 2008/04/08 15:06:27 $
- * $Revision: 1.13 $
+ * $Date: 2008/04/08 15:32:10 $
+ * $Revision: 1.14 $
  * \author C. Bernet
  *
 */
@@ -51,6 +51,15 @@ class EETriggerTowerTask : public edm::EDAnalyzer {
 
   /// EndJob
   void endJob(void);
+
+  /// BeginRun
+  void beginRun(const edm::Run & r, const edm::EventSetup & c);
+
+  /// EndRun
+  void endRun(const edm::Run & r, const edm::EventSetup & c);
+
+  /// Reset
+  void reset(void);
 
   /// Setup
   void setup(void);
@@ -120,6 +129,9 @@ class EETriggerTowerTask : public edm::EDAnalyzer {
 
   /// remove MEs
   bool enableCleanup_;
+
+  /// merge MEs across runs
+  bool mergeRuns_;
 
   /// to find the input collection of real digis 
   edm::InputTag realCollection_;

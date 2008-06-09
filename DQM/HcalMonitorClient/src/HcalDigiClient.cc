@@ -329,7 +329,7 @@ void HcalDigiClient::getHistograms(){
     sprintf(name,"DigiMonitor/%s/%s Capid 1st Time Slice",type.c_str(),type.c_str());
     sub_capid_t0_[i] = getHisto(name, process_, dbe_,debug_,cloneME_);
 
-    sprintf(name,"DigiMonitor/%s/%s Digi Shape",type.c_str(),type.c_str());
+    sprintf(name,"DigiMonitor/%s/%s Digi Shape - over thresh",type.c_str(),type.c_str());
     sub_digi_shape_[i] = getHisto(name, process_, dbe_,debug_,cloneME_);
 
 
@@ -820,7 +820,7 @@ void HcalDigiClient::loadHistograms(TFile* infile){
     sprintf(name,"DQMData/Hcal/DigiMonitor/%s/%s Capid 1st Time Slice",type.c_str(),type.c_str());
     sub_capid_t0_[i] = (TH1F*)infile->Get(name);
 
-    sprintf(name,"DQMData/Hcal/DigiMonitor/%s/%s Digi Shape",type.c_str(),type.c_str());
+    sprintf(name,"DQMData/Hcal/DigiMonitor/%s/%s Digi Shape - over thresh",type.c_str(),type.c_str());
     sub_digi_shape_[i] = (TH1F*)infile->Get(name);
 
     sprintf(name,"DQMData/Hcal/DigiMonitor/%s/%s # of Digis",type.c_str(),type.c_str());

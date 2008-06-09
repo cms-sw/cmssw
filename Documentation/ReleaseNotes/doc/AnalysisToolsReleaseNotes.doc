@@ -2,14 +2,34 @@
 \page AnalysisToolsReleaseNotes Analysis Tools Release Notes - CMSSW_2_0_x
 
 - General:
+  - This is the first release where PAT is available.
 
 - Main changes and new features:
+  - First release of PAT code. For details, see:
+    - https://twiki.cern.ch/twiki/bin/view/CMS/SWGuidePAT
+  - Switch from GenParticleCandidate to GenParticle as AOD and RECO format
+    for generator event. For deatils, see:
+    - https://twiki.cern.ch/twiki/bin/view/CMS/WorkBookGenParticleCandidate
+  - Common vertex fit supports long lived particles. For details see:
+    - https://twiki.cern.ch/twiki/bin/view/CMS/SWGuideCandVertexFit
+  - Cut and expression parser now suport nested method calls. 
+    For more details, see:
+    - https://twiki.cern.ch/twiki/bin/view/CMS/SWGuidePhysicsCutParser  
+  - All Physics Tools modules support output format as vector<XYZ> instead
+    of OwnVector<Candidate>, and View<Candidate> as input format.
 
 - Major bug fixes:
+  - In release 2.0.0 PAT is not functional. Will be fixed in later 2.0.x
 
 - Known issues:
+  - In the cut and expression parser, incorrect expressions like the 
+    following, where the operator == is not used:
+    - "isMuon | isElectron" results in a segev 
+    instead of throwing an exception
+    - the correct expressions: "isMuon = 1 | isElectron = 1"   work as expected
+
 
 <hr>
-Last updated: @DATE@ Your name
+Last updated: 22 April 2008 Luca Lista
  
 */

@@ -15,67 +15,67 @@
 ### new w.r.t. 18x
 
 ### additionally the conditions for 200 with an _mc in the tagname:
-# orcoff  Pedestals       CondFormats/HcalObjects/data/hcal_pedestals_fC_v3.txt      hcal_pedestals_fC_v3_mc         since  1
-# orcoff  PedestalWidths  CondFormats/HcalObjects/data/hcal_widths_fC_v3.txt         hcal_widths_fC_v3_mc            since  1
-# orcoff  QIEData         CondFormats/HcalObjects/data/qie_normalmode_v5.txt         qie_normalmode_v5_mc            since  1
-# orcoff   Gains CondFormats/HcalObjects/data/Gains080208/hcal_gains_v2_physics_50.txt	                 hcal_gains_v2_physics_50_mc	         since  1
-# orcoff   ElectronicsMap   CondFormats/HcalObjects/data/official_emap_v5_080208.txt                     official_emap_v5_080208_mc                 since  1 
+# orcoff  Pedestals       CondFormats/HcalObjects/data/hcal_pedestals_fC_v3.txt      hcal_pedestals_fC_v3_mc         since  0
+# orcoff  PedestalWidths  CondFormats/HcalObjects/data/hcal_widths_fC_v3.txt         hcal_widths_fC_v3_mc            since  0
+# orcoff  QIEData         CondFormats/HcalObjects/data/qie_normalmode_v5.txt         qie_normalmode_v5_mc            since  0
+# orcoff   Gains CondFormats/HcalObjects/data/Gains080208/hcal_gains_v2_physics_50.txt	                 hcal_gains_v2_physics_50_mc	         since  0
+# orcoff   ElectronicsMap   CondFormats/HcalObjects/data/official_emap_v5_080208.txt                     official_emap_v5_080208_mc                 since  0 
 
 ## new pedestals v2(for qiev3) and v3(for qiev5), pedestals in ADC
-# orcoff  Pedestals       CondFormats/HcalObjects/data/hcal_pedestals_ADC_v2.txt      hcal_pedestals_ADC_v2         since  1
-# orcoff  Pedestals       CondFormats/HcalObjects/data/hcal_pedestals_fC_v2.txt      hcal_pedestals_fC_v2         since  1
-# orcoff  Pedestals       CondFormats/HcalObjects/data/hcal_pedestals_fC_v3.txt      hcal_pedestals_fC_v3         since  1
+# orcoff  Pedestals       CondFormats/HcalObjects/data/hcal_pedestals_ADC_v2.txt      hcal_pedestals_ADC_v2         since  0
+# orcoff  Pedestals       CondFormats/HcalObjects/data/hcal_pedestals_fC_v2.txt      hcal_pedestals_fC_v2         since  0
+# orcoff  Pedestals       CondFormats/HcalObjects/data/hcal_pedestals_fC_v3.txt      hcal_pedestals_fC_v3         since  0
 
 ## new pedestalwidths v2(for qiev3) and v3(for qiev5), pedestals in ADC
-# orcoff  PedestalWidths  CondFormats/HcalObjects/data/hcal_widths_ADC_v2.txt         hcal_widths_ADC_v2            since  1
-# orcoff  PedestalWidths  CondFormats/HcalObjects/data/hcal_widths_fC_v2.txt         hcal_widths_fC_v2            since  1
-# orcoff  PedestalWidths  CondFormats/HcalObjects/data/hcal_widths_fC_v3.txt         hcal_widths_fC_v3            since  1
+# orcoff  PedestalWidths  CondFormats/HcalObjects/data/hcal_widths_ADC_v2.txt         hcal_widths_ADC_v2            since  0
+# orcoff  PedestalWidths  CondFormats/HcalObjects/data/hcal_widths_fC_v2.txt         hcal_widths_fC_v2            since  0
+# orcoff  PedestalWidths  CondFormats/HcalObjects/data/hcal_widths_fC_v3.txt         hcal_widths_fC_v3            since  0
 
 ## new qie's v4 and v5
-# orcoff  QIEData         CondFormats/HcalObjects/data/qie_normalmode_v4.txt         qie_normalmode_v4            since  1
-# orcoff  QIEData         CondFormats/HcalObjects/data/qie_normalmode_v5.txt         qie_normalmode_v5            since  1
+# orcoff  QIEData         CondFormats/HcalObjects/data/qie_normalmode_v4.txt         qie_normalmode_v4            since  0
+# orcoff  QIEData         CondFormats/HcalObjects/data/qie_normalmode_v5.txt         qie_normalmode_v5            since  0
 
 ## new gains
-# orcoff   Gains CondFormats/HcalObjects/data/Gains080208/hcal_gains_v2_physics_100_hbmscaled.txt        hcal_gains_v2_physics_100_hbmscaled     since  1
-# orcoff   Gains CondFormats/HcalObjects/data/Gains080208/hcal_gains_v2_physics_100_hbpscaled.txt        hcal_gains_v2_physics_100_hbpscaled     since  1
-# orcoff   Gains CondFormats/HcalObjects/data/Gains080208/hcal_gains_v2_physics_100.txt	      	         hcal_gains_v2_physics_100	         since  1
-# orcoff   Gains CondFormats/HcalObjects/data/Gains080208/hcal_gains_v2_physics_20_hbmscaled.txt         hcal_gains_v2_physics_20_hbmscaled      since  1
-# orcoff   Gains CondFormats/HcalObjects/data/Gains080208/hcal_gains_v2_physics_20_hbpscaled.txt         hcal_gains_v2_physics_20_hbpscaled      since  1
-# orcoff   Gains CondFormats/HcalObjects/data/Gains080208/hcal_gains_v2_physics_20.txt                   hcal_gains_v2_physics_20	      	 since  1
-# orcoff   Gains CondFormats/HcalObjects/data/Gains080208/hcal_gains_v2_physics_50_hbmscaled.txt         hcal_gains_v2_physics_50_hbmscaled      since  1
-# orcoff   Gains CondFormats/HcalObjects/data/Gains080208/hcal_gains_v2_physics_50_hbpscaled.txt         hcal_gains_v2_physics_50_hbpscaled      since  1
-# orcoff   Gains CondFormats/HcalObjects/data/Gains080208/hcal_gains_v2_physics_50.txt	                 hcal_gains_v2_physics_50	         since  1
-# orcoff   Gains CondFormats/HcalObjects/data/Gains080208/hcal_gains_v2_cosmics_magoff_hbmscaled.txt     hcal_gains_v2_cosmics_magoff_hbmscaled  since  1
-# orcoff   Gains CondFormats/HcalObjects/data/Gains080208/hcal_gains_v2_cosmics_magoff_hbpscaled.txt     hcal_gains_v2_cosmics_magoff_hbpscaled  since  1
-# orcoff   Gains CondFormats/HcalObjects/data/Gains080208/hcal_gains_v2_cosmics_magoff.txt               hcal_gains_v2_cosmics_magoff            since  1  
-# orcoff   Gains CondFormats/HcalObjects/data/Gains080208/hcal_gains_v2_cosmics_magon_hbmscaled.txt      hcal_gains_v2_cosmics_magon_hbmscaled   since  1
-# orcoff   Gains CondFormats/HcalObjects/data/Gains080208/hcal_gains_v2_cosmics_magon_hbpscaled.txt      hcal_gains_v2_cosmics_magon_hbpscaled   since  1
-# orcoff   Gains CondFormats/HcalObjects/data/Gains080208/hcal_gains_v2_cosmics_magon.txt                hcal_gains_v2_cosmics_magon             since  1
+# orcoff   Gains CondFormats/HcalObjects/data/Gains080208/hcal_gains_v2_physics_100_hbmscaled.txt        hcal_gains_v2_physics_100_hbmscaled     since  0
+# orcoff   Gains CondFormats/HcalObjects/data/Gains080208/hcal_gains_v2_physics_100_hbpscaled.txt        hcal_gains_v2_physics_100_hbpscaled     since  0
+# orcoff   Gains CondFormats/HcalObjects/data/Gains080208/hcal_gains_v2_physics_100.txt	      	         hcal_gains_v2_physics_100	         since  0
+# orcoff   Gains CondFormats/HcalObjects/data/Gains080208/hcal_gains_v2_physics_20_hbmscaled.txt         hcal_gains_v2_physics_20_hbmscaled      since  0
+# orcoff   Gains CondFormats/HcalObjects/data/Gains080208/hcal_gains_v2_physics_20_hbpscaled.txt         hcal_gains_v2_physics_20_hbpscaled      since  0
+# orcoff   Gains CondFormats/HcalObjects/data/Gains080208/hcal_gains_v2_physics_20.txt                   hcal_gains_v2_physics_20	      	 since  0
+# orcoff   Gains CondFormats/HcalObjects/data/Gains080208/hcal_gains_v2_physics_50_hbmscaled.txt         hcal_gains_v2_physics_50_hbmscaled      since  0
+# orcoff   Gains CondFormats/HcalObjects/data/Gains080208/hcal_gains_v2_physics_50_hbpscaled.txt         hcal_gains_v2_physics_50_hbpscaled      since  0
+# orcoff   Gains CondFormats/HcalObjects/data/Gains080208/hcal_gains_v2_physics_50.txt	                 hcal_gains_v2_physics_50	         since  0
+# orcoff   Gains CondFormats/HcalObjects/data/Gains080208/hcal_gains_v2_cosmics_magoff_hbmscaled.txt     hcal_gains_v2_cosmics_magoff_hbmscaled  since  0
+# orcoff   Gains CondFormats/HcalObjects/data/Gains080208/hcal_gains_v2_cosmics_magoff_hbpscaled.txt     hcal_gains_v2_cosmics_magoff_hbpscaled  since  0
+# orcoff   Gains CondFormats/HcalObjects/data/Gains080208/hcal_gains_v2_cosmics_magoff.txt               hcal_gains_v2_cosmics_magoff            since  0  
+# orcoff   Gains CondFormats/HcalObjects/data/Gains080208/hcal_gains_v2_cosmics_magon_hbmscaled.txt      hcal_gains_v2_cosmics_magon_hbmscaled   since  0
+# orcoff   Gains CondFormats/HcalObjects/data/Gains080208/hcal_gains_v2_cosmics_magon_hbpscaled.txt      hcal_gains_v2_cosmics_magon_hbpscaled   since  0
+# orcoff   Gains CondFormats/HcalObjects/data/Gains080208/hcal_gains_v2_cosmics_magon.txt                hcal_gains_v2_cosmics_magon             since  0
 
 ## new emap using Arams v26
-# orcoff   ElectronicsMap   CondFormats/HcalObjects/data/official_emap_v5_080208.txt                     official_emap_v5_080208                 since  1 
+# orcoff   ElectronicsMap   CondFormats/HcalObjects/data/official_emap_v5_080208.txt                     official_emap_v5_080208                 since  0 
 
 ### --------------------------------------------------
 ### new w.r.t. 17x
-# orcoff  ElectronicsMap  CondFormats/HcalObjects/data/official_emap_16x_v4.txt      official_emap_16x_v4_9Nov07  since  1
+# orcoff  ElectronicsMap  CondFormats/HcalObjects/data/official_emap_16x_v4.txt      official_emap_16x_v4_9Nov07  since  0
 
 ### --------------------------------------------------
 ### 16x and 17x
 ## miscalibration gains
-# orcoff  Gains           CondFormats/HcalObjects/data/miscalib_CSA07/hcal_gain_miscalib_v1_100pb.txt  hcal_gain_miscalib_v1_100pb  since  1
-# orcoff  Gains           CondFormats/HcalObjects/data/miscalib_CSA07/hcal_gain_miscalib_v2_100pb.txt  hcal_gain_miscalib_v2_100pb  since  1
-# orcoff  Gains           CondFormats/HcalObjects/data/miscalib_CSA07/hcal_gain_miscalib_v2_10pb.txt   hcal_gain_miscalib_v2_10pb   since  1
-# orcoff  Gains           CondFormats/HcalObjects/data/miscalib_CSA07/hcal_gain_miscalib_v1.txt        hcal_gains_miscalib_v1       since  1
-# orcoff  Gains           CondFormats/HcalObjects/data/miscalib_CSA07/hcal_gain_miscalib_v1_10pb.txt   hcal_gains_miscalib_v1_10pb  since  1
+# orcoff  Gains           CondFormats/HcalObjects/data/miscalib_CSA07/hcal_gain_miscalib_v1_100pb.txt  hcal_gain_miscalib_v1_100pb  since  0
+# orcoff  Gains           CondFormats/HcalObjects/data/miscalib_CSA07/hcal_gain_miscalib_v2_100pb.txt  hcal_gain_miscalib_v2_100pb  since  0
+# orcoff  Gains           CondFormats/HcalObjects/data/miscalib_CSA07/hcal_gain_miscalib_v2_10pb.txt   hcal_gain_miscalib_v2_10pb   since  0
+# orcoff  Gains           CondFormats/HcalObjects/data/miscalib_CSA07/hcal_gain_miscalib_v1.txt        hcal_gains_miscalib_v1       since  0
+# orcoff  Gains           CondFormats/HcalObjects/data/miscalib_CSA07/hcal_gain_miscalib_v1_10pb.txt   hcal_gains_miscalib_v1_10pb  since  0
 
 ## standard conditions
-# orcoff  Gains           CondFormats/HcalObjects/data/hcal_gains_v1.txt             hcal_gains_v1                since  1
-# orcoff  Gains           CondFormats/HcalObjects/data/hcal_gains_v1_zdc.txt         hcal_gains_v1_zdc            since  1
-# orcoff  Pedestals       CondFormats/HcalObjects/data/hcal_pedestals_fC_v1.txt      hcal_pedestals_fC_v1         since  1
-# orcoff  Pedestals       CondFormats/HcalObjects/data/hcal_pedestals_fC_v1_zdc.txt  hcal_pedestals_fC_v1_zdc     since  1
-# orcoff  PedestalWidths  CondFormats/HcalObjects/data/hcal_widths_fC_v1.txt         hcal_widths_fC_v1            since  1
-# orcoff  PedestalWidths  CondFormats/HcalObjects/data/hcal_widths_fC_v1_zdc.txt     hcal_widths_fC_v1_zdc        since  1
-# orcoff  ElectronicsMap  CondFormats/HcalObjects/data/official_emap_16x_v1.txt      official_emap_16x_v1         since  1
-# orcoff  ElectronicsMap  CondFormats/HcalObjects/data/official_emap_16x_v2.txt      official_emap_16x_v2         since  1
-# orcoff  QIEData         CondFormats/HcalObjects/data/qie_normalmode_v3.txt         qie_normalmode_v3            since  1
-# orcoff  QIEData         CondFormats/HcalObjects/data/qie_normalmode_v3_zdc.txt     qie_normalmode_v3_zdc        since  1
+# orcoff  Gains           CondFormats/HcalObjects/data/hcal_gains_v1.txt             hcal_gains_v1                since  0
+# orcoff  Gains           CondFormats/HcalObjects/data/hcal_gains_v1_zdc.txt         hcal_gains_v1_zdc            since  0
+# orcoff  Pedestals       CondFormats/HcalObjects/data/hcal_pedestals_fC_v1.txt      hcal_pedestals_fC_v1         since  0
+# orcoff  Pedestals       CondFormats/HcalObjects/data/hcal_pedestals_fC_v1_zdc.txt  hcal_pedestals_fC_v1_zdc     since  0
+# orcoff  PedestalWidths  CondFormats/HcalObjects/data/hcal_widths_fC_v1.txt         hcal_widths_fC_v1            since  0
+# orcoff  PedestalWidths  CondFormats/HcalObjects/data/hcal_widths_fC_v1_zdc.txt     hcal_widths_fC_v1_zdc        since  0
+# orcoff  ElectronicsMap  CondFormats/HcalObjects/data/official_emap_16x_v1.txt      official_emap_16x_v1         since  0
+# orcoff  ElectronicsMap  CondFormats/HcalObjects/data/official_emap_16x_v2.txt      official_emap_16x_v2         since  0
+# orcoff  QIEData         CondFormats/HcalObjects/data/qie_normalmode_v3.txt         qie_normalmode_v3            since  0
+# orcoff  QIEData         CondFormats/HcalObjects/data/qie_normalmode_v3_zdc.txt     qie_normalmode_v3_zdc        since  0

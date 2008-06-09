@@ -1,5 +1,10 @@
 import FWCore.ParameterSet.Config as cms
 
+#  description:
+# workflow for L1 Trigger Emulator DQM
+# used by DQM GUI: DQM/Integration/l1temulator*.cfg
+# nuno.leonardo@cern.ch 08.02
+# 
 #systems configuration
 from L1Trigger.HardwareValidation.hwtest.globrun.deGmt_cff import *
 #include "L1Trigger/HardwareValidation/hwtest/globrun/deRpc.cff"
@@ -69,5 +74,7 @@ l1compare.RPCsourceEmul = 'l1RpcEmulDigis'
 #gmt
 l1compare.GMTsourceData = 'gtUnpack'
 l1compare.GMTsourceEmul = 'l1GmtEmulDigis'
-l1compare.COMPARE_COLLS = [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0]
+l1compare.COMPARE_COLLS = [0, 0, 0, 0, 0, 
+    0, 0, 0, 0, 0, 
+    1, 0]
 

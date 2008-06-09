@@ -12,6 +12,7 @@
 
 
 EcalRawToDigiDev::EcalRawToDigiDev(edm::ParameterSet const& conf):
+
   
   //define the list of FED to be unpacked
   fedUnpackList_(conf.getUntrackedParameter<std::vector<int> >("FEDs", std::vector<int>())),
@@ -40,14 +41,11 @@ EcalRawToDigiDev::EcalRawToDigiDev(edm::ParameterSet const& conf):
   //See if fe unpacking is enabled
   feUnpacking_(conf.getUntrackedParameter<bool>("feUnpacking",true)),
   
-  //See if fe unpacking is enabled for mem box
+  //See if fe unpacking is enabled
   memUnpacking_(conf.getUntrackedParameter<bool>("memUnpacking",true)), 
 
   //See if syncCheck is enabled
   syncCheck_(conf.getUntrackedParameter<bool>("syncCheck",true)), 
-
-  //See if feIdCheck is enabled
-  feIdCheck_(conf.getUntrackedParameter<bool>("feIdCheck",true)),
   
   put_(conf.getUntrackedParameter<bool>("eventPut",false)),
   
@@ -55,7 +53,7 @@ EcalRawToDigiDev::EcalRawToDigiDev(edm::ParameterSet const& conf):
 
   REGIONAL_(conf.getUntrackedParameter<bool>("DoRegional",false)),
 
-  fedsLabel_(conf.getUntrackedParameter<edm::InputTag>("FedLabel",edm::InputTag(":listfeds"))),
+  fedsLabel_(conf.getUntrackedParameter<std::string>("FedLabel","listfeds")),
 
   myMap_(0),
   
@@ -156,7 +154,7 @@ EcalRawToDigiDev::EcalRawToDigiDev(edm::ParameterSet const& conf):
   }
   
   // Build a new ECAL DCC data unpacker
-  theUnpacker_ = new DCCDataUnpacker(myMap_,headerUnpacking_,srpUnpacking_,tccUnpacking_,feUnpacking_,memUnpacking_,syncCheck_,feIdCheck_);
+  theUnpacker_ = new DCCDataUnpacker(myMap_,headerUnpacking_,srpUnpacking_,tccUnpacking_,feUnpacking_,memUnpacking_,syncCheck_);
    
 }
 

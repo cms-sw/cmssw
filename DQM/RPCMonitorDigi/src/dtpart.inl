@@ -23,14 +23,15 @@ if(all4DSegments->size()>0){
     
     std::cout<<"\t \t This Segment is in Chamber id: "<<DTId<<std::endl;
     std::cout<<"\t \t Number of segments in this DT = "<<scounter[DTId]<<std::endl;
-    std::cout<<"\t \t Is the only one in this DT?"<<std::endl;
-
+    std::cout<<"\t \t Is the only one in this DT? and is not in the 4th Station?"<<std::endl;
+    
     if(scounter[DTId]==1 && DTId.station()!=4){	
       std::cout<<"\t \t yes"<<std::endl;
+ 
       int dtWheel = DTId.wheel();
       int dtStation = DTId.station();
-      int dtSector = DTId.sector();
-      
+      int dtSector = DTId.sector();      
+
       LocalPoint segmentPosition= segment->localPosition();
       LocalVector segmentDirection=segment->localDirection();
       
@@ -43,57 +44,64 @@ if(all4DSegments->size()>0){
       if(segment->dimension()==4){
 	std::cout<<"\t \t yes"<<std::endl;
 	std::cout<<"\t \t DT Segment Dimension "<<segment->dimension()<<std::endl; 
-
+	
 	float Xo=segmentPosition.x();
 	float Yo=segmentPosition.y();
+	float Zo=segmentPosition.z();
 	float dx=segmentDirection.x();
 	float dy=segmentDirection.y();
 	float dz=segmentDirection.z();
-	std::cout<<"\t \t Loop over all the rolls asociated to this DT"<<std::endl;
 
+	std::cout<<"\t \t Loop over all the rolls asociated to this DT"<<std::endl;
 	std::set<RPCDetId> rollsForThisDT = rollstoreDT[DTStationIndex(0,dtWheel,dtSector,dtStation)];
-	
 	std::cout<<"\t \t Number of rolls for this DT = "<<rollsForThisDT.size()<<std::endl;
-        assert(rollsForThisDT.size()>=1);
+       
+	assert(rollsForThisDT.size()>=1);
 
 	//Loop over all the rolls
-	
 	for (std::set<RPCDetId>::iterator iteraRoll = rollsForThisDT.begin();iteraRoll != rollsForThisDT.end(); iteraRoll++){
 	  const RPCRoll* rollasociated = rpcGeo->roll(*iteraRoll);
+	  RPCDetId rpcId = rollasociated->id();
+	  std::cout<<"\t \t \t We are in the roll getting the surface"<<rpcId<<std::endl;
 	  const BoundPlane & RPCSurface = rollasociated->surface(); 
-
-	  std::cout<<"\t \t \t RollID: "<<rollasociated->id()<<std::endl;
-	  std::cout<<"\t \t \t Doing the extrapolation to this roll"<<std::endl;
-
-	  std::cout<<"\t \t \t DT Segment Direction in DTLocal "<<segmentDirection<<std::endl;
-	  std::cout<<"\t \t \t DT Segment Point in DTLocal "<<segmentPosition<<std::endl;
 	  
+	  std::cout<<"\t \t \t RollID: "<<rollasociated->id()<<std::endl;
+
+	  std::cout<<"\t \t \t Doing the extrapolation to this roll"<<std::endl;
+	  std::cout<<"\t \t \t DT Segment Direction in DTLocal "<<segmentDirection<<std::endl;
+	  std::cout<<"\t \t \t DT Segment Point in DTLocal "<<segmentPosition<<std::endl;  
 	  GlobalPoint CenterPointRollGlobal = RPCSurface.toGlobal(LocalPoint(0,0,0));
 	  std::cout<<"\t \t \t Center (0,0,0) of the Roll in Global"<<CenterPointRollGlobal<<std::endl;
-	    
+	  
 	  LocalPoint CenterRollinDTFrame = DTSurface.toLocal(CenterPointRollGlobal);
 	  std::cout<<"\t \t \t Center (0,0,0) Roll In DTLocal"<<CenterRollinDTFrame<<std::endl;
 	    
 	  float D=CenterRollinDTFrame.z();
 	  
-	    float X=Xo+dx*D/dz;
-	    float Y=Yo+dy*D/dz;
-	    float Z=D;
+	  float X=Xo+dx*D/dz;
+	  float Y=Yo+dy*D/dz;
+	  float Z=D;
 	
-	  std::cout<<"\t \t \t Is the distance less than MaxD? D="<<D<<"cm"<<std::endl;
-  
-
-	  if(X*X+Y*Y+Z*Z<=MaxD*MaxD){ 
+	  const RectangularStripTopology* top_= dynamic_cast<const RectangularStripTopology*> (&(rollasociated->topology()));
+	  LocalPoint xmin = top_->localPosition(0.);
+	  std::cout<<"\t \t \t xmin of this  Roll "<<xmin<<"cm"<<std::endl;
+	  LocalPoint xmax = top_->localPosition((float)rollasociated->nstrips());
+	  std::cout<<"\t \t \t xmax of this  Roll "<<xmax<<"cm"<<std::endl;
+	  float rsize = fabs( xmax.x()-xmin.x() );
+	  std::cout<<"\t \t \t Roll Size "<<rsize<<"cm"<<std::endl;
+	  float stripl = top_->stripLength();
+	  float stripw = top_->pitch();
+	  std::cout<<"\t \t \t Strip Lenght "<<stripl<<"cm"<<std::endl;
+	  std::cout<<"\t \t \t Strip Width "<<stripw<<"cm"<<std::endl;
+	  	  
+	  std::cout<<"\t \t \t X Predicted in DTLocal= "<<X<<"cm"<<std::endl;
+	  std::cout<<"\t \t \t Y Predicted in DTLocal= "<<Y<<"cm"<<std::endl;
+	  std::cout<<"\t \t \t Z Predicted in DTLocal= "<<Z<<"cm"<<std::endl;
+	  
+	  float extrapolatedDistance = sqrt((X-Xo)*(X-Xo)+(Y-Yo)*(Y-Yo)+(Z-Zo)*(Z-Zo));
+	  std::cout<<"\t \t \t Is the distance of extrapolation less than MaxD? ="<<extrapolatedDistance<<"cm"<<"MaxD="<<MaxD<<"cm"<<std::endl;
+	  if(extrapolatedDistance<=MaxD){ 
 	    std::cout<<"\t \t \t yes"<<std::endl;
-	    const RectangularStripTopology* top_= dynamic_cast<const RectangularStripTopology*> (&(rollasociated->topology()));
-	    LocalPoint xmin = top_->localPosition(0.);
-	    LocalPoint xmax = top_->localPosition((float)rollasociated->nstrips());
-	    float rsize = fabs( xmax.x()-xmin.x() )*0.5;
-	    float stripl = top_->stripLength();
-	    
-	    std::cout<<"\t \t \t X Predicted in DTLocal= "<<X<<"cm"<<std::endl;
-	    std::cout<<"\t \t \t Y Predicted in DTLocal= "<<Y<<"cm"<<std::endl;
-	    std::cout<<"\t \t \t Z Predicted in DTLocal= "<<Z<<"cm"<<std::endl;
 	    
 	    GlobalPoint GlobalPointExtrapolated = DTSurface.toGlobal(LocalPoint(X,Y,Z));
 	    std::cout<<"\t \t \t Point ExtraPolated in Global"<<GlobalPointExtrapolated<< std::endl;
@@ -102,128 +110,165 @@ if(all4DSegments->size()>0){
 	    std::cout<<"\t \t \t Point Extrapolated in RPCLocal"<<PointExtrapolatedRPCFrame<< std::endl;
 	    std::cout<<"\t \t \t Does the extrapolation go inside this roll?"<<std::endl;
 	    
-	    if(fabs(PointExtrapolatedRPCFrame.z()) < 0.01 && fabs(PointExtrapolatedRPCFrame.x()) < rsize && fabs(PointExtrapolatedRPCFrame.y()) < stripl*0.5){
+
+	    if(fabs(PointExtrapolatedRPCFrame.z()) < 0.01 && 
+	       fabs(PointExtrapolatedRPCFrame.x()) < rsize*0.5 && 
+	       fabs(PointExtrapolatedRPCFrame.y()) < stripl*0.5){
 	      
-	      RPCDetId  rollId = rollasociated->id();
 	      std::cout<<"\t \t \t \t yes"<<std::endl;	
+	      RPCDetId  rollId = rollasociated->id();
+
 	      const float stripPredicted = 
 		rollasociated->strip(LocalPoint(PointExtrapolatedRPCFrame.x(),PointExtrapolatedRPCFrame.y(),0.)); 
-	      
-	      std::cout<<"\t \t \t \t Candidate"<<rollasociated->id()<<" "<<"(from DT Segment) STRIP---> "<<stripPredicted<< std::endl;
-	      
-	      int stripDetected = 0;
-	      RPCDigiCollection::Range rpcRangeDigi=rpcDigis->get(rollasociated->id());
-	      
-	      int stripCounter = 0;
-
-
+		
+	      std::cout<<"\t \t \t \t Candidate"<<rollId<<" "<<"(from DT Segment) STRIP---> "<<stripPredicted<< std::endl;
+		
+	      		
 	      //--------- HISTOGRAM STRIP PREDICTED FROM DT  -------------------
-	      
-	      uint32_t id = rollId.rawId();
-	      _idList.push_back(id);
-	      
+		
+	      RPCGeomServ rpcsrv(rollId);
+	      std::string nameRoll = rpcsrv.name();
+	      std::cout<<"\t \t \t \t The RPCName is "<<nameRoll<<std::endl;
+	      _idList.push_back(nameRoll);
+		
 	      char detUnitLabel[128];
-	      sprintf(detUnitLabel ,"%d",id);
-	      sprintf(layerLabel ,"layer%d_subsector%d_roll%d",rollId.layer(),rollId.subsector(),rollId.roll());
-	      
-	      std::map<uint32_t, std::map<std::string,MonitorElement*> >::iterator meItr = meCollection.find(id);
+	      sprintf(detUnitLabel ,"%s",nameRoll.c_str());
+	      sprintf(layerLabel ,"%s",nameRoll.c_str());
+		
+	      std::map<std::string, std::map<std::string,MonitorElement*> >::iterator meItr = meCollection.find(nameRoll);
+				
 	      if (meItr == meCollection.end()){
-		meCollection[id] = bookDetUnitSeg(rollId);
+		meCollection[nameRoll] = bookDetUnitSeg(rollId);
 	      }
-	      
-	      std::map<std::string, MonitorElement*> meMap=meCollection[id];
-
+		
+	      std::map<std::string, MonitorElement*> meMap=meCollection[nameRoll];
+		
 	      sprintf(meIdDT,"ExpectedOccupancyFromDT_%s",detUnitLabel);
 	      meMap[meIdDT]->Fill(stripPredicted);
-
+		
 	      sprintf(meIdDT,"ExpectedOccupancy2DFromDT_%s",detUnitLabel);
 	      meMap[meIdDT]->Fill(stripPredicted,Y);
-
+	       
 	      //-----------------------------------------------------
-	    
+		
 	      totalcounter[0]++;
 	      buff=counter[0];
-	      buff[rollasociated->id()]++;
+	      buff[rollId]++;
 	      counter[0]=buff;
-	      
+		
 	      bool anycoincidence=false;
+	      double sumStripDetected = 0.;  
 
-	      
-	      std::cout<<"\t \t \t \t \t Loop over the digis in this roll "<<std::endl;
+	      int stripDetected = 0;
+	      int stripCounter = 0;
+	      std::cout<<"\t \t \t \t Getting Digis in Roll Asociated"<<std::endl;	
+	      RPCDigiCollection::Range rpcRangeDigi=rpcDigis->get(rollasociated->id());
+
+	      std::cout<<"\t \t \t \t \t Loop over the digis in this roll looking for the Average"<<std::endl;
 
 	      for (RPCDigiCollection::const_iterator digiIt = rpcRangeDigi.first;digiIt!=rpcRangeDigi.second;++digiIt){
-		stripCounter++;
-		std::cout<<"\t \t \t \t \t Digi "<<*digiIt<<std::endl;//print the digis in the event
-		stripDetected=digiIt->strip();
+		stripDetected=digiIt->strip(); 
+		if(fabs((float)stripDetected-stripPredicted)<MaxStripToCountInAverage){
+		  sumStripDetected=sumStripDetected+stripDetected;
+		  stripCounter++;
+		}
+		std::cout<<"\t \t \t \t \t \t Digi "<<*digiIt<<"\t Detected="<<stripDetected<<" Predicted="<<stripPredicted<<" tmpRes(strips)="<<fabs((float)stripDetected-stripPredicted)<<"\t SumStrip= "<<sumStripDetected<<std::endl;
+	      }
+	      
+	      std::cout<<"\t \t \t \t \t Sum of strips "<<sumStripDetected<<std::endl;
+	      
+     	      if(stripCounter!=0){
+		double meanStripDetected = sumStripDetected/((double)stripCounter);
 		
-		double res = fabs((double)(stripDetected) - (double)(stripPredicted));
+		std::cout<<"\t \t \t \t \t Number of strips "<<stripCounter<<" Strip Average Detected"<<meanStripDetected<<std::endl;
+	      
+		LocalPoint meanstripDetectedLocalPoint = top_->localPosition((float)(meanStripDetected)-0.5);
+	      
+		float meanrescms = PointExtrapolatedRPCFrame.x()-meanstripDetectedLocalPoint.x();          
+		float meanrescmsY = PointExtrapolatedRPCFrame.y()-meanstripDetectedLocalPoint.y();
+	      
+		std::cout<<"\t \t \t \t \t PointExtrapolatedRPCFrame.x="<<PointExtrapolatedRPCFrame.x()<<" meanstripDetectedLocalPoint.x="<<meanstripDetectedLocalPoint.x()<<std::endl;
 
-		//-------filling the histograms--------------------
-
-		sprintf(meIdRPC,"RPCResidualsFromDT_%s",detUnitLabel);
-		meMap[meIdRPC]->Fill(res);
+		if(fabs(meanrescms) < MinimalResidual ){
 		
-		sprintf(meIdRPC,"RPCResiduals2DFromDT_%s",detUnitLabel);
-		meMap[meIdRPC]->Fill(res,Y);
-
-
-		//-------------------------------------------------
-
+		  std::cout<<"\t \t \t \t \t MeanRes="<<meanrescms<<"cm  MinimalResidual="<<MinimalResidual<<"cm"<<std::endl;
 		
-		if(res < widestrip){
-		  std::cout <<"\t \t \t \t \t COINCEDENCE Predict "<<stripPredicted<<" Detect "<<stripDetected<<std::endl;
+		
+		  //-----GLOBAL HISTOGRAM----------
+		  std::cout<<"\t \t \t \t \t Filling the Global Histogram with= "<<meanrescms<<std::endl;
+		  //if(rollId.layer()==1&&rollId.station()==1&&rollId.ring()==0) 
+		  hGlobalRes->Fill(meanrescms);
+		  if(rollId.station()==1&&rollId.layer()==1){ hGlobalResLa1->Fill(meanrescms); if(stripCounter==2) hGlobalResClu1La1->Fill(meanrescms); if(stripCounter==6) hGlobalResClu3La1->Fill(meanrescms); }
+		  if(rollId.station()==1&&rollId.layer()==2){ hGlobalResLa2->Fill(meanrescms); if(stripCounter==2) hGlobalResClu1La2->Fill(meanrescms); if(stripCounter==6) hGlobalResClu3La2->Fill(meanrescms);}
+		  if(rollId.station()==2&&rollId.layer()==1){ hGlobalResLa3->Fill(meanrescms); if(stripCounter==2) hGlobalResClu1La3->Fill(meanrescms); if(stripCounter==6) hGlobalResClu3La3->Fill(meanrescms); }
+		  if(rollId.station()==2&&rollId.layer()==2){ hGlobalResLa4->Fill(meanrescms); if(stripCounter==2) hGlobalResClu1La4->Fill(meanrescms); if(stripCounter==6) hGlobalResClu3La4->Fill(meanrescms);}
+		  if(rollId.station()==3){ hGlobalResLa5->Fill(meanrescms); if(stripCounter==2) hGlobalResClu1La5->Fill(meanrescms);if(stripCounter==6) hGlobalResClu3La5->Fill(meanrescms); }
+		  
+		  if(rollId.layer()==1&&rollId.station()==1&&rollId.ring()==0&&stripCounter==2) hGlobalResClu1->Fill(meanrescms);
+		  if(rollId.layer()==1&&rollId.station()==1&&rollId.ring()==0&&stripCounter==4) hGlobalResClu2->Fill(meanrescms);
+		  if(rollId.layer()==1&&rollId.station()==1&&rollId.ring()==0&&stripCounter==6) hGlobalResClu3->Fill(meanrescms);
+		  if(rollId.layer()==1&&rollId.station()==1&&rollId.ring()==0&&stripCounter==8) hGlobalResClu4->Fill(meanrescms);
+
+		  hGlobalResY->Fill(meanrescmsY);
+		  //--------------------------------
+		
+		  sprintf(meIdRPC,"RPCResidualsFromDT_%s",detUnitLabel);
+
+		  meMap[meIdRPC]->Fill(meanrescms);
+		  
+		  sprintf(meIdRPC,"RPCResiduals2DFromDT_%s",detUnitLabel);
+		  meMap[meIdRPC]->Fill(meanrescms,Y);
+		  
+		  std::cout <<"\t \t \t \t \t COINCIDENCE Predict "<<stripPredicted<<"  (int)Predicted="<<(int)(stripPredicted)<<"  MeanDetected="<<meanStripDetected<<std::endl;
 		  anycoincidence=true;
-		  std::cout <<"\t \t \t \t \t Increassing counter"<<std::endl;
+		  std::cout <<"\t \t \t \t \t Increassing DT counter"<<std::endl;
 		  totalcounter[1]++;
 		  buff=counter[1];
 		  buff[rollId]++;
 		  counter[1]=buff;
-
-		  //----------------filling the histograms---------------------
-
+		  
 		  sprintf(meIdRPC,"RealDetectedOccupancyFromDT_%s",detUnitLabel);
-		  meMap[meIdRPC]->Fill(stripDetected);
-
+		  meMap[meIdRPC]->Fill(meanStripDetected); //have a look to this!
+		  
 		  sprintf(meIdRPC,"RPCDataOccupancyFromDT_%s",detUnitLabel);
 		  meMap[meIdRPC]->Fill(stripPredicted);
-		
+		  
 		  sprintf(meIdRPC,"RPCDataOccupancy2DFromDT_%s",detUnitLabel);
 		  meMap[meIdRPC]->Fill(stripPredicted,Y);
 		
-		  //-----------------------------------------------------------
-
-		  break;
 		}
+	      }else{
+		std::cout <<"\t \t \t \t \t THIS ROLL DOESN'T HAVE ANY DIGI"<<std::endl;
 	      }
+	      
 	      if(anycoincidence==false) {
-		std::cout <<"\t \t \t \t \t THIS PREDICTION DOESN'T HAVE ANY CORRESPONDENCE WITH THE DATA"<<std::endl;
+		std::cout <<"\t \t \t \t \t THIS PREDICTION DOESN'T MATCH WITH THE DATA"<<std::endl;
 		totalcounter[2]++;
 		buff=counter[2];
 		buff[rollId]++;
 		counter[2]=buff;		
 		std::cout << "\t \t \t \t \t One for counterFAIL"<<std::endl;
-		
-		ofrej<<"DTs Wh "<<dtWheel
+		  
+		ofrej<<"DTs \t Wh "<<dtWheel
 		     <<"\t St "<<dtStation
 		     <<"\t Se "<<dtSector
 		     <<"\t Roll "<<rollasociated->id()
 		     <<"\t Event "
 		     <<iEvent.id().event()
+           	     <<"\t Run "	
+		     <<iEvent.id().run()	
 		     <<std::endl;
 	      }
-	      
-	    }
-	    else {
+	    }else {
 	      std::cout<<"\t \t \t \t No the prediction is outside of this roll"<<std::endl;
 	    }//Condition for the right match
 	  }else{
 	    std::cout<<"\t \t \t No, Exrtrapolation too long!, canceled"<<std::endl;
 	  }//D so big
-	}//loop over all the rolls
-      }
-    }
-    else {
-      std::cout<<"\t \t No More than one segment in this chamber."<<std::endl;
+	}//loop over all the rolls asociated
+      }//Is the segment 4D?
+    }else {
+      std::cout<<"\t \t More than one segment in this chamber, or we are in Station 4"<<std::endl;
     }
   }
 }

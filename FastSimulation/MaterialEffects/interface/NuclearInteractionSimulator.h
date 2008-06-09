@@ -99,6 +99,9 @@ class NuclearInteractionSimulator : public MaterialEffectsSimulator
   unsigned myOutputBuffer;
 
   //  DaqMonitorBEInterface * dbe;
+  //  MonitorElement* hAfter;
+  //  MonitorElement* hAfter2;
+  //  MonitorElement* hAfter3;
   //  MonitorElement* htot;
   //  MonitorElement* helas;
   //  MonitorElement* hinel;

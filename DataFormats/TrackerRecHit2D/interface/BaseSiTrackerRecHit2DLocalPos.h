@@ -20,9 +20,7 @@ public:
   virtual LocalPoint localPosition() const {return pos_;}
 
   virtual LocalError localPositionError() const{ return err_;}
-
-  bool hasPositionAndError() const ; 
- 
+  
   virtual void getKfComponents( KfComponentsHolder & holder ) const ; 
  private:
   

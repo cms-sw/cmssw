@@ -13,7 +13,7 @@
 //
 // Original Author:  Jim Pivarski
 //         Created:  Sat Feb 16 00:04:55 CST 2008
-// $Id: MuonGeometryDBConverter.cc,v 1.11 2008/03/24 21:02:39 pivarski Exp $
+// $Id: MuonGeometryDBConverter.cc,v 1.10 2008/03/19 15:08:54 pivarski Exp $
 //
 //
 
@@ -142,7 +142,6 @@ MuonGeometryDBConverter::analyze(const edm::Event &iEvent, const edm::EventSetup
       if (m_input == std::string("ideal")) {
 	 MuonAlignmentInputMethod inputMethod;
 	 muonAlignment = new MuonAlignment(iSetup, inputMethod);
-	 muonAlignment->fillGapsInSurvey(0., 0.);
       }
 
       else if (m_input == std::string("db")) {

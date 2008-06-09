@@ -1,8 +1,8 @@
 /*
  * \file EECosmicTask.cc
  *
- * $Date: 2008/04/08 15:32:10 $
- * $Revision: 1.41 $
+ * $Date: 2008/04/08 18:11:28 $
+ * $Revision: 1.42 $
  * \author G. Della Ricca
  *
 */
@@ -41,6 +41,8 @@ EECosmicTask::EECosmicTask(const ParameterSet& ps){
 
   enableCleanup_ = ps.getUntrackedParameter<bool>("enableCleanup", false);
 
+  mergeRuns_ = ps.getUntrackedParameter<bool>("mergeRuns", false);
+
   EcalRawDataCollection_ = ps.getParameter<edm::InputTag>("EcalRawDataCollection");
   EcalUncalibratedRecHitCollection_ = ps.getParameter<edm::InputTag>("EcalUncalibratedRecHitCollection");
   EcalRecHitCollection_ = ps.getParameter<edm::InputTag>("EcalRecHitCollection");
@@ -74,6 +76,27 @@ void EECosmicTask::beginJob(const EventSetup& c){
   }
 
   Numbers::initGeometry(c, false);
+
+}
+
+void EECosmicTask::beginRun(const Run& r, const EventSetup& c) {
+
+  if ( ! mergeRuns_ ) this->reset();
+
+}
+
+void EECosmicTask::endRun(const Run& r, const EventSetup& c) {
+
+}
+
+void EECosmicTask::reset(void) {
+
+  for (int i = 0; i < 18; i++) {
+    if ( meCutMap_[i] ) meCutMap_[i]->Reset();
+    if ( meSelMap_[i] ) meSelMap_[i]->Reset();
+    if ( meSpectrum_[0][i] ) meSpectrum_[0][i]->Reset();
+    if ( meSpectrum_[1][i] ) meSpectrum_[1][i]->Reset();
+  }
 
 }
 
@@ -118,7 +141,7 @@ void EECosmicTask::setup(void){
 
 void EECosmicTask::cleanup(void){
 
-  if ( ! enableCleanup_ ) return;
+  if ( ! init_ ) return;
 
   if ( dqmStore_ ) {
     dqmStore_->setCurrentFolder(prefixME_ + "/EECosmicTask");
@@ -153,7 +176,7 @@ void EECosmicTask::endJob(void){
 
   LogInfo("EECosmicTask") << "analyzed " << ievt_ << " events";
 
-  if ( init_ ) this->cleanup();
+  if ( enableCleanup_ ) this->cleanup();
 
 }
 

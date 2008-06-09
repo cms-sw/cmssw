@@ -4,8 +4,8 @@
 /*
  * \file L1TRPCTF.h
  *
- * $Date: 2007/09/26 14:18:03 $
- * $Revision: 1.4 $
+ * $Date: 2008/04/11 15:26:10 $
+ * $Revision: 1.6 $
  * \author J. Berryhill
  *
 */
@@ -61,6 +61,12 @@ void beginJob(const edm::EventSetup& c);
 // EndJob
 void endJob(void);
 
+void beginLuminosityBlock(const edm::LuminosityBlock& lumiSeg, 
+                          const edm::EventSetup& context);
+void endLuminosityBlock(const edm::LuminosityBlock& lumiSeg, 
+                        const edm::EventSetup& c);
+
+
 private:
   // ----------member data ---------------------------
   DQMStore * dbe;
@@ -73,10 +79,19 @@ private:
   MonitorElement* rpctfntrack;
   MonitorElement* rpctfbx;
 
+  MonitorElement* m_qualVsEta;
+  MonitorElement* m_muonsEtaPhi;
+  MonitorElement* m_phipacked;
+  MonitorElement * m_phipackednorm;
+  
+  
   int nev_; // Number of events processed
   std::string outputFile_; //file name for ROOT ouput
   bool verbose_;
   bool monitorDaemon_;
+  
+  unsigned long m_ntracks;
+  
   ofstream logFile_;
   edm::InputTag rpctfSource_ ;
 };

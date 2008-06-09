@@ -2,8 +2,8 @@
  *
  *  Implementation of QTestParameterNames 
  *
- *  $Date: 2008/01/11 15:47:42 $
- *  $Revision: 1.6 $
+ *  $Date: 2008/05/13 13:11:26 $
+ *  $Revision: 1.7.2.6 $
  *  \author Ilaria Segoni
  */
  
@@ -15,15 +15,21 @@
 QTestParameterNames::QTestParameterNames(){
 	
 	this->constructMap(ContentsXRangeROOT::getAlgoName(), "xmin", "xmax");
+	//this->constructMap(ContentsXRangeASROOT::getAlgoName(), "xmin", "xmax");
 	this->constructMap(ContentsYRangeROOT::getAlgoName(), "ymin", "ymax");
+	//this->constructMap(ContentsYRangeASROOT::getAlgoName(), "ymin", "ymax");
 	this->constructMap(DeadChannelROOT::getAlgoName(),   "threshold");
 	this->constructMap(NoisyChannelROOT::getAlgoName(),  "tolerance", "neighbours");
 	this->constructMap(MeanWithinExpectedROOT::getAlgoName(), "mean","useRMS","useSigma","useRange","xmin","xmax");
-        this->constructMap(MostProbableLandauROOT::getAlgoName(), "xmin", "xmax","normalization", "mostprobable", "sigma");
 
-        this->constructMap(ContentsTH2FWithinRangeROOT::getAlgoName(), "minMean", "maxMean", "minRMS", "maxRMS", "toleranceMean", "minEntries");
-        this->constructMap(ContentsProfWithinRangeROOT::getAlgoName(), "minMean", "maxMean", "minRMS", "maxRMS", "toleranceMean", "minEntries");
-        this->constructMap(ContentsProf2DWithinRangeROOT::getAlgoName(), "minMean", "maxMean", "minRMS", "maxRMS", "toleranceMean", "minEntries");
+	//======================== new quality tests in the parser =====================//
+        this->constructMap(Comp2RefEqualHROOT::getAlgoName(), "testparam");
+        this->constructMap(Comp2RefChi2ROOT::getAlgoName(), "testparam");
+        this->constructMap(Comp2RefKolmogorovROOT::getAlgoName(), "testparam");
+
+//        this->constructMap(MostProbableLandauROOT::getAlgoName(), "xmin", "xmax","normalization", "mostprobable", "sigma");
+        this->constructMap(ContentsWithinExpectedROOT::getAlgoName(), "minMean", "maxMean", "minRMS", "maxRMS", "toleranceMean", "minEntries");
+        //this->constructMap(ContentsWithinExpectedASROOT::getAlgoName(), "minCont", "maxCont"); 
 
 }
   

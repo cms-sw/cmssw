@@ -2,7 +2,7 @@
 /*
  *  See header file for a description of this class.
  *
- *  $Date: 2008/02/27 16:43:53 $
+ *  $Date: 2008/04/08 14:15:40 $
  *  $Revision: 1.1 $
  *  \author G. Mila - INFN Torino
  */
@@ -79,6 +79,8 @@ void DTCalibValidation::beginJob(const edm::EventSetup& context){
    // the counter of segments used to compute residuals
   rightSegment = 0;
 
+  nevent=0;
+
 }
 
 
@@ -102,9 +104,11 @@ void DTCalibValidation::endJob(){
 
 
 void DTCalibValidation::analyze(const edm::Event& event, const edm::EventSetup& setup) {
-  if(debug)
-    cout << "[DTCalibValidation] Analyze #Run: " << event.id().run()
-	 << " #Event: " << event.id().event() << endl;
+
+
+  nevent++;
+  cout << "[DTCalibValidation] Analyze #Run: " << event.id().run()
+	 << " #Event: " << nevent << endl;
 
 
    // Get the DT Geometry

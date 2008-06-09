@@ -13,8 +13,8 @@
 // Created:         Wed Mar 15 13:00:00 UTC 2006
 //
 // $Author: noeding $
-// $Date: 2008/02/24 17:09:23 $
-// $Revision: 1.17 $
+// $Date: 2008/04/05 12:39:36 $
+// $Revision: 1.18 $
 //
 
 #include <string>
@@ -115,6 +115,7 @@ class RoadSearchTrackCandidateMakerAlgorithm
   int nFoundMin_;
 
   double initialVertexErrorXY_;
+  bool splitMatchedHits_;
 
   double maxPropagationDistance;
 

@@ -8,6 +8,7 @@
 #include "FWCore/Utilities/interface/EDMException.h"
 #include "TMinuit.h"
 #include "TMath.h"
+#include "Math/SMatrix.h"
 #include <boost/shared_ptr.hpp>
 #include <iostream>
 #include <vector>
@@ -66,6 +67,20 @@ namespace fit {
       minuit_->GetParameter(parameterIndex(name), val, err);
       return err;
     }
+    template<unsigned int N>
+    void getErrorMatrix(ROOT::Math::SMatrix<double, N, N, ROOT::Math::MatRepSym<double, N> > & err) {
+      init();
+      assert(N == numberOfParameters());
+      double * e = new double[N*N];
+      minuit_->mnemat(e, numberOfParameters());
+      for(size_t i = 0; i < N; ++i) {
+	for(size_t j = 0; j <= i; ++j) {
+	  err(i, j) = e[i + N*j];
+	}
+      }
+      delete [] e;
+      setParamters();
+    }
     void fixParameter(const std::string & name) {
       size_t i = parameterIndex(name);
       parMap_[i].second.fixed = true;
@@ -94,6 +109,19 @@ namespace fit {
 	    << " range = [" << par.min << ", " << par.max << "]\n";
       }
     }
+    void setParamters() {
+      std::map<std::string, size_t>::const_iterator i = parIndices_.begin(), end = parIndices_.end();
+      double val, err;
+      for(; i != end; ++i) {
+	size_t index = i->second;
+	minuit_->GetParameter(index, val, err);
+	*pars_[index] = val;
+      }
+    }
+    int numberOfParameters() { 
+      init();
+      return minuit_->GetNumPars();
+    }
     int numberOfFreeParameters() { 
       init();
       return minuit_->GetNumFreePars();
@@ -109,6 +137,7 @@ namespace fit {
       if(verbose_) minuit_->mnmatu(1); //Prints the covariance matrix
       double m = minValue();
       if(verbose_) minuit_->mnprin(3, m);
+      setParamters();
       return m;
     }
     double migrad() {
@@ -122,6 +151,7 @@ namespace fit {
       if(verbose_) minuit_->mnmatu(1); //Prints the covariance matrix
       double m = minValue();
       if(verbose_) minuit_->mnprin(3, m);
+      setParamters();
       return m;
     }
     double minValue() {
@@ -141,7 +171,7 @@ namespace fit {
     }
     void printFitResults(std::ostream& cout = std::cout) {
       double amin = minValue();
-      int ndof = numberOfFreeParameters();
+      int ndof = f_.degreesOfFreedom() - numberOfFreeParameters();
 	cout << "chi-squared/n.d.o.f. = " << amin << "/" << ndof << " = " << amin/ndof 
 	   << "; prob: " << TMath::Prob(amin, ndof)
 	   << std::endl;

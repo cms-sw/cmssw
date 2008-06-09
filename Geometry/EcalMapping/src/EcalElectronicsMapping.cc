@@ -7,6 +7,7 @@
 #include "DataFormats/EcalDetId/interface/EcalElectronicsId.h"
 #include "DataFormats/EcalDetId/interface/EcalTriggerElectronicsId.h"
 
+#include "DataFormats/EcalDetId/interface/EcalSubdetector.h"
 #include "FWCore/Utilities/interface/Exception.h"
 
 

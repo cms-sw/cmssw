@@ -1,5 +1,5 @@
 //
-// $Id: PATTauProducer.h,v 1.1 2008/03/06 09:23:11 llista Exp $
+// $Id: PATTauProducer.h,v 1.4.2.1 2008/05/31 19:32:57 lowette Exp $
 //
 
 #ifndef PhysicsTools_PatAlgos_PATTauProducer_h
@@ -13,7 +13,7 @@
    a collection of objects of TauType.
 
   \author   Steven Lowette, Christophe Delaere
-  \version  $Id: PATTauProducer.h,v 1.1 2008/03/06 09:23:11 llista Exp $
+  \version  $Id: PATTauProducer.h,v 1.4.2.1 2008/05/31 19:32:57 lowette Exp $
 */
 
 
@@ -35,8 +35,6 @@ namespace pat {
 
 
   class ObjectResolutionCalc;
-  class LeptonLRCalc;
-
 
   class PATTauProducer : public edm::EDProducer {
 
@@ -51,16 +49,18 @@ namespace pat {
 
       // configurables
       edm::InputTag tauSrc_;
+      bool embedIsolationTracks_;
+      bool embedLeadTrack_;
+      bool embedSignalTracks_;
       bool          addGenMatch_;
-      edm::InputTag genPartSrc_;
+      edm::InputTag genMatchSrc_;
+      bool          addTrigMatch_;
+      std::vector<edm::InputTag> trigMatchSrc_;
       bool          addResolutions_;
       bool          useNNReso_;
       std::string   tauResoFile_;
-      bool          addLRValues_;
-      std::string   tauLRFile_;
       // tools
       ObjectResolutionCalc * theResoCalc_;
-      LeptonLRCalc *         theLeptonLRCalc_;
       GreaterByPt<Tau>       pTTauComparator_;
 
       pat::helper::MultiIsolator isolator_; 

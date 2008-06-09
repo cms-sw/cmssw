@@ -1,11 +1,10 @@
 /*
  *  See header file for a description of this class.
  *
- *  $Date: 2008/03/08 19:15:10 $
- *  $Revision: 1.2 $
+ *  $Date: 2008/03/16 18:52:20 $
+ *  $Revision: 1.3 $
  *  \author Anna Cimmino
  */
-
 
 #include <DQM/RPCMonitorClient/interface/RPCDeadChannelTest.h>
 
@@ -15,7 +14,6 @@
 //DQM Services
 #include "DQMServices/Core/interface/DQMStore.h"
 
-
 //DataFormats
 #include <DataFormats/MuonDetId/interface/RPCDetId.h>
 #include "DataFormats/RPCDigi/interface/RPCDigi.h"
@@ -23,14 +21,11 @@
 
 // Geometry
 #include "Geometry/RPCGeometry/interface/RPCGeomServ.h"
-#include "Geometry/CommonDetUnit/interface/GeomDet.h"
 
-#include <iostream>
 #include <stdio.h>
 #include <string>
 #include <sstream>
 #include <math.h>
-#include <fstream>
 #include <time.h>
 
 using namespace edm;
@@ -38,12 +33,15 @@ using namespace std;
 
 RPCDeadChannelTest::RPCDeadChannelTest(const ParameterSet& ps ){
  
-  edm::LogVerbatim ("deadChannel") << "[RPCDeadChannelTest]: Constructor";
+  LogVerbatim ("deadChannel") << "[RPCDeadChannelTest]: Constructor";
 
   parameters = ps;
+
   //  getQualityTestsFromFile = parameters.getUntrackedParameter<bool> ("getQualityTestsFromFile",false);
   prescaleFactor = parameters.getUntrackedParameter<int>("diagnosticPrescale", 1);
   referenceOldChannels = parameters.getUntrackedParameter<bool> ("getReferenceFile",false);
+
+
 }
 
 
@@ -58,11 +56,10 @@ RPCDeadChannelTest::~RPCDeadChannelTest(){
 //called only once
 void RPCDeadChannelTest::beginJob(DQMStore * dbe){
 
- edm::LogVerbatim ("deadChannel") << "[RPCDeadChannelTest]: Begin job";
+ LogVerbatim ("deadChannel") << "[RPCDeadChannelTest]: Begin job";
   
  // get hold of back-end interface
  dbe_=dbe;
-
 
 }
 
@@ -82,11 +79,8 @@ void RPCDeadChannelTest::beginRun(const Run& r, const EventSetup& c){
  //get reference file
  if (referenceOldChannels)
    referenceFile_.open(parameters.getUntrackedParameter<string> ("referenceFileName","reference.txt").c_str()); 
-
-
 }
   
-
 
 void RPCDeadChannelTest::beginLuminosityBlock(LuminosityBlock const& lumiSeg, EventSetup const& context) {
 
@@ -118,9 +112,7 @@ void RPCDeadChannelTest::analyze(const edm::Event& iEvent, const edm::EventSetup
       meCollection[detId] = getMEs(detId);
     }
   }// end loop on digi collection
-
 }      
-
 
 
 void RPCDeadChannelTest::endLuminosityBlock(LuminosityBlock const& lumiSeg, EventSetup const& context) {
@@ -130,11 +122,12 @@ void RPCDeadChannelTest::endLuminosityBlock(LuminosityBlock const& lumiSeg, Even
   
   // counts number of lumiSegs 
   nLumiSegs = lumiSeg.id().luminosityBlock();
- 
+
+
  /* 
   //check some statements and prescale Factor
   if( !getQualityTestsFromFile ||  nLumiSegs%prescaleFactor != 0 ) return;
-   */
+ */
 
   // Occupancy test - the test was already performed and attached to the ME. Here we only retreive the results
   string OccupancyTestName = parameters.getUntrackedParameter<string>("OccTestName","DeadChannel_0"); 
@@ -144,62 +137,63 @@ void RPCDeadChannelTest::endLuminosityBlock(LuminosityBlock const& lumiSeg, Even
   for(std::map<RPCDetId, MonitorElement*>::const_iterator hOccIt = meCollection.begin();
       hOccIt != meCollection.end();
       hOccIt++) {
-    if((*hOccIt).second->getEntries() > (prescaleFactor-1 )){
-      const QReport * theOccupancyQReport = (*hOccIt).second->getQReport(OccupancyTestName);
-      if(theOccupancyQReport) {
-	vector<dqm::me_util::Channel> badChannels = theOccupancyQReport->getBadChannels();
-	//loop on bad channels
-	for (vector<dqm::me_util::Channel>::iterator channel = badChannels.begin(); 
-	     channel != badChannels.end(); channel++) {
-	  //get roll name
-	  RPCGeomServ RPCname((*hOccIt).first);
-	  nameRoll = RPCname.name();
-	  
-	  edm::LogError ("deadChannel") << "Chamber : "<<nameRoll<<" Bad occupancy channel: "<<(*channel).getBin()<<" Contents : "<<(*channel).getContents();
-	  if(myfile.is_open())
-	    {
-
-	      deadchannel = (* channel).getBin();
-
-	      if(referenceOldChannels && referenceFile_.is_open()){
-		int i=1; // line zero has titles -> start from line 1
-		bool flag= false;
-		//read reference file and find already known dead channels  
-		referenceFile_.clear();// clear all status flags
-		referenceFile_.seekg(0);//start reading file from the begining
-		while (!referenceFile_.eof()&& !flag  )
-		  {
-
-		    referenceFile_>>referenceRun;
-		    referenceFile_>>referenceLumiBlock;
-		    referenceFile_>>referenceRoll;
-		    referenceFile_>>referenceStrip;
-		    referenceFile_>>referenceTag;
-		    referenceFile_>>lastreferenceRun;
-		    int p= atoi(referenceStrip.c_str());
-		    if (referenceRoll == nameRoll && p==deadchannel)flag = true;
-		    i++;
-		  }
-		if (flag){
-		  myfile<<run<<" "<<lumiBlock<<" "<<nameRoll<<" "<<deadchannel<<" OLD-Reference Run:" + referenceRun +"\n";
+    const QReport * theOccupancyQReport = (*hOccIt).second->getQReport(OccupancyTestName);
+    if(theOccupancyQReport) {
+      vector<dqm::me_util::Channel> badChannels = theOccupancyQReport->getBadChannels();
+      //loop on bad channels
+      for (vector<dqm::me_util::Channel>::iterator channel = badChannels.begin(); 
+	   channel != badChannels.end(); channel++) {
+	
+	//get roll name
+	RPCGeomServ RPCname((*hOccIt).first);
+	nameRoll = RPCname.name();
+	
+	edm::LogError ("deadChannel") << "Chamber : "<<nameRoll<<" Bad occupancy channel: "<<(*channel).getBin()<<" Contents : "<<(*channel).getContents();
+	if(myfile.is_open())
+	  {
+	    
+	    deadchannel = (* channel).getBin();
+	    
+	    if(referenceOldChannels && referenceFile_.is_open()){
+	      int i=1; // line zero has titles -> start from line 1
+	      bool flag= false;
+	      //read reference file and find already known dead channels  
+	      referenceFile_.clear();// clear all status flags
+	      referenceFile_.seekg(0);//start reading file from the begining
+	      while (!referenceFile_.eof()&& !flag  )
+		{
+		  
+		  referenceFile_>>referenceRun;
+		  referenceFile_>>referenceLumiBlock;
+		  referenceFile_>>referenceRoll;
+		  referenceFile_>>referenceStrip;
+		  referenceFile_>>referenceTag;
+		  referenceFile_>>lastreferenceRun;
+		  int p= atoi(referenceStrip.c_str());
+		  if (referenceRoll == nameRoll && p==deadchannel)flag = true;
+		  i++;
 		}
-		else{ 
-		  myfile<<run<<" "<<lumiBlock<<" "<<nameRoll<<" "<<deadchannel<<" NEW-Reference Run:" + referenceRun +"\n";
-		}
-	      }else {
-
-		myfile<<run<<" "<<lumiBlock<<" "<<nameRoll<<" "<<deadchannel<<" No Info\n";
+	      if (flag){
+		myfile<<run<<" "<<lumiBlock<<" "<<nameRoll<<" "<<deadchannel<<" OLD-Reference Run:" + referenceRun +"\n";
 	      }
-	      
+	      else{ 
+		myfile<<run<<" "<<lumiBlock<<" "<<nameRoll<<" "<<deadchannel<<" NEW-Reference Run:" + referenceRun +"\n";
+	      }
+	    }else {
+	      myfile<<run<<" "<<lumiBlock<<" "<<nameRoll<<" "<<deadchannel<<" No Info\n";
 	    }
-	}//end loop on bad channels
-	edm::LogWarning("deadChannel")<< "-------- Chamber : "<< nameRoll<<"  "<<theOccupancyQReport->getMessage()<<" ------- "<<theOccupancyQReport->getStatus(); 
-      }
-      else 
-	edm::LogVerbatim ("deadChannel") << "[RPCDeadChannelTest]: QReport for QTest "<<OccupancyTestName<<" is empty";
+	    
+	  }
+      }//end loop on bad channels
       
+      edm::LogWarning("deadChannel")<< "-------- Chamber : "<< nameRoll<<"  "<<theOccupancyQReport->getMessage()<<" ------- "<<theOccupancyQReport->getStatus(); 
     }
+    else 
+      edm::LogVerbatim ("deadChannel") << "[RPCDeadChannelTest]: QReport for QTest "<<OccupancyTestName<<" is empty";
+    
+    
   }//end loop over Histos
+
 }
 
 
@@ -212,18 +206,6 @@ void RPCDeadChannelTest::endRun(const Run& r, const EventSetup& c){
 
 
 void RPCDeadChannelTest::endJob(){
-  
-  /*  edm::LogVerbatim ("deadChannel") << "[RPCDeadChannelTest]: endjob called!";
-  if ( parameters.getUntrackedParameter<bool>("writeHisto", true) ) {
-    stringstream runNumber; runNumber << run;
-    string rootFile = "RPCDeadChannelTest_" + runNumber.str() + ".root";
-    dbe_->save(parameters.getUntrackedParameter<string>("outputFile", rootFile));
-    }*/
-
-  //close txt file
-  //  myfile.close();
-
-  // dbe_->rmdir("RPC/Tests/RPCDeadChannel");  
 }
 
 
@@ -232,8 +214,8 @@ MonitorElement* RPCDeadChannelTest::getMEs(RPCDetId & detId) {
   
   MonitorElement* me;
   
-  std::string regionName;
-  std::string ringType;
+  string regionName;
+  string ringType;
   if(detId.region() ==  0) {
     regionName="Barrel";
     ringType="Wheel";

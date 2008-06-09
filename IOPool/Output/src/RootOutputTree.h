@@ -5,7 +5,7 @@
 
 RootOutputTree.h // used by ROOT output modules
 
-$Id: RootOutputTree.h,v 1.26 2008/03/04 05:14:48 wmtan Exp $
+$Id: RootOutputTree.h,v 1.27 2008/04/04 17:51:48 wmtan Exp $
 
 ----------------------------------------------------------------------*/
 
@@ -40,7 +40,8 @@ namespace edm {
 		   T const*& pAux,
 		   ProductStatusVector const*& pProdStats,
 		   int bufSize,
-		   int splitLevel) :
+		   int splitLevel,
+                   int treeMaxVirtualSize) :
       filePtr_(filePtr),
       tree_(makeTTree(filePtr.get(), BranchTypeToProductTreeName(branchType), splitLevel)),
       metaTree_(makeTTree(filePtr.get(), BranchTypeToMetaDataTreeName(branchType), 0)),
@@ -57,6 +58,7 @@ namespace edm {
       basketSize_(bufSize),
       splitLevel_(splitLevel) {
 
+      if (treeMaxVirtualSize >= 0) tree_->SetMaxVirtualSize(treeMaxVirtualSize);
       auxBranch_ = tree_->Branch(BranchTypeToAuxiliaryBranchName(branchType).c_str(), &pAux, bufSize, 0);
       clonedBranches_.push_back(auxBranch_);
       statusBranch_ = infoTree_->Branch(BranchTypeToProductStatusBranchName(branchType).c_str(), &pProdStats, bufSize, 0);

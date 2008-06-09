@@ -8,7 +8,7 @@
 //
 // Original Author:  Chris Jones
 //         Created:  Thu Mar 30 15:48:37 EST 2006
-// $Id: GenericHandle.cc,v 1.5 2007/08/08 03:40:17 chrjones Exp $
+// $Id: GenericHandle.cc,v 1.6 2007/10/05 22:00:41 chrjones Exp $
 //
 
 // system include files
@@ -71,7 +71,7 @@ edm::DataViewImpl::getByLabel<GenericObject>(std::string const& label,
   BasicHandle bh = this->getByLabel_(TypeID(result.type().TypeInfo()), label, productInstanceName);
   convert_handle(bh, result);  // throws on conversion error
   if(!bh.failedToGet()) {
-    gotProductIDs_.push_back(bh.id());
+    gotProductIDs_.insert(bh.id());
     return true;
   }
   return false;
@@ -88,7 +88,7 @@ edm::DataViewImpl::getByLabel<GenericObject>(edm::InputTag const& tag,
     BasicHandle bh = this->getByLabel_(TypeID(result.type().TypeInfo()), tag.label(), tag.instance(),tag.process());
     convert_handle(bh, result);  // throws on conversion error
     if(!bh.failedToGet()) {
-      gotProductIDs_.push_back(bh.id());
+      gotProductIDs_.insert(bh.id());
       return true;
     }
   }

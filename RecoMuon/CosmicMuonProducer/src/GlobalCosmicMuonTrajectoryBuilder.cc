@@ -1,8 +1,8 @@
 /**
  *  Class: GlobalCosmicMuonTrajectoryBuilder
  *
- *  $Date: 2007/05/31 18:48:44 $
- *  $Revision: 1.7 $
+ *  $Date: 2008/05/14 22:37:31 $
+ *  $Revision: 1.10 $
  *  \author Chang Liu  -  Purdue University <Chang.Liu@cern.ch>
  *
  **/
@@ -58,7 +58,7 @@ void GlobalCosmicMuonTrajectoryBuilder::setEvent(const edm::Event& event) {
   event.getByLabel(theTkTrackLabel,theTrackerTracks);
 
   edm::Handle<std::vector<Trajectory> > handleTrackerTrajs;
-  if ( event.getByLabel(theTkTrackLabel,handleTrackerTrajs) ) {
+  if ( event.getByLabel(theTkTrackLabel,handleTrackerTrajs) && handleTrackerTrajs.isValid() ) {
       tkTrajsAvailable = true;
       allTrackerTrajs = &*handleTrackerTrajs;   
       LogInfo("GlobalCosmicMuonTrajectoryBuilder") 
@@ -81,6 +81,11 @@ MuonCandidate::CandidateContainer GlobalCosmicMuonTrajectoryBuilder::trajectorie
 
   const std::string metname = "Muon|RecoMuon|CosmicMuon|GlobalCosmicMuonTrajectoryBuilder";
   MuonCandidate::CandidateContainer result;
+
+  if (!theTrackerTracks.isValid()) {
+    LogTrace(metname)<< "Tracker Track collection is invalid!!!";
+    return result;
+  }
 
   LogTrace(metname) <<"Found "<<theTrackerTracks->size()<<" tracker Tracks";
   if (theTrackerTracks->empty()) return result;
@@ -116,21 +121,12 @@ MuonCandidate::CandidateContainer GlobalCosmicMuonTrajectoryBuilder::trajectorie
 
 //  hits.insert(hits.end(), muRecHits.begin(), muRecHits.end());
 //  stable_sort(hits.begin(), hits.end(), DecreasingGlobalY());
+
   sortHits(hits, muRecHits, tkRecHits);
 
-  LogTrace(metname) << "Used RecHits After sort: "<<hits.size();
-  for (ConstRecHitContainer::const_iterator ir = hits.begin(); ir != hits.end(); ir++ ) {
-    if ( !(*ir)->isValid() ) {
-      LogTrace(metname) << "invalid RecHit";
-      continue;
-    }
-    const GlobalPoint& pos = (*ir)->globalPosition();
-    LogTrace(metname)
-    << "global (" << pos.x()<<", " << pos.y()<<", " << pos.z()<<") "
-    << "local: (" << (*ir)->localPosition().x()<<", " << (*ir)->localPosition().y()<<", " << (*ir)->localPosition().z()<<") "
-    << "  dimension = " << (*ir)->dimension()
-    << "  id " << (*ir)->det()->geographicalId().rawId();
-  }
+  LogTrace(metname) << "Used RecHits after sort: "<<hits.size();
+  LogTrace(metname)<<utilities()->print(hits);
+  LogTrace(metname) << "== End of Used RecHits == ";
 
   TrajectoryStateTransform tsTrans;
 
@@ -157,6 +153,8 @@ MuonCandidate::CandidateContainer GlobalCosmicMuonTrajectoryBuilder::trajectorie
   TrajectorySeed seed;
   vector<Trajectory> refitted = theSmoother->trajectories(seed,hits,firstState);
 
+  if ( refitted.empty() ) refitted = theSmoother->fit(seed,hits,firstState); //FIXME
+
   if (refitted.empty()) {
      LogTrace(metname)<<"refit fail";
      return result;
@@ -166,14 +164,16 @@ MuonCandidate::CandidateContainer GlobalCosmicMuonTrajectoryBuilder::trajectorie
 
   std::vector<TrajectoryMeasurement> mytms = myTraj->measurements(); 
   LogTrace(metname)<<"measurements in final trajectory "<<mytms.size();
+  LogTrace(metname) <<"Orignally there are "<<tkTrack->found()<<" tk rhs and "<<muTrack->found()<<" mu rhs.";
+
   if ( mytms.size() <= tkTrack->found() ) {
-     LogTrace(metname)<<"too little measurements. skip... ";
+     LogTrace(metname)<<"insufficient measurements. skip... ";
      return result;
   }
 
   MuonCandidate* myCand = new MuonCandidate(myTraj,muTrack,tkTrack);
   result.push_back(myCand);
-
+  LogTrace(metname)<<"final global cosmic muon: ";
   for (std::vector<TrajectoryMeasurement>::const_iterator itm = mytms.begin();
        itm != mytms.end(); ++itm ) {
        LogTrace(metname)<<"updated pos "<<itm->updatedState().globalPosition()
@@ -198,13 +198,37 @@ std::pair<bool,double> GlobalCosmicMuonTrajectoryBuilder::match(const reco::Trac
 
 void GlobalCosmicMuonTrajectoryBuilder::sortHits(ConstRecHitContainer& hits, ConstRecHitContainer& muonHits, ConstRecHitContainer& tkHits) {
 
-  std::string metname = "Muon|RecoMuon|CosmicMuon|GlobalCosmicMuonTrajectoryBuilder";
+   std::string metname = "Muon|RecoMuon|CosmicMuon|GlobalCosmicMuonTrajectoryBuilder";
+
+   ConstRecHitContainer::const_iterator frontTkHit = tkHits.begin();
+   ConstRecHitContainer::const_iterator backTkHit  = tkHits.end() - 1;
+   while ( !(*frontTkHit)->isValid() && frontTkHit != backTkHit) {frontTkHit++;}
+   while ( !(*backTkHit)->isValid() && backTkHit != frontTkHit)  {backTkHit--;}
+
+   ConstRecHitContainer::const_iterator frontMuHit = muonHits.begin();
+   ConstRecHitContainer::const_iterator backMuHit  = muonHits.end() - 1;
+   while ( !(*frontMuHit)->isValid() && frontMuHit != backMuHit) {frontMuHit++;}
+   while ( !(*backMuHit)->isValid() && backMuHit != frontMuHit)  {backMuHit--;}
+
+   if ( frontTkHit == backTkHit ) {
+      LogTrace(metname) << "No valid tracker hits";
+      return;
+   }
+   if ( frontMuHit == backMuHit ) {
+      LogTrace(metname) << "No valid muon hits";
+      return;
+   }
+
+  LogTrace(metname) << "No valid muon hits";
+  GlobalPoint frontTkPos = (*frontTkHit)->globalPosition();
+  GlobalPoint backTkPos = (*backTkHit)->globalPosition();
+
   //sort hits going from higher to lower positions
-  if ( tkHits.front()->globalPosition().y() < tkHits.back()->globalPosition().y() )  {//check if tk hits order same direction
+  if ( frontTkPos.y() < backTkPos.y() )  {//check if tk hits order same direction
     reverse(tkHits.begin(), tkHits.end());
   }
 
-  if ( muonHits.front()->globalPosition().y() < muonHits.back()->globalPosition().y() )  {//check if tk hits order same direction
+  if ( (*frontMuHit)->globalPosition().y() < (*backMuHit)->globalPosition().y() )  {//check if tk hits order same direction
     reverse(muonHits.begin(), muonHits.end());
   }
 
@@ -230,13 +254,13 @@ void GlobalCosmicMuonTrajectoryBuilder::sortHits(ConstRecHitContainer& hits, Con
   if ( insertInMiddle ) { //if tk hits should be sandwich
     GlobalPoint jointpointpos = (*middlepoint)->globalPosition();
     LogTrace(metname)<<"jointpoint "<<jointpointpos;
-    if ((tkHits.front()->globalPosition() - jointpointpos).mag() > (tkHits.back()->globalPosition() - jointpointpos).mag() ) {//check if tk hits order same direction
+    if ((frontTkPos - jointpointpos).mag() > (backTkPos - jointpointpos).mag() ) {//check if tk hits order same direction
       reverse(tkHits.begin(), tkHits.end());
     }
     muonHits.insert(middlepoint+1, tkHits.begin(), tkHits.end());
     hits = muonHits; 
   } else { // append at one end
-    if ( (tkHits.front()->globalPosition() - muonHits.back()->globalPosition()).y() < 0 ) { //insert at the end
+    if ( (frontTkPos - backTkPos).y() < 0 ) { //insert at the end
       hits = muonHits; 
       hits.insert(hits.end(), tkHits.begin(), tkHits.end());
     } else { //insert at the beginning

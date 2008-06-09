@@ -1,5 +1,5 @@
 //
-// $Id: PATElectronProducer.cc,v 1.2 2008/03/12 16:13:26 gpetrucc Exp $
+// $Id: PATElectronProducer.cc,v 1.5.2.1 2008/05/31 19:33:38 lowette Exp $
 //
 
 #include "PhysicsTools/PatAlgos/plugins/PATElectronProducer.h"
@@ -14,7 +14,6 @@
 #include "DataFormats/HepMCCandidate/interface/GenParticleFwd.h"
 #include "DataFormats/HepMCCandidate/interface/GenParticle.h"
 
-#include "PhysicsTools/PatUtils/interface/LeptonLRCalc.h"
 #include "PhysicsTools/PatUtils/interface/ObjectResolutionCalc.h"
 #include "PhysicsTools/PatUtils/interface/TrackerIsolationPt.h"
 #include "PhysicsTools/PatUtils/interface/CaloIsolationEnergy.h"
@@ -32,9 +31,17 @@ PATElectronProducer::PATElectronProducer(const edm::ParameterSet & iConfig) :
 
   // general configurables
   electronSrc_      = iConfig.getParameter<edm::InputTag>( "electronSource" );
+  embedGsfTrack_    = iConfig.getParameter<bool>         ( "embedGsfTrack" );
+  embedSuperCluster_= iConfig.getParameter<bool>         ( "embedSuperCluster" );
+  embedTrack_       = iConfig.getParameter<bool>         ( "embedTrack" );
+  
   // MC matching configurables
-  addGenMatch_      = iConfig.getParameter<bool>          ( "addGenMatch" );
-  genMatchSrc_       = iConfig.getParameter<edm::InputTag>( "genParticleMatch" );
+  addGenMatch_      = iConfig.getParameter<bool>         ( "addGenMatch" );
+  genMatchSrc_      = iConfig.getParameter<edm::InputTag>( "genParticleMatch" );
+  
+  // trigger matching configurables
+  addTrigMatch_     = iConfig.getParameter<bool>         ( "addTrigMatch" );
+  trigMatchSrc_     = iConfig.getParameter<std::vector<edm::InputTag> >( "trigPrimMatch" );
 
   // resolution configurables
   addResolutions_   = iConfig.getParameter<bool>         ( "addResolutions" );
@@ -46,11 +53,6 @@ PATElectronProducer::PATElectronProducer(const edm::ParameterSet & iConfig) :
   elecIDSrc_        = iConfig.getParameter<edm::InputTag>( "electronIDSource" );
   addElecIDRobust_  = iConfig.getParameter<bool>         ( "addElectronIDRobust" );
   elecIDRobustSrc_  = iConfig.getParameter<edm::InputTag>( "electronIDRobustSource" );
-  
-  // likelihood ratio configurables
-  tracksSrc_        = iConfig.getParameter<edm::InputTag>( "tracksSource" );
-  addLRValues_      = iConfig.getParameter<bool>         ( "addLRValues" );
-  electronLRFile_   = iConfig.getParameter<std::string>  ( "electronLRFile" );
   
   // construct resolution calculator
   if(addResolutions_){
@@ -108,30 +110,36 @@ void PATElectronProducer::produce(edm::Event & iEvent, const edm::EventSetup & i
   edm::Handle<reco::ElectronIDAssociationCollection> elecIDRobusts;
   if (addElecIDRobust_) iEvent.getByLabel(elecIDRobustSrc_, elecIDRobusts);
   
-  // prepare LR calculation
-  if(addLRValues_) {
-    theLeptonLRCalc_= new LeptonLRCalc(iSetup, edm::FileInPath(electronLRFile_).fullPath(), "", "");
-  }
-
-  edm::Handle<edm::View<reco::Track> > tracks;
-  iEvent.getByLabel(tracksSrc_, tracks);
-
   std::vector<Electron> * patElectrons = new std::vector<Electron>();
   for (edm::View<ElectronType>::const_iterator itElectron = electrons->begin(); itElectron != electrons->end(); ++itElectron) {
     // construct the Electron from the ref -> save ref to original object
     unsigned int idx = itElectron - electrons->begin();
     edm::RefToBase<ElectronType> elecsRef = electrons->refAt(idx);
     Electron anElectron(elecsRef);
-    // match to generated final state electrons
+    if (embedGsfTrack_) anElectron.embedGsfTrack();
+    if (embedSuperCluster_) anElectron.embedSuperCluster();
+    if (embedTrack_) anElectron.embedTrack();
+
+    // store the match to the generated final state electrons
     if (addGenMatch_) {
       reco::GenParticleRef genElectron = (*genMatch)[elecsRef];
       if (genElectron.isNonnull() && genElectron.isAvailable() ) {
         anElectron.setGenLepton(*genElectron);
-      } else {
-        // "MC ELE MATCH: Something wrong: null=" << !genElectron.isNonnull() <<", avail=" << genElectron.isAvailable() << std::endl;
-        anElectron.setGenLepton(reco::Particle(0, reco::Particle::LorentzVector(0,0,0,0))); // TQAF way of setting "null"
+      } // leave empty if no match found
+    }
+    
+    // matches to trigger primitives
+    if ( addTrigMatch_ ) {
+      for ( size_t i = 0; i < trigMatchSrc_.size(); ++i ) {
+        edm::Handle<edm::Association<TriggerPrimitiveCollection> > trigMatch;
+        iEvent.getByLabel(trigMatchSrc_[i], trigMatch);
+        TriggerPrimitiveRef trigPrim = (*trigMatch)[elecsRef];
+        if ( trigPrim.isNonnull() && trigPrim.isAvailable() ) {
+          anElectron.addTriggerMatch(*trigPrim);
+        }
       }
     }
+
     // add resolution info
     if(addResolutions_){
       (*theResoCalc_)(anElectron);
@@ -159,10 +167,6 @@ void PATElectronProducer::produce(edm::Event & iEvent, const edm::EventSetup & i
     if (addElecIDRobust_) {
       anElectron.setElectronIDRobust(electronID(electrons, elecIDRobusts, idx));
     }
-    // add lepton LR info
-    if (addLRValues_) {
-      theLeptonLRCalc_->calcLikelihood(anElectron, tracks, iEvent);
-    }
     // add sel to selected
     patElectrons->push_back(anElectron);
   }
@@ -176,8 +180,6 @@ void PATElectronProducer::produce(edm::Event & iEvent, const edm::EventSetup & i
   iEvent.put(ptr);
 
   // clean up
-  if (addLRValues_) delete theLeptonLRCalc_;
-
   if (isolator_.enabled()) isolator_.endEvent();
 
 }

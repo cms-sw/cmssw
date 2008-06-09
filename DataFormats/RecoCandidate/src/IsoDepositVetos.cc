@@ -60,8 +60,28 @@ void AngleCone::centerOn(double eta, double phi) {
 }
 
 ///////////////////////////////////////////////////////////////////////////
+		
+RectangularEtaPhiVeto::RectangularEtaPhiVeto(math::XYZVectorD dir, double etaMin, double etaMax, double phiMin, double phiMax) :
+	vetoDir_(dir.eta(),dir.phi()), etaMin_(etaMin), etaMax_(etaMax), phiMin_(phiMin), phiMax_(phiMax) {
+}
+
+RectangularEtaPhiVeto::RectangularEtaPhiVeto(Direction dir, double etaMin, double etaMax, double phiMin, double phiMax) :
+	vetoDir_(dir.eta(),dir.phi()), etaMin_(etaMin), etaMax_(etaMax), phiMin_(phiMin), phiMax_(phiMax) {
+}
 
 bool RectangularEtaPhiVeto::veto(double eta, double phi, float value) const  {
-    return (etaMin_ < eta) && (eta < etaMax_) && 
-           (phiMin_ < phi) && (phi < phiMax_); 
+	//vetoDir_.phi() is already [0,2*M_PI], make sure the vetoDir phi is 
+	//also assuming that the etaMin_ and etaMax_ are set correctly by user
+	//or possible user only wants a limit in one directions
+	//so should be able to set phi or eta to something extreme (-100,100) e.g.
+	double dPhi = phi - vetoDir_.phi();
+	double dEta = eta - vetoDir_.eta();
+	while( dPhi < 0.0 ) 	dPhi += 2*M_PI;
+	while( dPhi >= 2*M_PI ) dPhi -= 2*M_PI;
+    return (etaMin_ < dEta) && (dEta < etaMax_) && 
+           (phiMin_ < dPhi) && (dPhi < phiMax_); 
+}
+
+void RectangularEtaPhiVeto::centerOn(double eta, double phi) { 
+	vetoDir_ = Direction(eta,phi);
 }
