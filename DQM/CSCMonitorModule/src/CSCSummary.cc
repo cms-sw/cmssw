@@ -106,7 +106,7 @@ void CSCSummary::Write(TH1*& h1) const {
   CSCAddress adr;
   unsigned int bin = 1;
 
-  adr.mask.side = adr.mask.station = adr.mask.ring = adr.mask.chamber = adr.mask.cfeb = adr.mask.hv = true;
+  adr.mask.side = adr.mask.station = adr.mask.ring = adr.mask.chamber = adr.mask.layer = adr.mask.cfeb = adr.mask.hv = true;
 
   for (adr.side = 1; adr.side <= N_SIDES; adr.side++) { 
     for (adr.station = 1; adr.station <= N_STATIONS; adr.station++) {
@@ -137,7 +137,7 @@ void CSCSummary::Write(TH1*& h1, const unsigned int station) const {
   CSCAddress adr;
   const int station_len = N_RINGS * N_CHAMBERS * N_CFEBS * N_HVS;
 
-  adr.mask.side = adr.mask.station = adr.mask.ring = adr.mask.chamber = adr.mask.cfeb = adr.mask.hv = true;
+  adr.mask.side = adr.mask.station = adr.mask.ring = adr.mask.chamber = adr.mask.layer = adr.mask.cfeb = adr.mask.hv = true;
 
   if(station < 1 || station > N_STATIONS) return; 
 
@@ -218,7 +218,7 @@ void CSCSummary::Read(TH1*& h1) {
   CSCAddress adr;
   unsigned int bin = 1;
 
-  adr.mask.side = adr.mask.station = adr.mask.ring = adr.mask.chamber = adr.mask.cfeb = adr.mask.hv = true;
+  adr.mask.side = adr.mask.station = adr.mask.ring = adr.mask.chamber = adr.mask.layer = adr.mask.cfeb = adr.mask.hv = true;
 
   for (adr.side = 1; adr.side <= N_SIDES; adr.side++) { 
     for (adr.station = 1; adr.station <= N_STATIONS; adr.station++) {
