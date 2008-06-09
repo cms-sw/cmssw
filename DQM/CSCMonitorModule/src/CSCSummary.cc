@@ -314,6 +314,19 @@ const bool CSCSummary::IsPhysicsReady(const float xmin, const float xmax, const 
  * @param  
  * @return Detector efficiency rate (0..1)
  */
+const double CSCSummary::GetEfficiencyHW() const {
+
+  CSCAddress adr;
+  adr.mask.side = adr.mask.station = adr.mask.ring = adr.mask.chamber = adr.mask.layer = adr.mask.cfeb = adr.mask.hv = false;
+  return GetEfficiencyHW(adr);
+
+}
+
+/**
+ * @brief  Get efficiency of the station
+ * @param  
+ * @return Detector efficiency rate (0..1)
+ */
 const double CSCSummary::GetEfficiencyHW(const unsigned int station) const {
 
   CSCAddress adr;
