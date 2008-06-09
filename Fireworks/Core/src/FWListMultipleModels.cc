@@ -8,7 +8,7 @@
 //
 // Original Author:  Chris Jones
 //         Created:  Mon Mar 24 11:45:18 EDT 2008
-// $Id: FWListMultipleModels.cc,v 1.1 2008/03/24 18:02:14 chrjones Exp $
+// $Id: FWListMultipleModels.cc,v 1.2 2008/06/08 16:59:01 dmytro Exp $
 //
 
 // system include files
@@ -87,9 +87,8 @@ FWListMultipleModels::SetRnrState(Bool_t rnr)
       const FWEventItem* item = it->item();
       FWDisplayProperties prop(item->modelInfo(it->index()).displayProperties().color(),rnr);
       item->setDisplayProperties(it->index(),prop);
-      return TEveElement::SetRnrState(rnr);   
    }
-   return true;
+   return TEveElement::SetRnrState(rnr);
 }
 
 Bool_t 
