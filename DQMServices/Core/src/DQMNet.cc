@@ -607,13 +607,9 @@ DQMNet::onMessage(Bucket *msg, Peer *p, unsigned char *data, size_t len)
 	  << "DEBUG: received message 'LIST END' from "
 	  << p->peeraddr << std::endl;
 
-      // Send an object update to all peers that requested it
-      // and reset the updated flag on the objects.
-      lock();
-      sendObjectListToPeers(flags != 0);
-      unlock();
-
       // Indicate we have received another update from this peer.
+      // Also indicate we should flush to our clients.
+      flush_ = true;
       p->updates++;
     }
     return true;
@@ -1318,24 +1314,14 @@ DQMNet::run(void)
     now = Time::current();
 
     // Check if flush is required.  Flush only if one is needed.
-    // Even then prefer to make incremental flushes and send the
-    // full list of objects only relatively rarely.
-    if (flush_)
+    // Always sends the full object list, but only rarely.
+    if (flush_ && now > nextFlush)
     {
-      bool fullFlush = false;
-      if (now > nextFlush)
-      {
-	nextFlush = now + TimeSpan(0, 0, 0, 30 /* seconds */, 0);
-	fullFlush = true;
-      }
-
       flush_ = false;
+      nextFlush = now + TimeSpan(0, 0, 0, 60 /* seconds */, 0);
 
-      // Queue updates for changed or all objects for peers that have
-      // requested automatic notifications and mark updated objects
-      // old.
       lock();
-      sendObjectListToPeers(fullFlush);
+      sendObjectListToPeers(true);
       unlock();
     }
 
