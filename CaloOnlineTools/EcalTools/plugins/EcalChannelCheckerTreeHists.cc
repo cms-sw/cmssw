@@ -14,7 +14,7 @@ Implementation:
 // Original Author:  Seth COOPER
 //          Author:  Caterina DOGLIONI
 //         Created:  Th Nov 22 5:46:22 CEST 2007
-// $Id: EcalChannelCheckerTreeHists.cc,v 1.9 2008/05/06 08:08:18 doglioni Exp $
+// $Id: EcalChannelCheckerTreeHists.cc,v 1.1 2008/06/04 19:48:43 scooper Exp $
 //
 //
 
@@ -127,7 +127,8 @@ EcalChannelCheckerTreeHists::analyze(const edm::Event& iEvent, const edm::EventS
 
     //filling histogram and map
     v_h1_XtalJitter_[xtal_hashed]->Fill(jitter);
-    prof2_XtalJitter_->Fill(ebDetId.iphi()-0.5, ebDetId.ieta(), jitter);
+    if (ebDetId.ieta() > 0) prof2_XtalJitter_->Fill(ebDetId.iphi()-0.5, ebDetId.ieta()-0.5, jitter);
+    else  prof2_XtalJitter_->Fill(ebDetId.iphi()-0.5, ebDetId.ieta(), jitter);
 
     //amplitude
     if (!v_h1_XtalAmpli_[xtal_hashed]) {
@@ -137,7 +138,8 @@ EcalChannelCheckerTreeHists::analyze(const edm::Event& iEvent, const edm::EventS
     }
 
     v_h1_XtalAmpli_[xtal_hashed]->Fill(amplitude);
-    prof2_XtalAmpli_->Fill(ebDetId.iphi()-0.5, ebDetId.ieta(), amplitude);
+    if (ebDetId.ieta() > 0) prof2_XtalAmpli_->Fill(ebDetId.iphi()-0.5, ebDetId.ieta()-0.5, amplitude);
+    else prof2_XtalAmpli_->Fill(ebDetId.iphi()-0.5, ebDetId.ieta(), amplitude);
 
   }//end RecHit loop
 
@@ -203,7 +205,9 @@ EcalChannelCheckerTreeHists::analyze(const edm::Event& iEvent, const edm::EventS
     }
 
     v_h1_XtalPed_[xtal_hashed]->Fill(pedestal);
-    prof2_XtalPed_->Fill(ebDetId.iphi()-0.5, ebDetId.ieta(), pedestal);
+
+    if (ebDetId.ieta() > 0) prof2_XtalPed_->Fill(ebDetId.iphi()-0.5, ebDetId.ieta()-0.5, pedestal);
+    else prof2_XtalPed_->Fill(ebDetId.iphi()-0.5, ebDetId.ieta(), pedestal);
 
     //-------------------XTALS pulse
 
