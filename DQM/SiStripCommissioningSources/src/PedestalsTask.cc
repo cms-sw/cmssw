@@ -81,7 +81,7 @@ void PedestalsTask::book() {
   peds_[1].vNumOfEntries_.resize(nbins,0);
   peds_[1].vSumOfContents_.resize(nbins,0);
   peds_[1].vSumOfSquares_.resize(nbins,0);
-  
+
   // Common mode histograms
   cm_.resize(2);
   nbins = 1024;
@@ -108,7 +108,7 @@ void PedestalsTask::book() {
 // -----------------------------------------------------------------------------
 //
 void PedestalsTask::fill( const SiStripEventSummary& summary,
-			     const edm::DetSet<SiStripRawDigi>& digis ) {
+			  const edm::DetSet<SiStripRawDigi>& digis ) {
   
   if ( digis.data.size() != peds_[0].vNumOfEntries_.size() ) {
     edm::LogWarning(mlDqmSource_)
@@ -142,7 +142,8 @@ void PedestalsTask::fill( const SiStripEventSummary& summary,
   
   for ( uint16_t ibin = 0; ibin < nbins; ibin++ ) {
     updateHistoSet( peds_[0], ibin, digis.data[ibin].adc() ); // peds and raw noise
-    updateHistoSet( peds_[1], ibin, (digis.data[ibin].adc()-cm[ibin/128]) ); // residuals and real noise
+    float diff = static_cast<float>( digis.data[ibin].adc() ) - static_cast<float>( cm[ibin/128] );
+    updateHistoSet( peds_[1], ibin, diff ); // residuals and real noise
   }
   
   if ( cm.size() < cm_.size() ) {
@@ -166,13 +167,20 @@ void PedestalsTask::update() {
   // Noise (cannot use HistoSet directly, as want to plot noise as "contents", not "error")
   TProfile* histo = ExtractTObject<TProfile>().extract( peds_[1].histo() );
   for ( uint16_t ii = 0; ii < peds_[1].vNumOfEntries_.size(); ++ii ) {
-    float entries =  peds_[1].vNumOfEntries_[ii];
+    
+    float mean    = 0.;
+    float spread  = 0.;
+    float entries = peds_[1].vNumOfEntries_[ii];
     if ( entries > 0. ) {
-      float mean   = peds_[1].vSumOfContents_[ii] / peds_[1].vNumOfEntries_[ii];
-      float spread = sqrt( fabs( peds_[1].vSumOfSquares_[ii] / peds_[1].vNumOfEntries_[ii] - mean * mean ) );
-      float error  = 0; // sqrt(entries) / entries;
-      UpdateTProfile::setBinContent( histo, ii+1, entries, spread, error );
+      mean = peds_[1].vSumOfContents_[ii] / entries;
+      spread = sqrt( peds_[1].vSumOfSquares_[ii] / entries - mean * mean ); 
     }
+    
+    float noise = spread;
+    float error = 0; // sqrt(entries) / entries;
+    
+    UpdateTProfile::setBinContent( histo, ii+1, entries, noise, error );
+    
   }
   
   // Common mode
