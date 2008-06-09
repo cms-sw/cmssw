@@ -58,7 +58,7 @@ tmp/%.d:   %.cc
 	$(CC) -M $(CFLAGS) $< \
                        | sed 's/.*\.o[ :]*\(.*\)\(\.c*\)/tmp\/\1.o tmp\/\1.d : \1\2/g' > $@; \
                      [ -s $@ ] || rm -f $@
--include $(ProjectObjects:.o=.d)
+-include /dev/null $(ProjectObjects:.o=.d)
 
 tmp/%LinkDef.d:  %LinkDef.h
 	$(QUIET) echo "dependencies for ROOT dictionaries based on $<"; \
@@ -66,4 +66,4 @@ tmp/%LinkDef.d:  %LinkDef.h
 	$(CXX) -M $(CFLAGS) $(INCLUDE) $< \
                        | sed 's/.*\.o[ :]*\(.*\)\(\.c*\)/tmp\/\1.o tmp\/\1.d : \1\2/g' > $@; \
                      [ -s $@ ] || rm -f $@
--include $(ProjectRootDicSources:.cc=.d)
+-include /dev/null $(ProjectRootDicSources:.cc=.d)
