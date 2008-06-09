@@ -6,7 +6,7 @@
 #include "FWCore/Framework/interface/EDProducer.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
-#include "EventFilter/ESRawToDigi/interface/ESUnpacker.h"
+#include "EventFilter/ESRawToDigi/interface/ESUnpackerV4.h"
 
 using namespace std;
 using namespace edm;
@@ -28,7 +28,7 @@ class ESRawToDigi : public EDProducer {
 
   bool debug_;
 
-  ESUnpacker* ESUnpacker_;
+  ESUnpackerV4* ESUnpacker_;
   
 };
 
