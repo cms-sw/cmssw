@@ -478,13 +478,13 @@ const double CSCSummary::GetReportingArea(CSCAddress adr) const {
  * @return Value of the requested element
  */
 const int CSCSummary::GetValue(const CSCAddress& adr) const {
+
   if ( adr.mask.side && adr.mask.station && adr.mask.ring && 
-      adr.mask.chamber && adr.mask.layer && adr.mask.cfeb && adr.mask.hv &&
+      adr.mask.chamber && adr.mask.cfeb && adr.mask.hv &&
       adr.side > 0 && adr.side <= N_SIDES && 
       adr.station > 0 && adr.station <= N_STATIONS && 
       adr.ring > 0 && adr.ring <= N_RINGS && 
       adr.chamber > 0 && adr.chamber <= N_CHAMBERS && 
-      adr.layer > 0 && adr.layer <= N_LAYERS && 
       adr.cfeb > 0 && adr.cfeb <= N_CFEBS && 
       adr.hv > 0 && adr.hv <= N_HVS) {
 
@@ -504,7 +504,9 @@ const int CSCSummary::GetValue(const CSCAddress& adr) const {
       }
     }
   }
+
   return 0;
+
 }
 
 /**
