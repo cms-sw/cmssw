@@ -1,5 +1,5 @@
 //
-// $Id: PATMuonCleaner.cc,v 1.2 2008/03/12 16:13:27 gpetrucc Exp $
+// $Id: PATMuonCleaner.cc,v 1.3 2008/03/14 15:13:51 gpetrucc Exp $
 //
 
 #include "PhysicsTools/PatAlgos/plugins/PATMuonCleaner.h"
@@ -48,7 +48,7 @@ void PATMuonCleaner::produce(edm::Event & iEvent, const edm::EventSetup & iSetup
     size_t selIdx = helper_.addItem(idx, ourMuon);
 
     // perform the selection
-    if ( selector_.filter(idx,helper_.source()) ) {
+    if ( selector_.filter(idx,helper_.source()) != pat::GOOD ) {
         helper_.addMark(selIdx, pat::Flags::Selection::Bit0); // opaque, at the moment
     }
 

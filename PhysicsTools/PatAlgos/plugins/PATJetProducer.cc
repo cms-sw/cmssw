@@ -1,5 +1,5 @@
 //
-// $Id: PATJetProducer.cc,v 1.17 2008/06/03 22:37:04 gpetrucc Exp $
+// $Id: PATJetProducer.cc,v 1.18 2008/06/08 12:24:02 vadler Exp $
 //
 
 #include "PhysicsTools/PatAlgos/plugins/PATJetProducer.h"
@@ -62,16 +62,10 @@ PATJetProducer::PATJetProducer(const edm::ParameterSet& iConfig) {
   caliJetResoFile_         = iConfig.getParameter<std::string>  	      ( "caliJetResoFile" );
   caliBJetResoFile_        = iConfig.getParameter<std::string>  	      ( "caliBJetResoFile" );
   addBTagInfo_             = iConfig.getParameter<bool> 		      ( "addBTagInfo" );
-  addBTagInfo_             = iConfig.getParameter<bool> 		      ( "addBTagInfo" );
+  addDiscriminators_       = iConfig.getParameter<bool> 		      ( "addDiscriminators" );
   discriminatorModule_     = iConfig.getParameter<edm::InputTag>              ( "discriminatorModule" );
   addTagInfoRefs_          = iConfig.getParameter<bool> 		      ( "addTagInfoRefs" );
   tagInfoModule_           = iConfig.getParameter<edm::InputTag>              ( "tagInfoModule" );
-#ifdef PATJet_OldTagInfo
-  ipTagInfoLabel_          = iConfig.getParameter<std::vector<edm::InputTag> >( "ipTagInfoLabelName" );
-  softETagInfoLabel_       = iConfig.getParameter<std::vector<edm::InputTag> >( "softETagInfoLabelName" );
-  softMTagInfoLabel_       = iConfig.getParameter<std::vector<edm::InputTag> >( "softMTagInfoLabelName" );
-  svTagInfoLabel_          = iConfig.getParameter<std::vector<edm::InputTag> >( "svTagInfoLabelName" );
-#endif
   addAssociatedTracks_     = iConfig.getParameter<bool> 		      ( "addAssociatedTracks" ); 
   trackAssociation_        = iConfig.getParameter<edm::InputTag>	      ( "trackAssociationSource" );
   addJetCharge_            = iConfig.getParameter<bool> 		      ( "addJetCharge" ); 
@@ -101,7 +95,7 @@ PATJetProducer::PATJetProducer(const edm::ParameterSet& iConfig) {
     // we just leave the set empty, and catch everything we can
   }
 
-
+  if (!addBTagInfo_) { addDiscriminators_ = false; addTagInfoRefs_ = false; }
   // produces vector of jets
   produces<std::vector<Jet> >();
 }

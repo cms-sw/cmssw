@@ -55,7 +55,7 @@ void pat::PATJetCleaner<JetIn,JetOut>::produce(edm::Event & iEvent, const edm::E
     size_t selIdx = helper_.addItem(idx, ourJet);
  
     // perform the selection
-    if ( !selector_->filter(idx,helper_.source(), &(*JetIDmap) ) ) {
+    if ( selector_->filter(idx,helper_.source(), &(*JetIDmap) ) != pat::GOOD ) {
         helper_.addMark(selIdx, pat::Flags::Selection::Bit0); // opaque, at the moment
     }
 

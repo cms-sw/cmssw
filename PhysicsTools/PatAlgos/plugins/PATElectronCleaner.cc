@@ -1,5 +1,5 @@
 //
-// $Id: PATElectronCleaner.cc,v 1.4 2008/04/09 12:05:12 llista Exp $
+// $Id: PATElectronCleaner.cc,v 1.5 2008/04/11 17:45:22 fronga Exp $
 //
 #include "PhysicsTools/PatAlgos/plugins/PATElectronCleaner.h"
 #include "DataFormats/EgammaReco/interface/BasicClusterShapeAssociation.h"
@@ -59,7 +59,7 @@ void PATElectronCleaner::produce(edm::Event & iEvent, const edm::EventSetup & iS
     }
 
     // apply selection and set bits accordingly
-    if ( selector_.filter(idx,helper_.source(),(*electronIDs),clusterShape) ) {
+    if ( selector_.filter(idx,helper_.source(),(*electronIDs),clusterShape) != pat::GOOD) {
         helper_.addMark(selIdx, pat::Flags::Selection::Bit0); // opaque, at the moment
     }
 
