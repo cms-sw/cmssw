@@ -8,7 +8,7 @@
 //
 // Original Author:  Chris Jones
 //         Created:  Mon Feb 11 11:06:40 EST 2008
-// $Id: FWGUIManager.cc,v 1.24 2008/03/27 18:39:16 chrjones Exp $
+// $Id: FWGUIManager.cc,v 1.25 2008/03/29 19:19:49 chrjones Exp $
 //
 
 // system include files
@@ -59,6 +59,7 @@
 //
 enum {kSaveConfiguration,
       kSaveConfigurationAs,
+      kExportImage,
       kQuit};
 
 //
@@ -102,6 +103,8 @@ m_detailViewManager(new FWDetailViewManager)
    m_fileMenu = new TGPopupMenu(gClient->GetRoot());
 //   m_fileMenu->AddEntry("Save Configuration &As ...",kSaveConfigurationAs);
    m_fileMenu->AddEntry("&Save Configuration",kSaveConfiguration);
+   m_fileMenu->AddSeparator();
+   m_fileMenu->AddEntry("Export Main View &Image",kExportImage);
    m_fileMenu->AddSeparator();
    m_fileMenu->AddEntry("&Quit Root",kQuit);
    
@@ -590,6 +593,14 @@ FWGUIManager::handleFileMenu(Int_t iIndex)
    static const char* kSaveFileTypes[] = {"Fireworks Configuration files","*.fwc",
       "All Files","*",
    0,0};
+   
+   const char *kImageExportTypes[] = {"Encapsulated PostScript", "*.eps",
+      "PDF",                     "*.pdf",
+      "GIF",                     "*.gif",
+      "JPEG",                    "*.jpg",
+      "PNG",                     "*.png",
+   0, 0};
+   
    switch(iIndex) {
       case kSaveConfigurationAs:
       {
@@ -608,6 +619,20 @@ FWGUIManager::handleFileMenu(Int_t iIndex)
       case kSaveConfiguration:
       {
          writeToPresentConfigurationFile_();
+      }
+         break;
+      case kExportImage:
+      {
+         
+         static TString dir(".");
+         
+         TGFileInfo fi;
+         fi.fFileTypes = kImageExportTypes;
+         fi.fIniDir    = StrDup(dir);
+         new TGFileDialog(gClient->GetDefaultRoot(), gEve->GetBrowser(),
+                          kFDSave,&fi);
+         dir = fi.fIniDir;
+         m_viewBases[0]->saveImageTo(fi.fFilename);
       }
          break;
       case kQuit:
