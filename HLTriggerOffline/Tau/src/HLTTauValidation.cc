@@ -88,32 +88,6 @@ HLTTauValidation::~HLTTauValidation()
 void
 HLTTauValidation::endJob()
 {
-  printf("GENERATING OUTPUT--------------------------------------->\n");
-  printf("Reference:\n");
-  printf("   -Number of GOOD Ref Tau Events = %d\n",NRefEvents);
-  printf("Trigger:\n");
-  printf("   -Leptonic Trigger Accepted Events = %d   Accepted and Matched = %d\n",NLeptonEvents,NLeptonEvents_Matched);
-  printf("   -L1 Accepted Events = %d  L1 Accepted and Matched = %d\n",NL1Events,NL1Events_Matched);
-  printf("   -L2 Accepted Events = %d  L2 Accepted and Matched = %d\n",NL2Events,NL2Events_Matched);
-  printf("   -L25 Accepted Events = %d  L25 Accepted and Matched = %d\n",NL25Events,NL25Events_Matched);
-  printf("   -L3 Accepted Events = %d  L3 Accepted and Matched = %d\n",NL3Events,NL3Events_Matched);
-  printf("HLT Efficiency with Ref to Previous Trigger(No Matching):\n");
-  printf("   -L2 = %f +/- %f \n",calcEfficiency(NL2Events,NL1Events)[0],calcEfficiency(NL2Events,NL1Events)[1]);
-  printf("   -L25 = %f +/- %f \n",calcEfficiency(NL25Events,NL2Events)[0],calcEfficiency(NL25Events,NL2Events)[1]);
-  printf("   -L2 = %f +/- %f \n",calcEfficiency(NL3Events,NL25Events)[0],calcEfficiency(NL3Events,NL25Events)[1]);
-  printf("HLT Efficiency with Ref to Previous Trigger(with Matching):\n");
-  printf("   -L2 = %f +/- %f \n",calcEfficiency(NL2Events_Matched,NL1Events_Matched)[0],calcEfficiency(NL2Events_Matched,NL1Events_Matched)[1]);
-  printf("   -L25 = %f +/- %f \n",calcEfficiency(NL25Events_Matched,NL2Events_Matched)[0],calcEfficiency(NL25Events_Matched,NL2Events_Matched)[1]);
-  printf("   -L2 = %f +/- %f \n",calcEfficiency(NL3Events_Matched,NL25Events_Matched)[0],calcEfficiency(NL3Events_Matched,NL25Events_Matched)[1]);
-  printf("HLT Efficiency with Ref to Matching Object):\n");
-  printf("   -L1 = %f +/- %f \n",calcEfficiency(NL1Events_Matched,NRefEvents)[0],calcEfficiency(NL1Events_Matched,NRefEvents)[1]);
-  printf("   -L2 = %f +/- %f \n",calcEfficiency(NL2Events_Matched,NRefEvents)[0],calcEfficiency(NL2Events_Matched,NRefEvents)[1]);
-  printf("   -L25 = %f +/- %f \n",calcEfficiency(NL25Events_Matched,NRefEvents)[0],calcEfficiency(NL25Events_Matched,NRefEvents)[1]);
-  printf("   -L2 = %f +/- %f \n",calcEfficiency(NL3Events_Matched,NRefEvents)[0],calcEfficiency(NL3Events_Matched,NRefEvents)[1]);
-  printf("--------------------------------------------------------\n");
-  printf("Note: The errors are binomial..");	 
-
-
 
   //Write DQM thing..
   if(outFile_.size()>0)
@@ -141,6 +115,11 @@ HLTTauValidation::endJob()
   fprintf(fp,"   -L2 = %f +/- %f \n",calcEfficiency(NL2Events_Matched,NL1Events_Matched)[0],calcEfficiency(NL2Events_Matched,NL1Events_Matched)[1]);
   fprintf(fp,"   -L25 = %f +/- %f \n",calcEfficiency(NL25Events_Matched,NL2Events_Matched)[0],calcEfficiency(NL25Events_Matched,NL2Events_Matched)[1]);
   fprintf(fp,"   -L3 = %f +/- %f \n",calcEfficiency(NL3Events_Matched,NL25Events_Matched)[0],calcEfficiency(NL3Events_Matched,NL25Events_Matched)[1]);
+
+  fprintf(fp,"HLT Efficiency with Ref to L1 Trigger(with Matching):\n");
+  fprintf(fp,"   -L2 = %f +/- %f \n",calcEfficiency(NL2Events_Matched,NL1Events_Matched)[0],calcEfficiency(NL2Events_Matched,NL1Events_Matched)[1]);
+  fprintf(fp,"   -L25 = %f +/- %f \n",calcEfficiency(NL25Events_Matched,NL1Events_Matched)[0],calcEfficiency(NL25Events_Matched,NL1Events_Matched)[1]);
+  fprintf(fp,"   -L3 = %f +/- %f \n",calcEfficiency(NL3Events_Matched,NL1Events_Matched)[0],calcEfficiency(NL3Events_Matched,NL1Events_Matched)[1]);
   fprintf(fp,"HLT Efficiency with Ref to Matching Object):\n");
   fprintf(fp,"   -L1 = %f +/- %f \n",calcEfficiency(NL1Events_Matched,NRefEvents)[0],calcEfficiency(NL1Events_Matched,NRefEvents)[1]);
   fprintf(fp,"   -L2 = %f +/- %f \n",calcEfficiency(NL2Events_Matched,NRefEvents)[0],calcEfficiency(NL2Events_Matched,NRefEvents)[1]);
