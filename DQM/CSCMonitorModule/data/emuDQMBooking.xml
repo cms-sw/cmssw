@@ -945,13 +945,13 @@
 		<Name>All_DDUs_in_Readout</Name>
 		<SetOption>bar1text</SetOption>
 		<XMin>1</XMin>
-		<XMax>41</XMax>
-		<XBins>40</XBins>
+		<XMax>45</XMax>
+		<XBins>44</XBins>
 		<XTitle>DDU IDs</XTitle>
 		<YTitle>DDU Events</YTitle>
 		<SetOptStat>em</SetOptStat>
 		<Title>DDUs in Readout</Title>
-		<SetNdivisionsX>40</SetNdivisionsX>
+		<SetNdivisionsX>44</SetNdivisionsX>
 		<SetLabelSizeX>0.03</SetLabelSizeX>
 		<SetStats>0</SetStats>
 	</Histogram>
