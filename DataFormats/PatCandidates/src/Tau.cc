@@ -1,5 +1,5 @@
 //
-// $Id: Tau.cc,v 1.5.2.1 2008/06/03 20:08:24 gpetrucc Exp $
+// $Id: Tau.cc,v 1.6 2008/06/03 22:28:07 gpetrucc Exp $
 //
 
 #include "DataFormats/PatCandidates/interface/Tau.h"
@@ -35,6 +35,10 @@ Tau::Tau(const TauType & aTau) :
     HhotOverP_(0.),
     HtotOverP_(0.)
 {
+    const reco::PFTau * pfTau = dynamic_cast<const reco::PFTau *>(&aTau);
+    if (pfTau != 0) pfSpecific_.push_back(pat::tau::TauPFSpecific(*pfTau));
+    const reco::CaloTau * caloTau = dynamic_cast<const reco::CaloTau *>(&aTau);
+    if (caloTau != 0) caloSpecific_.push_back(pat::tau::TauCaloSpecific(*caloTau));
 }
 
 
@@ -50,6 +54,10 @@ Tau::Tau(const edm::RefToBase<TauType> & aTauRef) :
     HhotOverP_(0.),
     HtotOverP_(0.)
 {
+    const reco::PFTau * pfTau = dynamic_cast<const reco::PFTau *>(aTauRef.get());
+    if (pfTau != 0) pfSpecific_.push_back(pat::tau::TauPFSpecific(*pfTau));
+    const reco::CaloTau * caloTau = dynamic_cast<const reco::CaloTau *>(aTauRef.get());
+    if (caloTau != 0) caloSpecific_.push_back(pat::tau::TauCaloSpecific(*caloTau));
 }
 
 /// constructor from ref to TauType
@@ -64,6 +72,10 @@ Tau::Tau(const edm::Ptr<TauType> & aTauRef) :
     HhotOverP_(0.),
     HtotOverP_(0.)
 {
+    const reco::PFTau * pfTau = dynamic_cast<const reco::PFTau *>(aTauRef.get());
+    if (pfTau != 0) pfSpecific_.push_back(pat::tau::TauPFSpecific(*pfTau));
+    const reco::CaloTau * caloTau = dynamic_cast<const reco::CaloTau *>(aTauRef.get());
+    if (caloTau != 0) caloSpecific_.push_back(pat::tau::TauCaloSpecific(*caloTau));
 }
 
 
@@ -138,4 +150,14 @@ void Tau::embedSignalTracks(){
     signalTracks_.push_back(*trackRefVec.at(i));
   }
   embeddedSignalTracks_ = true;
+}
+
+const pat::tau::TauPFSpecific & Tau::pfSpecific() const {
+  if (!isPFTau()) throw cms::Exception("Type Error") << "Requesting a PFTau-specific information from a pat::Tau which wasn't made from a PFTau.\n";
+  return pfSpecific_[0]; 
+}
+
+const pat::tau::TauCaloSpecific & Tau::caloSpecific() const {
+  if (!isCaloTau()) throw cms::Exception("Type Error") << "Requesting a CaloTau-specific information from a pat::Tau which wasn't made from a CaloTau.\n";
+  return caloSpecific_[0]; 
 }

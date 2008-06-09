@@ -28,6 +28,10 @@
   <class name="pat::Electron" />
   <class name="pat::Muon" />
   <class name="pat::Tau" />
+     <class name="pat::tau::TauPFSpecific" />
+     <class name="std::vector<pat::tau::TauPFSpecific>" />
+     <class name="pat::tau::TauCaloSpecific" />
+     <class name="std::vector<pat::tau::TauCaloSpecific>" />
   <class name="pat::Photon" />
   <class name="pat::Jet" />
      <class name="std::vector<reco::CaloJet::Specific>" />
