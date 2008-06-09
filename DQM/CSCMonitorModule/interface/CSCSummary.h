@@ -33,12 +33,10 @@ class CSCSummary {
 
     const CSCDetector Detector() const { return detector; }
 
-    void Read(TH1*& h1);
     void ReadReportingChambers(TH2*& h2, const double threshold = 1);
     void ReadErrorChambers(TH2*& evs, TH2*& err, const double eps_max = 0.1, const double Sfail = 5.0);
 
-    void Write(TH1*& h1) const;
-    void Write(TH1*& h1, const unsigned int station) const;
+    void Write(TH2*& h2, const unsigned int station) const;
     const float WriteMap(TH2*& h2) const;
 
     void SetValue(const int value);

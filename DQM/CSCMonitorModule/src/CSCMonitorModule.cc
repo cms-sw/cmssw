@@ -104,10 +104,14 @@ void CSCMonitorModule::setup() {
 
   // Book detector summary histograms and stuff
   MonitorElement* me;
-  me = dbe->book1D("Summary_ME1", "EMU status: ME1", 192600, 1, 192600);
-  me = dbe->book1D("Summary_ME2", "EMU status: ME2", 192600, 1, 192600);
-  me = dbe->book1D("Summary_ME3", "EMU status: ME3", 192600, 1, 192600);
-  me = dbe->book1D("Summary_ME4", "EMU status: ME4", 192600, 1, 192600);
+  me = dbe->book2D("Summary_ME1", "EMU status: ME1", 18, 1, 16, 180, 1, 180);
+  me->getTH1()->SetOption("colz");
+  me = dbe->book2D("Summary_ME2", "EMU status: ME2", 18, 1, 16, 180, 1, 180);
+  me->getTH1()->SetOption("colz");
+  me = dbe->book2D("Summary_ME3", "EMU status: ME3", 18, 1, 16, 180, 1, 180);
+  me->getTH1()->SetOption("colz");
+  me = dbe->book2D("Summary_ME4", "EMU status: ME4", 18, 1, 16, 180, 1, 180);
+  me->getTH1()->SetOption("colz");
 
   // reportSummary stuff booking
   dbe->setCurrentFolder(rootDir + EVENTINFO_FOLDER);

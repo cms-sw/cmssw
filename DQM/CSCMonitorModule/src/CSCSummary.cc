@@ -98,67 +98,46 @@ void CSCSummary::ReadErrorChambers(TH2*& evs, TH2*& err, const double eps_max, c
 }
 
 /**
- * @brief  Write detector map to H1 histogram (linear data)
- * @param  h1 Histogram to write data to
- * @return 
- */
-void CSCSummary::Write(TH1*& h1) const {
-  CSCAddress adr;
-  unsigned int bin = 1;
-
-  adr.mask.side = adr.mask.station = adr.mask.ring = adr.mask.chamber = adr.mask.layer = adr.mask.cfeb = adr.mask.hv = true;
-
-  for (adr.side = 1; adr.side <= N_SIDES; adr.side++) { 
-    for (adr.station = 1; adr.station <= N_STATIONS; adr.station++) {
-       for (adr.ring = 1; adr.ring <= N_RINGS; adr.ring++) { 
-          for (adr.chamber = 1; adr.chamber <= N_CHAMBERS; adr.chamber++) {
-            for (adr.layer = 1; adr.layer <= N_LAYERS; adr.layer++ ) {
-              for (adr.cfeb = 1; adr.cfeb <= N_CFEBS; adr.cfeb++) {
-                for (adr.hv = 1; adr.hv <= N_HVS; adr.hv++) {
-                  double d = static_cast<double>(GetValue(adr));
-                  h1->SetBinContent(bin, d);
-                  bin++;
-                }
-              }
-            }
-          }
-       }
-    }
-  }
-}
-
-/**
  * @brief  Write detector map to H1 histogram (linear data) for the selected adr.station
  * @param  h1 Histogram to write data to
  * @param  adr.station adr.station number (0-3) to write data for
  * @return 
  */
-void CSCSummary::Write(TH1*& h1, const unsigned int station) const {
-  CSCAddress adr;
-  const int station_len = N_RINGS * N_CHAMBERS * N_CFEBS * N_HVS;
-
-  adr.mask.side = adr.mask.station = adr.mask.ring = adr.mask.chamber = adr.mask.layer = adr.mask.cfeb = adr.mask.hv = true;
+void CSCSummary::Write(TH2*& h2, const unsigned int station) const {
+  const CSCAddressBox* box;
+  CSCAddress adr, adr1;
 
   if(station < 1 || station > N_STATIONS) return; 
 
+  adr.mask.side = adr.mask.ring = adr.mask.chamber = adr.mask.layer = adr.mask.cfeb = adr.mask.hv = false;
+  adr.mask.station = true;
   adr.station = station;
 
-  for (adr.side = 1; adr.side <= N_SIDES; adr.side++) { 
-    unsigned int bin = (adr.side - 1) * N_STATIONS * station_len + (adr.station - 1) * station_len + 1;
-    for (adr.ring = 1; adr.ring <= N_RINGS; adr.ring++) { 
-      for (adr.chamber = 1; adr.chamber <= N_CHAMBERS; adr.chamber++) {
-        for (adr.layer = 1; adr.layer <= N_LAYERS; adr.layer++ ) {
-          for (adr.cfeb = 1; adr.cfeb <= N_CFEBS; adr.cfeb++) {
-            for (adr.hv = 1; adr.hv <= N_HVS; adr.hv++) {
-              double d = static_cast<double>(GetValue(adr));
-              h1->SetBinContent(bin, d);
-              bin++;
-            }
-          }
-        }
-      }
+  unsigned int i = 0;
+
+  while (detector.NextAddressBox(i, box, adr)) { 
+
+    adr1 = box->adr;
+
+    unsigned int n_live_layers = 0;
+    adr1.mask.layer = true;
+    for (adr1.layer = 1; adr1.layer < N_LAYERS; adr1.layer++) {
+      if (GetValue(adr1) > 0) n_live_layers++;
+    }
+
+    unsigned int x = 1 + (adr1.side - 1) * 9 + (adr1.ring - 1) * 3 + (adr1.hv - 1);
+    unsigned int y = 1 + (adr1.chamber - 1) * 5 + (adr1.cfeb - 1);
+
+    if (n_live_layers >= 2) {
+      h2->SetBinContent(x, y, 1.0);
+    } else {
+      h2->SetBinContent(x, y, 0.0);
     }
   }
+
+  TString title = Form("ME%d Status: Physics Efficiency %.2f", station, GetEfficiencyArea(adr));
+  h2->SetTitle(title);
+
 }
 
 /**
@@ -207,37 +186,6 @@ const float CSCSummary::WriteMap(TH2*& h2) const {
 
   return (csc_el == 0 ? 0.0 : (1.0 * rep_el) / csc_el);
 
-}
-
-/**
- * @brief  Read detector map from H1 histogram (back)
- * @param  h1 Histogram to read detector data from 
- * @return 
- */
-void CSCSummary::Read(TH1*& h1) {
-  CSCAddress adr;
-  unsigned int bin = 1;
-
-  adr.mask.side = adr.mask.station = adr.mask.ring = adr.mask.chamber = adr.mask.layer = adr.mask.cfeb = adr.mask.hv = true;
-
-  for (adr.side = 1; adr.side <= N_SIDES; adr.side++) { 
-    for (adr.station = 1; adr.station <= N_STATIONS; adr.station++) {
-      for (adr.ring = 1; adr.ring <= N_RINGS; adr.ring++) { 
-        for (adr.chamber = 1; adr.chamber <= N_CHAMBERS; adr.chamber++) {
-          for (adr.layer = 1; adr.layer <= N_LAYERS; adr.layer++ ) {
-            for (adr.cfeb = 1; adr.cfeb <= N_CFEBS; adr.cfeb++) {
-              for (adr.hv = 1; adr.hv <= N_HVS; adr.hv++) {
-                double d = h1->GetBinContent(bin);
-                int i = static_cast<int>(d);
-                SetValue(adr, i);
-                bin++;
-              }
-            }
-          }
-        }
-      }
-    }
-  }
 }
 
 /**
