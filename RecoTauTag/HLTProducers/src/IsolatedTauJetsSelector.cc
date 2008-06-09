@@ -30,7 +30,7 @@ void IsolatedTauJetsSelector::produce(edm::Event& iEvent, const edm::EventSetup&
   
   CaloJetCollection * jetCollection =new CaloJetCollection;
   CaloJetCollection * jetCollectionTmp = new CaloJetCollection;
-    IsolatedTauTagInfoCollection * extendedCollection = new IsolatedTauTagInfoCollection;
+//    IsolatedTauTagInfoCollection * extendedCollection = new IsolatedTauTagInfoCollection;
 
   for( vtag::const_iterator s = jetSrc.begin(); s != jetSrc.end(); ++ s ) {
     edm::Handle<IsolatedTauTagInfoCollection> tauJets;
@@ -43,7 +43,7 @@ void IsolatedTauJetsSelector::produce(edm::Event& iEvent, const edm::EventSetup&
 	CaloJet* mioPippo = const_cast<CaloJet*>(pippo);
 	mioPippo->Particle::setPdgId(15);
 	jetCollectionTmp->push_back(*mioPippo);
-	extendedCollection->push_back(*(i)); //to  be used later
+	//	extendedCollection->push_back(*(i)); //to  be used later
 	//	delete pippo;
       }else{
 	const TrackRef leadTk = i->leadingSignalTrack();
@@ -56,11 +56,11 @@ void IsolatedTauJetsSelector::produce(edm::Event& iEvent, const edm::EventSetup&
 	  mioPippo->Particle::setPdgId(15);
 	  if(useIsolationDiscriminator && (discriminator > 0) ) {
 	    jetCollectionTmp->push_back(*mioPippo);
-	    extendedCollection->push_back(*(i)); //to  be used later
+	// extendedCollection->push_back(*(i)); //to  be used later
 	    // delete pippo;
 	  }else if(!useIsolationDiscriminator){
 	    jetCollectionTmp->push_back(*mioPippo);
-	    extendedCollection->push_back(*(i)); //to  be used later
+	 //   extendedCollection->push_back(*(i)); //to  be used later
 	    }
 	  }
 	}
@@ -74,9 +74,9 @@ void IsolatedTauJetsSelector::produce(edm::Event& iEvent, const edm::EventSetup&
 
   
   auto_ptr<reco::CaloJetCollection> selectedTaus(jetCollection);
-  auto_ptr<reco::IsolatedTauTagInfoCollection> extColl(extendedCollection);
+//  auto_ptr<reco::IsolatedTauTagInfoCollection> extColl(extendedCollection);
   
-  iEvent.put(extColl);
+  //iEvent.put(extColl);
   iEvent.put(selectedTaus);
 
 
