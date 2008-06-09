@@ -11,6 +11,7 @@ iterativeSecondTracksWithTriplets.Fitter = 'KFFittingSmoother'
 iterativeSecondTracksWithTriplets.Propagator = 'PropagatorWithMaterial'
 iterativeSecondTracksWithPlTriplets.src = 'iterativeSecondTrackCandidatesWithPlTriplets'
 iterativeSecondTracksWithPlTriplets.TTRHBuilder = 'WithoutRefit'
-iterativeSecondTracksWithPlTriplets.Fitter = 'KFFittingSmoother'
+iterativeSecondTracksWithPlTriplets.Fitter = 'KFFittingSmootherWithOutliersRejectionAndRK'
 iterativeSecondTracksWithPlTriplets.Propagator = 'PropagatorWithMaterial'
+
 

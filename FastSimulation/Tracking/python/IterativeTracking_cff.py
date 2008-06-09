@@ -6,6 +6,7 @@ from FastSimulation.Tracking.IterativeFirstTracking_cff import *
 from FastSimulation.Tracking.IterativeSecondTracking_cff import *
 from FastSimulation.Tracking.IterativeThirdTracking_cff import *
 from FastSimulation.Tracking.GeneralTracks_cfi import *
-#include "RecoTracker/FinalTrackSelectors/data/MergeTrackCollections.cff"
+from TrackingTools.TrackFitters.TrackFitters_cff import *
 iterativeTracking = cms.Sequence(pixelTracking+pixelVertexing+iterativeFirstTracking+iterativeSecondTracking+iterativeThirdTracking+generalTracks)
+
 

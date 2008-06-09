@@ -1,11 +1,11 @@
 import FWCore.ParameterSet.Config as cms
 
-import copy
-from RecoTracker.TrackProducer.CTFFinalFitWithMaterial_cfi import *
-iterativeThirdTracksWithPairs = copy.deepcopy(ctfWithMaterialTracks)
+import RecoTracker.TrackProducer.CTFFinalFitWithMaterial_cfi
+iterativeThirdTracksWithPairs = RecoTracker.TrackProducer.CTFFinalFitWithMaterial_cfi.ctfWithMaterialTracks.clone()
 iterativeThirdTracks = cms.Sequence(iterativeThirdTracksWithPairs)
 iterativeThirdTracksWithPairs.src = 'iterativeThirdTrackCandidatesWithPairs'
 iterativeThirdTracksWithPairs.TTRHBuilder = 'WithoutRefit'
-iterativeThirdTracksWithPairs.Fitter = 'KFFittingSmoother'
+iterativeThirdTracksWithPairs.Fitter = 'KFFittingSmootherWithOutliersRejectionAndRK'
 iterativeThirdTracksWithPairs.Propagator = 'PropagatorWithMaterial'
+
 
