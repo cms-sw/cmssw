@@ -1,4 +1,5 @@
 #include <string.h>
+#include <cstring>
 #include "TChain.h"
 #include "TFile.h"
 #include "TH1.h"
@@ -14,19 +15,26 @@
 #include "TObjArray.h"
 #include "TObjString.h"
 #include "TStyle.h"
+#include "TEnv.h"
+
 
 TList *FileList;
 TList *LabelList;
 TFile *Target;
 std::vector< std::string > lowestlevels;
+std::vector< int > theColors;
+std::vector< int > theStyles;
+
 void MergeRootfile( TDirectory *target, TList *sourcelist, TList *labellist );
 void nicePad(Int_t logx,Int_t logy);
 void SetMinMaxRange(TObjArray *hists);
 
 void ColourStatsBoxes(TObjArray *hists);
 
-void compareAlignments(TString namesandlabels) {
- 
+void compareAlignments(TString namesandlabels="readFromFile") 
+{
+  cout << "Comparing using: >"<<namesandlabels<<"<"<<endl;
+
   gStyle->SetOptStat(111110);
   gStyle->SetTitleFillColor(10);
   gStyle->SetTitleBorderSize(0);
@@ -35,18 +43,43 @@ void compareAlignments(TString namesandlabels) {
   FileList = new TList();
   LabelList = new TList();
   
+  int formatCounter = 1;
   //TObjArray* stringarray = namesandlabels.Tokenize(",");  
   TObjArray *nameandlabelpairs = namesandlabels.Tokenize(",");
   for (Int_t i = 0; i < nameandlabelpairs->GetEntries(); ++i) {
     TObjArray *aFileLegPair = TString(nameandlabelpairs->At(i)->GetName()).Tokenize("=");
     
     if(aFileLegPair->GetEntries() == 2) {
-      FileList->Add( TFile::Open(aFileLegPair->At(0)->GetName())  );  // 2
-      LabelList->Add( aFileLegPair->At(1) );
+      TFile* currentFile = TFile::Open(aFileLegPair->At(0)->GetName());
+      if( currentFile != NULL && !currentFile->IsZombie() ){
+	FileList->Add( currentFile  );  // 2
+	if(TString(aFileLegPair->At(1)->GetName()).Contains("|")){
+	  TObjArray* formatedLegendEntry = TString(aFileLegPair->At(1)->GetName()).Tokenize("|");
+	  LabelList->Add( formatedLegendEntry->At(0) );
+	  if(formatedLegendEntry->GetEntries() > 1){
+	    theColors.push_back(atoi(formatedLegendEntry->At(1)->GetName()));
+	    
+	    if(formatedLegendEntry->GetEntries() > 2)
+	      theStyles.push_back(atoi(formatedLegendEntry->At(2)->GetName()));
+	    else 
+	      theStyles.push_back( formatCounter );
+	  }else{
+	  std::cout <<"if you give a \"|\" in the legend name you will need to at least give a int for the color"<<std::endl;
+	  }
+	  formatCounter++;
+	}else{
+	  LabelList->Add( aFileLegPair->At(1) );
+	  theColors.push_back(formatCounter);
+	  theStyles.push_back(formatCounter);
+	  formatCounter++;
+	}
+      }else{
+	std::cout << "Could not open: "<<aFileLegPair->At(0)->GetName()<<std::endl;
+      }
     }
     else {
       std::cout << "Please give file name and legend entry in the following form:\n" 
-		<< " filename1=legendentry1,filename2=legendentry2\n";
+		<< " filename1=legendentry1,filename2=legendentry2[|color[|style]]"<<std::endl;
 
     }
     
@@ -67,13 +100,20 @@ void compareAlignments(TString namesandlabels) {
   lowestlevels.push_back("TIDRing");
   lowestlevels.push_back("TOBRod");
   lowestlevels.push_back("TECSide");
-  lowestlevels.push_back("Det");
-
-  MergeRootfile( Target, FileList, LabelList );
+//  lowestlevels.push_back("Det");
+  
+  
+  
+   MergeRootfile( Target, FileList, LabelList );
 
 }
 
 void MergeRootfile( TDirectory *target, TList *sourcelist, TList *labellist ) {
+
+  if( sourcelist->GetSize() == 0){
+    std::cout<< "Cowardly refuse to merge empty SourceList! " <<std::endl;
+    return;
+  }
 
   TString path( (char*)strstr( target->GetPath(), ":" ) );
   path.Remove( 0, 2 );
@@ -99,7 +139,7 @@ void MergeRootfile( TDirectory *target, TList *sourcelist, TList *labellist ) {
     // read object from first source file
     first_source->cd( path );
     TObject *obj = key->ReadObj();
-        
+
     if ( obj->IsA()->InheritsFrom( TH1::Class() ) ) {
       // descendant of TH1 -> merge it
       TCanvas c(obj->GetName(),obj->GetName(),500,500);
@@ -113,14 +153,15 @@ void MergeRootfile( TDirectory *target, TList *sourcelist, TList *labellist ) {
       int q = 1; 
       TObjArray *histarray = new TObjArray;
       
-      h1->SetLineStyle(q);
+      h1->SetLineStyle(theStyles.at(q-1));
+      h1->SetLineWidth(2);
    
-      h1->SetLineColor(q);
+      h1->SetLineColor(theColors.at(q-1));
       h1->GetYaxis()->SetTitleOffset(1.5);
       if(strstr(h1->GetName(),"summary") != NULL )
 	h1->Draw("x0e1*H");
       else if(is2d)
-	h1->Draw("box");
+	h1->Draw();
       else 
 	h1->Draw();
 
@@ -143,11 +184,13 @@ void MergeRootfile( TDirectory *target, TList *sourcelist, TList *labellist ) {
         if (key2) {
 	  ++q;
 	  TH1 *h2 = (TH1*)key2->ReadObj();	  
-	  
-	  if(!is2d)
-	    h2->SetLineStyle(q);
 
-	  h2->SetLineColor(2*q);
+	  if(!is2d){
+	    h2->SetLineStyle(theStyles.at(q-1));
+	    h2->SetLineWidth(2);
+	  }
+
+	  h2->SetLineColor(theColors.at(q-1));
 	  std::stringstream newname;
 	  newname << h2->GetName() << q;
 	  
@@ -155,7 +198,7 @@ void MergeRootfile( TDirectory *target, TList *sourcelist, TList *labellist ) {
 	  if(strstr(newname.str().c_str(),"summary") != NULL )	    
 	    h2->DrawClone("x0*He1sames");
 	  else if(is2d) 
-	    h2->DrawClone("samesbox");
+	    h2->DrawClone("sames");
 	  else
 	    h2->DrawClone("sames");
 	  leg.AddEntry(c.FindObject(h2->GetName()),nextlabel->String().Data(),"L");
@@ -164,7 +207,7 @@ void MergeRootfile( TDirectory *target, TList *sourcelist, TList *labellist ) {
         } else {
 	  std::cerr << "Histogram "<< key2->GetTitle() << " is not present in file " << nextsource->GetName() << std::endl;
 	}
-
+	
         nextsource = (TFile*)sourcelist->After( nextsource );
 	nextlabel = (TObjString*)labellist->After(nextlabel);
       }
@@ -177,6 +220,7 @@ void MergeRootfile( TDirectory *target, TList *sourcelist, TList *labellist ) {
       target->cd();
       c.Write();
       histarray->Delete();
+      
 
       
 
