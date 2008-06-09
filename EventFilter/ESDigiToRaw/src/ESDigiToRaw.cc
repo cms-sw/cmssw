@@ -45,12 +45,17 @@ ESDigiToRaw::ESDigiToRaw(const edm::ParameterSet& ps) : ESDataFormatter_(0)
   ifstream file;
   file.open(lookup_.fullPath().c_str());
   if( file.is_open() ) {
-    for (int i=0; i<4288; ++i) {
-      file>> iz >> ip >> ix >> iy >> fed >> kchip >> pace >> bundle >> fiber >> optorx ;
-      fedId_[(3-iz)/2-1][ip-1][ix-1][iy-1] = fed;
+    try { 
+      int lines = 0 ; file >> lines;  
+      for (int i=0; i<lines; ++i) {
+	file>> iz >> ip >> ix >> iy >> fed >> kchip >> pace >> bundle >> fiber >> optorx ;
+	fedId_[(3-iz)/2-1][ip-1][ix-1][iy-1] = fed;
+      } 
+    }catch (std::exception& e) { 
+      cout << "[ESDigiToRaw] Errors while reading in lookup table: " << e.what() << endl; 
     }
   } else {
-    cout<<"Look up table file can not be found in "<<lookup_.fullPath().c_str()<<endl;
+    cout<<"[ESDigiToRaw] Look up table file can not be found in "<<lookup_.fullPath().c_str() <<endl;
   }
 
 }

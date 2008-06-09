@@ -200,7 +200,9 @@ ESDataFormatterV4::ESDataFormatterV4(const ParameterSet& ps)
   ESFEDIds_ = FEDNumbering::getPreShowerFEDIds();
   file.open(lookup_.fullPath().c_str());
   if( file.is_open() ) {
-    for (int i=0; i<4288; ++i) {
+    try { 
+    int lines = 0 ; file >> lines;
+    for (int i=0; i<lines; ++i) {
       int fedId = -1; 
       file>> iz >> ip >> ix >> iy >> fed >> kchip >> pace >> bundle >> fiber >> optorx;
       fedId = fedId_[(3-iz)/2-1][ip-1][ix-1][iy-1] = fed - 1 + ESFEDIds_.first;
@@ -211,25 +213,28 @@ ESDataFormatterV4::ESDataFormatterV4(const ParameterSet& ps)
       optoId_[(3-iz)/2-1][ip-1][ix-1][iy-1] = optorx; 
 
       if (fedId<ESFEDIds_.first || fedId>ESFEDIds_.second) { 
-	cout << "ESDataFormatterV4::ESDataFormatterV4 : fedId value : " << fedId 
+	cout << "[ESDataFormatterV4::ESDataFormatterV4] : fedId value : " << fedId 
 	     << " out of ES range, at lookup table line : " << i << endl ; 
       } else if (optorx < 1 || optorx > 3) { 
-	cout << "ESDataFormatterV4::ESDataFormatterV4 : optorx value : " << fedId 
+	cout << "[ESDataFormatterV4::ESDataFormatterV4] : optorx value : " << fedId 
 	     << " out of ES range, at lookup table line : " << i << endl ;	
       } else { // all good .. 
 	fedIdOptoRx_[fed-1][optorx-1] = true  ;
 	if (fiber>0 && fiber<13) { 
 	  fedIdOptoRxFiber_[fed-1][optorx-1][fiber-1] = true  ;
 	} else { 
-	cout << "ESDataFormatterV4::ESDataFormatterV4 : fiber value : " << fiber
+	cout << "[ESDataFormatterV4::ESDataFormatterV4] : fiber value : " << fiber
 	     << " out of ES range, at lookup table line : " << i << endl ;	  
 	} 
       } 
     }
+    } catch (std::exception& e) {
+      cout << "[ESDataFormatterV4::ESDataFormatterV4] Errors while reading in lookup table: " << e.what() << endl;
+    } 
 
 
   } else {
-    cout<<"ESDataFormatterV4::ESDataFormatterV4 : Look up table file can not be found in "<<lookup_.fullPath().c_str()<<endl;
+    cout<<"[ESDataFormatterV4::ESDataFormatterV4] : Look up table file can not be found in "<<lookup_.fullPath().c_str()<<endl;
   }
 
 }
