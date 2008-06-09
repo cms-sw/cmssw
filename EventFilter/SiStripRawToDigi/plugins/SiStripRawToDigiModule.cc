@@ -1,4 +1,4 @@
-// Last commit: $Id: SiStripRawToDigiModule.cc,v 1.6 2008/06/09 11:30:18 bainbrid Exp $
+// Last commit: $Id: SiStripRawToDigiModule.cc,v 1.7 2008/06/09 16:37:14 bainbrid Exp $
 
 #include "EventFilter/SiStripRawToDigi/plugins/SiStripRawToDigiModule.h"
 #include "CondFormats/SiStripObjects/interface/SiStripFedCabling.h"
@@ -13,7 +13,6 @@
 #include "EventFilter/SiStripRawToDigi/interface/SiStripRawToDigiUnpacker.h"
 #include "FWCore/Framework/interface/ESHandle.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
-#include "boost/cstdint.hpp"
 #include <cstdlib>
 
 using namespace sistrip;

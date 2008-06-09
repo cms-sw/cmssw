@@ -1,4 +1,4 @@
-// Last commit: $Id: SiStripRawToDigiModule.h,v 1.2 2007/12/19 17:59:32 bainbrid Exp $
+// Last commit: $Id: SiStripRawToDigiModule.h,v 1.3 2008/06/09 11:30:18 bainbrid Exp $
 
 #ifndef EventFilter_SiStripRawToDigi_SiStripRawToDigiModule_H
 #define EventFilter_SiStripRawToDigi_SiStripRawToDigiModule_H
@@ -7,6 +7,7 @@
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/EventSetup.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
+#include "boost/cstdint.hpp"
 #include <string>
 
 class SiStripRawToDigiUnpacker;
