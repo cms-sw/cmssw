@@ -10,7 +10,7 @@
 #include "DataFormats/Common/interface/Handle.h"
 #include "DataFormats/EgammaReco/interface/ClusterShape.h"
 //LP includes to read/write the original coeff
-#include "Geometry/Records/interface/IdealGeometryRecord.h"
+#include "Geometry/Records/interface/CaloGeometryRecord.h"
 #include "Geometry/CaloGeometry/interface/CaloCellGeometry.h"
 #include "Geometry/CaloGeometry/interface/CaloGeometry.h"
 #include "Geometry/CaloGeometry/interface/CaloSubdetectorGeometry.h"
@@ -192,7 +192,7 @@ EcalEleCalibLooper::beginOfJob (const edm::EventSetup & iSetup)
 {
   edm::LogInfo ("IML") << "[EcalEleCalibLooper][beginOfJob]" ;
   edm::ESHandle<CaloGeometry> geoHandle;
-  iSetup.get<IdealGeometryRecord> ().get (geoHandle);
+  iSetup.get<CaloGeometryRecord> ().get (geoHandle);
   const CaloGeometry& geometry = *geoHandle;
   m_barrelCells = geometry.getValidDetIds (DetId::Ecal, EcalBarrel);
   m_endcapCells = geometry.getValidDetIds (DetId::Ecal, EcalEndcap);

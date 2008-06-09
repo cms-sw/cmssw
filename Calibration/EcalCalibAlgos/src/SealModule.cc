@@ -1,4 +1,5 @@
 // #include "PluginManager/ModuleDef.h"
+
 #include "FWCore/Framework/interface/MakerMacros.h"
 #include "Calibration/EcalCalibAlgos/interface/EcalEleCalibLooper.h"
 #include "Calibration/EcalCalibAlgos/interface/InvRingCalib.h"
@@ -18,4 +19,3 @@ DEFINE_ANOTHER_FWK_LOOPER(Pi0FixedMassWindowCalibration);
 DEFINE_ANOTHER_FWK_LOOPER(ZeeCalibration);
 DEFINE_ANOTHER_FWK_LOOPER(EcalEleCalibLooper);	
 DEFINE_ANOTHER_FWK_LOOPER(InvRingCalib);
-

@@ -7,7 +7,7 @@
 #include "DataFormats/Common/interface/Handle.h"
 #include "DataFormats/EgammaReco/interface/ClusterShape.h"
 #include "DataFormats/DetId/interface/DetId.h"
-#include "Geometry/Records/interface/IdealGeometryRecord.h"
+#include "Geometry/Records/interface/CaloGeometryRecord.h"
 #include "Geometry/CaloGeometry/interface/CaloCellGeometry.h"
 #include "Geometry/CaloGeometry/interface/CaloGeometry.h"
 #include "Geometry/CaloGeometry/interface/CaloSubdetectorGeometry.h"
@@ -94,7 +94,7 @@ InvRingCalib::beginOfJob (const edm::EventSetup& iSetup)
   edm::LogInfo ("IML") << "[InvRingCalib][beginOfJob]" ;
   //gets the geometry from the event setup
   edm::ESHandle<CaloGeometry> geoHandle;
-  iSetup.get<IdealGeometryRecord>().get(geoHandle);
+  iSetup.get<CaloGeometryRecord>().get(geoHandle);
   const CaloGeometry& geometry = *geoHandle;
   edm::LogInfo ("IML") <<"[InvRingCalib] Event Setup read";
   //fills a vector with all the cells
@@ -477,7 +477,7 @@ void InvRingCalib::EERingDef(const edm::EventSetup& iSetup)
 {
  //Gets the Handle for the geometry from the eventSetup
  edm::ESHandle<CaloGeometry> geoHandle;
- iSetup.get<IdealGeometryRecord>().get(geoHandle);
+ iSetup.get<CaloGeometryRecord>().get(geoHandle);
  //Gets the geometry of the endcap
  const CaloGeometry& geometry = *geoHandle;
  const CaloSubdetectorGeometry *endcapGeometry = geometry.getSubdetectorGeometry(DetId::Ecal, EcalEndcap);

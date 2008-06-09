@@ -10,15 +10,15 @@
 #include "CondFormats/DataRecord/interface/EcalIntercalibConstantsRcd.h"
 #include "Calibration/Tools/interface/Pi0CalibXMLwriter.h"
 
-// Geometry
-#include "Geometry/Records/interface/IdealGeometryRecord.h"
-#include "Geometry/CaloGeometry/interface/CaloGeometry.h"
-
-
 // Reconstruction Classes
 #include "DataFormats/EgammaReco/interface/BasicCluster.h"
 #include "DataFormats/EgammaReco/interface/BasicClusterFwd.h"
 // Geometry
+#include "Geometry/Records/interface/CaloGeometryRecord.h"
+#include "Geometry/CaloGeometry/interface/CaloSubdetectorGeometry.h"
+#include "Geometry/CaloGeometry/interface/CaloCellGeometry.h"
+#include "Geometry/CaloGeometry/interface/CaloGeometry.h"
+#include "Geometry/CaloTopology/interface/EcalEndcapTopology.h"
 #include "Geometry/CaloTopology/interface/EcalBarrelTopology.h"
 
 // EgammaCoreTools
@@ -143,7 +143,7 @@ void Pi0FixedMassWindowCalibration::beginOfJob( const edm::EventSetup& iSetup )
 
   // get the ecal geometry:
   edm::ESHandle<CaloGeometry> geoHandle;
-  iSetup.get<IdealGeometryRecord>().get(geoHandle);
+  iSetup.get<CaloGeometryRecord>().get(geoHandle);
   const CaloGeometry& geometry = *geoHandle;
   //const CaloSubdetectorGeometry *barrelGeometry = geometry.getSubdetectorGeometry(DetId::Ecal, EcalBarrel);
 
@@ -333,7 +333,7 @@ Pi0FixedMassWindowCalibration::duringLoop(const edm::Event& event,
   
   // get the geometry and topology from the event setup:
   edm::ESHandle<CaloGeometry> geoHandle;
-  setup.get<IdealGeometryRecord>().get(geoHandle);
+  setup.get<CaloGeometryRecord>().get(geoHandle);
 
   const CaloSubdetectorGeometry *geometry_p;
   CaloSubdetectorTopology *topology_p;

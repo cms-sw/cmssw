@@ -21,7 +21,7 @@
 #include "FWCore/Framework/interface/ESHandle.h"
 #include "Geometry/CaloGeometry/interface/CaloSubdetectorGeometry.h"
 #include "Geometry/CaloGeometry/interface/CaloGeometry.h"
-#include "Geometry/Records/interface/IdealGeometryRecord.h"
+#include "Geometry/Records/interface/CaloGeometryRecord.h"
 
 #include "SimDataFormats/HepMCProduct/interface/HepMCProduct.h"
 
@@ -205,7 +205,7 @@ void ZeeCalibration::beginOfJob( const edm::EventSetup& iSetup )
 
 //inizializzare la geometria di ecal
   edm::ESHandle<CaloGeometry> pG;
-  iSetup.get<IdealGeometryRecord>().get(pG);     
+  iSetup.get<CaloGeometryRecord>().get(pG);     
   EcalRingCalibrationTools::setCaloGeometry(&(*pG));  
      
   myZeePlots_ = new ZeePlots( "zeePlots.root" );
