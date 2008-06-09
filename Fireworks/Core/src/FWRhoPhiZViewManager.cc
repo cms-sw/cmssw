@@ -8,7 +8,7 @@
 //
 // Original Author:  
 //         Created:  Sat Jan  5 14:08:51 EST 2008
-// $Id: FWRhoPhiZViewManager.cc,v 1.25 2008/05/12 15:39:45 dmytro Exp $
+// $Id: FWRhoPhiZViewManager.cc,v 1.26 2008/06/08 16:59:01 dmytro Exp $
 //
 
 // system include files
@@ -32,6 +32,8 @@
 #include "TEveSelection.h"
 #include "TGeoManager.h"
 
+#include "TGeoManager.h"
+
 #include <iostream>
 #include <exception>
 #include <boost/bind.hpp>
@@ -49,6 +51,7 @@
 #include "Fireworks/Core/interface/TEveElementIter.h"
 #include "Fireworks/Core/interface/FWRhoPhiZView.h"
 #include "Fireworks/Core/interface/FWSelectionManager.h"
+#include "Fireworks/Core/interface/FWRPZDataProxyBuilderFactory.h"
 
 #include <sstream>
 
@@ -56,12 +59,6 @@
 //
 // constants, enums and typedefs
 //
-static
-const char* const kBuilderPrefixes[] = {
-   "Proxy3DBuilder",
-   "ProxyRhoPhiZ2DBuilder"
-};
-static
 const char* const kRhoPhiViewTypeName = "Rho Phi";
 const char* const kRhoZViewTypeName = "Rho Z";
 //
@@ -72,8 +69,7 @@ const char* const kRhoZViewTypeName = "Rho Z";
 // constructors and destructor
 //
 FWRhoPhiZViewManager::FWRhoPhiZViewManager(FWGUIManager* iGUIMgr):
-  FWViewManagerBase(kBuilderPrefixes,
-                    kBuilderPrefixes+sizeof(kBuilderPrefixes)/sizeof(const char*)),
+  FWViewManagerBase(),
   m_rhoPhiGeomProjMgr(0),
   m_rhoZGeomProjMgr(0),
   //m_pad(new TEvePad() ),
@@ -104,6 +100,58 @@ FWRhoPhiZViewManager::FWRhoPhiZViewManager(FWGUIManager* iGUIMgr):
    m_eveSelection->Connect("SelectionAdded(TEveElement*)","FWRhoPhiZViewManager",this,"selectionAdded(TEveElement*)");
    m_eveSelection->Connect("SelectionRemoved(TEveElement*)","FWRhoPhiZViewManager",this,"selectionRemoved(TEveElement*)");
    m_eveSelection->Connect("SelectionCleared()","FWRhoPhiZViewManager",this,"selectionCleared()");
+
+   //create a list of the available ViewManager's
+   std::set<std::string> rpzBuilders;
+   
+   std::vector<edmplugin::PluginInfo> available = FWRPZDataProxyBuilderFactory::get()->available();
+   std::transform(available.begin(),
+                  available.end(),
+                  std::inserter(rpzBuilders,rpzBuilders.begin()),
+                  boost::bind(&edmplugin::PluginInfo::name_,_1));
+   
+   if(edmplugin::PluginManager::get()->categoryToInfos().end()!=edmplugin::PluginManager::get()->categoryToInfos().find(FWRPZDataProxyBuilderFactory::get()->category())) {
+      available = edmplugin::PluginManager::get()->categoryToInfos().find(FWRPZDataProxyBuilderFactory::get()->category())->second;
+      std::transform(available.begin(),
+                     available.end(),
+                     std::inserter(rpzBuilders,rpzBuilders.begin()),
+                     boost::bind(&edmplugin::PluginInfo::name_,_1));
+   }
+   
+   for(std::set<std::string>::iterator it = rpzBuilders.begin(), itEnd=rpzBuilders.end();
+       it!=itEnd;
+       ++it) {
+      std::string::size_type first = it->find_first_of('@')+1;
+      std::string  purpose = it->substr(first,it->find_last_of('@')-first);
+      std::cout <<"purpose "<<purpose<<std::endl;
+      m_typeToBuilder[purpose]=std::make_pair(*it,true);
+   }
+
+
+   rpzBuilders.clear();
+   available = FWRPZ2DDataProxyBuilderFactory::get()->available();
+   std::transform(available.begin(),
+                  available.end(),
+                  std::inserter(rpzBuilders,rpzBuilders.begin()),
+                  boost::bind(&edmplugin::PluginInfo::name_,_1));
+   
+   if(edmplugin::PluginManager::get()->categoryToInfos().end()!=edmplugin::PluginManager::get()->categoryToInfos().find(FWRPZ2DDataProxyBuilderFactory::get()->category())) {
+      available = edmplugin::PluginManager::get()->categoryToInfos().find(FWRPZDataProxyBuilderFactory::get()->category())->second;
+      std::transform(available.begin(),
+                     available.end(),
+                     std::inserter(rpzBuilders,rpzBuilders.begin()),
+                     boost::bind(&edmplugin::PluginInfo::name_,_1));
+   }
+   
+   for(std::set<std::string>::iterator it = rpzBuilders.begin(), itEnd=rpzBuilders.end();
+       it!=itEnd;
+       ++it) {
+      std::string::size_type first = it->find_first_of('@')+1;
+      std::string  purpose = it->substr(first,it->find_last_of('@')-first);
+      std::cout <<"purpose "<<purpose<<std::endl;
+      m_typeToBuilder[purpose]=std::make_pair(*it,false);
+   }
+   
 }
 
 // FWRhoPhiZViewManager::FWRhoPhiZViewManager(const FWRhoPhiZViewManager& rhs)
@@ -236,11 +284,8 @@ FWRhoPhiZViewManager::makeProxyBuilderFor(const FWEventItem* iItem)
    if(itFind != m_typeToBuilder.end()) {
       if(itFind->second.second) {
          std::cout << "\tinterpreting as FWRPZDataProxyBuilder " << std::endl;
-         FWRPZDataProxyBuilder* builder = reinterpret_cast<
-         FWRPZDataProxyBuilder*>( 
-                                 createInstanceOf(TClass::GetClass(typeid(FWRPZDataProxyBuilder)),
-                                                  itFind->second.first.c_str())
-                                 );
+         FWRPZDataProxyBuilder* builder = FWRPZDataProxyBuilderFactory::get()->create(itFind->second.first);
+         
          if(0!=builder) {
             boost::shared_ptr<FWRPZDataProxyBuilder> pB( builder );
             builder->setItem(iItem);
@@ -249,11 +294,7 @@ FWRhoPhiZViewManager::makeProxyBuilderFor(const FWEventItem* iItem)
          }
       } else {
          std::cout << "\tinterpreting as FWRPZ2DDataProxyBuilder " << std::endl;
-         FWRPZ2DDataProxyBuilder* builder = reinterpret_cast<
-         FWRPZ2DDataProxyBuilder*>( 
-                                   createInstanceOf(TClass::GetClass(typeid(FWRPZ2DDataProxyBuilder)),
-                                                    itFind->second.first.c_str())
-                                   );
+         FWRPZ2DDataProxyBuilder* builder = FWRPZ2DDataProxyBuilderFactory::get()->create(itFind->second.first);
          if(0!=builder) {
             boost::shared_ptr<FWRPZ2DDataProxyBuilder> pB( builder );
             builder->setItem(iItem);
@@ -275,23 +316,6 @@ FWRhoPhiZViewManager::newItem(const FWEventItem* iItem)
    iItem->itemChanged_.connect(boost::bind(&FWRhoPhiZViewManager::itemChanged,this,_1));
 }
 
-void 
-FWRhoPhiZViewManager::registerProxyBuilder(const std::string& iType,
-					   const std::string& iBuilder,
-                                           const FWEventItem* iItem)
-{
-   bool is3dType = true;
-   if(iBuilder.find(kBuilderPrefixes[1]) != std::string::npos) {
-      is3dType = false;
-   }
-   m_typeToBuilder[iType]=make_pair(iBuilder,is3dType);
-   
-   //has the item already been registered? If so then we need to make the proxy builder
-   if(iItem!=0) {
-      std::cout <<"item "<<iType<<" registered before proxy builder"<<std::endl;
-       makeProxyBuilderFor(iItem);
-   }
-}
 
 void 
 FWRhoPhiZViewManager::modelChangesComing()
@@ -560,7 +584,7 @@ void FWRhoPhiZViewManager::makeMuonGeometryRhoZAdvance()
 		  CSCDetId id(iEndcap, iStation, iRing, iChamber, iLayer);
 		  TEveGeoShapeExtract* extract = detIdToGeo()->getExtract( id.rawId() );
 		  if ( !extract ) continue;
-		  const TGeoHMatrix* matrix = detIdToGeo()->getMatrix(id.rawId());
+                  const TGeoHMatrix* matrix= detIdToGeo()->getMatrix(id.rawId());
 		  estimateProjectionSizeCSC( matrix, extract->GetShape(), min_rho, max_rho, min_z, max_z );
 	       }
 	       catch ( ... ) {} 

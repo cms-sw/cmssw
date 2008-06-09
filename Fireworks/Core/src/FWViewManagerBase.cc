@@ -8,7 +8,7 @@
 //
 // Original Author:  
 //         Created:  Sat Jan  5 10:56:17 EST 2008
-// $Id: FWViewManagerBase.cc,v 1.7 2008/03/09 19:29:31 dmytro Exp $
+// $Id: FWViewManagerBase.cc,v 1.8 2008/05/18 09:42:48 jmuelmen Exp $
 //
 
 // system include files
@@ -35,9 +35,8 @@
 //
 // constructors and destructor
 //
-FWViewManagerBase::FWViewManagerBase(const char* iPostfix):
+FWViewManagerBase::FWViewManagerBase():
   m_detIdToGeo(0),
-  m_builderNamePostfixes(&iPostfix, &iPostfix+1),
   m_changeManager(0)
 {
 }
@@ -123,18 +122,6 @@ FWViewManagerBase::setChangeManager(FWModelChangeManager* iCM)
 //
 // const member functions
 //
-bool
-FWViewManagerBase::useableBuilder(const std::string& iName) const
-{
-  for( std::vector<std::string>::const_iterator itPostfix = m_builderNamePostfixes.begin();
-      itPostfix != m_builderNamePostfixes.end();
-      ++itPostfix) {
-    if(std::string::npos != iName.find( *itPostfix) ) {
-      return true;
-    }
-  }
-  return false;
-}
 
 FWModelChangeManager& 
 FWViewManagerBase::changeManager() const

@@ -16,7 +16,7 @@
 //
 // Original Author:  
 //         Created:  Sun Jan  6 22:01:21 EST 2008
-// $Id$
+// $Id: FW3DLegoViewManager.h,v 1.11 2008/03/20 09:39:26 dmytro Exp $
 //
 
 // system include files
@@ -69,10 +69,6 @@ class FW3DLegoViewManager : public FWViewManagerBase
 
       virtual void newItem(const FWEventItem*);
 
-      void registerProxyBuilder(const std::string&, 
-				const std::string&,
-                                const FWEventItem*);
-   
       FWViewBase* buildView(TGFrame* iParent);
 
       void exec3event(int event, int x, int y, TObject *selected);
@@ -102,7 +98,6 @@ class FW3DLegoViewManager : public FWViewManagerBase
       TH2F* m_highlight;
       TH2C* m_highlight_map;
       int  m_legoRebinFactor;
-      static const char* const m_builderPrefixes[];
 };
 
 

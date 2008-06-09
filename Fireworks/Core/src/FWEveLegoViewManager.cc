@@ -8,7 +8,7 @@
 //
 // Original Author:  
 //         Created:  Sun Jan  6 22:01:27 EST 2008
-// $Id: FWEveLegoViewManager.cc,v 1.1.2.4 2008/03/18 01:40:04 dmytro Exp $
+// $Id: FWEveLegoViewManager.cc,v 1.2 2008/03/20 09:39:26 dmytro Exp $
 //
 
 // system include files
@@ -39,13 +39,11 @@
 #include "TEveSelection.h"
 #include "Fireworks/Core/interface/FWSelectionManager.h"
 
+#include "Fireworks/Core/interface/FW3DLegoDataProxyBuilderFactory.h"
+
 //
 // constants, enums and typedefs
 //
-const char* const FWEveLegoViewManager::m_builderPrefixes[] = {
-   "Proxy3DLegoBuilder",
-   "ProxyEveLegoBuilder",
-};
 
 //
 // static data member definitions
@@ -55,8 +53,7 @@ const char* const FWEveLegoViewManager::m_builderPrefixes[] = {
 // constructors and destructor
 //
 FWEveLegoViewManager::FWEveLegoViewManager(FWGUIManager* iGUIMgr):
-FWViewManagerBase(m_builderPrefixes,
-		  m_builderPrefixes+sizeof(m_builderPrefixes)/sizeof(const char*)),
+FWViewManagerBase(),
   m_elements(0),
   m_data(0),
   m_legoRebinFactor(1),
@@ -74,6 +71,33 @@ FWViewManagerBase(m_builderPrefixes,
    m_eveSelection->Connect("SelectionAdded(TEveElement*)","FWEveLegoViewManager",this,"selectionAdded(TEveElement*)");
    m_eveSelection->Connect("SelectionRemoved(TEveElement*)","FWEveLegoViewManager",this,"selectionRemoved(TEveElement*)");
    m_eveSelection->Connect("SelectionCleared()","FWEveLegoViewManager",this,"selectionCleared()");
+
+   //create a list of the available ViewManager's
+   std::set<std::string> builders;
+   
+   std::vector<edmplugin::PluginInfo> available = FW3DLegoDataProxyBuilderFactory::get()->available();
+   std::transform(available.begin(),
+                  available.end(),
+                  std::inserter(builders,builders.begin()),
+                  boost::bind(&edmplugin::PluginInfo::name_,_1));
+   
+   if(edmplugin::PluginManager::get()->categoryToInfos().end()!=edmplugin::PluginManager::get()->categoryToInfos().find(FW3DLegoDataProxyBuilderFactory::get()->category())) {
+      available = edmplugin::PluginManager::get()->categoryToInfos().find(FW3DLegoDataProxyBuilderFactory::get()->category())->second;
+      std::transform(available.begin(),
+                     available.end(),
+                     std::inserter(builders,builders.begin()),
+                     boost::bind(&edmplugin::PluginInfo::name_,_1));
+   }
+   
+   for(std::set<std::string>::iterator it = builders.begin(), itEnd=builders.end();
+       it!=itEnd;
+       ++it) {
+      std::string::size_type first = it->find_first_of('@')+1;
+      std::string  purpose = it->substr(first,it->find_last_of('@')-first);
+      std::cout <<"purpose "<<purpose<<std::endl;
+      m_typeToBuilders[purpose].push_back(*it);
+   }
+   
 }
 
 FWEveLegoViewManager::~FWEveLegoViewManager()
@@ -163,11 +187,7 @@ FWEveLegoViewManager::makeProxyBuilderFor(const FWEventItem* iItem)
      for ( std::vector<std::string>::const_iterator builderName = itFind->second.begin();
 	   builderName != itFind->second.end(); ++builderName )
        {
-	  FW3DLegoDataProxyBuilder* builder = 
-	    reinterpret_cast<FW3DLegoDataProxyBuilder*>(
-							createInstanceOf(TClass::GetClass(typeid(FW3DLegoDataProxyBuilder)),
-									 builderName->c_str())
-							);
+          FW3DLegoDataProxyBuilder* builder = FW3DLegoDataProxyBuilderFactory::get()->create(*builderName);
 	  if(0!=builder) {
 	     boost::shared_ptr<FW3DLegoDataProxyBuilder> pB( builder );
 	     builder->setItem(iItem);
@@ -182,17 +202,6 @@ void
 FWEveLegoViewManager::newItem(const FWEventItem* iItem)
 {
    makeProxyBuilderFor(iItem);
-}
-
-void 
-FWEveLegoViewManager::registerProxyBuilder(const std::string& iType,
-					   const std::string& iBuilder,
-					   const FWEventItem* iItem)
-{
-   m_typeToBuilders[iType].push_back(iBuilder);
-   if(0!=iItem) {
-      makeProxyBuilderFor(iItem);
-   }
 }
 
 void 

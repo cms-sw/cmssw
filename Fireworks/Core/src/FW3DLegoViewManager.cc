@@ -8,7 +8,7 @@
 //
 // Original Author:  
 //         Created:  Sun Jan  6 22:01:27 EST 2008
-// $Id$
+// $Id: FW3DLegoViewManager.cc,v 1.19 2008/03/20 09:39:26 dmytro Exp $
 //
 
 // system include files
@@ -37,10 +37,6 @@
 //
 // constants, enums and typedefs
 //
-const char* const FW3DLegoViewManager::m_builderPrefixes[] = {
-   "Proxy3DLegoBuilder",
-   "ProxyTH2LegoBuilder",
-};
 
 //
 // static data member definitions
@@ -50,8 +46,7 @@ const char* const FW3DLegoViewManager::m_builderPrefixes[] = {
 // constructors and destructor
 //
 FW3DLegoViewManager::FW3DLegoViewManager(FWGUIManager* iGUIMgr):
-  FWViewManagerBase(m_builderPrefixes,
-		    m_builderPrefixes+sizeof(m_builderPrefixes)/sizeof(const char*)),
+  FWViewManagerBase(),
   m_stack(0),
   m_legoRebinFactor(1)
 {
@@ -219,17 +214,7 @@ FW3DLegoViewManager::newItem(const FWEventItem* iItem)
    makeProxyBuilderFor(iItem);
 }
 
-void 
-FW3DLegoViewManager::registerProxyBuilder(const std::string& iType,
-					  const std::string& iBuilder,
-                                          const FWEventItem* iItem)
-{
-   m_typeToBuilders[iType].push_back(iBuilder);
-   if(0!=iItem) {
-      makeProxyBuilderFor(iItem);
-   }
-}
-
+ 
 void 
 FW3DLegoViewManager::modelChangesComing()
 {

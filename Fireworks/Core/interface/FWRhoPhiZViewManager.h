@@ -16,7 +16,7 @@
 //
 // Original Author:  
 //         Created:  Sat Jan  5 11:27:34 EST 2008
-// $Id: FWRhoPhiZViewManager.h,v 1.14 2008/03/14 21:11:01 chrjones Exp $
+// $Id: FWRhoPhiZViewManager.h,v 1.15 2008/03/19 15:19:11 chrjones Exp $
 //
 
 // system include files
@@ -127,10 +127,6 @@ class FWRhoPhiZViewManager : public FWViewManagerBase
 
       virtual void newItem(const FWEventItem*);
 
-      void registerProxyBuilder(const std::string&, 
-				const std::string&,
-                                const FWEventItem*);
- 
       FWViewBase* createRhoPhiView(TGFrame* iParent);
       FWViewBase* createRhoZView(TGFrame* iParent);
    

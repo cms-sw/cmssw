@@ -16,7 +16,7 @@
 //
 // Original Author:  
 //         Created:  Sun Jan  6 22:01:21 EST 2008
-// $Id: FWEveLegoViewManager.h,v 1.1.2.3 2008/03/18 01:40:04 dmytro Exp $
+// $Id: FWEveLegoViewManager.h,v 1.2 2008/03/20 09:39:26 dmytro Exp $
 //
 
 // system include files
@@ -72,10 +72,6 @@ class FWEveLegoViewManager : public FWViewManagerBase
 
       virtual void newItem(const FWEventItem*);
 
-      void registerProxyBuilder(const std::string&, 
-				const std::string&,
-                                const FWEventItem*);
-   
       FWViewBase* buildView(TGFrame* iParent);
       
       //connect to ROOT signals
@@ -108,7 +104,6 @@ class FWEveLegoViewManager : public FWViewManagerBase
       bool m_itemChanged;
       TEveSelection* m_eveSelection;
       FWSelectionManager* m_selectionManager;
-      static const char* const m_builderPrefixes[];
 };
 
 #endif

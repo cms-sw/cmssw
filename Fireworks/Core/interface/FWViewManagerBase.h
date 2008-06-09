@@ -16,13 +16,14 @@
 //
 // Original Author:  
 //         Created:  Sat Jan  5 10:29:00 EST 2008
-// $Id: FWViewManagerBase.h,v 1.7 2008/01/28 14:02:15 chrjones Exp $
+// $Id: FWViewManagerBase.h,v 1.8 2008/03/14 21:07:24 chrjones Exp $
 //
 
 // system include files
 #include <string>
 #include <vector>
 #include <set>
+#include <map>
 
 // user include files
 
@@ -40,20 +41,12 @@ class FWViewManagerBase
       virtual ~FWViewManagerBase();
 
       // ---------- const member functions ---------------------
-      /** returns 'true' if the name of the builder matches the naming
-       conventions for builders used by this View
-       */
-      bool useableBuilder(const std::string& iBuilderName) const;
    
       // ---------- static member functions --------------------
 
       // ---------- member functions ---------------------------
       virtual void newItem(const FWEventItem*) = 0;
 
-      //iRegisteredItem will be 0 if no item of this type has been registered
-      virtual void registerProxyBuilder(const std::string& iType, 
-					const std::string& iProxyName,
-                                        const FWEventItem* iRegisteredItem) = 0;
       void setGeom(const DetIdToMatrix* geom){ m_detIdToGeo = geom; }
       const DetIdToMatrix* getGeom(const DetIdToMatrix* geom){ return m_detIdToGeo; }
       
@@ -64,10 +57,7 @@ class FWViewManagerBase
       void modelChangesDoneSlot();
    
    protected:
-      FWViewManagerBase(const char* iBuilderNamePostfix);
-      template<typename TIter>
-        FWViewManagerBase(TIter iBegin,TIter iEnd):
-         m_builderNamePostfixes(iBegin,iEnd) {}
+      FWViewManagerBase();
       
       /**handles dynamic loading of a library or macro containing the class
        named iNameOfClass which inherits from iBaseClass.  The returned
@@ -90,7 +80,6 @@ class FWViewManagerBase
       // ---------- member data --------------------------------
       const DetIdToMatrix* m_detIdToGeo;
    
-      std::vector<std::string> m_builderNamePostfixes;
       FWModelChangeManager* m_changeManager;
 
 };
