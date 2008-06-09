@@ -364,7 +364,7 @@ if options.writeraw:
 
 # File where to dump the python cfg file
 python_config_filename=''
-if options.dump_python:
+if options.dump_python or options.pure_python:
     python_config_filename=trimmedEvtType+"_"+\
                               options.energy+\
                               "_"+trimmedStep
@@ -427,13 +427,20 @@ if options.pure_python:
   configBuilder.prepare()
 
   # fetch it and write it to file
-  python_config_filename = "test.py"
   config = file(python_config_filename,"w")
   config.write(configBuilder.pythonCfgCode)
   config.close()
-  
-  sys.exit(0)
+
+  if options.no_exec_flag:
+    print "Config  file "+python_config_filename+ "created"
+    sys.exit(0)
+  else:
+    print "Starting cmsRun "+python_config_filename
+    os.execvpe("cmsRun",["cmsRun", python_config_filename],os.environ)
+    sys.exit()
+    
 # pure python version - end
+
     
 cfgfile="""
 #############################################################
