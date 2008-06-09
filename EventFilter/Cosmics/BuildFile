@@ -17,6 +17,7 @@
 <use name=Geometry/CaloTopology>
 <use name=Geometry/CaloEventSetup>
 <use name=DataFormats/DetId>
+<use name=CalibCalorimetry/EcalLaserCorrection>
 
 <flags EDM_PLUGIN=1>
 <export>
@@ -30,4 +31,5 @@
    <use name=Geometry/CaloTopology>
    <use name=Geometry/CaloEventSetup>
    <use name=DataFormats/DetId>
+   <use name=CalibCalorimetry/EcalLaserCorrection>
 </export>
