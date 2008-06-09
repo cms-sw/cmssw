@@ -440,7 +440,7 @@ reco::SuperClusterCollection HybridClusterAlgo::makeSuperClusters(const reco::Ba
     std::vector <reco::BasicCluster> thiscoll = mapit->second; //This is the set of BasicClusters in this
                                                                //SuperCluster
 
-    double ClusterE =0; //Sum of cluster energies for supercluster.
+    double ClusterE = 0; //Sum of cluster energies for supercluster.
     //Holders for position of this supercluster.
     double posX=0;
     double posY=0;
@@ -448,29 +448,39 @@ reco::SuperClusterCollection HybridClusterAlgo::makeSuperClusters(const reco::Ba
 
     //Loop over this set of basic clusters, find their references, and add them to the
     //supercluster.  This could be somehow more efficient.
-    bool isSeed = false;
-    for (int i=0;i<int(thiscoll.size());++i){
-      reco::BasicCluster thisclus = thiscoll[i]; //The Cluster in question.
-      for (int j=0;j<int(clustersCollection.size());++j){
-	//Find the appropriate cluster from the list of references
-	reco::BasicCluster cluster_p = *clustersCollection[j];
-	if (thisclus== cluster_p){ //Comparison based on energy right now.
-	  thissc.push_back(clustersCollection[j]);
-	  isSeed = false;
-	  for (int qu=0;qu<int(seedClus_.size());++qu){
-	    if (cluster_p == seedClus_[qu])
-	      isSeed = true;
-	  }
-	  if (isSeed) seed = clustersCollection[j];
 
-	  ClusterE += cluster_p.energy();
-	  posX += cluster_p.energy() * cluster_p.position().X();
-	  posY += cluster_p.energy() * cluster_p.position().Y();
-	  posZ += cluster_p.energy() * cluster_p.position().Z();
+    double seedE = 0;
+    for (size_t i = 0; i < thiscoll.size(); ++i) 
+    {
+       //The BasicCluster in question.
+       reco::BasicCluster thisclus = thiscoll[i];
+
+       for (size_t j = 0; j < clustersCollection.size(); ++j)
+       {
+          //Find the appropriate cluster from the list of references
+	  reco::BasicCluster cluster_p = *clustersCollection[j];
+	  if (thisclus == cluster_p)
+          {
+	     thissc.push_back(clustersCollection[j]);
+
+             // the highest energy basic cluster is the seed
+             if (clustersCollection[j]->energy() > seedE)
+             {
+                seed = clustersCollection[j];
+                seedE = clustersCollection[j]->energy();
+             }
+
+	     ClusterE += cluster_p.energy();
+	     posX += cluster_p.energy() * cluster_p.position().X();
+	     posY += cluster_p.energy() * cluster_p.position().Y();
+	     posZ += cluster_p.energy() * cluster_p.position().Z();
 								     
-	}
+	} //End loop over 
+
       }//End loop over finding references.
+
     }//End loop over clusters.
+
     posX /= ClusterE;
     posY /= ClusterE;
     posZ /= ClusterE;
@@ -489,18 +499,7 @@ reco::SuperClusterCollection HybridClusterAlgo::makeSuperClusters(const reco::Ba
     suCl.setEtaWidth(etaWidth);
     */
 
-   // check that a seed basic cluster has actually been assigned
-   // if not then assign trivially the highest energy bc
-
-   if (isSeed == false) // no seed basic cluster was found
-   {
-      // pick the highest energy basic cluster
-      // which is the first one as the basic clusters have been sorted
-      // by energy before reaching this stage
-      seed = clustersCollection[0];
-   }
     reco::SuperCluster suCl(ClusterE, math::XYZPoint(posX, posY, posZ), seed, thissc);
-
     SCcoll.push_back(suCl);
     
     if ( debugLevel_ == pDEBUG ){
