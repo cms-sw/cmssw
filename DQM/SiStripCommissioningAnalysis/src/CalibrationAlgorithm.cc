@@ -44,7 +44,7 @@ CalibrationAlgorithm::CalibrationAlgorithm( CalibrationAnalysis* const anal )
 // ----------------------------------------------------------------------------
 // 
 void CalibrationAlgorithm::extract( const std::vector<TH1*>& histos) {
-
+LogDebug(mlCommissioning_) << "##CD## in extract" ;
   if ( !anal() ) {
     edm::LogWarning(mlCommissioning_)
       << "[CalibrationAlgorithm::" << __func__ << "]"
@@ -72,7 +72,7 @@ void CalibrationAlgorithm::extract( const std::vector<TH1*>& histos) {
   // Extract histograms
   std::vector<TH1*>::const_iterator ihis = histos.begin();
   unsigned int cnt = 0;
-  for ( ; ihis != histos.end(); ihis++ ) {
+  for ( ; ihis != histos.end(); ihis++,cnt++ ) {
     
     // Check for NULL pointer
     if ( !(*ihis) ) { continue; }
@@ -93,7 +93,7 @@ void CalibrationAlgorithm::extract( const std::vector<TH1*>& histos) {
     // Extract calibration histo
     histo_[cnt].first = *ihis;
     histo_[cnt].second = (*ihis)->GetTitle();
-    
+LogDebug(mlCommissioning_) << "##CD## in extract got histogram " << cnt;
   }
   
 }
@@ -139,7 +139,7 @@ void CalibrationAlgorithm::analyse() {
   for(unsigned int i=0;i<upperLimit;++i) {
     if ( !histo_[i].first ) {
       edm::LogWarning(mlCommissioning_) 
-	<< " NULL pointer to histogram!" ;
+	<< " NULL pointer to histogram " << i << "!";
       return;
     }
      
