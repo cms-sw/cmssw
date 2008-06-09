@@ -16,7 +16,7 @@
 //
 // Original Author:  
 //         Created:  Mon Dec  3 08:34:30 PST 2007
-// $Id: FWDisplayEvent.h,v 1.22 2008/05/26 14:25:46 dmytro Exp $
+// $Id: FWDisplayEvent.h,v 1.23 2008/05/28 02:15:00 jmuelmen Exp $
 //
 
 // system include files
@@ -72,8 +72,6 @@ class FWDisplayEvent
 
       // ---------- member functions ---------------------------
       int draw(const fwlite::Event& );
-      void registerProxyBuilder(const std::string&, 
-				const std::string&);
       
       void registerPhysicsObject(const FWPhysicsObjectDesc&);
      void registerDetailView (const std::string &item_name, FWDetailView *view);

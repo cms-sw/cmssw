@@ -8,7 +8,7 @@
 //
 // Original Author:  
 //         Created:  Mon Dec  3 08:38:38 PST 2007
-// $Id: FWDisplayEvent.cc,v 1.43 2008/05/26 14:23:58 dmytro Exp $
+// $Id: FWDisplayEvent.cc,v 1.44 2008/05/28 02:15:00 jmuelmen Exp $
 //
 
 // system include files
@@ -179,12 +179,6 @@ FWDisplayEvent::~FWDisplayEvent()
 void FWDisplayEvent::registerPhysicsObject(const FWPhysicsObjectDesc&iItem)
 {
   m_eiManager->add(iItem);
-}
-
-void FWDisplayEvent::registerProxyBuilder(const std::string& type, 
-					  const std::string& proxyBuilderName)
-{
-  m_viewManager->registerProxyBuilder(type,proxyBuilderName);
 }
 
 void FWDisplayEvent::registerDetailView (const std::string &item_name, 
