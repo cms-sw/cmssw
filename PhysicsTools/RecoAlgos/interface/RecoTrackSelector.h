@@ -4,8 +4,8 @@
  *
  * \author Giuseppe Cerati, INFN
  *
- *  $Date: 2008/04/01 15:31:06 $
- *  $Revision: 1.7 $
+ *  $Date: 2008/04/10 10:30:52 $
+ *  $Revision: 1.8 $
  *
  */
 #include "DataFormats/TrackReco/interface/Track.h"
@@ -28,12 +28,15 @@ class RecoTrackSelector {
     lip_(cfg.getParameter<double>("lip")),
     minHit_(cfg.getParameter<int>("minHit")),
     maxChi2_(cfg.getParameter<double>("maxChi2")),
-    quality_(cfg.getParameter<std::string>("quality")) { }
+    quality_(cfg.getParameter<std::string>("quality")),
+    algorithm_(cfg.getParameter<std::string>("algorithm")) { }
 
   RecoTrackSelector ( double ptMin, double minRapidity, double maxRapidity,
-		      double tip, double lip, int minHit, double maxChi2, std::string quality ) :
+		      double tip, double lip, int minHit, double maxChi2, 
+		      std::string quality , std::string algorithm ) :
     ptMin_( ptMin ), minRapidity_( minRapidity ), maxRapidity_( maxRapidity ),
-    tip_( tip ), lip_( lip ), minHit_( minHit ), maxChi2_( maxChi2 ),quality_(quality) { }
+    tip_( tip ), lip_( lip ), minHit_( minHit ), maxChi2_( maxChi2 ),
+    quality_(quality),algorithm_(algorithm) { }
 
   const_iterator begin() const { return selected_.begin(); }
   const_iterator end() const { return selected_.end(); }
@@ -58,7 +61,8 @@ class RecoTrackSelector {
        fabs(t.dxy(bs->position())) <= tip_ &&
        fabs(t.dsz(bs->position())) <= lip_  &&
        t.normalizedChi2()<=maxChi2_ &&
-       t.quality(t.qualityByName(quality_)) );
+       t.quality(t.qualityByName(quality_)) &&
+       algorithm_ == t.algoName() );
   }
 
   size_t size() const { return selected_.size(); }
@@ -72,6 +76,7 @@ class RecoTrackSelector {
   int    minHit_;
   double maxChi2_;
   std::string quality_;
+  std::string algorithm_;
   container selected_;
 };
 
