@@ -124,6 +124,8 @@ bool CSCMonitorModule::monitorExaminer(CSCDCCExaminer& examiner) {
     goodEvent = false;
   }
 
+#ifdef CMSSW21
+
   std::map<int,long> payloads = examiner.payloadDetailed();
   for(std::map<int,long>::const_iterator chamber = payloads.begin(); chamber != payloads.end(); chamber++) {
 
@@ -162,6 +164,8 @@ bool CSCMonitorModule::monitorExaminer(CSCDCCExaminer& examiner) {
     }
       
   }
+
+#endif
 
   if ((examiner.errors() != 0) || (examiner.warnings() != 0)) {
 
@@ -207,10 +211,8 @@ bool CSCMonitorModule::monitorExaminer(CSCDCCExaminer& examiner) {
 
     }
 
-    /*
-     * VR: 2008-06-06: Replaced by new CSCExaminer features (below); to be
-     * removed later on.
-     *
+#ifdef CMSSW20
+
     std::map<int,long> checkerWarnings  = examiner.warningsDetailed();
     for( std::map<int,long>::const_iterator chamber = checkerWarnings.begin(); chamber != checkerWarnings.end() ; chamber++ ){
 
@@ -242,9 +244,13 @@ bool CSCMonitorModule::monitorExaminer(CSCDCCExaminer& examiner) {
         me->Fill(CSCposition, CSCtype);
       }
     }
-    */
+
+#endif
+
   }
   
+#ifdef CMSSW21
+
   std::map<int,long> statuses = examiner.statusDetailed();
   for(std::map<int,long>::const_iterator chamber = statuses.begin(); chamber != statuses.end(); chamber++) {
 
@@ -276,6 +282,8 @@ bool CSCMonitorModule::monitorExaminer(CSCDCCExaminer& examiner) {
     }
 
   }
+
+#endif  
 
   return goodEvent;
 }
