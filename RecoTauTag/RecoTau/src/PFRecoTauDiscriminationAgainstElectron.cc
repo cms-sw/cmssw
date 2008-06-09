@@ -15,19 +15,22 @@ void PFRecoTauDiscriminationAgainstElectron::produce(Event& iEvent,const EventSe
     PFTauRef thePFTauRef(thePFTauCollection,iPFTau);
 
     // Check if track goes to Ecal crack
-    TrackRef myleadTk=(*thePFTauRef).leadPFChargedHadrCand()->trackRef();
-    math::XYZPoint myleadTkEcalPos;
-
-    if(myleadTk.isNonnull()){ 
-      if(MagneticField!=0){ 
-	myleadTkEcalPos = TauTagTools::propagTrackECALSurfContactPoint(MagneticField,myleadTk);
-      } else {
-	// temporary: outer position is not correct!
+    TrackRef myleadTk;
+    if((*thePFTauRef).leadPFChargedHadrCand().isNonnull()){
+      myleadTk=(*thePFTauRef).leadPFChargedHadrCand()->trackRef();
+      math::XYZPoint myleadTkEcalPos;
+      
+      if(myleadTk.isNonnull()){ 
+	if(MagneticField!=0){ 
+	  myleadTkEcalPos = TauTagTools::propagTrackECALSurfContactPoint(MagneticField,myleadTk);
+	} else {
+	  // temporary: outer position is not correct!
 	myleadTkEcalPos = myleadTk->outerPosition();
-      }
-      if (applyCut_ecalCrack_ && isInEcalCrack(abs((double)myleadTkEcalPos.eta()))) {
-	thePFTauDiscriminatorAgainstElectron->setValue(iPFTau,0);
-	continue;
+	}
+	if (applyCut_ecalCrack_ && isInEcalCrack(abs((double)myleadTkEcalPos.eta()))) {
+	  thePFTauDiscriminatorAgainstElectron->setValue(iPFTau,0);
+	  continue;
+	}
       }
     }
 
