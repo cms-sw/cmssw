@@ -21,6 +21,8 @@
 #include "DataFormats/L1Trigger/interface/L1JetParticle.h"
 #include "DataFormats/L1Trigger/interface/L1JetParticleFwd.h"
 #include "DataFormats/HLTReco/interface/TriggerTypeDefs.h"
+#include "DataFormats/METReco/interface/CaloMET.h"
+#include "DataFormats/METReco/interface/CaloMETFwd.h"
 #include <string>
 
 
@@ -54,7 +56,7 @@ class L2TauValidation : public edm::EDAnalyzer {
       edm::InputTag     l2TauInfoAssoc_; //Path to analyze
       edm::InputTag     mcColl_;         // input products from HLTMcInfo
       edm::InputTag     l1taus_;         //Handle to L1 Seed
-
+      edm::InputTag     met_;             //Handle to missing Et 
       //Select if you want match or not
       int matchLevel_;
       double matchDeltaRMC_;
@@ -79,10 +81,10 @@ class L2TauValidation : public edm::EDAnalyzer {
       MonitorElement* clusterPhiRMS;
       MonitorElement* clusterDeltaRRMS;
       MonitorElement* nClusters;
-      
       MonitorElement* EtEffNum;
       MonitorElement* EtEffDenom;
       MonitorElement* EtEff;
+      MonitorElement* MET;
 
      
       bool match(const reco::Jet&,const LVColl&);//See if this Jet Is Matched

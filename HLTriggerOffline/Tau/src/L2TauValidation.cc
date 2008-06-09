@@ -8,13 +8,14 @@ L2TauValidation::L2TauValidation(const edm::ParameterSet& iConfig):
  l2TauInfoAssoc_(iConfig.getParameter<edm::InputTag>("L2InfoAssociationInput")),
  mcColl_(iConfig.getParameter<edm::InputTag>("MatchedCollection")),
  l1taus_(iConfig.getParameter<edm::InputTag>("L1TauTrigger")),
+ met_(iConfig.getParameter<edm::InputTag >("MET")),
  matchLevel_(iConfig.getParameter<int>("MatchLevel")),
  matchDeltaRMC_(iConfig.getParameter<double>("MatchDeltaRMC")),
  matchDeltaRL1_(iConfig.getParameter<double>("MatchDeltaRL1")),
  triggerTag_((iConfig.getParameter<std::string>("TriggerTag"))),
  outFile_(iConfig.getParameter<std::string>("OutputFileName")),
  cuts_(iConfig.getParameter<std::vector <double> >("Cuts"))
-  
+ 
 {
 
   DQMStore* store = &*edm::Service<DQMStore>();
@@ -36,6 +37,7 @@ L2TauValidation::L2TauValidation(const edm::ParameterSet& iConfig):
       EtEffNum=store->book1D("EtEffNum","Efficiency vs E_{t}(Numerator)",100,0,200);
       EtEffDenom=store->book1D("EtEffDenom","Efficiency vs E_{t}(Denominator)",100,0,200);
       EtEff=store->book1D("EtEff","Efficiency vs E_{t}",100,0,200);
+      MET=store->book1D("MET","Missing E_{t}",100,0,200);
       
     }
   
@@ -58,8 +60,6 @@ L2TauValidation::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup
 
    Handle<L2TauInfoAssociation> l2TauInfoAssoc; //Handle to the input (L2 Tau Info Association)
    Handle<LVColl> McInfo; //Handle To The Truth!!!!
-
-
    Handle<trigger::TriggerFilterObjectWithRefs> l1TriggeredTaus; //Handle to the L1
 
 
@@ -79,11 +79,6 @@ L2TauValidation::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup
 	   l1TriggeredTaus->getObjects(trigger::TriggerL1TauJet,tauCandRefVec);
   
 	 }
-    
-
-
-
-
        //If the Collection exists do work
        if(l2TauInfoAssoc->size()>0)
 	 for(L2TauInfoAssociation::const_iterator p = l2TauInfoAssoc->begin();p!=l2TauInfoAssoc->end();++p)
@@ -135,6 +130,12 @@ L2TauValidation::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup
 	       
      }
 
+   //Plot the missing Et. To be used in SingleTau mainly
+   Handle<CaloMETCollection> met;
+   if(iEvent.getByLabel(met_,met))//get the Association class
+     {
+       MET->Fill((*met)[0].pt());
+     }
 
 
 }
