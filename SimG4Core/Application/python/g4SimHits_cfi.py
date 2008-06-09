@@ -44,14 +44,14 @@ g4SimHits = cms.EDProducer("OscarProducer",
         MaxEtaCut = cms.double(5.5),
         HepMCProductLabel = cms.string('source'),
         MinEtaCut = cms.double(-5.5),
-        #Temporary fix we are investigating more in detail the inpact of this selection 
-        DecLenCut = cms.double(2.9)
+        DecLenCut = cms.double(2.9) ## the minimum decay length in cm (!) for mother tracking
+
     ),
     HcalTB02SD = cms.PSet(
         UseBirkLaw = cms.untracked.bool(False),
         BirkC1 = cms.untracked.double(0.013),
-        BirkC2 = cms.untracked.double(0.0568),
-        BirkC3 = cms.untracked.double(1.75)
+        BirkC3 = cms.untracked.double(1.75),
+        BirkC2 = cms.untracked.double(0.0568)
     ),
     MagneticField = cms.PSet(
         UseLocalMagFieldManager = cms.bool(False),
@@ -82,12 +82,12 @@ g4SimHits = cms.EDProducer("OscarProducer",
         delta = cms.double(1.0)
     ),
     ECalSD = cms.PSet(
+        TestBeam = cms.untracked.bool(False),
         BirkL3Parametrization = cms.bool(True),
         BirkCut = cms.double(0.1),
         BirkC1 = cms.double(0.03333),
-        BirkC2 = cms.double(0.0),
         BirkC3 = cms.double(1.0),
-        TestBeam = cms.untracked.bool(False),
+        BirkC2 = cms.double(0.0),
         SlopeLightYield = cms.double(0.02),
         UseBirkLaw = cms.bool(True),
         BirkSlope = cms.double(0.253694)
@@ -110,32 +110,32 @@ g4SimHits = cms.EDProducer("OscarProducer",
         UseHF = cms.untracked.bool(True),
         UseLayerWt = cms.untracked.bool(False),
         UseShowerLibrary = cms.bool(True),
-        BirkC1 = cms.double(0.0052),
-        BirkC2 = cms.double(0.142),
         BirkC3 = cms.double(1.75),
+        BirkC2 = cms.double(0.142),
+        BirkC1 = cms.double(0.0052),
         UseBirkLaw = cms.bool(True)
     ),
     HFShowerLibrary = cms.PSet(
         BranchPost = cms.untracked.string('_R.obj'),
         BranchEvt = cms.untracked.string('HFShowerLibraryEventInfos_hfshowerlib_HFShowerLibraryEventInfo'),
-        TreeEMID  = cms.string('emParticles'),
         TreeHadID = cms.string('hadParticles'),
         Verbosity = cms.untracked.bool(False),
         BackProbability = cms.double(0.2),
         FileName = cms.FileInPath('SimG4CMS/Calo/data/hfshowerlibrary_lhep_140_edm.root'),
+        TreeEMID = cms.string('emParticles'),
         BranchPre = cms.untracked.string('HFShowerPhotons_hfshowerlib_')
     ),
     CaloSD = cms.PSet(
         common_heavy_suppression,
         SuppressHeavy = cms.bool(False),
-        TmaxHit       = cms.double(1000.0),
         DetailedTiming = cms.untracked.bool(False),
         Verbosity = cms.untracked.int32(0),
         CheckHits = cms.untracked.int32(25),
         BeamPosition = cms.untracked.double(0.0),
         CorrectTOFBeam = cms.untracked.bool(False),
         UseMap = cms.untracked.bool(True),
-        EminTrack = cms.double(1.0)
+        EminTrack = cms.double(1.0),
+        TmaxHit = cms.double(1000.0)
     ),
     HFCherenkov = cms.PSet(
         RefIndex = cms.double(1.459),
@@ -157,15 +157,15 @@ g4SimHits = cms.EDProducer("OscarProducer",
     HcalTB06BeamSD = cms.PSet(
         UseBirkLaw = cms.bool(False),
         BirkC1 = cms.double(0.013),
-        BirkC2 = cms.double(0.0568),
-        BirkC3 = cms.double(1.75)
+        BirkC3 = cms.double(1.75),
+        BirkC2 = cms.double(0.0568)
     ),
     Watchers = cms.VPSet(),
     EcalTBH4BeamSD = cms.PSet(
         UseBirkLaw = cms.bool(False),
         BirkC1 = cms.double(0.013),
-        BirkC2 = cms.double(0.0568),
-        BirkC3 = cms.double(1.75)
+        BirkC3 = cms.double(1.75),
+        BirkC2 = cms.double(0.0568)
     ),
     RunAction = cms.PSet(
         StopFile = cms.string('StopRun')
@@ -179,37 +179,42 @@ g4SimHits = cms.EDProducer("OscarProducer",
         Verbosity = cms.untracked.int32(2)
     ),
     Physics = cms.PSet(
-        type = cms.string('SimG4Core/Physics/QGSP_BERT'),
+        FlagCHIPS = cms.untracked.bool(False),
         G4BremsstrahlungThreshold = cms.double(0.5), ## cut in GeV
-        DefaultCutValue = cms.double(1.0), ## cuts in cm
-        Verbosity = cms.untracked.int32(0),
-        # 2 will do as 1 + will dump Geant4 table of cuts
-        CutsPerRegion = cms.bool(True),
 
+        DefaultCutValue = cms.double(1.0), ## cuts in cm
+
+        FlagHP = cms.untracked.bool(False),
+        CutsPerRegion = cms.bool(True),
+        Verbosity = cms.untracked.int32(0),
         FlagBERT = cms.untracked.bool(False),
-        FlagCHIPS   = cms.untracked.bool(False),
-        FlagFTF     = cms.untracked.bool(False),
-        FlagGlauber = cms.untracked.bool(False),
-        FlagHP      = cms.untracked.bool(False),
+        # 2 will do as 1 + will dump Geant4 table of cuts
         EMPhysics = cms.untracked.bool(True),
-        HadPhysics = cms.untracked.bool(True),
-        DummyEMPhysics = cms.bool(False),
+        FlagGlauber = cms.untracked.bool(False),
         GFlash = cms.PSet(
-           GflashEMShowerModel = cms.bool(False),
-           GflashHadronShowerModel = cms.bool(False),
-           GflashHistogram = cms.bool(False),
-           GflashHadronPhysics = cms.string('QGSP_BERT')
-       )
+            GflashHistogram = cms.bool(False),
+            GflashEMShowerModel = cms.bool(False),
+            GflashHadronPhysics = cms.string('QGSP_BERT_EMV'),
+            GflashHadronShowerModel = cms.bool(False)
+        ),
+        FlagFTF = cms.untracked.bool(False),
+        HadPhysics = cms.untracked.bool(True),
+        # NOTE : if you want EM Physics only,
+        #        please select "SimG4Core/Physics/DummyPhysics" for type
+        #        and turn ON DummyEMPhysics
+        #
+        type = cms.string('SimG4Core/Physics/QGSP_BERT_EMV'),
+        DummyEMPhysics = cms.bool(False)
     ),
     G4Commands = cms.vstring(),
     StackingAction = cms.PSet(
         common_heavy_suppression,
-        TrackNeutrino = cms.bool(False),
-        KillHeavy     = cms.bool(False),
+        SaveFirstLevelSecondary = cms.untracked.bool(False),
         SavePrimaryDecayProductsAndConversionsInTracker = cms.untracked.bool(True),
-	SavePrimaryDecayProductsAndConversionsInCalo = cms.untracked.bool(False),
-	SavePrimaryDecayProductsAndConversionsInMuon = cms.untracked.bool(False),
-	SaveFirstLevelSecondary = cms.untracked.bool(False)
+        SavePrimaryDecayProductsAndConversionsInCalo = cms.untracked.bool(False),
+        SavePrimaryDecayProductsAndConversionsInMuon = cms.untracked.bool(False),
+        TrackNeutrino = cms.bool(False),
+        KillHeavy = cms.bool(False)
     ),
     CastorSD = cms.PSet(
         Verbosity = cms.untracked.int32(0)
@@ -235,5 +240,6 @@ g4SimHits = cms.EDProducer("OscarProducer",
         DetailedTiming = cms.untracked.bool(False)
     )
 )
+
 
 
