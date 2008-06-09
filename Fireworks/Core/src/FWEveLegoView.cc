@@ -8,7 +8,7 @@
 //
 // Original Author:  Chris Jones
 //         Created:  Thu Feb 21 11:22:41 EST 2008
-// $Id: FWEveLegoView.cc,v 1.6 2008/06/05 14:17:24 dmytro Exp $
+// $Id: FWEveLegoView.cc,v 1.7 2008/06/08 17:05:14 dmytro Exp $
 //
 
 // system include files
@@ -18,6 +18,7 @@
 #include <boost/numeric/conversion/converter.hpp>
 #include <iostream>
 #include <sstream>
+#include <stdexcept>
 
 #include "TRootEmbeddedCanvas.h"
 #include "THStack.h"
@@ -210,6 +211,15 @@ FWEveLegoView::addTo(FWConfiguration& iTo) const
       std::ostringstream osValue;
       osValue << (*m_cameraMatrixBase)[i];
       iTo.addKeyValue(matrixName+osIndex.str()+"Lego",FWConfiguration(osValue.str()));
+   }
+}
+
+void 
+FWEveLegoView::saveImageTo(const std::string& iName) const
+{
+   bool succeeded = m_viewer->GetGLViewer()->SavePicture(iName.c_str());
+   if(!succeeded) {
+      throw std::runtime_error("Unable to save picture");
    }
 }
 

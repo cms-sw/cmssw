@@ -16,7 +16,7 @@
 //
 // Original Author:  Chris Jones
 //         Created:  Thu Feb 21 11:22:37 EST 2008
-// $Id: FWEveLegoView.h,v 1.2 2008/03/20 09:39:26 dmytro Exp $
+// $Id: FWEveLegoView.h,v 1.3 2008/03/27 11:05:17 dmytro Exp $
 //
 
 // system include files
@@ -49,7 +49,9 @@ class FWEveLegoView : public FWViewBase
       TGFrame* frame() const;
       const std::string& typeName() const;
       virtual void addTo(FWConfiguration&) const;
-     
+
+      virtual void saveImageTo(const std::string& iName) const;
+
       // ---------- static member functions --------------------
       static const std::string& staticTypeName();
    

@@ -8,12 +8,14 @@
 //
 // Original Author:  Chris Jones
 //         Created:  Tue Feb 19 10:33:25 EST 2008
-// $Id: FWRhoPhiZView.cc,v 1.10 2008/03/23 22:03:09 dmytro Exp $
+// $Id: FWRhoPhiZView.cc,v 1.11 2008/06/08 16:59:01 dmytro Exp $
 //
 
 #define private public
 #include "TGLOrthoCamera.h"
 #undef private
+
+#include <stdexcept>
 
 // system include files
 #include <algorithm>
@@ -33,7 +35,6 @@
 #include "TEveProjectionBases.h"
 #include "TEvePolygonSetProjected.h"
 #include "TEveProjections.h"
-
 
 // user include files
 #include "Fireworks/Core/interface/FWRhoPhiZView.h"
@@ -290,6 +291,14 @@ FWRhoPhiZView::addTo(FWConfiguration& iTo) const
    }
 }
 
+void 
+FWRhoPhiZView::saveImageTo(const std::string& iName) const
+{
+   bool succeeded = m_viewer->GetGLViewer()->SavePicture(iName.c_str());
+   if(!succeeded) {
+      throw std::runtime_error("Unable to save picture to file");
+   }
+}
 
 //
 // static member functions

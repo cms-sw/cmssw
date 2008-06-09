@@ -16,7 +16,7 @@
 //
 // Original Author:  Chris Jones
 //         Created:  Tue Feb 19 10:33:21 EST 2008
-// $Id: FWRhoPhiZView.h,v 1.5 2008/03/19 15:19:11 chrjones Exp $
+// $Id: FWRhoPhiZView.h,v 1.6 2008/03/23 22:03:09 dmytro Exp $
 //
 
 // system include files
@@ -49,6 +49,8 @@ class FWRhoPhiZView : public FWViewBase
       TGFrame* frame() const;
       const std::string& typeName() const;
       virtual void addTo(FWConfiguration&) const;
+
+      virtual void saveImageTo(const std::string& iName) const;
 
       // ---------- static member functions --------------------
 

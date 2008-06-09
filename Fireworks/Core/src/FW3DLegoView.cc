@@ -8,7 +8,7 @@
 //
 // Original Author:  Chris Jones
 //         Created:  Thu Feb 21 11:22:41 EST 2008
-// $Id: FW3DLegoView.cc,v 1.2 2008/02/21 20:38:40 chrjones Exp $
+// $Id: FW3DLegoView.cc,v 1.3 2008/03/07 09:06:49 dmytro Exp $
 //
 
 // system include files
@@ -119,6 +119,11 @@ const std::string&
 FW3DLegoView::typeName() const
 {
    return staticTypeName();
+}
+
+void 
+FW3DLegoView::saveImageTo(const std::string& iName) const
+{
 }
 
 //
