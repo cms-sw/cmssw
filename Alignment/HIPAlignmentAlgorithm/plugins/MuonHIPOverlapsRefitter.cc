@@ -13,7 +13,7 @@
 //
 // Original Author:  Jim Pivarski
 //         Created:  Wed Dec 12 13:31:55 CST 2007
-// $Id: MuonHIPOverlapsRefitter.cc,v 1.3 2008/05/08 22:01:34 pivarski Exp $
+// $Id: MuonHIPOverlapsRefitter.cc,v 1.4 2008/05/09 12:55:24 pivarski Exp $
 //
 //
 
@@ -71,6 +71,7 @@ class MuonHIPOverlapsRefitter : public edm::EDProducer {
       // ----------member data ---------------------------
       edm::InputTag m_input;
       int m_minDOF;
+      std::vector<int> m_trustedR1, m_trustedR2, m_trustedR3, m_trustedR4;
 };
 
 //
@@ -88,6 +89,8 @@ MuonHIPOverlapsRefitter::MuonHIPOverlapsRefitter(const edm::ParameterSet& iConfi
 {
    m_input = iConfig.getParameter<edm::InputTag>("input");
    m_minDOF = iConfig.getParameter<int>("minDOF");
+   m_trustedR1 = iConfig.getParameter<std::vector<int> >("trustedR1");
+   m_trustedR2 = iConfig.getParameter<std::vector<int> >("trustedR2");
 
    produces<std::vector<Trajectory> >();
    produces<TrajTrackAssociationCollection>();
@@ -204,9 +207,13 @@ MuonHIPOverlapsRefitter::produce(edm::Event& iEvent, const edm::EventSetup& iSet
       edm::OwnVector<TrackingRecHit> clonedHits;
       std::vector<TrajectoryMeasurement::ConstRecHitPointer> transHits;
       std::vector<TrajectoryStateOnSurface> TSOSes;
-	    
+
       for (std::vector<std::vector<const TrackingRecHit*> >::const_iterator station = hits_by_station.begin();  station != hits_by_station.end();  ++station) {
 	 if (station->size() > 0) {
+
+	    // does this tracklet pass through a trusted chamber?
+	    bool trusted = false;
+	    int ring = 0;
 
 	    DetId firstId = (*(station->begin()))->geographicalId();
 	    const Surface* chamberSurface;
@@ -217,7 +224,20 @@ MuonHIPOverlapsRefitter::produce(edm::Event& iEvent, const edm::EventSetup& iSet
 	       CSCDetId cscId(firstId.rawId());
 	       CSCDetId chamberId(cscId.endcap(), cscId.station(), cscId.ring(), cscId.chamber(), 0);
 	       chamberSurface = &(cscGeometry->idToDet(chamberId)->surface());
+	       
+	       if (cscId.ring() == 1) ring = 1;
+	       if (cscId.ring() == 2) ring = 2;
+	       if (cscId.ring() == 3) ring = 3;
+	       if (cscId.ring() == 4) ring = 4;
 	    }
+
+	    if (ring == 0) trusted = true; // this mechanism is for CSC only
+
+	    // trustedR1 = {} means all chambers are trusted: it's an easy way of reproducing simple behavior
+	    if (ring == 1  &&  m_trustedR1.size() == 0) trusted = true;
+	    if (ring == 2  &&  m_trustedR2.size() == 0) trusted = true;
+	    if (ring == 3  &&  m_trustedR3.size() == 0) trusted = true;
+	    if (ring == 4  &&  m_trustedR4.size() == 0) trusted = true;
 
 	    std::vector<double> listx, listy, listz, listXX, listXY, listYY;
 
@@ -226,6 +246,21 @@ MuonHIPOverlapsRefitter::produce(edm::Event& iEvent, const edm::EventSetup& iSet
 
 	    for (std::vector<const TrackingRecHit*>::const_iterator hit = station->begin();  hit != station->end();  ++hit) {
 	       DetId id = (*hit)->geographicalId();
+
+	       if (id.subdetId() == MuonSubdetId::CSC) {
+		  CSCDetId cscId(id.rawId());
+
+		  std::vector<int> *trustlist = NULL;
+		  if (ring == 1) trustlist = &m_trustedR1;
+		  if (ring == 2) trustlist = &m_trustedR2;
+		  if (ring == 3) trustlist = &m_trustedR3;
+		  if (ring == 4) trustlist = &m_trustedR4;
+
+		  for (std::vector<int>::const_iterator chamber = trustlist->begin();  chamber != trustlist->end();  ++chamber) {
+		     if (cscId.chamber() == *chamber) trusted = true;
+		  }
+
+	       } // end check for trustedness
 
 	       clonedHits.push_back((*hit)->clone());
 	       TrajectoryMeasurement::ConstRecHitPointer hitPtr(muonTransBuilder.build(&(clonedHits.back()), globalGeometry));
@@ -311,6 +346,9 @@ MuonHIPOverlapsRefitter::produce(edm::Event& iEvent, const edm::EventSetup& iSet
 	       SzzYY += zi * zi * YY;
 
 	    } // end loop over hits
+
+	    // if there wasn't a trusted chamber included, drop out
+	    if (!trusted) continue;
 
 	    // calculate the least-squares fit
 	    double denom = (SzzXX*(SXX*(SzzYY*SYY - pow(SzYY,2)) - pow(SzXY,2)*SYY - SzzYY*pow(SXY,2) + 2*SzXY*SzYY*SXY) + SzzXY*(SzXY*(2*SzXX*SYY + 2*SzYY*SXX) - 2*SzXX*SzYY*SXY - 2*pow(SzXY,2)*SXY) + pow(SzzXY,2)*(pow(SXY,2) - SXX*SYY) + pow(SzXX,2)*(pow(SzYY,2) - SzzYY*SYY) + 2*SzXX*SzXY*SzzYY*SXY + pow(SzXY,2)*(-SzzYY*SXX - 2*SzXX*SzYY) + pow(SzXY,4));
