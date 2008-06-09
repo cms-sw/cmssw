@@ -390,14 +390,32 @@ void DisplayManager::createGPart( const reco::PFSimParticle &ptc,
     yPos.reserve( points.size() );
   
     for(unsigned i=0; i<points.size(); i++) {
+
       if( !points[i].isValid() ) continue;
         
       const math::XYZPoint& xyzPos = points[i].position();      
       double eta = xyzPos.Eta();
       double phi = xyzPos.Phi();
+
+      // eta and phi are set to the eta and phi
+      // of the particle position ....
     
       if( !displayInitial && 
           points[i].layer() == reco::PFTrajectoryPoint::ClosestApproach ) {
+	
+	// but not in the case where 
+	// 1 - displayInitial is false,
+	// which is the case when the particle has no mother. 
+	// 2 - we're considering the first trajectory point.
+	
+	// in this case, eta and phi are set to the eta and phi
+	// of the particle momentum. 
+	
+	// this is done this way because the eta,phi 
+	// coordinates at closest approach are meaningless, 
+	// since the position vector can point anywhere, even
+	// opposite to the direction of the momentum
+
         const math::XYZTLorentzVector& mom = points[i].momentum();
         eta = mom.Eta();
         phi = mom.Phi();
@@ -1476,6 +1494,10 @@ void DisplayManager::loadGSimParticles()
     bool displayInitial=true;
     if( ptc.motherId() < 0 ) displayInitial=false;
     
+    // if the particle has no mother, displayInitial is set to false
+    // and to true if the particle has a mother
+    // refer to function createGPart
+ 
     int partId=(SIMPARTICLEID << shiftId_) | i; 
     createGPart(ptc, points,partId, pt, phi0, sign, displayInitial,indexMarker);
     
