@@ -99,14 +99,14 @@ void CSCConditions::fillBadStripWords(){
 
       CSCDetId id = indexer.detIdFromChamberIndex( indexc ); // We need this to build layer index (1-2808)
 
-      for ( int j=start; j<start+nbad; ++j ) { // bad channels in this chamber
+      for ( int j=start-1; j<start-1+nbad; ++j ) { // bad channels in this chamber
         short lay  = theBadStrips->channels[j].layer;    // value 1-6
         short chan = theBadStrips->channels[j].channel;  // value 1-80
     //    short f1 = theBadStrips->channels[j].flag1;
     //    short f2 = theBadStrips->channels[j].flag2;
     //    short f3 = theBadStrips->channels[j].flag3;
         int indexl = indexer.layerIndex( id.endcap(), id.station(), id.ring(), id.chamber(), lay );
-        badStripWords[indexl-1].set( chan, 1 ); // set bit in 80-bit bitset representing this layer
+        badStripWords[indexl-1].set( chan-1, 1 ); // set bit 0-79 in 80-bit bitset representing this layer
       } // j
     } // i
 
@@ -242,12 +242,12 @@ void CSCConditions::crossTalk( const CSCDetId& id, int channel, std::vector<floa
 
 const std::bitset<80>& CSCConditions::badStripWord( const CSCDetId& id ) const {
   CSCIndexer indexer;
-  return badStripWords[indexer.layerIndex(id)];
+  return badStripWords[indexer.layerIndex(id) - 1];
 }
 
 const std::bitset<112>& CSCConditions::badWireWord( const CSCDetId& id ) const {
   CSCIndexer indexer;
-  return badWireWords[indexer.layerIndex(id)];
+  return badWireWords[indexer.layerIndex(id) - 1];
 }
 
 /// Return average strip gain for full CSC system. Lazy evaluation.
