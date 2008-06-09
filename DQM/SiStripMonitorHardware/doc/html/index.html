@@ -6,6 +6,12 @@
 <! e.g. href=page1.html or  href=mysubdir/page2.html > 
 <html>
 <body>
-This Text Inserted from File doc/html/index.html
+This package, SiStripMonitorHardware, is used to online monitor the metadata from the FEDs. <br />
+Many of the detected errors are making one each other. For example if a channel is out-of-synch
+it will most probablyb also show an APV address error. This code takes care of reporting only the most significant
+error.<br />
+The code can run without any connection to the database, but it is really meant to work with some\connection to the database:
+either online or offline. If you run without the database informatio on the conection, you will be warned every time
+a channel is disabled, provided that the front-end unit hosting the channel is enabled. Running with the database avoids this problem.
 </body>
 </html>
