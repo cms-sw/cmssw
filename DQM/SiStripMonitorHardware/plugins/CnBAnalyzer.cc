@@ -131,8 +131,9 @@ void CnBAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetu
 	// TODO: check here if the connections are actually there.
 	//       if not you should fill a corresponding error
 	
-#define CNBANALYZER_CABLING_DEBUG
+#undef CNBANALYZER_CABLING_DEBUG
 #ifdef CNBANALYZER_CABLING_DEBUG
+	// TODO: remove this bad debug :-)
 	// ????????????????????????????????
 	if ( iEvent.id().event() == 1 ) {
 	  std::cout << "analyzing event 1 with cabling for FED " << std::dec << (*ifed) << std::endl;
@@ -145,7 +146,6 @@ void CnBAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetu
 	}
 	// ????????????????????????????????
 #endif
-
 	thisFedEventErrs = myEventAnalyzer.Analyze(true, &conns);
       } else {
 	thisFedEventErrs = myEventAnalyzer.Analyze(false, NULL);
@@ -154,19 +154,20 @@ void CnBAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetu
       total_enabled_channels += thisFedEventErrs.totalChannels;
       total_faulty_channels  += thisFedEventErrs.problemsSeen;
 
-      if (total_faulty_channels!=0) {
+      if (thisFedEventErrs.problemsSeen) {
 	createDetailedFedHistograms((*ifed));
 	
 	// Update counters for FEDs
-	fedGenericErrors_->Fill(*ifed, total_faulty_channels);
+	fedGenericErrors_->Fill(*ifed, thisFedEventErrs.problemsSeen);
 	if (thisFedEventErrs.internalFreeze) fedFreeze_->Fill(*ifed);
 	if (thisFedEventErrs.bxError) fedBx_->Fill(*ifed);
 	
 #ifdef CNBANALYZER_DEBUG
-	LogInfo("FEDBuffer") << "total_enabled = " << total_enabled_channels;
-	LogInfo("FEDBuffer") << "total_faulty = " << total_faulty_channels;
-	LogInfo("FEDBuffer") << "internalFreeze = " << thisFedEventErrs.internalFreeze;
-	LogInfo("FEDBuffer") << "bxError = " << thisFedEventErrs.bxError;
+	LogInfo("FEDBuffer") << "FED number" << (*ifed) << std::endl
+			     << "enabled        = " << thisFedEventErrs.totalChannels << std::endl
+			     << "faulty         = " << thisFedEventErrs.problemsSeen << std::endl
+			     << "internalFreeze = " << thisFedEventErrs.internalFreeze << std::endl
+			     << "bxError        = " << thisFedEventErrs.bxError;
 #endif
 	
 	// Fill the Front-end failure counters 
@@ -202,17 +203,19 @@ void CnBAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetu
 #ifdef CNBANALYZER_DEBUG
 	  LogInfo("FEDBuffer") << "apv[" << iApv << "] = " << hex << thisFedEventErrs.apv[iApv];
 #endif
-	  
 	  if (thisFedEventErrs.apv[iApv])
 	    badApv_[*ifed]->Fill(iApv);
 	}
-	
       }
-      
     }
     
-  } // end of the for ifed loop
+  } // End of the ifed loop
   
+#ifdef CNBANALYZER_DEBUG
+  LogInfo("FEDBuffer") << "Event summary:" << std::endl
+		       << "total_enabled = " << total_enabled_channels << std::endl
+		       << "total_faulty  = " << total_faulty_channels;
+#endif
 
   // TODO: find a better solution to this (and remove the explicit 1000)
   if ( iEvent.id().event()<1000) {

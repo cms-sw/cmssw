@@ -136,22 +136,21 @@ Fed9UErrorCondition Fed9UEventAnalyzer::Analyze(bool useConns, const std::vector
   // *                                *
   // **********************************
 
-  // TODO: tidy up this piece of code!!!
+  // TODO: tidy up this piece of code
   result.problemsSeen = 0;
   if (!useConns) {
     result.totalChannels = fedEvent_->totalChannels();
   } else {
     result.totalChannels = 0;
     if (conns) {
-      //FedChannelConnection aFedConn;
       for (int channelIndex=0; channelIndex<96; channelIndex++) {
 	if ((conns->at(95-channelIndex)).isConnected()) result.totalChannels++;
       }
     } else {
-      // TODO: add proper error handling here
-      std::cout << "ACHTUNG: for some reason I have useConns == true and conns==NULL)" << std::endl;
+      edm::LogWarning("Fed9UEventAnalyzer") << "for some reason I have useConns == true and conns==NULL)";
     }
   }
+
 
   // Clear the FED errors
   result.internalFreeze       = false;
@@ -212,9 +211,15 @@ Fed9UErrorCondition Fed9UEventAnalyzer::Analyze(bool useConns, const std::vector
       // Look only at FEs with no overflow
       if (fedEvent_->getFeOverflow(fpga)) {
 
-	// Report the overflow
+	// Report the overflow and update the number of error channels
 	result.feOverflow[fpga] = true;
-
+	if ((useConns)&&(conns)) {
+	  for (unsigned int fi=0; fi<12; fi++) 
+	    if ((conns->at(95-(12*fpga+fi))).isConnected()) result.problemsSeen++;
+	} else {
+	  result.problemsSeen+=12;
+	}
+	
       } else {
 
 	// TODO: add APV Address Error bit (i.e. x-check with APVe)
@@ -241,8 +246,7 @@ Fed9UErrorCondition Fed9UEventAnalyzer::Analyze(bool useConns, const std::vector
 		readChannel = false;
 	      }
 	    } else {
-	      // TODO: add proper error code here
-	      std::cout << "ACHTUNG: for some reason I have useConns == true and conns==NULL)" << std::endl;
+	      edm::LogWarning("Fed9UEventAnalyzer") << "for some reason I have useConns == true and conns==NULL)";
 	    }
 	  }
 	  
