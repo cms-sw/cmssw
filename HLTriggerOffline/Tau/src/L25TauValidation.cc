@@ -26,8 +26,8 @@ L25TauValidation::L25TauValidation(const edm::ParameterSet& iConfig){
       
       store->setCurrentFolder(triggerTag_);
 
-      jetPt = store->book1D("jetPt", "jetPt", 75, 0, 150);
-      jetEt = store->book1D("jetEt", "jetEt", 75, 0, 150);
+      jetPt = store->book1D("jetPt", "jetPt", 100, 0, 200);
+      jetEt = store->book1D("jetEt", "jetEt", 100, 0, 200);
       jetEta = store->book1D("jetEta", "jetEta", 50, -2.5, 2.5);
       jetPhi = store->book1D("jetPhi", "jetPhi", 63, -3.14, 3.14);
       nL2EcalIsoJets = store->book1D("nL2EcalIsoJets", "nL2EcalIsoJets", 10, 0, 10);
@@ -35,13 +35,13 @@ L25TauValidation::L25TauValidation(const edm::ParameterSet& iConfig){
       nPxlTrksInL25Jet = store->book1D("nPxlTrksInL25Jet", "nPxlTrksInL25Jet", 30, 0, 30);
       nQPxlTrksInL25Jet = store->book1D("nQPxlTrksInL25Jet","nQPxlTrksInL25Jet", 15, 0, 15);
       signalLeadTrkPt = store->book1D("signalLeadTrkPt", "signalLeadTrkPt", 75, 0, 150);
-      l25IsoJetPt = store->book1D("l25IsoJetPt", "l25IsoJetPt", 75, 0, 150);
-      l25IsoJetEt = store->book1D("l25IsoJetEt", "l25IsoJetEt", 75, 0, 150);
+      l25IsoJetPt = store->book1D("l25IsoJetPt", "l25IsoJetPt", 100, 0, 200);
+      l25IsoJetEt = store->book1D("l25IsoJetEt", "l25IsoJetEt", 100, 0, 200);
       l25IsoJetEta = store->book1D("l25IsoJetEta", "l25IsoJetEta", 50, -2.5, 2.5);
       l25IsoJetPhi = store->book1D("l25IsoJetPhi", "l25IsoJetPhi", 63, -3.14, 3.14);
       l25EtaEff = store->book1D("l25EtaEff", "l25EtaEff", 50, -2.5, 2.5);
-      l25EtEff = store->book1D("l25EtEff", "l25EtEff", 75, 0, 150);
-      l25PtEff = store->book1D("l25PtEff", "l25PtEff", 75, 0, 150);
+      l25EtEff = store->book1D("l25EtEff", "l25EtEff", 100, 0, 200);
+      l25PtEff = store->book1D("l25PtEff", "l25PtEff", 100, 0, 200);
       l25PhiEff = store->book1D("l25PhiEff", "l25PhiEff", 63, -3.14, 3.14);
    }
 }

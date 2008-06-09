@@ -23,7 +23,7 @@ L2TauValidation::L2TauValidation(const edm::ParameterSet& iConfig):
     {
       //Create the histograms
       store->setCurrentFolder(triggerTag_);
-      jetEt= store->book1D("tauCandEt","tauCandEt",50,0,100);
+      jetEt= store->book1D("tauCandEt","tauCandEt",100,0,200);
       jetEta= store->book1D("tauCandEta","tauCandEta",50,-2.5,2.5);
       jetPhi= store->book1D("tauCandPhi","tauCandPhi",63,-3.14,3.14);
       ecalIsolEt=store->book1D("ecalIsolEt","ecalIsolEt",40,0,20);
@@ -33,9 +33,9 @@ L2TauValidation::L2TauValidation(const edm::ParameterSet& iConfig):
       clusterEtaRMS=store->book1D("clusterEtaRMS","clusterEtaRMS",25,0,0.5);
       clusterPhiRMS=store->book1D("clusterPhiRMS","clusterPhiRMS",25,0,0.5);
       clusterDeltaRRMS=store->book1D("clusterDeltaRRMS","clusterDeltaRRMS",25,0,0.5);
-      EtEffNum=store->book1D("EtEffNum","Efficiency vs E_{t}(Numerator)",50,0,100);
-      EtEffDenom=store->book1D("EtEffDenom","Efficiency vs E_{t}(Denominator)",50,0,100);
-      EtEff=store->book1D("EtEff","Efficiency vs E_{t}",50,0,100);
+      EtEffNum=store->book1D("EtEffNum","Efficiency vs E_{t}(Numerator)",100,0,200);
+      EtEffDenom=store->book1D("EtEffDenom","Efficiency vs E_{t}(Denominator)",100,0,200);
+      EtEff=store->book1D("EtEff","Efficiency vs E_{t}",100,0,200);
       
     }
   
