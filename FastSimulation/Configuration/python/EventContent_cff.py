@@ -228,13 +228,21 @@ AODSIMEventContent.outputCommands.extend(FastSimParamMuonAOD.outputCommands)
 #
 #####################################################################
 
-FEVTSIMHLTDEBUGEventContent.outputCommands.extend(FEVTSIMEventContent.outputCommands)
+FEVTSIMHLTDEBUGEventContent.outputCommands.extend(FastSimCoreFEVT.outputCommands)
+FEVTSIMHLTDEBUGEventContent.outputCommands.extend(FastSimRecoLocalTrackerFEVT.outputCommands)
+FEVTSIMHLTDEBUGEventContent.outputCommands.extend(FastSimRecoLocalCaloFEVT.outputCommands)
+FEVTSIMHLTDEBUGEventContent.outputCommands.extend(FastSimRecoTrackerFEVT.outputCommands)
+FEVTSIMHLTDEBUGEventContent.outputCommands.extend(FastSimParamMuonFEVT.outputCommands)
 
 #####################################################################
 #
 # FEVTSIMDIGIHLTDEBUG  Data Tier re-definition
 #
 #####################################################################
-FEVTSIMDIGIHLTDEBUGEventContent.outputCommands.extend(FEVTSIMDIGIEventContent.outputCommands)
+FEVTSIMDIGIHLTDEBUGEventContent.outputCommands.extend(FastSimCoreFEVT.outputCommands)
+FEVTSIMDIGIHLTDEBUGEventContent.outputCommands.extend(FastSimRecoLocalTrackerFEVT.outputCommands)
+FEVTSIMDIGIHLTDEBUGEventContent.outputCommands.extend(FastSimRecoLocalCaloFEVT.outputCommands)
+FEVTSIMDIGIHLTDEBUGEventContent.outputCommands.extend(FastSimRecoTrackerFEVT.outputCommands)
+FEVTSIMDIGIHLTDEBUGEventContent.outputCommands.extend(FastSimParamMuonFEVT.outputCommands)
 
 
