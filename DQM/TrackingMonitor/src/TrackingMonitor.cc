@@ -1,8 +1,8 @@
 /*
  *  See header file for a description of this class.
  *
- *  $Date: 2008/04/30 14:06:32 $
- *  $Revision: 1.6 $
+ *  $Date: 2008/05/12 14:19:04 $
+ *  $Revision: 1.7 $
  *  \author Suchandra Dutta , Giorgia Mila
  */
 
@@ -77,7 +77,7 @@ void TrackingMonitor::beginJob(edm::EventSetup const& iSetup) {
   Chi2->setAxisTitle("Chi2 of each track");
 
   histname = "Chi2overDoF_";
-  Chi2overDoF = dqmStore_->book1D(histname+AlgoName, histname+AlgoName, Chi2Bin, Chi2Min, Chi2Max);
+  Chi2overDoF = dqmStore_->book1D(histname+AlgoName, histname+AlgoName, Chi2Bin, Chi2Min, Chi2Max/10);
   Chi2overDoF->setAxisTitle("Chi2 over nr. of degrees of freedom of each track");
 
   histname = "DistanceOfClosestApproach_";
@@ -127,11 +127,11 @@ void TrackingMonitor::analyze(const edm::Event& iEvent, const edm::EventSetup& i
   
   // std::string TrackProducer = conf_.getParameter<std::string>("TrackProducer");
   //  std::string TrackLabel = conf_.getParameter<std::string>("TrackLabel");
-  InputTag TrackProducer = conf_.getParameter<edm::InputTag>("TrackProducer");
+  InputTag trackProducer = conf_.getParameter<edm::InputTag>("TrackProducer");
   
   Handle<reco::TrackCollection> trackCollection;
   //  iEvent.getByLabel(TrackProducer, TrackLabel, trackCollection);
-  iEvent.getByLabel(TrackProducer, trackCollection);
+  iEvent.getByLabel(trackProducer, trackCollection);
   if (!trackCollection.isValid()) return;
 
 
