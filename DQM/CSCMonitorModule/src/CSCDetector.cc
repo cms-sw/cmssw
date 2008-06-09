@@ -28,6 +28,7 @@ CSCDetector::CSCDetector() {
   unsigned int i = 0; 
   CSCAddress adr;
 
+  adr.mask.layer = false;
   adr.mask.side = adr.mask.station = adr.mask.ring = adr.mask.chamber = adr.mask.cfeb = adr.mask.hv = true;
 
   for (adr.side = 1; adr.side <= N_SIDES; adr.side++) { 
@@ -74,7 +75,7 @@ CSCDetector::CSCDetector() {
   }
 
   // Cached the most frequently used areas
-  adr.mask.side = adr.mask.ring = adr.mask.chamber = adr.mask.cfeb = adr.mask.hv = false;
+  adr.mask.side = adr.mask.ring = adr.mask.chamber = adr.mask.layer = adr.mask.cfeb = adr.mask.hv = false;
   adr.mask.station = true;
   adr.station = 1;
   station_area[0] = Area(adr);
@@ -194,6 +195,9 @@ void CSCDetector::PrintAddress(const CSCAddress& adr) const {
 
   std::cout << ", Chamber (" << std::boolalpha << adr.mask.chamber << ")"; 
   if (adr.mask.chamber) std::cout << " = " << adr.chamber;
+
+  std::cout << ", Layer (" << std::boolalpha << adr.mask.layer << ")"; 
+  if (adr.mask.layer) std::cout << " = " << adr.layer;
 
   std::cout << ", CFEB (" << std::boolalpha << adr.mask.cfeb << ")"; 
   if (adr.mask.cfeb) std::cout << " = " << adr.cfeb;

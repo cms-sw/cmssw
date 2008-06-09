@@ -16,6 +16,9 @@
  * =====================================================================================
  */
 
+#ifndef CSCSummary_H
+#define CSCSummary_H
+
 #include <TH2.h>
 #include <math.h>
 #include "DQM/CSCMonitorModule/interface/CSCDetector.h"
@@ -31,7 +34,8 @@ class CSCSummary {
     const CSCDetector Detector() const { return detector; }
 
     void Read(TH1*& h1);
-    void ReadChambers(TH2*& h2, const double threshold = 1);
+    void ReadReportingChambers(TH2*& h2, const double threshold = 1);
+    void ReadErrorChambers(TH2*& evs, TH2*& err, const double eps_max = 0.1, const double Sfail = 5.0);
 
     void Write(TH1*& h1) const;
     void Write(TH1*& h1, const unsigned int station) const;
@@ -52,8 +56,11 @@ class CSCSummary {
 
     const bool ChamberCoords(const unsigned int x, const unsigned int y, CSCAddress& adr) const;
     const double GetReportingArea(CSCAddress adr) const; 
+    const double SignificanceAlpha(const unsigned int N, const unsigned int n, const double eps_max) const;
 
-    int map[N_SIDES][N_STATIONS][N_RINGS][N_CHAMBERS][N_CFEBS][N_HVS];
+    int map[N_SIDES][N_STATIONS][N_RINGS][N_CHAMBERS][N_LAYERS][N_CFEBS][N_HVS];
     CSCDetector detector;
 
 };
+
+#endif

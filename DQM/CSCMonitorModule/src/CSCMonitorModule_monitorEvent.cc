@@ -64,15 +64,6 @@ void CSCMonitorModule::monitorEvent(const edm::Event& e){
     //if fed has data then unpack it
     if ( fedData.size() >= 32 ) {
        
-/*  
-  
-  Removed as of not useful anymore (VR, 2008-04-29)
-
-      // Filling in Buffer size histo with slight correction ;)
-      if (MEEMU("Buffer_Size", me)) me->Fill(fedData.size() - 32);
-
-*/ 
-
       const short unsigned int *data = (short unsigned int *) fedData.data();
 
       // If Event has not yet been passed via Examiner - lets do it now.
@@ -127,32 +118,49 @@ bool CSCMonitorModule::monitorExaminer(CSCDCCExaminer& examiner) {
     }
   }
 
-/*  
-  
-  Removed as of not useful anymore (VR, 2008-04-29)
-
-  if (examiner.errors() != 0) {
-    if (MEEMU("BinaryChecker_Errors", me)) {
-      for(int i=0; i < examiner.nERRORS; i++) { // run over all errors
-        if( examiner.error(i) ) me->Fill(0., i);
-      }
-    }
-  }
-
-  if(examiner.warnings() != 0) {
-    if (MEEMU("BinaryChecker_Warnings", me)) {
-      for(int i=0; i<examiner.nWARNINGS; i++) { // run over all warnings
-        if( examiner.warning(i) ) me->Fill(0., i);
-      }
-    }
-  }
-
-*/
-
   bool goodEvent = true;
 
   if ((examiner.errors() & examinerMask) > 0) {
     goodEvent = false;
+  }
+
+  std::map<int,long> payloads = examiner.payloadDetailed();
+  for(std::map<int,long>::const_iterator chamber = payloads.begin(); chamber != payloads.end(); chamber++) {
+
+    //int ChamberID = chamber->first;
+    int CrateID = (chamber->first>>4) & 0xFF;
+    int DMBSlot = chamber->first & 0xF;
+
+    if (CrateID ==255) { continue; }
+
+    if (MEEMU("DMB_Reporting", me)) me->Fill(CrateID, DMBSlot);
+
+    int CSCtype   = 0;
+    int CSCposition = 0;
+    getCSCFromMap(CrateID, DMBSlot, CSCtype, CSCposition );
+
+    if (CSCtype && CSCposition && MEEMU("CSC_Reporting", me)) me->Fill(CSCposition, CSCtype);
+
+    long payload = chamber->second;
+    int cfeb_dav = (payload>>7) & 0x1F;
+    int alct_dav = (payload>>5) & 0x1;
+    int tmb_dav = (payload>>6) & 0x1; 
+      
+    if (alct_dav == 0) {
+      if (CSCtype && CSCposition && MEEMU("CSC_wo_ALCT", me)) me->Fill(CSCposition, CSCtype);
+      if (MEEMU("DMB_wo_ALCT", me)) me->Fill(CrateID, DMBSlot);
+    }
+     
+    if (tmb_dav == 0) {
+      if (CSCtype && CSCposition && MEEMU("CSC_wo_CLCT", me)) me->Fill(CSCposition, CSCtype);
+      if (MEEMU("DMB_wo_CLCT", me)) me->Fill(CrateID, DMBSlot);
+    }
+
+    if (cfeb_dav == 0) {
+      if (CSCtype && CSCposition && MEEMU("CSC_wo_CFEB", me)) me->Fill(CSCposition, CSCtype);
+      if (MEEMU("DMB_wo_CFEB", me)) me->Fill(CrateID,DMBSlot);
+    }
+      
   }
 
   if ((examiner.errors() != 0) || (examiner.warnings() != 0)) {
@@ -199,6 +207,10 @@ bool CSCMonitorModule::monitorExaminer(CSCDCCExaminer& examiner) {
 
     }
 
+    /*
+     * VR: 2008-06-06: Replaced by new CSCExaminer features (below); to be
+     * removed later on.
+     *
     std::map<int,long> checkerWarnings  = examiner.warningsDetailed();
     for( std::map<int,long>::const_iterator chamber = checkerWarnings.begin(); chamber != checkerWarnings.end() ; chamber++ ){
 
@@ -230,6 +242,39 @@ bool CSCMonitorModule::monitorExaminer(CSCDCCExaminer& examiner) {
         me->Fill(CSCposition, CSCtype);
       }
     }
+    */
+  }
+  
+  std::map<int,long> statuses = examiner.statusDetailed();
+  for(std::map<int,long>::const_iterator chamber = statuses.begin(); chamber != statuses.end(); chamber++) {
+
+    //int ChamberID = chamber->first;
+    int CrateID = (chamber->first>>4) & 0xFF;
+    int DMBSlot = chamber->first & 0xF;
+    std::string cscTag(Form("CSC_%03d_%02d", CrateID, DMBSlot));
+    if (CrateID == 255) {continue;}
+    
+    int CSCtype   = 0;
+    int CSCposition = 0;
+    getCSCFromMap(CrateID, DMBSlot, CSCtype, CSCposition );
+
+    int anyInputFull = chamber->second & 0x3F;
+    if(anyInputFull){
+      if (CSCtype && CSCposition && MEEMU("CSC_DMB_input_fifo_full", me)) me->Fill(CSCposition, CSCtype);
+      if (MEEMU("DMB_input_fifo_full", me)) me->Fill(CrateID, DMBSlot);
+    }
+
+    int anyInputTO = (chamber->second >> 7) & 0x3FFF;
+    if(anyInputTO){
+      if (CSCtype && CSCposition && MEEMU("CSC_DMB_input_timeout", me)) me->Fill(CSCposition, CSCtype);
+      if (MEEMU("DMB_input_timeout", me)) me->Fill(CrateID, DMBSlot);
+    }
+
+    if (chamber->second & (1<<22)) {
+      if (MEEMU("DMB_Format_Warnings", me)) me->Fill(CrateID, DMBSlot);
+      if (CSCtype && CSCposition && MEEMU("CSC_Format_Warnings", me)) me->Fill(CSCposition, CSCtype);
+    }
+
   }
 
   return goodEvent;

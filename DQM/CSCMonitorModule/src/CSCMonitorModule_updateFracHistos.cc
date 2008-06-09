@@ -28,6 +28,9 @@ void CSCMonitorModule::updateFracHistos() {
   // Calculate Aggregate Histograms
   //
 
+  /*
+   * Now is looking at Examiner
+   *
   if (MEEMU("DMB_Reporting", me1) && MEEMU("DMB_Format_Errors", me2) && MEEMU("DMB_Unpacked", me3)) {
     me1->getTH1()->Add(me2->getTH1(), me3->getTH1());
     if (MEEMU("DMB_Unpacked_with_errors", me2)) {
@@ -41,6 +44,7 @@ void CSCMonitorModule::updateFracHistos() {
       me1->getTH1()->Add(me2->getTH1(), -1);
     }
   }
+  */
 
   //
   // Calculate Fractional Histograms
@@ -88,6 +92,13 @@ void CSCMonitorModule::updateFracHistos() {
   if (MEEMU("DMB_input_timeout_Fract", me1) && MEEMU("DMB_Reporting", me2) && MEEMU("DMB_input_timeout", me3)) 
     me1->getTH1()->Divide(me3->getTH1(), me2->getTH1());
 
+  if (MEEMU("DMB_Format_Warnings_Fract", me1) && MEEMU("DMB_Reporting", me2) && MEEMU("DMB_Format_Warnings", me3))
+    me1->getTH1()->Divide(me3->getTH1(), me2->getTH1());
+
+  if (MEEMU("CSC_Format_Warnings_Fract", me1) && MEEMU("CSC_Reporting", me2) && MEEMU("CSC_Format_Warnings", me3))
+    me1->getTH1()->Divide(me3->getTH1(), me2->getTH1());
+
+  /*
   if (MEEMU("DMB_Format_Warnings_Fract", me1) && MEEMU("DMB_Format_Warnings", me2) && MEEMU("DMB_Unpacked", me3)) {
     TH1* tmp=dynamic_cast<TH1*>(me3->getTH1()->Clone());
     tmp->Add(me2->getTH1());
@@ -103,14 +114,36 @@ void CSCMonitorModule::updateFracHistos() {
     me1->getTH1()->Divide(me2->getTH1(), tmp);
     delete tmp;
   }
+  */
 
   //
   // Set detector information
   //
 
-  if (MEEMU("CSC_Unpacked_Fract", me1)){
-    TH2* tmp=dynamic_cast<TH2*>(me1->getTH1());
-    summary.ReadChambers(tmp, 0.75);
+  if (MEEMU("CSC_Reporting", me1)) {
+
+    TH2* rep = dynamic_cast<TH2*>(me1->getTH1());
+    summary.ReadReportingChambers(rep, 1.0);
+
+    if (MEEMU("CSC_Format_Errors", me2)) {
+      TH2* err = dynamic_cast<TH2*>(me2->getTH1());
+      summary.ReadErrorChambers(rep, err, 0.1, 5.0);
+    }
+
+    if (MEEMU("CSC_L1A_out_of_sync", me2)) {
+      TH2* err = dynamic_cast<TH2*>(me2->getTH1());
+      summary.ReadErrorChambers(rep, err, 0.1, 5.0);
+    }
+
+    if (MEEMU("CSC_DMB_input_fifo_full", me2)) {
+      TH2* err = dynamic_cast<TH2*>(me2->getTH1());
+      summary.ReadErrorChambers(rep, err, 0.1, 5.0);
+    }
+
+    if (MEEMU("CSC_DMB_input_timeout", me2)) {
+      TH2* err = dynamic_cast<TH2*>(me2->getTH1());
+      summary.ReadErrorChambers(rep, err, 0.1, 5.0);
+    }
   }
 
   //

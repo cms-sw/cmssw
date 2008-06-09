@@ -67,6 +67,9 @@ void CSCMonitorModule::monitorCSC(const CSCEventData& cscEvent, const int32_t& d
   // Check if any of input FIFO's are full
   //
 
+  /*
+   * Now is looking at examiner
+   *
   bool anyInputFull = dmbTrailer->tmb_full || dmbTrailer->alct_full;
   for (int i=0; i<5; i++) {
     anyInputFull = anyInputFull || (int)((dmbTrailer->cfeb_full>>i)&0x1);
@@ -76,11 +79,15 @@ void CSCMonitorModule::monitorCSC(const CSCEventData& cscEvent, const int32_t& d
     if (CSCtype && CSCposition && MEEMU("CSC_DMB_input_fifo_full", me)) me->Fill(CSCposition, CSCtype);
     if (MEEMU("DMB_input_fifo_full", me)) me->Fill(crateID, dmbID);
   }
+  */
 
   //
   // Check if any input Timeouted
   //
 
+  /*
+   * Now is looking at examiner
+   *
   bool anyInputTO = dmbTrailer->tmb_timeout || dmbTrailer->alct_timeout || dmbTrailer->cfeb_starttimeout || dmbTrailer->cfeb_endtimeout;
   for (int i=0; i<5; i++) {
     anyInputTO = ((dmbTrailer->cfeb_starttimeout>>i) & 0x1) || ((dmbTrailer->cfeb_endtimeout>>i) & 0x1);
@@ -90,11 +97,15 @@ void CSCMonitorModule::monitorCSC(const CSCEventData& cscEvent, const int32_t& d
     if (CSCtype && CSCposition && MEEMU("CSC_DMB_input_timeout", me)) me->Fill(CSCposition, CSCtype);
     if (MEEMU("DMB_input_timeout", me)) me->Fill(crateID, dmbID);
   }
+  */
 
   //
   // Check ALCT
   //
 
+  /*
+   * now is looking at Examiner
+   *
   if (!cscEvent.nalct()) {
     if (CSCtype && CSCposition && MEEMU("CSC_wo_ALCT", me)) me->Fill(CSCposition, CSCtype);
     if (MEEMU("DMB_wo_ALCT", me)) me->Fill(crateID, dmbID);
@@ -104,21 +115,29 @@ void CSCMonitorModule::monitorCSC(const CSCEventData& cscEvent, const int32_t& d
       if ((int)(alctHeader->L1Acc()%64 - dmbHeaderL1A) != 0) L1A_out_of_sync = true;
     }
   }
+  */
 
   //
   // Check CLCT
   //
 
+  /*
+   * Now is looking at examiner
+   *
   if(!cscEvent.nclct()) {
     if (CSCtype && CSCposition && MEEMU("CSC_wo_CLCT", me)) me->Fill(CSCposition, CSCtype);
     if (MEEMU("DMB_wo_CLCT", me)) me->Fill(crateID, dmbID);
   }
+  */
 
   
   //
   // Checking CFEBs
   //
  
+  /*
+   * Now is looking at Examiner
+   *
   int NumberOfUnpackedCFEBs = 0;
   const int N_CFEBs  = 5;
   const int N_Layers = 6;
@@ -155,6 +174,7 @@ void CSCMonitorModule::monitorCSC(const CSCEventData& cscEvent, const int32_t& d
     if (CSCtype && CSCposition && MEEMU("CSC_wo_CFEB", me)) me->Fill(CSCposition, CSCtype);
     if (MEEMU("DMB_wo_CFEB", me)) me->Fill(crateID,dmbID);
   }
+  */
 
   // Checking L1A out of sync occurancies
   if (cscEvent.nclct() && cscEvent.nalct()) {

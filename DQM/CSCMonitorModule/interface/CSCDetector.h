@@ -16,6 +16,9 @@
  * =====================================================================================
  */
 
+#ifndef CSCDetector_H
+#define CSCDetector_H
+
 #include <math.h>
 #include <float.h>
 #include <string>
@@ -26,6 +29,7 @@
 #define N_STATIONS 4
 #define N_RINGS    3
 #define N_CHAMBERS 36
+#define N_LAYERS   6
 #define N_CFEBS    5
 #define N_HVS      5
 
@@ -36,6 +40,7 @@ struct CSCAddressMask {
   bool station;
   bool ring;
   bool chamber;
+  bool layer;
   bool cfeb;
   bool hv;
 };
@@ -46,6 +51,7 @@ struct CSCAddress {
   unsigned int station;
   unsigned int ring;
   unsigned int chamber;
+  unsigned int layer;
   unsigned int cfeb;
   unsigned int hv;
 
@@ -56,6 +62,7 @@ struct CSCAddress {
     if (mask.station == a.mask.station && mask.station == true && station != a.station) return false;
     if (mask.ring    == a.mask.ring    && mask.ring    == true && ring    != a.ring)    return false;
     if (mask.chamber == a.mask.chamber && mask.chamber == true && chamber != a.chamber) return false;
+    if (mask.layer   == a.mask.layer   && mask.layer   == true && layer   != a.layer)   return false;
     if (mask.cfeb    == a.mask.cfeb    && mask.cfeb    == true && cfeb    != a.cfeb)    return false;
     if (mask.hv      == a.mask.hv      && mask.hv      == true && hv      != a.hv)      return false;
     return true;
@@ -70,6 +77,8 @@ struct CSCAddress {
     ring         = a.ring;
     mask.chamber = a.mask.chamber;
     chamber      = a.chamber;
+    mask.layer   = a.mask.layer;
+    layer        = a.layer;
     mask.cfeb    = a.mask.cfeb;
     cfeb         = a.cfeb;
     mask.hv      = a.mask.hv;
@@ -122,3 +131,4 @@ class CSCDetector {
 
 };
 
+#endif
