@@ -7,7 +7,7 @@ TrackRefitter = cms.EDFilter("TrackRefitter",
     Fitter = cms.string('FittingSmootherRK'),
     useHitsSplitting = cms.bool(False),
     TrajectoryInEvent = cms.bool(False),
-    TTRHBuilder = cms.string('WithTrackAngle'),
+    TTRHBuilder = cms.string('WithAngleAndTemplate'),
     AlgorithmName = cms.string('undefAlgorithm'),
     Propagator = cms.string('RungeKuttaTrackerPropagator')
 )
