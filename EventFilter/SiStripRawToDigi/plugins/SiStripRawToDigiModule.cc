@@ -1,4 +1,4 @@
-// Last commit: $Id: SiStripRawToDigiModule.cc,v 1.5 2008/02/19 21:23:55 bainbrid Exp $
+// Last commit: $Id: SiStripRawToDigiModule.cc,v 1.6 2008/06/09 11:30:18 bainbrid Exp $
 
 #include "EventFilter/SiStripRawToDigi/plugins/SiStripRawToDigiModule.h"
 #include "CondFormats/SiStripObjects/interface/SiStripFedCabling.h"
@@ -65,13 +65,13 @@ SiStripRawToDigiModule::~SiStripRawToDigiModule() {
 // -----------------------------------------------------------------------------
 /** */
 void SiStripRawToDigiModule::beginJob( const edm::EventSetup& setup ) {
-  updateCabling( setup );
+  //updateCabling( setup );
 }
 
 // -----------------------------------------------------------------------------
 /** */
 void SiStripRawToDigiModule::endJob() {
-  deleteCabling();
+  //deleteCabling();
 }
 
 // -----------------------------------------------------------------------------
