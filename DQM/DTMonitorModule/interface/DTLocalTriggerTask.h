@@ -4,8 +4,8 @@
 /*
  * \file DTLocalTriggerTask.h
  *
- * $Date: 2008/03/01 00:39:53 $
- * $Revision: 1.16 $
+ * $Date: 2008/05/22 10:48:35 $
+ * $Revision: 1.17 $
  * \author M. Zanetti - INFN Padova
  *
 */
@@ -127,7 +127,7 @@ class DTLocalTriggerTask: public edm::EDAnalyzer{
   edm::ESHandle<DTGeometry> muonGeom;
   std::map<uint32_t, std::map<std::string, MonitorElement*> > digiHistos;
   
-  
+  MonitorElement* dcc_IDDataErrorPlot;
 };
 
 #endif
