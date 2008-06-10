@@ -2,12 +2,17 @@ import FWCore.ParameterSet.Config as cms
 
 import RecoTracker.FinalTrackSelectors.ctfrsTrackListMerger_cfi
 # Track filtering and quality.
-#   input:    preFilterCmsTracks
+#   input:    firstStepTracksWithQuality,secStep,thStep
 #   output:   generalTracks
-#   sequence: tracksWithQuality
+#   sequence: trackCollectionMerging
+mergeFirstTwoSteps = RecoTracker.FinalTrackSelectors.ctfrsTrackListMerger_cfi.ctfrsTrackListMerger.clone()
 generalTracks = RecoTracker.FinalTrackSelectors.ctfrsTrackListMerger_cfi.ctfrsTrackListMerger.clone()
-trackCollectionMerging = cms.Sequence(generalTracks)
-generalTracks.TrackProducer1 = 'firstStepTracksWithQuality'
-generalTracks.TrackProducer2 = 'secStep'
+trackCollectionMerging = cms.Sequence(mergeFirstTwoSteps*generalTracks)
+#
+mergeFirstTwoSteps.TrackProducer1 = 'firstStepTracksWithQuality'
+mergeFirstTwoSteps.TrackProducer2 = 'secStep'
+mergeFirstTwoSteps.promoteTrackQuality = True
+#
+generalTracks.TrackProducer1 = 'mergeFirstTwoSteps'
+generalTracks.TrackProducer2 = 'thStep'
 generalTracks.promoteTrackQuality = True
-
