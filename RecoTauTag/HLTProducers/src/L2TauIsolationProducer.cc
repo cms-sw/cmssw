@@ -23,9 +23,6 @@ L2TauIsolationProducer::L2TauIsolationProducer(const edm::ParameterSet& iConfig)
   edm::ParameterSet ECALClusterParams = iConfig.getParameter<edm::ParameterSet>("ECALClustering") ;
 <<<<<<< L2TauIsolationProducer.cc
   ECALClustering_run_    =  ECALClusterParams.getParameter<bool>( "runAlgorithm" );
-=======
-  ECALClustering_run_    =  ECALIsolParams.getParameter<bool>( "runAlgorithm" );
->>>>>>> 1.7
   ECALClustering_clusterRadius_ =  ECALClusterParams.getParameter<double>( "clusterRadius" );
     
   //Tower Isolation
