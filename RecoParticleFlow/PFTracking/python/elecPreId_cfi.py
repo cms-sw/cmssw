@@ -20,9 +20,9 @@ elecpreid = cms.EDProducer("GoodSeedProducer",
     PFEcalClusterLabel = cms.InputTag("particleFlowClusterECAL"),
     PSThresholdFile = cms.string('RecoParticleFlow/PFTracking/data/PSThreshold.dat'),
     MinPt = cms.double(2.0),
-    TkColList = cms.VInputTag(cms.InputTag("generalTracks"), cms.InputTag("secStep"), cms.InputTag("thStep")),
+    TkColList = cms.VInputTag(cms.InputTag("generalTracks")),
     UseTMVA = cms.untracked.bool(False),
-    TrackQuality = cms.string('highPurity'),
+    TrackQuality = cms.string('goodIterative'),
     MaxPt = cms.double(50.0),
     ClusterThreshold = cms.double(0.5)
 )
