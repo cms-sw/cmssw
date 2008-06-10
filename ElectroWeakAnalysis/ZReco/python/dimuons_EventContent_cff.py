@@ -2,8 +2,6 @@
 
 #    "keep *_goodMuons_*_*",
 
-#    "keep *_muonIsolations_*_*",
-
 import FWCore.ParameterSet.Config as cms
 
 dimuonsEventContent = cms.PSet(
@@ -18,7 +16,9 @@ dimuonsEventContent = cms.PSet(
         'keep *_tkIsoDepositCalByAssociatorTowers_*_*', 
         'keep *_EcalIsolationForTracks_*_*', 
         'keep *_HcalIsolationForTracks_*_*', 
+        'keep *_goodMuonIsolations_*_*', 
         'keep *_goodTrackIsolations_*_*', 
+        'keep *_muonIsolations_*_*', 
         'keep *_dimuons_*_*', 
         'keep *_dimuonsOneTrack_*_*', 
         'keep *_dimuonsGlobal_*_*', 
