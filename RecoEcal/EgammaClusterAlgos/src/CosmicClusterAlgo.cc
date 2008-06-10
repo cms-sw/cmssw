@@ -10,6 +10,10 @@
 #include "Geometry/CaloTopology/interface/EcalEndcapTopology.h"
 #include "Geometry/CaloTopology/interface/EcalBarrelTopology.h"
 
+#include "CondFormats/EcalObjects/interface/EcalIntercalibConstants.h"
+#include "CondFormats/DataRecord/interface/EcalIntercalibConstantsRcd.h"
+
+
 // Return a vector of clusters from a collection of EcalRecHits:
 //
 std::vector<reco::BasicCluster> CosmicClusterAlgo::makeClusters(
@@ -19,6 +23,7 @@ std::vector<reco::BasicCluster> CosmicClusterAlgo::makeClusters(
 				  const CaloSubdetectorGeometry *geometryES_p,
 				  EcalPart ecalPart,
 				  const std::vector<int>& masked,
+				  const EcalIntercalibConstantMap& icalMap,
 				  bool regional,
 				  const std::vector<EcalEtaPhiRegion>& regions)
 {
@@ -61,6 +66,11 @@ std::vector<reco::BasicCluster> CosmicClusterAlgo::makeClusters(
     for(it = hits->begin(); it != hits->end(); it++)
       {
 	double energy = it->energy();
+	  // find intercalib constant for this xtal
+	  EcalIntercalibConstantMap::const_iterator icalit=icalMap.find((EBDetId )it->id());
+      EcalIntercalibConstant icalconst = 1.;
+	  if( icalit!=icalMap.end() ){icalconst = (*icalit);}
+	  energy /= icalconst;
 	if (energy < threshold) continue; // need to check to see if this line is useful!
     //std::cout << "JH12 Seed Energy " << it->energy() << " hashed " << ((EBDetId)it->id()).hashedIndex()  << std::endl;
 
@@ -82,7 +92,8 @@ std::vector<reco::BasicCluster> CosmicClusterAlgo::makeClusters(
 
 	if (!regional || withinRegion) {
 	  //float ET = it->energy() * sin(position.theta()); JHaupt Out 4-27-08 Et not needed for Cosmic Events...
-	  if (energy >= threshold) seeds.push_back(*it); // JHaupt 4-27-2008 Et -> energy, most likely not needed as there is already a threshold requirement.
+	 // if (energy >= threshold) 
+	  seeds.push_back(*it); // JHaupt 4-27-2008 Et -> energy, most likely not needed as there is already a threshold requirement.
 	}
       }
     
@@ -100,9 +111,11 @@ std::vector<reco::BasicCluster> CosmicClusterAlgo::makeClusters(
 	  }
    }
 
-   mainSearch(hits,geometry_p,topology_p,geometryES_p,ecalPart);
+   mainSearch(hits,geometry_p,topology_p,geometryES_p,ecalPart,icalMap);
+   int initsize = clusters_v.size();
    sort(clusters_v.begin(), clusters_v.end());
-
+   int finalsize = clusters_v.size();
+      
    if (verbosity < pINFO)
    {
       std::cout << "---------- end of main search. clusters have been sorted ----" << std::endl;
@@ -118,7 +131,8 @@ void CosmicClusterAlgo::mainSearch(const EcalRecHitCollection* hits,
                                    const CaloSubdetectorGeometry *geometry_p,
                                    const CaloSubdetectorTopology *topology_p,
                                    const CaloSubdetectorGeometry *geometryES_p,
-                                   EcalPart ecalPart)
+                                   EcalPart ecalPart,
+								   const EcalIntercalibConstantMap& icalMap)
 {
 
    if (verbosity < pINFO)
@@ -155,7 +169,8 @@ void CosmicClusterAlgo::mainSearch(const EcalRecHitCollection* hits,
       }
 
       // clear the vector of hits in current cluster
-      current_v.clear();
+      current_v9.clear();
+      current_v25.clear();
 
       // Create a navigator at the seed
       CaloNavigator<DetId> navigator(it->id(), topology_p);
@@ -174,9 +189,9 @@ void CosmicClusterAlgo::mainSearch(const EcalRecHitCollection* hits,
 
       // If some crystals in the current vector then 
       // make them into a cluster 
-      if (current_v.size() > 0) 
+      if (current_v25.size() > 0) 
       {
-         makeCluster(hits, geometry_p, geometryES_p);
+         makeCluster(hits, geometry_p, geometryES_p, icalMap);
       }
 
    }  // End loop on seed crystals
@@ -185,7 +200,8 @@ void CosmicClusterAlgo::mainSearch(const EcalRecHitCollection* hits,
 
 void CosmicClusterAlgo::makeCluster(const EcalRecHitCollection* hits,
 				    const CaloSubdetectorGeometry *geometry,
-				    const CaloSubdetectorGeometry *geometryES)
+				    const CaloSubdetectorGeometry *geometryES,
+					const EcalIntercalibConstantMap& icalMap)
 {
 
    double energy = 0;
@@ -196,29 +212,39 @@ void CosmicClusterAlgo::makeCluster(const EcalRecHitCollection* hits,
    EBDetId detSec;
    //bool goodCluster = false; //JHaupt 4-27-08 Added so that some can be earased.. used another day Might not be needed as seeds are energy ordered... 
    Point position;
-   position = posCalculator_.Calculate_Location(current_v, hits,geometry, geometryES);
+   position = posCalculator_.Calculate_Location(current_v25, hits,geometry, geometryES);
    
    std::vector<DetId>::iterator it;
-   for (it = current_v.begin(); it != current_v.end(); it++)
+   for (it = current_v9.begin(); it != current_v9.end(); it++)
    {
       EcalRecHitCollection::const_iterator itt = hits->find(*it);
       EcalRecHit hit_p = *itt;
-      if (hit_p.energy() >= -1.) 
-	  {
-		energy += hit_p.energy(); //JHaupt only add if greatr than 27 MeV... reevaluate this WARNING!!
-		if (hit_p.energy() > energySecond ) {energySecond = hit_p.energy(); detSec = (EBDetId )hit_p.id();}
-		if (energySecond > energyMax ) {std::swap(energySecond,energyMax); std::swap(detFir,detSec);}
-	  }
-      chi2 += 0;
+	  double rawE = hit_p.energy();
+	  // find intercalib constant for this xtal
+	  EcalIntercalibConstantMap::const_iterator icalit=icalMap.find((EBDetId )hit_p.id());
+      EcalIntercalibConstant icalconst = 1.;
+	  if( icalit!=icalMap.end() ){icalconst = (*icalit);}
+	  rawE /= icalconst;
+	  if (rawE > energySecond ) {energySecond = rawE; detSec = (EBDetId )hit_p.id();}
+	  if (energySecond > energyMax ) {std::swap(energySecond,energyMax); std::swap(detFir,detSec);}
    }
-   chi2 /= energy;
+   
    
    if ((energyMax < ecalBarrelSingleThreshold) && (energySecond < ecalBarrelSecondThreshold) ) return;
    
+   for (it = current_v25.begin(); it != current_v25.end(); it++)
+   {
+      EcalRecHitCollection::const_iterator itt = hits->find(*it);
+      EcalRecHit hit_p = *itt;
+      energy += hit_p.energy();
+      chi2 += 0;
+   }
+   
+   chi2 /= energy;
    if (verbosity < pINFO)
    { 
       std::cout << "JH******** NEW CLUSTER ********" << std::endl;
-      std::cout << "JHNo. of crystals = " << current_v.size() << std::endl;
+      std::cout << "JHNo. of crystals = " << current_v25.size() << std::endl;
       std::cout << "JH     Energy     = " << energy << std::endl;
       std::cout << "JH     Phi        = " << position.phi() << std::endl;
       std::cout << "JH     Eta        = " << position.eta() << std::endl;
@@ -227,7 +253,7 @@ void CosmicClusterAlgo::makeCluster(const EcalRecHitCollection* hits,
       std::cout << "JH****Esec****  "<<energySecond << " ieta " <<detSec.ieta() <<" iphi "<<detSec.ieta() << std::endl;
     }
 
-   clusters_v.push_back(reco::BasicCluster(energy, position, chi2, current_v, reco::island));
+   clusters_v.push_back(reco::BasicCluster(energy, position, chi2, current_v25, reco::island));
 }
 
 bool CosmicClusterAlgo::checkMaxima(CaloNavigator<DetId> &navigator,
@@ -294,7 +320,8 @@ void CosmicClusterAlgo::prepareCluster(CaloNavigator<DetId> &navigator,
 
           // add the current crystal
 	  //std::cout << "adding " << dx << ", " << dy << std::endl;
-	  addCrystal(thisDet);
+	 
+
 
 	  // now consider if we are in an edge (outer 16)
           // or central (inner 9) region
@@ -303,6 +330,7 @@ void CosmicClusterAlgo::prepareCluster(CaloNavigator<DetId> &navigator,
              // this is an "edge" so should be allowed to seed
              // provided it is not already used
              //std::cout << "   setting can seed" << std::endl;
+			 addCrystal(thisDet,false); //These are in the V25
              canSeed_s.insert(thisDet);
           }  // end if "edge"
           else 
@@ -310,6 +338,7 @@ void CosmicClusterAlgo::prepareCluster(CaloNavigator<DetId> &navigator,
              // or else we are in the central 3x3
              // and must remove any of these crystals from the canSeed set
              setItr = canSeed_s.find(thisDet);
+			 addCrystal(thisDet,true); //These are in the V9
              if (setItr != canSeed_s.end())
              {
                 //std::cout << "   unsetting can seed" << std::endl;
@@ -328,7 +357,7 @@ void CosmicClusterAlgo::prepareCluster(CaloNavigator<DetId> &navigator,
 }
 
 
-void CosmicClusterAlgo::addCrystal(const DetId &det)
+void CosmicClusterAlgo::addCrystal(const DetId &det, const bool in9)
 {   
 
    EcalRecHitCollection::const_iterator thisIt =  recHits_->find(det);
@@ -341,10 +370,10 @@ void CosmicClusterAlgo::addCrystal(const DetId &det)
 	     //std::cout << "   ... this is a good crystal and will be added" << std::endl;
 	      if (thisIt->energy() >= -1.)
 		{		
-		  current_v.push_back(det);
+		  if (in9)  current_v9.push_back(det);
+		  current_v25.push_back(det);
 		}
       }
    } 
   
 }
-

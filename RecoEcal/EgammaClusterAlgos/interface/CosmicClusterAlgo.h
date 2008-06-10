@@ -1,6 +1,6 @@
 #ifndef RecoECAL_ECALClusters_CosmicClusterAlgo_h
 #define RecoECAL_ECALClusters_CosmicClusterAlgo_h
-
+ 
 #include "Geometry/CaloGeometry/interface/CaloGeometry.h"
 
 #include "DataFormats/Math/interface/Point3D.h"
@@ -16,6 +16,9 @@
 #include "RecoEcal/EgammaCoreTools/interface/PositionCalc.h"
 #include "RecoEcal/EgammaCoreTools/interface/EcalEtaPhiRegion.h"
 #include "RecoEcal/EgammaCoreTools/interface/EcalRecHitLess.h"
+
+#include "CondFormats/EcalObjects/interface/EcalIntercalibConstants.h"
+#include "CondFormats/DataRecord/interface/EcalIntercalibConstantsRcd.h"
 
 // C/C++ headers
 #include <string>
@@ -55,6 +58,7 @@ class CosmicClusterAlgo
                                                const CaloSubdetectorGeometry *geometryES_p,
                                                EcalPart ecalPart,
 											   const std::vector<int>& masked = std::vector<int>(),
+											   const EcalIntercalibConstantMap& icalMap = 1.0,
 					       bool regional = false,
 					       const std::vector<EcalEtaPhiRegion>& regions = std::vector<EcalEtaPhiRegion>());
 
@@ -88,7 +92,8 @@ class CosmicClusterAlgo
 
 
   // The vector of DetId's in the cluster currently reconstructed
-  std::vector<DetId> current_v;
+  std::vector<DetId> current_v9;
+  std::vector<DetId> current_v25;
 
   // The vector of clusters
   std::vector<reco::BasicCluster> clusters_v;
@@ -100,7 +105,8 @@ class CosmicClusterAlgo
                   const CaloSubdetectorGeometry *geometry_p,
                   const CaloSubdetectorTopology *topology_p,
 		  const CaloSubdetectorGeometry *geometryES_p,
-                  EcalPart ecalPart);
+                  EcalPart ecalPart,
+				  const EcalIntercalibConstantMap& icalMap);
 
   // Is the crystal at the navigator position a 
   // local maxiumum in energy?
@@ -116,12 +122,13 @@ class CosmicClusterAlgo
 
   // Add the crystal with DetId det to the current
   // vector of crystals if it meets certain criteria
-  void addCrystal(const DetId &det);
+  void addCrystal(const DetId &det, const bool in9);
+  
 
   
   // take the crystals in the current_v and build 
   // them into a BasicCluster
-  void makeCluster(const EcalRecHitCollection* hits,const CaloSubdetectorGeometry *geometry_p,const CaloSubdetectorGeometry *geometryES_p);
+  void makeCluster(const EcalRecHitCollection* hits,const CaloSubdetectorGeometry *geometry_p,const CaloSubdetectorGeometry *geometryES_p, const EcalIntercalibConstantMap& icalMap);
 
   //TEMP JHAUPT 4-27
   std::vector<int> maskedChannels_; //TEMP JHAUPT 4-27
