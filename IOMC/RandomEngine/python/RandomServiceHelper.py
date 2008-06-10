@@ -13,8 +13,8 @@ class RandomNumberServiceHelper(object):
 
     Provide both user level and WM APIs.
 
-    Revision: "$Id: RandomServiceHelper.py,v 1.2 2008/04/19 13:24:19 hegner Exp $"
-    Version   "$Revision: 1.2 $"
+    Revision: "$Id: RandomServiceHelper.py,v 1.3 2008/05/06 01:08:15 ewv Exp $"
+    Version   "$Revision: 1.3 $"
     Author:   Dave Evans
     Modified: Eric Vaandering
     """
@@ -33,7 +33,7 @@ class RandomNumberServiceHelper(object):
         """
         if psetInstance == None:
             return False
-        if psetInstance.pythonTypeName() != "cms.PSet":
+        if not isinstance(psetInstance,CfgTypes.PSet):
             return False
         seedList = getattr(psetInstance, "initialSeedSet", None)
         if seedList != None:
@@ -233,6 +233,18 @@ class RandomNumberServiceHelper(object):
         return
 
 
+    def resetSeeds(self, value):
+        """
+        _resetSeeds_
+
+        reset all seeds to given value
+
+        """
+        newSeeds = [ value for i in range(self.countSeeds())]
+        self.insertSeeds(*newSeeds)
+        return
+
+
 
 if __name__ == '__main__':
     #  //
@@ -241,6 +253,7 @@ if __name__ == '__main__':
     randSvc = Service("RandomNumberGeneratorService")
     randHelper = RandomNumberServiceHelper(randSvc)
 
+    randSvc.i1 =  CfgTypes.untracked(CfgTypes.uint32(1))
     randSvc.t1 = CfgTypes.PSet()
     randSvc.t2 = CfgTypes.PSet()
     randSvc.t3 = CfgTypes.PSet()
@@ -265,20 +278,26 @@ if __name__ == '__main__':
     #  //
     # // Autofill seeds
     #//
-    randHelper.populate()
     print "Totally Random PSet"
+    randHelper.populate()
     print randSvc
 
 
     #  //
+    # // Set all seeds with reset method
+    #//
+    print "All seeds 9999"
+    randHelper.resetSeeds(9999)
+    print randSvc
+
+    #  //
     # // test setting named seeds
     #//
-    randHelper.setNamedSeed("t1", 9999)
-    randHelper.setNamedSeed("t2", 9999, 9999, 9999)
-    randHelper.setNamedSeed("t3", 9999, 9999)
-
-    print "All seeds 9999"
+    print "t1,t3 9998"
+    randHelper.setNamedSeed("t1", 9998)
+    randHelper.setNamedSeed("t3", 9998, 9998)
     print randSvc
+
     print "t1 seed(s)",randHelper.getNamedSeed("t1")
     print "t2 seed(s)",randHelper.getNamedSeed("t2")
 
