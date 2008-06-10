@@ -8,7 +8,7 @@
 //
 // Original Author:  
 //         Created:  Sun Jan  6 22:01:27 EST 2008
-// $Id: FWEveLegoViewManager.cc,v 1.2 2008/03/20 09:39:26 dmytro Exp $
+// $Id: FWEveLegoViewManager.cc,v 1.3 2008/06/09 20:18:22 chrjones Exp $
 //
 
 // system include files
@@ -182,7 +182,7 @@ FWEveLegoViewManager::makeProxyBuilderFor(const FWEventItem* iItem)
       //std::cout <<"got selection manager"<<std::endl;
       m_selectionManager = iItem->selectionManager();
    }
-  TypeToBuilders::iterator itFind = m_typeToBuilders.find(iItem->name());
+  TypeToBuilders::iterator itFind = m_typeToBuilders.find(iItem->purpose());
   if(itFind != m_typeToBuilders.end()) {
      for ( std::vector<std::string>::const_iterator builderName = itFind->second.begin();
 	   builderName != itFind->second.end(); ++builderName )

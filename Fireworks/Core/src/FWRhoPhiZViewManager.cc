@@ -8,7 +8,7 @@
 //
 // Original Author:  
 //         Created:  Sat Jan  5 14:08:51 EST 2008
-// $Id: FWRhoPhiZViewManager.cc,v 1.26 2008/06/08 16:59:01 dmytro Exp $
+// $Id: FWRhoPhiZViewManager.cc,v 1.27 2008/06/09 20:18:22 chrjones Exp $
 //
 
 // system include files
@@ -280,7 +280,7 @@ void FWRhoPhiZViewManager::addElements()
 void
 FWRhoPhiZViewManager::makeProxyBuilderFor(const FWEventItem* iItem)
 {
-   TypeToBuilder::iterator itFind = m_typeToBuilder.find(iItem->name());
+   TypeToBuilder::iterator itFind = m_typeToBuilder.find(iItem->purpose());
    if(itFind != m_typeToBuilder.end()) {
       if(itFind->second.second) {
          std::cout << "\tinterpreting as FWRPZDataProxyBuilder " << std::endl;
