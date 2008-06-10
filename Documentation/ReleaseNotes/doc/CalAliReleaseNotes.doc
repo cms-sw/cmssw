@@ -5,14 +5,19 @@
 - General:
 
 - Main changes and new features:
-  - 
-
+  - Ecal and Hcal            : alignable geometry introduced	
+  - Ecal Electron Calibration: added calibration in the Endcap
+  - HcalIsoTrack             : regional FED unpacking and new tracking 
+  - Hcal dijet uses iterativecone5 instead of cone7
+  - DT calibration: added module to check db constants for tTrig
 
 - Major bug fixes:
+  - In Ecal Phi Simmetry, Hcal dijets
+  - In Calibration/Tools  fix ecal xmlwriter
 
 - Known issues:
 
 <hr>
-Last updated: 14 April 2008 David Futyan
+Last updated: 10 June 2008 Stefano Argiro
  
 */
