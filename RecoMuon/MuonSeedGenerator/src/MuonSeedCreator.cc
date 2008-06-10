@@ -199,10 +199,10 @@ TrajectorySeed MuonSeedCreator::createSeed(int type, SegmentContainer seg, std::
      GlobalVector polar(GlobalVector::Spherical(mom.theta(),seg[last]->globalDirection().phi(),1.));
 
      /// count the energy loss - from parameterization
-     /*
-     double ptRatio = 0.994 - (2.14/(ptmean -1)) + (3.46/((ptmean-1)*(ptmean-1)));
+     
+     double ptRatio = 0.994 - (2.14/(fabs(ptmean) -1)) + ( 3.46/((fabs(ptmean)-1)*(fabs(ptmean)-1)) );
      ptmean = ptmean*ptRatio ;
-     */
+     
 
      /// scale the magnitude of total momentum
      polar *= fabs(ptmean)/polar.perp();
@@ -266,11 +266,10 @@ TrajectorySeed MuonSeedCreator::createSeed(int type, SegmentContainer seg, std::
      GlobalVector polar(GlobalVector::Spherical(seg[last]->globalDirection().theta(),seg[last]->globalDirection().phi(),1.));
 
      /// count the energy loss - from parameterization
-     /*
-     double ptRatio = 1.0 - (2.808/(ptmean -1)) + (4.546/((ptmean-1)*(ptmean-1)));
+      
+     double ptRatio = 1.0 - (2.808/(fabs(ptmean) -1)) + (4.546/( (fabs(ptmean)-1)*(fabs(ptmean)-1)) );
      ptmean = ptmean*ptRatio ;
-     */
-
+      
      /// scale the magnitude of total momentum
      polar *= fabs(ptmean)/polar.perp();
      /// Trasfer into local direction
