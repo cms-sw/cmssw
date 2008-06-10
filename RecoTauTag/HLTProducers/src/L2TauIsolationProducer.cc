@@ -77,7 +77,7 @@ L2TauIsolationProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSetu
 	   L2TauIsolationInfo l2info; //Create Info Object
 
 	   //Run ECALIsolation 
-	   if( (ECALIsolation_run_))
+	   if(ECALIsolation_run_)
 	     {
 	       L2TauECALIsolation ecal_isolation(ECALIsolation_innerCone_,ECALIsolation_outerCone_);
 	       ecal_isolation.run(getECALHits(*jc,iEvent,iSetup),*jc,l2info);
