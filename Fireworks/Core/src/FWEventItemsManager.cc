@@ -8,7 +8,7 @@
 //
 // Original Author:  
 //         Created:  Fri Jan  4 10:38:18 EST 2008
-// $Id: FWEventItemsManager.cc,v 1.9 2008/03/24 07:10:01 dmytro Exp $
+// $Id: FWEventItemsManager.cc,v 1.10 2008/03/24 13:28:18 chrjones Exp $
 //
 
 // system include files
@@ -122,6 +122,7 @@ static const std::string kIsVisible("isVisible");
 static const std::string kTrue("t");
 static const std::string kFalse("f");
 static const std::string kLayer("layer");
+static const std::string kPurpose("purpose");
 
 void 
 FWEventItemsManager::addTo(FWConfiguration& iTo) const
@@ -129,7 +130,7 @@ FWEventItemsManager::addTo(FWConfiguration& iTo) const
    for(std::vector<FWEventItem*>::const_iterator it = m_items.begin();
        it != m_items.end();
        ++it) {
-      FWConfiguration conf(1);
+      FWConfiguration conf(2);
       ROOT::Reflex::Type dataType( ROOT::Reflex::Type::ByTypeInfo(*((*it)->type()->GetTypeInfo())));
       assert(dataType != ROOT::Reflex::Type() );
 
@@ -149,6 +150,7 @@ FWEventItemsManager::addTo(FWConfiguration& iTo) const
          os << (*it)->layer();
          conf.addKeyValue(kLayer,FWConfiguration(os.str()));
       }
+      conf.addKeyValue(kPurpose,(*it)->purpose());
       iTo.addKeyValue((*it)->name(), conf, true);
    }
 }
@@ -184,8 +186,14 @@ FWEventItemsManager::setFrom(const FWConfiguration& iFrom)
       const std::string& sLayer =(*keyValues)[7].second.value();
       std::istringstream isl(sLayer);
       isl >> layer;
+      //For older configs assume name is the same as purpose
+      std::string purpose(name);
+      if(conf.version()>1) {
+         purpose = (*keyValues)[8].second.value();
+      }
       FWPhysicsObjectDesc desc(name,
                                TClass::GetClass(type.c_str()),
+                               purpose,
                                disp,
                                moduleLabel,
                                productInstanceLabel,
