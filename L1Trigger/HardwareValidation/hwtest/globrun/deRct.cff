@@ -2,6 +2,11 @@
 # please include 'replace' statements 
 # as appropriate for the subsystem
 
+//Decompression lut
+replace CaloTPGTranscoder.hcalLUT2 = 
+"L1Trigger/HardwareValidation/hwtest/globrun/TPGcalcDecompress2Identity.txt"
+
+//masking
 #Maps both ECAL and HCAL to both eGamma and sums paths: 
 #include "L1Trigger/HardwareValidation/hwtest/globrun/Rct-CRUZET_identity.cff"
 #Maps ECAL to eGamma and sums paths, no HCAL: 
@@ -12,6 +17,6 @@ include "L1Trigger/HardwareValidation/hwtest/globrun/Rct-Eeg_ESums.cff"
 #include "L1Trigger/HardwareValidation/hwtest/globrun/Rct-Heg_ESums.cff"
 #Maps HCAL to eGamma and sums paths, no ECAL: 
 #include "L1Trigger/HardwareValidation/hwtest/globrun/Rct-Heg_HSums.cff"
-#Maps ECAL to eGamma and sums paths, no HCAL: 
+#Maps ECAL to eGamma and sums paths (Top-Bottom), no HCAL: 
 #include "L1Trigger/HardwareValidation/hwtest/globrun/Rct-Eeg_ESums_TB.cff"
 

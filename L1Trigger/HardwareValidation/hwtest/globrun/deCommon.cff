@@ -9,6 +9,10 @@ include "L1Trigger/HardwareValidation/hwtest/globrun/FrontierConditions.cff"
 //dummy 
 include "L1Trigger/Configuration/data/L1DummyConfig.cff"
 
+
+include "Geometry/CSCGeometry/data/cscGeometry.cfi"
+
+
 ///RawToDigi
 #include "L1Trigger/HardwareValidation/data/RawToDigiGR.cff"
 include "Configuration/GlobalRuns/data/RawToDigiGR.cff"

@@ -84,7 +84,7 @@ void plotDE(TString finput = "l1demon.root") {
   gInterpreter->ExecuteMacro("/afs/cern.ch/user/n/nuno/style/ScanStyle.C");
 
 
-  TDirectory* tdircom = tdir;//->GetDirectory("common/");
+  TDirectory* tdircom = tdir->GetDirectory("common/");
   rates = (TH1F*) tdircom->Get("sysrates");
   error = (TH1F*) tdircom->Get("errorflag");
 

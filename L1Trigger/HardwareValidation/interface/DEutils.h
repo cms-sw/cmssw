@@ -660,7 +660,8 @@ bool DEutils<T>::is_empty(col_cit it) const {
 
 template<>
 inline bool DEutils<EcalTrigPrimDigiCollection>::is_empty(col_cit it) const { 
-  return ( it->size()==0 || it->sample(it->sampleOfInterest()).raw()==0);
+  return ( it->size()==0 || it->sample(it->sampleOfInterest()).raw()==0 ||
+	   it->compressedEt()==0 );
 }
 
 template<>
