@@ -32,11 +32,13 @@ public:
 
 private:
   void loadParameters(const G4FastTrack& fastTrack);
-  G4double longitudinalProfile(G4double showerDepth, G4double pathLength, G4double transDepth);
+  G4double longitudinalProfile(G4double showerDepth, G4double pathLength, G4double transDepth, 
+			       const G4ThreeVector pos,G4double einc);
   void samplingFluctuation(G4double &de, G4double einc);
   G4bool insideSampling(const G4ThreeVector pos);
   void doCholeskyReduction(G4double **cc, G4double **vv, const G4int ndim);
   void fillFluctuationVector();
+  G4int getNumberOfSpots(G4double einc);
 
 private:  
 
