@@ -656,6 +656,43 @@ int HitPattern::numberOfLostMuonRPCHits() const {
   return count;
 }
 
+int HitPattern::numberOfValidStripLayersWithMonoAndStereo () const 
+{
+     static const int nHits = (PatternSize * 32) / HitSize;
+     bool hasMono[SubstrMask + 1][LayerMask + 1];
+     printf("sizeof(hasMono) = %d\n", sizeof(hasMono));
+     memset(hasMono, 0, sizeof(hasMono));
+     bool hasStereo[SubstrMask + 1][LayerMask + 1];
+     memset(hasStereo, 0, sizeof(hasStereo));
+     // mark which layers have mono/stereo hits
+     for (int i = 0; i < nHits; i++) {
+	  uint32_t pattern = getHitPattern(i);
+	  if (pattern != 0) {
+	       if (validHitFilter(pattern) && stripHitFilter(pattern)) {
+		    switch (getSide(pattern)) {
+		    case 0: // mono
+			 hasMono[getSubStructure(pattern)][getLayer(pattern)] 
+			      = true;
+			 break;
+		    case 1: // stereo
+			 hasStereo[getSubStructure(pattern)][getLayer(pattern)]
+			      = true;
+			 break;
+		    default:
+			 break;
+		    }
+	       }
+	  }
+     }
+     // count how many layers have mono and stereo hits
+     int count = 0;
+     for (int i = 0; i < SubstrMask + 1; ++i) 
+	  for (int j = 0; j < LayerMask + 1; ++j)
+	       if (hasMono[i][j] && hasStereo[i][j])
+		    count++;
+     return count;
+}
+
 uint32_t HitPattern::getTrackerLayerCase(uint32_t substr, uint32_t layer) const
 {
   uint32_t tk_substr_layer = 
@@ -691,6 +728,47 @@ uint32_t HitPattern::getTrackerLayerCase(uint32_t substr, uint32_t layer) const
     }
   }
   return layerCase;
+}
+
+uint32_t HitPattern::getTrackerMonoStereo (uint32_t substr, uint32_t layer) const
+{
+  uint32_t tk_substr_layer = 
+    (1 << SubDetectorOffset) +
+    ((substr & SubstrMask) << SubstrOffset) +
+    ((layer & LayerMask) << LayerOffset);
+
+  uint32_t mask =
+    (SubDetectorMask << SubDetectorOffset) +
+    (SubstrMask << SubstrOffset) +
+    (LayerMask << LayerOffset);
+
+  //	0:		neither a valid mono nor a valid stereo hit
+  //    MONO:		valid mono hit
+  //	STEREO:		valid stereo hit
+  //	MONO | STEREO:	both
+  uint32_t monoStereo = 0;
+  for (int i=0; i<(PatternSize * 32) / HitSize; i++)
+  {
+    uint32_t pattern = getHitPattern(i);
+    if (pattern == 0) break;
+    if ((pattern & mask) == tk_substr_layer)
+    {
+      uint32_t hitType = (pattern >> HitTypeOffset) & HitTypeMask; // 0,1,2,3
+      if (hitType == 0) { // valid hit
+	   switch (getSide(pattern)) {
+	   case 0: // mono
+		monoStereo |= MONO;
+		break;
+	   case 1: // stereo
+		monoStereo |= STEREO;
+		break;
+	   default:
+		break;
+	   }
+      }
+    }
+  }
+  return monoStereo;
 }
 
 int HitPattern::trackerLayersWithMeasurement() const {

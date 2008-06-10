@@ -1,3 +1,4 @@
+// -*- C++ -*-
 #ifndef TrackReco_HitPattern_h
 #define TrackReco_HitPattern_h
 
@@ -67,6 +68,15 @@
 //      not crossed
 //        layer case 999999: track outside acceptance or in gap ==> null
 //
+// Given a tracker layer, specified by sub-structure and layer, the method
+// getTrackerMonoStereo(substr, layer) groups all of the valid hits in the hit
+// pattern array for the layer together and returns 
+//
+//	0:		neither a valid mono nor a valid stereo hit
+//      MONO:		valid mono hit
+//	STEREO:		valid stereo hit
+//	MONO | STEREO:	both
+//
 // Given a track, here is an example usage of hit pattern
 //
 //      // hit pattern of the track
@@ -107,6 +117,7 @@
 namespace reco {
   class HitPattern {
   public:
+    enum { MONO = 1, STEREO = 2 };
 
     // default constructor
     // init hit pattern array as 0x00000000, ..., 0x00000000
@@ -200,7 +211,11 @@ namespace reco {
     int numberOfLostMuonCSCHits() const;      // not-null, not valid, muon CSC
     int numberOfLostMuonRPCHits() const;      // not-null, not valid, muon RPC
 
+    int numberOfValidStripLayersWithMonoAndStereo () 
+      const; // count strip layers that have non-null, valid mono and stereo hits
+
     uint32_t getTrackerLayerCase(uint32_t substr, uint32_t layer) const;
+    uint32_t getTrackerMonoStereo (uint32_t substr, uint32_t layer) const;
 
     int trackerLayersWithMeasurement() const;        // case 0: tracker
     int pixelLayersWithMeasurement() const;          // case 0: pixel
