@@ -1,8 +1,8 @@
 /*
  * \file DTLocalTriggerTask.cc
  * 
- * $Date: 2008/05/30 13:39:55 $
- * $Revision: 1.24 $
+ * $Date: 2008/06/05 07:58:30 $
+ * $Revision: 1.25 $
  * \author M. Zanetti - INFN Padova
  *
 */
@@ -81,7 +81,13 @@ void DTLocalTriggerTask::beginJob(const edm::EventSetup& context){
    vector<string>::const_iterator trigSrcIt  = trigSources.begin();
    vector<string>::const_iterator trigSrcEnd = trigSources.end();
    
-  
+   if(parameters.getUntrackedParameter<bool>("process_dcc", true)) {
+     // Book an histo to track ID errors from DCC. FIXME: this should be moved somewhere else
+     dbe->setCurrentFolder("DT/LocalTrigger/DCC");
+     dcc_IDDataErrorPlot = dbe->book1D("DCC_ErrorsChamberID","DCC Data ID Error",5,-2,3);
+     dcc_IDDataErrorPlot->setAxisTitle("wheel",1);
+   }
+
    for (;trigSrcIt!=trigSrcEnd;++trigSrcIt){
      for (int stat=1;stat<5;++stat){
        for (int wh=-2;wh<3;++wh){
@@ -91,16 +97,16 @@ void DTLocalTriggerTask::beginJob(const edm::EventSetup& context){
 	   if (parameters.getUntrackedParameter<bool>("process_dcc", true)){ // DCC data
 	   
 	     bookHistos(dtChId,"LocalTriggerPhi","DCC_BXvsQual"+(*trigSrcIt));
-	     bookHistos(dtChId,"LocalTriggerPhi","DCC_QualvsPhirad"+(*trigSrcIt));
-	     bookHistos(dtChId,"LocalTriggerPhi","DCC_QualvsPhibend"+(*trigSrcIt));
-	     // bookHistos(dtChId,"LocalTriggerPhi","DCC_Flag1stvsBX"+(*trigSrcIt));
-	     bookHistos(dtChId,"LocalTriggerPhi","DCC_Flag1stvsQual"+(*trigSrcIt));
+// 	     bookHistos(dtChId,"LocalTriggerPhi","DCC_QualvsPhirad"+(*trigSrcIt)); //FIXME
+// 	     bookHistos(dtChId,"LocalTriggerPhi","DCC_QualvsPhibend"+(*trigSrcIt)); //FIXME
+// 	     // bookHistos(dtChId,"LocalTriggerPhi","DCC_Flag1stvsBX"+(*trigSrcIt)); //FIXME
+// 	     bookHistos(dtChId,"LocalTriggerPhi","DCC_Flag1stvsQual"+(*trigSrcIt)); //FIXME
 	     bookHistos(dtChId,"LocalTriggerPhi","DCC_BestQual"+(*trigSrcIt));
 	     if (stat!=4){                                                   // theta view
-	       bookHistos(dtChId,"LocalTriggerTheta","DCC_PositionvsBX"+(*trigSrcIt));
-	       bookHistos(dtChId,"LocalTriggerTheta","DCC_PositionvsQual"+(*trigSrcIt));
+// 	       bookHistos(dtChId,"LocalTriggerTheta","DCC_PositionvsBX"+(*trigSrcIt)); //FIXME
+// 	       bookHistos(dtChId,"LocalTriggerTheta","DCC_PositionvsQual"+(*trigSrcIt)); //FIXME
 	       bookHistos(dtChId,"LocalTriggerTheta","DCC_ThetaBXvsQual"+(*trigSrcIt));
-	       bookHistos(dtChId,"LocalTriggerTheta","DCC_ThetaBestQual"+(*trigSrcIt));
+// 	       bookHistos(dtChId,"LocalTriggerTheta","DCC_ThetaBestQual"+(*trigSrcIt)); //FIXME
 	     }
 
 	     if (parameters.getUntrackedParameter<bool>("process_seg", true)){ // DCC + Segemnt
@@ -430,6 +436,12 @@ void DTLocalTriggerTask::runDCCAnalysis( std::vector<L1MuDTChambPhDigi>* phTrigs
     int phphi   = iph->phi();
     int phphiB  = iph->phiB();
 
+    // FIXME: workaround for DCC data with station ID 
+    if(phst == 0) {
+      dcc_IDDataErrorPlot->Fill(phwheel);
+      continue;
+    }
+
     correctMapping(phwheel,phsec);
 
     if(phcode>phcode_best[phwheel+3][phst][phsec] && phcode<7) {
@@ -446,17 +458,17 @@ void DTLocalTriggerTask::runDCCAnalysis( std::vector<L1MuDTChambPhDigi>* phTrigs
     map<string, MonitorElement*> &innerME = digiHistos[indexCh];
     if (innerME.find("DCC_BXvsQual"+trigsrc) == innerME.end()){
       bookHistos(dtChId,"LocalTriggerPhi","DCC_BXvsQual"+trigsrc);
-      bookHistos(dtChId,"LocalTriggerPhi","DCC_QualvsPhirad"+trigsrc);
-      bookHistos(dtChId,"LocalTriggerPhi","DCC_QualvsPhibend"+trigsrc);
+//       bookHistos(dtChId,"LocalTriggerPhi","DCC_QualvsPhirad"+trigsrc); //FIXME
+//       bookHistos(dtChId,"LocalTriggerPhi","DCC_QualvsPhibend"+trigsrc); //FIXME
 //       bookHistos(dtChId,"LocalTriggerPhi","DCC_Flag1stvsBX"+trigsrc);
-      bookHistos(dtChId,"LocalTriggerPhi","DCC_Flag1stvsQual"+trigsrc);
+//       bookHistos(dtChId,"LocalTriggerPhi","DCC_Flag1stvsQual"+trigsrc); //FIXME
     }
 
     innerME.find("DCC_BXvsQual"+trigsrc)->second->Fill(phcode,phbx-phi1st);    // SM BX vs Qual Phi view (1st tracks) 
-    innerME.find("DCC_QualvsPhirad"+trigsrc)->second->Fill(x,phcode);          // SM Qual vs radial angle Phi view
-    innerME.find("DCC_QualvsPhibend"+trigsrc)->second->Fill(angle,phcode);     // SM Qual vs bending Phi view
-//     innerME.find("DCC_Flag1stvsBX"+trigsrc)->second->Fill(phbx,phi1st);        // SM BX vs 1st/2nd track flag Phi view
-    innerME.find("DCC_Flag1stvsQual"+trigsrc)->second->Fill(phcode,phi1st);    // SM Qual 1st/2nd track flag Phi view
+//     innerME.find("DCC_QualvsPhirad"+trigsrc)->second->Fill(x,phcode);          // SM Qual vs radial angle Phi view
+//     innerME.find("DCC_QualvsPhibend"+trigsrc)->second->Fill(angle,phcode);     // SM Qual vs bending Phi view
+// //     innerME.find("DCC_Flag1stvsBX"+trigsrc)->second->Fill(phbx,phi1st);        // SM BX vs 1st/2nd track flag Phi view
+//     innerME.find("DCC_Flag1stvsQual"+trigsrc)->second->Fill(phcode,phi1st);    // SM Qual 1st/2nd track flag Phi view
       
   } 
 
@@ -485,17 +497,17 @@ void DTLocalTriggerTask::runDCCAnalysis( std::vector<L1MuDTChambPhDigi>* phTrigs
     uint32_t indexCh = dtChId.rawId();   
 
     map<string, MonitorElement*> &innerME = digiHistos[indexCh];
-    if (innerME.find("DCC_PositionvsBX"+trigsrc) == innerME.end()){
-      bookHistos(dtChId,"LocalTriggerTheta","DCC_PositionvsBX"+trigsrc);
-      bookHistos(dtChId,"LocalTriggerTheta","DCC_PositionvsQual"+trigsrc);
+    if (innerME.find("DCC_ThetaBXvsQual"+trigsrc) == innerME.end()){
+//       bookHistos(dtChId,"LocalTriggerTheta","DCC_PositionvsBX"+trigsrc);
+//       bookHistos(dtChId,"LocalTriggerTheta","DCC_PositionvsQual"+trigsrc);
       bookHistos(dtChId,"LocalTriggerTheta","DCC_ThetaBXvsQual"+trigsrc);
     }
 
     for (int pos=0; pos<7; pos++) //SM fill position for non zero position bit in theta view
       if(thcode[pos]>0){
 	int thqual = (thcode[pos]/2)*2+1;
-	innerME.find("DCC_PositionvsBX"+trigsrc)->second->Fill(thbx,pos);          // SM BX vs Position Theta view
-	innerME.find("DCC_PositionvsQual"+trigsrc)->second->Fill(thqual,pos);      // SM Code vs Position Theta view
+// 	innerME.find("DCC_PositionvsBX"+trigsrc)->second->Fill(thbx,pos);          // SM BX vs Position Theta view
+// 	innerME.find("DCC_PositionvsQual"+trigsrc)->second->Fill(thqual,pos);      // SM Code vs Position Theta view
 	innerME.find("DCC_ThetaBXvsQual"+trigsrc)->second->Fill(thqual,thbx);      // SM BX vs Code Theta view
       }
 
