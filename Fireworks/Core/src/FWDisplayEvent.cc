@@ -8,7 +8,7 @@
 //
 // Original Author:  
 //         Created:  Mon Dec  3 08:38:38 PST 2007
-// $Id: FWDisplayEvent.cc,v 1.45 2008/06/09 20:22:14 chrjones Exp $
+// $Id: FWDisplayEvent.cc,v 1.46 2008/06/10 19:53:08 chrjones Exp $
 //
 
 // system include files
@@ -20,6 +20,7 @@
 #include "TSystem.h"
 #include "TClass.h"
 #include "TEveTrackProjected.h"
+#include "TEveSelection.h"
 
 //geometry
 #include "TFile.h"
@@ -143,6 +144,7 @@ FWDisplayEvent::FWDisplayEvent(const std::string& iConfigFileName,
                                                                          m_configurationManager.get(),
                                                                          m_configFileName));
     }
+  gEve->GetHighlight()->SetPickToSelect(TEveSelection::kPS_PableCompound);
   TEveTrackProjected::SetBreakTracks(kFALSE);
   m_guiManager->processGUIEvents();
 }
