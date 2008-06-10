@@ -2,8 +2,8 @@
 /*
  * \file DTDataIntegrityTask.cc
  * 
- * $Date: 2008/05/31 15:26:11 $
- * $Revision: 1.44 $
+ * $Date: 2008/06/03 16:30:53 $
+ * $Revision: 1.45 $
  * \author M. Zanetti (INFN Padova), S. Bolognesi (INFN Torino)
  *
  */
@@ -88,9 +88,7 @@ void DTDataIntegrityTask::bookHistos(string folder, DTROChainCoding code) {
 
   if(debug){
     cout << " Booking histos for FED: " << code.getDDU() << " ROS: " << code.getROS()
-	 << " ROB: " << code.getROB() << endl;
-    cout << " Booking histos for FED: " << code.getDDUID() << " ROS: " << code.getROSID()
-	 << " ROB: " << code.getROBID() << endl;
+	 << " ROB: " << code.getROB() << " folder: " << folder << endl;
   }
 
   string histoType;
@@ -529,6 +527,9 @@ void DTDataIntegrityTask::TimeHistos(string histoType){
 
 void DTDataIntegrityTask::processROS25(DTROS25Data & data, int ddu, int ros) {
   neventsROS25++;
+  // reset the error flag
+  eventErrorFlag = false;
+
   if (debug && (neventsROS25%1000 == 0))
     cout<<"[DTDataIntegrityTask]: "<<neventsROS25<<" events analyzed by processROS25"<<endl;
   
@@ -594,6 +595,9 @@ void DTDataIntegrityTask::processROS25(DTROS25Data & data, int ddu, int ros) {
 
     (rosSHistos.find("ROSSummary")->second).find(code.getDDUID())->second->Fill((*error_it).errorType(),
 										code.getROS());
+    if((*error_it).errorType() <= 11) { // set error flag
+       eventErrorFlag = true;
+    }
 
     histoType = "ROSError";    
     codeAndME = rosHistos[histoType].find(code.getROSID());
@@ -688,6 +692,8 @@ void DTDataIntegrityTask::processROS25(DTROS25Data & data, int ddu, int ros) {
     if (robheader.bunchID() != ROSDebug_BunchNumber) {
       //     fill ROS Summary plot
       (rosSHistos.find("ROSSummary")->second).find(code.getDDUID())->second->Fill(8,code.getROS());
+      eventErrorFlag = true;
+
       //     fill ROB Summary plot for that particular ROS
       histoType = "ROSError";
       
@@ -723,6 +729,7 @@ void DTDataIntegrityTask::processROS25(DTROS25Data & data, int ddu, int ros) {
       if (debug) cout << " PC error en ROS " << code.getROS() << " TDC " << (*tdc_it).first << endl;
       //     fill ROS Summary plot
       (rosSHistos.find("ROSSummary")->second).find(code.getDDUID())->second->Fill(7,code.getROS());
+      eventErrorFlag = true;
       //     fill ROB Summary plot for that particular ROS
       histoType = "ROSError";
       codeAndME = rosHistos[histoType].find(code.getROSID());
@@ -774,6 +781,10 @@ void DTDataIntegrityTask::processROS25(DTROS25Data & data, int ddu, int ros) {
     }
     (rosSHistos.find("ROSSummary")->second).find(code.getDDUID())->second->Fill(type_TDC_error_for_plot_1,
 										code.getROS());
+    if(type_TDC_error_for_plot_1 <= 11) {
+      eventErrorFlag = true;
+    }
+
     codeAndME->second->Fill(type_TDC_error_for_plot_1,(*tdc_it).first);
 
     histoType = "TDCError";
@@ -837,7 +848,7 @@ void DTDataIntegrityTask::processROS25(DTROS25Data & data, int ddu, int ros) {
       
 	histoType = "SCTriggerQuality";
 	codeAndME = rosHistos[histoType].find(code.getSCID());
-	if (codeAndME != rosHistos[histoType].end()) {
+	if (codeAndME == rosHistos[histoType].end()) {
 	  bookHistos( string("SC"), code);	       
 	  codeAndME = rosHistos[histoType].find(code.getSCID());
 	}
@@ -1211,3 +1222,6 @@ void DTDataIntegrityTask::processFED(DTDDUData & data, const std::vector<DTROS25
 }
 
   
+bool DTDataIntegrityTask::eventHasErrors() const {
+  return eventErrorFlag;
+}
