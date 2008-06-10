@@ -364,9 +364,7 @@ float HcalSummaryClient::analyze_digi(std::string subdetname, float& subdet)
 
 	  // Now check for new errors from bad digis:
 	  newbincontent=me_temp->getBinContent(ieta,iphi)/ievt_; // normalize to number of events
-	  //cout <<"IETA = "<<ieta<<"  IPHI = "<<iphi<<"  "<<newbincontent<<endl;
-	  if (newbincontent>0)
-	    cout <<"\t***IETA = "<<ieta<<"  IPHI = "<<iphi<<"  "<<newbincontent<<endl;
+	  
 	  //phi=iphi+int(phiMin_)-1;
 	  
 	  // Original bin content was in "unknown" state (-1).  Replace this state with newbincontent
@@ -387,9 +385,6 @@ float HcalSummaryClient::analyze_digi(std::string subdetname, float& subdet)
 	} // loop over iphi
     } // loop over ieta
   
-  cout <<"NUMBER OF BAD CELLS = "<<badcells<<endl;
-
-  cout <<"IEVT = "<<ievt_<<endl;
 
   // subdetCells_ stores number of cells in each subdetector
   std::map<std::string, int>::const_iterator it;
@@ -403,12 +398,10 @@ float HcalSummaryClient::analyze_digi(std::string subdetname, float& subdet)
   if (it->second == 0 || (it->second)<badcells)
     return -1;
 
-  cout <<" TOTAL CELLS = "<<it->second<<endl;
   // Status is 1 if no bad cells found
   // Otherwise, status = 1 - (avg fraction of bad cells/event)
   status=1.-(1.*badcells)/it->second;
  
-  cout <<"STATUS = "<<status<<endl;
  // The only way to change the overall subdet, global status words is 
   // if the digi status word is reasonable (i.e., not = -1)
   if (subdet==-1)
