@@ -2,15 +2,10 @@ import FWCore.ParameterSet.Config as cms
 
 import FastSimulation.Tracking.TrackCandidateProducer_cfi
 iterativeSecondTrackCandidatesWithTriplets = FastSimulation.Tracking.TrackCandidateProducer_cfi.trackCandidateProducer.clone()
-import FastSimulation.Tracking.TrackCandidateProducer_cfi
-iterativeSecondTrackCandidatesWithPlTriplets = FastSimulation.Tracking.TrackCandidateProducer_cfi.trackCandidateProducer.clone()
-iterativeSecondTrackCandidates = cms.Sequence(iterativeSecondTrackCandidatesWithTriplets+iterativeSecondTrackCandidatesWithPlTriplets)
+iterativeSecondTrackCandidates = cms.Sequence(iterativeSecondTrackCandidatesWithTriplets)
 iterativeSecondTrackCandidatesWithTriplets.SeedProducer = cms.InputTag("iterativeSecondSeeds","SecondPixelTriplets")
 iterativeSecondTrackCandidatesWithTriplets.TrackProducers = ['firstfilter']
 iterativeSecondTrackCandidatesWithTriplets.KeepFittedTracks = False
 iterativeSecondTrackCandidatesWithTriplets.MinNumberOfCrossedLayers = 3
-iterativeSecondTrackCandidatesWithPlTriplets.SeedProducer = cms.InputTag("iterativeSecondSeeds","SecondPixelLessTriplets")
-iterativeSecondTrackCandidatesWithPlTriplets.TrackProducers = ['firstfilter']
-iterativeSecondTrackCandidatesWithPlTriplets.KeepFittedTracks = False
-iterativeSecondTrackCandidatesWithPlTriplets.MinNumberOfCrossedLayers = 3
+
 
