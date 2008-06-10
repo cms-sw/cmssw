@@ -176,7 +176,7 @@ void GctRawToDigi::unpack(const FEDRawData& d, edm::Event& e, const bool invalid
     
     if(grenCompatibilityMode_) { dPtr = 8; }  // No software-controlled secondary header in old scheme. 
     
-    const unsigned dEnd = d.size() - dPtr - 8; // bytes in payload = packet size - initial header(s) - final slink header.
+    const unsigned dEnd = d.size() - 8; // End of payload is at (packet size - final slink header)
 
     edm::OwnVector<GctBlockHeaderBase> bHdrs; // Self-cleaning vector for storing block headers for verbosity print-out.
 
