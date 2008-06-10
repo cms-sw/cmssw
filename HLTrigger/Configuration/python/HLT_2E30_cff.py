@@ -1,4 +1,4 @@
-# /dev/CMSSW_2_1_0_pre5/HLT/V22 (CMSSW_2_1_0_pre5_HLT3)
+# /dev/CMSSW_2_1_0_pre5/HLT/V23 (CMSSW_2_1_X_2008-06-10-0200_HLT1)
 
 import FWCore.ParameterSet.Config as cms
 
@@ -39,7 +39,9 @@ KFFitterSmootherForL2Muon = cms.ESProducer( "KFFittingSmootherESProducer",
   Smoother = cms.string( "KFTrajectorySmootherForL2Muon" ),
   EstimateCut = cms.double( -1.0 ),
   MinNumberOfHits = cms.int32( 5 ),
-  RejectTracks = cms.bool( True )
+  RejectTracks = cms.bool( True ),
+  BreakTrajWith2ConsecutiveMissing = cms.bool( False ),
+  NoInvalidHitsBeginEnd = cms.bool( False )
 )
 CaloTowerConstituentsMapBuilder = cms.ESProducer( "CaloTowerConstituentsMapBuilder",
   MapFile = cms.untracked.string( "Geometry/CaloTopology/data/CaloTowerEEGeometric.map.gz" )
@@ -91,7 +93,9 @@ FittingSmootherRK = cms.ESProducer( "KFFittingSmootherESProducer",
   Smoother = cms.string( "SmootherRK" ),
   EstimateCut = cms.double( -1.0 ),
   MinNumberOfHits = cms.int32( 5 ),
-  RejectTracks = cms.bool( True )
+  RejectTracks = cms.bool( True ),
+  BreakTrajWith2ConsecutiveMissing = cms.bool( False ),
+  NoInvalidHitsBeginEnd = cms.bool( False )
 )
 GlobalTrackingGeometryESProducer = cms.ESProducer( "GlobalTrackingGeometryESProducer" )
 GroupedCkfTrajectoryBuilder = cms.ESProducer( "GroupedCkfTrajectoryBuilderESProducer",
