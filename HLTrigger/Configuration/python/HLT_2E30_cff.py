@@ -1,4 +1,4 @@
-# /dev/CMSSW_2_1_0_pre5/HLT/V21 (CMSSW_2_1_0_pre5_HLT3)
+# /dev/CMSSW_2_1_0_pre5/HLT/V22 (CMSSW_2_1_0_pre5_HLT3)
 
 import FWCore.ParameterSet.Config as cms
 
@@ -6558,7 +6558,7 @@ hltFilterIsolatedTauJetsL25ElectronTauPtLeadTk  = cms.EDFilter( "HLT1Tau",
     inputTag = cms.InputTag( "hltIsolatedTauJetsSelectorL25ElectronTauPtLeadTk" ),
     MinPt = cms.double( 0.0 ),
     MaxEta = cms.double( 5.0 ),
-    MinN = cms.int32( 2 )
+    MinN = cms.int32( 1 )
 )
 hltIsolatedTauJetsSelectorL25ElectronTau = cms.EDProducer( "IsolatedTauJetsSelector",
     MinimumTransverseMomentumLeadingTrack = cms.double( 3.0 ),
@@ -9609,27 +9609,27 @@ hltConeIsolationL25PixelTauIsolated = cms.EDProducer( "ConeIsolation",
     VariableMaxCone = cms.double( 0.17 ),
     VariableMinCone = cms.double( 0.05 )
 )
-hltIsolatedL25PixelTau = cms.EDProducer( "IsolatedTauJetsSelector",
+hltIsolatedL25PixelTauPtLeadTk = cms.EDProducer( "IsolatedTauJetsSelector",
     MinimumTransverseMomentumLeadingTrack = cms.double( 3.0 ),
     UseIsolationDiscriminator = cms.bool( False ),
     UseInHLTOpen = cms.bool( False ),
     JetSrc = cms.VInputTag( ("hltConeIsolationL25PixelTauIsolated") )
 )
 hltFilterL25PixelTauPtLeadTk = cms.EDFilter( "HLT1Tau",
-    inputTag = cms.InputTag( "hltIsolatedL25PixelTauRelaxed" ),
+    inputTag = cms.InputTag( "hltIsolatedL25PixelTauPtLeadTk" ),
     saveTag = cms.untracked.bool( True ),
     MinPt = cms.double( 0.0 ),
     MaxEta = cms.double( 5.0 ),
     MinN = cms.int32( 2 )
 )
-hltIsolatedL25PixelTauForIsolation = cms.EDProducer( "IsolatedTauJetsSelector",
+hltIsolatedL25PixelTau = cms.EDProducer( "IsolatedTauJetsSelector",
     MinimumTransverseMomentumLeadingTrack = cms.double( 3.0 ),
     UseIsolationDiscriminator = cms.bool( True ),
     UseInHLTOpen = cms.bool( False ),
     JetSrc = cms.VInputTag( ("hltConeIsolationL25PixelTauIsolated") )
 )
 hltFilterL25PixelTau = cms.EDFilter( "HLT1Tau",
-    inputTag = cms.InputTag( "hltIsolatedL25PixelTauForIsolation" ),
+    inputTag = cms.InputTag( "hltIsolatedL25PixelTau" ),
     saveTag = cms.untracked.bool( True ),
     MinPt = cms.double( 0.0 ),
     MaxEta = cms.double( 5.0 ),
@@ -10918,7 +10918,7 @@ HLT4jet30 = cms.Path( HLTBeginSequence + hltL1s4jet30 + hltPre4jet30 + HLTRecoJe
 HLT1TauRelaxed = cms.Path( HLTBeginSequence + hltSingleTauPrescaler + hltSingleTauL1SeedFilter + HLTCaloTausCreatorSequence + hltMet + hlt1METSingleTauRelaxed + hltL2SingleTauJets + hltL2SingleTauIsolationProducer + hltL2SingleTauIsolationSelectorRelaxed + hltFilterSingleTauEcalIsolationRelaxed + HLTEndSequence )
 HLT1Tau1METRelaxed = cms.Path( HLTBeginSequence + hltSingleTauMETPrescaler + hltSingleTauMETL1SeedFilter + HLTCaloTausCreatorSequence + hltMet + hlt1METSingleTauMETRelaxed + hltL2SingleTauMETJets + hltL2SingleTauMETIsolationProducer + hltL2SingleTauMETIsolationSelectorRelaxed + hltFilterSingleTauMETEcalIsolationRelaxed + HLTEndSequence )
 HLT2TauPixelRelaxed = cms.Path( HLTBeginSequence + hltDoubleTauPrescaler + hltDoubleTauL1SeedFilterRelaxed + HLTCaloTausCreatorRegionalSequence + hltL2DoubleTauJetsRelaxed + hltL2DoubleTauIsolationProducerRelaxed + hltL2DoubleTauIsolationSelectorRelaxed + hltFilterDoubleTauEcalIsolationRelaxed + HLTEndSequence )
-HLT2TauPixel = cms.Path( HLTBeginSequence + hltDoubleTauPrescaler + hltDoubleTauL1SeedFilter + HLTCaloTausCreatorRegionalSequence + hltL2DoubleTauJets + hltL2DoubleTauIsolationProducer + hltL2DoubleTauIsolationSelector + hltFilterDoubleTauEcalIsolation + HLTDoLocalPixelSequence + HLTRecopixelvertexingSequence + hltAssociatorL25PixelTauIsolated + hltConeIsolationL25PixelTauIsolated + hltIsolatedL25PixelTau + hltFilterL25PixelTauPtLeadTk + hltIsolatedL25PixelTauForIsolation + hltFilterL25PixelTau + HLTEndSequence )
+HLT2TauPixel = cms.Path( HLTBeginSequence + hltDoubleTauPrescaler + hltDoubleTauL1SeedFilter + HLTCaloTausCreatorRegionalSequence + hltL2DoubleTauJets + hltL2DoubleTauIsolationProducer + hltL2DoubleTauIsolationSelector + hltFilterDoubleTauEcalIsolation + HLTDoLocalPixelSequence + HLTRecopixelvertexingSequence + hltAssociatorL25PixelTauIsolated + hltConeIsolationL25PixelTauIsolated + hltIsolatedL25PixelTauPtLeadTk + hltFilterL25PixelTauPtLeadTk + hltIsolatedL25PixelTau + hltFilterL25PixelTau + HLTEndSequence )
 HLT1Level1jet15 = cms.Path( HLTBeginSequence + hltPre1Level1jet15 + hltL1s1Level1jet15 + HLTEndSequence )
 HLT1jet30 = cms.Path( HLTBeginSequence + hltL1s1jet30 + hltPre1jet30 + HLTRecoJetMETSequence + hlt1jet30 + HLTEndSequence )
 HLT1jet50 = cms.Path( HLTBeginSequence + hltL1s1jet50 + hltPre1jet50 + HLTRecoJetMETSequence + hlt1jet50 + HLTEndSequence )
