@@ -52,7 +52,7 @@ L1TDEMON::beginJob(const edm::EventSetup&) {
 
   if(dbe) {
 
-    dbe->setCurrentFolder(std::string(histFolder_));
+    dbe->setCurrentFolder(std::string(histFolder_+"common/"));
     
 
     for(int j=0; j<2; j++) {
