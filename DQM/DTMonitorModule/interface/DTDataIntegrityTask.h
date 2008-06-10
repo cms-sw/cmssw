@@ -5,8 +5,8 @@
  *
  * Class for DT Data Integrity.
  *  
- *  $Date: 2008/05/27 16:24:01 $
- *  $Revision: 1.19 $
+ *  $Date: 2008/05/31 15:26:10 $
+ *  $Revision: 1.20 $
  *
  * \author Marco Zanetti  - INFN Padova
  *
@@ -49,12 +49,14 @@ public:
   void processROS25(DTROS25Data & data, int dduID, int ros);
   void processFED(DTDDUData & dduData, const std::vector<DTROS25Data> & rosData, int dduID);
 
-
+  bool eventHasErrors() const;
   void postEndJob();
-  std::multimap<std::string, std::string> names;
-  std::multimap<std::string, std::string>::iterator it;
   
 private:
+
+  std::multimap<std::string, std::string> names;
+  std::multimap<std::string, std::string>::iterator it;
+
 
   bool debug;
   edm::ParameterSet parameters;
@@ -98,6 +100,10 @@ private:
   std::list<std::pair<int,int> > rosVSTime;
   std::list<std::pair<int,int*> > fifoVSTime;
  
+  // event error flag: true when errors are detected
+  // can be used for the selection of the debug stream
+  bool eventErrorFlag;
+
 };
 
 
