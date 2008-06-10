@@ -8,7 +8,7 @@
 //
 // Original Author:  Chris Jones
 //         Created:  Thu Feb 21 11:22:41 EST 2008
-// $Id: FWEveLegoView.cc,v 1.7 2008/06/08 17:05:14 dmytro Exp $
+// $Id: FWEveLegoView.cc,v 1.8 2008/06/09 18:50:04 chrjones Exp $
 //
 
 // system include files
@@ -230,7 +230,7 @@ FWEveLegoView::saveImageTo(const std::string& iName) const
 const std::string& 
 FWEveLegoView::staticTypeName()
 {
-   static std::string s_name("3D Lego Pro");
+   static std::string s_name("3D Lego");
    return s_name;
 }
 

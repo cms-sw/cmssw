@@ -730,7 +730,7 @@ FWConfiguration* fwConfig() {
   topaaaa.addValue("1");
   topaaa.addKeyValue("cameraMatrixBase15Lego", topaaaa);
 }
-  topaa.addKeyValue("3D Lego Pro", topaaa);
+  topaa.addKeyValue("3D Lego", topaaa);
 }
   topa.addKeyValue("views", topaa);
 }
