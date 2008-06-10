@@ -8,7 +8,7 @@
 //
 // Original Author:  
 //         Created:  Sun Jan  6 23:57:00 EST 2008
-// $Id: CaloJetProxyRhoPhiZ2DBuilder.cc,v 1.8 2008/05/26 14:23:58 dmytro Exp $
+// $Id: CaloJetProxyRhoPhiZ2DBuilder.cc,v 1.9 2008/06/09 19:54:03 chrjones Exp $
 //
 
 // system include files
@@ -23,6 +23,9 @@
 #include "TROOT.h"
 #include "TEvePointSet.h"
 #include "TEveStraightLineSet.h"
+#include "TEveCompound.h"
+#include <boost/shared_ptr.hpp>
+#include <boost/mem_fn.hpp>
 
 // user include files
 #include "Fireworks/Calo/interface/CaloJetProxyRhoPhiZ2DBuilder.h"
@@ -94,7 +97,10 @@ CaloJetProxyRhoPhiZ2DBuilder::buildRhoPhi(const FWEventItem* iItem,
 
    for(reco::CaloJetCollection::const_iterator jet = jets->begin(); 
        jet != jets->end(); ++jet, ++counter) {
-      TEveElementList* container = new TEveElementList( counter.str().c_str() );
+      TEveCompound* container = new TEveCompound( counter.str().c_str() );
+      container->OpenCompound();
+      //guarantees that CloseCompound will be called no matter what happens
+      boost::shared_ptr<TEveCompound> sentry(container,boost::mem_fn(&TEveCompound::CloseCompound));
       std::pair<double,double> phiRange = getPhiRange( *jet );
       double min_phi = phiRange.first-M_PI/36/2;
       double max_phi = phiRange.second+M_PI/36/2;
@@ -116,6 +122,7 @@ CaloJetProxyRhoPhiZ2DBuilder::buildRhoPhi(const FWEventItem* iItem,
 	 container->AddElement(marker);
       }
       tList->AddElement(container);
+      //container->CloseCompound();
    }
 }
 
@@ -158,7 +165,11 @@ CaloJetProxyRhoPhiZ2DBuilder::buildRhoZ(const FWEventItem* iItem,
 
    for(reco::CaloJetCollection::const_iterator jet = jets->begin(); 
        jet != jets->end(); ++jet, ++counter) {
-      TEveElementList* container = new TEveElementList( counter.str().c_str() );
+      TEveCompound* container = new TEveCompound( counter.str().c_str() );
+      container->OpenCompound();
+      //guarantees that CloseCompound will be called no matter what happens
+      boost::shared_ptr<TEveCompound> sentry(container,boost::mem_fn(&TEveCompound::CloseCompound));
+
       std::pair<int,int> iEtaRange = getiEtaRange( *jet );
       
       double max_theta = thetaBins[iEtaRange.first].first;
@@ -188,6 +199,8 @@ CaloJetProxyRhoPhiZ2DBuilder::buildRhoZ(const FWEventItem* iItem,
 	 fw::addRhoZEnergyProjection( container, r_ecal, z_ecal, min_theta-0.003, max_theta+0.003, 
 				       jet->phi(), iItem->defaultDisplayProperties().color() );
       }
+      //container->CloseCompound();
+
       tList->AddElement(container);
    }
 }

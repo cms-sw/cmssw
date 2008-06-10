@@ -2,6 +2,10 @@
 #include "TEveTrack.h"
 #include "TEveTrackPropagator.h"
 #include "TEveManager.h"
+#include "TEveCompound.h"
+#include <boost/shared_ptr.hpp>
+#include <boost/mem_fn.hpp>
+
 #include "DataFormats/MuonReco/interface/Muon.h"
 #include "DataFormats/MuonReco/interface/MuonFwd.h"
 #include "DataFormats/TrackReco/interface/Track.h"
@@ -99,7 +103,10 @@ void MuonsProxyRhoPhiZ2DBuilder::build(const FWEventItem* iItem,
 	s << "muon" << index;
         //in order to keep muonList having the same number of elements as 'muons' we will always
         // create a list even if it will get no children
-	TEveElementList* muonList = new TEveElementList(s.str().c_str());
+	TEveCompound* muonList = new TEveCompound(s.str().c_str());
+        muonList->OpenCompound();
+        //guarantees that CloseCompound will be called no matter what happens
+        boost::shared_ptr<TEveCompound> sentry(muonList,boost::mem_fn(&TEveCompound::CloseCompound));
         gEve->AddElement( muonList, tList );
 	
 	// need to decide how deep the inner propagator should go

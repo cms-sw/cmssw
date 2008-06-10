@@ -8,7 +8,7 @@
 //
 // Original Author:  
 //         Created:  Sun Jan  6 23:57:00 EST 2008
-// $Id: ElectronsProxyRhoPhiZ2DBuilder.cc,v 1.6 2008/05/12 15:43:29 dmytro Exp $
+// $Id: ElectronsProxyRhoPhiZ2DBuilder.cc,v 1.7 2008/06/09 19:54:04 chrjones Exp $
 //
 
 // system include files
@@ -21,6 +21,9 @@
 #include "TColor.h"
 #include "TROOT.h"
 #include "TEveTrack.h"
+#include "TEveCompound.h"
+#include <boost/shared_ptr.hpp>
+#include <boost/mem_fn.hpp>
 
 // user include files
 #include "Fireworks/Electrons/interface/ElectronsProxyRhoPhiZ2DBuilder.h"
@@ -88,7 +91,11 @@ ElectronsProxyRhoPhiZ2DBuilder::buildRhoPhi(const FWEventItem* iItem,
      // loop over electrons
      for (reco::GsfElectronCollection::const_iterator electron = electrons->begin();
 	  electron != electrons->end(); ++electron,++counter) {
-	TEveElementList* container = new TEveElementList( counter.str().c_str() );
+	TEveCompound* container = new TEveCompound( counter.str().c_str() );
+        container->OpenCompound();
+        //guarantees that CloseCompound will be called no matter what happens
+        boost::shared_ptr<TEveCompound> sentry(container,boost::mem_fn(&TEveCompound::CloseCompound));
+
 	assert(electron->superCluster().isNonnull());
 	std::vector<DetId> detids = electron->superCluster()->getHitsByDetId();
 	std::vector<double> phis;
@@ -139,7 +146,11 @@ ElectronsProxyRhoPhiZ2DBuilder::buildRhoZ(const FWEventItem* iItem,
      double r_ecal = 122;
      for (reco::GsfElectronCollection::const_iterator electron = electrons->begin();
 	  electron != electrons->end(); ++electron, ++counter) {
-	TEveElementList* container = new TEveElementList( counter.str().c_str() );
+	TEveCompound* container = new TEveCompound( counter.str().c_str() );
+        container->OpenCompound();
+        //guarantees that CloseCompound will be called no matter what happens
+        boost::shared_ptr<TEveCompound> sentry(container,boost::mem_fn(&TEveCompound::CloseCompound));
+        
 	assert(electron->superCluster().isNonnull());
 	std::vector<DetId> detids = electron->superCluster()->getHitsByDetId();
 	double theta_max = 0;
