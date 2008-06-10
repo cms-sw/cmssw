@@ -1,6 +1,6 @@
 // Producer for validation histograms for CaloJet objects
 // F. Ratnikov, Sept. 7, 2006
-// $Id: CaloJetTester.cc,v 1.7 2008/02/29 20:49:02 ksmith Exp $
+// $Id: CaloJetTester.cc,v 1.8 2008/03/04 19:52:42 fedor Exp $
 
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include "FWCore/Framework/interface/Event.h"

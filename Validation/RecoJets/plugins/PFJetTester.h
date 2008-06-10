@@ -1,37 +1,35 @@
-#ifndef ValidationRecoJetsCaloJetTester_h
-#define ValidationRecoJetsCaloJetTester_h
+#ifndef ValidationRecoJetsPFJetTester_h
+#define ValidationRecoJetsPFJetTester_h
 
-// Producer for validation histograms for CaloJet objects
+// Producer for validation histograms for PFlowJet objects
 // F. Ratnikov, Sept. 7, 2006
-// $Id: CaloJetTester.h,v 1.3 2007/08/28 16:51:54 fedor Exp $
+// $Id: PFJetTester.h,v 1.3 2008/02/29 20:49:03 ksmith Exp $
 
 #include <string>
 
 #include "FWCore/Framework/interface/EDAnalyzer.h"
 #include "DQMServices/Core/interface/MonitorElement.h"
-
 namespace reco {
-  class CaloJet;
+  class PFJet;
   class GenJet;
 }
 
 class MonitorElement;
 
-class CaloJetTester : public edm::EDAnalyzer {
+class PFJetTester : public edm::EDAnalyzer {
 public:
 
-  CaloJetTester (const edm::ParameterSet&);
-  ~CaloJetTester();
+  PFJetTester (const edm::ParameterSet&);
+  ~PFJetTester();
 
   virtual void analyze(const edm::Event&, const edm::EventSetup&);
   virtual void beginJob(const edm::EventSetup&) ;
   virtual void endJob() ;
- 
  private:
   
-  void fillMatchHists (const reco::GenJet& fGenJet, const reco::CaloJet& fCaloJet);
-
-  edm::InputTag mInputCollection;
+  void fillMatchHists (const reco::GenJet& fGenJet, const reco::PFJet& fFPJet) ;
+  
+    edm::InputTag mInputCollection; 
   edm::InputTag mInputGenCollection;
   std::string mOutputFile;
 
@@ -50,19 +48,27 @@ public:
   MonitorElement* mEFirst;
   MonitorElement* mPtFirst;
 
-  // CaloJet specific
-  MonitorElement* mMaxEInEmTowers;
-  MonitorElement* mMaxEInHadTowers;
-  MonitorElement* mHadEnergyInHO;
-  MonitorElement* mHadEnergyInHB;
-  MonitorElement* mHadEnergyInHF;
-  MonitorElement* mHadEnergyInHE;
-  MonitorElement* mEmEnergyInEB;
-  MonitorElement* mEmEnergyInEE;
-  MonitorElement* mEmEnergyInHF;
-  MonitorElement* mEnergyFractionHadronic;
-  MonitorElement* mEnergyFractionEm;
-  MonitorElement* mN90;
+  // PFlowJet specific
+
+  MonitorElement* mChargedHadronEnergy;
+  MonitorElement* mNeutralHadronEnergy;
+  MonitorElement* mChargedEmEnergy;
+  MonitorElement* mChargedMuEnergy;
+  MonitorElement* mNeutralEmEnergy;
+  MonitorElement* mChargedMultiplicity;
+  MonitorElement* mNeutralMultiplicity;
+  MonitorElement* mMuonMultiplicity;
+
+  //new Plots with Res./ Eff. as function of neutral, charged &  em fraction
+
+  MonitorElement* mNeutralFraction;
+  MonitorElement* mNeutralFraction2;
+
+  MonitorElement* mEEffNeutralFraction;
+  MonitorElement* mEEffChargedFraction;
+  MonitorElement* mEResNeutralFraction;
+  MonitorElement* mEResChargedFraction;
+  MonitorElement* nEEff;
 
   // CaloJet<->GenJet matching
   MonitorElement* mAllGenJetsPt;
