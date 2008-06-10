@@ -1,4 +1,4 @@
-# /dev/CMSSW_2_1_0_pre5/HLT/V24 (CMSSW_2_1_X_2008-06-10-0200_HLT1)
+# /dev/CMSSW_2_1_0_pre5/HLT/V25 (CMSSW_2_1_X_2008-06-10-0200_HLT1)
 
 import FWCore.ParameterSet.Config as cms
 
@@ -3927,9 +3927,9 @@ hltL3TrajectorySeed = cms.EDProducer( "TSGFromL2Muon",
     TrackerSeedCleaner = cms.PSet( 
       TTRHBuilder = cms.string( "WithTrackAngle" ),
       beamSpot = cms.InputTag( "hltOfflineBeamSpot" ),
-      directionCleaner = cms.bool( False ),
+      directionCleaner = cms.bool( True ),
       cleanerFromSharedHits = cms.bool( True ),
-      ptCleaner = cms.bool( False )
+      ptCleaner = cms.bool( True )
     ),
     TSGFromMixedPairs = cms.PSet( 
       ComponentName = cms.string( "TSGFromOrderedHits" ),
