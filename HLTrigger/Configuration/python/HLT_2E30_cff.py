@@ -1,4 +1,4 @@
-# /dev/CMSSW_2_1_0_pre5/HLT/V23 (CMSSW_2_1_X_2008-06-10-0200_HLT1)
+# /dev/CMSSW_2_1_0_pre5/HLT/V24 (CMSSW_2_1_X_2008-06-10-0200_HLT1)
 
 import FWCore.ParameterSet.Config as cms
 
@@ -6606,6 +6606,11 @@ hltMuonTauIsoL2PreFiltered = cms.EDFilter( "HLTMuonL2PreFilter",
     MinPt = cms.double( 12.0 ),
     NSigmaPt = cms.double( 0.0 )
 )
+hltMuonTauIsoL2IsoFiltered = cms.EDFilter( "HLTMuonIsoFilter",
+    CandTag = cms.InputTag( "hltMuonTauIsoL2PreFiltered" ),
+    IsoTag = cms.InputTag( "hltL2MuonIsolations" ),
+    MinN = cms.int32( 1 )
+)
 hltMuonTauIsoL3PreFiltered = cms.EDFilter( "HLTMuonL3PreFilter",
     BeamSpotTag = cms.InputTag( "hltOfflineBeamSpot" ),
     CandTag = cms.InputTag( "hltL3MuonCandidates" ),
@@ -6630,11 +6635,6 @@ hltL2TauJetsProviderMuonTau = cms.EDProducer( "L2TauJetsProvider",
     L1TauTrigger = cms.InputTag( "hltLevel1GTSeedMuonTau" ),
     EtMin = cms.double( 15.0 ),
     JetSrc = cms.VInputTag( ("hltIcone5Tau1Regional"),("hltIcone5Tau2Regional"),("hltIcone5Tau3Regional"),("hltIcone5Tau4Regional") )
-)
-hltMuonTauIsoL2IsoFiltered = cms.EDFilter( "HLTMuonIsoFilter",
-    CandTag = cms.InputTag( "hltMuonTauIsoL2PreFiltered" ),
-    IsoTag = cms.InputTag( "hltL2MuonIsolations" ),
-    MinN = cms.int32( 1 )
 )
 hltL2MuonTauIsolationProducer = cms.EDProducer( "L2TauIsolationProducer",
     L2TauJetCollection = cms.InputTag( "hltL2TauJetsProviderMuonTau" ),
@@ -10877,7 +10877,7 @@ HLTZeroBias = cms.Path( HLTBeginSequence + hltl1sZero + hltpreZero + HLTEndSeque
 HLTriggerType = cms.Path( HLTBeginSequence + hltPrescaleTriggerType + hltFilterTriggerType + HLTEndSequence )
 HLTEndpath1 = cms.EndPath( hltL1gtTrigReport + hltTrigReport )
 HLTXElectronTau = cms.Path( HLTBeginSequence + hltPrescalerElectronTau + hltLevel1GTSeedElectronTau + HLTETauSingleElectronL1IsolatedHOneOEMinusOneOPFilterSequence + HLTL2TauJetsElectronTauSequnce + hltL2ElectronTauIsolationProducer + hltL2ElectronTauIsolationSelector + hltFilterEcalIsolatedTauJetsElectronTau + HLTRecopixelvertexingSequence + hltJetTracksAssociatorAtVertexL25ElectronTau + hltConeIsolationL25ElectronTau + hltIsolatedTauJetsSelectorL25ElectronTauPtLeadTk + hltFilterIsolatedTauJetsL25ElectronTauPtLeadTk  + hltIsolatedTauJetsSelectorL25ElectronTau + hltFilterIsolatedTauJetsL25ElectronTau + HLTEndSequence )
-HLTXMuonTau = cms.Path( HLTBeginSequence + hltPrescalerMuonTau + hltLevel1GTSeedMuonTau + hltMuonTauL1Filtered + HLTL2muonrecoSequence + hltMuonTauIsoL2PreFiltered + HLTL2muonisorecoSequence + HLTDoLocalStripSequence + HLTL3muonrecoSequence + HLTL3muonisorecoSequence + hltMuonTauIsoL3PreFiltered + hltMuonTauIsoL3IsoFiltered + HLTCaloTausCreatorRegionalSequence + hltL2TauJetsProviderMuonTau + hltMuonTauIsoL2IsoFiltered + hltL2MuonTauIsolationProducer + hltL2MuonTauIsolationSelector + hltFilterEcalIsolatedTauJetsMuonTau + HLTDoLocalPixelSequence + HLTRecopixelvertexingSequence + hltJetsPixelTracksAssociatorMuonTau + hltPixelTrackConeIsolationMuonTau + hltIsolatedTauJetsSelectorL25MuonTauPtLeadTk + hltFilterL25MuonTauPtLeadTk + hltPixelTrackIsolatedTauJetsSelectorMuonTau + hltFilterPixelTrackIsolatedTauJetsMuonTau + HLTEndSequence )
+HLTXMuonTau = cms.Path( HLTBeginSequence + hltPrescalerMuonTau + hltLevel1GTSeedMuonTau + hltMuonTauL1Filtered + HLTL2muonrecoSequence + hltMuonTauIsoL2PreFiltered + HLTL2muonisorecoSequence + hltMuonTauIsoL2IsoFiltered + HLTDoLocalStripSequence + HLTL3muonrecoSequence + HLTL3muonisorecoSequence + hltMuonTauIsoL3PreFiltered + hltMuonTauIsoL3IsoFiltered + HLTCaloTausCreatorRegionalSequence + hltL2TauJetsProviderMuonTau + hltL2MuonTauIsolationProducer + hltL2MuonTauIsolationSelector + hltFilterEcalIsolatedTauJetsMuonTau + HLTDoLocalPixelSequence + HLTRecopixelvertexingSequence + hltJetsPixelTracksAssociatorMuonTau + hltPixelTrackConeIsolationMuonTau + hltIsolatedTauJetsSelectorL25MuonTauPtLeadTk + hltFilterL25MuonTauPtLeadTk + hltPixelTrackIsolatedTauJetsSelectorMuonTau + hltFilterPixelTrackIsolatedTauJetsMuonTau + HLTEndSequence )
 HLT1Tau1MET = cms.Path( HLTBeginSequence + hltSingleTauMETPrescaler + hltSingleTauMETL1SeedFilter + HLTCaloTausCreatorSequence + hltMet + hlt1METSingleTauMET + hltL2SingleTauMETJets + hltL2SingleTauMETIsolationProducer + hltL2SingleTauMETIsolationSelector + hltFilterSingleTauMETEcalIsolation + HLTDoLocalPixelSequence + HLTRecopixelvertexingSequence + hltAssociatorL25SingleTauMET + hltConeIsolationL25SingleTauMET + hltIsolatedL25SingleTauMET + hltFilterL25SingleTauMET + HLTDoLocalStripSequence + hltL3SingleTauMETPixelSeeds + hltCkfTrackCandidatesL3SingleTauMET + hltCtfWithMaterialTracksL3SingleTauMET + hltAssociatorL3SingleTauMET + hltConeIsolationL3SingleTauMET + hltIsolatedL3SingleTauMET + hltFilterL3SingleTauMET + HLTEndSequence )
 HLT1Tau = cms.Path( HLTBeginSequence + hltSingleTauPrescaler + hltSingleTauL1SeedFilter + HLTCaloTausCreatorSequence + hltMet + hlt1METSingleTau + hltL2SingleTauJets + hltL2SingleTauIsolationProducer + hltL2SingleTauIsolationSelector + hltFilterSingleTauEcalIsolation + HLTDoLocalPixelSequence + HLTRecopixelvertexingSequence + hltAssociatorL25SingleTau + hltConeIsolationL25SingleTau + hltIsolatedL25SingleTau + hltFilterL25SingleTau + HLTDoLocalStripSequence + hltL3SingleTauPixelSeeds + hltCkfTrackCandidatesL3SingleTau + hltCtfWithMaterialTracksL3SingleTau + hltAssociatorL3SingleTau + hltConeIsolationL3SingleTau + hltIsolatedL3SingleTau + hltFilterL3SingleTau + HLTEndSequence )
 HLT1Electron10_L1R_NI = cms.Path( HLTSingleElectronEt10L1NonIsoHLTnonIsoSequence + HLTEndSequence )
