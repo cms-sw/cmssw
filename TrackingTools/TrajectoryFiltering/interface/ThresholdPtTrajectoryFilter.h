@@ -58,7 +58,7 @@ public:
     if (invError > 1.e10) {answerMemory=false;return false;}
 
     //calculate the actual pT cut: 
-    if ((1/pT + theNSigma*invError ) > 1/thePtThreshold ) {answerMemory=false; return false;}
+    if ((1/pT + theNSigma*invError ) < 1/thePtThreshold ) {answerMemory=false; return false;}
     //    first term is the minimal value of pT (pT-N*sigma(pT))
     //    secon term is the cut
 
