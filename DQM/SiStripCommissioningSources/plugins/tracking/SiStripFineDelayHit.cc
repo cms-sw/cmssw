@@ -13,7 +13,7 @@
 //
 // Original Author:  Christophe DELAERE
 //         Created:  Fri Nov 17 10:52:42 CET 2006
-// $Id: SiStripFineDelayHit.cc,v 1.5 2008/04/18 20:06:13 delaer Exp $
+// $Id: SiStripFineDelayHit.cc,v 1.6 2008/06/09 12:43:30 delaer Exp $
 //
 //
 
@@ -50,6 +50,7 @@
 #include "DataFormats/TrackerRecHit2D/interface/SiStripMatchedRecHit2DCollection.h"
 #include "DataFormats/Candidate/interface/Candidate.h"
 #include <DataFormats/SiStripCommon/interface/SiStripEventSummary.h>
+#include <DataFormats/SiStripCommon/interface/ConstantsForRunType.h>
 #include "DataFormats/SiStripDigi/interface/SiStripRawDigi.h"
 #include <DataFormats/SiStripCommon/interface/SiStripFedKey.h>
 #include <CondFormats/SiStripObjects/interface/FedChannelConnection.h>
@@ -94,12 +95,10 @@ SiStripFineDelayHit::SiStripFineDelayHit(const edm::ParameterSet& iConfig):event
    seedLabel_  = iConfig.getParameter<edm::InputTag>("SeedsLabel");
    inputModuleLabel_ = iConfig.getParameter<edm::InputTag>( "InputModuleLabel" ) ;
    digiLabel_ = iConfig.getParameter<edm::InputTag>("DigiLabel");
-   if(iConfig.getParameter<std::string>("mode")=="LatencyScan") mode_ = 2;
-   else if(iConfig.getParameter<std::string>("mode")=="DelayScan") mode_ = 1;
-   else { mode_=0; edm::LogError("configuration") << "unknown analysis mode: " << iConfig.getParameter<std::string>("mode"); }
    homeMadeClusters_ = iConfig.getParameter<bool>("NoClustering");
    explorationWindow_ = iConfig.getParameter<uint32_t>("ExplorationWindow");
    noTracking_ = iConfig.getParameter<bool>("NoTracking");
+   mode_=0;
 }
 
 SiStripFineDelayHit::~SiStripFineDelayHit()
@@ -304,7 +303,7 @@ std::pair<const SiStripCluster*,double> SiStripFineDelayHit::closestCluster(cons
     // take the list of digis on the module
     for (edm::DetSetVector<SiStripDigi>::const_iterator DSViter=hits.begin(); DSViter!=hits.end();DSViter++){
       if(DSViter->id==det_id)  {
-        // loop from hitstrip-n to hitstrip+n n=5 ? (explorationWindow_) and select the highest strip
+        // loop from hitstrip-n to hitstrip+n (explorationWindow_) and select the highest strip
 	int minStrip = int(round(hitStrip))- explorationWindow_;
 	minStrip = minStrip<0 ? 0 : minStrip;
 	int maxStrip = int(round(hitStrip)) + explorationWindow_ + 1;
@@ -318,6 +317,7 @@ std::pair<const SiStripCluster*,double> SiStripFineDelayHit::closestCluster(cons
 	if(rangeStart != DSViter->end()) {
 	  if(rangeStop !=DSViter->end()) ++rangeStop;
           // build a fake cluster 
+          LogDebug("closestCluster") << "build a fake cluster ";
           SiStripCluster* newCluster = new SiStripCluster(det_id,SiStripCluster::SiStripDigiRange(rangeStart,rangeStop)); // /!\ ownership transfered
           result.first = newCluster;
           result.second = fabs(newCluster->barycenter()-hitStrip);
@@ -349,6 +349,16 @@ void
 SiStripFineDelayHit::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
 {
    using namespace edm;
+   // Retrieve commissioning information from "event summary"
+   edm::Handle<SiStripEventSummary> runsummary;
+   iEvent.getByLabel( inputModuleLabel_, runsummary );
+   if(runsummary->runType()==sistrip::APV_LATENCY) mode_ = 2; // LatencyScan
+   else if(runsummary->runType()==sistrip::FINE_DELAY) mode_ = 1; // DelayScan
+   else { 
+    mode_ = 0; //unknown
+    return;
+   }
+
    if(noTracking_) {
       produceNoTracking(iEvent,iSetup);
       return;
@@ -410,10 +420,10 @@ SiStripFineDelayHit::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
        for(std::vector< std::pair<uint32_t,std::pair<double,double> > >::iterator it = intersections.begin();it<intersections.end();it++) {
          std::pair<const SiStripCluster*,double> candidateCluster = closestCluster(*tracker,&(*itrack),it->first,*clusterSet,*hitSet);
          if(candidateCluster.first) {
-           LogDebug("produce") << "    Found a cluster.";
+           LogDebug("produce") << "    Found a cluster."<< std::endl;
            // cut on the distance 
   	 if(candidateCluster.second>maxClusterDistance_) continue; 
-           LogDebug("produce") << "    The cluster is close enough.";
+           LogDebug("produce") << "    The cluster is close enough."<< std::endl;
   	 // build the rawdigi corresponding to the leading strip and save it
   	 // here, only the leading strip is retained. All other rawdigis in the module are set to 0.
   	 const std::vector< uint8_t >& amplitudes = candidateCluster.first->amplitudes();
@@ -442,14 +452,14 @@ SiStripFineDelayHit::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
   	 newds.push_back(newSiStrip);
   	 //store into the detsetvector
   	 output.push_back(newds);
-  	 LogDebug("produce") << "    New edm::DetSet<SiStripRawDigi> added." << std::endl;
+  	 LogDebug("produce") << "    New edm::DetSet<SiStripRawDigi> added.";
          }
          if(homeMadeClusters_) delete candidateCluster.first; // we are owner of home-made clusters
        }
      }
    }
    // add the selected hits to the event.
-   LogDebug("produce") << "Putting " << output.size() << " new hits in the event." << std::endl;
+   LogDebug("produce") << "Putting " << output.size() << " new hits in the event.";
    std::auto_ptr< edm::DetSetVector<SiStripRawDigi> > formatedOutput(new edm::DetSetVector<SiStripRawDigi>(output) );
    iEvent.put(formatedOutput,"FineDelaySelection");
 }
@@ -513,7 +523,7 @@ SiStripFineDelayHit::produceNoTracking(edm::Event& iEvent, const edm::EventSetup
                          << connectionMap_[DSViter->id()] << std::dec;
    }
    // add the selected hits to the event.
-   LogDebug("produce") << "Putting " << output.size() << " new hits in the event." << std::endl;
+   LogDebug("produce") << "Putting " << output.size() << " new hits in the event.";
    std::auto_ptr< edm::DetSetVector<SiStripRawDigi> > formatedOutput(new edm::DetSetVector<SiStripRawDigi>(output) );
    iEvent.put(formatedOutput,"FineDelaySelection");
 }
