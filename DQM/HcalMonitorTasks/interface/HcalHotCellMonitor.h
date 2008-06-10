@@ -11,8 +11,8 @@
 
 /** \class HcalHotCellMonitor
   *  
-  * $Date: 2008/05/27 03:08:58 $
-  * $Revision: 1.14 $
+  * $Date: 2008/06/04 01:18:40 $
+  * $Revision: 1.15 $
   * \author W. Fisher - FNAL
   * \ updated by J. Temple - Univ. of Maryland
   */
@@ -23,7 +23,7 @@ struct HotCellHists{
 
   // Main problem cell histogram
   MonitorElement* problemHotCells;
-  std::vector<MonitorElement*> problemHotCells_depth;
+  MonitorElement* problemHotCells_depth[4];
 
   double hotDigiSigma; // digi values - pedestal must be > hotDigiSigma * pedestal to be considered hot
   bool makeDiagnostics; // if disabled, don't make 
@@ -61,18 +61,20 @@ struct HotCellHists{
   MonitorElement* EnergyVsNADAcube;
   MonitorElement* HOT_EnergyVsNADAcube;
 
-  std::vector<MonitorElement*> pedestalValues_depth;
-  std::vector<MonitorElement*> pedestalWidths_depth;
-  std::vector<MonitorElement*> RecHitEnergyDist_depth;
+  MonitorElement* pedestalValues_depth[4];
+  MonitorElement* pedestalWidths_depth[4];
+  MonitorElement* RecHitEnergyDist_depth[4];
 
   // Depth plots -- these are diagnostics
   std::vector <std::vector<MonitorElement*> > threshOccMap_depth;
   std::vector <std::vector<MonitorElement*> > threshEnergyMap_depth;
-  std::vector<MonitorElement*> nadaOccMap_depth;
-  std::vector<MonitorElement*> nadaEnergyMap_depth;
-  std::vector<MonitorElement*> nadaNegOccMap_depth;
-  std::vector<MonitorElement*> nadaNegEnergyMap_depth;
-  std::vector <std::vector<MonitorElement*> > digiPedestalPlots_depth;
+  MonitorElement* nadaOccMap_depth[4];
+  MonitorElement* nadaEnergyMap_depth[4];
+  MonitorElement* nadaNegOccMap_depth[4];
+  MonitorElement* nadaNegEnergyMap_depth[4];
+  
+  // Skip over these plots now
+  //std::vector <std::vector<MonitorElement*> > digiPedestalPlots_depth;
 
   // Parameters used in setting NADA cube sizes, thresholds
   double nadaEnergyCandCut0,nadaEnergyCandCut1, nadaEnergyCandCut2;

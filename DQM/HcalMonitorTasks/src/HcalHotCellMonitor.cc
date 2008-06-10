@@ -122,6 +122,8 @@ namespace HcalHotCellCheck
 	hcal.problemHotCells_depth[digi_depth-1]->Fill(digi_eta,digi_phi);
       }
 	
+    /*
+      // these are pretty space-intensive; skip them until needed
     if (h.makeDiagnostics)
       {
 	for (int sigma=0;sigma<=4;++sigma)
@@ -136,6 +138,7 @@ namespace HcalHotCellCheck
 	    
 	  } // for (int sigma = 0)
       } // if (h.makeDiagnostics)
+    */
     return;
   } // void CheckDigi(...)
 
@@ -786,9 +789,9 @@ void HcalHotCellMonitor::setupHists(HotCellHists& h, DQMStore* dbe)
       histtitle.str("");
       histname<<subdet+"ProblemHotCells_depth"<<depth+1;
       histtitle<<subdet+" Hot Cell rate for potentially bad cells (depth "<<depth+1<<")";
-      h.problemHotCells_depth.push_back(m_dbe->book2D(histname.str().c_str(),histtitle.str().c_str(),
-						      h.etaBins,h.etaMin,h.etaMax,
-						      h.phiBins,h.phiMin,h.phiMax));
+      h.problemHotCells_depth[depth]=(m_dbe->book2D(histname.str().c_str(),histtitle.str().c_str(),
+						    h.etaBins,h.etaMin,h.etaMax,
+						    h.phiBins,h.phiMin,h.phiMax));
     } // for (int depth=0;...)
 
   // Histograms for hottest cell in subdetector
@@ -908,6 +911,7 @@ void HcalHotCellMonitor::setupHists(HotCellHists& h, DQMStore* dbe)
   h.abovePedSigma=m_dbe->book2D(histname.str().c_str(),histtitle.str().c_str(),  
 				h.etaBins,h.etaMin,h.etaMax,
 				h.phiBins,h.phiMin,h.phiMax);
+
   if (h.makeDiagnostics)
     {
       m_dbe->setCurrentFolder(baseFolder_+"/"+subdet.c_str()+"/Diagnostics/DigiPedestals");
@@ -920,6 +924,9 @@ void HcalHotCellMonitor::setupHists(HotCellHists& h, DQMStore* dbe)
 	  h.digiPedestalPlots.push_back(m_dbe->book2D(histname.str().c_str(),histtitle.str().c_str(),
 						      h.etaBins,h.etaMin,h.etaMax,
 						      h.phiBins,h.phiMin,h.phiMax));
+	
+	  // Skip individual depth plots for now
+	  /*
 	  std::vector<MonitorElement*> digiDepthHist;
 	  for (int depth=0;depth<4;++depth)
 	    {
@@ -928,10 +935,11 @@ void HcalHotCellMonitor::setupHists(HotCellHists& h, DQMStore* dbe)
 	      histname<<subdet+"HotCellDigiPedestalSigma"<<sigma<<"Depth"<<depth+1;
 	      histtitle<<subdet+" Digi > "<<sigma<<" #sigma above pedestal for Depth= "<<depth+1;
 	      digiDepthHist.push_back(m_dbe->book2D(histname.str().c_str(),histtitle.str().c_str(),
-						    h.etaBins,h.etaMin,h.etaMax,
-						    h.phiBins,h.phiMin,h.phiMax));
+						      h.etaBins,h.etaMin,h.etaMax,
+						      h.phiBins,h.phiMin,h.phiMax));
 	    } // for (int depth=0;...)
 	  h.digiPedestalPlots_depth.push_back(digiDepthHist);
+	  */
 	} // for (int sigma=0;...)
     } // if (h.makeDiagnostics)
 
@@ -981,13 +989,13 @@ void HcalHotCellMonitor::setupHists(HotCellHists& h, DQMStore* dbe)
 	  occdepthname<<subdet+"nadaOccMap"<<"Depth"<<l;
 	  std::stringstream occdepthtitle;
 	  occdepthtitle<<subdet+" Nada Hot Cell Occupancy for Depth "<<l;
-	  h.nadaOccMap_depth.push_back(m_dbe->book2D(occdepthname.str().c_str(),occdepthtitle.str().c_str(),h.etaBins,h.etaMin,h.etaMax,h.phiBins,h.phiMin,h.phiMax));
+	  h.nadaOccMap_depth[l]=(m_dbe->book2D(occdepthname.str().c_str(),occdepthtitle.str().c_str(),h.etaBins,h.etaMin,h.etaMax,h.phiBins,h.phiMin,h.phiMax));
 	  
 	  std::stringstream endepthname;
 	  endepthname<<subdet+"nadaEnergyMap"<<"Depth"<<l;
 	  std::stringstream endepthtitle;
 	  endepthtitle<<subdet+"Nada Hot Cell Energy for Depth "<<l;
-	  h.nadaEnergyMap_depth.push_back(m_dbe->book2D(endepthname.str().c_str(),endepthtitle.str().c_str(),h.etaBins,h.etaMin,h.etaMax,h.phiBins,h.phiMin,h.phiMax));
+	  h.nadaEnergyMap_depth[l]=(m_dbe->book2D(endepthname.str().c_str(),endepthtitle.str().c_str(),h.etaBins,h.etaMin,h.etaMax,h.phiBins,h.phiMin,h.phiMax));
 	  
 	  // l starts at 1; shift by 1 to start with histogram 0
 	  h.nadaOccMap_depth[l-1]->setAxisTitle("i#eta",1);
@@ -999,12 +1007,12 @@ void HcalHotCellMonitor::setupHists(HotCellHists& h, DQMStore* dbe)
 	  negoccdepthname<<subdet+"nadaNegOccMap"<<"Depth"<<l;
 	  std::stringstream negoccdepthtitle;
 	  negoccdepthtitle<<subdet+" Nada Negative Cell Occupancy for Depth "<<l;
-	  h.nadaNegOccMap_depth.push_back(m_dbe->book2D(negoccdepthname.str().c_str(),negoccdepthtitle.str().c_str(),h.etaBins,h.etaMin,h.etaMax,h.phiBins,h.phiMin,h.phiMax));
+	  h.nadaNegOccMap_depth[l]=(m_dbe->book2D(negoccdepthname.str().c_str(),negoccdepthtitle.str().c_str(),h.etaBins,h.etaMin,h.etaMax,h.phiBins,h.phiMin,h.phiMax));
 	  std::stringstream negendepthname;
 	  negendepthname<<subdet+"nadaNegEnergyMap"<<"Depth"<<l;
 	  std::stringstream negendepthtitle;
 	  endepthtitle<<subdet+"Nada Negative Cell Energy for Depth "<<l;
-	  h.nadaNegEnergyMap_depth.push_back(m_dbe->book2D(negendepthname.str().c_str(),negendepthtitle.str().c_str(),h.etaBins,h.etaMin,h.etaMax,h.phiBins,h.phiMin,h.phiMax));
+	  h.nadaNegEnergyMap_depth[l]=(m_dbe->book2D(negendepthname.str().c_str(),negendepthtitle.str().c_str(),h.etaBins,h.etaMin,h.etaMax,h.phiBins,h.phiMin,h.phiMax));
 	  
 	  // l starts at 1; shift by 1 to start with histogram 0
 	  h.nadaNegOccMap_depth[l-1]->setAxisTitle("i#eta",1);
@@ -1042,21 +1050,21 @@ void HcalHotCellMonitor::setupHists(HotCellHists& h, DQMStore* dbe)
 	  diagFoldername.str("");
 	  std::stringstream tempname;
 	  tempname<<subdet+"RecHitEnergyDist_Depth"<<depth;
-	  h.RecHitEnergyDist_depth.push_back(m_dbe->book1D(tempname.str().c_str(), 
+	  h.RecHitEnergyDist_depth[depth]=(m_dbe->book1D(tempname.str().c_str(), 
 							   "Energy Distribution of Rec Hits",
 							   200,0,20));
 	  tempname.str(""); // resets tempname
 	  tempname<<subdet+"PedestalValue_Depth"<<depth;
-	  h.pedestalValues_depth.push_back(m_dbe->book2D(tempname.str().c_str(),
-							 "Pedestal value for each cell (need to scale by 1/# of events run!)",
-							 h.etaBins,h.etaMin,h.etaMax,
-							 h.phiBins,h.phiMin,h.phiMax));
+	  h.pedestalValues_depth[depth]=(m_dbe->book2D(tempname.str().c_str(),
+						       "Pedestal value for each cell (need to scale by 1/# of events run!)",
+						       h.etaBins,h.etaMin,h.etaMax,
+						       h.phiBins,h.phiMin,h.phiMax));
 	  tempname.str(""); // resets tempname
 	  tempname<<subdet+"PedestalWidth_Depth"<<depth;
-	  h.pedestalWidths_depth.push_back(m_dbe->book2D(tempname.str().c_str(),
-							 "Pedestal width for each cell (need to scale by 1/# of events run!)",
-							 h.etaBins,h.etaMin,h.etaMax,
-							 h.phiBins,h.phiMin,h.phiMax));
+	  h.pedestalWidths_depth[depth]=(m_dbe->book2D(tempname.str().c_str(),
+						       "Pedestal width for each cell (need to scale by 1/# of events run!)",
+						       h.etaBins,h.etaMin,h.etaMax,
+						       h.phiBins,h.phiMin,h.phiMax));
 	  tempname.str(""); //resets tempname
 
 	} // for (int depth =1 ; depth<=4; ++depth)

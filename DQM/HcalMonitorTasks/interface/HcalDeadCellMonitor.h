@@ -9,8 +9,8 @@
 
 /** \class HcalDeadCellMonitor
   *  
-  * $Date: 2008/05/27 03:08:58 $
-  * $Revision: 1.9 $
+  * $Date: 2008/06/04 01:18:40 $
+  * $Revision: 1.10 $
   * \author J. Temple - Univ. of Maryland
   */
 
@@ -25,37 +25,37 @@ struct DeadCellHists{
 
   // Global histogram to keep track of all bad histograms in a given subdetector
   MonitorElement* problemDeadCells;
-  std::vector<MonitorElement*> problemDeadCells_depth;
+  MonitorElement* problemDeadCells_depth[4];
  
 
   // Dead cell routine #1:  low ADC counts for cell
   MonitorElement* deadADC_map;
-  std::vector<MonitorElement*> deadADC_map_depth; // individual depth plots
-  std::vector<TH2F*> deadADC_temp_depth;
+  MonitorElement* deadADC_map_depth[4]; // individual depth plots
+  TH2F* deadADC_temp_depth[4];
   //MonitorElement* noADC_ID_map;
   MonitorElement* deadADC_eta;
   //MonitorElement* noADC_ID_eta;
   MonitorElement* ADCdist;
-  std::vector<MonitorElement*> deadcapADC_map; // plots for individual CAPIDs
+  MonitorElement* deadcapADC_map[4]; // plots for individual CAPIDs
 
   // Dead cell routine #2:  cell cool compared to neighbors
   double floor, mindiff;
   MonitorElement* NADA_cool_cell_map;
-  std::vector<MonitorElement*> NADA_cool_cell_map_depth; // individual depth plots
+  MonitorElement* NADA_cool_cell_map_depth[4]; // individual depth plots
 
   // Dead cell routine #3:  cell consistently less than pedestal + N sigma
   MonitorElement* coolcell_below_pedestal;
   MonitorElement* above_pedestal;
-  std::vector<MonitorElement*> coolcell_below_pedestal_depth;
-  std::vector<MonitorElement*> above_pedestal_depth;
-  std::vector<TH2F*> above_pedestal_temp_depth;
+  MonitorElement* coolcell_below_pedestal_depth[4];
+  MonitorElement* above_pedestal_depth[4];
+  TH2F* above_pedestal_temp_depth[4];
   
   // extra diagnostic plots - could be removed?  
   // Should already have these in DigiMonitor, RecHitMonitor
   MonitorElement* digiCheck;
   MonitorElement* cellCheck;
-  std::vector<MonitorElement*> digiCheck_depth;
-  std::vector<MonitorElement*> cellCheck_depth;
+  MonitorElement* digiCheck_depth[4];
+  MonitorElement* cellCheck_depth[4];
 };
 
 
