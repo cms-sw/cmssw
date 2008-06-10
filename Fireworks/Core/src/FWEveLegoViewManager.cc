@@ -8,7 +8,7 @@
 //
 // Original Author:  
 //         Created:  Sun Jan  6 22:01:27 EST 2008
-// $Id: FWEveLegoViewManager.cc,v 1.3 2008/06/09 20:18:22 chrjones Exp $
+// $Id: FWEveLegoViewManager.cc,v 1.4 2008/06/10 14:20:24 chrjones Exp $
 //
 
 // system include files
@@ -94,7 +94,6 @@ FWViewManagerBase(),
        ++it) {
       std::string::size_type first = it->find_first_of('@')+1;
       std::string  purpose = it->substr(first,it->find_last_of('@')-first);
-      std::cout <<"purpose "<<purpose<<std::endl;
       m_typeToBuilders[purpose].push_back(*it);
    }
    
@@ -273,5 +272,24 @@ FWEveLegoViewManager::selectionCleared()
    if(0!= m_selectionManager) {
       m_selectionManager->clearSelection();
    }   
+}
+
+std::vector<std::string> 
+FWEveLegoViewManager::purposeForType(const std::string& iTypeName) const
+{
+   std::vector<std::string> returnValue;
+   for(TypeToBuilders::const_iterator it = m_typeToBuilders.begin(), itEnd = m_typeToBuilders.end();
+       it != itEnd;
+       ++it) {
+      for ( std::vector<std::string>::const_iterator builderName = it->second.begin();
+	   builderName != it->second.end(); ++builderName )
+      {
+         if(iTypeName == builderName->substr(0,builderName->find_first_of('@'))) {
+            returnValue.push_back(it->first);
+         }
+      }
+      
+   }
+   return returnValue;
 }
 

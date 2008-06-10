@@ -16,7 +16,7 @@
 //
 // Original Author:  
 //         Created:  Sun Jan  6 22:01:21 EST 2008
-// $Id: FWEveLegoViewManager.h,v 1.2 2008/03/20 09:39:26 dmytro Exp $
+// $Id: FWEveLegoViewManager.h,v 1.3 2008/06/09 20:18:22 chrjones Exp $
 //
 
 // system include files
@@ -64,6 +64,7 @@ class FWEveLegoViewManager : public FWViewManagerBase
       virtual ~FWEveLegoViewManager();
 
       // ---------- const member functions ---------------------
+      std::vector<std::string> purposeForType(const std::string& iTypeName) const;
 
       // ---------- static member functions --------------------
 

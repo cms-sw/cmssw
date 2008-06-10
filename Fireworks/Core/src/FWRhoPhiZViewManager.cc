@@ -8,7 +8,7 @@
 //
 // Original Author:  
 //         Created:  Sat Jan  5 14:08:51 EST 2008
-// $Id: FWRhoPhiZViewManager.cc,v 1.27 2008/06/09 20:18:22 chrjones Exp $
+// $Id: FWRhoPhiZViewManager.cc,v 1.28 2008/06/10 14:20:24 chrjones Exp $
 //
 
 // system include files
@@ -873,4 +873,20 @@ TEveGeoShapeExtract* FWRhoPhiZViewManager::makeShapeExtract( const char* name,
    TGeoBBox* box = new TGeoBBox( 0, (max_rho-min_rho)/2, (max_z-min_z)/2 ); 
    extract->SetShape( box );
    return extract;
+}
+
+
+std::vector<std::string> 
+FWRhoPhiZViewManager::purposeForType(const std::string& iTypeName) const
+{
+   std::vector<std::string> returnValue;
+
+   for(TypeToBuilder::const_iterator it = m_typeToBuilder.begin(), itEnd = m_typeToBuilder.end();
+       it != itEnd;
+       ++it) {
+      if( iTypeName == it->second.first.substr(0,it->second.first.find_first_of('@'))) {
+         returnValue.push_back(it->first);
+      }
+   }
+   return returnValue;
 }
