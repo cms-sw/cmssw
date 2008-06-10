@@ -54,6 +54,7 @@ class GflashHistogram : public TObject {
   TH1F*     deltaStep;
   TH1F*     kineticEnergy;
   TH1F*     energyLoss;
+  TH1F*     energyRatio;
 
   // histograms for HAD shower model in GflashHadronShowerProfile
 
