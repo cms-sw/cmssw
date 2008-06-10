@@ -112,10 +112,8 @@ std::vector<reco::BasicCluster> CosmicClusterAlgo::makeClusters(
    }
 
    mainSearch(hits,geometry_p,topology_p,geometryES_p,ecalPart,icalMap);
-   int initsize = clusters_v.size();
    sort(clusters_v.begin(), clusters_v.end());
-   int finalsize = clusters_v.size();
-      
+         
    if (verbosity < pINFO)
    {
       std::cout << "---------- end of main search. clusters have been sorted ----" << std::endl;
