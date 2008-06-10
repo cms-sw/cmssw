@@ -1,5 +1,5 @@
 #!/usr/bin/perl -w
-# $Id: InjectWorker.pl,v 1.11 2008/06/05 11:36:26 loizides Exp $
+# $Id: InjectWorker.pl,v 1.12 2008/06/10 11:34:56 loizides Exp $
 
 use strict;
 use DBI;
@@ -44,14 +44,12 @@ sub getdatestr()
 #time routine for SQL commands timestamp
 sub gettimestamp($)
 {
-
     my $stime = shift;
     my @ltime = localtime($stime);
     my ($sec,$min,$hour,$mday,$mon,$year,$wday,$yday,$isdst) = @ltime;
 
     $year += 1900;
     $mon++;
-
 
     my $timestr = $year."-";
     if ($mon < 10) {
@@ -157,6 +155,9 @@ sub inject($$)
     #if($hostname eq 'cmsdisk1') {
     #    $destination = 'tochose';
     #}
+
+    # fix a left over bug from CMSSW_2_0_4
+    $appversion=$1 if $appversion =~ /\"(.*)'/;
 
     my $stime;
     if ($doNotify==0) {
