@@ -1,11 +1,14 @@
 /*
  * \file L1TDTTF.cc
  *
- * $Date: 2008/04/30 08:44:21 $
- * $Revision: 1.13 $
+ * $Date: 2008/05/09 16:42:27 $
+ * $Revision: 1.14 $
  * \author J. Berryhill
  *
  * $Log: L1TDTTF.cc,v $
+ * Revision 1.14  2008/05/09 16:42:27  ameyer
+ * *** empty log message ***
+ *
  * Revision 1.13  2008/04/30 08:44:21  lorenzo
  * new dttf source, not based on gmt record
  *
@@ -33,6 +36,9 @@
  * DQM core migration.
  *
  * $Log: L1TDTTF.cc,v $
+ * Revision 1.14  2008/05/09 16:42:27  ameyer
+ * *** empty log message ***
+ *
  * Revision 1.13  2008/04/30 08:44:21  lorenzo
  * new dttf source, not based on gmt record
  *
@@ -168,17 +174,18 @@ void L1TDTTF::beginJob(const EventSetup& c)
   if ( dbe ) 
     {
     //  error summary histograms
-    dbe->setCurrentFolder(l1tinfofolder);
+//    dbe->setCurrentFolder(l1tinfofolder);
     
     //  error summary segments
-    string suberrfolder = l1tinfofolder + "/reportSummaryContents" ;
-    dbe->setCurrentFolder(suberrfolder);
-    dttpgphmap = dbe->book2D("DT_TPG_phi_map","Map of triggers per station",20,1,21,12,0,12);
-    setMapPhLabel(dttpgphmap);
+//    string suberrfolder = l1tinfofolder + "/reportSummaryContents" ;
+//    dbe->setCurrentFolder(suberrfolder);
+//    dttpgphmap = dbe->book2D("DT_TPG_phi_map","Map of triggers per station",20,1,21,12,0,12);
+//    setMapPhLabel(dttpgphmap);
     
-    string dttf_phi_folder = l1tsubsystemfolder+"/DTTF_PHI";
-    string dttf_theta_folder = l1tsubsystemfolder+"/DTTF_THETA";
+//    string dttf_phi_folder = l1tsubsystemfolder+"/DTTF_PHI";
+//    string dttf_theta_folder = l1tsubsystemfolder+"/DTTF_THETA";
     string dttf_trk_folder = l1tsubsystemfolder+"/DTTF_TRACKS";
+ /*
     dbe->setCurrentFolder(dttf_phi_folder);
 
 
@@ -402,8 +409,9 @@ void L1TDTTF::beginJob(const EventSetup& c)
             }								      
          }								      
       }
+*/
 
-
+char hname[40];
 //DTTF Output (6 wheels)
       
       dbe->setCurrentFolder(dttf_trk_folder);
@@ -452,7 +460,7 @@ void L1TDTTF::beginJob(const EventSetup& c)
       }	 
      
 
-
+/*
       dbe->setCurrentFolder(l1tsubsystemfolder);
 
       for (int ibx=0 ; ibx<=2; ibx++) {
@@ -512,8 +520,10 @@ void L1TDTTF::beginJob(const EventSetup& c)
       setMapThLabel(dttpgthmaph);
       setMapThLabel(dttpgthbestmap);
       setMapThLabel(dttpgthbestmaph);
-
-    }  
+*/
+    } 
+    
+     
 }
 
 
@@ -532,7 +542,7 @@ void L1TDTTF::analyze(const Event& e, const EventSetup& c)
 
   nev_++; 
   if(verbose_) cout << "L1TDTTF: analyze...." << endl;
-
+/*
   edm::Handle<L1MuDTChambPhContainer > myL1MuDTChambPhContainer;  
   e.getByLabel(dttpgSource_,myL1MuDTChambPhContainer);
   
@@ -582,7 +592,7 @@ void L1TDTTF::analyze(const Event& e, const EventSetup& c)
        NumberOfSegmentsPhi[2]++;   
     }
    
-   /*Fill Histos for Segment counter for each bx separately */
+   //Fill Histos for Segment counter for each bx separately 
 
   for(int k=0;k<3;k++){
      dttpgphbx[k+2]->Fill(NumberOfSegmentsPhi[k]);
@@ -594,7 +604,7 @@ void L1TDTTF::analyze(const Event& e, const EventSetup& c)
        bxCounterDttfPhi++;
    }
 
-   /* the BX "code" */
+   // the BX "code" 
 
    int bxCodePhi=0;
    if(bxCounterDttfPhi==0){
@@ -813,7 +823,7 @@ void L1TDTTF::analyze(const Event& e, const EventSetup& c)
   if (verbose_) {
     cout << "DTTPG theta ntrack " << ndttpgthtrack << endl;
   }
-
+*/
   edm::Handle<L1MuDTTrackContainer > myL1MuDTTrackContainer;
 
   
@@ -831,7 +841,7 @@ void L1TDTTF::analyze(const Event& e, const EventSetup& c)
   L1MuDTTrackContainer::TrackContainer *t =  myL1MuDTTrackContainer->getContainer();
 
 
-
+/*
   int NumberOfSegmentsOut[3]={0,0,0};
   for ( L1MuDTTrackContainer::TrackContainer::const_iterator i 
 	  = t->begin(); i != t->end(); ++i ) {
@@ -844,12 +854,12 @@ void L1TDTTF::analyze(const Event& e, const EventSetup& c)
   }
 
 
-   /*Fill Histos for Segment counter*/
+// Fill Histos for Segment counter
    for(int k=0;k<3;k++){
      dttpgphbx[k+5]->Fill(NumberOfSegmentsOut[k]);
    }
 
-   /*Bunch assigments*/
+// Bunch assigments
 
    int bxCounterDttfOut=0;
    for (int k=0;k<3;k++){
@@ -877,12 +887,12 @@ void L1TDTTF::analyze(const Event& e, const EventSetup& c)
    //The bx analyzer histo
    dttpgphbx[1]->Fill(bxCodeOut);
 
-   /*End Dttf Output Bunch analysis*/
+//   End Dttf Output Bunch analysis
 
    // the 2-DIM histo with phi.input vs. output
-   dttpgphbxcomp->Fill(bxCodePhi,bxCodeOut);
+//   dttpgphbxcomp->Fill(bxCodePhi,bxCodeOut);
 
-
+*/
   for ( L1MuDTTrackContainer::TrackContainer::const_iterator i 
 	  = t->begin(); i != t->end(); ++i ) {
     if ( verbose_ ) {
