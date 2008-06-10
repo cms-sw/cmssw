@@ -29,6 +29,7 @@ namespace HcalHotCellCheck
 		 DQMStore* dbe,
 		 bool pedsInFC=false)
   {
+    if (h.fVerbosity) cout <<"Entered CheckDigi for type = "<<h.type<<endl;
     int digi_eta=digi.id().ieta();
     int digi_phi=digi.id().iphi();
     int digi_depth=digi.id().depth();
@@ -105,7 +106,6 @@ namespace HcalHotCellCheck
 	// Diagnostic plots of ped values will only give sensible results for non-ZS runs
 	h.pedestalValues_depth[digi_depth-1]->Fill(digi_eta,digi_phi,total_pedestal);
 	h.pedestalWidths_depth[digi_depth-1]->Fill(digi_eta,digi_phi,total_pedwidth);
-
 	h.DigiEnergyDist->Fill((total_digival-total_pedestal)/total_pedwidth);
 	hcal.DigiEnergyDist->Fill((total_digival-total_pedestal)/total_pedwidth);
       }
@@ -292,15 +292,14 @@ namespace HcalHotCellCheck
 
     // Get nominal cube size 
     int cubeSize = (2*h.nadaMaxDeltaDepth+1)*(2*h.nadaMaxDeltaEta+1)*(2*h.nadaMaxDeltaPhi+1)-1;
-
+    
     if (hits.size()>0)
-    {
-      
+      {
       typename Hits::const_iterator _cell;
       
       // Copying NADA algorithm from D0 Note 4057.
       // The implementation needs to be optimized -- double looping over iterators is not an efficient approach?
-
+      
       // Ecube is total energy in cube around cell
       float  Ecube=0;
       
@@ -507,7 +506,7 @@ namespace HcalHotCellCheck
 	      hcal.problemHotCells->Fill(CellEta,CellPhi);
 	      h.problemHotCells_depth[CellDepth-1]->Fill(CellEta,CellPhi);
 	      hcal.problemHotCells_depth[CellDepth-1]->Fill(CellEta,CellPhi);
-
+	      
 	      if (h.makeDiagnostics)
 		h.diagnostic[1]->Fill(CellDepth, 1.0*cubeComp/cubeSize);
 	      if (h.fVerbosity==2) cout <<"Found NADA hot cell in "<<h.name.c_str()<<":  Ecube energy = "<<Ecube<<endl;
@@ -524,17 +523,19 @@ namespace HcalHotCellCheck
 		  h.nadaEnergyMap_depth[CellDepth-1]->Fill(CellEta,CellPhi,cellenergy);
 		  hcal.nadaOccMap_depth[CellDepth-1]->Fill(CellEta,CellPhi);
 		  hcal.nadaEnergyMap_depth[CellDepth-1]->Fill(CellEta,CellPhi,cellenergy);
-
+		  
 		  h.HOT_EnergyVsNADAcube->Fill(Ecube, cellenergy);
 		  hcal.HOT_EnergyVsNADAcube->Fill(Ecube, cellenergy);
 		} // if (h.makeDiagnostics)
-	    }
+	    } // if (Ecube <=EcubeCut*...)
 	} //for (_cell=c.begin(); _cell!=c.end(); _cell++)
       if (h.fVerbosity) cout <<"Filling "<<h.name.c_str()<<" NADA NumHotCell histo"<<endl;
       h.nadaNumHotCells->Fill(h.numhotcells);
       h.nadaNumNegCells->Fill(h.numnegcells);
-      
+
     } // if (hits.size()>0)
+    
+
   return;
 
   } //void nadaCheck
@@ -659,6 +660,7 @@ void HcalHotCellMonitor::setup(const edm::ParameterSet& ps, DQMStore* dbe)
     meEVT_->Fill(ievt_);
   }
 
+  cout <<"FINISHED SETUP"<<endl;
   return;
 }
 
@@ -776,7 +778,6 @@ void HcalHotCellMonitor::setupHists(HotCellHists& h, DQMStore* dbe)
 				    subdet+" Hot Cell rate for potentially bad cells",
 				    h.etaBins,h.etaMin,h.etaMax,
 				    h.phiBins,h.phiMin,h.phiMax);
-
 
   std::stringstream histname;
   std::stringstream histtitle;
@@ -989,13 +990,13 @@ void HcalHotCellMonitor::setupHists(HotCellHists& h, DQMStore* dbe)
 	  occdepthname<<subdet+"nadaOccMap"<<"Depth"<<l;
 	  std::stringstream occdepthtitle;
 	  occdepthtitle<<subdet+" Nada Hot Cell Occupancy for Depth "<<l;
-	  h.nadaOccMap_depth[l]=(m_dbe->book2D(occdepthname.str().c_str(),occdepthtitle.str().c_str(),h.etaBins,h.etaMin,h.etaMax,h.phiBins,h.phiMin,h.phiMax));
+	  h.nadaOccMap_depth[l-1]=(m_dbe->book2D(occdepthname.str().c_str(),occdepthtitle.str().c_str(),h.etaBins,h.etaMin,h.etaMax,h.phiBins,h.phiMin,h.phiMax));
 	  
 	  std::stringstream endepthname;
 	  endepthname<<subdet+"nadaEnergyMap"<<"Depth"<<l;
 	  std::stringstream endepthtitle;
 	  endepthtitle<<subdet+"Nada Hot Cell Energy for Depth "<<l;
-	  h.nadaEnergyMap_depth[l]=(m_dbe->book2D(endepthname.str().c_str(),endepthtitle.str().c_str(),h.etaBins,h.etaMin,h.etaMax,h.phiBins,h.phiMin,h.phiMax));
+	  h.nadaEnergyMap_depth[l-1]=(m_dbe->book2D(endepthname.str().c_str(),endepthtitle.str().c_str(),h.etaBins,h.etaMin,h.etaMax,h.phiBins,h.phiMin,h.phiMax));
 	  
 	  // l starts at 1; shift by 1 to start with histogram 0
 	  h.nadaOccMap_depth[l-1]->setAxisTitle("i#eta",1);
@@ -1007,12 +1008,12 @@ void HcalHotCellMonitor::setupHists(HotCellHists& h, DQMStore* dbe)
 	  negoccdepthname<<subdet+"nadaNegOccMap"<<"Depth"<<l;
 	  std::stringstream negoccdepthtitle;
 	  negoccdepthtitle<<subdet+" Nada Negative Cell Occupancy for Depth "<<l;
-	  h.nadaNegOccMap_depth[l]=(m_dbe->book2D(negoccdepthname.str().c_str(),negoccdepthtitle.str().c_str(),h.etaBins,h.etaMin,h.etaMax,h.phiBins,h.phiMin,h.phiMax));
+	  h.nadaNegOccMap_depth[l-1]=(m_dbe->book2D(negoccdepthname.str().c_str(),negoccdepthtitle.str().c_str(),h.etaBins,h.etaMin,h.etaMax,h.phiBins,h.phiMin,h.phiMax));
 	  std::stringstream negendepthname;
 	  negendepthname<<subdet+"nadaNegEnergyMap"<<"Depth"<<l;
 	  std::stringstream negendepthtitle;
 	  endepthtitle<<subdet+"Nada Negative Cell Energy for Depth "<<l;
-	  h.nadaNegEnergyMap_depth[l]=(m_dbe->book2D(negendepthname.str().c_str(),negendepthtitle.str().c_str(),h.etaBins,h.etaMin,h.etaMax,h.phiBins,h.phiMin,h.phiMax));
+	  h.nadaNegEnergyMap_depth[l-1]=(m_dbe->book2D(negendepthname.str().c_str(),negendepthtitle.str().c_str(),h.etaBins,h.etaMin,h.etaMax,h.phiBins,h.phiMin,h.phiMax));
 	  
 	  // l starts at 1; shift by 1 to start with histogram 0
 	  h.nadaNegOccMap_depth[l-1]->setAxisTitle("i#eta",1);
@@ -1050,18 +1051,18 @@ void HcalHotCellMonitor::setupHists(HotCellHists& h, DQMStore* dbe)
 	  diagFoldername.str("");
 	  std::stringstream tempname;
 	  tempname<<subdet+"RecHitEnergyDist_Depth"<<depth;
-	  h.RecHitEnergyDist_depth[depth]=(m_dbe->book1D(tempname.str().c_str(), 
+	  h.RecHitEnergyDist_depth[depth-1]=(m_dbe->book1D(tempname.str().c_str(), 
 							   "Energy Distribution of Rec Hits",
 							   200,0,20));
 	  tempname.str(""); // resets tempname
 	  tempname<<subdet+"PedestalValue_Depth"<<depth;
-	  h.pedestalValues_depth[depth]=(m_dbe->book2D(tempname.str().c_str(),
+	  h.pedestalValues_depth[depth-1]=(m_dbe->book2D(tempname.str().c_str(),
 						       "Pedestal value for each cell (need to scale by 1/# of events run!)",
 						       h.etaBins,h.etaMin,h.etaMax,
 						       h.phiBins,h.phiMin,h.phiMax));
 	  tempname.str(""); // resets tempname
 	  tempname<<subdet+"PedestalWidth_Depth"<<depth;
-	  h.pedestalWidths_depth[depth]=(m_dbe->book2D(tempname.str().c_str(),
+	  h.pedestalWidths_depth[depth-1]=(m_dbe->book2D(tempname.str().c_str(),
 						       "Pedestal width for each cell (need to scale by 1/# of events run!)",
 						       h.etaBins,h.etaMin,h.etaMax,
 						       h.phiBins,h.phiMin,h.phiMax));
@@ -1107,7 +1108,8 @@ void HcalHotCellMonitor::processEvent( const HBHERecHitCollection& hbHits,
   if (fVerbosity) cout <<"HcalHotCellMonitor::processEvent   Starting process"<<endl;
 
   // Reset overall hcalHists max cell energy to default values
-  hcalHists.enS=-1000., hcalHists.tS=0.;
+  hcalHists.enS=-1000.;
+  hcalHists.tS=0.;
   hcalHists.etaS=0, hcalHists.phiS=0, hcalHists.depthS=0;
   hcalHists.idS=0;
   hcalHists.numhotcells=0, hcalHists.numnegcells=0;
