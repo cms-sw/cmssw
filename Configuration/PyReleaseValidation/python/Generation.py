@@ -44,6 +44,7 @@ def generate(evt_type, energy, evtnumber):
         return _generate_Wl(evt_type, energy, evtnumber)
 
     else:
+        evt_type = evt_type.replace(".","_")
         return __import__('Configuration/Generator/'+evt_type).source
 
 

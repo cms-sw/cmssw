@@ -245,11 +245,11 @@ parser.add_option("--dump_python",
                   default=False,                  
                   dest="dump_python")
                                                     
-parser.add_option("--pure_python",
-                  help="Create pure python config file",
+parser.add_option("--old_config",
+                  help="Use the old configuration system",
                   action="store_true",
                   default = False,
-                  dest="pure_python") 
+                  dest="old_config") 
 
 parser.add_option("--dump_pickle",
                   help="Dump a pickle object of the process.",
@@ -364,7 +364,7 @@ if options.writeraw:
 
 # File where to dump the python cfg file
 python_config_filename=''
-if options.dump_python or options.pure_python:
+if options.dump_python or not options.old_config:
     python_config_filename=trimmedEvtType+"_"+\
                               options.energy+\
                               "_"+trimmedStep
@@ -413,7 +413,7 @@ elif options.step=='DATA_CHAIN':
         options.step='RAW2DIGI,RECO,POSTRECO,DQM'
 
 # pure python version - begin
-if options.pure_python:
+if not options.old_config:
 
   from Configuration.PyReleaseValidation.ConfigBuilder import ConfigBuilder
 
