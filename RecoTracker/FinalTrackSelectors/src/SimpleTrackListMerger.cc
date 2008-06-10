@@ -8,8 +8,8 @@
 // Created:         Sat Jan 14 22:00:00 UTC 2006
 //
 // $Author: burkett $
-// $Date: 2008/05/13 14:10:32 $
-// $Revision: 1.11 $
+// $Date: 2008/05/19 20:19:10 $
+// $Revision: 1.12 $
 //
 
 #include <memory>
@@ -313,29 +313,53 @@ namespace cms
   //
   //  L1 and L2 both have > 0 track - try merging
   //
+   std::map<reco::TrackCollection::const_iterator, std::vector<const TrackingRecHit*> > rh1;
+   std::map<reco::TrackCollection::const_iterator, std::vector<const TrackingRecHit*> > rh2;
+   for (reco::TrackCollection::const_iterator track=tC1.begin(); track!=tC1.end(); ++track){
+     trackingRecHit_iterator itB = track->recHitsBegin();
+     trackingRecHit_iterator itE = track->recHitsEnd();
+     for (trackingRecHit_iterator it = itB;  it != itE; ++it) { 
+       const TrackingRecHit* hit = &(**it);
+       rh1[track].push_back(hit);
+     }
+   }
+   for (reco::TrackCollection::const_iterator track=tC2.begin(); track!=tC2.end(); ++track){
+     trackingRecHit_iterator jtB = track->recHitsBegin();
+     trackingRecHit_iterator jtE = track->recHitsEnd();
+     for (trackingRecHit_iterator jt = jtB;  jt != jtE; ++jt) { 
+       const TrackingRecHit* hit = &(**jt);
+       rh2[track].push_back(hit);
+     }
+   }
+
    if ( (0<tC1.size())&&(0<tC2.size()) ){
     i=-1;
-    for (reco::TrackCollection::const_iterator track=tC1.begin(); track!=tC1.end(); track++){
+    for (reco::TrackCollection::const_iterator track=tC1.begin(); track!=tC1.end(); ++track){
       i++; 
-      //std::cout << "L1 Track number "<< i << std::endl ; 
       if (!selected1[i])continue;
+      std::vector<const TrackingRecHit*>& iHits = rh1[track]; 
+      unsigned nh1 = iHits.size();
       int j=-1;
-      for (reco::TrackCollection::const_iterator track2=tC2.begin(); track2!=tC2.end(); track2++){
+      for (reco::TrackCollection::const_iterator track2=tC2.begin(); track2!=tC2.end(); ++track2){
         j++;
         if ((!selected2[j])||(!selected1[i]))continue;
+	std::vector<const TrackingRecHit*>& jHits = rh2[track2]; 
+	unsigned nh2 = jHits.size();
         int noverlap=0;
-        for (trackingRecHit_iterator it = track->recHitsBegin();  it != track->recHitsEnd(); it++){
-          if ((*it)->isValid()){
+	for ( unsigned ih=0; ih<nh1; ++ih ) { 
+	  const TrackingRecHit* it = iHits[ih];
+          if (it->isValid()){
             int jj=-1;
-            for (trackingRecHit_iterator jt = track2->recHitsBegin();  jt != track2->recHitsEnd(); jt++){
+	    for ( unsigned jh=0; jh<nh2; ++jh ) { 
+	      const TrackingRecHit* jt = jHits[jh];
               jj++;
-	      if ((*jt)->isValid()){
+	      if (jt->isValid()){
                if (!use_sharesInput){
-                float delta = fabs ( (*it)->localPosition().x()-(*jt)->localPosition().x() ); 
-                if (((*it)->geographicalId()==(*jt)->geographicalId())&&(delta<epsilon))noverlap++;
+                float delta = fabs ( it->localPosition().x()-jt->localPosition().x() ); 
+                if ((it->geographicalId()==jt->geographicalId())&&(delta<epsilon))noverlap++;
                }else{
-                const TrackingRecHit* kt = &(**jt);
-                if ( (*it)->sharesInput(kt,TrackingRecHit::some) )noverlap++;
+                const TrackingRecHit* kt = jt;
+                if ( it->sharesInput(kt,TrackingRecHit::some) )noverlap++;
                }
               }
             }
@@ -399,8 +423,12 @@ namespace cms
       outputTrks->back().setExtra( reco::TrackExtraRef( refTrkExtras, outputTrkExtras->size() - 1) );
       reco::TrackExtra & tx = outputTrkExtras->back();
       // fill TrackingRecHits
-      for( trackingRecHit_iterator hit = theTrack.recHitsBegin(); hit != theTrack.recHitsEnd(); ++ hit ) {
-	outputTrkHits->push_back( (*hit)->clone() );
+      std::vector<const TrackingRecHit*>& iHits = rh1[track]; 
+      unsigned nh1 = iHits.size();
+      for ( unsigned ih=0; ih<nh1; ++ih ) { 
+	const TrackingRecHit* hit = iHits[ih];
+	//for( trackingRecHit_iterator hit = itB; hit != itE; ++hit ) {
+	outputTrkHits->push_back( hit->clone() );
 	tx.add( TrackingRecHitRef( refTrkHits, outputTrkHits->size() - 1) );
       }
       trackRefs[current] = reco::TrackRef(refTrks, outputTrks->size() - 1);
@@ -458,8 +486,11 @@ namespace cms
       outputTrks->back().setExtra( reco::TrackExtraRef( refTrkExtras, outputTrkExtras->size() - 1) );
       reco::TrackExtra & tx = outputTrkExtras->back();
       // fill TrackingRecHits
-      for( trackingRecHit_iterator hit = theTrack.recHitsBegin(); hit != theTrack.recHitsEnd(); ++ hit ) {
-	outputTrkHits->push_back( (*hit)->clone() );
+      std::vector<const TrackingRecHit*>& jHits = rh2[track]; 
+      unsigned nh2 = jHits.size();
+      for ( unsigned jh=0; jh<nh2; ++jh ) { 
+	const TrackingRecHit* hit = jHits[jh];
+	outputTrkHits->push_back( hit->clone() );
 	tx.add( TrackingRecHitRef( refTrkHits, outputTrkHits->size() - 1) );
       }
       trackRefs[current] = reco::TrackRef(refTrks, outputTrks->size() - 1);
@@ -482,7 +513,7 @@ namespace cms
        if (trackRefs[oldKey].isNonnull()) {
 	 outputTrajs->push_back( Trajectory(*trajRef) );
 	 outputTTAss->insert ( edm::Ref< std::vector<Trajectory> >(refTrajs, outputTrajs->size() - 1), 
-			       trackRefs[oldKey] );
+			       trackRefs[oldKey] ); 
        }
      }
    }
