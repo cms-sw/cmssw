@@ -1,8 +1,8 @@
 /*
  *  See header file for a description of this class.
  *
- *  $Date: 2008/05/30 13:48:59 $
- *  $Revision: 1.2 $
+ *  $Date: 2008/06/05 08:00:50 $
+ *  $Revision: 1.3 $
  *  \author C. Battilana S. Marcellini - INFN Bologna
  */
 
@@ -183,11 +183,14 @@ void DTLocalTriggerBaseTest::bookSectorHistos(int wheel,int sector,string folder
 }
 
 void DTLocalTriggerBaseTest::bookCmsHistos( string hTag ) {
-  
-  dbe->setCurrentFolder("DT/LocalTrigger");
+  string basedir = "DT/LocalTrigger";
+   if(hwSource != "DDU") 
+      basedir += "/" + hwSource;
+  dbe->setCurrentFolder(basedir);
 
   string hname = fullName(hTag);
-  edm::LogVerbatim ("localTrigger") << "[" << testName << "Test]: booking DT/LocalTrigger/" << hname;
+  edm::LogVerbatim ("localTrigger") << "[" << testName << "Test]: booking " <<
+    basedir << "/" << hname;
 
 
     MonitorElement* me = dbe->book2D(hname.c_str(),hname.c_str(),12,1,13,5,-2,3);
@@ -201,9 +204,15 @@ void DTLocalTriggerBaseTest::bookWheelHistos(int wheel, string folder, string hT
   
   stringstream wh; wh << wheel;
   string basedir;
-  if (hTag.find("Summary") != string::npos )
-    basedir = "DT/LocalTrigger/"+folder;   //Book summary histo outside wheel directories
-  else
+  if (hTag.find("Summary") != string::npos ) {
+    basedir = "DT/LocalTrigger/";   //Book summary histo outside wheel directories
+    if(folder == "") {
+      if(hwSource != "DDU") 
+	basedir = basedir + hwSource;
+    } else {
+      basedir += folder;
+    }
+  } else
     basedir = "DT/LocalTrigger/Wheel"+ wh.str()+"/"+folder;
   dbe->setCurrentFolder(basedir);
 
