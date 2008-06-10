@@ -13,7 +13,7 @@ parser = optparse.OptionParser(usage)
 
 parser.add_option("--globaltag",
                    help="Name of global conditions to use",
-                   default="STARTUP_V2",
+                   default="STARTUP",
                    dest="gt")
 
 parser.add_option("--rereco",
@@ -34,7 +34,7 @@ alcaDict2={'MinBias':'SiPixelLorentzAngle+SiStripCalMinBias+RpcCalHLT+DQM',
            'ZW':'SiPixelLorentzAngle+MuAlZMuMu+RpcCalHLT+DQM',
            'HCALNZS':'HcalCalMinBias+DQM',
            'HCALIST':'HcalCalIsoTrkNoHLT+DQM',
-           'RELVAL':'SiPixelLorentzAngle+SiStripCalMinBias+MuAlZMuMu+RpcCalHLT+DQM',
+           'RELVAL':'',
            'TrackerHaloMuon':'TkAlBeamHalo',
            'TrackerCosBON':'TkAlCosmics',
            'TrackerCosBOFF':'TkAlCosmics',
@@ -52,7 +52,7 @@ alcaDict3={'MinBias':'TkAlMuonIsolated+TkAlJpsiMuMu+TkAlMinBias+EcalCalPhiSym+Ec
            'ZW':'TkAlZMuMu+TkAlMuonIsolated+EcalCalElectron+HcalCalHO+MuAlOverlaps+DQM',
            'HCALNZS':'', # 'HcalCalMinBias+DQM',
            'HCALIST':'', #'HcalCalIsoTrkNoHLT+DQM',
-           'RELVAL':'TkAlZMuMu+TkAlMuonIsolated+TkAlJpsiMuMu+TkAlUpsilonMuMu+TkAlMinBias+EcalCalElectron+EcalCalPhiSym+EcalCalPi0Calib+HcalCalDijets+HcalCalGammaJet+HcalCalMinBias+HcalCalIsoTrkNoHLT+HcalCalHO+MuAlOverlaps+DQM',
+           'RELVAL':'',
            'TrackerHaloMuon':'', #'TkAlBeamHalo',
            'TrackerCosBON':'', # 'TkAlCosmics',
            'TrackerCosBOFF':'', # 'TkAlCosmics',
@@ -142,6 +142,9 @@ cffCustomise = cffCustomiseDict[typeOfEv]
 baseCommand='cmsDriver.py'
 conditions='FrontierConditions_GlobalTag,'+options.gt+'::All'
 eventcontent='RECOSIM'
+if typeOfEv == 'RELVAL':
+    eventcontent='FEVTSIMDIGIHLTDEBUG'
+    
 steps2='RAW2DIGI,RECO'+recoseqCustomiseDict[typeOfEv]
 
 if typeOfEv in cosmicSamples:
@@ -166,8 +169,8 @@ if options.rereco:
     steps2 = "RAW2DIGI,RECO"+recoseqCustomiseDict[typeOfEv]+",POSTRECO,DQM"
     
 
-command2=baseCommand+' step2_'+typeOfEv+' -s ' + steps2 + ' -n 1000 --filein file:raw.root --eventcontent ' + eventcontent + ' --conditions '+conditions+extracom+' --dump_cfg'
-command3=baseCommand+' step3_'+typeOfEv+' -s ' + steps3 + ' -n 1000 --filein file:reco.root ' + ' --conditions '+conditions+extracom+' --dump_cfg'
+command2=baseCommand+' step2_'+typeOfEv+' -s ' + steps2 + ' -n 1000 --filein file:raw.root --eventcontent ' + eventcontent + ' --conditions '+conditions+extracom+' --no_exec'
+command3=baseCommand+' step3_'+typeOfEv+' -s ' + steps3 + ' -n 1000 --filein file:reco.root ' + ' --conditions '+conditions+extracom+' --no_exec'
 
 if ( recoCustomise != '' ):
     command2 = command2+ " --customise "+recoCustomise
