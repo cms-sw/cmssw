@@ -1,5 +1,5 @@
 #!/usr/bin/perl -w
-# $Id: InjectWorker.pl,v 1.10 2008/05/21 09:14:53 loizides Exp $
+# $Id: InjectWorker.pl,v 1.11 2008/06/05 11:36:26 loizides Exp $
 
 use strict;
 use DBI;
@@ -147,12 +147,18 @@ sub inject($$)
     my $checksum    = $ENV{'SM_CHECKSUM'};
     my $producer    = 'StorageManager';
     my $destination = 'Global';
-    if($dataset =~  'TransferTest') {
-	$destination = 'TransferTestWithSafety';
+
+    # redirect datasets to different destinations based on their value
+    if($dataset =~  'TransferTest' || $stream eq 'Random' || $stream eq 'DQM') {
+	$destination = 'TransferTest';
     }
 
-    my $stime;
+    # could also redirect for minidaq/localdaq runs
+    #if($hostname eq 'cmsdisk1') {
+    #    $destination = 'tochose';
+    #}
 
+    my $stime;
     if ($doNotify==0) {
 	$stime = gettimestamp($starttime);
 
