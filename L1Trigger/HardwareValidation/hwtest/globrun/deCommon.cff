@@ -2,12 +2,12 @@
 ///DB
 //frontier:online
 include "L1Trigger/HardwareValidation/hwtest/globrun/FrontierConditions.cff"
-#include "L1Trigger/Configuration/data/L1DBOnlineConfig.cff"
+include "L1Trigger/Configuration/data/L1DBOnlineConfig.cff"
 //frontier:offline
 #include "Configuration/StandardSequences/data/FrontierConditions.cff"
 #include "L1Trigger/Configuration/data/L1DBConfig.cff"
 //dummy 
-include "L1Trigger/Configuration/data/L1DummyConfig.cff"
+#include "L1Trigger/Configuration/data/L1DummyConfig.cff"
 
 
 include "Geometry/CSCGeometry/data/cscGeometry.cfi"
