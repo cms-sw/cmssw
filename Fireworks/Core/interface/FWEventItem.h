@@ -16,7 +16,7 @@
 //
 // Original Author:  Chris Jones
 //         Created:  Thu Jan  3 14:02:21 EST 2008
-// $Id: FWEventItem.h,v 1.17 2008/06/03 20:00:56 chrjones Exp $
+// $Id: FWEventItem.h,v 1.18 2008/06/05 14:37:27 chrjones Exp $
 //
 
 // system include files
@@ -69,6 +69,7 @@ class FWEventItem
                   unsigned int iItemId,
                   const std::string& iName,
 		  const TClass* iClass,
+                  const std::string& iPurpose = std::string(),
 		  const FWDisplayProperties& iProperties =
 		  FWDisplayProperties(),
 		  const std::string& iModuleLabel = std::string(),
@@ -100,6 +101,8 @@ class FWEventItem
       unsigned int id() const;
       const std::string& name() const;
       const TClass* type() const;
+      /** Since the same C++ type can be used for multiple purposes, this string disambiguates them.*/
+      const std::string& purpose() const;
 
       const std::string& moduleLabel() const;
       const std::string& productInstanceLabel() const;
@@ -168,6 +171,7 @@ class FWEventItem
       unsigned int m_id;
       std::string m_name;
       const TClass* m_type;
+      std::string m_purpose;
       boost::shared_ptr<TVirtualCollectionProxy> m_colProxy; //should be something other than shared_ptr 
       mutable const void * m_data;
       size_t m_collectionOffset;

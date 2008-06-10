@@ -8,7 +8,7 @@
 //
 // Original Author:  
 //         Created:  Thu Jan  3 14:59:23 EST 2008
-// $Id: FWEventItem.cc,v 1.13 2008/06/03 20:02:07 chrjones Exp $
+// $Id: FWEventItem.cc,v 1.14 2008/06/05 14:37:27 chrjones Exp $
 //
 
 // system include files
@@ -39,6 +39,7 @@ FWEventItem::FWEventItem(FWModelChangeManager* iCM,
                          unsigned int iId,
                          const std::string& iName,
 			 const TClass* iClass,
+                         const std::string& iPurpose,
 			 const FWDisplayProperties& iProperties,
 			 const std::string& iModuleLabel,
 			 const std::string& iProductInstanceLabel,
@@ -49,6 +50,7 @@ FWEventItem::FWEventItem(FWModelChangeManager* iCM,
   m_id(iId),
   m_name(iName),
   m_type(iClass),
+  m_purpose(iPurpose),
   m_colProxy(iClass->GetCollectionProxy()?iClass->GetCollectionProxy()->Generate():
                                           static_cast<TVirtualCollectionProxy*>(0)),
   m_data(0),
@@ -81,6 +83,7 @@ m_selectionManager(iSM),
 m_id(iId),
 m_name(iDesc.name()),
 m_type(iDesc.type()),
+m_purpose(iDesc.purpose()),
 m_colProxy(m_type->GetCollectionProxy()?m_type->GetCollectionProxy()->Generate():
                                         static_cast<TVirtualCollectionProxy*>(0)),
 m_data(0),
@@ -417,6 +420,12 @@ const TClass*
 FWEventItem::type() const
 {
   return m_type;
+}
+
+const std::string& 
+FWEventItem::purpose() const
+{
+   return m_purpose;
 }
 
 const std::string& 

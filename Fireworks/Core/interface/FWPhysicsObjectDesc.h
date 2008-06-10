@@ -16,7 +16,7 @@
 //
 // Original Author:  Chris Jones
 //         Created:  Tue Jan 15 15:04:58 EST 2008
-// $Id: FWPhysicsObjectDesc.h,v 1.2 2008/03/01 02:15:42 chrjones Exp $
+// $Id: FWPhysicsObjectDesc.h,v 1.3 2008/03/19 15:18:05 chrjones Exp $
 //
 
 // system include files
@@ -34,6 +34,7 @@ class FWPhysicsObjectDesc
    public:
       FWPhysicsObjectDesc(const std::string& iName,
                           const TClass* iClass,
+                          const std::string& iPurpose,
                           const FWDisplayProperties& iProperties =
                           FWDisplayProperties(),
                           const std::string& iModuleLabel = std::string(),
@@ -48,6 +49,7 @@ class FWPhysicsObjectDesc
       const std::string& name() const;
 
       const TClass* type() const;
+      const std::string& purpose() const;
    
       const std::string& moduleLabel() const;
       const std::string& productInstanceLabel() const;
@@ -74,6 +76,7 @@ class FWPhysicsObjectDesc
       // ---------- member data --------------------------------
       std::string m_name;
       const TClass* m_type;
+      const std::string m_purpose;
       FWDisplayProperties m_displayProperties;
    
       std::string m_moduleLabel;

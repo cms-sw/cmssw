@@ -8,7 +8,7 @@
 //
 // Original Author:  Chris Jones
 //         Created:  Tue Jan 15 15:05:02 EST 2008
-// $Id: FWPhysicsObjectDesc.cc,v 1.2 2008/03/01 02:15:42 chrjones Exp $
+// $Id: FWPhysicsObjectDesc.cc,v 1.3 2008/03/19 15:18:05 chrjones Exp $
 //
 
 // system include files
@@ -30,6 +30,7 @@
 //
 FWPhysicsObjectDesc::FWPhysicsObjectDesc(const std::string& iName,
                                          const TClass* iClass,
+                                         const std::string& iPurpose,
                                          const FWDisplayProperties& iProperties,
                                          const std::string& iModuleLabel,
                                          const std::string& iProductInstanceLabel,
@@ -38,6 +39,7 @@ FWPhysicsObjectDesc::FWPhysicsObjectDesc(const std::string& iName,
                                          unsigned int iLayer) :
 m_name(iName),
 m_type(iClass),
+m_purpose(iPurpose),
 m_displayProperties(iProperties),
 m_moduleLabel(iModuleLabel),
 m_productInstanceLabel(iProductInstanceLabel),
@@ -106,6 +108,12 @@ const TClass*
 FWPhysicsObjectDesc::type() const
 {
    return m_type;
+}
+
+const std::string& 
+FWPhysicsObjectDesc::purpose() const
+{
+   return m_purpose;
 }
 
 const std::string& 
