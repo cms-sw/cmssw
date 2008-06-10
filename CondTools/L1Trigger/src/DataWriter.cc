@@ -67,14 +67,18 @@ void DataWriter::writeKey (L1TriggerKey * key,
     editor = iov.newIOVEditor (tagToken);
 
     // finally insert new IOV
+    cond::TimeType timetype = cond::runnumber; 
+    cond::Time_t globalSince = cond::timeTypeSpecs[timetype].beginValue; 
+
     if( requireMapping )
       {
-	editor->create( iov.globalSince() ) ;
+	editor->create( globalSince, timetype ) ;
       }
 
-    if( sinceRun == iov.globalSince() )
+    if( sinceRun == globalSince )
       {
-	editor->insert (iov.globalTill(), ref.token ());
+	cond::Time_t globalTill = cond::timeTypeSpecs[timetype].endValue; 
+	editor->insert (globalTill, ref.token ());
       }
     else
       {
@@ -203,18 +207,22 @@ DataWriter::writeKeyList( L1TriggerKeyList* keyList,
     editor = iov.newIOVEditor( tagToken ) ;
 
     // Insert new IOV
+    cond::TimeType timetype = cond::runnumber; 
+    cond::Time_t globalSince = cond::timeTypeSpecs[timetype].beginValue; 
+
     if( requireMapping )
       {
-	std::cout << "GLOBAL SINCE " << iov.globalSince()
+	std::cout << "GLOBAL SINCE " << globalSince
 		  << " SINCE " << sinceRun 
 		  << std::endl ;
 
-	editor->create( iov.globalSince() ) ;
+	editor->create( globalSince, timetype ) ;
       }
 
-    if( sinceRun == iov.globalSince() )
+    if( sinceRun == globalSince )
       {
-	editor->insert (iov.globalTill(), ref.token ());
+	cond::Time_t globalTill = cond::timeTypeSpecs[timetype].endValue; 
+	editor->insert (globalTill, ref.token ());
       }
     else
       {
@@ -262,15 +270,19 @@ DataWriter::updateIOV( const std::string& tag,
     editor = iov.newIOVEditor( tagToken ) ;
 
     // Insert new IOV
+    cond::TimeType timetype = cond::runnumber; 
+    cond::Time_t globalSince = cond::timeTypeSpecs[timetype].beginValue; 
+
     if( requireMapping )
       {
 	// insert() sets till-time, not since-time -- will this work?
-	editor->create( iov.globalSince() ) ;
+	editor->create( globalSince, timetype ) ;
       }
 
-    if( sinceRun == iov.globalSince() )
+    if( sinceRun == globalSince )
       {
-	editor->insert (iov.globalTill(), payloadToken );
+	cond::Time_t globalTill = cond::timeTypeSpecs[timetype].endValue; 
+	editor->insert (globalTill, payloadToken );
       }
     else
       {
