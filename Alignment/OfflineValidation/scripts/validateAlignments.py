@@ -73,17 +73,7 @@ offlineTemplate = """process OfflineValidator.oO[name]Oo. =  {
     include "Configuration/StandardSequences/data/FrontierConditions_GlobalTag.cff"
     replace GlobalTag.globaltag = ".oO[GlobalTag]Oo."
 
-    es_source ZeroAPE = PoolDBESSource
-    {   
-        using CondDBSetup
-        string connect="frontier://cms_conditions_data/CMS_COND_20X_ALIGNMENT" 
-        # untracked uint32 authenticationMethod = 1
-        VPSet toGet = {             
-            { string record = "TrackerAlignmentErrorRcd" string tag = "TrackerIdealGeometryErrors200_v2" }      
-        }
-        
-    }
-    es_prefer ZeroAPE = PoolDBESSource{}
+    .oO[zeroAPE]Oo.
 
     .oO[dbLoad]Oo.
     
@@ -177,6 +167,72 @@ process  compareIdealTo.oO[name]Oo.Common.oO[common]Oo. =
 }
 """
 
+mcValidateTemplate="""
+process  mcValidate.oO[name]Oo. = 
+{ 
+
+  service = MessageLogger {
+        untracked vstring destinations = {"LOGFILE_MCValidate.oO[name]Oo.", "cout"}
+  }
+
+  source = PoolSource 
+  { 
+        untracked bool useCSA08Kludge = true
+	
+	untracked vstring fileNames = {	
+	'file:/afs/cern.ch/user/e/edelhoff/scratch0/mcData/100_CSA08MinBias.root'
+	}
+    }
+
+    include "Alignment/OfflineValidation/test/.oO[RelValSample]Oo..cff"
+    
+    untracked PSet maxEvents = { untracked int32 input = .oO[nEvents]Oo.}
+    
+//________________________ needed Modules __________________________
+    include "Configuration/StandardSequences/data/Reconstruction.cff"
+    include "Configuration/StandardSequences/data/Simulation.cff"
+
+    include "SimGeneral/TrackingAnalysis/data/trackingParticles.cfi"
+    include "SimGeneral/MixingModule/data/mixNoPU.cfi"
+    
+    #include "SimTracker/TrackAssociation/data/TrackAssociatorByChi2.cfi" // not recommended! KK
+    include "SimTracker/TrackAssociation/data/TrackAssociatorByHits.cfi"
+    
+    include "Validation/RecoTrack/data/cuts.cff"
+    include "Validation/RecoTrack/data/cutsTPEffic.cfi"
+    include "Validation/RecoTrack/data/cutsTPFake.cfi"
+   
+    include "Validation/RecoTrack/data/MultiTrackValidator.cff"
+    replace multiTrackValidator.out = "mcValidate_.oO[RelValSample]Oo._.oO[name]Oo..root" 
+    replace multiTrackValidator.associators = {"TrackAssociatorByHits"}
+    replace multiTrackValidator.label = {generalTracks}
+    replace multiTrackValidator.UseAssociators = true
+   
+    include "DQM/TrackingMonitor/data/TrackingMonitor.cfi"
+    replace TrackMon.TrackProducer = "generalTracks"
+    replace TrackMon.AlgoName = "mcValidationTracking"
+#    replace TrackMon.OutputMEsInRootFile = true
+#    replace TrackMon.OutputFileName = "ALCARECOTkAlJpsiMuMuStandardDQM.root"
+
+
+    include "Configuration/StandardSequences/data/FrontierConditions_GlobalTag.cff"
+    replace GlobalTag.globaltag = ".oO[GlobalTag]Oo."
+
+    .oO[zeroAPE]Oo.
+
+    .oO[dbLoad]Oo.
+
+    sequence re_tracking = { # for reprocessed tracks (with misalignment)
+	newTracking,
+	cutsTPEffic,cutsTPFake,
+	multiTrackValidator,
+        TrackMon
+    }
+   
+   path p = {  re_tracking }
+}
+"""
+
 dbOutputTemplate= """
 //_________________________ db Output ____________________________
         # setup for writing out to DB
@@ -208,6 +264,20 @@ dbLoadTemplate="""
     }
 
     es_prefer MyAlignments = PoolDBESSource{}
+"""
+
+zeroAPETemplate="""
+    es_source ZeroAPE = PoolDBESSource
+    {   
+        using CondDBSetup
+        string connect="frontier://cms_conditions_data/CMS_COND_20X_ALIGNMENT" 
+        # untracked uint32 authenticationMethod = 1
+        VPSet toGet = {             
+            { string record = "TrackerAlignmentErrorRcd" string tag = "TrackerIdealGeometryErrors200_v2" }      
+        }
+        
+    }
+    es_prefer ZeroAPE = PoolDBESSource{}
 """
 
 #batch job execution
@@ -295,6 +365,7 @@ def createValidationCfg(name,dbpath,tag,general):
      repMap["TrackCollection"] = str(general["trackcollection"])
      repMap["workdir"] = str(general["workdir"])
      repMap["dbLoad"] = dbLoadTemplate
+     repMap["zeroAPE"] = zeroAPETemplate
      repMap["GlobalTag"] = str(general["globaltag"])
 
      cfgName = "TkAlOfflineValidation."+name+".cfg"
@@ -330,6 +401,25 @@ def createComparisonCfg(name,dbpath,tag,errortag,general,compares):
          cfgFile.close()
          cfgNames.append(cfgName)
      return cfgNames
+
+def createMcValidate( name, dbpath, tag, general ):
+     repMap ={}
+     repMap["name"] = name
+     repMap["dbpath"] = dbpath
+     repMap["tag"] = tag
+
+     repMap["RelValSample"] = general["relvalsample"]
+     repMap["nEvents"] = general["maxevents"]
+     repMap["GlobalTag"] = general["globaltag"]
+     repMap["dbLoad"] = dbLoadTemplate
+     repMap["zeroAPE"] = zeroAPETemplate
+
+     cfgName = "TkAlMcValidate."+name+".cfg"
+     #replaceByMap(mcValidateTemplate, repMap)
+     cfgFile = open(cfgName,"w")
+     cfgFile.write( replaceByMap( mcValidateTemplate, repMap ) )
+     cfgFile.close()
+     return cfgName
     
 
 def createRunscript(name,cfgNames,general,postProcess="",alignments={},compares={}):
@@ -348,7 +438,7 @@ def createRunscript(name,cfgNames,general,postProcess="",alignments={},compares=
     
     rsFile = open(rsName,"w")
     if name == "Merge":
-        prefixes = ["AlignmentValidation"]
+        prefixes = ["AlignmentValidation","mcValidate_"+general["relvalsample"] ]
         for comparison in compares:
             prefixes.append("compared"+comparison)
         repMap["CompareAllignments"]=getCompareAlignments(prefixes, alignments)
@@ -491,7 +581,12 @@ def main():
                 cfgNames.append( os.path.join( os.getcwd(), cfg) )
             print "Geometry Comparison for: "+name
             log +=runJob(name,cfgNames, general, options.dryRun,getComparisonPostProcess(compares,options.getImages))
-        
+        if "mcValidate" in alignments[name][0].split():
+            cfgNames = []
+            cfgNames.append( createMcValidate( name,  alignments[name][1], alignments[name][2] , general ) )
+            cfgNames[0] = os.path.join( os.getcwd(), cfgNames[0]) 
+            print "MC driven Validation for: "+name
+            log +=runJob(name,cfgNames, general, options.dryRun)        
 
     createRunscript("Merge",["TkAlMerge.cfg"],general,"",alignments,compares)
 
