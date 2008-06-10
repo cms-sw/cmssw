@@ -526,7 +526,7 @@ class _IncludeNode(cms._ParameterTypeBase):
             if not os.path.exists(pythonName):
                 # have to make it myself
                 if not os.path.exists(pythonDir):
-                    print "Making " + pythonDir
+                    #print "Making " + pythonDir
                     os.makedirs(pythonDir)
                     #os.system("scramv1 build")
                 f=open(pythonName, 'w')
