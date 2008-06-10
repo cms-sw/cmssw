@@ -4,8 +4,8 @@
 /*
  * \file L1TCSCTF.h
  *
- * $Date: 2008/03/01 00:40:00 $
- * $Revision: 1.7 $
+ * $Date: 2008/04/23 16:30:13 $
+ * $Revision: 1.8 $
  * \author J. Berryhill
  *
 */
@@ -82,6 +82,10 @@ private:
   MonitorElement* csctfoccupancies;
   CSCSectorReceiverLUT *srLUTs_[5];
   // KK_end
+  
+  // JAG
+  MonitorElement* csctfChamberOccupancies;
+  // JAG
 
   int nev_; // Number of events processed
   std::string outputFile_; //file name for ROOT ouput
