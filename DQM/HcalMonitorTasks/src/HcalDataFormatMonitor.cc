@@ -41,7 +41,7 @@ void HcalDataFormatMonitor::setup(const edm::ParameterSet& ps,
     meEVT_->Fill(ievt_);
 
     char* type = "DCC Ev Fragment Size Distribution";
-    meFEDRawDataSizes_=m_dbe->book1D(type,type,200000,-0.5,200000.5);
+    meFEDRawDataSizes_=m_dbe->book1D(type,type,12000,-0.5,12000.5);
     meFEDRawDataSizes_->setAxisTitle("# of Event Fragments",1);
     meFEDRawDataSizes_->setAxisTitle("# of bytes",2);
 
@@ -106,11 +106,11 @@ void HcalDataFormatMonitor::setup(const edm::ParameterSet& ps,
     meFWVersion_ = m_dbe->book2D(type,type ,18,-0.5,17.5,40,70.5,110.5);
     meFWVersion_->setAxisTitle("Crate #",1);
     meFWVersion_->setAxisTitle("HTR Firmware Version",2);
-    // Profile histos not yet in client, so 2d plotted for now.
-    type = "Event Fragment Size for each FED";
-    meEvFragSize_ = m_dbe->bookProfile(type,type,32,699.5,731.5,100,-1000.0,7000.0,"");
-    type = "Ev Frag Size 2d";
-    meEvFragSize2_ =  m_dbe->book2D(type,type,64,699.5,731.5,22000,0,22000);
+    // These had too many bins!  They were choking the Online DQM. Better we re-think. 
+    // type = "Event Fragment Size for each FED";
+    // meEvFragSize_ = m_dbe->bookProfile(type,type,32,699.5,731.5,100,-1000.0,7000.0,"");
+    // type = "All Evt Frag Sizes";
+    // meEvFragSize2_ =  m_dbe->book2D(type,type,64,699.5,731.5,12000,0,12000);
 
     // Examine conditions of the DCC Event Fragment
     type = "Number of Event Fragments by FED ID";
@@ -406,8 +406,8 @@ void HcalDataFormatMonitor::unpack(const FEDRawData& raw,
   int EvFragLength = ((*lastDataWord>>32)*8);
   EvFragLength = raw.size();
 
-  meEvFragSize_ ->Fill(dccid, EvFragLength);
-  meEvFragSize2_ ->Fill(dccid, EvFragLength);
+  // meEvFragSize_ ->Fill(dccid, EvFragLength);
+  // meEvFragSize2_ ->Fill(dccid, EvFragLength);
 
 
   //There should never be HCAL DCCs reporting a fed id outside [700:731]
