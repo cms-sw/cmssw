@@ -182,8 +182,8 @@ parser.add_option("--conditions",
                    dest="conditions")
 
 parser.add_option("--beamspot",
-                   help="What beam spot to use (from Configuration/StandardSequences). Default=BetafuncEarlyCollision",
-                   default="BetafuncEarlyCollision",
+                   help="What beam spot to use (from Configuration/StandardSequences). Default=Early10TeVCollision",
+                   default="Early10TeVCollision",
                    dest="beamspot")
 
 parser.add_option("--altcffs",
