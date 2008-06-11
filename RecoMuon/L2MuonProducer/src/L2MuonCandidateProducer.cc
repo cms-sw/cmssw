@@ -71,7 +71,7 @@ void L2MuonCandidateProducer::produce(Event& event, const EventSetup& eventSetup
       Particle::Charge q = tkref->charge();
       Particle::LorentzVector p4(tkref->px(), tkref->py(), tkref->pz(), tkref->p());
       Particle::Point vtx(tkref->vx(),tkref->vy(), tkref->vz());
-      int pid = 0;
+      int pid = 13;
       if(abs(q)==1) pid = q < 0 ? 13 : -13;
       else LogWarning(metname) << "L2MuonCandidate has charge = "<<q;
       RecoChargedCandidate cand(q, p4, vtx, pid);
