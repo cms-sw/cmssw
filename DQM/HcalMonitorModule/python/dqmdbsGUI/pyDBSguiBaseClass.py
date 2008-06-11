@@ -114,7 +114,8 @@ class dbsBaseGui:
         self.alt_active="gold3" # active bg for buttons
 
         self.enableSCP=BooleanVar() # variable to determine whether 'scp' copying is enabled
-        self.enableSCP.set(True)
+        #self.enableSCP.set(True)# disabled this by default at Efe's request, 11 June 2008
+        self.enableSCP.set(False) 
 
         # Set possible auto-update times (in minutes) for DBS, DQM
         self.updateTimes=(2,5,10,20,30,60,120)
@@ -330,7 +331,7 @@ class dbsBaseGui:
 
         # for now, use a button to copy files with scp
         self.copyLoc=Button(self.menubar,
-                            text="Copy Output!",
+                            text="Copy Output\nto cmshcal01!",
                             command=lambda x=self:x.tempSCP())
         self.copyLoc.configure(background=self.bg_alt,
                                foreground=self.bg,
