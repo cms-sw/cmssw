@@ -49,6 +49,58 @@ L1Comparator::L1Comparator(const edm::ParameterSet& iConfig) {
 
   if(verbose())
     std::cout << "[L1Comparator] debug print collection labels\n";
+
+  m_DEsource[ETP][0] = iConfig.getParameter<edm::InputTag>("ETPsourceData");
+  m_DEsource[ETP][1] = iConfig.getParameter<edm::InputTag>("ETPsourceEmul");
+  m_DEsource[HTP][0] = iConfig.getParameter<edm::InputTag>("HTPsourceData");
+  m_DEsource[HTP][1] = iConfig.getParameter<edm::InputTag>("HTPsourceEmul");
+  m_DEsource[RCT][0] = iConfig.getParameter<edm::InputTag>("RCTsourceData");
+  m_DEsource[RCT][1] = iConfig.getParameter<edm::InputTag>("RCTsourceEmul");
+  m_DEsource[GCT][0] = iConfig.getParameter<edm::InputTag>("GCTsourceData");
+  m_DEsource[GCT][1] = iConfig.getParameter<edm::InputTag>("GCTsourceEmul");
+  m_DEsource[DTP][0] = iConfig.getParameter<edm::InputTag>("DTPsourceData");
+  m_DEsource[DTP][1] = iConfig.getParameter<edm::InputTag>("DTPsourceEmul");
+  m_DEsource[DTF][0] = iConfig.getParameter<edm::InputTag>("DTFsourceData");
+  m_DEsource[DTF][1] = iConfig.getParameter<edm::InputTag>("DTFsourceEmul");
+  m_DEsource[CTP][0] = iConfig.getParameter<edm::InputTag>("CTPsourceData");
+  m_DEsource[CTP][1] = iConfig.getParameter<edm::InputTag>("CTPsourceEmul");
+  m_DEsource[CTF][0] = iConfig.getParameter<edm::InputTag>("CTFsourceData");
+  m_DEsource[CTF][1] = iConfig.getParameter<edm::InputTag>("CTFsourceEmul");
+  m_DEsource[CTF][2] = iConfig.getParameter<edm::InputTag>("CTTsourceData");
+  m_DEsource[CTF][3] = iConfig.getParameter<edm::InputTag>("CTTsourceEmul");
+  m_DEsource[RPC][0] = iConfig.getParameter<edm::InputTag>("RPCsourceData");
+  m_DEsource[RPC][1] = iConfig.getParameter<edm::InputTag>("RPCsourceEmul");
+  m_DEsource[LTC][0] = iConfig.getParameter<edm::InputTag>("LTCsourceData");
+  m_DEsource[LTC][1] = iConfig.getParameter<edm::InputTag>("LTCsourceEmul");
+  m_DEsource[GMT][0] = iConfig.getParameter<edm::InputTag>("GMTsourceData");
+  m_DEsource[GMT][1] = iConfig.getParameter<edm::InputTag>("GMTsourceEmul");
+  m_DEsource[GLT][0] = iConfig.getParameter<edm::InputTag>("GLTsourceData");
+  m_DEsource[GLT][1] = iConfig.getParameter<edm::InputTag>("GLTsourceEmul");
+
+  for(int sys=0; sys<DEnsys; sys++) {
+    std::string data_label = SystLabel[sys] + "sourceData";
+    std::string emul_label = SystLabel[sys] + "sourceEmul";
+    //m_DEsource[sys][0] = iConfig.getParameter<edm::InputTag>(data_label);
+    //m_DEsource[sys][1] = iConfig.getParameter<edm::InputTag>(emul_label);
+    //if(sys==CTF) {
+    //  std::string data_label(""); data_label+="CTTsourceData";
+    //  std::string emul_label(""); emul_label+="CTTsourceEmul";
+    //  m_DEsource[sys][2] = iConfig.getParameter<edm::InputTag>(data_label);
+    //  m_DEsource[sys][3] = iConfig.getParameter<edm::InputTag>(emul_label);
+    //}
+    if(m_doSys[sys] && verbose()) {
+      std::cout << " sys:"   << sys << " label:" << SystLabel[sys]  
+		<< "\n\tdt:" << data_label << " : " <<m_DEsource[sys][0]
+		<< "\n\tem:" << emul_label << " : " <<m_DEsource[sys][1]
+		<< std::endl;
+      if(sys==CTF) {
+	std::cout << "\tdt:"     << data_label << " : " <<m_DEsource[sys][2]
+     		  << "\n\tem:" << emul_label << " : " <<m_DEsource[sys][3]
+		  << std::endl;
+      }
+    }
+  }
+
   for(int sys=0; sys<DEnsys; sys++) {
     std::string data_label = SystLabel[sys] + "sourceData";
     std::string emul_label = SystLabel[sys] + "sourceEmul";
@@ -621,8 +673,7 @@ L1Comparator::produce(edm::Event& iEvent, const edm::EventSetup& iSetup) {
 		 << ")\n"       << std::flush;
       dumpEvent_=false;
     }
-    if(prt)
-      m_dumpFile << "\n  GT...\n";
+    m_dumpFile << "\n  GT...\n";
 
     if(glt_rdt_data.isValid() && glt_rdt_emul.isValid()) {
       
@@ -653,8 +704,7 @@ L1Comparator::produce(edm::Event& iEvent, const edm::EventSetup& iSetup) {
     if(DEmatchEvt[GLT]) sprintf(ok,"successful");
     else         sprintf(ok,"failed");
     sprintf(dumptofile,"  ...GT data and emulator comparison: %s\n", ok); 
-    if(prt)
-      m_dumpFile<<dumptofile;
+    m_dumpFile<<dumptofile;
   }
 
   if(verbose())
@@ -840,18 +890,17 @@ bool
 L1Comparator::compareCollections(edm::Handle<L1GlobalTriggerReadoutRecord> data, 
 				 edm::Handle<L1GlobalTriggerReadoutRecord> emul) {
 
+  m_dumpFile << "\n L1GlobalTriggerReadoutRecord candidates...\n";
+
   bool thematch = true;
   
   thematch &= (*data==*emul);
   
   bool match = thematch;
 
-  if(m_dumpMode==0 || (m_dumpMode==1 && match))
+  if(m_dumpMode==0 && match)
     return match;    
   
-  m_dumpFile << "\n L1GlobalTriggerReadoutRecord candidates...\n";
-
-
   //expand to check mismatching  stage
 
   //need to create new objects due to lack of suitable accessors
@@ -1058,14 +1107,13 @@ bool
 L1Comparator::compareCollections(edm::Handle<L1GlobalTriggerEvmReadoutRecord> data, 
 				 edm::Handle<L1GlobalTriggerEvmReadoutRecord> emul) {
 
+  m_dumpFile << "\n  L1GlobalTriggerEvmReadoutRecord candidates...\n";
+  
   bool match = true;
   match &= (*data==*emul);
   
-  if(m_dumpMode==0 || (m_dumpMode==1 && match))
-    return match;    
-
-  m_dumpFile << "\n  L1GlobalTriggerEvmReadoutRecord candidates...\n";
-  
+  if(m_dumpMode==0 && match)
+    return match;
   
   // gt decision
   m_dumpFile << "\n\tGlobal decision: "
@@ -1205,6 +1253,7 @@ bool
 L1Comparator::compareCollections(edm::Handle<L1GlobalTriggerObjectMapRecord> data, 
 				 edm::Handle<L1GlobalTriggerObjectMapRecord> emul) {
 
+  m_dumpFile << "\n  L1GlobalTriggerObjectMapRecord candidates...\n";
 
   bool match = true;
   //match &= (*data==*emul);
@@ -1230,11 +1279,9 @@ L1Comparator::compareCollections(edm::Handle<L1GlobalTriggerObjectMapRecord> dat
     }
   }
 
-  if(m_dumpMode==0 || (m_dumpMode==1 && match))
-    return match;    
+  if(m_dumpMode==0 && match)
+    return match;
   
-  m_dumpFile << "\n  L1GlobalTriggerObjectMapRecord candidates...\n";
-
   // dump
   int idx = 0;
   m_dumpFile << "\n\tL1GlobalTriggerObjectMap";
