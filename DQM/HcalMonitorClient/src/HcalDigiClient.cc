@@ -463,8 +463,6 @@ void HcalDigiClient::htmlExpertOutput(int runNo, string htmlDir, string htmlName
   ofstream htmlFile;
   htmlFile.open((htmlDir +"Expert_"+ htmlName).c_str());
 
-  cout <<"EXPERT = "<<(htmlDir+"_expert_"+htmlName).c_str()<<endl;
-
   // html page header
   htmlFile << "<!DOCTYPE html PUBLIC \"-//W3C//DTD HTML 4.01 Transitional//EN\">  " << endl;
   htmlFile << "<html>  " << endl;
