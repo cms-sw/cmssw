@@ -118,6 +118,26 @@ void CSCConditions::fillBadWireWords(){
   badWireWords.assign( 2808, 0 );
   if ( readBadChannels() ) {
     // unpack what we've read from theBadWires
+    CSCIndexer indexer;
+
+    for ( size_t i=0; i<theBadWires->chambers.size(); ++i ) { // loop over bad chambers
+      int indexc = theBadWires->chambers[i].chamber_index;
+      int start =  theBadWires->chambers[i].pointer;  // where this chamber's bad channels start in vector<BadChannel>
+      int nbad  =  theBadWires->chambers[i].bad_channels;
+
+      CSCDetId id = indexer.detIdFromChamberIndex( indexc ); // We need this to build layer index (1-2808)
+
+      for ( int j=start-1; j<start-1+nbad; ++j ) { // bad channels in this chamber
+        short lay  = theBadWires->channels[j].layer;    // value 1-6
+        short chan = theBadWires->channels[j].channel;  // value 1-80
+    //    short f1 = theBadWires->channels[j].flag1;
+    //    short f2 = theBadWires->channels[j].flag2;
+    //    short f3 = theBadWires->channels[j].flag3;
+        int indexl = indexer.layerIndex( id.endcap(), id.station(), id.ring(), id.chamber(), lay );
+        badWireWords[indexl-1].set( chan-1, 1 ); // set bit 0-111 in 112-bit bitset representing this layer
+      } // j
+    } // i
+
   } 
 }
 
