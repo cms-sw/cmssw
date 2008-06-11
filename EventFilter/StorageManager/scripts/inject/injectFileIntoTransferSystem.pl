@@ -1,5 +1,5 @@
 #!/usr/bin/perl -w
-# $Id: injectFileIntoTransferSystem.pl,v 1.3 2008/06/10 14:00:53 loizides Exp $
+# $Id: injectFileIntoTransferSystem.pl,v 1.4 2008/06/11 13:18:14 mrudolph Exp $
 #
 # Written by Matt Rudolph June 2008
 #
@@ -33,18 +33,18 @@ sub usage
   $0 --filename=file --path=path --filesize=size 
                                     --type=type --hostname=host [--destination]
  
-  Filename, path, and filesize are self explanatory
+  Filename, path, and filesize are self explanatory.
 
   Type is the type of file, which requires extra parameters to be specified
-  Current supported types: streamer, lumi, edm
-  Streamers require runnumber, lumisection, num events, app name, app version, stream, 
-    setup label, and index specified
-  edm require runnumber, lumisection, num events, app name, app version, setup label, stream
-  lumi require runnumber, lumisection, app name, and app version
+  Current supported types: streamer, edm, lumi:
+    Streamers require runnumber, lumisection, num events, app name, app version, stream, 
+      setup label, and index specified
+    Edm files require runnumber, lumisection, num events, app name, app version, setup label, stream
+    Lumi files require runnumber, lumisection, app name, and app version
 
-  Hostname is the host on which the file is found
+  Hostname is the host on which the file is found.
 
-  Destination determines where file goes on Tier0.  It is set to default if not set by user.
+  Destination determines where file goes on Tier0. It is set to default if not set by user.
   Supported hosts for copies: cmsdisk1, srv-c2c06-02.cms (cmsmon), Storage Manager nodes
  
   If you are not sure about what you are doing please send an inquiry to hn-tier0-ops\@cern.ch.
