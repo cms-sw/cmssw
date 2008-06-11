@@ -2,8 +2,8 @@
  *
  * Class for RPC Monitoring using RPCDigi and DT and CSCS egments.
  *
- *  $Date: 2008/05/22 12:52:45 $
- *  $Revision: 1.14 $
+ *  $Date: 2008/05/29 13:22:38 $
+ *  $Revision: 1.17 $
  *
  * \author Camilo Carrillo (Uniandes)
  *
@@ -80,6 +80,8 @@ class MuonSegmentEff : public edm::EDAnalyzer {
       TFile* fOutputFile;
 
       TH1F* hGlobalRes;
+      TH1F* statistics;
+
       TH1F* hGlobalResLa1;
       TH1F* hGlobalResLa2;
       TH1F* hGlobalResLa3;
@@ -87,18 +89,20 @@ class MuonSegmentEff : public edm::EDAnalyzer {
       TH1F* hGlobalResLa5;
       TH1F* hGlobalResLa6;
       
-      TH1F* hGlobalResClu1;
-      TH1F* hGlobalResClu2;
-      TH1F* hGlobalResClu3;
-      TH1F* hGlobalResClu4;
-
       TH1F* hGlobalResClu1La1;
       TH1F* hGlobalResClu1La2;
       TH1F* hGlobalResClu1La3;
       TH1F* hGlobalResClu1La4;
       TH1F* hGlobalResClu1La5;
       TH1F* hGlobalResClu1La6;
-      
+
+      TH1F* hGlobalResClu2La1;
+      TH1F* hGlobalResClu2La2;
+      TH1F* hGlobalResClu2La3;
+      TH1F* hGlobalResClu2La4;
+      TH1F* hGlobalResClu2La5;
+      TH1F* hGlobalResClu2La6;
+
       TH1F* hGlobalResClu3La1;
       TH1F* hGlobalResClu3La2;
       TH1F* hGlobalResClu3La3;
@@ -109,6 +113,14 @@ class MuonSegmentEff : public edm::EDAnalyzer {
       TCanvas * Ca2;
 
       TH1F* hGlobalResY;
+
+      TH1F* hGlobalYResLa1;
+      TH1F* hGlobalYResLa2;
+      TH1F* hGlobalYResLa3;
+      TH1F* hGlobalYResLa4;
+      TH1F* hGlobalYResLa5;
+      TH1F* hGlobalYResLa6;
+
       
       //wheel-2
       TH1F* OGlobWm2;

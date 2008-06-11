@@ -6,7 +6,8 @@ std::cout <<"\t Getting the CSC Segments"<<std::endl;
 edm::Handle<CSCSegmentCollection> allCSCSegments;
 iEvent.getByLabel(cscSegments, allCSCSegments);
 
-if(allCSCSegments->size()>0){
+	if(allCSCSegments->size()>0){
+  statistics->Fill(18);
   std::cout<<"\t Number of CSC Segments in this event = "<<allCSCSegments->size()<<std::endl;
     
   std::map<CSCDetId,int> CSCSegmentsCounter;
@@ -161,7 +162,21 @@ if(allCSCSegments->size()>0){
 		RPCGeomServ rpcsrv(rollId);
 		std::string nameRoll = rpcsrv.name();
 		std::cout<<"\t \t \t \t The RPCName is "<<nameRoll<<std::endl;
-		_idList.push_back(nameRoll);
+		
+		bool deja=false;
+		std::vector<std::string>::iterator meIt;
+		for(meIt = _idList.begin(); meIt != _idList.end(); ++meIt){
+		  if(*meIt==nameRoll){ 
+		    deja=true;
+		    break;
+		  }
+		}
+		if(!deja){
+		  std::cout<<"\t \t \t \t NOT Found in Id List!"<<nameRoll<<std::endl;
+		  _idList.push_back(nameRoll);
+		  std::cout<<"\t \t \t \t Filling Id List with "<<nameRoll<<std::endl;
+		  std::cout<<"\t \t \t \t Id List Size "<<_idList.size()<<std::endl;
+		}
 
 		char detUnitLabel[128];
 		sprintf(detUnitLabel ,"%s",nameRoll.c_str());
