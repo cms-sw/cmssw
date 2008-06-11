@@ -86,7 +86,27 @@ void L1TEventInfoClient::beginJob(const EventSetup& context){
   
   for (int i = 0; i < nSubsystems; i++) {    
 
-  sprintf(histo,"status sub-system %d",i);
+// ugly hack for cruzet2
+  if(i==0)  sprintf(histo,"l1t_dqm_GT");
+  if(i==1)  sprintf(histo,"l1t_dqm_GMT");
+  if(i==2)  sprintf(histo,"l1t_dqm_GCT");
+  if(i==3)  sprintf(histo,"l1t_dqm_RCT");
+  if(i==4)  sprintf(histo,"l1t_dqm_DTTF");
+  if(i==5)  sprintf(histo,"l1t_dqm_RPCTF");
+  if(i==6)  sprintf(histo,"l1t_dqm_CSCTF");
+  if(i==7)  sprintf(histo,"l1t_dqm_DTTPG");
+  if(i==8)  sprintf(histo,"l1t_dqm_RPCTPG");
+  if(i==9)  sprintf(histo,"l1t_dqm_CSCTPG");
+  if(i==10) sprintf(histo,"l1t_dqm_ECAL");
+  if(i==11) sprintf(histo,"l1t_dqm_HCAL");
+  if(i==12) sprintf(histo,"l1t_dqm_EMUL");
+  if(i==13) sprintf(histo,"l1t_dqm_Timing");
+  if(i==14) sprintf(histo,"l1t_dqm_Test1");
+  if(i==15) sprintf(histo,"l1t_dqm_Test2");
+  if(i==16) sprintf(histo,"l1t_dqm_Test3");
+  if(i==17) sprintf(histo,"l1t_dqm_Test4");
+  if(i==18) sprintf(histo,"l1t_dqm_Test5");
+  if(i==19) sprintf(histo,"l1t_dqm_Test6");
   
 //  if( reportSummaryContent_[i] = dbe_->get("L1T/EventInfo/reportSummaryContents/" + histo) ) 
 //  {
