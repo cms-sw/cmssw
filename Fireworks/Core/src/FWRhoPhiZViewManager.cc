@@ -8,7 +8,7 @@
 //
 // Original Author:  
 //         Created:  Sat Jan  5 14:08:51 EST 2008
-// $Id: FWRhoPhiZViewManager.cc,v 1.28 2008/06/10 14:20:24 chrjones Exp $
+// $Id: FWRhoPhiZViewManager.cc,v 1.29 2008/06/10 19:27:10 chrjones Exp $
 //
 
 // system include files
@@ -584,7 +584,11 @@ void FWRhoPhiZViewManager::makeMuonGeometryRhoZAdvance()
 		  CSCDetId id(iEndcap, iStation, iRing, iChamber, iLayer);
 		  TEveGeoShapeExtract* extract = detIdToGeo()->getExtract( id.rawId() );
 		  if ( !extract ) continue;
-                  const TGeoHMatrix* matrix= detIdToGeo()->getMatrix(id.rawId());
+		  // get matrix from the main geometry, since detIdToGeo has reflected and
+		  // rotated reference frame to get proper local coordinates
+		  TGeoManager* manager = detIdToGeo()->getManager();
+		  manager->cd( detIdToGeo()->getPath( id.rawId() ) );
+		  const TGeoHMatrix* matrix = manager->GetCurrentMatrix();
 		  estimateProjectionSizeCSC( matrix, extract->GetShape(), min_rho, max_rho, min_z, max_z );
 	       }
 	       catch ( ... ) {} 
