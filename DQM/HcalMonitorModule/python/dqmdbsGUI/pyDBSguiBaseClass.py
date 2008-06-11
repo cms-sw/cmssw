@@ -1531,7 +1531,7 @@ class dbsBaseGui:
                     self.commentLabel.update_idletasks()
                 else:
                     #self.commentLabel.configure(text="ERROR -- Can't find %s\nDo you know where your output is?"%myobject)
-                    self.commentLabel.configure(text="%s output created in \n"%(os.path.basename(myobject), self.basedir))
+                    self.commentLabel.configure(text="%s output created in \n%s"%(os.path.basename(myobject), self.basedir))
                     self.commentLabel.update_idletasks()
                 time.sleep(3)
 
