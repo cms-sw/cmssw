@@ -1,12 +1,12 @@
 #!/usr/bin/perl -w
-# $Id:$
+# $Id: smCleanupFiles.pl,v 1.1 2008/06/10 12:10:51 loizides Exp $
 
 use strict;
 use DBI;
 use Getopt::Long;
 use File::Basename;
 
-my ($help, $debug, $nothing, $execute, $maxfiles, $maxfile);
+my ($help, $debug, $nothing, $force, $execute, $maxfiles, $maxfile);
 my ($hostname, $filename, $dataset, $stream, $status);
 my ($runnumber, $uptorun, $safety, $rmexitcode, $chmodexitcode, );
 my ($constraint_runnumber, $constraint_uptorun, $constraint_filename, $constraint_hostname, $constraint_dataset);
@@ -21,19 +21,18 @@ sub usage
 
   ##############################################################################   
   \n";
+  exit 0;
 }
 
 #subroutine for getting formatted time for SQL to_date method
 sub gettimestamp($)
 {
-
     my $stime = shift;
     my @ltime = localtime($stime);
     my ($sec,$min,$hour,$mday,$mon,$year,$wday,$yday,$isdst) = @ltime;
 
     $year += 1900;
     $mon++;
-
 
     my $timestr = $year."-";
     if ($mon < 10) {
@@ -50,28 +49,29 @@ sub gettimestamp($)
     return $timestr;
 }
 
+$help       = 0;
+$debug      = 0;
+$nothing    = 0;
+$filename   = ''; 
+$dataset    = '';
+$uptorun    = 0;
+$runnumber  = 0;
+$safety     = 100;
+$status     = 'closed';
+$hostname   = '';
+$rmexitcode = 0;
+$execute    = 1;
+$maxfiles   = 1;
+$force      = 0;
 
-$help      = 0;
-$debug     = 0;
-$nothing   = 0;
-$filename  = ''; 
-$dataset   = '';
-$uptorun   = 0;
-$runnumber = 0;
-$safety    = 100;
-$status    = 'closed';
-$hostname  = '';
-$rmexitcode= 0;
-$execute   = 1;
-$maxfiles    = 9999;
-
-$hostname = `hostname -s`;
+$hostname   = `hostname -s`;
 chomp($hostname);
 
 GetOptions(
            "help"          => \$help,
            "debug"         => \$debug,
            "nothing"       => \$nothing,
+           "force"         => \$force,
            "hostname=s"    => \$hostname,
            "run=s"         => \$runnumber,
            "runnumber=s"   => \$runnumber,
@@ -163,7 +163,12 @@ while ( $nFiles<$maxfiles &&  (@row = $sth->fetchrow_array) ) {
 	print "Pretending to remove $row[0]/$row[1] \n";
 	$rmexitcode = 0;
     } else {
-	print "File $row[0]/$row[1] does not exist \n";
+        if ($force) {
+            print "File $row[0]/$row[1] does not exist, but force=1, so continue \n";
+            $rmexitcode = 0;
+        } else {
+            print "File $row[0]/$row[1] does not exist \n";
+        }
     }
     $debug && print "\n";
     $rmexitcode =0;
