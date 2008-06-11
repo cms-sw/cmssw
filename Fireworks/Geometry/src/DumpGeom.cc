@@ -902,7 +902,6 @@ DumpGeom::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
    TGeoMaterial* matVacuum = new TGeoMaterial("Vacuum");
    TGeoMedium* vacuum = new TGeoMedium("Vacuum",1,matVacuum);
 
-
    DDCompactView::walker_type walker(viewH->graph());
    DDCompactView::walker_type::value_type info = 
       walker.current();
@@ -943,13 +942,29 @@ DumpGeom::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
       TGeoVolume* child = createVolume(std::string(info.first.name()),
 				       info.first.solid(),
 				       vacuum);
-      if(0!=child) {
+//       std::cout << "done with " << info.first.name() << " about to mess w the stack" 
+// 		<< " child = " << child 
+// 		<< " childAlreadyExist = " << childAlreadyExists
+// 		<< " level_ = " << level_ << " parentStack.size() = " << parentStack.size();
+//       std::cout << " info.second " << info.second << std::endl;
+      if(0!=child && info.second != 0) {
 	 //add to parent
+// 	std::cout << " info.second->copyno_ = " << info.second->copyno_
+// 		  << std::endl;
+// 	std::cout << "adding a node to the parent" << std::endl;
 	 parentStack.back()->AddNode(child,
 				 info.second->copyno_,
 				 createPlacement(info.second->rotation(),
 						 info.second->translation()));
 	 child->SetLineColor(kBlue);
+      } else {
+	if ( info.second == 0 ) {
+// 	  std::cout << "OKAY! it IS 0" << std::endl;
+	  break;
+	}
+// 	if ( parentStack.size() != 0 ) {
+// 	  std::cout << "huh?  have we popped back further than we should? and why?" << std::endl;
+// 	}
       }
       if(0 == child || childAlreadyExists || level_ == int(parentStack.size()) ) {
 	 if(0!=child) {
