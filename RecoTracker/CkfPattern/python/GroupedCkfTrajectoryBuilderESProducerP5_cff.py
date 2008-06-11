@@ -42,7 +42,7 @@ from RecoTracker.CkfPattern.GroupedCkfTrajectoryBuilderESProducer_cfi import *
 #
 GroupedCkfTrajectoryBuilderP5 = copy.deepcopy(GroupedCkfTrajectoryBuilder)
 CTF_P5_MeasurementTracker.ComponentName = 'CTF_P5'
-CTF_P5_MeasurementTracker.pixelClusterProducer = ''
+#CTF_P5_MeasurementTracker.pixelClusterProducer = ''
 ckfBaseTrajectoryFilterP5.ComponentName = 'ckfBaseTrajectoryFilterP5'
 GroupedCkfTrajectoryBuilderP5.MeasurementTrackerName = 'CTF_P5'
 GroupedCkfTrajectoryBuilderP5.ComponentName = 'GroupedCkfTrajectoryBuilderP5'
