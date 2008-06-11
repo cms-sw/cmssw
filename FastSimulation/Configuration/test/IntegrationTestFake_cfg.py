@@ -41,11 +41,10 @@ process.famosSimHits.SimulateTracking = True
 process.p1 = cms.Path(process.famosWithEverything)
 
 # To write out events (not need: FastSimulation _is_ fast!)
-process.o1 = cms.OutputModule("PoolOutputModule",
-    outputCommands = cms.untracked.vstring(
-    'keep *', 
-    'drop *_mix_*_*'
-    ),
+process.o1 = cms.OutputModule(
+    "PoolOutputModule",
+    outputCommands = cms.untracked.vstring('keep *', 
+                                           'drop *_mix_*_*'),
     fileName = cms.untracked.string('MyFirstFamosFile.root')
 )
 process.outpath = cms.EndPath(process.o1)

@@ -51,8 +51,7 @@ process.o1 = cms.OutputModule("PoolOutputModule",
 )
 process.outpath = cms.EndPath(process.o1)
 
-# process.Timing =  cms.Service("Timing")
-
 # Keep output to a nice level
+# process.Timing =  cms.Service("Timing")
 # process.load("FWCore/MessageService/MessageLogger_cfi")
-# process.MessageLogger.destinations = cms.untracked.vstring("detailedInfo.txt")
+# process.MessageLogger.destinations = cms.untracked.vstring("pyDetailedInfo.txt")
