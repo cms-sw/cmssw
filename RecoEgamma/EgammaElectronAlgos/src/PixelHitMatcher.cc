@@ -13,7 +13,7 @@
 //
 // Original Author:  Ursula Berthon, Claude Charlot
 //         Created:  Mon Mar 27 13:22:06 CEST 2006
-// $Id: PixelHitMatcher.cc,v 1.24 2008/04/12 22:33:58 charlot Exp $
+// $Id: PixelHitMatcher.cc,v 1.25 2008/04/21 09:47:35 uberthon Exp $
 //
 //
 
@@ -392,6 +392,13 @@ std::vector<TrajectorySeed> PixelHitMatcher::compatibleSeeds(TrajectorySeedColle
  	else est=meas1stFLayer.estimate(tsos1,hitPos); 
 	if (!est.first)    continue;
 
+	//UB add test on phidiff
+	float SCl_phi = xmeas.phi();
+	float localDphi = SCl_phi-hitPos.phi();
+	if(localDphi>CLHEP::pi)localDphi-=(2*CLHEP::pi);
+	if(localDphi<-CLHEP::pi)localDphi+=(2*CLHEP::pi);
+	if(fabs(localDphi)>2.5)continue;
+
 	// now second Hit
 	it++;
 	const GeomDet *geomdet2=theTrackerGeometry->idToDet((*it).geographicalId());
@@ -409,6 +416,7 @@ std::vector<TrajectorySeed> PixelHitMatcher::compatibleSeeds(TrajectorySeedColle
 
 	GlobalPoint vertexPred(vprim.x(),vprim.y(),zVertexPred);
     	FreeTrajectoryState fts2 = myFTS(theMagField,hitPos,vertexPred,energy, charge);
+
 
         tsos2 = prop2ndLayer->propagate(fts2,geomdet2->surface()) ; 
 	if (tsos2.isValid()) {
