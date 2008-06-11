@@ -114,7 +114,7 @@ class HLTTauAnalyzer : public edm::EDAnalyzer {
   void MakeLevel3Analysis( const edm::Event& iEvent );
   void MakeSummary( const std::string & Option );
 
-  void ComputeEfficiency( const int Num = 0, const int Den = 0, float & Eff = 0., float & EffErr = 0. );
+  void ComputeEfficiency( const int Num , const int Den , float& Eff, float &EffErr );
   float isDrMatched( const LV& v, const LVColl& Coll, float dRCut = 0. );
 };
 

@@ -13,7 +13,7 @@
 //
 // Original Author:  Simone Gennai/Ricardo Vasquez Sierra
 //         Created:  Wed Apr 12 11:12:49 CEST 2006
-// $Id: HLTTauL25Validation.cc,v 1.1 2008/01/18 15:46:00 gennai Exp $
+// $Id: HLTTauL25Validation.cc,v 1.2 2008/03/01 20:40:10 gennai Exp $
 //
 //
 // user include files
@@ -454,11 +454,11 @@ std::vector<TLorentzVector> HLTTauL25Validation::getVectorOfVisibleTauJets(const
     
     std::vector<LV>::const_iterator myVec = McInfo->begin();
     
-    for(int it =0; it < McInfo->size();it++){
+    for(size_t it =0; it < McInfo->size();it++){
       LV tauRef = (*McInfo)[it];
       tmpvec.push_back(TLorentzVector((tauRef).Px(),(tauRef).Py(),(tauRef).Pz(),(tauRef).E()));
     }
-    for(int i=0;i<tmpvec.size();i++){
+    for(size_t i=0;i<tmpvec.size();i++){
       ptTauMC_->Fill(tmpvec[i].Perp());
       etaTauMC_->Fill(tmpvec[i].Eta());
       phiTauMC_->Fill(tmpvec[i].Phi());
