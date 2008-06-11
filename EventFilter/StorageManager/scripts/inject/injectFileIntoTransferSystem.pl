@@ -1,5 +1,5 @@
 #!/usr/bin/perl -w
-# $Id:$
+# $Id: injectFileIntoTransferSystem.pl,v 1.3 2008/06/10 14:00:53 loizides Exp $
 #
 # Written by Matt Rudolph June 2008
 #
@@ -30,22 +30,28 @@ sub usage
   $0 --help  : show this message
   --------------------------------------------------------------------------------------------
   Required parameters:
-  $0 --filename='file' --path='path' --filesize=size 
-                                    --type='type' [--destination]
+  $0 --filename=file --path=path --filesize=size 
+                                    --type=type --hostname=host [--destination]
  
   Filename, path, and filesize are self explanatory
 
   Type is the type of file, which requires extra parameters to be specified
   Current supported types: streamer, lumi, edm
+  Streamers require runnumber, lumisection, num events, app name, app version, stream, 
+    setup label, and index specified
+  edm require runnumber, lumisection, num events, app name, app version, setup label, stream
+  lumi require runnumber, lumisection, app name, and app version
 
-  Destination determines where file ends up on Tier0. This corresponds to the 'dataset' 
-  parameter of the previous system. It will be set to default if not set by user. 
+  Hostname is the host on which the file is found
+
+  Destination determines where file goes on Tier0.  It is set to default if not set by user.
+  Supported hosts for copies: cmsdisk1, srv-c2c06-02.cms (cmsmon), Storage Manager nodes
+ 
   If you are not sure about what you are doing please send an inquiry to hn-tier0-ops\@cern.ch.
 
   -------------------------------------------------------------------------------------------- 
   Other parameters:
   --debug           : Print out extra messages
-  --hostname        : Specify a host different than where script run
   --producer        : Producer of file
   --appname         : Application name for file (e.g. CMSSW)
   --appversion      : Application version
@@ -53,10 +59,12 @@ sub usage
   --lumisection     : Lumisection of file
   --count           : Count within lumisection
   --stream          : Stream file comes from
-  --type            : Type of file
   --instance        : Instance of creating application
   --nevents         : Number of events in the file
-  --ctime           : Creation time in seconds since epoch, defaults to current time
+  --ctime           : Creation time of file in seconds since epoch, defaults to current time
+  --itime           : Injection time of file in seconds since epoch, set to current time
+                    : File times are for bookkeeping purposes; use own time if desired
+  --index           : Name of index file defaults to changing data file .dat to .ind
   --checksum        : Checksum of the file
   --comment         : Comment field in the database
   ############################################################################################  
@@ -118,7 +126,7 @@ my ( $appname, $appversion, $nevents, $checksum, $setuplabel);
 
 $help      = 0;
 $debug     = 0;
-$hostname = hostname();
+$hostname = '';
 $filename  = ''; 
 $pathname = '';
 $destination = '';
@@ -203,6 +211,11 @@ unless($filename) {
 
 unless($pathname) {
     print "Error: No path supplied, exiting \n";
+    usageShort();
+}
+
+unless($hostname eq 'cmsdisk1' || $hostname eq 'srv-c2c06-02.cms' || $hostname =~ 'srv-c2c07-') {
+    print "Error: Hostname not valid.  Must be cmsdisk1, srv-c2c06-02.cms, or a Storage Manager node\n";
     usageShort();
 }
 
@@ -349,10 +362,17 @@ if(defined($dbErr)) {
     exit;
 }
 
+my $T0out;
+
 #Check return values before calling notification script.  Want to make sure no DB errors
 if($rowsCreate==1 && $rowsInject==1) {
-    $debug && print "Inserts completed, running Tier 0 notification script \n";
-    system($TIERZERO);
+    print "DB inserts completed, running Tier 0 notification script \n";
+    $T0out=`$TIERZERO 2>&1`;
+    if($T0out =~ /Connection Established/ ) {
+	print "File submitted for transfer.\n";
+    } else {
+	print "Did not connect properly to transfer system logger.\n";
+    }
 } else {
     ($rowsCreate!=1) && print "Error: DB returned strange code on $SQLcreate - rows=$rowsCreate\n";
     ($rowsInject!=1) && print "Error: DB returned strange code on $SQLinject - rows=$rowsInject\n";
