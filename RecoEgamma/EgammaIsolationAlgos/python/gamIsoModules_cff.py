@@ -1,4 +1,6 @@
 import FWCore.ParameterSet.Config as cms
+from egammaTrackExtractorBlocks_cff import *
+from egammaCalExtractorBlocks_cff import *
 
 gamIsoDepositTk = cms.EDProducer("CandIsoDepositProducer",
     src = cms.InputTag("photons"),
