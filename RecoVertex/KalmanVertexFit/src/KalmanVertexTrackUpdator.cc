@@ -13,7 +13,7 @@ KalmanVertexTrackUpdator<N>::update
 
 {
   trackMatrixPair thePair = 
-  	trackRefit(vertex.vertexState(), track->linearizedTrack());
+  	trackRefit(vertex.vertexState(), track->linearizedTrack(), track->weight() );
 
   VertexState rVert = updator.positionUpdate (vertex.vertexState(), track->linearizedTrack(),
 			track->weight(), -1);
@@ -29,7 +29,8 @@ KalmanVertexTrackUpdator<N>::update
 template <unsigned int N>
 typename KalmanVertexTrackUpdator<N>::trackMatrixPair
 KalmanVertexTrackUpdator<N>::trackRefit(const VertexState & vertex,
-	 KalmanVertexTrackUpdator<N>::RefCountedLinearizedTrackState linTrackState) const
+	 KalmanVertexTrackUpdator<N>::RefCountedLinearizedTrackState linTrackState,
+	 float weight) const
 
 {
   typedef ROOT::Math::SVector<double,N> AlgebraicVectorN;
@@ -73,7 +74,7 @@ KalmanVertexTrackUpdator<N>::trackRefit(const VertexState & vertex,
   AlgebraicMatrix3M refittedPositionMomentumConvariance = 
     -vertexErrorMatrix * (ROOT::Math::Transpose(a)) * trackParametersWeight * b * s;
 
-  AlgebraicSymMatrixMM refittedMomentumConvariance = s +  
+  AlgebraicSymMatrixMM refittedMomentumConvariance = s/weight +  
      ROOT::Math::SimilarityT(refittedPositionMomentumConvariance, vertex.weight().matrix_new());
 
   

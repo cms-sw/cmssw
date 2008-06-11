@@ -63,7 +63,8 @@ public:
    */
 
   trackMatrixPair trackRefit(const VertexState & vertex,
-		RefCountedLinearizedTrackState linTrackState) const;
+		RefCountedLinearizedTrackState linTrackState,
+		float weight) const;
 
 private:
 
