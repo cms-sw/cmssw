@@ -95,8 +95,7 @@ def main(argv) :
     i=0
     print 'Running in %s thread(s)' %np
 
-    # iterate over the reversed list so the long-time runners are dealt first with:
-    for command in reversed(commands):
+    for command in commands:
         print 'Preparing to run %s' %command 
         current = testit(command)
         clist.append(current)
