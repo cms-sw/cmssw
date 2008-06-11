@@ -1,7 +1,7 @@
 /** \file
  *
- * $Date: 2007/11/12 16:21:14 $
- * $Revision: 1.1 $
+ * $Date: 2008/06/04 14:17:38 $
+ * $Revision: 1.2 $
  * \author Stefano Lacaprara - INFN Legnaro <stefano.lacaprara@pd.infn.it>
  */
 
@@ -54,7 +54,7 @@ HLTMuonPointingFilter::HLTMuonPointingFilter(const edm::ParameterSet& pset) {
   Plane::PositionType posNeg(0,0,-theMaxZ);
 
   thePosPlane = Plane::build(posPos,rot0);
-  thePosPlane = Plane::build(posNeg,rot0);
+  theNegPlane = Plane::build(posNeg,rot0);
 
   LogDebug("HLTMuonPointing") << " SALabel : " << theSTAMuonLabel 
     << " Radius : " << theRadius
