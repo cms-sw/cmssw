@@ -6,9 +6,10 @@ rsWithMaterialTracks = cms.EDProducer("TrackProducer",
     Fitter = cms.string('RKFittingSmoother'),
     useHitsSplitting = cms.bool(False),
     TrajectoryInEvent = cms.bool(True),
-    TTRHBuilder = cms.string('WithTrackAngle'),
+    TTRHBuilder = cms.string('WithAngleAndTemplate'),
     AlgorithmName = cms.string('rs'),
     Propagator = cms.string('RungeKuttaTrackerPropagator')
 )
+
 
 
