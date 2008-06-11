@@ -556,6 +556,14 @@
                 <SetGridy>1</SetGridy>
                 <SetLabelSizeZ>0.02</SetLabelSizeZ>
                 <SetYLabels>1='ME-4/2'|2='ME-4/1'|3='ME-3/2'|4='ME-3/1'|5='ME-2/2'|6='ME-2/1'|7='ME-1/3'|8='ME-1/2'|9='ME-1/1'|10='ME+1/1'|11=ME+1/2'|12='ME+1/3'|13='ME+2/1'|14='ME+2/2'|15='ME+3/1'|16='ME+3/2'|17='ME+4/1'|18='ME+4/2'|</SetYLabels>
+                <Descr>
+                The occupancy histogram shows CSCs reporting data, regardless of whether data format was intact or broken. Chambers within one raw belong to one 360&#61616;- ring of chamber. 
+                The rainbow pattern of color within one row is due to directionality of cosmic rays. 
+                %BR% 
+                %ICON{"warning"}% At LHC, all chambers within one row should have equal occupancy. 
+                %BR% 
+                %ICON{"tip"}% One should check that there are no new empty cells (check for the list of currently disabled CSCs) and there are no hot CSCs.
+                </Descr>
         </Histogram>
         <Histogram>
                 <Type>h2</Type>
@@ -712,6 +720,13 @@
 		<SetLabelSizeZ>0.02</SetLabelSizeZ>
 		<SetLogz>1</SetLogz>
 		<SetYLabels>1='ME-4/2'|2='ME-4/1'|3='ME-3/2'|4='ME-3/1'|5='ME-2/2'|6='ME-2/1'|7='ME-1/3'|8='ME-1/2'|9='ME-1/1'|10='ME+1/1'|11=ME+1/2'|12='ME+1/3'|13='ME+2/1'|14='ME+2/2'|15='ME+3/1'|16='ME+3/2'|17='ME+4/1'|18='ME+4/2'|</SetYLabels>
+                <Descr>
+                Histogram shows frequency of format errors per CSC record. 
+                %BR% 
+                %ICON{"tip"}% CSCs reporting format errors in more than 1% of events should be flagged. 
+                %BR% 
+                %ICON{"tip"}% Pay attention to the temperature scale (it changes from run to run and during a run according to the histogram content).
+                </Descr>
 	</Histogram>
 	<Histogram>
 		<Type>h2</Type>
@@ -735,7 +750,14 @@
 		<SetLabelSizeZ>0.02</SetLabelSizeZ>
 		<SetYLabels>1='ME-4/2'|2='ME-4/1'|3='ME-3/2'|4='ME-3/1'|5='ME-2/2'|6='ME-2/1'|7='ME-1/3'|8='ME-1/2'|9='ME-1/1'|10='ME+1/1'|11=ME+1/2'|12='ME+1/3'|13='ME+2/1'|14='ME+2/2'|15='ME+3/1'|16='ME+3/2'|17='ME+4/1'|18='ME+4/2'|</SetYLabels>
 		<SetMaximum>1.0</SetMaximum>
-	</Histogram>
+                <Descr>
+                Shows a frequency of FIFO-FULL condition on DMB inputs (&#8220;OR&#8221; of 7 FIFOs: 5 CFEBs, ALCT, TMB). 
+                %BR% 
+                %ICON{"warning"}% Appearance of entries in this histogram is very bad and would typically imply a loss of synchronization, even if FIFO-FULL condition clears away. 
+                %BR% 
+                %ICON{"tip"}% To dig out which of the 7 boards is actually responsible for the trouble, one needs to refer the &#8220;FEB Status (Timeouts, FIFO, L1 pipe)&#8221; canvas for the offensive chamber (this canvas can be found in the DMB group)
+                </Descr>
+        </Histogram>
 	<Histogram>
 		<Type>h2</Type>
 		<Prefix>EMU</Prefix>
@@ -758,6 +780,13 @@
 		<SetLabelSizeZ>0.02</SetLabelSizeZ>
 		<SetYLabels>1='ME-4/2'|2='ME-4/1'|3='ME-3/2'|4='ME-3/1'|5='ME-2/2'|6='ME-2/1'|7='ME-1/3'|8='ME-1/2'|9='ME-1/1'|10='ME+1/1'|11=ME+1/2'|12='ME+1/3'|13='ME+2/1'|14='ME+2/2'|15='ME+3/1'|16='ME+3/2'|17='ME+4/1'|18='ME+4/2'|</SetYLabels>
 		<SetMaximum>1.0</SetMaximum>
+                <Descr>
+                Shows a frequency of a TIMEOUT condition on DMB inputs (&#8220;OR&#8221; start/stop timeouts for 5 CFEBs, ALCT, TMB). 
+                %BR% 
+                %ICON{"warning"}% Appearance of entries in this histogram is very bad and typically implies badly timed-in CSCs. 
+                %BR% 
+                %ICON{"tip"}% To dig out which of the 7 boards is actually responsible for the trouble, one needs to refer the &#8220;FEB Status (Timeouts, FIFO, L1 pipe)&#8221; canvas for the offensive chamber (this canvas can be found in the DMB group)
+                </Descr>
 	</Histogram>
         <Histogram>
                 <Type>h2</Type>
@@ -781,6 +810,9 @@
                 <SetLabelSizeZ>0.02</SetLabelSizeZ>
                 <SetYLabels>1='ME-4/2'|2='ME-4/1'|3='ME-3/2'|4='ME-3/1'|5='ME-2/2'|6='ME-2/1'|7='ME-1/3'|8='ME-1/2'|9='ME-1/1'|10='ME+1/1'|11=ME+1/2'|12='ME+1/3'|13='ME+2/1'|14='ME+2/2'|15='ME+3/1'|16='ME+3/2'|17='ME+4/1'|18='ME+4/2'|</SetYLabels>
 		<SetMaximum>1</SetMaximum>
+                <Descr>
+                Histogram shows how often CSC events come without ALCT data.
+                </Descr>
         </Histogram>
         <Histogram>
                 <Type>h2</Type>
@@ -804,6 +836,9 @@
                 <SetLabelSizeZ>0.02</SetLabelSizeZ>
                 <SetYLabels>1='ME-4/2'|2='ME-4/1'|3='ME-3/2'|4='ME-3/1'|5='ME-2/2'|6='ME-2/1'|7='ME-1/3'|8='ME-1/2'|9='ME-1/1'|10='ME+1/1'|11=ME+1/2'|12='ME+1/3'|13='ME+2/1'|14='ME+2/2'|15='ME+3/1'|16='ME+3/2'|17='ME+4/1'|18='ME+4/2'|</SetYLabels>
 		<SetMaximum>1</SetMaximum>
+                <Descr>
+                Histogram shows how often CSC events come without CLCT data.
+                </Descr>
         </Histogram>
         <Histogram>
                 <Type>h2</Type>
@@ -827,6 +862,9 @@
                 <SetLabelSizeZ>0.02</SetLabelSizeZ>
                 <SetYLabels>1='ME-4/2'|2='ME-4/1'|3='ME-3/2'|4='ME-3/1'|5='ME-2/2'|6='ME-2/1'|7='ME-1/3'|8='ME-1/2'|9='ME-1/1'|10='ME+1/1'|11=ME+1/2'|12='ME+1/3'|13='ME+2/1'|14='ME+2/2'|15='ME+3/1'|16='ME+3/2'|17='ME+4/1'|18='ME+4/2'|</SetYLabels>
 		<SetMaximum>1</SetMaximum>
+                <Descr>
+                Histogram shows how often CSC events come without CFEB data.
+                </Descr>
         </Histogram>
         <Histogram>
                 <Type>h2</Type>
@@ -850,6 +888,13 @@
                 <SetLabelSizeZ>0.02</SetLabelSizeZ>
                 <!--SetLogz>1</SetLogz-->
                 <SetYLabels>1='ME-4/2'|2='ME-4/1'|3='ME-3/2'|4='ME-3/1'|5='ME-2/2'|6='ME-2/1'|7='ME-1/3'|8='ME-1/2'|9='ME-1/1'|10='ME+1/1'|11=ME+1/2'|12='ME+1/3'|13='ME+2/1'|14='ME+2/2'|15='ME+3/1'|16='ME+3/2'|17='ME+4/1'|18='ME+4/2'|</SetYLabels>
+                <Descr>
+                Histogram shows unpacking efficiency. 
+                %BR% 
+                %ICON{"warning"}% Gross problems at a scale of >10% inefficiency can be easily seen as deviations from the flat red color corresponding to 100% efficiency. 
+                %BR% 
+                %ICON{"tip"}% Smaller scale problems can be chased using the EMU Test10 canvas.
+                </Descr>
         </Histogram>
 	<Histogram>
 		<Type>h2</Type>
@@ -895,6 +940,13 @@
 		<SetLabelSizeZ>0.02</SetLabelSizeZ>
 		<SetLogz>1</SetLogz>
 		<SetYLabels>1='ME-4/2'|2='ME-4/1'|3='ME-3/2'|4='ME-3/1'|5='ME-2/2'|6='ME-2/1'|7='ME-1/3'|8='ME-1/2'|9='ME-1/1'|10='ME+1/1'|11=ME+1/2'|12='ME+1/3'|13='ME+2/1'|14='ME+2/2'|15='ME+3/1'|16='ME+3/2'|17='ME+4/1'|18='ME+4/2'|</SetYLabels>
+                <Descr>
+                Histogram shows occurrences when SCA cells were filled due to too-high rate of LCTs and/or LCT×L1A coincidences. 
+                %BR% 
+                %ICON{"warning"}% In conditions of cosmic ray runs, appearance of entries is indicative of hardware problems, or more specifically hot CFEBs. 
+                %BR% 
+                %ICON{"tip"}% This typically happens due to a loose CFEB-TMB cable generating a flood of CLCT pre-triggers (CBEBs are the only board that are readout on coincidence between pre-CLCT and L1A). 
+                </Descr>
 	</Histogram>
 	<Histogram>
 		<Type>h2</Type>
@@ -954,6 +1006,11 @@
 		<SetNdivisionsX>44</SetNdivisionsX>
 		<SetLabelSizeX>0.03</SetLabelSizeX>
 		<SetStats>0</SetStats>
+                <Descr>
+                Number of Events in DDU. 
+                %BR% 
+                %ICON{"warning"}% All DDUs should give exactly the same number of events.
+                </Descr>
 	</Histogram>
 	<Histogram>
 		<Type>h2</Type>
@@ -974,6 +1031,20 @@
 		<SetLabelSizeX>0.03</SetLabelSizeX>
 		<SetStats>0</SetStats>
 		<SetYLabels>1='0'|2='1'|3='2'|4='3'|5='4'|6='5'|7='6'|8='7'|9='8'|10='9'|11='10'|12='11-30'|13='31-100'|14='101-300'|15='301-1000'|16='1k-3k'|17='3k-10k'|18='10k-30k'|19='30k-100k'|20='&gt;100k'|</SetYLabels>
+                <Descr>
+                L1A increment from event for each DDU. Ideally, if all events are being processed by the DQM then L1A increment from event to event must be 1. 
+                %BR%
+                %BR% 
+                *Local DQM*: However, when the rate goes up, DAQ-DQM may not be able to keep up with the data and are designed to skip events. Occasional skips (L1A>1) will inevitably happen at low rates due to Poisson nature of cosmic ray rates. 
+                %BR% 
+                %ICON{"tip"}% One may also want to flag runs with extremely non-uniform response DDUs. 
+                %BR%
+                %BR% 
+                *Global DQM*: dL1A need not be 1 (in fact, it will be very large as Global DQM gets only a very small fraction of events, ~10 Hz to DQM from the eventual 100,000 Hz of L1 rate. 
+                %BR%
+                %BR% 
+                %ICON{"warning"}% Under no circumstances, the incremental L1A can be zero (there should be no entries in the bottom row of bins of the bottom histogram). 
+                </Descr>
 	</Histogram>
 	<Histogram>
 		<Type>h2</Type>
@@ -998,6 +1069,12 @@
 		<SetLabelSizeZ>0.02</SetLabelSizeZ>
 		<SetYLabels>1='No Errors'|2='Any Error'|3='DMB or CFEB CRC error: 01'|4='DMB or CFEB L1A Match error: 02'|5='Fiber Connection changed: 03'|6='Sync Lost was detected by DDU: 04'|7='Two Single Bit-Vote Errors: 05'|8='TMB or ALCT CRC error: 06'|9='Timeout Error: 07'|10='Lost CSC End of Data occurred: 08'|11='Lost Control word in event: 09'|12='CSC Error detected: 10'|13='DDU Clock-DLL error: 11'|14='64-bit alignment error: 12'|15='DAQ FIFO Near Full: 13'|16='DDU Single Event Warning: 14'|17='DDU Single Event Error: 15'|18='DDU Critical Error: 16'|19='TMB/ALCT-DDU L1A Mismatch: 17'|20='TMB/ALCT Word Count Error: 18'|21='ALCT Error: 19'|22='TMB Error: 20'|23='S-Link Not Ready: 21'|24='S-Link Full Bit Present: 22'|25='DDU Input Detected error: 23'|26='One Single Bit-Vote Error: 24'|27='No Live Fibers: 25'|28='Data Stuck in FIFO: 26'|29='L1A-FIFO Full: 27'|30='Wrong First Word: 28'|31='CFEB Count Error occurred: 29'|32='No Good DMB CRC: 30'|33='DDU-CFEB L1 Number Mismatch occurred: 31'|34='CSC LCT/DAV Mismatch occurred: 32'|</SetYLabels>
 		<SetLeftMargin>0.3</SetLeftMargin>
+                <Descr>
+                This histogram shows errors identified by DDU firmware and reported in the DDU trailer. Ideally, all entries should be in the bottom row of bins &#8220;No Errors&#8221;. 
+                However, this is not likely what one would typically see. Note that some of the errors are rather benign (e.g. #13 DAQ FIFO Near Full), while others are certainly very bad and may even require re-synchronization. 
+                %BR% 
+                %ICON{"tip"}% The &#8220;OR&#8221; of all particularly bad errors in collected in bit #16 &#8220;DDU Critical Error&#8221;.
+                </Descr>
 	</Histogram>
 	<Histogram>
 		<Type>h2</Type>
@@ -1082,6 +1159,13 @@
 		<SetGridy>1</SetGridy>
 		<SetLabelSizeZ>0.02</SetLabelSizeZ>
 		<SetYLabels>1='1'|2='2'|3='3'|4='4'|5='5'|6='6'|7='7'|8='8'|9='9'|10='10'|11='11'|12='12'|13='13'|14='14'|15='15'|</SetYLabels>
+                <Descr>
+                Inputs receiving a handshake from DMB (the handshake is obligatory, regardless of whether DMB has any data to report). 
+                %BR% 
+                %ICON{"tip"}% The histogram should be absolutely flat for all DDUs and their enabled inputs. 
+                %BR% 
+                %ICON{"warning"}% Under no circumstances, DDU inputs within one DDU may have different number of entries.
+                </Descr>
 	</Histogram>
 	<Histogram>
 		<Type>hp</Type>
@@ -1126,6 +1210,11 @@
 		<SetGridy>1</SetGridy>
 		<SetLabelSizeZ>0.02</SetLabelSizeZ>
 		<SetYLabels>1='1'|2='2'|3='3'|4='4'|5='5'|6='6'|7='7'|8='8'|9='9'|10='10'|11='11'|12='12'|13='13'|14='14'|15='15</SetYLabels>
+                <Descr>
+                Inputs receiving DMB data. Is typically very uneven due to varying event rates from different chambers. 
+                %BR% 
+                %ICON{"tip"}% Particularly bad cases of hot chamber (chambers reporting data too frequently) can be easily spotted here. However, Test08 is much more suited for this.
+                </Descr>
 	</Histogram>
 	<Histogram>
 		<Type>hp</Type>
@@ -1169,6 +1258,11 @@
 		<SetGridy>1</SetGridy>
 		<SetLabelSizeZ>0.02</SetLabelSizeZ>
 		<SetYLabels>1='No Errors'|2='Any Input'|3='1'|4='2'|5='3'|6='4'|7='5'|8='6'|9='7'|10='8'|11='9'|12='10'|13='11'|14='12'|15='13'|16='14'|17='15'|</SetYLabels>
+                <Descr>
+                Inputs in ERROR State. 
+                %BR% 
+                %ICON{"tip"}% Normally all entries should appear in the bottom raw.
+                </Descr>
 	</Histogram>
 	<Histogram>
 		<Type>h2</Type>
@@ -1193,6 +1287,13 @@
 		<SetGridy>1</SetGridy>
 		<SetLabelSizeZ>0.02</SetLabelSizeZ>
 		<SetYLabels>1='No Warnings'|2='Any Input'|3='1'|4='2'|5='3'|6='4'|7='5'|8='6'|9='7'|10='8'|11='9'|12='10'|13='11'|14='12'|15='13'|16='14'|17='15'|</SetYLabels>
+                <Descr>
+                Inputs in WARNING State. 
+                %BR% 
+                %ICON{"tip"}% Normally all entries should appear in the bottom raw. 
+                %BR% 
+                %ICON{"tip"}% This histogram can be ignored by a shifter.
+                </Descr>
 	</Histogram>
 	<!-- Histogram>
 		<Type>h2</Type>
