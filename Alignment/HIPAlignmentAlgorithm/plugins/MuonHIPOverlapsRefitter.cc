@@ -13,7 +13,7 @@
 //
 // Original Author:  Jim Pivarski
 //         Created:  Wed Dec 12 13:31:55 CST 2007
-// $Id: MuonHIPOverlapsRefitter.cc,v 1.6 2008/06/09 19:47:03 pivarski Exp $
+// $Id: MuonHIPOverlapsRefitter.cc,v 1.7 2008/06/11 23:24:57 pivarski Exp $
 //
 //
 
@@ -115,6 +115,9 @@ MuonHIPOverlapsRefitter::MuonHIPOverlapsRefitter(const edm::ParameterSet& iConfi
 
    produces<std::vector<Trajectory> >();
    produces<TrajTrackAssociationCollection>();
+
+   m_total_events = 0;
+   m_passing_cuts = 0;
 }
 
 

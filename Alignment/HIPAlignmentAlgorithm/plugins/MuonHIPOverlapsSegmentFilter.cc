@@ -13,7 +13,7 @@
 //
 // Original Author:  Jim Pivarski
 //         Created:  Mon Jun  9 17:27:41 CEST 2008
-// $Id: MuonHIPOverlapsSegmentFilter.cc,v 1.1 2008/06/09 19:48:40 pivarski Exp $
+// $Id: MuonHIPOverlapsSegmentFilter.cc,v 1.2 2008/06/11 23:24:57 pivarski Exp $
 //
 //
 
@@ -237,8 +237,9 @@ MuonHIPOverlapsSegmentFilter::beginJob(const edm::EventSetup&)
 void 
 MuonHIPOverlapsSegmentFilter::endJob() {
    std::cout << "MuonHIPOverlapsSegmentFilter. Total events: " << m_total_events
-	     << " events with segments on station " << m_station << ": " << m_segments_on_station
-	     << " events with next-door neighbors " << m_segments_on_neighbors << std::endl;
+	     << " events with segments on station " << m_station << " " << m_segments_on_station
+	     << " events with next-door neighbors " << m_segments_on_neighbors
+	     << " events with the right number of pairs " << std::endl;
 }
 
 //define this as a plug-in
