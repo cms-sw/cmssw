@@ -2,8 +2,8 @@
 /*
  * \file DTDataIntegrityTask.cc
  * 
- * $Date: 2008/06/03 16:30:53 $
- * $Revision: 1.45 $
+ * $Date: 2008/06/10 14:59:57 $
+ * $Revision: 1.46 $
  * \author M. Zanetti (INFN Padova), S. Bolognesi (INFN Torino)
  *
  */
@@ -71,7 +71,7 @@ void DTDataIntegrityTask::postEndJob(){
 
 //   if(doTimeHisto) TimeHistos("Event_word_vs_time");	
 	
-  dbe->rmdir("DT/DataIntegrity");
+  // dbe->rmdir("DT/DataIntegrity");
 
 }
 
