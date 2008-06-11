@@ -1,4 +1,4 @@
-# /dev/CMSSW_2_1_0_pre5/HLT/V31 (CMSSW_2_1_X_2008-06-10-0200_HLT1)
+# /dev/CMSSW_2_1_0_pre5/HLT/V33 (CMSSW_2_1_X_2008-06-10-0200_HLT1)
 
 import FWCore.ParameterSet.Config as cms
 
@@ -728,7 +728,7 @@ hltTowerMakerForJets = cms.EDProducer( "CaloTowersCreator",
     hbheInput = cms.InputTag( "hltHbhereco" ),
     hoInput = cms.InputTag( "hltHoreco" ),
     hfInput = cms.InputTag( "hltHfreco" ),
-    ecalInputs = cms.VInputTag( ('hltEcalRegionalJetsRecHit','EcalRecHitsEB'),('hltEcalRegionalJetsRecHit','EcalRecHitsEE') )
+    ecalInputs = cms.VInputTag( 'hltEcalRegionalJetsRecHit:EcalRecHitsEB','hltEcalRegionalJetsRecHit:EcalRecHitsEE' )
 )
 hltIterativeCone5CaloJetsRegional = cms.EDProducer( "IterativeConeJetProducer",
     seedThreshold = cms.double( 1.0 ),
@@ -851,7 +851,7 @@ hltTowerMakerForAll = cms.EDProducer( "CaloTowersCreator",
     hbheInput = cms.InputTag( "hltHbhereco" ),
     hoInput = cms.InputTag( "hltHoreco" ),
     hfInput = cms.InputTag( "hltHfreco" ),
-    ecalInputs = cms.VInputTag( ('hltEcalRecHitAll','EcalRecHitsEB'),('hltEcalRecHitAll','EcalRecHitsEE') )
+    ecalInputs = cms.VInputTag( 'hltEcalRecHitAll:EcalRecHitsEB','hltEcalRecHitAll:EcalRecHitsEE' )
 )
 hltIterativeCone5CaloJets = cms.EDProducer( "IterativeConeJetProducer",
     seedThreshold = cms.double( 1.0 ),
@@ -3875,7 +3875,7 @@ hltTowerMakerForMuons = cms.EDProducer( "CaloTowersCreator",
     hbheInput = cms.InputTag( "hltHbhereco" ),
     hoInput = cms.InputTag( "hltHoreco" ),
     hfInput = cms.InputTag( "hltHfreco" ),
-    ecalInputs = cms.VInputTag( ('hltEcalRegionalMuonsRecHit','EcalRecHitsEB'),('hltEcalRegionalMuonsRecHit','EcalRecHitsEE') )
+    ecalInputs = cms.VInputTag( 'hltEcalRegionalMuonsRecHit:EcalRecHitsEB','hltEcalRegionalMuonsRecHit:EcalRecHitsEE' )
 )
 hltL2MuonIsolations = cms.EDProducer( "L2MuonIsolationProducer",
     StandAloneCollectionLabel = cms.InputTag( 'hltL2Muons','UpdatedAtVtx' ),
@@ -6406,7 +6406,7 @@ hltTowerMakerForTaus = cms.EDProducer( "CaloTowersCreator",
     hbheInput = cms.InputTag( "hltHbhereco" ),
     hoInput = cms.InputTag( "hltHoreco" ),
     hfInput = cms.InputTag( "hltHfreco" ),
-    ecalInputs = cms.VInputTag( ('hltEcalRegionalTausRecHit','EcalRecHitsEB'),('hltEcalRegionalTausRecHit','EcalRecHitsEE') )
+    ecalInputs = cms.VInputTag( 'hltEcalRegionalTausRecHit:EcalRecHitsEB','hltEcalRegionalTausRecHit:EcalRecHitsEE' )
 )
 hltCaloTowersTau1Regional = cms.EDProducer( "CaloTowerCreatorForTauHLT",
     towers = cms.InputTag( "hltTowerMakerForTaus" ),
@@ -6688,7 +6688,7 @@ hltJetsPixelTracksAssociatorMuonTau = cms.EDProducer( "JetTracksAssociatorAtVert
     coneSize = cms.double( 0.5 )
 )
 hltPixelTrackConeIsolationMuonTau = cms.EDProducer( "ConeIsolation",
-    JetTrackSrc = cms.InputTag( " hltJetsPixelTracksAssociatorMuonTau" ),
+    JetTrackSrc = cms.InputTag( "hltJetsPixelTracksAssociatorMuonTau" ),
     vertexSrc = cms.InputTag( "hltPixelVertices" ),
     useVertex = cms.bool( True ),
     useBeamSpot = cms.bool( True ),
@@ -6837,7 +6837,7 @@ hltL2SingleTauMETJets = cms.EDProducer( "L2TauJetsProvider",
     JetSrc = cms.VInputTag( ("hltIcone5Tau1"),("hltIcone5Tau2"),("hltIcone5Tau3"),("hltIcone5Tau4") )
 )
 hltL2SingleTauMETIsolationProducer = cms.EDProducer( "L2TauIsolationProducer",
-    L2TauJetCollection = cms.InputTag( " hltL2SingleTauMETJets" ),
+    L2TauJetCollection = cms.InputTag( "hltL2SingleTauMETJets" ),
     EBRecHits = cms.InputTag( 'hltEcalRecHitAll','EcalRecHitsEB' ),
     EERecHits = cms.InputTag( 'hltEcalRecHitAll','EcalRecHitsEE' ),
     crystalThreshold = cms.double( 0.1 ),
