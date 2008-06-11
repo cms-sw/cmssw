@@ -54,6 +54,11 @@
 #include "TrackingTools/PatternTools/interface/Trajectory.h"
 #include "TrackingTools/PatternTools/interface/TrajTrackAssociation.h"
 
+#include "DataFormats/L1GlobalMuonTrigger/interface/L1MuRegionalCand.h"
+#include "DataFormats/L1GlobalMuonTrigger/interface/L1MuGMTCand.h"
+#include "DataFormats/L1GlobalMuonTrigger/interface/L1MuGMTExtendedCand.h"
+#include "DataFormats/L1GlobalMuonTrigger/interface/L1MuGMTReadoutCollection.h"
+
 
 #include <memory>
 #include <cmath>
@@ -63,9 +68,7 @@
 #include "TCanvas.h"
 #include "TAxis.h"
 
-//
-// class decleration
-//
+
 
 using namespace edm;
 using namespace reco;
@@ -94,14 +97,12 @@ RPCEfficiencyFromTrack::RPCEfficiencyFromTrack(const edm::ParameterSet& iConfig)
   MeasureEndCap = iConfig.getParameter<bool>("ReadEndCap");
   MeasureBarrel = iConfig.getParameter<bool>("ReadBarrel");
   maxRes = iConfig.getParameter<double>("EfficiencyCut");
-
-  cosmic = iConfig.getParameter<bool>("AreCosmic");
+  gmtSource_=iConfig.getParameter< InputTag >("gmtSource");
   EffSaveRootFile  = iConfig.getUntrackedParameter<bool>("EffSaveRootFile", true); 
   EffSaveRootFileEventsInterval  = iConfig.getUntrackedParameter<int>("EffEventsInterval", 1000); 
   EffRootFileName  = iConfig.getUntrackedParameter<std::string>("EffRootFileName", "RPCEfficiencyFromTrack.root"); 
   TjInput  = iConfig.getUntrackedParameter<std::string>("trajectoryInput");
   RPCDataLabel = iConfig.getUntrackedParameter<std::string>("rpcRecHitLabel");
-  wh  = iConfig.getUntrackedParameter<int>("wheel",1);
   thePropagatorName = iConfig.getParameter<std::string>("PropagatorName");
   thePropagator = 0;
 
@@ -191,6 +192,35 @@ void RPCEfficiencyFromTrack::analyze(const edm::Event& iEvent, const edm::EventS
   ESHandle<GlobalTrackingGeometry> theTrackingGeometry;
   iSetup.get<GlobalTrackingGeometryRecord>().get(theTrackingGeometry);
 
+<<<<<<< RPCEfficiencyFromTrack.cc
+  edm::Handle<std::vector<L1MuRegionalCand> > rpcBarrel;
+  edm::Handle<std::vector<L1MuRegionalCand> > rpcForward;
+  iEvent.getByLabel ("gtDigis","RPCb",rpcBarrel);
+  iEvent.getByLabel ("gtDigis","RPCf",rpcForward);
+  edm::Handle<L1MuGMTReadoutCollection> pCollection;
+  try {
+    iEvent.getByLabel(gmtSource_,pCollection);
+  }
+  catch (...) {
+    return;
+  }
+  int nDTTF = 0;
+
+  L1MuGMTReadoutCollection const* gmtrc = pCollection.product();
+  vector<L1MuGMTReadoutRecord> gmt_records = gmtrc->getRecords();
+  vector<L1MuGMTReadoutRecord>::const_iterator RRItr;
+
+  for(RRItr = gmt_records.begin(); RRItr != gmt_records.end(); RRItr++ ){    
+    vector<L1MuRegionalCand> DTTFCands  = RRItr->getDTBXCands();
+    vector<L1MuGMTExtendedCand>::const_iterator GMTItr;
+    int BxInEvent = RRItr->getBxInEvent();
+    
+    if(BxInEvent!=0) continue;
+    vector<L1MuRegionalCand>::const_iterator DTTFItr;
+    for( DTTFItr = DTTFCands.begin(); DTTFItr != DTTFCands.end(); ++DTTFItr ) {
+      if(!DTTFItr->empty()) nDTTF++;
+    }
+  }
 
   edm::ESHandle<DTGeometry> dtGeo;
   iSetup.get<MuonGeometryRecord>().get(dtGeo);
@@ -198,6 +228,15 @@ void RPCEfficiencyFromTrack::analyze(const edm::Event& iEvent, const edm::EventS
   edm::Handle<DTRecSegment4DCollection> all4DSegments;
   iEvent.getByLabel("dt4DSegments", all4DSegments);
 
+=======
+
+  edm::ESHandle<DTGeometry> dtGeo;
+  iSetup.get<MuonGeometryRecord>().get(dtGeo);
+    
+  edm::Handle<DTRecSegment4DCollection> all4DSegments;
+  iEvent.getByLabel("dt4DSegments", all4DSegments);
+
+>>>>>>> 1.50
   Handle<reco::TrackCollection> staTracks;
   iEvent.getByLabel(TjInput, staTracks);
 
@@ -210,6 +249,20 @@ void RPCEfficiencyFromTrack::analyze(const edm::Event& iEvent, const edm::EventS
   
   std::vector<RPCDetId> rollRec;
   rollRec.clear();
+<<<<<<< RPCEfficiencyFromTrack.cc
+ 
+  if(nDTTF>=staTracks->size() && staTracks->size()!=0){
+    for (staTrack = staTracks->begin(); staTrack != staTracks->end(); ++staTrack){
+      reco::TransientTrack track(*staTrack,&*theMGField,theTrackingGeometry);
+
+      rollRec.clear();
+
+      if(track.numberOfValidHits()>=20){
+	for (TrackingGeometry::DetContainer::const_iterator it=rpcGeo->dets().begin();it<rpcGeo->dets().end();it++){
+	  if( dynamic_cast< RPCChamber* >( *it ) != 0 ){
+	    RPCChamber* ch = dynamic_cast< RPCChamber* >( *it );
+	    std::vector< const RPCRoll*> rolhit = (ch->rolls());
+=======
  
   std::vector<float> globalX,globalY,globalZ;    
   globalX.clear(); globalY.clear(); globalZ.clear();
@@ -224,7 +277,66 @@ void RPCEfficiencyFromTrack::analyze(const edm::Event& iEvent, const edm::EventS
 	if( dynamic_cast< RPCChamber* >( *it ) != 0 ){
 	  RPCChamber* ch = dynamic_cast< RPCChamber* >( *it );
 	  std::vector< const RPCRoll*> rolhit = (ch->rolls());
+>>>>>>> 1.50
 
+<<<<<<< RPCEfficiencyFromTrack.cc
+	    for(std::vector<const RPCRoll*>::const_iterator itRoll = rolhit.begin();itRoll != rolhit.end(); ++itRoll){
+	      RPCDetId rollId=(*itRoll)->id();
+	      const BoundPlane *rpcPlane =  &((*itRoll)->surface());
+	      const RPCRoll* rollasociated = dynamic_cast<const RPCRoll*>(rpcGeo->roll(rollId));
+	      const BoundSurface& bSurface = rollasociated->surface();
+		
+	      //Barrel
+	      if(MeasureBarrel==true && rollId.region()==0
+		 && (rollId.ring()==0 || rollId.ring()==1) 
+		 && (rollId.sector()==1 || rollId.sector()==2 || rollId.sector()==3 || rollId.sector()==10 || rollId.sector()==11 || rollId.sector()==12)){
+
+		const RectangularStripTopology* top_= dynamic_cast<const RectangularStripTopology*> (&((*itRoll)->topology()));
+		LocalPoint xmin = top_->localPosition(0.);
+		LocalPoint xmax = top_->localPosition((float)(*itRoll)->nstrips());
+		float rsize = fabs( xmax.x()-xmin.x() )*0.5;
+		float stripl = top_->stripLength();
+
+		TrajectoryStateClosestToPoint tcp = track.impactPointTSCP();
+		const FreeTrajectoryState &fTS=tcp.theState();
+		const FreeTrajectoryState *FreeState = &fTS;
+		TrajectoryStateOnSurface tsosAtRPC = thePropagator->propagate(*FreeState,*rpcPlane);
+	      
+		if(tsosAtRPC.isValid()
+		   && fabs(tsosAtRPC.localPosition().z()) < 0.01 
+		   && fabs(tsosAtRPC.localPosition().x()) < rsize 
+		   && fabs(tsosAtRPC.localPosition().y()) < stripl*0.5
+		   && tsosAtRPC.localError().positionError().xx()<1.
+		   && tsosAtRPC.localError().positionError().yy()<1.){
+	
+		  rollRec.push_back(rollId);
+		}	      
+	      }
+
+	      //EndCap
+	      if(MeasureEndCap==true && rollId.region()!=0){	      
+		const TrapezoidalStripTopology* top_= dynamic_cast<const TrapezoidalStripTopology*> (&((*itRoll)->topology()));
+		LocalPoint xmin = top_->localPosition(0.);
+		LocalPoint xmax = top_->localPosition((float)(*itRoll)->nstrips());
+		float rsize = fabs( xmax.x()-xmin.x() )*0.5;
+		float stripl = top_->stripLength();
+
+		TrajectoryStateClosestToPoint tcp = track.impactPointTSCP();
+		const FreeTrajectoryState &fTS=tcp.theState();
+		const FreeTrajectoryState *FreeState = &fTS;
+		TrajectoryStateOnSurface tsosAtRPC = thePropagator->propagate(*FreeState,*rpcPlane);
+	      
+		if(tsosAtRPC.isValid()
+		   && fabs(tsosAtRPC.localPosition().z()) < 0.01 
+		   && fabs(tsosAtRPC.localPosition().x()) < rsize 
+		   && fabs(tsosAtRPC.localPosition().y()) < stripl*0.5
+		   && tsosAtRPC.localError().positionError().xx()<1.
+		   && tsosAtRPC.localError().positionError().yy()<1.){
+		
+		  rollRec.push_back(rollId);
+		}	      
+	      }
+=======
 	  for(std::vector<const RPCRoll*>::const_iterator itRoll = rolhit.begin();itRoll != rolhit.end(); ++itRoll){
 	    RPCDetId rollId=(*itRoll)->id();
 	    const BoundPlane *rpcPlane =  &((*itRoll)->surface());
@@ -322,10 +434,13 @@ void RPCEfficiencyFromTrack::analyze(const edm::Event& iEvent, const edm::EventS
 		  break;
 		}		
 	      }	      
+>>>>>>> 1.50
 	    }
 	  }
 	}
       }
+<<<<<<< RPCEfficiencyFromTrack.cc
+=======
       
       std::cout<<"Size roll   "<<rollRec.size()<<std::endl;
       
@@ -353,6 +468,7 @@ void RPCEfficiencyFromTrack::analyze(const edm::Event& iEvent, const edm::EventS
 	chi2=func->GetChisquare();
       }
       
+>>>>>>> 1.50
 
       //Efficiency      
       for (std::vector<RPCDetId>::iterator iteraRoll = rollRec.begin();iteraRoll != rollRec.end(); iteraRoll++){
@@ -499,10 +615,17 @@ void RPCEfficiencyFromTrack::analyze(const edm::Event& iEvent, const edm::EventS
 	    buff[rollId]++;
 	    counter[2]=buff;
 	  }
+<<<<<<< RPCEfficiencyFromTrack.cc
+	  if(anycoincidence==false){
+	    chisquareNoEff->Fill(track.normalizedChi2());
+	    ExtrapErrorN->Fill(tsosAtRoll.localError().positionError().xx(),tsosAtRoll.localError().positionError().yy());
+	  }
+=======
 	  if(anycoincidence==false && res!=0){
 	    chisquareNoEff->Fill(track.normalizedChi2());
 	    ExtrapErrorN->Fill(tsosAtRoll.localError().positionError().xx(),tsosAtRoll.localError().positionError().yy());
 	  }
+>>>>>>> 1.50
 	}
       }
     }
@@ -550,6 +673,78 @@ void RPCEfficiencyFromTrack::endJob(){
     if(p!=0){
       float ef = float(o)/float(p); 
       float er = sqrt(ef*(1.-ef)/float(p));
+<<<<<<< RPCEfficiencyFromTrack.cc
+      if(id.region()==0 && id.ring()==-2){
+	index1++;
+	char cam[128];	
+	sprintf(cam,"%s",nameRoll.c_str());
+	TString camera = (TString)cam;
+	  
+	RPCGlob1->SetBinContent(index1,float(o));	  
+	RPCGlob1->GetXaxis()->SetBinLabel(index1,camera);
+	RPCGlob1->GetXaxis()->LabelsOption("v");
+
+	EXPGlob1->SetBinContent(index1,float(p));	  
+	EXPGlob1->GetXaxis()->SetBinLabel(index1,camera);
+	EXPGlob1->GetXaxis()->LabelsOption("v");
+      }
+      if(id.region()==0 && id.ring()==-1){
+	index2++;
+	char cam[128];	
+	sprintf(cam,"%s",nameRoll.c_str());
+	TString camera = (TString)cam;
+	  
+	RPCGlob2->SetBinContent(index2,float(o));	  
+	RPCGlob2->GetXaxis()->SetBinLabel(index2,camera);
+	RPCGlob2->GetXaxis()->LabelsOption("v");
+
+	EXPGlob2->SetBinContent(index2,float(p));	  
+	EXPGlob2->GetXaxis()->SetBinLabel(index2,camera);
+	EXPGlob2->GetXaxis()->LabelsOption("v");
+      }
+      if(id.region()==0 && id.ring()==0){
+	index3++;
+	char cam[128];	
+	sprintf(cam,"%s",nameRoll.c_str());
+	TString camera = (TString)cam;
+	  
+	RPCGlob3->SetBinContent(index3,float(o));	  
+	RPCGlob3->GetXaxis()->SetBinLabel(index3,camera);
+	RPCGlob3->GetXaxis()->LabelsOption("v");
+
+	EXPGlob3->SetBinContent(index3,float(p));	  
+	EXPGlob3->GetXaxis()->SetBinLabel(index3,camera);
+	EXPGlob3->GetXaxis()->LabelsOption("v");
+      }
+      if(id.region()==0 && id.ring()==1){
+	index4++;
+	char cam[128];	
+	sprintf(cam,"%s",nameRoll.c_str());
+	TString camera = (TString)cam;
+	  
+	RPCGlob4->SetBinContent(index4,float(o));	  
+	RPCGlob4->GetXaxis()->SetBinLabel(index4,camera);
+	RPCGlob4->GetXaxis()->LabelsOption("v");
+
+	EXPGlob4->SetBinContent(index4,float(p));	  
+	EXPGlob4->GetXaxis()->SetBinLabel(index4,camera);
+	EXPGlob4->GetXaxis()->LabelsOption("v");
+      }
+      if(id.region()==0 && id.ring()==2){
+	index5++;
+	char cam[128];	
+	sprintf(cam,"%s",nameRoll.c_str());
+	TString camera = (TString)cam;
+	  
+	RPCGlob5->SetBinContent(index5,float(o));	  
+	RPCGlob5->GetXaxis()->SetBinLabel(index5,camera);
+	RPCGlob5->GetXaxis()->LabelsOption("v");
+
+	EXPGlob5->SetBinContent(index5,float(p));	  
+	EXPGlob5->GetXaxis()->SetBinLabel(index5,camera);
+	EXPGlob5->GetXaxis()->LabelsOption("v");
+      }
+=======
 
       if(id.region()==0 && id.ring()==-2){
 	index1++;
@@ -621,6 +816,7 @@ void RPCEfficiencyFromTrack::endJob(){
 	EXPGlob5->GetXaxis()->SetBinLabel(index5,camera);
 	EXPGlob5->GetXaxis()->LabelsOption("v");
       }
+>>>>>>> 1.50
       if(ef>0.){
 	*effres << nameRoll <<"\t Eff = "<<ef*100.<<" % +/- "<<er*100.<<" %"<<"\t Run= "<<Run<<"\t"<<ctime(&aTime)<<" ";
 	histoMean->Fill(ef*100.);
