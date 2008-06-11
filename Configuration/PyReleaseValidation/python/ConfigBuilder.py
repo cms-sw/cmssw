@@ -5,7 +5,7 @@
 # creates a complete config file.
 # relval_main + the custom config for it is not needed any more
 
-__version__ = "$Revision: 1.10 $"
+__version__ = "$Revision: 1.11 $"
 __source__ = "$Source: /cvs_server/repositories/CMSSW/CMSSW/Configuration/PyReleaseValidation/python/ConfigBuilder.py,v $"
 
 import FWCore.ParameterSet.Config as cms
@@ -183,22 +183,24 @@ class ConfigBuilder(object):
         """Include the customise code """
 
         filename=self._options.customisation_file
-
-        final_snippet='\n\n# Automatic addition of the customisation function'
-
-        for line in file(filename,'r'):
-            if "import FWCore.ParameterSet.Config" in line:
-                continue
-            final_snippet += line
+        if filename:
+            final_snippet='\n\n# Automatic addition of the customisation function\n'
+            customise = __import__(filename.replace(".py",""))
+            for line in file(customise.__file__.rstrip("c"),'r'):
+                if "import FWCore.ParameterSet.Config" in line:
+                    continue
+                final_snippet += line
         
-        final_snippet += '\n\n# End of customisation function definition'
+            final_snippet += '\n\n# End of customisation function definition'
 
-        return final_snippet + "\n\nprocess = customise (process)"
+            return final_snippet + "\n\nprocess = customise (process)"
 
         #self.process=file.customise(self.process)
         #if process == None:
             #raise ValueError("Customise file returns no process. Please add a 'return process'.")
 
+        else:
+            return ""
 
 
     
@@ -294,7 +296,7 @@ class ConfigBuilder(object):
     def build_production_info(evt_type, energy, evtnumber):
         """ Add useful info for the production. """
         prod_info=cms.untracked.PSet\
-              (version=cms.untracked.string("$Revision: 1.10 $"),
+              (version=cms.untracked.string("$Revision: 1.11 $"),
                name=cms.untracked.string("PyReleaseValidation")#,
               # annotation=cms.untracked.string(self._options.evt_type+" energy:"+str(energy)+" nevts:"+str(evtnumber))
               )
@@ -319,6 +321,7 @@ class ConfigBuilder(object):
         self.addMaxEvents()                    
         self.addSource()
         self.addStandardSequences()
+        self.addCustomise()
         self.addOutput()
         
         self.pythonCfgCode += "# import of standard configurations\n"
@@ -341,8 +344,6 @@ class ConfigBuilder(object):
         for command in self.commands:
             self.pythonCfgCode += command + "\n"
         
-
-          
         # add all paths
         # todo: except for the bad trigger ones
         self.pythonCfgCode += "\n# Path and EndPath definitions\n"
@@ -358,8 +359,10 @@ class ConfigBuilder(object):
         pathNames = ['process.'+p.label() for p in self.process.schedule]
         result ='process.schedule = cms.Schedule('+','.join(pathNames)+')\n'
         self.pythonCfgCode += result
-        #finally put in the customise 
-        ## missing 
+
+        #dump customise fragment
+        if self._options.customisation_file:
+            self.pythonCfgCode += self.addCustomise()
          
         return
       
