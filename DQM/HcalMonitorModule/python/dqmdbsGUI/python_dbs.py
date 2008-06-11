@@ -72,9 +72,12 @@ def sendMessage(host,port,dbsInst,userInput,page,limit,xml=0,case='on',details=0
        http_conn = httplib.HTTPS(host,port)
     else:
        http_conn = httplib.HTTP(host,port)
-    if details: details=1
-    else:       details=0
+    if details:
+      details=1
+    else:
+      details=0
     path='/aSearch?dbsInst=%s&html=0&caseSensitive=%s&_idx=%s&pagerStep=%s&userInput=%s&xml=%s&details=%s'%(dbsInst,case,page,limit,input,xml,details)
+    
     if prefix_path:
        path="/"+prefix_path+path[1:]
     http_conn.putrequest('POST',path)

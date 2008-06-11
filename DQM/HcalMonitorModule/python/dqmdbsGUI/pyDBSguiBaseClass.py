@@ -440,8 +440,29 @@ class dbsBaseGui:
                                                    )
         self.dbsmenu.add_cascade(label="Set DBS update time",
                                  menu=self.dbsUpdateMenu.choices)
-        self.Bdbs['menu']=self.dbsmenu
+        #self.Bdbs['menu']=self.dbsmenu
 
+        # Create submenu to check only runs with HCAL present
+        self.dbsHcalOnlyMenu=Menu(self.dbsmenu,
+                                  bg="white",
+                                  tearoff=0)
+        self.dbsHcalOnlyMenu.choices=Menu(self.dbsHcalOnlyMenu,
+                                          bg="white",
+                                          tearoff=0)
+        self.dbsSetHcalValue=StringVar()
+        self.dbsHcalOnlyChoices=["All runs in range","Only runs including HCAL"]
+        self.dbsSetHcalValue.set("All runs in range")
+        for i in range(len(self.dbsHcalOnlyChoices)):
+            self.dbsHcalOnlyMenu.choices.add_command(label="%s"%self.dbsHcalOnlyChoices[i],
+                                                     command = lambda x=self.dbsHcalOnlyChoices[i],
+                                                     y=self.dbsHcalOnlyChoices:self.dbsSetHcalOnly(x,y))
+
+            if (self.dbsHcalOnlyChoices[i]==self.dbsSetHcalValue.get()):
+                self.dbsHcalOnlyMenu.choices.entryconfig(i,foreground="red")
+
+        self.dbsmenu.add_cascade(label="Set DBS run type:",
+                                 menu=self.dbsHcalOnlyMenu.choices)
+        self.Bdbs['menu']=self.dbsmenu
 
         # Fill 'DQM Options' Menu
         self.dqmmenu=Menu(self.Bdqm,
@@ -913,7 +934,8 @@ class dbsBaseGui:
                 "Show detailed output? ":self.myDBS.details,
                 "Case-sensitive matching? ":self.myDBS.case,
                 "Output page = ":self.myDBS.page,
-                "Debugging = ":self.myDBS.debug}
+                "Debugging = ":self.myDBS.debug,
+                " Site = ":self.myDBS.site}
 
         temp=myvars.keys()
         temp.sort()
@@ -1647,7 +1669,7 @@ class dbsBaseGui:
         self.dbsButton.configure(state=NORMAL)
         return True
 
-
+    
     def parseDBSInfo(self):
         '''
         ** self.parseDBSInfo() **
@@ -1663,9 +1685,11 @@ class dbsBaseGui:
         
         # Added on 4 June 2008:  Try to get run list by explicitly check the RunSummary page to make sure that HCAL was included in the run.  Not yet enabled(need to generalize for non-HCAL running?)
 
-        #hcalRunSummary=pyRunSummaryBaseClass.goodHCALList(self.lastFoundDBS.get(),self.lastFoundDBS.get()+self.dbsRange.get(),debug=False)
-        #hcalrunlist=hcalRunSummary.hcalruns
-        #print hcalRunSummary.allruns
+        if (self.dbsSetHcalValue.get()=="Only runs including HCAL"):
+            hcalRunSummary=pyRunSummaryBaseClass.goodHCALList(self.lastFoundDBS.get(),self.lastFoundDBS.get()+self.dbsRange.get(),debug=False)
+            hcalrunlist=hcalRunSummary.hcalruns
+            if (self.debug):
+                print hcalRunSummary.allruns
 
 
         runlist=[]
@@ -1693,8 +1717,10 @@ class dbsBaseGui:
 
                 if r not in runlist:
                     # Skip runs which don't include HCAL
-                    #if r not in hcalrunlist:
-                    #    continue 
+
+                    if (self.dbsSetHcalValue.get()=="Only runs including HCAL"):
+                        if r not in hcalrunlist:
+                            continue 
                     runlist.append(r)
             except:
                 continue
@@ -1736,6 +1762,7 @@ class dbsBaseGui:
             x.case.set(self.myDBS.case.get())
             x.details.set(self.myDBS.details.get())
             x.debug.set(self.myDBS.debug.get())
+            x.site.set(self.myDBS.site.get())
             # beginRun, endRun don't need to be set -- we're looking for one specific run here
             
             # give new accessor same defaults as set for self.myDBS
@@ -1763,7 +1790,8 @@ class dbsBaseGui:
                         self.dbsProgress.configure(text="No files found for run # %i"%r,
                                                    bg="black")
                         self.commentLabel.update_idletasks()
-                        return False
+                        #return False
+                        continue
                 else:
                     #print "i = ",file
                     try:
@@ -1784,6 +1812,11 @@ class dbsBaseGui:
                         #print "Could not parse DBS entry: %s"%i
                         self.commentLabel.update_idletasks()
 
+            if len(tempfiles)==0:
+                # no files found
+                self.commentLabel.configure(text="No valid files found for run # %i"%r)
+                self.commentLabel.update_idletasks()
+                continue
             tempDBS=DBSRun(tempfiles)
             tempDBS.runnum=r
             tempDBS.maxEvents=self.maxDQMEvents.get()
@@ -2297,6 +2330,30 @@ class dbsBaseGui:
             self.dbsAutoButton.configure(state=NORMAL,text="Auto DBS update\nevery %s minutes"%self.dbsAutoUpdateTime.get(),
                                          bg=self.bg,fg=self.fg)
         return
+
+
+    def dbsSetHcalOnly(self,value,choices):
+        '''
+        ** self.dbsSetHcalOnlyMenu(value, choices) **
+        Sets colors in "Set Hcal Only" menu, and configures the bool for only
+        checking runs in which HCAL was present.
+        '''
+
+        if (self.debug):
+            print self.dbsSetHcalOnly.__doc__
+
+        self.dbsSetHcalValue.set(value)
+            
+        for i in range(len(choices)):
+            if choices[i]==value:
+                self.dbsHcalOnlyMenu.choices.entryconfig(i,foreground="red")
+            else:
+                self.dbsHcalOnlyMenu.choices.entryconfig(i,foreground="black")
+        return
+
+
+
+        
 
 
     def dqmSetUpdateMenu(self,upTime,allTimes):

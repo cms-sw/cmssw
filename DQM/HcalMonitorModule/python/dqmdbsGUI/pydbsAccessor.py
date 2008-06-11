@@ -68,7 +68,8 @@ class dbsAccessor:
             self.debug=BooleanVar()
             self.beginRun=IntVar()
             self.endRun=IntVar()
-
+            self.site=StringVar()
+            
         except:
             print "Cannot define StringVar, IntVar, BooleanVar variables."
             print "Are you trying to use dbsAccessor outside of Tkinter?"
@@ -90,9 +91,9 @@ class dbsAccessor:
         self.host.set("cmsweb.cern.ch/dbs_discovery/")
         self.port.set(443)
         self.dbsInst.set("cms_dbs_prod_global")
-        self.searchStringFile.set("*/Global*/A/*RAW/*.root")
-        self.searchStringDataset.set("")
-        # Assume file takes the form */Global*/A/*/RAW/*.root
+        #self.searchStringFile.set("*/Global*/A/*RAW/*.root")
+        self.searchStringFile.set("")
+        self.searchStringDataset.set("/Cosmics/CRUZET2-v1/RAW")
         self.page.set(0)
         self.limit.set(10000)
         self.xml.set(False)
@@ -101,10 +102,12 @@ class dbsAccessor:
         self.debug.set(False)
         self.beginRun.set(42100)
         self.endRun.set(42200)
+        self.site.set("")
         return
 
     def Print(self):
-        x="host=%s\nport=%s\ndbsInst=%s\nsearchStringFile=\%s\nsearchStringDataset=%s\npage=%s\nlimit=%s\nxml=%s\ncase=%s\ndetails=%s\ndebug=%s\nbeginRun=%s\nendRun=%s\n"%(self.host.get(),self.port.get(),self.dbsInst.get(),self.searchStringFile.get(),self.searchStringDataset.get(),self.page.get(),self.limit.get(),self.xml.get(),self.case.get(),self.details.get(),self.debug.get(),self.beginRun.get(),self.endRun.get())
+        x="host=%s\nport=%s\ndbsInst=%s\nsearchStringFile=\%s\nsearchStringDataset=%s\npage=%s\nlimit=%s\nxml=%s\ncase=%s\ndetails=%s\ndebug=%s\nbeginRun=%s\nendRun=%s\nsite=%s\n"%(self.host.get(),self.port.get(),self.dbsInst.get(),self.searchStringFile.get(),self.searchStringDataset.get(),self.page.get(),self.limit.get(),self.xml.get(),self.case.get(),self.details.get(),self.debug.get(),self.beginRun.get(),self.endRun.get(),self.site.get())
+
         if (self.class_debug):
             print x
         return x
@@ -136,6 +139,7 @@ class dbsAccessor:
                 self.debug.set(cPickle.load(pcl))
                 self.beginRun.set(cPickle.load(pcl))
                 self.endRun.set(cPickle.load(pcl))
+                self.site.set(cPickle.load(pcl))
                 pcl.close()
                           
             except:
@@ -169,6 +173,7 @@ class dbsAccessor:
             cPickle.dump(self.debug.get(),pcl)
             cPickle.dump(self.beginRun.get(),pcl)
             cPickle.dump(self.endRun.get(),pcl)
+            cPickle.dump(self.site.get(),pcl)
             pcl.close()
             os.system("chmod a+rw %s"%(os.path.join(self.basepath,self.pclName)))
             if self.class_debug:
@@ -228,6 +233,8 @@ class dbsAccessor:
             temp=self.formParsedString()
 
             mytext="find run where %s run between %i-%i"%(temp,self.beginRun.get(),self.endRun.get())
+        if (self.site.get()<>""):
+            mytext=mytext+" and site = %s"%self.site.get()
         if (self.class_debug):  print "mytext = ",mytext
 
         # Send search string to DBS, and store result as "searchResult"
@@ -241,6 +248,7 @@ class dbsAccessor:
                                                  self.case.get(),
                                                  self.details.get(),
                                                  self.debug.get())
+
         if (self.class_debug):  print "SearchResult = %s"%self.searchResult
         return
     
