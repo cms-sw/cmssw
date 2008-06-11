@@ -68,7 +68,7 @@ namespace edm
 	else	  LogWarning("MixingModule") <<"!!!!!!! Did not get any signal data for "<<typeid(T).name()<<", with "<<tag_;
       }
 
-      virtual void addPileups(const int bcr, edm::Event* e,unsigned int eventNr,int &vertexoffset)
+      virtual void addPileups(const int bcr, edm::Event* e,unsigned int eventNr,int vertexoffset)
 	{
 	  // default version
 	  // valid for CaloHits

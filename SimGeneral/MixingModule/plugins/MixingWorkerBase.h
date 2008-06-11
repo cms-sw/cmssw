@@ -17,23 +17,6 @@
 #include "Mixing/Base/interface/PileUp.h"
 #include "DataFormats/Provenance/interface/EventID.h"
 
-//#include "FWCore/ParameterSet/interface/ParameterSet.h"
-//#include "FWCore/Framework/interface/Selector.h"
-
-//#include "SimDataFormats/CrossingFrame/interface/CrossingFrame.h"
-//FIXME????
-/* #include "SimDataFormats/TrackingHit/interface/PSimHitContainer.h" */
-/* #include "SimDataFormats/CaloHit/interface/PCaloHitContainer.h" */
-/* #include "SimDataFormats/Track/interface/SimTrackContainer.h" */
-/* #include "SimDataFormats/Vertex/interface/SimVertexContainer.h" */
-/* #include "SimDataFormats/HepMCProduct/interface/HepMCProduct.h" */
-
-//#include "DataFormats/Provenance/interface/ProductID.h"
-//#include "DataFormats/Common/interface/Handle.h"
-
-//#include <vector>
-//#include <string>
-
 namespace edm
 {
   class MixingModule;
@@ -64,7 +47,7 @@ namespace edm
       virtual void put(edm::Event &e) =0;
       virtual void createnewEDProduct()=0; 
       virtual void addSignals(const edm::Event &e) =0;
-      virtual void addPileups(const int bcr, edm::Event*,unsigned int EventNr,int &vertexOffset=0)=0;
+      virtual void addPileups(const int bcr, edm::Event*,unsigned int EventNr,int vertexOffset=0)=0;
       virtual void setBcrOffset()=0;
       virtual void setSourceOffset(const unsigned int s)=0;
       virtual void setOppositeTag(InputTag& opp) {opp_=opp;}

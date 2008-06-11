@@ -9,7 +9,7 @@ template <> const int  edm::MixingWorker<PSimHit>::highTrackTof = 36;
 template <> const int  edm::MixingWorker<PSimHit>::limHighLowTof = 36; 
 
 template <>
-void MixingWorker<PSimHit>::addPileups(const int bcr, edm::Event* e,unsigned int eventNr,int & vertexoffset)
+void MixingWorker<PSimHit>::addPileups(const int bcr, edm::Event* e,unsigned int eventNr,int vertexoffset)
 {
   // default version changed for high/low treatment
   if (!isTracker_) {
@@ -58,7 +58,7 @@ void MixingWorker<PSimHit>::addPileups(const int bcr, edm::Event* e,unsigned int
 
 
 template <>
-void MixingWorker<SimTrack>::addPileups(const int bcr, edm::Event* e,unsigned int eventNr,int & vertexoffset)
+void MixingWorker<SimTrack>::addPileups(const int bcr, edm::Event* e,unsigned int eventNr,int vertexoffset)
 {
   // default version changed to transmit vertexoffset
   Handle<std::vector<SimTrack> >  result_t;
@@ -70,7 +70,7 @@ void MixingWorker<SimTrack>::addPileups(const int bcr, edm::Event* e,unsigned in
 }
 
 template <>
-void MixingWorker<SimVertex>::addPileups(const int bcr, Event* e,unsigned int eventNr,int & vertexoffset)
+void MixingWorker<SimVertex>::addPileups(const int bcr, Event* e,unsigned int eventNr,int vertexoffset)
 {
   // default version changed to take care of vertexoffset
   Handle<std::vector<SimVertex> >  result;
@@ -85,7 +85,7 @@ void MixingWorker<SimVertex>::addPileups(const int bcr, Event* e,unsigned int ev
 
 
 template <>
-void MixingWorker<HepMCProduct>::addPileups(const int bcr, Event* e,unsigned int eventNr,int & vertexoffset)
+void MixingWorker<HepMCProduct>::addPileups(const int bcr, Event* e,unsigned int eventNr,int vertexoffset)
 {
   //HepMC - we are creating a dummy vector, to have the same interfaces as for the other objects
   Handle<HepMCProduct>  result_mc;
