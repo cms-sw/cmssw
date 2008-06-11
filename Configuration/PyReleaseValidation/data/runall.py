@@ -89,12 +89,14 @@ def main(argv) :
     nfail=0
     npass=0
     report=''
-    
+
     clist = []
     cdone = []
     i=0
     print 'Running in %s thread(s)' %np
-    for command in commands:
+
+    # iterate over the reversed list so the long-time runners are dealt first with:
+    for command in reversed(commands):
         print 'Preparing to run %s' %command 
         current = testit(command)
         clist.append(current)
