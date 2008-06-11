@@ -1,7 +1,7 @@
 /** \file
  *
- *  $Date: 2008/03/05 12:43:09 $
- *  $Revision: 1.21 $
+ *  $Date: 2008/05/02 22:13:17 $
+ *  $Revision: 1.22 $
  *  \author A. Tumanov - Rice
  */
 
@@ -27,79 +27,155 @@ using namespace std;
 
 CSCDigiToRaw::CSCDigiToRaw(){}
 
+void CSCDigiToRaw::beginEvent(const CSCChamberMap* electronicsMap)
+{
+  theChamberDataMap.clear();
+  theElectronicsMap = electronicsMap;
+}
 
-CSCDigiToRaw::~CSCDigiToRaw(){}
+
+CSCEventData & CSCDigiToRaw::findEventData(const CSCDetId & cscDetId) 
+{
+  CSCDetId chamberID = cscDetId.chamberId();
+  //std::cout<<"wire id"<<cscDetId<<std::endl;
+  // find the entry into the map
+  map<CSCDetId, CSCEventData>::iterator chamberMapItr = theChamberDataMap.find(chamberID);
+  if(chamberMapItr == theChamberDataMap.end())
+    {
+      // make an entry, telling it the correct chamberType
+      // make an entry, telling it the correct chamberType
+      int chamberType = chamberID.iChamberType();
+      chamberMapItr = theChamberDataMap.insert(pair<CSCDetId, CSCEventData>(chamberID, CSCEventData(chamberType))).first;
+    }
+  CSCEventData & cscData = chamberMapItr->second;
+  cscData.dmbHeader()->setCrateAddress(theElectronicsMap->crate(cscDetId), theElectronicsMap->dmb(cscDetId));
+  return cscData;
+}
+
+
+  
+void CSCDigiToRaw::add(const CSCStripDigiCollection& stripDigis)
+{  //iterate over chambers with strip digis in them
+  for (CSCStripDigiCollection::DigiRangeIterator j=stripDigis.begin(); j!=stripDigis.end(); ++j)
+    {
+      CSCDetId cscDetId=(*j).first;
+
+      bool me1a = (cscDetId.station()==1) && (cscDetId.ring()==4);
+      bool zplus = (cscDetId.endcap() == 1);
+      bool me1b = (cscDetId.station()==1) && (cscDetId.ring()==1);
+
+      CSCEventData & cscData = findEventData(cscDetId);
+
+      std::vector<CSCStripDigi>::const_iterator digiItr = (*j).second.first;
+      std::vector<CSCStripDigi>::const_iterator last = (*j).second.second;
+      for( ; digiItr != last; ++digiItr)
+        {
+          CSCStripDigi digi = *digiItr;
+          int strip = digi.getStrip();
+          if ( me1a && zplus ) { digi.setStrip(17-strip); } // 1-16 -> 16-1
+          if ( me1b && !zplus) { digi.setStrip(65-strip);} // 1-64 -> 64-1
+          if ( me1a ) { strip = digi.getStrip(); digi.setStrip(strip+64);} // reset back 1-16 to 65-80 digi
+          cscData.add(digi, cscDetId.layer() );
+        }
+    }
+}
+
+
+void CSCDigiToRaw::add(const CSCWireDigiCollection& wireDigis) 
+{
+  for (CSCWireDigiCollection::DigiRangeIterator j=wireDigis.begin(); j!=wireDigis.end(); ++j)
+    {
+      CSCDetId cscDetId=(*j).first;
+      CSCEventData & cscData = findEventData(cscDetId);
+
+      std::vector<CSCWireDigi>::const_iterator digiItr = (*j).second.first;
+      std::vector<CSCWireDigi>::const_iterator last = (*j).second.second;
+      for( ; digiItr != last; ++digiItr)
+        {
+          cscData.add(*digiItr, cscDetId.layer() );
+        }
+    }
+
+}
+
+void CSCDigiToRaw::add(const CSCComparatorDigiCollection & comparatorDigis)
+{
+  for (CSCComparatorDigiCollection::DigiRangeIterator j=comparatorDigis.begin(); j!=comparatorDigis.end(); ++j)
+    {
+      CSCDetId cscDetId=(*j).first;
+      CSCEventData & cscData = findEventData(cscDetId);
+
+      std::vector<CSCComparatorDigi>::const_iterator digiItr = (*j).second.first;
+      std::vector<CSCComparatorDigi>::const_iterator last = (*j).second.second;
+      for( ; digiItr != last; ++digiItr)
+        {
+          //cscData.add(*digiItr, cscDetId.layer() );
+        }
+    }
+}
+
+void CSCDigiToRaw::add(const CSCALCTDigiCollection & alctDigis)
+{
+  for (CSCALCTDigiCollection::DigiRangeIterator j=alctDigis.begin(); j!=alctDigis.end(); ++j)
+    {
+      CSCDetId cscDetId=(*j).first;
+      CSCEventData & cscData = findEventData(cscDetId);
+
+      std::vector<CSCALCTDigi>::const_iterator digiItr = (*j).second.first;
+      std::vector<CSCALCTDigi>::const_iterator last = (*j).second.second;
+      for( ; digiItr != last; ++digiItr)
+        {
+          //cscData.add(*digiItr, cscDetId.layer() );
+        }
+    }
+}
+
+void CSCDigiToRaw::add(const CSCCLCTDigiCollection & clctDigis)
+{
+
+  for (CSCCLCTDigiCollection::DigiRangeIterator j=clctDigis.begin(); j!=clctDigis.end(); ++j)
+    {
+      CSCDetId cscDetId=(*j).first;
+      CSCEventData & cscData = findEventData(cscDetId);
+
+      std::vector<CSCCLCTDigi>::const_iterator digiItr = (*j).second.first;
+      std::vector<CSCCLCTDigi>::const_iterator last = (*j).second.second;
+      for( ; digiItr != last; ++digiItr)
+        {
+          //cscData.add(*digiItr, cscDetId.layer() );
+        }
+    }
+}
+
+void CSCDigiToRaw::add(const CSCCorrelatedLCTDigiCollection & corrLCTDigis)
+{
+  for (CSCCorrelatedLCTDigiCollection::DigiRangeIterator j=corrLCTDigis.begin(); j!=corrLCTDigis.end(); ++j)
+    {
+      CSCDetId cscDetId=(*j).first;
+      CSCEventData & cscData = findEventData(cscDetId);
+
+      std::vector<CSCCorrelatedLCTDigi>::const_iterator digiItr = (*j).second.first;
+      std::vector<CSCCorrelatedLCTDigi>::const_iterator last = (*j).second.second;
+      for( ; digiItr != last; ++digiItr)
+        {
+          //cscData.add(*digiItr, cscDetId.layer() );
+        }
+    }
+
+}
+
 
 map<CSCDetId, CSCEventData> 
 CSCDigiToRaw::fillChamberDataMap(const CSCStripDigiCollection & stripDigis, 
                                  const CSCWireDigiCollection & wireDigis, 
                                  const CSCChamberMap* mapping) 
 {
-  map<CSCDetId, CSCEventData> chamberMap;
-  //iterate over chambers with strip digis in them
-  for (CSCStripDigiCollection::DigiRangeIterator j=stripDigis.begin(); j!=stripDigis.end(); ++j)
-    {
-      CSCDetId const cscDetId=(*j).first;
-      CSCDetId chamberID =cscDetId.chamberId();
-     
-      bool me1a = (CSCDetId::station(cscDetId)==1) && (CSCDetId::ring(cscDetId)==4);
-      bool zplus = (CSCDetId::endcap(cscDetId) == 1);
-      bool me1b = (CSCDetId::station(cscDetId)==1) && (CSCDetId::ring(cscDetId)==1);
-
-      //std::cout<<"strip id"<<cscDetId<<std::endl;
-      // find the entry into the map
-      map<CSCDetId, CSCEventData>::iterator chamberMapItr = chamberMap.find(chamberID);
-      if(chamberMapItr == chamberMap.end())
-        {
-          // make an entry, telling it the correct chamberType
-          int chamberType = chamberID.iChamberType();
-          chamberMapItr = chamberMap.insert(pair<CSCDetId, CSCEventData>(chamberID, CSCEventData(chamberType))).first;
-        }    
-      CSCEventData & cscData = chamberMapItr->second;
-      //std::cout<<"printing CSCDetId just before dmb" <<cscDetId<<std::endl;
-      //std::cout<<"crate " <<mapping->crate(cscDetId)<<std::endl;
-      //std::cout<<"dmb " <<mapping->dmb(cscDetId)<<std::endl;
-      cscData.dmbHeader()->setCrateAddress(mapping->crate(cscDetId), mapping->dmb(cscDetId));
-      //add strip digis to that chamber
-      std::vector<CSCStripDigi>::const_iterator digiItr = (*j).second.first;
-      std::vector<CSCStripDigi>::const_iterator last = (*j).second.second;
-      for( ; digiItr != last; ++digiItr) 
-        {
-	  CSCStripDigi digi = *digiItr;
-	  int strip = digi.getStrip();
-	  if ( me1a && zplus ) { digi.setStrip(17-strip); } // 1-16 -> 16-1
-	  if ( me1b && !zplus) { digi.setStrip(65-strip);} // 1-64 -> 64-1
-	  if ( me1a ) { strip = digi.getStrip(); digi.setStrip(strip+64);} // reset back 1-16 to 65-80 digi
-          cscData.add(digi, cscDetId.layer() );    
-        }
-    }
-  //repeat the same for wire digis
-  for (CSCWireDigiCollection::DigiRangeIterator j=wireDigis.begin(); j!=wireDigis.end(); ++j) 
-    {
-      CSCDetId const cscDetId=(*j).first;
-      CSCDetId chamberID =cscDetId.chamberId();
-      //std::cout<<"wire id"<<cscDetId<<std::endl;
-      // find the entry into the map
-      map<CSCDetId, CSCEventData>::iterator chamberMapItr = chamberMap.find(chamberID);
-      if(chamberMapItr == chamberMap.end())
-        {
-          // make an entry, telling it the correct chamberType
-          int chamberType = chamberID.iChamberType();
-          chamberMapItr = chamberMap.insert(pair<CSCDetId, CSCEventData>(chamberID, CSCEventData(chamberType))).first;
-        }
-      CSCEventData & cscData = chamberMapItr->second;
-      cscData.dmbHeader()->setCrateAddress(mapping->crate(cscDetId), mapping->dmb(cscDetId));
-      //add strip digis to that chamber
-      std::vector<CSCWireDigi>::const_iterator digiItr = (*j).second.first;
-      std::vector<CSCWireDigi>::const_iterator last = (*j).second.second;
-      for( ; digiItr != last; ++digiItr) 
-        {
-          cscData.add(*digiItr, cscDetId.layer() );
-        }
-    }
+  beginEvent(mapping);
+  add(stripDigis);
+  add(wireDigis);
 
   //std::cout<<"finished iterating and about to return the map size "<<chamberMap.size()<<std::endl;
-  return chamberMap;
+  return theChamberDataMap;
 }
 
 

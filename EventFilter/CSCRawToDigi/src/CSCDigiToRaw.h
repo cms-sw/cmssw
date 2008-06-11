@@ -3,28 +3,40 @@
 
 /** \class CSCDigiToRaw
  *
- *  $Date: 2007/10/08 22:01:06 $
- *  $Revision: 1.5 $
+ *  $Date: 2007/10/08 22:20:13 $
+ *  $Revision: 1.6 $
  *  \author A. Tumanov - Rice
  */
 
-#include <FWCore/Framework/interface/EDProducer.h>
-#include <DataFormats/CSCDigi/interface/CSCStripDigiCollection.h>
-#include <DataFormats/CSCDigi/interface/CSCWireDigiCollection.h>
-#include <FWCore/Framework/interface/Event.h>
-#include <DataFormats/Common/interface/Handle.h>
+#include "FWCore/Framework/interface/EDProducer.h"
+#include "DataFormats/CSCDigi/interface/CSCStripDigiCollection.h"
+#include "DataFormats/CSCDigi/interface/CSCWireDigiCollection.h"
+#include "DataFormats/CSCDigi/interface/CSCComparatorDigiCollection.h"
+#include "DataFormats/CSCDigi/interface/CSCALCTDigiCollection.h"
+#include "DataFormats/CSCDigi/interface/CSCCLCTDigiCollection.h"
+#include "DataFormats/CSCDigi/interface/CSCCorrelatedLCTDigiCollection.h"
+#include "FWCore/Framework/interface/Event.h"
+#include "DataFormats/Common/interface/Handle.h"
 
 class FEDRawDataCollection;
 class CSCReadoutMappingFromFile;
 class CSCEventData;
 class CSCChamberMap;
+
 class CSCDigiToRaw {
- public:
+public:
   /// Constructor
   CSCDigiToRaw();
 
-  /// Destructor
-  virtual ~CSCDigiToRaw();
+  void beginEvent(const CSCChamberMap* electronicsMap);
+
+  // specialized because it reverses strip direction
+  void add(const CSCStripDigiCollection& stripDigis);
+  void add(const CSCWireDigiCollection& wireDigis);
+  void add(const CSCComparatorDigiCollection & comparatorDigis);
+  void add(const CSCALCTDigiCollection & alctDigis);
+  void add(const CSCCLCTDigiCollection & clctDigis);
+  void add(const CSCCorrelatedLCTDigiCollection & corrLCTDigis);
 
   /// Take a vector of digis and fill the FEDRawDataCollection
   void createFedBuffers(const CSCStripDigiCollection& stripDigis,
@@ -37,7 +49,15 @@ class CSCDigiToRaw {
 						       const CSCWireDigiCollection& wireDigis,
 						       const CSCChamberMap* theMapping);
 
- private:
+private:
+  /// pick out the correct data object for this chamber
+  CSCEventData & findEventData(const CSCDetId & cscDetId);
 
+  std::map<CSCDetId, CSCEventData> theChamberDataMap;
+  const CSCChamberMap* theElectronicsMap;
 };
+
+
+
+
 #endif
