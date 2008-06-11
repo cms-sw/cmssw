@@ -35,7 +35,7 @@ from RecoBTag.Configuration.RecoBTag_FakeConditions_cff import *
 #
 from RecoBTau.Configuration.RecoBTau_FakeConditions_cff import *
 # BeamSpot Conditions
-from RecoVertex.BeamSpotProducer.BeamSpotFakeConditionsEarlyCollision_cff import *
+from RecoVertex.BeamSpotProducer.BeamSpotFakeConditionsEarly10TeVCollision_cff import *
 # Cabling maps
 from EventFilter.DTRawToDigi.DTSQLiteCabling_cfi import *
 from EventFilter.RPCRawToDigi.RPCSQLiteCabling_cfi import *
