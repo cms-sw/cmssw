@@ -4,7 +4,7 @@ FWConfiguration* fwConfig() {
 {
   FWConfiguration topa(1);
 {
-  FWConfiguration topaa(1);
+  FWConfiguration topaa(2);
 {
   FWConfiguration topaaa(0);
   topaaa.addValue("edm::SortedCollection<CaloTower,edm::StrictWeakOrdering<CaloTower> >");
@@ -45,10 +45,15 @@ FWConfiguration* fwConfig() {
   topaaa.addValue("2");
   topaa.addKeyValue("layer", topaaa);
 }
+{
+  FWConfiguration topaaa(0);
+  topaaa.addValue("ECal");
+  topaa.addKeyValue("purpose", topaaa);
+}
   topa.addKeyValue("ECal", topaa);
 }
 {
-  FWConfiguration topaa(1);
+  FWConfiguration topaa(2);
 {
   FWConfiguration topaaa(0);
   topaaa.addValue("edm::SortedCollection<CaloTower,edm::StrictWeakOrdering<CaloTower> >");
@@ -89,10 +94,15 @@ FWConfiguration* fwConfig() {
   topaaa.addValue("2");
   topaa.addKeyValue("layer", topaaa);
 }
+{
+  FWConfiguration topaaa(0);
+  topaaa.addValue("HCal");
+  topaa.addKeyValue("purpose", topaaa);
+}
   topa.addKeyValue("HCal", topaa);
 }
 {
-  FWConfiguration topaa(1);
+  FWConfiguration topaa(2);
 {
   FWConfiguration topaaa(0);
   topaaa.addValue("std::vector<reco::CaloJet>");
@@ -133,10 +143,15 @@ FWConfiguration* fwConfig() {
   topaaa.addValue("3");
   topaa.addKeyValue("layer", topaaa);
 }
+{
+  FWConfiguration topaaa(0);
+  topaaa.addValue("Jets");
+  topaa.addKeyValue("purpose", topaaa);
+}
   topa.addKeyValue("Jets", topaa);
 }
 {
-  FWConfiguration topaa(1);
+  FWConfiguration topaa(2);
 {
   FWConfiguration topaaa(0);
   topaaa.addValue("std::vector<reco::Track>");
@@ -177,10 +192,15 @@ FWConfiguration* fwConfig() {
   topaaa.addValue("1");
   topaa.addKeyValue("layer", topaaa);
 }
+{
+  FWConfiguration topaaa(0);
+  topaaa.addValue("Tracks");
+  topaa.addKeyValue("purpose", topaaa);
+}
   topa.addKeyValue("Tracks", topaa);
 }
 {
-  FWConfiguration topaa(1);
+  FWConfiguration topaa(2);
 {
   FWConfiguration topaaa(0);
   topaaa.addValue("std::vector<reco::Muon>");
@@ -221,10 +241,15 @@ FWConfiguration* fwConfig() {
   topaaa.addValue("5");
   topaa.addKeyValue("layer", topaaa);
 }
+{
+  FWConfiguration topaaa(0);
+  topaaa.addValue("Muons");
+  topaa.addKeyValue("purpose", topaaa);
+}
   topa.addKeyValue("Muons", topaa);
 }
 {
-  FWConfiguration topaa(1);
+  FWConfiguration topaa(2);
 {
   FWConfiguration topaaa(0);
   topaaa.addValue("std::vector<reco::GsfElectron>");
@@ -265,10 +290,15 @@ FWConfiguration* fwConfig() {
   topaaa.addValue("3");
   topaa.addKeyValue("layer", topaaa);
 }
+{
+  FWConfiguration topaaa(0);
+  topaaa.addValue("Electrons");
+  topaa.addKeyValue("purpose", topaaa);
+}
   topa.addKeyValue("Electrons", topaa);
 }
 {
-  FWConfiguration topaa(1);
+  FWConfiguration topaa(2);
 {
   FWConfiguration topaaa(0);
   topaaa.addValue("std::vector<reco::GenParticle>");
@@ -291,7 +321,7 @@ FWConfiguration* fwConfig() {
 }
 {
   FWConfiguration topaaa(0);
-  topaaa.addValue("abs($.pdgId())==11||abs($.pdgId())==13");
+  topaaa.addValue("$.pt()>1 && $.status() == 3");
   topaa.addKeyValue("filterExpression", topaaa);
 }
 {
@@ -309,10 +339,15 @@ FWConfiguration* fwConfig() {
   topaaa.addValue("6");
   topaa.addKeyValue("layer", topaaa);
 }
+{
+  FWConfiguration topaaa(0);
+  topaaa.addValue("GenParticles");
+  topaa.addKeyValue("purpose", topaaa);
+}
   topa.addKeyValue("GenParticles", topaa);
 }
 {
-  FWConfiguration topaa(1);
+  FWConfiguration topaa(2);
 {
   FWConfiguration topaaa(0);
   topaaa.addValue("std::vector<reco::Vertex>");
@@ -353,6 +388,11 @@ FWConfiguration* fwConfig() {
   topaaa.addValue("10");
   topaa.addKeyValue("layer", topaaa);
 }
+{
+  FWConfiguration topaaa(0);
+  topaaa.addValue("Vertices");
+  topaa.addKeyValue("purpose", topaaa);
+}
   topa.addKeyValue("Vertices", topaa);
 }
   top.addKeyValue("EventItems", topa);
@@ -384,7 +424,7 @@ FWConfiguration* fwConfig() {
 }
 {
   FWConfiguration topaaaa(0);
-  topaaaa.addValue("3.82629");
+  topaaaa.addValue("3.03547");
   topaaa.addKeyValue("cameraZoomRho Z", topaaaa);
 }
 {
@@ -454,12 +494,12 @@ FWConfiguration* fwConfig() {
 }
 {
   FWConfiguration topaaaa(0);
-  topaaaa.addValue("5.01661");
+  topaaaa.addValue("0");
   topaaa.addKeyValue("cameraMatrix13Rho Z", topaaaa);
 }
 {
   FWConfiguration topaaaa(0);
-  topaaaa.addValue("-0.187544");
+  topaaaa.addValue("0");
   topaaa.addKeyValue("cameraMatrix14Rho Z", topaaaa);
 }
 {
@@ -478,7 +518,7 @@ FWConfiguration* fwConfig() {
 }
 {
   FWConfiguration topaaaa(0);
-  topaaaa.addValue("3.68773");
+  topaaaa.addValue("3.42672");
   topaaa.addKeyValue("cameraZoomRho Phi", topaaaa);
 }
 {
@@ -568,21 +608,26 @@ FWConfiguration* fwConfig() {
 {
   FWConfiguration topaaaa(0);
   topaaaa.addValue("1");
-  topaaa.addKeyValue("energy threshold (%)", topaaaa);
+  topaaa.addKeyValue("ECAL energy threshold (GeV)", topaaaa);
 }
 {
   FWConfiguration topaaaa(0);
-  topaaaa.addValue("0.301924");
+  topaaaa.addValue("1");
+  topaaa.addKeyValue("HCAL energy threshold (GeV)", topaaaa);
+}
+{
+  FWConfiguration topaaaa(0);
+  topaaaa.addValue("0.597456");
   topaaa.addKeyValue("cameraMatrix0Lego", topaaaa);
 }
 {
   FWConfiguration topaaaa(0);
-  topaaaa.addValue("0.787559");
+  topaaaa.addValue("0.638658");
   topaaa.addKeyValue("cameraMatrix1Lego", topaaaa);
 }
 {
   FWConfiguration topaaaa(0);
-  topaaaa.addValue("0.537209");
+  topaaaa.addValue("0.484936");
   topaaa.addKeyValue("cameraMatrix2Lego", topaaaa);
 }
 {
@@ -592,12 +637,12 @@ FWConfiguration* fwConfig() {
 }
 {
   FWConfiguration topaaaa(0);
-  topaaaa.addValue("-0.933735");
+  topaaaa.addValue("-0.730271");
   topaaa.addKeyValue("cameraMatrix4Lego", topaaaa);
 }
 {
   FWConfiguration topaaaa(0);
-  topaaaa.addValue("0.357964");
+  topaaaa.addValue("0.683158");
   topaaa.addKeyValue("cameraMatrix5Lego", topaaaa);
 }
 {
@@ -612,17 +657,17 @@ FWConfiguration* fwConfig() {
 }
 {
   FWConfiguration topaaaa(0);
-  topaaaa.addValue("-0.192301");
+  topaaaa.addValue("-0.331288");
   topaaa.addKeyValue("cameraMatrix8Lego", topaaaa);
 }
 {
   FWConfiguration topaaaa(0);
-  topaaaa.addValue("-0.501611");
+  topaaaa.addValue("-0.354134");
   topaaa.addKeyValue("cameraMatrix9Lego", topaaaa);
 }
 {
   FWConfiguration topaaaa(0);
-  topaaaa.addValue("0.843449");
+  topaaaa.addValue("0.87455");
   topaaa.addKeyValue("cameraMatrix10Lego", topaaaa);
 }
 {
@@ -632,17 +677,17 @@ FWConfiguration* fwConfig() {
 }
 {
   FWConfiguration topaaaa(0);
-  topaaaa.addValue("5.45005");
+  topaaaa.addValue("12.8337");
   topaaa.addKeyValue("cameraMatrix12Lego", topaaaa);
 }
 {
   FWConfiguration topaaaa(0);
-  topaaaa.addValue("14.0156");
+  topaaaa.addValue("11.577");
   topaaa.addKeyValue("cameraMatrix13Lego", topaaaa);
 }
 {
   FWConfiguration topaaaa(0);
-  topaaaa.addValue("8.04499");
+  topaaaa.addValue("7.82989");
   topaaa.addKeyValue("cameraMatrix14Lego", topaaaa);
 }
 {
@@ -736,9 +781,9 @@ FWConfiguration* fwConfig() {
 }
 {
   FWConfiguration topaa(1);
-  topaa.addValue("402");
-  topaa.addValue("367");
-  topaa.addValue("389");
+  topaa.addValue("436");
+  topaa.addValue("366");
+  topaa.addValue("390");
   topaa.addValue("713");
   topa.addKeyValue("view area", topaa);
 }
