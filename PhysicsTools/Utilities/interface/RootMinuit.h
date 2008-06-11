@@ -70,7 +70,10 @@ namespace fit {
     template<unsigned int N>
     void getErrorMatrix(ROOT::Math::SMatrix<double, N, N, ROOT::Math::MatRepSym<double, N> > & err) {
       init();
-      assert(N == numberOfParameters());
+      if(N != numberOfParameters())
+	throw edm::Exception(edm::errors::Configuration)
+	  << "RootMinuit: can't call getErrorMatrix passing an SMatrix of dimension " << N
+	  << " while the number of parameters is " << numberOfParameters() << "\n";
       double * e = new double[N*N];
       minuit_->mnemat(e, numberOfParameters());
       for(size_t i = 0; i < N; ++i) {
@@ -79,7 +82,7 @@ namespace fit {
 	}
       }
       delete [] e;
-      setParamters();
+      setParameters();
     }
     void fixParameter(const std::string & name) {
       size_t i = parameterIndex(name);
@@ -101,7 +104,7 @@ namespace fit {
       par.val = val;
       if(initialized_) {
 	int ierflg = 0;      
-	minuit_->mnparm(i, name, par.val, par.err, par.min, par.max, ierflg);
+ 	minuit_->mnparm(i, name, par.val, par.err, par.min, par.max, ierflg);
 	if(ierflg != 0)
 	  throw edm::Exception(edm::errors::Configuration)
 	    << "RootMinuit: error in setting parameter " << i 
@@ -109,7 +112,7 @@ namespace fit {
 	    << " range = [" << par.min << ", " << par.max << "]\n";
       }
     }
-    void setParamters() {
+    void setParameters() {
       std::map<std::string, size_t>::const_iterator i = parIndices_.begin(), end = parIndices_.end();
       double val, err;
       for(; i != end; ++i) {
@@ -137,7 +140,7 @@ namespace fit {
       if(verbose_) minuit_->mnmatu(1); //Prints the covariance matrix
       double m = minValue();
       if(verbose_) minuit_->mnprin(3, m);
-      setParamters();
+      setParameters();
       return m;
     }
     double migrad() {
@@ -151,7 +154,7 @@ namespace fit {
       if(verbose_) minuit_->mnmatu(1); //Prints the covariance matrix
       double m = minValue();
       if(verbose_) minuit_->mnprin(3, m);
-      setParamters();
+      setParameters();
       return m;
     }
     double minValue() {
@@ -230,12 +233,12 @@ namespace fit {
 	    << " value = " << par.val << " error = " << par.err
 	    << " range = [" << par.min << ", " << par.max << "]\n";
       }
+      initialized_ = true;
       for(i = 0, p = parMap_.begin(); p != end; ++p, ++i)
 	if(p->second.fixed)
 	  minuit_->FixParameter(i);
       fPars_= & pars_; 
       minuit_->SetFCN(fcn_);
-      initialized_ = true;
     }
   };
   
