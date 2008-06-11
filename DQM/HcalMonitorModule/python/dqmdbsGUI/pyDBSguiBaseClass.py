@@ -679,7 +679,7 @@ class dbsBaseGui:
 
         if self.debug:  print self.setup.__doc__
 
-        #self.commentLabel.configure("Welcome to the HCAL DBS/DQM GUI")
+        #self.commentLabel.configure(text="Welcome to the HCAL DBS/DQM GUI")
         #self.commentLabel.update_idletasks()
 
         os.chdir(self.basedir) # cd to the self.basedir directory
@@ -1159,7 +1159,7 @@ class dbsBaseGui:
             print self.restoreFromBackupPickle.__doc__
         
         if not (os.path.isfile(os.path.join(self.basedir,".backup_filesInDBS.cPickle"))):
-            self.commentLabel.configure("Sorry, backup file does not exist!")
+            self.commentLabel.configure(text="Sorry, backup file does not exist!")
             self.commentLabel.update_idletasks()
             return
         if tkMessageBox.askyesno("Restore from .backup_filesInDBS.cPickle",
@@ -1530,7 +1530,8 @@ class dbsBaseGui:
                                                                                      self.finalDir.get()))
                     self.commentLabel.update_idletasks()
                 else:
-                    self.commentLabel("ERROR -- Can't find %s\nDo you know where your output is?"%myobject)
+                    #self.commentLabel.configure(text="ERROR -- Can't find %s\nDo you know where your output is?"%myobject)
+                    self.commentLabel.configure(text="%s output created in \n"%(os.path.basename(myobject), self.basedir))
                     self.commentLabel.update_idletasks()
                 time.sleep(3)
 
