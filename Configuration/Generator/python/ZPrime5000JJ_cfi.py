@@ -6,7 +6,7 @@ source = cms.Source("PythiaSource",
     PythiaParameters = cms.PSet(
         # Default (mostly empty - to keep PYTHIA default) card file
         # Name of the set is "pythiaDefault"
-        pythiaUESettingsBlock,
+        pythiaDefaultBlock,
         # User cards - name is "myParameters"
         myParameters = cms.vstring('PMAS(32,1)= 5000.            !mass of Zprime', 
             'MSEL=0                      !(D=1) to select between full user control (0, then use MSUB) and some preprogrammed alternative', 
