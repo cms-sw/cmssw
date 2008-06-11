@@ -1,7 +1,7 @@
 /**
  * Author: Sridhara Dasu
  * Created: 04 July 2007
- * $Id: L1RCTParameters.cc,v 1.12 2008/02/13 15:46:38 jleonard Exp $
+ * $Id: L1RCTParameters.cc,v 1.13 2008/05/02 16:46:36 jleonard Exp $
  **/
 
 #include <iostream>
@@ -43,6 +43,8 @@ L1RCTParameters::L1RCTParameters(double eGammaLSB,
   eActivityCut_(eActivityCut),
   hActivityCut_(hActivityCut),
   eicIsolationThreshold_(eicIsolationThreshold),
+  jscQuietThresholdBarrel_(jscQuietThresholdBarrel),
+  jscQuietThresholdEndcap_(jscQuietThresholdEndcap),
   noiseVetoHB_(noiseVetoHB),
   noiseVetoHEplus_(noiseVetoHEplus),
   noiseVetoHEminus_(noiseVetoHEminus),
