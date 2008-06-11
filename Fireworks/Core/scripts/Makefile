@@ -27,10 +27,15 @@ install: Makefile.core
 #	   exit 1; \
 #	fi;
 
-clean: cleancore cleandisplay
+clean: cleandisplay
 
-cleancore: Makefile.core
-	$(QUIET) $(MAKE) -f Makefile.core clean
+cleanall: cleancore cleandisplay
+
+cleancore: 
+	$(QUIET) echo "removing temporary core objects and output library..."; \
+	rm -rf tmp/cms lib$(LibCore).so; echo "done"
 	
-cleandisplay: Makefile.project
-	$(QUIET) $(MAKE) -f Makefile.project clean
+cleandisplay: 
+	$(QUIET) echo "removing temporary project objects and output libraries..."; \
+	rm -rf tmp/src lib$(LibProject).so; echo "done"
+
