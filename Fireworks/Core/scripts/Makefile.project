@@ -73,9 +73,6 @@ lib$(LibProject).so: $(ProjectObjects) $(ProjectRootDicObjects) $(ProjectDiction
 
 include common.mk
 
-clean:
-	$(QUIET) echo "removing temporary project objects and output libraries..."; \
-	rm -rf tmp/src lib$(LibProject).so; echo "done"
 project.mk: extractCMSDataFormats.pl $(ProjectBuildFiles)
 	$(QUIET) ./extractCMSDataFormats.pl --mode project --dir ./
 

@@ -45,8 +45,6 @@ CoreDictionaryObjects  = $(CoreDictionarySources:.cpp=.do)
 
 LibCore = CMSDataFormats
 
-LDLIBRARYPATH := `pwd` `pwd`/external/lib $(ROOTSYS)/lib
-
 # Don't change
 LinkerOptions := -Wl,-rpath -Wl,
 
@@ -58,11 +56,11 @@ install:
 	echo "export CMSSW_BASE" >> root.sh; \
 	echo "ROOTSYS="`pwd`"/$(ROOTSYS)" >> root.sh; \
 	echo "export ROOTSYS" >> root.sh; \
-	echo "LD_LIBRARY_PATH=$(LDLIBRARYPATH)" | perl -ne 's/ +/:/g;print' >> root.sh; \
+	echo "LD_LIBRARY_PATH="`pwd`:`pwd`/external/lib:'$$ROOTSYS/lib' >> root.sh; \
 	echo "export LD_LIBRARY_PATH" >> root.sh; \
-	echo "$(ROOTSYS)/bin/root.exe" '$$*' >> root.sh; \
-	chmod u+x root.sh 
-	$(QUIET) find tmp -name "*.d" -exec rm {} \;
+	echo '$$ROOTSYS/bin/root.exe $$*' >> root.sh; \
+	chmod u+x root.sh
+#	$(QUIET) find tmp -name "*.d" -exec rm {} \;
 
 core:   env lib$(LibCore).so tmp/lib$(LibCore).so.out
 	
@@ -86,6 +84,3 @@ lib$(LibCore).so: $(CoreObjects) $(CoreObjectsC) $(CoreRootDicObjects) $(CoreDic
 
 include common.mk
 
-clean:	
-	$(QUIET) echo "removing temporary core objects and output library..."; \
-	rm -rf tmp/cms lib$(LibCore).so; echo "done"
