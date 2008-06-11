@@ -19,7 +19,7 @@
 
 using namespace edm;
 
-const int numBits = 5;
+const size_t numBits = 5;
 const int numPatterns = 11;
 const int numMasks = 9;
 const int numAns = numPatterns * numMasks;
@@ -259,7 +259,7 @@ int main()
   // We do not care what is in these parameters for the test, they
   // just need to exist.
   Strings dummy;
-  for (int i = 0; i < numBits; ++i) {
+  for (size_t i = 0; i < numBits; ++i) {
     proc_pset.addParameter<Strings>(paths[i], dummy);
   }
 

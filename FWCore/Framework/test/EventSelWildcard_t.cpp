@@ -19,9 +19,9 @@
 
 using namespace edm;
 
-const unsigned int numBits = 12;  // There must be a better way than this but I choose to 
-				  // avoid modifying a whole slew of code using the array 
-				  // instead of push_back()s.
+size_t const numBits = 12;  // There must be a better way than this but I choose to 
+		 	    // avoid modifying a whole slew of code using the array 
+			    // instead of push_back()s.
 
 typedef std::vector< std::vector<bool> > Answers;
 
@@ -48,8 +48,8 @@ std::ostream& operator<<(std::ostream& ost, const Bools& b)
   return ost;
 }
 
-template <unsigned int nb>
-Bools toBools( boost::array<bool,nb> const & t ) 
+template <size_t nb>
+Bools toBools(boost::array<bool, nb> const & t ) 
 {
   Bools b;
   b.insert (b.end(), t.begin(), t.end());
@@ -441,7 +441,7 @@ int main()
   // We do not care what is in these parameters for the test, they
   // just need to exist.
   Strings dummy;
-  for (unsigned int i = 0; i < numBits; ++i) {
+  for (size_t i = 0; i < numBits; ++i) {
     proc_pset.addParameter<Strings>(paths[i], dummy);
   }
 

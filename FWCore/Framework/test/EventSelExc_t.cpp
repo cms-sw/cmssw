@@ -46,7 +46,7 @@ typedef std::vector<Bools> VBools;
 // Name all our paths. We have as many paths as there are trigger
 // bits.
 
-const unsigned int num_trig_paths = 8;
+const size_t num_trig_paths = 8;
 boost::array<char*,num_trig_paths> cpaths = 
       {{      
               "ap1", "ap2", "aq1", "aq2", 
@@ -148,7 +148,7 @@ std::ostream& operator<<(std::ostream& ost, const TrigResults &tr)
   return ost;
 }
 
-template <unsigned int nb>
+template <size_t nb>
 Bools toBools( boost::array<bool,nb> const & t ) 
 {
   Bools b;
@@ -260,7 +260,7 @@ int main()
   // We do not care what is in these parameters for the test, they
   // just need to exist.
   Strings dummy;
-  for (unsigned int i = 0; i < num_trig_paths; ++i) {
+  for (size_t i = 0; i < num_trig_paths; ++i) {
     proc_pset.addParameter<Strings>(trigger_path_names[i], dummy);
   }
 

@@ -35,7 +35,7 @@ typedef std::vector<Bools> VBools;
 // Name all our paths. We have as many paths as there are trigger
 // bits.
 
-const unsigned int num_trig_paths = 8;
+const size_t num_trig_paths = 8;
 boost::array<char*,num_trig_paths> cpaths = 
       {{      
               "ap1", "ap2", "aq1", "aq2", 
@@ -137,7 +137,7 @@ std::ostream& operator<<(std::ostream& ost, const TrigResults &tr)
   return ost;
 }
 
-template <unsigned int nb>
+template <size_t nb>
 Bools toBools( boost::array<bool,nb> const & t ) 
 {
   Bools b;
@@ -175,7 +175,7 @@ void maskTest ( PathSpecifiers const & ps,
   // Check correctness
   
   bool ok = true;
-  for (unsigned int i=0; i != num_trig_paths; ++i) {
+  for (size_t i=0; i != num_trig_paths; ++i) {
 //    HLTPathStatus mbi = mask.bit[i];
 //    HLTPathStatus abi =  ans.bit[i];
     if (mask.bit[i].state() != ans.bit[i].state()) ok = false; 
