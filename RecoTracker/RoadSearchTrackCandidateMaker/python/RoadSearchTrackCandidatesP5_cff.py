@@ -26,7 +26,7 @@ from RecoTracker.RoadSearchTrackCandidateMaker.RoadSearchTrackCandidates_cfi imp
 # RoadSearchTrackCandidateMaker
 rsTrackCandidatesP5 = copy.deepcopy(rsTrackCandidates)
 RS_P5_MeasurementTracker.ComponentName = 'RS_P5'
-RS_P5_MeasurementTracker.pixelClusterProducer = ''
+
 rsTrackCandidatesP5.CloudProducer = 'roadSearchCloudsP5'
 rsTrackCandidatesP5.MeasurementTrackerName = 'RS_P5'
 rsTrackCandidatesP5.StraightLineNoBeamSpotCloud = True
