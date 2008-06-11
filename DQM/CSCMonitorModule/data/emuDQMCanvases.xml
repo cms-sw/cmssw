@@ -97,7 +97,7 @@
                 <Type>cnv</Type>
                 <Prefix>EMU</Prefix>
                 <Name>EMU_Test06_DDU_Inpits_in_Error_State</Name>
-                <Title>EMU Test06 - DDU Inputs in ERROR/WARNING State</Title>
+                <Title>EMU Test06 - DDU Inputs in ERROR-WARNING State</Title>
                 <NumPadsX>1</NumPadsX>
                 <NumPadsY>2</NumPadsY>
                 <Pad1>All_DDUs_Inputs_Errors</Pad1>
