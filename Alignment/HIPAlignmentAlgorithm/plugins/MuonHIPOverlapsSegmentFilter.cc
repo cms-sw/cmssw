@@ -13,7 +13,7 @@
 //
 // Original Author:  Jim Pivarski
 //         Created:  Mon Jun  9 17:27:41 CEST 2008
-// $Id$
+// $Id: MuonHIPOverlapsSegmentFilter.cc,v 1.1 2008/06/09 19:48:40 pivarski Exp $
 //
 //
 
@@ -55,6 +55,10 @@
 #include "DataFormats/CSCRecHit/interface/CSCSegment.h"
 #include "DataFormats/CSCRecHit/interface/CSCSegmentCollection.h"
 
+#include "FWCore/ServiceRegistry/interface/Service.h"
+#include "PhysicsTools/UtilAlgos/interface/TFileService.h"
+#include "TH1F.h"
+
 //
 // class declaration
 //
@@ -72,8 +76,11 @@ class MuonHIPOverlapsSegmentFilter : public edm::EDFilter {
       // ----------member data ---------------------------
       edm::InputTag m_input;
       int m_station;
+      int m_maxPairs;
+      bool m_debuggingHistograms;
+      TH1F *th1f_numPairs;
 
-      unsigned long m_total_events, m_segments_on_station, m_segments_on_neighbors;
+      unsigned long m_total_events, m_segments_on_station, m_segments_on_neighbors, m_onlyN;
 };
 
 //
@@ -90,6 +97,8 @@ class MuonHIPOverlapsSegmentFilter : public edm::EDFilter {
 MuonHIPOverlapsSegmentFilter::MuonHIPOverlapsSegmentFilter(const edm::ParameterSet& iConfig)
    : m_input(iConfig.getParameter<edm::InputTag>("input"))
    , m_station(iConfig.getParameter<int>("station"))
+   , m_maxPairs(iConfig.getParameter<int>("maxPairs"))
+   , m_debuggingHistograms(iConfig.getUntrackedParameter<bool>("debuggingHistograms", false))
 {
    //now do what ever initialization is needed
    produces<reco::TrackCollection>();
@@ -99,6 +108,12 @@ MuonHIPOverlapsSegmentFilter::MuonHIPOverlapsSegmentFilter(const edm::ParameterS
    m_total_events = 0;
    m_segments_on_station = 0;
    m_segments_on_neighbors = 0;
+   m_onlyN = 0;
+
+   if (m_debuggingHistograms) {
+      edm::Service<TFileService> tfile;
+      th1f_numPairs = tfile->make<TH1F>("numPairs", "numPairs", 31, -0.5, 30.5);
+   }
 }
 
 
@@ -149,6 +164,7 @@ MuonHIPOverlapsSegmentFilter::filter(edm::Event& iEvent, const edm::EventSetup& 
    edm::Ref<TrackingRecHitCollection>::key_type refTrackingRecHitsIndex = 0;
 
    bool neighbors_found = false;
+   int numPairs = 0;
    for (CSCSegmentCollection::const_iterator segment = segments->begin();  segment != segments->end();  ++segment) {
       CSCDetId cscId = segment->cscDetId();
       if ((cscId.endcap() == 1 ? 1 : -1) * cscId.station() == m_station) {
@@ -187,6 +203,7 @@ MuonHIPOverlapsSegmentFilter::filter(edm::Event& iEvent, const edm::EventSetup& 
 
 	       trackCollection->push_back(*track);
 	       trackExtraCollection->push_back(*trackExtra);
+	       numPairs++;
 
 	    } // end we found a next-door neighbor
 	 } // end second loop over segments
@@ -197,8 +214,17 @@ MuonHIPOverlapsSegmentFilter::filter(edm::Event& iEvent, const edm::EventSetup& 
    iEvent.put(trackExtraCollection);
    iEvent.put(trackingRecHitCollection);
 
+   if (!neighbors_found) return false;
    m_segments_on_neighbors++;
-   return neighbors_found;
+
+   if (m_debuggingHistograms) {
+      th1f_numPairs->Fill(numPairs);
+   }
+
+   if (numPairs > m_maxPairs) return false;
+
+   m_onlyN++;
+   return true;
 }
 
 // ------------ method called once each job just before starting event loop  ------------

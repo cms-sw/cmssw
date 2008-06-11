@@ -13,7 +13,7 @@
 //
 // Original Author:  Jim Pivarski
 //         Created:  Wed Dec 12 13:31:55 CST 2007
-// $Id: MuonHIPOverlapsRefitter.cc,v 1.5 2008/06/09 15:22:00 pivarski Exp $
+// $Id: MuonHIPOverlapsRefitter.cc,v 1.6 2008/06/09 19:47:03 pivarski Exp $
 //
 //
 
@@ -22,7 +22,7 @@
 
 // user include files
 #include "FWCore/Framework/interface/Frameworkfwd.h"
-#include "FWCore/Framework/interface/EDProducer.h"
+#include "FWCore/Framework/interface/EDFilter.h"
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/EventSetup.h"
 #include "FWCore/Framework/interface/ESHandle.h"
@@ -50,6 +50,10 @@
 #include "CondFormats/Alignment/interface/Definitions.h"
 #include "DataFormats/GeometrySurface/interface/Surface.h"
 
+#include "FWCore/ServiceRegistry/interface/Service.h"
+#include "PhysicsTools/UtilAlgos/interface/TFileService.h"
+#include "TH1F.h"
+
 // products
 #include "TrackingTools/PatternTools/interface/Trajectory.h"
 #include "TrackingTools/PatternTools/interface/TrajTrackAssociation.h"
@@ -58,20 +62,26 @@
 // class decleration
 //
 
-class MuonHIPOverlapsRefitter : public edm::EDProducer {
+class MuonHIPOverlapsRefitter : public edm::EDFilter {
    public:
       explicit MuonHIPOverlapsRefitter(const edm::ParameterSet&);
       ~MuonHIPOverlapsRefitter();
 
    private:
       virtual void beginJob(const edm::EventSetup&) ;
-      virtual void produce(edm::Event&, const edm::EventSetup&);
+      virtual bool filter(edm::Event&, const edm::EventSetup&);
       virtual void endJob() ;
       
       // ----------member data ---------------------------
       edm::InputTag m_input;
       int m_minDOF;
+      bool m_useAPE, m_filter;
+      double m_maxRedChi2;
       std::vector<int> m_trustedR1, m_trustedR2, m_trustedR3, m_trustedR4;
+      bool m_debuggingHistograms;
+      TH1F *th1f_redchi2_10, *th1f_redchi2_100;
+
+      unsigned long m_total_events, m_passing_cuts;
 };
 
 //
@@ -86,13 +96,22 @@ class MuonHIPOverlapsRefitter : public edm::EDProducer {
 // constructors and destructor
 //
 MuonHIPOverlapsRefitter::MuonHIPOverlapsRefitter(const edm::ParameterSet& iConfig)
+   : m_input(iConfig.getParameter<edm::InputTag>("input"))
+   , m_minDOF(iConfig.getParameter<int>("minDOF"))
+   , m_useAPE(iConfig.getParameter<bool>("useAPE"))
+   , m_filter(iConfig.getParameter<bool>("filter"))
+   , m_maxRedChi2(iConfig.getParameter<double>("maxRedChi2"))
+   , m_trustedR1(iConfig.getParameter<std::vector<int> >("trustedRing1"))
+   , m_trustedR2(iConfig.getParameter<std::vector<int> >("trustedRing2"))
+   , m_trustedR3(iConfig.getParameter<std::vector<int> >("trustedRing3"))
+   , m_trustedR4(iConfig.getParameter<std::vector<int> >("trustedRing4"))
+   , m_debuggingHistograms(iConfig.getUntrackedParameter<bool>("debuggingHistograms", false))
 {
-   m_input = iConfig.getParameter<edm::InputTag>("input");
-   m_minDOF = iConfig.getParameter<int>("minDOF");
-   m_trustedR1 = iConfig.getParameter<std::vector<int> >("trustedR1");
-   m_trustedR2 = iConfig.getParameter<std::vector<int> >("trustedR2");
-   m_trustedR3 = iConfig.getParameter<std::vector<int> >("trustedR3");
-   m_trustedR4 = iConfig.getParameter<std::vector<int> >("trustedR4");
+   if (m_debuggingHistograms) {
+      edm::Service<TFileService> tfile;
+      th1f_redchi2_10 = tfile->make<TH1F>("redchi2_10", "redchi2_10", 100, 0., 10.);
+      th1f_redchi2_100 = tfile->make<TH1F>("redchi2_100", "redchi2_100", 100, 0., 100.);
+   }
 
    produces<std::vector<Trajectory> >();
    produces<TrajTrackAssociationCollection>();
@@ -113,9 +132,11 @@ MuonHIPOverlapsRefitter::~MuonHIPOverlapsRefitter()
 //
 
 // ------------ method called to produce the data  ------------
-void
-MuonHIPOverlapsRefitter::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
+bool
+MuonHIPOverlapsRefitter::filter(edm::Event& iEvent, const edm::EventSetup& iSetup)
 {
+   m_total_events = 0;
+
    edm::Handle<reco::TrackCollection> tracks;
    iEvent.getByLabel(m_input, tracks);
 
@@ -144,6 +165,7 @@ MuonHIPOverlapsRefitter::produce(edm::Event& iEvent, const edm::EventSetup& iSet
    edm::Ref<std::vector<Trajectory> >::key_type trajCounter = 0;
    edm::Ref<reco::TrackCollection>::key_type trackCounter = 0;
 
+   int tracklets = 0;
    for (reco::TrackCollection::const_iterator track = tracks->begin();  track != tracks->end();  ++track) {
       trackCounter++;
       
@@ -206,7 +228,7 @@ MuonHIPOverlapsRefitter::produce(edm::Event& iEvent, const edm::EventSetup& iSet
 	 hits_by_station.push_back(current_station);
       }
 
-      edm::OwnVector<TrackingRecHit> clonedHits;
+      edm::OwnVector<TrackingRecHit> clonedHits, clonedHits2;
       std::vector<TrajectoryMeasurement::ConstRecHitPointer> transHits;
       std::vector<TrajectoryStateOnSurface> TSOSes;
 
@@ -264,20 +286,24 @@ MuonHIPOverlapsRefitter::produce(edm::Event& iEvent, const edm::EventSetup& iSet
 
 	       } // end check for trustedness
 
-	       clonedHits.push_back((*hit)->clone());
-	       TrajectoryMeasurement::ConstRecHitPointer hitPtr(muonTransBuilder.build(&(clonedHits.back()), globalGeometry));
+	       TrajectoryMeasurement::ConstRecHitPointer hitPtr(muonTransBuilder.build(&**hit, globalGeometry));
 	       transHits.push_back(hitPtr);
 
 	       LocalPoint localPoint = (*hit)->localPosition();
-//	       LocalError localError = (*hit)->localPositionError();
-// 	       double sigma_xx = localError.xx();
-// 	       double sigma_xy = localError.xy();
-// 	       double sigma_yy = localError.yy();
-
-	       AlgebraicSymMatrix localErrorWithAPE = hitPtr->parametersError();
-	       double sigma_xx = localErrorWithAPE[0][0];
-	       double sigma_xy = (localErrorWithAPE.num_row() == 1 ? 0. : localErrorWithAPE[0][1]);
-	       double sigma_yy = (localErrorWithAPE.num_row() == 1 ? 0. : localErrorWithAPE[1][1]);
+	       double sigma_xx, sigma_xy, sigma_yy;
+	       
+	       if (m_useAPE) {
+		  AlgebraicSymMatrix localErrorWithAPE = hitPtr->parametersError();
+		  sigma_xx = localErrorWithAPE[0][0];
+		  sigma_xy = (localErrorWithAPE.num_row() == 1 ? 0. : localErrorWithAPE[0][1]);
+		  sigma_yy = (localErrorWithAPE.num_row() == 1 ? 0. : localErrorWithAPE[1][1]);
+	       }
+	       else {
+		  LocalError localError = (*hit)->localPositionError();
+		  sigma_xx = localError.xx();
+		  sigma_xy = localError.xy();
+		  sigma_yy = localError.yy();
+	       }
 
 	       LocalPoint chamberPoint;
 	       AlgebraicSymMatrix chamberError(2);
@@ -320,7 +346,8 @@ MuonHIPOverlapsRefitter::produce(edm::Event& iEvent, const edm::EventSetup& iSet
 	       chamberError.invert(ierr);
 	       if (ierr != 0) {
 		  edm::LogError("MuonHIPOverlapsRefitter") << "Matrix inversion failed!  ierr = " << ierr << " matrix = " << std::endl << chamberError << std::endl;
-		  return;
+		  if (m_filter) return false;
+		  else return true;
 	       }
 	       double XX = chamberError[0][0];
 	       double XY = chamberError[0][1];
@@ -361,8 +388,8 @@ MuonHIPOverlapsRefitter::produce(edm::Event& iEvent, const edm::EventSetup& iSet
 
 	    GlobalVector momentum = chamberSurface->toGlobal(LocalVector(a, c, 1.) / sqrt(pow(a,2) + pow(c,2) + 1.) * track->p());
 
-// 	    double chi2 = 0.;  // we don't do anything with the chi2
-// 	    int dof = 0;
+	    double chi2 = 0.;
+	    int dof = 0;
 	    std::vector<const TrackingRecHit*>::const_iterator hit = station->begin();
 	    std::vector<double>::const_iterator xi = listx.begin();
 	    std::vector<double>::const_iterator yi = listy.begin();
@@ -372,33 +399,58 @@ MuonHIPOverlapsRefitter::produce(edm::Event& iEvent, const edm::EventSetup& iSet
 	    std::vector<double>::const_iterator YY = listYY.begin();
 
 	    for (;  hit != station->end();  ++hit, ++xi, ++yi, ++zi, ++XX, ++XY, ++YY) {
-
 	       double x = a * (*zi) + b;
 	       double y = c * (*zi) + d;
 
-// 	       double chi2i = (x - (*xi))*(x - (*xi))*(*XX) + 2*(x - (*xi))*(y - (*yi))*(*XY) + (y - (*yi))*(y - (*yi))*(*YY);
-// 	       chi2 += chi2i;
-// 	       if ((*hit)->geographicalId().subdetId() == MuonSubdetId::DT)
-// 		  dof += 1;
-// 	       else
-// 		  dof += 2; 
+	       double chi2i = (x - (*xi))*(x - (*xi))*(*XX) + 2*(x - (*xi))*(y - (*yi))*(*XY) + (y - (*yi))*(y - (*yi))*(*YY);
+	       chi2 += chi2i;
+	       if ((*hit)->geographicalId().subdetId() == MuonSubdetId::DT)
+		  dof += 1;
+	       else
+		  dof += 2; 
+	    }
+	    dof -= 4;
+	    
+	    if (m_debuggingHistograms) {
+	       if (dof > 0) {
+		  th1f_redchi2_10->Fill(chi2 / dof);
+		  th1f_redchi2_100->Fill(chi2 / dof);
+	       }
+	    }
 
-	       GlobalPoint position = chamberSurface->toGlobal(LocalPoint(x, y, (*zi)));
-	       DetId id = (*hit)->geographicalId();
+	    if (!m_filter  ||  (dof >= m_minDOF  &&  chi2 / dof < m_maxRedChi2)) {
+	       tracklets++;
 
-	       GlobalTrajectoryParameters globalTrajectoryParameters(position, momentum, track->charge(), &*magneticField);
-	       AlgebraicSymMatrix66 error;
-	       error(0,0) = 1e-6 * position.x();
-	       error(1,1) = 1e-6 * position.y();
-	       error(2,2) = 1e-6 * position.z();
-	       error(3,3) = 1e-6 * momentum.x();
-	       error(4,4) = 1e-6 * momentum.y();
-	       error(5,5) = 1e-6 * momentum.z();
+	       hit = station->begin();
+	       xi = listx.begin();
+	       yi = listy.begin();
+	       zi = listz.begin();
+	       XX = listXX.begin();
+	       XY = listXY.begin();
+	       YY = listYY.begin();
+	       for (;  hit != station->end();  ++hit, ++xi, ++yi, ++zi, ++XX, ++XY, ++YY) {
 
-	       TSOSes.push_back(TrajectoryStateOnSurface(globalTrajectoryParameters, CartesianTrajectoryError(error),
-                   id.subdetId() == MuonSubdetId::DT ? dtGeometry->idToDet(id)->surface() : cscGeometry->idToDet(id)->surface()));
+		  double x = a * (*zi) + b;
+		  double y = c * (*zi) + d;
 
-	    } // end loop over hits
+		  GlobalPoint position = chamberSurface->toGlobal(LocalPoint(x, y, (*zi)));
+		  DetId id = (*hit)->geographicalId();
+
+		  GlobalTrajectoryParameters globalTrajectoryParameters(position, momentum, track->charge(), &*magneticField);
+		  AlgebraicSymMatrix66 error;
+		  error(0,0) = 1e-6 * position.x();
+		  error(1,1) = 1e-6 * position.y();
+		  error(2,2) = 1e-6 * position.z();
+		  error(3,3) = 1e-6 * momentum.x();
+		  error(4,4) = 1e-6 * momentum.y();
+		  error(5,5) = 1e-6 * momentum.z();
+
+		  clonedHits.push_back((*hit)->clone());
+		  TSOSes.push_back(TrajectoryStateOnSurface(globalTrajectoryParameters, CartesianTrajectoryError(error),
+							    id.subdetId() == MuonSubdetId::DT ? dtGeometry->idToDet(id)->surface() : cscGeometry->idToDet(id)->surface()));
+
+	       } // end loop over hits
+	    } // end if we're filtering
 
 	 } // end if there are any hits to work with
       } // end loop over stations
@@ -441,6 +493,12 @@ MuonHIPOverlapsRefitter::produce(edm::Event& iEvent, const edm::EventSetup& iSet
    }
    // and put it in the Event, also
    iEvent.put(trajTrackMap);
+
+   if (m_filter) {
+      return (tracklets > 0);
+   }
+   m_passing_cuts++;
+   return true;
 }
 
 // ------------ method called once each job just before starting event loop  ------------
@@ -452,6 +510,8 @@ MuonHIPOverlapsRefitter::beginJob(const edm::EventSetup&)
 // ------------ method called once each job just after ending the event loop  ------------
 void 
 MuonHIPOverlapsRefitter::endJob() {
+   std::cout << "MuonHIPOverlapsRefitter: total_events " << m_total_events << " passing_cuts " << m_passing_cuts << std::endl;
+
 }
 
 //define this as a plug-in
