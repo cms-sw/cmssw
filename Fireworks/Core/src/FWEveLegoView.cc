@@ -8,7 +8,7 @@
 //
 // Original Author:  Chris Jones
 //         Created:  Thu Feb 21 11:22:41 EST 2008
-// $Id: FWEveLegoView.cc,v 1.8 2008/06/09 18:50:04 chrjones Exp $
+// $Id: FWEveLegoView.cc,v 1.9 2008/06/10 19:54:08 chrjones Exp $
 //
 
 // system include files
@@ -58,7 +58,10 @@
 // constructors and destructor
 //
 FWEveLegoView::FWEveLegoView(TGFrame* iParent, TEveElementList* list):
- m_range(this,"energy threshold (%)",0.,0.,100.),
+ m_minEcalEnergy(this,"ECAL energy threshold (GeV)",0.,0.,100.),
+ m_minHcalEnergy(this,"HCAL energy threshold (GeV)",0.,0.,100.),
+ m_ecalSlice(0),
+ m_hcalSlice(0),
  m_cameraMatrix(0),
  m_cameraMatrixBase(0)
 {
@@ -87,7 +90,7 @@ FWEveLegoView::FWEveLegoView(TGFrame* iParent, TEveElementList* list):
    
    m_lego = new TEveCaloLego();
    m_lego->InitMainTrans();
-   m_lego->RefMainTrans().SetScale(2*M_PI, 2*M_PI, 2*M_PI);
+   m_lego->RefMainTrans().SetScale(2*M_PI, 2*M_PI, M_PI);
    
    m_lego->SetPalette(pal);
    // m_lego->SetMainColor(Color_t(TColor::GetColor("#0A0A0A")));
@@ -100,7 +103,8 @@ FWEveLegoView::FWEveLegoView(TGFrame* iParent, TEveElementList* list):
    gEve->AddToListTree(m_lego, kTRUE);
    gEve->AddElement(list,ns);
    gEve->AddToListTree(list, kTRUE);
-   m_range.changed_.connect(boost::bind(&FWEveLegoView::doMinThreshold,this,_1));
+   m_minEcalEnergy.changed_.connect(boost::bind(&FWEveLegoView::setMinEcalEnergy,this,_1));
+   m_minHcalEnergy.changed_.connect(boost::bind(&FWEveLegoView::setMinHcalEnergy,this,_1));
 }
 
 FWEveLegoView::~FWEveLegoView()
@@ -125,12 +129,46 @@ FWEveLegoView::draw(TEveCaloDataHist* data)
 }
 
 void 
-FWEveLegoView::doMinThreshold(double value)
+FWEveLegoView::setMinEcalEnergy(double value)
 {
-   m_lego->GetPalette()->SetMin( int(value) );
+   if ( ! m_lego->GetData() ) return;
+   if ( ! m_ecalSlice )
+     for ( int i = 0; i < m_lego->GetData()->GetNSlices(); ++i )
+       if ( strcmp(m_lego->GetData()->RefSliceInfo(i).fHist->GetName(),"ecalLego") )
+	 {
+	    m_ecalSlice = &(m_lego->GetData()->RefSliceInfo(i));
+	    break;
+	 }
+   if ( ! m_ecalSlice ) return;
+   m_ecalSlice->fThreshold = value;
    m_lego->ElementChanged();
    m_lego->InvalidateCache();
    m_viewer->GetGLViewer()->RequestDraw();
+}
+
+void 
+FWEveLegoView::setMinHcalEnergy(double value)
+{
+   if ( ! m_lego->GetData() ) return;
+   if ( ! m_hcalSlice )
+     for ( int i = 0; i < m_lego->GetData()->GetNSlices(); ++i )
+       if ( strcmp(m_lego->GetData()->RefSliceInfo(i).fHist->GetName(),"hcalLego") )
+	 {
+	    m_hcalSlice = &(m_lego->GetData()->RefSliceInfo(i));
+	    break;
+	 }
+   if ( ! m_hcalSlice ) return;
+   m_hcalSlice->fThreshold = value;
+   m_lego->ElementChanged();
+   m_lego->InvalidateCache();
+   m_viewer->GetGLViewer()->RequestDraw();
+}
+
+void 
+FWEveLegoView::setMinEnergy()
+{
+   setMinEcalEnergy( m_minEcalEnergy.value() );
+   setMinHcalEnergy( m_minHcalEnergy.value() );
 }
 
 void 

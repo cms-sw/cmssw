@@ -16,7 +16,7 @@
 //
 // Original Author:  Chris Jones
 //         Created:  Thu Feb 21 11:22:37 EST 2008
-// $Id: FWEveLegoView.h,v 1.3 2008/03/27 11:05:17 dmytro Exp $
+// $Id: FWEveLegoView.h,v 1.4 2008/06/09 18:50:04 chrjones Exp $
 //
 
 // system include files
@@ -26,6 +26,7 @@
 #include "Fireworks/Core/interface/FWViewBase.h"
 #include "Fireworks/Core/interface/FWLongParameter.h"
 #include "Fireworks/Core/interface/FWDoubleParameter.h"
+#include "TEveCaloData.h"
 
 // forward declarations
 class TGFrame;
@@ -58,13 +59,16 @@ class FWEveLegoView : public FWViewBase
       // ---------- member functions ---------------------------
       void draw(TEveCaloDataHist* data);
       virtual void setFrom(const FWConfiguration&);
+      // set energy thresholds from the parameters  
+      void setMinEnergy();
    
    private:
       FWEveLegoView(const FWEveLegoView&); // stop default
 
       const FWEveLegoView& operator=(const FWEveLegoView&); // stop default
 
-      void doMinThreshold(double);
+      void setMinEcalEnergy(double);
+      void setMinHcalEnergy(double);
    
       // ---------- member data --------------------------------
       TEvePad* m_pad;
@@ -74,7 +78,13 @@ class FWEveLegoView : public FWViewBase
       TEveCaloLego* m_lego;
       
       // FWLongParameter m_range;
-      FWDoubleParameter m_range;
+      FWDoubleParameter m_minEcalEnergy;
+      FWDoubleParameter m_minHcalEnergy;
+      double m_minEcalEnergyInit;
+      double m_minHcalEnergyInit;
+      
+      TEveCaloData::SliceInfo_t* m_ecalSlice;
+      TEveCaloData::SliceInfo_t* m_hcalSlice;
       
       TGLMatrix* m_cameraMatrix;
       TGLMatrix* m_cameraMatrixBase;

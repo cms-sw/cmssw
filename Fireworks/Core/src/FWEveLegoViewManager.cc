@@ -8,7 +8,7 @@
 //
 // Original Author:  
 //         Created:  Sun Jan  6 22:01:27 EST 2008
-// $Id: FWEveLegoViewManager.cc,v 1.4 2008/06/10 14:20:24 chrjones Exp $
+// $Id: FWEveLegoViewManager.cc,v 1.5 2008/06/10 19:28:01 chrjones Exp $
 //
 
 // system include files
@@ -146,15 +146,20 @@ FWEveLegoViewManager::newEventAvailable()
 	   } 
 	   TH2F* hist = dynamic_cast<TH2F*>(product);
 	   if ( hist ) {
+	      // hist->Dump();
 	      hist->Rebin2D(); // FIX ME
-	      m_data->AddHistogram(hist);
+	      unsigned int index = m_data->AddHistogram(hist);
+	      m_data->RefSliceInfo(index).Setup(hist->GetTitle(), 0., hist->GetFillColor());
 	      // set color
-	      TColor *color = gROOT->GetColor( hist->GetFillColor() );
-	      new TColor( 1000+m_data->GetNSlices()-1, color->GetRed(), color->GetGreen(), color->GetBlue() );
+	      // TColor *color = gROOT->GetColor( hist->GetFillColor() );
+	      // new TColor( 1000+m_data->GetNSlices()-1, color->GetRed(), color->GetGreen(), color->GetBlue() );
+	      
 	      // HACK to share a single histogram for each proxy
 	      // TEveLegoDataHist creates an internal copy of the histogram, 
 	      // let's use it for the product as well.
-	      proxy->product = const_cast<TH2F*>(m_data->GetHistogram(m_data->GetNSlices()-1) );
+	      // proxy->product = const_cast<TH2F*>(m_data->GetHistogram(index-1) );
+	      
+	      proxy->product = hist;
 	      continue;
 	   }
 	   TEveElementList* element = dynamic_cast<TEveElementList*>(product);
@@ -172,6 +177,7 @@ FWEveLegoViewManager::newEventAvailable()
 
    std::for_each(m_views.begin(), m_views.end(),
                  boost::bind(&FWEveLegoView::draw,_1, m_data) );
+   for ( unsigned int i = 0; i < m_views.size(); ++i ) m_views[i]->setMinEnergy();
 }
 
 void 
