@@ -49,7 +49,10 @@ process.out = cms.OutputModule (
     fileName = cms.untracked.string("zMuMuSkimOut.root"),
     outputCommands = cms.untracked.vstring(
       "keep *_genParticles_*_*",
-      "keep *_TriggerResults_*_*",
+      "keep L1MuRegionalCands_*_*_*",
+      "keep L1MuGMTCands_*_*_*",
+      "keep L1MuGMTReadoutCollection_*_*_*",
+      "keep TriggerResults_*_*_*",
       "keep recoTracks_generalTracks_*_*",
       "keep recoTracks_globalMuons_*_*",
       "keep recoTracks_standAloneMuons_*_*",
@@ -74,14 +77,16 @@ process.out = cms.OutputModule (
     ),
     SelectEvents = cms.untracked.PSet(
       SelectEvents = cms.vstring(
-        "filterPath"
+        "zToMuMuFilterPath", "zToMuMuOneTrackfilterPath"
       )
    )
 )
 
+process.zToMuMuFilterPath = cms.Path(
+    process.selectedZToMuMu
+)
 
-process.filterPath = cms.Path(
-    process.selectedZToMuMu *
+process.zToMuMuOneTrackfilterPath = cms.Path(
     process.selectedZToMuMuOneTrack 
 )
 
