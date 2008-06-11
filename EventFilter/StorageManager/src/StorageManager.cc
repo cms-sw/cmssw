@@ -1,4 +1,4 @@
-// $Id: StorageManager.cc,v 1.59 2008/05/15 13:57:44 hcheung Exp $
+// $Id: StorageManager.cc,v 1.60 2008/06/03 23:48:10 hcheung Exp $
 
 #include <iostream>
 #include <iomanip>
@@ -1526,7 +1526,7 @@ void StorageManager::defaultWebPage(xgi::Input *in, xgi::Output *out)
   *out << "<a href=\"" << url << "/" << urn << "/streameroutput" << "\">" 
        << "Streamer Output Status web page" << "</a>" << endl;
   *out << "<hr/>"                                                 << endl;
-  *out << "<a href=\"" << url << "/" << urn << "/EventServerStats?update=on"
+  *out << "<a href=\"" << url << "/" << urn << "/EventServerStats?update=off"
        << "\">Event Server Statistics" << "</a>" << endl;
   /* --- leave these here to debug event server problems
   *out << "<a href=\"" << url << "/" << urn << "/geteventdata" << "\">" 
@@ -2435,7 +2435,9 @@ void StorageManager::eventServerWebPage(xgi::Input *in, xgi::Output *out)
   // --> if the SM is not enabled, assume that users want updating turned
   // --> ON so that they don't A) think that is is ON (when it's not) and
   // --> B) wait forever thinking that something is wrong.
-  bool autoUpdate = true;
+  //bool autoUpdate = true;
+  // 11-Jun-2008, KAB - changed auto update default to OFF
+  bool autoUpdate = false;
   if(fsm_.stateName()->toString() == "Enabled") {
     cgicc::Cgicc cgiWrapper(in);
     cgicc::const_form_iterator updateRef = cgiWrapper.getElement("update");
@@ -2444,6 +2446,9 @@ void StorageManager::eventServerWebPage(xgi::Input *in, xgi::Output *out)
         boost::algorithm::to_lower_copy(updateRef->getValue());
       if (updateString == "off") {
         autoUpdate = false;
+      }
+      else {
+        autoUpdate = true;
       }
     }
   }
@@ -2517,6 +2522,7 @@ void StorageManager::eventServerWebPage(xgi::Input *in, xgi::Output *out)
     {
       if (initMsgCollection->size() > 0)
       {
+        int displayedConsumerCount = 0;
         double eventSum = 0.0;
         double eventRateSum = 0.0;
         double dataRateSum = 0.0;
@@ -3135,6 +3141,7 @@ void StorageManager::eventServerWebPage(xgi::Input *in, xgi::Output *out)
           *out << "  <th>Average<br/>Queue Size</th>" << std::endl;
           *out << "</tr>" << std::endl;
 
+          displayedConsumerCount = 0;
           eventSum = 0.0;
           eventRateSum = 0.0;
           dataRateSum = 0.0;
@@ -3145,6 +3152,7 @@ void StorageManager::eventServerWebPage(xgi::Input *in, xgi::Output *out)
             boost::shared_ptr<ConsumerPipe> consPtr = consumerIter->second;
             if (consPtr->isDisconnected()) {continue;}
 
+            ++displayedConsumerCount;
             eventSum += consPtr->getEventCount(ConsumerPipe::SHORT_TERM,
                                                ConsumerPipe::DESIRED_EVENTS,
                                                now);
@@ -3196,7 +3204,7 @@ void StorageManager::eventServerWebPage(xgi::Input *in, xgi::Output *out)
           }
 
           // add a row with the totals
-          if (consumerTable.size() > 1) {
+          if (displayedConsumerCount > 1) {
             *out << "<tr>" << std::endl;
             *out << "  <td align=\"center\">&nbsp;</td>" << std::endl;
             *out << "  <td align=\"center\">Totals</td>" << std::endl;
@@ -3224,6 +3232,7 @@ void StorageManager::eventServerWebPage(xgi::Input *in, xgi::Output *out)
           *out << "  <th>Average<br/>Queue Size</th>" << std::endl;
           *out << "</tr>" << std::endl;
 
+          displayedConsumerCount = 0;
           eventSum = 0.0;
           eventRateSum = 0.0;
           dataRateSum = 0.0;
@@ -3234,6 +3243,7 @@ void StorageManager::eventServerWebPage(xgi::Input *in, xgi::Output *out)
             boost::shared_ptr<ConsumerPipe> consPtr = consumerIter->second;
             if (consPtr->isDisconnected()) {continue;}
 
+            ++displayedConsumerCount;
             eventSum += consPtr->getEventCount(ConsumerPipe::SHORT_TERM,
                                                ConsumerPipe::QUEUED_EVENTS,
                                                now);
@@ -3285,7 +3295,7 @@ void StorageManager::eventServerWebPage(xgi::Input *in, xgi::Output *out)
           }
 
           // add a row with the totals
-          if (consumerTable.size() > 1) {
+          if (displayedConsumerCount > 1) {
             *out << "<tr>" << std::endl;
             *out << "  <td align=\"center\">&nbsp;</td>" << std::endl;
             *out << "  <td align=\"center\">Totals</td>" << std::endl;
@@ -3312,6 +3322,7 @@ void StorageManager::eventServerWebPage(xgi::Input *in, xgi::Output *out)
           *out << "  <th>Duration (sec)</th>" << std::endl;
           *out << "</tr>" << std::endl;
 
+          displayedConsumerCount = 0;
           eventSum = 0.0;
           eventRateSum = 0.0;
           dataRateSum = 0.0;
@@ -3322,6 +3333,7 @@ void StorageManager::eventServerWebPage(xgi::Input *in, xgi::Output *out)
             boost::shared_ptr<ConsumerPipe> consPtr = consumerIter->second;
             if (consPtr->isDisconnected()) {continue;}
 
+            ++displayedConsumerCount;
             eventSum += consPtr->getEventCount(ConsumerPipe::SHORT_TERM,
                                                ConsumerPipe::SERVED_EVENTS,
                                                now);
@@ -3368,7 +3380,7 @@ void StorageManager::eventServerWebPage(xgi::Input *in, xgi::Output *out)
           }
 
           // add a row with the totals
-          if (consumerTable.size() > 1) {
+          if (displayedConsumerCount > 1) {
             *out << "<tr>" << std::endl;
             *out << "  <td align=\"center\">&nbsp;</td>" << std::endl;
             *out << "  <td align=\"center\">Totals</td>" << std::endl;
@@ -3395,6 +3407,7 @@ void StorageManager::eventServerWebPage(xgi::Input *in, xgi::Output *out)
           *out << "  <th>Average<br/>Queue Size</th>" << std::endl;
           *out << "</tr>" << std::endl;
 
+          displayedConsumerCount = 0;
           eventSum = 0.0;
           eventRateSum = 0.0;
           dataRateSum = 0.0;
@@ -3405,6 +3418,7 @@ void StorageManager::eventServerWebPage(xgi::Input *in, xgi::Output *out)
             boost::shared_ptr<ConsumerPipe> consPtr = consumerIter->second;
             if (consPtr->isDisconnected()) {continue;}
 
+            ++displayedConsumerCount;
             eventSum += consPtr->getEventCount(ConsumerPipe::LONG_TERM,
                                                ConsumerPipe::DESIRED_EVENTS,
                                                now);
@@ -3456,7 +3470,7 @@ void StorageManager::eventServerWebPage(xgi::Input *in, xgi::Output *out)
           }
 
           // add a row with the totals
-          if (consumerTable.size() > 1) {
+          if (displayedConsumerCount > 1) {
             *out << "<tr>" << std::endl;
             *out << "  <td align=\"center\">&nbsp;</td>" << std::endl;
             *out << "  <td align=\"center\">Totals</td>" << std::endl;
@@ -3484,6 +3498,7 @@ void StorageManager::eventServerWebPage(xgi::Input *in, xgi::Output *out)
           *out << "  <th>Average<br/>Queue Size</th>" << std::endl;
           *out << "</tr>" << std::endl;
 
+          displayedConsumerCount = 0;
           eventSum = 0.0;
           eventRateSum = 0.0;
           dataRateSum = 0.0;
@@ -3494,6 +3509,7 @@ void StorageManager::eventServerWebPage(xgi::Input *in, xgi::Output *out)
             boost::shared_ptr<ConsumerPipe> consPtr = consumerIter->second;
             if (consPtr->isDisconnected()) {continue;}
 
+            ++displayedConsumerCount;
             eventSum += consPtr->getEventCount(ConsumerPipe::LONG_TERM,
                                                ConsumerPipe::QUEUED_EVENTS,
                                                now);
@@ -3545,7 +3561,7 @@ void StorageManager::eventServerWebPage(xgi::Input *in, xgi::Output *out)
           }
 
           // add a row with the totals
-          if (consumerTable.size() > 1) {
+          if (displayedConsumerCount > 1) {
             *out << "<tr>" << std::endl;
             *out << "  <td align=\"center\">&nbsp;</td>" << std::endl;
             *out << "  <td align=\"center\">Totals</td>" << std::endl;
@@ -3572,6 +3588,7 @@ void StorageManager::eventServerWebPage(xgi::Input *in, xgi::Output *out)
           *out << "  <th>Duration (sec)</th>" << std::endl;
           *out << "</tr>" << std::endl;
 
+          displayedConsumerCount = 0;
           eventSum = 0.0;
           eventRateSum = 0.0;
           dataRateSum = 0.0;
@@ -3582,6 +3599,7 @@ void StorageManager::eventServerWebPage(xgi::Input *in, xgi::Output *out)
             boost::shared_ptr<ConsumerPipe> consPtr = consumerIter->second;
             if (consPtr->isDisconnected ()) {continue;}
 
+            ++displayedConsumerCount;
             eventSum += consPtr->getEventCount(ConsumerPipe::LONG_TERM,
                                                ConsumerPipe::SERVED_EVENTS,
                                                now);
@@ -3628,7 +3646,7 @@ void StorageManager::eventServerWebPage(xgi::Input *in, xgi::Output *out)
           }
 
           // add a row with the totals
-          if (consumerTable.size() > 1) {
+          if (displayedConsumerCount > 1) {
             *out << "<tr>" << std::endl;
             *out << "  <td align=\"center\">&nbsp;</td>" << std::endl;
             *out << "  <td align=\"center\">Totals</td>" << std::endl;
