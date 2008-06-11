@@ -28,6 +28,15 @@ OR
 OR
 ./cmsPerfSuite.py -t 200 --candle QCD_80_120 --cmsdriver="--conditions FakeConditions"
 (this will run the performance tests only on candle QCD_80_120, running 200 TimeSize evts, default IgProf and Valgrind evts. It will also add the option "--conditions FakeConditions" to all cmsDriver.py commands executed by the suite)
+
+Legal entries for individual candles (--candle option):
+HiggsZZ4LM190
+MinBias
+SingleElectronE1000
+SingleMuMinusPt10
+SinglePiMinusE1000
+TTbar
+QCD_80_120
 '''
 import os
 #Get some environment variables to use
@@ -141,7 +150,7 @@ def main(argv):
             Commands.append(command)
         elif script == "cmsScimarkLaunch.csh":
             for core in range(int(cores)):
-                if core != cpu:
+                if core != int(cpu):
                     command="taskset -c "+str(core)+" "+script+" "+str(core)
                     AuxiliaryCommands.append(command)
         else:
@@ -152,7 +161,7 @@ def main(argv):
     sys.stdout.flush()
     #First submit the cmsScimark benchmarks on the unused cores:
     for core in range(int(cores)):
-        if core != cpu:
+        if core != int(cpu):
             print "Submitting cmsScimarkLaunch.csh to run on core cpu"+str(core)
             command="taskset -c "+str(core)+" cmsScimarkLaunch.csh "+str(core)+"&"
             print command
@@ -190,6 +199,8 @@ def main(argv):
     #TimeSize tests:
     if int(TimeSizeEvents)>0:
         print "Launching the TimeSize tests (TimingReport, TimeReport, SimpleMemoryCheck, EdmSize) with %s events each" % TimeSizeEvents
+        date=time.ctime()
+        print date
         if candleoption == "":
             cmds=[]
             sys.stdout.flush()
@@ -197,8 +208,6 @@ def main(argv):
                 cmd = 'mkdir '+candle+'_TimeSize;cd '+candle+'_TimeSize;'+Commands[2]+' '+TimeSizeEvents+' "'+Candles[candle]+'" 0123 '+cmsdriverOptions+';'+Commands[1]+' -i SimulationCandles_'+cmssw_version+'.txt -t perfreport_tmp -R -P >& '+candle+'.log'
                 for subcmd in cmd.split(";"):
                     print subcmd
-                    date=time.ctime()
-                    print date
                     sys.stdout.flush()
                 TimeSizecmdstdout=os.popen4(cmd)[1].read()
                 print TimeSizecmdstdout
@@ -211,8 +220,6 @@ def main(argv):
                 cmd = 'mkdir '+candle+'_TimeSize;cd '+candle+'_TimeSize;'+Commands[2]+' '+TimeSizeEvents+' "'+Candles[candle]+'" 0123 '+cmsdriverOptions+';'+Commands[1]+' -i SimulationCandles_'+cmssw_version+'.txt -t perfreport_tmp -R -P >& '+candle+'.log'
                 for subcmd in cmd.split(";"):
                     print subcmd
-                    date=time.ctime()
-                    print date
                     sys.stdout.flush()
                 TimeSizecmdstdout=os.popen4(cmd)[1].read()
                 print TimeSizecmdstdout
@@ -222,6 +229,8 @@ def main(argv):
     #IgProf tests:
     if int(IgProfEvents)>0:
         print "Launching the IgProf tests (IgProfPerf, IgProfMemTotal, IgProfMemLive, IgProfMemAnalyse) with %s events each" % IgProfEvents
+        date=time.ctime()
+        print date
         if candleoption == "":
             cmds=[]
             sys.stdout.flush()
@@ -230,8 +239,6 @@ def main(argv):
             cmd = 'mkdir '+candle+'_IgProf;cd '+candle+'_IgProf;'+Commands[2]+' '+IgProfEvents+' "'+Candles[candle]+'" 4567 '+cmsdriverOptions+';'+Commands[1]+' -i SimulationCandles_'+cmssw_version+'.txt -t perfreport_tmp -R -P >& '+candle+'.log'
             for subcmd in cmd.split(";"):
                 print subcmd
-                date=time.ctime()
-                print date
                 sys.stdout.flush()
             IgProfstdout=os.popen4(cmd)[1].read()
             print IgProfstdout
@@ -245,8 +252,6 @@ def main(argv):
                 cmd = 'mkdir '+candle+'_IgProf;cd '+candle+'_IgProf;'+Commands[2]+' '+IgProfEvents+' "'+Candles[candle]+'" 4567 '+cmsdriverOptions+';'+Commands[1]+' -i SimulationCandles_'+cmssw_version+'.txt -t perfreport_tmp -R -P >& '+candle+'.log'
                 for subcmd in cmd.split(";"):
                     print subcmd
-                    date=time.ctime()
-                    print date
                     sys.stdout.flush()
                 IgProfstdout=os.popen4(cmd)[1].read()
                 print IgProfstdout
@@ -256,6 +261,8 @@ def main(argv):
     #Valgrind tests:
     if int(ValgrindEvents)>0:
         print "Launching the Valgrind tests (callgrind_FCE, memcheck) with %s events each" % ValgrindEvents
+        date=time.ctime()
+        print date
         if candleoption == "":
             cmds=[]
             sys.stdout.flush()
@@ -265,8 +272,6 @@ def main(argv):
             cmd = 'mkdir '+candle+'_Valgrind;cd '+candle+'_Valgrind;cp -pR ../'+candle+'_IgProf/'+candle+'_GEN,SIM.root .;'+Commands[2]+' '+ValgrindEvents+' "'+Candles[candle]+'" 89 '+cmsdriverOptions+';grep -v "step=GEN,SIM" SimulationCandles_'+cmssw_version+'.txt > tmp;mv tmp SimulationCandles_'+cmssw_version+'.txt;'+Commands[1]+' -i SimulationCandles_'+cmssw_version+'.txt -t perfreport_tmp -R -P >& '+candle+'.log'
             for subcmd in cmd.split(";"):
                 print subcmd
-                date=time.ctime()
-                print date
                 sys.stdout.flush()
             Valgrindstdout=os.popen4(cmd)[1].read()
             print Valgrindstdout
@@ -279,8 +284,6 @@ def main(argv):
             cmd = 'mkdir '+candle+'_Valgrind;cd '+candle+'_Valgrind;'+Commands[2]+' '+ValgrindEvents+' "'+Candles[candle]+'" 89 '+cmsdriverOptions+';grep "step=GEN,SIM" SimulationCandles_'+cmssw_version+'.txt > tmp;mv tmp SimulationCandles_'+cmssw_version+'.txt;'+Commands[1]+' -i SimulationCandles_'+cmssw_version+'.txt -t perfreport_tmp -R -P >& '+candle+'.log'
             for subcmd in cmd.split(";"):
                 print subcmd
-                date=time.ctime()
-                print date
                 sys.stdout.flush()
             Valgrindstdout=os.popen4(cmd)[1].read()
             print Valgrindstdout
@@ -295,8 +298,6 @@ def main(argv):
                 cmd = 'mkdir '+candle+'_Valgrind;cd '+candle+'_Valgrind;cp -pR ../'+candle+'_IgProf/'+candle+'_GEN,SIM.root .;'+Commands[2]+' '+ValgrindEvents+' "'+Candles[candle]+'" 89 '+cmsdriverOptions+';grep -v "step=GEN,SIM" SimulationCandles_'+cmssw_version+'.txt > tmp;mv tmp SimulationCandles_'+cmssw_version+'.txt;'+Commands[1]+' -i SimulationCandles_'+cmssw_version+'.txt -t perfreport_tmp -R -P >& '+candle+'.log'
                 for subcmd in cmd.split(";"):
                     print subcmd
-                    date=time.ctime()
-                    print date
                     sys.stdout.flush()
                 Valgrindstdout=os.popen4(cmd)[1].read()
                 print Valgrindstdout
@@ -309,8 +310,6 @@ def main(argv):
             cmd = 'mkdir '+candle+'_Valgrind;cd '+candle+'_Valgrind;'+Commands[2]+' '+ValgrindEvents+' "'+Candles[candle]+'" 89 '+cmsdriverOptions+';grep "step=GEN,SIM" SimulationCandles_'+cmssw_version+'.txt > tmp;mv tmp SimulationCandles_'+cmssw_version+'.txt;'+Commands[1]+' -i SimulationCandles_'+cmssw_version+'.txt -t perfreport_tmp -R -P >& '+candle+'.log'
             for subcmd in cmd.split(";"):
                 print subcmd
-                date=time.ctime()
-                print date
                 sys.stdout.flush()
             Valgrindstdout=os.popen4(cmd)[1].read()
             print Valgrindstdout

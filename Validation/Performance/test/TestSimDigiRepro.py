@@ -45,6 +45,7 @@ def usage():
 
 def GetFile(myFile,myFileLocation):
     print "Copying over %s" % myFile
+    sys.stdout.flush()
     #First try the CMSSW_BASE version if there
     if os.access(cmssw_base+myFileLocation+myFile,os.F_OK):
         CpFile="cp -pR "+cmssw_base+myFileLocation+myFile+" ."
@@ -58,6 +59,7 @@ def GetFile(myFile,myFileLocation):
             os.system(CpFile)
         else:
             print "**COULD NOT FIND THE NECESSARY %s FILE!**" % myFile
+    sys.stdout.flush()
     
 def RestoreSkipEventSetting(myRestoreFragment,mySkipEvents):
     NewSkipEvents="skipEvents=cms.untracked.uint32("+str(mySkipEvents)+")"
@@ -128,14 +130,17 @@ def CompareDumps(myDumpType,myCandle,myStep,mySkipEvents):
             break
     if DifferentLines==0:
         print "The content dumped in %s and %s is identical" % (mySavedSeedsFile,myRestoredSeedsFile)
+    sys.stdout.flush()
 def ExecuteStartingCommand(myStep,candle,numEvents):
     myFile=candle.split('.')[0]+"_"+StartingSteps[myStep]
     myCommand="cmsDriver.py "+candle+" -n "+numEvents+" -s "+StartingSteps[myStep]+" --customise="+CustomiseFiles[StartingSteps[myStep]]+" --fileout="+myFile+".root>& "+myFile+".log"
     print "Executing starting command:\n%s" % myCommand
+    sys.stdout.flush()
     ExitCode=os.system(myCommand)
     if ExitCode != 0:
         print "Exit code for %s was %s" % (myCommand, ExitCode)
         ExitCode=0
+        sys.stdout.flush()
     return(myFile)
 
 def TestRepro(myStep,myInputFile,candle,numEvents,skipEvents):
@@ -143,10 +148,12 @@ def TestRepro(myStep,myInputFile,candle,numEvents,skipEvents):
     mySavedSeedsFile=candle.split('.')[0]+"_"+myStep+"_SavedSeeds"
     mySaveSeedsCommand="cmsDriver.py "+candle+" -n "+numEvents+" -s "+myStep+" --customise="+CustomiseFiles[myStep][0]+" --filein file:"+myInputFile+".root --fileout="+mySavedSeedsFile+".root >& "+mySavedSeedsFile+".log"
     print "Executing %s step, saving random seeds with command:\n%s" % (myStep,mySaveSeedsCommand)
+    sys.stdout.flush()
     ExitCode=os.system(mySaveSeedsCommand)
     if ExitCode != 0:
         print "Exit code for %s was %s" % (mySaveSeedsCommand, ExitCode)
         ExitCode=0
+        sys.stdout.flush()
     #Second round restoring seeds:
     #For SaveRandomSeeds.py it's OK to use the version in the release
     #but for RestoreRandomSeeds.py we want to access the number of events to skip
@@ -161,10 +168,12 @@ def TestRepro(myStep,myInputFile,candle,numEvents,skipEvents):
     myRestoredSeedsFile=candle.split('.')[0]+"_"+myStep+"_RestoredSeeds_Skip"+str(skipEvents)+"Evts"
     myRestoreSeedsCommand="cmsDriver.py "+candle+" -n "+numEvents+" -s "+myStep+" --customise="+NewRestorePy+" --filein file:"+mySavedSeedsFile+".root --fileout="+myRestoredSeedsFile+".root >& "+myRestoredSeedsFile+".log"
     print "Executing %s step, restoring random seeds with command:\n%s" % (myStep,myRestoreSeedsCommand)
+    sys.stdout.flush()
     ExitCode=os.system(myRestoreSeedsCommand)
     if ExitCode != 0:
         print "Exit code for %s was %s" % (myRestoreSeedsCommand, ExitCode)
         ExitCode=0
+    sys.stdout.flush()
     return(mySavedSeedsFile,myRestoredSeedsFile)
 
 def main(argv):
@@ -208,7 +217,7 @@ def main(argv):
         print "Candle: %s " % candle
         print "Number of Events: %s " % numEvents
         print "Number of Events to skip on the second run: %s" % skipEvents
-
+    sys.stdout.flush()
     #Let's do the tests!
     #Depending on the step launch the starting command to provide the input file for the step to be tested
     InputFile=ExecuteStartingCommand(step,candle,numEvents)
@@ -243,7 +252,7 @@ def main(argv):
             if ExitCode != 0:
                 print "Exit code for %s was %s" % (DumperCommand, ExitCode)
                 ExitCode=0
-            
+            sys.stdout.flush()
             
     #Do the comparisons:
     #Use the function CompareDumps that skips to the wanted event before starting comparison
