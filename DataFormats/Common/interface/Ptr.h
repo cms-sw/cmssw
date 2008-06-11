@@ -16,7 +16,6 @@
 //
 // Original Author:  Chris Jones
 //         Created:  Thu Oct 18 14:41:33 CEST 2007
-// $Id: Ptr.h,v 1.7 2008/03/18 12:48:31 wmtan Exp $
 //
 
 // system include files
@@ -108,16 +107,16 @@ namespace edm {
     key_(iOther.key_)
     {}
 
-    template< typename U>
+    template<typename U>
     Ptr(Ptr<U> const& iOther):
     core_(iOther.id(), 
           (iOther.hasCache()? static_cast<T const*>(iOther.get()): static_cast<T const*>(0)),
           iOther.productGetter(),
-	  false),
+	  iOther.isTransient()),
     key_(iOther.key())
     {
       //check that types are assignable
-      BOOST_STATIC_ASSERT( (boost::is_base_of<T, U>::value) );
+      BOOST_STATIC_ASSERT((boost::is_base_of<T, U>::value));
     }
     
     /// Destructor
@@ -179,7 +178,7 @@ namespace edm {
     T const* getItem_(C const* product, key_type iKey);
     
     void getData_() const { 
-      if( !hasCache() && 0 != productGetter() ) {
+      if(!hasCache() && 0 != productGetter()) {
         void const* ad = 0;
         productGetter()->getIt(core_.id())->setPtr(typeid(T),
                                                    key_,
@@ -199,7 +198,7 @@ namespace edm {
     assert (product != 0);
     typename C::const_iterator it = product->begin();
     advance(it,iKey);
-    T const* address = detail::GetProduct<C>::address( it );
+    T const* address = detail::GetProduct<C>::address(it);
     return address;
   }
 
