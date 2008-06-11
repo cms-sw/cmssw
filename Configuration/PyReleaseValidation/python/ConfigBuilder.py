@@ -5,7 +5,7 @@
 # creates a complete config file.
 # relval_main + the custom config for it is not needed any more
 
-__version__ = "$Revision: 1.9 $"
+__version__ = "$Revision: 1.10 $"
 __source__ = "$Source: /cvs_server/repositories/CMSSW/CMSSW/Configuration/PyReleaseValidation/python/ConfigBuilder.py,v $"
 
 import FWCore.ParameterSet.Config as cms
@@ -52,6 +52,7 @@ class ConfigBuilder(object):
         self.imports = []  #could we use a set instead?
         self.commands = []
         # TODO: maybe a list of to be dumped objects would help as well        
+        self.blacklist_paths = [] 
 
     def loadAndRemember(self, includeFile):
         """helper routine to load am memorize imports"""
@@ -249,9 +250,12 @@ class ConfigBuilder(object):
 
     def prepare_HLT(self, sequence = None):
         """ Enrich the schedule with the HLT simulation step"""
-        self.loadAndRemember("OHJE")
-        # now we have to loop every single path in the process and check if that's an HLT path.
-        # TODO
+        self.loadAndRemember("HLTrigger/Configuration/HLT_2E30_cff")
+        hltconfig = __import__("HLTrigger/Configuration/HLT_2E30_cff") 
+        [self.process.schedule.append(getattr(self.process,name)) for name in hltconfig.__dict__ if isinstance(getattr(hltconfig,name),cms.Path)]
+        [self.blacklist_paths.append(name) for name in hltconfig.__dict__ if isinstance(getattr(hltconfig,name),cms.Path)]
+        [self.process.schedule.append(getattr(self.process,name)) for name in hltconfig.__dict__ if isinstance(getattr(hltconfig,name),cms.EndPath)]
+        [self.blacklist_paths.append(name) for name in hltconfig.__dict__ if isinstance(getattr(hltconfig,name),cms.EndPath)]
 
     def prepare_RAW2DIGI(self, sequence = None):
         self.loadAndRemember("Configuration/StandardSequences/RawToDigi_cff")
@@ -290,7 +294,7 @@ class ConfigBuilder(object):
     def build_production_info(evt_type, energy, evtnumber):
         """ Add useful info for the production. """
         prod_info=cms.untracked.PSet\
-              (version=cms.untracked.string("$Revision: 1.9 $"),
+              (version=cms.untracked.string("$Revision: 1.10 $"),
                name=cms.untracked.string("PyReleaseValidation")#,
               # annotation=cms.untracked.string(self._options.evt_type+" energy:"+str(energy)+" nevts:"+str(evtnumber))
               )
@@ -343,10 +347,11 @@ class ConfigBuilder(object):
         # todo: except for the bad trigger ones
         self.pythonCfgCode += "\n# Path and EndPath definitions\n"
         for path in self.process.paths:
-            if 'HLT' not in path:
+            if path not in self.blacklist_paths:
                 self.pythonCfgCode += "process."+path+" = " + getattr(self.process,path).dumpPython("process")
         for endpath in self.process.endpaths:
-            self.pythonCfgCode += "process."+endpath+" = " + getattr(self.process,endpath).dumpPython("process")
+            if endpath not in self.blacklist_paths:
+                self.pythonCfgCode += "process."+endpath+" = " + getattr(self.process,endpath).dumpPython("process")
 
         # dump the schedule
         self.pythonCfgCode += "\n# Schedule definition\n"
