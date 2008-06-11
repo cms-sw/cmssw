@@ -8,7 +8,7 @@
 //
 // Original Author:  
 //         Created:  Mon Dec  3 08:38:38 PST 2007
-// $Id: FWDisplayEvent.cc,v 1.46 2008/06/10 19:53:08 chrjones Exp $
+// $Id: FWDisplayEvent.cc,v 1.47 2008/06/10 22:30:34 chrjones Exp $
 //
 
 // system include files
@@ -29,6 +29,7 @@
 #include "TGButton.h"
 #include "TGComboBox.h"
 #include "TGTextEntry.h"
+#include "TStopwatch.h"
 
 //needed to work around a bug
 #include "TApplication.h"
@@ -77,7 +78,8 @@ FWDisplayEvent::FWDisplayEvent(const std::string& iConfigFileName,
                                 m_eiManager.get(),
                                 iEnableDebug)),
   m_viewManager( new FWViewManagerManager(m_changeManager.get())),
-  m_textView(new FWTextView),
+  m_textView(0),
+  // m_textView(new FWTextView),
   m_configFileName(iConfigFileName)
 {
   //connect up the managers
@@ -197,9 +199,12 @@ FWDisplayEvent::draw(const fwlite::Event& iEvent)
 int
 FWDisplayEvent::draw(const fwlite::Event& iEvent) const
 {
+  TStopwatch stopwatch;
   m_eiManager->setGeom(&m_detIdToGeo);
   m_eiManager->newEvent(&iEvent);
-  m_textView->newEvent(iEvent);
+  // m_textView->newEvent(iEvent);
+  stopwatch.Stop();
+  stopwatch.Print();
   return m_guiManager->allowInteraction();
 }
 
