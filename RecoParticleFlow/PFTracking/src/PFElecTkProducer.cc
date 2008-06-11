@@ -216,8 +216,8 @@ PFElecTkProducer::FindPfRef(const reco::PFRecTrackCollection  & PfRTkColl,
 	  if (!(hit->isValid())) continue;
 
 
-	  if((hit->geographicalId()==(*hhit)->clone()->geographicalId())&&
-	     (((*hhit)->clone()->localPosition()-hit->localPosition()).mag()<0.01)) ish++;
+      if((hit->geographicalId()==(*hhit)->geographicalId())&&
+         (((*hhit)->localPosition()-hit->localPosition()).mag()<0.01)) ish++;
  	}	
  
      }
