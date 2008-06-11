@@ -48,8 +48,16 @@ $UserWebArea=$ARGV[0];
 @Step=(
        "GEN,SIM",
        "DIGI",
+       "L1",
+       "DIGI2RAW",
+       "HLT",
+       "RAW2DIGI",
        "RECO",
        "DIGI_PILEUP",
+       "L1_PILEUP",
+       "DIGI2RAW_PILEUP",
+       "HLT_PILEUP",
+       "RAW2DIGI_PILEUP",
        "RECO_PILEUP"
        );
 #This hash and the code that checked for this is obsolete: it was for backward compatibility with cfg version
