@@ -1,5 +1,5 @@
 #!/bin/bash
-#$Id: mkvol.sh,v 1.2 2008/04/28 13:34:22 loizides Exp $
+# $Id: mkvol.sh,v 1.3 2008/06/10 09:28:40 gbauer Exp $
 
 if test -e "/etc/profile.d/sm_env.sh"; then 
     source /etc/profile.d/sm_env.sh;
@@ -47,13 +47,12 @@ if test "$mpoint" = "$testmpoint"; then
     exit 3;
 fi
 
-
-echo "mkdir -p $mpoint && /sbin/mkfs.ext3 -F -m 0 -L $mlabel $dpath && /bin/mount -L $mlabel $mpoint"
-echo " .... "
+exstr="mkdir -p $mpoint && /sbin/mkfs.ext3 -F -T largefile -m 0 -L $mlabel $dpath && /bin/mount -L $mlabel $mpoint"
+echo "Executing $exstr"
+echo
  
+mkdir -p $mpoint && /sbin/mkfs.ext3 -F -T largefile -m 0 -L $mlabel $dpath && /bin/mount -L $mlabel $mpoint
 
-
-mkdir -p $mpoint && /sbin/mkfs.ext3 -F -m 0 -L $mlabel $dpath && /bin/mount -L $mlabel $mpoint
 if test "$?" != "0"; then
     echo "Error: Problem formatting disk, please check status!!!"
     exit 4;
