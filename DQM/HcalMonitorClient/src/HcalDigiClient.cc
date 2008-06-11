@@ -461,7 +461,9 @@ void HcalDigiClient::htmlExpertOutput(int runNo, string htmlDir, string htmlName
   htmlErrors(runNo,htmlDir,client,process_,dbe_,dqmReportMapErr_,dqmReportMapWarn_,dqmReportMapOther_);
   
   ofstream htmlFile;
-  htmlFile.open((htmlDir +"_expert_"+ htmlName).c_str());
+  htmlFile.open((htmlDir +"Expert_"+ htmlName).c_str());
+
+  cout <<"EXPERT = "<<(htmlDir+"_expert_"+htmlName).c_str()<<endl;
 
   // html page header
   htmlFile << "<!DOCTYPE html PUBLIC \"-//W3C//DTD HTML 4.01 Transitional//EN\">  " << endl;
