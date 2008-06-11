@@ -1,5 +1,5 @@
 #!/usr/bin/perl -w
-# $Id: injectFileIntoTransferSystem.pl,v 1.4 2008/06/11 13:18:14 mrudolph Exp $
+# $Id: injectFileIntoTransferSystem.pl,v 1.5 2008/06/11 13:56:34 loizides Exp $
 #
 # Written by Matt Rudolph June 2008
 #
@@ -122,7 +122,7 @@ sub checkOption($) {
 my ($help, $debug, $hostname, $filename, $pathname, $index, $filesize);
 my ($producer, $stream, $type, $runnumber, $lumisection, $count,$instance);
 my ($createtime, $injecttime, $ctime, $itime, $comment, $destination);
-my ( $appname, $appversion, $nevents, $checksum, $setuplabel);
+my ($appname, $appversion, $nevents, $checksum, $setuplabel);
 
 $help      = 0;
 $debug     = 0;
@@ -186,18 +186,18 @@ $help && usage;
 ############################################
 
 # first check formatting of options
-$filename = checkOption($filename);
-$pathname = checkOption($pathname);
-$hostname = checkOption($hostname);
+$filename    = checkOption($filename);
+$pathname    = checkOption($pathname);
+$hostname    = checkOption($hostname);
 $destination = checkOption($destination);
-$setuplabel = checkOption($setuplabel);
-$producer = checkOption($producer);
-$stream = checkOption($stream);
-$type = checkOption($type);
-$index = checkOption($index);
-$appname = checkOption($appname);
-$appversion = checkOption($appversion);
-$checksum = checkOption($checksum);
+$setuplabel  = checkOption($setuplabel);
+$producer    = checkOption($producer);
+$stream      = checkOption($stream);
+$type        = checkOption($type);
+$index       = checkOption($index);
+$appname     = checkOption($appname);
+$appversion  = checkOption($appversion);
+$checksum    = checkOption($checksum);
 # explicit way to do comment since it can do ok with spaces
 $comment =~ s/\'//g;
 $comment =~ s/\"//g;
@@ -289,7 +289,7 @@ my $SQLcreate = "INSERT INTO CMS_STOMGR.FILES_CREATED (" .
             "TO_DATE('$createtime','YYYY-MM-DD HH24:MI:SS'),'$comment')";
 my $SQLinject = "INSERT INTO CMS_STOMGR.FILES_INJECTED (" .
                "FILENAME,PATHNAME,NEVENTS,FILESIZE,CHECKSUM,ITIME,COMMENT_STR) " .
-               "VALUES ('$filename','$pathname',$nevents,$filesize,$checksum," . 
+               "VALUES ('$filename','$pathname',$nevents,$filesize,'$checksum'," . 
                "TO_DATE('$injecttime','YYYY-MM-DD HH24:MI:SS'),'$comment')";
 
 $debug && print "SQL commands:\n $SQLcreate \n $SQLinject \n";
