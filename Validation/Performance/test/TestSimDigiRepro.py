@@ -78,7 +78,7 @@ def RestoreSkipEventSetting(myRestoreFragment,mySkipEvents):
 
 def MakeCfg(myCfgFile,myOldRootFile,myNewRootFile):
     
-    NewCfgFileName=myCfgFile.split(".")[0]+myNewRootFile.split("_")[0]+myNewRootFile.split("_")[1]+myNewRootFile.split("_")[2]+"."+myCfgFile.split(".")[1]
+    NewCfgFileName=myCfgFile.split(".")[0]+myNewRootFile.split("_")[0]+myNewRootFile.split("_")[1]+myNewRootFile.split("_")[2].split(".")[0]+"."+myCfgFile.split(".")[1]
     NewCfgFile=open(NewCfgFileName,"w")
     NewCfgFileContent=""
     for line in open(myCfgFile,"r").readlines():
@@ -93,7 +93,7 @@ def CompareDumps(myDumpType,myCandle,myStep,mySkipEvents):
     myRestoredSeedsFile=myDumpType+myCandle.split(".")[0]+myStep+"RestoredSeeds.log"
     Event=0
     FirstGoodEvent=0
-    Different=False
+    DifferentLines=0
     lineSavedSeeds=iter(open(mySavedSeedsFile,"r"))
     lineRestoredSeeds=iter(open(myRestoredSeedsFile,"r"))
     FirstGoodEvent=str(int(mySkipEvents)+1)
@@ -113,14 +113,20 @@ def CompareDumps(myDumpType,myCandle,myStep,mySkipEvents):
                 break
     #Now both iterators indeces should be synchronized, so let's compare line by line:
     for l1,l2 in zip(lineSavedSeeds,lineRestoredSeeds):
-        if l1.startswith("Begin processing the ") or l1.startswith("%MSG") or l1.startswith("Info") or l1.rfind("FwkReport")>0 or l1.rfind("Root_Information")>0:
+        if l1.startswith("Begin processing the "):
+            Event=l1.split()[8]
+            continue
+        if l1.startswith("%MSG") or l1.startswith("Info") or l1.rfind("FwkReport")>0 or l1.rfind("Root_Information")>0:
             continue
         if l1 != l2:
-            Different=True
-            print "The following two lines are different in the two files above:"
+            DifferentLines+=1
+            print "The following two lines are different in the two files above (event %s):"% Event
             print "< %s" % l1
             print "> %s" % l2
-    if Different==False:
+        if DifferentLines>=50:
+            print "***There are more than 50 different lines in the files %s and %s, you should inspect them!***" % (mySavedSeedsFile,myRestoredSeedsFile)
+            break
+    if DifferentLines==0:
         print "The content dumped in %s and %s is identical" % (mySavedSeedsFile,myRestoredSeedsFile)
 def ExecuteStartingCommand(myStep,candle,numEvents):
     myFile=candle.split('.')[0]+"_"+StartingSteps[myStep]
@@ -135,7 +141,7 @@ def ExecuteStartingCommand(myStep,candle,numEvents):
 def TestRepro(myStep,myInputFile,candle,numEvents,skipEvents):
     #First round saving seeds:
     mySavedSeedsFile=candle.split('.')[0]+"_"+myStep+"_SavedSeeds"
-    mySaveSeedsCommand="cmsDriver.py "+candle+" -n "+numEvents+" -s "+myStep+" --customise=Configuration/PyReleaseValidation/"+CustomiseFiles[myStep][0]+" --filein file:"+myInputFile+".root --fileout="+mySavedSeedsFile+".root >& "+mySavedSeedsFile+".log"
+    mySaveSeedsCommand="cmsDriver.py "+candle+" -n "+numEvents+" -s "+myStep+" --customise="+CustomiseFiles[myStep][0]+" --filein file:"+myInputFile+".root --fileout="+mySavedSeedsFile+".root >& "+mySavedSeedsFile+".log"
     print "Executing %s step, saving random seeds with command:\n%s" % (myStep,mySaveSeedsCommand)
     ExitCode=os.system(mySaveSeedsCommand)
     if ExitCode != 0:
@@ -145,8 +151,8 @@ def TestRepro(myStep,myInputFile,candle,numEvents,skipEvents):
     #For SaveRandomSeeds.py it's OK to use the version in the release
     #but for RestoreRandomSeeds.py we want to access the number of events to skip
     #Get the RestoreRandomSeeds.py locally (it could be done without copying the file locally, just using the path...)
-    RestorePy=CustomiseFiles[myStep][1]
-    GetFile(RestorePy,"/src/Configuration/PyReleaseValidation/python/")
+    RestorePy=CustomiseFiles[myStep][1].split("/")[2]
+    GetFile(RestorePy,"/src/Validation/Performance/python/")
 
     #Edit the fragment to start from the wanted event:
     NewRestorePy=RestoreSkipEventSetting(RestorePy,skipEvents)
@@ -162,7 +168,7 @@ def TestRepro(myStep,myInputFile,candle,numEvents,skipEvents):
     return(mySavedSeedsFile,myRestoredSeedsFile)
 
 def main(argv):
-    #Let's define some defaults:
+    #Let's define some defaults: 
     candle = "TTbar.cfi"
     numEvents = 10
     skipEvents = 3
@@ -210,10 +216,14 @@ def main(argv):
     (SavedSeedsFile,RestoredSeedsFile)=TestRepro(step,InputFile,candle,numEvents,skipEvents)
     
     #Get the cfg files necessary to run the dumpers(use python version of them!):
-    CfgFilesLocation={"runSimHitCaloHitDumper_cfg.py":"/src/SimG4Core/Application/test/","runSimTrackSimVertexDumper_cfg.py":"/src/SimG4Core/Application/test/","runSimDigiDumper_cfg.py":"/src/Validation/Performance/test/"}
+    CfgFilesLocation={
+        "SIM":{"runSimHitCaloHitDumper_cfg.py":"/src/SimG4Core/Application/test/",
+               "runSimTrackSimVertexDumper_cfg.py":"/src/SimG4Core/Application/test/"},
+        "DIGI":{"runSimDigiDumper_cfg.py":"/src/Validation/Performance/test/"}
+        }
     
-    for CfgFile in CfgFilesLocation.keys():
-        GetFile(CfgFile,CfgFilesLocation[CfgFile])
+    for CfgFile in CfgFilesLocation[step].keys():
+        GetFile(CfgFile,CfgFilesLocation[step][CfgFile])
 
     #Modify the cfgs as needed 1 copy of each pointing to the SIMSavedSeedsFile, 1 copy of each pointing to the SIMRestoredSeedsFile:
     #Function MakeCfg takes the cfg, the default root filename and the new root filename to point to,
@@ -223,7 +233,7 @@ def main(argv):
     
     RootFiles=[SavedSeedsFile+".root",RestoredSeedsFile+".root"]
     
-    for CfgFile in CfgFilesLocation.keys():
+    for CfgFile in CfgFilesLocation[step].keys():
         for RootFile in RootFiles: 
             Cfg=MakeCfg(CfgFile,"myfile.root",RootFile)
             DumpFile=Cfg.split(".")[0]+".log"
@@ -255,7 +265,7 @@ if __name__ == "__main__":
     CustomiseFiles={
         "GEN":"Configuration/PyReleaseValidation/Simulation.py",
         "GEN,SIM":"Configuration/PyReleaseValidation/SimulationG4.py",
-        "SIM":["SaveRandomSeedsSim.py","RestoreRandomSeedsSim.py"],
+        "SIM":["Validation/Performance/SaveRandomSeedsSim.py","Validation/Performance/RestoreRandomSeedsSim.py"],
         "DIGI":["SaveRandomSeedsDigi.py","RestoreRandomSeedsDigi.py"]
         }
     main(sys.argv[1:])

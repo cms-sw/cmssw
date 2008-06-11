@@ -11,8 +11,8 @@ Options:
   --cmsScimarkLarge=...  specify the number of times the cmsScimarkLarge benchmark is run before and after the performance suite on cpu1
   --cmsdriver=...        specify special options to use with the cmsDriver.py commands (designed for integration build use)
   --candle=...           specify the candle(s) to run (instead of all 7 default candles)
-  --cpu=...        spedify the core on which to run the performance suite
-  --cores=...            specify the number of cores of the machine
+  --cpu=...              specify the core on which to run the performance suite
+  --cores=...            specify the number of cores of the machine (can be used with 0 to stop cmsScimark from running on the other cores)
   -h, --help           show this help
   -d                   show debugging information
 
@@ -319,7 +319,7 @@ def main(argv):
             sys.stdout.flush()
         
 
-    #Ending the performance suite with the cmsScimark benchmarks again:
+    #Ending the performance suite with the cmsScimark benchmarks again: 
     print "Ending with %s cmsScimark on cpu%s"%(cmsScimark,cpu)
     for i in range(int(cmsScimark)):
         command= Commands[3]+" >& "+scimark.name
@@ -334,7 +334,7 @@ def main(argv):
         print command+" [%s/%s]"%(i+1,int(cmsScimarkLarge))
         sys.stdout.flush()
         cmsScimarkLargestdout=os.popen4(command)[1].read()
-        print cmsScimarkstdoutLarge
+        print cmsScimarkLargestdout
         sys.stdout.flush()
     #Stopping all cmsScimark jobs and analysing automatically the logfiles
     print "Stopping all cmsScimark jobs"
