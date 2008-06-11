@@ -5,7 +5,7 @@
 # creates a complete config file.
 # relval_main + the custom config for it is not needed any more
 
-__version__ = "$Revision: 1.11 $"
+__version__ = "$Revision: 1.12 $"
 __source__ = "$Source: /cvs_server/repositories/CMSSW/CMSSW/Configuration/PyReleaseValidation/python/ConfigBuilder.py,v $"
 
 import FWCore.ParameterSet.Config as cms
@@ -182,26 +182,22 @@ class ConfigBuilder(object):
     def addCustomise(self):
         """Include the customise code """
 
-        filename=self._options.customisation_file
-        if filename:
-            final_snippet='\n\n# Automatic addition of the customisation function\n'
-            customise = __import__(filename.replace(".py",""))
-            for line in file(customise.__file__.rstrip("c"),'r'):
-                if "import FWCore.ParameterSet.Config" in line:
-                    continue
-                final_snippet += line
+        # let python search for that package and do syntax checking at the same time
+        packageName = self._options.customisation_file.replace(".py","")
+        package = __import__(packageName)
+
+        # now ask the package for its definition and pick.py instead of .pyc
+        customiseFile = package.__file__.rstrip("c")
         
-            final_snippet += '\n\n# End of customisation function definition'
+        final_snippet='\n\n# Automatic addition of the customisation function\n'
+        for line in file(customiseFile,'r'):
+            if "import FWCore.ParameterSet.Config" in line:
+                continue
+            final_snippet += line
+        
+        final_snippet += '\n\n# End of customisation function definition'
 
-            return final_snippet + "\n\nprocess = customise (process)"
-
-        #self.process=file.customise(self.process)
-        #if process == None:
-            #raise ValueError("Customise file returns no process. Please add a 'return process'.")
-
-        else:
-            return ""
-
+        return final_snippet + "\n\nprocess = customise(process)"
 
     
     #----------------------------------------------------------------------------
@@ -296,7 +292,7 @@ class ConfigBuilder(object):
     def build_production_info(evt_type, energy, evtnumber):
         """ Add useful info for the production. """
         prod_info=cms.untracked.PSet\
-              (version=cms.untracked.string("$Revision: 1.11 $"),
+              (version=cms.untracked.string("$Revision: 1.12 $"),
                name=cms.untracked.string("PyReleaseValidation")#,
               # annotation=cms.untracked.string(self._options.evt_type+" energy:"+str(energy)+" nevts:"+str(evtnumber))
               )
@@ -321,7 +317,6 @@ class ConfigBuilder(object):
         self.addMaxEvents()                    
         self.addSource()
         self.addStandardSequences()
-        self.addCustomise()
         self.addOutput()
         
         self.pythonCfgCode += "# import of standard configurations\n"
