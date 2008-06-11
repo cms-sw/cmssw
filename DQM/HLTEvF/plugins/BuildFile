@@ -1,6 +1,9 @@
 <library file="*.cc" name="DQMHLTEvFPlugins">
   <use name="DQM/HLTEvF">
   <use name="DQMServices/Core">
+  <use name=DQMServices/Components>
+  <use name=DQMServices/WebComponents>
+  <use name=DQMServices/ClientConfig>
   <use name="DataFormats/BTauReco">
   <use name="DataFormats/TauReco">
   <use name="DataFormats/BeamSpot">
