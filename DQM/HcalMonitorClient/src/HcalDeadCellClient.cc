@@ -27,6 +27,26 @@ void HcalDeadCellClient::init(const ParameterSet& ps, DQMStore* dbe,string clien
   clearHists(hcalhists);
   
   errorFrac_=ps.getUntrackedParameter<double>("deadcellErrorFrac",0.05);
+
+  for(int i=0; i<4; i++) subDetsOn_[i] = false;
+
+  
+  vector<string> subdets = ps.getUntrackedParameter<vector<string> >("subDetsOn");
+  for(unsigned int i=0; i<subdets.size(); i++){
+    if(subdets[i]=="HB"){
+      subDetsOn_[0]=true;
+    }
+    else if(subdets[i]=="HE") {
+      subDetsOn_[1]=true;
+    }
+    else if(subdets[i]=="HO") {
+      subDetsOn_[2]=true;
+    }
+    else if(subdets[i]=="HF"){
+      subDetsOn_[3]=true;
+    }
+  } // for (unsigned int i=0; i<subdets.size();i++)
+
   return;
 }
 
