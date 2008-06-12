@@ -16,7 +16,7 @@
 //
 // Original Author:  Chris Jones
 //         Created:  Tue May  8 15:01:20 EDT 2007
-// $Id: Event.h,v 1.9 2008/03/05 05:55:27 wmtan Exp $
+// $Id: Event.h,v 1.10 2008/06/03 17:36:10 dsr Exp $
 //
 #if !defined(__CINT__) && !defined(__MAKECINT__)
 // system include files
@@ -35,7 +35,9 @@
 #include "DataFormats/Provenance/interface/ProcessHistoryRegistry.h"
 #include "DataFormats/Provenance/interface/EventProcessHistoryID.h"
 #include "DataFormats/Provenance/interface/EventAuxiliary.h"
+#include "DataFormats/Provenance/interface/EventID.h"
 #include "DataFormats/Provenance/interface/ProductID.h"
+#include "DataFormats/Provenance/interface/FileIndex.h"
 #include "FWCore/FWLite/interface/BranchMapReader.h"
 
 // forward declarations
@@ -126,6 +128,10 @@ class Event
       ///Go to the event at index iIndex
       const Event& to(Long64_t iIndex);
       
+      //Go to event by Run & Event number
+      bool to(edm::EventID id);
+      bool to(edm::RunNumber_t run, edm::EventNumber_t event);
+
       /** Go to the very first Event*/
       const Event& toBegin();
       
@@ -139,6 +145,13 @@ class Event
       bool atEnd() const;
       
       Long64_t size() const;
+
+      edm::EventID id() const;
+
+      const std::vector<edm::BranchDescription>& getBranchDescriptions() const { 
+        return branchMap_.getBranchDescriptions();
+      }
+
       // ---------- static member functions --------------------
       static void throwProductNotFoundException(const std::type_info&, const char*, const char*, const char*);
 
@@ -152,6 +165,8 @@ class Event
       const Event& operator=(const Event&); // stop default
 
       const edm::ProcessHistory& history() const;
+      void updateAux(Long_t eventIndex) const;
+      void fillFileIndex() const;
       
       edm::EDProduct const* getByProductID(edm::ProductID const&) const;
       // ---------- member data --------------------------------
@@ -169,6 +184,7 @@ class Event
       mutable edm::ProcessHistoryMap historyMap_;
       mutable std::vector<edm::EventProcessHistoryID> eventProcessHistoryIDs_;
       mutable edm::EventAuxiliary aux_;
+      mutable edm::FileIndex fileIndex_;
       edm::EventAuxiliary* pAux_;
       edm::EventAux* pOldAux_;
       TBranch* auxBranch_;

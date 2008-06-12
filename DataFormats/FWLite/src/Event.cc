@@ -8,7 +8,7 @@
 //
 // Original Author:  Chris Jones
 //         Created:  Tue May  8 15:07:03 EDT 2007
-// $Id: Event.cc,v 1.15 2008/05/14 02:05:05 wmtan Exp $
+// $Id: Event.cc,v 1.16 2008/06/03 17:36:10 dsr Exp $
 //
 
 // system include files
@@ -158,6 +158,46 @@ Event::to(Long64_t iEntry)
 {
   branchMap_.updateEvent(iEntry);
   return *this;
+}
+
+void
+Event::fillFileIndex() const
+{
+  if (fileIndex_.empty()) {
+    TTree* meta = dynamic_cast<TTree*>(branchMap_.getFile()->Get(edm::poolNames::metaDataTreeName().c_str()));
+    if (0==meta) {
+      throw cms::Exception("NoMetaTree")<<"The TFile does not appear to contain a TTree named "
+        <<edm::poolNames::metaDataTreeName();
+    }
+    if (meta->FindBranch(edm::poolNames::fileIndexBranchName().c_str()) != 0) {
+      edm::FileIndex* findexPtr = &fileIndex_;
+      TBranch* b = meta->GetBranch(edm::poolNames::fileIndexBranchName().c_str());
+      b->SetAddress(&findexPtr);
+      b->GetEntry(0);
+    } else {
+      // TBD: fill the FileIndex for old file formats
+      throw cms::Exception("NoFileIndexTree")<<"The TFile does not appear to contain a TTree named "
+        <<edm::poolNames::fileIndexBranchName();
+    }
+  }      
+  assert(!fileIndex_.empty());
+}
+
+bool
+Event::to(edm::RunNumber_t run, edm::EventNumber_t event)
+{
+  fillFileIndex();
+  edm::FileIndex::const_iterator i = fileIndex_.findEventPosition(run, 0, event, true);
+  if (fileIndex_.end() != i) {
+    return branchMap_.updateEvent(i->entry_);
+  }
+  return false;
+}
+
+bool
+Event::to(edm::EventID id)
+{
+  return to(id.run(), id.event());
 }
 
 const Event& 
@@ -379,6 +419,26 @@ Event::getByLabel(const std::type_info& iInfo,
 
 }
 
+edm::EventID
+Event::id() const
+{
+  Long_t eventIndex = branchMap_.getEventEntry();
+  updateAux(eventIndex);
+  return aux_.id();
+}
+
+void
+Event::updateAux(Long_t eventIndex) const
+{
+  if(auxBranch_->GetEntryNumber() != eventIndex) {
+    auxBranch_->GetEntry(eventIndex);
+    //handling dealing with old version
+    if(0 != pOldAux_) {
+      conversion(*pOldAux_,aux_);
+    }
+  }
+}
+
 const edm::ProcessHistory& 
 Event::history() const
 {
@@ -387,13 +447,7 @@ Event::history() const
   bool newFormat = (fileVersion_ >= 5);
 
   Long_t eventIndex = branchMap_.getEventEntry();
-  if(auxBranch_->GetEntryNumber() != eventIndex) {
-    auxBranch_->GetEntry(eventIndex);
-    //handling dealing with old version
-    if(0 != pOldAux_) {
-      conversion(*pOldAux_,aux_);
-    }
-  }
+  updateAux(eventIndex);
   if (!newFormat) {
     processHistoryID = aux_.processHistoryID();
   }
