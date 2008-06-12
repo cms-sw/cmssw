@@ -1,4 +1,4 @@
-// $Id: DataProcessManager.cc,v 1.11 2008/05/04 12:40:21 biery Exp $
+// $Id: DataProcessManager.cc,v 1.12 2008/05/11 13:40:39 hcheung Exp $
 
 #include "EventFilter/SMProxyServer/interface/DataProcessManager.h"
 #include "EventFilter/StorageManager/interface/SMCurlInterface.h"
@@ -580,6 +580,8 @@ namespace stor
             } else {
               gotAllHeaders = false;
             }
+         } else {
+           gotAllHeaders = false;
          }
        }
     } else {
