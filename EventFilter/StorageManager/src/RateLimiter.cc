@@ -1,5 +1,5 @@
 /**
- * $Id: RateLimiter.cc,v 1.19 2008/03/03 20:09:37 biery Exp $
+ * $Id: RateLimiter.cc,v 1.1 2008/04/16 02:46:34 biery Exp $
  */
 
 #include "EventFilter/StorageManager/interface/RateLimiter.h"
@@ -16,6 +16,8 @@ RateLimiter::RateLimiter(double maxEventRate, double maxDataRate)
 {
   this->maxEventRate_ = maxEventRate;
   this->maxDataRate_ = maxDataRate;
+
+  generator_.reset(new boost::uniform_01<boost::mt19937>(baseGenerator_));
 }
 
 /**
@@ -32,8 +34,6 @@ void RateLimiter::addConsumer(uint32 consumerId)
   boost::shared_ptr<RollingIntervalCounter>
     analyzer(new RollingIntervalCounter(180.0, 5.0, 10.0));
   dataRateTable_[consumerId] = analyzer;
-
-  generator_.reset(new boost::uniform_01<boost::mt19937>(baseGenerator_));
 }
 
 /**
