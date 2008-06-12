@@ -941,4 +941,163 @@
         <TestName activate="true">EE_Quality_Summary</TestName>
 </LINK>
 
+<QTEST name="EE_Occupancy_Digis_Comp2RefKolmogorov">
+        <TYPE>Comp2RefKolmogorov</TYPE>
+        <PARAM name="testparam">0</PARAM>
+        <PARAM name="error">0.70</PARAM>
+        <PARAM name="warning">0.90</PARAM>
+</QTEST>
+
+<LINK name="*EcalEndcap/EEOccupancyTask/EEOT digi occupancy EE * projection R">
+        <TestName activate="true">EE_Occupancy_Digis_Comp2RefKolmogorov</TestName>
+</LINK>
+
+<LINK name="*EcalEndcap/EEOccupancyTask/EEOT digi occupancy EE * projection phi">
+        <TestName activate="true">EE_Occupancy_Digis_Comp2RefKolmogorov</TestName>
+</LINK>
+
+<QTEST name="EE_Occupancy_Rechits_Comp2RefKolmogorov">
+        <TYPE>Comp2RefKolmogorov</TYPE>
+        <PARAM name="testparam">0</PARAM>
+        <PARAM name="error">0.60</PARAM>
+        <PARAM name="warning">0.80</PARAM>
+</QTEST>
+
+<LINK name="*EcalEndcap/EEOccupancyTask/EEOT rec hit occupancy EE * projection R">
+        <TestName activate="true">EE_Occupancy_Rechits_Comp2RefKolmogorov</TestName>
+</LINK>
+
+<LINK name="*EcalEndcap/EEOccupancyTask/EEOT rec hit occupancy EE * projection phi">
+        <TestName activate="true">EE_Occupancy_Rechits_Comp2RefKolmogorov</TestName>
+</LINK>
+
+<QTEST name="EE_Occupancy_RechitsThr_Comp2RefKolmogorov">
+        <TYPE>Comp2RefKolmogorov</TYPE>
+        <PARAM name="testparam">0</PARAM>
+        <PARAM name="error">0.60</PARAM>
+        <PARAM name="warning">0.80</PARAM>
+</QTEST>
+
+<LINK name="*EcalEndcap/EEOccupancyTask/EEOT rec hit thr occupancy EE * projection R">
+        <TestName activate="true">EE_Occupancy_RechitsThr_Comp2RefKolmogorov</TestName>
+</LINK>
+
+<LINK name="*EcalEndcap/EEOccupancyTask/EEOT rec hit thr occupancy EE * projection phi">
+        <TestName activate="true">EE_Occupancy_RechitsThr_Comp2RefKolmogorov</TestName>
+</LINK>
+
+<QTEST name="EE_Occupancy_TP_Comp2RefKolmogorov">
+        <TYPE>Comp2RefKolmogorov</TYPE>
+        <PARAM name="testparam">0</PARAM>
+        <PARAM name="error">0.50</PARAM>
+        <PARAM name="warning">0.70</PARAM>
+</QTEST>
+
+<LINK name="*EcalEndcap/EEOccupancyTask/EEOT TP digi occupancy EE * projection R">
+        <TestName activate="true">EE_Occupancy_TP_Comp2RefKolmogorov</TestName>
+</LINK>
+
+<LINK name="*EcalEndcap/EEOccupancyTask/EEOT TP digi occupancy EE * projection phi">
+        <TestName activate="true">EE_Occupancy_TP_Comp2RefKolmogorov</TestName>
+</LINK>
+
+<QTEST name="EE_Occupancy_TPThr_Comp2RefKolmogorov">
+        <TYPE>Comp2RefKolmogorov</TYPE>
+        <PARAM name="testparam">0</PARAM>
+        <PARAM name="error">0.50</PARAM>
+        <PARAM name="warning">0.70</PARAM>
+</QTEST>
+
+<LINK name="*EcalEndcap/EEOccupancyTask/EEOT TP digi thr occupancy EE * projection R">
+        <TestName activate="true">EE_Occupancy_TPThr_Comp2RefKolmogorov</TestName>
+</LINK>
+
+<LINK name="*EcalEndcap/EEOccupancyTask/EEOT TP digi thr occupancy EE * projection phi">
+        <TestName activate="true">EE_Occupancy_TPThr_Comp2RefKolmogorov</TestName>
+</LINK>
+
+<QTEST name="EE_BasicClusters_Energy_Comp2RefKolmogorov">
+        <TYPE>Comp2RefKolmogorov</TYPE>
+        <PARAM name="testparam">0</PARAM>
+        <PARAM name="error">0.70</PARAM>
+        <PARAM name="warning">0.90</PARAM>
+</QTEST>
+
+<LINK name="*EcalEndcap/EEClusterTask/EECLT BC energy">
+        <TestName activate="true">EE_BasicClusters_Energy_Comp2RefKolmogorov</TestName>
+</LINK>
+
+<LINK name="*EcalEndcap/EEClusterTask/EECLT BC energy projection R EE *">
+        <TestName activate="true">EE_BasicClusters_Energy_Comp2RefKolmogorov</TestName>
+</LINK>
+
+<LINK name="*EcalEndcap/EEClusterTask/EECLT BC energy projection phi EE *">
+        <TestName activate="true">EE_BasicClusters_Energy_Comp2RefKolmogorov</TestName>
+</LINK>
+
+<LINK name="*EcalEndcap/EEClusterTask/EECLT BC ET projection R EE *">
+        <TestName activate="true">EE_BasicClusters_Energy_Comp2RefKolmogorov</TestName>
+</LINK>
+
+<LINK name="*EcalEndcap/EEClusterTask/EECLT BC ET projection phi EE *">
+        <TestName activate="true">EE_BasicClusters_Energy_Comp2RefKolmogorov</TestName>
+</LINK>
+
+<QTEST name="EE_BasicClusters_Occupancy_Comp2RefKolmogorov">
+        <TYPE>Comp2RefKolmogorov</TYPE>
+        <PARAM name="testparam">0</PARAM>
+        <PARAM name="error">0.70</PARAM>
+        <PARAM name="warning">0.90</PARAM>
+</QTEST>
+
+<LINK name="*EcalEndcap/EEClusterTask/EECLT BC number">
+        <TestName activate="true">EE_BasicClusters_Occupancy_Comp2RefKolmogorov</TestName>
+</LINK>
+
+<LINK name="*EcalEndcap/EEClusterTask/EECLT BC size">
+        <TestName activate="true">EE_BasicClusters_Occupancy_Comp2RefKolmogorov</TestName>
+</LINK>
+
+<LINK name="*EcalEndcap/EEClusterTask/EECLT BC number projection R EE *">
+        <TestName activate="true">EE_BasicClusters_Occupancy_Comp2RefKolmogorov</TestName>
+</LINK>
+
+<LINK name="*EcalEndcap/EEClusterTask/EECLT BC number projection phi EE *">
+        <TestName activate="true">EE_BasicClusters_Occupancy_Comp2RefKolmogorov</TestName>
+</LINK>
+
+<LINK name="*EcalEndcap/EEClusterTask/EECLT BC size projection R EE *">
+        <TestName activate="true">EE_BasicClusters_Occupancy_Comp2RefKolmogorov</TestName>
+</LINK>
+
+<LINK name="*EcalEndcap/EEClusterTask/EECLT BC size projection phi EE *">
+        <TestName activate="true">EE_BasicClusters_Occupancy_Comp2RefKolmogorov</TestName>
+</LINK>
+
+<QTEST name="EE_SuperClusters_Energy_Comp2RefKolmogorov">
+        <TYPE>Comp2RefKolmogorov</TYPE>
+        <PARAM name="testparam">0</PARAM>
+        <PARAM name="error">0.70</PARAM>
+        <PARAM name="warning">0.90</PARAM>
+</QTEST>
+
+<LINK name="*EcalEndcap/EEClusterTask/EECLT SC energy">
+        <TestName activate="true">EE_SuperClusters_Energy_Comp2RefKolmogorov</TestName>
+</LINK>
+
+<QTEST name="EE_SuperClusters_Occupancy_Comp2RefKolmogorov">
+        <TYPE>Comp2RefKolmogorov</TYPE>
+        <PARAM name="testparam">0</PARAM>
+        <PARAM name="error">0.70</PARAM>
+        <PARAM name="warning">0.90</PARAM>
+</QTEST>
+
+<LINK name="*EcalBarrel/EEClusterTask/EECLT SC number">
+        <TestName activate="true">EE_SuperClusters_Occupancy_Comp2RefKolmogorov</TestName>
+</LINK>
+
+<LINK name="*EcalBarrel/EBClusterTask/EECLT SC size">
+        <TestName activate="true">EE_SuperClusters_Occupancy_Comp2RefKolmogorov</TestName>
+</LINK>
+
 </TESTSCONFIGURATION>
