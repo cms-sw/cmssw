@@ -26,6 +26,7 @@ void printhelp() {
   cout << "                 (default trigger_validation.root)" << endl;
   cout << " --correlated -> Use 100% correlated error for efficiency difference"   << endl;
   cout << " --oldL1names -> Use A_ rather than L1_ for L1 paths"   << endl;
+  cout << " --useL1objets -> Use L1 objects for shape comparison" << endl;
   cout << " --help    -> Print this output"   << endl;
   cout << "Example: ./triggerComparison.x -File1=fil1.root -File2=file2.root" << endl;
 }
@@ -81,10 +82,12 @@ int main(int argc, char *argv[]){
   string outputfilename("trigger_validation.root");
   char inputstr[256];
   bool oldl1name = false;
+  bool usel1obj = false;
   string error = "uncorrelated";
   for (int i=1;i<argc;i++){
     if (strncmp(argv[i],"-",1)==0){
       if (strncmp(argv[i],"--correlated",12)==0) error = "correlated";
+      if (strncmp(argv[i],"--useL1objets",13)==0) usel1obj = true;
       if (strncmp(argv[i],"--oldL1names",12)==0) oldl1name = true;
       if (strncmp(argv[i],"-help",4)==0) {printhelp(); return 0;}
       if (strncmp(argv[i],"-File1",6)==0) {
@@ -181,13 +184,23 @@ int main(int argc, char *argv[]){
   vector<TCanvas*> compcanvas; 
   map<string,double> compatibility;
 
+  string obj = "Reco";
+  if(usel1obj == true) obj = "L1";
+
   for(int ifile=0; ifile<2; ifile++) {  
     // general plots
-    inputhisto.push_back((TH1D*) files[ifile]->Get("RecoJets/General/JetMult")); 
-    inputhisto.push_back((TH1D*) files[ifile]->Get("RecoMuons/General/MuonMult"));
-    inputhisto.push_back((TH1D*) files[ifile]->Get("RecoElectrons/General/ElecMult"));
-    inputhisto.push_back((TH1D*) files[ifile]->Get("RecoPhotons/General/PhotonMult"));
-    inputhisto.push_back((TH1D*) files[ifile]->Get("RecoMET/General/MET"));
+    if(usel1obj == false) {
+      inputhisto.push_back((TH1D*) files[ifile]->Get("RecoJets/General/JetMult")); 
+      inputhisto.push_back((TH1D*) files[ifile]->Get("RecoMuons/General/MuonMult"));
+      inputhisto.push_back((TH1D*) files[ifile]->Get("RecoElectrons/General/ElecMult"));
+      inputhisto.push_back((TH1D*) files[ifile]->Get("RecoPhotons/General/PhotonMult"));
+      inputhisto.push_back((TH1D*) files[ifile]->Get("RecoMET/General/MET"));
+    } else {
+      inputhisto.push_back((TH1D*) files[ifile]->Get("L1Jets/General/JetMult")); 
+      inputhisto.push_back((TH1D*) files[ifile]->Get("L1Muons/General/MuonMult"));
+      inputhisto.push_back((TH1D*) files[ifile]->Get("L1Em/General/ElecMult"));
+      inputhisto.push_back((TH1D*) files[ifile]->Get("L1MET/General/MET"));      
+    }
 
     // L1 plots
     TAxis* axis = L1reshisto->GetXaxis();
@@ -196,11 +209,18 @@ int main(int argc, char *argv[]){
       // Maria&Massimiliano >30% eff condition
       if(L1pullcal->GetEff(label,0) > 0.3 &&
 	 L1pullcal->GetEff(label,1) > 0.3) {
-	inputhisto.push_back((TH1D*) files[ifile]->Get(("RecoJets/L1/JetMult_"+label).c_str()));
-	inputhisto.push_back((TH1D*) files[ifile]->Get(("RecoMuons/L1/MuonMult_"+label).c_str()));
-	inputhisto.push_back((TH1D*) files[ifile]->Get(("RecoElectrons/L1/ElecMult_"+label).c_str()));
-	inputhisto.push_back((TH1D*) files[ifile]->Get(("RecoPhotons/L1/PhotonMult_"+label).c_str()));
-	inputhisto.push_back((TH1D*) files[ifile]->Get(("RecoMET/L1/MET_"+label).c_str()));
+	if(usel1obj == false) {
+	  inputhisto.push_back((TH1D*) files[ifile]->Get(("RecoJets/L1/JetMult_"+label).c_str()));
+	  inputhisto.push_back((TH1D*) files[ifile]->Get(("RecoMuons/L1/MuonMult_"+label).c_str()));
+	  inputhisto.push_back((TH1D*) files[ifile]->Get(("RecoElectrons/L1/ElecMult_"+label).c_str()));
+	  inputhisto.push_back((TH1D*) files[ifile]->Get(("RecoPhotons/L1/PhotonMult_"+label).c_str()));
+	  inputhisto.push_back((TH1D*) files[ifile]->Get(("RecoMET/L1/MET_"+label).c_str()));
+	} else {
+	  inputhisto.push_back((TH1D*) files[ifile]->Get(("L1Jets/L1/JetMult_"+label).c_str()));
+	  inputhisto.push_back((TH1D*) files[ifile]->Get(("L1Muons/L1/MuonMult_"+label).c_str()));
+	  inputhisto.push_back((TH1D*) files[ifile]->Get(("L1Em/L1/ElecMult_"+label).c_str()));
+	  inputhisto.push_back((TH1D*) files[ifile]->Get(("L1MET/L1/MET_"+label).c_str()));
+	}
       }
     }
 
@@ -211,17 +231,21 @@ int main(int argc, char *argv[]){
       // Maria&Massimiliano >30% eff condition
       if(HLTpullcal->GetEff(label,0) > 0.3 &&
 	 HLTpullcal->GetEff(label,1) > 0.3) {
-	inputhisto.push_back((TH1D*) files[ifile]->Get(("RecoJets/HLT/JetMult_"+label).c_str()));
-	inputhisto.push_back((TH1D*) files[ifile]->Get(("RecoMuons/HLT/MuonMult_"+label).c_str()));
-	inputhisto.push_back((TH1D*) files[ifile]->Get(("RecoElectrons/HLT/ElecMult_"+label).c_str()));
-	inputhisto.push_back((TH1D*) files[ifile]->Get(("RecoPhotons/HLT/PhotonMult_"+label).c_str()));
-	inputhisto.push_back((TH1D*) files[ifile]->Get(("RecoMET/HLT/MET_"+label).c_str()));
+	if(usel1obj == false) {
+	  inputhisto.push_back((TH1D*) files[ifile]->Get(("RecoJets/HLT/JetMult_"+label).c_str()));
+	  inputhisto.push_back((TH1D*) files[ifile]->Get(("RecoMuons/HLT/MuonMult_"+label).c_str()));
+	  inputhisto.push_back((TH1D*) files[ifile]->Get(("RecoElectrons/HLT/ElecMult_"+label).c_str()));
+	  inputhisto.push_back((TH1D*) files[ifile]->Get(("RecoPhotons/HLT/PhotonMult_"+label).c_str()));
+	  inputhisto.push_back((TH1D*) files[ifile]->Get(("RecoMET/HLT/MET_"+label).c_str()));
+	} else {
+	  inputhisto.push_back((TH1D*) files[ifile]->Get(("L1Jets/HLT/JetMult_"+label).c_str()));
+	  inputhisto.push_back((TH1D*) files[ifile]->Get(("L1Muons/HLT/MuonMult_"+label).c_str()));
+	  inputhisto.push_back((TH1D*) files[ifile]->Get(("L1Em/HLT/ElecMult_"+label).c_str()));
+	  inputhisto.push_back((TH1D*) files[ifile]->Get(("L1MET/HLT/MET_"+label).c_str()));	  
+	}
       }
     }
-
   }
-
-  
 
   for(int i=0; i<int(inputhisto.size()/2); i++) {
     CompHisto1D* compare = new CompHisto1D(inputhisto[i],inputhisto[i+inputhisto.size()/2]);

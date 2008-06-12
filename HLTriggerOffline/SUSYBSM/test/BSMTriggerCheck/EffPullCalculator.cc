@@ -90,7 +90,9 @@ void EffPullcalculator::CalculatePulls() {
   for(int i=0; i< int(SortedEff.size()); i++) {
     if(eff1[SortedEff[i]] != 0. && name[SortedEff[i]] != "Total") {
       effhisto[0]->SetBinContent(nb,eff1[SortedEff[i]]);
+      effhisto[0]->SetBinError(nb,err_eff1[SortedEff[i]]);
       effhisto[10]->SetBinContent(nb,eff2[SortedEff[i]]);
+      effhisto[10]->SetBinError(nb,err_eff2[SortedEff[i]]);
       effhisto[0]->GetXaxis()->SetBinLabel(nb,name[SortedEff[i]].c_str());
       effhisto[10]->GetXaxis()->SetBinLabel(nb,name[SortedEff[i]].c_str());
       nb++;
@@ -189,6 +191,7 @@ vector<int> EffPullcalculator::SortVec(vector<double> eff) {
     for(int j=0; j< int(eff.size()); j++) 
       if(eff_tmp2[j] == eff_tmp[eff_tmp.size()-1-i]) {
 	indexes.push_back(j);
+	eff_tmp2[j] = 1.1; // to ignore it the next round
 	//	eff_tmp2.remove(i);
 	j=0;
 	i++;

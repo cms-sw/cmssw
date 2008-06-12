@@ -1,4 +1,4 @@
-CC=g++ -m32
+CC=g++ -m32 
 
 CFLAGS= -Wall -fPIC -I. -I$(ROOTSYS)/include -L.
 
