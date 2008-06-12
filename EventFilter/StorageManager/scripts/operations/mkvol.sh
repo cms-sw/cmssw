@@ -1,5 +1,5 @@
 #!/bin/bash
-# $Id: mkvol.sh,v 1.3 2008/06/10 09:28:40 gbauer Exp $
+# $Id: mkvol.sh,v 1.4 2008/06/11 13:58:04 loizides Exp $
 
 if test -e "/etc/profile.d/sm_env.sh"; then 
     source /etc/profile.d/sm_env.sh;
@@ -19,7 +19,7 @@ dpath=/dev/mapper/`/sbin/multipath -l | grep -i $id | cut -d" " -f1`
 mlabel=sata`printf "%02d" $sb`a`printf "%02d" $ar`v`printf "%02d" $vol`
 mpoint=/store/$mlabel
 if test -n "$SM_STORE"; then
-    mpoint=/$SM_STORE/$mlabel
+    mpoint=$SM_STORE/$mlabel
 fi
 
 echo "Info: Volume name $id"
@@ -76,4 +76,3 @@ echo "Info: Vol number $vol" >> $output
 echo "Info: Found device $dpath" >> $output
 echo "Info: Mount label $mlabel" >> $output
 echo "Info: Mount point $mpoint" >> $output
-echo "Info: LABEL=$mlabel $mpoint xfs defaults 1 2" >> $output
