@@ -223,10 +223,10 @@ process.MessageLogger = cms.Service("MessageLogger",
     destinations = cms.untracked.vstring('cout')
 )
 
-process.ecalEndcapDataSequence = cms.Sequence(process.preScaler*process.ecalEBunpacker*process.ecalUncalibHit*process.ecalRecHit)
+process.ecalDataSequence = cms.Sequence(process.preScaler*process.ecalEBunpacker*process.ecalUncalibHit*process.ecalRecHit)
 process.ecalEndcapMonitorSequence = cms.Sequence(process.ecalEndcapMonitorModule*process.dqmInfoEE*process.ecalEndcapMonitorClient*process.dqmQTestEE*process.dqmSaverEE)
 
-process.p = cms.Path(process.ecalEndcapDataSequence*process.ecalEndcapMonitorSequence)
+process.p = cms.Path(process.ecalDataSequence*process.ecalEndcapMonitorSequence)
 process.q = cms.EndPath(process.ecalEndcapCosmicTasksSequence)
 
 #process.ecalEBunpacker.FEDs = [13]

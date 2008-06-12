@@ -72,10 +72,10 @@ process.MessageLogger = cms.Service("MessageLogger",
     destinations = cms.untracked.vstring('cout')
 )
 
-process.ecalBarrelDataSequence = cms.Sequence(process.preScaler*process.ecalUncalibHit*process.ecalRecHit*process.islandBasicClusters*process.islandSuperClusters*process.hybridSuperClusters)
+process.ecalDataSequence = cms.Sequence(process.preScaler*process.ecalUncalibHit*process.ecalRecHit*process.islandBasicClusters*process.islandSuperClusters*process.hybridSuperClusters)
 process.ecalBarrelMonitorSequence = cms.Sequence(process.ecalBarrelMonitorModule*process.dqmInfoEB*process.ecalBarrelMonitorClient*process.dqmSaverEB)
 
-process.p = cms.Path(process.ecalBarrelDataSequence*process.ecalBarrelMonitorSequence)
+process.p = cms.Path(process.ecalDataSequence*process.ecalBarrelMonitorSequence)
 process.q = cms.EndPath(process.ecalBarrelDefaultTasksSequence*process.ecalBarrelClusterTask)
 
 process.ecalUncalibHit.MinAmplBarrel = 12.
