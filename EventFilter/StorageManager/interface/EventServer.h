@@ -12,7 +12,7 @@
  * prescale is in effect.
  *
  * 16-Aug-2006 - KAB  - Initial Implementation
- * $Id: EventServer.h,v 1.9 2008/05/04 12:34:05 biery Exp $
+ * $Id: EventServer.h,v 1.10 2008/05/14 16:00:00 biery Exp $
  */
 
 #include <sys/time.h>
@@ -26,6 +26,7 @@
 #include "EventFilter/StorageManager/interface/RollingIntervalCounter.h"
 #include "EventFilter/StorageManager/interface/RateLimiter.h"
 #include "FWCore/Utilities/interface/CPUTimer.h"
+#include "boost/random.hpp"
 #include "boost/shared_ptr.hpp"
 #include "boost/thread/mutex.hpp"
 #include "boost/thread/thread.hpp"
@@ -40,7 +41,8 @@ namespace stor
                              UNIQUE_ACCEPT_STATS = 12 };
     enum STATS_TIMING_TYPE { CPUTIME = 20, REALTIME = 21 };
 
-    EventServer(double maxEventRate, double maxDataRate, bool runFairShareAlgo);
+    EventServer(double maxEventRate, double maxDataRate,
+                std::string hltOutputSelection, bool runFairShareAlgo = false);
     ~EventServer();
 
     void addConsumer(boost::shared_ptr<ConsumerPipe> consumer);
@@ -64,6 +66,7 @@ namespace stor
 
     double getMaxEventRate() const { return maxEventRate_; }
     double getMaxDataRate() const { return maxDataRate_; }
+    std::string getHLTOutputSelection() const { return hltOutputSelection_; }
 
     long long getEventCount(STATS_TIME_FRAME timeFrame = SHORT_TERM_STATS,
                             STATS_SAMPLE_TYPE sampleType = INPUT_STATS,
@@ -94,11 +97,10 @@ namespace stor
 
   private:
     // data members for handling a maximum rate of accepted events
-    double minTimeBetweenEvents_;  // seconds
-    double lastAcceptedEventTime_; // seconds
-    uint32 lastAcceptedEventNumber_;
     double maxEventRate_;
     double maxDataRate_;
+    std::string hltOutputSelection_;
+    uint32 hltOutputModuleId_;
     bool runFairShareAlgo_;
 
     // new fair-share scheme
@@ -131,6 +133,9 @@ namespace stor
     boost::shared_ptr<RollingIntervalCounter> shortTermOutsideCPUTimeCounter_;
     boost::shared_ptr<ForeverCounter> longTermOutsideRealTimeCounter_;
     boost::shared_ptr<RollingIntervalCounter> shortTermOutsideRealTimeCounter_;
+
+    boost::mt19937 baseGenerator_;
+    boost::shared_ptr< boost::uniform_01<boost::mt19937> > generator_;
   };
 }
 
