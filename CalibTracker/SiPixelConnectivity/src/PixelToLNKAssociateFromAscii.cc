@@ -176,12 +176,19 @@ void PixelToLNKAssociateFromAscii::addConnections(
      for (int rocDetId=rocDetIds.min(); rocDetId <= rocDetIds.max(); rocDetId++) {
        rocLnkId++;
        DetectorRocId  detectorRocId;
-       detectorRocId.module = new PixelBarrelName(part, layer, zmodule, ladder);
+       PixelBarrelName * name = new PixelBarrelName(part, layer, zmodule, ladder);
+       detectorRocId.module = name;
        detectorRocId.rocDetId = rocDetId;
        CablingRocId   cablingRocId;
        cablingRocId.fedId = fedId;
        cablingRocId.linkId = linkId;
        cablingRocId.rocLinkId = rocLnkId;
+       // fix for type-B modules in barrel
+       if (name->isHalfModule() && (rocDetIds.min()>7)  
+           && (part==PixelBarrelName::mO || PixelBarrelName::mI) ) {
+            cablingRocId.rocLinkId = 9-rocLnkId;
+            detectorRocId.rocDetId = rocDetId-8;
+       }
        theConnection.push_back( make_pair(detectorRocId,cablingRocId));
      } 
   }
