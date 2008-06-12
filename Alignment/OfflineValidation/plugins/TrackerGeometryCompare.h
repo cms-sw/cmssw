@@ -14,8 +14,8 @@
  *   path p = { comparator }
  *
  *
- *  $Date: 2008/02/27 17:33:19 $
- *  $Revision: 1.1 $
+ *  $Date: 2008/05/04 17:04:35 $
+ *  $Revision: 1.4 $
  *  \author Nhan Tran
  */
 
@@ -100,6 +100,7 @@ private:
 	std::string _detIdFlagFile;
 	bool _weightById;
 	std::string _weightByIdFile;
+	std::vector< unsigned int > _weightByIdVector;
 	
 	std::vector< uint32_t > _detIdFlagVector;
 	align::StructureType _commonTrackerLevel;

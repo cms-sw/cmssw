@@ -93,6 +93,21 @@ TrackerGeometryCompare::TrackerGeometryCompare(const edm::ParameterSet& cfg)
         fin.close();
 	}		
 	
+	// turn weightByIdFile into weightByIdVector
+	std::ifstream inFile;
+	inFile.open( _weightByIdFile.c_str() );
+	int ctr = 0;
+	while ( !inFile.eof() ){
+		ctr++;
+		unsigned int listId;
+		inFile >> listId;
+		inFile.ignore(256, '\n');
+		
+		_weightByIdVector.push_back( listId );
+	}
+	inFile.close();
+	
+	
 	
 	//root configuration
 	_theFile = new TFile(_filename.c_str(),"RECREATE");
@@ -305,7 +320,7 @@ void TrackerGeometryCompare::compareGeometries(Alignable* refAli, Alignable* cur
 		Rtotal.set(0.,0.,0.); Wtotal.set(0.,0.,0.);
 		
 		for (int i = 0; i < 100; i++){
-			AlgebraicVector diff = align::diffAlignables(refAli,curAli, _weightBy, _weightById, _weightByIdFile);
+			AlgebraicVector diff = align::diffAlignables(refAli,curAli, _weightBy, _weightById, _weightByIdVector);
 			Hep3Vector dR(diff[0],diff[1],diff[2]);
 			Rtotal+=dR;
 			Hep3Vector dW(diff[3],diff[4],diff[5]);
@@ -317,7 +332,7 @@ void TrackerGeometryCompare::compareGeometries(Alignable* refAli, Alignable* cur
 			//if (refAli->alignableObjectId() == 1) std::cout << "DIFF: " << diff << std::endl;
 			align::moveAlignable(curAli, diff);
 			float tolerance = 1e-7;
-			AlgebraicVector check = align::diffAlignables(refAli,curAli, _weightBy, _weightById, _weightByIdFile);
+			AlgebraicVector check = align::diffAlignables(refAli,curAli, _weightBy, _weightById, _weightByIdVector);
 			align::GlobalVector checkR(check[0],check[1],check[2]);
 			align::GlobalVector checkW(check[3],check[4],check[5]);
 			DetId detid(refAli->id());
@@ -392,7 +407,7 @@ void TrackerGeometryCompare::diffCommonTrackerSystem(Alignable *refAli, Alignabl
 		Rtotal.set(0.,0.,0.); Wtotal.set(0.,0.,0.);
 		
 		for (int i = 0; i < 100; i++){
-			AlgebraicVector diff = align::diffAlignables(refAli,curAli, _weightBy, _weightById, _weightByIdFile);
+			AlgebraicVector diff = align::diffAlignables(refAli,curAli, _weightBy, _weightById, _weightByIdVector);
 			Hep3Vector dR(diff[0],diff[1],diff[2]);
 			Rtotal+=dR;
 			Hep3Vector dW(diff[3],diff[4],diff[5]);
@@ -404,7 +419,7 @@ void TrackerGeometryCompare::diffCommonTrackerSystem(Alignable *refAli, Alignabl
 			//if (refAli->alignableObjectId() == 1) std::cout << "DIFF: " << diff << std::endl;
 			align::moveAlignable(curAli, diff);
 			float tolerance = 1e-7;
-			AlgebraicVector check = align::diffAlignables(refAli,curAli, _weightBy, _weightById, _weightByIdFile);
+			AlgebraicVector check = align::diffAlignables(refAli,curAli, _weightBy, _weightById, _weightByIdVector);
 			align::GlobalVector checkR(check[0],check[1],check[2]);
 			align::GlobalVector checkW(check[3],check[4],check[5]);
 			DetId detid(refAli->id());
