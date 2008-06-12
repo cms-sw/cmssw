@@ -1,8 +1,11 @@
-void plotMerge(char name[6]="Hits", char rootfile[6]="ecHit", int files=8,
+#include <string>
+
+void plotMerge(char name[6]="Hits0", char rootfile[6]="ecHit", int files=5,
 	       int bin=1, bool logy=true, bool doprob=false, bool debug=false){
 
   char fname[20];
   sprintf (fname, "%s_1.root", rootfile);
+  setTDRStyle();
   TFile *file = TFile::Open(fname);
   TDirectory *d1 = (TDirectory*)file->Get("analyzer");
   TH1F *h1 = (TH1F*)d1->Get(name);
@@ -18,7 +21,6 @@ void plotMerge(char name[6]="Hits", char rootfile[6]="ecHit", int files=8,
     if (debug) std::cout << "Entries at loop " << i << ": " << hist->GetEntries() << "\n";
     file2->Close();
   }
-  setTDRStyle();
   TCanvas *myc = new TCanvas("name","",800,600);
   if (logy) gPad->SetLogy(1);
   hist->GetYaxis()->SetTitle("Events");
@@ -33,10 +35,15 @@ void plotMerge(char name[6]="Hits", char rootfile[6]="ecHit", int files=8,
     double scale= 1.0;
     if (entry > 0) scale = 1./entry;
     char title[60];
-    if      (name == "E1T0") sprintf (title, "E1 (GeV)");
-    else if (name == "E1T1") sprintf (title, "E1 (GeV) (t < 400 ns)");
-    else if (name == "E9T0") sprintf (title, "E9 (GeV)");
-    else if (name == "E9T1") sprintf (title, "E9 (GeV) (t < 400 ns)");
+    std::string names(name), namx;
+    namx.assign(names,0,4);
+    char namx0[6];
+    sprintf (namx0, "%s", namx.c_str());
+    cout << name << " " << names << " " << namx << " " << namx0 << "\n";
+    if      (namx == "E1T0") sprintf (title, "E1 (GeV)");
+    else if (namx == "E1T1") sprintf (title, "E1 (GeV) (t < 400 ns)");
+    else if (namx == "E9T0") sprintf (title, "E9 (GeV)");
+    else if (namx == "E9T1") sprintf (title, "E9 (GeV) (t < 400 ns)");
     else                     sprintf (title, "Unknown X");
     TH1F *h0 = new TH1F("Prob", title, nbin, xmin, xmax);
     h0->GetXaxis()->SetTitle(title);
@@ -104,9 +111,9 @@ void setTDRStyle() {
 
   tdrStyle->SetTitleColor(1, "XYZ");
   tdrStyle->SetTitleFont(42, "XYZ");
-  tdrStyle->SetTitleSize(0.06, "XYZ");
-  tdrStyle->SetTitleXOffset(0.7);
-  tdrStyle->SetTitleYOffset(0.7);
+  tdrStyle->SetTitleSize(0.04, "XYZ");
+  tdrStyle->SetTitleXOffset(0.8);
+  tdrStyle->SetTitleYOffset(0.8);
 
 // For the axis labels:
 

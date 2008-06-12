@@ -76,27 +76,27 @@ XtalDedxAnalysis::XtalDedxAnalysis(const edm::ParameterSet& ps) {
   for (int i=0; i<4; i++) {
     sprintf (name,  "Hits%d", i);
     sprintf (title, "Number of hits (%s)", types[i].c_str());
-    meNHit_[i]= tfile->make<TH1F>(name, title, 1000, 0., 5000.);
+    meNHit_[i]= tfile->make<TH1F>(name, title, 5000, 0., 5000.);
     meNHit_[i]->GetXaxis()->SetTitle(title);
     meNHit_[i]->GetYaxis()->SetTitle("Events");
     sprintf (name,  "E1T0%d", i);
     sprintf (title, "E1 (Loss %s) in GeV", types[i].c_str());
-    meE1T0_[i] = tfile->make<TH1F>(name, title, 1000, 0, energyMax);
+    meE1T0_[i] = tfile->make<TH1F>(name, title, 5000, 0, energyMax);
     meE1T0_[i]->GetXaxis()->SetTitle(title);
     meE1T0_[i]->GetYaxis()->SetTitle("Events");
     sprintf (name,  "E9T0%d", i);
     sprintf (title, "E9 (Loss %s) in GeV", types[i].c_str());
-    meE9T0_[i] = tfile->make<TH1F>(name, title, 1000, 0, energyMax);
+    meE9T0_[i] = tfile->make<TH1F>(name, title, 5000, 0, energyMax);
     meE9T0_[i]->GetXaxis()->SetTitle(title);
     meE9T0_[i]->GetYaxis()->SetTitle("Events");
     sprintf (name,  "E1T1%d", i);
     sprintf (title, "E1 (Loss %s with t < 400 ns) in GeV", types[i].c_str());
-    meE1T1_[i] = tfile->make<TH1F>(name, title, 1000, 0, energyMax);
+    meE1T1_[i] = tfile->make<TH1F>(name, title, 5000, 0, energyMax);
     meE1T1_[i]->GetXaxis()->SetTitle(title);
     meE1T1_[i]->GetYaxis()->SetTitle("Events");
     sprintf (name,  "E9T1%d", i);
     sprintf (title, "E9 (Loss %s with t < 400 ns) in GeV", types[i].c_str());
-    meE9T1_[i]= tfile->make<TH1F>(name, title, 1000, 0, energyMax);
+    meE9T1_[i]= tfile->make<TH1F>(name, title, 5000, 0, energyMax);
     meE9T1_[i]->GetXaxis()->SetTitle(title);
     meE9T1_[i]->GetYaxis()->SetTitle("Events");
   }
@@ -140,7 +140,7 @@ void XtalDedxAnalysis::analyzeHits (std::vector<PCaloHit>& hits,
     for (unsigned int k=0; k<tracks.size(); k++) {
       if (trackID == (int)(tracks[k].trackId())) {
 	int thePID = tracks[k].type();
-	if      (thePID == -11 || thePID == 11) type = 2;
+	if      (thePID == 11) type = 2;
 	else if (thePID != -13 && thePID != 13) type = 3;
 	break;
       }
@@ -166,7 +166,7 @@ void XtalDedxAnalysis::analyzeHits (std::vector<PCaloHit>& hits,
 				  << trackID << " type " << type;
   }
   for (int i=0; i<4; i++) {
-    LogDebug("CherenkovAnalysis") << "Type[" << i << "] Hit " << hit[i] 
+    LogDebug("CherenkovAnalysis") << "Type(" << i << ") Hit " << hit[i] 
 				  << " E10 " << e10[i] << " E11 " << e11[i]
 				  << " E90 " << e90[i] << " E91 " << e91[i];
     meNHit_[i]->Fill(hit[i]);
