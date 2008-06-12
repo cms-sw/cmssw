@@ -1,5 +1,5 @@
 #!/bin/sh
-#$Id: t0inject.sh,v 1.7 2008/05/14 12:53:14 loizides Exp $
+#$Id: t0inject.sh,v 1.8 2008/05/19 19:41:37 loizides Exp $
 
 . /etc/init.d/functions
 
@@ -25,7 +25,7 @@ if [ ! -d $SMT0_MONDIR ]; then
 fi
 
 #local run dir
-SMT0_LOCAL_RUN_DIR=/nfshome0/smpro/t0inject
+export SMT0_LOCAL_RUN_DIR=/nfshome0/smpro/t0inject
 
 #exported variables
 export SM_NOTIFYSCRIPT=$SMT0_BASE_DIR/sendNotification.sh
