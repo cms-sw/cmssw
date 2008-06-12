@@ -579,18 +579,23 @@ void HcalDeadCellClient::htmlOutput(int runNo, string htmlDir, string htmlName)
   htmlFile <<"<table width=75%align = \"center\"><tr align=\"center\">" <<endl;
   htmlFile <<"<td>  List of Dead Cells</td><td align=\"center\"> Fraction of Events in which cells are bad (%)</td></tr>"<<endl;
 
-  // Dump out hot cell candidates
-  int hotcellcount=0;
-  int totalcells=0;
+  // Dump out dead cell candidates
+  int deadcellcount[4];
+  int totalcells[4];
+  for (int i=0;i<4;++i)
+    {
+      deadcellcount[i]=0;
+      totalcells[i]=0;
+    }
+
   if (subDetsOn_[0])
-    totalcells+=2592;
+    totalcells[0]=2592;
   if (subDetsOn_[1])
-    totalcells+=2592;
+    totalcells[1]=2592;
   if (subDetsOn_[2])
-    totalcells+=2160;
+    totalcells[2]=2160;
   if (subDetsOn_[3])
-    totalcells+=1728;
-  
+    totalcells[3]=1728;
 
   for (int depth=0;depth<4;++depth)
     {
@@ -621,22 +626,22 @@ void HcalDeadCellClient::htmlOutput(int runNo, string htmlDir, string htmlName)
 	      if (subDetsOn_[0] && hbhists.problemDeadCells_DEPTH[depth]!=NULL && hbhists.problemDeadCells_DEPTH[depth]->GetBinContent(ieta,iphi)>=errorFrac_*ievt_)
 		{
 		  htmlFile<<"<td align=\"center\"> HB ("<<eta<<", "<<phi<<", "<<depth+1<<") </td><td align=\"center\"> "<<100.*hbhists.problemDeadCells_DEPTH[depth]->GetBinContent(ieta,iphi)/ievt_<<"%</td></tr>"<<endl;
-		  hotcellcount++;
+		  deadcellcount[0]++;
 		}
 	      if (subDetsOn_[1] && hehists.problemDeadCells_DEPTH[depth]!=NULL && hehists.problemDeadCells_DEPTH[depth]->GetBinContent(ieta,iphi)>=errorFrac_*ievt_)
 		{
 		  htmlFile<<"<td align=\"center\"> HE ("<<eta<<", "<<phi<<", "<<depth+1<<") </td><td align=\"center\"> "<<100.*hehists.problemDeadCells_DEPTH[depth]->GetBinContent(ieta,iphi)/ievt_<<"%</td></tr>"<<endl;
-		  hotcellcount++;
+		  deadcellcount[1]++;
 		}
 	      if (subDetsOn_[2] && hohists.problemDeadCells_DEPTH[depth]!=NULL && hohists.problemDeadCells_DEPTH[depth]->GetBinContent(ieta,iphi)>=errorFrac_*ievt_)
 		{
 		  htmlFile<<"<td align=\"center\"> HO ("<<eta<<", "<<phi<<", "<<depth+1<<") </td><td align=\"center\"> "<<100.*hohists.problemDeadCells_DEPTH[depth]->GetBinContent(ieta,iphi)/ievt_<<"%</td></tr>"<<endl;
-		  hotcellcount++;
+		  deadcellcount[2]++;
 		}
 	      if (subDetsOn_[3] && hfhists.problemDeadCells_DEPTH[depth]!=NULL && hfhists.problemDeadCells_DEPTH[depth]->GetBinContent(ieta,iphi)>=errorFrac_*ievt_)
 		{
 		  htmlFile<<"<td align=\"center\"> HF ("<<eta<<", "<<phi<<", "<<depth+1<<") </td><td align=\"center\"> "<<100.*hfhists.problemDeadCells_DEPTH[depth]->GetBinContent(ieta,iphi)/ievt_<<"%</td></tr>"<<endl;
-		  hotcellcount++;
+		  deadcellcount[3]++;
 		}
 	      
 	    } // for (int iphi =1...
@@ -645,8 +650,31 @@ void HcalDeadCellClient::htmlOutput(int runNo, string htmlDir, string htmlName)
     } // for (int depth=0...
 
   htmlFile << "</table>" <<endl;
+
+  htmlFile <<"<br><hr><h2> Summary of Dead Cells </h2><br>"<<endl;
+  htmlFile <<"<table width=75%align = \"center\"><tr align=\"center\">" <<endl;
+  htmlFile<<"<tr><td>Subdetector</td><td># of Dead Cells</td><td>Total Cells in Subdetector</td><td>Percentage of Dead Cells (%)</td></tr>"<<endl;
+  if (subDetsOn_[0])
+    {
+      htmlFile<<"<td>HB</td><td>"<<deadcellcount[0]<<"</td><td>"<<totalcells[0]<<"</td><td>"<<100.*deadcellcount[0]/totalcells[0]<<"</td></tr>"<<endl;
+    }
+  if (subDetsOn_[1])
+    {
+      htmlFile<<"<td>HE</td><td>"<<deadcellcount[1]<<"</td><td>"<<totalcells[1]<<"</td><td>"<<100.*deadcellcount[1]/totalcells[1]<<"</td></tr>"<<endl;
+    }
+  if (subDetsOn_[2])
+    {
+      htmlFile<<"<td>HO</td><td>"<<deadcellcount[2]<<"</td><td>"<<totalcells[2]<<"</td><td>"<<100.*deadcellcount[2]/totalcells[2]<<"</td></tr>"<<endl;
+    }
+  if (subDetsOn_[3])
+    {
+      htmlFile<<"<td>HF</td><td>"<<deadcellcount[3]<<"</td><td>"<<totalcells[3]<<"</td><td>"<<100.*deadcellcount[3]/totalcells[3]<<"</td></tr>"<<endl;
+    }
+  if (subDetsOn_[0] || subDetsOn_[1] || subDetsOn_[2] || subDetsOn_[3])
+  htmlFile <<"<td>HCAL</td><td>"<<(deadcellcount[0]+deadcellcount[1]+deadcellcount[2]+deadcellcount[3])<<"</td><td>"<<(totalcells[0]+totalcells[1]+totalcells[2]+totalcells[3])<<"</td><td>"<<100.*(deadcellcount[0]+deadcellcount[1]+deadcellcount[2]+deadcellcount[3])/(totalcells[0]+totalcells[1]+totalcells[2]+totalcells[3])<<"</td></tr>"<<endl;
+  htmlFile <<"</table>"<<endl;
+
   // html page footer
-  htmlFile<<"<br><hr><h2>Total # of hot cells = "<<hotcellcount <<"/"<<totalcells<<"  = "<<100.*hotcellcount/totalcells<<"%</h2><br>"<<endl;
   htmlFile << "</body> " << endl;
   htmlFile << "</html> " << endl;
   htmlFile.close();

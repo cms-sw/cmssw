@@ -51,10 +51,26 @@ HcalSummaryClient::HcalSummaryClient(const ParameterSet& ps)
   phiMax_ = ps.getUntrackedParameter<double>("MaxPhi", 73.5);
   phiMin_ = ps.getUntrackedParameter<double>("MinPhi", -0.5);
 
-  checkHB_= ps.getUntrackedParameter<bool>("checkHB",true);
-  checkHE_= ps.getUntrackedParameter<bool>("checkHE",true);
-  checkHO_= ps.getUntrackedParameter<bool>("checkHO",true);
-  checkHF_= ps.getUntrackedParameter<bool>("checkHF",true);
+  for(int i=0; i<4; i++) subDetsOn_[i] = false;
+
+
+  vector<string> subdets = ps.getUntrackedParameter<vector<string> >("subDetsOn");
+  for(unsigned int i=0; i<subdets.size(); i++){
+    if(subdets[i]=="HB"){
+      subDetsOn_[0]=true;
+    }
+    else if(subdets[i]=="HE") {
+      subDetsOn_[1]=true;
+    }
+    else if(subdets[i]=="HO") {
+      subDetsOn_[2]=true;
+    }
+    else if(subdets[i]=="HF"){
+      subDetsOn_[3]=true;
+    }
+  } // for (unsigned int i=0; i<subdets.size();i++)
+
+
 
   // Check subtasks
   dataFormatClient_ = ps.getUntrackedParameter<bool>("DataFormatClient",false);
@@ -261,29 +277,38 @@ void HcalSummaryClient::analyze(void)
 	cout << "HcalSummaryClient: ievt/jevt = " << ievt_ << "/" << jevt_ << endl;
     }
 
+  
+  for (int i=0;i<4;++i)
+    {
+      // All values set to unknown by default
+      status_digi[i]=-1;
+      status_deadcell[i]=-1;
+      status_hotcell[i]=-1;
+    }
+
     if (digiClient_)
     {
-      if (checkHB_) analyze_digi("HB",status_HB_);
-      if (checkHE_) analyze_digi("HE",status_HE_);
-      if (checkHO_) analyze_digi("HO",status_HO_);
-      if (checkHF_) analyze_digi("HF",status_HF_);
+      if (subDetsOn_[0]) status_digi[0]=analyze_digi("HB",status_HB_);
+      if (subDetsOn_[1]) status_digi[1]=analyze_digi("HE",status_HE_);
+      if (subDetsOn_[2]) status_digi[2]=analyze_digi("HO",status_HO_);
+      if (subDetsOn_[3]) status_digi[3]=analyze_digi("HF",status_HF_);
     }
   
 
   if (deadCellClient_)
     {
-      if (checkHB_) analyze_deadcell("HB",status_HB_);
-      if (checkHE_) analyze_deadcell("HE",status_HE_);
-      if (checkHO_) analyze_deadcell("HO",status_HO_);
-      if (checkHF_) analyze_deadcell("HF",status_HF_);
+      if (subDetsOn_[0]) status_deadcell[0]=analyze_deadcell("HB",status_HB_);
+      if (subDetsOn_[1]) status_deadcell[1]=analyze_deadcell("HE",status_HE_);
+      if (subDetsOn_[2]) status_deadcell[2]=analyze_deadcell("HO",status_HO_);
+      if (subDetsOn_[3]) status_deadcell[3]=analyze_deadcell("HF",status_HF_);
     }
   
   if (hotCellClient_)
     {
-      if (checkHB_) analyze_hotcell("HB",status_HB_);
-      if (checkHE_) analyze_hotcell("HE",status_HE_);
-      if (checkHO_) analyze_hotcell("HO",status_HO_);
-      if (checkHF_) analyze_hotcell("HF",status_HF_);
+      if (subDetsOn_[0]) status_hotcell[0]=analyze_hotcell("HB",status_HB_);
+      if (subDetsOn_[1]) status_hotcell[1]=analyze_hotcell("HE",status_HE_);
+      if (subDetsOn_[2]) status_hotcell[2]=analyze_hotcell("HO",status_HO_);
+      if (subDetsOn_[3]) status_hotcell[3]=analyze_hotcell("HF",status_HF_);
     }
   
 
@@ -304,6 +329,7 @@ void HcalSummaryClient::analyze(void)
     me->Fill(status_HF_);
   
   dqmStore_->setCurrentFolder( prefixME_);
+
 
   return;
 } //void HcalSummaryClient::analyze(void)
@@ -590,9 +616,8 @@ float HcalSummaryClient::analyze_hotcell(std::string subdetname, float& subdet)
 void HcalSummaryClient::htmlOutput(int run, string& htmlDir, string& htmlName)
 {
 
-  if ( verbose_ ) cout << "Preparing HcalSummaryClient html output ..." << endl;
-
-  ofstream htmlFile;
+  //if ( verbose_ ) 
+  cout << "Preparing HcalSummaryClient html output ..." << endl;
 
   htmlFile.open((htmlDir + htmlName).c_str());
 
@@ -613,11 +638,13 @@ void HcalSummaryClient::htmlOutput(int run, string& htmlDir, string& htmlName)
   htmlFile << " style=\"color: rgb(0, 0, 153);\">" << run << "</span></h2>" << endl;
   htmlFile << "<h2>Monitoring task:&nbsp;&nbsp;&nbsp;&nbsp; <span " << endl;
   htmlFile << " style=\"color: rgb(0, 0, 153);\">SUMMARY</span></h2> " << endl;
-  htmlFile << "<hr>" << endl;
-  htmlFile << "<table border=1><tr><td bgcolor=red>channel has problems in this task</td>" << endl;
-  htmlFile << "<td bgcolor=lime>channel has NO problems</td>" << endl;
-  htmlFile << "<td bgcolor=yellow>channel is missing</td></table>" << endl;
+  /*
+    htmlFile << "<hr>" << endl;
+    htmlFile << "<table border=1><tr><td bgcolor=red>channel has problems in this task</td>" << endl;
+    htmlFile << "<td bgcolor=lime>channel has NO problems</td>" << endl;
+    htmlFile << "<td bgcolor=yellow>channel is missing</td></table>" << endl;
   htmlFile << "<br>" << endl;
+  */
 
   // Produce the plots to be shown as .png files from existing histograms
 
@@ -669,11 +696,96 @@ void HcalSummaryClient::htmlOutput(int run, string& htmlDir, string& htmlName)
       htmlFile << "<table border=\"0\" cellspacing=\"0\" " << endl;
       htmlFile << "cellpadding=\"10\" align=\"center\"> " << endl;
       htmlFile << "<tr align=\"center\">" << endl;
-      htmlFile << "<td><img src=\"" << imgNameMap << "\" usemap=\"#Integrity\" border=0></td>" << endl;
+      htmlFile << "<td><img src=\"" << imgNameMap << "\" usem float tempstatus=-1;ap=\"#Integrity\" border=0></td>" << endl;
       htmlFile << "</tr>" << endl;
       htmlFile << "</table>" << endl;
       htmlFile << "<br>" << endl;
     } // if ( imgNameMap.size() != 0 ) 
+
+
+  // Make table that lists all status words for each subdet
+  
+  htmlFile<<"<hr><br><h2>Summary Values for each Task and Subdetector</h2><br>"<<endl;
+  htmlFile << "<table border=\"2\" cellspacing=\"0\" " << endl;
+  htmlFile << "cellpadding=\"10\" align=\"center\"> " << endl;
+  htmlFile << "<tr align=\"center\">" << endl;
+  htmlFile <<"<td>Task</td><td>HB</td><td>HE</td><td>HO</td><td>HF</td><td>HCAL</td></tr>"<<endl;
+
+ 
+  if (digiClient_)
+    {
+      float tempstatus=-1;
+      for (int i=0;i<4;++i)
+	{
+	  if (status_digi[i]>-1)
+	    {
+	      (tempstatus==-1) ?  tempstatus=status_digi[i] : tempstatus*=status_digi[i];
+	    }
+	}
+
+      htmlFile <<"<tr><td>Digi Monitor</td>"<<endl;
+      subDetsOn_[0]==1 ? htmlFile<<"<td>"<<status_digi[0]<<"</td>"<<endl : htmlFile<<"<td>--</td>"<<endl;
+      subDetsOn_[1]==1 ? htmlFile<<"<td>"<<status_digi[1]<<"</td>"<<endl : htmlFile<<"<td>--</td>"<<endl;
+      subDetsOn_[2]==1 ? htmlFile<<"<td>"<<status_digi[2]<<"</td>"<<endl : htmlFile<<"<td>--</td>"<<endl;
+      subDetsOn_[3]==1 ? htmlFile<<"<td>"<<status_digi[3]<<"</td>"<<endl : htmlFile<<"<td>--</td>"<<endl;
+      htmlFile<<"<td>"<< tempstatus  <<"</td>"<<endl;
+      htmlFile<<"</tr>"<<endl;
+    }
+
+  if (deadCellClient_)
+    {
+      float tempstatus=-1;
+      for (int i=0;i<4;++i)
+	{
+	  if (status_deadcell[i]>-1)
+	    {
+	      (tempstatus==-1) ?  tempstatus=status_deadcell[i] : tempstatus*=status_deadcell[i];
+	    }
+	}
+      
+      htmlFile <<"<tr><td>Dead Cell Monitor</td>"<<endl;
+      subDetsOn_[0]==1 ? htmlFile<<"<td>"<<status_deadcell[0]<<"</td>"<<endl : htmlFile<<"<td>--</td>"<<endl;
+      subDetsOn_[1]==1 ? htmlFile<<"<td>"<<status_deadcell[1]<<"</td>"<<endl : htmlFile<<"<td>--</td>"<<endl;
+      subDetsOn_[2]==1 ? htmlFile<<"<td>"<<status_deadcell[2]<<"</td>"<<endl : htmlFile<<"<td>--</td>"<<endl;
+      subDetsOn_[3]==1 ? htmlFile<<"<td>"<<status_deadcell[3]<<"</td>"<<endl : htmlFile<<"<td>--</td>"<<endl;
+      htmlFile<<"<td>"<< tempstatus  <<"</td>"<<endl;
+      htmlFile<<"</tr>"<<endl;
+    }
+  
+  
+  if (hotCellClient_)
+    {
+	
+      float tempstatus=-1;
+      for (int i=0;i<4;++i)
+	{
+	  if (status_hotcell[i]>-1)
+	    {
+	      (tempstatus==-1) ?  tempstatus=status_hotcell[i] : tempstatus*=status_hotcell[i];
+	    }
+	}
+
+      htmlFile <<"<tr><td>Hot Cell Monitor</td>"<<endl;
+      subDetsOn_[0]==1 ? htmlFile<<"<td>"<<status_hotcell[0]<<"</td>"<<endl : htmlFile<<"<td>--</td>"<<endl;
+      subDetsOn_[1]==1 ? htmlFile<<"<td>"<<status_hotcell[1]<<"</td>"<<endl : htmlFile<<"<td>--</td>"<<endl;
+      subDetsOn_[2]==1 ? htmlFile<<"<td>"<<status_hotcell[2]<<"</td>"<<endl : htmlFile<<"<td>--</td>"<<endl;
+      subDetsOn_[3]==1 ? htmlFile<<"<td>"<<status_hotcell[3]<<"</td>"<<endl : htmlFile<<"<td>--</td>"<<endl;
+      htmlFile<<"<td>"<< tempstatus  <<"</td>"<<endl;
+      htmlFile<<"</tr>"<<endl;
+    }
+  
+  // Dump out final status words
+
+  htmlFile <<"<tr><td><font color = \"blue\"> Status Values </font></td>"<<endl;
+  subDetsOn_[0]==1 ? htmlFile<<"<td><font color = \"blue\">"<<status_HB_<<"</font></td>"<<endl : htmlFile<<"<td>--</td>"<<endl;
+  subDetsOn_[1]==1 ? htmlFile<<"<td><font color = \"blue\">"<<status_HE_<<"</font></td>"<<endl : htmlFile<<"<td>--</td>"<<endl;
+  subDetsOn_[2]==1 ? htmlFile<<"<td><font color = \"blue\">"<<status_HO_<<"</font></td>"<<endl : htmlFile<<"<td>--</td>"<<endl;
+  subDetsOn_[3]==1 ? htmlFile<<"<td><font color = \"blue\">"<<status_HF_<<"</font></td>"<<endl : htmlFile<<"<td>--</td>"<<endl;
+  htmlFile <<"<td><font color = \"blue\">"<<status_global_<<"</font></td>"<<endl;
+  htmlFile <<"</tr></table>"<<endl;
+
+  htmlFile <<"<br><h2> A note on Status Values </h2><br>"<<endl;
+  htmlFile <<"Status values in each subdetector task represent the average fraction of good channels per event.  (For example, a value of .99 in the HB Hot Cell monitor means that, on average, 1% of the cells in HB are hot.)  Status values should range from 0 to 1, with a perfectly-functioning detector will have all status values = 1.  If the status is unknown, a value of -1 or \"--\" will be shown. <br><br>The HCAL values are the product of the individual subdetectors, and so these status values don't represent the average number of bad cells in the entire detector.  (For instance, if both HB and HF Hot Cell monitors had status values of 0.5, the overall HCAL status value would be 0.25.  This is not the same as saying that 3/4 of the cells in HCAL are hot.)<br><br>  Likewise, the overall status values are formed by the products of the individual tasks.  The overall status values thus provide some measure of the number of bad cells per event, but they do not represent the average number of good channels per event.<br>"<<endl;
 
   htmlFile.close();
 

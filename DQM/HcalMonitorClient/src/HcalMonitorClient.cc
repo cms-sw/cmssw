@@ -437,7 +437,7 @@ void HcalMonitorClient::analyze(){
   mui_->doMonitoring();
   dbe_->runQTests();
 
-  if( summary_client_ )    summary_client_->analyze(); 	
+  // summary_client_ analyze performed separately, before htmlOutput of summary generated
   if( dataformat_client_ ) dataformat_client_->analyze(); 	
   if( digi_client_ )       digi_client_->analyze(); 
   if( rechit_client_ )     rechit_client_->analyze(); 
@@ -665,6 +665,21 @@ void HcalMonitorClient::htmlOutput(void){
     htmlFile << "</tr></table>" << endl;
   }
   
+  if( summary_client_) {
+    summary_client_->analyze();  // Do analyze just before making html (which relies on analyze results)
+    htmlName = "HcalSummaryCellClient.html";
+    // summary client html output function called separately within HcalSummaryClient, after analyze function
+    summary_client_->htmlOutput(irun_, htmlDir, htmlName);
+    htmlFile << "<table border=0 WIDTH=\"50%\"><tr>" << endl;
+    htmlFile << "<td WIDTH=\"35%\"><a href=\"" << htmlName << "\">Summary Monitor</a></td>" << endl;
+    //if(summary_client_->hasErrors()) htmlFile << "<td bgcolor=red align=center>This monitor task has errors.</td>" << endl;
+    //else if(summary_client_->hasWarnings()) htmlFile << "<td bgcolor=yellow align=center>This monitor task has warnings.</td>" << endl;
+    //else if(summary_client_->hasOther()) htmlFile << "<td bgcolor=aqua align=center>This monitor task has messages.</td>" << endl;
+    //else
+      htmlFile << "<td bgcolor=lime align=center>This monitor task has no problems</td>" << endl;
+    htmlFile << "</tr></table>" << endl;
+  }
+
   htmlFile << "</ul>" << endl;
 
 

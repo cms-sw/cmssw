@@ -5,8 +5,8 @@
  * \file HcalSummaryClient.h
  *
  * Code ported from DQM/EcalBarrelMonitorClient/interface/EBSummaryClient.h
- * $Date: 2008/06/04 01:19:34 $
- * $Revision: 1.4 $
+ * $Date: 2008/06/09 19:32:53 $
+ * $Revision: 1.5 $
  * \author Jeff Temple
  *
 */
@@ -92,12 +92,14 @@ class HcalSummaryClient : public HcalBaseClient {
   bool dataFormatClient_, digiClient_, recHitClient_, pedestalClient_;
   bool ledClient_, hotCellClient_, deadCellClient_, trigPrimClient_, caloTowerClient_;
 
-  bool checkHB_;
-  bool checkHE_;
-  bool checkHO_;
-  bool checkHF_;
 
   std::map<std::string, int> subdetCells_;
+
+  // Individual status values for each task by subdetector
+  float status_digi[4];
+  float status_deadcell[4];
+  float status_hotcell[4];
+
   float status_HB_;
   float status_HE_;
   float status_HO_;
@@ -107,6 +109,7 @@ class HcalSummaryClient : public HcalBaseClient {
   double etaMin_, etaMax_, phiMin_, phiMax_;
   int phiBins_, etaBins_;
     
+  ofstream htmlFile;
 
 }; // end of class declaration
 
