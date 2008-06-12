@@ -1,8 +1,8 @@
 #include "RecoVZero/VZeroFinding/interface/VZeroFinder.h"
 
 #include "DataFormats/Math/interface/Vector3D.h"
-
-using namespace std;
+#include<utiity>
+using std::pair;
 
 /*****************************************************************************/
 VZeroFinder::VZeroFinder

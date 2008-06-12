@@ -10,6 +10,7 @@
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include "DataFormats/TrackReco/interface/TrackFwd.h"
+#include<iostream>
 
 /*****************************************************************************/
 VZeroProducer::VZeroProducer(const edm::ParameterSet& pset)
@@ -31,9 +32,12 @@ VZeroProducer::~VZeroProducer()
   edm::LogInfo("VZeroProducer") << " destructor";
 }
 
-/*****************************************************************************/
 void VZeroProducer::produce(edm::Event& ev, const edm::EventSetup& es)
 {
+  LogDebug("VZeroProducer, produce")<<"event# :"<<ev.id();
+
+  //std::cerr << "[V0 finder]" << std::endl;
+
   // Get tracks
   edm::Handle<reco::TrackCollection> trackCollection;
   ev.getByLabel("globalSecoTracks",  trackCollection);
