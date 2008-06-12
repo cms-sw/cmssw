@@ -2,7 +2,7 @@
  * This class manages the distribution of events to consumers from within
  * the storage manager.
  *
- * $Id: EventServer.cc,v 1.10 2008/05/04 12:37:34 biery Exp $
+ * $Id: EventServer.cc,v 1.11 2008/05/14 16:00:00 biery Exp $
  */
 
 #include "EventFilter/StorageManager/interface/EventServer.h"
@@ -10,6 +10,7 @@
 
 #include <iostream>
 #include <boost/algorithm/string/case_conv.hpp>
+#include "zlib.h"
 
 using namespace std;
 using namespace stor;
@@ -20,26 +21,9 @@ using namespace edm;
  * specifying a maximimum allowed rate of accepted events
  */
 EventServer::EventServer(double maxEventRate, double maxDataRate,
+                         std::string hltOutputSelection,
                          bool runFairShareAlgo)
 {
-  // determine the amount of time that we need to wait between accepted
-  // events (to ensure that the event server doesn't send "too many" events
-  // to consumers).  The maximum rate specified to this constructor is
-  // converted to an interval that is used internally, and the interval
-  // is required to be somewhat reasonable.
-  if (maxEventRate < (1.0 / ConsumerPipe::MAX_ACCEPT_INTERVAL))
-  {
-    minTimeBetweenEvents_ = ConsumerPipe::MAX_ACCEPT_INTERVAL;
-  }
-  else
-  {
-    minTimeBetweenEvents_ = 1.0 / maxEventRate;  // seconds
-  }
-
-  // initialize the last accepted event time to construction time
-  lastAcceptedEventTime_ = BaseCounter::getCurrentTime();
-  lastAcceptedEventNumber_ = 0;
-
   // initialize counters
   disconnectedConsumerTestCounter_ = 0;
 
@@ -52,10 +36,23 @@ EventServer::EventServer(double maxEventRate, double maxDataRate,
   ltOutputCounters_.clear();
   stOutputCounters_.clear();
 
-  rateLimiter_.reset(new RateLimiter(maxEventRate, maxDataRate));
+  //rateLimiter_.reset(new RateLimiter(maxEventRate, maxDataRate));
   this->maxEventRate_ = maxEventRate;
   this->maxDataRate_ = maxDataRate;
+
+  // 11-Jun-2008, KAB - the fair-share algo needs better requirements AND
+  // needs consumer subscriptions to be forwarded from the ProxyServer
+  // to the SMs.  So, prevent its use, for now.
+  // (To be honest, I'm not sure that we can even support dynamic switching
+  // on and off of the FS algo.)
+  assert(! runFairShareAlgo);
   this->runFairShareAlgo_ = runFairShareAlgo;
+
+  this->hltOutputSelection_ = hltOutputSelection;
+  uLong crc = crc32(0L, Z_NULL, 0);
+  Bytef* crcbuf = (Bytef*) hltOutputSelection.data();
+  crc = crc32(crc, crcbuf, hltOutputSelection.length());
+  this->hltOutputModuleId_ = static_cast<uint32>(crc);
 
   outsideTimer_.reset();
   insideTimer_.reset();
@@ -69,6 +66,8 @@ EventServer::EventServer(double maxEventRate, double maxDataRate,
   shortTermOutsideCPUTimeCounter_.reset(new RollingIntervalCounter(180,5,20));
   longTermOutsideRealTimeCounter_.reset(new ForeverCounter());
   shortTermOutsideRealTimeCounter_.reset(new RollingIntervalCounter(180,5,20));
+
+  generator_.reset(new boost::uniform_01<boost::mt19937>(baseGenerator_));
 }
 
 /**
@@ -89,7 +88,7 @@ void EventServer::addConsumer(boost::shared_ptr<ConsumerPipe> consumer)
 
   // add the consumer (by ID) to the rateLimiter instance that we use
   // to provide a fair share of the limited bandwidth to each consumer.
-  rateLimiter_->addConsumer(consumerId);
+  //rateLimiter_->addConsumer(consumerId);
 }
 
 std::map< uint32, boost::shared_ptr<ConsumerPipe> > EventServer::getConsumerTable()
@@ -128,6 +127,9 @@ boost::shared_ptr<ConsumerPipe> EventServer::getConsumer(uint32 consumerId)
  */
 void EventServer::processEvent(const EventMsgView &eventView)
 {
+  // do nothing if the event is empty
+  if (eventView.size() == 0) {return;}
+
   boost::shared_ptr<ForeverCounter> ltCounter;
   boost::shared_ptr<RollingIntervalCounter> stCounter;
   std::map<uint32, boost::shared_ptr<ForeverCounter> >::iterator ltIter;
@@ -164,8 +166,8 @@ void EventServer::processEvent(const EventMsgView &eventView)
   ltCounter->addSample(sizeInMB);
   stCounter->addSample(sizeInMB, now);
 
-  // do nothing if the event is empty
-  if (eventView.size() == 0) {
+  // the event must be from the correct HLT output module
+  if (outputModuleId != hltOutputModuleId_) {
     // track timer statistics and start/stop timers as appropriate
     insideTimer_.stop();
     longTermInsideCPUTimeCounter_->addSample(insideTimer_.cpuTime());
@@ -180,6 +182,36 @@ void EventServer::processEvent(const EventMsgView &eventView)
     insideTimer_.reset();
     outsideTimer_.start();
     return;
+  }
+
+  // if we're not running the fair-share algorithm, 
+  // prescale events based on the input event and data rates
+  if (! runFairShareAlgo_) {
+    double eventRate = stCounter->getSampleRate(now);
+    double dataRate = stCounter->getValueRate(now);
+    double eventRatePrescale = eventRate / maxEventRate_;
+    double dataRatePrescale = dataRate / maxDataRate_;
+    double effectivePrescale = std::max(eventRatePrescale, dataRatePrescale);
+    if (effectivePrescale > 1.0) {
+      double instantRatio = 1.0 / effectivePrescale;
+      double randValue = (*generator_)();
+      if (randValue > instantRatio) {
+        // track timer statistics and start/stop timers as appropriate
+        insideTimer_.stop();
+        longTermInsideCPUTimeCounter_->addSample(insideTimer_.cpuTime());
+        shortTermInsideCPUTimeCounter_->addSample(insideTimer_.cpuTime(), now);
+        longTermInsideRealTimeCounter_->addSample(insideTimer_.realTime());
+        shortTermInsideRealTimeCounter_->addSample(insideTimer_.realTime(), now);
+        longTermOutsideCPUTimeCounter_->addSample(outsideTimer_.cpuTime());
+        shortTermOutsideCPUTimeCounter_->addSample(outsideTimer_.cpuTime(), now);
+        longTermOutsideRealTimeCounter_->addSample(outsideTimer_.realTime());
+        shortTermOutsideRealTimeCounter_->addSample(outsideTimer_.realTime(), now);
+        outsideTimer_.reset();
+        insideTimer_.reset();
+        outsideTimer_.start();
+        return;
+      }
+    }
   }
 
   // loop over the consumers in our list, and for each one check whether
@@ -225,44 +257,16 @@ void EventServer::processEvent(const EventMsgView &eventView)
     return;
   }
 
-  // if we're not running the fair-share algorithm, use the older
-  // interval-based model for deciding if we're ready for an event
-  if (! runFairShareAlgo_) {
-    double timeDiff = now - lastAcceptedEventTime_;
-    // check if not enough time has passed since we accepted the last event
-    // However, if the last event that we accepted has the same event number
-    // as this one, allow this one to go through.  This sort of thing happens
-    // when two HLT output modules accept the same event and this method
-    // is called in rapid succession for the same event.  In that case, we
-    // don't want to lock out the subscribers to the second HLT output module.
-    if (timeDiff < minTimeBetweenEvents_ &&
-        eventView.event() != lastAcceptedEventNumber_) {
-      insideTimer_.stop();
-      longTermInsideCPUTimeCounter_->addSample(insideTimer_.cpuTime());
-      shortTermInsideCPUTimeCounter_->addSample(insideTimer_.cpuTime(), now);
-      longTermInsideRealTimeCounter_->addSample(insideTimer_.realTime());
-      shortTermInsideRealTimeCounter_->addSample(insideTimer_.realTime(), now);
-      longTermOutsideCPUTimeCounter_->addSample(outsideTimer_.cpuTime());
-      shortTermOutsideCPUTimeCounter_->addSample(outsideTimer_.cpuTime(), now);
-      longTermOutsideRealTimeCounter_->addSample(outsideTimer_.realTime());
-      shortTermOutsideRealTimeCounter_->addSample(outsideTimer_.realTime(), now);
-      outsideTimer_.reset();
-      insideTimer_.reset();
-      outsideTimer_.start();
-      return;
-    }
-  }
-
   // determine which of the candidate consumers are allowed
   // to receive another event at this time
   std::vector<uint32> allowedList;
-  if (runFairShareAlgo_) {
-    allowedList = rateLimiter_->getAllowedConsumersFromList(sizeInMB,
-                                                            candidateList);
-  }
-  else {
+  //if (runFairShareAlgo_) {
+  //  allowedList = rateLimiter_->getAllowedConsumersFromList(sizeInMB,
+  //                                                          candidateList);
+  //}
+  //else {
     allowedList = candidateList;
-  }
+  //}
 
   // send the event to the allowed consumers
   for (uint32 idx = 0; idx < allowedList.size(); ++idx)
@@ -287,10 +291,6 @@ void EventServer::processEvent(const EventMsgView &eventView)
 
       // switch buffers
       bufPtr.swap(tmpBufPtr);
-
-      // update the local time stamp for the latest accepted event
-      lastAcceptedEventTime_ = now;
-      lastAcceptedEventNumber_ = eventView.event();
 
       // add the event to our statistics for "unique accept" events
       ltIter = ltAcceptCounters_.find(outputModuleId);
@@ -376,7 +376,7 @@ void EventServer::processEvent(const EventMsgView &eventView)
 
       // remove the consumer from the rateLimiter instance so that it is
       // no longer considered for a fair share of the allowed bandwidth
-      rateLimiter_->removeConsumer(consumerId);
+      //rateLimiter_->removeConsumer(consumerId);
     }
   }
 
