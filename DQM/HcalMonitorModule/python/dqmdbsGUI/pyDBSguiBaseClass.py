@@ -1728,10 +1728,12 @@ class dbsBaseGui:
 
             
         if len(runlist)==0:
-            self.commentLabel.configure(text="ODD BEHAVIOR!  Runs apparently found, but cannot be parsed!\nDBS output being redirected to screen")
+            self.commentLabel.configure(text="ODD BEHAVIOR!  Runs apparently found, but cannot be parsed!\nIt's possible runs did not contain HCAL -- DBS output being redirected to screen")
+            
             print "DBS Run search result: ",self.myDBS.searchResult
-            print "\n\nRunSummary page search result: "
-            hcalrunlist.printRuns()
+            print "\n\nRunSummary page search result (Valid Hcal Runs): "
+            for iii in hcalrunlist:
+                print iii
             self.dbsProgress.configure(text="No runs in (%i-%i) could be parsed!"%(self.lastFoundDBS.get(),self.lastFoundDBS.get()+self.dbsRange.get()),
                                        bg="black")
             self.commentLabel.update_idletasks()
