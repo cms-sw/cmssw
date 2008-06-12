@@ -16,7 +16,7 @@
 //
 // Original Author:  Chris Jones
 //         Created:  Fri Feb 29 13:39:51 PST 2008
-// $Id$
+// $Id: FWModelFilter.h,v 1.1 2008/03/01 02:14:18 chrjones Exp $
 //
 
 // system include files
@@ -54,8 +54,7 @@ class FWModelFilter
       // ---------- member data --------------------------------
       std::string m_expression;
       std::string m_className;   
-      std::string m_prefix;
-      std::string m_castExpression;
+      std::string m_fullExpression;
 };
 
 

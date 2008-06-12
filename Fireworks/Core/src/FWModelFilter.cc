@@ -8,7 +8,7 @@
 //
 // Original Author:  Chris Jones
 //         Created:  Fri Feb 29 13:39:56 PST 2008
-// $Id$
+// $Id: FWModelFilter.cc,v 1.1 2008/03/01 02:14:08 chrjones Exp $
 //
 
 // system include files
@@ -21,6 +21,7 @@
 
 // user include files
 #include "Fireworks/Core/interface/FWModelFilter.h"
+#include "Fireworks/Core/src/fwCintInterfaces.h"
 
 
 //
@@ -36,12 +37,9 @@
 //
 FWModelFilter::FWModelFilter(const std::string& iExpression,
                            const std::string& iClassName):
-m_expression(iExpression),
-m_className(iClassName),
-m_prefix(std::string("(*((const ")+iClassName+"*)("),
-m_castExpression(std::string("(Long_t)(")+iExpression+")")
+m_className(iClassName)
 {
-
+   setExpression(iExpression);
 }
 
 // FWModelFilter::FWModelFilter(const FWModelFilter& rhs)
@@ -72,16 +70,22 @@ void
 FWModelFilter::setExpression(const std::string& iExpression)
 {
    m_expression = iExpression;
-   std::string temp(std::string("(Long_t)(")+iExpression+")");
-   m_castExpression.swap(temp);
+   const std::string variable(std::string("(*((const ")+m_className+"*)(fwGetObjectPtr())))");
+   static boost::regex const reVarName("\\$");
+
+   std::string temp(std::string("fwSetInCint((long)(")+iExpression+"))");
+
+   temp = boost::regex_replace(temp,reVarName,variable);
+   m_fullExpression.swap(temp);
 }
 
 void 
 FWModelFilter::setClassName(const std::string& iClassName)
 {
    m_className = iClassName;
-   std::string temp(std::string("(*((const ")+iClassName+"*)(");
-   m_prefix.swap(temp);
+   setExpression(m_expression);
+   //std::string temp(std::string("(*((const ")+iClassName+"*)(");
+   //m_prefix.swap(temp);
 }
 
 //
@@ -96,23 +100,20 @@ FWModelFilter::expression() const
 bool 
 FWModelFilter::passesFilter(const void* iObject) const
 {
+   bool returnValue=true;
    if(m_expression.empty()) {
       return true;
    }
-   bool returnValue = true;
-   static const std::string s_postfix(")))");
-   static boost::regex const reVarName("\\$");
-
-   //we are probably making many changes
-   std::stringstream fullVariable;
-   fullVariable <<m_prefix<<iObject<<s_postfix;
+   
+   fwSetObjectPtr(iObject);
+   fwCintReturnType()=kFWCintReturnNoReturn;
    Int_t error = 0;
-   Long_t value = gROOT->ProcessLineFast(boost::regex_replace(m_castExpression,reVarName,fullVariable.str()).c_str(),
+   Long_t value = gROOT->ProcessLineFast(m_fullExpression.c_str(),
                                          &error);
-   if(TInterpreter::kNoError != error) {
+   if(TInterpreter::kNoError != error || fwCintReturnType() == kFWCintReturnNoReturn) {
       returnValue = true;
    } else {
-      returnValue = value;
+      returnValue = fwGetFromCintLong();
    }
    return returnValue;
 }
