@@ -1,5 +1,5 @@
 #!/usr/bin/perl -w
-# $Id: injectFileIntoTransferSystem.pl,v 1.5 2008/06/11 13:56:34 loizides Exp $
+# $Id: injectFileIntoTransferSystem.pl,v 1.6 2008/06/11 21:44:15 loizides Exp $
 #
 # Written by Matt Rudolph June 2008
 #
@@ -72,7 +72,7 @@ sub usage
   exit;
 }
 
-#subroutine for getting formatted time for SQL to_date method
+# subroutine for getting formatted time for SQL to_date method
 sub gettimestamp($)
 {
 
@@ -99,7 +99,7 @@ sub gettimestamp($)
     return $timestr;
 }
 
-#Strip quotes and otherwise check that a parameter is in good format
+# strip quotes and otherwise check that a parameter is in good format
 sub checkOption($) {
 
     my $theOpt=shift;
@@ -124,33 +124,33 @@ my ($producer, $stream, $type, $runnumber, $lumisection, $count,$instance);
 my ($createtime, $injecttime, $ctime, $itime, $comment, $destination);
 my ($appname, $appversion, $nevents, $checksum, $setuplabel);
 
-$help      = 0;
-$debug     = 0;
-$hostname = '';
-$filename  = ''; 
-$pathname = '';
+$help        = 0;
+$debug       = 0;
+$hostname    = '';
+$filename    = ''; 
+$pathname    = '';
 $destination = '';
-$filesize=0;
+$filesize    = 0;
 
-#These optional parameters must not be empty strings
-#Transfer system requires these options be set to SOMETHING, even if its meaningless
-$producer = 'default';
-$stream ='';
-$type = '';
-$runnumber = 0;
+# these optional parameters must not be empty strings
+# transfer system requires these options be set to SOMETHING, even if its meaningless
+$producer    = 'default';
+$stream      = '';
+$type        = '';
+$runnumber   = 0;
 $lumisection = -1;
-$count = -1;
-$instance = -1;
-$nevents = 0;
-$ctime=0;
-$itime=0;
-$appname = '';
-$appversion = '';
-$checksum = '';
-$setuplabel = 'default';
+$count       = -1;
+$instance    = -1;
+$nevents     = 0;
+$ctime       = 0;
+$itime       = 0;
+$appname     = '';
+$appversion  = '';
+$checksum    = '';
+$setuplabel  = 'default';
 $destination = 'default';
-$index ='';
-$comment = '';
+$index       = '';
+$comment     = '';
 
 GetOptions(
            "h|help"                   => \$help,
@@ -182,7 +182,7 @@ $help && usage;
 
 
 ############################################
-#Main starts here
+# Main starts here
 ############################################
 
 # first check formatting of options
@@ -202,8 +202,8 @@ $checksum    = checkOption($checksum);
 $comment =~ s/\'//g;
 $comment =~ s/\"//g;
 
-#Filename, path, host and filesize must be correct or transfer will never work
-#First check to make sure all of these are set and exit if not
+# filename, path, host and filesize must be correct or transfer will never work
+# first check to make sure all of these are set and exit if not
 unless($filename) {
     print "Error: No filename supplied, exiting \n";
     usageShort();
@@ -224,7 +224,7 @@ if(hostname() eq $hostname && !(-e "$pathname/$filename")) {
     usageShort();
 } 
 
-#If we are running this on same host as the file can find out filesize as a fallback
+# if we are running this on same host as the file can find out filesize as a fallback
 unless($filesize) {
     print "Warning: No filesize supplied or filesize=0, ";
     if(hostname() ne $hostname) {
@@ -241,8 +241,7 @@ unless($type) {
     usageShort();
 }
 
-
-#Depending on type check for different required parameters
+# depending on type check for different required parameters
 if($type eq "streamer") {
     unless( $runnumber && $lumisection != -1 && $nevents && $appname && $appversion && $stream && $setuplabel ne 'default') {
 	print "Error: For streamer files need runnumber, lumisection, num events, app name, app version, stream, setup label, and index specified\n";
@@ -254,6 +253,7 @@ if($type eq "streamer") {
         usageShort();
     }
 } elsif($type eq "lumi") {
+    ($destination eq 'default') $destination = 'cms_lumi';
     unless( $runnumber && $lumisection != -1 && $appname && $appversion) {
 	print "Error: For lumi files need runnumber, lumisection, app name, and app version specified.\n";
         usageShort();
@@ -264,10 +264,10 @@ if($type eq "streamer") {
     usageShort();
 }
 
-#Setuplabel used to be called DATASET in transfer system but name was misleading
+# setuplabel used to be called DATASET in transfer system but name was misleading
 ($destination eq 'default') && $debug && print "No destination specified, default will be used \n";
 
-#Will just use time now as creation and injection if no other time specified.
+# will just use time now as creation and injection if no other time specified.
 if(!$ctime) {
     $ctime =time;
     $debug && print "No creation time specified, using time now \n";
@@ -280,7 +280,7 @@ if(!$itime) {
 }
 $injecttime = gettimestamp($itime);
 
-#Create inserts into FILES_CREATED and FILES_INJECTED
+# create inserts into FILES_CREATED and FILES_INJECTED
 my $SQLcreate = "INSERT INTO CMS_STOMGR.FILES_CREATED (" .
             "FILENAME,CPATH,HOSTNAME,SETUPLABEL,STREAM,TYPE,PRODUCER,APP_NAME,APP_VERSION," .
             "RUNNUMBER,LUMISECTION,COUNT,INSTANCE,CTIME,COMMENT_STR) " .
@@ -294,14 +294,14 @@ my $SQLinject = "INSERT INTO CMS_STOMGR.FILES_INJECTED (" .
 
 $debug && print "SQL commands:\n $SQLcreate \n $SQLinject \n";
 
-#Notify script can be changed by environment variable
+# notify script can be changed by environment variable
 my $notscript = $ENV{'SM_NOTIFYSCRIPT'};
 if (!defined $notscript) {
     $notscript = "/nfshome0/cmsprod/TransferTest/injection/sendNotification.sh";
 }
 
 
-#If file is a .dat and there is an index file, supply it
+# if file is a .dat and there is an index file, supply it
 my $indfile='';
 if($filename=~/\.dat$/  && !$index) {
     $indfile=$filename;
@@ -315,11 +315,11 @@ if($filename=~/\.dat$/  && !$index) {
     }
 }
 
-#All these options are enforced by notify script (even if meaningless):
+# all these options are enforced by notify script (even if meaningless):
 my $TIERZERO = "$notscript --FILENAME $filename --PATHNAME $pathname --HOSTNAME $hostname --FILESIZE $filesize --TYPE $type " . 
 "--START_TIME $ctime --STOP_TIME $itime --SETUPLABEL $setuplabel --STREAM $stream --DESTINATION $destination";
 
-#These options aren't needed but available:
+# these options aren't needed but available:
 if($runnumber) { $TIERZERO .= " --RUNNUMBER $runnumber";}
 if($lumisection != -1) { $TIERZERO .= " --LUMISECTION $lumisection";}
 if($stream) { $TIERZERO .= " --STREAM $stream";}
@@ -331,14 +331,14 @@ if($appname) { $TIERZERO .= " --APP_VERSION $appversion";}
 if($checksum) { $TIERZERO .= " --CHECKSUM $checksum";}
 $debug && print "Notify command: \n $TIERZERO \n";
 
-#Setup DB connection
+# setup DB connection
 my $dbi    = "DBI:Oracle:cms_rcms";
 my $reader = "CMS_STOMGR_W";
 $debug && print "Setting up DB connection for $dbi and $reader\n";
 my $dbh = DBI->connect($dbi,$reader,"qwerty") or die("Error: Connection to Oracle DB failed");
 $debug && print "DB connection set up succesfully \n";
 
-#Do DB inserts
+# do DB inserts
 $debug && print "Preparing DB inserts\n";
 my $createHan = $dbh->prepare($SQLcreate) or die("Error: Prepare failed, $dbh->errstr \n");
 my $injectHan = $dbh->prepare($SQLinject) or die("Error: Prepare failed, $dbh->errstr \n");
@@ -364,7 +364,7 @@ if(defined($dbErr)) {
 
 my $T0out;
 
-#Check return values before calling notification script.  Want to make sure no DB errors
+# check return values before calling notification script.  Want to make sure no DB errors
 if($rowsCreate==1 && $rowsInject==1) {
     print "DB inserts completed, running Tier 0 notification script \n";
     $T0out=`$TIERZERO 2>&1`;
