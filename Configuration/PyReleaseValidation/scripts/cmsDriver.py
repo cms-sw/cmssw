@@ -24,62 +24,9 @@ def print_options(options):
 
 #---------------------------------------------------------
 
-# The supported evt types and default energies:
-#energies in GeV!
-pgun_ene="10"
-jet_en="50_120"
-die_en="5_120"
-heavy_higgs="190"
-light_higgs="120"
-ZP_mass="1000"
-gravitonmass="1500"
-type_energy_dict={"MU+":pgun_ene,
-                  "MU-":pgun_ene,
-                  "E":pgun_ene,
-                  "DIE":die_en,
-                  "TAU":pgun_ene,
-                  "PI+":pgun_ene,
-                  "PI-":pgun_ene,
-                  "PI0":pgun_ene,
-                  "GAMMA":pgun_ene,
-                  #
-                  "QCD":"380_470",
-                  "TTBAR":"",
-                  "MINBIAS":"",           
-                  #
-                  "B_JETS":jet_en,
-                  "C_JETS":jet_en,
-                  #
-                  "WE":"",
-                  "WM":"",
-                  "WT":"",
-                  #
-                  "ZEE":"",
-                  "ZMUMU":"",
-                  "ZTT":"",
-                  #
-                  "ZPJJ":"",
-                  "ZPEE":ZP_mass,
-                  "ZPMUMU":ZP_mass,
-                  "ZPTT":ZP_mass,
-                  #
-                  "HZZEEEE":heavy_higgs,
-                  "HZZMUMUMUMU":heavy_higgs,
-                  "HZZTTTT":heavy_higgs,
-                  "HZZLLLL":heavy_higgs,
-                  "HGG":light_higgs,
-                  #
-                  "RS1GG":gravitonmass,
-                  "HpT":""}
-
-# Sorted list of available types for the user help.
-types_list=type_energy_dict.keys()
-types_list.sort()
-
 # Prepare a parser to read the options
 usage=\
 """%prog <TYPE> [options].
-The supported event types are: """+str(types_list)+""".
 Examples:
 %prog QCD
 %prog 10MU+ -e 45 -n 100 --no_output
@@ -292,9 +239,6 @@ options.evt_type=sys.argv[1]
 #    raise "Event Type: ","Unrecognised event type."
 
 if options.energy==None:
-    if options.evt_type in type_energy_dict.keys():
-        options.energy=type_energy_dict[options.evt_type]
-    else:
         options.energy=''
         
 # Build the IO files if necessary.
