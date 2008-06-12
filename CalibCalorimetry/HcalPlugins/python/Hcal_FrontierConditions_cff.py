@@ -15,11 +15,11 @@ es_pool = cms.ESSource("PoolDBESSource",
     timetype = cms.string('runnumber'),
     toGet = cms.VPSet(cms.PSet(
         record = cms.string('HcalPedestalsRcd'),
-        tag = cms.string('hcal_pedestals_fC_v4_mc')
+        tag = cms.string('hcal_pedestals_fC_v5_mc')
     ), 
         cms.PSet(
             record = cms.string('HcalPedestalWidthsRcd'),
-            tag = cms.string('hcal_widths_fC_v4_mc')
+            tag = cms.string('hcal_widths_fC_v5_mc')
         ), 
         cms.PSet(
             record = cms.string('HcalGainsRcd'),

@@ -9,11 +9,11 @@ hcal_db_producer = cms.ESProducer("HcalDbProducer",
 es_ascii = cms.ESSource("HcalTextCalibrations",
     input = cms.VPSet(cms.PSet(
         object = cms.string('Pedestals'),
-        file = cms.FileInPath('CondFormats/HcalObjects/data/hcal_pedestals_fC_v4.txt')
+        file = cms.FileInPath('CondFormats/HcalObjects/data/hcal_pedestals_fC_v5.txt')
     ), 
         cms.PSet(
             object = cms.string('PedestalWidths'),
-            file = cms.FileInPath('CondFormats/HcalObjects/data/hcal_widths_fC_v4.txt')
+            file = cms.FileInPath('CondFormats/HcalObjects/data/hcal_widths_fC_v5.txt')
         ), 
         cms.PSet(
             object = cms.string('Gains'),
