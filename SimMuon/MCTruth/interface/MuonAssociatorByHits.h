@@ -87,7 +87,9 @@ class MuonAssociatorByHits {
   const unsigned int MinHitCut_muon;    
   const double PurityCut_track;
   const double PurityCut_muon;
+  const bool SimToReco_useTracker;
   const double EfficiencyCut_track;
+  const bool SimToReco_useMuon;
   const double EfficiencyCut_muon;
   const bool UsePixels;
   const bool UseGrouped;

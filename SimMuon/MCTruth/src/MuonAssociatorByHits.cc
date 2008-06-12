@@ -25,7 +25,9 @@ MuonAssociatorByHits::MuonAssociatorByHits (const edm::ParameterSet& conf) :
   MinHitCut_muon(conf.getParameter<unsigned int>("MinHitCut_muon")),
   PurityCut_track(conf.getParameter<double>("PurityCut_track")),
   PurityCut_muon(conf.getParameter<double>("PurityCut_muon")),
+  SimToReco_useTracker(conf.getParameter<bool>("SimToReco_useTracker")),
   EfficiencyCut_track(conf.getParameter<double>("EfficiencyCut_track")),
+  SimToReco_useMuon(conf.getParameter<bool>("SimToReco_useMuon")),
   EfficiencyCut_muon(conf.getParameter<double>("EfficiencyCut_muon")),
   UsePixels(conf.getParameter<bool>("UsePixels")),
   UseGrouped(conf.getParameter<bool>("UseGrouped")),
@@ -470,8 +472,11 @@ MuonAssociatorByHits::associateSimToReco(edm::RefToBaseVector<reco::Track>& tC,
 	}
 	
 	n_tracker_recounted_simhits = tphits.size();
-	n_global_simhits = n_tracker_recounted_simhits + n_muon_simhits;
 
+	// global number of simhits in TrackingParticle's is taken according to the type of reco::Track's to associate 
+	if (SimToReco_useMuon) n_global_simhits = n_muon_simhits;
+	if (SimToReco_useTracker) n_global_simhits += n_tracker_recounted_simhits;
+     
 	if (AbsoluteNumberOfHits_track) tracker_quality = static_cast<double>(tracker_nshared);
 	else if (n_tracker_recounted_simhits!=0) 
 	  tracker_quality = static_cast<double>(tracker_nshared)/static_cast<double>(n_tracker_recounted_simhits);
