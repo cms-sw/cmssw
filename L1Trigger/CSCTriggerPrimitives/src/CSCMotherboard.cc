@@ -27,8 +27,8 @@
 //                Based on code by Nick Wisniewski (nw@its.caltech.edu)
 //                and a framework by Darin Acosta (acosta@phys.ufl.edu).
 //
-//   $Date: 2008/03/03 14:38:41 $
-//   $Revision: 1.12 $
+//   $Date: 2008/05/01 15:51:03 $
+//   $Revision: 1.13 $
 //
 //   Modifications: Numerous later improvements by Jason Mumford and
 //                  Slava Valuev (see cvs in ORCA).
@@ -253,7 +253,7 @@ CSCCorrelatedLCTDigi CSCMotherboard::constructLCTs(const CSCALCTDigi& aLCT,
   int trknmb = 0;
   CSCCorrelatedLCTDigi thisLCT(trknmb, 1, quality, aLCT.getKeyWG(),
 			       cLCT.getKeyStrip(), pattern, cLCT.getBend(),
-			       bx);
+			       bx, 0, 0, 0, theTrigChamber);
   return thisLCT;
 }
 
