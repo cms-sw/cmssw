@@ -20,11 +20,21 @@
 #include "TStyle.h"
 #include "TGraph.h"
 
+//const int models=2, nEnergy0=8, nEnergy1=7, nEnergy2=10, nEnergy3=8;
 const int models=4, nEnergy0=8, nEnergy1=7, nEnergy2=10, nEnergy3=8;
 //const int models=5, nEnergy0=8, nEnergy1=7, nEnergy2=10, nEnergy3=8;
+//std::string Models[2]      = {"Bertini", "Bertini"};
+//std::string ModelFiles[2]  = {"OldBertini", "NewBertini"};
+//std::string ModelNames[2]  = {"Bertini (Old)", "Bertini (New)"};
 std::string Models[4]      = {"LEP", "RPG", "FTF", "Bertini"};
+std::string ModelFiles[4]  = {"LEP", "RPG", "FTF", "Bertini"};
+std::string ModelNames[4]  = {"LEP", "RPG", "FTF", "Bertini"};
 //std::string Models[5]      = {"LEP", "Binary", "FTFP", "QGSC", "Bertini"};
+//std::string ModelFiles[5]  = {"LEP", "Binary", "FTFP", "QGSC", "Bertini"};
+//std::string ModelNames[5]  = {"LEP", "Binary", "FTFP", "QGSC", "Bertini"};
 //std::string Models[5]      = {"LEP", "QGSP", "FTFP", "QGSC", "Bertini"};
+//std::string ModelFiles[5]  = {"LEP", "QGSP", "FTFP", "QGSC", "Bertini"};
+//std::string ModelNames[5]  = {"LEP", "QGSP", "FTFP", "QGSC", "Bertini"};
 int         colModel[5]    = {1, 2, 6, 3, 7};
 int         symbModel[5]   = {24, 29, 25, 27, 26};
 double      keproton[4]    = {0.09, 0.15, 0.19, 0.23};
@@ -217,15 +227,16 @@ void plotKE(char element[2], char ene[6], char angle[6], int first=0,
 	    int logy=0, char beam[8]="proton", char particle[8]="proton", 
 	    char dir[8]="root") {
 
-  char fname[60], list[10], hname[40], titlx[50];
+  char fname[60], list[20], hname[40], titlx[50];
   TH1F *hi[5];
   int i=0, icol=1;
   sprintf (titlx, "Kinetic Energy of %s (GeV)", particle);
   double  ymx0=1, ymi0=100., xlow=0.06, xhigh=0.26;
   if (particle == "neutron") {xlow= 0.0; xhigh=0.20;}
   for (i=0; i<models; i++) {
-    sprintf (list, "%s", Models[i].c_str()); icol = colModel[i];
+    sprintf (list, "%s", ModelFiles[i].c_str()); 
     sprintf (fname, "%s/%s/%s/%s%s%sGeV_1.root", dir, beam, particle, element, list, ene);
+    sprintf (list, "%s", Models[i].c_str()); icol = colModel[i];
     sprintf (hname, "KE0%s%s%sGeV%s", element, list, ene, angle);
     TFile *file = new TFile(fname);
     hi[i] = (TH1F*) file->Get(hname);
@@ -287,7 +298,7 @@ void plotKE(char element[2], char ene[6], char angle[6], int first=0,
 
   TLegend *leg1 = new TLegend(0.42,0.70,0.90,0.90);
   for (i=0; i<models; i++) {
-    sprintf (list, "%s", Models[i].c_str()); 
+    sprintf (list, "%s", ModelNames[i].c_str()); 
     leg1->AddEntry(hi[i],list,"F");
   }
   char header[120], beamx[8], partx[2];
@@ -353,13 +364,14 @@ void plotCT(char element[2], char ene[6], double ke, int first=0, int scan=1,
   int    nn = (int)(angles.size());
   if (debug) std::cout << " gives " << nn << " angles\n";
 
-  char fname[40], list[10], hname[40];
+  char fname[40], list[20], hname[40];
   TH1F *hi[5];
   int i=0, icol=1;
   double  ymx0=1, ymi0=100., xlow=-1.0, xhigh=1.0;
   for (i=0; i<models; i++) {
-    sprintf (list, "%s", Models[i].c_str()); icol = colModel[i];
+    sprintf (list, "%s", ModelFiles[i].c_str()); icol = colModel[i];
     sprintf (fname, "%s/%s/%s/%s%s%sGeV_1.root", dir, beam, particle, element, list, ene);
+    sprintf (list, "%s", Models[i].c_str()); icol = colModel[i];
     sprintf (hname, "CT0%s%s%sGeV%4.2f", element, list, ene, ke);
     TFile *file = new TFile(fname);
     hi[i] = (TH1F*) file->Get(hname);
@@ -430,7 +442,7 @@ void plotCT(char element[2], char ene[6], double ke, int first=0, int scan=1,
 
   TLegend *leg1 = new TLegend(0.15,0.70,0.62,0.90);
   for (i=0; i<models; i++) {
-    sprintf (list, "%s", Models[i].c_str());
+    sprintf (list, "%s", ModelNames[i].c_str());
     leg1->AddEntry(hi[i],list,"F");
   }
   char header[80], beamx[8], partx[2];
@@ -518,7 +530,7 @@ void plotBE(char element[2], char angle[6], double ke, int logy=0, int scan=1,
   }
 
   TGraph *gr[4];
-  char fname[40], list[10], hname[40];
+  char fname[40], list[20], hname[40];
   int j=0, icol=1, ityp=20;
   double  ymx0=1, ymi0=10000., xmi=5.0, xmx=10.0;
   if (scan > 1) { 
@@ -526,11 +538,12 @@ void plotBE(char element[2], char angle[6], double ke, int logy=0, int scan=1,
     xmx = 9.5;
   }
   for (i=0; i<models; i++) {
-    sprintf (list, "%s", Models[i].c_str()); 
     icol = colModel[i]; ityp = symbModel[i];
     double yt[15];
     for (j=0; j<nene; j++) {
+      sprintf (list, "%s", ModelFiles[i].c_str()); 
       sprintf (fname, "%s/%s/%s/%s%s%3.1fGeV_1.root", dir, beam, particle, element, list, ene[j]);
+      sprintf (list, "%s", Models[i].c_str()); 
       sprintf (hname, "KE0%s%s%3.1fGeV%s", element, list, ene[j], angle);
       TFile *file = new TFile(fname);
       TH1F *hi = (TH1F*) file->Get(hname);
@@ -619,7 +632,7 @@ void plotBE(char element[2], char angle[6], double ke, int logy=0, int scan=1,
   
   TLegend *leg1 = new TLegend(0.35,0.60,0.90,0.90);
   for (i=0; i<models; i++) {
-    sprintf (list, "%s", Models[i].c_str());
+    sprintf (list, "%s", ModelNames[i].c_str());
     leg1->AddEntry(gr[i],list,"LP");
   }
   char header[80], beamx[8], partx[2];
