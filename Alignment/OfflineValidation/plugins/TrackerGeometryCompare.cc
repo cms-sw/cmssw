@@ -94,19 +94,20 @@ TrackerGeometryCompare::TrackerGeometryCompare(const edm::ParameterSet& cfg)
 	}		
 	
 	// turn weightByIdFile into weightByIdVector
-	std::ifstream inFile;
-	inFile.open( _weightByIdFile.c_str() );
-	int ctr = 0;
-	while ( !inFile.eof() ){
-		ctr++;
-		unsigned int listId;
-		inFile >> listId;
-		inFile.ignore(256, '\n');
-		
-		_weightByIdVector.push_back( listId );
+	if (_weightById){
+		std::ifstream inFile;
+		inFile.open( _weightByIdFile.c_str() );
+		int ctr = 0;
+		while ( !inFile.eof() ){
+			ctr++;
+			unsigned int listId;
+			inFile >> listId;
+			inFile.ignore(256, '\n');
+			
+			_weightByIdVector.push_back( listId );
+		}
+		inFile.close();
 	}
-	inFile.close();
-	
 	
 	
 	//root configuration
