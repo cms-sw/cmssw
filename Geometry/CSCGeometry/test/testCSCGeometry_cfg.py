@@ -1,18 +1,12 @@
-# The following comments couldn't be translated into the new config version:
-
 # Configuration file to run stubs/CSCGeometryAnalyser
 # to dump CSC geometry information
-# Tim Cox 16.08.2007. 
-# Update 11.06.2008 because MessageLogger now doesn't want explicit file extensions.
+# Tim Cox 11.06.2008 pythonized
 
 import FWCore.ParameterSet.Config as cms
 
 process = cms.Process("GeometryTest")
-# xml for endcap csc geometry
 process.load("Geometry.MuonNumbering.muonNumberingInitialization_cfi")
-
 process.load("Geometry.MuonCommonData.muonEndcapIdealGeometryXML_cfi")
-
 # flags for modelling of CSC layer & strip geometry
 process.load("Geometry.CSCGeometry.cscGeometry_cfi")
 
