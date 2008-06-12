@@ -5,32 +5,11 @@
 # creates a complete config file.
 # relval_main + the custom config for it is not needed any more
 
-__version__ = "$Revision: 1.12 $"
+__version__ = "$Revision: 1.13 $"
 __source__ = "$Source: /cvs_server/repositories/CMSSW/CMSSW/Configuration/PyReleaseValidation/python/ConfigBuilder.py,v $"
 
 import FWCore.ParameterSet.Config as cms
 import new
-
-
-def AccessCheckingInstanceDecorator(instance):
-    """Enable an object to keep track of access to methods and data members"""
-
-    instance._logSet = set()
-
-    def loggingGetattribute(self, name):
-        """record every attribute access"""
-        self._logSet.add(name)
-        return self.__dict__[name]
-    instance.__getattr__ = new.instancemethod(loggingGetattribute, instance, instance.__class__)
-
-    def listUnused(self):
-        """compare accessed attributes with all non 'private' attributes"""
-        unused = [name for name in self.__dict__ if name not in self._logSet and not name.startswith("_") ]
-        return unused
-    instance._listUnused = new.instancemethod(listUnused, instance, instance.__class__)
-
-    return instance
-                                                        
 
 
 class ConfigBuilder(object):
@@ -73,17 +52,13 @@ class ConfigBuilder(object):
         self.process.maxEvents=cms.untracked.PSet(input=cms.untracked.int32(int(self._options.number)))
                         
     def addSource(self):
-        """Here the source is built. Priority: pythia, file"""
-        # prepared by D. Piparo 
-
+        """Here the source is built. Priority: file, generator"""
         if self._options.filein:
             self.process.source=cms.Source("PoolSource", fileNames = cms.untracked.vstring(self._options.filein))
-
         elif hasattr(self._options,'evt_type'):
-            import Configuration.PyReleaseValidation.Generation as newGenerator
-            self.process.source=newGenerator.generate(self._options.evt_type,
-                                                      self._options.energy,
-                                                      self._options.number)
+            evt_type = self._options.evt_type.replace(".","_")
+            source = __import__('Configuration/Generator/'+evt_type).source
+            self.process.source = source 
         return
 
     def addOutput(self):
@@ -110,8 +85,6 @@ class ConfigBuilder(object):
         self.process.output = output
         self.process.out_step = cms.EndPath(self.process.output)
         self.process.schedule.append(self.process.out_step)
-
-         
 
         # ATTENTION: major tweaking to avoid inlining of event content
         # should we do that?
@@ -157,6 +130,7 @@ class ConfigBuilder(object):
 
         # what steps are provided by this class?
         stepList = [methodName.lstrip("prepare_") for methodName in self.__class__.__dict__ if methodName.startswith('prepare_')]
+
         # look which steps are requested and invoke the corresponding method
         for step in self._options.step.split(","):
             stepParts = step.split(":")   # for format STEP:alternativeSequence
@@ -186,7 +160,7 @@ class ConfigBuilder(object):
         packageName = self._options.customisation_file.replace(".py","")
         package = __import__(packageName)
 
-        # now ask the package for its definition and pick.py instead of .pyc
+        # now ask the package for its definition and pick .py instead of .pyc
         customiseFile = package.__file__.rstrip("c")
         
         final_snippet='\n\n# Automatic addition of the customisation function\n'
@@ -292,7 +266,7 @@ class ConfigBuilder(object):
     def build_production_info(evt_type, energy, evtnumber):
         """ Add useful info for the production. """
         prod_info=cms.untracked.PSet\
-              (version=cms.untracked.string("$Revision: 1.12 $"),
+              (version=cms.untracked.string("$Revision: 1.13 $"),
                name=cms.untracked.string("PyReleaseValidation")#,
               # annotation=cms.untracked.string(self._options.evt_type+" energy:"+str(energy)+" nevts:"+str(evtnumber))
               )
@@ -328,7 +302,7 @@ class ConfigBuilder(object):
 
         # dump the input definition
         self.pythonCfgCode += "\n# Input source\n"
-        self.pythonCfgCode += "process.source = "+self.process.source.dumpPython() #TODO - that needs still definition
+        self.pythonCfgCode += "process.source = "+self.process.source.dumpPython() 
         
         # dump the output definition
         self.pythonCfgCode += "\n# Output definition\n"
@@ -340,7 +314,7 @@ class ConfigBuilder(object):
             self.pythonCfgCode += command + "\n"
         
         # add all paths
-        # todo: except for the bad trigger ones
+        # except for the blacklisted trigger ones
         self.pythonCfgCode += "\n# Path and EndPath definitions\n"
         for path in self.process.paths:
             if path not in self.blacklist_paths:
