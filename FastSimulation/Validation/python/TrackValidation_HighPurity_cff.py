@@ -18,12 +18,13 @@ from Validation.RecoTrack.cutsTPEffic_cfi import *
 from Validation.RecoTrack.cutsTPFake_cfi import *
 from Validation.RecoTrack.MultiTrackValidator_cff import *
 valid = cms.Sequence(cms.SequencePlaceholder("genParticles")*trackingParticles*cutsTPEffic*cutsTPFake*multiTrackValidator)
-trackingtruthprod.TrackerHitLabels = ['TrackerHits']
-TrackAssociatorByHitsESProducer.associateStrip = False
-TrackAssociatorByHitsESProducer.associatePixel = False
-TrackAssociatorByHitsESProducer.ROUList = ['TrackerHits']
+mergedtruth.TrackerHitLabels = ['TrackerHits']
+TrackAssociatorByHits.associateStrip = False
+TrackAssociatorByHits.associatePixel = False
+TrackAssociatorByHits.ROUList = ['TrackerHits']
 # pass only high purity tracks
 multiTrackValidator.label = ['firstfilter']
 multiTrackValidator.associators = ['TrackAssociatorByHits']
 multiTrackValidator.UseAssociators = True
+
 
