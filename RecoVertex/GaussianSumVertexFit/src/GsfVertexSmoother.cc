@@ -187,7 +187,7 @@ GsfVertexSmoother::createNewComponent(const VertexState & oldVertex,
 	linTrack, trackWeight, sign);
 
   KalmanVertexTrackUpdator<5>::trackMatrixPair thePair = 
-  	theVertexTrackUpdator.trackRefit(newVertex, linTrack);
+  	theVertexTrackUpdator.trackRefit(newVertex, linTrack, trackWeight);
 
   //Chi**2 contribution of the track component
   double vtxChi2 = helper.vertexChi2(oldVertex, newVertex);
