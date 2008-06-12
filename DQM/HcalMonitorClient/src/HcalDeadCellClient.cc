@@ -454,8 +454,7 @@ void HcalDeadCellClient::resetAllME()
 
 void HcalDeadCellClient::htmlOutput(int runNo, string htmlDir, string htmlName)
 {
-  if (debug_)
-    cout << "Preparing HcalDeadCellClient html output ..." << endl;
+  cout << "Preparing HcalDeadCellClient html output ..." << endl;
   string client = "DeadCellMonitor";
   htmlErrors(runNo,htmlDir,client,process_,dbe_,dqmReportMapErr_,dqmReportMapWarn_,dqmReportMapOther_);
   
@@ -560,7 +559,19 @@ void HcalDeadCellClient::htmlOutput(int runNo, string htmlDir, string htmlName)
   htmlFile <<"<table width=75%align = \"center\"><tr align=\"center\">" <<endl;
   htmlFile <<"<td>  List of Dead Cells</td><td align=\"center\"> Fraction of Events in which cells are bad (%)</td></tr>"<<endl;
 
+  // Dump out hot cell candidates
+  int hotcellcount=0;
+  int totalcells=0;
+  if (subDetsOn_[0])
+    totalcells+=2592;
+  if (subDetsOn_[1])
+    totalcells+=2592;
+  if (subDetsOn_[2])
+    totalcells+=2160;
+  if (subDetsOn_[3])
+    totalcells+=1728;
   
+
   for (int depth=0;depth<4;++depth)
     {
 
@@ -587,21 +598,25 @@ void HcalDeadCellClient::htmlOutput(int runNo, string htmlDir, string htmlName)
 		if (hcalhists.problemDeadCells_DEPTH[depth]->GetBinContent(ieta,iphi)>=errorFrac_)
 		cout<<" HCAL ("<<eta<<", "<<phi<<")  "<<hbhists.problemDeadCells_DEPTH[depth]->GetBinContent(ieta,iphi)<<""<<endl;
 	      */
-	      if (subDetsOn_[1] && hbhists.problemDeadCells_DEPTH[depth]!=NULL && hbhists.problemDeadCells_DEPTH[depth]->GetBinContent(ieta,iphi)>=errorFrac_*ievt_)
+	      if (subDetsOn_[0] && hbhists.problemDeadCells_DEPTH[depth]!=NULL && hbhists.problemDeadCells_DEPTH[depth]->GetBinContent(ieta,iphi)>=errorFrac_*ievt_)
 		{
 		  htmlFile<<"<td align=\"center\"> HB ("<<eta<<", "<<phi<<", "<<depth+1<<") </td><td align=\"center\"> "<<100.*hbhists.problemDeadCells_DEPTH[depth]->GetBinContent(ieta,iphi)/ievt_<<"%</td></tr>"<<endl;
+		  hotcellcount++;
 		}
-	      if (subDetsOn_[2] && hehists.problemDeadCells_DEPTH[depth]!=NULL && hehists.problemDeadCells_DEPTH[depth]->GetBinContent(ieta,iphi)>=errorFrac_*ievt_)
+	      if (subDetsOn_[1] && hehists.problemDeadCells_DEPTH[depth]!=NULL && hehists.problemDeadCells_DEPTH[depth]->GetBinContent(ieta,iphi)>=errorFrac_*ievt_)
 		{
 		  htmlFile<<"<td align=\"center\"> HE ("<<eta<<", "<<phi<<", "<<depth+1<<") </td><td align=\"center\"> "<<100.*hehists.problemDeadCells_DEPTH[depth]->GetBinContent(ieta,iphi)/ievt_<<"%</td></tr>"<<endl;
+		  hotcellcount++;
 		}
-	      if (subDetsOn_[3] && hohists.problemDeadCells_DEPTH[depth]!=NULL && hohists.problemDeadCells_DEPTH[depth]->GetBinContent(ieta,iphi)>=errorFrac_*ievt_)
+	      if (subDetsOn_[2] && hohists.problemDeadCells_DEPTH[depth]!=NULL && hohists.problemDeadCells_DEPTH[depth]->GetBinContent(ieta,iphi)>=errorFrac_*ievt_)
 		{
 		  htmlFile<<"<td align=\"center\"> HO ("<<eta<<", "<<phi<<", "<<depth+1<<") </td><td align=\"center\"> "<<100.*hohists.problemDeadCells_DEPTH[depth]->GetBinContent(ieta,iphi)/ievt_<<"%</td></tr>"<<endl;
+		  hotcellcount++;
 		}
-	      if (subDetsOn_[4] && hfhists.problemDeadCells_DEPTH[depth]!=NULL && hfhists.problemDeadCells_DEPTH[depth]->GetBinContent(ieta,iphi)>=errorFrac_*ievt_)
+	      if (subDetsOn_[3] && hfhists.problemDeadCells_DEPTH[depth]!=NULL && hfhists.problemDeadCells_DEPTH[depth]->GetBinContent(ieta,iphi)>=errorFrac_*ievt_)
 		{
 		  htmlFile<<"<td align=\"center\"> HF ("<<eta<<", "<<phi<<", "<<depth+1<<") </td><td align=\"center\"> "<<100.*hfhists.problemDeadCells_DEPTH[depth]->GetBinContent(ieta,iphi)/ievt_<<"%</td></tr>"<<endl;
+		  hotcellcount++;
 		}
 	      
 	    } // for (int iphi =1...
@@ -611,6 +626,7 @@ void HcalDeadCellClient::htmlOutput(int runNo, string htmlDir, string htmlName)
 
   htmlFile << "</table>" <<endl;
   // html page footer
+  htmlFile<<"<br><hr><h2>Total # of hot cells = "<<hotcellcount <<"/"<<totalcells<<"  = "<<100.*hotcellcount/totalcells<<"%</h2><br>"<<endl;
   htmlFile << "</body> " << endl;
   htmlFile << "</html> " << endl;
   htmlFile.close();
