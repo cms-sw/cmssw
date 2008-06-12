@@ -2,5 +2,6 @@ import FWCore.ParameterSet.Config as cms
 
 from RecoEgamma.EgammaIsolationAlgos.gamIsoFromDepsModules_cff import *
 from RecoEgamma.EgammaIsolationAlgos.eleIsoFromDepsModules_cff import *
+
 egammaIsoFromDeposits = cms.Sequence(gamIsoFromDepsTk*gamIsoFromDepsEcalFromHits*gamIsoFromDepsHcalFromHits*eleIsoFromDepsTk*eleIsoFromDepsEcalFromHits*eleIsoFromDepsHcalFromHits)
 
