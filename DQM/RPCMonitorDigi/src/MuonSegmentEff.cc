@@ -314,8 +314,6 @@ MuonSegmentEff::~MuonSegmentEff()
   statistics->GetXaxis()->SetBinLabel(17,"Events with 15 DT segments");
   statistics->GetXaxis()->SetBinLabel(18,"Events with CSC segments");
 
-  statistics->GetXaxis()->SetBinLabel(4,"Events with CSC segments");
-    
 
   statistics->GetXaxis()->LabelsOption("v"); fOutputFile->WriteTObject(statistics);
   //--------------------------------------
