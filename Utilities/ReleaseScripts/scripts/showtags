@@ -1,6 +1,6 @@
 #!/usr/bin/perl -w
 #
-# $Id: showtags,v 1.4 2007/06/07 19:55:09 elmer Exp $
+# $Id: showtags,v 1.5 2007/11/29 17:12:05 elmer Exp $
 #
 # Created by: Shahram Rahatlou
 #             University of Rome & INFN
@@ -16,11 +16,13 @@ my $doHelp;
 my $tagCollector;
 my $reltag;
 my $updatedtags;
+my $wrtBaseRel;
 GetOptions("check|c" => \$doCVS,
            "diff|d" => \$doDiff,
            "updated|u" => \$updatedtags,
            "release|r" => \$reltag,
            "tagCollector|t" => \$tagCollector,
+           "wrtBaseRel" => \$wrtBaseRel,
            "help|h" => \$doHelp);
 
 #-- main start here
@@ -53,14 +55,32 @@ print STDOUT "Test Release based on: $relver\n";
 print STDOUT "Base Release in: $ENV{CMSSW_RELEASE_BASE}\n";
 print STDOUT "Your Test release in: $ENV{CMSSW_BASE}\n";
 
-if(defined $doCVS) {
-   print STDOUT "checking for differences for each package wrt tag $relver\n";
-}
 
-if(defined $doDiff) {
-   print STDOUT "doing |cvs diff -r $relver| for all modified files\n";
-}
+# change printout depending on whether changes are shown wrt current test release or
+# the original production release. This helps a lot to quickly check changes being requested
+# in close periods in tags claimed to be bug fixes
+#
+if(defined $wrtBaseRel) {
 
+  if(defined $doCVS) {
+     print STDOUT "checking for differences for each package wrt your test release based on $relver\n";
+  }
+
+  if(defined $doDiff) {
+     print STDOUT "showing changes for all modified files wrt your test release\n";
+  }
+
+} else {
+
+  if(defined $doCVS) {
+     print STDOUT "checking for differences for each package wrt base release $relver\n";
+  }
+
+  if(defined $doDiff) {
+     print STDOUT "showing changes for all modified files wrt base release $relver\n";
+  }
+
+}
 
 my $c2 = cwd();
 #print STDOUT "current directory: $c2\n";
@@ -165,7 +185,7 @@ foreach my $ipack (@packages) {
   my @filesToDiff; # files to diff with CVS
   my @newFiles;    # files not in repo
 
-  if( (defined $doCVS) && ($tag ne "NoTag") && ($tag ne "NoCVS") ) {
+  if( !(defined $wrtBaseRel) && (defined $doCVS) && ($tag ne "NoTag") && ($tag ne "NoCVS") ) {
 
      #print STDOUT "-------- cvs diff : begin ---------\n";
      open CL, "cvs -n update -r $tag $ipack 2>&1 |";
@@ -185,10 +205,10 @@ foreach my $ipack (@packages) {
   }
 
   # diff with CVS if requested
-  if( (defined $doDiff) && (@filesToDiff>0) ) {
+  if( !(defined $wrtBaseRel) && (defined $doDiff) && (@filesToDiff>0) ) {
     #print STDOUT "running cvs diff -ub -r $relver\n";
     for my $nf ( @filesToDiff ) {
-      open D, "cvs diff -ub -r $relver $nf 2>&1|";
+      open D, "cvs diff -ub -r $tag $nf 2>&1|";
       while(my $l = <D>) {
         chomp $l;
         next if($l =~/^kserver/);
@@ -197,6 +217,43 @@ foreach my $ipack (@packages) {
     }
     close D;
   }
+
+  # check against base release version
+  my @filesToDiffBase; # files to diff with CVS
+  my @newFilesBase;    # files not in repo
+  if( (defined $wrtBaseRel) && (defined $doCVS) && ($tag ne "NoTag") && ($tag ne "NoCVS") ) {
+
+     #print STDOUT "-------- cvs diff : begin ---------\n";
+     open CL, "cvs -n update -r $tagrel $ipack 2>&1 |";
+     while(my $l = <CL>) {
+       chomp($l);
+       next if($l =~ /cvs update: Updating/);
+       print STDOUT "  $l\n";
+       if($l =~ /M (.*)/) { push @filesToDiffBase, $1;}
+       if($l =~ /\? (.*)/) { push @newFilesBase, $1;}
+     }
+     close CL;
+     #print STDOUT "-------- cvs diff : end   ---------\n";
+     my $ndiff = @filesToDiff;
+     my $nnew = @newFiles;
+     #if( $ndiff>0 ) { print STDOUT "Files modified: $ndiff\n"; }
+     #if( $nnew>0 ) { print STDOUT "New files: $nnew\n"; }
+  }
+
+  # diff with CVS wrt base release if requested
+  if( (defined $wrtBaseRel) && (defined $doDiff) && (@filesToDiffBase>0) ) {
+    #print STDOUT "running cvs diff -ub -r $relver\n";
+    for my $nf ( @filesToDiffBase ) {
+      open D, "cvs diff -ub -r $tagrel $nf 2>&1|";
+      while(my $l = <D>) {
+        chomp $l;
+        next if($l =~/^kserver/);
+        print STDOUT "$l\n";
+      }
+    }
+    close D;
+  }
+
 }
 
 
@@ -216,9 +273,10 @@ print STDOUT <<ENDHELP;
 showtags [--check|-c] [--diff|-d] [--help|-h]
 
   usage:      --help|-h           Print this message
-              --check|-c          Check for differences wrt tag in the base 
-                                  release
-              --diff|-d           Do cvs diff with tag in the base release
+              --check|-c          Check for differences wrt tag in your
+                                  test release
+              --diff|-d           Do cvs diff with tag in test release
+              --wrtBaseRel        options -c and -d will be WRT base release
               --updated|-u        Only show tags which are different from 
                                   the base release
               --release|-r        Show also the tag used for the base release 
