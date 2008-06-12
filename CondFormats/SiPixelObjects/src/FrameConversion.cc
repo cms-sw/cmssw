@@ -64,7 +64,7 @@ FrameConversion::FrameConversion( const PixelEndcapName & name, int rocIdInDetUn
       slopeRow = 1;
       slopeCol = -1;
       rowOffset = 0;
-      colOffset = (2-rocIdInDetUnit)*LocalPixel::numColsInRoc-1;
+      colOffset = (1+rocIdInDetUnit)*LocalPixel::numColsInRoc-1;
     } else if (name.plaquetteName()==2) {
       if (rocIdInDetUnit <3) {
         slopeRow = -1;
