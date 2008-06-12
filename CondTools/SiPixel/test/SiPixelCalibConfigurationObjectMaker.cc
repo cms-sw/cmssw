@@ -13,7 +13,7 @@
 //
 // Original Author:  Freya Blekman
 //         Created:  Wed Sep 19 13:43:52 CEST 2007
-// $Id: SiPixelCalibConfigurationObjectMaker.cc,v 1.1 2008/02/14 20:29:55 fblekman Exp $
+// $Id: SiPixelCalibConfigurationObjectMaker.cc,v 1.2 2008/03/06 10:02:07 chiochia Exp $
 //
 //
 
@@ -92,7 +92,13 @@ void SiPixelCalibConfigurationObjectMaker::analyze(const edm::Event&, const edm:
   pos::PixelCalibConfiguration fancyCalib(inputfilename);
   SiPixelCalibConfiguration *myCalib = new SiPixelCalibConfiguration(fancyCalib);
    
-  myCalib->setCalibrationMode(fancyCalib.mode());
+  std::string fixedmode = fancyCalib.mode();
+  std::string tobereplaced = "WithSLink";
+  std::cout << "mode = " << fixedmode << std::endl;
+  fixedmode.erase(fixedmode.find(tobereplaced),tobereplaced.length());
+  std::cout << "mode = " << fixedmode << std::endl;
+  myCalib->setCalibrationMode(fixedmode);
+
    
    edm::Service<cond::service::PoolDBOutputService> poolDbService;
    
