@@ -587,19 +587,19 @@ void HcalDeadCellClient::htmlOutput(int runNo, string htmlDir, string htmlName)
 		if (hcalhists.problemDeadCells_DEPTH[depth]->GetBinContent(ieta,iphi)>=errorFrac_)
 		cout<<" HCAL ("<<eta<<", "<<phi<<")  "<<hbhists.problemDeadCells_DEPTH[depth]->GetBinContent(ieta,iphi)<<""<<endl;
 	      */
-	      if (hbhists.problemDeadCells_DEPTH[depth]->GetBinContent(ieta,iphi)>=errorFrac_*ievt_)
+	      if (subDetsOn_[1] && hbhists.problemDeadCells_DEPTH[depth]!=NULL && hbhists.problemDeadCells_DEPTH[depth]->GetBinContent(ieta,iphi)>=errorFrac_*ievt_)
 		{
 		  htmlFile<<"<td align=\"center\"> HB ("<<eta<<", "<<phi<<", "<<depth+1<<") </td><td align=\"center\"> "<<100.*hbhists.problemDeadCells_DEPTH[depth]->GetBinContent(ieta,iphi)/ievt_<<"%</td></tr>"<<endl;
 		}
-	      if (hehists.problemDeadCells_DEPTH[depth]->GetBinContent(ieta,iphi)>=errorFrac_*ievt_)
+	      if (subDetsOn_[2] && hehists.problemDeadCells_DEPTH[depth]!=NULL && hehists.problemDeadCells_DEPTH[depth]->GetBinContent(ieta,iphi)>=errorFrac_*ievt_)
 		{
 		  htmlFile<<"<td align=\"center\"> HE ("<<eta<<", "<<phi<<", "<<depth+1<<") </td><td align=\"center\"> "<<100.*hehists.problemDeadCells_DEPTH[depth]->GetBinContent(ieta,iphi)/ievt_<<"%</td></tr>"<<endl;
 		}
-	      if (hohists.problemDeadCells_DEPTH[depth]->GetBinContent(ieta,iphi)>=errorFrac_*ievt_)
+	      if (subDetsOn_[3] && hohists.problemDeadCells_DEPTH[depth]!=NULL && hohists.problemDeadCells_DEPTH[depth]->GetBinContent(ieta,iphi)>=errorFrac_*ievt_)
 		{
 		  htmlFile<<"<td align=\"center\"> HO ("<<eta<<", "<<phi<<", "<<depth+1<<") </td><td align=\"center\"> "<<100.*hohists.problemDeadCells_DEPTH[depth]->GetBinContent(ieta,iphi)/ievt_<<"%</td></tr>"<<endl;
 		}
-	      if (hfhists.problemDeadCells_DEPTH[depth]->GetBinContent(ieta,iphi)>=errorFrac_*ievt_)
+	      if (subDetsOn_[4] && hfhists.problemDeadCells_DEPTH[depth]!=NULL && hfhists.problemDeadCells_DEPTH[depth]->GetBinContent(ieta,iphi)>=errorFrac_*ievt_)
 		{
 		  htmlFile<<"<td align=\"center\"> HF ("<<eta<<", "<<phi<<", "<<depth+1<<") </td><td align=\"center\"> "<<100.*hfhists.problemDeadCells_DEPTH[depth]->GetBinContent(ieta,iphi)/ievt_<<"%</td></tr>"<<endl;
 		}

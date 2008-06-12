@@ -36,6 +36,8 @@ void HcalDigiClient::init(const ParameterSet& ps, DQMStore* dbe, string clientNa
     sub_bqdigi_frac_[i] = 0;
     sub_capid_t0_[i] = 0;
     sub_digi_shape_[i] = 0;
+
+    ProblemDigiCells_DEPTH[i]=0;
   }
   
   ProblemDigiCells=0;
@@ -109,7 +111,7 @@ void HcalDigiClient::cleanup(void) {
     if(gl_capid_t0_) delete gl_capid_t0_;
     
 
-    for(int i=0; i<4; i++){
+    for(int i=0; i<4; ++i){
       if(gl_occ_geo_[i]) delete gl_occ_geo_[i];
       if(i<3){
 	if(gl_occ_elec_[i]) delete gl_occ_elec_[i];
@@ -131,6 +133,15 @@ void HcalDigiClient::cleanup(void) {
       if(sub_err_elec_[i][1]) delete sub_err_elec_[i][1];
       if(sub_err_elec_[i][2]) delete sub_err_elec_[i][2];
 
+      /*
+      if (i==3)
+	{
+	  if (sub_occ_geo_[i])  delete sub_occ_geo_[i];
+	  if (sub_occ_elec_[i]) delete sub_occ_elec_[i];
+	  if (sub_err_elec_[i]) delete sub_err_elec_[i];
+	}
+      */
+
       if(qie_adc_[i]) delete qie_adc_[i];
       if(qie_capid_[i]) delete qie_capid_[i];
       if(qie_dverr_[i]) delete qie_dverr_[i];
@@ -140,8 +151,28 @@ void HcalDigiClient::cleanup(void) {
       if(sub_bqdigi_frac_[i]) delete sub_bqdigi_frac_[i];      
       if(sub_capid_t0_[i]) delete sub_capid_t0_[i]; 
       if(sub_digi_shape_[i]) delete sub_digi_shape_[i];           
-    }    
-  }
+      if (ProblemDigiCells_DEPTH[i]) delete ProblemDigiCells_DEPTH[i];
+    } // for (int i=0;i<4;++i)
+    /*
+    if (gl_occ_geo_)   delete gl_occ_geo_;
+    if (gl_occ_elec_)  delete gl_occ_elec_;
+    if (gl_err_elec_)  delete gl_err_elec_;
+    if (sub_occ_geo_)  delete sub_occ_geo_;
+    if (sub_occ_elec_) delete sub_occ_elec_;
+    if (sub_occ_eta_)  delete sub_occ_eta_;
+    if (sub_occ_phi_)  delete sub_occ_phi_;
+    if (sub_err_geo_)  delete sub_err_geo_;
+    if (sub_err_elec_) delete sub_err_elec_;
+    if (sub_num_bqdigi_) delete sub_num_bqdigi_;
+    if (sub_bqdigi_frac_) delete sub_bqdigi_frac_;
+    if (sub_capid_t0_) delete sub_capid_t0_;
+    if (sub_digi_shape_) delete sub_digi_shape_;
+    if (qie_adc_) delete qie_adc_;
+    if (num_digi_) delete num_digi_;
+    if (qie_capid_) delete qie_capid_;
+    if (qie_dverr_) delete qie_dverr_;
+    */
+  } // if (cloneME_)
 
   ProblemDigiCells=0;
   gl_err_geo_=0;
@@ -154,6 +185,7 @@ void HcalDigiClient::cleanup(void) {
   gl_capid_t0_ = 0;
   
   for(int i=0; i<4; i++){
+    ProblemDigiCells_DEPTH[i]=0;
     gl_occ_geo_[i]=0;
     if(i<3) gl_occ_elec_[i]=0;
     if(i<3) gl_err_elec_[i]=0;
@@ -221,6 +253,13 @@ void HcalDigiClient::getHistograms(){
   char name[150];    
   sprintf(name,"DigiMonitor/HCAL/HCALProblemDigiCells");
   ProblemDigiCells=getHisto2(name,process_,dbe_,debug_,cloneME_);
+  
+  for (int i=0;i<4;++i)
+    {
+      sprintf(name,"DigiMonitor/HCAL/expertPlots/HCALProblemDigiCells_depth%i",i+1);
+      ProblemDigiCells_DEPTH[i]=getHisto2(name,process_,dbe_,debug_,cloneME_);
+    }
+  
   
   sprintf(name,"DigiMonitor/Digi Geo Error Map");
   gl_err_geo_ = getHisto2(name, process_, dbe_,debug_,cloneME_);
@@ -356,6 +395,8 @@ void HcalDigiClient::resetAllME(){
   for(int i=1; i<5; i++){
     sprintf(name,"%sHcal/DigiMonitor/Digi Depth %d Occupancy Map",process_.c_str(),i);
     resetME(name,dbe_);
+    sprintf(name,"%sHcal/DigiMonitor/HCAL/expertPlots/HCALProblemDigiCells_depth%i",process_.c_str(),i);
+    resetME(name,dbe_);
   }
 
   sprintf(name,"%sHcal/DigMonitor/HCAL/HCALProblemDigiCells",process_.c_str());
@@ -455,7 +496,8 @@ void HcalDigiClient::resetAllME(){
 void HcalDigiClient::htmlExpertOutput(int runNo, string htmlDir, string htmlName){
 
   
-  if (debug_) cout << "Preparing HcalDigiClient Expert html output ..." << endl;
+  if (debug_)
+    cout << "Preparing HcalDigiClient Expert html output ..." << endl;
 
   string client = "DigiMonitor";
   htmlErrors(runNo,htmlDir,client,process_,dbe_,dqmReportMapErr_,dqmReportMapWarn_,dqmReportMapOther_);
@@ -631,7 +673,7 @@ void HcalDigiClient::htmlExpertOutput(int runNo, string htmlDir, string htmlName
   htmlFile << "</table>" << endl;
   htmlFile << "<br>" << endl;
 
-
+  
 
   // html page footer
   htmlFile << "</body> " << endl;
@@ -902,10 +944,11 @@ void HcalDigiClient::htmlOutput(int runNo, string htmlDir, string htmlName){
 
   htmlFile << "<h2><strong>Hcal Digi Histograms</strong></h2>" << endl;
   htmlFile << "<h3>" << endl;
-  if(subDetsOn_[0]) htmlFile << "<a href=\"#HB_Plots\">HB Plots </a></br>" << endl;
-  if(subDetsOn_[1]) htmlFile << "<a href=\"#HE_Plots\">HE Plots </a></br>" << endl;
-  if(subDetsOn_[2]) htmlFile << "<a href=\"#HF_Plots\">HF Plots </a></br>" << endl;
-  if(subDetsOn_[3]) htmlFile << "<a href=\"#HO_Plots\">HO Plots </a></br>" << endl;
+  // Need to implement these later
+  //if(subDetsOn_[0]) htmlFile << "<a href=\"#HB_Plots\">HB Plots </a></br>" << endl;
+  //if(subDetsOn_[1]) htmlFile << "<a href=\"#HE_Plots\">HE Plots </a></br>" << endl;
+  //if(subDetsOn_[2]) htmlFile << "<a href=\"#HF_Plots\">HF Plots </a></br>" << endl;
+  //if(subDetsOn_[3]) htmlFile << "<a href=\"#HO_Plots\">HO Plots </a></br>" << endl;
   htmlFile << "</h3>" << endl;
   htmlFile << "<hr>" << endl;
 
@@ -924,7 +967,7 @@ void HcalDigiClient::htmlOutput(int runNo, string htmlDir, string htmlName){
 
   //ProblemDigiCells->Scale(ievt_); 
   ProblemDigiCells->SetMinimum(0);
-  htmlFile <<"<h2>List of Problem Digi Cells</h2>"<<endl; 
+  htmlFile <<"<h2>List of Problem Digi Cells  (Warning:  Cell ID's don't yet include Subdetectors)</h2>"<<endl; 
   htmlFile <<"<table width=75%align = \"center\"><tr align=\"center\">" <<endl; 
   htmlFile <<"<td> Problem Cells</td><td align=\"center\"> Fraction of Events in wh\
 ich cells are bad (%)</td></tr>"<<endl; 
@@ -935,20 +978,24 @@ ich cells are bad (%)</td></tr>"<<endl;
   float phiMin=ProblemDigiCells->GetYaxis()->GetXmin(); 
   
   int eta,phi; 
-  for (int ieta=1;ieta<=etabins;++ieta) 
-    { 
-      for (int iphi=1; iphi<=phibins;++iphi) 
-	{
-	  eta=ieta+int(etaMin)-1; 
-	  phi=iphi+int(phiMin)-1; 
-	  
-	  //if (ProblemDigiCells->GetBinContent(ieta,iphi))
-	  //  cout <<eta<<"  "<<phi<<"  "<<ProblemDigiCells->GetBinContent(ieta,iphi)<<endl;
-	  if (ProblemDigiCells->GetBinContent(ieta,iphi)>errorFrac_)
-	    htmlFile<<"<td align=\"center\"> ("<<eta<<", "<<phi<<") </td><td align=\"center\"> "<<100.*ProblemDigiCells->GetBinContent(ieta,iphi)<<"%</td></tr>"<<endl; 
-
-	}
-    }
+  for (int depth=0;depth<4; ++depth)
+    {
+      for (int ieta=1;ieta<=etabins;++ieta) 
+	{ 
+	  for (int iphi=1; iphi<=phibins;++iphi) 
+	    {
+	      eta=ieta+int(etaMin)-1; 
+	      phi=iphi+int(phiMin)-1; 
+	      
+	      //cout <<depth<<"  "<<eta<<"  "<<phi<<endl;
+	      //if (ProblemDigiCells->GetBinContent(ieta,iphi))
+	      //  cout <<eta<<"  "<<phi<<"  "<<ProblemDigiCells->GetBinContent(ieta,iphi)<<endl;
+	      if (ProblemDigiCells_DEPTH[depth]->GetBinContent(ieta,iphi)>errorFrac_)
+		htmlFile<<"<td align=\"center\"> ("<<eta<<", "<<phi<<", "<<depth+1<<") </td><td align=\"center\"> "<<100.*ProblemDigiCells_DEPTH[depth]->GetBinContent(ieta,iphi)/ievt_<<"</td></tr>"<<endl; 
+	      
+	    } // for (int iphi...)
+	} // for (int ieta...)
+    } // for (int depth...)
 
   htmlFile << "</table>" <<endl; 
 

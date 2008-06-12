@@ -29,6 +29,9 @@ namespace HcalHotCellCheck
 		 DQMStore* dbe,
 		 bool pedsInFC=false)
   {
+
+    if (!h.check) return;
+
     if (h.fVerbosity) cout <<"Entered CheckDigi for type = "<<h.type<<endl;
     int digi_eta=digi.id().ieta();
     int digi_phi=digi.id().iphi();
@@ -72,7 +75,7 @@ namespace HcalHotCellCheck
 	  }
       } // for (int i=0;i<10;++i)	
 
-      // Now loop over 4 time slices around maximum value
+    // Now loop over 4 time slices around maximum value
     
     //for (int i=0;i<digi.size();++i) // old code ran over all 10 slices
 
@@ -103,6 +106,7 @@ namespace HcalHotCellCheck
     // Diagnostic plot shows digi energy value / pedestal width
     if (h.makeDiagnostics)
       {
+
 	// Diagnostic plots of ped values will only give sensible results for non-ZS runs
 	h.pedestalValues_depth[digi_depth-1]->Fill(digi_eta,digi_phi,total_pedestal);
 	h.pedestalWidths_depth[digi_depth-1]->Fill(digi_eta,digi_phi,total_pedwidth);
@@ -121,7 +125,7 @@ namespace HcalHotCellCheck
 	h.problemHotCells_depth[digi_depth-1]->Fill(digi_eta,digi_phi);
 	hcal.problemHotCells_depth[digi_depth-1]->Fill(digi_eta,digi_phi);
       }
-	
+
     /*
       // these are pretty space-intensive; skip them until needed
     if (h.makeDiagnostics)
@@ -148,6 +152,8 @@ namespace HcalHotCellCheck
   template<class Hits>
   void threshCheck(const Hits& hits, HotCellHists& h, HotCellHists& hcal)
   {
+    if (!h.check) return;
+
     // Initialize values of max-energy cell 
     h.enS=-1000., h.tS=0., h.etaS=0, h.phiS=0, h.depthS=0;
     h.idS=0;
@@ -287,6 +293,7 @@ namespace HcalHotCellCheck
   template<class Hits>
   void nadaCheck(const Hits& hits, HotCellHists& h, HotCellHists& hcal)
   {
+    if (!h.check) return;
     h.numhotcells=0;
     h.numnegcells=0;
 
@@ -620,30 +627,30 @@ void HcalHotCellMonitor::setup(const edm::ParameterSet& ps, DQMStore* dbe)
   hcalHists.fVerbosity=fVerbosity;
   hcalHists.numhotcells=0;
   hcalHists.numnegcells=0;
+  hcalHists.check=true;
   setupHists(hcalHists,dbe);
-
   // ID which subdetectors should be checked
-  bool temp;
-  temp=ps.getUntrackedParameter<bool>("checkHB","true");
-  if (temp)
+
+  hbHists.check=ps.getUntrackedParameter<bool>("checkHB","true");
+  if (hbHists.check)
     {
       setupVals(hbHists,1,hcalHists,ps);
       setupHists(hbHists,dbe);
     }
-  temp=ps.getUntrackedParameter<bool>("checkHE","true");
-  if (temp)
+  heHists.check=ps.getUntrackedParameter<bool>("checkHE","true");
+  if (heHists.check)
     {
       setupVals(heHists,2,hcalHists,ps);
       setupHists(heHists,dbe);
     }
-  temp=ps.getUntrackedParameter<bool>("checkHO","true");
-  if (temp)
+  hoHists.check=ps.getUntrackedParameter<bool>("checkHO","true");
+  if (hoHists.check)
     {
       setupVals(hoHists,3,hcalHists,ps);
       setupHists(hoHists,dbe);
     }
-  temp=ps.getUntrackedParameter<bool>("checkHF","true");
-  if (temp)
+  hfHists.check=ps.getUntrackedParameter<bool>("checkHF","true");
+  if (hfHists.check)
     {
       setupVals(hfHists,4,hcalHists,ps);
       setupHists(hfHists,dbe);
@@ -660,7 +667,6 @@ void HcalHotCellMonitor::setup(const edm::ParameterSet& ps, DQMStore* dbe)
     meEVT_->Fill(ievt_);
   }
 
-  cout <<"FINISHED SETUP"<<endl;
   return;
 }
 
@@ -668,7 +674,9 @@ void HcalHotCellMonitor::setupVals(HotCellHists& h,int type,HotCellHists& base, 
 {
   // All subdetector values will be set to hcalHists values, unless 
   // explicitly stated otherwise in .cfi file
-  
+
+  if (!h.check)
+    return;
 
   h.type=type;
   if (h.type==1)
@@ -770,6 +778,9 @@ void HcalHotCellMonitor::setupVals(HotCellHists& h,int type,HotCellHists& base, 
 void HcalHotCellMonitor::setupHists(HotCellHists& h, DQMStore* dbe)
 
 {
+  if (!h.check)
+    return;
+
   string subdet = h.name;
   m_dbe->setCurrentFolder(baseFolder_+"/"+subdet.c_str());
   
@@ -1043,6 +1054,7 @@ void HcalHotCellMonitor::setupHists(HotCellHists& h, DQMStore* dbe)
       h.RecHitEnergyDist=m_dbe->book1D(subdet+"RecHitEnergyDist",
 				       "Energy Distribution of Rec Hits",
 				       200,0,20);
+
       for (int depth=1;depth<=4;++depth)
 	{
 	  diagFoldername.str("");
@@ -1069,6 +1081,7 @@ void HcalHotCellMonitor::setupHists(HotCellHists& h, DQMStore* dbe)
 	  tempname.str(""); //resets tempname
 
 	} // for (int depth =1 ; depth<=4; ++depth)
+
       diagFoldername<<baseFolder_+"/"+subdet.c_str()+"/Diagnostics";
       m_dbe->setCurrentFolder(diagFoldername.str().c_str());
       h.DigiEnergyDist=m_dbe->book1D(subdet+"DigiEnergyDist","Digi Energy/#sigma_{pedestal}",100,-10,10);

@@ -11,8 +11,8 @@
 
 /** \class HcalHotCellMonitor
   *  
-  * $Date: 2008/06/04 01:18:40 $
-  * $Revision: 1.15 $
+  * $Date: 2008/06/10 22:14:30 $
+  * $Revision: 1.16 $
   * \author W. Fisher - FNAL
   * \ updated by J. Temple - Univ. of Maryland
   */
@@ -20,6 +20,7 @@
 
 // Structure holds all hot cell data for a subdetector
 struct HotCellHists{
+  bool check;
 
   // Main problem cell histogram
   MonitorElement* problemHotCells;

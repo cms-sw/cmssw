@@ -86,6 +86,7 @@ private:
   TH1F* qie_dverr_[4];
 
   TH2F* ProblemDigiCells;
+  TH2F* ProblemDigiCells_DEPTH[4];
   double errorFrac_;
 };
 

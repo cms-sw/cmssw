@@ -201,8 +201,7 @@ void HcalHotCellClient::resetAllME(){
 void HcalHotCellClient::htmlOutput(int runNo, string htmlDir, string htmlName)
 {
 
-  if (debug_)
-    cout << "Preparing HcalHotCellClient html output ..." << endl;
+  cout << "Preparing HcalHotCellClient html output ..." << endl;
   string client = "HotCellMonitor";
   htmlErrors(runNo,htmlDir,client,process_,dbe_,dqmReportMapErr_,dqmReportMapWarn_,dqmReportMapOther_);
   
@@ -303,6 +302,17 @@ htmlFile << "<td align=\"center\">&nbsp;&nbsp;&nbsp;<h3>Cells matching hot condi
   htmlFile <<"<td> Hot Cells</td><td align=\"center\"> Fraction of Events in which cells are hot (%)</td></tr>"<<endl;
 
   // Dump out hot cell candidates
+  int hotcellcount=0;
+  int totalcells=0;
+  if (subDetsOn_[1])
+    totalcells+=2592;
+  if (subDetsOn_[2])
+    totalcells+=2592;
+  if (subDetsOn_[3])
+    totalcells+=2160;
+  if (subDetsOn_[4])
+    totalcells+=1728;
+  
   for (unsigned int depth=0;depth<4;++depth)
     {
       if (hcalhists.problemHotCells_DEPTH[depth]==NULL) continue;
@@ -319,21 +329,28 @@ htmlFile << "<td align=\"center\">&nbsp;&nbsp;&nbsp;<h3>Cells matching hot condi
 	      eta=ieta+int(etaMin)-1;
 	      phi=iphi+int(phiMin)-1;
 
-	      if (hbhists.problemHotCells_DEPTH[depth]->GetBinContent(ieta,iphi)>=errorFrac_*ievt_)
+	      if (subDetsOn_[1] && hbhists.problemHotCells_DEPTH[depth]!=NULL &&  hbhists.problemHotCells_DEPTH[depth]->GetBinContent(ieta,iphi)>=errorFrac_*ievt_)
 		{
 		  htmlFile<<"<td align=\"center\"> HB ("<<eta<<", "<<phi<<", "<<depth+1<<") </td><td align=\"center\"> "<<100.*hbhists.problemHotCells_DEPTH[depth]->GetBinContent(ieta,iphi)/ievt_<<"%</td></tr>"<<endl;
+		  hotcellcount++;
 		}
-	      if (hehists.problemHotCells_DEPTH[depth]->GetBinContent(ieta,iphi)>=errorFrac_*ievt_)
+
+	      if (subDetsOn_[2]&& hehists.problemHotCells_DEPTH[depth]!=NULL && hehists.problemHotCells_DEPTH[depth]->GetBinContent(ieta,iphi)>=errorFrac_*ievt_)
 		{
 		  htmlFile<<"<td align=\"center\"> HE ("<<eta<<", "<<phi<<", "<<depth+1<<") </td><td align=\"center\"> "<<100.*hehists.problemHotCells_DEPTH[depth]->GetBinContent(ieta,iphi)/ievt_<<"%</td></tr>"<<endl;
+		  hotcellcount++;
 		}
-	      if (hohists.problemHotCells_DEPTH[depth]->GetBinContent(ieta,iphi)>=errorFrac_*ievt_)
+
+	      if (subDetsOn_[3]&& hohists.problemHotCells_DEPTH[depth]!=NULL && hohists.problemHotCells_DEPTH[depth]->GetBinContent(ieta,iphi)>=errorFrac_*ievt_)
 		{
 		  htmlFile<<"<td align=\"center\"> HO ("<<eta<<", "<<phi<<", "<<depth+1<<") </td><td align=\"center\"> "<<100.*hohists.problemHotCells_DEPTH[depth]->GetBinContent(ieta,iphi)/ievt_<<"%</td></tr>"<<endl;
+		  hotcellcount++;
 		}
-	      if (hfhists.problemHotCells_DEPTH[depth]->GetBinContent(ieta,iphi)>=errorFrac_*ievt_)
+
+	      if (subDetsOn_[4] && hfhists.problemHotCells_DEPTH[depth]!=NULL && hfhists.problemHotCells_DEPTH[depth]->GetBinContent(ieta,iphi)>=errorFrac_*ievt_)
 		{
 		  htmlFile<<"<td align=\"center\"> HF ("<<eta<<", "<<phi<<", "<<depth+1<<") </td><td align=\"center\"> "<<100.*hfhists.problemHotCells_DEPTH[depth]->GetBinContent(ieta,iphi)/ievt_<<"%</td></tr>"<<endl;
+		  hotcellcount++;
 		}
 	      
 	    } // for (int iphi =1...
@@ -343,6 +360,8 @@ htmlFile << "<td align=\"center\">&nbsp;&nbsp;&nbsp;<h3>Cells matching hot condi
 
   htmlFile << "</table>" <<endl;
   // html page footer
+
+  htmlFile<<"<br><hr><h5>Total # of hot cells = "<<hotcellcount <<"/"<<totalcells<<"  = "<<100.*hotcellcount/totalcells<<"%</h5><br>"<<endl;
   htmlFile << "</body> " << endl;
   htmlFile << "</html> " << endl;
   htmlFile.close();
@@ -435,7 +454,7 @@ void HcalHotCellClient::createTests()
 
 void HcalHotCellClient::createSubDetTests(HotCellHists& hist)
 {
-  if(!subDetsOn_[hist.type]) return;
+  if(hist.type<5 && !subDetsOn_[hist.type-1]) return;
   if (debug_) 
     cout <<"Running HcalHotCellClient::createSubDetTests for subdetector: "<<hist.type<<endl;
   char meTitle[250], name[250];

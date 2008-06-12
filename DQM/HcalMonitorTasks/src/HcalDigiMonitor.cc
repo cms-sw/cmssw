@@ -209,6 +209,8 @@ void HcalDigiMonitor::setup(const edm::ParameterSet& ps,
     BQDIGI_FRAC -> setAxisTitle("# of Events",2);
 
     m_dbe->setCurrentFolder(baseFolder_+"/HB");
+
+    hbHists.check=ps.getUntrackedParameter<bool>("checkHB","true");
     hbHists.SHAPE_tot =  m_dbe->book1D("HB Digi Shape","HB Digi Shape",10,-0.5,9.5);
     hbHists.SHAPE_THR_tot =  m_dbe->book1D("HB Digi Shape - over thresh","HB Digi Shape - over thresh",10,-0.5,9.5);
 
@@ -302,6 +304,7 @@ void HcalDigiMonitor::setup(const edm::ParameterSet& ps,
     hbHists.TS_SUM_M.back()->setAxisTitle("Sum of ADC counts", 1);
 
     m_dbe->setCurrentFolder(baseFolder_+"/HE");
+    heHists.check=ps.getUntrackedParameter<bool>("checkHE","true");
     heHists.SHAPE_tot =  m_dbe->book1D("HE Digi Shape","HE Digi Shape",10,-0.5,9.5);
     heHists.SHAPE_THR_tot =  m_dbe->book1D("HE Digi Shape - over thresh","HE Digi Shape - over thresh",10,-0.5,9.5);
     heHists.DIGI_NUM =  m_dbe->book1D("HE # of Digis","HE # of Digis",2700,-0.5,2699.5);
@@ -392,6 +395,7 @@ void HcalDigiMonitor::setup(const edm::ParameterSet& ps,
     heHists.TS_SUM_M.back()->setAxisTitle("Sum of ADC counts", 1);
 
     m_dbe->setCurrentFolder(baseFolder_+"/HF");
+    hfHists.check=ps.getUntrackedParameter<bool>("checkHF","true");
     hfHists.SHAPE_tot =  m_dbe->book1D("HF Digi Shape","HF Digi Shape",10,-0.5,9.5);
     hfHists.SHAPE_THR_tot =  m_dbe->book1D("HF Digi Shape - over thresh","HF Digi Shape - over thresh",10,-0.5,9.5);
     hfHists.DIGI_NUM =  m_dbe->book1D("HF # of Digis","HF # of Digis",1800,-0.5,1799.5);
@@ -484,6 +488,7 @@ void HcalDigiMonitor::setup(const edm::ParameterSet& ps,
     hfHists.TS_SUM_M.back()->setAxisTitle("Sum of ADC counts", 1);
 
     m_dbe->setCurrentFolder(baseFolder_+"/HO");
+    hoHists.check=ps.getUntrackedParameter<bool>("checkHO","true");
     hoHists.SHAPE_tot =  m_dbe->book1D("HO Digi Shape","HO Digi Shape",10,-0.5,9.5);
     hoHists.SHAPE_THR_tot =  m_dbe->book1D("HO Digi Shape - over thresh","HO Digi Shape - over thresh",10,-0.5,9.5);
     hoHists.DIGI_NUM =  m_dbe->book1D("HO # of Digis","HO # of Digis",2200,-0.5,2199.5);
@@ -576,6 +581,8 @@ void HcalDigiMonitor::setup(const edm::ParameterSet& ps,
 
     // Summary histograms for storing problem info (cells with either a digi error or with low digi occupancy)
     m_dbe->setCurrentFolder(baseFolder_+"/HCAL");
+
+    hcalHists.check=true;
     hcalHists.PROBLEMDIGICELLS=m_dbe->book2D("HCALProblemDigiCells", 
 					  "HCAL Bad Digi rate for potentially bad cells", 
 					  etaBins_, etaMin_, etaMax_, 
@@ -829,6 +836,7 @@ void HcalDigiMonitor::processEvent(const HBHEDigiCollection& hbhe,
 
       HcalDigiMap::digiStats(digi, calibs_, occThresh_, normVals, digiErr, digiOcc, digiUpset);      
       if((HcalSubdetector)(digi.id().subdet())==HcalBarrel){	
+	if (!hbHists.check) continue;
 	nhbdigi++;  ndigi++;
 	// Digi found; "unfill it" so that it doesn't appear empty:
 	if ( digiOcc) // require digi to have a value (don't know if this is the best way to proceed?)
@@ -918,7 +926,8 @@ void HcalDigiMonitor::processEvent(const HBHEDigiCollection& hbhe,
 	  hbHists.TS_SUM_M[2]->Fill(digi.sample(4).adc() + digi.sample(5).adc());	  
 	}
       }
-      else if((HcalSubdetector)(digi.id().subdet())==HcalEndcap){	
+      else if((HcalSubdetector)(digi.id().subdet())==HcalEndcap){
+	if (!heHists.check) continue;
 	nhedigi++;  ndigi++;
 	   // Digi found; "unfill it" so that it doesn't appear empty:
 	if ( digiOcc)
@@ -1027,6 +1036,7 @@ void HcalDigiMonitor::processEvent(const HBHEDigiCollection& hbhe,
     int nhodigi = ho.size();
     //    hoHists.DIGI_NUM->Fill(ho.size());
     for (HODigiCollection::const_iterator j=ho.begin(); j!=ho.end(); j++){
+      if (!hoHists.check) continue;
       const HODataFrame digi = (const HODataFrame)(*j);	
       HcalDigiMap::digiStats(digi, calibs_, occThresh_, normVals, digiErr, digiOcc, digiUpset);      
 
@@ -1132,6 +1142,7 @@ void HcalDigiMonitor::processEvent(const HBHEDigiCollection& hbhe,
     int nhfdigi = hf.size();
     //    hfHists.DIGI_NUM->Fill(hf.size());
     for (HFDigiCollection::const_iterator j=hf.begin(); j!=hf.end(); j++){
+      if (!hfHists.check) continue;
       const HFDataFrame digi = (const HFDataFrame)(*j);	
       // Digi found; "unfill it" so that it doesn't appear empty:
       if ( digiOcc)
@@ -1407,8 +1418,10 @@ void HcalDigiMonitor::reset_Nevents(void)
 	  // HB first
 	  if (abs(eta)<17)
 	    {
-	      temp=hbHists.PROBLEMDIGICELLS_TEMP_DEPTH[0]->GetBinContent(ieta,iphi);
-	      if (temp==0) // no digis found
+
+	      if (hbHists.check)
+		temp=hbHists.PROBLEMDIGICELLS_TEMP_DEPTH[0]->GetBinContent(ieta,iphi);
+	      if (hbHists.check && temp==0) // no digis found
 		{
 		  hbHists.PROBLEMDIGICELLS->Fill(eta,phi,checkNevents_);
 		  hbHists.PROBLEMDIGICELLS_DEPTH[0]->Fill(eta,phi,checkNevents_);
@@ -1418,8 +1431,8 @@ void HcalDigiMonitor::reset_Nevents(void)
 
 	      if (abs(eta)>14) // last two rows of HB have two depths
 		{
-		  temp=hbHists.PROBLEMDIGICELLS_TEMP_DEPTH[1]->GetBinContent(ieta,iphi);
-		  if (temp==0)
+		  if (hbHists.check) temp=hbHists.PROBLEMDIGICELLS_TEMP_DEPTH[1]->GetBinContent(ieta,iphi);
+		  if (hbHists.check && temp==0)
 		    {
 		      hbHists.PROBLEMDIGICELLS->Fill(eta,phi,checkNevents_);
 		      hbHists.PROBLEMDIGICELLS_DEPTH[1]->Fill(eta,phi,checkNevents_);
@@ -1432,8 +1445,8 @@ void HcalDigiMonitor::reset_Nevents(void)
 	  // HO loop -- depth = 4
 	  if (abs(eta)<16)
 	    {
-	      temp=hoHists.PROBLEMDIGICELLS_TEMP_DEPTH[3]->GetBinContent(ieta,iphi);
-	      if (temp==0)
+	      if (hoHists.check) temp=hoHists.PROBLEMDIGICELLS_TEMP_DEPTH[3]->GetBinContent(ieta,iphi);
+	      if (hoHists.check && temp==0)
 		{
 		  hoHists.PROBLEMDIGICELLS->Fill(eta,phi,checkNevents_);
 		  hoHists.PROBLEMDIGICELLS_DEPTH[3]->Fill(eta,phi,checkNevents_);
@@ -1446,8 +1459,8 @@ void HcalDigiMonitor::reset_Nevents(void)
 
 	  if (abs(eta)==16) // at eta=16, HE depth=3
 	    {
-	      temp=heHists.PROBLEMDIGICELLS_TEMP_DEPTH[2]->GetBinContent(ieta,iphi);
-	      if (temp==0)
+	      if (heHists.check) temp=heHists.PROBLEMDIGICELLS_TEMP_DEPTH[2]->GetBinContent(ieta,iphi);
+	      if (heHists.check && temp==0)
 		{
 		  heHists.PROBLEMDIGICELLS->Fill(eta,phi,checkNevents_);
 		  heHists.PROBLEMDIGICELLS_DEPTH[2]->Fill(eta,phi,checkNevents_);
@@ -1461,8 +1474,8 @@ void HcalDigiMonitor::reset_Nevents(void)
 	    {
 	      if (abs(eta)<21 ||(abs(eta)>20 && (phi%2)==1)) // decreased phi segementation above eta=20
 		{
-		  temp=heHists.PROBLEMDIGICELLS_TEMP_DEPTH[0]->GetBinContent(ieta,iphi);
-		  if (temp==0)
+		  if ( heHists.check) temp=heHists.PROBLEMDIGICELLS_TEMP_DEPTH[0]->GetBinContent(ieta,iphi);
+		  if (heHists.check && temp==0)
 		    {
 		      heHists.PROBLEMDIGICELLS->Fill(eta,phi,checkNevents_);
 		      heHists.PROBLEMDIGICELLS_DEPTH[0]->Fill(eta,phi,checkNevents_);
@@ -1474,9 +1487,9 @@ void HcalDigiMonitor::reset_Nevents(void)
 		{
 		  if (abs(eta)>20 && (phi%2)==0)
 		    continue;
-		  temp=heHists.PROBLEMDIGICELLS_TEMP_DEPTH[1]->GetBinContent(ieta,iphi);
+		  if (heHists.check) temp=heHists.PROBLEMDIGICELLS_TEMP_DEPTH[1]->GetBinContent(ieta,iphi);
 	
-		  if (temp==0)
+		  if (heHists.check && temp==0)
 		    {
 		      heHists.PROBLEMDIGICELLS->Fill(eta,phi,checkNevents_);
 		      heHists.PROBLEMDIGICELLS_DEPTH[1]->Fill(eta,phi,checkNevents_);
@@ -1487,9 +1500,9 @@ void HcalDigiMonitor::reset_Nevents(void)
 
 	      if (abs(eta)>26 && abs(eta)<29 && (phi%2)==1) // depth 3
 		{
-		  temp=heHists.PROBLEMDIGICELLS_TEMP_DEPTH[2]->GetBinContent(ieta,iphi);
+		  if (heHists.check) temp=heHists.PROBLEMDIGICELLS_TEMP_DEPTH[2]->GetBinContent(ieta,iphi);
 		  
-		  if (temp==0)
+		  if (heHists.check && temp==0)
 		    {
 		      heHists.PROBLEMDIGICELLS->Fill(eta,phi,checkNevents_);
 		      heHists.PROBLEMDIGICELLS_DEPTH[2]->Fill(eta,phi,checkNevents_);
@@ -1505,9 +1518,9 @@ void HcalDigiMonitor::reset_Nevents(void)
 	  if (abs(eta)>28 && abs(eta)<40 && (phi%2)==1)
 	    {
 	      // depth 1
-	      temp=hfHists.PROBLEMDIGICELLS_TEMP_DEPTH[0]->GetBinContent(ieta,iphi);
+	      if (hfHists.check) temp=hfHists.PROBLEMDIGICELLS_TEMP_DEPTH[0]->GetBinContent(ieta,iphi);
 	
-	      if (temp==0)
+	      if (hfHists.check && temp==0)
 		{
 		  hfHists.PROBLEMDIGICELLS->Fill(eta,phi,checkNevents_);
 		  hfHists.PROBLEMDIGICELLS_DEPTH[0]->Fill(eta,phi,checkNevents_);
@@ -1515,9 +1528,9 @@ void HcalDigiMonitor::reset_Nevents(void)
 		  hcalHists.PROBLEMDIGICELLS_DEPTH[0]->Fill(eta,phi,checkNevents_);
 		}
 	      //depth2
-	      temp=hfHists.PROBLEMDIGICELLS_TEMP_DEPTH[1]->GetBinContent(ieta,iphi);
+	      if (hfHists.check) temp=hfHists.PROBLEMDIGICELLS_TEMP_DEPTH[1]->GetBinContent(ieta,iphi);
 	
-	      if (temp==0)
+	      if (hfHists.check && temp==0)
 		{
 		  hfHists.PROBLEMDIGICELLS->Fill(eta,phi,checkNevents_);
 		  hfHists.PROBLEMDIGICELLS_DEPTH[1]->Fill(eta,phi,checkNevents_);
@@ -1529,9 +1542,9 @@ void HcalDigiMonitor::reset_Nevents(void)
 	  else if (abs(eta)>39 && (phi%4)==3)
 	    {
 	      // depth 1
-	      temp=hfHists.PROBLEMDIGICELLS_TEMP_DEPTH[0]->GetBinContent(ieta,iphi);
+	      if (hfHists.check) temp=hfHists.PROBLEMDIGICELLS_TEMP_DEPTH[0]->GetBinContent(ieta,iphi);
 	      
-	      if (temp==0)
+	      if (hfHists.check && temp==0)
 		{
 
 		  hfHists.PROBLEMDIGICELLS->Fill(eta,phi,checkNevents_);
@@ -1541,9 +1554,9 @@ void HcalDigiMonitor::reset_Nevents(void)
 		}
 	      
 	      //depth2
-	      temp=hfHists.PROBLEMDIGICELLS_TEMP_DEPTH[1]->GetBinContent(ieta,iphi);
+	      if (hfHists.check) temp=hfHists.PROBLEMDIGICELLS_TEMP_DEPTH[1]->GetBinContent(ieta,iphi);
 	      
-	      if (temp==0)
+	      if (hfHists.check && temp==0)
 		{
 	      hfHists.PROBLEMDIGICELLS->Fill(eta,phi,checkNevents_);
 	      hfHists.PROBLEMDIGICELLS_DEPTH[1]->Fill(eta,phi,checkNevents_);
@@ -1557,18 +1570,18 @@ void HcalDigiMonitor::reset_Nevents(void)
   
   // Reset temporary histograms
   hcalHists.PROBLEMDIGICELLS_TEMP->Reset();
-  hbHists.PROBLEMDIGICELLS_TEMP->Reset();
-  heHists.PROBLEMDIGICELLS_TEMP->Reset();
-  hoHists.PROBLEMDIGICELLS_TEMP->Reset();
-  hfHists.PROBLEMDIGICELLS_TEMP->Reset();
+  if (hbHists.check) hbHists.PROBLEMDIGICELLS_TEMP->Reset();
+  if (heHists.check) heHists.PROBLEMDIGICELLS_TEMP->Reset();
+  if (hoHists.check) hoHists.PROBLEMDIGICELLS_TEMP->Reset();
+  if (hfHists.check) hfHists.PROBLEMDIGICELLS_TEMP->Reset();
   
   for (int d=0;d<4;++d)
     {
       hcalHists.PROBLEMDIGICELLS_TEMP_DEPTH[d]->Reset();
-      hbHists.PROBLEMDIGICELLS_TEMP_DEPTH[d]->Reset();
-      heHists.PROBLEMDIGICELLS_TEMP_DEPTH[d]->Reset();
-      hoHists.PROBLEMDIGICELLS_TEMP_DEPTH[d]->Reset();
-      hfHists.PROBLEMDIGICELLS_TEMP_DEPTH[d]->Reset();
+      if (hbHists.check) hbHists.PROBLEMDIGICELLS_TEMP_DEPTH[d]->Reset();
+      if (heHists.check) heHists.PROBLEMDIGICELLS_TEMP_DEPTH[d]->Reset();
+      if (hoHists.check) hoHists.PROBLEMDIGICELLS_TEMP_DEPTH[d]->Reset();
+      if (hfHists.check) hfHists.PROBLEMDIGICELLS_TEMP_DEPTH[d]->Reset();
     }
 
 } //void HcalDigiMonitor::CheckNevents(void)

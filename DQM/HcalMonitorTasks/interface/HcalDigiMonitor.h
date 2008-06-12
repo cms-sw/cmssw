@@ -8,8 +8,8 @@
 
 /** \class HcalDigiMonitor
   *  
-  * $Date: 2008/06/05 23:31:52 $
-  * $Revision: 1.22 $
+  * $Date: 2008/06/06 23:31:08 $
+  * $Revision: 1.23 $
   * \author W. Fisher - FNAL
   */
 class HcalDigiMonitor: public HcalBaseMonitor {
@@ -64,6 +64,9 @@ private:  ///Monitoring elements
   MonitorElement* BQDIGI_FRAC;
 
   struct{
+    // check whether to create histograms for each subdetector
+    bool check;
+
     // Problem cells will be those cells with an error or with low occupancy
     MonitorElement* PROBLEMDIGICELLS;
     std::vector<MonitorElement*> PROBLEMDIGICELLS_DEPTH;
