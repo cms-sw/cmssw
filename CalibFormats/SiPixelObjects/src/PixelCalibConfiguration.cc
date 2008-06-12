@@ -575,7 +575,7 @@ unsigned int PixelCalibConfiguration::colCounter(unsigned int state) const
 	return i_col;
 }
 
-void PixelCalibConfiguration::nextFECState(PixelFECConfigInterface* pixelFEC,
+void PixelCalibConfiguration::nextFECState(std::map<unsigned int, PixelFECConfigInterface*>& pixelFECs,
 					   PixelDetectorConfig* detconfig,
 					   PixelNameTranslation* trans,
 					   std::map<pos::PixelModuleName,pos::PixelMaskBase*>* masks,
@@ -637,8 +637,11 @@ void PixelCalibConfiguration::nextFECState(PixelFECConfigInterface* pixelFEC,
   assert(rocs_.size()==rocInfo_.size());
 
   bool changedWBC=false;
-  
-  pixelFEC->fecDebug(1);
+
+  std::map<unsigned int, PixelFECConfigInterface*>::iterator iPixelFEC=pixelFECs.begin();
+  for(;iPixelFEC!=pixelFECs.end();++iPixelFEC){
+    iPixelFEC->second->fecDebug(1);
+  }
 
   //unsigned long version=0;
   //pixelFEC->getversion(&version);
@@ -669,7 +672,7 @@ void PixelCalibConfiguration::nextFECState(PixelFECConfigInterface* pixelFEC,
       PixelROCTrimBits* rocTrims=rocInfo_[i].trims_;
 
       //Turn off all pixels
-      disablePixels(pixelFEC, rocTrims, theROC);
+      disablePixels(pixelFECs[theROC.fecnumber()], rocTrims, theROC);
 
     }
    
@@ -692,19 +695,23 @@ void PixelCalibConfiguration::nextFECState(PixelFECConfigInterface* pixelFEC,
 
       // Set the DACs back to their default values when we're done with a scan.
       for ( unsigned int j=0; j< dacs_.size(); j++ ) {
-        pixelFEC->progdac(theROC.mfec(),
-			  theROC.mfecchannel(),
-			  theROC.hubaddress(),
-			  theROC.portaddress(),
-			  theROC.rocid(),
-			  rocInfo_[i].defaultDACs_[j].first,
-			  rocInfo_[i].defaultDACs_[j].second,
-			  _bufferData);	
+        pixelFECs[theROC.fecnumber()]->progdac(theROC.mfec(),
+					       theROC.mfecchannel(),
+					       theROC.hubaddress(),
+					       theROC.portaddress(),
+					       theROC.rocid(),
+					       rocInfo_[i].defaultDACs_[j].first,
+					       rocInfo_[i].defaultDACs_[j].second,
+					       _bufferData);	
       }
       
       PixelROCTrimBits* rocTrims=rocInfo_[i].trims_;
 
-      disablePixels(pixelFEC, i_row_previous, i_col_previous, rocTrims, theROC);
+      disablePixels(pixelFECs[theROC.fecnumber()], 
+		    i_row_previous, 
+		    i_col_previous, 
+		    rocTrims, 
+		    theROC);
 
     }
   }
@@ -738,13 +745,13 @@ void PixelCalibConfiguration::nextFECState(PixelFECConfigInterface* pixelFEC,
 	//     << " dac="<<dacs_[ii].name()<<" new value="<<dacvalue<<endl;
       }
 
-      pixelFEC->progdac(theROC.mfec(),
-         theROC.mfecchannel(),
-         theROC.hubaddress(),
-         theROC.portaddress(),
-         theROC.rocid(),
-         rocInfo_[i].defaultDACs_[ii].first,
-         dacvalue,_bufferData);
+      pixelFECs[theROC.fecnumber()]->progdac(theROC.mfec(),
+					     theROC.mfecchannel(),
+					     theROC.hubaddress(),
+					     theROC.portaddress(),
+					     theROC.rocid(),
+					     rocInfo_[i].defaultDACs_[ii].first,
+					     dacvalue,_bufferData);
 
       if (dacs_[ii].dacchannel()==k_DACAddress_WBC) changedWBC=true;
     }
@@ -762,7 +769,12 @@ void PixelCalibConfiguration::nextFECState(PixelFECConfigInterface* pixelFEC,
         if (mode==1) rocMasks=0;
 
         //std::cout << "Will enable pixels!" <<std::endl;
-        enablePixels(pixelFEC, i_row, i_col, rocMasks, rocTrims, theROC);
+        enablePixels(pixelFECs[theROC.fecnumber()], 
+		     i_row, 
+		     i_col, 
+		     rocMasks, 
+		     rocTrims, 
+		     theROC);
 
       }
 
@@ -780,23 +792,23 @@ void PixelCalibConfiguration::nextFECState(PixelFECConfigInterface* pixelFEC,
 	if (highVCalRange_) roccontrolword|=0x4;  //turn range bit on
 	else roccontrolword&=0xfb;                //turn range bit off
       
-	pixelFEC->progdac(theROC.mfec(),
-			  theROC.mfecchannel(),
-			  theROC.hubaddress(),
-			  theROC.portaddress(),
-			  theROC.rocid(),
-			  0xfd,
-			  roccontrolword,_bufferData);
+	pixelFECs[theROC.fecnumber()]->progdac(theROC.mfec(),
+					       theROC.mfecchannel(),
+					       theROC.hubaddress(),
+					       theROC.portaddress(),
+					       theROC.rocid(),
+					       0xfd,
+					       roccontrolword,_bufferData);
 	
 
       }      
 
       // Clear all pixels before setting the pixel pattern.
-      pixelFEC->clrcal(theROC.mfec(),
-		       theROC.mfecchannel(),
-		       theROC.hubaddress(),
-		       theROC.portaddress(),
-		       theROC.rocid(),_bufferData);
+      pixelFECs[theROC.fecnumber()]->clrcal(theROC.mfec(),
+					    theROC.mfecchannel(),
+					    theROC.hubaddress(),
+					    theROC.portaddress(),
+					    theROC.rocid(),_bufferData);
 
       // Program the pixel pattern.
       unsigned int nrow=rows_[i_row].size();
@@ -811,21 +823,24 @@ void PixelCalibConfiguration::nextFECState(PixelFECConfigInterface* pixelFEC,
         unsigned int row=rows_[i_row][irow];
         unsigned int col=cols_[i_col][icol];
 
-        pixelFEC->calpix(theROC.mfec(),
-           theROC.mfecchannel(),
-           theROC.hubaddress(),
-           theROC.portaddress(),
-           theROC.rocid(),
-           col,
-           row,
-           1,_bufferData);
+        pixelFECs[theROC.fecnumber()]->calpix(theROC.mfec(),
+					      theROC.mfecchannel(),
+					      theROC.hubaddress(),
+					      theROC.portaddress(),
+					      theROC.rocid(),
+					      col,
+					      row,
+					      1,_bufferData);
       }
       
     } // end of instructions for the beginning of a scan
   } // end of loop over ROCs
 
   if (_bufferData) {
-    pixelFEC->qbufsend();
+    std::map<unsigned int, PixelFECConfigInterface*>::iterator iPixelFEC=pixelFECs.begin();
+    for(;iPixelFEC!=pixelFECs.end();++iPixelFEC){
+      iPixelFEC->second->qbufsend();
+    }
   }
 
   if (changedWBC){
@@ -833,10 +848,10 @@ void PixelCalibConfiguration::nextFECState(PixelFECConfigInterface* pixelFEC,
 
       PixelHdwAddress theROC=*rocInfo_[i].hdwadd_;
 
-      pixelFEC->rocreset(theROC.mfec(),
-			 theROC.mfecchannel(),
-			 14,                    //FIXME hardcode for Channel A
-			 theROC.hubaddress());
+      pixelFECs[theROC.fecnumber()]->rocreset(theROC.mfec(),
+					      theROC.mfecchannel(),
+					      14,  //FIXME hardcode for Channel A
+					      theROC.hubaddress());
     }
   }
 

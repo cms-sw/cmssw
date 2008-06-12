@@ -69,7 +69,7 @@ namespace pos{
     // This must be run before using commands that require the ROC list.
     void buildROCAndModuleLists(const PixelNameTranslation* translation, const PixelDetectorConfig* detconfig);
 
-    void nextFECState(PixelFECConfigInterface* pixelFEC,
+    void nextFECState(std::map<unsigned int, PixelFECConfigInterface*>& pixelFECs,
 		      PixelDetectorConfig* detconfig,
 		      PixelNameTranslation* trans,
 		      std::map<pos::PixelModuleName,pos::PixelMaskBase*>* masks,
