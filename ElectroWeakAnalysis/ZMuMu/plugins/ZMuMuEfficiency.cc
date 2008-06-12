@@ -79,6 +79,8 @@ private:
   int noMCmatching, ZMuTrack_exclusive_1match, ZMuTrack_exclusive_morematch;
   int ZMuTrackselected_exclusive_1match, ZMuTrackselected_exclusive_morematch;
   int ZMuTrack_ZMuMu_1match, ZMuTrack_ZMuMu_2match, ZMuTrack_ZMuMu_morematch;
+
+  int n_zMuMufound_genZsele, n_zMuStafound_genZsele, n_zMuTrkfound_genZsele;
 };
 
 #include "FWCore/ServiceRegistry/interface/Service.h"
@@ -206,6 +208,10 @@ ZMuMuEfficiency::ZMuMuEfficiency(const ParameterSet& pset) :
   ZMuTrack_ZMuMu_2match = 0;
   ZMuTrack_ZMuMu_morematch = 0;
 
+  n_zMuMufound_genZsele = 0;
+  n_zMuStafound_genZsele = 0;
+  n_zMuTrkfound_genZsele = 0;
+
   // generator counters
   totalNumberOfevents = 0;
   totalNumberOfZfound = 0;
@@ -328,36 +334,16 @@ void ZMuMuEfficiency::analyze(const Event& event, const EventSetup& setup) {
 	    h_muetaGenPassed_->Fill(muminuseta);
 	    h_muptGenPassed_->Fill(mupluspt);
 	    h_muptGenPassed_->Fill(muminuspt);
-	    /*
-	    zMuMufound_genZsele = true;
-	    if (zMuMu->size() > 0 ) {
-	      n_zMuMufound_genZsele++;
-	      zMuMufound_genZsele = true;
-	      event.getByLabel(zMuMuMatchMap_, zMuMuMatchMap); 
-	      for(size_t i = 0; i < zMuMu->size(); ++i) { //loop on candidates
-		const Candidate & zMuMuCand = (*zMuMu)[i]; //the candidate
-		CandidateBaseRef zMuMuCandRef = zMuMu->refAt(i);
-		GenParticleRef zMuMuMatch = (*zMuMuMatchMap)[zMuMuCandRef];
-		if(zMuMuMatch.isNonnull()) {  // ZMuMu matched
-		  n_zMuMufoundMatched_genZsele++;
-		}
-	      }
-	    }
-	    if (zMuSta->size() > 0 && ) {
-	      n_zMuMufound_genZsele++;
-	      zMuMufound_genZsele = true;
-	      event.getByLabel(zMuMuMatchMap_, zMuMuMatchMap); 
-	      for(size_t i = 0; i < zMuMu->size(); ++i) { //loop on candidates
-		const Candidate & zMuMuCand = (*zMuMu)[i]; //the candidate
-		CandidateBaseRef zMuMuCandRef = zMuMu->refAt(i);
-		GenParticleRef zMuMuMatch = (*zMuMuMatchMap)[zMuMuCandRef];
-		if(zMuMuMatch.isNonnull()) {  // ZMuMu matched
-		  n_zMuMufoundMatched_genZsele++;
-		}
-	      }
-	    }
-	    */
 
+	    if (zMuMu->size() > 0 ) {
+	      n_zMuMufound_genZsele++; 
+	    }
+	    else if (zMuStandAlone->size() > 0 ) {
+		n_zMuStafound_genZsele++;
+	    }
+	    else {
+	      n_zMuTrkfound_genZsele++;	      
+	    }
 
 	  }
 	}
@@ -533,7 +519,7 @@ void ZMuMuEfficiency::analyze(const Event& event, const EventSetup& setup) {
   if (ZMuMuMatchedfound && ZMuTrackMatchedfound == 2) ZMuTrack_ZMuMu_2match++;
   if (ZMuMuMatchedfound && ZMuTrackMatchedfound > 2) ZMuTrack_ZMuMu_morematch++;
  
-
+}
 
 bool ZMuMuEfficiency::check_ifZmumu(const Candidate * dauGen0, const Candidate * dauGen1, const Candidate * dauGen2)
 {
@@ -700,6 +686,10 @@ void ZMuMuEfficiency::endJob() {
   cout << "totalNumberOfevents = " << totalNumberOfevents << endl;
   cout << "totalNumberOfZfound = " << totalNumberOfZfound << endl;
   cout << "totalNumberOfZpassed = " << totalNumberOfZPassed << endl;
+  cout << "n. of events zMuMu found (gen level selected)" <<   n_zMuMufound_genZsele << endl;
+  cout << "n. of events zMuSta found (gen level selected)" <<   n_zMuStafound_genZsele << endl;
+  cout << "n. of events zMuTrk found (gen level selected)" <<   n_zMuTrkfound_genZsele << endl;
+
   cout << "----------------------------   Counter for MC truth efficiency calculation--------------------- " << endl;
 
   cout << "number of events with ZMuMu found = " << numberOfEventsWithZMuMufound << endl; 
