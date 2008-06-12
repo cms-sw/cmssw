@@ -7,11 +7,11 @@
 #include <fstream>
 
 //Finds the TR between two alignables - first alignable is reference
-AlgebraicVector align::diffAlignables(Alignable* refAli, Alignable*curAli, std::string weightBy, bool weightById, std::string weightByIdFile){
+AlgebraicVector align::diffAlignables(Alignable* refAli, Alignable*curAli, std::string weightBy, bool weightById, std::vector< unsigned int > weightByIdVector){
 	
 	//check they are the same
 	if (refAli->alignableObjectId() != curAli->alignableObjectId()){
-		if (refAli->geomDetId().rawId() != curAli->geomDetId().rawId()){
+		if (refAli->id() != curAli->id()){
 			throw cms::Exception("Geometry Error")
 			<< "[AlignTools] Error, Alignables do not match";
 		}
@@ -20,8 +20,8 @@ AlgebraicVector align::diffAlignables(Alignable* refAli, Alignable*curAli, std::
 	//create points
 	align::GlobalVectors refVs;
 	align::GlobalVectors curVs;
-	align::createPoints(&refVs, refAli, weightBy, weightById, weightByIdFile);
-	align::createPoints(&curVs, curAli, weightBy, weightById, weightByIdFile);
+	align::createPoints(&refVs, refAli, weightBy, weightById, weightByIdVector);
+	align::createPoints(&curVs, curAli, weightBy, weightById, weightByIdVector);
 	
 	//redefine the set of points
 	//find the translational difference
@@ -78,22 +78,22 @@ void align::moveAlignable(Alignable* ali, AlgebraicVector diff){
 }
 
 //Creates the points which are used in diffAlignables
-void align::createPoints(align::GlobalVectors* Vs, Alignable* ali, std::string weightBy, bool weightById, std::string weightByIdFile){
+void align::createPoints(align::GlobalVectors* Vs, Alignable* ali, std::string weightBy, bool weightById, std::vector< unsigned int > weightByIdVector){
 	
 	
 	const align::Alignables& comp = ali->components();
 	unsigned int nComp = comp.size();
-	for (unsigned int i = 0; i < nComp; ++i) align::createPoints(Vs, comp[i], weightBy, weightById, weightByIdFile);
+	for (unsigned int i = 0; i < nComp; ++i) align::createPoints(Vs, comp[i], weightBy, weightById, weightByIdVector);
 	// double the weight for SS modules if weight by Det
 	if ((ali->alignableObjectId() == align::AlignableDet)&&(weightBy == "Det")){
-		for (unsigned int i = 0; i < nComp; ++i) align::createPoints(Vs, comp[i], weightBy, weightById, weightByIdFile);
+		for (unsigned int i = 0; i < nComp; ++i) align::createPoints(Vs, comp[i], weightBy, weightById, weightByIdVector);
 	}
 	
 	//only create points for lowest hiearchical level
 	if (ali->alignableObjectId() == align::AlignableDetUnit){
 		//check if the raw id or the mother's raw id is on the list
 		bool createPointsForDetUnit = true;
-		if (weightById) createPointsForDetUnit = align::readModuleList( ali->id(), ali->mother()->id(), weightByIdFile);
+		if (weightById) createPointsForDetUnit = align::readModuleList( ali->id(), ali->mother()->id(), weightByIdVector);
 		if (createPointsForDetUnit){
 			//if no survey information, create local points
 			if(!(ali->survey())){
@@ -111,26 +111,23 @@ void align::createPoints(align::GlobalVectors* Vs, Alignable* ali, std::string w
 }
 
 
-bool align::readModuleList(unsigned int aliId, unsigned int motherId, std::string filename){
+bool align::readModuleList(unsigned int aliId, unsigned int motherId, std::vector< unsigned int > weightByIdVector){
 	
-	bool foundId = false;
+	bool foundId = false; 
 	
-	std::ifstream inFile;
-	inFile.open( filename.c_str() );
-	int ctr = 0;
-	while ( !inFile.eof() ){
-		ctr++;
-		unsigned int listId;
-		inFile >> listId;
-		inFile.ignore(256, '\n');
+	unsigned int sizeVector = weightByIdVector.size();
+	
+	for (unsigned int i = 0; i < sizeVector; ++i){
+		
+		unsigned int listId = weightByIdVector[i];
 		
 		if (listId == aliId){ foundId = true; break; }
 		if (listId == motherId){ foundId = true; break; }
 	}
-	inFile.close();
 	
 	return foundId;
 }
+
 
 
 
