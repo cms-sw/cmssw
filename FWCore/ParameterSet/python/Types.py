@@ -79,7 +79,7 @@ class uint64(_SimpleParameterTypeBase):
     @staticmethod
     def _isValid(value):
         return ((isinstance(value,int) and value >= 0) or
-                (ininstance(value,long) and value >= 0) and value <= 0xFFFFFFFFFFFFFFFF)
+                (isinstance(value,long) and value >= 0) and value <= 0xFFFFFFFFFFFFFFFF)
     @staticmethod
     def _valueFromString(value):
         """only used for cfg-parsing"""
