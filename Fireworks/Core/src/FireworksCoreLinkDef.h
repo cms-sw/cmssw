@@ -7,6 +7,7 @@
 #include "Fireworks/Core/src/FWListViewObjectEditor.h"
 #include "Fireworks/Core/src/FWListItemBase.h"
 #include "Fireworks/Core/src/TableWidget.h"
+#include "Fireworks/Core/src/fwCintInterfaces.h"
 #include "Fireworks/Core/interface/FWTextView.h"
 #ifdef __CINT__
 #pragma link off all globals;
@@ -22,4 +23,8 @@
 #pragma link C++ class FWListItemBase;
 #pragma link C++ class TableWidget;
 #pragma link C++ class FWTextView;
+#pragma link C++ function fwSetInCint(double);
+#pragma link C++ function fwSetInCint(long);
+#pragma link C++ function fwGetObjectPtr();
+
 #endif
