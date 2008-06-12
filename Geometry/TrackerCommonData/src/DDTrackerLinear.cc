@@ -15,7 +15,7 @@
 #include "CLHEP/Units/SystemOfUnits.h"
 
 
-DDTrackerLinear::DDTrackerLinear() {
+DDTrackerLinear::DDTrackerLinear() : startcn(1), incrcn(1) {
   LogDebug("TrackerGeom") << "DDTrackerLinear info: Creating an instance";
 }
 
@@ -34,6 +34,12 @@ void DDTrackerLinear::initialize(const DDNumericArguments & nArgs,
   delta     = nArgs["Delta"];
   centre    = vArgs["Center"];
   rotMat    = sArgs["Rotation"];
+  if ( nArgs.find("StartCopyNo") != nArgs.end() ) {
+    startcn = size_t(nArgs["StartCopyNo"]);
+  }
+  if ( nArgs.find("IncrCopyNo") != nArgs.end() ) {
+    incrcn = int(nArgs["IncrCopyNo"]);
+  }
   
   idNameSpace = DDCurrentNamespace::ns();
   childName   = sArgs["ChildName"]; 
@@ -60,13 +66,14 @@ void DDTrackerLinear::execute() {
     std::string rotns  = DDSplit(rotMat).second;
     rot = DDRotation(DDName(rotstr, rotns));
   }
-
+  int ci = startcn;
   for (int i=0; i<number; i++) {
 	
     DDTranslation tran = base + (offset + double(i)*delta)*direction;
-    DDpos (child, mother, i+1, tran, rot);
+    DDpos (child, mother, ci, tran, rot);
     LogDebug("TrackerGeom") << "DDTrackerLinear test: " << child << " number "
-			    << i+1 << " positioned in " << mother << " at "
+			    << ci << " positioned in " << mother << " at "
 			    << tran << " with " << rot;
+    ++ci;
   }
 }

@@ -26,6 +26,8 @@ private:
   std::string              idNameSpace; //Namespace of this and ALL sub-parts
   std::string              childName;   //Child name
   int                      number;      //Number of positioning
+  int                      startcn;     //Start copy no index
+  int                      incrcn;      //Increment of copy no.
   double                   theta;       //Direction of translation
   double                   phi;         //  ......
   double                   offset;      //Offset    along (theta,phi) direction

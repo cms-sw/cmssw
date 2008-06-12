@@ -803,7 +803,8 @@ This volume should not include the Ibeam horizontal bars (those that make the 'I
    <ParE name="center" value="0"/>
 
    <ParE name="center" value="-1.322*m"/>
-
+   <ParE name="startCopyNo" value="1"/>
+   <ParE name="incrCopyNo" value="1"/>
   </AlgoPosPart>
 
  <AlgoPosPart algo="global:angular">
@@ -829,7 +830,8 @@ This volume should not include the Ibeam horizontal bars (those that make the 'I
    <ParE name="center" value="0"/>
 
    <ParE name="center" value="1.322*m"/>
-
+   <ParE name="startCopyNo" value="7"/>
+   <ParE name="incrCopyNo" value="1"/>
   </AlgoPosPart>
 
   <AlgoPosPart algo="global:angular">
@@ -855,6 +857,8 @@ This volume should not include the Ibeam horizontal bars (those that make the 'I
    <ParE name="center" value="0"/>
 
    <ParE name="center" value="-3.9865*m"/>
+   <ParE name="startCopyNo" value="1"/>
+   <ParE name="incrCopyNo" value="1"/>
 
   </AlgoPosPart>
 
@@ -881,6 +885,8 @@ This volume should not include the Ibeam horizontal bars (those that make the 'I
    <ParE name="center" value="0"/>
 
    <ParE name="center" value="3.9865*m"/>
+   <ParE name="startCopyNo" value="7"/>
+   <ParE name="incrCopyNo" value="1"/>
 
   </AlgoPosPart>
 

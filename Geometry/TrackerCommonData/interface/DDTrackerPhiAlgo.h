@@ -31,6 +31,10 @@ private:
 
   std::string   idNameSpace; //Namespace of this and ALL sub-parts
   std::string   childName;   //Child name
+
+  size_t        startcn;     //Start index of copy numbers.
+  int           incrcn;      //Increment of copy number index.
+  size_t        numcopies;   //Number of copies == phi.size() above.
 };
 
 #endif
