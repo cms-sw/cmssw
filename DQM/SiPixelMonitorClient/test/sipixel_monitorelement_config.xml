@@ -80,15 +80,26 @@
      <MonElement name="ndigis">         </MonElement> 
      <MonElement name="adc">            </MonElement> 
 </SubStructureGrandEndcapLevel> 
+<SubStructureNonDetId name="AdditionalPixelErrors" update_frequency="300"> 
+     <MonElement name="errorType"></MonElement> 
+     <MonElement name="fullType"></MonElement> 
+     <MonElement name="NErrors"></MonElement> 
+     <MonElement name="TBMType"></MonElement> 
+     <MonElement name="EvtNbr"></MonElement> 
+     <MonElement name="TBMMessage"></MonElement> 
+     <MonElement name="chanNmbr"></MonElement> 
+     <MonElement name="evtSize"></MonElement> 
+     <MonElement name="linkId"></MonElement> 
+</SubStructureNonDetId> 
 </SummaryPlot>
 
 <QTests>
-<QTestMessageLimit name="limit" value="100">
+<QTestMessageLimit name="limit" value="0">
 </QTestMessageLimit>
 </QTests>
 
 <Source>
-<SourceType name="source" code="1">
+<SourceType name="source" code="5">
 </SourceType>
 </Source>
 
