@@ -2,8 +2,8 @@
  *
  * Class for RPC Monitoring using RPCDigi and DT and CSCS egments.
  *
- *  $Date: 2008/05/29 13:22:38 $
- *  $Revision: 1.17 $
+ *  $Date: 2008/06/11 19:43:55 $
+ *  $Revision: 1.18 $
  *
  * \author Camilo Carrillo (Uniandes)
  *
@@ -69,6 +69,7 @@ class MuonSegmentEff : public edm::EDAnalyzer {
       //Giuseppe
       std::map<std::string, std::map<std::string, MonitorElement*> >  meCollection;
       bool EffSaveRootFile;
+      bool calculateEfficiency;
       int  EffSaveRootFileEventsInterval;
       std::string EffRootFileName;
       std::string nameInLog;
