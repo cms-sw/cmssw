@@ -16,7 +16,7 @@
 //
 // Original Author:  
 //         Created:  Thu Jan  3 13:27:29 EST 2008
-// $Id: FWEventItemsManager.h,v 1.6 2008/02/25 21:32:24 chrjones Exp $
+// $Id: FWEventItemsManager.h,v 1.7 2008/03/13 22:58:47 chrjones Exp $
 //
 
 // system include files
@@ -67,6 +67,7 @@ class FWEventItemsManager : public FWConfigurable
       sigc::signal<void> goingToClearItems_;
    private:
 
+      void removeItem(const FWEventItem*);
       FWEventItemsManager(const FWEventItemsManager&); // stop default
 
       const FWEventItemsManager& operator=(const FWEventItemsManager&); // stop default

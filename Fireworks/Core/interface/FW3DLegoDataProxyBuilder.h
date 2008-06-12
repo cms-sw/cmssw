@@ -16,7 +16,7 @@
 //
 // Original Author:  
 //         Created:  Sat Jan  5 15:02:03 EST 2008
-// $Id: FW3DLegoDataProxyBuilder.h,v 1.5 2008/03/20 09:39:26 dmytro Exp $
+// $Id: FW3DLegoDataProxyBuilder.h,v 1.6 2008/06/09 19:54:02 chrjones Exp $
 //
 
 // system include files
@@ -68,6 +68,7 @@ class FW3DLegoDataProxyBuilder
 
       //Override this if you need to special handle selection or other changes
       virtual void modelChanges(const FWModelIds&, TEveElement*);
+      virtual void itemBeingDestroyed(const FWEventItem*);
       
       FW3DLegoDataProxyBuilder(const FW3DLegoDataProxyBuilder&); // stop default
 

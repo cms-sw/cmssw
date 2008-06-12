@@ -8,7 +8,7 @@
 //
 // Original Author:  
 //         Created:  Thu Dec  6 17:49:54 PST 2007
-// $Id: FW3DLegoDataProxyBuilder.cc,v 1.4 2008/03/20 09:39:26 dmytro Exp $
+// $Id: FW3DLegoDataProxyBuilder.cc,v 1.5 2008/06/08 16:59:01 dmytro Exp $
 //
 
 // system include files
@@ -89,8 +89,18 @@ FW3DLegoDataProxyBuilder::setItem(const FWEventItem* iItem)
    m_item = iItem;
    if(0 != m_item) {
       m_item->changed_.connect(boost::bind(&FW3DLegoDataProxyBuilder::modelChanges,this,_1));
+      m_item->goingToBeDestroyed_.connect(boost::bind(&FW3DLegoDataProxyBuilder::itemBeingDestroyed,this,_1));
    }
 
+}
+
+void 
+FW3DLegoDataProxyBuilder::itemBeingDestroyed(const FWEventItem* iItem)
+{
+   m_item=0;
+   delete m_elements;
+   m_elements=0;
+   m_ids.clear();
 }
 
 

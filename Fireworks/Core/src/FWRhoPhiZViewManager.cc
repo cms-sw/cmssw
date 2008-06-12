@@ -8,7 +8,7 @@
 //
 // Original Author:  
 //         Created:  Sat Jan  5 14:08:51 EST 2008
-// $Id: FWRhoPhiZViewManager.cc,v 1.29 2008/06/10 19:27:10 chrjones Exp $
+// $Id: FWRhoPhiZViewManager.cc,v 1.30 2008/06/11 14:06:19 dmytro Exp $
 //
 
 // system include files
@@ -259,19 +259,25 @@ void FWRhoPhiZViewManager::addElements()
 {
    for ( std::vector<boost::shared_ptr<FWRPZModelProxyBase> >::iterator proxy = m_modelProxies.begin();
 	 proxy != m_modelProxies.end(); ++proxy )  {
-      (*proxy)->clearRhoPhiProjs();
-      for(std::vector<boost::shared_ptr<FWRhoPhiZView> >::iterator it = m_rhoPhiViews.begin(),
-          itEnd = m_rhoPhiViews.end();
-          it != itEnd;
-          ++it) {
-         (*proxy)->addRhoPhiProj( (*it)->importElements((*proxy)->getRhoPhiProduct(),(*proxy)->layer()));
-      }
-      (*proxy)->clearRhoZProjs();
-      for(std::vector<boost::shared_ptr<FWRhoPhiZView> >::iterator it = m_rhoZViews.begin(),
-          itEnd = m_rhoZViews.end();
-          it != itEnd;
-          ++it) {
-         (*proxy)->addRhoZProj( (*it)->importElements((*proxy)->getRhoZProduct(),(*proxy)->layer()));
+      if( (*proxy)->isActive() ) {
+         (*proxy)->clearRhoPhiProjs();
+         for(std::vector<boost::shared_ptr<FWRhoPhiZView> >::iterator it = m_rhoPhiViews.begin(),
+             itEnd = m_rhoPhiViews.end();
+             it != itEnd;
+             ++it) {
+            if((*proxy)->getRhoPhiProduct()) {
+               (*proxy)->addRhoPhiProj( (*it)->importElements((*proxy)->getRhoPhiProduct(),(*proxy)->layer()));
+            }
+         }
+         (*proxy)->clearRhoZProjs();
+         for(std::vector<boost::shared_ptr<FWRhoPhiZView> >::iterator it = m_rhoZViews.begin(),
+             itEnd = m_rhoZViews.end();
+             it != itEnd;
+             ++it) {
+            if((*proxy)->getRhoZProduct()) {
+               (*proxy)->addRhoZProj( (*it)->importElements((*proxy)->getRhoZProduct(),(*proxy)->layer()));
+            }
+         }
       }
    }  
    
@@ -291,6 +297,7 @@ FWRhoPhiZViewManager::makeProxyBuilderFor(const FWEventItem* iItem)
             builder->setItem(iItem);
             m_modelProxies.push_back(boost::shared_ptr<FWRPZ3DModelProxy>(new FWRPZ3DModelProxy(pB)) );
             iItem->itemChanged_.connect(boost::bind(&FWRPZModelProxyBase::itemChanged,&(*(m_modelProxies.back())),_1));
+            iItem->goingToBeDestroyed_.connect(boost::bind(&FWRPZModelProxyBase::itemBeingDestroyed,&(*(m_modelProxies.back())),_1));
          }
       } else {
          std::cout << "\tinterpreting as FWRPZ2DDataProxyBuilder " << std::endl;
@@ -300,6 +307,7 @@ FWRhoPhiZViewManager::makeProxyBuilderFor(const FWEventItem* iItem)
             builder->setItem(iItem);
             m_modelProxies.push_back(boost::shared_ptr<FWRPZ2DModelProxy>(new FWRPZ2DModelProxy(pB) ));
             iItem->itemChanged_.connect(boost::bind(&FWRPZModelProxyBase::itemChanged,&(*(m_modelProxies.back())),_1));
+            iItem->goingToBeDestroyed_.connect(boost::bind(&FWRPZModelProxyBase::itemBeingDestroyed,&(*(m_modelProxies.back())),_1));
          }
       }
    }   
@@ -741,6 +749,12 @@ FWRPZModelProxyBase::itemChanged(const FWEventItem* iItem)
    this->itemChangedImp(iItem);
 }
 
+void
+FWRPZModelProxyBase::itemBeingDestroyed(const FWEventItem* iItem)
+{
+   this->itemBeingDestroyedImp(iItem);
+}
+
 float
 FWRPZModelProxyBase::layer() const
 {
@@ -753,10 +767,24 @@ FWRPZ3DModelProxy::itemChangedImp(const FWEventItem*)
    m_mustRebuild=true;
 }
 
+void
+FWRPZ3DModelProxy::itemBeingDestroyedImp(const FWEventItem* iItem)
+{
+   m_product=0;
+   m_builder.reset();
+}
+
+bool 
+FWRPZ3DModelProxy::isActive() const
+{
+   return 0 != m_builder.get();
+}
+
+
 TEveElementList* 
 FWRPZ3DModelProxy::getProduct() const
 {
-   if(m_mustRebuild) {
+   if(m_mustRebuild && m_builder) {
       m_builder->build(&m_product);
       m_mustRebuild=false;
    }
@@ -778,25 +806,33 @@ FWRPZ3DModelProxy::getRhoZProduct() const
 void
 FWRPZ3DModelProxy::addRhoPhiProj(TEveElement* iElement)
 {
-   m_builder->addRhoPhiProj(iElement);
+   if(m_builder) {
+      m_builder->addRhoPhiProj(iElement);
+   }
 }
 
 void
 FWRPZ3DModelProxy::addRhoZProj(TEveElement* iElement)
 {
-   m_builder->addRhoZProj(iElement);
+   if(m_builder) {
+      m_builder->addRhoZProj(iElement);
+   }
 }
 
 void
 FWRPZ3DModelProxy::clearRhoPhiProjs()
 {
-   m_builder->clearRhoPhiProjs();
+   if(m_builder) {
+      m_builder->clearRhoPhiProjs();
+   }
 }
 
 void
 FWRPZ3DModelProxy::clearRhoZProjs()
 {
-   m_builder->clearRhoZProjs();
+   if(m_builder) {
+      m_builder->clearRhoZProjs();
+   }
 }
 
 void
@@ -805,10 +841,25 @@ FWRPZ2DModelProxy::itemChangedImp(const FWEventItem*)
    m_mustRebuildRhoPhi=true;
    m_mustRebuildRhoZ=true;
 }
+
+void
+FWRPZ2DModelProxy::itemBeingDestroyedImp(const FWEventItem* iItem)
+{
+   m_rhoPhiProduct=0;
+   m_rhoZProduct=0;
+   m_builder.reset();
+}
+
+bool 
+FWRPZ2DModelProxy::isActive() const
+{
+   return 0 != m_builder.get();
+}
+
 TEveElementList* 
 FWRPZ2DModelProxy::getRhoPhiProduct() const
 {
-   if(m_mustRebuildRhoPhi) {
+   if(m_mustRebuildRhoPhi && m_builder) {
       m_builder->buildRhoPhi(&m_rhoPhiProduct);
       m_mustRebuildRhoPhi=false;
    }
@@ -818,7 +869,7 @@ FWRPZ2DModelProxy::getRhoPhiProduct() const
 TEveElementList* 
 FWRPZ2DModelProxy::getRhoZProduct() const
 {
-   if(m_mustRebuildRhoZ) {
+   if(m_mustRebuildRhoZ && m_builder) {
       m_builder->buildRhoZ(&m_rhoZProduct);
       m_mustRebuildRhoZ=false;
    }
@@ -828,25 +879,33 @@ FWRPZ2DModelProxy::getRhoZProduct() const
 void
 FWRPZ2DModelProxy::addRhoPhiProj(TEveElement* iElement)
 {
-   m_builder->addRhoPhiProj(iElement);
+   if(m_builder) {
+      m_builder->addRhoPhiProj(iElement);
+   }
 }
 
 void
 FWRPZ2DModelProxy::addRhoZProj(TEveElement* iElement)
 {
-   m_builder->addRhoZProj(iElement);
+   if(m_builder) {
+      m_builder->addRhoZProj(iElement);
+   }
 }
 
 void
 FWRPZ2DModelProxy::clearRhoPhiProjs()
 {
-   m_builder->clearRhoPhiProjs();
+   if(m_builder) {
+      m_builder->clearRhoPhiProjs();
+   }
 }
 
 void
 FWRPZ2DModelProxy::clearRhoZProjs()
 {
-   m_builder->clearRhoZProjs();
+   if(m_builder) {
+      m_builder->clearRhoZProjs();
+   }
 }
 
 void FWRhoPhiZViewManager::estimateProjectionSize( const Double_t* global,

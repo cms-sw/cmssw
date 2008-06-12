@@ -16,7 +16,7 @@
 //
 // Original Author:  
 //         Created:  Sat Jan  5 15:02:03 EST 2008
-// $Id: FWRPZ2DDataProxyBuilder.h,v 1.5 2008/02/29 21:18:05 chrjones Exp $
+// $Id: FWRPZ2DDataProxyBuilder.h,v 1.6 2008/06/09 19:54:03 chrjones Exp $
 //
 
 // system include files
@@ -64,6 +64,8 @@ class FWRPZ2DDataProxyBuilder
       //Override this if you need to special handle selection or other changes
       virtual void modelChangesRhoPhi(const FWModelIds&, TEveElement*);
       virtual void modelChangesRhoZ(const FWModelIds&, TEveElement*);
+   
+      virtual void itemBeingDestroyed(const FWEventItem*);
 
       FWRPZ2DDataProxyBuilder(const FWRPZ2DDataProxyBuilder&); // stop default
 

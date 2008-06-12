@@ -8,7 +8,7 @@
 //
 // Original Author:  
 //         Created:  Thu Dec  6 17:49:54 PST 2007
-// $Id: FWRPZDataProxyBuilder.cc,v 1.9 2008/03/12 02:58:17 chrjones Exp $
+// $Id: FWRPZDataProxyBuilder.cc,v 1.10 2008/06/08 16:59:01 dmytro Exp $
 //
 
 // system include files
@@ -73,7 +73,20 @@ FWRPZDataProxyBuilder::setItem(const FWEventItem* iItem)
   m_item = iItem;
   if(0 != m_item) {
      m_item->changed_.connect(boost::bind(&FWRPZDataProxyBuilder::modelChanges,this,_1));
+     m_item->goingToBeDestroyed_.connect(boost::bind(&FWRPZDataProxyBuilder::itemBeingDestroyed,this,_1));
+
   }
+}
+
+void 
+FWRPZDataProxyBuilder::itemBeingDestroyed(const FWEventItem* iItem)
+{
+   m_item=0;
+   delete m_elements;
+   m_elements=0;
+   m_rhoPhiProjs.clear();
+   m_rhoZProjs.clear();
+   m_ids.clear();
 }
 
 static void

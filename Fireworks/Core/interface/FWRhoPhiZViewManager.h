@@ -16,7 +16,7 @@
 //
 // Original Author:  
 //         Created:  Sat Jan  5 11:27:34 EST 2008
-// $Id: FWRhoPhiZViewManager.h,v 1.16 2008/06/09 20:18:22 chrjones Exp $
+// $Id: FWRhoPhiZViewManager.h,v 1.17 2008/06/10 19:27:10 chrjones Exp $
 //
 
 // system include files
@@ -43,6 +43,7 @@ public:
    FWRPZModelProxyBase() {}
    virtual ~FWRPZModelProxyBase() {}
    void itemChanged(const FWEventItem*);
+   void itemBeingDestroyed(const FWEventItem*);
    virtual TEveElementList* getRhoPhiProduct() const =0;
    virtual TEveElementList* getRhoZProduct() const = 0;
    virtual void addRhoPhiProj(TEveElement*) = 0;
@@ -50,9 +51,12 @@ public:
    virtual void clearRhoPhiProjs() = 0;
    virtual void clearRhoZProjs() = 0;
 
+   virtual bool isActive() const = 0;
+   
    float layer() const;
 private:
    virtual void itemChangedImp(const FWEventItem*) = 0;
+   virtual void itemBeingDestroyedImp(const FWEventItem*) = 0;
 
    float m_layer;
 };
@@ -69,8 +73,11 @@ public:
    void addRhoZProj(TEveElement*);
    void clearRhoPhiProjs();
    void clearRhoZProjs();
+   virtual bool isActive() const;
+
 private:
    void itemChangedImp(const FWEventItem*) ;
+   virtual void itemBeingDestroyedImp(const FWEventItem*);
    TEveElementList* getProduct() const;
    boost::shared_ptr<FWRPZDataProxyBuilder>   m_builder;
    mutable TEveElementList*                   m_product; //owned by builder
@@ -93,8 +100,10 @@ public:
    void addRhoZProj(TEveElement*);
    void clearRhoPhiProjs();
    void clearRhoZProjs();
+   virtual bool isActive() const;
 private:
    void itemChangedImp(const FWEventItem*) ;
+   virtual void itemBeingDestroyedImp(const FWEventItem*);
    boost::shared_ptr<FWRPZ2DDataProxyBuilder>   m_builder;
    mutable TEveElementList*                     m_rhoPhiProduct; //owned by builder
    mutable TEveElementList*                     m_rhoZProduct; //owned by builder

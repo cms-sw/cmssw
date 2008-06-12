@@ -8,7 +8,7 @@
 //
 // Original Author:  
 //         Created:  Thu Dec  6 17:49:54 PST 2007
-// $Id: FWRPZ2DDataProxyBuilder.cc,v 1.7 2008/05/26 14:37:32 dmytro Exp $
+// $Id: FWRPZ2DDataProxyBuilder.cc,v 1.8 2008/06/08 16:59:01 dmytro Exp $
 //
 
 // system include files
@@ -38,7 +38,9 @@
 // constructors and destructor
 //
 FWRPZ2DDataProxyBuilder::FWRPZ2DDataProxyBuilder():
-  m_item(0)
+  m_item(0),
+  m_rhoPhiElements(0),
+  m_rhoPhiZElements(0)
 {
 }
 
@@ -73,8 +75,36 @@ FWRPZ2DDataProxyBuilder::setItem(const FWEventItem* iItem)
    if(0 != m_item) {
       m_item->changed_.connect(boost::bind(&FWRPZ2DDataProxyBuilder::modelChangesRhoPhi,this,_1));
       m_item->changed_.connect(boost::bind(&FWRPZ2DDataProxyBuilder::modelChangesRhoZ,this,_1));
+      m_item->goingToBeDestroyed_.connect(boost::bind(&FWRPZ2DDataProxyBuilder::itemBeingDestroyed,this,_1));
    }
 }
+
+void 
+FWRPZ2DDataProxyBuilder::itemBeingDestroyed(const FWEventItem* iItem)
+{
+   m_item=0;
+   delete m_rhoPhiElements;
+   bool unique = m_rhoPhiElements!=m_rhoPhiZElements;
+   m_rhoPhiElements=0;
+   if(unique) {
+      delete m_rhoPhiZElements;
+      m_rhoPhiZElements=0;
+   }
+   for(std::vector<TEveElement*>::iterator it = m_rhoPhiProjs.begin(), itEnd = m_rhoPhiProjs.end();
+       it != itEnd;
+       ++it) {
+      delete *it;
+   }
+   for(std::vector<TEveElement*>::iterator it = m_rhoZProjs.begin(), itEnd = m_rhoZProjs.end();
+       it != itEnd;
+       ++it) {
+      delete *it;
+   }
+   m_rhoPhiProjs.clear();
+   m_rhoZProjs.clear();
+   m_ids.clear();
+}
+
 
 static void
 setUserDataElementAndChildren(TEveElement* iElement, 

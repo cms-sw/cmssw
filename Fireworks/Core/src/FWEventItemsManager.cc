@@ -8,11 +8,12 @@
 //
 // Original Author:  
 //         Created:  Fri Jan  4 10:38:18 EST 2008
-// $Id: FWEventItemsManager.cc,v 1.10 2008/03/24 13:28:18 chrjones Exp $
+// $Id: FWEventItemsManager.cc,v 1.11 2008/06/10 14:20:02 chrjones Exp $
 //
 
 // system include files
 #include <sstream>
+#include <boost/bind.hpp>
 #include "TClass.h"
 
 // user include files
@@ -76,6 +77,7 @@ FWEventItemsManager::add(const FWPhysicsObjectDesc& iItem)
 {
   m_items.push_back(new FWEventItem(m_changeManager,m_selectionManager,m_items.size(),iItem) );
   newItem_(m_items.back());
+   m_items.back()->goingToBeDestroyed_.connect(boost::bind(&FWEventItemsManager::removeItem,this,_1));
   return m_items.back();
 }
 
@@ -86,7 +88,9 @@ FWEventItemsManager::newEvent(const fwlite::Event* iEvent)
   for(std::vector<FWEventItem*>::iterator it = m_items.begin();
       it != m_items.end();
       ++it) {
-    (*it)->setEvent(iEvent);
+     if(*it) {
+        (*it)->setEvent(iEvent);
+     }
   }
 }
 
@@ -96,7 +100,9 @@ FWEventItemsManager::setGeom(const DetIdToMatrix* geom)
   for(std::vector<FWEventItem*>::iterator it = m_items.begin();
       it != m_items.end();
       ++it) {
-    (*it)->setGeom(geom);
+     if(*it) {
+        (*it)->setGeom(geom);
+     }
   }
 }
 
@@ -130,6 +136,7 @@ FWEventItemsManager::addTo(FWConfiguration& iTo) const
    for(std::vector<FWEventItem*>::const_iterator it = m_items.begin();
        it != m_items.end();
        ++it) {
+      if(! *it) continue;
       FWConfiguration conf(2);
       ROOT::Reflex::Type dataType( ROOT::Reflex::Type::ByTypeInfo(*((*it)->type()->GetTypeInfo())));
       assert(dataType != ROOT::Reflex::Type() );
@@ -204,6 +211,12 @@ FWEventItemsManager::setFrom(const FWConfiguration& iFrom)
    }
 }
 
+void 
+FWEventItemsManager::removeItem(const FWEventItem* iItem)
+{
+   m_items[iItem->id()]=0;
+}
+
 
 //
 // const member functions
@@ -225,12 +238,13 @@ FWEventItemsManager::find(const std::string& iName) const
   for(std::vector<FWEventItem*>::const_iterator it = m_items.begin();
       it != m_items.end();
       ++it) {
-    if( (*it)->name() == iName) {
+    if( *it && (*it)->name() == iName) {
       return *it;
     }
   }
   return 0;
 }
+
 //
 // static member functions
 //

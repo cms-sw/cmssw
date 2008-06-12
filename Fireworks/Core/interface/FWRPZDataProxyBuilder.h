@@ -16,7 +16,7 @@
 //
 // Original Author:  
 //         Created:  Sat Jan  5 15:02:03 EST 2008
-// $Id: FWRPZDataProxyBuilder.h,v 1.6 2008/02/29 21:18:05 chrjones Exp $
+// $Id: FWRPZDataProxyBuilder.h,v 1.7 2008/06/09 19:54:03 chrjones Exp $
 //
 
 // system include files
@@ -63,6 +63,8 @@ class FWRPZDataProxyBuilder
       //Override this if you need to special handle selection or other changes
       virtual void modelChanges(const FWModelIds&, TEveElement*);
    
+      virtual void itemBeingDestroyed(const FWEventItem*);
+
       FWRPZDataProxyBuilder(const FWRPZDataProxyBuilder&); // stop default
 
       const FWRPZDataProxyBuilder& operator=(const FWRPZDataProxyBuilder&); // stop default
