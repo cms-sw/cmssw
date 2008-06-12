@@ -1,4 +1,4 @@
-// $Id: StorageManager.cc,v 1.60 2008/06/03 23:48:10 hcheung Exp $
+// $Id: StorageManager.cc,v 1.61 2008/06/11 14:22:04 biery Exp $
 
 #include <iostream>
 #include <iomanip>
@@ -214,9 +214,9 @@ StorageManager::StorageManager(xdaq::ApplicationStub * s)
   ispace->fireItemAvailable("exactFileSizeTest",  &exactFileSizeTest_);
 
   // added for Event Server
-  maxESEventRate_ = 10.0;  // hertz
+  maxESEventRate_ = 100.0;  // hertz
   ispace->fireItemAvailable("maxESEventRate",&maxESEventRate_);
-  maxESDataRate_ = 2048.0;  // MB/sec
+  maxESDataRate_ = 1024.0;  // MB/sec
   ispace->fireItemAvailable("maxESDataRate",&maxESDataRate_);
   activeConsumerTimeout_ = 60;  // seconds
   ispace->fireItemAvailable("activeConsumerTimeout",&activeConsumerTimeout_);
@@ -224,7 +224,7 @@ StorageManager::StorageManager(xdaq::ApplicationStub * s)
   ispace->fireItemAvailable("idleConsumerTimeout",&idleConsumerTimeout_);
   consumerQueueSize_ = 5;
   ispace->fireItemAvailable("consumerQueueSize",&consumerQueueSize_);
-  ispace->fireItemAvailable("fairShareES",&fairShareES_);
+  //ispace->fireItemAvailable("fairShareES",&fairShareES_);
   DQMmaxESEventRate_ = 1.0;  // hertz
   ispace->fireItemAvailable("DQMmaxESEventRate",&DQMmaxESEventRate_);
   DQMactiveConsumerTimeout_ = 300;  // seconds
@@ -233,6 +233,8 @@ StorageManager::StorageManager(xdaq::ApplicationStub * s)
   ispace->fireItemAvailable("DQMidleConsumerTimeout",&DQMidleConsumerTimeout_);
   DQMconsumerQueueSize_ = 15;
   ispace->fireItemAvailable("DQMconsumerQueueSize",&DQMconsumerQueueSize_);
+  esSelectedHLTOutputModule_ = "out4DQM";
+  ispace->fireItemAvailable("esSelectedHLTOutputModule",&esSelectedHLTOutputModule_);
 
   // for performance measurements
   samples_          = 100; // measurements every 25MB (about)
@@ -366,6 +368,8 @@ void StorageManager::receiveRegistryMessage(toolbox::mem::Reference *ref)
     InitMsgView testmsg(regPtr);
     try
     {
+      // TODO - couple the addIfUnique and getLastElement calls either with a
+      // change to the API or a mutex
       if (initMsgCollection->addIfUnique(testmsg))
       {
         // if the addition of the INIT message to the collection worked,
@@ -2539,22 +2543,25 @@ void StorageManager::eventServerWebPage(xgi::Input *in, xgi::Output *out)
         *out << "    <br/>" << std::endl;
         *out << "    Data rates are reported in MB/sec." << std::endl;
         *out << "    <br/>" << std::endl;
-        *out << "    Maximum event rate to consumers is "
+        *out << "    Maximum input event rate is "
              << eventServer->getMaxEventRate() << " Hz." << std::endl;
         *out << "    <br/>" << std::endl;
-        *out << "    Maximum data rate to consumers is "
+        *out << "    Maximum input data rate is "
              << eventServer->getMaxDataRate() << " MB/sec." << std::endl;
         *out << "    <br/>" << std::endl;
-        *out << "    Maximum consumer queue size is " << consumerQueueSize_
+        *out << "    Consumer queue size is " << consumerQueueSize_
              << "." << std::endl;
         *out << "    <br/>" << std::endl;
-        *out << "    Fair-share event serving is ";
-        if (fairShareES_) {
-          *out << "ON." << std::endl;
-        }
-        else {
-          *out << "OFF." << std::endl;
-        }
+        *out << "    Selected HLT output module is "
+             << eventServer->getHLTOutputSelection()
+             << "." << std::endl;
+        //*out << "    Fair-share event serving is ";
+        //if (fairShareES_) {
+        //  *out << "ON." << std::endl;
+        //}
+        //else {
+        //  *out << "OFF." << std::endl;
+        //}
         *out << "  </td>" << std::endl;
         *out << "  <td width=\"25%\" align=\"center\">" << std::endl;
         if (autoUpdate) {
@@ -3127,97 +3134,6 @@ void StorageManager::eventServerWebPage(xgi::Input *in, xgi::Output *out)
           *out << "</table>" << std::endl;
 
           // ************************************************************
-          // * Recent results for desired events
-          // ************************************************************
-          *out << "<h4>Acceptable Events, Recent Results:</h4>" << std::endl;
-          *out << "<table border=\"1\" width=\"100%\">" << std::endl;
-          *out << "<tr>" << std::endl;
-          *out << "  <th>ID</th>" << std::endl;
-          *out << "  <th>Name</th>" << std::endl;
-          *out << "  <th>Event Count</th>" << std::endl;
-          *out << "  <th>Event Rate</th>" << std::endl;
-          *out << "  <th>Data Rate</th>" << std::endl;
-          *out << "  <th>Duration<br/>(sec)</th>" << std::endl;
-          *out << "  <th>Average<br/>Queue Size</th>" << std::endl;
-          *out << "</tr>" << std::endl;
-
-          displayedConsumerCount = 0;
-          eventSum = 0.0;
-          eventRateSum = 0.0;
-          dataRateSum = 0.0;
-          for (consumerIter = consumerTable.begin();
-               consumerIter != consumerTable.end();
-               consumerIter++)
-          {
-            boost::shared_ptr<ConsumerPipe> consPtr = consumerIter->second;
-            if (consPtr->isDisconnected()) {continue;}
-
-            ++displayedConsumerCount;
-            eventSum += consPtr->getEventCount(ConsumerPipe::SHORT_TERM,
-                                               ConsumerPipe::DESIRED_EVENTS,
-                                               now);
-            eventRateSum += consPtr->getEventRate(ConsumerPipe::SHORT_TERM,
-                                                  ConsumerPipe::DESIRED_EVENTS,
-                                                  now);
-            dataRateSum += consPtr->getDataRate(ConsumerPipe::SHORT_TERM,
-                                                ConsumerPipe::DESIRED_EVENTS,
-                                                now);
-
-            *out << "<tr>" << std::endl;
-            *out << "  <td align=\"center\">" << consPtr->getConsumerId()
-                 << "</td>" << std::endl;
-            *out << "  <td align=\"center\">";
-            if (consPtr->isProxyServer()) {
-              *out << "Proxy Server";
-            }
-            else {
-              *out << consPtr->getConsumerName();
-            }
-            *out << "</td>" << std::endl;
-
-            *out << "  <td align=\"center\">"
-                 << consPtr->getEventCount(ConsumerPipe::SHORT_TERM,
-                                           ConsumerPipe::DESIRED_EVENTS,
-                                           now)
-                 << "</td>" << std::endl;
-            *out << "  <td align=\"center\">"
-                 << consPtr->getEventRate(ConsumerPipe::SHORT_TERM,
-                                          ConsumerPipe::DESIRED_EVENTS,
-                                          now)
-                 << "</td>" << std::endl;
-            *out << "  <td align=\"center\">"
-                 << consPtr->getDataRate(ConsumerPipe::SHORT_TERM,
-                                         ConsumerPipe::DESIRED_EVENTS,
-                                         now)
-                 << "</td>" << std::endl;
-            *out << "  <td align=\"center\">"
-                 << consPtr->getDuration(ConsumerPipe::SHORT_TERM,
-                                         ConsumerPipe::DESIRED_EVENTS,
-                                         now)
-                 << "</td>" << std::endl;
-            *out << "  <td align=\"center\">"
-                 << consPtr->getAverageQueueSize(ConsumerPipe::SHORT_TERM,
-                                                 ConsumerPipe::DESIRED_EVENTS,
-                                                 now)
-                 << "</td>" << std::endl;
-            *out << "</tr>" << std::endl;
-          }
-
-          // add a row with the totals
-          if (displayedConsumerCount > 1) {
-            *out << "<tr>" << std::endl;
-            *out << "  <td align=\"center\">&nbsp;</td>" << std::endl;
-            *out << "  <td align=\"center\">Totals</td>" << std::endl;
-            *out << "  <td align=\"center\">" << eventSum << "</td>" << std::endl;
-            *out << "  <td align=\"center\">" << eventRateSum << "</td>" << std::endl;
-            *out << "  <td align=\"center\">" << dataRateSum << "</td>" << std::endl;
-            *out << "  <td align=\"center\">&nbsp;</td>" << std::endl;
-            *out << "  <td align=\"center\">&nbsp;</td>" << std::endl;
-            *out << "</tr>" << std::endl;
-          }
-          *out << "</table>" << std::endl;
-
-          // ************************************************************
           // * Recent results for queued events
           // ************************************************************
           *out << "<h4>Queued Events, Recent Results:</h4>" << std::endl;
@@ -3387,97 +3303,6 @@ void StorageManager::eventServerWebPage(xgi::Input *in, xgi::Output *out)
             *out << "  <td align=\"center\">" << eventSum << "</td>" << std::endl;
             *out << "  <td align=\"center\">" << eventRateSum << "</td>" << std::endl;
             *out << "  <td align=\"center\">" << dataRateSum << "</td>" << std::endl;
-            *out << "  <td align=\"center\">&nbsp;</td>" << std::endl;
-            *out << "</tr>" << std::endl;
-          }
-          *out << "</table>" << std::endl;
-
-          // ************************************************************
-          // * Full results for desired events
-          // ************************************************************
-          *out << "<h4>Acceptable Events, Full Results:</h4>" << std::endl;
-          *out << "<table border=\"1\" width=\"100%\">" << std::endl;
-          *out << "<tr>" << std::endl;
-          *out << "  <th>ID</th>" << std::endl;
-          *out << "  <th>Name</th>" << std::endl;
-          *out << "  <th>Event Count</th>" << std::endl;
-          *out << "  <th>Event Rate</th>" << std::endl;
-          *out << "  <th>Data Rate</th>" << std::endl;
-          *out << "  <th>Duration<br/>(sec)</th>" << std::endl;
-          *out << "  <th>Average<br/>Queue Size</th>" << std::endl;
-          *out << "</tr>" << std::endl;
-
-          displayedConsumerCount = 0;
-          eventSum = 0.0;
-          eventRateSum = 0.0;
-          dataRateSum = 0.0;
-          for (consumerIter = consumerTable.begin();
-               consumerIter != consumerTable.end();
-               consumerIter++)
-          {
-            boost::shared_ptr<ConsumerPipe> consPtr = consumerIter->second;
-            if (consPtr->isDisconnected()) {continue;}
-
-            ++displayedConsumerCount;
-            eventSum += consPtr->getEventCount(ConsumerPipe::LONG_TERM,
-                                               ConsumerPipe::DESIRED_EVENTS,
-                                               now);
-            eventRateSum += consPtr->getEventRate(ConsumerPipe::LONG_TERM,
-                                                  ConsumerPipe::DESIRED_EVENTS,
-                                                  now);
-            dataRateSum += consPtr->getDataRate(ConsumerPipe::LONG_TERM,
-                                                ConsumerPipe::DESIRED_EVENTS,
-                                                now);
-
-            *out << "<tr>" << std::endl;
-            *out << "  <td align=\"center\">" << consPtr->getConsumerId()
-                 << "</td>" << std::endl;
-            *out << "  <td align=\"center\">";
-            if (consPtr->isProxyServer()) {
-              *out << "Proxy Server";
-            }
-            else {
-              *out << consPtr->getConsumerName();
-            }
-            *out << "</td>" << std::endl;
-
-            *out << "  <td align=\"center\">"
-                 << consPtr->getEventCount(ConsumerPipe::LONG_TERM,
-                                           ConsumerPipe::DESIRED_EVENTS,
-                                           now)
-                 << "</td>" << std::endl;
-            *out << "  <td align=\"center\">"
-                 << consPtr->getEventRate(ConsumerPipe::LONG_TERM,
-                                          ConsumerPipe::DESIRED_EVENTS,
-                                          now)
-                 << "</td>" << std::endl;
-            *out << "  <td align=\"center\">"
-                 << consPtr->getDataRate(ConsumerPipe::LONG_TERM,
-                                         ConsumerPipe::DESIRED_EVENTS,
-                                         now)
-                 << "</td>" << std::endl;
-            *out << "  <td align=\"center\">"
-                 << consPtr->getDuration(ConsumerPipe::LONG_TERM,
-                                         ConsumerPipe::DESIRED_EVENTS,
-                                         now)
-                 << "</td>" << std::endl;
-            *out << "  <td align=\"center\">"
-                 << consPtr->getAverageQueueSize(ConsumerPipe::LONG_TERM,
-                                                 ConsumerPipe::DESIRED_EVENTS,
-                                                 now)
-                 << "</td>" << std::endl;
-            *out << "</tr>" << std::endl;
-          }
-
-          // add a row with the totals
-          if (displayedConsumerCount > 1) {
-            *out << "<tr>" << std::endl;
-            *out << "  <td align=\"center\">&nbsp;</td>" << std::endl;
-            *out << "  <td align=\"center\">Totals</td>" << std::endl;
-            *out << "  <td align=\"center\">" << eventSum << "</td>" << std::endl;
-            *out << "  <td align=\"center\">" << eventRateSum << "</td>" << std::endl;
-            *out << "  <td align=\"center\">" << dataRateSum << "</td>" << std::endl;
-            *out << "  <td align=\"center\">&nbsp;</td>" << std::endl;
             *out << "  <td align=\"center\">&nbsp;</td>" << std::endl;
             *out << "</tr>" << std::endl;
           }
@@ -4096,7 +3921,8 @@ void StorageManager::setupFlashList()
   is->fireItemAvailable("activeConsumerTimeout",&activeConsumerTimeout_);
   is->fireItemAvailable("idleConsumerTimeout",  &idleConsumerTimeout_);
   is->fireItemAvailable("consumerQueueSize",    &consumerQueueSize_);
-  is->fireItemAvailable("fairShareES",          &fairShareES_);
+  is->fireItemAvailable("esSelectedHLTOutputModule",&esSelectedHLTOutputModule_);
+  //is->fireItemAvailable("fairShareES",          &fairShareES_);
 
   //----------------------------------------------------------------------------
   // Attach listener to myCounter_ to detect retrieval event
@@ -4150,7 +3976,8 @@ void StorageManager::setupFlashList()
   is->addItemRetrieveListener("activeConsumerTimeout",this);
   is->addItemRetrieveListener("idleConsumerTimeout",  this);
   is->addItemRetrieveListener("consumerQueueSize",    this);
-  is->addItemRetrieveListener("fairShareES",          this);
+  is->addItemRetrieveListener("esSelectedHLTOutputModule",this);
+  //is->addItemRetrieveListener("fairShareES",          this);
   //----------------------------------------------------------------------------
 }
 
@@ -4207,7 +4034,6 @@ void StorageManager::actionPerformed(xdata::Event& e)
       }
     } else if (item == "progressMarker")
       progressMarker_ = ProgressMarker::instance()->status();
-
     is->unlock();
   } 
 }
@@ -4435,6 +4261,7 @@ bool StorageManager::configuring(toolbox::task::WorkLoop* wl)
       
       boost::shared_ptr<EventServer>
 	eventServer(new EventServer(maxESEventRate_, maxESDataRate_,
+                                    esSelectedHLTOutputModule_,
                                     fairShareES_));
       jc_->setEventServer(eventServer);
       boost::shared_ptr<DQMEventServer>
