@@ -7,8 +7,8 @@
 //
 //   Author List: S. Valuev, UCLA.
 //
-//   $Date: 2008/05/08 14:58:03 $
-//   $Revision: 1.23 $
+//   $Date: 2008/05/09 16:39:55 $
+//   $Revision: 1.24 $
 //
 //   Modifications:
 //
@@ -1293,7 +1293,9 @@ int CSCTriggerPrimitivesReader::convertBXofLCT(
     // the MSB is 1/0 depending on whether the 12-bit full cathode BX is 0
     // or not.
     lct_bx = (full_anode_bx + emul_bx - tbin_anode_offset) & 0x01;
-    lct_bx = lct_bx | ((full_cathode_bx == 0) << 1);
+    // SV, 12/Jun/08: it looks like this bit is never set - docu must be
+    // wrong.
+    //lct_bx = lct_bx | ((full_cathode_bx == 0) << 1);
   }
 
   return lct_bx;
