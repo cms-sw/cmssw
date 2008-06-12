@@ -16,7 +16,7 @@
 //
 // Original Author:  Dan Riley
 //         Created:  Tue May 20 10:31:32 EDT 2008
-// $Id$
+// $Id: BranchMapReader.h,v 1.1 2008/06/03 17:35:03 dsr Exp $
 //
 
 // system include files
@@ -48,9 +48,9 @@ namespace fwlite {
     public:
       Strategy(TFile* file, int fileVersion, eeiMap& eventInfoMap, bidToDesc& branchDescriptionMap);
       virtual ~Strategy();
-      virtual void updateFile(TFile* file);
-      virtual void updateEvent(Long_t eventEntry) { eventEntry_ = eventEntry; }
-      virtual void updateMap() {}
+      virtual bool updateFile(TFile* file);
+      virtual bool updateEvent(Long_t eventEntry) { eventEntry_ = eventEntry; return true; }
+      virtual bool updateMap() { return true; }
       
       TBranch* getBranchRegistry(edm::ProductRegistry** pReg);
       
@@ -69,7 +69,7 @@ namespace fwlite {
 
       // ---------- member functions ---------------------------
     bool updateFile(TFile* file);
-    void updateEvent(Long_t eventEntry);
+    bool updateEvent(Long_t eventEntry);
     const edm::BranchDescription productToBranch(const edm::ProductID& pid) const {
       edm::BranchID bid = eventInfoMap_.productToBranch(pid);
       bidToDesc::const_iterator bdi = branchDescriptionMap_.find(bid);
@@ -86,6 +86,7 @@ namespace fwlite {
     TTree* getEventTree() const { return strategy_->eventTree_; }
     TUUID getFileUUID() const { return strategy_->fileUUID_; }
     Long_t getEventEntry() const { return strategy_->eventEntry_; }
+    const std::vector<edm::BranchDescription>& getBranchDescriptions();
 
       // ---------- member data --------------------------------
     private:
@@ -94,6 +95,7 @@ namespace fwlite {
       std::auto_ptr<Strategy> strategy_;
       eeiMap eventInfoMap_;
       bidToDesc branchDescriptionMap_;
+      std::vector<edm::BranchDescription> bDesc_;
   };
 }
 
