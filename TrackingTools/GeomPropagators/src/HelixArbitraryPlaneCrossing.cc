@@ -1,5 +1,6 @@
 #include "TrackingTools/GeomPropagators/interface/HelixArbitraryPlaneCrossing.h"
 #include "DataFormats/GeometrySurface/interface/Plane.h"
+#include "FWCore/MessageLogger/interface/MessageLogger.h"
 
 #include <cmath>
 #include <iostream>
@@ -65,6 +66,7 @@ HelixArbitraryPlaneCrossing::pathLength(const Plane& plane) {
     // return empty solution vector if no convergence after maxIterations iterations
     //
     if ( --iteration<0 ) {
+      edm::LogInfo("HelixArbitraryPlaneCrossing") << "pathLength : no convergence";
       return std::pair<bool,double>(false,0);
     }
     //
