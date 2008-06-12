@@ -16,7 +16,7 @@
 //
 // Original Author:  Chris Jones
 //         Created:  Mon Mar  3 09:35:59 EST 2008
-// $Id$
+// $Id: FWListEventItemEditor.h,v 1.1 2008/03/05 15:07:31 chrjones Exp $
 //
 
 // system include files
@@ -45,6 +45,7 @@ class FWListEventItemEditor : public TGedFrame
       virtual void SetModel(TObject* obj);
 
       void runFilter();
+      void removeItem();
       ClassDef(FWListEventItemEditor, 0);
    private:
       FWListEventItemEditor(const FWListEventItemEditor&); // stop default

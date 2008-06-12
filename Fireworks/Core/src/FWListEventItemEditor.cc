@@ -8,12 +8,13 @@
 //
 // Original Author:  Chris Jones
 //         Created:  Mon Mar  3 09:36:01 EST 2008
-// $Id$
+// $Id: FWListEventItemEditor.cc,v 1.1 2008/03/05 15:07:31 chrjones Exp $
 //
 
 // system include files
 #include "TGTextEntry.h"
 #include "TGButton.h"
+#include "TEveManager.h"
 
 // user include files
 #include "Fireworks/Core/src/FWListEventItemEditor.h"
@@ -51,6 +52,10 @@ TGedFrame(p, width, height, options | kVerticalFrame, back)
    vf->AddFrame(m_filterRunExpressionButton);
    m_filterRunExpressionButton->Connect("Clicked()","FWListEventItemEditor",this,"runFilter()");
    AddFrame(vf, new TGLayoutHints(kLHintsTop, 0, 0, 0, 0));
+   
+   TGTextButton* removeItemButton = new TGTextButton(this,"Remove Item");
+   removeItemButton->Connect("Clicked()", "FWListEventItemEditor",this,"removeItem()");
+   AddFrame(removeItemButton, new TGLayoutHints(kLHintsTop,0,0,0,0));
 }
 
 // FWListEventItemEditor::FWListEventItemEditor(const FWListEventItemEditor& rhs)
@@ -81,8 +86,8 @@ void
 FWListEventItemEditor::SetModel(TObject* iObj)
 {
    m_item = dynamic_cast<FWListEventItem*>(iObj);
-   m_filterExpression->SetText(m_item->eventItem()->filterExpression().c_str());
    assert(0!=m_item);
+   m_filterExpression->SetText(m_item->eventItem()->filterExpression().c_str());
    
 }
 
@@ -90,6 +95,16 @@ void
 FWListEventItemEditor::runFilter()
 {
    m_item->eventItem()->setFilterExpression(m_filterExpression->GetText());
+}
+
+void
+FWListEventItemEditor::removeItem()
+{
+   m_item->eventItem()->destroy();
+   delete m_item;
+   m_item = 0;
+   gEve->EditElement(0);
+   gEve->Redraw3D();
 }
 //
 // const member functions
