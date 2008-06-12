@@ -1,9 +1,8 @@
-# /dev/CMSSW_2_1_0_pre5/HLT/V31 (CMSSW_2_1_X_2008-06-10-0200_HLT1)
+# /dev/CMSSW_2_1_0_pre5/HLT/V42 (CMSSW_2_1_X_2008-06-10-0200_HLT1)
 
 import FWCore.ParameterSet.Config as cms
 
 block_hltL1NonIsoLargeWindowElectronPixelSeeds = cms.PSet(
-SeedConfiguration = cms.PSet( 
   SCEtCut = cms.double( 5.0 ),
   maxHOverE = cms.double( 0.2 ),
   hOverEConeSize = cms.double( 0.1 ),
@@ -33,10 +32,8 @@ SeedConfiguration = cms.PSet(
   fromTrackerSeeds = cms.bool( False ),
   preFilteredSeeds = cms.bool( False ),
   initialSeeds = cms.InputTag( "globalMixedSeeds" )
-)
 )
 block_hltL1IsoLargeWindowElectronPixelSeeds = cms.PSet(
-SeedConfiguration = cms.PSet( 
   SCEtCut = cms.double( 5.0 ),
   maxHOverE = cms.double( 0.2 ),
   hOverEConeSize = cms.double( 0.1 ),
@@ -67,9 +64,7 @@ SeedConfiguration = cms.PSet(
   preFilteredSeeds = cms.bool( False ),
   initialSeeds = cms.InputTag( "globalMixedSeeds" )
 )
-)
 block_hltL1NonIsoStartUpElectronPixelSeeds = cms.PSet(
-SeedConfiguration = cms.PSet( 
   SCEtCut = cms.double( 5.0 ),
   maxHOverE = cms.double( 0.2 ),
   hOverEConeSize = cms.double( 0.1 ),
@@ -99,10 +94,8 @@ SeedConfiguration = cms.PSet(
   fromTrackerSeeds = cms.bool( False ),
   preFilteredSeeds = cms.bool( False ),
   initialSeeds = cms.InputTag( "globalMixedSeeds" )
-)
 )
 block_hltL1NonIsoElectronPixelSeeds = cms.PSet(
-SeedConfiguration = cms.PSet( 
   SCEtCut = cms.double( 5.0 ),
   maxHOverE = cms.double( 0.2 ),
   hOverEConeSize = cms.double( 0.1 ),
@@ -133,9 +126,7 @@ SeedConfiguration = cms.PSet(
   preFilteredSeeds = cms.bool( False ),
   initialSeeds = cms.InputTag( "globalMixedSeeds" )
 )
-)
 block_hltL1IsoStartUpElectronPixelSeeds = cms.PSet(
-SeedConfiguration = cms.PSet( 
   SCEtCut = cms.double( 5.0 ),
   maxHOverE = cms.double( 0.2 ),
   hOverEConeSize = cms.double( 0.1 ),
@@ -166,9 +157,7 @@ SeedConfiguration = cms.PSet(
   preFilteredSeeds = cms.bool( False ),
   initialSeeds = cms.InputTag( "globalMixedSeeds" )
 )
-)
 block_hltL1IsoElectronPixelSeeds = cms.PSet(
-SeedConfiguration = cms.PSet( 
   SCEtCut = cms.double( 5.0 ),
   maxHOverE = cms.double( 0.2 ),
   hOverEConeSize = cms.double( 0.1 ),
@@ -199,9 +188,7 @@ SeedConfiguration = cms.PSet(
   preFilteredSeeds = cms.bool( False ),
   initialSeeds = cms.InputTag( "globalMixedSeeds" )
 )
-)
 block_hltL3TrajectorySeed = cms.PSet(
-MuonTrackingRegionBuilder = cms.PSet( 
   beamSpot = cms.InputTag( "hltOfflineBeamSpot" ),
   UseVertex = cms.bool( False ),
   Rescale_eta = cms.double( 3.0 ),
@@ -220,7 +207,6 @@ MuonTrackingRegionBuilder = cms.PSet(
   vertexCollection = cms.InputTag( "pixelVertices" ),
   Eta_fixed = cms.double( 0.2 ),
   Phi_fixed = cms.double( 0.2 )
-)
 )
 
 
