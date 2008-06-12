@@ -14,7 +14,7 @@ include project.mk
 # COMPILERFLAGS := -Wall -O2
 COMPILERFLAGS := -Wall -O0 -g -m32
 # common includes
-INCLUDE := -I./ -Isrc -I$(ROOTSYS)/include -Icms $(addprefix -I,$(CoreIncludes)) $(addprefix -I,$(ProjectIncludes))
+INCLUDE := -I./ -Isrc -I$(FWROOTSYS)/include -Icms $(addprefix -I,$(CoreIncludes)) $(addprefix -I,$(ProjectIncludes))
 # compiler
 CC := c++
 
@@ -24,7 +24,7 @@ CFLAGS := $(COMPILERFLAGS) $(INCLUDE)  $(EXTRACFLAGS)
 LINKER = c++
 # linker flags
 ProjectMissingFlags = -lGeom
-ProjectLinkerFlags = -shared -m32 -Lexternal/lib -L$(ROOTSYS)/lib $(addprefix -l,$(ProjectLibs)) $(ProjectMissingFlags)
+ProjectLinkerFlags = -shared -m32 -Lexternal/lib -L$(FWROOTSYS)/lib $(addprefix -l,$(ProjectLibs)) $(ProjectMissingFlags)
 
 # cmsShow source code and its object files
 ProjectSources = $(wildcard src/*/*/src/*.cc)
@@ -47,18 +47,11 @@ LibProject = CMSShow
 # Don't change this
 LinkerOptions := -Wl,-rpath -Wl,
 
-LDLIBRARYPATH := `pwd` `pwd`/external/lib $(ROOTSYS)/lib
+LDLIBRARYPATH := `pwd` `pwd`/external/lib $(FWROOTSYS)/lib
 
 all: display
 	
-display: env lib$(LibProject).so tmp/lib$(LibProject).so.out
-
-# check if proper environment is setup
-env: 
-	$(QUIET) if [ -z "$(ROOTSYS)" ]; then \
-	   echo "ROOTSYS not set. Cannot compile dictionaries."; \
-	   exit 1; \
-	fi;
+display: lib$(LibProject).so tmp/lib$(LibProject).so.out
 
 lib$(LibProject).so: $(ProjectObjects) $(ProjectRootDicObjects) $(ProjectDictionaryObjects) lib$(LibCore).so
 	$(QUIET) echo "linking core library $(LibProject)"; \

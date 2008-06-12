@@ -14,7 +14,7 @@ include project.mk
 COMPILERFLAGS := -Wall -O2 -m32
 # COMPILERFLAGS := -Wall -O0 -g
 # common includes
-INCLUDE := -I./ -I$(ROOTSYS)/include -Icms $(addprefix -I,$(CoreIncludes))
+INCLUDE := -I./ -I$(FWROOTSYS)/include -Icms $(addprefix -I,$(CoreIncludes))
 # compiler
 CC := c++
 
@@ -24,7 +24,7 @@ CFLAGS := $(COMPILERFLAGS) $(INCLUDE)  $(EXTRACFLAGS)
 LINKER = c++
 # linker flags
 CoreMissingFlags = -lEG
-CoreLinkerFlags = -shared -m32 -Lexternal/lib -L$(ROOTSYS)/lib -Lexternal/lib $(addprefix -l,$(CoreLibs)) $(CoreMissingFlags)
+CoreLinkerFlags = -shared -m32 -Lexternal/lib -L$(FWROOTSYS)/lib -Lexternal/lib $(addprefix -l,$(CoreLibs)) $(CoreMissingFlags)
 
 # cms data format source files and their object files
 CoreSources = $(wildcard cms/*/*/src/*.cc)
@@ -54,7 +54,7 @@ install:
 	$(QUIET) echo '#!/bin/sh' > root.sh; \
 	echo "CMSSW_BASE="`pwd` >> root.sh; \
 	echo "export CMSSW_BASE" >> root.sh; \
-	echo "ROOTSYS="`pwd`"/$(ROOTSYS)" >> root.sh; \
+	echo "ROOTSYS="`pwd`"/$(FWROOTSYS)" >> root.sh; \
 	echo "export ROOTSYS" >> root.sh; \
 	echo "LD_LIBRARY_PATH="`pwd`:`pwd`/external/lib:'$$ROOTSYS/lib' >> root.sh; \
 	echo "export LD_LIBRARY_PATH" >> root.sh; \
@@ -64,13 +64,6 @@ install:
 
 core:   env lib$(LibCore).so tmp/lib$(LibCore).so.out
 	
-# check if proper environment is setup
-env: 
-	$(QUIET) if [ -z "$(ROOTSYS)" ]; then \
-	   echo "ROOTSYS not set. Cannot compile dictionaries."; \
-	   exit 1; \
-	fi;
-
 lib$(LibCore).so: $(CoreObjects) $(CoreObjectsC) $(CoreRootDicObjects) $(CoreDictionaryObjects)
 	$(QUIET) echo "linking core library $(LibCore)"; \
 	$(LINKER) $(CoreLinkerFlags) -o lib$(LibCore).so \

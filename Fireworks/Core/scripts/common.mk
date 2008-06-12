@@ -19,7 +19,7 @@ tmp/%.co:   %.c
 tmp/%.cpp:  %.h %_def.xml
 	$(QUIET) echo "generating dictionaries based on $*_def.xml"; \
 	mkdir -p $(dir $@); \
-	$(ROOTSYS)/bin/genreflex $*.h -s $*_def.xml -o $@ $(INCLUDE) --gccxmlpath=external/gccxml/bin --gccxmlopt="--gccxml-compiler $(CC)"
+	$(FWROOTSYS)/bin/genreflex $*.h -s $*_def.xml -o $@ $(INCLUDE) --gccxmlpath=external/gccxml/bin --gccxmlopt="--gccxml-compiler $(CC)"
 
 # dictionary creation
 # NOTE: for some reason I needed to add the original
@@ -28,14 +28,15 @@ tmp/%.cpp:  %.h %_def.xml
 tmp/%LinkDef.cc:  %LinkDef.h
 	$(QUIET) echo "generating ROOT dictionaries based on $<"; \
 	mkdir -p $(dir $@); \
-	LD_LIBRARY_PATH=$(ROOTSYS)/lib; export LD_LIBRARY_PATH; \
-	$(ROOTSYS)/bin/rootcint -f $@.tmp -c -p $(INCLUDE) $<; \
+	LD_LIBRARY_PATH=$(FWROOTSYS)/lib; export LD_LIBRARY_PATH; \
+	ROOTSYS=$(FWROOTSYS); export ROOTSYS; \
+	$(FWROOTSYS)/bin/rootcint -f $@.tmp -c -p $(INCLUDE) $<; \
 	cat $< $@.tmp > $@
 
 # object files for dictionaries
 %.do:   %.cpp
 	$(QUIET) echo "compiling dictionaries $<"; \
-	$(CC) $(CFLAGS) -I$(ROOTSYS)/include $< -c -o $@
+	$(CC) $(CFLAGS) -I$(FWROOTSYS)/include $< -c -o $@
 
 # object files for dictionaries
 %.ro:   %.cc
@@ -48,7 +49,7 @@ tmp/%LinkDef.cc:  %LinkDef.h
 tmp/%.out:  %
 	$(QUIET) echo "checking shared library for missing symbols: $<"; \
 	echo "int main(){}" > tmp/$<.cpp; \
-	$(CC) $(CFLAGS) -Wl,-rpath -Wl,./ -L$(ROOTSYS)/lib $(addprefix $(LinkerOptions),$(LDLIBRARYPATH)) -lRIO -lNet -o $@ $< tmp/$<.cpp
+	$(CC) $(CFLAGS) -Wl,-rpath -Wl,./ -L$(FWROOTSYS)/lib $(addprefix $(LinkerOptions),$(LDLIBRARYPATH)) -lRIO -lNet -o $@ $< tmp/$<.cpp
 
 # this recipe for dependency generation is the one recommended by the
 # gmake manual, with slight tweaks for the location of the output
