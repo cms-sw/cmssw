@@ -15,12 +15,9 @@
 #include "PhysicsTools/MVAComputer/interface/HelperMacros.h"
 #include "PhysicsTools/MVAComputer/interface/MVAComputerCache.h"
 
-#include "DataFormats/PatCandidates/interface/Jet.h"
-#include "DataFormats/PatCandidates/interface/Muon.h"
-
-#ifndef TtSemiJetCombMVARcd_defined  // to avoid conflicts with the TopSemiLepMuonJetCombMVATrainer
+#ifndef TtSemiJetCombMVARcd_defined  // to avoid conflicts with the TopSemiLepJetCombMVATrainer
 #define TtSemiJetCombMVARcd_defined
-MVA_COMPUTER_CONTAINER_DEFINE(TtSemiJetCombMVA);  // defines TopSemiLepMuonJetCombMVARcd
+MVA_COMPUTER_CONTAINER_DEFINE(TtSemiJetCombMVA);  // defines TopSemiLepJetCombMVARcd
 #endif
 
 class TtSemiJetCombMVAComputer : public edm::EDProducer {
@@ -36,10 +33,7 @@ class TtSemiJetCombMVAComputer : public edm::EDProducer {
   virtual void produce(edm::Event& evt, const edm::EventSetup& setup);
   virtual void endJob();
 
-  typedef std::vector<pat::Muon> TopMuonCollection;
-  typedef std::vector<pat::Jet> TopJetCollection;
-
-  edm::InputTag muons_;
+  edm::InputTag leptons_;
   edm::InputTag jets_;
 
   unsigned int nJetsMax_;

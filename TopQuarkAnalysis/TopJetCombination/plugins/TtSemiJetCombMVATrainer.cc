@@ -9,8 +9,11 @@
 #include "TopQuarkAnalysis/TopTools/interface/TtSemiJetCombEval.h"
 #include "TopQuarkAnalysis/TopTools/interface/JetPartonMatching.h"
 
+#include "DataFormats/RecoCandidate/interface/RecoCandidate.h"
+#include "DataFormats/PatCandidates/interface/Jet.h"
+
 TtSemiJetCombMVATrainer::TtSemiJetCombMVATrainer(const edm::ParameterSet& cfg):
-  muons_   (cfg.getParameter<edm::InputTag>("muons")),
+  leptons_ (cfg.getParameter<edm::InputTag>("leptons")),
   jets_    (cfg.getParameter<edm::InputTag>("jets")),
   matching_(cfg.getParameter<edm::InputTag>("matching")),
   nJetsMax_(cfg.getParameter<int>("nJetsMax"))
@@ -30,11 +33,11 @@ TtSemiJetCombMVATrainer::analyze(const edm::Event& evt, const edm::EventSetup& s
   // MVATrainer is about to save the result
   if(!mvaComputer) return;
 
-  edm::Handle<TopMuonCollection> muons; 
-  evt.getByLabel(muons_, muons);
+  edm::Handle< edm::View<reco::RecoCandidate> > leptons; 
+  evt.getByLabel(leptons_, leptons);
 
-  edm::Handle<TopJetCollection> topJets;
-  evt.getByLabel(jets_, topJets);
+  edm::Handle< std::vector<pat::Jet> > jets;
+  evt.getByLabel(jets_, jets);
 
   edm::Handle< std::vector<int> > matching;
   evt.getByLabel(matching_, matching);
@@ -44,14 +47,14 @@ TtSemiJetCombMVATrainer::analyze(const edm::Event& evt, const edm::EventSetup& s
   if( std::count(matching->begin(), matching->end(), -1)>0 )
     return;
 
-  // skip events with no appropriate muon candidate in
-  if( muons->empty() ) return;
+  // skip events with no appropriate lepton candidate in
+  if( leptons->empty() ) return;
 
-  math::XYZTLorentzVector muon = (*(muons->begin())).p4();
+  math::XYZTLorentzVector lepton = leptons->begin()->p4();
 
   // analyze true and false jet combinations
   std::vector<int> jetIndices;
-  for(unsigned int i=0; i<topJets->size(); ++i) {
+  for(unsigned int i=0; i<jets->size(); ++i) {
     if(nJetsMax_>=4 && i==(unsigned int) nJetsMax_) break;
     jetIndices.push_back(i);
   }
@@ -66,7 +69,7 @@ TtSemiJetCombMVATrainer::analyze(const edm::Event& evt, const edm::EventSetup& s
 	// take into account indistinguishability 
 	// of the two jets from the hadr. W decay,
 	// reduces combinatorics by a factor of 2
-	TtSemiJetComb jetComb(*topJets, combi, muon);
+	TtSemiJetComb jetComb(*jets, combi, lepton);
 
 	bool trueCombi = true;
 	for(unsigned int i=0; i<matching->size(); ++i){

@@ -3,8 +3,11 @@
 #include "TopQuarkAnalysis/TopJetCombination/plugins/TtSemiJetCombMVAComputer.h"
 #include "TopQuarkAnalysis/TopTools/interface/TtSemiJetCombEval.h"
 
+#include "DataFormats/RecoCandidate/interface/RecoCandidate.h"
+#include "DataFormats/PatCandidates/interface/Jet.h"
+
 TtSemiJetCombMVAComputer::TtSemiJetCombMVAComputer(const edm::ParameterSet& cfg):
-  muons_     (cfg.getParameter<edm::InputTag>("muons")),
+  leptons_   (cfg.getParameter<edm::InputTag>("leptons")),
   jets_      (cfg.getParameter<edm::InputTag>("jets")),
   nJetsMax_  (cfg.getParameter<int>("nJetsMax")),
   discrimCut_(cfg.getParameter<double>("discrimCut"))
@@ -21,17 +24,17 @@ TtSemiJetCombMVAComputer::produce(edm::Event& evt, const edm::EventSetup& setup)
 {
   mvaComputer.update<TtSemiJetCombMVARcd>(setup, "ttSemiJetCombMVA");
 
-  edm::Handle<TopMuonCollection> muons; 
-  evt.getByLabel(muons_, muons);
+  edm::Handle< edm::View<reco::RecoCandidate> > leptons; 
+  evt.getByLabel(leptons_, leptons);
 
-  edm::Handle<TopJetCollection> topJets;
-  evt.getByLabel(jets_, topJets);
+  edm::Handle< std::vector<pat::Jet> > jets;
+  evt.getByLabel(jets_, jets);
 
-  math::XYZTLorentzVector muon = (*(muons->begin())).p4();
+  math::XYZTLorentzVector lepton = leptons->begin()->p4();
 
   // analyze jet combinations
   std::vector<int> jetIndices;
-  for(unsigned int i=0; i<topJets->size(); ++i){
+  for(unsigned int i=0; i<jets->size(); ++i){
     if(nJetsMax_ >= 4 && i == (unsigned int) nJetsMax_) break;
     jetIndices.push_back(i);
   }
@@ -50,7 +53,7 @@ TtSemiJetCombMVAComputer::produce(edm::Event& evt, const edm::EventSetup& setup)
       if(combi[0] < combi[1]) {  // take into account indistinguishability 
 	                         // of the two jets from the hadr. W decay,
 	                         // reduces combinatorics by a factor of 2
-	TtSemiJetComb jetComb(*topJets, combi, muon);
+	TtSemiJetComb jetComb(*jets, combi, lepton);
 	
 	// get discriminator here
 	double discrim = evaluateTtSemiJetComb(mvaComputer, jetComb);
