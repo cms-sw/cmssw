@@ -1,6 +1,9 @@
 import FWCore.ParameterSet.Config as cms
 
 import FastSimulation.EgammaElectronAlgos.electronGSPixelSeeds_cfi
+
+from FastSimulation.Configuration.blockHLT_cff import *
+
 #
 # create a sequence with all required modules and sources needed to make
 # pixel based electrons

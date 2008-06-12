@@ -1,6 +1,10 @@
 import FWCore.ParameterSet.Config as cms
 
 import FastSimulation.EgammaElectronAlgos.electronGSPixelSeeds_cfi
+
+from FastSimulation.Configuration.blockHLT_cff import *
+
+
 #
 # create a sequence with all required modules and sources needed to make
 # pixel based electrons
@@ -26,13 +30,12 @@ import RecoTracker.TrackProducer.CTFFinalFitWithMaterial_cfi
 hltCtfL1IsoStartUpWithMaterialTracks = RecoTracker.TrackProducer.CTFFinalFitWithMaterial_cfi.ctfWithMaterialTracks.clone()
 # include "RecoEgamma/EgammaHLTProducers/data/pixelSeedConfigurationsForHLT.cfi"
 hltL1IsoElectronPixelSeeds.SeedConfiguration = cms.PSet(
-    # using l1IsoElectronPixelSeedConfiguration
     block_hltL1IsoElectronPixelSeeds
 )
 hltL1IsoElectronPixelSeeds.barrelSuperClusters = 'hltCorrectedHybridSuperClustersL1Isolated'
 hltL1IsoElectronPixelSeeds.endcapSuperClusters = 'hltCorrectedEndcapSuperClustersWithPreshowerL1Isolated'
+
 hltL1IsoStartUpElectronPixelSeeds.SeedConfiguration = cms.PSet(
-    # using l1IsoElectronPixelSeedConfiguration
     block_hltL1IsoStartUpElectronPixelSeeds
 )
 hltL1IsoStartUpElectronPixelSeeds.barrelSuperClusters = 'hltCorrectedHybridSuperClustersL1Isolated'
@@ -53,4 +56,5 @@ hltCtfL1IsoStartUpWithMaterialTracks.src = 'hltCkfL1IsoStartUpTrackCandidates'
 hltCtfL1IsoStartUpWithMaterialTracks.TTRHBuilder = 'WithoutRefit'
 hltCtfL1IsoStartUpWithMaterialTracks.Fitter = 'KFFittingSmoother'
 hltCtfL1IsoStartUpWithMaterialTracks.Propagator = 'PropagatorWithMaterial'
+
 

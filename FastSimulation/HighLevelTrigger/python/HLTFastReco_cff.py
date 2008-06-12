@@ -10,9 +10,10 @@ from FastSimulation.HighLevelTrigger.HLTFastRecoForJetMET_cff import *
 from FastSimulation.HighLevelTrigger.HLTFastRecoForEgamma_cff import *
 from FastSimulation.HighLevelTrigger.HLTFastRecoForMuon_cff import *
 from FastSimulation.HighLevelTrigger.HLTFastRecoForTau_cff import *
-from FastSimulation.HighLevelTrigger.btau.HLTFastRecoForB_cff import *
-from FastSimulation.HighLevelTrigger.xchannel.HLTFastRecoForXchannel_cff import *
-from FastSimulation.HighLevelTrigger.special.HLTFastRecoForSpecial_cff import *
+from FastSimulation.HighLevelTrigger.HLTFastRecoForB_cff import *
+from FastSimulation.HighLevelTrigger.HLTFastRecoForXchannel_cff import *
+from FastSimulation.HighLevelTrigger.HLTFastRecoForSpecial_cff import *
+from FastSimulation.CaloRecHitsProducer.CaloRecHits_cff import *
 # An additional towerMaker !
 # include "RecoJets/JetProducers/data/CaloTowerSchemeB.cfi"
 # replace hltTowerMaker.ecalInputs = { 
