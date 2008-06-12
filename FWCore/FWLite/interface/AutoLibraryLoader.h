@@ -7,7 +7,7 @@
  *
  * \author Chris Jones, Cornell
  *
- * $Id: AutoLibraryLoader.h,v 1.5 2006/12/16 13:33:29 wmtan Exp $
+ * $Id: AutoLibraryLoader.h,v 1.1 2007/03/04 05:25:00 wmtan Exp $
  *
  */
 #include "TObject.h"
@@ -25,6 +25,7 @@ public:
   static void loadAll();
 
 private:
+  static bool enabled_;
   AutoLibraryLoader();
   AutoLibraryLoader(const AutoLibraryLoader&); // stop default
   const AutoLibraryLoader& operator=(const AutoLibraryLoader&); // stop default
