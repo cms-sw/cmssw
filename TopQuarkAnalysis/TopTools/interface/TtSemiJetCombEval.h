@@ -18,13 +18,13 @@ inline double evaluateTtSemiJetComb(PhysicsTools::MVAComputerCache& mvaComputer,
   
   if(training) values.push_back( PhysicsTools::Variable::Value(PhysicsTools::MVATrainer::kTargetId, trueCombi) );
   
-  values.push_back( PhysicsTools::Variable::Value("angleHadQQBar", jetComb.angleHadQQBar()   ) );
-  values.push_back( PhysicsTools::Variable::Value("angleHadWHadB", jetComb.angleHadWHadB()   ) );
-  values.push_back( PhysicsTools::Variable::Value("angleMuonLepB", jetComb.angleLeptonLepB() ) );
-  values.push_back( PhysicsTools::Variable::Value("angleTopTop",   jetComb.angleTopTop()     ) );
-  values.push_back( PhysicsTools::Variable::Value("mHadW",         jetComb.massHadW()        ) );
-  values.push_back( PhysicsTools::Variable::Value("mHadTop",       jetComb.massHadTop()      ) );
-  values.push_back( PhysicsTools::Variable::Value("deltaMTopTop",  jetComb.deltaMTopTop()    ) );
+  values.push_back( PhysicsTools::Variable::Value("angleHadQQBar",   jetComb.angleHadQQBar()   ) );
+  values.push_back( PhysicsTools::Variable::Value("angleHadWHadB",   jetComb.angleHadWHadB()   ) );
+  values.push_back( PhysicsTools::Variable::Value("angleLeptonLepB", jetComb.angleLeptonLepB() ) );
+  values.push_back( PhysicsTools::Variable::Value("angleTopTop",     jetComb.angleTopTop()     ) );
+  values.push_back( PhysicsTools::Variable::Value("mHadW",           jetComb.massHadW()        ) );
+  values.push_back( PhysicsTools::Variable::Value("mHadTop",         jetComb.massHadTop()      ) );
+  values.push_back( PhysicsTools::Variable::Value("deltaMTopTop",    jetComb.deltaMTopTop()    ) );
   
   return mvaComputer->eval( values );
 }
