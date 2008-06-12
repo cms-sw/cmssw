@@ -8,5 +8,5 @@ ALCARECOMuAlZMuMu = Alignment.CommonAlignmentProducer.AlignmentMuonSelector_cfi.
 seqALCARECOMuAlZMuMu = cms.Sequence(ALCARECOMuAlZMuMuHLT+ALCARECOMuAlZMuMu)
 ALCARECOMuAlZMuMuHLT.andOr = True ## choose logical OR between Triggerbits
 
-ALCARECOMuAlZMuMuHLT.HLTPaths = ['HLT1MuonIso', 'HLT1MuonNonIso']
+ALCARECOMuAlZMuMuHLT.HLTPaths = ['HLT2MuonIso', 'HLT2MuonNonIso', 'HLT2MuonZ']
 

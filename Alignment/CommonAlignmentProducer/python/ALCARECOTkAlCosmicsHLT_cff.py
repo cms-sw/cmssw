@@ -3,7 +3,7 @@ import FWCore.ParameterSet.Config as cms
 import HLTrigger.HLTfilters.hltHighLevel_cfi
 # Author     : Gero Flucke
 # Date       :   July 19th, 2007
-# last update: $Date: 2008/05/09 15:19:27 $ by $Author: emiglior $
+# last update: $Date: 2008/06/12 20:00:11 $ by $Author: flucke $
 #_________________________________HLT bits___________________________________________
 ALCARECOTkAlCosmicsCTFHLT = HLTrigger.HLTfilters.hltHighLevel_cfi.hltHighLevel.clone()
 import HLTrigger.HLTfilters.hltHighLevel_cfi
@@ -36,9 +36,10 @@ ALCARECOTkAlCosmicsRSHLT.HLTPaths = ['CandHLTTrackerCosmicsRS']
 ALCARECOTkAlCosmicsCTF.src = 'ctfWithMaterialTracksP5'
 ALCARECOTkAlCosmicsCTF.filter = True
 ALCARECOTkAlCosmicsCTF.applyBasicCuts = True
-ALCARECOTkAlCosmicsCTF.ptMin = 4. ##10
-
+ALCARECOTkAlCosmicsCTF.ptMin = 0.
 ALCARECOTkAlCosmicsCTF.ptMax = 99999.
+ALCARECOTkAlCosmicsCTF.pMin = 4.
+ALCARECOTkAlCosmicsCTF.pMax = 99999.
 ALCARECOTkAlCosmicsCTF.etaMin = -99. ##-2.4 keep also what is going through...
 
 ALCARECOTkAlCosmicsCTF.etaMax = 99. ## 2.4 ...both TEC with flat slope
@@ -54,8 +55,10 @@ ALCARECOTkAlCosmicsCosmicTF.src = 'cosmictrackfinderP5' ## different for CTF
 
 ALCARECOTkAlCosmicsCosmicTF.filter = True
 ALCARECOTkAlCosmicsCosmicTF.applyBasicCuts = True
-ALCARECOTkAlCosmicsCosmicTF.ptMin = 4.
+ALCARECOTkAlCosmicsCosmicTF.ptMin = 0.
 ALCARECOTkAlCosmicsCosmicTF.ptMax = 99999.
+ALCARECOTkAlCosmicsCosmicTF.pMin = 4.
+ALCARECOTkAlCosmicsCosmicTF.pMax = 99999.
 ALCARECOTkAlCosmicsCosmicTF.etaMin = -99.
 ALCARECOTkAlCosmicsCosmicTF.etaMax = 99.
 ALCARECOTkAlCosmicsCosmicTF.nHitMin = 7 ## more hits than CTF: 2D are counted twice
@@ -68,9 +71,10 @@ ALCARECOTkAlCosmicsCosmicTF.applyMultiplicityFilter = False
 ALCARECOTkAlCosmicsRS.src = 'rsWithMaterialTracksP5'
 ALCARECOTkAlCosmicsRS.filter = True
 ALCARECOTkAlCosmicsRS.applyBasicCuts = True
-ALCARECOTkAlCosmicsRS.ptMin = 4. ##10
-
+ALCARECOTkAlCosmicsRS.ptMin = 0.
 ALCARECOTkAlCosmicsRS.ptMax = 99999.
+ALCARECOTkAlCosmicsRS.pMin = 4.
+ALCARECOTkAlCosmicsRS.pMax = 99999.
 ALCARECOTkAlCosmicsRS.etaMin = -99. ##-2.4 keep also what is going through...
 
 ALCARECOTkAlCosmicsRS.etaMax = 99. ## 2.4 ...both TEC with flat slope

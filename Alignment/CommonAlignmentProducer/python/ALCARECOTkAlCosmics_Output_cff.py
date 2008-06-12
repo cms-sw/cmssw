@@ -5,11 +5,13 @@ import FWCore.ParameterSet.Config as cms
 
 # Author     : Gero Flucke
 # Date       :   July 19th, 2007
-# last update: $Date: 2008/05/12 17:33:31 $ by $Author: flucke $
+# last update: $Date: 2008/06/12 20:00:54 $ by $Author: flucke $
 # AlCaReco for track based alignment using Cosmic muon events
 OutALCARECOTkAlCosmics = cms.PSet(
     SelectEvents = cms.untracked.PSet(
-        SelectEvents = cms.vstring('pathALCARECOTkAlCosmics')
+        SelectEvents = cms.vstring('pathALCARECOTkAlCosmicsCTF', 
+            'pathALCARECOTkAlCosmicsCosmicTF', 
+            'pathALCARECOTkAlCosmicsRS')
     ),
     outputCommands = cms.untracked.vstring('drop *', 
         'keep *_ALCARECOTkAlCosmics*_*_*', 
