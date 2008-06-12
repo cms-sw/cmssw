@@ -16,7 +16,7 @@
 //
 // Original Author:  Chris Jones
 //         Created:  Thu Jan  3 14:02:21 EST 2008
-// $Id: FWEventItem.h,v 1.18 2008/06/05 14:37:27 chrjones Exp $
+// $Id: FWEventItem.h,v 1.19 2008/06/10 14:19:09 chrjones Exp $
 //
 
 // system include files
@@ -143,6 +143,7 @@ class FWEventItem
       void toggleSelect(int iIndex) const;
       void setDisplayProperties(int iIndex, const FWDisplayProperties&) const;
    
+      void destroy() const;
       /** connect to this signal if you want to know when models held by the item change */
       mutable FWModelChangeSignal changed_;
    
@@ -157,6 +158,10 @@ class FWEventItem
       /** connect to this signal if you want to know that the default display properties of the item have changed.
        This is only useful if you are displaying these properties and not just the underlying models.*/
       mutable FWItemChangeSignal defaultDisplayPropertiesChanged_;
+   
+      /** connect to this signal if you need to know that this item is going to be destroyed.
+       */ 
+      mutable FWItemChangeSignal goingToBeDestroyed_;
    private:
       //FWEventItem(const FWEventItem&); // stop default
 

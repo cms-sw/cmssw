@@ -8,7 +8,7 @@
 //
 // Original Author:  
 //         Created:  Thu Jan  3 14:59:23 EST 2008
-// $Id: FWEventItem.cc,v 1.14 2008/06/05 14:37:27 chrjones Exp $
+// $Id: FWEventItem.cc,v 1.15 2008/06/10 14:19:09 chrjones Exp $
 //
 
 // system include files
@@ -483,6 +483,13 @@ const std::string&
 FWEventItem::filterExpression() const
 {
    return m_filter.expression();
+}
+
+void 
+FWEventItem::destroy() const
+{
+   goingToBeDestroyed_(this);
+   delete this;
 }
 
 //
