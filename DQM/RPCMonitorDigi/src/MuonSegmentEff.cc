@@ -149,6 +149,7 @@ MuonSegmentEff::MuonSegmentEff(const edm::ParameterSet& iConfig){
   // Giuseppe
   nameInLog = iConfig.getUntrackedParameter<std::string>("moduleLogName", "RPC_Eff");
   EffSaveRootFile  = iConfig.getUntrackedParameter<bool>("EffSaveRootFile", true); 
+  calculateEfficiency  = iConfig.getUntrackedParameter<bool>("calculateEfficiency", true); 
   EffSaveRootFileEventsInterval  = iConfig.getUntrackedParameter<int>("EffEventsInterval", 10000); 
   EffRootFileName  = iConfig.getUntrackedParameter<std::string>("EffRootFileName", "CMSRPCEff.root"); 
   //Interface
@@ -738,92 +739,95 @@ void MuonSegmentEff::endJob(){
   int k = 0;
   
   if(EffSaveRootFile==true){
-    for(meIt = _idList.begin(); meIt != _idList.end(); ++meIt){
-      k++;
-      const char * rpcname = (*meIt).c_str();
+    
+    if(calculateEfficiency){
+      for(meIt = _idList.begin(); meIt != _idList.end(); ++meIt){
+	k++;
+	const char * rpcname = (*meIt).c_str();
 
-      ///DT
-      std::cout<<rpcname[0]<<std::endl;
-      char detUnitLabel[128];
-      
-      if(rpcname[0]==87){
-	char meIdRPC [128];
-	char meIdDT [128];
-	char effIdRPC_DT [128];
-	char meIdRPC_2D [128];
-	char meIdDT_2D [128];
-	char effIdRPC_DT_2D [128];
+	///DT
+	std::cout<<rpcname[0]<<std::endl;
+	char detUnitLabel[128];
+   
+	if(rpcname[0]==87){
+	  char meIdRPC [128];
+	  char meIdDT [128];
+	  char effIdRPC_DT [128];
+	  char meIdRPC_2D [128];
+	  char meIdDT_2D [128];
+	  char effIdRPC_DT_2D [128];
 
-
-	sprintf(detUnitLabel ,"%s",(*meIt).c_str());
-	std::cout<<"Creating Efficiency Root File #"<<k<<" for "<<detUnitLabel<<std::endl;
-	sprintf(meIdRPC,"RPCDataOccupancyFromDT_%s",detUnitLabel);
-	sprintf(meIdRPC_2D,"RPCDataOccupancy2DFromDT_%s",detUnitLabel);
-	sprintf(meIdDT,"ExpectedOccupancyFromDT_%s",detUnitLabel);
-	sprintf(meIdDT_2D,"ExpectedOccupancy2DFromDT_%s",detUnitLabel);
-	sprintf(effIdRPC_DT,"EfficienyFromDTExtrapolation_%s",detUnitLabel);
-	sprintf(effIdRPC_DT_2D,"EfficienyFromDT2DExtrapolation_%s",detUnitLabel);
 	
-	std::cout<<"done sprints now declaring map"<<std::endl;
+	  sprintf(detUnitLabel ,"%s",(*meIt).c_str());
+	  std::cout<<"Creating Efficiency Root File #"<<k<<" for "<<detUnitLabel<<std::endl;
+	  sprintf(meIdRPC,"RPCDataOccupancyFromDT_%s",detUnitLabel);
+	  sprintf(meIdRPC_2D,"RPCDataOccupancy2DFromDT_%s",detUnitLabel);
+	  sprintf(meIdDT,"ExpectedOccupancyFromDT_%s",detUnitLabel);
+	  sprintf(meIdDT_2D,"ExpectedOccupancy2DFromDT_%s",detUnitLabel);
+	  sprintf(effIdRPC_DT,"EfficienyFromDTExtrapolation_%s",detUnitLabel);
+	  sprintf(effIdRPC_DT_2D,"EfficienyFromDT2DExtrapolation_%s",detUnitLabel);
 	
-	std::map<std::string, MonitorElement*> meMap=meCollection[*meIt];
+	  std::cout<<"done sprints now declaring map"<<std::endl;
 	
-	for(unsigned int i=1;i<=100;++i){
-	  if(meMap[meIdDT]->getBinContent(i) != 0){
-	    float eff = meMap[meIdRPC]->getBinContent(i)/meMap[meIdDT]->getBinContent(i);
-	    float erreff = sqrt(eff*(1-eff)/meMap[meIdDT]->getBinContent(i));
-	    meMap[effIdRPC_DT]->setBinContent(i,eff*100.);
-	    meMap[effIdRPC_DT]->setBinError(i,erreff*100.);
-	  }
-	}
-	for(unsigned int i=1;i<=100;++i){
-	  for(unsigned int j=1;j<=200;++j){
-	    if(meMap[meIdDT_2D]->getBinContent(i,j) != 0){
-	      float eff = meMap[meIdRPC_2D]->getBinContent(i,j)/meMap[meIdDT_2D]->getBinContent(i,j);
-	      float erreff = sqrt(eff*(1-eff)/meMap[meIdDT_2D]->getBinContent(i,j));
-	      meMap[effIdRPC_DT_2D]->setBinContent(i,j,eff*100.);
-	      meMap[effIdRPC_DT_2D]->setBinError(i,j,erreff*100.);
+	  std::map<std::string, MonitorElement*> meMap=meCollection[*meIt];
+	
+	  for(unsigned int i=1;i<=100;++i){
+	    if(meMap[meIdDT]->getBinContent(i) != 0){
+	      float eff = meMap[meIdRPC]->getBinContent(i)/meMap[meIdDT]->getBinContent(i);
+	      float erreff = sqrt(eff*(1-eff)/meMap[meIdDT]->getBinContent(i));
+	      meMap[effIdRPC_DT]->setBinContent(i,eff*100.);
+	      meMap[effIdRPC_DT]->setBinError(i,erreff*100.);
 	    }
 	  }
-	}
-      }else{
-	char meRPC [128];
-	char meIdCSC [128];
-	char effIdRPC_CSC [128];
-	  
-	char meRPC_2D [128];
-	char meIdCSC_2D [128];
-	char effIdRPC_CSC_2D [128];
-	
-	sprintf(detUnitLabel ,"%s",(*meIt).c_str());
-	
-	sprintf(meRPC,"RPCDataOccupancyFromCSC_%s",detUnitLabel);
-	sprintf(meRPC_2D,"RPCDataOccupancy2DFromCSC_%s",detUnitLabel);
-	
-	sprintf(meIdCSC,"ExpectedOccupancyFromCSC_%s",detUnitLabel);
-	sprintf(meIdCSC_2D,"ExpectedOccupancy2DFromCSC_%s",detUnitLabel);
-	  
-	sprintf(effIdRPC_CSC,"EfficienyFromCSCExtrapolation_%s",detUnitLabel);
-	sprintf(effIdRPC_CSC_2D,"EfficienyFromCSC2DExtrapolation_%s",detUnitLabel);
-	
-	std::map<std::string, MonitorElement*> meMap=meCollection[*meIt];
-	
-	for(unsigned int i=1;i<=100;++i){
-	  
-	  if(meMap[meIdCSC]->getBinContent(i) != 0){
-	    float eff = meMap[meRPC]->getBinContent(i)/meMap[meIdCSC]->getBinContent(i);
-	    float erreff = sqrt(eff*(1-eff)/meMap[meIdCSC]->getBinContent(i));
-	    meMap[effIdRPC_CSC]->setBinContent(i,eff*100.);
-	    meMap[effIdRPC_CSC]->setBinError(i,erreff*100.);
+	  for(unsigned int i=1;i<=100;++i){
+	    for(unsigned int j=1;j<=200;++j){
+	      if(meMap[meIdDT_2D]->getBinContent(i,j) != 0){
+		float eff = meMap[meIdRPC_2D]->getBinContent(i,j)/meMap[meIdDT_2D]->getBinContent(i,j);
+		float erreff = sqrt(eff*(1-eff)/meMap[meIdDT_2D]->getBinContent(i,j));
+		meMap[effIdRPC_DT_2D]->setBinContent(i,j,eff*100.);
+		meMap[effIdRPC_DT_2D]->setBinError(i,j,erreff*100.);
+	      }
+	    }
 	  }
-	}
-	for(unsigned int i=1;i<=100;++i){
-	  for(unsigned int j=1;j<=200;++j){
-	    if(meMap[meIdCSC_2D]->getBinContent(i,j) != 0){
-	      float eff = meMap[meRPC_2D]->getBinContent(i,j)/meMap[meIdCSC_2D]->getBinContent(i,j);
-	      float erreff = sqrt(eff*(1-eff)/meMap[meIdCSC_2D]->getBinContent(i,j));
-	      meMap[effIdRPC_CSC_2D]->setBinContent(i,j,eff*100.);
-	      meMap[effIdRPC_CSC_2D]->setBinError(i,j,erreff*100.);
+	}else{
+	  char meRPC [128];
+	  char meIdCSC [128];
+	  char effIdRPC_CSC [128];
+	  
+	  char meRPC_2D [128];
+	  char meIdCSC_2D [128];
+	  char effIdRPC_CSC_2D [128];
+	
+	  sprintf(detUnitLabel ,"%s",(*meIt).c_str());
+	
+	  sprintf(meRPC,"RPCDataOccupancyFromCSC_%s",detUnitLabel);
+	  sprintf(meRPC_2D,"RPCDataOccupancy2DFromCSC_%s",detUnitLabel);
+	
+	  sprintf(meIdCSC,"ExpectedOccupancyFromCSC_%s",detUnitLabel);
+	  sprintf(meIdCSC_2D,"ExpectedOccupancy2DFromCSC_%s",detUnitLabel);
+	  
+	  sprintf(effIdRPC_CSC,"EfficienyFromCSCExtrapolation_%s",detUnitLabel);
+	  sprintf(effIdRPC_CSC_2D,"EfficienyFromCSC2DExtrapolation_%s",detUnitLabel);
+	
+	  std::map<std::string, MonitorElement*> meMap=meCollection[*meIt];
+	
+	  for(unsigned int i=1;i<=100;++i){
+	  
+	    if(meMap[meIdCSC]->getBinContent(i) != 0){
+	      float eff = meMap[meRPC]->getBinContent(i)/meMap[meIdCSC]->getBinContent(i);
+	      float erreff = sqrt(eff*(1-eff)/meMap[meIdCSC]->getBinContent(i));
+	      meMap[effIdRPC_CSC]->setBinContent(i,eff*100.);
+	      meMap[effIdRPC_CSC]->setBinError(i,erreff*100.);
+	    }
+	  }
+	  for(unsigned int i=1;i<=100;++i){
+	    for(unsigned int j=1;j<=200;++j){
+	      if(meMap[meIdCSC_2D]->getBinContent(i,j) != 0){
+		float eff = meMap[meRPC_2D]->getBinContent(i,j)/meMap[meIdCSC_2D]->getBinContent(i,j);
+		float erreff = sqrt(eff*(1-eff)/meMap[meIdCSC_2D]->getBinContent(i,j));
+		meMap[effIdRPC_CSC_2D]->setBinContent(i,j,eff*100.);
+		meMap[effIdRPC_CSC_2D]->setBinError(i,j,erreff*100.);
+	      }
 	    }
 	  }
 	}
