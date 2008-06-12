@@ -5,10 +5,11 @@
 # creates a complete config file.
 # relval_main + the custom config for it is not needed any more
 
-__version__ = "$Revision: 1.14 $"
+__version__ = "$Revision: 1.15 $"
 __source__ = "$Source: /cvs_server/repositories/CMSSW/CMSSW/Configuration/PyReleaseValidation/python/ConfigBuilder.py,v $"
 
 import FWCore.ParameterSet.Config as cms
+import FWCore.ParameterSet.Modules as cmstypes
 import new
 
 
@@ -32,6 +33,7 @@ class ConfigBuilder(object):
         self.commands = []
         # TODO: maybe a list of to be dumped objects would help as well        
         self.blacklist_paths = [] 
+        self.additionalObjects = []
 
     def loadAndRemember(self, includeFile):
         """helper routine to load am memorize imports"""
@@ -56,9 +58,23 @@ class ConfigBuilder(object):
         if self._options.filein:
             self.process.source=cms.Source("PoolSource", fileNames = cms.untracked.vstring(self._options.filein))
         elif hasattr(self._options,'evt_type'):
-            evt_type = self._options.evt_type.replace(".","_")
-            source = __import__('Configuration/Generator/'+evt_type).source
-            self.process.source = source 
+            evt_type = self._options.evt_type.rstrip(".py").replace(".","_")
+            if "/" in evt_type:
+                evt_type = evt_type.replace("python/","")
+            else:
+                evt_type = 'Configuration/Generator/'+evt_type 
+
+            sourceModule = __import__(evt_type)
+            self.process.extend(sourceModule)
+            # now add all modules and sequences to the process
+            import FWCore.ParameterSet.Modules as cmstypes  
+            for name in sourceModule.__dict__:
+                theObject = getattr(sourceModule,name)
+                if isinstance(theObject, cmstypes._Module):
+                   self.additionalObjects.insert(0,name)
+                if isinstance(theObject, cms.Sequence):
+                   self.additionalObjects.append(name)
+
         return
 
     def addOutput(self):
@@ -266,7 +282,7 @@ class ConfigBuilder(object):
     def build_production_info(evt_type, energy, evtnumber):
         """ Add useful info for the production. """
         prod_info=cms.untracked.PSet\
-              (version=cms.untracked.string("$Revision: 1.14 $"),
+              (version=cms.untracked.string("$Revision: 1.15 $"),
                name=cms.untracked.string("PyReleaseValidation")#,
               # annotation=cms.untracked.string(self._options.evt_type+" energy:"+str(energy)+" nevts:"+str(evtnumber))
               )
@@ -312,7 +328,15 @@ class ConfigBuilder(object):
         self.pythonCfgCode += "\n# Other statements\n"
         for command in self.commands:
             self.pythonCfgCode += command + "\n"
-        
+
+        # dump all modules and sequences from source input file
+        for name in self.additionalObjects:
+            theObject = getattr(self.process,name)
+            if isinstance(theObject, cmstypes._Module):
+                self.pythonCfgCode += "process."+name+" = " + getattr(self.process,name).dumpPython()
+            if isinstance(theObject, cms.Sequence):
+                self.pythonCfgCode += "process."+name+" = " + getattr(self.process,name).dumpPython("process")
+                
         # add all paths
         # except for the blacklisted trigger ones
         self.pythonCfgCode += "\n# Path and EndPath definitions\n"
