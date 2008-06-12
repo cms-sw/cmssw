@@ -35,8 +35,8 @@ public:
   **/
   virtual void  rebuildSeedingRegion(const TrajectorySeed&,
 				     TrajectoryContainer& result) const {    
-    edm::LogWarning("TrajectoryBuilding") 
-      << "WARNING: you are using a trajectory builder which is not overloading the rebuildSeedingRegion method. Default implementation is dummy: output TrajectoryContainer is equal to inputTrajectoryContainer";
+    LogDebug("TrajectoryBuilding") 
+      << "WARNING: you are using a trajectory builder which is not overloading the rebuildSeedingRegion method because there is not an implementation yet: output TrajectoryContainer is equal to inputTrajectoryContainer";
   }
 
   virtual void setEvent(const edm::Event& event) const = 0;
