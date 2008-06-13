@@ -241,13 +241,13 @@ void RPCEfficiencyFromTrack::analyze(const edm::Event& iEvent, const edm::EventS
   rollRec.clear();
 
  
-  if(nDTTF>=staTracks->size() && staTracks->size()!=0){
+  if(staTracks->size()!=0){
     for (staTrack = staTracks->begin(); staTrack != staTracks->end(); ++staTrack){
       reco::TransientTrack track(*staTrack,&*theMGField,theTrackingGeometry);
 
       rollRec.clear();
 
-      if(track.numberOfValidHits()>=20){
+      if(track.numberOfValidHits()>0){
 	for (TrackingGeometry::DetContainer::const_iterator it=rpcGeo->dets().begin();it<rpcGeo->dets().end();it++){
 	  if( dynamic_cast< RPCChamber* >( *it ) != 0 ){
 	    RPCChamber* ch = dynamic_cast< RPCChamber* >( *it );
