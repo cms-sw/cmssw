@@ -259,7 +259,8 @@ void DQMFileSaver::analyze(const edm::Event &e, const edm::EventSetup &)
       elapsed = ((tv.tv_sec + tv.tv_usec*1e-6)
 		 - (start_.tv_sec + start_.tv_usec*1e-6)) / 60;
       sprintf(suffix, "_R%09d_T%08d", irun_, int(elapsed));
-      saveForOnline(dbe_, fileBaseName_, suffix, "\\1/");
+      char rewrite[64]; sprintf(rewrite, "Run %d/\\1/Run summary/", irun_);
+      saveForOnline(dbe_, fileBaseName_, suffix, rewrite);
     }
   }
 }
