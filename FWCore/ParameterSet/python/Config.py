@@ -257,6 +257,7 @@ class Process(object):
         if name != 'looper':
             raise ValueError("The label '"+name+"' can not be used for a Looper.  Only 'looper' is allowed.")
         self.__dict__['_Process__looper'] = mod
+        self.__dict__[mod.type_()] = mod
     def _placeService(self,typeName,mod):
         self._place(typeName, mod, self.__services)
         self.__dict__[typeName]=mod
@@ -270,7 +271,7 @@ class Process(object):
         labelled = dict()
         for name in dir(other):
             item = getattr(other,name)
-            if name == "source":
+            if name == "source" or name == "looper":
                 self.__setattr__(name,item)
             elif isinstance(item,_ModuleSequenceType):
                 seqs[name]=item
