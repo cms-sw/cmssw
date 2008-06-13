@@ -10,10 +10,10 @@ ALCARECOTkAlMuonIsolatedHLT.andOr = True ## choose logical OR between Triggerbit
 
 # NOTE: this has to hold for all triggertables, so in order for this to not crash all bits of all triggertables 
 #         have to be in all triggertables but switched off via prescale.
-#for L = 10e30:  HLT1MuonPrescalePt3 , HLT1MuonPrescalePt5
+#for L = 10e30:  HLT_Mu3 , HLT_Mu5
 #for L = 10e31:  unknown
-#for L = 10e32:  HLT1MuonIso , HLT1MuonNonIso
-ALCARECOTkAlMuonIsolatedHLT.HLTPaths = ['HLT1MuonPrescalePt3', 'HLT1MuonPrescalePt5', 'HLT1MuonIso', 'HLT1MuonNonIso']
+#for L = 10e32:  HLT_IsoMu11 , HLT_Mu15_L1Mu7
+ALCARECOTkAlMuonIsolatedHLT.HLTPaths = ['HLT_Mu3', 'HLT_Mu5', 'HLT_IsoMu11', 'HLT_Mu15_L1Mu7']
 ALCARECOTkAlMuonIsolated.filter = True ##do not store empty events
 
 ALCARECOTkAlMuonIsolated.applyBasicCuts = True

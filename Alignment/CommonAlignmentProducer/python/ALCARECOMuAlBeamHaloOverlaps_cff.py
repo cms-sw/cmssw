@@ -29,7 +29,7 @@ ALCARECOMuAlBeamHaloOverlaps = cms.EDFilter("AlignmentCSCOverlapSelectorModule",
 
 reconstructAsCosmicMuonsALCARECOBHO = cms.Sequence(cscSegmentsALCARECOBHO*CosmicMuonSeedALCARECOBHO*cosmicMuonsALCARECOBHO)
 seqALCARECOMuAlBeamHaloOverlaps = cms.Sequence(ALCARECOMuAlBeamHaloOverlapsHLT+reconstructAsCosmicMuonsALCARECOBHO*ALCARECOMuAlBeamHaloOverlapsEnergyCut*ALCARECOMuAlBeamHaloOverlaps)
-ALCARECOMuAlBeamHaloOverlapsHLT.HLTPaths = ['CandHLTCSCBeamHaloOverlapRing1', 'CandHLTCSCBeamHaloOverlapRing2']
+ALCARECOMuAlBeamHaloOverlapsHLT.HLTPaths = ['HLT_CSCBeamHaloOverlapRing1', 'HLT_CSCBeamHaloOverlapRing2']
 # Choice of the building algo: 1 SK, 2 TC, 3 DF, 4 ST, ...
 cscSegmentsALCARECOBHO.algo_type = 4
 cscSegmentsALCARECOBHO.inputObjects = 'hltCsc2DRecHits'

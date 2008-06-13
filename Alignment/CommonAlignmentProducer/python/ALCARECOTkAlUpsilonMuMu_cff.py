@@ -8,7 +8,7 @@ ALCARECOTkAlUpsilonMuMu = Alignment.CommonAlignmentProducer.AlignmentTrackSelect
 seqALCARECOTkAlUpsilonMuMu = cms.Sequence(ALCARECOTkAlUpsilonMuMuHLT+ALCARECOTkAlUpsilonMuMu)
 ALCARECOTkAlUpsilonMuMuHLT.andOr = True ## choose logical OR between Triggerbits
 
-ALCARECOTkAlUpsilonMuMuHLT.HLTPaths = ['HLT2MuonUpsilon']
+ALCARECOTkAlUpsilonMuMuHLT.HLTPaths = ['HLT_DoubleMu3_Upsilon']
 ALCARECOTkAlUpsilonMuMu.filter = True ##do not store empty events
 
 ALCARECOTkAlUpsilonMuMu.applyBasicCuts = True

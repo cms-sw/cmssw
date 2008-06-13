@@ -8,7 +8,7 @@ ALCARECOTkAlMinBias = Alignment.CommonAlignmentProducer.AlignmentTrackSelector_c
 seqALCARECOTkAlMinBias = cms.Sequence(ALCARECOTkAlMinBiasHLT+ALCARECOTkAlMinBias)
 ALCARECOTkAlMinBiasHLT.andOr = True ## choose logical OR between Triggerbits
 
-ALCARECOTkAlMinBiasHLT.HLTPaths = ['HLTMinBiasEcal', 'HLTMinBiasHcal', 'HLTMinBiasPixel']
+ALCARECOTkAlMinBiasHLT.HLTPaths = ['HLT_MinBiasEcal', 'HLT_MinBiasHcal', 'HLT_MinBiasPixel']
 ALCARECOTkAlMinBias.filter = True ##do not store empty events	
 
 ALCARECOTkAlMinBias.applyBasicCuts = True

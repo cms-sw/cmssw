@@ -21,7 +21,7 @@ ALCARECOMuAlBeamHalo = cms.EDFilter("AlignmentCSCBeamHaloSelectorModule",
 
 reconstructAsCosmicMuonsALCARECOBH = cms.Sequence(cscSegmentsALCARECOBH*CosmicMuonSeedALCARECOBH*cosmicMuonsALCARECOBH)
 seqALCARECOMuAlBeamHalo = cms.Sequence(ALCARECOMuAlBeamHaloHLT+reconstructAsCosmicMuonsALCARECOBH*ALCARECOMuAlBeamHalo)
-ALCARECOMuAlBeamHaloHLT.HLTPaths = ['CandHLTCSCBeamHalo', 'CandHLTCSCBeamHaloRing2or3']
+ALCARECOMuAlBeamHaloHLT.HLTPaths = ['HLT_CSCBeamHalo', 'HLT_CSCBeamHaloRing2or3']
 # Choice of the building algo: 1 SK, 2 TC, 3 DF, 4 ST, ...
 cscSegmentsALCARECOBH.algo_type = 4
 cscSegmentsALCARECOBH.inputObjects = 'hltCsc2DRecHits'
