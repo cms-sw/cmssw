@@ -5,7 +5,7 @@
 # creates a complete config file.
 # relval_main + the custom config for it is not needed any more
 
-__version__ = "$Revision: 1.17 $"
+__version__ = "$Revision: 1.18 $"
 __source__ = "$Source: /cvs_server/repositories/CMSSW/CMSSW/Configuration/PyReleaseValidation/python/ConfigBuilder.py,v $"
 
 import FWCore.ParameterSet.Config as cms
@@ -300,7 +300,7 @@ class ConfigBuilder(object):
     def build_production_info(evt_type, energy, evtnumber):
         """ Add useful info for the production. """
         prod_info=cms.untracked.PSet\
-              (version=cms.untracked.string("$Revision: 1.17 $"),
+              (version=cms.untracked.string("$Revision: 1.18 $"),
                name=cms.untracked.string("PyReleaseValidation")#,
               # annotation=cms.untracked.string(self._options.evt_type+" energy:"+str(energy)+" nevts:"+str(evtnumber))
               )
@@ -308,17 +308,6 @@ class ConfigBuilder(object):
         return prod_info
  
    
-    def addFloatingPointException(self, options="1110"):
-        """ A service for trapping floating point exceptions """
-        fpe_service=cms.Service("EnableFloatingPointExceptions", enableDivByZeroEx=cms.untracked.bool(bool(options[0])),
-                            enableInvalidEx=cms.untracked.bool(bool(options[1])),
-                            enableOverflowEx=cms.untracked.bool(bool(options[2])),
-                            enableUnderflowEx=cms.untracked.bool(bool(options[3]))
-                           )  
-    
-        return fpe_service
-
-
     def prepare(self, doChecking = False):
         """ Prepare the configuration string and add missing pieces."""
 
