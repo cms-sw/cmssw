@@ -185,6 +185,7 @@ namespace edm {
     assert(!limitReached());
     doneReadAhead_ = false;
     --remainingLumis_;
+    assert(lumiPrincipal_->run() == rp->run());
     lumiPrincipal_->setRunPrincipal(rp);
     return lumiPrincipal_;
   }
@@ -198,6 +199,8 @@ namespace edm {
 
     preRead();
     std::auto_ptr<EventPrincipal> result = readEvent_(lbp);
+    assert(lbp->run() == result->run());
+    assert(lbp->luminosityBlock() == result->luminosityBlock());
     result->setLuminosityBlockPrincipal(lbp);
     if (result.get() != 0) {
       Event event(*result, moduleDescription());
