@@ -53,7 +53,7 @@ void HLTMuonOverlap::analyze(const edm::Event & event ){
     return;
   }
   size=trigRes->size();
-  LogDebug("HLTMuonVal")<< "Ntp="<<Ntp<<" Size of trigger results="<<size;
+  LogTrace("HLTMuonVal")<< "Ntp="<<Ntp<<" Size of trigger results="<<size;
   TriggerNames triggerNames(*trigRes);
 
   if(Ntp)
@@ -64,12 +64,12 @@ void HLTMuonOverlap::analyze(const edm::Event & event ){
   // has any trigger fired this event?
   if(trigRes->accept())++Nall_trig;
   else return;
-  LogDebug("HLTMuonVal")<<" This event has fired ";
+  LogTrace("HLTMuonVal")<<" This event has fired ";
   // loop over all paths, get trigger decision
   for(unsigned i = 0; i != size; ++i)
     {
       std::string name = triggerNames.triggerName(i);
-      LogDebug("HLTMuonVal") << name << " has decision "<<trigRes->accept(i);
+      LogTrace("HLTMuonVal") << name << " has decision "<<trigRes->accept(i);
       fired[name] = trigRes->accept(i);
       if(fired[name]) ++(Ntrig[name]);
     }
@@ -89,7 +89,6 @@ void HLTMuonOverlap::analyze(const edm::Event & event ){
 	  // this entry correponds to events triggered by single trigger
 	  if(i == j) continue;
 	  std::string name2 = triggerNames.triggerName(j);
-	  LogDebug("HLTMuonVal")<<"correlation between "<<name<<" and "<<name2;
 	  if(fired[name2])
 	    {
 	      correlation = true;

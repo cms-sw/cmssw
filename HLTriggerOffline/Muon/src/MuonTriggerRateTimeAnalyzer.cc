@@ -13,7 +13,7 @@
 //
 // Original Author:  Muriel Vander Donckt
 //         Created:  Tue Jul 24 12:17:12 CEST 2007
-// $Id$
+// $Id: MuonTriggerRateTimeAnalyzer.cc,v 1.1 2007/09/14 09:39:12 muriel Exp $
 //
 //
 
@@ -92,12 +92,12 @@ MuonTriggerRateTimeAnalyzer::~MuonTriggerRateTimeAnalyzer()
    // do anything here that needs to be done at desctruction time
    // (e.g. close files, deallocate resources etc.)
   for (  std::vector<HLTMuonGenericRate *>::iterator iTrig = muTriggerAnalyzer.begin(); iTrig != muTriggerAnalyzer.end(); ++iTrig){
-    delete *iTrig;
+    //delete *iTrig;
   } 
-  muTriggerAnalyzer.clear();
-  delete OverlapAnalyzer;
-  delete TimeAnalyzer;
-  delete theFile;
+  //muTriggerAnalyzer.clear();
+  //delete OverlapAnalyzer;
+  //delete TimeAnalyzer;
+  //delete theFile;
 
 }
 

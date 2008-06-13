@@ -76,7 +76,7 @@ HLTMuonGenericRate::~HLTMuonGenericRate(){
 void HLTMuonGenericRate::analyze(const Event & event ){
   this_event_weight=1;
   ++theNumberOfEvents;
-  LogDebug("HLTMuonVal")<<"In analyze for L1 trigger "<<theL1CollectionLabel<<" Event:"<<theNumberOfEvents;  
+  LogTrace("HLTMuonVal")<<"In analyze for L1 trigger "<<theL1CollectionLabel<<" Event:"<<theNumberOfEvents;  
   // Get the muon with maximum pt at generator level or reconstruction, depending on the choice
   bool refmuon_found = false;
   bool refrecomuon_found = false;
@@ -141,22 +141,23 @@ void HLTMuonGenericRate::analyze(const Event & event ){
   }
 
   vector<L1MuonParticleRef> l1cands;
-  if ( triggerObj->filterIndex(theL1CollectionLabel.label())>=triggerObj->size() ){
-    LogDebug("HLTMuonVal")<<"No L1 Collection with label "<<theL1CollectionLabel;
+  if ( triggerObj->filterIndex(theL1CollectionLabel)>=triggerObj->size() ){
+    LogTrace("HLTMuonVal")<<"No L1 Collection with label "<<theL1CollectionLabel;
     return;
   }
-  triggerObj->getObjects(triggerObj->filterIndex(theL1CollectionLabel.label()),81,l1cands);
+  triggerObj->getObjects(triggerObj->filterIndex(theL1CollectionLabel),81,l1cands);
   ++theNumberOfL1Events;
  // Get the HLT collections
   unsigned hltsize=theHLTCollectionLabels.size();
   vector<vector<RecoChargedCandidateRef> > hltcands(hltsize);
   unsigned int modules_in_this_event = 0;
-  for (unsigned int i=0; i<theHLTCollectionLabels.size(); i++) {
-    if ( triggerObj->filterIndex(theHLTCollectionLabels[i].label())>=triggerObj->size() ) {
-      LogDebug("HLTMuonVal")<<"No HLT Collection with label "<<theHLTCollectionLabels[i];
+  LogTrace("HLTMuonVal")<<"Number of HLT filters "<<hltsize;
+  for (unsigned int i=0; i<hltsize; i++) {
+    if ( triggerObj->filterIndex(theHLTCollectionLabels[i])>=triggerObj->size() ) {
+      LogTrace("HLTMuonVal")<<"No HLT Collection with label "<<theHLTCollectionLabels[i];
       break ;
     }
-    triggerObj->getObjects(triggerObj->filterIndex(theHLTCollectionLabels[i].label()),93, hltcands[i]);
+    triggerObj->getObjects(triggerObj->filterIndex(theHLTCollectionLabels[i]),93, hltcands[i]);
     modules_in_this_event++;
   }
 
@@ -176,42 +177,49 @@ void HLTMuonGenericRate::analyze(const Event & event ){
 	hL1pt->Fill(ptLUT);
 	if (useMuonFromGenerator){
 	  pair<double,double> angularInfo=getGenAngle(candref->eta(),candref->phi(), *evt );
-	  LogDebug("HLTMuonVal")<<"Filling L1 histos....";
+	  LogTrace("HLTMuonVal")<<"Filling L1 histos....";
 	  if ( angularInfo.first < 999.){
 	    hL1etaMC->Fill(angularInfo.first);
 	    hL1phiMC->Fill(angularInfo.second);
-	    LogDebug("HLTMuonVal")<<"Filling done";
+	    LogTrace("HLTMuonVal")<<"Filling done";
 	  }
 	}
 	if (useMuonFromReco){
 	  pair<double,double> angularInfo=getRecoAngle(candref->eta(),candref->phi(), *muTracks );
-	  LogDebug("HLTMuonVal")<<"Filling L1 histos....";
+	  LogTrace("HLTMuonVal")<<"Filling L1 histos....";
 	  if ( angularInfo.first < 999.){
 	    hL1etaRECO->Fill(angularInfo.first);
 	    hL1phiRECO->Fill(angularInfo.second);
-	    LogDebug("HLTMuonVal")<<"Filling done";
+	    LogTrace("HLTMuonVal")<<"Filling done";
 	  }
 	}
     }
   }
   if (nL1FoundRef>=theNumberOfObjects){
+    LogTrace("HLTMuonVal")<<"Found enough L1 objects";
     if(ptuse>0) hL1MCeff->Fill(ptuse,this_event_weight);
     if(recoptuse>0) hL1RECOeff->Fill(recoptuse,this_event_weight);
     hSteps->Fill(1.);  
   }
 
   if (ptuse>0){
-    unsigned int last_module = modules_in_this_event - 1;
-    for (unsigned int i=0; i<=last_module; i++) {
+    int last_module = modules_in_this_event - 1;
+    LogTrace("HLTMuonVal")<<"ptuse > 0, last_module="<<last_module;
+    for (int i=0; i<=last_module; i++) {
       double ptcut = theHLTReferenceThreshold;
       unsigned nFound = 0;
+      LogTrace("HLTMuonVal")<<" module "<<i<<" label "<<theHLTCollectionLabels[i].label();
+      LogTrace("HLTMuonVal")<<" module "<<i<<" size "<<hltcands[i].size();
       for (unsigned int k=0; k<hltcands[i].size(); k++) {
+	LogTrace("HLTMuonVal")<<" in hltcand loop";
 	RecoChargedCandidateRef candref = RecoChargedCandidateRef(hltcands[i][k]);
 	TrackRef tk = candref->get<TrackRef>();
 	double pt = tk->pt();
+        LogTrace("HLTMuonVal")<<" track pt="<<pt;
 	if (pt>ptcut) nFound++;
       }
       if (nFound>=theNumberOfObjects){
+	LogTrace("HLTMuonVal")<<"Found enough HLT objects, module :"<<i;
 	if(ptuse>0) hHLTMCeff[i]->Fill(ptuse,this_event_weight);
 	if(recoptuse>0 ) hHLTRECOeff[i]->Fill(recoptuse,this_event_weight);
 	hSteps->Fill(2+i); 
@@ -233,10 +241,12 @@ void HLTMuonGenericRate::analyze(const Event & event ){
 
       // Stop here if L1 reference cuts were not satisfied
       if (nL1FoundRef<theNumberOfObjects) continue;
+      LogTrace("HLTMuonVal")<<"Passed L1, HLT modules_in_this_event="<<modules_in_this_event;
 
       // HLT filling
       for (unsigned int i=0; i<modules_in_this_event; i++) {
             unsigned nFound = 0;
+            double DR = ( (hltsize>2 && i>2) || i==1 ) ? 0.015 : 0.05;
             for (unsigned int k=0; k<hltcands[i].size(); k++) {
                   RecoChargedCandidateRef candref = RecoChargedCandidateRef(hltcands[i][k]);
                   TrackRef tk = candref->get<TrackRef>();
@@ -244,21 +254,21 @@ void HLTMuonGenericRate::analyze(const Event & event ){
                   if ( ptcut == thePtMin ) {
 		    hHLTpt[i]->Fill(pt);
 		    if (useMuonFromGenerator){
-		      pair<double,double> angularInfo=getGenAngle(candref->eta(),candref->phi(), *evt );
+		      pair<double,double> angularInfo=getGenAngle(candref->eta(),candref->phi(), *evt,DR );
 		      if ( angularInfo.first < 999.){
-			LogDebug("HLTMuonVal")<<"Filling HLT histos for MC ["<<i<<"]........";
+			LogTrace("HLTMuonVal")<<"Filling HLT histos for MC ["<<i<<"]........";
 			hHLTetaMC[i]->Fill(angularInfo.first);
 			hHLTphiMC[i]->Fill(angularInfo.second);
-			LogDebug("HLTMuonVal")<<"Filling done";
+			LogTrace("HLTMuonVal")<<"Filling done";
 		      }
 		    }
 		    if (useMuonFromReco){
-		      pair<double,double> angularInfo=getRecoAngle(candref->eta(),candref->phi(), *muTracks );
+		      pair<double,double> angularInfo=getRecoAngle(candref->eta(),candref->phi(), *muTracks,DR );
 		      if ( angularInfo.first < 999.){
-			LogDebug("HLTMuonVal")<<"Filling HLT histos for RECO....["<<i<<"]........";
+			LogTrace("HLTMuonVal")<<"Filling HLT histos for RECO....["<<i<<"]........";
 			hHLTetaRECO[i]->Fill(angularInfo.first);
 			hHLTphiRECO[i]->Fill(angularInfo.second);
-			LogDebug("HLTMuonVal")<<"Filling done";
+			LogTrace("HLTMuonVal")<<"Filling done";
 		      }
 		    }
 		  }
@@ -278,15 +288,14 @@ void HLTMuonGenericRate::analyze(const Event & event ){
 
 }
 
-pair<double,double> HLTMuonGenericRate::getGenAngle(double eta, double phi, HepMC::GenEvent evt )
+pair<double,double> HLTMuonGenericRate::getGenAngle(double eta, double phi, HepMC::GenEvent evt,double candDeltaR  )
 {
 
-  LogDebug("HLTMuonVal")<< "in getGenAngle";
-  double candDeltaR = 0.3;
+  LogTrace("HLTMuonVal")<< "in getGenAngle";
   HepMC::GenEvent::particle_const_iterator part;
   HepMC::GenEvent::particle_const_iterator theAssociatedpart=evt.particles_end();
   pair<double,double> angle(999.,999.);
-  LogDebug("HLTMuonVal")<< " candidate eta="<<eta<<" and phi="<<phi;
+  LogTrace("HLTMuonVal")<< " candidate eta="<<eta<<" and phi="<<phi;
   for (part = evt.particles_begin(); part != evt.particles_end(); ++part ) {
     int id = abs((*part)->pdg_id());
     if ( id == 13 && (*part)->status() == 1 ) {
@@ -301,19 +310,18 @@ pair<double,double> HLTMuonGenericRate::getGenAngle(double eta, double phi, HepM
       }
     }
   }
-  LogDebug("HLTMuonVal")<< "Best deltaR="<<candDeltaR;
+  LogTrace("HLTMuonVal")<< "Best deltaR="<<candDeltaR;
   return angle;
 
 }
-pair<double,double> HLTMuonGenericRate::getRecoAngle(double eta, double phi, reco::TrackCollection muTracks )
+pair<double,double> HLTMuonGenericRate::getRecoAngle(double eta, double phi, reco::TrackCollection muTracks,  double candDeltaR)
 {
 
-  LogDebug("HLTMuonVal")<< "in getRecoAngle";
-  double candDeltaR = 0.3;
+  LogTrace("HLTMuonVal")<< "in getRecoAngle";
   reco::TrackCollection::const_iterator muon;
   reco::TrackCollection::const_iterator theAssociatedpart=muTracks.end();
   pair<double,double> angle(999.,999.);
-  LogDebug("HLTMuonVal")<< " candidate eta="<<eta<<" and phi="<<phi;
+  LogTrace("HLTMuonVal")<< " candidate eta="<<eta<<" and phi="<<phi;
   for (muon = muTracks.begin(); muon != muTracks.end(); ++muon ) {
       double Deta=eta-muon->eta();
       double Dphi=phi-muon->phi();
@@ -325,7 +333,7 @@ pair<double,double> HLTMuonGenericRate::getRecoAngle(double eta, double phi, rec
         angle.second=muon->phi();
       }
   }
-  LogDebug("HLTMuonVal")<< "Best deltaR="<<candDeltaR;
+  LogTrace("HLTMuonVal")<< "Best deltaR="<<candDeltaR;
   return angle;
 
 }
