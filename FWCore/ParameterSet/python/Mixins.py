@@ -359,10 +359,10 @@ class _ValidatingListBase(list):
     def __setitem__(self,key,value):
         if isinstance(key,slice):
             if not self._isValid(value):
-                raise TypeError("wrong type being inserted into this container")
+                raise TypeError("wrong type being inserted into this container "+self._labelIfAny())
         else:
             if not self._itemIsValid(value):
-                raise TypeError("can not insert the type "+str(type(value))+" in this container")
+                raise TypeError("can not insert the type "+str(type(value))+" in container "+self._labelIfAny())
         super(_ValidatingListBase,self).__setitem__(key,value)
     def _isValid(self,seq):
         for item in seq:
@@ -371,23 +371,28 @@ class _ValidatingListBase(list):
         return True
     def append(self,x):
         if not self._itemIsValid(x):
-            raise TypeError("wrong type being appended to this container")
+            raise TypeError("wrong type being appended to container "+self._labelIfAny())
         super(_ValidatingListBase,self).append(x)
     def extend(self,x):
         if not self._isValid(x):
-            raise TypeError("wrong type being extended to this container")
+            raise TypeError("wrong type being extended to container "+self._labelIfAny())
         super(_ValidatingListBase,self).extend(x)
     def __add__(self,rhs):
         if not self._isValid(rhs):
-            raise TypeError("wrong type being added to this container")
+            raise TypeError("wrong type being added to container "+self._labelIfAny())
         import copy
         value = copy.copy(self)
         value.extend(rhs)
         return value
     def insert(self,i,x):
         if not self._itemIsValid(x):
-            raise TypeError("wrong type being inserted to this container")
+            raise TypeError("wrong type being inserted to container "+self._labelIfAny())
         super(_ValidatingListBase,self).insert(i,x)
+    def _labelIfAny(self):
+        result = type(self).__name__
+        if hasattr(self, '__label'):
+            result += ' ' + self.__label
+        return result
 
 class _ValidatingParameterListBase(_ValidatingListBase,_ParameterTypeBase):
     def __init__(self,*arg,**args):

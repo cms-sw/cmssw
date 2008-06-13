@@ -516,7 +516,7 @@ class VPSet(_ValidatingParameterListBase,_ConfigureComponent,_Labelable):
         self._nPerLine = 1
     @staticmethod
     def _itemIsValid(item):
-        return PSet._isValid(item)
+        return isinstance(item, PSet) and PSet._isValid(item)
     def configValueForItem(self,item, options):
         return PSet.configValue(item, options)
     def pythonValueForItem(self,item, options):
