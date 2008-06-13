@@ -1,3 +1,17 @@
+# The following comments couldn't be translated into the new config version:
+
+#RECOEventContent
+
+#RAWSIMEventContent
+
+#RECOSIMEventContent
+
+#RAWSIMEventContent
+
+#Additional Simulation INFO
+
+#RAWDEBUGEventContent
+
 import FWCore.ParameterSet.Config as cms
 
 #
@@ -6,15 +20,15 @@ import FWCore.ParameterSet.Config as cms
 #
 # Data Tiers defined:
 #
-#  FEVT, RECO, AOD: 
+#  RAW , RECO, AOD: 
 #    include reconstruction content
 #
-#  FEVTSIM, RECOSIM, AODSIM: 
+#  RAWSIM, RECOSIM, AODSIM: 
 #    include reconstruction and simulation
 #
-#  FEVTSIMANA, RECOSIMANA, AODSIMANA: 
-#    include reconstruction, simulation and analysis
-#  FEVTSIMDIGIHLTDEBUG FEVTSIMHLTDEBUG
+#  RAWDEBUG(RAWSIM+ALL_SIM_INFO), RAWDEBUGHLT(RAWDEBUG+HLTDEBUG), RECODEBUG(RECO+RAWDIGI)
+#
+#  FEVT (RAW+RECO), FEVTSIM (RAWSIM+RECOSIM), FEVTDEBUG (FEVTSIM+ALL_SIM_INFO), FEVTDEBUGHLT (FEVTDEBUG+HLTDEBUG)
 #
 #  $Id: EventContent.cff,v 1.28 2008/04/18 04:18:44 dlange Exp $
 #
@@ -64,24 +78,18 @@ from IOMC.RandomEngine.IOMC_EventContent_cff import *
 from HLTrigger.Configuration.HLTrigger_EventContent_cff import *
 #
 #
-# Analysis Systems
-#
-#
-from ElectroWeakAnalysis.Configuration.ElectroWeakAnalysis_EventContent_cff import *
-from HiggsAnalysis.Configuration.HiggsAnalysis_EventContent_cff import *
-from TopQuarkAnalysis.Configuration.TopQuarkAnalysis_EventContent_cff import *
-#
-#
 # DQM
 #
 #
 from DQMOffline.Configuration.DQMOffline_EventContent_cff import *
 #
-# FEVT Data Tier definition
+#
+# RAW Data Tier definition
 #
 #
-FEVTEventContent = cms.PSet(
-    outputCommands = cms.untracked.vstring('drop *')
+RAWEventContent = cms.PSet(
+    outputCommands = cms.untracked.vstring('drop *', 
+        'keep  FEDRawDataCollection_rawDataCollector_*_*')
 )
 #
 #
@@ -101,18 +109,10 @@ AODEventContent = cms.PSet(
 )
 #
 #
-# FEVTSIM Data Tier definition
+# RAWSIM Data Tier definition
 #
 #
-FEVTSIMEventContent = cms.PSet(
-    outputCommands = cms.untracked.vstring('drop *')
-)
-#
-#
-# FEVTSIMDIGI Data Tier definition
-#
-#
-FEVTSIMDIGIEventContent = cms.PSet(
+RAWSIMEventContent = cms.PSet(
     outputCommands = cms.untracked.vstring('drop *')
 )
 #
@@ -133,68 +133,54 @@ AODSIMEventContent = cms.PSet(
 )
 #
 #
-# FEVTSIMANA Data Tier definition
+# FEVT Data Tier definition
 #
 #
-FEVTSIMANAEventContent = cms.PSet(
+FEVTEventContent = cms.PSet(
     outputCommands = cms.untracked.vstring('drop *')
 )
 #
 #
-# FEVTSIMDIGIANA Data Tier definition
+# FEVTSIM Data Tier definition
 #
 #
-FEVTSIMDIGIANAEventContent = cms.PSet(
+FEVTSIMEventContent = cms.PSet(
     outputCommands = cms.untracked.vstring('drop *')
 )
 #
 #
-# RECOSIMANA Data Tier definition
+# RAWDEBUG Data Tier definition
 #
 #
-RECOSIMANAEventContent = cms.PSet(
+RAWDEBUGEventContent = cms.PSet(
     outputCommands = cms.untracked.vstring('drop *')
 )
 #
 #
-# AODSIMANA Data Tier definition
+# RAWDEBUGHLT Data Tier definition
 #
 #
-AODSIMANAEventContent = cms.PSet(
+RAWDEBUGHLTEventContent = cms.PSet(
     outputCommands = cms.untracked.vstring('drop *')
 )
-# RAW only data tier
-RAWEventContent = cms.PSet(
-    outputCommands = cms.untracked.vstring('drop *', 
-        'keep  FEDRawDataCollection_rawDataCollector_*_*')
-)
-# 
-FEVTSIMHLTDEBUGEventContent = cms.PSet(
+#
+#
+# FEVTDEBUG Data Tier definition
+#
+#
+FEVTDEBUGEventContent = cms.PSet(
     outputCommands = cms.untracked.vstring('drop *')
 )
-FEVTSIMDIGIHLTDEBUGEventContent = cms.PSet(
+#
+#
+# FEVTDEBUGHLT Data Tier definition
+#
+#
+FEVTDEBUGHLTEventContent = cms.PSet(
     outputCommands = cms.untracked.vstring('drop *')
 )
-FEVTEventContent.outputCommands.extend(RecoLocalTrackerFEVT.outputCommands)
-FEVTEventContent.outputCommands.extend(RecoLocalMuonFEVT.outputCommands)
-FEVTEventContent.outputCommands.extend(RecoLocalCaloFEVT.outputCommands)
-FEVTEventContent.outputCommands.extend(RecoEcalFEVT.outputCommands)
-FEVTEventContent.outputCommands.extend(TrackingToolsFEVT.outputCommands)
-FEVTEventContent.outputCommands.extend(RecoTrackerFEVT.outputCommands)
-FEVTEventContent.outputCommands.extend(RecoJetsFEVT.outputCommands)
-FEVTEventContent.outputCommands.extend(RecoMETFEVT.outputCommands)
-FEVTEventContent.outputCommands.extend(RecoMuonFEVT.outputCommands)
-FEVTEventContent.outputCommands.extend(RecoBTauFEVT.outputCommands)
-FEVTEventContent.outputCommands.extend(RecoBTagFEVT.outputCommands)
-FEVTEventContent.outputCommands.extend(RecoTauTagFEVT.outputCommands)
-FEVTEventContent.outputCommands.extend(RecoVertexFEVT.outputCommands)
-FEVTEventContent.outputCommands.extend(RecoEgammaFEVT.outputCommands)
-FEVTEventContent.outputCommands.extend(RecoPixelVertexingFEVT.outputCommands)
-FEVTEventContent.outputCommands.extend(RecoParticleFlowFEVT.outputCommands)
-FEVTEventContent.outputCommands.extend(BeamSpotFEVT.outputCommands)
-FEVTEventContent.outputCommands.extend(L1TriggerFEVT.outputCommands)
-FEVTEventContent.outputCommands.extend(HLTriggerFEVT.outputCommands)
-FEVTEventContent.outputCommands.extend(MEtoEDMConverterFEVT.outputCommands)
+RAWEventContent.outputCommands.extend(L1TriggerRAW.outputCommands)
+RAWEventContent.outputCommands.extend(HLTriggerRAW.outputCommands)
 RECOEventContent.outputCommands.extend(RecoLocalTrackerRECO.outputCommands)
 RECOEventContent.outputCommands.extend(RecoLocalMuonRECO.outputCommands)
 RECOEventContent.outputCommands.extend(RecoLocalCaloRECO.outputCommands)
@@ -234,39 +220,26 @@ AODEventContent.outputCommands.extend(BeamSpotAOD.outputCommands)
 AODEventContent.outputCommands.extend(L1TriggerAOD.outputCommands)
 AODEventContent.outputCommands.extend(HLTriggerAOD.outputCommands)
 AODEventContent.outputCommands.extend(MEtoEDMConverterAOD.outputCommands)
-FEVTSIMEventContent.outputCommands.extend(FEVTEventContent.outputCommands)
-FEVTSIMEventContent.outputCommands.extend(GeneratorInterfaceFEVT.outputCommands)
-FEVTSIMEventContent.outputCommands.extend(SimG4CoreFEVT.outputCommands)
-FEVTSIMEventContent.outputCommands.extend(SimTrackerFEVT.outputCommands)
-FEVTSIMEventContent.outputCommands.extend(SimMuonFEVT.outputCommands)
-FEVTSIMEventContent.outputCommands.extend(SimCalorimetryFEVT.outputCommands)
-FEVTSIMEventContent.outputCommands.extend(RecoGenJetsFEVT.outputCommands)
-FEVTSIMEventContent.outputCommands.extend(SimGeneralFEVT.outputCommands)
-FEVTSIMEventContent.outputCommands.extend(RecoGenMETFEVT.outputCommands)
-FEVTSIMEventContent.outputCommands.extend(DigiToRawFEVT.outputCommands)
-FEVTSIMEventContent.outputCommands.extend(MEtoEDMConverterFEVT.outputCommands)
-FEVTSIMEventContent.outputCommands.extend(IOMCFEVT.outputCommands)
-FEVTSIMDIGIEventContent.outputCommands.extend(FEVTEventContent.outputCommands)
-FEVTSIMDIGIEventContent.outputCommands.extend(GeneratorInterfaceFEVT.outputCommands)
-FEVTSIMDIGIEventContent.outputCommands.extend(SimG4CoreFEVT.outputCommands)
-FEVTSIMDIGIEventContent.outputCommands.extend(RecoGenJetsFEVT.outputCommands)
-FEVTSIMDIGIEventContent.outputCommands.extend(SimGeneralFEVT.outputCommands)
-FEVTSIMDIGIEventContent.outputCommands.extend(RecoGenMETFEVT.outputCommands)
-FEVTSIMDIGIEventContent.outputCommands.extend(SimTrackerFEVTDIGI.outputCommands)
-FEVTSIMDIGIEventContent.outputCommands.extend(SimMuonFEVTDIGI.outputCommands)
-FEVTSIMDIGIEventContent.outputCommands.extend(SimCalorimetryFEVTDIGI.outputCommands)
-FEVTSIMDIGIEventContent.outputCommands.extend(L1TriggerFEVTDIGI.outputCommands)
-FEVTSIMDIGIEventContent.outputCommands.extend(DigiToRawFEVT.outputCommands)
-FEVTSIMDIGIEventContent.outputCommands.extend(MEtoEDMConverterFEVT.outputCommands)
-FEVTSIMDIGIEventContent.outputCommands.extend(IOMCFEVT.outputCommands)
+RAWSIMEventContent.outputCommands.extend(RAWEventContent.outputCommands)
+RAWSIMEventContent.outputCommands.extend(SimG4CoreRAW.outputCommands)
+RAWSIMEventContent.outputCommands.extend(SimTrackerRAW.outputCommands)
+RAWSIMEventContent.outputCommands.extend(SimMuonRAW.outputCommands)
+RAWSIMEventContent.outputCommands.extend(SimCalorimetryRAW.outputCommands)
+RAWSIMEventContent.outputCommands.extend(SimGeneralRAW.outputCommands)
+RAWSIMEventContent.outputCommands.extend(GeneratorInterfaceRAW.outputCommands)
+RAWSIMEventContent.outputCommands.extend(RecoGenJetsFEVT.outputCommands)
+RAWSIMEventContent.outputCommands.extend(RecoGenMETFEVT.outputCommands)
+RAWSIMEventContent.outputCommands.extend(DigiToRawFEVT.outputCommands)
+RAWSIMEventContent.outputCommands.extend(MEtoEDMConverterFEVT.outputCommands)
+RAWSIMEventContent.outputCommands.extend(IOMCRAW.outputCommands)
 RECOSIMEventContent.outputCommands.extend(RECOEventContent.outputCommands)
 RECOSIMEventContent.outputCommands.extend(GeneratorInterfaceRECO.outputCommands)
+RECOSIMEventContent.outputCommands.extend(RecoGenMETRECO.outputCommands)
+RECOSIMEventContent.outputCommands.extend(RecoGenJetsRECO.outputCommands)
 RECOSIMEventContent.outputCommands.extend(SimG4CoreRECO.outputCommands)
 RECOSIMEventContent.outputCommands.extend(SimTrackerRECO.outputCommands)
 RECOSIMEventContent.outputCommands.extend(SimMuonRECO.outputCommands)
 RECOSIMEventContent.outputCommands.extend(SimCalorimetryRECO.outputCommands)
-RECOSIMEventContent.outputCommands.extend(RecoGenMETRECO.outputCommands)
-RECOSIMEventContent.outputCommands.extend(RecoGenJetsRECO.outputCommands)
 RECOSIMEventContent.outputCommands.extend(SimGeneralRECO.outputCommands)
 RECOSIMEventContent.outputCommands.extend(MEtoEDMConverterRECO.outputCommands)
 AODSIMEventContent.outputCommands.extend(AODEventContent.outputCommands)
@@ -279,24 +252,94 @@ AODSIMEventContent.outputCommands.extend(RecoGenJetsAOD.outputCommands)
 AODSIMEventContent.outputCommands.extend(RecoGenMETAOD.outputCommands)
 AODSIMEventContent.outputCommands.extend(SimGeneralAOD.outputCommands)
 AODSIMEventContent.outputCommands.extend(MEtoEDMConverterAOD.outputCommands)
-FEVTSIMANAEventContent.outputCommands.extend(FEVTSIMEventContent.outputCommands)
-FEVTSIMANAEventContent.outputCommands.extend(ElectroWeakAnalysisEventContent.outputCommands)
-FEVTSIMANAEventContent.outputCommands.extend(HiggsAnalysisEventContent.outputCommands)
-FEVTSIMANAEventContent.outputCommands.extend(TopQuarkAnalysisEventContent.outputCommands)
-FEVTSIMDIGIANAEventContent.outputCommands.extend(FEVTSIMDIGIEventContent.outputCommands)
-FEVTSIMDIGIANAEventContent.outputCommands.extend(ElectroWeakAnalysisEventContent.outputCommands)
-FEVTSIMDIGIANAEventContent.outputCommands.extend(HiggsAnalysisEventContent.outputCommands)
-FEVTSIMDIGIANAEventContent.outputCommands.extend(TopQuarkAnalysisEventContent.outputCommands)
-RECOSIMANAEventContent.outputCommands.extend(RECOSIMEventContent.outputCommands)
-RECOSIMANAEventContent.outputCommands.extend(ElectroWeakAnalysisEventContent.outputCommands)
-RECOSIMANAEventContent.outputCommands.extend(HiggsAnalysisEventContent.outputCommands)
-RECOSIMANAEventContent.outputCommands.extend(TopQuarkAnalysisEventContent.outputCommands)
-AODSIMANAEventContent.outputCommands.extend(AODSIMEventContent.outputCommands)
-AODSIMANAEventContent.outputCommands.extend(ElectroWeakAnalysisEventContent.outputCommands)
-AODSIMANAEventContent.outputCommands.extend(HiggsAnalysisEventContent.outputCommands)
-AODSIMANAEventContent.outputCommands.extend(TopQuarkAnalysisEventContent.outputCommands)
-FEVTSIMHLTDEBUGEventContent.outputCommands.extend(FEVTSIMEventContent.outputCommands)
-FEVTSIMHLTDEBUGEventContent.outputCommands.extend(HLTDebugFEVT.outputCommands)
-FEVTSIMDIGIHLTDEBUGEventContent.outputCommands.extend(FEVTSIMDIGIEventContent.outputCommands)
-FEVTSIMDIGIHLTDEBUGEventContent.outputCommands.extend(HLTDebugFEVT.outputCommands)
+FEVTEventContent.outputCommands.extend(RAWEventContent.outputCommands)
+FEVTEventContent.outputCommands.extend(RecoLocalTrackerRECO.outputCommands)
+FEVTEventContent.outputCommands.extend(RecoLocalMuonRECO.outputCommands)
+FEVTEventContent.outputCommands.extend(RecoLocalCaloRECO.outputCommands)
+FEVTEventContent.outputCommands.extend(RecoEcalRECO.outputCommands)
+FEVTEventContent.outputCommands.extend(TrackingToolsRECO.outputCommands)
+FEVTEventContent.outputCommands.extend(RecoTrackerRECO.outputCommands)
+FEVTEventContent.outputCommands.extend(RecoJetsRECO.outputCommands)
+FEVTEventContent.outputCommands.extend(RecoMETRECO.outputCommands)
+FEVTEventContent.outputCommands.extend(RecoMuonRECO.outputCommands)
+FEVTEventContent.outputCommands.extend(RecoBTauRECO.outputCommands)
+FEVTEventContent.outputCommands.extend(RecoBTagRECO.outputCommands)
+FEVTEventContent.outputCommands.extend(RecoTauTagRECO.outputCommands)
+FEVTEventContent.outputCommands.extend(RecoVertexRECO.outputCommands)
+FEVTEventContent.outputCommands.extend(RecoEgammaRECO.outputCommands)
+FEVTEventContent.outputCommands.extend(RecoPixelVertexingRECO.outputCommands)
+FEVTEventContent.outputCommands.extend(RecoParticleFlowRECO.outputCommands)
+FEVTEventContent.outputCommands.extend(BeamSpotRECO.outputCommands)
+FEVTEventContent.outputCommands.extend(L1TriggerRECO.outputCommands)
+FEVTEventContent.outputCommands.extend(HLTriggerRECO.outputCommands)
+FEVTEventContent.outputCommands.extend(MEtoEDMConverterRECO.outputCommands)
+FEVTSIMEventContent.outputCommands.extend(RAWEventContent.outputCommands)
+FEVTSIMEventContent.outputCommands.extend(SimG4CoreRAW.outputCommands)
+FEVTSIMEventContent.outputCommands.extend(SimTrackerRAW.outputCommands)
+FEVTSIMEventContent.outputCommands.extend(SimMuonRAW.outputCommands)
+FEVTSIMEventContent.outputCommands.extend(SimCalorimetryRAW.outputCommands)
+FEVTSIMEventContent.outputCommands.extend(SimGeneralRAW.outputCommands)
+FEVTSIMEventContent.outputCommands.extend(GeneratorInterfaceRAW.outputCommands)
+FEVTSIMEventContent.outputCommands.extend(RecoGenJetsFEVT.outputCommands)
+FEVTSIMEventContent.outputCommands.extend(RecoGenMETFEVT.outputCommands)
+FEVTSIMEventContent.outputCommands.extend(DigiToRawFEVT.outputCommands)
+FEVTSIMEventContent.outputCommands.extend(MEtoEDMConverterFEVT.outputCommands)
+FEVTSIMEventContent.outputCommands.extend(IOMCRAW.outputCommands)
+FEVTSIMEventContent.outputCommands.extend(RecoLocalTrackerRECO.outputCommands)
+FEVTSIMEventContent.outputCommands.extend(RecoLocalMuonRECO.outputCommands)
+FEVTSIMEventContent.outputCommands.extend(RecoLocalCaloRECO.outputCommands)
+FEVTSIMEventContent.outputCommands.extend(RecoEcalRECO.outputCommands)
+FEVTSIMEventContent.outputCommands.extend(TrackingToolsRECO.outputCommands)
+FEVTSIMEventContent.outputCommands.extend(RecoTrackerRECO.outputCommands)
+FEVTSIMEventContent.outputCommands.extend(RecoJetsRECO.outputCommands)
+FEVTSIMEventContent.outputCommands.extend(RecoMETRECO.outputCommands)
+FEVTSIMEventContent.outputCommands.extend(RecoMuonRECO.outputCommands)
+FEVTSIMEventContent.outputCommands.extend(RecoBTauRECO.outputCommands)
+FEVTSIMEventContent.outputCommands.extend(RecoBTagRECO.outputCommands)
+FEVTSIMEventContent.outputCommands.extend(RecoTauTagRECO.outputCommands)
+FEVTSIMEventContent.outputCommands.extend(RecoVertexRECO.outputCommands)
+FEVTSIMEventContent.outputCommands.extend(RecoEgammaRECO.outputCommands)
+FEVTSIMEventContent.outputCommands.extend(RecoPixelVertexingRECO.outputCommands)
+FEVTSIMEventContent.outputCommands.extend(RecoParticleFlowRECO.outputCommands)
+FEVTSIMEventContent.outputCommands.extend(BeamSpotRECO.outputCommands)
+FEVTSIMEventContent.outputCommands.extend(L1TriggerRECO.outputCommands)
+FEVTSIMEventContent.outputCommands.extend(HLTriggerRECO.outputCommands)
+FEVTSIMEventContent.outputCommands.extend(MEtoEDMConverterRECO.outputCommands)
+FEVTSIMEventContent.outputCommands.extend(GeneratorInterfaceRECO.outputCommands)
+FEVTSIMEventContent.outputCommands.extend(RecoGenMETRECO.outputCommands)
+FEVTSIMEventContent.outputCommands.extend(RecoGenJetsRECO.outputCommands)
+FEVTSIMEventContent.outputCommands.extend(SimG4CoreRECO.outputCommands)
+FEVTSIMEventContent.outputCommands.extend(SimTrackerRECO.outputCommands)
+FEVTSIMEventContent.outputCommands.extend(SimMuonRECO.outputCommands)
+FEVTSIMEventContent.outputCommands.extend(SimCalorimetryRECO.outputCommands)
+FEVTSIMEventContent.outputCommands.extend(SimGeneralRECO.outputCommands)
+FEVTSIMEventContent.outputCommands.extend(MEtoEDMConverterRECO.outputCommands)
+RAWDEBUGEventContent.outputCommands.extend(RAWEventContent.outputCommands)
+RAWDEBUGEventContent.outputCommands.extend(SimG4CoreRAW.outputCommands)
+RAWDEBUGEventContent.outputCommands.extend(SimTrackerRAW.outputCommands)
+RAWDEBUGEventContent.outputCommands.extend(SimMuonRAW.outputCommands)
+RAWDEBUGEventContent.outputCommands.extend(SimCalorimetryRAW.outputCommands)
+RAWDEBUGEventContent.outputCommands.extend(SimGeneralRAW.outputCommands)
+RAWDEBUGEventContent.outputCommands.extend(GeneratorInterfaceRAW.outputCommands)
+RAWDEBUGEventContent.outputCommands.extend(RecoGenJetsFEVT.outputCommands)
+RAWDEBUGEventContent.outputCommands.extend(RecoGenMETFEVT.outputCommands)
+RAWDEBUGEventContent.outputCommands.extend(DigiToRawFEVT.outputCommands)
+RAWDEBUGEventContent.outputCommands.extend(MEtoEDMConverterFEVT.outputCommands)
+RAWDEBUGEventContent.outputCommands.extend(IOMCRAW.outputCommands)
+RAWDEBUGEventContent.outputCommands.extend(L1TriggerFEVTDEBUG.outputCommands)
+RAWDEBUGEventContent.outputCommands.extend(SimGeneralFEVTDEBUG.outputCommands)
+RAWDEBUGEventContent.outputCommands.extend(SimTrackerFEVTDEBUG.outputCommands)
+RAWDEBUGEventContent.outputCommands.extend(SimMuonFEVTDEBUG.outputCommands)
+RAWDEBUGEventContent.outputCommands.extend(SimCalorimetryFEVTDEBUG.outputCommands)
+RAWDEBUGHLTEventContent.outputCommands.extend(RAWDEBUGEventContent.outputCommands)
+RAWDEBUGHLTEventContent.outputCommands.extend(HLTDebugRAW.outputCommands)
+FEVTDEBUGEventContent.outputCommands.extend(FEVTSIMEventContent.outputCommands)
+FEVTDEBUGEventContent.outputCommands.extend(L1TriggerFEVTDEBUG.outputCommands)
+FEVTDEBUGEventContent.outputCommands.extend(SimGeneralFEVTDEBUG.outputCommands)
+FEVTDEBUGEventContent.outputCommands.extend(SimTrackerFEVTDEBUG.outputCommands)
+FEVTDEBUGEventContent.outputCommands.extend(SimMuonFEVTDEBUG.outputCommands)
+FEVTDEBUGEventContent.outputCommands.extend(SimCalorimetryFEVTDEBUG.outputCommands)
+FEVTDEBUGHLTEventContent.outputCommands.extend(FEVTDEBUGEventContent.outputCommands)
+FEVTDEBUGHLTEventContent.outputCommands.extend(HLTDebugFEVT.outputCommands)
+
 
