@@ -8,8 +8,8 @@
 
 /** \class HcalDigiMonitor
   *  
-  * $Date: 2008/06/06 23:31:08 $
-  * $Revision: 1.23 $
+  * $Date: 2008/06/12 01:35:01 $
+  * $Revision: 1.24 $
   * \author W. Fisher - FNAL
   */
 class HcalDigiMonitor: public HcalBaseMonitor {
@@ -67,6 +67,8 @@ private:  ///Monitoring elements
     // check whether to create histograms for each subdetector
     bool check;
 
+    bool makeDiagnostics; // determine whether or not to make diagnostic plots
+
     // Problem cells will be those cells with an error or with low occupancy
     MonitorElement* PROBLEMDIGICELLS;
     std::vector<MonitorElement*> PROBLEMDIGICELLS_DEPTH;
@@ -102,6 +104,8 @@ private:  ///Monitoring elements
 
     std::vector<MonitorElement*> TS_SUM_P, TS_SUM_M;
 
+    MonitorElement* diagnostic_BeforeBadDigi;
+    MonitorElement* diagnostic_AfterBadDigi;
 
     std::map<HcalDetId, MonitorElement*> SHAPE;
   } hbHists, heHists, hfHists, hoHists, hcalHists;

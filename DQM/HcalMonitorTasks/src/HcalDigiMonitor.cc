@@ -19,10 +19,11 @@ namespace HcalDigiPerChan
     
     std::map<HcalDetId,MonitorElement*>::iterator _mei;
 
-    string type = "HB";
-    if(id==1) type = "HE"; 
-    else if(id==2) type = "HO"; 
-    else if(id==3) type = "HF"; 
+    string type;
+    if (id==1) type = "HB";
+    else if(id==2) type = "HE"; 
+    else if(id==3) type = "HO"; 
+    else if(id==4) type = "HF"; 
     
     if(dbe) dbe->setCurrentFolder(baseFolder+"/"+type);
     
@@ -93,6 +94,8 @@ namespace HcalDigiMap{
     int last = -1; float pval = -1;
     bitUp=false; err=false; occ=false;
     
+    //if (digi.size()!=10) err=true; 
+
     for (int i=0; i<digi.size(); i++) {
       int thisCapid = digi.sample(i).capid();
       if(bitUpset(last,thisCapid)) bitUp=true;
@@ -123,6 +126,13 @@ void HcalDigiMonitor::setup(const edm::ParameterSet& ps,
 
   occThresh_ = ps.getUntrackedParameter<int>("DigiOccThresh", -9999);
   cout << "Digi occupancy threshold set to " << occThresh_ << endl;
+
+  // Allow for diagnostic plots to be made if user wishes
+  hcalHists.makeDiagnostics=ps.getUntrackedParameter<bool>("MakeDigiDiagnosticPlots",false);
+  hbHists.makeDiagnostics=hcalHists.makeDiagnostics;
+  heHists.makeDiagnostics=hcalHists.makeDiagnostics;
+  hoHists.makeDiagnostics=hcalHists.makeDiagnostics;
+  hfHists.makeDiagnostics=hcalHists.makeDiagnostics;
 
   if ( ps.getUntrackedParameter<bool>("DigisPerChannel", false) ) doPerChannel_ = true;  
 
@@ -793,6 +803,7 @@ void HcalDigiMonitor::setup(const edm::ParameterSet& ps,
 	hfHists.PROBLEMDIGICELLS_DEPTH[d] -> setAxisTitle("iphi",2);
       }
 
+  
   }// if (m_dbe)
 
   return;
@@ -837,6 +848,7 @@ void HcalDigiMonitor::processEvent(const HBHEDigiCollection& hbhe,
       HcalDigiMap::digiStats(digi, calibs_, occThresh_, normVals, digiErr, digiOcc, digiUpset);      
       if((HcalSubdetector)(digi.id().subdet())==HcalBarrel){	
 	if (!hbHists.check) continue;
+
 	nhbdigi++;  ndigi++;
 	// Digi found; "unfill it" so that it doesn't appear empty:
 	if ( digiOcc) // require digi to have a value (don't know if this is the best way to proceed?)
@@ -912,7 +924,7 @@ void HcalDigiMonitor::processEvent(const HBHEDigiCollection& hbhe,
 	}    
 	
 	if(doPerChannel_)	  
-	    HcalDigiPerChan::perChanHists<HBHEDataFrame>(0,digi,normVals,hbHists.SHAPE,m_dbe,baseFolder_);
+	    HcalDigiPerChan::perChanHists<HBHEDataFrame>(1,digi,normVals,hbHists.SHAPE,m_dbe,baseFolder_);
 
 
 	if (digi.id().ieta() > 0) {
@@ -929,8 +941,8 @@ void HcalDigiMonitor::processEvent(const HBHEDigiCollection& hbhe,
       else if((HcalSubdetector)(digi.id().subdet())==HcalEndcap){
 	if (!heHists.check) continue;
 	nhedigi++;  ndigi++;
-	   // Digi found; "unfill it" so that it doesn't appear empty:
-	if ( digiOcc)
+
+ 	if ( digiOcc)
 	  {
 	    heHists.PROBLEMDIGICELLS_TEMP->Fill(digi.id().ieta(),digi.id().iphi(),1);
 	    heHists.PROBLEMDIGICELLS_TEMP_DEPTH[digi.id().depth()-1]->Fill(digi.id().ieta(),digi.id().iphi(),1);
@@ -1002,7 +1014,7 @@ void HcalDigiMonitor::processEvent(const HBHEDigiCollection& hbhe,
 	}    
 	
 	if(doPerChannel_)
-	  HcalDigiPerChan::perChanHists<HBHEDataFrame>(1,digi,normVals,heHists.SHAPE,m_dbe,baseFolder_);
+	  HcalDigiPerChan::perChanHists<HBHEDataFrame>(2,digi,normVals,heHists.SHAPE,m_dbe,baseFolder_);
 
 
 	if (digi.id().ieta() > 0) {
@@ -1040,7 +1052,6 @@ void HcalDigiMonitor::processEvent(const HBHEDigiCollection& hbhe,
       const HODataFrame digi = (const HODataFrame)(*j);	
       HcalDigiMap::digiStats(digi, calibs_, occThresh_, normVals, digiErr, digiOcc, digiUpset);      
 
-      // Digi found; "unfill it" so that it doesn't appear empty:
 
       if ( digiOcc)
 	{
@@ -1113,7 +1124,7 @@ void HcalDigiMonitor::processEvent(const HBHEDigiCollection& hbhe,
       }    
       
       if(doPerChannel_)	  
-	HcalDigiPerChan::perChanHists<HODataFrame>(2,digi,normVals,hoHists.SHAPE,m_dbe, baseFolder_);
+	HcalDigiPerChan::perChanHists<HODataFrame>(3,digi,normVals,hoHists.SHAPE,m_dbe, baseFolder_);
 
 
 	if (digi.id().ieta() > 0) {
@@ -1143,8 +1154,8 @@ void HcalDigiMonitor::processEvent(const HBHEDigiCollection& hbhe,
     //    hfHists.DIGI_NUM->Fill(hf.size());
     for (HFDigiCollection::const_iterator j=hf.begin(); j!=hf.end(); j++){
       if (!hfHists.check) continue;
-      const HFDataFrame digi = (const HFDataFrame)(*j);	
-      // Digi found; "unfill it" so that it doesn't appear empty:
+      const HFDataFrame digi = (const HFDataFrame)(*j);
+ 
       if ( digiOcc)
 	{
 	  hfHists.PROBLEMDIGICELLS_TEMP->Fill(digi.id().ieta(),digi.id().iphi(),1);
@@ -1217,10 +1228,9 @@ void HcalDigiMonitor::processEvent(const HBHEDigiCollection& hbhe,
 	hfHists.QIE_DV->Fill(dver);
       }    
 
-      // ignore perchannel hists for CRUZET -- Jeff
 
       if(doPerChannel_)	  
-	HcalDigiPerChan::perChanHists<HFDataFrame>(3,digi,normVals,hfHists.SHAPE,m_dbe, baseFolder_);
+	HcalDigiPerChan::perChanHists<HFDataFrame>(4,digi,normVals,hfHists.SHAPE,m_dbe, baseFolder_);
 
 
       if (digi.id().ieta() > 0) {
