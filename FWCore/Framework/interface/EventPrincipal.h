@@ -63,6 +63,10 @@ namespace edm {
       return luminosityBlockPrincipal_;
     }
 
+    void setLuminosityBlockPrincipal(boost::shared_ptr<LuminosityBlockPrincipal> lbp) {
+      luminosityBlockPrincipal_ = lbp;
+    }
+
     EventID const& id() const {
       return aux().id();
     }

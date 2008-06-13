@@ -185,6 +185,7 @@ namespace edm {
     assert(!limitReached());
     doneReadAhead_ = false;
     --remainingLumis_;
+    lumiPrincipal_->setRunPrincipal(rp);
     return lumiPrincipal_;
   }
 
@@ -197,6 +198,7 @@ namespace edm {
 
     preRead();
     std::auto_ptr<EventPrincipal> result = readEvent_(lbp);
+    result->setLuminosityBlockPrincipal(lbp);
     if (result.get() != 0) {
       Event event(*result, moduleDescription());
       postRead(event);
