@@ -6,7 +6,6 @@ import FWCore.ParameterSet.Config as cms
 # This cff file exports the following five EventContent blocks:
 #   HLTriggerRAW  HLTriggerRECO  HLTriggerAOD (without DEBUG products)
 #   HLTDebugRAW   HLTDebugFEVT                (with    DEBUG products)
-# and the new HLTriggerRAW (to replace HLTriggerFEVT)
 #
 # as these are used in Configuration/EventContent
 #
