@@ -9,9 +9,9 @@
 // Original Author: Oliver Gutsche, gutsche@fnal.gov
 // Created:         Wed Mar 15 13:00:00 UTC 2006
 //
-// $Author: noeding $
-// $Date: 2008/04/15 09:30:57 $
-// $Revision: 1.54 $
+// $Author: burkett $
+// $Date: 2008/05/20 11:51:02 $
+// $Revision: 1.55 $
 //
 
 #include <vector>
@@ -1540,7 +1540,7 @@ TrackCandidateCollection RoadSearchTrackCandidateMakerAlgorithm::PrepareTrackCan
 	if(debugCosmics_) std::cout<<"#hits for lower trajectory: " << freshStartTrajectory.measurements().size() << std::endl;
 	
 	//loop over hits in upper trajectory and add them to lower trajectory
-	TransientTrackingRecHit::ConstRecHitContainer ttHits = upperTrajectory->recHits();
+	TransientTrackingRecHit::ConstRecHitContainer ttHits = upperTrajectory->recHits(splitMatchedHits_);
 	
 	if(debugCosmics_) std::cout << "loop over hits in upper trajectory..." << std::endl;
 	
@@ -1597,7 +1597,7 @@ TrackCandidateCollection RoadSearchTrackCandidateMakerAlgorithm::PrepareTrackCan
 	//put final trajectory together
 	if(debugCosmics_) std::cout << "put final trajectory together..." << std::endl;
 	edm::OwnVector<TrackingRecHit> goodHits;
-	TransientTrackingRecHit::ConstRecHitContainer tttempHits = freshStartTrajectory.recHits();
+	TransientTrackingRecHit::ConstRecHitContainer tttempHits = freshStartTrajectory.recHits(splitMatchedHits_);
 	
 	for (int k=tttempHits.size()-1; k>=0; k--) {
 	  if(debugCosmics_) std::cout << "-->good hit position: " << tttempHits[k]->globalPosition().x() << ", " << tttempHits[k]->globalPosition().y() << ", "<< tttempHits[k]->globalPosition().z() << std::endl;
@@ -1642,7 +1642,7 @@ TrackCandidateCollection RoadSearchTrackCandidateMakerAlgorithm::PrepareTrackCan
 
       if (debugCosmics_) std::cout<< "Trajectory (not merged) has "<<traj[i].recHits().size()<<" hits with chi2=" << traj[i].chiSquared() << " and is valid? "<< traj[i].isValid()<<std::endl;
       edm::OwnVector<TrackingRecHit> goodHits;
-      TransientTrackingRecHit::ConstRecHitContainer ttHits = traj[i].recHits();
+      TransientTrackingRecHit::ConstRecHitContainer ttHits = traj[i].recHits(splitMatchedHits_);
       for (TransientTrackingRecHit::ConstRecHitContainer::const_iterator rhit=ttHits.begin(); rhit!=ttHits.end(); ++rhit){
 	goodHits.push_back((*rhit)->hit()->clone());
       }
