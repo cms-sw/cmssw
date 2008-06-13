@@ -5,7 +5,7 @@
 # creates a complete config file.
 # relval_main + the custom config for it is not needed any more
 
-__version__ = "$Revision: 1.19 $"
+__version__ = "$Revision: 1.20 $"
 __source__ = "$Source: /cvs_server/repositories/CMSSW/CMSSW/Configuration/PyReleaseValidation/python/ConfigBuilder.py,v $"
 
 import FWCore.ParameterSet.Config as cms
@@ -56,7 +56,7 @@ class ConfigBuilder(object):
         pass        
         
     def addCommon(self):
-        self.commands.append("process.options = cms.untracked.PSet( wantSummary = cms.untracked.bool(True) )")
+        self.commands.append("process.options = cms.untracked.PSet( Rethrow = cms.untracked.vstring('ProductNotFound'),  wantSummary = cms.untracked.bool(True) )")
         pass
 
     def addMaxEvents(self):
@@ -301,7 +301,7 @@ class ConfigBuilder(object):
     def build_production_info(evt_type, energy, evtnumber):
         """ Add useful info for the production. """
         prod_info=cms.untracked.PSet\
-              (version=cms.untracked.string("$Revision: 1.19 $"),
+              (version=cms.untracked.string("$Revision: 1.20 $"),
                name=cms.untracked.string("PyReleaseValidation")#,
               # annotation=cms.untracked.string(self._options.evt_type+" energy:"+str(energy)+" nevts:"+str(evtnumber))
               )
