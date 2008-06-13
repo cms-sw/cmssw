@@ -7,6 +7,6 @@ ALCARECOSiPixelLorentzAngleHLTFilter = copy.deepcopy(hltHighLevel)
 seqALCARECOSiPixelLorentzAngle = cms.Sequence(ALCARECOSiPixelLorentzAngleHLTFilter)
 ALCARECOSiPixelLorentzAngleHLTFilter.andOr = True ## choose logical OR between Triggerbits
 
-ALCARECOSiPixelLorentzAngleHLTFilter.HLTPaths = ['HLT1MuonIso', 'HLT2MuonNonIso', 'HLT2MuonJPsi', 'HLT2MuonUpsilon', 'HLT2MuonZ', 
-    'HLT2MuonSameSign']
+ALCARECOSiPixelLorentzAngleHLTFilter.HLTPaths = ['HLT_IsoMu11', 'HLT_DoubleMu3', 'HLT_DoubleMu3_JPsi', 'HLT_DoubleMu3_Upsilon', 'HLT_DoubleMu7_Z', 
+    'HLT_DoubleMu3_SameSign']
 

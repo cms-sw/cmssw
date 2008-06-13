@@ -10,7 +10,7 @@ ALCARECOSiStripCalMinBias = copy.deepcopy(CalibrationTrackSelector)
 seqALCARECOSiStripCalMinBias = cms.Sequence(ALCARECOSiStripCalMinBiasHLT+ALCARECOSiStripCalMinBias)
 ALCARECOSiStripCalMinBiasHLT.andOr = True ## choose logical OR between Triggerbits
 
-ALCARECOSiStripCalMinBiasHLT.HLTPaths = ['HLTMinBiasEcal', 'HLTMinBiasHcal', 'HLTMinBiasPixel']
+ALCARECOSiStripCalMinBiasHLT.HLTPaths = ['HLT_MinBiasEcal', 'HLT_MinBiasHcal', 'HLT_MinBiasPixel']
 ALCARECOSiStripCalMinBias.applyBasicCuts = True
 ALCARECOSiStripCalMinBias.ptMin = 0.8 ##GeV
 

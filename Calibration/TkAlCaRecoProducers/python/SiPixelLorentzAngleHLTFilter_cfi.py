@@ -1,12 +1,12 @@
 import FWCore.ParameterSet.Config as cms
 
 SiPixelLorentzAngleHLTFilter = cms.EDFilter("HLTHighLevel",
-    HLTPaths = cms.vstring('HLT1MuonIso', 
-        'HLT2MuonNonIso', 
-        'HLT2MuonJPsi', 
-        'HLT2MuonUpsilon', 
-        'HLT2MuonZ', 
-        'HLT2MuonSameSign'),
+    HLTPaths = cms.vstring('HLT_IsoMu11', 
+        'HLT_DoubleMu3', 
+        'HLT_DoubleMu3_JPsi', 
+        'HLT_DoubleMu3_Upsilon', 
+        'HLT_DoubleMu7_Z', 
+        'HLT_DoubleMu3_SameSign'),
     byName = cms.bool(True),
     andOr = cms.bool(True),
     TriggerResultsTag = cms.InputTag("TriggerResults")
