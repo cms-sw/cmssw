@@ -16,7 +16,7 @@
 //
 // Original Author:  
 //         Created:  Thu Jan  3 13:27:29 EST 2008
-// $Id: FWEventItemsManager.h,v 1.7 2008/03/13 22:58:47 chrjones Exp $
+// $Id: FWEventItemsManager.h,v 1.8 2008/06/12 15:06:05 chrjones Exp $
 //
 
 // system include files
@@ -76,6 +76,8 @@ class FWEventItemsManager : public FWConfigurable
       std::vector<FWEventItem*> m_items;
       FWModelChangeManager* m_changeManager;
       FWSelectionManager* m_selectionManager;
+   
+      const fwlite::Event* m_event;
 
 };
 
