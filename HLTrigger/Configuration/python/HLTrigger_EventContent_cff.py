@@ -14,6 +14,11 @@ import FWCore.ParameterSet.Config as cms
 from HLTrigger.Configuration.HLTDefaultOutput_cff import *
 from HLTrigger.Configuration.HLTDebugOutput_cff import *
 from HLTrigger.Configuration.HLTDebugWithAlCaOutput_cff import *
+# temporarily
+HLTriggerFEVT = cms.PSet(
+    outputCommands = cms.vstring()
+)
+# temporarily
 HLTriggerRAW = cms.PSet(
     outputCommands = cms.vstring()
 )
@@ -29,6 +34,7 @@ HLTDebugRAW = cms.PSet(
 HLTDebugFEVT = cms.PSet(
     outputCommands = cms.vstring()
 )
+HLTriggerFEVT.outputCommands.extend(block_hltDefaultOutput.outputCommands)
 HLTriggerRAW.outputCommands.extend(block_hltDefaultOutput.outputCommands)
 HLTriggerRECO.outputCommands.extend(block_hltDefaultOutput.outputCommands)
 HLTriggerAOD.outputCommands.extend(block_hltDefaultOutput.outputCommands)
