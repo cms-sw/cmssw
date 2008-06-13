@@ -11,19 +11,12 @@ if(! -e $1) then
   exit 1
 endif
 
-if($1:e != 'cfg') then
-  echo "This script is only meant to be run on cfg files"
-  exit 1
-endif
-
 set psetDir=$CMSSW_RELEASE_BASE/src/FWCore/ParameterSet/python
 #set psetDir=FWCore/ParameterSet/python
 set pyFile=`python $psetDir/cfgName2py.py $1`
 
-if(-e $pyFile) then
-  echo "Output file" $pyFile "already exists"
-  exit 1
-else
+
+if(! -e $pyFile) then
   python $psetDir/cfg2py.py $1 >! $pyFile
 
   if(! -e $pyFile) then
@@ -34,13 +27,16 @@ else
   endif
 endif
 
-edmParameterSetDump $1 >! dumpcfgpset.txt
-edmParameterSetDump $pyFile >! dumppypset.txt
 
-# check if it's zero length
-if(-s dumppypset.txt) then
-  echo "Comparing the ParameterSets for cfg and py:"
-  diff dumpcfgpset.txt dumppypset.txt
+if($1:e == 'cfg') then
+  edmParameterSetDump $1 >! dumpcfgpset.txt
+  edmParameterSetDump $pyFile >! dumppypset.txt
+
+  # check if it's zero length
+  if(-s dumppypset.txt) then
+    echo "Comparing the ParameterSets for cfg and py:"
+    diff dumpcfgpset.txt dumppypset.txt
+  endif
 endif
 
 
