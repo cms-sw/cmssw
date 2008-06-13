@@ -625,7 +625,7 @@ bool FUShmBuffer::writeErrorEventData(unsigned int runNumber,
   unsigned int   iRecoCell=nextRecoWriteIndex();
   FUShmRecoCell* reco     =recoCell(iRecoCell);
   setEvtState(iRawCell,evt::RECOWRITING);
-  setEvtDiscard(iRawCell,2);
+  setEvtDiscard(iRawCell,1);
   reco->writeErrorEvent(iRawCell,runNumber,raw->evtNumber(),data,dataSize);
   delete [] data;
   setEvtState(iRawCell,evt::RECOWRITTEN);
