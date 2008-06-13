@@ -1,7 +1,7 @@
 import FWCore.ParameterSet.Config as cms
 
-#Full Event content 
-SimG4CoreFEVT = cms.PSet(
+#RAW content 
+SimG4CoreRAW = cms.PSet(
     outputCommands = cms.untracked.vstring('keep *_g4SimHits_*_*', 
         'keep edmHepMCProduct_source_*_*')
 )
