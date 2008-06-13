@@ -8,7 +8,7 @@
 //
 // Original Author:  Chris Jones
 //         Created:  Mon Feb 11 11:06:40 EST 2008
-// $Id: FWGUIManager.cc,v 1.25 2008/03/29 19:19:49 chrjones Exp $
+// $Id: FWGUIManager.cc,v 1.26 2008/06/09 18:50:53 chrjones Exp $
 //
 
 // system include files
@@ -54,6 +54,8 @@
 #include "Fireworks/Core/interface/FWConfiguration.h"
 
 #include "Fireworks/Core/src/accessMenuBar.h"
+
+#include "Fireworks/Core/src/FWGUIEventDataAdder.h"
 //
 // constants, enums and typedefs
 //
@@ -79,7 +81,8 @@ m_continueProcessingEvents(false),
 m_waitForUserAction(true),
 m_code(0),
 m_editableSelected(0),
-m_detailViewManager(new FWDetailViewManager)
+m_detailViewManager(new FWDetailViewManager),
+m_dataAdder(0)
 {
    m_selectionManager->selectionChanged_.connect(boost::bind(&FWGUIManager::selectionChanged,this,_1));
    m_eiManager->newItem_.connect(boost::bind(&FWGUIManager::newItem,
@@ -184,6 +187,11 @@ m_detailViewManager(new FWDetailViewManager)
             
          }
          frmMain->AddFrame(hf);
+         TGTextButton* addDataButton = new TGTextButton(frmMain,"+");
+         addDataButton->SetToolTipText("Show additional event data");
+         addDataButton->Connect("Clicked()", "FWGUIManager", this, "addData()");
+         frmMain->AddFrame(addDataButton);
+         
          //frmMain->SetEditable();
          TEveGListTreeEditorFrame* ltf = new TEveGListTreeEditorFrame(frmMain);
          //frmMain->SetEditable(kFALSE);
@@ -483,6 +491,15 @@ FWGUIManager::quit()
 {
    goingToQuit_();
    gApplication->Terminate(0);
+}
+
+void 
+FWGUIManager::addData()
+{
+   if(0==m_dataAdder) {
+      m_dataAdder = new FWGUIEventDataAdder(0,0,m_eiManager);
+   }
+   m_dataAdder->show();
 }
 
 

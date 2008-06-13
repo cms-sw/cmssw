@@ -16,7 +16,7 @@
 //
 // Original Author:  Chris Jones
 //         Created:  Mon Feb 11 10:52:24 EST 2008
-// $Id: FWGUIManager.h,v 1.16 2008/03/27 18:39:16 chrjones Exp $
+// $Id: FWGUIManager.h,v 1.17 2008/03/29 19:14:27 chrjones Exp $
 //
 
 // system include files
@@ -54,6 +54,8 @@ class FWDetailView;
 
 class  TGPopupMenu;
 
+class FWGUIEventDataAdder;
+
 class FWGUIManager : public FWConfigurable
 {
 
@@ -89,6 +91,7 @@ class FWGUIManager : public FWConfigurable
       void goBack();
       void goHome();
       void stop();
+      void addData();
       void waitForUserAction();
       void doNotWaitForUserAction();
 
@@ -168,6 +171,8 @@ class FWGUIManager : public FWConfigurable
       std::vector<FWViewBase* > m_viewBases;
 
       FWDetailViewManager* m_detailViewManager;
+   
+      FWGUIEventDataAdder* m_dataAdder;
 };
 
 
