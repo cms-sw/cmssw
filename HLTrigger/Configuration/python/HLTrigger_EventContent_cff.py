@@ -6,6 +6,8 @@ import FWCore.ParameterSet.Config as cms
 # This cff file exports the following four EventContent blocks:
 #   HLTriggerFEVT  HLTriggerRECO  HLTriggerAOD (without DEBUG products)
 #   HLTDebugFEVT                               (with    DEBUG products)
+# and the new HLTriggerRAW (to replace HLTriggerFEVT)
+#
 # as these are used in Configuration/EventContent
 #
 # All else is internal and should not be used directly by non-HLT users.
@@ -13,6 +15,9 @@ import FWCore.ParameterSet.Config as cms
 from HLTrigger.Configuration.HLTDefaultOutput_cff import *
 from HLTrigger.Configuration.HLTDebugOutput_cff import *
 from HLTrigger.Configuration.HLTDebugWithAlCaOutput_cff import *
+HLTriggerRAW = cms.PSet(
+    outputCommands = cms.vstring()
+)
 HLTriggerFEVT = cms.PSet(
     outputCommands = cms.vstring()
 )
@@ -25,9 +30,9 @@ HLTriggerAOD = cms.PSet(
 HLTDebugFEVT = cms.PSet(
     outputCommands = cms.vstring()
 )
+HLTriggerRAW.outputCommands.extend(block_hltDefaultOutput.outputCommands)
 HLTriggerFEVT.outputCommands.extend(block_hltDefaultOutput.outputCommands)
 HLTriggerRECO.outputCommands.extend(block_hltDefaultOutput.outputCommands)
 HLTriggerAOD.outputCommands.extend(block_hltDefaultOutput.outputCommands)
 HLTDebugFEVT.outputCommands.extend(block_hltDebugWithAlCaOutput.outputCommands)
-
 
