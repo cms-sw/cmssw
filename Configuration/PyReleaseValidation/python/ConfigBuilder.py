@@ -5,7 +5,7 @@
 # creates a complete config file.
 # relval_main + the custom config for it is not needed any more
 
-__version__ = "$Revision: 1.16 $"
+__version__ = "$Revision: 1.17 $"
 __source__ = "$Source: /cvs_server/repositories/CMSSW/CMSSW/Configuration/PyReleaseValidation/python/ConfigBuilder.py,v $"
 
 import FWCore.ParameterSet.Config as cms
@@ -131,11 +131,6 @@ class ConfigBuilder(object):
         if "FAST" in self._options.step:
             self.contentFile = "FastSimulation/Configuration/EventContent_cff"
             self.imports=['FastSimulation/Configuration/RandomServiceInitialization_cff']
-            # fake or real conditions?
-            if len(conditionsSP)>1:
-                self.imports.append('FastSimulation/Configuration/CommonInputs_cff')
-            else:
-                self.imports.append('FastSimulation/Configuration/CommonInputsFake_cff')
 
         # no fast sim   
         else:
@@ -144,8 +139,7 @@ class ConfigBuilder(object):
                           'Configuration/StandardSequences/Geometry_cff',
                           'Configuration/StandardSequences/MagneticField_cff',
                           'FWCore/MessageService/MessageLogger_cfi',
-                          'Configuration/StandardSequences/Generator_cff',         # rm    
-                          'Configuration/StandardSequences/'+conditionsSP[0]+'_cff']        # should get it's own block I would say     
+                          'Configuration/StandardSequences/Generator_cff']         # rm    
            
             if self._options.PU_flag:
                 self.imports.append('Configuration/StandardSequences/MixingLowLumiPileUp_cff')
@@ -169,15 +163,24 @@ class ConfigBuilder(object):
             else:
                 raise ValueError("Step definition "+step+" invalid")
 
-        if ( len(conditionsSP)>1 ):
-            self.commands.append("process.GlobalTag.globaltag = '"+str(conditionsSP[1]+"'"))
-                                   
 
     def addConditions(self):
         """Add conditions to the process"""
-        # conditions stuff has to move here
-        pass 
-      
+        conditionsSP=self._options.conditions.split(',')
+        # FULL or FAST SIM ?
+        if "FASTSIM" in self._options.step:
+            # fake or real conditions?
+            if len(conditionsSP)>1:
+                self.loadAndRemember('FastSimulation/Configuration/CommonInputs_cff')
+            else:
+                self.loadAndRemember('FastSimulation/Configuration/CommonInputsFake_cff')
+        else:
+            self.loadAndRemember('Configuration/StandardSequences/'+conditionsSP[0]+'_cff')
+        
+        # set non-default conditions 
+        if ( len(conditionsSP)>1 ):
+            self.commands.append("process.GlobalTag.globaltag = '"+str(conditionsSP[1]+"'"))
+                        
     def addCustomise(self):
         """Include the customise code """
 
@@ -297,7 +300,7 @@ class ConfigBuilder(object):
     def build_production_info(evt_type, energy, evtnumber):
         """ Add useful info for the production. """
         prod_info=cms.untracked.PSet\
-              (version=cms.untracked.string("$Revision: 1.16 $"),
+              (version=cms.untracked.string("$Revision: 1.17 $"),
                name=cms.untracked.string("PyReleaseValidation")#,
               # annotation=cms.untracked.string(self._options.evt_type+" energy:"+str(energy)+" nevts:"+str(evtnumber))
               )
@@ -322,6 +325,7 @@ class ConfigBuilder(object):
         self.addMaxEvents()                    
         self.addSource()
         self.addStandardSequences()
+        self.addConditions()
         self.addOutput()
         
         self.pythonCfgCode += "# import of standard configurations\n"
@@ -355,10 +359,8 @@ class ConfigBuilder(object):
             # as HLT paths get modified as well, they have to be re-printed
             self.blacklist_paths = []
                 
-        # add all paths
-        # except for the blacklisted trigger ones
+        # dump all paths
         self.pythonCfgCode += "\n# Path and EndPath definitions\n"
-        
         for path in self.process.paths:
             if path not in self.blacklist_paths:
                 self.pythonCfgCode += dumpPython(self.process,path)
@@ -372,7 +374,7 @@ class ConfigBuilder(object):
         result ='process.schedule = cms.Schedule('+','.join(pathNames)+')\n'
         self.pythonCfgCode += result
 
-        #dump customise fragment
+        # dump customise fragment
         if self._options.customisation_file:
             self.pythonCfgCode += self.addCustomise()
          
