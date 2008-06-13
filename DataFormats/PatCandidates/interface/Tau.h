@@ -1,5 +1,5 @@
 //
-// $Id: Tau.h,v 1.13 2008/06/03 22:28:07 gpetrucc Exp $
+// $Id: Tau.h,v 1.14 2008/06/09 09:03:19 gpetrucc Exp $
 //
 
 #ifndef DataFormats_PatCandidates_Tau_h
@@ -16,7 +16,7 @@
 
 
   \author   Steven Lowette, Christophe Delaere, Giovanni Petrucciani
-  \version  $Id: Tau.h,v 1.13 2008/06/03 22:28:07 gpetrucc Exp $
+  \version  $Id: Tau.h,v 1.14 2008/06/09 09:03:19 gpetrucc Exp $
 */
 
 
@@ -59,18 +59,6 @@ namespace pat {
       void embedLeadTrack();
       /// method to store the isolation tracks internally
       void embedSignalTracks();
-
-      // ---  PAT specific variables ----
-      float emEnergyFraction() const { return emEnergyFraction_; }
-      float eOverP() const { return eOverP_; }
-      float leadEoverP() const { return leadeOverP_; }
-      float hHotOverP() const { return HhotOverP_; }
-      float hTotOverP() const { return HtotOverP_; }
-      void setEmEnergyFraction(float fraction) { emEnergyFraction_ = fraction; }
-      void setEOverP(float EoP) { eOverP_ = EoP; } 
-      void setLeadEOverP(float EoP) { leadeOverP_ = EoP; }
-      void setHhotOverP(float HHoP) { HhotOverP_ = HHoP; }
-      void setHtotOverP(float HToP) { HtotOverP_ = HToP; }
 
       // ---- CaloTau accessors (getters only) --
       /// Returns true if this pat::Tau was made from a reco::CaloTau

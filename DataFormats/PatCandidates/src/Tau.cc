@@ -1,5 +1,5 @@
 //
-// $Id: Tau.cc,v 1.6 2008/06/03 22:28:07 gpetrucc Exp $
+// $Id: Tau.cc,v 1.7 2008/06/09 09:03:19 gpetrucc Exp $
 //
 
 #include "DataFormats/PatCandidates/interface/Tau.h"
@@ -13,12 +13,7 @@ Tau::Tau() :
     Lepton<TauType>(),
     embeddedIsolationTracks_(false),
     embeddedLeadTrack_(false),
-    embeddedSignalTracks_(false),
-    emEnergyFraction_(0.),
-    eOverP_(0.),
-    leadeOverP_(0.),
-    HhotOverP_(0.),
-    HtotOverP_(0.)
+    embeddedSignalTracks_(false)
 {
 }
 
@@ -28,12 +23,7 @@ Tau::Tau(const TauType & aTau) :
     Lepton<TauType>(aTau),
     embeddedIsolationTracks_(false),
     embeddedLeadTrack_(false),
-    embeddedSignalTracks_(false),
-    emEnergyFraction_(0.),
-    eOverP_(0.),
-    leadeOverP_(0.),
-    HhotOverP_(0.),
-    HtotOverP_(0.)
+    embeddedSignalTracks_(false)
 {
     const reco::PFTau * pfTau = dynamic_cast<const reco::PFTau *>(&aTau);
     if (pfTau != 0) pfSpecific_.push_back(pat::tau::TauPFSpecific(*pfTau));
@@ -47,12 +37,7 @@ Tau::Tau(const edm::RefToBase<TauType> & aTauRef) :
     Lepton<TauType>(aTauRef),
     embeddedIsolationTracks_(false),
     embeddedLeadTrack_(false),
-    embeddedSignalTracks_(false),
-    emEnergyFraction_(0.),
-    eOverP_(0.),
-    leadeOverP_(0.),
-    HhotOverP_(0.),
-    HtotOverP_(0.)
+    embeddedSignalTracks_(false)
 {
     const reco::PFTau * pfTau = dynamic_cast<const reco::PFTau *>(aTauRef.get());
     if (pfTau != 0) pfSpecific_.push_back(pat::tau::TauPFSpecific(*pfTau));
@@ -65,12 +50,7 @@ Tau::Tau(const edm::Ptr<TauType> & aTauRef) :
     Lepton<TauType>(aTauRef),
     embeddedIsolationTracks_(false),
     embeddedLeadTrack_(false),
-    embeddedSignalTracks_(false),
-    emEnergyFraction_(0.),
-    eOverP_(0.),
-    leadeOverP_(0.),
-    HhotOverP_(0.),
-    HtotOverP_(0.)
+    embeddedSignalTracks_(false)
 {
     const reco::PFTau * pfTau = dynamic_cast<const reco::PFTau *>(aTauRef.get());
     if (pfTau != 0) pfSpecific_.push_back(pat::tau::TauPFSpecific(*pfTau));
