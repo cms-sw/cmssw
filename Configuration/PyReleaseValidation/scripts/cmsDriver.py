@@ -363,7 +363,7 @@ if not options.old_config:
 
   # do some options adjustments
   # (for now placed here, needs a better place)
-  options.name = trimmedStep.replace(',','')
+  options.name = trimmedStep.replace(',','').replace("_","")
   options.outfile_name = options.dirout+options.fileout
 
   # create the config
@@ -376,7 +376,7 @@ if not options.old_config:
   config.close()
 
   if options.no_exec_flag:
-    print "Config  file "+python_config_filename+ "created"
+    print "Config file "+python_config_filename+ " created"
     sys.exit(0)
   else:
     print "Starting cmsRun "+python_config_filename
