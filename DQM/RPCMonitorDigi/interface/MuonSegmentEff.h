@@ -2,8 +2,8 @@
  *
  * Class for RPC Monitoring using RPCDigi and DT and CSCS egments.
  *
- *  $Date: 2008/06/11 19:43:55 $
- *  $Revision: 1.18 $
+ *  $Date: 2008/06/12 23:57:22 $
+ *  $Revision: 1.19 $
  *
  * \author Camilo Carrillo (Uniandes)
  *
@@ -33,6 +33,71 @@ class TCanvas;
 class TH2F;
 class TString;
 
+
+class DTStationIndex{
+public: 
+  DTStationIndex():_region(0),_wheel(0),_sector(0),_station(0){}
+  DTStationIndex(int region, int wheel, int sector, int station) : 
+    _region(region),
+    _wheel(wheel),
+    _sector(sector),
+    _station(station){}
+  ~DTStationIndex(){}
+  int region() const {return _region;}
+  int wheel() const {return _wheel;}
+  int sector() const {return _sector;}
+  int station() const {return _station;}
+  bool operator<(const DTStationIndex& dtind) const{
+    if(dtind.region()!=this->region())
+      return dtind.region()<this->region();
+    else if(dtind.wheel()!=this->wheel())
+      return dtind.wheel()<this->wheel();
+    else if(dtind.sector()!=this->sector())
+      return dtind.sector()<this->sector();
+    else if(dtind.station()!=this->station())
+      return dtind.station()<this->station();
+    return false;
+  }
+private:
+  int _region;
+  int _wheel;
+  int _sector;
+  int _station; 
+};
+
+
+class CSCStationIndex{
+public:
+  CSCStationIndex():_region(0),_station(0),_ring(0),_chamber(0){}
+  CSCStationIndex(int region, int station, int ring, int chamber):
+    _region(region),
+    _station(station),
+    _ring(ring),
+    _chamber(chamber){}
+  ~CSCStationIndex(){}
+  int region() const {return _region;}
+  int station() const {return _station;}
+  int ring() const {return _ring;}
+  int chamber() const {return _chamber;}
+  bool operator<(const CSCStationIndex& cscind) const{
+    if(cscind.region()!=this->region())
+      return cscind.region()<this->region();
+    else if(cscind.station()!=this->station())
+      return cscind.station()<this->station();
+    else if(cscind.ring()!=this->ring())
+      return cscind.ring()<this->ring();
+    else if(cscind.chamber()!=this->chamber())
+      return cscind.chamber()<this->chamber();
+    return false;
+  }
+
+private:
+  int _region;
+  int _station;
+  int _ring;  
+  int _chamber;
+};
+
 class MuonSegmentEff : public edm::EDAnalyzer {
    public:
       explicit MuonSegmentEff(const edm::ParameterSet&);
@@ -42,6 +107,14 @@ class MuonSegmentEff : public edm::EDAnalyzer {
       virtual void endJob() ;
       std::map<std::string, MonitorElement*> bookDetUnitSeg(RPCDetId & detId);
 
+      std::set<RPCDetId>  allrollstoreBarrel;    
+
+      std::map<DTStationIndex,std::set<RPCDetId> > rollstoreDT;
+      std::map<CSCStationIndex,std::set<RPCDetId> > rollstoreCSC;    
+
+      
+
+      
    private:
 
       std::vector<std::map<RPCDetId, int> > counter;
@@ -64,8 +137,8 @@ class MuonSegmentEff : public edm::EDAnalyzer {
       std::string dt4DSegments;
       std::string rejected;
       std::string rollseff;
-      
 
+      
       //Giuseppe
       std::map<std::string, std::map<std::string, MonitorElement*> >  meCollection;
       bool EffSaveRootFile;

@@ -40,76 +40,71 @@ camilo.carrilloATcern.ch
 #include "TAxis.h"
 #include "TString.h"
 
-class DTStationIndex{
-public: 
-  DTStationIndex():_region(0),_wheel(0),_sector(0),_station(0){}
-  DTStationIndex(int region, int wheel, int sector, int station) : 
-    _region(region),
-    _wheel(wheel),
-    _sector(sector),
-    _station(station){}
-  ~DTStationIndex(){}
-  int region() const {return _region;}
-  int wheel() const {return _wheel;}
-  int sector() const {return _sector;}
-  int station() const {return _station;}
-  bool operator<(const DTStationIndex& dtind) const{
-    if(dtind.region()!=this->region())
-      return dtind.region()<this->region();
-    else if(dtind.wheel()!=this->wheel())
-      return dtind.wheel()<this->wheel();
-    else if(dtind.sector()!=this->sector())
-      return dtind.sector()<this->sector();
-    else if(dtind.station()!=this->station())
-      return dtind.station()<this->station();
-    return false;
+
+void MuonSegmentEff::beginJob(const edm::EventSetup& iSetup){
+  std::cout<<"Begin beginJob"<<std::endl;
+
+  std::cout <<"\t Getting the RPC Geometry"<<std::endl;
+  edm::ESHandle<RPCGeometry> rpcGeo;
+  iSetup.get<MuonGeometryRecord>().get(rpcGeo);
+  
+  for (TrackingGeometry::DetContainer::const_iterator it=rpcGeo->dets().begin();it<rpcGeo->dets().end();it++){
+    if( dynamic_cast< RPCChamber* >( *it ) != 0 ){
+      RPCChamber* ch = dynamic_cast< RPCChamber* >( *it ); 
+      std::vector< const RPCRoll*> roles = (ch->rolls());
+      for(std::vector<const RPCRoll*>::const_iterator r = roles.begin();r != roles.end(); ++r){
+	RPCDetId rpcId = (*r)->id();
+	
+	if(rpcId.region()==0)allrollstoreBarrel.insert(rpcId);
+	
+	int region=rpcId.region();
+	
+	if(region==0&&(incldt||incldtMB4)){
+	  std::cout<<"--Filling the dtstore"<<rpcId<<std::endl;
+	  int wheel=rpcId.ring();
+	  int sector=rpcId.sector();
+	  int station=rpcId.station();
+	  DTStationIndex ind(region,wheel,sector,station);
+	  std::set<RPCDetId> myrolls;
+	  if (rollstoreDT.find(ind)!=rollstoreDT.end()) myrolls=rollstoreDT[ind];
+	  myrolls.insert(rpcId);
+	  rollstoreDT[ind]=myrolls;
+	}
+	else if(inclcsc){
+	  std::cout<<"--Filling the cscstore"<<rpcId<<std::endl;
+	  int region=rpcId.region();
+          int station=rpcId.station();
+          int ring=rpcId.ring();
+          int cscring=ring;
+          int cscstation=station;
+	  RPCGeomServ rpcsrv(rpcId);
+	  int rpcsegment = rpcsrv.segment();
+	  int cscchamber = rpcsegment;
+          if((station==2||station==3)&&ring==3){//Adding Ring 3 of RPC to the CSC Ring 2
+            cscring = 2;
+          }
+	  if((station==4)&&(ring==2||ring==3)){//RE4 have just ring 1
+            cscstation=3;
+            cscring=2;
+          }
+          CSCStationIndex ind(region,cscstation,cscring,cscchamber);
+          std::set<RPCDetId> myrolls;
+	  if (rollstoreCSC.find(ind)!=rollstoreCSC.end()){
+            myrolls=rollstoreCSC[ind];
+          }
+          
+          myrolls.insert(rpcId);
+          rollstoreCSC[ind]=myrolls;
+        }
+      }
+    }
   }
-private:
-  int _region;
-  int _wheel;
-  int _sector;
-  int _station; 
-};
-
-
-class CSCStationIndex{
-public:
-  CSCStationIndex():_region(0),_station(0),_ring(0),_chamber(0){}
-  CSCStationIndex(int region, int station, int ring, int chamber):
-    _region(region),
-    _station(station),
-    _ring(ring),
-    _chamber(chamber){}
-  ~CSCStationIndex(){}
-  int region() const {return _region;}
-  int station() const {return _station;}
-  int ring() const {return _ring;}
-  int chamber() const {return _chamber;}
-  bool operator<(const CSCStationIndex& cscind) const{
-    if(cscind.region()!=this->region())
-      return cscind.region()<this->region();
-    else if(cscind.station()!=this->station())
-      return cscind.station()<this->station();
-    else if(cscind.ring()!=this->ring())
-      return cscind.ring()<this->ring();
-    else if(cscind.chamber()!=this->chamber())
-      return cscind.chamber()<this->chamber();
-    return false;
-  }
-
-private:
-  int _region;
-  int _station;
-  int _ring;  
-  int _chamber;
-};
-
-
-void MuonSegmentEff::beginJob(const edm::EventSetup&){
-
 }
 
+
 MuonSegmentEff::MuonSegmentEff(const edm::ParameterSet& iConfig){
+  std::cout<<"Begin Constructor"<<std::endl;
+  
   std::map<RPCDetId, int> buff;
   counter.clear();
   counter.reserve(3);
@@ -504,59 +499,6 @@ void MuonSegmentEff::analyze(const edm::Event& iEvent, const edm::EventSetup& iS
   edm::Handle<RPCDigiCollection> rpcDigis;
   iEvent.getByLabel(muonRPCDigis, rpcDigis);
   
-  std::map<DTStationIndex,std::set<RPCDetId> > rollstoreDT;
-  std::map<CSCStationIndex,std::set<RPCDetId> > rollstoreCSC;    
-  
-  for (TrackingGeometry::DetContainer::const_iterator it=rpcGeo->dets().begin();it<rpcGeo->dets().end();it++){
-    if( dynamic_cast< RPCChamber* >( *it ) != 0 ){
-      RPCChamber* ch = dynamic_cast< RPCChamber* >( *it ); 
-      std::vector< const RPCRoll*> roles = (ch->rolls());
-      for(std::vector<const RPCRoll*>::const_iterator r = roles.begin();r != roles.end(); ++r){
-	RPCDetId rpcId = (*r)->id();
-	int region=rpcId.region();
-	
-	if(region==0&&(incldt||incldtMB4)){
-	  //std::cout<<"--Filling the barrel"<<rpcId<<std::endl;
-	  int wheel=rpcId.ring();
-	  int sector=rpcId.sector();
-	  int station=rpcId.station();
-	  DTStationIndex ind(region,wheel,sector,station);
-	  std::set<RPCDetId> myrolls;
-	  if (rollstoreDT.find(ind)!=rollstoreDT.end()) myrolls=rollstoreDT[ind];
-	  myrolls.insert(rpcId);
-	  rollstoreDT[ind]=myrolls;
-	}
-	else if(inclcsc){
-	  //std::cout<<"--Filling the EndCaps!"<<rpcId<<std::endl;
-	  int region=rpcId.region();
-          int station=rpcId.station();
-          int ring=rpcId.ring();
-          int cscring=ring;
-          int cscstation=station;
-	  RPCGeomServ rpcsrv(rpcId);
-	  int rpcsegment = rpcsrv.segment();
-	  int cscchamber = rpcsegment;
-          if((station==2||station==3)&&ring==3){//Adding Ring 3 of RPC to the CSC Ring 2
-            cscring = 2;
-          }
-	  if((station==4)&&(ring==2||ring==3)){//RE4 have just ring 1
-            cscstation=3;
-            cscring=2;
-          }
-          CSCStationIndex ind(region,cscstation,cscring,cscchamber);
-          std::set<RPCDetId> myrolls;
-	  if (rollstoreCSC.find(ind)!=rollstoreCSC.end()){
-            myrolls=rollstoreCSC[ind];
-          }
-          
-          myrolls.insert(rpcId);
-          rollstoreCSC[ind]=myrolls;
-        }
-      }
-    }
-  }
-  
-
   if(incldt){
 #include "dtpart.inl"
   }
@@ -608,7 +550,32 @@ void MuonSegmentEff::endJob()
 
   //Comparing final container with all geometry
 
+  for (std::set<RPCDetId>::iterator iteraRoll = allrollstoreBarrel.begin();iteraRoll != allrollstoreBarrel.end(); iteraRoll++){
+    bool is = false;
+    for (irpc=pred.begin(); irpc!=pred.end();irpc++){
+      RPCDetId id=irpc->first;
+      if(id.rawId()==(*iteraRoll).rawId()){
+	is=true;
+      }
+    }
+    
+    RPCGeomServ RPCname(*iteraRoll);
+    
+    if(is){
+      std::cout<<"In Final container"<<RPCname.name()<<std::endl;
+    }
+    else{
+      std::cout<<"NOT in Final container"<<RPCname.name()<<std::endl;
+    }
+  }
+
+  
+
+
+
+
   std::cout<<"Looping on final container "<<std::endl;
+
   for (irpc=pred.begin(); irpc!=pred.end();irpc++){
     
     RPCDetId id=irpc->first;
