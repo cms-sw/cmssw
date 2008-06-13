@@ -553,46 +553,37 @@ void MuonSegmentEff::endJob()
   for (std::set<RPCDetId>::iterator iteraRoll = allrollstoreBarrel.begin();iteraRoll != allrollstoreBarrel.end(); iteraRoll++){
     bool is = false;
     for (irpc=pred.begin(); irpc!=pred.end();irpc++){
-      RPCDetId id=irpc->first;
-      if(id.rawId()==(*iteraRoll).rawId()){
+      RPCDetId idtmp=irpc->first;
+      if(idtmp.rawId()==(*iteraRoll).rawId()){
 	is=true;
       }
     }
     
-    RPCGeomServ RPCname(*iteraRoll);
+    RPCDetId id = (*iteraRoll);
+    RPCGeomServ RPCname(id);
+    std::string nameRoll = RPCname.name();
+
+    int p=0; 
+    int o=0; 
+    int r=0; 
     
     if(is){
       std::cout<<"In Final container"<<RPCname.name()<<std::endl;
+      p=pred[id]; 
+      o=obse[id]; 
+      r=reje[id]; 
+      assert(p==o+r);
     }
     else{
       std::cout<<"NOT in Final container"<<RPCname.name()<<std::endl;
     }
-  }
-
-  
-
-
-
-
-  std::cout<<"Looping on final container "<<std::endl;
-
-  for (irpc=pred.begin(); irpc!=pred.end();irpc++){
     
-    RPCDetId id=irpc->first;
-    
-    RPCGeomServ RPCname(id);
-    std::string nameRoll = RPCname.name();
     std::string wheel;
     std::string rpc;
     std::string partition;
     
-    int p=pred[id]; 
-    int o=obse[id]; 
-    int r=reje[id]; 
-    assert(p==o+r);
-    
     //-----------------------Fillin Global Histograms----------------------------------------
-
+    
     
     //std::cout<<"Doing Global Histograms "<<std::endl;
     
