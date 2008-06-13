@@ -79,6 +79,6 @@ def customise(process):
     process.local_validation = cms.Path((process.ecalSimValid + process.hcalSimValid)*process.MEtoEDMConverter)
     process.schedule.append(process.local_validation)
 
-    process.schedule.append(process.outpath)
+    process.schedule.append(process.out_step)
         
     return(process)
