@@ -1,11 +1,11 @@
-#ifndef SeedValidator_h
-#define SeedValidator_h
+#ifndef TrackerSeedValidator_h
+#define TrackerSeedValidator_h
 
-/** \class SeedValidator
+/** \class TrackerSeedValidator
  *  Class that prodecs histrograms to validate Track Reconstruction performances
  *
- *  $Date: 2007/11/13 10:46:45 $
- *  $Revision: 1.33 $
+ *  $Date: 2008/06/13 18:16:28 $
+ *  $Revision: 1.1.2.1 $
  *  \author cerati
  */
 
@@ -16,15 +16,15 @@
 #include "TrackingTools/TransientTrackingRecHit/interface/TransientTrackingRecHitBuilder.h"
 #include "RecoTracker/TransientTrackingRecHit/interface/TkTransientTrackingRecHitBuilder.h"
 
-class SeedValidator : public edm::EDAnalyzer, protected MultiTrackValidatorBase {
+class TrackerSeedValidator : public edm::EDAnalyzer, protected MultiTrackValidatorBase {
  public:
   /// Constructor
-  SeedValidator(const edm::ParameterSet& pset):MultiTrackValidatorBase(pset){
+  TrackerSeedValidator(const edm::ParameterSet& pset):MultiTrackValidatorBase(pset){
     builderName = pset.getParameter<std::string>("TTRHBuilder");
   }
   
   /// Destructor
-  ~SeedValidator(){ }
+  ~TrackerSeedValidator(){ }
 
   /// Method called before the event loop
   void beginJob( const edm::EventSetup &);

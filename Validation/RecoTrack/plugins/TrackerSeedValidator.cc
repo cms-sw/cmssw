@@ -1,4 +1,4 @@
-#include "Validation/RecoTrack/interface/SeedValidator.h"
+#include "Validation/RecoTrack/interface/TrackerSeedValidator.h"
 #include "Validation/Tools/interface/FitSlicesYTool.h"
 
 #include "FWCore/Framework/interface/MakerMacros.h"
@@ -24,7 +24,7 @@
 using namespace std;
 using namespace edm;
 
-void SeedValidator::beginJob( const EventSetup & setup) {
+void TrackerSeedValidator::beginJob( const EventSetup & setup) {
   setup.get<IdealMagneticFieldRecord>().get(theMF);  
   setup.get<TransientRecHitRecord>().get(builderName,theTTRHBuilder);
 
@@ -115,7 +115,7 @@ void SeedValidator::beginJob( const EventSetup & setup) {
   }
 }
 
-void SeedValidator::analyze(const edm::Event& event, const edm::EventSetup& setup){
+void TrackerSeedValidator::analyze(const edm::Event& event, const edm::EventSetup& setup){
 
   edm::LogInfo("TrackValidator") << "\n====================================================" << "\n"
 				 << "Analyzing new event" << "\n"
@@ -418,8 +418,8 @@ void SeedValidator::analyze(const edm::Event& event, const edm::EventSetup& setu
   }
 }
 
-void SeedValidator::endJob() {
-  LogTrace("TrackValidator") << "SeedValidator::endJob()";
+void TrackerSeedValidator::endJob() {
+  LogTrace("TrackValidator") << "TrackerSeedValidator::endJob()";
   int w=0;
   for (unsigned int ww=0;ww<associators.size();ww++){
     for (unsigned int www=0;www<label.size();www++){

@@ -2,13 +2,13 @@
 #include "FWCore/Framework/interface/MakerMacros.h"
 
 #include "Validation/RecoTrack/interface/MultiTrackValidator.h"
-#include "Validation/RecoTrack/interface/SeedValidator.h"
+#include "Validation/RecoTrack/interface/TrackerSeedValidator.h"
 #include "Validation/RecoTrack/interface/SiStripTrackingRecHitsValid.h"
 #include "Validation/RecoTrack/interface/SiPixelTrackingRecHitsValid.h"
 
 DEFINE_SEAL_MODULE();
 DEFINE_ANOTHER_FWK_MODULE(MultiTrackValidator);
-DEFINE_ANOTHER_FWK_MODULE(SeedValidator);
+DEFINE_ANOTHER_FWK_MODULE(TrackerSeedValidator);
 DEFINE_ANOTHER_FWK_MODULE(SiStripTrackingRecHitsValid);
 DEFINE_ANOTHER_FWK_MODULE(SiPixelTrackingRecHitsValid);
 
