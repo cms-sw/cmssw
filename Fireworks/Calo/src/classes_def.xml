@@ -5,6 +5,8 @@
   <class name="CaloJetSelectedProxyTH2LegoBuilder"/>
   <class name="CaloJetProxyEveLegoBuilder"/>
   <class name="CaloJetProxyRhoPhiZ2DBuilder"/>
+  <class name="L1TrigProxyEveLegoBuilder"/>
+  <class name="L1TrigProxyRhoPhiZ2DBuilder"/>
   <class name="ECalCaloTowerProxyRhoPhiZ2DBuilder"/>
   <class name="HCalCaloTowerProxyRhoPhiZ2DBuilder"/>
   <class name="BaseCaloTowerProxyRhoPhiZ2DBuilder"/>

@@ -6,6 +6,8 @@
 #include "Fireworks/Calo/interface/CaloJetSelectedProxyTH2LegoBuilder.h"
 #include "Fireworks/Calo/interface/CaloJetProxyEveLegoBuilder.h"
 #include "Fireworks/Calo/interface/CaloJetProxyRhoPhiZ2DBuilder.h"
+#include "Fireworks/Calo/interface/L1TrigProxyEveLegoBuilder.h"
+#include "Fireworks/Calo/interface/L1TrigProxyRhoPhiZ2DBuilder.h"
 #include "Fireworks/Calo/interface/ECalCaloTowerProxyRhoPhiZ2DBuilder.h"
 #include "Fireworks/Calo/interface/HCalCaloTowerProxyRhoPhiZ2DBuilder.h"
 #include "Fireworks/Calo/interface/BaseCaloTowerProxyRhoPhiZ2DBuilder.h"
