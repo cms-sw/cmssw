@@ -402,12 +402,14 @@ void HIPAlignmentAlgorithm::run( const edm::EventSetup& setup,
         //TrajectoryStateOnSurface tsos=meas.updatedState();
         // combine fwd and bwd predicted state to get state 
         // which excludes current hit
-        TrajectoryStateOnSurface tsosc = tsoscomb.combine(
-                                                          meas.forwardPredictedState(),
-                                                          meas.backwardPredictedState());
-        hitvec.push_back(hit);
-        //tsosvec.push_back(tsos);
-        tsosvec.push_back(tsosc);
+        TrajectoryStateOnSurface tsos =
+          tsoscomb.combine(meas.forwardPredictedState(),
+                           meas.backwardPredictedState());
+        if (tsos.isValid())
+        {
+          hitvec.push_back(hit);
+          tsosvec.push_back(tsos);
+        }
       }
     }
     
