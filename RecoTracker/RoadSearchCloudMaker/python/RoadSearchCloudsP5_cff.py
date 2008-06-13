@@ -16,7 +16,7 @@ from RecoTracker.RoadSearchCloudMaker.RoadSearchClouds_cfi import *
 roadSearchCloudsP5 = copy.deepcopy(roadSearchClouds)
 roadSearchCloudsP5.RoadsLabel = 'P5'
 roadSearchCloudsP5.SeedProducer = 'roadSearchSeedsP5'
-roadSearchCloudsP5.UsePixelsinRS = False
+roadSearchCloudsP5.UsePixelsinRS = True
 roadSearchCloudsP5.UseRphiRecHits = True
 roadSearchCloudsP5.UseStereoRecHits = True
 roadSearchCloudsP5.scalefactorRoadSeedWindow = 150
