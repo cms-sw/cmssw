@@ -6,5 +6,5 @@ ALCARECORpcCalHLTFilter = copy.deepcopy(hltHighLevel)
 seqALCARECORpcCalHLT = cms.Sequence(ALCARECORpcCalHLTFilter)
 ALCARECORpcCalHLTFilter.andOr = True ## choose logical OR between Triggerbits
 
-ALCARECORpcCalHLTFilter.HLTPaths = ['HLT1MuonLevel1']
+ALCARECORpcCalHLTFilter.HLTPaths = ['HLT_L1Mu']
 

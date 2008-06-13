@@ -5,7 +5,7 @@
 import FWCore.ParameterSet.Config as cms
 
 dijetsHLT = cms.EDFilter("HLTHighLevel",
-    HLTPaths = cms.vstring('HLT2jetAve30', 
+    HLTPaths = cms.vstring('HLT_DiJetAve30', 
         'HLT2jetAve60'),
     andOr = cms.bool(True),
     TriggerResultsTag = cms.InputTag("TriggerResults","","HLT")

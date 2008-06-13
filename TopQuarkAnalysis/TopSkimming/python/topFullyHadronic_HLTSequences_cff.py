@@ -7,6 +7,6 @@ import copy
 from HLTrigger.HLTfilters.hltHighLevel_cfi import *
 # added all b-jet HLT paths for testing purposes
 topFullyHadronicBJetsHLT = copy.deepcopy(hltHighLevel)
-topFullyHadronicJetsHLT.HLTPaths = ['HLT1jet', 'HLT2jet', 'HLT3jet', 'HLT4jet']
-topFullyHadronicBJetsHLT.HLTPaths = ['HLTB1Jet', 'HLTB2Jet', 'HLTB3Jet', 'HLTB4Jet']
+topFullyHadronicJetsHLT.HLTPaths = ['HLT1jet', 'HLT_DoubleJet150', 'HLT_TripleJet85', 'HLT_QuadJet60']
+topFullyHadronicBJetsHLT.HLTPaths = ['HLT_BTagIP_Jet180', 'HLT_BTagIP_DoubleJet120', 'HLT_BTagIP_TripleJet70', 'HLT_BTagIP_QuadJet40']
 
