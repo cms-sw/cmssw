@@ -299,8 +299,9 @@ class dbsBaseGui:
                                        variable=self.enableSCP,
                                        padx=10,
                                        command=self.toggleSCP)
-        
-        self.scpAutoButton.grid(row=0,column=mycol,sticky=E)
+
+        # Uncomment this line to bring back enablescp button
+        #self.scpAutoButton.grid(row=0,column=mycol,sticky=E)
 
         # This is an old implementation of scp choices.
         # Can it be removed?  Jeff, 10 May 2008
@@ -336,7 +337,9 @@ class dbsBaseGui:
         self.copyLoc.configure(background=self.bg_alt,
                                foreground=self.bg,
                                activebackground=self.alt_active)
-        self.copyLoc.grid(row=0,column=mycol,sticky=E)
+
+        # uncomment this to allow scp copying
+        #self.copyLoc.grid(row=0,column=mycol,sticky=E)
 
         # Turn off copying by default if user is not "cchcal"
         if os.getenv("USER")<>"cchcal":
@@ -877,7 +880,8 @@ class dbsBaseGui:
             # repeat for DQM checking
             if (self.dqmAutoCounter >= self.dqmAutoUpdateTime.get()):
                 # Remind user to scp completed files
-                self.tempSCP()
+                #self.tempSCP()
+
                 # If dqmAutoVar is off, reset counter
                 if (self.dqmAutoVar.get()==False):
                     self.dqmAutoCounter=0
@@ -1455,7 +1459,8 @@ class dbsBaseGui:
         self.dqmStatus.configure(text="%s"%time.strftime("%d %b %Y at %H:%M:%S",time.localtime()))
         self.commentLabel.configure(text="Finished running DQM:\n%i out of %i runs successfully processed"%(finished_run,unfinished_run))
         time.sleep(3)
-        self.tempSCP() # Call scp copying routine once dqm has finished
+
+        #self.tempSCP() # Call scp copying routine once dqm has finished
         self.dqmButton.configure(state=NORMAL)
         
         self.commentLabel.update_idletasks()
@@ -1558,7 +1563,7 @@ class dbsBaseGui:
                 time.sleep(3)
 
                 # Call scp at the completion of each run?
-                self.tempSCP()
+                #self.tempSCP()
 
 
         else: # success = False
@@ -2245,11 +2250,17 @@ class dbsBaseGui:
         ** self.tempSCP() **
         Temporary method for running scp from local final directory
         to hcalusc55@cmshcal01:hcaldqm/global_auto/
-
+        This feature has now been disabled
         '''
 
         if (self.debug):
             print self.tempSCP.__doc__
+
+        if (self.debug):
+            self.commentLabel.configure(text="scp copying is no longer used")
+            self.commentLabel.update_idletasks()
+        return
+        
 
         if not (self.enableSCP.get()):
             self.commentLabel.configure(text="scp copying is not currently enabled.\n(Check button in the middle of the menu bar)")
