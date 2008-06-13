@@ -1,5 +1,5 @@
 //
-// $Id: PATElectronProducer.h,v 1.5 2008/05/15 17:22:25 lowette Exp $
+// $Id: PATElectronProducer.h,v 1.6 2008/06/08 12:24:02 vadler Exp $
 //
 
 #ifndef PhysicsTools_PatAlgos_PATElectronProducer_h
@@ -13,7 +13,7 @@
    a collection of objects of ElectronType.
 
   \author   Steven Lowette, James Lamb
-  \version  $Id: PATElectronProducer.h,v 1.5 2008/05/15 17:22:25 lowette Exp $
+  \version  $Id: PATElectronProducer.h,v 1.6 2008/06/08 12:24:02 vadler Exp $
 */
 
 
@@ -74,9 +74,8 @@ namespace pat {
       bool          useNNReso_;
       std::string   electronResoFile_;
       bool          addElecID_;
-      edm::InputTag elecIDSrc_;
-      bool          addElecIDRobust_;
-      edm::InputTag elecIDRobustSrc_;
+      typedef std::pair<std::string, edm::InputTag> NameTag;
+      std::vector<NameTag> elecIDSrcs_;
 
       // tools
       ObjectResolutionCalc * theResoCalc_;

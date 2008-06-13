@@ -1,5 +1,5 @@
 //
-// $Id: PATElectronProducer.cc,v 1.7 2008/06/03 22:37:04 gpetrucc Exp $
+// $Id: PATElectronProducer.cc,v 1.8 2008/06/08 12:24:02 vadler Exp $
 //
 
 #include "PhysicsTools/PatAlgos/plugins/PATElectronProducer.h"
@@ -50,9 +50,47 @@ PATElectronProducer::PATElectronProducer(const edm::ParameterSet & iConfig) :
 
   // electron ID configurables
   addElecID_        = iConfig.getParameter<bool>         ( "addElectronID" );
-  elecIDSrc_        = iConfig.getParameter<edm::InputTag>( "electronIDSource" );
-  addElecIDRobust_  = iConfig.getParameter<bool>         ( "addElectronIDRobust" );
-  elecIDRobustSrc_  = iConfig.getParameter<edm::InputTag>( "electronIDRobustSource" );
+  if (addElecID_) {
+      // it might be a single electron ID
+      if (iConfig.existsAs<edm::InputTag>("electronIDSource")) {
+          elecIDSrcs_.push_back(NameTag("", iConfig.getParameter<edm::InputTag>("electronIDSource")));
+      }
+      // or there might be many of them
+      if (iConfig.existsAs<edm::ParameterSet>("electronIDSources")) {
+          // please don't configure me twice
+          if (!elecIDSrcs_.empty()) throw cms::Exception("Configuration") << 
+                "PATElectronProducer: you can't specify both 'electronIDSource' and 'electronIDSources'\n";
+          // read the different electron ID names
+          edm::ParameterSet idps = iConfig.getParameter<edm::ParameterSet>("electronIDSources");
+          std::vector<std::string> names = idps.getParameterNamesForType<edm::InputTag>();
+#ifdef PAT_patElectron_Default_eID  /// ==== If we allow a default ID =====================================================
+          // get default algo and check is really among the algos
+          std::string            defname = idps.getParameter<std::string>("defaultID");
+          if (std::find(names.begin(), names.end(), defname) == names.end()) throw cms::Exception("Configuration") << 
+                "PATElectronProducer: the name of the 'default' id must correspond to one InputTag parameter\n";
+          // first put the default
+          elecIDSrcs_.push_back(NameTag(defname, idps.getParameter<edm::InputTag>(defname)));
+          // then all the others
+          for (std::vector<std::string>::const_iterator it = names.begin(), ed = names.end(); it != ed; ++it) {
+              if (*it  != defname) elecIDSrcs_.push_back(NameTag(*it, idps.getParameter<edm::InputTag>(*it)));
+          }
+#else /// ==========  That is, no default ID==============================================================================
+          for (std::vector<std::string>::const_iterator it = names.begin(), ed = names.end(); it != ed; ++it) {
+              elecIDSrcs_.push_back(NameTag(*it, idps.getParameter<edm::InputTag>(*it)));
+          }
+#endif /// ================================================================================================================
+      }
+      // but in any case at least once
+      if (elecIDSrcs_.empty()) throw cms::Exception("Configuration") <<
+            "PATElectronProducer: id addElectronID is true, you must specify either:\n" <<
+            "\tInputTag electronIDSource = <someTag>\n" << "or\n" <<
+            "\tPSet electronIDSources = { \n" <<
+            "\t\tInputTag <someName> = <someTag>   // as many as you want \n " <<
+#ifdef PAT_patElectron_Default_eID  /// ==== If we allow a default ID =====================================================
+            "\t\tstring   defaultID  = <someName>  // one of the names above\n" <<
+#endif /// ================================================================================================================
+            "\t}\n";
+  }
   
   // construct resolution calculator
   if(addResolutions_){
@@ -104,11 +142,17 @@ void PATElectronProducer::produce(edm::Event & iEvent, const edm::EventSetup & i
     iEvent.getByLabel(genMatchSrc_, genMatch);
   }
 
-  // prepare ID extraction
-  edm::Handle<reco::ElectronIDAssociationCollection> elecIDs;
-  if (addElecID_) iEvent.getByLabel(elecIDSrc_, elecIDs);
-  edm::Handle<reco::ElectronIDAssociationCollection> elecIDRobusts;
-  if (addElecIDRobust_) iEvent.getByLabel(elecIDRobustSrc_, elecIDRobusts);
+  // prepare ID extraction 
+  std::vector<edm::Handle<edm::ValueMap<float> > > idhandles;
+  std::vector<pat::Electron::IdPair>               ids;
+  if (addElecID_) {
+     idhandles.resize(elecIDSrcs_.size());
+     ids.resize(elecIDSrcs_.size());
+     for (size_t i = 0; i < elecIDSrcs_.size(); ++i) {
+        iEvent.getByLabel(elecIDSrcs_[i].second, idhandles[i]);
+        ids[i].first = elecIDSrcs_[i].first;
+     }
+  }
   
   std::vector<Electron> * patElectrons = new std::vector<Electron>();
   for (edm::View<ElectronType>::const_iterator itElectron = electrons->begin(); itElectron != electrons->end(); ++itElectron) {
@@ -162,11 +206,12 @@ void PATElectronProducer::produce(edm::Event & iEvent, const edm::EventSetup & i
 
     // add electron ID info
     if (addElecID_) {
-      anElectron.setLeptonID(electronID(electrons, elecIDs, idx));
+        for (size_t i = 0; i < elecIDSrcs_.size(); ++i) {
+            ids[i].second = (*idhandles[i])[elecsRef];    
+        }
+        anElectron.setLeptonIDs(ids);
     }
-    if (addElecIDRobust_) {
-      anElectron.setElectronIDRobust(electronID(electrons, elecIDRobusts, idx));
-    }
+    
     // add sel to selected
     patElectrons->push_back(anElectron);
   }

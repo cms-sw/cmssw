@@ -1,5 +1,5 @@
 //
-// $Id: PATTauProducer.cc,v 1.8 2008/06/08 12:24:03 vadler Exp $
+// $Id: PATTauProducer.cc,v 1.9 2008/06/09 09:17:24 gpetrucc Exp $
 //
 
 #include "PhysicsTools/PatAlgos/plugins/PATTauProducer.h"
@@ -82,60 +82,6 @@ void PATTauProducer::produce(edm::Event & iEvent, const edm::EventSetup & iSetup
     if (embedIsolationTracks_) aTau.embedIsolationTracks();
     if (embedLeadTrack_) aTau.embedLeadTrack();
     if (embedSignalTracks_) aTau.embedSignalTracks();
-
-    if (typeid(*originalTau) == typeid(reco::PFTau)) { // (1) typeid must be done with refs, not pointers
-                                                       // (2) const and "&" are not necessary
-      const reco::PFTau *thePFTau = dynamic_cast<const reco::PFTau*>(originalTau);
-#if 0 // temporarily remove this code, as it does not run on AOD
-      const reco::PFJet *pfJet    = dynamic_cast<const reco::PFJet*>(thePFTau->pfTauTagInfoRef()->pfjetRef().get());
-      if(pfJet) {
-        float ECALenergy=0.;
-        float HCALenergy=0.;
-        float leadEnergy=0.;
-        std::list<const reco::PFBlockElement*> elements;
-        reco::PFCandidateRefVector myPFCands=thePFTau->pfTauTagInfoRef()->PFCands();
-        for(int i=0;i<(int)myPFCands.size();i++){
-          const reco::PFCandidate::ElementsInBlocks& eib = myPFCands[i]->elementsInBlocks();
-          for(reco::PFCandidate::ElementsInBlocks::const_iterator iPFBlockElement=eib.begin();
-                                                            iPFBlockElement!=eib.end();++iPFBlockElement) {
-            elements.push_back(&(iPFBlockElement->first->elements()[iPFBlockElement->second]));
-          }
-        }
-        elements.sort();
-        elements.unique();
-        const reco::PFCandidate::ElementsInBlocks& eib = thePFTau->leadPFChargedHadrCand()->elementsInBlocks();
-        for(reco::PFCandidate::ElementsInBlocks::const_iterator iPFBlockElement=eib.begin();
-                                                          iPFBlockElement!=eib.end();++iPFBlockElement) {
-          if((iPFBlockElement->first->elements()[iPFBlockElement->second].type()==reco::PFBlockElement::HCAL)||
-             (iPFBlockElement->first->elements()[iPFBlockElement->second].type()==reco::PFBlockElement::ECAL)  )
-            leadEnergy += iPFBlockElement->first->elements()[iPFBlockElement->second].clusterRef()->energy();
-        }
-        for(std::list<const reco::PFBlockElement*>::const_iterator ielements = elements.begin();ielements!=elements.end();++ielements) {
-          if((*ielements)->type()==reco::PFBlockElement::HCAL)
-            HCALenergy += (*ielements)->clusterRef()->energy();
-          else if((*ielements)->type()==reco::PFBlockElement::ECAL)
-            ECALenergy += (*ielements)->clusterRef()->energy();
-        }
-	aTau.setEmEnergyFraction(ECALenergy/(ECALenergy+HCALenergy));
-	aTau.setEOverP((HCALenergy+ECALenergy)/thePFTau->leadPFChargedHadrCand()->p());
-        aTau.setLeadEOverP(leadEnergy/thePFTau->leadPFChargedHadrCand()->p());
-        aTau.setHhotOverP(thePFTau->maximumHCALPFClusterEt()/thePFTau->leadPFChargedHadrCand()->p());
-        aTau.setHtotOverP(HCALenergy/thePFTau->leadPFChargedHadrCand()->p());
-      }
-#endif
-    } else if (typeid(*originalTau) == typeid(reco::CaloTau)) {
-      const reco::CaloTau *theCaloTau = dynamic_cast<const reco::CaloTau*>(originalTau);
-#if 0 // temporarily remove this code, as it does not run on AOD
-      const reco::CaloJet *caloJet    = dynamic_cast<const reco::CaloJet*>(theCaloTau->caloTauTagInfoRef()->calojetRef().get());
-      if(caloJet) {
-        aTau.setEmEnergyFraction(caloJet->emEnergyFraction());
-        aTau.setEOverP(caloJet->energy()/theCaloTau->leadTrack()->p());
-	aTau.setLeadEOverP(caloJet->energy()/theCaloTau->leadTrack()->p()/theCaloTau->numberOfTracks()); //just an approx of what can be done for PF
-        aTau.setHhotOverP(theCaloTau->maximumHCALhitEt()/theCaloTau->leadTrack()->p());
-        aTau.setHtotOverP(caloJet->energy()*caloJet->energyFractionHadronic()/theCaloTau->leadTrack()->p());
-      }
-#endif
-    }
 
     // store the match to the generated final state taus
     if (addGenMatch_) {
