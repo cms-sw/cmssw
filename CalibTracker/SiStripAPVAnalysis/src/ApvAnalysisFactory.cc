@@ -1,13 +1,15 @@
 #include "CalibTracker/SiStripAPVAnalysis/interface/ApvAnalysisFactory.h"
 //#include "DataFormats/SiStripCommon/interface/SiStripConstants.h"
 
+#include "CalibTracker/SiStripAPVAnalysis/interface/TT6NTPedestalCalculator.h"
+
 using namespace std;
 ApvAnalysisFactory::ApvAnalysisFactory(string theAlgorithmType, int theNumCMstripsInGroup, int theMaskCalcFlag, float theMaskNoiseCut,
-		     float theMaskDeadCut,
-		     float theMaskTruncCut,
-		     float theCutToAvoidSignal,
-		     int  theEventInitNumber,
-		     int theEventIterNumber){
+         float theMaskDeadCut,
+         float theMaskTruncCut,
+         float theCutToAvoidSignal,
+         int  theEventInitNumber,
+         int theEventIterNumber){
 
   theAlgorithmType_ =  theAlgorithmType;
   theNumCMstripsInGroup_ = theNumCMstripsInGroup;
@@ -23,12 +25,14 @@ ApvAnalysisFactory::ApvAnalysisFactory(string theAlgorithmType, int theNumCMstri
 
 ApvAnalysisFactory::ApvAnalysisFactory(const edm::ParameterSet& pset){
 
+  theCMType_ = pset.getParameter<string>("CMType");
+  useDB_ = pset.getParameter<bool>("useDB");
   
   theAlgorithmType_ = pset.getParameter<string>("CalculatorAlgorithm");
   theNumCMstripsInGroup_ = pset.getParameter<int>("NumCMstripsInGroup");
   theMaskCalcFlag_ = pset.getParameter<int>("MaskCalculationFlag");
   
-      theMaskNoiseCut_ = pset.getParameter<double>("MaskNoiseCut");
+  theMaskNoiseCut_ = pset.getParameter<double>("MaskNoiseCut");
   theMaskDeadCut_ =  pset.getParameter<double>("MaskDeadCut");
   theMaskTruncCut_  = pset.getParameter<double>("MaskTruncationCut");
   theCutToAvoidSignal_ = pset.getParameter<double>("CutToAvoidSignal");
@@ -46,7 +50,7 @@ ApvAnalysisFactory::~ApvAnalysisFactory(){
     {
       vector<ApvAnalysis*>::iterator myApv = (*it).second.begin();
       for(;myApv!=(*it).second.end();myApv++)
-	deleteApv(*myApv);
+  deleteApv(*myApv);
     }
   apvMap_.clear();
 }
@@ -54,6 +58,7 @@ ApvAnalysisFactory::~ApvAnalysisFactory(){
 //----------------------------------
 
 bool ApvAnalysisFactory::instantiateApvs(uint32_t detId, int numberOfApvs){
+
 
   ApvAnalysisFactory::ApvAnalysisMap::iterator CPos = apvMap_.find(detId);
   if(CPos != apvMap_.end()) { 
@@ -64,14 +69,24 @@ bool ApvAnalysisFactory::instantiateApvs(uint32_t detId, int numberOfApvs){
   for(int i=0;i<numberOfApvs;i++)
     {
       ApvAnalysis* apvTmp = new ApvAnalysis(theEventIterNumber_);
-      constructAuxiliaryApvClasses(apvTmp); 
+      //      constructAuxiliaryApvClasses(apvTmp); 
+      constructAuxiliaryApvClasses(apvTmp,detId,i); 
       temp.push_back(apvTmp);
     }
   apvMap_.insert(pair< uint32_t, vector< ApvAnalysis* > >(detId, temp));
    return true;  
 }
 
-void ApvAnalysisFactory::constructAuxiliaryApvClasses (ApvAnalysis* theAPV)
+std::vector<ApvAnalysis *> ApvAnalysisFactory::getApvAnalysis( const uint32_t nDET_ID)
+{
+  ApvAnalysisMap::const_iterator _apvAnalysisIter = apvMap_.find( nDET_ID);
+
+  return apvMap_.end() != _apvAnalysisIter ? _apvAnalysisIter->second : std::vector<ApvAnalysis *>();
+}
+
+void ApvAnalysisFactory::constructAuxiliaryApvClasses( ApvAnalysis* theAPV, 
+                                                       uint32_t detId, 
+                                                       int thisApv )
 {
   //----------------------------------------------------------------
   // Create the ped/noise/CMN calculators, zero suppressors etc.
@@ -90,13 +105,43 @@ void ApvAnalysisFactory::constructAuxiliaryApvClasses (ApvAnalysis* theAPV)
   theCommonMode->setTopology(theTopology);
 
   // Create desired algorithms.
-  if (theAlgorithmType_ == "TT6")
-    {
-      theMask = new TT6ApvMask(theMaskCalcFlag_,theMaskNoiseCut_,theMaskDeadCut_,theMaskTruncCut_); 
-      theNoise = new TT6NoiseCalculator(theEventInitNumber_, theEventIterNumber_, theCutToAvoidSignal_); 
-      thePedestal = new TT6PedestalCalculator(theEventInitNumber_, theEventIterNumber_, theCutToAvoidSignal_);
-      theCM = new TT6CommonModeCalculator (theNoise, theMask, theCutToAvoidSignal_);
+  if( theAlgorithmType_ == "TT6") {
+    theMask = new TT6ApvMask(theMaskCalcFlag_,theMaskNoiseCut_,theMaskDeadCut_,theMaskTruncCut_); 
+    theNoise = new TT6NoiseCalculator(theEventInitNumber_, theEventIterNumber_, theCutToAvoidSignal_); 
+    thePedestal = new TT6PedestalCalculator(theEventInitNumber_, theEventIterNumber_, theCutToAvoidSignal_);
+    theCM = new TT6CommonModeCalculator (theNoise, theMask, theCutToAvoidSignal_);
+  } else if( "TT6NT" == theAlgorithmType_) {
+    theMask = new TT6ApvMask( theMaskCalcFlag_,
+                              theMaskNoiseCut_,
+                              theMaskDeadCut_,
+                              theMaskTruncCut_); 
+    theNoise = new TT6NoiseCalculator( theEventInitNumber_, 
+                                       theEventIterNumber_, 
+                                       theCutToAvoidSignal_); 
+    thePedestal = new TT6NTPedestalCalculator;
+    theCM = new TT6CommonModeCalculator( theNoise, 
+                                         theMask, 
+                                         theCutToAvoidSignal_);
+  } else if (theAlgorithmType_ == "MIX") {
+    // the mask as to be defined also for SimplePedCalculator
+    theMask = new TT6ApvMask(theMaskCalcFlag_,theMaskNoiseCut_,theMaskDeadCut_,theMaskTruncCut_); 
+
+    if( useDB_ == true){
+      thePedestal = new DBPedestal(detId, thisApv);  
+    } else {
+      thePedestal = new SimplePedestalCalculator(theEventInitNumber_);
     }
+
+    theNoise = new SimpleNoiseCalculator(theEventInitNumber_, useDB_); 
+
+    if (theCMType_ == "Median"){
+      theCM = new MedianCommonModeCalculator ();
+    } else {
+      cout << "Sorry Only Median is available for now, Mean and FastLinear are coming soon" << endl;
+    }
+  }
+
+
   if(theCommonMode)
     theCM->setCM(theCommonMode);
   if(thePedestal)
@@ -110,9 +155,50 @@ void ApvAnalysisFactory::constructAuxiliaryApvClasses (ApvAnalysis* theAPV)
 
 
 
-
-
 }
+
+
+void ApvAnalysisFactory::updatePair(uint32_t detId, int pairNumber, const edm::DetSet<SiStripRawDigi>& in)
+{
+  map<uint32_t, vector<ApvAnalysis*> >::const_iterator apvAnalysisIt = apvMap_.find(detId);
+  if(apvAnalysisIt != apvMap_.end())
+    {
+      int iter=0;
+
+      for(vector<ApvAnalysis*>::const_iterator apvIt = (apvAnalysisIt->second).begin(); apvIt != (apvAnalysisIt->second).end(); apvIt++)
+  {
+
+    if (iter==pairNumber*2 || iter==(2*pairNumber+1)){
+      
+      //      cout << "ApvAnalysisFactory::updatePair pair number " << pairNumber << endl;
+      //      cout << "ApvAnlysis will be updated for the apv # " << iter << endl;
+
+      edm::DetSet<SiStripRawDigi> tmpRawDigi;
+      tmpRawDigi.data.reserve(128);
+
+      int startStrip = 128*(iter%2);
+      int stopStrip = startStrip + 128;
+ 
+      for( int istrip = startStrip; istrip < stopStrip;istrip++)
+      {
+        if( static_cast<int>( in.data.size()) <= istrip) tmpRawDigi.data.push_back( 0);
+        else tmpRawDigi.data.push_back(in.data[istrip]); //maybe dangerous
+      }
+      
+      (*apvIt)->newEvent();
+      (*apvIt)->updateCalibration(tmpRawDigi);
+      
+    }
+
+    iter++;
+  }
+    }
+  
+}// void
+
+
+
+
 
 void ApvAnalysisFactory::update(uint32_t detId, const edm::DetSet<SiStripRawDigi>& in)
 {
@@ -121,23 +207,23 @@ void ApvAnalysisFactory::update(uint32_t detId, const edm::DetSet<SiStripRawDigi
     {
       int i=0;
        for(vector<ApvAnalysis*>::const_iterator apvIt = (apvAnalysisIt->second).begin(); apvIt != (apvAnalysisIt->second).end(); apvIt++)
-	 {
-	   edm::DetSet<SiStripRawDigi> tmpRawDigi;
-	   //it is missing the detId ...
-	   tmpRawDigi.data.reserve(128);
-	   int startStrip = 128*i;
-	   int stopStrip = startStrip + 128;
-	   
-	   for(int istrip = startStrip; istrip < stopStrip;istrip++)
-	     {
-               if (in.data.size() <= istrip) tmpRawDigi.data.push_back(0);
-	       else tmpRawDigi.data.push_back(in.data[istrip]); //maybe dangerous
-	     }
+   {
+     edm::DetSet<SiStripRawDigi> tmpRawDigi;
+     //it is missing the detId ...
+     tmpRawDigi.data.reserve(128);
+     int startStrip = 128*i;
+     int stopStrip = startStrip + 128;
+     
+     for( int istrip = startStrip; istrip < stopStrip;istrip++)
+     {
+       if( static_cast<int>( in.data.size()) <= istrip) tmpRawDigi.data.push_back(0);
+       else tmpRawDigi.data.push_back(in.data[istrip]); //maybe dangerous
+     }
 
-	   (*apvIt)->newEvent();
-	   (*apvIt)->updateCalibration(tmpRawDigi);
-	   i++;
-	 }
+     (*apvIt)->newEvent();
+     (*apvIt)->updateCalibration(tmpRawDigi);
+     i++;
+   }
     }
   
 }
@@ -153,6 +239,7 @@ void ApvAnalysisFactory::getPedestal(uint32_t detId, int apvNumber, ApvAnalysis:
     {
       vector<ApvAnalysis*> myApvs = apvAnalysisIt->second;
       peds = myApvs[apvNumber]->pedestalCalculator().pedestal();
+
     }  
 }
 
@@ -165,11 +252,11 @@ void ApvAnalysisFactory::getPedestal(uint32_t detId, ApvAnalysis::PedestalType& 
     {
       vector<ApvAnalysis* > theApvs = apvAnalysisIt->second;
       for(vector<ApvAnalysis*>::const_iterator it = theApvs.begin(); it != theApvs.end();it++)
-	{
-	  ApvAnalysis::PedestalType tmp = (*it)->pedestalCalculator().pedestal();
-	  for(ApvAnalysis::PedestalType::const_iterator pit =tmp.begin(); pit!=tmp.end(); pit++) 
-	    peds.push_back(*pit);
-	}
+  {
+    ApvAnalysis::PedestalType tmp = (*it)->pedestalCalculator().pedestal();
+    for(ApvAnalysis::PedestalType::const_iterator pit =tmp.begin(); pit!=tmp.end(); pit++) 
+      peds.push_back(*pit);
+  }
     }
 }
 float ApvAnalysisFactory::getStripPedestal(uint32_t detId, int stripNumber)
@@ -217,11 +304,11 @@ void ApvAnalysisFactory::getNoise(uint32_t detId, ApvAnalysis::PedestalType& ped
     {
       vector<ApvAnalysis*>::const_iterator theApvs = (theApvs_map->second).begin();
       for(; theApvs !=  (theApvs_map->second).end();theApvs++)
-	{
-	  ApvAnalysis::PedestalType tmp = (*theApvs)->noiseCalculator().noise();
-	  for(ApvAnalysis::PedestalType::const_iterator pit =tmp.begin(); pit!=tmp.end(); pit++) 
-	    peds.push_back(*pit);
-	}
+  {
+    ApvAnalysis::PedestalType tmp = (*theApvs)->noiseCalculator().noise();
+    for(ApvAnalysis::PedestalType::const_iterator pit =tmp.begin(); pit!=tmp.end(); pit++) 
+      peds.push_back(*pit);
+  }
     }
 }
 
@@ -260,11 +347,11 @@ void ApvAnalysisFactory::getRawNoise(uint32_t detId, ApvAnalysis::PedestalType& 
     {
       vector<ApvAnalysis*>::const_iterator theApvs = (theApvs_map->second).begin();
       for(; theApvs !=  (theApvs_map->second).end();theApvs++)
-	{
-	  ApvAnalysis::PedestalType tmp = (*theApvs)->pedestalCalculator().rawNoise();
-	  for(ApvAnalysis::PedestalType::const_iterator pit =tmp.begin(); pit!=tmp.end(); pit++) 
-	    peds.push_back(*pit);
-	}
+  {
+    ApvAnalysis::PedestalType tmp = (*theApvs)->pedestalCalculator().rawNoise();
+    for(ApvAnalysis::PedestalType::const_iterator pit =tmp.begin(); pit!=tmp.end(); pit++) 
+      peds.push_back(*pit);
+  }
     }
 }
 
@@ -288,39 +375,36 @@ void ApvAnalysisFactory::getCommonMode(uint32_t detId,ApvAnalysis::PedestalType&
 
   map<uint32_t, vector<ApvAnalysis*> >::const_iterator apvAnalysisIt = apvMap_.find(detId);
   if(apvAnalysisIt != apvMap_.end())
+  {
+    vector<ApvAnalysis* > theApvs = apvAnalysisIt->second;
+    for( unsigned int i=0; i< theApvs.size(); i++)
     {
- 
-      vector<ApvAnalysis* > theApvs = apvAnalysisIt->second;
-      for(int i=0; i< theApvs.size(); i++)
-	{
-	  //To be fixed. We return only the first one in the vector.
-	  vector<float> tmp_cm = theApvs[i]->commonModeCalculator().commonMode()->returnAsVector();
-	  for(int it = 0; it<tmp_cm.size(); it++)
-	    tmp.push_back(tmp_cm[it]);
-	}
+      //To be fixed. We return only the first one in the vector.
+      vector<float> tmp_cm = theApvs[i]->commonModeCalculator().commonMode()->returnAsVector();
+      for( unsigned int it = 0; it < tmp_cm.size(); it++)
+        tmp.push_back( tmp_cm[it]);
     }
+  }
 }
 
 void ApvAnalysisFactory::getMask(uint32_t det_id, TkApvMask::MaskType& tmp)
 {
   
   map<uint32_t, vector<ApvAnalysis*> >::const_iterator apvAnalysisIt = apvMap_.find(det_id);
-  if(apvAnalysisIt != apvMap_.end())
+  if(apvAnalysisIt != apvMap_.end()) {
+    vector<ApvAnalysis* > theApvs = apvAnalysisIt->second;
+    for( unsigned int i=0; i< theApvs.size(); i++)
     {
-      
-      vector<ApvAnalysis* > theApvs = apvAnalysisIt->second;
-      for(int i=0; i< theApvs.size(); i++)
-	{
-	  TkApvMask::MaskType theMaskType = (theApvs[i]->mask()).mask();
-	  //cout <<"theMaskType size "<<theMaskType.size()<<endl;
-	      
-	  for(int ii=0;ii<theMaskType.size();ii++)
-	    {
-	      tmp.push_back(theMaskType[ii]);
-	      //cout <<"The Value "<<theMaskType[ii]<<" "<<ii<<endl;
-	    }
-	}
+      TkApvMask::MaskType theMaskType = ( theApvs[i]->mask()).mask();
+      //cout <<"theMaskType size "<<theMaskType.size()<<endl;
+          
+      for( unsigned int ii=0;ii<theMaskType.size();ii++)
+      {
+        tmp.push_back(theMaskType[ii]);
+        //cout <<"The Value "<<theMaskType[ii]<<" "<<ii<<endl;
+      }
     }
+  }
 }
 bool ApvAnalysisFactory::isUpdating(uint32_t detId)
 {
@@ -329,10 +413,10 @@ bool ApvAnalysisFactory::isUpdating(uint32_t detId)
   if(apvAnalysisIt != apvMap_.end())
     {
       for(vector<ApvAnalysis*>::const_iterator apvIt = (apvAnalysisIt->second).begin(); apvIt != (apvAnalysisIt->second).end(); apvIt++)  
-	{	
-	  if(!( (*apvIt)->pedestalCalculator().status()->isUpdating() ))
-	    updating = false;
-	}
+  { 
+    if(!( (*apvIt)->pedestalCalculator().status()->isUpdating() ))
+      updating = false;
+  }
     }
   return updating;
 
@@ -367,7 +451,7 @@ void ApvAnalysisFactory::getCommonModeSlope(uint32_t detId,ApvAnalysis::Pedestal
   map<uint32_t, vector<ApvAnalysis*> >::const_iterator apvAnalysisIt = apvMap_.find(detId);
   if(apvAnalysisIt != apvMap_.end()) {
     vector<ApvAnalysis* > theApvs = apvAnalysisIt->second;
-    for(int i=0; i< theApvs.size(); i++) {
+    for( unsigned int i=0; i< theApvs.size(); i++) {
       tmp.push_back(theApvs[i]->commonModeCalculator().getCMSlope());
     }
   }

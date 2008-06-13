@@ -50,22 +50,22 @@ void TT6CommonModeCalculator::calculateCommonMode(ApvAnalysis::PedestalType& ind
     if(strip_noise.size() > 0) {
       int nSet = theTkCommonMode->topology().numberOfSets();
       for (int i=0; i<nSet; i++){
-	int initial   = theTkCommonMode->topology().initialStrips()[i];
-	int final     = theTkCommonMode->topology().finalStrips()[i];
-	double sumVal = 0.0;
-	double sumWt =  0.0;
-	for (int j = initial; j <= final; j++) {
-	  if (strip_mask[j] == TkApvMask::ok ) {
-	    if(fabs(indat[j]) < cutToAvoidSignal*strip_noise[j]) { 
-	      double nWeight = 1/(strip_noise[j]*strip_noise[j]);
-	      sumVal += (indat[j]*nWeight);
-	      sumWt += nWeight;
-	    }
-	  }
-	}
-	double avVal = (sumWt) ? sumVal/sumWt :0.0;
-	theCommonModeValues.push_back(static_cast<float>(avVal));
-	//cout <<"Setting CM values"<<endl;
+        int initial   = theTkCommonMode->topology().initialStrips()[i];
+        int final     = theTkCommonMode->topology().finalStrips()[i];
+        double sumVal = 0.0;
+        double sumWt =  0.0;
+        for (int j = initial; j <= final; j++) {
+          if (strip_mask[j] == TkApvMask::ok ) {
+            if(fabs(indat[j]) < cutToAvoidSignal*strip_noise[j]) { 
+              double nWeight = 1/(strip_noise[j]*strip_noise[j]);
+              sumVal += (indat[j]*nWeight);
+              sumWt += nWeight;
+            }
+          }
+        }
+        double avVal = (sumWt) ? sumVal/sumWt :0.0;
+        theCommonModeValues.push_back(static_cast<float>(avVal));
+        //cout <<"Setting CM values"<<endl;
       }
     }
   }

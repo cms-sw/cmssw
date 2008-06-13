@@ -20,6 +20,8 @@ class TkPedestalCalculator{
   
   virtual void resetPedestals() = 0;
   virtual void setPedestals (ApvAnalysis::PedestalType&) = 0;
+
+  virtual void setNoise( ApvAnalysis::PedestalType &) {}
   
   /** Request that status flag be updated */
   virtual void updateStatus() = 0 ;

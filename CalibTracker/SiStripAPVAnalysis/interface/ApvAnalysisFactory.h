@@ -1,5 +1,5 @@
-#ifndef CalibTracker_APVAnalysisFactory_h
-#define CalibTracker_APVAnalysisFactory_h
+#ifndef ApvAnalysisFactory_h
+#define ApvAnalysisFactory_h
 //#define DEBUG_INSTANCE_COUNTING
 
 
@@ -11,7 +11,10 @@
 #include "CalibTracker/SiStripAPVAnalysis/interface/TT6NoiseCalculator.h"
 #include "CalibTracker/SiStripAPVAnalysis/interface/TT6PedestalCalculator.h"
 #include "CalibTracker/SiStripAPVAnalysis/interface/TT6CommonModeCalculator.h"
-
+#include "CalibTracker/SiStripAPVAnalysis/interface/MedianCommonModeCalculator.h"
+#include "CalibTracker/SiStripAPVAnalysis/interface/DBPedestal.h"
+#include "CalibTracker/SiStripAPVAnalysis/interface/SimplePedestalCalculator.h"
+#include "CalibTracker/SiStripAPVAnalysis/interface/SimpleNoiseCalculator.h"
 #include <vector>
 #include <iostream>
 #include<map>
@@ -20,11 +23,11 @@
 
 
 
-
-
 class ApvAnalysisFactory 
 {
  public:
+  typedef std::vector<ApvAnalysis *> ApvAnalysisVector;
+
   ApvAnalysisFactory(std::string theAlgorithmType,
 		     int theNumCMstripsInGroup,
 		     int theMaskCalcFlag,
@@ -38,6 +41,9 @@ class ApvAnalysisFactory
   ~ApvAnalysisFactory();
 
   bool instantiateApvs(uint32_t det_id, int numberOfApvs);
+
+  ApvAnalysisVector getApvAnalysis( const uint32_t nDET_ID);
+
   void getPedestal(uint32_t det_id , int apvNumber,   ApvAnalysis::PedestalType& peds);
   void getPedestal(uint32_t det_id , ApvAnalysis::PedestalType& peds);
   float getStripPedestal(uint32_t det_id, int stripNumber);
@@ -58,17 +64,20 @@ class ApvAnalysisFactory
   float getCommonModeSlope(uint32_t det_id, int apvNumber);
 
   void update(uint32_t det_id, const edm::DetSet<SiStripRawDigi>& in);
+  void updatePair(uint32_t det_id, int apvPair, const edm::DetSet<SiStripRawDigi>& in);
+
   std::string getStatus(uint32_t det_id);
 
    bool isUpdating(uint32_t detId); 
 
    
-  typedef std::map < uint32_t, std::vector <ApvAnalysis *> > ApvAnalysisMap;
+  typedef std::map < uint32_t, ApvAnalysisVector> ApvAnalysisMap;
   typedef std::map < ApvAnalysis *,int > MapNumberingPosition;
-  typedef std::map <  ApvAnalysis *,  uint32_t> InverseMap;
+  typedef std::map < ApvAnalysis *,  uint32_t> InverseMap;
 
  private:
-  void  constructAuxiliaryApvClasses (ApvAnalysis* thisApv);
+  //  void  constructAuxiliaryApvClasses (ApvAnalysis* thisApv);
+  void  constructAuxiliaryApvClasses (ApvAnalysis* thisApv, uint32_t det_id, int thisApv);
   void deleteApv(ApvAnalysis* apv);
   ApvAnalysisMap apvMap_;
   std::string theAlgorithmType_;
@@ -80,8 +89,8 @@ class ApvAnalysisFactory
   float theCutToAvoidSignal_;
   int  theEventInitNumber_; 
   int theEventIterNumber_;
-
- 
+  std::string theCMType_;
+  bool useDB_;
 
 };  
 #endif

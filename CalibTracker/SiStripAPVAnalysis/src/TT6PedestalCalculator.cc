@@ -91,14 +91,11 @@ void TT6PedestalCalculator::initializePedestal(ApvAnalysis::RawSignalType& in) {
     edm::DetSet<SiStripRawDigi>::const_iterator i = in.data.begin();
     int ii=0;
     for (;i!=in.data.end() ; i++) {
-      double avVal   = (theEventPerStrip[ii]) 
-	? thePedSum[ii]/theEventPerStrip[ii]:0.0;
-      double sqAvVal = (theEventPerStrip[ii]) 
-	? thePedSqSum[ii]/theEventPerStrip[ii]:0.0;
-      double corr_fac = (theEventPerStrip[ii] > 1) 
-	? (theEventPerStrip[ii]/(theEventPerStrip[ii]-1)) : 1.0;
-      double rmsVal  =  (sqAvVal - avVal*avVal > 0.0) 
-           ? sqrt(corr_fac * (sqAvVal - avVal*avVal)) : 0.0;	
+      double avVal   = (theEventPerStrip[ii])	? thePedSum[ii]/theEventPerStrip[ii]:0.0;
+      double sqAvVal = (theEventPerStrip[ii])	? thePedSqSum[ii]/theEventPerStrip[ii]:0.0;
+      double corr_fac = (theEventPerStrip[ii] > 1) ? (theEventPerStrip[ii]/(theEventPerStrip[ii]-1)) : 1.0;
+      double rmsVal  =  (sqAvVal - avVal*avVal > 0.0) ? sqrt(corr_fac * (sqAvVal - avVal*avVal)) : 0.0;	
+
       thePedestal.push_back(static_cast<float>(avVal));
       theRawNoise.push_back(static_cast<float>(rmsVal));
       ii++;
@@ -137,27 +134,24 @@ void TT6PedestalCalculator::refinePedestal(ApvAnalysis::RawSignalType& in) {
     
     for (unsigned int iii = 0; iii < in.data.size(); iii++) {
       if (theEventPerStrip[iii] > 10 ) {
-	double avVal   = (theEventPerStrip[iii]) 
-	  ? thePedSum[iii]/theEventPerStrip[iii]:0.0;
-	double sqAvVal = (theEventPerStrip[iii]) 
-	  ? thePedSqSum[iii]/theEventPerStrip[iii]:0.0;
-	double rmsVal  =  (sqAvVal - avVal*avVal > 0.0) 
-	  ? sqrt(sqAvVal - avVal*avVal) : 0.0;	
+        double avVal   = (theEventPerStrip[iii]) ? thePedSum[iii]/theEventPerStrip[iii]:0.0;
+        double sqAvVal = (theEventPerStrip[iii]) ? thePedSqSum[iii]/theEventPerStrip[iii]:0.0;
+        double rmsVal  =  (sqAvVal - avVal*avVal > 0.0) ? sqrt(sqAvVal - avVal*avVal) : 0.0;	
 
 	
-	if (avVal != 0 ) {
-	  thePedestal[iii] = static_cast<float>(avVal);
-	  theRawNoise[iii] = static_cast<float>(rmsVal);
-	}
+        if (avVal != 0 ) {
+          thePedestal[iii] = static_cast<float>(avVal);
+          theRawNoise[iii] = static_cast<float>(rmsVal);
+        }
       }
     }
     thePedSum.clear();
     thePedSqSum.clear();
     theEventPerStrip.clear();    
-  }
-}
-//
-// Define New Event
+        }
+      }
+      //
+      // Define New Event
 // 
 void TT6PedestalCalculator::newEvent(){
   alreadyUsedEvent = false;
