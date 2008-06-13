@@ -1089,7 +1089,7 @@ void BU::dumpFrame(unsigned char* data,unsigned int len)
     c+=8;
     
     printf ("%4d: %s%s ||  %s%s  %x\n",
-	    c-8, left1, left2, right1, right2, &data[c-8]);
+	    c-8, left1, left2, right1, right2, (int)&data[c-8]);
   }
   
   fflush(stdout);	
