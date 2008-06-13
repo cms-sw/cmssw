@@ -14,6 +14,7 @@ void HcalRecHitClient::init(const ParameterSet& ps, DQMStore* dbe, string client
     occ_[i]=0; energy_[i]=0;
     energyT_[i]=0; time_[i]=0;
     tot_occ_[i]=0;
+    time_thresh_[i]=0;  // show times for energies > threshold
   }
   hfshort_E_all=0;
   //  hfshort_E_low=0;
@@ -78,6 +79,7 @@ void HcalRecHitClient::cleanup(void) {
       if(energyT_[i]) delete energyT_[i];
       if(time_[i]) delete time_[i];
       if(tot_occ_[i]) delete tot_occ_[i];
+      if (time_thresh_[i]) delete time_thresh_[i];
     } 
 
     if(hfshort_E_all) delete hfshort_E_all;
@@ -91,6 +93,7 @@ void HcalRecHitClient::cleanup(void) {
     occ_[i]=0; energy_[i]=0;
     energyT_[i]=0; time_[i]=0;
     tot_occ_[i]=0;
+    time_thresh_[i]=0;
   }
   hfshort_E_all=0;
   //hfshort_E_low=0;
@@ -169,7 +172,12 @@ void HcalRecHitClient::getHistograms(){
       
       sprintf(name,"RecHitMonitor/%s/%s RecHit Times",type.c_str(),type.c_str());      
       time_[i] = getHisto(name, process_,dbe_,debug_,cloneME_);
+
+      sprintf(name,"RecHitMonitor/%s/%s RecHit Times - Threshold",type.c_str(),type.c_str());  
+      time_thresh_[i]= getHisto(name, process_,dbe_,debug_,cloneME_);
     }
+
+    
 
     sprintf(name,"RecHitMonitor/%s/%s RecHit Geo Occupancy Map - Threshold",type.c_str(),type.c_str());
     occ_[i] = getHisto2(name, process_,dbe_,debug_,cloneME_);
@@ -333,6 +341,8 @@ void HcalRecHitClient::htmlOutput(int runNo, string htmlDir, string htmlName){
     htmlFile << "<td>&nbsp;&nbsp;&nbsp;<a name=\""<<type<<"_Plots\"><h3>" << type << " Histograms</h3></td></tr>" << endl;
     htmlFile << "<tr align=\"left\">" << endl;
     histoHTML2(runNo,occ_[i],"iEta","iPhi", 92, htmlFile,htmlDir);
+    if (time_thresh_[i]) 
+      histoHTML(runNo,time_thresh_[i],"RecHit Time (nS)","Events", 100, htmlFile,htmlDir);
     //removed total energy for cosmics run
     //    histoHTML(runNo,energyT_[i],"Total Energy (GeV)","Events", 100, htmlFile,htmlDir);
     htmlFile << "</tr>" << endl;

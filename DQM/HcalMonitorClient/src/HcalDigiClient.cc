@@ -36,6 +36,7 @@ void HcalDigiClient::init(const ParameterSet& ps, DQMStore* dbe, string clientNa
     sub_bqdigi_frac_[i] = 0;
     sub_capid_t0_[i] = 0;
     sub_digi_shape_[i] = 0;
+    sub_digi_size_[i] = 0;
 
     ProblemDigiCells_DEPTH[i]=0;
   }
@@ -151,6 +152,7 @@ void HcalDigiClient::cleanup(void) {
       if(sub_bqdigi_frac_[i]) delete sub_bqdigi_frac_[i];      
       if(sub_capid_t0_[i]) delete sub_capid_t0_[i]; 
       if(sub_digi_shape_[i]) delete sub_digi_shape_[i];           
+      if(sub_digi_size_[i]) delete sub_digi_size_[i];
       if (ProblemDigiCells_DEPTH[i]) delete ProblemDigiCells_DEPTH[i];
     } // for (int i=0;i<4;++i)
     /*
@@ -209,6 +211,7 @@ void HcalDigiClient::cleanup(void) {
     sub_bqdigi_frac_[i] = 0;
     sub_capid_t0_[i] = 0;
     sub_digi_shape_[i] = 0;
+    sub_digi_size_[i] = 0;
   }
 
   return;
@@ -379,8 +382,8 @@ void HcalDigiClient::getHistograms(){
 
     sprintf(name,"DigiMonitor/%s/%s Digi Shape - over thresh",type.c_str(),type.c_str());
     sub_digi_shape_[i] = getHisto(name, process_, dbe_,debug_,cloneME_);
-
-
+    sprintf(name,"DigiMonitor/%s/%s Digi Size",type.c_str(),type.c_str());
+    sub_digi_size_[i] = getHisto(name, process_, dbe_,debug_,cloneME_);
 
   }
   return;
@@ -563,6 +566,17 @@ void HcalDigiClient::htmlExpertOutput(int runNo, string htmlDir, string htmlName
   histoHTML(runNo,sub_digi_shape_[3],"Time Slice","Entries", 100, htmlFile,htmlDir);
   htmlFile << "</tr>" << endl;
 
+ htmlFile << "<tr align=\"left\">" << endl;	
+  histoHTML(runNo,sub_digi_size_[0],"Digi Size","Entries", 92, htmlFile,htmlDir);
+  histoHTML(runNo,sub_digi_size_[1],"Digi Size","Entries", 100, htmlFile,htmlDir);
+  htmlFile << "</tr>" << endl;
+  
+  htmlFile << "<tr align=\"left\">" << endl;	
+  histoHTML(runNo,sub_digi_size_[2],"Digi Size","Entries", 92, htmlFile,htmlDir);
+  histoHTML(runNo,sub_digi_size_[3],"Digi Size","Entries", 100, htmlFile,htmlDir);
+  htmlFile << "</tr>" << endl;
+
+
   htmlFile << "<td>&nbsp;&nbsp;&nbsp;<h3>Global Histograms</h3></td></tr>" << endl;
 
   htmlFile << "<tr align=\"left\">" << endl;
@@ -622,6 +636,7 @@ void HcalDigiClient::htmlExpertOutput(int runNo, string htmlDir, string htmlName
 
     htmlFile << "<tr align=\"left\">" << endl;	
     histoHTML(runNo,sub_capid_t0_[i],"CapId (T0) - 1st CapId (T0)","Events", 92, htmlFile,htmlDir);
+    histoHTML(runNo,sub_digi_size_[i],"Digi Size","Entries", 100, htmlFile,htmlDir);
     htmlFile << "</tr>" << endl;
 
     int count = 0;
@@ -884,6 +899,9 @@ void HcalDigiClient::loadHistograms(TFile* infile){
 
     sprintf(name,"DQMData/Hcal/DigiMonitor/%s/%s Digi Shape - over thresh",type.c_str(),type.c_str());
     sub_digi_shape_[i] = (TH1F*)infile->Get(name);
+
+    sprintf(name,"DigiMonitor/%s/%s Digi Size",type.c_str(),type.c_str());
+    sub_digi_size_[i] = (TH1F*)infile->Get(name);
 
     sprintf(name,"DQMData/Hcal/DigiMonitor/%s/%s # of Digis",type.c_str(),type.c_str());
     num_digi_[i] = (TH1F*)infile->Get(name);

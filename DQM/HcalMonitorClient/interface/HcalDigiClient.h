@@ -77,6 +77,7 @@ private:
   TH1F* sub_bqdigi_frac_[4];
   TH1F* sub_capid_t0_[4];
   TH1F* sub_digi_shape_[4];
+  TH1F* sub_digi_size_[4];
 
   TH2F* geoRef_;
   
