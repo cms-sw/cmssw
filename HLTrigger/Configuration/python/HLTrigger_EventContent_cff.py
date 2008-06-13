@@ -30,9 +30,13 @@ HLTriggerAOD = cms.PSet(
 HLTDebugFEVT = cms.PSet(
     outputCommands = cms.vstring()
 )
+HLTDebugRAW = cms.PSet(
+    outputCommands = cms.vstring()
+)
 HLTriggerRAW.outputCommands.extend(block_hltDefaultOutput.outputCommands)
 HLTriggerFEVT.outputCommands.extend(block_hltDefaultOutput.outputCommands)
 HLTriggerRECO.outputCommands.extend(block_hltDefaultOutput.outputCommands)
 HLTriggerAOD.outputCommands.extend(block_hltDefaultOutput.outputCommands)
 HLTDebugFEVT.outputCommands.extend(block_hltDebugWithAlCaOutput.outputCommands)
+HLTDebugRAW.outputCommands.extend(block_hltDebugWithAlCaOutput.outputCommands)
 
