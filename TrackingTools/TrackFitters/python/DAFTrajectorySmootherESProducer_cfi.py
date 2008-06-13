@@ -1,8 +1,7 @@
 import FWCore.ParameterSet.Config as cms
 
-import copy
-from TrackingTools.TrackFitters.KFTrajectorySmootherESProducer_cfi import *
-DAFTrajectorySmoother = copy.deepcopy(KFTrajectorySmoother)
+import TrackingTools.TrackFitters.KFTrajectorySmootherESProducer_cfi
+DAFTrajectorySmoother = TrackingTools.TrackFitters.KFTrajectorySmootherESProducer_cfi.KFTrajectorySmoother.clone()
 DAFTrajectorySmoother.ComponentName = 'DAFSmoother'
 DAFTrajectorySmoother.Estimator = 'MRHChi2'
 DAFTrajectorySmoother.Propagator = 'RungeKuttaTrackerPropagator'
