@@ -1106,8 +1106,8 @@ class _ReplaceSetter(object):
             else:
                result = "["+result+"]"
         # some frontier address strings have colons and slashes 
-        elif result.find(':') != -1 and result.find('/') == -1:
-            result = repr(cms.InputTag._valueFromString(result))
+        #elif result.find(':') != -1 and result.find('/') == -1:
+        #    result = repr(cms.InputTag._valueFromString(result))
         else:
             # need the quotes
             result = repr(value)
