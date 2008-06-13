@@ -1,11 +1,3 @@
-# The following comments couldn't be translated into the new config version:
-
-# end of VPSet Presigmas
-# end TrackerShortTermPresigmas
-# end of VPSet Presigmas
-# end TrackerORCAShortTermPresigmas
-# end of VPSet Presigmas
-# end TrackerORCAShortTermPresigmasDetBy10
 import FWCore.ParameterSet.Config as cms
 
 TrackerShortTermPresigmas = cms.PSet(
@@ -278,8 +270,8 @@ TrackerShortTermPresigmas = cms.PSet(
             Selector = cms.PSet(
                 alignParams = cms.vstring('TECLayers,000110')
             )
-        ))
-)
+        ))# end of VPSet Presigmas
+)# end TrackerShortTermPresigmas
 #
 #
 #
@@ -554,8 +546,8 @@ TrackerORCAShortTermPresigmas = cms.PSet(
             Selector = cms.PSet(
                 alignParams = cms.vstring('TECs,000110')
             )
-        ))
-)
+        ))# end of VPSet Presigmas
+) # end TrackerORCAShortTermPresigmas
 #
 #
 #
@@ -830,6 +822,7 @@ TrackerORCAShortTermPresigmasDetBy10 = cms.PSet(
             Selector = cms.PSet(
                 alignParams = cms.vstring('TECs,000110')
             )
-        ))
-)
+        ))# end of VPSet Presigmas
+) # end TrackerORCAShortTermPresigmasDetBy10
+
 
