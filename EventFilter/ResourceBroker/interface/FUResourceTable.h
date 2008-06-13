@@ -76,7 +76,6 @@ namespace evf {
     
     // dump event to ascii file
     void   handleCrashedEP(UInt_t runNumber,pid_t pid);
-    void   handleRestartedEP(UInt_t runNumber,UInt_t iRawCell);
     void   dumpEvent(evf::FUShmRawCell* cell);
     
     // send empty events to notify clients to shutdown
@@ -108,9 +107,10 @@ namespace evf {
     UInt_t   nbAllocated()        const { return nbAllocated_; }
     UInt_t   nbPending()          const { return nbPending_; }
     UInt_t   nbCompleted()        const { return nbCompleted_; }
-    UInt_t   nbAccepted()         const { return nbAccepted_; }
     UInt_t   nbSent()             const { return nbSent_; }
+    UInt_t   nbSentError()        const { return nbSentError_; }
     UInt_t   nbSentDqm()          const { return nbSentDqm_; }
+    UInt_t   nbPendingSMDiscards()const { return nbPendingSMDiscards_; }
     UInt_t   nbDiscarded()        const { return nbDiscarded_; }
     UInt_t   nbLost()             const { return nbLost_; }
     
@@ -118,19 +118,18 @@ namespace evf {
     UInt_t   nbCrcErrors()        const { return nbCrcErrors_; }
     UInt_t   nbAllocSent()        const { return nbAllocSent_; }
     
-    uint64_t inputSumOfSquares()  const { return inputSumOfSquares_; }
-    uint64_t outputSumOfSquares() const { return outputSumOfSquares_; }
-    UInt_t   inputSumOfSizes()    const { return inputSumOfSizes_; }
-    UInt_t   outputSumOfSizes()   const { return outputSumOfSizes_; }
+    uint64_t sumOfSquares()       const { return sumOfSquares_; }
+    UInt_t   sumOfSizes()         const { return sumOfSizes_; }
+    
     
     // information about (raw) shared memory cells
-    UInt_t                   nbClients()            const;
-    std::vector<pid_t>       clientPrcIds()         const;
-    std::string              clientPrcIdsAsString() const;
-    std::vector<std::string> cellStates()           const;
-    std::vector<UInt_t>      cellEvtNumbers()       const;
-    std::vector<pid_t>       cellPrcIds()           const;
-    std::vector<time_t>      cellTimeStamps()       const;
+    UInt_t                   nbClients()                           const;
+    std::vector<pid_t>       clientPrcIds()                        const;
+    std::string              clientPrcIdsAsString()                const;
+    std::vector<std::string> cellStates()                          const;
+    std::vector<UInt_t>      cellEvtNumbers()                      const;
+    std::vector<pid_t>       cellPrcIds()                          const;
+    std::vector<time_t>      cellTimeStamps()                      const;
     
 
     
@@ -203,9 +202,10 @@ namespace evf {
     UInt_t             nbAllocated_;
     UInt_t             nbPending_;
     UInt_t             nbCompleted_;
-    UInt_t             nbAccepted_;
     UInt_t             nbSent_;
+    UInt_t             nbSentError_;
     UInt_t             nbSentDqm_;
+    UInt_t             nbPendingSMDiscards_;
     UInt_t             nbDiscarded_;
     UInt_t             nbLost_;
     
@@ -218,10 +218,8 @@ namespace evf {
     UInt_t             nbCrcErrors_;
     UInt_t             nbAllocSent_;
     
-    uint64_t           inputSumOfSquares_;
-    uint64_t           outputSumOfSquares_;
-    UInt_t             inputSumOfSizes_;
-    UInt_t             outputSumOfSizes_;
+    uint64_t           sumOfSquares_;
+    UInt_t             sumOfSizes_;
     
     toolbox::BSem      lock_;
     

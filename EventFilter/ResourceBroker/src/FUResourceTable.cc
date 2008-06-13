@@ -153,14 +153,16 @@ bool FUResourceTable::sendData(toolbox::task::WorkLoop* /* wl */)
 	UChar_t* cellPayloadAddr = cell->payloadAddr();
 	UInt_t   cellEventSize   = cell->eventSize();
 	shmBuffer_->finishReadingRecoCell(cell);
-	
+
+	lock();
+	nbPendingSMDiscards_++;
+	unlock();
+
 	sendInitMessage(cellIndex,cellOutModId,cellPayloadAddr,cellEventSize);
       }
       else if (cell->type()==1) {
-	lock();
-	nbAccepted_++;
-	unlock();
 	UInt_t   cellIndex       = cell->index();
+	UInt_t   cellRawIndex    = cell->rawCellIndex();
 	UInt_t   cellRunNumber   = cell->runNumber();
 	UInt_t   cellEvtNumber   = cell->evtNumber();
 	UInt_t   cellOutModId    = cell->outModId();
@@ -168,16 +170,29 @@ bool FUResourceTable::sendData(toolbox::task::WorkLoop* /* wl */)
 	UInt_t   cellEventSize   = cell->eventSize();
 	shmBuffer_->finishReadingRecoCell(cell);	
 
+	lock();
+	nbPendingSMDiscards_++;
+	resources_[cellRawIndex]->incNbSent();
+	if (resources_[cellRawIndex]->nbSent()==1) nbSent_++;
+	unlock();
+
 	sendDataEvent(cellIndex,cellRunNumber,cellEvtNumber,cellOutModId,
 		      cellPayloadAddr,cellEventSize);
       }
       else if (cell->type()==2) {
 	UInt_t   cellIndex       = cell->index();
+	UInt_t   cellRawIndex    = cell->rawCellIndex();
 	UInt_t   cellRunNumber   = cell->runNumber();
 	UInt_t   cellEvtNumber   = cell->evtNumber();
 	UChar_t *cellPayloadAddr = cell->payloadAddr();
 	UInt_t   cellEventSize   = cell->eventSize();
 	shmBuffer_->finishReadingRecoCell(cell);	
+
+	lock();
+	nbPendingSMDiscards_++;
+	resources_[cellRawIndex]->incNbSent();
+	if (resources_[cellRawIndex]->nbSent()==1) { nbSent_++; nbSentError_++; }
+	unlock();
 	
 	sendErrorEvent(cellIndex,cellRunNumber,cellEvtNumber,
 		       cellPayloadAddr,cellEventSize);
@@ -389,9 +404,6 @@ bool FUResourceTable::buildResource(MemRef_t* bufRef)
     // make resource available for pick-up
     if (resource->isComplete()) {
       lock();
-      UInt_t evtSize     =resource->shmCell()->eventSize();
-      inputSumOfSquares_+=(uint64_t)evtSize*(uint64_t)evtSize;
-      inputSumOfSizes_  +=evtSize;
       nbCompleted_++;
       nbPending_--;
       unlock();
@@ -430,11 +442,15 @@ bool FUResourceTable::buildResource(MemRef_t* bufRef)
 //______________________________________________________________________________
 bool FUResourceTable::discardDataEvent(MemRef_t* bufRef)
 {
+  lock();
+  nbPendingSMDiscards_--;
+  unlock();
+  
   if (isHalting_) {
     bufRef->release();
     return false;
   }
-
+  
   I2O_FU_DATA_DISCARD_MESSAGE_FRAME *msg;
   msg=(I2O_FU_DATA_DISCARD_MESSAGE_FRAME*)bufRef->getDataLocation();
   UInt_t recoIndex=msg->fuID;
@@ -484,13 +500,6 @@ void FUResourceTable::handleCrashedEP(UInt_t runNumber,pid_t pid)
     shmBuffer_->writeErrorEventData(runNumber,iRawCell);
   
   shmBuffer_->removeClientPrcId(pid);
-}
-
-
-//______________________________________________________________________________
-void FUResourceTable::handleRestartedEP(UInt_t runNumber,UInt_t iRawCell)
-{
-  shmBuffer_->writeErrorEventData(runNumber,iRawCell);
 }
 
 
@@ -563,21 +572,21 @@ void FUResourceTable::clear()
 //______________________________________________________________________________
 void FUResourceTable::resetCounters()
 {
-  nbAllocated_       =nbPending_;
-  nbCompleted_       =0;
-  nbAccepted_        =0;
-  nbSent_            =0;
-  nbDiscarded_       =0;
-  nbLost_            =0;
+  nbAllocated_        =nbPending_;
+  nbCompleted_        =0;
+  nbSent_             =0;
+  nbSentError_        =0;
+  nbSentDqm_          =0;
+  nbPendingSMDiscards_=0;
+  nbDiscarded_        =0;
+  nbLost_             =0;
 
-  nbErrors_          =0;
-  nbCrcErrors_       =0;
-  nbAllocSent_       =0;
+  nbErrors_           =0;
+  nbCrcErrors_        =0;
+  nbAllocSent_        =0;
 
-  inputSumOfSquares_ =0;
-  outputSumOfSquares_=0;
-  inputSumOfSizes_   =0;
-  outputSumOfSizes_  =0;
+  sumOfSquares_       =0;
+  sumOfSizes_         =0;
 }
 
 
@@ -717,8 +726,8 @@ void FUResourceTable::sendInitMessage(UInt_t   fuResourceId,
   }
   else {
     UInt_t   nbBytes    =sm_->sendInitMessage(fuResourceId,outModId,data,dataSize);
-    outputSumOfSquares_+=(uint64_t)nbBytes*(uint64_t)nbBytes;
-    outputSumOfSizes_  +=nbBytes;
+    sumOfSquares_+=(uint64_t)nbBytes*(uint64_t)nbBytes;
+    sumOfSizes_  +=nbBytes;
   }
 }
 
@@ -738,9 +747,9 @@ void FUResourceTable::sendDataEvent(UInt_t   fuResourceId,
     UInt_t   nbBytes    =sm_->sendDataEvent(fuResourceId,
 					    runNumber,evtNumber,outModId,
 					    data,dataSize);
-    outputSumOfSquares_+=(uint64_t)nbBytes*(uint64_t)nbBytes;
-    outputSumOfSizes_  +=nbBytes;
-    nbSent_++;
+    sumOfSquares_+=(uint64_t)nbBytes*(uint64_t)nbBytes;
+    sumOfSizes_  +=nbBytes;
+
   }
 }
 
@@ -758,9 +767,8 @@ void FUResourceTable::sendErrorEvent(UInt_t   fuResourceId,
   else {
     UInt_t nbBytes=sm_->sendErrorEvent(fuResourceId,
 				       runNumber,evtNumber,data,dataSize);
-    outputSumOfSquares_+=(uint64_t)nbBytes*(uint64_t)nbBytes;
-    outputSumOfSizes_  +=nbBytes;
-    nbSent_++;
+    sumOfSquares_+=(uint64_t)nbBytes*(uint64_t)nbBytes;
+    sumOfSizes_  +=nbBytes;
   }
 }
 

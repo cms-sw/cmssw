@@ -64,26 +64,19 @@ FUResourceBroker::FUResourceBroker(xdaq::ApplicationStub *s)
   , instance_(0)
   , runNumber_(0)
   , deltaT_(0.0)
-  , deltaNbInput_(0)
-  , deltaNbOutput_(0)
-  , deltaInputSumOfSquares_(0)
-  , deltaOutputSumOfSquares_(0)
-  , deltaInputSumOfSizes_(0)
-  , deltaOutputSumOfSizes_(0)
-  , ratio_(0.0)
-  , inputThroughput_(0.0)
-  , inputRate_(0.0)
-  , inputAverage_(0.0)
-  , inputRms_(0.0)
-  , outputThroughput_(0.0)
-  , outputRate_(0.0)
-  , outputAverage_(0.0)
-  , outputRms_(0.0)
+  , deltaN_(0)
+  , deltaSumOfSquares_(0)
+  , deltaSumOfSizes_(0)
+  , throughput_(0.0)
+  , rate_(0.0)
+  , average_(0.0)
+  , rms_(0.0)
   , nbAllocatedEvents_(0)
   , nbPendingRequests_(0)
   , nbReceivedEvents_(0)
-  , nbAcceptedEvents_(0)
   , nbSentEvents_(0)
+  , nbSentErrorEvents_(0)
+  , nbPendingSMDiscards_(0)
   , nbDiscardedEvents_(0)
   , nbLostEvents_(0)
   , nbDataErrors_(0)
@@ -91,7 +84,7 @@ FUResourceBroker::FUResourceBroker(xdaq::ApplicationStub *s)
   , segmentationMode_(false)
   , nbClients_(0)
   , clientPrcIds_("")
-  , nbRawCells_(32)
+  , nbRawCells_(16)
   , nbRecoCells_(8)
   , nbDqmCells_(8)
   , rawCellSize_(0x400000)  // 4MB
@@ -105,7 +98,7 @@ FUResourceBroker::FUResourceBroker(xdaq::ApplicationStub *s)
   , buInstance_(0)
   , smClassName_("StorageManager")
   , smInstance_(0)
-  , monSleepSec_(1)
+  , monSleepSec_(2)
   , watchSleepSec_(10)
   , timeOutSec_(30)
   , processKillerEnabled_(true)
@@ -115,12 +108,9 @@ FUResourceBroker::FUResourceBroker(xdaq::ApplicationStub *s)
   , nbTakeReceived_(0)
   , nbDataDiscardReceived_(0)
   , nbDqmDiscardReceived_(0)
-  , nbInputLast_(0)
-  , nbInputLastSumOfSquares_(0)
-  , nbInputLastSumOfSizes_(0)
-  , nbOutputLast_(0)
-  , nbOutputLastSumOfSquares_(0)
-  , nbOutputLastSumOfSizes_(0)
+  , nbSentLast_(0)
+  , sumOfSquaresLast_(0)
+  , sumOfSizesLast_(0)
 {
   // setup finite state machine (binding relevant callbacks)
   fsm_.initialize<evf::FUResourceBroker>(this);
@@ -427,18 +417,19 @@ void FUResourceBroker::actionPerformed(xdata::Event& e)
   gui_->monInfoSpace()->lock();
 
   if (e.type()=="urn:xdata-event:ItemGroupRetrieveEvent") {
-    nbClients_        =resourceTable_->nbClients();
-    clientPrcIds_     =resourceTable_->clientPrcIdsAsString();
-    nbAllocatedEvents_=resourceTable_->nbAllocated();
-    nbPendingRequests_=resourceTable_->nbPending();
-    nbReceivedEvents_ =resourceTable_->nbCompleted();
-    nbAcceptedEvents_ =resourceTable_->nbAccepted();
-    nbSentEvents_     =resourceTable_->nbSent();
-    nbDiscardedEvents_=resourceTable_->nbDiscarded();
-    nbLostEvents_     =resourceTable_->nbLost();
-    nbDataErrors_     =resourceTable_->nbErrors();
-    nbCrcErrors_      =resourceTable_->nbCrcErrors();
-    nbAllocateSent_   =resourceTable_->nbAllocSent();
+    nbClients_          =resourceTable_->nbClients();
+    clientPrcIds_       =resourceTable_->clientPrcIdsAsString();
+    nbAllocatedEvents_  =resourceTable_->nbAllocated();
+    nbPendingRequests_  =resourceTable_->nbPending();
+    nbReceivedEvents_   =resourceTable_->nbCompleted();
+    nbSentEvents_       =resourceTable_->nbSent();
+    nbSentErrorEvents_  =resourceTable_->nbSentError();
+    nbPendingSMDiscards_=resourceTable_->nbPendingSMDiscards();
+    nbDiscardedEvents_  =resourceTable_->nbDiscarded();
+    nbLostEvents_       =resourceTable_->nbLost();
+    nbDataErrors_       =resourceTable_->nbErrors();
+    nbCrcErrors_        =resourceTable_->nbCrcErrors();
+    nbAllocateSent_     =resourceTable_->nbAllocSent();
   }
   else if (e.type()=="ItemChangedEvent") {
     
@@ -486,91 +477,54 @@ bool FUResourceBroker::monitoring(toolbox::task::WorkLoop* wl)
   
   gettimeofday(&monEndTime,&timezone);
   
-  unsigned int nbInput             =resourceTable_->nbCompleted();
-  unsigned int nbProcessed         =resourceTable_->nbDiscarded();
-  uint64_t     nbInputSumOfSquares =resourceTable_->inputSumOfSquares();
-  unsigned int nbInputSumOfSizes   =resourceTable_->inputSumOfSizes();
-  unsigned int nbOutput            =resourceTable_->nbSent();
-  uint64_t     nbOutputSumOfSquares=resourceTable_->outputSumOfSquares();
-  unsigned int nbOutputSumOfSizes  =resourceTable_->outputSumOfSizes();
-  uint64_t     deltaInputSumOfSquares;
-  uint64_t     deltaOutputSumOfSquares;
+  unsigned int nbSent      =resourceTable_->nbSent();
+  uint64_t     sumOfSquares=resourceTable_->sumOfSquares();
+  unsigned int sumOfSizes  =resourceTable_->sumOfSizes();
+
+  uint64_t     deltaSumOfSquares;
   
   gui_->monInfoSpace()->lock();
   
   deltaT_.value_=deltaT(&monStartTime_,&monEndTime);
   monStartTime_=monEndTime;
   
-  deltaNbInput_.value_=nbInput-nbInputLast_;
-  nbInputLast_=nbInput;
-
-  deltaNbOutput_.value_=nbOutput-nbOutputLast_;
-  nbOutputLast_=nbOutput;
+  deltaN_.value_=nbSent-nbSentLast_;
+  nbSentLast_=nbSent;
   
-  deltaInputSumOfSquares=nbInputSumOfSquares-nbInputLastSumOfSquares_;
-  deltaInputSumOfSquares_.value_=(double)deltaInputSumOfSquares;
-  nbInputLastSumOfSquares_=nbInputSumOfSquares;
-
-  deltaOutputSumOfSquares=nbOutputSumOfSquares-nbOutputLastSumOfSquares_;
-  deltaOutputSumOfSquares_.value_=(double)deltaOutputSumOfSquares;
-  nbOutputLastSumOfSquares_=nbOutputSumOfSquares;
+  deltaSumOfSquares=sumOfSquares-sumOfSquaresLast_;
+  deltaSumOfSquares_.value_=(double)deltaSumOfSquares;
+  sumOfSquaresLast_=sumOfSquares;
   
-  deltaInputSumOfSizes_.value_=nbInputSumOfSizes-nbInputLastSumOfSizes_;
-  nbInputLastSumOfSizes_=nbInputSumOfSizes;
-
-  deltaOutputSumOfSizes_.value_=nbOutputSumOfSizes-nbOutputLastSumOfSizes_;
-  nbOutputLastSumOfSizes_=nbOutputSumOfSizes;
-  
-  if (nbProcessed!=0)
-    ratio_=(double)nbOutput/(double)nbProcessed;
-  else
-    ratio_=0.0;
+  deltaSumOfSizes_.value_=sumOfSizes-sumOfSizesLast_;
+  sumOfSizesLast_=sumOfSizes;
   
   if (deltaT_.value_!=0) {
-    inputThroughput_ =deltaInputSumOfSizes_.value_/deltaT_.value_;
-    outputThroughput_=deltaOutputSumOfSizes_.value_/deltaT_.value_;
-    inputRate_       =deltaNbInput_.value_/deltaT_.value_;
-    outputRate_      =deltaNbOutput_.value_/deltaT_.value_;
+    throughput_=deltaSumOfSizes_.value_/deltaT_.value_;
+    rate_      =deltaN_.value_/deltaT_.value_;
   }
   else {
-    inputThroughput_ =0.0;
-    outputThroughput_=0.0;
-    inputRate_       =0.0;
-    outputRate_      =0.0;
+    throughput_=0.0;
+    rate_      =0.0;
   }
   
   double meanOfSquares,mean,squareOfMean,variance;
   
-  if(deltaNbInput_.value_!=0) {
-    meanOfSquares=deltaInputSumOfSquares_.value_/((double)(deltaNbInput_.value_));
-    mean=((double)(deltaInputSumOfSizes_.value_))/((double)(deltaNbInput_.value_));
+  if(deltaN_.value_!=0) {
+    meanOfSquares=deltaSumOfSquares_.value_/((double)(deltaN_.value_));
+    mean=((double)(deltaSumOfSizes_.value_))/((double)(deltaN_.value_));
     squareOfMean=mean*mean;
     variance=meanOfSquares-squareOfMean; if(variance<0.0) variance=0.0;
-    
-    inputAverage_=deltaInputSumOfSizes_.value_/deltaNbInput_.value_;
-    inputRms_    =std::sqrt(variance);
+
+    average_=deltaSumOfSizes_.value_/deltaN_.value_;
+    rms_    =std::sqrt(variance);
   }
   else {
-    inputAverage_=0.0;
-    inputRms_    =0.0;
+    average_=0.0;
+    rms_    =0.0;
   }
   
-  if(deltaNbOutput_.value_!=0) {
-    meanOfSquares=deltaOutputSumOfSquares_.value_/((double)(deltaNbOutput_.value_));
-    mean=((double)(deltaOutputSumOfSizes_.value_))/((double)(deltaNbOutput_.value_));
-    squareOfMean=mean*mean;
-    variance=meanOfSquares-squareOfMean; if(variance<0.0) variance=0.0;
-
-    outputAverage_=deltaOutputSumOfSizes_.value_/deltaNbOutput_.value_;
-    outputRms_    =std::sqrt(variance);
-  }
-  else {
-    outputAverage_=0.0;
-    outputRms_    =0.0;
-  }
-
   gui_->monInfoSpace()->unlock();  
-
+  
   ::sleep(monSleepSec_.value_);
   
   return true;
@@ -602,21 +556,12 @@ bool FUResourceBroker::watching(toolbox::task::WorkLoop* wl)
   if (0==resourceTable_) return false;
   
   vector<pid_t> prcids=resourceTable_->clientPrcIds();
-  vector<pid_t> cllids=resourceTable_->cellPrcIds();
-  set<pid_t>    dupids;
   for (UInt_t i=0;i<prcids.size();i++) {
     pid_t pid   =prcids[i];
     int   status=kill(pid,0);
     if (status!=0) {
       LOG4CPLUS_ERROR(log_,"EP prc "<<pid<<" died, send raw data to err stream.");
       resourceTable_->handleCrashedEP(runNumber_,pid);
-    }
-    UInt_t count(0);
-    for (vector<pid_t>::const_iterator it=cllids.begin();it!=cllids.end();++it)
-      if ((*it)==pid) count++;
-    if (count>1) {
-      LOG4CPLUS_WARN(log_,"EP prc "<<pid<<" was restarted!");
-      dupids.insert(pid);
     }
   }
   
@@ -633,11 +578,7 @@ bool FUResourceBroker::watching(toolbox::task::WorkLoop* wl)
     time_t tstamp=evt_tstamps[i]; if (tstamp==0) continue;
     double tdiff =difftime(tcurr,tstamp);
     if (tdiff>timeOutSec_) {
-      if (dupids.find(pid)!=dupids.end()) {
-	LOG4CPLUS_ERROR(log_,"Send evt "<<evt<<" of restarted EP to err stream.");
-	resourceTable_->handleRestartedEP(runNumber_,i);
-      }
-      else if(processKillerEnabled_)	{
+      if(processKillerEnabled_)	{
 	LOG4CPLUS_ERROR(log_,"evt "<<evt<<" timed out, "<<"kill prc "<<pid);
 	kill(pid,9);
       }
@@ -666,28 +607,21 @@ void FUResourceBroker::exportParameters()
   gui_->addMonitorParam("stateName",                 fsm_.stateName());
 
   gui_->addMonitorParam("deltaT",                   &deltaT_);
-  gui_->addMonitorParam("deltaNbInput",             &deltaNbInput_);
-  gui_->addMonitorParam("deltaNbOutput",            &deltaNbOutput_);
-  gui_->addMonitorParam("deltaInputSumOfSquares",   &deltaInputSumOfSquares_);
-  gui_->addMonitorParam("deltaOutputSumOfSquares",  &deltaOutputSumOfSquares_);
-  gui_->addMonitorParam("deltaInputSumOfSizes",     &deltaInputSumOfSizes_);
-  gui_->addMonitorParam("deltaOutputSumOfSizes",    &deltaOutputSumOfSizes_);
+  gui_->addMonitorParam("deltaN",                   &deltaN_);
+  gui_->addMonitorParam("deltaSumOfSquares",        &deltaSumOfSquares_);
+  gui_->addMonitorParam("deltaSumOfSizes",          &deltaSumOfSizes_);
     
-  gui_->addMonitorParam("ratio",                    &ratio_);
-  gui_->addMonitorParam("inputThroughput",          &inputThroughput_);
-  gui_->addMonitorParam("inputRate",                &inputRate_);
-  gui_->addMonitorParam("inputAverage",             &inputAverage_);
-  gui_->addMonitorParam("inputRms",                 &inputRms_);
-  gui_->addMonitorParam("outputThroughput",         &outputThroughput_);
-  gui_->addMonitorParam("outputRate",               &outputRate_);
-  gui_->addMonitorParam("outputAverage",            &outputAverage_);
-  gui_->addMonitorParam("outputRms",                &outputRms_);
+  gui_->addMonitorParam("throughput",               &throughput_);
+  gui_->addMonitorParam("rate",                     &rate_);
+  gui_->addMonitorParam("average",                  &average_);
+  gui_->addMonitorParam("rms",                      &rms_);
   
   gui_->addMonitorCounter("nbAllocatedEvents",      &nbAllocatedEvents_);
   gui_->addMonitorCounter("nbPendingRequests",      &nbPendingRequests_);
   gui_->addMonitorCounter("nbReceivedEvents",       &nbReceivedEvents_);
-  gui_->addMonitorCounter("nbAcceptedEvents",       &nbAcceptedEvents_);
   gui_->addMonitorCounter("nbSentEvents",           &nbSentEvents_);
+  gui_->addMonitorCounter("nbSentErrorEvents",      &nbSentErrorEvents_);
+  gui_->addMonitorCounter("nbPendingSMDiscards",    &nbPendingSMDiscards_);
   gui_->addMonitorCounter("nbDiscardedEvents",      &nbDiscardedEvents_);
   gui_->addMonitorCounter("nbLostEvents",           &nbLostEvents_);
   gui_->addMonitorCounter("nbDataErrors",           &nbDataErrors_);
@@ -738,31 +672,19 @@ void FUResourceBroker::reset()
 {
   gui_->resetCounters();
   
-  deltaT_                  =0.0;
-  deltaNbInput_            =  0;
-  deltaNbOutput_           =  0;
-  deltaInputSumOfSquares_  =0.0;
-  deltaOutputSumOfSquares_ =0.0;
-  deltaInputSumOfSizes_    =  0;
-  deltaOutputSumOfSizes_   =  0;
+  deltaT_           =0.0;
+  deltaN_           =  0;
+  deltaSumOfSquares_=0.0;
+  deltaSumOfSizes_  =  0;
   
-  ratio_                   =0.0;
-  inputThroughput_         =0.0;
-  inputRate_               =0.0;
-  inputAverage_            =0.0;
-  inputRms_                =0.0;
-  outputThroughput_        =0.0;
-  outputRate_              =0.0;
-  outputAverage_           =0.0;
-  outputRms_               =0.0;
+  throughput_       =0.0;
+  rate_             =0.0;
+  average_          =0.0;
+  rms_              =0.0;
   
-  nbInputLast_             =  0;
-  nbInputLastSumOfSquares_ =  0;
-  nbInputLastSumOfSizes_   =  0;
-  nbOutputLast_            =  0;
-  nbOutputLastSumOfSquares_=  0;
-  nbOutputLastSumOfSizes_  =  0;
-  
+  nbSentLast_       =  0;
+  sumOfSquaresLast_ =  0;
+  sumOfSizesLast_   =  0;
 }
 
 

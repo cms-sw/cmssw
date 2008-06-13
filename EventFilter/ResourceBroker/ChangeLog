@@ -1,3 +1,15 @@
+2008-06-13  Philipp SCHIEFERDECKER  <philipp.schieferdecker@cern.ch>
+
+	* tag V00-10-00
+	* don't handle restarted EPs, the FUShmReader does the work
+	* fix counter nbSentEvents, count events written with
+	several formats only once
+	* remove nbAcceptedEvents (=nbSentEvents)
+	* add nbPendingSMDiscards
+	* remove all input* monitorables, rename output* -> *; remove
+	ratio.
+	
+
 2008-06-02  Philipp SCHIEFERDECKER  <philipp.schieferdecker@cern.ch>
 
 	* tag V00-09-08
