@@ -124,8 +124,8 @@ parser.add_option("--oneoutput",
                    dest="oneoutput")
 
 parser.add_option("--conditions",
-                   help="What conditions to use. Default=FrontierConditions_GlobalTag,STARTUP::All",
-                   default="FrontierConditions_GlobalTag,STARTUP::All",
+                   help="What conditions to use. Default=FrontierConditions_GlobalTag,STARTUP_V1::All",
+                   default="FrontierConditions_GlobalTag,STARTUP_V1::All",
                    dest="conditions")
 
 parser.add_option("--beamspot",
