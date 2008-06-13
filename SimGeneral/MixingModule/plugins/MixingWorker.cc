@@ -3,18 +3,19 @@
 #include "SimDataFormats/HepMCProduct/interface/HepMCProduct.h"
 #include "MixingWorker.h"
 
-using namespace edm;
 template <> const int  edm::MixingWorker<PSimHit>::lowTrackTof = -36; 
 template <> const int  edm::MixingWorker<PSimHit>::highTrackTof = 36; 
 template <> const int  edm::MixingWorker<PSimHit>::limHighLowTof = 36; 
 
+namespace edm {
+
 template <>
-void MixingWorker<PSimHit>::addPileups(const int bcr, edm::Event* e,unsigned int eventNr,int vertexoffset)
+void MixingWorker<PSimHit>::addPileups(const int bcr, Event* e,unsigned int eventNr,int vertexoffset)
 {
   // default version changed for high/low treatment
   if (!isTracker_) {
     Handle<std::vector<PSimHit> >  result_t;
-    bool got =e->getByLabel(tag_,result_t);//FIXME: getMany
+    bool got =e->getByLabel(tag_,result_t);
     if (got) {
       LogDebug("MixingModule") <<"For "<<subdet_<<", "<<result_t.product()->size()<<"  pileup objects  added, eventNr "<<eventNr;
       crFrame_->addPileups(bcr,result_t.product(),eventNr,vertexoffset);
@@ -58,7 +59,7 @@ void MixingWorker<PSimHit>::addPileups(const int bcr, edm::Event* e,unsigned int
 
 
 template <>
-void MixingWorker<SimTrack>::addPileups(const int bcr, edm::Event* e,unsigned int eventNr,int vertexoffset)
+void MixingWorker<SimTrack>::addPileups(const int bcr, Event* e,unsigned int eventNr,int vertexoffset)
 {
   // default version changed to transmit vertexoffset
   Handle<std::vector<SimTrack> >  result_t;
@@ -99,10 +100,10 @@ void MixingWorker<HepMCProduct>::addPileups(const int bcr, Event* e,unsigned int
 }
 
 template <>
-void MixingWorker<HepMCProduct>::addSignals(const edm::Event &e){
+void MixingWorker<HepMCProduct>::addSignals(const Event &e){
   // version for HepMCProduct is specific since it doesnt come as a vector
   // we have to read it differently, and to store it in a (fake) vector
-  edm::Handle<HepMCProduct>  result_t;
+  Handle<HepMCProduct>  result_t;
   bool got = e.getByLabel(tag_,result_t);
   if (got) {
     LogDebug("MixingModule") <<" adding HepMCProduct from signal event  with "<<tag_;
@@ -113,3 +114,4 @@ void MixingWorker<HepMCProduct>::addSignals(const edm::Event &e){
   else	  LogWarning("MixingModule") <<"!!!!!!! Did not get any signal data for HepMCProduct with "<<tag_;
 }
 
+}
