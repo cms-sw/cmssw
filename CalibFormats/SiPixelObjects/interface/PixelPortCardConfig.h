@@ -57,9 +57,14 @@ namespace pos{
     
     void setAOHGain(unsigned int AOHNumber, unsigned int value) {setAOHGain(AOHGainStringFromAOHNumber(AOHNumber),value);}
     unsigned int getAOHGain(unsigned int AOHNumber) const;
-  
+    
+    unsigned int new_PLL_CTR2_value(std::string CTR4or5, unsigned int last_CTR2) const;
+    
   private:
     void fillNameToAddress();
+
+    bool containsDeviceAddress(unsigned int deviceAddress) const;
+    bool containsSetting(std::string settingName) const { return containsDeviceAddress(getdeviceAddressForSetting(settingName)); }
 
     void setAOHGain(std::string settingName, unsigned int value);
     std::string AOHGainStringFromAOHNumber(unsigned int AOHNumber) const;

@@ -97,6 +97,14 @@ PixelPortCardConfig::PixelPortCardConfig(std::string filename):
     {
     	setAOHGain(settingName, i2c_values);
     }
+    else if ( settingName == k_PLL_CTR4 || settingName == k_PLL_CTR5 ) // special handling
+    {
+    	unsigned int last_CTR2 = 0x0;
+    	if ( containsSetting(k_PLL_CTR2) ) last_CTR2 = getdeviceValuesForSetting( k_PLL_CTR2 );
+    	
+    	device_.push_back( make_pair(getdeviceAddressForSetting(k_PLL_CTR2), new_PLL_CTR2_value(settingName, last_CTR2)) );
+    	device_.push_back( make_pair(getdeviceAddressForSetting(k_PLL_CTR4or5), i2c_values) );
+    }
     else // no special handling for this name
     {
     	std::map<std::string, unsigned int>::iterator foundName_itr = nameToAddress_.find(settingName);
@@ -117,6 +125,13 @@ PixelPortCardConfig::PixelPortCardConfig(std::string filename):
   
   in.close();
 
+}
+
+unsigned int PixelPortCardConfig::new_PLL_CTR2_value(std::string CTR4or5, unsigned int last_CTR2) const
+{
+	if      ( CTR4or5 == k_PLL_CTR4 ) return 0xdf & last_CTR2;
+	else if ( CTR4or5 == k_PLL_CTR5 ) return 0x20 | last_CTR2;
+	else assert(0);
 }
 
 void PixelPortCardConfig::setAOHGain(std::string settingName, unsigned int value)
@@ -205,7 +220,7 @@ void PixelPortCardConfig::fillNameToAddress()
 		nameToAddress_[PortCardSettingNames::k_PLL_CTR1] = PortCardSettingNames::k_fpix_PLL_CTR1_address;
 		nameToAddress_[PortCardSettingNames::k_PLL_CTR2] = PortCardSettingNames::k_fpix_PLL_CTR2_address;
 		nameToAddress_[PortCardSettingNames::k_PLL_CTR3] = PortCardSettingNames::k_fpix_PLL_CTR3_address;
-		nameToAddress_[PortCardSettingNames::k_PLL_CTR4] = PortCardSettingNames::k_fpix_PLL_CTR4_address;
+		nameToAddress_[PortCardSettingNames::k_PLL_CTR4or5] = PortCardSettingNames::k_fpix_PLL_CTR4or5_address;
 		
 		nameToAddress_[PortCardSettingNames::k_Delay25_RDA] = PortCardSettingNames::k_fpix_Delay25_RDA_address;
 		nameToAddress_[PortCardSettingNames::k_Delay25_RCL] = PortCardSettingNames::k_fpix_Delay25_RCL_address;
@@ -260,7 +275,7 @@ void PixelPortCardConfig::fillNameToAddress()
 		nameToAddress_[PortCardSettingNames::k_PLL_CTR1] = PortCardSettingNames::k_bpix_PLL_CTR1_address;
 		nameToAddress_[PortCardSettingNames::k_PLL_CTR2] = PortCardSettingNames::k_bpix_PLL_CTR2_address;
 		nameToAddress_[PortCardSettingNames::k_PLL_CTR3] = PortCardSettingNames::k_bpix_PLL_CTR3_address;
-		nameToAddress_[PortCardSettingNames::k_PLL_CTR4] = PortCardSettingNames::k_bpix_PLL_CTR4_address;
+		nameToAddress_[PortCardSettingNames::k_PLL_CTR4or5] = PortCardSettingNames::k_bpix_PLL_CTR4or5_address;
 		
 		nameToAddress_[PortCardSettingNames::k_Delay25_RDA] = PortCardSettingNames::k_bpix_Delay25_RDA_address;
 		nameToAddress_[PortCardSettingNames::k_Delay25_RCL] = PortCardSettingNames::k_bpix_Delay25_RCL_address;
@@ -300,21 +315,23 @@ void PixelPortCardConfig::writeASCII(std::string dir) const {
 
   out << "i2cSpeed: 0x" <<std::hex<< i2cSpeed_ <<std::dec<< std::endl;
 
+  bool found_PLL_CTR2 = false;
+  unsigned int last_PLL_CTR2_value = 0x0;
   for (unsigned int i=0;i<device_.size();i++)
   {
     unsigned int deviceAddress = device_.at(i).first;
     
     // Special handling for AOH gains
-    if (    deviceAddress == k_fpix_AOH_Gain123_address
-         || deviceAddress == k_fpix_AOH_Gain456_address
-         || deviceAddress == k_bpix_AOH1_Gain123_address
-         || deviceAddress == k_bpix_AOH1_Gain456_address
-         || deviceAddress == k_bpix_AOH2_Gain123_address
-         || deviceAddress == k_bpix_AOH2_Gain456_address
-         || deviceAddress == k_bpix_AOH3_Gain123_address
-         || deviceAddress == k_bpix_AOH3_Gain456_address
-         || deviceAddress == k_bpix_AOH4_Gain123_address
-         || deviceAddress == k_bpix_AOH4_Gain456_address
+    if (    ( type_=="fpix" && deviceAddress == k_fpix_AOH_Gain123_address )
+         || ( type_=="fpix" && deviceAddress == k_fpix_AOH_Gain456_address )
+         || ( type_=="bpix" && deviceAddress == k_bpix_AOH1_Gain123_address )
+         || ( type_=="bpix" && deviceAddress == k_bpix_AOH1_Gain456_address )
+         || ( type_=="bpix" && deviceAddress == k_bpix_AOH2_Gain123_address )
+         || ( type_=="bpix" && deviceAddress == k_bpix_AOH2_Gain456_address )
+         || ( type_=="bpix" && deviceAddress == k_bpix_AOH3_Gain123_address )
+         || ( type_=="bpix" && deviceAddress == k_bpix_AOH3_Gain456_address )
+         || ( type_=="bpix" && deviceAddress == k_bpix_AOH4_Gain123_address )
+         || ( type_=="bpix" && deviceAddress == k_bpix_AOH4_Gain456_address )
        )
     {
 		std::string whichAOHString;
@@ -344,6 +361,20 @@ void PixelPortCardConfig::writeASCII(std::string dir) const {
     {
       if ( nameToAddress_itr->second == deviceAddress ) {settingName = nameToAddress_itr->first; break;}
     }
+    
+    // Special handling for PLL addresses.
+    if ( settingName == k_PLL_CTR2 )
+    {
+    	if ( found_PLL_CTR2 && last_PLL_CTR2_value == device_.at(i).second ) continue; // don't save duplicate CTR2 settings
+    	found_PLL_CTR2 = true;
+    	last_PLL_CTR2_value = device_.at(i).second;
+    }
+    if ( found_PLL_CTR2 && settingName == k_PLL_CTR4or5 ) // change name to PLL_CTR4 or PLL_CTR5
+    {
+    	if ( (last_PLL_CTR2_value & 0x20) == 0x0 ) settingName = k_PLL_CTR4;
+    	else                                       settingName = k_PLL_CTR5;
+    }
+    // end of special handling
     
     if ( settingName=="" ) out << "0x" <<std::hex<< device_.at(i).first <<std::dec;
     else                   out << settingName << ":";
@@ -438,6 +469,15 @@ unsigned int PixelPortCardConfig::getdeviceValuesForAddress(unsigned int address
     }
   assert(0); // didn't find this device
   return 0;
+}
+
+bool PixelPortCardConfig::containsDeviceAddress(unsigned int deviceAddress) const
+{
+	for ( std::vector<std::pair<unsigned int, unsigned int> >::const_iterator device_itr = device_.begin(); device_itr != device_.end(); device_itr++ )
+	{
+		if ( device_itr->first == deviceAddress ) return true;
+	}
+	return false;
 }
 
 unsigned int PixelPortCardConfig::AOHBiasAddressFromAOHNumber(unsigned int AOHNumber) const
