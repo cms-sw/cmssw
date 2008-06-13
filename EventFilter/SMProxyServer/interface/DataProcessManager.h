@@ -1,6 +1,6 @@
 #ifndef SMPS_DATA_PROCESS_MANAGER_HPP
 #define SMPS_DATA_PROCESS_MANAGER_HPP
-// $Id: DataProcessManager.h,v 1.6 2008/05/04 12:40:21 biery Exp $
+// $Id: DataProcessManager.h,v 1.7 2008/05/11 13:40:39 hcheung Exp $
 
 #include "EventFilter/StorageManager/interface/EventServer.h"
 #include "EventFilter/StorageManager/interface/DQMEventServer.h"
@@ -58,6 +58,8 @@ namespace stor
 
     void setMaxEventRequestRate(double rate);
     void setMaxDQMEventRequestRate(double rate);
+
+    void updateMinEventRequestInterval();
 
     void setCollateDQM(bool collateDQM)
     { dqmServiceManager_->setCollateDQM(collateDQM); }
@@ -174,6 +176,7 @@ namespace stor
     std::string consumerPriority_;
     std::string consumerPSetString_;
     int headerRetryInterval_; // seconds
+    double maxEventRequestRate_;
     double minEventRequestInterval_;
     unsigned int consumerId_;
     LastReqTime_map lastReqMap_;

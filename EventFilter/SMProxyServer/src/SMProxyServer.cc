@@ -1,4 +1,4 @@
-// $Id: SMProxyServer.cc,v 1.18 2008/06/11 14:23:07 biery Exp $
+// $Id: SMProxyServer.cc,v 1.19 2008/06/12 16:10:49 biery Exp $
 
 #include <iostream>
 #include <iomanip>
@@ -1249,7 +1249,7 @@ void SMProxyServer::eventServerWebPage(xgi::Input *in, xgi::Output *out)
         *out << "    Consumer queue size is " << consumerQueueSize_
              << "." << std::endl;
         *out << "    <br/>" << std::endl;
-        *out << "    Maximum event rate from SMs is "
+        *out << "    Event request rate from SMs is "
              << maxEventRequestRate_ << " Hz." << std::endl;
         //*out << "    <br/>" << std::endl;
         //*out << "    Fair-share event serving is ";

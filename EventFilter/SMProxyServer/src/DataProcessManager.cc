@@ -1,4 +1,4 @@
-// $Id: DataProcessManager.cc,v 1.12 2008/05/11 13:40:39 hcheung Exp $
+// $Id: DataProcessManager.cc,v 1.13 2008/06/12 16:08:22 biery Exp $
 
 #include "EventFilter/SMProxyServer/interface/DataProcessManager.h"
 #include "EventFilter/StorageManager/interface/SMCurlInterface.h"
@@ -64,24 +64,10 @@ namespace stor
     //DQMconsumerPriority_ =  "PushMode"; // this means push mode!
     DQMconsumerPriority_ =  "Normal";
 
-    const double MAX_REQUEST_INTERVAL = 300.0;  // seconds
-    double maxEventRequestRate = 10.0; // just a default until set in config action
-    if (maxEventRequestRate < (1.0 / MAX_REQUEST_INTERVAL)) {
-      minEventRequestInterval_ = MAX_REQUEST_INTERVAL;
-    }
-    else {
-      minEventRequestInterval_ = 1.0 / maxEventRequestRate;  // seconds
-    }
+    this->setMaxEventRequestRate(10.0); // just a default until set in config action
     consumerId_ = (time(0) & 0xffffff);  // temporary - will get from ES later
 
-    //double maxEventRequestRate = pset.getUntrackedParameter<double>("maxDQMEventRequestRate",1.0);
-    maxEventRequestRate = 0.2; // TODO fixme: set this in the XML
-    if (maxEventRequestRate < (1.0 / MAX_REQUEST_INTERVAL)) {
-      minDQMEventRequestInterval_ = MAX_REQUEST_INTERVAL;
-    }
-    else {
-      minDQMEventRequestInterval_ = 1.0 / maxEventRequestRate;  // seconds
-    }
+    this->setMaxDQMEventRequestRate(0.2); // set in config later
     DQMconsumerId_ = (time(0) & 0xffffff);  // temporary - will get from ES later
 
     alreadyRegistered_ = false;
@@ -94,18 +80,6 @@ namespace stor
     DQMsmList_.clear();
     DQMsmRegMap_.clear();
 
-    edm::ParameterSet ps = ParameterSet();
-    // TODO fixme: only request event types that are requested by connected consumers?
-
-    // 16-Apr-2008, KAB: set maxEventRequestRate in the parameterSet that
-    // we send to the storage manager now that we have the fair share
-    // algorithm working in the SM.
-    Entry maxRateEntry("maxEventRequestRate",
-                       static_cast<double>(1.0 / minEventRequestInterval_),
-                       false);
-    ps.insert(true, "maxEventRequestRate", maxRateEntry);
-
-    consumerPSetString_ = ps.toString();
     // TODO fixme: only request folders that connected consumers want?
     consumerTopFolderName_ = "*";
     //consumerTopFolderName_ = "C1";
@@ -123,24 +97,9 @@ namespace stor
 
   void DataProcessManager::setMaxEventRequestRate(double rate)
   {
-    const double MAX_REQUEST_INTERVAL = 300.0;  // seconds
     if(rate <= 0.0) return; // TODO make sure config is checked!
-    if (rate < (1.0 / MAX_REQUEST_INTERVAL)) {
-      minEventRequestInterval_ = MAX_REQUEST_INTERVAL;
-    }
-    else {
-      minEventRequestInterval_ = 1.0 / rate;  // seconds
-    }
-
-    // 16-Apr-2008, KAB: set maxEventRequestRate in the parameterSet that
-    // we send to the storage manager now that we have the fair share
-    // algorithm working in the SM.
-    edm::ParameterSet ps = ParameterSet();
-    Entry maxRateEntry("maxEventRequestRate",
-                       static_cast<double>(1.0 / minEventRequestInterval_),
-                       false);
-    ps.insert(true, "maxEventRequestRate", maxRateEntry);
-    consumerPSetString_ = ps.toString();
+    maxEventRequestRate_ = rate;
+    updateMinEventRequestInterval();
   }
 
   void DataProcessManager::setMaxDQMEventRequestRate(double rate)
@@ -153,6 +112,41 @@ namespace stor
     else {
       minDQMEventRequestInterval_ = 1.0 / rate;  // seconds
     }
+  }
+
+  void DataProcessManager::updateMinEventRequestInterval()
+  {
+    const double MAX_REQUEST_INTERVAL = 300.0;  // seconds
+    double rate = maxEventRequestRate_;
+
+    if (rate < (1.0 / MAX_REQUEST_INTERVAL)) {
+      minEventRequestInterval_ = MAX_REQUEST_INTERVAL;
+    }
+    else {
+      // base the interval on the number of storage managers
+      // (so that the requested rate doesn't increase proportionally
+      // with number of SMs)
+      // We could simply use smCount/rate, but let's be a bit more
+      // generous than that so that if one of the SMs isn't queueing
+      // events for us, we still get enough rate
+      if (smList_.size() <= 1) {
+        minEventRequestInterval_ = 1.0 / rate;  // seconds
+      }
+      else {
+        minEventRequestInterval_ = (smList_.size() - 1) / rate;
+      }
+    }
+
+    // 16-Apr-2008, KAB: set maxEventRequestRate in the parameterSet that
+    // we send to the storage manager so that the SM knows how many events
+    // to queue for the SMPS.
+    edm::ParameterSet ps = ParameterSet();
+    Entry maxRateEntry("maxEventRequestRate",
+                       (1.0 / minEventRequestInterval_),
+                       false);
+    ps.insert(true, "maxEventRequestRate", maxRateEntry);
+    // TODO fixme: only request event types that are requested by connected consumers?
+    consumerPSetString_ = ps.toString();
   }
 
   void DataProcessManager::run(DataProcessManager* t)
@@ -318,6 +312,7 @@ namespace stor
     lastRequestTime.tv_sec = 0;
     lastRequestTime.tv_usec = 0;
     lastReqMap_.insert(std::make_pair(smURL,lastRequestTime));
+    updateMinEventRequestInterval();
   }
 
   void DataProcessManager::addDQMSM2Register(std::string DQMsmURL)
