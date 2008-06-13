@@ -31,8 +31,20 @@ Derived by HLTMuonDQMSource.h
 
 #include "DataFormats/EgammaCandidates/interface/Electron.h"
 #include "DataFormats/EgammaCandidates/interface/ElectronFwd.h"
-//#include "DataFormats/EgammaCandidates/interface/PixelMatchGsfElectronFwd.h"
-//#include "DataFormats/EgammaCandidates/interface/PixelMatchGsfElectron.h"
+
+//Muon Includes
+#include "DataFormats/RecoCandidate/interface/RecoChargedCandidateFwd.h"
+#include "DataFormats/RecoCandidate/interface/RecoChargedCandidate.h"
+
+
+//Photon Includes
+#include "DataFormats/RecoCandidate/interface/RecoEcalCandidateFwd.h"
+#include "DataFormats/RecoCandidate/interface/RecoEcalCandidate.h"
+
+
+//Track Include
+#include "DataFormats/HcalIsolatedTrack/interface/IsolatedPixelTrackCandidateFwd.h"
+#include "DataFormats/HcalIsolatedTrack/interface/IsolatedPixelTrackCandidate.h"
 
 
 //L2 Tau trigger Includes
@@ -45,9 +57,6 @@ Derived by HLTMuonDQMSource.h
 //
 // class declaration
 //
-
-
-
 
 typedef math::XYZTLorentzVectorD LV;
 typedef std::vector<LV> LVColl;
@@ -87,7 +96,6 @@ private:
   DQMStore* dbe_;  
 
   /* GENERAL DQM PATH */
-  edm::InputTag triggerInfo_; //Get the trigger event
   
   //Set the Monitor Parameters
   std::string mainFolder_; //main DQM Folder
@@ -103,14 +111,14 @@ private:
   int NEtBins_;
   int NEtaBins_;
 
-  //get The filter names 
-  std::string l1Filter_;
-  std::string l2Filter_;
-  std::string l25Filter_;
-  std::string l3Filter_;
+  //get The Jet Collections per filter level
+  edm::InputTag l1Filter_;
+  edm::InputTag l2Filter_;
+  edm::InputTag l25Filter_;
+  edm::InputTag l3Filter_;
 
   //Correlations with other Triggers
-  std::vector<std::string> refFilters_;
+  std::vector<edm::InputTag> refFilters_;
   std::vector<int> refIDs_;
   std::vector<double> PtCut_;
   std::vector<std::string> refFilterDesc_;
@@ -126,6 +134,12 @@ private:
   edm::InputTag l25IsolInfo_;
   double l25LeadTrackDeltaR_;
   double l25LeadTrackPt_;
+
+  //L3 Monitoring Parameters
+  bool doL3Monitoring_;
+  edm::InputTag l3IsolInfo_;
+  double l3LeadTrackDeltaR_;
+  double l3LeadTrackPt_;
 
 
 
@@ -204,6 +218,26 @@ private:
 
 
 
+  //MonitorElements for L3 Inclusive
+  MonitorElement* L3JetEt_;
+  MonitorElement* L3JetEta_;
+  MonitorElement* L3NPixelTracks_;
+  MonitorElement* L3NQPixelTracks_;
+  MonitorElement* L3HasLeadingTrack_;
+  MonitorElement* L3LeadTrackPt_;
+  MonitorElement* L3SumTrackPt_;
+
+  //MonitorElements for L3 (with matching)
+  std::vector<MonitorElement*> L3JetEtRef_;
+  std::vector<MonitorElement*> L3JetEtaRef_;
+  std::vector<MonitorElement*> L3NPixelTracksRef_;
+  std::vector<MonitorElement*> L3NQPixelTracksRef_;
+  std::vector<MonitorElement*> L3HasLeadingTrackRef_;
+  std::vector<MonitorElement*> L3LeadTrackPtRef_;
+  std::vector<MonitorElement*> L3SumTrackPtRef_;
+
+
+
 
 
   
@@ -224,11 +258,13 @@ private:
   void doSummary(const edm::Event& e, const edm::EventSetup& c);
   void doL2(const edm::Event& e, const edm::EventSetup& c);
   void doL25(const edm::Event& e, const edm::EventSetup& c);
+  void doL3(const edm::Event& e, const edm::EventSetup& c);
 
 
-  bool match(const reco::Candidate&,const LVColl& /*trigger::VRelectron&*/,double,double);
+  bool match(const LV&,const LVColl& /*trigger::VRelectron&*/,double,double);
   std::vector<double> calcEfficiency(int,int);
-  LVColl importReferenceObjects(std::string,int,const trigger::TriggerEventWithRefs&);
+  LVColl importObjectColl(edm::InputTag&,int,const edm::Event&);
+
   void formatHistogram(MonitorElement*,int);
 
 

@@ -27,16 +27,14 @@ HLTTauDQMSource::HLTTauDQMSource( const edm::ParameterSet& ps ) :counterEvt_(0)
 
 
   //MONITOR SETUP
-  
   monitorName_            = mainParams.getUntrackedParameter<string>("monitorName","DoubleTau");
   nTriggeredTaus_         = mainParams.getUntrackedParameter < unsigned > ("NTriggeredTaus", 2);
-  triggerInfo_            = mainParams.getParameter<InputTag>("TriggerEventObject");
-  l1Filter_               = mainParams.getUntrackedParameter<string>("L1SeedFilter","");
-  l2Filter_               = mainParams.getUntrackedParameter<string>("L2EcalIsolFilter","");
-  l25Filter_              = mainParams.getUntrackedParameter<string>("L25PixelIsolFilter","");
-  l3Filter_               = mainParams.getUntrackedParameter<string>("L3SiliconIsolFilter","");
+  l1Filter_               = mainParams.getUntrackedParameter<InputTag>("L1Seed");
+  l2Filter_               = mainParams.getUntrackedParameter<InputTag>("L2EcalIsolJets");
+  l25Filter_              = mainParams.getUntrackedParameter<InputTag>("L25PixelIsolJets");
+  l3Filter_               = mainParams.getUntrackedParameter<InputTag>("L3SiliconIsolJets");
 
-  refFilters_             = mainParams.getUntrackedParameter<std::vector<string> >("refFilters");
+  refFilters_             = mainParams.getUntrackedParameter<std::vector<InputTag> >("refFilters");
   refFilterDesc_          = mainParams.getUntrackedParameter<std::vector<string> >("refFilterDescriptions");
   refIDs_                 = mainParams.getUntrackedParameter<std::vector<int> >("refFilterIDs");
   PtCut_                  = mainParams.getUntrackedParameter<std::vector<double> >("refObjectPtCut"); 
@@ -47,7 +45,6 @@ HLTTauDQMSource::HLTTauDQMSource( const edm::ParameterSet& ps ) :counterEvt_(0)
   ParameterSet l2Params  = ps.getParameter<edm::ParameterSet>("L2Monitoring");
   doL2Monitoring_        = l2Params.getUntrackedParameter < bool > ("doL2Monitoring", false);
   l2AssocMap_            = l2Params.getUntrackedParameter<InputTag>("L2AssociationMap");
-
  
   //L25 DQM Setup
   ParameterSet l25Params  = ps.getParameter<edm::ParameterSet>("L25Monitoring");
@@ -56,14 +53,21 @@ HLTTauDQMSource::HLTTauDQMSource( const edm::ParameterSet& ps ) :counterEvt_(0)
   l25LeadTrackDeltaR_     = l25Params.getUntrackedParameter < double > ("L25LeadingTrackCone", 0.1);
   l25LeadTrackPt_         = l25Params.getUntrackedParameter < double > ("L25MinLeadTrackPt", 1);
 
+  //L3 DQM Setup
+  ParameterSet l3Params  = ps.getParameter<edm::ParameterSet>("L3Monitoring");
+  doL3Monitoring_        = l3Params.getUntrackedParameter < bool > ("doL3Monitoring", false);
+  l25IsolInfo_            = l3Params.getUntrackedParameter<InputTag>("L3IsolatedTauTagInfo");
+  l25LeadTrackDeltaR_     = l3Params.getUntrackedParameter < double > ("L3LeadingTrackCone", 0.1);
+  l25LeadTrackPt_         = l3Params.getUntrackedParameter < double > ("L3MinLeadTrackPt", 1);
 
 
 
 
 
-     dbe_ = Service < DQMStore > ().operator->();
-     dbe_->setVerbose(0);
-  
+
+  dbe_ = Service < DQMStore > ().operator->();
+  dbe_->setVerbose(0);
+ 
    if (disable_) {
      outputFile_ = "";
    }
@@ -91,9 +95,9 @@ HLTTauDQMSource::~HLTTauDQMSource()
 
 
 //--------------------------------------------------------
-void HLTTauDQMSource::beginJob(const EventSetup& context){
-   
- 
+void 
+HLTTauDQMSource::beginJob(const EventSetup& context){
+
  
    if (dbe_) 
      {
@@ -127,11 +131,6 @@ void HLTTauDQMSource::beginJob(const EventSetup& context){
        triggerBitInfo_->setBinLabel(7,"");
        triggerBitInfo_->setBinLabel(8,"L3");
        formatHistogram(triggerBitInfo_,1);
-
-
-
-
-
 
        triggerEfficiencyL1_ = dbe_->book1D("triggerEfficiencyRefToL1","#tau Path Efficiency with ref to L1",7,0,7);
        triggerEfficiencyL1_->setAxisTitle("#tau Trigger Paths");
@@ -201,20 +200,8 @@ void HLTTauDQMSource::beginJob(const EventSetup& context){
 	 NRefEvents.push_back(0);
        }
 
-     //Book TH1F Denominators
-     //     for(size_t i=0;i<refFilters_.size();++i)
-     //  {
-     /// EtRef_.push_back(new TH1F(("EtRef"+i).c_str(),"Reference Et",NEtBins_,EtMin_,EtMax_));
-     //	 EtaRef_.push_back(new TH1F(("EtaRef"+i).c_str(),"Reference #eta",NEtaBins_,-2.5,2.5));
-     //
-     //  }     
-
-     //Book L2 Histos
-
      if(doL2Monitoring_)
        {  
-
-
 	 dbe_->setCurrentFolder(mainFolder_+"/"+monitorName_+"/L2CutDistos/"+"TauInclusive");
 	 L2JetEt_             = dbe_->book1D("L2JetEt","L2 Jet E_{t}",NEtBins_,EtMin_,EtMax_);
 	 L2JetEt_->setAxisTitle("Jet Candidate E_{t} [GeV]");
@@ -379,6 +366,93 @@ void HLTTauDQMSource::beginJob(const EventSetup& context){
 
        }
 
+
+
+
+
+
+     //Book L3 histos
+     if(doL3Monitoring_)
+       {
+	 dbe_->setCurrentFolder(mainFolder_+"/"+monitorName_+"/L3CutDistos/"+"TauInclusive");
+	 //Book Inclusive
+	 L3JetEt_           = dbe_->book1D("L3JetEt","L3 Jet Candidate E_{t}",NEtBins_,EtMin_,EtMax_);
+	 L3JetEt_->setAxisTitle("L3 Jet Candidate E_{t}");
+         formatHistogram(L3JetEt_,1);
+
+	 L3JetEta_          = dbe_->book1D("L3JetEta","L3 Jet Candidate #eta",NEtaBins_,-2.5,2.5);
+	 L3JetEta_->setAxisTitle("L3 Jet Candidate #eta");
+	 formatHistogram(L3JetEta_,1);
+
+	 L3NPixelTracks_    = dbe_->book1D("L3NPixelTracks","L3 Number of Pixel Tracks",20,0,20);
+ 	 L3NPixelTracks_->setAxisTitle("L3 # of Pixel Tracks");
+	 formatHistogram(L3NPixelTracks_,1);
+
+	 L3NQPixelTracks_   = dbe_->book1D("L3NQPixelTracks","L3 Number of Pixel Tracks(After Q test)",20,0,20);
+	 L3NQPixelTracks_->setAxisTitle("L3 # of Quality Pixel Tracks");
+	 formatHistogram(L3NQPixelTracks_,1);
+	 
+	 L3HasLeadingTrack_ = dbe_->book1D("L3HasLeadTrack","Leading Track(?)",2,0,2);
+	 L3HasLeadingTrack_->setBinLabel(1,"YES");
+	 L3HasLeadingTrack_->setBinLabel(2,"NO");
+	 formatHistogram(L3HasLeadingTrack_,1);
+	 
+	 L3LeadTrackPt_     = dbe_->book1D("L3LeadTrackPt","L3 Leading Track P_{t}",60,0,60);
+ 	 L3LeadTrackPt_->setAxisTitle("L3 Leading Track P_{t}");
+	 formatHistogram(L3LeadTrackPt_,1);
+
+	 L3SumTrackPt_     = dbe_->book1D("L3SumTrackPt","L3 #Sigma Track P_{t}",100,0,100);
+ 	 L3LeadTrackPt_->setAxisTitle("L3 #Sigma Track P_{t}");
+	 formatHistogram(L3SumTrackPt_,1);
+
+       
+
+	 //Book reference Histos
+         for(size_t i=0;i<refFilters_.size();++i)
+	   {
+
+	     dbe_->setCurrentFolder(mainFolder_+"/"+monitorName_+"/L3CutDistos/"+refFilterDesc_[i]);
+
+	     L3JetEtRef_.push_back(dbe_->book1D("L3JetEt","L3 Jet Candidate E_{t}",NEtBins_,EtMin_,EtMax_));
+	     L3JetEtRef_[i]->setAxisTitle("L3 Jet Candidate E_{t}");
+	     formatHistogram(L3JetEtRef_[i],1);
+
+	     L3JetEtaRef_.push_back(dbe_->book1D("L3JetEta","L3 Jet Candidate #eta",NEtaBins_,-2.5,2.5));
+	     L3JetEtaRef_[i]->setAxisTitle("L3 Jet Candidate #eta");
+	     formatHistogram(L3JetEtaRef_[i],1);
+	     
+	     L3NPixelTracksRef_.push_back(dbe_->book1D("L3NPixelTracks","L3 Number of Pixel Tracks",20,0,20));
+	     L3NPixelTracksRef_[i]->setAxisTitle("L3 # of Pixel Tracks");
+	     formatHistogram(L3NPixelTracksRef_[i],1);
+
+	     L3NQPixelTracksRef_.push_back(dbe_->book1D("L3NQPixelTracks","L3 Number of Pixel Tracks(After Q test)",20,0,20));
+	     L3NQPixelTracksRef_[i]->setAxisTitle("L3 # of Quality Pixel Tracks");
+	     formatHistogram(L3NQPixelTracksRef_[i],1);
+	 
+	     L3HasLeadingTrackRef_.push_back(dbe_->book1D("L3HasLeadTrack","Leading Track(?)",2,0,2));
+	     formatHistogram(L3HasLeadingTrackRef_[i],1);
+	      L3HasLeadingTrackRef_[i]->setBinLabel(1,"YES");
+	      L3HasLeadingTrackRef_[i]->setBinLabel(2,"NO");
+
+	     L3LeadTrackPtRef_.push_back(dbe_->book1D("L3LeadTrackPt","L3 Leading Track P_{t}",60,0,60));
+	     L3LeadTrackPtRef_[i]->setAxisTitle("L3 Leading Track P_{t}");
+	     formatHistogram(L3LeadTrackPtRef_[i],1);
+
+	     L3SumTrackPtRef_.push_back(dbe_->book1D("L3SumTrackPt","L3 #SigmaTrack P_{t}",60,0,60));
+	     L3SumTrackPtRef_[i]->setAxisTitle("L3 #Sigma Track P_{t}");
+	     formatHistogram(L3SumTrackPtRef_[i],1);
+	     
+	   }
+
+
+       }
+
+
+
+
+
+
+
      //Book L2 Efficiency histos with ref to L1
      // dbeq_->setCurrentFolder(monitorName_+"L2/L2Performance");
      //L2EtEff_ =  dbe_->book1D("L2EtEff","L2 E_{t} Efficiency(ref to L1)",NEtBins,EtMin_,EtMax_);
@@ -428,7 +502,12 @@ HLTTauDQMSource::analyze(const Event& iEvent, const EventSetup& iSetup )
       //Do L25 Analysis
       if(doL25Monitoring_)
 	doL25(iEvent,iSetup);
-      
+    
+      //Do L3 Analysis
+      if(doL3Monitoring_)
+	doL3(iEvent,iSetup);
+    
+  
       counterEvt_ = 0;
     }
   else
@@ -464,69 +543,52 @@ void
 HLTTauDQMSource::doSummary(const Event& iEvent, const EventSetup& iSetup)
 {
 
-  Handle<TriggerEventWithRefs> trigEv;
-  iEvent.getByLabel(triggerInfo_,trigEv);
 
-  if (trigEv.isValid()) 
-    {
+      //Look if the Event passed any one form the Reference Triggers and Tag this
+      //Book Reference Object Collection
 
-
-      //make The reference Denominators
-      //LOOP ON the Different Triggers
-      
-      
       LVColl refObjects;
       
       for(size_t i=0;i<refFilters_.size();++i)
 	{
 	 
-	  refObjects.clear();
-	  refObjects = importReferenceObjects(refFilters_[i],refIDs_[i],*trigEv);
-		  size_t object_counter = 0;
-		  for(size_t j = 0 ; j< refObjects.size();++j)
-		    {
-		      if(refObjects[j].Pt()>PtCut_[i])
-			{
-			  object_counter++;
-			  //EtRef_[i]->Fill(refObjects[j].Et());
-			  //EtaRef_[i]->Fill(refObjects[j].Eta());
-
-			}
-		    }
-		  if(object_counter>=nTriggeredTaus_)
-		    {
-		      NRefEvents[i]++;
-
-		    }
-
-	   
-	  
+          refObjects.clear();
+          refObjects = importObjectColl(refFilters_[i],refIDs_[i],iEvent);
+	  size_t object_counter = 0;
+	  for(size_t j = 0 ; j< refObjects.size();++j)
+	    {
+	      if(refObjects[j].Pt()>PtCut_[i])
+		{
+		  object_counter++;
+		}
+	    }
+	  if(object_counter>=nTriggeredTaus_)
+	    {
+	      NRefEvents[i]++;
+	    }
+  
 	}
 
       //Look at the L1Trigger
       
-      size_t L1ID; //L1 Trigger ID;
-      L1ID = trigEv->filterIndex(l1Filter_);
-      VRl1jet L1Taus;
-      
-      if(L1ID!=trigEv->size())
-	{
-  	  trigEv->getObjects(L1ID,86,L1Taus);
+      LVColl L1Taus = importObjectColl(l1Filter_,trigger::TriggerTau,iEvent);
+
 	  if(L1Taus.size()>=nTriggeredTaus_)
 	    {
 	      NEventsPassedL1++;
 	    
 	    }
+
 	  //Match With REFERENCE OBjects
 	  for(size_t i = 0;i<refFilters_.size();++i)
 	    {
 	      refObjects.clear();
-	      refObjects = importReferenceObjects(refFilters_[i],refIDs_[i],*trigEv);
+	      refObjects = importObjectColl(refFilters_[i],refIDs_[i],iEvent);
 
 	      size_t match_counter = 0;
 	       for(size_t j = 0;j<L1Taus.size();++j)
 		{
-		  if(match(*L1Taus[j],refObjects,corrDeltaR_,PtCut_[i]))
+		  if(match(L1Taus[j],refObjects,corrDeltaR_,PtCut_[i]))
 		    {
 		      match_counter++;
 		    }
@@ -540,19 +602,9 @@ HLTTauDQMSource::doSummary(const Event& iEvent, const EventSetup& iSetup)
 
 	    }
 
-	}
-
-
-
-      //Look at the L2Trigger
+	  //Look at the L2Trigger
       
-      size_t L2ID; //L2 Trigger ID;
-      L2ID = trigEv->filterIndex(l2Filter_);
-      VRjet L2Taus;
-      
-      if(L2ID!=trigEv->size())
-	{
-  	  trigEv->getObjects(L2ID,94,L2Taus);
+	  LVColl L2Taus = importObjectColl(l2Filter_,trigger::TriggerTau,iEvent);
 	  if(L2Taus.size()>=nTriggeredTaus_)
 	    {
 	      NEventsPassedL2++;
@@ -562,12 +614,12 @@ HLTTauDQMSource::doSummary(const Event& iEvent, const EventSetup& iSetup)
 	  for(size_t i = 0;i<refFilters_.size();++i)
 	    {
 	      refObjects.clear();
-	      refObjects = importReferenceObjects(refFilters_[i],refIDs_[i],*trigEv);
+	      refObjects = importObjectColl(refFilters_[i],refIDs_[i],iEvent);
 
 	      size_t match_counter = 0;
 	       for(size_t j = 0;j<L2Taus.size();++j)
 		{
-		  if(match(*L2Taus[j],refObjects,corrDeltaR_,PtCut_[i]))
+		  if(match(L2Taus[j],refObjects,corrDeltaR_,PtCut_[i]))
 		    {
 		      match_counter++;
 		    }
@@ -581,17 +633,11 @@ HLTTauDQMSource::doSummary(const Event& iEvent, const EventSetup& iSetup)
 
 	    }
 
-	}
+	
 
       //Look at the L25Trigger
       
-      size_t L25ID; //L25 Trigger ID;
-      L25ID = trigEv->filterIndex(l25Filter_);
-      VRjet L25Taus;
-      
-      if(L25ID!=trigEv->size())
-	{
-  	  trigEv->getObjects(L25ID,94,L25Taus);
+	  LVColl L25Taus = importObjectColl(l25Filter_,trigger::TriggerTau,iEvent);
 	  if(L25Taus.size()>=nTriggeredTaus_)
 	    {
 	      NEventsPassedL25++;
@@ -601,12 +647,12 @@ HLTTauDQMSource::doSummary(const Event& iEvent, const EventSetup& iSetup)
 	  for(size_t i = 0;i<refFilters_.size();++i)
 	    {
 	      refObjects.clear();
-	      refObjects = importReferenceObjects(refFilters_[i],refIDs_[i],*trigEv);
+	      refObjects = importObjectColl(refFilters_[i],refIDs_[i],iEvent);
 
 	      size_t match_counter = 0;
 	       for(size_t j = 0;j<L25Taus.size();++j)
 		{
-		  if(match(*L25Taus[j],refObjects,corrDeltaR_,PtCut_[i]))
+		  if(match(L25Taus[j],refObjects,corrDeltaR_,PtCut_[i]))
 		    {
 		      match_counter++;
 		    }
@@ -620,18 +666,12 @@ HLTTauDQMSource::doSummary(const Event& iEvent, const EventSetup& iSetup)
 
 	    }
 
-	}
+	
 
 
       //Look at the L3Trigger
-      
-      size_t L3ID; //L3 Trigger ID;
-      L3ID = trigEv->filterIndex(l3Filter_);
-      VRjet L3Taus;
-      
-      if(L3ID!=trigEv->size())
-	{
-  	  trigEv->getObjects(L3ID,94,L3Taus);
+	  LVColl L3Taus = importObjectColl(l3Filter_,trigger::TriggerTau,iEvent);
+
 	  if(L3Taus.size()>=nTriggeredTaus_)
 	    {
 	      NEventsPassedL3++;
@@ -641,12 +681,12 @@ HLTTauDQMSource::doSummary(const Event& iEvent, const EventSetup& iSetup)
 	  for(size_t i = 0;i<refFilters_.size();++i)
 	    {
 	      refObjects.clear();
-	      refObjects = importReferenceObjects(refFilters_[i],refIDs_[i],*trigEv);
+	      refObjects = importObjectColl(refFilters_[i],refIDs_[i],iEvent);
 
 	      size_t match_counter = 0;
 	       for(size_t j = 0;j<L3Taus.size();++j)
 		{
-		  if(match(*L3Taus[j],refObjects,corrDeltaR_,PtCut_[i]))
+		  if(match(L3Taus[j],refObjects,corrDeltaR_,PtCut_[i]))
 		    {
 		      match_counter++;
 		    }
@@ -660,7 +700,7 @@ HLTTauDQMSource::doSummary(const Event& iEvent, const EventSetup& iSetup)
 
 	    }
 
-	}
+
 
 
 
@@ -709,32 +749,18 @@ HLTTauDQMSource::doSummary(const Event& iEvent, const EventSetup& iSetup)
 
 
     
-
-
-    }
-
 }
+
 void 
 HLTTauDQMSource::doL2(const Event& iEvent, const EventSetup& iSetup)
 {
-  //get The trigger Element
-  Handle<TriggerEventWithRefs> trigEv;
-  iEvent.getByLabel(triggerInfo_,trigEv);
 
-  if (trigEv.isValid()) 
-    {
-      //See if the event passed L1 Trigger
-            size_t L1ID; //L1 Trigger ID;
-	    L1ID = trigEv->filterIndex(l1Filter_);
-	    if(L1ID!=trigEv->size())
-	      {
-		//That means that the L2 Trigger Has run ...So Access the isolation 
-		//information
-		Handle<L2TauInfoAssociation> l2TauInfoAssoc; //Handle to the input (L2 Tau Info Association)
+       Handle<L2TauInfoAssociation> l2TauInfoAssoc; //Handle to the input (L2 Tau Info Association)
 
 
-		if(iEvent.getByLabel(l2AssocMap_,l2TauInfoAssoc))//get the Association class
-	
+       if(iEvent.getByLabel(l2AssocMap_,l2TauInfoAssoc))
+	 {
+
 		//If the Collection exists do work
 		if(l2TauInfoAssoc->size()>0)
 		  for(L2TauInfoAssociation::const_iterator p = l2TauInfoAssoc->begin();p!=l2TauInfoAssoc->end();++p)
@@ -759,9 +785,9 @@ HLTTauDQMSource::doL2(const Event& iEvent, const EventSetup& iSetup)
 	            for(size_t i=0;i<refFilters_.size();++i)
 		      {
 			//Get reference Objects
-			LVColl refObjects = importReferenceObjects(refFilters_[i],refIDs_[i],*trigEv);
+			LVColl refObjects = importObjectColl(refFilters_[i],refIDs_[i],iEvent);
 			//Match Jet
-			if(match(jet,refObjects,corrDeltaR_,PtCut_[i]))
+			if(match(jet.p4(),refObjects,corrDeltaR_,PtCut_[i]))
 			  {
 			    //Fill the other histos!!
 			    L2JetEtRef_[i]->Fill(jet.et());
@@ -779,103 +805,163 @@ HLTTauDQMSource::doL2(const Event& iEvent, const EventSetup& iSetup)
 
 		      }
 
-
 		    }
-	      }
-    }
+	 }
 }
-      
-
-      
 
 
-    
+
 void 
 HLTTauDQMSource::doL25(const Event& iEvent, const EventSetup& iSetup)
 {
 
-  Handle<TriggerEventWithRefs> trigEv;
-  iEvent.getByLabel(triggerInfo_,trigEv);
 
-  if (trigEv.isValid())
-    {
-      //Let's see if the tau jet passed L2
-      size_t L2ID; //L2 Trigger ID;
-      L2ID = trigEv->filterIndex(l2Filter_);
-      if(L2ID!=trigEv->size())
-	{
+
 	  //Access the isolation class and do L25 analysis
 	  Handle<IsolatedTauTagInfoCollection> tauTagInfo;
 	  if(iEvent.getByLabel(l25IsolInfo_, tauTagInfo))
-	    for(IsolatedTauTagInfoCollection::const_iterator tauTag  = tauTagInfo->begin();tauTag!=tauTagInfo->end();++tauTag)
 	    {
-	      //Fill Inclusive histograms
-	      L25JetEt_->Fill(tauTag->jet()->et());
-	      L25JetEta_->Fill(tauTag->jet()->eta());
-	      L25NPixelTracks_->Fill(tauTag->allTracks().size());
-	      L25NQPixelTracks_->Fill(tauTag->selectedTracks().size());
-	      const TrackRef lTrack =tauTag->leadingSignalTrack(l25LeadTrackDeltaR_,l25LeadTrackPt_); 
-	      if(!lTrack)
+	      for(IsolatedTauTagInfoCollection::const_iterator tauTag  = tauTagInfo->begin();tauTag!=tauTagInfo->end();++tauTag)
 		{
-		  L25HasLeadingTrack_->Fill(1.5);
-		}
-	      else
-		{
-		  L25HasLeadingTrack_->Fill(0.5);
-		  L25LeadTrackPt_->Fill(lTrack->pt());
+		  //Fill Inclusive histograms
+		  L25JetEt_->Fill(tauTag->jet()->et());
+		  L25JetEta_->Fill(tauTag->jet()->eta());
+		  L25NPixelTracks_->Fill(tauTag->allTracks().size());
+		  L25NQPixelTracks_->Fill(tauTag->selectedTracks().size());
+		  const TrackRef lTrack =tauTag->leadingSignalTrack(l25LeadTrackDeltaR_,l25LeadTrackPt_); 
+		  if(!lTrack)
+		    {
+		      L25HasLeadingTrack_->Fill(1.5);
+		    }
+		  else
+		    {
+		      L25HasLeadingTrack_->Fill(0.5);
+		      L25LeadTrackPt_->Fill(lTrack->pt());
 
-		}
+		    }
 
-	      //Calculate Sum of Track pt
-	      double sumTrackPt = 0.;
-		for(size_t k=0;k<tauTag->allTracks().size();++k)
-		  {
-		    sumTrackPt+=tauTag->allTracks()[k]->pt();
-		  }
+		  //Calculate Sum of Track pt
+		  double sumTrackPt = 0.;
+		  for(size_t k=0;k<tauTag->allTracks().size();++k)
+		    {
+		      sumTrackPt+=tauTag->allTracks()[k]->pt();
+		    }
 
-	      L25SumTrackPt_->Fill(sumTrackPt);
+		  L25SumTrackPt_->Fill(sumTrackPt);
 
 
-	      //Fill Matching Information
-    	       for(size_t i=0;i<refFilters_.size();++i)
-	      {
-		//Get reference Objects
-		LVColl refObjects = importReferenceObjects(refFilters_[i],refIDs_[i],*trigEv);
-		//Match Jet
-		if(match(*(tauTag->jet()),refObjects,corrDeltaR_,PtCut_[i]))
-		  {
-		     L25JetEtRef_[i]->Fill(tauTag->jet()->et());
-		     L25JetEtaRef_[i]->Fill(tauTag->jet()->eta());
-		     L25NPixelTracksRef_[i]->Fill(tauTag->allTracks().size());
-		     L25NQPixelTracksRef_[i]->Fill(tauTag->selectedTracks().size());
-		     
-		     
-		     if(!lTrack)
-		       {
-			  L25HasLeadingTrackRef_[i]->Fill(1.5);
-	
+		  //Fill Matching Information
+		  for(size_t i=0;i<refFilters_.size();++i)
+		    {
+		      //Get reference Objects
+		      LVColl refObjects = importObjectColl(refFilters_[i],refIDs_[i],iEvent);
+		      //Match Jet
+		      if(match(tauTag->jet()->p4(),refObjects,corrDeltaR_,PtCut_[i]))
+			{
+			  L25JetEtRef_[i]->Fill(tauTag->jet()->et());
+			  L25JetEtaRef_[i]->Fill(tauTag->jet()->eta());
+			  L25NPixelTracksRef_[i]->Fill(tauTag->allTracks().size());
+			  L25NQPixelTracksRef_[i]->Fill(tauTag->selectedTracks().size());
+		   		     
+			  if(!lTrack)
+			    {
+			      L25HasLeadingTrackRef_[i]->Fill(1.5);
+			    }
+			  else
+			    {
+			      L25HasLeadingTrackRef_[i]->Fill(0.5);
+			      L25LeadTrackPtRef_[i]->Fill(lTrack->pt());
+			      L25SumTrackPtRef_[i]->Fill(sumTrackPt);
+			    }
 			
-		       }
-		     else
-		       {
-			 L25HasLeadingTrackRef_[i]->Fill(0.5);
-			 L25LeadTrackPtRef_[i]->Fill(lTrack->pt());
-			 L25SumTrackPtRef_[i]->Fill(sumTrackPt);
-
-		       }
-		  }
-	      }
+			}
+		    }
+		}
 	    }
-	}
-    }
-}
+}	      
+	    
+	
+
+
+void 
+HLTTauDQMSource::doL3(const Event& iEvent, const EventSetup& iSetup)
+{
+
+
+
+	  //Access the isolation class and do L3 analysis
+	  Handle<IsolatedTauTagInfoCollection> tauTagInfo;
+	  if(iEvent.getByLabel(l3IsolInfo_, tauTagInfo))
+	    {
+	      for(IsolatedTauTagInfoCollection::const_iterator tauTag  = tauTagInfo->begin();tauTag!=tauTagInfo->end();++tauTag)
+		{
+		  //Fill Inclusive histograms
+		  L3JetEt_->Fill(tauTag->jet()->et());
+		  L3JetEta_->Fill(tauTag->jet()->eta());
+		  L3NPixelTracks_->Fill(tauTag->allTracks().size());
+		  L3NQPixelTracks_->Fill(tauTag->selectedTracks().size());
+		  const TrackRef lTrack =tauTag->leadingSignalTrack(l3LeadTrackDeltaR_,l3LeadTrackPt_); 
+		  if(!lTrack)
+		    {
+		      L3HasLeadingTrack_->Fill(1.5);
+		    }
+		  else
+		    {
+		      L3HasLeadingTrack_->Fill(0.5);
+		      L3LeadTrackPt_->Fill(lTrack->pt());
+
+		    }
+
+		  //Calculate Sum of Track pt
+		  double sumTrackPt = 0.;
+		  for(size_t k=0;k<tauTag->allTracks().size();++k)
+		    {
+		      sumTrackPt+=tauTag->allTracks()[k]->pt();
+		    }
+
+		  L3SumTrackPt_->Fill(sumTrackPt);
+
+
+		  //Fill Matching Information
+		  for(size_t i=0;i<refFilters_.size();++i)
+		    {
+		      //Get reference Objects
+		      LVColl refObjects = importObjectColl(refFilters_[i],refIDs_[i],iEvent);
+		      //Match Jet
+		      if(match(tauTag->jet()->p4(),refObjects,corrDeltaR_,PtCut_[i]))
+			{
+			  L3JetEtRef_[i]->Fill(tauTag->jet()->et());
+			  L3JetEtaRef_[i]->Fill(tauTag->jet()->eta());
+			  L3NPixelTracksRef_[i]->Fill(tauTag->allTracks().size());
+			  L3NQPixelTracksRef_[i]->Fill(tauTag->selectedTracks().size());
+		   		     
+			  if(!lTrack)
+			    {
+			      L3HasLeadingTrackRef_[i]->Fill(1.5);
+			    }
+			  else
+			    {
+			      L3HasLeadingTrackRef_[i]->Fill(0.5);
+			      L3LeadTrackPtRef_[i]->Fill(lTrack->pt());
+			      L3SumTrackPtRef_[i]->Fill(sumTrackPt);
+			    }
+			
+			}
+		    }
+		}
+	    }
+}	      
+	    
+	
+    
+
 
 
 
 
 
 bool 
-HLTTauDQMSource::match(const reco::Candidate& cand,const  LVColl&  electrons/*VRelectron& electrons*/,double deltaR,double  ptMin)
+HLTTauDQMSource::match(const LV& cand,const  LVColl&  electrons/*VRelectron& electrons*/,double deltaR,double  ptMin)
 {
 
  
@@ -883,7 +969,7 @@ HLTTauDQMSource::match(const reco::Candidate& cand,const  LVColl&  electrons/*VR
 
   for(size_t i = 0;i<electrons.size();++i)
       {
-	double delta = ROOT::Math::VectorUtil::DeltaR(cand.p4().Vect(),electrons[i].Vect());
+	double delta = ROOT::Math::VectorUtil::DeltaR(cand.Vect(),electrons[i].Vect());
 	if((delta<deltaR)&&electrons[i].Pt()>ptMin)
 	  {
 	    matched=true;
@@ -916,26 +1002,99 @@ HLTTauDQMSource::calcEfficiency(int num,int denom)
 }
 
 LVColl 
-HLTTauDQMSource::importReferenceObjects(std::string filter,int id,const trigger::TriggerEventWithRefs& trigEv)
+HLTTauDQMSource::importObjectColl(edm::InputTag& filter,int id,const Event& iEvent)
 {
-  LVColl out;
+      //Create output Collection
+      LVColl out;
 
-  size_t ID; //Object Trigger ID
-  ID =trigEv.filterIndex(filter);
-  if(ID!=trigEv.size())
-    {
       //Look at all Different triggers
-      if(id==92) //HLT electron
+      
+      //If we have a L1 Jet
+      if(id==84||id==85||id==86) 
 	{
-	  VRelectron obj;
-	  trigEv.getObjects(ID,92,obj);
-	  for(size_t i=0;i<obj.size();++i)
-	    out.push_back(obj[i]->p4());
+	  edm::Handle<trigger::TriggerFilterObjectWithRefs> f;
+	  if(iEvent.getByLabel(filter,f))
+	    {
+	      VRl1jet jets; 
+	      f->getObjects(id,jets);
+	      for(size_t i = 0; i<jets.size();++i)
+		out.push_back(jets[i]->p4());
+
+	    }
+
+	}
+
+      //If we have an HLT Jet
+      if(id==94||id==95||id==96) 
+	{
+	  edm::Handle<reco::CaloJetCollection> obj;
+	  if(iEvent.getByLabel(filter,obj))
+	    {
+	     
+	       for(size_t i = 0; i<obj->size();++i)
+		out.push_back((*obj)[i].p4());
+
+	    }
+
+	}
+
+     
+
+
+      //If we have a gamma Collection(HLT Jets, Taus and bs)
+      if(id==91) 
+	{
+	  edm::Handle<reco::RecoEcalCandidateCollection> gamma;
+	  if(iEvent.getByLabel(filter,gamma))
+	    {
+	      for(size_t i = 0; i<gamma->size();++i)
+		out.push_back((*gamma)[i].p4());
+
+	    }
+
+	}
+
+      //If we have an electron Collection(Electrons)
+      if(id==92) 
+	{
+	  edm::Handle<reco::ElectronCollection> obj;
+	  if(iEvent.getByLabel(filter,obj))
+	    {
+	      for(size_t i = 0; i<obj->size();++i)
+		out.push_back((*obj)[i].p4());
+
+	    }
+
+	}
+
+      //If we have a Muon  Collection
+      if(id==93) 
+	{
+	  edm::Handle<RecoChargedCandidateCollection> obj;
+	  if(iEvent.getByLabel(filter,obj))
+	    {
+	      for(size_t i = 0; i<obj->size();++i)
+		out.push_back((*obj)[i].p4());
+
+	    }
+
+	}
+
+      //If we have a Track Collection
+      if(id==99) 
+	{
+	  edm::Handle<std::vector<reco::IsolatedPixelTrackCandidate> > obj;
+	  if(iEvent.getByLabel(filter,obj))
+	    {
+	      for(size_t i = 0; i<obj->size();++i)
+		out.push_back((*obj)[i].p4());
+
+	    }
 
 	}
 
 
-    }
+
 
   return out;
 }
