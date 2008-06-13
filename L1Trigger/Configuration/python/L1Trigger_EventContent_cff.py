@@ -1,7 +1,7 @@
 import FWCore.ParameterSet.Config as cms
 
-# Full Event content 
-L1TriggerFEVT = cms.PSet(
+# RAW content 
+L1TriggerRAW = cms.PSet(
     outputCommands = cms.untracked.vstring('keep *_gtDigis_*_*', 
         'keep *_l1GtRecord_*_*', 
         'keep *_l1GtObjectMap_*_*', 
@@ -21,7 +21,7 @@ L1TriggerAOD = cms.PSet(
         'keep *_l1GtObjectMap_*_*', 
         'keep *_l1extraParticles_*_*')
 )
-L1TriggerFEVTDIGI = cms.PSet(
+L1TriggerFEVTDEBUG = cms.PSet(
     outputCommands = cms.untracked.vstring('keep *_simCscTriggerPrimitiveDigis_*_*', 
         'keep *_simDtTriggerPrimitiveDigis_*_*', 
         'keep *_simRpcTriggerDigis_*_*', 
