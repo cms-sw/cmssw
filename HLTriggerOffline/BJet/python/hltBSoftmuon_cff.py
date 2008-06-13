@@ -24,7 +24,7 @@ hltBSoftmuonModules = cms.PSet(
         'hltbhtmu')
 )
 hltBSoftmuon = cms.Sequence(hltb1jetmu+hltb2jetmu+hltb3jetmu+hltb4jetmu+hltbhtmu)
-hltb1jetmu.triggerPath = 'HLTB1Jet'
+hltb1jetmu.triggerPath = 'HLT_BTagIP_Jet180'
 hltb1jetmu.levels = cms.VPSet(cms.PSet(
     filter = cms.InputTag("hltBSoftmuonNjetL1seeds"),
     jets = cms.InputTag("iterativeCone5CaloJets","","HLT"),
@@ -49,7 +49,7 @@ hltb1jetmu.levels = cms.VPSet(cms.PSet(
         name = cms.string('L3'),
         title = cms.string('L3')
     ))
-hltb2jetmu.triggerPath = 'HLTB2Jet'
+hltb2jetmu.triggerPath = 'HLT_BTagIP_DoubleJet120'
 hltb2jetmu.levels = cms.VPSet(cms.PSet(
     filter = cms.InputTag("hltBSoftmuonNjetL1seeds"),
     jets = cms.InputTag("iterativeCone5CaloJets","","HLT"),
@@ -74,7 +74,7 @@ hltb2jetmu.levels = cms.VPSet(cms.PSet(
         name = cms.string('L3'),
         title = cms.string('L3')
     ))
-hltb3jetmu.triggerPath = 'HLTB3Jet'
+hltb3jetmu.triggerPath = 'HLT_BTagIP_TripleJet70'
 hltb3jetmu.levels = cms.VPSet(cms.PSet(
     filter = cms.InputTag("hltBSoftmuonNjetL1seeds"),
     jets = cms.InputTag("iterativeCone5CaloJets","","HLT"),
@@ -99,7 +99,7 @@ hltb3jetmu.levels = cms.VPSet(cms.PSet(
         name = cms.string('L3'),
         title = cms.string('L3')
     ))
-hltb4jetmu.triggerPath = 'HLTB4Jet'
+hltb4jetmu.triggerPath = 'HLT_BTagIP_QuadJet40'
 hltb4jetmu.levels = cms.VPSet(cms.PSet(
     filter = cms.InputTag("hltBSoftmuonNjetL1seeds"),
     jets = cms.InputTag("iterativeCone5CaloJets","","HLT"),
@@ -124,7 +124,7 @@ hltb4jetmu.levels = cms.VPSet(cms.PSet(
         name = cms.string('L3'),
         title = cms.string('L3')
     ))
-hltbhtmu.triggerPath = 'HLTBHT'
+hltbhtmu.triggerPath = 'HLT_BTagIP_HT470'
 hltbhtmu.levels = cms.VPSet(cms.PSet(
     filter = cms.InputTag("hltBSoftmuonHTL1seeds"),
     jets = cms.InputTag("iterativeCone5CaloJets","","HLT"),

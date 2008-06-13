@@ -24,7 +24,7 @@ hltBLifetimeModules = cms.PSet(
         'hltbht')
 )
 hltBLifetime = cms.Sequence(hltb1jet+hltb2jet+hltb3jet+hltb4jet+hltbht)
-hltb1jet.triggerPath = 'HLTB1Jet'
+hltb1jet.triggerPath = 'HLT_BTagIP_Jet180'
 hltb1jet.levels = cms.VPSet(cms.PSet(
     filter = cms.InputTag("hltBLifetimeL1seeds"),
     jets = cms.InputTag("iterativeCone5CaloJets","","HLT"),
@@ -51,7 +51,7 @@ hltb1jet.levels = cms.VPSet(cms.PSet(
         name = cms.string('L3'),
         title = cms.string('L3')
     ))
-hltb2jet.triggerPath = 'HLTB2Jet'
+hltb2jet.triggerPath = 'HLT_BTagIP_DoubleJet120'
 hltb2jet.levels = cms.VPSet(cms.PSet(
     filter = cms.InputTag("hltBLifetimeL1seeds"),
     jets = cms.InputTag("iterativeCone5CaloJets","","HLT"),
@@ -78,7 +78,7 @@ hltb2jet.levels = cms.VPSet(cms.PSet(
         name = cms.string('L3'),
         title = cms.string('L3')
     ))
-hltb3jet.triggerPath = 'HLTB3Jet'
+hltb3jet.triggerPath = 'HLT_BTagIP_TripleJet70'
 hltb3jet.levels = cms.VPSet(cms.PSet(
     filter = cms.InputTag("hltBLifetimeL1seeds"),
     jets = cms.InputTag("iterativeCone5CaloJets","","HLT"),
@@ -105,7 +105,7 @@ hltb3jet.levels = cms.VPSet(cms.PSet(
         name = cms.string('L3'),
         title = cms.string('L3')
     ))
-hltb4jet.triggerPath = 'HLTB4Jet'
+hltb4jet.triggerPath = 'HLT_BTagIP_QuadJet40'
 hltb4jet.levels = cms.VPSet(cms.PSet(
     filter = cms.InputTag("hltBLifetimeL1seeds"),
     jets = cms.InputTag("iterativeCone5CaloJets","","HLT"),
@@ -132,7 +132,7 @@ hltb4jet.levels = cms.VPSet(cms.PSet(
         name = cms.string('L3'),
         title = cms.string('L3')
     ))
-hltbht.triggerPath = 'HLTBHT'
+hltbht.triggerPath = 'HLT_BTagIP_HT470'
 hltbht.levels = cms.VPSet(cms.PSet(
     filter = cms.InputTag("hltBLifetimeL1seeds"),
     jets = cms.InputTag("iterativeCone5CaloJets","","HLT"),
