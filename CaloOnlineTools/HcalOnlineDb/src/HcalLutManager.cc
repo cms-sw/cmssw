@@ -639,6 +639,78 @@ std::map<int, shared_ptr<LutXml> > HcalLutManager::get_brickSet_from_oracle( std
   return lut_map;
 }
 
+/*
+int HcalLutManager::createLUTLoader( string _prefix, string tag_name, string comment, string version, string subversion )
+{
+  cout << "Generating XML loader for LUTs..." << endl;
+  cout << _prefix << "..." << tag_name << endl;
 
+  XMLLUTLoader::loaderBaseConfig baseConf;
+  XMLLUTLoader::lutDBConfig conf;
+  XMLLUTLoader::checksumsDBConfig CSconf;
 
+  baseConf . tag_name = tag_name;
+  //baseConf . comment_description = tag_name;
+  baseConf . comment_description = comment;
+  baseConf . iov_begin = "1";
+  baseConf . iov_end = "-1";
 
+  conf . version = version;
+  conf . subversion = subversion;
+
+  CSconf . version = conf . version;
+  CSconf . subversion = conf . subversion;
+  CSconf . trig_prim_lookuptbl_data_file = _prefix + "_checksums.xml.dat";
+  CSconf . comment_description = tag_name;
+
+  XMLLUTLoader doc( &baseConf );
+
+  vector<int> crate_number;
+  crate_number . push_back(0);
+  crate_number . push_back(1);
+  crate_number . push_back(2);
+  crate_number . push_back(4);
+  crate_number . push_back(5);
+  crate_number . push_back(9);
+  crate_number . push_back(10);
+  crate_number . push_back(11);
+  crate_number . push_back(12);
+  crate_number . push_back(14);
+  crate_number . push_back(15);
+  crate_number . push_back(17);
+  vector<string> file_name;
+  file_name . push_back( "./" + _prefix + "_0.xml.dat" );
+  file_name . push_back( "./" + _prefix + "_1.xml.dat" );
+  file_name . push_back( "./" + _prefix + "_2.xml.dat" );
+  file_name . push_back( "./" + _prefix + "_4.xml.dat" );
+  file_name . push_back( "./" + _prefix + "_5.xml.dat" );
+  file_name . push_back( "./" + _prefix + "_9.xml.dat" );
+  file_name . push_back( "./" + _prefix + "_10.xml.dat" );
+  file_name . push_back( "./" + _prefix + "_11.xml.dat" );
+  file_name . push_back( "./" + _prefix + "_12.xml.dat" );
+  file_name . push_back( "./" + _prefix + "_14.xml.dat" );
+  file_name . push_back( "./" + _prefix + "_15.xml.dat" );
+  file_name . push_back( "./" + _prefix + "_17.xml.dat" );
+  for ( vector<string>::const_iterator _file = file_name . begin(); _file != file_name . end(); _file++ )
+    {
+      conf . trig_prim_lookuptbl_data_file = *_file;
+      //conf . trig_prim_lookuptbl_data_file += ".dat";
+      conf . crate = crate_number[ _file - file_name . begin() ];
+      
+      char _buf[128];
+      sprintf( _buf, "CRATE%.2d", conf . crate );
+      string _namelabel;
+      _namelabel . append( _buf );
+      conf . name_label = _namelabel;
+      doc . addLUT( &conf );
+    }
+  
+  doc . addChecksums( &CSconf );
+  //doc . write( _prefix + "_Loader.xml" );
+  doc . write( tag_name + "_Loader.xml" );
+
+  cout << "Generating XML loader for LUTs... done." << endl;
+
+  return 0;
+}
+*/

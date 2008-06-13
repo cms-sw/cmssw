@@ -887,7 +887,7 @@ int createLUTLoader( string _prefix, string tag_name )
 
   baseConf . tag_name = tag_name;
   //baseConf . comment_description = tag_name;
-  baseConf . comment_description = "LUTs for CRUZET part 2. Fake checksums. HF and HB/HE look the same. Master file for linearizer LUTs is inputLUTcoder_CRUZET_v2.1.dat. Master file for compression LUTs is outputLUTtranscoder_CRUZET.dat.";
+  baseConf . comment_description = "HF changed back to 5,6,7 (were 7,8,9). Input: pedestal compensation by 3, nominal linearization, output: |ieta|<=15 thr=7 (equal or more), |ieta|=16 thr=10, |ieta|>=17 & |ieta|<=28 thr=9, |ieta|>=29 thr=7, checksums are real and correct from now on unless explicitely stated. Master files: CaloOnlineTools/HcalOnlineDb/test/inputLUTcoder_CRUZET_v2.3.dat and CaloOnlineTools/HcalOnlineDb/test/outputLUTtranscoder_CRUZET_v2.5.dat";
   baseConf . iov_begin = "1";
   baseConf . iov_end = "-1";
 

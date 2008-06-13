@@ -76,6 +76,8 @@ class HcalLutManager{
 
   int get_xml_files_from_db( std::string tag, const std::string db_accessor = "occi://CMS_HCL_PRTTYPE_HCAL_READER@anyhost/int2r?PASSWORD=HCAL_Reader_88,LHWM_VERSION=22", bool split_by_crate = true );
 
+  //int createLUTLoader( string _prefix, string tag_name, string comment="default comment", string version="V00-01-01, string subversion="1" );
+
   // get md5 checksums for LUTs
   std::string get_checksum( std::vector<unsigned int> & lut );
 
