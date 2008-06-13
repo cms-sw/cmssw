@@ -217,7 +217,7 @@ bool BU::stopping(toolbox::task::WorkLoop* wl)
     LOG4CPLUS_INFO(log_,"Start stopping :) ...");
 
     if (0!=PlaybackRawDataProvider::instance()&&
-	(!replay_.value_ || nbEventsBuilt_<events_.size())) { 
+	(!replay_.value_||nbEventsBuilt_<(uint32_t)events_.size())) { 
       lock();
       freeIds_.push(events_.size()); 
       unlock();
@@ -240,7 +240,7 @@ bool BU::stopping(toolbox::task::WorkLoop* wl)
       ::sleep(1);
     }
     if (0!=PlaybackRawDataProvider::instance()&&
-	(replay_.value_ && nbEventsBuilt_>=events_.size())) {
+	(replay_.value_&&nbEventsBuilt_>=(uint32_t)events_.size())) {
       lock();
       freeIds_.push(events_.size());
       unlock();
@@ -421,7 +421,7 @@ bool BU::building(toolbox::task::WorkLoop* wl)
   unsigned int buResourceId=freeIds_.front(); freeIds_.pop();
   unlock();
   
-  if (buResourceId>=events_.size()) {
+  if (buResourceId>=(uint32_t)events_.size()) {
     LOG4CPLUS_INFO(log_,"shutdown 'building' workloop.");
     isBuilding_=false;
     return false;
@@ -480,7 +480,7 @@ bool BU::sending(toolbox::task::WorkLoop* wl)
   unsigned int buResourceId=builtIds_.front(); builtIds_.pop();
   unlock();
   
-  if (buResourceId>=events_.size()) {
+  if (buResourceId>=(uint32_t)events_.size()) {
     LOG4CPLUS_INFO(log_,"shutdown 'sending' workloop.");
     isSending_=false;
     return false;
@@ -717,7 +717,7 @@ double BU::deltaT(const struct timeval *start,const struct timeval *end)
 bool BU::generateEvent(BUEvent* evt)
 {
   // replay?
-  if (replay_.value_&&nbEventsBuilt_>=events_.size()) 
+  if (replay_.value_&&nbEventsBuilt_>=(uint32_t)events_.size()) 
     {
       PlaybackRawDataProvider::instance()->setFreeToEof();
       return true;
@@ -1089,7 +1089,7 @@ void BU::dumpFrame(unsigned char* data,unsigned int len)
     c+=8;
     
     printf ("%4d: %s%s ||  %s%s  %x\n",
-	    c-8, left1, left2, right1, right2, (int)&data[c-8]);
+	    c-8, left1, left2, right1, right2, &data[c-8]);
   }
   
   fflush(stdout);	

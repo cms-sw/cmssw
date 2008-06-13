@@ -1,3 +1,10 @@
+2008-06-13  Philipp Schieferdecker  <philipp.schieferdecker@cern.ch>
+
+	* tag V00-06-16
+	* make BU.cc compile under 64bit (by casting all vector<T>::size()
+	values to uint32_t where they are compared to
+	xdata::UnsignedInteger32)
+
 2008-05-30  Philipp SCHIEFERDECKER  <philipp.schieferdecker@cern.ch>
 
 	* tag V00-06-15
