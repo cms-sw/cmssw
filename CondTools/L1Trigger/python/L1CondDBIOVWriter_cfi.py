@@ -8,5 +8,5 @@ L1CondDBIOVWriter = cms.EDFilter("L1CondDBIOVWriter",
     L1TriggerKeyTag = cms.string('L1TriggerKey_CRUZET_hlt')
 )
 
-L1CondDBIOVWriter.toPut.append(L1SubsystemParams.recordInfo)
+L1CondDBIOVWriter.toPut.extend(L1SubsystemParams.recordInfo)
 

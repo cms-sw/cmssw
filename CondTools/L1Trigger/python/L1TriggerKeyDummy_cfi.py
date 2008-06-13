@@ -6,5 +6,5 @@ L1TriggerKeyDummy = cms.ESProducer("L1TriggerKeyDummyProd",
     tscKey = cms.string('dummy')
 )
 
-L1TriggerKeyDummy.subsystemKeys.append(L1SubsystemParams.recordInfo)
+L1TriggerKeyDummy.subsystemKeys.extend(L1SubsystemParams.recordInfo)
 
