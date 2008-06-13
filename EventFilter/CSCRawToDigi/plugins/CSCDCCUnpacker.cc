@@ -260,8 +260,8 @@ void CSCDCCUnpacker::produce(edm::Event & e, const edm::EventSetup& c){
 	    } 
 	    else{
 	      edm::LogError ("CSCDCCUnpacker") << " detID input out of range!!! ";
-	      if (debug) edm::LogError ("CSCDCCUnpacker") << " skipping this chamber! ";
-	      if (debug) edm::LogError ("CSCDCCUnpacker") << "vme="<<vmecrate <<"  dmb="<<dmb;
+	      edm::LogError ("CSCDCCUnpacker")
+		<< " skipping chamber vme= " << vmecrate << " dmb= " << dmb;
 	      continue;
 	    }
 
@@ -294,7 +294,7 @@ void CSCDCCUnpacker::produce(edm::Event & e, const edm::EventSetup& c){
 		for (int unsigned i=0; i<alctDigis.size(); ++i) {
 		  if (alctDigis[i].isValid()) {
 		    int wiregroup = alctDigis[i].getKeyWG();
-		    if (wiregroup < 16) if (debug) edm::LogError("CSCDCCUnpacker")
+		    if (wiregroup < 16) edm::LogError("CSCDCCUnpacker")
 		      << "ALCT digi: wire group " << wiregroup
 		      << " is out of range!" << "vme ="
 		      << vmecrate <<"  dmb=" <<dmb <<" "<<layer;
@@ -338,7 +338,7 @@ void CSCDCCUnpacker::produce(edm::Event & e, const edm::EventSetup& c){
 		for (int unsigned i=0; i<correlatedlctDigis.size(); ++i) {
 		  if (correlatedlctDigis[i].isValid()) {
 		    int wiregroup = correlatedlctDigis[i].getKeyWG();
-		    if (wiregroup < 16) if (debug) edm::LogError("CSCDCCUnpacker")
+		    if (wiregroup < 16) edm::LogError("CSCDCCUnpacker")
 		      << "CorrelatedLCT digi: wire group " << wiregroup
 		      << " is out of range!  vme ="<<vmecrate <<"  dmb=" <<dmb
 		      <<"  "<<layer;
@@ -402,7 +402,7 @@ void CSCDCCUnpacker::produce(edm::Event & e, const edm::EventSetup& c){
 				      ((layer.ring()==1)&&(layer.station()==4)))){
 		for (int unsigned i=0; i<wireDigis.size(); ++i) {
 		  int wiregroup = wireDigis[i].getWireGroup();
-		  if (wiregroup <= 16) if (debug) edm::LogError("CSCDCCUnpacker")
+		  if (wiregroup <= 16) edm::LogError("CSCDCCUnpacker")
 		    << "Wire digi: wire group " << wiregroup
 		    << " is out of range!  vme ="<<vmecrate 
 		    <<"  dmb=" <<dmb <<"  "<<layer;
@@ -438,18 +438,24 @@ void CSCDCCUnpacker::produce(edm::Event & e, const edm::EventSetup& c){
 	}///endof loop over DDUs
       }///end of good event
       else   {
-	edm::LogError("CSCDCCUnpacker") <<"ERROR! Examiner decided to reject the event!";
+	edm::LogError("CSCDCCUnpacker") <<
+	  "ERROR! Examiner decided to reject FED #" << id;
 	if (examiner) {
-	  if (debug) edm::LogError("CSCDCCUnpacker")
-	    << " Examiner errors:0x" << std::hex << examiner->errors() << "&0x" << examinerMask
-	    << " = " << ( examiner->errors()&examinerMask);
 	  for (int i=0; i<examiner->nERRORS; ++i) {
 	    if (((examinerMask&examiner->errors())>>i)&0x1) 
-	      if (debug) edm::LogError("CSCDCCUnpacker")<<examiner->errName(i);
+	      edm::LogError("CSCDCCUnpacker")<<examiner->errName(i);
 	  }
-	  if (examinerMask&examiner->errors()) {
-	    if (debug) edm::LogError("Examiner output")<<examiner_out.str();
-	    if (debug) edm::LogError("Examiner errorts")<<examiner_err.str();
+	  if (debug) {
+	    edm::LogError("CSCDCCUnpacker")
+	      << " Examiner errors:0x" << std::hex << examiner->errors()
+	      << " & 0x" << examinerMask
+	      << " = " << (examiner->errors()&examinerMask);
+	    if (examinerMask&examiner->errors()) {
+	      edm::LogError("CSCDCCUnpacker")
+		<< "Examiner output: " << examiner_out.str();
+	      edm::LogError("CSCDCCUnpacker")
+		<< "Examiner errors: " << examiner_err.str();
+	    }
 	  }
 	}
 	dccStatusProduct->insertDigi(CSCDetId(1,1,1,1,1), CSCDCCStatusDigi(examiner->errors()));
