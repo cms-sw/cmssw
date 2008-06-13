@@ -1,7 +1,7 @@
 import FWCore.ParameterSet.Config as cms
 
-#Full Event content 
-GeneratorInterfaceFEVT = cms.PSet(
+#RAW content 
+GeneratorInterfaceRAW = cms.PSet(
     outputCommands = cms.untracked.vstring('keep edmHepMCProduct_source_*_*', 
         'keep edmGenInfoProduct_source_*_*', 
         'keep *_genParticles_*_*', 

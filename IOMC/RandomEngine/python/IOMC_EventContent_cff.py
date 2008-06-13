@@ -1,7 +1,7 @@
 import FWCore.ParameterSet.Config as cms
 
-#Full Event content 
-IOMCFEVT = cms.PSet(
+#RAW content 
+IOMCRAW = cms.PSet(
     outputCommands = cms.untracked.vstring('keep *_randomEngineStateProducer_*_*')
 )
 
