@@ -1,9 +1,9 @@
 //
-// $Id: Electron.cc,v 1.6.2.1 2008/06/03 20:08:24 gpetrucc Exp $
+// $Id: Electron.cc,v 1.7 2008/06/03 22:28:07 gpetrucc Exp $
 //
 
 #include "DataFormats/PatCandidates/interface/Electron.h"
-
+#include "FWCore/Utilities/interface/Exception.h"
 
 using namespace pat;
 
@@ -81,19 +81,6 @@ reco::TrackRef Electron::track() const {
   }
 }
 
-
-/// return the lepton ID discriminator
-float Electron::leptonID() const {
-  return leptonID_;
-}
-
-
-/// return the "robust cuts-based" electron id
-float Electron::electronIDRobust() const {
-  return electronIDRobust_;
-}
-
-
 /// method to store the electron's gsfTrack internally
 void Electron::embedGsfTrack() {
   gsfTrack_.clear();
@@ -117,15 +104,48 @@ void Electron::embedTrack() {
   embeddedTrack_ = true;
 }
 
-
-/// method to set the lepton ID discriminator
-void Electron::setLeptonID(float id) {
-  leptonID_ = id;
+#ifdef PAT_patElectron_Default_eID
+/// method to retrieve default leptonID (or throw)
+float Electron::leptonID() const { 
+    if (leptonIDs_.empty()) {
+     #ifdef PAT_patElectron_eID_Throw
+        throw cms::Exception("No data") << "This pat::Electron does not contain any ID.\n";
+     #else
+        return -1.0
+     #endif
+    }
+    return leptonIDs_.front().second; 
 }
+// Return the name of the default lepton id name, or "" if none was configured
+const std::string & Electron::leptonIDname() const { 
+    static std::string NONE = "NULL";
+    return leptonIDs_.empty() ? NONE : leptonIDs_.front().first; 
+}
+#endif
 
-
-/// method to set the "robust cuts-based" electron id
-void Electron::setElectronIDRobust(float id) {
-  electronIDRobust_ = id;
+// method to retrieve a lepton ID (or throw)
+float Electron::leptonID(const std::string & name) const {
+    for (std::vector<IdPair>::const_iterator it = leptonIDs_.begin(), ed = leptonIDs_.end(); it != ed; ++it) {
+        if (it->first == name) return it->second;
+    }
+#ifdef PAT_patElectron_eID_Throw
+    cms::Exception ex("Key not found");
+    ex << "pat::Electron: the ID " << name << " can't be found in this pat::Electron.\n";
+    ex << "The available IDs are: ";
+    for (std::vector<IdPair>::const_iterator it = leptonIDs_.begin(), ed = leptonIDs_.end(); it != ed; ++it) {
+        ex << "'" << it->first << "' ";
+    }
+    ex << ".\n";
+    throw ex;
+#else
+    return -1.0;
+#endif
+}
+// check if an ID is there
+bool Electron::isLeptonIDAvailable(const std::string & name) const {
+    for (std::vector<IdPair>::const_iterator it = leptonIDs_.begin(), ed = leptonIDs_.end(); it != ed; ++it) {
+        if (it->first == name) return true;
+    }
+    return false;
 }
 
