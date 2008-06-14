@@ -46,7 +46,7 @@
  * 
  * \author Thomas Speer, Luca Lista, Pascal Vanlaer, Juan Alcaraz
  *
- * \version $Id: TrackBase.h,v 1.65 2008/05/13 12:49:35 burkett Exp $
+ * \version $Id: TrackBase.h,v 1.66 2008/05/19 20:26:55 burkett Exp $
  *
  */
 
@@ -225,6 +225,8 @@ namespace reco {
     void setQuality(const TrackQuality, bool set=true); 
     static std::string qualityName(TrackQuality);
     static TrackQuality qualityByName(const std::string &name);
+    int qualityMask() const { return quality_; }
+    void setQualityMask(int qualMask) {quality_ = qualMask;}
   private:
     /// chi-squared
     float chi2_;
