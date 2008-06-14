@@ -1,18 +1,11 @@
 import FWCore.ParameterSet.Config as cms
 
-# Electron quality for cut based ID. Can be:
-# "robust" 
-# "loose" 
-# "tight" 
 electronQuality = cms.string('robust')
 algorithm = cms.string('eIDCB')
-# cut value arrays of form {hoe, sigmaEtaEta, dPhiIn, dEtaIn}
 robustEleIDCuts = cms.PSet(
     barrel = cms.vdouble(0.115, 0.014, 0.09, 0.009),
     endcap = cms.vdouble(0.15, 0.0275, 0.092, 0.0105)
 )
-# cut value arrays of form {barrel cat 0, barrel cat 1, barrel cat 2, barrel cat high E/p,
-#                           endcap cat 0, endcap cat 1, endcap cat 2, endcap cat high E/p}
 looseEleIDCuts = cms.PSet(
     deltaPhiIn = cms.vdouble(0.05, 0.025, 0.053, 0.09, 0.07, 
         0.03, 0.092, 0.092),
@@ -25,8 +18,6 @@ looseEleIDCuts = cms.PSet(
     eSeedOverPin = cms.vdouble(0.11, 0.91, 0.11, 0.0, 0.0, 
         0.85, 0.0, 0.0)
 )
-# cut value arrays of form {barrel cat 0, barrel cat 1, barrel cat 2, barrel cat high E/p,
-#                           endcap cat 0, endcap cat 1, endcap cat 2, endcap cat high E/p}
 tightEleIDCuts = cms.PSet(
     eSeedOverPinMax = cms.vdouble(99999.0, 99999.0, 99999.0, 99999.0, 99999.0, 
         99999.0, 99999.0, 99999.0),

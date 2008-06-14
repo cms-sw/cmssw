@@ -1,13 +1,23 @@
 import FWCore.ParameterSet.Config as cms
 
 from RecoEcal.EgammaClusterProducers.geometryForClustering_cff import *
-eidCutBased = cms.EDFilter("EleIdCutBasedRef",
+eidCutBasedExt = cms.EDProducer("EleIdCutBasedExtProducer",
+
     src = cms.InputTag("pixelMatchGsfElectrons"),
+    threshold = cms.double(0.5),
+    filter = cms.bool(False),
+
+    reducedEndcapRecHitCollection = cms.InputTag("reducedEcalRecHitsEE"),
+    reducedBarrelRecHitCollection = cms.InputTag("reducedEcalRecHitsEB"),
+
+    electronQuality = cms.string('robust'),
+    algorithm = cms.string('eIDCB'),
+
     robustEleIDCuts = cms.PSet(
         barrel = cms.vdouble(0.115, 0.014, 0.09, 0.009),
         endcap = cms.vdouble(0.15, 0.0275, 0.092, 0.0105)
     ),
-    reducedEndcapRecHitCollection = cms.InputTag("reducedEcalRecHitsEE"),
+   
     tightEleIDCuts = cms.PSet(
         eSeedOverPinMax = cms.vdouble(99999.0, 99999.0, 99999.0, 99999.0, 99999.0, 
             99999.0, 99999.0, 99999.0),
@@ -22,8 +32,7 @@ eidCutBased = cms.EDFilter("EleIdCutBasedRef",
         deltaEtaIn = cms.vdouble(0.0055, 0.003, 0.0065, 0.0, 0.006, 
             0.0055, 0.0075, 0.0)
     ),
-    algorithm = cms.string('eIDCB'),
-    filter = cms.bool(False),
+   
     looseEleIDCuts = cms.PSet(
         deltaPhiIn = cms.vdouble(0.05, 0.025, 0.053, 0.09, 0.07, 
             0.03, 0.092, 0.092),
@@ -35,10 +44,8 @@ eidCutBased = cms.EDFilter("EleIdCutBasedRef",
             0.0068, 0.01, 0.0),
         eSeedOverPin = cms.vdouble(0.11, 0.91, 0.11, 0.0, 0.0, 
             0.85, 0.0, 0.0)
-    ),
-    electronQuality = cms.string('robust'),
-    threshold = cms.double(0.5),
-    reducedBarrelRecHitCollection = cms.InputTag("reducedEcalRecHitsEB")
-)
+    )
+   
+   )
 
 

@@ -1,10 +1,8 @@
 import FWCore.ParameterSet.Config as cms
 
-# ESSource for Electron ID likelihood
 ElectronLikelihoodESSource = cms.ESProducer("ElectronLikelihoodESSource",
     useEoverPOut = cms.double(1.0),
     piEBNarrowFracGt15 = cms.double(1.0),
-    #! fisher coefficients
     fisherCoeffEBLt15_constant = cms.double(0.693496),
     piWeight = cms.double(1.0),
     fisherCoeffEBLt15_sigmaEtaEta = cms.double(-12.7018),
@@ -16,7 +14,6 @@ ElectronLikelihoodESSource = cms.ESProducer("ElectronLikelihoodESSource",
     piEEShoweringFracGt15 = cms.double(1.0),
     piEEGoldenFracGt15 = cms.double(1.0),
     eleEBGoldenFracGt15 = cms.double(1.0),
-    #! a priori probabilities (fullclass fractions). Use flat priors for now
     eleEBGoldenFracLt15 = cms.double(1.0),
     piEEBigbremFracLt15 = cms.double(1.0),
     eleEEGoldenFracGt15 = cms.double(1.0),
@@ -31,15 +28,11 @@ ElectronLikelihoodESSource = cms.ESProducer("ElectronLikelihoodESSource",
     piEBBigbremFracGt15 = cms.double(1.0),
     fisherCoeffEELt15_s9s25 = cms.double(4.51575),
     eleEBShoweringFracGt15 = cms.double(1.0),
-    #! a priori probabilies having an electron/hadron (cross sections)
     eleWeight = cms.double(1.0),
     eleEEGoldenFracLt15 = cms.double(1.0),
     useSigmaEtaEta = cms.double(1.0),
     piEENarrowFracLt15 = cms.double(1.0),
     eleEEShoweringFracLt15 = cms.double(1.0),
-    #! use dedicated PDF's for each class defined by 
-    #! signalWeightSplitting category
-    #! for now no splitted PDFs are in the DB for Bkg (lack of statistics)
     splitSignalPdfs = cms.bool(True),
     fisherCoeffEELt15_constant = cms.double(-1.11814),
     piEBBigbremFracLt15 = cms.double(1.0),
@@ -56,13 +49,7 @@ ElectronLikelihoodESSource = cms.ESProducer("ElectronLikelihoodESSource",
     useHoverE = cms.double(1.0),
     fisherCoeffEELt15_etaLat = cms.double(-6.47578),
     eleEEBigbremFracLt15 = cms.double(1.0),
-    #! switch the use of one variable ON / OFF
     useDeltaEtaCalo = cms.double(1.0),
-    #! PDF's splitting rule
-    #! class: split by non-showering / showering+cracks
-    #! fullclass: split by golden / bigbrem / narrow / showering+cracks
-    #    string signalWeightSplitting = "fullclass"
-    #    string backgroundWeightSplitting = "fullclass"
     signalWeightSplitting = cms.string('class'),
     eleEENarrowFracLt15 = cms.double(1.0),
     eleEEBigbremFracGt15 = cms.double(1.0),

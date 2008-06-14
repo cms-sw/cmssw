@@ -1,7 +1,7 @@
 import FWCore.ParameterSet.Config as cms
 
 from RecoEcal.EgammaClusterProducers.geometryForClustering_cff import *
-eidCutBasedClasses = cms.EDFilter("EleIdCutBasedRef",
+eidCutBasedClassesExt = cms.EDProducer("EleIdCutBasedExtProducer",
     useEoverPOut = cms.vint32(1, 1, 1),
     electronQuality = cms.string('loose'),
     looseEleIDCuts = cms.PSet(

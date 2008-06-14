@@ -3,7 +3,7 @@ import FWCore.ParameterSet.Config as cms
 from RecoEcal.EgammaClusterProducers.geometryForClustering_cff import *
 from RecoEgamma.ElectronIdentification.likelihoodPdfsDB_cfi import *
 from RecoEgamma.ElectronIdentification.likelihoodESetup_cfi import *
-eidLikelihood = cms.EDFilter("EleIdLikelihoodRef",
+eidLikelihoodExt = cms.EDProducer("EleIdLikelihoodExtProducer",
     src = cms.InputTag("pixelMatchGsfElectrons"),
     reducedEndcapRecHitCollection = cms.InputTag("reducedEcalRecHitsEE"),
     doLikelihood = cms.bool(True),

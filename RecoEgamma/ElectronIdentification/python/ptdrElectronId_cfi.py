@@ -1,12 +1,7 @@
 import FWCore.ParameterSet.Config as cms
 
-# Electron quality for cut based ID. Can be:
-# "loose"  - e.g. suitable for H->ZZ->4l
-# "medium" - intermediate quality  
-# "tight"  - e.g. suitable for H->WW->2l2nu
 electronQuality = cms.string('loose')
 algorithm = cms.string('eIDCBClasses')
-#Selection of input variables to be used for each eID quality "loose", "medium", "tight"
 useEoverPIn = cms.vint32(0, 0, 0)
 useDeltaEtaIn = cms.vint32(1, 1, 1)
 useDeltaPhiIn = cms.vint32(1, 1, 1)
@@ -19,9 +14,6 @@ useBremFraction = cms.vint32(0, 0, 0)
 useSigmaEtaEta = cms.vint32(0, 1, 1)
 useSigmaPhiPhi = cms.vint32(0, 0, 0)
 acceptCracks = cms.vint32(1, 1, 1)
-# cut value arrays of form {barrel golden, barrel bigbrem, barrel narrow, barrel showering,
-#                           endcap golden, endcap bigbrem, endcap narrow, endcap showering,
-#                           cracks}
 looseEleIDCuts = cms.PSet(
     invEMinusInvP = cms.vdouble(0.02, 0.02, 0.02, 0.02, 0.02, 
         0.02, 0.02, 0.02, 0.02),
