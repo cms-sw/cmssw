@@ -142,6 +142,10 @@ public:
   
   // environment variables
   int irun_,ilumisec_,ievent_,itime_;
+  int maxlumisec_, minlumisec_;
+
+  time_t mytime_;
+
   bool actonLS_ ;
   std::string rootFolder_;
 

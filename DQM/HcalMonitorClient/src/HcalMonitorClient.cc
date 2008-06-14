@@ -35,6 +35,9 @@ void HcalMonitorClient::initialize(const ParameterSet& ps){
   cout << endl;
 
   irun_=0; ilumisec_=0; ievent_=0; itime_=0;
+
+  maxlumisec_=0; minlumisec_=0;
+
   actonLS_=false;
 
   summary_client_ = 0;
@@ -414,6 +417,12 @@ void HcalMonitorClient::analyze(const Event& e, const edm::EventSetup& eventSetu
   ilumisec_ = e.luminosityBlock();
   ievent_   = e.id().event();
   itime_    = e.time().value();
+  mytime_   = (e.time().value())>>32;
+
+  if (minlumisec_==0)
+    minlumisec_=ilumisec_;
+  minlumisec_=min(minlumisec_,ilumisec_);
+  maxlumisec_=max(maxlumisec_,ilumisec_);
 
   if (debug_) cout << "HcalMonitorClient: evts: "<< ievt_ << ", run: " << irun_ << ", LS: " << ilumisec_ << ", evt: " << ievent_ << ", time: " << itime_ << endl; 
 
@@ -437,7 +446,7 @@ void HcalMonitorClient::analyze(){
   mui_->doMonitoring();
   dbe_->runQTests();
 
-  // summary_client_ analyze performed separately, before htmlOutput of summary generated
+  // summary_client_ analyze performed separately, at end of run before htmlOutput of summary generated
   if( dataformat_client_ ) dataformat_client_->analyze(); 	
   if( digi_client_ )       digi_client_->analyze(); 
   if( rechit_client_ )     rechit_client_->analyze(); 
@@ -669,7 +678,7 @@ void HcalMonitorClient::htmlOutput(void){
     summary_client_->analyze();  // Do analyze just before making html (which relies on analyze results)
     htmlName = "HcalSummaryCellClient.html";
     // summary client html output function called separately within HcalSummaryClient, after analyze function
-    summary_client_->htmlOutput(irun_, htmlDir, htmlName);
+    summary_client_->htmlOutput(irun_, mytime_, minlumisec_, maxlumisec_, htmlDir, htmlName);
     htmlFile << "<table border=0 WIDTH=\"50%\"><tr>" << endl;
     htmlFile << "<td WIDTH=\"35%\"><a href=\"" << htmlName << "\">Summary Monitor</a></td>" << endl;
     //if(summary_client_->hasErrors()) htmlFile << "<td bgcolor=red align=center>This monitor task has errors.</td>" << endl;

@@ -5,8 +5,8 @@
  * \file HcalSummaryClient.h
  *
  * Code ported from DQM/EcalBarrelMonitorClient/interface/EBSummaryClient.h
- * $Date: 2008/06/09 19:32:53 $
- * $Revision: 1.5 $
+ * $Date: 2008/06/12 21:24:08 $
+ * $Revision: 1.6 $
  * \author Jeff Temple
  *
 */
@@ -14,6 +14,7 @@
 #include <vector>
 #include <string>
 #include <fstream>
+#include <sys/time.h>
 
 #include "TROOT.h"
 
@@ -63,7 +64,7 @@ class HcalSummaryClient : public HcalBaseClient {
   void incrementCounters(void);
 
   // HtmlOutput
-  void htmlOutput(int run, std::string& htmlDir, std::string& htmlName);
+  void htmlOutput(int& run, time_t& mytime, int& minlumi, int& maxlumi, std::string& htmlDir, std::string& htmlName);
   
   // Get Functions
   inline int getEvtPerJob() { return ievt_; }

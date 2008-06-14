@@ -613,7 +613,7 @@ float HcalSummaryClient::analyze_hotcell(std::string subdetname, float& subdet)
 
 
 
-void HcalSummaryClient::htmlOutput(int run, string& htmlDir, string& htmlName)
+void HcalSummaryClient::htmlOutput(int& run, time_t& mytime, int& minlumi, int& maxlumi, string& htmlDir, string& htmlName)
 {
 
   //if ( verbose_ ) 
@@ -635,9 +635,23 @@ void HcalSummaryClient::htmlOutput(int run, string& htmlDir, string& htmlName)
   htmlFile << "<a name=""top""></a>" << endl;
   htmlFile << "<h2>Run:&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;" << endl;
   htmlFile << "&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; <span " << endl;
-  htmlFile << " style=\"color: rgb(0, 0, 153);\">" << run << "</span></h2>" << endl;
+  htmlFile << " style=\"color: rgb(0, 0, 153);\">" << run << "</span>" << endl;
+
+  std::string startTime=ctime(&mytime);
+  htmlFile << "&nbsp;&nbsp;LS:&nbsp;" << endl;
+  htmlFile << "<span style=\"color: rgb(0, 0, 153);\">" << minlumi << "</span>" << endl;
+  htmlFile << "-" << endl;
+  htmlFile << "<span style=\"color: rgb(0, 0, 153);\">" << maxlumi << "</span>" << endl;
+  htmlFile << "&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Start&nbsp;Time:&nbsp;<spa\n style=\"color: rgb(0, 0, 153);\">" << startTime << "</span></h2> " << endl;
+  
   htmlFile << "<h2>Monitoring task:&nbsp;&nbsp;&nbsp;&nbsp; <span " << endl;
-  htmlFile << " style=\"color: rgb(0, 0, 153);\">SUMMARY</span></h2> " << endl;
+  htmlFile << " style=\"color: rgb(0, 0, 153);\">SUMMARY</span> </h2> " << endl;
+
+
+  htmlFile << "<h2>Events processed:&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;" << endl;
+  htmlFile << "&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span " << endl;
+  htmlFile << " style=\"color: rgb(0, 0, 153);\">" << ievt_ << "</span></h2>" << endl;
+
   /*
     htmlFile << "<hr>" << endl;
     htmlFile << "<table border=1><tr><td bgcolor=red>channel has problems in this task</td>" << endl;
@@ -711,7 +725,6 @@ void HcalSummaryClient::htmlOutput(int run, string& htmlDir, string& htmlName)
   htmlFile << "<tr align=\"center\">" << endl;
   htmlFile <<"<td>Task</td><td>HB</td><td>HE</td><td>HO</td><td>HF</td><td>HCAL</td></tr>"<<endl;
 
- 
   if (digiClient_)
     {
       float tempstatus=-1;
@@ -787,6 +800,18 @@ void HcalSummaryClient::htmlOutput(int run, string& htmlDir, string& htmlName)
   htmlFile <<"<br><h2> A note on Status Values </h2><br>"<<endl;
   htmlFile <<"Status values in each subdetector task represent the average fraction of good channels per event.  (For example, a value of .99 in the HB Hot Cell monitor means that, on average, 1% of the cells in HB are hot.)  Status values should range from 0 to 1, with a perfectly-functioning detector will have all status values = 1.  If the status is unknown, a value of -1 or \"--\" will be shown. <br><br>The HCAL values are the product of the individual subdetectors, and so these status values don't represent the average number of bad cells in the entire detector.  (For instance, if both HB and HF Hot Cell monitors had status values of 0.5, the overall HCAL status value would be 0.25.  This is not the same as saying that 3/4 of the cells in HCAL are hot.)<br><br>  Likewise, the overall status values are formed by the products of the individual tasks.  The overall status values thus provide some measure of the number of bad cells per event, but they do not represent the average number of good channels per event.<br>"<<endl;
 
+  htmlFile <<"<br><hr><br>"<<endl;
+  htmlFile <<"Run #: "<<run<<"&nbsp;&nbsp;&nbsp;&nbsp Starting Time: "<<startTime<<"&nbsp;&nbsp;&nbsp;&nbsp;";
+  htmlFile<<"Luminosity blocks: "<<minlumi<<" - "<<maxlumi <<"&nbsp;&nbsp;&nbsp;&nbsp";
+  htmlFile <<"# of events: "<<ievt_<<"&nbsp;&nbsp;&nbsp;&nbsp";
+  
+  htmlFile <<"  Digi Status:  HB: "<<status_digi[0]<<" HE: "<<status_digi[1]<<" HO: "<<status_digi[2]<<" HF: "<<status_digi[3]<<"&nbsp;&nbsp;&nbsp;&nbsp";
+  htmlFile <<"  DeadCell Status:  HB: "<<status_deadcell[0]<<" HE: "<<status_deadcell[1]<<" HO: "<<status_deadcell[2]<<" HF: "<<status_deadcell[3]<<"&nbsp;&nbsp;&nbsp;&nbsp";
+  htmlFile <<"  HotCell Status:  HB: "<<status_hotcell[0]<<" HE: "<<status_hotcell[1]<<" HO: "<<status_hotcell[2]<<" HF: "<<status_hotcell[3]<<"&nbsp;&nbsp;&nbsp;&nbsp";
+  htmlFile <<"  OVERALL STATUS:  "<<status_global_<<endl;
   htmlFile.close();
 
 } // void HcalSummaryClient::htmlOutput(int run, string& htmlDir, string& htmlName)
+
+
+
