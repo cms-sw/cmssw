@@ -105,7 +105,7 @@ void SiStripActionExecutor::bookGlobalStatus(DQMStore* dqm_store) {
     SummaryReport = dqm_store->bookFloat("reportSummary");
     
     SummaryReportMap = dqm_store->book2D("reportSummaryMap","SiStrip Report Summary Map",6,0.5,6.5,9,0.5,9.5);
-    SummaryReportMap->setAxisTitle("Sub Detector Trype", 1);
+    SummaryReportMap->setAxisTitle("Sub Detector Type", 1);
     SummaryReportMap->setAxisTitle("Layer/Disc Number", 2);
     SummaryReportMap->setBinLabel(1, "TIB");
     SummaryReportMap->setBinLabel(2, "TOB");
