@@ -14,6 +14,7 @@ using std::pair;
 
 // INITIALISE STATIC VARIABLES
 GctBlockUnpacker::RctCrateMap GctBlockUnpacker::rctCrate_ = GctBlockUnpacker::RctCrateMap();
+GctBlockUnpacker::RctJetCrateMap GctBlockUnpacker::rctJetCrate_ = GctBlockUnpacker::RctJetCrateMap();
 GctBlockUnpacker::BlockIdToEmCandIsoBoundMap GctBlockUnpacker::internEmIsoBounds_ = GctBlockUnpacker::BlockIdToEmCandIsoBoundMap();
 GctBlockUnpacker::BlockIdToUnpackFnMap GctBlockUnpacker::blockUnpackFn_ = GctBlockUnpacker::BlockIdToUnpackFnMap();
 

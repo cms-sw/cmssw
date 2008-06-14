@@ -26,8 +26,8 @@
 * with older data.
 *
 * \author Robert Frazier
-* $Revision: 1.9 $
-* $Date: 2008/04/22 20:52:19 $
+* $Revision: 1.10 $
+* $Date: 2008/05/27 19:52:23 $
 */ 
 
 
@@ -77,6 +77,7 @@ protected:
   // PROTECTED TYPDEFS, ENUMS, AND CLASS CONSTANTS. 
   /// Typedef for mapping block ID to RCT crate.
   typedef std::map<unsigned int, unsigned int> RctCrateMap;
+  typedef std::map<unsigned int, unsigned int> RctJetCrateMap;
 
   /*! A typedef that holds the inclusive lower and upper bounds of pipeline
    *  gct trigger object pair number for isolated EM candidates.
@@ -110,9 +111,11 @@ protected:
 
 
   // PROTECTED METHODS
- 
   virtual RctCrateMap& rctCrateMap() = 0;  ///< get the RCT crate map.
   virtual const RctCrateMap& rctCrateMap() const = 0;  ///< get the RCT crate map.
+ 
+  virtual RctJetCrateMap& rctJetCrateMap() = 0;  ///< get the RCT jet crate map.
+  virtual const RctJetCrateMap& rctJetCrateMap() const = 0;  ///< get the RCT jet crate map.
 
   virtual BlockIdToEmCandIsoBoundMap& internEmIsoBounds() = 0;  ///< get the intern EM cand isolated boundary map.
   virtual const BlockIdToEmCandIsoBoundMap& internEmIsoBounds() const = 0;  ///< get the intern EM cand isolated boundary map.
@@ -135,9 +138,6 @@ protected:
   /// unpack Fibres and RCT EM Candidates
   void blockToFibresAndToRctEmCand(const unsigned char * d, const GctBlockHeaderBase& hdr);
 
-  /// unpack Fibres and RCT Regions
-  void blockToFibresAndToRctCaloRegions(const unsigned char * d, const GctBlockHeaderBase& hdr);
-  
   /// Unpack RCT Calo Regions
   void blockToRctCaloRegions(const unsigned char * d, const GctBlockHeaderBase& hdr);
 

@@ -11,8 +11,8 @@
 *  is up to date with the hardware as of 19th March 2008.
 * 
 * \author Robert Frazier
-* $Revision: 1.3 $
-* $Date: 2008/03/19 16:14:57 $
+* $Revision: 1.4 $
+* $Date: 2008/03/19 18:12:14 $
 */ 
 
 // *******************************************************************
@@ -39,6 +39,9 @@ protected:
   
   RctCrateMap& rctCrateMap() { return rctCrate_; }  ///< get the RCT crate map.
   const RctCrateMap& rctCrateMap() const { return rctCrate_; }  ///< get the RCT crate map.
+
+  RctJetCrateMap& rctJetCrateMap() { return rctJetCrate_; }  ///< get the RCT jet crate map.
+  const RctJetCrateMap& rctJetCrateMap() const { return rctJetCrate_; }  ///< get the RCT jet crate map.
   
   BlockIdToEmCandIsoBoundMap& internEmIsoBounds() { return internEmIsoBounds_; }  ///< get the intern EM cand isolated boundary map.
   const BlockIdToEmCandIsoBoundMap& internEmIsoBounds() const { return internEmIsoBounds_; }  ///< get the intern EM cand isolated boundary map.
@@ -56,6 +59,7 @@ private:
   
   /// Map to relate capture block ID to the RCT crate the data originated from.
   static RctCrateMap rctCrate_;
+  static RctCrateMap rctJetCrate_;
   
   /*! A map of Block IDs to IsoBoundaryPairs for storing the location of the isolated
    *  Internal EM cands in the pipeline, as this differs with Block ID. */ 

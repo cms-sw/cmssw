@@ -152,7 +152,52 @@ void GctBlockUnpackerBase::blockToRctEmCand(const unsigned char * d, const GctBl
 // Input RCT region unpacking
 void GctBlockUnpackerBase::blockToRctCaloRegions(const unsigned char * d, const GctBlockHeaderBase& hdr)
 {
-}
+  // Don't want to do this in HLT optimisation mode!
+  if(hltMode()) { LogDebug("GCT") << "HLT mode - skipping unpack of RCT Regions" << std::endl; return; }
+  
+  LogDebug("GCT") << "Unpacking RCT Regions" << std::endl;
+
+  unsigned int id = hdr.id();
+  unsigned int nSamples = hdr.nSamples();
+  unsigned int length = hdr.length();
+
+  // Debug assertion to prevent problems if definitions not up to date.
+  assert(rctJetCrateMap().find(id) != rctJetCrateMap().end());  
+  
+  // get crate (need this to get ieta and iphi)
+  unsigned int crate=rctJetCrateMap()[id];
+
+  // re-interpret pointer
+  uint16_t * p = reinterpret_cast<uint16_t *>(const_cast<unsigned char *>(d));
+  
+  // eta and phi
+  unsigned int ieta; 
+  unsigned int iphi; 
+  
+  for (unsigned int i=0; i<length; ++i) { 
+    for (uint16_t bx=0; bx<nSamples; ++bx) {
+      if (i>0) {
+        if (crate<9){ // negative eta
+          ieta = 11-i; 
+          iphi = crate*2;
+        } else {      // positive eta
+          ieta = 10+i;
+          iphi = (crate-9)*2;
+        }        
+        // First region is phi=0
+        rctCalo_->push_back( L1CaloRegion(*p, ieta, iphi, bx) );
+        ++p;
+        // Second region is phi=1
+        iphi+=1;
+        rctCalo_->push_back( L1CaloRegion(*p, ieta, iphi, bx) );
+        ++p;
+      } else { // Skip the first two regions which are duplicates. Check with Magnus
+        ++p;
+        ++p;
+      }
+    }
+  } 
+}  
 
 // Fibre unpacking
 void GctBlockUnpackerBase::blockToFibres(const unsigned char * d, const GctBlockHeaderBase& hdr)
@@ -180,12 +225,6 @@ void GctBlockUnpackerBase::blockToFibres(const unsigned char * d, const GctBlock
 void GctBlockUnpackerBase::blockToFibresAndToRctEmCand(const unsigned char * d, const GctBlockHeaderBase& hdr)
 {
   this->blockToRctEmCand(d, hdr);
-  this->blockToFibres(d, hdr);
-}
-
-void GctBlockUnpackerBase::blockToFibresAndToRctCaloRegions(const unsigned char * d, const GctBlockHeaderBase& hdr)
-{
-  this->blockToRctCaloRegions(d, hdr);
   this->blockToFibres(d, hdr);
 }
 
