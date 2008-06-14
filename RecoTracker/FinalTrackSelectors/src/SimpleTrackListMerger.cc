@@ -8,8 +8,8 @@
 // Created:         Sat Jan 14 22:00:00 UTC 2006
 //
 // $Author: burkett $
-// $Date: 2008/05/19 20:19:10 $
-// $Revision: 1.12 $
+// $Date: 2008/06/10 14:22:08 $
+// $Revision: 1.13 $
 //
 
 #include <memory>
@@ -339,6 +339,7 @@ namespace cms
       if (!selected1[i])continue;
       std::vector<const TrackingRecHit*>& iHits = rh1[track]; 
       unsigned nh1 = iHits.size();
+      int qualityMaskT1 = track->qualityMask();
       int j=-1;
       for (reco::TrackCollection::const_iterator track2=tC2.begin(); track2!=tC2.end(); ++track2){
         j++;
@@ -365,26 +366,27 @@ namespace cms
             }
           }
         }
+	int newQualityMask = (qualityMaskT1 | track2->qualityMask()); // take OR of trackQuality 
         float fi=float(noverlap)/float(track->recHitsSize()); float fj=float(noverlap)/float(track2->recHitsSize());
       //std::cout << " trk1 trk2 nhits1 nhits2 nover " << i << " " << j << " " << track->recHitsSize() << " "  << track2->recHitsSize() << " " << noverlap << " " << fi << " " << fj  <<std::endl;
         if ((fi>shareFrac)||(fj>shareFrac)){
           if (fi<fj){
             selected2[j]=0; 
-	    selected1[i]=2;
+	    selected1[i]=10+newQualityMask; // add 10 to avoid the case where mask = 1
             //std::cout << " removing L2 trk in pair " << std::endl;
           }else{
             if (fi>fj){
               selected1[i]=0; 
-	      selected2[j]=2;
+	      selected2[j]=10+newQualityMask;  // add 10 to avoid the case where mask = 1
               //std::cout << " removing L1 trk in pair " << std::endl;
             }else{
               //std::cout << " removing worst chisq in pair " << track->normalizedChi2() << " " << track2->normalizedChi2() << std::endl;
               if (track->normalizedChi2() > track2->normalizedChi2()) {
 		selected1[i]=0;
-		selected2[j]=2;
+		selected2[j]=10+newQualityMask; // add 10 to avoid the case where mask = 1
 	      }else{
 		selected2[j]=0;
-		selected1[i]=2;
+		selected1[i]=10+newQualityMask; // add 10 to avoid the case where mask = 1
 	      }
             }//end fi > or = fj
           }//end fi < fj
@@ -410,9 +412,10 @@ namespace cms
       const reco::Track & theTrack = * track;
       //fill the TrackCollection
       outputTrks->push_back( reco::Track( theTrack ) );
-      if (selected1[i]==2 && promoteQuality)
+      if (selected1[i]>1 && promoteQuality){
+	outputTrks->back().setQualityMask(selected1[i]-10);
 	outputTrks->back().setQuality(qualityToSet);
-
+      }
       // Fill TrackExtra collection
       outputTrkExtras->push_back( reco::TrackExtra( 
 		    theTrack.outerPosition(), theTrack.outerMomentum(), theTrack.outerOk(),
@@ -473,9 +476,10 @@ namespace cms
       const reco::Track & theTrack = * track;
       //fill the TrackCollection
       outputTrks->push_back( reco::Track( theTrack ) );
-      if (selected2[i]==2 && promoteQuality)
+      if (selected2[i]>1 && promoteQuality){
+	outputTrks->back().setQualityMask(selected2[i]-10);
 	outputTrks->back().setQuality(qualityToSet);
-
+      }
       // Fill TrackExtra collection
       outputTrkExtras->push_back( reco::TrackExtra( 
 		    theTrack.outerPosition(), theTrack.outerMomentum(), theTrack.outerOk(),
