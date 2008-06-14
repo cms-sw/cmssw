@@ -9,8 +9,8 @@ report = cms.EDFilter("HLTrigReport",
 )
 
 zeeHLT = cms.EDFilter("HLTHighLevel",
-    HLTPaths = cms.vstring('HLT1Electron', 
-        'HLT2Electron'),
+    HLTPaths = cms.vstring('HLT_IsoEle15_L1I', 
+        'HLT_DoubleIsoEle10_L1I'),
     byName = cms.bool(True),
     andOr = cms.bool(True),
     TriggerResultsTag = cms.InputTag("TriggerResults")
