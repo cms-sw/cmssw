@@ -34,6 +34,7 @@ class _Sequenceable(object):
 class _ModuleSequenceType(_ConfigureComponent, _Labelable):
     """Base class for classes which define a sequence of modules"""
     def __init__(self,*arg, **argv):
+        self.__dict__["_isFrozen"] = False
         if len(arg) != 1:
             typename = format_typename(self)
             msg = format_outerframe(2) 
@@ -45,6 +46,10 @@ class _ModuleSequenceType(_ConfigureComponent, _Labelable):
         self._checkIfSequenceable(arg[0])
         self._seq = arg[0]
         self._isModified = False
+    def isFrozen(self):
+        return self._isFrozen
+    def setIsFrozen(self):
+        self._isFrozen = True 
     def _place(self,name,proc):
         self._placeImpl(name,proc)
     def __imul__(self,rhs):

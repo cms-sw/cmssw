@@ -1,4 +1,5 @@
 
+
 class _ConfigureComponent(object):
     """Denotes a class that can be used by the Processes class"""
     pass
@@ -18,6 +19,7 @@ class PrintOptions(object):
 class _ParameterTypeBase(object):
     """base class for classes which are used as the 'parameters' for a ParameterSet"""
     def __init__(self):
+        self.__dict__["_isFrozen"] = False
         self.__isTracked = True
     def configTypeName(self):
         if self.isTracked():
@@ -35,7 +37,10 @@ class _ParameterTypeBase(object):
         return self.__isTracked
     def setIsTracked(self,trackness):
         self.__isTracked = trackness
-
+    def isFrozen(self):
+        return self._isFrozen 
+    def setIsFrozen(self):
+        self._isFrozen = True
 
 class _SimpleParameterTypeBase(_ParameterTypeBase):
     """base class for parameter classes which only hold a single value"""
@@ -88,6 +93,7 @@ class _Parameterizable(object):
     """Base class for classes which allow addition of _ParameterTypeBase data"""
     def __init__(self,*arg,**kargs):
         self.__dict__['_Parameterizable__parameterNames'] = []
+        self.__dict__["_isFrozen"] = False
         """The named arguments are the 'parameters' which are added as 'python attributes' to the object"""
         if len(arg) != 0:
             #raise ValueError("unnamed arguments are not allowed. Please use the syntax 'name = value' when assigning arguments.")
@@ -97,6 +103,7 @@ class _Parameterizable(object):
                 self.__setParameters(block.parameters_())
         self.__setParameters(kargs)
         self._isModified = False
+        
     def parameterNames_(self):
         """Returns the name of the parameters"""
         return self.__parameterNames[:]
@@ -125,6 +132,13 @@ class _Parameterizable(object):
     def __setattr__(self,name,value):
         #since labels are not supposed to have underscores at the beginning
         # I will assume that if we have such then we are setting an internal variable
+        if self.isFrozen() and name not in ["_Labelable__label","_isFrozen"]: 
+            print "Attempt to change a read only parameter:"
+            print "    %s = %s" %(name, value)
+            print "\nThe original parameters are:\n"
+            print self.dumpPython()            
+            raise ValueError("Object already added to a process. It is read only now")
+  
         if name[0]=='_':
             super(_Parameterizable,self).__setattr__(name,value)
             # RICK test
@@ -143,7 +157,15 @@ class _Parameterizable(object):
             else:
                 param.setValue(value)
         self._isModified = True
+    def isFrozen(self):
+        return self._isFrozen
+    def setIsFrozen(self):
+        self._isFrozen = True
+        for name in self.parameterNames_():
+            self.__dict__[name].setIsFrozen() 
     def __delattr__(self,name):
+        if self.isFrozen():
+            raise ValueError("Object already added to a process. It is read only now")
         super(_Parameterizable,self).__delattr__(name)
         self.__parameterNames.remove(name)
     @staticmethod
@@ -229,6 +251,7 @@ class _TypedParameterizable(_Parameterizable):
         returnValue.__init__(self.__type,*args,
                              **myparams)
         returnValue._isModified = False
+        returnValue._isFrozen = False
         return returnValue
 
     @staticmethod

@@ -172,6 +172,8 @@ class Process(object):
             self._cloneToObjectDict[id(newValue)] = newValue
         #now put in proper bucket
         newValue._place(name,self)
+        #the old value is read only now
+        value.setIsFrozen()
         
     def __delattr__(self,name):
         pass
@@ -185,6 +187,8 @@ class Process(object):
         #clone the item
         newValue =value.copy()
         newValue._place('',self)
+        #the old value is read only now
+        value.setIsFrozen()        
         
     def _okToPlace(self, name, mod, d):
         if name in d:
@@ -194,8 +198,6 @@ class Process(object):
             #  Need to add checks
             if mod._isModified:
                 if d[name]._isModified:
-                    #raise RuntimeError("The module %s has been modified twice" %(name))
-                    # often OK, if coming from the same cff
                     return False
                 else:
                     return True
@@ -212,7 +214,6 @@ class Process(object):
                 d[name] = mod
             if isinstance(mod,_Labelable):
                mod.setLabel(name)
-
     def _placeOutputModule(self,name,mod):
         self._place(name, mod, self.__outputmodules)
     def _placeProducer(self,name,mod):
