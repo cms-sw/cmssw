@@ -103,8 +103,8 @@ parser.add_option("--writeraw",
                   dest="writeraw")
 
 parser.add_option("--eventcontent",
-                   help="What event content to write out. Default=FEVTSIMDIGI",
-                   default="FEVTSIMDIGI",
+                   help="What event content to write out. Default=FEVTDEBUG",
+                   default="FEVTDEBUG",
                    dest="eventcontent")
 
 parser.add_option("--datatier",
