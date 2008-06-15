@@ -33,8 +33,8 @@ MillePedeAlignmentAlgorithm = cms.PSet(
 
         parameterSign = cms.untracked.int32(1), ## old pede versions (before May '07) need a sign flip
         pedeDump = cms.untracked.string('pede.dump'),
-        method = cms.string('sparseGMRES 6  0.8') ## "inversion  6  0.8" 
-        options = cms.vstring('entries 50',  # min. number of measurements (parameters with less will be skipped)
+        method = cms.string('sparseGMRES 6  0.8'), ## "inversion  6  0.8" 
+        options = cms.vstring('entries 50', # min. number of measurements (parameters with less will be skipped)
             # "chisqcut  20.0  4.5", # simple chi^2 cut for outliers OR ...
             # "outlierdownweighting 3", "dwfractioncut 0.1" #, # ... 3x Huber down weighting OR...
             'outlierdownweighting 4', 
@@ -45,15 +45,15 @@ MillePedeAlignmentAlgorithm = cms.PSet(
         # ------------------------------------------------------------------------------
         # All this is determined from what is given as 
         # AlignmentProducer.ParameterBuilder.Selector, cf. Twiki page SWGuideMillepedeIIAlgorithm.
-        Presigmas = cms.VPSet(),
+        Presigmas = cms.VPSet()
     ),
 
     pedeReader = cms.PSet(
-        readFile = cms.string('millepede.res')
+        readFile = cms.string('millepede.res'),
         # directory of 'readFile', if empty:
 	# take from pedeSteerer (inheriting from MillePedeAlignmentAlgorithm)
-        fileDir = cms.untracked.string(''),
-    )
+        fileDir = cms.untracked.string('')
+    ),
 
     readPedeInput = cms.bool(False), ## if true, following used to read in pede result as input
     pedeReaderInput = cms.PSet(
@@ -68,6 +68,6 @@ MillePedeAlignmentAlgorithm = cms.PSet(
     ),
     minNumHits = cms.int32(5), ## minimum number of hits (with alignable parameters)
     max2Dcorrelation = cms.double(0.05), ## if correlation >5% 2D measurements get diagonalized
-    useTrackTsos = cms.bool(False), ## Tsos from track or from reference trajectory for global derivatives
+    useTrackTsos = cms.bool(False) ## Tsos from track or from reference trajectory for global derivatives
 )
 
