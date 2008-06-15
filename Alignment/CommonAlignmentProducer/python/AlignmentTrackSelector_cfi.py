@@ -70,6 +70,7 @@ AlignmentTrackSelector = cms.EDFilter("AlignmentTrackSelectorModule",
         inTIB = cms.int32(0)
     ),
     nHighestPt = cms.int32(2),
+    countStereoHitAs2D = cms.bool(True),
     nHitMin2D = cms.uint32(0),
     src = cms.InputTag("generalTracks"), ##ctfWithMaterialTracks
 

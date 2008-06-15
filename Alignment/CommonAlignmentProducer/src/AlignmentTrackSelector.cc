@@ -16,7 +16,7 @@
 
 
 #include "DataFormats/DetId/interface/DetId.h"
-#include "DataFormats/SiStripDetId/interface/StripSubdetector.h"
+#include "DataFormats/SiStripDetId/interface/SiStripDetId.h"
 #include "DataFormats/SiPixelDetId/interface/PixelSubdetector.h"
 
 const int kBPIX = PixelSubdetector::PixelBarrel;
@@ -50,6 +50,7 @@ AlignmentTrackSelector::AlignmentTrackSelector(const edm::ParameterSet & cfg) :
   minHitIsolation_( cfg.getParameter<double>( "minHitIsolation" ) ),
   rphirecHitsTag_( cfg.getParameter<edm::InputTag>("rphirecHits") ),
   matchedrecHitsTag_( cfg.getParameter<edm::InputTag>("matchedrecHits") ),
+  countStereoHitAs2D_( cfg.getParameter<bool>( "countStereoHitAs2D" ) ),
   nHitMin2D_( cfg.getParameter<unsigned int>( "nHitMin2D" ) ),
   // Ugly to use the same getParameter 6 times, but this allows const cut variables...
   minHitsinTIB_(cfg.getParameter<edm::ParameterSet>( "minHitsPerSubDet" ).getParameter<int>( "inTIB" ) ),
@@ -68,6 +69,7 @@ AlignmentTrackSelector::AlignmentTrackSelector(const edm::ParameterSet & cfg) :
 	<< "\nphimin,phimax:   " << phiMin_  << "," << phiMax_
 	<< "\nnhitmin,nhitmax: " << nHitMin_ << "," << nHitMax_
 	<< "\nnhitmin2D:       " << nHitMin2D_
+        << (countStereoHitAs2D_ ? "," : ", not") << " counting hits on SiStrip stereo modules as 2D" 
 	<< "\nchi2nmax:        " << chi2nMax_;
 
       if (applyIsolation_)
@@ -200,10 +202,10 @@ bool AlignmentTrackSelector::detailedHitsCheck(const reco::Track *trackp, const 
       // seedOnlyFrom = 1 is TIB-TOB-TEC tracks only
       // seedOnlyFrom = 2 is TOB-TEC tracks only 
       if (seedOnlyFromAbove_ == 1 && thishit == 1 
-          && (subdetId == int(StripSubdetector::TOB) || subdetId == int(StripSubdetector::TEC))){
+          && (subdetId == int(SiStripDetId::TOB) || subdetId == int(SiStripDetId::TEC))){
         return false; 
       }
-      if (seedOnlyFromAbove_ == 2 && thishit == 1 && subdetId == int(StripSubdetector::TIB)) {
+      if (seedOnlyFromAbove_ == 2 && thishit == 1 && subdetId == int(SiStripDetId::TIB)) {
         return false;
       }
 
@@ -216,15 +218,16 @@ bool AlignmentTrackSelector::detailedHitsCheck(const reco::Track *trackp, const 
       const TrackingRecHit* therechit = (*iHit).get();
       if (chargeCheck_ && !(this->isOkCharge(therechit))) return false;
       if (applyIsolation_ && (!this->isIsolated(therechit, evt))) return false;
-      if      (StripSubdetector::TIB == subdetId) ++nhitinTIB;
-      else if (StripSubdetector::TOB == subdetId) ++nhitinTOB;
-      else if (StripSubdetector::TID == subdetId) ++nhitinTID;
-      else if (StripSubdetector::TEC == subdetId) ++nhitinTEC;
-      else if (                kBPIX == subdetId) ++nhitinBPIX;
-      else if (                kFPIX == subdetId) ++nhitinFPIX;
+      if      (SiStripDetId::TIB == subdetId) ++nhitinTIB;
+      else if (SiStripDetId::TOB == subdetId) ++nhitinTOB;
+      else if (SiStripDetId::TID == subdetId) ++nhitinTID;
+      else if (SiStripDetId::TEC == subdetId) ++nhitinTEC;
+      else if (            kBPIX == subdetId) ++nhitinBPIX;
+      else if (            kFPIX == subdetId) ++nhitinFPIX;
       // Do not call isHit2D(..) if already enough 2D hits for performance reason:
       if (nHit2D < nHitMin2D_ && this->isHit2D(**iHit)) ++nHit2D;
     } // end loop on hits
+
     return (nhitinTIB >= minHitsinTIB_ && nhitinTOB >= minHitsinTOB_ 
             && nhitinTID >= minHitsinTID_ && nhitinTEC >= minHitsinTEC_ 
             && nhitinBPIX >= minHitsinBPIX_ && nhitinFPIX >= minHitsinFPIX_ 
@@ -238,7 +241,9 @@ bool AlignmentTrackSelector::detailedHitsCheck(const reco::Track *trackp, const 
 
 bool AlignmentTrackSelector::isHit2D(const TrackingRecHit &hit) const
 {
-  if (hit.dimension() < 2) {
+  // we count SiStrip stereo modules as 2D if selected via countStereoHitAs2D_
+  // (since they provide theta information)
+  if (!hit.isValid() || hit.dimension() < 2) {
     return false; // some (muon...) stuff really has RecHit1D
   } else {
     const DetId detId(hit.geographicalId());
@@ -246,10 +251,14 @@ bool AlignmentTrackSelector::isHit2D(const TrackingRecHit &hit) const
       if (detId.subdetId() == kBPIX || detId.subdetId() == kFPIX) {
         return true; // pixel is always 2D
       } else { // should be SiStrip now
-        if (dynamic_cast<const SiStripRecHit2D*>(&hit)) return false; // normal hit
+	const SiStripDetId stripId(detId);
+	if (stripId.stereo()) return countStereoHitAs2D_; // 1D stereo modules
+        else if (dynamic_cast<const SiStripRecHit2D*>(&hit)) return false; // normal hit
         else if (dynamic_cast<const SiStripMatchedRecHit2D*>(&hit)) return true; // matched is 2D
-        else if (dynamic_cast<const ProjectedSiStripRecHit2D*>(&hit)) return false; // crazy hit...
-        else {
+        else if (dynamic_cast<const ProjectedSiStripRecHit2D*>(&hit)) {
+	  const ProjectedSiStripRecHit2D* pH = static_cast<const ProjectedSiStripRecHit2D*>(&hit);
+	  return (countStereoHitAs2D_ && this->isHit2D(pH->originalHit())); // depends on original...
+	} else {
           edm::LogError("UnkownType") << "@SUB=AlignmentTrackSelector::isHit2D"
                                       << "Tracker hit not in pixel and neither SiStripRecHit2D nor "
                                       << "SiStripMatchedRecHit2D nor ProjectedSiStripRecHit2D.";

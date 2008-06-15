@@ -63,6 +63,7 @@ class AlignmentTrackSelector
   const double minHitChargeStrip_, minHitIsolation_;
   const edm::InputTag rphirecHitsTag_;
   const edm::InputTag matchedrecHitsTag_;
+  const bool countStereoHitAs2D_; // count hits on stereo components of GluedDet for nHitMin2D_?
   const unsigned int nHitMin2D_;
   const int minHitsinTIB_, minHitsinTOB_, minHitsinTID_, minHitsinTEC_, minHitsinBPIX_, minHitsinFPIX_;
 
