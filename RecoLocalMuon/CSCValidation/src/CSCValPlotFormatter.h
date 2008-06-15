@@ -4,8 +4,8 @@
 
 /** \class CSCValPlotFormatter
  *
- *  Makes plots and sample html file for plots from CSCValidation.
- *  This is attempt to avoid root macros
+ *  Makes gif versions of plots from CSCValidation.
+ *  This is an attempt to avoid root macros
  *
  *  Andy Kubik - Northwestern University
  *
@@ -18,6 +18,7 @@
 #include <vector>
 #include <map>
 #include <string>
+#include <sstream>
 #include <iomanip>
 #include <fstream>
 #include <cmath>
@@ -55,13 +56,19 @@ class CSCValPlotFormatter{
 
   void make2DTemperaturePlot(TH1 *plot, string savename);
 
+  void nikolaiMacro(map<string,pair<TH1*,string> > theMap, int flag);
+
   protected:
 
   private:
 
-  TStyle* getStyle(TString name="myStyle");
+  TStyle* getStyle(int stat=1111);
 
   void drawChamberLines(int station, int lc1);
+
+  void makeGif(TH1* theHisto, string savename, int stat);
+
+  void makeEffGif(TH1* theHisto, string savename);
 
   int typeIndex(CSCDetId id);
 

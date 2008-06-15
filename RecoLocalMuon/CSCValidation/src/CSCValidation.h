@@ -186,6 +186,7 @@ private:
   bool makeCompTimingPlots;
   bool makeADCTimingPlots;
   bool makeRHNoisePlots;
+  bool makeCalibPlots;
 
   // The histo managing object
   CSCValHists *histos;

@@ -19,11 +19,10 @@
 
     theMap = tM;
 
-    gStyle = getStyle();
-
     string theName;
     string theTitle;
     string theFolder;
+    string savename;
     TH1* theHisto;
 
     map<string,pair<TH1*,string> >::const_iterator mapit;
@@ -31,25 +30,25 @@
       theFolder = (*mapit).second.second;
       theName = (*mapit).first;
       theHisto = (*mapit).second.first;
+      savename = theFolder + "_" + theName;
       if (theName == "hOWires" || theName == "hOStrips" || theName == "hORecHits" || theName == "hOSegments"){
          make2DTemperaturePlot(theHisto, theName);
       }
-      else {
-        TCanvas *c = new TCanvas("c","my canvas",1);
-        theHisto->UseCurrentStyle();
-        theHisto->GetXaxis()->SetLabelSize(0.04);
-        theHisto->GetYaxis()->SetLabelSize(0.04);
-        theHisto->GetXaxis()->SetTitleOffset(0.7);
-        theHisto->GetXaxis()->SetTitleSize(0.06);
-        theHisto->GetXaxis()->SetNdivisions(208,kTRUE);
-        gStyle->SetHistFillColor(92);
-        theHisto->Draw();
-        c->Update();
-        string savename = theFolder + "_" + theName + ".gif";
-        c->Print(savename.c_str());
-      }
+      else if ( theFolder == "Digis") makeGif(theHisto, savename, 1110);
+      else if ( theFolder == "PedestalNoise") makeGif(theHisto, savename, 1110);
+      else if ( theFolder == "recHits") makeGif(theHisto, savename, 1110);
+      else if ( theFolder == "Resolution") makeGif(theHisto, savename, 1110);
+      else if ( theFolder == "Segments") makeGif(theHisto, savename, 1110);
+      //else if ( theFolder == "SignalProfile") makeGif(theHisto, savename, 0);
+      //else if ( theFolder == "FirstTBADC") makeGif(theHisto, savename, 1110);
+      else if ( theFolder == "Efficiency")  makeEffGif(theHisto, savename);
     }
 
+    // Nikolai's plots
+    nikolaiMacro(tM,1);
+    nikolaiMacro(tM,2);
+    nikolaiMacro(tM,3);
+    nikolaiMacro(tM,4);
 
   }
 
@@ -99,7 +98,7 @@
 
   void CSCValPlotFormatter::makeGlobalScatterPlots(TTree* t1, string type){
 
-    gStyle = getStyle();
+    gStyle = getStyle(0);
     TGraph *result;
     int np = 0;
     if (type == "rechits"){
@@ -344,6 +343,8 @@
 
   void CSCValPlotFormatter::make2DTemperaturePlot(TH1 *plot, string savename){
 
+    gStyle->Reset();
+
     TCanvas *c = new TCanvas("c","my canvas",1);
     c->SetRightMargin(0.12);
 
@@ -423,33 +424,104 @@
     savename = savename + ".gif";
     c->Print(savename.c_str());
 
+    gStyle->Reset();
+
+  }
+
+  TStyle* CSCValPlotFormatter::getStyle(int stat){
+    TStyle *theStyle;
+    theStyle = new TStyle("myStyle", "myStyle");
+    if (stat == 0) gStyle->SetOptStat(false);
+    else gStyle->SetOptStat(stat);
+    theStyle->SetPadBorderMode(0);
+    theStyle->SetCanvasBorderMode(0);
+    theStyle->SetPadColor(0);
+    theStyle->SetStatColor(0);
+    theStyle->SetCanvasColor(0);
+    //theStyle->SetMarkerStyle(8);
+    //theStyle->SetMarkerSize(0.7);
+    //   theStyle->SetTextFont(132);
+    //   theStyle->SetTitleFont(132);
+    theStyle->SetTitleBorderSize(2);
+    theStyle->SetTitleFillColor(0);
+    theStyle->SetTitleW(0.7);
+    theStyle->SetTitleH(0.07);
+    theStyle->SetPalette(1);
+    return theStyle;
   }
 
 
-  TStyle* CSCValPlotFormatter::getStyle(TString name){
-    TStyle *theStyle;
-    if ( name == "myStyle" ) {
-      theStyle = new TStyle("myStyle", "myStyle");
-      theStyle->SetOptStat(10);
-      theStyle->SetPadBorderMode(0);
-      theStyle->SetCanvasBorderMode(0);
-      theStyle->SetPadColor(0);
-      theStyle->SetStatColor(0);
-      theStyle->SetCanvasColor(0);
-      //theStyle->SetMarkerStyle(8);
-      //theStyle->SetMarkerSize(0.7);
-      //   theStyle->SetTextFont(132);
-      //   theStyle->SetTitleFont(132);
-      theStyle->SetTitleBorderSize(2);
-      theStyle->SetTitleFillColor(0);
-      theStyle->SetTitleW(0.7);
-      theStyle->SetTitleH(0.07);
-      theStyle->SetPalette(1);
-    } else {
-      // Avoid modifying the default style!
-      theStyle = gStyle;
-    }
-    return theStyle;
+  void CSCValPlotFormatter::makeGif(TH1* theHisto, string savename, int stat){
+    gStyle->Reset();
+    if (stat == 0) gStyle->SetOptStat(false);
+    else gStyle->SetOptStat(stat);
+    gStyle->SetPadBorderMode(0);
+    gStyle->SetCanvasBorderMode(0);
+    gStyle->SetPadColor(0);
+    gStyle->SetStatColor(0);
+    gStyle->SetCanvasColor(0);
+    //theStyle->SetMarkerStyle(8);
+    //theStyle->SetMarkerSize(0.7);
+    //   theStyle->SetTextFont(132);
+    //   theStyle->SetTitleFont(132);
+    gStyle->SetTitleBorderSize(2);
+    gStyle->SetTitleFillColor(0);
+    gStyle->SetTitleW(0.7);
+    gStyle->SetTitleH(0.07);
+    gStyle->SetPalette(1);
+    gStyle->SetHistFillColor(92);
+    TCanvas *c = new TCanvas("c","my canvas",1);
+    theHisto->UseCurrentStyle();
+    theHisto->GetXaxis()->SetLabelSize(0.04);
+    theHisto->GetYaxis()->SetLabelSize(0.04);
+    theHisto->GetXaxis()->SetTitleOffset(0.7);
+    theHisto->GetXaxis()->SetTitleSize(0.06);
+    theHisto->GetXaxis()->SetNdivisions(208,kTRUE);
+    theHisto->SetMarkerStyle(6);
+    theHisto->Draw();
+    c->Update();
+    savename = savename + ".gif";
+    c->Print(savename.c_str());
+    gStyle->Reset();
+  }
+
+  void CSCValPlotFormatter::makeEffGif(TH1* theHisto, string savename){
+    gStyle->Reset();
+    gStyle = getStyle(0);
+    TCanvas *c = new TCanvas("c","my canvas",1);
+    theHisto->UseCurrentStyle();
+    theHisto->GetXaxis()->SetLabelSize(0.04);
+    theHisto->GetYaxis()->SetLabelSize(0.04);
+    theHisto->GetXaxis()->SetTitleOffset(0.7);
+    theHisto->GetXaxis()->SetTitleSize(0.06);
+    theHisto->GetXaxis()->SetNdivisions(208,kTRUE);
+    theHisto->GetYaxis()->SetRangeUser(0.5,1.1);
+    theHisto->SetMarkerStyle(6);
+    theHisto->GetXaxis()->SetBinLabel(1,"ME +1/1b");
+    theHisto->GetXaxis()->SetBinLabel(2,"ME +1/2");
+    theHisto->GetXaxis()->SetBinLabel(3,"ME +1/3");
+    theHisto->GetXaxis()->SetBinLabel(4,"ME +1/1a");
+    theHisto->GetXaxis()->SetBinLabel(5,"ME +2/1");
+    theHisto->GetXaxis()->SetBinLabel(6,"ME +2/2");
+    theHisto->GetXaxis()->SetBinLabel(7,"ME +3/1");
+    theHisto->GetXaxis()->SetBinLabel(8,"ME +3/2");
+    theHisto->GetXaxis()->SetBinLabel(9,"ME +4/1");
+    theHisto->GetXaxis()->SetBinLabel(10,"ME +4/2");
+    theHisto->GetXaxis()->SetBinLabel(11,"ME -1/1b");
+    theHisto->GetXaxis()->SetBinLabel(12,"ME -1/2");
+    theHisto->GetXaxis()->SetBinLabel(13,"ME -1/3");
+    theHisto->GetXaxis()->SetBinLabel(14,"ME -1/1a");
+    theHisto->GetXaxis()->SetBinLabel(15,"ME -2/1");
+    theHisto->GetXaxis()->SetBinLabel(16,"ME -2/2");
+    theHisto->GetXaxis()->SetBinLabel(17,"ME -3/1");
+    theHisto->GetXaxis()->SetBinLabel(18,"ME -3/2");
+    theHisto->GetXaxis()->SetBinLabel(19,"ME -4/1");
+    theHisto->GetXaxis()->SetBinLabel(20,"ME -4/2");
+    theHisto->Draw();
+    c->Update();
+    savename = savename + ".gif";
+    c->Print(savename.c_str());
+    gStyle->Reset();
   }
 
 
@@ -777,4 +849,277 @@
     return i;
 
   }
+
+
+  // this is TEMPORARY to take care of Nikolai's plots
+  void CSCValPlotFormatter::nikolaiMacro(map<string,pair<TH1*,string> > theMap, int flag){
+    gStyle = getStyle();
+    gStyle->SetPalette(1,0); // 
+
+    ostringstream ss;
+    ostringstream ss1;
+    std::string folder;
+    std::string input_histName;
+    std::string input_title_X;
+    std::string input_title_Y;
+    std::string slice_title_X;
+    Int_t ny = 0;
+    Float_t ylow = 0;
+    Float_t yhigh = 0;
+    std::string result_histName;
+    std::string result_histTitle;
+    std::string result_title_Y;
+    std::string result_histNameEntries;
+    std::string result_histTitleEntries;
+
+
+    if(flag==1) {  // gas gain results
+      folder="GasGain/";
+      input_histName = "gas_gain_rechit_adc_3_3_sum_location_ME_";
+      input_title_X="Location=(layer-1)*nsegm+segm";
+      input_title_Y="3X3 ADC Sum";
+      slice_title_X="3X3 ADC Sum Location";
+      ny=30;
+      ylow=1.0;
+      yhigh=31.0;
+      result_histName = "mean_gas_gain_vs_location_csc_ME_";
+      result_histTitle="Mean 3X3 ADC Sum";
+      result_title_Y="Location=(layer-1)*nsegm+segm";
+      result_histNameEntries = "entries_gas_gain_vs_location_csc_ME_";
+      result_histTitleEntries="Entries 3X3 ADC Sum";
+    }
+
+    if(flag==2) {  // AFEB timing results
+      folder="AFEBTiming/";
+      input_histName = "afeb_time_bin_vs_afeb_occupancy_ME_";
+      input_title_X="AFEB";
+      input_title_Y="Time Bin";
+      slice_title_X="AFEB";
+      ny=42;
+      ylow=1.0;
+      yhigh=42.0;
+      result_histName = "mean_afeb_time_bin_vs_afeb_csc_ME_";
+      result_histTitle="AFEB Mean Time Bin";
+      result_title_Y="AFEB";
+      result_histNameEntries = "entries_afeb_time_bin_vs_afeb_csc_ME_";
+      result_histTitleEntries="Entries AFEB Time Bin";
+    }
+
+    if(flag==3) {  // Comparator timing results
+      folder="CompTiming/";
+      input_histName = "comp_time_bin_vs_cfeb_occupancy_ME_";
+      input_title_X="CFEB";
+      input_title_Y="Time Bin";
+      slice_title_X="CFEB";
+      ny=5;
+      ylow=1.0;
+      yhigh=6.0;
+      result_histName = "mean_comp_time_bin_vs_cfeb_csc_ME_";
+      result_histTitle="Comparator Mean Time Bin";
+      result_title_Y="CFEB";
+      result_histNameEntries = "entries_comp_time_bin_vs_cfeb_csc_ME_";
+      result_histTitleEntries="Entries Comparator Time Bin";
+    }
+
+    if(flag==4) {  // Strip ADC timing results
+      folder="ADCTiming/";
+      input_histName = "adc_3_3_weight_time_bin_vs_cfeb_occupancy_ME_";
+      input_title_X="CFEB";
+      input_title_Y="Time Bin";
+      slice_title_X="CFEB";
+      ny=5;
+      ylow=1.0;
+      yhigh=6.0;
+      result_histName = "mean_adc_time_bin_vs_cfeb_csc_ME_";
+      result_histTitle="ADC 3X3 Mean Time Bin";
+      result_title_Y="CFEB";
+      result_histNameEntries = "entries_adc_time_bin_vs_cfeb_csc_ME_";
+      result_histTitleEntries="Entries ADC 3X3 Time Bin";
+    }
+
+
+    std::vector<std::string> xTitle;
+    xTitle.push_back("ME+1/1 CSC Chamber #"); xTitle.push_back("ME+1/2 CSC Chamber #");
+    xTitle.push_back("ME+1/3 CSC Chamber #"); 
+    xTitle.push_back("ME+2/1 CSC Chamber #"); xTitle.push_back("ME+2/2 CSC Chamber #");
+    xTitle.push_back("ME+3/1 CSC Chamber #"); xTitle.push_back("ME+3/2 CSC Chamber #");
+    xTitle.push_back("ME+4/1 CSC Chamber #"); xTitle.push_back("ME+4/2 CSC Chamber #");
+    xTitle.push_back("ME-1/1 CSC Chamber #"); xTitle.push_back("ME-1/2 CSC Chamber #");
+    xTitle.push_back("ME-1/3 CSC Chamber #");
+    xTitle.push_back("ME-2/1 CSC Chamber #"); xTitle.push_back("ME-2/2 CSC Chamber #");
+    xTitle.push_back("ME-3/1 CSC Chamber #"); xTitle.push_back("ME-3/2 CSC Chamber #");
+    xTitle.push_back("ME-4/1 CSC Chamber #"); xTitle.push_back("ME-4/2 CSC Chamber #");
+
+    Int_t esr[18]={111,112,113,121,122,131,132,141,142,
+                   211,212,213,221,222,231,232,241,242};
+    Int_t entries[18]={0,0,0,0,0,0,0,0,0,
+                       0,0,0,0,0,0,0,0,0};
+    TCanvas *c1=new TCanvas("c1","canvas");
+    c1->cd();
+
+    //if(flag==2) { // adding special case for AFEB timing
+    ss.str("");
+    ss<<"mean_afeb_time_bin_vs_csc_ME";
+    ss1.str("");
+    ss1<<"Mean AFEB time bin vs CSC and ME";
+    gStyle->SetOptStat(0);
+    TH2F *hb=new TH2F(ss.str().c_str(),ss1.str().c_str(),36,1.0,37.0,18,1.0,19.0);
+    hb->SetStats(kFALSE);
+    hb->GetXaxis()->SetTitle("CSC Chamber #");
+    hb->GetZaxis()->SetLabelSize(0.03);
+    hb->SetOption("COLZ");
+    hb->GetYaxis()->SetBinLabel(1, "ME- 4/2");
+    hb->GetYaxis()->SetBinLabel(2, "ME- 4/1");
+    hb->GetYaxis()->SetBinLabel(3, "ME- 3/2");
+    hb->GetYaxis()->SetBinLabel(4, "ME- 3/1");
+    hb->GetYaxis()->SetBinLabel(5, "ME- 2/2");
+    hb->GetYaxis()->SetBinLabel(6, "ME- 2/1");
+    hb->GetYaxis()->SetBinLabel(7, "ME- 1/3");
+    hb->GetYaxis()->SetBinLabel(8, "ME- 1/2");
+    hb->GetYaxis()->SetBinLabel(9, "ME- 1/1");
+    hb->GetYaxis()->SetBinLabel(10,"ME+ 1/1");
+    hb->GetYaxis()->SetBinLabel(11,"ME+ 1/2");
+    hb->GetYaxis()->SetBinLabel(12,"ME+ 1/3");
+    hb->GetYaxis()->SetBinLabel(13,"ME+ 2/1");
+    hb->GetYaxis()->SetBinLabel(14,"ME+ 2/2");
+    hb->GetYaxis()->SetBinLabel(15,"ME+ 3/1");
+    hb->GetYaxis()->SetBinLabel(16,"ME+ 3/2");
+    hb->GetYaxis()->SetBinLabel(17,"ME+ 4/1");
+    hb->GetYaxis()->SetBinLabel(18,"ME+ 4/2");
+    //}
+
+    for(Int_t jesr=0;jesr<18;jesr++) { 
+      ss.str("");
+      ss<<result_histName.c_str()<<esr[jesr];
+      ss1.str("");
+      ss1<<result_histTitle;
+      TH2F *h=new TH2F(ss.str().c_str(),ss1.str().c_str(),40,0.0,40.0,ny,ylow,yhigh);
+      h->SetStats(kFALSE);
+      h->GetXaxis()->SetTitle(xTitle[jesr].c_str());
+      h->GetYaxis()->SetTitle(result_title_Y.c_str());
+      h->GetZaxis()->SetLabelSize(0.03);
+      h->SetOption("COLZ");
+      ss.str("");
+      ss<<result_histNameEntries.c_str()<<esr[jesr];
+      ss1.str("");
+      ss1<<result_histTitleEntries;
+      TH2F *hentr=new TH2F(ss.str().c_str(),ss1.str().c_str(),40,0.0,40.0,ny,ylow,yhigh);
+      hentr->SetStats(kFALSE);
+      hentr->GetXaxis()->SetTitle(xTitle[jesr].c_str());
+      hentr->GetYaxis()->SetTitle(result_title_Y.c_str());
+      hentr->GetZaxis()->SetLabelSize(0.03);
+      hentr->SetOption("COLZ");
+      TH2F *ha;
+
+      if(flag==2) { // adding special cases for AFEB timing
+        ss.str("");
+        ss<<"normal_afeb_time_bin_vs_csc_ME_"<<esr[jesr];
+        ss1.str("");
+        ss1<<"Normalized AFEB time bin, %";
+        ha=new TH2F(ss.str().c_str(),ss1.str().c_str(),40,0.0,40.0,16,0.0,16.0);
+        ha->SetStats(kFALSE);
+        ha->GetXaxis()->SetTitle(xTitle[jesr].c_str());
+        ha->GetYaxis()->SetTitle("Time Bin");
+        ha->GetZaxis()->SetLabelSize(0.03);
+        ha->SetOption("COLZ");
+      }
+
+      for(Int_t csc=1;csc<37;csc++) {
+        Int_t idchamber=esr[jesr]*100+csc;
+        ss.str("");
+        //ss<<folder.c_str()<<input_histName.c_str()<<idchamber;
+        ss<<input_histName.c_str()<<idchamber;
+        TH2F *h2 = (TH2F*)theMap[ss.str()].first;
+        if(h2 != NULL) {
+
+          // saving original, adding X,Y titles, color and "BOX" option
+          h2->GetXaxis()->SetTitle(input_title_X.c_str());
+          h2->GetYaxis()->SetTitle(input_title_Y.c_str());
+          h2->GetYaxis()->SetTitleOffset(1.2);
+          h2->SetFillColor(4);
+          h2->SetOption("BOX");
+          gStyle->SetOptStat(1001111);
+
+          // saving Y projection of the whole 2D hist for given chamber
+          ss.str("");
+          ss<<input_histName.c_str()<<idchamber<<"_Y_all";
+          TH1D *h1d = h2->ProjectionY(ss.str().c_str(),1,h2->GetNbinsX(),"");
+          h1d->GetYaxis()->SetTitle("Entries");
+          h1d->GetYaxis()->SetTitleOffset(1.2);
+          gStyle->SetOptStat(1001111);
+
+          if(flag==2 && h1d->GetEntries() > 0) {// adding spec. case for afeb timing
+            Float_t entr=h1d->GetEntries();
+            for(Int_t m=1; m<h1d->GetNbinsX();m++) {
+              Float_t w=h1d->GetBinContent(m);
+              w=100.0*w/entr;
+              //ha->SetBinContent(csc+1,m,w);
+              ha->SetBinContent(csc,m,w);
+            }
+            Float_t mean=h1d->GetMean();
+            Int_t me;
+            if(jesr<9) me=10+jesr;
+            if(jesr>8) me=18-jesr;
+            hb->SetBinContent(csc,me,mean);
+          }
+          delete h1d;   
+
+          // saving slices, finding MEAN in each slice, fill 2D hist
+          for(Int_t j=1;j<=h2->GetNbinsX();j++) {
+            Int_t n=j;
+            ss.str("");
+            ss<<input_histName.c_str()<<idchamber<<"_Y_"<<n;
+            TH1D *h1d = h2->ProjectionY(ss.str().c_str(),j,j,"");
+            if(h1d->GetEntries() > 0) {
+              Float_t mean=h1d->GetMean();
+              Float_t entr=h1d->GetEntries();
+              entries[jesr]=entries[jesr]+1;
+              //h->SetBinContent(csc+1,j,mean);
+              //hentr->SetBinContent(csc+1,j,entr);
+              h->SetBinContent(csc,j,mean);
+              hentr->SetBinContent(csc,j,entr);
+              ss.str("");
+              ss<<slice_title_X<<" "<<n;
+              h1d->GetXaxis()->SetTitle(ss.str().c_str());
+              h1d->GetYaxis()->SetTitle("Entries");
+              h1d->GetYaxis()->SetTitleOffset(1.2);
+              gStyle->SetOptStat(1001111);
+            }
+            delete h1d;
+          }
+        }
+      }
+      if(entries[jesr]>0) {
+        h->SetStats(kFALSE);
+        hentr->SetStats(kFALSE);
+        c1->Update();
+
+        // printing
+     
+        h->Draw();
+        ss.str("");
+        ss<<result_histName.c_str()<<esr[jesr]<<".gif";
+        c1->Print(ss.str().c_str(),"gif");
+     
+        hentr->Draw();
+        ss.str("");
+        ss<<result_histNameEntries.c_str()<<esr[jesr]<<".gif";
+        c1->Print(ss.str().c_str(),"gif");
+      }
+      delete h;
+      delete hentr;
+      if (flag == 2) delete ha;
+    }
+    if(flag==2) {
+      hb->Draw();      
+      ss.str("");
+      ss<<"mean_afeb_time_bin_vs_csc_ME"<<".gif";      
+      c1->Print(ss.str().c_str(),"gif");
+
+      c1->Update();
+      delete hb;    
+    }
+  }
+
+
 

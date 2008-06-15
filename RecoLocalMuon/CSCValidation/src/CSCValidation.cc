@@ -38,6 +38,7 @@ CSCValidation::CSCValidation(const ParameterSet& pset){
   makeCompTimingPlots  = pset.getUntrackedParameter<bool>("makeCompTimingPlots",true);
   makeADCTimingPlots   = pset.getUntrackedParameter<bool>("makeADCTimingPlots",true);
   makeRHNoisePlots     = pset.getUntrackedParameter<bool>("makeRHNoisePlots",false);
+  makeCalibPlots       = pset.getUntrackedParameter<bool>("makeCalibPlots",false);
 
   // set counter to zero
   nEventsAnalyzed = 0;
@@ -50,10 +51,10 @@ CSCValidation::CSCValidation(const ParameterSet& pset){
   histos = new CSCValHists();
 
   // book histos Eff histos
-  hSSTE = new TH1F("hSSTE","hSSTE",20,0,20);
-  hRHSTE = new TH1F("hRHSTE","hRHSTE",20,0,20);
-  hSEff = new TH1F("hSEff","Segment Efficiency",10,0.5,10.5);
-  hRHEff = new TH1F("hRHEff","recHit Efficiency",10,0.5,10.5);
+  hSSTE = new TH1F("hSSTE","hSSTE",40,0,40);
+  hRHSTE = new TH1F("hRHSTE","hRHSTE",40,0,40);
+  hSEff = new TH1F("hSEff","Segment Efficiency",20,0.5,20.5);
+  hRHEff = new TH1F("hRHEff","recHit Efficiency",20,0.5,20.5);
 
   // setup trees to hold global position data for rechits and segments
   histos->setupTrees();
@@ -69,18 +70,14 @@ CSCValidation::~CSCValidation(){
   // produce final efficiency histograms
   histoEfficiency(hRHSTE,hRHEff);
   histoEfficiency(hSSTE,hSEff);
-
+  histos->insertPlot(hSEff,"hSEff","Efficiency");
+  histos->insertPlot(hRHEff,"hRHEff","Efficiency");
+  
   // write histos to the specified file
   histos->writeHists(theFile);
   if (makePlots) histos->printPlots();
   if (makeComparisonPlots) histos->printComparisonPlots(refRootFile);
   if (writeTreeToFile) histos->writeTrees(theFile);
-  theFile->cd();
-  theFile->cd("recHits");
-  hRHEff->Write();
-  theFile->cd();
-  theFile->cd("Segments");
-  hSEff->Write();
   theFile->Close();
 
 }
@@ -127,7 +124,7 @@ void CSCValidation::analyze(const Event & event, const EventSetup& eventSetup){
   /////////////////////
 
   // Only do this for the first event
-  if (nEventsAnalyzed == 1) doCalibrations(eventSetup);
+  if (nEventsAnalyzed == 1 && makeCalibPlots) doCalibrations(eventSetup);
 
   // look at various chamber occupancies
   if (makeOccupancyPlots) doOccupancies(strips,wires,recHits,cscSegments);
@@ -348,10 +345,9 @@ void CSCValidation::doWireDigis(edm::Handle<CSCWireDigiCollection> wires){
       nWireGroupsTotal++;
       int kCodeBroad  = cEndcap * ( 4*(kStation-1) + kRing) ;
       int kCodeNarrow = cEndcap * ( 100*(kRing-1) + kChamber) ;
-      histos->fill1DHist(myWire,"hWireAll","all wire group numbers",121,-0.5,120.5,"Digis");
       histos->fill1DHistByType(myWire,"hWireWire","Wiregroup Number",id,113,-0.5,112.5,"Digis");
       histos->fill1DHistByType(kLayer,"hWireLayer","Wires Fired per Layer",id,8,-0.5,7.5,"Digis");
-      histos->fill1DHistByType(myTBin,"hWireTBinAll","Wire TimeBin Fired",id,21,-0.5,20.5,"Digis");
+      histos->fill1DHistByType(myTBin,"hWireTBin","Wire TimeBin Fired",id,21,-0.5,20.5,"Digis");
       if (kStation == 1) histos->fill1DHist(kCodeNarrow,"hWireCodeNarrow1","narrow scope wire code station 1",801,-400.5,400.5,"Digis");
       if (kStation == 2) histos->fill1DHist(kCodeNarrow,"hWireCodeNarrow2","narrow scope wire code station 2",801,-400.5,400.5,"Digis");
       if (kStation == 3) histos->fill1DHist(kCodeNarrow,"hWireCodeNarrow3","narrow scope wire code station 3",801,-400.5,400.5,"Digis");
@@ -403,7 +399,6 @@ void CSCValidation::doStripDigis(edm::Handle<CSCStripDigiCollection> strips){
         int kCodeBroad  = cEndcap * ( 4*(kStation-1) + kRing) ;
         int kCodeNarrow = cEndcap * ( 100*(kRing-1) + kChamber) ;
         // fill strip histos
-        histos->fill1DHist(myStrip,"hStripAll","all strip numbers",81,-0.5,80.5,"Digis");
         histos->fill1DHistByType(myStrip,"hStripStrip","Strip Number",id,81,-0.5,80.5,"Digis");
         histos->fill1DHistByType(kLayer,"hStripLayer","Strips Fired per Layer",id,8,-0.5,7.5,"Digis");
         if (kStation == 1) histos->fill1DHist(kCodeNarrow,"hStripCodeNarrow1","narrow scope strip code station 1",801,-400.5,400.5,"Digis");
@@ -456,6 +451,7 @@ void CSCValidation::doPedestalNoise(edm::Handle<CSCStripDigiCollection> strips){
 	float ADC = thisSignal - thisPedestal;
         histos->fill1DHist(ADC,"hStripPed","Pedestal Noise Distribution",50,-25.,25.,"PedestalNoise");
         histos->fill1DHistByType(ADC,"hStripPedME","Pedestal Noise Distribution",id,50,-25.,25.,"PedestalNoise");
+        //histos->fill1DHistByChamber(ADC,"hStripPedME","Pedestal Noise Distribution",id,50,-25.,25.,"PedestalNoise");
       }
     }
   }
@@ -557,12 +553,13 @@ void CSCValidation::doRecHits(edm::Handle<CSCRecHit2DCollection> recHits, edm::H
     if (kStation == 3) histos->fill1DHist(kCodeNarrow,"hRHCodeNarrow3","narrow scope recHit code station 3",801,-400.5,400.5,"recHits");
     if (kStation == 4) histos->fill1DHist(kCodeNarrow,"hRHCodeNarrow4","narrow scope recHit code station 4",801,-400.5,400.5,"recHits");
     histos->fill1DHistByType(kLayer,"hRHLayer","RecHits per Layer",idrec,8,-0.5,7.5,"recHits");
-    histos->fill1DHistByType(xreco,"hRHX","Local X of recHit",idrec,160,-80.,80.,"recHits");
-    histos->fill1DHistByType(yreco,"hRHY","Local Y of recHit",idrec,60,-180.,180.,"recHits");
-    if (kStation == 1 && (kRing == 1 || kRing == 4)) histos->fill1DHistByType(rHSumQ,"hRHSumQ","Sum 3x3 recHit Charge",idrec,250,0,4000,"recHits");
-    else histos->fill1DHistByType(rHSumQ,"hRHSumQ","Sum 3x3 recHit Charge",idrec,250,0,2000,"recHits");
+    if (kStation == 1 && (kRing == 1 || kRing == 4)) histos->fill1DHistByType(rHSumQ,"hRHSumQ","Sum 3x3 recHit Charge",idrec,125,0,4000,"recHits");
+    else histos->fill1DHistByType(rHSumQ,"hRHSumQ","Sum 3x3 recHit Charge",idrec,125,0,2000,"recHits");
+    //if (kStation == 1 && (kRing == 1 || kRing == 4)) histos->fill1DHistByChamber(rHSumQ,"hRHSumQ","Sum 3x3 recHit Charge",idrec,125,0,4000,"recHits");
+    //else histos->fill1DHistByChamber(rHSumQ,"hRHSumQ","Sum 3x3 recHit Charge",idrec,125,0,2000,"recHits");
     histos->fill1DHistByType(rHratioQ,"hRHRatioQ","Ratio (Ql+Qr)/Qt)",idrec,120,-0.1,1.1,"recHits");
     histos->fill1DHistByType(rHtime,"hRHTiming","recHit Timing",idrec,100,0,10,"recHits");
+    //histos->fill1DHistByChamber(rHtime,"hRHTiming","recHit Timing",idrec,100,0,10,"recHits");
     histos->fill2DHistByStation(grecx,grecy,"hRHGlobal","recHit Global Position",idrec,400,-800.,800.,400,-800.,800.,"recHits");
 
   } //end rechit loop
@@ -612,7 +609,8 @@ void CSCValidation::doSimHits(edm::Handle<CSCRecHit2DCollection> recHits, edm::H
       }
     }
 
-    histos->fill1DHistByType(simHitXres,"hRHResid","SimHitX - Reconstructed X",idrec,100,-1.0,1.0,"recHits");
+    histos->fill1DHistByType(simHitXres,"hRHResid","SimHitX - Reconstructed X",idrec,100,-1.0,1.0,"Resolution");
+    //histos->fill1DHistByChamber(simHitXres,"hRHResid","SimHitX - Reconstructed X",idrec,100,-1.0,1.0,"Resolution");
 
   }
 
@@ -738,7 +736,7 @@ void CSCValidation::doSegments(edm::Handle<CSCSegmentCollection> cscSegments, ed
     histos->fill2DHistByStation(globX,globY,"hSGlobal","Segment Global Positions",id,400,-800.,800.,400,-800.,800.,"Segments");
     histos->fill1DHistByType(nhits,"hSnHits","N hits on Segments",id,8,-0.5,7.5,"Segments");
     histos->fill1DHistByType(theta,"hSTheta","local theta segments",id,128,-3.2,3.2,"Segments");
-    histos->fill1DHistByType(residual,"hSResid","Fitted Position on Strip - Reconstructed for Layer 3",id,100,-0.5,0.5,"recHits");
+    histos->fill1DHistByType(residual,"hSResid","Fitted Position on Strip - Reconstructed for Layer 3",id,100,-0.5,0.5,"Resolution");
     histos->fill1DHistByType(chisqProb,"hSChiSqProb","segments chi-squared probability",id,110,-0.05,1.05,"Segments");
     histos->fill1DHist(globTheta,"hSGlobalTheta","segment global theta",64,0,1.6,"Segments");
     histos->fill1DHist(globPhi,"hSGlobalPhi","segment global phi",128,-3.2,3.2,"Segments");
@@ -840,11 +838,11 @@ float CSCValidation::getTiming(const CSCStripDigiCollection& stripdigis, CSCDetI
   float normADC;
   for (int i = 0; i < 8; i++){
     normADC = ADC[i]/ADC[peakTime];
-    histos->fillProfileByChamber(i,normADC,"signal_profile","Normalized Signal Profile",idRH,8,-0.5,7.5,-0.1,1.1,"ADCTiming");
+    histos->fillProfileByChamber(i,normADC,"signal_profile","Normalized Signal Profile",idRH,8,-0.5,7.5,-0.1,1.1,"SignalProfile");
   }
 
-  histos->fill1DHistByChamber(ADC[0],"ped_subtracted","ADC in first time bin",idRH,400,-300,100,"ADCTiming");
-  histos->fill1DHist(ADC[0],"ped_subtracted_all","ADC in first time bin",400,-300,100,"ADCTiming");
+  histos->fill1DHistByChamber(ADC[0],"ped_subtracted","ADC in first time bin",idRH,400,-300,100,"FirstTBADC");
+  histos->fill1DHist(ADC[0],"ped_subtracted_all","ADC in first time bin",400,-300,100,"FirstTBADC");
 
   timing = (ADC[2]*2 + ADC[3]*3 + ADC[4]*4 + ADC[5]*5 + ADC[6]*6)/(ADC[2] + ADC[3] + ADC[4] + ADC[5] + ADC[6]);
 
@@ -904,8 +902,8 @@ void CSCValidation::doEfficiencies(edm::Handle<CSCRecHit2DCollection> recHits, e
             }
           }
           int bin = 0;
-          if (iS==0) bin = iR+1;
-          else bin = (iS+1)*2 + (iR+1);
+          if (iS==0) bin = iR+1+(iE*10);
+          else bin = (iS+1)*2 + (iR+1) + (iE*10);
           if(NumberOfLayers>1){
             //if(!(MultiSegments[iE][iS][iR][iC])){
             if(AllSegments[iE][iS][iR][iC]){
@@ -913,7 +911,7 @@ void CSCValidation::doEfficiencies(edm::Handle<CSCRecHit2DCollection> recHits, e
               hSSTE->AddBinContent(bin);
             }
             //---- All segment events (normalization)
-            hSSTE->AddBinContent(10+bin);
+            hSSTE->AddBinContent(20+bin);
             //}
           }
           if(AllSegments[iE][iS][iR][iC]){
@@ -922,7 +920,7 @@ void CSCValidation::doEfficiencies(edm::Handle<CSCRecHit2DCollection> recHits, e
               hRHSTE->AddBinContent(bin);;
             }
             //---- All rechit events (normalization)
-            hRHSTE->AddBinContent(10+bin);;
+            hRHSTE->AddBinContent(20+bin);;
           }
         }
       }
@@ -953,9 +951,9 @@ void CSCValidation::histoEfficiency(TH1F *readHisto, TH1F *writeHisto){
   std::vector<float> EffError(Nbins);
   float Num = 1;
   float Den = 1;
-  for (int i=0;i<10;i++){
+  for (int i=0;i<20;i++){
     Num = readHisto->GetBinContent(i+1);
-    Den = readHisto->GetBinContent(i+11);
+    Den = readHisto->GetBinContent(i+21);
     getEfficiency(Num, Den, eff);
     Efficiency[i] = eff[0];
     EffError[i] = eff[1];

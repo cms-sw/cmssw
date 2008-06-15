@@ -65,6 +65,9 @@ class CSCValHists{
   void fillSegmentTree(float x, float y, float gx, float gy,
                        int en, int st, int ri, int ch);
 
+  // insert any TH1 into the big map
+  void insertPlot(TH1* thePlot, string name, string folder);
+
   // calib hists are special because they are constants stored in a histogram, 1 per bin
   void fillCalibHist(float x, string name, string title, int bins, float xmin, float xmax,
                      int bin, string folder);

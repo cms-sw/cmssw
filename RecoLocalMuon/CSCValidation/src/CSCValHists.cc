@@ -115,6 +115,12 @@ using namespace std;
     segTree->Fill();
 
   }
+
+  void CSCValHists::insertPlot(TH1* thePlot, string name, string folder){
+
+    theMap[name] = pair<TH1*,string>(thePlot, folder);
+
+  }
   
 
   void CSCValHists::fillCalibHist(float x, string name, string title, int bins, float xmin, float xmax,
