@@ -603,8 +603,8 @@ l1CSCTFConfig = cms.ESProducer("CSCTFConfigProducer",
           "DAT_ETA SP MA 0x4    # mindeta_accp = 4",
           "DAT_ETA SP MA 0x10   # maxdeta_accp = 16",
           "DAT_ETA SP MA 0x40   # maxdphi_accp = 128"
-    )
-
+    ),
+    alignment = cms.vdouble( 0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0 );
 )
 
 
