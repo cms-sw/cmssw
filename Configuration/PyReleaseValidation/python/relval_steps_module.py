@@ -28,7 +28,7 @@ def gen(process,name,step,evt_type,energy,evtnumber):
     if ( name == 'pgen'):
         process.generation_step = cms.Path(getattr(process,name))
     else:
-        process.generation_step = cms.Path(getattr(process,'pgen')*getattr(process,name))
+        process.generation_step = cms.Path(getattr(process,name)*getattr(process,'pgen'))
         
     if user_schedule=='':
         process.schedule.append(process.generation_step)
