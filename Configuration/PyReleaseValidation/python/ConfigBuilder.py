@@ -5,7 +5,7 @@
 # creates a complete config file.
 # relval_main + the custom config for it is not needed any more
 
-__version__ = "$Revision: 1.23 $"
+__version__ = "$Revision: 1.24 $"
 __source__ = "$Source: /cvs_server/repositories/CMSSW/CMSSW/Configuration/PyReleaseValidation/python/ConfigBuilder.py,v $"
 
 import FWCore.ParameterSet.Config as cms
@@ -252,7 +252,7 @@ class ConfigBuilder(object):
     def prepare_L1(self, sequence = None):
         """ Enrich the schedule with the L1 simulation step"""
         self.loadAndRemember('Configuration/StandardSequences/SimL1Emulator_cff') 
-        self.loadAndRemember('L1TriggerConfig/L1GtConfigProducers/Luminosity/lumi1030.L1Menu2008_2E30_Unprescaled_cff') 
+        self.loadAndRemember('L1TriggerConfig/L1GtConfigProducers/Luminosity/lumi1030.L1Menu2008_2E30_Unprescaled_cff')
         self.process.L1simulation_step = cms.Path(self.process.SimL1Emulator)
         self.process.schedule.append(self.process.L1simulation_step)
 
@@ -305,7 +305,7 @@ class ConfigBuilder(object):
     def build_production_info(evt_type, energy, evtnumber):
         """ Add useful info for the production. """
         prod_info=cms.untracked.PSet\
-              (version=cms.untracked.string("$Revision: 1.23 $"),
+              (version=cms.untracked.string("$Revision: 1.24 $"),
                name=cms.untracked.string("PyReleaseValidation")#,
               # annotation=cms.untracked.string(self._options.evt_type+" energy:"+str(energy)+" nevts:"+str(evtnumber))
               )
