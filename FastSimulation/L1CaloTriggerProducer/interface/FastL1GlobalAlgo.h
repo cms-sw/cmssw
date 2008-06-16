@@ -15,7 +15,7 @@
 //
 // Original Author:  Chi Nhan Nguyen
 //         Created:  Mon Feb 19 13:25:24 CST 2007
-// $Id: FastL1GlobalAlgo.h,v 1.17 2008/01/10 00:25:27 chinhan Exp $
+// $Id: FastL1GlobalAlgo.h,v 1.18 2008/01/12 00:14:06 chinhan Exp $
 //
 
 // system include files
@@ -74,8 +74,8 @@ class FastL1GlobalAlgo {
 
       void CaloTowersDump(edm::Event const& e);
 
-      //l1extra::L1EtMissParticle getMET() const { return m_MET; }
-      l1extra::L1EtMissParticleCollection getMET() const { return m_METs; }
+      l1extra::L1EtMissParticle getMET() const { return m_MET; }
+      //l1extra::L1EtMissParticleCollection getMET() const { return m_METs; }
       l1extra::L1JetParticleCollection getTauJets() const { return m_TauJets; }
       l1extra::L1JetParticleCollection getCenJets() const { return m_CenJets; }
       l1extra::L1JetParticleCollection getForJets() const { return m_ForJets; }
@@ -112,8 +112,8 @@ class FastL1GlobalAlgo {
       double hcaletValue(const int ieta,const int compET);
       // ----------member data ---------------------------
       // output data
-      //l1extra::L1EtMissParticle m_MET;
-      l1extra::L1EtMissParticleCollection m_METs;
+      l1extra::L1EtMissParticle m_MET;
+      //l1extra::L1EtMissParticleCollection m_METs;
       l1extra::L1JetParticleCollection m_TauJets;
       l1extra::L1JetParticleCollection m_CenJets;
       l1extra::L1JetParticleCollection m_ForJets;

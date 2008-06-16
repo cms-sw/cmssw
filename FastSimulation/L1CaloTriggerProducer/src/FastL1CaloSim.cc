@@ -13,7 +13,7 @@
 //
 // Original Author:  Chi Nhan Nguyen
 //         Created:  Mon Feb 19 13:25:24 CST 2007
-// $Id: FastL1CaloSim.cc,v 1.9 2007/09/07 23:01:04 smaruyam Exp $
+// $Id: FastL1CaloSim.cc,v 1.10 2008/01/09 22:55:04 chinhan Exp $
 //
 //
 
@@ -35,8 +35,8 @@ FastL1CaloSim::FastL1CaloSim(const edm::ParameterSet& iConfig)
   produces<l1extra::L1EmParticleCollection>("isoEgammas");
   */
 
-  //produces<l1extra::L1EtMissParticle>();
-  produces<l1extra::L1EtMissParticleCollection>();
+  produces<l1extra::L1EtMissParticle>();
+  //produces<l1extra::L1EtMissParticleCollection>();
   produces<l1extra::L1JetParticleCollection>("Tau");
   produces<l1extra::L1JetParticleCollection>("Central");
   produces<l1extra::L1JetParticleCollection>("Forward");
@@ -87,8 +87,8 @@ FastL1CaloSim::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
   if (m_DoBitInfo)
     m_L1GlobalAlgo->FillBitInfos();
 
-  //std::auto_ptr<l1extra::L1EtMissParticle> METResult(new l1extra::L1EtMissParticle);
-  std::auto_ptr<l1extra::L1EtMissParticleCollection> METResult(new l1extra::L1EtMissParticleCollection);
+  std::auto_ptr<l1extra::L1EtMissParticle> METResult(new l1extra::L1EtMissParticle);
+  //std::auto_ptr<l1extra::L1EtMissParticleCollection> METResult(new l1extra::L1EtMissParticleCollection);
   std::auto_ptr<l1extra::L1JetParticleCollection> TauJetResult(new l1extra::L1JetParticleCollection);
   std::auto_ptr<l1extra::L1JetParticleCollection> CenJetResult(new l1extra::L1JetParticleCollection);
   std::auto_ptr<l1extra::L1JetParticleCollection> ForJetResult(new l1extra::L1JetParticleCollection);

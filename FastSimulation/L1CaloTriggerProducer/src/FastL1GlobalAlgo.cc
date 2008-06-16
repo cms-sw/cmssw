@@ -13,7 +13,7 @@ Implementation:
 //
 // Original Author:  Chi Nhan Nguyen
 //         Created:  Mon Feb 19 13:25:24 CST 2007
-// $Id: FastL1GlobalAlgo.cc,v 1.37 2008/04/24 20:10:35 chinhan Exp $
+// $Id: FastL1GlobalAlgo.cc,v 1.38 2008/05/13 23:14:07 heltsley Exp $
 //
 
 // No BitInfos for release versions
@@ -365,7 +365,7 @@ FastL1GlobalAlgo::FillEgammas(edm::Event const& e) {
 // ------------ Fill MET 1: loop over towers ------------
 void
 FastL1GlobalAlgo::FillMET(edm::Event const& e) {
-  m_METs.clear();
+  //m_METs.clear();
 
   //std::vector< edm::Handle<CaloTowerCollection> > input;
   //e.getManyByType(input);
@@ -474,14 +474,14 @@ FastL1GlobalAlgo::FillMET(edm::Event const& e) {
   //}
 
   reco::Particle::LorentzVector rp4(-sum_ex,-sum_ey,0.,std::sqrt(sum_ex*sum_ex + sum_ey*sum_ey));
-  //m_MET = l1extra::L1EtMissParticle(rp4,sum_et,0.);  
-  m_METs.push_back(l1extra::L1EtMissParticle(rp4,sum_et,0.));  
+  m_MET = l1extra::L1EtMissParticle(rp4,sum_et,0.);  
+  //m_METs.push_back(l1extra::L1EtMissParticle(rp4,sum_et,0.));  
 }
 
 // ------------ Fill MET 2: loop over regions ------------
 void
 FastL1GlobalAlgo::FillMET() {
-  m_METs.clear();
+  //m_METs.clear();
 
   //double sum_e = 0.0;
   double sum_et = 0.0;
@@ -522,8 +522,8 @@ FastL1GlobalAlgo::FillMET() {
   //reco::Particle::LorentzVector rp4(-sum_ex,-sum_ey,-sum_ez,sum_e);
   reco::Particle::LorentzVector rp4(-sum_ex,-sum_ey,0.,std::sqrt(sum_ex*sum_ex + sum_ey*sum_ey));
   //edm::LogInfo("********** FastL1GlobalAlgo::FillMET()")<<rp4.mass()<<std::endl; 
-  //m_MET = l1extra::L1EtMissParticle(rp4,sum_et,0.);  
-  m_METs.push_back(l1extra::L1EtMissParticle(rp4,sum_et,0.));  
+  m_MET = l1extra::L1EtMissParticle(rp4,sum_et,0.);  
+  //m_METs.push_back(l1extra::L1EtMissParticle(rp4,sum_et,0.));  
  
 }
 
