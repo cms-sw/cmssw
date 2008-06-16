@@ -9,6 +9,7 @@
 #include "OnlineDB/EcalCondDB/interface/ODLaserCycle.h"
 #include "OnlineDB/EcalCondDB/interface/ODLTCCycle.h"
 #include "OnlineDB/EcalCondDB/interface/ODLTSCycle.h"
+#include "OnlineDB/EcalCondDB/interface/ODDCUCycle.h"
 #include "OnlineDB/EcalCondDB/interface/ODRunConfigCycleInfo.h"
 #include "OnlineDB/EcalCondDB/interface/ODScanCycle.h"
 #include "OnlineDB/EcalCondDB/interface/ODTCCCycle.h"
@@ -104,6 +105,14 @@ void ODEcalCycle::writeDB()
     lts_cycle.insertConfig();
     cout << "Inserting LTS-cycle in DB..." << flush;
   }
+  if(getDCUId()!=0){
+    ODDCUCycle dcu_cycle;
+    dcu_cycle.setId(cyc_id);
+    dcu_cycle.setDCUConfigurationID(getDCUId());
+    dcu_cycle.setConnection(m_env, m_conn);
+    dcu_cycle.insertConfig();
+    cout << "Inserting DCU-cycle in DB..." << flush;
+  }
   if(getTCCId()!=0){
     ODTCCCycle tcc_cycle;
     tcc_cycle.setId(cyc_id);
@@ -169,6 +178,7 @@ void ODEcalCycle::clear(){
    m_laser=0;
    m_ltc=0;
    m_lts=0;
+   m_dcu=0;
    m_tcc=0;
    m_ttcci=0;
    m_jbh4=0;
@@ -213,7 +223,7 @@ void ODEcalCycle::fetchData(ODEcalCycle * result)
 
     m_readStmt->setSQL("SELECT d.tag, d.version, d.sequence_num, d.cycle_num, d.cycle_tag, d.description, d.ccs_configuration_id,    "
 		       " d.dcc_configuration_id, d.laser_configuration_id, d.ltc_configuration_id, d.lts_configuration_id, d.tcc_configuration_id,"
-		       " d.\"TTCci_CONFIGURATION_ID\" ,  d.jbh4_configuration_id, d.scan_id, d.TTCF_configuration_id, d.srp_configuration_id " 
+		       " d.\"TTCci_CONFIGURATION_ID\" ,  d.jbh4_configuration_id, d.scan_id, d.TTCF_configuration_id, d.srp_configuration_id, d.dcu_configuration_id " 
 		       "FROM ECAL_CYCLE d "
 		       " where d.cycle_id = :1 " );
     m_readStmt->setInt(1, result->getId());
@@ -241,6 +251,7 @@ void ODEcalCycle::fetchData(ODEcalCycle * result)
 
     result->setTTCFId(        rset->getInt(16) );
     result->setSRPId(        rset->getInt(17) );
+    result->setDCUId(        rset->getInt(18) );
 
   } catch (SQLException &e) {
     throw(runtime_error("ODEcalCycle::fetchData():  "+e.getMessage()));

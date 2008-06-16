@@ -50,6 +50,26 @@ void ODRunConfigInfo::setRunModeDef(const RunModeDef runModeDef)
 }
 //
 
+int ODRunConfigInfo::fetchNextId()  throw(std::runtime_error) {
+
+  int result=0;
+  try {
+    this->checkConnection();
+
+    m_readStmt = m_conn->createStatement(); 
+    m_readStmt->setSQL("select ecal_run_sq.NextVal from dual");
+    ResultSet* rset = m_readStmt->executeQuery();
+    while (rset->next ()){
+      result= rset->getInt(1);
+    }
+    m_conn->terminateStatement(m_readStmt);
+    return result; 
+
+  } catch (SQLException &e) {
+    throw(runtime_error("ODDCCConfig::fetchNextId():  "+e.getMessage()));
+  }
+
+}
 
 int ODRunConfigInfo::fetchID()
   throw(runtime_error)
@@ -176,11 +196,20 @@ void ODRunConfigInfo::prepareWrite()
 {
   this->checkConnection();
 
+  int next_id=fetchNextId();
+
+
+
+
   try {
     m_writeStmt = m_conn->createStatement();
-    m_writeStmt->setSQL("INSERT INTO ECAL_RUN_CONFIGURATION_DAT ( tag, version, run_type_def_id, "
+    m_writeStmt->setSQL("INSERT INTO ECAL_RUN_CONFIGURATION_DAT (CONFIG_ID, tag, version, run_type_def_id, "
 		 " run_mode_def_id, num_of_sequences, defaults, trg_mode, num_of_events, description ) "
-		 " VALUES (:1, :2, :3 , :4, :5, :6 ,:7, :8, :9 )");
+		 " VALUES (:1, :2, :3 , :4, :5, :6 ,:7, :8, :9, :10 )");
+
+    m_writeStmt->setInt(1, next_id);
+    m_ID=next_id;
+
   } catch (SQLException &e) {
     throw(runtime_error("ODRunConfigInfo::prepareWrite():  "+e.getMessage()));
   }
@@ -208,15 +237,15 @@ void ODRunConfigInfo::writeDB()
 
     // now insert 
 
-    m_writeStmt->setString(1, this->getTag());
-    m_writeStmt->setInt(2, this->getVersion());
-    m_writeStmt->setInt(3, run_type_id);
-    m_writeStmt->setInt(4, run_mode_id);
-    m_writeStmt->setInt(5, this->getNumberOfSequences());
-    m_writeStmt->setInt(6, this->getDefaults());
-    m_writeStmt->setString(7, this->getTriggerMode());
-    m_writeStmt->setInt(8, this->getNumberOfEvents());
-    m_writeStmt->setString(9, this->getDescription());
+    m_writeStmt->setString(2, this->getTag());
+    m_writeStmt->setInt(3, this->getVersion());
+    m_writeStmt->setInt(4, run_type_id);
+    m_writeStmt->setInt(5, run_mode_id);
+    m_writeStmt->setInt(6, this->getNumberOfSequences());
+    m_writeStmt->setInt(7, this->getDefaults());
+    m_writeStmt->setString(8, this->getTriggerMode());
+    m_writeStmt->setInt(9, this->getNumberOfEvents());
+    m_writeStmt->setString(10, this->getDescription());
 
     m_writeStmt->executeUpdate();
 
@@ -227,6 +256,8 @@ void ODRunConfigInfo::writeDB()
   if (!this->fetchID()) {
     throw(runtime_error("ODRunConfigInfo::writeDB  Failed to write"));
   }
+
+  this->setByID(m_ID);
 
   cout<< "ODRunConfigInfo::writeDB>> done inserting ODRunConfigInfo with id="<<m_ID<<endl;
 }

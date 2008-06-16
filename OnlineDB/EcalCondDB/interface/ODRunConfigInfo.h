@@ -72,6 +72,7 @@ int getNumberOfEvents() const{  return m_num_events ;}
   int m_num_events;
 
   // Methods from IUniqueDBObject
+  int fetchNextId()  throw(std::runtime_error);
   int fetchID() throw(std::runtime_error);
   int fetchIDFromTagAndVersion() throw(std::runtime_error);
   int fetchIDLast() throw(std::runtime_error);

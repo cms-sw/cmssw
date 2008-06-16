@@ -44,6 +44,8 @@ class ODEcalCycle : public IODConfig {
   inline int getLTCId() const { return m_ltc; }
   inline void setLTSId(int x) { m_lts = x; }
   inline int getLTSId() const { return m_lts; }
+  inline void setDCUId(int x) { m_dcu = x; }
+  inline int getDCUId() const { return m_dcu; }
   inline void setTCCId(int x) { m_tcc = x; }
   inline int getTCCId() const { return m_tcc; }
   inline void setTTCCIId(int x) { m_ttcci = x; }
@@ -81,6 +83,7 @@ class ODEcalCycle : public IODConfig {
   int m_laser;
   int m_ltc;
   int m_lts;
+  int m_dcu;
   int m_tcc;
   int m_ttcci;
   int m_mataq;

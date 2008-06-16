@@ -5,6 +5,10 @@
 
 #include "OnlineDB/EcalCondDB/interface/ODCCSConfig.h"
 
+#define MY_SQL_NULL numeric_limits<int>::quiet_NaN()
+#define SET_INT( statement, paramNum, paramVal ) if( paramVal != MY_SQL_NULL ) { statement->setInt(paramNum, paramVal);  } else { statement->setNull(paramNum,OCCINUMBER); }
+#define SET_STRING( statement, paramNum, paramVal ) if( ! paramVal.empty() ) { statement->setString(paramNum, paramVal); } else { statement->setNull(paramNum,OCCICHAR); }
+
 using namespace std;
 using namespace oracle::occi;
 
@@ -15,26 +19,28 @@ ODCCSConfig::ODCCSConfig()
   m_writeStmt = NULL;
   m_readStmt = NULL;
   m_config_tag="";
-   m_ID=0;
-   clear();   
+  m_ID=0;
+  clear();   
 }
 
 
 void ODCCSConfig::clear(){
-   m_daccal=0;
-   m_delay=0;
+   m_daccal=MY_SQL_NULL;
+   m_delay=MY_SQL_NULL;
    m_gain="";
    m_memgain="";
-   m_offset_high=0;
-   m_offset_low=0;
-   m_offset_mid=0;
+   m_offset_high=MY_SQL_NULL;
+   m_offset_low=MY_SQL_NULL;
+   m_offset_mid=MY_SQL_NULL;
    m_trg_mode="";
    m_trg_filter="";
    m_bgo="";
-   m_tts_mask=0;
-   m_daq=0;
-   m_trg=0;
-   m_bc0=0;
+   m_tts_mask=MY_SQL_NULL;
+   m_daq=MY_SQL_NULL;
+   m_trg=MY_SQL_NULL;
+   m_bc0=MY_SQL_NULL;
+   m_bc0_delay=MY_SQL_NULL;
+   m_te_delay=MY_SQL_NULL;
 }
 
 
@@ -76,11 +82,11 @@ void ODCCSConfig::prepareWrite()
     m_writeStmt = m_conn->createStatement();
     m_writeStmt->setSQL("INSERT INTO ECAL_CCS_CONFIGURATION ( ccs_configuration_id, ccs_tag ,"
 			" daccal, delay, gain, memgain, offset_high,offset_low,offset_mid, trg_mode, trg_filter, "
-			" clock, BGO_SOURCE, TTS_MASK, DAQ_BCID_PRESET , TRIG_BCID_PRESET, BC0_COUNTER ) "
+			" clock, BGO_SOURCE, TTS_MASK, DAQ_BCID_PRESET , TRIG_BCID_PRESET, BC0_COUNTER, BC0_DELAY, TE_DELAY ) "
 			"VALUES (  "
 			" :ccs_configuration_id, :ccs_tag,  :daccal, :delay, :gain, :memgain, :offset_high,:offset_low,"
 			" :offset_mid, :trg_mode, :trg_filter, :clock, :BGO_SOURCE, :TTS_MASK, "
-			" :DAQ_BCID_PRESET , :TRIG_BCID_PRESET, :BC0_COUNTER) ");
+			" :DAQ_BCID_PRESET , :TRIG_BCID_PRESET, :BC0_COUNTER, :BC0_DELAY, :TE_DELAY) ");
 
     m_writeStmt->setInt(1, next_id);
     m_ID=next_id;
@@ -114,6 +120,8 @@ void ODCCSConfig::setParameters(std::map<string,string> my_keys_map){
     if(ci->first==  "DAQ_BCID_PRESET") setDAQBCIDPreset(atoi(ci->second.c_str() ));
     if(ci->first==  "TRIG_BCID_PRESET") setTrgBCIDPreset(atoi(ci->second.c_str()) );
     if(ci->first==  "BC0_COUNTER") setBC0Counter(atoi(ci->second.c_str() ));
+    if(ci->first==  "BC0_DELAY") setBC0Delay(atoi(ci->second.c_str() ));
+    if(ci->first==  "TE_DELAY")  setTEDelay(atoi(ci->second.c_str() ));
     
   }
   
@@ -128,23 +136,42 @@ void ODCCSConfig::writeDB()
   try {
 
     // number 1 is the id 
-    m_writeStmt->setString(2, this->getConfigTag());
-    m_writeStmt->setInt(3, this->getDaccal());
-    m_writeStmt->setInt(4, this->getDelay());
-    m_writeStmt->setString(5, this->getGain());
-    m_writeStmt->setString(6, this->getMemGain());
-    m_writeStmt->setInt(7, this->getOffsetHigh());
-    m_writeStmt->setInt(8, this->getOffsetLow());
-    m_writeStmt->setInt(9, this->getOffsetMid());
-    m_writeStmt->setString(10, this->getTrgMode() );
-    m_writeStmt->setString(11, this->getTrgFilter() );
-    m_writeStmt->setInt(  12, this->getClock() );
-    m_writeStmt->setString(13, this->getBGOSource() );
-    m_writeStmt->setInt(14, this->getTTSMask() );
-    m_writeStmt->setInt(15, this->getDAQBCIDPreset() );
-    m_writeStmt->setInt(16, this->getTrgBCIDPreset() );
-    m_writeStmt->setInt(17, this->getBC0Counter() );
-
+    // m_writeStmt->setString(2, this->getConfigTag());
+    // m_writeStmt->setInt(3, this->getDaccal());
+    // m_writeStmt->setInt(4, this->getDelay());
+    // m_writeStmt->setString(5, this->getGain());
+    // m_writeStmt->setString(6, this->getMemGain());
+    // m_writeStmt->setInt(7, this->getOffsetHigh());
+    // m_writeStmt->setInt(8, this->getOffsetLow());
+    // m_writeStmt->setInt(9, this->getOffsetMid());
+    // m_writeStmt->setString(10, this->getTrgMode() );
+    // m_writeStmt->setString(11, this->getTrgFilter() );
+    // m_writeStmt->setInt(  12, this->getClock() );
+    // m_writeStmt->setString(13, this->getBGOSource() );
+    // m_writeStmt->setInt(14, this->getTTSMask() );
+    // m_writeStmt->setInt(15, this->getDAQBCIDPreset() );
+    // m_writeStmt->setInt(16, this->getTrgBCIDPreset() );
+    // m_writeStmt->setInt(17, this->getBC0Counter() );
+    
+    SET_STRING(m_writeStmt, 2,  this->getConfigTag());
+    SET_INT   (m_writeStmt, 3,  this->getDaccal());
+    SET_INT   (m_writeStmt, 4,  this->getDelay());
+    SET_STRING(m_writeStmt, 5,  this->getGain());
+    SET_STRING(m_writeStmt, 6,  this->getMemGain());
+    SET_INT   (m_writeStmt, 7,  this->getOffsetHigh());
+    SET_INT   (m_writeStmt, 8,  this->getOffsetLow());
+    SET_INT   (m_writeStmt, 9,  this->getOffsetMid());
+    SET_STRING(m_writeStmt, 10, this->getTrgMode());
+    SET_STRING(m_writeStmt, 11, this->getTrgFilter());
+    SET_INT   (m_writeStmt, 12, this->getClock());
+    SET_STRING(m_writeStmt, 13, this->getBGOSource());
+    SET_INT   (m_writeStmt, 14, this->getTTSMask());
+    SET_INT   (m_writeStmt, 15, this->getDAQBCIDPreset());
+    SET_INT   (m_writeStmt, 16, this->getTrgBCIDPreset());
+    SET_INT   (m_writeStmt, 17, this->getBC0Counter());
+    SET_INT   (m_writeStmt, 18, this->getBC0Delay());
+    SET_INT   (m_writeStmt, 19, this->getTEDelay());
+    
     m_writeStmt->executeUpdate();
 
 

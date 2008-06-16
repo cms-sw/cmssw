@@ -27,6 +27,12 @@ class ODTTCciConfig : public IODConfig {
   inline void setTTCciConfigurationFile(std::string x) { m_ttcci_file = x; }
   inline std::string getTTCciConfigurationFile() const { return m_ttcci_file; }
 
+  inline void setConfigurationScript(std::string x) { m_configuration_script = x; }
+  inline std::string getConfigurationScript() const { return m_configuration_script; }
+  inline void setConfigurationScriptParams(std::string x) { m_configuration_script_params = x; }
+  inline std::string getConfigurationScriptParams() const { return m_configuration_script_params; }
+
+
   inline void setTrgMode(std::string x) { m_trg_mode = x; }
   inline std::string getTrgMode() const { return m_trg_mode; }
   inline void setTrgSleep(int id) { m_trg_sleep = id; }
@@ -53,6 +59,8 @@ class ODTTCciConfig : public IODConfig {
   int m_ID;
   unsigned char* m_ttcci_clob;
   std::string  m_ttcci_file;
+  std::string  m_configuration_script;
+  std::string  m_configuration_script_params;
   std::string  m_trg_mode;
   int  m_trg_sleep;
   int m_size;
