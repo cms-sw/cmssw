@@ -5,15 +5,15 @@
  *  to MC and (eventually) data. 
  *  Implementation file contents follow.
  *
- *  $Date: 2008/04/23 02:59:17 $
- *  $Revision: 1.50 $
+ *  $Date: 2008/04/25 20:38:58 $
+ *  $Revision: 1.51 $
  *  \author Vyacheslav Krutelyov (slava77)
  */
 
 //
 // Original Author:  Vyacheslav Krutelyov
 //         Created:  Fri Mar  3 16:01:24 CST 2006
-// $Id: SteppingHelixPropagator.cc,v 1.50 2008/04/23 02:59:17 slava77 Exp $
+// $Id: SteppingHelixPropagator.cc,v 1.51 2008/04/25 20:38:58 slava77 Exp $
 //
 //
 
@@ -216,7 +216,7 @@ SteppingHelixPropagator::propagate(const SteppingHelixStateInfo& sStart,
   }
   setIState(sStart);
   
-  double pars[6];
+  double pars[6] = {0,0,0,0,0,0};
   pars[RADIUS_P] = cDest.radius();
 
   
@@ -1105,6 +1105,7 @@ double SteppingHelixPropagator::getDeDx(const SteppingHelixPropagator::StateInfo
   double dEdX_Fe =   dEdX_mat;
   double dEdX_MCh =  0.053*dEdX_mat; //chambers on average
   double dEdX_Trk =  0.0114*dEdX_mat;
+  double dEdX_Air =  2E-4*dEdX_mat;
   double dEdX_Vac =  0.0;
 
   double radX0_HCal = 1.44/0.8; //guessing
@@ -1127,7 +1128,7 @@ double SteppingHelixPropagator::getDeDx(const SteppingHelixPropagator::StateInfo
   //(numbers taken from Fig1.1.2 TDR and from geom xmls)
   if (lR < 2.9){ //inside beampipe
     dEdx = dEdX_Vac; radX0 = radX0_Vac;
-    rzLims = MatBounds(0, 2.9, 0, 785);
+    rzLims = MatBounds(0, 2.9, 0, 1E4);
   }
   else if (lR < 129){
     if (lZ < 294){ 
@@ -1283,7 +1284,19 @@ double SteppingHelixPropagator::getDeDx(const SteppingHelixPropagator::StateInfo
       rzLims = MatBounds(129, 287, 975, 1000);
       dEdx = dEdX_Fe; radX0 = radX0_Fe; 
     }//iron
-    else { dEdx = 0; radX0 = radX0_Air;}
+    else if (lZ < 1063){
+      rzLims = MatBounds(129, 287, 1000, 1063);
+      dEdx = dEdX_MCh; radX0 = radX0_MCh; 
+    }
+    else if ( lZ < 1073){
+      rzLims = MatBounds(129, 287, 1063, 1073);
+      dEdx = dEdX_Fe; radX0 = radX0_Fe; 
+    }
+    else if (lZ < 1E4 )  { 
+      rzLims = MatBounds(129, 287, 1073, 1E4);
+      dEdx = dEdX_Air; radX0 = radX0_Air;
+    }
+    else { dEdx = dEdX_Air; radX0 = radX0_Air;}
   }
   else if (lR <380 && lZ < 667){
     if (lZ < 630){
@@ -1293,7 +1306,7 @@ double SteppingHelixPropagator::getDeDx(const SteppingHelixPropagator::StateInfo
     } else rzLims = MatBounds(287, 380, 630, 667);  
 
     if (lZ < 630) { dEdx = dEdX_coil; radX0 = radX0_coil; }//a guess for the solenoid average
-    else {dEdx = 0; radX0 = radX0_Air; }//endcap gap
+    else {dEdx = dEdX_Air; radX0 = radX0_Air; }//endcap gap
   }
   else {
     if (lZ < 667) {
@@ -1307,11 +1320,16 @@ double SteppingHelixPropagator::getDeDx(const SteppingHelixPropagator::StateInfo
 	  isIron = (bMag > 0.75 && ! (lZ > 500 && lR <500 && bMag < 1.15)
 		    && ! (lZ < 450 && lR > 420 && bMag < 1.15 ) );
 	}
+	//tell the material stepper where mat bounds are
+	rzLims = MatBounds(380, 850, 0, 667);
 	if (isIron) { dEdx = dEdX_Fe; radX0 = radX0_Fe; }//iron
 	else { dEdx = dEdX_MCh; radX0 = radX0_MCh; }
-      } else {dEdx = 0; radX0 = radX0_Air; }
+      } else {dEdx = dEdX_Air; radX0 = radX0_Air; }
     } 
-    else if (lR > 750 ){dEdx = 0; radX0 = radX0_Air; }
+    else if (lR > 750 ){
+      rzLims = MatBounds(750, 1E4, 667, 1E4);
+      dEdx = dEdX_Air; radX0 = radX0_Air; 
+    }
     else if (lZ < 724){
       if (lR < 380 ) rzLims = MatBounds(287, 380, 667, 724); 
       else rzLims = MatBounds(380, 750, 667, 724); 
@@ -1338,7 +1356,28 @@ double SteppingHelixPropagator::getDeDx(const SteppingHelixPropagator::StateInfo
       rzLims = MatBounds(287, 750, 975, 1000); 
       dEdx = dEdX_Fe; radX0 = radX0_Fe; 
     }//iron
-    else {dEdx = 0; radX0 = radX0_Air; }//air
+    else if (lZ < 1063){
+      //account for ME4/1, not ME4/2
+      if (lR<360){
+	rzLims = MatBounds(287, 360, 1000, 1063);
+	dEdx = dEdX_MCh; radX0 = radX0_MCh; 
+      }
+      //put air where me4/2 should be (future)
+      else {
+        rzLims = MatBounds(360, 750, 1000, 1063);
+        dEdx = dEdX_Air; radX0 = radX0_Air;
+      }
+    }
+    else if ( lZ < 1073){
+      rzLims = MatBounds(287, 750, 1063, 1073);
+      //this plate does not exist: air
+      dEdx = dEdX_Air; radX0 = radX0_Air; 
+    }
+    else if (lZ < 1E4 )  { 
+      rzLims = MatBounds(287, 750, 1073, 1E4);
+      dEdx = dEdX_Air; radX0 = radX0_Air;
+    }
+    else {dEdx = dEdX_Air; radX0 = radX0_Air; }//air
   }
   
   dEdXPrime = dEdx == 0 ? 0 : -dEdx/dEdX_mat*(0.96/p0 + 0.033 - 0.022*pow(p0, -0.33))*1e-3; //== d(dEdX)/dp
@@ -1600,7 +1639,7 @@ SteppingHelixPropagator::refToMagVolume(const SteppingHelixPropagator::StateInfo
       if (cCyl!=0) LogTrace(metname)<<"The face is a cylinder at "<<cCyl<<std::endl;
     }
 
-    double pars[6];
+    double pars[6] = {0,0,0,0,0,0};
     DestType dType = UNDEFINED_DT;
     if (cPlane != 0){
       GlobalPoint rPlane = cPlane->position();
@@ -1803,7 +1842,7 @@ SteppingHelixPropagator::refToMatVolume(const SteppingHelixPropagator::StateInfo
       LogTrace(metname)<<"Start with mat face "<<iFace<<std::endl;
     }
 
-    double pars[6];
+    double pars[6] = {0,0,0,0,0,0};
     DestType dType = UNDEFINED_DT;
     if (iFace > 1){
       if (fabs(parLim[iFace+2])< 1e-6){//plane
