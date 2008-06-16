@@ -155,8 +155,9 @@ private:
   void  getEfficiency(float bin, float Norm, std::vector<float> &eff);
   void  histoEfficiency(TH1F *readHisto, TH1F *writeHisto);
 
-  // counter
+  // counters
   int nEventsAnalyzed;
+  int treeCount;
 
   //
   //

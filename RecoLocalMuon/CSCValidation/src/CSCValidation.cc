@@ -40,8 +40,9 @@ CSCValidation::CSCValidation(const ParameterSet& pset){
   makeRHNoisePlots     = pset.getUntrackedParameter<bool>("makeRHNoisePlots",false);
   makeCalibPlots       = pset.getUntrackedParameter<bool>("makeCalibPlots",false);
 
-  // set counter to zero
+  // set counters to zero
   nEventsAnalyzed = 0;
+  treeCount = 0;
   
   // Create the root file for the histograms
   theFile = new TFile(rootFileName.c_str(), "RECREATE");
@@ -345,9 +346,9 @@ void CSCValidation::doWireDigis(edm::Handle<CSCWireDigiCollection> wires){
       nWireGroupsTotal++;
       int kCodeBroad  = cEndcap * ( 4*(kStation-1) + kRing) ;
       int kCodeNarrow = cEndcap * ( 100*(kRing-1) + kChamber) ;
-      histos->fill1DHistByType(myWire,"hWireWire","Wiregroup Numbers Fired;Wire Group Number",id,113,-0.5,112.5,"Digis");
-      histos->fill1DHistByType(kLayer,"hWireLayer","Wires Fired per Layer;CSC Layer",id,8,-0.5,7.5,"Digis");
-      histos->fill1DHistByType(myTBin,"hWireTBin","Wire TimeBin Fired;Time Bin (25ns)",id,17,-0.5,16.5,"Digis");
+      histos->fill1DHistByType(myWire,"hWireWire","Wiregroup Numbers Fired",id,113,-0.5,112.5,"Digis");
+      histos->fill1DHistByType(kLayer,"hWireLayer","Wires Fired per Layer",id,8,-0.5,7.5,"Digis");
+      histos->fill1DHistByType(myTBin,"hWireTBin","Wire TimeBin Fired",id,17,-0.5,16.5,"Digis");
       if (kStation == 1) histos->fill1DHist(kCodeNarrow,"hWireCodeNarrow1","narrow scope wire code station 1",801,-400.5,400.5,"Digis");
       if (kStation == 2) histos->fill1DHist(kCodeNarrow,"hWireCodeNarrow2","narrow scope wire code station 2",801,-400.5,400.5,"Digis");
       if (kStation == 3) histos->fill1DHist(kCodeNarrow,"hWireCodeNarrow3","narrow scope wire code station 3",801,-400.5,400.5,"Digis");
@@ -359,7 +360,7 @@ void CSCValidation::doWireDigis(edm::Handle<CSCWireDigiCollection> wires){
   // this way you can zero suppress but still store info on # events with no digis
   if (nWireGroupsTotal == 0) nWireGroupsTotal = -1;
 
-  histos->fill1DHist(nWireGroupsTotal,"hWirenGroupsTotal","Wires Fired Per Event;# of wires",41,-0.5,40.5,"Digis");
+  histos->fill1DHist(nWireGroupsTotal,"hWirenGroupsTotal","Wires Fired Per Event",41,-0.5,40.5,"Digis");
   
 }
 
@@ -399,8 +400,8 @@ void CSCValidation::doStripDigis(edm::Handle<CSCStripDigiCollection> strips){
         int kCodeBroad  = cEndcap * ( 4*(kStation-1) + kRing) ;
         int kCodeNarrow = cEndcap * ( 100*(kRing-1) + kChamber) ;
         // fill strip histos
-        histos->fill1DHistByType(myStrip,"hStripStrip","Strip Number;Strip Number",id,81,-0.5,80.5,"Digis");
-        histos->fill1DHistByType(kLayer,"hStripLayer","Strips Fired per Layer;CSC Layer",id,8,-0.5,7.5,"Digis");
+        histos->fill1DHistByType(myStrip,"hStripStrip","Strip Number",id,81,-0.5,80.5,"Digis");
+        histos->fill1DHistByType(kLayer,"hStripLayer","Strips Fired per Layer",id,8,-0.5,7.5,"Digis");
         if (kStation == 1) histos->fill1DHist(kCodeNarrow,"hStripCodeNarrow1","narrow scope strip code station 1",801,-400.5,400.5,"Digis");
         if (kStation == 2) histos->fill1DHist(kCodeNarrow,"hStripCodeNarrow2","narrow scope strip code station 2",801,-400.5,400.5,"Digis");
         if (kStation == 3) histos->fill1DHist(kCodeNarrow,"hStripCodeNarrow3","narrow scope strip code station 3",801,-400.5,400.5,"Digis");
@@ -412,7 +413,7 @@ void CSCValidation::doStripDigis(edm::Handle<CSCStripDigiCollection> strips){
 
   if (nStripsFired == 0) nStripsFired = -1;
 
-  histos->fill1DHist(nStripsFired,"hStripNFired","Fired Strips per Event;# of Strips Fired",101,-0.5,100.5,"Digis");
+  histos->fill1DHist(nStripsFired,"hStripNFired","Fired Strips per Event",101,-0.5,100.5,"Digis");
 
 }
 
@@ -449,8 +450,8 @@ void CSCValidation::doPedestalNoise(edm::Handle<CSCStripDigiCollection> strips){
       if (TotalADC > threshold) { thisStripFired = true;}
       if (!thisStripFired){
 	float ADC = thisSignal - thisPedestal;
-        histos->fill1DHist(ADC,"hStripPed","Pedestal Noise Distribution;Ped Subtracked Signal (ADC)",50,-25.,25.,"PedestalNoise");
-        histos->fill1DHistByType(ADC,"hStripPedME","Pedestal Noise Distribution;Ped Subtracked Signal (ADC)",id,50,-25.,25.,"PedestalNoise");
+        histos->fill1DHist(ADC,"hStripPed","Pedestal Noise Distribution",50,-25.,25.,"PedestalNoise");
+        histos->fill1DHistByType(ADC,"hStripPedME","Pedestal Noise Distribution",id,50,-25.,25.,"PedestalNoise");
         //histos->fill1DHistByChamber(ADC,"hStripPedME","Pedestal Noise Distribution",id,50,-25.,25.,"PedestalNoise");
       }
     }
@@ -540,8 +541,11 @@ void CSCValidation::doRecHits(edm::Handle<CSCRecHit2DCollection> recHits, edm::H
     //float grecr   =  sqrt(grecx*grecx + grecy+grecy);
 
     // Fill the rechit position branch
-    if (writeTreeToFile) histos->fillRechitTree(xreco, yreco, grecx, grecy, kEndcap, kStation, kRing, kChamber, kLayer);
-    
+    if (writeTreeToFile && treeCount < 1000000){
+      histos->fillRechitTree(xreco, yreco, grecx, grecy, kEndcap, kStation, kRing, kChamber, kLayer);
+      treeCount++;
+    }    
+
     // Simple occupancy variables
     int kCodeBroad  = cEndcap * ( 4*(kStation-1) + kRing) ;
     int kCodeNarrow = cEndcap * ( 100*(kRing-1) + kChamber) ;
@@ -552,21 +556,21 @@ void CSCValidation::doRecHits(edm::Handle<CSCRecHit2DCollection> recHits, edm::H
     if (kStation == 2) histos->fill1DHist(kCodeNarrow,"hRHCodeNarrow2","narrow scope recHit code station 2",801,-400.5,400.5,"recHits");
     if (kStation == 3) histos->fill1DHist(kCodeNarrow,"hRHCodeNarrow3","narrow scope recHit code station 3",801,-400.5,400.5,"recHits");
     if (kStation == 4) histos->fill1DHist(kCodeNarrow,"hRHCodeNarrow4","narrow scope recHit code station 4",801,-400.5,400.5,"recHits");
-    histos->fill1DHistByType(kLayer,"hRHLayer","RecHits per Layer;CSC Layer",idrec,8,-0.5,7.5,"recHits");
-    if (kStation == 1 && (kRing == 1 || kRing == 4)) histos->fill1DHistByType(rHSumQ,"hRHSumQ","Sum 3x3 recHit Charge;ADC",idrec,125,0,4000,"recHits");
-    else histos->fill1DHistByType(rHSumQ,"hRHSumQ","Sum 3x3 recHit Charge;ADC",idrec,125,0,2000,"recHits");
+    histos->fill1DHistByType(kLayer,"hRHLayer","RecHits per Layer",idrec,8,-0.5,7.5,"recHits");
+    if (kStation == 1 && (kRing == 1 || kRing == 4)) histos->fill1DHistByType(rHSumQ,"hRHSumQ","Sum 3x3 recHit Charge",idrec,125,0,4000,"recHits");
+    else histos->fill1DHistByType(rHSumQ,"hRHSumQ","Sum 3x3 recHit Charge",idrec,125,0,2000,"recHits");
     //if (kStation == 1 && (kRing == 1 || kRing == 4)) histos->fill1DHistByChamber(rHSumQ,"hRHSumQ","Sum 3x3 recHit Charge",idrec,125,0,4000,"recHits");
     //else histos->fill1DHistByChamber(rHSumQ,"hRHSumQ","Sum 3x3 recHit Charge",idrec,125,0,2000,"recHits");
-    histos->fill1DHistByType(rHratioQ,"hRHRatioQ","Charge Ratio;Ratio (Ql+Qr)/Qt)",idrec,120,-0.1,1.1,"recHits");
-    histos->fill1DHistByType(rHtime,"hRHTiming","recHit Timing;Timebins (50ns)",idrec,100,0,10,"recHits");
+    histos->fill1DHistByType(rHratioQ,"hRHRatioQ","Charge Ratio (Ql+Qr)/Qt",idrec,120,-0.1,1.1,"recHits");
+    histos->fill1DHistByType(rHtime,"hRHTiming","recHit Timing",idrec,100,0,10,"recHits");
     //histos->fill1DHistByChamber(rHtime,"hRHTiming","recHit Timing",idrec,100,0,10,"recHits");
-    histos->fill2DHistByStation(grecx,grecy,"hRHGlobal","recHit Global Position;global x(cm);global y(cm)",idrec,400,-800.,800.,400,-800.,800.,"recHits");
+    histos->fill2DHistByStation(grecx,grecy,"hRHGlobal","recHit Global Position",idrec,400,-800.,800.,400,-800.,800.,"recHits");
 
   } //end rechit loop
 
   if (nRecHits == 0) nRecHits = -1;
 
-  histos->fill1DHist(nRecHits,"hRHnrechits","recHits per Event (all chambers);# of rechits",41,-0.5,40.5,"recHits");
+  histos->fill1DHist(nRecHits,"hRHnrechits","recHits per Event (all chambers)",41,-0.5,40.5,"recHits");
 
 }
 
@@ -609,7 +613,7 @@ void CSCValidation::doSimHits(edm::Handle<CSCRecHit2DCollection> recHits, edm::H
       }
     }
 
-    histos->fill1DHistByType(simHitXres,"hRHResid","SimHitX - Reconstructed X;Residual (cm)",idrec,100,-1.0,1.0,"Resolution");
+    histos->fill1DHistByType(simHitXres,"hRHResid","SimHitX - Reconstructed X",idrec,100,-1.0,1.0,"Resolution");
     //histos->fill1DHistByChamber(simHitXres,"hRHResid","SimHitX - Reconstructed X",idrec,100,-1.0,1.0,"Resolution");
 
   }
@@ -725,7 +729,7 @@ void CSCValidation::doSegments(edm::Handle<CSCSegmentCollection> cscSegments, ed
     int kCodeNarrow = cEndcap * ( 100*(kRing-1) + kChamber) ;
 
     // Fill segment position branch
-    if (writeTreeToFile) histos->fillSegmentTree(segX, segY, globX, globY, kEndcap, kStation, kRing, kChamber);
+    if (writeTreeToFile && treeCount < 1000000) histos->fillSegmentTree(segX, segY, globX, globY, kEndcap, kStation, kRing, kChamber);
 
     // Fill histos
     histos->fill1DHist(kCodeBroad,"hSCodeBroad","broad scope code for segmentss",33,-16.5,16.5,"Segments");
@@ -733,20 +737,20 @@ void CSCValidation::doSegments(edm::Handle<CSCSegmentCollection> cscSegments, ed
     if (kStation == 2) histos->fill1DHist(kCodeNarrow,"hSCodeNarrow2","narrow scope segment code station 2",801,-400.5,400.5,"Segments");
     if (kStation == 3) histos->fill1DHist(kCodeNarrow,"hSCodeNarrow3","narrow scope segment code station 3",801,-400.5,400.5,"Segments");
     if (kStation == 4) histos->fill1DHist(kCodeNarrow,"hSCodeNarrow4","narrow scope segment code station 4",801,-400.5,400.5,"Segments");
-    histos->fill2DHistByStation(globX,globY,"hSGlobal","Segment Global Positions;global x (cm); global y (cm)",id,400,-800.,800.,400,-800.,800.,"Segments");
-    histos->fill1DHistByType(nhits,"hSnHits","N hits on Segments;# of hits",id,8,-0.5,7.5,"Segments");
-    histos->fill1DHistByType(theta,"hSTheta","local theta segments;Theta (radians)",id,128,-3.2,3.2,"Segments");
-    histos->fill1DHistByType(residual,"hSResid","Fitted Position on Strip - Reconstructed for Layer 3;Residual as fraction of strip width",id,100,-0.5,0.5,"Resolution");
-    histos->fill1DHistByType(chisqProb,"hSChiSqProb","segments chi-squared probability;Probability",id,110,-0.05,1.05,"Segments");
-    histos->fill1DHist(globTheta,"hSGlobalTheta","segment global theta;Theta (radians)",64,0,1.6,"Segments");
-    histos->fill1DHist(globPhi,"hSGlobalPhi","segment global phi;Phi (radians)",128,-3.2,3.2,"Segments");
+    histos->fill2DHistByStation(globX,globY,"hSGlobal","Segment Global Positions;global x (cm)",id,400,-800.,800.,400,-800.,800.,"Segments");
+    histos->fill1DHistByType(nhits,"hSnHits","N hits on Segments",id,8,-0.5,7.5,"Segments");
+    histos->fill1DHistByType(theta,"hSTheta","local theta segments",id,128,-3.2,3.2,"Segments");
+    histos->fill1DHistByType(residual,"hSResid","Fitted Position on Strip - Reconstructed for Layer 3",id,100,-0.5,0.5,"Resolution");
+    histos->fill1DHistByType(chisqProb,"hSChiSqProb","segments chi-squared probability",id,110,-0.05,1.05,"Segments");
+    histos->fill1DHist(globTheta,"hSGlobalTheta","segment global theta",64,0,1.6,"Segments");
+    histos->fill1DHist(globPhi,"hSGlobalPhi","segment global phi",128,-3.2,3.2,"Segments");
 
 
   } // end segment loop
 
   if (nSegments == 0) nSegments = -1;
 
-  histos->fill1DHist(nSegments,"hSnSegments","Segments per Event;# of Segments",11,-0.5,10.5,"Segments");
+  histos->fill1DHist(nSegments,"hSnSegments","Segments per Event",11,-0.5,10.5,"Segments");
 
 }
 
@@ -838,11 +842,11 @@ float CSCValidation::getTiming(const CSCStripDigiCollection& stripdigis, CSCDetI
   float normADC;
   for (int i = 0; i < 8; i++){
     normADC = ADC[i]/ADC[peakTime];
-    //histos->fillProfileByChamber(i,normADC,"signal_profile","Normalized Signal Profile;Timebins (50ns)",idRH,8,-0.5,7.5,-0.1,1.1,"SignalProfile");
+    //histos->fillProfileByChamber(i,normADC,"signal_profile","Normalized Signal Profile",idRH,8,-0.5,7.5,-0.1,1.1,"SignalProfile");
   }
 
-  //histos->fill1DHistByChamber(ADC[0],"ped_subtracted","ADC in first time bin;ADC",idRH,400,-300,100,"FirstTBADC");
-  //histos->fill1DHist(ADC[0],"ped_subtracted_all","ADC in first time bin;ADC",400,-300,100,"FirstTBADC");
+  //histos->fill1DHistByChamber(ADC[0],"ped_subtracted","ADC in first time bin",idRH,400,-300,100,"FirstTBADC");
+  //histos->fill1DHist(ADC[0],"ped_subtracted_all","ADC in first time bin",400,-300,100,"FirstTBADC");
 
   timing = (ADC[2]*2 + ADC[3]*3 + ADC[4]*4 + ADC[5]*5 + ADC[6]*6)/(ADC[2] + ADC[3] + ADC[4] + ADC[5] + ADC[6]);
 

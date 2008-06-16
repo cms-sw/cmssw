@@ -431,8 +431,8 @@
   TStyle* CSCValPlotFormatter::getStyle(int stat){
     TStyle *theStyle;
     theStyle = new TStyle("myStyle", "myStyle");
-    if (stat == 0) gStyle->SetOptStat(false);
-    else gStyle->SetOptStat(stat);
+    if (stat == 0) theStyle->SetOptStat(false);
+    else theStyle->SetOptStat(stat);
     theStyle->SetPadBorderMode(0);
     theStyle->SetCanvasBorderMode(0);
     theStyle->SetPadColor(0);
