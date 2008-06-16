@@ -273,9 +273,7 @@ void RPCEfficiencyFromTrack::analyze(const edm::Event& iEvent, const edm::EventS
 		if(tsosAtRPC.isValid()
 		   && fabs(tsosAtRPC.localPosition().z()) < 0.01 
 		   && fabs(tsosAtRPC.localPosition().x()) < rsize 
-		   && fabs(tsosAtRPC.localPosition().y()) < stripl*0.5
-		   && tsosAtRPC.localError().positionError().xx()<1.
-		   && tsosAtRPC.localError().positionError().yy()<1.){
+		   && fabs(tsosAtRPC.localPosition().y()) < stripl*0.5){
 	
 		  rollRec.push_back(rollId);
 		}	      
@@ -297,9 +295,7 @@ void RPCEfficiencyFromTrack::analyze(const edm::Event& iEvent, const edm::EventS
 		if(tsosAtRPC.isValid()
 		   && fabs(tsosAtRPC.localPosition().z()) < 0.01 
 		   && fabs(tsosAtRPC.localPosition().x()) < rsize 
-		   && fabs(tsosAtRPC.localPosition().y()) < stripl*0.5
-		   && tsosAtRPC.localError().positionError().xx()<1.
-		   && tsosAtRPC.localError().positionError().yy()<1.){
+		   && fabs(tsosAtRPC.localPosition().y()) < stripl*0.5){
 		
 		  rollRec.push_back(rollId);
 		}	      
@@ -340,7 +336,9 @@ void RPCEfficiencyFromTrack::analyze(const edm::Event& iEvent, const edm::EventS
 	if(tsosAtRoll.isValid()
 	   && fabs(tsosAtRoll.localPosition().z()) < 0.01 
 	   && fabs(tsosAtRoll.localPosition().x()) < rsize
-	   && fabs(tsosAtRoll.localPosition().y()) < stripl*0.5){
+	   && fabs(tsosAtRoll.localPosition().y()) < stripl*0.5
+	   && tsosAtRoll.localError().positionError().xx()<1.
+	   && tsosAtRoll.localError().positionError().yy()<1.){
 	
 	  const float stripPredicted =rollasociated->strip(LocalPoint(tsosAtRoll.localPosition().x(),tsosAtRoll.localPosition().y(),0.));
 	  const float xextrap = tsosAtRoll.localPosition().x();
@@ -453,14 +451,7 @@ void RPCEfficiencyFromTrack::analyze(const edm::Event& iEvent, const edm::EventS
 	    buff=counter[2];
 	    buff[rollId]++;
 	    counter[2]=buff;
-	  }
 
-	  if(anycoincidence==false){
-	    chisquareNoEff->Fill(track.normalizedChi2());
-	    ExtrapErrorN->Fill(tsosAtRoll.localError().positionError().xx(),tsosAtRoll.localError().positionError().yy());
-	  }
-
-	  if(anycoincidence==false){
 	    chisquareNoEff->Fill(track.normalizedChi2());
 	    ExtrapErrorN->Fill(tsosAtRoll.localError().positionError().xx(),tsosAtRoll.localError().positionError().yy());
 	  }
