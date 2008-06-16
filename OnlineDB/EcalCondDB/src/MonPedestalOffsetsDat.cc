@@ -75,8 +75,7 @@ void MonPedestalOffsetsDat::writeDB(const EcalLogicID* ecid, const MonPedestalOf
 }
 
 
-
-void MonPedestalOffsetsDat::fetchData(std::map< EcalLogicID, MonPedestalOffsetsDat >* fillMap, MonRunIOV* iov)
+void MonPedestalOffsetsDat::fetchData(std::map< EcalLogicID, MonPedestalOffsetsDat >* fillMap, MonRunIOV* iov,  std::string mappa )
   throw(runtime_error)
 {
   this->checkConnection();
@@ -94,8 +93,8 @@ void MonPedestalOffsetsDat::fetchData(std::map< EcalLogicID, MonPedestalOffsetsD
     m_readStmt->setSQL("SELECT cv.name, cv.logic_id, cv.id1, cv.id2, cv.id3, cv.maps_to, "
 		 "d.dac_g1, d.dac_g6, d.dac_g12, d.task_status "
 		 "FROM channelview cv JOIN mon_pedestal_offsets_dat d "
-		 "ON cv.logic_id = d.logic_id AND cv.name = cv.maps_to "
-		 "WHERE d.iov_id = :iov_id");
+		 "ON cv.logic_id = d.logic_id AND cv.name = " + mappa +
+		 " WHERE d.iov_id = :iov_id");
     m_readStmt->setInt(1, iovID);
     ResultSet* rset = m_readStmt->executeQuery();
     

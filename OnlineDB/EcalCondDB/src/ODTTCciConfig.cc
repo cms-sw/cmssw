@@ -18,14 +18,18 @@ ODTTCciConfig::ODTTCciConfig()
   m_writeStmt = NULL;
   m_readStmt = NULL;
   m_config_tag="";
-   m_ID=0;
-   clear();
-   m_size=0;
+  m_configuration_script="";
+  m_configuration_script_params="";
+  m_ID=0;
+  clear();
+  m_size=0;
 }
 
 void ODTTCciConfig::clear(){
   std::cout <<"entering clear" << std::endl;
   m_ttcci_file="";
+  m_configuration_script="";
+  m_configuration_script_params="";
   m_trg_mode="";
   m_trg_sleep=0;
 
@@ -69,14 +73,16 @@ void ODTTCciConfig::prepareWrite()
   try {
     m_writeStmt = m_conn->createStatement();
     m_writeStmt->setSQL("INSERT INTO ECAL_TTCci_CONFIGURATION (ttcci_configuration_id, ttcci_tag, "
-			" TTCCI_configuration_file, TRG_MODE, TRG_SLEEP, Configuration  ) "
-                        "VALUES (:1, :2, :3, :4, :5, :6 )");
+			" TTCCI_configuration_file, TRG_MODE, TRG_SLEEP, Configuration, configuration_script, configuration_script_params  ) "
+                        "VALUES (:1, :2, :3, :4, :5, :6, :7, :8  )");
     m_writeStmt->setInt(1, next_id);
     m_writeStmt->setString(2, getConfigTag());
     m_writeStmt->setString(3, getTTCciConfigurationFile());
     m_writeStmt->setString(4, getTrgMode());
     m_writeStmt->setInt(5, getTrgSleep());
-
+    m_writeStmt->setString(7, getConfigurationScript());
+    m_writeStmt->setString(8, getConfigurationScriptParams());
+    
     // and now the clob
     oracle::occi::Clob clob(m_conn);
     clob.setEmpty();
@@ -114,6 +120,9 @@ void ODTTCciConfig::setParameters(std::map<string,string> my_keys_map){
     if(ci->first==  "TRG_MODE") setTrgMode(ci->second);
     if(ci->first==  "TRG_SLEEP") setTrgSleep(atoi(ci->second.c_str()));
     if(ci->first==  "TTCci_CONFIGURATION_ID") setConfigTag(ci->second);
+    if(ci->first==  "CONFIGURATION_SCRIPT" ) setConfigurationScript(ci->second);
+    if(ci->first==  "CONFIGURATION_SCRIPT_PARAMS" ) setConfigurationScriptParams(ci->second);
+    if(ci->first==  "CONFIGURATION_SCRIPT_PARAMETERS" ) setConfigurationScriptParams(ci->second);
     if(ci->first==  "Configuration") {
       std::string fname=ci->second ;
       string  str3;
@@ -223,6 +232,9 @@ void ODTTCciConfig::fetchData(ODTTCciConfig * result)
     result->setTrgMode(rset->getString(4));
     result->setTrgSleep(rset->getInt(5));
 
+    result->setConfigurationScript(rset->getString(7));
+    result->setConfigurationScriptParams(rset->getString(8));
+    
     Clob clob = rset->getClob (6);
     cout << "Opening the clob in Read only mode" << endl;
     clob.open (OCCI_LOB_READONLY);
