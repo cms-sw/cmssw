@@ -475,7 +475,7 @@
     theHisto->GetXaxis()->SetLabelSize(0.04);
     theHisto->GetYaxis()->SetLabelSize(0.04);
     theHisto->GetXaxis()->SetTitleOffset(0.7);
-    theHisto->GetXaxis()->SetTitleSize(0.06);
+    theHisto->GetXaxis()->SetTitleSize(0.04);
     theHisto->GetXaxis()->SetNdivisions(208,kTRUE);
     theHisto->SetMarkerStyle(6);
     theHisto->Draw();

@@ -320,7 +320,10 @@ using namespace std;
         for (int r = 0; r < 4; r++){
           for (int c = 0; c < 36; c++){
             int type = 0;
-            if ((s+1) == 1) type = (r+1);
+            if (s == 0 && r == 0) type = 2;
+            else if (s == 0 && r == 1) type = 3;
+            else if (s == 0 && r == 2) type = 4;
+            else if (s == 0 && r == 3) type = 1;
             else type = (s+1)*2 + (r+1);
             if ((e+1) == 1) type = type + 10;
             if ((e+1) == 2) type = 11 - type;
