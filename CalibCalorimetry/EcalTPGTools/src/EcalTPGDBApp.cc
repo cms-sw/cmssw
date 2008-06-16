@@ -25,10 +25,11 @@ int EcalTPGDBApp::writeToConfDB_TPGPedestals(const  map<EcalLogicID, FEConfigPed
   cout << "creating fe record " <<endl;
   FEConfigPedInfo fe_ped_info ;
   fe_ped_info.setIOVId(iovId) ;
-  fe_ped_info.setTag(tag) ;
-  insertFEConfigPedInfo(&fe_ped_info) ;
+  fe_ped_info.setConfigTag(tag) ;
+  insertConfigSet(&fe_ped_info) ;
   result = fe_ped_info.getID() ;
-  
+
+
   // Insert the dataset, identifying by iov
   cout << "*********about to insert peds *********" << endl;
   cout << " map size = "<<pedset.size()<<endl ;
@@ -38,7 +39,8 @@ int EcalTPGDBApp::writeToConfDB_TPGPedestals(const  map<EcalLogicID, FEConfigPed
   return result;
 }
 
-int EcalTPGDBApp::writeToConfDB_TPGLinearCoef(const  map<EcalLogicID, FEConfigLinDat> & linset, int iovId, string tag) {
+int EcalTPGDBApp::writeToConfDB_TPGLinearCoef(const  map<EcalLogicID, FEConfigLinDat> & linset, 
+					      const  map<EcalLogicID, FEConfigParamDat> & linparamset, int iovId, string tag) {
   
   int result=0;
 
@@ -49,14 +51,15 @@ int EcalTPGDBApp::writeToConfDB_TPGLinearCoef(const  map<EcalLogicID, FEConfigLi
   cout << "creating fe record " <<endl;
   FEConfigLinInfo fe_lin_info ;
   fe_lin_info.setIOVId(iovId) ;
-  fe_lin_info.setTag(tag) ;
-  //insertFEConfigLinInfo(&fe_lin_info) ;
+  fe_lin_info.setConfigTag(tag) ;
+  insertConfigSet(&fe_lin_info) ;
   result = fe_lin_info.getID() ;
   
   // Insert the dataset, identifying by iov
   cout << "*********about to insert linearization coeff *********" << endl;
   cout << " map size = "<<linset.size()<<endl ;
   insertDataArraySet(&linset, &fe_lin_info);
+  insertDataArraySet(&linparamset, &fe_lin_info);
   cout << "*********Done lineraization coeff            *********" << endl;
   
   return result;
@@ -67,12 +70,18 @@ void EcalTPGDBApp::readFromConfDB_TPGPedestals(int iconf_req ) {
   // now we do something else 
   // this is an example for reading the pedestals 
   // for a given config iconf_req 
+
+  // FC alternatively a config set can be retrieved by the tag and version
   
   cout << "*****************************************" << endl;
   cout << "test readinf fe_ped with id="<<iconf_req  << endl;
   cout << "*****************************************" << endl;
   
-  FEConfigPedInfo fe_ped_info = fetchFEConfigPedInfo(iconf_req);
+  FEConfigPedInfo fe_ped_info;
+  fe_ped_info.setId(iconf_req);
+
+  fetchConfigSet(&fe_ped_info);
+
   map<EcalLogicID, FEConfigPedDat> dataset_ped;
   fetchDataSet(&dataset_ped, &fe_ped_info);
   
@@ -108,13 +117,14 @@ void EcalTPGDBApp::readFromConfDB_TPGPedestals(int iconf_req ) {
 
 int EcalTPGDBApp::readFromCondDB_Pedestals(map<EcalLogicID, MonPedestalsDat> & dataset, int runNb) {
 
+
   int iovId = 0 ;
   
-  cout << "Retrieving run list from DB ... " << endl;
+  cout << "Retrieving run list from DB from run nb ... "<< runNb << endl;
   RunTag  my_runtag;
   LocationDef my_locdef;
   RunTypeDef my_rundef;
-  my_locdef.setLocation("H4B_07");
+  my_locdef.setLocation("P5_Co");
   my_rundef.setRunType("PEDESTAL");
   my_runtag.setLocationDef(my_locdef);
   my_runtag.setRunTypeDef(my_rundef);
@@ -130,8 +140,13 @@ int EcalTPGDBApp::readFromCondDB_Pedestals(map<EcalLogicID, MonPedestalsDat> & d
   MonRunList mon_list;
   mon_list.setMonRunTag(montag);
   mon_list.setRunTag(my_runtag);
+
+  std::cout<<"we are in read ped from condDB and runNb is "<< runNb<<endl;
+
   mon_list = fetchMonRunListLastNRuns(my_runtag, montag, runNb , 10 );
-  
+
+  std::cout<<"we are in read ped from condDB"<<endl;
+
   std::vector<MonRunIOV> mon_run_vec =  mon_list.getRuns();
   cout <<"number of ped runs is : "<< mon_run_vec.size()<< endl;
   int mon_runs = mon_run_vec.size();  
@@ -152,111 +167,124 @@ int EcalTPGDBApp::readFromCondDB_Pedestals(map<EcalLogicID, MonPedestalsDat> & d
 }
 
 
-void EcalTPGDBApp::writeToConfDB_TPGLUT() 
+int EcalTPGDBApp::writeToConfDB_TPGSliding(const  map<EcalLogicID, FEConfigSlidingDat> & sliset, int iovId, string tag) 
+{
+  cout << "*****************************************" << endl;
+  cout << "************Inserting SLIDING************" << endl;
+  cout << "*****************************************" << endl;
+  int result=0; 
+
+  FEConfigSlidingInfo fe_info ;
+  fe_info.setIOVId(iovId); 
+  fe_info.setConfigTag(tag);
+  insertConfigSet(&fe_info);
+  
+  //  Tm tdb = fe_lut_info.getDBTime();
+  //tdb.dumpTm();
+  
+  // Insert the dataset
+  insertDataArraySet(&sliset, &fe_info);
+
+  result=fe_info.getId();
+
+  cout << "*****************************************" << endl;
+  cout << "************SLI done*********************" << endl;
+  cout << "*****************************************" << endl;
+  return result;
+
+}
+
+int EcalTPGDBApp::writeToConfDB_TPGLUT(const  map<EcalLogicID, FEConfigLUTGroupDat> & lutgroupset,
+					const  map<EcalLogicID, FEConfigLUTDat> & lutset, int iovId, string tag) 
 {
   cout << "*****************************************" << endl;
   cout << "************Inserting LUT************" << endl;
   cout << "*****************************************" << endl;
-  
+  int result=0; 
+
   FEConfigLUTInfo fe_lut_info ;
-  fe_lut_info.setIOVId(0); // this eventually refers to some other table 
-  fe_lut_info.setTag("test");
-  insertFEConfigLUTInfo(&fe_lut_info);
+  fe_lut_info.setNumberOfGroups(iovId); 
+  fe_lut_info.setConfigTag(tag);
+  insertConfigSet(&fe_lut_info);
   
-  Tm tdb = fe_lut_info.getDBTime();
+  //  Tm tdb = fe_lut_info.getDBTime();
   //tdb.dumpTm();
   
-  vector<EcalLogicID> ecid_vec;
-  ecid_vec = getEcalLogicIDSet("EB_crystal_number", 1,36,1,1700);
-  
-  map<EcalLogicID, FEConfigLUTGroupDat> dataset;
-  // we create 5 LUT groups 
-  for (int ich=0; ich<5; ich++){
-    FEConfigLUTGroupDat lut;
-    lut.setLUTGroupId(ich);
-    for (int i=0; i<1024; i++){
-      lut.setLUTValue(i, (i*2) );
-    }
-    // Fill the dataset
-    dataset[ecid_vec[ich]] = lut; // we use any logic id, because it is in any case ignored... 
-  }
-  
   // Insert the dataset
-  insertDataArraySet(&dataset, &fe_lut_info);
-  
-  
-  
-  // now we store in the DB the correspondence btw channels and LUT groups 
-  map<EcalLogicID, FEConfigLUTDat> dataset2;
-  // in this case I decide in a stupid way which channel belongs to which group 
-  for (int ich=0; ich<ecid_vec.size() ; ich++){
-    FEConfigLUTDat lut;
-    int igroup=ich/(ecid_vec.size()/5);
-    lut.setLUTGroupId(igroup);
-    // Fill the dataset
-    dataset2[ecid_vec[ich]] = lut;
-  }
-  
+  insertDataArraySet(&lutgroupset, &fe_lut_info);
   // Insert the dataset
+  insertDataArraySet(&lutset, &fe_lut_info);
   
-  insertDataArraySet(&dataset2, &fe_lut_info);
+  result=fe_lut_info.getId();
+
   cout << "*****************************************" << endl;
   cout << "************LUT done*********************" << endl;
   cout << "*****************************************" << endl;
-  
+  return result;
+
 }
 
-void EcalTPGDBApp::writeToConfDB_TPGWeights(FEConfigWeightGroupDat & weight) 
+int EcalTPGDBApp::writeToConfDB_TPGWeight(const  map<EcalLogicID, FEConfigWeightGroupDat> & lutgroupset,
+					const  map<EcalLogicID, FEConfigWeightDat> & lutset, int ngr, string tag) 
 {  
   cout << "*****************************************" << endl;
   cout << "************Inserting weights************" << endl;
   cout << "*****************************************" << endl;
   
+  int result=0; 
+
   FEConfigWeightInfo fe_wei_info ;
   fe_wei_info.setNumberOfGroups(5); // this eventually refers to some other table 
-  fe_wei_info.setTag("my preferred weights");
-  insertFEConfigWeightInfo(&fe_wei_info);
+  fe_wei_info.setConfigTag(tag);
+  insertConfigSet(&fe_wei_info);
   
-  vector<EcalLogicID> ecid_vec;
-  ecid_vec = getEcalLogicIDSet("EB_crystal_number", 1,36,1,1700);
-  
-  map<EcalLogicID, FEConfigWeightGroupDat> dataset;
-  // we create 5 groups 
-  for (int ich=0; ich<5; ich++){
-    FEConfigWeightGroupDat wei;
-    wei.setWeightGroupId(ich);
-    wei.setWeight0(0);
-    wei.setWeight1(1);
-    wei.setWeight2(3);
-    wei.setWeight3(3);
-    wei.setWeight4(3);
-    // Fill the dataset
-    dataset[ecid_vec[ich]] = wei; // we use any logic id, because it is in any case ignored... 
-  }
+  //  Tm tdb = fe_lut_info.getDBTime();
+  //tdb.dumpTm();
   
   // Insert the dataset
-  insertDataArraySet(&dataset, &fe_wei_info);
+  insertDataArraySet(&lutgroupset, &fe_wei_info);
+  // Insert the dataset
+  insertDataArraySet(&lutset, &fe_wei_info);
   
+  result=fe_wei_info.getId();
+
+  cout << "*****************************************" << endl;
+  cout << "************WEIGHT done******************" << endl;
+  cout << "*****************************************" << endl;
+  return result;
+
   
+}
+
+
+int EcalTPGDBApp::writeToConfDB_TPGFgr(const  map<EcalLogicID, FEConfigFgrGroupDat> & fgrgroupset,
+					const  map<EcalLogicID, FEConfigFgrDat> & fgrset, int iovId, string tag) 
+{
+  cout << "*****************************************" << endl;
+  cout << "************Inserting Fgr************" << endl;
+  cout << "*****************************************" << endl;
+  int result=0; 
+
+  FEConfigFgrInfo fe_fgr_info ;
+  fe_fgr_info.setNumberOfGroups(iovId); // this eventually refers to some other table 
+  fe_fgr_info.setConfigTag(tag);
+  insertConfigSet(&fe_fgr_info);
   
-  // now we store in the DB the correspondence btw channels and LUT groups 
-  map<EcalLogicID, FEConfigWeightDat> dataset2;
-  // in this case I decide in a stupid way which channel belongs to which group 
-  for (int ich=0; ich<ecid_vec.size() ; ich++){
-    FEConfigWeightDat weid;
-    int igroup=ich/(ecid_vec.size()/5);
-    weid.setWeightGroupId(igroup);
-    // Fill the dataset
-    dataset2[ecid_vec[ich]] = weid;
-  }
+  //  Tm tdb = fe_fgr_info.getDBTime();
+  //tdb.dumpTm();
   
   // Insert the dataset
+  insertDataArraySet(&fgrgroupset, &fe_fgr_info);
+  // Insert the dataset
+  insertDataArraySet(&fgrset, &fe_fgr_info);
   
-  insertDataArraySet(&dataset2, &fe_wei_info);
+  result=fe_fgr_info.getId();
+
   cout << "*****************************************" << endl;
-  cout << "************weights done*****************" << endl;
+  cout << "************Fgr done*********************" << endl;
   cout << "*****************************************" << endl;
-  
+  return result;
+
 }
 
 

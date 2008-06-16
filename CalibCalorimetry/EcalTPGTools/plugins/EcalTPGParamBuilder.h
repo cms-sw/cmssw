@@ -50,6 +50,7 @@ class EcalTPGParamBuilder : public edm::EDAnalyzer {
   ~EcalTPGParamBuilder() ;
   virtual void analyze(const edm::Event& evt, const edm::EventSetup& evtSetup) ;
   virtual void beginJob(const edm::EventSetup& evtSetup) ;
+  bool checkIfOK (EcalPedestals::Item item);
 
  private:
   bool computeLinearizerParam(double theta, double gainRatio, double calibCoeff, std::string subdet, int & mult , int & shift) ;

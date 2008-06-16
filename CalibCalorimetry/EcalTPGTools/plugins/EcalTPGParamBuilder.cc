@@ -1,7 +1,7 @@
-
 #include "EcalTPGParamBuilder.h"
 
 #include "CalibCalorimetry/EcalTPGTools/interface/EcalTPGDBApp.h"
+
 
 #include "Geometry/CaloGeometry/interface/CaloGeometry.h"
 #include "Geometry/CaloGeometry/interface/CaloSubdetectorGeometry.h"
@@ -23,6 +23,12 @@
 
 #include "SimCalorimetry/EcalSimAlgos/interface/EcalSimParameterMap.h"
 
+#include <iostream>
+#include <string>
+#include <sstream>
+#include <vector>
+#include <time.h>
+
 #include <TF1.h>
 #include <iomanip>
 #include <fstream>
@@ -38,7 +44,8 @@ double oneOverEtResolEt(double *x, double *par) {
 EcalTPGParamBuilder::EcalTPGParamBuilder(edm::ParameterSet const& pSet)
   : xtal_LSB_EB_(0), xtal_LSB_EE_(0), nSample_(5), complement2_(7)
 {
-  
+  std::cout<<"here we are in EcalTPGParamBuilder::EcalTPGParamBuilder"<<endl;
+
   readFromDB_ = pSet.getParameter<bool>("readFromDB") ;
   writeToDB_  = pSet.getParameter<bool>("writeToDB") ;
   DBEE_ = pSet.getParameter<bool>("allowDBEE") ;
@@ -48,6 +55,8 @@ EcalTPGParamBuilder::EcalTPGParamBuilder(edm::ParameterSet const& pSet)
   uint32_t DBport = pSet.getParameter<unsigned int>("DBport") ;
   DBrunNb_        = pSet.getParameter<unsigned int>("DBrunNb") ;
 
+  std::cout << "DB RUN NB="<< DBrunNb_<< endl;
+ 
   if (readFromDB_ || writeToDB_) {
     try {
       cout << "Warning: using the DB is not yet implemented " <<endl ;
@@ -75,6 +84,8 @@ EcalTPGParamBuilder::EcalTPGParamBuilder(edm::ParameterSet const& pSet)
   sliding_ = pSet.getParameter<unsigned int>("sliding") ;
   sampleMax_ = pSet.getParameter<unsigned int>("weight_sampleMax") ;
 
+  std::cout<<"here we are in EcalTPGParamBuilder::EcalTPGParamBuilder 1/2"<<endl;
+
   LUT_option_ = pSet.getParameter<std::string>("LUT_option") ;
   LUT_threshold_EB_ = pSet.getParameter<double>("LUT_threshold_EB") ;
   LUT_threshold_EE_ = pSet.getParameter<double>("LUT_threshold_EE") ;
@@ -85,10 +96,14 @@ EcalTPGParamBuilder::EcalTPGParamBuilder(edm::ParameterSet const& pSet)
   LUT_noise_EE_ =pSet.getParameter<double>("LUT_noise_EE") ;
   LUT_constant_EE_ =pSet.getParameter<double>("LUT_constant_EE") ;
 
+
+  std::cout<<"here we are in EcalTPGParamBuilder::EcalTPGParamBuilder after LUT"<<endl;
+
   TTF_lowThreshold_EB_ = pSet.getParameter<double>("TTF_lowThreshold_EB") ;
   TTF_highThreshold_EB_ = pSet.getParameter<double>("TTF_highThreshold_EB") ;
   TTF_lowThreshold_EE_ = pSet.getParameter<double>("TTF_lowThreshold_EE") ;
   TTF_highThreshold_EE_ = pSet.getParameter<double>("TTF_highThreshold_EE") ;
+  std::cout<<"here we are in EcalTPGParamBuilder::EcalTPGParamBuilder after TTF"<<endl;
 
   FG_lowThreshold_EB_ = pSet.getParameter<double>("FG_lowThreshold_EB") ;
   FG_highThreshold_EB_ = pSet.getParameter<double>("FG_highThreshold_EB") ;
@@ -98,6 +113,10 @@ EcalTPGParamBuilder::EcalTPGParamBuilder(edm::ParameterSet const& pSet)
   FG_Threshold_EE_ = pSet.getParameter<double>("FG_Threshold_EE") ;
   FG_lut_strip_EE_ = pSet.getParameter<unsigned int>("FG_lut_strip_EE") ;
   FG_lut_tower_EE_ = pSet.getParameter<unsigned int>("FG_lut_tower_EE") ;
+
+  std::cout<<"here we are in EcalTPGParamBuilder::EcalTPGParamBuilder done"<<endl;
+
+
 }
 
 EcalTPGParamBuilder::~EcalTPGParamBuilder()
@@ -109,13 +128,29 @@ EcalTPGParamBuilder::~EcalTPGParamBuilder()
   }
 }
 
+
+bool EcalTPGParamBuilder::checkIfOK(     EcalPedestals::Item item) {
+
+  bool result=true;
+  if( item.mean_x1 <150. || item.mean_x1 >250) result=false;
+  if( item.mean_x6 <150. || item.mean_x6 >250) result=false;
+  if( item.mean_x12 <150. || item.mean_x12 >250) result=false;
+  if( item.rms_x1 <0 || item.rms_x1 > 2) result=false;
+  if( item.rms_x6 <0 || item.rms_x1 > 3) result=false;
+  if( item.rms_x12 <0 || item.rms_x1 > 5) result=false;
+  return result; 
+
+}
+
 void EcalTPGParamBuilder::analyze(const edm::Event& evt, const edm::EventSetup& evtSetup) 
 {
   using namespace edm;
   using namespace std;
 
+  std::cout<< "we are in analyze"<< endl; 
 
 
+  // geometry
   // geometry
   ESHandle<CaloGeometry> theGeometry;
   ESHandle<CaloSubdetectorGeometry> theEndcapGeometry_handle, theBarrelGeometry_handle;
@@ -129,7 +164,7 @@ void EcalTPGParamBuilder::analyze(const edm::Event& evt, const edm::EventSetup& 
   // electronics mapping
   ESHandle< EcalElectronicsMapping > ecalmapping;
   evtSetup.get< EcalMappingRcd >().get(ecalmapping);
-  theMapping_ = ecalmapping.product();  
+  theMapping_ = ecalmapping.product();
 
 
   ////////////////////////////
@@ -141,25 +176,97 @@ void EcalTPGParamBuilder::analyze(const edm::Event& evt, const edm::EventSetup& 
   list<uint32_t> stripListEE ;
   list<uint32_t>::iterator itList ;
 
+
+  std::cout <<"we get the pedestals from offline DB"<<endl;
+
   // Pedestals
   ESHandle<EcalPedestals> pedHandle;
   evtSetup.get<EcalPedestalsRcd>().get( pedHandle );
-  const EcalPedestalsMap & pedMap = pedHandle.product()->getMap() ;   
+  const EcalPedestalsMap & pedMap = pedHandle.product()->getMap() ;
+
+   
+
+  // we copy the last valid record to a temporary object peds
+  EcalPedestals* peds = new EcalPedestals();
+  for(int iEta=-EBDetId::MAX_IETA; iEta<=EBDetId::MAX_IETA ;++iEta) {
+    if(iEta==0) continue;
+    for(int iPhi=EBDetId::MIN_IPHI; iPhi<=EBDetId::MAX_IPHI; ++iPhi) {
+      // make an EBDetId since we need EBDetId::rawId() to be used as the key for the pedestals
+      if (EBDetId::validDetId(iEta,iPhi))
+	{
+	  EBDetId ebdetid(iEta,iPhi);
+
+	  EcalPedestals::Item aped= *(pedMap.find(ebdetid));
+
+	  // here I copy the last valid value in the peds object
+	  EcalPedestals::Item item;
+	  item.mean_x1  = aped.mean_x1;
+	  item.rms_x1   = aped.rms_x1;
+	  item.mean_x6  = aped.mean_x6;
+	  item.rms_x6   = aped.rms_x6;
+	  item.mean_x12 = aped.mean_x12;
+	  item.rms_x12  = aped.rms_x12;
+
+	  peds->insert(std::make_pair(ebdetid.rawId(),item));
+	}
+    }
+  }
+
+
+  std::cout <<"we get the pedestals from online DB"<<endl;
   map<EcalLogicID, MonPedestalsDat> pedMapDB ;
   int iovId = 0 ;
-  if (readFromDB_) iovId = db_->readFromCondDB_Pedestals(pedMapDB, DBrunNb_) ;
+  std::cout << "DB RUN NB="<< DBrunNb_<< endl;
 
+  if (readFromDB_) {
+    iovId = db_->readFromCondDB_Pedestals(pedMapDB, DBrunNb_) ;
+
+    typedef map<EcalLogicID, MonPedestalsDat>::const_iterator CImon;
+    EcalLogicID ecid_xt;
+    MonPedestalsDat  rd_ped;
+          
+    for (CImon p = pedMapDB.begin(); p != pedMapDB.end(); p++) {
+      ecid_xt = p->first;
+      rd_ped  = p->second;
+      int sm_num=ecid_xt.getID1();
+      int xt_num=ecid_xt.getID2(); 
+      
+      EcalPedestals::Item item;
+      item.mean_x1  =rd_ped.getPedMeanG1() ;
+      item.rms_x1   =rd_ped.getPedRMSG1();
+      item.mean_x6  =rd_ped.getPedMeanG6();
+      item.rms_x6   =rd_ped.getPedRMSG6() ;
+      item.mean_x12 =rd_ped.getPedMeanG12();
+      item.rms_x12  =rd_ped.getPedRMSG12();
+      
+      EBDetId ebdetid(sm_num,xt_num,EBDetId::SMCRYSTALMODE);
+      // here we change in the peds object only the values that are available in the online DB 
+      // otherwise we keep the old value
+      if(checkIfOK(item)) peds->insert(std::make_pair(ebdetid.rawId(),item));
+    }
+  }
+  // now peds is complete 
+
+
+  const EcalPedestalsMap & pedMapNew = peds->getMap() ;
+
+
+  std::cout <<"we get the intercalib from offline DB"<<endl;
   // Intercalib constants
   ESHandle<EcalIntercalibConstants> pIntercalib ;
   evtSetup.get<EcalIntercalibConstantsRcd>().get(pIntercalib) ;
   const EcalIntercalibConstants * intercalib = pIntercalib.product() ;
   const EcalIntercalibConstantMap & calibMap = intercalib->getMap() ;
 
+
+  std::cout <<"we get the gain ratios from offline DB"<<endl;
   // Gain Ratios
   ESHandle<EcalGainRatios> pRatio;
   evtSetup.get<EcalGainRatiosRcd>().get(pRatio);
   const EcalGainRatioMap & gainMap = pRatio.product()->getMap();
   
+
+  std::cout <<"we get the ADC to GEV from offline DB"<<endl;
   // ADCtoGeV
   ESHandle<EcalADCToGeVConstant> pADCToGeV ;
   evtSetup.get<EcalADCToGeVConstantRcd>().get(pADCToGeV) ;
@@ -169,12 +276,40 @@ void EcalTPGParamBuilder::analyze(const edm::Event& evt, const edm::EventSetup& 
   std::cout<<"xtal_LSB_EB_ = "<<xtal_LSB_EB_<<std::endl ;
   std::cout<<"xtal_LSB_EE_ = "<<xtal_LSB_EE_<<std::endl ;
 
+  
+  vector<EcalLogicID> my_EcalLogicId;
+  vector<EcalLogicID> my_TTEcalLogicId;
+  vector<EcalLogicID> my_StripEcalLogicId;
+  EcalLogicID my_EcalLogicId_EB;
+  EcalLogicID my_EcalLogicId_EE;
+  if (writeToDB_ || readFromDB_){
+    std::cout<<"going to get the ecal logic id set"<< endl;
+
+    my_EcalLogicId_EB = db_->getEcalLogicID( "EB",EcalLogicID::NULLID,EcalLogicID::NULLID,EcalLogicID::NULLID,"EB");
+    my_EcalLogicId_EE = db_->getEcalLogicID( "EE",EcalLogicID::NULLID,EcalLogicID::NULLID,EcalLogicID::NULLID,"EE");
+
+    my_EcalLogicId = db_->getEcalLogicIDSetOrdered( "EB_crystal_number",
+						    1, 36,
+						    1, 1700,
+						    EcalLogicID::NULLID,EcalLogicID::NULLID,
+						    "EB_crystal_number",12 );
+    my_TTEcalLogicId = db_->getEcalLogicIDSetOrdered( "EB_trigger_tower",
+						    1, 36,
+						    1, 68,
+						    EcalLogicID::NULLID,EcalLogicID::NULLID,
+						    "EB_trigger_tower",12 );
+    my_StripEcalLogicId = db_->getEcalLogicIDSetOrdered( "EB_VFE",   1, 36,   1, 68,   1,5 ,  "EB_VFE",12 );
+    std::cout<<"got the 3 ecal barrel logic id set"<< endl;
+
+  }
+
   /////////////////////////////////////////
   // Compute linearization coeff section //
   /////////////////////////////////////////
 
   map<EcalLogicID, FEConfigPedDat> pedset ;
   map<EcalLogicID, FEConfigLinDat> linset ;
+  map<EcalLogicID, FEConfigParamDat> linparamset ;
 
   // loop on EB xtals
   if (writeToFiles_) (*out_file_)<<"COMMENT ====== barrel crystals ====== "<<std::endl ;
@@ -193,45 +328,63 @@ void EcalTPGParamBuilder::analyze(const edm::Event& evt, const edm::EventSetup& 
     int stripInTower = elId.pseudoStripId() ;
     int xtalInStrip = elId.channelId() ;
 
-    EcalLogicID logicId ;
     FEConfigPedDat ped ;
     FEConfigLinDat lin ;
     if (writeToFiles_) (*out_file_)<<"CRYSTAL "<<dec<<id.rawId()<<std::endl ;
-    if (writeToDB_ || readFromDB_) logicId = db_->getEcalLogicID ("EB_crystal_number", id.ism(), id.ic()) ;
+    //  if (writeToDB_ || readFromDB_) logicId = db_->getEcalLogicID ("EB_crystal_number", id.ism(), id.ic()) ;
 
     coeffStruc coeff ;
-    if (readFromDB_) {
-      getCoeff(coeff, calibMap, id.rawId()) ;
-      getCoeff(coeff, gainMap, id.rawId()) ;
-      getCoeff(coeff, pedMapDB, logicId) ;      
-    } else {
-      getCoeff(coeff, calibMap, id.rawId()) ;
-      getCoeff(coeff, gainMap, id.rawId()) ;
-      getCoeff(coeff, pedMap, id.rawId()) ;
-    }
+    getCoeff(coeff, calibMap, id.rawId()) ;
+    getCoeff(coeff, gainMap, id.rawId()) ;
+    getCoeff(coeff, pedMapNew, id.rawId()) ;
+    
 
     // compute and fill linearization parameters
     for (int i=0 ; i<3 ; i++) {
       int mult, shift ;
       bool ok = computeLinearizerParam(theta, coeff.gainRatio_[i], coeff.calibCoeff_, "EB", mult , shift) ;
-      if (!ok) std::cout << "unable to compute the parameters for "<<dec<<id.rawId()<<std::endl ;  
+      if (!ok) std::cout << "unable to compute the parameters for SM="<< id.ism()<<" xt="<< id.ic()<<" " <<dec<<id.rawId()<<std::endl ;  
       else {
 	if (writeToFiles_) (*out_file_) << hex <<" 0x"<<coeff.pedestals_[i]<<" 0x"<<mult<<" 0x"<<shift<<std::endl; 
 	if (writeToDB_) {
 	  if (i==0)  {ped.setPedMeanG12(coeff.pedestals_[i]) ; lin.setMultX12(mult) ; lin.setShift12(shift) ; } 
 	  if (i==1)  {ped.setPedMeanG6(coeff.pedestals_[i]) ; lin.setMultX6(mult) ; lin.setShift6(shift) ; } 
-	  if (i==2)  {ped.setPedMeanG1(coeff.pedestals_[i]) ; lin.setMultX1(mult) ; lin.setShift1(shift) ; } 
+	  if (i==2)  {ped.setPedMeanG1(coeff.pedestals_[i]) ; lin.setMultX1(mult) ; lin.setShift1(shift) ; }
 	}
       }
     }
     if (writeToDB_) {
+      int ixtal=(id.ism()-1)*1700+(id.ic()-1);
+      EcalLogicID logicId =my_EcalLogicId[ixtal];
       pedset[logicId] = ped ;
       linset[logicId] = lin ;
+
     }
+
   } //ebCells
+
+
+  if (writeToDB_) {
+    // EcalLogicID  of the whole barrel is: my_EcalLogicId_EB
+    FEConfigParamDat linparam ;
+    linparam.setETSat(Et_sat_EB_); 
+    linparam.setTTThreshlow(TTF_lowThreshold_EB_); 
+    linparam.setTTThreshhigh(TTF_highThreshold_EB_); 
+    linparam.setFGlowthresh(FG_lowThreshold_EB_); 
+    linparam.setFGhighthresh(FG_highThreshold_EB_); 
+    linparam.setFGlowratio(FG_lowRatio_EB_); 
+    linparam.setFGhighratio(FG_highRatio_EB_);
+    linparamset[my_EcalLogicId_EB] = linparam ;
+  }
+
+
+
+  if(DBEE_){
 
   // loop on EE xtals
   if (writeToFiles_) (*out_file_)<<"COMMENT ====== endcap crystals ====== "<<std::endl ;
+
+
   std::vector<DetId> eeCells = theEndcapGeometry_->getValidDetIds(DetId::Ecal, EcalEndcap);
   for (vector<DetId>::const_iterator it = eeCells.begin(); it != eeCells.end(); ++it) {
     EEDetId id(*it);
@@ -273,6 +426,8 @@ void EcalTPGParamBuilder::analyze(const edm::Event& evt, const edm::EventSetup& 
       getCoeff(coeff, pedMap, id.rawId()) ;
     }
 
+
+  
     // compute and fill linearization parameters
     for (int i=0 ; i<3 ; i++) {
       int mult, shift ;
@@ -292,10 +447,23 @@ void EcalTPGParamBuilder::analyze(const edm::Event& evt, const edm::EventSetup& 
       linset[logicId] = lin ;
     }
   } //eeCells
+  if (writeToDB_ ) {
+    // EcalLogicID  of the whole barrel is: my_EcalLogicId_EB
+    FEConfigParamDat linparam ;
+    linparam.setETSat(Et_sat_EE_); 
+    linparam.setTTThreshlow(TTF_lowThreshold_EE_); 
+    linparam.setTTThreshhigh(TTF_highThreshold_EE_); 
+    linparam.setFGlowthresh(FG_Threshold_EE_); 
+    linparam.setFGhighthresh(FG_Threshold_EE_); 
+    linparamset[my_EcalLogicId_EE] = linparam ;
+  }
+
+  }
+  std::cout<< "we are in analyze 2"<< endl; 
 
   if (writeToDB_) {
     db_->writeToConfDB_TPGPedestals(pedset, iovId, "from_CondDB") ;
-    db_->writeToConfDB_TPGLinearCoef(linset, iovId, "from_CondDB") ;
+    db_->writeToConfDB_TPGLinearCoef(linset,linparamset, iovId, "from_CondDB") ;
   }
 
   /////////////////////////////
@@ -317,7 +485,48 @@ void EcalTPGParamBuilder::analyze(const edm::Event& evt, const edm::EventSetup& 
       (*out_file_)<<std::endl ; 
     }
     if (writeToDB_) {
+      std::cout<<"going to write the weights "<< endl;
+      map<EcalLogicID, FEConfigWeightGroupDat> dataset;
+      // we create 1 group
+      int NWEIGROUPS =1; 
+      for (int ich=0; ich<NWEIGROUPS; ich++){
+	FEConfigWeightGroupDat gut;
+	gut.setWeightGroupId(ich);
+	gut.setWeight0(weights[0] );
+	gut.setWeight1(weights[1] );
+	gut.setWeight2(weights[2] );
+	gut.setWeight3(weights[3] );
+	gut.setWeight4(weights[4] );
+	EcalLogicID ecid = EcalLogicID( "DUMMY", ich,ich);
+	// Fill the dataset
+	dataset[ecid] = gut; // we use any logic id but different, because it is in any case ignored... 
+      }
+      
+      // now we store in the DB the correspondence btw channels and groups 
+      map<EcalLogicID, FEConfigWeightDat> dataset2;
+      // in this case I decide in a stupid way which channel belongs to which group 
+      for (int ich=0; ich<my_StripEcalLogicId.size() ; ich++){
+	FEConfigWeightDat wut;
+	int igroup=0;
+	wut.setWeightGroupId(igroup);
+	// in case of real groups one has to look for the right logic id 
+	// the logic ids are ordered in the vector by SM (EB+ 1,..,18, EB-, 19,..36), TT (1,...68), strip (1,...5)
+	// Fill the dataset
+	dataset2[my_StripEcalLogicId[ich]] = wut;
+      }
 
+      // endcap loop missing ... FIXME 
+      //
+      //
+      //
+
+      // Insert the dataset
+      ostringstream wtag;
+      wtag.str(""); wtag<<"SimShape_Phase"<<phase<<"_NGroups_"<<NWEIGROUPS;
+      std::string weight_tag=wtag.str();
+      std::cout<< " weight tag "<<weight_tag<<endl; 
+      db_->writeToConfDB_TPGWeight(dataset, dataset2, NWEIGROUPS, weight_tag) ;
+      
     }
   }
 
@@ -339,6 +548,83 @@ void EcalTPGParamBuilder::analyze(const edm::Event& evt, const edm::EventSetup& 
   // endcap
   uint threshold, lut_strip, lut_tower ;
   computeFineGrainEEParameters(threshold, lut_strip, lut_tower) ; 
+
+  // and here we store the fgr part
+
+  
+  if (writeToDB_) {
+    std::cout<<"going to write the fgr "<< endl;
+      map<EcalLogicID, FEConfigFgrGroupDat> dataset;
+      // we create 1 group
+      int NFGRGROUPS =1; 
+      for (int ich=0; ich<NFGRGROUPS; ich++){
+	FEConfigFgrGroupDat gut;
+	gut.setFgrGroupId(ich);
+	gut.setThreshLow(lowRatio );
+	gut.setThreshHigh(highRatio);
+	gut.setRatioLow(lowThreshold);
+	gut.setRatioHigh(highThreshold);
+	gut.setLUTConfId(lutFG);
+	EcalLogicID ecid = EcalLogicID( "DUMMY", ich,ich);
+	// Fill the dataset
+	dataset[ecid] = gut; // we use any logic id but different, because it is in any case ignored... 
+      }
+      
+      // now we store in the DB the correspondence btw channels and groups 
+      map<EcalLogicID, FEConfigFgrDat> dataset2;
+      // in this case I decide in a stupid way which channel belongs to which group 
+      for (int ich=0; ich<my_TTEcalLogicId.size() ; ich++){
+	FEConfigFgrDat wut;
+	int igroup=0;
+	wut.setFgrGroupId(igroup);
+	// Fill the dataset
+	// the logic ids are ordered by SM (1,...36) and TT (1,...68)  
+	// you have to calculate the right index here 
+	dataset2[my_TTEcalLogicId[ich]] = wut;
+      }
+
+      // endcap loop missing ... FIXME 
+      //
+      //
+      //
+
+      // Insert the dataset
+      ostringstream wtag;
+      wtag.str(""); wtag<<"FGR_"<<lutFG<<"_NGroups_"<<NFGRGROUPS;
+      std::string weight_tag=wtag.str();
+      std::cout<< " weight tag "<<weight_tag<<endl; 
+      db_->writeToConfDB_TPGFgr(dataset, dataset2, NFGRGROUPS, weight_tag) ;
+  }
+
+  if (writeToDB_) {
+    std::cout<<"going to write the sliding "<< endl;
+      map<EcalLogicID, FEConfigSlidingDat> dataset;
+      // in this case I decide in a stupid way which channel belongs to which group 
+      for (int ich=0; ich<my_StripEcalLogicId.size() ; ich++){
+	FEConfigSlidingDat wut;
+	wut.setSliding(sliding_);
+	// Fill the dataset
+	// the logic ids are ordered by SM (1,...36) , TT (1,...68) and strip (1..5) 
+	// you have to calculate the right index here 
+	dataset[my_StripEcalLogicId[ich]] = wut;
+      }
+
+      // endcap loop missing ... FIXME 
+      //
+      //
+      //
+
+      // Insert the dataset
+      ostringstream wtag;
+      wtag.str(""); wtag<<"Sliding_"<<sliding_;
+      std::string justatag=wtag.str();
+      std::cout<< " sliding tag "<<justatag<<endl;
+      int iov_id=0; // just a parameter ... 
+      db_->writeToConfDB_TPGSliding(dataset,iov_id, justatag) ;
+  }
+
+  
+
 
 
   /////////////////////////
@@ -367,6 +653,51 @@ void EcalTPGParamBuilder::analyze(const edm::Event& evt, const edm::EventSetup& 
     for (int i=0 ; i<1024 ; i++) (*out_file_)<<"0x"<<hex<<lut_EE[i]<<" " ;
     (*out_file_)<<endl ;
   }
+
+
+
+  if (writeToDB_) {
+    map<EcalLogicID, FEConfigLUTGroupDat> dataset;
+    // we create 1 LUT group
+    int NLUTGROUPS =1; 
+    for (int ich=0; ich<NLUTGROUPS; ich++){
+      FEConfigLUTGroupDat lut;
+      lut.setLUTGroupId(ich);
+      for (int i=0; i<1024; i++){
+	lut.setLUTValue(i, lut_EB[i] );
+      }
+      EcalLogicID ecid = EcalLogicID( "DUMMY", ich,ich);
+      // Fill the dataset
+      dataset[ecid] = lut; // we use any logic id but different, because it is in any case ignored... 
+    }
+
+    // now we store in the DB the correspondence btw channels and LUT groups 
+    map<EcalLogicID, FEConfigLUTDat> dataset2;
+    // in this case I decide in a stupid way which channel belongs to which group 
+    for (int ich=0; ich<my_TTEcalLogicId.size() ; ich++){
+      FEConfigLUTDat lut;
+      int igroup=0;
+      lut.setLUTGroupId(igroup);
+      // calculate the right TT - in the vector they are ordere by SM and by TT 
+      // Fill the dataset
+      dataset2[my_TTEcalLogicId[ich]] = lut;
+    }
+
+    // endcap loop missing ... FIXME 
+    //
+    //
+    //
+
+    // Insert the dataset
+    ostringstream ltag;
+    ltag.str(""); ltag<<LUT_option_<<"_NGroups_"<<NLUTGROUPS;
+    std::string lut_tag=ltag.str();
+    std::cout<< " LUT tag "<<lut_tag<<endl; 
+    db_->writeToConfDB_TPGLUT(dataset, dataset2, NLUTGROUPS, lut_tag) ;
+
+  }
+
+
 
 
   ///////////////////////////////////////////////////////////
@@ -452,10 +783,15 @@ void EcalTPGParamBuilder::beginJob(const edm::EventSetup& evtSetup)
   using namespace edm;
   using namespace std;
 
+  std::cout<<"we are in beginJob"<<endl;
+
   create_header() ; 
+  std::cout<<"we are in beginJob after create header"<<endl;
 
   DetId eb(DetId::Ecal,EcalBarrel) ;
   DetId ee(DetId::Ecal,EcalEndcap) ;
+
+  std::cout<<"we are in beginJob after detid"<<endl;
 
   if (writeToFiles_) {
     (*out_file_)<<"PHYSICS_EB "<<dec<<eb.rawId()<<std::endl ;
@@ -470,6 +806,9 @@ void EcalTPGParamBuilder::beginJob(const edm::EventSetup& evtSetup)
 		  <<-1<<" "<<-1<<std::endl ;
     (*out_file_) <<std::endl ;
   }
+  std::cout<<"we are in beginJob ending..."<<endl;
+
+
 }
 
 
@@ -503,6 +842,8 @@ bool EcalTPGParamBuilder::computeLinearizerParam(double theta, double gainRatio,
     ratio = xtal_LSB_EE_/Et_sat_EE_ ;
   }
 
+
+
   double factor = 1024 * ratio * gainRatio * calibCoeff * sin(theta) * (1 << (sliding_ + shiftDet + 2)) ;
   // Let's try first with shift = 0 (trivial solution)
   mult = (int)(factor+0.5) ; 
@@ -511,6 +852,7 @@ bool EcalTPGParamBuilder::computeLinearizerParam(double theta, double gainRatio,
     factor *= 2 ; 
     mult = (int)(factor+0.5) ;
   }
+  std::cout << "too bad we did not manage to calculate the factor for calib="<<calibCoeff<<endl;
   return false ;
 }
 
@@ -847,3 +1189,4 @@ void EcalTPGParamBuilder::computeFineGrainEEParameters(uint & threshold, uint & 
   lut_strip = FG_lut_strip_EE_  ;
   lut_tower = FG_lut_tower_EE_  ;
 }
+
