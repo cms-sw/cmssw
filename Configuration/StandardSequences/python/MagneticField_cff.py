@@ -2,5 +2,7 @@ import FWCore.ParameterSet.Config as cms
 
 #
 # Master configuration for the magnetic field
-from MagneticField.Engine.volumeBasedMagneticField_cfi import *
+# old mapping with 4T
+from Configuration.StandardSequences.MagneticField_40T_851_cff import *
+
 
