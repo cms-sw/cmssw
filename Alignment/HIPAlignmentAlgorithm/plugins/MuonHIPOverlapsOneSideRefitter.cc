@@ -13,7 +13,7 @@
 //
 // Original Author:  Jim Pivarski
 //         Created:  Wed Dec 12 13:31:55 CST 2007
-// $Id: MuonHIPOverlapsOneSideRefitter.cc,v 1.9 2008/06/16 12:41:30 pivarski Exp $
+// $Id: MuonHIPOverlapsOneSideRefitter.cc,v 1.1 2008/06/16 15:46:41 pivarski Exp $
 //
 //
 
@@ -286,7 +286,7 @@ MuonHIPOverlapsOneSideRefitter::filter(edm::Event& iEvent, const edm::EventSetup
 	       LocalPoint localPoint = (*hit)->localPosition();
 	       double sigma_xx, sigma_xy, sigma_yy;
 
-	       if (m_plusIsReference == onPlusSide(*hit, &*dtGeometry, &*cscGeometry)) {
+	       if (m_filterMode  ||  (m_plusIsReference == onPlusSide(*hit, &*dtGeometry, &*cscGeometry))) {
 		  LocalError localError = (*hit)->localPositionError();
 		  sigma_xx = localError.xx();
 		  sigma_xy = localError.xy();
