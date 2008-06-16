@@ -96,7 +96,7 @@ int main(int ac, char *av[]) {
     typedef ZMuTkEfficiencyTerm ZMuSaEfficiencyTerm;
     typedef funct::Product<ZMuSaEfficiencyTerm, 
                            funct::Product<funct::Parameter, funct::Gaussian>::type>::type ZMuSaSig;
-    typedef funct::Parameter ZMuSaBkg;
+    typedef funct::Product<funct::Parameter, funct::Exponential>::type ZMuSaBkg;
  
     // typedef ZMuTkBkg ZMuMuNoIsoBkg;
     typedef funct::Product<funct::Constant, funct::Sum<ZMuMuNoIsoSig, ZMuMuNoIsoBkg>::type>::type ZMuMuNoIso;//3
@@ -196,6 +196,7 @@ int main(int ac, char *av[]) {
 	const char * kA0 = "A0"; 
 	const char * kA1 = "A1"; 
 	const char * kA2 = "A2"; 
+	const char * kBeta = "Beta";
 	const char * kSigmaZMuSa = "SigmaZMuSa";
 	
 	funct::Parameter lambdaZMuMu(kLambdaZMuMu, commands.par(kLambdaZMuMu));
@@ -215,6 +216,7 @@ int main(int ac, char *av[]) {
 	funct::Parameter sigmaZMuSa(kSigmaZMuSa, commands.par(kSigmaZMuSa)); 
 	funct::Parameter lambda(kLambda, commands.par(kLambda));
 	funct::Parameter alpha(kAlpha, commands.par(kAlpha));
+	funct::Parameter beta(kBeta, commands.par(kBeta));
 	funct::Parameter b0(kB0, commands.par(kB0));
 	funct::Parameter b1(kB1, commands.par(kB1));
 	funct::Parameter b2(kB2, commands.par(kB2));
@@ -254,7 +256,8 @@ int main(int ac, char *av[]) {
 
 	ZMuSaEfficiencyTerm zMuSaEfficiencyTerm = funct::Numerical<2>(2) * 
 	  ((efficiencySa ^ funct::Numerical<2>()) * (efficiencyTk * (funct::Numerical<1>() - efficiencyTk)))* efficiencyIsoSquare ;
-	ZMuSa zMuSa = rebinMuSaConst *(zMuSaEfficiencyTerm * (yieldZMuMu * funct::Gaussian(mass, sigmaZMuSa)) + yieldBkgZMuSa);
+	ZMuSa zMuSa = rebinMuSaConst *(zMuSaEfficiencyTerm * (yieldZMuMu * funct::Gaussian(mass, sigmaZMuSa)) 
+				       + (yieldBkgZMuSa * funct::Exponential(beta)));
 
 	ChiSquared chi2(zMuMu, histoZMuMu, 
 			zMuTk, histoZMuTk, 
@@ -280,6 +283,7 @@ int main(int ac, char *av[]) {
 	commands.add(minuit, sigmaZMuSa);
 	commands.add(minuit, lambda);
 	commands.add(minuit, alpha);
+	commands.add(minuit, beta);
 	commands.add(minuit, a0);
 	commands.add(minuit, a1);
 	commands.add(minuit, a2);
@@ -287,7 +291,7 @@ int main(int ac, char *av[]) {
 	commands.add(minuit, b1);
 	commands.add(minuit, b2);
 	commands.run(minuit);
-	const unsigned int nPar = 23;//WARNIG: this must be updated manually for now
+	const unsigned int nPar = 24;//WARNIG: this must be updated manually for now
 	ROOT::Math::SMatrix<double, nPar, nPar, ROOT::Math::MatRepSym<double, nPar> > err;
 	minuit.getErrorMatrix(err);
 	std::cout << "error matrix:" << std::endl;
