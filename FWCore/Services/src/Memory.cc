@@ -6,7 +6,7 @@
 // Implementation:
 //
 // Original Author:  Jim Kowalkowski
-// $Id: Memory.cc,v 1.12 2007/12/20 19:37:48 jbk Exp $
+// $Id: Memory.cc,v 1.13 2008/04/24 22:28:29 fischler Exp $
 //
 
 #include "FWCore/Services/src/Memory.h"
@@ -484,8 +484,8 @@ namespace edm {
                     const std::string& mdlabel, const std::string& mdname) 
     {
       update();
-      updateMax();
       andPrint(type, mdlabel, mdname);
+      updateMax();
     }
 
 #ifdef SIMPLE_MEMORY_CHECK_ORIGINAL_XML_OUTPUT
