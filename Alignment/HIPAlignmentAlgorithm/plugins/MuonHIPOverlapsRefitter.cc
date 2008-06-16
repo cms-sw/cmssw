@@ -13,7 +13,7 @@
 //
 // Original Author:  Jim Pivarski
 //         Created:  Wed Dec 12 13:31:55 CST 2007
-// $Id: MuonHIPOverlapsRefitter.cc,v 1.8 2008/06/11 23:35:58 pivarski Exp $
+// $Id: MuonHIPOverlapsRefitter.cc,v 1.9 2008/06/16 12:41:30 pivarski Exp $
 //
 //
 
@@ -138,7 +138,7 @@ MuonHIPOverlapsRefitter::~MuonHIPOverlapsRefitter()
 bool
 MuonHIPOverlapsRefitter::filter(edm::Event& iEvent, const edm::EventSetup& iSetup)
 {
-   m_total_events = 0;
+   m_total_events++;
 
    edm::Handle<reco::TrackCollection> tracks;
    iEvent.getByLabel(m_input, tracks);
