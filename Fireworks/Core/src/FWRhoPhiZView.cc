@@ -8,7 +8,7 @@
 //
 // Original Author:  Chris Jones
 //         Created:  Tue Feb 19 10:33:25 EST 2008
-// $Id: FWRhoPhiZView.cc,v 1.11 2008/06/08 16:59:01 dmytro Exp $
+// $Id: FWRhoPhiZView.cc,v 1.12 2008/06/09 18:50:04 chrjones Exp $
 //
 
 #define private public
@@ -35,6 +35,7 @@
 #include "TEveProjectionBases.h"
 #include "TEvePolygonSetProjected.h"
 #include "TEveProjections.h"
+#include "TEveCalo.h"
 
 // user include files
 #include "Fireworks/Core/interface/FWRhoPhiZView.h"
@@ -218,6 +219,10 @@ FWRhoPhiZView::importElements(TEveElement* iChildren, float iLayer)
    m_projMgr->ImportElements(iChildren);
    TEveElement::List_i it = m_projMgr->BeginChildren();
    std::advance(it, m_projMgr->NumChildren() -1 );
+   // find TEveCalo2D
+   for ( TEveElement::List_i i = (*it)->BeginChildren(); i != (*it)->EndChildren(); ++i )
+     if ( TEveCalo2D* calo2d = dynamic_cast<TEveCalo2D*>(*i) )
+       calo2d->SetValueIsColor(kFALSE);
    return *it;
 }
 
