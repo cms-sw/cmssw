@@ -17,6 +17,11 @@ from Geometry.CaloEventSetup.EcalTrigTowerConstituents_cfi import *
 from Geometry.EcalMapping.EcalMappingRecord_cfi import *
 # The muon geometry
 from RecoMuon.DetLayers.muonDetLayerGeometry_cfi import *
+# The muon tracker trajectory, to be fit without rechit refit
+from RecoMuon.GlobalTrackingTools.GlobalTrajectoryBuilderCommon_cff import *
+GlobalTrajectoryBuilderCommon.TrackRecHitBuilder = 'WithoutRefit'
+GlobalTrajectoryBuilderCommon.TrackTransformer.TrackerRecHitBuilder = 'WithoutRefit'
+
 # The condDB setup (the global tag refers to DevDB, IntDB or ProDB whenever needed)
 from Configuration.StandardSequences.FrontierConditions_GlobalTag_cfi import *
 hcal_db_producer = cms.ESProducer("HcalDbProducer",

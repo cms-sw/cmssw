@@ -30,4 +30,7 @@ from CalibCalorimetry.Configuration.Ecal_FakeConditions_cff import *
 from CalibTracker.Configuration.TrackerAlignment.TrackerAlignment_Fake_cff import *
 from CalibMuon.Configuration.RPC_FakeConditions_cff import *
 
+from RecoMuon.GlobalTrackingTools.GlobalTrajectoryBuilderCommon_cff import *
+GlobalTrajectoryBuilderCommon.TrackRecHitBuilder = 'WithoutRefit'
+GlobalTrajectoryBuilderCommon.TrackTransformer.TrackerRecHitBuilder = 'WithoutRefit'
 

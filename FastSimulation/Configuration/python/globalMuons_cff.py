@@ -2,8 +2,8 @@ import FWCore.ParameterSet.Config as cms
 
 from RecoTracker.TransientTrackingRecHit.TransientTrackingRecHitBuilderWithoutRefit_cfi import *
 from TrackingTools.TrackRefitter.TracksToTrajectories_cff import *
-from RecoMuon.GlobalTrackingTools.GlobalTrajectoryBuilderCommon_cff import *
 from RecoMuon.GlobalMuonProducer.globalMuons_cfi import *
+
 Chi2EstimatorForMuRefit = cms.ESProducer("Chi2MeasurementEstimatorESProducer",
     ComponentName = cms.string('Chi2EstimatorForMuRefit'),
     nSigma = cms.double(3.0),

@@ -1,4 +1,4 @@
-# /dev/CMSSW_2_1_0_pre5/HLT/V54 (CMSSW_2_1_X_2008-06-10-0200_HLT1)
+# /dev/CMSSW_2_1_0_pre5/HLT/V59 (CMSSW_2_1_X_2008-06-10-0200_HLT1)
 
 import FWCore.ParameterSet.Config as cms
 
@@ -189,7 +189,7 @@ block_hltL1IsoElectronPixelSeeds = cms.PSet(
   initialSeeds = cms.InputTag( "globalMixedSeeds" )
 )
 block_hltL3TrajectorySeed = cms.PSet(
-  beamSpot = cms.InputTag( "hltOfflineBeamSpot" ),
+  beamSpot = cms.InputTag( "offlineBeamSpot" ),
   UseVertex = cms.bool( False ),
   Rescale_eta = cms.double( 3.0 ),
   Rescale_phi = cms.double( 3.0 ),
