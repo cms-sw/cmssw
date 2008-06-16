@@ -70,18 +70,18 @@ HLTBeginSequence = cms.Sequence(
 # An older L1 sequence (with L1 simulator)
 # this one cannot be used by the HLT as of 17X  use the previous sequence instead 
 # Fast L1 Trigger
-from FastSimulation.L1CaloTriggerProducer.fastl1calosim_cfi import *
-from FastSimulation.L1CaloTriggerProducer.fastL1extraParticleMap_cfi import *
-fastL1CaloSim.AlgorithmSource = 'RecHits'
-fastL1CaloSim.EmInputs = cms.VInputTag(
-    cms.InputTag("caloRecHits","EcalRecHitsEB"),
-    cms.InputTag("caloRecHits","EcalRecHitsEE")
-)
-famosWithL1 = cms.Sequence(
-    cms.SequencePlaceholder("famosWithCaloTowers")+
-    cms.SequencePlaceholder("simEcalTriggerPrimitiveDigis")+
-    simHcalTriggerPrimitiveDigis+fastL1CaloSim+
-    fastL1extraParticleMap
-)
+#from FastSimulation.L1CaloTriggerProducer.fastl1calosim_cfi import *
+#from FastSimulation.L1CaloTriggerProducer.fastL1extraParticleMap_cfi import *
+#fastL1CaloSim.AlgorithmSource = 'RecHits'
+#fastL1CaloSim.EmInputs = cms.VInputTag(
+#    cms.InputTag("caloRecHits","EcalRecHitsEB"),
+#    cms.InputTag("caloRecHits","EcalRecHitsEE")
+#)
+#famosWithL1 = cms.Sequence(
+#    cms.SequencePlaceholder("famosWithCaloTowers")+
+#    cms.SequencePlaceholder("simEcalTriggerPrimitiveDigis")+
+#    simHcalTriggerPrimitiveDigis+fastL1CaloSim+
+#    fastL1extraParticleMap
+#)
 
 
