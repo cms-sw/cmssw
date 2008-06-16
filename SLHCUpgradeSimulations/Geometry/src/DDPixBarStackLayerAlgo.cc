@@ -1,6 +1,6 @@
 ///////////////////////////////////////////////////////////////////////////////
 // File: DDPixBarStackLayerAlgo.cc
-// Description: Make one layer of pixel barrel detector
+// Description: Make one layer of stacked pixel barrel detector
 ///////////////////////////////////////////////////////////////////////////////
 
 #include <cmath>
@@ -58,6 +58,7 @@ void DDPixBarStackLayerAlgo::initialize(const DDNumericArguments & nArgs,
   ladderWidth = nArgs["LadderWidth"];
   ladderThick = nArgs["LadderThick"];
   module_offset  = nArgs["ModuleOffset"];
+  layout = int(nArgs["LayoutType"]);
 
 // Debug messages
   LogDebug("PixelGeom") << "DDPixBarStackLayerAlgo debug: Parent " << parentName 
@@ -84,18 +85,20 @@ void DDPixBarStackLayerAlgo::execute() {
   double dphi = twopi/number;
 
   double phi_offset = module_offset;
+  double radius_offset = 0.0;
+  if(layout) {
+    phi_offset = 0.0;
+    radius_offset = ladderThick;
+  }
 
   double delta1=0.5*ladderWidth*sin(phi_offset);
   double delta2=ladderThick*cos(phi_offset);
+  double delta3=radius_offset;
 
   double deltaX, deltaY; //Offset to correct for ladder thickness
 
-  // Lets see if we can come up with some better names
- // double r_mid_L_inner = moduleRadius - (0.5*delta3);
- // double r_mid_L_outer = moduleRadius + (0.5*delta3);
-
-  double r_vol_inner = moduleRadius-(delta1+delta2);
-  double r_vol_outer = moduleRadius+(delta1+delta2);
+  double r_vol_inner = moduleRadius-(delta1+delta2+delta3);
+  double r_vol_outer = moduleRadius+(delta1+delta2+delta3);
 
   std::string name;
 
@@ -115,10 +118,11 @@ void DDPixBarStackLayerAlgo::execute() {
 
 //------------------------------------------------------------------------------------------------------------
 // Define the volume in which the layer exists
+
   DDName mother = parent().name();
   std::string idName = DDSplit(mother).first;
 
-  DDSolid solid = DDSolidFactory::tubs(DDName(idName, idNameSpace), 0.5*layerDz, r_vol_inner, r_vol_outer, 0, twopi);//tube(Name, HalfLength, rInner, rOuter, StartPhi, DeltaPhi)
+  DDSolid solid = DDSolidFactory::tubs(DDName(idName, idNameSpace), 0.5*layerDz, r_vol_inner, r_vol_outer, 0, twopi);
 
   DDName matname(DDSplit(VolumeMaterial).first, DDSplit(VolumeMaterial).second);
   DDMaterial matter(matname);
@@ -134,7 +138,7 @@ void DDPixBarStackLayerAlgo::execute() {
 // Define the cool tube
 
   name = idName + "CoolTube";
-  solid = DDSolidFactory::trap(DDName(name,idNameSpace), 0.5*coolDz, 0, 0, coolWidth/2, coolSide/2, coolSide/2, 0, coolWidth/2, coolSide/2, coolSide/2, 0);//trapezium(Name, ZhalfLength, theta, phi, {YHalfLength, XHalfLength1,  XHalfLength2} @ -z, pAlp1, {YHalfLength, XHalfLength1,  XHalfLength2} @ +z, pAlp2 )
+  solid = DDSolidFactory::trap(DDName(name,idNameSpace), 0.5*coolDz, 0, 0, coolWidth/2, coolSide/2, coolSide/2, 0, coolWidth/2, coolSide/2, coolSide/2, 0);
 
   matter = DDMaterial(DDName(DDSplit(tubeMat).first, DDSplit(tubeMat).second));
   DDLogicalPart coolTube(solid.ddname(), matter, solid);
@@ -148,9 +152,10 @@ void DDPixBarStackLayerAlgo::execute() {
 
 //------------------------------------------------------------------------------------------------------------
 // Define the coolant within the cool tube = same as cooltube - wall thickness
+
   name = idName + "Coolant";
 
-  solid = DDSolidFactory::trap(DDName(name,idNameSpace), 0.5*coolDz, 0, 0, coolWidth/2-coolThick, coolSide/2-coolThick, coolSide/2-coolThick, 0, coolWidth/2-coolThick, coolSide/2-coolThick, coolSide/2-coolThick, 0);//trapezium(Name, Zha
+  solid = DDSolidFactory::trap(DDName(name,idNameSpace), 0.5*coolDz, 0, 0, coolWidth/2-coolThick, coolSide/2-coolThick, coolSide/2-coolThick, 0, coolWidth/2-coolThick, coolSide/2-coolThick, coolSide/2-coolThick, 0);
   matter = DDMaterial(DDName(DDSplit(coolMat).first, DDSplit(coolMat).second));
   DDLogicalPart cool(solid.ddname(), matter, solid);
 
@@ -162,7 +167,7 @@ void DDPixBarStackLayerAlgo::execute() {
 
  
 //------------------------------------------------------------------------------------------------------------
-// Put coolant in the cool tube???
+// Put coolant in the cool tube
 
   DDpos (cool, coolTube, 1, DDTranslation(0.0, 0.0, 0.0), DDRotation());
 
@@ -172,6 +177,7 @@ void DDPixBarStackLayerAlgo::execute() {
 
 //------------------------------------------------------------------------------------------------------------
 // Define the ladder
+
   DDName ladderFullUp(DDSplit(ladderNameUp).first, DDSplit(ladderNameUp).second);
   DDName ladderFullDown(DDSplit(ladderNameDown).first, DDSplit(ladderNameDown).second);
 
@@ -179,51 +185,56 @@ void DDPixBarStackLayerAlgo::execute() {
 
 
 // Iterate over the number of modules
-  for (int i=0; i<number; i++) {
 
+  for (int i=0; i<number; i++) {
 	
-// First the modules
+    // First the modules
     phi = phi0 + i*dphi;
     phix = phi + (90*deg) - phi_offset ;
     phiy = phix + (90*deg) ;
 
-	deltaX= 0.5*ladderThick*cos(phi-phi_offset);
-	deltaY= 0.5*ladderThick*sin(phi-phi_offset);
+    deltaX= 0.5*ladderThick*cos(phi-phi_offset);
+    deltaY= 0.5*ladderThick*sin(phi-phi_offset);
 
-//inner layer of stack
-      tran = DDTranslation(moduleRadius*cos(phi)-deltaX, moduleRadius*sin(phi)-deltaY, 0);
-      name = idName + dbl_to_string(component_copy_no);
-      rot = DDrot(DDName(name,idNameSpace), 90*deg, phix, 90*deg, phiy, 0.,0.);
+    double radius;
+    if((i%2)==0) radius=moduleRadius-radius_offset;
+    else radius=moduleRadius+radius_offset;
 
-      DDpos (ladderFullDown, layer, component_copy_no, tran, rot);
+    //inner layer of stack
+    tran = DDTranslation(radius*cos(phi)-deltaX, radius*sin(phi)-deltaY, 0);
+    name = idName + dbl_to_string(component_copy_no);
+    rot = DDrot(DDName(name,idNameSpace), 90*deg, phix, 90*deg, phiy, 0.,0.);
 
-      LogDebug("PixelGeom") << "DDPixBarStackLayerAlgo test: " << ladderFullDown 
+    DDpos (ladderFullDown, layer, component_copy_no, tran, rot);
+
+    LogDebug("PixelGeom") << "DDPixBarStackLayerAlgo test: " << ladderFullDown 
 			    << " number " << component_copy_no
 			    << " positioned in " << layer.name()
 			    << " at " << tran
 			    << " with " << rot;
-      component_copy_no++;
+    component_copy_no++;
 
 
-//outer layer of stack
-      tran = DDTranslation(moduleRadius*cos(phi)+deltaX, moduleRadius*sin(phi)+deltaY, 0);
-      name = idName + dbl_to_string(component_copy_no);
-      rot = DDrot(DDName(name,idNameSpace), 90*deg, phix, 90*deg, phiy, 0.,0.);
+    //outer layer of stack
+    tran = DDTranslation(radius*cos(phi)+deltaX, radius*sin(phi)+deltaY, 0);
+    name = idName + dbl_to_string(component_copy_no);
+    rot = DDrot(DDName(name,idNameSpace), 90*deg, phix, 90*deg, phiy, 0.,0.);
 
-      DDpos (ladderFullUp, layer, component_copy_no, tran, rot);
+    DDpos (ladderFullUp, layer, component_copy_no, tran, rot);
 
-      LogDebug("PixelGeom") << "DDPixBarStackLayerAlgo test: " << ladderFullUp 
+    LogDebug("PixelGeom") << "DDPixBarStackLayerAlgo test: " << ladderFullUp 
 			    << " number " << component_copy_no
 			    << " positioned in " << layer.name()
 			    << " at " << tran
 			    << " with " << rot;
-      component_copy_no++;
+    component_copy_no++;
 
  
   }
 
 
 // Iterate over the number of cooltubes
+
   double coolOffset = 0.5*ladderWidth - 0.5*coolSide;
 
   for (int i=0; i<number; i++) {
@@ -231,16 +242,20 @@ void DDPixBarStackLayerAlgo::execute() {
     phix = phi + (90*deg) - phi_offset;
     phiy = phix + (90*deg) ;
 
-      deltaX= coolOffset*cos(90*deg-phi+phi_offset);
-      deltaY= coolOffset*sin(90*deg-phi+phi_offset);
+    deltaX= coolOffset*cos(90*deg-phi+phi_offset);
+    deltaY= coolOffset*sin(90*deg-phi+phi_offset);
 
-      tran = DDTranslation(moduleRadius*cos(phi)-deltaX, moduleRadius*sin(phi)+deltaY, 0);
+    double radius;              
+    if((i%2)==0) radius=moduleRadius-radius_offset;
+    else radius=moduleRadius+radius_offset;
 
-      name = idName + "xxx"+dbl_to_string(i+10000);
+    tran = DDTranslation(radius*cos(phi)-deltaX, radius*sin(phi)+deltaY, 0);
 
-      rot = DDrot(DDName(name,idNameSpace), 90*deg, phix, 90*deg, phiy, 0.,0.);
-      DDpos (coolTube, layer, i+1, tran, rot);
-      LogDebug("PixelGeom") << "DDPixBarStackLayerAlgo test: " << coolTube.name() 
+    name = idName + "xxx"+dbl_to_string(i+10000);
+
+    rot = DDrot(DDName(name,idNameSpace), 90*deg, phix, 90*deg, phiy, 0.,0.);
+    DDpos (coolTube, layer, i+1, tran, rot);
+    LogDebug("PixelGeom") << "DDPixBarStackLayerAlgo test: " << coolTube.name() 
 			  << " number " << i+1 << " positioned in " 
 			  << layer.name() << " at " << tran << " with "<< rot;
   }
