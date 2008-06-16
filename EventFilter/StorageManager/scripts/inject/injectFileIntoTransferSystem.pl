@@ -1,5 +1,5 @@
 #!/usr/bin/perl -w
-# $Id: injectFileIntoTransferSystem.pl,v 1.7 2008/06/12 12:12:10 loizides Exp $
+# $Id: injectFileIntoTransferSystem.pl,v 1.8 2008/06/16 10:38:06 loizides Exp $
 #
 # Written by Matt Rudolph June 2008
 #
@@ -312,8 +312,8 @@ my $SQLcreate = "INSERT INTO CMS_STOMGR.FILES_CREATED (" .
             "'$appname','$appversion',$runnumber,$lumisection,$count,$instance," .
             "TO_DATE('$createtime','YYYY-MM-DD HH24:MI:SS'),'$comment')";
 my $SQLinject = "INSERT INTO CMS_STOMGR.FILES_INJECTED (" .
-               "FILENAME,PATHNAME,NEVENTS,FILESIZE,CHECKSUM,ITIME,COMMENT_STR) " .
-               "VALUES ('$filename','$pathname',$nevents,$filesize,'$checksum'," . 
+               "FILENAME,PATHNAME,DESTINATION,NEVENTS,FILESIZE,CHECKSUM,ITIME,COMMENT_STR) " .
+               "VALUES ('$filename','$pathname','$destination',$nevents,$filesize,'$checksum'," . 
                "TO_DATE('$injecttime','YYYY-MM-DD HH24:MI:SS'),'$comment')";
 
 $debug && print "SQL commands:\n $SQLcreate \n $SQLinject \n";
