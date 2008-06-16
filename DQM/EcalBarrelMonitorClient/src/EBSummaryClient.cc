@@ -109,6 +109,40 @@ void EBSummaryClient::beginJob(DQMStore* dqmStore){
   ievt_ = 0;
   jevt_ = 0;
 
+  // summary for DQM GUI
+
+  char histo[200];
+
+  MonitorElement* me;
+
+  dqmStore_->setCurrentFolder( prefixME_ + "/EventInfo" );
+
+  sprintf(histo, "reportSummary");
+  if ( me = dqmStore_->get(prefixME_ + "/EventInfo/" + histo) ) {
+    dqmStore_->removeElement(me->getName());
+  }
+  me = dqmStore_->bookFloat(histo);
+
+  dqmStore_->setCurrentFolder( prefixME_ + "/EventInfo/reportSummaryContents" );
+
+  for (int i = 0; i < 36; i++) {
+    sprintf(histo, "status %s", Numbers::sEB(i+1).c_str());
+    if ( me = dqmStore_->get(prefixME_ + "/EventInfo/reportSummaryContents/" + histo) ) {
+      dqmStore_->removeElement(me->getName());
+    }
+    me = dqmStore_->bookFloat(histo);
+  }
+
+  dqmStore_->setCurrentFolder( prefixME_ + "/EventInfo" );
+
+  sprintf(histo, "reportSummaryMap");
+  if ( me = dqmStore_->get(prefixME_ + "/EventInfo/" + histo) ) {
+    dqmStore_->removeElement(me->getName());
+  }
+  me = dqmStore_->book2D(histo, histo, 72, 0., 72., 34, 0., 34);
+  me->setAxisTitle("jphi", 1);
+  me->setAxisTitle("jeta", 2);
+
 }
 
 void EBSummaryClient::beginRun(void){
@@ -126,24 +160,6 @@ void EBSummaryClient::endJob(void) {
   if ( debug_ ) cout << "EBSummaryClient: endJob, ievt = " << ievt_ << endl;
 
   this->cleanup();
-
-  // summary for DQM GUI
-
-  MonitorElement* me;
-
-  if ( me = dqmStore_->get(prefixME_ + "/EventInfo/reportSummary") ) {
-    dqmStore_->removeElement(me->getName());
-  }
-
-  for (int i = 0; i < 36; i++) {
-    if ( me = dqmStore_->get(prefixME_ + "/EventInfo/reportSummaryContents/status " + Numbers::sEB(i+1)) ) {
-      dqmStore_->removeElement(me->getName());
-    }
-  }
-
-  if ( me = dqmStore_->get(prefixME_ + "/EventInfo/reportSummaryMap") ) {
-    dqmStore_->removeElement(me->getName());
-  }
 
 }
 
