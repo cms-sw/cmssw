@@ -65,6 +65,7 @@ namespace popcon
 		public:
                         EcalPedestalsHandler(edm::ParameterSet const & );
 			~EcalPedestalsHandler(); 
+			bool checkPedestal(EcalPedestals::Item* item);
 			void getNewObjects();
 			void getNewObjectsP5();
 			void getNewObjectsH2();

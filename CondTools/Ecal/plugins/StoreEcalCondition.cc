@@ -611,7 +611,6 @@ int StoreEcalCondition::convertFromConstructionSMToSlot(int sm_constr,int sm_slo
   return result;
 }
 
-
 //-------------------------------------------------------------
 EcalGainRatios*
 StoreEcalCondition::readEcalGainRatiosFromFile(const char* inputFile) {
@@ -620,6 +619,7 @@ StoreEcalCondition::readEcalGainRatiosFromFile(const char* inputFile) {
   // create gain ratios
   EcalGainRatios* gratio = new EcalGainRatios;
     
+
     FILE *inpFile; // input file
     inpFile = fopen(inputFile,"r");
     if(!inpFile) {
@@ -631,8 +631,16 @@ StoreEcalCondition::readEcalGainRatiosFromFile(const char* inputFile) {
     std::ostringstream str;
               
     fgets(line,255,inpFile);
-    int sm_number=atoi(line);
+    string sm_or_all=to_string(line);
+    int sm_number=0;
+    int nchan=1700;
+    sm_number=atoi(line);
     str << "sm= " << sm_number << endl ;  
+    if(sm_number!=-1){
+      nchan=1700;
+    } else {
+      nchan=61200;
+    }
 
     fgets(line,255,inpFile);
     //int nevents=atoi(line);
@@ -657,44 +665,112 @@ StoreEcalCondition::readEcalGainRatiosFromFile(const char* inputFile) {
 
     edm::LogInfo("StoreEcalCondition") << "GainRatio file " << str.str() ;
 
-    int cry_num[1700]={0};
-    float g1_g12[1700]={0};
-    float g6_g12[1700]={0};
-    int calib_status[1700]={0};
+
+
+    int cry_num[61200]={0};
+    float g1_g12[61200]={0};
+    float g6_g12[61200]={0};
+    int calib_status[61200]={0};
     int dummy1=0;
     int dummy2=0;
+    int hash1=0;
 
     int ii = 0;
 
+    if(sm_number!=-1){
+      while(fgets(line,255,inpFile)) {
+	sscanf(line, "%d %d %d %f %f %d", &dummy1, &dummy2, &cry_num[ii], &g1_g12[ii], &g6_g12[ii], &calib_status[ii] );
+	ii++ ;
+      } 
 
-    while(fgets(line,255,inpFile)) {
-      sscanf(line, "%d %d %d %f %f %d", &dummy1, &dummy2, &cry_num[ii], &g1_g12[ii], &g6_g12[ii], &calib_status[ii] );
-//       if(ii<10){
-// 	cout << "cry="<<cry_num[ii]<<" gains="
-// 	     <<g1_g12[ii]<< "and "<< g6_g12[ii]<<endl;
-//       }
-      ii++ ;
+    
+      fclose(inpFile);           // close inp. file
+
+
+
+      edm::LogInfo("StoreEcalCondition") << "Read gainRatios for " << ii << " xtals " ;
+      if(ii!=1700) edm::LogWarning("StoreEcalCondition") << " Missing crystals:: missing channels will be set to 0" << endl;
+      
+      // Get channel ID 
+      sm_constr_ = sm_number;
+      
+      for(int i=0; i<1700; i++){
+	// EBDetId(int index1, int index2, int mode = ETAPHIMODE)
+	// sm and crys index SMCRYSTALMODE index1 is SM index2 is crystal number a la H4
+	EBDetId ebid(sm_slot_,cry_num[i],EBDetId::SMCRYSTALMODE);
+	// cout << "ebid.rawId()"<< ebid.rawId()<< endl;
+	EcalMGPAGainRatio gr;
+	gr.setGain12Over6( g6_g12[i] );
+	gr.setGain6Over1(g1_g12[i]/g6_g12[i]);
+	gratio->setValue( ebid.rawId(), gr );
+      } // loop over channels 
+      
+      
+
+      
+
+
+    } else {
+      // this is for the whole Barrel 
+      cout<<"mode ALL BARREL" <<endl; 
+      while(fgets(line,255,inpFile)) {
+	int eta=0; 
+	int phi=0;
+	sscanf(line, "%d %d %d %f %f",&hash1, &eta, &phi, &g1_g12[ii], &g6_g12[ii]);
+	if(ii<20) cout<<"crystal eta/phi="<<eta<<"/"<<phi<<" g1_12/g6_12= "<< g1_g12[ii]<<"/"<<g6_g12[ii]<<endl;
+
+	if(g1_g12[ii]<9 || g1_g12[ii]>15 ) g1_g12[ii]=12.0;
+	if(g6_g12[ii]<1 || g6_g12[ii]>3 ) g6_g12[ii]=2.0;
+
+	if(eta<-85|| eta>85 || eta==0) std::cout<<"error!!!"<<endl;
+	if(phi<1 || phi>360) std::cout<<"error!!!"<<endl;
+
+	EBDetId ebid(eta, phi,EBDetId::ETAPHIMODE);
+	EcalMGPAGainRatio gr;
+	gr.setGain12Over6( g6_g12[ii] );
+	gr.setGain6Over1(g1_g12[ii]/g6_g12[ii]);
+	gratio->setValue( ebid.rawId(), gr );
+	
+	ii++ ;
+      }
+    
+      fclose(inpFile);           // close inp. file
+      if(ii!=61200) edm::LogWarning("StoreEcalCondition") << " Missing crystals !!!!!!!" << endl;
+      
+      std::cout<< "number of crystals read:"<<ii<<endl;
+
     }
-    
-    
-    fclose(inpFile);           // close inp. file
 
-    edm::LogInfo("StoreEcalCondition") << "Read gainRatios for " << ii << " xtals " ;
-    if(ii!=1700) edm::LogWarning("StoreEcalCondition") << " Missing crystals:: missing channels will be set to 0" << endl;
 
-    // Get channel ID 
-    sm_constr_ = sm_number;
 
-    for(int i=0; i<1700; i++){
-      // EBDetId(int index1, int index2, int mode = ETAPHIMODE)
-      // sm and crys index SMCRYSTALMODE index1 is SM index2 is crystal number a la H4
-      EBDetId ebid(sm_slot_,cry_num[i],EBDetId::SMCRYSTALMODE);
-      // cout << "ebid.rawId()"<< ebid.rawId()<< endl;
-      EcalMGPAGainRatio gr;
-      gr.setGain12Over6( g6_g12[i] );
-      gr.setGain6Over1(g1_g12[i]/g6_g12[i]);
-      gratio->setValue( ebid.rawId(), gr );
-    } // loop over channels 
+    for(int iX=EEDetId::IX_MIN; iX<=EEDetId::IX_MAX ;++iX) {
+      for(int iY=EEDetId::IY_MIN; iY<=EEDetId::IY_MAX; ++iY) {
+	// make an EEDetId since we need EEDetId::rawId() to be used as the key for the pedestals
+	EcalMGPAGainRatio gr;
+	gr.setGain12Over6( 2. );
+	gr.setGain6Over1( 6. );
+
+
+	if (EEDetId::validDetId(iX,iY,1))
+	  {
+	    EEDetId eedetidpos(iX,iY,1);
+	    gratio->setValue( eedetidpos.rawId(), gr );
+	  }
+	if (EEDetId::validDetId(iX,iY,-1))
+	  {
+	    EEDetId eedetidneg(iX,iY,-1);
+	    gratio->setValue( eedetidneg.rawId(), gr );
+	  }
+      }
+    }
+  
+
+    std::cout <<" gratio pointer="<<gratio<<endl;
+
+
+
+    std::cout<< "now leaving"<<endl;
+
 
 
     return gratio;
