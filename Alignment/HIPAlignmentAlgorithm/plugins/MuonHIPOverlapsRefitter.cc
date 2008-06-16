@@ -13,7 +13,7 @@
 //
 // Original Author:  Jim Pivarski
 //         Created:  Wed Dec 12 13:31:55 CST 2007
-// $Id: MuonHIPOverlapsRefitter.cc,v 1.7 2008/06/11 23:24:57 pivarski Exp $
+// $Id: MuonHIPOverlapsRefitter.cc,v 1.8 2008/06/11 23:35:58 pivarski Exp $
 //
 //
 
@@ -498,6 +498,7 @@ MuonHIPOverlapsRefitter::filter(edm::Event& iEvent, const edm::EventSetup& iSetu
    iEvent.put(trajTrackMap);
 
    if (m_filter) {
+      if (m_filter) m_passing_cuts++;
       return (tracklets > 0);
    }
    m_passing_cuts++;
