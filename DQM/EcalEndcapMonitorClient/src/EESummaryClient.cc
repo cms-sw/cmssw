@@ -1,8 +1,8 @@
 /*
  * \file EESummaryClient.cc
  *
- * $Date: 2008/06/05 16:02:43 $
- * $Revision: 1.133 $
+ * $Date: 2008/06/16 20:10:11 $
+ * $Revision: 1.134 $
  * \author G. Della Ricca
  *
 */
@@ -147,6 +147,7 @@ void EESummaryClient::beginJob(DQMStore* dqmStore){
     dqmStore_->removeElement(me->getName());
   }
   me = dqmStore_->bookFloat(histo);
+  me->Fill(-1.0);
 
   dqmStore_->setCurrentFolder( prefixME_ + "/EventInfo/reportSummaryContents" );
 
@@ -156,6 +157,7 @@ void EESummaryClient::beginJob(DQMStore* dqmStore){
       dqmStore_->removeElement(me->getName());
     }
     me = dqmStore_->bookFloat(histo);
+    me->Fill(-1.0);
   }
 
   dqmStore_->setCurrentFolder( prefixME_ + "/EventInfo" );
@@ -165,6 +167,13 @@ void EESummaryClient::beginJob(DQMStore* dqmStore){
     dqmStore_->removeElement(me->getName());
   }
   me = dqmStore_->book2D(histo, histo, 40, 0., 40., 20, 0., 20);
+  for ( int jxdcc = 0; jxdcc < 20; jxdcc++ ) {
+    for ( int jydcc = 0; jydcc < 20; jydcc++ ) {
+      for ( int iside = 0; iside < 2; iside++ ) {
+        me->setBinContent( 20*iside+jxdcc+1, jydcc+1, -1.0 );
+      }
+    }
+  }
   me->setAxisTitle("jx", 1);
   me->setAxisTitle("jy", 2);
 

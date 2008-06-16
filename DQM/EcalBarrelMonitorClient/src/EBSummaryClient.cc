@@ -1,8 +1,8 @@
 /*
  * \file EBSummaryClient.cc
  *
- * $Date: 2008/06/02 19:03:52 $
- * $Revision: 1.152 $
+ * $Date: 2008/06/16 20:21:48 $
+ * $Revision: 1.154 $
  * \author G. Della Ricca
  *
 */
@@ -122,6 +122,7 @@ void EBSummaryClient::beginJob(DQMStore* dqmStore){
     dqmStore_->removeElement(me->getName());
   }
   me = dqmStore_->bookFloat(histo);
+  me->Fill(-1.0);
 
   dqmStore_->setCurrentFolder( prefixME_ + "/EventInfo/reportSummaryContents" );
 
@@ -131,6 +132,7 @@ void EBSummaryClient::beginJob(DQMStore* dqmStore){
       dqmStore_->removeElement(me->getName());
     }
     me = dqmStore_->bookFloat(histo);
+    me->Fill(-1.0);
   }
 
   dqmStore_->setCurrentFolder( prefixME_ + "/EventInfo" );
@@ -140,6 +142,11 @@ void EBSummaryClient::beginJob(DQMStore* dqmStore){
     dqmStore_->removeElement(me->getName());
   }
   me = dqmStore_->book2D(histo, histo, 72, 0., 72., 34, 0., 34);
+  for ( int iettx = 0; iettx < 34; iettx++ ) {
+    for ( int ipttx = 0; ipttx < 72; ipttx++ ) {
+      me->setBinContent( ipttx+1, iettx+1, -1.0 );
+    }
+  }
   me->setAxisTitle("jphi", 1);
   me->setAxisTitle("jeta", 2);
 
