@@ -112,9 +112,6 @@ class MuonSegmentEff : public edm::EDAnalyzer {
       std::map<DTStationIndex,std::set<RPCDetId> > rollstoreDT;
       std::map<CSCStationIndex,std::set<RPCDetId> > rollstoreCSC;    
 
-      
-
-      
    private:
 
       std::vector<std::map<RPCDetId, int> > counter;
@@ -125,6 +122,8 @@ class MuonSegmentEff : public edm::EDAnalyzer {
       bool incldtMB4;
       bool inclcsc;
       bool prodImages;
+      bool calcEffi;
+      bool mydqm;
       double MinimalResidual;
       double MinimalResidualRB4;
       double MinCosAng;
@@ -142,7 +141,6 @@ class MuonSegmentEff : public edm::EDAnalyzer {
       //Giuseppe
       std::map<std::string, std::map<std::string, MonitorElement*> >  meCollection;
       bool EffSaveRootFile;
-      bool calculateEfficiency;
       int  EffSaveRootFileEventsInterval;
       std::string EffRootFileName;
       std::string nameInLog;
@@ -152,6 +150,9 @@ class MuonSegmentEff : public edm::EDAnalyzer {
       //GLOBAL
       std::string GlobalRootLabel;
       TFile* fOutputFile;
+
+      TH1F* mydqmHbxdistro;
+      TH1F* mydqmHdigisdistro;
 
       TH1F* hGlobalRes;
       TH1F* statistics;

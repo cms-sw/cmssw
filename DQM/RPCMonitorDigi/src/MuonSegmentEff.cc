@@ -43,7 +43,7 @@ camilo.carrilloATcern.ch
 
 void MuonSegmentEff::beginJob(const edm::EventSetup& iSetup){
   std::cout<<"Begin beginJob"<<std::endl;
-
+  
   std::cout <<"\t Getting the RPC Geometry"<<std::endl;
   edm::ESHandle<RPCGeometry> rpcGeo;
   iSetup.get<MuonGeometryRecord>().get(rpcGeo);
@@ -121,6 +121,8 @@ MuonSegmentEff::MuonSegmentEff(const edm::ParameterSet& iConfig){
   incldtMB4=iConfig.getUntrackedParameter<bool>("incldtMB4",true);
   inclcsc=iConfig.getUntrackedParameter<bool>("inclcsc",true);
   prodImages=iConfig.getUntrackedParameter<bool>("prodImages",false);
+  calcEffi=iConfig.getUntrackedParameter<bool>("calcEffi",true);
+  mydqm=iConfig.getUntrackedParameter<bool>("mydqm",true);
   MinimalResidual= iConfig.getUntrackedParameter<double>("MinimalResidual",2.);
   MinimalResidualRB4=iConfig.getUntrackedParameter<double>("MinimalResidualRB4",4.);
   MinCosAng=iConfig.getUntrackedParameter<double>("MinCosAng",0.9999);
@@ -155,6 +157,11 @@ MuonSegmentEff::MuonSegmentEff(const edm::ParameterSet& iConfig){
   
   fOutputFile  = new TFile(GlobalRootLabel.c_str(), "RECREATE" );
 
+  if(mydqm){
+    mydqmHbxdistro = new TH1F("BXDistribution","Bunch Crossing Distribution",11,-5.5,5.5);
+    mydqmHdigisdistro = new TH1F("DigisDistribution","Number of Digis per event",20,-0.5,20.5);
+  }
+
   hGlobalRes = new TH1F("GlobalResiduals","All RPC Residuals",250,-10.,10.);
   statistics = new TH1F("Statistics","All Statistics",20,0.5,20.5);
 
@@ -179,7 +186,6 @@ MuonSegmentEff::MuonSegmentEff(const edm::ParameterSet& iConfig){
   hGlobalResClu2La5 = new TH1F("GlobalResidualsClu2La5","RPC Residuals Layer 5 Cluster Size 2",250,-10.,10.);
   hGlobalResClu2La6 = new TH1F("GlobalResidualsClu2La6","RPC Residuals Layer 6 Cluster Size 2",250,-10.,10.);
 
-
   hGlobalResClu3La1 = new TH1F("GlobalResidualsClu3La1","RPC Residuals Layer 1 Cluster Size 3",250,-10.,10.);
   hGlobalResClu3La2 = new TH1F("GlobalResidualsClu3La2","RPC Residuals Layer 2 Cluster Size 3",250,-10.,10.);
   hGlobalResClu3La3 = new TH1F("GlobalResidualsClu3La3","RPC Residuals Layer 3 Cluster Size 3",250,-10.,10.);
@@ -197,9 +203,9 @@ MuonSegmentEff::MuonSegmentEff(const edm::ParameterSet& iConfig){
   hGlobalYResLa6 = new TH1F("GlobalYResidualsLa6","RPC Residuals in Y Layer 6",250,-60.,60.);
   
   //wheel-2
-  OGlobWm2 = new TH1F("GlobOcupancyWheel_-2","Global Ocupancy Wheel -2",240,0.5,240.5);
-  PGlobWm2 = new TH1F("GlobExpectedWheel_-2","Global Expected Wheel -2",240,0.5,240.5);
-  EffGlobWm2 = new TH1F("GlobEfficiencyWheel_-2","Global Efficiency Wheel -2",240,0.5,240.5);
+  OGlobWm2 = new TH1F("GlobOcupancyWheel_-2","Global Ocupancy Wheel -2",205,0.5,205.5);
+  PGlobWm2 = new TH1F("GlobExpectedWheel_-2","Global Expected Wheel -2",205,0.5,205.5);
+  EffGlobWm2 = new TH1F("GlobEfficiencyWheel_-2","Global Efficiency Wheel -2",205,0.5,205.5);
   EffGlobm2s1 = new TH1F("GlobEfficiencyWheel_m2_Sec1","Eff. vs. roll",20,0.5,20.5);
   EffGlobm2s2 = new TH1F("GlobEfficiencyWheel_m2_Sec2","Eff. vs. roll",20,0.5,20.5);
   EffGlobm2s3 = new TH1F("GlobEfficiencyWheel_m2_Sec3","Eff. vs. roll",20,0.5,20.5);
@@ -214,9 +220,9 @@ MuonSegmentEff::MuonSegmentEff(const edm::ParameterSet& iConfig){
   EffGlobm2s12 = new TH1F("GlobEfficiencyWheel_m2_Sec12","Eff. vs. roll",20,0.5,20.5);
 
   //wheel-1
-  OGlobWm1 = new TH1F("GlobOcupancyWheel_-1","Global Ocupancy Wheel -1",240,0.5,240.5);
-  PGlobWm1 = new TH1F("GlobExpectedWheel_-1","Global Expected Wheel -1",240,0.5,240.5);
-  EffGlobWm1 = new TH1F("GlobEfficiencyWheel_-1","Global Efficiency Wheel -1",240,0.5,240.5);
+  OGlobWm1 = new TH1F("GlobOcupancyWheel_-1","Global Ocupancy Wheel -1",205,0.5,205.5);
+  PGlobWm1 = new TH1F("GlobExpectedWheel_-1","Global Expected Wheel -1",205,0.5,205.5);
+  EffGlobWm1 = new TH1F("GlobEfficiencyWheel_-1","Global Efficiency Wheel -1",205,0.5,205.5);
   EffGlobm1s1 = new TH1F("GlobEfficiencyWheel_m1_Sec1","Eff. vs. roll",20,0.5,20.5);
   EffGlobm1s2 = new TH1F("GlobEfficiencyWheel_m1_Sec2","Eff. vs. roll",20,0.5,20.5);
   EffGlobm1s3 = new TH1F("GlobEfficiencyWheel_m1_Sec3","Eff. vs. roll",20,0.5,20.5);
@@ -231,9 +237,9 @@ MuonSegmentEff::MuonSegmentEff(const edm::ParameterSet& iConfig){
   EffGlobm1s12 = new TH1F("GlobEfficiencyWheel_m1_Sec12","Eff. vs. roll",20,0.5,20.5);
   
   //wheel0
-  OGlobW0 = new TH1F("GlobOcupancyWheel_0","Global Ocupancy Wheel 0",240,0.5,240.5);
-  PGlobW0 = new TH1F("GlobExpectedWheel_0","Global Expected Wheel 0",240,0.5,240.5);
-  EffGlobW0 = new TH1F("GlobEfficiencyWheel_0","Global Efficiency Wheel 0",240,0.5,240.5);
+  OGlobW0 = new TH1F("GlobOcupancyWheel_0","Global Ocupancy Wheel 0",205,0.5,205.5);
+  PGlobW0 = new TH1F("GlobExpectedWheel_0","Global Expected Wheel 0",205,0.5,205.5);
+  EffGlobW0 = new TH1F("GlobEfficiencyWheel_0","Global Efficiency Wheel 0",205,0.5,205.5);
   EffGlob1 = new TH1F("GlobEfficiencyWheel_0_Sec1","Eff. vs. roll",20,0.5,20.5);
   EffGlob2 = new TH1F("GlobEfficiencyWheel_0_Sec2","Eff. vs. roll",20,0.5,20.5);
   EffGlob3 = new TH1F("GlobEfficiencyWheel_0_Sec3","Eff. vs. roll",20,0.5,20.5);
@@ -248,9 +254,9 @@ MuonSegmentEff::MuonSegmentEff(const edm::ParameterSet& iConfig){
   EffGlob12 = new TH1F("GlobEfficiencyWheel_0_Sec12","Eff. vs. roll",20,0.5,20.5);
 
   //wheel1
-  OGlobW1 = new TH1F("GlobOcupancyWheel_1","Global Ocupancy Wheel 1",240,0.5,240.5);
-  PGlobW1 = new TH1F("GlobExpectedWheel_1","Global Expected Wheel 1",240,0.5,240.5);
-  EffGlobW1 = new TH1F("GlobEfficiencyWheel_1","Global Efficiency Wheel 1",240,0.5,240.5);
+  OGlobW1 = new TH1F("GlobOcupancyWheel_1","Global Ocupancy Wheel 1",205,0.5,205.5);
+  PGlobW1 = new TH1F("GlobExpectedWheel_1","Global Expected Wheel 1",205,0.5,205.5);
+  EffGlobW1 = new TH1F("GlobEfficiencyWheel_1","Global Efficiency Wheel 1",205,0.5,205.5);
   EffGlob1s1 = new TH1F("GlobEfficiencyWheel_1_Sec1","Eff. vs. roll",20,0.5,20.5);
   EffGlob1s2 = new TH1F("GlobEfficiencyWheel_1_Sec2","Eff. vs. roll",20,0.5,20.5);
   EffGlob1s3 = new TH1F("GlobEfficiencyWheel_1_Sec3","Eff. vs. roll",20,0.5,20.5);
@@ -265,9 +271,9 @@ MuonSegmentEff::MuonSegmentEff(const edm::ParameterSet& iConfig){
   EffGlob1s12 = new TH1F("GlobEfficiencyWheel_1_Sec12","Eff. vs. roll",20,0.5,20.5);
   
   //wheel2
-  OGlobW2 = new TH1F("GlobOcupancyWheel_2","Global Ocupancy Wheel 2",240,0.5,240.5);
-  PGlobW2 = new TH1F("GlobExpectedWheel_2","Global Expected Wheel 2",240,0.5,240.5);
-  EffGlobW2 = new TH1F("GlobEfficiencyWheel_2","Global Efficiency Wheel 2",240,0.5,240.5);
+  OGlobW2 = new TH1F("GlobOcupancyWheel_2","Global Ocupancy Wheel 2",205,0.5,205.5);
+  PGlobW2 = new TH1F("GlobExpectedWheel_2","Global Expected Wheel 2",205,0.5,205.5);
+  EffGlobW2 = new TH1F("GlobEfficiencyWheel_2","Global Efficiency Wheel 2",205,0.5,205.5);
   EffGlob2s1 = new TH1F("GlobEfficiencyWheel_2_Sec1","Eff. vs. roll",20,0.5,20.5);
   EffGlob2s2 = new TH1F("GlobEfficiencyWheel_2_Sec2","Eff. vs. roll",20,0.5,20.5);
   EffGlob2s3 = new TH1F("GlobEfficiencyWheel_2_Sec3","Eff. vs. roll",20,0.5,20.5);
@@ -313,6 +319,9 @@ MuonSegmentEff::~MuonSegmentEff()
   statistics->GetXaxis()->LabelsOption("v"); fOutputFile->WriteTObject(statistics);
   //--------------------------------------
   
+  fOutputFile->WriteTObject(mydqmHdigisdistro);
+  fOutputFile->WriteTObject(mydqmHbxdistro);
+
   fOutputFile->WriteTObject(hGlobalResLa1);
   fOutputFile->WriteTObject(hGlobalResLa2);
   fOutputFile->WriteTObject(hGlobalResLa3);
@@ -350,125 +359,96 @@ MuonSegmentEff::~MuonSegmentEff()
   fOutputFile->WriteTObject(hGlobalResClu3La5);
   fOutputFile->WriteTObject(hGlobalResClu3La6);
   
-
   //wheel-2
   std::cout<<"Writing PGlobWm2"<<std::endl;
-  fOutputFile->WriteTObject(PGlobWm2); 
-  OGlobWm2->GetXaxis()->LabelsOption("v"); 
-  std::cout<<"Writing OGlobWm2"<<std::endl;
-  PGlobWm2->GetXaxis()->LabelsOption("v"); 
-  fOutputFile->WriteTObject(OGlobWm2); 
-  std::cout<<"Writing EffGlobWm2"<<std::endl;
-  EffGlobWm2->GetXaxis()->LabelsOption("v");
-  fOutputFile->WriteTObject(EffGlobWm2);  
-  std::cout<<"Writing EffGlobm2s1"<<std::endl;
-  EffGlobm2s1->GetXaxis()->LabelsOption("v");
-  fOutputFile->WriteTObject(EffGlobm2s1);
-  std::cout<<"Writing EffGlobm2s2"<<std::endl;
-  EffGlobm2s2->GetXaxis()->LabelsOption("v");
-  fOutputFile->WriteTObject(EffGlobm2s2);
-  std::cout<<"Writing EffGlobm2s3"<<std::endl;
-  EffGlobm2s3->GetXaxis()->LabelsOption("v");
-  fOutputFile->WriteTObject(EffGlobm2s3);
-  std::cout<<"Writing EffGlobm2s4"<<std::endl;
-  EffGlobm2s4->GetXaxis()->LabelsOption("v");
-  fOutputFile->WriteTObject(EffGlobm2s4);
-  std::cout<<"Writing EffGlobm2s5"<<std::endl;
-  EffGlobm2s5->GetXaxis()->LabelsOption("v");
-  fOutputFile->WriteTObject(EffGlobm2s5);
-  std::cout<<"Writing EffGlobm2s6"<<std::endl;
-  EffGlobm2s6->GetXaxis()->LabelsOption("v");
-  fOutputFile->WriteTObject(EffGlobm2s6);
-  std::cout<<"Writing EffGlobm2s7"<<std::endl;
-  EffGlobm2s7->GetXaxis()->LabelsOption("v");
-  fOutputFile->WriteTObject(EffGlobm2s7);
-  std::cout<<"Writing EffGlobm2s8"<<std::endl;
-  EffGlobm2s8->GetXaxis()->LabelsOption("v");
-  fOutputFile->WriteTObject(EffGlobm2s8);
-  std::cout<<"Writing EffGlobm2s9"<<std::endl;
-  EffGlobm2s9->GetXaxis()->LabelsOption("v");
-  fOutputFile->WriteTObject(EffGlobm2s9); 
-  std::cout<<"Writing EffGlobm2s10"<<std::endl;
-  EffGlobm2s10->GetXaxis()->LabelsOption("v");
-  fOutputFile->WriteTObject(EffGlobm2s10);
-  std::cout<<"Writing EffGlobm2s11"<<std::endl;
-  EffGlobm2s11->GetXaxis()->LabelsOption("v");
-  fOutputFile->WriteTObject(EffGlobm2s11);
-  std::cout<<"Writing EffGlobm2s12"<<std::endl;
-  EffGlobm2s12->GetXaxis()->LabelsOption("v");
-  fOutputFile->WriteTObject(EffGlobm2s12);
+  
+  OGlobWm2->GetXaxis()->LabelsOption("v"); fOutputFile->WriteTObject(PGlobWm2);
+  PGlobWm2->GetXaxis()->LabelsOption("v"); fOutputFile->WriteTObject(OGlobWm2); 
+  EffGlobWm2->GetXaxis()->LabelsOption("v");   fOutputFile->WriteTObject(EffGlobWm2);  
+  EffGlobm2s1->GetXaxis()->LabelsOption("v"); fOutputFile->WriteTObject(EffGlobm2s1);
+  EffGlobm2s2->GetXaxis()->LabelsOption("v"); fOutputFile->WriteTObject(EffGlobm2s2);
+  EffGlobm2s3->GetXaxis()->LabelsOption("v"); fOutputFile->WriteTObject(EffGlobm2s3);
+  EffGlobm2s4->GetXaxis()->LabelsOption("v"); fOutputFile->WriteTObject(EffGlobm2s4);
+  EffGlobm2s5->GetXaxis()->LabelsOption("v"); fOutputFile->WriteTObject(EffGlobm2s5);
+  EffGlobm2s6->GetXaxis()->LabelsOption("v"); fOutputFile->WriteTObject(EffGlobm2s6);
+  EffGlobm2s7->GetXaxis()->LabelsOption("v"); fOutputFile->WriteTObject(EffGlobm2s7);
+  EffGlobm2s8->GetXaxis()->LabelsOption("v"); fOutputFile->WriteTObject(EffGlobm2s8);
+  EffGlobm2s9->GetXaxis()->LabelsOption("v"); fOutputFile->WriteTObject(EffGlobm2s9);  
+  EffGlobm2s10->GetXaxis()->LabelsOption("v"); fOutputFile->WriteTObject(EffGlobm2s10);
+  EffGlobm2s11->GetXaxis()->LabelsOption("v"); fOutputFile->WriteTObject(EffGlobm2s11);
+  EffGlobm2s12->GetXaxis()->LabelsOption("v"); fOutputFile->WriteTObject(EffGlobm2s12);
 
   //wheel-1
   std::cout<<"Writing PGlobWm1"<<std::endl;
-  fOutputFile->WriteTObject(PGlobWm1); OGlobWm1->GetXaxis()->LabelsOption("v"); 
-  fOutputFile->WriteTObject(OGlobWm1); PGlobWm1->GetXaxis()->LabelsOption("v"); 
-  fOutputFile->WriteTObject(EffGlobWm1);  EffGlobWm1->GetXaxis()->LabelsOption("v");
-  fOutputFile->WriteTObject(EffGlobm1s1); EffGlobm1s1->GetXaxis()->LabelsOption("v");
-  fOutputFile->WriteTObject(EffGlobm1s2); EffGlobm1s2->GetXaxis()->LabelsOption("v");
-  fOutputFile->WriteTObject(EffGlobm1s3); EffGlobm1s3->GetXaxis()->LabelsOption("v");
-  fOutputFile->WriteTObject(EffGlobm1s4); EffGlobm1s4->GetXaxis()->LabelsOption("v");
-  fOutputFile->WriteTObject(EffGlobm1s5); EffGlobm1s5->GetXaxis()->LabelsOption("v");
-  fOutputFile->WriteTObject(EffGlobm1s6); EffGlobm1s6->GetXaxis()->LabelsOption("v");
-  fOutputFile->WriteTObject(EffGlobm1s7); EffGlobm1s7->GetXaxis()->LabelsOption("v");
-  fOutputFile->WriteTObject(EffGlobm1s8); EffGlobm1s8->GetXaxis()->LabelsOption("v");
-  fOutputFile->WriteTObject(EffGlobm1s9); EffGlobm1s9->GetXaxis()->LabelsOption("v");
-  fOutputFile->WriteTObject(EffGlobm1s10); EffGlobm1s10->GetXaxis()->LabelsOption("v"); 
-  fOutputFile->WriteTObject(EffGlobm1s11); EffGlobm1s11->GetXaxis()->LabelsOption("v");
-  fOutputFile->WriteTObject(EffGlobm1s12); EffGlobm1s12->GetXaxis()->LabelsOption("v");
+  OGlobWm1->GetXaxis()->LabelsOption("v"); fOutputFile->WriteTObject(PGlobWm1); 
+  PGlobWm1->GetXaxis()->LabelsOption("v"); fOutputFile->WriteTObject(OGlobWm1); 
+  EffGlobWm1->GetXaxis()->LabelsOption("v"); fOutputFile->WriteTObject(EffGlobWm1);  
+  EffGlobm1s1->GetXaxis()->LabelsOption("v");fOutputFile->WriteTObject(EffGlobm1s1); 
+  EffGlobm1s2->GetXaxis()->LabelsOption("v");fOutputFile->WriteTObject(EffGlobm1s2); 
+  EffGlobm1s3->GetXaxis()->LabelsOption("v");fOutputFile->WriteTObject(EffGlobm1s3); 
+  EffGlobm1s4->GetXaxis()->LabelsOption("v");fOutputFile->WriteTObject(EffGlobm1s4); 
+  EffGlobm1s5->GetXaxis()->LabelsOption("v");fOutputFile->WriteTObject(EffGlobm1s5); 
+  EffGlobm1s6->GetXaxis()->LabelsOption("v");fOutputFile->WriteTObject(EffGlobm1s6); 
+  EffGlobm1s7->GetXaxis()->LabelsOption("v");fOutputFile->WriteTObject(EffGlobm1s7); 
+  EffGlobm1s8->GetXaxis()->LabelsOption("v");fOutputFile->WriteTObject(EffGlobm1s8); 
+  EffGlobm1s9->GetXaxis()->LabelsOption("v");fOutputFile->WriteTObject(EffGlobm1s9); 
+  EffGlobm1s10->GetXaxis()->LabelsOption("v");fOutputFile->WriteTObject(EffGlobm1s10);  
+  EffGlobm1s11->GetXaxis()->LabelsOption("v");fOutputFile->WriteTObject(EffGlobm1s11); 
+  EffGlobm1s12->GetXaxis()->LabelsOption("v");fOutputFile->WriteTObject(EffGlobm1s12); 
   
   //wheel0
   std::cout<<"Writing PGlobW0"<<std::endl;
-  fOutputFile->WriteTObject(PGlobW0); OGlobW0->GetXaxis()->LabelsOption("v"); 
-  fOutputFile->WriteTObject(OGlobW0); PGlobW0->GetXaxis()->LabelsOption("v"); 
-  fOutputFile->WriteTObject(EffGlobW0); EffGlobW0->GetXaxis()->LabelsOption("v");
-  fOutputFile->WriteTObject(EffGlob1); EffGlob1->GetXaxis()->LabelsOption("v");
-  fOutputFile->WriteTObject(EffGlob2); EffGlob2->GetXaxis()->LabelsOption("v");
-  fOutputFile->WriteTObject(EffGlob3); EffGlob3->GetXaxis()->LabelsOption("v");
-  fOutputFile->WriteTObject(EffGlob4); EffGlob4->GetXaxis()->LabelsOption("v");
-  fOutputFile->WriteTObject(EffGlob5); EffGlob5->GetXaxis()->LabelsOption("v");
-  fOutputFile->WriteTObject(EffGlob6); EffGlob6->GetXaxis()->LabelsOption("v");
-  fOutputFile->WriteTObject(EffGlob7); EffGlob7->GetXaxis()->LabelsOption("v");
-  fOutputFile->WriteTObject(EffGlob8); EffGlob8->GetXaxis()->LabelsOption("v");
-  fOutputFile->WriteTObject(EffGlob9); EffGlob9->GetXaxis()->LabelsOption("v");
-  fOutputFile->WriteTObject(EffGlob10); EffGlob10->GetXaxis()->LabelsOption("v");
-  fOutputFile->WriteTObject(EffGlob11);	EffGlob11->GetXaxis()->LabelsOption("v");
-  fOutputFile->WriteTObject(EffGlob12);	EffGlob12->GetXaxis()->LabelsOption("v");
+  OGlobW0->GetXaxis()->LabelsOption("v"); fOutputFile->WriteTObject(PGlobW0); 
+  PGlobW0->GetXaxis()->LabelsOption("v"); fOutputFile->WriteTObject(OGlobW0); 
+  EffGlobW0->GetXaxis()->LabelsOption("v");fOutputFile->WriteTObject(EffGlobW0);
+  EffGlob1->GetXaxis()->LabelsOption("v"); fOutputFile->WriteTObject(EffGlob1); 
+  EffGlob2->GetXaxis()->LabelsOption("v"); fOutputFile->WriteTObject(EffGlob2); 
+  EffGlob3->GetXaxis()->LabelsOption("v"); fOutputFile->WriteTObject(EffGlob3); 
+  EffGlob4->GetXaxis()->LabelsOption("v"); fOutputFile->WriteTObject(EffGlob4); 
+  EffGlob5->GetXaxis()->LabelsOption("v"); fOutputFile->WriteTObject(EffGlob5); 
+  EffGlob6->GetXaxis()->LabelsOption("v"); fOutputFile->WriteTObject(EffGlob6); 
+  EffGlob7->GetXaxis()->LabelsOption("v"); fOutputFile->WriteTObject(EffGlob7); 
+  EffGlob8->GetXaxis()->LabelsOption("v"); fOutputFile->WriteTObject(EffGlob8); 
+  EffGlob9->GetXaxis()->LabelsOption("v"); fOutputFile->WriteTObject(EffGlob9); 
+  EffGlob10->GetXaxis()->LabelsOption("v");fOutputFile->WriteTObject(EffGlob10); 
+  EffGlob11->GetXaxis()->LabelsOption("v");fOutputFile->WriteTObject(EffGlob11);	
+  EffGlob12->GetXaxis()->LabelsOption("v");fOutputFile->WriteTObject(EffGlob12);	
 
   //wheel1
   std::cout<<"Writing PGlobW1"<<std::endl;
-  fOutputFile->WriteTObject(PGlobW1); OGlobW1->GetXaxis()->LabelsOption("v"); 
-  fOutputFile->WriteTObject(OGlobW1); PGlobW1->GetXaxis()->LabelsOption("v"); 
-  fOutputFile->WriteTObject(EffGlobW1); EffGlobW1->GetXaxis()->LabelsOption("v");
-  fOutputFile->WriteTObject(EffGlob1s1); EffGlob1s1->GetXaxis()->LabelsOption("v");
-  fOutputFile->WriteTObject(EffGlob1s2); EffGlob1s2->GetXaxis()->LabelsOption("v");
-  fOutputFile->WriteTObject(EffGlob1s3); EffGlob1s3->GetXaxis()->LabelsOption("v");
-  fOutputFile->WriteTObject(EffGlob1s4); EffGlob1s4->GetXaxis()->LabelsOption("v");
-  fOutputFile->WriteTObject(EffGlob1s5); EffGlob1s5->GetXaxis()->LabelsOption("v");
-  fOutputFile->WriteTObject(EffGlob1s6); EffGlob1s6->GetXaxis()->LabelsOption("v");
-  fOutputFile->WriteTObject(EffGlob1s7); EffGlob1s7->GetXaxis()->LabelsOption("v");
-  fOutputFile->WriteTObject(EffGlob1s8); EffGlob1s8->GetXaxis()->LabelsOption("v");
-  fOutputFile->WriteTObject(EffGlob1s9); EffGlob1s9->GetXaxis()->LabelsOption("v");
-  fOutputFile->WriteTObject(EffGlob1s10); EffGlob1s10->GetXaxis()->LabelsOption("v");
-  fOutputFile->WriteTObject(EffGlob1s11); EffGlob1s11->GetXaxis()->LabelsOption("v");
-  fOutputFile->WriteTObject(EffGlob1s12); EffGlob1s12->GetXaxis()->LabelsOption("v");
+  OGlobW1->GetXaxis()->LabelsOption("v"); fOutputFile->WriteTObject(PGlobW1); 
+  PGlobW1->GetXaxis()->LabelsOption("v"); fOutputFile->WriteTObject(OGlobW1); 
+  EffGlobW1->GetXaxis()->LabelsOption("v"); fOutputFile->WriteTObject(EffGlobW1);  
+  EffGlob1s1->GetXaxis()->LabelsOption("v");fOutputFile->WriteTObject(EffGlob1s1); 
+  EffGlob1s2->GetXaxis()->LabelsOption("v");fOutputFile->WriteTObject(EffGlob1s2); 
+  EffGlob1s3->GetXaxis()->LabelsOption("v");fOutputFile->WriteTObject(EffGlob1s3); 
+  EffGlob1s4->GetXaxis()->LabelsOption("v");fOutputFile->WriteTObject(EffGlob1s4); 
+  EffGlob1s5->GetXaxis()->LabelsOption("v");fOutputFile->WriteTObject(EffGlob1s5); 
+  EffGlob1s6->GetXaxis()->LabelsOption("v");fOutputFile->WriteTObject(EffGlob1s6); 
+  EffGlob1s7->GetXaxis()->LabelsOption("v");fOutputFile->WriteTObject(EffGlob1s7); 
+  EffGlob1s8->GetXaxis()->LabelsOption("v");fOutputFile->WriteTObject(EffGlob1s8); 
+  EffGlob1s9->GetXaxis()->LabelsOption("v");fOutputFile->WriteTObject(EffGlob1s9); 
+  EffGlob1s10->GetXaxis()->LabelsOption("v");fOutputFile->WriteTObject(EffGlob1s10); 
+  EffGlob1s11->GetXaxis()->LabelsOption("v");fOutputFile->WriteTObject(EffGlob1s11); 
+  EffGlob1s12->GetXaxis()->LabelsOption("v");fOutputFile->WriteTObject(EffGlob1s12); 
   
   //wheel2
   std::cout<<"Writing PGlobW2"<<std::endl;
-  fOutputFile->WriteTObject(PGlobW2); OGlobW2->GetXaxis()->LabelsOption("v"); 
-  fOutputFile->WriteTObject(OGlobW2); PGlobW2->GetXaxis()->LabelsOption("v"); 
-  fOutputFile->WriteTObject(EffGlobW2); EffGlobW2->GetXaxis()->LabelsOption("v");
-  fOutputFile->WriteTObject(EffGlob2s1); EffGlob2s1->GetXaxis()->LabelsOption("v"); 
-  fOutputFile->WriteTObject(EffGlob2s2); EffGlob2s2->GetXaxis()->LabelsOption("v");
-  fOutputFile->WriteTObject(EffGlob2s3); EffGlob2s3->GetXaxis()->LabelsOption("v");
-  fOutputFile->WriteTObject(EffGlob2s4); EffGlob2s4->GetXaxis()->LabelsOption("v");
-  fOutputFile->WriteTObject(EffGlob2s5); EffGlob2s5->GetXaxis()->LabelsOption("v");
-  fOutputFile->WriteTObject(EffGlob2s6); EffGlob2s6->GetXaxis()->LabelsOption("v");
-  fOutputFile->WriteTObject(EffGlob2s7); EffGlob2s7->GetXaxis()->LabelsOption("v");
-  fOutputFile->WriteTObject(EffGlob2s8); EffGlob2s8->GetXaxis()->LabelsOption("v");
-  fOutputFile->WriteTObject(EffGlob2s9); EffGlob2s9->GetXaxis()->LabelsOption("v");
-  fOutputFile->WriteTObject(EffGlob2s10); EffGlob2s10->GetXaxis()->LabelsOption("v");
-  fOutputFile->WriteTObject(EffGlob2s11); EffGlob2s11->GetXaxis()->LabelsOption("v");
-  fOutputFile->WriteTObject(EffGlob2s12); EffGlob2s12->GetXaxis()->LabelsOption("v");
+  OGlobW2->GetXaxis()->LabelsOption("v"); fOutputFile->WriteTObject(PGlobW2); 
+  PGlobW2->GetXaxis()->LabelsOption("v"); fOutputFile->WriteTObject(OGlobW2); 
+  EffGlobW2->GetXaxis()->LabelsOption("v");   fOutputFile->WriteTObject(EffGlobW2);  
+  EffGlob2s1->GetXaxis()->LabelsOption("v");  fOutputFile->WriteTObject(EffGlob2s1); 
+  EffGlob2s2->GetXaxis()->LabelsOption("v");  fOutputFile->WriteTObject(EffGlob2s2); 
+  EffGlob2s3->GetXaxis()->LabelsOption("v");  fOutputFile->WriteTObject(EffGlob2s3); 
+  EffGlob2s4->GetXaxis()->LabelsOption("v");  fOutputFile->WriteTObject(EffGlob2s4); 
+  EffGlob2s5->GetXaxis()->LabelsOption("v");  fOutputFile->WriteTObject(EffGlob2s5); 
+  EffGlob2s6->GetXaxis()->LabelsOption("v");  fOutputFile->WriteTObject(EffGlob2s6); 
+  EffGlob2s7->GetXaxis()->LabelsOption("v");  fOutputFile->WriteTObject(EffGlob2s7); 
+  EffGlob2s8->GetXaxis()->LabelsOption("v");  fOutputFile->WriteTObject(EffGlob2s8); 
+  EffGlob2s9->GetXaxis()->LabelsOption("v");  fOutputFile->WriteTObject(EffGlob2s9); 
+  EffGlob2s10->GetXaxis()->LabelsOption("v"); fOutputFile->WriteTObject(EffGlob2s10);
+  EffGlob2s11->GetXaxis()->LabelsOption("v"); fOutputFile->WriteTObject(EffGlob2s11);
+  EffGlob2s12->GetXaxis()->LabelsOption("v"); fOutputFile->WriteTObject(EffGlob2s12);
 
   std::cout<<"Closing File"<<std::endl;
   fOutputFile->Close();
@@ -498,6 +478,23 @@ void MuonSegmentEff::analyze(const edm::Event& iEvent, const edm::EventSetup& iS
   std::cout <<"\t Getting the RPC Digis"<<std::endl;
   edm::Handle<RPCDigiCollection> rpcDigis;
   iEvent.getByLabel(muonRPCDigis, rpcDigis);
+
+  if(mydqm){
+    int digis=0;
+
+    RPCDigiCollection::DigiRangeIterator collectionItr;
+    
+    for(collectionItr=rpcDigis->begin(); collectionItr!=rpcDigis->end(); ++collectionItr){
+      RPCDigiCollection::const_iterator digiIt; 
+      for (digiIt = ((*collectionItr ).second).first;digiIt!=((*collectionItr).second).second; ++digiIt){
+	digis++;
+	int bxs=(*digiIt).bx();
+	mydqmHbxdistro->Fill(bxs);
+      }
+    }
+    mydqmHdigisdistro->Fill(digis);
+  }
+
   
   if(incldt){
 #include "dtpart.inl"
@@ -840,6 +837,19 @@ void MuonSegmentEff::endJob()
   
   if(prodImages){
     Ca2 = new TCanvas("Ca2","Residuals",800,600);
+
+    std::cout<<"My DQM Images"<<std::endl;
+    
+    mydqmHbxdistro->Draw();
+    mydqmHbxdistro->GetXaxis()->SetTitle("bx");
+    Ca2->SaveAs("BXDistribution.png");
+    Ca2->Clear();
+
+    mydqmHdigisdistro->Draw();
+    mydqmHdigisdistro->GetXaxis()->SetTitle("Number of digis per event");
+    Ca2->SaveAs("DigisPerEvent.png");
+    Ca2->Clear();
+
     std::cout<<"Creating Residuals for Different Layers"<<std::endl;
     hGlobalResLa1->Draw();
     hGlobalResLa1->GetXaxis()->SetTitle("Residuals (cm)");
