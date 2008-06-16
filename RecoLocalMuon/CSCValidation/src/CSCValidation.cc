@@ -841,8 +841,8 @@ float CSCValidation::getTiming(const CSCStripDigiCollection& stripdigis, CSCDetI
     //histos->fillProfileByChamber(i,normADC,"signal_profile","Normalized Signal Profile;Timebins (50ns)",idRH,8,-0.5,7.5,-0.1,1.1,"SignalProfile");
   }
 
-  histos->fill1DHistByChamber(ADC[0],"ped_subtracted","ADC in first time bin;ADC",idRH,400,-300,100,"FirstTBADC");
-  histos->fill1DHist(ADC[0],"ped_subtracted_all","ADC in first time bin;ADC",400,-300,100,"FirstTBADC");
+  //histos->fill1DHistByChamber(ADC[0],"ped_subtracted","ADC in first time bin;ADC",idRH,400,-300,100,"FirstTBADC");
+  //histos->fill1DHist(ADC[0],"ped_subtracted_all","ADC in first time bin;ADC",400,-300,100,"FirstTBADC");
 
   timing = (ADC[2]*2 + ADC[3]*3 + ADC[4]*4 + ADC[5]*5 + ADC[6]*6)/(ADC[2] + ADC[3] + ADC[4] + ADC[5] + ADC[6]);
 
