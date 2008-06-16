@@ -22,6 +22,7 @@
 #include "OnlineDB/EcalCondDB/interface/ODLaserCycle.h"
 #include "OnlineDB/EcalCondDB/interface/ODLTCCycle.h"
 #include "OnlineDB/EcalCondDB/interface/ODLTSCycle.h"
+#include "OnlineDB/EcalCondDB/interface/ODDCUCycle.h"
 #include "OnlineDB/EcalCondDB/interface/ODSRPCycle.h"
 #include "OnlineDB/EcalCondDB/interface/ODScanCycle.h"
 #include "OnlineDB/EcalCondDB/interface/ODScanConfig.h"
@@ -34,8 +35,16 @@
 #include "OnlineDB/EcalCondDB/interface/ODSRPConfig.h"
 #include "OnlineDB/EcalCondDB/interface/ODLTCConfig.h"
 #include "OnlineDB/EcalCondDB/interface/ODLTSConfig.h"
+#include "OnlineDB/EcalCondDB/interface/ODDCUConfig.h"
 #include "OnlineDB/EcalCondDB/interface/ODJBH4Config.h"
 #include "OnlineDB/EcalCondDB/interface/ODTTCFConfig.h"
+#include "OnlineDB/EcalCondDB/interface/ODFEDAQConfig.h"
+#include "OnlineDB/EcalCondDB/interface/ODFEPedestalOffsetInfo.h"
+#include "OnlineDB/EcalCondDB/interface/ODPedestalOffsetsDat.h"
+#include "OnlineDB/EcalCondDB/interface/ODFEDelaysInfo.h"
+#include "OnlineDB/EcalCondDB/interface/ODFEWeightsInfo.h"
+#include "OnlineDB/EcalCondDB/interface/ODDelaysDat.h"
+#include "OnlineDB/EcalCondDB/interface/ODCond2ConfInfo.h"
 
 
 #endif
