@@ -185,7 +185,6 @@ int main(int argc, char *argv[]){
     xsec.push_back(1.787E3); // PYTHIA cross-section for Ztautau (pb)
     skmeff.push_back(1.);  //
 
-
     // QCD 30-50
     ProcFil.clear();
     ProcFil.push_back("QCD_30_50_hltree_1pb.root");
@@ -810,6 +809,12 @@ void BookMenu_OhltExample(OHltMenu*  menu,double &iLumi,double &nBunches) {
   //
   menu->AddHlt("HLT2TauPixel","L1_TauJet40",1,1,"15","1e32"); 
   menu->AddHlt("OpenHLT2TauPixel","L1_TauJet40",1,1,"15","1e32"); 
+
+  //
+  //  menu->AddHlt("HLT1MuonNonIso","L1_SingleMu7",1,1,"16","1e32");
+  //  menu->AddHlt("OpenHLT1MuonNonIso","L1_SingleMu7",1,1,"16","1e32");
+  menu->AddHlt("HLT1MuonIso","L1_SingleMu7",1,1,"11","1e32");
+  menu->AddHlt("OpenHLT1MuonIso","L1_SingleMu7",1,1,"11","1e32");
 }
 
 
