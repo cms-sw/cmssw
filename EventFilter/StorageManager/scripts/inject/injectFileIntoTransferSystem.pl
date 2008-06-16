@@ -1,5 +1,5 @@
 #!/usr/bin/perl -w
-# $Id: injectFileIntoTransferSystem.pl,v 1.6 2008/06/11 21:44:15 loizides Exp $
+# $Id: injectFileIntoTransferSystem.pl,v 1.7 2008/06/12 12:12:10 loizides Exp $
 #
 # Written by Matt Rudolph June 2008
 #
@@ -28,29 +28,32 @@ sub usage
   ############################################################################################
   Usage:
   $0 --help  : show this message
+
   --------------------------------------------------------------------------------------------
-  Required parameters:
-  $0 --filename=file --path=path --filesize=size 
-                                    --type=type --hostname=host [--destination]
+
+  Required parameters for injecting files to be transferred:
+  $0 --filename file --path path --filesize size 
+                                    --type type --hostname host [--destination default]
  
   Filename, path, and filesize are self explanatory.
 
   Type is the type of file, which requires extra parameters to be specified
   Current supported types: streamer, edm, lumi:
-    Streamers require runnumber, lumisection, num events, app name, app version, stream, 
-      setup label, and index specified
-    Edm files require runnumber, lumisection, num events, app name, app version, setup label, stream
-    Lumi files require runnumber, lumisection, app name, and app version
+    Streamers require runnumber, lumisection, numevents, appname, appversion, stream, 
+      setup abel, and index specified
+    Edm files require runnumber, lumisection, numevents, appname, appversion, setuplabel, stream
+    Lumi files require runnumber, lumisection, appname, and appversion
 
-  Hostname is the host on which the file is found.
+  Hostname is the host on which the file is found. (This should be the name as returned by the
+  `hostname` command. Supported hosts for copies: cmsdisk1, srv-c2c06-02.cms (cmsmon) and
+  the Storage Manager nodes.
 
   Destination determines where file goes on Tier0. It is set to default if not set by user.
-  Supported hosts for copies: cmsdisk1, srv-c2c06-02.cms (cmsmon), Storage Manager nodes
  
   If you are not sure about what you are doing please send an inquiry to hn-tier0-ops\@cern.ch.
 
-  -------------------------------------------------------------------------------------------- 
   Other parameters:
+  --debug           : Print out extra messages
   --debug           : Print out extra messages
   --producer        : Producer of file
   --appname         : Application name for file (e.g. CMSSW)
@@ -67,6 +70,12 @@ sub usage
   --index           : Name of index file defaults to changing data file .dat to .ind
   --checksum        : Checksum of the file
   --comment         : Comment field in the database
+
+  --------------------------------------------------------------------------------------------
+
+  $0 --check --filename=file
+  Check on the status of a file previously injected into the transfer system.
+  This is work in progress, not working yet.
   ############################################################################################  
   \n";
   exit;
@@ -75,7 +84,6 @@ sub usage
 # subroutine for getting formatted time for SQL to_date method
 sub gettimestamp($)
 {
-
     my $stime = shift;
     my @ltime = localtime($stime);
     my ($sec,$min,$hour,$mday,$mon,$year,$wday,$yday,$isdst) = @ltime;
@@ -122,7 +130,7 @@ sub checkOption($) {
 my ($help, $debug, $hostname, $filename, $pathname, $index, $filesize);
 my ($producer, $stream, $type, $runnumber, $lumisection, $count,$instance);
 my ($createtime, $injecttime, $ctime, $itime, $comment, $destination);
-my ($appname, $appversion, $nevents, $checksum, $setuplabel);
+my ($appname, $appversion, $nevents, $checksum, $setuplabel, $check);
 
 $help        = 0;
 $debug       = 0;
@@ -155,6 +163,7 @@ $comment     = '';
 GetOptions(
            "h|help"                   => \$help,
            "debug"                    => \$debug,
+           "check"                    => \$check,
            "hostname=s"               => \$hostname,
 	   "file|filename=s"          => \$filename,
 	   "path|pathname=s"          => \$pathname,
@@ -179,7 +188,7 @@ GetOptions(
 	  ) or usage;
 
 $help && usage;
-
+print "$destination\n";
 
 ############################################
 # Main starts here
@@ -202,6 +211,21 @@ $checksum    = checkOption($checksum);
 $comment =~ s/\'//g;
 $comment =~ s/\"//g;
 
+# when $check is enabled, just want to query for a file and then exit
+if($check) {
+    my $SQLcheck = "select FILES_CREATED.FILENAME, FILES_INJECTED.FILENAME, FILES_TRANS_NEW.FILENAME," .
+        "FILES_TRANS_COPIED.FILENAME, FILES_TRANS_CHECKED.FILENAME from FILES_CREATED " .
+        "left outer join FILES_INJECTED      on FILES_CREATED.FILENAME=FILES_INJECTED.FILENAME " .
+        "left outer join FILES_TRANS_NEW     on FILES_CREATED.FILENAME=FILES_TRANS_NEW.FILENAME " .
+        "left outer join FILES_TRANS_COPIED  on FILES_CREATED.FILENAME=FILES_TRANS_COPIED.FILENAME " .
+        "left outer join FILES_TRANS_CHECKED on FILES_CREATED.FILENAME=FILES_TRANS_CHECKED.FILENAME " .
+        "where FILES_CREATED.FILENAME='$filename'";
+
+    print "$SQLcheck\n";
+    print "Work in progress\n";
+    exit 1;
+}
+
 # filename, path, host and filesize must be correct or transfer will never work
 # first check to make sure all of these are set and exit if not
 unless($filename) {
@@ -214,7 +238,7 @@ unless($pathname) {
     usageShort();
 }
 
-unless($hostname eq 'cmsdisk1' || $hostname eq 'srv-c2c06-02.cms' || $hostname =~ 'srv-c2c07-') {
+unless($hostname eq 'cmsdisk1' || $hostname eq 'srv-c2c06-02.cms' || $hostname =~ 'srv-c2c07-' || $hostname =~ 'srv-C2C07-') {
     print "Error: Hostname not valid.  Must be cmsdisk1, srv-c2c06-02.cms, or a Storage Manager node\n";
     usageShort();
 }
@@ -244,18 +268,18 @@ unless($type) {
 # depending on type check for different required parameters
 if($type eq "streamer") {
     unless( $runnumber && $lumisection != -1 && $nevents && $appname && $appversion && $stream && $setuplabel ne 'default') {
-	print "Error: For streamer files need runnumber, lumisection, num events, app name, app version, stream, setup label, and index specified\n";
+	print "Error: For streamer files need runnumber, lumisection, numevents, appname, appversion, stream, setuplabel, and index specified\n";
         usageShort();
     }
 } elsif($type eq "edm") {
     unless($runnumber && $lumisection != -1 && $nevents && $appname && $appversion && $stream && $setuplabel ne 'default') {
-	print "Error: For edm files need runnumber, lumisection, num events, app name, app version, setup label, and stream specified\n";
+	print "Error: For edm files need runnumber, lumisection, numevents, appname, appversion, setuplabel, and stream specified\n";
         usageShort();
     }
 } elsif($type eq "lumi") {
-    ($destination eq 'default') $destination = 'cms_lumi';
+    $destination = 'cms_lumi' if ($destination eq 'default');
     unless( $runnumber && $lumisection != -1 && $appname && $appversion) {
-	print "Error: For lumi files need runnumber, lumisection, app name, and app version specified.\n";
+	print "Error: For lumi files need runnumber, lumisection, appname, and appversion specified.\n";
         usageShort();
     }
 } else {
@@ -317,18 +341,17 @@ if($filename=~/\.dat$/  && !$index) {
 
 # all these options are enforced by notify script (even if meaningless):
 my $TIERZERO = "$notscript --FILENAME $filename --PATHNAME $pathname --HOSTNAME $hostname --FILESIZE $filesize --TYPE $type " . 
-"--START_TIME $ctime --STOP_TIME $itime --SETUPLABEL $setuplabel --STREAM $stream --DESTINATION $destination";
+                          "--START_TIME $ctime --STOP_TIME $itime --SETUPLABEL $setuplabel --DESTINATION $destination";
 
 # these options aren't needed but available:
-if($runnumber) { $TIERZERO .= " --RUNNUMBER $runnumber";}
-if($lumisection != -1) { $TIERZERO .= " --LUMISECTION $lumisection";}
-if($stream) { $TIERZERO .= " --STREAM $stream";}
-if($instance != -1) { $TIERZERO .= " --INSTANCE $instance";}
-if($nevents) {$TIERZERO .= " --NEVENTS $nevents";}
-if($index) { $TIERZERO .= " --INDEX $index";}
-if($appname) { $TIERZERO .= " --APP_NAME $appname";}
-if($appname) { $TIERZERO .= " --APP_VERSION $appversion";}
-if($checksum) { $TIERZERO .= " --CHECKSUM $checksum";}
+if($runnumber)         {$TIERZERO .= " --RUNNUMBER $runnumber";}
+if($lumisection != -1) {$TIERZERO .= " --LUMISECTION $lumisection";}
+if($stream)            {$TIERZERO .= " --STREAM $stream";}
+if($nevents)           {$TIERZERO .= " --NEVENTS $nevents";}
+if($index)             {$TIERZERO .= " --INDEX $index";}
+if($appname)           {$TIERZERO .= " --APP_NAME $appname";}
+if($appname)           {$TIERZERO .= " --APP_VERSION $appversion";}
+if($checksum)          {$TIERZERO .= " --CHECKSUM $checksum";}
 $debug && print "Notify command: \n $TIERZERO \n";
 
 # setup DB connection
@@ -368,10 +391,12 @@ my $T0out;
 if($rowsCreate==1 && $rowsInject==1) {
     print "DB inserts completed, running Tier 0 notification script \n";
     $T0out=`$TIERZERO 2>&1`;
-    if($T0out =~ /Connection Established/ ) {
-	print "File submitted for transfer.\n";
+    if($T0out =~ /Connection established/ ) {
+	print "File sucessfully submitted for transfer.\n";
     } else {
-	print "Did not connect properly to transfer system logger.\n";
+	print "Did not connect properly to transfer system logger. Error follows below\n\n";
+	print $T0out;
+	print "\n";
     }
 } else {
     ($rowsCreate!=1) && print "Error: DB returned strange code on $SQLcreate - rows=$rowsCreate\n";
