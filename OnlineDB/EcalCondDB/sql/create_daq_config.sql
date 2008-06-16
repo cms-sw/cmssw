@@ -43,7 +43,7 @@ CREATE TABLE ECAL_RUN_CONFIGURATION_DAT (
      , RUN_MODE_DEF_ID NUMBER NOT NULL
      , NUM_OF_SEQUENCES NUMBER(22) NULL
      , DESCRIPTION VARCHAR2(200) NULL
-     , DEFAULTS VARCHAR2(200) NULL
+     , DEFAULTS NUMBER NULL
      , TRG_MODE VARCHAR2(64) NULL
      , NUM_OF_EVENTS NUMber NULL
      , db_timestamp  TIMESTAMP DEFAULT SYSTIMESTAMP NOT NULL     
@@ -54,15 +54,7 @@ ALTER TABLE ECAL_RUN_CONFIGURATION_DAT ADD CONSTRAINT ecal_config_uk1 UNIQUE (ta
 ALTER TABLE ECAL_RUN_CONFIGURATION_DAT ADD CONSTRAINT ecal_config_fk2 FOREIGN KEY (run_mode_def_id) REFERENCES ECAL_RUN_MODE_DEF (DEF_ID) ;
 
 CREATE SEQUENCE ecal_run_sq INCREMENT BY 1 START WITH 1;
-CREATE trigger ecal_run_trg
-before insert on ECAL_RUN_CONFIGURATION_DAT
-for each row
-begin
-select ecal_run_sq.NextVal into :new.config_id from dual;
-end;
-/
 
-show errors;
 
 prompt FUNCTION get_run_conf_id;
 create or replace function get_run_conf_id( the_tag IN VARCHAR, the_version in NUMBER ) return NUMBER
@@ -203,6 +195,8 @@ CREATE TABLE ECAL_CCS_CONFIGURATION (
         , DAQ_BCID_PRESET NUMBER
         , TRIG_BCID_PRESET NUMBER
         , BC0_COUNTER NUMBER
+        , BC0_DELAY NUMBER
+        , TE_DELAY NUMBER
 );
 ALTER TABLE ECAL_CCS_CONFIGURATION ADD CONSTRAINT ecal_ccs_config_pk PRIMARY KEY (ccs_configuration_id);
 
@@ -228,7 +222,7 @@ CREATE TABLE ECAL_DCC_CONFIGURATION (
 	, TESTPATTERN_FILE_URL VARCHAR2(100)
 	, N_TESTPATTERNS_TO_LOAD NUMBER
         , SM_HALF NUMBER
-	, dcc_CONFIGURATION CLOB
+    	, dcc_CONFIGURATION CLOB
 );
 ALTER TABLE ECAL_DCC_CONFIGURATION ADD CONSTRAINT ecal_dcc_config_pk PRIMARY KEY (dcc_configuration_id);
 
@@ -245,12 +239,33 @@ ALTER TABLE ECAL_DCC_CYCLE ADD CONSTRAINT ecal_dcc_cycle_fk1 FOREIGN KEY (cycle_
 ALTER TABLE ECAL_DCC_CYCLE ADD CONSTRAINT ecal_dcc_cycle_fk2 FOREIGN KEY (dcc_configuration_id) REFERENCES ECAL_DCC_CONFIGURATION (dcc_configuration_id);
 
 
+-- ********** ECAL_DCu
+
+CREATE TABLE ECAL_DCu_CONFIGURATION (
+	DCu_CONFIGURATION_ID NUMBER NOT NULL
+        , dcu_tag VARCHAR2(32) NOT NULL
+);
+ALTER TABLE ECAL_DCu_CONFIGURATION ADD CONSTRAINT ecal_dcu_config_pk PRIMARY KEY (dcu_configuration_id);
+
+CREATE SEQUENCE ecal_DCu_CONFIG_sq INCREMENT BY 1 START WITH 1;
+CREATE TABLE ECAL_DCU_CYCLE (
+	  CYCLE_ID NUMBER NOT NULL
+	 , DCU_CONFIGURATION_ID NUMBER NOT NULL
+         );    
+ALTER TABLE ECAL_DCU_CYCLE ADD CONSTRAINT ecal_dcu_cycle_pk PRIMARY KEY (cycle_id);
+ALTER TABLE ECAL_DCU_CYCLE ADD CONSTRAINT ecal_dcu_cycle_fk1 FOREIGN KEY (cycle_id) REFERENCES ECAL_CYCLE_DAT (cycle_id);
+ALTER TABLE ECAL_DCU_CYCLE ADD CONSTRAINT ecal_dcu_cycle_fk2 FOREIGN KEY (dcu_configuration_id) REFERENCES ECAL_DCu_CONFIGURATION (dcu_configuration_id);
+
+
+
 -- ********** ECAL_ttcf
 
 CREATE TABLE ECAL_TTCF_CONFIGURATION (
 	TTCF_CONFIGURATION_ID NUMBER NOT NULL
         , TTCF_tag VARCHAR2(32) NOT NULL
-	, TTCF_CONFIGURATION CLOB
+        , TTCF_CONFIGURATION_FILE VARCHAR2(100) 
+      	, TTCF_CONFIGURATION CLOB,
+RXBC0_DELAY NUMBER, REG_30 NUMBER
 );
 ALTER TABLE ECAL_TTCF_CONFIGURATION ADD CONSTRAINT ecal_ttcf_config_pk PRIMARY KEY (ttcf_configuration_id);
 
@@ -277,7 +292,7 @@ CREATE TABLE ECAL_SRP_CONFIGURATION (
         , AUTOMATIC_MASKS NUMBER
         , SRP0BUNCHADJUSTPOSITION NUMBER 
 	, SRP_CONFIG_FILE VARCHAR2(100)
-	, SRP_CONFIGURATION CLOB
+      	, SRP_CONFIGURATION CLOB
 );
 ALTER TABLE ECAL_SRP_CONFIGURATION ADD CONSTRAINT ecal_SRP_config_pk PRIMARY KEY (SRP_configuration_id);
 
@@ -361,7 +376,9 @@ CREATE TABLE ECAL_TCC_CONFIGURATION (
         , SLB_CONFIGURATION_FILE VARCHAR2(100) NULL
         , TESTPATTERNFILE_URL VARCHAR2(100) NULL
         , N_TESTPATTERNS_TO_LOAD number NULL
-         , tcc_configuration CLOB 
+               , tcc_configuration CLOB 
+               , lut_configuration CLOB 
+               , slb_configuration CLOB 
 );
 ALTER TABLE ECAL_TCC_CONFIGURATION ADD CONSTRAINT ecal_TCC_config_pk PRIMARY KEY (TCC_configuration_id);
 
@@ -383,10 +400,12 @@ ALTER TABLE ECAL_TCC_CYCLE ADD CONSTRAINT ecal_TCC_cycle_fk2 FOREIGN KEY (tcc_co
 CREATE TABLE ECAL_TTCCI_CONFIGURATION (
 	TTCCI_configuration_id NUMBER NOT NULL
         , TTCCI_tag VARCHAR2(32) NOT NULL
-	, TTCCI_configuration_file varchar2(100)
+	, TTCCI_configuration_file varchar2(130)
 	,TRG_MODE varchar2(32)
 	,TRG_SLEEP NUMBER
-	, Configuration CLOB
+    	, Configuration CLOB
+       , CONFIGURATION_SCRIPT varchar2(100)
+       , CONFIGURATION_SCRIPT_PARAMS varchar2(100)
 );
 ALTER TABLE ECAL_TTCCI_CONFIGURATION ADD CONSTRAINT ecal_TTCCI_config_pk PRIMARY KEY (TTCCI_configuration_id);
 
@@ -410,7 +429,7 @@ CREATE TABLE ECAL_LTC_CONFIGURATION (
 	LTC_configuration_id NUMBER NOT NULL
         , LTC_tag VARCHAR2(32) NOT NULL
 	, ltc_Configuration_file varchar2(100)
-	, Configuration CLOB
+      	, Configuration CLOB
 );
 ALTER TABLE ECAL_LTC_CONFIGURATION ADD CONSTRAINT ecal_LTC_config_pk PRIMARY KEY (LTC_configuration_id);
 
@@ -495,6 +514,9 @@ ALTER TABLE ECAL_SCAN_DAT ADD CONSTRAINT ecal_scan_dat_pk  PRIMARY KEY (scan_id)
 CREATE SEQUENCE ecal_SCAN_CONFIG_sq INCREMENT BY 1 START WITH 1;
 
 
+
+
+
 CREATE TABLE ECAL_SCAN_CYCLE (
 	  CYCLE_ID NUMBER NOT NULL
 	 , SCAN_ID NUMBER NOT NULL
@@ -559,6 +581,7 @@ SELECT
 	, laser.laser_CONFIGURATION_ID
 	, ltc.ltc_CONFIGURATION_ID
 	, lts.lts_CONFIGURATION_ID
+	, dcu.dcu_CONFIGURATION_ID
 	, tcc.tcc_CONFIGURATION_ID
         , ttcf.ttcf_CONFIGURATION_ID
         , srp.srp_configuration_id
@@ -580,6 +603,8 @@ FROM
 	left outer join
 	ECAL_lts_CYCLE lts on e.cycle_id=lts.cycle_ID
 	left outer join
+	ECAL_dcu_CYCLE dcu on e.cycle_id=dcu.cycle_ID
+	left outer join
 	ECAL_tcc_CYCLE tcc on e.cycle_id=tcc.cycle_ID
 	left outer join
 	ECAL_ttcci_CYCLE ttcci on  e.cycle_id=ttcci.cycle_ID
@@ -597,3 +622,20 @@ where
 ;
 
 
+CREATE OR REPLACE VIEW ECAL_SCAN_CONFIGURATION AS
+select r.SCAN_ID SCAN_ID
+        , r.SCAN_tag tag
+     , r.type_id type_id
+     , r.scan_type scan_type
+     , r.FROM_VAL from_val
+     , r.to_val to_val
+     , r.STEP  step
+ from
+	ECAL_scan_dat r
+;
+
+
+
+
+
+@insert_run_mod_defs
