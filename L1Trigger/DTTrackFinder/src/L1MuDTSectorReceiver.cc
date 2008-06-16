@@ -5,8 +5,8 @@
 //   Description: Sector Receiver 
 //
 //
-//   $Date: 2008/02/25 16:35:32 $
-//   $Revision: 1.10 $
+//   $Date: 2008/03/18 12:43:01 $
+//   $Revision: 1.11 $
 //
 //   Author :
 //   N. Neumeister            CERN EP
@@ -124,14 +124,13 @@ void L1MuDTSectorReceiver::receiveDTBXData(int bx, const edm::Event& e) {
         int phi  = ts->phi();
         int phib = ts->phiB();
         int qual = ts->code();
-        if (qual < 2) qual = 2;
         bool tag = (reladr%2 == 1) ? true : false;
         //
         // out-of-time TS filter (compare TS at +-1 bx)
         // 
         bool skipTS = false;
 
-        if (ts->phi() < -2032) skipTS = true; 
+        if ( (ts->phi() < -2032) && !L1MuDTTFConfig::getopenLUTs() ) skipTS = true; 
 
         if ( L1MuDTTFConfig::getTSOutOfTimeFilter() ) {
  
@@ -191,6 +190,8 @@ void L1MuDTSectorReceiver::receiveDTBXData(int bx, const edm::Event& e) {
 //
 void L1MuDTSectorReceiver::receiveCSCData(int bx, const edm::Event& e) {
   
+  if ( (L1MuDTTFConfig::getCSCTrSInputTag()).label() == "none" ) return;
+
   if ( bx < CSCConstants::MIN_BUNCH || bx > CSCConstants::MAX_BUNCH ) return;
 
   edm::Handle<CSCTriggerContainer<csctf::TrackStub> > csctrig;

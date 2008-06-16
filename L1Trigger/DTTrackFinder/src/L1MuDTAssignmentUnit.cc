@@ -5,8 +5,8 @@
 //   Description: Assignment Unit
 //
 //
-//   $Date: 2008/05/09 15:01:59 $
-//   $Revision: 1.5 $
+//   $Date: 2008/05/09 15:09:42 $
+//   $Revision: 1.6 $
 //
 //   Author :
 //   N. Neumeister            CERN EP
@@ -171,8 +171,18 @@ void L1MuDTAssignmentUnit::PhiAU(const edm::EventSetup& c) {
     sector = forth->sector();
   }
 
+  int sector0 = m_sp.id().sector();
+
+  // convert sector difference to values in the range -6 to +5
+
+  int sectordiff = (sector - sector0)%12;
+  if ( sectordiff >= 6 ) sectordiff -= 12;
+  if ( sectordiff < -6 ) sectordiff += 12;
+  
+  assert( abs(sectordiff) <= 1 );
+
   // get sector center in 8 bit coding
-  int sector_8 = convertSector(sector);
+  int sector_8 = convertSector(sector0);
 
   // convert phi to 2.5 degree precision
   int phi_precision = 4096 >> sh_phi;
@@ -188,6 +198,8 @@ void L1MuDTAssignmentUnit::PhiAU(const edm::EventSetup& c) {
     int bend_angle = (forth->phib() >> sh_phib) << sh_phib;
     phi_8 = phi_8 + thePhiLUTs->getDeltaPhi(1,bend_angle);
   }
+
+  phi_8 += sectordiff*12;
 
   if (phi_8 >  15) phi_8 =  15;
   if (phi_8 < -16) phi_8 = -16;
