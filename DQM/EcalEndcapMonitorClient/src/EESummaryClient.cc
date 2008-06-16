@@ -1,8 +1,8 @@
 /*
  * \file EESummaryClient.cc
  *
- * $Date: 2008/06/02 19:03:53 $
- * $Revision: 1.132 $
+ * $Date: 2008/06/05 16:02:43 $
+ * $Revision: 1.133 $
  * \author G. Della Ricca
  *
 */
@@ -133,6 +133,40 @@ void EESummaryClient::beginJob(DQMStore* dqmStore){
 
   ievt_ = 0;
   jevt_ = 0;
+
+  // summary for DQM GUI
+
+  char histo[200];
+
+  MonitorElement* me;
+
+  dqmStore_->setCurrentFolder( prefixME_ + "/EventInfo" );
+
+  sprintf(histo, "reportSummary");
+  if ( me = dqmStore_->get(prefixME_ + "/EventInfo/" + histo) ) {
+    dqmStore_->removeElement(me->getName());
+  }
+  me = dqmStore_->bookFloat(histo);
+
+  dqmStore_->setCurrentFolder( prefixME_ + "/EventInfo/reportSummaryContents" );
+
+  for (int i = 0; i < 18; i++) {
+    sprintf(histo, "status %s", Numbers::sEE(i+1).c_str());
+    if ( me = dqmStore_->get(prefixME_ + "/EventInfo/reportSummaryContents/" + histo) ) {
+      dqmStore_->removeElement(me->getName());
+    }
+    me = dqmStore_->bookFloat(histo);
+  }
+
+  dqmStore_->setCurrentFolder( prefixME_ + "/EventInfo" );
+
+  sprintf(histo, "reportSummaryMap");
+  if ( me = dqmStore_->get(prefixME_ + "/EventInfo/" + histo) ) {
+    dqmStore_->removeElement(me->getName());
+  }
+  me = dqmStore_->book2D(histo, histo, 40, 0., 40., 20, 0., 20);
+  me->setAxisTitle("jx", 1);
+  me->setAxisTitle("jy", 2);
 
 }
 
@@ -456,38 +490,6 @@ void EESummaryClient::setup(void) {
   meGlobalSummary_[1]->setAxisTitle("jx", 1);
   meGlobalSummary_[1]->setAxisTitle("jy", 2);
 
-  // summary for DQM GUI
-
-  MonitorElement* me;
-
-  dqmStore_->setCurrentFolder( prefixME_ + "/EventInfo" );
-
-  sprintf(histo, "reportSummary");
-  if ( me = dqmStore_->get(prefixME_ + "/EventInfo/" + histo) ) {
-    dqmStore_->removeElement(me->getName());
-  }
-  me = dqmStore_->bookFloat(histo);
-
-  dqmStore_->setCurrentFolder( prefixME_ + "/EventInfo/reportSummaryContents" );
-
-  for (int i = 0; i < 18; i++) {
-    sprintf(histo, "status %s", Numbers::sEE(i+1).c_str());
-    if ( me = dqmStore_->get(prefixME_ + "/EventInfo/reportSummaryContents/" + histo) ) {
-      dqmStore_->removeElement(me->getName());
-    }
-    me = dqmStore_->bookFloat(histo);
-  }
-
-  dqmStore_->setCurrentFolder( prefixME_ + "/EventInfo" );
-
-  sprintf(histo, "reportSummaryMap");
-  if ( me = dqmStore_->get(prefixME_ + "/EventInfo/" + histo) ) {
-    dqmStore_->removeElement(me->getName());
-  }
-  me = dqmStore_->book2D(histo, histo, 40, 0., 40., 20, 0., 20);
-  me->setAxisTitle("jx", 1);
-  me->setAxisTitle("jy", 2);
-
 }
 
 void EESummaryClient::cleanup(void) {
@@ -633,24 +635,6 @@ void EESummaryClient::cleanup(void) {
 
   if ( meGlobalSummary_[1] ) dqmStore_->removeElement( meGlobalSummary_[1]->getName() );
   meGlobalSummary_[1] = 0;
-
-  // summary for DQM GUI
-
-  MonitorElement* me;
-
-  if ( me = dqmStore_->get(prefixME_ + "/EventInfo/reportSummary") ) {
-    dqmStore_->removeElement(me->getName());
-  }
-
-  for (int i = 0; i < 18; i++) {
-    if ( me = dqmStore_->get(prefixME_ + "/EventInfo/reportSummaryContents/status " + Numbers::sEE(i+1)) ) {
-      dqmStore_->removeElement(me->getName());
-    }
-  }
-
-  if ( me = dqmStore_->get(prefixME_ + "/EventInfo/reportSummaryMap") ) {
-    dqmStore_->removeElement(me->getName());
-  }
 
 }
 
