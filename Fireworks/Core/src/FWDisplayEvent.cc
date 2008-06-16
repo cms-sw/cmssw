@@ -8,7 +8,7 @@
 //
 // Original Author:  
 //         Created:  Mon Dec  3 08:38:38 PST 2007
-// $Id: FWDisplayEvent.cc,v 1.47 2008/06/10 22:30:34 chrjones Exp $
+// $Id: FWDisplayEvent.cc,v 1.48 2008/06/11 14:08:14 dmytro Exp $
 //
 
 // system include files
@@ -204,7 +204,8 @@ FWDisplayEvent::draw(const fwlite::Event& iEvent) const
   m_eiManager->newEvent(&iEvent);
   // m_textView->newEvent(iEvent);
   stopwatch.Stop();
-  stopwatch.Print();
+  printf("Processing time: \n");
+  stopwatch.Print("m");
   return m_guiManager->allowInteraction();
 }
 
