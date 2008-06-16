@@ -8,7 +8,7 @@
 //
 // Original Author:  
 //         Created:  Thu Dec  6 17:49:54 PST 2007
-// $Id: FWRPZDataProxyBuilder.cc,v 1.10 2008/06/08 16:59:01 dmytro Exp $
+// $Id: FWRPZDataProxyBuilder.cc,v 1.11 2008/06/12 15:07:45 chrjones Exp $
 //
 
 // system include files
@@ -32,6 +32,7 @@
 //
 // static data member definitions
 //
+TEveCalo3D* FWRPZDataProxyBuilder::m_calo3d = 0;
 
 //
 // constructors and destructor
