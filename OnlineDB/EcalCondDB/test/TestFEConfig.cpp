@@ -174,8 +174,8 @@ public:
       cout << "now create fe record " <<endl;
       FEConfigPedInfo fe_ped_info ;
       fe_ped_info.setIOVId(mon_iov_id);
-      fe_ped_info.setTag("from_CondDB");
-      econn->insertFEConfigPedInfo(&fe_ped_info);
+      fe_ped_info.setConfigTag("from_CondDB");
+      econn->insertConfigSet(&fe_ped_info);
       result =fe_ped_info.getID();
 
       // this is to insert in FE Config DB      
@@ -216,7 +216,9 @@ public:
     cout << "test readinf fe_ped with id="<<iconf_req  << endl;
     cout << "*****************************************" << endl;
  
-    FEConfigPedInfo fe_ped_info = econn->fetchFEConfigPedInfo(iconf_req);
+    FEConfigPedInfo fe_ped_info;
+    fe_ped_info.setId(iconf_req);
+    econn->fetchConfigSet(&fe_ped_info);
     map<EcalLogicID, FEConfigPedDat> dataset_ped;
     econn->fetchDataSet(&dataset_ped, &fe_ped_info);
 
@@ -263,9 +265,9 @@ public:
       cout << "*****************************************" << endl;
 
       FEConfigLUTInfo fe_lut_info ;
-      fe_lut_info.setIOVId(0); // this eventually refers to some other table 
-      fe_lut_info.setTag("test");
-      econn->insertFEConfigLUTInfo(&fe_lut_info);
+      fe_lut_info.setNumberOfGroups(1); // this eventually refers to some other table 
+      fe_lut_info.setConfigTag("test");
+      econn->insertConfigSet(&fe_lut_info);
             
       Tm tdb = fe_lut_info.getDBTime();
       //tdb.dumpTm();
@@ -322,8 +324,8 @@ public:
 
       FEConfigWeightInfo fe_wei_info ;
       fe_wei_info.setNumberOfGroups(5); // this eventually refers to some other table 
-      fe_wei_info.setTag("my preferred weights");
-      econn->insertFEConfigWeightInfo(&fe_wei_info);
+      fe_wei_info.setConfigTag("my preferred weights");
+      econn->insertConfigSet(&fe_wei_info);
       
       Tm tdb = fe_wei_info.getDBTime();
       //      tdb.dumpTm();
