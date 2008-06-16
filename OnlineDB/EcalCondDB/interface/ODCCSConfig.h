@@ -57,6 +57,11 @@ class ODCCSConfig : public IODConfig {
   inline int getTrgBCIDPreset() const { return m_trg; }
   inline void setBC0Counter(int x) { m_bc0 = x; }
   inline int getBC0Counter() const { return m_bc0; }
+  inline int getBC0Delay() const { return m_bc0_delay; }
+  inline void setBC0Delay(int x) { m_bc0_delay = x; }
+  inline int getTEDelay() const { return m_te_delay; }
+  inline void setTEDelay(int x) { m_te_delay = x; }
+
 
   int fetchNextId() throw(std::runtime_error);
   void setParameters(std::map<string,string> my_keys_map);
@@ -92,6 +97,8 @@ class ODCCSConfig : public IODConfig {
   int m_daq;
   int m_trg;
   int m_bc0;
+  int m_bc0_delay;
+  int m_te_delay;
   
 };
 
