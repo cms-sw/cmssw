@@ -110,7 +110,7 @@ void populateClob (Clob &clob, std::string fname, unsigned int bufsize)
 
           
 	}
-      if(bufsize==0 || bufsize==-1){
+      if(bufsize==0){
 
 
 	inFile.seekg( 0,ios::end ); 
@@ -130,7 +130,8 @@ void populateClob (Clob &clob, std::string fname, unsigned int bufsize)
       std::cout<<"we are here2"<<std::endl; 
       //    while(inFile)
       //	{
-      memset (buffer, NULL, bufsize + 1);
+      int buf=0;
+      memset (buffer, buf, bufsize + 1);
       inFile.read(buffer,bufsize);
       std::cout<<"we are here2.5"<<std::endl; 
       
@@ -163,7 +164,8 @@ unsigned char* readClob (oracle::occi::Clob &clob, int size)
   try{
     Stream *instream = clob.getStream (1,0);
     unsigned char *buffer= new unsigned char[size]; 
-    memset (buffer, NULL, size);
+    int buf=0;
+    memset (buffer, buf, size);
     
     instream->readBuffer ((char*)buffer, size);
     cout << "remember to delete the char* at the end of the program ";

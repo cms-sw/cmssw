@@ -1,7 +1,7 @@
 /***********************************************/
 /* EcalCondDBInterface.h		       */
 /* 					       */
-/* $Id: EcalCondDBInterface.h,v 1.14 2008/03/14 10:59:42 fra Exp $ 	        		       */
+/* $Id: EcalCondDBInterface.h,v 1.15 2008/05/08 13:30:59 fra Exp $ 	        		       */
 /* 					       */
 /* Interface to the Ecal Conditions DB.	       */
 /***********************************************/
@@ -267,22 +267,6 @@ class EcalCondDBInterface : public EcalDBConnection {
   MonRunList fetchMonRunList(RunTag tag, MonRunTag monruntag,int min_run, int max_run) throw(std::runtime_error);
   MonRunList fetchMonRunListLastNRuns(RunTag tag, MonRunTag monruntag, int max_run, int n_runs) throw(std::runtime_error);
 
-  // methods for the config FE API
-  FEConfigPedInfo fetchFEConfigPedInfo(int id)  throw(runtime_error);
-  FEConfigPedInfo fetchFEConfigPedInfo(std::string tag ) throw(runtime_error);
-  FEConfigPedInfo fetchFEConfigPedInfoLast()  throw(runtime_error);
-  void insertFEConfigPedInfo(FEConfigPedInfo* iconf) throw(runtime_error);
-
-  FEConfigLUTInfo fetchFEConfigLUTInfoByID(int id)  throw(runtime_error);
-  FEConfigLUTInfo fetchFEConfigLUTInfo(int id)  throw(runtime_error);
-  FEConfigLUTInfo fetchFEConfigLUTInfo(std::string tag ) throw(runtime_error);
-  FEConfigLUTInfo fetchFEConfigLUTInfoLast()  throw(runtime_error);
-  int insertFEConfigLUTInfo(FEConfigLUTInfo* iconf) throw(runtime_error);
-
-
-  FEConfigWeightInfo fetchFEConfigWeightInfo(std::string tag ) throw(runtime_error);
-  FEConfigWeightInfo fetchFEConfigWeightInfoLast()  throw(runtime_error);
-  void insertFEConfigWeightInfo(FEConfigWeightInfo* iconf) throw(runtime_error);
 
 
 
@@ -350,7 +334,8 @@ class EcalCondDBInterface : public EcalDBConnection {
 	iov->writeDB();
       } 
 
-      
+      std::cout<<"id="<<iov->getID()<<endl;
+
       DATT dataIface;
       dataIface.setConnection(env, conn);
       dataIface.prepareWrite();
@@ -406,6 +391,11 @@ class EcalCondDBInterface : public EcalDBConnection {
   }
 
 
+
+
+
+ // CONFIG DB methods 
+
  template<class ICONF >
    void insertConfigSet( ICONF* iconf)
    throw(std::runtime_error)
@@ -413,13 +403,9 @@ class EcalCondDBInterface : public EcalDBConnection {
      try {
        iconf->setConnection(env, conn);
        iconf->prepareWrite();
-       
        // if it has not yet been written then write 
-
-
-	 iconf->writeDB();
-
-      
+       iconf->writeDB();
+       std::cout<< "iconf inserted with ID="<<iconf->getId()<<endl;
        conn->commit();
        iconf->terminateWriteStatement();
      } catch (std::runtime_error &e) {
@@ -447,6 +433,119 @@ class EcalCondDBInterface : public EcalDBConnection {
 
   }
 
+  /*
+   *  Fetch a config set
+   */
+  template<class ICONF>
+  void fetchLastConfigSet( ICONF* iconf)
+    throw(std::runtime_error)
+  {
+
+    iconf->clear();
+    iconf->setConnection(env, conn);
+    iconf->createReadStatement();
+    iconf->fetchLastData(iconf);
+    iconf->terminateReadStatement();
+
+  }
+
+
+
+  /*
+   *  Insert a config data set 
+   */
+  template<class DATT, class ICONF>
+  void insertConfigDataSet(const std::vector< DATT > data, ICONF* iconf)
+    throw(std::runtime_error)
+  {
+    try {
+      iconf->setConnection(env, conn);
+      // if it has not yet been written then write 
+      if(iconf->getId()==0){
+	cout<<"EcalCondDBInterface>> config_id was not set we retrieve it from DB"<<endl;
+	iconf->fetchID();
+      } 
+      if(iconf->getId()==0){
+	cout<<"EcalCondDBInterface>> configuration info was not written we write it"<<endl;
+	iconf->writeDB();
+      } 
+      
+      DATT dataIface;
+      dataIface.setConnection(env, conn);
+      dataIface.prepareWrite();
+      
+      const DATT* dataitem;
+
+      for (int p = 0; p != data->size(); ++p) {
+	dataitem = data[p];
+	dataIface.writeDB( dataitem, iconf);
+      }
+      conn->commit();
+      dataIface.terminateWriteStatement();
+    } catch (std::runtime_error &e) {
+      conn->rollback();
+      throw(e);
+    } catch (...) {
+      conn->rollback();
+      throw(std::runtime_error("EcalCondDBInterface::insertConfigDataSet:  Unknown exception caught"));
+    }
+  }
+  /*
+   *  insert a config data set array fast
+   */
+  template<class DATT, class ICONF>
+  void insertConfigDataArraySet(const std::vector< DATT > data, ICONF* iconf)
+    throw(std::runtime_error)
+  {
+    try {
+      iconf->setConnection(env, conn);
+      // if it has not yet been written then write 
+      if(iconf->getId()==0){
+	cout<<"EcalCondDBInterface>> config_id was not set we retrieve it from DB"<<endl;
+	iconf->fetchID();
+      } 
+      if(iconf->getId()==0){
+	cout<<"EcalCondDBInterface>> configuration info was not written we write it"<<endl;
+	iconf->writeDB();
+      } 
+      
+      DATT dataIface;
+      dataIface.setConnection(env, conn);
+      dataIface.prepareWrite();
+      
+      dataIface.writeArrayDB(data, iconf);
+      conn->commit();
+      
+      dataIface.terminateWriteStatement();
+   
+    } catch (std::runtime_error &e) {
+      conn->rollback();
+      throw(e);
+    } catch (...) {
+      conn->rollback();
+      throw(std::runtime_error("EcalCondDBInterface::insertConfigDataArraySet:  Unknown exception caught"));
+    }
+  }
+  /*
+   *  Fetch a set of data based on an EXACT match of an iov
+   */
+  template<class DATT, class ICONF>
+  void fetchConfigDataSet(std::vector< DATT >* fillMap, ICONF* iconf)
+    throw(std::runtime_error)
+  {
+
+    DATT datiface;
+    datiface.setConnection(env, conn);
+    datiface.createReadStatement();
+    datiface.setPrefetchRowCount(1000);
+    datiface.fetchData( fillMap, iconf );
+    datiface.terminateReadStatement();
+
+  }
+
+
+
+
 
 
 
@@ -464,6 +563,24 @@ class EcalCondDBInterface : public EcalDBConnection {
     datiface.createReadStatement();
     datiface.setPrefetchRowCount(1000);
     datiface.fetchData( fillMap, iov );
+    datiface.terminateReadStatement();
+
+  }
+  /*
+   *  Fetch a set of data based on an EXACT match of an iov
+   * with a specific mapping name 
+   */
+  template<class DATT, class IOVT>
+  void fetchDataSetWithMap(std::map< EcalLogicID, DATT >* fillMap, IOVT* iov, std::string mapping_name )
+    throw(std::runtime_error)
+  {
+    fillMap->clear();
+
+    DATT datiface;
+    datiface.setConnection(env, conn);
+    datiface.createReadStatement();
+    datiface.setPrefetchRowCount(1000);
+    datiface.fetchData( fillMap, iov , mapping_name);
     datiface.terminateReadStatement();
 
   }

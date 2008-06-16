@@ -1,4 +1,6 @@
 #include <stdexcept>
+#include <string>
+#include <string.h>
 #include "OnlineDB/Oracle/interface/Oracle.h"
 
 #include "OnlineDB/EcalCondDB/interface/FEConfigPedInfo.h"
@@ -8,60 +10,199 @@
 using namespace std;
 using namespace oracle::occi;
 
-
-
 FEConfigPedInfo::FEConfigPedInfo()
 {
+  m_env = NULL;
   m_conn = NULL;
-  m_ID = 0;
-  //
-  m_iov_id =0 ;
-  m_tag ="";
+  m_writeStmt = NULL;
+  m_readStmt = NULL;
+  m_config_tag="";
+  m_version=0;
+  m_ID=0;
+  clear();   
+}
 
+
+void FEConfigPedInfo::clear(){
+   m_iov_id=0;
 }
 
 
 
-FEConfigPedInfo::~FEConfigPedInfo(){}
+FEConfigPedInfo::~FEConfigPedInfo()
+{
+}
 
 
-void FEConfigPedInfo::setID(int id){ m_ID = id;  }
-int FEConfigPedInfo::getID(){ return m_ID ;  }
 
-void FEConfigPedInfo::setIOVId(int iov_id){ m_iov_id = iov_id;  }
-int FEConfigPedInfo::getIOVId()const {return m_iov_id;  }
+int FEConfigPedInfo::fetchNextId()  throw(std::runtime_error) {
+
+  int result=0;
+  try {
+    this->checkConnection();
+
+    m_readStmt = m_conn->createStatement(); 
+    m_readStmt->setSQL("select FE_CONFIG_PED_SQ.NextVal from DUAL ");
+    ResultSet* rset = m_readStmt->executeQuery();
+    while (rset->next ()){
+      result= rset->getInt(1);
+    }
+    result++;
+    m_conn->terminateStatement(m_readStmt);
+    return result; 
+
+  } catch (SQLException &e) {
+    throw(runtime_error("FEConfigPedInfo::fetchNextId():  "+e.getMessage()));
+  }
+
+}
+
+void FEConfigPedInfo::prepareWrite()
+  throw(runtime_error)
+{
+  this->checkConnection();
+
+  int next_id=0;
+  if(getId()==0){
+    next_id=fetchNextId();
+  }
+
+  try {
+    m_writeStmt = m_conn->createStatement();
+    m_writeStmt->setSQL("INSERT INTO "+getTable()+" ( ped_conf_id, tag, version, iov_id) " 
+			" VALUES ( :1, :2, :3 , :4) " );
+
+    m_writeStmt->setInt(1, next_id);
+    m_ID=next_id;
+
+  } catch (SQLException &e) {
+    throw(runtime_error("FEConfigPedInfo::prepareWrite():  "+e.getMessage()));
+  }
+
+}
+
+void FEConfigPedInfo::setParameters(std::map<string,string> my_keys_map){
+  
+  // parses the result of the XML parser that is a map of 
+  // string string with variable name variable value 
+  
+  for( std::map<std::string, std::string >::iterator ci=
+	 my_keys_map.begin(); ci!=my_keys_map.end(); ci++ ) {
+    
+    if(ci->first==  "VERSION") setVersion(atoi(ci->second.c_str()) );
+    if(ci->first==  "TAG") setConfigTag(ci->second);
+    if(ci->first==  "IOV_ID") setIOVId(atoi(ci->second.c_str()) );
+    
+  }
+  
+}
+
+void FEConfigPedInfo::writeDB()
+  throw(runtime_error)
+{
+  this->checkConnection();
+  this->checkPrepare();
+
+  try {
+
+    // number 1 is the id 
+    m_writeStmt->setString(2, this->getConfigTag());
+    m_writeStmt->setInt(3, this->getVersion());
+    m_writeStmt->setInt(4, this->getIOVId());
+
+    m_writeStmt->executeUpdate();
 
 
-Tm FEConfigPedInfo::getDBTime() const{  return m_db_time;}
+  } catch (SQLException &e) {
+    throw(runtime_error("FEConfigPedInfo::writeDB():  "+e.getMessage()));
+  }
+  // Now get the ID
+  if (!this->fetchID()) {
+    throw(runtime_error("FEConfigPedInfo::writeDB:  Failed to write"));
+  }
 
-void FEConfigPedInfo::setTag(std::string x) {
-  if (x != m_tag) {
-    m_ID = 0;
-    m_tag = x;
+
+}
+
+
+void FEConfigPedInfo::fetchData(FEConfigPedInfo * result)
+  throw(runtime_error)
+{
+  this->checkConnection();
+  result->clear();
+  if(result->getId()==0 && (result->getConfigTag()=="") ){
+    throw(runtime_error("FEConfigPedInfo::fetchData(): no Id defined for this FEConfigPedInfo "));
+  }
+
+  try {
+    DateHandler dh(m_env, m_conn);
+
+    m_readStmt->setSQL("SELECT * FROM " + getTable() +   
+                       " where ( ped_conf_id= :1 or (tag=:2 AND version=:3 ) )" );
+    m_readStmt->setInt(1, result->getId());
+    m_readStmt->setString(2, result->getConfigTag());
+    m_readStmt->setInt(3, result->getVersion());
+    ResultSet* rset = m_readStmt->executeQuery();
+
+    rset->next();
+
+    // 1 is the id and 2 is the config tag and 3 is the version
+
+    result->setId(rset->getInt(1));
+    result->setConfigTag(rset->getString(2));
+    result->setVersion(rset->getInt(3));
+    result->setIOVId(rset->getInt(4));
+    Date dbdate = rset->getDate(5);
+    result->setDBTime( dh.dateToTm( dbdate ));
+
+  } catch (SQLException &e) {
+    throw(runtime_error("FEConfigPedInfo::fetchData():  "+e.getMessage()));
   }
 }
 
-std::string FEConfigPedInfo::getTag() const{  return m_tag;}
-
-//    
-int FEConfigPedInfo::fetchID()
+void FEConfigPedInfo::fetchLastData(FEConfigPedInfo * result)
   throw(runtime_error)
 {
+  this->checkConnection();
+  result->clear();
+  try {
+    DateHandler dh(m_env, m_conn);
+
+    m_readStmt->setSQL("SELECT * FROM " + getTable() +   
+                       " where   ped_conf_id = ( select max( ped_conf_id) from "+ getTable() +" ) " );
+    ResultSet* rset = m_readStmt->executeQuery();
+
+    rset->next();
+
+    result->setId(rset->getInt(1));
+    result->setConfigTag(rset->getString(2));
+    result->setVersion(rset->getInt(3));
+    result->setIOVId(rset->getInt(4));
+    Date dbdate = rset->getDate(5);
+    result->setDBTime( dh.dateToTm( dbdate ));
+
+  } catch (SQLException &e) {
+    throw(runtime_error("FEConfigPedInfo::fetchData():  "+e.getMessage()));
+  }
+}
+
+int FEConfigPedInfo::fetchID()    throw(std::runtime_error)
+{
   // Return from memory if available
-  if (m_ID) {
+  if (m_ID!=0) {
     return m_ID;
   }
 
   this->checkConnection();
 
-
-  DateHandler dh(m_env, m_conn);
-
   try {
     Statement* stmt = m_conn->createStatement();
-    stmt->setSQL("SELECT ped_conf_id FROM fe_config_ped_info "
-		 "WHERE iov_id = :iov_id  ");
-    stmt->setInt(1, m_iov_id);
+    stmt->setSQL("SELECT ped_conf_id FROM "+ getTable()+
+                 " WHERE  tag=:1 and version=:2 " );
+
+    stmt->setString(1, getConfigTag() );
+    stmt->setInt(2, getVersion() );
+
     ResultSet* rset = stmt->executeQuery();
 
     if (rset->next()) {
@@ -77,62 +218,6 @@ int FEConfigPedInfo::fetchID()
   return m_ID;
 }
 
-//
-int FEConfigPedInfo::fetchIDLast()
-  throw(runtime_error)
-{
-
-  this->checkConnection();
-
-
-  DateHandler dh(m_env, m_conn);
-
-  try {
-    Statement* stmt = m_conn->createStatement();
-    stmt->setSQL("SELECT max( ped_conf_id) FROM fe_config_ped_info "	);
-    ResultSet* rset = stmt->executeQuery();
-
-    if (rset->next()) {
-      m_ID = rset->getInt(1);
-    } else {
-      m_ID = 0;
-    }
-    m_conn->terminateStatement(stmt);
-  } catch (SQLException &e) {
-    throw(runtime_error("FEConfigPedInfo::fetchIDLast:  "+e.getMessage()));
-  }
-
-  return m_ID;
-}
-
-//
-int FEConfigPedInfo::fetchIDFromTag()
-  throw(runtime_error)
-{
-  // selects tha most recent config id with a given tag 
-
-  this->checkConnection();
-
-  DateHandler dh(m_env, m_conn);
-
-  try {
-    Statement* stmt = m_conn->createStatement();
-    stmt->setSQL("SELECT max(ped_conf_id) FROM fe_config_ped_info "
-		 "WHERE tag = :tag  ");
-    stmt->setString(1, m_tag);
-    ResultSet* rset = stmt->executeQuery();
-
-    if (rset->next()) {
-      m_ID = rset->getInt(1);
-    } else {
-      m_ID = 0;
-    }
-    m_conn->terminateStatement(stmt);
-  } catch (SQLException &e) {
-    throw(runtime_error("FEConfigPedInfo::fetchIDFromTag:  "+e.getMessage()));
-  }
-  return m_ID;
-}
 
 
 void FEConfigPedInfo::setByID(int id) 
@@ -145,17 +230,17 @@ void FEConfigPedInfo::setByID(int id)
    try {
      Statement* stmt = m_conn->createStatement();
 
-     stmt->setSQL("SELECT iov_id, db_timestamp, tag FROM fe_config_ped_info WHERE ped_conf_id = :1");
+     stmt->setSQL("SELECT * FROM fe_config_ped_info WHERE ped_conf_id = :1");
      stmt->setInt(1, id);
      
      ResultSet* rset = stmt->executeQuery();
      if (rset->next()) {
-       m_iov_id = rset->getInt(1);
-       Date dbdate = rset->getDate(2);
-       m_db_time = dh.dateToTm( dbdate );
-       m_tag=rset->getString(3);
-       m_ID = id;
-
+       this->setId(rset->getInt(1));
+       this->setConfigTag(rset->getString(2));
+       this->setVersion(rset->getInt(3));
+       this->setIOVId(rset->getInt(4));
+       Date dbdate = rset->getDate(5);
+       this->setDBTime( dh.dateToTm( dbdate ));
      } else {
        throw(runtime_error("FEConfigPedInfo::setByID:  Given config_id is not in the database"));
      }
@@ -165,45 +250,6 @@ void FEConfigPedInfo::setByID(int id)
      throw(runtime_error("FEConfigPedInfo::setByID:  "+e.getMessage()));
    }
 }
-
-
-
-int FEConfigPedInfo::writeDB()
-  throw(runtime_error)
-{
-  this->checkConnection();
-
-  // Check if this IOV has already been written
-  if (this->fetchID()) {
-    return m_ID;
-  }
-  
-  // Validate the data, use infinity-till convention
-  DateHandler dh(m_env, m_conn);
-
-  try {
-    Statement* stmt = m_conn->createStatement();
-    
-    stmt->setSQL("INSERT INTO FE_CONFIG_PED_INFO (ped_conf_id, iov_id, tag ) "
-		 "VALUES (FE_CONFIG_PED_SQ.NextVal, :1, :2 )");
-    stmt->setInt(1, m_iov_id);
-    stmt->setString(2, m_tag );
-
-    stmt->executeUpdate();
-
-    m_conn->terminateStatement(stmt);
-  } catch (SQLException &e) {
-    throw(runtime_error("FEConfigPedInfo::writeDB:  "+e.getMessage()));
-  }
-
-  // Now get the ID
-  if (!this->fetchID()) {
-    throw(runtime_error("FEConfigPedInfo::writeDB:  Failed to write"));
-  }
-  
-  return m_ID;
-}
-
 
 
 

@@ -14,7 +14,7 @@ FEConfigPedDat::FEConfigPedDat()
   m_conn = NULL;
   m_writeStmt = NULL;
   m_readStmt = NULL;
-
+  m_ID=0;
   m_pedMeanG1 = 0;
   m_pedMeanG6 = 0;
   m_pedMeanG12 = 0;
@@ -28,7 +28,6 @@ FEConfigPedDat::~FEConfigPedDat()
 }
 
 
-
 void FEConfigPedDat::prepareWrite()
   throw(runtime_error)
 {
@@ -36,7 +35,8 @@ void FEConfigPedDat::prepareWrite()
 
   try {
     m_writeStmt = m_conn->createStatement();
-    m_writeStmt->setSQL("INSERT INTO fe_config_ped_dat (ped_conf_id, logic_id, "
+
+    m_writeStmt->setSQL("INSERT INTO "+getTable()+" (ped_conf_id, logic_id, "
 		      "mean_12, mean_6, mean_1 ) "
 		      "VALUES (:ped_conf_id, :logic_id, "
 		      ":ped_mean_g12, :ped_mean_g6, :ped_mean_g1 )" );
@@ -47,11 +47,10 @@ void FEConfigPedDat::prepareWrite()
 
 
 
-void FEConfigPedDat::writeDB(const EcalLogicID* ecid, const FEConfigPedDat* item, FEConfigPedInfo* iconf)
+void FEConfigPedDat::writeDB(const EcalLogicID* ecid, const FEConfigPedDat* item, FEConfigPedInfo* iconf )
   throw(runtime_error)
 {
   this->checkConnection();
-  this->checkPrepare();
 
   int iconfID = iconf->fetchID();
   if (!iconfID) { throw(runtime_error("FEConfigPedDat::writeDB:  ICONF not in DB")); }
@@ -71,7 +70,6 @@ void FEConfigPedDat::writeDB(const EcalLogicID* ecid, const FEConfigPedDat* item
     throw(runtime_error("FEConfigPedDat::writeDB():  "+e.getMessage()));
   }
 }
-
 
 
 void FEConfigPedDat::fetchData(map< EcalLogicID, FEConfigPedDat >* fillMap, FEConfigPedInfo* iconf)
