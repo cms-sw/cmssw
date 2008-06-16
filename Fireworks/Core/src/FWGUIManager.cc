@@ -8,7 +8,7 @@
 //
 // Original Author:  Chris Jones
 //         Created:  Mon Feb 11 11:06:40 EST 2008
-// $Id: FWGUIManager.cc,v 1.26 2008/06/09 18:50:53 chrjones Exp $
+// $Id: FWGUIManager.cc,v 1.27 2008/06/13 23:38:18 chrjones Exp $
 //
 
 // system include files
@@ -33,6 +33,7 @@
 #include "TEveGedEditor.h"
 #include "TEveSelection.h"
 #include "TGFileDialog.h"
+#include "TStopwatch.h"
 
 // user include files
 #include "Fireworks/Core/interface/FWGUIManager.h"
@@ -93,7 +94,9 @@ m_dataAdder(0)
    TApplication::NeedGraphicsLibs();
    gApplication->InitializeGraphics();
    
+   // TEveManager::Create(kFALSE);
    TEveManager::Create();
+   // gEve->SetUseOrphanage(kTRUE);
    TEveBrowser* browser = gEve->GetBrowser();
    // TGFrame* f = (TGFrame*) gClient->GetDefaultRoot();
    // browser->MoveResize(f->GetX(), f->GetY(), f->GetWidth(), f->GetHeight());
@@ -546,6 +549,7 @@ namespace {
 int
 FWGUIManager::allowInteraction()
 {
+   TStopwatch watch;
    //need to reset
    m_continueProcessingEvents = false;
    EnableButton homeB(m_homeButton);
@@ -561,6 +565,9 @@ FWGUIManager::allowInteraction()
    
    //check for input at least once
    gSystem->ProcessEvents();
+   // gEve->GetBrowser()->MapWindow();
+   printf("Rendering time: \n");
+   watch.Stop(); watch.Print("m");
    while(not gROOT->IsInterrupted() and
          m_waitForUserAction and 
          not m_continueProcessingEvents) {

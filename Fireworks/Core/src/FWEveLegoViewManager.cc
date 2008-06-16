@@ -8,7 +8,7 @@
 //
 // Original Author:  
 //         Created:  Sun Jan  6 22:01:27 EST 2008
-// $Id: FWEveLegoViewManager.cc,v 1.5 2008/06/10 19:28:01 chrjones Exp $
+// $Id: FWEveLegoViewManager.cc,v 1.6 2008/06/11 13:57:32 dmytro Exp $
 //
 
 // system include files
@@ -150,14 +150,6 @@ FWEveLegoViewManager::newEventAvailable()
 	      hist->Rebin2D(); // FIX ME
 	      unsigned int index = m_data->AddHistogram(hist);
 	      m_data->RefSliceInfo(index).Setup(hist->GetTitle(), 0., hist->GetFillColor());
-	      // set color
-	      // TColor *color = gROOT->GetColor( hist->GetFillColor() );
-	      // new TColor( 1000+m_data->GetNSlices()-1, color->GetRed(), color->GetGreen(), color->GetBlue() );
-	      
-	      // HACK to share a single histogram for each proxy
-	      // TEveLegoDataHist creates an internal copy of the histogram, 
-	      // let's use it for the product as well.
-	      // proxy->product = const_cast<TH2F*>(m_data->GetHistogram(index-1) );
 	      
 	      proxy->product = hist;
 	      continue;
