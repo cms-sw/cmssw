@@ -84,8 +84,12 @@ from RecoEgamma.EgammaElectronProducers.pixelMatchGsfElectrons_cff import *
 from TrackingTools.GsfTracking.GsfElectronFit_cff import *
 import TrackingTools.GsfTracking.GsfElectronFit_cfi
 pixelMatchGsfFit = TrackingTools.GsfTracking.GsfElectronFit_cfi.GsfGlobalElectronTest.clone()
+from RecoEgamma.ElectronIdentification.electronIdSequence_cff import *
 # Photon reconstruction
 from RecoEgamma.EgammaPhotonProducers.photonSequence_cff import *
+from RecoEgamma.PhotonIdentification.photonId_cff import *
+# Both for electrons and photons
+from RecoEgamma.EgammaIsolationAlgos.egammaIsolationSequence_cff import * 
 # B tagging
 from RecoJets.JetAssociationProducers.ic5JetTracksAssociatorAtVertex_cfi import *
 from RecoVertex.Configuration.RecoVertex_cff import *
@@ -101,8 +105,8 @@ caloJetMetGen = cms.Sequence(genParticles+genJetParticles+recoGenJets+genMETPart
 famosMuonSequence = cms.Sequence(muonDigi+muonlocalreco+MuonSeed+standAloneMuons+globalMuons)
 #replace muIsoDepositTk.ExtractorPSet = { using MIsoTrackExtractorGsBlock }
 famosMuonIdAndIsolationSequence = cms.Sequence(sisCone5CaloJets+muonIdProducerSequence+muIsolation)
-famosElectronSequence = cms.Sequence(globalMixedSeeds+electronGSPixelSeeds+electronGSGsfTrackCandidates+pixelMatchGsfFit+pixelMatchGsfElectrons)
-famosPhotonSequence = cms.Sequence(photonSequence)
+famosElectronSequence = cms.Sequence(globalMixedSeeds+electronGSPixelSeeds+electronGSGsfTrackCandidates+pixelMatchGsfFit+pixelMatchGsfElectrons+eIdSequence)
+famosPhotonSequence = cms.Sequence(photonSequence+photonIDSequence)
 famosBTaggingSequence = cms.Sequence(btagging)
 famosTauTaggingSequence = cms.Sequence(tautagging)
 #replace pfRecoTauProducer.PVProducer = "offlinePrimaryVerticesFromCTFTracks"
@@ -127,16 +131,16 @@ famosWithTracksAndJets = cms.Sequence(famosWithTracksAndCaloTowers+caloJetMetGen
 famosWithCaloTowersAndParticleFlow = cms.Sequence(famosWithParticleFlow+caloTowersRec)
 famosWithMuons = cms.Sequence(famosWithTracks+paramMuons)
 famosWithMuonsAndIsolation = cms.Sequence(famosWithTracksAndCaloTowers+paramMuons+sisCone5CaloJets+muIsolation_ParamGlobalMuons)
-famosWithElectrons = cms.Sequence(famosWithTrackerHits+caloRecHits+ecalClusters+famosElectronSequence)
-famosWithPhotons = cms.Sequence(famosWithTrackerHits+caloRecHits+ecalClusters+famosPhotonSequence)
-famosWithElectronsAndPhotons = cms.Sequence(famosWithTrackerHits+caloRecHits+ecalClusters+famosElectronSequence+famosPhotonSequence)
+famosWithElectrons = cms.Sequence(famosWithTrackerHits+caloRecHits+ecalClusters+famosElectronSequence+egammaIsolationSequence)
+famosWithPhotons = cms.Sequence(famosWithTrackerHits+caloRecHits+ecalClusters+famosPhotonSequence+egammaIsolationSequence)
+famosWithElectronsAndPhotons = cms.Sequence(famosWithTrackerHits+caloRecHits+ecalClusters+famosElectronSequence+famosPhotonSequence+egammaIsolationSequence)
 famosWithBTagging = cms.Sequence(famosWithTracksAndCaloTowers+vertexreco+iterativeCone5CaloJets+ic5JetTracksAssociatorAtVertex+ecalClusters+famosMuonSequence+famosBTaggingSequence)
 famosWithTauTagging = cms.Sequence(famosWithTracksAndCaloTowers+vertexreco+iterativeCone5CaloJets+ic5JetTracksAssociatorAtVertex+ecalClusters+famosTauTaggingSequence)
 famosWithPFTauTagging = cms.Sequence(famosWithCaloTowersAndParticleFlow+vertexreco+famosPFTauTaggingSequence)
 # The simulation sequence
 simulationWithFamos = cms.Sequence(famosSimulationSequence+siTrackerGaussianSmearingRecHits+caloRecHits)
 # The reconstruction sequence
-reconstructionWithFamos = cms.Sequence(iterativeTracking+vertexreco+caloTowersRec+ecalClusters+famosElectronSequence+famosPhotonSequence+famosMuonSequence+famosMuonIdAndIsolationSequence+famosParticleFlowSequence+caloJetMetGen+caloJetMet+PFJetMet+paramMuons+muIsolation_ParamGlobalMuons+ic5JetTracksAssociatorAtVertex+famosBTaggingSequence+famosTauTaggingSequence+famosPFTauTaggingSequence)
+reconstructionWithFamos = cms.Sequence(iterativeTracking+vertexreco+caloTowersRec+ecalClusters+famosElectronSequence+famosPhotonSequence+egammaIsolationSequence+famosMuonSequence+famosMuonIdAndIsolationSequence+famosParticleFlowSequence+caloJetMetGen+caloJetMet+PFJetMet+paramMuons+muIsolation_ParamGlobalMuons+ic5JetTracksAssociatorAtVertex+famosBTaggingSequence+famosTauTaggingSequence+famosPFTauTaggingSequence)
 famosWithEverything = cms.Sequence(simulationWithFamos+reconstructionWithFamos)
 # 2) Specific cuts
 # Add a chi**2 cut to retain/reject hits
