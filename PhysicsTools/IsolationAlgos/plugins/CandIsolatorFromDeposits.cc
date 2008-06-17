@@ -67,7 +67,7 @@ CandIsolatorFromDeposits::SingleDeposit::SingleDeposit(const edm::ParameterSet &
     usesFunction_ = true;
     //std::cout << "Weight is a function, this might slow you down... " << std::endl;
   }
-  std::cout << "Total of " << vetos_.size() << " vetos" << std::endl;
+  //std::cout << "CandIsolatorFromDeposits::SingleDeposit::SingleDeposit: Total of " << vetos_.size() << " vetos" << std::endl;
 }
 void CandIsolatorFromDeposits::SingleDeposit::cleanup() {
     for (AbsVetos::iterator it = vetos_.begin(), ed = vetos_.end(); it != ed; ++it) {
