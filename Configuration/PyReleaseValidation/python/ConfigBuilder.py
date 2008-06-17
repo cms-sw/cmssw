@@ -5,7 +5,7 @@
 # creates a complete config file.
 # relval_main + the custom config for it is not needed any more
 
-__version__ = "$Revision: 1.25 $"
+__version__ = "$Revision: 1.26 $"
 __source__ = "$Source: /cvs_server/repositories/CMSSW/CMSSW/Configuration/PyReleaseValidation/python/ConfigBuilder.py,v $"
 
 import FWCore.ParameterSet.Config as cms
@@ -305,12 +305,12 @@ class ConfigBuilder(object):
         self.process.fastsim_step = cms.Path( getattr(self.process, sequence) )
         self.process.schedule.append(self.process.fastsim_step)
     
-    def build_production_info(evt_type, energy, evtnumber):
+    def build_production_info(self, evt_type, energy, evtnumber):
         """ Add useful info for the production. """
         prod_info=cms.untracked.PSet\
-              (version=cms.untracked.string("$Revision: 1.25 $"),
-               name=cms.untracked.string("PyReleaseValidation")#,
-              # annotation=cms.untracked.string(self._options.evt_type+" energy:"+str(energy)+" nevts:"+str(evtnumber))
+              (version=cms.untracked.string("$Revision: 1.26 $"),
+               name=cms.untracked.string("PyReleaseValidation"),
+               annotation=cms.untracked.string(evt_type+" energy:"+str(energy)+" nevts:"+str(evtnumber))
               )
     
         return prod_info
@@ -329,6 +329,21 @@ class ConfigBuilder(object):
         self.pythonCfgCode += "# import of standard configurations\n"
         for module in self.imports:
             self.pythonCfgCode += ("process.load('"+module+"')\n")
+
+        # dump ReleaseValidation PSet
+        totnumevts = int(self._options.relval.split(",")[0])
+        evtsperjob = int(self._options.relval.split(",")[1])
+        dsetname="RelVal"+self._options.ext_process_name
+
+        self.process.ReleaseValidation=cms.untracked.PSet(totalNumberOfEvents=cms.untracked.int32(totnumevts),
+                                                     eventsPerJob=cms.untracked.int32(evtsperjob),
+                                                     primaryDatasetName=cms.untracked.string(dsetname))
+        self.pythonCfgCode += "\nprocess.ReleaseValidation = "+self.process.ReleaseValidation.dumpPython()
+ 
+        # dump production info
+        if not hasattr(self.process,"configurationMetadata"):
+            self.process.configurationMetadata=self.build_production_info(self._options.evt_type, self._options.energy, self._options.number)
+        self.pythonCfgCode += "\nprocess.configurationMetadata = "+self.process.configurationMetadata.dumpPython()       
         
         # dump max events block
         self.pythonCfgCode += "\nprocess.maxEvents = "+self.process.maxEvents.dumpPython()
