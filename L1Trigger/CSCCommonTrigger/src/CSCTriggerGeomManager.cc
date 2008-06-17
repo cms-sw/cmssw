@@ -16,16 +16,12 @@ CSCTriggerGeomManager::sectorOfChambersInStation(unsigned endcap, unsigned stati
   for(int tcscid = CSCTriggerNumbering::minTriggerCscId(); 
       tcscid <= CSCTriggerNumbering::maxTriggerCscId(); ++tcscid)
     {
-      try
-	{
-	  ring = CSCTriggerNumbering::ringFromTriggerLabels(station,tcscid);
-	  chamber = CSCTriggerNumbering::chamberFromTriggerLabels(sector,subsector,station,tcscid);
-	  
-	  id = CSCDetId(endcap,station,ring,chamber,0);
-	  
-	  result.push_back(const_cast<CSCChamber*>(geom->chamber(id)));
-	}
-      catch(...) {}
+      ring = CSCTriggerNumbering::ringFromTriggerLabels(station,tcscid);
+      chamber = CSCTriggerNumbering::chamberFromTriggerLabels(sector,subsector,station,tcscid);
+      
+      id = CSCDetId(endcap,station,ring,chamber,0);
+      
+      result.push_back(const_cast<CSCChamber*>(geom->chamber(id)));
     }
 
   return result;
@@ -41,15 +37,11 @@ CSCTriggerGeomManager::chamber(unsigned endcap, unsigned station,
   int ring = 0;
   int chamber = 0;
 
-  try
-    {
-      ring = CSCTriggerNumbering::ringFromTriggerLabels(station,tcscid);
-      chamber = CSCTriggerNumbering::chamberFromTriggerLabels(sector,subsector,station,tcscid);
-      CSCDetId id(endcap,station,ring,chamber,0);
-      
-      result = const_cast<CSCChamber*>(geom->chamber(id));
-    }
-  catch(...) {}  
+  ring = CSCTriggerNumbering::ringFromTriggerLabels(station,tcscid);
+  chamber = CSCTriggerNumbering::chamberFromTriggerLabels(sector,subsector,station,tcscid);
+  CSCDetId id(endcap,station,ring,chamber,0);
+  
+  result = const_cast<CSCChamber*>(geom->chamber(id));
   
   return result;
 }
