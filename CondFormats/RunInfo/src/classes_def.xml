@@ -1,0 +1,6 @@
+<lcgdict>
+ <class name="RunNumber::Item"/>
+ <class name="std::vector<RunNumber::Item>"/>
+ <class name="RunNumber" class_version="0"/>
+ 
+</lcgdict>  
