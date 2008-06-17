@@ -329,7 +329,7 @@ void SiStripRawToDigiUnpacker::createDigis( const SiStripFedCabling& cabling,
         zero_suppr_vector.push_back( edm::DetSet<SiStripDigi>(key) );
 	edm::DetSet<SiStripDigi>& zs = zero_suppr_vector.back();
 	
-	zs.data.reserve(768);
+	zs.data.reserve(10); //@@ was 768 - changed in response to request from Andrea Rizzi
 	try{ 
 	  Fed9U::Fed9UEventIterator fed_iter = const_cast<Fed9U::Fed9UEventChannel&>(fedEvent_->channel( iunit, ichan )).getIterator();
 	  for (Fed9U::Fed9UEventIterator i = fed_iter+7; i.size() > 0; /**/) {
@@ -354,7 +354,7 @@ void SiStripRawToDigiUnpacker::createDigis( const SiStripFedCabling& cabling,
         zero_suppr_vector.push_back(edm::DetSet<SiStripDigi>(key));
 	edm::DetSet<SiStripDigi>& zs = zero_suppr_vector.back();
 
-	zs.data.reserve(768); 
+	zs.data.reserve(10); //@@ was 768 - changed in response to request from Andrea Rizzi 
 	try {
 	  Fed9U::Fed9UEventIterator fed_iter = const_cast<Fed9U::Fed9UEventChannel&>(fedEvent_->channel( iunit, ichan )).getIterator();
 	  for (Fed9U::Fed9UEventIterator i = fed_iter+2; i.size() > 0; /**/) {
