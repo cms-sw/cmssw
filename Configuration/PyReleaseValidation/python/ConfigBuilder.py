@@ -5,7 +5,7 @@
 # creates a complete config file.
 # relval_main + the custom config for it is not needed any more
 
-__version__ = "$Revision: 1.24 $"
+__version__ = "$Revision: 1.25 $"
 __source__ = "$Source: /cvs_server/repositories/CMSSW/CMSSW/Configuration/PyReleaseValidation/python/ConfigBuilder.py,v $"
 
 import FWCore.ParameterSet.Config as cms
@@ -138,9 +138,12 @@ class ConfigBuilder(object):
             self.contentFile = "Configuration/EventContent/EventContent_cff"
             self.imports=['Configuration/StandardSequences/Services_cff',
                           'Configuration/StandardSequences/Geometry_cff',
-                          'Configuration/StandardSequences/MagneticField_cff',
                           'FWCore/MessageService/MessageLogger_cfi',
                           'Configuration/StandardSequences/Generator_cff']         # rm    
+            if self._options.magField == "3.8T":
+               self.imports.append('Configuration/StandardSequences/MagneticField_38_cff')
+            else:
+                self.imports.append('Configuration/StandardSequences/MagneticField_cff')
            
             if self._options.PU_flag:
                 self.imports.append('Configuration/StandardSequences/MixingLowLumiPileUp_cff')
@@ -305,7 +308,7 @@ class ConfigBuilder(object):
     def build_production_info(evt_type, energy, evtnumber):
         """ Add useful info for the production. """
         prod_info=cms.untracked.PSet\
-              (version=cms.untracked.string("$Revision: 1.24 $"),
+              (version=cms.untracked.string("$Revision: 1.25 $"),
                name=cms.untracked.string("PyReleaseValidation")#,
               # annotation=cms.untracked.string(self._options.evt_type+" energy:"+str(energy)+" nevts:"+str(evtnumber))
               )

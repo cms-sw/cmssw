@@ -133,6 +133,11 @@ parser.add_option("--beamspot",
                    default="Early10TeVCollision",
                    dest="beamspot")
 
+parser.add_option("--magField",
+                   help="What magnetic fiel to use (from Configuration/StandardSequences). Default=4.0T",
+                   default="4.0T",
+                   dest="magField")
+
 parser.add_option("--altcffs",
                    help="Specify any nondefault cffs to include (replace the default ones) [syntax <step>:cff]",
                    default="",
