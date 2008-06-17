@@ -803,4 +803,3 @@ void SiStripMonitorTrack::fillTrendMEs(SiStripClusterInfo* cluster,std::string n
   }
 }
 
-DEFINE_FWK_MODULE(SiStripMonitorTrack);
