@@ -14,7 +14,7 @@ csctfpacker = cms.EDFilter("CSCTFPacker",
     activeSectors = cms.int32(4095),
     nTBINs = cms.int32(7),
     # Agreement in CSC community to shift and reverse ME-1 strips as opposed to hardware
-    swapME1strips = cms.bool(True)
+    swapME1strips = cms.bool(False)
 )
 
 
