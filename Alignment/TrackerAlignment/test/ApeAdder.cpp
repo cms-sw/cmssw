@@ -96,15 +96,7 @@ void ApeAdder::analyze( const edm::Event& iEvent, const edm::EventSetup& iSetup 
     throw cms::Exception("NotAvailable") << "PoolDBOutputService not available";
 
   // Save to DB
-//   if ( poolDbService->isNewTagRequest(theErrorRecordName) )
-//     poolDbService->createNewIOV<AlignmentErrors>( alignmentErrors,
-//                                                   poolDbService->endOfTime(), 
-//                                                   theErrorRecordName );
-//   else
-//     poolDbService->appendSinceTime<AlignmentErrors>( alignmentErrors,
-//                                                      poolDbService->currentTime(), 
-//                                                      theErrorRecordName );
-  poolDbService->writeOne<AlignmentErrors>(alignmentErrors, poolDbService->currentTime(),
+  poolDbService->writeOne<AlignmentErrors>(alignmentErrors, poolDbService->beginOfTime(),
                                            theErrorRecordName);
 
 
@@ -117,7 +109,7 @@ void ApeAdder::addApe( std::vector<Alignable*> alignables )
   
   AlignmentPositionError ape( theApe[0], theApe[1], theApe[2] );
   for ( std::vector<Alignable*>::iterator iDet = alignables.begin();
-		iDet != alignables.end(); iDet++ )
+		iDet != alignables.end(); ++iDet )
     (*iDet)->setAlignmentPositionError( ape );
     
 }
