@@ -114,7 +114,7 @@ TestAlign::analyze( const edm::Event& iEvent, const edm::EventSetup& iSetup )
 
 
   // Saves to DB
-  align.saveToDB();
+  //  align.saveToDB();
 
 
 }
