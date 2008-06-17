@@ -122,22 +122,22 @@ double PhotonIDAlgo::calculateBasicClusterIso(const reco::Photon* photon,
 					      
 
   edm::Handle<reco::BasicClusterCollection> basicClusterH;
-  edm::Handle<reco::SuperClusterCollection> superIslandClusterH;
+  edm::Handle<reco::SuperClusterCollection> endcapSuperClusterH;
 
   double peta = photon->p4().Eta();
   if (fabs(peta) > 1.479){
     iEvent.getByLabel(endcapbasicclusterProducer_,endcapbasicclusterCollection_,basicClusterH);
-    iEvent.getByLabel(endcapSuperClusterProducer_,endcapsuperclusterCollection_,superIslandClusterH);
+    iEvent.getByLabel(endcapSuperClusterProducer_,endcapsuperclusterCollection_,endcapSuperClusterH);
   }
   else{
     iEvent.getByLabel(barrelbasicclusterProducer_,barrelbasicclusterCollection_,basicClusterH);
-    iEvent.getByLabel(barrelislandsuperclusterProducer_,barrelislandsuperclusterCollection_,superIslandClusterH);
+    iEvent.getByLabel(barrelsuperclusterProducer_,barrelsuperclusterCollection_,endcapSuperClusterH);
   }
   const reco::BasicClusterCollection* basicClusterCollection_ = basicClusterH.product();
-  const reco::SuperClusterCollection* islandSuperClusterCollection_ = superIslandClusterH.product();
+  const reco::SuperClusterCollection* endcapSuperClusterCollection_ = endcapSuperClusterH.product();
 
   double ecalIsol=0.;
-  EgammaEcalIsolation phoIso(RCone,etMin, basicClusterCollection_, islandSuperClusterCollection_);
+  EgammaEcalIsolation phoIso(RCone,etMin, basicClusterCollection_, endcapSuperClusterCollection_);
   ecalIsol = phoIso.getEcalEtSum(photon);
   //  delete phoIso;
 

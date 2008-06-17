@@ -62,8 +62,8 @@ public:
 
   std::string endcapSuperClusterProducer_;      
   std::string endcapsuperclusterCollection_;
-  std::string barrelislandsuperclusterCollection_;
-  std::string barrelislandsuperclusterProducer_;
+  std::string barrelsuperclusterCollection_;
+  std::string barrelsuperclusterProducer_;
   std::string barrelbasicclusterCollection_;
   std::string barrelbasicclusterProducer_;
   std::string endcapbasicclusterCollection_;

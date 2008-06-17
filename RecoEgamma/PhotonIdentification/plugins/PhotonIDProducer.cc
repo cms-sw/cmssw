@@ -2,7 +2,6 @@
 #include "DataFormats/EgammaCandidates/interface/PhotonID.h"
 #include "DataFormats/EgammaCandidates/interface/PhotonIDAssociation.h"
 #include "DataFormats/EgammaReco/interface/BasicCluster.h"
-#include "DataFormats/EgammaReco/interface/BasicClusterShapeAssociation.h"
 #include "DataFormats/EgammaCandidates/interface/PhotonFwd.h"
 
 //void PhotonIDProducer::beginJob(edm::EventSetup const& iSetup) {
