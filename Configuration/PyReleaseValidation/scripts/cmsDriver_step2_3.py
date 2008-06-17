@@ -143,7 +143,7 @@ baseCommand='cmsDriver.py'
 conditions='FrontierConditions_GlobalTag,'+options.gt+'::All'
 eventcontent='RECOSIM'
 if typeOfEv == 'RELVAL':
-    eventcontent='FEVTSIMDIGIHLTDEBUG'
+    eventcontent='FEVTDEBUGHLT'
     
 steps2='RAW2DIGI,RECO'+recoseqCustomiseDict[typeOfEv]
 
