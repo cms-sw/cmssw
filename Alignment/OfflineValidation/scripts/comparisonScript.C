@@ -22,7 +22,7 @@ void comparisonScript(string inFile="../test/comparisonSurvey.root",string outDi
 	// ------------ COMMON CUTS -----------
 	// LEVEL CUT - which hierarchy to plot
 	// for convention, see: http://cmssw.cvs.cern.ch/cgi-bin/cmssw.cgi/CMSSW/Alignment/CommonAlignment/interface/StructureType.h?view=log
-	TCut levelCut = "(level == 2)";
+	TCut levelCut = "(level == 1)"; // plotting DetUnits
 	// SUBLEVEL CUT - plot only alignables belongnig to this subdetector
 	TCut PXBCut = "(sublevel == 1)"; // PXB
 	TCut PXFCut = "(sublevel == 2)"; // PXF

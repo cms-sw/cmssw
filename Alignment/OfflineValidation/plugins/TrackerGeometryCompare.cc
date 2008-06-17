@@ -503,11 +503,11 @@ void TrackerGeometryCompare::fillTree(Alignable *refAli, AlgebraicVector diff){
 		}
 	}
 	// det module dimension
-	if (refAli->alignableObjectId() == align::AlignableDet){
-		if (refAli->components().size() == 1) _detDim = 1;
-		else if (refAli->components().size() == 2) _detDim = 2;
-		else _detDim = 0;
+	if (refAli->alignableObjectId() == align::AlignableDetUnit){
+		if (refAli->mother()->alignableObjectId() != align::AlignableDet) _detDim = 1;
+		else if (refAli->mother()->alignableObjectId() == align::AlignableDet) _detDim = 2;
 	}
+	else _detDim = 0;
 	
 	
 	
