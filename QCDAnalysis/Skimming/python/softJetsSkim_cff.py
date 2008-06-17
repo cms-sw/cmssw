@@ -15,21 +15,21 @@ singleJetTrigger = cms.EDFilter("QCDSingleJetFilter",
 )
 
 muonTrigger = cms.EDFilter("HLTHighLevel",
-    HLTPaths = cms.vstring('HLT1MuonNonIso'),
+    HLTPaths = cms.vstring('HLT_Mu15_L1Mu7'),
     byName = cms.bool(True),
     andOr = cms.bool(True),
     TriggerResultsTag = cms.InputTag("TriggerResults","","HLT")
 )
 
 electronTrigger = cms.EDFilter("HLTHighLevel",
-    HLTPaths = cms.vstring('HLT1ElectronRelaxed'),
+    HLTPaths = cms.vstring('HLT_IsoEle18_L1R'),
     byName = cms.bool(True),
     andOr = cms.bool(True),
     TriggerResultsTag = cms.InputTag("TriggerResults","","HLT")
 )
 
 photonTrigger = cms.EDFilter("HLTHighLevel",
-    HLTPaths = cms.vstring('HLT1PhotonRelaxed'),
+    HLTPaths = cms.vstring('HLT_IsoPhoton40_L1R'),
     byName = cms.bool(True),
     andOr = cms.bool(True),
     TriggerResultsTag = cms.InputTag("TriggerResults","","HLT")
