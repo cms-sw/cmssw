@@ -4,11 +4,12 @@
 /** \class MuonAlignmentANalyzer
  *  MuonAlignment offline Monitor Analyzer 
  *  Makes histograms of high level Muon objects/quantities
+ *  and residuals (base EDAnalyzer for Muon Alignment Offline DQM)
  *  for Alignment Scenarios/DB comparison
  *
- *  $Date: 2008/02/27 17:31:04 $
- *  $Revision: 1.1 $
- *  \author J. Fernandez - IFCA (CSIC-UC) <Javier.Fernandez@cern.ch>
+ *  $Date: 2008/05/02 17:31:04 $
+ *  $Revision: 1.3 $
+ *  \author J. Fernandez - Univ. Oviedo <Javier.Fernandez@cern.ch>
  */
 
 // Base Class Headers
@@ -17,6 +18,11 @@
 #include "PhysicsTools/UtilAlgos/interface/TFileService.h"
 #include "FWCore/Framework/interface/ESHandle.h"
 #include "TrackingTools/GeomPropagators/interface/Propagator.h"
+#include "DataFormats/TrackReco/interface/Track.h"
+#include "DataFormats/DTRecHit/interface/DTRecSegment4DCollection.h"
+#include "DataFormats/CSCRecHit/interface/CSCSegmentCollection.h"
+#include "Geometry/Records/interface/GlobalTrackingGeometryRecord.h"
+#include "Geometry/CommonDetUnit/interface/GlobalTrackingGeometry.h"
 #include <vector>
 
 namespace edm {
@@ -27,6 +33,12 @@ namespace edm {
 
 class TH1F;
 class TH2F;
+
+using namespace std;
+using namespace edm;
+
+typedef std::vector< std::vector<int> > intDVector;
+typedef std::vector<TrackingRecHit *> RecHitVector;
 
 class MuonAlignmentAnalyzer: public edm::EDAnalyzer {
 public:
@@ -45,6 +57,9 @@ public:
 protected:
 
 private:
+
+RecHitVector doMatching(const reco::Track &, edm::Handle<DTRecSegment4DCollection> &, edm::Handle<CSCSegmentCollection> &, intDVector *, intDVector *, edm::ESHandle<GlobalTrackingGeometry> &); 
+
   edm::Service<TFileService> fs;
 
 // InputTags
@@ -53,7 +68,7 @@ private:
 
 // Collections needed
   edm::InputTag theRecHits4DTagDT;
-  edm::InputTag theRecHits2DTagCSC;
+  edm::InputTag theRecHits4DTagCSC;
 
 // To switch between real data and MC
   std::string theDataType;
@@ -153,30 +168,95 @@ private:
   TH2F *hGBinvPTvsNhits;
 
   // Vector of chambers Residuals
-  std::vector<TH1F *> unitsRPhi;
-  std::vector<TH1F *> unitsPhi;
-  std::vector<TH1F *> unitsZ;
+  std::vector<TH1F *> unitsLocalX;
+  std::vector<TH1F *> unitsLocalPhi;
+  std::vector<TH1F *> unitsLocalTheta;
+  std::vector<TH1F *> unitsLocalY;
+  std::vector<TH1F *> unitsGlobalRPhi;
+  std::vector<TH1F *> unitsGlobalPhi;
+  std::vector<TH1F *> unitsGlobalTheta;
+  std::vector<TH1F *> unitsGlobalRZ;
 
   // DT & CSC Residuals
-  TH1F *hResidualRPhiDT; 
-  TH1F *hResidualPhiDT; 
-  TH1F *hResidualZDT; 
-  TH1F *hResidualRPhiCSC; 
-  TH1F *hResidualPhiCSC; 
-  TH1F *hResidualZCSC; 
-  TH1F *hResidualRPhiDT_W[5];
-  TH1F *hResidualPhiDT_W[5];
-  TH1F *hResidualZDT_W[5];	
-  TH1F *hResidualRPhiCSC_ME[18];
-  TH1F *hResidualPhiCSC_ME[18];
-  TH1F *hResidualZCSC_ME[18];
-  TH1F *hResidualRPhiDT_MB[20];
-  TH1F *hResidualPhiDT_MB[20];
-  TH1F *hResidualZDT_MB[20];
+  TH1F *hResidualLocalXDT; 
+  TH1F *hResidualLocalPhiDT; 
+  TH1F *hResidualLocalThetaDT; 
+  TH1F *hResidualLocalYDT; 
+  TH1F *hResidualLocalXCSC; 
+  TH1F *hResidualLocalPhiCSC; 
+  TH1F *hResidualLocalThetaCSC; 
+  TH1F *hResidualLocalYCSC; 
+  TH1F *hResidualLocalXDT_W[5];
+  TH1F *hResidualLocalPhiDT_W[5];
+  TH1F *hResidualLocalThetaDT_W[5];
+  TH1F *hResidualLocalYDT_W[5];	
+  TH1F *hResidualLocalXCSC_ME[18];
+  TH1F *hResidualLocalPhiCSC_ME[18];
+  TH1F *hResidualLocalThetaCSC_ME[18];
+  TH1F *hResidualLocalYCSC_ME[18];
+  TH1F *hResidualLocalXDT_MB[20];
+  TH1F *hResidualLocalPhiDT_MB[20];
+  TH1F *hResidualLocalThetaDT_MB[20];
+  TH1F *hResidualLocalYDT_MB[20];
+  TH1F *hResidualGlobalRPhiDT; 
+  TH1F *hResidualGlobalPhiDT; 
+  TH1F *hResidualGlobalThetaDT; 
+  TH1F *hResidualGlobalZDT; 
+  TH1F *hResidualGlobalRPhiCSC; 
+  TH1F *hResidualGlobalPhiCSC; 
+  TH1F *hResidualGlobalThetaCSC; 
+  TH1F *hResidualGlobalRCSC; 
+  TH1F *hResidualGlobalRPhiDT_W[5];
+  TH1F *hResidualGlobalPhiDT_W[5];
+  TH1F *hResidualGlobalThetaDT_W[5];
+  TH1F *hResidualGlobalZDT_W[5];	
+  TH1F *hResidualGlobalRPhiCSC_ME[18];
+  TH1F *hResidualGlobalPhiCSC_ME[18];
+  TH1F *hResidualGlobalThetaCSC_ME[18];
+  TH1F *hResidualGlobalRCSC_ME[18];
+  TH1F *hResidualGlobalRPhiDT_MB[20];
+  TH1F *hResidualGlobalPhiDT_MB[20];
+  TH1F *hResidualGlobalThetaDT_MB[20];
+  TH1F *hResidualGlobalZDT_MB[20];
+
+  // Mean and RMS of residuals for DQM
+  TH2F *hprofLocalPositionCSC;
+  TH2F *hprofLocalAngleCSC;
+  TH2F *hprofLocalPositionRmsCSC;
+  TH2F *hprofLocalAngleRmsCSC;
+  TH2F *hprofGlobalPositionCSC;
+  TH2F *hprofGlobalAngleCSC;
+  TH2F *hprofGlobalPositionRmsCSC;
+  TH2F *hprofGlobalAngleRmsCSC;
+  TH2F *hprofLocalPositionDT;
+  TH2F *hprofLocalAngleDT;
+  TH2F *hprofLocalPositionRmsDT;
+  TH2F *hprofLocalAngleRmsDT;
+  TH2F *hprofGlobalPositionDT;
+  TH2F *hprofGlobalAngleDT;
+  TH2F *hprofGlobalPositionRmsDT;
+  TH2F *hprofGlobalAngleRmsDT;
+  
+  TH1F *hprofLocalXDT;
+  TH1F *hprofLocalPhiDT;
+  TH1F *hprofLocalThetaDT;
+  TH1F *hprofLocalYDT;
+  TH1F *hprofLocalXCSC;
+  TH1F *hprofLocalPhiCSC;
+  TH1F *hprofLocalThetaCSC;
+  TH1F *hprofLocalYCSC;
+  TH1F *hprofGlobalRPhiDT;
+  TH1F *hprofGlobalPhiDT;
+  TH1F *hprofGlobalThetaDT;
+  TH1F *hprofGlobalZDT;
+  TH1F *hprofGlobalRPhiCSC;
+  TH1F *hprofGlobalPhiCSC;
+  TH1F *hprofGlobalThetaCSC;
+  TH1F *hprofGlobalRCSC;
 
   std::vector<long> detectorCollection;  
 
-  edm::ESHandle<MagneticField> theMGField;
+//  ESHandle<MagneticField> theMGField;
 
   Propagator * thePropagator;
 
@@ -187,8 +267,12 @@ private:
   int numberOfHits;
 
   // hist kinematic range
-  unsigned int ptRangeMin,ptRangeMax,invMassRangeMin,invMassRangeMax;
-  
+  double ptRangeMin,ptRangeMax,invMassRangeMin,invMassRangeMax;
+  // hist residual range
+  double resLocalXRangeStation1,resLocalXRangeStation2,resLocalXRangeStation3,resLocalXRangeStation4;
+  double resLocalYRangeStation1,resLocalYRangeStation2,resLocalYRangeStation3,resLocalYRangeStation4;
+  double resPhiRange,resThetaRange;
+  unsigned int nbins,min1DTrackRecHitSize,min4DTrackSegmentSize;
 };
 #endif
 

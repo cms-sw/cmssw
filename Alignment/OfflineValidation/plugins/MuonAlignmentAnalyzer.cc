@@ -3,9 +3,9 @@
  *  Makes histograms of high level Muon objects/quantities
  *  for Alignment Scenarios/DB comparison
  *
- *  $Date: 2007/12/06 01:46:43 $
- *  $Revision: 1.19 $
- *  \author J. Fernandez - IFCA (CSIC-UC) <Javier.Fernandez@cern.ch>
+ *  $Date: 2008/05/02 17:30:38 $
+ *  $Revision: 1.3 $
+ *  \author J. Fernandez - Univ. Oviedo <Javier.Fernandez@cern.ch>
  */
 
 #include "Alignment/OfflineValidation/plugins/MuonAlignmentAnalyzer.h"
@@ -39,6 +39,10 @@
 #include "TrackPropagation/SteppingHelixPropagator/interface/SteppingHelixPropagator.h"
 #include "DataFormats/GeometryVector/interface/GlobalVector.h" 
 
+#include "DataFormats/GeometrySurface/interface/Cylinder.h"
+#include "DataFormats/GeometrySurface/interface/Plane.h"
+#include "DataFormats/GeometrySurface/interface/Cone.h" 
+
 #include "TH2F.h"
 #include "TLorentzVector.h"
 
@@ -51,18 +55,32 @@ MuonAlignmentAnalyzer::MuonAlignmentAnalyzer(const ParameterSet& pset){
   theGLBMuonTag = pset.getParameter<edm::InputTag>("GlobalMuonTrackCollectionTag");
 
   theRecHits4DTagDT = pset.getParameter<edm::InputTag>("RecHits4DDTCollectionTag");
-  theRecHits2DTagCSC = pset.getParameter<edm::InputTag>("RecHits2DCSCCollectionTag");
+  theRecHits4DTagCSC = pset.getParameter<edm::InputTag>("RecHits4DCSCCollectionTag");
   
   theDataType = pset.getUntrackedParameter<string>("DataType");
-  ptRangeMin = pset.getUntrackedParameter<unsigned int>("ptRangeMin");
-  ptRangeMax = pset.getUntrackedParameter<unsigned int>("ptRangeMax");
-  invMassRangeMin = pset.getUntrackedParameter<unsigned int>("invMassRangeMin");
-  invMassRangeMax = pset.getUntrackedParameter<unsigned int>("invMassRangeMax");
+  ptRangeMin = pset.getUntrackedParameter<double>("ptRangeMin");
+  ptRangeMax = pset.getUntrackedParameter<double>("ptRangeMax");
+  invMassRangeMin = pset.getUntrackedParameter<double>("invMassRangeMin");
+  invMassRangeMax = pset.getUntrackedParameter<double>("invMassRangeMax");
 
   doSAplots = pset.getUntrackedParameter<bool>("doSAplots");
   doGBplots = pset.getUntrackedParameter<bool>("doGBplots");
   doResplots = pset.getUntrackedParameter<bool>("doResplots");
- 
+
+  resLocalXRangeStation1 = pset.getUntrackedParameter<double>("resLocalXRangeStation1");
+  resLocalXRangeStation2 = pset.getUntrackedParameter<double>("resLocalXRangeStation2");
+  resLocalXRangeStation3 = pset.getUntrackedParameter<double>("resLocalXRangeStation3");
+  resLocalXRangeStation4 = pset.getUntrackedParameter<double>("resLocalXRangeStation4");
+  resLocalYRangeStation1 = pset.getUntrackedParameter<double>("resLocalYRangeStation1");
+  resLocalYRangeStation2 = pset.getUntrackedParameter<double>("resLocalYRangeStation2");
+  resLocalYRangeStation3 = pset.getUntrackedParameter<double>("resLocalYRangeStation3");
+  resLocalYRangeStation4 = pset.getUntrackedParameter<double>("resLocalYRangeStation4");
+  resPhiRange = pset.getUntrackedParameter<double>("resPhiRange");
+  resThetaRange = pset.getUntrackedParameter<double>("resThetaRange");
+  nbins = pset.getUntrackedParameter<unsigned int>("nbins");
+  min1DTrackRecHitSize = pset.getUntrackedParameter<unsigned int>("min1DTrackRecHitSize");
+  min4DTrackSegmentSize = pset.getUntrackedParameter<unsigned int>("min4DTrackSegmentSize");
+  
   if(theDataType != "RealData" && theDataType != "SimData")
     edm::LogError("MuonAlignmentAnalyzer")  << "Error in Data Type!!"<<endl;
 
@@ -78,11 +96,13 @@ MuonAlignmentAnalyzer::~MuonAlignmentAnalyzer(){
 
 void MuonAlignmentAnalyzer::beginJob(const EventSetup& eventSetup){
 
-  eventSetup.get<IdealMagneticFieldRecord>().get(theMGField);
+//  eventSetup.get<IdealMagneticFieldRecord>().get(theMGField);
   
   //Create the propagator
-  if(doResplots)  thePropagator = new SteppingHelixPropagator(&*theMGField, alongMomentum);
+//  if(doResplots)  thePropagator = new SteppingHelixPropagator(&*theMGField, alongMomentum);
 
+   int nBinsPt= (int) fabs(ptRangeMax-ptRangeMin);
+   int nBinsMass= (int) fabs(invMassRangeMax-invMassRangeMin);
 
 // Define and book histograms for SA and GB muon quantities/objects
 
@@ -93,11 +113,11 @@ void MuonAlignmentAnalyzer::beginJob(const EventSetup& eventSetup){
   hGBNhits = fs->make<TH1F>("GBNhits","Nhits",100,0,100);
   hGBNhits_Barrel = fs->make<TH1F>("GBNhits_Barrel","Nhits",100,0,100);
   hGBNhits_Endcap = fs->make<TH1F>("GBNhits_Endcap","Nhits",100,0,100);
-  hGBPTRec = fs->make<TH1F>("GBpTRec","p_{T}^{rec}",ptRangeMax-ptRangeMin,ptRangeMin,ptRangeMax);
-  hGBPTRec_Barrel = fs->make<TH1F>("GBpTRec_Barrel","p_{T}^{rec}",ptRangeMax-ptRangeMin,ptRangeMin,ptRangeMax);
-  hGBPTRec_Endcap = fs->make<TH1F>("GBpTRec_Endcap","p_{T}^{rec}",ptRangeMax-ptRangeMin,ptRangeMin,ptRangeMax);
-  hGBPTvsEta = fs->make<TH2F> ("GBPTvsEta","p_{T}^{rec} VS #eta",100,-2.5,2.5,ptRangeMax-ptRangeMin,ptRangeMin,ptRangeMax);
-  hGBPTvsPhi = fs->make<TH2F> ("GBPTvsPhi","p_{T}^{rec} VS #phi",100,-3.1416,3.1416,ptRangeMax-ptRangeMin,ptRangeMin,ptRangeMax);
+  hGBPTRec = fs->make<TH1F>("GBpTRec","p_{T}^{rec}",nBinsPt,ptRangeMin,ptRangeMax);
+  hGBPTRec_Barrel = fs->make<TH1F>("GBpTRec_Barrel","p_{T}^{rec}",nBinsPt,ptRangeMin,ptRangeMax);
+  hGBPTRec_Endcap = fs->make<TH1F>("GBpTRec_Endcap","p_{T}^{rec}",nBinsPt,ptRangeMin,ptRangeMax);
+  hGBPTvsEta = fs->make<TH2F> ("GBPTvsEta","p_{T}^{rec} VS #eta",100,-2.5,2.5,nBinsPt,ptRangeMin,ptRangeMax);
+  hGBPTvsPhi = fs->make<TH2F> ("GBPTvsPhi","p_{T}^{rec} VS #phi",100,-3.1416,3.1416,nBinsPt,ptRangeMin,ptRangeMax);
   hGBPhivsEta = fs->make<TH2F> ("GBPhivsEta","#phi VS #eta",100,-2.5,2.5,100,-3.1416,3.1416);
 
   if(theDataType == "SimData"){
@@ -116,10 +136,10 @@ void MuonAlignmentAnalyzer::beginJob(const EventSetup& eventSetup){
   hGBChi2 = fs->make<TH1F>("GBChi2","Chi2",200,0,200);
   hGBChi2_Barrel = fs->make<TH1F>("GBChi2_Barrel","Chi2",200,0,200);
   hGBChi2_Endcap  = fs->make<TH1F>("GBChi2_Endcap ","Chi2",200,0,200);
-  hGBInvM = fs->make<TH1F>("GBInvM","M_{inv}^{rec}",invMassRangeMax-invMassRangeMin,invMassRangeMin,invMassRangeMax);
-  hGBInvM_Barrel = fs->make<TH1F>("GBInvM_Barrel","M_{inv}^{rec}",invMassRangeMax-invMassRangeMin,invMassRangeMin,invMassRangeMax);
-  hGBInvM_Endcap  = fs->make<TH1F>("GBInvM_Endcap ","M_{inv}^{rec}",invMassRangeMax-invMassRangeMin,invMassRangeMin,invMassRangeMax);
-  hGBInvM_Overlap = fs->make<TH1F>("GBInvM_Overlap","M_{inv}^{rec}",invMassRangeMax-invMassRangeMin,invMassRangeMin,invMassRangeMax);
+  hGBInvM = fs->make<TH1F>("GBInvM","M_{inv}^{rec}",nBinsMass,invMassRangeMin,invMassRangeMax);
+  hGBInvM_Barrel = fs->make<TH1F>("GBInvM_Barrel","M_{inv}^{rec}",nBinsMass,invMassRangeMin,invMassRangeMax);
+  hGBInvM_Endcap  = fs->make<TH1F>("GBInvM_Endcap ","M_{inv}^{rec}",nBinsMass,invMassRangeMin,invMassRangeMax);
+  hGBInvM_Overlap = fs->make<TH1F>("GBInvM_Overlap","M_{inv}^{rec}",nBinsMass,invMassRangeMin,invMassRangeMax);
   }
   
   
@@ -130,11 +150,11 @@ void MuonAlignmentAnalyzer::beginJob(const EventSetup& eventSetup){
   hSANhits = fs->make<TH1F>("SANhits","Nhits",100,0,100);
   hSANhits_Barrel = fs->make<TH1F>("SANhits_Barrel","Nhits",100,0,100);
   hSANhits_Endcap = fs->make<TH1F>("SANhits_Endcap","Nhits",100,0,100);
-  hSAPTRec = fs->make<TH1F>("SApTRec","p_{T}^{rec}",ptRangeMax-ptRangeMin,ptRangeMin,ptRangeMax);
-  hSAPTRec_Barrel = fs->make<TH1F>("SApTRec_Barrel","p_{T}^{rec}",ptRangeMax-ptRangeMin,ptRangeMin,ptRangeMax);
-  hSAPTRec_Endcap = fs->make<TH1F>("SApTRec_Endcap","p_{T}^{rec}",ptRangeMax-ptRangeMin,ptRangeMin,ptRangeMax);
-  hSAPTvsEta = fs->make<TH2F> ("SAPTvsEta","p_{T}^{rec} VS #eta",100,-2.5,2.5,ptRangeMax-ptRangeMin,ptRangeMin,ptRangeMax);
-  hSAPTvsPhi = fs->make<TH2F> ("SAPTvsPhi","p_{T}^{rec} VS #phi",100,-3.1416,3.1416,ptRangeMax-ptRangeMin,ptRangeMin,ptRangeMax);
+  hSAPTRec = fs->make<TH1F>("SApTRec","p_{T}^{rec}",nBinsPt,ptRangeMin,ptRangeMax);
+  hSAPTRec_Barrel = fs->make<TH1F>("SApTRec_Barrel","p_{T}^{rec}",nBinsPt,ptRangeMin,ptRangeMax);
+  hSAPTRec_Endcap = fs->make<TH1F>("SApTRec_Endcap","p_{T}^{rec}",nBinsPt,ptRangeMin,ptRangeMax);
+  hSAPTvsEta = fs->make<TH2F> ("SAPTvsEta","p_{T}^{rec} VS #eta",100,-2.5,2.5,nBinsPt,ptRangeMin,ptRangeMax);
+  hSAPTvsPhi = fs->make<TH2F> ("SAPTvsPhi","p_{T}^{rec} VS #phi",100,-3.1416,3.1416,nBinsPt,ptRangeMin,ptRangeMax);
   hSAPhivsEta = fs->make<TH2F> ("SAPhivsEta","#phi VS #eta",100,-2.5,2.5,100,-3.1416,3.1416);
 
   if(theDataType == "SimData"){
@@ -150,10 +170,10 @@ void MuonAlignmentAnalyzer::beginJob(const EventSetup& eventSetup){
   hSAinvPTvsPhi = fs->make<TH2F> ("SAinvPTvsPhi","#sigma (q/p_{T}) VS #phi",100,-3.1416,3.1416,100,-2,2);
   hSAinvPTvsNhits = fs->make<TH2F> ("SAinvPTvsNhits","#sigma (q/p_{T}) VS Nhits",100,0,100,100,-2,2);
 }
-  hSAInvM = fs->make<TH1F>("SAInvM","M_{inv}^{rec}",invMassRangeMax-invMassRangeMin,invMassRangeMin,invMassRangeMax);
-  hSAInvM_Barrel = fs->make<TH1F>("SAInvM_Barrel","M_{inv}^{rec}",invMassRangeMax-invMassRangeMin,invMassRangeMin,invMassRangeMax);
-  hSAInvM_Endcap = fs->make<TH1F>("SAInvM_Endcap","M_{inv}^{rec}",invMassRangeMax-invMassRangeMin,invMassRangeMin,invMassRangeMax);
-  hSAInvM_Overlap = fs->make<TH1F>("SAInvM_Overlap","M_{inv}^{rec}",invMassRangeMax-invMassRangeMin,invMassRangeMin,invMassRangeMax);
+  hSAInvM = fs->make<TH1F>("SAInvM","M_{inv}^{rec}",nBinsMass,invMassRangeMin,invMassRangeMax);
+  hSAInvM_Barrel = fs->make<TH1F>("SAInvM_Barrel","M_{inv}^{rec}",nBinsMass,invMassRangeMin,invMassRangeMax);
+  hSAInvM_Endcap = fs->make<TH1F>("SAInvM_Endcap","M_{inv}^{rec}",nBinsMass,invMassRangeMin,invMassRangeMax);
+  hSAInvM_Overlap = fs->make<TH1F>("SAInvM_Overlap","M_{inv}^{rec}",nBinsMass,invMassRangeMin,invMassRangeMax);
   hSAChi2 = fs->make<TH1F>("SAChi2","Chi2",200,0,200);
   hSAChi2_Barrel = fs->make<TH1F>("SAChi2_Barrel","Chi2",200,0,200);
   hSAChi2_Endcap = fs->make<TH1F>("SAChi2_Endcap","Chi2",200,0,200);
@@ -164,162 +184,485 @@ void MuonAlignmentAnalyzer::beginJob(const EventSetup& eventSetup){
   hSimNmuons = fs->make<TH1F>("SimNmuons","Nmuons",10,0,10);
   hSimNmuons_Barrel = fs->make<TH1F>("SimNmuons_Barrel","Nmuons",10,0,10);
   hSimNmuons_Endcap = fs->make<TH1F>("SimNmuons_Endcap","Nmuons",10,0,10);
-  hSimPT = fs->make<TH1F>("SimPT","p_{T}^{gen} ",ptRangeMax-ptRangeMin,ptRangeMin,ptRangeMax);
-  hSimPT_Barrel = fs->make<TH1F>("SimPT_Barrel","p_{T}^{gen} ",ptRangeMax-ptRangeMin,ptRangeMin,ptRangeMax);
-  hSimPT_Endcap = fs->make<TH1F>("SimPT_Endcap","p_{T}^{gen} ",ptRangeMax-ptRangeMin,ptRangeMin,ptRangeMax);
-  hSimPTvsEta = fs->make<TH2F> ("SimPTvsEta","p_{T}^{gen} VS #eta",100,-2.5,2.5,ptRangeMax-ptRangeMin,ptRangeMin,ptRangeMax);
-  hSimPTvsPhi = fs->make<TH2F> ("SimPTvsPhi","p_{T}^{gen} VS #phi",100,-3.1416,3.1416,ptRangeMax-ptRangeMin,ptRangeMin,ptRangeMax);
+  hSimPT = fs->make<TH1F>("SimPT","p_{T}^{gen} ",nBinsPt,ptRangeMin,ptRangeMax);
+  hSimPT_Barrel = fs->make<TH1F>("SimPT_Barrel","p_{T}^{gen} ",nBinsPt,ptRangeMin,ptRangeMax);
+  hSimPT_Endcap = fs->make<TH1F>("SimPT_Endcap","p_{T}^{gen} ",nBinsPt,ptRangeMin,ptRangeMax);
+  hSimPTvsEta = fs->make<TH2F> ("SimPTvsEta","p_{T}^{gen} VS #eta",100,-2.5,2.5,nBinsPt,ptRangeMin,ptRangeMax);
+  hSimPTvsPhi = fs->make<TH2F> ("SimPTvsPhi","p_{T}^{gen} VS #phi",100,-3.1416,3.1416,nBinsPt,ptRangeMin,ptRangeMax);
   hSimPhivsEta = fs->make<TH2F> ("SimPhivsEta","#phi VS #eta",100,-2.5,2.5,100,-3.1416,3.1416);
-  hSimInvM = fs->make<TH1F>("SimInvM","M_{inv}^{gen} ",invMassRangeMax-invMassRangeMin,invMassRangeMin,invMassRangeMax);
-  hSimInvM_Barrel = fs->make<TH1F>("SimInvM_Barrel","M_{inv}^{rec}",invMassRangeMax-invMassRangeMin,invMassRangeMin,invMassRangeMax);
-  hSimInvM_Endcap = fs->make<TH1F>("SimInvM_Endcap","M_{inv}^{gen} ",invMassRangeMax-invMassRangeMin,invMassRangeMin,invMassRangeMax);
-  hSimInvM_Overlap = fs->make<TH1F>("SimInvM_Overlap","M_{inv}^{gen} ",invMassRangeMax-invMassRangeMin,invMassRangeMin,invMassRangeMax);
+  hSimInvM = fs->make<TH1F>("SimInvM","M_{inv}^{gen} ",nBinsMass,invMassRangeMin,invMassRangeMax);
+  hSimInvM_Barrel = fs->make<TH1F>("SimInvM_Barrel","M_{inv}^{rec}",nBinsMass,invMassRangeMin,invMassRangeMax);
+  hSimInvM_Endcap = fs->make<TH1F>("SimInvM_Endcap","M_{inv}^{gen} ",nBinsMass,invMassRangeMin,invMassRangeMax);
+  hSimInvM_Overlap = fs->make<TH1F>("SimInvM_Overlap","M_{inv}^{gen} ",nBinsMass,invMassRangeMin,invMassRangeMax);
   }
 
   if(doResplots){
 // All DT and CSC chambers 
-  hResidualRPhiDT = fs->make<TH1F>("hResidualRPhiDT","hResidualRPhiDT",200,-10,10);
-  hResidualPhiDT = fs->make<TH1F>("hResidualPhiDT","hResidualPhiDT",100,-1,1);
-  hResidualZDT = fs->make<TH1F>("hResidualZDT","hResidualZDT",200,-10,10);
-  hResidualRPhiCSC = fs->make<TH1F>("hResidualRPhiCSC","hResidualRPhiCSC",200,-10,10);
-  hResidualPhiCSC = fs->make<TH1F>("hResidualPhiCSC","hResidualPhiCSC",100,-1,1);
-  hResidualZCSC = fs->make<TH1F>("hResidualZCSC","hResidualZCSC",200,-10,10);
+  hResidualLocalXDT = fs->make<TH1F>("hResidualLocalXDT","hResidualLocalXDT",200,-10,10);
+  hResidualLocalPhiDT = fs->make<TH1F>("hResidualLocalPhiDT","hResidualLocalPhiDT",100,-1,1);
+  hResidualLocalThetaDT = fs->make<TH1F>("hResidualLocalThetaDT","hResidualLocalThetaDT",100,-1,1);
+  hResidualLocalYDT = fs->make<TH1F>("hResidualLocalYDT","hResidualLocalYDT",200,-10,10);
+  hResidualLocalXCSC = fs->make<TH1F>("hResidualLocalXCSC","hResidualLocalXCSC",200,-10,10);
+  hResidualLocalPhiCSC = fs->make<TH1F>("hResidualLocalPhiCSC","hResidualLocalPhiCSC",100,-1,1);
+  hResidualLocalThetaCSC = fs->make<TH1F>("hResidualLocalThetaCSC","hResidualLocalThetaCSC",100,-1,1);
+  hResidualLocalYCSC = fs->make<TH1F>("hResidualLocalYCSC","hResidualLocalYCSC",200,-10,10);
+  hResidualGlobalRPhiDT = fs->make<TH1F>("hResidualGlobalRPhiDT","hResidualGlobalRPhiDT",200,-10,10);
+  hResidualGlobalPhiDT = fs->make<TH1F>("hResidualGlobalPhiDT","hResidualGlobalPhiDT",100,-1,1);
+  hResidualGlobalThetaDT = fs->make<TH1F>("hResidualGlobalThetaDT","hResidualGlobalThetaDT",100,-1,1);
+  hResidualGlobalZDT = fs->make<TH1F>("hResidualGlobalZDT","hResidualGlobalZDT",200,-10,10);
+  hResidualGlobalRPhiCSC = fs->make<TH1F>("hResidualGlobalRPhiCSC","hResidualGlobalRPhiCSC",200,-10,10);
+  hResidualGlobalPhiCSC = fs->make<TH1F>("hResidualGlobalPhiCSC","hResidualGlobalPhiCSC",100,-1,1);
+  hResidualGlobalThetaCSC = fs->make<TH1F>("hResidualGlobalThetaCSC","hResidualGlobalThetaCSC",100,-1,1);
+  hResidualGlobalRCSC = fs->make<TH1F>("hResidualGlobalRCSC","hResidualGlobalRCSC",200,-10,10);
 
 // DT Wheels
-  hResidualRPhiDT_W[0]=fs->make<TH1F>("hResidualRPhiDT_W-2","hResidualRPhiDT_W-2",200,-10,10);
-  hResidualPhiDT_W[0]=fs->make<TH1F>("hResidualPhiDT_W-2","hResidualPhiDT_W-2",200,-1,1);
-  hResidualZDT_W[0] = fs->make<TH1F>("hResidualZDT_W-2","hResidualZDT_W-2",200,-10,10);
-  hResidualRPhiDT_W[1]=fs->make<TH1F>("hResidualRPhiDT_W-1","hResidualRPhiDT_W-1",200,-10,10);
-  hResidualPhiDT_W[1]=fs->make<TH1F>("hResidualPhiDT_W-1","hResidualPhiDT_W-1",200,-1,1);
-  hResidualZDT_W[1] = fs->make<TH1F>("hResidualZDT_W-1","hResidualZDT_W-1",200,-10,10);
-  hResidualRPhiDT_W[2]=fs->make<TH1F>("hResidualRPhiDT_W0","hResidualRPhiDT_W0",200,-10,10);
-  hResidualPhiDT_W[2]=fs->make<TH1F>("hResidualPhiDT_W0","hResidualPhiDT_W0",200,-1,1);
-  hResidualZDT_W[2] = fs->make<TH1F>("hResidualZDT_W0","hResidualZDT_W0",200,-10,10);
-  hResidualRPhiDT_W[3]=fs->make<TH1F>("hResidualRPhiDT_W1","hResidualRPhiDT_W1",200,-10,10);
-  hResidualPhiDT_W[3]=fs->make<TH1F>("hResidualPhiDT_W1","hResidualPhiDT_W1",200,-1,1);
-  hResidualZDT_W[3] = fs->make<TH1F>("hResidualZDT_W1","hResidualZDT_W1",200,-10,10);
-  hResidualRPhiDT_W[4]=fs->make<TH1F>("hResidualRPhiDT_W2","hResidualRPhiDT_W2",200,-10,10);
-  hResidualPhiDT_W[4]=fs->make<TH1F>("hResidualPhiDT_W2","hResidualPhiDT_W2",200,-1,1);
-  hResidualZDT_W[4] = fs->make<TH1F>("hResidualZDT_W2","hResidualZDT_W2",200,-10,10);
+  hResidualLocalXDT_W[0]=fs->make<TH1F>("hResidualLocalXDT_W-2","hResidualLocalXDT_W-2",200,-10,10);
+  hResidualLocalPhiDT_W[0]=fs->make<TH1F>("hResidualLocalPhiDT_W-2","hResidualLocalPhiDT_W-2",200,-1,1);
+  hResidualLocalThetaDT_W[0]=fs->make<TH1F>("hResidualLocalThetaDT_W-2","hResidualLocalThetaDT_W-2",200,-1,1);
+  hResidualLocalYDT_W[0] = fs->make<TH1F>("hResidualLocalYDT_W-2","hResidualLocalYDT_W-2",200,-10,10);
+  hResidualLocalXDT_W[1]=fs->make<TH1F>("hResidualLocalXDT_W-1","hResidualLocalXDT_W-1",200,-10,10);
+  hResidualLocalPhiDT_W[1]=fs->make<TH1F>("hResidualLocalPhiDT_W-1","hResidualLocalPhiDT_W-1",200,-1,1);
+  hResidualLocalThetaDT_W[1]=fs->make<TH1F>("hResidualLocalThetaDT_W-1","hResidualLocalThetaDT_W-1",200,-1,1);
+  hResidualLocalYDT_W[1] = fs->make<TH1F>("hResidualLocalYDT_W-1","hResidualLocalYDT_W-1",200,-10,10);
+  hResidualLocalXDT_W[2]=fs->make<TH1F>("hResidualLocalXDT_W0","hResidualLocalXDT_W0",200,-10,10);
+  hResidualLocalPhiDT_W[2]=fs->make<TH1F>("hResidualLocalPhiDT_W0","hResidualLocalPhiDT_W0",200,-1,1);
+  hResidualLocalThetaDT_W[2]=fs->make<TH1F>("hResidualLocalThetaDT_W0","hResidualLocalThetaDT_W0",200,-1,1);
+  hResidualLocalYDT_W[2] = fs->make<TH1F>("hResidualLocalYDT_W0","hResidualLocalYDT_W0",200,-10,10);
+  hResidualLocalXDT_W[3]=fs->make<TH1F>("hResidualLocalXDT_W1","hResidualLocalXDT_W1",200,-10,10);
+  hResidualLocalPhiDT_W[3]=fs->make<TH1F>("hResidualLocalPhiDT_W1","hResidualLocalPhiDT_W1",200,-1,1);
+  hResidualLocalThetaDT_W[3]=fs->make<TH1F>("hResidualLocalThetaDT_W1","hResidualLocalThetaDT_W1",200,-1,1);
+  hResidualLocalYDT_W[3] = fs->make<TH1F>("hResidualLocalYDT_W1","hResidualLocalYDT_W1",200,-10,10);
+  hResidualLocalXDT_W[4]=fs->make<TH1F>("hResidualLocalXDT_W2","hResidualLocalXDT_W2",200,-10,10);
+  hResidualLocalPhiDT_W[4]=fs->make<TH1F>("hResidualLocalPhiDT_W2","hResidualLocalPhiDT_W2",200,-1,1);
+  hResidualLocalThetaDT_W[4]=fs->make<TH1F>("hResidualLocalThetaDT_W2","hResidualLocalThetaDT_W2",200,-1,1);
+  hResidualLocalYDT_W[4] = fs->make<TH1F>("hResidualLocalYDT_W2","hResidualLocalYDT_W2",200,-10,10);
+  hResidualGlobalRPhiDT_W[0]=fs->make<TH1F>("hResidualGlobalRPhiDT_W-2","hResidualGlobalRPhiDT_W-2",200,-10,10);
+  hResidualGlobalPhiDT_W[0]=fs->make<TH1F>("hResidualGlobalPhiDT_W-2","hResidualGlobalPhiDT_W-2",200,-1,1);
+  hResidualGlobalThetaDT_W[0]=fs->make<TH1F>("hResidualGlobalThetaDT_W-2","hResidualGlobalThetaDT_W-2",200,-1,1);
+  hResidualGlobalZDT_W[0] = fs->make<TH1F>("hResidualGlobalZDT_W-2","hResidualGlobalZDT_W-2",200,-10,10);
+  hResidualGlobalRPhiDT_W[1]=fs->make<TH1F>("hResidualGlobalRPhiDT_W-1","hResidualGlobalRPhiDT_W-1",200,-10,10);
+  hResidualGlobalPhiDT_W[1]=fs->make<TH1F>("hResidualGlobalPhiDT_W-1","hResidualGlobalPhiDT_W-1",200,-1,1);
+  hResidualGlobalThetaDT_W[1]=fs->make<TH1F>("hResidualGlobalThetaDT_W-1","hResidualGlobalThetaDT_W-1",200,-1,1);
+  hResidualGlobalZDT_W[1] = fs->make<TH1F>("hResidualGlobalZDT_W-1","hResidualGlobalZDT_W-1",200,-10,10);
+  hResidualGlobalRPhiDT_W[2]=fs->make<TH1F>("hResidualGlobalRPhiDT_W0","hResidualGlobalRPhiDT_W0",200,-10,10);
+  hResidualGlobalPhiDT_W[2]=fs->make<TH1F>("hResidualGlobalPhiDT_W0","hResidualGlobalPhiDT_W0",200,-1,1);
+  hResidualGlobalThetaDT_W[2]=fs->make<TH1F>("hResidualGlobalThetaDT_W0","hResidualGlobalThetaDT_W0",200,-1,1);
+  hResidualGlobalZDT_W[2] = fs->make<TH1F>("hResidualGlobalZDT_W0","hResidualGlobalZDT_W0",200,-10,10);
+  hResidualGlobalRPhiDT_W[3]=fs->make<TH1F>("hResidualGlobalRPhiDT_W1","hResidualGlobalRPhiDT_W1",200,-10,10);
+  hResidualGlobalPhiDT_W[3]=fs->make<TH1F>("hResidualGlobalPhiDT_W1","hResidualGlobalPhiDT_W1",200,-1,1);
+  hResidualGlobalThetaDT_W[3]=fs->make<TH1F>("hResidualGlobalThetaDT_W1","hResidualGlobalThetaDT_W1",200,-1,1);
+  hResidualGlobalZDT_W[3] = fs->make<TH1F>("hResidualGlobalZDT_W1","hResidualGlobalZDT_W1",200,-10,10);
+  hResidualGlobalRPhiDT_W[4]=fs->make<TH1F>("hResidualGlobalRPhiDT_W2","hResidualGlobalRPhiDT_W2",200,-10,10);
+  hResidualGlobalPhiDT_W[4]=fs->make<TH1F>("hResidualGlobalPhiDT_W2","hResidualGlobalPhiDT_W2",200,-1,1);
+  hResidualGlobalThetaDT_W[4]=fs->make<TH1F>("hResidualGlobalThetaDT_W2","hResidualGlobalThetaDT_W2",200,-1,1);
+  hResidualGlobalZDT_W[4] = fs->make<TH1F>("hResidualGlobalZDT_W2","hResidualGlobalZDT_W2",200,-10,10);
 
 // DT Stations
-  hResidualRPhiDT_MB[0]=fs->make<TH1F>("hResidualRPhiDT_MB-2/1","hResidualRPhiDT_MB-2/1",200,-10,10);
-  hResidualPhiDT_MB[0]=fs->make<TH1F>("hResidualPhiDT_MB-2/1","hResidualPhiDT_MB-2/1",200,-1,1);
-  hResidualZDT_MB[0] = fs->make<TH1F>("hResidualZDT_MB-2/1","hResidualZDT_MB-2/1",200,-10,10);
-  hResidualRPhiDT_MB[1]=fs->make<TH1F>("hResidualRPhiDT_MB-2/2","hResidualRPhiDT_MB-2/2",200,-10,10);
-  hResidualPhiDT_MB[1]=fs->make<TH1F>("hResidualPhiDT_MB-2/2","hResidualPhiDT_MB-2/2",200,-1,1);
-  hResidualZDT_MB[1] = fs->make<TH1F>("hResidualZDT_MB-2/2","hResidualZDT_MB-2/2",200,-10,10);
-  hResidualRPhiDT_MB[2]=fs->make<TH1F>("hResidualRPhiDT_MB-2/3","hResidualRPhiDT_MB-2/3",200,-10,10);
-  hResidualPhiDT_MB[2]=fs->make<TH1F>("hResidualPhiDT_MB-2/3","hResidualPhiDT_MB-2/3",200,-1,1);
-  hResidualZDT_MB[2] = fs->make<TH1F>("hResidualZDT_MB-2/3","hResidualZDT_MB-2/3",200,-10,10);
-  hResidualRPhiDT_MB[3]=fs->make<TH1F>("hResidualRPhiDT_MB-2/4","hResidualRPhiDT_MB-2/4",200,-10,10);
-  hResidualPhiDT_MB[3]=fs->make<TH1F>("hResidualPhiDT_MB-2/4","hResidualPhiDT_MB-2/4",200,-1,1);
-  hResidualZDT_MB[3] = fs->make<TH1F>("hResidualZDT_MB-2/4","hResidualZDT_MB-2/4",200,-10,10);
-  hResidualRPhiDT_MB[4]=fs->make<TH1F>("hResidualRPhiDT_MB-1/1","hResidualRPhiDT_MB-1/1",200,-10,10);
-  hResidualPhiDT_MB[4]=fs->make<TH1F>("hResidualPhiDT_MB-1/1","hResidualPhiDT_MB-1/1",200,-1,1);
-  hResidualZDT_MB[4] = fs->make<TH1F>("hResidualZDT_MB-1/1","hResidualZDT_MB-1/1",200,-10,10);
-  hResidualRPhiDT_MB[5]=fs->make<TH1F>("hResidualRPhiDT_MB-1/2","hResidualRPhiDT_MB-1/2",200,-10,10);
-  hResidualPhiDT_MB[5]=fs->make<TH1F>("hResidualPhiDT_MB-1/2","hResidualPhiDT_MB-1/2",200,-1,1);
-  hResidualZDT_MB[5] = fs->make<TH1F>("hResidualZDT_MB-1/2","hResidualZDT_MB-1/2",200,-10,10);
-  hResidualRPhiDT_MB[6]=fs->make<TH1F>("hResidualRPhiDT_MB-1/3","hResidualRPhiDT_MB-1/3",200,-10,10);
-  hResidualPhiDT_MB[6]=fs->make<TH1F>("hResidualPhiDT_MB-1/3","hResidualPhiDT_MB-1/3",200,-1,1);
-  hResidualZDT_MB[6] = fs->make<TH1F>("hResidualZDT_MB-1/3","hResidualZDT_MB-1/3",200,-10,10);
-  hResidualRPhiDT_MB[7]=fs->make<TH1F>("hResidualRPhiDT_MB-1/4","hResidualRPhiDT_MB-1/4",200,-10,10);
-  hResidualPhiDT_MB[7]=fs->make<TH1F>("hResidualPhiDT_MB-1/4","hResidualPhiDT_MB-1/4",200,-1,1);
-  hResidualZDT_MB[7] = fs->make<TH1F>("hResidualZDT_MB-1/4","hResidualZDT_MB-1/4",200,-10,10);
-  hResidualRPhiDT_MB[8]=fs->make<TH1F>("hResidualRPhiDT_MB0/1","hResidualRPhiDT_MB0/1",200,-10,10);
-  hResidualPhiDT_MB[8]=fs->make<TH1F>("hResidualPhiDT_MB0/1","hResidualPhiDT_MB0/1",200,-1,1);
-  hResidualZDT_MB[8] = fs->make<TH1F>("hResidualZDT_MB0/1","hResidualZDT_MB0/1",200,-10,10);
-  hResidualRPhiDT_MB[9]=fs->make<TH1F>("hResidualRPhiDT_MB0/2","hResidualRPhiDT_MB0/2",200,-10,10);
-  hResidualPhiDT_MB[9]=fs->make<TH1F>("hResidualPhiDT_MB0/2","hResidualPhiDT_MB0/2",200,-1,1);
-  hResidualZDT_MB[9] = fs->make<TH1F>("hResidualZDT_MB0/2","hResidualZDT_MB0/2",200,-10,10);
-  hResidualRPhiDT_MB[10]=fs->make<TH1F>("hResidualRPhiDT_MB0/3","hResidualRPhiDT_MB0/3",200,-10,10);
-  hResidualPhiDT_MB[10]=fs->make<TH1F>("hResidualPhiDT_MB0/3","hResidualPhiDT_MB0/3",200,-1,1);
-  hResidualZDT_MB[10] = fs->make<TH1F>("hResidualZDT_MB0/3","hResidualZDT_MB0/3",200,-10,10);
-  hResidualRPhiDT_MB[11]=fs->make<TH1F>("hResidualRPhiDT_MB0/4","hResidualRPhiDT_MB0/4",200,-10,10);
-  hResidualPhiDT_MB[11]=fs->make<TH1F>("hResidualPhiDT_MB0/4","hResidualPhiDT_MB0/4",200,-1,1);
-  hResidualZDT_MB[11] = fs->make<TH1F>("hResidualZDT_MB0/4","hResidualZDT_MB0/4",200,-10,10);
-  hResidualRPhiDT_MB[12]=fs->make<TH1F>("hResidualRPhiDT_MB1/1","hResidualRPhiDT_MB1/1",200,-10,10);
-  hResidualPhiDT_MB[12]=fs->make<TH1F>("hResidualPhiDT_MB1/1","hResidualPhiDT_MB1/1",200,-1,1);
-  hResidualZDT_MB[12] = fs->make<TH1F>("hResidualZDT_MB1/1","hResidualZDT_MB1/1",200,-10,10);
-  hResidualRPhiDT_MB[13]=fs->make<TH1F>("hResidualRPhiDT_MB1/2","hResidualRPhiDT_MB1/2",200,-10,10);
-  hResidualPhiDT_MB[13]=fs->make<TH1F>("hResidualPhiDT_MB1/2","hResidualPhiDT_MB1/2",200,-1,1);
-  hResidualZDT_MB[13] = fs->make<TH1F>("hResidualZDT_MB1/2","hResidualZDT_MB1/2",200,-10,10);
-  hResidualRPhiDT_MB[14]=fs->make<TH1F>("hResidualRPhiDT_MB1/3","hResidualRPhiDT_MB1/3",200,-10,10);
-  hResidualPhiDT_MB[14]=fs->make<TH1F>("hResidualPhiDT_MB1/3","hResidualPhiDT_MB1/3",200,-1,1);
-  hResidualZDT_MB[14] = fs->make<TH1F>("hResidualZDT_MB1/3","hResidualZDT_MB1/3",200,-10,10);
-  hResidualRPhiDT_MB[15]=fs->make<TH1F>("hResidualRPhiDT_MB1/4","hResidualRPhiDT_MB1/4",200,-10,10);
-  hResidualPhiDT_MB[15]=fs->make<TH1F>("hResidualPhiDT_MB1/4","hResidualPhiDT_MB1/4",200,-1,1);
-  hResidualZDT_MB[15] = fs->make<TH1F>("hResidualZDT_MB1/4","hResidualZDT_MB1/4",200,-10,10);
-  hResidualRPhiDT_MB[16]=fs->make<TH1F>("hResidualRPhiDT_MB2/1","hResidualRPhiDT_MB2/1",200,-10,10);
-  hResidualPhiDT_MB[16]=fs->make<TH1F>("hResidualPhiDT_MB2/1","hResidualPhiDT_MB2/1",200,-1,1);
-  hResidualZDT_MB[16] = fs->make<TH1F>("hResidualZDT_MB2/1","hResidualZDT_MB2/1",200,-10,10);
-  hResidualRPhiDT_MB[17]=fs->make<TH1F>("hResidualRPhiDT_MB2/2","hResidualRPhiDT_MB2/2",200,-10,10);
-  hResidualPhiDT_MB[17]=fs->make<TH1F>("hResidualPhiDT_MB2/2","hResidualPhiDT_MB2/2",200,-1,1);
-  hResidualZDT_MB[17] = fs->make<TH1F>("hResidualZDT_MB2/2","hResidualZDT_MB2/2",200,-10,10);
-  hResidualRPhiDT_MB[18]=fs->make<TH1F>("hResidualRPhiDT_MB2/3","hResidualRPhiDT_MB2/3",200,-10,10);
-  hResidualPhiDT_MB[18]=fs->make<TH1F>("hResidualPhiDT_MB2/3","hResidualPhiDT_MB2/3",200,-1,1);
-  hResidualZDT_MB[18] = fs->make<TH1F>("hResidualZDT_MB2/3","hResidualZDT_MB2/3",200,-10,10);
-  hResidualRPhiDT_MB[19]=fs->make<TH1F>("hResidualRPhiDT_MB2/4","hResidualRPhiDT_MB2/4",200,-10,10);
-  hResidualPhiDT_MB[19]=fs->make<TH1F>("hResidualPhiDT_MB2/4","hResidualPhiDT_MB2/4",200,-1,1);
-  hResidualZDT_MB[19] = fs->make<TH1F>("hResidualZDT_MB2/4","hResidualZDT_MB2/4",200,-10,10);
+  hResidualLocalXDT_MB[0]=fs->make<TH1F>("hResidualLocalXDT_MB-2/1","hResidualLocalXDT_MB-2/1",200,-10,10);
+  hResidualLocalPhiDT_MB[0]=fs->make<TH1F>("hResidualLocalPhiDT_MB-2/1","hResidualLocalPhiDT_MB-2/1",200,-1,1);
+  hResidualLocalThetaDT_MB[0]=fs->make<TH1F>("hResidualLocalThetaDT_MB-2/1","hResidualLocalThetaDT_MB-2/1",200,-1,1);
+  hResidualLocalYDT_MB[0] = fs->make<TH1F>("hResidualLocalYDT_MB-2/1","hResidualLocalYDT_MB-2/1",200,-10,10);
+  hResidualLocalXDT_MB[1]=fs->make<TH1F>("hResidualLocalXDT_MB-2/2","hResidualLocalXDT_MB-2/2",200,-10,10);
+  hResidualLocalPhiDT_MB[1]=fs->make<TH1F>("hResidualLocalPhiDT_MB-2/2","hResidualLocalPhiDT_MB-2/2",200,-1,1);
+  hResidualLocalThetaDT_MB[1]=fs->make<TH1F>("hResidualLocalThetaDT_MB-2/2","hResidualLocalThetaDT_MB-2/2",200,-1,1);
+  hResidualLocalYDT_MB[1] = fs->make<TH1F>("hResidualLocalYDT_MB-2/2","hResidualLocalYDT_MB-2/2",200,-10,10);
+  hResidualLocalXDT_MB[2]=fs->make<TH1F>("hResidualLocalXDT_MB-2/3","hResidualLocalXDT_MB-2/3",200,-10,10);
+  hResidualLocalPhiDT_MB[2]=fs->make<TH1F>("hResidualLocalPhiDT_MB-2/3","hResidualLocalPhiDT_MB-2/3",200,-1,1);
+  hResidualLocalThetaDT_MB[2]=fs->make<TH1F>("hResidualLocalThetaDT_MB-2/3","hResidualLocalThetaDT_MB-2/3",200,-1,1);
+  hResidualLocalYDT_MB[2] = fs->make<TH1F>("hResidualLocalYDT_MB-2/3","hResidualLocalYDT_MB-2/3",200,-10,10);
+  hResidualLocalXDT_MB[3]=fs->make<TH1F>("hResidualLocalXDT_MB-2/4","hResidualLocalXDT_MB-2/4",200,-10,10);
+  hResidualLocalPhiDT_MB[3]=fs->make<TH1F>("hResidualLocalPhiDT_MB-2/4","hResidualLocalPhiDT_MB-2/4",200,-1,1);
+  hResidualLocalThetaDT_MB[3]=fs->make<TH1F>("hResidualLocalThetaDT_MB-2/4","hResidualLocalThetaDT_MB-2/4",200,-1,1);
+  hResidualLocalYDT_MB[3] = fs->make<TH1F>("hResidualLocalYDT_MB-2/4","hResidualLocalYDT_MB-2/4",200,-10,10);
+  hResidualLocalXDT_MB[4]=fs->make<TH1F>("hResidualLocalXDT_MB-1/1","hResidualLocalXDT_MB-1/1",200,-10,10);
+  hResidualLocalPhiDT_MB[4]=fs->make<TH1F>("hResidualLocalPhiDT_MB-1/1","hResidualLocalPhiDT_MB-1/1",200,-1,1);
+  hResidualLocalThetaDT_MB[4]=fs->make<TH1F>("hResidualLocalThetaDT_MB-1/1","hResidualLocalThetaDT_MB-1/1",200,-1,1);
+  hResidualLocalYDT_MB[4] = fs->make<TH1F>("hResidualLocalYDT_MB-1/1","hResidualLocalYDT_MB-1/1",200,-10,10);
+  hResidualLocalXDT_MB[5]=fs->make<TH1F>("hResidualLocalXDT_MB-1/2","hResidualLocalXDT_MB-1/2",200,-10,10);
+  hResidualLocalPhiDT_MB[5]=fs->make<TH1F>("hResidualLocalPhiDT_MB-1/2","hResidualLocalPhiDT_MB-1/2",200,-1,1);
+  hResidualLocalThetaDT_MB[5]=fs->make<TH1F>("hResidualLocalThetaDT_MB-1/2","hResidualLocalThetaDT_MB-1/2",200,-1,1);
+  hResidualLocalYDT_MB[5] = fs->make<TH1F>("hResidualLocalYDT_MB-1/2","hResidualLocalYDT_MB-1/2",200,-10,10);
+  hResidualLocalXDT_MB[6]=fs->make<TH1F>("hResidualLocalXDT_MB-1/3","hResidualLocalXDT_MB-1/3",200,-10,10);
+  hResidualLocalPhiDT_MB[6]=fs->make<TH1F>("hResidualLocalPhiDT_MB-1/3","hResidualLocalPhiDT_MB-1/3",200,-1,1);
+  hResidualLocalThetaDT_MB[6]=fs->make<TH1F>("hResidualLocalThetaDT_MB-1/3","hResidualLocalThetaDT_MB-1/3",200,-1,1);
+  hResidualLocalYDT_MB[6] = fs->make<TH1F>("hResidualLocalYDT_MB-1/3","hResidualLocalYDT_MB-1/3",200,-10,10);
+  hResidualLocalXDT_MB[7]=fs->make<TH1F>("hResidualLocalXDT_MB-1/4","hResidualLocalXDT_MB-1/4",200,-10,10);
+  hResidualLocalPhiDT_MB[7]=fs->make<TH1F>("hResidualLocalPhiDT_MB-1/4","hResidualLocalPhiDT_MB-1/4",200,-1,1);
+  hResidualLocalThetaDT_MB[7]=fs->make<TH1F>("hResidualLocalThetaDT_MB-1/4","hResidualLocalThetaDT_MB-1/4",200,-1,1);
+  hResidualLocalYDT_MB[7] = fs->make<TH1F>("hResidualLocalYDT_MB-1/4","hResidualLocalYDT_MB-1/4",200,-10,10);
+  hResidualLocalXDT_MB[8]=fs->make<TH1F>("hResidualLocalXDT_MB0/1","hResidualLocalXDT_MB0/1",200,-10,10);
+  hResidualLocalPhiDT_MB[8]=fs->make<TH1F>("hResidualLocalPhiDT_MB0/1","hResidualLocalPhiDT_MB0/1",200,-1,1);
+  hResidualLocalThetaDT_MB[8]=fs->make<TH1F>("hResidualLocalThetaDT_MB0/1","hResidualLocalThetaDT_MB0/1",200,-1,1);
+  hResidualLocalYDT_MB[8] = fs->make<TH1F>("hResidualLocalYDT_MB0/1","hResidualLocalYDT_MB0/1",200,-10,10);
+  hResidualLocalXDT_MB[9]=fs->make<TH1F>("hResidualLocalXDT_MB0/2","hResidualLocalXDT_MB0/2",200,-10,10);
+  hResidualLocalPhiDT_MB[9]=fs->make<TH1F>("hResidualLocalPhiDT_MB0/2","hResidualLocalPhiDT_MB0/2",200,-1,1);
+  hResidualLocalThetaDT_MB[9]=fs->make<TH1F>("hResidualLocalThetaDT_MB0/2","hResidualLocalThetaDT_MB0/2",200,-1,1);
+  hResidualLocalYDT_MB[9] = fs->make<TH1F>("hResidualLocalYDT_MB0/2","hResidualLocalYDT_MB0/2",200,-10,10);
+  hResidualLocalXDT_MB[10]=fs->make<TH1F>("hResidualLocalXDT_MB0/3","hResidualLocalXDT_MB0/3",200,-10,10);
+  hResidualLocalThetaDT_MB[10]=fs->make<TH1F>("hResidualLocalThetaDT_MB0/3","hResidualLocalThetaDT_MB0/3",200,-1,1);
+  hResidualLocalPhiDT_MB[10]=fs->make<TH1F>("hResidualLocalPhiDT_MB0/3","hResidualLocalPhiDT_MB0/3",200,-1,1);
+  hResidualLocalYDT_MB[10] = fs->make<TH1F>("hResidualLocalYDT_MB0/3","hResidualLocalYDT_MB0/3",200,-10,10);
+  hResidualLocalXDT_MB[11]=fs->make<TH1F>("hResidualLocalXDT_MB0/4","hResidualLocalXDT_MB0/4",200,-10,10);
+  hResidualLocalPhiDT_MB[11]=fs->make<TH1F>("hResidualLocalPhiDT_MB0/4","hResidualLocalPhiDT_MB0/4",200,-1,1);
+  hResidualLocalThetaDT_MB[11]=fs->make<TH1F>("hResidualLocalThetaDT_MB0/4","hResidualLocalThetaDT_MB0/4",200,-1,1);
+  hResidualLocalYDT_MB[11] = fs->make<TH1F>("hResidualLocalYDT_MB0/4","hResidualLocalYDT_MB0/4",200,-10,10);
+  hResidualLocalXDT_MB[12]=fs->make<TH1F>("hResidualLocalXDT_MB1/1","hResidualLocalXDT_MB1/1",200,-10,10);
+  hResidualLocalPhiDT_MB[12]=fs->make<TH1F>("hResidualLocalPhiDT_MB1/1","hResidualLocalPhiDT_MB1/1",200,-1,1);
+  hResidualLocalThetaDT_MB[12]=fs->make<TH1F>("hResidualLocalThetaDT_MB1/1","hResidualLocalThetaDT_MB1/1",200,-1,1);
+  hResidualLocalYDT_MB[12] = fs->make<TH1F>("hResidualLocalYDT_MB1/1","hResidualLocalYDT_MB1/1",200,-10,10);
+  hResidualLocalXDT_MB[13]=fs->make<TH1F>("hResidualLocalXDT_MB1/2","hResidualLocalXDT_MB1/2",200,-10,10);
+  hResidualLocalPhiDT_MB[13]=fs->make<TH1F>("hResidualLocalPhiDT_MB1/2","hResidualLocalPhiDT_MB1/2",200,-1,1);
+  hResidualLocalThetaDT_MB[13]=fs->make<TH1F>("hResidualLocalThetaDT_MB1/2","hResidualLocalThetaDT_MB1/2",200,-1,1);
+  hResidualLocalYDT_MB[13] = fs->make<TH1F>("hResidualLocalYDT_MB1/2","hResidualLocalYDT_MB1/2",200,-10,10);
+  hResidualLocalXDT_MB[14]=fs->make<TH1F>("hResidualLocalXDT_MB1/3","hResidualLocalXDT_MB1/3",200,-10,10);
+  hResidualLocalPhiDT_MB[14]=fs->make<TH1F>("hResidualLocalPhiDT_MB1/3","hResidualLocalPhiDT_MB1/3",200,-1,1);
+  hResidualLocalThetaDT_MB[14]=fs->make<TH1F>("hResidualLocalThetaDT_MB1/3","hResidualLocalThetaDT_MB1/3",200,-1,1);
+  hResidualLocalYDT_MB[14] = fs->make<TH1F>("hResidualLocalYDT_MB1/3","hResidualLocalYDT_MB1/3",200,-10,10);
+  hResidualLocalXDT_MB[15]=fs->make<TH1F>("hResidualLocalXDT_MB1/4","hResidualLocalXDT_MB1/4",200,-10,10);
+  hResidualLocalPhiDT_MB[15]=fs->make<TH1F>("hResidualLocalPhiDT_MB1/4","hResidualLocalPhiDT_MB1/4",200,-1,1);
+  hResidualLocalThetaDT_MB[15]=fs->make<TH1F>("hResidualLocalThetaDT_MB1/4","hResidualLocalThetaDT_MB1/4",200,-1,1);
+  hResidualLocalYDT_MB[15] = fs->make<TH1F>("hResidualLocalYDT_MB1/4","hResidualLocalYDT_MB1/4",200,-10,10);
+  hResidualLocalXDT_MB[16]=fs->make<TH1F>("hResidualLocalXDT_MB2/1","hResidualLocalXDT_MB2/1",200,-10,10);
+  hResidualLocalPhiDT_MB[16]=fs->make<TH1F>("hResidualLocalPhiDT_MB2/1","hResidualLocalPhiDT_MB2/1",200,-1,1);
+  hResidualLocalThetaDT_MB[16]=fs->make<TH1F>("hResidualLocalThetaDT_MB2/1","hResidualLocalThetaDT_MB2/1",200,-1,1);
+  hResidualLocalYDT_MB[16] = fs->make<TH1F>("hResidualLocalYDT_MB2/1","hResidualLocalYDT_MB2/1",200,-10,10);
+  hResidualLocalXDT_MB[17]=fs->make<TH1F>("hResidualLocalXDT_MB2/2","hResidualLocalXDT_MB2/2",200,-10,10);
+  hResidualLocalPhiDT_MB[17]=fs->make<TH1F>("hResidualLocalPhiDT_MB2/2","hResidualLocalPhiDT_MB2/2",200,-1,1);
+  hResidualLocalThetaDT_MB[17]=fs->make<TH1F>("hResidualLocalThetaDT_MB2/2","hResidualLocalThetaDT_MB2/2",200,-1,1);
+  hResidualLocalYDT_MB[17] = fs->make<TH1F>("hResidualLocalYDT_MB2/2","hResidualLocalYDT_MB2/2",200,-10,10);
+  hResidualLocalXDT_MB[18]=fs->make<TH1F>("hResidualLocalXDT_MB2/3","hResidualLocalXDT_MB2/3",200,-10,10);
+  hResidualLocalPhiDT_MB[18]=fs->make<TH1F>("hResidualLocalPhiDT_MB2/3","hResidualLocalPhiDT_MB2/3",200,-1,1);
+  hResidualLocalThetaDT_MB[18]=fs->make<TH1F>("hResidualLocalThetaDT_MB2/3","hResidualLocalThetaDT_MB2/3",200,-1,1);
+  hResidualLocalYDT_MB[18] = fs->make<TH1F>("hResidualLocalYDT_MB2/3","hResidualLocalYDT_MB2/3",200,-10,10);
+  hResidualLocalXDT_MB[19]=fs->make<TH1F>("hResidualLocalXDT_MB2/4","hResidualLocalXDT_MB2/4",200,-10,10);
+  hResidualLocalPhiDT_MB[19]=fs->make<TH1F>("hResidualLocalPhiDT_MB2/4","hResidualLocalPhiDT_MB2/4",200,-1,1);
+  hResidualLocalThetaDT_MB[19]=fs->make<TH1F>("hResidualLocalThetaDT_MB2/4","hResidualLocalThetaDT_MB2/4",200,-1,1);
+  hResidualLocalYDT_MB[19] = fs->make<TH1F>("hResidualLocalYDT_MB2/4","hResidualLocalYDT_MB2/4",200,-10,10);
+  hResidualGlobalRPhiDT_MB[0]=fs->make<TH1F>("hResidualGlobalRPhiDT_MB-2/1","hResidualGlobalRPhiDT_MB-2/1",200,-10,10);
+  hResidualGlobalPhiDT_MB[0]=fs->make<TH1F>("hResidualGlobalPhiDT_MB-2/1","hResidualGlobalPhiDT_MB-2/1",200,-1,1);
+  hResidualGlobalThetaDT_MB[0]=fs->make<TH1F>("hResidualGlobalThetaDT_MB-2/1","hResidualGlobalThetaDT_MB-2/1",200,-1,1);
+  hResidualGlobalZDT_MB[0] = fs->make<TH1F>("hResidualGlobalZDT_MB-2/1","hResidualGlobalZDT_MB-2/1",200,-10,10);
+  hResidualGlobalRPhiDT_MB[1]=fs->make<TH1F>("hResidualGlobalRPhiDT_MB-2/2","hResidualGlobalRPhiDT_MB-2/2",200,-10,10);
+  hResidualGlobalPhiDT_MB[1]=fs->make<TH1F>("hResidualGlobalPhiDT_MB-2/2","hResidualGlobalPhiDT_MB-2/2",200,-1,1);
+  hResidualGlobalThetaDT_MB[1]=fs->make<TH1F>("hResidualGlobalThetaDT_MB-2/2","hResidualGlobalThetaDT_MB-2/2",200,-1,1);
+  hResidualGlobalZDT_MB[1] = fs->make<TH1F>("hResidualGlobalZDT_MB-2/2","hResidualGlobalZDT_MB-2/2",200,-10,10);
+  hResidualGlobalRPhiDT_MB[2]=fs->make<TH1F>("hResidualGlobalRPhiDT_MB-2/3","hResidualGlobalRPhiDT_MB-2/3",200,-10,10);
+  hResidualGlobalPhiDT_MB[2]=fs->make<TH1F>("hResidualGlobalPhiDT_MB-2/3","hResidualGlobalPhiDT_MB-2/3",200,-1,1);
+  hResidualGlobalThetaDT_MB[2]=fs->make<TH1F>("hResidualGlobalThetaDT_MB-2/3","hResidualGlobalThetaDT_MB-2/3",200,-1,1);
+  hResidualGlobalZDT_MB[2] = fs->make<TH1F>("hResidualGlobalZDT_MB-2/3","hResidualGlobalZDT_MB-2/3",200,-10,10);
+  hResidualGlobalRPhiDT_MB[3]=fs->make<TH1F>("hResidualGlobalRPhiDT_MB-2/4","hResidualGlobalRPhiDT_MB-2/4",200,-10,10);
+  hResidualGlobalPhiDT_MB[3]=fs->make<TH1F>("hResidualGlobalPhiDT_MB-2/4","hResidualGlobalPhiDT_MB-2/4",200,-1,1);
+  hResidualGlobalThetaDT_MB[3]=fs->make<TH1F>("hResidualGlobalThetaDT_MB-2/4","hResidualGlobalThetaDT_MB-2/4",200,-1,1);
+  hResidualGlobalZDT_MB[3] = fs->make<TH1F>("hResidualGlobalZDT_MB-2/4","hResidualGlobalZDT_MB-2/4",200,-10,10);
+  hResidualGlobalRPhiDT_MB[4]=fs->make<TH1F>("hResidualGlobalRPhiDT_MB-1/1","hResidualGlobalRPhiDT_MB-1/1",200,-10,10);
+  hResidualGlobalPhiDT_MB[4]=fs->make<TH1F>("hResidualGlobalPhiDT_MB-1/1","hResidualGlobalPhiDT_MB-1/1",200,-1,1);
+  hResidualGlobalThetaDT_MB[4]=fs->make<TH1F>("hResidualGlobalThetaDT_MB-1/1","hResidualGlobalThetaDT_MB-1/1",200,-1,1);
+  hResidualGlobalZDT_MB[4] = fs->make<TH1F>("hResidualGlobalZDT_MB-1/1","hResidualGlobalZDT_MB-1/1",200,-10,10);
+  hResidualGlobalRPhiDT_MB[5]=fs->make<TH1F>("hResidualGlobalRPhiDT_MB-1/2","hResidualGlobalRPhiDT_MB-1/2",200,-10,10);
+  hResidualGlobalPhiDT_MB[5]=fs->make<TH1F>("hResidualGlobalPhiDT_MB-1/2","hResidualGlobalPhiDT_MB-1/2",200,-1,1);
+  hResidualGlobalThetaDT_MB[5]=fs->make<TH1F>("hResidualGlobalThetaDT_MB-1/2","hResidualGlobalThetaDT_MB-1/2",200,-1,1);
+  hResidualGlobalZDT_MB[5] = fs->make<TH1F>("hResidualGlobalZDT_MB-1/2","hResidualGlobalZDT_MB-1/2",200,-10,10);
+  hResidualGlobalRPhiDT_MB[6]=fs->make<TH1F>("hResidualGlobalRPhiDT_MB-1/3","hResidualGlobalRPhiDT_MB-1/3",200,-10,10);
+  hResidualGlobalPhiDT_MB[6]=fs->make<TH1F>("hResidualGlobalPhiDT_MB-1/3","hResidualGlobalPhiDT_MB-1/3",200,-1,1);
+  hResidualGlobalThetaDT_MB[6]=fs->make<TH1F>("hResidualGlobalThetaDT_MB-1/3","hResidualGlobalThetaDT_MB-1/3",200,-1,1);
+  hResidualGlobalZDT_MB[6] = fs->make<TH1F>("hResidualGlobalZDT_MB-1/3","hResidualGlobalZDT_MB-1/3",200,-10,10);
+  hResidualGlobalRPhiDT_MB[7]=fs->make<TH1F>("hResidualGlobalRPhiDT_MB-1/4","hResidualGlobalRPhiDT_MB-1/4",200,-10,10);
+  hResidualGlobalPhiDT_MB[7]=fs->make<TH1F>("hResidualGlobalPhiDT_MB-1/4","hResidualGlobalPhiDT_MB-1/4",200,-1,1);
+  hResidualGlobalThetaDT_MB[7]=fs->make<TH1F>("hResidualGlobalThetaDT_MB-1/4","hResidualGlobalThetaDT_MB-1/4",200,-1,1);
+  hResidualGlobalZDT_MB[7] = fs->make<TH1F>("hResidualGlobalZDT_MB-1/4","hResidualGlobalZDT_MB-1/4",200,-10,10);
+  hResidualGlobalRPhiDT_MB[8]=fs->make<TH1F>("hResidualGlobalRPhiDT_MB0/1","hResidualGlobalRPhiDT_MB0/1",200,-10,10);
+  hResidualGlobalPhiDT_MB[8]=fs->make<TH1F>("hResidualGlobalPhiDT_MB0/1","hResidualGlobalPhiDT_MB0/1",200,-1,1);
+  hResidualGlobalThetaDT_MB[8]=fs->make<TH1F>("hResidualGlobalThetaDT_MB0/1","hResidualGlobalThetaDT_MB0/1",200,-1,1);
+  hResidualGlobalZDT_MB[8] = fs->make<TH1F>("hResidualGlobalZDT_MB0/1","hResidualGlobalZDT_MB0/1",200,-10,10);
+  hResidualGlobalRPhiDT_MB[9]=fs->make<TH1F>("hResidualGlobalRPhiDT_MB0/2","hResidualGlobalRPhiDT_MB0/2",200,-10,10);
+  hResidualGlobalPhiDT_MB[9]=fs->make<TH1F>("hResidualGlobalPhiDT_MB0/2","hResidualGlobalPhiDT_MB0/2",200,-1,1);
+  hResidualGlobalThetaDT_MB[9]=fs->make<TH1F>("hResidualGlobalThetaDT_MB0/2","hResidualGlobalThetaDT_MB0/2",200,-1,1);
+  hResidualGlobalZDT_MB[9] = fs->make<TH1F>("hResidualGlobalZDT_MB0/2","hResidualGlobalZDT_MB0/2",200,-10,10);
+  hResidualGlobalRPhiDT_MB[10]=fs->make<TH1F>("hResidualGlobalRPhiDT_MB0/3","hResidualGlobalRPhiDT_MB0/3",200,-10,10);
+  hResidualGlobalThetaDT_MB[10]=fs->make<TH1F>("hResidualGlobalThetaDT_MB0/3","hResidualGlobalThetaDT_MB0/3",200,-1,1);
+  hResidualGlobalPhiDT_MB[10]=fs->make<TH1F>("hResidualGlobalPhiDT_MB0/3","hResidualGlobalPhiDT_MB0/3",200,-1,1);
+  hResidualGlobalZDT_MB[10] = fs->make<TH1F>("hResidualGlobalZDT_MB0/3","hResidualGlobalZDT_MB0/3",200,-10,10);
+  hResidualGlobalRPhiDT_MB[11]=fs->make<TH1F>("hResidualGlobalRPhiDT_MB0/4","hResidualGlobalRPhiDT_MB0/4",200,-10,10);
+  hResidualGlobalPhiDT_MB[11]=fs->make<TH1F>("hResidualGlobalPhiDT_MB0/4","hResidualGlobalPhiDT_MB0/4",200,-1,1);
+  hResidualGlobalThetaDT_MB[11]=fs->make<TH1F>("hResidualGlobalThetaDT_MB0/4","hResidualGlobalThetaDT_MB0/4",200,-1,1);
+  hResidualGlobalZDT_MB[11] = fs->make<TH1F>("hResidualGlobalZDT_MB0/4","hResidualGlobalZDT_MB0/4",200,-10,10);
+  hResidualGlobalRPhiDT_MB[12]=fs->make<TH1F>("hResidualGlobalRPhiDT_MB1/1","hResidualGlobalRPhiDT_MB1/1",200,-10,10);
+  hResidualGlobalPhiDT_MB[12]=fs->make<TH1F>("hResidualGlobalPhiDT_MB1/1","hResidualGlobalPhiDT_MB1/1",200,-1,1);
+  hResidualGlobalThetaDT_MB[12]=fs->make<TH1F>("hResidualGlobalThetaDT_MB1/1","hResidualGlobalThetaDT_MB1/1",200,-1,1);
+  hResidualGlobalZDT_MB[12] = fs->make<TH1F>("hResidualGlobalZDT_MB1/1","hResidualGlobalZDT_MB1/1",200,-10,10);
+  hResidualGlobalRPhiDT_MB[13]=fs->make<TH1F>("hResidualGlobalRPhiDT_MB1/2","hResidualGlobalRPhiDT_MB1/2",200,-10,10);
+  hResidualGlobalPhiDT_MB[13]=fs->make<TH1F>("hResidualGlobalPhiDT_MB1/2","hResidualGlobalPhiDT_MB1/2",200,-1,1);
+  hResidualGlobalThetaDT_MB[13]=fs->make<TH1F>("hResidualGlobalThetaDT_MB1/2","hResidualGlobalThetaDT_MB1/2",200,-1,1);
+  hResidualGlobalZDT_MB[13] = fs->make<TH1F>("hResidualGlobalZDT_MB1/2","hResidualGlobalZDT_MB1/2",200,-10,10);
+  hResidualGlobalRPhiDT_MB[14]=fs->make<TH1F>("hResidualGlobalRPhiDT_MB1/3","hResidualGlobalRPhiDT_MB1/3",200,-10,10);
+  hResidualGlobalPhiDT_MB[14]=fs->make<TH1F>("hResidualGlobalPhiDT_MB1/3","hResidualGlobalPhiDT_MB1/3",200,-1,1);
+  hResidualGlobalThetaDT_MB[14]=fs->make<TH1F>("hResidualGlobalThetaDT_MB1/3","hResidualGlobalThetaDT_MB1/3",200,-1,1);
+  hResidualGlobalZDT_MB[14] = fs->make<TH1F>("hResidualGlobalZDT_MB1/3","hResidualGlobalZDT_MB1/3",200,-10,10);
+  hResidualGlobalRPhiDT_MB[15]=fs->make<TH1F>("hResidualGlobalRPhiDT_MB1/4","hResidualGlobalRPhiDT_MB1/4",200,-10,10);
+  hResidualGlobalPhiDT_MB[15]=fs->make<TH1F>("hResidualGlobalPhiDT_MB1/4","hResidualGlobalPhiDT_MB1/4",200,-1,1);
+  hResidualGlobalThetaDT_MB[15]=fs->make<TH1F>("hResidualGlobalThetaDT_MB1/4","hResidualGlobalThetaDT_MB1/4",200,-1,1);
+  hResidualGlobalZDT_MB[15] = fs->make<TH1F>("hResidualGlobalZDT_MB1/4","hResidualGlobalZDT_MB1/4",200,-10,10);
+  hResidualGlobalRPhiDT_MB[16]=fs->make<TH1F>("hResidualGlobalRPhiDT_MB2/1","hResidualGlobalRPhiDT_MB2/1",200,-10,10);
+  hResidualGlobalPhiDT_MB[16]=fs->make<TH1F>("hResidualGlobalPhiDT_MB2/1","hResidualGlobalPhiDT_MB2/1",200,-1,1);
+  hResidualGlobalThetaDT_MB[16]=fs->make<TH1F>("hResidualGlobalThetaDT_MB2/1","hResidualGlobalThetaDT_MB2/1",200,-1,1);
+  hResidualGlobalZDT_MB[16] = fs->make<TH1F>("hResidualGlobalZDT_MB2/1","hResidualGlobalZDT_MB2/1",200,-10,10);
+  hResidualGlobalRPhiDT_MB[17]=fs->make<TH1F>("hResidualGlobalRPhiDT_MB2/2","hResidualGlobalRPhiDT_MB2/2",200,-10,10);
+  hResidualGlobalPhiDT_MB[17]=fs->make<TH1F>("hResidualGlobalPhiDT_MB2/2","hResidualGlobalPhiDT_MB2/2",200,-1,1);
+  hResidualGlobalThetaDT_MB[17]=fs->make<TH1F>("hResidualGlobalThetaDT_MB2/2","hResidualGlobalThetaDT_MB2/2",200,-1,1);
+  hResidualGlobalZDT_MB[17] = fs->make<TH1F>("hResidualGlobalZDT_MB2/2","hResidualGlobalZDT_MB2/2",200,-10,10);
+  hResidualGlobalRPhiDT_MB[18]=fs->make<TH1F>("hResidualGlobalRPhiDT_MB2/3","hResidualGlobalRPhiDT_MB2/3",200,-10,10);
+  hResidualGlobalPhiDT_MB[18]=fs->make<TH1F>("hResidualGlobalPhiDT_MB2/3","hResidualGlobalPhiDT_MB2/3",200,-1,1);
+  hResidualGlobalThetaDT_MB[18]=fs->make<TH1F>("hResidualGlobalThetaDT_MB2/3","hResidualGlobalThetaDT_MB2/3",200,-1,1);
+  hResidualGlobalZDT_MB[18] = fs->make<TH1F>("hResidualGlobalZDT_MB2/3","hResidualGlobalZDT_MB2/3",200,-10,10);
+  hResidualGlobalRPhiDT_MB[19]=fs->make<TH1F>("hResidualGlobalRPhiDT_MB2/4","hResidualGlobalRPhiDT_MB2/4",200,-10,10);
+  hResidualGlobalPhiDT_MB[19]=fs->make<TH1F>("hResidualGlobalPhiDT_MB2/4","hResidualGlobalPhiDT_MB2/4",200,-1,1);
+  hResidualGlobalThetaDT_MB[19]=fs->make<TH1F>("hResidualGlobalThetaDT_MB2/4","hResidualGlobalThetaDT_MB2/4",200,-1,1);
+  hResidualGlobalZDT_MB[19] = fs->make<TH1F>("hResidualGlobalZDT_MB2/4","hResidualGlobalZDT_MB2/4",200,-10,10);
 
 
 // CSC Stations
-  hResidualRPhiCSC_ME[0]=fs->make<TH1F>("hResidualRPhiCSC_ME-4/1","hResidualRPhiCSC_ME-4/1",200,-10,10);
-  hResidualPhiCSC_ME[0]=fs->make<TH1F>("hResidualPhiCSC_ME-4/1","hResidualPhiCSC_ME-4/1",200,-1,1);
-  hResidualZCSC_ME[0] = fs->make<TH1F>("hResidualZCSC_ME-4/1","hResidualZCSC_ME-4/1",200,-10,10);
-  hResidualRPhiCSC_ME[1]=fs->make<TH1F>("hResidualRPhiCSC_ME-4/2","hResidualRPhiCSC_ME-4/2",200,-10,10);
-  hResidualPhiCSC_ME[1]=fs->make<TH1F>("hResidualPhiCSC_ME-4/2","hResidualPhiCSC_ME-4/2",200,-1,1);
-  hResidualZCSC_ME[1] = fs->make<TH1F>("hResidualZCSC_ME-4/2","hResidualZCSC_ME-4/2",200,-10,10);
-  hResidualRPhiCSC_ME[2]=fs->make<TH1F>("hResidualRPhiCSC_ME-3/1","hResidualRPhiCSC_ME-3/1",200,-10,10);
-  hResidualPhiCSC_ME[2]=fs->make<TH1F>("hResidualPhiCSC_ME-3/1","hResidualPhiCSC_ME-3/1",200,-1,1);
-  hResidualZCSC_ME[2] = fs->make<TH1F>("hResidualZCSC_ME-3/1","hResidualZCSC_ME-3/1",200,-10,10);
-  hResidualRPhiCSC_ME[3]=fs->make<TH1F>("hResidualRPhiCSC_ME-3/2","hResidualRPhiCSC_ME-3/2",200,-10,10);
-  hResidualPhiCSC_ME[3]=fs->make<TH1F>("hResidualPhiCSC_ME-3/2","hResidualPhiCSC_ME-3/2",200,-1,1);
-  hResidualZCSC_ME[3] = fs->make<TH1F>("hResidualZCSC_ME-3/2","hResidualZCSC_ME-3/2",200,-10,10);
-  hResidualRPhiCSC_ME[4]=fs->make<TH1F>("hResidualRPhiCSC_ME-2/1","hResidualRPhiCSC_ME-2/1",200,-10,10);
-  hResidualPhiCSC_ME[4]=fs->make<TH1F>("hResidualPhiCSC_ME-2/1","hResidualPhiCSC_ME-2/1",200,-1,1);
-  hResidualZCSC_ME[4] = fs->make<TH1F>("hResidualZCSC_ME-2/1","hResidualZCSC_ME-2/1",200,-10,10);
-  hResidualRPhiCSC_ME[5]=fs->make<TH1F>("hResidualRPhiCSC_ME-2/2","hResidualRPhiCSC_ME-2/2",200,-10,10);
-  hResidualPhiCSC_ME[5]=fs->make<TH1F>("hResidualPhiCSC_ME-2/2","hResidualPhiCSC_ME-2/2",200,-1,1);
-  hResidualZCSC_ME[5] = fs->make<TH1F>("hResidualZCSC_ME-2/2","hResidualZCSC_ME-2/2",200,-10,10);
-  hResidualRPhiCSC_ME[6]=fs->make<TH1F>("hResidualRPhiCSC_ME-1/1","hResidualRPhiCSC_ME-1/1",200,-10,10);
-  hResidualPhiCSC_ME[6]=fs->make<TH1F>("hResidualPhiCSC_ME-1/1","hResidualPhiCSC_ME-1/1",200,-1,1);
-  hResidualZCSC_ME[6] = fs->make<TH1F>("hResidualZCSC_ME-1/1","hResidualZCSC_ME-1/1",200,-10,10);
-  hResidualRPhiCSC_ME[7]=fs->make<TH1F>("hResidualRPhiCSC_ME-1/2","hResidualRPhiCSC_ME-1/2",200,-10,10);
-  hResidualPhiCSC_ME[7]=fs->make<TH1F>("hResidualPhiCSC_ME-1/2","hResidualPhiCSC_ME-1/2",200,-1,1);
-  hResidualZCSC_ME[7] = fs->make<TH1F>("hResidualZCSC_ME-1/2","hResidualZCSC_ME-1/2",200,-10,10);
-  hResidualRPhiCSC_ME[8]=fs->make<TH1F>("hResidualRPhiCSC_ME-1/3","hResidualRPhiCSC_ME-1/3",200,-10,10);
-  hResidualPhiCSC_ME[8]=fs->make<TH1F>("hResidualPhiCSC_ME-1/3","hResidualPhiCSC_ME-1/3",200,-1,1);
-  hResidualZCSC_ME[8] = fs->make<TH1F>("hResidualZCSC_ME-1/3","hResidualZCSC_ME-1/3",200,-10,10);
-  hResidualRPhiCSC_ME[9]=fs->make<TH1F>("hResidualRPhiCSC_ME1/1","hResidualRPhiCSC_ME1/1",200,-10,10);
-  hResidualPhiCSC_ME[9]=fs->make<TH1F>("hResidualPhiCSC_ME1/1","hResidualPhiCSC_ME1/1",100,-1,1);
-  hResidualZCSC_ME[9] = fs->make<TH1F>("hResidualZCSC_ME1/1","hResidualZCSC_ME1/1",200,-10,10);
-  hResidualRPhiCSC_ME[10]=fs->make<TH1F>("hResidualRPhiCSC_ME1/2","hResidualRPhiCSC_ME1/2",200,-10,10);
-  hResidualPhiCSC_ME[10]=fs->make<TH1F>("hResidualPhiCSC_ME1/2","hResidualPhiCSC_ME1/2",200,-1,1);
-  hResidualZCSC_ME[10] = fs->make<TH1F>("hResidualZCSC_ME1/2","hResidualZCSC_ME1/2",200,-10,10);
-  hResidualRPhiCSC_ME[11]=fs->make<TH1F>("hResidualRPhiCSC_ME1/3","hResidualRPhiCSC_ME1/3",200,-10,10);
-  hResidualPhiCSC_ME[11]=fs->make<TH1F>("hResidualPhiCSC_ME1/3","hResidualPhiCSC_ME1/3",200,-1,1);
-  hResidualZCSC_ME[11] = fs->make<TH1F>("hResidualZCSC_ME1/3","hResidualZCSC_ME1/3",200,-10,10);
-  hResidualRPhiCSC_ME[12]=fs->make<TH1F>("hResidualRPhiCSC_ME2/1","hResidualRPhiCSC_ME2/1",200,-10,10);
-  hResidualPhiCSC_ME[12]=fs->make<TH1F>("hResidualPhiCSC_ME2/1","hResidualPhiCSC_ME2/1",200,-1,1);
-  hResidualZCSC_ME[12] = fs->make<TH1F>("hResidualZCSC_ME2/1","hResidualZCSC_ME2/1",200,-10,10);
-  hResidualRPhiCSC_ME[13]=fs->make<TH1F>("hResidualRPhiCSC_ME2/2","hResidualRPhiCSC_ME2/2",200,-10,10);
-  hResidualPhiCSC_ME[13]=fs->make<TH1F>("hResidualPhiCSC_ME2/2","hResidualPhiCSC_ME2/2",200,-1,1);
-  hResidualZCSC_ME[13] = fs->make<TH1F>("hResidualZCSC_ME2/2","hResidualZCSC_ME2/2",200,-10,10);
-  hResidualRPhiCSC_ME[14]=fs->make<TH1F>("hResidualRPhiCSC_ME3/1","hResidualRPhiCSC_ME3/1",200,-10,10);
-  hResidualPhiCSC_ME[14]=fs->make<TH1F>("hResidualPhiCSC_ME3/1","hResidualPhiCSC_ME3/1",200,-1,1);
-  hResidualZCSC_ME[14] = fs->make<TH1F>("hResidualZCSC_ME3/1","hResidualZCSC_ME3/1",200,-10,10);
-  hResidualRPhiCSC_ME[15]=fs->make<TH1F>("hResidualRPhiCSC_ME3/2","hResidualRPhiCSC_ME3/2",200,-10,10);
-  hResidualPhiCSC_ME[15]=fs->make<TH1F>("hResidualPhiCSC_ME3/2","hResidualPhiCSC_ME3/2",200,-1,1);
-  hResidualZCSC_ME[15] = fs->make<TH1F>("hResidualZCSC_ME3/2","hResidualZCSC_ME3/2",200,-10,10);
-  hResidualRPhiCSC_ME[16]=fs->make<TH1F>("hResidualRPhiCSC_ME4/1","hResidualRPhiCSC_ME4/1",200,-10,10);
-  hResidualPhiCSC_ME[16]=fs->make<TH1F>("hResidualPhiCSC_ME4/1","hResidualPhiCSC_ME4/1",200,-1,1);
-  hResidualZCSC_ME[16] = fs->make<TH1F>("hResidualZCSC_ME4/1","hResidualZCSC_ME4/1",200,-10,10);
-  hResidualRPhiCSC_ME[17]=fs->make<TH1F>("hResidualRPhiCSC_ME4/2","hResidualRPhiCSC_ME4/2",200,-10,10);
-  hResidualPhiCSC_ME[17]=fs->make<TH1F>("hResidualPhiCSC_ME4/2","hResidualPhiCSC_ME4/2",200,-1,1);
-  hResidualZCSC_ME[17] = fs->make<TH1F>("hResidualZCSC_ME4/2","hResidualZCSC_ME4/2",200,-10,10);
+  hResidualLocalXCSC_ME[0]=fs->make<TH1F>("hResidualLocalXCSC_ME-4/1","hResidualLocalXCSC_ME-4/1",200,-10,10);
+  hResidualLocalPhiCSC_ME[0]=fs->make<TH1F>("hResidualLocalPhiCSC_ME-4/1","hResidualLocalPhiCSC_ME-4/1",200,-1,1);
+  hResidualLocalThetaCSC_ME[0]=fs->make<TH1F>("hResidualLocalThetaCSC_ME-4/1","hResidualLocalThetaCSC_ME-4/1",200,-1,1);
+  hResidualLocalYCSC_ME[0] = fs->make<TH1F>("hResidualLocalYCSC_ME-4/1","hResidualLocalYCSC_ME-4/1",200,-10,10);
+  hResidualLocalXCSC_ME[1]=fs->make<TH1F>("hResidualLocalXCSC_ME-4/2","hResidualLocalXCSC_ME-4/2",200,-10,10);
+  hResidualLocalPhiCSC_ME[1]=fs->make<TH1F>("hResidualLocalPhiCSC_ME-4/2","hResidualLocalPhiCSC_ME-4/2",200,-1,1);
+  hResidualLocalThetaCSC_ME[1]=fs->make<TH1F>("hResidualLocalThetaCSC_ME-4/2","hResidualLocalThetaCSC_ME-4/2",200,-1,1);
+  hResidualLocalYCSC_ME[1] = fs->make<TH1F>("hResidualLocalYCSC_ME-4/2","hResidualLocalYCSC_ME-4/2",200,-10,10);
+  hResidualLocalXCSC_ME[2]=fs->make<TH1F>("hResidualLocalXCSC_ME-3/1","hResidualLocalXCSC_ME-3/1",200,-10,10);
+  hResidualLocalPhiCSC_ME[2]=fs->make<TH1F>("hResidualLocalPhiCSC_ME-3/1","hResidualLocalPhiCSC_ME-3/1",200,-1,1);
+  hResidualLocalThetaCSC_ME[2]=fs->make<TH1F>("hResidualLocalThetaCSC_ME-3/1","hResidualLocalThetaCSC_ME-3/1",200,-1,1);
+  hResidualLocalYCSC_ME[2] = fs->make<TH1F>("hResidualLocalYCSC_ME-3/1","hResidualLocalYCSC_ME-3/1",200,-10,10);
+  hResidualLocalXCSC_ME[3]=fs->make<TH1F>("hResidualLocalXCSC_ME-3/2","hResidualLocalXCSC_ME-3/2",200,-10,10);
+  hResidualLocalPhiCSC_ME[3]=fs->make<TH1F>("hResidualLocalPhiCSC_ME-3/2","hResidualLocalPhiCSC_ME-3/2",200,-1,1);
+  hResidualLocalThetaCSC_ME[3]=fs->make<TH1F>("hResidualLocalThetaCSC_ME-3/2","hResidualLocalThetaCSC_ME-3/2",200,-1,1);
+  hResidualLocalYCSC_ME[3] = fs->make<TH1F>("hResidualLocalYCSC_ME-3/2","hResidualLocalYCSC_ME-3/2",200,-10,10);
+  hResidualLocalXCSC_ME[4]=fs->make<TH1F>("hResidualLocalXCSC_ME-2/1","hResidualLocalXCSC_ME-2/1",200,-10,10);
+  hResidualLocalPhiCSC_ME[4]=fs->make<TH1F>("hResidualLocalPhiCSC_ME-2/1","hResidualLocalPhiCSC_ME-2/1",200,-1,1);
+  hResidualLocalThetaCSC_ME[4]=fs->make<TH1F>("hResidualLocalThetaCSC_ME-2/1","hResidualLocalThetaCSC_ME-2/1",200,-1,1);
+  hResidualLocalYCSC_ME[4] = fs->make<TH1F>("hResidualLocalYCSC_ME-2/1","hResidualLocalYCSC_ME-2/1",200,-10,10);
+  hResidualLocalXCSC_ME[5]=fs->make<TH1F>("hResidualLocalXCSC_ME-2/2","hResidualLocalXCSC_ME-2/2",200,-10,10);
+  hResidualLocalPhiCSC_ME[5]=fs->make<TH1F>("hResidualLocalPhiCSC_ME-2/2","hResidualLocalPhiCSC_ME-2/2",200,-1,1);
+  hResidualLocalThetaCSC_ME[5]=fs->make<TH1F>("hResidualLocalThetaCSC_ME-2/2","hResidualLocalThetaCSC_ME-2/2",200,-1,1);
+  hResidualLocalYCSC_ME[5] = fs->make<TH1F>("hResidualLocalYCSC_ME-2/2","hResidualLocalYCSC_ME-2/2",200,-10,10);
+  hResidualLocalXCSC_ME[6]=fs->make<TH1F>("hResidualLocalXCSC_ME-1/1","hResidualLocalXCSC_ME-1/1",200,-10,10);
+  hResidualLocalPhiCSC_ME[6]=fs->make<TH1F>("hResidualLocalPhiCSC_ME-1/1","hResidualLocalPhiCSC_ME-1/1",200,-1,1);
+  hResidualLocalThetaCSC_ME[6]=fs->make<TH1F>("hResidualLocalThetaCSC_ME-1/1","hResidualLocalThetaCSC_ME-1/1",200,-1,1);
+  hResidualLocalYCSC_ME[6] = fs->make<TH1F>("hResidualLocalYCSC_ME-1/1","hResidualLocalYCSC_ME-1/1",200,-10,10);
+  hResidualLocalXCSC_ME[7]=fs->make<TH1F>("hResidualLocalXCSC_ME-1/2","hResidualLocalXCSC_ME-1/2",200,-10,10);
+  hResidualLocalPhiCSC_ME[7]=fs->make<TH1F>("hResidualLocalPhiCSC_ME-1/2","hResidualLocalPhiCSC_ME-1/2",200,-1,1);
+  hResidualLocalThetaCSC_ME[7]=fs->make<TH1F>("hResidualLocalThetaCSC_ME-1/2","hResidualLocalThetaCSC_ME-1/2",200,-1,1);
+  hResidualLocalYCSC_ME[7] = fs->make<TH1F>("hResidualLocalYCSC_ME-1/2","hResidualLocalYCSC_ME-1/2",200,-10,10);
+  hResidualLocalXCSC_ME[8]=fs->make<TH1F>("hResidualLocalXCSC_ME-1/3","hResidualLocalXCSC_ME-1/3",200,-10,10);
+  hResidualLocalPhiCSC_ME[8]=fs->make<TH1F>("hResidualLocalPhiCSC_ME-1/3","hResidualLocalPhiCSC_ME-1/3",200,-1,1);
+  hResidualLocalThetaCSC_ME[8]=fs->make<TH1F>("hResidualLocalThetaCSC_ME-1/3","hResidualLocalThetaCSC_ME-1/3",200,-1,1);
+  hResidualLocalYCSC_ME[8] = fs->make<TH1F>("hResidualLocalYCSC_ME-1/3","hResidualLocalYCSC_ME-1/3",200,-10,10);
+  hResidualLocalXCSC_ME[9]=fs->make<TH1F>("hResidualLocalXCSC_ME1/1","hResidualLocalXCSC_ME1/1",200,-10,10);
+  hResidualLocalPhiCSC_ME[9]=fs->make<TH1F>("hResidualLocalPhiCSC_ME1/1","hResidualLocalPhiCSC_ME1/1",100,-1,1);
+  hResidualLocalThetaCSC_ME[9]=fs->make<TH1F>("hResidualLocalThetaCSC_ME1/1","hResidualLocalThetaCSC_ME1/1",200,-1,1);
+  hResidualLocalYCSC_ME[9] = fs->make<TH1F>("hResidualLocalYCSC_ME1/1","hResidualLocalYCSC_ME1/1",200,-10,10);
+  hResidualLocalXCSC_ME[10]=fs->make<TH1F>("hResidualLocalXCSC_ME1/2","hResidualLocalXCSC_ME1/2",200,-10,10);
+  hResidualLocalPhiCSC_ME[10]=fs->make<TH1F>("hResidualLocalPhiCSC_ME1/2","hResidualLocalPhiCSC_ME1/2",200,-1,1);
+  hResidualLocalThetaCSC_ME[10]=fs->make<TH1F>("hResidualLocalThetaCSC_ME1/2","hResidualLocalThetaCSC_ME1/2",200,-1,1);
+  hResidualLocalYCSC_ME[10] = fs->make<TH1F>("hResidualLocalYCSC_ME1/2","hResidualLocalYCSC_ME1/2",200,-10,10);
+  hResidualLocalXCSC_ME[11]=fs->make<TH1F>("hResidualLocalXCSC_ME1/3","hResidualLocalXCSC_ME1/3",200,-10,10);
+  hResidualLocalPhiCSC_ME[11]=fs->make<TH1F>("hResidualLocalPhiCSC_ME1/3","hResidualLocalPhiCSC_ME1/3",200,-1,1);
+  hResidualLocalThetaCSC_ME[11]=fs->make<TH1F>("hResidualLocalThetaCSC_ME1/3","hResidualLocalThetaCSC_ME1/3",200,-1,1);
+  hResidualLocalYCSC_ME[11] = fs->make<TH1F>("hResidualLocalYCSC_ME1/3","hResidualLocalYCSC_ME1/3",200,-10,10);
+  hResidualLocalXCSC_ME[12]=fs->make<TH1F>("hResidualLocalXCSC_ME2/1","hResidualLocalXCSC_ME2/1",200,-10,10);
+  hResidualLocalPhiCSC_ME[12]=fs->make<TH1F>("hResidualLocalPhiCSC_ME2/1","hResidualLocalPhiCSC_ME2/1",200,-1,1);
+  hResidualLocalThetaCSC_ME[12]=fs->make<TH1F>("hResidualLocalThetaCSC_ME2/1","hResidualLocalThetaCSC_ME2/1",200,-1,1);
+  hResidualLocalYCSC_ME[12] = fs->make<TH1F>("hResidualLocalYCSC_ME2/1","hResidualLocalYCSC_ME2/1",200,-10,10);
+  hResidualLocalXCSC_ME[13]=fs->make<TH1F>("hResidualLocalXCSC_ME2/2","hResidualLocalXCSC_ME2/2",200,-10,10);
+  hResidualLocalPhiCSC_ME[13]=fs->make<TH1F>("hResidualLocalPhiCSC_ME2/2","hResidualLocalPhiCSC_ME2/2",200,-1,1);
+  hResidualLocalThetaCSC_ME[13]=fs->make<TH1F>("hResidualLocalThetaCSC_ME2/2","hResidualLocalThetaCSC_ME2/2",200,-1,1);
+  hResidualLocalYCSC_ME[13] = fs->make<TH1F>("hResidualLocalYCSC_ME2/2","hResidualLocalYCSC_ME2/2",200,-10,10);
+  hResidualLocalXCSC_ME[14]=fs->make<TH1F>("hResidualLocalXCSC_ME3/1","hResidualLocalXCSC_ME3/1",200,-10,10);
+  hResidualLocalPhiCSC_ME[14]=fs->make<TH1F>("hResidualLocalPhiCSC_ME3/1","hResidualLocalPhiCSC_ME3/1",200,-1,1);
+  hResidualLocalThetaCSC_ME[14]=fs->make<TH1F>("hResidualLocalThetaCSC_ME3/1","hResidualLocalThetaCSC_ME3/1",200,-1,1);
+  hResidualLocalYCSC_ME[14] = fs->make<TH1F>("hResidualLocalYCSC_ME3/1","hResidualLocalYCSC_ME3/1",200,-10,10);
+  hResidualLocalXCSC_ME[15]=fs->make<TH1F>("hResidualLocalXCSC_ME3/2","hResidualLocalXCSC_ME3/2",200,-10,10);
+  hResidualLocalPhiCSC_ME[15]=fs->make<TH1F>("hResidualLocalPhiCSC_ME3/2","hResidualLocalPhiCSC_ME3/2",200,-1,1);
+  hResidualLocalThetaCSC_ME[15]=fs->make<TH1F>("hResidualLocalThetaCSC_ME3/2","hResidualLocalThetaCSC_ME3/2",200,-1,1);
+  hResidualLocalYCSC_ME[15] = fs->make<TH1F>("hResidualLocalYCSC_ME3/2","hResidualLocalYCSC_ME3/2",200,-10,10);
+  hResidualLocalXCSC_ME[16]=fs->make<TH1F>("hResidualLocalXCSC_ME4/1","hResidualLocalXCSC_ME4/1",200,-10,10);
+  hResidualLocalPhiCSC_ME[16]=fs->make<TH1F>("hResidualLocalPhiCSC_ME4/1","hResidualLocalPhiCSC_ME4/1",200,-1,1);
+  hResidualLocalThetaCSC_ME[16]=fs->make<TH1F>("hResidualLocalThetaCSC_ME4/1","hResidualLocalThetaCSC_ME4/1",200,-1,1);
+  hResidualLocalYCSC_ME[16] = fs->make<TH1F>("hResidualLocalYCSC_ME4/1","hResidualLocalYCSC_ME4/1",200,-10,10);
+  hResidualLocalXCSC_ME[17]=fs->make<TH1F>("hResidualLocalXCSC_ME4/2","hResidualLocalXCSC_ME4/2",200,-10,10);
+  hResidualLocalPhiCSC_ME[17]=fs->make<TH1F>("hResidualLocalPhiCSC_ME4/2","hResidualLocalPhiCSC_ME4/2",200,-1,1);
+  hResidualLocalThetaCSC_ME[17]=fs->make<TH1F>("hResidualLocalThetaCSC_ME4/2","hResidualLocalThetaCSC_ME4/2",200,-1,1);
+  hResidualLocalYCSC_ME[17] = fs->make<TH1F>("hResidualLocalYCSC_ME4/2","hResidualLocalYCSC_ME4/2",200,-10,10);
+  hResidualGlobalRPhiCSC_ME[0]=fs->make<TH1F>("hResidualGlobalRPhiCSC_ME-4/1","hResidualGlobalRPhiCSC_ME-4/1",200,-10,10);
+  hResidualGlobalPhiCSC_ME[0]=fs->make<TH1F>("hResidualGlobalPhiCSC_ME-4/1","hResidualGlobalPhiCSC_ME-4/1",200,-1,1);
+  hResidualGlobalThetaCSC_ME[0]=fs->make<TH1F>("hResidualGlobalThetaCSC_ME-4/1","hResidualGlobalThetaCSC_ME-4/1",200,-1,1);
+  hResidualGlobalRCSC_ME[0] = fs->make<TH1F>("hResidualGlobalRCSC_ME-4/1","hResidualGlobalRCSC_ME-4/1",200,-10,10);
+  hResidualGlobalRPhiCSC_ME[1]=fs->make<TH1F>("hResidualGlobalRPhiCSC_ME-4/2","hResidualGlobalRPhiCSC_ME-4/2",200,-10,10);
+  hResidualGlobalPhiCSC_ME[1]=fs->make<TH1F>("hResidualGlobalPhiCSC_ME-4/2","hResidualGlobalPhiCSC_ME-4/2",200,-1,1);
+  hResidualGlobalThetaCSC_ME[1]=fs->make<TH1F>("hResidualGlobalThetaCSC_ME-4/2","hResidualGlobalThetaCSC_ME-4/2",200,-1,1);
+  hResidualGlobalRCSC_ME[1] = fs->make<TH1F>("hResidualGlobalRCSC_ME-4/2","hResidualGlobalRCSC_ME-4/2",200,-10,10);
+  hResidualGlobalRPhiCSC_ME[2]=fs->make<TH1F>("hResidualGlobalRPhiCSC_ME-3/1","hResidualGlobalRPhiCSC_ME-3/1",200,-10,10);
+  hResidualGlobalPhiCSC_ME[2]=fs->make<TH1F>("hResidualGlobalPhiCSC_ME-3/1","hResidualGlobalPhiCSC_ME-3/1",200,-1,1);
+  hResidualGlobalThetaCSC_ME[2]=fs->make<TH1F>("hResidualGlobalThetaCSC_ME-3/1","hResidualGlobalThetaCSC_ME-3/1",200,-1,1);
+  hResidualGlobalRCSC_ME[2] = fs->make<TH1F>("hResidualGlobalRCSC_ME-3/1","hResidualGlobalRCSC_ME-3/1",200,-10,10);
+  hResidualGlobalRPhiCSC_ME[3]=fs->make<TH1F>("hResidualGlobalRPhiCSC_ME-3/2","hResidualGlobalRPhiCSC_ME-3/2",200,-10,10);
+  hResidualGlobalPhiCSC_ME[3]=fs->make<TH1F>("hResidualGlobalPhiCSC_ME-3/2","hResidualGlobalPhiCSC_ME-3/2",200,-1,1);
+  hResidualGlobalThetaCSC_ME[3]=fs->make<TH1F>("hResidualGlobalThetaCSC_ME-3/2","hResidualGlobalThetaCSC_ME-3/2",200,-1,1);
+  hResidualGlobalRCSC_ME[3] = fs->make<TH1F>("hResidualGlobalRCSC_ME-3/2","hResidualGlobalRCSC_ME-3/2",200,-10,10);
+  hResidualGlobalRPhiCSC_ME[4]=fs->make<TH1F>("hResidualGlobalRPhiCSC_ME-2/1","hResidualGlobalRPhiCSC_ME-2/1",200,-10,10);
+  hResidualGlobalPhiCSC_ME[4]=fs->make<TH1F>("hResidualGlobalPhiCSC_ME-2/1","hResidualGlobalPhiCSC_ME-2/1",200,-1,1);
+  hResidualGlobalThetaCSC_ME[4]=fs->make<TH1F>("hResidualGlobalThetaCSC_ME-2/1","hResidualGlobalThetaCSC_ME-2/1",200,-1,1);
+  hResidualGlobalRCSC_ME[4] = fs->make<TH1F>("hResidualGlobalRCSC_ME-2/1","hResidualGlobalRCSC_ME-2/1",200,-10,10);
+  hResidualGlobalRPhiCSC_ME[5]=fs->make<TH1F>("hResidualGlobalRPhiCSC_ME-2/2","hResidualGlobalRPhiCSC_ME-2/2",200,-10,10);
+  hResidualGlobalPhiCSC_ME[5]=fs->make<TH1F>("hResidualGlobalPhiCSC_ME-2/2","hResidualGlobalPhiCSC_ME-2/2",200,-1,1);
+  hResidualGlobalThetaCSC_ME[5]=fs->make<TH1F>("hResidualGlobalThetaCSC_ME-2/2","hResidualGlobalThetaCSC_ME-2/2",200,-1,1);
+  hResidualGlobalRCSC_ME[5] = fs->make<TH1F>("hResidualGlobalRCSC_ME-2/2","hResidualGlobalRCSC_ME-2/2",200,-10,10);
+  hResidualGlobalRPhiCSC_ME[6]=fs->make<TH1F>("hResidualGlobalRPhiCSC_ME-1/1","hResidualGlobalRPhiCSC_ME-1/1",200,-10,10);
+  hResidualGlobalPhiCSC_ME[6]=fs->make<TH1F>("hResidualGlobalPhiCSC_ME-1/1","hResidualGlobalPhiCSC_ME-1/1",200,-1,1);
+  hResidualGlobalThetaCSC_ME[6]=fs->make<TH1F>("hResidualGlobalThetaCSC_ME-1/1","hResidualGlobalThetaCSC_ME-1/1",200,-1,1);
+  hResidualGlobalRCSC_ME[6] = fs->make<TH1F>("hResidualGlobalRCSC_ME-1/1","hResidualGlobalRCSC_ME-1/1",200,-10,10);
+  hResidualGlobalRPhiCSC_ME[7]=fs->make<TH1F>("hResidualGlobalRPhiCSC_ME-1/2","hResidualGlobalRPhiCSC_ME-1/2",200,-10,10);
+  hResidualGlobalPhiCSC_ME[7]=fs->make<TH1F>("hResidualGlobalPhiCSC_ME-1/2","hResidualGlobalPhiCSC_ME-1/2",200,-1,1);
+  hResidualGlobalThetaCSC_ME[7]=fs->make<TH1F>("hResidualGlobalThetaCSC_ME-1/2","hResidualGlobalThetaCSC_ME-1/2",200,-1,1);
+  hResidualGlobalRCSC_ME[7] = fs->make<TH1F>("hResidualGlobalRCSC_ME-1/2","hResidualGlobalRCSC_ME-1/2",200,-10,10);
+  hResidualGlobalRPhiCSC_ME[8]=fs->make<TH1F>("hResidualGlobalRPhiCSC_ME-1/3","hResidualGlobalRPhiCSC_ME-1/3",200,-10,10);
+  hResidualGlobalPhiCSC_ME[8]=fs->make<TH1F>("hResidualGlobalPhiCSC_ME-1/3","hResidualGlobalPhiCSC_ME-1/3",200,-1,1);
+  hResidualGlobalThetaCSC_ME[8]=fs->make<TH1F>("hResidualGlobalThetaCSC_ME-1/3","hResidualGlobalThetaCSC_ME-1/3",200,-1,1);
+  hResidualGlobalRCSC_ME[8] = fs->make<TH1F>("hResidualGlobalRCSC_ME-1/3","hResidualGlobalRCSC_ME-1/3",200,-10,10);
+  hResidualGlobalRPhiCSC_ME[9]=fs->make<TH1F>("hResidualGlobalRPhiCSC_ME1/1","hResidualGlobalRPhiCSC_ME1/1",200,-10,10);
+  hResidualGlobalPhiCSC_ME[9]=fs->make<TH1F>("hResidualGlobalPhiCSC_ME1/1","hResidualGlobalPhiCSC_ME1/1",100,-1,1);
+  hResidualGlobalThetaCSC_ME[9]=fs->make<TH1F>("hResidualGlobalThetaCSC_ME1/1","hResidualGlobalThetaCSC_ME1/1",200,-1,1);
+  hResidualGlobalRCSC_ME[9] = fs->make<TH1F>("hResidualGlobalRCSC_ME1/1","hResidualGlobalRCSC_ME1/1",200,-10,10);
+  hResidualGlobalRPhiCSC_ME[10]=fs->make<TH1F>("hResidualGlobalRPhiCSC_ME1/2","hResidualGlobalRPhiCSC_ME1/2",200,-10,10);
+  hResidualGlobalPhiCSC_ME[10]=fs->make<TH1F>("hResidualGlobalPhiCSC_ME1/2","hResidualGlobalPhiCSC_ME1/2",200,-1,1);
+  hResidualGlobalThetaCSC_ME[10]=fs->make<TH1F>("hResidualGlobalThetaCSC_ME1/2","hResidualGlobalThetaCSC_ME1/2",200,-1,1);
+  hResidualGlobalRCSC_ME[10] = fs->make<TH1F>("hResidualGlobalRCSC_ME1/2","hResidualGlobalRCSC_ME1/2",200,-10,10);
+  hResidualGlobalRPhiCSC_ME[11]=fs->make<TH1F>("hResidualGlobalRPhiCSC_ME1/3","hResidualGlobalRPhiCSC_ME1/3",200,-10,10);
+  hResidualGlobalPhiCSC_ME[11]=fs->make<TH1F>("hResidualGlobalPhiCSC_ME1/3","hResidualGlobalPhiCSC_ME1/3",200,-1,1);
+  hResidualGlobalThetaCSC_ME[11]=fs->make<TH1F>("hResidualGlobalThetaCSC_ME1/3","hResidualGlobalThetaCSC_ME1/3",200,-1,1);
+  hResidualGlobalRCSC_ME[11] = fs->make<TH1F>("hResidualGlobalRCSC_ME1/3","hResidualGlobalRCSC_ME1/3",200,-10,10);
+  hResidualGlobalRPhiCSC_ME[12]=fs->make<TH1F>("hResidualGlobalRPhiCSC_ME2/1","hResidualGlobalRPhiCSC_ME2/1",200,-10,10);
+  hResidualGlobalPhiCSC_ME[12]=fs->make<TH1F>("hResidualGlobalPhiCSC_ME2/1","hResidualGlobalPhiCSC_ME2/1",200,-1,1);
+  hResidualGlobalThetaCSC_ME[12]=fs->make<TH1F>("hResidualGlobalThetaCSC_ME2/1","hResidualGlobalThetaCSC_ME2/1",200,-1,1);
+  hResidualGlobalRCSC_ME[12] = fs->make<TH1F>("hResidualGlobalRCSC_ME2/1","hResidualGlobalRCSC_ME2/1",200,-10,10);
+  hResidualGlobalRPhiCSC_ME[13]=fs->make<TH1F>("hResidualGlobalRPhiCSC_ME2/2","hResidualGlobalRPhiCSC_ME2/2",200,-10,10);
+  hResidualGlobalPhiCSC_ME[13]=fs->make<TH1F>("hResidualGlobalPhiCSC_ME2/2","hResidualGlobalPhiCSC_ME2/2",200,-1,1);
+  hResidualGlobalThetaCSC_ME[13]=fs->make<TH1F>("hResidualGlobalThetaCSC_ME2/2","hResidualGlobalThetaCSC_ME2/2",200,-1,1);
+  hResidualGlobalRCSC_ME[13] = fs->make<TH1F>("hResidualGlobalRCSC_ME2/2","hResidualGlobalRCSC_ME2/2",200,-10,10);
+  hResidualGlobalRPhiCSC_ME[14]=fs->make<TH1F>("hResidualGlobalRPhiCSC_ME3/1","hResidualGlobalRPhiCSC_ME3/1",200,-10,10);
+  hResidualGlobalPhiCSC_ME[14]=fs->make<TH1F>("hResidualGlobalPhiCSC_ME3/1","hResidualGlobalPhiCSC_ME3/1",200,-1,1);
+  hResidualGlobalThetaCSC_ME[14]=fs->make<TH1F>("hResidualGlobalThetaCSC_ME3/1","hResidualGlobalThetaCSC_ME3/1",200,-1,1);
+  hResidualGlobalRCSC_ME[14] = fs->make<TH1F>("hResidualGlobalRCSC_ME3/1","hResidualGlobalRCSC_ME3/1",200,-10,10);
+  hResidualGlobalRPhiCSC_ME[15]=fs->make<TH1F>("hResidualGlobalRPhiCSC_ME3/2","hResidualGlobalRPhiCSC_ME3/2",200,-10,10);
+  hResidualGlobalPhiCSC_ME[15]=fs->make<TH1F>("hResidualGlobalPhiCSC_ME3/2","hResidualGlobalPhiCSC_ME3/2",200,-1,1);
+  hResidualGlobalThetaCSC_ME[15]=fs->make<TH1F>("hResidualGlobalThetaCSC_ME3/2","hResidualGlobalThetaCSC_ME3/2",200,-1,1);
+  hResidualGlobalRCSC_ME[15] = fs->make<TH1F>("hResidualGlobalRCSC_ME3/2","hResidualGlobalRCSC_ME3/2",200,-10,10);
+  hResidualGlobalRPhiCSC_ME[16]=fs->make<TH1F>("hResidualGlobalRPhiCSC_ME4/1","hResidualGlobalRPhiCSC_ME4/1",200,-10,10);
+  hResidualGlobalPhiCSC_ME[16]=fs->make<TH1F>("hResidualGlobalPhiCSC_ME4/1","hResidualGlobalPhiCSC_ME4/1",200,-1,1);
+  hResidualGlobalThetaCSC_ME[16]=fs->make<TH1F>("hResidualGlobalThetaCSC_ME4/1","hResidualGlobalThetaCSC_ME4/1",200,-1,1);
+  hResidualGlobalRCSC_ME[16] = fs->make<TH1F>("hResidualGlobalRCSC_ME4/1","hResidualGlobalRCSC_ME4/1",200,-10,10);
+  hResidualGlobalRPhiCSC_ME[17]=fs->make<TH1F>("hResidualGlobalRPhiCSC_ME4/2","hResidualGlobalRPhiCSC_ME4/2",200,-10,10);
+  hResidualGlobalPhiCSC_ME[17]=fs->make<TH1F>("hResidualGlobalPhiCSC_ME4/2","hResidualGlobalPhiCSC_ME4/2",200,-1,1);
+  hResidualGlobalThetaCSC_ME[17]=fs->make<TH1F>("hResidualGlobalThetaCSC_ME4/2","hResidualGlobalThetaCSC_ME4/2",200,-1,1);
+  hResidualGlobalRCSC_ME[17] = fs->make<TH1F>("hResidualGlobalRCSC_ME4/2","hResidualGlobalRCSC_ME4/2",200,-10,10);
+
+  //DQM plots: mean residual with RMS as error
+  hprofLocalXDT=fs->make<TH1F>("hprofLocalXDT","Local X DT", 280,0, 280);
+  hprofLocalPhiDT=fs->make<TH1F>("hprofLocalPhiDT","Local Phi DT", 280,0, 280);
+  hprofLocalThetaDT=fs->make<TH1F>("hprofLocalThetaDT","Local Theta DT", 280,0, 280);
+  hprofLocalYDT=fs->make<TH1F>("hprofLocalYDT","Local Y DT", 280,0, 280);
+  hprofLocalXCSC=fs->make<TH1F>("hprofLocalXCSC","Local X CSC", 1026,0, 1026);
+  hprofLocalPhiCSC=fs->make<TH1F>("hprofLocalPhiCSC","Local Phi CSC", 1026,0, 1026);
+  hprofLocalThetaCSC=fs->make<TH1F>("hprofLocalThetaCSC","Local Theta CSC", 1026,0, 1026);
+  hprofLocalYCSC=fs->make<TH1F>("hprofLocalYCSC","Local Y CSC", 1026,0, 1026);
+  hprofGlobalRPhiDT=fs->make<TH1F>("hprofGlobalRPhiDT","Global RPhi DT", 280,0, 280);
+  hprofGlobalPhiDT=fs->make<TH1F>("hprofGlobalPhiDT","Global Phi DT", 280,0, 280);
+  hprofGlobalThetaDT=fs->make<TH1F>("hprofGlobalThetaDT","Global Theta DT", 280,0, 280);
+  hprofGlobalZDT=fs->make<TH1F>("hprofGlobalZDT","Global Z DT", 280,0, 280);
+  hprofGlobalRPhiCSC=fs->make<TH1F>("hprofGlobalRPhiCSC","Global RPhi CSC", 1026,0, 1026);
+  hprofGlobalPhiCSC=fs->make<TH1F>("hprofGlobalPhiCSC","Global Phi CSC", 1026,0, 1026);
+  hprofGlobalThetaCSC=fs->make<TH1F>("hprofGlobalThetaCSC","Global Theta CSC", 1026,0, 1026);
+  hprofGlobalRCSC=fs->make<TH1F>("hprofGlobalRCSC","Global R CSC", 1026,0, 1026);
+
+  // TH2F histos definition
+  hprofGlobalPositionDT=fs->make<TH2F>("hprofGlobalPositionDT","Global DT position (cm) absolute MEAN residuals", 14,0, 14,40,0,40);
+  hprofGlobalAngleDT=fs->make<TH2F>("hprofGlobalAngleDT","Global DT angle (rad) absolute MEAN residuals", 14,0, 14,40,0,40); 
+  hprofGlobalPositionRmsDT=fs->make<TH2F>("hprofGlobalPositionRmsDT","Global DT position (cm) RMS residuals", 14,0, 14,40,0,40);
+  hprofGlobalAngleRmsDT=fs->make<TH2F>("hprofGlobalAngleRmsDT","Global DT angle (rad) RMS residuals", 14,0, 14,40,0,40); 
+  hprofLocalPositionDT=fs->make<TH2F>("hprofLocalPositionDT","Local DT position (cm) absolute MEAN residuals", 14,0, 14,40,0,40);
+  hprofLocalAngleDT=fs->make<TH2F>("hprofLocalAngleDT","Local DT angle (rad) absolute MEAN residuals", 14,0, 14,40,0,40); 
+  hprofLocalPositionRmsDT=fs->make<TH2F>("hprofLocalPositionRmsDT","Local DT position (cm) RMS residuals", 14,0, 14,40,0,40);
+  hprofLocalAngleRmsDT=fs->make<TH2F>("hprofLocalAngleRmsDT","Local DT angle (rad) RMS residuals", 14,0, 14,40,0,40); 
+
+  hprofGlobalPositionCSC=fs->make<TH2F>("hprofGlobalPositionCSC","Global CSC position (cm) absolute MEAN residuals", 36,0,36,36,0,36);
+  hprofGlobalAngleCSC=fs->make<TH2F>("hprofGlobalAngleCSC","Global CSC angle (rad) absolute MEAN residuals", 36,0,36,36,0,36); 
+  hprofGlobalPositionRmsCSC=fs->make<TH2F>("hprofGlobalPositionRmsCSC","Global CSC position (cm) RMS residuals", 36,0,36,36,0,36);
+  hprofGlobalAngleRmsCSC=fs->make<TH2F>("hprofGlobalAngleRmsCSC","Global CSC angle (rad) RMS residuals", 36,0,36,36,0,36); 
+  hprofLocalPositionCSC=fs->make<TH2F>("hprofLocalPositionCSC","Local CSC position (cm) absolute MEAN residuals", 36,0,36,36,0,36);
+  hprofLocalAngleCSC=fs->make<TH2F>("hprofLocalAngleCSC","Local CSC angle (rad) absolute MEAN residuals", 36,0,36,36,0,36); 
+  hprofLocalPositionRmsCSC=fs->make<TH2F>("hprofLocalPositionRmsCSC","Local CSC position (cm) RMS residuals", 36,0,36,36,0,36);
+  hprofLocalAngleRmsCSC=fs->make<TH2F>("hprofLocalAngleRmsCSC","Local CSC angle (rad) RMS residuals", 36,0,36,36,0,36); 
+
+  // histos options
+  hprofGlobalPositionDT->GetYaxis()->SetLabelSize(0.025);
+  hprofGlobalAngleDT->GetYaxis()->SetLabelSize(0.025);
+  hprofGlobalPositionDT->GetZaxis()->SetTitle("(cm)");
+  hprofGlobalAngleDT->GetZaxis()->SetTitle("(rad)");
+  hprofGlobalPositionRmsDT->GetYaxis()->SetLabelSize(0.025);
+  hprofGlobalAngleRmsDT->GetYaxis()->SetLabelSize(0.025);
+  hprofGlobalPositionRmsDT->GetZaxis()->SetTitle("(cm)");
+  hprofGlobalAngleRmsDT->GetZaxis()->SetTitle("(rad)");
+  hprofLocalPositionDT->GetYaxis()->SetLabelSize(0.025);
+  hprofLocalAngleDT->GetYaxis()->SetLabelSize(0.025);
+  hprofLocalPositionDT->GetZaxis()->SetTitle("(cm)");
+  hprofLocalAngleDT->GetZaxis()->SetTitle("(rad)");
+  hprofLocalPositionRmsDT->GetYaxis()->SetLabelSize(0.025);
+  hprofLocalAngleRmsDT->GetYaxis()->SetLabelSize(0.025);
+  hprofLocalPositionRmsDT->GetZaxis()->SetTitle("(cm)");
+  hprofLocalAngleRmsDT->GetZaxis()->SetTitle("(rad)");
+
+  hprofGlobalPositionCSC->GetYaxis()->SetLabelSize(0.025);
+  hprofGlobalAngleCSC->GetYaxis()->SetLabelSize(0.025);
+  hprofGlobalPositionCSC->GetZaxis()->SetTitle("(cm)");
+  hprofGlobalAngleCSC->GetZaxis()->SetTitle("(rad)");
+  hprofGlobalPositionRmsCSC->GetYaxis()->SetLabelSize(0.025);
+  hprofGlobalAngleRmsCSC->GetYaxis()->SetLabelSize(0.025);
+  hprofGlobalPositionRmsCSC->GetZaxis()->SetTitle("(cm)");
+  hprofGlobalAngleRmsCSC->GetZaxis()->SetTitle("(rad)");
+  hprofLocalPositionCSC->GetYaxis()->SetLabelSize(0.025);
+  hprofLocalAngleCSC->GetYaxis()->SetLabelSize(0.025);
+  hprofLocalPositionCSC->GetZaxis()->SetTitle("(cm)");
+  hprofLocalAngleCSC->GetZaxis()->SetTitle("(rad)");
+  hprofLocalPositionRmsCSC->GetYaxis()->SetLabelSize(0.025);
+  hprofLocalAngleRmsCSC->GetYaxis()->SetLabelSize(0.025);
+  hprofLocalPositionRmsCSC->GetZaxis()->SetTitle("(cm)");
+  hprofLocalAngleRmsCSC->GetZaxis()->SetTitle("(rad)");
+
+  char binLabel[15];
+  for (int i=1;i<15;i++){
+  sprintf(binLabel, "Sec-%d", i );
+  hprofGlobalPositionDT->GetXaxis()->SetBinLabel(i,binLabel);
+  hprofGlobalAngleDT->GetXaxis()->SetBinLabel(i,binLabel);
+  hprofGlobalPositionRmsDT->GetXaxis()->SetBinLabel(i,binLabel);
+  hprofGlobalAngleRmsDT->GetXaxis()->SetBinLabel(i,binLabel);
+  hprofLocalPositionDT->GetXaxis()->SetBinLabel(i,binLabel);
+  hprofLocalAngleDT->GetXaxis()->SetBinLabel(i,binLabel);
+  hprofLocalPositionRmsDT->GetXaxis()->SetBinLabel(i,binLabel);
+  hprofLocalAngleRmsDT->GetXaxis()->SetBinLabel(i,binLabel);
+  }
+  
+  for (int i=1;i<37;i++){
+  sprintf(binLabel, "Ch-%d", i );
+  hprofGlobalPositionCSC->GetXaxis()->SetBinLabel(i,binLabel);
+  hprofGlobalAngleCSC->GetXaxis()->SetBinLabel(i,binLabel);
+  hprofGlobalPositionRmsCSC->GetXaxis()->SetBinLabel(i,binLabel);
+  hprofGlobalAngleRmsCSC->GetXaxis()->SetBinLabel(i,binLabel);
+  hprofLocalPositionCSC->GetXaxis()->SetBinLabel(i,binLabel);
+  hprofLocalAngleCSC->GetXaxis()->SetBinLabel(i,binLabel);
+  hprofLocalPositionRmsCSC->GetXaxis()->SetBinLabel(i,binLabel);
+  hprofLocalAngleRmsCSC->GetXaxis()->SetBinLabel(i,binLabel);
+  }
+  
   }
 
 }
@@ -340,22 +683,639 @@ void MuonAlignmentAnalyzer::endJob(){
 
   if(doResplots){
 
-  delete thePropagator;
+//  delete thePropagator;
 
   edm::LogInfo("MuonAlignmentAnalyzer")  << "Number of Hits considered for residuals: " << numberOfHits << endl << endl;
 
-  }
+
+
+  char binLabel[15];
+
+  for(unsigned int i=0 ; i<unitsLocalX.size() ; i++)
+  {
+
+  TString nameHistoLocalX=unitsLocalX[i]->GetName();
+
+  TString nameHistoLocalPhi=unitsLocalPhi[i]->GetName();
+
+  TString nameHistoLocalTheta=unitsLocalTheta[i]->GetName();
+
+  TString nameHistoLocalY=unitsLocalY[i]->GetName();
+
+  TString nameHistoGlobalRPhi=unitsGlobalRPhi[i]->GetName();
+
+  TString nameHistoGlobalPhi=unitsGlobalPhi[i]->GetName();
+
+  TString nameHistoGlobalTheta=unitsGlobalTheta[i]->GetName();
+
+  TString nameHistoGlobalRZ=unitsGlobalRZ[i]->GetName();
+
+	if (nameHistoLocalX.Contains("MB")) // HistoLocalX DT
+	{
+	int wheel, station, sector;
+
+	sscanf(nameHistoLocalX, "ResidualLocalX_W%dMB%1dS%d",&wheel,&station,&sector);
+
+	Int_t nstation=station - 1;
+	Int_t nwheel=wheel+2;
+
+	Double_t MeanRPhi=unitsLocalX[i]->GetMean();
+	Double_t ErrorRPhi=unitsLocalX[i]->GetMeanError();
+
+	Int_t xbin=sector+14*nstation+14*4*nwheel;
+
+	sprintf(binLabel, "MB%d/%dS%d", wheel, station, sector );
+
+	hprofLocalXDT->GetYaxis()->SetTitle("X (cm)");
+	hprofLocalXDT->SetMarkerStyle(21);
+	hprofLocalXDT->SetMarkerColor(kRed);
+	hprofLocalXDT->SetBinContent(xbin,MeanRPhi);
+	hprofLocalXDT->SetBinError(xbin, ErrorRPhi);
+	hprofLocalXDT->GetXaxis()->SetBinLabel(xbin, binLabel);
+
+	Int_t ybin=1+nwheel*8+nstation*2;
+	hprofLocalPositionDT->SetBinContent(sector,ybin,fabs(MeanRPhi));
+	sprintf(binLabel, "MB%d/%d_LocalX",wheel, station );
+	hprofLocalPositionDT->GetYaxis()->SetBinLabel(ybin,binLabel);
+	hprofLocalPositionRmsDT->SetBinContent(sector,ybin,ErrorRPhi);
+	hprofLocalPositionRmsDT->GetYaxis()->SetBinLabel(ybin,binLabel);
+	}
+
+	if (nameHistoLocalX.Contains("ME")) // HistoLocalX CSC
+	{
+
+	int station, ring, chamber;
+
+	sscanf(nameHistoLocalX, "ResidualLocalX_ME%dR%1dC%d",&station,&ring,&chamber);
+
+	Double_t MeanRPhi=unitsLocalX[i]->GetMean();
+	Double_t ErrorRPhi=unitsLocalX[i]->GetMeanError();
+	Int_t nstation;
+
+	if (station<=-1)
+	nstation=station+4;
+	else
+	nstation=station+3;
+	
+	Int_t nring=ring-1;
+
+	Int_t xbin=36*4*nstation+36*nring+chamber;
+
+	sprintf(binLabel, "ME%d/%dC%d", station, ring, chamber );
+
+	hprofLocalXCSC->GetYaxis()->SetTitle("X (cm)");
+	hprofLocalXCSC->SetMarkerStyle(21);
+	hprofLocalXCSC->SetMarkerColor(kRed);
+	hprofLocalXCSC->SetBinContent(xbin,MeanRPhi);
+	hprofLocalXCSC->SetBinError(xbin, ErrorRPhi);
+	hprofLocalXCSC->GetXaxis()->SetBinLabel(xbin, binLabel);
+
+	Int_t ybin=abs(station)*2+ring;
+	if(abs(station)==1) ybin=ring;
+	if (station>0) ybin=ybin+9;
+	else ybin = 10 -ybin;
+	ybin=2*ybin;
+	hprofLocalPositionCSC->SetBinContent(chamber,ybin,fabs(MeanRPhi));
+	sprintf(binLabel, "ME%d/%d_LocalX", station,ring );
+	hprofLocalPositionCSC->GetYaxis()->SetBinLabel(ybin,binLabel);
+	hprofLocalPositionRmsCSC->SetBinContent(chamber,ybin,ErrorRPhi);
+	hprofLocalPositionRmsCSC->GetYaxis()->SetBinLabel(ybin,binLabel);
+	}
+
+	if (nameHistoLocalTheta.Contains("MB")) // HistoLocalTheta DT
+	{	
+
+	int wheel, station, sector;
+
+	sscanf(nameHistoLocalTheta, "ResidualLocalTheta_W%dMB%1dS%d",&wheel,&station,&sector);
+
+	if(station != 4){
+	Int_t nstation=station - 1;
+	Int_t nwheel=wheel+2;
+
+	Double_t MeanTheta=unitsLocalTheta[i]->GetMean();
+	Double_t ErrorTheta=unitsLocalTheta[i]->GetMeanError();
+
+	Int_t xbin=sector+14*nstation+14*4*nwheel;
+
+	sprintf(binLabel, "MB%d/%dS%d", wheel, station, sector );
+
+	hprofLocalThetaDT->GetYaxis()->SetTitle("Theta (rad)");
+	hprofLocalThetaDT->SetBinContent(xbin,MeanTheta);
+	hprofLocalThetaDT->SetBinError(xbin, ErrorTheta);
+	hprofLocalThetaDT->SetMarkerStyle(21);
+	hprofLocalThetaDT->SetMarkerColor(kRed);
+	hprofLocalThetaDT->GetXaxis()->SetBinLabel(xbin, binLabel);
+
+	Int_t ybin=2+nwheel*8+nstation*2;
+	hprofLocalAngleDT->SetBinContent(sector,ybin,fabs(MeanTheta));
+	sprintf(binLabel, "MB%d/%d_LocalTheta",wheel,station );
+	hprofLocalAngleDT->GetYaxis()->SetBinLabel(ybin,binLabel);
+	hprofLocalAngleRmsDT->SetBinContent(sector,ybin,ErrorTheta);
+	hprofLocalAngleRmsDT->GetYaxis()->SetBinLabel(ybin,binLabel);
+	
+	}
+	}
+
+	if (nameHistoLocalPhi.Contains("MB")) // HistoLocalPhi DT
+	{	
+
+	int wheel, station, sector;
+
+	sscanf(nameHistoLocalPhi, "ResidualLocalPhi_W%dMB%1dS%d",&wheel,&station,&sector);
+
+	Int_t nstation=station - 1;
+	Int_t nwheel=wheel+2;
+
+	Double_t MeanPhi=unitsLocalPhi[i]->GetMean();
+	Double_t ErrorPhi=unitsLocalPhi[i]->GetMeanError();
+
+	Int_t xbin=sector+14*nstation+14*4*nwheel;
+
+	sprintf(binLabel, "MB%d/%dS%d", wheel, station, sector );
+
+	hprofLocalPhiDT->GetYaxis()->SetTitle("Phi (rad)");
+	hprofLocalPhiDT->SetBinContent(xbin,MeanPhi);
+	hprofLocalPhiDT->SetBinError(xbin, ErrorPhi);
+	hprofLocalPhiDT->SetMarkerStyle(21);
+	hprofLocalPhiDT->SetMarkerColor(kRed);
+	hprofLocalPhiDT->GetXaxis()->SetBinLabel(xbin, binLabel);
+	
+	Int_t ybin=1+nwheel*8+nstation*2;
+	hprofLocalAngleDT->SetBinContent(sector,ybin,fabs(MeanPhi));
+	sprintf(binLabel, "MB%d/%d_LocalPhi", wheel,station );
+	hprofLocalAngleDT->GetYaxis()->SetBinLabel(ybin,binLabel);
+	hprofLocalAngleRmsDT->SetBinContent(sector,ybin,ErrorPhi);
+	hprofLocalAngleRmsDT->GetYaxis()->SetBinLabel(ybin,binLabel);
+	}
+
+	if (nameHistoLocalPhi.Contains("ME")) // HistoLocalPhi CSC
+	{
+
+	int station, ring, chamber;
+
+	sscanf(nameHistoLocalPhi, "ResidualLocalPhi_ME%dR%1dC%d",&station,&ring,&chamber);
+
+	Double_t MeanPhi=unitsLocalPhi[i]->GetMean();
+	Double_t ErrorPhi=unitsLocalPhi[i]->GetMeanError();
+	Int_t nstation;
+
+	if (station<=-1)
+	nstation=station+4;
+	else
+	nstation=station+3;
+
+	Int_t nring=ring-1;
+
+
+	Int_t xbin=36*4*nstation+36*nring+chamber;
+
+	sprintf(binLabel, "ME%d/%dC%d", station, ring, chamber );
+
+	hprofLocalPhiCSC->GetYaxis()->SetTitle("Phi (rad)");
+	hprofLocalPhiCSC->SetMarkerStyle(21);
+	hprofLocalPhiCSC->SetMarkerColor(kRed);
+	hprofLocalPhiCSC->SetBinContent(xbin,MeanPhi);
+	hprofLocalPhiCSC->SetBinError(xbin, ErrorPhi);
+	hprofLocalPhiCSC->GetXaxis()->SetBinLabel(xbin, binLabel);
+
+	Int_t ybin=abs(station)*2+ring;
+	if(abs(station)==1) ybin=ring;
+	if (station>0) ybin=ybin+9;
+	else ybin = 10 -ybin;
+	ybin=2*ybin;
+	hprofLocalAngleCSC->SetBinContent(chamber,ybin,fabs(MeanPhi));
+	sprintf(binLabel, "ME%d/%d_LocalPhi", station,ring );
+	hprofLocalAngleCSC->GetYaxis()->SetBinLabel(ybin,binLabel);
+	hprofLocalAngleRmsCSC->SetBinContent(chamber,ybin,ErrorPhi);
+	hprofLocalAngleRmsCSC->GetYaxis()->SetBinLabel(ybin,binLabel);
+	}
+
+	if (nameHistoLocalTheta.Contains("ME")) // HistoLocalTheta CSC
+	{
+
+	int station, ring, chamber;
+
+	sscanf(nameHistoLocalTheta, "ResidualLocalTheta_ME%dR%1dC%d",&station,&ring,&chamber);
+
+	Double_t MeanTheta=unitsLocalTheta[i]->GetMean();
+	Double_t ErrorTheta=unitsLocalTheta[i]->GetMeanError();
+	Int_t nstation;
+
+	if (station<=-1)
+	nstation=station+4;
+	else
+	nstation=station+3;
+
+	Int_t nring=ring-1;
+
+
+	Int_t xbin=36*4*nstation+36*nring+chamber;
+
+	sprintf(binLabel, "ME%d/%dC%d", station, ring, chamber );
+
+	hprofLocalThetaCSC->GetYaxis()->SetTitle("Theta (rad)");
+	hprofLocalThetaCSC->SetMarkerStyle(21);
+	hprofLocalThetaCSC->SetMarkerColor(kRed);
+	hprofLocalThetaCSC->SetBinContent(xbin,MeanTheta);
+	hprofLocalThetaCSC->SetBinError(xbin, ErrorTheta);
+	hprofLocalThetaCSC->GetXaxis()->SetBinLabel(xbin, binLabel);
+
+	Int_t ybin=abs(station)*2+ring;
+	if(abs(station)==1) ybin=ring;
+	if (station>0) ybin=ybin+9;
+	else ybin = 10 -ybin;
+	ybin=2*ybin;
+	hprofLocalAngleCSC->SetBinContent(chamber,ybin,fabs(MeanTheta));
+	sprintf(binLabel, "ME%d/%d_LocalTheta", station,ring );
+	hprofLocalAngleCSC->GetYaxis()->SetBinLabel(ybin,binLabel);
+	hprofLocalAngleRmsCSC->SetBinContent(chamber,ybin,ErrorTheta);
+	hprofLocalAngleRmsCSC->GetYaxis()->SetBinLabel(ybin,binLabel);
+	}
+
+	if (nameHistoLocalY.Contains("MB")) // HistoLocalY DT
+	{
+
+	int wheel, station, sector;
+
+	sscanf(nameHistoLocalY, "ResidualLocalY_W%dMB%1dS%d",&wheel,&station,&sector);
+
+	if(station!=4){
+	Int_t nstation=station - 1;
+	Int_t nwheel=wheel+2;
+
+	Double_t MeanZ=unitsLocalY[i]->GetMean();
+	Double_t ErrorZ=unitsLocalY[i]->GetMeanError();
+
+	Int_t xbin=sector+14*nstation+14*4*nwheel;
+
+	sprintf(binLabel, "MB%d/%dS%d", wheel, station, sector );
+
+	hprofLocalYDT->GetYaxis()->SetTitle("Y (cm)");
+	hprofLocalYDT->SetMarkerStyle(21);
+	hprofLocalYDT->SetMarkerColor(kRed);
+	hprofLocalYDT->SetBinContent(xbin,MeanZ);
+	hprofLocalYDT->SetBinError(xbin, ErrorZ);
+	hprofLocalYDT->GetXaxis()->SetBinLabel(xbin, binLabel);
+
+	Int_t ybin=2+nwheel*8+nstation*2;
+	hprofLocalPositionDT->SetBinContent(sector,ybin,fabs(MeanZ));
+	sprintf(binLabel, "MB%d/%d_LocalY", wheel,station );
+	hprofLocalPositionDT->GetYaxis()->SetBinLabel(ybin,binLabel);
+	hprofLocalPositionRmsDT->SetBinContent(sector,ybin,ErrorZ);
+	hprofLocalPositionRmsDT->GetYaxis()->SetBinLabel(ybin,binLabel);
+	}
+	}
+
+	if (nameHistoLocalY.Contains("ME")) // HistoLocalY CSC
+	{
+
+	int station, ring, chamber;
+
+	sscanf(nameHistoLocalY, "ResidualLocalY_ME%dR%1dC%d",&station,&ring,&chamber);
+
+	Double_t MeanR=unitsLocalY[i]->GetMean();
+	Double_t ErrorR=unitsLocalY[i]->GetMeanError();
+	Int_t nstation;
+
+	if (station<=-1)
+	nstation=station+4;
+	else
+	nstation=station+3;
+
+	Int_t nring=ring-1;
+
+
+	Int_t xbin=36*4*nstation+36*nring+chamber;
+
+	sprintf(binLabel, "ME%d/%dC%d", station, ring, chamber );
+
+	hprofLocalYCSC->GetYaxis()->SetTitle("Y (cm)");
+	hprofLocalYCSC->SetMarkerStyle(21);
+	hprofLocalYCSC->SetMarkerColor(kRed);
+	hprofLocalYCSC->SetBinContent(xbin,MeanR);
+	hprofLocalYCSC->SetBinError(xbin, ErrorR);
+	hprofLocalYCSC->GetXaxis()->SetBinLabel(xbin, binLabel);
+
+	Int_t ybin=abs(station)*2+ring;
+	if(abs(station)==1) ybin=ring;
+	if (station>0) ybin=ybin+9;
+	else ybin = 10 -ybin;
+	ybin=2*ybin;
+	hprofLocalPositionCSC->SetBinContent(chamber,ybin,fabs(MeanR));
+	sprintf(binLabel, "ME%d/%d_LocalY", station,ring );
+	hprofLocalPositionCSC->GetYaxis()->SetBinLabel(ybin,binLabel);
+	hprofLocalPositionRmsCSC->SetBinContent(chamber,ybin,ErrorR);
+	hprofLocalPositionRmsCSC->GetYaxis()->SetBinLabel(ybin,binLabel);
+	}
+
+	if (nameHistoGlobalRPhi.Contains("MB")) // HistoGlobalRPhi DT
+	{
+	int wheel, station, sector;
+
+	sscanf(nameHistoGlobalRPhi, "ResidualGlobalRPhi_W%dMB%1dS%d",&wheel,&station,&sector);
+
+	Int_t nstation=station - 1;
+	Int_t nwheel=wheel+2;
+
+	Double_t MeanRPhi=unitsGlobalRPhi[i]->GetMean();
+	Double_t ErrorRPhi=unitsGlobalRPhi[i]->GetMeanError();
+
+	Int_t xbin=sector+14*nstation+14*4*nwheel;
+
+	sprintf(binLabel, "MB%d/%dS%d", wheel, station, sector );
+
+	hprofGlobalRPhiDT->GetYaxis()->SetTitle("RPhi (cm)");
+	hprofGlobalRPhiDT->SetMarkerStyle(21);
+	hprofGlobalRPhiDT->SetMarkerColor(kRed);
+	hprofGlobalRPhiDT->SetBinContent(xbin,MeanRPhi);
+	hprofGlobalRPhiDT->SetBinError(xbin, ErrorRPhi);
+	hprofGlobalRPhiDT->GetXaxis()->SetBinLabel(xbin, binLabel);
+
+	Int_t ybin=2+nwheel*8+nstation*2;
+	hprofGlobalPositionDT->SetBinContent(sector,ybin,fabs(MeanRPhi));
+	sprintf(binLabel, "MB%d/%d_GlobalRPhi", wheel,station );
+	hprofGlobalPositionDT->GetYaxis()->SetBinLabel(ybin,binLabel);
+	hprofGlobalPositionRmsDT->SetBinContent(sector,ybin,ErrorRPhi);
+	hprofGlobalPositionRmsDT->GetYaxis()->SetBinLabel(ybin,binLabel);
+	}
+
+	if (nameHistoGlobalRPhi.Contains("ME")) // HistoGlobalRPhi CSC
+	{
+
+	int station, ring, chamber;
+
+	sscanf(nameHistoGlobalRPhi, "ResidualGlobalRPhi_ME%dR%1dC%d",&station,&ring,&chamber);
+
+	Double_t MeanRPhi=unitsGlobalRPhi[i]->GetMean();
+	Double_t ErrorRPhi=unitsGlobalRPhi[i]->GetMeanError();
+	Int_t nstation;
+
+	if (station<=-1)
+	nstation=station+4;
+	else
+	nstation=station+3;
+	
+	Int_t nring=ring-1;
+
+	Int_t xbin=36*4*nstation+36*nring+chamber;
+
+	sprintf(binLabel, "ME%d/%dC%d", station, ring, chamber );
+
+	hprofGlobalRPhiCSC->GetYaxis()->SetTitle("RPhi (cm)");
+	hprofGlobalRPhiCSC->SetMarkerStyle(21);
+	hprofGlobalRPhiCSC->SetMarkerColor(kRed);
+	hprofGlobalRPhiCSC->SetBinContent(xbin,MeanRPhi);
+	hprofGlobalRPhiCSC->SetBinError(xbin, ErrorRPhi);
+	hprofGlobalRPhiCSC->GetXaxis()->SetBinLabel(xbin, binLabel);
+
+	Int_t ybin=abs(station)*2+ring;
+	if(abs(station)==1) ybin=ring;
+	if (station>0) ybin=ybin+9;
+	else ybin = 10 -ybin;
+	ybin=2*ybin;
+	hprofGlobalPositionCSC->SetBinContent(chamber,ybin,fabs(MeanRPhi));
+	sprintf(binLabel, "ME%d/%d_GlobalRPhi", station,ring );
+	hprofGlobalPositionCSC->GetYaxis()->SetBinLabel(ybin,binLabel);
+	hprofGlobalPositionRmsCSC->SetBinContent(chamber,ybin,ErrorRPhi);
+	hprofGlobalPositionRmsCSC->GetYaxis()->SetBinLabel(ybin,binLabel);
+	}
+
+	if (nameHistoGlobalTheta.Contains("MB")) // HistoGlobalRTheta DT
+	{	
+
+	int wheel, station, sector;
+
+	sscanf(nameHistoGlobalTheta, "ResidualGlobalTheta_W%dMB%1dS%d",&wheel,&station,&sector);
+
+	if(station!=4){
+	Int_t nstation=station - 1;
+	Int_t nwheel=wheel+2;
+
+	Double_t MeanTheta=unitsGlobalTheta[i]->GetMean();
+	Double_t ErrorTheta=unitsGlobalTheta[i]->GetMeanError();
+
+	Int_t xbin=sector+14*nstation+14*4*nwheel;
+
+	sprintf(binLabel, "MB%d/%dS%d", wheel, station, sector );
+
+	hprofGlobalThetaDT->GetYaxis()->SetTitle("Theta (rad)");
+	hprofGlobalThetaDT->SetBinContent(xbin,MeanTheta);
+	hprofGlobalThetaDT->SetBinError(xbin, ErrorTheta);
+	hprofGlobalThetaDT->SetMarkerStyle(21);
+	hprofGlobalThetaDT->SetMarkerColor(kRed);
+	hprofGlobalThetaDT->GetXaxis()->SetBinLabel(xbin, binLabel);
+
+	Int_t ybin=2+nwheel*8+nstation*2;
+	hprofGlobalAngleDT->SetBinContent(sector,ybin,fabs(MeanTheta));
+	sprintf(binLabel, "MB%d/%d_GlobalTheta", wheel,station );
+	hprofGlobalAngleDT->GetYaxis()->SetBinLabel(ybin,binLabel);
+	hprofGlobalAngleRmsDT->SetBinContent(sector,ybin,ErrorTheta);
+	hprofGlobalAngleRmsDT->GetYaxis()->SetBinLabel(ybin,binLabel);
+	}
+	}
+
+	if (nameHistoGlobalPhi.Contains("MB")) // HistoGlobalPhi DT
+	{	
+
+	int wheel, station, sector;
+
+	sscanf(nameHistoGlobalPhi, "ResidualGlobalPhi_W%dMB%1dS%d",&wheel,&station,&sector);
+
+	Int_t nstation=station - 1;
+	Int_t nwheel=wheel+2;
+
+	Double_t MeanPhi=unitsGlobalPhi[i]->GetMean();
+	Double_t ErrorPhi=unitsGlobalPhi[i]->GetMeanError();
+
+	Int_t xbin=sector+14*nstation+14*4*nwheel;
+
+	sprintf(binLabel, "MB%d/%dS%d", wheel, station, sector );
+
+	hprofGlobalPhiDT->GetYaxis()->SetTitle("Phi (rad)");
+	hprofGlobalPhiDT->SetBinContent(xbin,MeanPhi);
+	hprofGlobalPhiDT->SetBinError(xbin, ErrorPhi);
+	hprofGlobalPhiDT->SetMarkerStyle(21);
+	hprofGlobalPhiDT->SetMarkerColor(kRed);
+	hprofGlobalPhiDT->GetXaxis()->SetBinLabel(xbin, binLabel);
+
+	Int_t ybin=2+nwheel*8+nstation*2;
+	hprofGlobalAngleDT->SetBinContent(sector,ybin,fabs(MeanPhi));
+	sprintf(binLabel, "MB%d/%d_GlobalPhi", wheel,station );
+	hprofGlobalAngleDT->GetYaxis()->SetBinLabel(ybin,binLabel);
+	hprofGlobalAngleRmsDT->SetBinContent(sector,ybin,ErrorPhi);
+	hprofGlobalAngleRmsDT->GetYaxis()->SetBinLabel(ybin,binLabel);
+	}
+
+	if (nameHistoGlobalPhi.Contains("ME")) // HistoGlobalPhi CSC
+	{
+
+	int station, ring, chamber;
+
+	sscanf(nameHistoGlobalPhi, "ResidualGlobalPhi_ME%dR%1dC%d",&station,&ring,&chamber);
+
+	Double_t MeanPhi=unitsGlobalPhi[i]->GetMean();
+	Double_t ErrorPhi=unitsGlobalPhi[i]->GetMeanError();
+	Int_t nstation;
+
+	if (station<=-1)
+	nstation=station+4;
+	else
+	nstation=station+3;
+
+	Int_t nring=ring-1;
+
+
+	Int_t xbin=36*4*nstation+36*nring+chamber;
+
+	sprintf(binLabel, "ME%d/%dC%d", station, ring, chamber );
+
+	hprofGlobalPhiCSC->GetYaxis()->SetTitle("Phi (rad)");
+	hprofGlobalPhiCSC->SetMarkerStyle(21);
+	hprofGlobalPhiCSC->SetMarkerColor(kRed);
+	hprofGlobalPhiCSC->SetBinContent(xbin,MeanPhi);
+	hprofGlobalPhiCSC->SetBinError(xbin, ErrorPhi);
+	hprofGlobalPhiCSC->GetXaxis()->SetBinLabel(xbin, binLabel);
+
+	Int_t ybin=abs(station)*2+ring;
+	if(abs(station)==1) ybin=ring;
+	if (station>0) ybin=ybin+9;
+	else ybin = 10 -ybin;
+	ybin=2*ybin;
+	hprofGlobalAngleCSC->SetBinContent(chamber,ybin,fabs(MeanPhi));
+	sprintf(binLabel, "ME%d/%d_GlobalPhi", station,ring );
+	hprofGlobalAngleCSC->GetYaxis()->SetBinLabel(ybin,binLabel);
+	hprofGlobalAngleRmsCSC->SetBinContent(chamber,ybin,ErrorPhi);
+	hprofGlobalAngleRmsCSC->GetYaxis()->SetBinLabel(ybin,binLabel);
+	}
+
+	if (nameHistoGlobalTheta.Contains("ME")) // HistoGlobalTheta CSC
+	{
+
+	int station, ring, chamber;
+
+	sscanf(nameHistoGlobalTheta, "ResidualGlobalTheta_ME%dR%1dC%d",&station,&ring,&chamber);
+
+	Double_t MeanTheta=unitsGlobalTheta[i]->GetMean();
+	Double_t ErrorTheta=unitsGlobalTheta[i]->GetMeanError();
+	Int_t nstation;
+
+	if (station<=-1)
+	nstation=station+4;
+	else
+	nstation=station+3;
+
+	Int_t nring=ring-1;
+
+	Int_t xbin=36*4*nstation+36*nring+chamber;
+
+	sprintf(binLabel, "ME%d/%dC%d", station, ring, chamber );
+
+	hprofGlobalThetaCSC->GetYaxis()->SetTitle("Theta (rad)");
+	hprofGlobalThetaCSC->SetMarkerStyle(21);
+	hprofGlobalThetaCSC->SetMarkerColor(kRed);
+	hprofGlobalThetaCSC->SetBinContent(xbin,MeanTheta);
+	hprofGlobalThetaCSC->SetBinError(xbin, ErrorTheta);
+	hprofGlobalThetaCSC->GetXaxis()->SetBinLabel(xbin, binLabel);
+
+	Int_t ybin=abs(station)*2+ring;
+	if(abs(station)==1) ybin=ring;
+	if (station>0) ybin=ybin+9;
+	else ybin = 10 -ybin;
+	ybin=2*ybin;
+	hprofGlobalAngleCSC->SetBinContent(chamber,ybin,fabs(MeanTheta));
+	sprintf(binLabel, "ME%d/%d_GlobalTheta", station,ring );
+	hprofGlobalAngleCSC->GetYaxis()->SetBinLabel(ybin,binLabel);
+	hprofGlobalAngleRmsCSC->SetBinContent(chamber,ybin,ErrorTheta);
+	hprofGlobalAngleRmsCSC->GetYaxis()->SetBinLabel(ybin,binLabel);
+	}
+
+	if (nameHistoGlobalRZ.Contains("MB")) // HistoGlobalZ DT
+	{
+
+	int wheel, station, sector;
+
+	sscanf(nameHistoGlobalRZ, "ResidualGlobalZ_W%dMB%1dS%d",&wheel,&station,&sector);
+	
+	if(station!=4){
+	Int_t nstation=station - 1;
+	Int_t nwheel=wheel+2;
+
+	Double_t MeanZ=unitsGlobalRZ[i]->GetMean();
+	Double_t ErrorZ=unitsGlobalRZ[i]->GetMeanError();
+
+	Int_t xbin=sector+14*nstation+14*4*nwheel;
+
+	sprintf(binLabel, "MB%d/%dS%d", wheel, station, sector );
+
+	hprofGlobalZDT->GetYaxis()->SetTitle("Z (cm)");
+	hprofGlobalZDT->SetMarkerStyle(21);
+	hprofGlobalZDT->SetMarkerColor(kRed);
+
+	hprofGlobalZDT->SetBinContent(xbin,MeanZ);
+	hprofGlobalZDT->SetBinError(xbin, ErrorZ);
+	hprofGlobalZDT->GetXaxis()->SetBinLabel(xbin, binLabel);
+
+	Int_t ybin=2+nwheel*8+nstation*2;
+	hprofGlobalPositionDT->SetBinContent(sector,ybin,fabs(MeanZ));
+	sprintf(binLabel, "MB%d/%d_GlobalZ", wheel,station );
+	hprofGlobalPositionDT->GetYaxis()->SetBinLabel(ybin,binLabel);
+	hprofGlobalPositionRmsDT->SetBinContent(sector,ybin,ErrorZ);
+	hprofGlobalPositionRmsDT->GetYaxis()->SetBinLabel(ybin,binLabel);
+	}
+	}
+
+	if (nameHistoGlobalRZ.Contains("ME")) // HistoGlobalR CSC
+	{
+
+	int station, ring, chamber;
+
+	sscanf(nameHistoGlobalRZ, "ResidualGlobalR_ME%dR%1dC%d",&station,&ring,&chamber);
+
+	Double_t MeanR=unitsGlobalRZ[i]->GetMean();
+	Double_t ErrorR=unitsGlobalRZ[i]->GetMeanError();
+	Int_t nstation;
+
+	if (station<=-1)
+	nstation=station+4;
+	else
+	nstation=station+3;
+
+	Int_t nring=ring-1;
+
+
+	Int_t xbin=36*4*nstation+36*nring+chamber;
+
+	sprintf(binLabel, "ME%d/%dC%d", station, ring, chamber );
+
+	hprofGlobalRCSC->GetYaxis()->SetTitle("R (cm)");
+	hprofGlobalRCSC->SetMarkerStyle(21);
+	hprofGlobalRCSC->SetMarkerColor(kRed);
+	hprofGlobalRCSC->SetBinContent(xbin,MeanR);
+	hprofGlobalRCSC->SetBinError(xbin, ErrorR);
+	hprofGlobalRCSC->GetXaxis()->SetBinLabel(xbin, binLabel);
+
+	Int_t ybin=abs(station)*2+ring;
+	if(abs(station)==1) ybin=ring;
+	if (station>0) ybin=ybin+9;
+	else ybin = 10 -ybin;
+	ybin=2*ybin;
+	hprofGlobalPositionCSC->SetBinContent(chamber,ybin,fabs(MeanR));
+	sprintf(binLabel, "ME%d/%d_GlobalR", station,ring );
+	hprofGlobalPositionCSC->GetYaxis()->SetBinLabel(ybin,binLabel);
+	hprofGlobalPositionRmsCSC->SetBinContent(chamber,ybin,ErrorR);
+	hprofGlobalPositionRmsCSC->GetYaxis()->SetBinLabel(ybin,binLabel);
+	}
+
+    } // for in histos
+
+  } // doResPlots
 
 }
  
 
 void MuonAlignmentAnalyzer::analyze(const Event & event, const EventSetup& eventSetup){
-  
-  
-
-  ESHandle<GlobalTrackingGeometry> theTrackingGeometry;
-  eventSetup.get<GlobalTrackingGeometryRecord>().get(theTrackingGeometry);
-  
+    
   GlobalVector p1,p2;
   std::vector< double > simPar[4] ; //pt,eta,phi,charge
   
@@ -599,6 +1559,13 @@ void MuonAlignmentAnalyzer::analyze(const Event & event, const EventSetup& event
 
  if(doResplots){
 
+  ESHandle<MagneticField> theMGField;
+  eventSetup.get<IdealMagneticFieldRecord>().get(theMGField);
+
+  ESHandle<GlobalTrackingGeometry> theTrackingGeometry;
+  eventSetup.get<GlobalTrackingGeometryRecord>().get(theTrackingGeometry);
+
+
   // Get the RecTrack collection from the event
   Handle<reco::TrackCollection> staTracks;
   event.getByLabel(theSTAMuonTag, staTracks);
@@ -608,15 +1575,29 @@ void MuonAlignmentAnalyzer::analyze(const Event & event, const EventSetup& event
   event.getByLabel(theRecHits4DTagDT, all4DSegmentsDT);
   DTRecSegment4DCollection::const_iterator segmentDT;
 
-  // Get the 2D CSCSegments
-  edm::Handle<CSCSegmentCollection> all2DSegmentsCSC;
-  event.getByLabel(theRecHits2DTagCSC, all2DSegmentsCSC);
+  // Get the 4D CSCSegments
+  edm::Handle<CSCSegmentCollection> all4DSegmentsCSC;
+  event.getByLabel(theRecHits4DTagCSC, all4DSegmentsCSC);
   CSCSegmentCollection::const_iterator segmentCSC;
   
    //Vectors used to perform the matching between Segments and hits from Track
-  std::vector< std::vector<int> > indexCollectionDT;
-  std::vector< std::vector<int> > indexCollectionCSC;
-   
+  intDVector indexCollectionDT;
+  intDVector indexCollectionCSC;
+
+/*    cout << "<MuonAlignmentAnalyzer> List of DTSegments found in Local Reconstruction" << endl;
+    cout << "Number: " << all4DSegmentsDT->size() << endl;
+    for (segmentDT = all4DSegmentsDT->begin(); segmentDT != all4DSegmentsDT->end(); ++segmentDT){
+      const GeomDet* geomDet = theTrackingGeometry->idToDet((*segmentDT).geographicalId());
+      cout << "<MuonAlignmentAnalyzer> " << geomDet->toGlobal((*segmentDT).localPosition()) << endl;
+      cout << "<MuonAlignmentAnalyzer> Local " << (*segmentDT).localPosition() << std::endl;
+    }
+    cout << "<MuonAlignmentAnalyzer> List of CSCSegments found in Local Reconstruction" << endl;
+    for (segmentCSC = all4DSegmentsCSC->begin(); segmentCSC != all4DSegmentsCSC->end(); ++segmentCSC){
+      const GeomDet* geomDet = theTrackingGeometry->idToDet((*segmentCSC).geographicalId());
+      cout << "<MuonAlignmentAnalyzer>" << geomDet->toGlobal((*segmentCSC).localPosition()) << endl;
+    }
+*/   
+  thePropagator = new SteppingHelixPropagator(&*theMGField, alongMomentum);
 
   reco::TrackCollection::const_iterator staTrack;
   for (staTrack = staTracks->begin(); staTrack != staTracks->end(); ++staTrack){
@@ -625,136 +1606,46 @@ void MuonAlignmentAnalyzer::analyze(const Event & event, const EventSetup& event
 
     reco::TransientTrack track(*staTrack,&*theMGField,theTrackingGeometry); 
     
-    std::vector<int> positionDT;
-    std::vector<int> positionCSC;
-    std::vector<TrackingRecHit *> my4DTrack;
-    
-    //Loop over the hits of the track
-    for( unsigned int counter  = 0; counter != staTrack->recHitsSize()-1; ++counter) {
+
+     if(staTrack->recHitsSize()>min1DTrackRecHitSize-1) {
+
+    RecHitVector  my4DTrack = this->doMatching(*staTrack, all4DSegmentsDT, all4DSegmentsCSC, &indexCollectionDT, &indexCollectionCSC, theTrackingGeometry);
   
-      TrackingRecHitRef myRef = staTrack->recHit(counter);
-      const TrackingRecHit *rechit = myRef.get();
-      const GeomDet* geomDet = theTrackingGeometry->idToDet(rechit->geographicalId());
-      
-	//It's a DT Hit
-      if(geomDet->subDetector() == GeomDetEnumerators::DT) {
-
-	//Take the layer associated to this hit
-	DTLayerId myLayer(rechit->geographicalId().rawId());
-	
-	int NumberOfDTSegment = 0;
-	//Loop over segments
-	for(segmentDT = all4DSegmentsDT->begin(); segmentDT != all4DSegmentsDT->end(); ++segmentDT) {
-	  
-	  //By default the chamber associated to this Segment is new
-	  bool isNewChamber = true;
-
-	  //Loop over segments already included in the vector of segments in the actual track
-	  for(std::vector<int>::iterator positionIt = positionDT.begin(); positionIt != positionDT.end(); ++positionIt) {
-
-	    //If this segment has been used before isNewChamber = false
-	    if(NumberOfDTSegment == *positionIt) isNewChamber = false;
-	  }
-
-	  //Loop over vectors of segments associated to previous tracks
-	  for(std::vector<std::vector<int> >::iterator collect = indexCollectionDT.begin(); collect != indexCollectionDT.end(); ++collect) {
-
-	    //Loop over segments associated to a track
-	    for(std::vector<int>::iterator positionIt = (*collect).begin(); positionIt != (*collect).end(); positionIt++) {
-	      
-	      //If this segment was used in a previos track then isNewChamber = false
-	      if(NumberOfDTSegment == *positionIt) isNewChamber = false;
-	    }
-	  }
-	  
-	  //If the chamber is new
-	  if(isNewChamber) {
-	    
-	    DTChamberId myChamber((*segmentDT).geographicalId().rawId());
-	    //If the layer of the hit belongs to the chamber of the 4D Segment
-	    if(myLayer.wheel() == myChamber.wheel() && myLayer.station() == myChamber.station() && myLayer.sector() == myChamber.sector()) {
-	      
-	      //push position of the segment and tracking rechit
-	      positionDT.push_back(NumberOfDTSegment);
-	      my4DTrack.push_back((TrackingRecHit *) &(*segmentDT));
-	    }
-	  } //new Chamber if
-	  
-	  NumberOfDTSegment++;
-	} // DTsegment Loop
-
-      } //was a DT if
-      
-	//In case is a CSC
-      else if (geomDet->subDetector() == GeomDetEnumerators::CSC) {
-	
-      //Take the layer associated to this hit
-      CSCDetId myLayer(rechit->geographicalId().rawId());
-	
-      int NumberOfCSCSegment = 0;
-      //Loop over 2Dsegments
-      for(segmentCSC = all2DSegmentsCSC->begin(); segmentCSC != all2DSegmentsCSC->end(); segmentCSC++) {
-
-      //By default the chamber associated to the segment is new
-        bool isNewChamber = true;
-
-      //Loop over segments in the current track
-        for(std::vector<int>::iterator positionIt = positionCSC.begin(); positionIt != positionCSC.end(); positionIt++) {
-	    
-      //If this segment has been used then newchamber = false
-          if(NumberOfCSCSegment == *positionIt) isNewChamber = false;
-        }
-      //Loop over vectors of segments in previous tracks
-        for(std::vector<std::vector<int> >::iterator collect = indexCollectionCSC.begin(); collect != indexCollectionCSC.end(); ++collect) {
-      //Loop over segments in a track
-      for(std::vector<int>::iterator positionIt = (*collect).begin(); positionIt != (*collect).end(); positionIt++) {
-      //If the segment was used in a previous track isNewChamber = false
-            if(NumberOfCSCSegment == *positionIt) isNewChamber = false;
-          }
-        }
-      //  //If the chamber is new
-        if(isNewChamber) {
-      CSCDetId myChamber((*segmentCSC).geographicalId().rawId());
-      //If the chambers are the same
-          if(myLayer.chamberId() == myChamber.chamberId()) {
-      //push
-      positionCSC.push_back(NumberOfCSCSegment);
-      my4DTrack.push_back((TrackingRecHit *) &(*segmentCSC));
-          }
-        }
-        NumberOfCSCSegment++;
-      } //CSC segment loop
-    } //was a CSC if
     
+//cut in number of segments
+
+   if(my4DTrack.size()>min4DTrackSegmentSize-1 ){
 
 // start propagation
-    TrajectoryStateOnSurface innerTSOS = track.impactPointState();
+//    TrajectoryStateOnSurface innerTSOS = track.impactPointState();
+    TrajectoryStateOnSurface innerTSOS = track.innermostMeasurementState();
 
     //If the state is valid
     if(innerTSOS.isValid()) {
 
       //Loop over Associated segments
-      for(std::vector<TrackingRecHit *>::iterator rechit = my4DTrack.begin(); rechit != my4DTrack.end(); ++rechit) {
+      for(RecHitVector::iterator rechit = my4DTrack.begin(); rechit != my4DTrack.end(); ++rechit) {
 	
 	const GeomDet* geomDet = theTrackingGeometry->idToDet((*rechit)->geographicalId());
-	//This try block is to catch some exceptions given by the propagator
-	try {
+//Otherwise the propagator could throw an exception
+    const Plane* pDest = dynamic_cast<const Plane*>(&geomDet->surface());
+    const Cylinder* cDest = dynamic_cast<const Cylinder*>(&geomDet->surface());
+
+    if(pDest != 0 || cDest != 0) {   //Donde antes iba el try
  
 	  TrajectoryStateOnSurface destiny = thePropagator->propagate(*(innerTSOS.freeState()), geomDet->surface());
-          if(!destiny.isValid()) continue;
 
-	double residualRPhi,residualPhi,residualZ;
+          if(!destiny.isValid()|| !destiny.hasError()) continue;
 
-  residualRPhi = (*rechit)->localPosition().x() - destiny.localPosition().x();
-  residualZ = geomDet->toGlobal((*rechit)->localPosition()).z() - destiny.freeState()->position().z();
-  residualPhi = atan2(geomDet->toGlobal(((RecSegment *)(*rechit))->localDirection()).y(), 
-  geomDet->toGlobal(((RecSegment*)(*rechit))->localDirection()).x())-atan2(destiny.globalDirection().y(), destiny.globalDirection().x());
-
-
+/*	    cout << "<MuonAlignmentAnalyzer> Segment: " << geomDet->toGlobal((*rechit)->localPosition()) << endl;
+	    cout << "<MuonAlignmentAnalyzer> Segment local: " << (*rechit)->localPosition() << endl;
+	    cout << "<MuonAlignmentAnalyzer> Predicted: " << destiny.freeState()->position() << endl;
+	    cout << "<MuonAlignmentAnalyzer> Predicted local: " << destiny.localPosition() << endl;
+*/
           const long rawId= (*rechit)->geographicalId().rawId();
 	  int position = -1;
 	  bool newDetector = true; 
-	  //Loop over the AligmentDetectorCollection to see if the detector is new and requires a new entry
+	  //Loop over the DetectorCollection to see if the detector is new and requires a new entry
 	  for(std::vector<long>::iterator myIds = detectorCollection.begin(); myIds != detectorCollection.end(); myIds++) {
 		++position;
 	    //If matches newDetector = false
@@ -769,6 +1660,9 @@ void MuonAlignmentAnalyzer::analyze(const Event & event, const EventSetup& event
             int wheel=0,station=0,sector=0;
             int endcap=0,ring=0,chamber=0;
 
+	double residualGlobalRPhi=0,residualGlobalPhi=0,residualGlobalR=0,residualGlobalTheta=0,residualGlobalZ=0;
+	double residualLocalX=0,residualLocalPhi=0,residualLocalY=0,residualLocalTheta=0;
+
 	// Fill generic histograms
             //If it's a DT
             if(det == 1) {
@@ -776,19 +1670,70 @@ void MuonAlignmentAnalyzer::analyze(const Event & event, const EventSetup& event
               wheel=myChamber.wheel();
               station = myChamber.station();
               sector=myChamber.sector();
+	      
+//global		
+		residualGlobalRPhi = geomDet->toGlobal((*rechit)->localPosition()).perp() * geomDet->toGlobal((*rechit)->localPosition()).barePhi() -	destiny.freeState()->position().perp() * destiny.freeState()->position().barePhi();
 
-  	        hResidualRPhiDT->Fill(residualRPhi);
-        	hResidualPhiDT->Fill(residualPhi);
-            	hResidualZDT->Fill(residualZ);
+//local
+		residualLocalX = (*rechit)->localPosition().x() -destiny.localPosition().x();
+		
+//global		
+		residualGlobalPhi = geomDet->toGlobal(((RecSegment *)(*rechit))->localDirection()).barePhi() - destiny.globalDirection().barePhi();
+
+//local
+  		residualLocalPhi = atan2(((RecSegment *)(*rechit))->localDirection().z(), 
+		  ((RecSegment*)(*rechit))->localDirection().x()) - atan2(destiny.localDirection().z(), destiny.localDirection().x());
+
+		hResidualGlobalRPhiDT->Fill(residualGlobalRPhi);
+        	hResidualGlobalPhiDT->Fill(residualGlobalPhi);
+		hResidualLocalXDT->Fill(residualLocalX);
+        	hResidualLocalPhiDT->Fill(residualLocalPhi);
+
+		if(station!=4){
+//global		
+		residualGlobalZ = geomDet->toGlobal((*rechit)->localPosition()).z() - destiny.freeState()->position().z();
+		
+//local
+		residualLocalY = (*rechit)->localPosition().y() - destiny.localPosition().y();
+		
+//global		
+		residualGlobalTheta = geomDet->toGlobal(((RecSegment *)(*rechit))->localDirection()).bareTheta() - destiny.globalDirection().bareTheta();
+
+//local
+  		residualLocalTheta = atan2(((RecSegment *)(*rechit))->localDirection().z(), 
+		  ((RecSegment*)(*rechit))->localDirection().y()) - atan2(destiny.localDirection().z(), destiny.localDirection().y());
+
+		
+        	hResidualGlobalThetaDT->Fill(residualGlobalTheta);
+            	hResidualGlobalZDT->Fill(residualGlobalZ);
+        	hResidualLocalThetaDT->Fill(residualLocalTheta);
+            	hResidualLocalYDT->Fill(residualLocalY);
+		}
 
                 int index = wheel+2;
-                hResidualRPhiDT_W[index]->Fill(residualRPhi);
-                hResidualPhiDT_W[index]->Fill(residualPhi);
-                hResidualZDT_W[index]->Fill(residualZ);
+                hResidualGlobalRPhiDT_W[index]->Fill(residualGlobalRPhi);
+                hResidualGlobalPhiDT_W[index]->Fill(residualGlobalPhi);
+                hResidualLocalXDT_W[index]->Fill(residualLocalX);
+                hResidualLocalPhiDT_W[index]->Fill(residualLocalPhi);
+		if(station!=4){
+                hResidualGlobalThetaDT_W[index]->Fill(residualGlobalTheta);
+                hResidualGlobalZDT_W[index]->Fill(residualGlobalZ);
+                hResidualLocalThetaDT_W[index]->Fill(residualLocalTheta);
+                hResidualLocalYDT_W[index]->Fill(residualLocalY);
+		}
+		
                 index=wheel*4+station+7;
-                hResidualRPhiDT_MB[index]->Fill(residualRPhi);
-                hResidualPhiDT_MB[index]->Fill(residualPhi);
-                hResidualZDT_MB[index]->Fill(residualZ);
+                hResidualGlobalRPhiDT_MB[index]->Fill(residualGlobalRPhi);
+                hResidualGlobalPhiDT_MB[index]->Fill(residualGlobalPhi);
+                hResidualLocalXDT_MB[index]->Fill(residualLocalX);
+                hResidualLocalPhiDT_MB[index]->Fill(residualLocalPhi);
+
+ 		if(station!=4){               
+		hResidualGlobalThetaDT_MB[index]->Fill(residualGlobalTheta);
+                hResidualGlobalZDT_MB[index]->Fill(residualGlobalZ);
+                hResidualLocalThetaDT_MB[index]->Fill(residualLocalTheta);
+                hResidualLocalYDT_MB[index]->Fill(residualLocalY);
+		}
             } 
 	    else if (det==2){
               CSCDetId myChamber(rawId);
@@ -798,20 +1743,60 @@ void MuonAlignmentAnalyzer::analyze(const Event & event, const EventSetup& event
               ring = myChamber.ring();
               chamber=myChamber.chamber();
 
-                hResidualRPhiCSC->Fill(residualRPhi);
-                hResidualPhiCSC->Fill(residualPhi);
-                hResidualZCSC->Fill(residualZ);
+
+//global		
+		residualGlobalRPhi = geomDet->toGlobal((*rechit)->localPosition()).perp() * geomDet->toGlobal((*rechit)->localPosition()).barePhi() -	destiny.freeState()->position().perp() * destiny.freeState()->position().barePhi();
+
+//local
+		residualLocalX = (*rechit)->localPosition().x() -destiny.localPosition().x();
+		
+//global		
+		residualGlobalR = geomDet->toGlobal((*rechit)->localPosition()).perp() - destiny.freeState()->position().perp();
+		
+//local
+		residualLocalY = (*rechit)->localPosition().y() - destiny.localPosition().y();
+		
+//global		
+		residualGlobalPhi = geomDet->toGlobal(((RecSegment *)(*rechit))->localDirection()).barePhi() - destiny.globalDirection().barePhi();
+
+//local
+  		residualLocalPhi = atan2(((RecSegment *)(*rechit))->localDirection().y(), 
+		  ((RecSegment*)(*rechit))->localDirection().x()) - atan2(destiny.localDirection().y(), destiny.localDirection().x());
+
+//global		
+		residualGlobalTheta = geomDet->toGlobal(((RecSegment *)(*rechit))->localDirection()).bareTheta() - destiny.globalDirection().bareTheta();
+
+//local
+  		residualLocalTheta = atan2(((RecSegment *)(*rechit))->localDirection().y(), 
+		  ((RecSegment*)(*rechit))->localDirection().z()) - atan2(destiny.localDirection().y(), destiny.localDirection().z());
+
+                hResidualGlobalRPhiCSC->Fill(residualGlobalRPhi);
+                hResidualGlobalPhiCSC->Fill(residualGlobalPhi);
+                hResidualGlobalThetaCSC->Fill(residualGlobalTheta);
+                hResidualGlobalRCSC->Fill(residualGlobalR);
+                hResidualLocalXCSC->Fill(residualLocalX);
+                hResidualLocalPhiCSC->Fill(residualLocalPhi);
+                hResidualLocalThetaCSC->Fill(residualLocalTheta);
+                hResidualLocalYCSC->Fill(residualLocalY);
 
                 int index=2*station+ring+7;
                 if(station==-1) {index=5+ring;
 				if(ring==4) index=6;}
                 if(station==1) {index=8+ring;
 				if(ring==4) index=9;}
-                hResidualRPhiCSC_ME[index]->Fill(residualRPhi);
-                hResidualPhiCSC_ME[index]->Fill(residualPhi);
-                hResidualZCSC_ME[index]->Fill(residualZ);
+                hResidualGlobalRPhiCSC_ME[index]->Fill(residualGlobalRPhi);
+                hResidualGlobalPhiCSC_ME[index]->Fill(residualGlobalPhi);
+                hResidualGlobalThetaCSC_ME[index]->Fill(residualGlobalTheta);
+                hResidualGlobalRCSC_ME[index]->Fill(residualGlobalR);
+                hResidualLocalXCSC_ME[index]->Fill(residualLocalX);
+                hResidualLocalPhiCSC_ME[index]->Fill(residualLocalPhi);
+                hResidualLocalThetaCSC_ME[index]->Fill(residualLocalTheta);
+                hResidualLocalYCSC_ME[index]->Fill(residualLocalY);
 
             }
+	    else{residualGlobalRPhi=0,residualGlobalPhi=0,residualGlobalR=0,residualGlobalTheta=0,residualGlobalZ=0;
+	    residualLocalX=0,residualLocalPhi=0,residualLocalY=0,residualLocalTheta=0,residualLocalY=0;
+	    }
 // Fill individual chamber histograms
   if(newDetector) {
 	    
@@ -819,19 +1804,19 @@ void MuonAlignmentAnalyzer::analyze(const Event & event, const EventSetup& event
 	    detectorCollection.push_back(rawId);
 
 	    //This piece of code calculates the range of the residuals
-	    double range = 0.5;
+	    double rangeX = 3.0, rangeY =5.;
 	    switch(abs(station)) {
 	    case 1:
-	      range = 0.5;
+	      {rangeX = resLocalXRangeStation1; rangeY = resLocalYRangeStation1;}
 	      break;
 	    case 2:
-	      range = 1.0;
+	      {rangeX = resLocalXRangeStation2; rangeY = resLocalYRangeStation2;}
 	      break;
 	    case 3:
-	      range = 3.0;
+	      {rangeX = resLocalXRangeStation3; rangeY = resLocalYRangeStation3;}
 	      break;
 	    case 4:
-	      range = 10.0;
+	      {rangeX = resLocalXRangeStation4; rangeY = resLocalYRangeStation4;}
 	      break;
 	    default:
 	      break;
@@ -839,48 +1824,87 @@ void MuonAlignmentAnalyzer::analyze(const Event & event, const EventSetup& event
 
 	//create new histograms
 
-	    char nameOfHistoRPhi[50];
-	    char nameOfHistoPhi[50];
-	    char nameOfHistoZ[50];
+	    char nameOfHistoLocalX[50];
+	    char nameOfHistoLocalTheta[50];
+	    char nameOfHistoLocalY[50];
+	    char nameOfHistoLocalPhi[50];
+	    char nameOfHistoGlobalRPhi[50];
+	    char nameOfHistoGlobalTheta[50];
+	    char nameOfHistoGlobalR[50];
+	    char nameOfHistoGlobalPhi[50];
+	    char nameOfHistoGlobalZ[50];
 	
 	    if(det==1){ // DT
-	    sprintf(nameOfHistoRPhi, "ResidualRPhi_W%dMB%1dS%1d",wheel,station,sector );
-	    sprintf(nameOfHistoPhi, "ResidualPhi_W%dMB%1dS%1d",wheel,station,sector);
-	    sprintf(nameOfHistoZ, "ResidualZ_W%dMB%1dS%1d",wheel,station,sector);
+	    sprintf(nameOfHistoLocalX, "ResidualLocalX_W%dMB%1dS%1d",wheel,station,sector );
+	    sprintf(nameOfHistoLocalPhi, "ResidualLocalPhi_W%dMB%1dS%1d",wheel,station,sector);
+	    sprintf(nameOfHistoGlobalRPhi, "ResidualGlobalRPhi_W%dMB%1dS%1d",wheel,station,sector );
+	    sprintf(nameOfHistoGlobalPhi, "ResidualGlobalPhi_W%dMB%1dS%1d",wheel,station,sector);
+	    sprintf(nameOfHistoLocalTheta, "ResidualLocalTheta_W%dMB%1dS%1d",wheel,station,sector);
+	    sprintf(nameOfHistoLocalY, "ResidualLocalY_W%dMB%1dS%1d",wheel,station,sector);
+	    TH1F *histoLocalY = fs->make<TH1F>(nameOfHistoLocalY, nameOfHistoLocalY, nbins, -rangeY, rangeY);
+	    unitsLocalY.push_back(histoLocalY);
+	    sprintf(nameOfHistoGlobalTheta, "ResidualGlobalTheta_W%dMB%1dS%1d",wheel,station,sector);
+	    sprintf(nameOfHistoGlobalZ, "ResidualGlobalZ_W%dMB%1dS%1d",wheel,station,sector);
+	    TH1F *histoGlobalZ = fs->make<TH1F>(nameOfHistoGlobalZ, nameOfHistoGlobalZ, nbins, -rangeY, rangeY);
+	    unitsGlobalRZ.push_back(histoGlobalZ);
+
 	    }
 	    else if(det==2){ //CSC
-	    sprintf(nameOfHistoRPhi, "ResidualRPhi_ME%dR%1dCh%1d",station,ring,chamber );
-	    sprintf(nameOfHistoPhi, "ResidualPhi_ME%dR%1dCh%1d",station,ring,chamber);
-	    sprintf(nameOfHistoZ, "ResidualZ_ME%dR%1dCh%1d",station,ring,chamber);
-
+	    sprintf(nameOfHistoLocalX, "ResidualLocalX_ME%dR%1dC%1d",station,ring,chamber );
+	    sprintf(nameOfHistoLocalPhi, "ResidualLocalPhi_ME%dR%1dC%1d",station,ring,chamber);
+	    sprintf(nameOfHistoLocalTheta, "ResidualLocalTheta_ME%dR%1dC%1d",station,ring,chamber);
+	    sprintf(nameOfHistoLocalY, "ResidualLocalY_ME%dR%1dC%1d",station,ring,chamber);
+	    TH1F *histoLocalY = fs->make<TH1F>(nameOfHistoLocalY, nameOfHistoLocalY, nbins, -rangeY, rangeY);
+	    unitsLocalY.push_back(histoLocalY);
+	    sprintf(nameOfHistoGlobalRPhi, "ResidualGlobalRPhi_ME%dR%1dC%1d",station,ring,chamber );
+	    sprintf(nameOfHistoGlobalPhi, "ResidualGlobalPhi_ME%dR%1dC%1d",station,ring,chamber);
+	    sprintf(nameOfHistoGlobalTheta, "ResidualGlobalTheta_ME%dR%1dC%1d",station,ring,chamber);
+	    sprintf(nameOfHistoGlobalR, "ResidualGlobalR_ME%dR%1dC%1d",station,ring,chamber);
+	    TH1F *histoGlobalR = fs->make<TH1F>(nameOfHistoGlobalR, nameOfHistoGlobalR, nbins, -rangeY, rangeY);
+	    unitsGlobalRZ.push_back(histoGlobalR);
 	    }		    
 	    
-	    TH1F *histoRPhi = fs->make<TH1F>(nameOfHistoRPhi, nameOfHistoRPhi, 100, -2.0*range, 2.0*range);
-	    TH1F *histoPhi = fs->make<TH1F>(nameOfHistoPhi, nameOfHistoPhi, 100, -0.1*range, 0.1*range);
-	    TH1F *histoZ = fs->make<TH1F>(nameOfHistoZ, nameOfHistoZ, 100, -2.0*range, 2.0*range);
+	    // Common histos to DT and CSC
+	    TH1F *histoLocalX = fs->make<TH1F>(nameOfHistoLocalX, nameOfHistoLocalX, nbins, -rangeX, rangeX);
+	    TH1F *histoGlobalRPhi = fs->make<TH1F>(nameOfHistoGlobalRPhi, nameOfHistoGlobalRPhi, nbins, -rangeX, rangeX);
+	    TH1F *histoLocalPhi = fs->make<TH1F>(nameOfHistoLocalPhi, nameOfHistoLocalPhi, nbins, -resPhiRange, resPhiRange);
+	    TH1F *histoGlobalPhi = fs->make<TH1F>(nameOfHistoGlobalPhi, nameOfHistoGlobalPhi, nbins, -resPhiRange, resPhiRange);
+	    TH1F *histoGlobalTheta = fs->make<TH1F>(nameOfHistoGlobalTheta, nameOfHistoGlobalTheta, nbins, -resThetaRange, resThetaRange);
+	    TH1F *histoLocalTheta = fs->make<TH1F>(nameOfHistoLocalTheta, nameOfHistoLocalTheta, nbins, -resThetaRange, resThetaRange);
 
-	    histoRPhi->Fill(residualRPhi);
-	    histoPhi->Fill(residualPhi);
-	    histoZ->Fill(residualZ);	
+	    histoLocalX->Fill(residualLocalX);
+	    histoLocalPhi->Fill(residualLocalPhi);
+	    histoLocalTheta->Fill(residualLocalTheta);	
+	    histoGlobalRPhi->Fill(residualGlobalRPhi);
+	    histoGlobalPhi->Fill(residualGlobalPhi);
+	    histoGlobalTheta->Fill(residualGlobalTheta);	
 	    //Push them into their respective vectors
-	    unitsRPhi.push_back(histoRPhi);
-	    unitsPhi.push_back(histoPhi);
-	    unitsZ.push_back(histoZ);
+	    unitsLocalX.push_back(histoLocalX);
+	    unitsLocalPhi.push_back(histoLocalPhi);
+	    unitsLocalTheta.push_back(histoLocalTheta);
+	    unitsGlobalRPhi.push_back(histoGlobalRPhi);
+	    unitsGlobalPhi.push_back(histoGlobalPhi);
+	    unitsGlobalTheta.push_back(histoGlobalTheta);
 
 	    } // new detector
 	    else {
 	    //If the detector was not new, just fill the histogram
-	    unitsRPhi.at(position)->Fill(residualRPhi);
-	    unitsPhi.at(position)->Fill(residualPhi);
-	    unitsZ.at(position)->Fill(residualZ);
-		
-	  }
+	    unitsLocalX.at(position)->Fill(residualLocalX);
+	    unitsLocalPhi.at(position)->Fill(residualLocalPhi);
+	    unitsLocalTheta.at(position)->Fill(residualLocalTheta);
+	    unitsGlobalRPhi.at(position)->Fill(residualGlobalRPhi);
+	    unitsGlobalPhi.at(position)->Fill(residualGlobalPhi);
+	    unitsGlobalTheta.at(position)->Fill(residualGlobalTheta);
+	    if(det==1) {unitsLocalY.at(position)->Fill(residualLocalY); unitsGlobalRZ.at(position)->Fill(residualGlobalZ);}
+	    else if(det==2) {unitsLocalY.at(position)->Fill(residualLocalY); unitsGlobalRZ.at(position)->Fill(residualGlobalR);}		
+	    }
+	   
 	  countPoints++;
 	
  	  innerTSOS = destiny;
 
 
-	}catch(...) {
+	}else {
 	  edm::LogError("MuonAlignmentAnalyzer") <<" Error!! Exception in propagator catched" << endl;
 	  continue;
 	}
@@ -888,15 +1912,129 @@ void MuonAlignmentAnalyzer::analyze(const Event & event, const EventSetup& event
 	} //loop over my4DTrack
 	} //TSOS was valid
 
-	} // loop over recHitsSize
+	} // cut in at least 4 segments
 
+	} //end cut in RecHitsSize>36
 	numberOfHits=numberOfHits+countPoints;
 	} //loop over STAtracks
 
+  delete thePropagator;
 
  } //end doResplots
  
 
+}
+
+RecHitVector MuonAlignmentAnalyzer::doMatching(const reco::Track &staTrack, edm::Handle<DTRecSegment4DCollection> &all4DSegmentsDT, edm::Handle<CSCSegmentCollection> &all4DSegmentsCSC, intDVector *indexCollectionDT, intDVector *indexCollectionCSC, ESHandle<GlobalTrackingGeometry> &theTrackingGeometry) {
+
+  DTRecSegment4DCollection::const_iterator segmentDT;
+  CSCSegmentCollection::const_iterator segmentCSC;
+  
+  std::vector<int> positionDT;
+  std::vector<int> positionCSC;
+  RecHitVector my4DTrack;
+  
+  //Loop over the hits of the track
+  for(unsigned int counter = 0; counter != staTrack.recHitsSize()-1; counter++) {
+    
+    TrackingRecHitRef myRef = staTrack.recHit(counter);
+    const TrackingRecHit *rechit = myRef.get();
+    const GeomDet* geomDet = theTrackingGeometry->idToDet(rechit->geographicalId());
+    
+    //It's a DT Hit
+    if(geomDet->subDetector() == GeomDetEnumerators::DT) {
+      
+      //Take the layer associated to this hit
+      DTLayerId myLayer(rechit->geographicalId().rawId());
+      
+      int NumberOfDTSegment = 0;
+      //Loop over segments
+      for(segmentDT = all4DSegmentsDT->begin(); segmentDT != all4DSegmentsDT->end(); ++segmentDT) {
+	
+	//By default the chamber associated to this Segment is new
+	bool isNewChamber = true;
+	
+	//Loop over segments already included in the vector of segments in the actual track
+	for(std::vector<int>::iterator positionIt = positionDT.begin(); positionIt != positionDT.end(); positionIt++) {
+	  
+	  //If this segment has been used before isNewChamber = false
+	  if(NumberOfDTSegment == *positionIt) isNewChamber = false;
+	}
+	
+	//Loop over vectors of segments associated to previous tracks
+	for(std::vector<std::vector<int> >::iterator collect = indexCollectionDT->begin(); collect != indexCollectionDT->end(); ++collect) {
+	  
+	  //Loop over segments associated to a track
+	  for(std::vector<int>::iterator positionIt = (*collect).begin(); positionIt != (*collect).end(); positionIt++) {
+	    
+	    //If this segment was used in a previos track then isNewChamber = false
+	    if(NumberOfDTSegment == *positionIt) isNewChamber = false;
+	  }
+	}
+	
+	//If the chamber is new
+	if(isNewChamber) {
+	  
+	  DTChamberId myChamber((*segmentDT).geographicalId().rawId());
+	  //If the layer of the hit belongs to the chamber of the 4D Segment
+	  if(myLayer.wheel() == myChamber.wheel() && myLayer.station() == myChamber.station() && myLayer.sector() == myChamber.sector()) {
+	    
+	    //push position of the segment and tracking rechit
+	    positionDT.push_back(NumberOfDTSegment);
+	    my4DTrack.push_back((TrackingRecHit *) &(*segmentDT));
+	  }
+	}
+	NumberOfDTSegment++;
+      }
+      //In case is a CSC
+    } else if (geomDet->subDetector() == GeomDetEnumerators::CSC) {
+      
+      //Take the layer associated to this hit
+      CSCDetId myLayer(rechit->geographicalId().rawId());
+      
+      int NumberOfCSCSegment = 0;
+      //Loop over 4Dsegments
+      for(segmentCSC = all4DSegmentsCSC->begin(); segmentCSC != all4DSegmentsCSC->end(); segmentCSC++) {
+	
+	//By default the chamber associated to the segment is new
+	bool isNewChamber = true;
+	
+	//Loop over segments in the current track
+	for(std::vector<int>::iterator positionIt = positionCSC.begin(); positionIt != positionCSC.end(); positionIt++) {
+	  
+	  //If this segment has been used then newchamber = false
+	  if(NumberOfCSCSegment == *positionIt) isNewChamber = false;
+	}
+	//Loop over vectors of segments in previous tracks
+	for(std::vector<std::vector<int> >::iterator collect = indexCollectionCSC->begin(); collect != indexCollectionCSC->end(); ++collect) {
+	  
+	  //Loop over segments in a track
+	  for(std::vector<int>::iterator positionIt = (*collect).begin(); positionIt != (*collect).end(); positionIt++) {
+	    
+	    //If the segment was used in a previous track isNewChamber = false
+	    if(NumberOfCSCSegment == *positionIt) isNewChamber = false;
+	  }
+	}
+	//If the chamber is new
+	if(isNewChamber) {
+	  
+	  CSCDetId myChamber((*segmentCSC).geographicalId().rawId());
+	  //If the chambers are the same
+	  if(myLayer.chamberId() == myChamber.chamberId()) {
+	    //push
+	    positionCSC.push_back(NumberOfCSCSegment);
+	    my4DTrack.push_back((TrackingRecHit *) &(*segmentCSC));
+	  }
+	}
+	NumberOfCSCSegment++;
+      }
+    }
+  }
+  
+  indexCollectionDT->push_back(positionDT);
+  indexCollectionCSC->push_back(positionCSC);
+  
+  return my4DTrack;
 }
 
 DEFINE_FWK_MODULE(MuonAlignmentAnalyzer);
