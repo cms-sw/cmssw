@@ -37,7 +37,7 @@ void HistoElectron::fill( const Electron * electron, uint iE, double weight )
   // fill relevant electron histograms
   h_trackIso_       ->fill( electron->trackIso(), iE, weight );
   h_caloIso_        ->fill( electron->caloIso(), iE, weight );
-  h_leptonID_       ->fill( electron->leptonID(), iE, weight );
+  h_leptonID_       ->fill( electron->leptonID("default"), iE, weight );
 
 }
 
@@ -60,7 +60,7 @@ void HistoElectron::fill( const reco::ShallowClonePtrCandidate * pshallow, uint 
   // fill relevant electron histograms
   h_trackIso_       ->fill( electron->trackIso(), iE, weight );
   h_caloIso_        ->fill( electron->caloIso(), iE, weight );
-  h_leptonID_       ->fill( electron->leptonID(), iE, weight );
+  h_leptonID_       ->fill( electron->leptonID("default"), iE, weight );
 
 }
 
