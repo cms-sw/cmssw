@@ -126,11 +126,7 @@ void ApvAnalysisFactory::constructAuxiliaryApvClasses( ApvAnalysis* theAPV,
     // the mask as to be defined also for SimplePedCalculator
     theMask = new TT6ApvMask(theMaskCalcFlag_,theMaskNoiseCut_,theMaskDeadCut_,theMaskTruncCut_); 
 
-    if( useDB_ == true){
-      thePedestal = new DBPedestal(detId, thisApv);  
-    } else {
-      thePedestal = new SimplePedestalCalculator(theEventInitNumber_);
-    }
+    thePedestal = new SimplePedestalCalculator(theEventInitNumber_);
 
     theNoise = new SimpleNoiseCalculator(theEventInitNumber_, useDB_); 
 

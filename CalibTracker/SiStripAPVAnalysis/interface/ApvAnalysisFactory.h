@@ -12,7 +12,6 @@
 #include "CalibTracker/SiStripAPVAnalysis/interface/TT6PedestalCalculator.h"
 #include "CalibTracker/SiStripAPVAnalysis/interface/TT6CommonModeCalculator.h"
 #include "CalibTracker/SiStripAPVAnalysis/interface/MedianCommonModeCalculator.h"
-#include "CalibTracker/SiStripAPVAnalysis/interface/DBPedestal.h"
 #include "CalibTracker/SiStripAPVAnalysis/interface/SimplePedestalCalculator.h"
 #include "CalibTracker/SiStripAPVAnalysis/interface/SimpleNoiseCalculator.h"
 #include <vector>
