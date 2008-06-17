@@ -8,7 +8,7 @@
 //
 // Original Author:  
 //         Created:  Mon Dec  3 08:38:38 PST 2007
-// $Id: FWDisplayEvent.cc,v 1.48 2008/06/11 14:08:14 dmytro Exp $
+// $Id: FWDisplayEvent.cc,v 1.49 2008/06/16 18:32:43 dmytro Exp $
 //
 
 // system include files
@@ -88,7 +88,6 @@ FWDisplayEvent::FWDisplayEvent(const std::string& iConfigFileName,
 
   m_eiManager->newItem_.connect(boost::bind(&FWViewManagerManager::registerEventItem,
                                               m_viewManager.get(), _1));
-
   m_configurationManager->add("EventItems",m_eiManager.get());
   m_configurationManager->add("GUI",m_guiManager.get());
   m_guiManager->writeToConfigurationFile_.connect(boost::bind(&FWConfigurationManager::writeToFile,
@@ -206,7 +205,7 @@ FWDisplayEvent::draw(const fwlite::Event& iEvent) const
   stopwatch.Stop();
   printf("Processing time: \n");
   stopwatch.Print("m");
-  return m_guiManager->allowInteraction();
+  return 0;
 }
 
 void 

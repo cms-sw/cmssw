@@ -16,7 +16,7 @@
 //
 // Original Author:  Chris Jones
 //         Created:  Mon Feb 11 10:52:24 EST 2008
-// $Id: FWGUIManager.h,v 1.17 2008/03/29 19:14:27 chrjones Exp $
+// $Id: FWGUIManager.h,v 1.18 2008/06/13 23:38:18 chrjones Exp $
 //
 
 // system include files
@@ -28,6 +28,7 @@
 
 // user include files
 #include "Fireworks/Core/interface/FWConfigurable.h"
+#include "DataFormats/FWLite/interface/Event.h"
 
 // forward declarations
 class TGPictureButton;
@@ -37,6 +38,8 @@ class TGTextEntry;
 class FWSelectionManager;
 class TGFrame;
 class TGSplitFrame;
+class TGVerticalFrame;
+class CmsShowMainFrame;
 class TGMainFrame;
 class TGCompositeFrame;
 
@@ -47,12 +50,15 @@ class FWViewBase;
 class TGListTreeItem;
 class TGListTree;
 class TEveGedEditor;
+class TEveElementList;
+class TEveElement;
 
 class FWSummaryManager;
 class FWDetailViewManager;
 class FWDetailView;
 
 class  TGPopupMenu;
+class CSGAction;
 
 class FWGUIEventDataAdder;
 
@@ -69,8 +75,10 @@ class FWGUIManager : public FWConfigurable
       void addTo(FWConfiguration&) const;
       void setFrom(const FWConfiguration&);
    
+      TGVerticalFrame* FWGUIManager::createList(TGSplitFrame *p);
+      TGMainFrame* FWGUIManager::createViews(TGCompositeFrame *p);
       // ---------- const member functions ---------------------
-      bool waitingForUserAction() const;
+      //      bool waitingForUserAction() const;
 
       // ---------- static member functions --------------------
 
@@ -86,20 +94,27 @@ class FWGUIManager : public FWConfigurable
       void registerDetailView (const std::string &iItemName, 
                                FWDetailView *iView);
       void createView(const std::string& iName);
-   
-      void goForward();
-      void goBack();
-      void goHome();
-      void stop();
-      void addData();
-      void waitForUserAction();
-      void doNotWaitForUserAction();
 
+      void enableActions(bool enable = true);
+      void disablePrevious();
+      void disableNext();
+      void loadEvent(int i);
+
+      CSGAction* getAction(const std::string name);
+
+      //      void goForward();
+      //      void goBack();
+      //      void goHome();
+      //      void stop();
+      //      void waitForUserAction();
+      //      void doNotWaitForUserAction();
+
+      void addData();
       void unselectAll();
       void selectByExpression();
 
       void processGUIEvents();
-      int allowInteraction();
+      //      int allowInteraction();
 
       void itemChecked(TObject* obj, Bool_t state);
       void itemClicked(TGListTreeItem *entry, Int_t btn,  UInt_t mask, Int_t x, Int_t y);
@@ -107,9 +122,9 @@ class FWGUIManager : public FWConfigurable
       void itemKeyPress(TGListTreeItem *entry, UInt_t keysym, UInt_t mask);
       void itemBelowMouse(TGListTreeItem*, UInt_t);
    
-      void handleFileMenu(Int_t);
+      //      void handleFileMenu(Int_t);
    
-      void quit();
+      //      void quit();
       sigc::signal<void, const std::string&> writeToConfigurationFile_;
       sigc::signal<void> goingToQuit_;
       sigc::signal<void> writeToPresentConfigurationFile_;
@@ -150,7 +165,8 @@ class FWGUIManager : public FWConfigurable
       TGTextButton* m_unselectAllButton;
    
       TGPopupMenu* m_fileMenu;
-   
+
+      CmsShowMainFrame* m_cmsShowMainFrame;
       TGMainFrame* m_mainFrame;
       TGSplitFrame* m_splitFrame;
       std::vector<TGCompositeFrame*> m_viewFrames;

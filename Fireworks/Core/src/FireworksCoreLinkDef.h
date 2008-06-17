@@ -9,6 +9,8 @@
 #include "Fireworks/Core/src/TableWidget.h"
 #include "Fireworks/Core/src/fwCintInterfaces.h"
 #include "Fireworks/Core/interface/FWTextView.h"
+#include "Fireworks/Core/src/CSGConnector.h"
+#include "Fireworks/Core/src/CmsShowMain.h"
 #include "Fireworks/Core/src/FWGUIEventDataAdder.h"
 
 #ifdef __CINT__
@@ -30,5 +32,7 @@
 #pragma link C++ function fwSetInCint(double);
 #pragma link C++ function fwSetInCint(long);
 #pragma link C++ function fwGetObjectPtr();
+#pragma link C++ class CSGConnector;
+#pragma link C++ class CmsShowMain;
 
 #endif

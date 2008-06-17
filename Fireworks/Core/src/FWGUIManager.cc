@@ -8,7 +8,7 @@
 //
 // Original Author:  Chris Jones
 //         Created:  Mon Feb 11 11:06:40 EST 2008
-// $Id: FWGUIManager.cc,v 1.27 2008/06/13 23:38:18 chrjones Exp $
+// $Id: FWGUIManager.cc,v 1.28 2008/06/16 18:34:51 dmytro Exp $
 //
 
 // system include files
@@ -56,7 +56,10 @@
 
 #include "Fireworks/Core/src/accessMenuBar.h"
 
+#include "Fireworks/Core/interface/CmsShowMainFrame.h"
+
 #include "Fireworks/Core/src/FWGUIEventDataAdder.h"
+
 //
 // constants, enums and typedefs
 //
@@ -96,12 +99,14 @@ m_dataAdder(0)
    
    // TEveManager::Create(kFALSE);
    TEveManager::Create();
+   gEve->GetBrowser()->UnmapWindow();
+
    // gEve->SetUseOrphanage(kTRUE);
-   TEveBrowser* browser = gEve->GetBrowser();
    // TGFrame* f = (TGFrame*) gClient->GetDefaultRoot();
    // browser->MoveResize(f->GetX(), f->GetY(), f->GetWidth(), f->GetHeight());
    // browser->Resize( gClient->GetDisplayWidth(), gClient->GetDisplayHeight() );
-   
+
+   /*   
    TGMenuBar* menuBar = fireworks::accessMenuBar(browser);
    menuBar->RemovePopup("Eve");
    menuBar->RemovePopup("Browser");
@@ -124,13 +129,16 @@ m_dataAdder(0)
    //should check to see if already has our tab
    {
       browser->StartEmbedding(TRootBrowser::kLeft);
-      {
-         TGMainFrame* frmMain=new TGMainFrame(gClient->GetRoot(),
-                                              1000,
-                                              600);
-         frmMain->SetWindowName("GUI");
-         frmMain->SetCleanup(kDeepCleanup);
-         
+   */
+   {
+     m_cmsShowMainFrame = new CmsShowMainFrame(gClient->GetRoot(),
+					       1024,
+					       768,
+					       this);
+     m_cmsShowMainFrame->SetWindowName("CmsShow");
+     m_cmsShowMainFrame->SetCleanup(kDeepCleanup);
+   }
+   /*
          TGHorizontalFrame* hf = new TGHorizontalFrame(frmMain);
          //We need an error handling system which can properly report
          // errors and decide what to do
@@ -312,6 +320,7 @@ m_dataAdder(0)
    }
    //without this call the bottom tab is still shown until something forces a redraw
    browser->Layout();
+   */
 }
 
 // FWGUIManager::FWGUIManager(const FWGUIManager& rhs)
@@ -324,6 +333,7 @@ FWGUIManager::~FWGUIManager()
    delete m_summaryManager;
    delete m_detailViewManager;
    delete m_editableSelected;
+   delete m_cmsShowMainFrame;
 }
 
 //
@@ -393,8 +403,37 @@ FWGUIManager::createView(const std::string& iName)
    m_viewBases.push_back(view);
 }
 
+void 
+FWGUIManager::enableActions(bool enable)
+{
+  m_cmsShowMainFrame->enableActions(enable);
+}
 
+void
+FWGUIManager::loadEvent(int i) {
+  // To be replaced when we can get index from fwlite::Event
+  m_cmsShowMainFrame->loadEvent(i);
+}
 
+CSGAction*
+FWGUIManager::getAction(const std::string name)
+{
+  return m_cmsShowMainFrame->getAction(name);
+}
+
+void
+FWGUIManager::disablePrevious()
+{
+  m_cmsShowMainFrame->enablePrevious(false);
+}
+
+void
+FWGUIManager::disableNext()
+{
+  m_cmsShowMainFrame->enableNext(false);
+}
+
+/*
 void
 FWGUIManager::goForward()
 {
@@ -434,6 +473,7 @@ FWGUIManager::doNotWaitForUserAction()
 {
    m_waitForUserAction = false;
 }
+*/
 
 void 
 FWGUIManager::selectByExpression()
@@ -490,27 +530,28 @@ FWGUIManager::newItem(const FWEventItem* iItem)
 }
 
 void 
+FWGUIManager::addData()
+{
+   if(0==m_dataAdder) {
+      m_dataAdder = new FWGUIEventDataAdder(100,100,m_eiManager);
+   }
+   m_dataAdder->show();
+}
+
+/*
+void 
 FWGUIManager::quit()
 {
    goingToQuit_();
    gApplication->Terminate(0);
 }
 
-void 
-FWGUIManager::addData()
-{
-   if(0==m_dataAdder) {
-      m_dataAdder = new FWGUIEventDataAdder(0,0,m_eiManager);
-   }
-   m_dataAdder->show();
-}
-
-
 bool
 FWGUIManager::waitingForUserAction() const
 {
    return m_waitForUserAction;
 }
+*/
 
 void 
 FWGUIManager::subviewWasSwappedToBig(unsigned int iIndex)
@@ -519,10 +560,106 @@ FWGUIManager::subviewWasSwappedToBig(unsigned int iIndex)
    std::swap(m_viewBases[0], m_viewBases[iIndex+1]);
 }
 
+TGVerticalFrame* 
+FWGUIManager::createList(TGSplitFrame *p) 
+{
+  TGVerticalFrame *listFrame = new TGVerticalFrame(p, p->GetWidth(), p->GetHeight());
+
+
+  TGTextButton* addDataButton = new TGTextButton(listFrame,"+");
+  addDataButton->SetToolTipText("Show additional event data");
+  addDataButton->Connect("Clicked()", "FWGUIManager", this, "addData()");
+  listFrame->AddFrame(addDataButton);
+
+  TEveGListTreeEditorFrame* ltf = new TEveGListTreeEditorFrame(listFrame);
+  listFrame->SetEditable(kFALSE);
+  listFrame->AddFrame(ltf, new TGLayoutHints(kLHintsExpandX));
+  //  p->Resize(listFrame->GetWidth(), listFrame->GetHeight());
+  m_listTree = ltf->GetListTree();
+  m_summaryManager = new FWSummaryManager(m_listTree,
+					  m_selectionManager,
+					  m_eiManager,
+					  m_detailViewManager);
+  m_views =  new TEveElementList("Views");
+  m_views->AddIntoListTree(m_listTree,reinterpret_cast<TGListTreeItem*>(0));
+  m_editor = ltf->GetEditor();
+  m_editor->DisplayElement(0);
+  {
+    //m_listTree->Connect("mouseOver(TGListTreeItem*, UInt_t)", "FWGUIManager",
+    //                 this, "itemBelowMouse(TGListTreeItem*, UInt_t)");
+    m_listTree->Connect("Clicked(TGListTreeItem*, Int_t, UInt_t, Int_t, Int_t)", "FWGUIManager",
+			this, "itemClicked(TGListTreeItem*, Int_t, UInt_t, Int_t, Int_t)");
+    m_listTree->Connect("DoubleClicked(TGListTreeItem*, Int_t)", "FWGUIManager",
+			this, "itemDblClicked(TGListTreeItem*, Int_t)");
+    m_listTree->Connect("KeyPressed(TGListTreeItem*, ULong_t, ULong_t)", "FWGUIManager",
+			this, "itemKeyPress(TGListTreeItem*, UInt_t, UInt_t)");
+  }
+         
+  TGGroupFrame* vf = new TGGroupFrame(listFrame,"Selection",kVerticalFrame);
+  {
+    
+    TGGroupFrame* vf2 = new TGGroupFrame(vf,"Expression");
+    m_selectionItemsComboBox = new TGComboBox(vf2,200);
+    m_selectionItemsComboBox->Resize(200,20);
+    vf2->AddFrame(m_selectionItemsComboBox, new TGLayoutHints(kLHintsTop | kLHintsLeft,0,5,5,5));
+    m_selectionExpressionEntry = new TGTextEntry(vf2,"$.pt() > 10");
+    vf2->AddFrame(m_selectionExpressionEntry, new TGLayoutHints(kLHintsExpandX,0,5,5,5));
+    m_selectionRunExpressionButton = new TGTextButton(vf2,"Select by Expression");
+    vf2->AddFrame(m_selectionRunExpressionButton);
+    m_selectionRunExpressionButton->Connect("Clicked()","FWGUIManager",this,"selectByExpression()");
+    vf->AddFrame(vf2);
+    
+    m_unselectAllButton = new TGTextButton(vf,"Unselect All");
+    m_unselectAllButton->Connect("Clicked()", "FWGUIManager",this,"unselectAll()");
+    vf->AddFrame(m_unselectAllButton);
+    m_unselectAllButton->SetEnabled(kFALSE);
+    
+  }
+  listFrame->AddFrame(vf);
+
+  return listFrame;
+}
+
+TGMainFrame* 
+FWGUIManager::createViews(TGCompositeFrame *p) 
+{
+  m_mainFrame = new TGMainFrame(p,600,450);
+  m_splitFrame = new TGSplitFrame(m_mainFrame, 800, 600);
+  m_mainFrame->AddFrame(m_splitFrame, new TGLayoutHints(kLHintsExpandX | kLHintsExpandY));
+  // split it once
+  m_splitFrame->HSplit(434);
+  // then split each part again (this will make four parts)
+  m_splitFrame->GetSecond()->VSplit(400);
+  
+  TGSplitFrame* sf = m_splitFrame->GetFirst();
+  m_viewFrames.push_back(sf);
+  
+  unsigned int subviewIndex=0;
+  sf = m_splitFrame->GetSecond()->GetFirst();
+  FWGUISubviewArea* hf = new FWGUISubviewArea(subviewIndex++,sf,m_splitFrame);
+  hf->swappedToBigView_.connect(boost::bind(&FWGUIManager::subviewWasSwappedToBig,this,_1));
+  m_viewFrames.push_back(hf);
+  (sf)->AddFrame(hf,new TGLayoutHints(kLHintsExpandX | 
+				      kLHintsExpandY) );
+
+         
+  sf=m_splitFrame->GetSecond()->GetSecond();
+  hf = new FWGUISubviewArea(subviewIndex++,sf,m_splitFrame);
+  hf->swappedToBigView_.connect(boost::bind(&FWGUIManager::subviewWasSwappedToBig,this,_1));
+  m_viewFrames.push_back(hf);
+  (sf)->AddFrame(hf,new TGLayoutHints(kLHintsExpandX | 
+				      kLHintsExpandY) );
+  m_nextFrame = m_viewFrames.begin();
+  p->Resize(m_mainFrame->GetWidth(), m_mainFrame->GetHeight());
+  p->MapSubwindows();
+  p->MapWindow();
+  return m_mainFrame;
+}  
+
 //
 // const member functions
 //
-
+/*
 namespace {
    //guarantee that no matter how we go back to Cint that
    // we have disabled these buttons
@@ -576,6 +713,7 @@ FWGUIManager::allowInteraction()
    }
    return m_code;
 }
+*/
 
 void 
 FWGUIManager::itemChecked(TObject* obj, Bool_t state)
@@ -611,6 +749,7 @@ FWGUIManager::itemBelowMouse(TGListTreeItem* item, UInt_t)
 {
 }
 
+/*
 void 
 FWGUIManager::handleFileMenu(Int_t iIndex)
 {
@@ -634,7 +773,7 @@ FWGUIManager::handleFileMenu(Int_t iIndex)
          TGFileInfo fi;
          fi.fFileTypes = kSaveFileTypes;
          fi.fIniDir    = StrDup(dir);
-         new TGFileDialog(gClient->GetDefaultRoot(), gEve->GetBrowser(),
+         new TGFileDialog(gClient->GetDefaultRoot(), m_cmsShowMainFrame,
                           kFDSave,&fi);
          dir = fi.fIniDir;
          writeToConfigurationFile_(fi.fFilename);
@@ -653,7 +792,7 @@ FWGUIManager::handleFileMenu(Int_t iIndex)
          TGFileInfo fi;
          fi.fFileTypes = kImageExportTypes;
          fi.fIniDir    = StrDup(dir);
-         new TGFileDialog(gClient->GetDefaultRoot(), gEve->GetBrowser(),
+         new TGFileDialog(gClient->GetDefaultRoot(), m_cmsShowMainFrame,
                           kFDSave,&fi);
          dir = fi.fIniDir;
          m_viewBases[0]->saveImageTo(fi.fFilename);
@@ -663,7 +802,7 @@ FWGUIManager::handleFileMenu(Int_t iIndex)
          quit();
    }
 }
-
+*/
 
 static const std::string kMainWindow("main window");
 static const std::string kViews("views");
@@ -675,12 +814,12 @@ FWGUIManager::addTo(FWConfiguration& oTo) const
    FWConfiguration mainWindow(1);
    {
       std::stringstream s;
-      s << static_cast<int>(gEve->GetBrowser()->GetWidth());
+      s << static_cast<int>(m_cmsShowMainFrame->GetWidth());
       mainWindow.addKeyValue("width",FWConfiguration(s.str()));
    }
    {
       std::stringstream s;
-      s << static_cast<int>(gEve->GetBrowser()->GetHeight());
+      s << static_cast<int>(m_cmsShowMainFrame->GetHeight());
       mainWindow.addKeyValue("height",FWConfiguration(s.str()));
    }
    oTo.addKeyValue(kMainWindow,mainWindow,true);
@@ -717,7 +856,7 @@ FWGUIManager::addTo(FWConfiguration& oTo) const
       viewArea.addValue(s.str());
    } 
    {
-      int top_height = static_cast<int>(((TGCompositeFrame *)gEve->GetBrowser()->GetTabRight()->GetParent())->GetHeight());
+      int top_height = static_cast<int>(((TGCompositeFrame *)m_splitFrame->GetParent()->GetParent())->GetHeight());
       std::stringstream s;
       s<< top_height;
       viewArea.addValue(s.str());
@@ -744,7 +883,7 @@ FWGUIManager::setFrom(const FWConfiguration& iFrom)
       std::stringstream s(c->value());
       s >> height;
    }
-   gEve->GetBrowser()->Resize(width,height);
+   m_cmsShowMainFrame->Resize(width,height);
    
    //now configure the views
    const FWConfiguration* views = iFrom.valueForKey(kViews);
@@ -790,13 +929,13 @@ FWGUIManager::setFrom(const FWConfiguration& iFrom)
    m_splitFrame->Layout();
  
    {
-      int width = ((TGCompositeFrame *)gEve->GetBrowser()->GetTabRight()->GetParent())->GetWidth();
+      int width = ((TGCompositeFrame *)m_splitFrame->GetParent()->GetParent())->GetWidth();
       int height;
       std::stringstream s(viewArea->value(3));
       s >> height;
-      ((TGCompositeFrame *)gEve->GetBrowser()->GetTabRight()->GetParent())->Resize(width, height);
+      ((TGCompositeFrame *)m_splitFrame->GetParent()->GetParent())->Resize(width, height);
    }
-   gEve->GetBrowser()->Layout();
+   m_cmsShowMainFrame->Layout();
 }
 
 //
