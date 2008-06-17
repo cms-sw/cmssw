@@ -177,6 +177,7 @@ void testPtr::constructTest() {
      dummyContainer.push_back(dummy);
      OrphanHandle<DummyCollection2> handle(&dummyContainer, pid);
      Ptr<Dummy> dummyPtr(handle,key);
+     Ptr<Dummy2> dummyPtr2(dummyPtr);
      
      CPPUNIT_ASSERT(dummyPtr.isAvailable());
      CPPUNIT_ASSERT(dummyPtr.id() == pid);
@@ -186,6 +187,14 @@ void testPtr::constructTest() {
      CPPUNIT_ASSERT(&(*dummyPtr) == &dummyContainer[key]);
      CPPUNIT_ASSERT((dummyPtr.operator->()) == &dummyContainer[key]);
      CPPUNIT_ASSERT(dummyPtr->address() == dummyContainer[key].address());
+
+     CPPUNIT_ASSERT(dummyPtr2.isAvailable());
+     CPPUNIT_ASSERT(dummyPtr2.id() == pid);
+     CPPUNIT_ASSERT(dummyPtr2.key() == key);
+     CPPUNIT_ASSERT(dummyPtr2.get() == &dummyContainer[key]);
+     CPPUNIT_ASSERT(&(*dummyPtr2) == &dummyContainer[key]);
+     CPPUNIT_ASSERT((dummyPtr2.operator->()) == &dummyContainer[key]);
+     CPPUNIT_ASSERT(dummyPtr2->address() == dummyContainer[key].address());
      
      Ptr<Dummy2> dummy2Ptr(handle,key);
      Ptr<Dummy> copyPtr(dummy2Ptr);

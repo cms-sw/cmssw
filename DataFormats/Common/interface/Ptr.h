@@ -19,8 +19,8 @@
 //
 
 // system include files
-#include "boost/static_assert.hpp"
 #include "boost/type_traits/is_base_of.hpp"
+#include "boost/utility/enable_if.hpp"
 
 // user include files
 #include "DataFormats/Common/interface/RefCore.h"
@@ -108,15 +108,24 @@ namespace edm {
     {}
 
     template<typename U>
-    Ptr(Ptr<U> const& iOther):
+    Ptr(Ptr<U> const& iOther, typename boost::enable_if_c<boost::is_base_of<T, U>::value>::type * = 0):
     core_(iOther.id(), 
           (iOther.hasCache()? static_cast<T const*>(iOther.get()): static_cast<T const*>(0)),
           iOther.productGetter(),
 	  iOther.isTransient()),
     key_(iOther.key())
     {
-      //check that types are assignable
-      BOOST_STATIC_ASSERT((boost::is_base_of<T, U>::value));
+    }
+    
+    template<typename U>
+    explicit
+    Ptr(Ptr<U> const& iOther, typename boost::enable_if_c<boost::is_base_of<U, T>::value>::type * = 0):
+    core_(iOther.id(), 
+          dynamic_cast<T const*>(iOther.get()),
+          0,
+	  iOther.isTransient()),
+    key_(iOther.key())
+    {
     }
     
     /// Destructor
