@@ -1,8 +1,8 @@
 /*
  * \file EBSummaryClient.cc
  *
- * $Date: 2008/06/16 20:21:48 $
- * $Revision: 1.154 $
+ * $Date: 2008/06/16 20:31:11 $
+ * $Revision: 1.155 $
  * \author G. Della Ricca
  *
 */
@@ -656,7 +656,7 @@ void EBSummaryClient::analyze(void){
             me_02 = ebpc->meg02_[ism-1];
             me_03 = ebpc->meg03_[ism-1];
 
-            if (me_01 && me_02 && me_03 ) {
+            if ( me_01 && me_02 && me_03 ) {
               float xval=2;
               float val_01=me_01->getBinContent(ie,ip);
               float val_02=me_02->getBinContent(ie,ip);
@@ -711,7 +711,7 @@ void EBSummaryClient::analyze(void){
             me_02 = ebtpc->meg02_[ism-1];
             me_03 = ebtpc->meg03_[ism-1];
 
-            if (me_01 && me_02 && me_03 ) {
+            if ( me_01 && me_02 && me_03 ) {
               float xval=2;
               float val_01=me_01->getBinContent(ie,ip);
               float val_02=me_02->getBinContent(ie,ip);
@@ -858,7 +858,7 @@ void EBSummaryClient::analyze(void){
 
               float xval = me->getBinContent( ie, ip ) - 0.5;
 
-              TProfile2D* obj = UtilsClient::getHisto<TProfile2D*>(me);
+              TProfile2D* obj = UtilsClient::getHisto<TProfile2D*>( me );
               if(obj && obj->GetBinEntries(obj->GetBin( ie, ip ))!=0) hasRealDigi = true;
 
               int iex;
@@ -1172,7 +1172,7 @@ void EBSummaryClient::analyze(void){
   if ( nValidChannels != 0 )
     reportSummary = 1.0 - float(nGlobalErrors)/float(nValidChannels);
   me = dqmStore_->get(prefixME_ + "/EventInfo/reportSummary");
-  if (me) me->Fill(reportSummary);
+  if ( me ) me->Fill(reportSummary);
 
   char histo[200];
 
@@ -1182,11 +1182,11 @@ void EBSummaryClient::analyze(void){
       reportSummaryEB = 1.0 - float(nGlobalErrorsEB[i])/float(nValidChannelsEB[i]);
     sprintf(histo, "status %s", Numbers::sEB(i+1).c_str());
     me = dqmStore_->get(prefixME_ + "/EventInfo/reportSummaryContents/" + histo);
-    if (me) me->Fill(reportSummaryEB);
+    if ( me ) me->Fill(reportSummaryEB);
   }
 
   me = dqmStore_->get(prefixME_ + "/EventInfo/reportSummaryMap");
-  if (me) {
+  if ( me ) {
 
     int nValidChannelsTT[72][34];
     int nGlobalErrorsTT[72][34];
