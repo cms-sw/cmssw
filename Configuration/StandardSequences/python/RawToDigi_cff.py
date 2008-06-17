@@ -2,7 +2,6 @@ import FWCore.ParameterSet.Config as cms
 
 from CondCore.DBCommon.CondDBSetup_cfi import *
 from Geometry.CMSCommonData.cmsIdealGeometryXML_cfi import *
-from MagneticField.Engine.volumeBasedMagneticField_cfi import *
 from Geometry.TrackerGeometryBuilder.trackerGeometry_cfi import *
 from Geometry.TrackerNumberingBuilder.trackerNumberingGeometry_cfi import *
 #from HLTrigger.Configuration.rawToDigi.EcalGeometrySetup_cff import *
@@ -22,7 +21,7 @@ import EventFilter.GctRawToDigi.l1GctHwDigis_cfi
 gctDigis = EventFilter.GctRawToDigi.l1GctHwDigis_cfi.l1GctHwDigis.clone()
 import EventFilter.L1GlobalTriggerRawToDigi.l1GtUnpack_cfi
 gtDigis = EventFilter.L1GlobalTriggerRawToDigi.l1GtUnpack_cfi.l1GtUnpack.clone()
-import EventFilter.L1GlobalTriggerRawToDigi.l1GtUnpack_cfi
+import EventFilter.L1GlobalTriggerRawToDigi.l1GtEvmUnpack_cfi
 gtEvmDigis = EventFilter.L1GlobalTriggerRawToDigi.l1GtEvmUnpack_cfi.l1GtEvmUnpack.clone()
 from EventFilter.SiPixelRawToDigi.SiPixelRawToDigi_cfi import *
 from EventFilter.SiStripRawToDigi.SiStripRawToDigis_standard_cff import *
