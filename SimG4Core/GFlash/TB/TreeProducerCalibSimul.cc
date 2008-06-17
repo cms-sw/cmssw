@@ -244,3 +244,10 @@ void TreeProducerCalibSimul::analyze(const edm::Event& iEvent, const edm::EventS
   myTree->fillInfo(run, event, mySupCry, maxEneCry, nomXtalInBeam, nextXtalInBeam, mySupEta, mySupPhi, tbm, x, y, Xcal, Ycal, sx, sy, qx, qy, tdcOffset, allMatrix, energy, crystal);
   myTree->store();
 }
+
+#include "FWCore/PluginManager/interface/ModuleDef.h"
+#include "FWCore/Framework/interface/MakerMacros.h"
+
+//define this as a plug-in
+DEFINE_SEAL_MODULE();
+DEFINE_ANOTHER_FWK_MODULE(TreeProducerCalibSimul);
