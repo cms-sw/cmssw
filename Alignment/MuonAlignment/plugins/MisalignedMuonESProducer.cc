@@ -1,7 +1,7 @@
 /** \file
  *
- *  $Date: 2008/02/20 22:47:47 $
- *  $Revision: 1.5 $
+ *  $Date: 2008/03/05 20:43:59 $
+ *  $Revision: 1.6 $
  *  \author Andre Sznajder - UERJ(Brazil)
  */
  
@@ -119,12 +119,12 @@ void MisalignedMuonESProducer::saveToDB( void )
 	throw cms::Exception("NotAvailable") << "PoolDBOutputService not available";
 
   // Store DT alignments and errors
-  poolDbService->writeOne<Alignments>( &(*dt_Alignments), poolDbService->currentTime(), theDTAlignRecordName);
-  poolDbService->writeOne<AlignmentErrors>( &(*dt_AlignmentErrors), poolDbService->currentTime(), theDTErrorRecordName);
+  poolDbService->writeOne<Alignments>( &(*dt_Alignments), poolDbService->beginOfTime(), theDTAlignRecordName);
+  poolDbService->writeOne<AlignmentErrors>( &(*dt_AlignmentErrors), poolDbService->beginOfTime(), theDTErrorRecordName);
 
   // Store CSC alignments and errors
-  poolDbService->writeOne<Alignments>( &(*csc_Alignments), poolDbService->currentTime(), theCSCAlignRecordName);
-  poolDbService->writeOne<AlignmentErrors>( &(*csc_AlignmentErrors), poolDbService->currentTime(), theCSCErrorRecordName);
+  poolDbService->writeOne<Alignments>( &(*csc_Alignments), poolDbService->beginOfTime(), theCSCAlignRecordName);
+  poolDbService->writeOne<AlignmentErrors>( &(*csc_AlignmentErrors), poolDbService->beginOfTime(), theCSCErrorRecordName);
 
 }
 //__________________________________________________________________________________________________
