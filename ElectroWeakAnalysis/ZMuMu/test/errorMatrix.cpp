@@ -15,7 +15,7 @@ struct cov {
 };
 
 double operator<(const cov & c1, const cov & c2) {
-  return c1.rho > c2.rho;
+  return fabs(c1.rho) > fabs(c2.rho);
 }
 
 int main() {
