@@ -36,7 +36,7 @@
 #include "Geometry/CSCGeometry/interface/CSCGeometry.h"
 #include "Geometry/CSCGeometry/interface/CSCChamber.h"
 #include "Geometry/Records/interface/TrackerDigiGeometryRecord.h"
-
+#include "Geometry/Records/interface/MuonGeometryRecord.h"
 //
 //
 // class declaration
@@ -151,7 +151,7 @@ void TestMuonAnalyzer::fillTree( const GeomDet* geomDet )
 	geomDet->rotation().zy(),
 	geomDet->rotation().zz()
   };
-  rot = new TRotMatrix( "rot", "rot", matrix );
+  rot = new TRotMatrix( "rot", "rot", matrix ); // mem. leak?
 
   theTree->Fill();
 
