@@ -9,7 +9,6 @@
 #include "CondFormats/RPCObjects/interface/RPCStripNoises.h"
 #include "CondFormats/DataRecord/interface/RPCStripNoisesRcd.h"
 
-
 #include <map>
 #include <vector>
 #include <fstream>
@@ -31,7 +30,7 @@ public:
   explicit RPCSimSetUp(const edm::ParameterSet& ps);
   virtual ~RPCSimSetUp();
 
-  void setRPCSetUp(std::vector<RPCStripNoises::NoiseItem> vnoise, std::vector<double> vcls);
+  void setRPCSetUp(std::vector<RPCStripNoises::NoiseItem> vnoise, std::vector<float> vcls);
   std::vector<float> getNoise(uint32_t id);
   std::vector<float> getEff(uint32_t id);
   float getTime(uint32_t id);

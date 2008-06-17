@@ -43,7 +43,7 @@ RPCSimSetUp::RPCSimSetUp(const edm::ParameterSet& ps) {
 
 }
 
-void RPCSimSetUp::setRPCSetUp(std::vector<RPCStripNoises::NoiseItem> vnoise, std::vector<double> vcls){
+void RPCSimSetUp::setRPCSetUp(std::vector<RPCStripNoises::NoiseItem> vnoise, std::vector<float> vcls){
 
   double sum = 0;
   unsigned int counter = 1;
@@ -64,22 +64,31 @@ void RPCSimSetUp::setRPCSetUp(std::vector<RPCStripNoises::NoiseItem> vnoise, std
     counter++;
   }
 
+  unsigned int n = 0;
+  std::vector<float> veff, vvnoise;
+  veff.clear();
+  vvnoise.clear();
+
   for(std::vector<RPCStripNoises::NoiseItem>::iterator it = vnoise.begin(); it != vnoise.end(); ++it){
+    if(n%96 == 0) {
+      if(n > 0){
+	_mapDetIdNoise[it->dpid]= vvnoise;
+	_mapDetIdEff[it->dpid] = veff;
 
-    _bxmap[RPCDetId(it->dpid)] = it->time;
-    std::vector<float> veff, vvnoise;
+      }
 
-    veff.clear();
-    vvnoise.clear();
+      veff.clear();
+      vvnoise.clear();
 
-    for(unsigned int j = 0; j < 96;++j){
-      vvnoise.push_back((it->noise)[j]);
-      veff.push_back((it->eff)[j]);
+      _bxmap[RPCDetId(it->dpid)] = it->time;
+      vvnoise.push_back((it->noise));
+      veff.push_back((it->eff));
+
+    } else {
+      vvnoise.push_back((it->noise));
+      veff.push_back((it->eff));
     }
-
-    _mapDetIdNoise[it->dpid]= vvnoise;
-    _mapDetIdEff[it->dpid] = veff;
-
+    n++;
   }
 }
 
