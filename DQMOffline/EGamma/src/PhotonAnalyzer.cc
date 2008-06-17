@@ -23,7 +23,7 @@
 #include "RecoEgamma/EgammaIsolationAlgos/interface/EgammaHcalIsolation.h"
 #include "RecoEcal/EgammaCoreTools/interface/EcalClusterTools.h"
 #include "RecoCaloTools/MetaCollections/interface/CaloRecHitMetaCollections.h"
-#include "Geometry/Records/interface/IdealGeometryRecord.h"
+#include "Geometry/Records/interface/CaloGeometryRecord.h"
 #include "Geometry/CaloTopology/interface/CaloTopology.h"
 #include "Geometry/CaloEventSetup/interface/CaloTopologyRecord.h"
 
@@ -380,7 +380,7 @@ void PhotonAnalyzer::analyze( const edm::Event& e, const edm::EventSetup& esup )
   const CaloTopology *topology = theCaloTopo_.product();
 
   // get the geometry from the event setup:
-  esup.get<IdealGeometryRecord>().get(theCaloGeom_);
+  esup.get<CaloGeometryRecord>().get(theCaloGeom_);
 
 
   std::cout << "Goint to get the photons " << std::endl;
