@@ -166,6 +166,99 @@ Muon100InversepbScenario = cms.PSet(
 #----------------------------------------------//
 Muon0inversePbScenario2008 = cms.PSet(
     MuonMisalignmentScenarioSettings,
+    DTSectors = cms.PSet(
+        scale = cms.double(1.0),
+        scaleError = cms.double(1.0),
+        dZ = cms.double(0.1),
+        dX = cms.double(0.05),
+        dY = cms.double(0.05),
+        phiZ = cms.double(0.0001),
+        phiY = cms.double(5e-05),
+        phiX = cms.double(5e-05)
+    ),
+    CSCEndcaps = cms.PSet(
+        distribution = cms.string('gaussian'),
+        CSCStations = cms.PSet(
+            scale = cms.double(1.0),
+            scaleError = cms.double(1.0),
+            CSCRings = cms.PSet(
+                scale = cms.double(1.0),
+                scaleError = cms.double(1.0),
+                dZ = cms.double(0.2),
+                dX = cms.double(0.04),
+                dY = cms.double(0.04),
+                CSCChambers = cms.PSet(
+                    scale = cms.double(1.0),
+                    dZlocal = cms.double(0.15),
+                    phiXlocal = cms.double(0.001),
+                    scaleError = cms.double(1.0),
+                    dYlocal = cms.double(0.1),
+                    phiZlocal = cms.double(0.0007),
+                    dXlocal = cms.double(0.07),
+                    phiYlocal = cms.double(0.001)
+                ),
+                phiZ = cms.double(0.0001),
+                phiY = cms.double(0.0004),
+                phiX = cms.double(0.0004)
+            ),
+            dZ = cms.double(0.2),
+            dX = cms.double(0.15),
+            dY = cms.double(0.15),
+            phiZ = cms.double(0.0002),
+            phiY = cms.double(0.0003),
+            phiX = cms.double(0.0003)
+        )
+    ),
+    DTBarrels = cms.PSet(
+        distribution = cms.string('gaussian'),
+        DTWheels = cms.PSet(
+            scale = cms.double(1.0),
+            scaleError = cms.double(1.0),
+            DTChambers = cms.PSet(
+                scale = cms.double(1.0),
+                dZlocal = cms.double(0.1),
+                phiXlocal = cms.double(0.0007),
+                scaleError = cms.double(1.0),
+                dYlocal = cms.double(0.1),
+                phiZlocal = cms.double(0.0005),
+                dXlocal = cms.double(0.07),
+                phiYlocal = cms.double(0.0005)
+            ),
+            dZ = cms.double(0.2),
+            dX = cms.double(0.15),
+            dY = cms.double(0.15),
+            phiZ = cms.double(0.0002),
+            phiY = cms.double(0.0003),
+            phiX = cms.double(0.0003)
+        )
+    ),
+    CSCSectors = cms.PSet(
+        scale = cms.double(1.0),
+        scaleError = cms.double(1.0),
+        dZ = cms.double(0.05),
+        dX = cms.double(0.05),
+        dY = cms.double(0.05),
+        phiZ = cms.double(5e-05),
+        phiY = cms.double(5e-05),
+        phiX = cms.double(5e-05)
+    )
+)
+#------- End of 0 inverse pb scenario 2008 ------//
+#---------------------------------------------//
+#---- New 10 inverse pb scenario for 2008 ----//
+#---------------------------------------------//
+Muon10inversePbScenario2008 = cms.PSet(
+    MuonMisalignmentScenarioSettings,
+    DTSectors = cms.PSet(
+        scale = cms.double(1.0),
+        scaleError = cms.double(1.0),
+        dZ = cms.double(0.1),
+        dX = cms.double(0.05),
+        dY = cms.double(0.05),
+        phiZ = cms.double(0.0001),
+        phiY = cms.double(5e-05),
+        phiX = cms.double(5e-05)
+    ),
     CSCEndcaps = cms.PSet(
         distribution = cms.string('gaussian'),
         CSCStations = cms.PSet(
@@ -179,24 +272,24 @@ Muon0inversePbScenario2008 = cms.PSet(
                 dY = cms.double(0.04),
                 CSCChambers = cms.PSet(
                     scale = cms.double(1.0),
-                    dZlocal = cms.double(0.3),
-                    phiXlocal = cms.double(0.001),
+                    dZlocal = cms.double(0.15),
+                    phiXlocal = cms.double(0.0007),
                     scaleError = cms.double(1.0),
-                    dYlocal = cms.double(0.15),
+                    dYlocal = cms.double(0.07),
                     phiZlocal = cms.double(0.0005),
-                    dXlocal = cms.double(0.07),
-                    phiYlocal = cms.double(0.001)
+                    dXlocal = cms.double(0.05),
+                    phiYlocal = cms.double(0.0007)
                 ),
-                phiZ = cms.double(0.0003),
-                phiY = cms.double(0.0005),
-                phiX = cms.double(0.0005)
+                phiZ = cms.double(0.0001),
+                phiY = cms.double(0.0001),
+                phiX = cms.double(0.0001)
             ),
-            dZ = cms.double(0.3),
-            dX = cms.double(0.1),
-            dY = cms.double(0.1),
-            phiZ = cms.double(0.0005),
-            phiY = cms.double(0.001),
-            phiX = cms.double(0.001)
+            dZ = cms.double(0.2),
+            dX = cms.double(0.07),
+            dY = cms.double(0.07),
+            phiZ = cms.double(0.0001),
+            phiY = cms.double(0.0003),
+            phiX = cms.double(0.0003)
         )
     ),
     DTBarrels = cms.PSet(
@@ -207,93 +300,30 @@ Muon0inversePbScenario2008 = cms.PSet(
             DTChambers = cms.PSet(
                 scale = cms.double(1.0),
                 dZlocal = cms.double(0.1),
-                phiXlocal = cms.double(5e-05),
-                scaleError = cms.double(1.0),
-                dYlocal = cms.double(0.1),
-                phiZlocal = cms.double(7e-05),
-                dXlocal = cms.double(0.07),
-                phiYlocal = cms.double(7e-05)
-            ),
-            dZ = cms.double(0.3),
-            dX = cms.double(0.1),
-            dY = cms.double(0.1),
-            phiZ = cms.double(0.001),
-            phiY = cms.double(0.0015),
-            phiX = cms.double(0.0015)
-        )
-    )
-)
-#------- End of 0 inverse pb scenario 2008 ------//
-#---------------------------------------------//
-#---- New 10 inverse pb scenario for 2008 ----//
-#---------------------------------------------//
-Muon10inversePbScenario2008 = cms.PSet(
-    MuonMisalignmentScenarioSettings,
-    CSCEndcaps = cms.PSet(
-        DTSectors = cms.PSet(
-            scale = cms.double(1.0),
-            scaleError = cms.double(1.0),
-            dZ = cms.double(0.1),
-            dX = cms.double(0.05),
-            dY = cms.double(0.05),
-            phiZ = cms.double(0.0001),
-            phiY = cms.double(5e-05),
-            phiX = cms.double(5e-05)
-        ),
-        CSCSectors = cms.PSet(
-            scale = cms.double(1.0),
-            scaleError = cms.double(1.0),
-            dZ = cms.double(0.05),
-            dX = cms.double(0.05),
-            dY = cms.double(0.05),
-            phiZ = cms.double(5e-05),
-            phiY = cms.double(5e-05),
-            phiX = cms.double(5e-05)
-        ),
-        distribution = cms.string('gaussian'),
-        CSCRings = cms.PSet(
-            scale = cms.double(1.0),
-            scaleError = cms.double(1.0),
-            dZ = cms.double(0.3),
-            dX = cms.double(0.05),
-            dY = cms.double(0.07),
-            CSCChambers = cms.PSet(
-                scale = cms.double(1.0),
-                dZlocal = cms.double(0.2),
                 phiXlocal = cms.double(0.0007),
                 scaleError = cms.double(1.0),
                 dYlocal = cms.double(0.1),
                 phiZlocal = cms.double(0.0003),
                 dXlocal = cms.double(0.05),
-                phiYlocal = cms.double(0.0005)
-            ),
-            phiZ = cms.double(0.0005),
-            phiY = cms.double(0.0007),
-            phiX = cms.double(0.0007)
-        )
-    ),
-    DTBarrels = cms.PSet(
-        distribution = cms.string('gaussian'),
-        DTWheels = cms.PSet(
-            scale = cms.double(1.0),
-            scaleError = cms.double(1.0),
-            DTChambers = cms.PSet(
-                scale = cms.double(1.0),
-                dZlocal = cms.double(0.1),
-                phiXlocal = cms.double(5e-05),
-                scaleError = cms.double(1.0),
-                dYlocal = cms.double(0.1),
-                phiZlocal = cms.double(7e-05),
-                dXlocal = cms.double(0.07),
-                phiYlocal = cms.double(7e-05)
+                phiYlocal = cms.double(0.0003)
             ),
             dZ = cms.double(0.1),
             dX = cms.double(0.07),
             dY = cms.double(0.07),
-            phiZ = cms.double(0.0005),
-            phiY = cms.double(0.0007),
-            phiX = cms.double(0.0007)
+            phiZ = cms.double(0.0001),
+            phiY = cms.double(0.00015),
+            phiX = cms.double(0.00015)
         )
+    ),
+    CSCSectors = cms.PSet(
+        scale = cms.double(1.0),
+        scaleError = cms.double(1.0),
+        dZ = cms.double(0.05),
+        dX = cms.double(0.05),
+        dY = cms.double(0.05),
+        phiZ = cms.double(5e-05),
+        phiY = cms.double(5e-05),
+        phiX = cms.double(5e-05)
     )
 )
 #------- End of 10 inverse pb scenario 2008 ------//
