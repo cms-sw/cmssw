@@ -9,4 +9,5 @@ import sys
 print "MagneticField/Engine/data/volumeBasedMagneticField.cfi and \nMagneticField/Engine/python/volumeBasedMagneticField_cfi.py are obsolete and will soon be removed.";
 print "please use Configuration/StandardSequences/python/MagneticField_cff.py \nor Configuration/StandardSequences/data/MagneticField.cff";
 print "if still using old configuration files. Now exiting with -1 error. \nplease remove inclusion of this file and try again.";
-sys.exit(-1);
+print "starting with the next release including this file will cause an exception";
+#sys.exit(-1);
