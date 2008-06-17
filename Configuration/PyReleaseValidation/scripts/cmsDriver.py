@@ -342,6 +342,7 @@ if not options.dump_dsetname_flag:
 
 #set process name:
 ext_process_name=trimmedEvtType+options.energy+trimmedStep
+options.ext_process_name=trimmedEvtType+options.energy+trimmedStep
 
 
 if options.dump_dsetname_flag:
