@@ -1,8 +1,8 @@
 /*
  * \file EESummaryClient.cc
  *
- * $Date: 2008/06/17 13:12:41 $
- * $Revision: 1.137 $
+ * $Date: 2008/06/17 15:03:25 $
+ * $Revision: 1.138 $
  * \author G. Della Ricca
  *
 */
@@ -1270,13 +1270,13 @@ void EESummaryClient::analyze(void){
         float iEntries=0;
 
         for(int ism = 1; ism <= 9; ism++) {
-          if ( Numbers::validEE(ism, jx, jy) ) {
-            validCry = true;
-            for ( unsigned int i=0; i<clients_.size(); i++ ) {
-              EEIntegrityClient* eeic = dynamic_cast<EEIntegrityClient*>(clients_[i]);
-              if ( eeic ) {
-                vector<int>::iterator iter = find(superModules_.begin(), superModules_.end(), ism);
-                if (iter != superModules_.end()) {
+          vector<int>::iterator iter = find(superModules_.begin(), superModules_.end(), ism);
+          if (iter != superModules_.end()) {
+            if ( Numbers::validEE(ism, jx, jy) ) {
+              validCry = true;
+              for ( unsigned int i=0; i<clients_.size(); i++ ) {
+                EEIntegrityClient* eeic = dynamic_cast<EEIntegrityClient*>(clients_[i]);
+                if ( eeic ) {
                   TH2F* h2 = eeic->h_[ism-1];
                   if ( h2 ) {
                     iEntries = h2->GetEntries();
