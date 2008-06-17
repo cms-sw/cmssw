@@ -153,7 +153,7 @@ CandCombinerBase<OutputCollection, CandPtr>::combine(const std::vector<edm::Hand
   std::auto_ptr<OutputCollection> comps(new OutputCollection);
   size_t namesSize = names.size();
   if(srcSize == 2) {
-    std::string name1, name2;
+    std::string name1="", name2="";
     if(namesSize > 0) {
       if(namesSize != 2)
 	throw edm::Exception(edm::errors::Configuration)
@@ -174,7 +174,8 @@ CandCombinerBase<OutputCollection, CandPtr>::combine(const std::vector<edm::Hand
 	  if(preselect(c1, c2)) {
 	    CandPtr cr2(src2, i2);
 	    typename OutputCollection::value_type c; 
-	    combine(c, cr1, cr2, names[0], names[1]);
+	    if ( namesSize == 2 )
+	      combine(c, cr1, cr2, name1, name2);
 	    if(select(c))
 	      comps->push_back(c);
 	  }
@@ -316,7 +317,10 @@ void CandCombinerBase<OutputCollection, CandPtr>::combine(size_t collectionIndex
       typename OutputCollection::value_type c;
       size_t nameIndex = 0;
       for(typename CandStack::const_iterator i = stack.begin(); i != stack.end(); ++i, ++ nameIndex) {
-	addDaughter(c, i->first.first, names[nameIndex]);
+	if ( names.size() > 0 )
+	  addDaughter(c, i->first.first, names[nameIndex]);
+	else
+	  addDaughter(c, i->first.first);	  
       }
       setup(c);
       if(select(c))
