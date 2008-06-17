@@ -1,10 +1,11 @@
-Must be at SLC4 machine with access /bigspool/usc (with local HCAL runs)
-or make another way for data file acccess
+Must be at SLC4 machine with access to /bigspool/usc (with local HCAL runs),
+like cmshcal01 or cmsru2,
+or edit /test/runHFLightCal*.csh file(s) to set another kind of acccess
 ----------------------------------------------------------------------
 
 To get HF SinglePhotoElectron PMT responses:
 
-source runHFLightCal.csh <6-digit run number> [(optional) <number of events>]
+source /test/runHFLightCal.csh <6-digit run number> 
 
 Output with information for each HF channel:
 hf_LightCal<run number>.root
@@ -27,9 +28,9 @@ the same code performs attempt to get SPE responses by fitting (useless).
 and analysis of HF performance is provided.
 ----------------------------------------------------------------------
 
-Additional code HFLightCalRand:
+Another code HFLightCalRand:
 
-source runHFLightCalRand.csh <6-digit run number> [(optional) <number of events>]
+source /test/runHFLightCalRand.csh <6-digit run number> 
 
 Output with information for each HF channel:
 hf_LightCalRand<run number>.root
@@ -37,5 +38,7 @@ hf_LightCalRand<run number>.txt
 
 -performs same job(s), but signal time position in TS is found in each
 event as maximal 4 capIDs.
-Less precise - useful when signal comes in random time, for example for 
-light leak searching with a pedestal run.
+
+-slightly less precise, but useful if signal comes in random time, for example,
+for light leak searching with a pedestal run
+or if signal timing is not stable. 

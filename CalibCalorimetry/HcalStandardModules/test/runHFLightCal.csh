@@ -48,7 +48,7 @@ process HFPRELIGHTCAL = {
 
 include "CalibCalorimetry/Configuration/data/Hcal_FrontierConditions.cff"
 
-        untracked PSet maxEvents = {untracked int32 input = 2000}
+        untracked PSet maxEvents = {untracked int32 input = 99999999}
         source = HcalTBSource {
                 untracked vstring fileNames = {'file:${file}'}
 /*
@@ -81,7 +81,8 @@ include "CalibCalorimetry/Configuration/data/Hcal_FrontierConditions.cff"
                untracked string rootPreFile = "${preroot}"
                untracked string textPreFile = "${pretxt}"
         }
-        path p1 = { hcalDigis, PreLightCal }
+
+        path p = { hcalDigis, PreLightCal }
 
 }
 EOF
@@ -147,11 +148,7 @@ include "CalibCalorimetry/Configuration/data/Hcal_FrontierConditions.cff"
                untracked string preFile = "${pretxt}"
         }
 
-
-
-
-
-        path p = { hcalDigis, LightCal}
+        path p = { hcalDigis, LightCal }
 
 }		
 EOF
@@ -163,11 +160,13 @@ else
     exit
 endif
 
-echo "eval scramv1 runtime -csh"
 eval `scramv1 runtime -csh`
+echo "eval scramv1 runtime -csh"
 
 set logp = "hf_PreLightCal$1.log"
 if (-f "${logp}") rm $logp
+
+echo "Pre- job at run"
 
 cmsRun ${cfgp} > $logp
 
@@ -181,6 +180,8 @@ endif
 
 set log = "hf_LightCal$1.log"
 if (-f "${log}") rm $log
+
+echo "HFCal- job at run"
 
 cmsRun ${cfg} > $log
 
