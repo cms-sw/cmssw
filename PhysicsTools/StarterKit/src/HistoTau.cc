@@ -78,8 +78,8 @@ void HistoTau::fill( const Tau *tau, uint iTau, double weight )
     histoIsolationTrack_->fill( &trk_p4, iisolation, weight );
   }
 
-  h_emEnergyFraction_->fill( tau->emEnergyFraction(), iTau, weight );
-  h_eOverP_ ->fill( tau->eOverP() , iTau, weight );
+//   h_emEnergyFraction_->fill( tau->emEnergyFraction(), iTau, weight );
+//   h_eOverP_ ->fill( tau->eOverP() , iTau, weight );
 }
 
 void HistoTau::fill( const reco::ShallowClonePtrCandidate * pshallow, uint iTau, double weight )
@@ -134,8 +134,8 @@ void HistoTau::fill( const reco::ShallowClonePtrCandidate * pshallow, uint iTau,
     histoIsolationTrack_->fill( &trk_p4, iisolation , weight);
   }
 
-  h_emEnergyFraction_->fill( tau->emEnergyFraction(), iTau, weight );
-  h_eOverP_ ->fill( tau->eOverP() , iTau, weight );
+//   h_emEnergyFraction_->fill( tau->emEnergyFraction(), iTau, weight );
+//   h_eOverP_ ->fill( tau->eOverP() , iTau, weight );
 }
 
 
