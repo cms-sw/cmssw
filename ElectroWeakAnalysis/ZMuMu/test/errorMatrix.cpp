@@ -29,7 +29,6 @@ int main() {
     for(size_t j = 0; j < n; ++j) {
       file >> err[i][j];
     }
-    cout << endl;
   }
 
   for(size_t i = 0; i < n; ++i) 
