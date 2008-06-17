@@ -2,8 +2,6 @@
 #include "FWCore/Framework/interface/MakerMacros.h"
 #include "CondTools/Ecal/interface/EcalDBCopy.h"
 #include "CondTools/Ecal/interface/EcalTestDevDB.h"
-#include "CondTools/Ecal/interface/EcalPedestalTransfer.h"
-#include "CondTools/Ecal/interface/EcalTrendChecker.h"
 #include "CondTools/Ecal/interface/EcalGetLaserData.h"
 
 
