@@ -283,7 +283,7 @@ void HcalDataFormatClient::getHistograms(){
   sprintf(name,"DataFormatMonitor/Event Fragment Size for each FED");
   //EvFragSize__ = getProfile(name, process_, dbe_, debug_,cloneME_);
 
-  sprintf(name,"DataFormatMonitor/Ev Frag Size 2d");
+  sprintf(name,"DataFormatMonitor/All Evt Frag Sizes");
   EvFragSize2_ = getHisto2(name, process_, dbe_, debug_,cloneME_);
 
   sprintf(name,"DataFormatMonitor/HTR Error Word by Crate");
@@ -495,7 +495,7 @@ void HcalDataFormatClient::resetAllME(){
   sprintf(name,"%sHcal/DataFormatMonitor/Event Fragment Size for each FED",process_.c_str());
   resetME(name,dbe_);
 
-  sprintf(name,"%sHcal/DataFormatMonitor/Ev Frag Size 2d",process_.c_str());
+  sprintf(name,"%sHcal/DataFormatMonitor/All Evt Frag Sizes",process_.c_str());
   resetME(name,dbe_);
 
   sprintf(name,"%sHcal/DataFormatMonitor/HTR Error Word by Crate",process_.c_str());
@@ -624,7 +624,7 @@ void HcalDataFormatClient::htmlOutput(int runNo, string htmlDir, string htmlName
   htmlFile << "<td>&nbsp;&nbsp;&nbsp;<h3>Global Histograms</h3></td></tr>" << endl;
   htmlFile << "<tr align=\"left\">" << endl;
   histoHTML2(runNo,ErrMapbyCrate_,"Crate #"," ", 23, htmlFile,htmlDir);
-  histoHTML2(runNo,EvFragSize2_,"FED ","Ev Frag Size", 23, htmlFile,htmlDir);
+  histoHTML2(runNo,EvFragSize2_,"FED ","Ev Frag Size (bytes)", 23, htmlFile,htmlDir);
   htmlFile << "</tr>" << endl;
 
   htmlFile << "<tr align=\"left\">" << endl;
@@ -945,7 +945,7 @@ void HcalDataFormatClient::loadHistograms(TFile* infile){
   sprintf(name,"DQMData/Hcal/DataFormatMonitor/Event Fragment Size for each FED");
   EvFragSize_ = (TProfile*)infile->Get(name);
 
-  sprintf(name,"DQMData/Hcal/DataFormatMonitor/Ev Frag Size 2d");
+  sprintf(name,"DQMData/Hcal/DataFormatMonitor/All Evt Frag Sizes");
   EvFragSize2_ = (TH2F*)infile->Get(name);
 
   sprintf(name,"DQMData/Hcal/DataFormatMonitor/HTR Error Word by Crate");

@@ -109,8 +109,8 @@ void HcalDataFormatMonitor::setup(const edm::ParameterSet& ps,
     // These had too many bins!  They were choking the Online DQM. Better we re-think. 
     // type = "Event Fragment Size for each FED";
     // meEvFragSize_ = m_dbe->bookProfile(type,type,32,699.5,731.5,100,-1000.0,7000.0,"");
-    // type = "All Evt Frag Sizes";
-    // meEvFragSize2_ =  m_dbe->book2D(type,type,64,699.5,731.5,12000,0,12000);
+    type = "All Evt Frag Sizes";
+    meEvFragSize2_ =  m_dbe->book2D(type,type,64,699.5,731.5,12000,0,12000);
 
     // Examine conditions of the DCC Event Fragment
     type = "Number of Event Fragments by FED ID";
@@ -407,7 +407,7 @@ void HcalDataFormatMonitor::unpack(const FEDRawData& raw,
   EvFragLength = raw.size();
 
   // meEvFragSize_ ->Fill(dccid, EvFragLength);
-  // meEvFragSize2_ ->Fill(dccid, EvFragLength);
+  meEvFragSize2_ ->Fill(dccid, EvFragLength);
 
 
   //There should never be HCAL DCCs reporting a fed id outside [700:731]
