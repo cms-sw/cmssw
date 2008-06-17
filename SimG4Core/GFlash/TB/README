@@ -1,5 +1,29 @@
+------------------------------------------------------
 Test beam geometry/analysis related files for Geant4
+------------------------------------------------------
 
+BuildFile : This BuildFile doesn't work as it is
+because scramv1 doesn't support non-standard directory structure
+such as "TB". However we want to keep all Test beam related files
+in TB directory because this is not going to be a part of either 
+official compilation chain or test area.
+So trick is that we keep everything in TB directory but when one
+wants to build this producer one can copy BuildFile to test area
+and specify file path accordingly.
+To do that, one needs to replace the following line in BuildFile
+
+file="TreeProducerCalibSimul.cc TreeMatrixCalib.cc"
+
+with
+
+file="../TB/TreeProducerCalibSimul.cc ../TB/TreeMatrixCalib.cc"
+
+after copying BuildFile to ../test directory.
+If there is any question about this, send an email to dwjang@fnal.gov
+
+-----------------------------------------------------------------------------------
+Files in TB directory
+-----------------------------------------------------------------------------------
 xtal_pos.list               : crystal number/position information
 
 h4TB2006GeometryXML.cfi     : H4 TB geometry configuration
@@ -21,3 +45,4 @@ lateralAllCalib.cpp         : TB tree analysis script
 myFunctions.cc              : utility funtions for lateralAllCalib
 fitMaximumPoint.cc          : utility funtions for lateralAllCalib
 Makefile                    : compile the above three files together
+-----------------------------------------------------------------------------------
