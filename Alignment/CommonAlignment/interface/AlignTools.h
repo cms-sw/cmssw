@@ -15,7 +15,7 @@
 namespace align{
 
 	///Finds the TR between two alignables - first alignable is reference
-	AlgebraicVector diffAlignables(Alignable* refAli, Alignable* curAli, std::string weightBy, bool weightById, std::vector< unsigned int > weightByIdVector);
+	AlgebraicVector diffAlignables(Alignable* refAli, Alignable* curAli, const std::string &weightBy, bool weightById, const std::vector< unsigned int > &weightByIdVector);
 	
 	///Finds the TR between 2 sets of alignables
 	///For example, if TIB/TID were to move as one unit
@@ -26,10 +26,10 @@ namespace align{
 
 	///Creates the points which are used in diffAlignables
 	///A set of points corresponding to lowest daughters
-	void createPoints(GlobalVectors* Vs, Alignable* ali, std::string weightBy, bool weightById, std::vector< unsigned int > weightByIdVector);
+	void createPoints(GlobalVectors* Vs, Alignable* ali, const std::string &weightBy, bool weightById, const std::vector< unsigned int > &weightByIdVector);
 	
 	// read module list, return bool
-	bool readModuleList( unsigned int, unsigned int, std::vector< unsigned int > );
+	bool readModuleList( unsigned int, unsigned int, const std::vector< unsigned int > & );
 
 }
 

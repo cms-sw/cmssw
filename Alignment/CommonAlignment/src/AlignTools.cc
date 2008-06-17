@@ -7,7 +7,7 @@
 #include <fstream>
 
 //Finds the TR between two alignables - first alignable is reference
-AlgebraicVector align::diffAlignables(Alignable* refAli, Alignable*curAli, std::string weightBy, bool weightById, std::vector< unsigned int > weightByIdVector){
+AlgebraicVector align::diffAlignables(Alignable* refAli, Alignable*curAli, const std::string &weightBy, bool weightById, const std::vector< unsigned int > &weightByIdVector){
 	
 	//check they are the same
 	if (refAli->alignableObjectId() != curAli->alignableObjectId()){
@@ -78,7 +78,7 @@ void align::moveAlignable(Alignable* ali, AlgebraicVector diff){
 }
 
 //Creates the points which are used in diffAlignables
-void align::createPoints(align::GlobalVectors* Vs, Alignable* ali, std::string weightBy, bool weightById, std::vector< unsigned int > weightByIdVector){
+void align::createPoints(align::GlobalVectors* Vs, Alignable* ali, const std::string &weightBy, bool weightById, const std::vector< unsigned int > &weightByIdVector){
 	
 	
 	const align::Alignables& comp = ali->components();
@@ -111,7 +111,7 @@ void align::createPoints(align::GlobalVectors* Vs, Alignable* ali, std::string w
 }
 
 
-bool align::readModuleList(unsigned int aliId, unsigned int motherId, std::vector< unsigned int > weightByIdVector){
+bool align::readModuleList(unsigned int aliId, unsigned int motherId, const std::vector< unsigned int > &weightByIdVector){
 	
 	bool foundId = false; 
 	
