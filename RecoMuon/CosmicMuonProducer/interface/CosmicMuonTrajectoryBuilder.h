@@ -2,8 +2,8 @@
 #define CosmicMuonTrajectoryBuilder_H
 /** \file CosmicMuonTrajectoryBuilder
  *
- *  $Date: 2008/02/11 16:48:34 $
- *  $Revision: 1.16 $
+ *  $Date: 2008/05/19 15:14:57 $
+ *  $Revision: 1.17 $
  *  \author Chang Liu  -  Purdue University
  */
 
@@ -71,8 +71,6 @@ public:
 private:
 
   MuonTransientTrackingRecHit::MuonRecHitContainer unusedHits(const DetLayer*, const TrajectoryMeasurement&) const;
-
-  void explore(Trajectory&, MuonTransientTrackingRecHit::MuonRecHitContainer&);
 
   void buildSecondHalf(Trajectory&);
 
