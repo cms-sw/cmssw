@@ -46,6 +46,8 @@ SiStripMonitorTrack::SiStripMonitorTrack(const edm::ParameterSet& conf):
 SiStripMonitorTrack::~SiStripMonitorTrack() { }
 
 //------------------------------------------------------------------------
+//void SiStripMonitorTrack::beginJob(const edm::EventSetup& es)
+
 void SiStripMonitorTrack::beginRun(const edm::Run& run,const edm::EventSetup& es)
 {
   //get geom 
@@ -54,7 +56,6 @@ void SiStripMonitorTrack::beginRun(const edm::Run& run,const edm::EventSetup& es
   es.get<SiStripDetCablingRcd>().get( SiStripDetCabling_ );
 
   book();
-
 }
 
 //------------------------------------------------------------------------
@@ -69,6 +70,7 @@ void SiStripMonitorTrack::endJob(void)
 // ------------ method called to produce the data  ------------
 void SiStripMonitorTrack::analyze(const edm::Event& e, const edm::EventSetup& es)
 {
+
   tracksCollection_in_EventTree=true;
   trackAssociatorCollection_in_EventTree=true;
   
@@ -90,7 +92,7 @@ void SiStripMonitorTrack::analyze(const edm::Event& e, const edm::EventSetup& es
  
   if (trackCollection.isValid()){
   }else{
-    LogDebug("SiStripMonitorTrack")<<" Track Collection is not valid !!" <<std::endl;
+    edm::LogError("SiStripMonitorTrack")<<" Track Collection is not valid !! " << TrackLabel<<std::endl;
     tracksCollection_in_EventTree=false;
   }
 
@@ -99,7 +101,7 @@ void SiStripMonitorTrack::analyze(const edm::Event& e, const edm::EventSetup& es
   e.getByLabel(TrackProducer, TrackLabel, TItkAssociatorCollection);
   if( TItkAssociatorCollection.isValid()){
   }else{
-    LogDebug("SiStripMonitorTrack")<<"Association not found "<<std::endl;
+    edm::LogError("SiStripMonitorTrack")<<"Association not found "<<std::endl;
     trackAssociatorCollection_in_EventTree=false;
   }
   
@@ -110,7 +112,7 @@ void SiStripMonitorTrack::analyze(const edm::Event& e, const edm::EventSetup& es
   if (dsv_SiStripCluster.isValid() && OffHisto_On_){
     AllClusters(es);//analyzes the off Track Clusters
   }else{
-    LogDebug("SiStripMonitorTrack")<< "ClusterCollection is not valid!!" << std::endl;
+    edm::LogError("SiStripMonitorTrack")<< "ClusterCollection is not valid!!" << std::endl;
   }
 
   //Summary Counts of clusters
@@ -200,6 +202,7 @@ void SiStripMonitorTrack::book()
       bookSubDetMEs(name,flags[j]); //for subdets
     }//end loop on onTrack,offTrack
   }  
+
 }
   
 //--------------------------------------------------------------------------------
@@ -437,7 +440,6 @@ MonitorElement* SiStripMonitorTrack::bookMETrend(const char* ParameterSetLabel, 
 void SiStripMonitorTrack::trackStudy(const edm::EventSetup& es)
 {
 
-  LogDebug("SiStripMonitorTrack") << "inside trackstudy" << std::endl;
   const reco::TrackCollection tC = *(trackCollection.product());
   int i=0;
   std::vector<TrajectoryMeasurement> measurements;
@@ -564,7 +566,7 @@ void SiStripMonitorTrack::trackStudy(const edm::EventSetup& es)
       delete SiStripClusterInfo_; 
       //}
     }else{
-      LogTrace("SiStripMonitorTrack") << "NULL hit" << std::endl;
+     edm::LogError("SiStripMonitorTrack") << "NULL hit" << std::endl;
     }	  
   }
 
@@ -578,7 +580,7 @@ void SiStripMonitorTrack::AllClusters( const edm::EventSetup& es)
     uint32_t detid=DSViter->id();
     if (find(ModulesToBeExcluded_.begin(),ModulesToBeExcluded_.end(),detid)!=ModulesToBeExcluded_.end()) continue;
     //Loop on Clusters
-    LogDebug("SiStripMonitorTrack") << "on detid "<< detid << " N Cluster= " << DSViter->size();
+    edm::LogInfo("SiStripMonitorTrack") << "on detid "<< detid << " N Cluster= " << DSViter->size();
     edmNew::DetSet<SiStripCluster>::const_iterator ClusIter = DSViter->begin();
     for(; ClusIter!=DSViter->end(); ClusIter++) {
       SiStripClusterInfo* SiStripClusterInfo_= new SiStripClusterInfo(detid,*ClusIter,es);
