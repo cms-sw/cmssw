@@ -16,7 +16,7 @@
 //
 // Original Author:  Chris Jones
 //         Created:  Mon Feb 11 10:52:24 EST 2008
-// $Id: FWGUIManager.h,v 1.18 2008/06/13 23:38:18 chrjones Exp $
+// $Id: FWGUIManager.h,v 1.19 2008/06/17 00:08:11 chrjones Exp $
 //
 
 // system include files
@@ -139,6 +139,8 @@ class FWGUIManager : public FWConfigurable
       void newItem(const FWEventItem*);
 
       void subviewWasSwappedToBig(unsigned int);
+   
+      void exportImageOfMainView();
 
       // ---------- member data --------------------------------
 

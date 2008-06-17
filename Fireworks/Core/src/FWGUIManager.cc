@@ -8,7 +8,7 @@
 //
 // Original Author:  Chris Jones
 //         Created:  Mon Feb 11 11:06:40 EST 2008
-// $Id: FWGUIManager.cc,v 1.29 2008/06/17 00:08:11 chrjones Exp $
+// $Id: FWGUIManager.cc,v 1.30 2008/06/17 15:23:19 chrjones Exp $
 //
 
 // system include files
@@ -59,6 +59,8 @@
 #include "Fireworks/Core/interface/CmsShowMainFrame.h"
 
 #include "Fireworks/Core/src/FWGUIEventDataAdder.h"
+
+#include "Fireworks/Core/interface/CSGAction.h"
 
 //
 // constants, enums and typedefs
@@ -137,6 +139,8 @@ m_dataAdder(0)
 					       this);
      m_cmsShowMainFrame->SetWindowName("CmsShow");
      m_cmsShowMainFrame->SetCleanup(kDeepCleanup);
+      
+      getAction("Export Main Viewer Image...")->activated.connect(sigc::mem_fun(*this, &FWGUIManager::exportImageOfMainView));
    }
    /*
          TGHorizontalFrame* hf = new TGHorizontalFrame(frmMain);
@@ -805,6 +809,27 @@ FWGUIManager::handleFileMenu(Int_t iIndex)
    }
 }
 */
+
+void 
+FWGUIManager::exportImageOfMainView()
+{
+   static TString dir(".");
+   const char *  kImageExportTypes[] = {"Encapsulated PostScript", "*.eps",
+      "PDF",                     "*.pdf",
+      "GIF",                     "*.gif",
+      "JPEG",                    "*.jpg",
+      "PNG",                     "*.png",
+   0, 0};
+   
+   TGFileInfo fi;
+   fi.fFileTypes = kImageExportTypes;
+   fi.fIniDir    = StrDup(dir);
+   new TGFileDialog(gClient->GetDefaultRoot(), m_cmsShowMainFrame,
+                    kFDSave,&fi);
+   dir = fi.fIniDir;
+   m_viewBases[0]->saveImageTo(fi.fFilename);
+}
+
 
 static const std::string kMainWindow("main window");
 static const std::string kViews("views");
