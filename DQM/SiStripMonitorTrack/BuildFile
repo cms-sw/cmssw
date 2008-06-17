@@ -1,7 +1,8 @@
+<flags EDM_PLUGIN=1>	
 <use name=FWCore/Framework>
 <use name=FWCore/ParameterSet>
 <use name=FWCore/PluginManager>
-<lib name=GeometryTrackerGeometryBuilder>
+<use name=Geometry/TrackerGeometryBuilder>
 <use name=DQMServices/Core>
 <use name=DQM/SiStripCommon>
 <use name=CalibFormats/SiStripObjects>
@@ -12,13 +13,12 @@
 <use name=AnalysisDataFormats/TrackInfo>
 <use name=TrackingTools/TrackFitters>
 <use name=CommonTools/SiStripZeroSuppression>
-<flags EDM_PLUGIN=1>
 <export>
-   <lib name=DQMTrackerMonitorTrack>
+   <lib name=DQMSiStripMonitorTrack>
    <use name=FWCore/Framework>
    <use name=FWCore/ParameterSet>
    <use name=FWCore/PluginManager>
-   <lib name=GeometryTrackerGeometryBuilder>
+   <use name=Geometry/TrackerGeometryBuilder>
    <use name=DQMServices/Core>
    <use name=DQM/SiStripCommon>
    <use name=CalibFormats/SiStripObjects>
