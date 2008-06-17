@@ -17,16 +17,16 @@
 #include "EgammaAnalysis/PhotonIDProducers/interface/PiZeroDiscriminatorProducer.h"
 
 // Class for Cluster Shape Algorithm
-#include "DataFormats/EgammaReco/interface/ClusterShape.h"
-#include "DataFormats/EgammaReco/interface/ClusterShapeFwd.h"
 #include "DataFormats/EgammaReco/interface/BasicCluster.h"
 #include "DataFormats/EgammaReco/interface/BasicClusterFwd.h"
-#include "DataFormats/EgammaReco/interface/BasicClusterShapeAssociation.h"
 
 #include "DataFormats/EgammaCandidates/interface/Photon.h"
 #include "DataFormats/EgammaCandidates/interface/PhotonFwd.h"
 #include "DataFormats/EgammaReco/interface/PreshowerClusterShape.h"
 #include "DataFormats/EgammaCandidates/interface/PhotonPi0DiscriminatorAssociation.h"
+
+// to compute on-the-fly cluster shapes
+#include "RecoEcal/EgammaCoreTools/interface/EcalClusterLazyTools.h"
 
 using namespace std;
 using namespace reco;
@@ -43,11 +43,8 @@ PiZeroDiscriminatorProducer::PiZeroDiscriminatorProducer(const ParameterSet& ps)
   photonCorrCollectionProducer_ = ps.getParameter<string>("corrPhoProducer");
   correctedPhotonCollection_ = ps.getParameter<string>("correctedPhotonCollection");
 
-  barrelClusterShapeMapProducer_   = ps.getParameter<string>("barrelClusterShapeMapProducer");
-  barrelClusterShapeMapCollection_ = ps.getParameter<string>("barrelClusterShapeMapCollection");
-
-  endcapClusterShapeMapProducer_   = ps.getParameter<string>("endcapClusterShapeMapProducer");
-  endcapClusterShapeMapCollection_ = ps.getParameter<string>("endcapClusterShapeMapCollection");
+  barrelRecHitCollection_ = ps.getParameter<edm::InputTag>("barrelRecHitCollection");
+  endcapRecHitCollection_ = ps.getParameter<edm::InputTag>("endcapRecHitCollection");
 
   float preshStripECut = ps.getParameter<double>("preshStripEnergyCut");
   int preshNst = ps.getParameter<int>("preshPi0Nstrip");
@@ -96,15 +93,6 @@ void PiZeroDiscriminatorProducer::produce(Event& evt, const EventSetup& es) {
   const reco::PreshowerClusterShapeCollection *clustersY = pPreshowerShapeClustersY.product();
   cout << "\n pPreshowerShapeClustersY->size() = " << clustersY->size() << endl;
 
-// Get association maps linking BasicClusters to ClusterShape
-  Handle<BasicClusterShapeAssociationCollection> barrelClShpHandle;
-  evt.getByLabel(barrelClusterShapeMapProducer_, barrelClusterShapeMapCollection_,barrelClShpHandle);
-  const BasicClusterShapeAssociationCollection& barrelClShpMap = *barrelClShpHandle;
-  
-  Handle<BasicClusterShapeAssociationCollection> endcapClShpHandle;
-  evt.getByLabel(endcapClusterShapeMapProducer_, endcapClusterShapeMapCollection_, endcapClShpHandle);
-  const BasicClusterShapeAssociationCollection& endcapClShpMap = *endcapClShpHandle;
-  
   auto_ptr<PhotonPi0DiscriminatorAssociationMap> Pi0Assocs_p(new PhotonPi0DiscriminatorAssociationMap);
 
   //make cycle over Photon Collection
@@ -136,9 +124,12 @@ void PiZeroDiscriminatorProducer::produce(Event& evt, const EventSetup& es) {
       }			   
 
       //  New way to get ClusterShape info
-      BasicClusterShapeAssociationCollection::const_iterator seedShpItr;
+      //BasicClusterShapeAssociationCollection::const_iterator seedShpItr;
       // Find the entry in the map corresponding to the seed BasicCluster of the SuperCluster
       DetId id = it_super->seed()->getHitsByDetId()[0];
+
+      // get on-the-fly the cluster shapes
+      EcalClusterLazyTools lazyTool( evt, es, barrelRecHitCollection_, endcapRecHitCollection_ );
 
       float nnoutput = -1.;
       if(fabs(SC_eta) >= 1.65 && fabs(SC_eta) <= 2.5) {  //  Use Preshower region only
@@ -146,11 +137,10 @@ void PiZeroDiscriminatorProducer::produce(Event& evt, const EventSetup& es) {
           if ( debugL_pi0 <= EndcapPiZeroDiscriminatorAlgo::pDEBUG ) cout << "SC centroind = " << pointSC << endl;
           double SC_seed_energy = it_super->seed()->energy();
 
-          seedShpItr = endcapClShpMap.find(it_super->seed());         
-          const ClusterShapeRef& seedShapeRef = seedShpItr->val; // Get the ClusterShapeRef corresponding to the BasicCluster
-          double SC_seed_Shape_E1 = seedShapeRef->eMax();
-          double SC_seed_Shape_E3x3 = seedShapeRef->e3x3();
-          double SC_seed_Shape_E5x5 = seedShapeRef->e5x5();
+          const BasicClusterRef seed = it_super->seed();
+          double SC_seed_Shape_E1 = lazyTool.eMax( *seed );
+          double SC_seed_Shape_E3x3 = lazyTool.e3x3( *seed );
+          double SC_seed_Shape_E5x5 = lazyTool.e5x5( *seed );
           if ( debugL_pi0 <= EndcapPiZeroDiscriminatorAlgo::pDEBUG ) {
             cout << "BC energy_max = " <<  SC_seed_energy << endl;
             cout << "ClusterShape  E1_max_New = " <<   SC_seed_Shape_E1 << endl;
@@ -229,27 +219,23 @@ void PiZeroDiscriminatorProducer::produce(Event& evt, const EventSetup& es) {
 	 
       } else if((fabs(SC_eta) <= 1.4442) || (fabs(SC_eta) < 1.65 && fabs(SC_eta) >= 1.566) || fabs(SC_eta) >= 2.5) {
 
-         if (id.subdetId() == EcalBarrel) {
-           seedShpItr = barrelClShpMap.find(it_super->seed());
-         } else {
-           seedShpItr = endcapClShpMap.find(it_super->seed());
-         }
+         const BasicClusterRef seed = it_super->seed();
 	  
-         const ClusterShapeRef& seedShapeRef = seedShpItr->val; // Get the ClusterShapeRef corresponding to the BasicCluster
-	  
-         double SC_seed_Shape_E1 = seedShapeRef->eMax();
-         double SC_seed_Shape_E3x3 = seedShapeRef->e3x3();
-         double SC_seed_Shape_E5x5 = seedShapeRef->e5x5();
-         double SC_seed_Shape_E2 = seedShapeRef->e2nd();
-         double SC_seed_Shape_cEE = seedShapeRef->covEtaEta();
-         double SC_seed_Shape_cEP = seedShapeRef->covEtaPhi();
-         double SC_seed_Shape_cPP = seedShapeRef->covPhiPhi();
-         double SC_seed_Shape_E2x2 = seedShapeRef->e2x2();
-         double SC_seed_Shape_E3x2 = seedShapeRef->e3x2();
-         double SC_seed_Shape_E3x2r = seedShapeRef->e3x2Ratio();
+         double SC_seed_Shape_E1 = lazyTool.eMax( *seed );
+         double SC_seed_Shape_E3x3 = lazyTool.e3x3( *seed );
+         double SC_seed_Shape_E5x5 = lazyTool.e5x5( *seed );
+         double SC_seed_Shape_E2 = lazyTool.e2nd( *seed );
+         double SC_seed_Shape_cEE = lazyTool.covariances( *seed )[0];
+         double SC_seed_Shape_cEP = lazyTool.covariances( *seed )[1];
+         double SC_seed_Shape_cPP = lazyTool.covariances( *seed )[2];
+         double SC_seed_Shape_E2x2 = lazyTool.e2x2( *seed );
+         double SC_seed_Shape_E3x2 = lazyTool.e3x2( *seed );
+         // double SC_seed_Shape_E3x2r = lazyTool.e3x2Ratio( *seed ); // FIXME temporarily unavailable
+                                                                      // waiting for explanations
+         double SC_seed_Shape_E3x2r = 0;
 
-         double SC_seed_Shape_xcog = seedShapeRef->e2x5Right() - seedShapeRef->e2x5Left();
-         double SC_seed_Shape_ycog = seedShapeRef->e2x5Bottom() - seedShapeRef->e2x5Top();
+         double SC_seed_Shape_xcog = lazyTool.e2x5Right( *seed ) - lazyTool.e2x5Left( *seed );
+         double SC_seed_Shape_ycog = lazyTool.e2x5Bottom( *seed ) - lazyTool.e2x5Top( *seed );
          if ( debugL_pi0 <= EndcapPiZeroDiscriminatorAlgo::pDEBUG ) {
             cout << "ClusterShape  E1_max_New = " <<   SC_seed_Shape_E1 << endl;
             cout << "ClusterShape  E3x3_max_New = " <<   SC_seed_Shape_E3x3 <<  endl;

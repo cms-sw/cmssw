@@ -2,8 +2,8 @@
 #define RecoEcal_EgammaClusterProducers_PiZeroDiscriminatorProducer_h
 
 // $Author: akyriaki $
-// $Id: PiZeroDiscriminatorProducer.h,v 1.7 2007/10/18 13:48:54 akyriaki Exp $
-// $Date: 2007/10/18 13:48:54 $
+// $Id: PiZeroDiscriminatorProducer.h,v 1.1 2007/12/07 09:42:51 akyriaki Exp $
+// $Date: 2007/12/07 09:42:51 $
 
 #include <memory>
 
@@ -43,14 +43,12 @@ class PiZeroDiscriminatorProducer : public edm::EDProducer {
   std::string preshClusterShapeCollectionY_;
   std::string preshClusterShapeProducer_;
 
-  std::string barrelClusterShapeMapProducer_;
-  std::string barrelClusterShapeMapCollection_;
-  std::string endcapClusterShapeMapProducer_;
-  std::string endcapClusterShapeMapCollection_;
-
   std::string photonCorrCollectionProducer_;
   std::string correctedPhotonCollection_;
   std::string PhotonPi0DiscriminatorAssociationMap_;
+
+  edm::InputTag barrelRecHitCollection_;
+  edm::InputTag endcapRecHitCollection_;
 
   EndcapPiZeroDiscriminatorAlgo * presh_pi0_algo; // algorithm doing the real work
 
