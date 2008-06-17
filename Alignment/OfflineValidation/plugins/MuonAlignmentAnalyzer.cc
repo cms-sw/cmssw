@@ -3,8 +3,8 @@
  *  Makes histograms of high level Muon objects/quantities
  *  for Alignment Scenarios/DB comparison
  *
- *  $Date: 2008/05/02 17:30:38 $
- *  $Revision: 1.3 $
+ *  $Date: 2008/06/17 12:23:14 $
+ *  $Revision: 1.2 $
  *  \author J. Fernandez - Univ. Oviedo <Javier.Fernandez@cern.ch>
  */
 
@@ -925,7 +925,7 @@ void MuonAlignmentAnalyzer::endJob(){
 	if(abs(station)==1) ybin=ring;
 	if (station>0) ybin=ybin+9;
 	else ybin = 10 -ybin;
-	ybin=2*ybin;
+	ybin=2*ybin+1;
 	hprofLocalAngleCSC->SetBinContent(chamber,ybin,fabs(MeanTheta));
 	sprintf(binLabel, "ME%d/%d_LocalTheta", station,ring );
 	hprofLocalAngleCSC->GetYaxis()->SetBinLabel(ybin,binLabel);
@@ -1001,7 +1001,7 @@ void MuonAlignmentAnalyzer::endJob(){
 	if(abs(station)==1) ybin=ring;
 	if (station>0) ybin=ybin+9;
 	else ybin = 10 -ybin;
-	ybin=2*ybin;
+	ybin=2*ybin+1;
 	hprofLocalPositionCSC->SetBinContent(chamber,ybin,fabs(MeanR));
 	sprintf(binLabel, "ME%d/%d_LocalY", station,ring );
 	hprofLocalPositionCSC->GetYaxis()->SetBinLabel(ybin,binLabel);
@@ -1032,7 +1032,7 @@ void MuonAlignmentAnalyzer::endJob(){
 	hprofGlobalRPhiDT->SetBinError(xbin, ErrorRPhi);
 	hprofGlobalRPhiDT->GetXaxis()->SetBinLabel(xbin, binLabel);
 
-	Int_t ybin=2+nwheel*8+nstation*2;
+	Int_t ybin=1+nwheel*8+nstation*2;
 	hprofGlobalPositionDT->SetBinContent(sector,ybin,fabs(MeanRPhi));
 	sprintf(binLabel, "MB%d/%d_GlobalRPhi", wheel,station );
 	hprofGlobalPositionDT->GetYaxis()->SetBinLabel(ybin,binLabel);
@@ -1139,7 +1139,7 @@ void MuonAlignmentAnalyzer::endJob(){
 	hprofGlobalPhiDT->SetMarkerColor(kRed);
 	hprofGlobalPhiDT->GetXaxis()->SetBinLabel(xbin, binLabel);
 
-	Int_t ybin=2+nwheel*8+nstation*2;
+	Int_t ybin=1+nwheel*8+nstation*2;
 	hprofGlobalAngleDT->SetBinContent(sector,ybin,fabs(MeanPhi));
 	sprintf(binLabel, "MB%d/%d_GlobalPhi", wheel,station );
 	hprofGlobalAngleDT->GetYaxis()->SetBinLabel(ybin,binLabel);
@@ -1222,7 +1222,7 @@ void MuonAlignmentAnalyzer::endJob(){
 	if(abs(station)==1) ybin=ring;
 	if (station>0) ybin=ybin+9;
 	else ybin = 10 -ybin;
-	ybin=2*ybin;
+	ybin=2*ybin+1;
 	hprofGlobalAngleCSC->SetBinContent(chamber,ybin,fabs(MeanTheta));
 	sprintf(binLabel, "ME%d/%d_GlobalTheta", station,ring );
 	hprofGlobalAngleCSC->GetYaxis()->SetBinLabel(ybin,binLabel);
@@ -1283,7 +1283,6 @@ void MuonAlignmentAnalyzer::endJob(){
 
 	Int_t nring=ring-1;
 
-
 	Int_t xbin=36*4*nstation+36*nring+chamber;
 
 	sprintf(binLabel, "ME%d/%dC%d", station, ring, chamber );
@@ -1299,7 +1298,7 @@ void MuonAlignmentAnalyzer::endJob(){
 	if(abs(station)==1) ybin=ring;
 	if (station>0) ybin=ybin+9;
 	else ybin = 10 -ybin;
-	ybin=2*ybin;
+	ybin=2*ybin+1;
 	hprofGlobalPositionCSC->SetBinContent(chamber,ybin,fabs(MeanR));
 	sprintf(binLabel, "ME%d/%d_GlobalR", station,ring );
 	hprofGlobalPositionCSC->GetYaxis()->SetBinLabel(ybin,binLabel);
