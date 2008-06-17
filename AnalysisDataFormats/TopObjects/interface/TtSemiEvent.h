@@ -31,7 +31,7 @@ class TtSemiEvent {
  public:
 
   // semiletponic decay channels
-  enum Decay {kNone, kMuon, kElec, kTau};
+  enum Decay {kNone, kElec, kMuon, kTau};
 
   // supported EventHypotheses
   enum HypoKey {kWMassMaxSumPt, kMaxSumPtWMass, kKinFit, kGenMatch, kMVADisc};

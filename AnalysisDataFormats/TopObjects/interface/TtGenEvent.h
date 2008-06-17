@@ -5,6 +5,11 @@
 class TtGenEvent: public TopGenEvent {
 
  public:
+
+  // semiletponic decay channel
+  enum LeptonType {kNone, kElec, kMuon, kTau};
+  
+ public:
   
   TtGenEvent();
   TtGenEvent(reco::GenParticleRefProd&, reco::GenParticleRefProd&);
@@ -16,6 +21,12 @@ class TtGenEvent: public TopGenEvent {
   bool isFullLeptonic() const { return (isTtBar() && numberOfLeptons()==2);}
   
   //semi-leptonic getters
+  LeptonType semiLeptonicChannel() const;
+  bool isSemiLeptonic(LeptonType& typeA) const 
+  { return (semiLeptonicChannel()==typeA ? true : false); };
+  bool isSemiLeptonic(LeptonType& typeA, LeptonType& typeB) const 
+  { return ( (semiLeptonicChannel()==typeA || semiLeptonicChannel()==typeB)? true : false); };
+
   const reco::GenParticle* leptonicDecayW() const;
   const reco::GenParticle* leptonicDecayB() const;
   const reco::GenParticle* leptonicDecayTop() const;

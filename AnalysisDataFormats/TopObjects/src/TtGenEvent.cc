@@ -1,5 +1,5 @@
 //
-// $Id: TtGenEvent.cc,v 1.19 2008/01/25 13:34:29 vadler Exp $
+// $Id: TtGenEvent.cc,v 1.20 2008/02/15 12:10:54 rwolf Exp $
 //
 
 #include "FWCore/Utilities/interface/EDMException.h"
@@ -19,6 +19,18 @@ TtGenEvent::TtGenEvent(reco::GenParticleRefProd & parts, reco::GenParticleRefPro
 
 TtGenEvent::~TtGenEvent()
 {
+}
+
+TtGenEvent::LeptonType 
+TtGenEvent::semiLeptonicChannel() const 
+{
+  LeptonType type=kNone;
+  if( isSemiLeptonic() && singleLepton() ){
+    if( fabs(singleLepton()->pdgId())==11 ) type=kElec;
+    if( fabs(singleLepton()->pdgId())==13 ) type=kMuon;
+    if( fabs(singleLepton()->pdgId())==15 ) type=kTau;
+  }
+  return type;
 }
 
 const reco::GenParticle* 
