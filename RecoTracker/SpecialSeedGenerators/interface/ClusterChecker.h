@@ -8,7 +8,7 @@
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "DataFormats/Common/interface/LazyGetter.h"
 #include "DataFormats/SiStripCluster/interface/SiStripCluster.h"
-#include "DataFormats/Common/interface/DetSetVector.h"
+#include "DataFormats/Common/interface/DetSetVectorNew.h"
 
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 
@@ -27,17 +27,17 @@ class ClusterChecker {
     if (!doACheck_) return false;
 
     // get special input for cosmic cluster multiplicity filter
-    edm::Handle<edm::DetSetVector<SiStripCluster> > clusterDSV;
+    edm::Handle<edmNew::DetSetVector<SiStripCluster> > clusterDSV;
     e.getByLabel(clusterCollectionInputTag_, clusterDSV);
     bool tooManyClusters = false;
     if (!clusterDSV.failedToGet()) {
-      const edm::DetSetVector<SiStripCluster> & input = *clusterDSV;
+      const edmNew::DetSetVector<SiStripCluster> & input = *clusterDSV;
 
       unsigned int totalClusters = 0;
       //loop over detectors
-      edm::DetSetVector<SiStripCluster>::const_iterator DSViter=input.begin(), DSViter_end=input.end();
+      edmNew::DetSetVector<SiStripCluster>::const_iterator DSViter=input.begin(), DSViter_end=input.end();
       for (; DSViter!=DSViter_end; DSViter++ ) {
-	totalClusters+=DSViter->data.size();
+	totalClusters+=DSViter->size();
 	if (totalClusters>maxNrOfCosmicClusters_) break;
       }
       tooManyClusters = (totalClusters>maxNrOfCosmicClusters_);
