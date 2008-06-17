@@ -10,7 +10,6 @@
 
 
 // system include files
-#include <TTree.h>
 #include <TRotMatrix.h>
 
 // user include files
@@ -40,8 +39,6 @@ public:
   virtual void analyze( const edm::Event&, const edm::EventSetup& );
 private:
   // ----------member data ---------------------------
-  TTree* theTree;
-  TFile* theFile;
   float x,y,z,phi,theta,length,thick,width;
   TRotMatrix* rot;
 
