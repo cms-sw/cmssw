@@ -22,7 +22,7 @@ process.source = cms.Source(
 
 zSelection = cms.PSet(
     cut = cms.string("charge = 0 & daughter(0).pt > 20 & daughter(1).pt > 20 & abs(daughter(0).eta)<2 & abs(daughter(1).eta)<2 & mass > 20"),
-    isoCut = cms.double(4.0),
+    isoCut = cms.double(100.0),
     muonIsolations1 = cms.InputTag("muonIsolations"),  
     muonIsolations2 = cms.InputTag("muonIsolations")  
 )
@@ -123,7 +123,6 @@ process.out = cms.OutputModule(
       )
     )
 )
-
 
 process.goodZToMuMuPath = cms.Path(
     process.goodZToMuMu 
