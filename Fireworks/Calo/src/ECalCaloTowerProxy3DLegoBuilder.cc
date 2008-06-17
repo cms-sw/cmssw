@@ -8,7 +8,7 @@
 //
 // Original Author:  
 //         Created:  Sun Jan  6 23:57:00 EST 2008
-// $Id: ECalCaloTowerProxy3DLegoBuilder.cc,v 1.4 2008/03/06 10:17:16 dmytro Exp $
+// $Id: ECalCaloTowerProxy3DLegoBuilder.cc,v 1.5 2008/06/09 19:54:03 chrjones Exp $
 //
 
 // system include files
@@ -65,8 +65,11 @@ ECalCaloTowerProxy3DLegoBuilder::build(const FWEventItem* iItem,
 				       TH2** product)
 {
   if (0==*product) {
+    Bool_t status = TH1::AddDirectoryStatus();
+    TH1::AddDirectory(kFALSE); //Keeps histogram from going into memory
     *product = new TH2F("ecalLego","CaloTower ECAL Et distribution",
 			82, fw3dlego::xbins, 72/legoRebinFactor(), -3.1416, 3.1416);
+    TH1::AddDirectory(status);
   }
   (*product)->Reset();
   (*product)->SetFillColor(iItem->defaultDisplayProperties().color());
