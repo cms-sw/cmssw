@@ -14,6 +14,8 @@
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/MakerMacros.h"
 
+#include "DataFormats/Provenance/interface/ProductID.h"
+
 #include "DataFormats/ParticleFlowCandidate/interface/PFCandidateFwd.h"
 #include "DataFormats/TauReco/interface/PFTau.h"
 
@@ -48,10 +50,9 @@ class PFTopProjector : public edm::EDProducer {
   /// one way or another contribute to the candidate pointed to by 
   /// candRef
   void
-    refToAncestorPFCandidates( reco::CandidateBaseRef candRef,
-			       reco::CandidateBaseRefVector& ancestors,
-			       const edm::Handle<reco::PFCandidateCollection> allPFCandidates ) 
-    const;
+    refToAncestor( reco::CandidateBaseRef candRef,
+		   reco::CandidateBaseRefVector& ancestors,
+		   const edm::ProductID& ancestorsID ) const;
 
   /// ancestors is a RefToBase vector. For each object in this vector
   /// get the index and set the corresponding slot to true in the 
@@ -68,8 +69,11 @@ class PFTopProjector : public edm::EDProducer {
   /// optional collection of PileUpPFCandidates
   edm::InputTag   inputTagPileUpPFCandidates_;
 
-  /// optional collection of IsolatedPFCandidates
-  edm::InputTag   inputTagIsolatedPFCandidates_;
+  /// optional collection of electrons
+  edm::InputTag   inputTagIsolatedElectrons_;
+  
+  /// optional collection of muons
+  edm::InputTag   inputTagIsolatedMuons_;
   
   /// optional collection of jets
   edm::InputTag   inputTagPFJets_;
