@@ -1,8 +1,8 @@
 /*
  * \file EBSummaryClient.cc
  *
- * $Date: 2008/06/16 20:31:11 $
- * $Revision: 1.155 $
+ * $Date: 2008/06/17 13:12:41 $
+ * $Revision: 1.156 $
  * \author G. Della Ricca
  *
 */
@@ -1133,9 +1133,12 @@ void EBSummaryClient::analyze(void){
         for ( unsigned int i=0; i<clients_.size(); i++ ) {
           EBIntegrityClient* ebic = dynamic_cast<EBIntegrityClient*>(clients_[i]);
           if ( ebic ) {
-            TH2F* h2 = ebic->h_[ism-1];
-            if ( h2 ) {
-              iEntries = h2->GetEntries();
+            vector<int>::iterator iter = find(superModules_.begin(), superModules_.end(), ism);
+            if (iter != superModules_.end()) {
+              TH2F* h2 = ebic->h_[ism-1];
+              if ( h2 ) {
+                iEntries = h2->GetEntries();
+              }
             }
           }
         }
