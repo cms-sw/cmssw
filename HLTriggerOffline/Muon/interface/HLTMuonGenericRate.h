@@ -21,9 +21,9 @@
 #include "DataFormats/Candidate/interface/Candidate.h"
 #include "SimDataFormats/HepMCProduct/interface/HepMCProduct.h"
 #include <vector>
-#include "TDirectory.h"
+#include "DQMServices/Core/interface/DQMStore.h"
+#include "DQMServices/Core/interface/MonitorElement.h"
 
-class TH1F;
 
 class HLTMuonGenericRate {
 public:
@@ -37,10 +37,9 @@ public:
 
   void analyze(const edm::Event & event);
 
-  virtual void BookHistograms() ;
-  virtual void FillHistograms() ;
-  virtual void WriteHistograms() ;
-
+  void BookHistograms() ;
+  void WriteHistograms() ;
+  MonitorElement* BookIt(char name[], char title[], int bins, float min, float max) ;
 private:
   // Input from cfg file
   edm::InputTag theL1CollectionLabel, theGenLabel, theRecoLabel;
@@ -56,40 +55,41 @@ private:
   unsigned int theNbins;
   int this_event_weight;
   // Histograms
-  TH1F* hL1eff;
-  TH1F* hL1MCeff;
-  TH1F* hL1RECOeff;
-  TH1F* hMCptnor;
-  TH1F* hMCphinor;
-  TH1F* hMCetanor;
-  TH1F* hRECOptnor;
-  TH1F* hRECOphinor;
-  TH1F* hRECOetanor;
-  TH1F* hL1rate;
-  TH1F* hL1pt;
-  TH1F* hL1etaMC;
-  TH1F* hL1phiMC;
-  TH1F* hL1etaRECO;
-  TH1F* hL1phiRECO;
-  TH1F* hSteps;
-  std::vector <TH1F*> hHLTeff;
-  std::vector <TH1F*> hHLTMCeff;
-  std::vector <TH1F*> hHLTRECOeff;
-  std::vector <TH1F*> hHLTrate;
-  std::vector <TH1F*> hHLTpt;
-  std::vector <TH1F*> hHLTetaMC;
-  std::vector <TH1F*> hHLTphiMC;
-  std::vector <TH1F*> hHLTetaRECO;
-  std::vector <TH1F*> hHLTphiRECO;
+  DQMStore* dbe_;  
+  MonitorElement* hL1DR, *hL2DR, *hL3DR;
+  MonitorElement* hL1eff;
+  MonitorElement* hL1MCeff;
+  MonitorElement* hL1RECOeff;
+  MonitorElement* hMCptnor;
+  MonitorElement* hMCphinor;
+  MonitorElement* hMCetanor;
+  MonitorElement* hRECOptnor;
+  MonitorElement* hRECOphinor;
+  MonitorElement* hRECOetanor;
+  MonitorElement* hL1rate;
+  MonitorElement* hL1pt;
+  MonitorElement* hL1etaMC;
+  MonitorElement* hL1phiMC;
+  MonitorElement* hL1etaRECO;
+  MonitorElement* hL1phiRECO;
+  MonitorElement* hSteps;
+  std::vector <MonitorElement*> hHLTeff;
+  std::vector <MonitorElement*> hHLTMCeff;
+  std::vector <MonitorElement*> hHLTRECOeff;
+  std::vector <MonitorElement*> hHLTrate;
+  std::vector <MonitorElement*> hHLTpt;
+  std::vector <MonitorElement*> hHLTetaMC;
+  std::vector <MonitorElement*> hHLTphiMC;
+  std::vector <MonitorElement*> hHLTetaRECO;
+  std::vector <MonitorElement*> hHLTphiRECO;
   HepMC::GenEvent::particle_const_iterator theAssociatedGenPart;
   reco::TrackCollection::const_iterator theAssociatedRecoPart;
   const HepMC::GenEvent* evt;
-  std::pair<double,double> getGenAngle(double eta, double phi, HepMC::GenEvent evt, double DR=0.5 );
-  std::pair<double,double> getRecoAngle(double eta, double phi,reco::TrackCollection tracks, double DR=0.5 );
-  double theNumberOfEvents,theNumberOfL1Events;
-  TDirectory *ratedir;  
-  TDirectory *distribdir;
-  TDirectory *top;
+  std::pair<double,double> getGenAngle(double eta, double phi, HepMC::GenEvent evt, double DR=0.4 );
+  std::pair<double,double> getRecoAngle(double eta, double phi,reco::TrackCollection tracks, double DR=0.4 );
+  MonitorElement *NumberOfEvents,*NumberOfL1Events;
+  int theNumberOfEvents,theNumberOfL1Events;
+  std::string theRootFileName;
 
 };
 #endif

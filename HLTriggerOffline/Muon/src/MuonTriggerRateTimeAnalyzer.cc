@@ -51,10 +51,6 @@ class MuonTriggerRateTimeAnalyzer : public edm::EDAnalyzer {
   std::vector<HLTMuonGenericRate *> muTriggerAnalyzer;
   HLTMuonOverlap *OverlapAnalyzer;
   HLTMuonTime *TimeAnalyzer;
-  std::string theRootFileName;
-  TFile* theFile;    // The output Root file
-  TDirectory* TimeDirectory;  
-  TDirectory* RateDirectory;  
       // ----------member data ---------------------------
 };
 
@@ -75,7 +71,6 @@ MuonTriggerRateTimeAnalyzer::MuonTriggerRateTimeAnalyzer(const edm::ParameterSet
    //now do what ever initialization is needed
   // edm::ParameterSet* SingleMuSet=new edm::ParameterSet(pset);
     Parameters TriggerLists=pset.getParameter<Parameters>("TriggerCollection");
-    theRootFileName = pset.getUntrackedParameter<std::string>("RootFileName");
     NumberOfTriggers=TriggerLists.size();
     for( int index=0; index < NumberOfTriggers; index++) {
       HLTMuonGenericRate *hmg=new HLTMuonGenericRate(pset,index);
@@ -92,12 +87,11 @@ MuonTriggerRateTimeAnalyzer::~MuonTriggerRateTimeAnalyzer()
    // do anything here that needs to be done at desctruction time
    // (e.g. close files, deallocate resources etc.)
   for (  std::vector<HLTMuonGenericRate *>::iterator iTrig = muTriggerAnalyzer.begin(); iTrig != muTriggerAnalyzer.end(); ++iTrig){
-    //delete *iTrig;
+    delete *iTrig;
   } 
-  //muTriggerAnalyzer.clear();
-  //delete OverlapAnalyzer;
-  //delete TimeAnalyzer;
-  //delete theFile;
+  muTriggerAnalyzer.clear();
+  delete OverlapAnalyzer;
+  delete TimeAnalyzer;
 
 }
 
@@ -111,13 +105,10 @@ void
 MuonTriggerRateTimeAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
 {
    using namespace edm;
-   theFile->cd();  
-   RateDirectory->cd();
    for (  std::vector<HLTMuonGenericRate *>::iterator iTrig = muTriggerAnalyzer.begin(); iTrig != muTriggerAnalyzer.end(); ++iTrig){
      (*iTrig)->analyze(iEvent);
    } 
    OverlapAnalyzer->analyze(iEvent);
-   TimeDirectory->cd();
    TimeAnalyzer->analyze(iEvent);
 }
 
@@ -126,18 +117,10 @@ MuonTriggerRateTimeAnalyzer::analyze(const edm::Event& iEvent, const edm::EventS
 void 
 MuonTriggerRateTimeAnalyzer::beginJob(const edm::EventSetup&)
 {
-  theFile = new TFile(theRootFileName.c_str(), "RECREATE");
-  theFile->cd();  
-  RateDirectory=theFile->mkdir("Rates");
-  RateDirectory->cd();
-  RateDirectory->mkdir("RateEfficiencies");
-  RateDirectory->mkdir("Distributions");
+
   for (  std::vector<HLTMuonGenericRate *>::iterator iTrig = muTriggerAnalyzer.begin(); iTrig != muTriggerAnalyzer.end(); ++iTrig){
     (*iTrig)->BookHistograms();
   } 
-  theFile->cd();  
-  TimeDirectory=theFile->mkdir("Timing");
-  TimeDirectory->cd();
   TimeAnalyzer->BookHistograms();
 }
 
@@ -145,17 +128,11 @@ MuonTriggerRateTimeAnalyzer::beginJob(const edm::EventSetup&)
 void 
 MuonTriggerRateTimeAnalyzer::endJob() {
   using namespace edm;
+  TimeAnalyzer->WriteHistograms();
   OverlapAnalyzer->getResults();
-  theFile->cd();  
   for (  std::vector<HLTMuonGenericRate *>::iterator iTrig = muTriggerAnalyzer.begin(); iTrig != muTriggerAnalyzer.end(); ++iTrig){
-    RateDirectory->cd();
-    (*iTrig)->FillHistograms();
     (*iTrig)->WriteHistograms();
   } 
-  TimeDirectory->cd();
-  TimeAnalyzer->WriteHistograms();
-  theFile->cd();
-  theFile->Close();
 }
 
 //define this as a plug-in

@@ -15,7 +15,10 @@
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "FWCore/ParameterSet/interface/InputTag.h"
 #include <vector>
-#include "TDirectory.h"
+
+#include "DQMServices/Core/interface/DQMStore.h"
+#include "DQMServices/Core/interface/MonitorElement.h"
+
 
 class TH1F;
 
@@ -31,12 +34,14 @@ public:
 
   void analyze(const edm::Event & event);
 
-  virtual void BookHistograms() ;
-  virtual void CreateHistograms(std::string type, std::string module) ;
-  virtual void CreateGlobalHistograms(std::string name, std::string title) ;
-  virtual void WriteHistograms() ;
+  void BookHistograms() ;
+  void WriteHistograms() ;
+  void CreateHistograms(std::string type, std::string module) ;
+  void CreateGlobalHistograms(std::string name, std::string title) ;
+
 
 private:
+  DQMStore* dbe;  
   bool TimerIn;
   // Input from cfg file
   std::vector<std::string> theMuonDigiModules;
@@ -51,28 +56,19 @@ private:
   std::vector<std::string> theMuonL3RecModules;
   std::vector<std::string> theMuonL3IsoModules;
   // Histograms
-  std::vector <TH1F*> hTimes;
-  std::vector <TH1F*> hGlobalTimes;
-  std::vector <TH1F*> hExclusiveTimes;
-  std::vector <TH1F*> hExclusiveGlobalTimes;
+  std::vector <MonitorElement*> hTimes;
+  std::vector <MonitorElement*> hGlobalTimes;
+  std::vector <MonitorElement*> hExclusiveTimes;
+  std::vector <MonitorElement*> hExclusiveGlobalTimes;
   std::vector <std::string> ModuleNames;
   std::vector <double> ModuleTime;
   std::vector <int> NumberOfModules;
-  std::vector <TDirectory *> TDirs;
+  std::vector <std::string> TDirs;
   int theNbins;
   double theTMax;
   edm::InputTag theTimerLabel;
-  TDirectory* HistoDir;
-  TDirectory* muondigi;
-  TDirectory* trackerdigi;
-  TDirectory* trackerrec;
-  TDirectory* calodigi;
-  TDirectory* calorec;
-  TDirectory* muonlocrec;
-  TDirectory* muonl2rec;
-  TDirectory* muonl2iso;
-  TDirectory* muonl3rec;
-  TDirectory* muonl3iso;
+  std::string theRootFileName;
+
   
 };
 #endif
