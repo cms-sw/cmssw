@@ -13,17 +13,22 @@ process.load("FastSimulation.Configuration.RandomServiceInitialization_cff")
 # Generate ttbar events
 process.load("FastSimulation.Configuration.ttbar_cfi")
 
-# Famos sequences (with frontier conditions)
-process.load("FastSimulation.Configuration.CommonInputs_cff")
-process.load("FastSimulation.Configuration.FamosSequences_cff")
+# L1 Menu and prescale factors : useful for testing all L1 paths
+process.load("Configuration.StandardSequences.L1TriggerDefaultMenu_cff")
+
+# Common inputs, with fake conditions
+process.load("FastSimulation.Configuration.CommonInputsFake_cff")
 
 # L1 Emulator and HLT Setup
 process.load("FastSimulation.HighLevelTrigger.HLTSetup_cff")
-# The digis must be produced for calorimeters
-process.caloRecHits.RecHitsFactory.doDigis = True
 
-# L1 Menu and prescale factors : useful for testing all L1 paths
-process.load("Configuration.StandardSequences.L1TriggerDefaultMenu_cff")
+# Famos sequences
+process.load("FastSimulation.Configuration.FamosSequences_cff")
+
+# Parametrized magnetic field (new mapping, 4.0 and 3.8T)
+process.load("Configuration.StandardSequences.MagneticField_40T_cff")
+#process.load("Configuration.StandardSequences.MagneticField_38T_cff")
+process.VolumeBasedMagneticFieldESProducer.useParametrizedTrackerField = True
 
 # HLT paths - defined by configDB
 # This one is created on the fly by FastSimulation/Configuration/test/IntegrationTestWithHLT_py.csh

@@ -29,10 +29,13 @@ process.load("FastSimulation.Configuration.HZZllll_cfi")
 process.load("FastSimulation.Configuration.CommonInputsFake_cff")
 process.load("FastSimulation.Configuration.FamosSequences_cff")
 
+# Parametrized magnetic field (new mapping, 4.0 and 3.8T)
+process.load("Configuration.StandardSequences.MagneticField_40T_cff")
+#process.load("Configuration.StandardSequences.MagneticField_38T_cff")
+process.VolumeBasedMagneticFieldESProducer.useParametrizedTrackerField = True
+
 # If you want to turn on/off pile-up
 process.famosPileUp.PileUpSimulator.averageNumber = 5.0
-# Parametrized magnetic field
-process.VolumeBasedMagneticFieldESProducer.useParametrizedTrackerField = True
 # You may not want to simulate everything for your study
 process.famosSimHits.SimulateCalorimetry = True
 process.famosSimHits.SimulateTracking = True

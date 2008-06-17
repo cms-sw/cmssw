@@ -8,7 +8,8 @@ process = cms.Process("GeometryTest")
 process.load("Geometry.CMSCommonData.ecalhcalGeometryXML_cfi")
 
 # Magnetic field full setup
-process.load("MagneticField.Engine.volumeBasedMagneticField_cfi")
+process.load("Configuration.StandardSequences.MagneticField_40T_cff")
+#process.load("Configuration.StandardSequences.MagneticField_38T_cff")
 
 # Calo geometry service model
 process.load("Geometry.CaloEventSetup.CaloGeometry_cff")

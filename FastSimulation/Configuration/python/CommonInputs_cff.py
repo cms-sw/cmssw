@@ -8,7 +8,6 @@ from FastSimulation.Configuration.trackerGeometry_cfi import *
 from FastSimulation.Configuration.TrackerRecoGeometryESProducer_cfi import *
 from FastSimulation.TrackerSetup.TrackerInteractionGeometryESProducer_cfi import *
 #The Magnetic Field ESProducer's
-from MagneticField.Engine.volumeBasedMagneticField_cfi import *
 from FastSimulation.ParticlePropagator.MagneticFieldMapESProducer_cfi import *
 # The Calo geometry service model
 from Geometry.CaloEventSetup.CaloGeometry_cff import *

@@ -63,7 +63,7 @@ process.load("FWCore.MessageService.MessageLogger_cfi")
 process.load("SimGeneral.HepPDTESSource.pythiapdt_cfi")
 process.load("Geometry.CMSCommonData.trackerSimGeometryXML_cfi")
 process.load("Geometry.TrackerNumberingBuilder.trackerNumberingGeometry_cfi")
-process.load("MagneticField.Engine.volumeBasedMagneticField_cfi")
+process.load("Configuration.StandardSequences.MagneticField_40T_cff")
 process.load("SimG4Core.Application.g4SimHits_cfi")
 process.load("Configuration.StandardSequences.VtxSmearedNoSmear_cff")
 process.psim = cms.Sequence(
