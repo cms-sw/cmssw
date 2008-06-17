@@ -39,4 +39,4 @@ namespace cond {
   
 }
 
-PYTHON_WRAPPER(Pedestals,Pedestals);
+PYTHON_WRAPPER(Pedestals,Pedestal);
