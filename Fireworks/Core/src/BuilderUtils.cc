@@ -4,6 +4,7 @@
 #include "TEveTrack.h"
 #include "TEveTrackPropagator.h"
 #include "DataFormats/TrackReco/interface/Track.h"
+#include "DataFormats/Candidate/interface/Candidate.h"
 #include "DataFormats/EcalRecHit/interface/EcalRecHitCollections.h"
 #include "DataFormats/EcalDetId/interface/EBDetId.h"
 #include "DataFormats/CaloTowers/interface/CaloTower.h"
@@ -16,6 +17,7 @@
 #include "TROOT.h"
 #include "TEveTrans.h"
 #include "TEveGeoNode.h"
+#include "TEveStraightLineSet.h"
 
 std::pair<double,double> fw::getPhiRange( const std::vector<double>& phis, double phi )
 {
@@ -209,6 +211,15 @@ TEveElementList *fw::getEcalCrystals (const EcalRecHitCollection *hits,
     ret->AddElement(TEveGeoShape::ImportShapeExtract(extract2,0));
   }
   return ret;
+}
+
+void fw::addStraightLineSegment( TEveStraightLineSet * marker,
+				 reco::Candidate const * cand ) 
+{  
+  double phi = cand->phi();
+  double theta = cand->theta();
+  double pt = cand->pt();
+  marker->AddLine( 0, 0, 0, pt * cos(phi)*sin(theta), pt *sin(phi)*sin(theta), pt*cos(theta));
 }
 
 /*TEveElementList *fw::getMuonCalTowers (double eta, double phi) 
