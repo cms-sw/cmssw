@@ -7,6 +7,9 @@ DEFINE_SEAL_MODULE();
 #include "CalibTracker/SiStripESProducers/plugins/fake/SiStripQualityFakeESSource.h"
 DEFINE_ANOTHER_FWK_EVENTSETUP_SOURCE(SiStripQualityFakeESSource);
 
+#include "CalibTracker/SiStripESProducers/plugins/fake/SiStripQualityConfigurableFakeESSource.h"
+DEFINE_ANOTHER_FWK_EVENTSETUP_SOURCE(SiStripQualityConfigurableFakeESSource);
+
 #include "CalibTracker/SiStripESProducers/plugins/fake/SiStripGainFakeESSource.h"
 DEFINE_ANOTHER_FWK_EVENTSETUP_SOURCE(SiStripGainFakeESSource);
 
