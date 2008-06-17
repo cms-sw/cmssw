@@ -1,8 +1,8 @@
 /*
  * \file EESummaryClient.cc
  *
- * $Date: 2008/06/16 20:10:11 $
- * $Revision: 1.134 $
+ * $Date: 2008/06/16 20:31:11 $
+ * $Revision: 1.135 $
  * \author G. Della Ricca
  *
 */
@@ -1402,7 +1402,6 @@ void EESummaryClient::analyze(void){
   }
 
   me = dqmStore_->get(prefixME_ + "/EventInfo/reportSummaryMap");
-
   if (me) {
 
     int nValidChannelsTT[2][20][20];
