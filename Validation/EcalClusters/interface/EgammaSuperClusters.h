@@ -9,7 +9,7 @@
      \\\author: Michael A. Balazs, Nov 2006
 */
 //
-// $Id: EgammaSuperClusters.h,v 1.5 2006/12/06 16:39:16 mabalazs Exp $
+// $Id: EgammaSuperClusters.h,v 1.6 2008/02/29 20:48:23 ksmith Exp $
 //
 #include <string>
 
@@ -40,80 +40,69 @@ class EgammaSuperClusters : public edm::EDAnalyzer
 	DQMStore* dbe_;
 
       	edm::InputTag MCTruthCollection_;
-      	edm::InputTag hybridBarrelSuperClusterCollection_;
-      	edm::InputTag islandBarrelSuperClusterCollection_;
-      	edm::InputTag islandEndcapSuperClusterCollection_;
-      	edm::InputTag hybridBarrelClusterShapeAssociation_;
-      	edm::InputTag islandBarrelClusterShapeAssociation_;
-      	edm::InputTag islandEndcapClusterShapeAssociation_;
+      	edm::InputTag barrelSuperClusterCollection_;
+      	edm::InputTag endcapSuperClusterCollection_;
+      	edm::InputTag barrelRecHitCollection_;
+      	edm::InputTag endcapRecHitCollection_;
 
-      	MonitorElement* hist_HybridEB_SC_Size_;
-      	MonitorElement* hist_IslandEB_SC_Size_;
-      	MonitorElement* hist_IslandEE_SC_Size_;
+      	MonitorElement* hist_EB_SC_Size_;
+      	MonitorElement* hist_EE_SC_Size_;
 
       	double hist_min_Size_;
       	double hist_max_Size_;
       	int    hist_bins_Size_;
 
-      	MonitorElement* hist_HybridEB_SC_NumBC_;
-      	MonitorElement* hist_IslandEB_SC_NumBC_;
-      	MonitorElement* hist_IslandEE_SC_NumBC_;
+      	MonitorElement* hist_EB_SC_NumBC_;
+      	MonitorElement* hist_EE_SC_NumBC_;
 
       	double hist_min_NumBC_;
       	double hist_max_NumBC_;
       	int    hist_bins_NumBC_;
 
-      	MonitorElement* hist_HybridEB_SC_ET_;
-      	MonitorElement* hist_IslandEB_SC_ET_;
-      	MonitorElement* hist_IslandEE_SC_ET_;
+      	MonitorElement* hist_EB_SC_ET_;
+      	MonitorElement* hist_EE_SC_ET_;
 
       	double hist_min_ET_;
       	double hist_max_ET_;
       	int    hist_bins_ET_;
 
-      	MonitorElement* hist_HybridEB_SC_Eta_;
-      	MonitorElement* hist_IslandEB_SC_Eta_;
-      	MonitorElement* hist_IslandEE_SC_Eta_;
+      	MonitorElement* hist_EB_SC_Eta_;
+      	MonitorElement* hist_EE_SC_Eta_;
 
       	double hist_min_Eta_;
       	double hist_max_Eta_;
       	int    hist_bins_Eta_;
 
-      	MonitorElement* hist_HybridEB_SC_Phi_;
-      	MonitorElement* hist_IslandEB_SC_Phi_;
-      	MonitorElement* hist_IslandEE_SC_Phi_;
+      	MonitorElement* hist_EB_SC_Phi_;
+      	MonitorElement* hist_EE_SC_Phi_;
 
       	double hist_min_Phi_;
       	double hist_max_Phi_;
       	int    hist_bins_Phi_;
 
-      	MonitorElement* hist_HybridEB_SC_S1toS9_;
-      	MonitorElement* hist_IslandEB_SC_S1toS9_;
-      	MonitorElement* hist_IslandEE_SC_S1toS9_;
+      	MonitorElement* hist_EB_SC_S1toS9_;
+      	MonitorElement* hist_EE_SC_S1toS9_;
 
       	double hist_min_S1toS9_;
       	double hist_max_S1toS9_;
       	int    hist_bins_S1toS9_;
 
-      	MonitorElement* hist_HybridEB_SC_S25toE_;
-      	MonitorElement* hist_IslandEB_SC_S25toE_;
-      	MonitorElement* hist_IslandEE_SC_S25toE_;
+      	MonitorElement* hist_EB_SC_S25toE_;
+      	MonitorElement* hist_EE_SC_S25toE_;
 
       	double hist_min_S25toE_;
       	double hist_max_S25toE_;
       	int    hist_bins_S25toE_;
 
-      	MonitorElement* hist_HybridEB_SC_EToverTruth_;
-      	MonitorElement* hist_IslandEB_SC_EToverTruth_;
-      	MonitorElement* hist_IslandEE_SC_EToverTruth_;
+      	MonitorElement* hist_EB_SC_EToverTruth_;
+      	MonitorElement* hist_EE_SC_EToverTruth_;
 
       	double hist_min_EToverTruth_;
       	double hist_max_EToverTruth_;
       	int    hist_bins_EToverTruth_;
 
-      	MonitorElement* hist_HybridEB_SC_deltaEta_;
-      	MonitorElement* hist_IslandEB_SC_deltaEta_;
-      	MonitorElement* hist_IslandEE_SC_deltaEta_;
+      	MonitorElement* hist_EB_SC_deltaEta_;
+      	MonitorElement* hist_EE_SC_deltaEta_;
 
       	double hist_min_deltaEta_;
       	double hist_max_deltaEta_;

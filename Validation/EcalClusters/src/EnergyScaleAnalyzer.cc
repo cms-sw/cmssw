@@ -12,7 +12,7 @@
 */
 // Original Author:  Keti Kaadze
 //         Created:  Thu Jun 21 08:59:42 CDT 2007
-// $Id$
+// $Id: EnergyScaleAnalyzer.cc,v 1.1 2008/04/02 12:35:58 kkaadze Exp $
 //
 
 //#include "RecoEcal/EnergyScaleAnalyzer/interface/EnergyScaleAnalyzer.h"
@@ -62,7 +62,7 @@
 #include "DataFormats/EgammaReco/interface/ClusterShape.h"
 #include "DataFormats/EgammaReco/interface/ClusterShapeFwd.h"
 #include "RecoEcal/EgammaCoreTools/interface/PositionCalc.h"
-#include "DataFormats/EgammaCandidates/interface/PixelMatchGsfElectronFwd.h"
+#include "DataFormats/EgammaCandidates/interface/GsfElectronFwd.h"
 
 #include <iostream>
 #include <fstream>

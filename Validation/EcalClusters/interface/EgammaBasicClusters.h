@@ -9,7 +9,7 @@
      \\\author: Michael A. Balazs, Nov 2006
 */
 //
-// $Id: EgammaBasicClusters.h,v 1.3 2006/11/20 16:25:13 mabalazs Exp $
+// $Id: EgammaBasicClusters.h,v 1.4 2008/02/29 20:48:23 ksmith Exp $
 //
 #include <string>
 
@@ -39,45 +39,39 @@ class EgammaBasicClusters : public edm::EDAnalyzer
 	bool verboseDBE_;
 	DQMStore* dbe_;
 
-      	edm::InputTag hybridBarrelBasicClusterCollection_;
-      	edm::InputTag islandBarrelBasicClusterCollection_;
-      	edm::InputTag islandEndcapBasicClusterCollection_;
+      	edm::InputTag barrelBasicClusterCollection_;
+      	edm::InputTag endcapBasicClusterCollection_;
  
-      	MonitorElement* hist_HybridEB_BC_Size_;
-      	MonitorElement* hist_IslandEB_BC_Size_;
-      	MonitorElement* hist_IslandEE_BC_Size_;
+      	MonitorElement* hist_EB_BC_Size_;
+      	MonitorElement* hist_EE_BC_Size_;
 
       	double hist_min_Size_;
       	double hist_max_Size_;
       	int    hist_bins_Size_;
 
-      	MonitorElement* hist_HybridEB_BC_NumRecHits_;
-      	MonitorElement* hist_IslandEB_BC_NumRecHits_;
-      	MonitorElement* hist_IslandEE_BC_NumRecHits_;
+      	MonitorElement* hist_EB_BC_NumRecHits_;
+      	MonitorElement* hist_EE_BC_NumRecHits_;
 
       	double hist_min_NumRecHits_;
       	double hist_max_NumRecHits_;
       	int    hist_bins_NumRecHits_;
 
-      	MonitorElement* hist_HybridEB_BC_ET_;
-      	MonitorElement* hist_IslandEB_BC_ET_;
-      	MonitorElement* hist_IslandEE_BC_ET_;
+      	MonitorElement* hist_EB_BC_ET_;
+      	MonitorElement* hist_EE_BC_ET_;
 
       	double hist_min_ET_;
       	double hist_max_ET_;
       	int    hist_bins_ET_;
 
-      	MonitorElement* hist_HybridEB_BC_Eta_;
-      	MonitorElement* hist_IslandEB_BC_Eta_;
-      	MonitorElement* hist_IslandEE_BC_Eta_;
+      	MonitorElement* hist_EB_BC_Eta_;
+      	MonitorElement* hist_EE_BC_Eta_;
 
       	double hist_min_Eta_;
       	double hist_max_Eta_;
       	int    hist_bins_Eta_;
 
-      	MonitorElement* hist_HybridEB_BC_Phi_;
-      	MonitorElement* hist_IslandEB_BC_Phi_;
-      	MonitorElement* hist_IslandEE_BC_Phi_;
+      	MonitorElement* hist_EB_BC_Phi_;
+      	MonitorElement* hist_EE_BC_Phi_;
 
       	double hist_min_Phi_;
       	double hist_max_Phi_;
