@@ -4,7 +4,6 @@
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "DataFormats/EgammaCandidates/interface/GsfElectron.h"
-#include "DataFormats/EgammaReco/interface/ClusterShape.h"
 #include "RecoEgamma/ElectronIdentification/interface/ElectronIDAlgo.h"
 #include "RecoEgamma/ElectronIdentification/interface/LikelihoodSwitches.h"
 #include "RecoEgamma/ElectronIdentification/interface/LikelihoodPdfProduct.h"

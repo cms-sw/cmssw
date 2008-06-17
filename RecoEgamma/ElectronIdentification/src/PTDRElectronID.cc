@@ -1,6 +1,4 @@
 #include "RecoEgamma/ElectronIdentification/interface/PTDRElectronID.h"
-#include "DataFormats/EgammaReco/interface/ClusterShape.h"
-#include "DataFormats/EgammaReco/interface/ClusterShapeFwd.h"
 
 void PTDRElectronID::setup(const edm::ParameterSet& conf) {
 
