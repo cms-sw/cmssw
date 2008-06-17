@@ -21,43 +21,6 @@
 lclphidat* CSCSectorReceiverLUT::me_lcl_phi = NULL;
 bool CSCSectorReceiverLUT::me_lcl_phi_loaded = false;
 
-///KK
-#include "CondFormats/L1TObjects/interface/L1MuCSCDTLut.h"
-#include "CondFormats/DataRecord/interface/L1MuCSCDTLutRcd.h"
-#include "CondFormats/L1TObjects/interface/L1MuCSCLocalPhiLut.h"
-#include "CondFormats/DataRecord/interface/L1MuCSCLocalPhiLutRcd.h"
-#include "CondFormats/L1TObjects/interface/L1MuCSCGlobalLuts.h"
-#include "CondFormats/DataRecord/interface/L1MuCSCGlobalLutsRcd.h"
-#include "FWCore/Framework/interface/ESHandle.h"
-CSCSectorReceiverLUT::CSCSectorReceiverLUT(int endcap, int sector, int subsector, int station,
-					   const edm::EventSetup& c, bool TMB07):_endcap(endcap),_sector(sector),
-									   _subsector(subsector),
-									   _station(station),isTMB07(TMB07)
-{
-	mb_global_phi = new gblphidat[1<<CSCBitWidths::kGlobalPhiAddressWidth];
-	me_global_phi = new gblphidat[1<<CSCBitWidths::kGlobalPhiAddressWidth];
-	me_global_eta = new gbletadat[1<<CSCBitWidths::kGlobalEtaAddressWidth];
-	me_lcl_phi    = new lclphidat[1<<CSCBitWidths::kLocalPhiAddressWidth];
-
-	edm::ESHandle<L1MuCSCLocalPhiLut>  localLUT;
-	c.get<L1MuCSCLocalPhiLutRcd>().get(localLUT);
-	const L1MuCSCLocalPhiLut *myConfigLocal_ = localLUT.product();
-	memcpy((void*)me_lcl_phi,(void*)myConfigLocal_->lut(),(1<<19)*sizeof(lclphidat));
-
-	edm::ESHandle<L1MuCSCGlobalLuts> globalLUTs;
-	c.get<L1MuCSCGlobalLutsRcd>().get(globalLUTs);
-	const L1MuCSCGlobalLuts *myConfigGlobal_ = globalLUTs.product();
-	int mpc = (station==1?subsector-1:station);
-	if( mpc<0 || mpc>4 ) throw cms::Exception("Configuration error")<<"CSCSectorReceiverLUT|ctor: station="<<station<<" subsector="<<subsector<<" doesn't exist. Initialization error in CSCTFTrackProducer|CSCTFTrackBuilder|CSCTFSectorProcessor.";
-	memcpy((void*)me_global_phi,(void*)myConfigGlobal_->phi_lut(mpc),(1<<19)*sizeof(gblphidat));
-	memcpy((void*)me_global_eta,(void*)myConfigGlobal_->eta_lut(mpc),(1<<19)*sizeof(gbletadat));
-
-	edm::ESHandle<L1MuCSCDTLut> dtLUTs;
-	c.get<L1MuCSCDTLutRcd>().get(dtLUTs);
-	const L1MuCSCDTLut *myConfigDT_ = dtLUTs.product();
-	memcpy((void*)mb_global_phi,(void*)myConfigDT_->lut(0),(1<<19)*sizeof(gblphidat));
-}
-///
 
 CSCSectorReceiverLUT::CSCSectorReceiverLUT(int endcap, int sector, int subsector, int station,
 					   const edm::ParameterSet & pset, bool TMB07):_endcap(endcap),_sector(sector),
@@ -289,13 +252,20 @@ double CSCSectorReceiverLUT::getGlobalPhiValue(const CSCLayer* thelayer, const u
   //LocalPoint lp;
   //GlobalPoint gp;
 
-  //thegeom = const_cast<CSCLayerGeometry*>(thelayer->geometry());
-  //lp = thegeom->stripWireGroupIntersection(strip, wire_group);
-  //gp = thelayer->surface().toGlobal(lp);
-  result = thelayer->centerOfStrip(strip).phi();//gp.phi();
-  
-  if (result < 0.) result += 2.*M_PI;
-  
+  try
+    {
+      //thegeom = const_cast<CSCLayerGeometry*>(thelayer->geometry());
+      //lp = thegeom->stripWireGroupIntersection(strip, wire_group);
+      //gp = thelayer->surface().toGlobal(lp);
+      result = thelayer->centerOfStrip(strip).phi();//gp.phi();
+
+      if (result < 0.) result += 2.*M_PI;
+    }
+  catch(edm::Exception& e)
+    {
+      LogDebug("CSCSectorReceiverLUT|getGlobalPhiValue") << e.what();
+    }
+
   return result;
 }
 
@@ -363,159 +333,166 @@ gblphidat CSCSectorReceiverLUT::calcGlobalPhiME(const gblphiadd& address) const
 	<< ", is out of bounds [0-, " << maxPhiL << ") +++\n";
     }
 
-  thechamber = thegeom->chamber(_endcap,_station,_sector,_subsector,cscid);
-  if(thechamber)
+  try
     {
-      if(isTMB07)
+      thechamber = thegeom->chamber(_endcap,_station,_sector,_subsector,cscid);
+      if(thechamber)
 	{
-	  layergeom = const_cast<CSCLayerGeometry*>(thechamber->layer(CSCConstants::KEY_CLCT_LAYER)->geometry());
-	  thelayer = const_cast<CSCLayer*>(thechamber->layer(CSCConstants::KEY_CLCT_LAYER));
-	}
-      else
-	{
-	  layergeom = const_cast<CSCLayerGeometry*>(thechamber->layer(CSCConstants::KEY_CLCT_LAYER_PRE_TMB07)->geometry());
-	  thelayer = const_cast<CSCLayer*>(thechamber->layer(CSCConstants::KEY_CLCT_LAYER_PRE_TMB07));
-	}
-      const int nStrips = layergeom->numberOfStrips();
-      // PhiL is the strip number converted into some units between 0 and
-      // 1023.  When we did the conversion in fillLocalPhiTable(), we did
-      // not know for which chamber we do it (and, therefore, how many strips
-      // it has), and always used the maximum possible number of strips
-      // per chamber, MAX_NUM_STRIPS=80.  Now, since we know the chamber id
-      // and how many strips the chamber has, we can re-adjust the scale.
-      //const double scale = static_cast<double>(CSCConstants::MAX_NUM_STRIPS)/nStrips;
-      
-      int strip = 0, halfstrip = 0;
-      
-      halfstrip = static_cast<int>(local_phi/binPhiL);
-      strip     = halfstrip/2;
-      
-      // Find the phi width of the chamber and the position of its "left"
-      // (lower phi) edge (both in radians).
-      // Phi positions of the centers of the first and of the last strips
-      // in the chamber.
-      const double phi_f = getGlobalPhiValue(thelayer, 1, wire_group);
-      const double phi_l = getGlobalPhiValue(thelayer, nStrips, wire_group);
-      // Phi widths of the half-strips at both ends of the chamber;
-      // surprisingly, they are not the same.
-      const double hsWidth_f = fabs(getGlobalPhiValue(thelayer, 2, wire_group) - phi_f)/2.;
-      const double hsWidth_l = fabs(phi_l - getGlobalPhiValue(thelayer, nStrips - 1, wire_group))/2.;
-      
-      // The "natural" match between the strips and phi values -- when
-      // a larger strip number corresponds to a larger phi value, i.e. strips
-      // are counted clockwise if we look at them from the inside of the
-      // detector -- is reversed for some stations.  At the moment, these
-      // are stations 3 and 4 of the 1st endcap, and stations 1 and 2 of
-      // the 2nd endcap.  Instead of using
-      // if ((theEndcap == 1 && theStation <= 2) ||
-      // (theEndcap == 2 && theStation >= 3)),
-      // we get the order from the phi values of the first and the last strip
-      // in a chamber, just in case the counting scheme changes in the future.
-      // Once we know how the strips are counted, we can go from the middle
-      // of the strips to their outer edges.
-      bool   clockwiseOrder;
-      double leftEdge, rightEdge;
-      if (fabs(phi_f - phi_l) < M_PI)
-	{
-	  if (phi_f < phi_l) clockwiseOrder = true;
-	  else clockwiseOrder = false;
-	}
-      else
-	{ // the chamber crosses the phi = pi boundary
-	  if (phi_f < phi_l) clockwiseOrder = false;
-	  else clockwiseOrder = true;
-	}
-      if (clockwiseOrder)
-	{
-	  leftEdge  = phi_f - hsWidth_f;
-	  rightEdge = phi_l + hsWidth_l;
-	}
-      else
-	{
-	  leftEdge  = phi_l - hsWidth_l;
-	  rightEdge = phi_f + hsWidth_f;
+	  if(isTMB07)
+	    {
+	      layergeom = const_cast<CSCLayerGeometry*>(thechamber->layer(CSCConstants::KEY_CLCT_LAYER)->geometry());
+	      thelayer = const_cast<CSCLayer*>(thechamber->layer(CSCConstants::KEY_CLCT_LAYER));
 	    }
-      if (fabs(phi_f - phi_l) >= M_PI) {rightEdge += 2.*M_PI;}
-      //double chamberWidth = (rightEdge - leftEdge);
-      
-      // Chamber offset, relative to the edge of the sector.
-      //double chamberOffset = leftEdge - sectorOffset;
-      //if (chamberOffset < -M_PI) chamberOffset += 2*M_PI;
-      
-      double temp_phi = 0.0, strip_phi = 0.0, delta_phi = 0.0;
-      double distFromHalfStripCenter = 0.0, halfstripWidth = 0.0;
-      
-      if (strip < nStrips)
-	{
-	  // Approximate distance from the center of the half-strip to the center
-	  // of this phil bin, in units of half-strip width.
-	  distFromHalfStripCenter = (local_phi+0.5)/binPhiL - halfstrip - 0.5;
-	  // Half-strip width (in rad), calculated as the half-distance between
-	  // the adjacent strips.  Since in the current ORCA implementation
-	  // the half-strip width changes from strip to strip, base the choice
-	  // of the adjacent strip on the half-strip number.
-	  if ((halfstrip%2 == 0 && halfstrip != 0) || halfstrip == 2*nStrips-1) {
-	    halfstripWidth =
-	      fabs(getGlobalPhiValue(thelayer, strip+1, wire_group) - getGlobalPhiValue(thelayer, strip, wire_group)) / 2.;
-	  }
 	  else
 	    {
-	      halfstripWidth =
-		fabs(getGlobalPhiValue(thelayer, strip+1, wire_group) - getGlobalPhiValue(thelayer, strip+2, wire_group)) / 2.;
+	      layergeom = const_cast<CSCLayerGeometry*>(thechamber->layer(CSCConstants::KEY_CLCT_LAYER_PRE_TMB07)->geometry());
+	      thelayer = const_cast<CSCLayer*>(thechamber->layer(CSCConstants::KEY_CLCT_LAYER_PRE_TMB07));
 	    }
-	  // Correction for the strips crossing the 180 degree boundary.
-	  if (halfstripWidth > M_PI/2.) halfstripWidth = M_PI - halfstripWidth;
-	  // Phi at the center of the strip.
-	  strip_phi = getGlobalPhiValue(thelayer, strip+1, wire_group);
-	  // Distance between the center of the strip and the phil position.
-	  delta_phi = halfstripWidth*(((halfstrip%2)-0.5)+distFromHalfStripCenter);
-	  if (clockwiseOrder)
-	    temp_phi = strip_phi+ delta_phi;
+	  const int nStrips = layergeom->numberOfStrips();
+	  // PhiL is the strip number converted into some units between 0 and
+	  // 1023.  When we did the conversion in fillLocalPhiTable(), we did
+	  // not know for which chamber we do it (and, therefore, how many strips
+	  // it has), and always used the maximum possible number of strips
+	  // per chamber, MAX_NUM_STRIPS=80.  Now, since we know the chamber id
+	  // and how many strips the chamber has, we can re-adjust the scale.
+	  //const double scale = static_cast<double>(CSCConstants::MAX_NUM_STRIPS)/nStrips;
+
+	  int strip = 0, halfstrip = 0;
+
+          halfstrip = static_cast<int>(local_phi/binPhiL);
+          strip     = halfstrip/2;
+
+	  // Find the phi width of the chamber and the position of its "left"
+	  // (lower phi) edge (both in radians).
+	  // Phi positions of the centers of the first and of the last strips
+	  // in the chamber.
+	  const double phi_f = getGlobalPhiValue(thelayer, 1, wire_group);
+	  const double phi_l = getGlobalPhiValue(thelayer, nStrips, wire_group);
+	  // Phi widths of the half-strips at both ends of the chamber;
+	  // surprisingly, they are not the same.
+	  const double hsWidth_f = fabs(getGlobalPhiValue(thelayer, 2, wire_group) - phi_f)/2.;
+	  const double hsWidth_l = fabs(phi_l - getGlobalPhiValue(thelayer, nStrips - 1, wire_group))/2.;
+
+	  // The "natural" match between the strips and phi values -- when
+	  // a larger strip number corresponds to a larger phi value, i.e. strips
+	  // are counted clockwise if we look at them from the inside of the
+	  // detector -- is reversed for some stations.  At the moment, these
+	  // are stations 3 and 4 of the 1st endcap, and stations 1 and 2 of
+	  // the 2nd endcap.  Instead of using
+	  // if ((theEndcap == 1 && theStation <= 2) ||
+	  // (theEndcap == 2 && theStation >= 3)),
+	  // we get the order from the phi values of the first and the last strip
+	  // in a chamber, just in case the counting scheme changes in the future.
+	  // Once we know how the strips are counted, we can go from the middle
+	  // of the strips to their outer edges.
+	  bool   clockwiseOrder;
+	  double leftEdge, rightEdge;
+	  if (fabs(phi_f - phi_l) < M_PI)
+	    {
+	      if (phi_f < phi_l) clockwiseOrder = true;
+	      else clockwiseOrder = false;
+	    }
 	  else
-	    temp_phi = strip_phi- delta_phi;
-	}
-      else
-	{
-	  // PhiL values that do not have corresponding strips (the chamber
-	  // has less than 80 strips assumed in fillLocalPhi).  It does not
-	  // really matter what we do with these values; at the moment, just
-	  // set them to the phis of the edges of the chamber.
-	  if (clockwiseOrder) temp_phi = rightEdge;
-	  else temp_phi = leftEdge;
-	}
-      
-      // Finally, subtract the sector offset and convert to the scale of
-      // the global phi.
-      
-      temp_phi -= sectorOffset;
-      
-      if (temp_phi < 0.) temp_phi += 2.*M_PI;
-      
-      temp_phi *= binPhiG;
-      
-      if (temp_phi < 0.)
-	{
-	  result.global_phi = 0;
-	}
-      else if (temp_phi >= maxPhiG)
-	{
+	    { // the chamber crosses the phi = pi boundary
+	      if (phi_f < phi_l) clockwiseOrder = false;
+	      else clockwiseOrder = true;
+	    }
+	  if (clockwiseOrder)
+	    {
+	      leftEdge  = phi_f - hsWidth_f;
+	      rightEdge = phi_l + hsWidth_l;
+	    }
+	  else
+	    {
+	      leftEdge  = phi_l - hsWidth_l;
+	      rightEdge = phi_f + hsWidth_f;
+	    }
+	  if (fabs(phi_f - phi_l) >= M_PI) {rightEdge += 2.*M_PI;}
+	  //double chamberWidth = (rightEdge - leftEdge);
+
+	  // Chamber offset, relative to the edge of the sector.
+	  //double chamberOffset = leftEdge - sectorOffset;
+	  //if (chamberOffset < -M_PI) chamberOffset += 2*M_PI;
+
+	  double temp_phi = 0.0, strip_phi = 0.0, delta_phi = 0.0;
+	  double distFromHalfStripCenter = 0.0, halfstripWidth = 0.0;
+
+	  if (strip < nStrips)
+	    {
+	      // Approximate distance from the center of the half-strip to the center
+	      // of this phil bin, in units of half-strip width.
+	      distFromHalfStripCenter = (local_phi+0.5)/binPhiL - halfstrip - 0.5;
+	      // Half-strip width (in rad), calculated as the half-distance between
+	      // the adjacent strips.  Since in the current ORCA implementation
+	      // the half-strip width changes from strip to strip, base the choice
+	      // of the adjacent strip on the half-strip number.
+	      if ((halfstrip%2 == 0 && halfstrip != 0) || halfstrip == 2*nStrips-1) {
+		halfstripWidth =
+		  fabs(getGlobalPhiValue(thelayer, strip+1, wire_group) - getGlobalPhiValue(thelayer, strip, wire_group)) / 2.;
+	      }
+	      else
+		{
+		  halfstripWidth =
+		    fabs(getGlobalPhiValue(thelayer, strip+1, wire_group) - getGlobalPhiValue(thelayer, strip+2, wire_group)) / 2.;
+		}
+	      // Correction for the strips crossing the 180 degree boundary.
+	      if (halfstripWidth > M_PI/2.) halfstripWidth = M_PI - halfstripWidth;
+	      // Phi at the center of the strip.
+	      strip_phi = getGlobalPhiValue(thelayer, strip+1, wire_group);
+	      // Distance between the center of the strip and the phil position.
+	      delta_phi = halfstripWidth*(((halfstrip%2)-0.5)+distFromHalfStripCenter);
+	      if (clockwiseOrder)
+		temp_phi = strip_phi+ delta_phi;
+	      else
+		temp_phi = strip_phi- delta_phi;
+	    }
+	  else
+	    {
+	      // PhiL values that do not have corresponding strips (the chamber
+	      // has less than 80 strips assumed in fillLocalPhi).  It does not
+	      // really matter what we do with these values; at the moment, just
+	      // set them to the phis of the edges of the chamber.
+	      if (clockwiseOrder) temp_phi = rightEdge;
+	      else temp_phi = leftEdge;
+	    }
+
+	  // Finally, subtract the sector offset and convert to the scale of
+	  // the global phi.
+
+	  temp_phi -= sectorOffset;
+
+	  if (temp_phi < 0.) temp_phi += 2.*M_PI;
+
+	  temp_phi *= binPhiG;
+
+	  if (temp_phi < 0.)
+	    {
+	      result.global_phi = 0;
+	    }
+	  else if (temp_phi >= maxPhiG)
+	    {
 	      result.global_phi = maxPhiG - 1;
+	    }
+	  else
+	    {
+	     result.global_phi = static_cast<unsigned short>(temp_phi);
+	    }
+
+	  LogDebug("CSCSectorReceiverLUT")
+	    << "local_phi = " << local_phi
+	    << " halfstrip = " << halfstrip << " strip = " << strip
+	    << " distFromHalfStripCenter = " << distFromHalfStripCenter
+	    << " halfstripWidth = " << halfstripWidth
+	    << " strip phi = " << strip_phi/(M_PI/180.)
+	    << " temp_phi = " << temp_phi*CSCTFConstants::SECTOR_DEG/maxPhiG
+	    << " global_phi = "    << result.global_phi
+	    << " " << result.global_phi*CSCTFConstants::SECTOR_DEG/maxPhiG;
+
 	}
-      else
-	{
-	  result.global_phi = static_cast<unsigned short>(temp_phi);
-	}
-      
-      LogDebug("CSCSectorReceiverLUT")
-	<< "local_phi = " << local_phi
-	<< " halfstrip = " << halfstrip << " strip = " << strip
-	<< " distFromHalfStripCenter = " << distFromHalfStripCenter
-	<< " halfstripWidth = " << halfstripWidth
-	<< " strip phi = " << strip_phi/(M_PI/180.)
-	<< " temp_phi = " << temp_phi*CSCTFConstants::SECTOR_DEG/maxPhiG
-	<< " global_phi = "    << result.global_phi
-	<< " " << result.global_phi*CSCTFConstants::SECTOR_DEG/maxPhiG;
-      
+    }
+  catch(edm::Exception& e)
+    {
+      edm::LogError("CSCSectorReceiverLUT|getGlobalPhiValue") << e.what();
     }
 
   return result;
@@ -655,71 +632,78 @@ double CSCSectorReceiverLUT::getGlobalEtaValue(const unsigned& thecscid, const u
 	<< " is out of bounds [0-" << numBins - 1 << "]\n";
       phi_local = numBins - 1;
   }
-  const CSCChamber* thechamber = thegeom->chamber(_endcap,_station,_sector,_subsector,cscid);
-  if(thechamber) {
-    layerGeom = const_cast<CSCLayerGeometry*>(thechamber->layer(CSCConstants::KEY_ALCT_LAYER)->geometry());
-    const unsigned nWireGroups = layerGeom->numberOfWireGroups();
-    
-    // Check wire group numbers; expect them to be counted from 0, as in
-    // CorrelatedLCTDigi class.
-    if (wire_group >= nWireGroups) {
-      edm::LogWarning("CSCSectorReceiverLUT|getEtaValue")
-	<< "warning: wireGroup " << wire_group
-	<< " is out of bounds [0-" << nWireGroups << ")\n";
-      wire_group = nWireGroups - 1;
+  try
+    {
+      const CSCChamber* thechamber = thegeom->chamber(_endcap,_station,_sector,_subsector,cscid);
+      if(thechamber) {
+	layerGeom = const_cast<CSCLayerGeometry*>(thechamber->layer(CSCConstants::KEY_ALCT_LAYER)->geometry());
+	const unsigned nWireGroups = layerGeom->numberOfWireGroups();
+
+	// Check wire group numbers; expect them to be counted from 0, as in
+	// CorrelatedLCTDigi class.
+	if (wire_group >= nWireGroups) {
+	   edm::LogWarning("CSCSectorReceiverLUT|getEtaValue")
+	     << "warning: wireGroup " << wire_group
+	    << " is out of bounds [0-" << nWireGroups << ")\n";
+	  wire_group = nWireGroups - 1;
+	}
+	// Convert to [1; nWireGroups] range used in geometry methods.
+	wire_group += 1;
+
+	// If me1ir_only is set, apply phi corrections only in ME1/1.
+	if (me1ir_only &&
+	    (_station != 1 ||
+	     CSCTriggerNumbering::ringFromTriggerLabels(_station, cscid) != 1))
+	  {
+	    result = thechamber->layer(CSCConstants::KEY_ALCT_LAYER)->centerOfWireGroup(wire_group).eta();
+	  }
+	else {
+	  const unsigned nStrips = layerGeom->numberOfStrips();
+	  const unsigned nStripsPerBin = CSCConstants::MAX_NUM_STRIPS/numBins;
+	  /**
+	   * Calculate Eta correction
+	   */
+
+	  // Check that no strips will be left out.
+	  if (nStrips%numBins != 0 || CSCConstants::MAX_NUM_STRIPS%numBins != 0)
+	    edm::LogWarning("CSCSectorReceiverLUT")
+	      << "getGlobalEtaValue warning: number of strips "
+	      << nStrips << " (" << CSCConstants::MAX_NUM_STRIPS
+	      << ") is not divisible by numBins " << numBins
+	      << " Station " << _station << " sector " << _sector
+	      << " subsector " << _subsector << " cscid " << cscid << "\n";
+
+	  unsigned    maxStripPrevBin = 0, maxStripThisBin = 0;
+	  unsigned    correctionStrip;
+	  LocalPoint  lPoint;
+	  GlobalPoint gPoint;
+	  // Bins phi_local and find the the middle strip for each bin.
+	  maxStripThisBin = nStripsPerBin * (phi_local+1);
+	  if (maxStripThisBin <= nStrips) {
+	    correctionStrip = nStripsPerBin/2 * (2*phi_local+1);
+	  }
+	  else {
+	    // If the actual number of strips in the chamber is smaller than
+	    // the number of strips corresponding to the right edge of this phi
+	    // local bin, we take the middle strip between number of strips
+	    // at the left edge of the bin and the actual number of strips.
+	    maxStripPrevBin = nStripsPerBin * phi_local;
+	    correctionStrip = (nStrips+maxStripPrevBin)/2;
+	  }
+
+	  lPoint = layerGeom->stripWireGroupIntersection(correctionStrip, wire_group);
+	  gPoint = thechamber->layer(CSCConstants::KEY_ALCT_LAYER)->surface().toGlobal(lPoint);
+
+	  // end calc of eta correction.
+	  result = gPoint.eta();
+	}
+      }
     }
-    // Convert to [1; nWireGroups] range used in geometry methods.
-    wire_group += 1;
-    
-    // If me1ir_only is set, apply phi corrections only in ME1/1.
-    if (me1ir_only &&
-	(_station != 1 ||
-	 CSCTriggerNumbering::ringFromTriggerLabels(_station, cscid) != 1))
-      {
-	result = thechamber->layer(CSCConstants::KEY_ALCT_LAYER)->centerOfWireGroup(wire_group).eta();
-      }
-    else {
-      const unsigned nStrips = layerGeom->numberOfStrips();
-      const unsigned nStripsPerBin = CSCConstants::MAX_NUM_STRIPS/numBins;
-      /**
-       * Calculate Eta correction
-       */
-      
-      // Check that no strips will be left out.
-      if (nStrips%numBins != 0 || CSCConstants::MAX_NUM_STRIPS%numBins != 0)
-	edm::LogWarning("CSCSectorReceiverLUT")
-	  << "getGlobalEtaValue warning: number of strips "
-	  << nStrips << " (" << CSCConstants::MAX_NUM_STRIPS
-	  << ") is not divisible by numBins " << numBins
-	  << " Station " << _station << " sector " << _sector
-	  << " subsector " << _subsector << " cscid " << cscid << "\n";
-      
-      unsigned    maxStripPrevBin = 0, maxStripThisBin = 0;
-      unsigned    correctionStrip;
-      LocalPoint  lPoint;
-      GlobalPoint gPoint;
-      // Bins phi_local and find the the middle strip for each bin.
-      maxStripThisBin = nStripsPerBin * (phi_local+1);
-      if (maxStripThisBin <= nStrips) {
-	correctionStrip = nStripsPerBin/2 * (2*phi_local+1);
-      }
-      else {
-	// If the actual number of strips in the chamber is smaller than
-	// the number of strips corresponding to the right edge of this phi
-	// local bin, we take the middle strip between number of strips
-	// at the left edge of the bin and the actual number of strips.
-	maxStripPrevBin = nStripsPerBin * phi_local;
-	correctionStrip = (nStrips+maxStripPrevBin)/2;
-      }
-      
-      lPoint = layerGeom->stripWireGroupIntersection(correctionStrip, wire_group);
-      gPoint = thechamber->layer(CSCConstants::KEY_ALCT_LAYER)->surface().toGlobal(lPoint);
-      
-      // end calc of eta correction.
-      result = gPoint.eta();
+  catch (cms::Exception &e)
+    {
+      LogDebug("CSCSectorReceiver|OutofBoundInput") << e.what();
     }
-  }
-  
+
   return std::fabs(result);
 }
 
