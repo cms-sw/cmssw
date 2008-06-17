@@ -53,49 +53,59 @@ void comparisonPlots::readTree(){
 	data->SetBranchAddress("detDim",&detDim_);
 }
 
-void comparisonPlots::plot3x5(TCut Cut, char* dirName, bool savePlot, std::string plotName){
+void comparisonPlots::plot3x5(TCut Cut, char* dirName, bool savePlot, std::string plotName, bool autolimits){
 	
 	// ---------  create directory for histograms ---------
 	//const char* dirName = Cut;
 	TDirectory* plotDir = output->mkdir( dirName );
 	
 	// ---------  get right limits for histogram ---------
-	/*
-	TH1F* hr = new TH1F("hr", "hr", 200, 0, 200);
-	TH1F* hz = new TH1F("hz", "hz", 400, -200, 200);
-	TH1F* hphi = new TH1F("hphi", "hphi", 200, -3.15, 3.15);
-	TH1F* hdr = new TH1F("hdr", "hdr", 2000, -10, 10);
-	TH1F* hdz = new TH1F("hdz", "hdz", 2000, -10, 10);
-	TH1F* hrdphi = new TH1F("hrdphi", "hrdphi", 2000, -10, 10);
-	TH1F* hdx = new TH1F("hdx", "hy", 2000, -10, 10);
-	TH1F* hdy = new TH1F("hdy", "hy", 2000, -10, 10);
-	data->Project("hr","r",Cut);
-	data->Project("hz","z",Cut);
-	data->Project("hphi","phi",Cut);
-	data->Project("hdr","dr",Cut);
-	data->Project("hdz","dz",Cut);
-	data->Project("hrdphi","r*dphi",Cut);
-	data->Project("hdx","dx",Cut);
-	data->Project("hdy","dy",Cut);
-	double minimumR, maximumR; getHistMaxMin(hr, maximumR, minimumR, 0);
-	double minimumZ, maximumZ; getHistMaxMin(hz, maximumZ, minimumZ, 0);
-	double minimumPhi, maximumPhi; getHistMaxMin(hphi, maximumPhi, minimumPhi, 0);
-	double minimumDR, maximumDR; getHistMaxMin(hdr, maximumDR, minimumDR, 1);
-	double minimumDZ, maximumDZ; getHistMaxMin(hdz, maximumDZ, minimumDZ, 1);
-	double minimumRDPhi, maximumRDPhi; getHistMaxMin(hrdphi, maximumRDPhi, minimumRDPhi, 1);
-	double minimumDX, maximumDX; getHistMaxMin(hdx, maximumDX, minimumDX, 1);
-	double minimumDY, maximumDY; getHistMaxMin(hdy, maximumDY, minimumDY, 1);
-	*/
-	double minimumR = 0., maximumR = 200.; 
-	double minimumZ = -200., maximumZ = 200.; 
-	double minimumPhi = -3.15, maximumPhi = 3.15;
-	double minimumDR = -1, maximumDR = 1;
-	double minimumDZ = -1, maximumDZ = 1;
-	double minimumRDPhi = -1, maximumRDPhi = 1;
-	double minimumDX = -1, maximumDX = 1;
-	double minimumDY = -1, maximumDY = 1;
-	
-	
+	double minimumR, maximumR;
+	double minimumZ, maximumZ;
+	double minimumPhi, maximumPhi;
+	double minimumDR, maximumDR;
+	double minimumDZ, maximumDZ;
+	double minimumRDPhi, maximumRDPhi;
+	double minimumDX, maximumDX;
+	double minimumDY, maximumDY;
+	if (autolimits){
+	// ---------  get right limits for histogram ---------
+	TH1F* phr = new TH1F("phr", "phr", 200, 0, 200);
+	TH1F* phz = new TH1F("phz", "phz", 400, -200, 200);
+	TH1F* phphi = new TH1F("phphi", "phphi", 200, -3.15, 3.15);
+	TH1F* phdr = new TH1F("phdr", "phdr", 2000, -10, 10);
+	TH1F* phdz = new TH1F("phdz", "phdz", 2000, -10, 10);
+	TH1F* phrdphi = new TH1F("phrdphi", "phrdphi", 200, -10, 10);
+	TH1F* phdx = new TH1F("phdx", "phy", 2000, -10, 10);
+	TH1F* phdy = new TH1F("phdy", "phy", 2000, -10, 10);
+	data->Project("phr","r",Cut);
+	data->Project("phz","z",Cut);
+	data->Project("phphi","phi",Cut);
+	data->Project("phdr","dr",Cut);
+	data->Project("phdz","dz",Cut);
+	data->Project("phrdphi","r*dphi",Cut);
+	data->Project("phdx","dx",Cut);
+	data->Project("phdy","dy",Cut);
+	getHistMaxMin(phr, maximumR, minimumR, 0);
+	getHistMaxMin(phz, maximumZ, minimumZ, 0);
+	getHistMaxMin(phphi, maximumPhi, minimumPhi, 0);
+	getHistMaxMin(phdr, maximumDR, minimumDR, 1);
+	getHistMaxMin(phdz, maximumDZ, minimumDZ, 1);
+	getHistMaxMin(phrdphi, maximumRDPhi, minimumRDPhi, 1);
+	getHistMaxMin(phdx, maximumDX, minimumDX, 1);
+	getHistMaxMin(phdy, maximumDY, minimumDY, 1);
+	}
+	else{
+	minimumR = 0., maximumR = 200.; 
+	minimumZ = -200., maximumZ = 200.; 
+	minimumPhi = -3.15, maximumPhi = 3.15;
+	minimumDR = -1, maximumDR = 1;
+	minimumDZ = -1, maximumDZ = 1;
+	minimumRDPhi = -1, maximumRDPhi = 1;
+	minimumDX = -1, maximumDX = 1;
+	minimumDY = -1, maximumDY = 1;
+	}
+		
 	
 	// ---------  declare histograms ---------
 	TH1F* h_dr = new TH1F("h_dr", "#Delta r", 2000, minimumDR, maximumDR);
@@ -199,7 +209,7 @@ void comparisonPlots::plot3x5(TCut Cut, char* dirName, bool savePlot, std::strin
 	
 }
 
-void comparisonPlots::plot3x5Profile(TCut Cut, char* dirName, int nBins, bool savePlot, std::string plotName){
+void comparisonPlots::plot3x5Profile(TCut Cut, char* dirName, int nBins, bool savePlot, std::string plotName, bool autolimits){
 	
 	// ---------  create directory for histograms ---------
 	//const char* dirName = Cut;
@@ -208,7 +218,16 @@ void comparisonPlots::plot3x5Profile(TCut Cut, char* dirName, int nBins, bool sa
 	s.append("_profile");
 	TDirectory* plotDir = output->mkdir( s.data() );
 
-	/*
+
+	double minimumR, maximumR;
+	double minimumZ, maximumZ;
+	double minimumPhi, maximumPhi;
+	double minimumDR, maximumDR;
+	double minimumDZ, maximumDZ;
+	double minimumRDPhi, maximumRDPhi;
+	double minimumDX, maximumDX;
+	double minimumDY, maximumDY;
+	if (autolimits){
 	// ---------  get right limits for histogram ---------
 	TH1F* phr = new TH1F("phr", "phr", 200, 0, 200);
 	TH1F* phz = new TH1F("phz", "phz", 400, -200, 200);
@@ -226,24 +245,25 @@ void comparisonPlots::plot3x5Profile(TCut Cut, char* dirName, int nBins, bool sa
 	data->Project("phrdphi","r*dphi",Cut);
 	data->Project("phdx","dx",Cut);
 	data->Project("phdy","dy",Cut);
-	double minimumR, maximumR; getHistMaxMin(phr, maximumR, minimumR, 0);
-	double minimumZ, maximumZ; getHistMaxMin(phz, maximumZ, minimumZ, 0);
-	double minimumPhi, maximumPhi; getHistMaxMin(phphi, maximumPhi, minimumPhi, 0);
-	double minimumDR, maximumDR; getHistMaxMin(phdr, maximumDR, minimumDR, 1);
-	double minimumDZ, maximumDZ; getHistMaxMin(phdz, maximumDZ, minimumDZ, 1);
-	double minimumRDPhi, maximumRDPhi; getHistMaxMin(phrdphi, maximumRDPhi, minimumRDPhi, 1);
-	double minimumDX, maximumDX; getHistMaxMin(phdx, maximumDX, minimumDX, 1);
-	double minimumDY, maximumDY; getHistMaxMin(phdy, maximumDY, minimumDY, 1);
-	*/
-	double minimumR = 0., maximumR = 200.; 
-	double minimumZ = -200., maximumZ = 200.; 
-	double minimumPhi = -3.15, maximumPhi = 3.15;
-	double minimumDR = -1, maximumDR = 1;
-	double minimumDZ = -1, maximumDZ = 1;
-	double minimumRDPhi = -1, maximumRDPhi = 1;
-	double minimumDX = -1, maximumDX = 1;
-	double minimumDY = -1, maximumDY = 1;
-	
+	getHistMaxMin(phr, maximumR, minimumR, 0);
+	getHistMaxMin(phz, maximumZ, minimumZ, 0);
+	getHistMaxMin(phphi, maximumPhi, minimumPhi, 0);
+	getHistMaxMin(phdr, maximumDR, minimumDR, 1);
+	getHistMaxMin(phdz, maximumDZ, minimumDZ, 1);
+	getHistMaxMin(phrdphi, maximumRDPhi, minimumRDPhi, 1);
+	getHistMaxMin(phdx, maximumDX, minimumDX, 1);
+	getHistMaxMin(phdy, maximumDY, minimumDY, 1);
+	}
+	else{
+	minimumR = 0., maximumR = 200.; 
+	minimumZ = -200., maximumZ = 200.; 
+	minimumPhi = -3.15, maximumPhi = 3.15;
+	minimumDR = -1, maximumDR = 1;
+	minimumDZ = -1, maximumDZ = 1;
+	minimumRDPhi = -1, maximumRDPhi = 1;
+	minimumDX = -1, maximumDX = 1;
+	minimumDY = -1, maximumDY = 1;
+	}
 	
 	// ---------  declare histograms ---------
 	TProfile* hprof_drVr = new TProfile("hprof_drVr","#Delta r vs. r",nBins,minimumR,maximumR,minimumDR,maximumDR);

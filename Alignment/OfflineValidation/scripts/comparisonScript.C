@@ -10,9 +10,9 @@
 #include "TStyle.h"
 #include "TCut.h"
 
-void comparisonScript(string inFile="../test/comparisonSurvey.root",string outDir="outputDir/")
+void comparisonScript(string inFile="../test/testComparison.root",string outDir="outputDir/")
 {
-       	gStyle->SetOptStat("emr");
+	gStyle->SetOptStat("emr");
 	gROOT->ProcessLine(".L comparisonPlots.cc+");
 		
 	// create plots object for given input
@@ -22,7 +22,7 @@ void comparisonScript(string inFile="../test/comparisonSurvey.root",string outDi
 	// ------------ COMMON CUTS -----------
 	// LEVEL CUT - which hierarchy to plot
 	// for convention, see: http://cmssw.cvs.cern.ch/cgi-bin/cmssw.cgi/CMSSW/Alignment/CommonAlignment/interface/StructureType.h?view=log
-	TCut levelCut = "(level == 1)"; // plotting DetUnits
+	TCut levelCut = "(level == 2)"; // plotting Dets
 	// SUBLEVEL CUT - plot only alignables belongnig to this subdetector
 	TCut PXBCut = "(sublevel == 1)"; // PXB
 	TCut PXFCut = "(sublevel == 2)"; // PXF
@@ -53,8 +53,8 @@ void comparisonScript(string inFile="../test/comparisonSurvey.root",string outDi
 	//again this time only for 2D modules
 
 	c1.plot3x5( levelCut+Det2dCut, "Tracker2D",true,"Tracker2D.eps" );
-	c1.plot3x5( levelCut+PXBCut+Det2dCut, "PXB2D", true,  "PXB2D.eps" );
-	c1.plot3x5( levelCut+PXFCut+Det2dCut, "PXF2D", true,  "PXF2D.eps" );
+	//c1.plot3x5( levelCut+PXBCut+Det2dCut, "PXB2D", true,  "PXB2D.eps" );
+	//c1.plot3x5( levelCut+PXFCut+Det2dCut, "PXF2D", true,  "PXF2D.eps" );
 	c1.plot3x5( levelCut+TIBCut+Det2dCut, "TIB2D", true,  "TIB2D.eps" );
 	c1.plot3x5( levelCut+TIDCut+Det2dCut, "TID2D", true,  "TID2D.eps" );
 	c1.plot3x5( levelCut+TOBCut+Det2dCut, "TOB2D", true,  "TOB2D.eps" );
