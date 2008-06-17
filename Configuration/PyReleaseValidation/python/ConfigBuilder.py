@@ -5,7 +5,7 @@
 # creates a complete config file.
 # relval_main + the custom config for it is not needed any more
 
-__version__ = "$Revision: 1.26 $"
+__version__ = "$Revision: 1.27 $"
 __source__ = "$Source: /cvs_server/repositories/CMSSW/CMSSW/Configuration/PyReleaseValidation/python/ConfigBuilder.py,v $"
 
 import FWCore.ParameterSet.Config as cms
@@ -262,11 +262,26 @@ class ConfigBuilder(object):
     def prepare_HLT(self, sequence = None):
         """ Enrich the schedule with the HLT simulation step"""
         self.loadAndRemember("HLTrigger/Configuration/HLT_2E30_cff")
-        hltconfig = __import__("HLTrigger/Configuration/HLT_2E30_cff") 
-        [self.process.schedule.append(getattr(self.process,name)) for name in hltconfig.__dict__ if isinstance(getattr(hltconfig,name),cms.Path)]
+        hltconfig = __import__("HLTrigger/Configuration/HLT_2E30_cff")
+
+        # BH: hack to let HLT run without explicit schedule 
+        hltOrder = []
+        for pathname in hltconfig.__dict__:
+          if isinstance(getattr(hltconfig,pathname),cms.Path):
+            if pathname == "HLTriggerFirstPath":
+                hltOrder.insert(0,getattr(self.process,pathname))  # put explicitly in front
+            elif pathname == "HLTriggerFinalPath":
+                last = getattr(self.process,pathname)
+            else:
+                hltOrder.append(getattr(self.process,pathname))
+        if last: hltOrder.append(last)
+
+        self.process.schedule.extend(hltOrder)
+               
         [self.blacklist_paths.append(name) for name in hltconfig.__dict__ if isinstance(getattr(hltconfig,name),cms.Path)]
         [self.process.schedule.append(getattr(self.process,name)) for name in hltconfig.__dict__ if isinstance(getattr(hltconfig,name),cms.EndPath)]
         [self.blacklist_paths.append(name) for name in hltconfig.__dict__ if isinstance(getattr(hltconfig,name),cms.EndPath)]
+  
 
     def prepare_RAW2DIGI(self, sequence = None):
         self.loadAndRemember("Configuration/StandardSequences/RawToDigi_cff")
@@ -308,7 +323,7 @@ class ConfigBuilder(object):
     def build_production_info(self, evt_type, energy, evtnumber):
         """ Add useful info for the production. """
         prod_info=cms.untracked.PSet\
-              (version=cms.untracked.string("$Revision: 1.26 $"),
+              (version=cms.untracked.string("$Revision: 1.27 $"),
                name=cms.untracked.string("PyReleaseValidation"),
                annotation=cms.untracked.string(evt_type+" energy:"+str(energy)+" nevts:"+str(evtnumber))
               )
