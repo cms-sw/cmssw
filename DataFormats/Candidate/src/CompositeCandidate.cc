@@ -1,4 +1,4 @@
-// $Id: CompositeCandidate.cc,v 1.8 2007/11/30 14:03:28 llista Exp $
+// $Id: CompositeCandidate.cc,v 1.9 2008/05/15 20:16:37 srappocc Exp $
 #include "DataFormats/Candidate/interface/CompositeCandidate.h"
 #include "FWCore/Utilities/interface/Exception.h"
 
@@ -21,7 +21,7 @@ CompositeCandidate::CompositeCandidate(const Candidate & c,
   size_t r = roles_.size();
   bool sameSize = ( n == r );
   for(size_t i = 0; i != n; ++i) {
-    if ( sameSize ) 
+    if ( sameSize && r > 0 ) 
       addDaughter(*c.daughter(i), roles_[i]);
     else
       addDaughter(*c.daughter(i));
@@ -64,6 +64,9 @@ bool CompositeCandidate::overlap( const Candidate & c2 ) const {
 
 void CompositeCandidate::applyRoles()
 {
+
+  if ( roles_.size() == 0 )
+    return;
 
   // Check if there are the same number of daughters and roles
   int N1 = roles_.size();
@@ -127,37 +130,40 @@ const Candidate * CompositeCandidate::daughter( std::string s ) const
 void CompositeCandidate::addDaughter( const Candidate & cand, std::string s )
 {
 
-  role_collection::iterator begin = roles_.begin(), end = roles_.end();
-  bool isFound = ( find( begin, end, s) != end );
-  if ( isFound ) {
-    throw cms::Exception("InvalidReference")
-      << "CompositeCandidate::addDaughter: Already have role with name " << s 
-      << ", please clearDaughters, or use a new name\n";
-  }
-
-  roles_.push_back( s );
   std::auto_ptr<Candidate> c( cand.clone() );
-  CompositeCandidate * c1 =  dynamic_cast<CompositeCandidate*>(&*c);
-  if ( c1 != 0 ) {
-    c1->setName( s );
+  if ( s != "" ) {
+    role_collection::iterator begin = roles_.begin(), end = roles_.end();
+    bool isFound = ( find( begin, end, s) != end );
+    if ( isFound ) {
+      throw cms::Exception("InvalidReference")
+	<< "CompositeCandidate::addDaughter: Already have role with name " << s 
+	<< ", please clearDaughters, or use a new name\n";
+    }
+    
+    roles_.push_back( s );
+    CompositeCandidate * c1 =  dynamic_cast<CompositeCandidate*>(&*c);
+    if ( c1 != 0 ) {
+      c1->setName( s );
+    }
   }
   CompositeCandidate::addDaughter( c );
 }
 
 void CompositeCandidate::addDaughter( std::auto_ptr<Candidate> cand, std::string s )
 {
-  role_collection::iterator begin = roles_.begin(), end = roles_.end();
-  bool isFound = ( find( begin, end, s) != end );
-  if ( isFound ) {
-    throw cms::Exception("InvalidReference")
-      << "CompositeCandidate::addDaughter: Already have role with name " << s 
-      << ", please clearDaughters, or use a new name\n";
-  }
-
-  roles_.push_back( s );
-  CompositeCandidate * c1 = dynamic_cast<CompositeCandidate*>(&*cand);
-  if ( c1 != 0 ) {
-    c1->setName( s );
+  if ( s != "" ) {
+    role_collection::iterator begin = roles_.begin(), end = roles_.end();
+    bool isFound = ( find( begin, end, s) != end );
+    if ( isFound ) {
+      throw cms::Exception("InvalidReference")
+	<< "CompositeCandidate::addDaughter: Already have role with name " << s 
+	<< ", please clearDaughters, or use a new name\n";
+    }
+    roles_.push_back( s );  
+    CompositeCandidate * c1 = dynamic_cast<CompositeCandidate*>(&*cand);
+    if ( c1 != 0 ) {
+      c1->setName( s );
+    }
   }
   CompositeCandidate::addDaughter( cand );
 }
