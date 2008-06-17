@@ -15,7 +15,9 @@ PedsMon = cms.EDFilter("SiStripMonitorPedestals",
         CutToAvoidSignal = cms.double(3.0),
         NumberOfEventsForIteration = cms.int32(100),
         CalculatorAlgorithm = cms.string('TT6'),
-        MaskTruncationCut = cms.double(0.05)
+        CMType = cms.string("TT6"),          
+        MaskTruncationCut = cms.double(0.05),
+        useDB = cms.bool(False)
     ),
     UseFedKey = cms.untracked.bool(True),
     OutPutFileName = cms.string('SiStripPedestal.root')
