@@ -195,7 +195,9 @@ RctInputTextToDigi::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
 		{
 		  hfIEta = hfIEta*(-1);
 		}
-	      int hfIPhi = (i%9 + j/4)*4 + 1;
+	      // iphi shift not implemented, but not necessary here --
+	      // everything's filled with zeros so it's symmetric anyhow
+	      int hfIPhi = (i%9)*8 + (j/4)*4 + 1;
 	      
 	      HcalTriggerPrimitiveDigi
 		hfDigi(HcalTrigTowerDetId(hfIEta, hfIPhi));
