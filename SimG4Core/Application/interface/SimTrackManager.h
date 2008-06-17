@@ -16,7 +16,7 @@
 //
 // Original Author:  
 //         Created:  Fri Nov 25 17:36:41 EST 2005
-// $Id: SimTrackManager.h,v 1.7 2007/12/04 14:41:57 fambrogl Exp $
+// $Id: SimTrackManager.h,v 1.8 2008/01/09 10:42:16 fambrogl Exp $
 //
 
 // system include files
@@ -63,7 +63,7 @@ public:
   void cleanTkCaloStateInfoMap();
   
   void addTrack(TrackWithHistory* iTrack, bool inHistory) {
-    if(idsave.size()<iTrack->trackID()){
+    if(idsave.size()<=iTrack->trackID()){
       int newsize = iTrack->trackID()*2;
       idsave.resize(newsize);
     }
