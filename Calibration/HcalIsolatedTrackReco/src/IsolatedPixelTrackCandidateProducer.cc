@@ -31,17 +31,21 @@
 #include "Math/GenVector/VectorUtil.h"
 #include "Math/GenVector/PxPyPzE4D.h"
 
+#include "DataFormats/VertexReco/interface/Vertex.h"
+#include "DataFormats/VertexReco/interface/VertexFwd.h"
 
 IsolatedPixelTrackCandidateProducer::IsolatedPixelTrackCandidateProducer(const edm::ParameterSet& config){
    
   l1eTauJetsSource_=config.getParameter<edm::InputTag>("L1eTauJetsSource");
-  tauAssocCone_=config.getUntrackedParameter<double>("tauAssociationCone",0.5); 
-  tauUnbiasCone_ = config.getUntrackedParameter<double>("tauUnbiasCone",1.2);
+  tauAssocCone_=config.getParameter<double>("tauAssociationCone"); 
+  tauUnbiasCone_ = config.getParameter<double>("tauUnbiasCone");
   pixelTracksSource_=config.getParameter<edm::InputTag>("PixelTracksSource");
-  pixelIsolationConeSize_=config.getUntrackedParameter<double>("PixelIsolationConeSize",0.5);
+  pixelIsolationConeSizeHB_=config.getParameter<double>("PixelIsolationConeSizeHB");
+  pixelIsolationConeSizeHE_=config.getParameter<double>("PixelIsolationConeSizeHE");
   hltGTseedlabel_=config.getParameter<edm::InputTag>("L1GTSeedLabel");
-  ecalFilterLabel_ = config.getParameter<edm::InputTag>("ecalFilterLabel");
-  
+  vtxCutSeed_=config.getParameter<double>("MaxVtxDXYSeed");
+  vtxCutIsol_=config.getParameter<double>("MaxVtxDXYIsol");
+  vertexLabel_=config.getParameter<edm::InputTag>("VertexLabel");
   
   // Register the product
   produces< reco::IsolatedPixelTrackCandidateCollection >();
@@ -66,12 +70,8 @@ void IsolatedPixelTrackCandidateProducer::produce(edm::Event& theEvent, const ed
   edm::Handle<l1extra::L1JetParticleCollection> l1eTauJets;
   theEvent.getByLabel(l1eTauJetsSource_,l1eTauJets);
 
-  /*
-  bool l2yes=false;
-  edm::Handle<trigger::TriggerFilterObjectWithRefs> PrevFiltObj;
-  if (theEvent.getByLabel(ecalFilterLabel_,PrevFiltObj)) l2yes=true;
-  else l2yes=false;
-  */
+  edm::Handle<reco::VertexCollection> pVert;
+  theEvent.getByLabel(vertexLabel_,pVert);
 
   double ptTriggered=-10;
   double etaTriggered=-100;
@@ -112,56 +112,81 @@ void IsolatedPixelTrackCandidateProducer::produce(edm::Event& theEvent, const ed
   int ntr=0;
   
   //loop to select isolated tracks
-  for (reco::TrackCollection::const_iterator track=pixelTracks->begin(); 
-       track!=pixelTracks->end(); track++) {
-    if(track->pt()<minPtTrack_) continue;
-    
-    //selected tracks should match L1 taus
-    
-    bool tmatch=false;
+  for (reco::TrackCollection::const_iterator track=pixelTracks->begin(); track!=pixelTracks->end(); track++) 
+    {
+      if(track->pt()<minPtTrack_) continue;
 
-    l1extra::L1JetParticleCollection::const_iterator selj;
-    for (l1extra::L1JetParticleCollection::const_iterator tj=l1eTauJets->begin(); tj!=l1eTauJets->end(); tj++) {
+      if (fabs(track->eta())<1.479) pixelIsolationConeSize_=pixelIsolationConeSizeHB_;
+      else pixelIsolationConeSize_=pixelIsolationConeSizeHE_;
 
-      //select taus not matched to triggered L1 jet
-      double dPhi=fabs(tj->phi()-phiTriggered);
+      bool good=false;
+      bool vtxMatch=false;
+
+      reco::VertexCollection::const_iterator vitSel;
+      double minDXY=100;
+      for (reco::VertexCollection::const_iterator vit=pVert->begin(); vit!=pVert->end(); vit++)
+	{
+	  if (fabs(track->dxy(vit->position()))<minDXY)
+	    {
+	      minDXY= fabs(track->dxy(vit->position()));
+	      vitSel=vit;
+	    }
+	}
+
+      if (minDXY<vtxCutSeed_) vtxMatch=true;
+      
+      //selected tracks should match L1 taus
+      
+      bool tmatch=false;
+      
+      //select tracks not matched to triggered L1 jet
+      double dPhi=fabs(track->phi()-phiTriggered);
       if (dPhi>3.1415926535) dPhi=2*3.1415926535-dPhi;
-      double R=sqrt(dPhi*dPhi+pow(tj->eta()-etaTriggered,2));
+      double R=sqrt(dPhi*dPhi+pow(track->eta()-etaTriggered,2));
       if (R<tauUnbiasCone_) continue;
       
-      //select tracks matched to tau
-      /*
-      double dphiT=fabs(tj->phi()-track->phi());
-      if (dphiT>acos(-1)) dphiT=2*acos(-1)-dphiT;
-      double sqrD=sqrt(pow(tj->eta()-track->eta(),2)+dphiT*dphiT);
-      */
-      if(ROOT::Math::VectorUtil::DeltaR(track->momentum(),tj->momentum()) > drMaxL1Track_) continue;
-      selj=tj;
-      tmatch=true;
+      //check taujet matching
+      l1extra::L1JetParticleCollection::const_iterator selj;
+      for (l1extra::L1JetParticleCollection::const_iterator tj=l1eTauJets->begin(); tj!=l1eTauJets->end(); tj++) 
+	{
+	  if(ROOT::Math::VectorUtil::DeltaR(track->momentum(),tj->momentum()) > drMaxL1Track_) continue;
+	  selj=tj;
+	  tmatch=true;
       
-    } //loop over L1 tau
-    
-    //calculate isolation
-    double maxPt=0;
-    double sumPt=0;
-    for (reco::TrackCollection::const_iterator track2=pixelTracks->begin(); 
-	 track2!=pixelTracks->end(); track2++) {
-      if(track2!=track &&
-	 ROOT::Math::VectorUtil::DeltaR(track->momentum(),track2->momentum())
-	 <pixelIsolationConeSize_){
-	sumPt+=track2->pt();
-	if(track2->pt()>maxPt) maxPt=track2->pt();
-      }
-    }
-    
-    if (tmatch&&maxPt<5)
-      {
-	reco::IsolatedPixelTrackCandidate newCandidate(reco::TrackRef(pixelTracks,track-pixelTracks->begin()), l1extra::L1JetParticleRef(l1eTauJets,selj-l1eTauJets->begin()), maxPt, sumPt);
-	trackCollection->push_back(newCandidate);
-	ntr++;
-      }
-    
-  }//loop over pixel tracks
+	} //loop over L1 tau
+      
+      //calculate isolation
+      double maxPt=0;
+      double sumPt=0;
+      for (reco::TrackCollection::const_iterator track2=pixelTracks->begin(); track2!=pixelTracks->end(); track2++) 
+	{
+	  if(track2!=track && ROOT::Math::VectorUtil::DeltaR(track->momentum(),track2->momentum())<pixelIsolationConeSize_)
+	    {
+	      minDXY=100;
+	      for (reco::VertexCollection::const_iterator vit=pVert->begin(); vit!=pVert->end(); vit++)
+		{
+		  if (fabs(track2->dxy(vit->position()))<minDXY)
+		    {
+		      minDXY= fabs(track2->dxy(vit->position()));
+		    }
+		}
+	      if (minDXY>vtxCutIsol_) continue;
+	      sumPt+=track2->pt();
+	      if(track2->pt()>maxPt) maxPt=track2->pt();
+	    }
+	}
+
+      if (tmatch) good=true;
+      if (!tmatch&&vtxMatch) good=true;
+
+      if (good&&maxPt<5)
+	{
+	  reco::IsolatedPixelTrackCandidate newCandidate(reco::TrackRef(pixelTracks,track-pixelTracks->begin()), l1extra::L1JetParticleRef(l1eTauJets,selj-l1eTauJets->begin()), maxPt, sumPt);
+	  trackCollection->push_back(newCandidate);
+	  ntr++;
+	}
+      
+    }//loop over pixel tracks
   
   // put the product in the event
   std::auto_ptr< reco::IsolatedPixelTrackCandidateCollection > outCollection(trackCollection);

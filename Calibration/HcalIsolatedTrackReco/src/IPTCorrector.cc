@@ -20,23 +20,25 @@
 #include "Math/GenVector/VectorUtil.h"
 #include "Math/GenVector/PxPyPzE4D.h"
 
+#include "DataFormats/VertexReco/interface/Vertex.h"
+#include "DataFormats/VertexReco/interface/VertexFwd.h"
+
 
 IPTCorrector::IPTCorrector(const edm::ParameterSet& config){
-   
+  
   corSource_=config.getParameter<edm::InputTag>("corTracksLabel");
   uncorSource_=config.getParameter<edm::InputTag>("filterLabel");
 
-  corrIsolRadius_=config.getUntrackedParameter<double>("corrIsolRadius",0.3);
-  corrIsolMaxPt_=config.getUntrackedParameter<double>("corrIsolMaxPt",0.9);  
+  corrIsolRadiusHB_=config.getParameter<double>("corrIsolRadiusHB");
+  corrIsolRadiusHE_=config.getParameter<double>("corrIsolRadiusHE");
+  corrIsolMaxP_=config.getParameter<double>("corrIsolMaxP");  
 
   // Register the product
   produces< reco::IsolatedPixelTrackCandidateCollection >();
 
 }
 
-IPTCorrector::~IPTCorrector() {
-
-}
+IPTCorrector::~IPTCorrector() {}
 
 
 void IPTCorrector::produce(edm::Event& theEvent, const edm::EventSetup& theEventSetup) {
@@ -61,27 +63,31 @@ void IPTCorrector::produce(edm::Event& theEvent, const edm::EventSetup& theEvent
     {
       double iptEta=isoPixTrackRefs[p]->track()->eta();
       double iptPhi=isoPixTrackRefs[p]->track()->phi();
+      if (fabs(iptEta)<1.479) corrIsolRadius_ = corrIsolRadiusHB_;
+      else corrIsolRadius_ = corrIsolRadiusHE_;
+
       int ntrk=0;
       reco::TrackCollection::const_iterator citSel;
+
       for (reco::TrackCollection::const_iterator cit=corTracks->begin(); cit!=corTracks->end(); cit++)
 	{
 	  double dphi=fabs(iptPhi-cit->phi());
 	  if (dphi>acos(-1)) dphi=2*acos(-1)-dphi;
 	  double dR=sqrt(dphi*dphi+pow(iptEta-cit->eta(),2));
+	  //          std::cout<<"distance to primary pixel track: "<<dR<<std::endl;
 	  if (dR<corrIsolRadius_) 
 	    {
-	      if (cit->pt()>corrIsolMaxPt_) ntrk++;
-	      else continue;
-	      citSel=cit;
+	      if (cit->p()>corrIsolMaxP_) 
+		{	
+		  ntrk++;
+		  citSel=cit;
+		}		
 	    }
+	  
 	}
+
       if (ntrk==1) 
 	{
-          /*
-	  double dPhi=fabs(citSel->phi()-isoPixTrackRefs[p]->track()->phi());
-	  if (dPhi>acos(-1)) dPhi=2*acos(-1)-dPhi;
-	  double D=sqrt(pow(citSel->eta()-isoPixTrackRefs[p]->track()->eta(),2)+dPhi*dPhi);
-	  */
           reco::IsolatedPixelTrackCandidate newCandidate(reco::TrackRef(corTracks,citSel-corTracks->begin()), isoPixTrackRefs[p]->l1tau(),isoPixTrackRefs[p]->maxPtPxl(), isoPixTrackRefs[p]->sumPtPxl());
 	  trackCollection->push_back(newCandidate);
 	}

@@ -21,8 +21,6 @@
 #include "DataFormats/L1Trigger/interface/L1JetParticle.h"
 #include "DataFormats/HcalIsolatedTrack/interface/IsolatedPixelTrackCandidate.h"
 
-
-
 class IPTCorrector : public edm::EDProducer {
 
  public:
@@ -40,7 +38,9 @@ class IPTCorrector : public edm::EDProducer {
   edm::InputTag uncorSource_;
  
   double corrIsolRadius_;
-  double corrIsolMaxPt_;
+  double corrIsolMaxP_;
+  double corrIsolRadiusHB_;
+  double corrIsolRadiusHE_;
 };
 
 

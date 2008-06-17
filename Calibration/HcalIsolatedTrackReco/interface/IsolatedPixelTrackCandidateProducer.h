@@ -39,10 +39,14 @@ class IsolatedPixelTrackCandidateProducer : public edm::EDProducer {
   edm::InputTag hltGTseedlabel_;
   edm::InputTag l1eTauJetsSource_;
   edm::InputTag pixelTracksSource_;
-  edm::InputTag ecalFilterLabel_;
+  edm::InputTag vertexLabel_;
   edm::ParameterSet parameters;
 
   double pixelIsolationConeSize_;
+  double pixelIsolationConeSizeHB_;
+  double pixelIsolationConeSizeHE_;
+  double vtxCutSeed_;
+  double vtxCutIsol_;
   double tauAssocCone_;
   double tauUnbiasCone_;
 
