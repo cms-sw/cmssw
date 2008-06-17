@@ -29,7 +29,7 @@ fastL1CaloSim = cms.EDFilter("FastL1CaloSim",
     TowerHEScale = cms.double(1.0),
     # Defaults
     # "RecHits" or "TrigPrims" 
-    AlgorithmSource = cms.string('TrigPrims'),
+    AlgorithmSource = cms.string('RecHits'),
     EMLSB = cms.double(0.5),
     TowerHEThreshold = cms.double(0.0),
     TowerEEThreshold = cms.double(0.0),
