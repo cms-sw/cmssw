@@ -46,32 +46,18 @@
   <class name="std::vector<RPCPattern>"/>
 
   <class name="L1RPCConeBuilder"/>
-
   <class name="L1RPCHwConfig"/>
-  <class name="L1RPCDevCoords"/>
-  <class name="std::set<L1RPCDevCoords,L1RPCDevCoords>"/>
 
   <class name="RPCdbData"/>
   <class name="RPCdbData::Item"/>
   <class name="std::vector<RPCdbData::Item>"/>
 
-<<<<<<< classes_def.xml
-  <class name="RPCGas"/>
-  <class name="RPCGas::GasItem"/>
-  <class name="std::vector<RPCGas::GasItem>"/>
-
   <class name="RPCStripNoises"/>
   <class name="RPCStripNoises::NoiseItem"/>
   <class name="std::vector<RPCStripNoises::NoiseItem>"/>
-=======
-  <class name="RPCStripNoises"/> 	 
-  <class name="RPCStripNoises::NoiseItem"/> 	 
-  <class name="std::vector<RPCStripNoises::NoiseItem>"/> 	 
->>>>>>> 1.19
-  <class name="std::vector<double>"/>
+  <class name="std::vector<float>"/>
 
   <class pattern="*vector*"/>
   <class pattern="*map*"/>
-  <class pattern="*set*"/>
 
 </lcgdict>
