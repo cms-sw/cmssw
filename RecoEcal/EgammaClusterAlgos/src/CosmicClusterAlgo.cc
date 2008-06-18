@@ -65,14 +65,13 @@ std::vector<reco::BasicCluster> CosmicClusterAlgo::makeClusters(
     EcalRecHitCollection::const_iterator it;
     for(it = hits->begin(); it != hits->end(); it++)
       {
-	double energy = it->energy();
-	  // find intercalib constant for this xtal
-	  EcalIntercalibConstantMap::const_iterator icalit=icalMap.find((EBDetId )it->id());
-      EcalIntercalibConstant icalconst = 1.;
+          double energy = it->energy();
+          // find intercalib constant for this xtal
+          EcalIntercalibConstantMap::const_iterator icalit=icalMap.find(it->id());
+          EcalIntercalibConstant icalconst = 1.;
 	  if( icalit!=icalMap.end() ){icalconst = (*icalit);}
 	  energy /= icalconst;
 	if (energy < threshold) continue; // need to check to see if this line is useful!
-    //std::cout << "JH12 Seed Energy " << it->energy() << " hashed " << ((EBDetId)it->id()).hashedIndex()  << std::endl;
 
 	const CaloCellGeometry *thisCell = geometry_p->getGeometry(it->id());
 	GlobalPoint position = thisCell->getPosition();
@@ -106,7 +105,7 @@ std::vector<reco::BasicCluster> CosmicClusterAlgo::makeClusters(
       std::cout << "JH Total number of seeds found in event = " << seeds.size() << std::endl;
 	  for (EcalRecHitCollection::const_iterator ji = seeds.begin(); ji != seeds.end(); ++ji)
 	  {
-	    std::cout << "JH Seed Energy " << ji->energy() << " hashed " << ((EBDetId)ji->id()).hashedIndex()  << std::endl;
+              //std::cout << "JH Seed Energy " << ji->energy() << " hashed " << ((EBDetId)ji->id()).hashedIndex()  << std::endl;
 
 	  }
    }
@@ -206,8 +205,8 @@ void CosmicClusterAlgo::makeCluster(const EcalRecHitCollection* hits,
    double energySecond = 0.;//JHaupt 4-27-08 Added for the second crystal stream
    double energyMax = 0.;//JHaupt 4-27-08 Added for the max crystal stream
    double chi2   = 0;
-   EBDetId detFir;
-   EBDetId detSec;
+   DetId detFir;
+   DetId detSec;
    //bool goodCluster = false; //JHaupt 4-27-08 Added so that some can be earased.. used another day Might not be needed as seeds are energy ordered... 
    Point position;
    position = posCalculator_.Calculate_Location(current_v25, hits,geometry, geometryES);
@@ -219,11 +218,11 @@ void CosmicClusterAlgo::makeCluster(const EcalRecHitCollection* hits,
       EcalRecHit hit_p = *itt;
 	  double rawE = hit_p.energy();
 	  // find intercalib constant for this xtal
-	  EcalIntercalibConstantMap::const_iterator icalit=icalMap.find((EBDetId )hit_p.id());
+	  EcalIntercalibConstantMap::const_iterator icalit=icalMap.find(hit_p.id());
       EcalIntercalibConstant icalconst = 1.;
 	  if( icalit!=icalMap.end() ){icalconst = (*icalit);}
 	  rawE /= icalconst;
-	  if (rawE > energySecond ) {energySecond = rawE; detSec = (EBDetId )hit_p.id();}
+	  if (rawE > energySecond ) {energySecond = rawE; detSec = hit_p.id();}
 	  if (energySecond > energyMax ) {std::swap(energySecond,energyMax); std::swap(detFir,detSec);}
    }
    
@@ -247,8 +246,9 @@ void CosmicClusterAlgo::makeCluster(const EcalRecHitCollection* hits,
       std::cout << "JH     Phi        = " << position.phi() << std::endl;
       std::cout << "JH     Eta        = " << position.eta() << std::endl;
       std::cout << "JH*****************************" << std::endl;
-      std::cout << "JH****Emax****  "<<energyMax << " ieta " <<detFir.ieta() <<" iphi "<<detFir.ieta()  << std::endl;
-      std::cout << "JH****Esec****  "<<energySecond << " ieta " <<detSec.ieta() <<" iphi "<<detSec.ieta() << std::endl;
+      // specialize this
+//       std::cout << "JH****Emax****  "<<energyMax << " ieta " <<detFir.ieta() <<" iphi "<<detFir.ieta()  << std::endl;
+//       std::cout << "JH****Esec****  "<<energySecond << " ieta " <<detSec.ieta() <<" iphi "<<detSec.ieta() << std::endl;
     }
 
    clusters_v.push_back(reco::BasicCluster(energy, position, chi2, current_v25, reco::island));
@@ -357,21 +357,23 @@ void CosmicClusterAlgo::prepareCluster(CaloNavigator<DetId> &navigator,
 
 void CosmicClusterAlgo::addCrystal(const DetId &det, const bool in9)
 {   
-
-   EcalRecHitCollection::const_iterator thisIt =  recHits_->find(det);
-   if ((thisIt != recHits_->end()) && (thisIt->id() != DetId(0)))
-   { 
-      if ((used_s.find(thisIt->id()) == used_s.end())) 
-      {
-	    used_s.insert(det);
-	    if (find(maskedChannels_.begin(), maskedChannels_.end(), ((EBDetId)thisIt->id()).hashedIndex()) == maskedChannels_.end())
-	     //std::cout << "   ... this is a good crystal and will be added" << std::endl;
-	      if (thisIt->energy() >= -1.)
-		{		
-		  if (in9)  current_v9.push_back(det);
-		  current_v25.push_back(det);
-		}
-      }
-   } 
-  
+    
+    EcalRecHitCollection::const_iterator thisIt =  recHits_->find(det);
+    if ((thisIt != recHits_->end()) && (thisIt->id() != DetId(0)))
+    { 
+        if ((used_s.find(thisIt->id()) == used_s.end())) 
+        {
+            used_s.insert(det);
+            //if (find(maskedChannels_.begin(), maskedChannels_.end(), ((EBDetId)thisIt->id()).hashedIndex()) == maskedChannels_.end())
+            //{
+                //std::cout << "   ... this is a good crystal and will be added" << std::endl;
+                if (thisIt->energy() >= -1.)
+                {		
+                    if (in9)  current_v9.push_back(det);
+                    current_v25.push_back(det);
+                }
+            //}
+        }
+    } 
+   
 }
