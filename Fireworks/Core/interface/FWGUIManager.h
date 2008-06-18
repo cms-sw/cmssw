@@ -16,7 +16,7 @@
 //
 // Original Author:  Chris Jones
 //         Created:  Mon Feb 11 10:52:24 EST 2008
-// $Id: FWGUIManager.h,v 1.19 2008/06/17 00:08:11 chrjones Exp $
+// $Id: FWGUIManager.h,v 1.20 2008/06/17 18:08:26 chrjones Exp $
 //
 
 // system include files
@@ -129,6 +129,7 @@ class FWGUIManager : public FWConfigurable
       sigc::signal<void> goingToQuit_;
       sigc::signal<void> writeToPresentConfigurationFile_;
    
+      void openEveBrowserForDebugging() const;
    private:
       FWGUIManager(const FWGUIManager&); // stop default
 

@@ -8,7 +8,7 @@
 //
 // Original Author:  Chris Jones
 //         Created:  Mon Feb 11 11:06:40 EST 2008
-// $Id: FWGUIManager.cc,v 1.30 2008/06/17 15:23:19 chrjones Exp $
+// $Id: FWGUIManager.cc,v 1.31 2008/06/17 18:08:26 chrjones Exp $
 //
 
 // system include files
@@ -100,8 +100,8 @@ m_dataAdder(0)
    gApplication->InitializeGraphics();
    
    // TEveManager::Create(kFALSE);
-   TEveManager::Create();
-   gEve->GetBrowser()->UnmapWindow();
+   TEveManager::Create(kFALSE);
+   //gEve->GetBrowser()->UnmapWindow();
 
    // gEve->SetUseOrphanage(kTRUE);
    // TGFrame* f = (TGFrame*) gClient->GetDefaultRoot();
@@ -964,6 +964,13 @@ FWGUIManager::setFrom(const FWConfiguration& iFrom)
    }
    m_cmsShowMainFrame->Layout();
 }
+
+void 
+FWGUIManager::openEveBrowserForDebugging() const
+{
+   gEve->GetBrowser()->MapWindow();
+}
+
 
 //
 // static member functions
