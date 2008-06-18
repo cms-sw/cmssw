@@ -318,6 +318,8 @@ class SequencePlaceholder(_Sequenceable):
         return returnValue
     def dumpSequenceConfig(self):
         return self._name
+    def dumpSequencePython(self):
+        return "process."+self._name
     def dumpPython(self, options):
         result = 'cms.SequencePlaceholder(\"'
         if options.isCfg:
