@@ -94,20 +94,18 @@ void CSCWireElectronicsSim::fillDigis(CSCWireDigiCollection & digis) {
         } 
         float tofOffset = timeOfFlightCalibration(wireGroup);
         int chamberType = theSpecs->chamberType();
-        // fill in the rest of the information, for everything that survives the fraction discrim.
 
-        // Shouldn't one measure from theTimeOffset of the CSCAnalogSignal?
-        // Well, yes, but unfortunately it seems CSCAnalogSignal::superimpose
-        // fails to reset theTimeOffset properly. In any case, if everything
-        // is self-consistent, the overall theTimeOffset should BE
-        // theSignalStartTime. There is big trouble if any of the
-        // overlapping MEAS's happen to have a timeOffset earlier than
-        // theSignalStartTime (which is why it defaults to -10bx = -250ns).
-        // That could only happen in the case of signals from pile-up events
-        // arising way earlier than 10bx before the signal event crossing
-        // and so only if pile-up were simulated over an enormous range of
-        // bx earlier than the signal bx.
-        // (Comments from Tim, Aug-2005)
+        // Note that CSCAnalogSignal::superimpose does not reset theTimeOffset to the earliest
+	// of the two signal's time offsets. If it did then we could handle signals from any
+	// time range e.g. form pileup events many bx's from the signal bx (bx=0).
+	// But then we would be wastefully storing signals over times which we can never
+	// see in the real detector, because only hits within a few bx's of bx=0 are read out.
+	// Instead, the working time range for wire hits is always started from
+	// theSignalStartTime, set as a parameter in the config file.
+	// On the other hand, if any of the overlapped CSCAnalogSignals happens to have
+        // a timeOffset earlier than theSignalStartTime (which is currently set to -100 ns)
+	// then we're in trouble. For pileup events this would mean events from collisions
+	// earlier than 4 bx before the signal bx.
 
         float fdTime = theSignalStartTime + theSamplingTime*bin_firing_FD;
         if(doNoise_) {
@@ -122,7 +120,7 @@ void CSCWireElectronicsSim::fillDigis(CSCWireDigiCollection & digis) {
         }
 
         // Wire digi as of Oct-2006 adapted to real data: time word has 16 bits with set bit
-        // flagging appropriate bunch crossing, and bx 0 corresponding to 7th bit i.e.
+        // flagging appropriate bunch crossing, and bx 0 corresponding to the 7th bit, 'bit 6':
   
         //      1st bit set (bit 0) <-> bx -6
         //      2nd              1  <-> bx -5
@@ -136,6 +134,8 @@ void CSCWireElectronicsSim::fillDigis(CSCWireDigiCollection & digis) {
         ibin = lastbin;
       } // if over threshold
     } // loop over time bins in signal
+
+    // Only create a wire digi if there is a wire hit within [-6 bx, +9 bx]
     if(timeWord != 0)
     {
       CSCWireDigi newDigi(wireGroup, timeWord);
@@ -190,12 +190,8 @@ float CSCWireElectronicsSim::timeOfFlightCalibration(int wireGroup) const {
   if(middleWireGroup > numberOfWireGroups) 
      middleWireGroup = numberOfWireGroups;
 
-//  LocalPoint centerOfGroupGroup = theLayerGeometry->centerOfWireGroup(middleWireGroup);
-//  float averageDist = theLayer->surface().toGlobal(centerOfGroupGroup).mag();
   GlobalPoint centerOfGroupGroup = theLayer->centerOfWireGroup(middleWireGroup);
   float averageDist = centerOfGroupGroup.mag();
-
-
   float averageTOF  = averageDist * cm / c_light; // Units of c_light: mm/ns
 
   LogTrace("CSCWireElectronicsSim") << "CSCWireElectronicsSim: TofCalib  wg = " << wireGroup << 
