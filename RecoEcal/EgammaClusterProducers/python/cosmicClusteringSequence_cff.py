@@ -9,9 +9,9 @@ import FWCore.ParameterSet.Config as cms
 #  BasicCluster producer
 from RecoEcal.EgammaClusterProducers.cosmicBasicClusters_cfi import *
 #  SuperCluster producer
-#include "RecoEcal/EgammaClusterProducers/data/SuperClusters.cfi"
+from RecoEcal.EgammaClusterProducers.cosmicSuperClusters_cfi import *
 #  SuperCluster with Preshower producer
 #include "RecoEcal/EgammaClusterProducers/data/SuperClustersWithPreshower.cfi"
 # create sequence for  clustering
-cosmicClusteringSequence = cms.Sequence(cosmicBasicClusters)
+cosmicClusteringSequence = cms.Sequence(cosmicBasicClusters, cosmicSuperClusters)
 
