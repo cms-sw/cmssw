@@ -343,7 +343,13 @@ void CSCGeometryBuilderFromDDD::buildChamber (
 
     aRot.rotateAxes( oldX, oldY, oldZ );
       
-   // Need to know z of layers w.r.t to z of centre of chamber. 
+    // Need to know z of layers w.r.t to z of centre of chamber. 
+ 
+    // The chamber structure is
+    //          top                     bottom
+    // layer     1    2    3    4    5    6
+    //     |F|Ps|G|Ps|G|Ps|G|Ps|G|Ps|G|Ps|G|P|F|
+    //         
 
     float frameThickness     = fupar[31]/10.; // mm -> cm
     float gapThickness       = fupar[32]/10.; // mm -> cm
@@ -365,7 +371,7 @@ void CSCGeometryBuilderFromDDD::buildChamber (
     // The sign in '+/-' depends on relative directions of local and global z. 
     // It is '-' if they are the same direction, and '+' if opposite directions.
     //     z of wires in layer N   = z_wN = z_w1 - (N-1)*layerSeparation; 
-    //     z of strips in layer N  = z_sN = z_wN + gapThickness/2.; @@ BEWARE: need to check if it should be '-gapThickness/2' !
+    //     z of strips in layer N  = z_sN = z_wN + gapThickness/2.; // at more +ve local z
 
     // Set dimensions of trapezoidal chamber volume 
     // N.B. apothem is 4th in fpar but 3rd in ctor 
