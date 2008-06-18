@@ -89,7 +89,7 @@ from RecoEgamma.ElectronIdentification.electronIdSequence_cff import *
 from RecoEgamma.EgammaPhotonProducers.photonSequence_cff import *
 from RecoEgamma.PhotonIdentification.photonId_cff import *
 # Both for electrons and photons
-from RecoEgamma.EgammaIsolationAlgos.egammaIsolationSequence_cff import * 
+from FastSimulation.EgammaElectronAlgos.EgammaIsoAlgo_cff import *
 # B tagging
 from RecoJets.JetAssociationProducers.ic5JetTracksAssociatorAtVertex_cfi import *
 from RecoVertex.Configuration.RecoVertex_cff import *
@@ -237,9 +237,6 @@ photons.pixelSeedProducer = 'electronGSPixelSeeds'
 PhotonIDProd.barrelEcalRecHitProducer = 'caloRecHits'
 PhotonIDProd.endcapEcalRecHitProducer = 'caloRecHits'
 PhotonIDProd.HcalRecHitProducer = 'caloRecHits'
-EgammaIsoEcalFromHitsExtractorBlock.barrelRecHits = 'caloRecHits:EcalRecHitsEB'
-EgammaIsoEcalFromHitsExtractorBlock.endcapRecHits = 'caloRecHits:EcalRecHitsEE'
-EgammaIsoHcalFromHitsExtractorBlock.hcalRecHits = 'caloRecHits'
 ic5JetTracksAssociatorAtVertex.tracks = 'generalTracks'
 ic5PFJetTracksAssociatorAtVertex.tracks = 'generalTracks'
 offlinePrimaryVerticesWithBS.TrackLabel = 'generalTracks'
