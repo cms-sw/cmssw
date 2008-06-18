@@ -5,14 +5,7 @@ ALCARECOMuAlZeroFieldGlobalCosmicsHLT = HLTrigger.HLTfilters.hltHighLevel_cfi.hl
 ALCARECOMuAlZeroFieldGlobalCosmicsHLT.andOr = True
 ALCARECOMuAlZeroFieldGlobalCosmicsHLT.HLTPaths = ["CandHLTTrackerCosmics", "CandHLTTrackerCosmicsCoTF", "HLT_IsoMu11", "HLT_Mu15_L1Mu7"]
 
-ALCARECOMuAlZeroFieldGlobalCosmics = cms.EDFilter("ZeroFieldGlobalMuonBuilder",
-                                                  inputTracker = cms.InputTag("cosmictrackfinderP5"),
-                                                  inputMuon = cms.InputTag("cosmicMuons"),
-                                                  minTrackerHits = cms.int32(0),
-                                                  minMuonHits = cms.int32(0),
-                                                  minPdot = cms.double(0.99),
-                                                  minDdotP = cms.double(0.99),
-                                                  debuggingHistograms = cms.untracked.bool(False),
-                                                  )
+import Alignment.CommonAlignmentProducer.ZeroFieldGlobalMuonBuilder_cfi
+ALCARECOMuAlZeroFieldGlobalCosmics = Alignment.CommonAlignmentProducer.ZeroFieldGlobalMuonBuilder_cfi.ZeroFieldGlobalMuonBuilder.clone()
 
 seqALCARECOMuAlZeroFieldGlobalCosmics = cms.Sequence(ALCARECOMuAlZeroFieldGlobalCosmicsHLT + ALCARECOMuAlZeroFieldGlobalCosmics)
