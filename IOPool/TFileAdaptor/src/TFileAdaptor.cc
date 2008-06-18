@@ -5,6 +5,7 @@
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "FWCore/ServiceRegistry/interface/Service.h"
 #include "FWCore/MessageLogger/interface/JobReport.h"
+#include "FWCore/Utilities/interface/EDMException.h"
 #include <TROOT.h>
 #include <TPluginManager.h>
 #include <TFile.h>
@@ -19,7 +20,8 @@ class TFileAdaptor
 {
   bool enabled_;
   bool doStats_;
-  std::string mode_;
+  std::string cacheHint_;
+  std::string readHint_;
   std::vector<std::string> native_;
 
   static void addType(TPluginManager *mgr, const char *type)
@@ -47,20 +49,44 @@ public:
   TFileAdaptor(const edm::ParameterSet &p, edm::ActivityRegistry &ar)
     : enabled_(true),
       doStats_(true),
-      mode_("none")
+      cacheHint_("auto-detect"),
+      readHint_("auto")
   {
     if (! (enabled_ = p.getUntrackedParameter<bool> ("enable", enabled_)))
       return;
 
     doStats_ = p.getUntrackedParameter<bool> ("stats", doStats_);
-    mode_ = p.getUntrackedParameter<std::string> ("mode", mode_);
+    cacheHint_ = p.getUntrackedParameter<std::string> ("cacheHint", cacheHint_);
+    readHint_ = p.getUntrackedParameter<std::string> ("readHint", readHint_);
     native_ = p.getUntrackedParameter<std::vector<std::string> >("native", native_);
     ar.watchPostEndJob(this, &TFileAdaptor::termination);
 
-    // Handle standard modes (none available right now).
-    //   default = adaptor:on stats:on
-    if (mode_ == "default")
-      doStats_ = true;
+    // tell factory how clients should access files
+    if (cacheHint_ == "application-only")
+      StorageFactory::get()->setCacheHint(StorageFactory::CACHE_HINT_APPLICATION);
+    else if (cacheHint_ == "storage-only")
+      StorageFactory::get()->setCacheHint(StorageFactory::CACHE_HINT_STORAGE);
+    else if (cacheHint_ == "lazy-download")
+      StorageFactory::get()->setCacheHint(StorageFactory::CACHE_HINT_LAZY_DOWNLOAD);
+    else if (cacheHint_ == "auto-detect")
+      StorageFactory::get()->setCacheHint(StorageFactory::CACHE_HINT_AUTO_DETECT);
+    else
+      throw cms::Exception("TFileAdaptor")
+        << "Unrecognised 'cacheHint' value '" << cacheHint_
+        << "', recognised values are 'application-only',"
+        << " 'storage-only', 'lazy-download', 'auto-detect'";
+
+    if (readHint_ == "direct-unbuffered")
+      StorageFactory::get()->setReadHint(StorageFactory::READ_HINT_UNBUFFERED);
+    else if (readHint_ == "read-ahead-buffered")
+      StorageFactory::get()->setReadHint(StorageFactory::READ_HINT_READAHEAD);
+    else if (readHint_ == "auto-detect")
+      StorageFactory::get()->setReadHint(StorageFactory::READ_HINT_AUTO);
+    else
+      throw cms::Exception("TFileAdaptor")
+        << "Unrecognised 'readHint' value '" << readHint_
+        << "', recognised values are 'direct-unbuffered',"
+        << " 'read-ahead-buffered', 'auto-detect'";
 
     // enable file access stats accounting if requested
     StorageFactory::get()->enableAccounting(doStats_);
@@ -69,16 +95,18 @@ public:
     TPluginManager *mgr = gROOT->GetPluginManager();
     mgr->LoadHandlersFromPluginDirs();
 
-    if (!native("file"))    addType(mgr, "^file:");
-    if (!native("http"))    addType(mgr, "^http:");
-    if (!native("ftp"))     addType(mgr, "^ftp:");
-    /* always */            addType(mgr, "^web:");
-    /* always */            addType(mgr, "^gsiftp:");
-    /* always */            addType(mgr, "^sfn:");
-    if (!native("rfio"))    addType(mgr, "^rfio:");
-    if (!native("dcache"))  addType(mgr, "^dcache:");
-    if (!native("dcap"))    addType(mgr, "^dcap:");
-    if (!native("gsidcap")) addType(mgr, "^gsidcap:");
+    if (!native("file"))      addType(mgr, "^file:");
+    if (!native("http"))      addType(mgr, "^http:");
+    if (!native("ftp"))       addType(mgr, "^ftp:");
+    /* always */              addType(mgr, "^web:");
+    /* always */              addType(mgr, "^gsiftp:");
+    /* always */              addType(mgr, "^sfn:");
+    if (!native("rfio"))      addType(mgr, "^rfio:");
+    if (!native("dcache"))    addType(mgr, "^dcache:");
+    if (!native("dcap"))      addType(mgr, "^dcap:");
+    if (!native("gsidcap"))   addType(mgr, "^gsidcap:");
+    if (!native("storm"))     addType(mgr, "^storm:");
+    if (!native("storm-lcg")) addType(mgr, "^storm-lcg:");
   }
 
   // Write current Storage statistics on a ostream
@@ -100,6 +128,8 @@ public:
 
     o << "Storage parameters: adaptor: true"
       << " Stats:" << (doStats_ ? "true" : "false") << '\n'
+      << " Cache hint:" << cacheHint_ << '\n'
+      << " Read hint:" << readHint_ << '\n'
       << "Storage statistics: "
       << StorageAccount::summaryText()
       << "; tfile/read=?/?/" << (TFile::GetFileBytesRead() / 1048576.0) << "MB/?ms/?ms/?ms"
@@ -114,6 +144,8 @@ public:
     o << "<storage-factory-summary>\n"
       << " <storage-factory-params>\n"
       << "  <param name='enabled' value='true' unit='boolean'/>\n"
+      << "  <param name='cache-hint' value='" << cacheHint_ << "' unit='string'/>\n"
+      << "  <param name='read-hint' value='" << readHint_ << "' unit='string'/>\n"
       << "  <param name='stats' value='" << (doStats_ ? "true" : "false") << "' unit='boolean'/>\n"
       << " </storage-factory-params>\n"
 
