@@ -13,7 +13,7 @@
 //
 // Original Author:  Jim Pivarski
 //         Created:  Wed Dec 12 13:31:55 CST 2007
-// $Id: ZeroFieldGlobalMuonBuilder.cc,v 1.8 2008/06/11 23:35:58 pivarski Exp $
+// $Id: ZeroFieldGlobalMuonBuilder.cc,v 1.1 2008/06/16 12:41:30 pivarski Exp $
 //
 //
 
@@ -28,6 +28,7 @@
 #include "FWCore/Framework/interface/ESHandle.h"
 #include "FWCore/Framework/interface/MakerMacros.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
+#include "FWCore/MessageLogger/interface/MessageLogger.h"
 
 // references
 #include "DataFormats/TrackReco/interface/Track.h"
@@ -138,7 +139,7 @@ ZeroFieldGlobalMuonBuilder::~ZeroFieldGlobalMuonBuilder()
 bool
 ZeroFieldGlobalMuonBuilder::filter(edm::Event& iEvent, const edm::EventSetup& iSetup)
 {
-   m_total_events = 0;
+   m_total_events++;
 
    edm::Handle<reco::TrackCollection> tracksMuon;
    iEvent.getByLabel(m_inputMuon, tracksMuon);
@@ -221,8 +222,7 @@ ZeroFieldGlobalMuonBuilder::beginJob(const edm::EventSetup&)
 // ------------ method called once each job just after ending the event loop  ------------
 void 
 ZeroFieldGlobalMuonBuilder::endJob() {
-   std::cout << "ZeroFieldGlobalMuonBuilder: total_events " << m_total_events << " passing_cuts " << m_passing_cuts << std::endl;
-
+   edm::LogSystem("ZeroFieldGlobalMuonBuilder") << "total_events " << m_total_events << " passing_cuts " << m_passing_cuts << std::endl;
 }
 
 //define this as a plug-in
