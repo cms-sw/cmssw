@@ -129,6 +129,14 @@ namespace {
     reco::MuIsoDepositMap idvm;
     reco::MuIsoDepositMap::const_iterator idvmci;
     edm::Wrapper<reco::MuIsoDepositMap> w_idvm;
+     
+     edm::RefToBase<reco::Muon> rtbm;
+     edm::reftobase::IndirectHolder<reco::Muon> ihm;
+     edm::RefToBaseProd<reco::Muon> rtbpm;
+     edm::RefToBaseVector<reco::Muon> rtbvm;
+     edm::Wrapper<edm::RefToBaseVector<reco::Muon> > rtbvm_w;
+     edm::reftobase::BaseVectorHolder<reco::Muon> *bvhm_p;
+     
   };
 }
 

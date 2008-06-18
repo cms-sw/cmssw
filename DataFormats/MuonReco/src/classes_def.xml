@@ -111,5 +111,12 @@
   </class>
   <class name="edm::Wrapper<reco::MuIsoDepositMap>"/>
 
+  <class name="edm::RefToBase<reco::Muon>" />
+  <class name="edm::reftobase::IndirectHolder<reco::Muon>" />
+  <class name="edm::RefToBaseProd<reco::Muon>" />
+  <class name="edm::RefToBaseVector<reco::Muon>" />
+  <class name="edm::Wrapper<edm::RefToBaseVector<reco::Muon> >" />
+  <class name="edm::reftobase::BaseVectorHolder<reco::Muon>" />
+  
 </lcgdict>
 
