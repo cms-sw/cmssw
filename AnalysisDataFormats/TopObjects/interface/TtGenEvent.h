@@ -22,9 +22,9 @@ class TtGenEvent: public TopGenEvent {
   
   //semi-leptonic getters
   LeptonType semiLeptonicChannel() const;
-  bool isSemiLeptonic(LeptonType& typeA) const 
+  bool isSemiLeptonic(LeptonType typeA) const 
   { return (semiLeptonicChannel()==typeA ? true : false); };
-  bool isSemiLeptonic(LeptonType& typeA, LeptonType& typeB) const 
+  bool isSemiLeptonic(LeptonType typeA, LeptonType typeB) const 
   { return ( (semiLeptonicChannel()==typeA || semiLeptonicChannel()==typeB)? true : false); };
 
   const reco::GenParticle* leptonicDecayW() const;
