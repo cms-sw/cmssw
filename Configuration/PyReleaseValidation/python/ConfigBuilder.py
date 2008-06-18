@@ -5,7 +5,7 @@
 # creates a complete config file.
 # relval_main + the custom config for it is not needed any more
 
-__version__ = "$Revision: 1.27 $"
+__version__ = "$Revision: 1.28 $"
 __source__ = "$Source: /cvs_server/repositories/CMSSW/CMSSW/Configuration/PyReleaseValidation/python/ConfigBuilder.py,v $"
 
 import FWCore.ParameterSet.Config as cms
@@ -235,7 +235,7 @@ class ConfigBuilder(object):
     def prepare_SIM(self, sequence = None):
         """ Enrich the schedule with the simulation step"""
         self.loadAndRemember("Configuration/StandardSequences/Simulation_cff")
-        self.process.simulation_step = cms.Path( self.process.simulation )
+        self.process.simulation_step = cms.Path( self.process.psim )
         self.process.schedule.append(self.process.simulation_step)
         return     
 
@@ -323,7 +323,7 @@ class ConfigBuilder(object):
     def build_production_info(self, evt_type, energy, evtnumber):
         """ Add useful info for the production. """
         prod_info=cms.untracked.PSet\
-              (version=cms.untracked.string("$Revision: 1.27 $"),
+              (version=cms.untracked.string("$Revision: 1.28 $"),
                name=cms.untracked.string("PyReleaseValidation"),
                annotation=cms.untracked.string(evt_type+" energy:"+str(energy)+" nevts:"+str(evtnumber))
               )
