@@ -36,6 +36,9 @@
 // Class header file
 #include "RecoEcal/EgammaClusterProducers/interface/CosmicClusterProducer.h"
 
+#include "CondFormats/EcalObjects/interface/EcalIntercalibConstants.h"
+#include "CondFormats/DataRecord/interface/EcalIntercalibConstantsRcd.h"
+
 
 CosmicClusterProducer::CosmicClusterProducer(const edm::ParameterSet& ps)
 {
@@ -109,7 +112,7 @@ CosmicClusterProducer::~CosmicClusterProducer()
 
 void CosmicClusterProducer::produce(edm::Event& evt, const edm::EventSetup& es)
 {
-//  clusterizeECALPart(evt, es, endcapHitProducer_, endcapHitCollection_, endcapClusterCollection_, endcapClusterShapeAssociation_, CosmicClusterAlgo::endcap); 
+  //clusterizeECALPart(evt, es, endcapHitProducer_, endcapHitCollection_, endcapClusterCollection_, endcapClusterShapeAssociation_, CosmicClusterAlgo::endcap); 
   clusterizeECALPart(evt, es, barrelHitProducer_, barrelHitCollection_, barrelClusterCollection_, barrelClusterShapeAssociation_, CosmicClusterAlgo::barrel);
   nEvt_++;
 }
@@ -146,6 +149,7 @@ void CosmicClusterProducer::clusterizeECALPart(edm::Event &evt, const edm::Event
                                                const CosmicClusterAlgo::EcalPart& ecalPart)
 {
   // get the hit collection from the event:
+
   const EcalRecHitCollection *hitCollection_p = getCollection(evt, hitProducer, hitCollection);
 
   // get the geometry and topology from the event setup:
@@ -169,18 +173,25 @@ void CosmicClusterProducer::clusterizeECALPart(edm::Event &evt, const edm::Event
 
   const CaloSubdetectorGeometry *geometryES_p;
   geometryES_p = geoHandle->getSubdetectorGeometry(DetId::Ecal, EcalPreshower);
+  
+  // Intercalib constants
+  edm::ESHandle<EcalIntercalibConstants> pIcal;
+  es.get<EcalIntercalibConstantsRcd>().get(pIcal);
+  const EcalIntercalibConstants* ical = pIcal.product();
+  const EcalIntercalibConstantMap& icalMap=ical->getMap();
 
   // Run the clusterization algorithm:
   reco::BasicClusterCollection clusters;
-  clusters = island_p->makeClusters(hitCollection_p, geometry_p, topology_p, geometryES_p, ecalPart, maskedChannels_);
-
+  clusters = island_p->makeClusters(hitCollection_p, geometry_p, topology_p, geometryES_p,  ecalPart, maskedChannels_, icalMap);
+  
   //Create associated ClusterShape objects.
   std::vector <reco::ClusterShape> ClusVec;
+ 
   for (int erg=0;erg<int(clusters.size());++erg){
     reco::ClusterShape TestShape = shapeAlgo_.Calculate(clusters[erg],hitCollection_p,geometry_p,topology_p);
     ClusVec.push_back(TestShape);
   }
-
+  
   //Put clustershapes in event, but retain a Handle on them.
   std::auto_ptr< reco::ClusterShapeCollection> clustersshapes_p(new reco::ClusterShapeCollection);
   clustersshapes_p->assign(ClusVec.begin(), ClusVec.end());
@@ -189,23 +200,24 @@ void CosmicClusterProducer::clusterizeECALPart(edm::Event &evt, const edm::Event
     clusHandle= evt.put(clustersshapes_p, clustershapecollectionEB_);
   else
     clusHandle= evt.put(clustersshapes_p, clustershapecollectionEE_);
-
+  
   // create an auto_ptr to a BasicClusterCollection, copy the barrel clusters into it and put in the Event:
   std::auto_ptr< reco::BasicClusterCollection > clusters_p(new reco::BasicClusterCollection);
   clusters_p->assign(clusters.begin(), clusters.end());
   edm::OrphanHandle<reco::BasicClusterCollection> bccHandle;
+  
   if (ecalPart == CosmicClusterAlgo::barrel) 
     bccHandle = evt.put(clusters_p, barrelClusterCollection_);
   else
     bccHandle = evt.put(clusters_p, endcapClusterCollection_);
 
-
-  // BasicClusterShapeAssociationMap
+  
+  // BasicClusterShapeAssociationMap 
   std::auto_ptr<reco::BasicClusterShapeAssociationCollection> shapeAssocs_p(new reco::BasicClusterShapeAssociationCollection);
   for (unsigned int i = 0; i < clusHandle->size(); i++){
     shapeAssocs_p->insert(edm::Ref<reco::BasicClusterCollection>(bccHandle,i),edm::Ref<reco::ClusterShapeCollection>(clusHandle,i));
   }  
   evt.put(shapeAssocs_p,clusterShapeAssociation);
-
+  
   delete topology_p;
 }
