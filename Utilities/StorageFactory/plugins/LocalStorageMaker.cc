@@ -1,5 +1,6 @@
 #include "Utilities/StorageFactory/interface/StorageMaker.h"
 #include "Utilities/StorageFactory/interface/StorageMakerFactory.h"
+#include "Utilities/StorageFactory/interface/StorageFactory.h"
 #include "Utilities/StorageFactory/interface/File.h"
 #include <unistd.h>
 #include <sys/stat.h>
@@ -12,14 +13,16 @@ public:
 			 int mode,
 			 const std::string &tmpdir)
   {
-    // Force unbuffered mode (bypassing page cache) off.  We
-    // currently make so small reads that unbuffered access
-    // will cause significant system load.  The unbuffered
-    // hint is really for networked files (rfio, dcap, etc.),
-    // where we don't want extra caching on client side due
-    // non-sequential access patterns.
-    mode &= ~IOFlags::OpenUnbuffered;
-  
+    StorageFactory *f = StorageFactory::get();
+    StorageFactory::ReadHint readHint = f->readHint();
+    StorageFactory::CacheHint cacheHint = f->cacheHint();
+
+    if (readHint != StorageFactory::READ_HINT_UNBUFFERED
+	|| cacheHint == StorageFactory::CACHE_HINT_STORAGE)
+      mode &= ~IOFlags::OpenUnbuffered;
+    else
+      mode |= IOFlags::OpenUnbuffered;
+
     return new File (path, mode); 
   }
 
