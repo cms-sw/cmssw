@@ -30,12 +30,14 @@ public:
 			      int perms = 0666);
 
   using Storage::read;
+  using Storage::readv;
   using Storage::write;
   using Storage::position;
   using Storage::prefetch;
 
   virtual bool		prefetch (const IOPosBuffer *what, IOSize n);
   virtual IOSize	read (void *into, IOSize n);
+  virtual IOSize	readv (IOPosBuffer *into, IOSize buffers);
   virtual IOSize	write (const void *from, IOSize n);
   virtual IOOffset	position (IOOffset offset, Relative whence = SET);
   virtual void		resize (IOOffset size);

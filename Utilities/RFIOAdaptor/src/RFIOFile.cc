@@ -329,6 +329,14 @@ RFIOFile::read (void *into, IOSize n)
 }
 
 IOSize
+RFIOFile::readv (IOPosBuffer *into, IOSize buffers)
+{
+  if (! (m_flags & IOFlags::OpenUnbuffered))
+    prefetch(into, buffers);
+  return Storage::readv(into, buffers);
+}
+
+IOSize
 RFIOFile::write (const void *from, IOSize n)
 {
   serrno = 0;
