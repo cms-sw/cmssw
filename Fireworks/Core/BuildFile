@@ -5,6 +5,7 @@
 <use name=DataFormats/GsfTrackReco>
 <use name=DataFormats/EcalDetId>
 <use name=FWCore/PluginManager>
+<use name=boost_program_options>
 <use name=rootrflx>
 <use name=sigcpp>
 <use name=SimDataFormats/HepMCProduct>
