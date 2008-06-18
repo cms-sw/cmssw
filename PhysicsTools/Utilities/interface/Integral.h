@@ -76,11 +76,11 @@ namespace funct {
   }
 
    template<typename F, typename Integrator> 
-  typename Integral<F>::type integral(const F& f, const Integrator & integrator) {
+  typename Integral<F>::type integral_f(const F& f, const Integrator & integrator) {
     return typename Integral<F>::type(f, integrator);
   }
 
- template<typename X, typename F> 
+  template<typename X, typename F> 
   double integral(const F& f, double min, double max) {
     return integral<X>(f)(min, max);
   }
@@ -91,18 +91,18 @@ namespace funct {
   }
 
   template<typename F> 
-  typename Integral<F>::type integral(const F& f) {
+  typename Integral<F>::type integral_f(const F& f) {
     return typename Integral<F>::type(f);
   }
 
  template<typename F>
-  double integral(const F& f, double min, double max) {
-    return integral(f)(min, max);
+  double integral_f(const F& f, double min, double max) {
+    return integral_f(f)(min, max);
   }
 
   template<typename F, typename Integrator>
-  double integral(const F& f, double min, double max, const Integrator & integrator) {
-    return integral(f, integrator)(min, max);
+  double integral_f(const F& f, double min, double max, const Integrator & integrator) {
+    return integral_f(f, integrator)(min, max);
   }
 
   template<typename F, typename MIN, typename MAX, typename Integrator = no_var, typename X = no_var>
@@ -137,7 +137,7 @@ namespace funct {
     DefIntegral(const F & f, const MIN & min, const MAX & max, const Integrator & integrator) : 
       f_(f), min_(min), max_(max), integrator_(integrator) { } 
     double operator()(double x) const {
-      return integral(f_, min_(x), max_(x), integrator_);
+      return integral_f(f_, min_(x), max_(x), integrator_);
     }
   private:
     F f_;
@@ -150,7 +150,7 @@ namespace funct {
   struct DefIntegral<F, MIN, MAX, no_var, no_var> {
     DefIntegral(const F & f, const MIN & min, const MAX & max) : f_(f), min_(min), max_(max) { } 
     double operator()(double x) const {
-      return integral(f_, min_(x), max_(x));
+      return integral_f(f_, min_(x), max_(x));
     }
   private:
     F f_;

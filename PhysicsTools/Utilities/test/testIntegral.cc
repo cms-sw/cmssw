@@ -71,24 +71,24 @@ void testIntegral::checkAll() {
 
   // trapezoid integration
   gauss g;
-  CPPUNIT_ASSERT(fabs(integral(g, 0, 1, integrator) - erf(1)) < epsilon);
+  CPPUNIT_ASSERT(fabs(integral_f(g, 0, 1, integrator) - erf(1)) < epsilon);
 
   // user-defined integration
   gauss2 g2;
-  CPPUNIT_ASSERT(fabs(integral(g2, 0, 1) - erf(1)) < epsilon);
+  CPPUNIT_ASSERT(fabs(integral_f(g2, 0, 1) - erf(1)) < epsilon);
 
   // Gauss-Legendre integration
   gauss3 g3;
   GaussLegendreIntegrator integrator2(10000, 1.e-5);
-  CPPUNIT_ASSERT(fabs(integral(g3, 0, 1, integrator2) - erf(1)) < epsilon);
+  CPPUNIT_ASSERT(fabs(integral_f(g3, 0, 1, integrator2) - erf(1)) < epsilon);
 
   // Gauss-Legendre integration
   gauss4 g4;
   GaussIntegrator integrator3(1.e-6);
-  CPPUNIT_ASSERT(fabs(integral(g4, 0, 1, integrator3) - erf(1)) < epsilon);
+  CPPUNIT_ASSERT(fabs(integral_f(g4, 0, 1, integrator3) - erf(1)) < epsilon);
 
   // automatic (trivial) integration
   Parameter pi("pi", M_PI);
-  CPPUNIT_ASSERT(fabs(integral(pi, 0, 2) - 2*pi()) < epsilon);
+  CPPUNIT_ASSERT(fabs(integral_f(pi, 0, 2) - 2*pi()) < epsilon);
 }
 

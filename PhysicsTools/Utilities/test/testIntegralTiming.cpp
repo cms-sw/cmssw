@@ -57,7 +57,7 @@ pair<double, double> check(const G& g, const I& i) {
   double i0 = pr(xMax);
   double t0, t1;
   t0 = getTime();
-  double i1 = integral(g, 0, xMax, i);
+  double i1 = integral_f(g, 0, xMax, i);
   t1 = getTime();
   pair<double, double> p = make_pair(t1 - t0, fabs(i1 - i0));
   cout << ">>> time: " << p.first

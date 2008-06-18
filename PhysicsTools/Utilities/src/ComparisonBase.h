@@ -14,6 +14,7 @@
 namespace reco {
   namespace parser {
     struct ComparisonBase {
+      virtual ~ComparisonBase() { }
       virtual bool compare( double, double ) const = 0;
     };
   }
