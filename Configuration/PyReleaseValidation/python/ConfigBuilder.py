@@ -5,7 +5,7 @@
 # creates a complete config file.
 # relval_main + the custom config for it is not needed any more
 
-__version__ = "$Revision: 1.30 $"
+__version__ = "$Revision: 1.31 $"
 __source__ = "$Source: /cvs_server/repositories/CMSSW/CMSSW/Configuration/PyReleaseValidation/python/ConfigBuilder.py,v $"
 
 import FWCore.ParameterSet.Config as cms
@@ -324,12 +324,12 @@ class ConfigBuilder(object):
         self.process.fastsim_step = cms.Path( getattr(self.process, sequence) )
         self.process.schedule.append(self.process.fastsim_step)
     
-    def build_production_info(self, evt_type, energy, evtnumber):
+    def build_production_info(self, evt_type, evtnumber):
         """ Add useful info for the production. """
         prod_info=cms.untracked.PSet\
-              (version=cms.untracked.string("$Revision: 1.30 $"),
+              (version=cms.untracked.string("$Revision: 1.31 $"),
                name=cms.untracked.string("PyReleaseValidation"),
-               annotation=cms.untracked.string(evt_type+" energy:"+str(energy)+" nevts:"+str(evtnumber))
+               annotation=cms.untracked.string(evt_type+ " nevts:"+str(evtnumber))
               )
     
         return prod_info
@@ -361,7 +361,7 @@ class ConfigBuilder(object):
  
         # dump production info
         if not hasattr(self.process,"configurationMetadata"):
-            self.process.configurationMetadata=self.build_production_info(self._options.evt_type, self._options.energy, self._options.number)
+            self.process.configurationMetadata=self.build_production_info(self._options.evt_type, self._options.number)
         self.pythonCfgCode += "\nprocess.configurationMetadata = "+self.process.configurationMetadata.dumpPython()       
         
         # dump max events block
