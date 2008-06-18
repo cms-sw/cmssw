@@ -101,29 +101,6 @@ L1Comparator::L1Comparator(const edm::ParameterSet& iConfig) {
     }
   }
 
-  for(int sys=0; sys<DEnsys; sys++) {
-    std::string data_label = SystLabel[sys] + "sourceData";
-    std::string emul_label = SystLabel[sys] + "sourceEmul";
-    m_DEsource[sys][0] = iConfig.getParameter<edm::InputTag>(data_label);
-    m_DEsource[sys][1] = iConfig.getParameter<edm::InputTag>(emul_label);
-    if(sys==CTF) {
-      std::string data_label(""); data_label+="CTTsourceData";
-      std::string emul_label(""); emul_label+="CTTsourceEmul";
-      m_DEsource[sys][2] = iConfig.getParameter<edm::InputTag>(data_label);
-      m_DEsource[sys][3] = iConfig.getParameter<edm::InputTag>(emul_label);
-    }
-    if(m_doSys[sys] && verbose()) {
-      std::cout << " sys:"   << sys << " label:" << SystLabel[sys]  
-		<< "\n\tdt:" << data_label << " : " <<m_DEsource[sys][0]
-		<< "\n\tem:" << emul_label << " : " <<m_DEsource[sys][1]
-		<< std::endl;
-      if(sys==CTF) {
-	std::cout << "\tdt:"     << data_label << " : " <<m_DEsource[sys][2]
-     		  << "\n\tem:" << emul_label << " : " <<m_DEsource[sys][3]
-		  << std::endl;
-      }
-    }
-  }
   
   m_fedId = iConfig.getUntrackedParameter<int>("FEDid", 0);
   m_FEDsource[0] = 
