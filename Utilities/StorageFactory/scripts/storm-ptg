@@ -1,0 +1,246 @@
+#! /usr/bin/perl
+
+use strict;
+use warnings;
+
+###DEFAULTS (ALL OVERWRITTEN BY CORRESPONDING ENV VARIABLES)###
+
+my $CMS_STORM_ENDPOINT=undef; #IF undef IS TAKEN FROM SURL
+
+my $CMS_STORM_PTG_TIMEOUT=300;
+
+my $CMS_STORM_PTG_POLLING=1;
+
+my $CMS_STORM_CLIENT_PATH=undef; #CAN SET THE PATH VARIABLE DIRECTLY
+
+my $CMS_STORM_CLIENT_LD_PATH=undef; #CAN SET THE LD_PATH VARIABLE DIRECTLY
+
+
+###COMMAND LINE ARGS###
+
+my $SURL=shift;
+
+my $PROTO=shift;
+
+###GLOBALS###
+
+my $REQID=undef;
+
+my $TURL=undef;
+
+die "ERROR: Usage: storm-ptg SURL PROTO\n" unless(defined($SURL) && defined($PROTO));
+
+###FUNCTIONS###
+
+sub getEndPoint
+{
+    if(defined($ENV{CMS_STORM_ENDPOINT}))
+    {
+	$CMS_STORM_ENDPOINT=$ENV{CMS_STORM_ENDPOINT};
+	return;
+    }
+    elsif(defined($CMS_STORM_ENDPOINT))
+    {
+	return;
+    }
+    else
+    {
+	$SURL =~ /^\s*(srm:\S+)\?SFN=\S+\s*$/;
+	$CMS_STORM_ENDPOINT=$1;
+	die "ERROR: cannot determine CMS_STORM_ENDPOINT value" unless(defined($CMS_STORM_ENDPOINT));    
+	return;
+    }
+}
+
+
+sub getTimeout
+{
+    if(defined($ENV{CMS_STORM_PTG_TIMEOUT}))
+    {
+	$CMS_STORM_PTG_TIMEOUT=integer($ENV{CMS_STORM_PTG_TIMEOUT});
+	return;
+    }
+    elsif(defined($CMS_STORM_PTG_TIMEOUT))
+    {
+	return;
+    }
+    else
+    {
+	die "ERROR: cannot determine CMS_STORM_PTG_TIMEOUT value"; 
+    }
+}
+
+
+
+sub getPolling
+{
+    if(defined($ENV{CMS_STORM_PTG_POLLING}))
+    {
+	$CMS_STORM_PTG_POLLING=integer($ENV{CMS_STORM_PTG_POLLING});
+	return;
+    }
+    elsif(defined($CMS_STORM_PTG_POLLING))
+    {
+	return;
+    }
+    else
+    {
+	die "ERROR: cannot determine CMS_STORM_PTG_POLLING value"; 
+    }
+}
+
+
+sub getPath
+{
+    if(defined($ENV{CMS_STORM_CLIENT_PATH}))
+    {
+	$CMS_STORM_CLIENT_PATH=integer($ENV{CMS_STORM_CLIENT_PATH});
+	return;
+    }
+    elsif(defined($CMS_STORM_CLIENT_PATH))
+    {
+	return;
+    }
+    else
+    {
+	warn "WARN: CMS_STORM_CLIENT_PATH has no value"; 
+    }
+}
+
+
+sub getLDPath
+{
+    if(defined($ENV{CMS_STORM_CLIENT_LD_PATH}))
+    {
+	$CMS_STORM_CLIENT_LD_PATH=integer($ENV{CMS_STORM_CLIENT_LD_PATH});
+	return;
+    }
+    elsif(defined($CMS_STORM_CLIENT_LD_PATH))
+    {
+	return;
+    }
+    else
+    {
+	warn "WARN: CMS_STORM_CLIENT_LD_PATH has no value"; 
+    }
+}
+
+
+
+sub addPaths()
+{
+   
+    getPath();
+
+    getLDPath();
+
+    if(defined($CMS_STORM_CLIENT_LD_PATH))
+    {
+	$ENV{LD_PATH}="$ENV{LD_PATH};$CMS_STORM_CLIENT_LD_PATH:.";
+    }
+
+    if(defined($CMS_STORM_CLIENT_PATH))
+    {
+	$ENV{PATH}="$ENV{PATH};$CMS_STORM_CLIENT_PATH:.";
+    }
+}
+
+
+sub execPtG
+{
+    my $cl="clientSRM PtG -e $CMS_STORM_ENDPOINT -s $SURL -T -P file"; 
+
+    open(PTG,"$cl") or die "ERROR: cannot execute command line $cl";
+
+    my $lines="";
+
+    while(<PTG>)
+    {
+	$lines.=$_;
+
+	if(/^\s*requestToken="(\S+)"\s*$/)
+	{
+	    $REQID=$1;
+	    return;
+	}
+    }
+
+    die "ERROR: $lines\nno request token found";
+}
+
+
+sub poll
+{
+    my $cl="clientSRM PtGStatus -e $CMS_STORM_ENDPOINT -t $REQID"; 
+	
+    open(PTGSTATUS,"$cl") or die "ERROR: cannot execute command line $cl";
+
+    my $lines;
+    
+    my $status;
+
+    while(<PTGSTATUS>)
+    {
+	$lines=$_;
+	
+	if(/^\s*\[\S+\]\s*status:\s*statusCode="(\S+)"\(\S+\)\s*$/)
+	{
+	    $status=$1;
+	}
+	if(/^\s*\[\S+\]\s*transferURL="(\S+)"\s*$/)
+	{
+	    my $TURL=$1;
+	}    	    
+    }
+
+    if($status eq "SRM_FILE_PINNED")
+    {	
+	unless(defined($TURL))
+	{
+	    die "ERROR: Ping successful but no TURL found:\n$lines";
+	}
+	return 1;
+    }
+    elsif($status eq "SRM_REQUEST_INPROGRESS")
+    {
+	return 0;
+    }
+    elsif($status eq "SRM_REQUEST_FAILED")
+    {
+	die "ERROR: $lines";
+    }
+    else
+    {
+	warn "WARN: Ping Failed:\n$lines";
+	return 0;
+    }
+    
+}
+
+
+###MAIN###
+
+getEndPoint();
+
+getTimeout();
+
+getPolling();
+
+addPaths();
+
+execPtG();
+
+my $elapsed=0;
+
+while((poll()==0) and ($elapsed*$CMS_STORM_PTG_POLLING <= $CMS_STORM_PTG_TIMEOUT))
+{
+    system("sleep  $CMS_STORM_PTG_TIMEOUT");
+    $elapsed++;
+}
+
+my $elapsed_time=$elapsed*$CMS_STORM_PTG_POLLING;
+
+print "Elapsed time: $elapsed_time\n";
+print "Request token: $REQID \n";
+print "Transfer url: $TURL\n";
+

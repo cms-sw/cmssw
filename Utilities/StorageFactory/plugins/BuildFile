@@ -1,4 +1,4 @@
-<library file="GsiFTPStorageMaker.cc HttpStorageMaker.cc LocalStorageMaker.cc" name=UtilitiesStorageFactoryPlugins>
+<library file="GsiFTPStorageMaker.cc HttpStorageMaker.cc LocalStorageMaker.cc StormStorageMaker.cc StormLCGStorageMaker.cc" name=UtilitiesStorageFactoryPlugins>
   <use name=Utilities/StorageFactory>
   <flags EDM_PLUGIN=1>
   <flags cppflags="-D_FILE_OFFSET_BITS=64">
