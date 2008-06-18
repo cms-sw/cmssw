@@ -11,6 +11,7 @@
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include "FWCore/Utilities/interface/Exception.h"
 #include <cstdlib>
+#include "shift/stager_api.h"
 
 class RFIOStorageMaker : public StorageMaker
 {
@@ -125,18 +126,62 @@ public:
     return file;
   }
 
+  virtual void stagein (const std::string &proto,
+		        const std::string &path)
+  {
+    std::string npath = normalise(path);
+    size_t castor = npath.find("?path=/castor/");
+    size_t rest = npath.find("&");
+    if (proto != "rfio" || castor == std::string::npos)
+      return;
+
+    castor += 6;
+    size_t len = (rest == std::string::npos ? rest : rest-castor);
+    std::string stagepath(npath, castor, len);
+
+    stage_options opts;
+    opts.stage_host = getenv("STAGE_HOST");
+    opts.service_class = getenv("STAGE_SVCCLASS");
+    opts.stage_port = 0;
+    opts.stage_version = 2;
+
+    stage_prepareToGet_filereq req;
+    req.protocol = (char *) "rfio";
+    req.filename = (char *) stagepath.c_str();
+    req.priority = 0;
+
+    int nresp = 0;
+    stage_prepareToGet_fileresp *resp = 0;
+    int rc = stage_prepareToGet(0, &req, 1, &resp, &nresp, 0, &opts);
+    if (rc < 0)
+      throw cms::Exception("RFIOStorageMaker::stagein()")
+	<< "Error while staging in '" << stagepath
+        << "', error was: " << rfio_serror()
+        << " (serrno=" << serrno << ")";
+
+    if (nresp == 1 && resp->errorCode != 0)
+      throw cms::Exception("RFIOStorageMaker::stagein()")
+	<< "Error while staging in '" << stagepath
+        << "', stagein error was: " << resp->errorMessage
+        << " (code=" << resp->errorCode << ")";
+      
+    free(resp->filename);
+    free(resp->errorMessage);
+    free(resp);
+  }
+
   virtual bool check (const std::string &proto,
 		      const std::string &path,
 		      IOOffset *size = 0)
   {
     std::string npath = normalise(path);
-    if (rfio_access (npath.c_str (), R_OK) != 0)
+    if (rfio_access(npath.c_str (), R_OK) != 0)
       return false;
 
     if (size)
     {
       struct stat buf;
-      if (rfio_stat64 (npath.c_str (), &buf) != 0)
+      if (rfio_stat64(npath.c_str (), &buf) != 0)
         return false;
 
       *size = buf.st_size;
