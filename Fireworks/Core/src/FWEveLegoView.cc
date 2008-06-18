@@ -8,7 +8,7 @@
 //
 // Original Author:  Chris Jones
 //         Created:  Thu Feb 21 11:22:41 EST 2008
-// $Id: FWEveLegoView.cc,v 1.9 2008/06/10 19:54:08 chrjones Exp $
+// $Id: FWEveLegoView.cc,v 1.10 2008/06/11 13:57:32 dmytro Exp $
 //
 
 // system include files
@@ -117,7 +117,7 @@ FWEveLegoView::draw(TEveCaloDataHist* data)
    // bool firstTime = (m_lego->GetData() == 0);
    m_lego->SetData(data);
    m_lego->ElementChanged();
-   m_lego->InvalidateCache();
+   m_lego->InvalidateCellIdCache();
    /*
    if ( firstTime ) {
       m_scene->Repaint();
@@ -142,7 +142,7 @@ FWEveLegoView::setMinEcalEnergy(double value)
    if ( ! m_ecalSlice ) return;
    m_ecalSlice->fThreshold = value;
    m_lego->ElementChanged();
-   m_lego->InvalidateCache();
+   m_lego->InvalidateCellIdCache();
    m_viewer->GetGLViewer()->RequestDraw();
 }
 
@@ -160,7 +160,7 @@ FWEveLegoView::setMinHcalEnergy(double value)
    if ( ! m_hcalSlice ) return;
    m_hcalSlice->fThreshold = value;
    m_lego->ElementChanged();
-   m_lego->InvalidateCache();
+   m_lego->InvalidateCellIdCache();
    m_viewer->GetGLViewer()->RequestDraw();
 }
 
