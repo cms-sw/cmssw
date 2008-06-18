@@ -24,7 +24,7 @@
 #include "Validation/RecoJets/interface/NameScheme.h"
 
 
-template <typename Ref, typename Alg>
+template <typename Ref, typename Rec, typename Alg>
 class CalibAnalyzer : public edm::EDAnalyzer {
 
  public:
@@ -36,7 +36,7 @@ class CalibAnalyzer : public edm::EDAnalyzer {
 
   virtual void beginJob(const edm::EventSetup&);
   virtual void analyze(const edm::Event&, const edm::EventSetup&);
-  virtual void endJob(){};
+  virtual void endJob(){ alg_.summarize(); };
 
   void fill(const double& var, const double& val, const std::vector<double>& bins, const std::vector<TH1F*>& hists);
 
@@ -63,8 +63,8 @@ class CalibAnalyzer : public edm::EDAnalyzer {
   Alg alg_;                                       // matching/balancing algorithm
 };
 
-template <typename Ref, typename Alg>
-CalibAnalyzer<Ref, Alg>::CalibAnalyzer(const edm::ParameterSet& cfg):
+template <typename Ref, typename Rec, typename Alg>
+CalibAnalyzer<Ref, Rec, Alg>::CalibAnalyzer(const edm::ParameterSet& cfg):
   recs_( cfg.getParameter<edm::InputTag>( "recs" ) ),
   refs_( cfg.getParameter<edm::InputTag>( "refs" ) ),
   hist_( cfg.getParameter<std::string > ( "hist" ) ),
@@ -78,13 +78,13 @@ CalibAnalyzer<Ref, Alg>::CalibAnalyzer(const edm::ParameterSet& cfg):
 {
 }
 
-template <typename Ref, typename Alg>
-void CalibAnalyzer<Ref, Alg>::analyze(const edm::Event& evt, const edm::EventSetup& setup)
+template <typename Ref, typename Rec, typename Alg>
+void CalibAnalyzer<Ref, Rec, Alg>::analyze(const edm::Event& evt, const edm::EventSetup& setup)
 {
   edm::Handle<Ref> refs;
   evt.getByLabel(refs_, refs);
 
-  edm::Handle<reco::CaloJetCollection> recs;
+  edm::Handle<Rec> recs;
   evt.getByLabel(recs_, recs);
   
   // do matching
@@ -92,7 +92,7 @@ void CalibAnalyzer<Ref, Alg>::analyze(const edm::Event& evt, const edm::EventSet
 
   if( !matches.size()>0 )
     edm::LogWarning ( "NoMatchOrBalance" ) 
-      << "No single match/balance found to any reco::CaloJet in collection";
+      << "No single match/balance found to any Rec object in collection";
   
   // fill comparison plots for matched jets
   for(std::map<unsigned int, unsigned int>::const_iterator match=matches.begin(); 
@@ -112,8 +112,8 @@ void CalibAnalyzer<Ref, Alg>::analyze(const edm::Event& evt, const edm::EventSet
   }
 }
 
-template <typename Ref, typename Alg>
-void CalibAnalyzer<Ref, Alg>::fill(const double& var, const double& val, const std::vector<double>& bins, const std::vector<TH1F*>& hists)
+template <typename Ref, typename Rec, typename Alg>
+void CalibAnalyzer<Ref, Rec, Alg>::fill(const double& var, const double& val, const std::vector<double>& bins, const std::vector<TH1F*>& hists)
 {
   for(unsigned int idx=0; idx<(bins.size()-1); ++idx){
     if( (bins[idx]<var) && (var<bins[idx+1]) ){
@@ -122,8 +122,8 @@ void CalibAnalyzer<Ref, Alg>::fill(const double& var, const double& val, const s
   }
 }
 
-template <typename Ref, typename Alg>
-void CalibAnalyzer<Ref, Alg>::beginJob(const edm::EventSetup&)
+template <typename Ref, typename Rec, typename Alg>
+void CalibAnalyzer<Ref, Rec, Alg>::beginJob(const edm::EventSetup&)
 {
   if( hist_.empty() )
     return;

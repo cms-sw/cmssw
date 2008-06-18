@@ -18,13 +18,13 @@
 #include "PhysicsTools/UtilAlgos/interface/TFileService.h"
 
 
-template <typename Obj, typename RefQualifier, typename Alg>
+template <typename Ref, typename RefQualifier, typename Rec, typename RecQualifier, typename Alg>
 class Comparison {
   
  public:
   Comparison(const edm::ParameterSet&);
   ~Comparison(){};
-  std::map<unsigned int, unsigned int> operator()(const Obj&, const reco::CaloJetCollection&);
+  std::map<unsigned int, unsigned int> operator()(const Ref&, const Rec&);
   void book();
   void book(ofstream&);
   void summarize();
@@ -45,15 +45,15 @@ class Comparison {
 
   Alg alg_;
   RefQualifier refQualifier_;
-  CaloJetQualifier recQualifier_; 
+  RecQualifier recQualifier_; 
 
   unsigned int found_;
   unsigned int missed_;
   unsigned int failed_; 
 };
 
-template <typename Obj, typename RefQualifier, typename Alg>
-Comparison<Obj, RefQualifier, Alg>::Comparison(const edm::ParameterSet& cfg):
+template <typename Ref, typename RefQualifier, typename Rec, typename RecQualifier, typename Alg>
+Comparison<Ref, RefQualifier, Rec, RecQualifier, Alg>::Comparison(const edm::ParameterSet& cfg):
   maxDR_( cfg.getParameter<double>( "maxDR" ) ),
   minPtRef_ ( cfg.getParameter<double>( "minPtRef"  ) ),
   maxPtRef_ ( cfg.getParameter<double>( "maxPtRef"  ) ),
@@ -75,13 +75,13 @@ Comparison<Obj, RefQualifier, Alg>::Comparison(const edm::ParameterSet& cfg):
   }
 }
 
-template <typename Obj, typename RefQualifier, typename Alg>
+template <typename Ref, typename RefQualifier, typename Rec, typename RecQualifier, typename Alg>
 std::map<unsigned int, unsigned int> 
-Comparison<Obj, RefQualifier, Alg>::operator()(const Obj& refs, const reco::CaloJetCollection& recs)
+Comparison<Ref, RefQualifier, Rec, RecQualifier, Alg>::operator()(const Ref& refs, const Rec& recs)
 {
   int refIdx=0;
   std::map<unsigned int, unsigned int> matches;
-  for(typename Obj::const_iterator ref=refs.begin(); 
+  for(typename Ref::const_iterator ref=refs.begin(); 
       ref!=refs.end(); ++ref, ++refIdx ){
     if( !(minEtaRef_<ref->eta() && ref->eta()<maxEtaRef_) ) 
       // retrict to visible range in eta
@@ -98,7 +98,7 @@ Comparison<Obj, RefQualifier, Alg>::operator()(const Obj& refs, const reco::Calo
     int jetIdx=0;
     int match=-1;
     double dist=-1.;    
-    for(reco::CaloJetCollection::const_iterator rec = recs.begin();
+    for(typename Rec::const_iterator rec = recs.begin();
 	rec!=recs.end(); ++rec, ++jetIdx ){
       if( !(minEtaRec_<rec->eta() && rec->eta()<maxEtaRec_) ) 
 	// retrict to visible range in eta
@@ -140,8 +140,8 @@ Comparison<Obj, RefQualifier, Alg>::operator()(const Obj& refs, const reco::Calo
   return matches;
 }
 
-template <typename Obj, typename RefQualifier, typename Alg>
-void Comparison<Obj, RefQualifier, Alg>::book()
+template <typename Ref, typename RefQualifier, typename Rec, typename RecQualifier, typename Alg>
+void Comparison<Ref, RefQualifier, Rec, RecQualifier, Alg>::book()
 {
   edm::Service<TFileService> fs;
   if( !fs )
@@ -156,8 +156,8 @@ void Comparison<Obj, RefQualifier, Alg>::book()
   }
 }
 
-template <typename Obj, typename RefQualifier, typename Alg>
-void Comparison<Obj, RefQualifier, Alg>::book(ofstream& file)
+template <typename Ref, typename RefQualifier, typename Rec, typename RecQualifier, typename Alg>
+void Comparison<Ref, RefQualifier, Rec, RecQualifier, Alg>::book(ofstream& file)
 {
   edm::Service<TFileService> fs;
   if( !fs )
@@ -172,16 +172,22 @@ void Comparison<Obj, RefQualifier, Alg>::book(ofstream& file)
   }
 }
 
-template <typename Obj, typename RefQualifier, typename Alg>
-void Comparison<Obj, RefQualifier, Alg>::summarize()
+template <typename Ref, typename RefQualifier, typename Rec, typename RecQualifier, typename Alg>
+void Comparison<Ref, RefQualifier, Rec, RecQualifier, Alg>::summarize()
 {
   unsigned int all=found_+missed_+failed_;
-  edm::LogInfo("MatchSummary") << "=============================================";
-  edm::LogInfo("MatchSummary") << "Reference :";
-  edm::LogInfo("MatchSummary") << "CaloJet   :";
-  edm::LogInfo("MatchSummary") << "fraction of found  jets: " << 100*found_ /all << "%";
-  edm::LogInfo("MatchSummary") << "fraction of missed jets: " << 100*missed_/all << "%";
-  edm::LogInfo("MatchSummary") << "fraction of failed jets: " << 100*failed_/all << "%";
+  if(all>0){
+    edm::LogInfo("MatchSummary") << "=============================================";
+    edm::LogInfo("MatchSummary") << "Reference :";
+    edm::LogInfo("MatchSummary") << "CaloJet   :";
+    edm::LogInfo("MatchSummary") << "fraction of found  jets: " << 100*found_ /all << "%";
+    edm::LogInfo("MatchSummary") << "fraction of missed jets: " << 100*missed_/all << "%";
+    edm::LogInfo("MatchSummary") << "fraction of failed jets: " << 100*failed_/all << "%";
+  }
+  else{
+    edm::LogWarning ( "MatchOrBalanceFault" ) 
+      << "No missed, failed nor counts found";    
+  }
 }
 
 #endif

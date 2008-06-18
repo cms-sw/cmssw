@@ -71,9 +71,9 @@ double makeGifHists (TH1* fHist, TH1* fRefHist, TCanvas* fCanvas, const std::str
   sprintf (buf, "%s: Kolmogorov Test PV = %5.3f", fPrefix.c_str(), pv);
   TPaveText title (0.3,0.85,0.95, 0.99, buf);
   title.SetFillColor(pv > 0.01 ? 3 : 2);
-  TText* t1 = title.AddText (fPrefix.c_str());
+  //TText* t1 = title.AddText (fPrefix.c_str());
   sprintf (buf, "Kolmogorov Test PV = %6.4f", pv);
-  TText* t2 = title.AddText (buf);
+  //TText* t2 = title.AddText (buf);
   // t2->SetTextSize(0.3);
   title.Draw();
 
