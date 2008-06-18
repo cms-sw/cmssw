@@ -1,4 +1,4 @@
-// $Id: FourVectorHLTOffline.cc,v 1.1 2008/06/12 21:58:49 berryhil Exp $
+// $Id: FourVectorHLTOffline.cc,v 1.2 2008/06/18 19:37:01 berryhil Exp $
 // See header file for information. 
 #include "FWCore/Framework/interface/EDAnalyzer.h"
 #include "DataFormats/Common/interface/Handle.h"
@@ -124,7 +124,7 @@ FourVectorHLTOffline::analyze(const edm::Event& iEvent, const edm::EventSetup& i
 
     for ( size_t ia = 0; ia < triggerObj->sizeFilters(); ++ ia) {
       // get the path name to encode ME name
-      std::string name = triggerObj->filterLabel(ia);
+      std::string name = triggerObj->filterTag(ia).encode();
       // KLUDGE:  trigger object type is keyed off of filterId 
       // instead of trigger object pdgId (becuase it is buggy in 2_0)
        Vids  idtype = triggerObj->filterIds(ia);
