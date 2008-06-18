@@ -1,4 +1,4 @@
-// $Id: FourVectorHLTOffline.cc,v 1.6 2008/05/26 09:31:14 wittich Exp $
+// $Id: FourVectorHLTOffline.cc,v 1.1 2008/06/12 21:58:49 berryhil Exp $
 // See header file for information. 
 #include "FWCore/Framework/interface/EDAnalyzer.h"
 #include "DataFormats/Common/interface/Handle.h"
@@ -35,7 +35,7 @@ FourVectorHLTOffline::FourVectorHLTOffline(const edm::ParameterSet& iConfig):
 
   dbe_ = Service < DQMStore > ().operator->();
   if ( ! dbe_ ) {
-    LogWarning("FourVectorHLTOffline") << "unabel to get DQMStore service?";
+    LogInfo("FourVectorHLTOffline") << "unabel to get DQMStore service?";
   }
   if (iConfig.getUntrackedParameter < bool > ("DQMStore", false)) {
     dbe_->setVerbose(0);
@@ -71,7 +71,7 @@ FourVectorHLTOffline::FourVectorHLTOffline(const edm::ParameterSet& iConfig):
   }
   if ( hltPaths_.size() && plotAll_) {
     // these two ought to be mutually exclusive....
-    LogWarning("FourVectorHLTOffline") << "Using both plotAll and a list. "
+    LogInfo("FourVectorHLTOffline") << "Using both plotAll and a list. "
       "list will be ignored." ;
     hltPaths_.clear();
   }
@@ -107,7 +107,7 @@ FourVectorHLTOffline::analyze(const edm::Event& iEvent, const edm::EventSetup& i
   edm::Handle<TriggerEvent> triggerObj;
   iEvent.getByLabel(triggerSummaryLabel_,triggerObj); 
   if(!triggerObj.isValid()) { 
-    edm::LogWarning("FourVectorHLTOffline") << "Summary HLT objects not found, "
+    edm::LogInfo("FourVectorHLTOffline") << "Summary HLT objects not found, "
       "skipping event"; 
     return;
   }
@@ -200,7 +200,7 @@ FourVectorHLTOffline::analyze(const edm::Event& iEvent, const edm::EventSetup& i
          iEvent.getByLabel("photons",photonHandle);
 
          if(!photonHandle.isValid()) { 
-            edm::LogWarning("FourVectorHLTOffline") << "photonHandle not found, "
+            edm::LogInfo("FourVectorHLTOffline") << "photonHandle not found, "
             "skipping event"; 
             return;
          }
@@ -221,7 +221,7 @@ FourVectorHLTOffline::analyze(const edm::Event& iEvent, const edm::EventSetup& i
          edm::Handle<reco::PixelMatchGsfElectronCollection> gsfElectrons;
          iEvent.getByLabel("pixelMatchGsfElectrons",gsfElectrons); 
          if(!gsfElectrons.isValid()) { 
-            edm::LogWarning("FourVectorHLTOffline") << "gsfElectrons not found, "
+            edm::LogInfo("FourVectorHLTOffline") << "gsfElectrons not found, "
             "skipping event"; 
             return;
          }
@@ -240,7 +240,7 @@ FourVectorHLTOffline::analyze(const edm::Event& iEvent, const edm::EventSetup& i
          iEvent.getByLabel("muons",muonHandle);
 
          if(!muonHandle.isValid()) { 
-            edm::LogWarning("FourVectorHLTOffline") << "muonHandle not found, "
+            edm::LogInfo("FourVectorHLTOffline") << "muonHandle not found, "
             "skipping event"; 
             return;
          }
@@ -261,7 +261,7 @@ FourVectorHLTOffline::analyze(const edm::Event& iEvent, const edm::EventSetup& i
          iEvent.getByLabel("caloRecoTauProducer",tauHandle);
 
          if(!tauHandle.isValid()) { 
-            edm::LogWarning("FourVectorHLTOffline") << "tauHandle not found, "
+            edm::LogInfo("FourVectorHLTOffline") << "tauHandle not found, "
             "skipping event"; 
             return;
          }
@@ -282,7 +282,7 @@ FourVectorHLTOffline::analyze(const edm::Event& iEvent, const edm::EventSetup& i
          iEvent.getByLabel("iterativeCone5CaloJets",jetHandle);
 
          if(!jetHandle.isValid()) { 
-            edm::LogWarning("FourVectorHLTOffline") << "jetHandle not found, "
+            edm::LogInfo("FourVectorHLTOffline") << "jetHandle not found, "
             "skipping event"; 
             return;
          }
@@ -307,7 +307,7 @@ FourVectorHLTOffline::analyze(const edm::Event& iEvent, const edm::EventSetup& i
          iEvent.getByLabel("met",metHandle);
 
          if(!metHandle.isValid()) { 
-            edm::LogWarning("FourVectorHLTOffline") << "metHandle not found, "
+            edm::LogInfo("FourVectorHLTOffline") << "metHandle not found, "
             "skipping event"; 
             return;
          }
