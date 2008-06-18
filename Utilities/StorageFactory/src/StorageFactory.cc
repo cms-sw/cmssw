@@ -124,6 +124,31 @@ StorageFactory::open (const std::string &url, int mode, const std::string &tmpdi
   return ret;
 }
 
+void
+StorageFactory::stagein (const std::string &url)
+{ 
+  std::string protocol;
+  std::string rest;
+
+  boost::shared_ptr<StorageAccount::Stamp> stats;
+  if (StorageMaker *maker = getMaker (url, protocol, rest))
+  {
+    if (m_accounting) 
+      stats.reset(new StorageAccount::Stamp(StorageAccount::counter (protocol, "stagein")));
+    try
+    {
+      maker->stagein (protocol, rest);
+      if (stats) stats->tick();
+    }
+    catch (cms::Exception &err)
+    {
+      edm::LogWarning("StorageFactory::stagein()")
+	<< "Failed to stage in file '" << url << "' because:\n"
+	<< err.explainSelf();
+    }
+  }
+}
+
 bool
 StorageFactory::check (const std::string &url, IOOffset *size /* = 0 */)
 { 

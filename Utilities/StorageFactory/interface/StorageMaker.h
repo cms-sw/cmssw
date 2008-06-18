@@ -12,6 +12,8 @@ public:
   // implicit copy constructor
   // implicit assignment operator
 
+  virtual void		stagein (const std::string &proto,
+				 const std::string &path);
   virtual Storage *	open (const std::string &proto,
 			      const std::string &path,
 			      int mode,

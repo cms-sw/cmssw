@@ -41,6 +41,7 @@ public:
   bool		enableAccounting (bool enabled);
   bool		accounting (void) const;
 
+  void		stagein (const std::string &url);
   Storage *	open (const std::string &url,
 	    	      int mode = IOFlags::OpenRead,
 	    	      const std::string &tmpdir = "");

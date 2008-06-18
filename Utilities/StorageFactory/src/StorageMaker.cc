@@ -7,6 +7,11 @@
 StorageMaker::~StorageMaker (void)
 {}
 
+void
+StorageMaker::stagein (const std::string &proto,
+                       const std::string &path)
+{}
+
 bool
 StorageMaker::check (const std::string &proto,
 		     const std::string &path,
