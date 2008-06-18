@@ -30,12 +30,14 @@ Storage::read (void *into, IOSize n, IOOffset pos)
 IOSize
 Storage::readv (IOPosBuffer *into, IOSize n)
 {
+  IOOffset here = position();
   IOSize total = 0;
   for (IOSize i = 0; i < n; ++i)
   {
     try
     {
-      total += read(into[i].data(), into[i].size(), into[i].offset());
+      position(into[i].offset());
+      total += read(into[i].data(), into[i].size());
     }
     catch (cms::Exception &)
     {
@@ -44,6 +46,7 @@ Storage::readv (IOPosBuffer *into, IOSize n)
       break;
     }
   }
+  position(here);
   return total;
 }
 
