@@ -984,6 +984,7 @@ public :
    int OpenHlt1ElectronPassed(double Et,double L1iso,double Tiso,double Hiso,double eoverpBR,double eoverpEC);
    int OpenHlt1PhotonPassed(double Et,double L1iso,double Tiso,double Eiso,double HisoBR,double HisoEC);
    int OpenHlt1MuonPassed(double ptl1,double ptl2,double ptl3,double dr,int iso);
+   int OpenHlt2MuonPassed(double ptl1,double ptl2,double ptl3,double dr,int iso);
    int OpenHlt1JetPassed(double pt);
 
  private:

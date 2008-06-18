@@ -238,6 +238,16 @@ void OHltTree::Loop(vector<int> * iCount, vector<int> * sPureCount, vector<int> 
           } 
         } 
       } 
+
+      else if (trignames[it].CompareTo("OpenHLT2MuonNonIso") == 0) {  
+        if( L1_SingleMu3==1) {      // L1 Seed  
+          if(OpenHlt2MuonPassed(3.,3.,3.,2.,0)>1) {  
+            triggerBitNoPrescale[it] = true;   
+            if ((iCountNoPrescale[it]) % map_pathHLTPrescl.find(trignames[it])->second == 0) {   
+            }  
+          }  
+        }  
+      }
       /* ****** Muons end here ****** */ 
 
 
@@ -513,6 +523,84 @@ int OHltTree::OpenHlt1MuonPassed(double ptl1, double ptl2, double ptl3, double d
 
   return rcL1L2L3;
 }
+
+int OHltTree::OpenHlt2MuonPassed(double ptl1, double ptl2, double ptl3, double dr, int iso) 
+{ 
+  // Note that the dimuon paths generally have different L1 requirements than 
+  // the single muon paths. Therefore this example is implemented in a separate
+  // function.
+  //
+  // This example implements the new (CMSSW_2_X) flat muon pT cuts. 
+  // To emulate the old behavior, the cuts should be written 
+  // L2:        ohMuL2Pt[i]+3.9*ohMuL2PtErr[i]*ohMuL2Pt[i] 
+  // L3:        ohMuL3Pt[i]+2.2*ohMuL3PtErr[i]*ohMuL3Pt[i] 
+ 
+  int rcL1 = 0; int rcL2 = 0; int rcL3 = 0; int rcL1L2L3 = 0; 
+  int NL1Mu = 8; 
+  int L1MinimalQuality = 3; 
+  int L1MaximalQuality = 7; 
+ 
+  // Loop over all oh L3 muons and apply cuts 
+  for (int i=0;i<NohMuL3;i++) {   
+    int bestl1l2drmatchind = -1; 
+    double bestl1l2drmatch = 999.0;  
+ 
+    if( fabs(ohMuL3Eta[i]) < 2.5 ) { // L3 eta cut   
+      if(ohMuL3Pt[i] > ptl3) {  // L3 pT cut         
+        if(ohMuL3Dr[i] < dr) {  // L3 DR cut 
+          if(ohMuL3Iso[i] >= iso) {  // L3 isolation 
+            rcL3++; 
+ 
+            // Begin L2 muons here.  
+            // Get best L2<->L3 match, then  
+            // begin applying cuts to L2 
+            int j = ohMuL3L2idx[i];  // Get best L2<->L3 match 
+ 
+            if ( (fabs(ohMuL2Eta[j])<2.5) ) {  // L2 eta cut 
+              if( ohMuL2Pt[j] > ptl2 ) { // L2 pT cut 
+                rcL2++; 
+ 
+                // Begin L1 muons here. 
+                // Require there be an L1Extra muon Delta-R 
+                // matched to the L2 candidate, and that it have  
+                // good quality and pass nominal L1 pT cuts  
+                for(int k = 0;k < NL1Mu;k++) { 
+                  if( (L1MuPt[k] < ptl1) ) // L1 pT cut 
+                    continue; 
+ 
+                  double deltaphi = fabs(ohMuL2Phi[j]-L1MuPhi[k]);  
+                  if(deltaphi > 3.14159)  
+                    deltaphi = (2.0 * 3.14159) - deltaphi;  
+  
+                  double deltarl1l2 = sqrt((ohMuL2Eta[j]-L1MuEta[k])*(ohMuL2Eta[j]-L1MuEta[k]) +    
+                                           (deltaphi*deltaphi));  
+                  if(deltarl1l2 < bestl1l2drmatch)   
+                    {   
+                      bestl1l2drmatchind = k;   
+                      bestl1l2drmatch = deltarl1l2;   
+                    }   
+                } // End loop over L1Extra muons 
+                 
+                // Cut on L1<->L2 matching and L1 quality 
+                if((bestl1l2drmatch > 0.3) || (L1MuQal[bestl1l2drmatchind] < L1MinimalQuality) || (L1MuQal[bestl1l2drmatchind] > L1MaximalQuality))   
+                  {   
+                    rcL1 = 0;  
+                  } 
+                else 
+                  { 
+                    rcL1++; 
+                    rcL1L2L3++; 
+                  } // End L1 matching and quality cuts        
+              } // End L2 pT cut 
+            } // End L2 eta cut 
+          } // End L3 isolation cut 
+        } // End L3 DR cut 
+      } // End L3 pT cut 
+    } // End L3 eta cut 
+  } // End loop over L3 muons                  
+ 
+  return rcL1L2L3; 
+} 
 
 
 int OHltTree::OpenHlt1JetPassed(double pt)

@@ -2,7 +2,7 @@
 //
 //   Program to calculate HLT rates
 //
-//   Contacts: Jonathan Hollar (LBNL), Chi Nhan Nguyen (TAMU)
+//   Contacts: Jonathan Hollar (LLNL), Chi Nhan Nguyen (TAMU)
 //
 //   2008 June 10
 //
@@ -811,10 +811,12 @@ void BookMenu_OhltExample(OHltMenu*  menu,double &iLumi,double &nBunches) {
   menu->AddHlt("OpenHLT2TauPixel","L1_TauJet40",1,1,"15","1e32"); 
 
   //
-  //  menu->AddHlt("HLT1MuonNonIso","L1_SingleMu7",1,1,"16","1e32");
-  //  menu->AddHlt("OpenHLT1MuonNonIso","L1_SingleMu7",1,1,"16","1e32");
+  menu->AddHlt("HLT1MuonNonIso","L1_SingleMu7",1,1,"16","1e32");
+  menu->AddHlt("OpenHLT1MuonNonIso","L1_SingleMu7",1,1,"16","1e32");
   menu->AddHlt("HLT1MuonIso","L1_SingleMu7",1,1,"11","1e32");
   menu->AddHlt("OpenHLT1MuonIso","L1_SingleMu7",1,1,"11","1e32");
+  menu->AddHlt("HLT2MuonNonIso","L1_DoubleMu3",1,1,"(3,3)","1e32");
+  menu->AddHlt("OpenHLT2MuonNonIso","L1_DoubleMu3",1,1,"(3,3)","1e32");
 }
 
 

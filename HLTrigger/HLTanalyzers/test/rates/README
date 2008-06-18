@@ -1,0 +1,102 @@
+************************************** 
+1. Introduction
+************************************** 
+
+
+
+**************************************
+2. Input samples and cross-sections
+**************************************
+
+	The input ntuples and cross-sections are defined in the main() function in OHltRates.cpp.
+	These are filled as entries in the vectors ProcFil and xsec, respectively. The current default 
+	uses samples of Z->tau+tau- and QCD in three bins of pT: 30-50, 50-80, and 80-120.
+
+**************************************
+3. Trigger examples
+**************************************
+
+        The list of OpenHLT triggers in the menu is defined in the BookMenu_OhltExample method in OHltRates.cpp.  
+	Several OpenHLT trigger algorithms are already implemented as templates. These will be 
+	executed when the script is run with the "example" option, together with the corresponding
+	triggers from the full HLT. For example:
+
+		./OHltRates 1000000 example
+
+ -------------------------------------- 
+3a. Adding new OpenHLT triggers
+-------------------------------------- 
+
+        To add a new OpenHLT trigger, the first step is to register it in the menu. This requires adding a line 
+	that calls AddHlt to the BookMenu_OhltExample method in OHltRates.cpp. This takes the form: 
+ 
+                menu->AddHlt(TString trig, TString l1Bit, int l1prescale, int hltprescale, TString threshold, TString desc); 
+ 
+        The arguments to this method will be used as labels in the output menu showing the rates, and 
+	are defined as follows: 
+
+                trig:           Name of the new OpenHLT trigger 
+                l1Bit:          Name of the L1 bit used by this OpenHLT trigger 
+                l1prescale:     Prescale value applied at L1 
+                hltprescale:    Prescale value applied at HLT 
+                threshold:      HLT trigger threshold 
+                desc:           Description string - for example "1e32" for  
+                                triggers in the 10^32 menu, "new" for new developmental  
+                                triggers, etc. 
+
+	Once the trigger is registered, the actual trigger logic must be implemented in OHltTree.cpp; this is done in 
+	two places. The first is the OHltTree::Loop method, where the L1 and HLT pass/fail conditions are decided.
+	The second is in dedicated methods where the HLT trigger algorithms are emulated. A single one of these dedicated
+	methods can be used by several OpenHLT triggers if they differ only in their thresholds. 
+
+	Several example OpenHLT triggers are provided as templates; these are described in detail below.
+
+--------------------------------------  
+3b. Example OpenHLT jet triggers  
+--------------------------------------  
+ 
+        One example OpenHLT jet trigger (corresponding to HLT1jet) is implemented. The algorithm is  
+        implemented in the OHltTree::OpenHlt1JetPassed method. This method takes a single argument:
+
+		double pt:	Jet pT threshold.
+
+	The trigger passes if N>=1 jets above threshold are found in the event. 
+
+--------------------------------------
+3c. Example OpenHLT muon triggers
+--------------------------------------
+	
+	Three example OpenHLT muon triggers (corresponding to HLT1MuonNonIso, HLT1MuonIso, and HLT2MuonNonIso) are 
+	available. 
+
+	The algorithm for the single muon triggers is implemented in the OHltTree::OpenHlt1MuonPassed method. This 
+	takes five arguments:
+
+		double ptl1:	L1extra pT threshold 
+		double ptl2:	L2 muon pT threshold
+		double ptl3:	L3 muon pT threshold
+		double dr:	L3 dR threshold
+		int iso:	L3 isolation (1 if isolated, 0 if non-isolated)
+
+	The algorithm starts from L3 muons and applies pT, eta, dr, and isolation criteria. It 
+	then finds the L2 muon matched to the L3 muon, and applies pT and eta cuts. It then finds
+	the L1extra muon most closely matched to the L2 muon, and applies pT and quality cuts. For the 
+	single muon triggers, the L1 quality must be between 4 and 7 (inclusive). The trigger passes if 
+	N>=1 muons satisfying all these criteria are found.
+
+	The algorithm for the double muon triggers is implemented in the OHltTree::OpenHlt2MuonPassed 
+	method. The arguments to this method are:
+
+	        double ptl1:    L1extra pT threshold  
+                double ptl2:    L2 muon pT threshold 
+                double ptl3:    L3 muon pT threshold 
+                double dr:      L3 dR threshold 
+                int iso:        L3 isolation (1 if isolated, 0 if non-isolated) 
+
+	The algorithm is identical to the single muon case described above, with the exception of the L1extra muons, 
+	which must have quality between 3 and 7 (inclusive). The trigger passes if N>=2 muons satisfying all these 
+	criteria are found.
+
+	* Note that in CMSSW releases 2_X and higher, the L2 and L3 muon pT thresholds are implemented as flat cuts.
+	  In earlier releases, the thresholds were implemented as 90% CL upper limits. OpenHLT examples of the old pT 
+	  threshold implementation are found at the beginning of the OpenHlt1MuonPassed and OpenHlt2MuonPassed examples.
