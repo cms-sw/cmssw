@@ -258,6 +258,21 @@ TStorageFactoryFile::ReadBufferAsync(Long64_t off, Int_t len)
 
   StorageAccount::Stamp stats(storageCounter(s_statsARead, "read-async"));
 
+  // If asynchronous reading is disabled, bail out now, regardless
+  // whether the underlying storage supports prefetching.  If it is
+  // forced on, pretend it's on, even if the storage doesn't support
+  // it, as this turns off the caching in ROOT's side.
+  StorageFactory *f = StorageFactory::get();
+  switch (f->cacheHint())
+  {
+  case StorageFactory::CACHE_HINT_APPLICATION:
+    return kTRUE;
+  case StorageFactory::CACHE_HINT_STORAGE:
+    return kFALSE;
+  default:
+    break;
+  }
+
   // Let the I/O method indicate if it can do client-side prefetch.
   // If it does, then for example TTreeCache will drop its own cache
   // and will use the client-side cache of the actual I/O layer.
@@ -296,7 +311,7 @@ TStorageFactoryFile::ReadBuffers(char *buf, Long64_t *pos, Int_t *len, Int_t nbu
 
   // Read from underlying storage.
   Int_t total = 0;
-  std::vector<IOPosBuffer> iov(nbuf);
+  std::vector<IOPosBuffer> iov;
   iov.reserve(nbuf);
   for (Int_t i = 0; i < nbuf; ++i)
   {
