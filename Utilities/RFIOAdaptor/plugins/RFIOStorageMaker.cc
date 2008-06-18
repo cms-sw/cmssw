@@ -1,5 +1,8 @@
 #include "Utilities/StorageFactory/interface/StorageMaker.h"
+#include "Utilities/StorageFactory/interface/StorageFactory.h"
 #include "Utilities/StorageFactory/interface/StorageMakerFactory.h"
+#include "Utilities/StorageFactory/interface/StorageAccountProxy.h"
+#include "Utilities/StorageFactory/interface/LocalCacheFile.h"
 #include "Utilities/RFIOAdaptor/interface/RFIOFile.h"
 #include "Utilities/RFIOAdaptor/interface/RFIO.h"
 #include "Utilities/RFIOAdaptor/interface/RFIOPluginFactory.h"
@@ -100,7 +103,26 @@ public:
 			 int mode,
 			 const std::string &tmpdir)
   {
-    return new RFIOFile (normalise(path), mode);
+    StorageFactory *f = StorageFactory::get();
+    StorageFactory::ReadHint readHint = f->readHint();
+    StorageFactory::CacheHint cacheHint = f->cacheHint();
+
+    if (readHint != StorageFactory::READ_HINT_UNBUFFERED
+	|| cacheHint == StorageFactory::CACHE_HINT_STORAGE)
+      mode &= ~IOFlags::OpenUnbuffered;
+    else
+      mode |= IOFlags::OpenUnbuffered;
+
+    Storage *file = new RFIOFile(normalise(path), mode);
+    if ((cacheHint == StorageFactory::CACHE_HINT_LAZY_DOWNLOAD
+	 || cacheHint == StorageFactory::CACHE_HINT_AUTO_DETECT)
+	&& ! (mode & IOFlags::OpenWrite))
+    {
+      if (f->accounting())
+        file = new StorageAccountProxy(proto, file);
+      file = new LocalCacheFile(file);
+    }
+    return file;
   }
 
   virtual bool check (const std::string &proto,
