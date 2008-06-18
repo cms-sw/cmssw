@@ -370,6 +370,9 @@ if not options.old_config:
   # do some options adjustments
   # (for now placed here, needs a better place)
   options.name = trimmedStep.replace(',','').replace("_","")
+  # if we're dealing with HLT, the process name has to be "HLT" only
+  if 'HLT' in options.name :
+      options.name = 'HLT'
   options.outfile_name = options.dirout+options.fileout
 
   # create the config
