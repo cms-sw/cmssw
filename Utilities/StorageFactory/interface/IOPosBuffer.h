@@ -24,7 +24,8 @@ private:
 /** Construct a null I/O buffer.  */
 inline
 IOPosBuffer::IOPosBuffer (void)
-  : m_data (0),
+  : m_offset (0),
+    m_data (0),
     m_length (0)
 {}
 
