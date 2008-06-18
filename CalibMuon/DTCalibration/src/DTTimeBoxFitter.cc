@@ -2,8 +2,8 @@
 /*
  *  See header file for a description of this class.
  *
- *  $Date: 2008/04/07 13:02:09 $
- *  $Revision: 1.7 $
+ *  $Date: 2008/06/06 17:09:52 $
+ *  $Revision: 1.8 $
  *  \author G. Cerminara - INFN Torino
  */
 
@@ -200,6 +200,33 @@ void DTTimeBoxFitter::getFitSeeds(TH1F *hTBox, double& mean, double& sigma, doub
       lenght ++;
     }
   }
+
+  if(theVerbosityLevel >= 2)
+    cout << "   Add macro intervals: " << endl;
+  // Look for consecutive plateau: 2 plateau are consecutive if the gap is < 5 ns
+  vector<  pair<int, int> > superIntervals;
+  for(vector< pair<int, int> >::const_iterator interval = startAndLenght.begin();
+      interval != startAndLenght.end();
+      ++interval) {
+    pair<int, int> theInterval = (*interval);
+    vector< pair<int, int> >::const_iterator next = interval;
+    while(++next != startAndLenght.end()) {
+      int gap = (*next).first - (theInterval.first+theInterval.second);
+      double gabInNs = binValue*gap;
+      if(gabInNs > 5) {
+	break;
+      } else {
+	theInterval = make_pair(theInterval.first, theInterval.second+gap+(*next).second);
+	superIntervals.push_back(theInterval);
+	if(theVerbosityLevel >= 2)
+	  cout << "          Add interval, start: " << theInterval.first
+	       << " width: " << theInterval.second << endl;
+      }
+    }
+  }
+
+  // merge the vectors of intervals
+  copy(superIntervals.begin(), superIntervals.end(), back_inserter(startAndLenght));
 
   // Look for the plateau of the right lenght
   if(theVerbosityLevel >= 2)
