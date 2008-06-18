@@ -343,7 +343,7 @@ void testEvent::setUp()
   // and that is used to create the group in the principal used to
   // look up the object.
 
-  boost::shared_ptr<ProductRegistry const> preg = boost::shared_ptr<ProductRegistry const>(availableProducts_);
+  boost::shared_ptr<ProductRegistry const> preg(availableProducts_);
   std::string uuid = createGlobalIdentifier();
   Timestamp time = make_timestamp();
   EventID id = make_id();

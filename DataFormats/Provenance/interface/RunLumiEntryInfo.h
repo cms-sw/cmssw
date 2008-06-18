@@ -33,7 +33,7 @@ namespace edm {
 		    ProductStatus status,
 		    ModuleDescriptionID const& mid,
 		    ProductID const& pid = ProductID(),
-		    std::vector<ProductID> const& parents = std::vector<ProductID>());
+		    std::vector<BranchID> const& parents = std::vector<BranchID>());
 
     RunLumiEntryInfo(BranchID const& bid,
 		    ProductStatus status,

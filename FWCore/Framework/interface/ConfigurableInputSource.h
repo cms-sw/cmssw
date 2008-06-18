@@ -2,11 +2,10 @@
 #define Framework_ConfigurableInputSource_h
 
 /*----------------------------------------------------------------------
-$Id: ConfigurableInputSource.h,v 1.30 2007/12/14 21:39:30 wmtan Exp $
+$Id: ConfigurableInputSource.h,v 1.31 2008/04/03 16:18:37 paterno Exp $
 ----------------------------------------------------------------------*/
 
 #include "boost/shared_ptr.hpp"
-#include "boost/utility.hpp"
 
 #include "FWCore/Framework/interface/InputSource.h"
 #include "FWCore/Framework/interface/Frameworkfwd.h"
@@ -18,7 +17,7 @@ $Id: ConfigurableInputSource.h,v 1.30 2007/12/14 21:39:30 wmtan Exp $
 
 namespace edm {
   class ParameterSet;
-  class ConfigurableInputSource : public InputSource, private boost::noncopyable {
+  class ConfigurableInputSource : public InputSource {
   public:
     explicit ConfigurableInputSource(ParameterSet const& pset, InputSourceDescription const& desc, bool realData = true);
     virtual ~ConfigurableInputSource();

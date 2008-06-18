@@ -12,6 +12,7 @@
 #include "FWCore/Framework/interface/EventPrincipal.h"
 #include "FWCore/Framework/interface/LuminosityBlockPrincipal.h"
 #include "FWCore/Framework/interface/RunPrincipal.h"
+#include "DataFormats/Provenance/interface/BranchChildren.h"
 #include "DataFormats/Provenance/interface/ProductRegistry.h"
 #include "DataFormats/Provenance/interface/ParameterSetBlob.h"
 #include "DataFormats/Provenance/interface/EntryDescriptionRegistry.h"
@@ -99,7 +100,8 @@ namespace edm {
       newBranchToOldBranch_(),
       sortedNewBranchNames_(),
       oldBranchNames_(),
-      eventHistoryTree_(0) {
+      eventHistoryTree_(0),
+      branchChildren_() {
     eventTree_.setCacheSize(treeCacheSize);
 
     eventTree_.setTreeMaxVirtualSize(treeMaxVirtualSize);
@@ -115,6 +117,8 @@ namespace edm {
     // This preserves backward compatibility against friendly class name algorithm changes.
     ProductRegistry tempReg;
     ProductRegistry *ppReg = &tempReg;
+    branchChildren_.reset(new BranchChildren);
+    BranchChildren *branchChildrenPtr = branchChildren_.get();
     typedef std::map<ParameterSetID, ParameterSetBlob> PsetMap;
     PsetMap psetMap;
     ProcessHistoryMap pHistMap;
@@ -138,6 +142,9 @@ namespace edm {
     metaDataTree->SetBranchAddress(poolNames::processHistoryMapBranchName().c_str(), &pHistMapPtr);
     metaDataTree->SetBranchAddress(poolNames::moduleDescriptionMapBranchName().c_str(), &mdMapPtr);
     metaDataTree->SetBranchAddress(poolNames::fileFormatVersionBranchName().c_str(), &fftPtr);
+    if (metaDataTree->FindBranch(poolNames::productDependenciesBranchName().c_str()) != 0) {
+      metaDataTree->SetBranchAddress(poolNames::productDependenciesBranchName().c_str(), &branchChildrenPtr);
+    }
     if (metaDataTree->FindBranch(poolNames::fileIdentifierBranchName().c_str()) != 0) {
       metaDataTree->SetBranchAddress(poolNames::fileIdentifierBranchName().c_str(), &fidPtr);
     }
@@ -176,7 +183,7 @@ namespace edm {
     // freeze our temporary product registry
     tempReg.setFrozen();
 
-    ProductRegistry *newReg = new ProductRegistry;
+    std::auto_ptr<ProductRegistry> newReg(new ProductRegistry);
     // Do the translation from the old registry to the new one
     {
       ProductRegistry::ProductList const& prodList = tempReg.productList();
@@ -205,7 +212,7 @@ namespace edm {
       // freeze the product registry
       newReg->setNextID(tempReg.nextID());
       newReg->setFrozen();
-      productRegistry_ = boost::shared_ptr<ProductRegistry const>(newReg);
+      productRegistry_.reset(newReg.release());
       // This is the elector for drop on input.  It is not yet used.
       groupSelector_.initialize(groupSelectorRules, productRegistry()->allBranchDescriptions());
     }
@@ -345,7 +352,8 @@ namespace edm {
 						     fastClonable(),
 						     file_,
 						     sortedNewBranchNames_,
-						     oldBranchNames_));
+						     oldBranchNames_,
+						     branchChildren_));
   }
 
   std::string const&
@@ -731,7 +739,7 @@ namespace edm {
 	boost::shared_ptr<RunPrincipal> rp(
 	  new RunPrincipal(runAux, pReg, processConfiguration_));
 	LuminosityBlockAuxiliary lumiAux(rp->run(), eventAux_.luminosityBlock(), eventAux_.time(), eventAux_.time());
-	lbp = boost::shared_ptr<LuminosityBlockPrincipal>(
+	lbp.reset(
 	  new LuminosityBlockPrincipal(lumiAux,
 				       pReg,
 				       rp,

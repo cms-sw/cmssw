@@ -12,11 +12,13 @@ RootFile.h // used by ROOT input sources
 #include <string>
 
 #include "boost/shared_ptr.hpp"
+#include "boost/utility.hpp"
 #include "boost/array.hpp"
 
 #include "RootTree.h"
 #include "FWCore/Framework/interface/Frameworkfwd.h"
 #include "FWCore/Framework/interface/GroupSelector.h"
+#include "DataFormats/Provenance/interface/BranchChildren.h"
 #include "DataFormats/Provenance/interface/BranchMapper.h"
 #include "DataFormats/Provenance/interface/EventAuxiliary.h"
 #include "DataFormats/Provenance/interface/EventProcessHistoryID.h"
@@ -43,7 +45,7 @@ namespace edm {
   //------------------------------------------------------------
   // Class RootFile: supports file reading.
 
-  class RootFile : boost::noncopyable {
+  class RootFile : private boost::noncopyable {
   public:
     typedef boost::array<RootTree *, NumBranchTypes> RootTreePtrArray;
     RootFile(std::string const& fileName,
@@ -174,6 +176,7 @@ namespace edm {
     std::vector<std::string> oldBranchNames_;
     TTree * eventHistoryTree_;
     History history_;    
+    boost::shared_ptr<BranchChildren> branchChildren_;
   }; // class RootFile
 
   template <typename T>

@@ -56,6 +56,7 @@ namespace edm {
     virtual void writeModuleDescriptionRegistry();
     virtual void writeParameterSetRegistry();
     virtual void writeProductDescriptionRegistry();
+    virtual void writeProductDependencies();
     virtual void writeEntryDescriptions();
     // BMM virtual void writeBranchMapper();
     virtual void finishEndFile();

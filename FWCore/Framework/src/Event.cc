@@ -1,6 +1,7 @@
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/LuminosityBlock.h"
 #include "DataFormats/Provenance/interface/BranchType.h"
+#include "DataFormats/Provenance/interface/Provenance.h"
 #include "FWCore/Framework/interface/EventPrincipal.h"
 
 namespace edm {
@@ -9,7 +10,7 @@ namespace edm {
 	DataViewImpl<EventEntryInfo>(ep, md, InEvent),
 	aux_(ep.aux()),
 	luminosityBlock_(new LuminosityBlock(ep.luminosityBlockPrincipal(), md)),
-	gotProductIDs_(),
+	gotBranchIDs_(),
 	gotViews_() {
     }
 
@@ -81,17 +82,17 @@ namespace edm {
     ProductPtrVec::iterator pit(products.begin());
     ProductPtrVec::iterator pie(products.end());
 
-    std::vector<ProductID> gotProductIDVector;
+    std::vector<BranchID> gotBranchIDVector;
 
-    // Note that gotProductIDVector will remain empty if
+    // Note that gotBranchIDVector will remain empty if
     // record_parents is false (and may be empty if record_parents is
     // true).
 
-    if (record_parents && !gotProductIDs_.empty()) {
-      gotProductIDVector.reserve(gotProductIDs_.size());
-      for (ProductIDSet::const_iterator it = gotProductIDs_.begin(), itEnd = gotProductIDs_.end();
+    if (record_parents && !gotBranchIDs_.empty()) {
+      gotBranchIDVector.reserve(gotBranchIDs_.size());
+      for (BranchIDSet::const_iterator it = gotBranchIDs_.begin(), itEnd = gotBranchIDs_.end();
 	  it != itEnd; ++it) {
-        gotProductIDVector.push_back(*it);
+        gotBranchIDVector.push_back(*it);
       }
     }
 
@@ -106,7 +107,7 @@ namespace edm {
 				   productstatus::present(),
 				   pit->second->moduleDescriptionID(),
 				   pit->second->productIDtoAssign(),
-				   gotProductIDVector));
+				   gotBranchIDVector));
 	ep.put(pr, *pit->second, eventEntryInfoPtr);
 	++pit;
     }
@@ -115,5 +116,18 @@ namespace edm {
     products.clear();
   }
 
+  void
+  Event::addToGotBranchIDs(Provenance const& prov) const {
+    if (prov.branchDescription().transient()) {
+      // If the product retrieved is transient, don't use its branch ID.
+      // use the branch ID's of its parents.
+      std::vector<BranchID> const& bids = prov.parents();
+      for (std::vector<BranchID>::const_iterator it = bids.begin(), itEnd = bids.end(); it != itEnd; ++it) {
+        gotBranchIDs_.insert(*it);
+      }
+    } else {
+      gotBranchIDs_.insert(prov.branchID());
+    }
+  }
 
 }

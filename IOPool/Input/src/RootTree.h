@@ -25,7 +25,7 @@ class TFile;
 
 namespace edm {
 
-  class RootTree {
+  class RootTree : private boost::noncopyable {
   public:
     typedef input::BranchMap BranchMap;
     typedef input::EntryNumber EntryNumber;

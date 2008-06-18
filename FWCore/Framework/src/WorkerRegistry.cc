@@ -3,11 +3,11 @@
    Implementation of class WorkerRegistry
 
    \author Stefano ARGIRO
-   \version $Id: WorkerRegistry.cc,v 1.16 2007/06/14 17:52:18 wmtan Exp $
+   \version $Id: WorkerRegistry.cc,v 1.17 2007/06/29 03:43:22 wmtan Exp $
    \date 18 May 2005
 */
 
-static const char CVSId[] = "$Id: WorkerRegistry.cc,v 1.16 2007/06/14 17:52:18 wmtan Exp $";
+static const char CVSId[] = "$Id: WorkerRegistry.cc,v 1.17 2007/06/29 03:43:22 wmtan Exp $";
 
 
 #include "FWCore/Framework/src/WorkerRegistry.h"
@@ -58,7 +58,7 @@ Worker* WorkerRegistry::getWorker(const WorkerParams& p) {
                        act_reg_->preModuleEndJobSignal_,act_reg_->postModuleEndJobSignal_);
 
     // Transfer ownership of worker to the registry 
-    m_workerMap[workerid] = boost::shared_ptr<Worker>(workerPtr.release());
+    m_workerMap[workerid].reset(workerPtr.release());
     return m_workerMap[workerid].get();
     
   } 

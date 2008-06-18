@@ -195,7 +195,7 @@ namespace edm {
   EventPrincipal::resolveProvenance(Group const& g) const {
     if (!g.entryInfoPtr()) {
       // Now fix up the Group
-      g.setProvenance(branchMapperPtr_->branchToEntryInfo(g.productDescription(). branchID()));
+      g.setProvenance(branchMapperPtr_->branchToEntryInfo(g.productDescription().branchID()));
     }
   }
 

@@ -57,6 +57,7 @@ namespace edm {
     void writeModuleDescriptionRegistry();
     void writeParameterSetRegistry();
     void writeProductDescriptionRegistry();
+    void writeProductDependencies();
 
     void finishEndFile();
     void beginInputFile(FileBlock const& fb, bool fastClone);
@@ -167,9 +168,9 @@ namespace edm {
 			      productstatus::neverCreated(),
 			      i->branchDescription_->moduleDescriptionID()));
 	} else {
-	  throw edm::Exception(errors::ProductNotFound,"NoMatch")
-	    << "PoolOutputModule: Unexpected internal error.  Contact the framework group.\n"
-	    << "No group for branch" << i->branchDescription_->branchName() << '\n';
+          entryInfoVecPtr->push_back(T(i->branchDescription_->branchID(),
+			      productstatus::dropped(),
+			      i->branchDescription_->moduleDescriptionID()));
 	}
       } else {
 	product = oh.wrapper();

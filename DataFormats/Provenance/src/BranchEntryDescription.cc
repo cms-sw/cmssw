@@ -19,7 +19,7 @@ namespace edm {
     moduleDescriptionPtr_()
   { }
 
-  BranchEntryDescription::BranchEntryDescription(ProductID const& pid,
+  BranchEntryDescription::BranchEntryDescription(BranchID const& pid,
 	 BranchEntryDescription::CreatorStatus const& status) :
     productID_(pid),
     parents_(),
@@ -33,7 +33,7 @@ namespace edm {
   void
   BranchEntryDescription::init() const {
     if (moduleDescriptionPtr_.get() == 0) {
-      moduleDescriptionPtr_ = boost::shared_ptr<ModuleDescription>(new ModuleDescription);
+      moduleDescriptionPtr_.reset(new ModuleDescription);
       ModuleDescriptionRegistry::instance()->getMapped(moduleDescriptionID_, *moduleDescriptionPtr_);
 
       // Commented out this assert when implementing merging of run products.

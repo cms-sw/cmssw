@@ -19,13 +19,12 @@ PoolSource: This is an InputSource
 #include "DataFormats/Provenance/interface/BranchID.h"
 
 #include "boost/scoped_ptr.hpp"
-#include "boost/utility.hpp"
 
 namespace edm {
 
   class RootInputFileSequence;
   class FileCatalogItem;
-  class PoolSource : public VectorInputSource, private boost::noncopyable {
+  class PoolSource : public VectorInputSource {
   public:
     explicit PoolSource(ParameterSet const& pset, InputSourceDescription const& desc);
     virtual ~PoolSource();

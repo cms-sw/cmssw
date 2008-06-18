@@ -13,6 +13,9 @@ output stream.
 #include "boost/array.hpp"
 #include "boost/utility.hpp"
 
+#include "DataFormats/Provenance/interface/BranchChildren.h"
+#include "DataFormats/Provenance/interface/BranchID.h"
+#include "DataFormats/Provenance/interface/EntryDescriptionID.h"
 #include "DataFormats/Provenance/interface/BranchType.h"
 #include "DataFormats/Provenance/interface/ModuleDescription.h"
 #include "DataFormats/Provenance/interface/Selections.h"
@@ -32,7 +35,7 @@ namespace edm {
   std::vector<std::string> const& getAllTriggerNames();
 
 
-  class OutputModule : boost::noncopyable {
+  class OutputModule : private boost::noncopyable {
   public:
     template <typename T> friend class WorkerT;
     friend class OutputWorker;
@@ -64,6 +67,12 @@ namespace edm {
 
     static void fillDescription(edm::ParameterSetDescription&);
 
+    ProductRegistry & productRegistry() {return *productRegistryPtr_;}
+
+    ProductRegistry const& productRegistry() const {return *productRegistryPtr_;}
+
+    BranchChildren const& branchChildren() const {return branchChildren_;}
+
   protected:
     //const Trig& getTriggerResults(Event const& ep) const;
     Trig getTriggerResults(Event const& ep) const;
@@ -83,6 +92,7 @@ namespace edm {
     bool wantAllEvents() const {return wantAllEvents_;}
 
     ParameterSetID selectorConfig() const { return selector_config_id_; }
+
   private:
 
     int maxEvents_;
@@ -130,8 +140,7 @@ namespace edm {
 
     std::string process_name_;
     GroupSelectorRules groupSelectorRules_;
-    GroupSelector groupSelector_;
-
+    GroupSelector groupSelector_; 
     ModuleDescription moduleDescription_;
 
     // We do not own the pointed-to CurrentProcessingContext.
@@ -146,6 +155,13 @@ namespace edm {
     // ID of the ParameterSet that configured the event selector
     // subsystem.
     ParameterSetID selector_config_id_; 
+
+    boost::scoped_ptr<ProductRegistry> productRegistryPtr_;
+
+    typedef std::map<BranchID, std::set<EntryDescriptionID> > BranchParents;
+    BranchParents branchParents_;
+
+    BranchChildren branchChildren_;
 
     //------------------------------------------------------------------
     // private member functions
@@ -215,6 +231,9 @@ namespace edm {
       moduleDescription_ = md;
     }
 
+    void updateBranchParents(EventPrincipal const& ep);
+    void fillDependencyGraph();
+
     bool limitReached() const {return remainingEvents_ == 0;}
 
     // The following member functions are part of the Template Method
@@ -230,6 +249,7 @@ namespace edm {
     virtual void writeModuleDescriptionRegistry() {}
     virtual void writeParameterSetRegistry() {}
     virtual void writeProductDescriptionRegistry() {}
+    virtual void writeProductDependencies() {}
     virtual void writeEntryDescriptions() {}
     virtual void writeBranchMapper() {}
     virtual void finishEndFile() {}

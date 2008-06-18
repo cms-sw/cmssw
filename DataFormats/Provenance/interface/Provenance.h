@@ -67,7 +67,7 @@ namespace edm {
     ModuleDescription const& moduleDescription() const {return entryDescription().moduleDescription();}
     bool isPresent() const {return productstatus::present(productStatus());}
 
-    std::vector<ProductID> const& parents() const {return entryDescription().parents();}
+    std::vector<BranchID> const& parents() const {return entryDescription().parents();}
 
     void write(std::ostream& os) const;
 

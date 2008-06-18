@@ -17,7 +17,7 @@ namespace edm {
   void
   EntryDescription::init() const {
     if (moduleDescriptionPtr_.get() == 0) {
-      moduleDescriptionPtr_ = boost::shared_ptr<ModuleDescription>(new ModuleDescription);
+      moduleDescriptionPtr_.reset(new ModuleDescription);
       ModuleDescriptionRegistry::instance()->getMapped(moduleDescriptionID_, *moduleDescriptionPtr_);
 
       // Commented out this assert when implementing merging of run products.
@@ -36,7 +36,7 @@ namespace edm {
     // This implementation is ripe for optimization.
     std::ostringstream oss;
     oss << moduleDescriptionID_ << ' ';
-    for (std::vector<ProductID>::const_iterator 
+    for (std::vector<BranchID>::const_iterator 
 	   i = parents_.begin(),
 	   e = parents_.end();
 	 i != e;

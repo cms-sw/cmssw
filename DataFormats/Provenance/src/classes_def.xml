@@ -27,6 +27,9 @@
  <class name="std::map<edm::BranchKey,edm::BranchDescription>"/>
  <class name="std::pair<edm::BranchKey,edm::BranchDescription>"/>
  <class name="edm::BranchKey"/>
+ <class name="std::set<edm::BranchID>"/>
+ <class name="std::map<edm::BranchID, std::set<edm::BranchID> >"/>
+ <class name="std::vector<edm::BranchID>"/>
  <class name="std::vector<edm::ProductID>"/>
  <class name="std::vector<edm::EventID>"/>
  <class name="std::vector<std::vector<edm::EventID> >"/>

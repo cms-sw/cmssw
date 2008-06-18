@@ -192,7 +192,7 @@ void test_ep::setUp()
     assert(process);
     std::string uuid = edm::createGlobalIdentifier();
     edm::Timestamp now(1234567UL);
-    boost::shared_ptr<edm::ProductRegistry const> preg = boost::shared_ptr<edm::ProductRegistry const>(pProductRegistry_);
+    boost::shared_ptr<edm::ProductRegistry const> preg(pProductRegistry_);
     edm::RunAuxiliary runAux(eventID_.run(), now, now);
     boost::shared_ptr<edm::RunPrincipal> rp(new edm::RunPrincipal(runAux, preg, *process));
     edm::LuminosityBlockAuxiliary lumiAux(rp->run(), 1, now, now);

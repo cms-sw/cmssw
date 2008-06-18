@@ -11,7 +11,7 @@ and how it came into existence.
 #include <vector>
 #include "boost/shared_ptr.hpp"
 
-#include "DataFormats/Provenance/interface/ProductID.h"
+#include "DataFormats/Provenance/interface/BranchID.h"
 #include "DataFormats/Provenance/interface/ModuleDescription.h"
 #include "DataFormats/Provenance/interface/EntryDescriptionID.h"
 
@@ -35,8 +35,8 @@ namespace edm {
     // Only the 'salient attributes' are encoded into the ID.
     EntryDescriptionID id() const;
 
-    // The EDProduct IDs of the parents
-    std::vector<ProductID> parents_;
+    // The Branch IDs of the parents
+    std::vector<BranchID> parents_;
 
     // the last of these is not in the roadmap, but is on the board
 
@@ -53,7 +53,7 @@ namespace edm {
     PassID const& passID() const {init(); return moduleDescriptionPtr_->passID();}
     ParameterSetID const& psetID() const {init(); return moduleDescriptionPtr_->parameterSetID();}
     ReleaseVersion const& releaseVersion() const {init(); return moduleDescriptionPtr_->releaseVersion();}
-    std::vector<ProductID> const& parents() const {return parents_;}
+    std::vector<BranchID> const& parents() const {return parents_;}
 
     ModuleDescriptionID const& moduleDescriptionID() const {return moduleDescriptionID_;}
     ModuleDescription const& moduleDescription() const {init(); return *moduleDescriptionPtr_;}

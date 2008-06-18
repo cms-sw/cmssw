@@ -62,6 +62,7 @@ namespace edm {
 
     std::string const metaDataTree = "MetaData";
     std::string const productRegistry = "ProductRegistry";
+    std::string const productDependencies = "ProductDependencies";
     std::string const parameterSetMap = "ParameterSetMap";
     std::string const moduleDescriptionMap = "ModuleDescriptionMap";
     std::string const processHistoryMap = "ProcessHistoryMap";
@@ -149,6 +150,11 @@ namespace edm {
     // Branch on MetaData Tree
     std::string const& productDescriptionBranchName() {
       return productRegistry;
+    }
+
+    // Branch on MetaData Tree
+    std::string const& productDependenciesBranchName() {
+      return productDependencies;
     }
 
     // Branch on MetaData Tree

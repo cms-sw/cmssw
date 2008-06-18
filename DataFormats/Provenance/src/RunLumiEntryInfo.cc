@@ -34,7 +34,7 @@ namespace edm {
 				    ProductStatus status,
 				    ModuleDescriptionID const& mid,
 		    		    ProductID const&,
-				    std::vector<ProductID> const&) :
+				    std::vector<BranchID> const&) :
     branchID_(bid),
     productStatus_(status),
     moduleDescriptionID_(mid)

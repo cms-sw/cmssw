@@ -51,6 +51,9 @@ namespace {
   std::pair<edm::Hash<2>, edm::ProcessHistory> dummyPairProcH;
   std::pair<edm::Hash<3>, edm::ProcessConfiguration> dummyPairProcC;
   std::vector<edm::ProductID> dummyVectorProductID;
+  std::vector<edm::BranchID> dummyVectorBranchID;
+  std::set<edm::BranchID> dummySetBranchID;
+  std::map<edm::BranchID, std::set<edm::BranchID> > dummyMapSetBranchID;
   std::vector<std::basic_string<char> > dummyVectorString;
   std::set<std::basic_string<char> > dummySetString;
   std::vector<edm::EventProcessHistoryID> dummyEventProcessHistory;

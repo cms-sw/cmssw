@@ -114,8 +114,8 @@ namespace edm {
     mutable BranchID branchID_;
 
     // An ID uniquely identifying the branch
-    // This is needed only for backward compatibility
-    // with file format 7 and earlier.
+    // This field is obsolete and is needed only for backward compatibility
+    // with file format 7 and earlier.  
     ProductID productID_;
 
     // the full name of the type of product this is
@@ -148,6 +148,7 @@ namespace edm {
     std::set<std::string> branchAliases_;
 
     // An ID to be assigned to products on the branch,
+    // This is only valid if produced_ is true.
     mutable ProductID productIDtoAssign_; //!transient
 
     // The branch name, which is currently derivable fron the other attributes.

@@ -16,6 +16,7 @@
 #include "FWCore/Framework/interface/EventPrincipal.h"
 #include "FWCore/Framework/interface/LuminosityBlockPrincipal.h"
 #include "FWCore/Framework/interface/RunPrincipal.h"
+#include "DataFormats/Provenance/interface/BranchChildren.h"
 #include "DataFormats/Provenance/interface/BranchID.h"
 // BMM #include "DataFormats/Provenance/interface/BranchMapper.h"
 // BMM #include "DataFormats/Provenance/interface/BranchMapperRegistry.h"
@@ -447,17 +448,17 @@ namespace edm {
   }
 
   void RootOutputFile::writeProductDescriptionRegistry() { 
-    Service<ConstProductRegistry> reg;
-    ProductRegistry pReg = reg->productRegistry();
-    ProductRegistry::ProductList & pList  = const_cast<ProductRegistry::ProductList &>(pReg.productList());
-    for (ProductRegistry::ProductList::iterator it = pList.begin(), itEnd = pList.end(); it != itEnd; ++it) {
-      if (it->second.transient()) {
-	// avoid invalidating iterator on deletion
-	pList.erase(it--);
-      }
-    }
+    ProductRegistry& pReg = const_cast<ProductRegistry&>(om_->productRegistry());
     ProductRegistry * ppReg = &pReg;
     TBranch* b = metaDataTree_->Branch(poolNames::productDescriptionBranchName().c_str(), &ppReg, om_->basketSize(), 0);
+    assert(b);
+    b->Fill();
+  }
+
+  void RootOutputFile::writeProductDependencies() { 
+    BranchChildren& pDeps = const_cast<BranchChildren&>(om_->branchChildren());
+    BranchChildren * ppDeps = &pDeps;
+    TBranch* b = metaDataTree_->Branch(poolNames::productDependenciesBranchName().c_str(), &ppDeps, om_->basketSize(), 0);
     assert(b);
     b->Fill();
   }

@@ -47,35 +47,30 @@ namespace edm {
   // control of a metafunction if, to put the given pair into the
   // right collection.
   template <typename PROD>
-  struct RecordInParentless
-  {
+  struct RecordInParentless {
     typedef DataViewImpl<EventEntryInfo>::ProductPtrVec ptrvec_t;
     void do_it(ptrvec_t& ignored,
 	       ptrvec_t& used,
 	       Wrapper<PROD>* wp, 
-	       ConstBranchDescription const* desc) const
-    {
+	       ConstBranchDescription const* desc) const {
       used.push_back(std::make_pair(wp, desc));
     }
   };
 
   template <typename PROD>
-  struct RecordInParentfull
-  {
+  struct RecordInParentfull {
     typedef DataViewImpl<EventEntryInfo>::ProductPtrVec ptrvec_t;
 
     void do_it(ptrvec_t& used,
 	       ptrvec_t& ignored,
 	       Wrapper<PROD>* wp, 
-	       ConstBranchDescription const* desc) const
-    {
+	       ConstBranchDescription const* desc) const {
       used.push_back(std::make_pair(wp, desc));
     }
   };
 
 
-  class Event : private DataViewImpl<EventEntryInfo>
-  {
+  class Event : private DataViewImpl<EventEntryInfo> {
   public:
     typedef DataViewImpl<EventEntryInfo> Base;
     Event(EventPrincipal& ep, const ModuleDescription& md);
@@ -232,12 +227,13 @@ namespace edm {
     EventAuxiliary const& aux_;
     boost::shared_ptr<LuminosityBlock const> const luminosityBlock_;
 
-    // gotProductIDs_ must be mutable because it records all 'gets',
-    // which do not logically modify the DataViewImpl. gotProductIDs_ is
+    // gotBranchIDs_ must be mutable because it records all 'gets',
+    // which do not logically modify the DataViewImpl. gotBranchIDs_ is
     // merely a cache reflecting what has been retreived from the
     // Principal class.
-    typedef std::set<ProductID> ProductIDSet;
-    mutable ProductIDSet gotProductIDs_;
+    typedef std::set<BranchID> BranchIDSet;
+    mutable BranchIDSet gotBranchIDs_;
+    void addToGotBranchIDs(Provenance const& prov) const;
 
     // We own the retrieved Views, and have to destroy them.
     mutable std::vector<boost::shared_ptr<ViewBase> > gotViews_;
@@ -253,7 +249,7 @@ namespace edm {
     if (bh.failedToGet()) {
       return false;
     }
-    gotProductIDs_.insert(bh.id());
+    addToGotBranchIDs(*bh.provenance());
     return true;
   }
 
@@ -335,7 +331,7 @@ namespace edm {
   {
     bool ok = this->Base::get(sel, result);
     if (ok) {
-      gotProductIDs_.insert(result.id());
+      addToGotBranchIDs(*result.provenance());
     }
     return ok;
   }
@@ -346,7 +342,7 @@ namespace edm {
   {
     bool ok = this->Base::getByLabel(tag, result);
     if (ok) {
-      gotProductIDs_.insert(result.id());
+      addToGotBranchIDs(*result.provenance());
     }
     return ok;
   }
@@ -357,7 +353,7 @@ namespace edm {
   {
     bool ok = this->Base::getByLabel(label, result);
     if (ok) {
-      gotProductIDs_.insert(result.id());
+      addToGotBranchIDs(*result.provenance());
     }
     return ok;
   }
@@ -370,7 +366,7 @@ namespace edm {
   {
     bool ok = this->Base::getByLabel(label, productInstanceName, result);
     if (ok) {
-      gotProductIDs_.insert(result.id());
+      addToGotBranchIDs(*result.provenance());
     }
     return ok;
   }
@@ -383,7 +379,7 @@ namespace edm {
     this->Base::getMany(sel, results);
     for (typename std::vector<Handle<PROD> >::const_iterator it = results.begin(), itEnd = results.end();
         it != itEnd; ++it) {
-      gotProductIDs_.insert(it->id());
+      addToGotBranchIDs(*it->provenance());
     }
   }
 
@@ -393,7 +389,7 @@ namespace edm {
   {
     bool ok = this->Base::getByType(result);
     if (ok) {
-      gotProductIDs_.insert(result.id());
+      addToGotBranchIDs(*result.provenance());
     }
     return ok;
   }
@@ -405,7 +401,7 @@ namespace edm {
     this->Base::getManyByType(results);
     for (typename std::vector<Handle<PROD> >::const_iterator it = results.begin(), itEnd = results.end();
         it != itEnd; ++it) {
-      gotProductIDs_.insert(it->id());
+      addToGotBranchIDs(*it->provenance());
     }
   }
   
@@ -518,7 +514,7 @@ namespace edm {
     boost::shared_ptr<View<ELEMENT> > 
       newview(new View<ELEMENT>(pointersToElements, helpers));
     
-    gotProductIDs_.insert(bh.id());
+    addToGotBranchIDs(*bh.provenance());
     gotViews_.push_back(newview);
     Handle<View<ELEMENT> > h(&*newview, bh.provenance());
     result.swap(h);

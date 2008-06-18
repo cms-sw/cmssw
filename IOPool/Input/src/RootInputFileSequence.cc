@@ -135,7 +135,7 @@ namespace edm {
     TTree::SetMaxTreeSize(kMaxLong64);
     boost::shared_ptr<TFile> filePtr;
     try {
-      filePtr = boost::shared_ptr<TFile>(TFile::Open(fileIter_->fileName().c_str()));
+      filePtr.reset(TFile::Open(fileIter_->fileName().c_str()));
     } catch (cms::Exception) {
       if (!skipBadFiles) throw;
     }

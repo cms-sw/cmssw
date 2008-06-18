@@ -5,12 +5,14 @@
 
 FileBlock: Properties of an input file.
 
-$Id: FileBlock.h,v 1.6 2008/03/19 19:39:17 wmtan Exp $
+$Id: FileBlock.h,v 1.7 2008/05/28 18:52:01 wdd Exp $
 
 ----------------------------------------------------------------------*/
 
 #include "DataFormats/Provenance/interface/FileFormatVersion.h"
+#include "DataFormats/Provenance/interface/BranchChildren.h"
 class TTree;
+#include "boost/shared_ptr.hpp"
 #include <map>
 #include <string>
 #include <vector>
@@ -24,7 +26,8 @@ namespace edm {
 	lumiTree_(0), lumiMetaTree_(0),
 	runTree_(0), runMetaTree_(0),
         fastCopyable_(false), fileName_(),
-        sortedNewBranchNames_(), oldBranchNames_() {}
+        sortedNewBranchNames_(), oldBranchNames_(),
+	branchChildren_() {}
     FileBlock(FileFormatVersion const& version,
 	TTree const* ev, TTree const* meta,
 	TTree const* lumi, TTree const* lumiMeta,
@@ -32,7 +35,8 @@ namespace edm {
 	bool fastCopy,
 	std::string const& fileName,
 	std::vector<std::string> const& newNames,
-	std::vector<std::string> const& oldNames) :
+	std::vector<std::string> const& oldNames,
+	boost::shared_ptr<BranchChildren> branchChildren) :
 	  fileFormatVersion_(version),
 	  tree_(const_cast<TTree *>(ev)), 
 	  metaTree_(const_cast<TTree *>(meta)), 
@@ -43,7 +47,8 @@ namespace edm {
 	  fastCopyable_(fastCopy), 
           fileName_(fileName), 
 	  sortedNewBranchNames_(newNames),
-	  oldBranchNames_(oldNames) {}
+	  oldBranchNames_(oldNames),
+	  branchChildren_(branchChildren) {}
     ~FileBlock() {}
 
     FileFormatVersion const& fileFormatVersion() const {return fileFormatVersion_;}
@@ -73,6 +78,7 @@ namespace edm {
     std::string fileName_;
     std::vector<std::string> sortedNewBranchNames_;
     std::vector<std::string> oldBranchNames_;
+    boost::shared_ptr<BranchChildren> branchChildren_;
   };
 }
 #endif

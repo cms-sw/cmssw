@@ -10,6 +10,7 @@
 #include "FWCore/Framework/interface/TriggerNamesService.h"
 
 #include "FWCore/Framework/interface/Event.h"
+#include "FWCore/Framework/interface/EventPrincipal.h"
 #include "FWCore/Utilities/interface/DebugMacros.h"
 #include "FWCore/Framework/interface/CurrentProcessingContext.h"
 #include "FWCore/Framework/src/CPCSentry.h"
@@ -129,7 +130,10 @@ namespace edm {
     prodsValid_(false),
     wantAllEvents_(false),
     selectors_(),
-    selector_config_id_()
+    selector_config_id_(),
+    productRegistryPtr_(),
+    branchParents_(),
+    branchChildren_()
   {
     hasNewlyDroppedBranch_.assign(false);
 
@@ -289,6 +293,7 @@ namespace edm {
       }
     }
     write(ep);
+    updateBranchParents(ep);
     if (remainingEvents_ > 0) {
       --remainingEvents_;
     }
@@ -395,6 +400,18 @@ namespace edm {
   }
 
   void OutputModule::reallyCloseFile() {
+    // Make a local copy of the ProductRegistry, removing any transient products.
+    typedef ProductRegistry::ProductList ProductList;
+    edm::Service<edm::ConstProductRegistry> reg;
+    productRegistryPtr_.reset(new ProductRegistry(reg->productList(), reg->nextID()));
+    ProductList & pList  = const_cast<ProductList &>(productRegistryPtr_->productList());
+    for (ProductList::iterator it = pList.begin(), itEnd = pList.end(); it != itEnd; ++it) {
+      if (it->second.transient()) {
+	// avoid invalidating iterator on deletion
+	pList.erase(it--);
+      }
+    }
+    fillDependencyGraph();
     startEndFile();
     writeFileFormatVersion();
     writeFileIdentifier();
@@ -405,9 +422,12 @@ namespace edm {
     writeModuleDescriptionRegistry();
     writeParameterSetRegistry();
     writeProductDescriptionRegistry();
+    writeProductDependencies();
     writeEntryDescriptions();
     writeBranchMapper();
     finishEndFile();
+    branchParents_.clear();
+    branchChildren_.clear();
   }
 
   CurrentProcessingContext const*
@@ -433,4 +453,39 @@ namespace edm {
     iDesc.setUnknown();
   }
   
+  void
+  OutputModule::updateBranchParents(EventPrincipal const& ep) {
+    for (EventPrincipal::const_iterator i = ep.begin(), iEnd = ep.end(); i != iEnd; ++i) {
+      if (i->second->entryInfoPtr() != 0) {
+	BranchID const& bid = i->first;
+	BranchParents::iterator it = branchParents_.find(bid);
+	if (it == branchParents_.end()) {
+	   it = branchParents_.insert(std::make_pair(bid, std::set<EntryDescriptionID>())).first;
+	}
+	it->second.insert(i->second->entryInfoPtr()->entryDescriptionID());
+	branchChildren_.insert(std::make_pair(bid, std::set<BranchID>()));
+      }
+    }
+  }
+
+  void
+  OutputModule::fillDependencyGraph() {
+    for (BranchParents::const_iterator i = branchParents_.begin(), iEnd = branchParents_.end();
+        i != iEnd; ++i) {
+      BranchID const& child = i->first;
+      std::set<EntryDescriptionID> const& eIds = i->second;
+      for (std::set<EntryDescriptionID>::const_iterator it = eIds.begin(), itEnd = eIds.end();
+          it != itEnd; ++it) {
+        EntryDescription entryDesc;
+        EntryDescriptionRegistry::instance()->getMapped(*it, entryDesc);
+	std::vector<BranchID> const& parents = entryDesc.parents_;
+	for (std::vector<BranchID>::const_iterator j = parents.begin(), jEnd = parents.end();
+	  j != jEnd; ++j) {
+          BranchID const& parent = *j;
+	  BranchChildren::iterator iter = branchChildren_.find(parent);
+	  iter->second.insert(child);
+	}
+      }
+    }
+  }
 }

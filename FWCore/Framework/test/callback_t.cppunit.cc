@@ -188,7 +188,7 @@ void testCallback::sharedPtrTest()
    CPPUNIT_ASSERT(handle.get() == prod.ptr_.get());
    CPPUNIT_ASSERT(prod.ptr_->value_ == 1);
    
-   handle = boost::shared_ptr<Data>() ;
+   handle.reset() ;
    callback.newRecordComing();
    
    callback(record);

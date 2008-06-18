@@ -11,6 +11,7 @@ RootOutputTree.h // used by ROOT output modules
 #include <vector>
 
 #include "boost/shared_ptr.hpp"
+#include "boost/utility.hpp"
 
 #include "FWCore/Framework/interface/Frameworkfwd.h"
 #include "FWCore/Framework/interface/EventPrincipal.h"
@@ -25,7 +26,7 @@ class TBranch;
 
 namespace edm {
 
-  class RootOutputTree {
+  class RootOutputTree : private boost::noncopyable {
   public:
     // Constructor for trees with no fast cloning
     template <typename T>

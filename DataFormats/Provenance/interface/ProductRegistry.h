@@ -36,11 +36,17 @@ namespace edm {
   class ProductRegistry {
 
   public:
+    typedef std::map<BranchKey, BranchDescription> ProductList;
+
     ProductRegistry();
+
+    // A constructor from the persistent data memebers from another product registry.
+    // saves time by not copying the transinet components.
+    // The constructed registry will be frozen.
+    ProductRegistry(ProductList const& productList, unsigned int nextID);
 
     virtual ~ProductRegistry() {}
 
-    typedef std::map<BranchKey, BranchDescription> ProductList;
 
     typedef std::map<BranchKey, ConstBranchDescription> ConstProductList;
     
@@ -122,15 +128,15 @@ namespace edm {
     
     ProductList productList_;
     unsigned int nextID_;
-    mutable bool frozen_;
-    mutable ConstProductList constProductList_;
+    mutable bool frozen_; //! transient
+    mutable ConstProductList constProductList_; //!transient
     
     // indices used to quickly find a group in the vector groups_
     // by type, first one by the type of the EDProduct and the
     // second by the type of object contained in a sequence in
     // an EDProduct
-    mutable TypeLookup productLookup_; // 1->many
-    mutable TypeLookup elementLookup_; // 1->many
+    mutable TypeLookup productLookup_; //!transient // 1->many
+    mutable TypeLookup elementLookup_; //!transient // 1->many
   };
 
   inline

@@ -59,7 +59,7 @@ namespace edm {
 		   ProductStatus status,
 		   ModuleDescriptionID const& mdid,
 		   ProductID const& pid,
-		   std::vector<ProductID> const& parents) :
+		   std::vector<BranchID> const& parents) :
     branchID_(bid),
     productID_(pid),
     productStatus_(status),
@@ -74,7 +74,7 @@ namespace edm {
   EntryDescription const &
   EventEntryInfo::entryDescription() const {
     if (!entryDescriptionPtr_) {
-      entryDescriptionPtr_ = boost::shared_ptr<EntryDescription>(new EntryDescription);
+      entryDescriptionPtr_.reset(new EntryDescription);
       EntryDescriptionRegistry::instance()->getMapped(entryDescriptionID_, *entryDescriptionPtr_);
     }
     return *entryDescriptionPtr_;
@@ -90,6 +90,7 @@ namespace edm {
   void
   EventEntryInfo::setNotPresent() {
     if (productstatus::neverCreated(productStatus())) return;
+    if (productstatus::dropped(productStatus())) return;
     assert(productstatus::unknown(productStatus()));
     setStatus(productstatus::neverCreated());
   }

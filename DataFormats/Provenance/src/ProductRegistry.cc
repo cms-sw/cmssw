@@ -26,6 +26,15 @@ namespace edm {
       elementLookup_() {
   }
 
+  ProductRegistry::ProductRegistry(ProductList const& productList, unsigned int nextID) :
+      productList_(productList),
+      nextID_(nextID),
+      frozen_(true),
+      constProductList_(),
+      productLookup_(),
+      elementLookup_() {
+  }
+
   void
   ProductRegistry::addProduct(BranchDescription const& productDesc,
 			      bool fromListener) {
