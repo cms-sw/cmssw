@@ -42,8 +42,11 @@ protected:
   Storage		*m_baseStorage;
 
   StorageAccount::Counter &m_statsRead;
+  StorageAccount::Counter &m_statsReadV;
   StorageAccount::Counter &m_statsWrite;
+  StorageAccount::Counter &m_statsWriteV;
   StorageAccount::Counter &m_statsPosition;
+  StorageAccount::Counter &m_statsPrefetch;
 };
 
 #endif // STORAGE_FACTORY_STORAGE_ACCOUNT_PROXY_H

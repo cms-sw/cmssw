@@ -5,11 +5,14 @@ StorageAccountProxy::StorageAccountProxy (const std::string &storageClass,
   : m_storageClass (storageClass),
     m_baseStorage (baseStorage),
     m_statsRead (StorageAccount::counter (m_storageClass, "read")),
+    m_statsReadV (StorageAccount::counter (m_storageClass, "readv")),
     m_statsWrite (StorageAccount::counter (m_storageClass, "write")),
-    m_statsPosition (StorageAccount::counter (m_storageClass, "position"))
+    m_statsWriteV (StorageAccount::counter (m_storageClass, "writev")),
+    m_statsPosition (StorageAccount::counter (m_storageClass, "position")),
+    m_statsPrefetch (StorageAccount::counter (m_storageClass, "prefetch"))
 {
-  //  StorageAccount::Stamp stats (StorageAccount::counter (m_storageClass, "construct"));
-  //  stats.tick ();
+  StorageAccount::Stamp stats (StorageAccount::counter (m_storageClass, "construct"));
+  stats.tick ();
 }
 
 StorageAccountProxy::~StorageAccountProxy (void)
@@ -40,7 +43,7 @@ StorageAccountProxy::read (void *into, IOSize n, IOOffset pos)
 IOSize
 StorageAccountProxy::readv (IOBuffer *into, IOSize n)
 {
-  StorageAccount::Stamp stats (m_statsRead);
+  StorageAccount::Stamp stats (m_statsReadV);
   IOSize result = m_baseStorage->readv (into, n);
   stats.tick (result);
   return result;
@@ -49,7 +52,7 @@ StorageAccountProxy::readv (IOBuffer *into, IOSize n)
 IOSize
 StorageAccountProxy::readv (IOPosBuffer *into, IOSize n)
 {
-  StorageAccount::Stamp stats (m_statsRead);
+  StorageAccount::Stamp stats (m_statsReadV);
   IOSize result = m_baseStorage->readv (into, n);
   stats.tick (result);
   return result;
@@ -76,7 +79,7 @@ StorageAccountProxy::write (const void *from, IOSize n, IOOffset pos)
 IOSize
 StorageAccountProxy::writev (const IOBuffer *from, IOSize n)
 {
-  StorageAccount::Stamp stats (m_statsWrite);
+  StorageAccount::Stamp stats (m_statsWriteV);
   IOSize result = m_baseStorage->writev (from, n);
   stats.tick (result);
   return result;
@@ -85,7 +88,7 @@ StorageAccountProxy::writev (const IOBuffer *from, IOSize n)
 IOSize
 StorageAccountProxy::writev (const IOPosBuffer *from, IOSize n)
 {
-  StorageAccount::Stamp stats (m_statsWrite);
+  StorageAccount::Stamp stats (m_statsWriteV);
   IOSize result = m_baseStorage->writev (from, n);
   stats.tick (result);
   return result;
@@ -127,7 +130,7 @@ StorageAccountProxy::close (void)
 bool
 StorageAccountProxy::prefetch (const IOPosBuffer *what, IOSize n)
 {
-  StorageAccount::Stamp stats (StorageAccount::counter (m_storageClass, "prefetch"));
+  StorageAccount::Stamp stats (m_statsPrefetch);
   bool value = m_baseStorage->prefetch(what, n);
   if (value)
   {
