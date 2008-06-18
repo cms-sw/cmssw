@@ -1,4 +1,4 @@
-// $Id: CompositeCandidate.cc,v 1.9 2008/05/15 20:16:37 srappocc Exp $
+// $Id: CompositeCandidate.cc,v 1.10 2008/06/17 16:11:27 srappocc Exp $
 #include "DataFormats/Candidate/interface/CompositeCandidate.h"
 #include "FWCore/Utilities/interface/Exception.h"
 
@@ -130,7 +130,7 @@ const Candidate * CompositeCandidate::daughter( std::string s ) const
 void CompositeCandidate::addDaughter( const Candidate & cand, std::string s )
 {
 
-  std::auto_ptr<Candidate> c( cand.clone() );
+  Candidate * c = cand.clone();
   if ( s != "" ) {
     role_collection::iterator begin = roles_.begin(), end = roles_.end();
     bool isFound = ( find( begin, end, s) != end );
@@ -146,7 +146,7 @@ void CompositeCandidate::addDaughter( const Candidate & cand, std::string s )
       c1->setName( s );
     }
   }
-  CompositeCandidate::addDaughter( c );
+  dau.push_back( c );
 }
 
 void CompositeCandidate::addDaughter( std::auto_ptr<Candidate> cand, std::string s )
@@ -165,7 +165,7 @@ void CompositeCandidate::addDaughter( std::auto_ptr<Candidate> cand, std::string
       c1->setName( s );
     }
   }
-  CompositeCandidate::addDaughter( cand );
+  dau.push_back( cand );
 }
 
 
