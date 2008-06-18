@@ -1,6 +1,6 @@
 #include <iostream.h>
 
-int pintaChamberCSC(int station = 1, int ring=1, int chamber=1)
+int drawChamberCSC(int station = 1, int ring=1, int chamber=1)
 {
 gStyle->SetOptStat(1111111);
 

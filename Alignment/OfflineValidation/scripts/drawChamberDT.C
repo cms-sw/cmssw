@@ -1,6 +1,6 @@
 #include <iostream.h>
 
-int pintaChamberDT(int wheel=0, int station = 1, int sector=1)
+int drawChamberDT(int wheel=0, int station = 1, int sector=1)
 {
 gStyle->SetOptStat(1111111);
 
