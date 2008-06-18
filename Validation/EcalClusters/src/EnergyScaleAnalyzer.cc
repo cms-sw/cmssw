@@ -12,7 +12,7 @@
 */
 // Original Author:  Keti Kaadze
 //         Created:  Thu Jun 21 08:59:42 CDT 2007
-// $Id: EnergyScaleAnalyzer.cc,v 1.1 2008/04/02 12:35:58 kkaadze Exp $
+// $Id: EnergyScaleAnalyzer.cc,v 1.2 2008/06/17 12:27:24 ferriff Exp $
 //
 
 //#include "RecoEcal/EnergyScaleAnalyzer/interface/EnergyScaleAnalyzer.h"
@@ -53,7 +53,6 @@
 
 #include "DataFormats/EgammaReco/interface/BasicClusterShapeAssociation.h"
 #include "RecoEcal/EgammaCoreTools/interface/PositionCalc.h"
-//#include "DataFormats/EgammaReco/interface/SeedSuperClusterAssociation.h"
 #include "DataFormats/Math/interface/LorentzVector.h"
 
 //// Class header file
@@ -446,7 +445,5 @@ EnergyScaleAnalyzer::endJob() {
   //Fill ROOT tree
   rootFile_->Write();
 }
-
-
 
 DEFINE_FWK_MODULE(EnergyScaleAnalyzer);
