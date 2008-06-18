@@ -1,10 +1,10 @@
 import FWCore.ParameterSet.Config as cms
 
 #
-# $Id: cosmicSuperClusters_cfi.py,v 1.1 2008/06/18 05:54:54 haupt Exp $
+# $Id: cosmicSuperClusters_cfi.py,v 1.2 2008/06/18 18:02:49 haupt Exp $
 #
 # Island SuperCluster producer
-islandSuperClusters = cms.EDProducer("SuperClusterProducer",
+cosmicSuperClusters = cms.EDProducer("SuperClusterProducer",
     VerbosityLevel = cms.string('ERROR'),
     endcapClusterProducer = cms.string('cosmicBasicClusters'),
     barrelClusterProducer = cms.string('cosmicBasicClusters'),
