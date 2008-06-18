@@ -605,7 +605,7 @@ void PixelCalibConfiguration::nextFECState(std::map<unsigned int, PixelFECConfig
     ::abort();
   }
 
-  if (state==0){
+  if (rocInfo_.size()==0){
     //here we will do some initialization...
     for(unsigned int i=0;i<rocs_.size();i++){
       const PixelHdwAddress* hdwadd=trans->getHdwAddress(rocs_[i]);
