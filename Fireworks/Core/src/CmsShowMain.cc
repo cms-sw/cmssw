@@ -8,7 +8,7 @@
 //
 // Original Author:  
 //         Created:  Mon Dec  3 08:38:38 PST 2007
-// $Id: CmsShowMain.cc,v 1.48 2008/06/11 14:08:14 dmytro Exp $
+// $Id: CmsShowMain.cc,v 1.1 2008/06/17 00:08:11 chrjones Exp $
 //
 
 // system include files
@@ -311,6 +311,10 @@ CmsShowMain::CmsShowMain(int argc, char *argv[]) :
   if (m_guiManager->getAction(sQuit) != 0) m_guiManager->getAction(sQuit)->activated.connect(sigc::mem_fun(*this, &CmsShowMain::quit));
   
   m_navigator->loadFile(m_inputFileName);
+   
+   if(debugMode) {
+      m_guiManager->openEveBrowserForDebugging();
+   }
 }
 
 // CmsShowMain::CmsShowMain(const CmsShowMain& rhs)
