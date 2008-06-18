@@ -1,24 +1,21 @@
 /*
  * \file DQMSourcePhiSym.cc
  *
- * \author Andrea Gozzelino - Universit√† e INFN Torino
- *         
+ * \author Andrea Gozzelino - Universita† e INFN Torino
+ * \author Stefano Argiro
+ *        
  * $Date: 2008/04/28 22:06:10 $
  * $Revision: 1.2 $
  *
  *
- * Description: Creating and filling monitoring elements using in Phi Symmetry  
+ * Description: Monitoring of Phi Symmetry Calibration Stream  
 */
 
-
-// **********************************************************
-// ---------------- include files ---------------------------
-// **********************************************************
 
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/EventSetup.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
-#include "FWCore/Framework/interface/ESHandle.h"
+#include "FWCore/ServiceRegistry/interface/Service.h"
 
 // DQM include files
 
@@ -26,19 +23,12 @@
 
 // work on collections
 #include "DataFormats/EcalRecHit/interface/EcalRecHitCollections.h"
-#include "DataFormats/DetId/interface/DetId.h"
 #include "DataFormats/EcalDetId/interface/EBDetId.h"
 #include "DataFormats/EcalDetId/interface/EEDetId.h"
 
 #include "DataFormats/EcalRecHit/interface/EcalRecHit.h"
 
-// Geometry
-#include "Geometry/Records/interface/CaloGeometryRecord.h"
-#include "Geometry/CaloGeometry/interface/CaloSubdetectorGeometry.h"
-#include "Geometry/CaloGeometry/interface/CaloCellGeometry.h"
-
-
-#include "FWCore/ServiceRegistry/interface/Service.h"
+#include "DQMServices/Core/interface/DQMStore.h"
 #include "DQMOffline/Ecal/src/DQMSourcePhiSym.h"
 
 
@@ -51,76 +41,70 @@ using namespace edm;
 // *****************************************
 
 DQMSourcePhiSym::DQMSourcePhiSym( const edm::ParameterSet& ps ) :
-counterEvt_(0)
+eventCounter_(0)
 {
-     dbe_ = Service<DQMStore>().operator->();
-     parameters_ = ps;
-     monitorName_ = parameters_.getUntrackedParameter<string>("monitorName","YourSubsystemName");
-     //cout << "Monitor name = " << monitorName_ << endl;
-     if (monitorName_ != "" ) monitorName_ = monitorName_+"/" ;
-     prescaleEvt_ = parameters_.getUntrackedParameter<int>("prescaleEvt", -1);
-     //cout << "===>DQM event prescale = " << prescaleEvt_ << " events "<< endl;
+  dbe_ = Service<DQMStore>().operator->();
+  folderName_ = ps.getUntrackedParameter<string>("FolderName","ALCAStreamEcalPhiSym");
+  prescaleFactor_ = ps.getUntrackedParameter<int>("prescaleFactor",1);
+  productMonitoredEB_= ps.getUntrackedParameter<edm::InputTag>("AlCaStreamEBTag");
+  productMonitoredEE_= ps.getUntrackedParameter<edm::InputTag>("AlCaStreamEETag");
 
-
-  // create and cd into new folder
-  dbe_->setCurrentFolder(monitorName_+"C1");
-
-  // book some histograms 1D
-
-  hphidistr = dbe_->book1D("histo phi distribution", "phi distribution", 360, -3.14, 3.14);
-  hphidistr->setAxisTitle("phi (rad)", 1);
-  hphidistr->setAxisTitle(" # uncalib rec hits", 2);
-
-  hiphidistr = dbe_->book1D("histo iphi distribution", "iphi distribution", 360, 1., 360.);
-  hiphidistr->setAxisTitle(" iphi ", 1);
-  hiphidistr->setAxisTitle(" # uncalib rec hits", 2);
-
-  hetadistr = dbe_->book1D("histo eta distribution", "eta distribution", 170, -1.48, 1.48);
-  hetadistr->setAxisTitle("eta", 1);
-  hetadistr->setAxisTitle(" # uncalib rec hits", 2);
-
-  hietadistr = dbe_->book1D("histo ieta distribution", "ieta distribution", 170,-85.,85.);
-  hietadistr->setAxisTitle(" ieta ", 1);
-  hietadistr->setAxisTitle(" # uncalib rec hits", 2);
-
-  hweightamplitude = dbe_->book1D("weight amplitude","weight amplitude",50,0.,50.);
-  hweightamplitude->setAxisTitle("uncalib rechits amplitude (ADC) ",1);
-  hweightamplitude->setAxisTitle(" ",2);
-
-  henergyEB = dbe_->book1D("rechits energy above cut","rechits energy above cut",160,0.,1.6);
-  henergyEB->setAxisTitle("rechits energy (GeV) ",1);
-  henergyEB->setAxisTitle("rechits above thresold ",2);
-
-  hEventEnergy = dbe_->book1D("event energy","event energy",100,0.,1.4);
-  hEventEnergy->setAxisTitle("event energy (GeV) ",1);
-  hEventEnergy->setAxisTitle(" ",2);
-
-  hEventRh = dbe_->book1D("rechits in event","rechits in event",100,0.,250.);
-  hEventRh->setAxisTitle("rechits ",1);
-  hEventRh->setAxisTitle(" ",2);
-
-  hEventSumE = dbe_->book1D("energy sum in event","energy sum in event",50,0.,150.);
-  hEventSumE->setAxisTitle("energy sum (GeV) ",1);
-  hEventSumE->setAxisTitle("entries ",2);
+  saveToFile_=ps.getUntrackedParameter<bool>("SaveToFile",false);
+  fileName_=  ps.getUntrackedParameter<string>("FileName","MonitorAlCaEcalPhiSym.root");
 
 }
 
-
-// ******************************************
-// destructor
-// ******************************************
 
 DQMSourcePhiSym::~DQMSourcePhiSym()
-{
-   
-   // do anything here that needs to be done at desctruction time
-   // (e.g. close files, deallocate resources etc.)
-  
-}
+{}
 
 
 //--------------------------------------------------------
 void DQMSourcePhiSym::beginJob(const EventSetup& context){
+
+
+  // create and cd into new folder
+  dbe_->setCurrentFolder(folderName_);
+
+  // book some histograms 1D
+  hiPhiDistrEB_ = 
+    dbe_->book1D("iphiDistributionEB", "RechitEB iphi", 361, 1,361);
+
+  hiPhiDistrEB_->setAxisTitle("i#phi ", 1);
+  hiPhiDistrEB_->setAxisTitle("# rechits", 2);
+
+
+  hiEtaDistrEB_ = dbe_->book1D("iEtaDistributionEB", "RechitEB ieta", 171, -85, 86);
+  hiEtaDistrEB_->setAxisTitle("eta", 1);
+  hiEtaDistrEB_->setAxisTitle("#rechits", 2);
+
+
+  hRechitEnergyEB_ = dbe_->book1D("rhEnergyEB","rechits energy EB",160,0.,2.0);
+  hRechitEnergyEB_->setAxisTitle("energy (GeV) ",1);
+  hRechitEnergyEB_->setAxisTitle("#rechits",2);
+
+  hEventEnergyEB_ = dbe_->book1D("eventEnergyEB","event energy EB",100,0.,20.0);
+  hEventEnergyEB_->setAxisTitle("energy (GeV) ",1);
+
+  hNRecHitsEB_ = dbe_->book1D("nRechitsEB","#rechits in event EB",100,0.,250.);
+  hNRecHitsEB_->setAxisTitle("rechits ",1);
+ 
+  hMeanRecHitEnergyEB_ = dbe_->book1D("meanEnergyEB","Mean rechit energy EB",50,0.,2.);
+  hMeanRecHitEnergyEB_-> setAxisTitle("Mean Energy [GeV] ",1);
+ 
+  
+  hRechitEnergyEE_ = dbe_->book1D("rhEnergyEE","rechits energy EE",160,0.,3.0);
+  hRechitEnergyEE_->setAxisTitle("energy (GeV) ",1);
+  hRechitEnergyEE_->setAxisTitle("#rechits",2);
+
+  hEventEnergyEE_ = dbe_->book1D("eventEnergyEE","event energy EE",100,0.,20.0);
+  hEventEnergyEE_->setAxisTitle("energy (GeV) ",1);
+
+  hNRecHitsEE_ = dbe_->book1D("nRechitsEE","#rechits in event EE" ,100,0.,250.);
+  hNRecHitsEE_->setAxisTitle("rechits ",1);
+ 
+  hMeanRecHitEnergyEE_ = dbe_->book1D("meanEnergyEE","Mean rechit energy EE",50,0.,5.);
+  hMeanRecHitEnergyEE_-> setAxisTitle("Mean Energy [GeV] ",1);
 
 }
 
@@ -135,107 +119,63 @@ void DQMSourcePhiSym::beginLuminosityBlock(const LuminosityBlock& lumiSeg,
   
 }
 
-
-// ****************************************************************
-// ----------- implementation method analyze -----------------------
-// ****************************************************************
+//-------------------------------------------------------------
 
 void DQMSourcePhiSym::analyze(const Event& iEvent, 
-			       const EventSetup& iSetup )
-{  
-  counterEvt_++;
-  if (prescaleEvt_ > 0 && counterEvt_%prescaleEvt_!=0) return;
-  // cout << " processing conterEvt_: " << counterEvt_ <<endl;
-
-   if(counterEvt_%50 == 0)
-    cout << " # of events = " << counterEvt_ << endl;
-
-
-   // --------------- Geometry ---------------------------------------
-   // ******* include new libraries in Build file ********************
-  
-   edm::ESHandle<CaloGeometry> cGeom;
-   iSetup.get<CaloGeometryRecord>().get(cGeom);
-   geo = cGeom.product();
-  
-   // ------------- weight uncalib rechit ----------------
-
-   edm::Handle<EcalUncalibratedRecHitCollection> UWrh;
-   iEvent.getByLabel("ecalWeightUncalibRecHit","EcalUncalibRecHitsEB", UWrh);
-
-   EcalUncalibratedRecHitCollection::const_iterator UWhit;
-
-   double AcutEB = 5.0;//amplitude cut in EB = 5 ADC
-
-   for(UWhit = UWrh->begin(); UWhit != UWrh->end(); UWhit ++)
-     {
-       if (UWhit->amplitude() > AcutEB)
-	 {
-	   //cout << "weight uncalib amplitude above cut" << UWhit->amplitude()<<endl;
-	   hweightamplitude-> Fill(UWhit->amplitude());
-
-	   //cout << "    phi  " << (geo->getPosition(UWhit->id())).phi() << endl;
-	   hphidistr -> Fill((geo->getPosition(UWhit->id())).phi());
-
-	   hetadistr -> Fill((geo->getPosition(UWhit->id())).eta());
-
-	   //convert in  EBDetId
-	   //cout << "  iphi (integer)  " << EBDetId(UWhit->id()).iphi() << endl; 
-	   hiphidistr -> Fill(EBDetId(UWhit->id()).iphi());
-
-	   hietadistr -> Fill(EBDetId(UWhit->id()).ieta());
-
-	 }
-     } // end for on uncalib rechit
-
-
- //---------------------- work on rechit-----------------------
-
-   edm::Handle<EcalRecHitCollection> rhEB;
-   iEvent.getByLabel("ecalRecHit","EcalRecHitsEB", rhEB);
-
-   EcalRecHitCollection::const_iterator rechitEB;
-
-   double EcutEB = 0.19; // energy cut in EB = 190 MeV
-
-   int rh_counter = 0;
-   double sum_energy = 0.;
-   double ratio = 0.;
-   vector <double> energy_event;
-
-   for(rechitEB = rhEB->begin(); rechitEB != rhEB->end(); rechitEB ++)
-     {
-       if (rechitEB->energy() > EcutEB) 
-	 {
-	   rh_counter = rh_counter + 1;
-	   sum_energy = sum_energy + (rechitEB->energy());
+			       const EventSetup& iSetup ){  
  
-	   // cout << " rechit energy in EB " << rechitEB->energy() << endl;
-	   // cout << " above fixed thresold Ecut = " << EcutEB << endl;
-	   henergyEB -> Fill(rechitEB->energy());
-	 }
+  if (eventCounter_% prescaleFactor_ ) return; 
+  eventCounter_++;
+    
+  edm::Handle<EcalRecHitCollection> rhEB;
+  edm::Handle<EcalRecHitCollection> rhEE;
+ 
+  iEvent.getByLabel(productMonitoredEB_, rhEB); 
+  iEvent.getByLabel(productMonitoredEE_, rhEE);
 
-     }// end for on rechits
+  EcalRecHitCollection::const_iterator itb;
 
-   ratio = sum_energy/rh_counter;
+  // fill EB histos
+  if (rhEB.isValid()){
+    float etot =0;
+    for(itb=rhEB->begin(); itb!=rhEB->end(); ++itb){
 
-   // few report lines
-   /*
-   cout << " ************************************************** " << endl;
-   cout << " event number is  " << counterEvt_ << endl;
-   cout << "rechits energy sum in event =  "  << sum_energy << endl;
-   cout << "rechits above thresold number in event  =  " << rh_counter << endl;
-   cout << "ratio =  "<< ratio << endl << endl;
-   cout << " ************************************************** " << endl;
-   */
+      EBDetId id(itb->id());
+      
+      hiPhiDistrEB_->Fill(id.iphi());
+      hiEtaDistrEB_->Fill(id.ieta());
+      hRechitEnergyEB_->Fill(itb->energy());
 
-   hEventEnergy -> Fill (ratio);
-   hEventRh -> Fill(rh_counter);
-   hEventSumE -> Fill(sum_energy);
+      etot+= itb->energy();	 
+    } // Eb rechits
+    
+    hNRecHitsEB_->Fill(rhEB->size());
+    hMeanRecHitEnergyEB_->Fill(etot/rhEB->size());
+    hEventEnergyEB_->Fill(etot);
 
-  usleep(100);
+  } // if valid
 
-}
+  // fill EE histos
+
+  EcalRecHitCollection::const_iterator ite;
+
+  if (rhEE.isValid()){
+
+    float etot =0;
+    for(ite=rhEE->begin(); ite!=rhEE->end(); ++ite){
+
+      EEDetId id(ite->id());
+      hRechitEnergyEE_->Fill(ite->energy());
+      etot+= ite->energy();	 
+    } // EE rechits
+    
+    hNRecHitsEE_->Fill(rhEE->size());
+    hMeanRecHitEnergyEE_->Fill(etot/rhEE->size());
+    hEventEnergyEE_->Fill(etot);
+  }
+
+
+} //analyze
 
 
 
@@ -247,13 +187,13 @@ void DQMSourcePhiSym::endLuminosityBlock(const LuminosityBlock& lumiSeg,
 //--------------------------------------------------------
 void DQMSourcePhiSym::endRun(const Run& r, const EventSetup& context){
 
-   dbe_->setCurrentFolder(monitorName_+"C1");
-  // dbe_->clone1D("cloneh1",rooth1);
-
 }
 //--------------------------------------------------------
-void DQMSourcePhiSym::endJob()
-{
+void DQMSourcePhiSym::endJob(){
+  
+  if (saveToFile_) {
+     dbe_->save(fileName_);
+  }
   
 }
 

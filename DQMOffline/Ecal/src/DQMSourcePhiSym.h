@@ -5,89 +5,101 @@
  * *
  *  DQM Source for phi symmetry stream
  *
- *  $Date: 2008/04/28  $
- *  $Revision: 1.1 $
+ *  $Date: 2008/04/28 22:06:10 $
+ *  $Revision: 1.2 $
  *  \author Stefano Argiro'
- *          Andrea Gozzelino - Universit√† e INFN Torino
+ *          Andrea Gozzelino - Universita† e INFN Torino
  *   
  */
 
 
 #include "FWCore/Framework/interface/Frameworkfwd.h"
 #include "FWCore/Framework/interface/EDAnalyzer.h"
-#include "DQMServices/Core/interface/DQMStore.h"
-#include "Geometry/CaloGeometry/interface/CaloGeometry.h"
 
-using namespace std;
-using namespace edm;
-
-
-
-// ******************************************************************
-// class declaration
-// ******************************************************************
+class DQMStore;
+class MonitorElement;
 
 class DQMSourcePhiSym : public edm::EDAnalyzer {
+
 public:
+
   DQMSourcePhiSym( const edm::ParameterSet& );
   ~DQMSourcePhiSym();
 
 protected:
    
-  /// BeginJob
   void beginJob(const edm::EventSetup& c);
 
-  /// BeginRun
   void beginRun(const edm::Run& r, const edm::EventSetup& c);
 
-  /// method analyze
   void analyze(const edm::Event& e, const edm::EventSetup& c) ;
 
   void beginLuminosityBlock(const edm::LuminosityBlock& lumiSeg, 
                             const edm::EventSetup& context) ;
 
-  /// DQM Client Diagnostic
   void endLuminosityBlock(const edm::LuminosityBlock& lumiSeg, 
                           const edm::EventSetup& c);
 
-  /// EndRun
   void endRun(const edm::Run& r, const edm::EventSetup& c);
 
-  /// Endjob
   void endJob();
 
 private:
  
-  edm::ParameterSet parameters_;
 
-  DQMStore* dbe_;  
-  std::string monitorName_;
-  int counterEvt_;      ///counter
-  int prescaleEvt_;     ///every n events
-
+  DQMStore*   dbe_;  
+  int eventCounter_;      
                         
-  // ************************************************
-  // ----------member data ---------------------------
-  // *************************************************
 
+  /// Distribution of rechits in iPhi   
+  MonitorElement * hiPhiDistrEB_;
+
+  /// Distribution of rechits in iEta
+  MonitorElement * hiEtaDistrEB_;
+
+  /// Energy Distribution of rechits  
+  MonitorElement * hRechitEnergyEB_;
+
+  /// Distribution of total event energy
+  MonitorElement * hEventEnergyEB_;
   
-  MonitorElement * hphidistr;
+  /// Distribution of number of RecHits
+  MonitorElement * hNRecHitsEB_;
 
-  MonitorElement * hiphidistr;
+  /// Distribution of Mean energy per rechit
+  MonitorElement * hMeanRecHitEnergyEB_;
 
-  MonitorElement * hetadistr;
 
-  MonitorElement * hietadistr;
+  /// Energy Distribution of rechits  
+  MonitorElement * hRechitEnergyEE_;
 
-  MonitorElement * hweightamplitude;
-  MonitorElement * henergyEB;
+  /// Distribution of total event energy
+  MonitorElement * hEventEnergyEE_;
+  
+  /// Distribution of number of RecHits
+  MonitorElement * hNRecHitsEE_;
 
-  MonitorElement * hEventEnergy;
-  MonitorElement * hEventRh;
-  MonitorElement * hEventSumE;
+  /// Distribution of Mean energy per rechit
+  MonitorElement * hMeanRecHitEnergyEE_;
 
-  const CaloGeometry* geo;
+  /// object to monitor
+  edm::InputTag productMonitoredEB_;
 
+ /// object to monitor
+  edm::InputTag productMonitoredEE_;
+
+
+  /// Monitor every prescaleFactor_ events
+  unsigned int prescaleFactor_;
+  
+  /// DQM folder name
+  std::string folderName_; 
+ 
+  /// Write to file 
+  bool saveToFile_;
+
+  /// Output file name if required
+  std::string fileName_;
 };
 
 #endif
