@@ -2,8 +2,8 @@
 /*
  *  See header file for a description of this class.
  *
- *  $Date: 2008/06/06 17:09:52 $
- *  $Revision: 1.8 $
+ *  $Date: 2008/06/18 14:25:14 $
+ *  $Revision: 1.9 $
  *  \author G. Cerminara - INFN Torino
  */
 
@@ -213,7 +213,9 @@ void DTTimeBoxFitter::getFitSeeds(TH1F *hTBox, double& mean, double& sigma, doub
     while(++next != startAndLenght.end()) {
       int gap = (*next).first - (theInterval.first+theInterval.second);
       double gabInNs = binValue*gap;
-      if(gabInNs > 5) {
+      if(theVerbosityLevel >= 2)
+	cout << "      gap: " << gabInNs << "(ns)" << endl;
+      if(gabInNs > 20) {
 	break;
       } else {
 	theInterval = make_pair(theInterval.first, theInterval.second+gap+(*next).second);
