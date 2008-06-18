@@ -1,5 +1,6 @@
 #include "Utilities/StorageFactory/interface/StorageMaker.h"
 #include "Utilities/StorageFactory/interface/StorageMakerFactory.h"
+#include "Utilities/StorageFactory/interface/StorageFactory.h"
 #include "Utilities/DCacheAdaptor/interface/DCacheFile.h"
 #include <unistd.h>
 #include <dcap.h>
@@ -31,7 +32,28 @@ public:
 			 int mode,
 			 const std::string &tmpdir)
   {
+    StorageFactory *f = StorageFactory::get();
+    StorageFactory::ReadHint readHint = f->readHint();
+    StorageFactory::CacheHint cacheHint = f->cacheHint();
+
+    if (readHint != StorageFactory::READ_HINT_UNBUFFERED
+	|| cacheHint == StorageFactory::CACHE_HINT_STORAGE)
+      mode &= ~IOFlags::OpenUnbuffered;
+    else
+      mode |= IOFlags::OpenUnbuffered;
+
     return new DCacheFile (normalise (proto, path), mode);
+  }
+
+  virtual void stagein (const std::string &proto,
+		        const std::string &path)
+  {
+    std::string npath = normalise(proto, path);
+    if (dc_stage(npath.c_str(), 0, 0) != 0)
+      throw cms::Exception("DCacheStorageMaker::stagein()")
+	<< "Cannot stage in file '" << npath
+	<< "', error was: " << dc_strerror(dc_errno)
+	<< " (dc_errno=" << dc_errno << ")";
   }
 
   virtual bool check (const std::string &proto,
