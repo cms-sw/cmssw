@@ -8,7 +8,7 @@
 //
 // Original Author:  Chris Jones
 //         Created:  Fri Jun 13 09:58:53 EDT 2008
-// $Id$
+// $Id: FWGUIEventDataAdder.cc,v 1.1 2008/06/13 23:38:18 chrjones Exp $
 //
 
 // system include files
@@ -126,8 +126,9 @@ FWGUIEventDataAdder::show()
 void
 FWGUIEventDataAdder::windowIsClosing()
 {
-   m_frame->Cleanup();
-   delete m_frame;
+   //CDJ HACK: If I use the following lines I get a seg fault on the next redraw
+   //m_frame->Cleanup();
+   //delete m_frame;
    m_frame=0;
 }
 
@@ -135,7 +136,7 @@ FWGUIEventDataAdder::windowIsClosing()
 void
 FWGUIEventDataAdder::createWindow()
 {
-   m_frame = new TGMainFrame(0,10,10);
+   m_frame = new TGMainFrame(gClient->GetRoot(),10,10);
    m_frame->Connect("CloseWindow()","FWGUIEventDataAdder",this,"windowIsClosing()");
    TGVerticalFrame* vf = new TGVerticalFrame(m_frame);
    m_frame->AddFrame(vf, new TGLayoutHints(kLHintsExpandX| kLHintsExpandY,10,10,10,1));
