@@ -189,6 +189,10 @@ if(all4DSegments->size()>0){
 		  stripCounter++;
 		}
 		std::cout<<"\t \t \t \t \t \t digi "<<*digiIt<<"\t Detected="<<stripDetected<<" Predicted="<<stripPredicted<<" tmpRes(strips)="<<fabs((float)stripDetected-stripPredicted)<<"\t SumStrip= "<<sumStripDetected<<std::endl;
+		
+		std::cout<<"\t \t \t \t \t \t Filling BX Distribution"<<std::endl;
+		sprintf(meIdRPC,"BXDistribution_%s",detUnitLabel);
+		meMap[meIdRPC]->Fill(digiIt->bx());
 	      }
 	      
 	      std::cout<<"\t \t \t \t \t Sum of strips "<<sumStripDetected<<std::endl;
@@ -224,9 +228,8 @@ if(all4DSegments->size()>0){
 		  //--------------------------------
 		
 		  sprintf(meIdRPC,"RPCResidualsFromDT_%s",detUnitLabel);
-
 		  meMap[meIdRPC]->Fill(meanrescms);
-		  
+
 		  sprintf(meIdRPC,"RPCResiduals2DFromDT_%s",detUnitLabel);
 		  meMap[meIdRPC]->Fill(meanrescms,Y);
 		  

@@ -206,6 +206,11 @@ if(all4DSegments->size()>0){
 			stripCounter++;
 		      }
 		      std::cout<<"MB4 \t \t \t \t \t \t Digi "<<*digiIt<<"\t Detected="<<stripDetected<<" Predicted="<<stripPredicted<<" tmpRes(strips)="<<fabs((float)stripDetected-stripPredicted)<<"\t SumStrip= "<<sumStripDetected<<std::endl;
+		      
+		      std::cout<<"MB4 \t \t \t \t \t \t Filling BX Distribution"<<std::endl;
+		      sprintf(meIdRPC,"BXDistribution_%s",detUnitLabel);
+		      meMap[meIdRPC]->Fill(digiIt->bx());
+
 		    }
 		    
 		    std::cout<<"MB4 \t \t \t \t \t Sum of strips "<<sumStripDetected<<std::endl;
