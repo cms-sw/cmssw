@@ -1,5 +1,5 @@
 // -*- C++ -*-
-// $Id$
+// $Id: HCalCaloTowerProxy3DBuilder.cc,v 1.1 2008/06/16 18:35:38 dmytro Exp $
 //
 
 // system include files
@@ -46,8 +46,11 @@ void HCalCaloTowerProxy3DBuilder::build(const FWEventItem* iItem, TEveElementLis
    }
    bool newHist = false;
    if ( hist == 0 ) {
-      hist = new TH2F(name.c_str(),"CaloTower HCAL Et distribution", 82, fw3dlego::xbins, 72, -M_PI, M_PI);
-      newHist = true;
+     Bool_t status = TH1::AddDirectoryStatus();
+     TH1::AddDirectory(kFALSE); //Keeps histogram from going into memory
+     hist = new TH2F(name.c_str(),"CaloTower HCAL Et distribution", 82, fw3dlego::xbins, 72, -M_PI, M_PI);
+     TH1::AddDirectory(status);
+     newHist = true;
    }
    hist->Reset();
    for(CaloTowerCollection::const_iterator tower = towers->begin(); tower != towers->end(); ++tower)

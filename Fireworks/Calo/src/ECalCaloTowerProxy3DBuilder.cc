@@ -1,5 +1,5 @@
 // -*- C++ -*-
-// $Id$
+// $Id: ECalCaloTowerProxy3DBuilder.cc,v 1.1 2008/06/16 18:35:38 dmytro Exp $
 //
 
 // system include files
@@ -46,7 +46,10 @@ void ECalCaloTowerProxy3DBuilder::build(const FWEventItem* iItem, TEveElementLis
    }
    bool newHist = false;
    if ( hist == 0 ) {
-      hist = new TH2F(name.c_str(),"CaloTower ECAL Et distribution", 82, fw3dlego::xbins, 72, -M_PI, M_PI);
+     Bool_t status = TH1::AddDirectoryStatus();
+     TH1::AddDirectory(kFALSE); //Keeps histogram from going into memory
+     hist = new TH2F(name.c_str(),"CaloTower ECAL Et distribution", 82, fw3dlego::xbins, 72, -M_PI, M_PI);
+     TH1::AddDirectory(status);
       newHist = true;
    }
    hist->Reset();
