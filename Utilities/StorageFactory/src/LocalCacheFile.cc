@@ -24,7 +24,7 @@ LocalCacheFile::LocalCacheFile(Storage *base)
     file_(0),
     storage_(base)
 {
-  present_.resize((image_ + CHUNK_SIZE - 1) / CHUNK_SIZE, false);
+  present_.resize((image_ + CHUNK_SIZE - 1) / CHUNK_SIZE, 0);
 
   std::string pattern("/tmp");
   if (char *p = getenv("TMPDIR"))
@@ -54,11 +54,13 @@ LocalCacheFile::cache(IOOffset start, IOOffset end)
 {
   start = (start / CHUNK_SIZE) * CHUNK_SIZE;
   end = std::min(end, image_);
+
+  IOSize nread = 0;
+  IOSize index = start / CHUNK_SIZE;
+  IOSize len = std::min(image_ - start, CHUNK_SIZE);
+
   while (start < end)
   {
-    IOSize nread = 0;
-    IOSize index = start / CHUNK_SIZE;
-    IOSize len = std::min(image_ - start, CHUNK_SIZE);
     if (! present_[index])
     {
       void *window = mmap(0, len, PROT_READ | PROT_WRITE, MAP_SHARED, file_->fd(), start);
@@ -86,10 +88,11 @@ LocalCacheFile::cache(IOOffset start, IOOffset end)
           << "Unable to cache " << len << " byte file segment at " << start
 	  << ": got only " << nread << " bytes back";
 
-      present_[index] = true;
+      present_[index] = 1;
     }
 
     start += len;
+    ++index;
   }
 }
 

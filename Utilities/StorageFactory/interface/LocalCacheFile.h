@@ -35,7 +35,7 @@ private:
   void			cache (IOOffset start, IOOffset end);
 
   IOOffset		image_;
-  std::vector<bool>	present_;
+  std::vector<char>	present_;
   File			*file_;
   Storage		*storage_;
 };
