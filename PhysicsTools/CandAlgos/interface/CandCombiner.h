@@ -7,9 +7,9 @@
  *
  * \author Luca Lista, INFN
  *
- * \version $Revision: 1.23 $
+ * \version $Revision: 1.24 $
  *
- * $Id: CandCombiner.h,v 1.23 2008/05/13 14:30:25 llista Exp $
+ * $Id: CandCombiner.h,v 1.24 2008/05/14 09:19:29 llista Exp $
  *
  */
 #include "FWCore/Framework/interface/EDProducer.h"
@@ -49,7 +49,7 @@ namespace reco {
         roles_(cfg.getParameter<std::vector<std::string> >("roles")) {
       }
       const std::vector<std::string> roles() const { return roles_; }
-      void set(reco::NamedCompositeCandidate &c) const {
+      void set(reco::CompositeCandidate &c) const {
 	c.setName(name_);
 	c.setRoles(roles_);
 	c.applyRoles();
@@ -67,7 +67,7 @@ namespace reco {
     };
 
     template<>
-    struct RoleNamesTrait<reco::NamedCompositeCandidateCollection> {
+    struct RoleNamesTrait<reco::CompositeCandidateCollection> {
       typedef RoleNames type;
     };  
     

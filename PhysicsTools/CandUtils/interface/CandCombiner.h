@@ -19,42 +19,25 @@ namespace combiner {
     struct NormalClone {
       typedef reco::CandidateBaseRef CandPtr;
       template<typename Ref>
-      static void addDaughter(reco::CompositeCandidate & cmp, const Ref & c, const std::string & = "") {
-	cmp.addDaughter(*c);
-      }
-      template<typename Ref>
-      static void addDaughter(reco::NamedCompositeCandidate & cmp, const Ref & c, const std::string & name) {
-        cmp.addDaughter(*c, name);
+      static void addDaughter(reco::CompositeCandidate & cmp, const Ref & c, const std::string name = "") {
+	cmp.addDaughter(*c, name);
       }
     };
      
     struct ShallowClone {
       typedef reco::CandidateBaseRef CandPtr;
-      static void addDaughter(reco::CompositeCandidate & cmp, const reco::CandidateBaseRef & c, const std::string & = "") {
-	if(c->numberOfDaughters()==0)
-	  cmp.addDaughter(reco::ShallowCloneCandidate(c));
-	else
-	  cmp.addDaughter(*c);
-      }
-      static void addDaughter(reco::NamedCompositeCandidate & cmp, const reco::CandidateBaseRef & c, const std::string & name) {
+      static void addDaughter(reco::CompositeCandidate & cmp, const reco::CandidateBaseRef & c, const std::string name = "") {
 	if(c->numberOfDaughters()==0)
 	  cmp.addDaughter(reco::ShallowCloneCandidate(c), name);
 	else
 	  cmp.addDaughter(*c, name);
       }
-      
     };
     struct ShallowClonePtr {
       typedef reco::CandidatePtr CandPtr;
-      static void addDaughter(reco::CompositeCandidate & cmp, const reco::CandidatePtr & c, const std::string & name) {
+      static void addDaughter(reco::CompositeCandidate & cmp, const reco::CandidatePtr & c, const std::string name = "") {
 	if(c->numberOfDaughters()==0)
-	  cmp.addDaughter(reco::ShallowClonePtrCandidate(c));
-	else
-	  cmp.addDaughter(*c);
-      }
-      static void addDaughter(reco::NamedCompositeCandidate & cmp, const reco::CandidatePtr & c, const std::string & name) {
-	if(c->numberOfDaughters()==0)
-	  cmp.addDaughter(reco::ShallowClonePtrCandidate(c),name);
+	  cmp.addDaughter(reco::ShallowClonePtrCandidate(c), name);
 	else
 	  cmp.addDaughter(*c, name);
       }
@@ -165,7 +148,7 @@ private:
     setup_.set(c);
   }
   /// add candidate daughter
-  virtual void addDaughter(typename OutputCollection::value_type & cmp, const CandPtr & c, const std::string & name = "") const {
+  virtual void addDaughter(typename OutputCollection::value_type & cmp, const CandPtr & c, const std::string name = "") const {
     Cloner::addDaughter(cmp, c, name);
   }
   /// candidate selector
