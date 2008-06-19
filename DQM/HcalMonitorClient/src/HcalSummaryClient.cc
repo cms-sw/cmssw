@@ -665,7 +665,7 @@ void HcalSummaryClient::htmlOutput(int& run, time_t& mytime, int& minlumi, int& 
   // values taken from EBSummaryClient.cc
   const int csize = 400;
 
-  TCanvas* cMap = new TCanvas("cMap", "Temp", int(360./170.*csize), csize);
+  //TCanvas* cMap = new TCanvas("cMap", "Temp", int(360./170.*csize), csize);
   //TCanvas* cMapPN = new TCanvas("cMapPN", "Temp", int(360./170.*csize), int(20./90.*360./170.*csize));
 
   //  const double histMax = 1.e15;
@@ -679,44 +679,20 @@ void HcalSummaryClient::htmlOutput(int& run, time_t& mytime, int& minlumi, int& 
 
 
   // Test for now -- let's just dump out global summary histogram
-  obj2f =  meGlobalSummary_->getTH2F();
-  if (obj2f && obj2f->GetEntries()!=0)
+  MonitorElement* me;
+  me = dqmStore_->get(prefixME_ + "/EventInfo/reportSummaryMap");
+  obj2f = me->getTH2F();
+  //obj2f =  meGlobalSummary_->getTH2F();
+  if (obj2f)// && obj2f->GetEntries()!=0)
     {
+      htmlFile << "<table  width=100% border=1><tr>" << endl; 
+      htmlFile << "<tr align=\"center\">" << endl;  
+      htmlAnyHisto(run,obj2f,"i#eta","i#phi",92,htmlFile,htmlDir);
+      htmlFile <<"</tr></table><hr>"<<endl;
 
-      meName = obj2f->GetName();
+    } // if (obj2f)
 
-      replace(meName.begin(), meName.end(), ' ', '_');
-      imgNameMap = meName + ".png";
-      imgName = htmlDir + imgNameMap;
-      cMap->cd();
-      gStyle->SetOptStat(" ");
-      gStyle->SetPalette(1);
-      //gStyle->SetPalette(6, pCol3);
-      cMap->SetGridx();
-      cMap->SetGridy();
-
-      obj2f->GetXaxis()->SetLabelSize(0.03);
-      obj2f->GetYaxis()->SetLabelSize(0.03);
-      
-      cMap->Update();
-      cMap->SaveAs(imgName.c_str());
-
-    } // if (obj2f && obj2f->GetEntries()!=0)
-
-  gStyle->SetPaintTextFormat();
   
-  if ( imgNameMap.size() != 0 ) 
-    {
-      htmlFile << "<table border=\"0\" cellspacing=\"0\" " << endl;
-      htmlFile << "cellpadding=\"10\" align=\"center\"> " << endl;
-      htmlFile << "<tr align=\"center\">" << endl;
-      htmlFile << "<td><img src=\"" << imgNameMap << "\" usem float tempstatus=-1;ap=\"#Integrity\" border=0></td>" << endl;
-      htmlFile << "</tr>" << endl;
-      htmlFile << "</table>" << endl;
-      htmlFile << "<br>" << endl;
-    } // if ( imgNameMap.size() != 0 ) 
-
-
   // Make table that lists all status words for each subdet
   
   htmlFile<<"<hr><br><h2>Summary Values for each Task and Subdetector</h2><br>"<<endl;
