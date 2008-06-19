@@ -18,8 +18,9 @@ process.load("DQMServices.Core.DQM_cfg")
 #    include "FastSimulation/Configuration/data/QCDpt600-800.cfi"
 
 # Generate muons with a flat pT particle gun, and with pT=10.
-process.load("FastSimulation.Configuration.FlatPtMuonGun_cfi")
-process.FlatRandomPtGunSource.PGunParameters.PartID = [211]
+#process.load("FastSimulation.Configuration.FlatPtMuonGun_cfi")
+#process.FlatRandomPtGunSource.PGunParameters.PartID = [211]
+process.load("FastSimulation.Configuration.PythiaTauGun_cfi")
 
 process.test = cms.EDFilter("testEvent",
     # necessary to access true particles 
@@ -39,6 +40,9 @@ process.test = cms.EDFilter("testEvent",
 
 process.load("FastSimulation.Configuration.CommonInputsFake_cff")
 process.load("FastSimulation.Configuration.FamosSequences_cff")
+
+process.load("Configuration.StandardSequences.MagneticField_40T_cff")
+#process.load("Configuration.StandardSequences.MagneticField_38T_cff")
 process.VolumeBasedMagneticFieldESProducer.useParametrizedTrackerField = True
 process.famosSimHits.SimulateCalorimetry = False
 process.famosSimHits.SimulateTracking = False

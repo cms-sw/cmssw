@@ -29,8 +29,8 @@ process.load("FastSimulation.Configuration.EventContent_cff")
 process.load("FWCore.MessageService.MessageLogger_cfi")
 
 process.configurationMetadata = cms.untracked.PSet(
-    version = cms.untracked.string('$Revision: 1.4 $'),
-    name = cms.untracked.string('$Source: /cvs_server/repositories/CMSSW/CMSSW/FastSimulation/Validation/data/ZMM.cfg,v $'),
+    version = cms.untracked.string('$Revision: 1.1 $'),
+    name = cms.untracked.string('$Source: /cvs_server/repositories/CMSSW/CMSSW/FastSimulation/Validation/python/ZMM_cfg.py,v $'),
     annotation = cms.untracked.string('RelVal FastSim Z to mu mu')
 )
 process.ReleaseValidation = cms.untracked.PSet(
@@ -108,6 +108,8 @@ process.siTrackerGaussianSmearingRecHits.UseTRandomEngine = True
 process.caloRecHits.UseTRandomEngine = True
 process.paramMuons.UseTRandomEngine = True
 process.famosPileUp.PileUpSimulator.averageNumber = 0.0
+process.load("Configuration.StandardSequences.MagneticField_40T_cff")
+#process.load("Configuration.StandardSequences.MagneticField_38T_cff")
 process.VolumeBasedMagneticFieldESProducer.useParametrizedTrackerField = True
 process.famosSimHits.SimulateCalorimetry = True
 process.famosSimHits.SimulateTracking = True

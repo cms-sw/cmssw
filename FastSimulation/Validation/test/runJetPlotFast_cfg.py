@@ -44,6 +44,8 @@ process.Timing = cms.Service("Timing")
 
 process.p1 = cms.Path(process.famosWithEverything*process.jetComp)
 process.famosPileUp.PileUpSimulator.averageNumber = 0.0
+process.load("Configuration.StandardSequences.MagneticField_40T_cff")
+#process.load("Configuration.StandardSequences.MagneticField_38T_cff")
 process.VolumeBasedMagneticFieldESProducer.useParametrizedTrackerField = True
 process.famosSimHits.SimulateCalorimetry = True
 process.famosSimHits.SimulateTracking = True

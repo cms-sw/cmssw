@@ -41,6 +41,8 @@ process.o1 = cms.OutputModule("PoolOutputModule",
 
 process.p1 = cms.Path(process.famosWithMuonsAndIsolation)
 process.outpath = cms.EndPath(process.o1)
+process.load("Configuration.StandardSequences.MagneticField_40T_cff")
+#process.load("Configuration.StandardSequences.MagneticField_38T_cff")
 process.VolumeBasedMagneticFieldESProducer.useParametrizedTrackerField = True
 process.famosSimHits.SimulateCalorimetry = True
 process.famosSimHits.SimulateTracking = True

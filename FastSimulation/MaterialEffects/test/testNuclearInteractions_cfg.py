@@ -151,6 +151,8 @@ process.misalignedTrackerInteractionGeometry.TrackerMaterial.TrackerMaterialVers
 process.famosSimHits.VertexGenerator.BetaStar = 0.0000001
 process.famosSimHits.VertexGenerator.SigmaZ = 0.00001
 # Magnetic field
+process.load("Configuration.StandardSequences.MagneticField_40T_cff")
+#process.load("Configuration.StandardSequences.MagneticField_38T_cff")
 process.VolumeBasedMagneticFieldESProducer.useParametrizedTrackerField = True
 # No SimHits
 process.famosSimHits.SimulateCalorimetry = False

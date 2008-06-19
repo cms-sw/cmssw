@@ -110,6 +110,8 @@ process.o1 = cms.OutputModule("PoolOutputModule",
 process.digiCheck = cms.EDFilter("DigiCheck")
 
 process.p1 = cms.Path(process.famosWithCaloHits*process.digiCheck)
+process.load("Configuration.StandardSequences.MagneticField_40T_cff")
+#process.load("Configuration.StandardSequences.MagneticField_38T_cff")
 process.VolumeBasedMagneticFieldESProducer.useParametrizedTrackerField = True
 process.famosSimHits.SimulateCalorimetry = True
 process.famosSimHits.SimulateTracking = False

@@ -51,6 +51,8 @@ process.testNU = cms.EDFilter(
 # Famos SimHits 
 process.load("FastSimulation.Configuration.CommonInputsFake_cff")
 process.load("FastSimulation.Configuration.FamosSequences_cff")
+process.load("Configuration.StandardSequences.MagneticField_40T_cff")
+#process.load("Configuration.StandardSequences.MagneticField_38T_cff")
 process.VolumeBasedMagneticFieldESProducer.useParametrizedTrackerField = True
 process.famosSimHits.SimulateCalorimetry = False
 process.famosSimHits.SimulateTracking = False

@@ -48,6 +48,8 @@ process.source = cms.Source(
 # Famos configuration
 process.load("FastSimulation.Configuration.CommonInputsFake_cff")
 process.load("FastSimulation.Configuration.FamosSequences_cff")
+process.load("Configuration.StandardSequences.MagneticField_40T_cff")
+#process.load("Configuration.StandardSequences.MagneticField_38T_cff")
 process.VolumeBasedMagneticFieldESProducer.useParametrizedTrackerField = True
 # No SimHits
 process.famosSimHits.SimulateCalorimetry = False
