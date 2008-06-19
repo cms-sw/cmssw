@@ -1,7 +1,7 @@
 /** \file
  *
- *  $Date: 2007/09/04 08:07:26 $
- *  $Revision: 1.5 $
+ *  $Date: 2008/01/22 18:46:41 $
+ *  $Revision: 1.6 $
  *  \author S. Argiro - N. Amapane - M. Zanetti 
  * FRC 060906
  */
@@ -57,7 +57,7 @@ DTUnpackingModule::DTUnpackingModule(const edm::ParameterSet& ps) : unpacker(0) 
   }
   
   fedbyType_ = ps.getUntrackedParameter<bool>("fedbyType", true);
-  fedColl_ = ps.getUntrackedParameter<string>("fedColl", "source");
+  inputLabel = ps.getUntrackedParameter<InputTag>("inputLabel",InputTag("source"));
   useStandardFEDid_ = ps.getUntrackedParameter<bool>("useStandardFEDid", true);
   minFEDid_ = ps.getUntrackedParameter<int>("minFEDid", 73);
   maxFEDid_ = ps.getUntrackedParameter<int>("maxFEDid", 735);
@@ -78,7 +78,7 @@ void DTUnpackingModule::produce(Event & e, const EventSetup& context){
     e.getByType(rawdata);
   }
   else {
-    e.getByLabel(fedColl_, rawdata);
+    e.getByLabel(inputLabel, rawdata);
   }
 
   // Get the mapping from the setup
