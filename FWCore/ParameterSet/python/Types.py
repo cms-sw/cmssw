@@ -469,7 +469,11 @@ class VInputTag(_ValidatingParameterListBase):
     def _itemIsValid(item):
         return InputTag._isValid(item)
     def configValueForItem(self,item,options):
-        return InputTag.formatValueForConfig(item)
+       # we tolerate strings as members
+       if isinstance(item, str):
+         return '"'+item+'"'
+       else:
+         return InputTag.formatValueForConfig(item)
     def pythonValueForItem(self,item, options):
         # we tolerate strings as members
         if isinstance(item, str):
