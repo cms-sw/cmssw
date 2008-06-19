@@ -106,7 +106,7 @@ namespace edm {
   void PoolOutputModule::writeModuleDescriptionRegistry() { rootOutputFile_->writeModuleDescriptionRegistry(); }
   void PoolOutputModule::writeParameterSetRegistry() { rootOutputFile_->writeParameterSetRegistry(); }
   void PoolOutputModule::writeProductDescriptionRegistry() { rootOutputFile_->writeProductDescriptionRegistry(); }
-  //void PoolOutputModule::writeProductDependencies() { rootOutputFile_->writeProductDependencies(); }
+  void PoolOutputModule::writeProductDependencies() { rootOutputFile_->writeProductDependencies(); }
   void PoolOutputModule::writeEntryDescriptions() { rootOutputFile_->writeEntryDescriptions(); }
   // BMM void PoolOutputModule::writeBranchMapper() { rootOutputFile_->writeBranchMapper(); }
   void PoolOutputModule::finishEndFile() { rootOutputFile_->finishEndFile(); rootOutputFile_.reset(); }
