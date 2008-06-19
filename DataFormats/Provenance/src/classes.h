@@ -55,6 +55,7 @@ namespace {
   std::vector<edm::BranchID> dummyVectorBranchID;
   std::set<edm::BranchID> dummySetBranchID;
   std::map<edm::BranchID, std::set<edm::BranchID> > dummyMapSetBranchID;
+  std::pair<edm::BranchID, std::set<edm::BranchID> > dummyPairSetBranchID;
   std::vector<std::basic_string<char> > dummyVectorString;
   std::set<std::basic_string<char> > dummySetString;
   std::vector<edm::EventProcessHistoryID> dummyEventProcessHistory;
