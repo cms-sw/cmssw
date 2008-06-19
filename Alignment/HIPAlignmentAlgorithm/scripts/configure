@@ -2,7 +2,7 @@
 
 set odir = `cd $1; pwd` # get full output path
 
-cp test/common.cff test/*.tpl test/*TrackSelection.cff $odir/
+cp test/common.cff test/*.tpl $odir/
 
 ## Set up config file for each alignment job
 
@@ -10,6 +10,8 @@ cp test/common.cff test/*.tpl test/*TrackSelection.cff $odir/
 
 foreach data (`ls $2`)
   set skim = `basename $data .dat`
+
+  cp test/${skim}TrackSelection.cff $odir/
 
   foreach file (`cat $data`)
     @ j++
@@ -40,4 +42,4 @@ set used = `echo $fslq | awk '{print $9}'`
 
 @ f = ($quot - $used) / 1000 # free space in MB
 
-echo Available disk space = $f MB 
+echo Available disk space = $f MB
