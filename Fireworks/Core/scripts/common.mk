@@ -65,6 +65,6 @@ tmp/%LinkDef.d:  %LinkDef.h
 	$(QUIET) echo "dependencies for ROOT dictionaries based on $<"; \
 	mkdir -p $(dir $@); \
 	$(CXX) -M $(CFLAGS) $(INCLUDE) $< \
-                       | sed 's/.*\.o[ :]*\(.*\)\(\.c*\)/tmp\/\1.o tmp\/\1.d : \1\2/g' > $@; \
+                       | sed 's/.*\.o[ :]*\(.*\)\(\.c*\)/tmp\/\1.ro tmp\/\1.cc tmp\/\1.d : \1\2/g' > $@; \
                      [ -s $@ ] || rm -f $@
 -include /dev/null $(ProjectRootDicSources:.cc=.d)
