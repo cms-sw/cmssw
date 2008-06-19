@@ -39,6 +39,7 @@
      <class name="std::vector<reco::BaseTagInfo*>" />
      <class name="edm::OwnVector<reco::BaseTagInfo, edm::ClonePolicy<reco::BaseTagInfo> >" />
   <class name="pat::MET" />
+     <class name="std::vector<SpecificCaloMETData> "/>
   <class name="pat::Particle" />
   <class name="pat::GenericParticle" />
   <class name="pat::Hemisphere" />

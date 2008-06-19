@@ -1,5 +1,5 @@
 //
-// $Id: MET.cc,v 1.6.4.1 2008/06/03 20:08:24 gpetrucc Exp $
+// $Id: MET.cc,v 1.7 2008/06/03 22:28:07 gpetrucc Exp $
 //
 
 #include "DataFormats/PatCandidates/interface/MET.h"
@@ -15,15 +15,21 @@ MET::MET(){
 
 /// constructor from METType
 MET::MET(const METType & aMET) : PATObject<METType>(aMET) {
+    const reco::CaloMET * calo = dynamic_cast<const reco::CaloMET *>(&aMET);
+    if (calo != 0) caloMET_.push_back(calo->getSpecific());
 }
 
 
 /// constructor from ref to METType
 MET::MET(const edm::RefToBase<METType> & aMETRef) : PATObject<METType>(aMETRef) {
+    const reco::CaloMET * calo = dynamic_cast<const reco::CaloMET *>(aMETRef.get());
+    if (calo != 0) caloMET_.push_back(calo->getSpecific());
 }
 
 /// constructor from ref to METType
 MET::MET(const edm::Ptr<METType> & aMETRef) : PATObject<METType>(aMETRef) {
+    const reco::CaloMET * calo = dynamic_cast<const reco::CaloMET *>(aMETRef.get());
+    if (calo != 0) caloMET_.push_back(calo->getSpecific());
 }
 
 
