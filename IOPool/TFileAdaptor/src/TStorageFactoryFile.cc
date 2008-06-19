@@ -323,11 +323,9 @@ TStorageFactoryFile::ReadBuffers(char *buf, Long64_t *pos, Int_t *len, Int_t nbu
   bool success;
   if (buf)
   {
-    StorageAccount::Stamp stats(storageCounter(s_statsRead, "read"));
-    StorageAccount::Stamp vstats(storageCounter(s_statsVRead, "readv-actual"));
+    StorageAccount::Stamp stats(storageCounter(s_statsVRead, "readv-actual"));
     IOSize n = storage_->readv(&iov[0], nbuf);
     success = (n > 0); // FIXME: what if it's short!?
-    vstats.tick(n);
     stats.tick(n);
   }
   else
