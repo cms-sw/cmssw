@@ -27,7 +27,7 @@ namespace edm {
     logicalFileName_(pset.getUntrackedParameter<std::string>("logicalFileName", std::string())),
     catalog_(pset.getUntrackedParameter<std::string>("catalog", std::string())),
     maxFileSize_(pset.getUntrackedParameter<int>("maxSize", 0x7f000000)),
-    compressionLevel_(pset.getUntrackedParameter<int>("compressionLevel", 1)),
+    compressionLevel_(pset.getUntrackedParameter<int>("compressionLevel", 7)),
     basketSize_(pset.getUntrackedParameter<int>("basketSize", 16384)),
     splitLevel_(pset.getUntrackedParameter<int>("splitLevel", 99)),
     treeMaxVirtualSize_(pset.getUntrackedParameter<int>("treeMaxVirtualSize", -1)),
@@ -106,7 +106,7 @@ namespace edm {
   void PoolOutputModule::writeModuleDescriptionRegistry() { rootOutputFile_->writeModuleDescriptionRegistry(); }
   void PoolOutputModule::writeParameterSetRegistry() { rootOutputFile_->writeParameterSetRegistry(); }
   void PoolOutputModule::writeProductDescriptionRegistry() { rootOutputFile_->writeProductDescriptionRegistry(); }
-  void PoolOutputModule::writeProductDependencies() { rootOutputFile_->writeProductDependencies(); }
+  //void PoolOutputModule::writeProductDependencies() { rootOutputFile_->writeProductDependencies(); }
   void PoolOutputModule::writeEntryDescriptions() { rootOutputFile_->writeEntryDescriptions(); }
   // BMM void PoolOutputModule::writeBranchMapper() { rootOutputFile_->writeBranchMapper(); }
   void PoolOutputModule::finishEndFile() { rootOutputFile_->finishEndFile(); rootOutputFile_.reset(); }
