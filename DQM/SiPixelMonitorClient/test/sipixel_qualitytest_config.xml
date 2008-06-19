@@ -25,6 +25,7 @@
 <!-- adc in PixelEndcap: -->
 <QTEST name="YrangeWithin:75-130" activate="true"> 
      <TYPE>ContentsYRange</TYPE> 
+     <PARAM name="useEmptyBins">1</PARAM>
      <PARAM name="error">0.75</PARAM> 
      <PARAM name="warning">0.90</PARAM> 
      <PARAM name="ymin">75.0</PARAM> 
@@ -33,6 +34,7 @@
 <!-- ndigis in PixelEndcap: -->
 <QTEST name="YrangeWithin:1.4-4" activate="true"> 
      <TYPE>ContentsYRange</TYPE> 
+     <PARAM name="useEmptyBins">1</PARAM>
      <PARAM name="error">0.75</PARAM> 
      <PARAM name="warning">0.90</PARAM> 
      <PARAM name="ymin">1.4</PARAM> 
@@ -41,6 +43,7 @@
 <!-- adc in HalfCylinders: -->
 <QTEST name="YrangeWithin:80-130" activate="true"> 
      <TYPE>ContentsYRange</TYPE> 
+     <PARAM name="useEmptyBins">1</PARAM>
      <PARAM name="error">0.75</PARAM> 
      <PARAM name="warning">0.90</PARAM> 
      <PARAM name="ymin">80.0</PARAM> 
@@ -49,6 +52,7 @@
 <!-- ndigis in HalfCylinders: -->
 <QTEST name="YrangeWithin:1.4-3.4" activate="true"> 
      <TYPE>ContentsYRange</TYPE> 
+     <PARAM name="useEmptyBins">1</PARAM>
      <PARAM name="error">0.75</PARAM> 
      <PARAM name="warning">0.90</PARAM> 
      <PARAM name="ymin">1.4</PARAM> 
@@ -57,6 +61,7 @@
 <!-- adc in Disk_2: -->
 <QTEST name="YrangeWithin:85-125" activate="true"> 
      <TYPE>ContentsYRange</TYPE> 
+     <PARAM name="useEmptyBins">1</PARAM>
      <PARAM name="error">0.75</PARAM> 
      <PARAM name="warning">0.90</PARAM> 
      <PARAM name="ymin">85.0</PARAM> 
@@ -65,6 +70,7 @@
 <!-- ndigis in Disk_2: -->
 <QTEST name="YrangeWithin:1.6-3.2" activate="true"> 
      <TYPE>ContentsYRange</TYPE> 
+     <PARAM name="useEmptyBins">1</PARAM>
      <PARAM name="error">0.75</PARAM> 
      <PARAM name="warning">0.90</PARAM> 
      <PARAM name="ymin">1.6</PARAM> 
@@ -73,6 +79,7 @@
 <!-- adc in Blades & Panels in Disk_2: -->
 <QTEST name="YrangeWithin:83-127" activate="true"> 
      <TYPE>ContentsYRange</TYPE> 
+     <PARAM name="useEmptyBins">1</PARAM>
      <PARAM name="error">0.75</PARAM> 
      <PARAM name="warning">0.90</PARAM> 
      <PARAM name="ymin">83.0</PARAM> 
@@ -81,6 +88,7 @@
 <!-- ndigis in Blades & Panels in Disk_2: -->
 <QTEST name="YrangeWithin:1.4-3.4" activate="true"> 
      <TYPE>ContentsYRange</TYPE> 
+     <PARAM name="useEmptyBins">1</PARAM>
      <PARAM name="error">0.75</PARAM> 
      <PARAM name="warning">0.90</PARAM> 
      <PARAM name="ymin">1.4</PARAM> 
