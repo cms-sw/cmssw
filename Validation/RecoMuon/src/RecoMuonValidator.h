@@ -14,6 +14,7 @@
 class DQMStore;
 class MonitorElement;
 class MuonServiceProxy;
+class TrackAssociatorBase;
 
 class RecoMuonValidator : public edm::EDAnalyzer
 {
@@ -29,6 +30,7 @@ class RecoMuonValidator : public edm::EDAnalyzer
   edm::InputTag simLabel_;
   edm::InputTag recoLabel_;
 
+  std::string assocName_;
   edm::InputTag simToRecoLabel_;
   edm::InputTag recoToSimLabel_;
   
@@ -41,6 +43,9 @@ class RecoMuonValidator : public edm::EDAnalyzer
   std::map<std::string, MonitorElement*> meMap_;
 
   bool doAbsEta_;
+  bool doAssoc_;
+
+  TrackAssociatorBase* theAssociator;
 };
 
 #endif

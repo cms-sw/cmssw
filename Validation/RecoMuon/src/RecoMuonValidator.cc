@@ -4,6 +4,7 @@
 #include "DataFormats/TrackReco/interface/TrackFwd.h"
 #include "SimDataFormats/TrackingAnalysis/interface/TrackingParticle.h"
 
+#include "SimTracker/Records/interface/TrackAssociatorRecord.h"
 #include "SimTracker/TrackAssociation/interface/TrackAssociatorByChi2.h"
 #include "SimTracker/TrackAssociation/interface/TrackAssociatorByHits.h"
 
@@ -84,8 +85,11 @@ RecoMuonValidator::RecoMuonValidator(const ParameterSet& pset)
   // Labels for sim-reco association
   simToRecoLabel_ = pset.getParameter<InputTag>("simToRecoLabel");
 //  recoToSimLabel_ = pset.getParameter<InputTag>("recoToSimLabel");
+  doAssoc_ = pset.getUntrackedParameter<bool>("doAssoc", true);
+  assocName_ = pset.getParameter<string>("assocName");
 
 //  seedPropagatorName_ = pset.getParameter<string>("SeedPropagator");
+
 
   // the service parameters
   ParameterSet serviceParameters 
@@ -233,6 +237,13 @@ RecoMuonValidator::~RecoMuonValidator()
 void RecoMuonValidator::beginJob(const EventSetup& eventSetup)
 {
   if ( theMuonService ) theMuonService->update(eventSetup);
+
+  theAssociator = 0;
+  if ( doAssoc_ ) {
+    ESHandle<TrackAssociatorBase> assocHandle;
+    eventSetup.get<TrackAssociatorRecord>().get(assocName_, assocHandle);
+    theAssociator = const_cast<TrackAssociatorBase*>(assocHandle.product());
+  }
 }
 
 void RecoMuonValidator::endJob()
@@ -253,20 +264,27 @@ void RecoMuonValidator::analyze(const Event& event, const EventSetup& eventSetup
   const TrackingParticleCollection simColl = *(simHandle.product());
 
   // Get Tracks
-  Handle<TrackCollection> recoHandle;
+  Handle<View<Track> > recoHandle;
   event.getByLabel(recoLabel_, recoHandle);
-  const TrackCollection recoColl = *(recoHandle.product());
+  //const TrackCollection recoColl = *(recoHandle.product());
+  View<Track> recoColl = *(recoHandle.product());
 
   // Get Association maps
-  Handle<SimToRecoCollection> simToRecoHandle;
-  event.getByLabel(simToRecoLabel_, simToRecoHandle);
-  SimToRecoCollection simToRecoColl = *(simToRecoHandle.product());
+  SimToRecoCollection simToRecoColl;
+//  RecoToSimCollection recoToSimColl;
+  if ( doAssoc_ ) {
+    simToRecoColl = theAssociator->associateSimToReco(recoHandle, simHandle, &event);
+//    recoToSimColl = theAssociator->associateRecoToSim(recohandle, simHandle, &event);
+  }
+  else {
+    Handle<SimToRecoCollection> simToRecoHandle;
+    event.getByLabel(simToRecoLabel_, simToRecoHandle);
+    simToRecoColl = *(simToRecoHandle.product());
 
-/*
-  Handle<RecoToSimCollection> recoToSimHandle;
-  event.getByLabel(recoToSimLabel_, recoToSimHandle);
-  RecoToSimCollection recoToSimColl = *(recoToSimHandle.product());
-*/
+//    Handle<RecoToSimCollection> recoToSimHandle;
+//    event.getByLabel(recoToSimLabel_, recoToSimHandle);
+//    recoToSimColl = *(recoToSimHandle.product());
+  }
 
   const TrackingParticleCollection::size_type nSim = simColl.size();
   meMap_["NSim"]->Fill(static_cast<double>(nSim));
