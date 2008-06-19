@@ -89,6 +89,7 @@ int main( int argc, char **argv )
     ("old-qie-file", po::value<string>(), "Old QIE table ASCII file")
     ("qie", "Generate new QIE table file")
     ("hf-qie", "Retrieve HF QIE ADC caps offsets and slopes")
+    ("test-sebastian", "Test area for Sebastian Ellis")
     ;
 
   try{
@@ -266,6 +267,12 @@ int main( int argc, char **argv )
       manager . get_xml_files_from_db( _tag, _accessor, !vm.count("do-not-split-by-crate") );
       return 0;
     }
+
+    if (vm.count("test-sebastian")) {
+      cout << "Hello, Sebastian! What would you like to do?.." << "\n";
+      return 0;
+    }
+    
     
     
   } catch(boost::program_options::unknown_option) {
