@@ -1557,9 +1557,10 @@ void OHltTree::SetMapBitOfStandardHLTPath() {
   map_BitOfStandardHLTPath["HLT1MuonLevel2"] = HLT1MuonLevel2;
   map_BitOfStandardHLTPath["CandHLT1MuonPrescaleVtx2cm"] = CandHLT1MuonPrescaleVtx2cm;
   map_BitOfStandardHLTPath["CandHLT1MuonPrescaleVtx2mm"] = CandHLT1MuonPrescaleVtx2mm;
+  */
 
   map_BitOfStandardHLTPath["HLT1MuonIso"] = HLT1MuonIso;
-  */
+  
 
   //map_BitOfStandardHLTPath["HLT1MuonIso9"] = HLT1MuonIso9;
   //map_BitOfStandardHLTPath["HLT1MuonIso13"] = HLT1MuonIso13;
@@ -1569,12 +1570,16 @@ void OHltTree::SetMapBitOfStandardHLTPath() {
   //map_BitOfStandardHLTPath["HLT1MuonNonIso11"] = HLT1MuonNonIso11;
   //map_BitOfStandardHLTPath["HLT1MuonNonIso13"] = HLT1MuonNonIso13;
   //map_BitOfStandardHLTPath["HLT1MuonNonIso15"] = HLT1MuonNonIso15;
-  //map_BitOfStandardHLTPath["HLT1MuonNonIso"] = HLT1MuonNonIso;
+  map_BitOfStandardHLTPath["HLT1MuonNonIso"] = HLT1MuonNonIso;
 
   /*
   //map_BitOfStandardHLTPath["HLT2Muon3"] = HLT2Muon3;
   map_BitOfStandardHLTPath["HLT2MuonIso"] = HLT2MuonIso;
+  */
+
   map_BitOfStandardHLTPath["HLT2MuonNonIso"] = HLT2MuonNonIso;
+
+  /*
   map_BitOfStandardHLTPath["HLT2MuonJPsi"] = HLT2MuonJPsi;
   map_BitOfStandardHLTPath["HLT2MuonUpsilon"] = HLT2MuonUpsilon;
   map_BitOfStandardHLTPath["HLT2MuonZ"] = HLT2MuonZ;
@@ -1790,18 +1795,25 @@ void OHltTree::SetStandardHLTPath() {
    BitOfStandardHLTPath.push_back(HLT1MuonIso9);
    BitOfStandardHLTPath.push_back(HLT1MuonIso13);
    BitOfStandardHLTPath.push_back(HLT1MuonIso15);
+  */
 
    BitOfStandardHLTPath.push_back(HLT1MuonIso);
 
+   /*
    BitOfStandardHLTPath.push_back(HLT1MuonNonIso9);
    BitOfStandardHLTPath.push_back(HLT1MuonNonIso11);
    BitOfStandardHLTPath.push_back(HLT1MuonNonIso13);
    BitOfStandardHLTPath.push_back(HLT1MuonNonIso15);
+   */
+
    BitOfStandardHLTPath.push_back(HLT1MuonNonIso);
 
+   /*
    //BitOfStandardHLTPath.push_back(HLT2Muon3);
    BitOfStandardHLTPath.push_back(HLT2MuonIso);
+   */
    BitOfStandardHLTPath.push_back(HLT2MuonNonIso);
+   /*
    BitOfStandardHLTPath.push_back(HLT2MuonJPsi);
    BitOfStandardHLTPath.push_back(HLT2MuonUpsilon);
    BitOfStandardHLTPath.push_back(HLT2MuonZ);

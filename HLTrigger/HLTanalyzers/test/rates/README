@@ -4,6 +4,32 @@
 
 
 
+--------------------------------------  
+1a. Running the scripts
+--------------------------------------  
+ 
+	Once the binary file is built, the rate-calculating script can be run using:
+	
+	./OHltRates <NEntries> <sMenu> <sConditions> <sVersion>
+
+	The arguments are as follows:
+		
+		<NEntries>: Number of events to run over. Default is all.
+	
+		<sMenu>: Type of trigger menu to run. Options are "default" and "example".
+			 The "default" option runs the full HLT menu using the trigger bits
+			 from the standard HLT. The "example" menu will run the OpenHLT 
+			 triggers together with a few triggers from the full HLT for comparison.
+			 The method for adding new OpenHLT triggers is described below.
+
+		<sConditions>: Options are "startup" and "ideal". The "startup" option
+			       will run over events processed with 1pb-1 conditions. The "ideal" 
+			       option will run over events processed with ideal conditions.
+
+		<sVersion>: A string describing this menu. This will be appended to the name of 
+			    the output files.
+
+
 **************************************
 2. Input samples and cross-sections
 **************************************
@@ -23,7 +49,7 @@
 
 		./OHltRates 1000000 example
 
- -------------------------------------- 
+-------------------------------------- 
 3a. Adding new OpenHLT triggers
 -------------------------------------- 
 
