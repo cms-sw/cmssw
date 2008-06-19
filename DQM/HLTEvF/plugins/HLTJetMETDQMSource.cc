@@ -1,4 +1,4 @@
-// $Id: HLTJetMETDQMSource.cc,v 1.0 2008/05/28 09:31:14 cammin Exp $
+// $Id: HLTJetMETDQMSource.cc,v 1.1 2008/05/29 15:43:48 cammin Exp $
 // See header file for information. 
 #include "FWCore/Framework/interface/EDAnalyzer.h"
 #include "DataFormats/Common/interface/Handle.h"
@@ -110,7 +110,7 @@ HLTJetMETDQMSource::analyze(const edm::Event& iEvent, const edm::EventSetup& iSe
 
   if ( plotAll_ ) {
     for ( size_t ia = 0; ia < triggerObj->sizeFilters(); ++ ia) {
-      std::string name = triggerObj->filterLabel(ia);
+      std::string name = triggerObj->filterTag(ia).encode();
       if (isFirst) printf("JoCa: HLT path name: %s\n",name.c_str());
       PathInfoCollection::iterator pic =  hltPaths_.find(name);
       if ( pic == hltPaths_.end() ) {
