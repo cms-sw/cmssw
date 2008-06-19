@@ -158,11 +158,11 @@ muons1LegBarrelOnly.inputCollectionLabels = ['ctfWithMaterialTracksP5', 'globalC
 muons1LegBarrelOnly.inputCollectionTypes = ['inner tracks', 'links', 'outer tracks']
 muons1LegBarrelOnly.fillIsolation = False
 lhcMuonSeedBarrelOnly.EnableCSCMeasurement = False
-lhcStandAloneMuonsBarrelOnly.STATrajBuilderParameters.RefitterParameters.EnableCSCMeasurement = False
+#replace lhcStandAloneMuonsBarrelOnly.STATrajBuilderParameters.RefitterParameters.EnableCSCMeasurement = false
 lhcStandAloneMuonsBarrelOnly.STATrajBuilderParameters.BWFilterParameters.EnableCSCMeasurement = False
 lhcStandAloneMuonsBarrelOnly.InputObjects = 'lhcMuonSeedBarrelOnly'
 lhcMuonSeedEndCapsOnly.EnableDTMeasurement = False
-lhcStandAloneMuonsEndCapsOnly.STATrajBuilderParameters.RefitterParameters.EnableDTMeasurement = False
+#replace lhcStandAloneMuonsEndCapsOnly.STATrajBuilderParameters.RefitterParameters.EnableDTMeasurement = false
 lhcStandAloneMuonsEndCapsOnly.STATrajBuilderParameters.BWFilterParameters.EnableDTMeasurement = False
 lhcStandAloneMuonsEndCapsOnly.InputObjects = 'lhcMuonSeedEndCapsOnly'
 CosmicMuonSeedNoDriftBarrelOnly.EnableCSCMeasurement = False
@@ -182,5 +182,4 @@ GLBMuonsNoDriftBarrelOnly.fillIsolation = False
 muonsNoDriftBarrelOnly.inputCollectionLabels = ['ctfWithMaterialTracksP5', 'globalCosmicMuonsNoDriftBarrelOnly', 'cosmicMuonsNoDriftBarrelOnly']
 muonsNoDriftBarrelOnly.inputCollectionTypes = ['inner tracks', 'links', 'outer tracks']
 muonsNoDriftBarrelOnly.fillIsolation = False
-
 
