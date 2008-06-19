@@ -11,6 +11,8 @@
 #include "HLTrigger/special/interface/HLTCSCRing2or3Filter.h"
 
 #include "HLTrigger/special/interface/HLTCountNumberOfObject.h"
+#include "HLTrigger/special/interface/HLTTrackWithHits.h"
+
 #include "DataFormats/TrackerRecHit2D/interface/SiStripRecHit2DCollection.h"
 #include "DataFormats/TrackerRecHit2D/interface/SiStripMatchedRecHit2DCollection.h"
 #include "DataFormats/TrajectorySeed/interface/TrajectorySeed.h"
@@ -38,4 +40,5 @@ typedef HLTCountNumberOfObject<RoadSearchSeedCollection> HLTCountNumberOfRoadSea
 DEFINE_FWK_MODULE(HLTCountNumberOfRoadSearchSeed);
 typedef HLTCountNumberOfObject<edm::View<reco::Track> > HLTCountNumberOfTrack;
 DEFINE_FWK_MODULE(HLTCountNumberOfTrack);
+DEFINE_FWK_MODULE(HLTTrackWithHits);
 
