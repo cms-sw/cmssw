@@ -9,13 +9,11 @@
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "FWCore/ParameterSet/interface/InputTag.h"
 
-#include "FWCore/ServiceRegistry/interface/Service.h"
-#include "RecoMuon/TrackingTools/interface/MuonServiceProxy.h"
+#include <map>
 
-#include "FWCore/MessageLogger/interface/MessageLogger.h"
-
-class MuonHisto;
 class DQMStore;
+class MonitorElement;
+class MuonServiceProxy;
 
 class RecoMuonValidator : public edm::EDAnalyzer
 {
@@ -26,21 +24,23 @@ class RecoMuonValidator : public edm::EDAnalyzer
   virtual void beginJob(const edm::EventSetup& eventSetup);
   virtual void endJob();
   virtual void analyze(const edm::Event& event, const edm::EventSetup& eventSetup);
-  
+
  protected:
-  edm::InputTag simPtclLabel_;
-  edm::InputTag recoMuonLabel_;
-  //edm::InputTag staMuonLabel_;
-  //edm::InputTag glbMuonLabel_;
+  edm::InputTag simLabel_;
+  edm::InputTag recoLabel_;
+
+  edm::InputTag simToRecoLabel_;
+  edm::InputTag recoToSimLabel_;
   
   std::string outputFileName_;
+  std::string subDir_;
 
-  DQMStore * theDQMService;
-  
   MuonServiceProxy * theMuonService;
-  std::string seedPropagatorName_;
+  DQMStore * theDQM;
+  
+  std::map<std::string, MonitorElement*> meMap_;
 
-  std::map<std::string, MuonHisto> fillHisto_;
+  bool doAbsEta_;
 };
 
 #endif
