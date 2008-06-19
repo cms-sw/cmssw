@@ -52,8 +52,7 @@ process.o1 = cms.OutputModule(
 )
 process.outpath = cms.EndPath(process.o1)
 
-# process.Timing =  cms.Service("Timing")
-
 # Keep output to a nice level
+# process.Timing =  cms.Service("Timing")
 # process.load("FWCore/MessageService/MessageLogger_cfi")
 # process.MessageLogger.destinations = cms.untracked.vstring("detailedInfo.txt")
