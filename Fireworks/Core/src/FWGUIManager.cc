@@ -8,7 +8,7 @@
 //
 // Original Author:  Chris Jones
 //         Created:  Mon Feb 11 11:06:40 EST 2008
-// $Id: FWGUIManager.cc,v 1.31 2008/06/17 18:08:26 chrjones Exp $
+// $Id: FWGUIManager.cc,v 1.32 2008/06/18 15:17:14 chrjones Exp $
 //
 
 // system include files
@@ -396,6 +396,7 @@ void
 FWGUIManager::createView(const std::string& iName)
 {
    NameToViewBuilder::iterator itFind = m_nameToViewBuilder.find(iName);
+   assert (itFind != m_nameToViewBuilder.end());
    if(itFind == m_nameToViewBuilder.end()) {
       throw std::runtime_error(std::string("Unable to create view named ")+iName+" because it is unknown");
    }
@@ -635,7 +636,7 @@ FWGUIManager::createViews(TGCompositeFrame *p)
   // split it once
   m_splitFrame->HSplit(434);
   // then split each part again (this will make four parts)
-  m_splitFrame->GetSecond()->VSplit(400);
+  m_splitFrame->GetSecond()->VSplit(260);
   
   TGSplitFrame* sf = m_splitFrame->GetFirst();
   m_viewFrames.push_back(sf);
@@ -645,16 +646,24 @@ FWGUIManager::createViews(TGCompositeFrame *p)
   FWGUISubviewArea* hf = new FWGUISubviewArea(subviewIndex++,sf,m_splitFrame);
   hf->swappedToBigView_.connect(boost::bind(&FWGUIManager::subviewWasSwappedToBig,this,_1));
   m_viewFrames.push_back(hf);
-  (sf)->AddFrame(hf,new TGLayoutHints(kLHintsExpandX | 
-				      kLHintsExpandY) );
+  (sf)->AddFrame(hf,new TGLayoutHints(kLHintsExpandX | kLHintsExpandY) );
 
          
-  sf=m_splitFrame->GetSecond()->GetSecond();
+  // split one more time
+  m_splitFrame->GetSecond()->GetSecond()->VSplit(260);
+
+  sf = m_splitFrame->GetSecond()->GetSecond()->GetFirst();
   hf = new FWGUISubviewArea(subviewIndex++,sf,m_splitFrame);
   hf->swappedToBigView_.connect(boost::bind(&FWGUIManager::subviewWasSwappedToBig,this,_1));
   m_viewFrames.push_back(hf);
-  (sf)->AddFrame(hf,new TGLayoutHints(kLHintsExpandX | 
-				      kLHintsExpandY) );
+  (sf)->AddFrame(hf,new TGLayoutHints(kLHintsExpandX | kLHintsExpandY) );
+   
+  sf = m_splitFrame->GetSecond()->GetSecond()->GetSecond();
+  hf = new FWGUISubviewArea(subviewIndex++,sf,m_splitFrame);
+  hf->swappedToBigView_.connect(boost::bind(&FWGUIManager::subviewWasSwappedToBig,this,_1));
+  m_viewFrames.push_back(hf);
+  (sf)->AddFrame(hf,new TGLayoutHints(kLHintsExpandX | kLHintsExpandY) );
+ 
   m_nextFrame = m_viewFrames.begin();
   p->Resize(m_mainFrame->GetWidth(), m_mainFrame->GetHeight());
   p->MapSubwindows();
