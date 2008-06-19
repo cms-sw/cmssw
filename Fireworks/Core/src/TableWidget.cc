@@ -1,3 +1,4 @@
+#include <set>
 #include "TableWidget.h"
 
 // TableWidget, a la Excel.
@@ -166,6 +167,9 @@ TableWidget::UpdateTableCells(int iRow, int iCol)
 	     m_tCellEntryVector[row * m_tabCols + col]->SetBackgroundColor(
 		  m_cellColor);
 	}
+   // klugy, but what the hell: after the table is updated, it needs
+   // to be re-highlighted
+   m_tm->selectRows();
 }
 void
 TableWidget::InitTableCells()
@@ -362,7 +366,19 @@ void TableWidget::OnCellClick(Event_t *event)
    }
 
    if (event->fType==kButtonPress) {
-       SelectRow(rowId,event->fState,m_selectColor);
+	// Emit SIGNAL
+	ULong_t mask = event->fState;
+	ULong_t sColor = m_selectColor;
+	ULong_t args[3];
+	args[0] = (ULong_t)rowId;
+	args[1] = (ULong_t)mask;
+	args[2] = (ULong_t)sColor;
+	Emit("SelectRow(Int_t,Mask_t,Pixel_t)",args);
+	std::cout<<"select row="<<rowId<<" mask="<<mask<<" color="<<sColor<<std::endl;
+	// but for the manager, do it lighter-weight
+	m_tm->Selection(rowId, mask);
+	// don't do this: wait for a signal to come back instead
+	// SelectRow(rowId,event->fState,m_selectColor);
    } else if(event->fType==kEnterNotify) {
        HighlightRow(rowId);
    } else if(event->fType==kLeaveNotify) {
@@ -409,13 +425,6 @@ void TableWidget::HighlightRow(Int_t rowId, Pixel_t hColor)
 }
 void TableWidget::SelectRow(Int_t rowId, Mask_t mask, Pixel_t sColor) 
 {
-   // Emit SIGNAL
-   ULong_t args[3];
-   args[0] = (ULong_t)rowId;
-   args[1] = (ULong_t)mask;
-   args[2] = (ULong_t)sColor;
-   Emit("SelectRow(Int_t,Mask_t,Pixel_t)",args);
-//   std::cout<<"select row="<<rowId<<" mask="<<mask<<" color="<<sColor<<std::endl;
    // Be OS independent
    Mask_t altKey=kKeyMod2Mask;
    // Handle request
@@ -476,5 +485,24 @@ void TableWidget::SelectRow(Int_t rowId, Mask_t mask, Pixel_t sColor)
           }
       }
    }
+}
+
+void TableWidget::SelectRows (const std::set<int> &rowIds, Pixel_t sColor) 
+{
+     if(!sColor) sColor=m_selectColor;
+     Pixel_t cellColor;
+     int id = 0;
+     for(int row = 0; row < m_tabRows; ++row) {
+	  for(int col = 0; col < m_tabCols; ++col, ++id) {
+	       cellColor=m_tCellEntryVector[id]->GetBackground();
+	       if (rowIds.count(row) != 0) {
+		    m_tCellEntryVector[id]->SetBackgroundColor(sColor);
+		    m_tCellEntryVector[id]->SetForegroundColor(m_textWhiteColor);
+	       } else {
+		    m_tCellEntryVector[id]->SetBackgroundColor(m_cellColor);
+		    m_tCellEntryVector[id]->SetForegroundColor(m_textBlackColor);
+	       }
+	  }
+     }
 }
 

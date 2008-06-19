@@ -3,6 +3,7 @@
 #define Fireworks_Core_FWTextView_h
 
 #include "RQ_OBJECT.h"
+#include <vector>
 
 namespace fwlite {
      class Event;
@@ -15,6 +16,8 @@ class TGMainFrame;
 class TGCompositeFrame;
 class FWTableManager;
 class FWTextView;
+class FWDisplayEvent;
+class FWSelectionManager;
 
 class FWTextViewPage {
 public:
@@ -41,10 +44,11 @@ public:
 class FWTextView {
      RQ_OBJECT("FWTextView") 
 public:
-     FWTextView ();
-     void newEvent (const fwlite::Event &);
+     FWTextView (FWDisplayEvent *, FWSelectionManager *);
+     void newEvent (const fwlite::Event &, const FWDisplayEvent *);
      void nextPage ();
      void prevPage ();
+     void selectionChanged (const FWSelectionManager &);
 
 protected:
      // objects
@@ -58,9 +62,14 @@ protected:
      ElectronTableManager	*track_manager;
      ElectronTableManager	*vertex_manager;
      TGMainFrame		*fMain;
+
+     std::vector<FWTableManager *>	managers;
+
      // display pages
      FWTextViewPage		*page;
      FWTextViewPage		*pages[3];
+
+     FWSelectionManager		*seleman;
 };
 
 #endif
