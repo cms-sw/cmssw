@@ -1,3 +1,9 @@
+2008-06-19  Emilio Meschi <emilio.meschi@cern.ch>
+	
+	* tag V00-14-12
+	* added fast access functions to bst, orbit and bunch crossing from EVM GT block
+	* removed stray printout
+
 2008-06-04  Emilio Meschi <emilio.meschi@cern.ch>
 	
 	* tag V00-14-11

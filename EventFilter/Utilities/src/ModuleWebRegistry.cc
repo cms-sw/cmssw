@@ -28,7 +28,6 @@ void ModuleWebRegistry::invoke(xgi::Input *in, xgi::Output *out, const std::stri
 
 void ModuleWebRegistry::openBackDoor(const std::string &name)
 {
-  std::cout <<"mwr openbackdoor called " << std::endl;
   idct i = clm_.find(name);
   if(i != clm_.end())
     {
