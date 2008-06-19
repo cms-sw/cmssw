@@ -22,27 +22,22 @@ while ($i <= $iter)
   if ($jobs > 0) then
     @ j = 0 # job index
 
-    while ($j < $jobs)
-      @ j++
-
-      cp $odir/main/IOIteration.root        $odir/job$j
-      cp $odir/main/IOAlignedPositions.root $odir/job$j
-    end
-
     bsub -q cmscaf -C 0 -J $name/align$i\[1-$jobs\] \
-         -o $odir/job%I/align$i.out cmsRun $odir/job\$LSB_JOBINDEX/align.cfg
+         -oo $odir/job%I/align$i.out \
+         cp $odir/main/IOIteration.root .\; \
+         cp $odir/main/IOAlignedPositions.root .\; \
+         cmsRun $odir/job\$LSB_JOBINDEX/align.cfg
 
     sleep 5
     set id = `bjobs -J $name/align$i | tail -n1 | awk '{print $1}'`
 
     bsub -q cmscaf -C 0 -J $name/collect$i -w "done($id)" \
-         -o $odir/main/collect$i.out cmsRun $odir/main/collect.cfg
+         -oo $odir/main/collect$i.out cmsRun $odir/main/collect.cfg
 
     bsub -q cmscaf -C 0 -J $name/stopreq$i -w "ended($name/collect$i)" \
          -o /dev/null bkill -J $name/requeue$i
 
-## <collect> job will kill <requeue> job.
-## So when <collect> job is done, <requeue> job gets an EXIT status.
+## When <collect> job ends, <requeue> job is killed and gets an EXIT status.
 ## And we can stop requeuing failed <align> jobs.
 
     while (`bjobs -d -J $name/requeue$i |& grep EXIT` == "")
@@ -51,26 +46,19 @@ while ($i <= $iter)
       sleep 10
     end
 
-    if (`bjobs -d -J $name/collect$i | tail -n1 | grep DONE` != "") then
-      rm $odir/job*/HIPAlignmentAlignables.root
-      rm $odir/job*/HIPAlignmentEvents.root
-      rm $odir/job*/IOAlignedPositions.root
-      rm $odir/job*/IOAlignmentParameters.root
-      rm $odir/job*/IOIteration.root
-      rm $odir/job*/IOUserVariables.root
-      gzip $odir/job*/*.out
-    endif
-
   else
     bsub -q cmscaf -C 0 -J $name/collect$i -K \
-         -o $odir/main/collect$i.out cmsRun $odir/main/collect.cfg
+         -oo $odir/main/collect$i.out cmsRun $odir/main/collect.cfg
   endif
 
   sleep 5
   if (`bjobs -d -J $name/collect$i | tail -n1 | grep EXIT` != "") exit 1
+
+## Clean up after collector has finished successfully.
+
+  rm $odir/job*/IOUserVariables.root
+  gzip $odir/job*/*.out
   gzip $odir/main/*.out
 
   @ i++
 end
-
-# hadd $odir/main/histograms.root $odir/job*/histograms.root >& $odir/main/mergeHist
