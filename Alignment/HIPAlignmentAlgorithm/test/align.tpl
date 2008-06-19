@@ -24,7 +24,9 @@ process Alignment =
   replace TrackRefitter.TrajectoryInEvent = true
   replace ttrhbwor.Matcher = "StandardMatcher" # matching for strip stereo!
 
-  replace HIPAlignmentAlgorithm.outpath = "<PATH>/"
+  replace HIPAlignmentAlgorithm.outpath  = ""
+  replace HIPAlignmentAlgorithm.uvarFile = "<PATH>/IOUserVariables.root"
+
   replace HIPAlignmentAlgorithm.apeParam =
   {
     {
