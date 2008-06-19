@@ -3,7 +3,6 @@
 #include "EventFilter/HcalRawToDigi/interface/HcalHTRData.h"
 #include "DataFormats/HcalDetId/interface/HcalOtherDetId.h"
 #include "DataFormats/HcalDigi/interface/HcalQIESample.h"
-#include <iostream>
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 
 namespace HcalUnpacker_impl {
@@ -137,8 +136,6 @@ void HcalUnpacker::unpack(const FEDRawData& raw, const HcalElectronicsMap& emap,
 	    if (!did.null()) {
 	      if (did.det()==DetId::Hcal && ((HcalSubdetector)did.subdetId())==HcalOuter ) {
 		HcalDetId hid(did);
-		std::cout << "TEST " << ibit << " " << sector << " " << linear << " " 
-			  << fiber << " " << fc << " " << eid << " " << hid << std::endl;
 		unrolled[linear].valid=true;
 		unrolled[linear].ieta=hid.ieta();
 		unrolled[linear].iphi=hid.iphi();
@@ -163,8 +160,6 @@ void HcalUnpacker::unpack(const FEDRawData& raw, const HcalElectronicsMap& emap,
 							   unrolled[i].soi,
 							   unrolled[i].databits));
       }
-      // this if floosing the reco jobs in 21X!!! Shahram 8 may 2008
-      //std::cout << "Size: " << colls.tphoCont->size() << std::endl;
     } else {
       for (tp_work=tp_begin; tp_work!=tp_end; tp_work++) {
 	if (tp_work->raw()==0xFFFF) continue; // filler word
