@@ -8,8 +8,8 @@
  *  Since this class requires external specification of the length of the data, it is implemented
  *  as an interpreter, rather than a cast-able header class.
  *
- *  $Date: 2007/11/12 18:39:10 $
- *  $Revision: 1.9 $
+ *  $Date: 2008/04/22 17:17:24 $
+ *  $Revision: 1.10 $
  *  \author J. Mans - UMD
  */
 
@@ -208,7 +208,7 @@ class HcalHTRData {
       in histogram mode!) */
   bool wasHistogramError(int ifiber) const;
   
- private:
+protected:
   void determineSectionLengths(int& tpWords, int& daqWords, int&
 			       headerWords, int& trailerWords) const;
   void determineStaticLengths(int& headerWords, int& trailerWords) const;

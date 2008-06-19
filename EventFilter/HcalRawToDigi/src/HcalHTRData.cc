@@ -1,7 +1,7 @@
 //#include "Utilities/Configuration/interface/Architecture.h"
 /*  
- *  $Date: 2007/03/25 15:38:36 $
- *  $Revision: 1.7 $
+ *  $Date: 2008/04/22 17:17:25 $
+ *  $Revision: 1.8 $
  *  \author J. Mans -- UMD
  */
 #ifndef HTBDAQ_DATA_STANDALONE
@@ -72,12 +72,16 @@ bool HcalHTRData::check() const {
     // length checks
     //  minimum length
     if (m_rawLength<8+4) return false;
-    //  matches wordcount
-    if (m_rawLength!=m_rawConst[m_rawLength-3]) {
-      if (isHistogramEvent() && m_rawConst[m_rawLength-3]==786) {
-	// known bug!
-      } else
-	return false;
+    if (m_formatVersion<=3) {
+      //  matches wordcount
+      if (m_rawLength!=m_rawConst[m_rawLength-3]) {
+	if (isHistogramEvent() && m_rawConst[m_rawLength-3]==786) {
+	  // known bug!
+	} else
+	  return false;
+      }
+    } else { 
+      // eventually add CRC check
     }
     // empty event check (redundant...)
     if (m_rawConst[2]&0x4) return false;
