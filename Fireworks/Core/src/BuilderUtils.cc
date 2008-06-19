@@ -214,12 +214,13 @@ TEveElementList *fw::getEcalCrystals (const EcalRecHitCollection *hits,
 }
 
 void fw::addStraightLineSegment( TEveStraightLineSet * marker,
-				 reco::Candidate const * cand ) 
+				 reco::Candidate const * cand,
+				 double scale_factor)
 {  
   double phi = cand->phi();
   double theta = cand->theta();
-  double pt = cand->pt();
-  marker->AddLine( 0, 0, 0, pt * cos(phi)*sin(theta), pt *sin(phi)*sin(theta), pt*cos(theta));
+  double size = cand->pt() * scale_factor;
+  marker->AddLine( 0, 0, 0, size * cos(phi)*sin(theta), size *sin(phi)*sin(theta), size*cos(theta));
 }
 
 /*TEveElementList *fw::getMuonCalTowers (double eta, double phi) 

@@ -59,7 +59,8 @@ namespace fw {
      //    TEveElementList *getMuonCalTowers (double eta, double phi);
 
      void addStraightLineSegment( TEveStraightLineSet * marker,
-				  reco::Candidate const * cand );
+				  reco::Candidate const * cand,
+				  double scale_factor = 2);
      
 }
 
