@@ -34,7 +34,8 @@ class TtSemiJetCombMVATrainer : public edm::EDAnalyzer {
   edm::InputTag matching_;
 
   unsigned int nJetsMax_;
-  unsigned int lepChannel_;
+  
+  int lepChannel_;
 
   PhysicsTools::MVAComputerCache mvaComputer;
 };
