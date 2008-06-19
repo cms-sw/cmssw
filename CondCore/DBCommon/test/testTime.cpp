@@ -13,10 +13,14 @@ int main() {
   std::cout<<"timestamp of the day since 1970 in microsecond "<<tmstamp.value()<<std::endl;
   edm::Timestamp tstamp((unsigned long long)tv.tv_usec);
   std::cout<<"timestamp of the day since 1970 in second "<<tstamp.value()<<std::endl;
-  edm::TimeValue_t hlttime=0LL;;
-  gettimeofday((timeval*)(&hlttime),0);
-  edm::Timestamp hltstamp(hlttime);
-  std::cout<<"timestamp of the day since 1970 in HLT "<<hltstamp.value()<<std::endl;
+  //from  IORawData/DaqSource/plugins/DaqSource.cc
+  edm::TimeValue_t daqtime=0LL;
+  ::timeval stv;
+  gettimeofday(&stv,0);
+  daqtime=stv.tv_sec;
+  daqtime=(daqtime<<32)+stv.tv_usec;
+  edm::Timestamp daqstamp(daqtime);
+  std::cout<<"timestamp of the day since 1970 in DAQ "<<daqstamp.value()<<std::endl;
   //  edm::TimeValue_t bizzartime=4294967295LL;
   //usec=bizzartime
   using namespace cond;
