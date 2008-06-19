@@ -60,6 +60,17 @@ parser.add_option("--relval",
                    default="5000,250",
                    dest="relval")                   
                 
+parser.add_option("-e", "--energy",
+                   help="The event energy. If absent, a default value is "+\
+                         "assigned according to the event type.",
+                   dest="energy") 
+
+parser.add_option("-a","--analysis",
+                  help="Enable the analysis.",
+                  action="store_true",
+                  default=False,
+                  dest="analysis_flag")                   
+
 parser.add_option("--PU",
                   help="Enable the pile up.",
                   action="store_true",
@@ -122,7 +133,7 @@ parser.add_option("--beamspot",
                    default="Early10TeVCollision",
                    dest="beamspot")
 
-parser.add_option("--magneticfield",
+parser.add_option("--magField",
                    help="What magnetic fiel to use (from Configuration/StandardSequences). Default=4.0T",
                    default="4.0T",
                    dest="magField")
@@ -142,6 +153,21 @@ parser.add_option( "--dirout",
                    default="",
                    dest="dirout")                
 
+parser.add_option("-p","--profiler_service",
+                  help="Equip the process with the profiler service "+\
+                       "by Vincenzo Innocente. First and the last events in "+\
+                       " the form <first>_<last>.",
+                  default="",
+                  dest="profiler_service_cuts")
+
+parser.add_option("--fpe",
+                  help="Equip the process with the floating point exception service. "+\
+                       "For details see https://twiki.cern.ch/twiki/bin/"+\
+                       "view/CMS/SWGuideFloatingPointBehavior",
+                  action="store_true",
+                  default=False,
+                  dest="fpe_service_flag")                        
+                  
 parser.add_option("--prefix",
                   help="Specify a prefix to the cmsRun command.",
                   default="",
@@ -154,6 +180,34 @@ parser.add_option("--no_output",
                   default=False,
                   dest="no_output_flag")
                                                                                       
+parser.add_option("--dump_cfg",
+                  help="Dump the config file in the old config "+\
+                       "language. It is printed on stdout.",
+                  action="store_true",
+                  default=False,
+                  dest="dump_cfg")
+
+parser.add_option("--dump_python",
+                  help="Dump the config file in python "+\
+                  "language in the file given as argument."+\
+                  "If absent and necessary a "+\
+                  "default value is assigned. "+\
+                  "The form is <type>_<energy>_<step>.py .",
+                  action="store_true",
+                  default=False,                  
+                  dest="dump_python")
+                                                    
+parser.add_option("--old_config",
+                  help="Use the old configuration system",
+                  action="store_true",
+                  default = False,
+                  dest="old_config") 
+
+parser.add_option("--dump_pickle",
+                  help="Dump a pickle object of the process.",
+                  default='',
+                  dest="dump_pickle")
+
 parser.add_option("--dump_DSetName",
                   help="Dump the primary datasetname.",
                   action="store_true",
@@ -178,15 +232,20 @@ parser.add_option("--user_schedule",
 
 (options,args) = parser.parse_args() # by default the arg is sys.argv[1:]
 
-
+print options.__dict__
 
 # A simple check on the consistency of the arguments
 if len(sys.argv)==1:
     raise "Event Type: ", "No event type specified!"
 
-options.evt_type=sys.argv[1]           #to be removed soon
-options.generatorFile = sys.argv[1]
+options.evt_type=sys.argv[1]
 
+#if not options.evt_type in type_energy_dict.keys():
+#    raise "Event Type: ","Unrecognised event type."
+
+if options.energy==None:
+        options.energy=''
+        
 # Build the IO files if necessary.
 # The default form of the files is:
 # <type>_<energy>_<step>.root
@@ -200,43 +259,40 @@ prec_step = {"ALL":"",
              "DIGI2RAW":"DIGI",
              "RAW2DIGI":"DIGI2RAW"}
 
+trimmedEvtType=options.evt_type.split('/')[-1:][0]
 
-trimmedEvtType=options.evt_type.split('/')[-1:][0] #to be removed soon
-
-# strip down generator name: Subsystem/Package/gen_cff -> gen_cff
-generatorFileWithoutPath = options.generatorFile.split('/')[-1]
-
-# transform steps: A:foo,B:bar,C,D -> A,B,C,D
-trimmedStep = ''
-for step in options.step.split(','):
-        stepName = step.split(':')[0]
-        trimmedStep += "," + stepName
-trimmedStep = trimmedStep.lstrip(",")
-
-# does the first step contain a generator?
-# or is file in specified?
-# if not. guess the standard file name
+trimmedStep=''
+isFirst=0
+step_list=options.step.split(',')
+for s in step_list:
+    stepSP=s.split(':')
+    step=stepSP[0]
+    if ( isFirst==0 ):
+        trimmedStep=step
+        isFirst=1
+    else:
+        trimmedStep=trimmedStep+','+step
+        
 first_step=trimmedStep.split(',')[0]             
-
-if not options.filein and not first_step in ("ALL","GEN","SIM_CHAIN"):
-    if not options.dirin:
+if options.filein=="" and not first_step in ("ALL","GEN","SIM_CHAIN"):
+    if options.dirin=="":
         options.dirin="file:"
-    options.filein=generatorFileWithoutPath+"_"+prec_step[trimmedStep]+".root"
+    options.filein=trimmedEvtType+"_"+options.energy+\
+     "_"+prec_step[trimmedStep]+".root"
 
-
-# build default file name 
-defaultfileName = generatorFileWithoutPath+"_"+trimmedStep
-defaultfileName = defaultfileName.replace(',','_')
-defaultfileName = defaultfileName.replace('.','_')
-if options.PU_flag:
-    defaultfileName += "_PU"
-
-# File where to dump the python cfg file
-python_config_filename = defaultfileName + ".py"
-
+     
 if options.fileout=="":
-    options.fileout= defaultfileName + ".root"
+    options.fileout=trimmedEvtType+"_"+\
+                    options.energy+\
+                    "_"+trimmedStep
+    options.fileout=options.fileout.replace(',','_')
+    options.fileout=options.fileout.replace('.','_')
 
+    if options.PU_flag:
+        options.fileout+="_PU"
+    if options.analysis_flag:
+        options.fileout+="_ana"    
+    options.fileout+=".root"
 
 #if desired, just add _rawonly to the end of the output file name
 fileraw=''
@@ -255,13 +311,39 @@ if options.writeraw:
         else:
             fileraw=fileraw+'_rawonly.'+w
 
+# File where to dump the python cfg file
+python_config_filename=''
+if options.dump_python or not options.old_config:
+    python_config_filename=trimmedEvtType+"_"+\
+                              options.energy+\
+                              "_"+trimmedStep
+    python_config_filename=python_config_filename.replace(',','_').replace('.','_')
+    if options.PU_flag:
+        python_config_filename+="_PU"
+    if options.analysis_flag:
+        python_config_filename+="_ana"
+    python_config_filename+=".py"
+
+cfg_config_filename=''
+if options.dump_cfg:
+    cfg_config_filename=trimmedEvtType+"_"+\
+                              options.energy+\
+                              "_"+trimmedStep
+    cfg_config_filename=cfg_config_filename.replace(',','_').replace('.','_')
+    if options.PU_flag:
+        cfg_config_filename+="_PU"
+    if options.analysis_flag:
+        cfg_config_filename+="_ana"
+    cfg_config_filename+=".cfg"
+
 # Print the options to screen
 if not options.dump_dsetname_flag:
     print_options(options)  
 
 #set process name:
-ext_process_name=trimmedEvtType+trimmedStep
-options.ext_process_name=trimmedEvtType+trimmedStep
+ext_process_name=trimmedEvtType+options.energy+trimmedStep
+options.ext_process_name=trimmedEvtType+options.energy+trimmedStep
+
 
 if options.dump_dsetname_flag:
     print ext_process_name
@@ -280,35 +362,164 @@ elif options.step=='SIM_CHAIN':
 elif options.step=='DATA_CHAIN':
         options.step='RAW2DIGI,RECO,POSTRECO,DQM'
 
-from Configuration.PyReleaseValidation.ConfigBuilder import ConfigBuilder
+# pure python version - begin
+if not options.old_config:
 
-# do some options adjustments
-# (for now placed here, needs a better place)
+  from Configuration.PyReleaseValidation.ConfigBuilder import ConfigBuilder
 
-options.step = options.step.replace("SIM_CHAIN","GEN,SIM,DIGI,L1,DIGI2RAW")
+  # do some options adjustments
+  # (for now placed here, needs a better place)
 
-options.name = trimmedStep.replace(',','').replace("_","")
+  options.step = options.step.replace("SIM_CHAIN","GEN,SIM,DIGI,L1,DIGI2RAW")
 
-# if we're dealing with HLT, the process name has to be "HLT" only
-if 'HLT' in options.name :
-    options.name = 'HLT'
+  options.name = trimmedStep.replace(',','').replace("_","")
 
-options.outfile_name = options.dirout+options.fileout
+  # if we're dealing with HLT, the process name has to be "HLT" only
+  if 'HLT' in options.name :
+      options.name = 'HLT'
 
-# create the config
-configBuilder = ConfigBuilder(options)
-configBuilder.prepare()
+  options.outfile_name = options.dirout+options.fileout
 
-# fetch it and write it to file
-config = file(python_config_filename,"w")
-config.write(configBuilder.pythonCfgCode)
-config.close()
+  # create the config
+  configBuilder = ConfigBuilder(options)
+  configBuilder.prepare()
 
-# execute or stop?
-if options.no_exec_flag:
+  # fetch it and write it to file
+  config = file(python_config_filename,"w")
+  config.write(configBuilder.pythonCfgCode)
+  config.close()
+
+  if options.dump_pickle:
+    import pickle
+    result = {}
+    execfile(python_config_filename, result)
+    process = result["process"]
+
+    pickleFile = open(options.dump_pickle,"w")
+    pickle.dump(process,pickleFile)
+    pickleFile.close()
+    print "wrote "+options.dump_pickle
+    sys.exit(0)
+
+  if options.no_exec_flag:
     print "Config file "+python_config_filename+ " created"
     sys.exit(0)
-else:
+  else:
     print "Starting cmsRun "+python_config_filename
     os.execvpe("cmsRun",["cmsRun", python_config_filename],os.environ)
     sys.exit()
+    
+# pure python version - end
+
+    
+cfgfile="""
+#############################################################
+#                                                           #
+#             + relval_parameters_module +                  #
+#                                                           #
+#  The supported types are:                                 #
+#                                                           #
+#   - QCD (energy in the form min_max)                      #
+#   - B_JETS, C_JETS, UDS_JETS (energy in the form min_max) #
+#   - TTBAR                                                 #
+#   - BSJPSIPHI                                             #
+#   - MU+,MU-,E+,E-,GAMMA,10MU+,10E-...                     #
+#   - TAU (energy in the form min_max for cuts)             #
+#   - HZZEEEE, HZZMUMUMUMU                                  #
+#   - ZEE (no energy is required)                           #
+#   - ZPJJ: zee prime in 2 jets                             #
+#                                                           #
+#############################################################
+
+# Process Parameters
+
+# The name of the process
+process_name='""" +trimmedStep.replace(',','')+ """'
+ext_process_name='""" +ext_process_name+ """'
+# The type of the process. Please see the complete list of 
+# available processes.
+evt_type='"""+options.evt_type+"""'
+# The energy in GeV. Some of the tipes require an
+# energy in the form "Emin_Emax"
+energy='"""+options.energy+"""'
+# The PU
+PU_flag="""+str(options.PU_flag)+"""
+# Number of evts to generate
+evtnumber="""+options.number+"""
+# The ReleaseValidation PSet
+releasevalidation=("""+options.relval+""")
+# Input and output file names
+infile_name='"""+options.dirin+options.filein+"""'
+insecondfile_name='"""+secondfilestr+"""'
+outfile_name='"""+options.dirout+options.fileout+"""'
+rawfile_name='"""+fileraw+"""'
+eventcontent='"""+options.eventcontent+"""'
+dataTier='"""+options.datatier+"""'
+filtername='"""+options.filtername+"""'
+conditions='"""+options.conditions+"""'
+beamspot='"""+options.beamspot+"""'
+altcffs='"""+options.altcffs+"""'
+
+# The step
+step='"""+str(options.step)+"""'
+# Omit the output in a root file
+output_flag="""+str(not options.no_output_flag)+"""
+# Use the profiler service
+profiler_service_cuts='"""+options.profiler_service_cuts+"""'
+# Use the floating point exception module:
+fpe_service_flag="""+str(options.fpe_service_flag)+"""
+# The anlaysis
+analysis_flag="""+str(options.analysis_flag)+"""
+# Customisation_file
+customisation_file='"""+str(options.customisation_file)+"""'
+# User defined schedule
+user_schedule='"""+options.user_schedule+"""'
+
+# Pyrelval parameters
+# Enable verbosity
+dbg_flag=True
+# Dump the oldstyle cfg file.
+dump_cfg='"""+cfg_config_filename+"""'
+# Dump the python cfg file.
+dump_python='"""+python_config_filename+"""'
+# Dump a pickle object of the process on disk.
+dump_pickle='"""+str(options.dump_pickle)+"""'
+#Dump the dataset Name
+dump_dsetname_flag="""+str(options.dump_dsetname_flag)+"""
+oneoutput="""+str(options.oneoutput)+"""
+
+"""
+
+# Write down the configuration in a Python module
+config_module_name="./relval_parameters_module.py" 
+config_module=file(config_module_name,"w")
+config_module.write(cfgfile)
+config_module.close()
+
+executable='cmsRun'
+if options.dump_pickle!='':
+    executable='python'
+
+command=['/bin/sh', '-c', 'exec ']
+pyrelvalmain="`which relval_main.py`"
+if options.prefix!="": 
+    command[2] += options.prefix + ' '
+command[2] += executable + ' ' + pyrelvalmain
+sys.stdout.flush() 
+
+# And Launch the Framework or just dump the parameters module
+if options.no_exec_flag:
+    config_module=file(config_module_name,"r")
+    print config_module.read()
+    config_module.close()
+    print "Parameters module created."
+    sys.exit(0) # Exits without launching cmsRun
+
+
+# Remove existing pyc files:
+#os.system("rm -f *.pyc")    
+# A temporary ugly fix for a problem to investigate further.
+
+print "Launching "+' '.join(command)+"..."
+os.execvpe(command[0], command, os.environ) # Launch
+    
