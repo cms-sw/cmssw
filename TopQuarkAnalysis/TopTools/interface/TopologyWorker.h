@@ -11,22 +11,16 @@
      <Notes on implementation>
      This class contains the topological methods as used in D0 (all hadronic) analyses.
 */
-//
-// Original Author:  Freya Blekman
-//         Created:  Tue Sep 18 14:00:12 CEST 2007
-// $Id$
-//
-//
 #ifndef __TOPTOOLSTOPOLOGYWORKER__
 #define __TOPTOOLSTOPOLOGYWORKER__
 
-#include "TMath.h"
 #include "TF1.h"
-#include "TLorentzVector.h"
-#include "TMatrixD.h"
+#include "TMath.h"
+#include "TClass.h"
+#include "TString.h"
 #include "TRandom.h"
-
-#include <iostream>
+#include "TMatrixD.h"
+#include "TLorentzVector.h"
 
 
 class TopologyWorker

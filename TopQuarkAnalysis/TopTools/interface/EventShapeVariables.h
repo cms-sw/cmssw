@@ -2,6 +2,7 @@
 #define EventShapeVariables_h
 
 #include <memory>
+#include <vector>
 #include <string>
 #include <iostream>
 
@@ -9,6 +10,7 @@
 #include "TVector3.h"
 #include "TVectorD.h"
 #include "TMatrixDSym.h"
+
 
 class EventShapeVariables {
 

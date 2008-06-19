@@ -1,24 +1,6 @@
-// -*- C++ -*-
-//
-// Package:    TopTools
-// Class:      TopologyWorker
-// 
-/**\class TopologyWorker TopologyWorker.cc TopQuarkAnalysis/TopTools/src/TopologyWorker.cc
-
- Description: <one line class summary>
-
- Implementation:
-     <Notes on implementation>
-     This class contains the topological methods as used in D0 (all hadronic) analyses.
-*/
-//
-// Original Author:  Freya Blekman
-//         Created:  Tue Sep 18 14:00:12 CEST 2007
-// $Id$
-//
-//
-#include "TopQuarkAnalysis/TopTools/interface/TopologyWorker.h"
 #include <iostream>
+#include "TopQuarkAnalysis/TopTools/interface/TopologyWorker.h"
+
 
 using namespace std;
 

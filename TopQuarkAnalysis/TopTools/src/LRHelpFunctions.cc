@@ -1,9 +1,3 @@
-//
-// Author:  Jan Heyninck
-// Created: Tue Apr  3 17:33:23 PDT 2007
-//
-// $Id: LRHelpFunctions.cc,v 1.14 2007/11/14 09:37:57 speer Exp $
-//
 #include "TopQuarkAnalysis/TopTools/interface/LRHelpFunctions.h"
 #include "TopQuarkAnalysis/TopTools/test/tdrstyle.C"
 

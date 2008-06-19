@@ -3,7 +3,7 @@
 // Author:  Jan Heyninck
 // Created: Tue Apr  3 17:33:23 PDT 2007
 //
-// $Id: LRHelpFunctions.h,v 1.8 2007/07/24 15:26:44 heyninck Exp $
+// $Id: LRHelpFunctions.h,v 1.9 2008/01/17 12:55:44 speer Exp $
 //
 
 #ifndef LRHelpFunctions_h
@@ -14,9 +14,13 @@
   \brief    Help functionalities to implement and evaluate LR ratio method
 
   \author   Jan Heyninck
-  \version  $Id: LRHelpFunctions.h,v 1.8 2007/07/24 15:26:44 heyninck Exp $
+  \version  $Id: LRHelpFunctions.h,v 1.9 2008/01/17 12:55:44 speer Exp $
 */
 
+#include <cmath>
+#include <iostream>
+
+#include "TROOT.h"
 #include "TString.h"
 #include "TFile.h"
 #include "TKey.h"
@@ -28,7 +32,6 @@
 #include "TPaveText.h"
 #include "TText.h"
 #include "TCanvas.h"
-#include <iostream>
 
 
 class LRHelpFunctions {
