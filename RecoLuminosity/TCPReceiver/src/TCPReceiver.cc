@@ -303,7 +303,7 @@ void SetupFDSets(fd_set& ReadFDs, fd_set& WriteFDs,
     localSection.hdr.startOrbit    = 2;
     localSection.hdr.numOrbits     = 3;
     localSection.hdr.numBunches    = 4;
-    localSection.hdr.numHLXs       = 5;
+    localSection.hdr.numHLXs       = 36;
     localSection.hdr.bCMSLive      = true;
     localSection.hdr.sectionNumber = 120;
     

@@ -44,7 +44,7 @@ int main(){
   struct sockaddr_in servAddr;
   struct sockaddr_in clntAddr;
   unsigned int clntLen;
-  unsigned short servPort = 51001;
+  unsigned short servPort = 51006;
   unsigned int Buffer_Size;
 
   signal(SIGINT,CtrlC);
@@ -80,7 +80,7 @@ int main(){
   while(gContinue){
 
     cout << " ** Generating Lumi Section ** " << endl;
-    HT.GenerateRandomData(lumiSection);
+    HT.GenerateFakeData(lumiSection);
     
     orbitCount += 4;
     
