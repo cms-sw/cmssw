@@ -2,10 +2,14 @@
 #
 #use strict;
 #use warnings;
-use HTTP::Request::Common;
-use HTTP::Response;
+
+## uncomment the following three lines:
+## use HTTP::Request::Common;
+## use HTTP::Response;
+## use Crypt::SSLeay;
+
+
 use LWP::UserAgent;
-use Crypt::SSLeay;
 use Getopt::Long;
 use Cwd;
 use Fcntl qw(:DEFAULT :flock);
