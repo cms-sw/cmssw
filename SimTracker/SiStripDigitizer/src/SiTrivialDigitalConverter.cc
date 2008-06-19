@@ -43,7 +43,7 @@ SiTrivialDigitalConverter::convertRaw(const std::vector<double>& analogSignal, e
     float gainFactor  = (gainHandle.isValid()) ? gainHandle->getStripGain(i, detGainRange) : 1;
     
     // convert analog amplitude to digital
-    int adc = convert( gainFactor*(analogSignal[i]));
+    int adc = convertRaw( gainFactor*(analogSignal[i]));
     
     _temp.push_back(SiStripRawDigi(adc));
   }
@@ -59,8 +59,20 @@ int SiTrivialDigitalConverter::truncate(float in_adc) {
     254 ADC: 254<=raw charge < 511
     255 ADC: 512<= raw charge < 1023
   */
-  if (adc >= 512 ) return 255;
+  if (adc > 511 ) return 255;
   if (adc > 253) return 254;
+  //Protection
+  if (adc < 0) return 0;
+  return adc;
+}
+
+
+int SiTrivialDigitalConverter::truncateRaw(float in_adc) {
+  
+  //Rounding the ADC number
+  int adc = int(in_adc+0.5);
+
+  if (adc > 1023 ) return 1023;
   //Protection
   if (adc < 0) return 0;
   return adc;

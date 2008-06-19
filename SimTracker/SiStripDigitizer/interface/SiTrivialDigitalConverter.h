@@ -16,7 +16,9 @@ class SiTrivialDigitalConverter: public SiDigitalConverter{
  private:
 
   int convert(float in){return truncate(in/electronperADC);}
+  int convertRaw(float in){return truncateRaw(in/electronperADC);}
   int truncate(float in_adc);
+  int truncateRaw(float in_adc);
   
   float electronperADC;
 };
