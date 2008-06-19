@@ -11,7 +11,7 @@
 //
 // Original Author:  Ursula Berthon, Stephanie Baffioni, Pascal Paganini
 //         Created:  Thu Jul 4 11:38:38 CEST 2005
-// $Id: EcalTrigPrimAnalyzer.cc,v 1.12 2008/04/08 14:34:42 uberthon Exp $
+// $Id: EcalTrigPrimAnalyzer.cc,v 1.13 2008/05/15 14:40:34 heltsley Exp $
 //
 //
 
@@ -40,7 +40,7 @@
 #include "Geometry/CaloGeometry/interface/CaloCellGeometry.h"
 #include "Geometry/Records/interface/CaloGeometryRecord.h"
 
-#include "CalibCalorimetry/EcalTPGTools/interface/EcalTPGScale.h"
+#include "CondFormats/EcalObjects/interface/EcalTPGScale.h"
 
 #include "EcalTrigPrimAnalyzer.h"
 
