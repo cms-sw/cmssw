@@ -475,7 +475,7 @@ namespace edm {
       char ts[] = "dd-Mon-yyyy hh:mm:ss TZN     ";
       strftime( ts, strlen(ts)+1, "%d-%b-%Y %H:%M:%S %Z", localtime(&t) );
       edm::LogAbsolute("fileAction") << ts << msg << file;
-      edm::FlushMessageLog();
+      // edm::FlushMessageLog();
     }
   }
 }
