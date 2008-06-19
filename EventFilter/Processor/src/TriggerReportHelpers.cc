@@ -11,24 +11,18 @@ namespace evf{
 const std::string TriggerReportHelpers::columns[6] = {"pathName","l1Pass","psPass","pAccept","pExcept","pReject"};
 void TriggerReportHelpers::triggerReportToTable(edm::TriggerReport &tr, unsigned int ls, bool lumiComplete)
 {
-  std::cout <<"Calling triggerReportToTable with ls " << ls << " and lc " << lumiComplete << std::endl;
+
   lumiSectionIndex_ = ls;  
   for(unsigned int i=0; i<tr.trigPathSummaries.size(); i++) {
     if(l1pos_[i]>=0) {
-      std::cout << "before " << l1pre_[i] << " " << pl1pre_[i] << std::endl;
       l1pre_[i] = tr.trigPathSummaries[i].moduleInPathSummaries[l1pos_[i]].timesPassed 
 	+ (lumiComplete ? - pl1pre_[i]  : l1pre_[i].value_);
       pl1pre_[i] = tr.trigPathSummaries[i].moduleInPathSummaries[l1pos_[i]].timesPassed;
-      std::cout << "after " << l1pre_[i] << " " <<  tr.trigPathSummaries[i].moduleInPathSummaries[l1pos_[i]].timesPassed
-		<< " " << pl1pre_[i] << std::endl;
     }
     else {
-      std::cout << "before " << l1pre_[i] << " " << pl1pre_[i] << std::endl;
       l1pre_[i] = tr.trigPathSummaries[i].timesRun 
 	+ (lumiComplete ? - pl1pre_[i] : l1pre_[i].value_);
       pl1pre_[i] = tr.trigPathSummaries[i].timesRun;
-      std::cout << "after " << l1pre_[i] << " " <<  tr.trigPathSummaries[i].timesRun
-		<< " " << pl1pre_[i] << std::endl;
     }
     triggerReportAsTable_.setValueAt(i,columns[1],l1pre_[i]);
     if(pspos_[i]>=0) {

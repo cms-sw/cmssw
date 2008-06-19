@@ -102,6 +102,9 @@ namespace evf
     {
       css_.css(in,out);
     }
+
+  private:
+
     void attachDqmToShm()   throw (evf::Exception);
     void detachDqmFromShm() throw (evf::Exception);
 
@@ -112,8 +115,8 @@ namespace evf
     void startScalersWorkLoop() throw (evf::Exception);
     bool scalers(toolbox::task::WorkLoop* wl);
 
-  private:
-    void fireScalersUpdate();
+
+    bool fireScalersUpdate();
 
     //
     // member data
@@ -163,6 +166,7 @@ namespace evf
     // workloop / action signature for monitoring
     toolbox::task::WorkLoop         *wlMonitoring_;      
     toolbox::task::ActionSignature  *asMonitoring_;
+    bool                             watching_;
 
     // workloop / action signature for scalerMonitor
     toolbox::task::WorkLoop         *wlScalers_;      

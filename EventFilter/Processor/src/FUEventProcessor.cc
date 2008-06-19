@@ -106,6 +106,7 @@ FUEventProcessor::FUEventProcessor(xdaq::ApplicationStub *s)
   , monSleepSec_(1)
   , wlMonitoring_(0)
   , asMonitoring_(0)
+  , watching_(false)
   , reasonForFailedState_()
 {
   //list of variables for scalers flashlist
@@ -371,7 +372,7 @@ bool FUEventProcessor::enabling(toolbox::task::WorkLoop* wl)
       evtProcessor_->setRunNumber(runNumber_.value_);
     else
       evtProcessor_->declareRunNumber(runNumber_.value_);
-    try {
+    try{
       evtProcessor_->runAsync();
       sc = evtProcessor_->statusAsync();
     }
@@ -407,6 +408,11 @@ bool FUEventProcessor::enabling(toolbox::task::WorkLoop* wl)
     reasonForFailedState_ = "enabling FAILED: " + (string)e.what();
     fsm_.fireFailed(reasonForFailedState_,this);
   }
+  while(evtProcessor_->getState()!= edm::event_processor::sRunning){
+    LOG4CPLUS_INFO(getApplicationLogger(),"waiting for edm::EventProcessor to start before enabling watchdog");
+    ::sleep(1);
+  }
+  watching_ = true;
   startScalersWorkLoop();
   return false;
 }
@@ -434,7 +440,7 @@ bool FUEventProcessor::stopping(toolbox::task::WorkLoop* wl)
     reasonForFailedState_ = "stopping FAILED: " + (string)e.what();
     fsm_.fireFailed(reasonForFailedState_,this);
   }
-  
+  watching_ = false;
   return false;
 }
 
@@ -486,7 +492,7 @@ bool FUEventProcessor::halting(toolbox::task::WorkLoop* wl)
     reasonForFailedState_ = "halting FAILED: " + (string)e.what();
     fsm_.fireFailed(reasonForFailedState_,this);
   }
-  
+  watching_ = false;
   return false;
 }
 
@@ -518,11 +524,10 @@ void FUEventProcessor::initEventProcessor()
     LOG4CPLUS_INFO(getApplicationLogger(),"CMSSW_BASE:"<<getenv("CMSSW_BASE"));
   }
   
-  cout << "before getting configuration " <<endl;
+
   // job configuration string
   ParameterSetRetriever pr(configString_.value_);
   configuration_ = pr.getAsString();
-  cout << "after getting configuration " <<endl;
   
   boost::shared_ptr<edm::ParameterSet> params; // change this name!
   boost::shared_ptr<vector<edm::ParameterSet> > pServiceSets;
@@ -534,10 +539,8 @@ void FUEventProcessor::initEventProcessor()
     fsm_.fireFailed(reasonForFailedState_,this);
     return;
   } 
-  cout << "before making services " <<endl;
   // add default set of services
   if(!servicesDone_) {
-    cout << "making services " <<endl;
     internal::addServiceMaybe(*pServiceSets,"DQMStore");
     //    internal::addServiceMaybe(*pServiceSets,"MonitorDaemon");
     internal::addServiceMaybe(*pServiceSets,"MLlog4cplus");
@@ -558,7 +561,6 @@ void FUEventProcessor::initEventProcessor()
     }
     servicesDone_ = true;
   }
-  cout << "after making services " <<endl;
   
   edm::ServiceRegistry::Operate operate(serviceToken_);
 
@@ -567,23 +569,22 @@ void FUEventProcessor::initEventProcessor()
   edm::LogInfo("FUEventProcessor")<<"started MessageLogger Service.";
   edm::LogInfo("FUEventProcessor")<<"Using config string \n"<<configuration_;
 
-  cout << "after logger info " <<endl;
+
   // instantiate the event processor
   try{
     vector<string> defaultServices;
     defaultServices.push_back("MessageLogger");
     defaultServices.push_back("InitRootHandlers");
     defaultServices.push_back("JobReportService");
-    cout << "before deleting eventprocessor" << endl;
+
     monitorInfoSpace_->lock();
     if (0!=evtProcessor_) delete evtProcessor_;
-    cout << "after deleting eventprocessor" << endl;
-    cout << "before making eventprocessor " <<endl;
+
     evtProcessor_ = new edm::EventProcessor(configuration_,
 					    serviceToken_,
 					    edm::serviceregistry::kTokenOverrides,
 					    defaultServices);
-    cout << "after making eventprocessor " <<endl;
+
     monitorInfoSpace_->unlock();
     //    evtProcessor_->setRunNumber(runNumber_.value_);
 
@@ -605,7 +606,7 @@ void FUEventProcessor::initEventProcessor()
       LOG4CPLUS_INFO(getApplicationLogger(),
 		     "exception when trying to get service ModuleWebRegistry");
     }
-    cout << "after publishing stuff " <<endl;
+
     if(mwr) 
       {
 	mwr->publish(getApplicationInfoSpace());
@@ -772,7 +773,6 @@ void FUEventProcessor::actionPerformed(xdata::Event& e)
 void FUEventProcessor::defaultWebPage(xgi::Input  *in, xgi::Output *out)
   throw (xgi::exception::Exception)
 {
-  cout << "getting infospace " << endl;
   xdata::InfoSpace *ispace = getApplicationInfoSpace();
   string urn = getApplicationDescriptor()->getURN();
   ostringstream ourl;
@@ -903,7 +903,7 @@ void FUEventProcessor::defaultWebPage(xgi::Input  *in, xgi::Output *out)
   *out << runNumber_.toString() << endl;
   *out << "</td>" << endl;
   *out << "</tr>"                                            << endl;
-  cout << "trying to get lsid " << endl;
+
   try{
     xdata::Serializable *lsid = ispace->find("lumiSectionIndex");
     *out << "<tr>" << endl;
@@ -912,7 +912,6 @@ void FUEventProcessor::defaultWebPage(xgi::Input  *in, xgi::Output *out)
     *out << "</td>" << endl;
     *out << "<td>" << endl;
     *out << lsid->toString() << endl;
-    cout << "got lsid " << endl;
     *out << "</td>" << endl;
     *out << "</tr>"                                            << endl;
   }
@@ -1073,7 +1072,8 @@ void FUEventProcessor::taskWebPage(xgi::Input *in, xgi::Output *out,const string
       mwr = edm::Service<ModuleWebRegistry>().operator->();
   }
   catch(...) {
-    cout<<"exception when trying to get the service registry "		<< endl;
+    LOG4CPLUS_WARN(getApplicationLogger(),
+		   "Exception when trying to get service ModuleWebRegistry");
   }
   TimeProfilerService *tpr = 0;
   try{
@@ -1173,7 +1173,8 @@ void FUEventProcessor::moduleWeb(xgi::Input  *in, xgi::Output *out)
 	  mwr = edm::Service<ModuleWebRegistry>().operator->();
       }
       catch(...) { 
-	cout<<"exception when trying to get the service registry "<<endl;
+	LOG4CPLUS_WARN(getApplicationLogger(),
+		       "Exception when trying to get service ModuleWebRegistry");
       }
       mwr->invoke(in,out,mod);
     }
@@ -1436,7 +1437,7 @@ bool FUEventProcessor::scalers(toolbox::task::WorkLoop* wl)
 	  if(!getTriggerReport(true)) {return false;}
 	  //	  trh_.printReportTable();
 	  //	  scalersComplete_.writeTo(std::cout);
-	  fireScalersUpdate();
+	  if(!fireScalersUpdate()) return false;
 	}
     }
   return true;
@@ -1454,18 +1455,20 @@ bool FUEventProcessor::monitoring(toolbox::task::WorkLoop* wl)
   if(evtProcessor_)
     {
       edm::event_processor::State st = evtProcessor_->getState();
-      if(fsm_.stateName()->toString()=="Enabled" && 
+      if(watching_ && fsm_.stateName()->toString()=="Enabled" && 
 	 !(st == edm::event_processor::sRunning || st == edm::event_processor::sStopping))
 	{
 	  inRecovery_ = true;
+	  LOG4CPLUS_WARN(getApplicationLogger(),
+			 "failure detected in internal edm::EventProcessor - attempting local recovery procedure");
 	  ModuleWebRegistry *mwr = 0;
 	  try{
 	    if(edm::Service<ModuleWebRegistry>().isAvailable())
 	      mwr = edm::Service<ModuleWebRegistry>().operator->();
 	  }
 	  catch(...) { 
-	    LOG4CPLUS_INFO(getApplicationLogger(),
-			   "exception when trying to get service ModuleWebRegistry");
+	    LOG4CPLUS_WARN(getApplicationLogger(),
+			   "InRecovery::exception when trying to get service ModuleWebRegistry");
 	  }
 	  //update table for lumi section before going out of scope
 
@@ -1480,6 +1483,7 @@ bool FUEventProcessor::monitoring(toolbox::task::WorkLoop* wl)
 	  }
 	  catch(xdata::exception::Exception e){
 	  }
+	  trh_.formatReportTable(tr,descs_);
 	  trh_.triggerReportToTable(tr,ls);
 	  //	  trh_.printReportTable();
 	  if(mwr) 
@@ -1490,13 +1494,9 @@ bool FUEventProcessor::monitoring(toolbox::task::WorkLoop* wl)
 	  if(hasShMem_) detachDqmFromShm();
 	  //	  delete evtProcessor_;
 	  epInitialized_ = false;
-	  cout << "before initeventprocessor " << endl;
 	  initEventProcessor();
-	  cout << "after initeventprocessor " << endl;
 	  evtProcessor_->beginJob();
-	  cout << "after beginjob " << endl;
 	  if(hasShMem_) attachDqmToShm();
-	  cout << "after attachdqm " << endl;
 	  if(isRunNumberSetter_)
 	    evtProcessor_->setRunNumber(runNumber_.value_);
 	  else
@@ -1532,6 +1532,8 @@ bool FUEventProcessor::monitoring(toolbox::task::WorkLoop* wl)
 	  //	  reasonForFailedState_ = "edm failure, EP state ";
 	  //	  reasonForFailedState_ += evtProcessor_->currentStateName();
 	  //	  fsm_.fireFailed(reasonForFailedState_,this);
+	  LOG4CPLUS_WARN(getApplicationLogger(),
+			 "edm::EventProcessor recovery completed successfully - please check operation of this and other nodes");
 	  inRecovery_ = false;
 	  startScalersWorkLoop();
 	}
@@ -1539,7 +1541,6 @@ bool FUEventProcessor::monitoring(toolbox::task::WorkLoop* wl)
 
   MicroStateService *mss = 0;
 
-  monitorInfoSpace_->lock();
   monitorInfoSpace_->lock();
   if(evtProcessor_)
     {
@@ -1572,7 +1573,6 @@ bool FUEventProcessor::monitoring(toolbox::task::WorkLoop* wl)
       nbAccepted_  = evtProcessor_->totalEventsPassed(); 
     }
   monitorInfoSpace_->unlock();  
-  monitorInfoSpace_->unlock();
 
   ::sleep(monSleepSec_.value_);
   
@@ -1580,7 +1580,7 @@ bool FUEventProcessor::monitoring(toolbox::task::WorkLoop* wl)
 }
 
 
-void FUEventProcessor::fireScalersUpdate()
+bool FUEventProcessor::fireScalersUpdate()
 {
   typedef set<xdaq::ApplicationDescriptor*> AppDescSet_t;
   typedef AppDescSet_t::iterator            AppDescIter_t;
@@ -1589,7 +1589,12 @@ void FUEventProcessor::fireScalersUpdate()
   AppDescSet_t rcms=
     getApplicationContext()->getDefaultZone()->
     getApplicationDescriptors("MonitorReceiver");
-  if(rcms.size()==0) std::cout << "Application MonitorReceiver not found" << std::endl;
+  if(rcms.size()==0) 
+    {
+	LOG4CPLUS_INFO(getApplicationLogger(),
+		       "MonitorReceiver not found, perhaphs it has not been defined ? Scalers updater wl will bail out!");
+	return false;
+    }
   AppDescIter_t it = rcms.begin();
 
   xdata::exdr::Serializer serializer;
@@ -1620,7 +1625,8 @@ void FUEventProcessor::fireScalersUpdate()
     }
   catch(xdata::exception::Exception & e)
     {
-      std::cout << " BOH ? " << std::endl;
+      LOG4CPLUS_WARN(getApplicationLogger(),
+		     "Exception in serialization of scalers table");      
     }
   
   xoap::AttachmentPart * attachment = msg->createAttachmentPart(outBuffer.getBuffer(), outBuffer.tellp(), "application/x-xdata+exdr");
@@ -1645,8 +1651,10 @@ void FUEventProcessor::fireScalersUpdate()
   }
   catch(xdaq::exception::Exception &ex)
     {
-      std::cout << "Exception caught, message " << ex.what() << std::endl;
+	LOG4CPLUS_WARN(getApplicationLogger(),
+		       "exception when posting SOAP message to MonitorReceiver");
     }
+  return true;
 }
 
 XDAQ_INSTANTIATOR_IMPL(evf::FUEventProcessor)

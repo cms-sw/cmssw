@@ -1,3 +1,9 @@
+2008-06-19  Emilio Meschi  <emilio.meschi@cern.ch>
+
+	* tag V01-03-02
+	* removed printout ( or replaced with log where necessary)
+	* block watchdog when starting edm::eventProcessor to avoid races
+
 2008-06-13  Emilio Meschi  <emilio.meschi@cern.ch>
 
 	* tag V01-03-01
