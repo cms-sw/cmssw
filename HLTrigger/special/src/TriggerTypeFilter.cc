@@ -13,7 +13,7 @@ Implementation:
 //
 // Original Author:  Giovanni FRANZONI
 //         Created:  Tue Jan 22 13:55:00 CET 2008
-// $Id$
+// $Id: TriggerTypeFilter.cc,v 1.1 2008/02/28 08:46:06 mzanetti Exp $
 //
 //
 
@@ -63,7 +63,7 @@ private:
 //
 enum GapFilterConstants{
 
-  EMPTY_EVENTSIZE        = 32,
+  EMPTY_FEDSIZE          = 16,
 
   H_FEDID_B              = 8,
   H_FEDID_MASK           = 0xFFF,
@@ -111,12 +111,15 @@ TriggerTypeFilter::filter(edm::Event& iEvent, const edm::EventSetup& iSetup)
 
   // get fed raw data and SM id
   const FEDRawData & fedData = rawdata->FEDData(TriggerFedId_);
+  
+  // checking presence of selected fed (def is GT i.e. 812)
+  if (fedData.size()< EMPTY_FEDSIZE) return false;
 
   uint64_t * pData = (uint64_t *)(fedData.data());
-
-  // First Header Word of fed block
+  
+  // First Header Word of fed block contains trigger type
   unsigned short triggerType       = ((*pData)>>H_TTYPE_B)   & H_TTYPE_MASK;
-
+  
   return (triggerType == SelectedTriggerType_) ? true : false;
 }
 
