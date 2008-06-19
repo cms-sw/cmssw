@@ -2,7 +2,7 @@ import FWCore.ParameterSet.Config as cms
 
 #
 # producer for photons
-# $Id: photons_cfi.py,v 1.8 2008/06/04 19:25:32 rpw Exp $
+# $Id: photons_cfi.py,v 1.9 2008/06/18 11:00:13 nancy Exp $
 #
 photons = cms.EDProducer("PhotonProducer",
     scHybridBarrelProducer = cms.InputTag("correctedHybridSuperClusters"),
@@ -20,9 +20,6 @@ photons = cms.EDProducer("PhotonProducer",
     pixelSeedProducer = cms.string('electronPixelSeeds'),
     hbheInstance = cms.string(''),
     posCalc_t0_endc = cms.double(6.3),
-    # Old endcap clustering
-    #    string scIslandEndcapProducer   =     "correctedEndcapSuperClustersWithPreshower"
-    #    string scIslandEndcapCollection =     ""
     barrelEcalHits = cms.InputTag("ecalRecHit","EcalRecHitsEB"),
     hbheModule = cms.string('hbhereco'),
     endcapEcalHits = cms.InputTag("ecalRecHit","EcalRecHitsEE"),
@@ -32,6 +29,7 @@ photons = cms.EDProducer("PhotonProducer",
     posCalc_x0 = cms.double(0.89),
     MVA_weights_location = cms.string('RecoEgamma/EgammaTools/data/TMVAnalysis_Likelihood.weights.txt'),
     posCalc_t0_barl = cms.double(7.7)
+                           
 )
 
 
