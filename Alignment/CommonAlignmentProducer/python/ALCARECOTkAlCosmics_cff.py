@@ -3,7 +3,7 @@ import FWCore.ParameterSet.Config as cms
 import Alignment.CommonAlignmentProducer.AlignmentTrackSelector_cfi
 # Author     : Gero Flucke
 # Date       :   July 19th, 2007
-# last update: $Date: 2008/06/12 19:57:48 $ by $Author: flucke $
+# last update: $Date: 2008/06/19 18:03:25 $ by $Author: flucke $
 #________________________________Track selection____________________________________
 # AlCaReco for track based alignment using Cosmic muons reconstructed by Combinatorial Track Finder
 ALCARECOTkAlCosmicsCTF = Alignment.CommonAlignmentProducer.AlignmentTrackSelector_cfi.AlignmentTrackSelector.clone()
@@ -38,8 +38,8 @@ ALCARECOTkAlCosmicsCTF.etaMin = -99. ##-2.4 keep also what is going through...
 
 ALCARECOTkAlCosmicsCTF.etaMax = 99. ## 2.4 ...both TEC with flat slope
 
-ALCARECOTkAlCosmicsCTF.nHitMin = 5 ##8
-
+ALCARECOTkAlCosmicsCTF.nHitMin = 7
+ALCARECOTkAlCosmicsCTF.nHitMin2D = 2
 ALCARECOTkAlCosmicsCTF.chi2nMax = 999999.
 ALCARECOTkAlCosmicsCTF.applyNHighestPt = True ## select only highest pT track
 
@@ -56,8 +56,8 @@ ALCARECOTkAlCosmicsCosmicTF.pMin = 4. ##10
 ALCARECOTkAlCosmicsCosmicTF.pMax = 99999.
 ALCARECOTkAlCosmicsCosmicTF.etaMin = -99.
 ALCARECOTkAlCosmicsCosmicTF.etaMax = 99.
-ALCARECOTkAlCosmicsCosmicTF.nHitMin = 7 ## more hits than CTF: 2D are counted twice
-
+ALCARECOTkAlCosmicsCosmicTF.nHitMin = 7
+ALCARECOTkAlCosmicsCosmicTF.nHitMin2D = 2
 ALCARECOTkAlCosmicsCosmicTF.chi2nMax = 999999.
 ALCARECOTkAlCosmicsCosmicTF.applyNHighestPt = True ## select only highest pT track
 
@@ -76,8 +76,8 @@ ALCARECOTkAlCosmicsRS.etaMin = -99. ##-2.4 keep also what is going through...
 
 ALCARECOTkAlCosmicsRS.etaMax = 99. ## 2.4 ...both TEC with flat slope
 
-ALCARECOTkAlCosmicsRS.nHitMin = 5 ##8
-
+ALCARECOTkAlCosmicsRS.nHitMin = 7
+ALCARECOTkAlCosmicsRS.nHitMin2D = 2
 ALCARECOTkAlCosmicsRS.chi2nMax = 999999.
 ALCARECOTkAlCosmicsRS.applyNHighestPt = True ## select only highest pT track
 
