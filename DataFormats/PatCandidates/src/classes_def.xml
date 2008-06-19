@@ -71,6 +71,26 @@
   <class name="pat::GenericParticleRef" />
   <class name="pat::HemisphereRef" />
 
+  <class name="pat::ElectronRefVector" />
+  <class name="pat::MuonRefVector" />
+  <class name="pat::TauRefVector" />
+  <class name="pat::PhotonRefVector" />
+  <class name="pat::JetRefVector" />
+  <class name="pat::METRefVector" />
+  <class name="pat::ParticleRefVector" />
+  <class name="pat::GenericParticleRefVector" />
+  <class name="pat::HemisphereRefVector" />
+
+  <class name="edm::Wrapper<pat::ElectronRefVector>" />
+  <class name="edm::Wrapper<pat::MuonRefVector>" />
+  <class name="edm::Wrapper<pat::TauRefVector>" />
+  <class name="edm::Wrapper<pat::PhotonRefVector>" />
+  <class name="edm::Wrapper<pat::JetRefVector>" />
+  <class name="edm::Wrapper<pat::METRefVector>" />
+  <class name="edm::Wrapper<pat::ParticleRefVector>" />
+  <class name="edm::Wrapper<pat::GenericParticleRefVector>" />
+  <class name="edm::Wrapper<pat::HemisphereRefVector>" />
+
   <class name="pat::JetCorrFactors" />
   <class name="std::vector<pat::JetCorrFactors>" />
   <class name="edm::ValueMap<pat::JetCorrFactors>" />

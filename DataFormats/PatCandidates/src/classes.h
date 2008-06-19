@@ -59,6 +59,16 @@ namespace pat {
   typedef edm::Ref<std::vector<pat::JetType> >      JetTypeRef;
   typedef edm::Ref<std::vector<pat::METType> >      METTypeRef;
   typedef edm::Ref<std::vector<pat::ParticleType> > ParticleTypeRef;
+
+  typedef edm::RefVector<std::vector<pat::Electron> > ElectronRefVector;
+  typedef edm::RefVector<std::vector<pat::Muon> >     MuonRefVector;
+  typedef edm::RefVector<std::vector<pat::Tau> >      TauRefVector;
+  typedef edm::RefVector<std::vector<pat::Photon> >   PhotonRefVector;
+  typedef edm::RefVector<std::vector<pat::Jet> >      JetRefVector;
+  typedef edm::RefVector<std::vector<pat::MET> >      METRefVector;
+  typedef edm::RefVector<std::vector<pat::Particle> > ParticleRefVector;
+  typedef edm::RefVector<std::vector<pat::GenericParticle> > GenericParticleRefVector;
+  typedef edm::RefVector<std::vector<pat::Hemisphere> > HemisphereRefVector;
 }
 
 
@@ -117,6 +127,7 @@ namespace {
     edm::Wrapper<std::vector<pat::Particle> >   w_v_part;
     edm::Wrapper<std::vector<pat::GenericParticle> > w_v_gpart;
     edm::Wrapper<std::vector<pat::Hemisphere> > w_v_hemi;
+
     edm::Ref<std::vector<pat::Electron> >       r_el;
     edm::Ref<std::vector<pat::Muon> >           r_mu;
     edm::Ref<std::vector<pat::Tau> >            r_tau;
@@ -126,6 +137,17 @@ namespace {
     edm::Ref<std::vector<pat::Particle> >       r_part;
     edm::Ref<std::vector<pat::GenericParticle> > r_gpart;
     edm::Ref<std::vector<pat::Hemisphere> >     r_hemi;
+
+    edm::Wrapper<pat::ElectronRefVector>       r_elRefVec;
+    edm::Wrapper<pat::MuonRefVector>           r_muRefVec;
+    edm::Wrapper<pat::TauRefVector>            r_tauRefVec;
+    edm::Wrapper<pat::PhotonRefVector>         r_photonRefVec;
+    edm::Wrapper<pat::JetRefVector>            r_jetRefVec;
+    edm::Wrapper<pat::METRefVector>            r_metRefVec;
+    edm::Wrapper<pat::ParticleRefVector>       r_partRefVec;
+    edm::Wrapper<pat::GenericParticleRefVector> r_gpartRefVec;
+    edm::Wrapper<pat::HemisphereRefVector>     r_hemiRefVec;
+
 
     edm::Wrapper<edm::ValueMap<pat::JetCorrFactors> > wvm_jcf;
 
