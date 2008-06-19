@@ -27,6 +27,8 @@ namespace popcon{
     class SiStripPopConConfigDbObjHandler : public popcon::PopConSourceHandler<T>{
     public:
 
+    enum DataType { UNDEFINED=0, _Cabling=1, _Pedestal=2, _Noise=3, _Threshold=4, _BadStrip=5};
+
     //---------------------------------------
     //
     SiStripPopConConfigDbObjHandler(const edm::ParameterSet& pset):
@@ -76,16 +78,27 @@ namespace popcon{
       if (isTransferNeeded())
 	setForTransfer();
   
-      edm::LogInfo   ("SiStripPopPopConConfigDbObjHandler") << "[getNewObjects] for PopCon application " << m_name << " Done";
+      edm::LogInfo   ("SiStripPopPopConConfigDbObjHandler") << "[getNewObjects] for PopCon application " << m_name << " Done\n--------------\n";
     }
 
 
     //---------------------------------------
     //
     std::string id() const { return m_name;}
-    
+
     private:
     //methods
+    
+    DataType getDataType(){
+      
+      if(typeid(T)==typeid(SiStripFedCabling)){
+	edm::LogInfo   ("SiStripPopPopConConfigDbObjHandler") << "[getDataType] for PopCon application " << m_name << " " << typeid(T).name();
+	return _Cabling;
+      }
+      return UNDEFINED;
+    }
+    
+
     
     //---------------------------------------
     //
@@ -115,8 +128,9 @@ namespace popcon{
 	ss  << "@ "
 	    << " Partition " << partition.partitionName() 
 	    << " CabVer "    << partition.cabVersion().first << "." << partition.cabVersion().second
-	    << " FedVer "    << partition.fedVersion().first << "." << partition.fedVersion().second
 	  ;
+	if (getDataType()!=_Cabling)
+	  ss << " FedVer "    << partition.fedVersion().first << "." << partition.fedVersion().second;
       }
   
       if (!strcmp(ss.str().c_str(),ss_logdb.str().c_str())){
@@ -140,9 +154,9 @@ namespace popcon{
     //---------------------------------------
     //
     void setForTransfer(){
-      edm::LogInfo   ("SiStripPopPopConConfigDbObjHandler") << "[setForTransfer] getting data to be transferred "  << std::endl;
+      edm::LogInfo   ("SiStripPopPopConConfigDbObjHandler") << "[setForTransfer] " << m_name << " getting data to be transferred "  << std::endl;
       
-      T *obj; 
+      T *obj=0; 
       condObjBuilder->getValue(obj);
  
       if(!this->tagInfo().size)
@@ -151,9 +165,13 @@ namespace popcon{
 	if (m_debugMode)
 	  m_since=this->tagInfo().lastInterval.first+1; 
 
+      if (obj!=0){
 
-      edm::LogInfo   ("SiStripPopPopConConfigDbObjHandler") <<"setting since = "<< m_since <<std::endl;
-      this->m_to_transfer.push_back(std::make_pair(obj,m_since));
+	edm::LogInfo   ("SiStripPopPopConConfigDbObjHandler") <<"setting since = "<< m_since <<std::endl;
+	this->m_to_transfer.push_back(std::make_pair(obj,m_since));
+      }else{
+	edm::LogError   ("SiStripPopPopConConfigDbObjHandler") <<"[setForTransfer] " << m_name << "  : NULL pointer of obj " << typeid(T).name() << " reported by SiStripCondObjBuilderFromDb\n Transfer aborted"<<std::endl;
+      }
     }
 
     private: 
