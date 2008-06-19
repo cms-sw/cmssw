@@ -288,7 +288,7 @@ void MuonsProxyRhoPhiZ2DBuilder::addMatchInformation( const reco::Muon* muon,
 	   if(0!=extract) {
 	      TEveElement* shape = TEveGeoShape::ImportShapeExtract(extract,0);
 	      shape->IncDenyDestroy();
-	      shape->SetMainTransparency(50);
+	      shape->SetMainTransparency(75);
 	      shape->SetMainColor(iItem->defaultDisplayProperties().color());
 	      if (! tracksOnly) parentList->AddElement(shape);
 	   }
