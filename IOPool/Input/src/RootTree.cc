@@ -9,6 +9,7 @@
 #include "TFile.h"
 #include "TVirtualIndex.h"
 #include "TTreeIndex.h"
+#include "TTreeCache.h"
 class TBranch;
 
 #include <iostream>
@@ -124,5 +125,24 @@ namespace edm {
   void
   RootTree::setTreeMaxVirtualSize(int treeMaxVirtualSize) {
     if (treeMaxVirtualSize >= 0) tree_->SetMaxVirtualSize(static_cast<Long64_t>(treeMaxVirtualSize));
+  }
+
+  void
+  RootTree::setEntryNumber(EntryNumber theEntryNumber) {
+    if (TTreeCache *tc = dynamic_cast<TTreeCache *>(filePtr_->GetCacheRead())) {
+      if (theEntryNumber >= 0 && tc->GetOwner() == tree_ && tc->IsLearning()) {
+	tc->SetLearnEntries(1);
+	tc->SetEntryRange(0, tree_->GetEntries());
+        for (BranchMap::const_iterator i = branches_->begin(), e = branches_->end(); i != e; ++i) {
+	  if (i->second.productBranch_) {
+	    tc->AddBranch(i->second.productBranch_, kTRUE);
+	  }
+	}
+        tc->StopLearningPhase();
+      }
+    }
+
+    entryNumber_ = theEntryNumber;
+    tree_->LoadTree(theEntryNumber);
   }
 }

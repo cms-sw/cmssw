@@ -44,7 +44,7 @@ namespace edm {
     void rewind() {entryNumber_ = 0;} 
     EntryNumber const& entryNumber() const {return entryNumber_;}
     EntryNumber const& entries() const {return entries_;}
-    void setEntryNumber(EntryNumber theEntryNumber) {entryNumber_ = theEntryNumber;}
+    void setEntryNumber(EntryNumber theEntryNumber);
     std::vector<std::string> const& branchNames() const {return branchNames_;}
     template <typename T>
     void fillGroups(T& item);
