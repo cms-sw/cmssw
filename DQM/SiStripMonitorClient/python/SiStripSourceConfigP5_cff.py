@@ -1,5 +1,6 @@
 import FWCore.ParameterSet.Config as cms
 
+# Hardware Monitor ####
 from DQM.SiStripMonitorHardware.test.buffer_hack_cfi import *
 import DQM.SiStripMonitorPedestals.SiStripMonitorPedestals_cfi
 # SiStripMonitorPedestal ###
