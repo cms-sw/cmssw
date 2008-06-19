@@ -5,7 +5,7 @@
 
 FileBlock: Properties of an input file.
 
-$Id: FileBlock.h,v 1.7 2008/05/28 18:52:01 wdd Exp $
+$Id: FileBlock.h,v 1.8 2008/06/18 22:37:58 wmtan Exp $
 
 ----------------------------------------------------------------------*/
 
@@ -21,34 +21,37 @@ namespace edm {
   class BranchDescription;
   class FileBlock {
   public:
-    FileBlock() : fileFormatVersion_(),
-	tree_(0), metaTree_(0),
-	lumiTree_(0), lumiMetaTree_(0),
-	runTree_(0), runMetaTree_(0),
-        fastCopyable_(false), fileName_(),
-        sortedNewBranchNames_(), oldBranchNames_(),
-	branchChildren_() {}
+    FileBlock() : 
+      fileFormatVersion_(),
+      tree_(0), metaTree_(0),
+      lumiTree_(0), lumiMetaTree_(0),
+      runTree_(0), runMetaTree_(0),
+      fastCopyable_(false), fileName_(),
+      sortedNewBranchNames_(), oldBranchNames_(),
+      branchChildren_() {}
+
     FileBlock(FileFormatVersion const& version,
-	TTree const* ev, TTree const* meta,
-	TTree const* lumi, TTree const* lumiMeta,
-	TTree const* run, TTree const* runMeta,
-	bool fastCopy,
-	std::string const& fileName,
-	std::vector<std::string> const& newNames,
-	std::vector<std::string> const& oldNames,
-	boost::shared_ptr<BranchChildren> branchChildren) :
-	  fileFormatVersion_(version),
-	  tree_(const_cast<TTree *>(ev)), 
-	  metaTree_(const_cast<TTree *>(meta)), 
-	  lumiTree_(const_cast<TTree *>(lumi)), 
-	  lumiMetaTree_(const_cast<TTree *>(lumiMeta)), 
-	  runTree_(const_cast<TTree *>(run)), 
-	  runMetaTree_(const_cast<TTree *>(runMeta)), 
-	  fastCopyable_(fastCopy), 
-          fileName_(fileName), 
-	  sortedNewBranchNames_(newNames),
-	  oldBranchNames_(oldNames),
-	  branchChildren_(branchChildren) {}
+	      TTree const* ev, TTree const* meta,
+	      TTree const* lumi, TTree const* lumiMeta,
+	      TTree const* run, TTree const* runMeta,
+	      bool fastCopy,
+	      std::string const& fileName,
+	      std::vector<std::string> const& newNames,
+	      std::vector<std::string> const& oldNames,
+	      boost::shared_ptr<BranchChildren> branchChildren) :
+      fileFormatVersion_(version),
+      tree_(const_cast<TTree *>(ev)), 
+      metaTree_(const_cast<TTree *>(meta)), 
+      lumiTree_(const_cast<TTree *>(lumi)), 
+      lumiMetaTree_(const_cast<TTree *>(lumiMeta)), 
+      runTree_(const_cast<TTree *>(run)), 
+      runMetaTree_(const_cast<TTree *>(runMeta)), 
+      fastCopyable_(fastCopy), 
+      fileName_(fileName), 
+      sortedNewBranchNames_(newNames),
+      oldBranchNames_(oldNames),
+      branchChildren_(branchChildren) {}
+    
     ~FileBlock() {}
 
     FileFormatVersion const& fileFormatVersion() const {return fileFormatVersion_;}

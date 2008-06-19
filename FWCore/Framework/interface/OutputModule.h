@@ -217,7 +217,7 @@ namespace edm {
     virtual void endLuminosityBlock(LuminosityBlockPrincipal const& lb){}
     virtual void writeLuminosityBlock(LuminosityBlockPrincipal const& lb) = 0;
     virtual void openFile(FileBlock const& fb) {}
-    virtual void respondToOpenInputFile(FileBlock const& fb) {}
+    virtual void respondToOpenInputFile(FileBlock const& fb);
     virtual void respondToCloseInputFile(FileBlock const& fb) {}
     virtual void respondToOpenOutputFiles(FileBlock const& fb) {}
     virtual void respondToCloseOutputFiles(FileBlock const& fb) {}

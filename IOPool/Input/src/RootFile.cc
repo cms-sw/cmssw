@@ -101,7 +101,7 @@ namespace edm {
       sortedNewBranchNames_(),
       oldBranchNames_(),
       eventHistoryTree_(0),
-      branchChildren_() {
+      branchChildren_(new BranchChildren) {
     eventTree_.setCacheSize(treeCacheSize);
 
     eventTree_.setTreeMaxVirtualSize(treeMaxVirtualSize);
@@ -117,8 +117,8 @@ namespace edm {
     // This preserves backward compatibility against friendly class name algorithm changes.
     ProductRegistry tempReg;
     ProductRegistry *ppReg = &tempReg;
-    branchChildren_.reset(new BranchChildren);
-    BranchChildren *branchChildrenPtr = branchChildren_.get();
+    //branchChildren_.reset(new BranchChildren);  // now set during initialization
+    BranchChildren* branchChildrenBuffer = branchChildren_.get();
     typedef std::map<ParameterSetID, ParameterSetBlob> PsetMap;
     PsetMap psetMap;
     ProcessHistoryMap pHistMap;
@@ -143,7 +143,7 @@ namespace edm {
     metaDataTree->SetBranchAddress(poolNames::moduleDescriptionMapBranchName().c_str(), &mdMapPtr);
     metaDataTree->SetBranchAddress(poolNames::fileFormatVersionBranchName().c_str(), &fftPtr);
     if (metaDataTree->FindBranch(poolNames::productDependenciesBranchName().c_str()) != 0) {
-      metaDataTree->SetBranchAddress(poolNames::productDependenciesBranchName().c_str(), &branchChildrenPtr);
+      metaDataTree->SetBranchAddress(poolNames::productDependenciesBranchName().c_str(), &branchChildrenBuffer);
     }
     if (metaDataTree->FindBranch(poolNames::fileIdentifierBranchName().c_str()) != 0) {
       metaDataTree->SetBranchAddress(poolNames::fileIdentifierBranchName().c_str(), &fidPtr);

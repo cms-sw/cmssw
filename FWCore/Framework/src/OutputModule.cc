@@ -430,6 +430,10 @@ namespace edm {
     branchChildren_.clear();
   }
 
+  void
+  OutputModule::respondToOpenInputFile(FileBlock const& fb) {
+  }
+
   CurrentProcessingContext const*
   OutputModule::currentContext() const {
     return current_context_;
@@ -463,7 +467,7 @@ namespace edm {
 	   it = branchParents_.insert(std::make_pair(bid, std::set<EntryDescriptionID>())).first;
 	}
 	it->second.insert(i->second->entryInfoPtr()->entryDescriptionID());
-	branchChildren_.insert(std::make_pair(bid, std::set<BranchID>()));
+	branchChildren_.insertEmpty(bid);
       }
     }
   }
@@ -481,9 +485,7 @@ namespace edm {
 	std::vector<BranchID> const& parents = entryDesc.parents_;
 	for (std::vector<BranchID>::const_iterator j = parents.begin(), jEnd = parents.end();
 	  j != jEnd; ++j) {
-          BranchID const& parent = *j;
-	  BranchChildren::iterator iter = branchChildren_.find(parent);
-	  iter->second.insert(child);
+	  branchChildren_.insertChild(*j, child);
 	}
       }
     }
