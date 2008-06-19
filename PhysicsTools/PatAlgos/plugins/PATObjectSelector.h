@@ -1,10 +1,11 @@
 //
-// $Id: PATObjectSelector.h,v 1.1 2008/03/06 09:23:10 llista Exp $
+// $Id: PATObjectSelector.h,v 1.2 2008/06/05 20:05:13 gpetrucc Exp $
 //
 
 #ifndef PhysicsTools_PatAlgos_PATObjectSelector_h
 #define PhysicsTools_PatAlgos_PATObjectSelector_h
 
+#include "DataFormats/Common/interface/RefVector.h"
 
 #include "PhysicsTools/UtilAlgos/interface/StringCutObjectSelector.h"
 #include "PhysicsTools/UtilAlgos/interface/SingleObjectSelector.h"
@@ -19,6 +20,7 @@
 #include "DataFormats/PatCandidates/interface/MET.h"
 #include "DataFormats/PatCandidates/interface/Particle.h"
 #include "DataFormats/PatCandidates/interface/GenericParticle.h"
+
 
 #include <vector>
 
@@ -58,6 +60,48 @@ namespace pat {
               std::vector<GenericParticle>,
               StringCutObjectSelector<GenericParticle>
           > PATGenericParticleSelector;
+
+  typedef SingleObjectSelector<
+              std::vector<Electron>,
+              StringCutObjectSelector<Electron>,
+              edm::RefVector<std::vector<Electron> >
+          > PATElectronRefSelector;
+  typedef SingleObjectSelector<
+              std::vector<Muon>,
+              StringCutObjectSelector<Muon>,
+              edm::RefVector<std::vector<Muon> >
+          > PATMuonRefSelector;
+  typedef SingleObjectSelector<
+              std::vector<Tau>,
+              StringCutObjectSelector<Tau>,
+              edm::RefVector<std::vector<Tau> >
+          > PATTauRefSelector;
+  typedef SingleObjectSelector<
+              std::vector<Photon>,
+              StringCutObjectSelector<Photon>,
+              edm::RefVector<std::vector<Photon> >
+          > PATPhotonRefSelector;
+  typedef SingleObjectSelector<
+              std::vector<Jet>,
+              StringCutObjectSelector<Jet>,
+              edm::RefVector<std::vector<Jet> >
+          > PATJetRefSelector;
+  typedef SingleObjectSelector<
+              std::vector<MET>,
+              StringCutObjectSelector<MET>,
+              edm::RefVector<std::vector<MET> >
+          > PATMETRefSelector;
+  typedef SingleObjectSelector<
+              std::vector<Particle>,
+              StringCutObjectSelector<Particle>,
+              edm::RefVector<std::vector<Particle> >
+          > PATParticleRefSelector;
+  typedef SingleObjectSelector<
+              std::vector<GenericParticle>,
+              StringCutObjectSelector<GenericParticle>,
+              edm::RefVector<std::vector<GenericParticle> >
+          > PATGenericParticleRefSelector;
+
 
 
 }

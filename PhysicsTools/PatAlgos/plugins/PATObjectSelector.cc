@@ -13,4 +13,13 @@ DEFINE_FWK_MODULE(PATParticleSelector);
 DEFINE_FWK_MODULE(PATGenericParticleSelector);
 
 
+DEFINE_FWK_MODULE(PATElectronRefSelector);
+DEFINE_FWK_MODULE(PATMuonRefSelector);
+DEFINE_FWK_MODULE(PATTauRefSelector);
+DEFINE_FWK_MODULE(PATPhotonRefSelector);
+DEFINE_FWK_MODULE(PATJetRefSelector);
+DEFINE_FWK_MODULE(PATMETRefSelector);
+DEFINE_FWK_MODULE(PATParticleRefSelector);
+DEFINE_FWK_MODULE(PATGenericParticleRefSelector);
+
 
