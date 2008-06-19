@@ -52,4 +52,4 @@ muonCSCDigis.InputObjects = 'rawDataCollector'
 muonCSCDigis.UseExaminer = False
 muonDTDigis.fedColl = 'rawDataCollector'
 muonRPCDigis.InputLabel = 'rawDataCollector'
-
+gtEvmDigis.EvmGtInputTag = 'rawDataCollector'
