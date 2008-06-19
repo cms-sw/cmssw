@@ -2,8 +2,8 @@
 /*
  * \file HcalMonitorModule.cc
  * 
- * $Date: 2008/05/13 17:19:49 $
- * $Revision: 1.61 $
+ * $Date: 2008/05/27 03:09:17 $
+ * $Revision: 1.62 $
  * \author W Fisher
  *
 */
@@ -165,6 +165,8 @@ HcalMonitorModule::~HcalMonitorModule(){
 void HcalMonitorModule::beginJob(const edm::EventSetup& c){
   ievt_ = 0;
   
+  ievt_pre_=0;
+
   if(debug_) cout << "HcalMonitorModule: begin job...." << endl;
   
   if ( dbe_ != NULL ){
@@ -274,9 +276,10 @@ void HcalMonitorModule::analyze(const edm::Event& e, const edm::EventSetup& even
   ievent_   = e.id().event();
   itime_    = e.time().value();
 
-  if (debug_) cout << "HcalMonitorModule: evts: "<< nevt_ << ", run: " << irun_ << ", LS: " << ilumisec_ << ", evt: " << ievent_ << ", time: " << itime_ << endl; 
+  if (debug_) cout << "HcalMonitorModule: evts: "<< nevt_ << ", run: " << irun_ << ", LS: " << ilumisec_ << ", evt: " << ievent_ << ", time: " << itime_ << endl <<"\t counter = "<<ievt_pre_<<"\t total count = "<<ievt_<<endl; 
 
   // skip this event if we're prescaling...
+  ievt_pre_++; // need to increment counter before calling prescale
   if(prescale()) return;
 
   meLatency_->Fill(psTime_.elapsedTime);
@@ -448,7 +451,9 @@ bool HcalMonitorModule::prescale(){
 
   //check each instance
   if(lsPS && (ilumisec_%prescaleLS_)!=0) lsPS = false; //LS veto
-  if(evtPS && (ievent_%prescaleEvt_)!=0) evtPS = false; //evt # veto
+  //if(evtPS && (ievent_%prescaleEvt_)!=0) evtPS = false; //evt # veto
+  // we can't just call (ievent_%prescaleEvt_) because ievent values not consecutive
+  if (evtPS && (ievt_pre_%prescaleEvt_)!=0) evtPS = false;
   if(timePS){
     double elapsed = (psTime_.updateTime - psTime_.vetoTime)/60.0;
     if(elapsed<prescaleTime_){
