@@ -5,7 +5,7 @@
 # creates a complete config file.
 # relval_main + the custom config for it is not needed any more
 
-__version__ = "$Revision: 1.34 $"
+__version__ = "$Revision: 1.35 $"
 __source__ = "$Source: /cvs_server/repositories/CMSSW/CMSSW/Configuration/PyReleaseValidation/python/ConfigBuilder.py,v $"
 
 import FWCore.ParameterSet.Config as cms
@@ -104,8 +104,12 @@ class ConfigBuilder(object):
             output.SelectEvents = cms.untracked.PSet(SelectEvents = cms.vstring('generation_step')) 
         
         # if a filtername is given, use that one
-        if self._options.filtername !="":
+        if self._options.filtername !='':
             output.dataset.filterName = cms.untracked.string(self._options.filtername)
+        else:
+            conditionsSP = self._options.conditions.split(',')
+            if len(conditionsSP) > 1:
+              output.dataset.filterName = cms.untracked.string(str(conditionsSP[1].split("::")[0]))
 
         # and finally add the output to the process
         self.process.output = output
@@ -331,7 +335,7 @@ class ConfigBuilder(object):
     def build_production_info(self, evt_type, evtnumber):
         """ Add useful info for the production. """
         prod_info=cms.untracked.PSet\
-              (version=cms.untracked.string("$Revision: 1.34 $"),
+              (version=cms.untracked.string("$Revision: 1.35 $"),
                name=cms.untracked.string("PyReleaseValidation"),
                annotation=cms.untracked.string(evt_type+ " nevts:"+str(evtnumber))
               )
