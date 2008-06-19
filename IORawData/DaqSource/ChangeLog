@@ -1,4 +1,8 @@
 2008-06-03  Emilio Meschi  <emilio.meschi@cern.ch>
+	* tag V01-06-05
+	* fill orbit and bx id from GT EVM block, needs EventFilter/Utilities V00-14-12	
+
+2008-06-03  Emilio Meschi  <emilio.meschi@cern.ch>
 	* tag V01-06-04
 	* added access from xdaq and locks to get hold of hlt counters, and ls,ps id
 

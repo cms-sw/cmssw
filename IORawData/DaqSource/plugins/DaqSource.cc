@@ -1,7 +1,7 @@
 /** \file 
  *
- *  $Date: 2008/05/08 15:15:08 $
- *  $Revision: 1.21 $
+ *  $Date: 2008/06/03 15:20:35 $
+ *  $Revision: 1.22 $
  *  \author N. Amapane - S. Argiro'
  */
 
@@ -134,6 +134,9 @@ namespace edm {
     time = stv.tv_sec;
     time = (time << 32) + stv.tv_usec;
     Timestamp tstamp(time);
+
+    int bunchCrossing = EventAuxiliary::invalidBunchXing;
+    int orbitNumber   = EventAuxiliary::invalidBunchXing;
     
     // pass a 0 pointer to fillRawData()!
     FEDRawDataCollection* fedCollection(0);
@@ -152,6 +155,9 @@ namespace edm {
         << "Event numbers must begin at 1, not 0.";
     }
     setTimestamp(tstamp);
+    
+    unsigned char *fedAddr = fedCollection->FEDData(daqsource::gtpEvmId_).data();
+
     if(fakeLSid_ && luminosityBlockNumber_ != ((eventId.event() - 1)/lumiSegmentSizeInEvents_ + 1)) {
 	luminosityBlockNumber_ = (eventId.event() - 1)/lumiSegmentSizeInEvents_ + 1;
 	pthread_mutex_unlock(&mutex_);
@@ -161,7 +167,7 @@ namespace edm {
 	resetLuminosityBlockPrincipal();
     }
     else if(!fakeLSid_){ 
-      unsigned char *fedAddr = fedCollection->FEDData(daqsource::gtpEvmId_).data();
+
       if(evf::evtn::evm_board_sense(fedAddr)){
 	unsigned int thisEventLSid = evf::evtn::getlbn(fedAddr);
        if(luminosityBlockNumber_ != (thisEventLSid + 1)){
@@ -174,7 +180,10 @@ namespace edm {
        }
       }
     }
-
+    if(evf::evtn::evm_board_sense(fedAddr)){
+      bunchCrossing =  int(evf::evtn::getfdlbx(fedAddr));
+      orbitNumber =  int(evf::evtn::getorbit(fedAddr));
+    }
     eventId = EventID(runNumber_, eventId.event());
     
     // If there is no luminosity block principal, make one.
@@ -191,7 +200,8 @@ namespace edm {
     }
     // make a brand new event
     EventAuxiliary eventAux(eventId,
-      processGUID(), timestamp(), luminosityBlockPrincipal()->luminosityBlock(), true, EventAuxiliary::Data);
+      processGUID(), timestamp(), luminosityBlockPrincipal()->luminosityBlock(), true, EventAuxiliary::Data, bunchCrossing, EventAuxiliary::invalidStoreNumber,
+			    orbitNumber);
     ep_ = std::auto_ptr<EventPrincipal>(
 	new EventPrincipal(eventAux, productRegistry(), luminosityBlockPrincipal(), processConfiguration()));
     
