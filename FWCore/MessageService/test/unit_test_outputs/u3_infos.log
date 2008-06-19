@@ -1,5 +1,5 @@
 %MSG-i FwkReport:  main_input:source BeforeEvents
-Begin processing the 1st record. Run 1, Event 1
+Begin processing the 1st record. Run 1, Event 1, LumiSection 1
 %MSG
 %MSG-e cat_A:  UnitTestClient_A:sendSomeMessages Run: 1 Event: 1
 LogError was used to send this message-which is long enough to span lines but-will not be broken up by the logger any more
@@ -20,7 +20,7 @@ LogInfo was used to send this message
 LogInfo was used to send this other message
 %MSG
 %MSG-i FwkReport:  main_input:source Run: 1 Event: 1
-Begin processing the 2nd record. Run 1, Event 2
+Begin processing the 2nd record. Run 1, Event 2, LumiSection 1
 %MSG
 %MSG-e cat_A:  UnitTestClient_A:sendSomeMessages Run: 1 Event: 2
 LogError was used to send this message-which is long enough to span lines but-will not be broken up by the logger any more
@@ -41,7 +41,7 @@ LogInfo was used to send this message
 LogInfo was used to send this other message
 %MSG
 %MSG-i FwkReport:  main_input:source Run: 1 Event: 2
-Begin processing the 3rd record. Run 1, Event 3
+Begin processing the 3rd record. Run 1, Event 3, LumiSection 1
 %MSG
 %MSG-e cat_A:  UnitTestClient_A:sendSomeMessages Run: 1 Event: 3
 LogError was used to send this message-which is long enough to span lines but-will not be broken up by the logger any more

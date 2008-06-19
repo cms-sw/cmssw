@@ -78,6 +78,7 @@ namespace edm {
     boost::shared_ptr<LuminosityBlockPrincipal> readLumi(
 	boost::shared_ptr<ProductRegistry const> pReg,
 	boost::shared_ptr<RunPrincipal> rp);
+    std::string const& file() const {return file_;}
     boost::shared_ptr<RunPrincipal> readRun(boost::shared_ptr<ProductRegistry const> pReg);
     boost::shared_ptr<ProductRegistry const> productRegistry() const {return productRegistry_;}
     EventAuxiliary const& eventAux() const {return eventAux_;}

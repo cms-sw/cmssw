@@ -60,6 +60,8 @@ class StreamerInputIndexFile;
                Returns false in case of miss match */
     bool compareHeader();
 
+    void logFileAction(const char* msg);
+
     bool useIndex_;
     StreamerInputIndexFile* index_;
     indexRecIter indexIter_b;
@@ -74,6 +76,8 @@ class StreamerInputIndexFile;
     unsigned int currentFile_; /** keeps track of which file is in use at the moment*/
     std::vector<std::string> streamerNames_; /** names of Streamer files */
     bool multiStreams_;  /** True if Multiple Streams are Read */
+    std::string currentFileName_;
+    bool currentFileOpen_;
 
     uint32 currRun_;
     uint32 currProto_;

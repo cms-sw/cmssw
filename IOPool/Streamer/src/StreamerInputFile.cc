@@ -2,17 +2,22 @@
 #include "FWCore/Utilities/interface/Exception.h"
 #include "IOPool/Streamer/interface/StreamerInputIndexFile.h"
 #include "FWCore/Utilities/interface/DebugMacros.h"
+#include "FWCore/MessageLogger/interface/MessageLogger.h"
 
 #include "Utilities/StorageFactory/interface/StorageFactory.h"
 #include "Utilities/StorageFactory/interface/IOFlags.h"
 
 #include <iostream>
+#include <ctime>
 
 using namespace edm;
 
 StreamerInputFile::~StreamerInputFile()
 {
-  if (storage_) storage_->close();
+  if (storage_) {
+    storage_->close();
+    if (currentFileOpen_) logFileAction("  Closed file ");
+  }
 
   delete startMsg_;
   delete  currentEvMsg_;
@@ -25,6 +30,8 @@ StreamerInputFile::StreamerInputFile(const std::string& name):
   headerBuf_(1000*1000),
   eventBuf_(1000*1000*7),
   multiStreams_(false),
+  currentFileName_(),
+  currentFileOpen_(false),
   newHeader_(false),
   endOfFile_(false)
 {
@@ -44,6 +51,8 @@ StreamerInputFile::StreamerInputFile(const std::string& name,
   headerBuf_(1000*1000),
   eventBuf_(1000*1000*7),
   multiStreams_(false),
+  currentFileName_(),
+  currentFileOpen_(false),
   newHeader_(false),
   endOfFile_(false)
 {
@@ -63,6 +72,8 @@ StreamerInputFile::StreamerInputFile(const std::string& name,
   headerBuf_(1000*1000),
   eventBuf_(1000*1000*7),
   multiStreams_(false),
+  currentFileName_(),
+  currentFileOpen_(false),
   newHeader_(false),
   endOfFile_(false)
 {
@@ -80,6 +91,8 @@ StreamerInputFile::StreamerInputFile(const std::vector<std::string>& names):
   currentFile_(0),
   streamerNames_(names),
   multiStreams_(true),
+  currentFileName_(),
+  currentFileOpen_(false),
   currRun_(0),
   currProto_(0),
   newHeader_(false),
@@ -95,7 +108,14 @@ StreamerInputFile::StreamerInputFile(const std::vector<std::string>& names):
 void
 StreamerInputFile::openStreamerFile(const std::string& name) {
 
-  if (storage_) storage_->close();
+  if (storage_) {
+    storage_->close();
+    if (currentFileOpen_) logFileAction("  Closed file ");
+  }
+
+  currentFileName_ = name;
+  currentFileOpen_ = false;
+  logFileAction("  Initiating request to open file ");
 
   IOOffset size = -1;
   if (StorageFactory::get()->check(name.c_str(), &size)) {
@@ -114,6 +134,8 @@ StreamerInputFile::openStreamerFile(const std::string& name) {
       << "Error Opening Streamer Input File, file does not exist: "
       << name << "\n";
   }
+  currentFileOpen_ = true;
+  logFileAction("  Successfully opened file ");
 }
 
 const StreamerInputIndexFile* StreamerInputFile::index() {
@@ -305,4 +327,12 @@ int StreamerInputFile::readEventMessage()
   currentEvMsg_ = new EventMsgView((void*)&eventBuf_[0]);
   
   return 1;
+}
+
+void StreamerInputFile::logFileAction(const char* msg) {
+  time_t t = time(0);
+  char ts[] = "dd-Mon-yyyy hh:mm:ss TZN     ";
+  strftime( ts, strlen(ts)+1, "%d-%b-%Y %H:%M:%S %Z", localtime(&t) );
+  edm::LogAbsolute("fileAction") << ts << msg << currentFileName_;
+  edm::FlushMessageLog();
 }

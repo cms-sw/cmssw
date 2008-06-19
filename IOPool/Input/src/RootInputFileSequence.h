@@ -5,7 +5,7 @@
 
 RootInputFileSequence: This is an InputSource
 
-$Id: RootInputFileSequence.h,v 1.13 2008/06/05 23:17:55 wmtan Exp $
+$Id: RootInputFileSequence.h,v 1.14 2008/06/07 15:07:58 wmtan Exp $
 
 ----------------------------------------------------------------------*/
 
@@ -76,6 +76,7 @@ namespace edm {
     int remainingEvents() const;
     int remainingLuminosityBlocks() const;
     bool const primary() const;
+    void logFileAction(const char* msg, std::string const& file);
 
     PoolSource const& input_;
     InputFileCatalog const& catalog_;

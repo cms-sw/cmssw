@@ -208,7 +208,7 @@ namespace edm {
       if (remainingEvents_ > 0) --remainingEvents_;
       ++readCount_;
       setTimestamp(result->time());
-      issueReports(result->id());
+      issueReports(result->id(), result->luminosityBlock());
     }
     return result;
   }
@@ -226,7 +226,7 @@ namespace edm {
         postRead(event);
         if (remainingEvents_ > 0) --remainingEvents_;
 	++readCount_;
-	issueReports(result->id());
+	issueReports(result->id(), result->luminosityBlock());
       }
     }
     return result;
@@ -238,10 +238,11 @@ namespace edm {
   }
 
   void
-  InputSource::issueReports(EventID const& eventID) {
+  InputSource::issueReports(EventID const& eventID, LuminosityBlockNumber_t const& lumi) {
     LogInfo("FwkReport") << "Begin processing the " << readCount_
 			 << suffix(readCount_) << " record. Run " << eventID.run()
-			 << ", Event " << eventID.event();
+			 << ", Event " << eventID.event()
+                         << ", LumiSection " << lumi;
       // At some point we may want to initiate checkpointing here
   }
 

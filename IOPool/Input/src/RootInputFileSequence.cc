@@ -19,6 +19,8 @@
 #include "TTree.h"
 #include "TFile.h"
 
+#include <ctime>
+
 namespace edm {
   RootInputFileSequence::RootInputFileSequence(
 		ParameterSet const& pset,
@@ -125,6 +127,7 @@ namespace edm {
     // Account for events skipped in the file.
       eventsToSkip_ = rootFile_->eventsToSkip();
       rootFile_->close(primary());
+      logFileAction("  Closed file ", rootFile_->file());
       rootFile_.reset();
     }
   }
@@ -135,11 +138,13 @@ namespace edm {
     TTree::SetMaxTreeSize(kMaxLong64);
     boost::shared_ptr<TFile> filePtr;
     try {
+      logFileAction("  Initiating request to open file ", fileIter_->fileName());
       filePtr.reset(TFile::Open(fileIter_->fileName().c_str()));
     } catch (cms::Exception) {
       if (!skipBadFiles) throw;
     }
     if (filePtr && !filePtr->IsZombie()) {
+      logFileAction("  Successfully opened file ", fileIter_->fileName());
       rootFile_ = RootFileSharedPtr(new RootFile(fileIter_->fileName(), catalog_.url(),
 	  processConfiguration(), fileIter_->logicalFileName(), filePtr,
 	  startAtRun_, startAtLumi_, startAtEvent_, eventsToSkip_, whichLumisToSkip_,
@@ -461,6 +466,16 @@ namespace edm {
       result.push_back(e);
       --eventsRemainingInFile_;
       rootFile_->nextEventEntry();
+    }
+  }
+
+  void RootInputFileSequence::logFileAction(const char* msg, std::string const& file) {
+    if (primarySequence_) {
+      time_t t = time(0);
+      char ts[] = "dd-Mon-yyyy hh:mm:ss TZN     ";
+      strftime( ts, strlen(ts)+1, "%d-%b-%Y %H:%M:%S %Z", localtime(&t) );
+      edm::LogAbsolute("fileAction") << ts << msg << file;
+      edm::FlushMessageLog();
     }
   }
 }
