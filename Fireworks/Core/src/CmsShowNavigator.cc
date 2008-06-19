@@ -8,12 +8,13 @@
 //
 // Original Author:  
 //         Created:  Tue Jun 10 14:56:46 EDT 2008
-// $Id$
+// $Id: CmsShowNavigator.cc,v 1.1 2008/06/17 00:08:11 chrjones Exp $
 //
 
 // system include files
 #include "TTree.h"
 #include "TEventList.h"
+#include "TError.h"
 
 // user include files
 #include "Fireworks/Core/interface/CmsShowNavigator.h"
@@ -74,11 +75,13 @@ CmsShowNavigator::loadFile(std::string fileName)
     m_file->Close();
     delete m_file;
   }
-  TFile *newFile = new TFile(fileName.c_str());
+  gErrorIgnoreLevel = 3000; // suppress warnings about missing dictionaries
+  TFile *newFile = TFile::Open(fileName.c_str());
   if (newFile == 0) {
     // Throw an exception
     printf("Invalid file\n");
   }
+  gErrorIgnoreLevel = -1;
   m_file = newFile;
   m_event = new fwlite::Event(m_file);
   m_eventTree = (TTree*)m_file->Get("Events");
