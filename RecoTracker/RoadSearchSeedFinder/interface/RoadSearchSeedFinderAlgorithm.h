@@ -14,9 +14,9 @@
 // Original Author: Oliver Gutsche, gutsche@fnal.gov
 // Created:         Sat Jan 14 22:00:00 UTC 2006
 //
-// $Author: mkirn $
-// $Date: 2007/09/07 16:28:51 $
-// $Revision: 1.18 $
+// $Author: noeding $
+// $Date: 2008/03/18 22:19:37 $
+// $Revision: 1.19 $
 //
 
 #include <string>
@@ -98,7 +98,7 @@ class RoadSearchSeedFinderAlgorithm
   bool detIdsOnSameLayer(DetId id1, 
 			 DetId id2);
   
-  unsigned int ClusterCounter(const edm::DetSetVector<SiStripCluster>* clusters);
+  unsigned int ClusterCounter(const edmNew::DetSetVector<SiStripCluster>* clusters);
   
  private:
 

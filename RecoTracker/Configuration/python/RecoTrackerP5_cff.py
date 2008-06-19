@@ -3,6 +3,7 @@ import FWCore.ParameterSet.Config as cms
 #
 # Tracking configuration file fragment for P5 cosmic running
 #
+from RecoTracker.MeasurementDet.MeasurementTrackerESProducer_cff import *
 # COSMIC TRACK FINDER
 from RecoTracker.SpecialSeedGenerators.CosmicSeedP5Pairs_cff import *
 from RecoTracker.SingleTrackPattern.CosmicTrackFinderP5_cff import *
@@ -23,4 +24,7 @@ rstracksP5 = cms.Sequence(roadSearchSeedsP5*roadSearchCloudsP5*rsTrackCandidates
 cosmictracksP5 = cms.Sequence(cosmicseedfinderP5*cosmictrackfinderP5)
 #sequence tracksP5 = {cosmictracksP5, ctftracksP5, rstracksP5, trackinfoP5}
 tracksP5 = cms.Sequence(cosmictracksP5*ctftracksP5*rstracksP5)
+# explicitely switch on hit splitting
+ckfTrackCandidatesP5.useHitsSplitting = True
+rsTrackCandidatesP5.SplitMatchedHits = True
 

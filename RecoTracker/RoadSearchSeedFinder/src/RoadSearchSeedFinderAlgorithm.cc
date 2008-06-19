@@ -11,9 +11,9 @@
 // Original Author: Oliver Gutsche, gutsche@fnal.gov
 // Created:         Sat Jan 14 22:00:00 UTC 2006
 //
-// $Author: mkirn $
-// $Date: 2007/09/07 16:28:52 $
-// $Revision: 1.29 $
+// $Author: noeding $
+// $Date: 2008/03/18 22:19:38 $
+// $Revision: 1.30 $
 //
 
 #include <vector>
@@ -51,7 +51,8 @@
 #include "DataFormats/SiPixelDetId/interface/PXFDetId.h"
 
 #include "DataFormats/SiStripCluster/interface/SiStripCluster.h"
-#include "DataFormats/Common/interface/DetSetVector.h"
+#include "DataFormats/Common/interface/DetSetVectorNew.h"
+#include "DataFormats/Common/interface/DetSetNew.h"
 
 const double speedOfLight = 2.99792458e8;
 const double unitCorrection = speedOfLight * 1e-2 * 1e-9;
@@ -777,15 +778,15 @@ bool RoadSearchSeedFinderAlgorithm::detIdsOnSameLayer(DetId id1, DetId id2) {
 }
 
 
-unsigned int RoadSearchSeedFinderAlgorithm::ClusterCounter(const edm::DetSetVector<SiStripCluster>* clusters) {
+unsigned int RoadSearchSeedFinderAlgorithm::ClusterCounter(const edmNew::DetSetVector<SiStripCluster>* clusters) {
 
-  const edm::DetSetVector<SiStripCluster>& input = *clusters;
+  const edmNew::DetSetVector<SiStripCluster>& input = *clusters;
 
   unsigned int totalClusters = 0;
 
   //loop over detectors
-  for (edm::DetSetVector<SiStripCluster>::const_iterator DSViter=input.begin(); DSViter!=input.end();DSViter++ ) {
-    totalClusters+=DSViter->data.size();
+  for (edmNew::DetSetVector<SiStripCluster>::const_iterator DSViter=input.begin(); DSViter!=input.end();DSViter++ ) {
+    totalClusters+=DSViter->size();
   }
 
   return totalClusters;

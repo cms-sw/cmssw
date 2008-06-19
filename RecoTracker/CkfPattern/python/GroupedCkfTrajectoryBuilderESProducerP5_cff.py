@@ -23,25 +23,22 @@ from RecoLocalTracker.SiStripRecHitConverter.SiStripRecHitMatcher_cfi import *
 from RecoLocalTracker.SiPixelRecHits.PixelCPEParmError_cfi import *
 #TransientTrackingBuilder
 from RecoTracker.TransientTrackingRecHit.TransientTrackingRecHitBuilder_cfi import *
-import copy
-from RecoTracker.MeasurementDet.MeasurementTrackerESProducer_cfi import *
+import RecoTracker.MeasurementDet.MeasurementTrackerESProducer_cfi
 # MeasurementTracker
-CTF_P5_MeasurementTracker = copy.deepcopy(MeasurementTracker)
+CTF_P5_MeasurementTracker = RecoTracker.MeasurementDet.MeasurementTrackerESProducer_cfi.MeasurementTracker.clone()
+#replace CTF_P5_MeasurementTracker.pixelClusterProducer = ""
 # trajectory filtering
 from TrackingTools.TrajectoryFiltering.TrajectoryFilterESProducer_cff import *
-import copy
-from TrackingTools.TrajectoryFiltering.TrajectoryFilterESProducer_cfi import *
-ckfBaseTrajectoryFilterP5 = copy.deepcopy(trajectoryFilterESProducer)
-import copy
-from RecoTracker.CkfPattern.GroupedCkfTrajectoryBuilderESProducer_cfi import *
+import TrackingTools.TrajectoryFiltering.TrajectoryFilterESProducer_cfi
+ckfBaseTrajectoryFilterP5 = TrackingTools.TrajectoryFiltering.TrajectoryFilterESProducer_cfi.trajectoryFilterESProducer.clone()
+import RecoTracker.CkfPattern.GroupedCkfTrajectoryBuilderESProducer_cfi
 #replace ckfBaseTrajectoryFilterP5.filterPset.minPt = 0.01
 #replace ckfBaseTrajectoryFilterP5.filterPset.maxLostHits = 4
 #replace ckfBaseTrajectoryFilterP5.filterPset.maxConsecLostHits = 3
 #replace ckfBaseTrajectoryFilterP5.filterPset.minimumNumberOfHits =  4
 #
-GroupedCkfTrajectoryBuilderP5 = copy.deepcopy(GroupedCkfTrajectoryBuilder)
+GroupedCkfTrajectoryBuilderP5 = RecoTracker.CkfPattern.GroupedCkfTrajectoryBuilderESProducer_cfi.GroupedCkfTrajectoryBuilder.clone()
 CTF_P5_MeasurementTracker.ComponentName = 'CTF_P5'
-#CTF_P5_MeasurementTracker.pixelClusterProducer = ''
 ckfBaseTrajectoryFilterP5.ComponentName = 'ckfBaseTrajectoryFilterP5'
 GroupedCkfTrajectoryBuilderP5.MeasurementTrackerName = 'CTF_P5'
 GroupedCkfTrajectoryBuilderP5.ComponentName = 'GroupedCkfTrajectoryBuilderP5'
