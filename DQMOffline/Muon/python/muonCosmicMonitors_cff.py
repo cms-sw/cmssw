@@ -1,4 +1,3 @@
-Making DQM/DTMonitorModule/python
 import FWCore.ParameterSet.Config as cms
 
 #Analyzer taken from online dqm
@@ -22,5 +21,4 @@ muonCosmicMonitors_woCSC = cms.Sequence(cms.SequencePlaceholder("muonTrackAnalyz
 muonStandAloneCosmicMonitors = cms.Sequence(MonitorTrackSTACosmicMuons*dtSegmentsMonitor*cscMonitor*muonStandAloneCosmicAnalyzer)
 muonCosmicMonitorsAndQualityTests = cms.Sequence(muonCosmicMonitors*muonQualityTests)
 muonStandAloneCosmicAnalyzer.DoMuonRecoAnalysis = False
-
 
