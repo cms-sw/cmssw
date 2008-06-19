@@ -18,9 +18,6 @@ HistoPhoton::HistoPhoton( std::string dir, std::string role,std::string pre,
   addHisto( h_caloIso_       =
 	    new PhysVarHisto(pre + "CaloIso",        "Photon Calo Isolation"     , 100, 0, 1, currDir_, "", "vD")
 	    );
-  addHisto( h_photonID_      =
-	    new PhysVarHisto(pre + "PhotonID",       "Photon ID"                 , 100, 0, 1, currDir_, "", "vD")
-	    );
 }
 
 HistoPhoton::~HistoPhoton()
@@ -37,7 +34,6 @@ void HistoPhoton::fill( const Photon * photon, uint iE, double weight )
   // fill relevant photon histograms
   h_trackIso_       ->fill( photon->trackIso(), iE, weight );
   h_caloIso_        ->fill( photon->caloIso(), iE, weight );
-  h_photonID_       ->fill( photon->photonID(), iE, weight );
 
 }
 
@@ -61,7 +57,6 @@ void HistoPhoton::fill( const reco::ShallowClonePtrCandidate * pshallow, uint iE
   // fill relevant photon histograms
   h_trackIso_       ->fill( photon->trackIso(), iE, weight );
   h_caloIso_        ->fill( photon->caloIso(), iE, weight );
-  h_photonID_       ->fill( photon->photonID(), iE, weight );
 
 }
 
@@ -87,5 +82,4 @@ void HistoPhoton::clearVec()
 
   h_trackIso_->clearVec();
   h_caloIso_->clearVec();
-  h_photonID_->clearVec();
 }

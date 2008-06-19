@@ -73,7 +73,6 @@ namespace pat {
 
     PhysVarHisto *    h_trackIso_;
     PhysVarHisto *    h_caloIso_;
-    PhysVarHisto *    h_photonID_;
 
   };
 
