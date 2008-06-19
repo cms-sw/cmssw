@@ -5,7 +5,7 @@
 # creates a complete config file.
 # relval_main + the custom config for it is not needed any more
 
-__version__ = "$Revision: 1.31 $"
+__version__ = "$Revision: 1.32 $"
 __source__ = "$Source: /cvs_server/repositories/CMSSW/CMSSW/Configuration/PyReleaseValidation/python/ConfigBuilder.py,v $"
 
 import FWCore.ParameterSet.Config as cms
@@ -91,7 +91,7 @@ class ConfigBuilder(object):
         """ Add output module to the process """    
         
         self.loadAndRemember(self.contentFile)
-        theEventContent = getattr(self.process, self._options.eventcontent+"EventContent")
+        theEventContent = getattr(self.process, self._options.eventcontent.split(',')[-1]+"EventContent")
  
         output = cms.OutputModule("PoolOutputModule",
                                   theEventContent,
@@ -114,7 +114,7 @@ class ConfigBuilder(object):
 
         # ATTENTION: major tweaking to avoid inlining of event content
         # should we do that?
-        def dummy(instance,label = "process."+self._options.eventcontent+"EventContent.outputCommands"):
+        def dummy(instance,label = "process."+self._options.eventcontent.split(',')[-1]+"EventContent.outputCommands"):
             return label
         
         self.process.output.outputCommands.__dict__["dumpPython"] = dummy
@@ -135,6 +135,7 @@ class ConfigBuilder(object):
 
         # no fast sim   
         else:
+            # this may get overriden by the user setting of --eventcontent
             self.contentFile = "Configuration/EventContent/EventContent_cff"
             self.imports=['Configuration/StandardSequences/Services_cff',
                           'Configuration/StandardSequences/Geometry_cff',
@@ -295,8 +296,11 @@ class ConfigBuilder(object):
 
     def prepare_RECO(self, sequence = "reconstruction"):
         ''' Enrich the schedule with reconstruction '''
-        self.loadAndRemember("Configuration/StandardSequences/Reconstruction_cff")
-        self.process.reconstruction_step = cms.Path( getattr(self.process, sequence) )
+        if ( len(sequence.split(','))==1 ):
+            self.loadAndRemember("Configuration/StandardSequences/Reconstruction_cff")
+        else:    
+            self.loadAndRemember(sequence.split(',')[0])
+        self.process.reconstruction_step = cms.Path( getattr(self.process, sequence.split(',')[-1]) )
         self.process.schedule.append(self.process.reconstruction_step)
         return
 
@@ -327,7 +331,7 @@ class ConfigBuilder(object):
     def build_production_info(self, evt_type, evtnumber):
         """ Add useful info for the production. """
         prod_info=cms.untracked.PSet\
-              (version=cms.untracked.string("$Revision: 1.31 $"),
+              (version=cms.untracked.string("$Revision: 1.32 $"),
                name=cms.untracked.string("PyReleaseValidation"),
                annotation=cms.untracked.string(evt_type+ " nevts:"+str(evtnumber))
               )
