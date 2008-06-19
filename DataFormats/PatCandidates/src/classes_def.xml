@@ -181,6 +181,10 @@
   <class name="std::vector<edm::Ptr<reco::BaseTagInfo> >" />
   <class name="edm::ValueMap<edm::Ptr<reco::BaseTagInfo> >" />
   <class name="edm::Wrapper<edm::ValueMap<edm::Ptr<reco::BaseTagInfo> > >" />
+
+  <class name="edm::ValueMap<reco::PhotonID>" />
+  <class name="edm::Wrapper<edm::ValueMap<reco::PhotonID> >" />
+ 
  
  </selection>
  <exclusion>

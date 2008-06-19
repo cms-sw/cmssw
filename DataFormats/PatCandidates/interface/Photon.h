@@ -1,5 +1,5 @@
 //
-// $Id: Photon.h,v 1.11.2.1 2008/06/03 20:08:24 gpetrucc Exp $
+// $Id: Photon.h,v 1.12 2008/06/03 22:28:07 gpetrucc Exp $
 //
 
 #ifndef DataFormats_PatCandidates_Photon_h
@@ -13,7 +13,7 @@
    namespace.
 
   \author   Steven Lowette
-  \version  $Id: Photon.h,v 1.11.2.1 2008/06/03 20:08:24 gpetrucc Exp $
+  \version  $Id: Photon.h,v 1.12 2008/06/03 22:28:07 gpetrucc Exp $
 */
 
 #include "DataFormats/PatCandidates/interface/PATObject.h"
@@ -21,6 +21,7 @@
 #include "DataFormats/EgammaReco/interface/SuperClusterFwd.h"
 #include "DataFormats/EgammaReco/interface/SuperCluster.h"
 #include "DataFormats/PatCandidates/interface/Isolation.h"
+#include "DataFormats/EgammaCandidates/interface/PhotonID.h"
 
 
 namespace pat {
@@ -57,10 +58,57 @@ namespace pat {
       /// method to set the generated photon
       void setGenPhoton(const reco::Particle & gp);
 
-      /// returns the photon ID value
-      float photonID() const { return photonID_; }
-      /// sets the photon ID value
-      void setPhotonID(float photonID) { photonID_ = photonID; }
+      /// returns the PhotonID object, or a null pointer if no ID is available
+      const reco::PhotonID * photonID() const { return photonID_.empty() ? 0 : & photonID_[0]; }
+      /// sets the PhotonID object
+      void setPhotonID(const reco::PhotonID & photonID) { photonID_.clear(); photonID_.push_back(photonID); }
+
+      //============ PHOTON ID METHODS (throw if no ID there) =========
+      /// Method from reco::PhotonID, throws exception if there is no photon ID in this pat::Photon
+      bool isLooseEM() const { return photonIDOrThrow().isLooseEM(); }
+      /// Method from reco::PhotonID, throws exception if there is no photon ID in this pat::Photon
+      bool isLoosePhoton() const { return photonIDOrThrow().isLoosePhoton(); }
+      /// Method from reco::PhotonID, throws exception if there is no photon ID in this pat::Photon
+      bool isTightPhoton() const { return photonIDOrThrow().isTightPhoton(); }
+      /// Returns computed EcalRecHit isolation
+      /// Method from reco::PhotonID, throws exception if there is no photon ID in this pat::Photon
+      float isolationEcalRecHit() const { return photonIDOrThrow().isolationEcalRecHit(); }
+      /// Returns computed HcalRecHit isolation
+      /// Method from reco::PhotonID, throws exception if there is no photon ID in this pat::Photon
+      float isolationHcalRecHit() const { return photonIDOrThrow().isolationHcalRecHit(); }
+      /// Returns calculated sum track pT cone of dR
+      /// Method from reco::PhotonID, throws exception if there is no photon ID in this pat::Photon
+      float isolationSolidTrkCone() const { return photonIDOrThrow().isolationSolidTrkCone(); }
+      /// As above, excluding the core at the center of the cone
+      /// Method from reco::PhotonID, throws exception if there is no photon ID in this pat::Photon
+      float isolationHollowTrkCone() const { return photonIDOrThrow().isolationHollowTrkCone(); }
+      /// Returns number of tracks in a cone of dR
+      /// Method from reco::PhotonID, throws exception if there is no photon ID in this pat::Photon
+      int nTrkSolidCone() const { return photonIDOrThrow().nTrkSolidCone(); }
+      /// As above, excluding the core at the center of the cone
+      /// Method from reco::PhotonID, throws exception if there is no photon ID in this pat::Photon
+      int nTrkHollowCone() const { return photonIDOrThrow().nTrkHollowCone(); }
+      /// Return r9 = e3x3/etotal
+      /// Method from reco::PhotonID, throws exception if there is no photon ID in this pat::Photon
+      float r9() const { return photonIDOrThrow().r9(); }
+      /// If photon is in ECAL barrel
+      /// Method from reco::PhotonID, throws exception if there is no photon ID in this pat::Photon
+      bool isEBPho() const { return photonIDOrThrow().isEBPho(); }
+      /// If photon is in ECAL endcap
+      /// Method from reco::PhotonID, throws exception if there is no photon ID in this pat::Photon
+      bool isEEPho() const { return photonIDOrThrow().isEEPho(); }
+      /// If photon is in EB, and inside the boundaries in super crystals/modules
+      /// Method from reco::PhotonID, throws exception if there is no photon ID in this pat::Photon
+      bool isEBGap() const { return photonIDOrThrow().isEBGap(); }
+      /// If photon is in EE, and inside the boundaries in supercrystal/D
+      /// Method from reco::PhotonID, throws exception if there is no photon ID in this pat::Photon
+      bool isEEGap() const { return photonIDOrThrow().isEEGap(); }
+      /// If photon is in boundary between EB and EE
+      /// Method from reco::PhotonID, throws exception if there is no photon ID in this pat::Photon
+      bool isEBEEGap() const { return photonIDOrThrow().isEBEEGap(); }
+      /// If this is also a GsfElectron
+      /// Method from reco::PhotonID, throws exception if there is no photon ID in this pat::Photon
+      bool isAlsoElectron() const { return photonIDOrThrow().isAlsoElectron(); }
 
       //============ BEGIN ISOLATION BLOCK =====
       /// Returns the isolation variable for a specifc key (or pseudo-key like CaloIso), or -1.0 if not available
@@ -157,12 +205,17 @@ namespace pat {
       std::vector<reco::SuperCluster> superCluster_;
       // MC info
       std::vector<reco::Particle> genPhoton_;
-      // quality variables
-      float photonID_;
+      // holder for a reco::PhotonID object
+      std::vector<reco::PhotonID> photonID_;
       // --- Isolation and IsoDeposit related datamebers ---
       typedef std::vector<std::pair<IsolationKeys, pat::IsoDeposit> > IsoDepositPairs;
       IsoDepositPairs    isoDeposits_;
       std::vector<float> isolations_;
+
+      const reco::PhotonID & photonIDOrThrow() const {
+        if (photonID_.empty()) throw cms::Exception("Missing Data") << "This pat::Photon doesn't include a reco::PhotonID.\n";
+        return photonID_[0];
+      }
 
   };
 

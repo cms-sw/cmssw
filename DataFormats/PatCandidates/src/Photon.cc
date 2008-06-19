@@ -1,5 +1,5 @@
 //
-// $Id: Photon.cc,v 1.11.2.1 2008/06/03 20:08:24 gpetrucc Exp $
+// $Id: Photon.cc,v 1.12 2008/06/03 22:28:07 gpetrucc Exp $
 //
 
 #include "DataFormats/PatCandidates/interface/Photon.h"
@@ -11,8 +11,7 @@ using pat::Photon;
 /// default constructor
 Photon::Photon() :
     PATObject<PhotonType>(PhotonType()),
-    embeddedSuperCluster_(false),
-    photonID_(-1.0) 
+    embeddedSuperCluster_(false)
 {
 }
 
@@ -20,24 +19,21 @@ Photon::Photon() :
 /// constructor from PhotonType
 Photon::Photon(const PhotonType & aPhoton) :
     PATObject<PhotonType>(aPhoton),
-    embeddedSuperCluster_(false),
-    photonID_(-1.0) 
+    embeddedSuperCluster_(false)
 {
 }
 
 /// constructor from ref to PhotonType
 Photon::Photon(const edm::RefToBase<PhotonType> & aPhotonRef) :
     PATObject<PhotonType>(aPhotonRef),
-    embeddedSuperCluster_(false),
-    photonID_(-1.0) 
+    embeddedSuperCluster_(false)
 {
 }
 
 /// constructor from ref to PhotonType
 Photon::Photon(const edm::Ptr<PhotonType> & aPhotonRef) :
     PATObject<PhotonType>(aPhotonRef),
-    embeddedSuperCluster_(false),
-    photonID_(-1.0) 
+    embeddedSuperCluster_(false)
 {
 }
 

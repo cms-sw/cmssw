@@ -191,6 +191,7 @@ namespace {
     std::pair<pat::IsolationKeys,reco::IsoDeposit> rbh4unknown;
 
     edm::Wrapper<edm::ValueMap<edm::Ptr<reco::BaseTagInfo> > > wbti;
+    edm::Wrapper<edm::ValueMap<reco::PhotonID> > VMphId;
 
     }
 }
