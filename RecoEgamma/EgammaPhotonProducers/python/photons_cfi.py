@@ -28,8 +28,13 @@ photons = cms.EDProducer("PhotonProducer",
     hOverEConeSize = cms.double(0.1),
     posCalc_x0 = cms.double(0.89),
     MVA_weights_location = cms.string('RecoEgamma/EgammaTools/data/TMVAnalysis_Likelihood.weights.txt'),
-    posCalc_t0_barl = cms.double(7.7)
-                           
+    posCalc_t0_barl = cms.double(7.7),
+    minEtRecHit = cms.double(0.),
+    ecalIsolInnR = cms.double(0.1),
+    ecalIsolExtR = cms.double(0.4),
+    isolEtCut = cms.double(5.)
+                          
+   
 )
 
 
