@@ -3,9 +3,9 @@
 /** \class PhotonProducer
  **  
  **
- **  $Id: PhotonProducer.h,v 1.19 2008/05/06 19:24:19 nancy Exp $ 
- **  $Date: 2008/05/06 19:24:19 $ 
- **  $Revision: 1.19 $
+ **  $Id: PhotonProducer.h,v 1.20 2008/05/07 03:48:06 nancy Exp $ 
+ **  $Date: 2008/05/07 03:48:06 $ 
+ **  $Revision: 1.20 $
  **  \author Nancy Marinelli, U. of Notre Dame, US
  **
  ***/
@@ -86,6 +86,11 @@ class PhotonProducer : public edm::EDProducer {
   bool usePrimaryVertex_;
   bool risolveAmbiguity_;
   edm::ParameterSet conf_;
+
+  double extRadius_;
+  double innRadius_;
+  double minEtRecHit_;
+  double isolEtCut_;
 
   PositionCalc posCalculator_;
   std::string likelihoodWeights_;
