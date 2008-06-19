@@ -8,7 +8,7 @@
 //
 // Original Author:  
 //         Created:  Mon Dec  3 08:38:38 PST 2007
-// $Id: FWDisplayEvent.cc,v 1.49 2008/06/16 18:32:43 dmytro Exp $
+// $Id: FWDisplayEvent.cc,v 1.50 2008/06/17 00:08:11 chrjones Exp $
 //
 
 // system include files
@@ -119,9 +119,10 @@ FWDisplayEvent::FWDisplayEvent(const std::string& iConfigFileName,
   if(iConfigFileName.empty() ) {
      std::cout << "WARNING: no configuration is loaded." << std::endl;
      m_configFileName = "newconfig.fwc";
-    m_guiManager->createView("Rho Phi");
     m_guiManager->createView("Rho Z");
+    m_guiManager->createView("Glimpse");
     m_guiManager->createView("3D Lego");
+    m_guiManager->createView("Rho Phi");
   } else {
     std::string configFileName(iConfigFileName);
     char* whereConfig = gSystem->Which(TROOT::GetMacroPath(), configFileName.c_str(), kReadPermission);

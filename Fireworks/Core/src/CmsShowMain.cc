@@ -8,7 +8,7 @@
 //
 // Original Author:  
 //         Created:  Mon Dec  3 08:38:38 PST 2007
-// $Id: CmsShowMain.cc,v 1.1 2008/06/17 00:08:11 chrjones Exp $
+// $Id: CmsShowMain.cc,v 1.2 2008/06/18 15:18:11 chrjones Exp $
 //
 
 // system include files
@@ -41,6 +41,7 @@
 #include "Fireworks/Core/src/CmsShowMain.h"
 #include "Fireworks/Core/interface/FWRhoPhiZViewManager.h"
 #include "Fireworks/Core/interface/FWEveLegoViewManager.h"
+#include "Fireworks/Core/interface/FWGlimpseViewManager.h"
 #include "Fireworks/Core/interface/FWEventItemsManager.h"
 #include "Fireworks/Core/interface/FWViewManagerManager.h"
 #include "Fireworks/Core/interface/FWGUIManager.h"
@@ -170,12 +171,15 @@ CmsShowMain::CmsShowMain(int argc, char *argv[]) :
 
   m_viewManager->add( boost::shared_ptr<FWViewManagerBase>( new FWEveLegoViewManager(m_guiManager.get()) ) );
    
+  m_viewManager->add( boost::shared_ptr<FWViewManagerBase>( new FWGlimpseViewManager(m_guiManager.get()) ) );
+   
   if(m_configFileName.empty() ) {
     std::cout << "WARNING: no configuration is loaded." << std::endl;
     m_configFileName = "newconfig.fwc";
     m_guiManager->createView("Rho Phi");
     m_guiManager->createView("Rho Z");
     m_guiManager->createView("3D Lego");
+    m_guiManager->createView("Glimpse");
 
    FWPhysicsObjectDesc ecal("ECal",
                             TClass::GetClass("CaloTowerCollection"),
