@@ -3,7 +3,6 @@ import FWCore.ParameterSet.Config as cms
 #
 # Tracker Local Reco
 # Initialize magnetic field
-from MagneticField.Engine.volumeBasedMagneticField_cfi import *
 from Geometry.CMSCommonData.cmsIdealGeometryXML_cfi import *
 #
 from Geometry.TrackerGeometryBuilder.trackerGeometry_cfi import *

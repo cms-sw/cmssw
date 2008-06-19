@@ -2,7 +2,6 @@ import FWCore.ParameterSet.Config as cms
 
 # Magnetic Field
 #
-from MagneticField.Engine.volumeBasedMagneticField_cfi import *
 from SimGeneral.HepPDTESSource.pythiapdt_cfi import *
 # Geant4-based CMS Det.Simulation
 #

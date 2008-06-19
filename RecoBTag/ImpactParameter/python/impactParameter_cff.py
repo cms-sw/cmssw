@@ -1,7 +1,6 @@
 import FWCore.ParameterSet.Config as cms
 
 from TrackingTools.TransientTrack.TransientTrackBuilder_cfi import *
-from MagneticField.Engine.volumeBasedMagneticField_cfi import *
 from RecoBTag.ImpactParameter.impactParameter_cfi import *
 #tmp fix, use fake/frontier
 #include "RecoBTag/Configuration/data/RecoBTag_FakeConditions.cff"

@@ -4,10 +4,9 @@ import FWCore.ParameterSet.Config as cms
 # create a sequence with all required modules and sources needed to make
 # pixel based electrons
 #
-# $Id: pixelMatchElectronLocalTrkSequence.cff,v 1.2 2006/08/04 16:39:45 rahatlou Exp $
+# $Id: pixelMatchElectronLocalTrkSequence_cff.py,v 1.3 2008/05/19 23:54:04 rpw Exp $
 #
 # initialize magnetic field #########################
-from MagneticField.Engine.volumeBasedMagneticField_cfi import *
 # initialize geometry #####################
 from Geometry.CMSCommonData.cmsIdealGeometryXML_cfi import *
 from Geometry.TrackerGeometryBuilder.trackerGeometry_cfi import *

@@ -1,7 +1,6 @@
 import FWCore.ParameterSet.Config as cms
 
-# $Id: sisCone5JTA.cff,v 1.1 2007/10/26 22:26:03 fedor Exp $
-from MagneticField.Engine.volumeBasedMagneticField_cfi import *
+# $Id: sisCone5JTA_cff.py,v 1.2 2008/04/21 03:27:52 rpw Exp $
 from TrackPropagation.SteppingHelixPropagator.SteppingHelixPropagatorAlong_cfi import * ##propagator
 
 from RecoJets.JetAssociationProducers.j2tParametersCALO_cfi import *

@@ -1,2 +1,1 @@
-include "MagneticField/Engine/data/volumeBasedMagneticField.cfi"
 include "RecoPixelVZero/PixelVZeroFinding/data/PixelVZeros.cfi"

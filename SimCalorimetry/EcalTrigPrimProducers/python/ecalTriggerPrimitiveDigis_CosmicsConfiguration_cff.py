@@ -1,7 +1,6 @@
 import FWCore.ParameterSet.Config as cms
 
 # TP Emulator Producer:
-from MagneticField.Engine.volumeBasedMagneticField_cfi import *
 from CalibCalorimetry.Configuration.Ecal_FakeConditions_cff import *
 # Sources of record
 tpparams = cms.ESSource("EmptyESSource",

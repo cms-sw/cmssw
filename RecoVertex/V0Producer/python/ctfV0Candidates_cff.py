@@ -1,7 +1,6 @@
 import FWCore.ParameterSet.Config as cms
 
 # magnetic field
-from MagneticField.Engine.volumeBasedMagneticField_cfi import *
 # tracker geometry
 from Geometry.CMSCommonData.cmsIdealGeometryXML_cfi import *
 # global tracker geometry

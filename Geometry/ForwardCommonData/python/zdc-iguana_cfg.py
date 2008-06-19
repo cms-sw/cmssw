@@ -35,7 +35,6 @@ process = cms.Process("IGUANA")
 process.load("Geometry.ForwardCommonData.iguanaZdcTestConfiguration_cfi")
 
 #Magnetic Field
-process.load("MagneticField.Engine.volumeBasedMagneticField_cfi")
 
 process.VisConfigurationService = cms.Service("VisConfigurationService",
     Views = cms.untracked.vstring('3D Window'),

@@ -1,6 +1,6 @@
 import FWCore.ParameterSet.Config as cms
 
-# $Id: pixelMatchElectronL1NonIsoSequenceForHLT.cff,v 1.6 2008/03/22 12:32:51 dkcira Exp $
+# $Id: pixelMatchElectronL1NonIsoSequenceForHLT_cff.py,v 1.2 2008/04/21 03:26:04 rpw Exp $
 # create a sequence with all required modules and sources needed to make
 # pixel based electrons
 #
@@ -8,7 +8,6 @@ import FWCore.ParameterSet.Config as cms
 #
 #
 # initialize magnetic field #########################
-from MagneticField.Engine.volumeBasedMagneticField_cfi import *
 # initialize geometry #####################
 from Geometry.CMSCommonData.cmsIdealGeometryXML_cfi import *
 from Geometry.TrackerGeometryBuilder.trackerGeometry_cfi import *

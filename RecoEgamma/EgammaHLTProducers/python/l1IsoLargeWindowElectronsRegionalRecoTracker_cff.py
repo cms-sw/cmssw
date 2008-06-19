@@ -15,7 +15,6 @@ l1IsoLargeWindowElectronsRegionalCkfTrackCandidates = copy.deepcopy(ckfTrackCand
 #-------------------------------------------------------------------	
 # generate CTF track candidates
 # magnetic field
-from MagneticField.Engine.volumeBasedMagneticField_cfi import *
 # cms geometry
 from Geometry.CMSCommonData.cmsIdealGeometryXML_cfi import *
 # tracker geometry

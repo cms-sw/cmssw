@@ -4,7 +4,6 @@ import FWCore.ParameterSet.Config as cms
 # MuonCalIsolationProducer
 # -> isolation of muons against the sum of transverse energy depositions in the calorimeter 
 #   
-from MagneticField.Engine.volumeBasedMagneticField_cfi import *
 MuonCalIsolation = cms.EDProducer("MuonCalIsolationProducer",
     #
     # Source and Swarm collection
