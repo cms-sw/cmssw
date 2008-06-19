@@ -14,8 +14,7 @@
 #include "CondFormats/DataRecord/interface/L1RCTParametersRcd.h"
 #include "CondFormats/L1TObjects/interface/L1RCTChannelMask.h"
 #include "CondFormats/DataRecord/interface/L1RCTChannelMaskRcd.h"
-
-#include "CalibCalorimetry/EcalTPGTools/interface/EcalTPGScale.h"
+#include "CondFormats/EcalObjects/interface/EcalTPGScale.h"
 
 #include "L1Trigger/RegionalCaloTrigger/interface/L1RCT.h"
 #include "L1Trigger/RegionalCaloTrigger/interface/L1RCTLookupTables.h" 

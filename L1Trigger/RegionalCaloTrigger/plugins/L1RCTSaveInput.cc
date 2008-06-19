@@ -27,7 +27,7 @@ using std::endl;
 #include "CondFormats/L1TObjects/interface/L1CaloEtScale.h"
 #include "CondFormats/DataRecord/interface/L1EmEtScaleRcd.h"
 
-#include "CalibCalorimetry/EcalTPGTools/interface/EcalTPGScale.h"
+#include "CondFormats/EcalObjects/interface/EcalTPGScale.h"
 
 #include "CondFormats/L1TObjects/interface/L1RCTParameters.h"
 #include "CondFormats/DataRecord/interface/L1RCTParametersRcd.h"
