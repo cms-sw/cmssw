@@ -50,7 +50,7 @@ public:
     : enabled_(true),
       doStats_(true),
       cacheHint_("auto-detect"),
-      readHint_("auto")
+      readHint_("auto-detect")
   {
     if (! (enabled_ = p.getUntrackedParameter<bool> ("enable", enabled_)))
       return;
