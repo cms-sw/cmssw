@@ -1,5 +1,5 @@
 //
-// $Id: PATPhotonProducer.cc,v 1.7 2008/06/03 22:37:04 gpetrucc Exp $
+// $Id: PATPhotonProducer.cc,v 1.8 2008/06/08 12:24:03 vadler Exp $
 //
 
 #include "PhysicsTools/PatAlgos/plugins/PATPhotonProducer.h"
@@ -18,6 +18,10 @@ PATPhotonProducer::PATPhotonProducer(const edm::ParameterSet & iConfig) :
   // initialize the configurables
   photonSrc_         = iConfig.getParameter<edm::InputTag>("photonSource");
   embedSuperCluster_ = iConfig.getParameter<bool>         ("embedSuperCluster");
+
+  // photon ID configurables
+  addPhotonID_       = iConfig.getParameter<bool>         ("addPhotonID");
+  photonIDSrc_       = iConfig.getParameter<edm::InputTag>("photonIDSource");
 
    // MC matching configurables
   addGenMatch_       = iConfig.getParameter<bool>         ( "addGenMatch" );
@@ -61,6 +65,12 @@ void PATPhotonProducer::produce(edm::Event & iEvent, const edm::EventSetup & iSe
     iEvent.getByLabel(genMatchSrc_, genMatch);
   }
 
+  // prepare the PhotonID
+  edm::Handle<edm::ValueMap<reco::PhotonID> > photonID;
+  if (addPhotonID_) {
+    iEvent.getByLabel(photonIDSrc_, photonID);
+  }
+
   if (isolator_.enabled()) isolator_.beginEvent(iEvent);
 
   std::vector<edm::Handle<edm::ValueMap<IsoDeposit> > > deposits(isoDepositLabels_.size());
@@ -95,6 +105,11 @@ void PATPhotonProducer::produce(edm::Event & iEvent, const edm::EventSetup & iSe
           aPhoton.addTriggerMatch(*trigPrim);
         }
       }
+    }
+
+    // PhotonID
+    if (addPhotonID_) {
+        aPhoton.setPhotonID( (*photonID)[photonRef] );
     }
 
     // here comes the extra functionality

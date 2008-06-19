@@ -1,5 +1,5 @@
 //
-// $Id: PATPhotonProducer.h,v 1.6 2008/06/03 22:37:04 gpetrucc Exp $
+// $Id: PATPhotonProducer.h,v 1.7 2008/06/08 12:24:03 vadler Exp $
 //
 
 #ifndef PhysicsTools_PatAlgos_PATPhotonProducer_h
@@ -13,7 +13,7 @@
    a collection of objects of PhotonType.
 
   \author   Steven Lowette
-  \version  $Id: PATPhotonProducer.h,v 1.6 2008/06/03 22:37:04 gpetrucc Exp $
+  \version  $Id: PATPhotonProducer.h,v 1.7 2008/06/08 12:24:03 vadler Exp $
 */
 
 
@@ -54,6 +54,9 @@ namespace pat {
 
       bool addTrigMatch_;
       std::vector<edm::InputTag> trigMatchSrc_;
+
+      bool addPhotonID_;
+      edm::InputTag photonIDSrc_;
 
       // tools
       GreaterByEt<Photon> eTComparator_;
