@@ -66,13 +66,14 @@ process.FEVT = cms.OutputModule("PoolOutputModule",
 )
 
 process.configurationMetadata = cms.untracked.PSet(
-    version = cms.untracked.string('$Revision: 1.20 $'),
-    name = cms.untracked.string('$Source: /cvs_server/repositories/CMSSW/CMSSW/Configuration/GlobalRuns/data/recoT0DQM_EvContent.cfg,v $'),
+    version = cms.untracked.string('$Revision: 1.1 $'),
+    name = cms.untracked.string('$Source: /cvs_server/repositories/CMSSW/CMSSW/Configuration/GlobalRuns/python/recoT0DQM_EvContent_cfg.py,v $'),
     annotation = cms.untracked.string('CRUZET Prompt Reco with DQM')
 )
 process.options = cms.untracked.PSet( wantSummary = cms.untracked.bool(True) ) ## default is false
 
-process.GlobalTag.globaltag = 'IDEAL_V1::All'
+process.GlobalTag.connect = 'sqlite_file:/afs/cern.ch/user/m/malgeri/public/globtag/CRUZET.db'
+process.GlobalTag.globaltag = 'CRUZET2_AR::All'
 process.prefer("GlobalTag")
 
 process.allPath = cms.Path(process.RawToDigi*process.reconstructionCosmics*process.DQMOffline*process.MEtoEDMConverter)
