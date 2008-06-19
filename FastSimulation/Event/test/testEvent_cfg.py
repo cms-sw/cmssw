@@ -14,12 +14,14 @@ process.load("FastSimulation.Configuration.RandomServiceInitialization_cff")
 process.load("DQMServices.Core.DQM_cfg")
 
 # Generate H -> ZZ -> l+l- l'+l'- (l,l'=e or mu), with mH=180GeV/c2
-# include "FastSimulation/Configuration/data/HZZllll.cfi"
-#    include "FastSimulation/Configuration/data/QCDpt600-800.cfi"
+#process.load("FastSimulation.Configuration.HZZllll_cfi")
+#process.load("FastSimulation.Configuration.QCDpt600-800_cfi")
 
 # Generate muons with a flat pT particle gun, and with pT=10.
 #process.load("FastSimulation.Configuration.FlatPtMuonGun_cfi")
 #process.FlatRandomPtGunSource.PGunParameters.PartID = [211]
+
+# Generate di-taus with a PYTHIA particle gun
 process.load("FastSimulation.Configuration.PythiaTauGun_cfi")
 
 process.test = cms.EDFilter("testEvent",

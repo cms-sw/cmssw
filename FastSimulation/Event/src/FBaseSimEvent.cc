@@ -422,10 +422,22 @@ FBaseSimEvent::addParticles(const HepMC::GenEvent& myGenEvent) {
 
   // Primary vertex (already smeared by the SmearedVtx module)
   HepMC::GenVertex* primaryVertex = *(myGenEvent.vertices_begin());
+
+  // Beginning of workaround a bug in pythia particle gun
+  unsigned primaryMother = primaryVertex->particles_in_size();
+  if ( primaryMother ) {
+    unsigned partId = (*(primaryVertex->particles_in_const_begin()))->pdg_id();
+    if ( abs(partId) == 2212 ) primaryMother = 0;
+  }
+  // End of workaround a bug in pythia particle gun
+
   XYZTLorentzVector primaryVertexPosition(primaryVertex->position().x()/10.,
 					  primaryVertex->position().y()/10.,
 					  primaryVertex->position().z()/10.,
 					  primaryVertex->position().t()/10.);
+  // Actually this is the true end of the workaround
+  primaryVertexPosition *= (1-primaryMother);
+  // THE END.
 
   // Smear the main vertex if needed
   // Now takes the origin from the database
