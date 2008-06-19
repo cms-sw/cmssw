@@ -40,6 +40,7 @@
  <use name=TrackingTools/TrajectoryState>
  <use name=FWCore/ServiceRegistry>
  <use name=PhysicsTools/UtilAlgos>
+ <use name=FWCore/MessageLogger>
  <use name=root>
  <flags EDM_PLUGIN=1>
 </library>

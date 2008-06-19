@@ -13,7 +13,7 @@
 //
 // Original Author:  Jim Pivarski
 //         Created:  Wed Dec 12 13:31:55 CST 2007
-// $Id: MuonHIPOverlapsOneSideRefitter.cc,v 1.1 2008/06/16 15:46:41 pivarski Exp $
+// $Id: MuonHIPOverlapsOneSideRefitter.cc,v 1.2 2008/06/16 15:53:55 pivarski Exp $
 //
 //
 
@@ -28,6 +28,7 @@
 #include "FWCore/Framework/interface/ESHandle.h"
 #include "FWCore/Framework/interface/MakerMacros.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
+#include "FWCore/MessageLogger/interface/MessageLogger.h"
 
 // references
 #include "DataFormats/TrackReco/interface/Track.h"
@@ -281,7 +282,11 @@ MuonHIPOverlapsOneSideRefitter::filter(edm::Event& iEvent, const edm::EventSetup
 	       DetId id = (*hit)->geographicalId();
 
 	       TrajectoryMeasurement::ConstRecHitPointer hitPtr(muonTransBuilder.build(&**hit, globalGeometry));
-	       transHits.push_back(hitPtr);
+
+	       // must be synchronized with clonedHits and TSOSes (see below)
+	       if (m_plusIsReference != onPlusSide(*hit, &*dtGeometry, &*cscGeometry)) {
+		  transHits.push_back(hitPtr);
+	       }
 
 	       LocalPoint localPoint = (*hit)->localPosition();
 	       double sigma_xx, sigma_xy, sigma_yy;
@@ -377,7 +382,9 @@ MuonHIPOverlapsOneSideRefitter::filter(edm::Event& iEvent, const edm::EventSetup
 	    double c = (-SzzXY*(SyzXY*(SXX*SYY - pow(SXY,2)) + SxzXX*(SXX*SYY - pow(SXY,2)) + SzXX*(-SyXY*SYY - SxXX*SYY + (SyYY + SxXY)*SXY) + SzXY*((SyXY + SxXX)*SXY + (-SyYY - SxXY)*SXX)) - SzzXX*(SXX*(-SyzYY*SYY - SxzXY*SYY + (SyYY + SxXY)*SzYY) + SzXY*(SyXY*SYY + SxXX*SYY + (-SyYY - SxXY)*SXY) + (SyzYY + SxzXY)*pow(SXY,2) + (-SyXY*SzYY - SxXX*SzYY)*SXY) - SzXY*(SzXX*(-SyzXY*SYY - SxzXX*SYY + (-2*SyzYY - 2*SxzXY)*SXY + SyXY*SzYY + SxXX*SzYY) - SyzXY*SzYY*SXX - SxzXX*SzYY*SXX) - pow(SzXX,2)*(SyzYY*SYY + SxzXY*SYY + (-SyYY - SxXY)*SzYY) - SzXX*(SyzXY*SzYY*SXY + SxzXX*SzYY*SXY) - pow(SzXY,2)*(SyzXY*SXY + SxzXX*SXY + (SyzYY + SxzXY)*SXX + (SyYY + SxXY)*SzXX) - (-SyXY - SxXX)*pow(SzXY,3))/denom;
 	    double d = (SzzXX*(SzXY*((SyzYY + SxzXY)*SXY + SyXY*SzYY + SxXX*SzYY) + (-SyXY*SzzYY - SxXX*SzzYY)*SXY + ((SyYY + SxXY)*SzzYY + (-SyzYY - SxzXY)*SzYY)*SXX + (-SyYY - SxXY)*pow(SzXY,2)) + SzzXY*(SzXX*((-SyzYY - SxzXY)*SXY - SyXY*SzYY - SxXX*SzYY) + SzXY*(-SyzXY*SXY - SxzXX*SXY + (SyzYY + SxzXY)*SXX + (2*SyYY + 2*SxXY)*SzXX) + SyzXY*SzYY*SXX + SxzXX*SzYY*SXX + (-SyXY - SxXX)*pow(SzXY,2)) + SzXX*(SyzXY*SzzYY*SXY + SxzXX*SzzYY*SXY) + pow(SzzXY,2)*((SyXY + SxXX)*SXY + (-SyYY - SxXY)*SXX) + SzXY*(-SyzXY*SzzYY*SXX - SxzXX*SzzYY*SXX + SzXX*(SyXY*SzzYY + SxXX*SzzYY - SyzXY*SzYY - SxzXX*SzYY)) + pow(SzXX,2)*((-SyYY - SxXY)*SzzYY + (SyzYY + SxzXY)*SzYY) + (SyzXY + SxzXX)*pow(SzXY,3) + (-SyzYY - SxzXY)*SzXX*pow(SzXY,2))/denom;
 
-	    GlobalVector momentum = chamberSurface->toGlobal(LocalVector(a, c, 1.) / sqrt(pow(a,2) + pow(c,2) + 1.) * track->p());
+	    double p = track->p();
+	    if (p < 1e-5) p = 1.;
+	    GlobalVector momentum = chamberSurface->toGlobal(LocalVector(a, c, 1.) / sqrt(pow(a,2) + pow(c,2) + 1.) * p);
 
 	    double chi2 = 0.;
 	    int dof = 0;
@@ -419,7 +426,9 @@ MuonHIPOverlapsOneSideRefitter::filter(edm::Event& iEvent, const edm::EventSetup
 	       XX = listXX.begin();
 	       XY = listXY.begin();
 	       YY = listYY.begin();
-	       for (;  hit != station->end();  ++hit, ++xi, ++yi, ++zi, ++XX, ++XY, ++YY) {
+	       std::vector<TrajectoryMeasurement::ConstRecHitPointer>::const_iterator transHitPtr = transHits.begin();
+	       for (;  hit != station->end();  ++hit, ++xi, ++yi, ++zi, ++XX, ++XY, ++YY, ++transHitPtr) {
+		  // must be synchronized with transHits (see above)
 		  if (m_plusIsReference != onPlusSide(*hit, &*dtGeometry, &*cscGeometry)) {
 		     double x = a * (*zi) + b;
 		     double y = c * (*zi) + d;
@@ -499,7 +508,7 @@ MuonHIPOverlapsOneSideRefitter::beginJob(const edm::EventSetup&)
 // ------------ method called once each job just after ending the event loop  ------------
 void 
 MuonHIPOverlapsOneSideRefitter::endJob() {
-   std::cout << "MuonHIPOverlapsOneSideRefitter: total_events " << m_total_events << " passing_cuts " << m_passing_cuts << std::endl;
+   edm::LogSystem("MuonHIPOverlapsOneSideRefitter") << "MuonHIPOverlapsOneSideRefitter: total_events " << m_total_events << " passing_cuts " << m_passing_cuts << std::endl;
 
 }
 
