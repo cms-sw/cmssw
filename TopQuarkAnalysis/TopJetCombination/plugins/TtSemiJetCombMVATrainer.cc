@@ -13,10 +13,11 @@
 #include "DataFormats/PatCandidates/interface/Jet.h"
 
 TtSemiJetCombMVATrainer::TtSemiJetCombMVATrainer(const edm::ParameterSet& cfg):
-  leptons_ (cfg.getParameter<edm::InputTag>("leptons")),
-  jets_    (cfg.getParameter<edm::InputTag>("jets")),
-  matching_(cfg.getParameter<edm::InputTag>("matching")),
-  nJetsMax_(cfg.getParameter<int>("nJetsMax"))
+  leptons_   (cfg.getParameter<edm::InputTag>("leptons")),
+  jets_      (cfg.getParameter<edm::InputTag>("jets")),
+  matching_  (cfg.getParameter<edm::InputTag>("matching")),
+  nJetsMax_  (cfg.getParameter<int>("nJetsMax")),
+  lepChannel_(cfg.getParameter<int>("lepChannel"))
 {
 }
 
@@ -33,24 +34,32 @@ TtSemiJetCombMVATrainer::analyze(const edm::Event& evt, const edm::EventSetup& s
   // MVATrainer is about to save the result
   if(!mvaComputer) return;
 
+  edm::Handle<TtGenEvent> genEvt;
+  evt.getByLabel("genEvt", genEvt);
+
   edm::Handle< edm::View<reco::RecoCandidate> > leptons; 
   evt.getByLabel(leptons_, leptons);
 
   edm::Handle< std::vector<pat::Jet> > jets;
   evt.getByLabel(jets_, jets);
 
-  edm::Handle< std::vector<int> > matching;
-  evt.getByLabel(matching_, matching);
-
-  // skip events that were affected by the outlier 
-  // rejection in the jet-parton matching
-  if( std::count(matching->begin(), matching->end(), -1)>0 )
-    return;
-
   // skip events with no appropriate lepton candidate in
   if( leptons->empty() ) return;
 
   math::XYZTLorentzVector lepton = leptons->begin()->p4();
+
+  // skip events with less jets than partons
+  if( jets->size() < 4 ) return;
+
+  edm::Handle< std::vector<int> > matching;
+  // get jet-parton matching if signal channel
+  if(genEvt->semiLeptonicChannel() == lepChannel_) {
+    evt.getByLabel(matching_, matching);
+    // skip events that were affected by the outlier 
+    // rejection in the jet-parton matching
+    if( std::count(matching->begin(), matching->end(), -1)>0 )
+      return;
+  }
 
   // analyze true and false jet combinations
   std::vector<int> jetIndices;
@@ -60,30 +69,41 @@ TtSemiJetCombMVATrainer::analyze(const edm::Event& evt, const edm::EventSetup& s
   }
 
   std::vector<int> combi;
-  for(unsigned int i=0; i<matching->size(); ++i) 
+  for(unsigned int i = 0; i < 4; ++i) 
     combi.push_back(i);
 
   do{
-    for(int cnt=0; cnt<TMath::Factorial( matching->size() ); ++cnt){
+    // number of possible combinations from number of partons: 4! = 24
+    for(unsigned int cnt = 0; cnt < 24 ; ++cnt) {
+      
+      // take into account indistinguishability of the two jets from the hadr. W decay,
+      // reduces combinatorics by a factor of 2
       if(combi[TtSemiEvtPartons::LightQ] < combi[TtSemiEvtPartons::LightQBar]) {  
-	// take into account indistinguishability 
-	// of the two jets from the hadr. W decay,
-	// reduces combinatorics by a factor of 2
+	
 	TtSemiJetComb jetComb(*jets, combi, lepton);
-
+	
 	bool trueCombi = true;
-	for(unsigned int i=0; i<matching->size(); ++i){
-	  if(combi[i] != (*(matching))[i]) {
-	    trueCombi = false;
-	    break;
+	if(genEvt->semiLeptonicChannel() == lepChannel_) {
+	  for(unsigned int i = 0; i < matching->size(); ++i){
+	    if(combi[i] != (*(matching))[i]) {
+	      // not a true combination if different from matching
+	      trueCombi = false;
+	      break;
+	    }
 	  }
 	}
+	// no true combinations if not signal channel
+	else trueCombi = false;
+	
 	evaluateTtSemiJetComb(mvaComputer, jetComb, true, trueCombi);
+
       }
+
       next_permutation( combi.begin() , combi.end() );
-    }    
+    }
   }
   while(stdcomb::next_combination( jetIndices.begin(), jetIndices.end(), combi.begin(), combi.end() ));
+
 }
 
 // implement the plugins for the trainer
