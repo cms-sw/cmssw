@@ -57,13 +57,6 @@ EcalDigiProducer::EcalDigiProducer(const edm::ParameterSet& params)
   theEcalResponse = new CaloHitResponse(theParameterMap, theEcalShape);
   theESResponse = new CaloHitResponse(theParameterMap, theESShape);
 
-  // further phase for cosmics studies
-  cosmicsPhase = params.getParameter<bool>("cosmicsPhase");
-  cosmicsShift = params.getParameter<double>("cosmicsShift");
-  if (cosmicsPhase) {
-    theEcalResponse->setPhaseShift(1.+cosmicsShift);
-  }
-
   EcalCorrMatrix thisMatrix;
 
   std::vector<double> corrNoiseMatrix = params.getParameter< std::vector<double> >("CorrelatedNoiseMatrix");
@@ -135,7 +128,7 @@ EcalDigiProducer::~EcalDigiProducer()
 
 void EcalDigiProducer::produce(edm::Event& event, const edm::EventSetup& eventSetup) 
 {
-  
+
   // Step A: Get Inputs
 
   checkGeometry(eventSetup);
@@ -191,11 +184,11 @@ void EcalDigiProducer::produce(edm::Event& event, const edm::EventSetup& eventSe
   std::auto_ptr<ESDigiCollection> preshowerResult(new ESDigiCollection());
 
   // run the algorithm
- 
+
   CaloDigiCollectionSorter sorter(5);
 
   if ( isEB ) {
- 
+
     std::auto_ptr<MixCollection<PCaloHit> >  barrelHits( EBHits );
     theBarrelDigitizer->run(*barrelHits, *barrelResult);
     edm::LogInfo("DigiInfo") << "EB Digis: " << barrelResult->size();

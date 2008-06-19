@@ -4,13 +4,12 @@ from SimCalorimetry.EcalSimProducers.ecalSimParameterMap_cff import *
 from SimCalorimetry.EcalSimProducers.ecalElectronicsSim_cff import *
 from SimCalorimetry.EcalSimProducers.esElectronicsSim_cff import *
 from SimCalorimetry.EcalSimProducers.ecalNotContainmentSim_cff import *
-from SimCalorimetry.EcalSimProducers.ecalCosmicsSim_cff import *
-ecalUnsuppressedDigis = cms.EDProducer("EcalDigiProducer",
+simEcalUnsuppressedDigis = cms.EDProducer("EcalDigiProducer",
     ecal_electronics_sim,
-    ecal_cosmics_sim,
     ecal_sim_parameter_map,
     ecal_notCont_sim,
     es_electronics_sim,
+    hitsProducer = cms.string('g4SimHits'),
     EEdigiCollection = cms.string(''),
     EBdigiCollection = cms.string(''),
     ESdigiCollection = cms.string(''),
@@ -45,6 +44,5 @@ ecalUnsuppressedDigis = cms.EDProducer("EcalDigiProducer",
         0.0, 0.0, 0.0, 0.0, 0.0, 
         0.0, 0.0, 0.0, 0.0, 1.0)
 )
-
 
 
