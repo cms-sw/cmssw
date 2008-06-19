@@ -123,7 +123,7 @@ BxTiming::beginJob(const edm::EventSetup&) {
       lbl.clear();lbl+=SysLabel[i];lbl+="FedBxDiff"; 
       int nfeds = fedRange_[i].second - fedRange_[i].first + 1;
       nfeds = (nfeds>0)? nfeds:1;
-      hBxDiffSysFed[i] = dbe->bookProfile(lbl.data(),lbl.data(), nfeds + 1, 
+      hBxDiffSysFed[i] = dbe->bookProfile(lbl.data(),lbl.data(), nfeds, 
 					  fedRange_[i].first-0.5, fedRange_[i].second+0.5,
 					  2*dbx+1,-1*dbx-0.5,dbx+0.5);
     }
@@ -271,7 +271,7 @@ BxTiming::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup) {
 
   // triggerType
   //trigger types: physics (1), calibration (2), random (3), traced physics (5),  test (6) 
-  int ttype = FEDHeader(rawdata->FEDData(813).data()).triggerType();
+  int ttype = FEDHeader(rawdata->FEDData(812).data()).triggerType();
 
   // loop over feds
   for (int i = 0; i<FEDNumbering::lastFEDId(); i++){
