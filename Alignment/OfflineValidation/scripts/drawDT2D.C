@@ -11,50 +11,50 @@ mycanvas->Update();
 mycanvas->cd(1);
 
 nameOfHisto= "hprofLocalPositionDT";
-TH2F * h = (TH2F*) gROOT->FindObject(nameOfHisto);
+TH2F * h2 = (TH2F*) gROOT->FindObject(nameOfHisto);
 
 h->Draw("COLZ");
 
 mycanvas->cd(2);
 
 nameOfHisto= "hprofGlobalPositionDT";
-h = (TH2F*) gROOT->FindObject(nameOfHisto);
+h2 = (TH2F*) gROOT->FindObject(nameOfHisto);
 h->Draw("COLZ");
 
 mycanvas->cd(3);
 
 nameOfHisto= "hprofLocalPositionRmsDT";
-h = (TH2F*) gROOT->FindObject(nameOfHisto);
+h2 = (TH2F*) gROOT->FindObject(nameOfHisto);
 h->Draw("COLZ");
 
 mycanvas->cd(4);
 
 nameOfHisto= "hprofGlobalPositionRmsDT";
-h = (TH2F*) gROOT->FindObject(nameOfHisto);
+h2 = (TH2F*) gROOT->FindObject(nameOfHisto);
 h->Draw("COLZ");
 
 mycanvas->cd(5);
 
 nameOfHisto= "hprofLocalAngleDT";
-h = (TH2F*) gROOT->FindObject(nameOfHisto);
+h2 = (TH2F*) gROOT->FindObject(nameOfHisto);
 h->Draw("COLZ");
 
 mycanvas->cd(6);
 
 nameOfHisto= "hprofGlobalAngleDT";
-h = (TH2F*) gROOT->FindObject(nameOfHisto);
+h2 = (TH2F*) gROOT->FindObject(nameOfHisto);
 h->Draw("COLZ");
 
 mycanvas->cd(7);
 
 nameOfHisto= "hprofLocalAngleRmsDT";
-h = (TH2F*) gROOT->FindObject(nameOfHisto);
+h2 = (TH2F*) gROOT->FindObject(nameOfHisto);
 h->Draw("COLZ");
 
 mycanvas->cd(8);
 
 nameOfHisto= "hprofGlobalAngleRmsDT";
-h = (TH2F*) gROOT->FindObject(nameOfHisto);
+h2 = (TH2F*) gROOT->FindObject(nameOfHisto);
 h->Draw("COLZ");
 
 }
