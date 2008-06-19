@@ -1,8 +1,3 @@
-# The following comments couldn't be translated into the new config version:
-
-#                        siPixelDigis &
-#                        siStripDigis &
-
 import FWCore.ParameterSet.Config as cms
 
 #
@@ -28,6 +23,8 @@ from L1TriggerConfig.L1ScalesProducers.L1MuGMTScalesConfig_cff import *
 from L1TriggerConfig.GctConfigProducers.L1GctConfig_cff import *
 from L1TriggerConfig.L1GtConfigProducers.L1GtConfig_cff import *
 from L1TriggerConfig.GMTConfigProducers.L1MuGMTParametersConfig_cff import *
+from L1TriggerConfig.L1ScalesProducers.L1MuTriggerPtScaleConfig_cff import *
+
 import EventFilter.CSCTFRawToDigi.csctfunpacker_cfi
 #--- CSC TF ---#
 csctfDigis = EventFilter.CSCTFRawToDigi.csctfunpacker_cfi.csctfunpacker.clone()
@@ -63,7 +60,6 @@ import EventFilter.RPCRawToDigi.rpcUnpacker_cfi
 #--- RPC ---#
 muonRPCDigis = EventFilter.RPCRawToDigi.rpcUnpacker_cfi.rpcunpacker.clone()
 RawToDigi = cms.Sequence(csctfDigis+dttfDigis+gctDigis+gtDigis+siPixelDigis+siStripDigis+ecalDigis+ecalPreshowerDigis+hcalDigis+muonCSCDigis+muonDTDigis+muonRPCDigis)
-RawToDigi_woTracker = cms.Sequence(csctfDigis+dttfDigis+gctDigis+gtDigis+ecalDigis+ecalPreshowerDigis+hcalDigis+muonCSCDigis+muonDTDigis+muonRPCDigis)
 gtDigis.DaqGtInputTag = 'source'
 siPixelDigis.InputLabel = 'source'
 siStripDigis.ProductLabel = 'source'
