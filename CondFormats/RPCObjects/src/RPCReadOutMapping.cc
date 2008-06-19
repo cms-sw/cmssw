@@ -148,13 +148,13 @@ RPCReadOutMapping::StripInDetUnit
 //      stripInDU = strip->cmsStripNumber;
         stripInDU = strip->chamberStripNumber;
     } else {
-      edm::LogError("detUnitFrame")<<"problem with stip for febInLB: "<<febInLB
+      LogDebug("detUnitFrame")<<"problem with stip for febInLB: "<<febInLB
                                    <<" strip pin: "<< stripPinInFeb
                                    <<" strip pin: "<< stripPinInFeb
                                    <<" for linkBoard: "<<location.print(3);
     }
   } else {
-    edm::LogError("detUnitFrame")<<"problem with detUnit for febInLB: "<<febInLB
+    LogDebug("detUnitFrame")<<"problem with detUnit for febInLB: "<<febInLB
                                  <<" for linkBoard: "<<location.print(3);
   }
   return std::make_pair(detUnit,stripInDU);

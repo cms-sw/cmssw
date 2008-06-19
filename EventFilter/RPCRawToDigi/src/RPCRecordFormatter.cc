@@ -1,8 +1,8 @@
 /** \file
  * Implementation of class RPCRecordFormatter
  *
- *  $Date: 2008/03/27 13:51:05 $
- *  $Revision: 1.33 $
+ *  $Date: 2008/03/28 07:39:47 $
+ *  $Revision: 1.34 $
  *
  * \author Ilaria Segoni
  */
@@ -102,7 +102,7 @@ int RPCRecordFormatter::recordUnpack(
   if(readoutMapping == 0) return status;
   const LinkBoardSpec* linkBoard = readoutMapping->location(eleIndex);
   if (!linkBoard) {
-    LogError(" ** PROBLEM ** Invalid Linkboard location, skip CD event, ") 
+    LogDebug(" ** PROBLEM ** Invalid Linkboard location, skip CD event, ") 
               << "dccId: "<<eleIndex.dccId
               << "dccInputChannelNum: " <<eleIndex.dccInputChannelNum
               << " tbLinkInputNum: "<<eleIndex.tbLinkInputNum
@@ -120,7 +120,7 @@ int RPCRecordFormatter::recordUnpack(
     uint32_t rawDetId = duFrame.first;
     int geomStrip = duFrame.second;
     if (!rawDetId) {
-      LogError("** PROBLEM ** no rawDetId, skip at lease part of CD data");
+      LogDebug("** PROBLEM ** no rawDetId, skip at lease part of CD data");
       status = 2;
       continue;
     }
