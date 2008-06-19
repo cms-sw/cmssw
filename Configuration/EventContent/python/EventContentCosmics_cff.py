@@ -9,6 +9,8 @@
 #replace FEVTEventContent.outputCommands += RecoEgammaFEVT.outputCommands
 #replace FEVTEventContent.outputCommands += RecoPixelVertexingFEVT.outputCommands
 
+#replace FEVTEventContent.outputCommands += L1TriggerFEVT.outputCommands 
+
 #replace RECOEventContent.outputCommands += TrackingToolsRECO.outputCommands
 
 #replace RECOEventContent.outputCommands += RecoBTauRECO.outputCommands
@@ -28,13 +30,179 @@
 #replace AODEventContent.outputCommands += RecoEgammaAOD.outputCommands
 #replace AODEventContent.outputCommands += RecoParticleFlowAOD.outputCommands
 
-Traceback (most recent call last):
-  File "/afs/cern.ch/cms/sw/ReleaseCandidates/slc4_ia32_gcc345/wed/2.1-wed-02/CMSSW_2_1_X_2008-06-11-0200/src/FWCore/ParameterSet/python/cfg2py.py", line 10, in ?
-    print cmsParse.dumpCff(fileInPath)
-  File "/afs/cern.ch/cms/sw/ReleaseCandidates/slc4_ia32_gcc345/wed/2.1-wed-02/CMSSW_2_1_X_2008-06-11-0200/src/FWCore/ParameterSet/python/parseConfig.py", line 1621, in dumpCff
-    compressedValues = _getCompressedNodes(fileName, 0, values)
-  File "/afs/cern.ch/cms/sw/ReleaseCandidates/slc4_ia32_gcc345/wed/2.1-wed-02/CMSSW_2_1_X_2008-06-11-0200/src/FWCore/ParameterSet/python/parseConfig.py", line 1380, in _getCompressedNodes
-    raise pp.ParseFatalException(s,loc,"the process contains the error \n"+str(e))
-FWCore.ParameterSet.parsecf.pyparsing.ParseFatalException: the process contains the error 
-Unable to find file 'RecoLocalCalo/Configuration/data/RecoLocalCalo_EventContentCosmics.cff' using the search path ${'CMSSW_SEARCH_PATH'} 
-/build/filippo/CMSSW_2_1_X_2008-06-11-0200/src:/build/filippo/CMSSW_2_1_X_2008-06-11-0200/share:/afs/cern.ch/cms/sw/ReleaseCandidates/slc4_ia32_gcc345/wed/2.1-wed-02/CMSSW_2_1_X_2008-06-11-0200/src:/afs/cern.ch/cms/sw/ReleaseCandidates/slc4_ia32_gcc345/wed/2.1-wed-02/CMSSW_2_1_X_2008-06-11-0200/share:/afs/cern.ch/cms/sw/slc4_ia32_gcc345/cms/data-CondCore-SQLiteData/24:/afs/cern.ch/cms/sw/slc4_ia32_gcc345/cms/data-FastSimulation-MaterialEffects/20:/afs/cern.ch/cms/sw/slc4_ia32_gcc345/cms/data-FastSimulation-PileUpProducer/21:/afs/cern.ch/cms/sw/slc4_ia32_gcc345/cms/data-Geometry-CaloTopology/19-cms:/afs/cern.ch/cms/sw/slc4_ia32_gcc345/cms/data-MagneticField-Interpolation/22:/afs/cern.ch/cms/sw/slc4_ia32_gcc345/cms/data-RecoMuon-MuonIdentification/19-cms:/afs/cern.ch/cms/sw/slc4_ia32_gcc345/cms/data-RecoParticleFlow-PFBlockProducer/19-cms:/afs/cern.ch/cms/sw/slc4_ia32_gcc345/cms/data-RecoParticleFlow-PFTracking/22:/afs/cern.ch/cms/sw/slc4_ia32_gcc345/cms/data-RecoTracker-RingESSource/19-cms:/afs/cern.ch/cms/sw/slc4_ia32_gcc345/cms/data-RecoTracker-RoadMapESSource/19-cms:/afs/cern.ch/cms/sw/slc4_ia32_gcc345/cms/data-SimG4CMS-Calo/19-cms:/afs/cern.ch/cms/sw/slc4_ia32_gcc345/cms/data-Validation-EcalDigis/19-cms:/afs/cern.ch/cms/sw/slc4_ia32_gcc345/cms/data-Validation-EcalHits/19-cms:/afs/cern.ch/cms/sw/slc4_ia32_gcc345/cms/data-Validation-EcalRecHits/19-cms:/afs/cern.ch/cms/sw/slc4_ia32_gcc345/cms/data-Validation-Geometry/19-cms:/afs/cern.ch/cms/sw/slc4_ia32_gcc345/cms/data-Validation-HcalHits/19-cms (at char 0), (line:1, col:1)
+import FWCore.ParameterSet.Config as cms
+
+#
+#
+# Event Content definition
+#
+# Data Tiers defined:
+#
+#  FEVT, RECO, AOD: 
+#    include reconstruction content
+#
+#  FEVTSIM, RECOSIM, AODSIM: 
+#    include reconstruction and simulation
+#
+#  FEVTSIMANA, RECOSIMANA, AODSIMANA: 
+#    include reconstruction, simulation and analysis
+#  FEVTSIMDIGIHLTDEBUG FEVTSIMHLTDEBUG
+#
+#  $Id: EventContentCosmics.cff,v 1.1 2008/06/09 08:36:35 arizzi Exp $
+#
+#
+#
+#
+# Recontruction Systems
+#
+#
+from RecoTracker.Configuration.RecoTrackerP5_EventContent_cff import *
+from RecoMuon.Configuration.RecoMuonCosmics_EventContent_cff import *
+from RecoLocalMuon.Configuration.RecoLocalMuonCosmics_EventContent_cff import *
+from RecoEcal.Configuration.RecoEcal_EventContentCosmics_cff import *
+from RecoLocalCalo.Configuration.RecoLocalCalo_EventContentCosmics_cff import *
+from RecoLocalTracker.Configuration.RecoLocalTracker_Cosmics_EventContent_cff import *
+from RecoJets.Configuration.RecoJets_EventContent_cff import *
+from RecoMET.Configuration.RecoMET_EventContent_cff import *
+from L1Trigger.Configuration.L1Trigger_EventContent_cff import *
+from RecoVertex.BeamSpotProducer.BeamSpot_EventContent_cff import *
+from DQMOffline.Configuration.DQMOffline_EventContent_cff import *
+from HLTrigger.Configuration.HLTrigger_EventContent_cff import *
+from GeneratorInterface.Configuration.GeneratorInterface_EventContent_cff import *
+from SimG4Core.Configuration.SimG4Core_EventContent_cff import *
+from SimTracker.Configuration.SimTracker_EventContent_cff import *
+from SimMuon.Configuration.SimMuon_EventContent_cff import *
+from SimCalorimetry.Configuration.SimCalorimetry_EventContent_cff import *
+from SimGeneral.Configuration.SimGeneral_EventContent_cff import *
+from IOMC.RandomEngine.IOMC_EventContent_cff import *
+from EventFilter.Configuration.DigiToRaw_EventContent_cff import *
+#not in GR
+#include "TrackingTools/Configuration/data/TrackingTools_EventContent.cff"
+#include "RecoBTau/Configuration/data/RecoBTau_EventContent.cff"
+#include "RecoBTag/Configuration/data/RecoBTag_EventContent.cff"
+#include "RecoTauTag/Configuration/data/RecoTauTag_EventContent.cff"
+#include "RecoVertex/Configuration/data/RecoVertex_EventContent.cff"
+#include "RecoPixelVertexing/Configuration/data/RecoPixelVertexing_EventContent.cff"
+#include "RecoEgamma/Configuration/data/RecoEgamma_EventContent.cff"
+#include "RecoParticleFlow/Configuration/data/RecoParticleFlow_EventContent.cff"
+#
+# FEVT Data Tier definition
+#
+#
+FEVTEventContent = cms.PSet(
+    outputCommands = cms.untracked.vstring('drop *')
+)
+#replace FEVTEventContent.outputCommands += HLTriggerFEVT.outputCommands 
+#
+#
+# RECO Data Tier definition
+#
+#
+RECOEventContent = cms.PSet(
+    outputCommands = cms.untracked.vstring('drop *')
+)
+#
+#
+# AOD Data Tier definition
+#
+#
+AODEventContent = cms.PSet(
+    outputCommands = cms.untracked.vstring('drop *')
+)
+# RAW only data tier
+RAWEventContent = cms.PSet(
+    outputCommands = cms.untracked.vstring('drop *', 
+        'keep  FEDRawDataCollection_rawDataCollector_*_*', 
+        'keep  FEDRawDataCollection_source_*_*')
+)
+#
+#
+# RAWSIM Data Tier definition
+#
+#
+RAWSIMEventContent = cms.PSet(
+    outputCommands = cms.untracked.vstring('drop *')
+)
+#
+#
+# RECOSIM Data Tier definition
+#
+#
+RECOSIMEventContent = cms.PSet(
+    outputCommands = cms.untracked.vstring('drop *')
+)
+#
+#
+# AODSIM Data Tier definition
+#
+#
+AODSIMEventContent = cms.PSet(
+    outputCommands = cms.untracked.vstring('drop *')
+)
+FEVTEventContent.outputCommands.extend(RecoLocalTrackerFEVT.outputCommands)
+FEVTEventContent.outputCommands.extend(RecoLocalMuonFEVT.outputCommands)
+FEVTEventContent.outputCommands.extend(RecoLocalCaloFEVT.outputCommands)
+FEVTEventContent.outputCommands.extend(RecoEcalFEVT.outputCommands)
+FEVTEventContent.outputCommands.extend(RecoTrackerFEVT.outputCommands)
+FEVTEventContent.outputCommands.extend(RecoJetsFEVT.outputCommands)
+FEVTEventContent.outputCommands.extend(RecoMETFEVT.outputCommands)
+FEVTEventContent.outputCommands.extend(RecoMuonFEVT.outputCommands)
+FEVTEventContent.outputCommands.extend(BeamSpotFEVT.outputCommands)
+FEVTEventContent.outputCommands.extend(MEtoEDMConverterFEVT.outputCommands)
+RECOEventContent.outputCommands.extend(RecoLocalTrackerRECO.outputCommands)
+RECOEventContent.outputCommands.extend(RecoLocalMuonRECO.outputCommands)
+RECOEventContent.outputCommands.extend(RecoLocalCaloRECO.outputCommands)
+RECOEventContent.outputCommands.extend(RecoEcalRECO.outputCommands)
+RECOEventContent.outputCommands.extend(RecoTrackerRECO.outputCommands)
+RECOEventContent.outputCommands.extend(RecoJetsRECO.outputCommands)
+RECOEventContent.outputCommands.extend(RecoMETRECO.outputCommands)
+RECOEventContent.outputCommands.extend(RecoMuonRECO.outputCommands)
+RECOEventContent.outputCommands.extend(BeamSpotRECO.outputCommands)
+RECOEventContent.outputCommands.extend(L1TriggerRECO.outputCommands)
+RECOEventContent.outputCommands.extend(HLTriggerRECO.outputCommands)
+RECOEventContent.outputCommands.extend(MEtoEDMConverterRECO.outputCommands)
+AODEventContent.outputCommands.extend(RecoLocalTrackerAOD.outputCommands)
+AODEventContent.outputCommands.extend(RecoLocalMuonAOD.outputCommands)
+AODEventContent.outputCommands.extend(RecoLocalCaloAOD.outputCommands)
+AODEventContent.outputCommands.extend(RecoEcalAOD.outputCommands)
+AODEventContent.outputCommands.extend(RecoTrackerAOD.outputCommands)
+AODEventContent.outputCommands.extend(RecoJetsAOD.outputCommands)
+AODEventContent.outputCommands.extend(RecoMETAOD.outputCommands)
+AODEventContent.outputCommands.extend(RecoMuonAOD.outputCommands)
+AODEventContent.outputCommands.extend(BeamSpotAOD.outputCommands)
+AODEventContent.outputCommands.extend(MEtoEDMConverterAOD.outputCommands)
+RAWEventContent.outputCommands.extend(L1TriggerRAW.outputCommands)
+RAWEventContent.outputCommands.extend(HLTriggerRAW.outputCommands)
+RAWSIMEventContent.outputCommands.extend(RAWEventContent.outputCommands)
+RAWSIMEventContent.outputCommands.extend(SimG4CoreRAW.outputCommands)
+RAWSIMEventContent.outputCommands.extend(SimTrackerRAW.outputCommands)
+RAWSIMEventContent.outputCommands.extend(SimMuonRAW.outputCommands)
+RAWSIMEventContent.outputCommands.extend(SimCalorimetryRAW.outputCommands)
+RAWSIMEventContent.outputCommands.extend(SimGeneralRAW.outputCommands)
+RAWSIMEventContent.outputCommands.extend(GeneratorInterfaceRAW.outputCommands)
+RAWSIMEventContent.outputCommands.extend(RecoGenJetsFEVT.outputCommands)
+RAWSIMEventContent.outputCommands.extend(RecoGenMETFEVT.outputCommands)
+RAWSIMEventContent.outputCommands.extend(DigiToRawFEVT.outputCommands)
+RAWSIMEventContent.outputCommands.extend(MEtoEDMConverterFEVT.outputCommands)
+RAWSIMEventContent.outputCommands.extend(IOMCRAW.outputCommands)
+RECOSIMEventContent.outputCommands.extend(RECOEventContent.outputCommands)
+RECOSIMEventContent.outputCommands.extend(GeneratorInterfaceRECO.outputCommands)
+RECOSIMEventContent.outputCommands.extend(SimG4CoreRECO.outputCommands)
+RECOSIMEventContent.outputCommands.extend(SimTrackerRECO.outputCommands)
+RECOSIMEventContent.outputCommands.extend(SimMuonRECO.outputCommands)
+RECOSIMEventContent.outputCommands.extend(SimCalorimetryRECO.outputCommands)
+RECOSIMEventContent.outputCommands.extend(RecoGenMETRECO.outputCommands)
+RECOSIMEventContent.outputCommands.extend(RecoGenJetsRECO.outputCommands)
+RECOSIMEventContent.outputCommands.extend(SimGeneralRECO.outputCommands)
+RECOSIMEventContent.outputCommands.extend(MEtoEDMConverterRECO.outputCommands)
+AODSIMEventContent.outputCommands.extend(AODEventContent.outputCommands)
+AODSIMEventContent.outputCommands.extend(GeneratorInterfaceAOD.outputCommands)
+AODSIMEventContent.outputCommands.extend(SimG4CoreAOD.outputCommands)
+AODSIMEventContent.outputCommands.extend(SimTrackerAOD.outputCommands)
+AODSIMEventContent.outputCommands.extend(SimMuonAOD.outputCommands)
+AODSIMEventContent.outputCommands.extend(SimCalorimetryAOD.outputCommands)
+AODSIMEventContent.outputCommands.extend(RecoGenJetsAOD.outputCommands)
+AODSIMEventContent.outputCommands.extend(RecoGenMETAOD.outputCommands)
+AODSIMEventContent.outputCommands.extend(SimGeneralAOD.outputCommands)
+AODSIMEventContent.outputCommands.extend(MEtoEDMConverterAOD.outputCommands)
+
