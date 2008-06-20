@@ -8,7 +8,7 @@
 //
 // Original Author:  
 //         Created:  Mon Dec  3 08:38:38 PST 2007
-// $Id: CmsShowMain.cc,v 1.2 2008/06/18 15:18:11 chrjones Exp $
+// $Id: CmsShowMain.cc,v 1.3 2008/06/19 06:57:27 dmytro Exp $
 //
 
 // system include files
@@ -90,8 +90,7 @@ CmsShowMain::CmsShowMain(int argc, char *argv[]) :
                                 m_eiManager.get(),
                                 false)),
   m_viewManager( new FWViewManagerManager(m_changeManager.get())),
-  m_textView(0)
-  // m_textView(new FWTextView),
+  m_textView(new FWTextView(this, &*m_selectionManager))
   //  m_configFileName(iConfigFileName)
 {
     namespace po = boost::program_options;
@@ -262,6 +261,16 @@ CmsShowMain::CmsShowMain(int argc, char *argv[]) :
 	 			"",
 				10);
 
+   FWPhysicsObjectDesc mets("METs",
+			    TClass::GetClass("reco::CaloMETCollection"),
+			    "METs",
+			    FWDisplayProperties(kCyan),
+			    "met",
+			    "",
+			    "",
+			    "",
+			    3);
+
    registerPhysicsObject(ecal);
    registerPhysicsObject(hcal);
    registerPhysicsObject(jets);
@@ -270,6 +279,7 @@ CmsShowMain::CmsShowMain(int argc, char *argv[]) :
    registerPhysicsObject(electrons);
    registerPhysicsObject(genParticles);
    registerPhysicsObject(vertices);
+   registerPhysicsObject(mets);
    
   } else {
     char* whereConfig = gSystem->Which(TROOT::GetMacroPath(), m_configFileName.c_str(), kReadPermission);
@@ -355,6 +365,8 @@ void CmsShowMain::draw(const fwlite::Event& event)
   m_guiManager->enableActions(false);
   m_eiManager->setGeom(&m_detIdToGeo);
   m_eiManager->newEvent(&event);
+  if (m_textView.get() != 0)
+       m_textView->newEvent(event, this);
   m_guiManager->enableActions();
 }
 

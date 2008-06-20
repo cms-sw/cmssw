@@ -18,6 +18,7 @@ class FWTableManager;
 class FWTextView;
 class FWDisplayEvent;
 class FWSelectionManager;
+class CmsShowMain;
 
 class FWTextViewPage {
 public:
@@ -44,8 +45,8 @@ public:
 class FWTextView {
      RQ_OBJECT("FWTextView") 
 public:
-     FWTextView (FWDisplayEvent *, FWSelectionManager *);
-     void newEvent (const fwlite::Event &, const FWDisplayEvent *);
+     FWTextView (CmsShowMain *, FWSelectionManager *);
+     void newEvent (const fwlite::Event &, const CmsShowMain *);
      void nextPage ();
      void prevPage ();
      void selectionChanged (const FWSelectionManager &);

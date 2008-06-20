@@ -16,6 +16,7 @@
 #include "Fireworks/Core/interface/FWEventItemsManager.h"
 #include "Fireworks/Core/interface/FWEventItem.h"
 #include "Fireworks/Core/interface/FWSelectionManager.h"
+#include "CmsShowMain.h"
 #undef private
 #include "TEveBrowser.h"
 #include "TEveManager.h"
@@ -118,7 +119,7 @@ void FWTextViewPage::update ()
      }
 }
 
-FWTextView::FWTextView (FWDisplayEvent *de, FWSelectionManager *sel)
+FWTextView::FWTextView (CmsShowMain *de, FWSelectionManager *sel)
      : el_manager(new ElectronTableManager),
        mu_manager(new MuonTableManager),
        jet_manager(new JetTableManager),
@@ -229,7 +230,7 @@ FWTextView::FWTextView (FWDisplayEvent *de, FWSelectionManager *sel)
      page->select();
 }
 
-void FWTextView::newEvent (const fwlite::Event &ev, const FWDisplayEvent *de)
+void FWTextView::newEvent (const fwlite::Event &ev, const CmsShowMain *de)
 {
      TStopwatch stopwatch_read;
      TStopwatch stopwatch_table;
@@ -324,10 +325,12 @@ void FWTextView::newEvent (const fwlite::Event &ev, const FWDisplayEvent *de)
      //------------------------------------------------------------
      printf("run %d event %d:\n", ev.aux_.run(), ev.aux_.event());
      std::cout << ev.aux_;
+#if 1
      assert(n_mets == 1);
      const CaloMET &met = *mets->begin();
      printf("MET %5.1f\t MET phi %.2f\t Sum Et %5.1f\t sig(MET) %.2f\n",
 	    met.p4().Et(), met.phi(), met.sumEt(), met.mEtSig());
+#endif
      printf("%d electrons\t%d muons\t%d jets\t\n", 
 	    n_els, n_mus, n_jets);
      //------------------------------------------------------------
