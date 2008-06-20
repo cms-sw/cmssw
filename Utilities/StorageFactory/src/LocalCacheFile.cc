@@ -19,16 +19,19 @@ nowrite(const char *why)
 }
 
 
-LocalCacheFile::LocalCacheFile(Storage *base)
+LocalCacheFile::LocalCacheFile(Storage *base, const std::string &tmpdir /* = "" */)
   : image_(base->size()),
     file_(0),
     storage_(base)
 {
   present_.resize((image_ + CHUNK_SIZE - 1) / CHUNK_SIZE, 0);
 
-  std::string pattern("/tmp");
-  if (char *p = getenv("TMPDIR"))
-    pattern = p;
+  std::string pattern(tmpdir);
+  if (pattern.empty())
+    if (char *p = getenv("TMPDIR"))
+      pattern = p;
+  if (pattern.empty())
+    pattern = ".";
   pattern += "/cmssw-shadow-XXXXXX";
 
   std::vector<char> temp(pattern.c_str(), pattern.c_str()+pattern.size()+1);

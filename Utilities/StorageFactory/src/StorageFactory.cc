@@ -14,7 +14,8 @@ StorageFactory StorageFactory::s_instance;
 StorageFactory::StorageFactory (void)
   : m_cacheHint(CACHE_HINT_AUTO_DETECT),
     m_readHint(READ_HINT_AUTO),
-    m_accounting (false)
+    m_accounting (false),
+    m_tempdir(".")
 {}
 
 StorageFactory::~StorageFactory (void)
@@ -55,6 +56,14 @@ StorageFactory::ReadHint
 StorageFactory::readHint(void) const
 { return m_readHint; }
 
+void
+StorageFactory::setTempDir(const std::string &s)
+{ m_tempdir = s; }
+
+std::string
+StorageFactory::tempDir(void) const
+{ return m_tempdir; }
+
 StorageMaker *
 StorageFactory::getMaker (const std::string &proto)
 {
@@ -91,6 +100,7 @@ StorageFactory::open (const std::string &url, int mode, const std::string &tmpdi
 { 
   std::string protocol;
   std::string rest;
+  const std::string &tmp = (tmpdir.empty() ? m_tempdir : tmpdir);
   
   Storage *ret = 0;
   boost::shared_ptr<StorageAccount::Stamp> stats;
@@ -100,7 +110,7 @@ StorageFactory::open (const std::string &url, int mode, const std::string &tmpdi
       stats.reset(new StorageAccount::Stamp(StorageAccount::counter (protocol, "open")));
     try
     {
-      if (Storage *storage = maker->open (protocol, rest, mode, tmpdir))
+      if (Storage *storage = maker->open (protocol, rest, mode, tmp))
       {
 	if (dynamic_cast<LocalCacheFile *>(storage))
 	  protocol = "local-cache";

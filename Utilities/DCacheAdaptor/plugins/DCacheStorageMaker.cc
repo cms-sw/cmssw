@@ -51,7 +51,7 @@ public:
     {
       if (f->accounting())
         file = new StorageAccountProxy(proto, file);
-      file = new LocalCacheFile(file);
+      file = new LocalCacheFile(file, f->tempDir());
     }
     return file;
   }

@@ -10,7 +10,7 @@
 class LocalCacheFile : public Storage
 {
 public:
-  LocalCacheFile (Storage *base);
+  LocalCacheFile (Storage *base, const std::string &tmpdir = "");
   ~LocalCacheFile (void);
 
   using Storage::read;

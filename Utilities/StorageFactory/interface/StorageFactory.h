@@ -41,6 +41,9 @@ public:
   bool		enableAccounting (bool enabled);
   bool		accounting (void) const;
 
+  void		setTempDir (const std::string &s);
+  std::string	tempDir (void) const;
+
   void		stagein (const std::string &url);
   Storage *	open (const std::string &url,
 	    	      int mode = IOFlags::OpenRead,
@@ -61,6 +64,7 @@ protected:
   CacheHint	m_cacheHint;
   ReadHint	m_readHint;
   bool		m_accounting;
+  std::string	m_tempdir;
   static StorageFactory s_instance;
 };
 
