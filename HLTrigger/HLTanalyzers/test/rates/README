@@ -10,11 +10,16 @@
  
 	Once the binary file is built, the rate-calculating script can be run using:
 	
-	./OHltRates <NEntries> <sMenu> <sConditions> <sVersion>
+	./OHltRates <NEntries> <sMenu> <sConditions> <sVersion> <doPrintAll>
 
 	The arguments are as follows:
 		
-		<NEntries>: Number of events to run over. Default is all.
+		<NEntries>: Number of events to run over.
+			    That number will be used for each sample.
+			    If there exist less events in a sample than requested than the script
+			    will run over all existing.
+			    Any number < 0 will be interpreted as "running over all existing events".
+			    Default is all (-1).
 	
 		<sMenu>: Type of trigger menu to run. Options are "default" and "example".
 			 The "default" option runs the full HLT menu using the trigger bits
@@ -29,6 +34,11 @@
 		<sVersion>: A string describing this menu. This will be appended to the name of 
 			    the output files.
 
+		<doPrintAll>: If set to 1 all printouts incl. overlap coefficient etc,
+			      and also the pdf file is generated.
+			      Otherwise only the most info is printed out to stdout.
+			      Default is off (0).
+
 
 **************************************
 2. Input samples and cross-sections
@@ -36,7 +46,8 @@
 
 	The input ntuples and cross-sections are defined in the main() function in OHltRates.cpp.
 	These are filled as entries in the vectors ProcFil and xsec, respectively. The current default 
-	uses samples of Z->tau+tau- and QCD in three bins of pT: 30-50, 50-80, and 80-120.
+	uses samples of Minbias, ppEleX, ppMuX.
+	The example files exist on hep.wisc.edu. The script should be working if running there.
 
 **************************************
 3. Trigger examples
@@ -62,13 +73,19 @@
 	are defined as follows: 
 
                 trig:           Name of the new OpenHLT trigger 
-                l1Bit:          Name of the L1 bit used by this OpenHLT trigger 
-                l1prescale:     Prescale value applied at L1 
-                hltprescale:    Prescale value applied at HLT 
-                threshold:      HLT trigger threshold 
+                l1Bit:          Name of the L1 bit used by this OpenHLT trigger
+				(this parameter has no effect on the effective algorithm used, it is only for documentation,
+				 to see how to change the L1 seed see below) 
+                l1prescale:     Prescale value applied at L1 (This prescale will be applied on top of existing L1 prescales,
+							      i.e. it should be used for samples with reset prescales only
+							      unless the user knows exactly was he does)
+                hltprescale:    Prescale value applied at HLT (This prescale will be applied on top of existing HLT prescales,
+							      i.e. it should be used for samples with reset prescales only
+							      unless the user knows exactly was he does)
+                threshold:      HLT trigger threshold (this parameter is for documentation only) 
                 desc:           Description string - for example "1e32" for  
                                 triggers in the 10^32 menu, "new" for new developmental  
-                                triggers, etc. 
+                                triggers, etc. (this parameter is for documentation only)
 
 	Once the trigger is registered, the actual trigger logic must be implemented in OHltTree.cpp; this is done in 
 	two places. The first is the OHltTree::Loop method, where the L1 and HLT pass/fail conditions are decided.
