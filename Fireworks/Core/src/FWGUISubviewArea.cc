@@ -8,7 +8,7 @@
 //
 // Original Author:  Chris Jones
 //         Created:  Fri Feb 15 14:13:33 EST 2008
-// $Id: FWGUISubviewArea.cc,v 1.2 2008/03/16 15:23:50 chrjones Exp $
+// $Id: FWGUISubviewArea.cc,v 1.3 2008/05/18 09:42:48 jmuelmen Exp $
 //
 
 // system include files
@@ -33,17 +33,21 @@
 //
 // constructors and destructor
 //
-FWGUISubviewArea::FWGUISubviewArea(unsigned int iIndex, const TGWindow *iParent, TGSplitFrame* iMainSplit)
+FWGUISubviewArea::FWGUISubviewArea(unsigned int iIndex, const TGSplitFrame *iParent, TGSplitFrame* iMainSplit)
 : TGHorizontalFrame(iParent),
   m_mainSplit(iMainSplit),
   m_index(iIndex)
 {
-   TGPictureButton* button= new TGPictureButton(this, swapIcon());
-   button->SetToolTipText("Swap to big view");
-   this->AddFrame(button);
+   m_swapButton= new TGPictureButton(this, swapIcon());
+   m_swapButton->SetToolTipText("Swap to big view");
+   this->AddFrame(m_swapButton);
    
-   button->Connect("Clicked()","FWGUISubviewArea",this,"swapToBigView()");
+   m_swapButton->Connect("Clicked()","FWGUISubviewArea",this,"swapToBigView()");
 
+   //behavior of buttons depends on index
+   if(0==iIndex) {
+      m_swapButton->SetEnabled(kFALSE);
+   }
 }
 
 // FWGUISubviewArea::FWGUISubviewArea(const FWGUISubviewArea& rhs)
@@ -73,23 +77,9 @@ FWGUISubviewArea::~FWGUISubviewArea()
 void
 FWGUISubviewArea::swapToBigView()
 {
-   TGSplitFrame *dest = m_mainSplit->GetFirst();
-   // get the pointer to the frame that has to be exchanged with the 
-   // source one (the one actually in the destination)
-   
-   //NOTE: casting to TGCompositeFrame is WRONG but the problem is the interface requires
-   // it although it really only needs a TGFrame!
-   TGCompositeFrame *prev = (TGCompositeFrame *)(dest->GetFrame());
-   assert(0!=prev);
-   
-   assert(0!=this->GetList()->Last());
-   assert( dynamic_cast<TGFrameElement*>( this->GetList()->Last()));
-   
-   //NOTE: casting to TGCompositeFrame is WRONG but the problem is the interface requires
-   // it although it really only needs a TGFrame!
-   TGCompositeFrame* source = (TGCompositeFrame *)(dynamic_cast<TGFrameElement*>(this->GetList()->Last())->fFrame);
-   assert(0!=source);
-   TGSplitFrame::SwitchFrames( source, dest, prev);
+   //We know the parent is a TGSplitFrame because the constructor requires it to be so
+   TGSplitFrame* p = const_cast<TGSplitFrame*>(static_cast<const TGSplitFrame*>(GetParent()));
+   p->SwitchToMain();
    
    swappedToBigView_(index());
 }
@@ -114,4 +104,15 @@ FWGUISubviewArea::swapIcon()
       s_icon = gClient->GetPicture(coreIcondir+"swap.png");
    }
    return s_icon;
+}
+
+void 
+FWGUISubviewArea::setIndex(unsigned int iIndex) {
+   if(0==iIndex) {
+      m_swapButton->SetEnabled(kFALSE);
+   }
+   if(m_index==0) {
+      m_swapButton->SetEnabled(kTRUE);
+   }
+   m_index = iIndex;
 }

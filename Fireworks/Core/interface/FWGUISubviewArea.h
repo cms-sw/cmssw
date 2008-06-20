@@ -16,7 +16,7 @@
 //
 // Original Author:  Chris Jones
 //         Created:  Fri Feb 15 14:13:29 EST 2008
-// $Id: FWGUISubviewArea.h,v 1.1 2008/02/15 20:32:58 chrjones Exp $
+// $Id: FWGUISubviewArea.h,v 1.2 2008/03/16 15:23:49 chrjones Exp $
 //
 
 // system include files
@@ -26,12 +26,13 @@
 
 // forward declarations
 class TGSplitFrame;
+class TGButton;
 
 class FWGUISubviewArea : public TGHorizontalFrame
 {
 
    public:
-      FWGUISubviewArea(unsigned int iIndex, const TGWindow *iParent,TGSplitFrame*);
+      FWGUISubviewArea(unsigned int iIndex, const TGSplitFrame *iParent,TGSplitFrame*);
       virtual ~FWGUISubviewArea();
 
       // ---------- const member functions ---------------------
@@ -45,7 +46,8 @@ class FWGUISubviewArea : public TGHorizontalFrame
    
       // ---------- member functions ---------------------------
       void swapToBigView();
-   
+    
+      void setIndex(unsigned int iIndex);   
       sigc::signal<void,unsigned int> swappedToBigView_;
    private:
       FWGUISubviewArea(const FWGUISubviewArea&); // stop default
@@ -55,6 +57,7 @@ class FWGUISubviewArea : public TGHorizontalFrame
       // ---------- member data --------------------------------
       TGSplitFrame* m_mainSplit;
       unsigned int m_index;
+      TGButton* m_swapButton;
 };
 
 
