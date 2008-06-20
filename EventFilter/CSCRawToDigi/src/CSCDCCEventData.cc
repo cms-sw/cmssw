@@ -22,9 +22,9 @@ CSCDCCEventData::CSCDCCEventData(int sourceId, int nDDUs, int bx, int l1a)
     }
 } 
 
-CSCDCCEventData::CSCDCCEventData(unsigned short *buf)
+CSCDCCEventData::CSCDCCEventData(unsigned short *buf, CSCDCCExaminer* examiner)
 {
-  unpack_data(buf);
+  unpack_data(buf, examiner);
 }
 
 CSCDCCEventData::~CSCDCCEventData() 
@@ -32,7 +32,7 @@ CSCDCCEventData::~CSCDCCEventData()
 }
 
 
-void CSCDCCEventData::unpack_data(unsigned short *buf) 
+void CSCDCCEventData::unpack_data(unsigned short *buf, CSCDCCExaminer* examiner) 
 {
   //for (int i=0;i<200;i++) {
   //  printf("%04x %04x %04x %04x\n",buf[i+3],buf[i+2],buf[i+1],buf[i]); 
@@ -54,7 +54,9 @@ void CSCDCCEventData::unpack_data(unsigned short *buf)
   ///loop over DDUEventDatas
   while ( (buf[7]==0x8000)&&(buf[6]==0x0001)&&(buf[5]==0x8000))
     {
-      CSCDDUEventData dduEventData(buf);
+       CSCDDUEventData dduEventData(buf, examiner);
+//	CSCDDUEventData dduEventData(buf);
+
       if (debug) edm::LogInfo ("CSCDCCEventData") << " checking ddu data integrity ";
       if (dduEventData.check()) 
 	{

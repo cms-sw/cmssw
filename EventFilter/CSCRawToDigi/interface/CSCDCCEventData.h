@@ -8,13 +8,14 @@
 #include "EventFilter/CSCRawToDigi/interface/CSCDDUEventData.h"
 #include "EventFilter/CSCRawToDigi/interface/CSCDCCHeader.h"
 #include "EventFilter/CSCRawToDigi/interface/CSCDCCTrailer.h"
+#include "EventFilter/CSCRawToDigi/interface/CSCDCCExaminer.h"
 
 class CSCDCCEventData {
 public:
   CSCDCCEventData(int sourceId, int nDDUs, int bx, int l1a);
   /// buf may need to stay pinned in memory as long
   /// as this data is used.  Not sure
-  explicit CSCDCCEventData(unsigned short *buf);
+  explicit CSCDCCEventData(unsigned short *buf, CSCDCCExaminer* examiner=NULL);
 
   ~CSCDCCEventData();
 
@@ -44,7 +45,7 @@ public:
 
 
 protected:
-  void unpack_data(unsigned short * buf);
+  void unpack_data(unsigned short * buf, CSCDCCExaminer* examiner=NULL);
   CSCDCCHeader theDCCHeader;
   // DDUData is unpacked and stored in this vector
   std::vector<CSCDDUEventData> theDDUData;

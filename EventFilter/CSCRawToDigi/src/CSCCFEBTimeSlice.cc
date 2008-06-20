@@ -47,6 +47,15 @@ void CSCCFEBTimeSlice::setControllerWord(const CSCCFEBSCAControllerWord & contro
 }
 
 
+unsigned CSCCFEBTimeSlice::calcCRC() const
+{
+        unsigned CRC=0;
+        for(uint16_t pos=0; pos<96; ++pos)
+        CRC=(theSamples[pos]&0x1fff)^((theSamples[pos]&0x1fff)<<1)^(((CRC&0x7ffc)>>2)|((0x0003&CRC)<<13))^((CRC&0x7ffc)>>1);
+        return CRC;
+}
+
+
 std::ostream & operator<<(std::ostream & os, const CSCCFEBTimeSlice & slice) 
 {
   for(int ichannel = 1; ichannel <= 16; ++ichannel) 

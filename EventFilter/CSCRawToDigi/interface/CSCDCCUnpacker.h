@@ -4,8 +4,8 @@
 /** \class CSCDCCUnpacker
  * 
  *
- *  $Date: 2007/05/24 14:55:26 $
- *  $Revision: 1.14 $
+ *  $Date: 2007/10/08 22:01:05 $
+ *  $Revision: 1.15 $
  * \author Alex Tumanov 
  */
 
@@ -32,7 +32,8 @@ class CSCDCCUnpacker: public edm::EDProducer {
   
  private:
 
-  bool debug, PrintEventNumber, goodEvent, useExaminer, unpackStatusDigis, unpackMTCCData; 
+  bool debug, PrintEventNumber, goodEvent, useExaminer, unpackStatusDigis, unpackMTCCData;
+  bool useSelectiveUnpacking; 
   int numOfEvents;
   unsigned int errorMask, examinerMask;
   bool instatiateDQM;

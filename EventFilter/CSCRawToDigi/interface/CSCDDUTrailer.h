@@ -41,7 +41,8 @@ class CSCDDUTrailer {
   unsigned errorstat() const { return errorstat_; }
   unsigned wordcount() const { return word_count_; }  
   unsigned dmb_warn() const { return dmb_warn_; }  
-  unsigned dmb_full() const { return dmb_full_; } 
+  unsigned dmb_full() const { return dmb_full_; }
+  unsigned reserved() const { return whatever; } 
 
   
   

@@ -75,7 +75,11 @@ class CSCCFEBTimeSlice {
   
   void setControllerWord(const CSCCFEBSCAControllerWord & controllerWord);
 
-  bool check() const {return ((dummy == 0x7FFF)||((dummy|crc)== 0x7FFF));}
+  bool check() const {return ((dummy == 0x7FFF)||((dummy+crc)== 0x7FFF));}
+
+  bool checkCRC() const {return crc==calcCRC();}
+
+  unsigned calcCRC() const;
 
   friend std::ostream & operator<<(std::ostream & os, const CSCCFEBTimeSlice &);
 

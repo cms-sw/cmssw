@@ -12,6 +12,7 @@
 #include "EventFilter/CSCRawToDigi/interface/CSCDDUTrailer.h"
 #include "EventFilter/CSCRawToDigi/interface/CSCDCCHeader.h"
 #include "EventFilter/CSCRawToDigi/interface/CSCDCCTrailer.h"
+#include "EventFilter/CSCRawToDigi/interface/CSCDCCExaminer.h"
 #include <boost/dynamic_bitset.hpp>
 
 class CSCDDUEventData {
@@ -21,7 +22,7 @@ public:
 
   /// buf may need to stay pinned in memory as long
   /// as this data is used.  Not sure
-  explicit CSCDDUEventData(unsigned short *buf);
+  explicit CSCDDUEventData(unsigned short *buf, CSCDCCExaminer* examiner=NULL);
 
   ~CSCDDUEventData();
 
@@ -62,7 +63,7 @@ public:
 
   /// a good test routine would be to unpack data, then pack it again.
 protected:
-  void unpack_data(unsigned short * buf);
+  void unpack_data(unsigned short * buf, CSCDCCExaminer* examiner=NULL);
   CSCDCCHeader theDCCHeader;
   CSCDDUHeader theDDUHeader;
   // CSCData is unpacked and stored in this vector

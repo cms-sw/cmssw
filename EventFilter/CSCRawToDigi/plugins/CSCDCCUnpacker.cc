@@ -76,6 +76,9 @@ CSCDCCUnpacker::CSCDCCUnpacker(const edm::ParameterSet & pset) :
   unpackStatusDigis = pset.getUntrackedParameter<bool>("UnpackStatusDigis", false);
   inputObjectsTag = pset.getParameter<edm::InputTag>("InputObjects");
   unpackMTCCData = pset.getUntrackedParameter<bool>("isMTCCData", false);
+
+  // Selective unpacking mode will skip only troublesome CSC blocks and not whole DCC/DDU block
+  useSelectiveUnpacking = pset.getUntrackedParameter<bool>("UseSelectiveUnpacking","false");
   
   if(instatiateDQM)  {
     monitor = edm::Service<CSCMonitorInterface>().operator->();
@@ -142,6 +145,10 @@ void CSCDCCUnpacker::produce(edm::Event & e, const edm::EventSetup& c){
   std::auto_ptr<CSCDCCStatusDigiCollection> dccStatusProduct(new CSCDCCStatusDigiCollection);
   std::auto_ptr<CSCALCTStatusDigiCollection> alctStatusProduct(new CSCALCTStatusDigiCollection);
 
+  // If set selective unpacking mode 
+  // hardcoded examiner mask below to check for DCC and DDU level errors will be used first
+  // then examinerMask for CSC level errors will be used during unpacking of each CSC block
+  unsigned long dccBinCheckMask = 0x06080016;
 
   for (int id=FEDNumbering::getCSCFEDIds().first;
        id<=FEDNumbering::getCSCFEDIds().second; ++id) { //for each of our DCCs
@@ -166,11 +173,12 @@ void CSCDCCUnpacker::produce(edm::Event & e, const edm::EventSetup& c){
 	if( examinerMask&0x0400  ) examiner->crcALCT(1);
 	examiner->output1().show();
 	examiner->output2().show();
+	examiner->setMask(examinerMask);
 	const short unsigned int *data = (short unsigned int *)fedData.data();
 
 	/*short unsigned * buf = (short unsigned int *)fedData.data();
-	std::cout <<std::endl<<length/2<<" words of data:"<<std::endl;
-	for (int i=0;i<length/2;i++) {
+	  std::cout <<std::endl<<length/2<<" words of data:"<<std::endl;
+	  for (int i=0;i<length/2;i++) {
 	  printf("%04x %04x %04x %04x\n",buf[i+3],buf[i+2],buf[i+1],buf[i]);
 	  i+=3;
 	  }*/
@@ -180,15 +188,20 @@ void CSCDCCUnpacker::produce(edm::Event & e, const edm::EventSetup& c){
 	if( examiner->check(data,long(fedData.size()/2)) < 0 )	{
 	  goodEvent=false;
 	} 
-	else {
-	  goodEvent=!(examiner->errors()&examinerMask);
+	else {	  
+	  if (useSelectiveUnpacking)  goodEvent=!(examiner->errors()&dccBinCheckMask);
+	  else goodEvent=!(examiner->errors()&examinerMask);
 	}
       }
 	  
       
       if (goodEvent) {
 	///get a pointer to data and pass it to constructor for unpacking
-	CSCDCCEventData dccData((short unsigned int *) fedData.data());
+
+	CSCDCCExaminer * ptrExaminer = examiner;
+	if (!useSelectiveUnpacking) ptrExaminer = NULL;
+		
+  	CSCDCCEventData dccData((short unsigned int *) fedData.data(),ptrExaminer);
 	
 	if(instatiateDQM) monitor->process(examiner, &dccData);
 	
@@ -253,15 +266,15 @@ void CSCDCCUnpacker::produce(edm::Event & e, const edm::EventSetup& c){
 	    int ilayer = 0; /// zeroth layer indicates whole chamber
 
 	    if (debug)
-	      edm::LogInfo ("CSCDCCUnpacker") << "crate = " << vmecrate << "; dmb = " << dmb;
+              edm::LogInfo ("CSCDCCUnpacker") << "crate = " << vmecrate << "; dmb = " << dmb;
 	    
 	    if ((vmecrate>=1)&&(vmecrate<=60) && (dmb>=1)&&(dmb<=10)&&(dmb!=6)) {
 	      layer = pcrate->detId(vmecrate, dmb,icfeb,ilayer );
 	    } 
 	    else{
 	      edm::LogError ("CSCDCCUnpacker") << " detID input out of range!!! ";
-	      edm::LogError ("CSCDCCUnpacker")
-		<< " skipping chamber vme= " << vmecrate << " dmb= " << dmb;
+              edm::LogError ("CSCDCCUnpacker")
+                << " skipping chamber vme= " << vmecrate << " dmb= " << dmb;
 	      continue;
 	    }
 
@@ -438,26 +451,27 @@ void CSCDCCUnpacker::produce(edm::Event & e, const edm::EventSetup& c){
 	}///endof loop over DDUs
       }///end of good event
       else   {
-	edm::LogError("CSCDCCUnpacker") <<
-	  "ERROR! Examiner decided to reject FED #" << id;
-	if (examiner) {
-	  for (int i=0; i<examiner->nERRORS; ++i) {
-	    if (((examinerMask&examiner->errors())>>i)&0x1) 
-	      edm::LogError("CSCDCCUnpacker")<<examiner->errName(i);
-	  }
-	  if (debug) {
-	    edm::LogError("CSCDCCUnpacker")
-	      << " Examiner errors:0x" << std::hex << examiner->errors()
-	      << " & 0x" << examinerMask
-	      << " = " << (examiner->errors()&examinerMask);
-	    if (examinerMask&examiner->errors()) {
-	      edm::LogError("CSCDCCUnpacker")
-		<< "Examiner output: " << examiner_out.str();
-	      edm::LogError("CSCDCCUnpacker")
-		<< "Examiner errors: " << examiner_err.str();
-	    }
-	  }
-	}
+        edm::LogError("CSCDCCUnpacker") <<
+          "ERROR! Examiner decided to reject FED #" << id;
+        if (examiner) {
+          for (int i=0; i<examiner->nERRORS; ++i) {
+            if (((examinerMask&examiner->errors())>>i)&0x1)
+              edm::LogError("CSCDCCUnpacker")<<examiner->errName(i);
+          }
+          if (debug) {
+            edm::LogError("CSCDCCUnpacker")
+              << " Examiner errors:0x" << std::hex << examiner->errors()
+              << " & 0x" << examinerMask
+              << " = " << (examiner->errors()&examinerMask);
+            if (examinerMask&examiner->errors()) {
+              edm::LogError("CSCDCCUnpacker")
+                << "Examiner output: " << examiner_out.str();
+              edm::LogError("CSCDCCUnpacker")
+                << "Examiner errors: " << examiner_err.str();
+            }
+          }
+        }
+
 	dccStatusProduct->insertDigi(CSCDetId(1,1,1,1,1), CSCDCCStatusDigi(examiner->errors()));
 	if(instatiateDQM)  monitor->process(examiner, NULL);
       }

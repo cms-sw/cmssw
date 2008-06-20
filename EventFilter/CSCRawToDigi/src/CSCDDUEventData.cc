@@ -22,9 +22,9 @@ CSCDDUEventData::CSCDDUEventData(const CSCDDUHeader & header)
 }
 
   
-CSCDDUEventData::CSCDDUEventData(unsigned short *buf) 
+CSCDDUEventData::CSCDDUEventData(unsigned short *buf, CSCDCCExaminer* examiner) 
 {
-  unpack_data(buf);
+  unpack_data(buf, examiner);
 }
 
 CSCDDUEventData::~CSCDDUEventData() 
@@ -145,7 +145,7 @@ void CSCDDUEventData::decodeStatus(int code) const
     }
 }
 
-void CSCDDUEventData::unpack_data(unsigned short *buf) 
+void CSCDDUEventData::unpack_data(unsigned short *buf, CSCDCCExaminer* examiner) 
 {
   // just to calculate length
   unsigned short * inputBuf = buf;
@@ -167,58 +167,134 @@ void CSCDDUEventData::unpack_data(unsigned short *buf)
     }
   buf += theDDUHeader.sizeInWords();
 
+
+
+
   //std::cout << "sandrik dduID =" << theDDUHeader.source_id() << std::endl; 
   //int i=-1;
+
  
   // we really don't want to copy CSCEventData's while filling the vec
   theData.clear();
   theData.reserve(theDDUHeader.ncsc());
 
-  while( (((buf[0]&0xf000) == 0x9000)||((buf[0]&0xf000) == 0xa000)) 
-          && (buf[3] != 0x8000))
-    {
-      // ++i;
-      if (debug) edm::LogInfo ("CSCDDUEventData") << "unpack csc data loop started";
-      theData.push_back(CSCEventData(buf));
-      buf += (theData.back()).size();
-      if (debug) 
+  if (examiner!= NULL) { // Use selective unpacking mode
+
+    if (debug) edm::LogInfo ("CSCDDUEventData") << "unpack csc data loop started";
+
+    // Find this DDU in examiner's DDUs list
+    int dduID = theDDUHeader.source_id();	
+	
+    std::map<short,std::map<short,const unsigned short*> > ddus = examiner->DMB_block();
+    std::map<short,std::map<short,const unsigned short*> >::iterator ddu_itr = ddus.find(dduID);
+    unsigned short* dduBlock = (unsigned short*)((examiner->DDU_block())[dduID]);
+    unsigned long dduBufSize = (examiner->DDU_size())[dduID];
+		
+    if (ddu_itr != ddus.end() && dduBufSize!=0 && dduBlock==inputBuf) {
+      std::map<short,const unsigned short*> &cscs = ddu_itr->second;
+      std::map<short,const unsigned short*>::iterator csc_itr;
+
+      for (csc_itr=cscs.begin(); csc_itr != cscs.end(); ++csc_itr) {
+	short cscid = csc_itr->first;
+	unsigned short* pos = (unsigned short*)csc_itr->second;
+	
+	
+        long errors = examiner->errorsForChamber(cscid);
+        if ((errors & examiner->getMask()) > 0 ) {	
+         	if (debug) 
+		edm::LogError ("CSCDDUEventData" )
+                       << "skip unpacking of CSC " << cscid << " due format errors: 0x" << std::hex << errors << std::dec;
+	  continue;
+        } 
+	
+	theData.push_back(CSCEventData(pos));
+      }
+
+      if (debug)
 	{
 	  edm::LogInfo ("CSCDDUEventData") << "size of vector of cscDatas = " << theData.size();
 	}
-    }
- 
-  if (debug) 
-    {
-      edm::LogInfo ("CSCDDUEventData") << "unpacking ddu trailer ";
-      edm::LogInfo ("CSCDDUEventData") << std::hex << buf[3]<<" " << buf[2] 
-				       <<" " << buf[1]<<" " << buf[0];
-    }
 
-  // decode ddu tail
-  memcpy(&theDDUTrailer, buf, theDDUTrailer.sizeInWords()*2);
-  if (debug) edm::LogInfo ("CSCDDUEventData") << theDDUTrailer.check();
-  errorstat=theDDUTrailer.errorstat();
-  if ((errorstat&errMask) != 0)  
-    {
-      if (theDDUTrailer.check())
+      // decode ddu tail
+      memcpy(&theDDUTrailer, inputBuf+dduBufSize, theDDUTrailer.sizeInWords()*2);
+      // memcpy(&theDDUTrailer, dduBlock+(dduBufSize-theDDUTrailer.sizeInWords())*2, theDDUTrailer.sizeInWords()*2);
+      if (debug) edm::LogInfo ("CSCDDUEventData") << theDDUTrailer.check();
+      errorstat=theDDUTrailer.errorstat();
+      if ((errorstat&errMask) != 0)
 	{
-	  if (debug) edm::LogError ("CSCDDUEventData") 
-	    << "+++ CSCDDUEventData warning: DDU Trailer errors = " << std::hex << errorstat << " +++ ";
-	  if (debug) decodeStatus(errorstat);
-	} 
-      else 
-	{
-	  if (debug) edm::LogError ("CSCDDUEventData" ) 
-	    << " Unpacking lost DDU trailer - check() failed and 8 8 ffff 8 was not found ";
+	  if (theDDUTrailer.check())
+	    {
+	      if (debug) edm::LogError ("CSCDDUEventData")
+		<< "+++ CSCDDUEventData warning: DDU Trailer errors = " << std::hex << errorstat << " +++ ";
+	      if (debug) decodeStatus(errorstat);
+	    }
+	  else
+	    {
+	      if (debug) edm::LogError ("CSCDDUEventData" )
+		<< " Unpacking lost DDU trailer - check() failed and 8 8 ffff 8 was not found ";
+	    }
 	}
+
+      if (debug)
+	edm::LogInfo ("CSCDDUEventData")  << " Final errorstat " << std::hex << errorstat << std::dec ;
+      // the trailer counts in 64-bit words
+
+      //      theSizeInWords = dduBufSize;
+      // buf=inputBuf+dduBufSize;
+
     }
+    theSizeInWords = dduBufSize+12;
+    buf=inputBuf+dduBufSize;
+	
+  } else {
+
+
+    while( (((buf[0]&0xf000) == 0x9000)||((buf[0]&0xf000) == 0xa000)) 
+	   && (buf[3] != 0x8000))
+      {
+	// ++i;
+	if (debug) edm::LogInfo ("CSCDDUEventData") << "unpack csc data loop started";
+	theData.push_back(CSCEventData(buf));
+	buf += (theData.back()).size();
+	if (debug) 
+	  {
+	    edm::LogInfo ("CSCDDUEventData") << "size of vector of cscDatas = " << theData.size();
+	  }
+      }
+ 
+    if (debug) 
+      {
+	edm::LogInfo ("CSCDDUEventData") << "unpacking ddu trailer ";
+	edm::LogInfo ("CSCDDUEventData") << std::hex << buf[3]<<" " << buf[2] 
+					 <<" " << buf[1]<<" " << buf[0];
+      }
+
+    // decode ddu tail
+    memcpy(&theDDUTrailer, buf, theDDUTrailer.sizeInWords()*2);
+    if (debug) edm::LogInfo ("CSCDDUEventData") << theDDUTrailer.check();
+    errorstat=theDDUTrailer.errorstat();
+    if ((errorstat&errMask) != 0)  
+      {
+	if (theDDUTrailer.check())
+	  {
+	    if (debug) edm::LogError ("CSCDDUEventData") 
+	      << "+++ CSCDDUEventData warning: DDU Trailer errors = " << std::hex << errorstat << " +++ ";
+	    if (debug) decodeStatus(errorstat);
+	  } 
+	else 
+	  {
+	    if (debug) edm::LogError ("CSCDDUEventData" ) 
+	      << " Unpacking lost DDU trailer - check() failed and 8 8 ffff 8 was not found ";
+	  }
+      }
    
-  if (debug) 
-    edm::LogInfo ("CSCDDUEventData")  << " Final errorstat " << std::hex << errorstat << std::dec ;
-  // the trailer counts in 64-bit words
-  buf += theDDUTrailer.sizeInWords();
+    if (debug) 
+      edm::LogInfo ("CSCDDUEventData")  << " Final errorstat " << std::hex << errorstat << std::dec ;
+    // the trailer counts in 64-bit words
+    buf += theDDUTrailer.sizeInWords();
   
-  theSizeInWords = buf - inputBuf;
+    theSizeInWords = buf - inputBuf;
+  }
 }
 
 

@@ -338,8 +338,8 @@ long CSCDCCExaminer::check(const unsigned short* &buffer, long length){
       bERROR    |= 0x1;
       fERROR[20] = true;
       bERROR    |= 0x100000;
-	  fCHAMB_ERR[20].insert(currentChamber);
-	  bCHAMB_ERR[currentChamber] |= 0x200000;
+	  // fCHAMB_ERR[20].insert(currentChamber);
+	  // bCHAMB_ERR[currentChamber] |= 0x100000;
       cerr<<"\nDDU Header Occurrence = "<<cntDDU_Headers;
       cerr<<"  ERROR 20 "<<sERROR[20]<<endl;
     }
