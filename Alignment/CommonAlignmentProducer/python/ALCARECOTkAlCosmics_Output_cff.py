@@ -1,11 +1,9 @@
-# The following comments couldn't be translated into the new config version:
-
-# for cosmics keep also clusters
-import FWCore.ParameterSet.Config as cms
-
 # Author     : Gero Flucke
 # Date       :   July 19th, 2007
-# last update: $Date: 2008/06/12 20:00:54 $ by $Author: flucke $
+# last update: $Date: 2008/06/12 20:35:34 $ by $Author: flucke $
+
+import FWCore.ParameterSet.Config as cms
+
 # AlCaReco for track based alignment using Cosmic muon events
 OutALCARECOTkAlCosmics = cms.PSet(
     SelectEvents = cms.untracked.PSet(
@@ -15,7 +13,7 @@ OutALCARECOTkAlCosmics = cms.PSet(
     ),
     outputCommands = cms.untracked.vstring('drop *', 
         'keep *_ALCARECOTkAlCosmics*_*_*', 
-        'keep Si*Cluster*_*_*_*', 
+        'keep Si*Cluster*_*_*_*', # for cosmics keep also clusters
         'keep *_MEtoEDMConverter_*_*')
 )
 
