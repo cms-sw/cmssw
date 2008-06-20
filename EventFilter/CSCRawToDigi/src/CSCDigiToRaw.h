@@ -3,8 +3,8 @@
 
 /** \class CSCDigiToRaw
  *
- *  $Date: 2007/10/08 22:20:13 $
- *  $Revision: 1.6 $
+ *  $Date: 2008/06/11 02:12:57 $
+ *  $Revision: 1.7 $
  *  \author A. Tumanov - Rice
  */
 
@@ -17,10 +17,10 @@
 #include "DataFormats/CSCDigi/interface/CSCCorrelatedLCTDigiCollection.h"
 #include "FWCore/Framework/interface/Event.h"
 #include "DataFormats/Common/interface/Handle.h"
+#include "EventFilter/CSCRawToDigi/interface/CSCEventData.h"
 
 class FEDRawDataCollection;
 class CSCReadoutMappingFromFile;
-class CSCEventData;
 class CSCChamberMap;
 
 class CSCDigiToRaw {
