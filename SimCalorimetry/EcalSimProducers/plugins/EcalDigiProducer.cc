@@ -9,7 +9,7 @@
 #include "CalibCalorimetry/EcalTrivialCondModules/interface/EcalTrivialConditionRetriever.h"
 #include "SimDataFormats/CaloHit/interface/PCaloHitContainer.h"
 #include "SimCalorimetry/CaloSimAlgos/interface/CaloDigiCollectionSorter.h"
-#include "Geometry/Records/interface/CaloGeometryRecord.h"
+#include "Geometry/Records/interface/IdealGeometryRecord.h"
 #include "CondFormats/EcalObjects/interface/EcalPedestals.h"
 #include "CondFormats/DataRecord/interface/EcalPedestalsRcd.h"
 
@@ -23,8 +23,6 @@ EcalDigiProducer::EcalDigiProducer(const edm::ParameterSet& params)
   EEdigiCollection_ = params.getParameter<std::string>("EEdigiCollection");
   ESdigiCollection_ = params.getParameter<std::string>("ESdigiCollection");
 
-  hitsProducer_ = params.getParameter<std::string>("hitsProducer");
-  
   produces<EBDigiCollection>(EBdigiCollection_);
   produces<EEDigiCollection>(EEdigiCollection_);
   produces<ESDigiCollection>(ESdigiCollection_);
@@ -57,6 +55,13 @@ EcalDigiProducer::EcalDigiProducer(const edm::ParameterSet& params)
   theEcalResponse = new CaloHitResponse(theParameterMap, theEcalShape);
   theESResponse = new CaloHitResponse(theParameterMap, theESShape);
 
+  // further phase for cosmics studies
+  cosmicsPhase = params.getParameter<bool>("cosmicsPhase");
+  cosmicsShift = params.getParameter<double>("cosmicsShift");
+  if (cosmicsPhase) {
+    theEcalResponse->setPhaseShift(1.+cosmicsShift);
+  }
+  
   EcalCorrMatrix thisMatrix;
 
   std::vector<double> corrNoiseMatrix = params.getParameter< std::vector<double> >("CorrelatedNoiseMatrix");
@@ -138,9 +143,9 @@ void EcalDigiProducer::produce(edm::Event& event, const edm::EventSetup& eventSe
   edm::Handle<CrossingFrame<PCaloHit> > crossingFrame;
 
   // test access to SimHits
-  const std::string barrelHitsName(hitsProducer_+"EcalHitsEB");
-  const std::string endcapHitsName(hitsProducer_+"EcalHitsEE");
-  const std::string preshowerHitsName(hitsProducer_+"EcalHitsES");
+  const std::string barrelHitsName("EcalHitsEB");
+  const std::string endcapHitsName("EcalHitsEE");
+  const std::string preshowerHitsName("EcalHitsES");
 
   bool isEB = true;
   event.getByLabel("mix",barrelHitsName,crossingFrame);
@@ -291,7 +296,7 @@ void EcalDigiProducer::checkGeometry(const edm::EventSetup & eventSetup)
 {
   // TODO find a way to avoid doing this every event
   edm::ESHandle<CaloGeometry> hGeometry;
-  eventSetup.get<CaloGeometryRecord>().get(hGeometry);
+  eventSetup.get<IdealGeometryRecord>().get(hGeometry);
 
   const CaloGeometry * pGeometry = &*hGeometry;
   
