@@ -1,5 +1,5 @@
 //
-// $Id: Jet.cc,v 1.17 2008/06/03 22:28:07 gpetrucc Exp $
+// $Id: Jet.cc,v 1.18 2008/06/09 16:19:23 gpetrucc Exp $
 //
 
 #include "DataFormats/PatCandidates/interface/Jet.h"
@@ -13,7 +13,7 @@ using namespace pat;
 Jet::Jet() :
   PATObject<JetType>(JetType()),
   embeddedCaloTowers_(false),
-  partonFlavour_(0), lrPhysicsJetLRval_(-999.), lrPhysicsJetProb_(-1),
+  partonFlavour_(0), 
   jetCharge_(0.0) {
 }
 
@@ -22,7 +22,7 @@ Jet::Jet() :
 Jet::Jet(const JetType & aJet) :
   PATObject<JetType>(aJet),
   embeddedCaloTowers_(false),
-  partonFlavour_(0), lrPhysicsJetLRval_(-999.), lrPhysicsJetProb_(-1),
+  partonFlavour_(0), 
   jetCharge_(0.0) {
     tryImportSpecific(aJet);
 }
@@ -31,7 +31,7 @@ Jet::Jet(const JetType & aJet) :
 Jet::Jet(const edm::Ptr<JetType> & aJetRef) :
   PATObject<JetType>(aJetRef),
   embeddedCaloTowers_(false),
-  partonFlavour_(0), lrPhysicsJetLRval_(-999.), lrPhysicsJetProb_(-1),
+  partonFlavour_(0), 
   jetCharge_(0.0) {
     tryImportSpecific(*aJetRef);
 }
@@ -40,7 +40,7 @@ Jet::Jet(const edm::Ptr<JetType> & aJetRef) :
 Jet::Jet(const edm::RefToBase<JetType> & aJetRef) :
   PATObject<JetType>(aJetRef),
   embeddedCaloTowers_(false),
-  partonFlavour_(0), lrPhysicsJetLRval_(-999.), lrPhysicsJetProb_(-1),
+  partonFlavour_(0), 
   jetCharge_(0.0) {
     tryImportSpecific(*aJetRef);
 }
@@ -298,30 +298,6 @@ Jet::addTagInfo(const std::string &label, const edm::Ptr<reco::BaseTagInfo> &inf
     tagInfos_.push_back(info->clone());
 }
 
-/// get the value of the i'th jet cleaning variable
-float Jet::lrPhysicsJetVar(unsigned int i) const {
-  return (i < lrPhysicsJetVarVal_.size() ? lrPhysicsJetVarVal_[i].first  : 0);
-}
-
-
-/// get the likelihood ratio corresponding to the i'th jet cleaning variable
-float Jet::lrPhysicsJetVal(unsigned int i) const {
-  return (i < lrPhysicsJetVarVal_.size() ? lrPhysicsJetVarVal_[i].second : 1);
-}
-
-
-/// get the overall jet cleaning likelihood ratio
-float Jet::lrPhysicsJetLRval() const {
-  return lrPhysicsJetLRval_;
-}
-
-
-/// get the overall jet cleaning probability
-float Jet::lrPhysicsJetProb() const {
-  return lrPhysicsJetProb_;
-}
-
-
 /// method to return the JetCharge computed when creating the Jet
 float Jet::jetCharge() const {
   return jetCharge_;
@@ -396,24 +372,6 @@ void Jet::setBResolutions(float bResEt, float bResEta, float bResPhi, float bRes
 void Jet::addBDiscriminatorPair(std::pair<std::string, float> & thePair) {
   pairDiscriVector_.push_back(thePair);
 }
-
-/// method to set all jet cleaning variable + LR pairs
-void Jet::setLRPhysicsJetVarVal(const std::vector<std::pair<float, float> > & varValVec) {
-  for (size_t i = 0; i<varValVec.size(); i++) lrPhysicsJetVarVal_.push_back(varValVec[i]);
-}
-
-
-/// method to set the combined jet cleaning likelihood ratio value
-void Jet::setLRPhysicsJetLRval(float clr) {
-  lrPhysicsJetLRval_ = clr;
-}
-
-
-/// method to set the jet cleaning probability
-void Jet::setLRPhysicsJetProb(float plr) {
-  lrPhysicsJetProb_ = plr;
-}
-
 
 /// method to set the jet charge
 void Jet::setJetCharge(float jetCharge) {

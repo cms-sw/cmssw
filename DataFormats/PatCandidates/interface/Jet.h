@@ -1,5 +1,5 @@
 //
-// $Id: Jet.h,v 1.19 2008/06/03 22:28:07 gpetrucc Exp $
+// $Id: Jet.h,v 1.20 2008/06/09 16:19:23 gpetrucc Exp $
 //
 
 #ifndef DataFormats_PatCandidates_Jet_h
@@ -13,7 +13,7 @@
    'pat' namespace
 
   \author   Steven Lowette
-  \version  $Id: Jet.h,v 1.19 2008/06/03 22:28:07 gpetrucc Exp $
+  \version  $Id: Jet.h,v 1.20 2008/06/09 16:19:23 gpetrucc Exp $
 */
 
 
@@ -121,13 +121,6 @@ namespace pat {
       void  addTagInfo(const std::string &label, 
                        const edm::Ptr<reco::BaseTagInfo> &info) ;
 
-      float lrPhysicsJetVar(unsigned int i) const;
-      /// get the likelihood ratio corresponding to the i'th jet cleaning variable
-      float lrPhysicsJetVal(unsigned int i) const;
-      /// get the overall jet cleaning likelihood ratio
-      float lrPhysicsJetLRval() const;
-      /// get the overall jet cleaning probability
-      float lrPhysicsJetProb() const;
       /// method to return the JetCharge computed when creating the Jet
       float jetCharge() const;
       /// method to return a vector of refs to the tracks associated to this jet
@@ -150,11 +143,6 @@ namespace pat {
       /// method to add a algolabel-discriminator pair
       void addBDiscriminatorPair(std::pair<std::string, float> & thePair);
 
-      void setLRPhysicsJetVarVal(const std::vector<std::pair<float, float> > & varValVec);
-      /// method to set the combined jet cleaning likelihood ratio value
-      void setLRPhysicsJetLRval(float clr);
-      /// method to set the jet cleaning probability
-      void setLRPhysicsJetProb(float plr);
       /// method to set the jet charge
       void setJetCharge(float jetCharge);
     /// correction factor from correction type
@@ -269,10 +257,6 @@ namespace pat {
       std::vector<float> bCovM_;
       // b-tag related members
       std::vector<std::pair<std::string, float> >           pairDiscriVector_;
-      // jet cleaning members (not used yet)
-      std::vector<std::pair<float, float> > lrPhysicsJetVarVal_;
-      float lrPhysicsJetLRval_;
-      float lrPhysicsJetProb_;
       // track association
       reco::TrackRefVector associatedTracks_;
       // jet charge members
