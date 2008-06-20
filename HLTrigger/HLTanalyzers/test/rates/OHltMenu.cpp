@@ -11,11 +11,11 @@ void OHltMenu::AddHlt(TString trig, TString l1Bit, int l1prescale, int hltpresca
   l1Prescale[trig]		= l1prescale;
   hltPrescale[trig]		= hltprescale;
 
-  int tmpL1prsc = 1;
-  int tmpHLTprsc = 1;
-  if (l1prescale>0) tmpL1prsc   = l1prescale;   // if <0: prescale already applied on trigger
-  if (hltprescale>0) tmpHLTprsc = hltprescale;  // if <0: prescale already applied on trigger
-  totalPrescale[trig]		= l1prescale * hltprescale;
+  int tmpL1prescale = 1;
+  int tmpHLTprescale = 1;
+  if (l1prescale>0) tmpL1prescale   = l1prescale;   // if <=0: prescale already applied on trigger
+  if (hltprescale>0) tmpHLTprescale = hltprescale;  // if <=0: prescale already applied on trigger
+  totalPrescale[trig]		= tmpL1prescale * tmpHLTprescale;
 }
 
 void OHltMenu::AddHlt(TString trig, TString l1Bit, int hltprescale,
