@@ -13,7 +13,7 @@ Implementation:
 // 
 // Original Author:  Caterina DOGLIONI
 //         Created:  Tu Apr 22 5:46:22 CEST 2008
-// $Id: EcalChannelChecker.cc,v 1.7 2008/05/05 13:31:42 doglioni Exp $
+// $Id: EcalChannelChecker.cc,v 1.1 2008/06/04 19:48:43 scooper Exp $
 //
 //
 
@@ -318,12 +318,10 @@ EcalChannelChecker::getEventListFromCut(const TCut& cut) {
 }
 
 void EcalChannelChecker::initHistTypeMaps() {
-
-	//FIXME: change this when name of 1st analyzer is changed
-	h1TypeToDirectoryMap_[EcalChannelChecker::H1_AMPLI]="ecalMipHists/XtalAmpli";
-	h1TypeToDirectoryMap_[EcalChannelChecker::H1_PED]="ecalMipHists/XtalPed";
-	h1TypeToDirectoryMap_[EcalChannelChecker::H1_JITTER]="ecalMipHists/XtalJitter";
-	h1TypeToDirectoryMap_[EcalChannelChecker::PROF_PULSE]="ecalMipHists/XtalPulse";
+        h1TypeToDirectoryMap_[EcalChannelChecker::H1_AMPLI]="ecalChannelCheckerTreeHists/XtalAmpli";
+        h1TypeToDirectoryMap_[EcalChannelChecker::H1_PED]="ecalChannelCheckerTreeHists/XtalPed";
+        h1TypeToDirectoryMap_[EcalChannelChecker::H1_JITTER]="ecalChannelCheckerTreeHists/XtalJitter";
+        h1TypeToDirectoryMap_[EcalChannelChecker::PROF_PULSE]="ecalChannelCheckerTreeHists/XtalPulse";
 
 	h1TypeToNameMap_[EcalChannelChecker::H1_AMPLI]="ampli";
 	h1TypeToNameMap_[EcalChannelChecker::H1_PED]="ped";
