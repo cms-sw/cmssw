@@ -16,7 +16,7 @@
 //
 // Original Author:  Chris Jones
 //         Created:  Tue Feb 19 10:33:21 EST 2008
-// $Id: FWRhoPhiZView.h,v 1.6 2008/03/23 22:03:09 dmytro Exp $
+// $Id: FWRhoPhiZView.h,v 1.7 2008/06/09 18:50:04 chrjones Exp $
 //
 
 // system include files
@@ -27,6 +27,7 @@
 // user include files
 #include "Fireworks/Core/interface/FWViewBase.h"
 #include "Fireworks/Core/interface/FWDoubleParameter.h"
+#include "Fireworks/Core/interface/FWBoolParameter.h"
 
 // forward declarations
 class TEvePad;
@@ -64,6 +65,7 @@ class FWRhoPhiZView : public FWViewBase
       TEveElement* importElements(TEveElement*, float iLayer);
    private:
       void doDistortion(double);
+      void doCompression(bool);
       void doZoom(double);
       FWRhoPhiZView(const FWRhoPhiZView&); // stop default
 
@@ -79,6 +81,7 @@ class FWRhoPhiZView : public FWViewBase
       TEveScene* m_scene;
 
       FWDoubleParameter m_distortion;
+      FWBoolParameter m_compressMuon;
       // camera parameters
       double* m_cameraZoom;
       TGLMatrix* m_cameraMatrix;

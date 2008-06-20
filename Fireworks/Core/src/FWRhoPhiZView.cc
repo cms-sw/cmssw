@@ -8,7 +8,7 @@
 //
 // Original Author:  Chris Jones
 //         Created:  Tue Feb 19 10:33:25 EST 2008
-// $Id: FWRhoPhiZView.cc,v 1.12 2008/06/09 18:50:04 chrjones Exp $
+// $Id: FWRhoPhiZView.cc,v 1.13 2008/06/16 18:24:24 dmytro Exp $
 //
 
 #define private public
@@ -91,6 +91,7 @@ static TEveElement* doReplication(TEveProjectionManager* iMgr, TEveElement* iFro
 FWRhoPhiZView::FWRhoPhiZView(TGFrame* iParent,const std::string& iName, const TEveProjection::EPType_e& iProjType) :
 m_typeName(iName),
 m_distortion(this,"distortion",0.,0.,20.),
+m_compressMuon(this,"Compress muon detectors",false),
 m_cameraZoom(0),
 m_cameraMatrix(0)
 {
@@ -102,11 +103,20 @@ m_cameraMatrix(0)
    m_projMgr->GetProjection()->SetFixZ(300);
    m_projMgr->GetProjection()->SetPastFixRFac(0.0);
    m_projMgr->GetProjection()->SetPastFixZFac(0.0);
+
+   if ( iProjType == TEveProjection::kPT_RPhi ) {
+     m_projMgr->GetProjection()->AddPreScaleEntry(0, 300, 0.2);
+   } else {
+     m_projMgr->GetProjection()->AddPreScaleEntry(0, 370, 0.2);
+     m_projMgr->GetProjection()->AddPreScaleEntry(1, 580, 0.2);
+   }
+     
    gEve->AddToListTree(m_projMgr,kTRUE);
    
    //m_distortion.changed_.connect(boost::bind(&TEveProjection::SetDistortion, m_projMgr->GetProjection(),
      //                                        boost::bind(toFloat,_1)));
    m_distortion.changed_.connect(boost::bind(&FWRhoPhiZView::doDistortion,this,_1));
+   m_compressMuon.changed_.connect(boost::bind(&FWRhoPhiZView::doCompression,this,_1));
    
    m_pad = new TEvePad;
    TGLEmbeddedViewer* ev = new TGLEmbeddedViewer(iParent, m_pad);
@@ -161,6 +171,14 @@ FWRhoPhiZView::doDistortion(double iAmount)
 {
    //Following code used in TEveProjectionManagerEditor
    m_projMgr->GetProjection()->SetDistortion(iAmount*0.001);
+   m_projMgr->UpdateName();
+   m_projMgr->ProjectChildren();
+}
+
+void 
+FWRhoPhiZView::doCompression(bool flag)
+{
+   m_projMgr->GetProjection()->SetUsePreScale(flag);
    m_projMgr->UpdateName();
    m_projMgr->ProjectChildren();
 }
