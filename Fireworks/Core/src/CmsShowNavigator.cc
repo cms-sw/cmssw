@@ -8,7 +8,7 @@
 //
 // Original Author:  
 //         Created:  Tue Jun 10 14:56:46 EDT 2008
-// $Id: CmsShowNavigator.cc,v 1.1 2008/06/17 00:08:11 chrjones Exp $
+// $Id: CmsShowNavigator.cc,v 1.2 2008/06/19 06:49:51 dmytro Exp $
 //
 
 // system include files
@@ -67,6 +67,7 @@ CmsShowNavigator::~CmsShowNavigator()
 void
 CmsShowNavigator::loadFile(std::string fileName) 
 {
+  if (fileName == "") fileName = "data.root";
   printf("File name: %s\n", fileName.c_str());
   if (m_file != 0) {
     delete m_eventList;
