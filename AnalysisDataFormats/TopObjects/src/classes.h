@@ -28,8 +28,8 @@ namespace {
     std::vector<std::pair<std::string, double> > v_p_str_dbl;
     std::vector<std::pair<unsigned int, double> > v_p_uint_dbl;
     std::pair<unsigned int, double> p_uint_dbl;
-    std::vector<std::pair<std::string, reco::JetTagRef> > v_p_str_jtr;
-    std::pair<std::string, reco::JetTagRef> p_str_jtr;
+    //std::vector<std::pair<std::string, reco::JetTagRef> > v_p_str_jtr;
+    //std::pair<std::string, reco::JetTagRef> p_str_jtr;
     std::map<TtSemiEvent::HypoKey, reco::NamedCompositeCandidate> m_key_hyp;
 
     TtGenEvent ttgen;
