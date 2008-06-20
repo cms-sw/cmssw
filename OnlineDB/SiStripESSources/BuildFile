@@ -7,7 +7,7 @@
 <use name=FWCore/MessageLogger>
 <use name=FWCore/PluginManager>
 <use name=OnlineDB/SiStripConfigDb>
-<use name=TkOnlineSw>
+<use name=TkOnlineSwDB>
 <use name=boost>
 
 <export>
