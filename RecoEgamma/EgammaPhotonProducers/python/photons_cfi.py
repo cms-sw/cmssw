@@ -2,7 +2,7 @@ import FWCore.ParameterSet.Config as cms
 
 #
 # producer for photons
-# $Id: photons_cfi.py,v 1.9 2008/06/18 11:00:13 nancy Exp $
+# $Id: photons_cfi.py,v 1.11 2008/06/19 18:19:49 nancy Exp $
 #
 photons = cms.EDProducer("PhotonProducer",
     scHybridBarrelProducer = cms.InputTag("correctedHybridSuperClusters"),
@@ -32,7 +32,7 @@ photons = cms.EDProducer("PhotonProducer",
     minEtRecHit = cms.double(0.),
     ecalIsolInnR = cms.double(0.1),
     ecalIsolExtR = cms.double(0.4),
-    isolEtCut = cms.double(5.)
+    isolEtCut = cms.double(99999.)
                           
    
 )
