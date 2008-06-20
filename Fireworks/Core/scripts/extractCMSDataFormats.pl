@@ -1,4 +1,4 @@
-#!/usr/bin/env perl
+#!/bin/env perl
 # Author:      Dmytro Kovalskyi (UCSB)
 #              dr.kovalskyi@gmail.com
 use strict;
