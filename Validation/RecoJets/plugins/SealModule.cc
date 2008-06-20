@@ -20,6 +20,8 @@ DEFINE_ANOTHER_FWK_MODULE( PartonCorrection );
 DEFINE_ANOTHER_FWK_MODULE( PhotonJetClosure );
 
 
+#include "Validation/RecoJets/plugins/PFJetTester.h"
 #include "Validation/RecoJets/plugins/CaloJetTester.h"
 
+DEFINE_ANOTHER_FWK_MODULE( PFJetTester );
 DEFINE_ANOTHER_FWK_MODULE( CaloJetTester );
