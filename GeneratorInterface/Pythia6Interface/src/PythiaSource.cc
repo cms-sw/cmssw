@@ -1,6 +1,6 @@
 /*
- *  $Date: 2008/04/18 20:39:36 $
- *  $Revision: 1.29 $
+ *  $Date: 2008/05/05 20:05:09 $
+ *  $Revision: 1.30 $
  *  
  *  Filip Moorgat & Hector Naves 
  *  26/10/05
@@ -37,6 +37,12 @@ using namespace std;
 
 // #include "GeneratorInterface/CommonInterface/interface/Txgive.h"
 
+#define N pyjets.n
+#define NPAD pyjets.npad
+#define K(a,b) pyjets.k[b-1][a-1]
+#define P(a,b) pyjets.p[b-1][a-1]
+#define V(a,b) pyjets.v[b-1][a-1]
+
 #define PYGIVE pygive_
 extern "C" {
   void PYGIVE(const char*,int length);
@@ -45,6 +51,11 @@ extern "C" {
 #define PY1ENT py1ent_
 extern "C" {
   void PY1ENT(int& ip, int& kf, double& pe, double& the, double& phi);
+}
+
+#define PYROBO pyrobo_
+extern "C" {
+  void PYROBO(int& first, int& last, double& the, double& phi, double& bx, double& by, double& bz);
 }
 
 #define PYMASS pymass_
@@ -155,6 +166,10 @@ PythiaSource::PythiaSource( const ParameterSet & pset,
   
   particleID = pset.getUntrackedParameter<int>("ParticleID", 0);
 
+  particleIDs = 
+    pset.getUntrackedParameter<std::vector<int> >("ParticleIDs", 
+						 std::vector<int>(0));
+
 // Initialize the random engine unconditionally!
   randomEngine = &fRandomEngine;
   fRandomGenerator = new CLHEP::RandFlat(fRandomEngine) ;
@@ -177,16 +192,17 @@ PythiaSource::PythiaSource( const ParameterSet & pset,
     if ( emin > 0 && emax > 0 ) {
       cout <<" emin = " << emin <<" emax = " << emax << endl;
     }
-
+  
     if(kinedata.size() < 1){                                                                                 
        etamin = pset.getUntrackedParameter<double>("Etamin",0.);                                             
        etamax = pset.getUntrackedParameter<double>("Etamax",2.2);                                            
-       cout <<" etamin = " << etamin <<" etamax = " << etamax << endl;                                       
+       cout <<" etamin = " << etamin <<" etamax = " << etamax << endl;
     }else{                                                                                                   
        ymin = pset.getUntrackedParameter<double>("ymin",0.);                                                 
        ymax = pset.getUntrackedParameter<double>("ymax",10.);                                                
        cout <<" ymin = " << ymin <<" ymax = " << ymax << endl;                                               
-    }                             
+    }
+      
     
     phimin = pset.getUntrackedParameter<double>("Phimin",0.);
     phimax = pset.getUntrackedParameter<double>("Phimax",360.);
@@ -199,7 +215,32 @@ PythiaSource::PythiaSource( const ParameterSet & pset,
        fPtYGenerator = new PtYDistributor(kinedata, fRandomEngine, 
                                           ptmax, ptmin, ymax, ymin, ptbins, ybins);
     }
+  } else if ( particleIDs.size() > 1 ) {
+
+    // Here a simple jet with a number of particles of your choice
+    // is to be generated. The particles are given an energy between 
+    // 500 MeV and 1 GeV (flat/random), and are then boosted with 
+    // a |beta|*E between Emin and Emax and with eta and phi in the
+    // ranges given.
+
+    // Boost absolute value
+    emin = pset.getUntrackedParameter<double>("Emin",0.5);
+    emax = pset.getUntrackedParameter<double>("Emax",2.0);
+    
+    // Boost absolute value
+    ptmin = pset.getUntrackedParameter<double>("Pmin",20.);
+    ptmax = pset.getUntrackedParameter<double>("Pmax",20.);
+
+    // Boost pseudo-rapidity range
+    etamin = pset.getUntrackedParameter<double>("Etamin",0.); 
+    etamax = pset.getUntrackedParameter<double>("Etamax",2.2);
+    
+    // Boost phi range
+    phimin = pset.getUntrackedParameter<double>("Phimin",-3.1415926536);
+    phimax = pset.getUntrackedParameter<double>("Phimax",+3.1415926536);
+
   }
+
   // Set PYTHIA parameters in a single ParameterSet
   ParameterSet pythia_params = 
     pset.getParameter<ParameterSet>("PythiaParameters") ;
@@ -285,7 +326,7 @@ PythiaSource::PythiaSource( const ParameterSet & pset,
   call_pygive(sRandomSet.str());
 #endif
   
-  if(particleID) 
+  if(particleID || particleIDs.size() > 1 ) 
     {
       call_pyinit( "NONE", "p", "p", comenergy );
     } else {
@@ -445,6 +486,59 @@ bool PythiaSource::produce(Event & e) {
 	    PY1ENT(ip, particleID2, ee, the, phi);
 	  }
 	PYEXEC();
+
+      } else if ( particleIDs.size() > 1 ) { 
+
+	// Initialize some variables
+	int dum;
+	int ip = 0;
+	double px = 0;	
+	double py = 0;
+	double pz = 0;
+	double pe = 0;
+	// The particles in the "c.o.m. frame"
+	for ( unsigned id=0; id<particleIDs.size(); ++id ) {
+	  ++ip;
+	  int pythiaCode = particleIDs[id];
+	  // Generate the particles with emin -> emax Fermi motion
+	  double e = emin + (emax-emin) * pyr_(&pythiaCode);
+	  // Any direction
+	  double phi = 2. * 3.1415927 * pyr_(&pythiaCode);
+	  double ctt = -1. + 2.*pyr_(&pythiaCode);
+	  double the = std::acos(ctt);
+	  // Add the entry in PYJETS
+	  PY1ENT(ip,pythiaCode,e,the,phi);
+	  // To compute the overall mass
+	  px += P(ip,1);
+	  py += P(ip,2);
+	  pz += P(ip,3);
+	  pe += P(ip,4);
+	}
+
+	// The boost
+	// The overall mass
+	double mm = std::sqrt(pe*pe-px*px-py*py-pz*pz);
+	// The boost absolute value
+	double pp = ptmin + (ptmax-ptmin)*pyr_(&dum);
+	double ee = sqrt(pp*pp+mm*mm);
+	// The boost direction
+	double fhi = phimin + (phimax-phimin)*pyr_(&dum);
+	double eta = etamin + (etamax-etamin)*pyr_(&dum);
+	double tet = 2.*atan(exp(-eta));
+	// betax, betay, betaz
+	double betax = pp/ee * std::sin(tet) * std::cos(fhi);
+	double betay = pp/ee * std::sin(tet) * std::sin(fhi);
+	double betaz = pp/ee * std::cos(tet);
+	// No rotation
+	double rothe = 0.;
+	double rophi = 0.;
+	// Boost all particles
+	int first = -1;
+	int last = -1;
+	PYROBO(first, last, rothe, rophi, betax, betay, betaz);
+	// And now decay boosted particles
+	PYEXEC();
+
       } else {
           if(!gluinoHadronsEnabled && !stopHadronsEnabled)
 	  {

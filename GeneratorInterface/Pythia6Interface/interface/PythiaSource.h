@@ -73,6 +73,7 @@ namespace edm
  
     // for single particle generation in pythia
     int    particleID;
+    std::vector<int> particleIDs;
     bool   doubleParticle;
     std::string kinedata;
     double ptmin, ptmax;
