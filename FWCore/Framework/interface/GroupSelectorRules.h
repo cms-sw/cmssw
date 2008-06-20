@@ -3,7 +3,7 @@
 
 //////////////////////////////////////////////////////////////////////
 //
-// $Id: GroupSelectorRules.h,v 1.11 2007/01/10 22:41:46 wdd Exp $
+// $Id: GroupSelectorRules.h,v 1.1 2008/06/05 23:17:05 wmtan Exp $
 //
 // Class GroupSelectorRules. Class for rules to select specific groups in event.
 //
@@ -42,6 +42,8 @@ namespace edm {
   
     void applyToAll(std::vector<BranchSelectState>& branchstates) const;
 
+    bool keepAll() const {return keepAll_;}
+
   private:
     class Rule {
     public:
@@ -78,6 +80,7 @@ namespace edm {
     std::vector<Rule> rules_;
     std::string parameterName_;
     std::string parameterOwnerName_;
+    bool keepAll_;
   };
 
 } // namespace edm

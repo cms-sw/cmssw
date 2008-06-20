@@ -1,4 +1,4 @@
-// $Id: GroupSelector.cc,v 1.26 2007/11/07 08:04:54 wmtan Exp $
+// $Id: GroupSelectorRules.cc,v 1.1 2008/06/05 23:17:05 wmtan Exp $
 
 #include <algorithm>
 #include <iterator>
@@ -241,11 +241,10 @@ typedef std::vector<edm::BranchDescription const*> VCBDP;
       pset.getUntrackedParameter<std::vector<std::string> >(parameterName,
 						    defaultCommands);
     rules_.reserve(commands.size());
-    std::vector<std::string>::const_iterator it =  commands.begin();
-    std::vector<std::string>::const_iterator end = commands.end();
-    for (; it != end; ++it) {
-      rules_.push_back(GroupSelectorRules::Rule(*it, parameterName, parameterOwnerName));
+    for(std::vector<std::string>::const_iterator it = commands.begin(), end = commands.end();
+        it != end; ++it) {
+      rules_.push_back(Rule(*it, parameterName, parameterOwnerName));
     }
+    keepAll_ = commands.size() == 1 && commands[0] == defaultCommands[0];
   }
-
 }
