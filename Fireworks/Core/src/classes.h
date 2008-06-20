@@ -31,6 +31,8 @@
 #include "Fireworks/Core/interface/FWDoubleParameter.h"
 #include "Fireworks/Core/src/FWLongParameterSetter.h"
 #include "Fireworks/Core/interface/FWLongParameter.h"
+#include "Fireworks/Core/src/FWBoolParameterSetter.h"
+#include "Fireworks/Core/interface/FWBoolParameter.h"
 #include "Fireworks/Core/interface/GenParticleDetailView.h"
 
 

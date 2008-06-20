@@ -28,6 +28,8 @@
   <class name="FWParameterSetterBase"/>
   <class name="FWDoubleParameterSetter"/>
   <class name="FWDoubleParameter"/>
+  <class name="FWBoolParameterSetter"/>
+  <class name="FWBoolParameter"/>
   <class name="FWLongParameterSetter"/>
   <class name="FWLongParameter"/>
   <class name="FWConfiguration::KeyValues"/>
