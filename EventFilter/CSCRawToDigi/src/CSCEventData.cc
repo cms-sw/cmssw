@@ -336,6 +336,37 @@ void CSCEventData::add(const CSCWireDigi & digi, int layer) {
   theAnodeData->add(digi, layer);
 }
 
+void CSCEventData::add(const CSCComparatorDigi & digi, int layer) {
+  if(theTMBData == NULL)    {
+    theTMBData = new CSCTMBData();
+  }
+  theTMBData->clctData()->add(digi, layer);
+}
+
+
+
+void CSCEventData::add(const CSCALCTDigi & digi) {
+  if(theAnodeData == NULL)    {
+    createALCTClasses();
+  }
+  theALCTHeader->add(digi);
+}
+
+
+void CSCEventData::add(const CSCCLCTDigi & digi) {
+  if(theTMBData == NULL)    {
+    theTMBData = new CSCTMBData();
+  }
+  theTMBData->tmbHeader()->add(digi);
+}
+
+void CSCEventData::add(const CSCCorrelatedLCTDigi & digi) {
+  if(theTMBData == NULL)    {
+    theTMBData = new CSCTMBData();
+  }
+  theTMBData->tmbHeader()->add(digi);
+}
+
 
 
 

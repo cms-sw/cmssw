@@ -112,6 +112,11 @@ class CSCEventData {
   /// routines to add digis to the data
   void add(const CSCStripDigi &, int layer);
   void add(const CSCWireDigi &, int layer);
+  void add(const CSCComparatorDigi &, int layer);
+  void add(const CSCALCTDigi &);
+  void add(const CSCCLCTDigi &);
+  void add(const CSCCorrelatedLCTDigi &);
+
   
   /// this will fill the DMB header, and change all related fields in
   /// the DMBTrailer, ALCTHeader, and TMBHeader

@@ -165,6 +165,14 @@ std::vector<CSCALCTDigi> CSCALCTHeader::ALCTDigis() const
 }
 
 
+void CSCALCTHeader::add(const CSCALCTDigi & digi)
+{
+  //FIXME doesn't do any sorting
+  int nALCT = ALCTDigis().size();
+  if(nALCT == 0) addALCT0(digi);
+  else if(nALCT == 1) addALCT1(digi);
+}
+
 void CSCALCTHeader::addALCT0(const CSCALCTDigi & digi)
 {
   if(firmwareVersion != 2006) {

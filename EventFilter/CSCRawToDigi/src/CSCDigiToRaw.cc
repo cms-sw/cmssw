@@ -1,7 +1,7 @@
 /** \file
  *
- *  $Date: 2008/05/02 22:13:17 $
- *  $Revision: 1.22 $
+ *  $Date: 2008/06/11 02:13:00 $
+ *  $Revision: 1.23 $
  *  \author A. Tumanov - Rice
  */
 
@@ -109,7 +109,7 @@ void CSCDigiToRaw::add(const CSCComparatorDigiCollection & comparatorDigis)
       std::vector<CSCComparatorDigi>::const_iterator last = (*j).second.second;
       for( ; digiItr != last; ++digiItr)
         {
-          //cscData.add(*digiItr, cscDetId.layer() );
+          cscData.add(*digiItr, cscDetId.layer() );
         }
     }
 }
@@ -125,7 +125,7 @@ void CSCDigiToRaw::add(const CSCALCTDigiCollection & alctDigis)
       std::vector<CSCALCTDigi>::const_iterator last = (*j).second.second;
       for( ; digiItr != last; ++digiItr)
         {
-          //cscData.add(*digiItr, cscDetId.layer() );
+          cscData.add(*digiItr);
         }
     }
 }
@@ -142,7 +142,7 @@ void CSCDigiToRaw::add(const CSCCLCTDigiCollection & clctDigis)
       std::vector<CSCCLCTDigi>::const_iterator last = (*j).second.second;
       for( ; digiItr != last; ++digiItr)
         {
-          //cscData.add(*digiItr, cscDetId.layer() );
+          cscData.add(*digiItr);
         }
     }
 }
@@ -158,7 +158,7 @@ void CSCDigiToRaw::add(const CSCCorrelatedLCTDigiCollection & corrLCTDigis)
       std::vector<CSCCorrelatedLCTDigi>::const_iterator last = (*j).second.second;
       for( ; digiItr != last; ++digiItr)
         {
-          //cscData.add(*digiItr, cscDetId.layer() );
+          cscData.add(*digiItr);
         }
     }
 

@@ -396,6 +396,10 @@ class CSCTMBHeader {
   void addALCT1(const CSCALCTDigi & digi);
   void addCorrelatedLCT0(const CSCCorrelatedLCTDigi & digi);
   void addCorrelatedLCT1(const CSCCorrelatedLCTDigi & digi);
+  /// these methods need more brains to figure which one goes first
+  void add(const CSCCLCTDigi & digi);
+  void add(const CSCCorrelatedLCTDigi & digi);
+
 
   // templated on the header struct
   template<typename T> void addCLCT0(const CSCCLCTDigi & digi, T & t);

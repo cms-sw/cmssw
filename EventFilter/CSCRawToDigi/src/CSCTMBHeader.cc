@@ -406,6 +406,22 @@ void CSCTMBHeader::addCorrelatedLCT1(const CSCCorrelatedLCTDigi & digi)
     addCorrelatedLCT1(digi, header2007);
 }
 
+//FIXME Pick which LCT goes first
+void CSCTMBHeader::add(const CSCCLCTDigi & digi)
+{
+  int nLCT = CLCTDigis(0).size();
+  if(nLCT == 0) addCLCT0(digi);
+  else if(nLCT == 1) addCLCT1(digi);
+}
+
+void CSCTMBHeader::add(const CSCCorrelatedLCTDigi & digi)
+{
+  int nLCT = CorrelatedLCTDigis(0).size();
+  if(nLCT == 0) addCorrelatedLCT0(digi);
+  else if(nLCT == 1) addCorrelatedLCT1(digi);
+}
+
+
 // These four methods are to cheat the compiler.
 void CSCTMBHeader::setCLCT0PatternType(CSCTMBHeader2006& header,
 				       const int pattern, const int type) {
