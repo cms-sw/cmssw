@@ -193,6 +193,9 @@ if(all4DSegments->size()>0){
 		std::cout<<"\t \t \t \t \t \t Filling BX Distribution"<<std::endl;
 		sprintf(meIdRPC,"BXDistribution_%s",detUnitLabel);
 		meMap[meIdRPC]->Fill(digiIt->bx());
+		
+		sprintf(meIdRPC,"RealDetectedOccupancyFromDT_%s",detUnitLabel);
+		meMap[meIdRPC]->Fill(stripDetected); //have a look to this!
 	      }
 	      
 	      std::cout<<"\t \t \t \t \t Sum of strips "<<sumStripDetected<<std::endl;
@@ -240,9 +243,6 @@ if(all4DSegments->size()>0){
 		  buff=counter[1];
 		  buff[rollId]++;
 		  counter[1]=buff;
-		  
-		  sprintf(meIdRPC,"RealDetectedOccupancyFromDT_%s",detUnitLabel);
-		  meMap[meIdRPC]->Fill(meanStripDetected); //have a look to this!
 		  
 		  sprintf(meIdRPC,"RPCDataOccupancyFromDT_%s",detUnitLabel);
 		  meMap[meIdRPC]->Fill(stripPredicted);

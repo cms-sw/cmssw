@@ -220,7 +220,9 @@ iEvent.getByLabel(cscSegments, allCSCSegments);
 		  std::cout<<"\t \t \t \t \t \t Filling BX Distribution"<<std::endl;
 		  sprintf(meIdRPC,"BXDistribution_%s",detUnitLabel);
 		  meMap[meIdRPC]->Fill(digiIt->bx());
-		  
+
+		  sprintf(meRPC,"RealDetectedOccupancyFromCSC_%s",detUnitLabel);
+		  meMap[meRPC]->Fill(stripDetected);
 		}
 
 		std::cout<<"\t \t \t \t \t Sum of strips "<<sumStripDetected<<std::endl;
@@ -263,9 +265,6 @@ iEvent.getByLabel(cscSegments, allCSCSegments);
 		    buff=counter[1];
 		    buff[rollId]++;
 		    counter[1]=buff;
-		    
-		    sprintf(meRPC,"RealDetectedOccupancyFromCSC_%s",detUnitLabel);
-		    meMap[meRPC]->Fill(meanStripDetected);
 		    
 		    sprintf(meRPC,"RPCDataOccupancyFromCSC_%s",detUnitLabel);
 		    meMap[meRPC]->Fill(stripPredicted);
