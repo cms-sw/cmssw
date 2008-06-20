@@ -11,6 +11,7 @@ using std::endl;
 #include "L1Trigger/RegionalCaloTrigger/interface/L1RCTLookupTables.h"
 
 #include "CondFormats/L1TObjects/interface/L1RCTParameters.h"
+#include "CondFormats/L1TObjects/interface/L1RCTChannelMask.h"
 #include "CalibFormats/CaloTPG/interface/CaloTPGTranscoder.h"
 #include "CondFormats/L1TObjects/interface/L1CaloEtScale.h"
 #include "CondFormats/EcalObjects/interface/EcalTPGScale.h"
@@ -25,6 +26,9 @@ unsigned int L1RCTLookupTables::lookup(unsigned short ecalInput,
   if(rctParameters_ == 0)
     throw cms::Exception("L1RCTParameters Invalid")
       << "L1RCTParameters should be set every event" << rctParameters_;
+  if(channelMask_ == 0)
+    throw cms::Exception("L1RCTChannelMask Invalid")
+      << "L1RCTChannelMask should be set every event" << channelMask_;
   if(ecalInput > 0xFF) 
     throw cms::Exception("Invalid Data") 
       << "ECAL compressedET should be less than 0xFF, is " << ecalInput;
@@ -39,11 +43,33 @@ unsigned int L1RCTLookupTables::lookup(unsigned short ecalInput,
   unsigned short iAbsEta = (unsigned short) abs(iEta);
   short sign = iEta/iAbsEta;
   unsigned short iPhi = rctParameters_->calcIPhi(crtNo, crdNo, twrNo);
+  unsigned short phiSide = (iPhi/4)%2;
   if(iAbsEta < 1 || iAbsEta > 28) 
     throw cms::Exception("Invalid Data") 
       << "1 <= |IEta| <= 28, is " << iAbsEta;
-  float ecal = convertEcal(ecalInput, iAbsEta, iPhi, sign);
-  float hcal = convertHcal(hcalInput, iAbsEta);
+  float ecal;
+  float hcal;
+  // using channel mask to mask off ecal channels
+  if (channelMask_->ecalMask[crtNo][phiSide][iAbsEta])
+    {
+      ecal = 0;
+    }
+  else
+    {
+      ecal = convertEcal(ecalInput, iAbsEta, iPhi, sign);
+    }
+  // masking off hcal for channels in channel mask
+  if (channelMask_->hcalMask[crtNo][phiSide][iAbsEta])
+    {
+      hcal = 0;
+    }
+  else
+    {
+      hcal = convertHcal(hcalInput, iAbsEta);
+    }
+  // couts!
+  //std::cout << "LUTs: ecalInput=" << ecalInput << " ecalConverted="
+  //	    << ecal << std::endl;
   unsigned long etIn7Bits;
   unsigned long etIn9Bits;
   // Saturated input towers cause tower ET pegging at the highest value
@@ -53,10 +79,10 @@ unsigned int L1RCTLookupTables::lookup(unsigned short ecalInput,
       etIn9Bits = 0x1FF;
     }
   else if((ecalInput == 0 && hcalInput > 0) &&
-	  ((rctParameters_->noiseVetoHB() && iAbsEta > 0 && iAbsEta < 18)
-	   || (rctParameters_->noiseVetoHEplus() && iAbsEta>17 && crtNo>8)
-	   || (rctParameters_->noiseVetoHEminus() && iAbsEta>17 && crtNo<9)))
-    {
+  	  ((rctParameters_->noiseVetoHB() && iAbsEta > 0 && iAbsEta < 18)
+  	   || (rctParameters_->noiseVetoHEplus() && iAbsEta>17 && crtNo>8)
+  	   || (rctParameters_->noiseVetoHEminus() && iAbsEta>17 && crtNo<9)))
+   {
       etIn7Bits = 0;
       etIn9Bits = 0;
     }
@@ -67,10 +93,19 @@ unsigned int L1RCTLookupTables::lookup(unsigned short ecalInput,
       /*
       if (etIn7Bits > 0)
 	{
-	  std::cout << "etIn7Bits is " << etIn7Bits << std::endl;
+	  std::cout << "LUTs: ecalInput=" << ecalInput << " hcalInput=" 
+	  << hcalInput << " ecal=" << ecal << " hcal=" << hcal 
+	  << " etIn7Bits=" << etIn7Bits << " etIn9Bits="
+	  << etIn9Bits << std::endl;
 	}
       */
     }
+  /*
+  std::cout << "LUTs: ecalInput=" << ecalInput << " hcalInput=" 
+	    << hcalInput << " ecal=" << ecal << " hcal=" << hcal 
+	    << " etIn7Bits=" << etIn7Bits << " etIn9Bits="
+	    << etIn9Bits << std::endl;
+  */
   unsigned long shiftEtIn9Bits = etIn9Bits<<8;
   unsigned long shiftHE_FGBit = hOeFGVetoBit(ecal, hcal, fgbit)<<7;
   unsigned long shiftActivityBit = activityBit(ecal, hcal)<<17;
@@ -87,14 +122,26 @@ unsigned int L1RCTLookupTables::lookup(unsigned short hfInput,
   if(rctParameters_ == 0)
     throw cms::Exception("L1RCTParameters Invalid")
       << "L1RCTParameters should be set every event" << rctParameters_;
+  if(channelMask_ == 0)
+    throw cms::Exception("L1RCTChannelMask Invalid")
+      << "L1RCTChannelMask should be set every event" << channelMask_;
   if(hfInput > 0xFF) 
     throw cms::Exception("Invalid Data") 
       << "HF compressedET should be less than 0xFF, is " << hfInput;
   unsigned short iAbsEta = rctParameters_->calcIAbsEta(crtNo, crdNo, twrNo);
+  unsigned short phiSide = twrNo/4;
   if(iAbsEta < 29 || iAbsEta > 32) 
     throw cms::Exception("Invalid Data") 
       << "29 <= |iEta| <= 32, is " << iAbsEta;
-  float et = convertHcal(hfInput, iAbsEta);
+  float et;
+  if (channelMask_->hfMask[crtNo][phiSide][iAbsEta])
+    {
+      et = 0;
+    }
+  else
+    {
+      et = convertHcal(hfInput, iAbsEta);
+    }
   return convertToInteger(et, rctParameters_->jetMETLSB(), 8);
 }
 
@@ -160,14 +207,13 @@ float L1RCTLookupTables::convertEcal(unsigned short ecal, unsigned short iAbsEta
       if (iAbsEta <= 17)
 	{
 	  //dummy = float (ecalScale_->getLinearizedTPG( (uint) ecal, EcalTrigTowerDetId(sign, EcalBarrel, iAbsEta, iPhi)));
-	  dummy = float (ecalScale_->getTPGInGeV( (uint) ecal, EcalTrigTowerDetId(sign, EcalBarrel, iAbsEta, iPhi)));	}
+	  dummy = float (ecalScale_->getTPGInGeV( (uint) ecal, EcalTrigTowerDetId(sign, EcalBarrel, iAbsEta, iPhi)));	
+	}
       else
 	{
 	  //dummy = float (ecalScale_->getLinearizedTPG( (uint) ecal, EcalTrigTowerDetId(sign, EcalEndcap, iAbsEta, iPhi)));
-	  dummy = float (ecalScale_->getTPGInGeV( (uint) ecal, EcalTrigTowerDetId(sign, EcalEndcap, iAbsEta, iPhi)));	}
-      //EcalTrigTowerDetId det(sign, EcalTriggerTower, iAbsEta, iPhi);
-      //float dummy = float (ecalScale_->getLinearizedTPG( (uint) ecal, EcalTrigTowerDetId( (int) sign, EcalTriggerTower, (int) iAbsEta, (int) iPhi)));
-      //float dummy = float (ecalScale_->getLinearizedTPG( (uint) ecal, det));
+	  dummy = float (ecalScale_->getTPGInGeV( (uint) ecal, EcalTrigTowerDetId(sign, EcalEndcap, iAbsEta, iPhi)));	
+	}
       /*
       if (ecal > 0)
 	{
@@ -175,16 +221,7 @@ float L1RCTLookupTables::convertEcal(unsigned short ecal, unsigned short iAbsEta
 		    << dummy << " with iAbsEta " << iAbsEta << std::endl;
 	}
       */
-      /*
-      dummy = dummy * rctParameters_->eGammaLSB();
-      if (ecal > 0)
-	{
-	  std::cout << " e*LSB = " << dummy << std::endl;
-	}
-      */
       return dummy;
-      //return dummy * rctParameters_->eGammaLSB();
-      //return float(ecalScale_->getLinearizedTPG( (uint) ecal, const EcalTrigTowerDetId( sign, EcalTriggerTower, iAbsEta, iPhi ) ) );
     }
   //else if(rctParameters_ == 0)
   //  {
