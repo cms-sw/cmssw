@@ -36,16 +36,6 @@ void CastorDigiToRaw::produce(edm::Event& e, const edm::EventSetup& es)
     e.getByLabel(castorTag_,castor);
     colls.castorCont=castor.product();
   }
-//  edm::Handle<CastorCalibDigiCollection> Calib;
-//  if (!calibTag_.label().empty()) {
-//    e.getByLabel(calibTag_,Calib);
-//    colls.calibCont=Calib.product();
-//  }
-//  edm::Handle<CastorTrigPrimDigiCollection> htp;
-//  if (!trigTag_.label().empty()) {
-//    e.getByLabel(trigTag_,htp);
-//    colls.tpCont=htp.product();
-//  }
   // get the mapping
   edm::ESHandle<CastorDbService> pSetup;
   es.get<CastorDbRecord>().get( pSetup );
@@ -56,8 +46,8 @@ void CastorDigiToRaw::produce(edm::Event& e, const edm::EventSetup& es)
 // change to this when getCastorFEDIds is added to FEDNumbering
 //  const int ifed_first=FEDNumbering::getCastorFEDIds().first;
 //  const int ifed_last=FEDNumbering::getCastorFEDIds().second;
-  const int ifed_first=FEDNumbering::getHcalFEDIds().first;
-  const int ifed_last=FEDNumbering::getHcalFEDIds().second;
+  const int ifed_first=690;
+  const int ifed_last=693;
 
   int orbitN=e.id().event();
   int bcnN=2000;
@@ -74,7 +64,6 @@ void CastorDigiToRaw::produce(edm::Event& e, const edm::EventSetup& es)
       edm::LogWarning("Unpacking exception");
     }
   }
-
 
   e.put(raw);
 }
