@@ -5,7 +5,7 @@
 
 RootInputFileSequence: This is an InputSource
 
-$Id: RootInputFileSequence.h,v 1.14 2008/06/07 15:07:58 wmtan Exp $
+$Id: RootInputFileSequence.h,v 1.15 2008/06/19 19:12:52 wdd Exp $
 
 ----------------------------------------------------------------------*/
 
@@ -58,7 +58,7 @@ namespace edm {
     void readMany_(int number, EventPrincipalVector& result);
     void readMany_(int number, EventPrincipalVector& result, EventID const& id, unsigned int fileSeqNumber);
     void readManyRandom_(int number, EventPrincipalVector& result, unsigned int& fileSeqNumber);
-    void dropUnwantedBranches_(std::vector<std::string> const& wantedBranches) {wantedBranches_ = wantedBranches;}
+    void dropUnwantedBranches_(std::vector<std::string> const& wantedBranches);
     ProductRegistry const& fileProductRegistry() const;
   private:
     void initFile(bool skipBadFiles);
@@ -105,7 +105,6 @@ namespace edm {
     bool dropMetaData_;
     bool primarySequence_;
     bool randomAccess_;
-    std::vector<std::string> wantedBranches_;
   }; // class RootInputFileSequence
 }
 #endif

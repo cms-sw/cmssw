@@ -52,8 +52,7 @@ namespace edm {
     groupSelectorRules_(pset, "inputCommands", "InputSource"),
     dropMetaData_(pset.getUntrackedParameter<bool>("dropMetaData", false)),
     primarySequence_(primarySequence),
-    randomAccess_(false),
-    wantedBranches_() {
+    randomAccess_(false) {
 
     sort_all(eventsToProcess_);
     std::string matchMode = pset.getUntrackedParameter<std::string>("fileMatchMode", std::string("permissive"));
@@ -150,7 +149,7 @@ namespace edm {
 	  startAtRun_, startAtLumi_, startAtEvent_, eventsToSkip_, whichLumisToSkip_,
 	  remainingEvents(), remainingLuminosityBlocks(), treeCacheSize_, treeMaxVirtualSize_,
 	  forcedRunOffset_, eventsToProcess_,
-	  dropMetaData_, groupSelectorRules_, wantedBranches_));
+	  dropMetaData_, groupSelectorRules_));
       fileIndexes_[fileIter_ - fileIterBegin_] = rootFile_->fileIndexSharedPtr();
     } else {
       if (!skipBadFiles) {
@@ -405,6 +404,20 @@ namespace edm {
   boost::shared_ptr<ProductRegistry const>
   RootInputFileSequence::productRegistry() const{
     return input_.productRegistry();
+  }
+
+  void
+  RootInputFileSequence::dropUnwantedBranches_(std::vector<std::string> const& wantedBranches) {
+    std::vector<std::string> rules;
+    rules.reserve(wantedBranches.size() + 1);
+    rules.push_back(std::string("drop *")); 
+    for (std::vector<std::string>::const_iterator it = wantedBranches.begin(), itEnd = wantedBranches.end();
+	it != itEnd; ++it) {
+      rules.push_back("keep " + *it + "_*");
+    }
+    ParameterSet pset;
+    pset.addUntrackedParameter("inputCommands", rules);
+    groupSelectorRules_ = GroupSelectorRules(pset, "inputCommands", "InputSource");
   }
 
   void

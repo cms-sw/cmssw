@@ -55,8 +55,7 @@ namespace edm {
 		     int forcedRunOffset,
 		     std::vector<EventID> const& whichEventsToProcess,
 		     bool dropMetaData,
-		     GroupSelectorRules const& groupSelectorRules,
-		     std::vector<std::string> const& wantedBranches) :
+		     GroupSelectorRules const& groupSelectorRules) :
       file_(fileName),
       logicalFile_(logicalFileName),
       catalog_(catalogName),
@@ -236,26 +235,15 @@ namespace edm {
     for (ProductRegistry::ProductList::iterator it = prodList.begin(), itEnd = prodList.end();
         it != itEnd;) {
       BranchDescription const& prod = it->second;
-      if(wantedBranches.empty()) {
+      if(selected(prod)) {
         treePointers_[prod.branchType()]->addBranch(it->first, prod,
 						    newBranchToOldBranch(prod.branchName()));
         ++it;
       } else {
-	std::string searchString = prod.friendlyClassName();
-	searchString += '_';
-	searchString += prod.moduleLabel();
-	searchString += '_';
-	searchString += prod.productInstanceName();
-        if(binary_search_all(wantedBranches, searchString)) {
-          treePointers_[prod.branchType()]->addBranch(it->first, prod,
-						    newBranchToOldBranch(prod.branchName()));
-          ++it;
-        } else {
-          treePointers_[prod.branchType()]->dropBranch(newBranchToOldBranch(prod.branchName()));
-	  ProductRegistry::ProductList::iterator icopy = it;
-          ++it;
-          prodList.erase(icopy);
-        }
+        treePointers_[prod.branchType()]->dropBranch(newBranchToOldBranch(prod.branchName()));
+        ProductRegistry::ProductList::iterator icopy = it;
+        ++it;
+        prodList.erase(icopy);
       }
     }
 
@@ -929,4 +917,10 @@ namespace edm {
       throw edm::Exception(edm::errors::FatalRootError)
 	<< "Failed to find the event history tree\n";
   }
+
+  bool
+  RootFile::selected(BranchDescription const& desc) const {
+    return groupSelector_.selected(desc);
+  }
+
 }

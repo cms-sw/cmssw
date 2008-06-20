@@ -65,8 +65,7 @@ namespace edm {
 	     int forcedRunOffset,
 	     std::vector<EventID> const& whichEventsToProcess,
              bool dropMetaData,
-	     GroupSelectorRules const& groupSelectorRules,
-	     std::vector<std::string> const& wantedBranches);
+	     GroupSelectorRules const& groupSelectorRules);
     void reportOpened();
     void close(bool reallyClose);
     std::auto_ptr<EventPrincipal> readCurrentEvent(
@@ -129,6 +128,9 @@ namespace edm {
     std::string const& newBranchToOldBranch(std::string const& newBranch) const;
     void readEntryDescriptionTree();
     void readEventHistoryTree();
+
+    bool selected(BranchDescription const& desc) const;
+
     template <typename T>
     boost::shared_ptr<BranchMapper<T> > makeBranchMapper(RootTree & rootTree, BranchType const& type, std::vector<T> *&) const;
 
