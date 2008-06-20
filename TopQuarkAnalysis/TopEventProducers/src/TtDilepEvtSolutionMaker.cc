@@ -1,5 +1,5 @@
 //
-// $Id: TtDilepEvtSolutionMaker.cc,v 1.17 2008/02/17 11:09:40 rwolf Exp $
+// $Id: TtDilepEvtSolutionMaker.cc,v 1.18 2008/03/16 17:14:34 delaer Exp $
 //
 
 #include "PhysicsTools/Utilities/interface/DeltaR.h"
@@ -180,11 +180,15 @@ void TtDilepEvtSolutionMaker::produce(edm::Event & iEvent, const edm::EventSetup
 	}
       }
       // if there are more than one tau with ecalIsol==0, take the smallest E/P
-      float bestEP = 100.;
+      float iso = 999.;
       for(std::vector<std::vector<pat::Tau>::const_iterator>::const_iterator tau = subset1.begin(); tau < subset1.end(); ++tau) {
-        if((*tau)->eOverP()<bestEP) {
+        if((*tau)->isCaloTau() && (*tau)->isolationTracksPtSum()<iso) {
 	  *tauIdx = *tau - taus->begin();
-	  bestEP = (*tau)->eOverP();
+	  iso = (*tau)->isolationTracksPtSum();
+	}
+        if((*tau)->isPFTau() && (*tau)->isolationPFChargedHadrCandsPtSum()<iso) {
+	  *tauIdx = *tau - taus->begin();
+	  iso = (*tau)->isolationPFChargedHadrCandsPtSum();
 	}
       }
       
@@ -224,11 +228,15 @@ void TtDilepEvtSolutionMaker::produce(edm::Event & iEvent, const edm::EventSetup
 	}
       }
       // if there are more than one tau with ecalIsol==0, take the smallest E/P
-      float bestEP = 100.;
+      float iso = 999.;
       for(std::vector<std::vector<pat::Tau>::const_iterator>::const_iterator tau = subset1.begin(); tau < subset1.end(); ++tau) {
-        if((*tau)->eOverP()<bestEP) {
+        if((*tau)->isCaloTau() && (*tau)->isolationTracksPtSum()<iso) {
 	  *tauIdx = *tau - taus->begin();
-	  bestEP = (*tau)->eOverP();
+	  iso = (*tau)->isolationTracksPtSum();
+	}
+        if((*tau)->isPFTau() && (*tau)->isolationPFChargedHadrCandsPtSum()<iso) {
+	  *tauIdx = *tau - taus->begin();
+	  iso = (*tau)->isolationPFChargedHadrCandsPtSum();
 	}
       }
 
