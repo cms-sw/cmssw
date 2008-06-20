@@ -174,8 +174,7 @@ CandCombinerBase<OutputCollection, CandPtr>::combine(const std::vector<edm::Hand
 	  if(preselect(c1, c2)) {
 	    CandPtr cr2(src2, i2);
 	    typename OutputCollection::value_type c; 
-	    if ( namesSize == 2 )
-	      combine(c, cr1, cr2, name1, name2);
+	    combine(c, cr1, cr2, name1, name2);
 	    if(select(c))
 	      comps->push_back(c);
 	  }
