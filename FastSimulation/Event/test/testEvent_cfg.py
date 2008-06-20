@@ -19,10 +19,17 @@ process.load("DQMServices.Core.DQM_cfg")
 
 # Generate muons with a flat pT particle gun, and with pT=10.
 #process.load("FastSimulation.Configuration.FlatPtMuonGun_cfi")
-#process.FlatRandomPtGunSource.PGunParameters.PartID = [211]
+#process.source.PGunParameters.PartID = [211]
 
 # Generate di-taus with a PYTHIA particle gun
-process.load("FastSimulation.Configuration.PythiaTauGun_cfi")
+#process.load("FastSimulation.Configuration.PythiaTauGun_cfi")
+
+# Generate simple jets!
+process.load("FastSimulation.Configuration.SimpleJet_cfi")
+process.source.Pmin = 100.
+process.source.Pmax = 100.
+
+
 
 process.test = cms.EDFilter("testEvent",
     # necessary to access true particles 
