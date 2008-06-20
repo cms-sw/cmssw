@@ -8,7 +8,7 @@
 //
 // Original Author:  Chris Jones
 //         Created:  Mon Feb 11 11:06:40 EST 2008
-// $Id: FWGUIManager.cc,v 1.32 2008/06/18 15:17:14 chrjones Exp $
+// $Id: FWGUIManager.cc,v 1.33 2008/06/19 06:51:28 dmytro Exp $
 //
 
 // system include files
@@ -358,22 +358,44 @@ FWGUIManager::~FWGUIManager()
 void 
 FWGUIManager::addFrameHoldingAView(TGFrame* iChild)
 {
-   (*m_nextFrame)->AddFrame(iChild,new TGLayoutHints(kLHintsExpandX | 
-                                                     kLHintsExpandY) );
+   (m_viewFrames.back())->AddFrame(iChild,new TGLayoutHints(kLHintsExpandX | 
+                                                            kLHintsExpandY) );
    
    m_mainFrame->MapSubwindows();
    m_mainFrame->Resize();
    iChild->Resize();
    m_mainFrame->MapWindow();
    
-   ++m_nextFrame;
 }
 
 TGFrame* 
 FWGUIManager::parentForNextView()
 {
-   assert(m_nextFrame != m_viewFrames.end());
-   return *m_nextFrame;
+   
+   TGSplitFrame* splitParent=m_splitFrame;
+   while( splitParent->GetFrame() || splitParent->GetSecond()) {
+      if(! splitParent->GetSecond()) {
+         if(splitParent == m_splitFrame) {
+            //want to split vertically
+            splitParent->SplitHorizontal();
+            //need to do a reasonable sizing 
+            //TODO CDJ: how do I determine the true size if layout hasn't run yet?
+            int width = m_splitFrame->GetWidth();
+            int height = m_splitFrame->GetHeight();
+            m_splitFrame->GetFirst()->Resize(width,static_cast<int>(0.8*height));
+         } else {
+            splitParent->SplitVertical();
+         }
+      }
+      splitParent = splitParent->GetSecond();
+   }
+   
+   FWGUISubviewArea* hf = new FWGUISubviewArea(m_viewFrames.size(),splitParent,m_splitFrame);
+   hf->swappedToBigView_.connect(boost::bind(&FWGUIManager::subviewWasSwappedToBig,this,_1));
+   m_viewFrames.push_back(hf);
+   (splitParent)->AddFrame(hf,new TGLayoutHints(kLHintsExpandX | kLHintsExpandY) );
+   
+   return m_viewFrames.back();
 }
 
 
@@ -563,8 +585,10 @@ FWGUIManager::waitingForUserAction() const
 void 
 FWGUIManager::subviewWasSwappedToBig(unsigned int iIndex)
 {
-   //have to add 1 since the main view is the 0th so the first subview is 1
-   std::swap(m_viewBases[0], m_viewBases[iIndex+1]);
+   m_viewFrames[0]->setIndex(iIndex);
+   m_viewFrames[iIndex]->setIndex(0);
+   std::swap(m_viewBases[0], m_viewBases[iIndex]);
+   std::swap(m_viewFrames[0],m_viewFrames[iIndex]);
 }
 
 TGVerticalFrame* 
@@ -633,7 +657,8 @@ FWGUIManager::createViews(TGCompositeFrame *p)
   m_mainFrame = new TGMainFrame(p,600,450);
   m_splitFrame = new TGSplitFrame(m_mainFrame, 800, 600);
   m_mainFrame->AddFrame(m_splitFrame, new TGLayoutHints(kLHintsExpandX | kLHintsExpandY));
-  // split it once
+  /*
+   // split it once
   m_splitFrame->HSplit(434);
   // then split each part again (this will make four parts)
   m_splitFrame->GetSecond()->VSplit(260);
@@ -663,8 +688,10 @@ FWGUIManager::createViews(TGCompositeFrame *p)
   hf->swappedToBigView_.connect(boost::bind(&FWGUIManager::subviewWasSwappedToBig,this,_1));
   m_viewFrames.push_back(hf);
   (sf)->AddFrame(hf,new TGLayoutHints(kLHintsExpandX | kLHintsExpandY) );
- 
+   
   m_nextFrame = m_viewFrames.begin();
+  */
+
   p->Resize(m_mainFrame->GetWidth(), m_mainFrame->GetHeight());
   p->MapSubwindows();
   p->MapWindow();
@@ -844,6 +871,72 @@ static const std::string kMainWindow("main window");
 static const std::string kViews("views");
 static const std::string kViewArea("view area");
 
+namespace {
+   template<class Op>
+   void recursivelyApplyToFrame(TGSplitFrame* iParent, Op& iOp) {
+      std::cout <<"recursivelyApplyToFrame "<<iParent<<std::endl;
+      if(0==iParent) { return;}
+      if(iParent->GetFrame()) {
+         std::cout <<"   Frame"<<std::endl;
+         iOp(iParent);
+      } else {
+         std::cout <<"   First"<<std::endl;
+         recursivelyApplyToFrame(iParent->GetFirst(),iOp);
+         std::cout <<"   Second"<<std::endl;
+         recursivelyApplyToFrame(iParent->GetSecond(),iOp);         
+      }
+   }
+   
+   struct FrameAddTo {
+      FWConfiguration* m_config;
+      bool m_isFirst;
+      FrameAddTo(FWConfiguration& iConfig) :
+      m_config(&iConfig),
+      m_isFirst(true) {}
+      
+      void operator()(TGFrame* iFrame) {
+         std::stringstream s;
+         if(m_isFirst) {
+            m_isFirst = false;
+            s<< static_cast<int>(iFrame->GetHeight());
+            std::cout <<"height "<<s.str()<<std::endl;
+         }else {
+            s<< static_cast<int>(iFrame->GetWidth());
+            std::cout <<"width "<<s.str()<<std::endl;
+         }
+         m_config->addValue(s.str());
+      }         
+   };
+
+   struct FrameSetFrom {
+      const FWConfiguration* m_config;
+      int m_index;
+      FrameSetFrom(const FWConfiguration* iConfig) :
+      m_config(iConfig),
+      m_index(0) {}
+      
+      void operator()(TGFrame* iFrame) {
+         if(0==iFrame) {return;}
+         int width=0,height=0;
+         if(0==m_index) {
+            // top (main) split frame
+            width = iFrame->GetWidth();
+            std::stringstream s(m_config->value(m_index));
+            s >> height;
+            std::cout <<"height "<<height<<std::endl;
+         } else {
+         // bottom left split frame
+            height = iFrame->GetHeight();
+            std::stringstream s(m_config->value(m_index));
+            s >> width;
+            std::cout <<"width "<<width<<std::endl;
+         }
+         iFrame->Resize(width, height);
+         ++m_index;
+      }
+   };
+}
+
 void 
 FWGUIManager::addTo(FWConfiguration& oTo) const
 {
@@ -872,6 +965,11 @@ FWGUIManager::addTo(FWConfiguration& oTo) const
    oTo.addKeyValue(kViews,views,true);
    
    //remember the sizes in the view area
+   
+   FWConfiguration viewArea(1);
+   FrameAddTo frameAddTo(viewArea);
+   recursivelyApplyToFrame(m_splitFrame,frameAddTo);
+   /*
    TGSplitFrame *frm = m_splitFrame->GetFirst();
    FWConfiguration viewArea(1);
    {
@@ -897,6 +995,7 @@ FWGUIManager::addTo(FWConfiguration& oTo) const
       s<< top_height;
       viewArea.addValue(s.str());
    }
+    */
    oTo.addKeyValue(kViewArea,viewArea,true);
 }
 
@@ -940,7 +1039,11 @@ FWGUIManager::setFrom(const FWConfiguration& iFrom)
    //now configure the view area
    const FWConfiguration* viewArea = iFrom.valueForKey(kViewArea);
    assert(0!=viewArea);
+   
+   FrameSetFrom frameSetFrom(viewArea);
+   recursivelyApplyToFrame(m_splitFrame, frameSetFrom);
 
+   /*
    // top (main) split frame
    {
       int width = m_splitFrame->GetFirst()->GetWidth(), height=0;
@@ -962,12 +1065,13 @@ FWGUIManager::setFrom(const FWConfiguration& iFrom)
       s >> width;
       m_splitFrame->GetSecond()->GetSecond()->Resize(width, height);
    }
+    */
    m_splitFrame->Layout();
  
    {
       int width = ((TGCompositeFrame *)m_splitFrame->GetParent()->GetParent())->GetWidth();
       int height;
-      std::stringstream s(viewArea->value(3));
+      std::stringstream s(viewArea->value(viewArea->stringValues()->size()-1));
       s >> height;
       ((TGCompositeFrame *)m_splitFrame->GetParent()->GetParent())->Resize(width, height);
    }

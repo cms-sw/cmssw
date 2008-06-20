@@ -16,7 +16,7 @@
 //
 // Original Author:  Chris Jones
 //         Created:  Mon Feb 11 10:52:24 EST 2008
-// $Id: FWGUIManager.h,v 1.21 2008/06/18 15:17:14 chrjones Exp $
+// $Id: FWGUIManager.h,v 1.22 2008/06/19 18:18:20 jmuelmen Exp $
 //
 
 // system include files
@@ -42,6 +42,7 @@ class TGVerticalFrame;
 class CmsShowMainFrame;
 class TGMainFrame;
 class TGCompositeFrame;
+class FWGUISubviewArea;
 
 class FWEventItemsManager;
 class FWEventItem;
@@ -172,8 +173,8 @@ class FWGUIManager : public FWConfigurable
       CmsShowMainFrame* m_cmsShowMainFrame;
       TGMainFrame* m_mainFrame;
       TGSplitFrame* m_splitFrame;
-      std::vector<TGCompositeFrame*> m_viewFrames;
-      std::vector<TGCompositeFrame*>::iterator m_nextFrame;
+      std::vector<FWGUISubviewArea*> m_viewFrames;
+      //std::vector<TGCompositeFrame*>::iterator m_nextFrame;
       
       typedef std::map<std::string, ViewBuildFunctor > NameToViewBuilder;
       NameToViewBuilder m_nameToViewBuilder;
