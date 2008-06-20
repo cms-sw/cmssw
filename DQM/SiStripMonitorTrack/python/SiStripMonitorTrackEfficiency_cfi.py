@@ -1,7 +1,7 @@
 import FWCore.ParameterSet.Config as cms
 
 # MonitorTrackGlobal
-SiStripMonitorTrack = cms.EDFilter("SiStripMonitorTrack",
+siStripMonitorTrackEfficiency = cms.EDFilter("SiStripMonitorTrackEfficiency",
     OutputMEsInRootFile = cms.bool(False),
     Mod_On = cms.bool(True),
     Trending = cms.PSet(
@@ -32,9 +32,9 @@ SiStripMonitorTrack = cms.EDFilter("SiStripMonitorTrack",
     ),
     ClusterConditions = cms.PSet(
         minWidth = cms.double(0.0),
-        On = cms.bool(False),
+        On = cms.bool(True),
         maxStoN = cms.double(2000.0),
-        minStoN = cms.double(0.0),
+        minStoN = cms.double(10.0),
         maxWidth = cms.double(200.0)
     ),
     TH1ClusterStoNCorr = cms.PSet(
@@ -63,9 +63,9 @@ SiStripMonitorTrack = cms.EDFilter("SiStripMonitorTrack",
         ymin = cms.double(-0.1)
     ),
     TH1ClusterStoN = cms.PSet(
-        xmin = cms.double(-10.0),
-        Nbinx = cms.int32(300),
-        xmax = cms.double(600.0)
+        xmin = cms.double(0.0),
+        Nbinx = cms.int32(60),
+        xmax = cms.double(200.0)
     ),
     OffHisto_On = cms.bool(True),
     TH1ClusterChargeCorr = cms.PSet(
@@ -74,9 +74,9 @@ SiStripMonitorTrack = cms.EDFilter("SiStripMonitorTrack",
         xmax = cms.double(400.0)
     ),
     TH1ClusterCharge = cms.PSet(
-        xmin = cms.double(-10.0),
-        Nbinx = cms.int32(400),
-        xmax = cms.double(800.0)
+        xmin = cms.double(0.0),
+        Nbinx = cms.int32(100),
+        xmax = cms.double(500.0)
     ),
     AlgoName = cms.string('GenTk'),
     TH1nRecHits = cms.PSet(
