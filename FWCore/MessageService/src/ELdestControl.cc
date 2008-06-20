@@ -20,6 +20,7 @@
 //              good behavior for handle recovery.
 //  6/23/03 mf  changeFile(), flush()
 //  5/18/06 mf  setInterval
+//  6/19/08 mf  summaryForJobReport()
 // ----------------------------------------------------------------------
 
 
@@ -218,6 +219,10 @@ void ELdestControl::summary( ELstring & s, char * title )  {
 
 void ELdestControl::summary( )  {
   if (d) d->summary( );
+}
+
+void ELdestControl::summaryForJobReport( std::map<std::string, double> & sm)  {
+  if (d) d->summaryForJobReport(sm);
 }
 
 

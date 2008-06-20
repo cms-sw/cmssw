@@ -7,8 +7,14 @@
 // 
 //
 // Original Author:  Jim Kowalkowski
-// $Id: Memory.h,v 1.4 2007/10/12 15:35:24 elmer Exp $
+// $Id: Memory.h,v 1.5 2008/04/24 22:28:29 fischler Exp $
 //
+// Change Log
+//
+// 1 - Apr 25, 2008 M. Fischler
+//	Data structures for Event summary statistics, 
+//
+
 
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "FWCore/ServiceRegistry/interface/ActivityRegistry.h"
@@ -88,7 +94,7 @@ namespace edm {
       bool oncePerEventMode;
       int count_;
 
-      // Event summary statistics 
+      // Event summary statistics 				changeLog 1
       struct SignificantEvent {
         int count;
 	double vsize;
@@ -126,12 +132,42 @@ namespace edm {
     			   SignificantEvent const& e,
 			   std::map<std::string, double> &m) const;
       std::string mallOutput(std::string title, size_t const& n) const;
-      
+
+      // Module summary statistices
+      struct SignificantModule {
+        int    postEarlyCount;
+	double totalDeltaVsize;
+	double maxDeltaVsize;
+	edm::EventID eventMaxDeltaV;
+	double totalEarlyVsize;
+	double maxEarlyVsize;
+	SignificantModule() : postEarlyCount  (0)
+			    , totalDeltaVsize (0)
+			    , maxDeltaVsize   (0)
+			    , eventMaxDeltaV  ()
+			    , totalEarlyVsize (0)
+			    , maxEarlyVsize   (0)     {}
+	void set (double deltaV, bool early);
+      }; // SignificantModule
+      friend class SignificantModule;
+      friend std::ostream & operator<< (std::ostream & os, 
+    		SimpleMemoryCheck::SignificantModule const & se); 
+      bool moduleSummaryRequested;
+      typedef std::map<std::string,SignificantModule> SignificantModulesMap;
+      SignificantModulesMap modules_;      
+      double moduleEntryVsize_;
+      edm::EventID currentEventID_;
+      void updateModuleMemoryStats(SignificantModule & m, double dv);
+                 
     }; // SimpleMemoryCheck
     
     std::ostream & 
     operator<< (std::ostream & os, 
     		SimpleMemoryCheck::SignificantEvent const & se); 
+    
+    std::ostream & 
+    operator<< (std::ostream & os, 
+    		SimpleMemoryCheck::SignificantModule const & se); 
     
   }
 }

@@ -1,4 +1,5 @@
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
+#include "FWCore/MessageLogger/interface/MessageDrop.h"
 
 // Change Log
 //
@@ -10,6 +11,10 @@
 //		 name to a more descriptive stripLeadingDirectoryTree.
 //		 Cures the 2600-copies-of-this-function complaint.
 //		 Implementation of this is moved into this .cc file.
+//
+//  6/20/08  mf  Have flushMessageLog() check messageLoggerScribeIsRunning
+//		 (in the message drop) to avoid hangs if that thread is not
+//		 around.
 //
 // ------------------------------------------------------------------------
 
@@ -36,7 +41,17 @@ void HaltMessageLogging() {
 }
 
 void FlushMessageLog() {
+  if (MessageDrop::instance()->messageLoggerScribeIsRunning != 
+  			MLSCRIBE_RUNNING_INDICATOR) return; 	// 6/20/08 mf
   edm::MessageLoggerQ::MLqFLS ( ); // Flush the message log queue
+}
+
+bool isMessageProcessingSetUp() {				// 6/20/08 mf
+//  std::cerr << "isMessageProcessingSetUp: \n";
+//  std::cerr << "messageLoggerScribeIsRunning = "
+//  	    << (int)MessageDrop::instance()->messageLoggerScribeIsRunning << "\n";
+  return (MessageDrop::instance()->messageLoggerScribeIsRunning == 
+  			MLSCRIBE_RUNNING_INDICATOR); 
 }
 
 void GroupLogStatistics(std::string const & category) {

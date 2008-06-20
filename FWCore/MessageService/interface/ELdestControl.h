@@ -24,6 +24,7 @@
 // 10/17/01 mf  add setTableLimit which had been omitted
 // 10/18/01 mf  Corrected default in summary title =0 to empty string
 //  6/23/03 mf  changeFile() and flush() 
+//  6/19/08 mf  summaryForJobReport()
 //
 // ----------------------------------------------------------------------
 
@@ -99,6 +100,7 @@ public:
   virtual void summary( std::ostream  & os  , char * title="" );
   virtual void summary( ELstring      & s   , char * title="" );
   virtual void summary( );
+  virtual void summaryForJobReport( std::map<std::string, double> & sm);
 
   virtual std::map<ELextendedID , StatsCount> statisticsMap() const;
 

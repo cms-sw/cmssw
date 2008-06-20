@@ -23,8 +23,9 @@
 //		static init { $001$ }.  Corresponding fix is in .cc file.
 // 3/13/01 mf	statisticsMap()
 // 04/04/01 mf  add ignoreMOdule and respondToModule
-//  6/23/03 mf  changeFile() and flush() 
+// 6/23/03 mf   changeFile() and flush() 
 // 1/10/06 mf	finish
+// 6/19/08 mf   summaryForJobReport()
 //
 // ----------------------------------------------------------------------
 
@@ -90,6 +91,7 @@ protected:
   virtual void summary( std::ostream  & os  , const ELstring & title="" );
   virtual void summary( ELstring      & s   , const ELstring & title="" );
   virtual void summary( );
+  virtual void summaryForJobReport(std::map<std::string, double> & sm);
 
   virtual void setTableLimit( int n );
 

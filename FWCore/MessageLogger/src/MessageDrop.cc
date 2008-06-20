@@ -8,7 +8,7 @@
 //
 // Original Author:  M. Fischler and Jim Kowalkowsi
 //         Created:  Tues Feb 14 16:38:19 CST 2006
-// $Id: MessageDrop.cc,v 1.5 2007/03/30 20:51:29 fischler Exp $
+// $Id: MessageDrop.cc,v 1.6 2007/12/14 19:35:39 fischler Exp $
 //
 
 // system include files
@@ -41,3 +41,4 @@ MessageDrop::instance()
   return drop;
 }
 
+unsigned char MessageDrop::messageLoggerScribeIsRunning = 0;

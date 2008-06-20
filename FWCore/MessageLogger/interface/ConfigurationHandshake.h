@@ -14,12 +14,12 @@ typedef edm::Exception* Pointer_to_new_exception_on_heap;
 typedef Pointer_to_new_exception_on_heap* Place_for_passing_exception_ptr;
 
 struct ConfigurationHandshake {
-  ParameterSet * p;
+  void * p;
   boost::mutex m;
   boost::condition c;
   edm::Place_for_passing_exception_ptr epp;
   explicit ConfigurationHandshake 
-      (ParameterSet * p_in, Place_for_passing_exception_ptr epp_in) : 
+      (void * p_in, Place_for_passing_exception_ptr epp_in) : 
     			      p(p_in), m(), c(), epp(epp_in) {}   
 };  
 

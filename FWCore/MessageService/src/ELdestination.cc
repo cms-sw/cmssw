@@ -20,6 +20,7 @@
 // 4/12/01      mf      repair multi-module filtering
 // 6/23/03      mf      changeFile(), flush()
 // 1/10/06      mf      finish()
+// 6/19/08 	mf   	summaryForJobReport()
 //
 // ----------------------------------------------------------------------
 
@@ -168,6 +169,8 @@ void ELdestination::summary( ELstring & s, const ELstring & title )  {
     + title + "\n";
 
 }  // summary()
+
+void ELdestination::summaryForJobReport(std::map<std::string, double> & sm) { }
 
 void ELdestination::finish() {  }
 

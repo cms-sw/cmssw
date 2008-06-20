@@ -6,11 +6,11 @@
 // Implementation:
 //
 // Original Author:  Jim Kowalkowski
-// $Id: Timing.cc,v 1.11 2007/06/29 03:43:26 wmtan Exp $
+// $Id: Timing.cc,v 1.12 2008/04/23 15:06:21 fischler Exp $
 //
 // Change Log
 //
-// 1 - mf 4/22/08   Facilitate summary output to jub report and logs:
+// 1 - mf 4/22/08   Facilitate summary output to job report and logs:
 //		    In Timing ctor, default for report_summary_ changed to true 
 //                  In postEndJob, add output to logger
 

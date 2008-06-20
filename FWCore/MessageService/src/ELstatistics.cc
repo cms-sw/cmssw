@@ -20,6 +20,7 @@
 //   1/17/06    mf	summary() for use in MessageLogger
 //   8/16/07    mf	Changes to implement grouping of modules in specified 
 //			categories
+//   6/19/08    mf	summaryForJobReport()
 //
 //  ---------------------------------------------------------------------
 
@@ -444,6 +445,148 @@ void  ELstatistics::noTerminationSummary()  { printAtTermination = false; }
 
 std::map<ELextendedID , StatsCount> ELstatistics::statisticsMap() const {
   return std::map<ELextendedID , StatsCount> ( stats );
+}
+
+
+void  ELstatistics::summaryForJobReport (std::map<std::string, double> & sm) {
+
+#ifdef NOTYET
+			// Major changes 8/16/07 mf, including making this
+			// a static member function instead of a free function
+			
+  using std::ios;       /* _base ? */
+  using std::setw;
+  using std::right;
+  using std::left;
+
+  int                         n = 0;
+
+  // -----  Summary part I:
+  //
+  ELstring  lastProcess( "" );
+  bool      ftnote( false );
+
+  struct part3  {
+    long n, t;
+    part3() : n(0L), t(0L)  { ; }
+  }  p3[ELseverityLevel::nLevels];
+
+  std::set<std::string>::iterator gcEnd = groupedCategories.end(); 
+  std::set<std::string> gCats = groupedCategories;  // TEMP FOR DEBUGGING SANITY
+  for ( ELmap_stats::const_iterator i = stats.begin();  i != stats.end();  ++i )  {
+
+     // If this is a grouped category, wait till later to output its stats
+    std::string cat = (*i).first.id; 
+    if ( groupedCategories.find(cat) != gcEnd )
+    {								
+       continue; // We will process these categories later
+    }
+    							
+    // -----  Emit detailed message information:
+    //
+    std::ostringstream s;
+    s << "Category_";
+    std::string sevSymbol = (*i).first.severity.getSymbol();
+    if ( sevSymbol[0] == '-' ) sevSymbol = sevSymbol(1);
+    s << sevSymbol << "_" << (*i).first.id;
+    int n = (*i).second.aggregateN;    
+    sm[s.str()] = n; // TODO -- this is wrong; need to see if it is already
+    		     // present andd if so, increment.  That will group
+		     // things if different modules or subroutines are 
+		     // doing same category.
+  }  // for i
+
+  // ----- Part Ia:  The grouped categories
+  for ( std::set<std::string>::iterator g = groupedCategories.begin(); g != gcEnd; ++g ) {
+    int groupTotal = 0;
+    int groupAggregateN = 0;
+    ELseverityLevel severityLevel;
+    for ( ELmap_stats::const_iterator i = stats.begin();  i != stats.end();  ++i )  {
+      if ( (*i).first.id == *g ) {
+        if (groupTotal==0) severityLevel = (*i).first.severity;
+	groupAggregateN += (*i).second.aggregateN;
+        ++groupTotal;
+      } 
+    } // for i
+    if (groupTotal > 0) {
+      // -----  Emit detailed message information:
+      //
+      s << right << std::setw( 5) << ++n                                     << ' '
+	<< left  << std::setw(20) << (*g).substr(0,20)                       << ' '
+	<< left  << std::setw( 2) << severityLevel.getSymbol()               << ' '
+	<< left  << std::setw(16) << "  <Any Module>  "                      << ' '
+	<< left  << std::setw(16) << "<Any Function>"
+	<< right << std::setw( 7) << groupTotal
+	<< left  << std::setw( 1) << ( groupIgnored ? '*' : ' ' )
+	<< right << std::setw( 8) << groupAggregateN                  << '\n'
+	;
+      ftnote = ftnote || groupIgnored;
+
+      // -----  Obtain information for Part III, below:
+      //
+      int lev = severityLevel.getLevel();
+      p3[lev].n += groupTotal;
+      p3[lev].t += groupAggregateN;
+    } // end if groupTotal>0
+  }  // for g
+
+  // -----  Provide footnote to part I, if needed:
+  //
+  if ( ftnote )
+    s << "\n* Some occurrences of this message"
+         " were suppressed in all logs, due to limits.\n"
+      ;
+
+  // -----  Summary part II:
+  //
+  n = 0;
+  for ( ELmap_stats::const_iterator i = stats.begin();  i != stats.end();  ++i )  {
+    std::string cat = (*i).first.id; 
+    if ( groupedCategories.find(cat) != gcEnd )
+    {								// 8/16/07 mf
+       continue; // We will process these categories later
+    }
+    if ( n ==  0 ) {
+      s << '\n'
+	<< " type    category    Examples: "
+	   "run/evt        run/evt          run/evt\n"
+	<< " ---- -------------------- ----"
+	   "------------ ---------------- ----------------\n"
+	;
+    }
+    s << right << std::setw( 5) << ++n                             << ' '
+      << left  << std::setw(20) << (*i).first.id.c_str()           << ' '
+      << left  << std::setw(16) << (*i).second.context1.c_str()    << ' '
+      << left  << std::setw(16) << (*i).second.context2.c_str()    << ' '
+                           << (*i).second.contextLast.c_str() << '\n'
+      ;
+  }  // for
+
+  // -----  Summary part III:
+  //
+  s << "\nSeverity    # Occurrences   Total Occurrences\n"
+    <<   "--------    -------------   -----------------\n";
+  for ( int k = 0;  k < ELseverityLevel::nLevels;  ++k )  {
+    if ( p3[k].n != 0  ||  p3[k].t != 0 )  {
+      s << left  << std::setw( 8) << ELseverityLevel( ELseverityLevel::ELsev_(k) ).getName().c_str()
+        << right << std::setw(17) << p3[k].n
+        << right << std::setw(20) << p3[k].t
+                             << '\n'
+        ;
+    }
+  }  // for
+
+  return s.str();
+
+}
+
+
+
+
+#endif // NOTYET
+
+
+  sm["Category_x_STUB"] = 0.0;
 }
 
 std::set<std::string> ELstatistics::groupedCategories; // 8/16/07 mf 

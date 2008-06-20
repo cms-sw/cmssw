@@ -3,6 +3,7 @@
 
 #include "FWCore/Utilities/interface/SingleConsumerQ.h"
 
+#include <map>
 
 namespace edm
 {
@@ -31,6 +32,7 @@ public:
   , SHUT_UP        // SHT
   , FLUSH_LOG_Q    // FLS
   , GROUP_STATS    // GRP
+  , FJR_SUMMARY    // JRS
   };  // OpCode
 
   // ---  birth via a surrogate:
@@ -47,6 +49,7 @@ public:
   static  void  MLqSHT();
   static  void  MLqFLS();
   static  void  MLqGRP(std::string * cat_p);
+  static  void  MLqJRS(std::map<std::string, double> * sum_p);
 
   // ---  obtain a message from the queue:
   static  void  consume( OpCode & opcode, void * & operand );

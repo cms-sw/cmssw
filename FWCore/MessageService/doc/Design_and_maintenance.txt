@@ -153,7 +153,7 @@ MessageDrop.cc refines that to be a thread-specific singleton pattern.
 	       Note that the server side has no way to influence or access
 	       the MessageDrop for a specific thread; thus any information
 	       present in the drop and needed by the server needs to be 
-	       added into the ErrorObject hat will cross the client/server
+	       added into the ErrorObject that will cross the client/server
 	       boundary.    
 
 MessageLogger.h uses the MessageDrop in the LogDebug macro to learn the 

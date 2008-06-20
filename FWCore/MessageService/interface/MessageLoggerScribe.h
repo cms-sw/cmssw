@@ -58,6 +58,9 @@ namespace service {
 //	 Modified getAparameter behavior when tracked parameter is found,
 //	 for nicer output message. 
 //
+//   8 - 6/19/08 mf
+//	 triggerFJRmessageSummary
+//
 // -----------------------------------------------------------------------
 
 class MessageLoggerScribe
@@ -84,7 +87,8 @@ private:
 
   // --- cause statistics destinations to output
   void triggerStatisticsSummaries();
-
+  void triggerFJRmessageSummary(std::map<std::string, double> & sm);
+  
   // --- handle details of configuring via a ParameterSet:
   void  configure_errorlog( );
   void  configure_fwkJobReports( );				// Change Log 3

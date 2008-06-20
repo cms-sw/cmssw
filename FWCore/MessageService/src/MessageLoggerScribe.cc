@@ -142,6 +142,16 @@
 //	 A command GROUP_STATS to add a category to a list which ELstatistics 
 //	 will use to avoid separate per-module statistics for that category.
 //
+//  28 - 6/18/08 mf - in CONFIGURE case and FLUSH_LOG_Q case
+//	 Changed expectation of p from a ParameterSet* to a void*:
+//	 static cast it to the needed ParameterSet*
+//
+//  29 - 6/19/08 mf - in run() and a new function triggerFJRmessageSummary()
+//	 Implemented filling a map with summary info for the Job Report
+//
+//  30 - 6/20/08 mf - in run() 
+//	 Setting MessageLoggerScribeIsRunning
+//
 // ----------------------------------------------------------------------
 
 #include "FWCore/MessageService/interface/ELadministrator.h"
@@ -207,6 +217,12 @@ void
   bool  purge_mode = false;
   int count = 0;
 
+  MessageDrop::instance()->messageLoggerScribeIsRunning = 
+  				MLSCRIBE_RUNNING_INDICATOR;	// ChangeLog 30
+//  std::cerr << "MessageLoggerScribe::run(): \n";
+//  std::cerr << "messageLoggerScribeIsRunning = "
+//      << (int)MessageDrop::instance()->messageLoggerScribeIsRunning << "\n";
+
   do  {
     MessageLoggerQ::consume(opcode, operand);  // grab next work item from Q
     switch(opcode)  {  // interpret the work item
@@ -217,6 +233,8 @@ void
       case MessageLoggerQ::END_THREAD:  {
         assert( operand == 0 );
         done = true;
+        MessageDrop::instance()->messageLoggerScribeIsRunning = -1; 
+								// ChangeLog 30
         break;
       }
       case MessageLoggerQ::LOG_A_MESSAGE:  {
@@ -251,7 +269,7 @@ void
       case MessageLoggerQ::CONFIGURE:  {			// changelog 17
 	ConfigurationHandshake * h_p = 
 	  	static_cast<ConfigurationHandshake *>(operand);
-	job_pset_p = h_p->p;
+	job_pset_p = static_cast<ParameterSet *>(h_p->p);
         boost::mutex::scoped_lock sl(h_p->m);   // get lock
 	try {
 	  configure_errorlog();
@@ -360,7 +378,7 @@ void
       case MessageLoggerQ::FLUSH_LOG_Q:  {			// changelog 26
 	ConfigurationHandshake * h_p = 
 	  	static_cast<ConfigurationHandshake *>(operand);
-	job_pset_p = h_p->p;
+	job_pset_p = static_cast<ParameterSet *>(h_p->p);
         boost::mutex::scoped_lock sl(h_p->m);   // get lock
 	h_p->c.notify_all();  // Signal to MessageLoggerQ that we are done
 	// finally, release the scoped lock by letting it go out of scope 
@@ -371,6 +389,17 @@ void
 		static_cast<std::string*>(operand);
 	ELstatistics::noteGroupedCategory(*cat_p);
 	delete cat_p;  // dispose of the message text
+        break;
+      }
+      case MessageLoggerQ::FJR_SUMMARY:  {			// changelog 29
+	ConfigurationHandshake * h_p = 
+	  	static_cast<ConfigurationHandshake *>(operand);
+        boost::mutex::scoped_lock sl(h_p->m);   // get lock
+	std::map<std::string, double> * smp = 
+		static_cast<std::map<std::string, double> *>(h_p->p);
+	triggerFJRmessageSummary(*smp);
+	h_p->c.notify_all();  // Signal to MessageLoggerQ that we are done
+	// finally, release the scoped lock by letting it go out of scope 
         break;
       }
     }  // switch
@@ -1068,6 +1097,17 @@ void
       statisticsDestControls[i].summary( );
       if (statisticsResets[i]) statisticsDestControls[i].wipe( );
     }
+}
+
+void
+  MessageLoggerScribe::
+  triggerFJRmessageSummary(std::map<std::string, double> & sm)  // ChangeLog 29
+{
+  if (statisticsDestControls.empty()) {
+    sm["NoStatisticsDestinationsConfigured"] = 0.0;
+  } else {
+    statisticsDestControls[0].summaryForJobReport(sm);
+  }
 }
 
 ErrorLog * MessageLoggerScribe::static_errorlog_p;

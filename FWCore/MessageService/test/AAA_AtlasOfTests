@@ -76,6 +76,8 @@ u19	Long header lines, to test the non-breaking behavior.
 	
 u20	Test default configuration file for MessageLogger service
 	for users that include MessageLogger.cfi and nothing else.
+	Side-tests the behavior of isMessageProcessingSetUp() when
+	it shouldbe returning true.
 	---------- UnitTestClient_G
 
 u21	By-severity default limit on each type of message,

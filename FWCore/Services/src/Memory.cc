@@ -6,8 +6,17 @@
 // Implementation:
 //
 // Original Author:  Jim Kowalkowski
-// $Id: Memory.cc,v 1.13 2008/04/24 22:28:29 fischler Exp $
+// $Id: Memory.cc,v 1.14 2008/06/16 04:06:58 wmtan Exp $
 //
+// Change Log
+//
+// 1 - Apr 25, 2008 M. Fischler
+//	Collect event summary information and output to XML file and logger
+//	at the end of the job.  Involves split-up of updateAndPrint method.
+//
+// 2 - May 7, 2008 M. Fischler
+//      Collect module summary information and output to XML file and logger
+//	at the end of the job.
 
 #include "FWCore/Services/src/Memory.h"
 #include "DataFormats/Provenance/interface/ModuleDescription.h"
@@ -147,14 +156,20 @@ namespace edm {
     }
     
     SimpleMemoryCheck::SimpleMemoryCheck(const ParameterSet& iPS,
-					 ActivityRegistry&iReg):
-      a_(),b_(),
-      current_(&a_),previous_(&b_),
-      pg_size_(sysconf(_SC_PAGESIZE)), // getpagesize();
-      num_to_skip_(iPS.getUntrackedParameter<int>("ignoreTotal",1)),
-      showMallocInfo(iPS.getUntrackedParameter<bool>("showMallocInfo",false)),
-      oncePerEventMode(iPS.getUntrackedParameter<bool>("oncePerEventMode",false)),
-      count_()
+					 ActivityRegistry&iReg)
+    : a_()
+    , b_()
+    , current_(&a_)
+    , previous_(&b_)
+    , pg_size_(sysconf(_SC_PAGESIZE)) // getpagesize()
+    , num_to_skip_(iPS.getUntrackedParameter<int>("ignoreTotal",1))
+    , showMallocInfo(iPS.getUntrackedParameter<bool>("showMallocInfo",false))
+    , oncePerEventMode
+      	(iPS.getUntrackedParameter<bool>("oncePerEventMode",false))
+    , count_()
+    , moduleSummaryRequested
+        (iPS.getUntrackedParameter<bool>("moduleMemorySummary",false))
+								// changelog 2
     {
       // pg_size = (double)getpagesize();
       std::ostringstream ost;
@@ -192,6 +207,17 @@ namespace edm {
         iReg.watchPostEndJob(this,
              &SimpleMemoryCheck::postEndJob);
       }
+      if (moduleSummaryRequested) {				// changelog 2
+        iReg.watchPreProcessEvent(this,
+             &SimpleMemoryCheck::preEventProcessing);
+        iReg.watchPreModule(this,
+             &SimpleMemoryCheck::preModule);
+        if (oncePerEventMode) {
+        iReg.watchPostModule(this,
+             &SimpleMemoryCheck::postModule);
+	}
+      }
+       
       // The following are not currenty used/implemented below for either
       // of the print modes (but are left here for reference)
       //  iReg.watchPostBeginJob(this,
@@ -271,7 +297,7 @@ namespace edm {
  
     void SimpleMemoryCheck::postEndJob() 
     {
-    edm::LogAbsolute("MemoryReport") 
+      edm::LogAbsolute("MemoryReport") 				// changelog 1
       << "MemoryReport> Peak virtual size " << eventT1_.vsize << " Mbytes" 
       << "\n"
       << " Key events increasing vsize: \n" 
@@ -283,9 +309,38 @@ namespace edm {
       << eventT3_ << "\n"
       << eventT2_ << "\n"
       << eventT1_ ;
+    
+      if (moduleSummaryRequested) {				// changelog 1
+        edm::LogAbsolute mmr("ModuleMemoryReport"); // at end of if block, mmr
+						    // is destructed, causing
+						    // message to be logged
+	mmr << "ModuleMemoryReport> Each line has module label and: \n";
+	mmr << "  (after early ignored events) \n"; 
+	mmr << 
+	"    count of times module executed; average increase in vsize \n";
+	mmr << 
+	"    maximum increase in vsize; event on which maximum occured \n";
+	mmr << "  (during early ignored events) \n";
+	mmr << "    total and maximum vsize increases \n \n";	
+	for (SignificantModulesMap::iterator im=modules_.begin(); 
+	     im != modules_.end(); ++im) {
+	  SignificantModule const& m = im->second;
+	  if ( m.totalDeltaVsize == 0 && m.totalEarlyVsize == 0 ) continue;
+	  mmr << im->first << ": ";
+	  mmr << "n = " << m.postEarlyCount;
+	  if ( m.postEarlyCount > 0 ) mmr << " avg = " 
+	  				  << m.totalDeltaVsize/m.postEarlyCount;
+	  mmr <<  " max = " << m.maxDeltaVsize << " " << m.eventMaxDeltaV;
+	  if ( m.totalEarlyVsize > 0 ) {
+	    mmr << " early total: " << m.totalEarlyVsize;
+	    mmr << " max: " << m.maxEarlyVsize;
+	  }
+	  mmr << "\n";
+	}
+      } // end of if; mmr goes out of scope; log message is queued
 
       Service<JobReport> reportSvc;
-
+								// changelog 1
 #define SIMPLE_MEMORY_CHECK_ORIGINAL_XML_OUTPUT
 #ifdef  SIMPLE_MEMORY_CHECK_ORIGINAL_XML_OUTPUT
      std::map<std::string, double> reportData;
@@ -322,6 +377,30 @@ namespace edm {
         std::make_pair("HEAP_USED_BYTES", minfo.uordblks));  
       reportData.insert(
         std::make_pair("HEAP_UNUSED_BYTES", minfo.fordblks));  
+
+      if (moduleSummaryRequested) {				// changelog 2
+	for (SignificantModulesMap::iterator im=modules_.begin(); 
+	     im != modules_.end(); ++im) {
+	  SignificantModule const& m = im->second;
+	  if ( m.totalDeltaVsize == 0 && m.totalEarlyVsize == 0 ) continue;
+	  std::string label = im->first+":";
+      	  reportData.insert(
+            std::make_pair(label+"PostEarlyCount", m.postEarlyCount));  
+	  if ( m.postEarlyCount > 0 ) {
+      	    reportData.insert(
+              std::make_pair(label+"AverageDeltaVsize", 
+	      m.totalDeltaVsize/m.postEarlyCount));  
+	  }
+      	  reportData.insert(
+              std::make_pair(label+"MaxDeltaVsize",m.maxDeltaVsize));  
+	  if ( m.totalEarlyVsize > 0 ) {
+      	    reportData.insert(
+              std::make_pair(label+"TotalEarlyVsize", m.totalEarlyVsize));  
+      	    reportData.insert(
+              std::make_pair(label+"MaxEarlyDeltaVsize", m.maxEarlyVsize));  
+	  }
+	}
+      } 
 	
       reportSvc->reportMemoryInfo(reportData);
 #endif
@@ -370,6 +449,7 @@ namespace edm {
     void SimpleMemoryCheck::preEventProcessing(const edm::EventID& iID,
           				       const edm::Timestamp& iTime) 
     {
+      currentEventID_ = iID;					// changelog 2
     }
 
     void SimpleMemoryCheck::postEventProcessing(const Event& e,
@@ -385,11 +465,22 @@ namespace edm {
       } 
     }
  
-    void SimpleMemoryCheck::preModule(const ModuleDescription& md) {
+    void SimpleMemoryCheck::preModule(const ModuleDescription& md) { 
+      update();							// changelog 2
+      moduleEntryVsize_ = current_->vsize;
     }
  
     void SimpleMemoryCheck::postModule(const ModuleDescription& md) {
-      updateAndPrint("module", md.moduleLabel_, md.moduleName_);
+      if (!oncePerEventMode) {
+        updateAndPrint("module", md.moduleLabel_, md.moduleName_);
+      } else if (moduleSummaryRequested) {			// changelog 2
+        update();
+      }
+      if (moduleSummaryRequested) {				// changelog 2
+	double dv = current_->vsize - moduleEntryVsize_;
+	std::string label =  md.moduleLabel_;
+	updateModuleMemoryStats (modules_[label],dv);
+      }
     }
  
  
@@ -542,7 +633,22 @@ namespace edm {
       return os.str();
     }
 #endif
-
+								// changelog 2
+    void 
+    SimpleMemoryCheck::updateModuleMemoryStats(SignificantModule & m, 
+    					       double dv) {
+      if(count_ < num_to_skip_) {
+	m.totalEarlyVsize += dv;
+	if (dv > m.maxEarlyVsize)  m.maxEarlyVsize = dv;     	
+      } else {
+	++m.postEarlyCount;
+	m.totalDeltaVsize += dv;
+	if (dv > m.maxDeltaVsize)  {
+	  m.maxDeltaVsize = dv;    
+	  m.eventMaxDeltaV = currentEventID_;
+	}	
+      }
+    } //updateModuleMemoryStats
  
 
 
@@ -555,6 +661,24 @@ namespace edm {
          << " rss = " << se.rss << " delta " << se.deltaRss;
       return os;
     }
+
+    std::ostream & 
+    operator<< (std::ostream & os, 
+    		SimpleMemoryCheck::SignificantModule const & sm) {
+      if ( sm.postEarlyCount > 0 ) {
+        os << "\nPost Early Events:  TotalDeltaVsize: " << sm.totalDeltaVsize
+           << " (avg: " << sm.totalDeltaVsize/sm.postEarlyCount 
+	   << "; max: " << sm.maxDeltaVsize  
+	   << " during " << sm.eventMaxDeltaV << ")";
+      }
+      if ( sm.totalEarlyVsize > 0 ) {
+        os << "\n     Early Events:  TotalDeltaVsize: " << sm.totalEarlyVsize
+           << " (max: " << sm.maxEarlyVsize << ")";
+      }
+	
+      return os;
+    }
+      
       
 
 

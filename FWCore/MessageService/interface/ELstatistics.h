@@ -22,6 +22,7 @@
 // 1/17/06 mf	summary() for use in MessageLogger
 // 8/16/07 mf	noteGroupedCategory(cat) to support grouping of modules in 
 //		specified categories.  Also, a static vector of such categories.
+// 6/19/08 mf	summaryForJobReport() for use in CMS framework 
 //
 // ----------------------------------------------------------------------
 
@@ -102,6 +103,8 @@ protected:
 
   virtual std::map<ELextendedID,StatsCount> statisticsMap() const;
 
+  virtual void summaryForJobReport (std::map<std::string, double> & sm);
+  
   // summarization( const ELstring & sumLines, const ELstring & sumLines )
   // from base class
 

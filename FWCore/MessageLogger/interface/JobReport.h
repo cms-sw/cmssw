@@ -19,7 +19,7 @@ through the MessageLogger.
 
 //
 // Original Author:  Marc Paterno
-// $Id: JobReport.h,v 1.23 2008/02/19 14:58:51 evansde Exp $
+// $Id: JobReport.h,v 1.24 2008/04/24 22:28:27 fischler Exp $
 //
 
 #include <cstddef>
@@ -371,6 +371,14 @@ namespace edm {
       /// summary about memory usage for inclusion in the job report
       ///
       void reportMemoryInfo(std::vector<std::string> const& memoryData);
+
+      ///
+      /// Report Message statistics
+      /// Invoked by the MessageLogger service to send an end of job 
+      /// summary about numbers of various categories messages issued 
+      /// for inclusion in the job report
+      ///
+      void reportMessageInfo(std::map<std::string, double> const & messageData);
 
       /// Report Storage Statistics
       void reportStorageStats(std::string const & data); 

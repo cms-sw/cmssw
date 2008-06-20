@@ -8,7 +8,7 @@
 //
 // Original Author:  W. Brown, M. Fischler
 //         Created:  Fri Nov 11 16:42:39 CST 2005
-// $Id: MessageLogger.cc,v 1.24 2007/06/29 03:43:25 wmtan Exp $
+// $Id: MessageLogger.cc,v 1.25 2007/07/25 18:33:51 fischler Exp $
 //
 // Change log
 //
@@ -36,6 +36,8 @@
 // 8 wmtan 6/25/07	Enable suppression for sources, just as for modules
 //
 // 9 mf   7/25/07	Modify names of the MessageLoggerQ methods, eg MLqLOG
+//
+//10 mf   6/18/07	Insert into the PostEndJob a possible SummarizeInJobReport
 
 // system include files
 // user include files
@@ -49,7 +51,12 @@
 
 #include "DataFormats/Provenance/interface/ModuleDescription.h"
 
+#include "FWCore/MessageLogger/interface/JobReport.h"
+#include "FWCore/ServiceRegistry/interface/Service.h"
+
 #include <sstream>
+#include <string>
+#include <map>
 
 static const std::string kPostModule("PostModule");
 static const std::string kSource("main_input:source");
@@ -60,8 +67,9 @@ using namespace edm::service;
 namespace edm {
 namespace service {
 
-bool edm::service::MessageLogger::anyDebugEnabled_   = false;
-bool edm::service::MessageLogger::everyDebugEnabled_ = false;
+bool edm::service::MessageLogger::anyDebugEnabled_     = false;
+bool edm::service::MessageLogger::everyDebugEnabled_   = false;
+bool edm::service::MessageLogger::fjrSummaryRequested_ = false;
   
 //
 // constructors and destructor
@@ -73,6 +81,10 @@ MessageLogger( ParameterSet const & iPS
 	: curr_module_("BeginningJob")
         , debugEnabled_(false)
 {
+  // decide whether a summary should be placed in job report
+  fjrSummaryRequested_ = 
+    	iPS.getUntrackedParameter<bool>("messageSummaryToJobReport", false);
+
   typedef std::vector<std::string>  vString;
    vString  empty_vString;
   
@@ -205,6 +217,7 @@ MessageLogger::postBeginJob()
 void
 MessageLogger::postEndJob()
 {
+  SummarizeInJobReport();     // Put summary info into Job Rep  // change log 10
   MessageLoggerQ::MLqSUM ( ); // trigger summary info.		// change log 8
 }
 
@@ -367,6 +380,21 @@ MessageLogger::postModule(const ModuleDescription& iDescription)
   //curr_module_ = kPostModule;
   //MessageDrop::instance()->moduleName = curr_module_;  
   MessageDrop::instance()->moduleName = kPostModule;
+}
+
+void
+MessageLogger::SummarizeInJobReport() {
+  if ( fjrSummaryRequested_ ) { 
+    std::map<std::string, double> * smp = new std::map<std::string, double> ();
+    MessageLoggerQ::MLqJRS ( smp );
+    Service<JobReport> reportSvc;
+    reportSvc->reportTimingInfo(*smp);
+//    std::map<std::string, double>::iterator i;
+//    std::map<std::string, double>::iterator e = sm->end();
+//    for (i = sm->begin(); i != e; ++i) {
+//   }
+    delete smp;
+  } 
 }
 
 } // end of namespace service  

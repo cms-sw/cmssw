@@ -27,6 +27,8 @@
 //	Addition of FLS command, to be used by FlushMessageLog
 // 6 - 8/16/07 mf
 //	Addition of GRP command, to be used by GroupLogStatistics
+// 7 - 6/18/08 mf
+//	Addition of JRS command, to be used by SummarizeInJobReport
 
 using namespace edm;
 
@@ -96,7 +98,7 @@ void
   MessageLoggerQ::MLqCFG( ParameterSet * p )
 {
   Place_for_passing_exception_ptr epp = new Pointer_to_new_exception_on_heap(0);
-  ConfigurationHandshake h(p,epp);
+  ConfigurationHandshake h((void*)p,epp);
   SingleConsumerQ::ProducerBuffer b(buf);
   char * slot_p = static_cast<char *>(b.buffer());
 
@@ -235,4 +237,38 @@ void
   std::memcpy(slot_p+sizeof(OpCode), &v, sizeof(void *));
   b.commit(buf_size);
 }  // MessageLoggerQ::GRP()
+
+void
+  MessageLoggerQ::MLqJRS( std::map<std::string, double> * sum_p )
+{
+  Place_for_passing_exception_ptr epp = new Pointer_to_new_exception_on_heap(0);
+  ConfigurationHandshake h((void*)sum_p,epp);
+  SingleConsumerQ::ProducerBuffer b(buf);
+  char * slot_p = static_cast<char *>(b.buffer());
+
+  OpCode o(FJR_SUMMARY);
+  void * v(static_cast<void *>(&h));
+
+  std::memcpy(slot_p+0             , &o, sizeof(OpCode));
+  std::memcpy(slot_p+sizeof(OpCode), &v, sizeof(void *));
+  Pointer_to_new_exception_on_heap ep;
+  {
+    boost::mutex::scoped_lock sl(h.m);       // get lock
+    b.commit(buf_size);
+    // wait for result to appear (in epp)
+    h.c.wait(sl); // c.wait(sl) unlocks the scoped lock and sleeps till notified
+    // ... and once the MessageLoggerScribe does h.c.notify_all() ... 
+    ep = *h.epp;
+    // finally, release the scoped lock by letting it go out of scope 
+  }
+  if ( ep ) {
+    edm::Exception ex(*ep);
+    delete ep;
+    ex << "\n The preceding exception was thrown in MessageLoggerScribe\n";
+    ex << "and forwarded to the main thread from the Messages thread.\n";
+    std::cerr << "exception from MessageLoggerQ::JRS - exception what() is \n" 
+    		<< ex.what(); 
+    throw ex;
+  }  
+}  // MessageLoggerQ::CFG()
 

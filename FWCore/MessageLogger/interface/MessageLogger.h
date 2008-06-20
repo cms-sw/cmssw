@@ -14,7 +14,7 @@
 //         Created:  Fri Nov 11 16:38:19 CST 2005
 //     Major Split:  Tue Feb 14 11:00:00 CST 2006
 //		     See MessageService/interface/MessageLogger.h
-// $Id: MessageLogger.h,v 1.26 2007/12/14 19:35:38 fischler Exp $
+// $Id: MessageLogger.h,v 1.27 2008/01/11 21:30:10 marafino Exp $
 //
 // =================================================
 // Change log
@@ -365,6 +365,7 @@ public:
   void HaltMessageLogging();
   void FlushMessageLog();
   void GroupLogStatistics(std::string const & category);
+  bool isMessageProcessingSetUp();
 
 }  // namespace edm
 
