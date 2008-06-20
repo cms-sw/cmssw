@@ -268,7 +268,7 @@ void RPCEfficiencyFromTrack::analyze(const edm::Event& iEvent, const edm::EventS
 	      const BoundPlane *rpcPlane =  &((*itRoll)->surface());
 
 	      //Barrel
-	      if(MeasureBarrel==true && rollId.region()==0 && (rollId.ring()==0 || rollId.ring()==1)){
+	      if(MeasureBarrel==true && rollId.region()==0){
 		
 		const RectangularStripTopology* top_= dynamic_cast<const RectangularStripTopology*> (&((*itRoll)->topology()));
 		LocalPoint xmin = top_->localPosition(0.);
