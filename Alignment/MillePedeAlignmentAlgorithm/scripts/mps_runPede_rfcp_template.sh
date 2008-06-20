@@ -19,7 +19,7 @@ stager_get -M $MSSDIR/milleBinaryISN.dat
 rfcp $MSSDIR/milleBinaryISN.dat $BATCH_DIR
 
 # set up the CMS environment
-cd $HOME/scratch0/CMSSW_1_7_5
+cd $HOME/scratch0/CMSSW_2_1_0
 eval `scramv1 runtime -sh`
 rehash
 
