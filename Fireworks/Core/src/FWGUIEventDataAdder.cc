@@ -8,10 +8,11 @@
 //
 // Original Author:  Chris Jones
 //         Created:  Fri Jun 13 09:58:53 EDT 2008
-// $Id: FWGUIEventDataAdder.cc,v 1.1 2008/06/13 23:38:18 chrjones Exp $
+// $Id: FWGUIEventDataAdder.cc,v 1.2 2008/06/18 13:36:20 chrjones Exp $
 //
 
 // system include files
+#include <iostream>
 #include "TGFrame.h"
 #include "TGTextEntry.h"
 #include "TGLabel.h"
@@ -26,20 +27,7 @@
 //
 // constants, enums and typedefs
 //
-/*
-namespace {
-   class HideableWindow : public TGTransientFrame {
-   public:
-      HideableWindow(const TGWindow *p = 0, const TGWindow *main = 0, UInt_t w = 1, UInt_t h = 1,
-                     UInt_t options = kVerticalFrame) :
-      TGTransientFrame(p,main,w,h,options) {}
-      
-      virtual void DestroyWindow() {
-         UnmapWindow();
-      }
-   };
-}
-*/
+
 //
 // static data member definitions
 //
@@ -126,9 +114,8 @@ FWGUIEventDataAdder::show()
 void
 FWGUIEventDataAdder::windowIsClosing()
 {
-   //CDJ HACK: If I use the following lines I get a seg fault on the next redraw
-   //m_frame->Cleanup();
-   //delete m_frame;
+   m_frame->Cleanup();
+   delete m_frame;
    m_frame=0;
 }
 
@@ -137,6 +124,7 @@ void
 FWGUIEventDataAdder::createWindow()
 {
    m_frame = new TGMainFrame(gClient->GetRoot(),10,10);
+   m_frame->SetCleanup(kDeepCleanup);
    m_frame->Connect("CloseWindow()","FWGUIEventDataAdder",this,"windowIsClosing()");
    TGVerticalFrame* vf = new TGVerticalFrame(m_frame);
    m_frame->AddFrame(vf, new TGLayoutHints(kLHintsExpandX| kLHintsExpandY,10,10,10,1));
