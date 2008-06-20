@@ -22,6 +22,7 @@ class TFileAdaptor
   bool doStats_;
   std::string cacheHint_;
   std::string readHint_;
+  std::string tempDir_;
   std::vector<std::string> native_;
 
   static void addType(TPluginManager *mgr, const char *type)
@@ -49,27 +50,30 @@ public:
   TFileAdaptor(const edm::ParameterSet &p, edm::ActivityRegistry &ar)
     : enabled_(true),
       doStats_(true),
-      cacheHint_("auto-detect"),
-      readHint_("auto-detect")
+      cacheHint_("application-only"),
+      readHint_("auto-detect"),
+      tempDir_(".")
   {
     if (! (enabled_ = p.getUntrackedParameter<bool> ("enable", enabled_)))
       return;
 
+    StorageFactory *f = StorageFactory::get();
     doStats_ = p.getUntrackedParameter<bool> ("stats", doStats_);
     cacheHint_ = p.getUntrackedParameter<std::string> ("cacheHint", cacheHint_);
     readHint_ = p.getUntrackedParameter<std::string> ("readHint", readHint_);
+    tempDir_ = p.getUntrackedParameter<std::string> ("tempDir", tempDir_);
     native_ = p.getUntrackedParameter<std::vector<std::string> >("native", native_);
     ar.watchPostEndJob(this, &TFileAdaptor::termination);
 
     // tell factory how clients should access files
     if (cacheHint_ == "application-only")
-      StorageFactory::get()->setCacheHint(StorageFactory::CACHE_HINT_APPLICATION);
+      f->setCacheHint(StorageFactory::CACHE_HINT_APPLICATION);
     else if (cacheHint_ == "storage-only")
-      StorageFactory::get()->setCacheHint(StorageFactory::CACHE_HINT_STORAGE);
+      f->setCacheHint(StorageFactory::CACHE_HINT_STORAGE);
     else if (cacheHint_ == "lazy-download")
-      StorageFactory::get()->setCacheHint(StorageFactory::CACHE_HINT_LAZY_DOWNLOAD);
+      f->setCacheHint(StorageFactory::CACHE_HINT_LAZY_DOWNLOAD);
     else if (cacheHint_ == "auto-detect")
-      StorageFactory::get()->setCacheHint(StorageFactory::CACHE_HINT_AUTO_DETECT);
+      f->setCacheHint(StorageFactory::CACHE_HINT_AUTO_DETECT);
     else
       throw cms::Exception("TFileAdaptor")
         << "Unrecognised 'cacheHint' value '" << cacheHint_
@@ -77,11 +81,11 @@ public:
         << " 'storage-only', 'lazy-download', 'auto-detect'";
 
     if (readHint_ == "direct-unbuffered")
-      StorageFactory::get()->setReadHint(StorageFactory::READ_HINT_UNBUFFERED);
+      f->setReadHint(StorageFactory::READ_HINT_UNBUFFERED);
     else if (readHint_ == "read-ahead-buffered")
-      StorageFactory::get()->setReadHint(StorageFactory::READ_HINT_READAHEAD);
+      f->setReadHint(StorageFactory::READ_HINT_READAHEAD);
     else if (readHint_ == "auto-detect")
-      StorageFactory::get()->setReadHint(StorageFactory::READ_HINT_AUTO);
+      f->setReadHint(StorageFactory::READ_HINT_AUTO);
     else
       throw cms::Exception("TFileAdaptor")
         << "Unrecognised 'readHint' value '" << readHint_
@@ -89,7 +93,10 @@ public:
         << " 'read-ahead-buffered', 'auto-detect'";
 
     // enable file access stats accounting if requested
-    StorageFactory::get()->enableAccounting(doStats_);
+    f->enableAccounting(doStats_);
+
+    // tell where to save files.
+    f->setTempDir(tempDir_);
 
     // set our own root plugins
     TPluginManager *mgr = gROOT->GetPluginManager();
