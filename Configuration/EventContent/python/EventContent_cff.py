@@ -30,7 +30,7 @@ import FWCore.ParameterSet.Config as cms
 #
 #  FEVT (RAW+RECO), FEVTSIM (RAWSIM+RECOSIM), FEVTDEBUG (FEVTSIM+ALL_SIM_INFO), FEVTDEBUGHLT (FEVTDEBUG+HLTDEBUG)
 #
-#  $Id: EventContent.cff,v 1.28 2008/04/18 04:18:44 dlange Exp $
+#  $Id: EventContent_cff.py,v 1.3 2008/06/13 07:32:17 fambrogl Exp $
 #
 #
 #
@@ -89,7 +89,8 @@ from DQMOffline.Configuration.DQMOffline_EventContent_cff import *
 #
 RAWEventContent = cms.PSet(
     outputCommands = cms.untracked.vstring('drop *', 
-        'keep  FEDRawDataCollection_rawDataCollector_*_*')
+        'keep  FEDRawDataCollection_rawDataCollector_*_*',
+        'keep  FEDRawDataCollection_source_*_*')
 )
 #
 #
