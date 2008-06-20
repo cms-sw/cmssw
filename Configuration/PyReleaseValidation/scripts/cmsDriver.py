@@ -322,6 +322,9 @@ if options.dump_python or not options.old_config:
         python_config_filename+="_PU"
     if options.analysis_flag:
         python_config_filename+="_ana"
+    conditionsSP = options.conditions.split(',')
+    if len(conditionsSP) > 1:
+        python_config_filename += "_"+str(conditionsSP[1].split("::")[0])
     python_config_filename+=".py"
 
 cfg_config_filename=''
