@@ -19,7 +19,7 @@
 //
 // Original Author:  Sal Rappoccio
 //         Created:  Wed Nov 28 15:31:57 CST 2007
-// $Id: CompositeKit.h,v 1.1 2008/05/19 15:51:36 srappocc Exp $
+// $Id: CompositeKit.h,v 1.2 2008/06/04 15:04:33 srappocc Exp $
 //
 // Revision History:
 //       -  Sal Rappoccio, Fri Nov 30 12:49:44 CST 2007: Added other objects as first
@@ -55,7 +55,7 @@ protected:
   // ----------member data ---------------------------
 
   // Input tag
-  edm::InputTag              source_;
+  edm::InputTag              src_;
 
   // description
   std::string                description_;

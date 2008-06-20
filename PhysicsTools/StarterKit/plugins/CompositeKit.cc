@@ -11,7 +11,7 @@ using namespace reco;
 CompositeKit::CompositeKit(const edm::ParameterSet& iConfig)
   :
   PatAnalyzerKit    ( iConfig ),
-  source_           ( iConfig.getParameter<edm::InputTag> ("source") ),
+  src_              ( iConfig.getParameter<edm::InputTag> ("src") ),
   description_      ( iConfig.getParameter<std::string>   ("description") ),
   pt1_              ( iConfig.getParameter<double>        ("pt1") ),
   pt2_              ( iConfig.getParameter<double>        ("pt2") ),
@@ -26,13 +26,13 @@ CompositeKit::CompositeKit(const edm::ParameterSet& iConfig)
 
   // NOTE: These are hard-coded for now, change to something meaningful in future
   std::string alias;
-  compositeCandMassName_ = std::string( source_.label() );
+  compositeCandMassName_ = std::string( src_.label() );
   compositeCandMassName_.append( "ResonanceMass");
 
   // Composite histograms
-  compositeCandHist_ = new pat::HistoComposite(source_.label(), 
+  compositeCandHist_ = new pat::HistoComposite(src_.label(), 
 					       description_,
-					       source_.label(),
+					       src_.label(),
 					       pt1_,pt2_,m1_,m2_ );
   // Slight kludge until we get expression histograms working
 
@@ -109,7 +109,7 @@ void CompositeKit::produce( edm::Event& iEvent, const edm::EventSetup& iSetup)
   // --------------------------------------------------
 
   // Get the composite candidates from upstream
-  iEvent.getByLabel(source_,   compositeCandHandle_ );
+  iEvent.getByLabel(src_,   compositeCandHandle_ );
 
   if ( compositeCandHandle_->size() > 0 ) {
 
