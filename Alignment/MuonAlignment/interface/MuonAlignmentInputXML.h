@@ -16,7 +16,7 @@
 //
 // Original Author:  Jim Pivarski
 //         Created:  Mon Mar 10 16:37:55 CDT 2008
-// $Id: MuonAlignmentInputXML.h,v 1.2 2008/05/17 13:56:34 pivarski Exp $
+// $Id: MuonAlignmentInputXML.h,v 1.3 2008/05/17 16:50:11 pivarski Exp $
 //
 
 // system include files
@@ -61,6 +61,8 @@ class MuonAlignmentInputXML: public MuonAlignmentInputMethod {
       void do_setposition (const xercesc_2_7::DOMElement *node, std::map<Alignable*, bool> &aliset, std::map<Alignable*, Alignable*> &alitoideal) const;
       void do_setape      (const xercesc_2_7::DOMElement *node, std::map<Alignable*, bool> &aliset, std::map<Alignable*, Alignable*> &alitoideal) const;
       void do_setsurveyerr(const xercesc_2_7::DOMElement *node, std::map<Alignable*, bool> &aliset, std::map<Alignable*, Alignable*> &alitoideal) const;
+      void do_moveglobal  (const xercesc_2_7::DOMElement *node, std::map<Alignable*, bool> &aliset, std::map<Alignable*, Alignable*> &alitoideal) const;
+      void do_rotatelocal (const xercesc_2_7::DOMElement *node, std::map<Alignable*, bool> &aliset, std::map<Alignable*, Alignable*> &alitoideal) const;
 
       // ---------- member data --------------------------------
       std::string m_fileName;
@@ -82,6 +84,8 @@ class MuonAlignmentInputXML: public MuonAlignmentInputMethod {
       XMLCh *str_setposition;
       XMLCh *str_setape;
       XMLCh *str_setsurveyerr;
+      XMLCh *str_moveglobal;
+      XMLCh *str_rotatelocal;
       XMLCh *str_relativeto;
       XMLCh *str_rawId;
       XMLCh *str_wheel;
@@ -92,6 +96,10 @@ class MuonAlignmentInputXML: public MuonAlignmentInputMethod {
       XMLCh *str_endcap;
       XMLCh *str_ring;
       XMLCh *str_chamber;
+      XMLCh *str_axisx;
+      XMLCh *str_axisy;
+      XMLCh *str_axisz;
+      XMLCh *str_angle;
       XMLCh *str_x;
       XMLCh *str_y;
       XMLCh *str_z;

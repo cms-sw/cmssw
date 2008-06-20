@@ -8,7 +8,7 @@
 //
 // Original Author:  Jim Pivarski
 //         Created:  Mon Mar 10 16:37:40 CDT 2008
-// $Id: MuonAlignmentInputXML.cc,v 1.6 2008/05/17 13:56:35 pivarski Exp $
+// $Id: MuonAlignmentInputXML.cc,v 1.7 2008/05/17 16:50:06 pivarski Exp $
 //
 
 // system include files
@@ -61,6 +61,8 @@ MuonAlignmentInputXML::MuonAlignmentInputXML(std::string fileName)
    str_setposition = XMLString::transcode("setposition");
    str_setape = XMLString::transcode("setape");
    str_setsurveyerr = XMLString::transcode("setsurveyerr");
+   str_moveglobal = XMLString::transcode("moveglobal");
+   str_rotatelocal = XMLString::transcode("rotatelocal");
    str_relativeto = XMLString::transcode("relativeto");
    str_rawId = XMLString::transcode("rawId");
    str_wheel = XMLString::transcode("wheel");
@@ -71,6 +73,10 @@ MuonAlignmentInputXML::MuonAlignmentInputXML(std::string fileName)
    str_endcap = XMLString::transcode("endcap");
    str_ring = XMLString::transcode("ring");
    str_chamber = XMLString::transcode("chamber");
+   str_axisx = XMLString::transcode("axisx");
+   str_axisy = XMLString::transcode("axisy");
+   str_axisz = XMLString::transcode("axisz");
+   str_angle = XMLString::transcode("angle");
    str_x = XMLString::transcode("x");
    str_y = XMLString::transcode("y");
    str_z = XMLString::transcode("z");
@@ -129,6 +135,8 @@ MuonAlignmentInputXML::~MuonAlignmentInputXML() {
    XMLString::release(&str_setposition);
    XMLString::release(&str_setape);
    XMLString::release(&str_setsurveyerr);
+   XMLString::release(&str_moveglobal);
+   XMLString::release(&str_rotatelocal);
    XMLString::release(&str_relativeto);
    XMLString::release(&str_rawId);
    XMLString::release(&str_wheel);
@@ -139,6 +147,10 @@ MuonAlignmentInputXML::~MuonAlignmentInputXML() {
    XMLString::release(&str_endcap);
    XMLString::release(&str_ring);
    XMLString::release(&str_chamber);
+   XMLString::release(&str_axisx);
+   XMLString::release(&str_axisy);
+   XMLString::release(&str_axisz);
+   XMLString::release(&str_angle);
    XMLString::release(&str_x);
    XMLString::release(&str_y);
    XMLString::release(&str_z);
@@ -372,6 +384,14 @@ AlignableMuon *MuonAlignmentInputXML::newAlignableMuon(const edm::EventSetup& iS
 
 	    else if (XMLString::equals(node->getNodeName(), str_setsurveyerr)) {
 	       do_setsurveyerr((DOMElement*)(node), aliset, alitoideal);
+	    }
+
+	    else if (XMLString::equals(node->getNodeName(), str_moveglobal)) {
+	       do_moveglobal((DOMElement*)(node), aliset, alitoideal);
+	    }
+
+	    else if (XMLString::equals(node->getNodeName(), str_rotatelocal)) {
+	       do_rotatelocal((DOMElement*)(node), aliset, alitoideal);
 	    }
 
 	    else {
@@ -908,6 +928,67 @@ void MuonAlignmentInputXML::do_setsurveyerr(const xercesc_2_7::DOMElement *node,
       Alignable *ali = aliiter->first;
       ali->setSurvey(new SurveyDet(ali->surface(), matrix6x6));
    }
+}
+
+void MuonAlignmentInputXML::do_moveglobal(const xercesc_2_7::DOMElement *node, std::map<Alignable*, bool> &aliset, std::map<Alignable*, Alignable*> &alitoideal) const {
+   DOMAttr *node_x = node->getAttributeNode(str_x);
+   DOMAttr *node_y = node->getAttributeNode(str_y);
+   DOMAttr *node_z = node->getAttributeNode(str_z);
+   if (node_x == NULL) throw cms::Exception("XMLException") << "<moveglobal> is missing required \"x\" attribute" << std::endl;
+   if (node_y == NULL) throw cms::Exception("XMLException") << "<moveglobal> is missing required \"y\" attribute" << std::endl;
+   if (node_z == NULL) throw cms::Exception("XMLException") << "<moveglobal> is missing required \"z\" attribute" << std::endl;
+
+   double x = parseDouble(node_x->getValue(), "x");
+   double y = parseDouble(node_y->getValue(), "y");
+   double z = parseDouble(node_z->getValue(), "z");
+   GlobalVector vect(x, y, z);
+
+   for (std::map<Alignable*, bool>::const_iterator aliiter = aliset.begin();  aliiter != aliset.end();  ++aliiter) {
+      Alignable *ali = aliiter->first;
+
+      ali->move(vect);
+
+      align::ErrorMatrix matrix6x6 = ROOT::Math::SMatrixIdentity();
+      matrix6x6 *= 1000.;  // initial assumption: infinitely weak constraint
+
+      const SurveyDet *survey = ali->survey();
+      if (survey != NULL) {
+	 matrix6x6 = survey->errors();  // save the constraint information
+      }
+      ali->setSurvey(new SurveyDet(ali->surface(), matrix6x6));
+   } // end loop over alignables
+}
+
+void MuonAlignmentInputXML::do_rotatelocal(const xercesc_2_7::DOMElement *node, std::map<Alignable*, bool> &aliset, std::map<Alignable*, Alignable*> &alitoideal) const {
+   DOMAttr *node_axisx = node->getAttributeNode(str_axisx);
+   DOMAttr *node_axisy = node->getAttributeNode(str_axisy);
+   DOMAttr *node_axisz = node->getAttributeNode(str_axisz);
+   DOMAttr *node_angle = node->getAttributeNode(str_angle);
+   if (node_axisx == NULL) throw cms::Exception("XMLException") << "<moveglobal> is missing required \"axisx\" attribute" << std::endl;
+   if (node_axisy == NULL) throw cms::Exception("XMLException") << "<moveglobal> is missing required \"axisy\" attribute" << std::endl;
+   if (node_axisz == NULL) throw cms::Exception("XMLException") << "<moveglobal> is missing required \"axisz\" attribute" << std::endl;
+   if (node_angle == NULL) throw cms::Exception("XMLException") << "<moveglobal> is missing required \"angle\" attribute" << std::endl;
+
+   double x = parseDouble(node_axisx->getValue(), "x");
+   double y = parseDouble(node_axisy->getValue(), "y");
+   double z = parseDouble(node_axisz->getValue(), "z");
+   double angle = parseDouble(node_angle->getValue(), "angle");
+   LocalVector vect(x, y, z);
+
+   for (std::map<Alignable*, bool>::const_iterator aliiter = aliset.begin();  aliiter != aliset.end();  ++aliiter) {
+      Alignable *ali = aliiter->first;
+
+      ali->rotateAroundLocalAxis(vect, angle);
+
+      align::ErrorMatrix matrix6x6 = ROOT::Math::SMatrixIdentity();
+      matrix6x6 *= 1000.;  // initial assumption: infinitely weak constraint
+
+      const SurveyDet *survey = ali->survey();
+      if (survey != NULL) {
+	 matrix6x6 = survey->errors();  // save the constraint information
+      }
+      ali->setSurvey(new SurveyDet(ali->surface(), matrix6x6));
+   } // end loop over alignables
 }
 
 //
