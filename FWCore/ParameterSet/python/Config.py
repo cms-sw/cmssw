@@ -928,7 +928,20 @@ process.schedule = cms.Schedule(process.p2,process.p)
    endpath o = {out}
 }""")
             self.assertEqual(process.source.type_(),"PoolSource")
-        def testUB(self):
-            a = UsingBlock('a')
+        def testFreeze(self):
+            process = Process("Freeze")
+            m = EDProducer("M", p=PSet(i = int32(1)))
+            m.p.i = 2
+            process.m = m
+            # should be frozen
+            self.assertRaises(ValueError, setattr, m.p, 'i', 3)
+            self.assertRaises(ValueError, setattr, m, 'p', PSet(i=int32(1)))
+            self.assertRaises(ValueError, setattr, m.p, 'j', 1)
+            self.assertRaises(ValueError, setattr, m, 'j', 1)
+            # But OK to change through the process
+            process.m.p.i = 4
+            self.assertEqual(process.m.p.i.value(), 4)
+            process.m.p = PSet(j=int32(1))
+
                                
     unittest.main()
