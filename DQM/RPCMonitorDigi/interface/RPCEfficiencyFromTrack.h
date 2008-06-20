@@ -63,8 +63,7 @@ class RPCEfficiencyFromTrack : public edm::EDAnalyzer {
       bool MeasureBarrel;
       bool EffSaveRootFile;
       int EffSaveRootFileEventsInterval;
-
-  
+      int DTTrigValue;
 
       TH1F* EXPGlob1;  TH1F* EXPGlob2;  TH1F* EXPGlob3;  TH1F* EXPGlob4;  TH1F* EXPGlob5; 
       TH1F* RPCGlob1;  TH1F* RPCGlob2;  TH1F* RPCGlob3;  TH1F* RPCGlob4;  TH1F* RPCGlob5; 
@@ -82,6 +81,7 @@ class RPCEfficiencyFromTrack : public edm::EDAnalyzer {
 
       ofstream* effres;
       std::string EffRootFileName;
+      std::string digiLabel;
       std::string TjInput;
       std::string RPCDataLabel;
       std::string GlobalRootLabel;

@@ -100,9 +100,12 @@ RPCEfficiencyFromTrack::RPCEfficiencyFromTrack(const edm::ParameterSet& iConfig)
   gmtSource_=iConfig.getParameter< InputTag >("gmtSource");
   EffSaveRootFile  = iConfig.getUntrackedParameter<bool>("EffSaveRootFile", true); 
   EffSaveRootFileEventsInterval  = iConfig.getUntrackedParameter<int>("EffEventsInterval", 1000); 
+  DTTrigValue = iConfig.getUntrackedParameter<int>("dtTrigger",-10); 
+
   EffRootFileName  = iConfig.getUntrackedParameter<std::string>("EffRootFileName", "RPCEfficiencyFromTrack.root"); 
   TjInput  = iConfig.getUntrackedParameter<std::string>("trajectoryInput");
   RPCDataLabel = iConfig.getUntrackedParameter<std::string>("rpcRecHitLabel");
+  digiLabel = iConfig.getUntrackedParameter<std::string>("rpcDigiLabel");
   thePropagatorName = iConfig.getParameter<std::string>("PropagatorName");
   thePropagator = 0;
 
@@ -132,6 +135,7 @@ RPCEfficiencyFromTrack::RPCEfficiencyFromTrack(const edm::ParameterSet& iConfig)
   RPCGlob5 = new TH1F("RpcW+2","Real. vs. roll",210,0.5,210.5);
 
   ChiEff = new TH1F("Eff_vs_Chi2","Eff. vs. Chi2",200,0.,50.);
+
   // get hold of back-end interface
   dbe = edm::Service<DQMStore>().operator->();
   _idList.clear(); 
@@ -184,7 +188,7 @@ void RPCEfficiencyFromTrack::analyze(const edm::Event& iEvent, const edm::EventS
   iEvent.getByLabel(RPCDataLabel,rpcHits);
 
   edm::Handle<RPCDigiCollection> rpcDigis;
-  iEvent.getByLabel("muonRPCDigis", rpcDigis);
+  iEvent.getByLabel(digiLabel, rpcDigis);
 
   ESHandle<MagneticField> theMGField;
   iSetup.get<IdealMagneticFieldRecord>().get(theMGField);
@@ -192,32 +196,36 @@ void RPCEfficiencyFromTrack::analyze(const edm::Event& iEvent, const edm::EventS
   ESHandle<GlobalTrackingGeometry> theTrackingGeometry;
   iSetup.get<GlobalTrackingGeometryRecord>().get(theTrackingGeometry);
 
-  edm::Handle<std::vector<L1MuRegionalCand> > rpcBarrel;
-  edm::Handle<std::vector<L1MuRegionalCand> > rpcForward;
-  iEvent.getByLabel ("gtDigis","RPCb",rpcBarrel);
-  iEvent.getByLabel ("gtDigis","RPCf",rpcForward);
-  edm::Handle<L1MuGMTReadoutCollection> pCollection;
-  try {
-    iEvent.getByLabel(gmtSource_,pCollection);
-  }
-  catch (...) {
-    return;
-  }
-  unsigned int nDTTF = 0;
 
-  L1MuGMTReadoutCollection const* gmtrc = pCollection.product();
-  vector<L1MuGMTReadoutRecord> gmt_records = gmtrc->getRecords();
-  vector<L1MuGMTReadoutRecord>::const_iterator RRItr;
+  int nDTTF = 0;
+  if(DTTrigValue!=-10){
+    edm::Handle<std::vector<L1MuRegionalCand> > rpcBarrel;
+    edm::Handle<std::vector<L1MuRegionalCand> > rpcForward;
+    iEvent.getByLabel ("gtDigis","RPCb",rpcBarrel);
+    iEvent.getByLabel ("gtDigis","RPCf",rpcForward);
+    edm::Handle<L1MuGMTReadoutCollection> pCollection;
+    try {
+      iEvent.getByLabel(gmtSource_,pCollection);
+    }
+    catch (...) {
+      return;
+    }
 
-  for(RRItr = gmt_records.begin(); RRItr != gmt_records.end(); RRItr++ ){    
-    vector<L1MuRegionalCand> DTTFCands  = RRItr->getDTBXCands();
-    vector<L1MuGMTExtendedCand>::const_iterator GMTItr;
-    int BxInEvent = RRItr->getBxInEvent();
+
+    L1MuGMTReadoutCollection const* gmtrc = pCollection.product();
+    vector<L1MuGMTReadoutRecord> gmt_records = gmtrc->getRecords();
+    vector<L1MuGMTReadoutRecord>::const_iterator RRItr;
+
+    for(RRItr = gmt_records.begin(); RRItr != gmt_records.end(); RRItr++ ){    
+      vector<L1MuRegionalCand> DTTFCands  = RRItr->getDTBXCands();
+      vector<L1MuGMTExtendedCand>::const_iterator GMTItr;
+      int BxInEvent = RRItr->getBxInEvent();
     
-    if(BxInEvent!=0) continue;
-    vector<L1MuRegionalCand>::const_iterator DTTFItr;
-    for( DTTFItr = DTTFCands.begin(); DTTFItr != DTTFCands.end(); ++DTTFItr ) {
-      if(!DTTFItr->empty()) nDTTF++;
+      if(BxInEvent!=0) continue;
+      vector<L1MuRegionalCand>::const_iterator DTTFItr;
+      for( DTTFItr = DTTFCands.begin(); DTTFItr != DTTFCands.end(); ++DTTFItr ) {
+	if(!DTTFItr->empty()) nDTTF++;
+      }
     }
   }
 
@@ -241,7 +249,9 @@ void RPCEfficiencyFromTrack::analyze(const edm::Event& iEvent, const edm::EventS
   rollRec.clear();
 
  
-  if(staTracks->size()!=0){
+  if(staTracks->size()!=0 && nDTTF>DTTrigValue){
+
+    std::cout<<nDTTF<<std::endl;
     for (staTrack = staTracks->begin(); staTrack != staTracks->end(); ++staTrack){
       reco::TransientTrack track(*staTrack,&*theMGField,theTrackingGeometry);
 
@@ -258,13 +268,14 @@ void RPCEfficiencyFromTrack::analyze(const edm::Event& iEvent, const edm::EventS
 	      const BoundPlane *rpcPlane =  &((*itRoll)->surface());
 
 	      //Barrel
-	      if(MeasureBarrel==true && rollId.region()==0){
+	      if(MeasureBarrel==true && rollId.region()==0 && (rollId.ring()==0 || rollId.ring()==1)){
+		
 		const RectangularStripTopology* top_= dynamic_cast<const RectangularStripTopology*> (&((*itRoll)->topology()));
 		LocalPoint xmin = top_->localPosition(0.);
 		LocalPoint xmax = top_->localPosition((float)(*itRoll)->nstrips());
 		float rsize = fabs( xmax.x()-xmin.x() )*0.5;
 		float stripl = top_->stripLength();
-
+		
 		TrajectoryStateClosestToPoint tcp = track.impactPointTSCP();
 		const FreeTrajectoryState &fTS=tcp.theState();
 		const FreeTrajectoryState *FreeState = &fTS;
