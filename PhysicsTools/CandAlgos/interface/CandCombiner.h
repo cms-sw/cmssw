@@ -7,9 +7,9 @@
  *
  * \author Luca Lista, INFN
  *
- * \version $Revision: 1.24 $
+ * \version $Revision: 1.25 $
  *
- * $Id: CandCombiner.h,v 1.24 2008/05/14 09:19:29 llista Exp $
+ * $Id: CandCombiner.h,v 1.25 2008/06/18 16:57:14 srappocc Exp $
  *
  */
 #include "FWCore/Framework/interface/EDProducer.h"
@@ -36,17 +36,18 @@ namespace edm {
 namespace reco {
   namespace modules {
     
-    struct NoNames {
-      explicit NoNames(const edm::ParameterSet & cfg) { }
-      std::vector<std::string> roles() const { return std::vector<std::string>(); }
-      template<typename Cand>
-      void set(Cand & c) const { }
-    };
     
     struct RoleNames {
-      explicit RoleNames(const edm::ParameterSet & cfg) : 
-	name_(cfg.getParameter<std::string>("name")),
-        roles_(cfg.getParameter<std::vector<std::string> >("roles")) {
+      explicit RoleNames(const edm::ParameterSet & cfg) {
+
+	if ( cfg.exists("name") )
+	  name_ = cfg.getParameter<std::string>("name");
+	else
+	  name_ = "";
+	if ( cfg.exists("roles") )
+	  roles_ = cfg.getParameter<std::vector<std::string> >("roles");
+	else
+	  roles_ = std::vector<std::string>();
       }
       const std::vector<std::string> roles() const { return roles_; }
       void set(reco::CompositeCandidate &c) const {
@@ -61,15 +62,6 @@ namespace reco {
       std::vector<std::string> roles_;
     };
 
-    template<typename OutputCollection>
-    struct RoleNamesTrait {
-      typedef NoNames type;
-    };
-
-    template<>
-    struct RoleNamesTrait<reco::CompositeCandidateCollection> {
-      typedef RoleNames type;
-    };  
     
     struct CandCombinerBase : public edm::EDProducer {
       CandCombinerBase(const edm::ParameterSet & cfg) :
@@ -174,8 +166,8 @@ namespace reco {
       }
       /// combiner utility
       ::CandCombiner<Selector, PairSelector, Cloner, OutputCollection, Setup> combiner_;
-      typedef typename RoleNamesTrait<OutputCollection>::type Roles;
-      Roles names_;
+
+      RoleNames names_;
     };
 
   }
