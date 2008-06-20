@@ -3,7 +3,7 @@ import FWCore.ParameterSet.Config as cms
 # produce electrons based on matched pixel hits with gsf fit
 #
 globalGsfElectrons = cms.EDProducer("GlobalGsfElectronProducer",
-    endcapSuperClusters = cms.InputTag("correctedIslandEndcapSuperClusters"),
+    endcapSuperClusters = cms.InputTag("correctedMulti5x5SuperClustersWithPreshower"),
     maxDeltaPhi = cms.double(0.1),
     minEOverPEndcaps = cms.double(0.35),
     # nested parameter set for TransientInitialStateEstimator
