@@ -942,6 +942,10 @@ process.schedule = cms.Schedule(process.p2,process.p)
             process.m.p.i = 4
             self.assertEqual(process.m.p.i.value(), 4)
             process.m.p = PSet(j=int32(1))
+            # should work to clone it, though
+            m2 = m.clone(p = PSet(i = int32(5)), j = int32(8))
+            m2.p.i = 6
+            m2.j = 8
 
                                
     unittest.main()
