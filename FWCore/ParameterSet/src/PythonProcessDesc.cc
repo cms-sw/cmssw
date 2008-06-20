@@ -1,10 +1,10 @@
 #include "FWCore/ParameterSet/interface/PythonProcessDesc.h"
 #include "FWCore/ParameterSet/src/PythonModule.h"
 #include "FWCore/ParameterSet/src/PythonWrapper.h"
-#include <boost/python.hpp>
 #include <sstream>
 
-#include <iostream>
+using namespace boost::python;
+
 PythonProcessDesc::PythonProcessDesc()
 :  theProcessPSet(),
    theServices()
@@ -12,7 +12,7 @@ PythonProcessDesc::PythonProcessDesc()
 }
 
 
-PythonProcessDesc::PythonProcessDesc(const std::string & fileName)
+PythonProcessDesc::PythonProcessDesc(const std::string & config)
 :  theProcessPSet(),
    theServices()
 {
@@ -35,21 +35,15 @@ PythonProcessDesc::PythonProcessDesc(const std::string & fileName)
   scope(libModule).attr("processDesc") = ptr(this);
   scope(libModule).attr("processPSet") = ptr(&theProcessPSet);
   try {
-      std::string initCommand("import FWCore.ParameterSet.Config as cms\n"
-                          "fileDict = dict()\n"
-                          "execfile('");
-      initCommand += fileName + "',fileDict)";
-
-
-      handle<>(PyRun_String(initCommand.c_str(),
-                            Py_file_input,
-                            main_namespace.ptr(),
-                            main_namespace.ptr()));
-      std::string command("cms.findProcess(fileDict).fillProcessDesc(libFWCoreParameterSet.processDesc, libFWCoreParameterSet.processPSet)");
-      handle<>(PyRun_String(command.c_str(),
-                            Py_eval_input,
-                            main_namespace.ptr(),
-                            main_namespace.ptr()));
+    // if it ends with py, it's a file
+    if(config.substr(config.size()-3) == ".py")
+    {
+      readFile(config, main_namespace);
+    }
+    else
+    {
+      readString(config, main_namespace);
+    }
   }
   catch( error_already_set ) {
      edm::pythonToCppException("Configuration");
@@ -57,6 +51,37 @@ PythonProcessDesc::PythonProcessDesc(const std::string & fileName)
   }
 
   Py_Finalize();
+}
+
+
+void PythonProcessDesc::readFile(const std::string & fileName, object & main_namespace)
+{
+  std::string initCommand("import FWCore.ParameterSet.Config as cms\n"
+                      "fileDict = dict()\n"
+                      "execfile('");
+  initCommand += fileName + "',fileDict)";
+
+
+  handle<>(PyRun_String(initCommand.c_str(),
+                        Py_file_input,
+                        main_namespace.ptr(),
+                        main_namespace.ptr()));
+  std::string command("cms.findProcess(fileDict).fillProcessDesc(libFWCoreParameterSet.processDesc, libFWCoreParameterSet.processPSet)");
+  handle<>(PyRun_String(command.c_str(),
+                        Py_eval_input,
+                        main_namespace.ptr(),
+                        main_namespace.ptr()));
+}
+
+
+void PythonProcessDesc::readString(const std::string & pyConfig, object & main_namespace)
+{
+  std::string command = pyConfig;
+  command += "\nprocess.fillProcessDesc(libFWCoreParameterSet.processDesc, libFWCoreParameterSet.processPSet)";
+  handle<>(PyRun_String(command.c_str(),
+                        Py_eval_input,
+                        main_namespace.ptr(),
+                        main_namespace.ptr()));
 }
 
 
