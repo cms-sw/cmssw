@@ -1,5 +1,5 @@
 //
-// $Id: PATElectronCleaner.cc,v 1.5 2008/04/11 17:45:22 fronga Exp $
+// $Id: PATElectronCleaner.cc,v 1.6 2008/06/09 16:15:37 gpetrucc Exp $
 //
 #include "PhysicsTools/PatAlgos/plugins/PATElectronCleaner.h"
 #include "DataFormats/EgammaReco/interface/BasicClusterShapeAssociation.h"
@@ -22,6 +22,11 @@ PATElectronCleaner::PATElectronCleaner(const edm::ParameterSet & iConfig) :
 {
   helper_.configure(iConfig);      // learn whether to save good, bad, all, ...
   helper_.registerProducts(*this); // issue the produces<>() commands
+
+  if (iConfig.exists("removeOverlaps")) {
+    edm::ParameterSet overlapConf = iConfig.getParameter<edm::ParameterSet>("removeOverlaps");
+    overlapHelper_ = pat::helper::OverlapHelper(overlapConf);
+  }
 }
 
 PATElectronCleaner::~PATElectronCleaner() {
@@ -76,9 +81,18 @@ void PATElectronCleaner::produce(edm::Event & iEvent, const edm::EventSetup & iS
     removeDuplicates(); 
   }
 
+  if (overlapHelper_.enabled()) {
+     typedef pat::helper::OverlapHelper::Result Result;
+     std::auto_ptr<Result> result = overlapHelper_.test( iEvent, helper_.selected() );
+     for (size_t i = 0, n = helper_.size(); i < n; ++i) {
+        helper_.addMark( i, (*result)[i] );
+     }
+  }
+
   // tell him that we're done. 
   helper_.done(); // he does event.put by itself
   if (isolator_.enabled()) isolator_.endEvent();
+
 }
 
 
@@ -107,7 +121,6 @@ void PATElectronCleaner::endJob() {
             isolator_.printSummary() <<
             "\nCleaner summary information:\n" <<
             helper_.printSummary();
-    helper_.endJob(); 
 }
 
 #include "FWCore/Framework/interface/MakerMacros.h"

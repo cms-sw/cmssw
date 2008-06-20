@@ -128,8 +128,6 @@ void pat::PATPhotonCleaner::endJob() {
             isolator_.printSummary() <<
             "\nCleaner summary information:\n" <<
             helper_.printSummary();
-    helper_.endJob(); 
-
 }
 
 #include "FWCore/Framework/interface/MakerMacros.h"

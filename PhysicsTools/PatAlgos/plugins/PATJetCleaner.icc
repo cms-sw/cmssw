@@ -78,7 +78,6 @@ void pat::PATJetCleaner<JetIn,JetOut>::endJob() {
             "Input tag was " << jetSrc_.encode() <<
             "\nCleaner summary information:\n" <<
             helper_.printSummary();
-    helper_.endJob(); 
 }
 
 template<typename JetIn, typename JetOut>

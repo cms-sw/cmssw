@@ -1,5 +1,5 @@
 //
-// $Id: PATMuonCleaner.cc,v 1.3 2008/03/14 15:13:51 gpetrucc Exp $
+// $Id: PATMuonCleaner.cc,v 1.4 2008/06/09 16:15:37 gpetrucc Exp $
 //
 
 #include "PhysicsTools/PatAlgos/plugins/PATMuonCleaner.h"
@@ -74,8 +74,6 @@ void PATMuonCleaner::endJob()  {
             isolator_.printSummary() <<
             "\nCleaner summary information:\n" <<
             helper_.printSummary();
-
-    helper_.endJob(); 
 }
 
 #include "FWCore/Framework/interface/MakerMacros.h"

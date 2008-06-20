@@ -1,5 +1,5 @@
 //
-// $Id: PATGenericParticleCleaner.cc,v 1.2 2008/06/05 20:05:13 gpetrucc Exp $
+// $Id: PATGenericParticleCleaner.cc,v 1.3 2008/06/06 14:13:40 gpetrucc Exp $
 //
 
 #include "PhysicsTools/PatAlgos/plugins/PATGenericParticleCleaner.h"
@@ -64,7 +64,6 @@ void pat::PATGenericParticleCleaner::endJob() {
             isolator_.printSummary() <<
             "\nCleaner summary information:\n" <<
             helper_.printSummary();
-    helper_.endJob(); 
 }
 
 #include "FWCore/Framework/interface/MakerMacros.h"

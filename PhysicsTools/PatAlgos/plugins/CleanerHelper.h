@@ -74,11 +74,6 @@ class CleanerHelper {
         /// Only items with mark == 0 (which is the default) will be saved.
         void done();
 
-        /// To be called optionally at the end of the job, will print summary information
-        /// if bookeeping was enabled
-        void endJob();
-
-
         /// a reference to a view of the the source collection
         const edm::View<T> & source() const { return *sourceView_; }
 
@@ -202,10 +197,6 @@ class CleanerHelper {
         /// To convert between indices here and indices in all list, use originalIndexOf method.
         FilteredCollection accepted() const { return FilteredCollection(*this); }       
  
-
-        ///Turn on bookkeeping of summary information bit per bit
-        void requestSummary() { makeSummary_ = true; } 
-
         ///Print summary information bit per bit. 
         std::string printSummary() ;
     private:
@@ -242,8 +233,7 @@ template<typename T, typename T2, typename Collection, typename Comparator>
 CleanerHelper<T,T2,Collection,Comparator>::CleanerHelper(const edm::InputTag &src, const std::string &instanceName) :
     src_(src),
     label_(instanceName),moduleLabel_(),
-    saveRejected_(false),saveAll_(false),markItems_(false),
-    makeSummary_(false)
+    saveRejected_(false),saveAll_(false),markItems_(false)
 { 
     memset( countsForEachBit_, 0, NumberOfBits_ * 2 * sizeof(uint64_t));
     memset( countsTotal_     , 0, 2 * sizeof(uint64_t));
@@ -262,8 +252,6 @@ void CleanerHelper<T,T2,Collection,Comparator>::configure(const edm::ParameterSe
     }
 
     if (conf.exists("markItems")) setStatusMark ( conf.getParameter<bool>("markItems") );
-
-    makeSummary_ = conf.getUntrackedParameter<bool>("wantSummary", false);
 
     if (conf.exists("bitsToIgnore")) {
         std::string match = "bitsToIgnore";
@@ -392,7 +380,7 @@ void CleanerHelper<T,T2,Collection,Comparator>::done() {
         size_t idx = indices[i];
 
         bool ok = ( ( marks_[idx] & (~bitsToIgnore_) ) == 0); 
-        if (makeSummary_) { addToSummary(marks_[idx], ok); }
+        addToSummary(marks_[idx], ok); 
 
         CleanerHelperAdder<T2,Collection> pusher; // this allows us to push_back both on std::vector and OwnVector
         if (ok) { // save only unmarked items
@@ -474,10 +462,6 @@ std::string CleanerHelper<T,T2,Collection,Comparator>::printSummary() {
     }
     out << "\n";
     return out.str();
-}
-
-template<typename T, typename T2, typename Collection, typename Comparator>
-void CleanerHelper<T,T2,Collection,Comparator>::endJob() {
 }
 
 } } // namespaces

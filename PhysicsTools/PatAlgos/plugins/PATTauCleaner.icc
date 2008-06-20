@@ -65,5 +65,4 @@ void pat::PATTauCleaner<TauIn,TauOut,TauTag>::endJob() {
             "Input tag was " << tauSrc_.encode() <<
             "\nCleaner summary information:\n" <<
             helper_.printSummary();
-    helper_.endJob(); 
 }

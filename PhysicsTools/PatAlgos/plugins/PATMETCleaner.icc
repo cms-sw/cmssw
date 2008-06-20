@@ -42,6 +42,5 @@ void pat::PATMETCleaner<METIn,METOut>::endJob() {
             "Input tag was " << metSrc_.encode() <<
             "\nCleaner summary information:\n" <<
             helper_.printSummary();
-    helper_.endJob(); 
 }
 

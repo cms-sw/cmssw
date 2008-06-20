@@ -1,5 +1,5 @@
 //
-// $Id: PATElectronCleaner.h,v 1.5 2008/04/09 12:05:12 llista Exp $
+// $Id: PATElectronCleaner.h,v 1.6 2008/04/11 17:45:22 fronga Exp $
 //
 
 #ifndef PhysicsTools_PatAlgos_PATElectronCleaner_h
@@ -37,7 +37,7 @@
   The actual selection is performed by the ElectronSelector.
 
   \author   Steven Lowette, James Lamb
-  \version  $Id: PATElectronCleaner.h,v 1.5 2008/04/09 12:05:12 llista Exp $
+  \version  $Id: PATElectronCleaner.h,v 1.6 2008/04/11 17:45:22 fronga Exp $
 */
 
 
@@ -47,6 +47,7 @@
 #include "FWCore/ParameterSet/interface/InputTag.h"
 
 #include "PhysicsTools/PatAlgos/plugins/CleanerHelper.h"
+#include "PhysicsTools/PatAlgos/interface/OverlapHelper.h"
 #include "DataFormats/EgammaCandidates/interface/GsfElectronFwd.h"
 #include "DataFormats/EgammaCandidates/interface/GsfElectron.h"
 #include "DataFormats/EgammaReco/interface/ClusterShapeFwd.h"
@@ -91,6 +92,9 @@ namespace pat {
       std::string       selectionType_; ///< Selection type (none, custom, cut,...)
       bool              doSelection_;   ///< False if type = "none", true otherwise
       ElectronSelector  selector_;      ///< Actually performs the selection
+
+      // deltaR overlap helper
+      pat::helper::OverlapHelper overlapHelper_;
 
 //   FIXME: This won't work in 2_1. Have to get cluster shape variables differently, 
 //          or remove "custom selection" altogether
