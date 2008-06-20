@@ -26,48 +26,15 @@ int process(const Coll* pt, const DetId& did, unsigned short* buffer, int& presa
   return size;
 }
 
-static unsigned char processTrig(const HcalTrigPrimDigiCollection* pt, const HcalTrigTowerDetId& tid, unsigned short* buffer) {
-  if (pt==0) return 0;
-  int size=0;
-  HcalTrigPrimDigiCollection::const_iterator i=pt->find(tid);
-  if (i!=pt->end()) {
-    int presamples=i->presamples();
-    int samples=i->size();
-
-    for (int j=0; j<samples; j++) {
-       buffer[j]=(*i)[j].raw();
-       if (j==presamples) buffer[j]|=0x0200;
-    }
-  }
-  return size;
-}
-
 int CastorPacker::findSamples(const DetId& did, const Collections& inputs,
 			    unsigned short* buffer, int &presamples) {
-  if (did.det()!=DetId::Hcal) return 0;
+
+  if (did.det()!=DetId::Calo) return 0;
   int size=0;
-  HcalGenericDetId genId(did);
-  size=process<CastorDigiCollection,HcalDetId>(inputs.castorCont,did,buffer,presamples);
-  
-/*  switch (genId.genericSubdet()) {
-  case(HcalGenericDetId::HcalGenBarrel):
-  case(HcalGenericDetId::HcalGenEndcap):
-    size=process<HBHEDigiCollection,HcalDetId>(inputs.hbhe,did,buffer,presamples);
-    break;
-  case(HcalGenericDetId::HcalGenOuter):
-    size=process<HODigiCollection,HcalDetId>(inputs.hoCont,did,buffer,presamples);
-    break;
-  case(HcalGenericDetId::HcalGenForward):
-    size=process<HFDigiCollection,HcalDetId>(inputs.hfCont,did,buffer,presamples);
-    break;
-  case(HcalGenericDetId::HcalGenZDC):
-    size=process<ZDCDigiCollection,HcalZDCDetId>(inputs.zdcCont,did,buffer,presamples);
-    break;
-  case(HcalGenericDetId::HcalGenCalibration):
-    size=process<HcalCalibDigiCollection,HcalCalibDetId>(inputs.calibCont,did,buffer,presamples);
-    break;
-  default: size=0;
-  } */
+  HcalCastorDetId genId(did);
+
+  size=process<CastorDigiCollection,HcalCastorDetId>(inputs.castorCont,did,buffer,presamples);
+
   return size;
 }
 
@@ -102,7 +69,6 @@ void CastorPacker::pack(int fedid, int dccnumber,
 	HcalGenericDetId genId;
 	if (!emap.lookup(partialEid,fullEid,genId)) continue;
 
-
 	// next, see if there is a digi with this id
 	unsigned short* database=&(precdata[linear*HcalHTRData::MAXIMUM_SAMPLES_PER_CHANNEL]);
 	int mypresamples;
@@ -111,14 +77,14 @@ void CastorPacker::pack(int fedid, int dccnumber,
 	if (mysamples>0) {
 	  if (samples<0) samples=mysamples;
 	  else if (samples!=mysamples) {
-	    edm::LogError("HCAL") << "Mismatch of samples in a single HTR (unsupported) " << mysamples << " != " << samples;
+	    edm::LogError("CASTOR") << "Mismatch of samples in a single HTR (unsupported) " << mysamples << " != " << samples;
 	    continue;
 	  }
 	  if (presamples<0) {
 	    presamples=mypresamples;
 	    exampleEId=fullEid;
 	  } else if (mypresamples!=presamples) {
-	    edm::LogError("HCAL") << "Mismatch of presamples in a single HTR (unsupported) " << mypresamples << " != " << presamples;
+	    edm::LogError("CASTOR") << "Mismatch of presamples in a single HTR (unsupported) " << mypresamples << " != " << presamples;
 	    continue;	    
 	  }
 	  for (int ii=0; ii<samples; ii++)
@@ -126,31 +92,6 @@ void CastorPacker::pack(int fedid, int dccnumber,
 	  preclen[linear]=(unsigned char)(samples);
 	  npresent++;
 	}	
-      }
-    for (int slb=1; slb<=6; slb++) 
-      for (int slbchan=0; slbchan<=3; slbchan++) {
-	int linear=(slb-1)*4+slbchan;
-	HcalTriggerPrimitiveSample idCvt(0,0,slb,slbchan);
-	unsigned short chanid=idCvt.raw()&0xF800;
-	triglen[linear]=0;
-
-	CastorElectronicsId partialEid(slbchan,slb,spigot,dccnumber,0,0,0);
-	// does this partial id exist?
-	CastorElectronicsId fullEid;
-	HcalTrigTowerDetId tid;
-	if (!emap.lookup(partialEid,fullEid,tid)) {
-//	  std::cout << "TPGPACK : no match for " << partialEid << std::endl;
-	  continue;
-	}  //else std::cout << "TPGPACK : converted " << partialEid << " to " << fullEid << "/" << tid << std::endl;
-          
-	// finally, what about a trigger channel?
-	if (!tid.null()) {
-	  unsigned short* trigbase=&(trigdata[linear*HcalHTRData::MAXIMUM_SAMPLES_PER_CHANNEL]);
-	  triglen[linear]=processTrig(inputs.tpCont,tid,trigbase);
-	  
-	  for (unsigned char q=0; q<triglen[linear]; q++)
-	    trigbase[q]=(trigbase[q]&0x7FF)|chanid;
-	}
       }
     /// pack into HcalHTRData
     if (npresent>0) {
@@ -197,4 +138,5 @@ void CastorPacker::pack(int fedid, int dccnumber,
   fedTrailer.set(output.data()+(output.size()-8),
     output.size()/8,
     evf::compute_crc(output.data(),output.size()), 0, 0);
+
 }
