@@ -8,7 +8,7 @@
 //
 // Original Author:  
 //         Created:  Thu Dec  6 17:49:54 PST 2007
-// $Id: FWRPZDataProxyBuilder.cc,v 1.11 2008/06/12 15:07:45 chrjones Exp $
+// $Id: FWRPZDataProxyBuilder.cc,v 1.12 2008/06/16 18:23:15 dmytro Exp $
 //
 
 // system include files
@@ -132,19 +132,21 @@ FWRPZDataProxyBuilder::build(TEveElementList** iObject)
 void 
 FWRPZDataProxyBuilder::modelChanges(const FWModelIds& iIds)
 {
-   modelChanges(iIds,m_elements);
-   std::for_each(m_rhoPhiProjs.begin(),
-                 m_rhoPhiProjs.end(),
-                 boost::bind(&FWRPZDataProxyBuilder::modelChanges,
-                             this,
-                             iIds,
-                             _1));
-   std::for_each(m_rhoZProjs.begin(),
-                 m_rhoZProjs.end(),
-                 boost::bind(&FWRPZDataProxyBuilder::modelChanges,
-                             this,
-                             iIds,
-                             _1));
+   if(m_elements !=0) {
+      modelChanges(iIds,m_elements);
+      std::for_each(m_rhoPhiProjs.begin(),
+                    m_rhoPhiProjs.end(),
+                    boost::bind(&FWRPZDataProxyBuilder::modelChanges,
+                                this,
+                                iIds,
+                                _1));
+      std::for_each(m_rhoZProjs.begin(),
+                    m_rhoZProjs.end(),
+                    boost::bind(&FWRPZDataProxyBuilder::modelChanges,
+                                this,
+                                iIds,
+                                _1));
+   }
 }
 
 

@@ -8,7 +8,7 @@
 //
 // Original Author:  
 //         Created:  Thu Dec  6 17:49:54 PST 2007
-// $Id: FWRPZ2DDataProxyBuilder.cc,v 1.8 2008/06/08 16:59:01 dmytro Exp $
+// $Id: FWRPZ2DDataProxyBuilder.cc,v 1.9 2008/06/12 15:07:45 chrjones Exp $
 //
 
 // system include files
@@ -188,6 +188,7 @@ modelChanges(const FWEventItem* iItem,
              const FWModelIds& iIds,
              TEveElement* iElements )
 {
+   if(0==iElements) {return;}
    //std::cout <<"modelChanged "<<iItem->size()<<" "<<iElements->GetNChildren()<<std::endl;
    assert(iItem && "item is not set");
    if ( static_cast<int>(iItem->size()) != iElements->NumChildren() ) {
