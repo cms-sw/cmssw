@@ -1,5 +1,5 @@
-#include "PhysicsTools/CommonTools/interface/CachingVariable.h"
-#include "PhysicsTools/CommonTools/interface/VariableHelper.h"
+#include "PhysicsTools/UtilAlgos/interface/CachingVariable.h"
+#include "PhysicsTools/UtilAlgos/interface/VariableHelper.h"
 
 
 

@@ -5,7 +5,7 @@
 
 DEFINE_SEAL_MODULE();
 
-#include "PhysicsTools/CommonTools/interface/EventSelector.h"
+#include "PhysicsTools/UtilAlgos/interface/EventSelector.h"
 
 #include "PhysicsTools/RecoUtils/plugins/CandidateEventSelector.h"
 
@@ -13,7 +13,7 @@ DEFINE_EDM_PLUGIN(EventSelectorFactory, CandidateEventSelector, "CandidateEventS
 DEFINE_EDM_PLUGIN(EventSelectorFactory, CandidateSEventSelector, "CandidateSEventSelector,");
 DEFINE_EDM_PLUGIN(EventSelectorFactory, CandidateSEventVetoSelector, "CandidateSEventVetoSelector");
 
-#include "PhysicsTools/CommonTools/interface/CachingVariable.h"
+#include "PhysicsTools/UtilAlgos/interface/CachingVariable.h"
 
 namespace configurableAnalysis{
   char Candidate[]="reco::Candidate";

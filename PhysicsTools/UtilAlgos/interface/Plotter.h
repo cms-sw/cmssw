@@ -9,9 +9,9 @@
 #include "TH2F.h"
 #include "TProfile.h"
 
-#include "PhysicsTools/CommonTools/interface/VariableHelper.h"
-#include "PhysicsTools/CommonTools/interface/CachingVariable.h"
-#include "PhysicsTools/CommonTools/interface/ConfigurableHisto.h"
+#include "PhysicsTools/UtilAlgos/interface/VariableHelper.h"
+#include "PhysicsTools/UtilAlgos/interface/CachingVariable.h"
+#include "PhysicsTools/UtilAlgos/interface/ConfigurableHisto.h"
 #include "PhysicsTools/UtilAlgos/interface/TFileService.h"
 
 class Plotter {

@@ -1,8 +1,8 @@
 #ifndef _StringCutEventSelector
 #define _StringCutEventSelector
 
-#include "PhysicsTools/CommonTools/interface/EventSelector.h"
-#include "PhysicsTools/CommonTools/interface/InputTagDistributor.h"
+#include "PhysicsTools/UtilAlgos/interface/EventSelector.h"
+#include "PhysicsTools/UtilAlgos/interface/InputTagDistributor.h"
 #include "PhysicsTools/Utilities/interface/StringCutObjectSelector.h"
 
 

@@ -1,5 +1,5 @@
-#ifndef PhysicsTools_CommonTools_TwoObjectCalculator_H
-#define PhysicsTools_CommonTools_TwoObjectCalculator_H
+#ifndef PhysicsTools_UtilAlgos_TwoObjectCalculator_H
+#define PhysicsTools_UtilAlgos_TwoObjectCalculator_H
 
 struct CosDphiCalculator {
   template <typename LHS, typename RHS > double operator()( const LHS & lhs, const RHS & rhs){

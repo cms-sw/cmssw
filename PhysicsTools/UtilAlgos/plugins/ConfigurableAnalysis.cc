@@ -3,7 +3,7 @@
 // Package:    ConfigurableAnalysis
 // Class:      ConfigurableAnalysis
 // 
-/**\class ConfigurableAnalysis ConfigurableAnalysis.cc PhysicsTools/CommonTools/src/ConfigurableAnalysis.cc
+/**\class ConfigurableAnalysis ConfigurableAnalysis.cc PhysicsTools/UtilAlgos/src/ConfigurableAnalysis.cc
 
  Description: <one line class summary>
 
@@ -13,7 +13,7 @@
 //
 // Original Author:  Jean-Roch Vlimant
 //         Created:  Mon Apr 14 11:39:51 CEST 2008
-// $Id: ConfigurableAnalysis.cc,v 1.4 2008/05/30 09:50:19 vlimant Exp $
+// $Id: ConfigurableAnalysis.cc,v 1.1 2008/06/21 11:43:27 vlimant Exp $
 //
 //
 
@@ -32,9 +32,9 @@
 
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 
-#include "PhysicsTools/CommonTools/interface/Selections.h"
-#include "PhysicsTools/CommonTools/interface/Plotter.h"
-#include "PhysicsTools/CommonTools/interface/NTupler.h"
+#include "PhysicsTools/UtilAlgos/interface/Selections.h"
+#include "PhysicsTools/UtilAlgos/interface/Plotter.h"
+#include "PhysicsTools/UtilAlgos/interface/NTupler.h"
 
 //
 // class decleration

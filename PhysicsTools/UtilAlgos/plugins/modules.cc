@@ -5,16 +5,16 @@
 
 DEFINE_SEAL_MODULE();
 
-#include "PhysicsTools/CommonTools/interface/UpdaterService.h"
+#include "PhysicsTools/UtilAlgos/interface/UpdaterService.h"
 DEFINE_FWK_SERVICE( UpdaterService );
 
-#include "PhysicsTools/CommonTools/interface/EventSelector.h"
-#include "PhysicsTools/CommonTools/plugins/VariableEventSelector.h"
+#include "PhysicsTools/UtilAlgos/interface/EventSelector.h"
+#include "PhysicsTools/UtilAlgos/plugins/VariableEventSelector.h"
 DEFINE_EDM_PLUGIN(EventSelectorFactory, VariableEventSelector, "VariableEventSelector");
 
-#include "PhysicsTools/CommonTools/interface/CachingVariable.h"
+#include "PhysicsTools/UtilAlgos/interface/CachingVariable.h"
 DEFINE_EDM_PLUGIN(CachingVariableFactory, Power, "Power");
 DEFINE_EDM_PLUGIN(CachingVariableFactory, VarSplitter, "VarSplitter");
 
-#include "PhysicsTools/CommonTools/interface/Plotter.h"
+#include "PhysicsTools/UtilAlgos/interface/Plotter.h"
 DEFINE_EDM_PLUGIN(PlotterFactory, VariablePlotter, "VariablePlotter");

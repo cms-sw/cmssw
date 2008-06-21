@@ -13,7 +13,7 @@
 //
 // Original Author:  Jean-Roch Vlimant
 //         Created:  Thu May 15 14:37:59 CEST 2008
-// $Id: PlottingDevice.cc,v 1.2 2008/05/30 09:50:19 vlimant Exp $
+// $Id: PlottingDevice.cc,v 1.1 2008/06/21 11:43:27 vlimant Exp $
 //
 //
 
@@ -33,8 +33,8 @@
 // class decleration
 //
 
-#include "PhysicsTools/CommonTools/interface/Plotter.h"
-#include "PhysicsTools/CommonTools/interface/VariableHelper.h"
+#include "PhysicsTools/UtilAlgos/interface/Plotter.h"
+#include "PhysicsTools/UtilAlgos/interface/VariableHelper.h"
 
 class PlottingDevice : public edm::EDAnalyzer {
    public:

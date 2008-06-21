@@ -1,8 +1,8 @@
 #ifndef _VariableEventSelector_H
 #define _VariableEventSelector_H
 
-#include "PhysicsTools/CommonTools/interface/EventSelector.h"
-#include "PhysicsTools/CommonTools/interface/VariableHelper.h"
+#include "PhysicsTools/UtilAlgos/interface/EventSelector.h"
+#include "PhysicsTools/UtilAlgos/interface/VariableHelper.h"
 
 class VariableEventSelector : public EventSelector {
  public:

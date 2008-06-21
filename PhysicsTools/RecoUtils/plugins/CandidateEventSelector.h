@@ -1,4 +1,4 @@
-#include "PhysicsTools/CommonTools/interface/StringCutEventSelector.h"
+#include "PhysicsTools/UtilAlgos/interface/StringCutEventSelector.h"
 #include "DataFormats/Candidate/interface/Candidate.h"
 
 typedef StringCutEventSelector<reco::Candidate> CandidateEventSelector;

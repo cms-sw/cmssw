@@ -1,7 +1,7 @@
 #ifndef Selections_H
 #define Selections_H
 
-#include "PhysicsTools/CommonTools/interface/EventSelector.h"
+#include "PhysicsTools/UtilAlgos/interface/EventSelector.h"
 #include <cstdlib>
 #include <iomanip>
 #include <sstream>

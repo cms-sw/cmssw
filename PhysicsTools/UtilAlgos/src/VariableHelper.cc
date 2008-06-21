@@ -1,8 +1,8 @@
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/EventSetup.h"
 
-#include "PhysicsTools/CommonTools/interface/VariableHelper.h"
-#include "PhysicsTools/CommonTools/interface/CachingVariable.h"
+#include "PhysicsTools/UtilAlgos/interface/VariableHelper.h"
+#include "PhysicsTools/UtilAlgos/interface/CachingVariable.h"
 
 VariableHelper * VariableHelperInstance::SetVariableHelperUniqueInstance_=0;
 std::map<std::string, VariableHelper* > VariableHelperInstance::multipleInstance_ = std::map<std::string, VariableHelper* >();
