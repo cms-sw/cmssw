@@ -6,6 +6,8 @@ import DQM.SiStripMonitorPedestals.SiStripMonitorPedestals_cfi
 CondDBMonSim = DQM.SiStripMonitorPedestals.SiStripMonitorPedestals_cfi.PedsMon.clone()
 import DQM.SiStripMonitorPedestals.SiStripMonitorPedestals_cfi
 CondDBMonReal = DQM.SiStripMonitorPedestals.SiStripMonitorPedestals_cfi.PedsMon.clone()
+import DQM.SiStripMonitorPedestals.SiStripMonitorPedestals_cfi
+PedsMonReal = DQM.SiStripMonitorPedestals.SiStripMonitorPedestals_cfi.PedsMon.clone()
 # SiStripMonitorDigi #####
 from DQM.SiStripMonitorDigi.SiStripMonitorDigi_cfi import *
 import DQM.SiStripMonitorCluster.SiStripMonitorCluster_cfi
@@ -18,14 +20,24 @@ import DQM.SiStripMonitorPedestals.SiStripMonitorQuality_cfi
 QualityMonReal = DQM.SiStripMonitorPedestals.SiStripMonitorQuality_cfi.QualityMon.clone()
 import DQM.SiStripMonitorPedestals.SiStripMonitorQuality_cfi
 QualityMonSim = DQM.SiStripMonitorPedestals.SiStripMonitorQuality_cfi.QualityMon.clone()
+import DQM.SiStripMonitorTrack.SiStripMonitorTrack_cfi
 # SiStripMonitorTrack ####
-from DQM.SiStripMonitorTrack.SiStripMonitorTrack_cfi import *
+SiStripMonitorTrackSim = DQM.SiStripMonitorTrack.SiStripMonitorTrack_cfi.SiStripMonitorTrack.clone()
+import DQM.SiStripMonitorTrack.SiStripMonitorTrack_cfi
+SiStripMonitorTrackReal = DQM.SiStripMonitorTrack.SiStripMonitorTrack_cfi.SiStripMonitorTrack.clone()
+import DQM.TrackerMonitorTrack.MonitorTrackResiduals_cfi
 # TrackerMonitorTrack ####
-from DQM.TrackerMonitorTrack.MonitorTrackResiduals_cfi import *
+MonitorTrackResidualsSim = DQM.TrackerMonitorTrack.MonitorTrackResiduals_cfi.MonitorTrackResiduals.clone()
+import DQM.TrackerMonitorTrack.MonitorTrackResiduals_cfi
+MonitorTrackResidualsReal = DQM.TrackerMonitorTrack.MonitorTrackResiduals_cfi.MonitorTrackResiduals.clone()
+import DQM.TrackingMonitor.TrackingMonitor_cfi
 # TrackingMonitor ####
-from DQM.TrackingMonitor.TrackingMonitor_cfi import *
-SiStripSourcesRealDataTIF = cms.Sequence(HardwareMonitor*CondDBMonReal*SiStripMonitorDigi*SiStripMonitorClusterReal*QualityMonReal)
-SiStripSourcesSimData = cms.Sequence(HardwareMonitor*SiStripMonitorDigi*SiStripMonitorClusterSim*QualityMonSim*TrackMon)
+TrackMonSim = DQM.TrackingMonitor.TrackingMonitor_cfi.TrackMon.clone()
+import DQM.TrackingMonitor.TrackingMonitor_cfi
+TrackMonReal = DQM.TrackingMonitor.TrackingMonitor_cfi.TrackMon.clone()
+SiStripSourcesRealDataTIF = cms.Sequence(HardwareMonitor*CondDBMonReal*SiStripMonitorDigi*SiStripMonitorClusterReal*SiStripMonitorTrackReal*MonitorTrackResidualsReal*TrackMonReal)
+SiStripSourcesRealData = cms.Sequence(HardwareMonitor*PedsMonReal*SiStripMonitorDigi*SiStripMonitorClusterReal*SiStripMonitorTrackReal*MonitorTrackResidualsReal*TrackMonReal)
+SiStripSourcesSimData = cms.Sequence(SiStripMonitorDigi*SiStripMonitorClusterSim*QualityMonSim*SiStripMonitorTrackSim*MonitorTrackResidualsSim*TrackMonSim)
 HardwareMonitor.rootFile = ''
 HardwareMonitor.buildAllHistograms = False
 HardwareMonitor.preSwapOn = False
@@ -35,6 +47,9 @@ CondDBMonSim.RunTypeFlag = 'ConDBPlotsOnly'
 CondDBMonReal.OutputMEsInRootFile = False
 CondDBMonReal.StripQualityLabel = 'test1'
 CondDBMonReal.RunTypeFlag = 'ConDBPlotsOnly'
+PedsMonReal.OutputMEsInRootFile = False
+PedsMonReal.StripQualityLabel = 'test1'
+PedsMonReal.RunTypeFlag = 'CalculatedPlotsOnly'
 SiStripMonitorDigi.SelectAllDetectors = True
 SiStripMonitorClusterReal.OutputMEsInRootFile = False
 SiStripMonitorClusterReal.SelectAllDetectors = True
@@ -44,9 +59,21 @@ SiStripMonitorClusterSim.SelectAllDetectors = True
 SiStripMonitorClusterSim.StripQualityLabel = ''
 QualityMonReal.StripQualityLabel = 'test1'
 QualityMonSim.StripQualityLabel = ''
-SiStripMonitorTrack.TrackProducer = 'TrackRefitter'
-SiStripMonitorTrack.TrackLabel = ''
-SiStripMonitorTrack.Cluster_src = 'siStripClusters'
-SiStripMonitorTrack.FolderName = 'SiStrip/Tracks'
-TrackMon.FolderName = 'SiStrip/Tracks'
+SiStripMonitorTrackSim.TrackProducer = 'TrackRefitter'
+SiStripMonitorTrackSim.TrackLabel = ''
+SiStripMonitorTrackSim.Cluster_src = 'siStripClusters'
+SiStripMonitorTrackSim.FolderName = 'SiStrip/Tracks'
+SiStripMonitorTrackReal.TrackProducer = 'ctfWithMaterialTracksP5'
+SiStripMonitorTrackReal.TrackLabel = ''
+SiStripMonitorTrackReal.Cluster_src = 'siStripClusters'
+SiStripMonitorTrackReal.FolderName = 'SiStrip/Tracks'
+MonitorTrackResidualsReal.Tracks = 'ctfWithMaterialTracksP5'
+MonitorTrackResidualsReal.trajectoryInput = 'ctfWithMaterialTracksP5'
+MonitorTrackResidualsReal.OutputMEsInRootFile = False
+TrackMonSim.FolderName = 'SiStrip/Tracks'
+TrackMonReal.TrackProducer = 'ctfWithMaterialTracksP5'
+TrackMonReal.FolderName = 'SiStrip/Tracks'
+TrackMonReal.AlgoName = 'CKFTk'
+TrackMonReal.TkSizeMax = 25
+TrackMonReal.TkSizeBin = 25
 

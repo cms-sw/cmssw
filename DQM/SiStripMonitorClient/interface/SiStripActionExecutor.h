@@ -40,7 +40,9 @@ class SiStripActionExecutor {
 
  private:
 
- void fillSubDetStatus(DQMStore* dqm_store, std::string& dname, int xbin);
+ void fillSubDetStatus(DQMStore* dqm_store, std::string& dname, int& tot_me_subdet,
+		       int& error_me_subdet,int xbin);
+
 
   std::vector<std::string> tkMapMENames;
 
