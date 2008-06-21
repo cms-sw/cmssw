@@ -6,6 +6,7 @@ import optparse
 import sys
 import os
 import Configuration.PyReleaseValidation
+from Configuration.PyReleaseValidation.ConfigBuilder import ConfigBuilder
 
 #---------------------------------------------------------
 
@@ -60,17 +61,6 @@ parser.add_option("--relval",
                    default="5000,250",
                    dest="relval")                   
                 
-parser.add_option("-e", "--energy",
-                   help="The event energy. If absent, a default value is "+\
-                         "assigned according to the event type.",
-                   dest="energy") 
-
-parser.add_option("-a","--analysis",
-                  help="Enable the analysis.",
-                  action="store_true",
-                  default=False,
-                  dest="analysis_flag")                   
-
 parser.add_option("--PU",
                   help="Enable the pile up.",
                   action="store_true",
@@ -190,12 +180,6 @@ parser.add_option("--dump_python",
                   default=False,                  
                   dest="dump_python")
                                                     
-parser.add_option("--old_config",
-                  help="Use the old configuration system",
-                  action="store_true",
-                  default = False,
-                  dest="old_config") 
-
 parser.add_option("--dump_pickle",
                   help="Dump a pickle object of the process.",
                   default='',
@@ -227,6 +211,10 @@ if len(sys.argv)==1:
     raise "Event Type: ", "No event type specified!"
 
 options.evt_type=sys.argv[1]
+
+# now adjust the given parameters before passing it to the ConfigBuilder
+
+
 
 # Build the IO files if necessary.
 # The default form of the files is:
@@ -261,18 +249,29 @@ if options.filein=="" and not first_step in ("ALL","GEN","SIM_CHAIN"):
         options.dirin="file:"
     options.filein=trimmedEvtType+"_"+prec_step[trimmedStep]+".root"
 
-     
-if options.fileout=="":
-    options.fileout=trimmedEvtType+"_"+\
-                    "_"+trimmedStep
-    options.fileout=options.fileout.replace(',','_')
-    options.fileout=options.fileout.replace('.','_')
 
-    if options.PU_flag:
-        options.fileout+="_PU"
-    if options.analysis_flag:
-        options.fileout+="_ana"    
-    options.fileout+=".root"
+# Prepare the canonical file name for output / config file etc
+#   (EventType_STEP1_STEP2_..._PU)
+standardFileName = ""
+standardFileName = trimmedEvtType+"_"+trimmedStep
+standardFileName = standardFileName.replace(",","_").replace(".","_")
+if options.PU_flag:
+    standardFileName += "_PU"
+
+
+# if no output file name given, set it to default
+if options.fileout=="":
+    options.fileout = standardFileName+".root"
+
+
+# Prepare the name of the config file
+# (in addition list conditions in name)
+python_config_filename = standardFileName
+conditionsSP = options.conditions.split(',')
+if len(conditionsSP) > 1:
+    python_config_filename += "_"+str(conditionsSP[1].split("::")[0])
+    python_config_filename+=".py"
+
 
 #if desired, just add _rawonly to the end of the output file name
 fileraw=''
@@ -290,22 +289,6 @@ if options.writeraw:
                 fileraw=fileraw+'.'+w
         else:
             fileraw=fileraw+'_rawonly.'+w
-
-# File where to dump the python cfg file
-python_config_filename=''
-if options.dump_python or not options.old_config:
-    python_config_filename=trimmedEvtType+"_"+\
-                              "_"+trimmedStep
-    python_config_filename=python_config_filename.replace(',','_').replace('.','_')
-    if options.PU_flag:
-        python_config_filename+="_PU"
-    if options.analysis_flag:
-        python_config_filename+="_ana"
-    conditionsSP = options.conditions.split(',')
-    if len(conditionsSP) > 1:
-        python_config_filename += "_"+str(conditionsSP[1].split("::")[0])
-    python_config_filename+=".py"
-
 
 # Print the options to screen
 if not options.dump_dsetname_flag:
@@ -325,42 +308,35 @@ if options.secondfilein!='':
     secondfilestr=options.dirin+options.secondfilein
 
 
+
+
 # replace step aliases by right list
 if options.step=='ALL':
         options.step='GEN,SIM,DIGI,L1,DIGI2RAW,RAW2DIGI,RECO,POSTRECO,DQM'
-elif options.step=='SIM_CHAIN':
-        options.step='GEN,SIM,DIGI,L1,DIGI2RAW'
 elif options.step=='DATA_CHAIN':
         options.step='RAW2DIGI,RECO,POSTRECO,DQM'
+options.step = options.step.replace("SIM_CHAIN","GEN,SIM,DIGI,L1,DIGI2RAW")
 
-# pure python version - begin
-if not options.old_config:
 
-  from Configuration.PyReleaseValidation.ConfigBuilder import ConfigBuilder
 
-  # do some options adjustments
-  # (for now placed here, needs a better place)
+options.name = trimmedStep.replace(',','').replace("_","")
+# if we're dealing with HLT, the process name has to be "HLT" only
+if 'HLT' in options.name :
+    options.name = 'HLT'
 
-  options.step = options.step.replace("SIM_CHAIN","GEN,SIM,DIGI,L1,DIGI2RAW")
+options.outfile_name = options.dirout+options.fileout
 
-  options.name = trimmedStep.replace(',','').replace("_","")
+# after cleanup of all config parameters pass it to the ConfigBuilder
+configBuilder = ConfigBuilder(options)
+configBuilder.prepare()
 
-  # if we're dealing with HLT, the process name has to be "HLT" only
-  if 'HLT' in options.name :
-      options.name = 'HLT'
+# fetch the results and write it to file
+config = file(python_config_filename,"w")
+config.write(configBuilder.pythonCfgCode)
+config.close()
 
-  options.outfile_name = options.dirout+options.fileout
-
-  # create the config
-  configBuilder = ConfigBuilder(options)
-  configBuilder.prepare()
-
-  # fetch it and write it to file
-  config = file(python_config_filename,"w")
-  config.write(configBuilder.pythonCfgCode)
-  config.close()
-
-  if options.dump_pickle:
+# handle different dump options
+if options.dump_pickle:
     import pickle
     result = {}
     execfile(python_config_filename, result)
@@ -372,14 +348,19 @@ if not options.old_config:
     print "wrote "+options.dump_pickle
     sys.exit(0)
 
-  if options.no_exec_flag:
+if options.dump_python:
+    execfile(python_config_filename, result)
+    process = result["process"]
+    print "NOT YET IMPLEMENTED"
+
+if options.no_exec_flag:
     print "Config file "+python_config_filename+ " created"
     sys.exit(0)
-  else:
+else:
     print "Starting cmsRun "+python_config_filename
     os.execvpe("cmsRun",["cmsRun", python_config_filename],os.environ)
     sys.exit()
     
-# pure python version - end
+
 
     
