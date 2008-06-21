@@ -11,7 +11,7 @@
 #include "Geometry/CaloGeometry/interface/CaloGeometry.h"
 #include "Geometry/CaloTopology/interface/CaloTopology.h"
 #include "Geometry/CaloGeometry/interface/CaloCellGeometry.h"
-#include "Geometry/EcalBarrelAlgo/interface/EcalBarrelGeometry.h"
+#include "Geometry/EcalAlgo/interface/EcalBarrelGeometry.h"
 
 std::pair<DetId, float> EcalClusterTools::getMaximum( const std::vector<DetId> &v_id, const EcalRecHitCollection *recHits)
 {

@@ -14,7 +14,7 @@
 <use name=CondFormats/EcalObjects>
 <use name=RecoLocalCalo/EcalRecAlgos>
 <use name=RecoEcal/EgammaClusterAlgos>
-<use name=Geometry/EcalPreshowerAlgo>
+<use name=Geometry/EcalAlgo>
 <use name=DataFormats/Math>
 <use name=RecoEcal/EgammaCoreTools>
 # EgammaClustersProducers is a plugin now remove from here
@@ -44,7 +44,7 @@
    <use name=CondFormats/EcalObjects>
    <use name=RecoLocalCalo/EcalRecAlgos>
    <use name=RecoEcal/EgammaClusterAlgos>
-   <use name=Geometry/EcalPreshowerAlgo>
+   <use name=Geometry/EcalAlgo>
    <use name=DataFormats/Math>
    <use name=RecoEcal/EgammaCoreTools>
 #   <use name=RecoEcal/EgammaClusterProducers>
