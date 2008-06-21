@@ -6,6 +6,8 @@ from TrackPropagation.SteppingHelixPropagator.SteppingHelixPropagatorAlong_cfi i
 from TrackPropagation.SteppingHelixPropagator.SteppingHelixPropagatorOpposite_cfi import *
 from RecoLocalTracker.SiPixelRecHits.PixelCPEESProducers_cff import *
 from EventFilter.SiStripRawToDigi.SiStripDigis_cfi import *
+from EventFilter.SiPixelRawToDigi.SiPixelRawToDigi_cfi import*
+
 # tracker
 from RecoLocalTracker.Configuration.RecoLocalTracker_Cosmics_cff import *
 from RecoTracker.Configuration.RecoTrackerP5_cff import *
@@ -23,7 +25,8 @@ BeamSpotEarlyCollision = cms.ESSource("PoolDBESSource",
 )
 
 # from "Configuration/GlobalRuns/data/ReconstructionGR.cff" & "Configuration/StandardSequences/data/RawToDigi.cff"
-trackerGR = cms.Sequence(siStripDigis*offlineBeamSpot*striptrackerlocalreco*ctftracksP5)
+trackerGR = cms.Sequence(siPixelDigis*siStripDigis*offlineBeamSpot*trackerlocalreco*ctftracksP5)
 DQMSiStripMonitorTrack_Real = cms.Sequence(trackerGR*SiStripMonitorTrack)
 siStripDigis.ProductLabel = 'source'
-
+siPixelDigis.InputLabel = 'source'
+siStripClusters.SiStripQualityLabel='test1'
