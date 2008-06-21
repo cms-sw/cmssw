@@ -8,7 +8,7 @@
 //
 // Original Author:  
 //         Created:  Thu Dec  6 17:49:54 PST 2007
-// $Id: FWGlimpseDataProxyBuilder.cc,v 1.12 2008/06/16 18:23:15 dmytro Exp $
+// $Id: FWGlimpseDataProxyBuilder.cc,v 1.1 2008/06/19 06:57:27 dmytro Exp $
 //
 
 // system include files
@@ -37,7 +37,8 @@
 // constructors and destructor
 //
 FWGlimpseDataProxyBuilder::FWGlimpseDataProxyBuilder():
-  m_item(0)
+  m_item(0),
+  m_elements(0)
 {
 }
 
@@ -127,7 +128,9 @@ FWGlimpseDataProxyBuilder::build(TEveElementList** iObject)
 void 
 FWGlimpseDataProxyBuilder::modelChanges(const FWModelIds& iIds)
 {
-   modelChanges(iIds,m_elements);
+   if(0!=m_elements) {
+      modelChanges(iIds,m_elements);
+   }
 }
 
 
