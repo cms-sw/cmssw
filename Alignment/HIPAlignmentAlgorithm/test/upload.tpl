@@ -1,6 +1,6 @@
 process Alignment =
 {
-  include "Alignment/HIPAlignmentAlgorithm/home<PATH>/common.cff"
+  include "../home<PATH>/common.cff"
 
   source = EmptySource {}
 
@@ -15,7 +15,6 @@ process Alignment =
     using CondDBSetup
 
     string connect  = "sqlite_file:<PATH>/alignments.db"
-#    string connect  = "frontier://cms_orcoff_prep/CMS_COND_ALIGNMENT"
     untracked string timetype = "runnumber"
 
     VPSet toPut =

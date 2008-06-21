@@ -1,6 +1,6 @@
 process Alignment =
 {
-  include "Alignment/HIPAlignmentAlgorithm/home<PATH>/common.cff"
+  include "../home<PATH>/common.cff"
 
   source = EmptySource {}
 
@@ -20,7 +20,7 @@ process Alignment =
   {
     using CondDBSetup
 
-    string connect  = "sqlite_file:/afs/cern.ch/cms/CAF/CMSALCA/ALCA_TRACKERALIGN/HIP/surveyObjects/measurementSurvey_206.db"
+    string connect  = "sqlite_file:/afs/cern.ch/cms/CAF/CMSALCA/ALCA_TRACKERALIGN/HIP/surveyObjects/measurementSurvey_207.db"
     string timetype = "runnumber"
 
     VPSet toGet =

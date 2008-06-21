@@ -1,8 +1,8 @@
 process Alignment =
 {
   include "Alignment/CommonAlignmentProducer/data/AlignmentTrackSelector.cfi"
-  include "Alignment/HIPAlignmentAlgorithm/home<PATH>/../common.cff"
-  include "Alignment/HIPAlignmentAlgorithm/home<PATH>/../<SKIM>TrackSelection.cff"
+  include "../home<PATH>/../common.cff"
+  include "../home<PATH>/../<SKIM>TrackSelection.cff"
   include "RecoTracker/TransientTrackingRecHit/data/TransientTrackingRecHitBuilderWithoutRefit.cfi"
   include "RecoTracker/TrackProducer/data/RefitterWithMaterial.cff"
   include "RecoVertex/BeamSpotProducer/data/BeamSpot.cff"

@@ -1,6 +1,6 @@
 process Alignment =
 {
-  include "Alignment/HIPAlignmentAlgorithm/home<PATH>/common.cff"
+  include "../home<PATH>/common.cff"
 
   source = EmptySource {}
 
