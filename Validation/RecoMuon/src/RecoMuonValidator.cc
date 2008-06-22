@@ -122,8 +122,8 @@ RecoMuonValidator::RecoMuonValidator(const ParameterSet& pset)
   meMap_["RecoPhi"] = theDQM->book1D("RecoPhi", "#phi of recoTracks" , nBinPhi, minPhi, maxPhi);
 
   // -- histogram for efficiency vs nHits
-  meMap_["SimNHits" ] = theDQM->book1D("SimNHits" , "number of hits of simTracks" , nHits, 0, nHits+1);
-  meMap_["RecoNHits"] = theDQM->book1D("RecoNHits", "number of hits of recoTracks", nHits, 0, nHits+1);
+  meMap_["SimNHits" ] = theDQM->book1D("SimNHits" , "number of hits of simTracks" , nHits, 0, nHits);
+  meMap_["RecoNHits"] = theDQM->book1D("RecoNHits", "number of hits of recoTracks", nHits, 0, nHits);
 
   // - Resolutions
   meMap_["ErrP"  ] = theDQM->book1D("ErrP"  , "#Delta(p)/p"        , nBinErr, minErrP  , maxErrP  );
@@ -175,8 +175,8 @@ RecoMuonValidator::RecoMuonValidator(const ParameterSet& pset)
   // -- Pulls vs Pt
   meMap_["PullPt_vs_Pt" ] = theDQM->book2D("PullPt_vs_Pt", "Pull(p_{T}) vs p_{T}",
                                            nBinPt, minPt, maxPt, nBinPull, -wPull, wPull);
-  meMap_["PullEta_vs_Pt" ] = theDQM->book2D("PullEta_vs_Eta", "Pull(#eta) vs #eta",
-                                            nBinEta, minEta, maxEta, nBinPull, -wPull, wPull);
+  meMap_["PullEta_vs_Pt" ] = theDQM->book2D("PullEta_vs_Pt", "Pull(#eta) vs p_{T}",
+                                            nBinPt, minPt, maxPt, nBinPull, -wPull, wPull);
 
   // - Misc variables
   meMap_["NSim"]  = theDQM->book1D("NSim" , "Number of particles per event"  , nTrks, 0, nTrks);
@@ -188,37 +188,40 @@ RecoMuonValidator::RecoMuonValidator(const ParameterSet& pset)
 //  meMap_["SimVtxPos"] = theDQM->book1D("SimVtxPos", "sim vertex position", nBinVtxPos, minVtxPos, maxVtxPos);
 
   // -- Association map
-//  meMap_["NRecoToSim"] = theDQM->book1D("NRecoToSim", "Number of reco to sim associations", nAssoc, 0, nAssoc);
+  meMap_["NAssocSimToReco"] = theDQM->book1D("NAssocSimToReco", "Number of sim to reco associations", nAssoc, 0, nAssoc);
+  meMap_["NAssocRecoToSim"] = theDQM->book1D("NAssocRecoToSim", "Number of reco to sim associations", nAssoc, 0, nAssoc);
+
+  meMap_["NRecoToSim"] = theDQM->book1D("NRecoToSim", "Number of reco to sim associations", nAssoc, 0, nAssoc);
   meMap_["NSimToReco"] = theDQM->book1D("NSimToReco", "Number of sim to reco associations", nAssoc, 0, nAssoc);
 
   // -- Number of Hits
-  meMap_["SimNHits" ] = theDQM->book1D("SimNHits" , "Number of simTracks vs nSimhits" , nHits, 0, nHits+1);
-  meMap_["RecoNHits"] = theDQM->book1D("RecoNHits", "Number of recoTracks vs nSimhits", nHits, 0, nHits+1);
+  meMap_["SimNHits" ] = theDQM->book1D("SimNHits" , "Number of simTracks vs nSimhits" , nHits, 0, nHits);
+  meMap_["RecoNHits"] = theDQM->book1D("RecoNHits", "Number of recoTracks vs nSimhits", nHits, 0, nHits);
 
   meMap_["NSimHits_vs_Pt" ] = theDQM->book2D("NSimHits_vs_Pt", "Number of sim Hits vs p_{T}",
-                                              nBinPt, minPt, maxPt, nHits, 0, nHits+1);
+                                              nBinPt, minPt, maxPt, nHits, 0, nHits);
   meMap_["NSimHits_vs_Eta"] = theDQM->book2D("NSimHits_vs_Eta", "Number of sim Hits vs #eta",
-                                              nBinPt, minPt, maxPt, nHits, 0, nHits+1);
+                                              nBinPt, minPt, maxPt, nHits, 0, nHits);
 
-  meMap_["NRecoHits"] = theDQM->book1D("NRecoHits", "Number of reco-hits", nHits, 0, nHits+1);
+  meMap_["NRecoHits"] = theDQM->book1D("NRecoHits", "Number of reco-hits", nHits, 0, nHits);
   meMap_["NRecoHits_vs_Pt" ] = theDQM->book2D("NRecoHits_vs_Pt", "Number of reco Hits vs p_{T}", 
-                                              nBinPt, minPt, maxPt, nHits, 0, nHits+1);
+                                              nBinPt, minPt, maxPt, nHits, 0, nHits);
   meMap_["NRecoHits_vs_Eta"] = theDQM->book2D("NRecoHits_vs_Eta", "Number of reco Hits vs #eta",
-                                              nBinEta, minEta, maxEta, nHits, 0, nHits+1);
+                                              nBinEta, minEta, maxEta, nHits, 0, nHits);
 
-  meMap_["NLostHits"] = theDQM->book1D("NLostHits", "Number of Lost hits", nHits, 0, nHits+1);
+  meMap_["NLostHits"] = theDQM->book1D("NLostHits", "Number of Lost hits", nHits, 0, nHits);
   meMap_["NLostHits_vs_Pt" ] = theDQM->book2D("NLostHits_vs_Pt", "Number of lost Hits vs p_{T}", 
-                                              nBinPt, minPt, maxPt, nHits, 0, nHits+1);
+                                              nBinPt, minPt, maxPt, nHits, 0, nHits);
   meMap_["NLostHits_vs_Eta"] = theDQM->book2D("NLostHits_vs_Eta", "Number of lost Hits vs #eta",
-                                              nBinEta, minEta, maxEta, nHits, 0, nHits+1);
+                                              nBinEta, minEta, maxEta, nHits, 0, nHits);
 
-  meMap_["NDof"] = theDQM->book1D("NDof", "Number of DoF", nDof, 0, nDof+1);
+  meMap_["NDof"] = theDQM->book1D("NDof", "Number of DoF", nDof, 0, nDof);
   meMap_["Chi2"] = theDQM->book1D("Chi2", "#Chi^{2}", 200, 0, 200);
   meMap_["Chi2Norm"] = theDQM->book1D("Chi2Nrom", "Normalized #Chi^{2}", nBinErr, 0, 100);
   meMap_["Chi2Prob"] = theDQM->book1D("Chi2Prob", "Prob(#Chi^{2})", nBinErr, 0, 1);
 
   meMap_["NDof_vs_Eta"] = theDQM->book2D("NDof_vs_Eta", "Number of DoF vs #eta",
-                                         nBinEta, minEta, maxEta, nDof, 0, nDof+1);
+                                         nBinEta, minEta, maxEta, nDof, 0, nDof);
   meMap_["Chi2_vs_Eta"] = theDQM->book2D("Chi2_vs_Eta", "#Chi^{2} vs #eta",
                                          nBinEta, minEta, maxEta, 200, 0, 200);
   meMap_["Chi2Norm_vs_Eta"] = theDQM->book2D("Chi2Norm_vs_Eta", "Normalized #Chi^{2} vs #eta",
@@ -269,27 +272,29 @@ void RecoMuonValidator::analyze(const Event& event, const EventSetup& eventSetup
 
   // Get Association maps
   SimToRecoCollection simToRecoColl;
-//  RecoToSimCollection recoToSimColl;
+  RecoToSimCollection recoToSimColl;
   if ( doAssoc_ ) {
     simToRecoColl = theAssociator->associateSimToReco(recoHandle, simHandle, &event);
-//    recoToSimColl = theAssociator->associateRecoToSim(recohandle, simHandle, &event);
+    recoToSimColl = theAssociator->associateRecoToSim(recoHandle, simHandle, &event);
   }
   else {
     Handle<SimToRecoCollection> simToRecoHandle;
     event.getByLabel(assocLabel_, simToRecoHandle);
     simToRecoColl = *(simToRecoHandle.product());
 
-//    Handle<RecoToSimCollection> recoToSimHandle;
-//    event.getByLabel(assocLabel_, recoToSimHandle);
-//    recoToSimColl = *(recoToSimHandle.product());
+    Handle<RecoToSimCollection> recoToSimHandle;
+    event.getByLabel(assocLabel_, recoToSimHandle);
+    recoToSimColl = *(recoToSimHandle.product());
   }
-
 
   const TrackingParticleCollection::size_type nSim = simColl.size();
   meMap_["NSim"]->Fill(static_cast<double>(nSim));
 
   const TrackCollection::size_type nReco = recoColl.size();
   meMap_["NReco"]->Fill(static_cast<double>(nReco));
+
+  meMap_["NAssocSimToReco"]->Fill(simToRecoColl.size());
+  meMap_["NAssocRecoToSim"]->Fill(recoToSimColl.size());
 
   for(TrackingParticleCollection::size_type i=0; i<nSim; i++) {
     TrackingParticleRef simRef(simHandle, i);
