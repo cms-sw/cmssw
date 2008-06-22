@@ -56,6 +56,8 @@ class Process(object):
         self.__dict__['_Process__psets']={}
         self.__dict__['_Process__vpsets']={}
         self.__dict__['_cloneToObjectDict'] = {}
+        # policy switch to avoid object overwriting during extend/load
+        self.__dict__['_Process__OverWriteCheck'] = False
 
     def __setstate__(self, pkldict):
         """
@@ -191,7 +193,10 @@ class Process(object):
         value.setIsFrozen()        
         
     def _okToPlace(self, name, mod, d):
-        if name in d:
+        if not self.__OverWriteCheck:  
+            # if going     
+            return True
+        elif name in d:
             # if there's an old copy, and the new one
             # hasn't been modified, we're done.  Still
             # not quite safe if something has been defined twice.
@@ -268,6 +273,9 @@ class Process(object):
         self.extend(sys.modules[moduleName])
     def extend(self,other,items=()):
         """Look in other and find types which we can use"""
+        # enable explicit check to avoid overwriting of existing objects
+        self.__dict__['_Process__OverWriteCheck'] = True
+
         seqs = dict()
         labelled = dict()
         for name in dir(other):
@@ -300,6 +308,7 @@ class Process(object):
                 newSeq.setLabel(name)
                 #now put in proper bucket
                 newSeq._place(name,self)
+        self.__dict__['_Process__OverWriteCheck'] = False
     def include(self,filename):
         """include the content of a configuration language file into the process
              this is identical to calling process.extend(include('filename'))
@@ -867,9 +876,10 @@ process.schedule = cms.Schedule(process.p2,process.p)
             self.assert_(a.isModified())
             p.a = a
             self.assertEqual(p.a.a1.value(), 1)
-            # try adding an unmodified module.  Should ignore
+            # try adding an unmodified module.
+            # should accept it
             p.a = EDProducer("A", a1=int32(2))
-            self.assertEqual(p.a.a1.value(), 1)
+            self.assertEqual(p.a.a1.value(), 2)
             # try adding a modified module.  Should throw
             # no longer, since the same (modified) say, geometry
             # could come from more than one cff
