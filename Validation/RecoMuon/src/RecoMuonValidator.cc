@@ -83,10 +83,8 @@ RecoMuonValidator::RecoMuonValidator(const ParameterSet& pset)
   recoLabel_ = pset.getParameter<InputTag>("recoLabel");
 
   // Labels for sim-reco association
-  simToRecoLabel_ = pset.getParameter<InputTag>("simToRecoLabel");
-//  recoToSimLabel_ = pset.getParameter<InputTag>("recoToSimLabel");
   doAssoc_ = pset.getUntrackedParameter<bool>("doAssoc", true);
-  assocName_ = pset.getParameter<string>("assocName");
+  assocLabel_ = pset.getParameter<InputTag>("assocLabel");
 
 //  seedPropagatorName_ = pset.getParameter<string>("SeedPropagator");
 
@@ -241,7 +239,7 @@ void RecoMuonValidator::beginJob(const EventSetup& eventSetup)
   theAssociator = 0;
   if ( doAssoc_ ) {
     ESHandle<TrackAssociatorBase> assocHandle;
-    eventSetup.get<TrackAssociatorRecord>().get(assocName_, assocHandle);
+    eventSetup.get<TrackAssociatorRecord>().get(assocLabel_.label(), assocHandle);
     theAssociator = const_cast<TrackAssociatorBase*>(assocHandle.product());
   }
 }
@@ -278,13 +276,14 @@ void RecoMuonValidator::analyze(const Event& event, const EventSetup& eventSetup
   }
   else {
     Handle<SimToRecoCollection> simToRecoHandle;
-    event.getByLabel(simToRecoLabel_, simToRecoHandle);
+    event.getByLabel(assocLabel_, simToRecoHandle);
     simToRecoColl = *(simToRecoHandle.product());
 
 //    Handle<RecoToSimCollection> recoToSimHandle;
-//    event.getByLabel(recoToSimLabel_, recoToSimHandle);
+//    event.getByLabel(assocLabel_, recoToSimHandle);
 //    recoToSimColl = *(recoToSimHandle.product());
   }
+
 
   const TrackingParticleCollection::size_type nSim = simColl.size();
   meMap_["NSim"]->Fill(static_cast<double>(nSim));
@@ -357,7 +356,7 @@ void RecoMuonValidator::analyze(const Event& event, const EventSetup& eventSetup
 
       meMap_["NRecoHits"]->Fill(nRecoHits);
       meMap_["NRecoHits_vs_Pt" ]->Fill(simPt , nRecoHits);
-      meMap_["NRecoHist_vs_Eta"]->Fill(simEta, nRecoHits);
+      meMap_["NRecoHits_vs_Eta"]->Fill(simEta, nRecoHits);
 
       meMap_["NLostHits"]->Fill(nLostHits);
       meMap_["NLostHits_vs_Pt" ]->Fill(simPt , nLostHits);

@@ -30,9 +30,7 @@ class RecoMuonValidator : public edm::EDAnalyzer
   edm::InputTag simLabel_;
   edm::InputTag recoLabel_;
 
-  std::string assocName_;
-  edm::InputTag simToRecoLabel_;
-  edm::InputTag recoToSimLabel_;
+  edm::InputTag assocLabel_;
   
   std::string outputFileName_;
   std::string subDir_;
