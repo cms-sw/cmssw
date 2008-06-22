@@ -16,7 +16,7 @@
 //
 // Original Author:  Chris Jones
 //         Created:  Mon Feb 11 10:52:24 EST 2008
-// $Id: FWGUIManager.h,v 1.22 2008/06/19 18:18:20 jmuelmen Exp $
+// $Id: FWGUIManager.h,v 1.23 2008/06/20 20:31:06 chrjones Exp $
 //
 
 // system include files
@@ -79,7 +79,6 @@ class FWGUIManager : public FWConfigurable
       TGVerticalFrame* createList(TGSplitFrame *p);
       TGMainFrame* createViews(TGCompositeFrame *p);
       // ---------- const member functions ---------------------
-      //      bool waitingForUserAction() const;
 
       // ---------- static member functions --------------------
 
@@ -103,19 +102,11 @@ class FWGUIManager : public FWConfigurable
 
       CSGAction* getAction(const std::string name);
 
-      //      void goForward();
-      //      void goBack();
-      //      void goHome();
-      //      void stop();
-      //      void waitForUserAction();
-      //      void doNotWaitForUserAction();
-
       void addData();
       void unselectAll();
       void selectByExpression();
 
       void processGUIEvents();
-      //      int allowInteraction();
 
       void itemChecked(TObject* obj, Bool_t state);
       void itemClicked(TGListTreeItem *entry, Int_t btn,  UInt_t mask, Int_t x, Int_t y);
@@ -123,9 +114,6 @@ class FWGUIManager : public FWConfigurable
       void itemKeyPress(TGListTreeItem *entry, UInt_t keysym, UInt_t mask);
       void itemBelowMouse(TGListTreeItem*, UInt_t);
    
-      //      void handleFileMenu(Int_t);
-   
-      //      void quit();
       sigc::signal<void, const std::string&> writeToConfigurationFile_;
       sigc::signal<void> goingToQuit_;
       sigc::signal<void> writeToPresentConfigurationFile_;
@@ -143,6 +131,7 @@ class FWGUIManager : public FWConfigurable
       void subviewWasSwappedToBig(unsigned int);
    
       void exportImageOfMainView();
+      void promptForConfigurationFile();
 
       // ---------- member data --------------------------------
 
@@ -174,7 +163,6 @@ class FWGUIManager : public FWConfigurable
       TGMainFrame* m_mainFrame;
       TGSplitFrame* m_splitFrame;
       std::vector<FWGUISubviewArea*> m_viewFrames;
-      //std::vector<TGCompositeFrame*>::iterator m_nextFrame;
       
       typedef std::map<std::string, ViewBuildFunctor > NameToViewBuilder;
       NameToViewBuilder m_nameToViewBuilder;
