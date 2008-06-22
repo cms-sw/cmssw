@@ -506,10 +506,10 @@ class VEventID(_ValidatingParameterListBase):
     def _valueFromString(value):
         return VEventID(*_ValidatingParameterListBase._itemsFromStrings(value,EventID._valueFromString))
     def insertInto(self, parameterSet, myname):
-        cppTags = list()
+        cppIDs = list()
         for i in self:
-           cppTags.append(i.cppTag(parameterSet))
-        parameterSet.addVEventID(self.isTracked(), myname, cppTags)
+           cppIDs.append(i.cppID(parameterSet))
+        parameterSet.addVEventID(self.isTracked(), myname, cppIDs)
 
 
 
@@ -545,6 +545,13 @@ class VPSet(_ValidatingParameterListBase,_ConfigureComponent,_Labelable):
 if __name__ == "__main__":
 
     import unittest
+    class PSetTester(object):
+        def addEventID(self,*pargs,**kargs):
+            pass
+        def newEventID(self,*pargs,**kargs):
+            pass
+        def addVEventID(self,*pargs,**kargs):
+            pass
     class testTypes(unittest.TestCase):
         def testint32(self):
             i = int32(1)
@@ -656,6 +663,13 @@ if __name__ == "__main__":
         def testEventID(self):
             eid = EventID(2, 3)
             self.assertEqual( repr(eid), "cms.EventID(2, 3)" )
+            pset = PSetTester()
+            eid.insertInto(pset,'foo')
+        def testVEventID(self):
+            veid = VEventID(EventID(2, 3))
+            self.assertEqual( repr(veid[0]), "cms.EventID(2, 3)" )
+            pset = PSetTester()
+            veid.insertInto(pset,'foo')
 
             
     unittest.main()
