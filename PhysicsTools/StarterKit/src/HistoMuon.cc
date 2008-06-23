@@ -11,8 +11,9 @@ using namespace std;
 
 
 HistoMuon::HistoMuon(std::string dir, std::string group,std::string pre,
-		   double pt1, double pt2, double m1, double m2)
-  : HistoGroup<Muon>( dir, group, pre, pt1, pt2, m1, m2)
+		   double pt1, double pt2, double m1, double m2,
+		     TFileDirectory * parentDir)
+  : HistoGroup<Muon>( dir, group, pre, pt1, pt2, m1, m2, parentDir)
 {
   addHisto( h_trackIso_ =
 	    new PhysVarHisto( pre + "TrackIso", "Muon Track Isolation", 20, 0, 10, currDir_, "", "vD" )

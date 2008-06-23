@@ -52,7 +52,8 @@ namespace pat {
   public:
     HistoJet( std::string dir = "jet",std::string group = "Jet",
 	      std::string pre="jet",
-	      double pt1=0, double pt2=200, double m1=0, double m2=200 );
+	      double pt1=0, double pt2=200, double m1=0, double m2=200,
+	      TFileDirectory * parentDir=0 );
     virtual ~HistoJet();
 
 

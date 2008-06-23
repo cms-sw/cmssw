@@ -12,8 +12,9 @@ using namespace std;
 
 
 HistoTrack::HistoTrack(std::string dir, std::string groupName, std::string groupLabel,
-		       double pt1, double pt2, double m1, double m2)
-  : HistoGroup<RecoChargedCandidate>( dir, groupName, groupLabel, pt1, pt2, m1, m2)
+		       double pt1, double pt2, double m1, double m2,
+		       TFileDirectory * parentDir)
+  : HistoGroup<RecoChargedCandidate>( dir, groupName, groupLabel, pt1, pt2, m1, m2, parentDir)
 {
   addHisto( h_dxy_ =
 	    new PhysVarHisto( groupLabel + "Dxy", "Track Impact Parameter, x-y", 20, -3, 3, currDir_, "", "vD" )

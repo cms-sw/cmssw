@@ -51,7 +51,8 @@ namespace pat {
 
   public:
     HistoPhoton( std::string dir = "photon",std::string group = "Photon",std::string pre="photon",
-		   double pt1=0, double pt2=200, double m1=0, double m2=200 );
+		 double pt1=0, double pt2=200, double m1=0, double m2=200,
+		 TFileDirectory * parentDir=0 );
     virtual ~HistoPhoton();
 
 

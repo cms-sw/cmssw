@@ -53,7 +53,8 @@ namespace pat {
 
   public:
     HistoTrack(std::string dir = "track", std::string groupName = "Track", std::string groupLabel = "track",
-	       double pt1=0, double pt2=200, double m1=0, double m2=200 );
+	       double pt1=0, double pt2=200, double m1=0, double m2=200,
+	       TFileDirectory * parentDir=0 );
     virtual ~HistoTrack() { } ;
 
 

@@ -9,8 +9,9 @@ using namespace std;
 // Constructor:
 
 HistoJet::HistoJet(  std::string dir, std::string group,std::string pre,
-		     double pt1, double pt2, double m1, double m2 ) 
-  : HistoGroup<Jet>( dir, group, pre, pt1, pt2, m1, m2)
+		     double pt1, double pt2, double m1, double m2,
+		     TFileDirectory * parentDir ) 
+  : HistoGroup<Jet>( dir, group, pre, pt1, pt2, m1, m2, parentDir)
 {
   // book relevant jet histograms
   addHisto( h_jetFlavour_   =

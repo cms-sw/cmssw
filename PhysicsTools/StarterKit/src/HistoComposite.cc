@@ -8,9 +8,9 @@ using namespace pat;
 
 HistoComposite::
 HistoComposite( std::string dir, std::string candTitle, std::string candName,
-		double pt1, double pt2, double m1, double m2)
+		double pt1, double pt2, double m1, double m2, TFileDirectory * parentDir )
   :
-  HistoGroup<reco::CompositeCandidate>( dir, candTitle, candName, pt1, pt2, m1, m2 ),
+  HistoGroup<reco::CompositeCandidate>( dir, candTitle, candName, pt1, pt2, m1, m2, parentDir ),
   candName_(candName)
 {
 }
@@ -91,13 +91,13 @@ void HistoComposite::fill( const reco::CompositeCandidate * cand )
 
   // Now fill information for daughters
   for (unsigned int i = 0; i < cand->numberOfDaughters(); ++i ) {
-//     cout << "-------------processing component " << i << endl;
+     cout << "-------------processing component " << i << endl;
     const reco::Candidate * c = cand->daughter(i);
     string role = roles[i];
 
-//     cout << "Role = " << roles[i] << endl;
-//     cout << "pdgid = " << c->pdgId() << endl;
-//     cout << "pt = " << c->pt() << endl;
+    cout << "Role = " << roles[i] << endl;
+    cout << "pdgid = " << c->pdgId() << endl;
+    cout << "pt = " << c->pt() << endl;
 
     // Figure out what the candidate is based on type
     const Muon *       pcmuon  = dynamic_cast<const Muon*>( c );
@@ -111,16 +111,26 @@ void HistoComposite::fill( const reco::CompositeCandidate * cand )
 
     // The pointers might be in shallow clones, so check for that too
     const reco::ShallowClonePtrCandidate * pshallow = dynamic_cast<const reco::ShallowClonePtrCandidate *>(c);
-    if ( pccomposite == 0 && c->hasMasterClone() )  pccomposite = dynamic_cast<const reco::CompositeCandidate*>( &*(c->masterClone()) );
+
+    if ( pcmuon == 0 && c->hasMasterClonePtr() )  pcmuon = dynamic_cast<const pat::Muon*>( &*(c->masterClonePtr()) );
+    if ( pcelectron == 0 && c->hasMasterClonePtr() )  pcelectron = dynamic_cast<const pat::Electron*>( &*(c->masterClonePtr()) );
+    if ( pctau == 0 && c->hasMasterClonePtr() )  pctau = dynamic_cast<const pat::Tau*>( &*(c->masterClonePtr()) );
+    if ( pcjet == 0 && c->hasMasterClonePtr() )  pcjet = dynamic_cast<const pat::Jet*>( &*(c->masterClonePtr()) );
+    if ( pcmet == 0 && c->hasMasterClonePtr() )  pcmet = dynamic_cast<const pat::MET*>( &*(c->masterClonePtr()) );
+    if ( pcphoton == 0 && c->hasMasterClonePtr() )  pcphoton = dynamic_cast<const pat::Photon*>( &*(c->masterClonePtr()) );
+
+    if ( pccomposite == 0 && c->hasMasterClonePtr() )  pccomposite = dynamic_cast<const reco::CompositeCandidate*>( &*(c->masterClonePtr()) );
 
     // ------------------------------------------------------
     // Fill histograms if the candidate is a muon
     // ------------------------------------------------------
     if      ( pcmuon != 0 ) {
-//        cout << "Filling muon" << endl;
+        cout << "Filling muon" << endl;
        // Here is where we do not yet have a histogram for this role
       if ( histoMuon_.map.find( role ) == histoMuon_.map.end() ) {
-	histoMuon_.map[role] = new HistoMuon( dir_, role, role ) ;
+	histoMuon_.map[role] = new HistoMuon( role, role, role,
+					      pt1_, pt2_, m1_, m2_,
+					      currDir_ ) ;
       }
       // Here is if the candidate is a shallow clone, we need to
       // fill kinematic information from the shallow clone and 
@@ -138,10 +148,12 @@ void HistoComposite::fill( const reco::CompositeCandidate * cand )
     // Fill histograms if the candidate is a electron
     // ------------------------------------------------------
     if      ( pcelectron != 0 ) {
-//        cout << "Filling electron" << endl;
+        cout << "Filling electron" << endl;
        // Here is where we do not yet have a histogram for this role
       if ( histoElectron_.map.find( role ) == histoElectron_.map.end() ) {
-	histoElectron_.map[role] = new HistoElectron( dir_, role, role ) ;
+	histoElectron_.map[role] = new HistoElectron( role, role, role,
+					      pt1_, pt2_, m1_, m2_,
+					      currDir_  ) ;
       }
       // Here is if the candidate is a shallow clone, we need to
       // fill kinematic information from the shallow clone and 
@@ -160,10 +172,12 @@ void HistoComposite::fill( const reco::CompositeCandidate * cand )
     // Fill histograms if the candidate is a tau
     // ------------------------------------------------------
     if      ( pctau != 0 ) {
-//        cout << "Filling tau" << endl;
+        cout << "Filling tau" << endl;
        // Here is where we do not yet have a histogram for this role
       if ( histoTau_.map.find( role ) == histoTau_.map.end() ) {
-	histoTau_.map[role] = new HistoTau( dir_, role, role ) ;
+	histoTau_.map[role] = new HistoTau( role, role, role,
+					      pt1_, pt2_, m1_, m2_,
+					      currDir_  ) ;
       }
       // Here is if the candidate is a shallow clone, we need to
       // fill kinematic information from the shallow clone and 
@@ -182,10 +196,12 @@ void HistoComposite::fill( const reco::CompositeCandidate * cand )
     // Fill histograms if the candidate is a jet
     // ------------------------------------------------------
     if      ( pcjet != 0 ) {
-//        cout << "Filling jet" << endl;
+        cout << "Filling jet" << endl;
        // Here is where we do not yet have a histogram for this role
       if ( histoJet_.map.find( role ) == histoJet_.map.end() ) {
-	histoJet_.map[role] = new HistoJet( dir_, role, role ) ;
+	histoJet_.map[role] = new HistoJet( role, role, role,
+					      pt1_, pt2_, m1_, m2_,
+					      currDir_  ) ;
       }
       // Here is if the candidate is a shallow clone, we need to
       // fill kinematic information from the shallow clone and 
@@ -204,10 +220,12 @@ void HistoComposite::fill( const reco::CompositeCandidate * cand )
     // Fill histograms if the candidate is a met
     // ------------------------------------------------------
     if      ( pcmet != 0 ) {
-//        cout << "Filling met" << endl;
+        cout << "Filling met" << endl;
        // Here is where we do not yet have a histogram for this role
       if ( histoMET_.map.find( role ) == histoMET_.map.end() ) {
-	histoMET_.map[role] = new HistoMET( dir_, role, role ) ;
+	histoMET_.map[role] = new HistoMET( role, role, role,
+					      pt1_, pt2_, m1_, m2_,
+					      currDir_  ) ;
       }
       // Here is if the candidate is a shallow clone, we need to
       // fill kinematic information from the shallow clone and 
@@ -227,10 +245,12 @@ void HistoComposite::fill( const reco::CompositeCandidate * cand )
     // Fill histograms if the candidate is a photon
     // ------------------------------------------------------
     if      ( pcphoton != 0 ) {
-//        cout << "Filling photon" << endl;
+        cout << "Filling photon" << endl;
        // Here is where we do not yet have a histogram for this role
       if ( histoPhoton_.map.find( role ) == histoPhoton_.map.end() ) {
-	histoPhoton_.map[role] = new HistoPhoton( dir_, role, role ) ;
+	histoPhoton_.map[role] = new HistoPhoton( role, role, role,
+					      pt1_, pt2_, m1_, m2_,
+					      currDir_  ) ;
       }
       // Here is if the candidate is a shallow clone, we need to
       // fill kinematic information from the shallow clone and 
@@ -248,10 +268,12 @@ void HistoComposite::fill( const reco::CompositeCandidate * cand )
     // Fill histograms if the candidate is a track
     // ------------------------------------------------------
     if      ( pctrack != 0 ) {
-//        cout << "Filling track" << endl;
+        cout << "Filling track" << endl;
        // Here is where we do not yet have a histogram for this role
       if ( histoTrack_.map.find( role ) == histoTrack_.map.end() ) {
-	histoTrack_.map[role] = new HistoTrack( dir_, role, role ) ;
+	histoTrack_.map[role] = new HistoTrack( role, role, role,
+					      pt1_, pt2_, m1_, m2_,
+					      currDir_  ) ;
       }
       // Here is if the candidate is a shallow clone, we need to
       // fill kinematic information from the shallow clone and 
@@ -269,10 +291,12 @@ void HistoComposite::fill( const reco::CompositeCandidate * cand )
     // Fill histograms if the candidate is a composite
     // ------------------------------------------------------
     if      ( pccomposite != 0 ) {
-//        cout << "Filling composite" << endl;
+      cout << "Filling composite with role " << role << endl;
        // Here is where we do not yet have a histogram for this role
       if ( histoComposite_.map.find( role ) == histoComposite_.map.end() ) {
-	histoComposite_.map[role] = new HistoComposite( dir_, role, role ) ;
+	histoComposite_.map[role] = new HistoComposite( role, role, role,
+							pt1_, pt2_, m1_, m2_,
+							currDir_ ) ;
       }
       histoComposite_.map[role]    ->fill( pccomposite );
     }

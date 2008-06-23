@@ -52,7 +52,8 @@ namespace pat {
   public:
     HistoElectron( std::string dir = "electron", std::string group = "Electron",
 		   std::string pre = "e",
-		   double pt1=0, double pt2=200, double m1=0, double m2=200 );
+		   double pt1=0, double pt2=200, double m1=0, double m2=200 ,
+		   TFileDirectory * parentDir=0);
     virtual ~HistoElectron();
 
     // fill a plain ol' electron:

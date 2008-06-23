@@ -81,7 +81,8 @@ namespace pat {
     
     
     HistoComposite(std::string dir, std::string candTitle, std::string candName,
-		   double pt1=0, double pt2=200, double m1=0, double m2=200);
+		   double pt1=0, double pt2=200, double m1=0, double m2=200,
+		   TFileDirectory * parentDir = 0 );
     virtual ~HistoComposite();
 
     // void fill( reco::CompositeCandidate * cand );

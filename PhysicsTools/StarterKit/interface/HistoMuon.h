@@ -54,7 +54,8 @@ namespace pat {
   public:
     HistoMuon(std::string dir = "muon", std::string group = "Muon",
 	      std::string pre ="mu",
-		   double pt1=0, double pt2=200, double m1=0, double m2=200 );
+	      double pt1=0, double pt2=200, double m1=0, double m2=200,
+	      TFileDirectory * parentDir=0);
     virtual ~HistoMuon() { } ;
 
     // fill a plain ol' muon:

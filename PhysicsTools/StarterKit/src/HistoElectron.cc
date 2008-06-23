@@ -7,8 +7,9 @@ using namespace std;
 using pat::HistoElectron;
 
 HistoElectron::HistoElectron( std::string dir,std::string group,std::string pre,
-			      double pt1, double pt2, double m1, double m2 ) :
-  HistoGroup<Electron>( dir, group, pre, pt1, pt2, m1, m2)
+			      double pt1, double pt2, double m1, double m2,
+			      TFileDirectory * parentDir ) :
+  HistoGroup<Electron>( dir, group, pre, pt1, pt2, m1, m2, parentDir)
 {
   // book relevant electron histograms
 

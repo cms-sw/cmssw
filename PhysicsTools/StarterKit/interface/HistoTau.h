@@ -54,7 +54,8 @@ namespace pat {
 
   public:
     HistoTau(std::string dir = "tau", std::string group = "Tau",std::string pre="tau",
-		   double pt1=0, double pt2=200, double m1=0, double m2=200 );
+	     double pt1=0, double pt2=200, double m1=0, double m2=200,
+	     TFileDirectory * parentDir=0 );
     virtual ~HistoTau() { } ;
 
 

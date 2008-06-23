@@ -7,8 +7,9 @@ using namespace std;
 using pat::HistoPhoton;
 
 HistoPhoton::HistoPhoton( std::string dir, std::string role,std::string pre,
-			      double pt1, double pt2, double m1, double m2 ) :
-  HistoGroup<Photon>( dir, role, pre, pt1, pt2, m1, m2)
+			      double pt1, double pt2, double m1, double m2,
+			  TFileDirectory * parentDir ) :
+  HistoGroup<Photon>( dir, role, pre, pt1, pt2, m1, m2, parentDir)
 {
   // book relevant photon histograms
 

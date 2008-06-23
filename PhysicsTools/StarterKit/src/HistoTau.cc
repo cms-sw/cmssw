@@ -12,8 +12,9 @@ using namespace std;
 
 
 HistoTau::HistoTau(std::string dir, std::string group,std::string pre,
-		   double pt1, double pt2, double m1, double m2)
-  : HistoGroup<Tau>( dir, group, pre, pt1, pt2, m1, m2)
+		   double pt1, double pt2, double m1, double m2,
+		   TFileDirectory * parentDir)
+  : HistoGroup<Tau>( dir, group, pre, pt1, pt2, m1, m2, parentDir)
 {
 
   histoLeadingTrack_ = new HistoTrack( dir, group + "TauLeadingTrack", pre + "tauLeadingTrack" );

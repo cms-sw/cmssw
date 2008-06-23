@@ -63,7 +63,8 @@ namespace pat {
   public:
 
     HistoGroup( std::string dir = "cand", std::string groupName = "Candidate", std::string groupLabel = "cand",
-		double pt1=0, double pt2=200, double m1=0, double m2=200 );
+		double pt1=0, double pt2=200, double m1=0, double m2=200,
+		TFileDirectory * parentDir=0);
     virtual ~HistoGroup();
 
     //!  Fill all histograms for one Physics Object
@@ -126,6 +127,7 @@ namespace pat {
     int              verboseLevel_;
 
     TFileDirectory * currDir_;
+    TFileDirectory * parentDir_;
 
     //! User-defined list of HistoGroups.  May be empty.
     //! These histo groups are new'ed by the user, but then given
@@ -164,13 +166,15 @@ namespace pat {
   inline
   HistoGroup<PHYS_OBJECT>::
     HistoGroup( std::string dir, std::string groupName, std::string groupLabel,
-		double pt1, double pt2, double m1, double m2)
+		double pt1, double pt2, double m1, double m2,
+		TFileDirectory * parentDir )
     :
     prepend_(groupLabel),   //!<   What's used in histo names
     dir_ (dir),
     groupName_(groupName),  //!<   What's used in histo titles
     verboseLevel_(0),       //! verbosity: turned off by hand
     currDir_(0),
+    parentDir_(parentDir),
     nBins_(20), pt1_(pt1), pt2_(pt2), m1_(m1), m2_(m2),
     h_size_(0),
     h_pt_(0), h_eta_(0), h_phi_(0), h_mass_(0)
@@ -179,7 +183,11 @@ namespace pat {
       std::cout << "HistoGroup(" << dir_ << "/" << prepend_ << ")::in constructor"
 		<< std::endl;
     }
-    currDir_ = new TFileDirectory( fs->mkdir(dir_) );
+    if ( parentDir_ == 0 ) 
+      currDir_ = new TFileDirectory( fs->mkdir(dir_) );
+    else
+      currDir_ = new TFileDirectory( parentDir_->mkdir(dir_) );
+
 
     std::string name, title;
 

@@ -52,7 +52,8 @@ namespace pat {
   public:
     HistoMET( std::string dir = "met", std::string group = "MET",
 	      std::string pre = "met",
-	      double pt1=0, double pt2=200, double m1=0, double m2=200 );
+	      double pt1=0, double pt2=200, double m1=0, double m2=200,
+	      TFileDirectory * parentDir=0 );
     virtual ~HistoMET();
 
     // fill a plain ol' met:
