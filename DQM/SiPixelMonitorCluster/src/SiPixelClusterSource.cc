@@ -13,9 +13,11 @@
 //
 // Original Author:  Vincenzo Chiochia & Andrew York
 //         Created:  
-// $Id: SiPixelClusterSource.cc,v 1.6 2008/03/01 20:19:48 lat Exp $
+// $Id: SiPixelClusterSource.cc,v 1.7 2008/04/24 07:21:33 andrewdc Exp $
 //
 //
+// Updated by: Lukas Wehrli
+// for pixel offline DQM 
 #include "DQM/SiPixelMonitorCluster/interface/SiPixelClusterSource.h"
 // Framework
 #include "FWCore/ServiceRegistry/interface/Service.h"
@@ -40,7 +42,14 @@ using namespace edm;
 
 SiPixelClusterSource::SiPixelClusterSource(const edm::ParameterSet& iConfig) :
   conf_(iConfig),
-  src_( conf_.getParameter<edm::InputTag>( "src" ) )
+  src_( conf_.getParameter<edm::InputTag>( "src" ) ),
+  modOn( conf_.getUntrackedParameter<bool>("modOn",true) ),
+  ladOn( conf_.getUntrackedParameter<bool>("ladOn",false) ), 
+  layOn( conf_.getUntrackedParameter<bool>("layOn",false) ), 
+  phiOn( conf_.getUntrackedParameter<bool>("phiOn",false) ), 
+  ringOn( conf_.getUntrackedParameter<bool>("ringOn",false) ), 
+  bladeOn( conf_.getUntrackedParameter<bool>("bladeOn",false) ), 
+  diskOn( conf_.getUntrackedParameter<bool>("diskOn",false) )
 {
    theDMBE = edm::Service<DQMStore>().operator->();
    LogInfo ("PixelDQM") << "SiPixelClusterSource::SiPixelClusterSource: Got DQM BackEnd interface"<<endl;
@@ -58,6 +67,10 @@ SiPixelClusterSource::~SiPixelClusterSource()
 void SiPixelClusterSource::beginJob(const edm::EventSetup& iSetup){
 
   LogInfo ("PixelDQM") << " SiPixelClusterSource::beginJob - Initialisation ... " << std::endl;
+  LogInfo ("PixelDQM") << "Mod/Lad/Lay/Phi " << modOn << "/" << ladOn << "/" 
+	    << layOn << "/" << phiOn << std::endl;
+  LogInfo ("PixelDQM") << "Blade/Disk/Ring" << bladeOn << "/" << diskOn << "/" 
+	    << ringOn << std::endl;
   eventNo = 0;
   // Build map
   buildStructure(iSetup);
@@ -88,7 +101,7 @@ SiPixelClusterSource::analyze(const edm::Event& iEvent, const edm::EventSetup& i
   std::map<uint32_t,SiPixelClusterModule*>::iterator struct_iter;
   for (struct_iter = thePixelStructure.begin() ; struct_iter != thePixelStructure.end() ; struct_iter++) {
     
-    (*struct_iter).second->fill(*input);
+    (*struct_iter).second->fill(*input,modOn, ladOn, layOn, phiOn, bladeOn, diskOn, ringOn);
     
   }
 
@@ -150,13 +163,56 @@ void SiPixelClusterSource::bookMEs(){
   for(struct_iter = thePixelStructure.begin(); struct_iter != thePixelStructure.end(); struct_iter++){
     
     /// Create folder tree and book histograms 
-    if(theSiPixelFolder.setModuleFolder((*struct_iter).first)){
-      (*struct_iter).second->book( conf_ );
-    } else {
-      throw cms::Exception("LogicError")
-	<< "[SiPixelClusterSource::bookMEs] Creation of DQM folder failed";
+    if(modOn){
+      if(theSiPixelFolder.setModuleFolder((*struct_iter).first)){
+	(*struct_iter).second->book( conf_ );
+      } else {
+	throw cms::Exception("LogicError")
+	  << "[SiPixelClusterSource::bookMEs] Creation of DQM folder failed";
+      }
     }
-    
+    if(ladOn){
+      if(theSiPixelFolder.setModuleFolder((*struct_iter).first,1)){
+	(*struct_iter).second->book( conf_,1);
+	} else {
+	LogDebug ("PixelDQM") << "PROBLEM WITH LADDER-FOLDER\n";
+      }
+    }
+    if(layOn){
+      if(theSiPixelFolder.setModuleFolder((*struct_iter).first,2)){
+	(*struct_iter).second->book( conf_,2);
+	} else {
+	LogDebug ("PixelDQM") << "PROBLEM WITH LAYER-FOLDER\n";
+      }
+    }
+    if(phiOn){
+      if(theSiPixelFolder.setModuleFolder((*struct_iter).first,3)){
+	(*struct_iter).second->book( conf_,3);
+	} else {
+	LogDebug ("PixelDQM") << "PROBLEM WITH PHI-FOLDER\n";
+      }
+    }
+    if(bladeOn){
+      if(theSiPixelFolder.setModuleFolder((*struct_iter).first,4)){
+	(*struct_iter).second->book( conf_,4);
+	} else {
+	LogDebug ("PixelDQM") << "PROBLEM WITH BLADE-FOLDER\n";
+      }
+    }
+    if(diskOn){
+      if(theSiPixelFolder.setModuleFolder((*struct_iter).first,5)){
+	(*struct_iter).second->book( conf_,5);
+	} else {
+	LogDebug ("PixelDQM") << "PROBLEM WITH DISK-FOLDER\n";
+      }
+    }
+    if(ringOn){
+      if(theSiPixelFolder.setModuleFolder((*struct_iter).first,6)){
+	(*struct_iter).second->book( conf_,6);
+	} else {
+	LogDebug ("PixelDQM") << "PROBLEM WITH RING-FOLDER\n";
+      }
+    }
   }
 
 }

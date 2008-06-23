@@ -15,9 +15,11 @@
 //
 // Original Author:  Vincenzo Chiochia & Andrew York
 //         Created:  
-// $Id: SiPixelClusterModule.h,v 1.4 2007/04/20 21:46:39 andrewdc Exp $
+// $Id: SiPixelClusterModule.h,v 1.5 2008/04/24 07:21:33 andrewdc Exp $
 //
 //
+//  Updated by: Lukas Wehrli
+//  for pixel offline DQM 
 #include "DQMServices/Core/interface/MonitorElement.h"
 #include "DataFormats/SiPixelCluster/interface/SiPixelCluster.h"
 #include "DataFormats/Common/interface/DetSetVectorNew.h"
@@ -41,9 +43,9 @@ class SiPixelClusterModule {
   typedef edmNew::DetSet<SiPixelCluster>::const_iterator    ClusterIterator;
 
   /// Book histograms
-  void book(const edm::ParameterSet& iConfig);
+  void book(const edm::ParameterSet& iConfig, int type=0);
   /// Fill histograms
-  void fill(const edmNew::DetSetVector<SiPixelCluster> & input);
+  void fill(const edmNew::DetSetVector<SiPixelCluster> & input, bool modon=true, bool ladon=false, bool layon=false, bool phion=false, bool bladeon=false, bool diskon=false, bool ringon=false);
   
  private:
 
@@ -64,6 +66,84 @@ class SiPixelClusterModule {
   MonitorElement* mePixClusters_;
   //  MonitorElement* meEdgeHitX_;
   //  MonitorElement* meEdgeHitY_;
+  //barrel
+  MonitorElement* meNClustersLad_;
+  MonitorElement* meYLad_;
+  MonitorElement* meXLad_;
+  MonitorElement* meChargeLad_;
+  MonitorElement* meSizeLad_;
+  MonitorElement* meSizeXLad_;
+  MonitorElement* meSizeYLad_;
+  MonitorElement* meMinRowLad_;
+  MonitorElement* meMaxRowLad_;
+  MonitorElement* meMinColLad_;
+  MonitorElement* meMaxColLad_;
+  MonitorElement* mePixClustersLad_;
+
+  MonitorElement* meNClustersLay_;
+  MonitorElement* meYLay_;
+  MonitorElement* meXLay_;
+  MonitorElement* meChargeLay_;
+  MonitorElement* meSizeLay_;
+  MonitorElement* meSizeXLay_;
+  MonitorElement* meSizeYLay_;
+  MonitorElement* meMinRowLay_;
+  MonitorElement* meMaxRowLay_;
+  MonitorElement* meMinColLay_;
+  MonitorElement* meMaxColLay_;
+  MonitorElement* mePixClustersLay_;
+
+  MonitorElement* meNClustersPhi_;
+  MonitorElement* meYPhi_;
+  MonitorElement* meXPhi_;
+  MonitorElement* meChargePhi_;
+  MonitorElement* meSizePhi_;
+  MonitorElement* meSizeXPhi_;
+  MonitorElement* meSizeYPhi_;
+  MonitorElement* meMinRowPhi_;
+  MonitorElement* meMaxRowPhi_;
+  MonitorElement* meMinColPhi_;
+  MonitorElement* meMaxColPhi_;
+  MonitorElement* mePixClustersPhi_;
+  //forward
+  MonitorElement* meNClustersBlade_;
+  MonitorElement* meYBlade_;
+  MonitorElement* meXBlade_;
+  MonitorElement* meChargeBlade_;
+  MonitorElement* meSizeBlade_;
+  MonitorElement* meSizeXBlade_;
+  MonitorElement* meSizeYBlade_;
+  MonitorElement* meMinRowBlade_;
+  MonitorElement* meMaxRowBlade_;
+  MonitorElement* meMinColBlade_;
+  MonitorElement* meMaxColBlade_;
+
+
+  MonitorElement* meNClustersDisk_;
+  MonitorElement* meYDisk_;
+  MonitorElement* meXDisk_;
+  MonitorElement* meChargeDisk_;
+  MonitorElement* meSizeDisk_;
+  MonitorElement* meSizeXDisk_;
+  MonitorElement* meSizeYDisk_;
+  MonitorElement* meMinRowDisk_;
+  MonitorElement* meMaxRowDisk_;
+  MonitorElement* meMinColDisk_;
+  MonitorElement* meMaxColDisk_;
+
+
+  MonitorElement* meNClustersRing_;
+  MonitorElement* meYRing_;
+  MonitorElement* meXRing_;
+  MonitorElement* meChargeRing_;
+  MonitorElement* meSizeRing_;
+  MonitorElement* meSizeXRing_;
+  MonitorElement* meSizeYRing_;
+  MonitorElement* meMinRowRing_;
+  MonitorElement* meMaxRowRing_;
+  MonitorElement* meMinColRing_;
+  MonitorElement* meMaxColRing_;
+  MonitorElement* mePixClustersRing_;
   
 };
 #endif

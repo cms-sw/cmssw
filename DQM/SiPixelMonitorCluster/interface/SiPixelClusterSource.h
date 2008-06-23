@@ -16,8 +16,10 @@
 //
 // Original Author:  Vincenzo Chiochia & Andrew York
 //         Created:  
-// $Id: SiPixelClusterSource.h,v 1.5 2008/03/01 20:19:47 lat Exp $
+// $Id: SiPixelClusterSource.h,v 1.6 2008/04/24 07:21:33 andrewdc Exp $
 //
+// Updated by: Lukas Wehrli
+// for pixel offline DQM 
 
 #include <memory>
 
@@ -67,6 +69,11 @@
        int eventNo;
        DQMStore* theDMBE;
        std::map<uint32_t,SiPixelClusterModule*> thePixelStructure;
+       bool modOn; 
+       //barrel:
+       bool ladOn, layOn, phiOn;
+       //forward:
+       bool ringOn, bladeOn, diskOn; 
  };
 
 #endif
