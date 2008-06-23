@@ -57,7 +57,7 @@ class CSCCFEBTimeSlice {
   CSCCFEBTimeSlice() : dummy(0x7fff) {
     bzero(this, 99*2);
   }
-    // 
+
   /// input from 0 to 95
   CSCCFEBDataWord * timeSample(int index) const {
     return (CSCCFEBDataWord *)(theSamples+index);
@@ -75,6 +75,8 @@ class CSCCFEBTimeSlice {
   
   void setControllerWord(const CSCCFEBSCAControllerWord & controllerWord);
 
+  /// Old CFEB format: dummy word 100 should be 0x7FFF
+  /// New CFEB format: the sum of word 97 and 100 should be 0x7FFF (word 100 is inverted word 97)
   bool check() const {return ((dummy == 0x7FFF)||((dummy+crc)== 0x7FFF));}
 
   bool checkCRC() const {return crc==calcCRC();}
@@ -112,14 +114,13 @@ class CSCCFEBTimeSlice {
   unsigned blank_space_1 : 4;
 
 
-  ///Word 99
+  /// WORD 99
   unsigned buffer_warning : 1;
   unsigned buffer_count : 5;
   unsigned L1A_number :6;
   unsigned blank_space_3 : 4; 
 
-  /// word 100 is a dummy: 0x7FFF in old format
-  /// in new format it is or-ed with 97 to be 0x7FFF
+  /// WORD 100
   unsigned dummy : 16;
 };
 
