@@ -54,6 +54,8 @@ class L2TauValidation : public edm::EDAnalyzer {
    
       //Parameters to read
       edm::InputTag     l2TauInfoAssoc_; //Path to analyze
+      edm::InputTag     l2Isolated_; //Path to analyze
+
       edm::InputTag     mcColl_;         // input products from HLTMcInfo
       edm::InputTag     l1taus_;         //Handle to L1 Seed
       edm::InputTag     met_;             //Handle to missing Et 
@@ -68,7 +70,7 @@ class L2TauValidation : public edm::EDAnalyzer {
       //Output file
       std::string outFile_;
       
-      std::vector<double> cuts_;
+      //      std::vector<double> cuts_;
 
       //Monitor elements main
       MonitorElement* jetEt;
@@ -86,7 +88,7 @@ class L2TauValidation : public edm::EDAnalyzer {
       MonitorElement* EtEff;
       MonitorElement* MET;
 
-     
+      bool matchJet(const reco::Jet&,const reco::CaloJetCollection&);//See if this Jet Is Matched
       bool match(const reco::Jet&,const LVColl&);//See if this Jet Is Matched
       bool matchL1(const reco::Jet&,std::vector<l1extra::L1JetParticleRef>&);//See if this Jet Is Matched to L1
 };

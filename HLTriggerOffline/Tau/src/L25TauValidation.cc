@@ -8,12 +8,12 @@ L25TauValidation::L25TauValidation(const edm::ParameterSet& iConfig){
    jetTagSrc_ = iConfig.getParameter<edm::InputTag>("JetTagProd");
    jetMCTagSrc_ = iConfig.getParameter<edm::InputTag>("JetMCTagProd");
    caloJets_ = iConfig.getParameter<edm::InputTag>("l2CaloJets");
-   rSig_ = iConfig.getParameter<double>("SignalCone");
-   rMatch_ = iConfig.getParameter<double>("MatchingCone");
-   rIso_ = iConfig.getParameter<double>("IsolationCone");
-   ptLeadTk_ = iConfig.getParameter<double>("MinimumTransverseMomentumLeadingTrack");
-   minPtIsoRing_ = iConfig.getParameter<double>("MinimumTransverseMomentumInIsolationRing");
-   nTracksInIsolationRing_ = iConfig.getParameter<int>("MaximumNumberOfTracksIsolationRing");
+   //rSig_ = iConfig.getParameter<double>("SignalCone");
+   //rMatch_ = iConfig.getParameter<double>("MatchingCone");
+   //rIso_ = iConfig.getParameter<double>("IsolationCone");
+   //   ptLeadTk_ = iConfig.getParameter<double>("MinimumTransverseMomentumLeadingTrack");
+   //minPtIsoRing_ = iConfig.getParameter<double>("MinimumTransverseMomentumInIsolationRing");
+   //nTracksInIsolationRing_ = iConfig.getParameter<int>("MaximumNumberOfTracksIsolationRing");
    mcMatch_ = iConfig.getParameter<double>("MCMatching");
    signal_ = iConfig.getParameter<bool>("Signal");
    triggerTag_ = iConfig.getParameter<std::string>("TriggerTag");
@@ -96,14 +96,13 @@ L25TauValidation::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetu
 	     nPxlTrksInL25Jet->Fill(tauTagInfo.allTracks().size());								    
 	     nQPxlTrksInL25Jet->Fill(tauTagInfo.selectedTracks().size());							    
 	     
-	     const TrackRef leadTrk = tauTagInfo.leadingSignalTrack(rMatch_, ptLeadTk_);
+	     const TrackRef leadTrk = tauTagInfo.leadingSignalTrack();
 	     if(!leadTrk) std::cout <<  "No leading track found " << std::endl;
 	     else{
 	       
                signalLeadTrkPt->Fill(leadTrk->pt());				 
 
-               if(tauTagInfo.discriminator(rMatch_, rSig_, rIso_, ptLeadTk_, minPtIsoRing_,
-	                                   nTracksInIsolationRing_)==1){
+               if(tauTagInfo.discriminator()==1){
 		 l25IsoJetEta->Fill(theJet.Eta());
 		 l25IsoJetPt->Fill(theJet.Pt());
 		 l25IsoJetPhi->Fill(theJet.Phi());

@@ -13,9 +13,9 @@ L2TauValidation::L2TauValidation(const edm::ParameterSet& iConfig):
  matchDeltaRMC_(iConfig.getParameter<double>("MatchDeltaRMC")),
  matchDeltaRL1_(iConfig.getParameter<double>("MatchDeltaRL1")),
  triggerTag_((iConfig.getParameter<std::string>("TriggerTag"))),
- outFile_(iConfig.getParameter<std::string>("OutputFileName")),
- cuts_(iConfig.getParameter<std::vector <double> >("Cuts"))
- 
+ outFile_(iConfig.getParameter<std::string>("OutputFileName"))
+ // cuts_(iConfig.getParameter<std::vector <double> >("Cuts"))
+
 {
 
   DQMStore* store = &*edm::Service<DQMStore>();
@@ -61,6 +61,7 @@ L2TauValidation::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup
    Handle<L2TauInfoAssociation> l2TauInfoAssoc; //Handle to the input (L2 Tau Info Association)
    Handle<LVColl> McInfo; //Handle To The Truth!!!!
    Handle<trigger::TriggerFilterObjectWithRefs> l1TriggeredTaus; //Handle to the L1
+   Handle<reco::CaloJetCollection> l2Isolated;
 
 
    std::vector<l1extra::L1JetParticleRef> tauCandRefVec;
@@ -106,15 +107,13 @@ L2TauValidation::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup
 		   jetPhi->Fill(jet.phi());
 	      
 		   EtEffDenom->Fill(jet.et());
-		   if(cuts_[0] >= l2info.ECALIsolConeCut)
-		     if(cuts_[1] >= l2info.TowerIsolConeCut)
-		       if(cuts_[2] <= l2info.SeedTowerEt)
-			 if(cuts_[3] >= l2info.ECALClusterNClusters)
-			   if(cuts_[4] >= l2info.ECALClusterEtaRMS)
-			     if(cuts_[5] >= l2info.ECALClusterPhiRMS)
-			       if(cuts_[6] >= l2info.ECALClusterDRRMS)
-				 EtEffNum->Fill(jet.et());
 
+  		   if(iEvent.getByLabel(l2Isolated_,l2Isolated))
+		     {
+		       if(matchJet(jet,*l2Isolated)) 
+			    EtEffNum->Fill(jet.et());
+
+		     }
 
 		    
 
@@ -210,5 +209,29 @@ L2TauValidation::matchL1(const reco::Jet& jet,std::vector<l1extra::L1JetParticle
   return match;
 }
 
+bool 
+L2TauValidation::matchJet(const reco::Jet& jet,const reco::CaloJetCollection& McInfo)
+{
+
+  //Loop On the Collection and see if your tau jet is matched to one there
+ //Also find the nearest Matched MC Particle to your Jet (to be complete)
+ 
+ bool matched=false;
+
+ if(McInfo.size()>0)
+  for(reco::CaloJetCollection::const_iterator it = McInfo.begin();it!=McInfo.end();++it)
+   {
+     	  double delta = ROOT::Math::VectorUtil::DeltaR(jet.p4().Vect(),it->p4().Vect());
+	  if(delta<matchDeltaRMC_)
+	    {
+	      matched=true;
+	     
+	    }
+   }
+
+
+
+ return matched;
+}
 
 
