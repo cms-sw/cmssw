@@ -8,7 +8,7 @@
 //
 // Original Author:  
 //         Created:  Mon Dec  3 08:38:38 PST 2007
-// $Id: FWDisplayEvent.cc,v 1.52 2008/06/19 21:22:18 jmuelmen Exp $
+// $Id: FWDisplayEvent.cc,v 1.53 2008/06/20 10:11:45 jmuelmen Exp $
 //
 
 // system include files
@@ -76,6 +76,7 @@ FWDisplayEvent::FWDisplayEvent(const std::string& iConfigFileName,
                                       m_selectionManager.get())),
   m_guiManager(new FWGUIManager(m_selectionManager.get(),
                                 m_eiManager.get(),
+                                m_changeManager.get(),
                                 iEnableDebug)),
   m_viewManager( new FWViewManagerManager(m_changeManager.get())),
 //   m_textView(new FWTextView(this, &*m_selectionManager)),

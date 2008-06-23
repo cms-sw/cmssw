@@ -8,7 +8,7 @@
 //
 // Original Author:  
 //         Created:  Mon Dec  3 08:38:38 PST 2007
-// $Id: CmsShowMain.cc,v 1.4 2008/06/20 10:11:45 jmuelmen Exp $
+// $Id: CmsShowMain.cc,v 1.5 2008/06/23 09:49:57 jmuelmen Exp $
 //
 
 // system include files
@@ -88,6 +88,7 @@ CmsShowMain::CmsShowMain(int argc, char *argv[]) :
                                       m_selectionManager.get())),
   m_guiManager(new FWGUIManager(m_selectionManager.get(),
                                 m_eiManager.get(),
+                                m_changeManager.get(),
                                 false)),
   m_viewManager( new FWViewManagerManager(m_changeManager.get())),
   m_textView(new FWTextView(this, &*m_selectionManager, &*m_guiManager))
