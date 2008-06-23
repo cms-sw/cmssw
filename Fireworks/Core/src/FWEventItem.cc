@@ -8,7 +8,7 @@
 //
 // Original Author:  
 //         Created:  Thu Jan  3 14:59:23 EST 2008
-// $Id: FWEventItem.cc,v 1.15 2008/06/10 14:19:09 chrjones Exp $
+// $Id: FWEventItem.cc,v 1.16 2008/06/12 15:01:08 chrjones Exp $
 //
 
 // system include files
@@ -193,8 +193,8 @@ FWEventItem::setName(const std::string& iName)
 void 
 FWEventItem::setDefaultDisplayProperties(const FWDisplayProperties& iProp)
 {
-   bool visChange = m_displayProperties.isVisible() == iProp.isVisible();
-   bool colorChanged = m_displayProperties.color() == iProp.color();
+   bool visChange = m_displayProperties.isVisible() != iProp.isVisible();
+   bool colorChanged = m_displayProperties.color() != iProp.color();
    
    if(!visChange && !colorChanged) {
       return;
@@ -212,7 +212,7 @@ FWEventItem::setDefaultDisplayProperties(const FWDisplayProperties& iProp)
       changed = visChange && vis;
       if(colorChanged) {
          if(m_displayProperties.color()==prp.color()) {
-            prp.setColor(m_displayProperties.color());
+            prp.setColor(iProp.color());
             m_itemInfos[index].m_displayProperties=prp;
             changed = true;
          }
