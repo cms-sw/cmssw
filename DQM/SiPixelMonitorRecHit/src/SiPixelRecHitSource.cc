@@ -14,11 +14,13 @@
 //
 // Original Author:  Vincenzo Chiochia
 //         Created:  
-// $Id: SiPixelRecHitSource.cc,v 1.6 2008/03/01 20:19:51 lat Exp $
+// $Id: SiPixelRecHitSource.cc,v 1.7 2008/04/11 12:24:17 gpetrucc Exp $
 //
 //
 // Adapted by:  Keith Rose
 //  	For use in SiPixelMonitorClient for RecHits
+// Updated by: Lukas Wehrli
+// for pixel offline DQM 
 
 #include "DQM/SiPixelMonitorRecHit/interface/SiPixelRecHitSource.h"
 // Framework
@@ -45,7 +47,14 @@ using namespace edm;
 
 SiPixelRecHitSource::SiPixelRecHitSource(const edm::ParameterSet& iConfig) :
   conf_(iConfig),
-  src_( conf_.getParameter<edm::InputTag>( "src" ) )
+  src_( conf_.getParameter<edm::InputTag>( "src" ) ),
+  modOn( conf_.getUntrackedParameter<bool>("modOn",true) ),
+  ladOn( conf_.getUntrackedParameter<bool>("ladOn",false) ), 
+  layOn( conf_.getUntrackedParameter<bool>("layOn",false) ), 
+  phiOn( conf_.getUntrackedParameter<bool>("phiOn",false) ), 
+  ringOn( conf_.getUntrackedParameter<bool>("ringOn",false) ), 
+  bladeOn( conf_.getUntrackedParameter<bool>("bladeOn",false) ), 
+  diskOn( conf_.getUntrackedParameter<bool>("diskOn",false) )
 {
    theDMBE = edm::Service<DQMStore>().operator->();
    LogInfo ("PixelDQM") << "SiPixelRecHitSource::SiPixelRecHitSource: Got DQM BackEnd interface"<<endl;
@@ -63,6 +72,10 @@ SiPixelRecHitSource::~SiPixelRecHitSource()
 void SiPixelRecHitSource::beginJob(const edm::EventSetup& iSetup){
 
   LogInfo ("PixelDQM") << " SiPixelRecHitSource::beginJob - Initialisation ... " << std::endl;
+  LogInfo ("PixelDQM") << "Mod/Lad/Lay/Phi " << modOn << "/" << ladOn << "/" 
+	    << layOn << "/" << phiOn << std::endl;
+  LogInfo ("PixelDQM") << "Blade/Disk/Ring" << bladeOn << "/" << diskOn << "/" 
+	    << ringOn << std::endl;
   eventNo = 0;
 	
   // Build map
@@ -75,19 +88,17 @@ void SiPixelRecHitSource::beginJob(const edm::EventSetup& iSetup){
 
 
 void SiPixelRecHitSource::endJob(void){
-  cout << "here" << endl;
 
   std::map<uint32_t,SiPixelRecHitModule*>::iterator struct_iter;
   for (struct_iter = thePixelStructure.begin() ; struct_iter != thePixelStructure.end() ; struct_iter++) {
     uint32_t TheID = (*struct_iter).first;
     int total = rechit_count[TheID];
-    (*struct_iter).second->nfill(total);
+    (*struct_iter).second->nfill(total, modOn, ladOn, layOn, phiOn, bladeOn, diskOn, ringOn);
   }
-  cout << " SiPixelDigiSource::endJob - Saving Root File " << std::endl;
+  //cout << " SiPixelDigiSource::endJob - Saving Root File " << std::endl;
   std::string outputFile = conf_.getParameter<std::string>("outputFile");
-  cout << "ending" << endl;
   theDMBE->save( outputFile );
-  cout << "last" << endl;
+
 }
 
 //------------------------------------------------------------------
@@ -108,8 +119,8 @@ void SiPixelRecHitSource::analyze(const edm::Event& iEvent, const edm::EventSetu
     SiPixelRecHitCollection::range pixelrechitRange = (recHitColl.product())->get(TheID);
     SiPixelRecHitCollection::const_iterator pixelrechitRangeIteratorBegin = pixelrechitRange.first;
     
-	SiPixelRecHitCollection::const_iterator pixelrechitRangeIteratorEnd = pixelrechitRange.second;
-      SiPixelRecHitCollection::const_iterator pixeliter = pixelrechitRangeIteratorBegin;
+    SiPixelRecHitCollection::const_iterator pixelrechitRangeIteratorEnd = pixelrechitRange.second;
+    SiPixelRecHitCollection::const_iterator pixeliter = pixelrechitRangeIteratorBegin;
 
       // if( pixelrechitRangeIteratorBegin == pixelrechitRangeIteratorEnd) {cout << "oops" << endl;}
       float rechit_x = 0;
@@ -134,7 +145,7 @@ void SiPixelRecHitSource::analyze(const edm::Event& iEvent, const edm::EventSetu
 	  //  float lerr_x = sqrt(lerr.xx());
 	  //  float lerr_y = sqrt(lerr.yy());
 	  //cout << "hh" << endl;
-	  (*struct_iter).second->fill(rechit_x, rechit_y, sizeX, sizeY);
+	  (*struct_iter).second->fill(rechit_x, rechit_y, sizeX, sizeY,modOn, ladOn, layOn, phiOn, bladeOn, diskOn, ringOn);
 	  //cout << "ii" << endl;
 	
 	}
@@ -204,13 +215,57 @@ void SiPixelRecHitSource::bookMEs(){
   for(struct_iter = thePixelStructure.begin(); struct_iter != thePixelStructure.end(); struct_iter++){
     
     /// Create folder tree and book histograms 
-    if(theSiPixelFolder.setModuleFolder((*struct_iter).first)){
-      (*struct_iter).second->book( conf_ );
-    } else {
-      throw cms::Exception("LogicError")
-	<< "[SiPixelDigiSource::bookMEs] Creation of DQM folder failed";
+    if(modOn){
+      if(theSiPixelFolder.setModuleFolder((*struct_iter).first)){
+	(*struct_iter).second->book( conf_ );
+      } else {
+	throw cms::Exception("LogicError")
+	  << "[SiPixelDigiSource::bookMEs] Creation of DQM folder failed";
+      }
     }
-    
+    if(ladOn){
+      if(theSiPixelFolder.setModuleFolder((*struct_iter).first,1)){
+	(*struct_iter).second->book( conf_,1);
+	} else {
+	LogDebug ("PixelDQM") << "PROBLEM WITH LADDER-FOLDER\n";
+      }
+    }
+    if(layOn){
+      if(theSiPixelFolder.setModuleFolder((*struct_iter).first,2)){
+	(*struct_iter).second->book( conf_,2);
+	} else {
+	LogDebug ("PixelDQM") << "PROBLEM WITH LAYER-FOLDER\n";
+      }
+    }
+    if(phiOn){
+      if(theSiPixelFolder.setModuleFolder((*struct_iter).first,3)){
+	(*struct_iter).second->book( conf_,3);
+	} else {
+	LogDebug ("PixelDQM") << "PROBLEM WITH PHI-FOLDER\n";
+      }
+    }
+    if(bladeOn){
+      if(theSiPixelFolder.setModuleFolder((*struct_iter).first,4)){
+	(*struct_iter).second->book( conf_,4);
+	} else {
+	LogDebug ("PixelDQM") << "PROBLEM WITH BLADE-FOLDER\n";
+      }
+    }
+    if(diskOn){
+      if(theSiPixelFolder.setModuleFolder((*struct_iter).first,5)){
+	(*struct_iter).second->book( conf_,5);
+	} else {
+	LogDebug ("PixelDQM") << "PROBLEM WITH DISK-FOLDER\n";
+      }
+    }
+    if(ringOn){
+      if(theSiPixelFolder.setModuleFolder((*struct_iter).first,6)){
+	(*struct_iter).second->book( conf_,6);
+	} else {
+	LogDebug ("PixelDQM") << "PROBLEM WITH RING-FOLDER\n";
+      }
+    }
+
   }
 
 }

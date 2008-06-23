@@ -16,10 +16,12 @@
 //
 // Original Author:  Vincenzo Chiochia
 //         Created:  
-// $Id: SiPixelRecHitSource.h,v 1.2 2007/11/13 21:46:15 krose Exp $
+// $Id: SiPixelRecHitSource.h,v 1.3 2008/03/01 20:19:50 lat Exp $
 //
 // Updated by: Keith Rose
 // for use in SiPixelMonitorRecHits
+// Updated by: Lukas Wehrli
+// for pixel offline DQM 
 
 
 #include <memory>
@@ -71,6 +73,12 @@
        DQMStore* theDMBE;
        std::map<uint32_t,SiPixelRecHitModule*> thePixelStructure;
        std::map<uint32_t,int> rechit_count;
+       bool modOn; 
+       //barrel:
+       bool ladOn, layOn, phiOn;
+       //forward:
+       bool ringOn, bladeOn, diskOn; 
+
  };
 
 #endif
