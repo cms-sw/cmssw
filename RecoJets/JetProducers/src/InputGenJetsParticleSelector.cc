@@ -198,7 +198,7 @@ InputGenJetsParticleSelector::fromResonance(ParticleBitmap &invalid,
     case kNo:
       break;
     case kDirect:
-      if (dynamic_cast<const reco::GenParticle*>(particle->mother(i))->pdgId()==id)
+      if (dynamic_cast<const reco::GenParticle*>(particle->mother(i))->pdgId()==id || isResonance(id))
 	return kDirect;
       if(!isExcludedFromResonance(id))
 	break;
