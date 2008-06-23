@@ -46,7 +46,6 @@ TtSemiJetCombMVAComputer::produce(edm::Event& evt, const edm::EventSetup& setup)
   
   double discrimMax =.0;
   std::vector<int> combiMax;
-  TtSemiJetComb jetCombMax;
   
   do{
     for(int cnt=0; cnt<TMath::Factorial(combiSize); ++cnt){
@@ -60,7 +59,6 @@ TtSemiJetCombMVAComputer::produce(edm::Event& evt, const edm::EventSetup& setup)
 	if(discrim > discrimMax) {
 	  discrimMax = discrim;
 	  combiMax = combi;
-	  jetCombMax = jetComb;
 	}
       }
       next_permutation( combi.begin() , combi.end() );
