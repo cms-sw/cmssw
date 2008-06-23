@@ -7,7 +7,7 @@
  * It handles generic manipulations of input and output collections
  *
  * \author Fedor Ratnikov (UMd) Aug. 22, 2006
- * $Id: BaseJetProducer.h,v 1.2 2007/09/20 21:05:04 fedor Exp $
+ * $Id: BaseJetProducer.h,v 1.3 2008/03/11 21:34:34 fedor Exp $
  *
  ************************************************************/
 
@@ -42,6 +42,7 @@ namespace cms
     double mEtInputCut;
     double mEInputCut;
     double mJetPtMin;
+    int mMaxInputParticles;
   };
 }
 
