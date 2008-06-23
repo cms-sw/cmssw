@@ -434,11 +434,11 @@ void FWTextView::newEvent (const fwlite::Event &ev, const CmsShowMain *de)
 //      }
      printf("read: ");
      stopwatch_read.Stop();
-     stopwatch_read.Print();
+     stopwatch_read.Print("m");
      page->update();
      printf("table: ");
      stopwatch_table.Stop();
-     stopwatch_table.Print();
+     stopwatch_table.Print("m");
 }
 
 void FWTextView::nextPage ()
