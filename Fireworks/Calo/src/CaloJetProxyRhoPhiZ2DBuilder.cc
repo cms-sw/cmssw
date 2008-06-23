@@ -8,7 +8,7 @@
 //
 // Original Author:  
 //         Created:  Sun Jan  6 23:57:00 EST 2008
-// $Id: CaloJetProxyRhoPhiZ2DBuilder.cc,v 1.9 2008/06/09 19:54:03 chrjones Exp $
+// $Id: CaloJetProxyRhoPhiZ2DBuilder.cc,v 1.10 2008/06/10 22:31:08 chrjones Exp $
 //
 
 // system include files
@@ -22,7 +22,7 @@
 #include "TColor.h"
 #include "TROOT.h"
 #include "TEvePointSet.h"
-#include "TEveStraightLineSet.h"
+#include "TEveScalableStraightLineSet.h"
 #include "TEveCompound.h"
 #include <boost/shared_ptr.hpp>
 #include <boost/mem_fn.hpp>
@@ -36,7 +36,7 @@
 
 #include "DataFormats/JetReco/interface/CaloJet.h"
 #include "DataFormats/JetReco/interface/CaloJet.h"
-#include "Fireworks/Core/interface/FWDisplayEvent.h"
+#include "Fireworks/Core/interface/FWRhoPhiZView.h"
 
 //
 // constants, enums and typedefs
@@ -88,7 +88,7 @@ CaloJetProxyRhoPhiZ2DBuilder::buildRhoPhi(const FWEventItem* iItem,
    }
    
    double r_ecal = 126;
-   double scale = FWDisplayEvent::getCaloScale();
+   double scale = 1; //m_caloScale;
    if ( scale < 0 ) scale = 2;
    //double minJetEt = 15;
    double minJetEt = 0;
@@ -112,7 +112,7 @@ CaloJetProxyRhoPhiZ2DBuilder::buildRhoPhi(const FWEventItem* iItem,
       TEveGeoShapeExtract *sc = fw::getShapeExtract( "spread", sc_box, iItem->defaultDisplayProperties().color() );
       
       if ( jet->et() > minJetEt ) {
-	 TEveStraightLineSet* marker = new TEveStraightLineSet("energy");
+	 TEveScalableStraightLineSet* marker = new TEveScalableStraightLineSet("energy");
 	 marker->SetLineWidth(4);
 	 marker->SetLineColor(  iItem->defaultDisplayProperties().color() );
 	 TEveElement* element = TEveGeoShape::ImportShapeExtract(sc, 0);
@@ -154,7 +154,7 @@ CaloJetProxyRhoPhiZ2DBuilder::buildRhoZ(const FWEventItem* iItem,
    static const std::vector<std::pair<double,double> > thetaBins = ECalCaloTowerProxyRhoPhiZ2DBuilder::getThetaBins();
 
    
-   double scale = FWDisplayEvent::getCaloScale();
+   double scale = 1; //m_caloScale;
    if ( scale < 0 ) scale = 2;
    double z_ecal = 306; // ECAL endcap inner surface
    double r_ecal = 126;
@@ -190,7 +190,7 @@ CaloJetProxyRhoPhiZ2DBuilder::buildRhoZ(const FWEventItem* iItem,
       double size = scale*jet->et();
       
       if ( jet->et() > minJetEt ) {
-	 TEveStraightLineSet* marker = new TEveStraightLineSet("energy");
+	 TEveScalableStraightLineSet* marker = new TEveScalableStraightLineSet("energy");
 	 marker->SetLineWidth(4);
 	 marker->SetLineColor(  iItem->defaultDisplayProperties().color() );
 	 marker->AddLine(0., (jet->phi()>0 ? r*fabs(sin(theta)) : -r*fabs(sin(theta))), r*cos(theta),
