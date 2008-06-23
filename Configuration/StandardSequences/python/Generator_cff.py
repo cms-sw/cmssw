@@ -11,7 +11,6 @@ from RecoJets.Configuration.RecoGenJets_cff import *
 from RecoMET.Configuration.RecoGenMET_cff import *
 from RecoJets.Configuration.GenJetParticles_cff import *
 from RecoMET.Configuration.GenMETParticles_cff import *
-from Configuration.StandardSequences.SimulationRandomNumberGeneratorSeeds_cff import *
 # Vertex smearing
 #
 # There're several types of Vertex smearing module (Gauss, Flat, BeamProfile, Betafunc, BetafuncEarlyCollisions);
@@ -52,5 +51,5 @@ from Configuration.StandardSequences.SimulationRandomNumberGeneratorSeeds_cff im
 VertexSmearing = cms.Sequence(cms.SequencePlaceholder("VtxSmeared"))
 GeneInfo = cms.Sequence(genParticles+genEventWeight+genEventScale+genEventPdfInfo)
 genJetMET = cms.Sequence(genJetParticles*recoGenJets+genMETParticles*recoGenMET)
-pgen = cms.Sequence(randomEngineStateProducer+VertexSmearing+GeneInfo+genJetMET)
+pgen = cms.Sequence(cms.SequencePlaceholder("randomEngineStateProducer")+VertexSmearing+GeneInfo+genJetMET)
 
