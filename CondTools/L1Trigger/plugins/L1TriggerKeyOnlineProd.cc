@@ -13,7 +13,7 @@
 //
 // Original Author:  Werner Man-Li Sun
 //         Created:  Sun Mar  2 03:03:32 CET 2008
-// $Id: L1TriggerKeyOnlineProd.cc,v 1.2 2008/04/16 23:49:30 wsun Exp $
+// $Id: L1TriggerKeyOnlineProd.cc,v 1.3 2008/05/28 17:54:06 wsun Exp $
 //
 //
 
@@ -101,24 +101,27 @@ L1TriggerKeyOnlineProd::produce(const L1TriggerKeyRcd& iRecord)
          new L1TriggerKey() ) ;
       pL1TriggerKey->setTSCKey( m_tscKey ) ;
 
-      // Get subsystem keys from OMDS
-      std::string tableString = "GCT_CONFIG" ;
-
-      std::vector< std::string > queryStrings ;
-      queryStrings.push_back( "CONFIG_KEY" ) ;
-
-      std::string conditionString = "" ;
-      coral::AttributeList attributes ;
-
-      boost::shared_ptr< coral::IQuery > query
-	( m_omdsReader.newQuery( tableString, queryStrings,
-				 conditionString, attributes ) ) ;
-      coral::ICursor& cursor = query->execute() ;
-      while( cursor.next() )
+      if( !m_forceGeneration )
 	{
-	  const coral::AttributeList& row = cursor.currentRow() ;
-	  std::string key = row[ "CONFIG_KEY" ].data< std::string >() ;
-	  std::cout << "CONFIG_KEY " << key << std::endl ;
+	  // Get subsystem keys from OMDS
+	  std::string tableString = "GCT_CONFIG" ;
+
+	  std::vector< std::string > queryStrings ;
+	  queryStrings.push_back( "CONFIG_KEY" ) ;
+
+	  std::string conditionString = "" ;
+	  coral::AttributeList attributes ;
+
+	  boost::shared_ptr< coral::IQuery > query
+	    ( m_omdsReader.newQuery( tableString, queryStrings,
+				     conditionString, attributes ) ) ;
+	  coral::ICursor& cursor = query->execute() ;
+	  while( cursor.next() )
+	    {
+	      const coral::AttributeList& row = cursor.currentRow() ;
+	      std::string key = row[ "CONFIG_KEY" ].data< std::string >() ;
+	      std::cout << "CONFIG_KEY " << key << std::endl ;
+	    }
 	}
    }
    else
