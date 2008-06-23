@@ -4,13 +4,14 @@
 
 /** \class Interprets the RPC record (16 bit) and fills the RPCDigiCollection
  *
- *  $Date: 2007/03/20 09:18:53 $
- *  $Revision: 1.14 $
+ *  $Date: 2008/03/27 13:51:05 $
+ *  $Revision: 1.15 $
  *  \author Ilaria Segoni - CERN
  */
 
 
 #include "DataFormats/RPCDigi/interface/RPCDigiCollection.h"
+#include "EventFilter/RPCRawToDigi/interface/RPCRawDataCounts.h"
 #include "EventFilter/RPCRawToDigi/interface/EventRecords.h"
 
 class RPCReadOutMapping;
@@ -28,7 +29,8 @@ public:
       uint32_t rawDetId, const RPCDigi & digi, int trigger_BX) const; 
 
   int recordUnpack(const rpcrawtodigi::EventRecords & event, 
-                    std::auto_ptr<RPCDigiCollection> & prod);
+                    std::auto_ptr<RPCDigiCollection> & prod,
+                    std::auto_ptr<RPCRawDataCounts> & counter);
 
 private:    
   int currentFED;

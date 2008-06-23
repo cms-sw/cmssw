@@ -1,8 +1,8 @@
 /** \file
  * Implementation of class RPCRecordFormatter
  *
- *  $Date: 2008/03/28 07:39:47 $
- *  $Revision: 1.34 $
+ *  $Date: 2008/06/19 16:30:55 $
+ *  $Revision: 1.35 $
  *
  * \author Ilaria Segoni
  */
@@ -85,8 +85,9 @@ std::vector<EventRecords> RPCRecordFormatter::recordPack(
 }
 
 int RPCRecordFormatter::recordUnpack(
-    const EventRecords & event, std::auto_ptr<RPCDigiCollection> & prod)
+    const EventRecords & event, std::auto_ptr<RPCDigiCollection> & prod, std::auto_ptr<RPCRawDataCounts> & counter)
 {
+  static bool debug = edm::MessageDrop::instance()->debugEnabled;
   int status = 0;
   int triggerBX = event.triggerBx();
   int currentBX = event.recordBX().bx();
@@ -102,16 +103,22 @@ int RPCRecordFormatter::recordUnpack(
   if(readoutMapping == 0) return status;
   const LinkBoardSpec* linkBoard = readoutMapping->location(eleIndex);
   if (!linkBoard) {
-    LogDebug(" ** PROBLEM ** Invalid Linkboard location, skip CD event, ") 
+    LogWarning(" ** PROBLEM ** Invalid Linkboard location, skip CD event, ") 
               << "dccId: "<<eleIndex.dccId
               << "dccInputChannelNum: " <<eleIndex.dccInputChannelNum
               << " tbLinkInputNum: "<<eleIndex.tbLinkInputNum
               << " lbNumInLink: "<<eleIndex.lbNumInLink;
-    status = 1;
+    status = RPCRawDataCounts::InvalidLB;
+    counter->addReadoutError(status);
     return status;
   }
 
   std::vector<int> packStrips = event.recordCD().packedStrips();
+  if (packStrips.size() ==0) {
+    status = RPCRawDataCounts::EmptyPackedStrips;
+    counter->addReadoutError(status);
+    return status;
+  }
   for(std::vector<int>::iterator is = packStrips.begin(); is != packStrips.end(); ++is) {
 
     RPCReadOutMapping::StripInDetUnit duFrame = 
@@ -120,8 +127,15 @@ int RPCRecordFormatter::recordUnpack(
     uint32_t rawDetId = duFrame.first;
     int geomStrip = duFrame.second;
     if (!rawDetId) {
-      LogDebug("** PROBLEM ** no rawDetId, skip at lease part of CD data");
-      status = 2;
+      LogWarning("** PROBLEM ** no rawDetId, skip at lease part of CD data");
+      status = RPCRawDataCounts::InvalidDetId;
+      counter->addReadoutError(status);
+      continue;
+    }
+    if (geomStrip==0) {
+      LogWarning("** PROBLEM ** no strip found");
+      status = RPCRawDataCounts::InvalidStrip;
+      counter->addReadoutError(status);
       continue;
     }
 
@@ -129,8 +143,10 @@ int RPCRecordFormatter::recordUnpack(
     RPCDigi digi(geomStrip,currentBX-triggerBX);
 
     /// Committing digi to the product
-    LogTrace("") << " LinkBoardElectronicIndex: " << eleIndex.print(); 
-    LogTrace("")<<" DIGI;  det: "<<rawDetId<<", strip: "<<digi.strip()<<", bx: "<<digi.bx();
+    if (debug) {
+      LogTrace("") << " LinkBoardElectronicIndex: " << eleIndex.print(); 
+      LogTrace("")<<" DIGI;  det: "<<rawDetId<<", strip: "<<digi.strip()<<", bx: "<<digi.bx();
+    }
     prod->insertDigi(RPCDetId(rawDetId),digi);
   }
   return status;
