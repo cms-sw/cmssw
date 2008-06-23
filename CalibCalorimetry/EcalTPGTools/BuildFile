@@ -3,29 +3,17 @@
 <use name=CondFormats/DataRecord>
 <use name=CondFormats/L1TObjects>
 <use name=CondFormats/EcalObjects>
-<use name=Geometry/CaloGeometry>
-<use name=Geometry/CaloEventSetup>
-<use name=Geometry/Records>
-<use name=Geometry/EcalMapping>
 <use name=SimCalorimetry/EcalSimAlgos>
 <use name=FWCore/Framework>
 <use name=FWCore/Utilities>
-<use name=OnlineDB/EcalCondDB>
-<use name=OnlineDB/Oracle>
 <export>
  <use name=DataFormats/EcalDigi>
  <use name=DataFormats/EcalDetId>
  <use name=CondFormats/DataRecord>
  <use name=CondFormats/L1TObjects>
  <use name=CondFormats/EcalObjects>
- <use name=Geometry/CaloGeometry>
- <use name=Geometry/CaloEventSetup>
- <use name=Geometry/Records>
- <use name=Geometry/EcalMapping>
  <use name=SimCalorimetry/EcalSimAlgos>
  <use name=FWCore/Framework>
  <use name=FWCore/Utilities>
- <use name=OnlineDB/EcalCondDB>
- <use name=OnlineDB/Oracle>
  <lib name=CalibCalorimetryEcalTPGTools>
 </export>
