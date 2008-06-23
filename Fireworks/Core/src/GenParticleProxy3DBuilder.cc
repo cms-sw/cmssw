@@ -14,7 +14,7 @@
 //
 // Original Author:  
 //         Created:  Thu Dec  6 18:01:21 PST 2007
-// $Id: GenParticleProxy3DBuilder.cc,v 1.1 2008/05/22 05:36:34 srappocc Exp $
+// $Id: GenParticleProxy3DBuilder.cc,v 1.2 2008/06/09 19:54:03 chrjones Exp $
 //
 
 // system include files
@@ -62,7 +62,7 @@ void GenParticleProxy3DBuilder::build(const FWEventItem* iItem, TEveElementList*
 
 
      reco::GenParticleCollection const * genParticles=0;
-     m_item->get(genParticles);
+     iItem->get(genParticles);
      //fwlite::Handle<reco::TrackCollection> tracks;
      //tracks.getByLabel(*iEvent,"ctfWithMaterialTracks");
      
