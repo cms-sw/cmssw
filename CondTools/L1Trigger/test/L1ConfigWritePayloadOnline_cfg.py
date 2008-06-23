@@ -31,15 +31,13 @@ process.orcon = cms.ESSource("PoolDBESSource",
     toGet = cms.VPSet(cms.PSet(
         record = cms.string('L1TriggerKeyListRcd'),
         tag = cms.string('L1TriggerKeyList_CRUZET_hlt')
-    ), 
-        cms.PSet(
-            record = cms.string('L1TriggerKeyRcd'),
-            tag = cms.string('L1TriggerKey_CRUZET_hlt')
-        ))
+    ))
 )
 
 process.p = cms.Path(process.L1CondDBPayloadWriter)
-process.orcon.connect = cms.string('sqlite_file:l1config.db')
-process.orcon.DBParameters.authenticationPath = '.'
+process.orcon.connect = cms.string('oracle://cms_orcon_prod/CMS_COND_20X_L1T')
+process.orcon.DBParameters.authenticationPath = '/nfshome0/onlinedbadm/conddb'
+process.L1CondDBPayloadWriter.offlineDB = cms.string('oracle://cms_orcon_prod/CMS_COND_20X_L1T')
+process.L1CondDBPayloadWriter.offlineAuthentication = '/nfshome0/onlinedbadm/conddb'
 
 
