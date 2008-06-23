@@ -8,7 +8,7 @@
 //
 // Original Author:  
 //         Created:  Thu Dec  6 17:49:54 PST 2007
-// $Id: FWRPZDataProxyBuilder.cc,v 1.12 2008/06/16 18:23:15 dmytro Exp $
+// $Id: FWRPZDataProxyBuilder.cc,v 1.13 2008/06/21 21:47:12 chrjones Exp $
 //
 
 // system include files
@@ -38,6 +38,7 @@ TEveCalo3D* FWRPZDataProxyBuilder::m_calo3d = 0;
 // constructors and destructor
 //
 FWRPZDataProxyBuilder::FWRPZDataProxyBuilder():
+  m_priority(false),
   m_item(0),
   m_rhoPhiProjs(),
   m_rhoZProjs()

@@ -16,7 +16,7 @@
 //
 // Original Author:  Chris Jones
 //         Created:  Tue Feb 19 10:33:21 EST 2008
-// $Id: FWRhoPhiZView.h,v 1.7 2008/06/09 18:50:04 chrjones Exp $
+// $Id: FWRhoPhiZView.h,v 1.8 2008/06/20 06:00:26 dmytro Exp $
 //
 
 // system include files
@@ -36,6 +36,8 @@ class TGLEmbeddedViewer;
 class TEveProjectionManager;
 class TGFrame;
 class TGLMatrix;
+class TEveCalo2D;
+class FWRhoPhiZViewManager;
 
 class FWRhoPhiZView : public FWViewBase
 {
@@ -54,7 +56,6 @@ class FWRhoPhiZView : public FWViewBase
       virtual void saveImageTo(const std::string& iName) const;
 
       // ---------- static member functions --------------------
-
       // ---------- member functions ---------------------------
       void resetCamera();
       void destroyElements();
@@ -63,10 +64,18 @@ class FWRhoPhiZView : public FWViewBase
 
       //returns the new element created from this import
       TEveElement* importElements(TEveElement*, float iLayer);
-   private:
+ private:
       void doDistortion(double);
       void doCompression(bool);
       void doZoom(double);
+      void updateCaloParameters();
+      void updateCaloThresholdParameters();
+      void updateScaleParameters();
+      void updateCalo(TEveElement*, bool dataChanged = false);
+      void updateCaloThresholds(TEveElement*);
+      void updateCaloLines(TEveElement*);
+      void setMinEnergy( TEveCalo2D* calo, double value, std::string name );
+     
       FWRhoPhiZView(const FWRhoPhiZView&); // stop default
 
       const FWRhoPhiZView& operator=(const FWRhoPhiZView&); // stop default
@@ -79,9 +88,18 @@ class FWRhoPhiZView : public FWViewBase
       std::vector<TEveElement*> m_geom;
       std::string m_typeName;
       TEveScene* m_scene;
-
-      FWDoubleParameter m_distortion;
-      FWBoolParameter m_compressMuon;
+      double m_caloScale;
+   
+      // parameters
+      //FWDoubleParameter m_distortion;
+      FWBoolParameter    m_compressMuon;
+      FWDoubleParameter  m_caloFixedScale;
+      FWBoolParameter    m_caloAutoScale;
+      FWBoolParameter*   m_showHF;
+      FWBoolParameter*   m_showEndcaps;
+      FWDoubleParameter  m_minEcalEnergy;
+      FWDoubleParameter  m_minHcalEnergy;
+      
       // camera parameters
       double* m_cameraZoom;
       TGLMatrix* m_cameraMatrix;

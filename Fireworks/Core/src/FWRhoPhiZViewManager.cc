@@ -8,7 +8,7 @@
 //
 // Original Author:  
 //         Created:  Sat Jan  5 14:08:51 EST 2008
-// $Id: FWRhoPhiZViewManager.cc,v 1.30 2008/06/11 14:06:19 dmytro Exp $
+// $Id: FWRhoPhiZViewManager.cc,v 1.31 2008/06/12 15:07:45 chrjones Exp $
 //
 
 // system include files
@@ -225,6 +225,7 @@ FWRhoPhiZViewManager::createRhoZView(TGFrame* iParent)
 void 
 FWRhoPhiZViewManager::rerunBuilders()
 {
+   std::cout << "rerunning builderd" << std::endl;
   using namespace std;
   if(0==gEve) {
     cout <<"Eve not initialized"<<endl;
@@ -242,7 +243,6 @@ FWRhoPhiZViewManager::rerunBuilders()
      std::for_each(m_rhoZViews.begin(),
                    m_rhoZViews.end(),
                    boost::bind(&FWRhoPhiZView::destroyElements, _1));
-     
      addElements();
   }
 }
@@ -257,31 +257,49 @@ FWRhoPhiZViewManager::setupGeometry()
 
 void FWRhoPhiZViewManager::addElements()
 {
-   for ( std::vector<boost::shared_ptr<FWRPZModelProxyBase> >::iterator proxy = m_modelProxies.begin();
-	 proxy != m_modelProxies.end(); ++proxy )  {
-      if( (*proxy)->isActive() ) {
-         (*proxy)->clearRhoPhiProjs();
-         for(std::vector<boost::shared_ptr<FWRhoPhiZView> >::iterator it = m_rhoPhiViews.begin(),
-             itEnd = m_rhoPhiViews.end();
-             it != itEnd;
-             ++it) {
-            if((*proxy)->getRhoPhiProduct()) {
-               (*proxy)->addRhoPhiProj( (*it)->importElements((*proxy)->getRhoPhiProduct(),(*proxy)->layer()));
-            }
-         }
-         (*proxy)->clearRhoZProjs();
-         for(std::vector<boost::shared_ptr<FWRhoPhiZView> >::iterator it = m_rhoZViews.begin(),
-             itEnd = m_rhoZViews.end();
-             it != itEnd;
-             ++it) {
-            if((*proxy)->getRhoZProduct()) {
-               (*proxy)->addRhoZProj( (*it)->importElements((*proxy)->getRhoZProduct(),(*proxy)->layer()));
-            }
-         }
-      }
-   }  
+   // run first calorimeter proxies, since they define overall energy scale
    
+   for ( std::vector<boost::shared_ptr<FWRPZModelProxyBase> >::iterator proxyIter = m_modelProxies.begin();
+	 proxyIter != m_modelProxies.end(); ++proxyIter )  {
+      if ( FWRPZ3DModelProxy* proxy = dynamic_cast<FWRPZ3DModelProxy*>(proxyIter->get()) )
+	if ( proxy->builder() && proxy->builder()->highPriority() ) 
+	  addProxyElements(proxyIter->get());
+      if ( FWRPZ2DModelProxy* proxy = dynamic_cast<FWRPZ2DModelProxy*>(proxyIter->get()) )
+	if ( proxy->builder() && proxy->builder()->highPriority() ) 
+	  addProxyElements(proxyIter->get());
+   }
+
+   // now run the rest
+   for ( std::vector<boost::shared_ptr<FWRPZModelProxyBase> >::iterator proxyIter = m_modelProxies.begin();
+	 proxyIter != m_modelProxies.end(); ++proxyIter )  {
+      if ( FWRPZ3DModelProxy* proxy = dynamic_cast<FWRPZ3DModelProxy*>(proxyIter->get()) )
+	if ( proxy->builder() && proxy->builder()->highPriority() ) continue;
+      if ( FWRPZ2DModelProxy* proxy = dynamic_cast<FWRPZ2DModelProxy*>(proxyIter->get()) )
+	if ( proxy->builder() && proxy->builder()->highPriority() ) continue;
+      addProxyElements(proxyIter->get());
+   }
 }
+
+void FWRhoPhiZViewManager::addProxyElements(FWRPZModelProxyBase* proxy)
+{
+   if( proxy->isActive() ) {
+      proxy->clearRhoPhiProjs();
+      for(std::vector<boost::shared_ptr<FWRhoPhiZView> >::iterator it = m_rhoPhiViews.begin(),
+	  itEnd = m_rhoPhiViews.end(); it != itEnd; ++it) {
+	 if(proxy->getRhoPhiProduct()) {
+	    proxy->addRhoPhiProj( (*it)->importElements(proxy->getRhoPhiProduct(),proxy->layer()));
+	 }
+      }
+      proxy->clearRhoZProjs();
+      for(std::vector<boost::shared_ptr<FWRhoPhiZView> >::iterator it = m_rhoZViews.begin(),
+	  itEnd = m_rhoZViews.end(); it != itEnd; ++it) {
+	 if(proxy->getRhoZProduct()) {
+	    proxy->addRhoZProj( (*it)->importElements(proxy->getRhoZProduct(),proxy->layer()));
+	 }
+      }
+   }
+}
+
 
 void
 FWRhoPhiZViewManager::makeProxyBuilderFor(const FWEventItem* iItem)

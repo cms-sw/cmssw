@@ -8,7 +8,7 @@
 //
 // Original Author:  
 //         Created:  Thu Dec  6 17:49:54 PST 2007
-// $Id: FWRPZ2DDataProxyBuilder.cc,v 1.9 2008/06/12 15:07:45 chrjones Exp $
+// $Id: FWRPZ2DDataProxyBuilder.cc,v 1.10 2008/06/21 21:47:12 chrjones Exp $
 //
 
 // system include files
@@ -33,11 +33,14 @@
 //
 // static data member definitions
 //
+TEveCalo3D* FWRPZ2DDataProxyBuilder::m_caloRhoPhi = 0;
+TEveCalo3D* FWRPZ2DDataProxyBuilder::m_caloRhoZ = 0;
 
 //
 // constructors and destructor
 //
 FWRPZ2DDataProxyBuilder::FWRPZ2DDataProxyBuilder():
+  m_priority(false),
   m_item(0),
   m_rhoPhiElements(0),
   m_rhoPhiZElements(0)

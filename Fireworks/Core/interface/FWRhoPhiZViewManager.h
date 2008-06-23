@@ -16,7 +16,7 @@
 //
 // Original Author:  
 //         Created:  Sat Jan  5 11:27:34 EST 2008
-// $Id: FWRhoPhiZViewManager.h,v 1.17 2008/06/10 19:27:10 chrjones Exp $
+// $Id: FWRhoPhiZViewManager.h,v 1.18 2008/06/12 15:07:45 chrjones Exp $
 //
 
 // system include files
@@ -74,6 +74,7 @@ public:
    void clearRhoPhiProjs();
    void clearRhoZProjs();
    virtual bool isActive() const;
+   const FWRPZDataProxyBuilder* builder() const { return m_builder.get(); }
 
 private:
    void itemChangedImp(const FWEventItem*) ;
@@ -101,6 +102,7 @@ public:
    void clearRhoPhiProjs();
    void clearRhoZProjs();
    virtual bool isActive() const;
+   const FWRPZ2DDataProxyBuilder* builder() const { return m_builder.get(); }
 private:
    void itemChangedImp(const FWEventItem*) ;
    virtual void itemBeingDestroyedImp(const FWEventItem*);
@@ -145,6 +147,8 @@ class FWRhoPhiZViewManager : public FWViewManagerBase
       void selectionRemoved(TEveElement*);
       void selectionCleared();
    
+      void rerunBuilders();
+  
    protected:
       virtual void modelChangesComing() ;
       virtual void modelChangesDone() ;
@@ -156,8 +160,7 @@ class FWRhoPhiZViewManager : public FWViewManagerBase
 
       void itemChanged(const FWEventItem*);
       void addElements();
-      void rerunBuilders();
-  
+      void addProxyElements(FWRPZModelProxyBase* proxy);
       void makeProxyBuilderFor(const FWEventItem* iItem);
    
       void setupGeometry();

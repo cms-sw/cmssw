@@ -8,7 +8,7 @@
 //
 // Original Author:  Chris Jones
 //         Created:  Tue Feb 19 10:33:25 EST 2008
-// $Id: FWRhoPhiZView.cc,v 1.13 2008/06/16 18:24:24 dmytro Exp $
+// $Id: FWRhoPhiZView.cc,v 1.14 2008/06/20 06:00:26 dmytro Exp $
 //
 
 #define private public
@@ -36,11 +36,14 @@
 #include "TEvePolygonSetProjected.h"
 #include "TEveProjections.h"
 #include "TEveCalo.h"
+#include "TEveScalableStraightLineSet.h"
+#include "TH2F.h"
 
 // user include files
 #include "Fireworks/Core/interface/FWRhoPhiZView.h"
+#include "Fireworks/Core/interface/FWRhoPhiZViewManager.h"
 #include "Fireworks/Core/interface/FWConfiguration.h"
-
+#include "Fireworks/Core/interface/TEveElementIter.h"
 
 //
 // constants, enums and typedefs
@@ -90,33 +93,56 @@ static TEveElement* doReplication(TEveProjectionManager* iMgr, TEveElement* iFro
 //
 FWRhoPhiZView::FWRhoPhiZView(TGFrame* iParent,const std::string& iName, const TEveProjection::EPType_e& iProjType) :
 m_typeName(iName),
-m_distortion(this,"distortion",0.,0.,20.),
-m_compressMuon(this,"Compress muon detectors",false),
+m_caloScale(1),
+// m_distortion(this,"distortion",0.,0.,20.),
+m_compressMuon(this,"Compress detectors",false),
+m_caloFixedScale(this,"Calo scale",2.,0.1,100.),
+m_caloAutoScale(this,"Calo auto scale",false),
+m_showHF(0),
+m_showEndcaps(0),
+m_minEcalEnergy(this,"ECAL energy threshold (GeV)",0.,0.,100.),
+m_minHcalEnergy(this,"HCAL energy threshold (GeV)",0.,0.,100.),
 m_cameraZoom(0),
 m_cameraMatrix(0)
 {
    m_projMgr = new TEveProjectionManager;
    m_projMgr->SetProjection(iProjType);
    //m_projMgr->GetProjection()->SetFixedRadius(700);
+   /*
    m_projMgr->GetProjection()->SetDistortion(m_distortion.value()*1e-3);
    m_projMgr->GetProjection()->SetFixR(200);
    m_projMgr->GetProjection()->SetFixZ(300);
    m_projMgr->GetProjection()->SetPastFixRFac(0.0);
    m_projMgr->GetProjection()->SetPastFixZFac(0.0);
-
+   */
+   
+   m_minEcalEnergy.changed_.connect(  boost::bind(&FWRhoPhiZView::updateCaloThresholdParameters, this) );
+   m_minHcalEnergy.changed_.connect(  boost::bind(&FWRhoPhiZView::updateCaloThresholdParameters, this) );
+   
    if ( iProjType == TEveProjection::kPT_RPhi ) {
-     m_projMgr->GetProjection()->AddPreScaleEntry(0, 300, 0.2);
+      // compression
+      m_projMgr->GetProjection()->AddPreScaleEntry(0, 130, 0.5);
+      m_projMgr->GetProjection()->AddPreScaleEntry(0, 300, 0.2);
+      // projection specific parameters
+      m_showEndcaps = new FWBoolParameter(this,"Show calo endcaps", true);
+      m_showEndcaps->changed_.connect(  boost::bind(&FWRhoPhiZView::updateCaloParameters, this) );
+      m_showHF = new FWBoolParameter(this,"Show HF", true);
+      m_showHF->changed_.connect(  boost::bind(&FWRhoPhiZView::updateCaloParameters, this) );
    } else {
-     m_projMgr->GetProjection()->AddPreScaleEntry(0, 370, 0.2);
-     m_projMgr->GetProjection()->AddPreScaleEntry(1, 580, 0.2);
+      m_projMgr->GetProjection()->AddPreScaleEntry(0, 130, 0.5);
+      m_projMgr->GetProjection()->AddPreScaleEntry(1, 310, 0.5);
+      m_projMgr->GetProjection()->AddPreScaleEntry(0, 370, 0.2);
+      m_projMgr->GetProjection()->AddPreScaleEntry(1, 580, 0.2);
    }
      
    gEve->AddToListTree(m_projMgr,kTRUE);
    
    //m_distortion.changed_.connect(boost::bind(&TEveProjection::SetDistortion, m_projMgr->GetProjection(),
      //                                        boost::bind(toFloat,_1)));
-   m_distortion.changed_.connect(boost::bind(&FWRhoPhiZView::doDistortion,this,_1));
+   // m_distortion.changed_.connect(boost::bind(&FWRhoPhiZView::doDistortion,this,_1));
    m_compressMuon.changed_.connect(boost::bind(&FWRhoPhiZView::doCompression,this,_1));
+   m_caloFixedScale.changed_.connect( boost::bind(&FWRhoPhiZView::updateScaleParameters, this) );
+   m_caloAutoScale.changed_.connect(  boost::bind(&FWRhoPhiZView::updateScaleParameters, this) );
    
    m_pad = new TEvePad;
    TGLEmbeddedViewer* ev = new TGLEmbeddedViewer(iParent, m_pad);
@@ -237,12 +263,66 @@ FWRhoPhiZView::importElements(TEveElement* iChildren, float iLayer)
    m_projMgr->ImportElements(iChildren);
    TEveElement::List_i it = m_projMgr->BeginChildren();
    std::advance(it, m_projMgr->NumChildren() -1 );
-   // find TEveCalo2D
-   for ( TEveElement::List_i i = (*it)->BeginChildren(); i != (*it)->EndChildren(); ++i )
-     if ( TEveCalo2D* calo2d = dynamic_cast<TEveCalo2D*>(*i) )
-       calo2d->SetValueIsColor(kFALSE);
+   
+   updateCaloThresholds( *it );
+   updateCalo( *it, true );
+   updateCaloLines( *it );
+      
    return *it;
 }
+
+void 
+FWRhoPhiZView::updateCaloThresholds(TEveElement* iParent)
+{
+   TEveElementIter child(iParent);
+   while ( TEveElement* element = child.current() )
+     {
+	if ( TEveCalo2D* calo2d = dynamic_cast<TEveCalo2D*>(element) ) {
+	   setMinEnergy(calo2d, m_minEcalEnergy.value(), "ecal");
+	   setMinEnergy(calo2d, m_minHcalEnergy.value(), "hcal");
+	}
+	child.next();
+     }
+}
+
+void 
+FWRhoPhiZView::updateCalo(TEveElement* iParent, bool dataChanged)
+{
+   TEveElementIter child(iParent);
+   while ( TEveElement* element = child.current() )
+     {
+	if ( TEveCalo2D* calo2d = dynamic_cast<TEveCalo2D*>(element) ) {
+	   calo2d->SetValueIsColor(kFALSE);
+	   calo2d->SetMaxTowerH( 150 );
+	   calo2d->SetMaxValAbs( 150/m_caloFixedScale.value() );
+	   calo2d->SetScaleAbs( !m_caloAutoScale.value() );
+	   if ( dataChanged ) calo2d->GetData()->DataChanged();
+	   double eta_range = 5.191;
+	   if ( m_showHF && ! m_showHF->value() ) eta_range = 3.0;
+	   if ( m_showEndcaps && ! m_showEndcaps->value() ) eta_range = 1.479;
+	   calo2d->SetEta(-eta_range,eta_range);
+	   calo2d->ElementChanged();
+	   m_caloScale = calo2d->GetValToHeight();
+	}
+	child.next();
+     }
+}
+
+void 
+FWRhoPhiZView::updateCaloLines(TEveElement* iParent)
+{
+   TEveElementIter child(iParent);
+   while ( TEveElement* element = child.current() )
+     {
+	if ( TEveScalableStraightLineSetProjected* line = 
+	     dynamic_cast<TEveScalableStraightLineSetProjected*>(element) ) {
+	   line->SetScale( m_caloScale );
+	   line->ElementChanged();
+	}
+	child.next();
+     }
+}
+
 
 void 
 FWRhoPhiZView::setFrom(const FWConfiguration& iFrom)
@@ -322,6 +402,43 @@ FWRhoPhiZView::saveImageTo(const std::string& iName) const
       throw std::runtime_error("Unable to save picture to file");
    }
 }
+
+void
+FWRhoPhiZView::updateScaleParameters()
+{
+   updateCalo(m_projMgr);
+   updateCaloLines(m_projMgr);
+}
+
+void
+FWRhoPhiZView::updateCaloParameters()
+{
+   updateCalo(m_projMgr);
+}
+
+void
+FWRhoPhiZView::updateCaloThresholdParameters()
+{
+   updateCaloThresholds(m_projMgr);
+}
+
+
+void 
+FWRhoPhiZView::setMinEnergy( TEveCalo2D* calo, double value, std::string name )
+{
+   if ( ! calo->GetData() ) return;
+   for ( int i = 0; i < calo->GetData()->GetNSlices(); ++i ) {
+      std::string histName(calo->GetData()->RefSliceInfo(i).fHist->GetName());
+      if ( histName.find(name,0) != std::string::npos  )
+	{
+	   calo->GetData()->RefSliceInfo(i).fThreshold = value;
+	   calo->ElementChanged();
+	   calo->DataChanged();
+	   break;
+	}
+   }
+}
+
 
 //
 // static member functions
