@@ -16,7 +16,7 @@
 //
 // Original Author:  Chris Jones
 //         Created:  Thu May 29 18:11:16 CDT 2008
-// $Id$
+// $Id: CmsShowMainFrame.h,v 1.1 2008/06/17 00:08:11 chrjones Exp $
 //
 
 // system include files
@@ -37,6 +37,7 @@ class TGNumberEntryField;
 class TTimer;
 class CSGAction;
 class FWGUIManager;
+class TGPopupMenu;
 
 class CmsShowMainFrame : public TGMainFrame, public sigc::trackable {
    RQ_OBJECT("CmsShowMainFrame")
@@ -67,7 +68,7 @@ public:
    void playEventsBack();
    void pause();
    void quit();
-   CSGAction* getAction(const std::string name);
+   CSGAction* getAction(const std::string& name);
    void enableActions(bool enable = true);
    void enablePrevious(bool enable = true);
    void enableNext(bool enable = true);
@@ -78,6 +79,7 @@ public:
    Bool_t HandleKey(Event_t *event);
    //   Bool_t HandleTimer(TTimer *timer);
    
+   CSGAction* createNewViewerAction(const std::string& iActionName);
 private:
    CmsShowMainFrame(const CmsShowMainFrame&); // stop default
    
@@ -95,6 +97,8 @@ private:
    Int_t m_playBackRate;
    TTimer *m_playTimer;
    TTimer *m_playBackTimer;   
+   
+   TGPopupMenu *m_newViewerMenu;
 };
 
 

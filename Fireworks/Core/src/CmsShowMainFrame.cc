@@ -8,7 +8,7 @@
 //
 // Original Author:  Chris Jones
 //         Created:  Thu May 29 20:58:23 CDT 2008
-// $Id$
+// $Id: CmsShowMainFrame.cc,v 1.1 2008/06/17 00:08:11 chrjones Exp $
 //
 
 // system include files
@@ -58,9 +58,11 @@ TGMainFrame(p, w, h)
    m_playTimer->SetObject(this);
    m_playBackTimer->SetObject(this);
    CSGAction *goToFirst = new CSGAction(this, "Home");
+   /*
    CSGAction *addRhoPhi = new CSGAction(this, "Rho Phi");
    CSGAction *addRhoZ = new CSGAction(this, "Rho Z");
    CSGAction *addLego = new CSGAction(this, "Lego");
+    */
    CSGAction *openData = new CSGAction(this, "Open Data File...");
    CSGAction *loadConfig = new CSGAction(this, "Load Configuration...");
    CSGAction *saveConfig = new CSGAction(this, "Save Configuration");
@@ -100,12 +102,14 @@ TGMainFrame(p, w, h)
 
    TGPopupMenu *fileMenu = new TGPopupMenu(gClient->GetRoot());
    menuBar->AddPopup("File", fileMenu, new TGLayoutHints(kLHintsTop | kLHintsLeft, 0, 4, 0, 0));
-   TGPopupMenu *newViewerMenu = new TGPopupMenu(gClient->GetRoot());
+   m_newViewerMenu = new TGPopupMenu(gClient->GetRoot());
+   /*
    addRhoPhi->createMenuEntry(newViewerMenu);
    addRhoZ->createMenuEntry(newViewerMenu);
    addLego->createMenuEntry(newViewerMenu);
    addLego->disable();
-   fileMenu->AddPopup("New Viewer", newViewerMenu);
+    */
+   fileMenu->AddPopup("New Viewer", m_newViewerMenu);
    fileMenu->AddSeparator();
    
    openData->createMenuEntry(fileMenu);
@@ -264,6 +268,15 @@ void CmsShowMainFrame::addToActionMap(CSGAction *action) {
    m_actionList.push_back(action);
 }
 
+CSGAction* 
+CmsShowMainFrame::createNewViewerAction(const std::string& iActionName)
+{
+   CSGAction* action(new CSGAction(this, iActionName.c_str()));
+   action->createMenuEntry(m_newViewerMenu);
+   return action;
+}
+
+
 Bool_t CmsShowMainFrame::activateTextButton(TGTextButton *button) {
    std::vector<CSGAction*>::iterator it_act;
    for (it_act = m_actionList.begin(); it_act != m_actionList.end(); ++it_act) {
@@ -357,7 +370,7 @@ void CmsShowMainFrame::quit() {
 }
 
 CSGAction*
-CmsShowMainFrame::getAction(const std::string name)
+CmsShowMainFrame::getAction(const std::string& name)
 {
   std::vector<CSGAction*>::iterator it_act;
   for (it_act = m_actionList.begin(); it_act != m_actionList.end(); ++it_act) {

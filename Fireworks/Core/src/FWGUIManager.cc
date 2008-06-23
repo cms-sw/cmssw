@@ -8,7 +8,7 @@
 //
 // Original Author:  Chris Jones
 //         Created:  Mon Feb 11 11:06:40 EST 2008
-// $Id: FWGUIManager.cc,v 1.34 2008/06/20 20:31:06 chrjones Exp $
+// $Id: FWGUIManager.cc,v 1.35 2008/06/22 20:45:41 chrjones Exp $
 //
 
 // system include files
@@ -198,6 +198,8 @@ FWGUIManager::registerViewBuilder(const std::string& iName,
                                   ViewBuildFunctor& iBuilder)
 {
    m_nameToViewBuilder[iName]=iBuilder;
+   CSGAction* action=m_cmsShowMainFrame->createNewViewerAction(iName);
+   action->activated.connect(boost::bind(&FWGUIManager::createView,this,iName));
 }
 
 void 
