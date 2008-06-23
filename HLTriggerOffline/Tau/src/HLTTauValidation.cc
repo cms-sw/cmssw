@@ -42,36 +42,19 @@ HLTTauValidation::HLTTauValidation(const edm::ParameterSet& ps) :
     {
       //Create the histograms
       store->setCurrentFolder("HLTTau_"+triggerTag_);
-      triggerBits_Tau = store->book1D("triggerBits_Tau","Trigger Path Information(#tau)",4,0,4);
-      triggerBits_Tau->setBinLabel(1,"L1");
-      triggerBits_Tau->setBinLabel(2,"L2");
-      triggerBits_Tau->setBinLabel(3,"L25");
-      triggerBits_Tau->setBinLabel(4,"L3");
-      triggerBits_Tau->setAxisTitle("#tau Sub Path Decision Bit");
+      l1eteff = store->book1D("l1eteff","L1 Efficiency vs E_{t}",100,0,200);
+      l2eteff = store->book1D("l2eteff","L2 Efficiency vs E_{t}",100,0,200);
+      l25eteff = store->book1D("l25eteff","L25 Efficiency vs E_{t}",100,0,200);
+      l3eteff = store->book1D("l3eteff","L3 Efficiency vs E_{t}",100,0,200);
 
-      triggerBits_Ref = store->book1D("triggerBits_Ref","Trigger Path Information(Ref)",4,0,4);
-      triggerBits_Ref->setBinLabel(1,"L1");
-      triggerBits_Ref->setBinLabel(2,"L2");
-      triggerBits_Ref->setBinLabel(3,"L25");
-      triggerBits_Ref->setBinLabel(4,"L3");
-      triggerBits_Ref->setAxisTitle("#tau Sub Path Decision Bit");
+      refEt = store->book1D("refEt","Reference E_{t} ",100,0,200);
+      refEta = store->book1D("refEta","Reference #eta ",50,-2.5,2.5);
 
-      etVsTriggerPath_Tau = store->book2D("etVsTriggerPath_Tau","E_{t} vs Trigger Path (Tau)",50,0,200,4,0,4);
+      l1etaeff = store->book1D("l1etaeff","L1 Efficiency vs #eta",50,-2.5,2.5);
+      l2etaeff = store->book1D("l2etaeff","L2 Efficiency vs #eta",50,-2.5,2.5);
+      l25etaeff = store->book1D("l25etaeff","L25 Efficiency vs #eta",50,-2.5,2.5);
+      l3etaeff = store->book1D("l3etaeff","L3 Efficiency vs #eta",50,-2.5,2.5);
 
-      etVsTriggerPath_Tau->setBinLabel(1,"L1",2);
-      etVsTriggerPath_Tau->setBinLabel(2,"L2",2);
-      etVsTriggerPath_Tau->setBinLabel(3,"L25",2);
-      etVsTriggerPath_Tau->setBinLabel(4,"L3",2);
-
-
-
-      etVsTriggerPath_Ref = store->book2D("etVsTriggerPath_Ref","E_{t} vs Trigger Path (Reference)",50,0,200,4,0,4);
-
-      etVsTriggerPath_Ref->setBinLabel(1,"L1",2);
-      etVsTriggerPath_Ref->setBinLabel(2,"L2",2);
-      etVsTriggerPath_Ref->setBinLabel(3,"L25",2);
-      etVsTriggerPath_Ref->setBinLabel(4,"L3",2);
-      
 
     }
 
@@ -148,17 +131,41 @@ HLTTauValidation::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetu
   //Look at the reference collection (i.e MC)
   Handle<LVColl> refC;
   Handle<LVColl> refCL;
- 
+  
+  double RefEt = 0;
+  double RefEta = 0;
+
   if(doRefAnalysis_)
     {
       bool tau_ok = true;
       bool lepton_ok = true;
+      
 
       //Tau reference
       if(iEvent.getByLabel(refCollection_,refC))
       if(refC->size()<nTriggeredTaus_)
 	{
 	  tau_ok = false;
+	}
+      else
+	{
+	  //Find Lead jet Et
+	  double et=0.;
+	  double eta=0.;
+	  
+	  for(size_t j = 0;j<=refC->size();++j)
+	    {
+	      if((*refC)[j].Et()>et)
+		{
+		  et=(*refC)[j].Et();
+		  eta = (*refC)[j].Eta();
+		}
+		
+	    }
+	 
+	  RefEt = et;
+	  RefEta = eta;
+
 	}
   
       //lepton reference
@@ -172,8 +179,11 @@ HLTTauValidation::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetu
     
       
       if(lepton_ok&&tau_ok)
+	{
 	  NRefEvents++;
-
+	  refEt->Fill(RefEt);
+	  refEta->Fill(RefEta);
+	}
     }
 
 
@@ -252,8 +262,7 @@ HLTTauValidation::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetu
 	  if(L1Taus.size()>=nTriggeredTaus_&& Leptons>=nTriggeredLeptons_)
 	  {
 	    NL1Events++;
-	    triggerBits_Tau->Fill(0.5);
-	   
+	    	   
 	  }
 
 
@@ -261,19 +270,20 @@ HLTTauValidation::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetu
 	  unsigned jets_matched=0;	  
 	  for(size_t i = 0;i<L1Taus.size();++i)
 	  {
-	    etVsTriggerPath_Tau->Fill(L1Taus[i]->et(),0.5);
-
+	    
 	    if(doRefAnalysis_)
 	      if(match((*L1Taus[i]).p4(),*refC,matchDeltaRL1_))
 		{
 		    jets_matched++;
-		    etVsTriggerPath_Ref->Fill(L1Taus[i]->et(),0.5);
+		   
 		}
 	  }  
 	  if(jets_matched>=nTriggeredTaus_&&Leptons_Matched>=nTriggeredLeptons_)
 	    {
 	      NL1Events_Matched++;
-	      triggerBits_Ref->Fill(0.5);
+	      l1eteff->Fill(RefEt);
+	      l1etaeff->Fill(RefEta);
+
 	    
 	    }
 
@@ -293,20 +303,18 @@ HLTTauValidation::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetu
 	  if(L2Taus.size()>=nTriggeredTaus_&&Leptons>=nTriggeredLeptons_)
 	    {
 	      NL2Events++;
-	      triggerBits_Tau->Fill(1.5);
+	   
 	    }
 	  //Loop on L2 Taus
   	  unsigned jets_matched=0;	  
 	  for(size_t i = 0;i<L2Taus.size();++i)
 	  {
-	     etVsTriggerPath_Tau->Fill(L2Taus[i]->et(),1.5);
+	   
 
 	    if(doRefAnalysis_)
 	      if(match((*L2Taus[i]).p4(),*refC,matchDeltaRHLT_))
 		{
 		  jets_matched++;
-	          etVsTriggerPath_Ref->Fill(L2Taus[i]->et(),1.5);
-
 		}
 	     
 	  }
@@ -314,7 +322,8 @@ HLTTauValidation::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetu
 	  if(jets_matched>=nTriggeredTaus_&&Leptons_Matched>=nTriggeredLeptons_)
 	    {
 	      NL2Events_Matched++;
-	      triggerBits_Ref->Fill(1.5);
+    	      l2eteff->Fill(RefEt);
+	      l2etaeff->Fill(RefEta);
 	    }
 
 
@@ -333,26 +342,26 @@ HLTTauValidation::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetu
 	  if(L25Taus.size()>=nTriggeredTaus_&&Leptons>=nTriggeredLeptons_)
 	    {
 	      NL25Events++;
-	      triggerBits_Tau->Fill(2.5);
+
 	    }
 	  //Loop on L25 Taus
   	  unsigned jets_matched=0;	  
 	  for(size_t i = 0;i<L25Taus.size();++i)
 	  {
-	     etVsTriggerPath_Tau->Fill(L25Taus[i]->et(),2.5);
 
 	    if(doRefAnalysis_)
 	      if(match((*L25Taus[i]).p4(),*refC,matchDeltaRHLT_))
 		{
 		    jets_matched++;
-		     etVsTriggerPath_Ref->Fill(L25Taus[i]->et(),2.5);
+
 
 		}
 	  }  
 	  if(jets_matched>=nTriggeredTaus_&&Leptons_Matched>=nTriggeredLeptons_)
 	    {
 	      NL25Events_Matched++;
-	      triggerBits_Ref->Fill(2.5);
+	      l25eteff->Fill(RefEt);
+	      l25etaeff->Fill(RefEta);
 	    }
 
 
@@ -370,19 +379,18 @@ HLTTauValidation::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetu
 	  if(L3Taus.size()>=nTriggeredTaus_&&Leptons>=nTriggeredLeptons_)
 	    {
 	      NL3Events++;
-	      triggerBits_Tau->Fill(3.5);
+	    
 	    }
 	  //Loop on L3 Taus
   	  unsigned jets_matched=0;	  
 	  for(size_t i = 0;i<L3Taus.size();++i)
 	  {
-	    etVsTriggerPath_Tau->Fill(L3Taus[i]->et(),3.5);
-
+	    
 	    if(doRefAnalysis_)
 	      if(match((*L3Taus[i]).p4(),*refC,matchDeltaRHLT_))
 		{
 		    jets_matched++;
-	    	    etVsTriggerPath_Ref->Fill(L3Taus[i]->et(),3.5);
+
 
 		}
 	  }
@@ -390,7 +398,9 @@ HLTTauValidation::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetu
 	  if(jets_matched>=nTriggeredTaus_&&Leptons_Matched>=nTriggeredLeptons_)
 	    {
 	      NL3Events_Matched++;
-	      triggerBits_Ref->Fill(3.5);
+	      l3eteff->Fill(RefEt);
+	      l3etaeff->Fill(RefEta);
+
 	    }
 	}
   } 
