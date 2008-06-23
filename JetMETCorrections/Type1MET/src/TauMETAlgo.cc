@@ -11,8 +11,6 @@
 using namespace std;
 using namespace reco;
 
-namespace {
-
   TauMETAlgo::TauMETAlgo() {}
   TauMETAlgo::~TauMETAlgo() {}
 
@@ -75,4 +73,3 @@ namespace {
 
   }
 
-}
