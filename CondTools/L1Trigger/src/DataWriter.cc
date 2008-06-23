@@ -286,7 +286,15 @@ DataWriter::updateIOV( const std::string& tag,
       }
     else
       {
-	editor->append( sinceRun, payloadToken ) ;
+	if( iov.payloadToken( tagToken, sinceRun ) != payloadToken )
+	  {
+	    editor->append( sinceRun, payloadToken ) ;
+	    std::cout << tag << " IOV TOKEN " << tagToken << std::endl ;
+	  }
+	else
+	  {
+	    std::cout << "IOV already up to date." << std::endl ;
+	  }
       }
     tagToken = editor->token() ;
     delete editor ;
@@ -304,8 +312,6 @@ DataWriter::updateIOV( const std::string& tag,
     {
        addMappings( tag, tagToken ) ;
     }
-
-    std::cout << tag << " IOV TOKEN " << tagToken << std::endl ;
 }
 
 
