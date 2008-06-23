@@ -196,7 +196,8 @@ enum srpFields{
    SRP_NFLAGS_MASK     = 0x7F,
    SRP_NFLAGS_B        = 48,
 	
-   SRP_SRFLAG_MASK     = 0x3
+   SRP_SRFLAG_MASK     = 0x7,
+   SRP_SRVAL_MASK      = 0x3
 
 };
 
