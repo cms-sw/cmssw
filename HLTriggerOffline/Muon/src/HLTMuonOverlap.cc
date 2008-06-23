@@ -107,7 +107,7 @@ void HLTMuonOverlap::analyze(const edm::Event & event ){
 void HLTMuonOverlap::getResults()
 {
   using namespace edm;
-  if (!TrigResultsIn)return;
+  if (!TrigResultsIn || Nevents == 0 )return;
   LogVerbatim("HLTMuonVal") << " Total trigger fraction: " << Nall_trig << "/" << Nevents
 			    << " events (" << 100*Nall_trig/Nevents<<"%), the Rate="<< Nall_trig*theLuminosity*theCrossSection/Nevents << "Hz ";
   
