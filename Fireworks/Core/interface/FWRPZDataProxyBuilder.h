@@ -16,7 +16,7 @@
 //
 // Original Author:  
 //         Created:  Sat Jan  5 15:02:03 EST 2008
-// $Id: FWRPZDataProxyBuilder.h,v 1.8 2008/06/12 15:07:45 chrjones Exp $
+// $Id: FWRPZDataProxyBuilder.h,v 1.9 2008/06/16 18:23:15 dmytro Exp $
 //
 
 // system include files
@@ -41,7 +41,8 @@ class FWRPZDataProxyBuilder
       virtual ~FWRPZDataProxyBuilder();
 
       // ---------- const member functions ---------------------
-
+      bool highPriority() const { return m_priority; }
+	
       // ---------- static member functions --------------------
 
       // ---------- member functions ---------------------------
@@ -55,6 +56,7 @@ class FWRPZDataProxyBuilder
 
       void clearRhoPhiProjs();
       void clearRhoZProjs();
+      void setHighPriority( bool priority ){ m_priority = priority; }
    
    protected:
       virtual void build(const FWEventItem* iItem, 
@@ -71,6 +73,7 @@ class FWRPZDataProxyBuilder
       const FWRPZDataProxyBuilder& operator=(const FWRPZDataProxyBuilder&); // stop default
 
       // ---------- member data --------------------------------
+      bool m_priority;
       const FWEventItem* m_item;
       TEveElementList* m_elements;
       std::vector<TEveElement*> m_rhoPhiProjs;
