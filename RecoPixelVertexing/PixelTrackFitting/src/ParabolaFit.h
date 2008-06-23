@@ -8,6 +8,7 @@
     see: R.L. Gluckstern, NIM 24 (1963) 381 
  */
 
+
 class ParabolaFit {
 public:
   struct Result { double parA, parB, parC; 
@@ -44,7 +45,7 @@ private:
   double fun(double x) const;
 
 private:
-  mutable struct Point { double x; double y; mutable double w; }; 
+  struct Point { double x; double y; mutable double w; }; 
   mutable std::vector<Point> points;
   bool doErr, hasFixedParC;
   mutable bool hasValues, hasErrors;
