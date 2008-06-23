@@ -1,7 +1,7 @@
 import FWCore.ParameterSet.Config as cms
 
 pfRecoTauDiscriminationAgainstElectron = cms.EDFilter("PFRecoTauDiscriminationAgainstElectron",
-    EcalStripSumEOverPLead_maxValue = cms.double(1.8), ## Upper cut away window threshold
+    EcalStripSumEOverPLead_maxValue = cms.double(1.8), ## Upper cut away window threshold#
 
     EcalStripSumEOverPLead_minValue = cms.double(0.8), ## Lower cut away window threshold
 
@@ -11,7 +11,7 @@ pfRecoTauDiscriminationAgainstElectron = cms.EDFilter("PFRecoTauDiscriminationAg
     PFTauProducer = cms.string('pfRecoTauProducer'),
     HcalTotOverPLead_minValue = cms.double(0.1),
     ApplyCut_ElectronPreID = cms.bool(True),
-    BremsRecoveryEOverPLead_maxValue = cms.double(1.8), ## Upper cut away window threshold
+    BremsRecoveryEOverPLead_maxValue = cms.double(1.8),  ##Upper cut away window threshold
 
     ElecPreID0_Hcal3x3_minValue = cms.double(0.05),
     ApplyCut_BremsRecoveryEOverPLead = cms.bool(False),
@@ -20,7 +20,7 @@ pfRecoTauDiscriminationAgainstElectron = cms.EDFilter("PFRecoTauDiscriminationAg
     ApplyCut_Hcal3x3OverPLead = cms.bool(False),
     ElecPreID1_Hcal3x3_minValue = cms.double(0.15),
     ElecPreID1_SumEOverPLead_maxValue = cms.double(0.8),
-    ApplyCut_EcalCrack_ = cms.bool(True),
+    ApplyCut_EcalCrackCut = cms.bool(True),
     ApplyCut_EcalStripSumEOverPLead = cms.bool(False),
     BremsRecoveryEOverPLead_minValue = cms.double(0.8), ## Lower cut away window threshold
 
