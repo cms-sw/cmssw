@@ -12,6 +12,8 @@
 
 #include<iostream>
 
+using namespace edm;
+
 
 RPCReadOutMapping::RPCReadOutMapping(const std::string & version) 
   : theVersion(version) { }
@@ -135,6 +137,7 @@ RPCReadOutMapping::StripInDetUnit
     RPCReadOutMapping::detUnitFrame(const LinkBoardSpec& location, 
     const LinkBoardPackedStrip & lbstrip) const 
 {
+  static bool debug = edm::MessageDrop::instance()->debugEnabled;
   uint32_t detUnit = 0;
   int stripInDU = 0;
   int febInLB = lbstrip.febInLB();
@@ -145,17 +148,24 @@ RPCReadOutMapping::StripInDetUnit
     detUnit = feb->rawId();
     const ChamberStripSpec * strip = feb->strip(stripPinInFeb);
     if (strip) {
-//      stripInDU = strip->cmsStripNumber;
-        stripInDU = strip->chamberStripNumber;
+      stripInDU = strip->chamberStripNumber;
     } else {
-      LogDebug("detUnitFrame")<<"problem with stip for febInLB: "<<febInLB
+      LogWarning("detUnitFrame")<<"problem with stip for febInLB: "<<febInLB
                                    <<" strip pin: "<< stripPinInFeb
-                                   <<" strip pin: "<< stripPinInFeb
-                                   <<" for linkBoard: "<<location.print(3);
+                                   <<" strip pin: "<< stripPinInFeb;
+      if (debug) {
+        LogDebug("")<<"problem with stip for febInLB: "<<febInLB
+                    <<" strip pin: "<< stripPinInFeb
+                    <<" strip pin: "<< stripPinInFeb
+                    <<" for linkBoard: "<<location.print(3);
+      }
     }
   } else {
-    LogDebug("detUnitFrame")<<"problem with detUnit for febInLB: "<<febInLB
-                                 <<" for linkBoard: "<<location.print(3);
+    LogWarning("detUnitFrame")<<"problem with detUnit for febInLB: ";
+    if (debug) {  
+      LogDebug("") <<"problem with detUnit for febInLB: " <<febInLB
+                   <<" for linkBoard: "<<location.print(1);
+    }
   }
   return std::make_pair(detUnit,stripInDU);
 }

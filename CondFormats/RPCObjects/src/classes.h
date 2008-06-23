@@ -43,6 +43,3 @@ namespace{
 }
 
 #include "CondFormats/RPCObjects/interface/RPCEMap.h"
-
-
-
