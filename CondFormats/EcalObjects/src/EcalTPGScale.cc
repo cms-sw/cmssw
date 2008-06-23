@@ -1,7 +1,6 @@
-#include "CalibCalorimetry/EcalTPGTools/interface/EcalTPGScale.h"
-
 #include "FWCore/Framework/interface/ESHandle.h"
 
+#include "CondFormats/EcalObjects/interface/EcalTPGScale.h"
 #include "CondFormats/EcalObjects/interface/EcalTPGLutIdMap.h"
 #include "CondFormats/EcalObjects/interface/EcalTPGLutGroup.h"
 #include "CondFormats/EcalObjects/interface/EcalTPGPhysicsConst.h"
