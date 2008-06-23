@@ -16,7 +16,7 @@
 //
 // Original Author:  Chris Jones
 //         Created:  Tue Mar  4 09:35:58 EST 2008
-// $Id$
+// $Id: FWSummaryManager.h,v 1.1 2008/03/05 15:07:32 chrjones Exp $
 //
 
 // system include files
@@ -34,6 +34,7 @@ class FWEventItem;
 class FWSelectionManager;
 class FWEventItemsManager;
 class FWDetailViewManager;
+class FWModelChangeManager;
 
 class FWSummaryManager
 {
@@ -42,7 +43,8 @@ class FWSummaryManager
       FWSummaryManager(TGListTree* iParent,
                        FWSelectionManager*,
                        FWEventItemsManager*,
-                       FWDetailViewManager*);
+                       FWDetailViewManager*,
+                       FWModelChangeManager*);
       virtual ~FWSummaryManager();
 
       // ---------- const member functions ---------------------
@@ -60,6 +62,7 @@ class FWSummaryManager
       void selectionChanged(const FWSelectionManager&);
       void newItem(const FWEventItem* iItem);
       void removeAllItems();
+      void changesDone();
 
       // ---------- member data --------------------------------
       TGListTree* m_listTree;

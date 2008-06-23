@@ -8,7 +8,7 @@
 //
 // Original Author:  Chris Jones
 //         Created:  Tue Mar  4 09:35:32 EST 2008
-// $Id: FWSummaryManager.cc,v 1.1 2008/03/05 15:07:30 chrjones Exp $
+// $Id: FWSummaryManager.cc,v 1.2 2008/06/09 00:41:07 chrjones Exp $
 //
 
 // system include files
@@ -19,6 +19,7 @@
 #include "Fireworks/Core/interface/FWSummaryManager.h"
 #include "Fireworks/Core/interface/FWSelectionManager.h"
 #include "Fireworks/Core/interface/FWEventItemsManager.h"
+#include "Fireworks/Core/interface/FWModelChangeManager.h"
 #include "Fireworks/Core/src/FWListEventItem.h"
 
 
@@ -36,7 +37,8 @@
 FWSummaryManager::FWSummaryManager(TGListTree* iListTree,
                                    FWSelectionManager* sm,
                                    FWEventItemsManager* eim,
-                                   FWDetailViewManager* dv):
+                                   FWDetailViewManager* dv,
+                                   FWModelChangeManager* cm):
 m_detailViewManager(dv)
 {
    sm->selectionChanged_.connect(boost::bind(&FWSummaryManager::selectionChanged,this,_1));
@@ -50,6 +52,7 @@ m_detailViewManager(dv)
    m_listTree->OpenItem(m_eventObjects->AddIntoListTree(m_listTree,
                                                         reinterpret_cast<TGListTreeItem*>(0))
                         );
+   cm->changeSignalsAreDone_.connect(boost::bind(&FWSummaryManager::changesDone,this));
 }
 
 // FWSummaryManager::FWSummaryManager(const FWSummaryManager& rhs)
@@ -101,6 +104,12 @@ void
 FWSummaryManager::selectionChanged(const FWSelectionManager& iSM)
 {
    //m_unselectAllButton->SetEnabled( 0 !=iSM.selected().size() );
+}
+
+void 
+FWSummaryManager::changesDone()
+{
+   m_listTree->ClearViewPort();
 }
 
 //
