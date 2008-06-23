@@ -1,5 +1,5 @@
 // -*- C++ -*-
-// $Id: ECalCaloTowerProxyRhoPhiZ2DBuilder.cc,v 1.10 2008/06/16 18:21:39 dmytro Exp $
+// $Id: ECalCaloTowerProxyRhoPhiZ2DBuilder.cc,v 1.11 2008/06/23 06:29:03 dmytro Exp $
 //
 
 // system include files
@@ -56,7 +56,8 @@ ECalCaloTowerProxyRhoPhiZ2DBuilder::~ECalCaloTowerProxyRhoPhiZ2DBuilder()
 void ECalCaloTowerProxyRhoPhiZ2DBuilder::buildCalo(const FWEventItem* iItem, 
 						   TEveElementList** product,
 						   std::string name,
-						   TEveCalo3D*& calo3d)
+						   TEveCalo3D*& calo3d,
+						   bool ecal)
 {
    if( *product == 0) *product = new TEveElementList();
    TH2F* hist = 0;
@@ -84,9 +85,12 @@ void ECalCaloTowerProxyRhoPhiZ2DBuilder::buildCalo(const FWEventItem* iItem,
       newHist = true;
    }
    hist->Reset();
-   for(CaloTowerCollection::const_iterator tower = towers->begin(); tower != towers->end(); ++tower)
-     (hist)->Fill(tower->eta(), tower->phi(), tower->emEt());
-   
+   if ( ecal )
+     for(CaloTowerCollection::const_iterator tower = towers->begin(); tower != towers->end(); ++tower)
+       (hist)->Fill(tower->eta(), tower->phi(), tower->emEt());
+   else
+     for(CaloTowerCollection::const_iterator tower = towers->begin(); tower != towers->end(); ++tower)
+       (hist)->Fill(tower->eta(), tower->phi(), tower->hadEt()+tower->outerEt());
    if ( ! data ) data = new TEveCaloDataHist();
    if ( newHist ) {
       Int_t s = data->AddHistogram(hist);
@@ -108,14 +112,14 @@ void
 ECalCaloTowerProxyRhoPhiZ2DBuilder::buildRhoPhi(const FWEventItem* iItem,
 						TEveElementList** product)
 {
-   buildCalo(iItem, product, "ecalRhoPhi", m_caloRhoPhi);
+   buildCalo(iItem, product, "ecalRhoPhi", m_caloRhoPhi,true);
 }
 
 void 
 ECalCaloTowerProxyRhoPhiZ2DBuilder::buildRhoZ(const FWEventItem* iItem,
 					    TEveElementList** product)
 {
-   buildCalo(iItem, product, "ecalRhoZ", m_caloRhoZ);
+   buildCalo(iItem, product, "ecalRhoZ", m_caloRhoZ, true);
 }
 
    // NOTE:

@@ -16,7 +16,7 @@
 //
 // Original Author:  
 //         Created:  Sun Jan  6 23:42:33 EST 2008
-// $Id: ECalCaloTowerProxyRhoPhiZ2DBuilder.h,v 1.5 2008/06/09 19:54:03 chrjones Exp $
+// $Id: ECalCaloTowerProxyRhoPhiZ2DBuilder.h,v 1.6 2008/06/23 06:29:03 dmytro Exp $
 //
 
 // system include files
@@ -45,7 +45,8 @@ class ECalCaloTowerProxyRhoPhiZ2DBuilder : public BaseCaloTowerProxyRhoPhiZ2DBui
       static void buildCalo(const FWEventItem* iItem,
 			       TEveElementList** product,
 			       std::string name,
-			       TEveCalo3D*& calo3d);
+			       TEveCalo3D*& calo3d,
+			       bool ecal);
       static std::vector<std::pair<double,double> > getThetaBins();
       // ---------- member functions ---------------------------
 

@@ -8,7 +8,7 @@
 //
 // Original Author:  
 //         Created:  Sun Jan  6 23:57:00 EST 2008
-// $Id: HCalCaloTowerProxyRhoPhiZ2DBuilder.cc,v 1.5 2008/06/16 18:21:39 dmytro Exp $
+// $Id: HCalCaloTowerProxyRhoPhiZ2DBuilder.cc,v 1.6 2008/06/23 06:29:03 dmytro Exp $
 //
 
 // system include files
@@ -60,14 +60,14 @@ void
 HCalCaloTowerProxyRhoPhiZ2DBuilder::buildRhoPhi(const FWEventItem* iItem,
 					    TEveElementList** product)
 {
-   ECalCaloTowerProxyRhoPhiZ2DBuilder::buildCalo(iItem, product, "hcalRhoPhi", m_caloRhoPhi);
+   ECalCaloTowerProxyRhoPhiZ2DBuilder::buildCalo(iItem, product, "hcalRhoPhi", m_caloRhoPhi, false);
 }
 
 void 
 HCalCaloTowerProxyRhoPhiZ2DBuilder::buildRhoZ(const FWEventItem* iItem,
 					    TEveElementList** product)
 {
-   ECalCaloTowerProxyRhoPhiZ2DBuilder::buildCalo(iItem, product, "hcalRhoZ", m_caloRhoZ);
+   ECalCaloTowerProxyRhoPhiZ2DBuilder::buildCalo(iItem, product, "hcalRhoZ", m_caloRhoZ, false);
 }
 
 //
