@@ -1,5 +1,5 @@
 
-// $Id: TestMergeResults.cc,v 1.5 2008/05/12 18:14:09 wmtan Exp $
+// $Id: TestMergeResults.cc,v 1.6 2008/05/28 18:52:01 wdd Exp $
 //
 // Reads some simple test objects in the event, run, and lumi
 // principals.  Then checks to see if the values in these
@@ -58,7 +58,20 @@ namespace edmtest
 
   private:
 
-    void abortWithMessage(char* whichFunction, char* product, int expectedValue, int actualValue);
+    void checkExpectedLumiProducts(unsigned int index,
+                                   std::vector<int> const& expectedValues,
+                                   InputTag const& tag,
+                                   const char* functionName,
+                                   LuminosityBlock const& lumi);
+
+    void checkExpectedRunProducts(unsigned int index,
+                                  std::vector<int> const& expectedValues,
+                                  InputTag const& tag,
+                                  const char* functionName,
+                                  Run const& run);
+
+    void abortWithMessage(const char* whichFunction, const char* type, edm::InputTag const& tag,
+                          int expectedValue, int actualValue) const;
 
     std::vector<int> default_;
     std::vector<std::string> defaultvstring_;
@@ -160,186 +173,111 @@ namespace edmtest
       e.getByLabel(tag1, h_thing);
       assert(h_thing->a == expectedDroppedEvent_[0]);
     }
+
+    Run const& run = e.getRun();
+    LuminosityBlock const& lumi = e.getLuminosityBlock();
+
+    edm::InputTag tag0("thingWithMergeProducer", "beginRun", "PROD");
+    checkExpectedRunProducts(index0_, expectedBeginRunProd_, tag0, "analyze", run);
+
+    edm::InputTag tag1("thingWithMergeProducer", "beginRun");
+    checkExpectedRunProducts(index4_, expectedBeginRunNew_, tag1, "analyze", run);
+
+    edm::InputTag tag2("thingWithMergeProducer", "endRun", "PROD");
+    checkExpectedRunProducts(index1_, expectedEndRunProd_, tag2, "analyze", run);
+
+    edm::InputTag tag3("thingWithMergeProducer", "endRun");
+    checkExpectedRunProducts(index5_, expectedEndRunNew_, tag3, "analyze", run);
+
+    edm::InputTag tag4("thingWithMergeProducer", "beginLumi", "PROD");
+    checkExpectedLumiProducts(index2_, expectedBeginLumiProd_, tag4, "analyze", lumi);
+
+    edm::InputTag tag5("thingWithMergeProducer", "beginLumi");
+    checkExpectedLumiProducts(index6_, expectedBeginLumiNew_, tag5, "analyze", lumi);
+
+    edm::InputTag tag6("thingWithMergeProducer", "endLumi", "PROD");
+    checkExpectedLumiProducts(index3_, expectedEndLumiProd_, tag6, "analyze", lumi);
+
+    edm::InputTag tag7("thingWithMergeProducer", "endLumi");
+    checkExpectedLumiProducts(index7_, expectedEndLumiNew_, tag7, "analyze", lumi);
   }
 
   void TestMergeResults::beginRun(Run const& run, EventSetup const&) {
 
+    index0_ += 3;
+    index4_ += 3;
+    index1_ += 3;
+    index5_ += 3;
+
     if (verbose_) edm::LogInfo("TestMergeResults") << "beginRun";
 
     edm::InputTag tag("thingWithMergeProducer", "beginRun", "PROD");
+    checkExpectedRunProducts(index0_, expectedBeginRunProd_, tag, "beginRun", run);
 
-    if ((index0_ + 2) < expectedBeginRunProd_.size()) {
-
-      run.getByLabel(tag, h_thing);
-      int expected = expectedBeginRunProd_[index0_++];
-      if (h_thing->a != expected) 
-        abortWithMessage("beginRun", "Thing", expected, h_thing->a);
-
-      run.getByLabel(tag, h_thingWithMerge);
-      expected = expectedBeginRunProd_[index0_++];
-      if (h_thingWithMerge->a != expected) 
-        abortWithMessage("beginRun", "thingWithMerge", expected, h_thingWithMerge->a);
-
-      run.getByLabel(tag, h_thingWithIsEqual);
-      expected = expectedBeginRunProd_[index0_++];
-      if (h_thingWithIsEqual->a != expected) 
-        abortWithMessage("beginRun", "thingWithIsEqual", expected, h_thingWithIsEqual->a);
-    }
-
-    // Repeat without requiring a process (get most recent)
     edm::InputTag tagnew("thingWithMergeProducer", "beginRun");
-    if ((index4_ + 2) < expectedBeginRunNew_.size()) {
-
-      run.getByLabel(tagnew, h_thing);
-      int expected = expectedBeginRunNew_[index4_++];
-      if (h_thing->a != expected) 
-        abortWithMessage("beginRun", "Thing", expected, h_thing->a);
-
-      run.getByLabel(tagnew, h_thingWithMerge);
-      expected = expectedBeginRunNew_[index4_++];
-      if (h_thingWithMerge->a != expected) 
-        abortWithMessage("beginRun", "thingWithMerge", expected, h_thingWithMerge->a);
-
-      run.getByLabel(tagnew, h_thingWithIsEqual);
-      expected = expectedBeginRunNew_[index4_++];
-      if (h_thingWithIsEqual->a != expected) 
-        abortWithMessage("beginRun", "thingWithIsEqual", expected, h_thingWithIsEqual->a);
-    }
+    checkExpectedRunProducts(index4_, expectedBeginRunNew_, tagnew, "beginRun", run);
   }
 
   void TestMergeResults::endRun(Run const& run, EventSetup const&) {
 
+    index0_ += 3;
+    index4_ += 3;
+    index1_ += 3;
+    index5_ += 3;
+
     if (verbose_) edm::LogInfo("TestMergeResults") << "endRun";
 
     edm::InputTag tag("thingWithMergeProducer", "endRun", "PROD");
-    if ((index1_ + 2) < expectedEndRunProd_.size()) {
+    checkExpectedRunProducts(index1_, expectedEndRunProd_, tag, "endRun", run);
 
-      run.getByLabel(tag, h_thing);
-      int expected = expectedEndRunProd_[index1_++];
-      if (h_thing->a != expected) 
-        abortWithMessage("endRun", "Thing", expected, h_thing->a);
-
-      run.getByLabel(tag, h_thingWithMerge);
-      expected = expectedEndRunProd_[index1_++];
-      if (h_thingWithMerge->a != expected) 
-        abortWithMessage("endRun", "thingWithMerge", expected, h_thingWithMerge->a);
-
-      run.getByLabel(tag, h_thingWithIsEqual);
-      expected = expectedEndRunProd_[index1_++];
-      if (h_thingWithIsEqual->a != expected) 
-        abortWithMessage("endRun", "thingWithIsEqual", expected, h_thingWithIsEqual->a);
-    }
-
-    // Repeat without requiring a process (get most recent)
     edm::InputTag tagnew("thingWithMergeProducer", "endRun");
-    if ((index5_ + 2) < expectedEndRunNew_.size()) {
-
-      run.getByLabel(tagnew, h_thing);
-      int expected = expectedEndRunNew_[index5_++];
-      if (h_thing->a != expected) 
-        abortWithMessage("endRun", "Thing", expected, h_thing->a);
-
-      run.getByLabel(tagnew, h_thingWithMerge);
-      expected = expectedEndRunNew_[index5_++];
-      if (h_thingWithMerge->a != expected) 
-        abortWithMessage("endRun", "thingWithMerge", expected, h_thingWithMerge->a);
-
-      run.getByLabel(tagnew, h_thingWithIsEqual);
-      expected = expectedEndRunNew_[index5_++];
-      if (h_thingWithIsEqual->a != expected) 
-        abortWithMessage("endRun", "thingWithIsEqual", expected, h_thingWithIsEqual->a);
-    }
+    checkExpectedRunProducts(index5_, expectedEndRunNew_, tagnew, "endRun", run);
   }
 
   void TestMergeResults::beginLuminosityBlock(LuminosityBlock const& lumi, EventSetup const&) {
 
+    index2_ += 3;
+    index6_ += 3;
+    index3_ += 3;
+    index7_ += 3;
+
     if (verbose_) edm::LogInfo("TestMergeResults") << "beginLuminosityBlock";
 
     edm::InputTag tag("thingWithMergeProducer", "beginLumi", "PROD");
-    if ((index2_ + 2) < expectedBeginLumiProd_.size()) {
+    checkExpectedLumiProducts(index2_, expectedBeginLumiProd_, tag, "beginLumi", lumi);
 
-      lumi.getByLabel(tag, h_thing);
-      int expected = expectedBeginLumiProd_[index2_++];
-      if (h_thing->a != expected) 
-        abortWithMessage("beginLumi", "Thing", expected, h_thing->a);
-
-      lumi.getByLabel(tag, h_thingWithMerge);
-      expected = expectedBeginLumiProd_[index2_++];
-      if (h_thingWithMerge->a != expected) 
-        abortWithMessage("beginLumi", "thingWithMerge", expected, h_thingWithMerge->a);
-
-      lumi.getByLabel(tag, h_thingWithIsEqual);
-      expected = expectedBeginLumiProd_[index2_++];
-      if (h_thingWithIsEqual->a != expected) 
-        abortWithMessage("beginLumi", "thingWithIsEqual", expected, h_thingWithIsEqual->a);
-    }
-
-    // Repeat without requiring a process (get most recent)
     edm::InputTag tagnew("thingWithMergeProducer", "beginLumi");
-    if ((index6_ + 2) < expectedBeginLumiNew_.size()) {
-
-      lumi.getByLabel(tagnew, h_thing);
-      int expected = expectedBeginLumiNew_[index6_++];
-      if (h_thing->a != expected) 
-        abortWithMessage("beginLumi", "Thing", expected, h_thing->a);
-
-      lumi.getByLabel(tagnew, h_thingWithMerge);
-      expected = expectedBeginLumiNew_[index6_++];
-      if (h_thingWithMerge->a != expected) 
-        abortWithMessage("beginLumi", "thingWithMerge", expected, h_thingWithMerge->a);
-
-      lumi.getByLabel(tagnew, h_thingWithIsEqual);
-      expected = expectedBeginLumiNew_[index6_++];
-      if (h_thingWithIsEqual->a != expected) 
-        abortWithMessage("beginLumi", "thingWithIsEqual", expected, h_thingWithIsEqual->a);
-    }
+    checkExpectedLumiProducts(index6_, expectedBeginLumiNew_, tagnew, "beginLumi", lumi);
   }
 
   void TestMergeResults::endLuminosityBlock(LuminosityBlock const& lumi, EventSetup const&) {
 
+    index2_ += 3;
+    index6_ += 3;
+    index3_ += 3;
+    index7_ += 3;
+
     if (verbose_) edm::LogInfo("TestMergeResults") << "endLuminosityBlock";
 
     edm::InputTag tag("thingWithMergeProducer", "endLumi", "PROD");
-    if ((index3_ + 2) < expectedEndLumiProd_.size()) {
+    checkExpectedLumiProducts(index3_, expectedEndLumiProd_, tag, "endLumi", lumi);
 
-      lumi.getByLabel(tag, h_thing);
-      int expected = expectedEndLumiProd_[index3_++];
-      if (h_thing->a != expected) 
-        abortWithMessage("endLumi", "Thing", expected, h_thing->a);
-
-      lumi.getByLabel(tag, h_thingWithMerge);
-      expected = expectedEndLumiProd_[index3_++];
-      if (h_thingWithMerge->a != expected) 
-        abortWithMessage("endLumi", "thingWithMerge", expected, h_thingWithMerge->a);
-
-      lumi.getByLabel(tag, h_thingWithIsEqual);
-      expected = expectedEndLumiProd_[index3_++];
-      if (h_thingWithIsEqual->a != expected) 
-        abortWithMessage("endLumi", "thingWithIsEqual", expected, h_thingWithIsEqual->a);
-    }
-
-    // Repeat without requiring a process (get most recent)
     edm::InputTag tagnew("thingWithMergeProducer", "endLumi");
-    if ((index7_ + 2) < expectedEndLumiNew_.size()) {
-
-      lumi.getByLabel(tagnew, h_thing);
-      int expected = expectedEndLumiNew_[index7_++];
-      if (h_thing->a != expected) 
-        abortWithMessage("endLumi", "Thing", expected, h_thing->a);
-
-      lumi.getByLabel(tagnew, h_thingWithMerge);
-      expected = expectedEndLumiNew_[index7_++];
-      if (h_thingWithMerge->a != expected) 
-        abortWithMessage("endLumi", "thingWithMerge", expected, h_thingWithMerge->a);
-
-      lumi.getByLabel(tagnew, h_thingWithIsEqual);
-      expected = expectedEndLumiNew_[index7_++];
-      if (h_thingWithIsEqual->a != expected) 
-        abortWithMessage("endLumi", "thingWithIsEqual", expected, h_thingWithIsEqual->a);
-    }
+    checkExpectedLumiProducts(index7_, expectedEndLumiNew_, tagnew, "endLumi", lumi);
   }
 
   void TestMergeResults::respondToOpenInputFile(FileBlock const& fb) {
+
+    index0_ += 3;
+    index1_ += 3;
+    index2_ += 3;
+    index3_ += 3;
+    index4_ += 3;
+    index5_ += 3;
+    index6_ += 3;
+    index7_ += 3;
+
+
     if (verbose_) edm::LogInfo("TestMergeResults") << "respondToOpenInputFile";
 
     if (!expectedInputFileNames_.empty()) {
@@ -398,9 +336,75 @@ namespace edmtest
     }
   }
 
-  void TestMergeResults::abortWithMessage(char* whichFunction, char* product, int expectedValue, int actualValue) {
+  void
+  TestMergeResults::checkExpectedRunProducts(unsigned int index,
+                                             std::vector<int> const& expectedValues,
+                                             InputTag const& tag,
+                                             const char* functionName,
+                                             Run const& run) {
+
+    if ((index + 2) < expectedValues.size()) {
+
+      int expected = expectedValues[index];
+      if (expected != 0) {
+        run.getByLabel(tag, h_thing);
+        if (h_thing->a != expected) 
+          abortWithMessage(functionName, "Thing", tag, expected, h_thing->a);
+      }
+
+      expected = expectedValues[index + 1];
+      if (expected != 0) {
+        run.getByLabel(tag, h_thingWithMerge);
+        if (h_thingWithMerge->a != expected) 
+          abortWithMessage(functionName, "ThingWithMerge", tag, expected, h_thingWithMerge->a);
+      }
+
+      expected = expectedValues[index + 2];
+      if (expected != 0) {
+        run.getByLabel(tag, h_thingWithIsEqual);
+        if (h_thingWithIsEqual->a != expected) 
+          abortWithMessage(functionName, "ThingWithIsEqual", tag, expected, h_thingWithIsEqual->a);
+      }
+    }
+  }
+
+  void
+  TestMergeResults::checkExpectedLumiProducts(unsigned int index,
+                                              std::vector<int> const& expectedValues,
+                                              InputTag const& tag,
+                                              const char* functionName,
+                                              LuminosityBlock const& lumi) {
+
+    if ((index + 2) < expectedValues.size()) {
+
+      int expected = expectedValues[index];
+      if (expected != 0) {
+        lumi.getByLabel(tag, h_thing);
+        if (h_thing->a != expected) 
+          abortWithMessage(functionName, "Thing", tag, expected, h_thing->a);
+      }
+
+      expected = expectedValues[index + 1];
+      if (expected != 0) {
+        lumi.getByLabel(tag, h_thingWithMerge);
+        if (h_thingWithMerge->a != expected) 
+          abortWithMessage(functionName, "ThingWithMerge", tag, expected, h_thingWithMerge->a);
+      }
+
+      expected = expectedValues[index + 2];
+      if (expected != 0) {
+        lumi.getByLabel(tag, h_thingWithIsEqual);
+        if (h_thingWithIsEqual->a != expected) 
+          abortWithMessage(functionName, "ThingWithIsEqual", tag, expected, h_thingWithIsEqual->a);
+      }
+    }
+  }
+
+  void TestMergeResults::abortWithMessage(const char* whichFunction, const char* type, edm::InputTag const& tag,
+                                          int expectedValue, int actualValue) const {
     std::cerr << "Error while testing merging of run/lumi products in TestMergeResults.cc\n"
-              << "In " << whichFunction << " merging product " << product << "\n"
+              << "In function " << whichFunction << " looking for product of type " << type << "\n"
+              << tag << "\n"
               << "Expected value = " << expectedValue << " actual value = " << actualValue << std::endl; 
     abort();
   }
