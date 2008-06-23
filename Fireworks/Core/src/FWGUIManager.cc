@@ -8,7 +8,7 @@
 //
 // Original Author:  Chris Jones
 //         Created:  Mon Feb 11 11:06:40 EST 2008
-// $Id: FWGUIManager.cc,v 1.36 2008/06/23 01:07:00 chrjones Exp $
+// $Id: FWGUIManager.cc,v 1.37 2008/06/23 09:49:57 jmuelmen Exp $
 //
 
 // system include files
@@ -79,10 +79,12 @@ enum {kSaveConfiguration,
 //
 FWGUIManager::FWGUIManager(FWSelectionManager* iSelMgr,
                            FWEventItemsManager* iEIMgr,
+                           FWModelChangeManager* iCMgr,
                            bool iDebugInterface
 ):
 m_selectionManager(iSelMgr),
 m_eiManager(iEIMgr),
+m_changeManager(iCMgr),
 m_continueProcessingEvents(false),
 m_waitForUserAction(true),
 m_code(0),
@@ -350,7 +352,8 @@ FWGUIManager::createList(TGSplitFrame *p)
   m_summaryManager = new FWSummaryManager(m_listTree,
 					  m_selectionManager,
 					  m_eiManager,
-					  m_detailViewManager);
+					  m_detailViewManager,
+                                          m_changeManager);
   m_views =  new TEveElementList("Views");
   m_views->AddIntoListTree(m_listTree,reinterpret_cast<TGListTreeItem*>(0));
   m_editor = ltf->GetEditor();

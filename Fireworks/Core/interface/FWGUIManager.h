@@ -16,7 +16,7 @@
 //
 // Original Author:  Chris Jones
 //         Created:  Mon Feb 11 10:52:24 EST 2008
-// $Id: FWGUIManager.h,v 1.24 2008/06/22 20:45:41 chrjones Exp $
+// $Id: FWGUIManager.h,v 1.25 2008/06/23 09:49:57 jmuelmen Exp $
 //
 
 // system include files
@@ -58,6 +58,7 @@ class TEveElement;
 class FWSummaryManager;
 class FWDetailViewManager;
 class FWDetailView;
+class FWModelChangeManager;
 
 class  TGPopupMenu;
 class CSGAction;
@@ -70,6 +71,7 @@ class FWGUIManager : public FWConfigurable
    public:
       FWGUIManager(FWSelectionManager*,
                    FWEventItemsManager*,
+                   FWModelChangeManager*,
                    bool iDebugInterface = false);
       virtual ~FWGUIManager();
 
@@ -139,6 +141,7 @@ class FWGUIManager : public FWConfigurable
 
       FWSelectionManager* m_selectionManager;
       FWEventItemsManager* m_eiManager;
+      FWModelChangeManager* m_changeManager;
       mutable bool m_continueProcessingEvents;
       mutable bool m_waitForUserAction;
       mutable int  m_code; // respond code for the control loop
