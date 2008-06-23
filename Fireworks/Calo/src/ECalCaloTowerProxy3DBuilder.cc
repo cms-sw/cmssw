@@ -1,5 +1,5 @@
 // -*- C++ -*-
-// $Id: ECalCaloTowerProxy3DBuilder.cc,v 1.1 2008/06/16 18:35:38 dmytro Exp $
+// $Id: ECalCaloTowerProxy3DBuilder.cc,v 1.2 2008/06/18 17:40:31 chrjones Exp $
 //
 
 // system include files
@@ -73,4 +73,4 @@ void ECalCaloTowerProxy3DBuilder::build(const FWEventItem* iItem, TEveElementLis
    }
 }
 
-REGISTER_FWRPZDATAPROXYBUILDER(ECalCaloTowerProxy3DBuilder,CaloTowerCollection,"ECal");
+REGISTER_FWRPZDATAPROXYBUILDER(ECalCaloTowerProxy3DBuilder,CaloTowerCollection,"ECalOld");

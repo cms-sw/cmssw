@@ -3,7 +3,7 @@
 //
 // Original Author:  
 //         Created:  Thu Dec  6 18:01:21 PST 2007
-// $Id: HCalCaloTowerProxy3DBuilder.h,v 1.2 2008/06/09 19:54:03 chrjones Exp $
+// $Id: HCalCaloTowerProxy3DBuilder.h,v 1.1 2008/06/16 18:35:38 dmytro Exp $
 //
 
 // system include files
@@ -19,7 +19,7 @@ class HCalCaloTowerProxy3DBuilder : public FWRPZDataProxyBuilder
 {
 
    public:
-      HCalCaloTowerProxy3DBuilder() {}
+      HCalCaloTowerProxy3DBuilder() { setHighPriority(true); }
       virtual ~HCalCaloTowerProxy3DBuilder() {}
 
       // ---------- const member functions ---------------------

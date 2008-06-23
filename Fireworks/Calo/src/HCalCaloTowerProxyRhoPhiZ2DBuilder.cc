@@ -8,7 +8,7 @@
 //
 // Original Author:  
 //         Created:  Sun Jan  6 23:57:00 EST 2008
-// $Id: HCalCaloTowerProxyRhoPhiZ2DBuilder.cc,v 1.4 2008/06/09 19:54:03 chrjones Exp $
+// $Id: HCalCaloTowerProxyRhoPhiZ2DBuilder.cc,v 1.5 2008/06/16 18:21:39 dmytro Exp $
 //
 
 // system include files
@@ -41,6 +41,7 @@
 //
 HCalCaloTowerProxyRhoPhiZ2DBuilder::HCalCaloTowerProxyRhoPhiZ2DBuilder()
 {
+   setHighPriority( true );
 }
 
 // HCalCaloTowerProxyRhoPhiZ2DBuilder::HCalCaloTowerProxyRhoPhiZ2DBuilder(const HCalCaloTowerProxyRhoPhiZ2DBuilder& rhs)
@@ -59,63 +60,20 @@ void
 HCalCaloTowerProxyRhoPhiZ2DBuilder::buildRhoPhi(const FWEventItem* iItem,
 					    TEveElementList** product)
 {
-   TEveElementList* tList = *product;
-
-   if(0 == tList) {
-      tList =  new TEveElementList(iItem->name().c_str(),"HCAL RhoPhi",true);
-      *product = tList;
-      tList->SetMainColor(iItem->defaultDisplayProperties().color());
-      gEve->AddElement(tList);
-   } else {
-      tList->DestroyElements();
-   }
-   
-   const CaloTowerCollection* towers=0;
-   iItem->get(towers);
-   if(0==towers) {
-      std::cout <<"Failed to get CaloTowers"<<std::endl;
-      return;
-   }
-   tList->AddElement( TEveGeoShape::ImportShapeExtract( ECalCaloTowerProxyRhoPhiZ2DBuilder::getRhoPhiElements("towers", 
-													      towers, 
-													      iItem->defaultDisplayProperties().color(),
-													      true,
-													      1.5,
-													      FWDisplayEvent::getCaloScale() ),
-							0 ) );
+   ECalCaloTowerProxyRhoPhiZ2DBuilder::buildCalo(iItem, product, "hcalRhoPhi", m_caloRhoPhi);
 }
 
 void 
 HCalCaloTowerProxyRhoPhiZ2DBuilder::buildRhoZ(const FWEventItem* iItem,
 					    TEveElementList** product)
 {
-   TEveElementList* tList = *product;
-
-   if(0 == tList) {
-      tList =  new TEveElementList(iItem->name().c_str(),"HCAL RhoZ",true);
-      *product = tList;
-      tList->SetMainColor(iItem->defaultDisplayProperties().color());
-      gEve->AddElement(tList);
-   } else {
-      tList->DestroyElements();
-   }
-   const CaloTowerCollection* towers=0;
-   iItem->get(towers);
-   if(0==towers) {
-      std::cout <<"Failed to get CaloTowers"<<std::endl;
-      return;
-   }
-   tList->AddElement( TEveGeoShape::ImportShapeExtract( ECalCaloTowerProxyRhoPhiZ2DBuilder::getRhoZElements("towers", 
-													    towers, 
-													    iItem->defaultDisplayProperties().color(),
-													    true,
-													    FWDisplayEvent::getCaloScale() ), 0 ) );
+   ECalCaloTowerProxyRhoPhiZ2DBuilder::buildCalo(iItem, product, "hcalRhoZ", m_caloRhoZ);
 }
 
 //
 // const member functions
 //
-REGISTER_FWRPZ2DDATAPROXYBUILDER(HCalCaloTowerProxyRhoPhiZ2DBuilder,CaloTowerCollection,"HCalOld");
+REGISTER_FWRPZ2DDATAPROXYBUILDER(HCalCaloTowerProxyRhoPhiZ2DBuilder,CaloTowerCollection,"HCal");
 //
 // static member functions
 //
