@@ -1,6 +1,6 @@
 import FWCore.ParameterSet.Config as cms
 
-# last update: $Date: 2008/04/16 22:03:44 $ by $Author: futyand $
+# last update: $Date: 2008/04/21 01:09:45 $ by $Author: rpw $
 # Please update the sequence defined at the very end of this file
 # with any new/changed sequences
 # Tracker Alignment
@@ -8,6 +8,9 @@ import FWCore.ParameterSet.Config as cms
 from Alignment.CommonAlignmentProducer.ALCARECOTkAlZMuMu_cff import *
 # AlCaReco for track based alignment using Cosmic muon events
 from Alignment.CommonAlignmentProducer.ALCARECOTkAlCosmics_cff import *
+from Alignment.CommonAlignmentProducer.ALCARECOTkAlCosmicsHLT_cff import *
+from Alignment.CommonAlignmentProducer.ALCARECOTkAlCosmics0T_cff import *
+from Alignment.CommonAlignmentProducer.ALCARECOTkAlCosmics0THLT_cff import *
 # AlCaReco for track based alignment using isoMu events
 from Alignment.CommonAlignmentProducer.ALCARECOTkAlMuonIsolated_cff import *
 # AlCaReco for track based alignment using J/Psi events
@@ -39,19 +42,27 @@ from Calibration.HcalAlCaRecoProducers.ALCARECOHcalCalDijets_cff import *
 # HCAL calibration with gamma+jet
 from Calibration.HcalAlCaRecoProducers.ALCARECOHcalCalGammaJet_cff import *
 # HCAL calibration with isolated tracks
-from Calibration.HcalAlCaRecoProducers.ALCARECOHcalCalIsoTrk_cff import *
 from Calibration.HcalAlCaRecoProducers.ALCARECOHcalCalIsoTrkNoHLT_cff import *
-# HCAl calibration with min.bias
+# HCAL calibration with min.bias
 from Calibration.HcalAlCaRecoProducers.ALCARECOHcalCalMinBias_cff import *
-# Hcal calibration from HO (muons) 
+# HCAL calibration from HO (muons) 
 #  include "Calibration/HcalAlCaRecoProducers/data/ALCARECOHcalCalZMuMu.cff"
 from Calibration.HcalAlCaRecoProducers.ALCARECOHcalCalHO_cff import *
-# Muon Alignment with Zmumu
-from Alignment.CommonAlignmentProducer.ALCARECOMuAlZMuMu_cff import *
+# Muon Alignment with cosmics
+from Alignment.CommonAlignmentProducer.ALCARECOMuAlZeroFieldGlobalCosmics_cff import *
+# Muon calibration with minbias
+from Alignment.CommonAlignmentProducer.ALCARECOMuCaliMinBias_cff import *
+# Muon Alignment with isolated muons
+from Alignment.CommonAlignmentProducer.ALCARECOMuAlCalIsolatedMu_cff import *
 # Muon Alignment using CSC overlaps
 from Alignment.CommonAlignmentProducer.ALCARECOMuAlOverlaps_cff import *
 # RPC calibration
 from CalibMuon.RPCCalibration.ALCARECORpcCalHLT_cff import *
+# nonbeam alcas
+from Alignment.CommonAlignmentProducer.ALCARECOTkAlBeamHalo_cff import *
+from Alignment.CommonAlignmentProducer.ALCARECOTkAlLAS_cff import *
+from Alignment.CommonAlignmentProducer.ALCARECOMuAlBeamHalo_cff import *
+from Alignment.CommonAlignmentProducer.ALCARECOMuAlBeamHaloOverlaps_cff import *
 # NOTE: the ALCARECO DQM modules can not be placed together in a single path 
 # because they act as filters. They are therefore inserted per ALCARECO path.
 from DQMOffline.Configuration.AlCaRecoDQM_cff import *
@@ -70,7 +81,25 @@ pathALCARECOHcalCalDijets = cms.Path(seqALCARECOHcalCalDijets)
 pathALCARECOHcalCalGammaJet = cms.Path(seqALCARECOHcalCalGammaJet)
 pathALCARECOHcalCalIsoTrkNoHLT = cms.Path(seqALCARECOHcalCalIsoTrkNoHLT)
 pathALCARECOHcalCalHO = cms.Path(seqALCARECOHcalCalHO)
-pathALCARECOMuAlZMuMu = cms.Path(seqALCARECOMuAlZMuMu)
+pathALCARECOMuCaliMinBias = cms.Path(seqALCARECOMuCaliMinBias)
+pathALCARECOMuAlCalIsolatedMu = cms.Path(seqALCARECOMuAlCalIsolatedMu)
 pathALCARECOMuAlOverlaps = cms.Path(seqALCARECOMuAlOverlaps)
 pathALCARECORpcCalHLT = cms.Path(seqALCARECORpcCalHLT)
+pathALCARECOTkAlBeamHalo = cms.Path(seqALCARECOTkAlBeamHalo)
+pathALCARECOMuAlBeamHaloOverlaps = cms.Path(seqALCARECOMuAlBeamHaloOverlaps)
+pathALCARECOMuAlBeamHalo = cms.Path(seqALCARECOMuAlBeamHalo)
+pathALCARECOTkAlLAS = cms.Path(seqALCARECOTkAlLAS)
+pathALCARECOTkAlCosmicsCTF = cms.Path(seqALCARECOTkAlCosmicsCTF)
+pathALCARECOTkAlCosmicsCosmicTF = cms.Path(seqALCARECOTkAlCosmicsCosmicTF)
+pathALCARECOTkAlCosmicsRS = cms.Path(seqALCARECOTkAlCosmicsRS)
+pathALCARECOTkAlCosmicsCTF0T = cms.Path(seqALCARECOTkAlCosmicsCTF0T)
+pathALCARECOTkAlCosmicsCosmicTF0T = cms.Path(seqALCARECOTkAlCosmicsCosmicTF0T)
+pathALCARECOTkAlCosmicsRS0T = cms.Path(seqALCARECOTkAlCosmicsRS0T) 
+pathALCARECOTkAlCosmicsCTFHLT = cms.Path(seqALCARECOTkAlCosmicsCTFHLT)
+pathALCARECOTkAlCosmicsCosmicTFHLT = cms.Path(seqALCARECOTkAlCosmicsCosmicTFHLT)
+pathALCARECOTkAlCosmicsRSHLT = cms.Path(seqALCARECOTkAlCosmicsRSHLT)
+pathALCARECOTkAlCosmicsCTF0THLT = cms.Path(seqALCARECOTkAlCosmicsCTF0THLT)
+pathALCARECOTkAlCosmicsCosmicTF0THLT = cms.Path(seqALCARECOTkAlCosmicsCosmicTF0THLT)
+pathALCARECOTkAlCosmicsRS0THLT = cms.Path(seqALCARECOTkAlCosmicsRS0THLT)
+pathALCARECOMuAlZeroFieldGlobalCosmics = cms.Path(seqALCARECOMuAlZeroFieldGlobalCosmics)
 
