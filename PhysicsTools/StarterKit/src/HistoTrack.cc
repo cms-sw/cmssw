@@ -39,11 +39,14 @@ void HistoTrack::fill( const RecoChargedCandidate *track, uint iTrk, double weig
 
   HistoGroup<RecoChargedCandidate>::fill( track, iTrk, weight);
 
-  // fill relevant track histograms
-  h_dxy_->fill( track->track()->dxy(), iTrk , weight );
-  h_dz_->fill( track->track()->dsz(), iTrk , weight );
-  h_nValid_->fill( track->track()->numberOfValidHits(), iTrk, weight );
-  h_nLost_->fill( track->track()->numberOfLostHits(), iTrk, weight );
+  if ( track->track().isNonnull() ) {
+
+    // fill relevant track histograms
+    h_dxy_->fill( track->track()->dxy(), iTrk , weight );
+    h_dz_->fill( track->track()->dsz(), iTrk , weight );
+    h_nValid_->fill( track->track()->numberOfValidHits(), iTrk, weight );
+    h_nLost_->fill( track->track()->numberOfLostHits(), iTrk, weight );
+  }
 }
 
 
@@ -65,11 +68,13 @@ void HistoTrack::fill( const reco::ShallowClonePtrCandidate * pshallow, uint iTr
 
   HistoGroup<reco::RecoChargedCandidate>::fill( pshallow, iTrk, weight );
 
-  // fill relevant track histograms
-  h_dxy_->fill( track->track()->dxy(), iTrk, weight );
-  h_dz_->fill( track->track()->dsz(), iTrk, weight );
-  h_nValid_->fill( track->track()->numberOfValidHits(), iTrk, weight );
-  h_nLost_->fill( track->track()->numberOfLostHits(), iTrk, weight );
+  if ( track->track().isNonnull() ) {
+    // fill relevant track histograms
+    h_dxy_->fill( track->track()->dxy(), iTrk, weight );
+    h_dz_->fill( track->track()->dsz(), iTrk, weight );
+    h_nValid_->fill( track->track()->numberOfValidHits(), iTrk, weight );
+    h_nLost_->fill( track->track()->numberOfLostHits(), iTrk, weight );
+  }
 }
 
 
