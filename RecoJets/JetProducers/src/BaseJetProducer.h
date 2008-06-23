@@ -42,7 +42,6 @@ namespace cms
     double mEtInputCut;
     double mEInputCut;
     double mJetPtMin;
-    int mMaxInputParticles;
   };
 }
 

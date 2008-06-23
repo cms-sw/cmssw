@@ -83,8 +83,7 @@ namespace cms
       mJetType (conf.getUntrackedParameter<string>( "jetType", "CaloJet")),
       mVerbose (conf.getUntrackedParameter<bool>("verbose", false)),
       mEtInputCut (conf.getParameter<double>("inputEtMin")),
-      mEInputCut (conf.getParameter<double>("inputEMin")),
-      mMaxInputParticles(conf.getUntrackedParameter<int>("inputMaxParticles",-1))
+      mEInputCut (conf.getParameter<double>("inputEMin"))
   {
     std::string alias = conf.getUntrackedParameter<string>( "alias", conf.getParameter<std::string>("@module_label"));
     if (makeCaloJet (mJetType)) {
@@ -129,9 +128,6 @@ namespace cms
     vector <ProtoJet> output;
     if (input.empty ()) {
       edm::LogInfo ("Empty Event") << "empty input for jet algorithm: bypassing..." << std::endl;
-    }
-    else if ((int)input.size() >mMaxInputParticles && mMaxInputParticles!=-1){
-      edm::LogWarning ("Input Limit Exceeded") <<"number of input particles exceeds limit of "<<mMaxInputParticles<<" - bypassing..."<<endl;
     }
     else {
       runAlgorithm (input, &output);
