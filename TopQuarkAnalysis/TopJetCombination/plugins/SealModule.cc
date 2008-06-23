@@ -3,6 +3,12 @@
 #include "TopQuarkAnalysis/TopJetCombination/plugins/TtSemiJetCombMVAComputer.h"
 #include "TopQuarkAnalysis/TopJetCombination/plugins/TtSemiJetCombMVATrainer.h"
 
-//define modules
+// define mva modules
 DEFINE_FWK_MODULE(TtSemiJetCombMVAComputer);
 DEFINE_FWK_MODULE(TtSemiJetCombMVATrainer);
+
+
+#include "TopQuarkAnalysis/TopJetCombination/plugins/TtSemiHypothesisGenMatch.h"
+
+// define event hypotheses
+DEFINE_FWK_MODULE(TtSemiHypothesisGenMatch);
