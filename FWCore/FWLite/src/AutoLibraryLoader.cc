@@ -8,13 +8,14 @@
 //
 // Original Author:  
 //         Created:  Wed Nov 30 14:55:01 EST 2005
-// $Id: AutoLibraryLoader.cc,v 1.20 2007/09/22 21:31:22 chrjones Exp $
+// $Id: AutoLibraryLoader.cc,v 1.21 2008/06/12 22:17:22 dsr Exp $
 //
 
 // system include files
 #include <iostream>
 #include "TROOT.h"
 #include "TInterpreter.h"
+#include "TApplication.h"
 
 // user include files
 #include "FWCore/FWLite/interface/AutoLibraryLoader.h"
@@ -99,11 +100,10 @@ AutoLibraryLoader::enable()
      <<"  CMSSW_RELEASE_BASE\n"
      <<" therefore attempting to '#include' any CMS headers will not work"<<std::endl;
    }
-   
+   if (0 != gApplication) {
+     gApplication->InitializeGraphics();
+   }
 }
-
-
-
 
 void
 AutoLibraryLoader::loadAll()
