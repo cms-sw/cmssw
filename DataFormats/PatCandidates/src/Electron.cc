@@ -1,5 +1,5 @@
 //
-// $Id: Electron.cc,v 1.7 2008/06/03 22:28:07 gpetrucc Exp $
+// $Id: Electron.cc,v 1.8 2008/06/13 09:55:35 gpetrucc Exp $
 //
 
 #include "DataFormats/PatCandidates/interface/Electron.h"
@@ -84,24 +84,30 @@ reco::TrackRef Electron::track() const {
 /// method to store the electron's gsfTrack internally
 void Electron::embedGsfTrack() {
   gsfTrack_.clear();
-  gsfTrack_.push_back(*ElectronType::gsfTrack());
-  embeddedGsfTrack_ = true;
+  if (ElectronType::gsfTrack().isNonnull()) {
+      gsfTrack_.push_back(*ElectronType::gsfTrack());
+      embeddedGsfTrack_ = true;
+  }
 }
 
 
 /// method to store the electron's supercluster internally
 void Electron::embedSuperCluster() {
   superCluster_.clear();
-  superCluster_.push_back(*ElectronType::superCluster());
-  embeddedSuperCluster_ = true;
+  if (ElectronType::superCluster().isNonnull()) {
+      superCluster_.push_back(*ElectronType::superCluster());
+      embeddedSuperCluster_ = true;
+  }
 }
 
 
 /// method to store the electron's track internally
 void Electron::embedTrack() {
   track_.clear();
-  track_.push_back(*ElectronType::track());
-  embeddedTrack_ = true;
+  if (ElectronType::track().isNonnull()) {
+      track_.push_back(*ElectronType::track());
+      embeddedTrack_ = true;
+  }
 }
 
 #ifdef PAT_patElectron_Default_eID

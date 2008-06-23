@@ -1,5 +1,5 @@
 //
-// $Id: Muon.cc,v 1.8 2008/06/03 22:28:07 gpetrucc Exp $
+// $Id: Muon.cc,v 1.9 2008/06/17 13:50:56 gpetrucc Exp $
 //
 
 #include "DataFormats/PatCandidates/interface/Muon.h"
@@ -104,24 +104,30 @@ bool Muon::isGoodMuon(const MuonType & muon, reco::Muon::SelectionType type) {
 /// embed the Track reconstructed in the tracker only
 void Muon::embedTrack() {
   track_.clear();
-  track_.push_back(*MuonType::track());
-  embeddedTrack_ = true;
+  if (MuonType::track().isNonnull()) {
+      track_.push_back(*MuonType::track());
+      embeddedTrack_ = true;
+  }
 }
 
 
 /// embed the Track reconstructed in the muon detector only
 void Muon::embedStandAloneMuon() {
   standAloneMuon_.clear();
-  standAloneMuon_.push_back(*MuonType::standAloneMuon());
-  embeddedStandAloneMuon_ = true;
+  if (MuonType::standAloneMuon().isNonnull()) {
+      standAloneMuon_.push_back(*MuonType::standAloneMuon());
+      embeddedStandAloneMuon_ = true;
+  }
 }
 
 
 /// embed the Track reconstructed in both tracked and muon detector
 void Muon::embedCombinedMuon() {
   combinedMuon_.clear();
-  combinedMuon_.push_back(*MuonType::combinedMuon());
-  embeddedCombinedMuon_ = true;
+  if (MuonType::combinedMuon().isNonnull()) {
+      combinedMuon_.push_back(*MuonType::combinedMuon());
+      embeddedCombinedMuon_ = true;
+  }
 }
 
 

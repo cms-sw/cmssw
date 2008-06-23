@@ -1,5 +1,5 @@
 //
-// $Id: Tau.cc,v 1.7 2008/06/09 09:03:19 gpetrucc Exp $
+// $Id: Tau.cc,v 1.8 2008/06/13 09:54:32 gpetrucc Exp $
 //
 
 #include "DataFormats/PatCandidates/interface/Tau.h"
@@ -117,8 +117,10 @@ void Tau::embedIsolationTracks() {
 /// method to store the isolation tracks internally
 void Tau::embedLeadTrack() {
   leadTrack_.clear();
-  leadTrack_.push_back(*TauType::leadTrack());
-  embeddedLeadTrack_ = true;
+  if (TauType::leadTrack().isNonnull()) {
+      leadTrack_.push_back(*TauType::leadTrack());
+      embeddedLeadTrack_ = true;
+  }
 }
 
 
