@@ -1,4 +1,4 @@
-// $Id: FileRecord.cc,v 1.8 2008/04/29 19:09:07 loizides Exp $
+// $Id: FileRecord.cc,v 1.9 2008/05/13 18:06:46 loizides Exp $
 
 #include <EventFilter/StorageManager/interface/FileRecord.h>
 #include <EventFilter/StorageManager/interface/Configurator.h>
@@ -222,14 +222,14 @@ void FileRecord::fileSystem(int i)
 //
 void FileRecord::moveFileToClosed()
 {
-  struct stat initialStatBuff, finalStatBuff;
+  struct stat64 initialStatBuff, finalStatBuff;
   int statStatus;
   double pctDiff;
   bool sizeMismatch;
 
   string openIndexFileName      = completeFileName() + ".ind";
   string openStreamerFileName   = completeFileName() + ".dat";
-  statStatus = stat(openStreamerFileName.c_str(), &initialStatBuff);
+  statStatus = stat64(openStreamerFileName.c_str(), &initialStatBuff);
   if (statStatus != 0) {
     throw cms::Exception("FileRecord", "moveFileToClosed")
       << "Error checking the status of open file "
@@ -275,7 +275,7 @@ void FileRecord::moveFileToClosed()
       << "disk areas are full." << std::endl;
   }
 
-  statStatus = stat(closedStreamerFileName.c_str(), &finalStatBuff);
+  statStatus = stat64(closedStreamerFileName.c_str(), &finalStatBuff);
   if (statStatus != 0) {
     throw cms::Exception("FileRecord", "moveFileToClosed")
       << "Error checking the status of closed file "
@@ -353,9 +353,9 @@ void FileRecord::checkDirectories() const
 
 void FileRecord::checkDirectory(const string &path) const
 {
-  struct stat buf;
+  struct stat64 buf;
 
-  int retVal = stat(path.c_str(), &buf);
+  int retVal = stat64(path.c_str(), &buf);
   if(retVal !=0 )
     {
       edm::LogError("StorageManager") << "Directory " << path
