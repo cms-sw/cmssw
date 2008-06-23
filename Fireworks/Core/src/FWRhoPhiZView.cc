@@ -8,7 +8,7 @@
 //
 // Original Author:  Chris Jones
 //         Created:  Tue Feb 19 10:33:25 EST 2008
-// $Id: FWRhoPhiZView.cc,v 1.14 2008/06/20 06:00:26 dmytro Exp $
+// $Id: FWRhoPhiZView.cc,v 1.15 2008/06/23 06:34:51 dmytro Exp $
 //
 
 #define private public
@@ -121,7 +121,7 @@ m_cameraMatrix(0)
    
    if ( iProjType == TEveProjection::kPT_RPhi ) {
       // compression
-      m_projMgr->GetProjection()->AddPreScaleEntry(0, 130, 0.5);
+      // m_projMgr->GetProjection()->AddPreScaleEntry(0, 130, 0.5);
       m_projMgr->GetProjection()->AddPreScaleEntry(0, 300, 0.2);
       // projection specific parameters
       m_showEndcaps = new FWBoolParameter(this,"Show calo endcaps", true);
@@ -129,8 +129,8 @@ m_cameraMatrix(0)
       m_showHF = new FWBoolParameter(this,"Show HF", true);
       m_showHF->changed_.connect(  boost::bind(&FWRhoPhiZView::updateCaloParameters, this) );
    } else {
-      m_projMgr->GetProjection()->AddPreScaleEntry(0, 130, 0.5);
-      m_projMgr->GetProjection()->AddPreScaleEntry(1, 310, 0.5);
+      // m_projMgr->GetProjection()->AddPreScaleEntry(0, 130, 0.5);
+      // m_projMgr->GetProjection()->AddPreScaleEntry(1, 310, 0.5);
       m_projMgr->GetProjection()->AddPreScaleEntry(0, 370, 0.2);
       m_projMgr->GetProjection()->AddPreScaleEntry(1, 580, 0.2);
    }
@@ -314,11 +314,16 @@ FWRhoPhiZView::updateCaloLines(TEveElement* iParent)
    TEveElementIter child(iParent);
    while ( TEveElement* element = child.current() )
      {
-	if ( TEveScalableStraightLineSetProjected* line = 
-	     dynamic_cast<TEveScalableStraightLineSetProjected*>(element) ) {
-	   line->SetScale( m_caloScale );
-	   line->ElementChanged();
-	}
+	if ( TEveScalableStraightLineSetProjected* projected = 
+	     dynamic_cast<TEveScalableStraightLineSetProjected*>(element) )
+	  if ( TEveScalableStraightLineSet* line = 
+	       dynamic_cast<TEveScalableStraightLineSet*>(projected->GetProjectable()) )
+	    {
+	       line->SetScale( m_caloScale );
+	       line->ElementChanged();
+	       projected->UpdateProjection();
+	       projected->ElementChanged();
+	    }
 	child.next();
      }
 }
