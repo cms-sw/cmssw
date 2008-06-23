@@ -155,3 +155,41 @@ README for OpenHLT rate calculating scripts
 	* Note that in CMSSW releases 2_X and higher, the L2 and L3 muon pT thresholds are implemented as flat cuts.
 	  In earlier releases, the thresholds were implemented as 90% CL upper limits. OpenHLT examples of the old pT 
 	  threshold implementation are found at the beginning of the OpenHlt1MuonPassed and OpenHlt2MuonPassed examples.
+
+
+--------------------------------------
+3d. Example OpenHLT electron triggers
+--------------------------------------
+	
+	One example OpenHLT electron trigger (HLT1Electron) are	available. 
+
+	The algorithm for the single electron triggers is implemented in the OHltTree::OpenHlt1ElectronPassed method.
+        This takes five arguments:
+
+		float   Et:	Et threshold in GeV
+		int   L1iso:	L1 is isolated (1: yes, 0: no)
+		float Tiso:	Track isolation in GeV
+		float Hiso:	Hcal isolation in GeV
+
+	In the example code some cuts are mandatory and cannot be varied.
+	They have the following default values:
+		ohEleNewSC[i]>0                 : Is 1, if electron found by Super Cluster Algo, otherwise 0
+		ohEleHiso[i]/ohEleEt[i] < 0.05	: Hadronic fraction smaller than 0.05
+		ohElePixelSeeds[i]>0		: Pixel seed found or not (1 or 0)
+
+--------------------------------------
+3e. Example OpenHLT photon triggers
+--------------------------------------
+	
+	One example OpenHLT electron trigger (HLT1Electron) are	available. 
+
+	The algorithm for the single electron triggers is implemented in the OHltTree::OpenHlt1ElectronPassed method.
+        This takes five arguments:
+
+		float   Et:	Et threshold in GeV
+		int   L1iso:	L1 is isolated (1: yes, 0: no)
+		float Tiso:	Track isolation in GeV
+		float Eiso:	Ecal isolation in GeV
+		float HisoBR:	Barrel Hcal isolation in GeV
+		float HisoEC:	Endcap Hcal isolation in GeV
+

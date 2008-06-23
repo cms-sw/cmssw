@@ -282,7 +282,7 @@ void OHltTree::Loop(vector<int> * iCount, vector<int> * sPureCount, vector<int> 
       }
       else if (trignames[it].CompareTo("ElectronTau") == 0) {
 	if ( L1_IsoEG10_TauJet20==1 ) { // L1 Seed
-	  if(OpenHltTauPassed(15.,5.,3.,1,0.,0)>=1 && OpenHlt1ElectronPassed(10,1,0.06,3.,0.,0.)>=1 )  {
+	  if(OpenHltTauPassed(15.,5.,3.,1,0.,0)>=1 && OpenHlt1ElectronPassed(10.,1,0.06,3.)>=1 )  {
 	    triggerBitNoPrescale[it] = true;	      
 	    if ((iCountNoPrescale[it]) % map_pathHLTPrescl.find(trignames[it])->second == 0) {    
 	      triggerBit[it] = true;
@@ -292,7 +292,7 @@ void OHltTree::Loop(vector<int> * iCount, vector<int> * sPureCount, vector<int> 
       }
       else if (trignames[it].CompareTo("ElectronTau_NoL1") == 0) {
 	if ( L1_IsoEG10_Jet15==1 ) { // L1 Seed
-	  if(OpenHltTauPassed(15.,5.,3.,1,0.,0)>=1 && OpenHlt1ElectronPassed(10,1,0.06,3.,0.,0.)>=1 )  {
+	  if(OpenHltTauPassed(15.,5.,3.,1,0.,0)>=1 && OpenHlt1ElectronPassed(10.,1,0.06,3.)>=1 )  {
 	    triggerBitNoPrescale[it] = true;	      
 	    if ((iCountNoPrescale[it]) % map_pathHLTPrescl.find(trignames[it])->second == 0) {    
 	      triggerBit[it] = true;
@@ -302,7 +302,7 @@ void OHltTree::Loop(vector<int> * iCount, vector<int> * sPureCount, vector<int> 
       }
       else if (trignames[it].CompareTo("ElectronTau_NoL2") == 0) {
 	if ( L1_IsoEG10_TauJet20==1 ) { // L1 Seed
-	  if(OpenHltTauPassed(0.,999.,3.,1,0.,0)>=1 && OpenHlt1ElectronPassed(10,1,0.06,3.,0.,0.)>=1 )  {
+	  if(OpenHltTauPassed(0.,999.,3.,1,0.,0)>=1 && OpenHlt1ElectronPassed(10.,1,0.06,3.)>=1 )  {
 	    triggerBitNoPrescale[it] = true;	      
 	    if ((iCountNoPrescale[it]) % map_pathHLTPrescl.find(trignames[it])->second == 0) {    
 	      triggerBit[it] = true;
@@ -312,7 +312,7 @@ void OHltTree::Loop(vector<int> * iCount, vector<int> * sPureCount, vector<int> 
       }
       else if (trignames[it].CompareTo("ElectronTau_NoL25") == 0) {
 	if ( L1_IsoEG10_TauJet20==1 ) { // L1 Seed
-	  if(OpenHltTauPassed(15.,5.,0.,0,0.,0)>=1 && OpenHlt1ElectronPassed(10,1,0.06,3.,0.,0.)>=1 )  {
+	  if(OpenHltTauPassed(15.,5.,0.,0,0.,0)>=1 && OpenHlt1ElectronPassed(10.,1,0.06,3.)>=1 )  {
 	    triggerBitNoPrescale[it] = true;	      
 	    if ((iCountNoPrescale[it]) % map_pathHLTPrescl.find(trignames[it])->second == 0) {    
 	      triggerBit[it] = true;
@@ -322,7 +322,7 @@ void OHltTree::Loop(vector<int> * iCount, vector<int> * sPureCount, vector<int> 
       }
       else if (trignames[it].CompareTo("ElectronTau_NoSi") == 0) {
 	if ( L1_IsoEG10_TauJet20==1 ) { // L1 Seed
-	  if(OpenHltTauPassed(15.,5.,0.,0,0.,0)>=1 && OpenHlt1ElectronPassed(10,1,0.06,3.,0.,0.)>=1 )  {
+	  if(OpenHltTauPassed(15.,5.,0.,0,0.,0)>=1 && OpenHlt1ElectronPassed(10.,1,0.06,3.)>=1 )  {
 	    triggerBitNoPrescale[it] = true;	      
 	    if ((iCountNoPrescale[it]) % map_pathHLTPrescl.find(trignames[it])->second == 0) {    
 	      triggerBit[it] = true;
@@ -332,7 +332,7 @@ void OHltTree::Loop(vector<int> * iCount, vector<int> * sPureCount, vector<int> 
       }
       else if (trignames[it].CompareTo("ElectronMET") == 0) {
 	if ( L1_SingleIsoEG12==1 ) { // L1 Seed
-	  if(OpenHlt1ElectronPassed(10,1,0.06,3.,0.,0.)>=1 && recoMetCal>=35.)  {
+	  if(OpenHlt1ElectronPassed(10.,1,0.06,3.)>=1 && recoMetCal>=35.)  {
 	    triggerBitNoPrescale[it] = true;	      
 	    if ((iCountNoPrescale[it]) % map_pathHLTPrescl.find(trignames[it])->second == 0) {    
 	      triggerBit[it] = true;
@@ -350,7 +350,7 @@ void OHltTree::Loop(vector<int> * iCount, vector<int> * sPureCount, vector<int> 
       else if (trignames[it].CompareTo("OpenHLT1Electron") == 0) {
 	if ( L1_SingleIsoEG12==1 ) { // L1 Seed
 	  //PrintOhltVariables(3,electron);
-	  if(OpenHlt1ElectronPassed(15,1,0.06,3.,1.5,2.45)>=1) {
+	  if(OpenHlt1ElectronPassed(15.,1,0.06,3.)>=1) {
 	    triggerBitNoPrescale[it] = true;
 	    if ((iCountNoPrescale[it]) % map_pathHLTPrescl.find(trignames[it])->second == 0) {
 	      triggerBit[it] = true;
@@ -367,7 +367,7 @@ void OHltTree::Loop(vector<int> * iCount, vector<int> * sPureCount, vector<int> 
       else if (trignames[it].CompareTo("OpenHLT1Photon") == 0) {
 	if ( L1_SingleIsoEG12==1 ) {	  // L1 Seed				
 	  //PrintOhltVariables(3,photon);
-	  if(OpenHlt1PhotonPassed(30,1,0,1.5,6.,4.)>=1) {
+	  if(OpenHlt1PhotonPassed(30.,1,0,1.5,6.,4.)>=1) {
 	    triggerBitNoPrescale[it] = true;
 	    if ((iCountNoPrescale[it]) % map_pathHLTPrescl.find(trignames[it])->second == 0) {
 	      triggerBit[it] = true;
@@ -596,7 +596,7 @@ int OHltTree::OpenHltTauPassed(float Et,float Eiso, float L25Tpt, int L25Tiso, f
 }
 
 
-int OHltTree::OpenHlt1ElectronPassed(double Et, double L1iso, double Tiso, double Hiso, double eoverpBR, double eoverpEC)
+int OHltTree::OpenHlt1ElectronPassed(float Et, int L1iso, float Tiso, float Hiso)
 {
   int rc = 0;
   // Loop over all oh electrons
@@ -614,7 +614,7 @@ int OHltTree::OpenHlt1ElectronPassed(double Et, double L1iso, double Tiso, doubl
   return rc;
 }
 
-int  OHltTree::OpenHlt1PhotonPassed(double Et, double L1iso, double Tiso, double Eiso, double HisoBR, double HisoEC)
+int  OHltTree::OpenHlt1PhotonPassed(float Et, int L1iso, float Tiso, float Eiso, float HisoBR, float HisoEC)
 {
   int rc = 0;
   // Loop over all oh photons
@@ -622,7 +622,7 @@ int  OHltTree::OpenHlt1PhotonPassed(double Et, double L1iso, double Tiso, double
     if ( ohPhotEt[i] > Et)
       if ( ohPhotL1iso[i] >= L1iso )
 	if( ohPhotTiso[i]<=Tiso )
-	  if( ohPhotEiso[i] < Eiso /* && isEgammaL1_PhotonSuperclusterMatched(i)*/ ) {
+	  if( ohPhotEiso[i] < Eiso ) {
 	    if( (TMath::Abs(ohPhotEta[i]) < 1.5 && ohPhotHiso[i] < HisoBR )  ||
 		(1.5 < TMath::Abs(ohPhotEta[i]) && TMath::Abs(ohPhotEta[i]) < 2.5 && ohPhotHiso[i] < HisoEC ) )
 	      rc++;

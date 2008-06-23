@@ -1082,8 +1082,8 @@ public :
 	     ,int n=-1,bool doMuonCut=false,bool doElecCut=false, double muonPt=-999., double muonDr=-999.);
    void PrintOhltVariables(int level, int type);
    int OpenHltTauPassed(float Et,float Eiso, float L25Tpt, int L25Tiso,float L3Tpt, int L3Tiso);
-   int OpenHlt1ElectronPassed(double Et,double L1iso,double Tiso,double Hiso,double eoverpBR,double eoverpEC);
-   int OpenHlt1PhotonPassed(double Et,double L1iso,double Tiso,double Eiso,double HisoBR,double HisoEC);
+   int OpenHlt1ElectronPassed(float Et,int L1iso,float Tiso,float Hiso);
+   int OpenHlt1PhotonPassed(float Et,int L1iso,float Tiso,float Eiso,float HisoBR,float HisoEC);
    int OpenHlt1MuonPassed(double ptl1,double ptl2,double ptl3,double dr,int iso);
    int OpenHlt2MuonPassed(double ptl1,double ptl2,double ptl3,double dr,int iso);
    int OpenHlt1JetPassed(double pt);
