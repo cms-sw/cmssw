@@ -10,7 +10,7 @@
 <use name=DataFormats/EcalDetId>
 <use name=DataFormats/FEDRawData>
 <use name=CondFormats/L1TObjects>
-<use name=CondFormats/EcalObjects>
+<use name=CalibCalorimetry/EcalTPGTools>
 <use name=CondFormats/DataRecord>
 <use name=SimDataFormats/HepMCProduct>
 <export>
@@ -25,7 +25,7 @@
 <use name=DataFormats/EcalDetId>
 <use name=DataFormats/FEDRawData>
 <use name=CondFormats/L1TObjects>
-<use name=CondFormats/EcalObjects>
+<use name=CalibCalorimetry/EcalTPGTools>
 <use name=CondFormats/DataRecord>
 <use name=SimDataFormats/HepMCProduct>
 </export>
