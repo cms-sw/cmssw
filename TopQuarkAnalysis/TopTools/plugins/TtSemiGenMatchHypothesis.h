@@ -11,7 +11,7 @@
 
 #include "DataFormats/PatCandidates/interface/Jet.h"
 #include "DataFormats/PatCandidates/interface/MET.h"
-#include "DataFormats/PatCandidates/interface/Muon.h"
+#include "DataFormats/RecoCandidate/interface/RecoCandidate.h"
 
 #include "DataFormats/Candidate/interface/CandidateWithRef.h"
 #include "DataFormats/Candidate/interface/ShallowCloneCandidate.h"
@@ -30,7 +30,7 @@ class TtSemiGenMatchHypothesis : public edm::EDProducer {
   virtual void produce(edm::Event&, const edm::EventSetup&);
   bool isValid(const int& idx, const edm::Handle<std::vector<pat::Jet> >& jets){ return (0<=idx && idx<(int)jets->size()); };
   reco::NamedCompositeCandidate buildHypo(const edm::Handle<std::vector<pat::Jet> >&,
-					  const edm::Handle<std::vector<pat::Muon> >&,
+					  const edm::Handle<edm::View<reco::RecoCandidate> >&,
 					  const edm::Handle<std::vector<pat::MET> >&,
 					  const edm::Handle<std::vector<int> >&);
   reco::NamedCompositeCandidate fillHypo (std::vector<reco::ShallowCloneCandidate>&);

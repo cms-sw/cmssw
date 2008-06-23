@@ -25,7 +25,7 @@ TtSemiGenMatchHypothesis::produce(edm::Event& evt, const edm::EventSetup& setup)
   edm::Handle<std::vector<pat::Jet> > jets;
   evt.getByLabel(jets_, jets);
   
-  edm::Handle<std::vector<pat::Muon> > leps;
+  edm::Handle<edm::View<reco::RecoCandidate> > leps;
   evt.getByLabel(leps_, leps);
 
   edm::Handle<std::vector<pat::MET> > mets;
@@ -47,7 +47,7 @@ TtSemiGenMatchHypothesis::produce(edm::Event& evt, const edm::EventSetup& setup)
 
 reco::NamedCompositeCandidate
 TtSemiGenMatchHypothesis::buildHypo(const edm::Handle<std::vector<pat::Jet>  >& jets, 
-				    const edm::Handle<std::vector<pat::Muon> >& leps, 
+				    const edm::Handle<edm::View<reco::RecoCandidate> >& leps, 
 				    const edm::Handle<std::vector<pat::MET>  >& mets, 
 				    const edm::Handle<std::vector<int> >& match)
 {
@@ -69,7 +69,7 @@ TtSemiGenMatchHypothesis::buildHypo(const edm::Handle<std::vector<pat::Jet>  >& 
     if( leps->empty() ) 
       return reco::NamedCompositeCandidate();
 
-    edm::Ref<std::vector<pat::Muon> > ref=edm::Ref<std::vector<pat::Muon> >(leps, 0);
+    edm::Ref<edm::View<reco::RecoCandidate> > ref=edm::Ref<edm::View<reco::RecoCandidate> >(leps, 0);
     reco::ShallowCloneCandidate buffer(reco::CandidateBaseRef( ref ), ref->charge(), ref->p4(), ref->vertex());
     leafs.push_back( buffer );
   }
