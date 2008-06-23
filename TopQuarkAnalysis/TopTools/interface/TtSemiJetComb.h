@@ -13,6 +13,8 @@ class TtSemiJetComb {
 public:
 
   TtSemiJetComb();
+  TtSemiJetComb(const std::vector<pat::Jet>&, const std::vector<int>,
+		const math::XYZTLorentzVector&, const math::XYZTLorentzVector&);
   TtSemiJetComb(const std::vector<pat::Jet>&, const std::vector<int>, const math::XYZTLorentzVector&);
   ~TtSemiJetComb();
 
@@ -33,6 +35,7 @@ private:
   math::XYZTLorentzVector hadBJet;
   math::XYZTLorentzVector lepBJet;
   math::XYZTLorentzVector lepton;
+  math::XYZTLorentzVector neutrino;
   math::XYZTLorentzVector hadW;
   math::XYZTLorentzVector lepW;
   math::XYZTLorentzVector hadTop;
