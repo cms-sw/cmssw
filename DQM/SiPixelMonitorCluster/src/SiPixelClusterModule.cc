@@ -13,7 +13,7 @@
 //
 // Original Author:  Vincenzo Chiochia & Andrew York
 //         Created:  
-// $Id: SiPixelClusterModule.cc,v 1.12 2008/04/24 07:21:33 andrewdc Exp $
+// $Id: SiPixelClusterModule.cc,v 1.13 2008/06/23 12:14:25 merkelp Exp $
 //
 //
 // Updated by: Lukas Wehrli
@@ -125,11 +125,13 @@ void SiPixelClusterModule::book(const edm::ParameterSet& iConfig, int type) {
     meMaxCol_ = theDMBE->book1D(hid,"Highest cluster column",500,0.,500.);
     meMaxCol_->setAxisTitle("Highest cluster column",1);
     // 2D hit map
+    int nbinx = ncols_/2;
+    int nbiny = nrows_/2;
     hid = theHistogramId->setHistoId("hitmap",id_);
     mePixClusters_ = theDMBE->book2D(hid,"Number of Clusters (1bin=four pixels)",nbinx,0.,float(ncols_),nbiny,0.,float(nrows_));
     mePixClusters_->setAxisTitle("Columns",1);
     mePixClusters_->setAxisTitle("Rows",2);
-    
+
     delete theHistogramId;
   }
 
@@ -178,7 +180,7 @@ void SiPixelClusterModule::book(const edm::ParameterSet& iConfig, int type) {
     mePixClustersLad_->setAxisTitle("Rows",2);
   }
 
- if(type==2 && barrel){
+  if(type==2 && barrel){
     
     uint32_t DBlayer = PixelBarrelName::PixelBarrelName(DetId::DetId(id_)).layerName();
     char slayer[80]; sprintf(slayer,"Layer_%i",DBlayer);
@@ -403,20 +405,27 @@ void SiPixelClusterModule::book(const edm::ParameterSet& iConfig, int type) {
 //
 // Fill histograms
 //
-void SiPixelClusterModule::fill(const edmNew::DetSetVector<SiPixelCluster>& input, bool modon, bool ladon, bool layon, bool phion, bool bladeon, bool diskon, bool ringon) {
+void SiPixelClusterModule::fill(const edm::DetSetVector<SiPixelCluster>& input, 
+                                bool modon, 
+				bool ladon, 
+				bool layon, 
+				bool phion, 
+				bool bladeon, 
+				bool diskon, 
+				bool ringon) {
   
   bool barrel = DetId::DetId(id_).subdetId() == static_cast<int>(PixelSubdetector::PixelBarrel);
   bool endcap = DetId::DetId(id_).subdetId() == static_cast<int>(PixelSubdetector::PixelEndcap);
   
-  edmNew::DetSetVector<SiPixelCluster>::const_iterator isearch = input.find(id_); // search  clusters of detid
+  edm::DetSetVector<SiPixelCluster>::const_iterator isearch = input.find(id_); // search  clusters of detid
   
-  if( isearch != input.end() ) {  // Not at empty iterator
+  if( isearch != input.end() ) {  // Not an empty iterator
 
     unsigned int numberOfClusters = 0;
     
     // Look at clusters now
-    edmNew::DetSet<SiPixelCluster>::const_iterator  di;
-    for(di = isearch->begin(); di != isearch->end(); di++) {
+    edm::DetSet<SiPixelCluster>::const_iterator  di;
+    for(di = isearch->data.begin(); di != isearch->data.end(); di++) {
       numberOfClusters++;
       float charge = 0.001*(di->charge()); // total charge of cluster
       float x = di->x();                   // barycenter x position
@@ -430,6 +439,7 @@ void SiPixelClusterModule::fill(const edmNew::DetSetVector<SiPixelCluster>& inpu
       int maxPixelCol = di->maxPixelCol(); // max y index
       //      bool edgeHitX = di->edgeHitX();      // records if a cluster is at the x-edge of the detector
       //      bool edgeHitY = di->edgeHitY();      // records if a cluster is at the y-edge of the detector
+      
       if(modon){
 	(meCharge_)->Fill((float)charge);
  	(meX_)->Fill((float)x);
@@ -496,7 +506,6 @@ void SiPixelClusterModule::fill(const edmNew::DetSetVector<SiPixelCluster>& inpu
 	(meMaxRowBlade_)->Fill((int)maxPixelRow);
 	(meMinColBlade_)->Fill((int)minPixelCol);
 	(meMaxColBlade_)->Fill((int)maxPixelCol);
-
       }
       if(diskon && endcap){
 	(meChargeDisk_)->Fill((float)charge);
@@ -509,8 +518,8 @@ void SiPixelClusterModule::fill(const edmNew::DetSetVector<SiPixelCluster>& inpu
 	(meMaxRowDisk_)->Fill((int)maxPixelRow);
 	(meMinColDisk_)->Fill((int)minPixelCol);
 	(meMaxColDisk_)->Fill((int)maxPixelCol);
-
       }
+      
       if(ringon && endcap){
 	(meChargeRing_)->Fill((float)charge);
 	(meXRing_)->Fill((float)x);
@@ -524,10 +533,7 @@ void SiPixelClusterModule::fill(const edmNew::DetSetVector<SiPixelCluster>& inpu
 	(meMaxColRing_)->Fill((int)maxPixelCol);
 	(mePixClustersRing_)->Fill((float)y,(float)x);
       }
-
-	
     }
-    
     if(modon) (meNClusters_)->Fill((float)numberOfClusters);
     if(ladon && barrel) (meNClustersLad_)->Fill((float)numberOfClusters);
     if(layon && barrel) (meNClustersLay_)->Fill((float)numberOfClusters);

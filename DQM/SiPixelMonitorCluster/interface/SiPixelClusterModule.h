@@ -15,7 +15,7 @@
 //
 // Original Author:  Vincenzo Chiochia & Andrew York
 //         Created:  
-// $Id: SiPixelClusterModule.h,v 1.5 2008/04/24 07:21:33 andrewdc Exp $
+// $Id: SiPixelClusterModule.h,v 1.6 2008/06/23 12:14:03 merkelp Exp $
 //
 //
 //  Updated by: Lukas Wehrli
@@ -45,7 +45,14 @@ class SiPixelClusterModule {
   /// Book histograms
   void book(const edm::ParameterSet& iConfig, int type=0);
   /// Fill histograms
-  void fill(const edmNew::DetSetVector<SiPixelCluster> & input, bool modon=true, bool ladon=false, bool layon=false, bool phion=false, bool bladeon=false, bool diskon=false, bool ringon=false);
+  void fill(const edm::DetSetVector<SiPixelCluster> & input, 
+            bool modon=true, 
+	    bool ladon=false, 
+	    bool layon=false, 
+	    bool phion=false, 
+	    bool bladeon=false, 
+	    bool diskon=false, 
+	    bool ringon=false);
   
  private:
 
@@ -66,6 +73,7 @@ class SiPixelClusterModule {
   MonitorElement* mePixClusters_;
   //  MonitorElement* meEdgeHitX_;
   //  MonitorElement* meEdgeHitY_;
+  
   //barrel
   MonitorElement* meNClustersLad_;
   MonitorElement* meYLad_;
@@ -105,6 +113,7 @@ class SiPixelClusterModule {
   MonitorElement* meMinColPhi_;
   MonitorElement* meMaxColPhi_;
   MonitorElement* mePixClustersPhi_;
+  
   //forward
   MonitorElement* meNClustersBlade_;
   MonitorElement* meYBlade_;

@@ -13,7 +13,7 @@
 //
 // Original Author:  Vincenzo Chiochia & Andrew York
 //         Created:  
-// $Id: SiPixelClusterSource.cc,v 1.7 2008/04/24 07:21:33 andrewdc Exp $
+// $Id: SiPixelClusterSource.cc,v 1.8 2008/06/23 12:14:19 merkelp Exp $
 //
 //
 // Updated by: Lukas Wehrli
@@ -95,13 +95,20 @@ SiPixelClusterSource::analyze(const edm::Event& iEvent, const edm::EventSetup& i
   eventNo++;
 
   // get input data
-  edm::Handle< edmNew::DetSetVector<SiPixelCluster> >  input;
+  edm::Handle< edm::DetSetVector<SiPixelCluster> >  input;
   iEvent.getByLabel( src_, input );
 
   std::map<uint32_t,SiPixelClusterModule*>::iterator struct_iter;
   for (struct_iter = thePixelStructure.begin() ; struct_iter != thePixelStructure.end() ; struct_iter++) {
     
-    (*struct_iter).second->fill(*input,modOn, ladOn, layOn, phiOn, bladeOn, diskOn, ringOn);
+    (*struct_iter).second->fill(*input, 
+                                modOn, 
+				ladOn, 
+				layOn, 
+				phiOn, 
+				bladeOn, 
+				diskOn, 
+				ringOn);
     
   }
 
@@ -165,9 +172,9 @@ void SiPixelClusterSource::bookMEs(){
     /// Create folder tree and book histograms 
     if(modOn){
       if(theSiPixelFolder.setModuleFolder((*struct_iter).first)){
-	(*struct_iter).second->book( conf_ );
+        (*struct_iter).second->book( conf_ );
       } else {
-	throw cms::Exception("LogicError")
+        throw cms::Exception("LogicError")
 	  << "[SiPixelClusterSource::bookMEs] Creation of DQM folder failed";
       }
     }

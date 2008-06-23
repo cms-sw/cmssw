@@ -15,11 +15,11 @@
 */
 //
 // Original Author:  Vincenzo Chiochia & Andrew York
-//         Created:  
-// $Id: SiPixelClusterSource.h,v 1.6 2008/04/24 07:21:33 andrewdc Exp $
 //
 // Updated by: Lukas Wehrli
 // for pixel offline DQM 
+//         Created:  
+// $Id: SiPixelClusterSource.h,v 1.7 2008/06/23 12:14:11 merkelp Exp $
 
 #include <memory>
 
@@ -54,7 +54,7 @@
        explicit SiPixelClusterSource(const edm::ParameterSet& conf);
        ~SiPixelClusterSource();
 
-       typedef edmNew::DetSet<SiPixelCluster>::const_iterator    ClusterIterator;
+       typedef edm::DetSet<SiPixelCluster>::const_iterator    ClusterIterator;
        
        virtual void analyze(const edm::Event&, const edm::EventSetup&);
        virtual void beginJob(edm::EventSetup const&) ;
