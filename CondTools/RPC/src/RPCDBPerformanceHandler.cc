@@ -83,43 +83,42 @@ void RPCDBPerformanceHandler::getNewObjects(){
 
   std::map< int, std::vector<double> >::iterator itc;
   for(itc = (theRPCSimSetUp->_clsMap).begin();itc != (theRPCSimSetUp->_clsMap).end();++itc){
-    std::cout<<itc->first<<"  "<<(itc->second).size()<<std::endl;
+    //    std::cout<<itc->first<<"  "<<(itc->second).size()<<std::endl;
 
     for(unsigned int n = 0; n < (itc->second).size();++n){
-      std::cout<<"CLS: "<<(itc->second)[n]<<std::endl;
+      //      std::cout<<"CLS: "<<(itc->second)[n]<<std::endl;
       (obj->v_cls).push_back((itc->second)[n]);
     }
   }
 
   RPCStripNoises::NoiseItem tipoprova;
 
-  std::cout<< " map size " << theRPCSimSetUp->_mapDetIdNoise.size() << std::endl;
+  //  std::cout<< " map size " << theRPCSimSetUp->_mapDetIdNoise.size() << std::endl;
   int i = 0;
   for(std::map<uint32_t, std::vector<float> >::iterator it = (theRPCSimSetUp->_mapDetIdNoise).begin(); 
       it != (theRPCSimSetUp->_mapDetIdNoise).end(); it++){
 
     //--------------------------------------------------------------
     //i++;
-    //std::cout<<" times in the cicle: " << i<< std::endl; 
-    //std::cout<< " it-> first " << it->first << std::endl;
-    //std::cout<< " it-> second " << ((it->second))[0] << std::endl;
+    std::cout<<" times in the cicle: " << i<< std::endl; 
+    std::cout<< " it-> first " << it->first << std::endl;
+    std::cout<< " it-> second " << ((it->second))[0] << std::endl;
     //--------------------------------------------------------------    
 
-
     tipoprova.dpid = it->first;
-
+    tipoprova.time =  theRPCSimSetUp->getTime(it->first);
     //std::cout << "(it->second).size() == " <<  (it->second).size()<< std::endl;
 
-   for(unsigned int k = 0; k < 96; ++k){
-       tipoprova.noise[k] = ((it->second))[k];
-       tipoprova.eff[k] = (theRPCSimSetUp->getEff(it->first))[k];
+    for(unsigned int k = 0; k < 96; ++k){
+
+      tipoprova.noise = ((it->second))[k];
+      tipoprova.eff = (theRPCSimSetUp->getEff(it->first))[k];
+      (obj->v_noises).push_back(tipoprova);
     }
-   tipoprova.time =  theRPCSimSetUp->getTime(it->first);
-
-
-    (obj->v_noises).push_back(tipoprova);
+    
     edm::LogError("RPCStripNoisesBuilder")<<"[RPCStripNoisesBuilder::analyze] detid already exists"<<std::endl;
     
+    i++;
   }
 
   // prepare for transfer:

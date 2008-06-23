@@ -36,8 +36,6 @@ using namespace std;
 
 RPCDBSimSetUp::RPCDBSimSetUp(const edm::ParameterSet& ps) {
   
-  std::cout<< "sono nel costruttore RPCSimSetup " << std::endl;
-
   _mapDetIdNoise.clear();
   _mapDetIdEff.clear();
   _bxmap.clear();
@@ -54,7 +52,6 @@ RPCDBSimSetUp::RPCDBSimSetUp(const edm::ParameterSet& ps) {
   
   std::vector< std::string > words;
 
-  std::cout<< " prima del loop " << std::endl;
   int count = 0;
   while( getline(_infile1, buff, '\n') ){
     
@@ -66,8 +63,6 @@ RPCDBSimSetUp::RPCDBSimSetUp(const edm::ParameterSet& ps) {
     ss<<buff;
     ss>>chname>>rpcdetid;
 
-    std::cout<< " Nel loop: " << count << std::endl;
-    std::cout<< "chname: " <<chname<< "  "<<" rpcdetid: "<<rpcdetid<<std::endl;
     std::string::size_type pos = 0, prev_pos = 0;
 
     while ( (pos = buff.find("  ",pos)) != string::npos){
@@ -87,8 +82,6 @@ RPCDBSimSetUp::RPCDBSimSetUp(const edm::ParameterSet& ps) {
     count++;
   }
    _infile1.close();
-
-  std::cout<< " dopo del loop " << std::endl;
 
 
   //------------------------ Eff Reading ----------------------------
