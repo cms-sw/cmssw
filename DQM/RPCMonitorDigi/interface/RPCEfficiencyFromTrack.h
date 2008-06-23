@@ -48,7 +48,7 @@ class RPCEfficiencyFromTrack : public edm::EDAnalyzer {
       virtual void analyze(const edm::Event&, const edm::EventSetup&);
       virtual void endJob() ;
       typedef std::vector<Trajectory> Trajectories;
-      std::map<std::string, MonitorElement*> bookDetUnitTrackEff(RPCDetId & detId);
+      std::map<std::string, MonitorElement*> bookDetUnitTrackEff(RPCDetId & detId, const edm::EventSetup & iSetup);
  
    private:
 
@@ -65,13 +65,6 @@ class RPCEfficiencyFromTrack : public edm::EDAnalyzer {
       int EffSaveRootFileEventsInterval;
       int DTTrigValue;
 
-      TH1F* EXPGlob1;  TH1F* EXPGlob2;  TH1F* EXPGlob3;  TH1F* EXPGlob4;  TH1F* EXPGlob5; 
-      TH1F* RPCGlob1;  TH1F* RPCGlob2;  TH1F* RPCGlob3;  TH1F* RPCGlob4;  TH1F* RPCGlob5; 
-
-
-      TH2F* ExtrapErrorG;TH2F* ExtrapErrorN; 
-      TH1F* chisquareEff;TH1F* chisquareNoEff;
-      TH1F* ChiEff;
 
       int wh;
       bool cosmic;
