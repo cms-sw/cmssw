@@ -1,7 +1,6 @@
 
 #include "testEcalTPGScale.h"
-#include "CalibCalorimetry/EcalTPGTools/interface/EcalTPGScale.h"
-
+#include "CondFormats/EcalObjects/interface/EcalTPGScale.h"
 #include "Geometry/CaloGeometry/interface/CaloGeometry.h"
 #include "Geometry/CaloGeometry/interface/CaloSubdetectorGeometry.h"
 #include "Geometry/CaloGeometry/interface/CaloCellGeometry.h"
