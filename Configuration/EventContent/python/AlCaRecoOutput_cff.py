@@ -1,11 +1,14 @@
 import FWCore.ParameterSet.Config as cms
 
-# last update: $Date: 2008/05/20 07:04:16 $ by $Author: hegner $
+# last update: $Date: 2008/06/06 19:34:50 $ by $Author: rpw $
 # Tracker Alignment
 # AlCaReco for track based alignment using ZMuMu events
 from Alignment.CommonAlignmentProducer.ALCARECOTkAlZMuMu_Output_cff import *
 # AlCaReco for track based alignment using Cosmic muon events
 from Alignment.CommonAlignmentProducer.ALCARECOTkAlCosmics_Output_cff import *
+from Alignment.CommonAlignmentProducer.ALCARECOTkAlCosmicsHLT_Output_cff import *
+from Alignment.CommonAlignmentProducer.ALCARECOTkAlCosmics0T_Output_cff import *
+from Alignment.CommonAlignmentProducer.ALCARECOTkAlCosmics0THLT_Output_cff import *
 # AlCaReco for track based alignment using Laser events
 from Alignment.CommonAlignmentProducer.ALCARECOTkAlLAS_Output_cff import *
 # AlCaReco for track based alignment using isoMu events
@@ -43,13 +46,17 @@ from Calibration.HcalAlCaRecoProducers.ALCARECOHcalCalGammaJet_Output_cff import
 # HCAL calibration with isolated tracks
 from Calibration.HcalAlCaRecoProducers.ALCARECOHcalCalIsoTrk_Output_cff import *
 from Calibration.HcalAlCaRecoProducers.ALCARECOHcalCalIsoTrkNoHLT_Output_cff import *
-# HCAl calibration with min.bias
+# HCAL calibration with min.bias
 from Calibration.HcalAlCaRecoProducers.ALCARECOHcalCalMinBias_Output_cff import *
-# HCAl calibration with Zmuu (HO)
+# HCAL calibration with Zmuu (HO)
 #  include "Calibration/HcalAlCaRecoProducers/data/ALCARECOHcalCalZMuMu_Output.cff"
 from Calibration.HcalAlCaRecoProducers.ALCARECOHcalCalHO_Output_cff import *
-# Muon Alignment with Zmumu
-from Alignment.CommonAlignmentProducer.ALCARECOMuAlZMuMu_Output_cff import *
+# Muon Alignment with cosmics
+from Alignment.CommonAlignmentProducer.ALCARECOMuAlZeroFieldGlobalCosmics_Output_cff import *
+# Muon calibration with minbias
+from Alignment.CommonAlignmentProducer.ALCARECOMuCaliMinBias_Output_cff import *
+# Muon Alignment with isolated muons
+from Alignment.CommonAlignmentProducer.ALCARECOMuAlCalIsolatedMu_Output_cff import *
 # Muon Alignment using CSC overlaps
 from Alignment.CommonAlignmentProducer.ALCARECOMuAlOverlaps_Output_cff import *
 # Muon Alignment using beam halo
