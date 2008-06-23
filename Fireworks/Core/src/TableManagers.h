@@ -29,7 +29,7 @@ public:
      // text-dumpable
      void Dump () { }
      // and has a utility for making a display frame
-     void MakeFrame (TGMainFrame *parent, int width, int height);
+     void MakeFrame (TGCompositeFrame *parent, int width, int height);
      void Update () { widget->InitTableCells(); widget->UpdateTableCells(0, 0); }
      void Selection (int row, int mask);
      void selectRows ();

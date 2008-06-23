@@ -8,7 +8,7 @@
 //
 // Original Author:  Chris Jones
 //         Created:  Thu May 29 20:58:23 CDT 2008
-// $Id: CmsShowMainFrame.cc,v 1.1 2008/06/17 00:08:11 chrjones Exp $
+// $Id: CmsShowMainFrame.cc,v 1.2 2008/06/23 01:05:55 chrjones Exp $
 //
 
 // system include files
@@ -222,6 +222,7 @@ TGMainFrame(p, w, h)
    TGTab *tabFrame = new TGTab(csArea->GetSecond(), csArea->GetSecond()->GetWidth(), csArea->GetSecond()->GetHeight());
    tabFrame->AddTab("Views", m_manager->createViews(tabFrame));
    csArea->GetSecond()->AddFrame(tabFrame, new TGLayoutHints(kLHintsLeft | kLHintsExpandX | kLHintsExpandY));
+   m_manager->createTextView(tabFrame);
    //   csArea->GetFirst()->AddFrame(csList,new TGLayoutHints(kLHintsLeft | kLHintsExpandY));
    //   TGVSplitter *splitter = new TGVSplitter(csArea,2,584);
    //   splitter->SetFrame(csList, kTRUE);

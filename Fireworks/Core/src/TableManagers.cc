@@ -43,7 +43,7 @@ FWTableManager::FWTableManager ()
 
 }
 
-void FWTableManager::MakeFrame (TGMainFrame *parent, int width, int height) 
+void FWTableManager::MakeFrame (TGCompositeFrame *parent, int width, int height) 
 {
      // display the table name prominently
      TGTextEntry *m_tNameEntry = new TGTextEntry(title().c_str(), parent);
@@ -76,15 +76,8 @@ void FWTableManager::Selection (int row, int mask)
      // see FWTextView::selectionChanged().
      int index = table_row_to_index(row);
      switch (mask) { 
-     case 0:
- 	  // means only this line is selected
-	  item->m_selectionManager->clearSelection();
-	  item->select(index);
-	  break;
-     case 1:
-	  // select everything between old and new
-	  break;
-     case 4:
+     case 4: 
+     {
 	  // toggle new line
 	  for (std::set<int>::const_iterator 
 		    i = sel_indices.begin(), end = sel_indices.end();
@@ -102,6 +95,15 @@ void FWTableManager::Selection (int row, int mask)
 	       item->unselect(index);
 	  }
 	  break;
+     }
+     default:
+ 	  // means only this line is selected
+	  item->m_selectionManager->clearSelection();
+	  item->select(index);
+	  break;
+//      case 1:
+// 	  // select everything between old and new
+// 	  break;
      };
      item->m_selectionManager->finishedAllSelections();
 }

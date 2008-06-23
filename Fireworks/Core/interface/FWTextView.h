@@ -18,13 +18,14 @@ class FWTableManager;
 class FWTextView;
 class FWDisplayEvent;
 class FWSelectionManager;
+class FWGUIManager;
 class CmsShowMain;
 
 class FWTextViewPage {
 public:
      FWTextViewPage (const std::string &title, 
 		     const std::vector<FWTableManager *> &tables,
-		     TGMainFrame *frame,
+		     TGCompositeFrame *frame,
 		     FWTextView *view);
      void	setNext (FWTextViewPage *);
      void	setPrev (FWTextViewPage *);
@@ -35,7 +36,7 @@ public:
 public:
      std::string			title;
      std::vector<FWTableManager *>	tables;
-     TGMainFrame			*frame;
+     TGCompositeFrame			*frame;
      FWTextView				*view;
      FWTextViewPage			*prev;
      FWTextViewPage			*next;
@@ -45,7 +46,7 @@ public:
 class FWTextView {
      RQ_OBJECT("FWTextView") 
 public:
-     FWTextView (CmsShowMain *, FWSelectionManager *);
+     FWTextView (CmsShowMain *, FWSelectionManager *, FWGUIManager *);
      void newEvent (const fwlite::Event &, const CmsShowMain *);
      void nextPage ();
      void prevPage ();
@@ -62,7 +63,7 @@ protected:
      // tracks
      ElectronTableManager	*track_manager;
      ElectronTableManager	*vertex_manager;
-     TGMainFrame		*fMain;
+//       TGMainFrame		*fMain;
 
      std::vector<FWTableManager *>	managers;
 

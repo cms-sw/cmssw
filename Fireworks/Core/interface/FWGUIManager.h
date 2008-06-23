@@ -16,7 +16,7 @@
 //
 // Original Author:  Chris Jones
 //         Created:  Mon Feb 11 10:52:24 EST 2008
-// $Id: FWGUIManager.h,v 1.23 2008/06/20 20:31:06 chrjones Exp $
+// $Id: FWGUIManager.h,v 1.24 2008/06/22 20:45:41 chrjones Exp $
 //
 
 // system include files
@@ -41,6 +41,7 @@ class TGSplitFrame;
 class TGVerticalFrame;
 class CmsShowMainFrame;
 class TGMainFrame;
+class TGTab;
 class TGCompositeFrame;
 class FWGUISubviewArea;
 
@@ -78,6 +79,7 @@ class FWGUIManager : public FWConfigurable
    
       TGVerticalFrame* createList(TGSplitFrame *p);
       TGMainFrame* createViews(TGCompositeFrame *p);
+      TGMainFrame* createTextView(TGTab *p);
       // ---------- const member functions ---------------------
 
       // ---------- static member functions --------------------
@@ -181,6 +183,9 @@ class FWGUIManager : public FWConfigurable
       FWDetailViewManager* m_detailViewManager;
    
       FWGUIEventDataAdder* m_dataAdder;
+
+      TGTab		*m_textViewTab;
+      TGCompositeFrame	*m_textViewFrame[3];
 };
 
 

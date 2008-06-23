@@ -8,7 +8,7 @@
 //
 // Original Author:  Chris Jones
 //         Created:  Mon Feb 11 11:06:40 EST 2008
-// $Id: FWGUIManager.cc,v 1.35 2008/06/22 20:45:41 chrjones Exp $
+// $Id: FWGUIManager.cc,v 1.36 2008/06/23 01:07:00 chrjones Exp $
 //
 
 // system include files
@@ -402,6 +402,18 @@ FWGUIManager::createViews(TGCompositeFrame *p)
   p->MapSubwindows();
   p->MapWindow();
   return m_mainFrame;
+}  
+
+TGMainFrame *FWGUIManager::createTextView (TGTab *p) 
+{
+     p->Resize(m_mainFrame->GetWidth(), m_mainFrame->GetHeight());
+     m_textViewFrame[0] = p->AddTab("Physics objects");
+     m_textViewFrame[1] = p->AddTab("Triggers");
+     m_textViewFrame[2] = p->AddTab("Tracking");
+     
+     p->MapSubwindows();
+     p->MapWindow();
+     return m_mainFrame;
 }  
 
 //

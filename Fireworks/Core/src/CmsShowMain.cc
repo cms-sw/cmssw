@@ -8,7 +8,7 @@
 //
 // Original Author:  
 //         Created:  Mon Dec  3 08:38:38 PST 2007
-// $Id: CmsShowMain.cc,v 1.3 2008/06/19 06:57:27 dmytro Exp $
+// $Id: CmsShowMain.cc,v 1.4 2008/06/20 10:11:45 jmuelmen Exp $
 //
 
 // system include files
@@ -90,7 +90,7 @@ CmsShowMain::CmsShowMain(int argc, char *argv[]) :
                                 m_eiManager.get(),
                                 false)),
   m_viewManager( new FWViewManagerManager(m_changeManager.get())),
-  m_textView(new FWTextView(this, &*m_selectionManager))
+  m_textView(new FWTextView(this, &*m_selectionManager, &*m_guiManager))
   //  m_configFileName(iConfigFileName)
 {
     namespace po = boost::program_options;

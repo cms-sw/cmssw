@@ -16,6 +16,7 @@
 #include "Fireworks/Core/interface/FWEventItemsManager.h"
 #include "Fireworks/Core/interface/FWEventItem.h"
 #include "Fireworks/Core/interface/FWSelectionManager.h"
+#include "Fireworks/Core/interface/FWGUIManager.h"
 #include "CmsShowMain.h"
 #undef private
 #include "TEveBrowser.h"
@@ -31,7 +32,7 @@
 
 FWTextViewPage::FWTextViewPage (const std::string &title_, 
 				const std::vector<FWTableManager *> &tables_,
-				TGMainFrame *frame_,
+				TGCompositeFrame *frame_,
 				FWTextView *view_)
      : title(title_),
        tables(tables_),
@@ -40,7 +41,16 @@ FWTextViewPage::FWTextViewPage (const std::string &title_,
        prev(0),
        next(0)
 {
-     
+     for (std::vector<FWTableManager *>::const_iterator i = tables.begin();
+	  i != tables.end(); ++i) {
+	  int width=1200;
+	  int height=600;
+	  (*i)->MakeFrame(frame, width, height);
+// 	  frame->AddFrame((*i)->frame, tFrameHints);
+// 	  printf("frame: adding frame\n");
+     }
+     frame->MapSubwindows();
+     frame->MapWindow(); 
 }
 
 void FWTextViewPage::setNext (FWTextViewPage *p)
@@ -55,60 +65,12 @@ void FWTextViewPage::setPrev (FWTextViewPage *p)
 
 void FWTextViewPage::select ()
 {
-//      TGLayoutHints *tFrameHints = 
-//  	  new TGLayoutHints(kLHintsTop|kLHintsLeft|
-//  			    kLHintsExpandX|kLHintsExpandY);
-     //------------------------------------------------------------
-     // set up the navigation frame
-     //------------------------------------------------------------
-     TGLayoutHints *center_hints = new TGLayoutHints(kLHintsTop|kLHintsCenterX|
-						     kLHintsExpandX);
-     TGLayoutHints *left_hints = new TGLayoutHints(kLHintsTop|kLHintsLeft);
-     TGLayoutHints *right_hints = new TGLayoutHints(kLHintsTop|kLHintsRight);
-     nav_frame = new TGCompositeFrame(frame);
-     TGTextView *nav_title = new TGTextView(nav_frame, 1200, 50);
-     nav_title->AddLine(title.c_str());
-     nav_frame->AddFrame(nav_title, center_hints);
-     TGTextButton *button_next = new TGTextButton(nav_frame, (
-						       std::string("next page (") +
-						       (next ? next->title : std::string("no next")) +
-						       ")").c_str());
-     button_next->Resize(100, 50);
-     button_next->Connect("Clicked()", "FWTextView", view, "nextPage()");
-     nav_frame->AddFrame(button_next, left_hints);
-     TGTextButton *button_prev = new TGTextButton(nav_frame, (
-						       std::string("prev page (") +
-						       (prev ? prev->title : std::string("no prev")) +
-						       ")").c_str());
-     button_prev->Resize(100, 50);
-     button_prev->Connect("Clicked()", "FWTextView", view, "prevPage()");
-     nav_frame->AddFrame(button_prev, right_hints);
-     frame->AddFrame(nav_frame, center_hints);
-
-     for (std::vector<FWTableManager *>::const_iterator i = tables.begin();
-	  i != tables.end(); ++i) {
-	  int width=1200;
-	  int height=600;
-	  (*i)->MakeFrame(frame, width, height);
-// 	  frame->AddFrame((*i)->frame, tFrameHints);
-// 	  printf("frame: adding frame\n");
-     }
-     frame->MapSubwindows();
-     frame->MapWindow(); 
+     // not needed with tabbed FWTextViewPages
 }
 
 void FWTextViewPage::deselect ()
 {
-     printf("deselect, fucking fuck!\n");
-//      frame->UnmapWindow();
-     frame->RemoveFrame(nav_frame);
-     for (std::vector<FWTableManager *>::const_iterator i = tables.begin();
-	  i != tables.end(); ++i) {
- 	  frame->RemoveFrame((*i)->frame);
-	  frame->RemoveFrame((*i)->title_frame);
-     }
-//      frame->MapSubwindows();
-//      frame->MapWindow(); 
+     // not needed with tabbed FWTextViewPages
 }
 
 void FWTextViewPage::update ()
@@ -119,7 +81,8 @@ void FWTextViewPage::update ()
      }
 }
 
-FWTextView::FWTextView (CmsShowMain *de, FWSelectionManager *sel)
+FWTextView::FWTextView (CmsShowMain *de, FWSelectionManager *sel,
+			FWGUIManager *gui)
      : el_manager(new ElectronTableManager),
        mu_manager(new MuonTableManager),
        jet_manager(new JetTableManager),
@@ -167,14 +130,14 @@ FWTextView::FWTextView (CmsShowMain *de, FWSelectionManager *sel)
      seleman->selectionChanged_.
 	  connect(boost::bind(&FWTextView::selectionChanged,this,_1));
      //------------------------------------------------------------
-     // widget up some tables
+     // widget up some tables (moved to CmsShowMainFrame)
      //------------------------------------------------------------
-     int width=1200;
-     int height=600;
-     TEveBrowser *b = gEve->GetBrowser();
-     b->StartEmbedding();
-     fMain = new TGMainFrame(gClient->GetRoot(),width,height);
-     b->StopEmbedding();
+//   int width=1200;
+//   int height=600;
+//   TEveBrowser *b = gEve->GetBrowser();
+//   b->StartEmbedding();
+//   fMain = new TGMainFrame(gClient->GetRoot(),width,height);
+//   b->StopEmbedding();
      
 //      mu_manager->MakeFrame(fMain, width, height);
 //      el_manager->MakeFrame(fMain, width, height);
@@ -186,11 +149,11 @@ FWTextView::FWTextView (CmsShowMain *de, FWSelectionManager *sel)
 //      track_manager->MakeFrame(fMain, width, height);
 //      vertex_manager->MakeFrame(fMain, width, height);
 	  
-     // use hierarchical cleaning
-     fMain->SetCleanup(kDeepCleanup);
+// //      // use hierarchical cleaning
+//       fMain->SetCleanup(kDeepCleanup);
      
-     // Set a name to the main frame 
-     fMain->SetWindowName("Text view"); 
+// //      // Set a name to the main frame 
+//       fMain->SetWindowName("Text view"); 
      
 //      // Map all subwindows of main frame 
 //      fMain->MapSubwindows(); 
@@ -209,18 +172,18 @@ FWTextView::FWTextView (CmsShowMain *de, FWSelectionManager *sel)
      v_objs.push_back(mu_manager);
      v_objs.push_back(el_manager);
      v_objs.push_back(jet_manager);
-     FWTextViewPage *objects = new FWTextViewPage("Physics objects", 
-						  v_objs, fMain, this);
+     FWTextViewPage *objects = new FWTextViewPage("Physics objects", v_objs, 
+						  gui->m_textViewFrame[0], this);
      std::vector<FWTableManager *> v_trigger;
      v_trigger.push_back(l1_manager);
      v_trigger.push_back(hlt_manager);
-     FWTextViewPage *trigger = new FWTextViewPage("Trigger information", 
-						  v_trigger, fMain, this);
+     FWTextViewPage *trigger = new FWTextViewPage("Trigger information", v_trigger,
+						  gui->m_textViewFrame[1], this);
      std::vector<FWTableManager *> v_tracks;
      v_tracks.push_back(track_manager);
      v_tracks.push_back(vertex_manager);
      FWTextViewPage *tracks = new FWTextViewPage("Tracking", v_tracks,
-						 fMain, this);
+						  gui->m_textViewFrame[2], this);
      page = objects;
      objects->setNext(trigger);
      trigger->setPrev(objects);

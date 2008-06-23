@@ -71,10 +71,10 @@ class TableWidget {
       void UpdateTableTitle(int iCol);
       void UpdateTableRows(int iRow);
       void UpdateTableCells(int iRow, int iCol);
-      void HighlightRow(Int_t rowId, Pixel_t hColor=0);
+      void HighlightRow(Int_t rowId, Pixel_t hColor = 0);
 //      void SelectRow(Int_t rowId, Pixel_t hColor, Mask_t mask=NULL);
-      void SelectRow(Int_t rowId, Mask_t mask=NULL, Pixel_t hColor=NULL);
-     void SelectRows (const std::set<int> &rowIds, Pixel_t hColor=NULL);
+      void SelectRow(Int_t rowId, Mask_t mask = 0, Pixel_t hColor = 0);
+     void SelectRows (const std::set<int> &rowIds, Pixel_t hColor = 0);
 
       void OnTitleClick(Event_t *event);
       void OnRowClick(Event_t *event);
