@@ -118,8 +118,7 @@ Pythia8Source::Pythia8Source( const ParameterSet & pset,
 
   }
 
-  pythia->init( 2212, 2212, 14000.);
-//  pythia.init( 2212, 2212, comenergy);
+  pythia->init( 2212, 2212, comenergy);
 
   ToHepMC = new HepMC::I_Pythia8;
 //  ToHepMC->set_crash_on_problem();
