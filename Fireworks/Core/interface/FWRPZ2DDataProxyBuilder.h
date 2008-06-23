@@ -16,7 +16,7 @@
 //
 // Original Author:  
 //         Created:  Sat Jan  5 15:02:03 EST 2008
-// $Id: FWRPZ2DDataProxyBuilder.h,v 1.6 2008/06/09 19:54:03 chrjones Exp $
+// $Id: FWRPZ2DDataProxyBuilder.h,v 1.7 2008/06/12 15:07:45 chrjones Exp $
 //
 
 // system include files
@@ -30,6 +30,7 @@
 class FWEventItem;
 class TEveElementList;
 class TEveElement;
+class TEveCalo3D;
 
 class FWRPZ2DDataProxyBuilder
 {
@@ -39,6 +40,7 @@ class FWRPZ2DDataProxyBuilder
       virtual ~FWRPZ2DDataProxyBuilder();
 
       // ---------- const member functions ---------------------
+      bool highPriority() const { return m_priority; }
 
       // ---------- static member functions --------------------
 
@@ -54,6 +56,7 @@ class FWRPZ2DDataProxyBuilder
       void addRhoZProj(TEveElement*);
       void clearRhoPhiProjs();
       void clearRhoZProjs();
+      void setHighPriority( bool priority ){ m_priority = priority; }
    
    protected:
       virtual void buildRhoPhi(const FWEventItem* iItem, 
@@ -72,6 +75,7 @@ class FWRPZ2DDataProxyBuilder
       const FWRPZ2DDataProxyBuilder& operator=(const FWRPZ2DDataProxyBuilder&); // stop default
 
       // ---------- member data --------------------------------
+      bool m_priority;
       const FWEventItem* m_item;
 
       TEveElementList* m_rhoPhiElements;
@@ -81,7 +85,8 @@ class FWRPZ2DDataProxyBuilder
       std::vector<TEveElement*> m_rhoZProjs;
 
       std::vector<FWModelId> m_ids;
-
+      static TEveCalo3D* m_caloRhoPhi;
+      static TEveCalo3D* m_caloRhoZ;
 };
 
 
