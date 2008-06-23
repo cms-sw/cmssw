@@ -1,11 +1,11 @@
-// $Id: EcalErrorMask.cc,v 1.33 2008/03/20 08:42:44 dellaric Exp $
+// $Id: EcalErrorMask.cc,v 1.34 2008/04/07 07:24:34 dellaric Exp $
 
 /*!
   \file EcalErrorMask.cc
   \brief Error mask from text file or database
   \author B. Gobbo
-  \version $Revision: 1.33 $
-  \date $Date: 2008/03/20 08:42:44 $
+  \version $Revision: 1.34 $
+  \date $Date: 2008/04/07 07:24:34 $
 */
 
 #include "OnlineDB/EcalCondDB/interface/EcalCondDBInterface.h"
@@ -34,7 +34,6 @@
 #include <sstream>
 #include <regex.h>
 
-bool EcalErrorMask::done_ = false;
 int  EcalErrorMask::runNb_ = -1;
 std::map<EcalLogicID, RunCrystalErrorsDat> EcalErrorMask::mapCrystalErrors_;
 std::map<EcalLogicID, RunTTErrorsDat>      EcalErrorMask::mapTTErrors_;
@@ -45,13 +44,6 @@ std::map<EcalLogicID, RunMemTTErrorsDat>   EcalErrorMask::mapMemTTErrors_;
 //----------------------------------------------------------------------------------
 
 void EcalErrorMask::readFile( std::string& inFile, bool debug, bool verifySyntax ) throw( std::runtime_error ) {
-
-  if( done_ ) {
-    throw( std::runtime_error( "already done." ) );
-    return;
-  }
-
-  done_ = true;
 
   if( verifySyntax ) {
     std::cout << "----------------------------------------------------------------" << std::endl

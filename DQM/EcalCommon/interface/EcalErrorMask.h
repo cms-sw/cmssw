@@ -1,11 +1,11 @@
-// $Id: EcalErrorMask.h,v 1.11 2008/03/14 14:38:56 dellaric Exp $
+// $Id: EcalErrorMask.h,v 1.12 2008/04/07 07:24:33 dellaric Exp $
 
 /*!
   \file EcalErrorMask.h
   \brief Error mask from text file or database
   \author B. Gobbo 
-  \version $Revision: 1.11 $
-  \date $Date: 2008/03/14 14:38:56 $
+  \version $Revision: 1.12 $
+  \date $Date: 2008/04/07 07:24:33 $
 */
 
 #ifndef EcalErrorMask_H
@@ -43,8 +43,6 @@ class EcalErrorMask {
   static void fetchDataSet( std::map< EcalLogicID, RunMemTTErrorsDat>* fillMap );
 
  private:
-
-  static bool done_;
 
   static int runNb_;
 
