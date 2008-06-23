@@ -8,7 +8,7 @@
 //
 // Original Author:  Chris Jones
 //         Created:  Thu Feb 21 11:22:41 EST 2008
-// $Id: FWEveLegoView.cc,v 1.10 2008/06/11 13:57:32 dmytro Exp $
+// $Id: FWEveLegoView.cc,v 1.12 2008/06/19 21:22:18 jmuelmen Exp $
 //
 
 // system include files
@@ -117,7 +117,7 @@ FWEveLegoView::draw(TEveCaloDataHist* data)
    // bool firstTime = (m_lego->GetData() == 0);
    m_lego->SetData(data);
    m_lego->ElementChanged();
-   m_lego->InvalidateCellIdCache();
+   m_lego->DataChanged();
    /*
    if ( firstTime ) {
       m_scene->Repaint();
@@ -131,10 +131,11 @@ FWEveLegoView::draw(TEveCaloDataHist* data)
 void 
 FWEveLegoView::setMinEcalEnergy(double value)
 {
+   const std::string name = "ecalLego";
    if ( ! m_lego->GetData() ) return;
    if ( ! m_ecalSlice )
      for ( int i = 0; i < m_lego->GetData()->GetNSlices(); ++i )
-       if ( strcmp(m_lego->GetData()->RefSliceInfo(i).fHist->GetName(),"ecalLego") )
+       if ( name == m_lego->GetData()->RefSliceInfo(i).fHist->GetName() )
 	 {
 	    m_ecalSlice = &(m_lego->GetData()->RefSliceInfo(i));
 	    break;
@@ -142,17 +143,18 @@ FWEveLegoView::setMinEcalEnergy(double value)
    if ( ! m_ecalSlice ) return;
    m_ecalSlice->fThreshold = value;
    m_lego->ElementChanged();
-   m_lego->InvalidateCellIdCache();
+   m_lego->DataChanged();
    m_viewer->GetGLViewer()->RequestDraw();
 }
 
 void 
 FWEveLegoView::setMinHcalEnergy(double value)
 {
+   const std::string name = "hcalLego";
    if ( ! m_lego->GetData() ) return;
    if ( ! m_hcalSlice )
      for ( int i = 0; i < m_lego->GetData()->GetNSlices(); ++i )
-       if ( strcmp(m_lego->GetData()->RefSliceInfo(i).fHist->GetName(),"hcalLego") )
+       if ( name == m_lego->GetData()->RefSliceInfo(i).fHist->GetName() )
 	 {
 	    m_hcalSlice = &(m_lego->GetData()->RefSliceInfo(i));
 	    break;
@@ -160,7 +162,7 @@ FWEveLegoView::setMinHcalEnergy(double value)
    if ( ! m_hcalSlice ) return;
    m_hcalSlice->fThreshold = value;
    m_lego->ElementChanged();
-   m_lego->InvalidateCellIdCache();
+   m_lego->DataChanged();
    m_viewer->GetGLViewer()->RequestDraw();
 }
 
