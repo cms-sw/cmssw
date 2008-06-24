@@ -1,8 +1,8 @@
 /*
  * \file EcalEndcapMonitorClient.cc
  *
- * $Date: 2008/05/17 07:47:16 $
- * $Revision: 1.185 $
+ * $Date: 2008/06/12 09:21:21 $
+ * $Revision: 1.186 $
  * \author G. Della Ricca
  * \author F. Cossutti
  *
@@ -1512,9 +1512,9 @@ void EcalEndcapMonitorClient::analyze(void){
     if ( verbose_ ) {
       cout << " RUN status = \"" << status_ << "\"" << endl;
       cout << "   CMS  run/event number = " << run_ << "/" << evt_ << endl;
-      cout << "   ECAL run/event number = " << ecal_run << "/" << ecal_evt << endl;
-      cout << "   ECAL location = " << location_ << endl;
-      cout << "   ECAL run/event type = " << this->getRunType() << "/" << ( evtType_ == -1 ? "UNKNOWN" : runTypes_[evtType_] ) << flush;
+      cout << "   EE run/event number = " << ecal_run << "/" << ecal_evt << endl;
+      cout << "   EE location = " << location_ << endl;
+      cout << "   EE run/event type = " << this->getRunType() << "/" << ( evtType_ == -1 ? "UNKNOWN" : runTypes_[evtType_] ) << flush;
 
       if ( h_ ) {
         if ( h_->GetEntries() != 0 ) {
