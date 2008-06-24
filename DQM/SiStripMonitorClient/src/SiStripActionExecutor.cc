@@ -280,8 +280,6 @@ void SiStripActionExecutor::fillGlobalStatus(const edm::ESHandle<SiStripDetCabli
     SummaryTECF->Fill(statusTECF);
     SummaryTECB->Fill(statusTECB);
   
-
-  SummaryReportMap->Reset();
 }
 //
 // -- fill subDetStatus
