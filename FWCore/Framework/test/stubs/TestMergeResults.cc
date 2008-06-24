@@ -1,5 +1,5 @@
 
-// $Id: TestMergeResults.cc,v 1.6 2008/05/28 18:52:01 wdd Exp $
+// $Id: TestMergeResults.cc,v 1.7 2008/06/23 21:15:49 wdd Exp $
 //
 // Reads some simple test objects in the event, run, and lumi
 // principals.  Then checks to see if the values in these
@@ -86,6 +86,8 @@ namespace edmtest
     std::vector<int> expectedBeginLumiNew_;
     std::vector<int> expectedEndLumiNew_;
 
+    std::vector<std::string> expectedParents_;
+
     std::vector<int> expectedDroppedEvent_;
 
     int nRespondToOpenInputFile_;
@@ -109,6 +111,7 @@ namespace edmtest
     unsigned int index5_;
     unsigned int index6_;
     unsigned int index7_;
+    unsigned int parentIndex_;
 
     edm::Handle<edmtest::Thing> h_thing;
     edm::Handle<edmtest::ThingWithMerge> h_thingWithMerge;
@@ -129,6 +132,8 @@ namespace edmtest
     expectedEndRunNew_(ps.getUntrackedParameter<std::vector<int> >("expectedEndRunNew", default_)),
     expectedBeginLumiNew_(ps.getUntrackedParameter<std::vector<int> >("expectedBeginLumiNew", default_)),
     expectedEndLumiNew_(ps.getUntrackedParameter<std::vector<int> >("expectedEndLumiNew", default_)),
+
+    expectedParents_(ps.getUntrackedParameter<std::vector<std::string> >("expectedParents", defaultvstring_)),
 
     expectedDroppedEvent_(ps.getUntrackedParameter<std::vector<int> >("expectedDroppedEvent", default_)),
 
@@ -152,7 +157,9 @@ namespace edmtest
     index4_(0),
     index5_(0),
     index6_(0),
-    index7_(0)
+    index7_(0),
+    parentIndex_(0)
+
   {
   }
 
@@ -167,12 +174,6 @@ namespace edmtest
   void TestMergeResults::analyze(edm::Event const& e,edm::EventSetup const&)
   {
     if (verbose_) edm::LogInfo("TestMergeResults") << "analyze";
-
-    if (expectedDroppedEvent_.size() > 0) {
-      edm::InputTag tag1("makeThingToBeDropped", "event", "PROD");
-      e.getByLabel(tag1, h_thing);
-      assert(h_thing->a == expectedDroppedEvent_[0]);
-    }
 
     Run const& run = e.getRun();
     LuminosityBlock const& lumi = e.getLuminosityBlock();
@@ -200,6 +201,38 @@ namespace edmtest
 
     edm::InputTag tag7("thingWithMergeProducer", "endLumi");
     checkExpectedLumiProducts(index7_, expectedEndLumiNew_, tag7, "analyze", lumi);
+
+    if (expectedDroppedEvent_.size() > 0) {
+      edm::InputTag tag("makeThingToBeDropped", "event", "PROD");
+      e.getByLabel(tag, h_thing);
+      assert(h_thing->a == expectedDroppedEvent_[0]);
+    }
+
+    // I'm not sure this test belongs in this module.  Originally it tested
+    // merging of parentage for run and lumi products, but at some point the
+    // parentage for run/lumi products stopped being written at all so there was
+    // nothing to test.  This was the only real test of the provenance
+    // parentage, so I just converted to a test of the parentage of products
+    // in the Event rather than deleting it or writing a complete new test ...
+    // It is actually convenient here, so maybe it is OK even if the module name
+    // has nothing to do with this test.
+    if (parentIndex_ < expectedParents_.size()) {
+      
+      edm::InputTag tag("thingWithMergeProducer", "event", "PROD");
+      e.getByLabel(tag, h_thing);
+      std::string expectedParent = expectedParents_[parentIndex_];
+      BranchID actualParentBranchID = h_thing.provenance()->entryDescription().parents_[0];
+
+      // There ought to be a get that uses the BranchID as an argument, but
+      // there is not at the moment so we get the Provenance first and use that
+      // find the actual parent
+      Provenance prov = e.getProvenance(actualParentBranchID);
+      assert(expectedParent == prov.moduleLabel());
+      edm::InputTag tagparent(prov.moduleLabel(), prov.productInstanceName(), prov.processName());
+      e.getByLabel(tagparent, h_thing);
+      assert(h_thing->a == 11);
+      ++parentIndex_;
+    }
   }
 
   void TestMergeResults::beginRun(Run const& run, EventSetup const&) {
