@@ -478,9 +478,9 @@ namespace pos{
     
       unsigned int slashpos=base.find_last_of("/");
       if (slashpos==std::string::npos) {
-	std::cout << "[pos::PixelConfigFile::configurationDataExists()]\t\t\tAsking for data of type:" << typeid(data).name() <<std::endl;
-	std::cout << "[pos::PixelConfigFile::configurationDataExists()]\t\t\tOn path:" 	               << path		      <<std::endl;
-	std::cout << "[pos::PixelConfigFile::configurationDataExists()]\t\t\tRecall that you need a trailing /"	              <<std::endl;
+	std::cout << "[pos::PixelConfigFile::configurationDataExists()]\t    Asking for data of type:" << typeid(data).name() <<std::endl;
+	std::cout << "[pos::PixelConfigFile::configurationDataExists()]\t    On path:" 	               << path		      <<std::endl;
+	std::cout << "[pos::PixelConfigFile::configurationDataExists()]\t    Recall that you need a trailing /"	              <<std::endl;
 	::abort();
       }
     
@@ -565,17 +565,17 @@ namespace pos{
 	  {
 	   return true ;
 	  }else{
-	   std::cout << "[pos::PixelConfigFile::configurationDataExists()]\t\t\tCan't find calibration file calib.dat or delay25.dat or fedtestdac.dat" << std::endl;
+	   std::cout << "[pos::PixelConfigFile::configurationDataExists()]\t   Can't find calibration file calib.dat or delay25.dat or fedtestdac.dat" << std::endl;
            return false  ;
 	  }
 	 }
 	}
       }else{
-	std::cout << "[pos::PixelConfigFile::configurationDataExists()]\t\t\tNo match of class type" << std::endl;
+	std::cout << "[pos::PixelConfigFile::configurationDataExists()]\t    No match of class type" << std::endl;
 	return false ;
       }
 
-      std::cout << "[pos::PixelConfigFile::configurationDataExists()]\t\t\tfileName: " << fileName << std::endl ; 
+      std::cout << "[pos::PixelConfigFile::configurationDataExists()]\t    fileName: " << fileName << std::endl ; 
       std::ifstream in(fileName.c_str());
       if (!in.good()){return false ;}
       in.close() ;
@@ -797,7 +797,7 @@ namespace pos{
       std::string dir;
       int version=makeNewVersion(path,dir);
       for(unsigned int i=0;i<objects.size();i++){
-	std::cout << "[pos::PixelConfigFile::put()]\t\tWill write i="<<i<<" ptr: "<<objects[i]<<std::endl;
+	// std::cout << "[pos::PixelConfigFile::put()]\t\t\t\t\tWill write i="<<i<<" ptr: "<<objects[i]<<std::endl;
 	objects[i]->writeASCII(dir);
       }
       return version;
