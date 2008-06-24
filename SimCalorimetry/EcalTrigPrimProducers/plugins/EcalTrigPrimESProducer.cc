@@ -230,8 +230,20 @@ void EcalTrigPrimESProducer::parseTextFile()
   float dataF ;
 
   std::string filename = "SimCalorimetry/EcalTrigPrimProducers/data/"+dbFilename_;
+  size_t found=filename.find(".gz");
+  std::string file_to_read=filename;
   edm::FileInPath fileInPath(filename);
-  infile.open(fileInPath.fullPath().c_str()) ;
+  bool zipped=false;
+  if (found==std::string::npos) {
+    file_to_read=fileInPath.fullPath();
+  }else {
+    zipped=true;
+    std::string todo="gunzip "+fileInPath.fullPath()+" -c >/tmp/dbFilename_";
+    system(todo.c_str());
+    file_to_read="/tmp/dbFilename_";
+    edm::LogInfo("EcalTPG") <<" !!!! Database file "<< dbFilename_<<" was zipped, will be unzipped temporarily !!!!!";
+  }
+  infile.open(file_to_read.c_str()) ;
 
   if (infile.is_open()) {
     while (!infile.eof()) {

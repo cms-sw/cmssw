@@ -2,7 +2,7 @@ import FWCore.ParameterSet.Config as cms
 
 # esmodule creating  records + corresponding empty essource
 EcalTrigPrimESProducer = cms.ESProducer("EcalTrigPrimESProducer",
-    DatabaseFile = cms.untracked.string('TPG.txt')
+    DatabaseFile = cms.untracked.string('TPG.txt.gz')
 )
 
 tpparams = cms.ESSource("EmptyESSource",

@@ -77,7 +77,7 @@ tpparams12 = cms.ESSource("EmptyESSource",
 
 # Event Setup module
 EcalTrigPrimESProducer = cms.ESProducer("EcalTrigPrimESProducer",
-    DatabaseFile = cms.untracked.string('TPG_MIPs.txt')
+    DatabaseFile = cms.untracked.string('TPG_MIPs.txt.gz')
 )
 
 # Ecal Trig Prim module

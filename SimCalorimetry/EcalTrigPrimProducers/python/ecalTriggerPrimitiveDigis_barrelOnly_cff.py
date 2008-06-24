@@ -4,7 +4,7 @@ import FWCore.ParameterSet.Config as cms
 from SimCalorimetry.EcalTrigPrimProducers.ecalTriggerPrimitiveDigis_cfi import *
 # esmodule creating  all the records
 EcalTrigPrimESProducer = cms.ESProducer("EcalTrigPrimESProducer",
-    DatabaseFile = cms.untracked.string('TPG.txt')
+    DatabaseFile = cms.untracked.string('TPG.txt.gz')
 )
 
 # corresponding es_sources
