@@ -8,7 +8,7 @@
 //
 // Original Author:  
 //         Created:  Sun Jan  6 23:57:00 EST 2008
-// $Id: CaloJetProxyRhoPhiZ2DBuilder.cc,v 1.10 2008/06/10 22:31:08 chrjones Exp $
+// $Id: CaloJetProxyRhoPhiZ2DBuilder.cc,v 1.11 2008/06/23 06:30:07 dmytro Exp $
 //
 
 // system include files
@@ -118,6 +118,7 @@ CaloJetProxyRhoPhiZ2DBuilder::buildRhoPhi(const FWEventItem* iItem,
 	 TEveElement* element = TEveGeoShape::ImportShapeExtract(sc, 0);
 	 element->SetPickable(kTRUE);
 	 container->AddElement(element);
+	 marker->SetScaleCenter( r_ecal*cos(phi), r_ecal*sin(phi), 0 );
 	 marker->AddLine( r_ecal*cos(phi), r_ecal*sin(phi), 0, (r_ecal+size)*cos(phi), (r_ecal+size)*sin(phi), 0);
 	 container->AddElement(marker);
       }
@@ -193,6 +194,7 @@ CaloJetProxyRhoPhiZ2DBuilder::buildRhoZ(const FWEventItem* iItem,
 	 TEveScalableStraightLineSet* marker = new TEveScalableStraightLineSet("energy");
 	 marker->SetLineWidth(4);
 	 marker->SetLineColor(  iItem->defaultDisplayProperties().color() );
+	 marker->SetScaleCenter( 0., (jet->phi()>0 ? r*fabs(sin(theta)) : -r*fabs(sin(theta))), r*cos(theta) );
 	 marker->AddLine(0., (jet->phi()>0 ? r*fabs(sin(theta)) : -r*fabs(sin(theta))), r*cos(theta),
 			 0., (jet->phi()>0 ? (r+size)*fabs(sin(theta)) : -(r+size)*fabs(sin(theta))), (r+size)*cos(theta) );
 	 container->AddElement( marker );
