@@ -37,7 +37,6 @@ class TtSemiJetCombMVAComputer : public edm::EDProducer {
   edm::InputTag jets_;
 
   unsigned int nJetsMax_;
-  double discrimCut_;
 
   PhysicsTools::MVAComputerCache mvaComputer;
 };

@@ -9,8 +9,7 @@
 TtSemiJetCombMVAComputer::TtSemiJetCombMVAComputer(const edm::ParameterSet& cfg):
   leptons_   (cfg.getParameter<edm::InputTag>("leptons")),
   jets_      (cfg.getParameter<edm::InputTag>("jets")),
-  nJetsMax_  (cfg.getParameter<int>("nJetsMax")),
-  discrimCut_(cfg.getParameter<double>("discrimCut"))
+  nJetsMax_  (cfg.getParameter<int>("nJetsMax"))
 {
   produces< std::vector<int> >();
 }
