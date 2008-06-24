@@ -13,7 +13,7 @@
 //
 // Original Author:  Traczyk Piotr
 //         Created:  Thu Oct 11 15:01:28 CEST 2007
-// $Id: BetaFromTOF.cc,v 1.15 2008/04/07 14:02:59 ptraczyk Exp $
+// $Id: BetaFromTOF.cc,v 1.16 2008/05/19 08:41:04 ptraczyk Exp $
 //
 //
 
@@ -246,7 +246,6 @@ BetaFromTOF::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
       // find the standalone muon matching the global muon
       if ((staMuon->momentum().unit()-candTrack->momentum().unit()).Mag2()>0.01) continue;
 
-      vector <double> dstnc, dsegm, dtraj, hitWeight, left;
       int totalWeight=0;
       int nStations=0;
 
@@ -254,6 +253,7 @@ BetaFromTOF::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
         cout << " STA Track:   RecHits: " << (*candTrack).recHitsSize() 
              << " momentum: " << (*candTrack).p() << endl;
 
+      // first, create a collection on TimeMeasurements for the track
       for (trackingRecHit_iterator hi=(*candTrack).recHitsBegin(); hi!=(*candTrack).recHitsEnd(); hi++) {
 
         // Check that we're in DT
@@ -293,7 +293,6 @@ BetaFromTOF::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
 
             const GeomDet* geomDet = theTrackingGeometry->idToDet(segm->geographicalId());
             const vector<DTRecHit1D> hits1d = segm->specificRecHits();
-            vector <TimeMeasurement> seg;
 
             // store all the hits from the segment
     	    for (vector<DTRecHit1D>::const_iterator hiti=hits1d.begin(); hiti!=hits1d.end(); hiti++) {
@@ -309,173 +308,186 @@ BetaFromTOF::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
               thisHit.station = station;
                   
               tof.timeMeasurements.push_back(thisHit);
-              seg.push_back(thisHit);
             }
-
-            // Check if both phi and theta segments exist in the 4D Segment
-            if ((!rechit->hasPhi()) || (!rechit->hasZed())) continue;
-
-            nStations++;
-                                  
-            unsigned int segsize = seg.size();
-          
-            if (segsize<theHitsMin) continue;
-
-            double a=0, b=0, celly, chi2, chi2max, t0=0.;
-            vector <double> hitxl,hitxr,hityl,hityr;
-            vector<TimeMeasurement>::iterator tmmax;
-
-            // Rebuild the segment cutting away outliers
-            do {
-              hitxl.clear();
-              hityl.clear();
-              hitxr.clear();
-              hityr.clear();
-              tmmax=seg.begin();
-              chi2max=-1.;
-              segsize=seg.size();
-
-              for (vector<TimeMeasurement>::iterator tm=seg.begin(); tm!=seg.end(); ++tm) {
-                DetId id = tm->driftCell;
-                const GeomDet* dtcell = theTrackingGeometry->idToDet(id);
-                DTChamberId chamberId(id.rawId());
-                const GeomDet* dtcham = theTrackingGeometry->idToDet(chamberId);
-
-                celly=dtcham->toLocal(dtcell->position()).z();
-            
-                if (tm->isLeft) {
-                  hitxl.push_back(celly);
-                  hityl.push_back(tm->posInLayer);
-                } else {
-                  hitxr.push_back(celly);
-                  hityr.push_back(tm->posInLayer);
-                }
-              }
-
-              t0 = fitT0(a,b,hitxl,hityl,hitxr,hityr);
-
-              for (vector<TimeMeasurement>::iterator tm=seg.begin(); tm!=seg.end(); ++tm) {
- 
-                DetId id = tm->driftCell;
-                const GeomDet* dtcell = theTrackingGeometry->idToDet(id);
-                DTChamberId chamberId(id.rawId());
-                const GeomDet* dtcham = theTrackingGeometry->idToDet(chamberId);
-
-                celly=dtcham->toLocal(dtcell->position()).z();
-                chi2 = (a * celly + b - tm->posInLayer)/0.02;
-                chi2*= chi2;
-            
-                // calculate chi2 if this is not the 1-st pass
-                if ((chi2>chi2max) && (a!=0)) {
-                  chi2max=chi2;
-                  tmmax=tm;
-                }
-            
-                if (debug) 
-                  cout << " Hit x= " << tm->posInLayer << "  z= " << celly << "  chi2= " << chi2 << endl;
-              }
-            
-              if (chi2max>thePruneCut) seg.erase(tmmax); 
-
-              if (debug)     	        
-                cout << "     Segment size: " << seg.size() << "  t0 from fit: " << t0 << endl;  
-            } while ((segsize!=seg.size()) && (seg.size()>2) && (a!=0));
-
-            if (t0==0) {
-              if (debug)
-                cout << "     t0 = zero, Left hits: " << hitxl.size() << " Right hits: " << hitxr.size() << endl;
-              continue;
-            }
-
-            if (seg.size()<theHitsMin) continue;
-
-            for (vector<TimeMeasurement>::const_iterator tm=seg.begin(); tm!=seg.end(); ++tm) {
- 
-              DetId id = tm->driftCell;
-              const GeomDet* dtcell = theTrackingGeometry->idToDet(id);
-              DTChamberId chamberId(id.rawId());
-              const GeomDet* dtcham = theTrackingGeometry->idToDet(chamberId);
-              celly=dtcham->toLocal(dtcell->position()).z();
-
-              double dist = tm->distIP;
-              double layerZ  = dtcham->toLocal(dtcell->position()).z();
-              double segmLocalPos = b+layerZ*a;
-              double hitLocalPos = tm->posInLayer;
-              int hitSide = -tm->isLeft*2+1;
-              double t0_segm = (-(hitSide*segmLocalPos)+(hitSide*hitLocalPos))/0.00543;
-            
-              std::pair< TrajectoryStateOnSurface, double> tsos;
-              tsos=propag->propagateWithPath(muonFTS,dtcell->surface());
-            
-              if (tsos.first.isValid()) dist = tsos.second+posp.mag();
-            
-              if ((debug) || (fabs(dist)>100.)) {
-                cout << " Dist: " << dist << "   segm: " << segmLocalPos << "   hit: " << hitLocalPos;
-                if (tsos.first.isValid()) cout << " traj: " << dtcham->toLocal(tsos.first.globalPosition()) << " path: " << tsos.second+posp.mag();
-                cout << " Start: " << posp;
-                cout << endl;
-              }
-
-              dstnc.push_back(dist);
-              dsegm.push_back(t0_segm);
-              left.push_back(hitSide);
-              hitWeight.push_back(((double)seg.size()-2.)/(double)seg.size());
-            }
-          
-            totalWeight+=seg.size()-2;
 
           } // phi = (0,1) 	        
         } // rechit
       } // hi
 
-      nStations/=2;
-
-      invbeta=0;
-      // calculate the value and error of 1/beta from the complete set of 1D hits
-      if (debug)
-        cout << " Points for global fit: " << dstnc.size() << endl;
-
-      // inverse beta - weighted average of the contributions from individual hits
-      for (unsigned int i=0;i<dstnc.size();i++) {
-//        cout << "    Dstnc: " << dstnc.at(i) << "   delta t0(hit-segment): " << dsegm.at(i) << "   weight: " << hitWeight.at(i); 
-//        cout << " Local 1/beta: " << 1.+dsegm.at(i)/dstnc.at(i)*30. << endl;
-        invbeta+=(1.+dsegm.at(i)/dstnc.at(i)*30.)*hitWeight.at(i)/totalWeight;
-      }
-    
-      // the dispersion of inverse beta
-      double invbetaerr=0,diff;
-      for (unsigned int i=0;i<dstnc.size();i++) {
-        diff=(1.+dsegm.at(i)/dstnc.at(i)*30.)-invbeta;
-        invbetaerr+=diff*diff*hitWeight.at(i);
-      }
-    
-      invbetaerr=sqrt(invbetaerr)/totalWeight;
-
-      if (debug)
-        cout << " Measured 1/beta: " << invbeta << " +/- " << invbetaerr << endl;
-
-      tof.invBeta=invbeta;
-      tof.invBetaErr=invbetaerr;
+      // Make a copy of the time measurement collection - we'll be cutting away hits, but we want to store all
+      vector<TimeMeasurement> tms = tof.timeMeasurements;
       
+      bool modified = false;
+      totalWeight=0;
+      nStations=0;
+      vector <double> dstnc, dsegm, dtraj, hitWeight, left;
+    
+      // Now loop over the measurements, calculate 1/beta and cut away outliers
+      do {    
+
+      modified = false;
+      dstnc.clear();
+      dsegm.clear();
+      dtraj.clear();
+      hitWeight.clear();
+      left.clear();
+      
+      vector <int> hit_idx;
+      totalWeight=0;
+      nStations=0;
+      
+      // Rebuild segments
+      for (int sta=1;sta<5;sta++)
+        for (int phi=0;phi<2;phi++) {
+          vector <TimeMeasurement> seg;
+          vector <int> seg_idx;
+          int tmpos=0;
+          for (vector<TimeMeasurement>::iterator tm=tms.begin(); tm!=tms.end(); ++tm) {
+            if ((tm->station==sta) && (tm->isPhi==phi)) {
+              seg.push_back(*tm);
+              seg_idx.push_back(tmpos);
+            }
+            tmpos++;  
+          }
+          
+          unsigned int segsize = seg.size();
+          
+          if (segsize<theHitsMin) continue;
+
+          double a=0, b=0;
+          vector <double> hitxl,hitxr,hityl,hityr;
+
+          for (vector<TimeMeasurement>::iterator tm=seg.begin(); tm!=seg.end(); ++tm) {
+ 
+            DetId id = tm->driftCell;
+            const GeomDet* dtcell = theTrackingGeometry->idToDet(id);
+            DTChamberId chamberId(id.rawId());
+            const GeomDet* dtcham = theTrackingGeometry->idToDet(chamberId);
+
+            double celly=dtcham->toLocal(dtcell->position()).z();
+            
+            if (tm->isLeft) {
+                hitxl.push_back(celly);
+                hityl.push_back(tm->posInLayer);
+            } else {
+                hitxr.push_back(celly);
+                hityr.push_back(tm->posInLayer);
+            }    
+          }
+
+          if (!fitT0(a,b,hitxl,hityl,hitxr,hityr)) {
+            if (debug)
+              cout << "     t0 = zero, Left hits: " << hitxl.size() << " Right hits: " << hitxr.size() << endl;
+            continue;
+          }
+          
+          // a segment must have at least one left and one right hit
+          if ((!hitxl.size()) || (!hityl.size())) continue;
+
+          nStations++;
+
+          int segidx=0;
+          for (vector<TimeMeasurement>::const_iterator tm=seg.begin(); tm!=seg.end(); ++tm) {
+
+            DetId id = tm->driftCell;
+            const GeomDet* dtcell = theTrackingGeometry->idToDet(id);
+            DTChamberId chamberId(id.rawId());
+            const GeomDet* dtcham = theTrackingGeometry->idToDet(chamberId);
+
+            double dist = tm->distIP;
+            double layerZ  = dtcham->toLocal(dtcell->position()).z();
+            double segmLocalPos = b+layerZ*a;
+            double hitLocalPos = tm->posInLayer;
+            int hitSide = -tm->isLeft*2+1;
+            double t0_segm = (-(hitSide*segmLocalPos)+(hitSide*hitLocalPos))/0.00543;
+            
+            std::pair< TrajectoryStateOnSurface, double> tsos;
+            tsos=propag->propagateWithPath(muonFTS,dtcell->surface());
+            
+            if (tsos.first.isValid()) dist = tsos.second+posp.mag();
+            
+            if ((debug) || (fabs(dist)>1000.)) {
+              cout << " Dist: " << dist << "   segm: " << segmLocalPos << "   hit: " << hitLocalPos;
+              if (tsos.first.isValid()) cout << " traj: " << dtcham->toLocal(tsos.first.globalPosition()) << " path: " << tsos.second+posp.mag();
+              cout << " Start: " << posp;
+              cout << endl;
+            }
+
+            dstnc.push_back(dist);
+            dsegm.push_back(t0_segm);
+            left.push_back(hitSide);
+            hitWeight.push_back(((double)seg.size()-2.)/(double)seg.size());
+            hit_idx.push_back(seg_idx.at(segidx));
+            segidx++;
+          }
+          
+          totalWeight+=seg.size()-2;
+
+        }
+
+        nStations/=2;
+        invbeta=0;
+
+        // calculate the value and error of 1/beta from the complete set of 1D hits
+        if (debug)
+          cout << " Points for global fit: " << dstnc.size() << endl;
+
+        // inverse beta - weighted average of the contributions from individual hits
+        for (unsigned int i=0;i<dstnc.size();i++) {
+          invbeta+=(1.+dsegm.at(i)/dstnc.at(i)*30.)*hitWeight.at(i)/totalWeight;
+//          cout << "    Dstnc: " << dstnc.at(i) << "   delta t0(hit-segment): " << dsegm.at(i) << "   weight: " << hitWeight.at(i); 
+//          cout << " Local 1/beta: " << 1.+dsegm.at(i)/dstnc.at(i)*30. << endl;
+        }
+
+        double chimax=0.;
+        vector<TimeMeasurement>::iterator tmmax;
+    
+        // the dispersion of inverse beta
+        double invbetaerr=0,diff;
+        for (unsigned int i=0;i<dstnc.size();i++) {
+          diff=(1.+dsegm.at(i)/dstnc.at(i)*30.)-invbeta;
+          diff=diff*diff*hitWeight.at(i);
+          invbetaerr+=diff;
+          if (diff/totalWeight/totalWeight>chimax/100.) { 
+            tmmax=tms.begin()+hit_idx.at(i);
+            chimax=diff;
+          }
+        }
+    
+        invbetaerr=sqrt(invbetaerr)/totalWeight;
+ 
+        // cut away the outliers
+        if (chimax>thePruneCut) {
+          tms.erase(tmmax);
+          modified=true;
+        }    
+
+        if (debug)
+          cout << " Measured 1/beta: " << invbeta << " +/- " << invbetaerr << endl;
+
+        tof.invBeta=invbeta;
+        tof.invBetaErr=invbetaerr;      
+
+//      if ((invbetaerr>0.07) || (stationHits[0]>1)) {
+//        cout << " *** Beta: " << invbeta << " +/- " << invbetaerr << "   All Hits: " << dstnc.size() << endl;
+//        for (int a=0;a<4;a++) cout << "     St: " << a+1 << "   4d hits: " << stationHits[a] << endl;
+//        for (unsigned int i=0;i<dstnc.size();i++)
+//          cout << "    x: " << dstnc.at(i) << "   y: " << dsegm.at(i) << " Local 1/beta: " << 1.+dsegm.at(i)/dstnc.at(i)*30. << endl;
+//      }
+        
+      } while (modified);
+
       // unconstrained fit to the full set of points
       vector <double> x,y;
       double freeBeta, freeBetaErr, freeTime, freeTimeErr, vertexTime=0, vertexTimeErr=0;    
 
       for (unsigned int i=0;i<dstnc.size();i++) {
-//        cout << "    Dstnc: " << dstnc.at(i) << "   delta t0(hit-segment): " << dsegm.at(i) << "   weight: " << hitWeight.at(i); 
-//        cout << " Local 1/beta: " << 1.+dsegm.at(i)/dstnc.at(i)*30. << endl;
         x.push_back(dstnc.at(i)/30.);
         y.push_back(dsegm.at(i)+dstnc.at(i)/30.);
         vertexTime+=dsegm.at(i)*hitWeight.at(i)/totalWeight;
       }
 
-      if ((invbetaerr>0.07) || (stationHits[0]>1)) {
-        cout << " *** Beta: " << invbeta << " +/- " << invbetaerr << "   All Hits: " << dstnc.size() << endl;
-        for (int a=0;a<4;a++) cout << "     St: " << a+1 << "   4d hits: " << stationHits[a] << endl;
-        for (unsigned int i=0;i<dstnc.size();i++)
-          cout << "    x: " << dstnc.at(i) << "   y: " << dsegm.at(i) << " Local 1/beta: " << 1.+dsegm.at(i)/dstnc.at(i)*30. << endl;
-      }
-
+      double diff;
       for (unsigned int i=0;i<dstnc.size();i++) {
         diff=dsegm.at(i)-vertexTime;
         vertexTimeErr+=diff*diff*hitWeight.at(i);
