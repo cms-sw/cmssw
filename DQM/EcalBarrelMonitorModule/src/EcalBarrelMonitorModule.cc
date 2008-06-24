@@ -1,8 +1,8 @@
 /*
  * \file EcalBarrelMonitorModule.cc
  *
- * $Date: 2008/05/11 09:50:51 $
- * $Revision: 1.180 $
+ * $Date: 2008/05/17 07:59:57 $
+ * $Revision: 1.181 $
  * \author G. Della Ricca
  * \author G. Franzoni
  *
@@ -420,7 +420,7 @@ void EcalBarrelMonitorModule::analyze(const Event& e, const EventSetup& c){
   if ( evtType_ >= 0 && evtType_ <= 22 ) {
     if ( meEvtType_ ) meEvtType_->Fill(evtType_+0.5);
   } else {
-    LogWarning("EcalBarrelMonitorModule") << "Unknown event type = " << evtType_ << " at event: " << ievt_;
+    if ( evtType_ != -1 ) LogWarning("EcalBarrelMonitorModule") << "Unknown event type = " << evtType_ << " at event: " << ievt_;
     if ( meEvtType_ ) meEvtType_->Fill(-1);
   }
 

@@ -1,8 +1,8 @@
 /*
  * \file EcalEndcapMonitorModule.cc
  *
- * $Date: 2008/05/11 09:50:52 $
- * $Revision: 1.56 $
+ * $Date: 2008/05/17 07:59:57 $
+ * $Revision: 1.57 $
  * \author G. Della Ricca
  * \author G. Franzoni
  *
@@ -420,7 +420,7 @@ void EcalEndcapMonitorModule::analyze(const Event& e, const EventSetup& c){
   if ( evtType_ >= 0 && evtType_ <= 22 ) {
     if ( meEvtType_ ) meEvtType_->Fill(evtType_+0.5);
   } else {
-    LogWarning("EcalEndcapMonitorModule") << "Unknown event type = " << evtType_ << " at event: " << ievt_;
+    if ( evtType_ != -1 ) LogWarning("EcalEndcapMonitorModule") << "Unknown event type = " << evtType_ << " at event: " << ievt_;
     if ( meEvtType_ ) meEvtType_->Fill( -1 );
   }
 
