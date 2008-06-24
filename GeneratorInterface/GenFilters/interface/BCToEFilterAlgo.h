@@ -19,6 +19,7 @@
 #include "FWCore/Framework/interface/EventSetup.h"
 #include "FWCore/Framework/interface/MakerMacros.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
+#include "FWCore/ParameterSet/interface/InputTag.h"
 
 #include "DataFormats/HepMCCandidate/interface/GenParticle.h"
 
@@ -46,7 +47,7 @@ class BCToEFilterAlgo {
   float FILTER_ETA_MAX_;
   //filter parameters:
   float eTThreshold_;
-
+  edm::InputTag genParSource_;
   
 };
 #endif

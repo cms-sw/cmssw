@@ -9,7 +9,7 @@ BCToEFilterAlgo::BCToEFilterAlgo(const edm::ParameterSet& iConfig) {
   //set constants
   FILTER_ETA_MAX_=2.5;
   eTThreshold_=(float)iConfig.getParameter<double>("eTThreshold");
-  
+  genParSource_=iConfig.getParameter<edm::InputTag>("genParSource");
 
 }
 
@@ -26,7 +26,7 @@ bool BCToEFilterAlgo::filter(const edm::Event& iEvent)  {
   
   
   Handle<reco::GenParticleCollection> genParsHandle;
-  iEvent.getByLabel("genParticles",genParsHandle);
+  iEvent.getByLabel(genParSource_,genParsHandle);
   reco::GenParticleCollection genPars=*genParsHandle;
 
   for (uint32_t ig=0;ig<genPars.size();ig++) {

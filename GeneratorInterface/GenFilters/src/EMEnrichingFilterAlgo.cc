@@ -44,7 +44,7 @@ EMEnrichingFilterAlgo::EMEnrichingFilterAlgo(const edm::ParameterSet& iConfig) {
   tkIsoMax_=(float) iConfig.getParameter<double>("tkIsoMax");
   caloIsoMax_=(float) iConfig.getParameter<double>("caloIsoMax");
   requireTrackMatch_=iConfig.getParameter<bool>("requireTrackMatch");
-    
+  genParSource_=iConfig.getParameter<edm::InputTag>("genParSource");
 
 }
 
@@ -56,7 +56,7 @@ bool EMEnrichingFilterAlgo::filter(const edm::Event& iEvent, const edm::EventSet
 
 
   Handle<reco::GenParticleCollection> genParsHandle;
-  iEvent.getByLabel("genParticles",genParsHandle);
+  iEvent.getByLabel(genParSource_,genParsHandle);
   reco::GenParticleCollection genPars=*genParsHandle;
 
   //bending of traj. of charged particles under influence of B-field

@@ -18,6 +18,7 @@
 #include "FWCore/Framework/interface/EventSetup.h"
 #include "FWCore/Framework/interface/MakerMacros.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
+#include "FWCore/ParameterSet/interface/InputTag.h"
 
 #include "DataFormats/HepMCCandidate/interface/GenParticle.h"
 
@@ -66,6 +67,7 @@ class EMEnrichingFilterAlgo {
   float tkIsoMax_;
   float caloIsoMax_;
   bool requireTrackMatch_;
-  
+  edm::InputTag genParSource_;
+
 };
 #endif
