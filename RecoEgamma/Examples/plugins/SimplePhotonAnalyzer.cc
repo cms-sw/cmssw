@@ -1,7 +1,7 @@
 /**\class PhotonSimpleAnalyzer
  **
- ** $Date: 2008/06/03 14:16:07 $ 
- ** $Revision: 1.15 $
+ ** $Date: 2008/06/06 16:13:42 $ 
+ ** $Revision: 1.16 $
  ** \author Nancy Marinelli, U. of Notre Dame, US
 */
 
@@ -71,9 +71,9 @@ SimplePhotonAnalyzer::beginJob(edm::EventSetup const&) {
   float hiRes=0;
   if ( sample_ ==1 ) {
     loE=0.;
-    hiE=50.;
+    hiE=30.;
     loEt=0.;
-    hiEt=15.;
+    hiEt=30.;
     dPhi=0.2;
     loRes=0.;
     hiRes=1.2;
@@ -96,6 +96,8 @@ SimplePhotonAnalyzer::beginJob(edm::EventSetup const&) {
   }
 
 
+  effEta_ = fs->make<TProfile> ("effEta"," Photon reconstruction efficiency",50,-2.5,2.5);
+  effPhi_ = fs->make<TProfile> ("effPhi"," Photon reconstruction efficiency",80, -3.14, 3.14);
 
   h1_scEta_ = fs->make<TH1F>("scEta"," SC Eta ",40,-3., 3.);
   h1_scPhi_ = fs->make<TH1F>("scPhi"," SC Phi ",40,-3.14, 3.14);
@@ -187,6 +189,10 @@ SimplePhotonAnalyzer::analyze( const edm::Event& evt, const edm::EventSetup& es 
       std::vector<reco::Photon> localPhotons;
       int index=0;
       int iMatch=-1;
+     
+      float phiPho=(*p)->momentum().phi();
+      float etaPho=(*p)->momentum().eta();
+      etaPho = etaTransformation(etaPho, (*p)->production_vertex()->position().z()/10. );
 
 
 
@@ -201,9 +207,6 @@ SimplePhotonAnalyzer::analyze( const edm::Event& evt, const edm::EventSetup& es 
 	/// Match reconstructed photon candidates with the nearest generated photonPho;
 	float phiClu=localPho.phi();
 	float etaClu=localPho.eta();
-	float phiPho=(*p)->momentum().phi();
-	float etaPho=(*p)->momentum().eta();
-	etaPho = etaTransformation(etaPho, (*p)->production_vertex()->position().z()/10. );
 	float deltaPhi = phiClu-phiPho;
 	float deltaEta = etaClu-etaPho;
 
@@ -220,8 +223,15 @@ SimplePhotonAnalyzer::analyze( const edm::Event& evt, const edm::EventSetup& es 
 	index++;
       } // End loop over uncorrected photons
 
+      double wt=0.;
+      if ( iMatch>-1 ) wt=1.; 
+          
+      effEta_ ->Fill ( etaPho, wt);
+      effPhi_ ->Fill ( phiPho, wt);
+
       /// Plot kinematic disctributions for matched photons
       if (iMatch>-1) {
+
 
 	bool  phoIsInBarrel=false;
 	bool  phoIsInEndcap=false;

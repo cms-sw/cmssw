@@ -3,8 +3,8 @@
 /**\class SimplePhotonAnalyzer
  **
  ** Description: Get Photon collection from the event and make very basic histos
- ** $Date: 2008/04/25 23:42:33 $
- ** $Revision: 1.7 $
+ ** $Date: 2008/06/03 13:55:21 $
+ ** $Revision: 1.8 $
  ** \author Nancy Marinelli, U. of Notre Dame, US
  **
  **/
@@ -29,6 +29,7 @@
 
 #include <string>
 #include "TH1.h"
+#include "TProfile.h"
 class TFile;
 
 
@@ -57,6 +58,10 @@ class SimplePhotonAnalyzer : public edm::EDAnalyzer {
 
       std::string vertexProducer_;
       float sample_;
+
+ 
+      TProfile* effEta_;
+      TProfile* effPhi_;
 
       TH1F* h1_scE_;
       TH1F* h1_scEt_;
