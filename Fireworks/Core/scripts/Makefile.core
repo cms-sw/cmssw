@@ -48,6 +48,8 @@ LibCore = CMSDataFormats
 # Don't change
 LinkerOptions := -Wl,-rpath -Wl,
 
+LDLIBRARYPATH := `pwd` `pwd`/external/lib $(FWROOTSYS)/lib
+
 all: core install
 
 install:
@@ -62,7 +64,7 @@ install:
 	chmod u+x root.sh
 #	$(QUIET) find tmp -name "*.d" -exec rm {} \;
 
-core:   env lib$(LibCore).so tmp/lib$(LibCore).so.out
+core:   lib$(LibCore).so tmp/lib$(LibCore).so.out
 	
 lib$(LibCore).so: $(CoreObjects) $(CoreObjectsC) $(CoreRootDicObjects) $(CoreDictionaryObjects)
 	$(QUIET) echo "linking core library $(LibCore)"; \
