@@ -15,7 +15,7 @@
 
 //
 // Original Author:  Marc Paterno
-// $Id: JobReport.cc,v 1.36 2008/06/24 21:08:35 ewv Exp $
+// $Id: JobReport.cc,v 1.37 2008/06/24 21:12:18 ewv Exp $
 //
 
 
@@ -668,8 +668,6 @@ namespace edm
     if(impl_->ost_) {
       std::ostream& msg=*(impl_->ost_);
       msg << "<TimingService>\n";
-
-
       std::map<std::string, double>::const_iterator pos;
       for (pos = timingData.begin(); pos != timingData.end(); ++pos){
         msg <<  "  <" << pos->first
@@ -678,6 +676,39 @@ namespace edm
       }
       msg << "</TimingService>\n";
       //LogInfo("FwkJob") << msg.str();
+      msg << std::flush;
+    }
+  }
+
+  void
+  JobReport::reportMemoryInfo(std::map<std::string, double> const& memoryData){
+
+    if(impl_->ost_) {
+      std::ostream& msg=*(impl_->ost_);
+      msg << "<MemoryService>\n";
+      std::map<std::string, double>::const_iterator pos;
+      for (pos = memoryData.begin(); pos != memoryData.end(); ++pos){
+        msg <<  "  <" << pos->first
+        <<  "  Value=\"" << pos->second  << "\" />"
+        <<  "\n";
+      }
+      msg << "</MemoryService>\n";
+      msg << std::flush;
+    }
+  }
+
+  void
+  JobReport::reportMemoryInfo(std::vector<std::string> const& memoryData){
+
+    if(impl_->ost_) {
+      std::ostream& msg=*(impl_->ost_);
+      msg << "<MemoryService>\n";
+
+      std::vector<std::string>::const_iterator pos;
+      for (pos = memoryData.begin(); pos != memoryData.end(); ++pos){
+        msg << *pos << "\n";
+      }
+      msg << "</MemoryService>\n";
       msg << std::flush;
     }
   }
