@@ -1,5 +1,5 @@
 //
-// $Id: PATJetProducer.cc,v 1.18 2008/06/08 12:24:02 vadler Exp $
+// $Id: PATJetProducer.cc,v 1.19 2008/06/09 16:15:37 gpetrucc Exp $
 //
 
 #include "PhysicsTools/PatAlgos/plugins/PATJetProducer.h"
@@ -77,6 +77,12 @@ PATJetProducer::PATJetProducer(const edm::ParameterSet& iConfig) {
     theBResoCalc_ = new ObjectResolutionCalc(edm::FileInPath(caliBJetResoFile_).fullPath(), useNNReso_);
   }
 
+  // Efficiency configurables
+  addEfficiencies_ = iConfig.getParameter<bool>("addEfficiencies");
+  if (addEfficiencies_) {
+     efficiencyLoader_ = pat::helper::EfficiencyLoader(iConfig.getParameter<edm::ParameterSet>("efficiencies"));
+  }
+
   std::vector<std::string> discriminatorNames = iConfig.getParameter<std::vector<std::string> >("discriminatorNames");
   if (discriminatorNames.empty()) { 
     addDiscriminators_ = false; // there's no point to read all discriminators and save none ;-)
@@ -114,6 +120,8 @@ void PATJetProducer::produce(edm::Event & iEvent, const edm::EventSetup & iSetup
   // Get the vector of jets
   edm::Handle<edm::View<JetType> > jets;
   iEvent.getByLabel(jetsSrc_, jets);
+
+  if (efficiencyLoader_.enabled()) efficiencyLoader_.newEvent(iEvent);
 
   // for jet flavour
   edm::Handle<reco::JetFlavourMatchingCollection> jetFlavMatch;
@@ -203,6 +211,10 @@ void PATJetProducer::produce(edm::Event & iEvent, const edm::EventSetup & iSetup
       if (genjet.isNonnull() && genjet.isAvailable()) {
           ajet.setGenJet(*genjet);
       } // leave empty if no match found
+    }
+
+    if (efficiencyLoader_.enabled()) {
+        efficiencyLoader_.setEfficiencies( ajet, jetRef );
     }
 
     // TO BE IMPLEMENTED FOR >=1_5_X: do the PartonJet matching

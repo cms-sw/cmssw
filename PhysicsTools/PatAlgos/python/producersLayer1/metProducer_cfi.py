@@ -21,6 +21,10 @@ allLayer1METs = cms.EDProducer("PATMETProducer",
     addGenMET    = cms.bool(True),
     genMETSource = cms.InputTag("genMet"), ## GenMET source to be used for the matching
 
+    # Efficiencies
+    addEfficiencies = cms.bool(False),
+    efficiencies    = cms.PSet(),
+
 )
 
 

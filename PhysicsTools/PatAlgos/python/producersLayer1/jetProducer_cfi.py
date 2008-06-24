@@ -52,6 +52,10 @@ allLayer1Jets = cms.EDProducer("PATJetProducer",
     # Jet flavour idetification configurables
     getJetMCFlavour    = cms.bool(True),
     JetPartonMapSource = cms.InputTag("jetFlavourAssociation"), ## the match-collection, produced by default from PATHighLevelReco.cff
+
+    # Efficiencies
+    addEfficiencies = cms.bool(False),
+    efficiencies    = cms.PSet(),
 )
 
 

@@ -49,7 +49,11 @@ allLayer1GenericParticles = cms.EDProducer("PATGenericParticleProducer",
 
     # MC matching configurables
     addGenMatch = cms.bool(False),
-    genParticleMatch = cms.InputTag("REPLACE_ME") ## particles source to be used for the matching
+    genParticleMatch = cms.InputTag("REPLACE_ME"), ## particles source to be used for the matching
+
+    # Efficiencies
+    addEfficiencies = cms.bool(False),
+    efficiencies    = cms.PSet(),
 )
 
 

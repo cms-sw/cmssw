@@ -1,5 +1,5 @@
 //
-// $Id: PATPhotonProducer.h,v 1.7 2008/06/08 12:24:03 vadler Exp $
+// $Id: PATPhotonProducer.h,v 1.8 2008/06/19 12:51:26 gpetrucc Exp $
 //
 
 #ifndef PhysicsTools_PatAlgos_PATPhotonProducer_h
@@ -13,7 +13,7 @@
    a collection of objects of PhotonType.
 
   \author   Steven Lowette
-  \version  $Id: PATPhotonProducer.h,v 1.7 2008/06/08 12:24:03 vadler Exp $
+  \version  $Id: PATPhotonProducer.h,v 1.8 2008/06/19 12:51:26 gpetrucc Exp $
 */
 
 
@@ -25,8 +25,8 @@
 
 #include "DataFormats/PatCandidates/interface/Photon.h"
 
-
 #include "PhysicsTools/PatAlgos/interface/MultiIsolator.h"
+#include "PhysicsTools/PatAlgos/interface/EfficiencyLoader.h"
 
 namespace pat {
 
@@ -64,6 +64,9 @@ namespace pat {
       pat::helper::MultiIsolator isolator_; 
       pat::helper::MultiIsolator::IsolationValuePairs isolatorTmpStorage_; // better here than recreate at each event
       std::vector<std::pair<pat::IsolationKeys,edm::InputTag> > isoDepositLabels_;
+
+      bool addEfficiencies_;
+      pat::helper::EfficiencyLoader efficiencyLoader_;
 
 
   };

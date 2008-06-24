@@ -65,6 +65,10 @@ allLayer1Photons = cms.EDProducer("PATPhotonProducer",
     addGenMatch = cms.bool(True),
     genParticleMatch = cms.InputTag("photonMatch"), ## particles source to be used for the matching
 
+    # Efficiencies
+    addEfficiencies = cms.bool(False),
+    efficiencies    = cms.PSet(),
+
 )
 
 

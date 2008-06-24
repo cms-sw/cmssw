@@ -1,5 +1,5 @@
 //
-// $Id: PATElectronProducer.h,v 1.6 2008/06/08 12:24:02 vadler Exp $
+// $Id: PATElectronProducer.h,v 1.7 2008/06/13 10:00:02 gpetrucc Exp $
 //
 
 #ifndef PhysicsTools_PatAlgos_PATElectronProducer_h
@@ -13,7 +13,7 @@
    a collection of objects of ElectronType.
 
   \author   Steven Lowette, James Lamb
-  \version  $Id: PATElectronProducer.h,v 1.6 2008/06/08 12:24:02 vadler Exp $
+  \version  $Id: PATElectronProducer.h,v 1.7 2008/06/13 10:00:02 gpetrucc Exp $
 */
 
 
@@ -30,8 +30,10 @@
 #include "AnalysisDataFormats/Egamma/interface/ElectronIDAssociation.h"
 
 #include "PhysicsTools/PatAlgos/interface/MultiIsolator.h"
+#include "PhysicsTools/PatAlgos/interface/EfficiencyLoader.h"
 
 #include "DataFormats/PatCandidates/interface/Electron.h"
+
 
 #include <string>
 
@@ -84,6 +86,9 @@ namespace pat {
       pat::helper::MultiIsolator isolator_; 
       pat::helper::MultiIsolator::IsolationValuePairs isolatorTmpStorage_; // better here than recreate at each event
       std::vector<std::pair<pat::IsolationKeys,edm::InputTag> > isoDepositLabels_;
+
+      bool addEfficiencies_;
+      pat::helper::EfficiencyLoader efficiencyLoader_;
   };
 
 

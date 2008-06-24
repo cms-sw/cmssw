@@ -36,6 +36,10 @@ typedef ManyValueMapsSkimmer<edm::Ptr<reco::BaseTagInfo> > CandManyValueMapsSkim
 #include "DataFormats/TrackReco/interface/Track.h"
 typedef ValueMapSkimmer<reco::TrackRefVector> CandValueMapSkimmerTrackRefs;
 
+#include "DataFormats/GeometryCommonDetAlgo/interface/Measurement1DFloat.h"
+typedef ValueMapSkimmer<Measurement1DFloat>   CandValueMapSkimmerMeasurement1DFloat;
+
+
 #include "FWCore/Framework/interface/MakerMacros.h"
 //DEFINE_FWK_MODULE(CandValueMapSkimmerDouble);
 DEFINE_FWK_MODULE(CandValueMapSkimmerFloat);
@@ -53,3 +57,5 @@ DEFINE_FWK_MODULE(CandManyValueMapsSkimmerTagInfo);
 //DEFINE_FWK_MODULE(CandManyValueMapsSkimmerTrackIPTagInfo);
 //DEFINE_FWK_MODULE(CandManyValueMapsSkimmerSoftLeptonTagInfo);
 //DEFINE_FWK_MODULE(CandManyValueMapsSkimmerSecondaryVertexTagInfo);
+
+DEFINE_FWK_MODULE(CandValueMapSkimmerMeasurement1DFloat);

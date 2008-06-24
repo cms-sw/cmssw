@@ -1,5 +1,5 @@
 //
-// $Id: PATElectronProducer.cc,v 1.8 2008/06/08 12:24:02 vadler Exp $
+// $Id: PATElectronProducer.cc,v 1.9 2008/06/13 10:00:02 gpetrucc Exp $
 //
 
 #include "PhysicsTools/PatAlgos/plugins/PATElectronProducer.h"
@@ -97,6 +97,7 @@ PATElectronProducer::PATElectronProducer(const edm::ParameterSet & iConfig) :
     theResoCalc_= new ObjectResolutionCalc(edm::FileInPath(electronResoFile_).fullPath(), useNNReso_);
   }
 
+  // IsoDeposit configurables
   if (iConfig.exists("isoDeposits")) {
      edm::ParameterSet depconf = iConfig.getParameter<edm::ParameterSet>("isoDeposits");
      if (depconf.exists("tracker")) isoDepositLabels_.push_back(std::make_pair(TrackerIso, depconf.getParameter<edm::InputTag>("tracker")));
@@ -110,6 +111,12 @@ PATElectronProducer::PATElectronProducer(const edm::ParameterSet & iConfig) :
             isoDepositLabels_.push_back(std::make_pair(IsolationKeys(key), *it));
         }
      }
+  }
+
+  // Efficiency configurables
+  addEfficiencies_ = iConfig.getParameter<bool>("addEfficiencies");
+  if (addEfficiencies_) {
+     efficiencyLoader_ = pat::helper::EfficiencyLoader(iConfig.getParameter<edm::ParameterSet>("efficiencies"));
   }
 
   // produces vector of muons
@@ -130,6 +137,8 @@ void PATElectronProducer::produce(edm::Event & iEvent, const edm::EventSetup & i
   iEvent.getByLabel(electronSrc_, electrons);
 
   if (isolator_.enabled()) isolator_.beginEvent(iEvent);
+
+  if (efficiencyLoader_.enabled()) efficiencyLoader_.newEvent(iEvent);
 
   std::vector<edm::Handle<edm::ValueMap<IsoDeposit> > > deposits(isoDepositLabels_.size());
   for (size_t j = 0, nd = deposits.size(); j < nd; ++j) {
@@ -203,6 +212,9 @@ void PATElectronProducer::produce(edm::Event & iEvent, const edm::EventSetup & i
         anElectron.setIsoDeposit(isoDepositLabels_[j].first, (*deposits[j])[elecsRef]);
     }
 
+    if (efficiencyLoader_.enabled()) {
+        efficiencyLoader_.setEfficiencies( anElectron, elecsRef );
+    }
 
     // add electron ID info
     if (addElecID_) {

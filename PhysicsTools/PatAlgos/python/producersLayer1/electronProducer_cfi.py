@@ -91,6 +91,9 @@ allLayer1Electrons = cms.EDProducer("PATElectronProducer",
     addGenMatch      = cms.bool(True),
     genParticleMatch = cms.InputTag("electronMatch"), ## Association between electrons and generator particles
 
+    # Efficiencies
+    addEfficiencies = cms.bool(False),
+    efficiencies    = cms.PSet(),
 
 )
 

@@ -25,6 +25,10 @@ allLayer1Taus = cms.EDProducer("PATTauProducer",
     addGenMatch = cms.bool(True),
     genParticleMatch = cms.InputTag("tauMatch"), ## particles source to be used for the matching
 
+    # Efficiencies
+    addEfficiencies = cms.bool(False),
+    efficiencies    = cms.PSet(),
+
 )
 
 

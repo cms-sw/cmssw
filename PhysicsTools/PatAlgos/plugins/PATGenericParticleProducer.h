@@ -1,5 +1,5 @@
 //
-// $Id: PATGenericParticleProducer.h,v 1.1.4.2 2008/06/03 22:24:27 gpetrucc Exp $
+// $Id: PATGenericParticleProducer.h,v 1.2 2008/06/05 20:05:13 gpetrucc Exp $
 //
 
 #ifndef PhysicsTools_PatAlgos_PATGenericParticleProducer_h
@@ -13,7 +13,7 @@
    any collection of Candidates
 
   \author   Giovanni Petrucciani
-  \version  $Id: PATGenericParticleProducer.h,v 1.1.4.2 2008/06/03 22:24:27 gpetrucc Exp $
+  \version  $Id: PATGenericParticleProducer.h,v 1.2 2008/06/05 20:05:13 gpetrucc Exp $
 */
 
 
@@ -31,6 +31,7 @@
 #include "DataFormats/PatCandidates/interface/GenericParticle.h"
 
 #include "PhysicsTools/PatAlgos/interface/MultiIsolator.h"
+#include "PhysicsTools/PatAlgos/interface/EfficiencyLoader.h"
 
 namespace pat {
 
@@ -66,6 +67,9 @@ namespace pat {
       pat::helper::MultiIsolator isolator_; 
       pat::helper::MultiIsolator::IsolationValuePairs isolatorTmpStorage_; // better here than recreate at each event
       std::vector<std::pair<pat::IsolationKeys,edm::InputTag> > isoDepositLabels_;
+
+      bool addEfficiencies_;
+      pat::helper::EfficiencyLoader efficiencyLoader_;
 
   };
 

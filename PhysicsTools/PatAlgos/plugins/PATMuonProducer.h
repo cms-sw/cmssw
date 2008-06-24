@@ -1,5 +1,5 @@
 //
-// $Id: PATMuonProducer.h,v 1.7 2008/06/03 22:37:04 gpetrucc Exp $
+// $Id: PATMuonProducer.h,v 1.8 2008/06/08 12:24:03 vadler Exp $
 //
 
 #ifndef PhysicsTools_PatAlgos_PATMuonProducer_h
@@ -13,7 +13,7 @@
    a collection of objects of MuonType.
 
   \author   Steven Lowette, Roger Wolf
-  \version  $Id: PATMuonProducer.h,v 1.7 2008/06/03 22:37:04 gpetrucc Exp $
+  \version  $Id: PATMuonProducer.h,v 1.8 2008/06/08 12:24:03 vadler Exp $
 */
 
 
@@ -28,6 +28,7 @@
 #include "DataFormats/PatCandidates/interface/Muon.h"
 
 #include "PhysicsTools/PatAlgos/interface/MultiIsolator.h"
+#include "PhysicsTools/PatAlgos/interface/EfficiencyLoader.h"
 
 #include <string>
 
@@ -71,6 +72,9 @@ namespace pat {
       pat::helper::MultiIsolator isolator_; 
       pat::helper::MultiIsolator::IsolationValuePairs isolatorTmpStorage_; // better here than recreate at each event
       std::vector<std::pair<pat::IsolationKeys,edm::InputTag> > isoDepositLabels_;
+
+      bool addEfficiencies_;
+      pat::helper::EfficiencyLoader efficiencyLoader_;
 
   };
 

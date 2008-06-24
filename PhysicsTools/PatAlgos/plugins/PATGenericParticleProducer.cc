@@ -1,5 +1,5 @@
 //
-// $Id: PATGenericParticleProducer.cc,v 1.1.4.2 2008/06/03 22:24:27 gpetrucc Exp $
+// $Id: PATGenericParticleProducer.cc,v 1.2 2008/06/05 20:05:13 gpetrucc Exp $
 //
 
 #include "PhysicsTools/PatAlgos/plugins/PATGenericParticleProducer.h"
@@ -54,6 +54,12 @@ PATGenericParticleProducer::PATGenericParticleProducer(const edm::ParameterSet &
         }
      }
   }
+
+  // Efficiency configurables
+  addEfficiencies_ = iConfig.getParameter<bool>("addEfficiencies");
+  if (addEfficiencies_) {
+     efficiencyLoader_ = pat::helper::EfficiencyLoader(iConfig.getParameter<edm::ParameterSet>("efficiencies"));
+  }
 }
 
 PATGenericParticleProducer::~PATGenericParticleProducer() {
@@ -66,6 +72,8 @@ void PATGenericParticleProducer::produce(edm::Event & iEvent, const edm::EventSe
 
   // prepare isolation
   if (isolator_.enabled()) isolator_.beginEvent(iEvent);
+
+  if (efficiencyLoader_.enabled()) efficiencyLoader_.newEvent(iEvent);
 
   // prepare IsoDeposits
   std::vector<edm::Handle<edm::ValueMap<IsoDeposit> > > deposits(isoDepositLabels_.size());
@@ -140,6 +148,10 @@ void PATGenericParticleProducer::produce(edm::Event & iEvent, const edm::EventSe
 
     if (addQuality_) {
       aGenericParticle.setQuality( (*qualities)[candRef] );
+    }
+
+    if (efficiencyLoader_.enabled()) {
+        efficiencyLoader_.setEfficiencies( aGenericParticle, candRef );
     }
 
     // add the GenericParticle to the vector of GenericParticles

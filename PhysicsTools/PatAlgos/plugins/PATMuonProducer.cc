@@ -1,5 +1,5 @@
 //
-// $Id: PATMuonProducer.cc,v 1.7 2008/06/03 22:37:04 gpetrucc Exp $
+// $Id: PATMuonProducer.cc,v 1.8 2008/06/08 12:24:03 vadler Exp $
 //
 
 #include "PhysicsTools/PatAlgos/plugins/PATMuonProducer.h"
@@ -52,6 +52,12 @@ PATMuonProducer::PATMuonProducer(const edm::ParameterSet & iConfig) :
   // muon ID configurables
   addMuonID_     = iConfig.getParameter<bool>         ( "addMuonID" );
 
+  // Efficiency configurables
+  addEfficiencies_ = iConfig.getParameter<bool>("addEfficiencies");
+  if (addEfficiencies_) {
+     efficiencyLoader_ = pat::helper::EfficiencyLoader(iConfig.getParameter<edm::ParameterSet>("efficiencies"));
+  }
+
   // construct resolution calculator
   if (addResolutions_) {
     theResoCalc_ = new ObjectResolutionCalc(edm::FileInPath(muonResoFile_).fullPath(), useNNReso_);
@@ -91,6 +97,8 @@ void PATMuonProducer::produce(edm::Event & iEvent, const edm::EventSetup & iSetu
   iEvent.getByLabel(muonSrc_, muons);
 
   if (isolator_.enabled()) isolator_.beginEvent(iEvent);
+
+  if (efficiencyLoader_.enabled()) efficiencyLoader_.newEvent(iEvent);
 
   std::vector<edm::Handle<edm::ValueMap<IsoDeposit> > > deposits(isoDepositLabels_.size());
   for (size_t j = 0, nd = deposits.size(); j < nd; ++j) {
@@ -134,6 +142,10 @@ void PATMuonProducer::produce(edm::Event & iEvent, const edm::EventSetup & iSetu
     // add resolution info
     if (addResolutions_) {
       (*theResoCalc_)(aMuon);
+    }
+
+    if (efficiencyLoader_.enabled()) {
+        efficiencyLoader_.setEfficiencies( aMuon, muonsRef );
     }
 
     // add muon ID info

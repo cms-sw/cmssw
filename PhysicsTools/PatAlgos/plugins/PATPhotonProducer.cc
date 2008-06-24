@@ -1,5 +1,5 @@
 //
-// $Id: PATPhotonProducer.cc,v 1.8 2008/06/08 12:24:03 vadler Exp $
+// $Id: PATPhotonProducer.cc,v 1.9 2008/06/19 12:51:26 gpetrucc Exp $
 //
 
 #include "PhysicsTools/PatAlgos/plugins/PATPhotonProducer.h"
@@ -30,6 +30,12 @@ PATPhotonProducer::PATPhotonProducer(const edm::ParameterSet & iConfig) :
   // trigger matching configurables
   addTrigMatch_     = iConfig.getParameter<bool>         ( "addTrigMatch" );
   trigMatchSrc_     = iConfig.getParameter<std::vector<edm::InputTag> >( "trigPrimMatch" );
+
+  // Efficiency configurables
+  addEfficiencies_ = iConfig.getParameter<bool>("addEfficiencies");
+  if (addEfficiencies_) {
+     efficiencyLoader_ = pat::helper::EfficiencyLoader(iConfig.getParameter<edm::ParameterSet>("efficiencies"));
+  }
   
   // produces vector of photons
   produces<std::vector<Photon> >();
@@ -73,6 +79,8 @@ void PATPhotonProducer::produce(edm::Event & iEvent, const edm::EventSetup & iSe
 
   if (isolator_.enabled()) isolator_.beginEvent(iEvent);
 
+  if (efficiencyLoader_.enabled()) efficiencyLoader_.newEvent(iEvent);
+
   std::vector<edm::Handle<edm::ValueMap<IsoDeposit> > > deposits(isoDepositLabels_.size());
   for (size_t j = 0, nd = deposits.size(); j < nd; ++j) {
     iEvent.getByLabel(isoDepositLabels_[j].second, deposits[j]);
@@ -110,6 +118,10 @@ void PATPhotonProducer::produce(edm::Event & iEvent, const edm::EventSetup & iSe
     // PhotonID
     if (addPhotonID_) {
         aPhoton.setPhotonID( (*photonID)[photonRef] );
+    }
+
+    if (efficiencyLoader_.enabled()) {
+        efficiencyLoader_.setEfficiencies( aPhoton, photonRef );
     }
 
     // here comes the extra functionality

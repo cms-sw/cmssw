@@ -1,5 +1,5 @@
 //
-// $Id: PATTauProducer.cc,v 1.9 2008/06/09 09:17:24 gpetrucc Exp $
+// $Id: PATTauProducer.cc,v 1.10 2008/06/13 10:00:02 gpetrucc Exp $
 //
 
 #include "PhysicsTools/PatAlgos/plugins/PATTauProducer.h"
@@ -49,6 +49,12 @@ PATTauProducer::PATTauProducer(const edm::ParameterSet & iConfig) {
     theResoCalc_ = new ObjectResolutionCalc(edm::FileInPath(tauResoFile_).fullPath(), useNNReso_);
   }
 
+  // Efficiency configurables
+  addEfficiencies_ = iConfig.getParameter<bool>("addEfficiencies");
+  if (addEfficiencies_) {
+     efficiencyLoader_ = pat::helper::EfficiencyLoader(iConfig.getParameter<edm::ParameterSet>("efficiencies"));
+  }
+
   // produces vector of taus
   produces<std::vector<Tau> >();
 }
@@ -60,6 +66,9 @@ PATTauProducer::~PATTauProducer() {
 
 
 void PATTauProducer::produce(edm::Event & iEvent, const edm::EventSetup & iSetup) {     
+
+  if (efficiencyLoader_.enabled()) efficiencyLoader_.newEvent(iEvent);
+
   std::auto_ptr<std::vector<Tau> > patTaus(new std::vector<Tau>()); 
 
   edm::Handle<edm::View<TauType> > anyTaus;
@@ -76,12 +85,11 @@ void PATTauProducer::produce(edm::Event & iEvent, const edm::EventSetup & iSetup
 
   for (size_t idx = 0, ntaus = anyTaus->size(); idx < ntaus; ++idx) {
     edm::RefToBase<TauType> tausRef = anyTaus->refAt(idx);
-    const TauType * originalTau = tausRef.get();
 
     Tau aTau(tausRef);
+    if (embedLeadTrack_)       aTau.embedLeadTrack();
+    if (embedSignalTracks_)    aTau.embedSignalTracks();
     if (embedIsolationTracks_) aTau.embedIsolationTracks();
-    if (embedLeadTrack_) aTau.embedLeadTrack();
-    if (embedSignalTracks_) aTau.embedSignalTracks();
 
     // store the match to the generated final state taus
     if (addGenMatch_) {
@@ -106,6 +114,10 @@ void PATTauProducer::produce(edm::Event & iEvent, const edm::EventSetup & iSetup
     // add resolution info if demanded
     if (addResolutions_) {
       (*theResoCalc_)(aTau);
+    }
+
+    if (efficiencyLoader_.enabled()) {
+        efficiencyLoader_.setEfficiencies( aTau, tausRef );
     }
 
     patTaus->push_back(aTau);

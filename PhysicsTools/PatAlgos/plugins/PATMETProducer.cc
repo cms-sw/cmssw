@@ -1,5 +1,5 @@
 //
-// $Id: PATMETProducer.cc,v 1.2 2008/04/01 19:05:24 lowette Exp $
+// $Id: PATMETProducer.cc,v 1.3 2008/06/08 12:24:03 vadler Exp $
 //
 
 #include "PhysicsTools/PatAlgos/plugins/PATMETProducer.h"
@@ -30,6 +30,12 @@ PATMETProducer::PATMETProducer(const edm::ParameterSet & iConfig) {
   
   // construct resolution calculator
   if (addResolutions_) metResoCalc_ = new ObjectResolutionCalc(edm::FileInPath(metResoFile_).fullPath(), useNNReso_);
+
+  // Efficiency configurables
+  addEfficiencies_ = iConfig.getParameter<bool>("addEfficiencies");
+  if (addEfficiencies_) {
+     efficiencyLoader_ = pat::helper::EfficiencyLoader(iConfig.getParameter<edm::ParameterSet>("efficiencies"));
+  }
   
   // produces vector of mets
   produces<std::vector<MET> >();
@@ -46,6 +52,8 @@ void PATMETProducer::produce(edm::Event & iEvent, const edm::EventSetup & iSetup
   // Get the vector of MET's from the event
   edm::Handle<edm::View<METType> > mets;
   iEvent.getByLabel(metSrc_, mets);
+
+  if (efficiencyLoader_.enabled()) efficiencyLoader_.newEvent(iEvent);
 
   // Get the vector of generated met from the event if needed
   edm::Handle<edm::View<reco::GenMET> > genMETs;
@@ -83,6 +91,11 @@ void PATMETProducer::produce(edm::Event & iEvent, const edm::EventSetup & iSetup
     if (addResolutions_) {
       (*metResoCalc_)(amet);
     }
+
+    if (efficiencyLoader_.enabled()) {
+        efficiencyLoader_.setEfficiencies( amet, metsRef );
+    }
+
     // correct for muons if demanded
     if (addMuonCorr_) {
       for (edm::View<MuonType>::const_iterator itMuon = muons->begin(); itMuon != muons->end(); itMuon++) {

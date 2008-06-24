@@ -1,5 +1,5 @@
 //
-// $Id: PATMETProducer.h,v 1.2 2008/04/01 19:05:24 lowette Exp $
+// $Id: PATMETProducer.h,v 1.3 2008/06/08 12:24:03 vadler Exp $
 //
 
 #ifndef PhysicsTools_PatAlgos_PATMETProducer_h
@@ -13,7 +13,7 @@
    a collection of objects of METType.
 
   \author   Steven Lowette
-  \version  $Id: PATMETProducer.h,v 1.2 2008/04/01 19:05:24 lowette Exp $
+  \version  $Id: PATMETProducer.h,v 1.3 2008/06/08 12:24:03 vadler Exp $
 */
 
 
@@ -24,6 +24,7 @@
 #include "PhysicsTools/Utilities/interface/EtComparator.h"
 
 #include "DataFormats/PatCandidates/interface/MET.h"
+#include "PhysicsTools/PatAlgos/interface/EfficiencyLoader.h"
 
 
 namespace pat {
@@ -57,6 +58,9 @@ namespace pat {
       // tools
       ObjectResolutionCalc * metResoCalc_;
       GreaterByEt<MET> eTComparator_;
+
+      bool addEfficiencies_;
+      pat::helper::EfficiencyLoader efficiencyLoader_;
 
   };
 

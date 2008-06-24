@@ -1,5 +1,5 @@
 //
-// $Id: PATTauProducer.h,v 1.6 2008/06/03 22:37:04 gpetrucc Exp $
+// $Id: PATTauProducer.h,v 1.7 2008/06/08 12:24:03 vadler Exp $
 //
 
 #ifndef PhysicsTools_PatAlgos_PATTauProducer_h
@@ -13,7 +13,7 @@
    a collection of objects of TauType.
 
   \author   Steven Lowette, Christophe Delaere
-  \version  $Id: PATTauProducer.h,v 1.6 2008/06/03 22:37:04 gpetrucc Exp $
+  \version  $Id: PATTauProducer.h,v 1.7 2008/06/08 12:24:03 vadler Exp $
 */
 
 
@@ -25,6 +25,7 @@
 #include "PhysicsTools/Utilities/interface/PtComparator.h"
 
 #include "PhysicsTools/PatAlgos/interface/MultiIsolator.h"
+#include "PhysicsTools/PatAlgos/interface/EfficiencyLoader.h"
 
 #include "DataFormats/PatCandidates/interface/Tau.h"
 
@@ -66,6 +67,9 @@ namespace pat {
       pat::helper::MultiIsolator isolator_; 
       pat::helper::MultiIsolator::IsolationValuePairs isolatorTmpStorage_; // better here than recreate at each event
       std::vector<std::pair<pat::IsolationKeys,edm::InputTag> > isoDepositLabels_;
+
+      bool addEfficiencies_;
+      pat::helper::EfficiencyLoader efficiencyLoader_;
   };
 }
 
