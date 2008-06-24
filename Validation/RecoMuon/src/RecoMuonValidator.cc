@@ -105,8 +105,27 @@ RecoMuonValidator::RecoMuonValidator(const ParameterSet& pset)
 
   subDir_ = pset.getUntrackedParameter<string>("subDir");
 
+  theDQM->showDirStructure();
+
   theDQM->cd();
-  theDQM->setCurrentFolder(subDir_);
+  InputTag algo = recoLabel_;
+  string dirName=subDir_;
+  if (algo.process()!="")
+    dirName+=algo.process()+"_";
+  if(algo.label()!="")
+    dirName+=algo.label()+"_";
+  if(algo.instance()!="")
+    dirName+=algo.instance()+"";
+  if (dirName.find("Tracks")<dirName.length()){
+    dirName.replace(dirName.find("Tracks"),6,"");
+  }
+  string assoc= assocLabel_.label();
+  if (assoc.find("Track")<assoc.length()){
+    assoc.replace(assoc.find("Track"),5,"");
+  }
+  dirName+=assoc;
+  std::replace(dirName.begin(), dirName.end(), ':', '_');
+  theDQM->setCurrentFolder(dirName.c_str());
 
   // Book histograms
   // - 1D histograms on tracking variables
