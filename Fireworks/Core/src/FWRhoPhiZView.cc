@@ -8,7 +8,7 @@
 //
 // Original Author:  Chris Jones
 //         Created:  Tue Feb 19 10:33:25 EST 2008
-// $Id: FWRhoPhiZView.cc,v 1.15 2008/06/23 06:34:51 dmytro Exp $
+// $Id: FWRhoPhiZView.cc,v 1.16 2008/06/23 23:00:18 dmytro Exp $
 //
 
 #define private public
@@ -92,9 +92,11 @@ static TEveElement* doReplication(TEveProjectionManager* iMgr, TEveElement* iFro
 // constructors and destructor
 //
 FWRhoPhiZView::FWRhoPhiZView(TGFrame* iParent,const std::string& iName, const TEveProjection::EPType_e& iProjType) :
+m_projType(iProjType),
 m_typeName(iName),
 m_caloScale(1),
-// m_distortion(this,"distortion",0.,0.,20.),
+m_caloDistortion(this,"Calo compression",1.0,0.01,10.),
+m_muonDistortion(this,"Muon compression",0.2,0.01,10.),
 m_compressMuon(this,"Compress detectors",false),
 m_caloFixedScale(this,"Calo scale",2.,0.1,100.),
 m_caloAutoScale(this,"Calo auto scale",false),
@@ -121,7 +123,7 @@ m_cameraMatrix(0)
    
    if ( iProjType == TEveProjection::kPT_RPhi ) {
       // compression
-      // m_projMgr->GetProjection()->AddPreScaleEntry(0, 130, 0.5);
+      m_projMgr->GetProjection()->AddPreScaleEntry(0, 130, 1.0);
       m_projMgr->GetProjection()->AddPreScaleEntry(0, 300, 0.2);
       // projection specific parameters
       m_showEndcaps = new FWBoolParameter(this,"Show calo endcaps", true);
@@ -129,8 +131,8 @@ m_cameraMatrix(0)
       m_showHF = new FWBoolParameter(this,"Show HF", true);
       m_showHF->changed_.connect(  boost::bind(&FWRhoPhiZView::updateCaloParameters, this) );
    } else {
-      // m_projMgr->GetProjection()->AddPreScaleEntry(0, 130, 0.5);
-      // m_projMgr->GetProjection()->AddPreScaleEntry(1, 310, 0.5);
+      m_projMgr->GetProjection()->AddPreScaleEntry(0, 130, 1.0);
+      m_projMgr->GetProjection()->AddPreScaleEntry(1, 310, 1.0);
       m_projMgr->GetProjection()->AddPreScaleEntry(0, 370, 0.2);
       m_projMgr->GetProjection()->AddPreScaleEntry(1, 580, 0.2);
    }
@@ -139,7 +141,8 @@ m_cameraMatrix(0)
    
    //m_distortion.changed_.connect(boost::bind(&TEveProjection::SetDistortion, m_projMgr->GetProjection(),
      //                                        boost::bind(toFloat,_1)));
-   // m_distortion.changed_.connect(boost::bind(&FWRhoPhiZView::doDistortion,this,_1));
+   m_caloDistortion.changed_.connect(boost::bind(&FWRhoPhiZView::doDistortion,this));
+   m_muonDistortion.changed_.connect(boost::bind(&FWRhoPhiZView::doDistortion,this));
    m_compressMuon.changed_.connect(boost::bind(&FWRhoPhiZView::doCompression,this,_1));
    m_caloFixedScale.changed_.connect( boost::bind(&FWRhoPhiZView::updateScaleParameters, this) );
    m_caloAutoScale.changed_.connect(  boost::bind(&FWRhoPhiZView::updateScaleParameters, this) );
@@ -193,10 +196,17 @@ FWRhoPhiZView::~FWRhoPhiZView()
 // member functions
 //
 void 
-FWRhoPhiZView::doDistortion(double iAmount)
+FWRhoPhiZView::doDistortion()
 {
-   //Following code used in TEveProjectionManagerEditor
-   m_projMgr->GetProjection()->SetDistortion(iAmount*0.001);
+   if ( m_projType == TEveProjection::kPT_RPhi ) {
+      m_projMgr->GetProjection()->ChangePreScaleEntry(0,1,m_caloDistortion.value());
+      m_projMgr->GetProjection()->ChangePreScaleEntry(0,2,m_muonDistortion.value());
+   } else {
+      m_projMgr->GetProjection()->ChangePreScaleEntry(0,1,m_caloDistortion.value());
+      m_projMgr->GetProjection()->ChangePreScaleEntry(0,2,m_muonDistortion.value());
+      m_projMgr->GetProjection()->ChangePreScaleEntry(1,1,m_caloDistortion.value());
+      m_projMgr->GetProjection()->ChangePreScaleEntry(1,2,m_muonDistortion.value());
+   }
    m_projMgr->UpdateName();
    m_projMgr->ProjectChildren();
 }
@@ -314,10 +324,8 @@ FWRhoPhiZView::updateCaloLines(TEveElement* iParent)
    TEveElementIter child(iParent);
    while ( TEveElement* element = child.current() )
      {
-	if ( TEveScalableStraightLineSetProjected* projected = 
-	     dynamic_cast<TEveScalableStraightLineSetProjected*>(element) )
-	  if ( TEveScalableStraightLineSet* line = 
-	       dynamic_cast<TEveScalableStraightLineSet*>(projected->GetProjectable()) )
+	if ( TEveStraightLineSetProjected* projected = dynamic_cast<TEveStraightLineSetProjected*>(element) )
+	  if ( TEveScalableStraightLineSet* line = dynamic_cast<TEveScalableStraightLineSet*>(projected->GetProjectable()) )
 	    {
 	       line->SetScale( m_caloScale );
 	       line->ElementChanged();

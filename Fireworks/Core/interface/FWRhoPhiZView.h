@@ -16,7 +16,7 @@
 //
 // Original Author:  Chris Jones
 //         Created:  Tue Feb 19 10:33:21 EST 2008
-// $Id: FWRhoPhiZView.h,v 1.8 2008/06/20 06:00:26 dmytro Exp $
+// $Id: FWRhoPhiZView.h,v 1.9 2008/06/23 06:34:51 dmytro Exp $
 //
 
 // system include files
@@ -65,7 +65,7 @@ class FWRhoPhiZView : public FWViewBase
       //returns the new element created from this import
       TEveElement* importElements(TEveElement*, float iLayer);
  private:
-      void doDistortion(double);
+      void doDistortion();
       void doCompression(bool);
       void doZoom(double);
       void updateCaloParameters();
@@ -85,13 +85,15 @@ class FWRhoPhiZView : public FWViewBase
       TEveViewer* m_viewer;
       TGLEmbeddedViewer* m_embeddedViewer;
       TEveProjectionManager* m_projMgr;
+      TEveProjection::EPType_e m_projType;
       std::vector<TEveElement*> m_geom;
       std::string m_typeName;
       TEveScene* m_scene;
       double m_caloScale;
    
       // parameters
-      //FWDoubleParameter m_distortion;
+      FWDoubleParameter  m_caloDistortion;
+      FWDoubleParameter  m_muonDistortion;
       FWBoolParameter    m_compressMuon;
       FWDoubleParameter  m_caloFixedScale;
       FWBoolParameter    m_caloAutoScale;
