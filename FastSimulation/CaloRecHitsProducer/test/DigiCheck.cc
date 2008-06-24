@@ -9,8 +9,8 @@
 #include "Geometry/Records/interface/CaloGeometryRecord.h"
 #include "Geometry/CaloGeometry/interface/CaloSubdetectorGeometry.h"
 #include "Geometry/CaloGeometry/interface/CaloGeometry.h"
-#include "Geometry/EcalBarrelAlgo/interface/EcalBarrelGeometry.h"
-#include "Geometry/EcalEndcapAlgo/interface/EcalEndcapGeometry.h"
+#include "Geometry/EcalAlgo/interface/EcalBarrelGeometry.h"
+#include "Geometry/EcalAlgo/interface/EcalEndcapGeometry.h"
 #include "Geometry/CaloGeometry/interface/CaloCellGeometry.h"
 #include <iostream>
 

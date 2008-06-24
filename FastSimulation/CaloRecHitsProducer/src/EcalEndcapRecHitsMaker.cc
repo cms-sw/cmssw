@@ -12,7 +12,7 @@
 #include "FWCore/Framework/interface/EventSetup.h"
 #include "Geometry/Records/interface/CaloGeometryRecord.h"
 #include "Geometry/CaloGeometry/interface/CaloGeometry.h"
-#include "Geometry/EcalEndcapAlgo/interface/EcalEndcapGeometry.h"
+#include "Geometry/EcalAlgo/interface/EcalEndcapGeometry.h"
 #include "CondFormats/EcalObjects/interface/EcalIntercalibConstants.h"
 #include "CondFormats/DataRecord/interface/EcalIntercalibConstantsRcd.h"
 

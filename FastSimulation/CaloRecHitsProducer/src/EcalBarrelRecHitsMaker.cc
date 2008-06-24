@@ -11,7 +11,7 @@
 #include "FWCore/Framework/interface/Event.h"
 #include "Geometry/Records/interface/CaloGeometryRecord.h"
 #include "Geometry/CaloGeometry/interface/CaloGeometry.h"
-#include "Geometry/EcalBarrelAlgo/interface/EcalBarrelGeometry.h"
+#include "Geometry/EcalAlgo/interface/EcalBarrelGeometry.h"
 #include "CondFormats/EcalObjects/interface/EcalIntercalibConstants.h"
 #include "CondFormats/DataRecord/interface/EcalIntercalibConstantsRcd.h"
 

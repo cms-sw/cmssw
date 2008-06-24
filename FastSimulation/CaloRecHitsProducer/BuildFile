@@ -12,8 +12,7 @@
 <use name=FWCore/Utilities>
 <use name=FastSimulation/Utilities>
 <use name=Geometry/CaloGeometry>
-<use name=Geometry/EcalBarrelAlgo>
-<use name=Geometry/EcalEndcapAlgo>
+<use name=Geometry/EcalAlgo>
 <use name=Geometry/Records>
 <use name=SimDataFormats/CaloHit>
 <use name=SimDataFormats/CrossingFrame>
