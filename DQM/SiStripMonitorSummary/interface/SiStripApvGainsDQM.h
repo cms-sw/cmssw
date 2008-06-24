@@ -19,17 +19,26 @@ class SiStripApvGainsDQM : public SiStripBaseCondObjDQM{
                      edm::ParameterSet const& fPSet);
   
   virtual ~SiStripApvGainsDQM();
-  
-  void fillModMEs();
-  void fillSummaryMEs();
+
+  void getActiveDetIds(const edm::EventSetup & eSetup);
+
+  void fillModMEs(const std::vector<uint32_t> & selectedDetIds);
+  void fillSummaryMEs(const std::vector<uint32_t> & selectedDetIds);
   
   void fillMEsForDet(ModMEs selModME_,uint32_t selDetId_);
+  
   void fillMEsForLayer( std::map<uint32_t, ModMEs> selModMEsMap_, uint32_t selDetId_);
-
-  unsigned long long getCache(const edm::EventSetup & eSetup_){ return eSetup_.get<SiStripApvGainRcd>().cacheIdentifier();}
-
+  
+  unsigned long long getCache(const edm::EventSetup & eSetup){ return eSetup.get<SiStripApvGainRcd>().cacheIdentifier();}
+  
+  void getConditionObject(const edm::EventSetup & eSetup){
+    eSetup.get<SiStripApvGainRcd>().get(gainHandle_);
+    cacheID_memory = cacheID_current;
+  }
+   
   private:
     edm::ESHandle<SiStripApvGain> gainHandle_;
+
  };
 
 #endif

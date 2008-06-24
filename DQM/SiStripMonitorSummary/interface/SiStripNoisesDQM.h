@@ -8,7 +8,8 @@
 
 #include "CondFormats/SiStripObjects/interface/SiStripNoises.h"
 #include "CondFormats/DataRecord/interface/SiStripNoisesRcd.h"
-
+#include "CondFormats/SiStripObjects/interface/SiStripApvGain.h"
+#include "CondFormats/DataRecord/interface/SiStripApvGainRcd.h"
 
 class SiStripNoisesDQM : public SiStripBaseCondObjDQM{
  
@@ -20,16 +21,26 @@ class SiStripNoisesDQM : public SiStripBaseCondObjDQM{
   
   virtual ~SiStripNoisesDQM();
   
-  void fillModMEs();
-  void fillSummaryMEs();
+  void getActiveDetIds(const edm::EventSetup & eSetup);
+
+  void fillModMEs(const std::vector<uint32_t> & selectedDetIds);
+  void fillSummaryMEs(const std::vector<uint32_t> & selectedDetIds);
 
   void fillMEsForDet(ModMEs selModME_,uint32_t selDetId_);
   void fillMEsForLayer( std::map<uint32_t, ModMEs> selModMEsMap_, uint32_t selDetId_);
 
-  unsigned long long getCache(const edm::EventSetup & eSetup_){ return eSetup_.get<SiStripNoisesRcd>().cacheIdentifier();}
-
+  unsigned long long getCache(const edm::EventSetup & eSetup){ return eSetup.get<SiStripNoisesRcd>().cacheIdentifier();}
+  
+  void getConditionObject(const edm::EventSetup & eSetup){
+    eSetup.get<SiStripNoisesRcd>().get(noiseHandle_);
+    cacheID_memory = cacheID_current;
+  }
+ 
   private:
-    edm::ESHandle<SiStripNoises> noiseHandle_;
+    bool gainRenormalisation_;
+    edm::ESHandle<SiStripNoises> noiseHandle_; 
+    edm::ESHandle<SiStripApvGain> gainHandle_;
+    
 };
 
 #endif

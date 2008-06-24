@@ -32,8 +32,6 @@
 #include "DQM/SiStripMonitorSummary/interface/SiStripApvGainsDQM.h" 
 #include "DQM/SiStripMonitorSummary/interface/SiStripLorentzAngleDQM.h"
 
-
-
 #include "TH1F.h"
 #include "TH2F.h"
 #include "TProfile.h"
@@ -56,7 +54,7 @@ SiStripMonitorCondData::SiStripMonitorCondData(edm::ParameterSet const& iConfig)
   monitorQuality_        = iConfig.getParameter<bool>("MonitorSiStripQuality");
   monitorApvGains_       = iConfig.getParameter<bool>("MonitorSiStripApvGain");
   monitorLorentzAngle_   = iConfig.getParameter<bool>("MonitorSiStripLorentzAngle");
-   
+  
 }
 // -----
 
@@ -67,15 +65,14 @@ SiStripMonitorCondData::SiStripMonitorCondData(edm::ParameterSet const& iConfig)
 // 
 SiStripMonitorCondData::~SiStripMonitorCondData(){
 
-  if(monitorPedestals_)  { delete pedestalsDQM_;}
-  if(monitorNoises_)     { delete noisesDQM_;   }
-  if(monitorQuality_)    { delete qualityDQM_;  }
-  if(monitorApvGains_)   { delete apvgainsDQM_; }
+  if(monitorPedestals_)   { delete pedestalsDQM_   ;}
+  if(monitorNoises_)      { delete noisesDQM_      ;}
+  if(monitorQuality_)     { delete qualityDQM_     ;}
+  if(monitorApvGains_)    { delete apvgainsDQM_    ;}
   if(monitorLorentzAngle_){ delete lorentzangleDQM_;}
 
 }
 // -----
-
 
 
 
@@ -86,38 +83,38 @@ void SiStripMonitorCondData::beginRun(edm::Run const& run, edm::EventSetup const
 
   if(monitorPedestals_){
     pedestalsDQM_ = new SiStripPedestalsDQM(eSetup,
-                                            conf_.getParameter<edm::ParameterSet>("SiStripPedestalsDQM_PSet"),
-                                            conf_.getParameter<edm::ParameterSet>("FillConditions_PSet"));
+                                           conf_.getParameter<edm::ParameterSet>("SiStripPedestalsDQM_PSet"),
+                                           conf_.getParameter<edm::ParameterSet>("FillConditions_PSet"));
   }
   
   
   if(monitorNoises_){
     noisesDQM_ = new SiStripNoisesDQM(eSetup,
-                                      conf_.getParameter<edm::ParameterSet>("SiStripNoisesDQM_PSet"),
-                                      conf_.getParameter<edm::ParameterSet>("FillConditions_PSet"));
+                                     conf_.getParameter<edm::ParameterSet>("SiStripNoisesDQM_PSet"),
+                                     conf_.getParameter<edm::ParameterSet>("FillConditions_PSet"));
   }
   
   
   if(monitorQuality_){
     qualityDQM_ = new SiStripQualityDQM(eSetup,
-                                        conf_.getParameter<edm::ParameterSet>("SiStripQualityDQM_PSet"),
-                                        conf_.getParameter<edm::ParameterSet>("FillConditions_PSet"));
+                                       conf_.getParameter<edm::ParameterSet>("SiStripQualityDQM_PSet"),
+                                       conf_.getParameter<edm::ParameterSet>("FillConditions_PSet"));
   } 
   
  
   if(monitorApvGains_){
     apvgainsDQM_ = new SiStripApvGainsDQM(eSetup,
-                                          conf_.getParameter<edm::ParameterSet>("SiStripApvGainsDQM_PSet"),
-                                          conf_.getParameter<edm::ParameterSet>("FillConditions_PSet"));
+                                         conf_.getParameter<edm::ParameterSet>("SiStripApvGainsDQM_PSet"),
+                                         conf_.getParameter<edm::ParameterSet>("FillConditions_PSet"));
   }
   
   
   if(monitorLorentzAngle_){
     lorentzangleDQM_ = new SiStripLorentzAngleDQM(eSetup,
-                                          conf_.getParameter<edm::ParameterSet>("SiStripLorentzAngleDQM_PSet"),
-                                          conf_.getParameter<edm::ParameterSet>("FillConditions_PSet"));
+                                                 conf_.getParameter<edm::ParameterSet>("SiStripLorentzAngleDQM_PSet"),
+                                                 conf_.getParameter<edm::ParameterSet>("FillConditions_PSet"));
   }
-  
+
 } // beginRun
 // -----
 
@@ -128,9 +125,10 @@ void SiStripMonitorCondData::beginRun(edm::Run const& run, edm::EventSetup const
 //
 void SiStripMonitorCondData::beginJob(void){
 
-  edm::LogInfo("SiStripMonitorCondData") << "[SiStripMonitorCondData::beginJob] Starting";        
+  //edm::LogInfo("SiStripMonitorCondData") << "[SiStripMonitorCondData::beginJob] Starting";        
 
 } //beginJob
+// -----
 
 
 
@@ -142,9 +140,9 @@ void SiStripMonitorCondData::analyze(edm::Event const& iEvent, edm::EventSetup c
   if(monitorPedestals_)      { pedestalsDQM_     ->analysis(eSetup);}
   if(monitorNoises_)         { noisesDQM_        ->analysis(eSetup);}    
   if(monitorQuality_)        { qualityDQM_       ->analysis(eSetup);}
-  if(monitorApvGains_)       { apvgainsDQM_      ->analysis(eSetup);}   
-  if(monitorLorentzAngle_)   { lorentzangleDQM_  ->analysis(eSetup);}  
- 
+  if(monitorApvGains_)       { apvgainsDQM_      ->analysis(eSetup);}    
+  if(monitorLorentzAngle_)   { lorentzangleDQM_  ->analysis(eSetup);}
+  
 } // analyze
 // -----
 
@@ -155,7 +153,7 @@ void SiStripMonitorCondData::analyze(edm::Event const& iEvent, edm::EventSetup c
 //    
 void SiStripMonitorCondData::endRun(edm::Run const& run, edm::EventSetup const& eSetup) {
  
-  bool outputMEsInRootFile    = conf_.getParameter<bool>("OutputMEsInRootFile");
+  bool outputMEsInRootFile     = conf_.getParameter<bool>("OutputMEsInRootFile");
   std::string outputFileName  = conf_.getParameter<std::string>("OutputFileName");
 
   DQMStore* dqmStore_=edm::Service<DQMStore>().operator->();
@@ -169,15 +167,15 @@ void SiStripMonitorCondData::endRun(edm::Run const& run, edm::EventSetup const& 
 // -----
 
 
-
 //
 // ----- endJob
 //
 void SiStripMonitorCondData::endJob(void){
 
-    edm::LogInfo("SiStripMonitorCondData") << "[SiStripMonitorCondData::EndJob] Finished";        
+    //edm::LogInfo("SiStripMonitorCondData") << "[SiStripMonitorCondData::EndJob] Finished";        
 
 } //endJob
+// -----
 
 
 #include "FWCore/Framework/interface/MakerMacros.h"

@@ -1,17 +1,15 @@
 #include "DQM/SiStripMonitorSummary/interface/SiStripQualityDQM.h"
-
-
 #include "DQMServices/Core/interface/MonitorElement.h"
 
 // -----
 SiStripQualityDQM::SiStripQualityDQM(const edm::EventSetup & eSetup,
-                                               edm::ParameterSet const& hPSet,
-                                               edm::ParameterSet const& fPSet):SiStripBaseCondObjDQM(eSetup, hPSet, fPSet){
+                                         edm::ParameterSet const& hPSet,
+                                         edm::ParameterSet const& fPSet):SiStripBaseCondObjDQM(eSetup, hPSet, fPSet){
   qualityLabel_ = fPSet.getParameter<std::string>("StripQualityLabel");
-  eSetup_.get<SiStripQualityRcd>().get(qualityLabel_, qualityHandle_);
-  }
-
+}
 // -----
+
+
 
 // -----
 SiStripQualityDQM::~SiStripQualityDQM(){}
@@ -19,64 +17,218 @@ SiStripQualityDQM::~SiStripQualityDQM(){}
 
 
 // -----
-void SiStripQualityDQM::fillModMEs(){
- 				         
-  std::vector<uint32_t> DetIds;
-  qualityHandle_->getDetIds(DetIds);
-  
-  selectedDetIds = selectModules(DetIds);
-  
- 
+void SiStripQualityDQM::getActiveDetIds(const edm::EventSetup & eSetup){
+  getConditionObject(eSetup);
+  qualityHandle_->getDetIds(activeDetIds);
+  selectModules(activeDetIds);  
+}
+// -----
+
+
+// -----
+void SiStripQualityDQM::fillModMEs(const std::vector<uint32_t> & selectedDetIds){
+   
   ModMEs CondObj_ME;
   
-  for(std::vector<uint32_t>::const_iterator detIter_ =selectedDetIds.begin();
-                                            detIter_!=selectedDetIds.end();++detIter_){
-   fillMEsForDet(CondObj_ME,*detIter_);
-  } 
-} 
+  for(std::vector<uint32_t>::const_iterator detIter_ = selectedDetIds.begin();
+                                            detIter_!= selectedDetIds.end();detIter_++){
+    fillMEsForDet(CondObj_ME,*detIter_);
+      
+  }
+}    
+// -----
 
-   
+
+
+
 // -----
 void SiStripQualityDQM::fillMEsForDet(ModMEs selModME_, uint32_t selDetId_){
-				       
-  SiStripBadStrip::RegistryIterator rbegin = qualityHandle_->getRegistryVectorBegin();
-  SiStripBadStrip::RegistryIterator rend   = qualityHandle_->getRegistryVectorEnd();
+    
+  getModMEs(selModME_,selDetId_);
   
-  uint32_t detid;
-    
-  if (rbegin==rend) return;
-
-  for (SiStripBadStrip::RegistryIterator rp=rbegin; rp != rend; ++rp) {
+  SiStripQuality::Range qualityRange = qualityHandle_->getRange(selDetId_);
+  int nStrip =  reader->getNumberOfApvsAndStripLength(selDetId_).first*128;
   
-    detid = rp->detid;
-    
-    if (detid != selDetId_) { continue;}
-    
-    getModMEs(selModME_,selDetId_);
+  for( int istrip=0;istrip<nStrip;++istrip){
+    try{      
+         selModME_.ProfileDistr->Fill(istrip+1,qualityHandle_->IsStripBad(qualityRange,istrip)?1.:0.);
+    } 
+    catch(cms::Exception& e){
+      edm::LogError("SiStripQualityDQM")          
+	<< "[SiStripQualityDQM::fillMEsForDet] cms::Exception accessing qualityHandle_->IsStripBad(qualityRange,istrip)?1.:0.) for strip "  
+	<< istrip 
+	<< " and detid " 
+	<< selDetId_  
+	<< " :  " 
+	<< e.what() ;
+    }
+  }// istrip
+  
+}    
+// -----
 
-    SiStripBadStrip::Range range = SiStripBadStrip::Range(qualityHandle_->getDataVectorBegin()+rp->ibegin , 
-                                                          qualityHandle_->getDataVectorBegin()+rp->iend );
-      
-    SiStripBadStrip::ContainerIterator it=range.first;
-      
-    for(;it!=range.second;++it){
-      unsigned int value=(*it);
-      short str_start = qualityHandle_->decode(value).firstStrip;
-      short str_end   = str_start + qualityHandle_->decode(value).range;
+
+// -----
+void SiStripQualityDQM::fillSummaryMEs(const std::vector<uint32_t> & selectedDetIds){
+                                                   
+  bool fillNext = true; 
+  
+  for(unsigned int i=0;i<selectedDetIds.size();i++){					    
+					    
+    int subDetId_ = ((selectedDetIds[i]>>25)&0x7);
+
+    if( subDetId_<3 ||subDetId_>6 ){ 
+      edm::LogError("SiStripBaseCondObjDQM")
+         << "[SiStripBaseCondObjDQM::bookSummaryProfileMEs] WRONG INPUT : no such subdetector type : "
+         << subDetId_ << " and detId " << selectedDetIds[i] << " therefore no filling!" 
+         << std::endl;
+    }
+    else {
+    
+     if( fillNext) { fillMEsForLayer(SummaryMEsMap_, selectedDetIds[i]);} 
      
-      if ( qualityHandle_->decode(value).flag ==0){ // currently always the case for bad strips
-	for ( short isr = str_start; isr < str_end + 1; isr++) { 
-	 if( CondObj_fillId_ =="onlyProfile" || CondObj_fillId_ =="ProfileAndCumul"){
-           if (isr <= (selModME_.ProfileDistr->getNbinsX()-1)) selModME_.ProfileDistr->Fill(isr+1, 1.0);
-	 }  
-        }
-      }
-      
-      
-    } // it
-  } // rp
-  
-}
+     if( getLayerNameAndId(selectedDetIds[i+1])==getLayerNameAndId(selectedDetIds[i])){ fillNext=false;}
+     else { fillNext=true;}
+     
+    } 
+    
+  }
+  // -----
 
-void SiStripQualityDQM::fillSummaryMEs(){}
+}    
+// -----
+
+
+
+// -----
+void SiStripQualityDQM::fillMEsForLayer( std::map<uint32_t, ModMEs> selMEsMap_, uint32_t selDetId_){  
   
+  float numberOfBadStrips=0;
+  
+  SiStripHistoId hidmanager;
+      
+  std::string hSummaryOfProfile_description;
+  hSummaryOfProfile_description  = hPSet_.getParameter<std::string>("SummaryOfProfile_description");
+      
+  std::string hSummary_name; 
+  
+  // ----
+  int subDetId_ = ((selDetId_>>25)&0x7);
+  
+  if( subDetId_<3 || subDetId_>6 ){ 
+    edm::LogError("SiStripQualityDQM")
+       << "[SiStripQualityDQM::fillMEsForLayer] WRONG INPUT : no such subdetector type : "
+       << subDetId_ << " no folder set!" 
+       << std::endl;
+    return;
+  }
+  // ----
+
+  hSummary_name = hidmanager.createHistoLayer(hSummaryOfProfile_description, 
+                                              "layer", 
+					      getLayerNameAndId(selDetId_).first, 
+					      "") ;
+        
+  std::map<uint32_t, ModMEs>::iterator selMEsMapIter_ = selMEsMap_.find(getLayerNameAndId(selDetId_).second);
+    
+  ModMEs selME_;
+  selME_ =selMEsMapIter_->second;
+
+  getSummaryMEs(selME_,selDetId_ );
+  
+  // -----   					   
+  uint32_t selSubDetId_ =  ((selDetId_>>25)&0x7);
+  SiStripSubStructure substructure_;
+  
+  std::vector<uint32_t> sameLayerDetIds_;
+  sameLayerDetIds_.clear();
+  
+  if(selSubDetId_==3){  //  TIB
+    substructure_.getTIBDetectors(activeDetIds, sameLayerDetIds_, TIBDetId(selDetId_).layerNumber(),0,0,0);  
+  }
+  else if(selSubDetId_==4){  // TID
+    substructure_.getTIDDetectors(activeDetIds, sameLayerDetIds_, 0,0,0,0);
+  }
+  else if(selSubDetId_==5){  // TOB
+    substructure_.getTOBDetectors(activeDetIds, sameLayerDetIds_, TOBDetId(selDetId_).layerNumber(),0,0);
+  }
+  else if(selSubDetId_==6){  // TEC
+    substructure_.getTECDetectors(activeDetIds, sameLayerDetIds_, 0,0,0,0,0,0);
+  }
+     
+  //sort(sameLayerDetIds_.begin(),sameLayerDetIds_.end()); 
+        
+  // -----
+  
+  for(unsigned int i=0;i< sameLayerDetIds_.size(); i++){
+    
+    SiStripQuality::Range qualityRange = qualityHandle_->getRange(sameLayerDetIds_[i]);
+    int nStrip =  reader->getNumberOfApvsAndStripLength(sameLayerDetIds_[i]).first*128;
+    
+    numberOfBadStrips=0;
+    
+    for( int istrip=0;istrip<nStrip;++istrip){
+      if(qualityHandle_->IsStripBad(qualityRange,istrip)) { numberOfBadStrips++;}
+    }
+    
+    try{ 
+      selME_.SummaryOfProfileDistr->Fill(i+1,100*float(numberOfBadStrips)/nStrip);
+    }
+    catch(cms::Exception& e){
+      edm::LogError("SiStripQualityDQM")
+	<< "[SiStripQualityDQM::fillMEsForLayer] cms::Exception filling fraction of bad strips for detId "
+	<< sameLayerDetIds_[i]
+	<< " :  "
+	<< e.what() ;
+    } 
+  } 
+  
+  std::string hSummaryOfCumul_description;
+  hSummaryOfCumul_description  = hPSet_.getParameter<std::string>("SummaryOfCumul_description");
+  
+  std::string hSummaryOfCumul_name; 
+  
+  if( subDetId_<3 || subDetId_>6 ){ 
+    edm::LogError("SiStripQualityDQM")
+      << "[SiStripQualityDQM::fillMEsForLayer] WRONG INPUT : no such subdetector type : "
+      << subDetId_ << " no folder set!" 
+      << std::endl;
+    return;
+  }
+  
+  hSummaryOfCumul_name = hidmanager.createHistoLayer(hSummaryOfCumul_description, 
+						     "layer", 
+						     getLayerNameAndId(selDetId_).first, 
+						     "") ;
+  
+  
+  for(unsigned int i=0;i< sameLayerDetIds_.size(); i++){
+    
+    SiStripQuality::Range qualityRange = qualityHandle_->getRange(sameLayerDetIds_[i]);
+    int nStrip =  reader->getNumberOfApvsAndStripLength(sameLayerDetIds_[i]).first*128;
+    
+    numberOfBadStrips=0;
+    
+    for( int istrip=0;istrip<nStrip;++istrip){
+      if(qualityHandle_->IsStripBad(qualityRange,istrip)) { numberOfBadStrips++;}
+    }
+    
+    try{ 
+      selME_.SummaryDistr->Fill(100*float(numberOfBadStrips)/nStrip);
+    }
+    catch(cms::Exception& e){
+      edm::LogError("SiStripQualityDQM")
+	<< "[SiStripQualityDQM::fillMEsForLayer] cms::Exception filling fraction of bad strips for detId "
+	<< sameLayerDetIds_[i]
+	<< " :  "
+	<< e.what() ;
+    } 
+  } 
+  
+  
+}  
+// -----
+ 
+
+
+
