@@ -4,6 +4,7 @@ class TFile;
 class SimTrack;
 class TrajectoryStateOnSurface;
 class FreeTrajectoryState;
+class DQMStore;
 
 #include "TString.h" 
 #include <string>
@@ -11,11 +12,8 @@ class FreeTrajectoryState;
 class HTrack{
 
  public: 
-  HTrack(std::string name, std::string whereIs ="");
+  HTrack(std::string, std::string name, std::string whereIs ="");
   
-  
-  void Write(TFile *file);
-
   
   double pull(double rec,double sim, double sigmarec);
   
@@ -47,6 +45,7 @@ class HTrack{
   double computeEfficiency(HTrackVariables *sim);
 
  private:
+  DQMStore * dbe_;
 
   HTrackVariables *hVariables;  
   

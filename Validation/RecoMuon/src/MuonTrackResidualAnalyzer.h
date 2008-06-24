@@ -4,8 +4,8 @@
 /** \class MuonTrackResidualAnalyzer
  *  No description available.
  *
- *  $Date: 2007/03/13 09:39:37 $
- *  $Revision: 1.2 $
+ *  $Date: 2007/05/29 08:58:52 $
+ *  $Revision: 1.4 $
  *  \author R. Bellan - INFN Torino <riccardo.bellan@cern.ch>
  */ 
 
@@ -14,6 +14,10 @@
 #include "FWCore/ParameterSet/interface/InputTag.h"
 #include "FWCore/Framework/interface/ESHandle.h"
 #include "DataFormats/Common/interface/Handle.h"
+
+#include "DQMServices/Core/interface/DQMStore.h"
+#include "DQMServices/Core/interface/MonitorElement.h"
+#include "FWCore/ServiceRegistry/interface/Service.h"
 
 #include "Geometry/CommonDetUnit/interface/GlobalTrackingGeometry.h"
 #include "SimDataFormats/Track/interface/SimTrackContainer.h"
@@ -29,9 +33,6 @@ namespace edm {
   class EventSetup;
 }
 
-class TFile;
-class TH1F;
-class TH2F;
 class HTracks;
 class HResolution;
 
@@ -77,9 +78,11 @@ private:
   
  private:
   
-  std::string theRootFileName;
-  TFile* theFile;
-
+  DQMStore* dbe_;
+  std::string dirName_;
+  
+  std::string out;
+  
   edm::InputTag theDataType;
   EtaRange theEtaRange;
   
@@ -94,7 +97,7 @@ private:
   MeasurementEstimator *theEstimator;
 
  private:
-  TH1F *hDPtRef;
+  MonitorElement *hDPtRef;
  
   // Resolution wrt the 1D Rec Hits
   HResolution1DRecHit *h1DRecHitRes;
@@ -102,10 +105,10 @@ private:
   // Resolution wrt the 1d Sim Hits
   HResolution1DRecHit  *h1DSimHitRes;
 
-  TH1F *hSimHitsPerTrack;
-  TH2F *hSimHitsPerTrackVsEta; 
-  TH2F *hDeltaPtVsEtaSim;
-  TH2F *hDeltaPtVsEtaSim2;
+  MonitorElement *hSimHitsPerTrack;
+  MonitorElement *hSimHitsPerTrackVsEta; 
+  MonitorElement *hDeltaPtVsEtaSim;
+  MonitorElement *hDeltaPtVsEtaSim2;
 
   int theMuonSimHitNumberPerEvent;
   
@@ -127,7 +130,7 @@ private:
       
       double distA = geomDetA->toGlobal(a->localPosition()).mag();
       double distB = geomDetB->toGlobal(b->localPosition()).mag();
-
+      
       return distA < distB; 
     }
 

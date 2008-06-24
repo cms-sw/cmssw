@@ -4,14 +4,18 @@
 /** \class MuonTrackAnalyzer
  *  Analyzer of the StandAlone muon tracks
  *
- *  $Date: 2007/03/13 09:39:37 $
- *  $Revision: 1.2 $
+ *  $Date: 2007/05/29 08:57:31 $
+ *  $Revision: 1.3 $
  *  \author R. Bellan - INFN Torino <riccardo.bellan@cern.ch>
  */
 
 // Base Class Headers
 #include "FWCore/Framework/interface/EDAnalyzer.h"
 #include "FWCore/ParameterSet/interface/InputTag.h"
+
+#include "DQMServices/Core/interface/DQMStore.h"
+#include "DQMServices/Core/interface/MonitorElement.h"
+#include "FWCore/ServiceRegistry/interface/Service.h"
 
 #include "FWCore/Framework/interface/ESHandle.h"
 #include "SimDataFormats/Track/interface/SimTrackContainer.h"
@@ -76,8 +80,11 @@ class MuonTrackAnalyzer: public edm::EDAnalyzer {
 
   TrajectoryStateOnSurface getSeedTSOS(const TrajectorySeed& seed);
 
-  std::string theRootFileName;
-  TFile* theFile;
+  DQMStore* dbe_;
+  std::string dirName_;
+
+  std::string out;
+  //TFile* theFile;
 
   EtaRange theEtaRange;
   
@@ -95,25 +102,25 @@ class MuonTrackAnalyzer: public edm::EDAnalyzer {
   MuonUpdatorAtVertex *theUpdator;
 
   // Histograms
-  TH1F *hChi2;
-  TH1F *hChi2Norm;
-  TH1F *hHitsPerTrack;
-  TH1F *hDof;
-  TH1F *hChi2Prob;
+  MonitorElement *hChi2;
+  MonitorElement *hChi2Norm;
+  MonitorElement *hHitsPerTrack;
+  MonitorElement *hDof;
+  MonitorElement *hChi2Prob;
 
-  TH1F *hNumberOfTracks;
-  TH2F *hNumberOfTracksVsEta;
-  TH2F *hChargeVsEta;
-  TH2F *hChargeVsPt;
-  TH2F *hPtRecVsPtGen;
+  MonitorElement *hNumberOfTracks;
+  MonitorElement *hNumberOfTracksVsEta;
+  MonitorElement *hChargeVsEta;
+  MonitorElement *hChargeVsPt;
+  MonitorElement *hPtRecVsPtGen;
 
-  TH2F *hChi2VsEta;
-  TH2F *hChi2NormVsEta;
-  TH2F *hHitsPerTrackVsEta;
-  TH2F *hDofVsEta; 
-  TH2F *hChi2ProbVsEta;
-  TH2F *hDeltaPtVsEta;
-  TH2F *hDeltaPt_In_Out_VsEta;
+  MonitorElement *hChi2VsEta;
+  MonitorElement *hChi2NormVsEta;
+  MonitorElement *hHitsPerTrackVsEta;
+  MonitorElement *hDofVsEta; 
+  MonitorElement *hChi2ProbVsEta;
+  MonitorElement *hDeltaPtVsEta;
+  MonitorElement *hDeltaPt_In_Out_VsEta;
 
   HTrackVariables *hSimTracks;
 

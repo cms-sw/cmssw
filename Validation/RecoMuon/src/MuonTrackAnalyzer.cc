@@ -1,8 +1,8 @@
 /** \class MuonTrackAnalyzer
  *  Analyzer of the Muon tracks
  *
- *  $Date: 2007/11/30 18:50:59 $
- *  $Revision: 1.4 $
+ *  $Date: 2008/05/10 15:19:40 $
+ *  $Revision: 1.5 $
  *  \author R. Bellan - INFN Torino <riccardo.bellan@cern.ch>
  */
 
@@ -12,6 +12,7 @@
 #include "FWCore/Framework/interface/Frameworkfwd.h"
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
+#include "FWCore/MessageLogger/interface/MessageLogger.h"
 
 #include "Geometry/CommonDetUnit/interface/GeomDet.h"
 
@@ -63,8 +64,6 @@ MuonTrackAnalyzer::MuonTrackAnalyzer(const ParameterSet& pset){
 
     theUpdator = new MuonUpdatorAtVertex(updatorPar,theService);
   }
-
-  theRootFileName = pset.getUntrackedParameter<string>("rootFileName");
   
   theCSCSimHitLabel = pset.getParameter<InputTag>("CSCSimHit");
   theDTSimHitLabel = pset.getParameter<InputTag>("DTSimHit");
@@ -76,6 +75,11 @@ MuonTrackAnalyzer::MuonTrackAnalyzer(const ParameterSet& pset){
   numberOfSimTracks=0;
   // number of reco tracks
   numberOfRecTracks=0;
+
+  dbe_ = edm::Service<DQMStore>().operator->();
+  out = pset.getUntrackedParameter<string>("rootFileName");
+  dirName_ = pset.getUntrackedParameter<std::string>("dirName");
+
 }
 
 /// Destructor
@@ -84,108 +88,108 @@ MuonTrackAnalyzer::~MuonTrackAnalyzer(){
 }
 
 void MuonTrackAnalyzer::beginJob(const EventSetup& eventSetup){
-  // Create the root file
-  theFile = new TFile(theRootFileName.c_str(), "RECREATE");
+  dbe_->showDirStructure();
+  
+  dbe_->cd();
+  InputTag algo = theTracksLabel;
+  string dirName=dirName_;
+  if (algo.process()!="")
+    dirName+=algo.process()+"_";
+  if(algo.label()!="")
+    dirName+=algo.label()+"_";
+  if(algo.instance()!="")
+    dirName+=algo.instance()+"";      
+  if (dirName.find("Tracks")<dirName.length()){
+    dirName.replace(dirName.find("Tracks"),6,"");
+  }
+  std::replace(dirName.begin(), dirName.end(), ':', '_');
+  dbe_->setCurrentFolder(dirName.c_str());
+  
+  //dbe_->goUp();
+  std::string simName = dirName;
+  simName+="/SimTracks";
+  hSimTracks = new HTrackVariables(simName.c_str(),"SimTracks"); 
 
-  hSimTracks = new HTrackVariables("SimTracks"); 
+  dbe_->cd();
+  dbe_->setCurrentFolder(dirName.c_str());
+
+  // Create the root file
+  //theFile = new TFile(theRootFileName.c_str(), "RECREATE");
 
   if(doSeedsAnalysis){
-    hRecoSeedInner = new HTrack("RecoSeed","Inner");
-    hRecoSeedPCA = new HTrack("RecoSeed","PCA");
+    dbe_->cd();
+    dbe_->setCurrentFolder(dirName.c_str());
+    hRecoSeedInner = new HTrack(dirName.c_str(),"RecoSeed","Inner");
+    hRecoSeedPCA = new HTrack(dirName.c_str(),"RecoSeed","PCA");
   }
   
   if(doTracksAnalysis){
+    dbe_->cd();
+    dbe_->setCurrentFolder(dirName.c_str());    
+    hRecoTracksPCA = new HTrack(dirName.c_str(),"RecoTracks","PCA"); 
+    hRecoTracksInner = new HTrack(dirName.c_str(),"RecoTracks","Inner"); 
+    hRecoTracksOuter = new HTrack(dirName.c_str(),"RecoTracks","Outer"); 
 
-    hRecoTracksPCA = new HTrack("RecoTracks","PCA"); 
-    hRecoTracksInner = new HTrack("RecoTracks","Inner"); 
-    hRecoTracksOuter = new HTrack("RecoTracks","Outer"); 
-
+    dbe_->cd();
+    dbe_->setCurrentFolder(dirName.c_str());
     
     // General Histos
-    hChi2 = new TH1F("chi2","#chi^2",200,0,200);
-    hChi2VsEta = new TH2F("chi2VsEta","#chi^2 VS #eta",120,-3.,3.,200,0,200);
+
+
+    hChi2 = dbe_->book1D("chi2","#chi^2",200,0,200);
+    hChi2VsEta = dbe_->book2D("chi2VsEta","#chi^2 VS #eta",120,-3.,3.,200,0,200);
     
-    hChi2Norm = new TH1F("chi2Norm","Normalized #chi^2",400,0,100);
-    hChi2NormVsEta = new TH2F("chi2NormVsEta","Normalized #chi^2 VS #eta",120,-3.,3.,400,0,100);
+    hChi2Norm = dbe_->book1D("chi2Norm","Normalized #chi^2",400,0,100);
+    hChi2NormVsEta = dbe_->book2D("chi2NormVsEta","Normalized #chi^2 VS #eta",120,-3.,3.,400,0,100);
     
-    hHitsPerTrack  = new TH1F("HitsPerTrack","Number of hits per track",55,0,55);
-    hHitsPerTrackVsEta  = new TH2F("HitsPerTrackVsEta","Number of hits per track VS #eta",
+    hHitsPerTrack  = dbe_->book1D("HitsPerTrack","Number of hits per track",55,0,55);
+    hHitsPerTrackVsEta  = dbe_->book2D("HitsPerTrackVsEta","Number of hits per track VS #eta",
 				   120,-3.,3.,55,0,55);
     
-    hDof  = new TH1F("dof","Number of Degree of Freedom",55,0,55);
-    hDofVsEta  = new TH2F("dofVsEta","Number of Degree of Freedom VS #eta",120,-3.,3.,55,0,55);
+    hDof  = dbe_->book1D("dof","Number of Degree of Freedom",55,0,55);
+    hDofVsEta  = dbe_->book2D("dofVsEta","Number of Degree of Freedom VS #eta",120,-3.,3.,55,0,55);
     
-    hChi2Prob = new TH1F("chi2Prob","#chi^2 probability",200,0,1);
-    hChi2ProbVsEta = new TH2F("chi2ProbVsEta","#chi^2 probability VS #eta",120,-3.,3.,200,0,1);
+    hChi2Prob = dbe_->book1D("chi2Prob","#chi^2 probability",200,0,1);
+    hChi2ProbVsEta = dbe_->book2D("chi2ProbVsEta","#chi^2 probability VS #eta",120,-3.,3.,200,0,1);
     
-    hNumberOfTracks = new TH1F("NumberOfTracks","Number of reconstructed tracks per event",200,0,200);
-    hNumberOfTracksVsEta = new TH2F("NumberOfTracksVsEta",
+    hNumberOfTracks = dbe_->book1D("NumberOfTracks","Number of reconstructed tracks per event",200,0,200);
+    hNumberOfTracksVsEta = dbe_->book2D("NumberOfTracksVsEta",
 				    "Number of reconstructed tracks per event VS #eta",
 				    120,-3.,3.,10,0,10);
     
-    hChargeVsEta = new TH2F("ChargeVsEta","Charge vs #eta gen",120,-3.,3.,4,-2.,2.);
-    hChargeVsPt = new TH2F("ChargeVsPt","Charge vs P_{T} gen",250,0,200,4,-2.,2.);
-    hPtRecVsPtGen = new TH2F("PtRecVsPtGen","P_{T} rec vs P_{T} gen",250,0,200,250,0,200);
+    hChargeVsEta = dbe_->book2D("ChargeVsEta","Charge vs #eta gen",120,-3.,3.,4,-2.,2.);
+    hChargeVsPt = dbe_->book2D("ChargeVsPt","Charge vs P_{T} gen",250,0,200,4,-2.,2.);
+    hPtRecVsPtGen = dbe_->book2D("PtRecVsPtGen","P_{T} rec vs P_{T} gen",250,0,200,250,0,200);
 
-    hDeltaPtVsEta = new TH2F("DeltaPtVsEta","#Delta P_{t} vs #eta gen",120,-3.,3.,500,-250.,250.);
-    hDeltaPt_In_Out_VsEta = new TH2F("DeltaPt_In_Out_VsEta_","P^{in}_{t} - P^{out}_{t} vs #eta gen",120,-3.,3.,500,-250.,250.);
+    hDeltaPtVsEta = dbe_->book2D("DeltaPtVsEta","#Delta P_{t} vs #eta gen",120,-3.,3.,500,-250.,250.);
+    hDeltaPt_In_Out_VsEta = dbe_->book2D("DeltaPt_In_Out_VsEta_","P^{in}_{t} - P^{out}_{t} vs #eta gen",120,-3.,3.,500,-250.,250.);
   }    
 
-  theFile->cd();
+  //theFile->cd();
 }
 
 void MuonTrackAnalyzer::endJob(){
-  cout << endl << endl << "Number of Sim tracks: " << numberOfSimTracks << endl;
+  LogInfo("MuonTrackAnalyzer")<< "Number of Sim tracks: " << numberOfSimTracks;
 
-  cout << "Number of Reco tracks: " << numberOfRecTracks << endl;
+  LogInfo("MuonTrackAnalyzer") << "Number of Reco tracks: " << numberOfRecTracks;
 
-  // Write the histos to file
-  theFile->cd();
   
   if(doTracksAnalysis){
-    hChi2->Write();
-    hNumberOfTracks->Write();
-    hNumberOfTracksVsEta->Write();
-    hChargeVsEta->Write();
-    hChargeVsPt->Write();
-    hPtRecVsPtGen->Write();
-    hChi2Norm->Write();
-    hHitsPerTrack->Write();
-    hDof->Write();
-    hChi2Prob->Write();
-    hChi2VsEta->Write();
-    hChi2NormVsEta->Write();
-    hHitsPerTrackVsEta->Write();
-    hDofVsEta->Write(); 
-    hChi2ProbVsEta->Write(); 
-    hDeltaPtVsEta->Write();  
-    hDeltaPt_In_Out_VsEta->Write();
-    
     double eff = hRecoTracksPCA->computeEfficiency(hSimTracks);
-    cout<<" *Track Efficiency* = "<< eff <<"%"<<endl<<endl;
-    hRecoTracksPCA->Write(theFile);
-    hRecoTracksInner->Write(theFile); 
-    hRecoTracksOuter->Write(theFile);
+    LogInfo("MuonTrackAnalyzer") <<" *Track Efficiency* = "<< eff <<"%";
   }
 
   if(doSeedsAnalysis){
     double eff = hRecoSeedInner->computeEfficiency(hSimTracks);
-    cout<<" *Seed Efficiency* = "<< eff <<"%"<<endl<<endl;
-    hRecoSeedInner->Write(theFile);
-    hRecoSeedPCA->Write(theFile);
+    LogInfo("MuonTrackAnalyzer")<<" *Seed Efficiency* = "<< eff <<"%";
   }
 
-  TDirectory * sim = theFile->mkdir("SimTrack");
-  sim->cd();
-  
-  hSimTracks->Write(); 
-
-  theFile->Close();
+  if ( out.size() != 0 && dbe_ ) dbe_->save(out);
 }
 
 void MuonTrackAnalyzer::analyze(const Event & event, const EventSetup& eventSetup){
   
-  cout << "Run: " << event.id().run() << " Event: " << event.id().event() << endl;
+  LogDebug("MuonTrackAnalyzer") << "Run: " << event.id().run() << " Event: " << event.id().event();
 
   // Update the services
   theService->update(eventSetup);
@@ -213,7 +217,7 @@ void MuonTrackAnalyzer::seedsAnalysis(const Event & event, const EventSetup& eve
   Handle<TrajectorySeedCollection> seeds;
   event.getByLabel(theSeedsLabel, seeds);
   
-  cout<<"Number of reconstructed seeds: " << seeds->size()<<endl;
+  LogTrace("MuonTrackAnalyzer")<<"Number of reconstructed seeds: " << seeds->size()<<endl;
 
   for(TrajectorySeedCollection::const_iterator seed = seeds->begin(); 
       seed != seeds->end(); ++seed){
@@ -228,7 +232,7 @@ void MuonTrackAnalyzer::seedsAnalysis(const Event & event, const EventSetup& eve
       fillPlots(propSeed.second, sim.first,
 		hRecoSeedPCA, debug);
     else
-      cout<<"Error in seed propagation"<<endl;
+      LogTrace("MuonTrackAnalyzer")<<"Error in seed propagation"<<endl;
    
   }
 }
@@ -243,7 +247,7 @@ void MuonTrackAnalyzer::tracksAnalysis(const Event & event, const EventSetup& ev
   Handle<reco::TrackCollection> tracks;
   event.getByLabel(theTracksLabel, tracks);
 
-  cout<<"Reconstructed tracks: " << tracks->size() << endl;
+  LogTrace("MuonTrackAnalyzer")<<"Reconstructed tracks: " << tracks->size() << endl;
   hNumberOfTracks->Fill(tracks->size());
   
   if(tracks->size()) numberOfRecTracks++;
@@ -262,13 +266,13 @@ void MuonTrackAnalyzer::tracksAnalysis(const Event & event, const EventSetup& ev
     hNumberOfTracksVsEta->Fill(simTrack.momentum().eta(), tracks->size());
     fillPlots(track,simTrack);
     
-    cout << "State at the outer surface: " << endl; 
+    LogTrace("MuonTrackAnalyzer") << "State at the outer surface: " << endl; 
     fillPlots(outerTSOS,simTrack,hRecoTracksOuter,debug);
 
-    cout << "State at the inner surface: " << endl; 
+    LogTrace("MuonTrackAnalyzer") << "State at the inner surface: " << endl; 
     fillPlots(innerTSOS,simTrack,hRecoTracksInner,debug);
 
-    cout << "State at PCA: " << endl; 
+    LogTrace("MuonTrackAnalyzer") << "State at PCA: " << endl; 
     fillPlots(pcaTSOS,simTrack,hRecoTracksPCA,debug);
     
     double deltaPt_in_out = innerTSOS.globalMomentum().perp()-outerTSOS.globalMomentum().perp();
@@ -283,7 +287,7 @@ void MuonTrackAnalyzer::tracksAnalysis(const Event & event, const EventSetup& ev
     
     hPtRecVsPtGen->Fill(sqrt(simTrack.momentum().perp2()),pcaTSOS.globalMomentum().perp());    
   }
-  cout<<"--------------------------------------------"<<endl;  
+  LogTrace("MuonTrackAnalyzer")<<"--------------------------------------------"<<endl;  
 }
 
 
@@ -295,7 +299,7 @@ void  MuonTrackAnalyzer::fillPlots(const Event &event, edm::Handle<edm::SimTrack
   
   // Loop over the Sim tracks
   SimTrackContainer::const_iterator simTrack;
-  cout<<"Simulated tracks: "<<simTracks->size()<<endl;
+  LogTrace("MuonTrackAnalyzer")<<"Simulated tracks: "<<simTracks->size()<<endl;
   
   for (simTrack = simTracks->begin(); simTrack != simTracks->end(); ++simTrack)
     if (abs((*simTrack).type()) == 13) {
@@ -304,23 +308,25 @@ void  MuonTrackAnalyzer::fillPlots(const Event &event, edm::Handle<edm::SimTrack
       
 	numberOfSimTracks++;
 	
-	cout<<"Simualted muon:"<<endl;
-	cout<<"Sim pT: "<<sqrt((*simTrack).momentum().perp2())<<endl;
-	cout<<"Sim Eta: "<<(*simTrack).momentum().eta()<<endl; // FIXME
+	LogTrace("MuonTrackAnalyzer")<<"Simualted muon:"<<endl;
+	LogTrace("MuonTrackAnalyzer")<<"Sim pT: "<<sqrt((*simTrack).momentum().perp2())<<endl;
+	LogTrace("MuonTrackAnalyzer")<<"Sim Eta: "<<(*simTrack).momentum().eta()<<endl; // FIXME
 	
 	hSimTracks->Fill((*simTrack).momentum().mag(), 
 			 sqrt((*simTrack).momentum().perp2()), 
 			 (*simTrack).momentum().eta(), 
 			 (*simTrack).momentum().phi(), 
 			 -(*simTrack).type()/ abs((*simTrack).type()) ); // Double FIXME  
-    }    
-  cout << endl; 
+	LogTrace("MuonTrackAnalyzer") << "hSimTracks filled" << endl;
+    }
+  
+  LogTrace("MuonTrackAnalyzer") << endl; 
 }
   
 
 void  MuonTrackAnalyzer::fillPlots(reco::TransientTrack &track, SimTrack &simTrack){
 
-  cout<<"Analizer: New track, chi2: "<<track.chi2()<<" dof: "<<track.ndof()<<endl;
+  LogTrace("MuonTrackAnalyzer")<<"Analizer: New track, chi2: "<<track.chi2()<<" dof: "<<track.ndof()<<endl;
   hChi2->Fill(track.chi2());
   hDof->Fill(track.ndof());
   hChi2Norm->Fill(track.normalizedChi2());
@@ -339,7 +345,7 @@ void  MuonTrackAnalyzer::fillPlots(reco::TransientTrack &track, SimTrack &simTra
 void  MuonTrackAnalyzer::fillPlots(TrajectoryStateOnSurface &recoTSOS,SimTrack &simTrack,
 				   HTrack *histo, MuonPatternRecoDumper &debug){
   
-  cout << debug.dumpTSOS(recoTSOS)<<endl;
+  LogTrace("MuonTrackAnalyzer") << debug.dumpTSOS(recoTSOS)<<endl;
   histo->Fill(recoTSOS);
   
   GlobalVector tsosVect = recoTSOS.globalMomentum();
@@ -355,7 +361,7 @@ void  MuonTrackAnalyzer::fillPlots(TrajectoryStateOnSurface &recoTSOS,SimTrack &
 void  MuonTrackAnalyzer::fillPlots(FreeTrajectoryState &recoFTS,SimTrack &simTrack,
 				   HTrack *histo, MuonPatternRecoDumper &debug){
   
-  cout << debug.dumpFTS(recoFTS)<<endl;
+  LogTrace("MuonTrackAnalyzer") << debug.dumpFTS(recoFTS)<<endl;
   histo->Fill(recoFTS);
   
   GlobalVector ftsVect = recoFTS.momentum();
@@ -366,9 +372,6 @@ void  MuonTrackAnalyzer::fillPlots(FreeTrajectoryState &recoFTS,SimTrack &simTra
 
   histo->computeResolutionAndPull(recoFTS,simTrack);
 }
-
-
-
 
 pair<SimTrack,double> MuonTrackAnalyzer::getSimTrack(TrajectoryStateOnSurface &tsos,
 						     Handle<SimTrackContainer> simTracks){
@@ -384,7 +387,7 @@ pair<SimTrack,double> MuonTrackAnalyzer::getSimTrack(TrajectoryStateOnSurface &t
 //       ++mu;
 //     }
   
-//   if(mu != 1) cout << "WARNING!! more than 1 simulated muon!!" <<endl;
+//   if(mu != 1) LogTrace("MuonTrackAnalyzer") << "WARNING!! more than 1 simulated muon!!" <<endl;
 //   return result;
 
 
@@ -404,7 +407,7 @@ pair<SimTrack,double> MuonTrackAnalyzer::getSimTrack(TrajectoryStateOnSurface &t
 				      simTrack->momentum().eta(),simTrack->momentum().phi());
 
     if (  newDeltaR < bestDeltaR ) {
-      cout << "Matching Track with DeltaR = " << newDeltaR<<endl;
+      LogTrace("MuonTrackAnalyzer") << "Matching Track with DeltaR = " << newDeltaR<<endl;
       bestDeltaR = newDeltaR;
       result  = *simTrack;
     }
@@ -422,7 +425,7 @@ bool MuonTrackAnalyzer::isInTheAcceptance(double eta){
   case endcap:
     return ( abs(eta) >= 1.1 && abs(eta) <= 2.4 ) ? true : false;  
   default:
-    {cout<<"No correct Eta range selected!! "<<endl; return false;}
+    {LogTrace("MuonTrackAnalyzer")<<"No correct Eta range selected!! "<<endl; return false;}
   }
 }
 
