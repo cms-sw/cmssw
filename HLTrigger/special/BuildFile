@@ -12,6 +12,7 @@
 <use name=FWCore/Framework>
 <use name=FWCore/MessageLogger>
 <use name=FWCore/ParameterSet>
+<use name=Geometry/CaloEventSetup>
 <use name=Geometry/CaloGeometry>
 <use name=Geometry/CaloTopology>
 <use name=Geometry/Records>
@@ -24,4 +25,8 @@
 <use name=Geometry/CSCGeometry>
 <use name=FWCore/ServiceRegistry>
 <use name=PhysicsTools/UtilAlgos>
+<use name=Geometry/EcalMapping>
+<use name=DataFormats/L1Trigger>
+<use name=CondFormats/DataRecord>
+<use name=CondFormats/L1TObjects>
 <flags EDM_PLUGIN=1>

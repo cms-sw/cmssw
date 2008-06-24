@@ -3,7 +3,6 @@
 #include "DataFormats/EcalRecHit/interface/EcalRecHitCollections.h"
 #include "DataFormats/EcalDetId/interface/EBDetId.h"
 #include "DataFormats/DetId/interface/DetId.h"
-#include "RecoEcal/EgammaCoreTools/interface/PositionCalc.h"
 #include "DataFormats/Math/interface/Point3D.h"
 
 #include "FWCore/Framework/interface/Event.h"
@@ -15,12 +14,30 @@
 #include "DataFormats/RecoCandidate/interface/RecoEcalCandidate.h"
 #include "DataFormats/RecoCandidate/interface/RecoEcalCandidateFwd.h"
 
+
+//Level 1 Trigger
 #include "DataFormats/L1Trigger/interface/L1EmParticle.h"
 #include "DataFormats/L1Trigger/interface/L1EmParticleFwd.h"
 #include "CondFormats/L1TObjects/interface/L1CaloGeometry.h"
 #include "CondFormats/DataRecord/interface/L1CaloGeometryRecord.h"
 #include "DataFormats/HLTReco/interface/TriggerFilterObjectWithRefs.h"
 #include "Geometry/Records/interface/CaloGeometryRecord.h"
+
+/// EgammaCoreTools
+#include "RecoEcal/EgammaCoreTools/interface/PositionCalc.h"
+#include "RecoEcal/EgammaCoreTools/interface/EcalEtaPhiRegion.h"
+
+
+// Ecal Mapping 
+#include "DataFormats/EcalRawData/interface/EcalListOfFEDS.h"
+#include "Geometry/EcalMapping/interface/EcalElectronicsMapping.h"
+#include "Geometry/EcalMapping/interface/EcalMappingRcd.h"
+#include <DataFormats/FEDRawData/interface/FEDNumbering.h>
+
+// Jets stuff
+#include "DataFormats/L1Trigger/interface/L1JetParticle.h"
+#include "DataFormats/L1Trigger/interface/L1JetParticleFwd.h"
+
 
 
 #include "TVector3.h"
@@ -63,13 +80,35 @@ HLTPi0RecHitsFilter::HLTPi0RecHitsFilter(const edm::ParameterSet& iConfig)
   ParameterT0_barl_ = iConfig.getParameter<double> ("ParameterT0_barl");
   ParameterW0_ = iConfig.getParameter<double> ("ParameterW0");
 
-  detaL1_ = iConfig.getParameter<double> ("detaL1");
-  dphiL1_ = iConfig.getParameter<double> ("dphiL1");
+  ///  detaL1_ = iConfig.getParameter<double> ("detaL1");
+  ////dphiL1_ = iConfig.getParameter<double> ("dphiL1");
+  ///  UseMatchedL1Seed_ = iConfig.getParameter<bool> ("UseMatchedL1Seed"); 
+
+    
 
   l1IsolatedTag_ = iConfig.getParameter< edm::InputTag > ("l1IsolatedTag");
   l1NonIsolatedTag_ = iConfig.getParameter< edm::InputTag > ("l1NonIsolatedTag");
   l1SeedFilterTag_ = iConfig.getParameter< edm::InputTag > ("l1SeedFilterTag");
-  UseMatchedL1Seed_ = iConfig.getParameter<bool> ("UseMatchedL1Seed"); 
+
+    
+
+  
+  debug_ = false; 
+  
+  
+  ptMinEMObj_ = iConfig.getParameter<double>("ptMinEMObj");
+  EMregionEtaMargin_ = iConfig.getParameter<double>("EMregionEtaMargin");
+  EMregionPhiMargin_ = iConfig.getParameter<double>("EMregionPhiMargin");
+
+  
+  
+  
+
+  TheMapping = new EcalElectronicsMapping();
+  first_ = true;
+  
+  
+  
 
   //register your products
   produces< EBRecHitCollection >(pi0BarrelHits_);
@@ -91,6 +130,23 @@ HLTPi0RecHitsFilter::filter(edm::Event& iEvent, const edm::EventSetup& iSetup)
   using namespace edm;
   using namespace std;
   using namespace trigger;
+
+  
+
+  if (first_) {
+    edm::ESHandle< EcalElectronicsMapping > ecalmapping;
+    iSetup.get< EcalMappingRcd >().get(ecalmapping);
+    const EcalElectronicsMapping* TheMapping_ = ecalmapping.product();
+    *TheMapping = *TheMapping_;
+    first_ = false;
+  }                 
+  
+  // Get the CaloGeometry
+  edm::ESHandle<L1CaloGeometry> l1CaloGeom ;
+  iSetup.get<L1CaloGeometryRecord>().get(l1CaloGeom) ;
+  
+  
+  
 
   
   edm::Handle<trigger::TriggerFilterObjectWithRefs> L1SeedOutput;
@@ -132,52 +188,150 @@ HLTPi0RecHitsFilter::filter(edm::Event& iEvent, const edm::EventSetup& iSetup)
   usedXtals.clear();
 
 
-  //Create empty output collections
-  std::auto_ptr< EBRecHitCollection > pi0EBRecHitCollection( new EBRecHitCollection );
+  
+  ///first get all the FEDs around EM objects with PT > defined value. 
+  
+  FEDListUsed.clear();
+  vector<int>::iterator it; 
+  for( l1extra::L1EmParticleCollection::const_iterator emItr = l1EGIso->begin();
+       emItr != l1EGIso->end() ;++emItr ){
+    
+    float pt = emItr -> pt();
 
-  //Select interesting EcalRecHits (barrel)
-  EBRecHitCollection::const_iterator itb;
-  //cout<< "   EB RecHits #: "<<barrelRecHitsHandle->size()<<endl;
-  for (itb=barrelRecHitsHandle->begin(); itb!=barrelRecHitsHandle->end(); itb++) {
+    if( pt< ptMinEMObj_ ) continue; 
+    
 
-    double energy = itb->energy();
-    if (energy > seleXtalMinEnergy_) {
-      std::pair<DetId, EcalRecHit> map_entry(itb->id(), *itb);
-      recHitsEB_map->insert(map_entry);
-
-      if(UseMatchedL1Seed_){
-	l1extra::L1EmParticleCollection::const_iterator itl1EGIso;
-        bool MatchedToL1Iso=false;
-        for (itl1EGIso = l1EGIso->begin(); itl1EGIso!=l1EGIso->end(); itl1EGIso++) {
-          float deltaphi=fabs(((EBDetId)itb->id()).iphi()*0.0175 -itl1EGIso->phi());
-          if(deltaphi>TWOPI) deltaphi-=TWOPI;
-          if(deltaphi>TWOPI/2.) deltaphi=TWOPI-deltaphi;
-          if(fabs(itl1EGIso->eta() - ((EBDetId)itb->id()).ieta()*0.0175) < detaL1_ &&   
-             deltaphi < dphiL1_){
-            MatchedToL1Iso=true;
-            double energy = itb->energy();
-            if (energy > clusSeedThr_) seeds.push_back(*itb);
-          }
-        }
-
-        if(MatchedToL1Iso)continue;
-	l1extra::L1EmParticleCollection::const_iterator itl1EGNonIso;
-        for (itl1EGNonIso = l1EGNonIso->begin(); itl1EGNonIso!=l1EGNonIso->end(); itl1EGNonIso++) {
-          float deltaphi=fabs(((EBDetId)itb->id()).iphi()*0.0175 -itl1EGNonIso->phi());
-          if(deltaphi>TWOPI) deltaphi-=TWOPI;
-          if(deltaphi>TWOPI/2.) deltaphi=TWOPI-deltaphi;
-          if(fabs(itl1EGNonIso->eta() - ((EBDetId)itb->id()).ieta()*0.0175) < detaL1_ &&   
-             deltaphi < dphiL1_){
-            double energy = itb->energy();
-            if (energy > clusSeedThr_) seeds.push_back(*itb);
-          }
-        }
-      }else{
-        double energy = itb->energy();
-        if (energy > clusSeedThr_) seeds.push_back(*itb);
+    int etaIndex = emItr->gctEmCand()->etaIndex() ;
+    int phiIndex = emItr->gctEmCand()->phiIndex() ;
+    double etaLow  = l1CaloGeom->etaBinLowEdge( etaIndex ) ;
+    double etaHigh = l1CaloGeom->etaBinHighEdge( etaIndex ) ;
+    double phiLow  = l1CaloGeom->emJetPhiBinLowEdge( phiIndex ) ;
+    double phiHigh = l1CaloGeom->emJetPhiBinHighEdge( phiIndex ) ;
+    
+    std::vector<int> feds = ListOfFEDS(etaLow, etaHigh, phiLow, phiHigh, EMregionEtaMargin_, EMregionPhiMargin_);
+    for (int n=0; n < (int)feds.size(); n++) {
+      int fed = feds[n];
+      it = find(FEDListUsed.begin(),FEDListUsed.end(),fed);
+      if( it == FEDListUsed.end()){
+	FEDListUsed.push_back(fed);
       }
     }
   }
+  
+  for( l1extra::L1EmParticleCollection::const_iterator emItr = l1EGNonIso->begin();
+       emItr != l1EGNonIso->end() ;++emItr ){
+    
+    float pt = emItr -> pt();
+    
+    if( pt< ptMinEMObj_ ) continue; 
+    
+
+    int etaIndex = emItr->gctEmCand()->etaIndex() ;
+    int phiIndex = emItr->gctEmCand()->phiIndex() ;
+    double etaLow  = l1CaloGeom->etaBinLowEdge( etaIndex ) ;
+    double etaHigh = l1CaloGeom->etaBinHighEdge( etaIndex ) ;
+    double phiLow  = l1CaloGeom->emJetPhiBinLowEdge( phiIndex ) ;
+    double phiHigh = l1CaloGeom->emJetPhiBinHighEdge( phiIndex ) ;
+    
+    std::vector<int> feds = ListOfFEDS(etaLow, etaHigh, phiLow, phiHigh, EMregionEtaMargin_, EMregionPhiMargin_);
+    for (int n=0; n < (int)feds.size(); n++) {
+      int fed = feds[n];
+      it = find(FEDListUsed.begin(),FEDListUsed.end(),fed);
+      if( it == FEDListUsed.end()){
+	FEDListUsed.push_back(fed);
+      }
+    }
+  }
+  
+  //// end of getting FED List
+  
+  
+  ////make seeds. && map
+  EBRecHitCollection::const_iterator itb;
+  for (itb=barrelRecHitsHandle->begin(); itb!=barrelRecHitsHandle->end(); itb++) {
+    double energy = itb->energy();
+
+
+    if (energy > seleXtalMinEnergy_) {
+      std::pair<DetId, EcalRecHit> map_entry(itb->id(), *itb);
+      recHitsEB_map->insert(map_entry);
+    }
+    
+    EBDetId det = itb->id();
+    
+    int smid = det.ism();
+    int ieta = det.ieta();
+    int fed = convertSmToFedNumbBarrel(ieta,smid);
+    it = find(FEDListUsed.begin(),FEDListUsed.end(),fed);
+    if(it == FEDListUsed.end()) continue; 
+    
+
+    if (energy > clusSeedThr_) seeds.push_back(*itb);
+
+  }
+  
+  
+  if(debug_){
+    cout<<"pi0 seeds: "<<endl;
+    int n = 0; 
+    for (std::vector<EcalRecHit>::iterator itseed=seeds.begin(); itseed!=seeds.end(); itseed++) {
+      EBDetId seed_id = itseed->id();
+      cout<<"seed: "<<n<<" "<<itseed->energy()<<" "<<seed_id.ieta()<<" "<<seed_id.iphi()<<endl;
+      n++; 
+    }
+    
+  }
+  
+  
+
+  
+  //Create empty output collections
+  std::auto_ptr< EBRecHitCollection > pi0EBRecHitCollection( new EBRecHitCollection );
+
+  ////this part removed.
+  // //Select interesting EcalRecHits (barrel)
+//   EBRecHitCollection::const_iterator itb;
+//   //cout<< "   EB RecHits #: "<<barrelRecHitsHandle->size()<<endl;
+//   for (itb=barrelRecHitsHandle->begin(); itb!=barrelRecHitsHandle->end(); itb++) {
+
+//     double energy = itb->energy();
+//     if (energy > seleXtalMinEnergy_) {
+//       std::pair<DetId, EcalRecHit> map_entry(itb->id(), *itb);
+//       recHitsEB_map->insert(map_entry);
+
+//       if(UseMatchedL1Seed_){
+// 	l1extra::L1EmParticleCollection::const_iterator itl1EGIso;
+//         bool MatchedToL1Iso=false;
+//         for (itl1EGIso = l1EGIso->begin(); itl1EGIso!=l1EGIso->end(); itl1EGIso++) {
+//           float deltaphi=fabs(((EBDetId)itb->id()).iphi()*0.0175 -itl1EGIso->phi());
+//           if(deltaphi>TWOPI) deltaphi-=TWOPI;
+//           if(deltaphi>TWOPI/2.) deltaphi=TWOPI-deltaphi;
+//           if(fabs(itl1EGIso->eta() - ((EBDetId)itb->id()).ieta()*0.0175) < detaL1_ &&   
+//              deltaphi < dphiL1_){
+//             MatchedToL1Iso=true;
+//             double energy = itb->energy();
+//             if (energy > clusSeedThr_) seeds.push_back(*itb);
+//           }
+//         }
+
+//         if(MatchedToL1Iso)continue;
+// 	l1extra::L1EmParticleCollection::const_iterator itl1EGNonIso;
+//         for (itl1EGNonIso = l1EGNonIso->begin(); itl1EGNonIso!=l1EGNonIso->end(); itl1EGNonIso++) {
+//           float deltaphi=fabs(((EBDetId)itb->id()).iphi()*0.0175 -itl1EGNonIso->phi());
+//           if(deltaphi>TWOPI) deltaphi-=TWOPI;
+//           if(deltaphi>TWOPI/2.) deltaphi=TWOPI-deltaphi;
+//           if(fabs(itl1EGNonIso->eta() - ((EBDetId)itb->id()).ieta()*0.0175) < detaL1_ &&   
+//              deltaphi < dphiL1_){
+//             double energy = itb->energy();
+//             if (energy > clusSeedThr_) seeds.push_back(*itb);
+//           }
+//         }
+//       }else{
+//         double energy = itb->energy();
+//         if (energy > clusSeedThr_) seeds.push_back(*itb);
+//       }
+//     }
+//   }
 
 
   //timerName = category + "::readEBRecHitsCollection";
@@ -249,13 +403,24 @@ HLTPi0RecHitsFilter::filter(edm::Event& iEvent, const edm::EventSetup& iSetup)
     for (std::vector<DetId>::iterator det=clus_v.begin(); det!=clus_v.end(); det++) {
       EBDetId EBdet = *det;
       //      cout<<" det "<< EBdet<<" ieta "<<EBdet.ieta()<<" iphi "<<EBdet.iphi()<<endl;
-     bool  HitAlreadyUsed=false;
+      bool  HitAlreadyUsed=false;
       for(usedIds=usedXtals.begin(); usedIds!=usedXtals.end(); usedIds++){
 	if(*usedIds==*det){
 	  HitAlreadyUsed=true;
 	  break;
 	}
       }
+      
+      ///once again. check FED of this det.
+      int smid = EBdet.ism();
+      int ieta = EBdet.ieta();
+      int fed = convertSmToFedNumbBarrel(ieta,smid);
+      it = find(FEDListUsed.begin(),FEDListUsed.end(),fed);
+      if(it == FEDListUsed.end()) continue; 
+      
+      
+
+
 
       if(HitAlreadyUsed)continue;
       if (recHitsEB_map->find(*det) != recHitsEB_map->end()){
@@ -348,6 +513,23 @@ HLTPi0RecHitsFilter::filter(edm::Event& iEvent, const edm::EventSetup& iSetup)
   }
  
  
+
+
+  if(debug_){
+    cout<<"pi0 clusters: "<<nClus<<endl;
+    for( int j=0;j <nClus; j++){
+      cout<<" e/eta/phi:"<<eClus[j]<<" "<<etaClus[j]<<" "<<phiClus[j]<<endl;
+    }
+    
+  }
+  
+
+
+
+
+
+
+
   //timerName = category + "::makeSimpleClusters";
   //timers.pop_and_push(timerName);
 
@@ -455,3 +637,83 @@ HLTPi0RecHitsFilter::filter(edm::Event& iEvent, const edm::EventSetup& iSetup)
       return accept;
 
 }
+
+
+
+/////FED list 
+std::vector<int> HLTPi0RecHitsFilter::ListOfFEDS(double etaLow, double etaHigh, double phiLow, 
+					 double phiHigh, double etamargin, double phimargin)
+{
+
+	std::vector<int> FEDs;
+
+	if (phimargin > Geom::pi()) phimargin =  Geom::pi() ;
+
+	
+	if (debug_) std::cout << " etaLow etaHigh phiLow phiHigh " << etaLow << " " << 
+			etaHigh << " " << phiLow << " " << phiHigh << std::endl;
+
+        etaLow -= etamargin;
+        etaHigh += etamargin;
+        double phiMinus = phiLow - phimargin;
+        double phiPlus = phiHigh + phimargin;
+
+        bool all = false;
+        double dd = fabs(phiPlus-phiMinus);
+	if (debug_) std::cout << " dd = " << dd << std::endl;
+        if (dd > 2.*Geom::pi() ) all = true;
+
+        while (phiPlus > Geom::pi()) { phiPlus -= 2.*Geom::pi() ; }
+        while (phiMinus < 0) { phiMinus += 2.*Geom::pi() ; }
+        if ( phiMinus > Geom::pi()) phiMinus -= 2.*Geom::pi() ;
+
+        double dphi = phiPlus - phiMinus;
+        if (dphi < 0) dphi += 2.*Geom::pi() ;
+	if (debug_) std::cout << "dphi = " << dphi << std::endl;
+        if (dphi > Geom::pi()) {
+                int fed_low1 = TheMapping -> GetFED(etaLow,phiMinus*180./Geom::pi());
+                int fed_low2 = TheMapping -> GetFED(etaLow,phiPlus*180./Geom::pi());
+		if (debug_) std::cout << "fed_low1 fed_low2 " << fed_low1 << " " << fed_low2 << std::endl;
+                if (fed_low1 == fed_low2) all = true;
+                int fed_hi1 = TheMapping -> GetFED(etaHigh,phiMinus*180./Geom::pi());
+                int fed_hi2 = TheMapping -> GetFED(etaHigh,phiPlus*180./Geom::pi());
+		if (debug_) std::cout << "fed_hi1 fed_hi2 " << fed_hi1 << " " << fed_hi2 << std::endl;
+                if (fed_hi1 == fed_hi2) all = true;
+        }
+
+	if (all) {
+		if (debug_) std::cout << " unpack everything in phi ! " << std::endl;
+		phiMinus = -20 * Geom::pi() / 180.;  // -20 deg
+		phiPlus = -40 * Geom::pi() / 180.;  // -20 deg
+	}
+
+        if (debug_) std::cout << " with margins : " << etaLow << " " << etaHigh << " " << 
+			phiMinus << " " << phiPlus << std::endl;
+
+
+        const EcalEtaPhiRegion ecalregion(etaLow,etaHigh,phiMinus,phiPlus);
+
+        FEDs = TheMapping -> GetListofFEDs(ecalregion);
+
+/*
+	if (debug_) {
+           int nn = (int)FEDs.size();
+           for (int ii=0; ii < nn; ii++) {
+                   std::cout << "unpack fed " << FEDs[ii] << std::endl;
+           }
+   	   }
+*/
+
+        return FEDs;
+
+}
+
+
+int HLTPi0RecHitsFilter::convertSmToFedNumbBarrel(int ieta, int smId){
+    
+  if( ieta<=-1) return smId - 9; 
+  else return smId + 27; 
+  
+  
+}
+

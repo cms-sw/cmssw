@@ -41,6 +41,10 @@
 #include "Geometry/CaloTopology/interface/EcalBarrelTopology.h"
 
 
+#include <vector>
+#include "Geometry/EcalMapping/interface/EcalElectronicsMapping.h"
+
+
 //
 // class declaration
 //
@@ -64,6 +68,16 @@ class HLTPi0RecHitsFilter : public HLTFilter {
       explicit HLTPi0RecHitsFilter(const edm::ParameterSet&);
       ~HLTPi0RecHitsFilter();
 
+      
+      int convertSmToFedNumbBarrel(int, int); 
+      
+      
+
+      std::vector<int> ListOfFEDS(double etaLow, double etaHigh, double phiLow,
+                                    double phiHigh, double etamargin, double phimargin);
+	
+	
+	
 
       virtual bool filter(edm::Event &, const edm::EventSetup&);
    private:
@@ -99,9 +113,11 @@ class HLTPi0RecHitsFilter : public HLTFilter {
  double ParameterX0_;
  double ParameterT0_barl_;
  double ParameterW0_;
-  double detaL1_;
-  double dphiL1_;
-  bool UseMatchedL1Seed_;
+ // double detaL1_;
+ // double dphiL1_;
+ // bool UseMatchedL1Seed_;
+ 
+
 
   edm::InputTag l1IsolatedTag_;
   edm::InputTag l1NonIsolatedTag_;
@@ -110,6 +126,22 @@ class HLTPi0RecHitsFilter : public HLTFilter {
 
  std::map<DetId, EcalRecHit> *recHitsEB_map;
 
+
+
+ bool debug_; 
+ bool first_; 
+ double EMregionEtaMargin_;
+ double EMregionPhiMargin_;
+ 
+ 
+
+ std::vector<int> FEDListUsed; ///by EM objects. 
+ 
+
+ double ptMinEMObj_ ; 
+ 
+ EcalElectronicsMapping* TheMapping;
+ 
 
 
 };
