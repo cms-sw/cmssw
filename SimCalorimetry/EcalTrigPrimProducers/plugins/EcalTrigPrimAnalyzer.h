@@ -10,13 +10,14 @@
 //
 // Original Author:  Ursula Berthon
 //         Created:  Thu Jul 4 11:38:38 CEST 2005
-// $Id: EcalTrigPrimAnalyzer.h,v 1.7 2008/06/20 13:15:23 uberthon Exp $
+// $Id: EcalTrigPrimAnalyzer.h,v 1.8 2008/06/20 13:21:54 uberthon Exp $
 //
 //
 
 
 // system include files
 //#include "FWCore/Framework/interface/Frameworkfwd.h"
+#include "FWCore/ParameterSet/interface/InputTag.h"
 #include "FWCore/Framework/interface/EDAnalyzer.h"
 
 #include "FWCore/Framework/interface/Event.h"
@@ -59,11 +60,10 @@ class EcalTrigPrimAnalyzer : public edm::EDAnalyzer {
   int iphi_, ieta_ , tpgADC_, ttf_, fg_ ;
   float eRec_, tpgGeV_ ;
 
-  std::string label_;
-  std::string producer_;
-  std::string rechits_labelEB_;
-  std::string  rechits_labelEE_;
-  std::string  rechits_producer_;
+  edm::InputTag label_;
+
+  edm::InputTag rechits_labelEB_;
+  edm::InputTag rechits_labelEE_;
 
   bool recHits_;
 };
