@@ -11,7 +11,7 @@ Description: Analyzer individual fibre channels from the source card.
 //
 // Original Author:  Alex Tapper
 //         Created:  Thu Jul 12 14:21:06 CEST 2007
-// $Id: GctFibreAnalyzer.cc,v 1.12 2008/05/18 22:04:17 jad Exp $
+// $Id: GctFibreAnalyzer.cc,v 1.13 2008/05/22 15:07:30 tapper Exp $
 //
 //
 
@@ -245,10 +245,14 @@ void GctFibreAnalyzer::CheckLogicalID(const L1GctFibreWord fibre)
               rct_phi_region = ( (8 + ((leaf_phi_region%3)*3) + (fibre.index() / 2) ) % 9);
               //fibre.index()/2 will give 0 for 0,1 1 for 2,3 and 2 for 4,5
 		
-              local_source_card_id = ref_eta0_type[ fibre.index() ] + (4 * (1 % eta_region));
+              //local_source_card_id = ref_eta0_type[ fibre.index() ] + (4 * (1 % eta_region));
               //take the ones complement of the eta_region because this is the shared part (i.e. other eta0 region)
               //this is done by (1 % eta_region) since 1%0 = 1 and 1%1=0
+			  //FLAWED - since 1%0 is a floating point exception you idiot!
 
+			  local_source_card_id = ref_eta0_type[ fibre.index() ] + (4 + (eta_region * -4));
+			  //this gives what you want - adds 4 when eta_region = 0 (neg) and adds 0 when eta_region = 1 (pos)
+	
               source_card_id_expected = (8 * rct_phi_region) + local_source_card_id;
               //from GCT_refdoc_v2_2.pdf
 		
