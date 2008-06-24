@@ -254,7 +254,7 @@ void SiStripActionExecutor::fillGlobalStatus(const edm::ESHandle<SiStripDetCabli
 
     nMeTot = nMeTIBTot + nMeTOBTot + nMeTIDFTot + nMeTIDBTot + nMeTECFTot + nMeTECBTot;
     nMeErr = nMeTIBErr + nMeTOBErr + nMeTIDFErr + nMeTIDBErr + nMeTECFErr + nMeTECBErr;
-    gStatus = (1 - nMeErr*1.0/nMeTot);
+    if (nMeTot > 0) gStatus = (1 - nMeErr*1.0/nMeTot);
 
     if (nMeTIBTot  > 0) statusTIB  = (1 - nMeTIBErr*1.0/nMeTIBTot);
     if (nMeTOBTot  > 0) statusTOB  = (1 - nMeTOBErr*1.0/nMeTOBTot);
