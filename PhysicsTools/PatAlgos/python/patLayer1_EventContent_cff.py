@@ -1,16 +1,15 @@
 # The following comments couldn't be translated into the new config version:
 
-# to be removed when full GenParticle transition finished
 # to be removed when no external MC ref's left
+#"keep recoTrackIPTagInfos_*_*_*",         // no longer needed (embedded by value)
+#"keep recoSoftLeptonTagInfos_*_*_*",  
+#"keep recoSecondaryVertexTagInfos_*_*_*",
+
 import FWCore.ParameterSet.Config as cms
 
 patLayer1EventContent = cms.PSet(
     outputCommands = cms.untracked.vstring('keep edmTriggerResults_TriggerResults_*_*', 
-        'keep *_genParticleCandidates_*_*', 
         'keep *_genParticles_*_*', 
-        'keep recoTrackIPTagInfos_*_*_*', 
-        'keep recoSoftLeptonTagInfos_*_*_*', 
-        'keep recoSecondaryVertexTagInfos_*_*_*', 
         'keep recoTracks_generalTracks_*_*', 
         'keep *_offlinePrimaryVerticesFromCTFTracks_*_*', 
         'keep *_selectedLayer1Photons_*_*', 

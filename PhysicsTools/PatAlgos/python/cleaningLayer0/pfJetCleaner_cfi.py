@@ -1,8 +1,8 @@
 import FWCore.ParameterSet.Config as cms
 
-allLayer0Jets = cms.EDFilter("PATCaloJetCleaner",
+allLayer0PFJets = cms.EDFilter("PATPFJetCleaner",
     ## uncalibrated reco jet input source
-    jetSource = cms.InputTag("iterativeCone5CaloJets"), 
+    jetSource = cms.InputTag("iterativeCone5PFJets"), 
 
     # selection (e.g. ID)
     selection = cms.PSet(
@@ -10,7 +10,7 @@ allLayer0Jets = cms.EDFilter("PATCaloJetCleaner",
     ),
 
     removeOverlaps = cms.PSet(
-        ## Flag or discard jets that match with clean electrons
+        ## Flag or discard jets that match with clean electrons (should be done better on PFlow Jets!)
         electrons = cms.PSet( 
             collection = cms.InputTag("allLayer0Electrons"), ## 
             deltaR = cms.double(0.3), ##

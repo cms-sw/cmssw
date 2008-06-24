@@ -1,8 +1,8 @@
 import FWCore.ParameterSet.Config as cms
 
-allLayer0Taus = cms.EDFilter("PATPFTauCleaner",
-    tauSource              = cms.InputTag("pfRecoTauProducer"),
-    tauDiscriminatorSource = cms.InputTag("pfRecoTauDiscriminationByIsolation"),
+allLayer0CaloTaus = cms.EDFilter("PATCaloTauCleaner",
+    tauSource              = cms.InputTag("caloRecoTauProducer"),
+    tauDiscriminatorSource = cms.InputTag("caloRecoTauDiscriminationByIsolation"),
 
     removeOverlaps = cms.PSet(
         ## Flag or discard taus that match with clean electrons

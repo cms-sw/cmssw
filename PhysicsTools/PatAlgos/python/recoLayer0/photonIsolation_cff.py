@@ -1,38 +1,36 @@
 import FWCore.ParameterSet.Config as cms
 
-import copy
-from PhysicsTools.IsolationAlgos.test.mu.candIsoDepositCtfTk_cfi import *
-egammaPhotonTkDeposits = copy.deepcopy(candIsoDepositCtfTk)
-import copy
-from PhysicsTools.IsolationAlgos.test.egamma.candIsoDepositEgammaTowers_cfi import *
-egammaPhotonTowersDeposits = copy.deepcopy(candIsoDepositEgammaTowers)
-import copy
-from PhysicsTools.IsolationAlgos.test.egamma.candIsoDepositEgammaEcal_cfi import *
-egammaPhotonEcalDeposits = copy.deepcopy(candIsoDepositEgammaEcal)
-patAODPhotonIsolationLabels = cms.PSet(
-    associations = cms.VInputTag(cms.InputTag("egammaPhotonTkDeposits"), cms.InputTag("egammaPhotonTowersDeposits"), cms.InputTag("egammaPhotonEcalDeposits"))
+# load E/gamma POG config
+from RecoEgamma.EgammaIsolationAlgos.egammaIsoDeposits_cff import *
+
+# define module labels for POG isolation
+patAODPhotonIsolationLabels = cms.VInputTag(
+        cms.InputTag("gamIsoDepositTk"),
+        cms.InputTag("gamIsoDepositEcalFromClusts"),       # on RECO you might want 'gamIsoDepositEcalFromHits'
+     #  cms.InputTag("gamIsoDepositEcalSCVetoFromClusts"), # this is an alternative to 'gamIsoDepositEcalFromClusts'
+        cms.InputTag("gamIsoDepositHcalFromTowers"),       # on RECO you might want 'gamIsoDepositHcalFromHits'
 )
+
+# read and convert to ValueMap<IsoDeposit> keyed to Candidate
 patAODPhotonIsolations = cms.EDFilter("MultipleIsoDepositsToValueMaps",
-    patAODPhotonIsolationLabels,
-    collection = cms.InputTag("photons")
+    collection   = cms.InputTag("photons"),
+    associations =  patAODPhotonIsolationLabels,
 )
 
+# re-key to PAT Layer 0 output
 layer0PhotonIsolations = cms.EDFilter("CandManyValueMapsSkimmerIsoDeposits",
-    patAODPhotonIsolationLabels,
-    commonLabel = cms.InputTag("patAODPhotonIsolations"),
-    collection = cms.InputTag("allLayer0Photons"),
-    backrefs = cms.InputTag("allLayer0Photons")
+    collection   = cms.InputTag("allLayer0Photons"),
+    backrefs     = cms.InputTag("allLayer0Photons"),
+    commonLabel  = cms.InputTag("patAODPhotonIsolations"),
+    associations =  patAODPhotonIsolationLabels,
 )
 
-patAODPhotonIsolation = cms.Sequence(egammaPhotonTkDeposits*egammaPhotonTowersDeposits*egammaPhotonEcalDeposits*patAODPhotonIsolations)
+# selecting POG modules that can run on top of AOD
+gamIsoDepositAOD = cms.Sequence(gamIsoDepositTk * gamIsoDepositEcalFromClusts * gamIsoDepositHcalFromTowers)
+
+# sequence to run on AOD before PAT 
+patAODPhotonIsolation = cms.Sequence(gamIsoDepositAOD * patAODPhotonIsolations)
+
+# sequence to run after PAT cleaners
 patLayer0PhotonIsolation = cms.Sequence(layer0PhotonIsolations)
-egammaPhotonTkDeposits.src = 'photons'
-egammaPhotonTkDeposits.trackType = 'fake'
-egammaPhotonTkDeposits.ExtractorPSet.DR_Max = 0.7
-egammaPhotonTkDeposits.ExtractorPSet.DR_Veto = 0.0
-egammaPhotonTkDeposits.ExtractorPSet.Diff_z = 1
-egammaPhotonTowersDeposits.src = 'photons'
-egammaPhotonTowersDeposits.ExtractorPSet.extRadius = 0.7
-egammaPhotonEcalDeposits.src = 'photons'
-egammaPhotonEcalDeposits.ExtractorPSet.extRadius = 0.5
 

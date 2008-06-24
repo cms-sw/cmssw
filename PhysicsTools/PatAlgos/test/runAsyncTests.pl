@@ -18,12 +18,12 @@ GetOptions( 'h|?|help' => \$help,
             'replace-defaults|rd=s' => \$repdef );
 if ($help) {
     my $name = `basename $0`; chomp $name;
-    print "Usage: perl $name [-n|--dry-run] [cfgs]\n" .
+    print "Usage: perl $name [-n|--dry-run] [cfg.pys]\n" .
           "   -n or --dry-run:      just read the output, don't run cmsRun\n".
           "   -h or --help:         print this help\n".
           "   --replace-defaults X  turn on ReplaceDefaults for layer X (X can be 0, 1 or 01 for both)\n".
           "                         they must already be in the CFG file, commented with # or // \n".
-          "   If no cfgs are specified, it will use PATLayer[01]_from*_{fast,full}.cfg\n\n";
+          "   If no cfgs are specified, it will use PATLayer[01]_from*_{fast,full}.cfg.py\n\n";
     exit(0);
 }
 if ($fake) {
@@ -34,16 +34,16 @@ my @CFGs = @ARGV;
 
 if (@CFGs) {
     my @allCFGs = ();
-    foreach my $cfg (@CFGs) { push @allCFGs, grep(/\.cfg$/, glob($cfg)); }
+    foreach my $cfg (@CFGs) { push @allCFGs, grep(/\.cfg\.py$/, glob($cfg)); }
     @CFGs = @allCFGs;
 } else {
-    @CFGs = glob("patLayer[01]_from*_*.cfg"); 
+    @CFGs = glob("patLayer[01]_from*_*.cfg.py"); 
 }
 print "Will run " . scalar(@CFGs) . " config files: " . join(' ', @CFGs) . "\n\n";
 
 foreach my $cfg (@CFGs) { 
     unless (-f $cfg) {  die "Config file $cfg does not exist in $dir\n"; } 
-    repDef($cfg);
+    #repDef($cfg);
 }
 
 sub repDef {
@@ -74,7 +74,7 @@ sub cmsRun {
     my ($f, $o) = ($_[0], $_[1]);
     unless ($fake) {
         repDef($f);
-        system("sh -c 'cmsRun --strict $f > $o 2>&1 '");
+        system("sh -c 'cmsRun $f > $o 2>&1 '");
     } else {
         system("sh -c 'sleep ". int(rand(5)+2) ."'");
     }
@@ -85,13 +85,13 @@ my %info = ();
 
 my @txt = ("Jobs starting:");
 foreach my $f (@CFGs) {
-    my $o = $f; $o =~ s/\.cfg$/.log/;
+    my $o = $f; $o =~ s/\.cfg\.py$/.log/;
 
     my $max = -1;
     open CFG, $f;
     foreach(<CFG>) { 
-        m/untracked\s+PSet\s+maxEvents/ and $max = 0;
-        if ($max == 0) { m/untracked int32 input = (\d+)/ and $max = $1; }
+        m/maxEvents\s*=\s*cms\.untracked\.PSet/ and $max = 0;
+        if ($max == 0) { m/input\s*=\s*cms\.untracked\.int32\(\s*(\d+)\s*\)/ and $max = $1; }
     }
     close CFG;
 

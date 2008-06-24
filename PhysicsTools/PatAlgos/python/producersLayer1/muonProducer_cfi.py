@@ -1,8 +1,14 @@
 import FWCore.ParameterSet.Config as cms
 
 allLayer1Muons = cms.EDProducer("PATMuonProducer",
-    addGenMatch = cms.bool(True),
-    addResolutions = cms.bool(True),
+    # General configurables
+    muonSource = cms.InputTag("allLayer0Muons"),
+
+    embedTrack          = cms.bool(False), ## whether to embed in AOD externally stored tracker track
+    embedCombinedMuon   = cms.bool(False), ## whether to embed in AOD externally stored combined muon track
+    embedStandAloneMuon = cms.bool(False), ## whether to embed in AOD externally stored standalone muon track
+
+    # isolation configurables
     isolation = cms.PSet(
         hcal = cms.PSet(
             src = cms.InputTag("layer0MuonIsolations","muIsoDepositCalByAssociatorTowershcal"),
@@ -25,23 +31,33 @@ allLayer1Muons = cms.EDProducer("PATMuonProducer",
             deltaR = cms.double(0.3)
         )
     ),
-    addLRValues = cms.bool(True),
+    # embed IsoDeposits to recompute isolation easily
     isoDeposits = cms.PSet(
-        hcal = cms.InputTag("layer0MuonIsolations","muIsoDepositCalByAssociatorTowershcal"),
         tracker = cms.InputTag("layer0MuonIsolations","muIsoDepositTk"),
-        user = cms.VInputTag(cms.InputTag("layer0MuonIsolations","muIsoDepositCalByAssociatorTowersho"), cms.InputTag("layer0MuonIsolations","muIsoDepositJets")),
-        ecal = cms.InputTag("layer0MuonIsolations","muIsoDepositCalByAssociatorTowersecal")
+        ecal    = cms.InputTag("layer0MuonIsolations","muIsoDepositCalByAssociatorTowersecal"),
+        hcal    = cms.InputTag("layer0MuonIsolations","muIsoDepositCalByAssociatorTowershcal"),
+        user    = cms.VInputTag(
+                     cms.InputTag("layer0MuonIsolations","muIsoDepositCalByAssociatorTowersho"), 
+                     cms.InputTag("layer0MuonIsolations","muIsoDepositJets")
+                  ),
     ),
-    tracksSource = cms.InputTag("generalTracks"),
-    useNNResolutions = cms.bool(False),
-    addMuonID = cms.bool(True),
-    muonLRFile = cms.string('PhysicsTools/PatUtils/data/MuonLRDistros.root'),
-    muonSource = cms.InputTag("allLayer0Muons"),
+
+    # Muon ID configurables
+    addMuonID = cms.bool(False), ## DEPRECATED OLD TQAF muon ID. 
+
+    # Resolution configurables
+    addResolutions = cms.bool(True),
     muonResoFile = cms.string('PhysicsTools/PatUtils/data/Resolutions_muon.root'),
-    genParticleMatch = cms.InputTag("muonMatch"),
+    useNNResolutions = cms.bool(False), ## use the neural network approach?
+
+    # Trigger matching configurables
     addTrigMatch = cms.bool(True),
-    trigPrimMatch = cms.VInputTag("muonTrigMatchHLT1MuonNonIso",
-        "muonTrigMatchHLT1MET65")
+    trigPrimMatch = cms.VInputTag(cms.InputTag("muonTrigMatchHLT1MuonNonIso"), cms.InputTag("muonTrigMatchHLT1MET65")),
+
+    # MC matching configurables
+    addGenMatch = cms.bool(True),
+    genParticleMatch = cms.InputTag("muonMatch") ## particles source to be used for the matching
+
 )
 
 

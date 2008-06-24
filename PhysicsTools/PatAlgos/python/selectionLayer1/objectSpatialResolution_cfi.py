@@ -39,20 +39,33 @@
 #
 # initialize random number generator
 
-#  movedTaus &
-
 import FWCore.ParameterSet.Config as cms
 
 RandomNumberGeneratorService = cms.Service("RandomNumberGeneratorService",
-    # need one initializer for each module defined below
-    moduleSeeds = cms.PSet(
-        movedJets = cms.untracked.uint32(61587),
-        movedMuons = cms.untracked.uint32(17987),
-        movedMETs = cms.untracked.uint32(3489766),
-        movedElectrons = cms.untracked.uint32(897867),
-        movedTaus = cms.untracked.uint32(38476)
+    movedElectrons = cms.PSet(
+        initialSeed = cms.untracked.uint32(897867),
+        engineName = cms.untracked.string('HepJamesRandom')
     ),
-    sourceSeed = cms.untracked.uint32(7893456)
+    movedMuons = cms.PSet(
+        initialSeed = cms.untracked.uint32(17987),
+        engineName = cms.untracked.string('HepJamesRandom')
+    ),
+    theSource = cms.PSet(
+        initialSeed = cms.untracked.uint32(7893456),
+        engineName = cms.untracked.string('HepJamesRandom')
+    ),
+    movedTaus = cms.PSet(
+        initialSeed = cms.untracked.uint32(38476),
+        engineName = cms.untracked.string('HepJamesRandom')
+    ),
+    movedJets = cms.PSet(
+        initialSeed = cms.untracked.uint32(61587),
+        engineName = cms.untracked.string('HepJamesRandom')
+    ),
+    movedMETs = cms.PSet(
+        initialSeed = cms.untracked.uint32(3489766),
+        engineName = cms.untracked.string('HepJamesRandom')
+    )
 )
 
 movedElectrons = cms.EDFilter("ElectronSpatialResolution",
@@ -116,5 +129,11 @@ movedMETs = cms.EDFilter("METSpatialResolution",
 )
 
 # Standard sequence for all objects
-movedObjects = cms.Sequence(movedElectrons+movedMuons+movedJets+movedMETs)
+movedObjects = cms.Sequence(
+    movedElectrons + 
+    movedMuons + 
+    movedJets + 
+#   movedTaus +
+    movedMETs
+)
 
