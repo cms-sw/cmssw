@@ -1,5 +1,5 @@
 #!/usr/bin/perl -w
-# $Id: injectFileIntoTransferSystem.pl,v 1.9 2008/06/16 10:59:41 loizides Exp $
+# $Id: injectFileIntoTransferSystem.pl,v 1.10 2008/06/24 13:45:00 mrudolph Exp $
 #
 # Written by Matt Rudolph June 2008
 #
@@ -30,19 +30,10 @@ sub usage
   $0 --help  : show this message
 
   --------------------------------------------------------------------------------------------
-<<<<<<< injectFileIntoTransferSystem.pl
-  $0 --check --filename=file
-  Check on the status of a file previously injected into the transfer system.
-  --------------------------------------------------------------------------------------------
-  Required parameters for injecting files to be transferred:
-  $0 --filename=file --path=path --filesize=size 
-                                    --type=type --hostname=host [--destination]
-=======
 
   Required parameters for injecting files to be transferred:
   $0 --filename file --path path --filesize size 
                                     --type type --hostname host [--destination default]
->>>>>>> 1.9
  
   Filename, path, and filesize are self explanatory.
 
@@ -84,7 +75,6 @@ sub usage
 
   $0 --check --filename=file
   Check on the status of a file previously injected into the transfer system.
-  This is work in progress, not working yet.
   ############################################################################################  
   \n";
   exit;
