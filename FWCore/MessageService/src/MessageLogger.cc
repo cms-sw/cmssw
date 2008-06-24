@@ -8,7 +8,7 @@
 //
 // Original Author:  W. Brown, M. Fischler
 //         Created:  Fri Nov 11 16:42:39 CST 2005
-// $Id: MessageLogger.cc,v 1.25 2007/07/25 18:33:51 fischler Exp $
+// $Id: MessageLogger.cc,v 1.26 2008/06/20 20:55:47 fischler Exp $
 //
 // Change log
 //
@@ -388,11 +388,7 @@ MessageLogger::SummarizeInJobReport() {
     std::map<std::string, double> * smp = new std::map<std::string, double> ();
     MessageLoggerQ::MLqJRS ( smp );
     Service<JobReport> reportSvc;
-    reportSvc->reportTimingInfo(*smp);
-//    std::map<std::string, double>::iterator i;
-//    std::map<std::string, double>::iterator e = sm->end();
-//    for (i = sm->begin(); i != e; ++i) {
-//   }
+    reportSvc->reportMessageInfo(*smp);
     delete smp;
   } 
 }

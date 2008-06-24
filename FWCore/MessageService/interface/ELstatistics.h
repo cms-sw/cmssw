@@ -120,7 +120,12 @@ protected:
 
   static std::set<std::string> groupedCategories;		// 8/16/07 mf 
   static ELstring formSummary(ELmap_stats & stats);		// 8/16/07 mf 
-    
+
+  // ----  Helper methods specific to MessageLogger applicaton
+  //
+private:
+  std::string dualLogName(std::string const & s);
+  
 };  // ELstatistics
 
 

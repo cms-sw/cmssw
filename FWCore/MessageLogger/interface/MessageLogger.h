@@ -7,6 +7,7 @@
 // Class  :     <none>
 // Functions:   LogSystem,   LogError,   LogWarning, LogInfo,     LogDebug
 //              LogAbsolute, LogProblem, LogPrint,   LogVerbatim, LogTrace
+//			     LogImportant
 //
 
 //
@@ -14,7 +15,7 @@
 //         Created:  Fri Nov 11 16:38:19 CST 2005
 //     Major Split:  Tue Feb 14 11:00:00 CST 2006
 //		     See MessageService/interface/MessageLogger.h
-// $Id: MessageLogger.h,v 1.27 2008/01/11 21:30:10 marafino Exp $
+// $Id: MessageLogger.h,v 1.28 2008/06/20 20:55:46 fischler Exp $
 //
 // =================================================
 // Change log
@@ -50,6 +51,11 @@
 //		    to a class member function of LogDebug_, changing
 //		    name to a more descriptive stripLeadingDirectoryTree.
 //		    Cures the 2600-copies-of-this-function complaint.
+//
+// 11 mf  6/24/08   Added LogImportant which is LogProblem.  For output
+//		    which "obviously" ought to emerge, but allowing specific
+//		    suppression as if it were at the LogError level, rather
+//		    than the non-suppressible LogAbsolute.
 //
 // =================================================
 
@@ -234,6 +240,30 @@ private:
   LogProblem( LogProblem const& );				// Change log 9
 
 };  // LogProblem
+
+// less judgemental verbatim version of LogError
+class LogImportant						// change log 11
+{
+public:
+  explicit LogImportant( std::string const & id ) 
+    : ap( new MessageSender(ELerror,id,true) )
+  { }
+
+  template< class T >
+    LogImportant & 
+    operator<< (T const & t)  { (*ap) << t; return *this; }
+  LogImportant & 
+  operator<< ( std::ostream&(*f)(std::ostream&))  
+    				      { (*ap) << f; return *this; }
+  LogImportant & 
+  operator<< ( std::ios_base&(*f)(std::ios_base&) )  
+    				      { (*ap) << f; return *this; }     
+
+private:
+  std::auto_ptr<MessageSender> ap; 
+  LogImportant( LogImportant const& );				// Change log 9
+
+};  // LogImportant
 
 // verbatim version of LogSystem
 class LogAbsolute						// change log 4

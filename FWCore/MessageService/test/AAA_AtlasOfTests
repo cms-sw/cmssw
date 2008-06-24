@@ -63,7 +63,7 @@ u16	Explicit specification of filenames and of extensions in destinations,
 	
 u17	Threshold levels for destinations, limit=0 for a category,
 	enabling all (*) LogDebug, with one destination responding.
-	Also verify that by default, the threshold for a destination is INF,
+	Also verify that by default, the threshold for a destination is INFO,
 	and verify name used for "severe" errors is System, not Severe, in 
 	summary statistics, and jobReports.
 	---------- UnitTestClient_K
@@ -90,7 +90,7 @@ u22	Tests effect of LogFlush by cfg-configurable choices of how many
 	a situation where its absence would result in different output.
 	---------- UnitTestClient_P
 
-u23	Tests effect of LogFlush by GroupLogStatistics(category) 
+u23	Tests effect of GroupLogStatistics(category) 
 	by having 6 differently labeled modules (of two distinct classes)
 	all of which issue LogIssue with two "grouped" categories.
 	---------- UnitTestClient_Q
@@ -105,7 +105,16 @@ u25	Imposition of limits and thresholds of specific interest to user
 	---------- UnitTestClient_R
 	
 
+u27	Tests proper output of both ungrouped and grouped categories
+	in summary placed in the FrameworkJobReport.xml. 
+	---------- UnitTestClient_Q
+
+
 Non-regression-suite tests (not run via scramv1 b runtests):
+
+u26	Is a near-identical clone of u17, using a different client, and is 
+	not in the Buildfile
+	---------- UnitTestClient_A
 
 timing_t   Tests output of Timing service to JobReport
 	   (Inherently tough for regression testing as

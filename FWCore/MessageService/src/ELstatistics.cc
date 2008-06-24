@@ -448,23 +448,8 @@ std::map<ELextendedID , StatsCount> ELstatistics::statisticsMap() const {
 }
 
 
+								// 6/19/08 mf
 void  ELstatistics::summaryForJobReport (std::map<std::string, double> & sm) {
-
-#ifdef NOTYET
-			// Major changes 8/16/07 mf, including making this
-			// a static member function instead of a free function
-			
-  using std::ios;       /* _base ? */
-  using std::setw;
-  using std::right;
-  using std::left;
-
-  int                         n = 0;
-
-  // -----  Summary part I:
-  //
-  ELstring  lastProcess( "" );
-  bool      ftnote( false );
 
   struct part3  {
     long n, t;
@@ -473,6 +458,8 @@ void  ELstatistics::summaryForJobReport (std::map<std::string, double> & sm) {
 
   std::set<std::string>::iterator gcEnd = groupedCategories.end(); 
   std::set<std::string> gCats = groupedCategories;  // TEMP FOR DEBUGGING SANITY
+
+  // ----- Part I:  The ungrouped categories
   for ( ELmap_stats::const_iterator i = stats.begin();  i != stats.end();  ++i )  {
 
      // If this is a grouped category, wait till later to output its stats
@@ -487,13 +474,20 @@ void  ELstatistics::summaryForJobReport (std::map<std::string, double> & sm) {
     std::ostringstream s;
     s << "Category_";
     std::string sevSymbol = (*i).first.severity.getSymbol();
-    if ( sevSymbol[0] == '-' ) sevSymbol = sevSymbol(1);
+    if ( sevSymbol[0] == '-' ) sevSymbol = sevSymbol.substr(1);
     s << sevSymbol << "_" << (*i).first.id;
     int n = (*i).second.aggregateN;    
-    sm[s.str()] = n; // TODO -- this is wrong; need to see if it is already
-    		     // present andd if so, increment.  That will group
-		     // things if different modules or subroutines are 
-		     // doing same category.
+    std::string catstr = s.str();
+    if (sm.find(catstr) != sm.end()) {
+      sm[catstr] += n; 
+    } else {
+       sm[catstr] = n;
+    } 
+    // -----  Obtain information for Part III, below:
+    //
+    ELextendedID xid = (*i).first;
+    p3[xid.severity.getLevel()].n += (*i).second.n;
+    p3[xid.severity.getLevel()].t += (*i).second.aggregateN;
   }  // for i
 
   // ----- Part Ia:  The grouped categories
@@ -511,16 +505,18 @@ void  ELstatistics::summaryForJobReport (std::map<std::string, double> & sm) {
     if (groupTotal > 0) {
       // -----  Emit detailed message information:
       //
-      s << right << std::setw( 5) << ++n                                     << ' '
-	<< left  << std::setw(20) << (*g).substr(0,20)                       << ' '
-	<< left  << std::setw( 2) << severityLevel.getSymbol()               << ' '
-	<< left  << std::setw(16) << "  <Any Module>  "                      << ' '
-	<< left  << std::setw(16) << "<Any Function>"
-	<< right << std::setw( 7) << groupTotal
-	<< left  << std::setw( 1) << ( groupIgnored ? '*' : ' ' )
-	<< right << std::setw( 8) << groupAggregateN                  << '\n'
-	;
-      ftnote = ftnote || groupIgnored;
+      std::ostringstream s;
+      s << "Category_";
+      std::string sevSymbol = severityLevel.getSymbol();
+      if ( sevSymbol[0] == '-' ) sevSymbol = sevSymbol.substr(1);
+      s << sevSymbol << "_" << *g;
+      int n = groupAggregateN;    
+      std::string catstr = s.str();
+      if (sm.find(catstr) != sm.end()) {
+        sm[catstr] += n; 
+      } else {
+         sm[catstr] = n;
+      } 
 
       // -----  Obtain information for Part III, below:
       //
@@ -530,63 +526,35 @@ void  ELstatistics::summaryForJobReport (std::map<std::string, double> & sm) {
     } // end if groupTotal>0
   }  // for g
 
-  // -----  Provide footnote to part I, if needed:
-  //
-  if ( ftnote )
-    s << "\n* Some occurrences of this message"
-         " were suppressed in all logs, due to limits.\n"
-      ;
-
-  // -----  Summary part II:
-  //
-  n = 0;
-  for ( ELmap_stats::const_iterator i = stats.begin();  i != stats.end();  ++i )  {
-    std::string cat = (*i).first.id; 
-    if ( groupedCategories.find(cat) != gcEnd )
-    {								// 8/16/07 mf
-       continue; // We will process these categories later
-    }
-    if ( n ==  0 ) {
-      s << '\n'
-	<< " type    category    Examples: "
-	   "run/evt        run/evt          run/evt\n"
-	<< " ---- -------------------- ----"
-	   "------------ ---------------- ----------------\n"
-	;
-    }
-    s << right << std::setw( 5) << ++n                             << ' '
-      << left  << std::setw(20) << (*i).first.id.c_str()           << ' '
-      << left  << std::setw(16) << (*i).second.context1.c_str()    << ' '
-      << left  << std::setw(16) << (*i).second.context2.c_str()    << ' '
-                           << (*i).second.contextLast.c_str() << '\n'
-      ;
-  }  // for
+  // part II (sample event numbers) does not exist for the job report.
 
   // -----  Summary part III:
   //
-  s << "\nSeverity    # Occurrences   Total Occurrences\n"
-    <<   "--------    -------------   -----------------\n";
   for ( int k = 0;  k < ELseverityLevel::nLevels;  ++k )  {
-    if ( p3[k].n != 0  ||  p3[k].t != 0 )  {
-      s << left  << std::setw( 8) << ELseverityLevel( ELseverityLevel::ELsev_(k) ).getName().c_str()
-        << right << std::setw(17) << p3[k].n
-        << right << std::setw(20) << p3[k].t
-                             << '\n'
-        ;
+    //if ( p3[k].t != 0 )  {
+    if (true) {
+      std::string sevName;
+      sevName = ELseverityLevel( ELseverityLevel::ELsev_(k) ).getName();
+      if (sevName == "Severe")  sevName = "System";
+      if (sevName == "Success") sevName = "Debug";
+      sevName = std::string("Log")+sevName;
+      sevName = dualLogName(sevName);
+      if (sevName != "UnusedSeverity") {
+        sm[sevName] = p3[k].t;
+      }
     }
-  }  // for
+  }  // for k
 
-  return s.str();
+} // summaryForJobReport()
 
-}
-
-
-
-
-#endif // NOTYET
-
-
-  sm["Category_x_STUB"] = 0.0;
+std::string ELstatistics::dualLogName (std::string const & s) 
+{
+  if (s=="LogDebug")   return  "LogDebug_LogTrace";
+  if (s=="LogInfo")    return  "LogInfo_LogVerbatim";
+  if (s=="LogWarning") return  "LogWarnng_LogPrint";
+  if (s=="LogError")   return  "LogError_LogProblem";
+  if (s=="LogSystem")  return  "LogSystem_LogAbsolute";
+  return "UnusedSeverity";
 }
 
 std::set<std::string> ELstatistics::groupedCategories; // 8/16/07 mf 
