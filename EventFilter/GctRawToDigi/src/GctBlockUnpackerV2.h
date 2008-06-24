@@ -7,12 +7,12 @@
 * \class GctBlockUnpackerV2
 * \brief Second version of the block unpacker - unpacks current hardware output.
 * 
-*  Block Unpacker Version 2... complies with Pipeline Formats v20 and
-*  is up to date with the hardware as of 19th March 2008.
+*  Block Unpacker Version 2... complies with Pipeline Formats v27.1 and
+*  is up to date with the hardware as of 24th June 2008.
 * 
 * \author Robert Frazier
-* $Revision: 1.4 $
-* $Date: 2008/03/19 18:12:14 $
+* $Revision: 1.5 $
+* $Date: 2008/06/14 13:33:10 $
 */ 
 
 // *******************************************************************
