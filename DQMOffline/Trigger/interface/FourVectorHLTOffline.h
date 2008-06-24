@@ -16,7 +16,7 @@
 //
 // Original Author:  Jeffrey Berryhill
 //         Created:  June 2008
-// $Id: FourVectorHLTOffline.h,v 1.5 2008/06/10 13:23:14 berryhil Exp $
+// $Id: FourVectorHLTOffline.h,v 1.1 2008/06/12 21:58:48 berryhil Exp $
 //
 //
 
@@ -98,7 +98,11 @@ class FourVectorHLTOffline : public edm::EDAnalyzer {
                        MonitorElement* const etOff, 
                        MonitorElement* const etaOff, 
 		       MonitorElement* const phiOff, 
-		       MonitorElement* const etavsphiOff) {
+		       MonitorElement* const etavsphiOff,
+                       MonitorElement* const etL1, 
+                       MonitorElement* const etaL1, 
+		       MonitorElement* const phiL1, 
+		       MonitorElement* const etavsphiL1) {
 	  etOn_ = etOn;
 	  etaOn_ = etaOn;
 	  phiOn_ = phiOn;
@@ -107,6 +111,10 @@ class FourVectorHLTOffline : public edm::EDAnalyzer {
 	  etaOff_ = etaOff;
 	  phiOff_ = phiOff;
 	  etavsphiOff_ = etavsphiOff;
+	  etL1_ = etL1;
+	  etaL1_ = etaL1;
+	  phiL1_ = phiL1;
+	  etavsphiL1_ = etavsphiL1;
 	}
 	MonitorElement * getEtOnHisto() {
 	  return etOn_;
@@ -132,6 +140,18 @@ class FourVectorHLTOffline : public edm::EDAnalyzer {
 	MonitorElement * getEtaVsPhiOffHisto() {
 	  return etavsphiOff_;
 	}
+	MonitorElement * getEtL1Histo() {
+	  return etL1_;
+	}
+	MonitorElement * getEtaL1Histo() {
+	  return etaL1_;
+	}
+	MonitorElement * getPhiL1Histo() {
+	  return phiL1_;
+	}
+	MonitorElement * getEtaVsPhiL1Histo() {
+	  return etavsphiL1_;
+	}
 	const std::string getName(void ) const {
 	  return pathName_;
 	}
@@ -141,6 +161,7 @@ class FourVectorHLTOffline : public edm::EDAnalyzer {
 	  pathName_(pathName), objectType_(type),
 	  etOn_(0), etaOn_(0), phiOn_(0), etavsphiOn_(0),
 	  etOff_(0), etaOff_(0), phiOff_(0), etavsphiOff_(0),
+	  etL1_(0), etaL1_(0), phiL1_(0), etavsphiL1_(0),
 	  ptmin_(ptmin), ptmax_(ptmax)
 	  {
 	  };
@@ -153,11 +174,16 @@ class FourVectorHLTOffline : public edm::EDAnalyzer {
 		   MonitorElement *etaOff,
 		   MonitorElement *phiOff,
 		   MonitorElement *etavsphiOff,
+		   MonitorElement *etL1,
+		   MonitorElement *etaL1,
+		   MonitorElement *phiL1,
+		   MonitorElement *etavsphiL1,
 		   float ptmin, float ptmax
 		   ):
 	    pathName_(pathName), objectType_(type),
 	    etOn_(etOn), etaOn_(etaOn), phiOn_(phiOn), etavsphiOn_(etavsphiOn),
 	    etOff_(etOff), etaOff_(etaOff), phiOff_(phiOff), etavsphiOff_(etavsphiOff),
+	    etL1_(etL1), etaL1_(etaL1), phiL1_(phiL1), etavsphiL1_(etavsphiL1),
 	    ptmin_(ptmin), ptmax_(ptmax)
 	    {};
 	    bool operator==(const std::string v) 
@@ -172,6 +198,7 @@ class FourVectorHLTOffline : public edm::EDAnalyzer {
 	  // we don't own this data
 	  MonitorElement *etOn_, *etaOn_, *phiOn_, *etavsphiOn_;
 	  MonitorElement *etOff_, *etaOff_, *phiOff_, *etavsphiOff_;
+	  MonitorElement *etL1_, *etaL1_, *phiL1_, *etavsphiL1_;
 
 	  float ptmin_, ptmax_;
 

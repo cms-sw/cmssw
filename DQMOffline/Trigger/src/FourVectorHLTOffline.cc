@@ -1,4 +1,4 @@
-// $Id: FourVectorHLTOffline.cc,v 1.3 2008/06/18 20:09:04 berryhil Exp $
+// $Id: FourVectorHLTOffline.cc,v 1.4 2008/06/23 12:56:46 berryhil Exp $
 // See header file for information. 
 #include "FWCore/Framework/interface/EDAnalyzer.h"
 #include "DataFormats/Common/interface/Handle.h"
@@ -12,6 +12,7 @@
 #include "FWCore/Framework/interface/TriggerNames.h"
 #include "DataFormats/HLTReco/interface/TriggerEvent.h"
 #include "DataFormats/HLTReco/interface/TriggerTypeDefs.h"
+
 #include "DataFormats/EgammaCandidates/interface/GsfElectronFwd.h"
 #include "DataFormats/EgammaCandidates/interface/PhotonFwd.h"
 #include "DataFormats/EgammaCandidates/interface/Photon.h"
@@ -23,6 +24,15 @@
 #include "DataFormats/TauReco/interface/CaloTau.h"
 #include "DataFormats/METReco/interface/CaloMETCollection.h"
 #include "DataFormats/METReco/interface/CaloMET.h"
+
+#include "DataFormats/L1Trigger/interface/L1EmParticle.h"
+#include "DataFormats/L1Trigger/interface/L1EmParticleFwd.h"
+#include "DataFormats/L1Trigger/interface/L1JetParticle.h"
+#include "DataFormats/L1Trigger/interface/L1JetParticleFwd.h"
+#include "DataFormats/L1Trigger/interface/L1MuonParticle.h"
+#include "DataFormats/L1Trigger/interface/L1MuonParticleFwd.h"
+#include "DataFormats/L1Trigger/interface/L1EtMissParticle.h"
+#include "DataFormats/L1Trigger/interface/L1EtMissParticleFwd.h"
 
 #include "DQMServices/Core/interface/MonitorElement.h"
 
@@ -101,6 +111,7 @@ FourVectorHLTOffline::analyze(const edm::Event& iEvent, const edm::EventSetup& i
 {
   using namespace edm;
   using namespace trigger;
+  using namespace l1extra;
   ++nev_;
   LogDebug("FourVectorHLTOffline")<< "FourVectorHLTOffline: analyze...." ;
   
@@ -136,6 +147,7 @@ FourVectorHLTOffline::analyze(const edm::Event& iEvent, const edm::EventSetup& i
 	// doesn't exist - add it
 	MonitorElement *etOn(0), *etaOn(0), *phiOn(0), *etavsphiOn(0);
 	MonitorElement *etOff(0), *etaOff(0), *phiOff(0), *etavsphiOff(0);
+	MonitorElement *etL1(0), *etaL1(0), *phiL1(0), *etavsphiL1(0);
 	std::string histoname(name+"_etOn");
 	std::string title(name+" E_t online");
 	etOn =  dbe_->book1D(histoname.c_str(),
@@ -144,6 +156,11 @@ FourVectorHLTOffline::analyze(const edm::Event& iEvent, const edm::EventSetup& i
 	histoname = name+"_etOff";
 	title = name+" E_t offline";
 	etOff =  dbe_->book1D(histoname.c_str(),
+			   title.c_str(),nBins_, 0, 100);
+
+	histoname = name+"_etL1";
+	title = name+" E_t L1";
+	etL1 =  dbe_->book1D(histoname.c_str(),
 			   title.c_str(),nBins_, 0, 100);
 
 	histoname = name+"_etaOn";
@@ -156,6 +173,11 @@ FourVectorHLTOffline::analyze(const edm::Event& iEvent, const edm::EventSetup& i
 	etaOff =  dbe_->book1D(histoname.c_str(),
 			   title.c_str(),nBins_,-2.7,2.7);
 
+	histoname = name+"_etaL1";
+	title = name+" #eta L1";
+	etaL1 =  dbe_->book1D(histoname.c_str(),
+			   title.c_str(),nBins_,-2.7,2.7);
+
 	histoname = name+"_phiOn";
 	title = name+" #phi online";
 	phiOn =  dbe_->book1D(histoname.c_str(),
@@ -164,6 +186,11 @@ FourVectorHLTOffline::analyze(const edm::Event& iEvent, const edm::EventSetup& i
 	histoname = name+"_phiOff";
 	title = name+" #phi offline";
 	phiOff =  dbe_->book1D(histoname.c_str(),
+			   histoname.c_str(),nBins_,-3.14,3.14);
+
+	histoname = name+"_phiL1";
+	title = name+" #phi L1";
+	phiL1 =  dbe_->book1D(histoname.c_str(),
 			   histoname.c_str(),nBins_,-3.14,3.14);
       
 	histoname = name+"_etaphiOn";
@@ -179,9 +206,16 @@ FourVectorHLTOffline::analyze(const edm::Event& iEvent, const edm::EventSetup& i
 				title.c_str(),
 				nBins_,-2.7,2.7,
 				nBins_,-3.14, 3.14);
+
+	histoname = name+"_etaphiL1";
+	title = name+" #eta vs #phi L1";
+	etavsphiL1 =  dbe_->book2D(histoname.c_str(),
+				title.c_str(),
+				nBins_,-2.7,2.7,
+				nBins_,-3.14, 3.14);
       
 	// no idea how to get the bin boundries in this mode
-	PathInfo e(name,0, etOn, etaOn, phiOn, etavsphiOn, etOff, etaOff, phiOff, etavsphiOff, 0,100);
+	PathInfo e(name,0, etOn, etaOn, phiOn, etavsphiOn, etOff, etaOff, phiOff, etavsphiOff, etL1, etaL1, phiL1, etavsphiL1, 0,100);
 	hltPaths_.push_back(e);  
 	pic = hltPaths_.begin() + hltPaths_.size()-1;
       }
@@ -193,7 +227,7 @@ FourVectorHLTOffline::analyze(const edm::Event& iEvent, const edm::EventSetup& i
 	pic->getPhiOnHisto()->Fill(toc[*ki].phi());
 	pic->getEtaVsPhiOnHisto()->Fill(toc[*ki].eta(), toc[*ki].phi());
       }  
-      // for photon triggers, loop over and fill offline 4-vectors
+      // for photon triggers, loop over and fill offline and L1 4-vectors
       if (triggertype == trigger::TriggerPhoton)
 	{
 
@@ -214,6 +248,47 @@ FourVectorHLTOffline::analyze(const edm::Event& iEvent, const edm::EventSetup& i
 	  pic->getPhiOffHisto()->Fill((*photonIter).phi());
 	  pic->getEtaVsPhiOffHisto()->Fill((*photonIter).eta(),(*photonIter).phi());
          }
+
+
+         std::vector<edm::Handle<l1extra::L1EmParticleCollection> > l1PhotonHandleList;
+         iEvent.getManyByType(l1PhotonHandleList);        
+         std::vector<edm::Handle<l1extra::L1EmParticleCollection> >::iterator l1PhotonHandle;
+
+         for (l1PhotonHandle=l1PhotonHandleList.begin(); l1PhotonHandle!=l1PhotonHandleList.end(); l1PhotonHandle++) {
+	   if (!l1PhotonHandle->isValid())
+	     {
+            edm::LogInfo("FourVectorHLTOffline") << "photonHandle not found, "
+            "skipping event"; 
+            return;
+             } 
+         const L1EmParticleCollection l1PhotonCollection = *(l1PhotonHandle->product());
+	   for (L1EmParticleCollection::const_iterator l1PhotonIter=l1PhotonCollection.begin(); l1PhotonIter!=l1PhotonCollection.end(); l1PhotonIter++){
+     	  pic->getEtL1Histo()->Fill((*l1PhotonIter).pt());
+     	  pic->getEtaL1Histo()->Fill((*l1PhotonIter).eta());
+          pic->getPhiL1Histo()->Fill((*l1PhotonIter).phi());
+     	  pic->getEtaVsPhiL1Histo()->Fill((*l1PhotonIter).eta(),(*l1PhotonIter).phi());
+	   }
+         }
+
+
+         // edm::Handle<L1EmParticleCollection> l1PhotonHandle;
+         // iEvent.getByLabel("hltL1extraParticles:Isolated:HLT",l1PhotonHandle);
+	
+	 //  std::vector<edm::Handle<L1EmParticleCollection> > l1PhotonHandle;
+	 // if(!l1PhotonHandle.isValid()) { 
+         //   edm::LogInfo("FourVectorHLTOffline") << "l1PhotonHandle not found, "
+         //   "skipping event"; 
+         //   return;
+	 // }
+     //         const L1EmParticleCollection l1PhotonCollection = *(l1PhotonHandle.product());
+
+     //         for (L1EmParticleCollection::const_iterator l1PhotonIter=l1PhotonCollection.begin(); l1PhotonIter!=l1PhotonCollection.end(); l1PhotonIter++)
+     //     {
+     //	  pic->getEtL1Histo()->Fill((*l1PhotonIter).pt());
+     //	  pic->getEtaL1Histo()->Fill((*l1PhotonIter).eta());
+     //  pic->getPhiL1Histo()->Fill((*l1PhotonIter).phi());
+     //	  pic->getEtaVsPhiL1Histo()->Fill((*l1PhotonIter).eta(),(*l1PhotonIter).phi());
+     //         }
 	}
       // for electron triggers, loop over and fill offline 4-vectors
       else if (triggertype == trigger::TriggerElectron)
@@ -232,6 +307,21 @@ FourVectorHLTOffline::analyze(const edm::Event& iEvent, const edm::EventSetup& i
 	  pic->getEtaOffHisto()->Fill(gsfIter->eta());
 	  pic->getPhiOffHisto()->Fill(gsfIter->phi());
 	  pic->getEtaVsPhiOffHisto()->Fill(gsfIter->eta(), gsfIter->phi());
+         }
+
+         std::vector<edm::Handle<l1extra::L1EmParticleCollection> > l1ElectronHandleList;
+         iEvent.getManyByType(l1ElectronHandleList);        
+         std::vector<edm::Handle<l1extra::L1EmParticleCollection> >::iterator l1ElectronHandle;
+
+         for (l1ElectronHandle=l1ElectronHandleList.begin(); l1ElectronHandle!=l1ElectronHandleList.end(); l1ElectronHandle++) {
+
+         const L1EmParticleCollection l1ElectronCollection = *(l1ElectronHandle->product());
+	   for (L1EmParticleCollection::const_iterator l1ElectronIter=l1ElectronCollection.begin(); l1ElectronIter!=l1ElectronCollection.end(); l1ElectronIter++){
+     	  pic->getEtL1Histo()->Fill((*l1ElectronIter).pt());
+     	  pic->getEtaL1Histo()->Fill((*l1ElectronIter).eta());
+          pic->getPhiL1Histo()->Fill((*l1ElectronIter).phi());
+     	  pic->getEtaVsPhiL1Histo()->Fill((*l1ElectronIter).eta(),(*l1ElectronIter).phi());
+	   }
          }
 	}
       // for muon triggers, loop over and fill offline 4-vectors
@@ -254,6 +344,24 @@ FourVectorHLTOffline::analyze(const edm::Event& iEvent, const edm::EventSetup& i
 	  pic->getPhiOffHisto()->Fill((*muonIter).phi());
 	  pic->getEtaVsPhiOffHisto()->Fill((*muonIter).eta(),(*muonIter).phi());
          }
+
+         edm::Handle<l1extra::L1MuonParticleCollection> l1MuonHandle;
+         iEvent.getByType(l1MuonHandle);
+
+         if(!l1MuonHandle.isValid()) { 
+            edm::LogInfo("FourVectorHLTOffline") << "l1MuonHandle not found, "
+            "skipping event"; 
+            return;
+         }
+         const l1extra::L1MuonParticleCollection l1MuonCollection = *(l1MuonHandle.product());
+
+         for (l1extra::L1MuonParticleCollection::const_iterator l1MuonIter=l1MuonCollection.begin(); l1MuonIter!=l1MuonCollection.end(); l1MuonIter++)
+         {
+	  pic->getEtL1Histo()->Fill((*l1MuonIter).pt());
+	  pic->getEtaL1Histo()->Fill((*l1MuonIter).eta());
+	  pic->getPhiL1Histo()->Fill((*l1MuonIter).phi());
+	  pic->getEtaVsPhiL1Histo()->Fill((*l1MuonIter).eta(),(*l1MuonIter).phi());
+         }
 	}
       // for tau triggers, loop over and fill offline 4-vectors
       else if (triggertype == trigger::TriggerTau)
@@ -275,6 +383,29 @@ FourVectorHLTOffline::analyze(const edm::Event& iEvent, const edm::EventSetup& i
 	  pic->getPhiOffHisto()->Fill((*tauIter).phi());
 	  pic->getEtaVsPhiOffHisto()->Fill((*tauIter).eta(),(*tauIter).phi());
          }
+
+
+         std::vector<edm::Handle<l1extra::L1JetParticleCollection> > l1TauHandleList;
+         iEvent.getManyByType(l1TauHandleList);        
+         std::vector<edm::Handle<l1extra::L1JetParticleCollection> >::iterator l1TauHandle;
+
+         for (l1TauHandle=l1TauHandleList.begin(); l1TauHandle!=l1TauHandleList.end(); l1TauHandle++) {
+	   if (!l1TauHandle->isValid())
+	     {
+            edm::LogInfo("FourVectorHLTOffline") << "photonHandle not found, "
+            "skipping event"; 
+            return;
+             } 
+         const L1JetParticleCollection l1TauCollection = *(l1TauHandle->product());
+	   for (L1JetParticleCollection::const_iterator l1TauIter=l1TauCollection.begin(); l1TauIter!=l1TauCollection.end(); l1TauIter++){
+     	  pic->getEtL1Histo()->Fill((*l1TauIter).pt());
+     	  pic->getEtaL1Histo()->Fill((*l1TauIter).eta());
+          pic->getPhiL1Histo()->Fill((*l1TauIter).phi());
+     	  pic->getEtaVsPhiL1Histo()->Fill((*l1TauIter).eta(),(*l1TauIter).phi());
+	   }
+         }
+
+
 	}
       // for jet triggers, loop over and fill offline 4-vectors
       else if (triggertype == trigger::TriggerJet)
@@ -296,6 +427,30 @@ FourVectorHLTOffline::analyze(const edm::Event& iEvent, const edm::EventSetup& i
 	  pic->getPhiOffHisto()->Fill((*jetIter).phi());
 	  pic->getEtaVsPhiOffHisto()->Fill((*jetIter).eta(),(*jetIter).phi());
          }
+
+
+
+         std::vector<edm::Handle<l1extra::L1JetParticleCollection> > l1JetHandleList;
+         iEvent.getManyByType(l1JetHandleList);        
+         std::vector<edm::Handle<l1extra::L1JetParticleCollection> >::iterator l1JetHandle;
+
+         for (l1JetHandle=l1JetHandleList.begin(); l1JetHandle!=l1JetHandleList.end(); l1JetHandle++) {
+	   if (!l1JetHandle->isValid())
+	     {
+            edm::LogInfo("FourVectorHLTOffline") << "photonHandle not found, "
+            "skipping event"; 
+            return;
+             } 
+         const L1JetParticleCollection l1JetCollection = *(l1JetHandle->product());
+	   for (L1JetParticleCollection::const_iterator l1JetIter=l1JetCollection.begin(); l1JetIter!=l1JetCollection.end(); l1JetIter++){
+     	  pic->getEtL1Histo()->Fill((*l1JetIter).pt());
+     	  pic->getEtaL1Histo()->Fill((*l1JetIter).eta());
+          pic->getPhiL1Histo()->Fill((*l1JetIter).phi());
+     	  pic->getEtaVsPhiL1Histo()->Fill((*l1JetIter).eta(),(*l1JetIter).phi());
+	   }
+         }
+
+
 	}
       // for bjet triggers, loop over and fill offline 4-vectors
       else if (triggertype == trigger::TriggerBJet)
@@ -321,6 +476,25 @@ FourVectorHLTOffline::analyze(const edm::Event& iEvent, const edm::EventSetup& i
 	  pic->getPhiOffHisto()->Fill((*metIter).phi());
 	  pic->getEtaVsPhiOffHisto()->Fill((*metIter).eta(),(*metIter).phi());
          }
+
+         Handle< L1EtMissParticleCollection > l1MetHandle ;
+         iEvent.getByType(l1MetHandle) ;
+
+         if(!l1MetHandle.isValid()) { 
+            edm::LogInfo("FourVectorHLTOffline") << "l1MetHandle not found, "
+            "skipping event"; 
+            return;
+         }
+         const l1extra::L1EtMissParticleCollection l1MetCollection = *(l1MetHandle.product());
+
+         for (l1extra::L1EtMissParticleCollection::const_iterator l1MetIter=l1MetCollection.begin(); l1MetIter!=l1MetCollection.end(); l1MetIter++)
+         {
+	  pic->getEtL1Histo()->Fill((*l1MetIter).pt());
+	  pic->getEtaL1Histo()->Fill((*l1MetIter).eta());
+	  pic->getPhiL1Histo()->Fill((*l1MetIter).phi());
+	  pic->getEtaVsPhiL1Histo()->Fill((*l1MetIter).eta(),(*l1MetIter).phi());
+         }
+
 	}
       else
 	{
@@ -371,6 +545,7 @@ FourVectorHLTOffline::beginJob(const edm::EventSetup&)
 	  v!= hltPaths_.end(); ++v ) {
 	MonitorElement *etOn, *etaOn, *phiOn, *etavsphiOn=0;
 	MonitorElement *etOff, *etaOff, *phiOff, *etavsphiOff=0;
+	MonitorElement *etL1, *etaL1, *phiL1, *etavsphiL1=0;
 	std::string histoname(v->getName()+"_etOn");
 	std::string title(v->getName()+" E_t online");
 	etOn =  dbe->book1D(histoname.c_str(),
@@ -385,6 +560,13 @@ FourVectorHLTOffline::beginJob(const edm::EventSetup&)
                            v->getPtMin(),
 			   v->getPtMax());
 
+	histoname = v->getName()+"_etL1";
+	title = v->getName()+" E_t L1";
+	etL1 =  dbe->book1D(histoname.c_str(),
+			   title.c_str(),nBins_, 
+                           v->getPtMin(),
+			   v->getPtMax());
+
 	histoname = v->getName()+"_etaOn";
 	title = v->getName()+" #eta online";
 	etaOn =  dbe->book1D(histoname.c_str(),
@@ -395,6 +577,11 @@ FourVectorHLTOffline::beginJob(const edm::EventSetup&)
 	etaOff =  dbe->book1D(histoname.c_str(),
 			   title.c_str(),nBins_,-2.7,2.7);
 
+	histoname = v->getName()+"_etaL1";
+	title = v->getName()+" #eta L1";
+	etaL1 =  dbe->book1D(histoname.c_str(),
+			   title.c_str(),nBins_,-2.7,2.7);
+
 	histoname = v->getName()+"_phiOn";
 	title = v->getName()+" #phi online";
 	phiOn =  dbe->book1D(histoname.c_str(),
@@ -403,6 +590,11 @@ FourVectorHLTOffline::beginJob(const edm::EventSetup&)
 	histoname = v->getName()+"_phiOff";
 	title = v->getName()+" #phi offline";
 	phiOff =  dbe->book1D(histoname.c_str(),
+			   histoname.c_str(),nBins_,-3.14,3.14);
+
+	histoname = v->getName()+"_phiL1";
+	title = v->getName()+" #phi L1";
+	phiL1 =  dbe->book1D(histoname.c_str(),
 			   histoname.c_str(),nBins_,-3.14,3.14);
  
 
@@ -420,7 +612,14 @@ FourVectorHLTOffline::beginJob(const edm::EventSetup&)
 				nBins_,-2.7,2.7,
 				nBins_,-3.14, 3.14);
 
-	v->setHistos( etOn, etaOn, phiOn, etavsphiOn, etOff, etaOff, phiOff, etavsphiOff);
+	histoname = v->getName()+"_etaphiL1";
+	title = v->getName()+" #eta vs #phi L1";
+	etavsphiL1 =  dbe->book2D(histoname.c_str(),
+				title.c_str(),
+				nBins_,-2.7,2.7,
+				nBins_,-3.14, 3.14);
+
+	v->setHistos( etOn, etaOn, phiOn, etavsphiOn, etOff, etaOff, phiOff, etavsphiOff, etL1, etaL1, phiL1, etavsphiL1);
       } 
     } // ! plotAll_ - for plotAll we discover it during the event
   }
