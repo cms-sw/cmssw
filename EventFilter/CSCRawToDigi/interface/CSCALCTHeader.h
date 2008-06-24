@@ -295,7 +295,7 @@ class CSCALCTHeader {
       case 2007:
         return header2007.rawBins;
       default:
-	edm::LogError("CSCALCTHeader")
+	edm::LogError("CSCALCTHeader|CSCRawToDigi")
           <<"trying to access NTBINs: ALCT firmware version is bad/not defined!";
         return 0;
       }
@@ -311,7 +311,7 @@ class CSCALCTHeader {
       case 2007:
         return header2007.bxnCount;
       default:
-	edm::LogError("CSCALCTHeader")
+	edm::LogError("CSCALCTHeader|CSCRawToDigi")
           <<"trying to access BXNcount: ALCT firmware version is bad/not defined!";
         return 0;
       }
@@ -324,7 +324,7 @@ class CSCALCTHeader {
       case 2007:
         return header2007.l1aCounter;
       default:
-	edm::LogError("CSCALCTHeader")
+	edm::LogError("CSCALCTHeader|CSCRawToDigi")
           <<"trying to access L1Acc: ALCT firmware version is bad/not defined!";
         return 0;
       }
@@ -349,7 +349,7 @@ class CSCALCTHeader {
       case 2007:
         return sizeInWords2007_;
       default:
-	edm::LogError("CSCALCTHeader")
+	edm::LogError("CSCALCTHeader|CSCRawToDigi")
           <<"SizeInWords(): ALCT firmware version is bad/not defined!";
         return 0;
       }
@@ -363,7 +363,7 @@ class CSCALCTHeader {
       case 2007:
         return header2007.flag1 == 0xDB0A;
       default:
-	edm::LogError("CSCALCTHeader")
+	edm::LogError("CSCALCTHeader|CSCRawToDigi")
           <<"check(): ALCT firmware version is bad/not defined!";
         return 0;
       }

@@ -85,7 +85,7 @@ std::vector<CSCComparatorDigi>  CSCCLCTData::comparatorDigis(uint32_t idlayer, u
 	       */
 
 	      if (debug)
-		edm::LogInfo ("CSCCLCTData")
+		LogTrace ("CSCCLCTData|CSCRawToDigi")
 		  << "fillComparatorOutputs: layer = "
 		  << layer << " timebin = " << tbin
 		  << " cfeb = " << cfeb << " distrip = " << chamberDistrip
@@ -123,7 +123,7 @@ std::vector<CSCComparatorDigi>  CSCCLCTData::comparatorDigis(uint32_t idlayer, u
 	int strip = 16*cfeb_corr + 2*distrip_corr + 1;
 
 	if (debug)
-	  edm::LogInfo ("CSCCLCTData")
+	  LogTrace ("CSCCLCTData|CSCRawToDigi")
 	    << "fillComparatorOutputs: cfeb_corr = " << cfeb_corr
 	    << " distrip_corr = " << distrip_corr << " strip = " << strip;
 
@@ -180,15 +180,15 @@ bool CSCCLCTData::check() const
 	      result = result && wordIsGood;
 	      if(!wordIsGood && debug)
 		{
-		  edm::LogError("CSCCLCTData") << "Bad CLCT data  in layer " << layer 
+		  LogTrace("CSCCLCTData|CSCRawToDigi") << "Bad CLCT data  in layer " << layer 
 					       << " expect CFEB " << cfeb << " tbin " << tbin;
-		  edm::LogError("CSCCLCTData") << " See " << word.cfeb_ << " " 
+		  LogTrace("CSCCLCTData|CSCRawToDigi") << " See " << word.cfeb_ << " " 
 					       << word.tbin_;
 		}
 	    }
 	}
     }
-  if(!result) edm::LogError("CSCCLCTData") << "++ Bad CLCT Data ++ ";
+  if(!result) LogTrace("CSCCLCTData|CSCRawToDigi") << "++ Bad CLCT Data ++ ";
   return result;
 }
 

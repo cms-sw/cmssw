@@ -37,7 +37,7 @@ CSCTMBHeader::CSCTMBHeader(const unsigned short * buf) {
     firmwareVersion=2006;
   }
   else {
-    edm::LogError("CSCTMBHeader") <<"failed to determine TMB firmware version!!";
+    edm::LogError("CSCTMBHeader|CSCRawToDigi") <<"failed to determine TMB firmware version!!";
   }
     
   ///now fill data
@@ -49,7 +49,7 @@ CSCTMBHeader::CSCTMBHeader(const unsigned short * buf) {
     memcpy(&header2007, buf, header2007.sizeInWords()*2);
     break;
   default:
-    edm::LogError("CSCTMBHeader")
+    edm::LogError("CSCTMBHeader|CSCRawToDigi")
       <<"coundn't construct: TMB firmware version is bad/not defined!";
     break;
   }
@@ -130,7 +130,7 @@ std::vector<CSCCLCTDigi> CSCTMBHeader::CLCTDigis(uint32_t idlayer) {
     break;
   }
   default:
-    edm::LogError("CSCTMBHeader")
+    edm::LogError("CSCTMBHeader|CSCRawToDigi")
       <<"Empty Digis: TMB firmware version is bad/not defined!"; 
     break;
   }
@@ -326,7 +326,7 @@ std::vector<CSCCorrelatedLCTDigi> CSCTMBHeader::CorrelatedLCTDigis(uint32_t idla
     break;
   }
   default:
-    edm::LogError("CSCTMBHeader")
+    edm::LogError("CSCTMBHeader|CSCRawToDigi")
       <<"Empty CorrDigis: TMB firmware version is bad/not defined!";
     break;
   }

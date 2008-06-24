@@ -1,10 +1,11 @@
-// Author Rick Wilkinson
-//Modified 4/21/03 to store all CSC data in vectors
-//A.Tumanov
-//DDUHeader is separated into a class of its own
-
 #ifndef CSCDDUEventData_h
 #define CSCDDUEventData_h
+
+/** \class CSCDDUEventData
+ *
+ * \author Rick Wilkinson
+ * \author A. Tumanov
+ */
 
 #include <vector>
 #include "EventFilter/CSCRawToDigi/interface/CSCEventData.h"
@@ -20,8 +21,8 @@ public:
 
   explicit CSCDDUEventData(const CSCDDUHeader &);
 
-  /// buf may need to stay pinned in memory as long
-  /// as this data is used.  Not sure
+  // buf may need to stay pinned in memory as long
+  // as this data is used.  Not sure
   explicit CSCDDUEventData(unsigned short *buf, CSCDCCExaminer* examiner=NULL);
 
   ~CSCDDUEventData();

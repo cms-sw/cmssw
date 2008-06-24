@@ -30,17 +30,17 @@ CSCEventData::CSCEventData(unsigned short * buf){
   init();
   unsigned short * pos = buf;
   if(debug)    {
-    edm::LogInfo ("CSCEventData") << "The event data ";
+    LogTrace ("CSCEventData|CSCRawToDigi") << "The event data ";
     for(int i = 0; i < 16; ++i){
-      edm::LogInfo ("CSCEventData") << std::hex << pos[i ] << " ";
+      LogTrace ("CSCEventData|CSCRawToDigi") << std::hex << pos[i ] << " ";
     }
     }
    
   theDMBHeader = CSCDMBHeader(pos);
   if(!(theDMBHeader.check())) {
-    edm::LogError ("CSCEventData")  << "Bad DMB Header??? " << " first four words: ";
+    LogTrace ("CSCEventData|CSCRawToDigi")  << "Bad DMB Header??? " << " first four words: ";
     for(int i = 0; i < 4; ++i){
-      edm::LogError ("CSCEventData") << std::hex << pos[i ] << " ";
+      LogTrace ("CSCEventData|CSCRawToDigi") << std::hex << pos[i ] << " ";
     }
   }
   
@@ -49,13 +49,13 @@ CSCEventData::CSCEventData(unsigned short * buf){
    
       
   if (debug) {
-    edm::LogInfo ("CSCEventData") << "nalct = " << nalct();
-    edm::LogInfo ("CSCEventData") << "nclct = " << nclct();
+    LogTrace ("CSCEventData|CSCRawToDigi") << "nalct = " << nalct();
+    LogTrace ("CSCEventData|CSCRawToDigi") << "nclct = " << nclct();
   }
 
   if (debug)  {
-    edm::LogInfo ("CSCEventData") << "size in words of DMBHeader" << theDMBHeader.sizeInWords();
-    edm::LogInfo ("CSCEventData") << "sizeof(DMBHeader)" << sizeof(theDMBHeader); 
+    LogTrace ("CSCEventData|CSCRawToDigi") << "size in words of DMBHeader" << theDMBHeader.sizeInWords();
+    LogTrace ("CSCEventData|CSCRawToDigi") << "sizeof(DMBHeader)" << sizeof(theDMBHeader); 
   }
    
   pos += theDMBHeader.sizeInWords();
@@ -64,7 +64,7 @@ CSCEventData::CSCEventData(unsigned short * buf){
     if (isALCT(pos)) {//checking for ALCTData
       theALCTHeader = new CSCALCTHeader( pos );
       if(!theALCTHeader->check()){  
-	edm::LogError ("CSCEventData") <<"+++WARNING: Corrupt ALCT data - won't attempt to decode";
+	LogTrace ("CSCEventData|CSCRawToDigi") <<"+++WARNING: Corrupt ALCT data - won't attempt to decode";
       } 
       else {
 	//dataPresent|=0x40;
@@ -76,7 +76,10 @@ CSCEventData::CSCEventData(unsigned short * buf){
 	theALCTTrailer = new CSCALCTTrailer( pos );
 	pos += theALCTTrailer->sizeInWords();
       }
-    }else  edm::LogError ("CSCEventData") <<"Error:nalct reported but no ALCT data found!!!";
+    } 
+    else {
+      LogTrace ("CSCEventData|CSCRawToDigi") << "Error:nalct reported but no ALCT data found!!!";
+    }
   }
 
   if (nclct() ==1)  {
@@ -85,7 +88,9 @@ CSCEventData::CSCEventData(unsigned short * buf){
       theTMBData = new CSCTMBData(pos);  //fill all TMB data
       pos += theTMBData->size();
     }
-    else  edm::LogError ("CSCEventData") <<"Error:nclct reported but no TMB data found!!!";
+    else {
+      LogTrace ("CSCEventData|CSCRawToDigi") << "Error:nclct reported but no TMB data found!!!";
+    }
   }
 
   //now let's try to find and unpack the DMBTrailer
@@ -109,7 +114,7 @@ CSCEventData::CSCEventData(unsigned short * buf){
       //cfeb_available cannot be trusted - need additional verification!
       if ( cfeb_available==1 )   {
 	if ((cfebTimeout >> icfeb) & 1) {
-	  if (debug) edm::LogInfo ("CSCEventData") << "CFEB Timed out! ";
+	  if (debug) LogTrace ("CSCEventData|CSCRawToDigi") << "CFEB Timed out! ";
 	} else {
 	  //dataPresent|=(0x1>>icfeb);
 	  // Fill CFEB data and convert it into cathode digis
@@ -122,7 +127,7 @@ CSCEventData::CSCEventData(unsigned short * buf){
     size_ = pos-buf;
   }
   else {
-    edm::LogError ("CSCEventData") << "Critical Error: DMB Trailer was not found!!! ";
+    LogTrace ("CSCEventData|CSCRawToDigi") << "Critical Error: DMB Trailer was not found!!! ";
   }
 }
 

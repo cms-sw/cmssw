@@ -40,11 +40,11 @@ void CSCDCCEventData::unpack_data(unsigned short *buf, CSCDCCExaminer* examiner)
   //}
   theDDUData.clear();
   if (debug) 
-    edm::LogInfo ("CSCDCCEventData") << "CSCDCCEventData::unpack_data() is called";
+    LogTrace ("CSCDCCEventData|CSCRawToDigi") << "CSCDCCEventData::unpack_data() is called";
 
   // decode DCC header (128 bits)
   if (debug) 
-    edm::LogInfo ("CSCDCCEventData") << "unpacking dcc header...";
+    LogTrace ("CSCDCCEventData|CSCRawToDigi") << "unpacking dcc header...";
   memcpy(&theDCCHeader, buf, theDCCHeader.sizeInWords()*2);
   //theDCCHeader = CSCDCCHeader(buf); // direct unpacking instead of bitfields
   buf += theDCCHeader.sizeInWords();
@@ -57,7 +57,7 @@ void CSCDCCEventData::unpack_data(unsigned short *buf, CSCDCCExaminer* examiner)
        CSCDDUEventData dduEventData(buf, examiner);
 //	CSCDDUEventData dduEventData(buf);
 
-      if (debug) edm::LogInfo ("CSCDCCEventData") << " checking ddu data integrity ";
+      if (debug) LogTrace ("CSCDCCEventData|CSCRawToDigi") << " checking ddu data integrity ";
       if (dduEventData.check()) 
 	{
 	  theDDUData.push_back(dduEventData);
@@ -65,7 +65,7 @@ void CSCDCCEventData::unpack_data(unsigned short *buf, CSCDCCExaminer* examiner)
 	} 
       else
 	{
-	  if (debug) edm::LogError ("CSCDCCEventData") <<"DDU Data Check failed!  ";
+	  if (debug) LogTrace("CSCDCCEventData|CSCRawToDigi") <<"DDU Data Check failed!  ";
 	  break;
 	}
       
@@ -73,15 +73,15 @@ void CSCDCCEventData::unpack_data(unsigned short *buf, CSCDCCExaminer* examiner)
   
   if (debug)
     {
-      edm::LogInfo ("CSCDCCEventData") << "unpacking dcc trailer ";
-      edm::LogInfo ("CSCDCCEventData") << std::hex << buf[3] <<" "
+      LogTrace ("CSCDCCEventData|CSCRawToDigi") << "unpacking dcc trailer ";
+      LogTrace ("CSCDCCEventData|CSCRawToDigi") << std::hex << buf[3] <<" "
 				       << buf[2]<<" " << buf[1]<<" " << buf[0];
     }
 	    
   //decode dcc trailer (128 bits)
-  if (debug) edm::LogInfo ("CSCDCCEventData") <<"decoding DCC trailer";
+  if (debug) LogTrace ("CSCDCCEventData|CSCRawToDigi") <<"decoding DCC trailer";
   memcpy(&theDCCTrailer, buf, theDCCTrailer.sizeInWords()*2);
-  if (debug) edm::LogInfo ("CSCDCCEventData") << "checking DDU Trailer" << theDCCTrailer.check(); 
+  if (debug) LogTrace("CSCDCCEventData|CSCRawToDigi") << "checking DDU Trailer" << theDCCTrailer.check(); 
   buf += theDCCTrailer.sizeInWords();
   
 }
@@ -91,7 +91,7 @@ bool CSCDCCEventData::check() const
   // the trailer counts in 64-bit words
   if (debug) 
     {
-      edm::LogInfo ("CSCDCCEventData") << "size in Words () = " << std::dec << sizeInWords();
+      LogTrace ("CSCDCCEventData|CSCRawToDigi") << "size in Words () = " << std::dec << sizeInWords();
     }
 
   return  theDCCHeader.check() && theDCCTrailer.check();

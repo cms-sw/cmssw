@@ -15,9 +15,9 @@ CSCAnodeData::CSCAnodeData(const CSCALCTHeader & header) ///for digi->raw packin
   : nAFEBs_(header.nLCTChipRead()), nTimeBins_(header.NTBins()) {
 
   firmwareVersion=2006;
-  if(debug) edm::LogInfo ("CSCAnodeData") << "Making Anode data " 
-					  << nFrames() << " AFEB " << nAFEBs_ 
-					  << " TBINS " << nTimeBins_;
+  if(debug) LogTrace ("CSCAnodeData|CSCRawToDigi") << "Making Anode data " 
+				      << nFrames() << " AFEB " << nAFEBs_ 
+				      << " TBINS " << nTimeBins_;
   bzero(this, sizeInWords()*2);
   for(int afeb = 0; afeb < nAFEBs_; ++afeb) {
     for(int tbin = 0; tbin < nTimeBins_; ++tbin) {
@@ -37,7 +37,7 @@ short unsigned int CSCAnodeData::sizeInWords() const {
     return nFrames();
   case 2007:
     return sizeInWords2007_;
-  default:  edm::LogError("CSCAnodeData")
+  default:  edm::LogError("CSCAnodeData|CSCRawToDigi")
     <<"sizeInWords(): ALCT firmware version is bad/not defined!";
     return 0;
   }
@@ -57,9 +57,9 @@ CSCAnodeData::CSCAnodeData(const CSCALCTHeader & header ,
 
   if (debug ) 
     {
-      edm::LogInfo ("CSCAnodeData") << "nAFEBs = " << nAFEBs_ << "  nTimeBins = " 
-				    << nTimeBins_ << " nFrames = " << nFrames();  
-      edm::LogInfo ("CSCAnodeData") << header << " HEADER CHECK " << header.check();
+      LogTrace ("CSCAnodeData|CSCRawToDigi") << "nAFEBs = " << nAFEBs_ << "  nTimeBins = " 
+				<< nTimeBins_ << " nFrames = " << nFrames();  
+      LogTrace ("CSCAnodeData|CSCRawToDigi") << header << " HEADER CHECK " << header.check();
     }  
 
   switch(firmwareVersion) {
@@ -75,7 +75,7 @@ CSCAnodeData::CSCAnodeData(const CSCALCTHeader & header ,
     memcpy(theDataFrames, buf, sizeInWords()*2);///dont memcpy if not 2006 or 2007
     break;
   default:
-    edm::LogError("CSCAnodeData")
+    edm::LogError("CSCAnodeData|CSCRawToDigi")
       <<"couldn't construct: ALCT firmware version is bad/not defined!";
     break;
   }
@@ -84,7 +84,7 @@ CSCAnodeData::CSCAnodeData(const CSCALCTHeader & header ,
     {
       for (int i = 0; i < 4; ++i)
 	{
-	  edm::LogInfo ("CSCAnodeData") << std::ios::hex << buf[i+nFrames()] << " ";
+	  LogTrace ("CSCAnodeData|CSCRawToDigi") << std::ios::hex << buf[i+nFrames()] << " ";
 	}
     }
 }
@@ -111,7 +111,7 @@ std::vector<CSCWireDigi> CSCAnodeData::wireDigis(int layer) const {
 	    wireGroup = (afeb*16+halfLayer*8+j)+1;
 	    CSCWireDigi digi(wireGroup, tbinbits);
 	    if (debug)
-	      edm::LogInfo ("CSCAnodeData") << "Layer " << layer << " " << digi;
+	      LogTrace ("CSCAnodeData|CSCRawToDigi") << "Layer " << layer << " " << digi;
 	    digis.push_back(digi);
 	    tbinbits=0;
 	  }
@@ -138,7 +138,7 @@ std::vector<CSCWireDigi> CSCAnodeData::wireDigis(int layer) const {
 	  wireGroup = (layerPart*12+j)+1;
 	  CSCWireDigi digi(wireGroup, tbinbits);
 	  if (debug)
-	    edm::LogInfo ("CSCAnodeData") << "Layer " << layer << " " << digi;
+	    LogTrace ("CSCAnodeData|CSCRawToDigi") << "Layer " << layer << " " << digi;
 	  digis.push_back(digi);
 	  tbinbits=0;
 	}
@@ -147,7 +147,7 @@ std::vector<CSCWireDigi> CSCAnodeData::wireDigis(int layer) const {
     
     break;
   default:
-    edm::LogError ("CSCAnodeData") << "ALCT version is undefined returning emtpy digi";
+    edm::LogError ("CSCAnodeData|CSCRawToDigi") << "ALCT version is undefined returning emtpy digi";
     break;
   }
   return digis;
@@ -180,12 +180,12 @@ void CSCAnodeData::add(const CSCWireDigi & digi, int layer)
   int alctBoard  = (wireGroup-1) / 16;
   int localGroup = (wireGroup-1) % 16;
 
-  // crash if there's a bad strip number, but don't freak out
+  // crash if there's a bad wire number, but don't freak out
   // if a time bin is out of range 
   //  assert(alctBoard < nAFEBs_);
   if(alctBoard > nAFEBs_)
     {
-      edm::LogError("CSCAnodeData") << "Bad Wire Number for this digi.";
+      edm::LogError("CSCAnodeData|CSCRawToDigi") << "Bad Wire Number for this digi.";
       return;
     }
 
@@ -200,8 +200,8 @@ void CSCAnodeData::add(const CSCWireDigi & digi, int layer)
     } 
   else 
     {
-      edm::LogWarning("CSCAnodeData")<< "warning: not saving anode data in bx " << bxn 
-				     << ": out of range ";
+      LogTrace("CSCAnodeData|CSCRawToDigi")<< "warning: not saving anode data in bx " << bxn 
+			      << ": out of range ";
     }
 }
 

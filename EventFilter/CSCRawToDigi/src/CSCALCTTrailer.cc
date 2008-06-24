@@ -24,7 +24,7 @@ CSCALCTTrailer::CSCALCTTrailer(const unsigned short * buf){
     firmwareVersion=2006;
   }
   else {
-    edm::LogError("CSCALCTTrailer") <<"failed to construct: undetermined ALCT firmware version!!";
+    edm::LogError("CSCALCTTrailer|CSCRawToDigi") <<"failed to construct: undetermined ALCT firmware version!!";
   }
 
   ///Now fill data 
@@ -36,7 +36,7 @@ CSCALCTTrailer::CSCALCTTrailer(const unsigned short * buf){
     memcpy(&trailer2007, buf, trailer2007.sizeInWords()*2);
     break;
   default:
-    edm::LogError("CSCALCTTrailer")
+    edm::LogError("CSCALCTTrailer|CSCRawToDigi")
       <<"coundn't construct: ALCT firmware version is bad/not defined!";
     break;
   }

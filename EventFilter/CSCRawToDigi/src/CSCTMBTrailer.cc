@@ -38,7 +38,7 @@ CSCTMBTrailer::CSCTMBTrailer(unsigned short * buf, unsigned short int firmwareVe
     thePadding = (theData[3] == 0xde0f ? 2 : 0);
     break;
   default: 
-    edm::LogError("CSCTMBTrailer")
+    edm::LogError("CSCTMBTrailer|CSCRawToDigi")
       <<"failed to contruct: firmware version is bad/not defined!";
   }
 }

@@ -40,7 +40,7 @@ CSCCFEBData::CSCCFEBData(unsigned number, unsigned short * buf)
 	pos += goodSlice->sizeInWords();
       } 
       else {
-	edm::LogError ("CSCCFEBData") 
+	LogTrace ("CSCCFEBData|CSCRawToDigi") 
 	  << "CORRUPT CFEB DATA slice " << theNumberOfSamples << std::hex << " " 
 	  << *(buf+pos+3) << " " << *(buf+pos+2) << " "  << *(buf+pos+1) << " "<< *(buf+pos);
 	//ok slice is bad but try another one at 100 words after it
@@ -162,7 +162,7 @@ CSCCFEBStatusDigi CSCCFEBData::statusDigi() const
 
   if (nTimeSamples()==0) 
     {
-      edm::LogError("CSCCFEBData") << "TimeSamples is Zero - CFEB Data Corrupt!";
+      LogTrace("CSCCFEBData|CSCRawToDigi") << "nTimeSamples is zero - CFEB data corrupt?";
     }
   else
     {
@@ -208,7 +208,7 @@ void CSCCFEBData::digis(uint32_t idlayer, std::vector<CSCStripDigi> & result )
     {
       if (nTimeSamples()==0)
 	{
-	  edm::LogError("CSCCFEBData") << "TimeSamples is Zero - CFEB Data Corrupt!";
+	  LogTrace("CSCCFEBData|CSCRawToDigi") << "nTimeSamples is zero - CFEB data corrupt?";
 	  break;
 	}
       
@@ -230,7 +230,7 @@ void CSCCFEBData::digis(uint32_t idlayer, std::vector<CSCStripDigi> & result )
 	}
       if (sca.empty())
 	{
-	  edm::LogError("CSCCFEBData") << "ADC counts are empty - CFEB Data Corrupt!";
+	  LogTrace("CSCCFEBData|CSCRawToDigi") << "ADC counts empty - CFEB data corrupt?";
 	  break;
 	}
       int strip = ichannel + 16*boardNumber_;

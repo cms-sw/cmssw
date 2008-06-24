@@ -17,8 +17,8 @@ CSCALCTHeader::CSCALCTHeader(int chamberType) { //constructor for digi->raw pack
   header2006.activeFEBs = header2006.lctChipRead;
   header2006.nTBins = nTBinsForChamberType[chamberType];
   if (debug)
-    edm::LogInfo ("CSCALCTHeader") << "MAKING ALCTHEADER " << chamberType 
-				   << " " << header2006.activeFEBs << " " << header2006.nTBins;
+    LogTrace ("CSCALCTHeader|CSCRawToDigi") << "MAKING ALCTHEADER " << chamberType 
+	  << " " << header2006.activeFEBs << " " << header2006.nTBins;
 
   ///in order to be able to return header via data()
   memcpy(theOriginalBuffer, &header2006, header2006.sizeForPacking());
@@ -42,10 +42,10 @@ CSCALCTHeader::CSCALCTHeader(const unsigned short * buf) {
     firmwareVersion=2006;
   }
   else {
-    edm::LogError("CSCALCTHeader") <<"failed to determine ALCT firmware version!!";
+    edm::LogError("CSCALCTHeader|CSCRawToDigi") << "failed to determine ALCT firmware version!!";
   }
 
-  //std::cout<<"firm version - " <<firmwareVersion<<std::endl;
+  LogTrace("CSCALCTHeader|CSCRawToDigi") << "firmware version - " << firmwareVersion;
 
   ///Now fill data 
   switch (firmwareVersion) {
@@ -93,8 +93,8 @@ CSCALCTHeader::CSCALCTHeader(const unsigned short * buf) {
     break;
 
   default:
-    edm::LogError("CSCALCTHeader")
-      <<"coundn't construct: ALCT firmware version is bad/not defined!";
+    edm::LogError("CSCALCTHeader|CSCRawToDigi")
+      <<"couldn't construct: ALCT firmware version is bad/not defined!";
     break;
   }
 
@@ -156,7 +156,7 @@ std::vector<CSCALCTDigi> CSCALCTHeader::ALCTDigis() const
       break;
     }
   default:
-    edm::LogError("CSCALCTHeader")
+    edm::LogError("CSCALCTHeader|CSCRawToDigi")
       <<"Empty Digis: ALCT firmware version is bad/not defined!"; 
     break;
   }

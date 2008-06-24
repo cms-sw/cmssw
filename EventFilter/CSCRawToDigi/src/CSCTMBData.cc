@@ -1,13 +1,14 @@
 /** \class CSCTMBData
  *
- *  $Date: 2007/10/17 18:23:48 $
- *  $Revision: 1.18 $
+ *  $Date: 2008/01/22 18:58:24 $
+ *  $Revision: 1.19 $
  *  \author A. Tumanov - Rice
  */
 
 #include "EventFilter/CSCRawToDigi/interface/CSCTMBData.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 
+#include <iomanip>  // dump for JK
 #include <iostream>
 #include <cstdio>
 #include "EventFilter/CSCRawToDigi/src/bitset_append.h"
@@ -51,11 +52,11 @@ int CSCTMBData::TMBCRCcalc() {
   }
   if ( theTotalTMBData.size() > 0 )   {
     std::bitset<22> CRC=calCRC22(theTotalTMBData);
-    edm::LogInfo("CSCTMBData") << " Test here " << CRC.to_ulong();
+    LogTrace("CSCTMBData|CSCRawToDigi") << " Test here " << CRC.to_ulong();
     return CRC.to_ulong();
   } 
   else {
-    edm::LogInfo("CSCTMBData") << "theTotalTMBData doesn't exist";
+    LogTrace("CSCTMBData|CSCRawToDigi") << "theTotalTMBData doesn't exist";
     return 0;
   }
 }
@@ -82,12 +83,12 @@ int CSCTMBData::UnpackTMB(unsigned short *buf) {
     NHeaderFrames = buf[b0cLine+4]&0x1f;
   } 
   else {
-    edm::LogError("CSCTMBData") << "+++ Can't find b0C flag";
+    LogTrace("CSCTMBData|CSCRawToDigi") << "+++ Can't find b0C flag";
   }
 
   if ((firmwareVersion==2007)&&(!(((buf[b0cLine]&0xFFFF)==0xDB0C)&&((buf[b0cLine+1]&0xf000)==0xD000)
 	&&((buf[b0cLine+2]&0xf000)==0xD000)&&((buf[b0cLine+3]&0xf000)==0xD000)))){
-    edm::LogError("CSCTMBData") << "+++ CSCTMBData warning: error in header in 2007 format!";
+    LogTrace("CSCTMBData|CSCRawToDigi") << "+++ CSCTMBData warning: error in header in 2007 format!";
   }
 
   int MaxSizeRPC = 1+Ntbins*2*4+1;
@@ -101,13 +102,13 @@ int CSCTMBData::UnpackTMB(unsigned short *buf) {
     e0bLine = 26; //last word of header in 2006 format
     break;
   default:
-    edm::LogError("CSCTMBData") << "+++ undetermined firmware format - cant find e0bLine";
+    edm::LogError("CSCTMBData|CSCRawToDigi") << "+++ undetermined firmware format - cant find e0bLine";
   }
 
   theTMBHeader=CSCTMBHeader(buf);
   
   if(!theTMBHeader.check())   {
-    edm::LogError("CSCTMBData") << "+++ CSCTMBData warning: Bad TMB header e0bLine=" << std::hex << buf[e0bLine];
+    LogTrace("CSCTMBData|CSCRawToDigi") << "+++ CSCTMBData warning: Bad TMB header e0bLine=" << std::hex << buf[e0bLine];
     return 0;
   }
 
@@ -116,7 +117,7 @@ int CSCTMBData::UnpackTMB(unsigned short *buf) {
   theCLCTData = CSCCLCTData(theTMBHeader.NCFEBs(), theTMBHeader.NTBins(), buf+e0bLine+1);
 
   if(!theCLCTData.check())   {
-    edm::LogError("CSCTMBData") << "+++ CSCTMBData warning: Bad CLCT data";
+    LogTrace("CSCTMBData|CSCRawToDigi") << "+++ CSCTMBData warning: Bad CLCT data";
   }
   else {
     currentPosition+=theCLCTData.sizeInWords();
@@ -138,7 +139,7 @@ int CSCTMBData::UnpackTMB(unsigned short *buf) {
       currentPosition+=theRPCData.sizeInWords();
     }
     else {
-      edm::LogError("CSCTMBData") << "CSCTMBData::corrupt RPC data! Failed to find end! ";
+      LogTrace("CSCTMBData|CSCRawToDigi") << "CSCTMBData::corrupt RPC data! Failed to find end! ";
       return 0;
     }
   }
@@ -153,13 +154,13 @@ int CSCTMBData::UnpackTMB(unsigned short *buf) {
     TotTMBReadout= 27+Ntbins*6*5+1+Ntbins*2*4+2+8*256+8; //see tmb2004 manual (version v2p06) page54.
     break;
   default:
-    edm::LogError("CSCTMBData") << "can't find TotTMBReadout - unknown firmware version!";
+    edm::LogError("CSCTMBData|CSCRawToDigi") << "can't find TotTMBReadout - unknown firmware version!";
     break;
   }
 
   if (buf[currentPosition]==0x6b05) {
     int b05Line = currentPosition;
-    edm::LogInfo("CSCTMBData") <<"found scope!!!!!!!!!!!!!";
+    LogTrace("CSCTMBData|CSCRawToDigi") << "found scope!";
     int e05Line = findLine(buf, 0x6e05, currentPosition, TotTMBReadout-currentPosition);
     if(e05Line != -1){     
       theTMBScopeIsPresent = true;
@@ -171,7 +172,7 @@ int CSCTMBData::UnpackTMB(unsigned short *buf) {
   int maxLine = findLine(buf, 0xde0f, currentPosition, TotTMBReadout-currentPosition);
   if(maxLine == -1) 
     {
-      edm::LogError("CSCTMBData") << "+++ CSCTMBData warning: No e0f line!";
+      LogTrace("CSCTMBData|CSCRawToDigi") << "+++ CSCTMBData warning: No e0f line!";
       return 0;
     }
 
@@ -190,7 +191,7 @@ int CSCTMBData::UnpackTMB(unsigned short *buf) {
   int e0cLine = findLine(buf, 0x6e0c, currentPosition, maxLine);
   if (e0cLine == -1)
     {
-      edm::LogError("CSCTMBData") << "+++ CSCTMBData warning: No e0c line!";
+      LogTrace("CSCTMBData|CSCRawToDigi") << "+++ CSCTMBData warning: No e0c line!";
     } 
   else 
     {
@@ -198,6 +199,17 @@ int CSCTMBData::UnpackTMB(unsigned short *buf) {
     }
 
   checkSize();
+
+  // Dump of TMB; format proposed by JK.
+#ifdef TMBDUMP
+  LogTrace("CSCTMBData|CSCRawToDigi|TMB") << "Dump of TMB data:\n";
+  for (int line = b0cLine; line <= maxLine+1; line++) {
+    LogTrace("CSCTMBData|CSCRawToDigi|TMB")
+      << "Adr= " << std::setw(4) << line
+      << " Data= " << std::setfill('0') << std::setw(5)
+      << std::uppercase << std::hex << buf[line] << std::dec << std::endl;
+  }
+#endif
 
   // size, since we count from 0 and have one more trailer word
   // there are sometimes multiple "de0f" lines in trailer, so key on "6e0c"
