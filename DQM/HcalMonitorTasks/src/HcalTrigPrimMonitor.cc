@@ -55,7 +55,7 @@ void HcalTrigPrimMonitor::setup(const edm::ParameterSet& ps, DQMStore* dbe){
     m_dbe->setCurrentFolder(baseFolder_);
     meEVT_ = m_dbe->bookInt("TrigPrim Event Number");  
 
-    tpCount_ = m_dbe->book1D("# TP Digis","# TP Digis",200,-0.5,1999.5);
+    tpCount_ = m_dbe->book1D("# TP Digis","# TP Digis",500,-0.5,4999.5);
     tpCountThr_ = m_dbe->book1D("# TP Digis over Threshold","# TP Digis over Threshold",100,-0.5,999.5);
     tpSize_ = m_dbe->book1D("TP Size","TP Size",20,-0.5,19.5);
 
@@ -106,6 +106,8 @@ void HcalTrigPrimMonitor::setup(const edm::ParameterSet& ps, DQMStore* dbe){
     TPTimingTop_    = m_dbe->book1D("TP Timing (Top wedges)","TP Timing (Top wedges)",10,0,10);
     TPTimingBot_    = m_dbe->book1D("TP Timing (Bottom wedges)","TP Timing (Bottom wedges)",10,0,10);
     TP_ADC_         = m_dbe->book1D("ADC spectrum positive TP","ADC spectrum positive TP",200,-0.5,199.5);
+    MAX_ADC_        = m_dbe->book1D("Max ADC in TP","Max ADC in TP",20,-0.5,19.5);
+    TS_MAX_         = m_dbe->book1D("TS with max ADC","TS with max ADC",10,0,10);
     TPOcc_          = m_dbe->book2D("TP Occupancy","TP Occupancy",etaBins_,etaMin_,etaMax_,phiBins_,phiMin_,phiMax_);
     TPvsDigi_       = m_dbe->book2D("TP vs Digi","TP vs Digi",128,0,128,200,0,200);
     TPvsDigi_->setAxisTitle("lin ADC digi",1);
@@ -224,25 +226,36 @@ void HcalTrigPrimMonitor::processEvent(const HBHERecHitCollection& hbHits,
     // Correlation plots...
   int eta,phi;
   for(eta=-16;eta<=16;eta++) for(phi=1;phi<=72;phi++){
-       for(int i=1;i<10;i++){
-	 int j1=(int)get_adc(eta,phi,1)[ADCdigi_];
-        float tmp11 = (TrigMonAdc2fc[j1]+0.5);
-        int j2=(int)get_adc(eta,phi,1)[ADCdigi_+1];
-        float tmp21 = (TrigMonAdc2fc[j2]+0.5);
-        int j3=(int)get_adc(eta,phi,2)[ADCdigi_];
-        float tmp12 = (TrigMonAdc2fc[j3]+0.5);
-        int j4=(int)get_adc(eta,phi,2)[ADCdigi_+1];
-        float tmp22 = (TrigMonAdc2fc[j4]+0.5);
-           if(IsSet_adc(eta,phi,1) && IsSet_tp(eta,phi,1)){
-	      if(get_tp(eta,phi)[TPdigi_]>TPThresh_){ 
-            TPvsDigi_->Fill(tmp11+tmp21+tmp12+tmp22,get_tp(eta,phi)[TPdigi_]);
+    for(int i=1;i<10;i++){
+      int j1=(int)get_adc(eta,phi,1)[ADCdigi_];
+      float tmp11 = (TrigMonAdc2fc[j1]+0.5);
+      int j2=(int)get_adc(eta,phi,1)[ADCdigi_+1];
+      float tmp21 = (TrigMonAdc2fc[j2]+0.5);
+      int j3=(int)get_adc(eta,phi,2)[ADCdigi_];
+      float tmp12 = (TrigMonAdc2fc[j3]+0.5);
+      int j4=(int)get_adc(eta,phi,2)[ADCdigi_+1];
+      float tmp22 = (TrigMonAdc2fc[j4]+0.5);
+      if(IsSet_adc(eta,phi,1) && IsSet_tp(eta,phi,1)){
+        if(get_tp(eta,phi)[TPdigi_]>TPThresh_){ 
+          TPvsDigi_->Fill(tmp11+tmp21+tmp12+tmp22,get_tp(eta,phi)[TPdigi_]);
 
-		float Energy=0; for(int j=0;j<10;j++) Energy+=get_adc(eta,phi,1)[j]; 
-		TP_ADC_->Fill(Energy);	       	       
-	      }
-	   }
-       }	   
-   }
+          float Energy=0;
+          int TS = 0;
+          for(int j=0;j<10;j++){
+            if (get_adc(eta,phi,1)[j]>Energy){
+              Energy=get_adc(eta,phi,1)[j];
+              TS = j;
+            }
+          }
+          MAX_ADC_->Fill(Energy);
+          TS_MAX_->Fill(TS);
+          //This may need to continue?
+          Energy=0; for(int j=0;j<10;j++) Energy+=get_adc(eta,phi,1)[j]; 
+	  TP_ADC_->Fill(Energy);	       	       
+	}
+      }
+    }	   
+  }
 
   return;
 }

@@ -8,8 +8,8 @@
 
 /** \class HcalTrigPrimMonitor
   *  
-  * $Date: 2008/04/22 17:59:30 $
-  * $Revision: 1.9 $
+  * $Date: 2008/05/14 17:00:16 $
+  * $Revision: 1.10 $
   * \author W. Fisher - FNAL
   */
  static const float TrigMonAdc2fc[128]={-0.5, 0.5, 1.5, 2.5, 3.5, 4.5, 5.5, 6.5, 7.5,
@@ -78,6 +78,8 @@ private:  ///Monitoring elements
   MonitorElement* TPTimingBot_; 
   MonitorElement* TPOcc_;
   MonitorElement* TP_ADC_;
+  MonitorElement* MAX_ADC_;
+  MonitorElement* TS_MAX_;
   MonitorElement* TPvsDigi_;
 
   MonitorElement* OCC_MAP_SLB;

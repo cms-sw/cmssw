@@ -36,6 +36,8 @@ void HcalTrigPrimClient::init(const ParameterSet& ps, DQMStore* dbe, string clie
  TPTimingBot_ = NULL; 
  TPOcc_ = NULL;
  TP_ADC_ = NULL;
+ MAX_ADC_ = NULL;
+ TS_MAX_ = NULL;
  TPvsDigi_ = NULL;
 
 
@@ -109,6 +111,8 @@ void HcalTrigPrimClient::cleanup(void) {
     if(TPTimingBot_) delete  TPTimingBot_;
     if(TPOcc_) delete TPOcc_;
     if(TP_ADC_) delete  TP_ADC_;
+    if(MAX_ADC_) delete  MAX_ADC_;
+    if(TS_MAX_) delete  TS_MAX_;
     if(TPvsDigi_) delete TPvsDigi_;
   }  
 
@@ -137,6 +141,8 @@ void HcalTrigPrimClient::cleanup(void) {
   TPTimingBot_ = NULL; 
   TPOcc_ = NULL;
   TP_ADC_ = NULL;
+  MAX_ADC_ = NULL;
+  TS_MAX_ = NULL;
   TPvsDigi_ = NULL;
 
   return;
@@ -185,11 +191,13 @@ void HcalTrigPrimClient::getHistograms(){
   EN_ELEC_DCC_ = getHisto2("TrigPrimMonitor/TrigPrim Spigot Energy Map",process_, dbe_, debug_,cloneME_);  
   EN_MAP_GEO_ = getHisto2("TrigPrimMonitor/TrigPrim Geo Energy Map",process_, dbe_, debug_,cloneME_);  
 
-   TPTiming_ = getHisto("TrigPrimMonitor/TP Timing",process_, dbe_, debug_,cloneME_);  
-   TPTimingTop_ = getHisto("TrigPrimMonitor/TP Timing (Top wedges)",process_, dbe_, debug_,cloneME_);  
-   TPTimingBot_ = getHisto("TrigPrimMonitor/TP Timing (Bottom wedges)",process_, dbe_, debug_,cloneME_);  
-   TP_ADC_ = getHisto("TrigPrimMonitor/ADC spectrum positive TP",process_, dbe_, debug_,cloneME_);  
-    TPOcc_ = getHisto2("TrigPrimMonitor/TP Occupancy",process_, dbe_, debug_,cloneME_);  
+  TPTiming_ = getHisto("TrigPrimMonitor/TP Timing",process_, dbe_, debug_,cloneME_);  
+  TPTimingTop_ = getHisto("TrigPrimMonitor/TP Timing (Top wedges)",process_, dbe_, debug_,cloneME_);  
+  TPTimingBot_ = getHisto("TrigPrimMonitor/TP Timing (Bottom wedges)",process_, dbe_, debug_,cloneME_);  
+  TP_ADC_ = getHisto("TrigPrimMonitor/ADC spectrum positive TP",process_, dbe_, debug_,cloneME_);  
+  MAX_ADC_ = getHisto("TrigPrimMonitor/Max ADC in TP",process_, dbe_, debug_,cloneME_);  
+  TS_MAX_ = getHisto("TrigPrimMonitor/TS with max ADC",process_, dbe_, debug_,cloneME_);  
+  TPOcc_ = getHisto2("TrigPrimMonitor/TP Occupancy",process_, dbe_, debug_,cloneME_);  
   TPvsDigi_ = getHisto2("TrigPrimMonitor/TP vs Digi",process_, dbe_, debug_,cloneME_);  
 
 
@@ -269,6 +277,10 @@ void HcalTrigPrimClient::resetAllME(){
   sprintf(name,"%sHcal/TrigPrimMonitor/TP Timing (Bottom Wedges)",process_.c_str());
   resetME(name,dbe_);  
   sprintf(name,"%sHcal/TrigPrimMonitor/ADC spectrum positive TP",process_.c_str());
+  resetME(name,dbe_);  
+  sprintf(name,"%sHcal/TrigPrimMonitor/Max ADC in TP",process_.c_str());
+  resetME(name,dbe_);  
+  sprintf(name,"%sHcal/TrigPrimMonitor/TS with max ADC",process_.c_str());
   resetME(name,dbe_);  
   sprintf(name,"%sHcal/TrigPrimMonitor/TP Occupancy",process_.c_str());
   resetME(name,dbe_);  
@@ -365,6 +377,11 @@ void HcalTrigPrimClient::htmlOutput(int runNo, string htmlDir, string htmlName){
   histoHTML(runNo,TP_ADC_,"","raw ADC", 100, htmlFile,htmlDir);
   htmlFile << "</tr>" << endl;
 
+  htmlFile << "<tr align=\"left\">" << endl;
+  histoHTML(runNo,MAX_ADC_,"ADC","raw ADC", 92, htmlFile,htmlDir);
+  histoHTML(runNo,TS_MAX_,"TS","num at TS", 100, htmlFile,htmlDir);
+  htmlFile << "</tr>" << endl;
+  
   htmlFile << "<tr align=\"left\">" << endl;
   histoHTML(runNo,TPTimingTop_,"","time", 92, htmlFile,htmlDir);
   histoHTML(runNo,TPTimingBot_,"","time", 100, htmlFile,htmlDir);

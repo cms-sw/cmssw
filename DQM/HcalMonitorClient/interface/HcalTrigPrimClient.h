@@ -72,6 +72,8 @@ class HcalTrigPrimClient : public HcalBaseClient {
   TH1F* TPTimingTop_;
   TH1F* TPTimingBot_;
   TH1F* TP_ADC_;
+  TH1F* MAX_ADC_;
+  TH1F* TS_MAX_;
   TH2F* TPOcc_;
   TH2F* TPvsDigi_;
 
