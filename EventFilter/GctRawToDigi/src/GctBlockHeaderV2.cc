@@ -326,8 +326,8 @@ GctBlockHeaderBase::BlockNamePair initArray4[] = {
   GctBlockHeaderBase::BlockNamePair(0xf88,"Leaf3JetNegEtaU2: JF1 Input"),
   GctBlockHeaderBase::BlockNamePair(0xf89,"Leaf3JetNegEtaU2: JF1 Shared Recieved"),
   GctBlockHeaderBase::BlockNamePair(0xf8a,"Leaf3JetNegEtaU2: JF1 Shared Sent"),
-  GctBlockHeaderBase::BlockNamePair(0xf8b,"Leaf3JetNegEtaU2: JF1 Output")
-  GctBlockHeaderBase::BlockNamePair(0xf8c,"Leaf3JetNegEtaU2: JF1 Raw Input"),
+  GctBlockHeaderBase::BlockNamePair(0xf8b,"Leaf3JetNegEtaU2: JF1 Output"),
+  GctBlockHeaderBase::BlockNamePair(0xf8c,"Leaf3JetNegEtaU2: JF1 Raw Input")
 };
 
 GctBlockHeaderV2::BlockNameMap GctBlockHeaderV2::blockNameV2_(initArray4, initArray4 + sizeof(initArray4) / sizeof(initArray4[0]));
