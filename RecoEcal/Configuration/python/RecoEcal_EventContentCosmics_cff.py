@@ -1,6 +1,5 @@
 import FWCore.ParameterSet.Config as cms
 
-# Full Event content 
 RecoEcalFEVT = cms.PSet(
     outputCommands = cms.untracked.vstring('keep *_ecalRecHit_*_*', 
         'keep *_ecalWeightUncalibRecHit_*_*', 
@@ -10,6 +9,7 @@ RecoEcalFEVT = cms.PSet(
         'keep *_hybridSuperClusters_*_*', 
         'keep *_correctedFixedMatrix*_*_*', 
         'keep *_cosmicBasicClusters_*_*', 
+        'keep *_cosmicSuperClusters_*_*', 
         'keep *_fixedMatrix*_*_*', 
         'keep *_correctedIslandBarrelSuperClusters_*_*', 
         'keep *_correctedIslandEndcapSuperClusters_*_*', 
@@ -17,12 +17,12 @@ RecoEcalFEVT = cms.PSet(
         'keep *_correctedEndcapSuperClustersWithPreshower_*_*', 
         'keep *_preshowerClusterShape_*_*')
 )
-# RECO content
 RecoEcalRECO = cms.PSet(
     outputCommands = cms.untracked.vstring('keep *_islandBasicClusters_*_*', 
         'keep *_fixedMatrixBasicClusters_*_*', 
         'keep *_hybridSuperClusters_*_*', 
         'keep *_cosmicBasicClusters_*_*', 
+        'keep *_cosmicSuperClusters_*_*', 
         'drop recoSuperClusters_hybridSuperClusters_*_*', 
         'keep recoSuperClusters_islandSuperClusters_islandBarrelSuperClusters_*', 
         'keep recoSuperClusters_correctedHybridSuperClusters_*_*', 
@@ -32,12 +32,12 @@ RecoEcalRECO = cms.PSet(
         'keep recoPreshowerClusterShapes_preshowerClusterShape_*_*', 
         'keep recoPreshowerClusterShapes_fixedMatrixPreshowerClusterShape_*_*')
 )
-# AOD content
 RecoEcalAOD = cms.PSet(
     outputCommands = cms.untracked.vstring('keep *_islandBasicClusters_*_*', 
         'keep *_fixedMatrixBasicClusters_*_*', 
         'keep *_hybridSuperClusters_*_*', 
         'keep *_cosmicBasicClusters_*_*', 
+        'keep *_cosmicSuperClusters_*_*', 
         'drop recoSuperClusters_hybridSuperClusters_*_*', 
         'keep recoSuperClusters_islandSuperClusters_islandBarrelSuperClusters_*', 
         'keep recoSuperClusters_correctedHybridSuperClusters_*_*', 
