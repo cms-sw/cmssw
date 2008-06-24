@@ -132,7 +132,7 @@ void SiStripActionExecutor::bookGlobalStatus(DQMStore* dqm_store) {
 //
 void SiStripActionExecutor::fillGlobalStatus(const edm::ESHandle<SiStripDetCabling>& detcabling, DQMStore* dqm_store) {
   if (!bookedGlobalStatus_) bookGlobalStatus(dqm_store);
-  float gStatus = 0.0;
+  float gStatus = -1.0;
   // get connected detectors
   std::vector<uint32_t> SelectedDetIds;
   detcabling->addActiveDetectorsRawIds(SelectedDetIds);
