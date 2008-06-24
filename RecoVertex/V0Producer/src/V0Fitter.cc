@@ -13,7 +13,7 @@
 //
 // Original Author:  Brian Drell
 //         Created:  Fri May 18 22:57:40 CEST 2007
-// $Id: V0Fitter.cc,v 1.24 2008/04/28 23:32:42 drell Exp $
+// $Id: V0Fitter.cc,v 1.25 2008/06/20 22:44:34 drell Exp $
 //
 //
 
@@ -276,17 +276,32 @@ void V0Fitter::fitAll(const edm::Event& iEvent, const edm::EventSetup& iSetup) {
       if( positiveTrackRef->innerOk() ) {
 	reco::Vertex::Point posTkHitPos = positiveTrackRef->innerPosition();
 	if( sqrt( posTkHitPos.Perp2() ) < ( rVtxMag - sigmaRvtxMag*4. ) 
-	    && doPostFitCuts ) continue;
+	    && doPostFitCuts ) {
+	  if(thePositiveRefTrack) delete thePositiveRefTrack;
+	  if(theNegativeRefTrack) delete theNegativeRefTrack;
+	  thePositiveRefTrack = theNegativeRefTrack = 0;
+	  continue;
+	}
       }
       if( negativeTrackRef->innerOk() ) {
 	reco::Vertex::Point negTkHitPos = negativeTrackRef->innerPosition();
 	if( sqrt( negTkHitPos.Perp2() ) < ( rVtxMag - sigmaRvtxMag*4. ) 
-	    && doPostFitCuts ) continue;
+	    && doPostFitCuts ) {
+	  if(thePositiveRefTrack) delete thePositiveRefTrack;
+	  if(theNegativeRefTrack) delete theNegativeRefTrack;
+	  thePositiveRefTrack = theNegativeRefTrack = 0;
+	  continue;
+	}
       }
 
       if( theVtx.chi2() > chi2Cut ||
 	  rVtxMag / sigmaRvtxMag < vtxSigCut 
-	  && doPostFitCuts ) continue;
+	  && doPostFitCuts ) {
+	if(thePositiveRefTrack) delete thePositiveRefTrack;
+	if(theNegativeRefTrack) delete theNegativeRefTrack;
+	thePositiveRefTrack = theNegativeRefTrack = 0;
+	continue;
+      }
 
       // Cuts finished, now we create the candidates and push them back into the collections.
       
