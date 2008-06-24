@@ -26,6 +26,13 @@
 #include "DataFormats/METReco/interface/GenMETCollection.h"
 #include "DataFormats/METReco/interface/CaloMETCollection.h"
 
+#include "DataFormats/Math/interface/LorentzVector.h"
+#include "RecoMET/METAlgorithms/interface/CaloSpecificAlgo.h"
+
+#include "DataFormats/RecoCandidate/interface/RecoCandidate.h"
+#include "DataFormats/EcalDetId/interface/EcalSubdetector.h"
+#include "DataFormats/HcalDetId/interface/HcalDetId.h"
+
 #include "DataFormats/DetId/interface/DetId.h"
 #include "DataFormats/CaloTowers/interface/CaloTowerDetId.h"
 
@@ -47,6 +54,9 @@
 #include <memory>
 #include <TLorentzVector.h>
 #include "DQMServices/Core/interface/DQMStore.h"
+
+using namespace reco;
+using namespace std;
 
 CaloTowerAnalyzer::CaloTowerAnalyzer(const edm::ParameterSet & iConfig)
 {
@@ -87,8 +97,10 @@ void CaloTowerAnalyzer::beginJob(const edm::EventSetup& iSetup)
       }
     }
     TString dirName = "RecoMETV/METTask/CaloTowers/";
-    TString label(caloTowersLabel_.label());  
-    dirName += label;   
+    TString label(caloTowersLabel_.label()); 
+    if(label=="towerMaker") dirName += "SchemeB";
+    else if(label=="calotoweroptmaker") dirName += "Optimized";
+    else dirName += label;
     dbe_->setCurrentFolder((string)dirName); 
     
     //--Store number of events used
@@ -229,8 +241,11 @@ void CaloTowerAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup&
   // Retrieve!
   // ==========================================================
 
-  const CaloTowerCollection *towerCollection;
+  
+  //rcr// const CaloTowerCollection *towerCollection;
 
+
+  /* rcr
   edm::Handle<reco::CandidateCollection> to;
   iEvent.getByLabel(caloTowersLabel_,to);
   if (!to.isValid()) {
@@ -243,12 +258,18 @@ void CaloTowerAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup&
     towerCollection = towerRef.product();
   }
 
+  rcr */
+
+  edm::Handle<edm::View<Candidate> > towers;
+  iEvent.getByLabel(caloTowersLabel_, towers);
+  edm::View<Candidate>::const_iterator towerCand = towers->begin();
+  
   // ==========================================================
   // Fill Histograms!
   // ==========================================================
 
-  edm::LogInfo("OutputInfo") << "There are " << towerCollection->size() << " CaloTowers";
-  CaloTowerCollection::const_iterator calotower;
+  //rcr edm::LogInfo("OutputInfo") << "There are " << towerCollection->size() << " CaloTowers";
+  //rcr CaloTowerCollection::const_iterator calotower;
   
   int CTmin_iphi = 99, CTmax_iphi = -99;
   int CTmin_ieta = 99, CTmax_ieta = -99;
@@ -268,65 +289,72 @@ void CaloTowerAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup&
       MaxEt_EtaRing[i] = 0;
     }
 
-  for (calotower = towerCollection->begin(); calotower != towerCollection->end(); calotower++) {
+  //rcr for (calotower = towerCollection->begin(); calotower != towerCollection->end(); calotower++) {
     
-    //math::RhoEtaPhiVector Momentum = calotower->momentum();
-    double Tower_ET = calotower->et();
-    double Tower_Energy  = calotower->energy();
-    double Tower_Eta = calotower->eta();
-    double Tower_Phi = calotower->phi();
-    double Tower_EMEnergy = calotower->emEnergy();
-    double Tower_HadEnergy = calotower->hadEnergy();
-    double Tower_OuterEnergy = calotower->outerEnergy();
-    double Tower_EMEt = calotower->emEt();
-    double Tower_HadEt = calotower->hadEt();
-    //int Tower_EMLV1 = calotower->emLvl1();
-    //int Tower_HadLV1 = calotower->hadLv11();
-    int Tower_ieta = calotower->id().ieta();
-    int Tower_iphi = calotower->id().iphi();
-    int EtaRing = 41+Tower_ieta;
-    ActiveRing[EtaRing] = 1;
-    NActiveTowers[EtaRing]++;
-    SET_EtaRing[EtaRing]+=Tower_ET;
-    TLorentzVector v_;
-    v_.SetPtEtaPhiE(Tower_ET, 0, Tower_Phi, Tower_ET);
-    if (Tower_ET>ETTowerMin)
-      vMET_EtaRing[EtaRing]-=v_;
+  for ( ; towerCand != towers->end(); towerCand++)
+    {
+      const Candidate* candidate = &(*towerCand);
+      if (candidate) 
+	{
+	  const CaloTower* calotower = dynamic_cast<const CaloTower*> (candidate);
+	  if (calotower){
+	  //math::RhoEtaPhiVector Momentum = calotower->momentum();
+	  double Tower_ET = calotower->et();
+	  double Tower_Energy  = calotower->energy();
+	  double Tower_Eta = calotower->eta();
+	  double Tower_Phi = calotower->phi();
+	  double Tower_EMEnergy = calotower->emEnergy();
+	  double Tower_HadEnergy = calotower->hadEnergy();
+	  double Tower_OuterEnergy = calotower->outerEnergy();
+	  double Tower_EMEt = calotower->emEt();
+	  double Tower_HadEt = calotower->hadEt();
+	  //int Tower_EMLV1 = calotower->emLvl1();
+	  //int Tower_HadLV1 = calotower->hadLv11();
+	  int Tower_ieta = calotower->id().ieta();
+	  int Tower_iphi = calotower->id().iphi();
+	  int EtaRing = 41+Tower_ieta;
+	  ActiveRing[EtaRing] = 1;
+	  NActiveTowers[EtaRing]++;
+	  SET_EtaRing[EtaRing]+=Tower_ET;
+	  TLorentzVector v_;
+	  v_.SetPtEtaPhiE(Tower_ET, 0, Tower_Phi, Tower_ET);
+	  if (Tower_ET>ETTowerMin)
+	    vMET_EtaRing[EtaRing]-=v_;
+	  
+	  // Fill Histograms
+	  me["hCT_Occ_ieta_iphi"]->Fill(Tower_ieta,Tower_iphi);
+	  me["hCT_et_ieta_iphi"]->Fill(Tower_ieta,Tower_iphi,Tower_ET);
+	  me["hCT_emEt_ieta_iphi"]->Fill(Tower_ieta,Tower_iphi,Tower_EMEt);
+	  me["hCT_hadEt_ieta_iphi"]->Fill(Tower_ieta,Tower_iphi,Tower_HadEt);
+	  me["hCT_energy_ieta_iphi"]->Fill(Tower_ieta,Tower_iphi,Tower_Energy);
+	  me["hCT_outerEnergy_ieta_iphi"]->Fill(Tower_ieta,Tower_iphi,Tower_OuterEnergy);
+	  me["hCT_hadEnergy_ieta_iphi"]->Fill(Tower_ieta,Tower_iphi,Tower_HadEnergy);
+	  me["hCT_emEnergy_ieta_iphi"]->Fill(Tower_ieta,Tower_iphi,Tower_EMEnergy);
+	  
+	  me["hCT_etvsieta"]->Fill(Tower_ieta, Tower_ET);
+	  me["hCT_emEtvsieta"]->Fill(Tower_ieta, Tower_EMEt);
+	  me["hCT_hadEtvsieta"]->Fill(Tower_ieta,Tower_HadEt);
+	  me["hCT_energyvsieta"]->Fill(Tower_ieta,Tower_Energy);
+	  me["hCT_outerEnergyvsieta"]->Fill(Tower_ieta,Tower_OuterEnergy);
+	  me["hCT_hadEnergyvsieta"]->Fill(Tower_ieta ,Tower_HadEnergy);
+	  me["hCT_emEnergyvsieta"]->Fill(Tower_ieta,Tower_EMEnergy);
 
-    // Fill Histograms
-    me["hCT_Occ_ieta_iphi"]->Fill(Tower_ieta,Tower_iphi);
-    me["hCT_et_ieta_iphi"]->Fill(Tower_ieta,Tower_iphi,Tower_ET);
-    me["hCT_emEt_ieta_iphi"]->Fill(Tower_ieta,Tower_iphi,Tower_EMEt);
-    me["hCT_hadEt_ieta_iphi"]->Fill(Tower_ieta,Tower_iphi,Tower_HadEt);
-    me["hCT_energy_ieta_iphi"]->Fill(Tower_ieta,Tower_iphi,Tower_Energy);
-    me["hCT_outerEnergy_ieta_iphi"]->Fill(Tower_ieta,Tower_iphi,Tower_OuterEnergy);
-    me["hCT_hadEnergy_ieta_iphi"]->Fill(Tower_ieta,Tower_iphi,Tower_HadEnergy);
-    me["hCT_emEnergy_ieta_iphi"]->Fill(Tower_ieta,Tower_iphi,Tower_EMEnergy);
-
-    me["hCT_etvsieta"]->Fill(Tower_ieta, Tower_ET);
-    me["hCT_emEtvsieta"]->Fill(Tower_ieta, Tower_EMEt);
-    me["hCT_hadEtvsieta"]->Fill(Tower_ieta,Tower_HadEt);
-    me["hCT_energyvsieta"]->Fill(Tower_ieta,Tower_Energy);
-    me["hCT_outerEnergyvsieta"]->Fill(Tower_ieta,Tower_OuterEnergy);
-    me["hCT_hadEnergyvsieta"]->Fill(Tower_ieta ,Tower_HadEnergy);
-    me["hCT_emEnergyvsieta"]->Fill(Tower_ieta,Tower_EMEnergy);
-
-    if (Tower_ET > MaxEt_EtaRing[EtaRing])
-      MaxEt_EtaRing[EtaRing] = Tower_ET;
-    if (Tower_ET < MinEt_EtaRing[EtaRing] && Tower_ET>0)
-      MinEt_EtaRing[EtaRing] = Tower_ET;
-
-
-    if (Tower_ieta < CTmin_ieta) CTmin_ieta = Tower_ieta;
-    if (Tower_ieta > CTmax_ieta) CTmax_ieta = Tower_ieta;
-    if (Tower_iphi < CTmin_iphi) CTmin_iphi = Tower_iphi;
-    if (Tower_iphi > CTmax_iphi) CTmax_iphi = Tower_iphi;
-    
-    
-    
-  } // end loop over towers
+	  if (Tower_ET > MaxEt_EtaRing[EtaRing])
+	    MaxEt_EtaRing[EtaRing] = Tower_ET;
+	  if (Tower_ET < MinEt_EtaRing[EtaRing] && Tower_ET>0)
+	    MinEt_EtaRing[EtaRing] = Tower_ET;
+	  
+	  
+	  if (Tower_ieta < CTmin_ieta) CTmin_ieta = Tower_ieta;
+	  if (Tower_ieta > CTmax_ieta) CTmax_ieta = Tower_ieta;
+	  if (Tower_iphi < CTmin_iphi) CTmin_iphi = Tower_iphi;
+	  if (Tower_iphi > CTmax_iphi) CTmax_iphi = Tower_iphi;
+	  } //end if (calotower) ..
+	} // end if(candidate) ...
+      
+    } // end loop over towers
   
-  // Fill eta-ring MET quantities
+      // Fill eta-ring MET quantities
   for (int iEtaRing=0; iEtaRing<83; iEtaRing++)
     { 
       me["hCT_Minetvsieta"]->Fill(iEtaRing-41, MinEt_EtaRing[iEtaRing]);  
@@ -354,11 +382,11 @@ void CaloTowerAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup&
 
 void CaloTowerAnalyzer::DumpGeometry()
 {
-
+  
   ofstream dump(geometryFile_.c_str());
-
+  
   dump << "Tower Definitions: " << endl << endl;
-
+  
   dump.width(15); dump << left << "ieta bin";
   dump.width(15); dump << left << "Eta";
   //dump.width(15); dump << left << "Phi";
@@ -373,11 +401,11 @@ void CaloTowerAnalyzer::DumpGeometry()
     //dump.width(15); dump << left << me["hCT_ieta_iphi_phiMap"]->getBinContent(i,1);
     dump.width(15); dump << left << me["hCT_ieta_detaMap"]->getBinContent(i);
     dump.width(15); dump << left << me["hCT_ieta_dphiMap"]->getBinContent(i) << endl;
-
+    
   }
-
+  
   dump.close();
-
+  
 }
 
 void CaloTowerAnalyzer::endJob()

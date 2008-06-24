@@ -72,39 +72,39 @@ void METTester::beginJob(const edm::EventSetup& iSetup)
       { 
 	// CaloMET Histograms
 	me["hNevents"]                = dbe_->book1D("METTask_Nevents","METTask_Nevents",1,0,1);
-	me["hCaloMEx"]                = dbe_->book1D("METTask_CaloMEx","METTask_CaloMEx",2001,-500,501);
-	me["hCaloMEy"]                = dbe_->book1D("METTask_CaloMEy","METTask_CaloMEy",2001,-500,501);
+	me["hCaloMEx"]                = dbe_->book1D("METTask_CaloMEx","METTask_CaloMEx",4001,-1000,1001);
+	me["hCaloMEy"]                = dbe_->book1D("METTask_CaloMEy","METTask_CaloMEy",4001,-1000,1001);
 	me["hCaloEz"]                 = dbe_->book1D("METTask_CaloEz","METTask_CaloEz",2001,-500,501);
 	me["hCaloMETSig"]             = dbe_->book1D("METTask_CaloMETSig","METTask_CaloMETSig",51,0,51);
 	me["hCaloMET"]                = dbe_->book1D("METTask_CaloMET","METTask_CaloMET",2001,0,2001);
 	me["hCaloMETPhi"]             = dbe_->book1D("METTask_CaloMETPhi","METTask_CaloMETPhi",80,-4,4);
-	me["hCaloSumET"]              = dbe_->book1D("METTask_CaloSumET","METTask_CaloSumET",4001,0,4001);
+	me["hCaloSumET"]              = dbe_->book1D("METTask_CaloSumET","METTask_CaloSumET",10001,0,10001);
 	me["hCaloMaxEtInEmTowers"]    = dbe_->book1D("METTask_CaloMaxEtInEmTowers","METTask_CaloMaxEtInEmTowers",4001,0,4001);
 	me["hCaloMaxEtInHadTowers"]   = dbe_->book1D("METTask_CaloMaxEtInHadTowers","METTask_CaloMaxEtInHadTowers",4001,0,4001);
 	me["hCaloEtFractionHadronic"] = dbe_->book1D("METTask_CaloEtFractionHadronic","METTask_CaloEtFractionHadronic",100,0,1);
 	me["hCaloEmEtFraction"]       = dbe_->book1D("METTask_CaloEmEtFraction","METTask_CaloEmEtFraction",100,0,1);
-	me["hCaloHadEtInHB"]          = dbe_->book1D("METTask_CaloHadEtInHB","METTask_CaloHadEtInHB",4001,0,4001);
+	me["hCaloHadEtInHB"]          = dbe_->book1D("METTask_CaloHadEtInHB","METTask_CaloHadEtInHB",8001,0,8001);
 	me["hCaloHadEtInHO"]          = dbe_->book1D("METTask_CaloHadEtInHO","METTask_CaloHadEtInHO",4001,0,4001);
 	me["hCaloHadEtInHE"]          = dbe_->book1D("METTask_CaloHadEtInHE","METTask_CaloHadEtInHE",4001,0,4001);
 	me["hCaloHadEtInHF"]          = dbe_->book1D("METTask_CaloHadEtInHF","METTask_CaloHadEtInHF",4001,0,4001);
-	me["hCaloHadEtInEB"]          = dbe_->book1D("METTask_CaloHadEtInEB","METTask_CaloHadEtInEB",4001,0,4001);
+	me["hCaloHadEtInEB"]          = dbe_->book1D("METTask_CaloHadEtInEB","METTask_CaloHadEtInEB",8001,0,8001);
 	me["hCaloHadEtInEE"]          = dbe_->book1D("METTask_CaloHadEtInEE","METTask_CaloHadEtInEE",4001,0,4001);
 	me["hCaloEmEtInHF"]           = dbe_->book1D("METTask_CaloEmEtInHF","METTask_CaloEmEtInHF",4001,0,4001);
 	me["hCaloEmEtInEE"]           = dbe_->book1D("METTask_CaloEmEtInEE","METTask_CaloEmEtInEE",4001,0,4001);
-	me["hCaloEmEtInEB"]           = dbe_->book1D("METTask_CaloEmEtInEB","METTask_CaloEmEtInEB",4001,0,4001);
+	me["hCaloEmEtInEB"]           = dbe_->book1D("METTask_CaloEmEtInEB","METTask_CaloEmEtInEB",8001,0,8001);
       }
 
     else if (METType_ == "GenMET")
       {
 	// GenMET Histograms
 	me["hNevents"]                = dbe_->book1D("METTask_Nevents","METTask_Nevents",1,0,1);
-	me["hGenMEx"]                 = dbe_->book1D("METTask_GenMEx","METTask_GenMEx",2001,-500,501);
-	me["hGenMEy"]                 = dbe_->book1D("METTask_GenMEy","METTask_GenMEy",2001,-500,501);
+	me["hGenMEx"]                 = dbe_->book1D("METTask_GenMEx","METTask_GenMEx",4001,-1000,1001);
+	me["hGenMEy"]                 = dbe_->book1D("METTask_GenMEy","METTask_GenMEy",4001,-1000,1001);
 	me["hGenEz"]                  = dbe_->book1D("METTask_GenEz","METTask_GenEz",2001,-500,501);
 	me["hGenMETSig"]              = dbe_->book1D("METTask_GenMETSig","METTask_GenMETSig",51,0,51);
 	me["hGenMET"]                 = dbe_->book1D("METTask_GenMET","METTask_GenMET",2001,0,2001);
 	me["hGenMETPhi"]              = dbe_->book1D("METTask_GenMETPhi","METTask_GenMETPhi",80,-4,4);
-	me["hGenSumET"]               = dbe_->book1D("METTask_GenSumET","METTask_GenSumET",4001,0,4001);
+	me["hGenSumET"]               = dbe_->book1D("METTask_GenSumET","METTask_GenSumET",10001,0,10001);
 	me["hGenEmEnergy"]            = dbe_->book1D("METTask_GenEmEnergy","METTask_GenEmEnergy",4001,0,4001);
 	me["hGenHadEnergy"]           = dbe_->book1D("METTask_GenHadEnergy","METTask_GenHadEnergy",4001,0,4001);
 	me["hGenInvisibleEnergy"]     = dbe_->book1D("METTask_GenInvisibleEnergy","METTask_GenInvisibleEnergy",4001,0,4001);

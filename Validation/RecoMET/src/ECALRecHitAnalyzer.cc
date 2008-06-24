@@ -19,17 +19,11 @@ ECALRecHitAnalyzer::ECALRecHitAnalyzer(const edm::ParameterSet& iConfig)
 
   debug_             = iConfig.getParameter<bool>("Debug");
 
-  // if (outputFile_.size() > 0)
-  //  edm::LogInfo("OutputInfo") << " MET/HCALRecHit Task histograms will be saved to '" << outputFile_.c_str() << "'";
-  //else edm::LogInfo("OutputInfo") << " MET/HCALRecHit Task histograms will NOT be saved";
  
 }
 
 void ECALRecHitAnalyzer::endJob() {
 
-  // Store the DAQ Histograms
-  //if (outputFile_.size() > 0 && dbe_)
-  //  dbe_->save(outputFile_);
 } 
 
 void ECALRecHitAnalyzer::beginJob(const edm::EventSetup& iSetup){
@@ -48,7 +42,7 @@ void ECALRecHitAnalyzer::BookHistos()
   if (dbe_) {
 
   // Book Geometry Histograms
- dbe_->setCurrentFolder("RecoMETV/METTask/RecHits/ECAL/geometry");
+  dbe_->setCurrentFolder("RecoMETV/METTask/RecHits/ECAL/geometry");
   // ECAL barrel
   me["hEB_ieta_iphi_etaMap"] = dbe_->book2D("hEB_ieta_iphi_etaMap","", 171, -85, 86, 360, 1, 361);
   me["hEB_ieta_iphi_phiMap"] = dbe_->book2D("hEB_ieta_iphi_phiMap","", 171, -85, 86, 360, 1, 361);
