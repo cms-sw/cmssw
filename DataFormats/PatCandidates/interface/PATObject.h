@@ -9,7 +9,7 @@
  *
  *  \author   Steven Lowette
  *
- *  \version  $Id: PATObject.h,v 1.9 2008/06/03 22:28:07 gpetrucc Exp $
+ *  \version  $Id: PATObject.h,v 1.10 2008/06/08 12:23:59 vadler Exp $
  *
  */
 
@@ -17,6 +17,8 @@
 #include "DataFormats/Candidate/interface/CandidateFwd.h"
 #include "DataFormats/Candidate/interface/Candidate.h"
 #include <vector>
+
+#include "DataFormats/GeometryCommonDetAlgo/interface/Measurement1DFloat.h"
 
 #include "DataFormats/PatCandidates/interface/TriggerPrimitive.h"
 
@@ -85,6 +87,19 @@ namespace pat {
       void setCovMatrix(const std::vector<float> & c);
       /// add a trigger match
       void addTriggerMatch(const pat::TriggerPrimitive & aTrigPrim);
+
+      /// Returns an efficiency given its name
+      const Measurement1DFloat       & efficiency(const std::string &name) const ;
+      /// Returns the efficiencies as <name,value> pairs (by value)
+      std::vector<std::pair<std::string,Measurement1DFloat> > efficiencies() const ;
+      /// Returns the list of the names of the stored efficiencies 
+      const std::vector<std::string> & efficiencyNames() const { return efficiencyNames_; }
+      /// Returns the list of the values of the stored efficiencies (the ordering is the same as in efficiencyNames())
+      const std::vector<Measurement1DFloat> & efficiencyValues() const { return efficiencyValues_; }
+      /// Store one efficiency in this item, in addition to the existing ones
+      /// If an efficiency with the same name exists, the old value is replaced by this one
+      /// Calling this method many times with names not sorted alphabetically will be slow
+      void setEfficiency(const std::string &name, const Measurement1DFloat & value) ;
       
     protected:
       // reference back to the original object
@@ -109,6 +124,11 @@ namespace pat {
       std::vector<float> covM_;
       /// vector of trigger matches
       std::vector<pat::TriggerPrimitive> triggerMatches_;
+
+      /// vector of the efficiencies (values)
+      std::vector<Measurement1DFloat> efficiencyValues_;
+      /// vector of the efficiencies (names)
+      std::vector<std::string> efficiencyNames_;
 
   };
 
@@ -225,6 +245,44 @@ namespace pat {
   template <class ObjectType>
   void PATObject<ObjectType>::addTriggerMatch(const pat::TriggerPrimitive & aTrigPrim) {
     triggerMatches_.push_back(aTrigPrim);
+  }
+
+  template <class ObjectType>
+  const Measurement1DFloat &  
+  PATObject<ObjectType>::efficiency(const std::string &name) const {
+    // find the name in the (sorted) list of names
+    std::vector<std::string>::const_iterator it = std::lower_bound(efficiencyNames_.begin(), efficiencyNames_.end(), name);
+    if ((it == efficiencyNames_.end()) || (*it != name)) {
+        throw cms::Exception("Invalid Label") << "There is no efficiency with name '" << name << "' in this PAT Object\n";
+    }
+    return efficiencyValues_[it - efficiencyNames_.begin()];
+  }
+
+  template <class ObjectType>
+  std::vector<std::pair<std::string,Measurement1DFloat> > 
+  PATObject<ObjectType>::efficiencies() const {
+    std::vector<std::pair<std::string,Measurement1DFloat> > ret;
+    std::vector<std::string>::const_iterator itn = efficiencyNames_.begin(), edn = efficiencyNames_.end();
+    std::vector<Measurement1DFloat>::const_iterator itv = efficiencyValues_.begin();
+    for ( ; itn != edn; ++itn, ++itv) {
+        ret.push_back( std::pair<std::string,Measurement1DFloat>(*itn, *itv) );
+    }
+    return ret;
+  }
+
+  template <class ObjectType>
+  void PATObject<ObjectType>::setEfficiency(const std::string &name, const Measurement1DFloat & value) {
+    // look for the name, or to the place where we can insert it without violating the alphabetic order
+    std::vector<std::string>::iterator it = std::lower_bound(efficiencyNames_.begin(), efficiencyNames_.end(), name);
+    if (it == efficiencyNames_.end()) { // insert at the end
+        efficiencyNames_.push_back(name);
+        efficiencyValues_.push_back(value);
+    } else if (*it == name) {           // replace existing
+        efficiencyValues_[it - efficiencyNames_.begin()] = value;
+    } else {                            // insert in the middle :-(
+        efficiencyNames_. insert(it, name);
+        efficiencyValues_.insert( efficiencyValues_.begin() + (it - efficiencyNames_.begin()), value );
+    }
   }
 
 }

@@ -9,6 +9,7 @@
 <use name=DataFormats/TrackReco>
 <use name=DataFormats/HepMCCandidate>
 <use name=DataFormats/BTauReco>
+<use name=DataFormats/GeometryCommonDetAlgo>
 <use name=rootrflx>
 <use name=root>
 <export>
@@ -22,6 +23,7 @@
   <use name=DataFormats/TrackReco>
   <use name=DataFormats/HepMCCandidate>
   <use name=DataFormats/BTauReco>
+  <use name=DataFormats/GeometryCommonDetAlgo>
   <use name=root>
   <lib name=DataFormatsPatCandidates>
 </export>
