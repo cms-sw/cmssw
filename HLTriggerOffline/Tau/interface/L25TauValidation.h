@@ -55,28 +55,25 @@ class L25TauValidation : public edm::EDAnalyzer {
       edm::InputTag caloJets_;
 
       //Output file
-      std::string triggerTag_;
+      std::string tT_;
       std::string outFile_;
 
       //Monitor elements main
-      MonitorElement* jetPt;
       MonitorElement* jetEt;
       MonitorElement* jetEta;
-      MonitorElement* jetPhi;
       MonitorElement* nL2EcalIsoJets;
       MonitorElement* nL25Jets;
       MonitorElement* nPxlTrksInL25Jet;
       MonitorElement* nQPxlTrksInL25Jet;
       MonitorElement* signalLeadTrkPt;
       MonitorElement* l25IsoJetEta;
-      MonitorElement* l25IsoJetPt;
-      MonitorElement* l25IsoJetPhi;
       MonitorElement* l25IsoJetEt;
       MonitorElement* l25EtaEff;
       MonitorElement* l25EtEff;
-      MonitorElement* l25PtEff;
-      MonitorElement* l25PhiEff;
-            
+
+
+
+               
       int nTracksInIsolationRing_;
       float rMatch_;
       float rSig_;
@@ -85,6 +82,13 @@ class L25TauValidation : public edm::EDAnalyzer {
       float ptLeadTk_;
       float mcMatch_;
       bool signal_;
+      //Histogram Limits
+      double EtMin_;
+      double EtMax_;
+      int NBins_;
+
+
+
 };
 
 

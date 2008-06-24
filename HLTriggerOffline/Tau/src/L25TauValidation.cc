@@ -8,41 +8,31 @@ L25TauValidation::L25TauValidation(const edm::ParameterSet& iConfig){
    jetTagSrc_ = iConfig.getParameter<edm::InputTag>("JetTagProd");
    jetMCTagSrc_ = iConfig.getParameter<edm::InputTag>("JetMCTagProd");
    caloJets_ = iConfig.getParameter<edm::InputTag>("l2CaloJets");
-   //rSig_ = iConfig.getParameter<double>("SignalCone");
-   //rMatch_ = iConfig.getParameter<double>("MatchingCone");
-   //rIso_ = iConfig.getParameter<double>("IsolationCone");
-   //   ptLeadTk_ = iConfig.getParameter<double>("MinimumTransverseMomentumLeadingTrack");
-   //minPtIsoRing_ = iConfig.getParameter<double>("MinimumTransverseMomentumInIsolationRing");
-   //nTracksInIsolationRing_ = iConfig.getParameter<int>("MaximumNumberOfTracksIsolationRing");
    mcMatch_ = iConfig.getParameter<double>("MCMatching");
    signal_ = iConfig.getParameter<bool>("Signal");
-   triggerTag_ = iConfig.getParameter<std::string>("TriggerTag");
+   tT_ = iConfig.getParameter<std::string>("TriggerTag");
    outFile_ = iConfig.getParameter<std::string>("OutputFileName");
+   EtMin_ = (iConfig.getParameter<double>("EtMin"));
+   EtMax_ = (iConfig.getParameter<double>("EtMax"));
+   NBins_ = (iConfig.getParameter<int>("NBins"));
 
 
    DQMStore* store = &*edm::Service<DQMStore>();
   
    if(store){		//Create the histograms
       
-      store->setCurrentFolder(triggerTag_);
-
-      jetPt = store->book1D("jetPt", "jetPt", 100, 0, 200);
-      jetEt = store->book1D("jetEt", "jetEt", 100, 0, 200);
-      jetEta = store->book1D("jetEta", "jetEta", 50, -2.5, 2.5);
-      jetPhi = store->book1D("jetPhi", "jetPhi", 63, -3.14, 3.14);
-      nL2EcalIsoJets = store->book1D("nL2EcalIsoJets", "nL2EcalIsoJets", 10, 0, 10);
-      nL25Jets = store->book1D("nL25Jets", "nL25Jets", 10, 0, 10);
-      nPxlTrksInL25Jet = store->book1D("nPxlTrksInL25Jet", "nPxlTrksInL25Jet", 30, 0, 30);
-      nQPxlTrksInL25Jet = store->book1D("nQPxlTrksInL25Jet","nQPxlTrksInL25Jet", 15, 0, 15);
-      signalLeadTrkPt = store->book1D("signalLeadTrkPt", "signalLeadTrkPt", 75, 0, 150);
-      l25IsoJetPt = store->book1D("l25IsoJetPt", "l25IsoJetPt", 100, 0, 200);
-      l25IsoJetEt = store->book1D("l25IsoJetEt", "l25IsoJetEt", 100, 0, 200);
-      l25IsoJetEta = store->book1D("l25IsoJetEta", "l25IsoJetEta", 50, -2.5, 2.5);
-      l25IsoJetPhi = store->book1D("l25IsoJetPhi", "l25IsoJetPhi", 63, -3.14, 3.14);
-      l25EtaEff = store->book1D("l25EtaEff", "l25EtaEff", 50, -2.5, 2.5);
-      l25EtEff = store->book1D("l25EtEff", "l25EtEff", 100, 0, 200);
-      l25PtEff = store->book1D("l25PtEff", "l25PtEff", 100, 0, 200);
-      l25PhiEff = store->book1D("l25PhiEff", "l25PhiEff", 63, -3.14, 3.14);
+      store->setCurrentFolder(tT_);
+      jetEt = store->book1D((tT_+"jetEt").c_str(), "jetEt",NBins_,EtMin_,EtMax_);
+      jetEta = store->book1D((tT_+"jetEta").c_str(), "jetEta", 50, -2.5, 2.5);
+      nL2EcalIsoJets = store->book1D((tT_+"nL2EcalIsoJets").c_str(), "nL2EcalIsoJets", 10, 0, 10);
+      nL25Jets = store->book1D((tT_+"nL25Jets").c_str(), "nL25Jets", 10, 0, 10);
+      nPxlTrksInL25Jet = store->book1D((tT_+"nPxlTrksInJet").c_str(), "nPxlTrksInJet", 30, 0, 30);
+      nQPxlTrksInL25Jet = store->book1D((tT_+"nQPxlTrksInJet").c_str(),"nQPxlTrksInJet", 15, 0, 15);
+      signalLeadTrkPt = store->book1D((tT_+"signalLeadTrkPt").c_str(), "signalLeadTrkPt", 75, 0, 150);
+      l25IsoJetEt = store->book1D((tT_+"IsoJetEt").c_str(), "IsoJetEt", NBins_, EtMin_,EtMax_);
+      l25IsoJetEta = store->book1D((tT_+"IsoJetEta").c_str(), "IsoJetEta", 50, -2.5, 2.5);
+      l25EtaEff = store->book1D((tT_+"EtaEff").c_str(), "EtaEff", 50, -2.5, 2.5);
+      l25EtEff = store->book1D((tT_+"EtEff").c_str(), "EtEff",NBins_,EtMin_,EtMax_);
    }
 }
 
@@ -87,10 +77,8 @@ L25TauValidation::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetu
 	   else l25Match = 1;												         
 	   
 	   if(l2Match&&l25Match){
-	     jetPt->Fill(theJet.Pt()); 		  						         
 	     jetEt->Fill(theJet.Et()); 		  							         
 	     jetEta->Fill(theJet.Eta());		  						         
-	     jetPhi->Fill(theJet.Phi());
 	     nL2EcalIsoJets->Fill(caloJets.size());
 	     nL25Jets->Fill(tauTagInfoColl.size());											         
 	     nPxlTrksInL25Jet->Fill(tauTagInfo.allTracks().size());								    
@@ -104,8 +92,6 @@ L25TauValidation::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetu
 
                if(tauTagInfo.discriminator()==1){
 		 l25IsoJetEta->Fill(theJet.Eta());
-		 l25IsoJetPt->Fill(theJet.Pt());
-		 l25IsoJetPhi->Fill(theJet.Phi());
 		 l25IsoJetEt->Fill(theJet.Et());
 	       }
 	     }
@@ -124,23 +110,14 @@ void L25TauValidation::beginJob(const edm::EventSetup&){
 void L25TauValidation::endJob() {
    // Get the efficiency plots
 
-  //   l25IsoJetEta->getTH1F()->Sumw2();
-  // jetEta->getTH1F()->Sumw2();
+   l25IsoJetEta->getTH1F()->Sumw2();
+   jetEta->getTH1F()->Sumw2();
    l25EtaEff->getTH1F()->Divide(l25IsoJetEta->getTH1F(), jetEta->getTH1F(), 1., 1., "b");
    
-   // l25IsoJetPt->getTH1F()->Sumw2();
-   //jetPt->getTH1F()->Sumw2();
-   l25PtEff->getTH1F()->Divide(l25IsoJetPt->getTH1F(), jetPt->getTH1F(), 1., 1., "b");
-  
-   // l25IsoJetEt->getTH1F()->Sumw2();
-   // jetEt->getTH1F()->Sumw2();
+   l25IsoJetEt->getTH1F()->Sumw2();
+   jetEt->getTH1F()->Sumw2();
    l25EtEff->getTH1F()->Divide(l25IsoJetEt->getTH1F(), jetEt->getTH1F(), 1., 1., "b");
-   
-   // l25IsoJetPhi->getTH1F()->Sumw2();
-   // jetPhi->getTH1F()->Sumw2();
-   l25PhiEff->getTH1F()->Divide(l25IsoJetPhi->getTH1F(), jetPhi->getTH1F(), 1., 1., "b");
-   
-   
+      
    //Write file
    if(outFile_.size()>0 &&(&*edm::Service<DQMStore>())) edm::Service<DQMStore>()->save (outFile_);
 
