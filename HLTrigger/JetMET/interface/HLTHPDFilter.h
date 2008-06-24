@@ -18,9 +18,12 @@ class HLTHPDFilter : public HLTFilter {
 
    private:
       edm::InputTag mInputTag; // input tag for HCAL HBHE digis
-      double mSeedThresholdEnergy;
-      double mShoulderThresholdEnergy;
-      double mShoulderToSeedRatio;
+      double mEnergyThreshold;
+      double mHPDSpikeEnergyThreshold;
+      double mHPDSpikeIsolationEnergyThreshold;
+      double mRBXSpikeEnergyThreshold;
+      double mRBXSpikeUnbalanceThreshold;
 };
 
 #endif //HLTHPDFilter_h
+ 

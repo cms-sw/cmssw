@@ -1,6 +1,6 @@
-/** \class HLTHPDFilter
+/* \class HLTHPDFilter
  *
- * $Id: HLTHPDFilter.cc,v 1.4.2.1 2007/08/19 03:15:51 apana Exp $
+ * $Id: HLTHPDFilter.cc,v 1.1 2008/05/19 23:56:45 fedor Exp $
  *
  * Fedor Ratnikov (UMd) May 19, 2008
  */
@@ -9,9 +9,12 @@
 
 #include <math.h>
 
+#include <set>
+
 #include "DataFormats/Common/interface/Handle.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include "FWCore/Framework/interface/ESHandle.h"
+#include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/EventSetup.h"
 
 #include "Geometry/Records/interface/IdealGeometryRecord.h"
@@ -19,30 +22,66 @@
 
 #include "DataFormats/HcalRecHit/interface/HcalRecHitCollections.h"
 
+#include "FWCore/ServiceRegistry/interface/Service.h"
+#include "PhysicsTools/UtilAlgos/interface/TFileService.h"
+#include "TH1F.h"
+#include "TH2F.h"
+
+
 namespace {
-  float shoulderEnergy (const HBHERecHitCollection& fHits, const std::vector<DetId>& fNeighbors) {
-    float result = 0;
-    for (unsigned i = 0; i < fNeighbors.size(); ++i) {
-      if (fNeighbors[i].det() == DetId::Hcal) {
-	HcalDetId hcalId = fNeighbors[i];
-	if (hcalId.subdet() == HcalBarrel || hcalId.subdet() == HcalEndcap) {
-	  HBHERecHitCollection::const_iterator hit = fHits.find (hcalId);
-	  if (hit != fHits.end()) {
-	    result += hit->energy();
-	  }
+  enum Partition {HBM=0, HBP=1, HEM=2, HEP=3}; 
+  std::pair<Partition,int> hpdId (HcalDetId fId) {
+    int hpd = fId.iphi ();
+    Partition partition = HBM;
+    if (fId.subdet() == HcalBarrel) {
+      partition = fId.ieta() > 0 ? HBP : HBM;
+    }
+    else if (fId.subdet() == HcalEndcap) {
+      partition = fId.ieta() > 0 ? HEP : HEM;
+      if ((fId.iphi ()-1) % 4 < 2) { // 1,2 
+	switch (fId.ieta()) { // 1->2
+	case 22:
+	case 24:
+	case 26:
+	case 28:
+	  hpd = +1;
+	  break;
+	case 29:
+	  if (fId.depth () == 1 || fId.depth () == 3) hpd += 1;
+	  break;
+	default:
+	  break;
+	}
+      }
+      else { // 3,4
+	switch (fId.ieta()) { // 3->4
+	case 21:
+	case 23:
+	case 25:
+	case 27:
+	  hpd += 1;
+	  break;
+	case 29:
+	  if (fId.depth () == 2) hpd += 1;
+	  break;
+	default:
+	  break;
 	}
       }
     }
-    return result;
+    return std::pair<Partition,int> (partition, hpd);
   }
 }
 
 HLTHPDFilter::HLTHPDFilter(const edm::ParameterSet& iConfig)
   :  mInputTag (iConfig.getParameter <edm::InputTag> ("inputTag")),
-     mSeedThresholdEnergy (iConfig.getParameter <double> ("seedEnergy")),
-     mShoulderThresholdEnergy (iConfig.getParameter <double> ("shoulderEnergy")),
-     mShoulderToSeedRatio (iConfig.getParameter <double> ("shoulderToSeedRatio"))
-{}
+     mEnergyThreshold (iConfig.getParameter <double> ("energy")),
+     mHPDSpikeEnergyThreshold (iConfig.getParameter <double> ("hpdSpikeEnergy")),
+     mHPDSpikeIsolationEnergyThreshold (iConfig.getParameter <double> ("hpdSpikeIsolationEnergy")),
+     mRBXSpikeEnergyThreshold (iConfig.getParameter <double> ("rbxSpikeEnergy")),
+     mRBXSpikeUnbalanceThreshold (iConfig.getParameter <double> ("rbxSpikeUnbalance"))
+{
+}
 
 HLTHPDFilter::~HLTHPDFilter(){}
 
@@ -51,29 +90,57 @@ bool HLTHPDFilter::filter(edm::Event& iEvent, const edm::EventSetup& iSetup)
   // get hits
   edm::Handle<HBHERecHitCollection> hbhe;
   iEvent.getByLabel(mInputTag,hbhe);
-  // get topology
-  edm::ESHandle<HcalTopology> topology;
-  iSetup.get<IdealGeometryRecord>().get(topology);
-
-  // look for maximum energy cell in the event
-  const HBHERecHit* maxEnergyHit = 0;
-  float maxEnergy = 0;
-  for (size_t i = 0; i < hbhe->size (); ++i) {
-    if (!maxEnergyHit || (*hbhe)[i].energy () > maxEnergy) {
-      maxEnergyHit = &((*hbhe)[i]);
-      maxEnergy = maxEnergyHit->energy();
+  
+  // collect energies
+  float hpdEnergy[4][73];
+  for (size_t i = 0; i < 4; ++i) for (size_t j = 0; j < 73; ++j) hpdEnergy[i][j] = 0;
+  
+  // select hist above threshold
+  for (unsigned i = 0; i < hbhe->size(); ++i) {
+    if ((*hbhe)[i].energy() > mEnergyThreshold) {
+      std::pair<Partition,int> hpd = hpdId ((*hbhe)[i].id());
+      hpdEnergy[int (hpd.first)][hpd.second] += (*hbhe)[i].energy ();
     }
   }
-  if (maxEnergy < mSeedThresholdEnergy && maxEnergy <= 0) return true;  // no signal - no suspition at all
-  DetId id = maxEnergyHit->id();
-  float energy = 0;
-  energy = fmaxf (energy, shoulderEnergy (*hbhe, topology->east (id)));
-  energy = fmaxf (energy, shoulderEnergy (*hbhe, topology->west (id)));
-  energy = fmaxf (energy, shoulderEnergy (*hbhe, topology->north (id)));
-  energy = fmaxf (energy, shoulderEnergy (*hbhe, topology->south (id)));
-  energy = fmaxf (energy, shoulderEnergy (*hbhe, topology->up (id)));
-  energy = fmaxf (energy, shoulderEnergy (*hbhe, topology->down (id)));
-  if ((energy > mShoulderThresholdEnergy) || (energy / maxEnergy > mShoulderToSeedRatio)) return true;
-  return false; // spike-like energy deposition
+  
+  // not single HPD spike
+  for (size_t partition = 0; partition < 4; ++partition) {
+    for (size_t i = 1; i < 73; ++i) {
+      if (hpdEnergy [partition][i] > mHPDSpikeEnergyThreshold) {
+	int hpdPlus = i + 1;
+	if (hpdPlus == 73) hpdPlus = 1;
+	int hpdMinus = i - 1;
+	if (hpdMinus == 0) hpdMinus = 72;
+	double maxNeighborEnergy = fmax (hpdEnergy[partition][hpdPlus], hpdEnergy[partition][hpdMinus]);
+	if (maxNeighborEnergy < mHPDSpikeIsolationEnergyThreshold)  return false; // HPD spike found
+      }
+    }
+  }  
+
+  // not RBX flash
+  for (size_t partition = 0; partition < 4; ++partition) {
+    for (size_t rbx = 1; rbx < 19; ++rbx) {
+      int ifirst = (rbx-1)*4-1;
+      int iend = (rbx-1)*4+3;
+      double minEnergy = 0;
+      double maxEnergy = -1;
+      double totalEnergy = 0;
+      for (int irm = ifirst; irm < iend; ++irm) {
+	int hpd = irm;
+	if (hpd <= 0) hpd = 72 + hpd;
+	totalEnergy += hpdEnergy[partition][hpd];
+	if (minEnergy > maxEnergy) {
+	  minEnergy = maxEnergy = hpdEnergy[partition][hpd];
+	}
+	else {
+	  if (hpdEnergy[partition][hpd] < minEnergy) minEnergy = hpdEnergy[partition][hpd];
+	  if (hpdEnergy[partition][hpd] > maxEnergy) maxEnergy = hpdEnergy[partition][hpd];
+	}
+      }
+      if (totalEnergy > mRBXSpikeEnergyThreshold) {
+	if (minEnergy / maxEnergy > mRBXSpikeUnbalanceThreshold) return false; // likely HPF flash
+      }
+    }
+  }
+  return true;
 }
- 
