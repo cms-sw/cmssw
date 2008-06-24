@@ -11,11 +11,13 @@
 //
 // 4/8/08   mf	Encase the logdesc for in <CDATA> ... </CDATA>
 //
+// 6/19/08  mf	reportMessageInfo()
+//
 // 24 June 2008   ewv  Correct format for CDATA and for second instance of reportError
 
 //
 // Original Author:  Marc Paterno
-// $Id: JobReport.cc,v 1.37 2008/06/24 21:12:18 ewv Exp $
+// $Id: JobReport.cc,v 1.35 2008/06/20 20:55:46 fischler Exp $
 //
 
 
@@ -640,10 +642,12 @@ namespace edm
   {
     if(impl_->ost_) {
       std::ostream& msg = *(impl_->ost_);
+      //std::ostringstream msg;
       msg << "<FrameworkError ExitStatus=\""<< exitCode
     	<<"\" Type=\"" << shortDesc <<"\" >\n";
       msg << "<![CDATA[\n" << longDesc << "\n]]>\n";
       msg << "</FrameworkError>\n";
+      //LogError("FwkJob") << msg.str();
       msg <<std::flush;
     }
   }
@@ -709,6 +713,23 @@ namespace edm
         msg << *pos << "\n";
       }
       msg << "</MemoryService>\n";
+      msg << std::flush;
+    }
+  }
+
+  void
+  JobReport::reportMessageInfo(std::map<std::string, double> const& messageData){
+
+    if(impl_->ost_) {
+      std::ostream& msg=*(impl_->ost_);
+      msg << "<MessageSummary>\n";
+      std::map<std::string, double>::const_iterator pos;
+      for (pos = messageData.begin(); pos != messageData.end(); ++pos){
+        msg <<  "  <" << pos->first
+        <<  "  Value=\"" << pos->second  << "\" />"
+        <<  "\n";
+      }
+      msg << "</MessageSummary>\n";
       msg << std::flush;
     }
   }
