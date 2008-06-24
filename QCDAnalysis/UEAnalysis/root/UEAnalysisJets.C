@@ -57,10 +57,20 @@ void UEAnalysisJets::Begin(TFile * f, string hltBit){
 	       "h2d_weightVSratioPtTracksJetPtCaloJet;p_{T}(jet from tracks)/p_{T}(calo jet);event weight",
 	       100, 0., 4., 100, 0., 10.);
   
+//   h2d_calib_chgcalo
+//     = new TH2D("h2d_calib_chgcalo",
+// 	       "h2d_calib_chgcalo;p_{T}(calo jet) (GeV/c);p_{T}(jet from tracks)/p_{T}(calo jet)",
+// 	       100, 0., 200., 100, 0., 4.);
   h2d_calib_chgcalo
     = new TH2D("h2d_calib_chgcalo",
-	       "h2d_calib_chgcalo;p_{T}(calo jet) (GeV/c);p_{T}(jet from tracks)/p_{T}(calo jet)",
+	       "h2d_calib_chgcalo;p_{T}(jet from tracks) (GeV/c);p_{T}(jet from tracks)/p_{T}(calo jet)",
 	       100, 0., 200., 100, 0., 4.);
+
+  h2d_calib_chgmcreco 
+    = new TH2D("h2d_calib_chgmcreco",
+	       "h2d_calib_chgmcreco;p_{T}(jet from tracks) (GeV/c);p_{T}(jet from charged particles)/p_{T}(jet from tracks)",
+	       100, 0., 200., 100, 0., 4.);
+
   //
   // hlt1jet30
   // hlt1jet50
@@ -243,7 +253,8 @@ void UEAnalysisJets::jetCalibAnalysis(float weight,float etaRegion,TClonesArray 
       if(ptEHJ>0)
 	{
 	  h2d_weightVSratioPtTracksJetPtCaloJet->Fill( ptTJ/ptEHJ, weight );
-	  h2d_calib_chgcalo->Fill( ptEHJ, ptTJ/ptEHJ, weight);
+	  //	  h2d_calib_chgcalo->Fill( ptEHJ, ptTJ/ptEHJ, weight);
+	  h2d_calib_chgcalo->Fill( ptTJ, ptTJ/ptEHJ, weight);
 	  
 	  calib_chgcalo->Fill(ptEHJ,ptTJ/ptEHJ,weight);
 	  calib_chgcalo_eta->Fill(etaEHJ,ptTJ/ptEHJ,weight);
@@ -279,6 +290,8 @@ void UEAnalysisJets::jetCalibAnalysis(float weight,float etaRegion,TClonesArray 
       if(ptTJ>0)
 	{
 	  calib_chgmcreco->Fill(ptTJ,ptCJ/ptTJ,weight);
+	  h2d_calib_chgmcreco->Fill(ptTJ,ptCJ/ptTJ,weight);
+
 	  calib_chgmcreco_eta->Fill(etaTJ,ptCJ/ptTJ,weight);
 	  calib_chgmcreco_phi->Fill(phiTJ,ptCJ/ptTJ,weight);
 	}	  
