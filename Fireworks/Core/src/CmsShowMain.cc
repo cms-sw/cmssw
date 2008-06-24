@@ -8,7 +8,7 @@
 //
 // Original Author:  
 //         Created:  Mon Dec  3 08:38:38 PST 2007
-// $Id: CmsShowMain.cc,v 1.6 2008/06/23 15:51:58 chrjones Exp $
+// $Id: CmsShowMain.cc,v 1.7 2008/06/23 23:01:10 dmytro Exp $
 //
 
 // system include files
@@ -91,7 +91,7 @@ CmsShowMain::CmsShowMain(int argc, char *argv[]) :
                                 m_changeManager.get(),
                                 false)),
   m_viewManager( new FWViewManagerManager(m_changeManager.get())),
-  m_textView(new FWTextView(this, &*m_selectionManager, &*m_guiManager))
+  m_textView(0)
   //  m_configFileName(iConfigFileName)
 {
     namespace po = boost::program_options;
@@ -133,7 +133,9 @@ CmsShowMain::CmsShowMain(int argc, char *argv[]) :
     m_geomFileName = "cmsGeom10.root";
   }
   bool debugMode = vm.count("debug");
-  
+   
+//  if ( debugMode )
+     m_textView = std::auto_ptr<FWTextView>( new FWTextView(this, &*m_selectionManager, &*m_guiManager) );
 
   printf("Input: %s\n", m_inputFileName.c_str());
   printf("Config: %s\n", m_configFileName.c_str());
@@ -265,8 +267,8 @@ CmsShowMain::CmsShowMain(int argc, char *argv[]) :
    FWPhysicsObjectDesc mets("METs",
 			    TClass::GetClass("reco::CaloMETCollection"),
 			    "METs",
-			    FWDisplayProperties(kCyan),
-			    "met",
+			    FWDisplayProperties(kRed),
+			    "metNoHF",
 			    "",
 			    "",
 			    "",
