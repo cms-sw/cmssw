@@ -84,7 +84,7 @@ int PixelROCTrimBits::read(PixelROCName rocid,std::ifstream& in){
 
 }
 
-PixelROCTrimBits::read(PixelROCName rocid, std::istringstream& in)
+int PixelROCTrimBits::read(PixelROCName rocid, std::istringstream& in)
 {
   std::string tag;
   //std::cout << "PixelROCTrimBits::read rocid:"<<rocid<<std::endl;
