@@ -5,6 +5,13 @@ process = cms.Process("PROD")
 # The number of events to be processed.
 process.maxEvents = cms.untracked.PSet( input = cms.untracked.int32(100) )
     
+# For valgrind studies
+# process.ProfilerService = cms.Service("ProfilerService",
+#    lastEvent = cms.untracked.int32(13),
+#    firstEvent = cms.untracked.int32(3),
+#    paths = cms.untracked.vstring('p1')
+#)
+
 # Include the RandomNumberGeneratorService definition
 process.load("FastSimulation/Configuration/RandomServiceInitialization_cff")
 
