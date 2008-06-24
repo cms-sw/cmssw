@@ -48,12 +48,16 @@ PixelCPETemplateReco::PixelCPETemplateReco(edm::ParameterSet const & conf,
 
   // Initialize template store, Pixelav 125V simulation as
   // thePixelTemp[1]
-  templ_.pushfile(4);
+  //templ_.pushfile(4);
 
   // Initialize template store, CMSSW simulation w/ reduced difusion
   // as thePixelTemp[2]
   //templ_.pushfile(401);
   
+  // Initialize template store, Pixelav 150V, 3.8T simulation
+  templ_.pushfile(1);
+
+
   //cout << "About to read speed..." << endl;
   speed_ = conf.getParameter<int>( "speed");
   LogDebug("PixelCPETemplateReco::PixelCPETemplateReco:") <<
@@ -95,7 +99,9 @@ PixelCPETemplateReco::localPosition(const SiPixelCluster& cluster, const GeomDet
   setTheDet( det );
 
   //int ierr;   //!< return status
-  int ID = 4; //!< picks the third entry from the template store
+  //int ID = 4; //!< picks the third entry from the template store
+  int ID = 1; //!< picks the 3.8T entry in the template store
+
 
   bool fpix;  //!< barrel(false) or forward(true)
   if ( thePart == GeomDetEnumerators::PixelBarrel )   
