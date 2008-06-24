@@ -13,7 +13,7 @@
 //
 // Original Author:  Brian Drell
 //         Created:  Fri May 18 22:57:40 CEST 2007
-// $Id: V0Fitter.cc,v 1.25 2008/06/20 22:44:34 drell Exp $
+// $Id: V0Fitter.cc,v 1.26 2008/06/24 00:09:21 drell Exp $
 //
 //
 
@@ -22,6 +22,7 @@
 
 #include "TrackingTools/TransientTrack/interface/TransientTrackBuilder.h"
 #include "TrackingTools/Records/interface/TransientTrackRecord.h"
+#include "TrackingTools/PatternTools/interface/ClosestApproachInRPhi.h"
 #include "Geometry/CommonDetUnit/interface/GlobalTrackingGeometry.h"
 
 #include <typeinfo>
@@ -143,7 +144,7 @@ void V0Fitter::fitAll(const edm::Event& iEvent, const edm::EventSetup& iSetup) {
       for( ; tkHitIt < tmpRef->recHitsEnd(); ++tkHitIt ) {
 	if( (*tkHitIt)->isValid() ) nHitsOnTk++;
       }
-      if( nHitsOnTk > tkNhitsCut ) {
+      if( nHitsOnTk >= tkNhitsCut ) {
 	TransientTrack tmpTk( *tmpRef, &(*bFieldHandle), globTkGeomHandle );
 	TrajectoryStateClosestToBeamLine tscb( tmpTk.stateAtBeamLine() );
 	if( tscb.isValid() ) {
@@ -153,6 +154,11 @@ void V0Fitter::fitAll(const edm::Event& iEvent, const edm::EventSetup& iSetup) {
 	  }
 	}
       }
+    }
+    else if ( !doTkQualCuts ) {
+      TransientTrack tmpTk2( *tmpRef, &(*bFieldHandle), globTkGeomHandle );
+      theTrackRefs.push_back( tmpRef );
+      theTransTracks.push_back( tmpTk2 );
     }
 
   }
@@ -219,6 +225,16 @@ void V0Fitter::fitAll(const edm::Event& iEvent, const edm::EventSetup& iSetup) {
       // Fill the vector of TransientTracks to send to KVF
       transTracks.push_back(*posTransTkPtr);
       transTracks.push_back(*negTransTkPtr);
+
+      // Trajectory states to calculate DCA for the 2 tracks
+      FreeTrajectoryState posState = posTransTkPtr->impactPointTSCP().theState();
+      FreeTrajectoryState negState = negTransTkPtr->impactPointTSCP().theState();
+
+      // Measure distance
+      ClosestApproachInRPhi cApp;
+      cApp.calculate(posState, negState);
+      float dca = fabs( cApp.distance() );
+      GlobalPoint meanOfDCA = cApp.crossingPoint();
 
       // Create the vertex fitter object
       KalmanVertexFitter theFitter(useRefTrax == 0 ? false : true);
@@ -294,13 +310,15 @@ void V0Fitter::fitAll(const edm::Event& iEvent, const edm::EventSetup& iSetup) {
 	}
       }
 
-      if( theVtx.chi2() > chi2Cut ||
-	  rVtxMag / sigmaRvtxMag < vtxSigCut 
-	  && doPostFitCuts ) {
-	if(thePositiveRefTrack) delete thePositiveRefTrack;
-	if(theNegativeRefTrack) delete theNegativeRefTrack;
-	thePositiveRefTrack = theNegativeRefTrack = 0;
-	continue;
+      if( doPostFitCuts ) {
+	if( theVtx.chi2() > chi2Cut ||
+	    rVtxMag < rVtxCut ||
+	    rVtxMag / sigmaRvtxMag < vtxSigCut ) {
+	  if(thePositiveRefTrack) delete thePositiveRefTrack;
+	  if(theNegativeRefTrack) delete theNegativeRefTrack;
+	  thePositiveRefTrack = theNegativeRefTrack = 0;
+	  continue;
+	}
       }
 
       // Cuts finished, now we create the candidates and push them back into the collections.
