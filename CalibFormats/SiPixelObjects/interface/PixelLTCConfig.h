@@ -12,6 +12,7 @@
 #include <set>
 #include <fstream>
 #include <iostream>
+#include <sstream>
 #include "CalibFormats/SiPixelObjects/interface/PixelConfigBase.h"
 
 
@@ -30,14 +31,16 @@ namespace pos{
   public:
    
     PixelLTCConfig(std::string filename);
-    std::string getLTCConfigPath();
+    //std::string getLTCConfigPath() {return ltcConfigPath_;}
+    std::stringstream& getLTCConfigStream() {return ltcConfigStream_;}
 
     virtual void writeASCII(std::string dir) const;
 
  
   private:
  
-    std::string ltcConfigPath_;
+    //std::string ltcConfigPath_;
+    std::stringstream ltcConfigStream_;
 
   };
 }

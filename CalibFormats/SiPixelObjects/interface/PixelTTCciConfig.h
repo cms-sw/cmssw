@@ -11,6 +11,7 @@
 #include <set>
 #include <fstream>
 #include <iostream>
+#include <sstream>
 #include "CalibFormats/SiPixelObjects/interface/PixelConfigBase.h"
 
 namespace pos{
@@ -19,13 +20,15 @@ namespace pos{
   public:
    
     PixelTTCciConfig(std::string filename);
-    std::string getTTCConfigPath();
+    //std::string getTTCConfigPath() {return ttcConfigPath_;}
+    std::stringstream& getTTCConfigStream() {return ttcConfigStream_;}
 
     virtual void writeASCII(std::string dir) const;
  
   private:
  
-    std::string ttcConfigPath_;
+    //std::string ttcConfigPath_;
+    std::stringstream ttcConfigStream_;
 
   };
 }

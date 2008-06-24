@@ -23,7 +23,12 @@ PixelTTCciConfig::PixelTTCciConfig(std::string filename):
 	std::cout << "Opened:"<<filename<<std::endl;
     }
 
-    ttcConfigPath_ = filename;
+    //ttcConfigPath_ = filename;
+    string line;
+    while (!in.eof()) {
+       getline (in,line);
+       ttcConfigStream_ << line << endl;
+    }
 
 } 
 
@@ -34,25 +39,16 @@ void PixelTTCciConfig::writeASCII(std::string dir) const {
   std::string filename=dir+"TTCciConfiguration.txt";
   std::ofstream out(filename.c_str());
 
-  std::ifstream in(ttcConfigPath_.c_str());
-  assert(in.good());
+  //std::ifstream in(ttcConfigPath_.c_str());
+  //assert(in.good());
 
-  string line;
-  while (!in.eof()) {
-    getline (in,line);
-    out << line << endl;
-  }
+  string configstr = ttcConfigStream_.str();
+
+  out << configstr << endl;
 
   out.close();
 
-
-
 }
 
-
-std::string PixelTTCciConfig::getTTCConfigPath() {
-  return ttcConfigPath_;
-}
-   
  
 
