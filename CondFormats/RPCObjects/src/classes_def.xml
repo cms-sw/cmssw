@@ -54,6 +54,10 @@
   <class name="RPCdbData"/>
   <class name="RPCdbData::Item"/>
   <class name="std::vector<RPCdbData::Item>"/>
+  <class name="RPCGas"/>
+  <class name="RPCGas::GasItem"/>
+  <class name="std::vector<RPCGas::GasItem>"/>
+
 
   <class name="RPCStripNoises"/>
   <class name="RPCStripNoises::NoiseItem"/>
