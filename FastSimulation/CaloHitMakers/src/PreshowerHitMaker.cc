@@ -4,7 +4,7 @@
 #include "FastSimulation/Utilities/interface/LandauFluctuationGenerator.h"
 #include "DataFormats/DetId/interface/DetId.h"
 #include "DataFormats/EcalDetId/interface/EcalSubdetector.h"
-#include "Geometry/EcalPreshowerAlgo/interface/EcalPreshowerGeometry.h"
+#include "Geometry/EcalAlgo/interface/EcalPreshowerGeometry.h"
 
 #include "Math/GenVector/Plane3D.h"
 

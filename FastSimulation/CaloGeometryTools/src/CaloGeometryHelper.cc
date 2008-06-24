@@ -4,8 +4,8 @@
 
 // needed for the debugging
 #include "Geometry/CaloGeometry/interface/CaloCellGeometry.h"
-#include "Geometry/EcalBarrelAlgo/interface/EcalBarrelGeometry.h"
-#include "Geometry/EcalEndcapAlgo/interface/EcalEndcapGeometry.h"
+#include "Geometry/EcalAlgo/interface/EcalBarrelGeometry.h"
+#include "Geometry/EcalAlgo/interface/EcalEndcapGeometry.h"
 #include "Geometry/CaloTopology/interface/CaloSubdetectorTopology.h"
 
 #include "DataFormats/EcalDetId/interface/EBDetId.h"
@@ -13,7 +13,7 @@
 #include "DataFormats/EcalDetId/interface/ESDetId.h"
 #include "DataFormats/HcalDetId/interface/HcalDetId.h"
 #include "DataFormats/EcalDetId/interface/EcalSubdetector.h"
-#include "Geometry/EcalPreshowerAlgo/interface/EcalPreshowerGeometry.h"
+#include "Geometry/EcalAlgo/interface/EcalPreshowerGeometry.h"
 
 #include "FastSimulation/CaloGeometryTools/interface/DistanceToCell.h"
 #include "FastSimulation/CaloGeometryTools/interface/Crystal.h"

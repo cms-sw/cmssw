@@ -3,8 +3,8 @@
 //#include "DataFormats/EcalDetId/interface/EBDetId.h"
 //#include "DataFormats/EcalDetId/interface/EEDetId.h"
 
-//#include "Geometry/EcalBarrelAlgo/interface/EcalBarrelGeometry.h"
-//#include "Geometry/EcalEndcapAlgo/interface/EcalEndcapGeometry.h"
+//#include "Geometry/EcalAlgo/interface/EcalBarrelGeometry.h"
+//#include "Geometry/EcalAlgo/interface/EcalEndcapGeometry.h"
 //#include "Geometry/CaloGeometry/interface/CaloCellGeometry.h"
 
 #include "FastSimulation/CaloHitMakers/interface/EcalHitMaker.h"

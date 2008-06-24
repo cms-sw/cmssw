@@ -8,9 +8,7 @@
 <use name=FastSimulation/Utilities>
 <use name=Geometry/CaloGeometry>
 <use name=Geometry/CaloTopology>
-<use name=Geometry/EcalBarrelAlgo>
-<use name=Geometry/EcalEndcapAlgo>
-<use name=Geometry/EcalPreshowerAlgo>
+<use name=Geometry/EcalAlgo>
 <use name=clhep>
 <use name=rootmath>
 <export>

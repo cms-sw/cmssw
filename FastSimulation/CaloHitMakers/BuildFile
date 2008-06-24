@@ -7,7 +7,7 @@
 <use name=FastSimulation/Event>
 <use name=FastSimulation/Utilities>
 <use name=Geometry/CaloTopology>
-<use name=Geometry/EcalPreshowerAlgo>
+<use name=Geometry/EcalAlgo>
 <use name=FWCore/MessageLogger>
 <use name=rootmath>
 <export>
