@@ -22,8 +22,8 @@ std::vector<reco::BasicCluster> CosmicClusterAlgo::makeClusters(
 				  const CaloSubdetectorTopology *topology_p,
 				  const CaloSubdetectorGeometry *geometryES_p,
 				  EcalPart ecalPart,
-				  const std::vector<int>& masked,
 				  const EcalIntercalibConstantMap& icalMap,
+				  const std::vector<int>& masked,
 				  bool regional,
 				  const std::vector<EcalEtaPhiRegion>& regions)
 {

@@ -57,8 +57,8 @@ class CosmicClusterAlgo
                                                const CaloSubdetectorTopology *topology_p,
                                                const CaloSubdetectorGeometry *geometryES_p,
                                                EcalPart ecalPart,
+											   const EcalIntercalibConstantMap& icalMap,
 											   const std::vector<int>& masked = std::vector<int>(),
-											   const EcalIntercalibConstantMap& icalMap = 1.0,
 					       bool regional = false,
 					       const std::vector<EcalEtaPhiRegion>& regions = std::vector<EcalEtaPhiRegion>());
 

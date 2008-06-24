@@ -182,7 +182,7 @@ void CosmicClusterProducer::clusterizeECALPart(edm::Event &evt, const edm::Event
 
   // Run the clusterization algorithm:
   reco::BasicClusterCollection clusters;
-  clusters = island_p->makeClusters(hitCollection_p, geometry_p, topology_p, geometryES_p,  ecalPart, maskedChannels_, icalMap);
+  clusters = island_p->makeClusters(hitCollection_p, geometry_p, topology_p, geometryES_p,  ecalPart, icalMap, maskedChannels_);
   
   //Create associated ClusterShape objects.
   std::vector <reco::ClusterShape> ClusVec;
