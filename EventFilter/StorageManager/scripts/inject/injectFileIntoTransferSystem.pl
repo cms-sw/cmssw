@@ -1,5 +1,5 @@
 #!/usr/bin/perl -w
-# $Id: injectFileIntoTransferSystem.pl,v 1.8 2008/06/16 10:38:06 loizides Exp $
+# $Id: injectFileIntoTransferSystem.pl,v 1.9 2008/06/16 10:59:41 loizides Exp $
 #
 # Written by Matt Rudolph June 2008
 #
@@ -30,10 +30,19 @@ sub usage
   $0 --help  : show this message
 
   --------------------------------------------------------------------------------------------
+<<<<<<< injectFileIntoTransferSystem.pl
+  $0 --check --filename=file
+  Check on the status of a file previously injected into the transfer system.
+  --------------------------------------------------------------------------------------------
+  Required parameters for injecting files to be transferred:
+  $0 --filename=file --path=path --filesize=size 
+                                    --type=type --hostname=host [--destination]
+=======
 
   Required parameters for injecting files to be transferred:
   $0 --filename file --path path --filesize size 
                                     --type type --hostname host [--destination default]
+>>>>>>> 1.9
  
   Filename, path, and filesize are self explanatory.
 
@@ -188,7 +197,6 @@ GetOptions(
 	  ) or usage;
 
 $help && usage;
-print "$destination\n";
 
 ############################################
 # Main starts here
@@ -211,27 +219,59 @@ $checksum    = checkOption($checksum);
 $comment =~ s/\'//g;
 $comment =~ s/\"//g;
 
+unless($filename) {
+    print "Error: No filename supplied, exiting \n";
+    usageShort();
+}
+
 # when $check is enabled, just want to query for a file and then exit
 if($check) {
-    my $SQLcheck = "select FILES_CREATED.FILENAME, FILES_INJECTED.FILENAME, FILES_TRANS_NEW.FILENAME," .
-        "FILES_TRANS_COPIED.FILENAME, FILES_TRANS_CHECKED.FILENAME from FILES_CREATED " .
-        "left outer join FILES_INJECTED      on FILES_CREATED.FILENAME=FILES_INJECTED.FILENAME " .
-        "left outer join FILES_TRANS_NEW     on FILES_CREATED.FILENAME=FILES_TRANS_NEW.FILENAME " .
-        "left outer join FILES_TRANS_COPIED  on FILES_CREATED.FILENAME=FILES_TRANS_COPIED.FILENAME " .
-        "left outer join FILES_TRANS_CHECKED on FILES_CREATED.FILENAME=FILES_TRANS_CHECKED.FILENAME " .
-        "where FILES_CREATED.FILENAME='$filename'";
+    my $SQLcheck = "select CMS_STOMGR.FILES_CREATED.FILENAME, CMS_STOMGR.FILES_INJECTED.FILENAME, CMS_STOMGR.FILES_TRANS_NEW.FILENAME," .
+        "CMS_STOMGR.FILES_TRANS_COPIED.FILENAME, CMS_STOMGR.FILES_TRANS_CHECKED.FILENAME from CMS_STOMGR.FILES_CREATED " .
+        "left outer join CMS_STOMGR.FILES_INJECTED      on CMS_STOMGR.FILES_CREATED.FILENAME=CMS_STOMGR.FILES_INJECTED.FILENAME " .
+        "left outer join CMS_STOMGR.FILES_TRANS_NEW     on CMS_STOMGR.FILES_CREATED.FILENAME=CMS_STOMGR.FILES_TRANS_NEW.FILENAME " .
+        "left outer join CMS_STOMGR.FILES_TRANS_COPIED  on CMS_STOMGR.FILES_CREATED.FILENAME=CMS_STOMGR.FILES_TRANS_COPIED.FILENAME " .
+        "left outer join CMS_STOMGR.FILES_TRANS_CHECKED on CMS_STOMGR.FILES_CREATED.FILENAME=CMS_STOMGR.FILES_TRANS_CHECKED.FILENAME " .
+        "where CMS_STOMGR.FILES_CREATED.FILENAME='$filename'";
 
-    print "$SQLcheck\n";
-    print "Work in progress\n";
+
+    # setup DB connection
+    my $dbi    = "DBI:Oracle:cms_rcms";
+    my $reader = "CMS_STOMGR_W";
+    $debug && print "Setting up DB connection for $dbi and $reader\n";
+    my $dbh = DBI->connect($dbi,$reader,"qwerty") or die("Error: Connection to Oracle DB failed");
+    $debug && print "DB connection set up succesfully \n";
+
+    $debug && print "Preparing check query: $SQLcheck \n";
+    my $checkHan = $dbh->prepare($SQLcheck) or die("Error: DB query prepare failed - $dbh->errstr \n");
+    
+    my $dbErr;
+    $debug && print "Querying tables for file status \n";
+    my $rowsCcheck = $checkHan->execute() or $dbErr=$checkHan->errstr;
+    if(defined($dbErr)) {
+	print "Error: Query failed.\n";
+	print "Error string from db was $dbErr\n";
+	exit;
+    }
+
+    #Get query result - array elements will be '' when file not in that table.
+    my @result = $checkHan->fetchrow_array;
+
+    unless($result[0]) {print "File not found in database.\n"; exit;}
+    unless($result[1]) {print "File inserted but not injected for transfer.\n"; exit;}
+    unless($result[2]) {print "File injected for transfer but not found in transfer system known files.\n"; exit;}
+    unless($result[3]) {print "File injected into transfer system but copy not completed.\n"; exit;}
+    unless($result[4]) {print "File copied but not yet checked.\n"; exit;}
+    if($result[0] && $result[1] && $result[2] && $result[3] && $result[4]) {print "File has been copied and checked successfully.\n";}
+    else {print "File has incorrect formatting in DB - this shouldn't happen.\n";}
+
     exit 1;
 }
 
 # filename, path, host and filesize must be correct or transfer will never work
 # first check to make sure all of these are set and exit if not
-unless($filename) {
-    print "Error: No filename supplied, exiting \n";
-    usageShort();
-}
+
+
 
 unless($pathname) {
     print "Error: No path supplied, exiting \n";
@@ -288,7 +328,6 @@ if($type eq "streamer") {
     usageShort();
 }
 
-# setuplabel used to be called DATASET in transfer system but name was misleading
 ($destination eq 'default') && $debug && print "No destination specified, default will be used \n";
 
 # will just use time now as creation and injection if no other time specified.
