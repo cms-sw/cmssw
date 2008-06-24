@@ -16,10 +16,9 @@ namespace edm {
 	ProcessHistoryID const& hist,
 	boost::shared_ptr<Mapper> mapper,
 	boost::shared_ptr<DelayedReader> rtrv) :
-	  Base(reg, pc, hist, rtrv),
+	  Base(reg, pc, hist, mapper, rtrv),
 	  aux_(aux),
 	  luminosityBlockPrincipal_(lbp),
-          branchMapperPtr_(mapper),
 	  unscheduledHandler_(),
 	  moduleLabelsRunning_(),
 	  eventHistory_() {
@@ -115,13 +114,13 @@ namespace edm {
 	<< "put: Cannot put product with null Product ID."
 	<< "\n";
     }
-    branchMapperPtr_->insert(*entryInfo);
+    branchMapperPtr()->insert(*entryInfo);
     this->addGroup(edp, bd, entryInfo);
   }
 
   BasicHandle
   EventPrincipal::getByProductID(ProductID const& oid) const {
-    BranchID bid = branchMapperPtr_->productToBranch(oid);
+    BranchID bid = branchMapperPtr()->productToBranch(oid);
     SharedConstGroupPtr const& g = getGroup(bid, true, true);
     if (g.get() == 0) {
       if (!oid.isValid()) {
@@ -174,7 +173,7 @@ namespace edm {
 
   Provenance
   EventPrincipal::getProvenance(ProductID const& pid) const {
-    BranchID bid = branchMapperPtr_->productToBranch(pid);
+    BranchID bid = branchMapperPtr()->productToBranch(pid);
     return getProvenance(bid);
   }
 
@@ -195,7 +194,7 @@ namespace edm {
   EventPrincipal::resolveProvenance(Group const& g) const {
     if (!g.entryInfoPtr()) {
       // Now fix up the Group
-      g.setProvenance(branchMapperPtr_->branchToEntryInfo(g.productDescription().branchID()));
+      g.setProvenance(branchMapperPtr()->branchToEntryInfo(g.productDescription().branchID()));
     }
   }
 

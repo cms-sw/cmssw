@@ -45,6 +45,7 @@
 #include "TClass.h"
 #include "Rtypes.h"
 
+#include <algorithm>
 #include <iomanip>
 #include <sstream>
 
@@ -100,6 +101,7 @@ namespace edm {
 
   RootOutputFile::RootOutputFile(PoolOutputModule *om, std::string const& fileName, std::string const& logicalFileName) :
       outputItemList_(), 
+      registryItems_(), 
       file_(fileName),
       logicalFile_(logicalFileName),
       reportToken_(0),
@@ -138,7 +140,7 @@ namespace edm {
                om_->basketSize(), om_->splitLevel(), om_->treeMaxVirtualSize()),
       treePointers_(),
       newFileAtEndOfRun_(false), 
-      dataTypeReported_(false)  {
+      dataTypeReported_(false) {
     treePointers_[InEvent] = &eventTree_;
     treePointers_[InLumi]  = &lumiTree_;
     treePointers_[InRun]   = &runTree_;
@@ -149,18 +151,14 @@ namespace edm {
       TTree * theTree = (branchType == InEvent ? om_->fileBlock_->tree() : 
 		        (branchType == InLumi ? om_->fileBlock_->lumiTree() :
                         om_->fileBlock_->runTree()));
-      fillItemList(om_->keptProducts()[branchType], om_->droppedProducts()[branchType], outputItemList_[branchType], theTree);
-      int nProductBranches = (theTree ? theTree->GetNbranches() - 1 : 0);
-      // itMarker Marks one past the end of the branches thast are in the input file.
-      // needed for fast cloning. 
-      OutputItemList::const_iterator itMarker = outputItemList_[branchType].begin() + nProductBranches;
+      fillItemList(branchType, theTree);
       for (OutputItemList::const_iterator it = outputItemList_[branchType].begin(),
 	  itEnd = outputItemList_[branchType].end();
 	  it != itEnd; ++it) {
 	treePointers_[branchType]->addBranch(*it->branchDescription_,
 					      it->selected_,
 					      it->product_,
-					      it < itMarker);
+					      !it->branchDescription_->produced());
       }
     }
     // Don't split metadata tree or event description tree
@@ -227,10 +225,11 @@ namespace edm {
 		      branchNames); // branch names being written
   }
 
-  void RootOutputFile::fillItemList(Selections const& keptVector,
-				    Selections const& droppedVector,
-				    OutputItemList & outputItemList,
-				    TTree * theTree) {
+  void RootOutputFile::fillItemList(BranchType branchType, TTree * theTree) {
+
+    Selections const& keptVector =    om_->keptProducts()[branchType];
+    Selections const& droppedVector = om_->droppedProducts()[branchType];
+    OutputItemList&   outputItemList = outputItemList_[branchType];
 
     // Fill outputItemList with an entry for each branch, including dropped branches.
     std::vector<std::string> const& renamed = om_->fileBlock_->sortedNewBranchNames();
@@ -238,16 +237,80 @@ namespace edm {
       BranchDescription const& prod = **it;
       outputItemList.push_back(OutputItem(&prod, true, binary_search_all(renamed, prod.branchName())));
     }
+
     for (Selections::const_iterator it = droppedVector.begin(), itEnd = droppedVector.end(); it != itEnd; ++it) {
       BranchDescription const& prod = **it;
       outputItemList.push_back(OutputItem(&prod, false, binary_search_all(renamed, prod.branchName())));
     }
+
+    pruneOutputItemList(branchType, *om_->fileBlock_);
     // Sort outputItemList to allow fast copying.
-    // meta is a pointer to the input XMetaData tree (X is Event, Run, or LuminosityBlock).
     // The branches in outputItemList must be in the same order as in the input tree, with all new branches at the end.
     sort_all(outputItemList, OutputItem::Sorter(theTree));
+
+    for(OutputItemList::const_iterator it = outputItemList.begin(), itEnd = outputItemList.end();
+        it != itEnd; ++it) {
+      registryItems_.insert(it->branchDescription_->branchID());
+    }
   }
 
+  // This is a predicate class. It is created using information from
+  // an OutputItemList (which specifies the set of data product
+  // branches that are being written), and BranchChildren (the lookup
+  // table used to determine what are the ancestors of a given
+  // branch).
+  class MatchItemWithoutPedigree {
+  public:
+    MatchItemWithoutPedigree(RootOutputFile::OutputItemList const& items, 
+			     BranchChildren const& lookup_table);
+
+    // Return true for those OutputItems we are to prune.
+    bool operator()(RootOutputFile::OutputItem const& item) const;
+  private:
+    // these are the ids of the provenances we shall keep.
+    std::vector<BranchID> keepers_;
+  };
+
+  MatchItemWithoutPedigree::MatchItemWithoutPedigree(RootOutputFile::OutputItemList const& items,
+						     BranchChildren const& lookup_table) {
+    // Get the BranchIDs for the data product branches we will write.
+    std::vector<BranchID> productBranches;
+    // If we had transform_copy_if, I'd use it here...
+    for (RootOutputFile::OutputItemList::const_iterator
+	   i = items.begin(),
+	   e = items.end();
+	 i != e;
+	 ++i)
+      {
+	if (i->selected()) productBranches.push_back(i->branchID());
+      }
+
+    // Go through the BranchIDs for the data product branches we will
+    // write, and get all the ancestors for each.
+    std::set<BranchID> allAncestors;
+    for (std::vector<BranchID>::iterator i=productBranches.begin(), e = productBranches.end(); i != e; ++i) {
+      lookup_table.appendToAncestors(*i, allAncestors);
+    }
+
+    // Save the results
+    std::vector<BranchID>(allAncestors.begin(), allAncestors.end()).swap(keepers_);
+  }
+
+  inline
+  bool
+  MatchItemWithoutPedigree::operator()(RootOutputFile::OutputItem const& item) const {
+    // We should prune the item if we do *not* recognize its BranchID
+    // as one we are to keep.
+    // We we must keep all items produced in this process,
+    // because we do not yet know the dependencies newly produced items.
+    return !binary_search_all(keepers_, item.branchID()) && !item.branchDescription_->produced();
+  }
+
+  void RootOutputFile::pruneOutputItemList(BranchType branchType, FileBlock const& inputFile) {
+    OutputItemList& items = outputItemList_[branchType];
+    MatchItemWithoutPedigree pred(items, inputFile.branchChildren());
+    items.erase(std::remove_if(items.begin(), items.end(), pred), items.end());
+  }
 
   void RootOutputFile::beginInputFile(FileBlock const& fb, bool fastClone) {
     currentlyFastCloning_ = om_->fastCloning() && fb.fastClonable() && fastClone;
@@ -448,7 +511,18 @@ namespace edm {
   }
 
   void RootOutputFile::writeProductDescriptionRegistry() { 
-    ProductRegistry& pReg = const_cast<ProductRegistry&>(om_->productRegistry());
+    // Make a local copy of the ProductRegistry, removing any transient or pruned products.
+    typedef ProductRegistry::ProductList ProductList;
+    edm::Service<edm::ConstProductRegistry> reg;
+    ProductRegistry pReg(reg->productList(), reg->nextID());
+    ProductList & pList  = const_cast<ProductList &>(pReg.productList());
+    std::set<BranchID>::iterator end = registryItems_.end();
+    for (ProductList::iterator it = pList.begin(), itEnd = pList.end(); it != itEnd; ++it) {
+      if (registryItems_.find(it->second.branchID()) == end) {
+	// avoid invalidating iterator on deletion
+	pList.erase(it--);
+      }
+    }
     ProductRegistry * ppReg = &pReg;
     TBranch* b = metaDataTree_->Branch(poolNames::productDescriptionBranchName().c_str(), &ppReg, om_->basketSize(), 0);
     assert(b);

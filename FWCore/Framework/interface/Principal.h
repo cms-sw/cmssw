@@ -26,6 +26,7 @@ pointer to a Group, when queried.
 #include "FWCore/Framework/interface/Frameworkfwd.h"
 #include "DataFormats/Provenance/interface/ProvenanceFwd.h"
 #include "DataFormats/Provenance/interface/BranchID.h"
+#include "DataFormats/Provenance/interface/BranchMapper.h"
 #include "DataFormats/Provenance/interface/EventEntryInfo.h"
 #include "DataFormats/Common/interface/EDProductGetter.h"
 #include "DataFormats/Provenance/interface/ProcessHistory.h"
@@ -38,6 +39,7 @@ namespace edm {
   class Principal : public EDProductGetter {
   public:
     typedef GroupT<T> Group;
+    typedef BranchMapper<T> Mapper;
     typedef std::map<BranchID, boost::shared_ptr<Group> > GroupCollection;
     typedef typename GroupCollection::const_iterator const_iterator;
     typedef ProcessHistory::const_iterator ProcessNameConstIterator;
@@ -51,6 +53,7 @@ namespace edm {
     Principal(boost::shared_ptr<ProductRegistry const> reg,
 	      ProcessConfiguration const& pc,
               ProcessHistoryID const& hist = ProcessHistoryID(),
+              boost::shared_ptr<Mapper> mapper = boost::shared_ptr<Mapper>(new Mapper),
               boost::shared_ptr<DelayedReader> rtrv = boost::shared_ptr<DelayedReader>(new NoDelayedReader));
 
     virtual ~Principal();
@@ -105,6 +108,8 @@ namespace edm {
     ProductRegistry const& productRegistry() const {return *preg_;}
 
     boost::shared_ptr<DelayedReader> store() const {return store_;}
+
+    boost::shared_ptr<Mapper> branchMapperPtr() const {return branchMapperPtr_;}
 
     // ----- Mark this Principal as having been updated in the
     // current Process.
@@ -175,6 +180,10 @@ namespace edm {
     // Pointer to the product registry. There is one entry in the registry
     // for each EDProduct in the event.
     boost::shared_ptr<ProductRegistry const> preg_;
+
+    // Pointer to the 'mapper' that will get provenance information
+    // from the persistent store.
+    boost::shared_ptr<Mapper> branchMapperPtr_;
 
     // Pointer to the 'source' that will be used to obtain EDProducts
     // from the persistent store.

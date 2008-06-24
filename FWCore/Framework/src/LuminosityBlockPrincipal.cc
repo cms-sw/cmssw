@@ -11,10 +11,9 @@ namespace edm {
 	ProcessHistoryID const& hist,
 	boost::shared_ptr<Mapper> mapper, 
 	boost::shared_ptr<DelayedReader> rtrv) :
-	  Base(reg, pc, hist, rtrv),
+	  Base(reg, pc, hist, mapper, rtrv),
 	  runPrincipal_(rp),
-	  aux_(aux),
-          branchMapperPtr_(mapper) {}
+	  aux_(aux) {}
 
   void
   LuminosityBlockPrincipal::addOrReplaceGroup(std::auto_ptr<Group> g) {
@@ -67,7 +66,7 @@ namespace edm {
 	<< "\n";
     }
     this->addToProcessHistory();
-    branchMapperPtr_->insert(*entryInfo);
+    branchMapperPtr()->insert(*entryInfo);
     // Group assumes ownership
     this->addGroup(edp, bd, entryInfo);
   }
@@ -110,7 +109,7 @@ namespace edm {
   LuminosityBlockPrincipal::resolveProvenance(Group const& g) const {
     if (!g.entryInfoPtr()) {
       // Now fix up the Group
-      g.setProvenance(branchMapperPtr_->branchToEntryInfo(g.productDescription(). branchID()));
+      g.setProvenance(branchMapperPtr()->branchToEntryInfo(g.productDescription(). branchID()));
     }
   }
 

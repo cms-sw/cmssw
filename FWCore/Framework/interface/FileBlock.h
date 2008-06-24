@@ -5,7 +5,7 @@
 
 FileBlock: Properties of an input file.
 
-$Id: FileBlock.h,v 1.8 2008/06/18 22:37:58 wmtan Exp $
+$Id: FileBlock.h,v 1.9 2008/06/19 22:37:01 paterno Exp $
 
 ----------------------------------------------------------------------*/
 
@@ -28,7 +28,7 @@ namespace edm {
       runTree_(0), runMetaTree_(0),
       fastCopyable_(false), fileName_(),
       sortedNewBranchNames_(), oldBranchNames_(),
-      branchChildren_() {}
+      branchChildren_(new BranchChildren) {}
 
     FileBlock(FileFormatVersion const& version,
 	      TTree const* ev, TTree const* meta,
@@ -61,12 +61,14 @@ namespace edm {
     TTree * const lumiMetaTree() const {return lumiMetaTree_;}
     TTree * const runTree() const {return runTree_;}
     TTree * const runMetaTree() const {return runMetaTree_;}
+
     bool fastClonable() const {return fastCopyable_;}
     std::string const& fileName() const {return fileName_;}
     std::vector<std::string> const& sortedNewBranchNames() const {return sortedNewBranchNames_;}
     std::vector<std::string> const& oldBranchNames() const {return oldBranchNames_;}
 
     void setNotFastCopyable() {fastCopyable_ = false;}
+    BranchChildren const& branchChildren() const { return *branchChildren_; }
 
   private:
     FileFormatVersion fileFormatVersion_;

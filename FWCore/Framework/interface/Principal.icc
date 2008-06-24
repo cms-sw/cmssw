@@ -27,6 +27,7 @@ namespace edm {
   Principal<T>::Principal(boost::shared_ptr<ProductRegistry const> reg,
 		       ProcessConfiguration const& pc,
 		       ProcessHistoryID const& hist,
+		       boost::shared_ptr<Mapper> mapper,
 		       boost::shared_ptr<DelayedReader> rtrv) :
     EDProductGetter(),
     processHistoryID_(hist),
@@ -35,6 +36,7 @@ namespace edm {
     processHistoryModified_(false),
     groups_(),
     preg_(reg),
+    branchMapperPtr_(mapper),
     store_(rtrv)
   {
     if (processHistoryID_.isValid()) {
@@ -457,6 +459,7 @@ namespace edm {
       groups_[*it].swap(other.groups_[*it]);
     }
     store_->mergeReaders(other.store());
+    branchMapperPtr_->mergeMappers(other.branchMapperPtr());
   }
 
   template <typename T>

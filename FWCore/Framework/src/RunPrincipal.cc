@@ -54,7 +54,7 @@ namespace edm {
 	<< "\n";
     }
     this->addToProcessHistory();
-    branchMapperPtr_->insert(*entryInfo);
+    branchMapperPtr()->insert(*entryInfo);
     // Group assumes ownership
     this->addGroup(edp, bd, entryInfo);
   }
@@ -97,7 +97,7 @@ namespace edm {
   RunPrincipal::resolveProvenance(Group const& g) const {
     if (!g.entryInfoPtr()) {
       // Now fix up the Group
-      g.setProvenance(branchMapperPtr_->branchToEntryInfo(g.productDescription().branchID()));
+      g.setProvenance(branchMapperPtr()->branchToEntryInfo(g.productDescription().branchID()));
     }
   }
 

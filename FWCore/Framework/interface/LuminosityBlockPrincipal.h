@@ -10,7 +10,7 @@ such code sees the LuminosityBlock class, which is a proxy for LuminosityBlockPr
 The major internal component of the LuminosityBlockPrincipal
 is the DataBlock.
 
-$Id: LuminosityBlockPrincipal.h,v 1.30 2008/05/12 18:14:07 wmtan Exp $
+$Id: LuminosityBlockPrincipal.h,v 1.31 2008/06/13 20:22:24 wdd Exp $
 
 ----------------------------------------------------------------------*/
 
@@ -117,9 +117,6 @@ namespace edm {
 
     boost::shared_ptr<RunPrincipal> runPrincipal_;
     LuminosityBlockAuxiliary aux_;
-
-    boost::shared_ptr<Mapper> branchMapperPtr_;
-
   };
 }
 #endif

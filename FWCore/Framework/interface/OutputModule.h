@@ -67,10 +67,6 @@ namespace edm {
 
     static void fillDescription(edm::ParameterSetDescription&);
 
-    ProductRegistry & productRegistry() {return *productRegistryPtr_;}
-
-    ProductRegistry const& productRegistry() const {return *productRegistryPtr_;}
-
     BranchChildren const& branchChildren() const {return branchChildren_;}
 
   protected:
@@ -156,8 +152,6 @@ namespace edm {
     // subsystem.
     ParameterSetID selector_config_id_; 
 
-    boost::scoped_ptr<ProductRegistry> productRegistryPtr_;
-
     typedef std::map<BranchID, std::set<EntryDescriptionID> > BranchParents;
     BranchParents branchParents_;
 
@@ -217,7 +211,7 @@ namespace edm {
     virtual void endLuminosityBlock(LuminosityBlockPrincipal const& lb){}
     virtual void writeLuminosityBlock(LuminosityBlockPrincipal const& lb) = 0;
     virtual void openFile(FileBlock const& fb) {}
-    virtual void respondToOpenInputFile(FileBlock const& fb);
+    virtual void respondToOpenInputFile(FileBlock const& fb) {}
     virtual void respondToCloseInputFile(FileBlock const& fb) {}
     virtual void respondToOpenOutputFiles(FileBlock const& fb) {}
     virtual void respondToCloseOutputFiles(FileBlock const& fb) {}

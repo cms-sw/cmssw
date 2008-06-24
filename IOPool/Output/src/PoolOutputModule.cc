@@ -1,4 +1,3 @@
-
 #include "IOPool/Output/src/PoolOutputModule.h"
 
 #include "FWCore/MessageLogger/interface/JobReport.h" 
@@ -57,7 +56,7 @@ namespace edm {
   }
 
   void PoolOutputModule::respondToOpenInputFile(FileBlock const& fb) {
-    fileBlock_ = const_cast<FileBlock *>(&fb);
+    fileBlock_ = &fb;
     if (isFileOpen()) {
       bool fastCloneThisOne = fb.tree() != 0 &&
                             (remainingEvents() < 0 || remainingEvents() >= fb.tree()->GetEntries());

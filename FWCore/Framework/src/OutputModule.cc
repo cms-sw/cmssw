@@ -131,7 +131,6 @@ namespace edm {
     wantAllEvents_(false),
     selectors_(),
     selector_config_id_(),
-    productRegistryPtr_(),
     branchParents_(),
     branchChildren_()
   {
@@ -400,17 +399,6 @@ namespace edm {
   }
 
   void OutputModule::reallyCloseFile() {
-    // Make a local copy of the ProductRegistry, removing any transient products.
-    typedef ProductRegistry::ProductList ProductList;
-    edm::Service<edm::ConstProductRegistry> reg;
-    productRegistryPtr_.reset(new ProductRegistry(reg->productList(), reg->nextID()));
-    ProductList & pList  = const_cast<ProductList &>(productRegistryPtr_->productList());
-    for (ProductList::iterator it = pList.begin(), itEnd = pList.end(); it != itEnd; ++it) {
-      if (it->second.transient()) {
-	// avoid invalidating iterator on deletion
-	pList.erase(it--);
-      }
-    }
     fillDependencyGraph();
     startEndFile();
     writeFileFormatVersion();
@@ -428,10 +416,6 @@ namespace edm {
     finishEndFile();
     branchParents_.clear();
     branchChildren_.clear();
-  }
-
-  void
-  OutputModule::respondToOpenInputFile(FileBlock const& fb) {
   }
 
   CurrentProcessingContext const*

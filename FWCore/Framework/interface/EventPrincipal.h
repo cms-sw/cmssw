@@ -155,8 +155,6 @@ namespace edm {
     EventAuxiliary aux_;
     boost::shared_ptr<LuminosityBlockPrincipal> luminosityBlockPrincipal_;
 
-    boost::shared_ptr<Mapper> branchMapperPtr_;
-
     // Handler for unscheduled modules
     boost::shared_ptr<UnscheduledHandler> unscheduledHandler_;
 

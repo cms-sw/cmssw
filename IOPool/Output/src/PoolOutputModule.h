@@ -70,7 +70,7 @@ namespace edm {
     int const splitLevel_;
     int const treeMaxVirtualSize_;
     bool fastCloning_;
-    FileBlock *fileBlock_;
+    FileBlock const*  fileBlock_;
     std::string const moduleLabel_;
     int fileCount_;
     boost::scoped_ptr<RootOutputFile> rootOutputFile_;

@@ -20,6 +20,7 @@
 #include "FWCore/Framework/interface/Frameworkfwd.h"
 #include "FWCore/MessageLogger/interface/JobReport.h"
 #include "DataFormats/Provenance/interface/BranchDescription.h"
+#include "DataFormats/Provenance/interface/BranchID.h"
 #include "DataFormats/Provenance/interface/BranchType.h"
 #include "DataFormats/Provenance/interface/FileID.h"
 #include "DataFormats/Provenance/interface/FileIndex.h"
@@ -65,10 +66,7 @@ namespace edm {
 
     bool isFileFull() const {return newFileAtEndOfRun_;}
 
-  private:
-    void setBranchAliases(TTree *tree, Selections const& branches) const;
 
-  private:
     struct OutputItem {
       class Sorter {
       public:
@@ -77,12 +75,19 @@ namespace edm {
       private:
         std::map<std::string, int> treeMap_;
       };
+
       OutputItem() : branchDescription_(0),
 	selected_(false), renamed_(false), product_(0) {}
+
       OutputItem(BranchDescription const* bd, bool sel, bool ren) :
 	branchDescription_(bd),
 	selected_(sel), renamed_(ren), product_(0) {}
+
       ~OutputItem() {}
+
+      BranchID branchID() const { return branchDescription_->branchID(); }
+      bool     selected() const { return selected_; }
+
 
       BranchDescription const* branchDescription_;
       bool selected_;
@@ -93,19 +98,34 @@ namespace edm {
         return *branchDescription_ < *rh.branchDescription_;
       }
     };
+
     typedef std::vector<OutputItem> OutputItemList;
+
+  private:
+
+    //-------------------------------
+    // Local types
+    //
+
     typedef boost::array<OutputItemList, NumBranchTypes> OutputItemListArray;
-    void fillItemList(Selections const& keptVector,
-		      Selections const& droppedVector,
-		      OutputItemList & outputItemList,
-		      TTree *theTree);
+
+    //-------------------------------
+    // Private functions
+
+    void setBranchAliases(TTree *tree, Selections const& branches) const;
+    void fillItemList(BranchType branchtype, TTree *theTree);
 
     template <typename T>
     void fillBranches(BranchType const& branchType, Principal<T> const& principal, std::vector<T> * entryInfoVecPtr);
 
-    void addEntryDescription(EntryDescription const& desc);
+    //    void addEntryDescription(EntryDescription const& desc);
+    void pruneOutputItemList(BranchType branchType, FileBlock const& inputFile);
+
+    //-------------------------------
+    // Member data
 
     OutputItemListArray outputItemList_;
+    std::set<BranchID> registryItems_;
     std::string file_;
     std::string logicalFile_;
     JobReport::Token reportToken_;
