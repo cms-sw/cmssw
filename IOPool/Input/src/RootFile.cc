@@ -229,15 +229,13 @@ namespace edm {
     for (ModuleDescriptionMap::const_iterator k = mdMap.begin(), kEnd = mdMap.end(); k != kEnd; ++k) {
       moduleDescriptionRegistry.insertMapped(k->second);
     } 
-
-    // Set up information from the product registry.
     ProductRegistry::ProductList & prodList  = const_cast<ProductRegistry::ProductList &>(productRegistry()->productList());
+
+    // Do drop on input
     for (ProductRegistry::ProductList::iterator it = prodList.begin(), itEnd = prodList.end();
         it != itEnd;) {
       BranchDescription const& prod = it->second;
       if(selected(prod)) {
-        treePointers_[prod.branchType()]->addBranch(it->first, prod,
-						    newBranchToOldBranch(prod.branchName()));
         ++it;
       } else {
         treePointers_[prod.branchType()]->dropBranch(newBranchToOldBranch(prod.branchName()));
@@ -245,6 +243,14 @@ namespace edm {
         ++it;
         prodList.erase(icopy);
       }
+    }
+
+    // Set up information from the product registry.
+    for (ProductRegistry::ProductList::iterator it = prodList.begin(), itEnd = prodList.end();
+        it != itEnd; ++it) {
+      BranchDescription const& prod = it->second;
+      treePointers_[prod.branchType()]->addBranch(it->first, prod,
+						  newBranchToOldBranch(prod.branchName()));
     }
 
     // Sort the EventID list the user supplied so that we can assume it is time ordered
