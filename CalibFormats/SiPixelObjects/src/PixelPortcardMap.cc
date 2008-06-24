@@ -62,7 +62,7 @@ PixelPortcardMap::PixelPortcardMap(std::vector< std::vector < std::string> > &ta
     modulename   = tableMat[r][colM["PANEL_NAME"]];
     aohstring    = tableMat[r][colM["AOH_CHAN"]];
     tbmChannel   = tableMat[r][colM["TBM_MODE"]] ;
-    cout 
+    cout << "[PixelPortcardMap::PixelPortcardMap()]\t\t\t    "
       << "Portcardname: " << portcardname
       << "\tmodulename: "   << modulename
       << "\taohstring: "    << aohstring
@@ -74,8 +74,8 @@ PixelPortcardMap::PixelPortcardMap(std::vector< std::vector < std::string> > &ta
     PixelModuleName module(modulename);
     if (module.modulename()!=modulename)
       {
-	std::cout << "Modulename:"<<modulename<<std::endl;
-	std::cout << "Parsed to:"<<module.modulename()<<std::endl;
+	std::cout << "[PixelPortcardMap::PixelPortcardMap()]\t\t\t    Modulename:"<<modulename<<std::endl;
+	std::cout << "[PixelPortcardMap::PixelPortcardMap()]\t\t\t    Parsed to:"<<module.modulename()<<std::endl;
 	assert(0);
       }
     if(tbmChannel == "")

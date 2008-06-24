@@ -21,7 +21,7 @@ using namespace pos;
 //added by Umesh
 PixelPortCardConfig::PixelPortCardConfig(vector < vector< string> >  &tableMat):PixelConfigBase(" "," "," ")
 {
-  string mthn = "[PixelPortCardConfig::PixelPortCardConfig()] " ;
+  string mthn = "[PixelPortCardConfig::PixelPortCardConfig()]\t\t    " ;
   map<string , int > colM;
   vector<string> colNames;
 
@@ -276,7 +276,7 @@ PixelPortCardConfig::PixelPortCardConfig(vector < vector< string> >  &tableMat):
     }
 
   portcardname_ = tableMat[1][colM["PORT_CARD"]] ;
-  cout << mthn << "\tLoading PortCard " << portcardname_ << endl ;
+  cout << mthn << "Loading PortCard " << portcardname_ << endl ;
   if(portcardname_.find("FPix") != std::string::npos)
     {
       type_ = "fpix" ;
@@ -318,14 +318,14 @@ PixelPortCardConfig::PixelPortCardConfig(vector < vector< string> >  &tableMat):
 	       && settingName.find("123") == string::npos && settingName.find("456") == string::npos ) // does not contain "123" or "456"
 	{
 	  setDataBaseAOHGain(settingName, i2c_values);
-	  cout << mthn << "\tSetting " << settingName << "\tto value " << std::hex << i2c_values << std::dec << std::endl ;
+	  cout << mthn << "Setting " << settingName << "\tto value " << std::hex << i2c_values << std::dec << std::endl ;
 	}
       else if(type_ == "bpix" && settingName.find("AOH") != string::npos && settingName.find("GAIN") != string::npos // contains both "AOH" and "Gain"
 	      && settingName.find("AOH_") == string::npos                                                            // must not contain AOH_ 'cause this is for forward
 	      && settingName.find("123")  == string::npos && settingName.find("456") == string::npos )               // does not contain "123" or "456"
 	{
 	  setDataBaseAOHGain(settingName, i2c_values);
-	  cout << mthn << "\tSetting " << settingName << "\tto value " << std::hex << i2c_values << std::dec << std::endl ;
+	  cout << mthn << "Setting " << settingName << "\tto value " << std::hex << i2c_values << std::dec << std::endl ;
 	}
       else // no special handling for this name
 	{
@@ -342,7 +342,7 @@ PixelPortCardConfig::PixelPortCardConfig(vector < vector< string> >  &tableMat):
 	      i2c_address = strtoul(settingName.c_str(), 0, 16); // convert string to integer using base 16
 	    }
 	  pair<unsigned int, unsigned int> p(i2c_address, i2c_values);
-	  cout << mthn << "\tSetting\t" << "|"<<settingName<<"|->"<<nameDBtoFileConversion_[settingName] 
+	  cout << mthn << "Setting\t" << "|"<<settingName<<"|->"<<nameDBtoFileConversion_[settingName] 
 	       << "\twith pair:\t(" 
 	       << i2c_address
 	       << ","
@@ -1091,7 +1091,7 @@ void PixelPortCardConfig::setdeviceValues(std::string settingName, unsigned int 
 
 unsigned int PixelPortCardConfig::getdeviceAddressForSetting(std::string settingName) const
 {
-  std::cout << "[PixelPortCardConfig::getdeviceAddressForSetting()] settingName: " << settingName<< std::endl ;
+  std::cout << "[PixelPortCardConfig::getdeviceAddressForSetting()]\t    settingName: " << settingName<< std::endl ;
   std::map<std::string, unsigned int>::const_iterator foundName_itr = nameToAddress_.find(settingName);
   assert( foundName_itr != nameToAddress_.end() );
   return foundName_itr->second;
