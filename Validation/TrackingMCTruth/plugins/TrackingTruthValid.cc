@@ -94,9 +94,9 @@ void TrackingTruthValid::analyze(const edm::Event& event, const edm::EventSetup&
 
   std::cout << "Using Collection " << src_ << std::endl;
   
-  const TrackingParticleCollection *tPC   = TruthTrackContainer.product();
+  TrackingParticleCollection *tPC   = const_cast<TrackingParticleCollection*>(TruthTrackContainer.product());
   const TrackingVertexCollection   *tVC   = TruthVertexContainer.product();
-
+  
   /*
   // Get and print HepMC event for comparison
   edm::Handle<edm::HepMCProduct> hepMC;
@@ -110,8 +110,8 @@ void TrackingTruthValid::analyze(const edm::Event& event, const edm::EventSetup&
 
 // Loop over TrackingParticle's
 
-  for (TrackingParticleCollection::const_iterator t = tPC -> begin(); t != tPC -> end(); ++t) {
-    //if(t -> trackPSimHit().size() ==0) cout << " Track with 0 SimHit " << endl;
+  for (TrackingParticleCollection::iterator t = tPC -> begin(); t != tPC -> end(); ++t) {
+    //if(t -> trackerPSimHit().size() ==0) cout << " Track with 0 SimHit " << endl;
 
 
     meTPMass->Fill(t->mass());
@@ -120,9 +120,9 @@ void TrackingTruthValid::analyze(const edm::Event& event, const edm::EventSetup&
     meTPPt->Fill(sqrt(t->momentum().perp2()));
     meTPEta->Fill(t->momentum().eta());
     meTPPhi->Fill(t->momentum().Phi());
-    meTPAllHits->Fill(t->trackPSimHit().size());
+    meTPAllHits->Fill(t->trackerPSimHit().size());
     //get the process of the first hit
-    if(t -> trackPSimHit().size() !=0) meTPProc->Fill( t -> trackPSimHit().front().processType());
+    if(t -> trackerPSimHit().size() !=0) meTPProc->Fill( t -> trackerPSimHit().front().processType());
     meTPMatchedHits->Fill(t->matchedHit());
     meTPVtxX->Fill(sqrt(t->vertex().x()));
     meTPVtxY->Fill(sqrt(t->vertex().y()));
@@ -141,10 +141,16 @@ void TrackingTruthValid::analyze(const edm::Event& event, const edm::EventSetup&
     if(t->mass() < 0) cout << "======= WARNING, this particle has negative mass: " << t->mass()  
 			   << " and pdgId: " << t->pdgId() << endl;
     if(t->pdgId() == 0) cout << "======= WARNING, this particle has pdgId = 0: "     << t->pdgId() << endl;
-    cout << " Hits for this track: " << t -> trackPSimHit().size() << endl;
+    cout << " Hits for this track: " << t -> trackerPSimHit().size() << endl;
     */
 
-
+    /*
+      std::cout << std::endl << "### Tracking Particle ###" << std::endl;
+      std::cout << (*t) << std::endl;
+      std::cout << "\t Tracker: " << t->trackerPSimHit().size() << std::endl;
+      std::cout << "\t Muon: "    << t->muonPSimHit().size()    << std::endl;
+      std::cout << (*t) << std::endl;
+    */
   }  // End loop over TrackingParticle
   
   // Loop over TrackingVertex's
