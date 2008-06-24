@@ -46,7 +46,10 @@
   <class name="std::vector<RPCPattern>"/>
 
   <class name="L1RPCConeBuilder"/>
+
   <class name="L1RPCHwConfig"/>
+  <class name="L1RPCDevCoords"/>
+  <class name="std::set<L1RPCDevCoords>"/>
 
   <class name="RPCdbData"/>
   <class name="RPCdbData::Item"/>

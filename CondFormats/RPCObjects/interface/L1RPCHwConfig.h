@@ -16,7 +16,7 @@
 //
 // Original Author:  
 //         Created:  Wed Apr  9 13:48:06 CEST 2008
-// $Id: L1RPCHwConfig.h,v 1.2 2008/04/10 13:39:12 fruboes Exp $
+// $Id: L1RPCHwConfig.h,v 1.3 2008/05/29 09:28:38 michals Exp $
 //
 
 // system include files
@@ -26,30 +26,39 @@
 // forward declarations
 #include <set>
 #include <vector>
+#include <sstream>
 
 #include <iostream>
 
 struct L1RPCDevCoords {
  public:
-  L1RPCDevCoords(): m_tower(0), m_PAC(255) {};
+  L1RPCDevCoords(): m_tower(-255), m_PAC(-255) {};
   L1RPCDevCoords(int tower, int sector, int segment): m_tower(tower), m_PAC(sector*12+segment) {};
   int getTower() {return m_tower;};
   int getPAC() {return m_PAC;};
   int getSector() {return m_PAC/12;};
   int getSegment() {return m_PAC%12;};
-  bool operator() (const L1RPCDevCoords & l1, const L1RPCDevCoords & l2 ) const{
-    if (l1.m_tower != l2.m_tower)
-       return l1.m_tower < l2.m_tower;
-    else
-       return l1.m_PAC < l2.m_PAC;
-  }; 
 
- private:
-// Type "a" is not supported ( CORAL : "AttributeList" from "CoralBase" ) 
-//   signed char m_tower;
-//   unsigned char m_PAC;
-   char m_tower;
-   char m_PAC;
+  std::string toString() const { 
+      std::stringstream ss;
+      ss << m_tower << " " << m_PAC;  
+      return ss.str();
+  };
+
+  bool operator<(const L1RPCDevCoords & l2 ) const{
+    if (this->m_tower != l2.m_tower)
+       return this->m_tower < l2.m_tower;
+    return this->m_PAC < l2.m_PAC;
+  }
+
+  bool operator==(const L1RPCDevCoords & l2) const{
+    return (this->m_tower == l2.m_tower) && (this->m_PAC == l2.m_PAC);
+  }
+ 
+
+ //private:
+   signed short m_tower;
+   signed short m_PAC;
 
 };
 
@@ -61,9 +70,11 @@ class L1RPCHwConfig
       L1RPCHwConfig();
       virtual ~L1RPCHwConfig();
 
+
+      
       bool isActive(int tower, int sector, int segment) const
            {
-             return m_disabledDevices.end()==m_disabledDevices.find( L1RPCDevCoords(tower, sector, segment) ); 
+             return m_disabledDevices.find( L1RPCDevCoords(tower, sector, segment) )==m_disabledDevices.end(); 
            };
 
       bool isActive(int tower, int PAC) const
@@ -82,6 +93,11 @@ class L1RPCHwConfig
       void enableAll(bool enable);
 
       int size() const {return m_disabledDevices.size(); } ;
+      void dump() const {
+         for(std::set<L1RPCDevCoords>::const_iterator it=m_disabledDevices.begin(); it!=m_disabledDevices.end();++it){
+           std::cout << it->toString() << std::endl;
+         }
+      };
 
       int getFirstBX() const {return m_firstBX;};
       int getLastBX() const {return m_lastBX;};
@@ -99,7 +115,7 @@ class L1RPCHwConfig
 
       int m_firstBX;
       int m_lastBX;
-      std::set<L1RPCDevCoords,L1RPCDevCoords > m_disabledDevices;
+      std::set<L1RPCDevCoords> m_disabledDevices;
 
       // ---------- member data --------------------------------
 
