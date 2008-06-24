@@ -1,6 +1,6 @@
 /*----------------------------------------------------------------------
   
-$Id: ProducerBase.cc,v 1.4 2007/06/29 03:43:21 wmtan Exp $
+$Id: ProducerBase.cc,v 1.5 2008/01/31 19:02:14 paterno Exp $
 
 ----------------------------------------------------------------------*/
 
@@ -61,21 +61,10 @@ namespace edm {
 
   void ProducerBase::registerProducts(boost::shared_ptr<ProducerBase> producer,
 				ProductRegistry* iReg,
-				ModuleDescription const& md,
-				bool throwIfNoProducts)
+				ModuleDescription const& md)
   {
     if (typeLabelList().empty() && registrationCallback().empty()) {
-      if (throwIfNoProducts) {
-        throw edm::Exception(errors::NoProductSpecified,"Producer")
-		<< "Module " << md.moduleName_
-		<< " did not specify that it produces a product.\n"
-		<< "The module constructor must call 'produces<T>(instanceName)'"
-		<< " for each product it produces.\nT is the product type.\n"
-		<< "'instanceName' is an optional string used to distinguish"
-		<< " multiple products of the same type.";
-      } else {
-        return;
-      }
+      return;
     }
     //If we have a callback, first tell the callback about all the entries already in the
     // product registry, then add any items this producer wants to add to the registry 

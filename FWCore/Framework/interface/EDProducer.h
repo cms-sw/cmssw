@@ -6,7 +6,7 @@
 EDProducer: The base class of "modules" whose main purpose is to insert new
 EDProducts into an Event.
 
-$Id: EDProducer.h,v 1.22 2008/01/15 06:51:45 wmtan Exp $
+$Id: EDProducer.h,v 1.23 2008/02/07 22:33:08 wmtan Exp $
 
 ----------------------------------------------------------------------*/
 
@@ -51,7 +51,7 @@ namespace edm {
     void doRespondToOpenOutputFiles(FileBlock const& fb);
     void doRespondToCloseOutputFiles(FileBlock const& fb);
     void registerAnyProducts(boost::shared_ptr<EDProducer>& module, ProductRegistry *reg) {
-      registerProducts(module, reg, moduleDescription_, true);
+      registerProducts(module, reg, moduleDescription_);
     }
 
     std::string workerType() const {return "WorkerT<EDProducer>";}

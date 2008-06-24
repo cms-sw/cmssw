@@ -6,7 +6,7 @@
 EDProducer: The base class of all "modules" that will insert new
 EDProducts into an Event.
 
-$Id: ProducerBase.h,v 1.4 2007/06/14 17:52:15 wmtan Exp $
+$Id: ProducerBase.h,v 1.5 2008/03/31 21:13:27 wmtan Exp $
 
 
 ----------------------------------------------------------------------*/
@@ -31,8 +31,7 @@ namespace edm {
 
     void registerProducts(boost::shared_ptr<ProducerBase>,
 			ProductRegistry *,
-			ModuleDescription const&,
-			bool throwIfNoProducts);
+			ModuleDescription const&);
 
     using ProductRegistryHelper::produces;
     using ProductRegistryHelper::typeLabelList;
