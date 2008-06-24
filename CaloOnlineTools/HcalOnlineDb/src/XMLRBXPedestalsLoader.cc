@@ -8,7 +8,7 @@
 //
 // Original Author:  Gena Kukartsev, kukarzev@fnal.gov
 //         Created:  Tue Oct 23 14:30:20 CDT 2007
-// $Id: XMLRBXPedestalsLoader.cc,v 1.1 2008/02/12 17:02:02 kukartse Exp $
+// $Id: XMLRBXPedestalsLoader.cc,v 1.2 2008/03/07 02:49:14 kukartse Exp $
 //
 
 // system include files
@@ -203,25 +203,25 @@ int XMLRBXPedestalsLoader::fixRbxName( string & rbx )
 int XMLRBXPedestalsLoader::init( void )
 {
   // define the <DATA/> template for pedestals and zero delays
-  static const char * _str =  "\\
-  <DATA>\n\\
-   <MODULE_POSITION>2</MODULE_POSITION>\n\\
-   <QIE_CARD_POSITION>1</QIE_CARD_POSITION>\n\\
-   <QIE_ADC_NUMBER>0</QIE_ADC_NUMBER>\n\\
-   <INTEGER_VALUE>4</INTEGER_VALUE>\n\\
-  </DATA>\n\\
+  static const char * _str =  "\
+  <DATA>\n\
+   <MODULE_POSITION>2</MODULE_POSITION>\n\
+   <QIE_CARD_POSITION>1</QIE_CARD_POSITION>\n\
+   <QIE_ADC_NUMBER>0</QIE_ADC_NUMBER>\n\
+   <INTEGER_VALUE>4</INTEGER_VALUE>\n\
+  </DATA>\n\
   ";
   const XMLByte * _template = (const XMLByte *)_str;
   _data_ped_delay = new MemBufInputSource( _template, strlen( (const char *)_template ), "_data_ped_delay", false );
 
   // define the <DATA/> template for gol currents
-  static const char * _str2 =  "\\
-  <DATA>\n\\
-   <MODULE_POSITION>2</MODULE_POSITION>\n\\
-   <QIE_CARD_POSITION>1</QIE_CARD_POSITION>\n\\
-   <FIBER_NUMBER>0</FIBER_NUMBER>\n\\
-   <INTEGER_VALUE>4</INTEGER_VALUE>\n\\
-  </DATA>\n\\
+  static const char * _str2 =  "\
+  <DATA>\n\
+   <MODULE_POSITION>2</MODULE_POSITION>\n\
+   <QIE_CARD_POSITION>1</QIE_CARD_POSITION>\n\
+   <FIBER_NUMBER>0</FIBER_NUMBER>\n\
+   <INTEGER_VALUE>4</INTEGER_VALUE>\n\
+  </DATA>\n\
   ";
   const XMLByte * _template2 = (const XMLByte *)_str2;
   _data_gol = new MemBufInputSource( _template2, strlen( (const char *)_template2 ), "_data_gol", false );
