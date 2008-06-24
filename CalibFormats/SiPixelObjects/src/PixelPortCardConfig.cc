@@ -21,7 +21,337 @@ using namespace pos;
 //added by Umesh
 PixelPortCardConfig::PixelPortCardConfig(vector < vector< string> >  &tableMat):PixelConfigBase(" "," "," ")
 {
-   fillNameToAddress();
+  string mthn = "[PixelPortCardConfig::PixelPortCardConfig()] " ;
+  map<string , int > colM;
+  vector<string> colNames;
+
+  /** 
+      View's name : CONF_KEY_PORTCARD_SETTINGS_MV
+
+      CONFIG_KEY_ID				NOT NULL NUMBER(38)
+      CONFIG_KEY				NOT NULL VARCHAR2(80)
+      VERSION                                            VARCHAR2(40)
+      CONDITION_DATA_SET_ID                     NOT NULL NUMBER(38)
+      KIND_OF_CONDITION_ID                      NOT NULL NUMBER(38)
+      KIND_OF_COND                              NOT NULL VARCHAR2(40)
+      SERIAL_NUMBER                                      VARCHAR2(40)
+      PORT_CARD_ID                                       NUMBER(38)
+      PORT_CARD                                 NOT NULL VARCHAR2(200)
+      TRKFEC_NAME                               NOT NULL VARCHAR2(200)
+      RINGADDRESS                                        VARCHAR2(40)
+      CHANNELADDRESS                                     NUMBER
+      CCUADDRESS                                         VARCHAR2(40)
+      I2C_CNTRL                                 NOT NULL NUMBER(38)
+      I2CSPEED                                           NUMBER(38)
+      AOH_BIAS1                                          NUMBER(38)
+      AOH_BIAS2                                          NUMBER(38)
+      AOH_BIAS3                                          NUMBER(38)
+      AOH_BIAS4                                          NUMBER(38)
+      AOH_BIAS5                                          NUMBER(38)
+      AOH_BIAS6                                          NUMBER(38)
+      AOH_GAIN1                                          NUMBER(38)
+      AOH_GAIN2                                          NUMBER(38)
+      AOH_GAIN3                                          NUMBER(38)
+      AOH_GAIN4                                          NUMBER(38)
+      AOH_GAIN5                                          NUMBER(38)
+      AOH_GAIN6                                          NUMBER(38)
+      AOH1_BIAS1                                         NUMBER(38)
+      AOH1_BIAS2                                         NUMBER(38)
+      AOH1_BIAS3                                         NUMBER(38)
+      AOH1_BIAS4                                         NUMBER(38)
+      AOH1_BIAS5                                         NUMBER(38)
+      AOH1_BIAS6                                         NUMBER(38)
+      AOH1_GAIN1                                         NUMBER(38)
+      AOH1_GAIN2                                         NUMBER(38)
+      AOH1_GAIN3                                         NUMBER(38)
+      AOH1_GAIN4                                         NUMBER(38)
+      AOH1_GAIN5                                         NUMBER(38)
+      AOH1_GAIN6                                         NUMBER(38)
+      AOH2_BIAS1                                         NUMBER(38)
+      AOH2_BIAS2                                         NUMBER(38)
+      AOH2_BIAS3                                         NUMBER(38)
+      AOH2_BIAS4                                         NUMBER(38)
+      AOH2_BIAS5                                         NUMBER(38)
+      AOH2_BIAS6                                         NUMBER(38)
+      AOH2_GAIN1                                         NUMBER(38)
+      AOH2_GAIN2                                         NUMBER(38)
+      AOH2_GAIN3                                         NUMBER(38)
+      AOH2_GAIN4                                         NUMBER(38)
+      AOH2_GAIN5                                         NUMBER(38)
+      AOH2_GAIN6                                         NUMBER(38)
+      AOH3_BIAS1                                         NUMBER(38)
+      AOH3_BIAS2                                         NUMBER(38)
+      AOH3_BIAS3                                         NUMBER(38)
+      AOH3_BIAS4                                         NUMBER(38)
+      AOH3_BIAS5                                         NUMBER(38)
+      AOH3_BIAS6                                         NUMBER(38)
+      AOH3_GAIN1                                         NUMBER(38)
+      AOH3_GAIN2                                         NUMBER(38)
+      AOH3_GAIN3                                         NUMBER(38)
+      AOH3_GAIN4                                         NUMBER(38)
+      AOH3_GAIN5                                         NUMBER(38)
+      AOH3_GAIN6                                         NUMBER(38)
+      AOH4_BIAS1                                         NUMBER(38)
+      AOH4_BIAS2                                         NUMBER(38)
+      AOH4_BIAS3                                         NUMBER(38)
+      AOH4_BIAS4                                         NUMBER(38)
+      AOH4_BIAS5                                         NUMBER(38)
+      AOH4_BIAS6                                         NUMBER(38)
+      AOH4_GAIN1                                         NUMBER(38)
+      AOH4_GAIN2                                         NUMBER(38)
+      AOH4_GAIN3                                         NUMBER(38)
+      AOH4_GAIN4                                         NUMBER(38)
+      AOH4_GAIN5                                         NUMBER(38)
+      AOH4_GAIN6                                         NUMBER(38)
+      AOH5_BIAS1                                         NUMBER(38)
+      AOH5_BIAS2                                         NUMBER(38)
+      AOH5_BIAS3                                         NUMBER(38)
+      AOH5_BIAS4                                         NUMBER(38)
+      AOH5_BIAS5                                         NUMBER(38)
+      AOH5_BIAS6                                         NUMBER(38)
+      AOH5_GAIN1                                         NUMBER(38)
+      AOH5_GAIN2                                         NUMBER(38)
+      AOH5_GAIN3                                         NUMBER(38)
+      AOH5_GAIN4                                         NUMBER(38)
+      AOH5_GAIN5                                         NUMBER(38)
+      AOH5_GAIN6                                         NUMBER(38)
+      AOH6_BIAS1                                         NUMBER(38)
+      AOH6_BIAS2                                         NUMBER(38)
+      AOH6_BIAS3                                         NUMBER(38)
+      AOH6_BIAS4                                         NUMBER(38)
+      AOH6_BIAS5                                         NUMBER(38)
+      AOH6_BIAS6                                         NUMBER(38)
+      AOH6_GAIN1                                         NUMBER(38)
+      AOH6_GAIN2                                         NUMBER(38)
+      AOH6_GAIN3                                         NUMBER(38)
+      AOH6_GAIN4                                         NUMBER(38)
+      AOH6_GAIN5                                         NUMBER(38)
+      AOH6_GAIN6                                         NUMBER(38)
+      DELAY25_GCR                               NOT NULL NUMBER(38)
+      DELAY25_SCL                               NOT NULL NUMBER(38)
+      DELAY25_TRG                               NOT NULL NUMBER(38)
+      DELAY25_SDA                               NOT NULL NUMBER(38)
+      DELAY25_RCL                               NOT NULL NUMBER(38)
+      DELAY25_RDA                               NOT NULL NUMBER(38)
+      DOH_BIAS0                                 NOT NULL NUMBER(38)
+      DOH_BIAS1                                 NOT NULL NUMBER(38)
+      DOH_SEU_GAIN                              NOT NULL NUMBER(38)
+      PLL_CTR1                                  NOT NULL NUMBER(38)
+      PLL_CTR2                                  NOT NULL NUMBER(38)
+      PLL_CTR3                                  NOT NULL NUMBER(38)
+      PLL_CTR4_5                                NOT NULL NUMBER(38)  
+  */
+
+  colNames.push_back("CONFIG_KEY_ID"           );
+  colNames.push_back("CONFIG_KEY"              );
+  colNames.push_back("VERSION"                 );
+  colNames.push_back("CONDITION_DATA_SET_ID"   );
+  colNames.push_back("KIND_OF_CONDITION_ID"    );
+  colNames.push_back("KIND_OF_COND"            );
+  colNames.push_back("SERIAL_NUMBER"           );
+  colNames.push_back("PORT_CARD_ID"            );
+  colNames.push_back("PORT_CARD"               );
+  colNames.push_back("TRKFEC_NAME"             );
+  colNames.push_back("RINGADDRESS"             );
+  colNames.push_back("CHANNELADDRESS"          );
+  colNames.push_back("CCUADDRESS"              );
+  colNames.push_back("I2C_CNTRL"               );
+  colNames.push_back("I2CSPEED"                );
+  colNames.push_back("AOH_BIAS1"               );
+  colNames.push_back("AOH_BIAS2"               );
+  colNames.push_back("AOH_BIAS3"               );
+  colNames.push_back("AOH_BIAS4"               );
+  colNames.push_back("AOH_BIAS5"               );
+  colNames.push_back("AOH_BIAS6"               );
+  colNames.push_back("AOH_GAIN1"               );
+  colNames.push_back("AOH_GAIN2"               );
+  colNames.push_back("AOH_GAIN3"               );
+  colNames.push_back("AOH_GAIN4"               );
+  colNames.push_back("AOH_GAIN5"               );
+  colNames.push_back("AOH_GAIN6"               );
+  colNames.push_back("AOH1_BIAS1"              );
+  colNames.push_back("AOH1_BIAS2"              );
+  colNames.push_back("AOH1_BIAS3"              );
+  colNames.push_back("AOH1_BIAS4"              );
+  colNames.push_back("AOH1_BIAS5"              );
+  colNames.push_back("AOH1_BIAS6"              );
+  colNames.push_back("AOH1_GAIN1"              );
+  colNames.push_back("AOH1_GAIN2"              );
+  colNames.push_back("AOH1_GAIN3"              );
+  colNames.push_back("AOH1_GAIN4"              );
+  colNames.push_back("AOH1_GAIN5"              );
+  colNames.push_back("AOH1_GAIN6"              );
+  colNames.push_back("AOH2_BIAS1"              );
+  colNames.push_back("AOH2_BIAS2"              );
+  colNames.push_back("AOH2_BIAS3"              );
+  colNames.push_back("AOH2_BIAS4"              );
+  colNames.push_back("AOH2_BIAS5"              );
+  colNames.push_back("AOH2_BIAS6"              );
+  colNames.push_back("AOH2_GAIN1"              );
+  colNames.push_back("AOH2_GAIN2"              );
+  colNames.push_back("AOH2_GAIN3"              );
+  colNames.push_back("AOH2_GAIN4"              );
+  colNames.push_back("AOH2_GAIN5"              );
+  colNames.push_back("AOH2_GAIN6"              );
+  colNames.push_back("AOH3_BIAS1"              );
+  colNames.push_back("AOH3_BIAS2"              );
+  colNames.push_back("AOH3_BIAS3"              );
+  colNames.push_back("AOH3_BIAS4"              );
+  colNames.push_back("AOH3_BIAS5"              );
+  colNames.push_back("AOH3_BIAS6"              );
+  colNames.push_back("AOH3_GAIN1"              );
+  colNames.push_back("AOH3_GAIN2"              );
+  colNames.push_back("AOH3_GAIN3"              );
+  colNames.push_back("AOH3_GAIN4"              );
+  colNames.push_back("AOH3_GAIN5"              );
+  colNames.push_back("AOH3_GAIN6"              );
+  colNames.push_back("AOH4_BIAS1"              );
+  colNames.push_back("AOH4_BIAS2"              );
+  colNames.push_back("AOH4_BIAS3"              );
+  colNames.push_back("AOH4_BIAS4"              );
+  colNames.push_back("AOH4_BIAS5"              );
+  colNames.push_back("AOH4_BIAS6"              );
+  colNames.push_back("AOH4_GAIN1"              );
+  colNames.push_back("AOH4_GAIN2"              );
+  colNames.push_back("AOH4_GAIN3"              );
+  colNames.push_back("AOH4_GAIN4"              );
+  colNames.push_back("AOH4_GAIN5"              );
+  colNames.push_back("AOH4_GAIN6"              );
+  colNames.push_back("AOH5_BIAS1"              );
+  colNames.push_back("AOH5_BIAS2"              );
+  colNames.push_back("AOH5_BIAS3"              );
+  colNames.push_back("AOH5_BIAS4"              );
+  colNames.push_back("AOH5_BIAS5"              );
+  colNames.push_back("AOH5_BIAS6"              );
+  colNames.push_back("AOH5_GAIN1"              );
+  colNames.push_back("AOH5_GAIN2"              );
+  colNames.push_back("AOH5_GAIN3"              );
+  colNames.push_back("AOH5_GAIN4"              );
+  colNames.push_back("AOH5_GAIN5"              );
+  colNames.push_back("AOH5_GAIN6"              );
+  colNames.push_back("AOH6_BIAS1"              );
+  colNames.push_back("AOH6_BIAS2"              );
+  colNames.push_back("AOH6_BIAS3"              );
+  colNames.push_back("AOH6_BIAS4"              );
+  colNames.push_back("AOH6_BIAS5"              );
+  colNames.push_back("AOH6_BIAS6"              );
+  colNames.push_back("AOH6_GAIN1"              );
+  colNames.push_back("AOH6_GAIN2"              );
+  colNames.push_back("AOH6_GAIN3"              );
+  colNames.push_back("AOH6_GAIN4"              );
+  colNames.push_back("AOH6_GAIN5"              );
+  colNames.push_back("AOH6_GAIN6"              );
+  colNames.push_back("DELAY25_GCR"             );
+  colNames.push_back("DELAY25_SCL"             );
+  colNames.push_back("DELAY25_TRG"             );
+  colNames.push_back("DELAY25_SDA"             );
+  colNames.push_back("DELAY25_RCL"             );
+  colNames.push_back("DELAY25_RDA"             );
+  colNames.push_back("DOH_BIAS0"               );
+  colNames.push_back("DOH_BIAS1"               );
+  colNames.push_back("DOH_SEU_GAIN"            );
+  colNames.push_back("PLL_CTR1"                );
+  colNames.push_back("PLL_CTR2"                );
+  colNames.push_back("PLL_CTR3"                );
+  colNames.push_back("PLL_CTR4_5"              );
+
+         
+  for(unsigned int c = 0 ; c < tableMat[0].size() ; c++)
+    {
+      for(unsigned int n=0; n<colNames.size(); n++)
+	{
+	  if(tableMat[0][c] == colNames[n]){
+	    colM[colNames[n]] = c;
+	    break;
+	  }
+	}
+    }//end for
+  for(unsigned int n=0; n<colNames.size(); n++)
+    {
+      if(colM.find(colNames[n]) == colM.end())
+	{
+	  std::cerr << mthn << "\tCouldn't find in the database the column with name " << colNames[n] << std::endl;
+	  assert(0);
+	}
+    }
+
+  portcardname_ = tableMat[1][colM["PORT_CARD"]] ;
+  cout << mthn << "\tLoading PortCard " << portcardname_ << endl ;
+  if(portcardname_.find("FPix") != std::string::npos)
+    {
+      type_ = "fpix" ;
+    }
+  else if(portcardname_.find("FPix") != std::string::npos)
+    {
+      type_ = "bpix" ;
+    }
+  fillNameToAddress();
+  fillDBToFileAddress() ;
+  
+  TKFECID_ = tableMat[1][colM["TRKFEC_NAME"]];
+//   01234567890123
+//   FPix_Trk_FEC_1
+  TKFECID_.replace(0,13, "tkfec") ;
+  ringAddress_    = atoi(tableMat[1][colM["RINGADDRESS"]].c_str()    ) ;
+  ccuAddress_	  = atoi(tableMat[1][colM["CCUADDRESS"]].c_str()     ) ;
+  channelAddress_ = atoi(tableMat[1][colM["CHANNELADDRESS"]].c_str() ) ;
+  i2cSpeed_       = atoi(tableMat[1][colM["I2CSPEED"]].c_str()       ) ;
+
+  cout << mthn << 
+    "ringAddress_\t"    << ringAddress_	    << endl <<
+    "ccuAddress_\t"     << ccuAddress_	    << endl <<
+    "channelAddress_\t" << channelAddress_  << endl <<
+    "i2cSpeed_\t"	<< i2cSpeed_        << endl ;
+  
+
+  for(unsigned int col = 0 ; col < tableMat[1].size() ; col++)    //Goes to every column of the Matrix
+    {
+      std::string settingName;
+      unsigned int i2c_address;
+      unsigned int i2c_values;
+      
+      settingName = tableMat[0][col] ;
+      i2c_values  = atoi(tableMat[1][col].c_str()) ;
+      
+      // Special handling for AOHX_GainY
+      if( type_ == "fpix" && settingName.find("AOH_") != string::npos && settingName.find("GAIN") != string::npos // contains both "AOH_" and "Gain"
+	       && settingName.find("123") == string::npos && settingName.find("456") == string::npos ) // does not contain "123" or "456"
+	{
+	  setDataBaseAOHGain(settingName, i2c_values);
+	  cout << mthn << "\tSetting " << settingName << "\tto value " << std::hex << i2c_values << std::dec << std::endl ;
+	}
+      else if(type_ == "bpix" && settingName.find("AOH") != string::npos && settingName.find("GAIN") != string::npos // contains both "AOH" and "Gain"
+	      && settingName.find("AOH_") == string::npos                                                            // must not contain AOH_ 'cause this is for forward
+	      && settingName.find("123")  == string::npos && settingName.find("456") == string::npos )               // does not contain "123" or "456"
+	{
+	  setDataBaseAOHGain(settingName, i2c_values);
+	  cout << mthn << "\tSetting " << settingName << "\tto value " << std::hex << i2c_values << std::dec << std::endl ;
+	}
+      else // no special handling for this name
+	{
+	  map<string,string>::iterator iter = nameDBtoFileConversion_.find(settingName);
+	  if(iter == nameDBtoFileConversion_.end()) continue ;
+	  map<string, unsigned int>::iterator foundName_itr = nameToAddress_.find(nameDBtoFileConversion_[settingName]);
+	  
+	  if ( foundName_itr != nameToAddress_.end() )
+	    {
+	      i2c_address = foundName_itr->second;
+	    }
+	  else
+	    {
+	      i2c_address = strtoul(settingName.c_str(), 0, 16); // convert string to integer using base 16
+	    }
+	  pair<unsigned int, unsigned int> p(i2c_address, i2c_values);
+	  cout << mthn << "\tSetting\t" << "|"<<settingName<<"|->"<<nameDBtoFileConversion_[settingName] 
+	       << "\twith pair:\t(" 
+	       << i2c_address
+	       << ","
+	       << i2c_values
+	       << ")"
+	       << endl ;
+	  device_.push_back(p);
+	}
+    } // End of table columns
 }
 
 //++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
@@ -118,7 +448,7 @@ PixelPortCardConfig::PixelPortCardConfig(std::string filename):
     		i2c_address = strtoul(settingName.c_str(), 0, 16); // convert string to integer using base 16
     	}
     	pair<unsigned int, unsigned int> p(i2c_address, i2c_values);
-      device_.push_back(p);
+	device_.push_back(p);
     }
   }
   while (!in.eof());
@@ -145,6 +475,74 @@ void PixelPortCardConfig::setAOHGain(std::string settingName, unsigned int value
 	string::size_type GainPosition = settingName.find("Gain");
 	unsigned int whichAOH;
 	if ( settingName[GainPosition-2] == 'H' ) whichAOH = 0; // fpix
+	else  // bpix
+	{
+		char whichAOHDigit[2]={0,0};
+		whichAOHDigit[0]=settingName[GainPosition-2];
+		whichAOH = atoi( whichAOHDigit );
+	}
+	char digit[2]={0,0};
+	digit[0]=settingName[GainPosition+4];
+	unsigned int channelOnAOH = atoi( digit );
+	assert( (type_=="fpix" && whichAOH==0)||(type_=="bpix" && 1 <= whichAOH&&whichAOH <= 4) );
+	assert( 1 <= channelOnAOH && channelOnAOH <= 6 );
+	
+	if      ( whichAOH == 0 && channelOnAOH <= 3 ) i2c_address = k_fpix_AOH_Gain123_address;
+	else if ( whichAOH == 0 && channelOnAOH >= 4 ) i2c_address = k_fpix_AOH_Gain456_address;
+	else if ( whichAOH == 1 && channelOnAOH <= 3 ) i2c_address = k_bpix_AOH1_Gain123_address;
+	else if ( whichAOH == 1 && channelOnAOH >= 4 ) i2c_address = k_bpix_AOH1_Gain456_address;
+	else if ( whichAOH == 2 && channelOnAOH <= 3 ) i2c_address = k_bpix_AOH2_Gain123_address;
+	else if ( whichAOH == 2 && channelOnAOH >= 4 ) i2c_address = k_bpix_AOH2_Gain456_address;
+	else if ( whichAOH == 3 && channelOnAOH <= 3 ) i2c_address = k_bpix_AOH3_Gain123_address;
+	else if ( whichAOH == 3 && channelOnAOH >= 4 ) i2c_address = k_bpix_AOH3_Gain456_address;
+	else if ( whichAOH == 4 && channelOnAOH <= 3 ) i2c_address = k_bpix_AOH4_Gain123_address;
+	else if ( whichAOH == 4 && channelOnAOH >= 4 ) i2c_address = k_bpix_AOH4_Gain456_address;
+	else assert(0);
+	
+	// Search for this address in the previously-defined settings.
+	bool foundOne = false;
+	for (unsigned int i=0;i<device_.size();i++)
+	{
+		if ( device_[i].first == i2c_address ) // Change this setting in all previous instances
+		{
+			foundOne = true;
+			unsigned int oldValue = device_[i].second;
+			if      ( channelOnAOH%3 == 1 )
+				device_[i].second = (0x3c & oldValue) + ((value & 0x3)<<0); // replace bits 0 and 1 with value
+			else if ( channelOnAOH%3 == 2 )
+				device_[i].second = (0x33 & oldValue) + ((value & 0x3)<<2); // replace bits 2 and 3 with value
+			else if ( channelOnAOH%3 == 0 )
+				device_[i].second = (0x0f & oldValue) + ((value & 0x3)<<4); // replace bits 4 and 5 with value
+			else assert(0);
+			//std::cout << "Changed setting "<< k_fpix_AOH_Gain123 <<"(address 0x"<<std::hex<<k_fpix_AOH_Gain123_address<<") from 0x"<<oldValue<<" to 0x"<< device_[i].second << std::dec <<"\n";
+		}
+	}
+	if ( foundOne ) return;
+	else // If this was not set previously, add this setting with the other two gains set to zero.
+	{
+		unsigned int i2c_value;
+		if      ( channelOnAOH%3 == 1 ) i2c_value  = ((value & 0x3)<<0);
+		else if ( channelOnAOH%3 == 2 ) i2c_value  = ((value & 0x3)<<2);
+		else if ( channelOnAOH%3 == 0 ) i2c_value  = ((value & 0x3)<<4);
+		else assert(0);
+		
+		pair<unsigned int, unsigned int> p(i2c_address, i2c_value);
+		device_.push_back(p);
+		return;
+	}
+}
+
+void PixelPortCardConfig::setDataBaseAOHGain(std::string settingName, unsigned int value)
+{
+	unsigned int i2c_address;
+	
+	// Get the i2c address of this AOH, and the channel on the AOH.
+	string::size_type GainPosition = settingName.find("GAIN");
+	unsigned int whichAOH;
+	if(type_ == "fpix")
+	  {
+	    whichAOH = 0 ; // fpix
+	  }
 	else  // bpix
 	{
 		char whichAOHDigit[2]={0,0};
@@ -293,6 +691,251 @@ void PixelPortCardConfig::fillNameToAddress()
 	
 	return;
 }
+
+void PixelPortCardConfig::fillDBToFileAddress()
+{
+  if(type_ == "fpix")
+    {
+      //   nameDBtoFileConversion_["CONFIG_KEY_ID"         ] = ;
+      //   nameDBtoFileConversion_["CONFIG_KEY"            ] = ;
+      //   nameDBtoFileConversion_["VERSION"               ] = ;
+      //   nameDBtoFileConversion_["CONDITION_DATA_SET_ID" ] = ;
+      //   nameDBtoFileConversion_["KIND_OF_CONDITION_ID"  ] = ;
+      //   nameDBtoFileConversion_["KIND_OF_COND"          ] = ;
+      //   nameDBtoFileConversion_["SERIAL_NUMBER"         ] = ;
+      //   nameDBtoFileConversion_["PORT_CARD_ID"          ] = ;
+      //   nameDBtoFileConversion_["PORT_CARD"             ] = ;
+      //   nameDBtoFileConversion_["TRKFEC_NAME"           ] = ;
+      //   nameDBtoFileConversion_["RINGADDRESS"           ] = ;
+      //   nameDBtoFileConversion_["CHANNELADDRESS"        ] = ;
+      //   nameDBtoFileConversion_["CCUADDRESS"            ] = ;
+      //   nameDBtoFileConversion_["I2C_CNTRL"             ] = ;
+      //   nameDBtoFileConversion_["I2CSPEED"              ] = ;
+      nameDBtoFileConversion_["AOH_BIAS1"		  ] = k_AOH_Bias1  ;
+      nameDBtoFileConversion_["AOH_BIAS2"		  ] = k_AOH_Bias2  ;
+      nameDBtoFileConversion_["AOH_BIAS3"		  ] = k_AOH_Bias3  ;
+      nameDBtoFileConversion_["AOH_BIAS4"		  ] = k_AOH_Bias4  ;
+      nameDBtoFileConversion_["AOH_BIAS5"		  ] = k_AOH_Bias5  ;
+      nameDBtoFileConversion_["AOH_BIAS6"		  ] = k_AOH_Bias6  ;
+      //       nameDBtoFileConversion_["AOH1_BIAS1"            ] = k_AOH1_Bias1 ;
+      //       nameDBtoFileConversion_["AOH1_BIAS2"		  ] = k_AOH1_Bias2 ;
+      //       nameDBtoFileConversion_["AOH1_BIAS3"		  ] = k_AOH1_Bias3 ;
+      //       nameDBtoFileConversion_["AOH1_BIAS4"		  ] = k_AOH1_Bias4 ;
+      //       nameDBtoFileConversion_["AOH1_BIAS5"		  ] = k_AOH1_Bias5 ;
+      //       nameDBtoFileConversion_["AOH1_BIAS6"		  ] = k_AOH1_Bias6 ;
+      //   nameDBtoFileConversion_["AOH1_GAIN1"            ] = ;
+      //   nameDBtoFileConversion_["AOH1_GAIN2"            ] = ;
+      //   nameDBtoFileConversion_["AOH1_GAIN3"            ] = ;
+      //   nameDBtoFileConversion_["AOH1_GAIN4"            ] = ;
+      //   nameDBtoFileConversion_["AOH1_GAIN5"            ] = ;
+      //   nameDBtoFileConversion_["AOH1_GAIN6"            ] = ;
+      //       nameDBtoFileConversion_["AOH2_BIAS1"            ] = k_AOH2_Bias1 ;
+      //       nameDBtoFileConversion_["AOH2_BIAS2"		  ] = k_AOH2_Bias2 ;
+      //       nameDBtoFileConversion_["AOH2_BIAS3"		  ] = k_AOH2_Bias3 ;
+      //       nameDBtoFileConversion_["AOH2_BIAS4"		  ] = k_AOH2_Bias4 ;
+      //       nameDBtoFileConversion_["AOH2_BIAS5"		  ] = k_AOH2_Bias5 ;
+      //       nameDBtoFileConversion_["AOH2_BIAS6"		  ] = k_AOH2_Bias6 ;
+      //   nameDBtoFileConversion_["AOH2_GAIN1"            ] = ;
+      //   nameDBtoFileConversion_["AOH2_GAIN2"            ] = ;
+      //   nameDBtoFileConversion_["AOH2_GAIN3"            ] = ;
+      //   nameDBtoFileConversion_["AOH2_GAIN4"            ] = ;
+      //   nameDBtoFileConversion_["AOH2_GAIN5"            ] = ;
+      //   nameDBtoFileConversion_["AOH2_GAIN6"            ] = ;
+      //       nameDBtoFileConversion_["AOH3_BIAS1"            ] = k_AOH3_Bias1 ;
+      //       nameDBtoFileConversion_["AOH3_BIAS2"		  ] = k_AOH3_Bias2 ;
+      //       nameDBtoFileConversion_["AOH3_BIAS3"		  ] = k_AOH3_Bias3 ;
+      //       nameDBtoFileConversion_["AOH3_BIAS4"		  ] = k_AOH3_Bias4 ;
+      //       nameDBtoFileConversion_["AOH3_BIAS5"		  ] = k_AOH3_Bias5 ;
+      //       nameDBtoFileConversion_["AOH3_BIAS6"		  ] = k_AOH3_Bias6 ;
+      //   nameDBtoFileConversion_["AOH3_GAIN1"            ] = ;
+      //   nameDBtoFileConversion_["AOH3_GAIN2"            ] = ;
+      //   nameDBtoFileConversion_["AOH3_GAIN3"            ] = ;
+      //   nameDBtoFileConversion_["AOH3_GAIN4"            ] = ;
+      //   nameDBtoFileConversion_["AOH3_GAIN5"            ] = ;
+      //   nameDBtoFileConversion_["AOH3_GAIN6"            ] = ;
+      //       nameDBtoFileConversion_["AOH4_BIAS1"            ] = k_AOH4_Bias1 ;
+      //       nameDBtoFileConversion_["AOH4_BIAS2"		  ] = k_AOH4_Bias2 ;
+      //       nameDBtoFileConversion_["AOH4_BIAS3"		  ] = k_AOH4_Bias3 ;
+      //       nameDBtoFileConversion_["AOH4_BIAS4"		  ] = k_AOH4_Bias4 ;
+      //       nameDBtoFileConversion_["AOH4_BIAS5"		  ] = k_AOH4_Bias5 ;
+      //       nameDBtoFileConversion_["AOH4_BIAS6"		  ] = k_AOH4_Bias6 ;
+      //   nameDBtoFileConversion_["AOH4_GAIN1"            ] = ;
+      //   nameDBtoFileConversion_["AOH4_GAIN2"            ] = ;
+      //   nameDBtoFileConversion_["AOH4_GAIN3"            ] = ;
+      //   nameDBtoFileConversion_["AOH4_GAIN4"            ] = ;
+      //   nameDBtoFileConversion_["AOH4_GAIN5"            ] = ;
+      //   nameDBtoFileConversion_["AOH4_GAIN6"            ] = ;
+      //   nameDBtoFileConversion_["AOH5_BIAS1"            ] = ;
+      //   nameDBtoFileConversion_["AOH5_BIAS2"            ] = ;
+      //   nameDBtoFileConversion_["AOH5_BIAS3"            ] = ;
+      //   nameDBtoFileConversion_["AOH5_BIAS4"            ] = ;
+      //   nameDBtoFileConversion_["AOH5_BIAS5"            ] = ;
+      //   nameDBtoFileConversion_["AOH5_BIAS6"            ] = ;
+      //   nameDBtoFileConversion_["AOH5_GAIN1"            ] = ;
+      //   nameDBtoFileConversion_["AOH5_GAIN2"            ] = ;
+      //   nameDBtoFileConversion_["AOH5_GAIN3"            ] = ;
+      //   nameDBtoFileConversion_["AOH5_GAIN4"            ] = ;
+      //   nameDBtoFileConversion_["AOH5_GAIN5"            ] = ;
+      //   nameDBtoFileConversion_["AOH5_GAIN6"            ] = ;
+      //   nameDBtoFileConversion_["AOH6_BIAS1"            ] = ;
+      //   nameDBtoFileConversion_["AOH6_BIAS2"            ] = ;
+      //   nameDBtoFileConversion_["AOH6_BIAS3"            ] = ;
+      //   nameDBtoFileConversion_["AOH6_BIAS4"            ] = ;
+      //   nameDBtoFileConversion_["AOH6_BIAS5"            ] = ;
+      //   nameDBtoFileConversion_["AOH6_BIAS6"            ] = ;
+      //   nameDBtoFileConversion_["AOH6_GAIN1"            ] = ;
+      //   nameDBtoFileConversion_["AOH6_GAIN2"            ] = ;
+      //   nameDBtoFileConversion_["AOH6_GAIN3"            ] = ;
+      //   nameDBtoFileConversion_["AOH6_GAIN4"            ] = ;
+      //   nameDBtoFileConversion_["AOH6_GAIN5"            ] = ;
+      //   nameDBtoFileConversion_["AOH6_GAIN6"            ] = ;
+      nameDBtoFileConversion_["DELAY25_GCR"              ] = k_Delay25_RDA ;
+      nameDBtoFileConversion_["DELAY25_SCL"              ] = k_Delay25_RCL ;
+      nameDBtoFileConversion_["DELAY25_TRG"              ] = k_Delay25_SDA ;
+      nameDBtoFileConversion_["DELAY25_SDA"              ] = k_Delay25_TRG ;
+      nameDBtoFileConversion_["DELAY25_RCL"              ] = k_Delay25_SCL ;
+      nameDBtoFileConversion_["DELAY25_RDA"              ] = k_Delay25_GCR ;
+      //   nameDBtoFileConversion_["DEL3_GCR"              ] = ;
+      //   nameDBtoFileConversion_["DEL3_SCL"              ] = ;
+      //   nameDBtoFileConversion_["DEL3_TRG"              ] = ;
+      //   nameDBtoFileConversion_["DEL3_SDA"              ] = ;
+      //   nameDBtoFileConversion_["DEL3_RCL"              ] = ;
+      //   nameDBtoFileConversion_["DEL3_RDA"              ] = ;
+      nameDBtoFileConversion_["DOH_BIAS0"                ] = k_DOH_Ch0Bias_CLK  ;
+      nameDBtoFileConversion_["DOH_BIAS1"                ] = k_DOH_Ch1Bias_Data ;
+      nameDBtoFileConversion_["DOH_SEU_GAIN"             ] = k_DOH_Gain_SEU     ;
+      //   nameDBtoFileConversion_["DOH3_BIAS0"            ] =  ;
+      //   nameDBtoFileConversion_["DOH3_BIAS1"            ] =  ;
+      //   nameDBtoFileConversion_["DOH3_SEU_GAIN"         ] =  ;
+      nameDBtoFileConversion_["PLL_CTR1"                 ] = k_PLL_CTR1 ;
+      nameDBtoFileConversion_["PLL_CTR2"                 ] = k_PLL_CTR2 ;
+      nameDBtoFileConversion_["PLL_CTR3"                 ] = k_PLL_CTR3 ;
+      nameDBtoFileConversion_["PLL_CTR4_5"               ] = k_PLL_CTR4 ;
+      //   nameDBtoFileConversion_["PLL3_CTR1"             ] = ;
+      //   nameDBtoFileConversion_["PLL3_CTR2"             ] = ;
+      //   nameDBtoFileConversion_["PLL3_CTR3"             ] = ;
+      //   nameDBtoFileConversion_["PLL3_CTR4_5"           ] = ;
+    }
+  else if(type_ == "bpix")
+    {
+      //   nameDBtoFileConversion_["CONFIG_KEY_ID"         ] = ;
+      //   nameDBtoFileConversion_["CONFIG_KEY"            ] = ;
+      //   nameDBtoFileConversion_["VERSION"               ] = ;
+      //   nameDBtoFileConversion_["CONDITION_DATA_SET_ID" ] = ;
+      //   nameDBtoFileConversion_["KIND_OF_CONDITION_ID"  ] = ;
+      //   nameDBtoFileConversion_["KIND_OF_COND"          ] = ;
+      //   nameDBtoFileConversion_["SERIAL_NUMBER"         ] = ;
+      //   nameDBtoFileConversion_["PORT_CARD_ID"          ] = ;
+      //   nameDBtoFileConversion_["PORT_CARD"             ] = ;
+      //   nameDBtoFileConversion_["TRKFEC_NAME"           ] = ;
+      //   nameDBtoFileConversion_["RINGADDRESS"           ] = ;
+      //   nameDBtoFileConversion_["CHANNELADDRESS"        ] = ;
+      //   nameDBtoFileConversion_["CCUADDRESS"            ] = ;
+      //   nameDBtoFileConversion_["I2C_CNTRL"             ] = ;
+      //   nameDBtoFileConversion_["I2CSPEED"              ] = ;
+      nameDBtoFileConversion_["AOH1_BIAS1"            ] = k_AOH1_Bias1 ;
+      nameDBtoFileConversion_["AOH1_BIAS2"		  ] = k_AOH1_Bias2 ;
+      nameDBtoFileConversion_["AOH1_BIAS3"		  ] = k_AOH1_Bias3 ;
+      nameDBtoFileConversion_["AOH1_BIAS4"		  ] = k_AOH1_Bias4 ;
+      nameDBtoFileConversion_["AOH1_BIAS5"		  ] = k_AOH1_Bias5 ;
+      nameDBtoFileConversion_["AOH1_BIAS6"		  ] = k_AOH1_Bias6 ;
+      //   nameDBtoFileConversion_["AOH1_GAIN1"            ] = ;
+      //   nameDBtoFileConversion_["AOH1_GAIN2"            ] = ;
+      //   nameDBtoFileConversion_["AOH1_GAIN3"            ] = ;
+      //   nameDBtoFileConversion_["AOH1_GAIN4"            ] = ;
+      //   nameDBtoFileConversion_["AOH1_GAIN5"            ] = ;
+      //   nameDBtoFileConversion_["AOH1_GAIN6"            ] = ;
+      nameDBtoFileConversion_["AOH2_BIAS1"            ] = k_AOH2_Bias1 ;
+      nameDBtoFileConversion_["AOH2_BIAS2"		  ] = k_AOH2_Bias2 ;
+      nameDBtoFileConversion_["AOH2_BIAS3"		  ] = k_AOH2_Bias3 ;
+      nameDBtoFileConversion_["AOH2_BIAS4"		  ] = k_AOH2_Bias4 ;
+      nameDBtoFileConversion_["AOH2_BIAS5"		  ] = k_AOH2_Bias5 ;
+      nameDBtoFileConversion_["AOH2_BIAS6"		  ] = k_AOH2_Bias6 ;
+      //   nameDBtoFileConversion_["AOH2_GAIN1"            ] = ;
+      //   nameDBtoFileConversion_["AOH2_GAIN2"            ] = ;
+      //   nameDBtoFileConversion_["AOH2_GAIN3"            ] = ;
+      //   nameDBtoFileConversion_["AOH2_GAIN4"            ] = ;
+      //   nameDBtoFileConversion_["AOH2_GAIN5"            ] = ;
+      //   nameDBtoFileConversion_["AOH2_GAIN6"            ] = ;
+      nameDBtoFileConversion_["AOH3_BIAS1"            ] = k_AOH3_Bias1 ;
+      nameDBtoFileConversion_["AOH3_BIAS2"		  ] = k_AOH3_Bias2 ;
+      nameDBtoFileConversion_["AOH3_BIAS3"		  ] = k_AOH3_Bias3 ;
+      nameDBtoFileConversion_["AOH3_BIAS4"		  ] = k_AOH3_Bias4 ;
+      nameDBtoFileConversion_["AOH3_BIAS5"		  ] = k_AOH3_Bias5 ;
+      nameDBtoFileConversion_["AOH3_BIAS6"		  ] = k_AOH3_Bias6 ;
+      //   nameDBtoFileConversion_["AOH3_GAIN1"            ] = ;
+      //   nameDBtoFileConversion_["AOH3_GAIN2"            ] = ;
+      //   nameDBtoFileConversion_["AOH3_GAIN3"            ] = ;
+      //   nameDBtoFileConversion_["AOH3_GAIN4"            ] = ;
+      //   nameDBtoFileConversion_["AOH3_GAIN5"            ] = ;
+      //   nameDBtoFileConversion_["AOH3_GAIN6"            ] = ;
+      nameDBtoFileConversion_["AOH4_BIAS1"            ] = k_AOH4_Bias1 ;
+      nameDBtoFileConversion_["AOH4_BIAS2"		  ] = k_AOH4_Bias2 ;
+      nameDBtoFileConversion_["AOH4_BIAS3"		  ] = k_AOH4_Bias3 ;
+      nameDBtoFileConversion_["AOH4_BIAS4"		  ] = k_AOH4_Bias4 ;
+      nameDBtoFileConversion_["AOH4_BIAS5"		  ] = k_AOH4_Bias5 ;
+      nameDBtoFileConversion_["AOH4_BIAS6"		  ] = k_AOH4_Bias6 ;
+      //   nameDBtoFileConversion_["AOH4_GAIN1"            ] = ;
+      //   nameDBtoFileConversion_["AOH4_GAIN2"            ] = ;
+      //   nameDBtoFileConversion_["AOH4_GAIN3"            ] = ;
+      //   nameDBtoFileConversion_["AOH4_GAIN4"            ] = ;
+      //   nameDBtoFileConversion_["AOH4_GAIN5"            ] = ;
+      //   nameDBtoFileConversion_["AOH4_GAIN6"            ] = ;
+      //   nameDBtoFileConversion_["AOH5_BIAS1"            ] = ;
+      //   nameDBtoFileConversion_["AOH5_BIAS2"            ] = ;
+      //   nameDBtoFileConversion_["AOH5_BIAS3"            ] = ;
+      //   nameDBtoFileConversion_["AOH5_BIAS4"            ] = ;
+      //   nameDBtoFileConversion_["AOH5_BIAS5"            ] = ;
+      //   nameDBtoFileConversion_["AOH5_BIAS6"            ] = ;
+      //   nameDBtoFileConversion_["AOH5_GAIN1"            ] = ;
+      //   nameDBtoFileConversion_["AOH5_GAIN2"            ] = ;
+      //   nameDBtoFileConversion_["AOH5_GAIN3"            ] = ;
+      //   nameDBtoFileConversion_["AOH5_GAIN4"            ] = ;
+      //   nameDBtoFileConversion_["AOH5_GAIN5"            ] = ;
+      //   nameDBtoFileConversion_["AOH5_GAIN6"            ] = ;
+      //   nameDBtoFileConversion_["AOH6_BIAS1"            ] = ;
+      //   nameDBtoFileConversion_["AOH6_BIAS2"            ] = ;
+      //   nameDBtoFileConversion_["AOH6_BIAS3"            ] = ;
+      //   nameDBtoFileConversion_["AOH6_BIAS4"            ] = ;
+      //   nameDBtoFileConversion_["AOH6_BIAS5"            ] = ;
+      //   nameDBtoFileConversion_["AOH6_BIAS6"            ] = ;
+      //   nameDBtoFileConversion_["AOH6_GAIN1"            ] = ;
+      //   nameDBtoFileConversion_["AOH6_GAIN2"            ] = ;
+      //   nameDBtoFileConversion_["AOH6_GAIN3"            ] = ;
+      //   nameDBtoFileConversion_["AOH6_GAIN4"            ] = ;
+      //   nameDBtoFileConversion_["AOH6_GAIN5"            ] = ;
+      //   nameDBtoFileConversion_["AOH6_GAIN6"            ] = ;
+      nameDBtoFileConversion_["DELAY25_GCR"              ] = k_Delay25_RDA ;
+      nameDBtoFileConversion_["DELAY25_SCL"              ] = k_Delay25_RCL ;
+      nameDBtoFileConversion_["DELAY25_TRG"              ] = k_Delay25_SDA ;
+      nameDBtoFileConversion_["DELAY25_SDA"              ] = k_Delay25_TRG ;
+      nameDBtoFileConversion_["DELAY25_RCL"              ] = k_Delay25_SCL ;
+      nameDBtoFileConversion_["DELAY25_RDA"              ] = k_Delay25_GCR ;
+      //   nameDBtoFileConversion_["DEL3_GCR"              ] = ;
+      //   nameDBtoFileConversion_["DEL3_SCL"              ] = ;
+      //   nameDBtoFileConversion_["DEL3_TRG"              ] = ;
+      //   nameDBtoFileConversion_["DEL3_SDA"              ] = ;
+      //   nameDBtoFileConversion_["DEL3_RCL"              ] = ;
+      //   nameDBtoFileConversion_["DEL3_RDA"              ] = ;
+      nameDBtoFileConversion_["DOH_BIAS0"            ] = k_DOH_Ch0Bias_CLK  ;
+      nameDBtoFileConversion_["DOH_BIAS1"            ] = k_DOH_Ch1Bias_Data ;
+      nameDBtoFileConversion_["DOH_SEU_GAIN"         ] = k_DOH_Gain_SEU     ;
+      //   nameDBtoFileConversion_["DOH3_BIAS0"            ] =  ;
+      //   nameDBtoFileConversion_["DOH3_BIAS1"            ] =  ;
+      //   nameDBtoFileConversion_["DOH3_SEU_GAIN"         ] =  ;
+      nameDBtoFileConversion_["PLL_CTR1"             ] = k_PLL_CTR1 ;
+      nameDBtoFileConversion_["PLL_CTR2"             ] = k_PLL_CTR2 ;
+      nameDBtoFileConversion_["PLL_CTR3"             ] = k_PLL_CTR3 ;
+      nameDBtoFileConversion_["PLL_CTR4_5"           ] = k_PLL_CTR4 ;
+      //   nameDBtoFileConversion_["PLL3_CTR1"             ] = ;
+      //   nameDBtoFileConversion_["PLL3_CTR2"             ] = ;
+      //   nameDBtoFileConversion_["PLL3_CTR3"             ] = ;
+      //   nameDBtoFileConversion_["PLL3_CTR4_5"           ] = ;
+    }
+    
+    
+}
+
 
 void PixelPortCardConfig::writeASCII(std::string dir) const {
 
@@ -448,9 +1091,10 @@ void PixelPortCardConfig::setdeviceValues(std::string settingName, unsigned int 
 
 unsigned int PixelPortCardConfig::getdeviceAddressForSetting(std::string settingName) const
 {
-	std::map<std::string, unsigned int>::const_iterator foundName_itr = nameToAddress_.find(settingName);
-	assert( foundName_itr != nameToAddress_.end() );
-	return foundName_itr->second;
+  std::cout << "[PixelPortCardConfig::getdeviceAddressForSetting()] settingName: " << settingName<< std::endl ;
+  std::map<std::string, unsigned int>::const_iterator foundName_itr = nameToAddress_.find(settingName);
+  assert( foundName_itr != nameToAddress_.end() );
+  return foundName_itr->second;
 }
 
 unsigned int PixelPortCardConfig::getdeviceValuesForSetting(std::string settingName) const

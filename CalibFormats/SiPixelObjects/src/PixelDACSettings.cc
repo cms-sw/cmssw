@@ -160,7 +160,7 @@ PixelDACSettings::PixelDACSettings(std::vector< std::vector<std::string> > &tabl
   std::map<std::string , int > colM;
   std::vector<std::string > colNames;
   //   colNames.push_back("CONFIG_KEY_ID");
-  //   colNames.push_back("CONFG_KEY");
+  //   colNames.push_back("CONFIG_KEY");
   //   colNames.push_back("VERSION");
   //   colNames.push_back("KIND_OF_COND");
   colNames.push_back("ROC_NAME");

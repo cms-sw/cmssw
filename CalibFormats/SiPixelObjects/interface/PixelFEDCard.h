@@ -9,6 +9,7 @@
 
 #include "CalibFormats/SiPixelObjects/interface/PixelConfigBase.h"
 
+#include <vector>
 #include <string>
 
 namespace pos{
@@ -39,8 +40,11 @@ namespace pos{
     // Constructor and destructor
     PixelFEDCard(); // empty
     PixelFEDCard(std::string filename); // create from files
+    PixelFEDCard(std::vector<std::vector<std::string> > & tab); // create from DB
     ~PixelFEDCard() {};
 
+    void readDBTBMLevels(std::vector<std::vector<std::string> > &tableMat, int first, int last) ;
+    void readDBROCLevels(std::vector<std::vector<std::string> > &tableMat, int first, int last) ;
     void writeASCII(std::string dir="") const; // write to files
     unsigned long long enabledChannels();  // returns 64-bit integer mask 35..0
 

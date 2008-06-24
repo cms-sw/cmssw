@@ -31,7 +31,7 @@ namespace pos{
 //      std::cout << "[pos::PixelConfig::find()] versions_.size() = " << versions_.size() << std::endl ;
       for(unsigned int i=0;i<versions_.size();i++){
 //	std::cout << "Looking :"<<versions_[i].first
-//		  <<" "<<versions_[i].second<<std::endl;
+//	          <<" "<<versions_[i].second<<std::endl;
 	if (versions_[i].first==dir) {
 	  version=versions_[i].second;
 	  return 0;

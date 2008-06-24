@@ -105,4 +105,8 @@ void PixelROCStatus::set(const string& statName){
 	   << statName <<"| is an invalid keyword"<<endl;
       ::abort();
     }
+  else 
+    {
+      reset() ;
+    }
 }

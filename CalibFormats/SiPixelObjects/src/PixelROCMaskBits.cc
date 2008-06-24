@@ -84,6 +84,37 @@ int PixelROCMaskBits::read(const PixelROCName& rocid, std::ifstream& in){
 
 }
 
+// modified by MR on 23-06-2008 11:57:58
+int PixelROCMaskBits::read(const PixelROCName& rocid, std::istringstream& in)
+{
+  rocid_=rocid;
+  std::string tag;
+  for (int i=0;i<52;i++)
+    {
+      in >> tag;
+      //std::cout << "Now reading col:"<<tag<<std::endl;
+      std::string data;
+      in >> data;
+      //std::cout <<"data.size()" <<data.size()<<std::endl;
+      unsigned char byte=0;
+      for(int j=0;j<80;j++)
+	{
+	if (data[j]=='1') byte+=128;
+	if ((j+1)%8==0) 
+	  {
+	    //std::cout << "Writing byte:"<<(int)byte<<std::endl;
+	    bits_[i*10+(j+1)/8-1]=byte;
+	    byte=0; 
+	  }
+	else
+	  {
+	    byte/=2;
+	  }
+      }
+    }
+  return 1;
+}
+
 int PixelROCMaskBits::readBinary(const PixelROCName& rocid, std::ifstream& in){
 
     rocid_=rocid;

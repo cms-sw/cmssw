@@ -17,8 +17,8 @@ using namespace std;
 using namespace pos;
 
 
-PixelLowVoltageMap::PixelLowVoltageMap(std::vector< std::vector < std::string> > &tableMat):PixelConfigBase("","",""){
-
+PixelLowVoltageMap::PixelLowVoltageMap(std::vector< std::vector < std::string> > &tableMat):PixelConfigBase("","","")
+{
   //FIXME not implemented
   assert(0);
 

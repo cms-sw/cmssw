@@ -66,6 +66,7 @@ namespace pos{
   private:
 
     PixelROCName rocid_;
+    PixelModuleName moduleId_ ;
 
     unsigned char analogInputBias_;
     unsigned char analogOutputBias_;

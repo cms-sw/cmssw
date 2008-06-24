@@ -8,6 +8,7 @@
 
 #include "CalibFormats/SiPixelObjects/interface/PixelROCTrimBits.h"
 #include <iostream>
+#include <sstream>
 #include <assert.h>
 
 
@@ -83,6 +84,39 @@ int PixelROCTrimBits::read(PixelROCName rocid,std::ifstream& in){
 
 }
 
+PixelROCTrimBits::read(PixelROCName rocid, std::istringstream& in)
+{
+  std::string tag;
+  //std::cout << "PixelROCTrimBits::read rocid:"<<rocid<<std::endl;
+  rocid_=rocid;
+  //std::cout << "PixelROCTrimBits::read rocid_:"<<rocid_<<std::endl;
+  for (int i=0;i<52;i++)
+    {
+      in >> tag;
+//       std::cout << "Now reading col:"<<tag<<std::endl;
+      std::string data;
+      in >> data;
+//       std::cout <<" data: " <<data<<std::endl;
+      unsigned char byte=0;
+      for(int j=0;j<80;j++)
+	{
+	  unsigned char tmp=toupper(data[j])-48;
+	  if (tmp>9) tmp-=7;  //FIXME this is so ugly
+	  byte+=tmp;
+	  if ((j+1)%2==0) 
+	    {
+	      //std::cout << "Writing byte:"<<(int)byte<<std::endl;
+	      bits_[i*40+(j+1)/2-1]=byte;
+	      byte=0; 
+	    }
+	  else
+	    {
+	      byte*=16;
+	    }
+	}
+    }
+  return 1;
+}
 
 
 

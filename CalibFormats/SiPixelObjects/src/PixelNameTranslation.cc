@@ -17,27 +17,27 @@ using namespace std;
 
 
 PixelNameTranslation::PixelNameTranslation(std::vector< std::vector<std::string> > &tableMat):PixelConfigBase(" "," "," "){
-  std::vector< std::string > ins = tableMat[0];
   std::map<std::string , int > colM;
   std::vector<std::string > colNames;
   colNames.push_back("CONFIG_KEY_ID" );//0
-  colNames.push_back("CONFG_KEY"     );//1
+  colNames.push_back("CONFIG_KEY"    );//1
   colNames.push_back("VERSION"       );//2
   colNames.push_back("KIND_OF_COND"  );//3
   colNames.push_back("SERIAL_NUMBER" );//4
   colNames.push_back("ROC_NAME"      );//5
-  colNames.push_back("PXLFEC_NAME"   );//6
-  colNames.push_back("MFEC_POSN"     );//7
-  colNames.push_back("MFEC_CHAN"     );//8
-  colNames.push_back("HUB_ADDRS"     );//9
-  colNames.push_back("PORT_NUM"      );//10
-  colNames.push_back("ROC_I2C_ADDR"  );//11
-  colNames.push_back("PXLFED_NAME"   );//12
-  colNames.push_back("FED_CHAN"      );//13
-  colNames.push_back("FED_ROC_NUM"   );//14
+  colNames.push_back("TBM_MODE"      );//6  
+  colNames.push_back("PXLFEC_NAME"   );//7  
+  colNames.push_back("MFEC_POSN"     );//8  
+  colNames.push_back("MFEC_CHAN"     );//9  
+  colNames.push_back("HUB_ADDRS"     );//10 
+  colNames.push_back("PORT_NUM"	     );//11 
+  colNames.push_back("ROC_I2C_ADDR"  );//12 
+  colNames.push_back("PXLFED_NAME"   );//13 
+  colNames.push_back("FED_CHAN"	     );//14 
+  colNames.push_back("FED_ROC_NUM"   );//15
 
 
-  for(unsigned int c = 0 ; c < ins.size() ; c++){
+  for(unsigned int c = 0 ; c < tableMat[0].size() ; c++){
     for(unsigned int n=0; n<colNames.size(); n++){
       if(tableMat[0][c] == colNames[n]){
 	colM[colNames[n]] = c;
@@ -55,7 +55,11 @@ PixelNameTranslation::PixelNameTranslation(std::vector< std::vector<std::string>
 
  for(unsigned int r = 1 ; r < tableMat.size() ; r++){    //Goes to every row of the Matrix
    std::string rocname       = tableMat[r][colM["ROC_NAME"]] ;
-   std::string TBMChannel = "A"; // assert(0); // need to add this to the input table
+   std::string TBMChannel    = tableMat[r][colM["TBM_MODE"]] ; // assert(0); // need to add this to the input table
+   if(TBMChannel == "")
+     {
+       TBMChannel = "A" ;
+     }
    tableMat[r][colM["PXLFEC_NAME"]].erase(0 , 13);//PIXFEC
    unsigned int fecnumber    = (unsigned int)atoi(tableMat[r][colM["PXLFEC_NAME"]].c_str());
    unsigned int mfec         = (unsigned int)atoi(tableMat[r][colM["MFEC_POSN"]].c_str());
@@ -66,7 +70,7 @@ PixelNameTranslation::PixelNameTranslation(std::vector< std::vector<std::string>
    tableMat[r][colM["PXLFED_NAME"]].erase(0,7);//FED
    unsigned int fednumber    = (unsigned int)atoi(tableMat[r][colM["PXLFED_NAME"]].c_str());
    unsigned int fedchannel   = (unsigned int)atoi(tableMat[r][colM["FED_CHAN"]].c_str());
-   unsigned int fedrocnumber = (unsigned int)atoi(tableMat[r][colM["FED_ROC_NUM"]].c_str());
+   unsigned int fedrocnumber = (unsigned int)(atoi(tableMat[r][colM["FED_ROC_NUM"]].c_str())-1);
 	
 	
    PixelROCName aROC(rocname);

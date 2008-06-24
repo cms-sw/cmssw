@@ -6,6 +6,7 @@
 *   A longer explanation will be placed here later
 */
 
+#include <sstream>
 #include <fstream>
 #include <string>
 #include "CalibFormats/SiPixelObjects/interface/PixelROCName.h"
@@ -25,6 +26,7 @@ namespace pos{
     void setROCMaskBits(PixelROCName& rocid ,std::string bits);
 
     int read(const PixelROCName& rocid, std::ifstream& in);
+    int read(const PixelROCName& rocid, std::istringstream& in);
 
     int readBinary(const PixelROCName& rocid, std::ifstream& in);
 

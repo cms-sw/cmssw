@@ -62,11 +62,13 @@ namespace pos{
     
   private:
     void fillNameToAddress();
+    void fillDBToFileAddress();
 
     bool containsDeviceAddress(unsigned int deviceAddress) const;
     bool containsSetting(std::string settingName) const { return containsDeviceAddress(getdeviceAddressForSetting(settingName)); }
 
     void setAOHGain(std::string settingName, unsigned int value);
+    void setDataBaseAOHGain(std::string settingName, unsigned int value);
     std::string AOHGainStringFromAOHNumber(unsigned int AOHNumber) const;
 
     std::string portcardname_;
@@ -82,6 +84,7 @@ namespace pos{
     std::string type_; // fpix or bpix, used to determine setting names and addresses
   
     std::map<std::string, unsigned int> nameToAddress_; // translation from name to address, filled in by fillNameToAddress();
+    std::map<std::string, std::string> nameDBtoFileConversion_; // filled by fillDBToFileAddress() ;
   };
 }
 /* @} */
