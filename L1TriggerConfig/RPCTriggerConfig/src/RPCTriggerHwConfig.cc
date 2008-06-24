@@ -13,7 +13,7 @@
 //
 // Original Author:  Tomasz Maciej Frueboes
 //         Created:  Wed Apr  9 13:57:29 CEST 2008
-// $Id: RPCTriggerHwConfig.cc,v 1.1 2008/04/09 15:14:10 fruboes Exp $
+// $Id: RPCTriggerHwConfig.cc,v 1.2 2008/04/10 13:37:16 fruboes Exp $
 //
 //
 
@@ -28,7 +28,7 @@
 
 #include "FWCore/Framework/interface/ESHandle.h"
 
-#include "CondFormats/DataRecord/interface/L1RPCConfigRcd.h"
+#include "CondFormats/DataRecord/interface/L1RPCHwConfigRcd.h"
 #include "CondFormats/RPCObjects/interface/L1RPCHwConfig.h"
 
 
@@ -42,9 +42,9 @@ class RPCTriggerHwConfig : public edm::ESProducer {
       RPCTriggerHwConfig(const edm::ParameterSet&);
       ~RPCTriggerHwConfig();
 
-      typedef boost::shared_ptr<L1RPCHwConfig> ReturnType;
+      typedef std::auto_ptr<L1RPCHwConfig> ReturnType;
 
-      ReturnType produce(const L1RPCConfigRcd&);
+      ReturnType produce(const L1RPCHwConfigRcd&);
    private:
       // ----------member data ---------------------------
     std::vector<int> m_disableTowers;
@@ -114,32 +114,30 @@ RPCTriggerHwConfig::~RPCTriggerHwConfig()
 
 // ------------ method called to produce the data  ------------
 RPCTriggerHwConfig::ReturnType
-RPCTriggerHwConfig::produce(const L1RPCConfigRcd& iRecord)
+RPCTriggerHwConfig::produce(const L1RPCHwConfigRcd& iRecord)
 {
    using namespace edm::es;
-   boost::shared_ptr<L1RPCHwConfig> pL1RPCHwConfig = boost::shared_ptr<L1RPCHwConfig>( new L1RPCHwConfig() );
+   std::auto_ptr<L1RPCHwConfig> pL1RPCHwConfig = std::auto_ptr<L1RPCHwConfig>( new L1RPCHwConfig() );
 
    if (m_disableAll) {
-       pL1RPCHwConfig->enableAll(false);
-       std::vector<int>::iterator crIt = m_enableCrates.begin();
-       for (; crIt!=m_enableCrates.end(); ++crIt){
-         std::vector<int>::iterator towIt = m_enableTowers.begin();
-         for (; towIt != m_enableTowers.end();++towIt ){
-           pL1RPCHwConfig->enableTowerInCrate(*towIt, *crIt, true);
-         }
-
-       }
+     pL1RPCHwConfig->enableAll(false);
+     std::vector<int>::iterator crIt = m_enableCrates.begin();
+     for (; crIt!=m_enableCrates.end(); ++crIt){
+       pL1RPCHwConfig->enableCrate(*crIt,true);
+     }
+     for (unsigned int It=0; It<m_enableTowers.size(); It++) {
+       if (It%2 == 0)
+       pL1RPCHwConfig->enableTowerInCrate(m_enableTowers[It+1], m_enableTowers[It], true);
+     }
    } else {
-
      std::vector<int>::iterator crIt = m_disableCrates.begin();
      for (; crIt!=m_disableCrates.end(); ++crIt){
-        std::vector<int>::iterator towIt = m_disableTowers.begin();
-        for (; towIt != m_disableTowers.end();++towIt ){
-           pL1RPCHwConfig->enableTowerInCrate(*towIt, *crIt, false);
-        }
-  
+       pL1RPCHwConfig->enableCrate(*crIt,false);
      }
-
+     for (unsigned int It=0; It<m_disableTowers.size(); It++) {
+       if (It%2 == 0)
+       pL1RPCHwConfig->enableTowerInCrate(m_disableTowers[It+1], m_disableTowers[It], false);
+     }
 
    }
 
@@ -148,7 +146,6 @@ RPCTriggerHwConfig::produce(const L1RPCConfigRcd& iRecord)
 
    pL1RPCHwConfig->setFirstBX(m_firstBX);
    pL1RPCHwConfig->setLastBX(m_lastBX);
-
 
    return pL1RPCHwConfig ;
 }

@@ -13,7 +13,7 @@
 //
 // Original Author:  Tomasz Maciej Frueboes
 //         Created:  Wed Apr  9 14:03:40 CEST 2008
-// $Id$
+// $Id: TestHWConfig.cc,v 1.1 2008/04/09 15:14:10 fruboes Exp $
 //
 //
 
@@ -35,7 +35,7 @@
 
 
 
-#include "CondFormats/DataRecord/interface/L1RPCConfigRcd.h"
+#include "CondFormats/DataRecord/interface/L1RPCHwConfigRcd.h"
 #include "CondFormats/RPCObjects/interface/L1RPCHwConfig.h"
 
 //
@@ -94,8 +94,7 @@ TestHWConfig::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
 {
    using namespace edm;
    edm::ESHandle<L1RPCHwConfig> hwConfig;
-   iSetup.get<L1RPCConfigRcd>().get(hwConfig);
-
+   iSetup.get<L1RPCHwConfigRcd>().get(hwConfig);
 
    std::cout << "Checking crates " << std::endl;
 
