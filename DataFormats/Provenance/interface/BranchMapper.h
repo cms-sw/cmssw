@@ -36,6 +36,8 @@ namespace edm {
 
     void insert(T const& entryInfo);
 
+    void mergeMappers(boost::shared_ptr<BranchMapper<T> > other) {nextMapper_ = other;}
+
   private:
     typedef typename std::set<T> eiSet;
     typedef typename std::map<ProductID, typename eiSet::const_iterator> eiMap;
@@ -43,6 +45,9 @@ namespace edm {
     eiSet entryInfoSet_;
 
     eiMap entryInfoMap_;
+
+    boost::shared_ptr<BranchMapper<T> > nextMapper_;
+
   };
   
   template <typename T>
@@ -56,7 +61,8 @@ namespace edm {
   template <typename T>
   BranchMapper<T>::BranchMapper() :
     entryInfoSet_(),
-    entryInfoMap_()
+    entryInfoMap_(),
+    nextMapper_()
   { }
 
   template <typename T>
@@ -73,7 +79,10 @@ namespace edm {
   BranchMapper<T>::branchToEntryInfo(BranchID const& bid) const {
     T ei(bid);
     typename eiSet::const_iterator it = entryInfoSet_.find(ei);
-    assert(it != entryInfoSet_.end());
+    if (it == entryInfoSet_.end()) {
+      assert(nextMapper_);
+      return nextMapper_->branchToEntryInfo(bid);
+    }
     return boost::shared_ptr<T>(new T(*it));
   }
 
