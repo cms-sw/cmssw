@@ -18,6 +18,7 @@
 #include "GeneratorInterface/GenFilters/interface/MCZll.h"
 #include "GeneratorInterface/GenFilters/interface/MinimumBiasFilter.h"
 #include "GeneratorInterface/GenFilters/interface/RecoDiMuon.h"
+#include "GeneratorInterface/GenFilters/interface/MCLongLivedParticles.h"
 #include "GeneratorInterface/GenFilters/interface/MCParticlePairFilter.h"
 #include "GeneratorInterface/GenFilters/interface/CosmicGenFilterHelix.h"
 #include "GeneratorInterface/GenFilters/interface/CosmicGenFilterLowE.h"
@@ -49,6 +50,7 @@ DEFINE_SEAL_MODULE();
   DEFINE_ANOTHER_FWK_MODULE(MCZll);
   DEFINE_ANOTHER_FWK_MODULE(MinimumBiasFilter);
   DEFINE_ANOTHER_FWK_MODULE(RecoDiMuon);
+  DEFINE_ANOTHER_FWK_MODULE(MCLongLivedParticles);
   DEFINE_ANOTHER_FWK_MODULE(MCParticlePairFilter);
   DEFINE_ANOTHER_FWK_MODULE(CosmicGenFilterHelix);
   DEFINE_ANOTHER_FWK_MODULE(CosmicGenFilterLowE);
