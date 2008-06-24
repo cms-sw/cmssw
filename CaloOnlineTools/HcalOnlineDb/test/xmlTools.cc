@@ -894,7 +894,7 @@ int createLUTLoader( string _prefix, string tag_name )
 
   baseConf . tag_name = tag_name;
   //baseConf . comment_description = tag_name;
-  baseConf . comment_description = "HF changed back to 5,6,7 (were 7,8,9). Input: pedestal compensation by 3, nominal linearization, output: |ieta|<=15 thr=7 (equal or more), |ieta|=16 thr=10, |ieta|>=17 & |ieta|<=28 thr=9, |ieta|>=29 thr=7, checksums are real and correct from now on unless explicitely stated. Master files: CaloOnlineTools/HcalOnlineDb/test/inputLUTcoder_CRUZET_v2.3.dat and CaloOnlineTools/HcalOnlineDb/test/outputLUTtranscoder_CRUZET_v2.5.dat";
+  baseConf . comment_description = "Version 2 (HO bug fixed, now input and output LUTs for HO should be in.) Input: pedestal compensation by 3 for HB, HE, HF, and HO, nominal linearization, output: |ieta|<=14 thr=7 (equal or more), |ieta|=15 thr=9, |ieta|=16 thr=10, |ieta|>=17 & |ieta|<=28 thr=9, |ieta|>=29 thr=5, checksums correct.";
   baseConf . iov_begin = "1";
   baseConf . iov_end = "-1";
 
@@ -914,12 +914,16 @@ int createLUTLoader( string _prefix, string tag_name )
   crate_number . push_back(0);
   crate_number . push_back(1);
   crate_number . push_back(2);
+  crate_number . push_back(3);
   crate_number . push_back(4);
   crate_number . push_back(5);
+  crate_number . push_back(6);
+  crate_number . push_back(7);
   crate_number . push_back(9);
   crate_number . push_back(10);
   crate_number . push_back(11);
   crate_number . push_back(12);
+  crate_number . push_back(13);
   crate_number . push_back(14);
   crate_number . push_back(15);
   crate_number . push_back(17);
@@ -927,12 +931,16 @@ int createLUTLoader( string _prefix, string tag_name )
   file_name . push_back( "./" + _prefix + "_0.xml.dat" );
   file_name . push_back( "./" + _prefix + "_1.xml.dat" );
   file_name . push_back( "./" + _prefix + "_2.xml.dat" );
+  file_name . push_back( "./" + _prefix + "_3.xml.dat" );
   file_name . push_back( "./" + _prefix + "_4.xml.dat" );
   file_name . push_back( "./" + _prefix + "_5.xml.dat" );
+  file_name . push_back( "./" + _prefix + "_6.xml.dat" );
+  file_name . push_back( "./" + _prefix + "_7.xml.dat" );
   file_name . push_back( "./" + _prefix + "_9.xml.dat" );
   file_name . push_back( "./" + _prefix + "_10.xml.dat" );
   file_name . push_back( "./" + _prefix + "_11.xml.dat" );
   file_name . push_back( "./" + _prefix + "_12.xml.dat" );
+  file_name . push_back( "./" + _prefix + "_13.xml.dat" );
   file_name . push_back( "./" + _prefix + "_14.xml.dat" );
   file_name . push_back( "./" + _prefix + "_15.xml.dat" );
   file_name . push_back( "./" + _prefix + "_17.xml.dat" );
