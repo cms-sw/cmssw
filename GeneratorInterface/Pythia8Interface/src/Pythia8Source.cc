@@ -48,7 +48,6 @@ Pythia8Source::Pythia8Source( const ParameterSet & pset,
   
   cout << "Pythia8Source: initializing Pythia. " << endl;
   
- 
   
   // PYLIST Verbosity Level
   // Valid PYLIST arguments are: 1, 2, 3, 5, 7, 11, 12, 13
@@ -119,6 +118,8 @@ Pythia8Source::Pythia8Source( const ParameterSet & pset,
   }
 
   pythia->init( 2212, 2212, comenergy);
+
+  pythia->settings.listChanged();
 
   ToHepMC = new HepMC::I_Pythia8;
 //  ToHepMC->set_crash_on_problem();
