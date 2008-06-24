@@ -10,6 +10,6 @@ from SimTracker.SiPixelDigitizer.PixelDigi_cfi import *
 #
 #include "SimTracker/SiStripDigitizer/data/SiStripDigi_APVModeDec.cff"
 from SimTracker.SiStripDigitizer.SiStripDigi_APVModePeak_cff import *
-trDigi = cms.Sequence(cms.SequencePlaceholder("simSiPixelDigis")+cms.SequencePlaceholder("simSiStripDigis"))
+trDigi = cms.Sequence(simSiPixelDigis+simSiStripDigis)
 
 
