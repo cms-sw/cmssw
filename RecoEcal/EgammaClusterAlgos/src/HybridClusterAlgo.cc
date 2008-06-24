@@ -328,9 +328,9 @@ void HybridClusterAlgo::mainSearch(const EcalRecHitCollection* hits, const CaloS
          //std::cout << "idxPeak, phiSteps " << idxPeak << ", " << phiSteps << std::endl;
          e5x5 = lump;
          //std::cout << "lump " << e5x5 << std::endl;
-         if (abs(idxPeak + 1) < dominoEnergy.size()) e5x5 += dominoEnergy[idxPeak + 1];
+         if (abs(idxPeak + 1) < (int)dominoEnergy.size()) e5x5 += dominoEnergy[idxPeak + 1];
          //std::cout << "+1 " << e5x5 << std::endl;
-         if (abs(idxPeak + 2) < dominoEnergy.size()) e5x5 += dominoEnergy[idxPeak + 2];
+         if (abs(idxPeak + 2) < (int)dominoEnergy.size()) e5x5 += dominoEnergy[idxPeak + 2];
          //std::cout << "+2 " << e5x5 << std::endl;
          if (abs(idxPeak - 1) > 0) e5x5 += dominoEnergy[idxPeak - 1];
          //std::cout << "-1 " << e5x5 << std::endl;
