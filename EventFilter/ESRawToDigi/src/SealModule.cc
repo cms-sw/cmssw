@@ -4,14 +4,11 @@
 #include "EventFilter/ESRawToDigi/interface/ESRawToDigi.h"
 #include "EventFilter/ESRawToDigi/interface/ESRawToDigiTB.h"
 #include "EventFilter/ESRawToDigi/interface/ESRawToDigiCT.h"
-#include "EventFilter/ESRawToDigi/interface/ESRecHitProducerCT.h"
-#include "EventFilter/ESRawToDigi/interface/ESRecHitProducerTB.h"
 
 DEFINE_SEAL_MODULE();
 DEFINE_ANOTHER_FWK_MODULE(ESRawToDigi);
 DEFINE_ANOTHER_FWK_MODULE(ESRawToDigiTB);
 DEFINE_ANOTHER_FWK_MODULE(ESRawToDigiCT);
-DEFINE_ANOTHER_FWK_MODULE(ESRecHitProducerCT);
-DEFINE_ANOTHER_FWK_MODULE(ESRecHitProducerTB);
+
 
 
