@@ -30,9 +30,23 @@ int JetTableManager::NumberOfCols() const
      return sizeof(titles) / sizeof(std::string);
 }
 
+struct sort_asc {
+     int i;
+     bool order;
+     bool operator () (const JetRow &r1, const JetRow &r2) const 
+	  {
+	       if (order)
+		    return r1.vec()[i] > r2.vec()[i];
+	       else return r1.vec()[i] < r2.vec()[i];
+	  }
+};
+
 void JetTableManager::Sort(int col, bool sortOrder)
 {
-
+     sort_asc sort_fun;
+     sort_fun.i = col;
+     sort_fun.order = sortOrder;
+     std::sort(rows.begin(), rows.end(), sort_fun);
 }
 
 std::vector<std::string> JetTableManager::GetTitles(int col)
@@ -48,15 +62,21 @@ void JetTableManager::FillCells(int rowStart, int colStart,
 {
      ret.clear();
      ret.reserve((rowEnd - rowStart) * (colEnd - colStart));
-     for (int i = rowStart; i < rowEnd && i < NumberOfRows(); ++i) {
-	  const std::vector<std::string> &row = rows[i].str();
-	  if ((unsigned int)colEnd > row.size()) {
-	       ret.insert(ret.end(), 
-			  row.begin() + colStart, row.end());
-	       ret.insert(ret.end(), colEnd - row.size(), "");
+     for (int i = rowStart; i < rowEnd; ++i) {
+	  if (i < NumberOfRows()) {
+	       const std::vector<std::string> &row = rows[i].str();
+	       if ((unsigned int)colEnd > row.size()) {
+		    ret.insert(ret.end(), 
+			       row.begin() + colStart, row.end());
+		    ret.insert(ret.end(), colEnd - row.size(), "");
+	       } else {
+		    ret.insert(ret.end(), 
+			       row.begin() + colStart, row.begin() + colEnd);
+	       }
 	  } else {
-	       ret.insert(ret.end(), 
-			  row.begin() + colStart, row.begin() + colEnd);
+	       for (int j = colStart; j < colEnd; ++j) {
+		    ret.push_back("");
+	       }
 	  }
      }
      // no, don't return ret;
@@ -89,4 +109,19 @@ const std::vector<std::string> 	&JetRow::str () const
 	  str_.push_back(format_string(JetTableManager::formats[i++], chf	));
      }
      return str_;
+}
+
+const std::vector<float> 	&JetRow::vec () const
+{
+     if (vec_.size() == 0) {
+	  // cache
+	  vec_.push_back(Et  	);
+	  vec_.push_back(eta 	);
+	  vec_.push_back(phi 	);
+	  vec_.push_back(ECAL	);
+	  vec_.push_back(HCAL	);
+	  vec_.push_back(emf 	);
+	  vec_.push_back(chf	);
+     }
+     return vec_;
 }
