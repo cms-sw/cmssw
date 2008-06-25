@@ -1,14 +1,14 @@
 /*
  *  See header file for a description of this class.
  *
- *  $Date: 2007/12/04 08:16:05 $
- *  $Revision: 1.3 $
+ *  $Date: 2008/02/04 15:47:50 $
+ *  $Revision: 1.5 $
  *  \author G. Mila - INFN Torino
  */
 
 
 #include "CalibMuon/DTCalibration/plugins/DTNoiseCalibration.h"
-#include "CalibMuon/DTCalibration/test/DBTools/DTCalibrationMap.h"
+
 
 // Framework
 #include "FWCore/Framework/interface/Event.h"
