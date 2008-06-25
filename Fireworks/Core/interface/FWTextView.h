@@ -12,6 +12,7 @@ namespace fwlite {
 class ElectronTableManager;
 class MuonTableManager;
 class JetTableManager;
+class TrackTableManager;
 class TGMainFrame;
 class TGCompositeFrame;
 class FWTableManager;
@@ -61,7 +62,7 @@ protected:
      ElectronTableManager	*l1_manager;
      ElectronTableManager	*hlt_manager;
      // tracks
-     ElectronTableManager	*track_manager;
+     TrackTableManager		*track_manager;
      ElectronTableManager	*vertex_manager;
 //       TGMainFrame		*fMain;
 

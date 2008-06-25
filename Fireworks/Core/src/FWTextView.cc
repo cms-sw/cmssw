@@ -88,7 +88,7 @@ FWTextView::FWTextView (CmsShowMain *de, FWSelectionManager *sel,
        jet_manager(new JetTableManager),
        l1_manager    	(new ElectronTableManager),
        hlt_manager   	(new ElectronTableManager),
-       track_manager 	(new ElectronTableManager),
+       track_manager 	(new TrackTableManager),
        vertex_manager  	(new ElectronTableManager),
        seleman		(sel)
 {      
@@ -420,11 +420,28 @@ void FWTextView::newEvent (const fwlite::Event &ev, const CmsShowMain *de)
 	  };
 	  jet_manager->rows.push_back(row);
      }
+     jet_manager->Sort(0, true);
      //------------------------------------------------------------
      // print tracks
      //------------------------------------------------------------
-     printf("Tracks\n");
-
+     printf("%d Tracks\n", n_tracks);
+     track_manager->rows.clear();
+//      printf("Et\t eta\t phi\t ECAL\t HCAL\t emf\t chf\n");
+     for (int i = 0; i < n_tracks; ++i) {
+	  const reco::Track &tr = tracks->at(i);
+	  TrackRowStruct row = {
+	       i,
+	       tr.pt(), tr.eta(), tr.phi(),
+	       tr.d0(), tr.d0Error(), tr.dz(), tr.dzError(),
+	       tr.vx(), tr.vy(), tr.vz(), 
+	       tr.hitPattern().numberOfValidPixelHits(),
+	       tr.hitPattern().numberOfValidStripHits(),
+	       125,
+	       tr.chi2(), int(tr.ndof())
+	  };
+	  track_manager->rows.push_back(row);
+     }
+     track_manager->Sort(0, true);
 //      static int i = 0; 
 //      i++;
 //      if (i == 3) {
