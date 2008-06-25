@@ -16,11 +16,12 @@
 //
 // Original Author:  
 //         Created:  Sat Jan  5 15:02:03 EST 2008
-// $Id: FWRPZDataProxyBuilder.h,v 1.9 2008/06/16 18:23:15 dmytro Exp $
+// $Id: FWRPZDataProxyBuilder.h,v 1.10 2008/06/23 06:33:43 dmytro Exp $
 //
 
 // system include files
 #include <vector>
+#include "TEveElement.h"
 
 // user include files
 #include "Fireworks/Core/interface/FWRPZDataProxyBuilderFactory.h"
@@ -58,6 +59,8 @@ class FWRPZDataProxyBuilder
       void clearRhoZProjs();
       void setHighPriority( bool priority ){ m_priority = priority; }
    
+      void viewsAvailable(bool);
+   
    protected:
       virtual void build(const FWEventItem* iItem, 
 			 TEveElementList** product) = 0 ;
@@ -76,11 +79,13 @@ class FWRPZDataProxyBuilder
       bool m_priority;
       const FWEventItem* m_item;
       TEveElementList* m_elements;
-      std::vector<TEveElement*> m_rhoPhiProjs;
-      std::vector<TEveElement*> m_rhoZProjs;
+      TEveElementList m_rhoPhiProjs;
+      TEveElementList m_rhoZProjs;
       std::vector<FWModelId> m_ids;
    
       static TEveCalo3D* m_calo3d;
+      
+      bool m_viewsAvailable;
 };
 
 

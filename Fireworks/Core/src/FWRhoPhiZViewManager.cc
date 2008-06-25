@@ -8,7 +8,7 @@
 //
 // Original Author:  
 //         Created:  Sat Jan  5 14:08:51 EST 2008
-// $Id: FWRhoPhiZViewManager.cc,v 1.31 2008/06/12 15:07:45 chrjones Exp $
+// $Id: FWRhoPhiZViewManager.cc,v 1.32 2008/06/23 06:34:51 dmytro Exp $
 //
 
 // system include files
@@ -75,7 +75,8 @@ FWRhoPhiZViewManager::FWRhoPhiZViewManager(FWGUIManager* iGUIMgr):
   //m_pad(new TEvePad() ),
   m_itemChanged(false),
   m_eveSelection(0),
-  m_selectionManager(0)
+  m_selectionManager(0),
+  m_isBeingDestroyed(false)
 {
    FWGUIManager::ViewBuildFunctor f;
    f = boost::bind(&FWRhoPhiZViewManager::createRhoPhiView,
@@ -159,9 +160,12 @@ FWRhoPhiZViewManager::FWRhoPhiZViewManager(FWGUIManager* iGUIMgr):
 //    // do actual copying here;
 // }
 
-//FWRhoPhiZViewManager::~FWRhoPhiZViewManager()
-//{
-//}
+FWRhoPhiZViewManager::~FWRhoPhiZViewManager()
+{
+   m_isBeingDestroyed=true;
+   m_rhoPhiViews.clear();
+   m_rhoZViews.clear();
+}
 
 //
 // assignment operators
@@ -182,6 +186,16 @@ FWViewBase*
 FWRhoPhiZViewManager::createRhoPhiView(TGFrame* iParent)
 {
    TEveManager::TRedrawDisabler disableRedraw(gEve);
+
+   if(m_rhoPhiViews.empty() && m_rhoZViews.empty()) {
+      //activate all proxy builders
+      for ( std::vector<boost::shared_ptr<FWRPZModelProxyBase> >::iterator proxyIter = m_modelProxies.begin();
+           proxyIter != m_modelProxies.end(); ++proxyIter )  {
+         (*proxyIter)->viewsAvailable(true);
+      }
+   }
+   
+   
    //do geometry now so that when we open the first view we can tell it to 
    // show the entire detector
    setupGeometry();
@@ -189,6 +203,7 @@ FWRhoPhiZViewManager::createRhoPhiView(TGFrame* iParent)
    boost::shared_ptr<FWRhoPhiZView>  pView(new FWRhoPhiZView(iParent,
                                                              kRhoPhiViewTypeName,
                                                              TEveProjection::kPT_RPhi) );
+   pView->beingDestroyed_.connect(boost::bind(&FWRhoPhiZViewManager::beingDestroyed,this,_1));
    m_rhoPhiViews.push_back(pView);
    for(TEveElement::List_i it = m_rhoPhiGeomProjMgr->BeginChildren(), itEnd = m_rhoPhiGeomProjMgr->EndChildren();
        it != itEnd;
@@ -203,13 +218,23 @@ FWViewBase*
 FWRhoPhiZViewManager::createRhoZView(TGFrame* iParent)
 {
    TEveManager::TRedrawDisabler disableRedraw(gEve);
-  //do geometry now so that when we open the first view we can tell it to 
+
+   if(m_rhoPhiViews.empty() && m_rhoZViews.empty()) {
+      //activate all proxy builders
+      for ( std::vector<boost::shared_ptr<FWRPZModelProxyBase> >::iterator proxyIter = m_modelProxies.begin();
+           proxyIter != m_modelProxies.end(); ++proxyIter )  {
+         (*proxyIter)->viewsAvailable(true);
+      }
+   }
+   
+   //do geometry now so that when we open the first view we can tell it to 
    // show the entire detector
    setupGeometry();
    
    boost::shared_ptr<FWRhoPhiZView>  pView(new FWRhoPhiZView(iParent,
                                                              kRhoZViewTypeName,
                                                              TEveProjection::kPT_RhoZ) );
+   pView->beingDestroyed_.connect(boost::bind(&FWRhoPhiZViewManager::beingDestroyed,this,_1));
    m_rhoZViews.push_back(pView);
    for(TEveElement::List_i it = m_rhoZGeomProjMgr->BeginChildren(), 
        itEnd = m_rhoZGeomProjMgr->EndChildren();
@@ -409,6 +434,38 @@ FWRhoPhiZViewManager::selectionCleared()
    if(0!= m_selectionManager) {
       m_selectionManager->clearSelection();
    }   
+}
+
+static bool removeFrom(std::vector<boost::shared_ptr<FWRhoPhiZView> >& iViews,
+                       const FWViewBase* iView) {
+   typedef std::vector<boost::shared_ptr<FWRhoPhiZView> > Vect;
+   for(Vect::iterator it = iViews.begin(), itEnd = iViews.end();
+       it != itEnd;
+       ++it) {
+      if(it->get() == iView) {
+         iViews.erase(it);
+         return true;
+      }
+   }
+   return false;
+}
+
+void 
+FWRhoPhiZViewManager::beingDestroyed(const FWViewBase* iView)
+{
+   //Only do this if we are NOT being called while FWRhoPhiZViewManager is being destroyed
+   if(!m_isBeingDestroyed) {      
+      if(! removeFrom(m_rhoPhiViews,iView) ) {
+         removeFrom(m_rhoZViews,iView);
+      }
+   }
+   if(m_rhoPhiViews.empty() && m_rhoZViews.empty()) {
+      //deactivate all proxy builders
+      for ( std::vector<boost::shared_ptr<FWRPZModelProxyBase> >::iterator proxyIter = m_modelProxies.begin();
+           proxyIter != m_modelProxies.end(); ++proxyIter )  {
+         (*proxyIter)->viewsAvailable(false);
+      }
+   }
 }
 
 //
@@ -792,6 +849,14 @@ FWRPZ3DModelProxy::itemBeingDestroyedImp(const FWEventItem* iItem)
    m_builder.reset();
 }
 
+void
+FWRPZ3DModelProxy::viewsAvailable(bool iListen)
+{
+   if(m_builder.get()) {
+      m_builder->viewsAvailable(iListen);
+   }
+}
+
 bool 
 FWRPZ3DModelProxy::isActive() const
 {
@@ -866,6 +931,14 @@ FWRPZ2DModelProxy::itemBeingDestroyedImp(const FWEventItem* iItem)
    m_rhoPhiProduct=0;
    m_rhoZProduct=0;
    m_builder.reset();
+}
+
+void
+FWRPZ2DModelProxy::viewsAvailable(bool iListen)
+{
+   if(m_builder.get()) {
+      m_builder->viewsAvailable(iListen);
+   }
 }
 
 bool 

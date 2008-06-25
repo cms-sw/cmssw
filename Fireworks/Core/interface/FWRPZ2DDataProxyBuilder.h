@@ -16,11 +16,12 @@
 //
 // Original Author:  
 //         Created:  Sat Jan  5 15:02:03 EST 2008
-// $Id: FWRPZ2DDataProxyBuilder.h,v 1.7 2008/06/12 15:07:45 chrjones Exp $
+// $Id: FWRPZ2DDataProxyBuilder.h,v 1.8 2008/06/23 06:32:03 dmytro Exp $
 //
 
 // system include files
 #include <vector>
+#include "TEveElement.h"
 
 // user include files
 #include "Fireworks/Core/interface/FWModelChangeSignal.h"
@@ -58,6 +59,8 @@ class FWRPZ2DDataProxyBuilder
       void clearRhoZProjs();
       void setHighPriority( bool priority ){ m_priority = priority; }
    
+      void viewsAvailable(bool);
+
    protected:
       virtual void buildRhoPhi(const FWEventItem* iItem, 
                                TEveElementList** product) = 0 ;
@@ -81,12 +84,14 @@ class FWRPZ2DDataProxyBuilder
       TEveElementList* m_rhoPhiElements;
       TEveElementList* m_rhoPhiZElements;
 
-      std::vector<TEveElement*> m_rhoPhiProjs;
-      std::vector<TEveElement*> m_rhoZProjs;
+      TEveElementList m_rhoPhiProjs;
+      TEveElementList m_rhoZProjs;
 
       std::vector<FWModelId> m_ids;
       static TEveCalo3D* m_caloRhoPhi;
       static TEveCalo3D* m_caloRhoZ;
+
+      bool m_viewsAvailable;
 };
 
 

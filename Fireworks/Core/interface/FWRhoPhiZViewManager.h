@@ -16,7 +16,7 @@
 //
 // Original Author:  
 //         Created:  Sat Jan  5 11:27:34 EST 2008
-// $Id: FWRhoPhiZViewManager.h,v 1.18 2008/06/12 15:07:45 chrjones Exp $
+// $Id: FWRhoPhiZViewManager.h,v 1.19 2008/06/23 06:34:51 dmytro Exp $
 //
 
 // system include files
@@ -50,7 +50,8 @@ public:
    virtual void addRhoZProj(TEveElement*) = 0;
    virtual void clearRhoPhiProjs() = 0;
    virtual void clearRhoZProjs() = 0;
-
+   virtual void viewsAvailable(bool)=0;
+   
    virtual bool isActive() const = 0;
    
    float layer() const;
@@ -74,6 +75,7 @@ public:
    void clearRhoPhiProjs();
    void clearRhoZProjs();
    virtual bool isActive() const;
+   virtual void viewsAvailable(bool);
    const FWRPZDataProxyBuilder* builder() const { return m_builder.get(); }
 
 private:
@@ -101,6 +103,7 @@ public:
    void addRhoZProj(TEveElement*);
    void clearRhoPhiProjs();
    void clearRhoZProjs();
+   virtual void viewsAvailable(bool);
    virtual bool isActive() const;
    const FWRPZ2DDataProxyBuilder* builder() const { return m_builder.get(); }
 private:
@@ -128,7 +131,7 @@ class FWRhoPhiZViewManager : public FWViewManagerBase
 
    public:
       FWRhoPhiZViewManager(FWGUIManager*);
-      //virtual ~FWRhoPhiZViewManager();
+      virtual ~FWRhoPhiZViewManager();
 
       // ---------- const member functions ---------------------
       std::vector<std::string> purposeForType(const std::string& iTypeName) const;
@@ -163,6 +166,8 @@ class FWRhoPhiZViewManager : public FWViewManagerBase
       void addProxyElements(FWRPZModelProxyBase* proxy);
       void makeProxyBuilderFor(const FWEventItem* iItem);
    
+      void beingDestroyed(const FWViewBase*); 
+   
       void setupGeometry();
       void makeMuonGeometryRhoPhi();
       void makeMuonGeometryRhoZ();
@@ -190,6 +195,7 @@ class FWRhoPhiZViewManager : public FWViewManagerBase
       TEveSelection* m_eveSelection;
       
       FWSelectionManager* m_selectionManager;
+     bool m_isBeingDestroyed;
 };
 
 

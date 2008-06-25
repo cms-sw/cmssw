@@ -8,7 +8,7 @@
 //
 // Original Author:  
 //         Created:  Thu Dec  6 17:49:54 PST 2007
-// $Id: FWRPZ2DDataProxyBuilder.cc,v 1.10 2008/06/21 21:47:12 chrjones Exp $
+// $Id: FWRPZ2DDataProxyBuilder.cc,v 1.11 2008/06/23 06:34:51 dmytro Exp $
 //
 
 // system include files
@@ -43,7 +43,8 @@ FWRPZ2DDataProxyBuilder::FWRPZ2DDataProxyBuilder():
   m_priority(false),
   m_item(0),
   m_rhoPhiElements(0),
-  m_rhoPhiZElements(0)
+  m_rhoPhiZElements(0),
+  m_viewsAvailable(true)
 {
 }
 
@@ -82,6 +83,15 @@ FWRPZ2DDataProxyBuilder::setItem(const FWEventItem* iItem)
    }
 }
 
+void
+FWRPZ2DDataProxyBuilder::viewsAvailable(bool iAvailable)
+{
+   m_viewsAvailable = iAvailable;
+   //NOTE: when set from false to true we really need to 
+   // 1 rebuild the objects
+   // 2 assume all of them changed so update them all
+}
+
 void 
 FWRPZ2DDataProxyBuilder::itemBeingDestroyed(const FWEventItem* iItem)
 {
@@ -93,18 +103,8 @@ FWRPZ2DDataProxyBuilder::itemBeingDestroyed(const FWEventItem* iItem)
       delete m_rhoPhiZElements;
       m_rhoPhiZElements=0;
    }
-   for(std::vector<TEveElement*>::iterator it = m_rhoPhiProjs.begin(), itEnd = m_rhoPhiProjs.end();
-       it != itEnd;
-       ++it) {
-      delete *it;
-   }
-   for(std::vector<TEveElement*>::iterator it = m_rhoZProjs.begin(), itEnd = m_rhoZProjs.end();
-       it != itEnd;
-       ++it) {
-      delete *it;
-   }
-   m_rhoPhiProjs.clear();
-   m_rhoZProjs.clear();
+   m_rhoPhiProjs.RemoveElements();
+   m_rhoZProjs.RemoveElements();
    m_ids.clear();
 }
 
@@ -166,8 +166,8 @@ FWRPZ2DDataProxyBuilder::buildRhoZ(TEveElementList** iObject)
 void 
 FWRPZ2DDataProxyBuilder::modelChangesRhoPhi(const FWModelIds& iIds)
 {
-   std::for_each(m_rhoPhiProjs.begin(),
-                 m_rhoPhiProjs.end(),
+   std::for_each(m_rhoPhiProjs.BeginChildren(),
+                 m_rhoPhiProjs.EndChildren(),
                  boost::bind(&FWRPZ2DDataProxyBuilder::modelChangesRhoPhi,
                              this,
                              iIds,
@@ -177,8 +177,8 @@ FWRPZ2DDataProxyBuilder::modelChangesRhoPhi(const FWModelIds& iIds)
 void 
 FWRPZ2DDataProxyBuilder::modelChangesRhoZ(const FWModelIds& iIds)
 {
-   std::for_each(m_rhoZProjs.begin(),
-                 m_rhoZProjs.end(),
+   std::for_each(m_rhoZProjs.BeginChildren(),
+                 m_rhoZProjs.EndChildren(),
                  boost::bind(&FWRPZ2DDataProxyBuilder::modelChangesRhoZ,
                              this,
                              iIds,
@@ -222,12 +222,16 @@ modelChanges(const FWEventItem* iItem,
 void 
 FWRPZ2DDataProxyBuilder::modelChangesRhoPhi(const FWModelIds& iIds, TEveElement* iElements)
 {
-   modelChanges(m_item,iIds,iElements);
+   if(m_viewsAvailable) {
+      modelChanges(m_item,iIds,iElements);
+   }
 }
 void 
 FWRPZ2DDataProxyBuilder::modelChangesRhoZ(const FWModelIds& iIds, TEveElement* iElements)
 {
-   modelChanges(m_item,iIds,iElements);
+   if(m_viewsAvailable) {
+      modelChanges(m_item,iIds,iElements);
+   }
 }
 
 void 
@@ -236,26 +240,26 @@ FWRPZ2DDataProxyBuilder::addRhoPhiProj(TEveElement* iElement)
    
    //std::cout <<"setRhoPhiProj "<<m_item->name()<<" "<<iElement->GetRnrElName()<<" "<<iElement->GetNChildren()<<" "<<m_item->size()<<std::endl;
    assert(0!=iElement);
-   m_rhoPhiProjs.push_back(iElement);
+   m_rhoPhiProjs.AddElement(iElement);
    //assert(0==iElement || iElement->GetNChildren() == m_item->size());
 }
 void 
 FWRPZ2DDataProxyBuilder::addRhoZProj(TEveElement* iElement)
 {
    assert(0!=iElement);
-   m_rhoZProjs.push_back(iElement);
+   m_rhoZProjs.AddElement(iElement);
    //assert(0==iElement || iElement->GetNChildren() == m_item->size());
 }
 
 void 
 FWRPZ2DDataProxyBuilder::clearRhoPhiProjs()
 {
-   m_rhoPhiProjs.clear();
+   m_rhoPhiProjs.RemoveElements();
 }
 void 
 FWRPZ2DDataProxyBuilder::clearRhoZProjs()
 {
-   m_rhoZProjs.clear();
+   m_rhoZProjs.RemoveElements();
 }
 
 //
