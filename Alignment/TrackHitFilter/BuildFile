@@ -16,4 +16,3 @@
    <use name=Alignment/TrackerAlignment>
    <use name=rootrflx>
 </export>
-<flags CXXFLAGS="-g">
