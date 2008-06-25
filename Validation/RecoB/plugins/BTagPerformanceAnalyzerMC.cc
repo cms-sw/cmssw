@@ -275,7 +275,7 @@ void BTagPerformanceAnalyzerMC::analyze(const edm::Event& iEvent, const edm::Eve
     iEvent.getByLabel(jetMCSrc, jetMC);
     for (JetFlavourMatchingCollection::const_iterator iter = jetMC->begin();
          iter != jetMC->end(); iter++) {
-      unsigned int fl = iter->second.getFlavour();
+      unsigned int fl = abs(iter->second.getFlavour());
       flavours.insert(FlavourMap::value_type(iter->first, fl));
     }
   }
