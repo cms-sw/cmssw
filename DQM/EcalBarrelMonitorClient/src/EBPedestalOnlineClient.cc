@@ -1,8 +1,8 @@
 /*
  * \file EBPedestalOnlineClient.cc
  *
- * $Date: 2008/06/25 08:08:14 $
- * $Revision: 1.138 $
+ * $Date: 2008/06/25 08:15:00 $
+ * $Revision: 1.139 $
  * \author G. Della Ricca
  * \author F. Cossutti
  *
@@ -412,6 +412,18 @@ void EBPedestalOnlineClient::analyze(void) {
 }
 
 void EBPedestalOnlineClient::softReset(bool flag) {
+
+  for ( unsigned int i=0; i<superModules_.size(); i++ ) {
+
+    int ism = superModules_[i];
+
+    if ( flag ) {
+      if ( meh03_[ism-1] ) dqmStore_->softReset(meh03_[ism-1]);
+    } else {
+//      if ( meh03_[ism-1] ) dqmStore_->disableSoftReset(meh03_[ism-1]);
+    }
+
+  } 	 
 
 }
 
