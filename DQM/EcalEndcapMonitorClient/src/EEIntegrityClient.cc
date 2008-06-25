@@ -2,8 +2,8 @@
 /*
  * \file EEIntegrityClient.cc
  *
- * $Date: 2008/06/25 08:15:01 $
- * $Revision: 1.78 $
+ * $Date: 2008/06/25 13:11:08 $
+ * $Revision: 1.79 $
  * \author G. Della Ricca
  * \author G. Franzoni
  *
@@ -1052,8 +1052,7 @@ void EEIntegrityClient::softReset(bool flag) {
   me = dqmStore_->get(histo);
   if ( flag ) {
     if ( me ) dqmStore_->softReset( me );
-  }
-  else {
+  } else {
     //      if ( me ) dqmStore_->disableSoftReset( me );
   }
 
@@ -1065,99 +1064,88 @@ void EEIntegrityClient::softReset(bool flag) {
     me = dqmStore_->get(histo);
     if ( flag ) {
       if ( me ) dqmStore_->softReset( me );
-    }
-    else {
-      //      if ( me ) dqmStore_->disableSoftReset( me );
+    } else {
+//      if ( me ) dqmStore_->disableSoftReset( me );
     }
 
     sprintf(histo, (prefixME_ + "/EEOccupancyTask/EEOT MEM digi occupancy %s").c_str(), Numbers::sEE(ism).c_str());
     me = dqmStore_->get(histo);
     if ( flag ) {
       if ( me ) dqmStore_->softReset( me );
-    }
-    else {
-      //      if ( me ) dqmStore_->disableSoftReset( me );
+    } else {
+//      if ( me ) dqmStore_->disableSoftReset( me );
     }
 
     sprintf(histo, (prefixME_ + "/EEIntegrityTask/Gain/EEIT gain %s").c_str(), Numbers::sEE(ism).c_str());
     me = dqmStore_->get(histo);
     if ( flag ) {
       if ( me ) dqmStore_->softReset( me );
-    }
-    else {
-      //      if ( me ) dqmStore_->disableSoftReset( me );
+    } else {
+//      if ( me ) dqmStore_->disableSoftReset( me );
     }
 
     sprintf(histo, (prefixME_ + "/EEIntegrityTask/ChId/EEIT ChId %s").c_str(), Numbers::sEE(ism).c_str());
     me = dqmStore_->get(histo);
     if ( flag ) {
       if ( me ) dqmStore_->softReset( me );
-    }
-    else {
-      //      if ( me ) dqmStore_->disableSoftReset( me );
+    } else {
+//      if ( me ) dqmStore_->disableSoftReset( me );
     }
 
     sprintf(histo, (prefixME_ + "/EEIntegrityTask/GainSwitch/EEIT gain switch %s").c_str(), Numbers::sEE(ism).c_str());
     me = dqmStore_->get(histo);
     if ( flag ) {
       if ( me ) dqmStore_->softReset( me );
-    }
-    else {
-      //      if ( me ) dqmStore_->disableSoftReset( me );
+    } else {
+//      if ( me ) dqmStore_->disableSoftReset( me );
     }
 
     sprintf(histo, (prefixME_ + "/EEIntegrityTask/TTId/EEIT TTId %s").c_str(), Numbers::sEE(ism).c_str());
     me = dqmStore_->get(histo);
     if ( flag ) {
       if ( me ) dqmStore_->softReset( me );
-    }
-    else {
-      //      if ( me ) dqmStore_->disableSoftReset( me );
+    } else {
+//      if ( me ) dqmStore_->disableSoftReset( me );
     }
 
     sprintf(histo, (prefixME_ + "/EEIntegrityTask/TTBlockSize/EEIT TTBlockSize %s").c_str(), Numbers::sEE(ism).c_str());
     me = dqmStore_->get(histo);
     if ( flag ) {
       if ( me ) dqmStore_->softReset( me );
-    }
-    else {
-      //      if ( me ) dqmStore_->disableSoftReset( me );
+    } else {
+//      if ( me ) dqmStore_->disableSoftReset( me );
     }
 
     sprintf(histo, (prefixME_ + "/EEIntegrityTask/MemChId/EEIT MemChId %s").c_str(), Numbers::sEE(ism).c_str());
     me = dqmStore_->get(histo);
     if ( flag ) {
       if ( me ) dqmStore_->softReset( me );
-    }
-    else {
-      //      if ( me ) dqmStore_->disableSoftReset( me );
+    } else {
+//      if ( me ) dqmStore_->disableSoftReset( me );
     }
 
     sprintf(histo, (prefixME_ + "/EEIntegrityTask/MemGain/EEIT MemGain %s").c_str(), Numbers::sEE(ism).c_str());
     me = dqmStore_->get(histo);
     if ( flag ) {
       if ( me ) dqmStore_->softReset( me );
-    }
-    else {
-      //      if ( me ) dqmStore_->disableSoftReset( me );
+    } else {
+//      if ( me ) dqmStore_->disableSoftReset( me );
     }
 
     sprintf(histo, (prefixME_ + "/EEIntegrityTask/MemTTId/EEIT MemTTId %s").c_str(), Numbers::sEE(ism).c_str());
     me = dqmStore_->get(histo);
     if ( flag ) {
       if ( me ) dqmStore_->softReset( me );
-    }
-    else {
-      //      if ( me ) dqmStore_->disableSoftReset( me );
+    } else {
+//      if ( me ) dqmStore_->disableSoftReset( me );
     }
 
     sprintf(histo, (prefixME_ + "/EEIntegrityTask/MemSize/EEIT MemSize %s").c_str(), Numbers::sEE(ism).c_str());
     me = dqmStore_->get(histo);
     if ( flag ) {
       if ( me ) dqmStore_->softReset( me );
-    }
-    else {
-      //      if ( me ) dqmStore_->disableSoftReset( me );
+    } else {
+//      if ( me ) dqmStore_->disableSoftReset( me );
     }
 
   }
