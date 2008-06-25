@@ -98,7 +98,19 @@ public :
   UEAnalysisJets* jetsHLT1jet250     ;
   UEAnalysisJets* jetsAll            ;
 
-  UEAnalysisAntiKtJets* antiKtJets;
+  UEAnalysisAntiKtJets* antiKtJetsHLTMinBiasPixel;
+  UEAnalysisAntiKtJets* antiKtJetsHLTMinBiasHcal;
+  UEAnalysisAntiKtJets* antiKtJetsHLTMinBiasEcal;
+  UEAnalysisAntiKtJets* antiKtJetsHLTMinBias;
+  UEAnalysisAntiKtJets* antiKtJetsHLTZeroBias;
+  UEAnalysisAntiKtJets* antiKtJetsHLT1jet30;
+  UEAnalysisAntiKtJets* antiKtJetsHLT1jet50;
+  UEAnalysisAntiKtJets* antiKtJetsHLT1jet80;
+  UEAnalysisAntiKtJets* antiKtJetsHLT1jet110;
+  UEAnalysisAntiKtJets* antiKtJetsHLT1jet180;
+  UEAnalysisAntiKtJets* antiKtJetsHLT1jet250;
+
+
   UEAnalysisMPI* mpi;
 
 

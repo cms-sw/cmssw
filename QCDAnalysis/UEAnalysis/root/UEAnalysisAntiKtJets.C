@@ -9,150 +9,139 @@ UEAnalysisAntiKtJets::UEAnalysisAntiKtJets()
 
 }
 
-void UEAnalysisAntiKtJets::Begin(TFile * f){
+//void UEAnalysisAntiKtJets::Begin(TFile * f){
+void UEAnalysisAntiKtJets::Begin(TFile * f, string hltBit)
+{
+  f->cd( hltBit.c_str() );
 
-  f->cd();
+  h_pTJet = new TH1D("h_pTJet", "h_pTJet;p_{T}(jet 1) (GeV/c)", 150, 0., 300. );
+  h_nConstituentsJet = new TH1D("h_nConstituentsJet", "h_nConstituentsJet;N(jet constituents)", 30, 0.5, 30.5);
+  h_pTByNConstituentsJet = new TH1D("h_pTByNConstituentsJet", "h_pTByNConstituentsJet;p_{T}(jet 1)/N(jet constituents) (GeV/c)", 100, 0., 50. );
+  h_areaJet = new TH1D("h_areaJet", "h_areaJet;jet area (rad)", 100, 0., 1.5);
+  h_pTConstituent = new TH1D("h_pTConstituent", "h_pTConstituent;p_{T}(jet constituent) (GeV/c)", 100, 0., 50. );
+  h_dphiJC = new TH1D("h_dphiJC", "h_dphiJC;#Delta#phi(jet 1, jet constituent) (rad)", 100, 0., TMath::Pi() );
+  h_dphiEcal = new TH1D("h_dphiEcal", "h_dphiEcal;constituent #Delta#phi(Vtx, ECAL) (rad)", 100, 0., 1.5 );
 
-  dr_chgcalo = new TH1F("dr_chgcalo","#Delta R Charged RECO vs Calorimeter",100,0.,10.);
-  dr_chginc = new TH1F("dr_chginc","#Delta R Charged RECO vs Inclusive",100,0.,10.);
-  dr_chgmcreco = new TH1F("dr_chgmcreco","#Delta R Charged RECO vs Charged MC",100,0.,10.);
-  dr_caloinc = new TH1F("dr_caloinc","#Delta R Calorimeter vs Inclusive",100,0.,10.);
-  numb_cal = new TH1F("numb_cal","Number calo Jet",30,0.,30.);
-  pT_cal = new TH1F("pT_cal","P_{T} calo",100,0.,200.);
-  eta_cal = new TH1F("eta_cal","#eta Calo",100,-3.,3.);
-  eta_cal_res = new TH1F("eta_cal_res","#eta_{calo} - #eta_{inc}",100,-3.,3.);
-  phi_cal = new TH1F("phi_cal","#phi Calo",50,-3.14,3.14);
-  phi_cal_res = new TH1F("phi_cal_res","#phi_{calo} - #phi_{inc}",100,-3.,3.);
-  numb_chgmc = new TH1F("numb_chgmc","Number Charged MC Jet",30,0.,30.);
-  pT_chgmc = new TH1F("pT_chgmc","P_{T} Charged MC",100,0.,200.);
-  eta_chgmc = new TH1F("eta_chgmc","#eta Charged MC",100,-3.,3.);
-  eta_chgmc_res = new TH1F("eta_chgmc_res","#eta_{chg MC} - #eta_{inc}",100,-3.,3.);
-  phi_chgmc = new TH1F("phi_chgmc","#phi Charged MC",50,-3.14,3.14);
-  phi_chgmc_res = new TH1F("phi_chgmc_res","#phi_{chg MC} - #phi_{inc}",100,-3.,3.);
-  numb_chgreco = new TH1F("numb_chgreco","Number Charged RECO Jet",30,0.,30.);
-  pT_chgreco = new TH1F("pT_chgreco","P_{T} Charged RECO",100,0.,200.);
-  eta_chgreco = new TH1F("eta_chgreco","#eta Charged RECO",100,-3.,3.);
-  eta_chgreco_res = new TH1F("eta_chgreco_res","#eta_{chg RECO} - #eta_{inc}",100,-3.,3.);
-  phi_chgreco = new TH1F("phi_chgreco","#phi Charged RECO",50,-3.14,3.14);
-  phi_chgreco_res = new TH1F("phi_chgreco_res","#phi_{chg RECO} - #phi_{inc}",100,-3.,3.);
-  numb_inc = new TH1F("numb_inc","Number Inclusive Jet",30,0.,30.);
-  pT_inc = new TH1F("pT_inc","P_{T} Inclusive",100,0.,200.);
-  eta_inc = new TH1F("eta_inc","#eta Inclusive",100,-3.,3.);
-  phi_inc = new TH1F("phi_inc","#phi Inclusive",50,-3.14,3.14);
-  calib_chgcalo  = new TProfile("calib_chgcalo","#frac{P_{T}^{Chg RECO}}{P_{T}^{Calo}} vs P_{T}^{Calo}",100,0,200,-4,4);
-  calib_chginc  = new TProfile("calib_chginc","#frac{P_{T}^{Chg RECO}}{P_{T}^{Inc}} vs P_{T}^{Inc}",100,0,200,-4,4);
-  calib_chgmcreco  = new TProfile("calib_chgmcreco","#frac{P_{T}^{Chg MC}}{P_{T}^{Chg RECO}} vs P_{T}^{Chg RECO}",100,0,200,-4,4);
-  calib_caloinc  = new TProfile("calib_caloinc","#frac{P_{T}^{Calo}}{P_{T}^{Inc}} vs P_{T}^{Inc}",100,0,200,-4,4);
-  calib_chgcalo_eta  = new TProfile("calib_chgcalo_eta","#frac{P_{T}^{Chg RECO}}{P_{T}^{Calo}} vs #eta^{Calo}",100,-3,3,-4,4);
-  calib_chginc_eta  = new TProfile("calib_chginc_eta","#frac{P_{T}^{Chg RECO}}{P_{T}^{Inc}} vs #eta^{Inc}",100,-3,3,-4,4);
-  calib_chgmcreco_eta  = new TProfile("calib_chgmcreco_eta","#frac{P_{T}^{Chg MC}}{P_{T}^{Chg RECO}} vs #eta^{Chg RECO}",100,-3,3,-4,4);
-  calib_caloinc_eta  = new TProfile("calib_caloinc_eta","#frac{P_{T}^{Calo}}{P_{T}^{Inc}} vs #eta^{Inc}",100,-3,3,-4,4);
-  calib_chgcalo_phi  = new TProfile("calib_chgcalo_phi","#frac{P_{T}^{Chg RECO}}{P_{T}^{Calo}} vs #phi^{Calo}",100,-3,3,-4,4);
-  calib_chginc_phi  = new TProfile("calib_chginc_phi","#frac{P_{T}^{Chg RECO}}{P_{T}^{Inc}} vs #phi^{Inc}",100,-3,3,-4,4);
-  calib_chgmcreco_phi  = new TProfile("calib_chgmcreco_phi","#frac{P_{T}^{Chg MC}}{P_{T}^{Chg RECO}} vs #phi^{Chg RECO}",100,-3,3,-4,4);
-  calib_caloinc_phi  = new TProfile("calib_caloinc_phi","#frac{P_{T}^{Calo}}{P_{T}^{Inc}} vs #phi^{Inc}",100,-3,3,-4,4);
+  h2d_nConstituentsJet_vs_pTJet = new TH2D("h2d_nConstituentsJet_vs_pTJet", "h2d_nConstituentsJet_vs_pTJet;p_{T}(jet 1) (GeV/c);N(jet constituents)",
+					   150, 0., 300., 30, 0.5, 30.5);
+  h2d_pTByNConstituentsJet_vs_pTJet = new TH2D("h2d_pTByNConstituentsJet_vs_pTJet",
+					       "h2d_pTByNConstituentsJet_vs_pTJet;p_{T}(jet 1) (GeV/c);p_{T}(jet 1)/N(jet constituents) (GeV/c)",
+					       100, 0., 50., 30, 0.5, 30.5);
+  h2d_areaJet_vs_pTJet = new TH2D("h2d_areaJet_vs_pTJet", "h2d_areaJet_vs_pTJet;p_{T}(jet 1) (GeV/c);jet area (rad)",
+				  150, 0., 300., 100, 0., 1.5);
+  h2d_pTConstituent_vs_pTJet = new TH2D("h2d_pTConstituent_vs_pTJet", "h2d_pTConstituent_vs_pTJet;p_{T}(jet 1) (GeV/c);p_{T}(jet constituent) (GeV/c)",
+					150, 0., 300., 100, 0., 50.);
+  h2d_dphiJC_vs_pTConstituent = new TH2D("h2d_dphiJC_vs_pTConstituent", 
+				       "h2d_dphiJC_vs_pTConstituent;p_{T}(jet constituent) (GeV/c);#Delta#phi(jet 1, jet constituent) (rad)",
+				       100, 0., 50., 100, 0., TMath::Pi() );
+  h2d_dphiJC_vs_pTJet = new TH2D("h2d_dphiJC_vs_pTJet", "h2d_dphiJC_vs_pTJet;p_{T}(jet 1) (GeV/c);#Delta#phi(jet 1, jet constituent) (rad)",
+			       150, 0., 300., 100, 0., TMath::Pi() );
+  h2d_dphiEcal_vs_pTConstituent = new TH2D("h2d_dphiEcal_vs_pTConstituent",
+					   "h2d_dphiEcal_vs_pTConstituent;p_{T}(jet constituent) (GeV/c);constituent #Delta#phi(Vtx, ECAL) (rad)",
+					   100, 0., 3., 100, 0., 1.5 );
+  h2d_dphiEcal_vs_pTJet = new TH2D("h2d_dphiEcal_vs_pTJet", "h2d_dphiEcal_vs_pTJet;p_{T}(jet 1) (GeV/c);constituent #Delta#phi(Vtx, ECAL) (rad)",
+				 150, 0., 300., 100, 0., 1.5 );
+      
+}
 
-  h2d_weightVSratioPtTracksJetPtCaloJet 
-    = new TH2D("h2d_weightVSratioPtTracksJetPtCaloJet",
-	       "h2d_weightVSratioPtTracksJetPtCaloJet;p_{T}(jet from tracks)/p_{T}(calo jet);event weight",
-	       100, 0., 4., 100, 0., 10.);
+double UEAnalysisAntiKtJets::ecalPhi(const float ptParticle)
+{
+  const float R_ECAL           = 136.5;
+  const float magFieldInTesla  = 4.;
 
-  h2d_calib_chgcalo
-    = new TH2D("h2d_calib_chgcalo",
-	       "h2d_calib_chgcalo;p_{T}(calo jet) (GeV/c);p_{T}(jet from tracks)/p_{T}(calo jet)",
-	       100, 0., 200., 100, 0., 4.);
-  //
-  // hlt1jet30
-  // hlt1jet50
-  // hlt1jet80
-  // hlt1jet110
-  // hlt1jet180
-  // hlt1jet250
+  float phiParticle = 0.;
 
-  pT_cal_hlt1jet30  = new TH1F("pT_cal_hlt1jet30","P_{T} calo (hlt1jet30)",100,0.,200.);
-  pT_cal_hlt1jet50  = new TH1F("pT_cal_hlt1jet50","P_{T} calo (hlt1jet50)",100,0.,200.);
-  pT_cal_hlt1jet80  = new TH1F("pT_cal_hlt1jet80","P_{T} calo (hlt1jet80)",100,0.,200.);
-  pT_cal_hlt1jet110 = new TH1F("pT_cal_hlt1jet110","P_{T} calo (hlt1jet110)",100,0.,200.);
-  pT_cal_hlt1jet180 = new TH1F("pT_cal_hlt1jet180","P_{T} calo (hlt1jet180)",100,0.,200.);
-  pT_cal_hlt1jet250 = new TH1F("pT_cal_hlt1jet250","P_{T} calo (hlt1jet250)",100,0.,200.);
+  // Magnetic field
 
-  pT_chgreco_hlt1jet30  = new TH1F("pT_chgreco_hlt1jet30","P_{T} Charged RECO (hlt1jet30)",100,0.,200.);
-  pT_chgreco_hlt1jet50  = new TH1F("pT_chgreco_hlt1jet50","P_{T} Charged RECO (hlt1jet50)",100,0.,200.);
-  pT_chgreco_hlt1jet80  = new TH1F("pT_chgreco_hlt1jet80","P_{T} Charged RECO (hlt1jet80)",100,0.,200.);
-  pT_chgreco_hlt1jet110 = new TH1F("pT_chgreco_hlt1jet110","P_{T} Charged RECO (hlt1jet110)",100,0.,200.);
-  pT_chgreco_hlt1jet180 = new TH1F("pT_chgreco_hlt1jet180","P_{T} Charged RECO (hlt1jet180)",100,0.,200.);
-  pT_chgreco_hlt1jet250 = new TH1F("pT_chgreco_hlt1jet250","P_{T} Charged RECO (hlt1jet250)",100,0.,200.);
+  const float RBARM = 1.357 ;  // was 1.31 , updated on 16122003
+  const float ZENDM = 3.186 ;  // was 3.15 , updated on 16122003
 
-  pT_chgmc_hlt1jet30  = new TH1F("pT_chgmc_hlt1jet30","P_{T} Charged MC (hlt1jet30)",100,0.,200.);
-  pT_chgmc_hlt1jet50  = new TH1F("pT_chgmc_hlt1jet50","P_{T} Charged MC (hlt1jet50)",100,0.,200.);
-  pT_chgmc_hlt1jet80  = new TH1F("pT_chgmc_hlt1jet80","P_{T} Charged MC (hlt1jet80)",100,0.,200.);
-  pT_chgmc_hlt1jet110 = new TH1F("pT_chgmc_hlt1jet110","P_{T} Charged MC (hlt1jet110)",100,0.,200.);
-  pT_chgmc_hlt1jet180 = new TH1F("pT_chgmc_hlt1jet180","P_{T} Charged MC (hlt1jet180)",100,0.,200.);
-  pT_chgmc_hlt1jet250 = new TH1F("pT_chgmc_hlt1jet250","P_{T} Charged MC (hlt1jet250)",100,0.,200.);
+  float rbend = RBARM;
+  float bend  = 0.3 * magFieldInTesla * rbend / 2.0; 
+  float phi = 0.0;
 
-  pT_inc_hlt1jet30  = new TH1F("pT_inc_hlt1jet30","P_{T} Inclusive (hlt1jet30)",100,0.,200.);
-  pT_inc_hlt1jet50  = new TH1F("pT_inc_hlt1jet50","P_{T} Inclusive (hlt1jet50)",100,0.,200.);
-  pT_inc_hlt1jet80  = new TH1F("pT_inc_hlt1jet80","P_{T} Inclusive (hlt1jet80)",100,0.,200.);
-  pT_inc_hlt1jet110 = new TH1F("pT_inc_hlt1jet110","P_{T} Inclusive (hlt1jet110)",100,0.,200.);
-  pT_inc_hlt1jet180 = new TH1F("pT_inc_hlt1jet180","P_{T} Inclusive (hlt1jet180)",100,0.,200.);
-  pT_inc_hlt1jet250 = new TH1F("pT_inc_hlt1jet250","P_{T} Inclusive (hlt1jet250)",100,0.,200.);
-  //
+  // only valid if track is in barrel
+  if (TMath::Abs(bend/ptParticle) <= 1.) 
+    {
+      phi = (-1.)*(phiParticle - asin(bend/ptParticle));
+      if(phi >  TMath::Pi()) phi = phi - TMath::TwoPi();
+      if(phi < -TMath::Pi()) phi = phi + TMath::TwoPi();
+    } else {
+      cout << "[EcalPositionFromTrack::phiTransformation] Warning: "
+	   << "Too low Pt, giving up" << endl;
+      return phiParticle;
+    }
+  
+  return phi;
 
 }
 
-void UEAnalysisAntiKtJets::jetCalibAnalysis(float weight,float etaRegion,TClonesArray * InclusiveJet,TClonesArray * ChargedJet,TClonesArray * TracksJet,TClonesArray * CalorimeterJet, TClonesArray* MonteCarlo, TClonesArray* Track, TClonesArray *acceptedTriggers)
+
+void UEAnalysisAntiKtJets::jetAnalysis(float weight, float etaRegion, float ptThreshold, TClonesArray* Track, TFile* f, string hltBit)
 {
-  if ( MonteCarlo->GetSize() == 0 ) return;
+  f->cd( hltBit.c_str() );
 
-  // 
-  // ===== begin FastJet code
+  // FastJet package
+  //
+  // written by Matteo Cacciari, Gavin Salam and Gregory Soyez
+  // http://www.lpthe.jussieu.fr/~salam/fastjet/
+  //
+  // Phys. Lett. B 641 (2006) 57 (FastJet package)
+  // arXiv:0802.1188 (jet area)
+ 
 
-  // run fastjet finder on generated particles
+  // return if no four-vectors are provided
+  if ( Track->GetSize() == 0 ) return;
 
   // prepare input 
   std::vector<fastjet::PseudoJet> fjInputs;
-  fjInputs.reserve ( MonteCarlo->GetSize() );
+  fjInputs.reserve ( Track->GetSize() );
 
   int iJet( 0 );
-  for(int i=0;i<MonteCarlo->GetSize();++i) 
+  for(int i=0;i<Track->GetSize();++i) 
     {
-      TLorentzVector *v = (TLorentzVector*)MonteCarlo->At(i);
+      TLorentzVector *v = (TLorentzVector*)Track->At(i);
+
+      if ( TMath::Abs(v->Eta()) > etaRegion   ) continue;
+      if ( v->Pt()              < ptThreshold ) continue;
       
       fjInputs.push_back (fastjet::PseudoJet (v->Px(), v->Py(), v->Pz(), v->E()) );
       fjInputs.back().set_user_index(iJet);
       ++iJet;
     }
+  // return if no four-vectors in visible phase space
+  if ( fjInputs.size() == 0 ) return;
 
   // create an object that represents your choice of jet finder and 
   // the associated parameters
   // run the jet clustering with the above jet definition
  
   // parameters from RecoJets/JetProducers/data/kt4GenJets.cff (CMSSW)
-  double rParam( 0.4 );
-  double mJetPtMin( 1. );
+  double rParam   ( 0.4 );
+  double mJetPtMin( 1.  );
 
   // parameter from RecoJets/JetProducers/data/KtJetParameters.cfi (CMSSW)
   fastjet::Strategy fjStrategy( fastjet::Best );
-  fastjet::JetDefinition* mJetDefinition( new fastjet::JetDefinition (fastjet::kt_algorithm, rParam, fjStrategy) );
+  //  fastjet::JetDefinition* mJetDefinition( new fastjet::JetDefinition (fastjet::kt_algorithm, rParam, fjStrategy) );
+  fastjet::JetDefinition* mJetDefinition( new fastjet::JetDefinition (fastjet::antikt_algorithm, rParam, fjStrategy) );
     
   // parameters from RecoJets/JetProducers/data/FastjetParameters.cfi (CMSSW)
       
-  // do not calculate jet areas (default)
-  double ghostEtaMax( 0. );
+  double ghostEtaMax   ( 0. );
   int activeAreaRepeats( 0 );
-  double ghostArea( 1. );
+  double ghostArea     ( 1. );
 
-  // calculate jet areas
-  ghostEtaMax       = 6.;
-  activeAreaRepeats = 5;
-  ghostArea         = 0.01;
+  // calculate jet areas (if commented out, no areas are calculated)
+  //   ghostEtaMax       = 6.;
+  //   activeAreaRepeats = 5;
+  //   ghostArea         = 0.01;
 
   fastjet::GhostedAreaSpec* mActiveArea( new fastjet::ActiveAreaSpec (ghostEtaMax, activeAreaRepeats, ghostArea) );
 
   // print out info on current jet algorithm
-  cout << endl;
-  cout << mJetDefinition->description() << endl;
-  cout << mActiveArea->description() << endl;
+  //   cout << endl;
+  //   cout << mJetDefinition->description() << endl;
+  //   cout << mActiveArea->description() << endl;
 
   // here we need to keep both pointers, as "area" interfaces are missing in base class
   fastjet::ClusterSequenceActiveArea* clusterSequenceWithArea( 0 );
@@ -173,381 +162,117 @@ void UEAnalysisAntiKtJets::jetCalibAnalysis(float weight,float etaRegion,TClones
   // get PU pt
   double median_Pt_Per_Area = clusterSequenceWithArea ? clusterSequenceWithArea->pt_per_unit_area() : 0.;
 
-  int columnwidth( 10 );
+  //  int columnwidth( 10 );
 
   // process found jets
-  cout << "found " << jets.size() << " jets with median_Pt_Per_Area " << median_Pt_Per_Area << endl;
-  cout.width( 5 );
-  cout << "jet";
-  cout.width( columnwidth );
-  cout << "eta";
-  cout.width( columnwidth );
-  cout << "phi";
-  cout.width( columnwidth );
-  cout << "pT";
-  cout.width( columnwidth );
-  cout << "jetArea";
-  cout.width( 15 );
-  cout << "pT / jetArea";
-  cout << endl;
-
-  for ( int i(0); i<jets.size(); ++i )
-    {
-      cout.width( 5 );
-      cout << i;
-      cout.width( columnwidth );
-      cout << jets[i].eta();
-      cout.width( columnwidth );
-      cout << jets[i].phi();
-      cout.width( columnwidth );
-      cout << jets[i].perp();
-      cout.width( columnwidth );
-      cout << clusterSequenceWithArea->area(jets[i]);
-      cout.width( 15 );
-      cout << jets[i].perp()/clusterSequenceWithArea->area(jets[i]);
-      cout << endl;
-    }
+  //   cout << "found " << jets.size() << " jets with median_Pt_Per_Area " << median_Pt_Per_Area << endl;
+  //   cout.width( 5 );
+  //   cout << "jet";
+  //   cout.width( columnwidth );
+  //   cout << "eta";
+  //   cout.width( columnwidth );
+  //   cout << "phi";
+  //   cout.width( columnwidth );
+  //   cout << "pT";
+  //   cout.width( columnwidth );
+  //   cout << "jetArea";
+  //   cout.width( 15 );
+  //   cout << "pT / jetArea";
+  //   cout << endl;
+  
+  //   for ( int i(0); i<jets.size(); ++i )
+  //     {
+  //       cout.width( 5 );
+  //       cout << i;
+  //       cout.width( columnwidth );
+  //       cout << jets[i].eta();
+  //       cout.width( columnwidth );
+  //       cout << jets[i].phi();
+  //       cout.width( columnwidth );
+  //       cout << jets[i].perp();
+  //       cout.width( columnwidth );
+  //       cout << clusterSequenceWithArea->area(jets[i]);
+  //       cout.width( 15 );
+  //       cout << jets[i].perp()/clusterSequenceWithArea->area(jets[i]);
+  //       cout << endl;
+  //     }
 
   vector<fastjet::PseudoJet> sorted_jets = sorted_by_pt(jets); 
+  
+  if ( sorted_jets.size() > 0 )
+    {
+      fastjet::PseudoJet jet1( sorted_jets[0] );
 
+      //std::vector< PseudoJet > constituents (const PseudoJet &jet) const 
+      // return a vector of the particles that make up jet 
+
+      std::vector< fastjet::PseudoJet > constituents( clusterSequenceWithArea->constituents(jet1) );
+
+      //       cout << "hardest jet: pT=" << jet1.perp() 
+      // 	   << ", n(constituents)=" << constituents.size() 
+      // 	   << ", fraction=" << jet1.perp()/constituents.size()
+      // 	   << ", area=" << clusterSequenceWithArea->area(jet1)
+      // 	   << endl;
+
+      h_pTJet               ->Fill( jet1.perp()                        , weight );
+      h_nConstituentsJet    ->Fill( constituents.size()                , weight );
+      h_pTByNConstituentsJet->Fill( jet1.perp()/constituents.size()    , weight );
+      h_areaJet             ->Fill( clusterSequenceWithArea->area(jet1), weight );
+
+      h2d_nConstituentsJet_vs_pTJet    ->Fill( jet1.perp(), constituents.size()                , weight );
+      h2d_pTByNConstituentsJet_vs_pTJet->Fill( jet1.perp(), jet1.perp()/constituents.size()    , weight );
+      h2d_areaJet_vs_pTJet             ->Fill( jet1.perp(), clusterSequenceWithArea->area(jet1), weight );
+
+      std::vector<fastjet::PseudoJet>::iterator it   ( constituents.begin() );
+      std::vector<fastjet::PseudoJet>::iterator itEnd( constituents.end()   );
+      for ( ; it!=itEnd; ++it )
+	{
+	  //	  cout << "\tconstituent pT=" << (*it).perp() << endl;
+
+	  h_pTConstituent->Fill( (*it).perp(), weight );
+
+	  h2d_pTConstituent_vs_pTJet->Fill( jet1.perp(), (*it).perp(), weight );
+
+	  TVector2* jvec = new TVector2(jet1.px(), jet1.py());
+	  TVector2* cvec = new TVector2((*it).px(), (*it).py());
+	  h_dphiJC                    ->Fill( TMath::Abs(jvec->DeltaPhi(*cvec)), weight );
+	  h2d_dphiJC_vs_pTConstituent ->Fill( (*it).perp(), TMath::Abs(jvec->DeltaPhi(*cvec)), weight );
+	  h2d_dphiJC_vs_pTJet         ->Fill( jet1.perp() , TMath::Abs(jvec->DeltaPhi(*cvec)), weight );
+	  jvec->Delete();
+	  cvec->Delete();
+
+	  //	  cout << "phi=" << (*it).phi() << ", dphi(phi,ecalphi)=" << ecalPhi((*it).perp()) << endl;
+	  h_dphiEcal                   ->Fill( ecalPhi((*it).perp()), weight );
+	  h2d_dphiEcal_vs_pTConstituent->Fill( (*it).perp(), ecalPhi((*it).perp()), weight );
+	  h2d_dphiEcal_vs_pTJet        ->Fill( jet1.perp() , ecalPhi((*it).perp()), weight );
+	}
+
+      // ?????????????
+
+    }
 
   iJet = 0;
   int iSavedJet( 0 );
 
-//   // clear jet array from former entries
-//   Jets->Clear();
-//   for (std::vector<fastjet::PseudoJet>::const_iterator jet=jets.begin(); jet!=jets.end();++jet , ++iJet) 
-//     {
-//       if ( jet->perp() < CUTPTJET ) continue; // do not save soft jets
-
-//       new((*Jets)[iSavedJet]) TLorentzVector(jet->px(), jet->py(), jet->pz(), jet->e());
-//       ++iSavedJet;
-//     }
-
+  //   // clear jet array from former entries
+  //   Jets->Clear();
+  //   for (std::vector<fastjet::PseudoJet>::const_iterator jet=jets.begin(); jet!=jets.end();++jet , ++iJet) 
+  //     {
+  //       if ( jet->perp() < CUTPTJET ) continue; // do not save soft jets
+  
+  //       new((*Jets)[iSavedJet]) TLorentzVector(jet->px(), jet->py(), jet->pz(), jet->e());
+  //       ++iSavedJet;
+  //     }
+  
   // cleanup
   if (clusterSequenceWithArea) delete clusterSequenceWithArea;
-  else delete clusterSequence; 
+  else                         delete clusterSequence; 
 
 
   // ===== end FastJet code
 
-
-
-
-
-
-  //
-
-
-
-  if(InclusiveJet->GetEntries()!=0 && ChargedJet->GetEntries()!=0 && TracksJet->GetEntries()!=0 && CalorimeterJet->GetEntries()!=0){
-    
-    float phiEHJ = -666;
-    float phiTJ  = -666;
-    float phiIJ  = -666;
-    float phiCJ  = -666;
-    
-    float ptEHJ = -666;
-    float ptTJ  = -666;
-    float ptIJ  = -666;
-    float ptCJ  = -666;
-    
-    float etaEHJ = -666;
-    float etaTJ  = -666;
-    float etaIJ  = -666;
-    float etaCJ  = -666;
-
-    TLorentzVector *m=0;
-
-    int nIncJet=0;
-
-    for(int i=0;i<InclusiveJet->GetSize();++i) {
-      TLorentzVector *v = (TLorentzVector*)InclusiveJet->At(i);
-      if(fabs(v->Eta())<etaRegion)
-	nIncJet++;
-    } 
-    
-    int nChgRECOJet=0;
-    for(int i=0;i<TracksJet->GetSize();++i)
-      {
-	TLorentzVector *v = (TLorentzVector*)TracksJet->At(i);
-	if(fabs(v->Eta())<etaRegion)
-	  nChgRECOJet++;
-      }
-    
-    int nChgMCJet=0;
-    for(int i=0;i<ChargedJet->GetSize();++i)
-      {
-	TLorentzVector *v = (TLorentzVector*)ChargedJet->At(i);
-	if(fabs(v->Eta())<etaRegion)
-	  nChgMCJet++;
-      }
-    
-    int nCaloJet=0;
-    for(int i=0;i<CalorimeterJet->GetSize();++i)
-      {
-	TLorentzVector *v = (TLorentzVector*)CalorimeterJet->At(i);
-	if(fabs(v->Eta())<etaRegion)
-	  nCaloJet++;
-      }
-    
-    numb_cal->Fill(nCaloJet);
-    numb_chgmc->Fill(nChgMCJet);
-    numb_chgreco->Fill(nChgRECOJet);
-    numb_inc->Fill(nIncJet);
-
-    TLorentzVector *IJ0 = (TLorentzVector*)InclusiveJet->At(0);
-    TLorentzVector *TJ0 = (TLorentzVector*)TracksJet->At(0);
-    TLorentzVector *CJ0 = (TLorentzVector*)CalorimeterJet->At(0);
-
-    if(fabs(IJ0->Eta())<etaRegion && fabs(TJ0->Eta())<etaRegion){
-      eta_chgreco_res->Fill(IJ0->Eta()-TJ0->Eta());
-      phi_chgreco_res->Fill(IJ0->Phi()-TJ0->Phi());
-    }
-
-    if(fabs(IJ0->Eta())<etaRegion && fabs(CJ0->Eta())<etaRegion){
-      eta_chgreco_res->Fill(IJ0->Eta()-CJ0->Eta());
-      phi_chgreco_res->Fill(IJ0->Phi()-CJ0->Phi());
-    }
-
-    for(int i=0;i<InclusiveJet->GetSize();++i)
-      {
-	TLorentzVector *v = (TLorentzVector*)InclusiveJet->At(i);
-	if(fabs(v->Eta())<etaRegion)
-	  {
-	    etaIJ = v->Eta();
-	    ptIJ  = v->Pt();
-	    phiIJ = v->Phi();
-	    break;
-	  }
-      }
-
-    //TLorentzVector* JetFromTracks;
-    for(int i=0;i<TracksJet->GetSize();++i)
-      {
-	TLorentzVector *v = (TLorentzVector*)TracksJet->At(i);
-	if(fabs(v->Eta())<etaRegion)
-	  {
-	    etaTJ = v->Eta();
-	    ptTJ  = v->Pt();
-	    phiTJ = v->Phi();
-
-	    //JetFromTracks = new TLorentzVector(v->Px(), v->Py(), v->Pz(), v->E() );
-
-	    break;
-	  }
-    }
-    
-    for(int i=0;i<ChargedJet->GetSize();++i)
-      {
-	TLorentzVector *v = (TLorentzVector*)ChargedJet->At(i);
-	if(fabs(v->Eta())<etaRegion)
-	  {
-	    etaCJ = v->Eta();
-	    ptCJ  = v->Pt();
-	    phiCJ = v->Phi();
-	    break;
-	  }
-    }
-    
-    //TLorentzVector* CaloJet;
-    for(int i=0;i<CalorimeterJet->GetSize();i++)
-      {
-	TLorentzVector *v = (TLorentzVector*)CalorimeterJet->At(i);
-	if(fabs(v->Eta())<etaRegion)
-	  {
-	    etaEHJ = v->Eta();
-	    ptEHJ  = v->Pt();
-	    phiEHJ = v->Phi();
-	    
-	    //CaloJet = new TLorentzVector(v->Px(), v->Py(), v->Pz(), v->E() );
-
-	    break;
-	  }
-      }
- 
-
-    if(etaEHJ!=-666&&etaTJ!=-666){
-      float dPhiEHJTJ = fabs(phiEHJ-phiTJ);
-      if(dPhiEHJTJ>piG)
-	dPhiEHJTJ=2*piG-dPhiEHJTJ;
-
-
-      float delR_chgcalo=sqrt((etaEHJ-etaTJ)*(etaEHJ-etaTJ)+dPhiEHJTJ*dPhiEHJTJ);
-      dr_chgcalo->Fill(delR_chgcalo,weight);
-      if(ptEHJ>0)
-	{
-	  h2d_weightVSratioPtTracksJetPtCaloJet->Fill( ptTJ/ptEHJ, weight );
-	  h2d_calib_chgcalo->Fill( ptEHJ, ptTJ/ptEHJ, weight);
-
-	  calib_chgcalo->Fill(ptEHJ,ptTJ/ptEHJ,weight);
-	  calib_chgcalo_eta->Fill(etaEHJ,ptTJ/ptEHJ,weight);
-	  calib_chgcalo_phi->Fill(phiEHJ,ptTJ/ptEHJ,weight);
-	}
-    }
-    
-    if(etaIJ!=-666&&etaTJ!=-666){
-      float dPhiIJTJ = fabs(phiIJ-phiTJ);
-      if(dPhiIJTJ>piG)
-	dPhiIJTJ=2*piG-dPhiIJTJ;
-      float delR_chginc=sqrt((etaIJ-etaTJ)*(etaIJ-etaTJ)+dPhiIJTJ*dPhiIJTJ);
-      dr_chginc->Fill(delR_chginc,weight);
-      if(ptIJ>0)
-	{
-	  calib_chginc->Fill(ptIJ,ptTJ/ptIJ,weight);
-	  calib_chginc_eta->Fill(etaIJ,ptTJ/ptIJ,weight);
-	  calib_chginc_phi->Fill(phiIJ,ptTJ/ptIJ,weight);
-	}	  
-    }
-
-    if(etaIJ!=-666&&etaCJ!=-666){
-      eta_chgmc_res->Fill((etaIJ-etaCJ));
-      phi_chgmc_res->Fill((phiIJ-phiCJ));
-    }    
-
-    if(etaCJ!=-666&&etaTJ!=-666){
-      float dPhiCJTJ = fabs(phiCJ-phiTJ);
-      if(dPhiCJTJ>piG)
-	dPhiCJTJ=2*piG-dPhiCJTJ;
-      float delR_chgmcreco=sqrt((etaCJ-etaTJ)*(etaCJ-etaTJ)+dPhiCJTJ*dPhiCJTJ);
-      dr_chgmcreco->Fill(delR_chgmcreco,weight);
-      if(ptTJ>0)
-	{
-	  calib_chgmcreco->Fill(ptTJ,ptCJ/ptTJ,weight);
-	  calib_chgmcreco_eta->Fill(etaTJ,ptCJ/ptTJ,weight);
-	  calib_chgmcreco_phi->Fill(phiTJ,ptCJ/ptTJ,weight);
-	}	  
-    }
-    
-    if(etaEHJ!=-666&&etaIJ!=-666){
-      float dPhiIJEHJ = fabs(phiEHJ-phiIJ);
-      if(dPhiIJEHJ>piG)
-	dPhiIJEHJ=2*piG-dPhiIJEHJ;
-      float delR_caloinc=sqrt((etaIJ-etaEHJ)*(etaIJ-etaEHJ)+dPhiIJEHJ*dPhiIJEHJ);
-      dr_caloinc->Fill(delR_caloinc,weight);
-      if(ptIJ>0)
-	{
-	  calib_caloinc->Fill(ptIJ,ptEHJ/ptIJ,weight);
-	  calib_caloinc_eta->Fill(etaIJ,ptEHJ/ptIJ,weight);
-	  calib_caloinc_phi->Fill(phiIJ,ptEHJ/ptIJ,weight);
-	}
-    }
-    
-    if(etaEHJ!=-666){
-      pT_cal->Fill(ptEHJ,weight);
-      eta_cal->Fill(etaEHJ,weight);
-      phi_cal->Fill(phiEHJ,weight);
-
-      //
-      int nAcceptedTriggers( 0 );
-      nAcceptedTriggers = acceptedTriggers->GetSize();
-      for ( int iAcceptedTrigger(0); iAcceptedTrigger<nAcceptedTriggers; ++iAcceptedTrigger )
-	{
-	  // HLT1jet30
-	  // HLT1jet50
-	  // HLT1jet80
-	  // HLT1jet110
-	  // HLT1jet180
-	  // HLT1jet250
-
-	  std::string filterName( acceptedTriggers->At(iAcceptedTrigger)->GetName() );
-	  if      ( filterName=="HLT1jet30"  ) pT_cal_hlt1jet30->Fill(ptEHJ,weight);
-	  else if ( filterName=="HLT1jet50"  ) pT_cal_hlt1jet50->Fill(ptEHJ,weight);
-	  else if ( filterName=="HLT1jet80"  ) pT_cal_hlt1jet80->Fill(ptEHJ,weight);
-	  else if ( filterName=="HLT1jet110" ) pT_cal_hlt1jet110->Fill(ptEHJ,weight);
-	  else if ( filterName=="HLT1jet180" ) pT_cal_hlt1jet180->Fill(ptEHJ,weight);
-	  else if ( filterName=="HLT1jet250" ) pT_cal_hlt1jet250->Fill(ptEHJ,weight);
-	}
-      //
-    }
-    
-    if(etaTJ!=-666){
-      pT_chgreco->Fill(ptTJ,weight);
-      eta_chgreco->Fill(etaTJ,weight);
-      phi_chgreco->Fill(phiTJ,weight);
-
-      //
-      int nAcceptedTriggers( 0 );
-      nAcceptedTriggers = acceptedTriggers->GetSize();
-      for ( int iAcceptedTrigger(0); iAcceptedTrigger<nAcceptedTriggers; ++iAcceptedTrigger )
-        {
-          // HLT1jet30
-          // HLT1jet50
-          // HLT1jet80
-          // HLT1jet110
-          // HLT1jet180
-          // HLT1jet250
-
-	  std::string filterName( acceptedTriggers->At(iAcceptedTrigger)->GetName() );
-	  if      ( filterName=="HLT1jet30"  ) pT_chgreco_hlt1jet30->Fill(ptTJ,weight);
-	  else if ( filterName=="HLT1jet50"  ) pT_chgreco_hlt1jet50->Fill(ptTJ,weight);
-	  else if ( filterName=="HLT1jet80"  ) pT_chgreco_hlt1jet80->Fill(ptTJ,weight);
-	  else if ( filterName=="HLT1jet110" ) pT_chgreco_hlt1jet110->Fill(ptTJ,weight);
-	  else if ( filterName=="HLT1jet180" ) pT_chgreco_hlt1jet180->Fill(ptTJ,weight);
-	  else if ( filterName=="HLT1jet250" ) pT_chgreco_hlt1jet250->Fill(ptTJ,weight);
-	}
-      //
-    }
-    
-    if(etaCJ!=-666){
-      pT_chgmc->Fill(ptCJ,weight);
-      eta_chgmc->Fill(etaCJ,weight);
-      phi_chgmc->Fill(phiCJ,weight);
-
-      //
-      int nAcceptedTriggers( 0 );
-      nAcceptedTriggers = acceptedTriggers->GetSize();
-      for ( int iAcceptedTrigger(0); iAcceptedTrigger<nAcceptedTriggers; ++iAcceptedTrigger )
-        {
-          // HLT1jet30
-          // HLT1jet50
-          // HLT1jet80
-          // HLT1jet110
-          // HLT1jet180
-          // HLT1jet250
-
-	  std::string filterName( acceptedTriggers->At(iAcceptedTrigger)->GetName() );
-	  if      ( filterName=="HLT1jet30"  ) pT_chgmc_hlt1jet30->Fill(ptCJ,weight);
-	  else if ( filterName=="HLT1jet50"  ) pT_chgmc_hlt1jet50->Fill(ptCJ,weight);
-	  else if ( filterName=="HLT1jet80"  ) pT_chgmc_hlt1jet80->Fill(ptCJ,weight);
-	  else if ( filterName=="HLT1jet110" ) pT_chgmc_hlt1jet110->Fill(ptCJ,weight);
-	  else if ( filterName=="HLT1jet180" ) pT_chgmc_hlt1jet180->Fill(ptCJ,weight);
-	  else if ( filterName=="HLT1jet250" ) pT_chgmc_hlt1jet250->Fill(ptCJ,weight);
-	}
-      //
-    }
-    
-    if(etaIJ!=-666){
-      pT_inc->Fill(ptIJ,weight);
-      eta_inc->Fill(etaIJ,weight);
-      phi_inc->Fill(phiIJ,weight);
-
-      //
-      int nAcceptedTriggers( 0 );
-      nAcceptedTriggers = acceptedTriggers->GetSize();
-      for ( int iAcceptedTrigger(0); iAcceptedTrigger<nAcceptedTriggers; ++iAcceptedTrigger )
-        {
-          // HLT1jet30
-          // HLT1jet50
-          // HLT1jet80
-          // HLT1jet110
-          // HLT1jet180
-          // HLT1jet250
-
-	  std::string filterName( acceptedTriggers->At(iAcceptedTrigger)->GetName() );
-	  if      ( filterName=="HLT1jet30"  ) pT_inc_hlt1jet30->Fill(ptIJ,weight);
-	  else if ( filterName=="HLT1jet50"  ) pT_inc_hlt1jet50->Fill(ptIJ,weight);
-	  else if ( filterName=="HLT1jet80"  ) pT_inc_hlt1jet80->Fill(ptIJ,weight);
-	  else if ( filterName=="HLT1jet110" ) pT_inc_hlt1jet110->Fill(ptIJ,weight);
-	  else if ( filterName=="HLT1jet180" ) pT_inc_hlt1jet180->Fill(ptIJ,weight);
-	  else if ( filterName=="HLT1jet250" ) pT_inc_hlt1jet250->Fill(ptIJ,weight);
-	}
-      //
-    }
-    
-  }
 }
 
 void UEAnalysisAntiKtJets::writeToFile(TFile * file){
-  file->Write();
+  //  file->Write();
 }
