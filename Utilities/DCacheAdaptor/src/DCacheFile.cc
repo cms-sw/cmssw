@@ -130,6 +130,10 @@ DCacheFile::open (const char *name,
   // buffering -- this turns off all buffering.
   if (flags & IOFlags::OpenUnbuffered)
     dc_noBuffering (m_fd);
+#if 0
+  else
+    dc_setBufferSize(m_fd, 64000);
+#endif
 
   m_close = true;
 
@@ -205,7 +209,7 @@ DCacheFile::read (void *into, IOSize n)
       // end of file
       break;
     else if (s < ssize_t (n-done))
-      edm::LogWarning("DCacheFileWarning")
+      edm::LogInfo("DCacheFileWarning")
         << "dc_read(name='" << m_name << "', n=" << (n-done)
         << ") returned a short read of " << s << " bytes; "
         << "please report a bug in dCache referencing the "
@@ -230,7 +234,7 @@ DCacheFile::write (const void *from, IOSize n)
         << ") failed with error '" << dc_strerror(dc_errno)
         << "' (dc_errno=" << dc_errno << ")";
     else if (s < ssize_t (n-done))
-      edm::LogWarning("DCacheFileWarning")
+      edm::LogInfo("DCacheFileWarning")
         << "dc_write(name='" << m_name << "', n=" << (n-done)
         << ") returned a short write of " << s << " bytes; "
         << "please report a bug in dCache referencing the "
