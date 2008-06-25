@@ -8,8 +8,8 @@
 // Created:         Sat Jan 14 22:00:00 UTC 2006
 //
 // $Author: burkett $
-// $Date: 2008/06/10 14:22:08 $
-// $Revision: 1.13 $
+// $Date: 2008/06/14 17:53:10 $
+// $Revision: 1.14 $
 //
 
 #include <memory>
@@ -236,8 +236,8 @@ namespace cms
             }
           }
         }
-        float fi=float(noverlap)/float(track->recHitsSize()); float fj=float(noverlap)/float(track2->recHitsSize());
-        //std::cout << " trk1 trk2 nhits1 nhits2 nover " << i << " " << j << " " << track->recHitsSize() << " "  << track2->recHitsSize() << " " << noverlap << " " << fi << " " << fj  <<std::endl;
+        float fi=float(noverlap)/float(track->numberOfValidHits()); float fj=float(noverlap)/float(track2->numberOfValidHits());
+        //std::cout << " trk1 trk2 nhits1 nhits2 nover " << i << " " << j << " " << track->numberOfValidHits() << " "  << track2->numberOfValidHits() << " " << noverlap << " " << fi << " " << fj  <<std::endl;
         if ((fi>shareFrac)||(fj>shareFrac)){
           if (fi<fj){
             selected1[j]=0;
@@ -289,8 +289,8 @@ namespace cms
             }
           }
         }
-        float fi=float(noverlap)/float(track->recHitsSize()); float fj=float(noverlap)/float(track2->recHitsSize());
-        //std::cout << " trk1 trk2 nhits1 nhits2 nover " << i << " " << j << " " << track->recHitsSize() << " "  << track2->recHitsSize() << " " << noverlap << " " << fi << " " << fj  <<std::endl;
+        float fi=float(noverlap)/float(track->numberOfValidHits()); float fj=float(noverlap)/float(track2->numberOfValidHits());
+        //std::cout << " trk1 trk2 nhits1 nhits2 nover " << i << " " << j << " " << track->numberOfValidHits() << " "  << track2->numberOfValidHits() << " " << noverlap << " " << fi << " " << fj  <<std::endl;
         if ((fi>shareFrac)||(fj>shareFrac)){
           if (fi<fj){
             selected2[j]=0; 
@@ -367,8 +367,8 @@ namespace cms
           }
         }
 	int newQualityMask = (qualityMaskT1 | track2->qualityMask()); // take OR of trackQuality 
-        float fi=float(noverlap)/float(track->recHitsSize()); float fj=float(noverlap)/float(track2->recHitsSize());
-      //std::cout << " trk1 trk2 nhits1 nhits2 nover " << i << " " << j << " " << track->recHitsSize() << " "  << track2->recHitsSize() << " " << noverlap << " " << fi << " " << fj  <<std::endl;
+        float fi=float(noverlap)/float(track->numberOfValidHits()); float fj=float(noverlap)/float(track2->numberOfValidHits());
+	//std::cout << " trk1 trk2 nhits1 nhits2 nover " << i << " " << j << " " << track->numberOfValidHits() << " "  << track2->numberOfValidHits() << " " << noverlap << " " << fi << " " << fj  <<std::endl;
         if ((fi>shareFrac)||(fj>shareFrac)){
           if (fi<fj){
             selected2[j]=0; 
