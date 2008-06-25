@@ -1,5 +1,3 @@
-<Flags CXXFLAGS=-g>
-
 <use name=FWCore/Framework>
 <use name=FWCore/MessageLogger>
 <use name=Foundation/PluginManager>
