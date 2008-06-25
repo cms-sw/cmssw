@@ -22,7 +22,7 @@ MuonRef muonref = (*thePFTauRef).leadPFChargedHadrCand()->muonRef();
     else if (discriminatorOption_ == "twoDCut") {
 double seg = muonid::getSegmentCompatibility(*muonref);
 double calo= muonref->caloCompatibility(); 
-double border = calo * a + seg * b;
+double border = calo * a + seg * b + c;
       if ( border > 0 ) {
     decision = false; 
       } 
@@ -45,12 +45,12 @@ else{
 throw edm::Exception(edm::errors::UnimplementedFeature) << " Invalid Discriminator Option! Please check cfi file \n";
 }
 
+} // valid muon ref
     if (decision) {
       thePFTauDiscriminatorAgainstMuon->setValue(iPFTau,1);
     } else {
       thePFTauDiscriminatorAgainstMuon->setValue(iPFTau,0);
     }
-} // valid muon ref
 } // pf tau loop
   iEvent.put(thePFTauDiscriminatorAgainstMuon);
 } // class itself

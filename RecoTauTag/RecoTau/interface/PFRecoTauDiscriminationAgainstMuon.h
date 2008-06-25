@@ -35,6 +35,7 @@ class PFRecoTauDiscriminationAgainstMuon : public EDProducer {
     discriminatorOption_  = iConfig.getParameter<string>("discriminatorOption");  
     a  = iConfig.getParameter<double>("a");  
     b  = iConfig.getParameter<double>("b");  
+    c  = iConfig.getParameter<double>("c");  
 
     produces<PFTauDiscriminator>();
   }
@@ -45,5 +46,6 @@ class PFRecoTauDiscriminationAgainstMuon : public EDProducer {
   string discriminatorOption_;
   double a;
   double b;
+  double c;
 };
 #endif
