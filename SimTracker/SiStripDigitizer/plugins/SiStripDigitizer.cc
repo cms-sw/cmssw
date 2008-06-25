@@ -13,7 +13,7 @@
 //
 // Original Author:  Andrea GIAMMANCO
 //         Created:  Thu Sep 22 14:23:22 CEST 2005
-// $Id: SiStripDigitizer.cc,v 1.9 2008/02/15 13:47:53 azzi Exp $
+// $Id: SiStripDigitizer.cc,v 1.10 2008/05/14 10:53:34 giordano Exp $
 //
 //
 
@@ -161,7 +161,8 @@ void SiStripDigitizer::produce(edm::Event& iEvent, const edm::EventSetup& iSetup
   edm::ESHandle<SiStripGain> gainHandle;
   edm::ESHandle<SiStripNoises> noiseHandle;
   edm::ESHandle<SiStripThreshold> thresholdHandle;
-  iSetup.get<SiStripLorentzAngleRcd>().get(lorentzAngleHandle);
+  std::string LAname = conf_.getParameter<std::string>("LorentzAngle");
+  iSetup.get<SiStripLorentzAngleRcd>().get(LAname,lorentzAngleHandle);
   iSetup.get<SiStripGainRcd>().get(gainHandle);
   iSetup.get<SiStripNoisesRcd>().get(noiseHandle);
   iSetup.get<SiStripThresholdRcd>().get(thresholdHandle);
