@@ -8,7 +8,7 @@
 //
 // Original Author:  Chris Jones
 //         Created:  Mon Mar  3 09:36:01 EST 2008
-// $Id: FWListEventItemEditor.cc,v 1.1 2008/03/05 15:07:31 chrjones Exp $
+// $Id: FWListEventItemEditor.cc,v 1.2 2008/06/12 15:08:06 chrjones Exp $
 //
 
 // system include files
@@ -94,17 +94,21 @@ FWListEventItemEditor::SetModel(TObject* iObj)
 void
 FWListEventItemEditor::runFilter()
 {
-   m_item->eventItem()->setFilterExpression(m_filterExpression->GetText());
+   if(m_item!=0) {
+      m_item->eventItem()->setFilterExpression(m_filterExpression->GetText());
+   }
 }
 
 void
 FWListEventItemEditor::removeItem()
 {
-   m_item->eventItem()->destroy();
-   delete m_item;
-   m_item = 0;
-   gEve->EditElement(0);
-   gEve->Redraw3D();
+   if(m_item !=0) {
+      m_item->eventItem()->destroy();
+      delete m_item;
+      m_item = 0;
+      gEve->EditElement(0);
+      gEve->Redraw3D();
+   }
 }
 //
 // const member functions
