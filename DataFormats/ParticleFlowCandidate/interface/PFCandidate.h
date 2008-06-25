@@ -8,15 +8,15 @@
 
 #include <iostream>
 
+#include "DataFormats/Math/interface/Point3D.h"
 
 #include "DataFormats/Candidate/interface/CompositeCandidate.h"
 #include "DataFormats/ParticleFlowReco/interface/PFBlockFwd.h"
-// #include "DataFormats/ParticleFlowReco/interface/PFBlock.h"
 #include "DataFormats/TrackReco/interface/TrackFwd.h"
 #include "DataFormats/MuonReco/interface/MuonFwd.h"
 #include "DataFormats/ParticleFlowCandidate/interface/PFCandidateFwd.h"
+
 // necessary ?
-// #include "DataFormats/VertexReco/interface/NuclearInteraction.h"
 #include "DataFormats/VertexReco/interface/NuclearInteractionFwd.h"
 #include "DataFormats/EgammaCandidates/interface/ConversionFwd.h"
 
@@ -67,14 +67,6 @@ namespace reco {
     /// set source ref
     void setSourceRef(const PFCandidateRef& ref) { sourceRef_ = ref; }
 
-    /// return a reference to the sourceRef PFCandidate
-/*     const PFCandidateRef& sourceRef() const { return sourceRef_;} */
-/*     CandidateBaseRefVector sourceRefs() const {  */
-/*       CandidateBaseRefVector sources; */
-/*       sources.push_back( CandidateBaseRef(sourceRef_) ); */
-/*       return sources; */
-/*     } */
-
     size_type numberOfSourceCandidateRefs() const {return 1;}
 
     CandidateBaseRef sourceCandidateRef( size_type i ) const {
@@ -84,7 +76,7 @@ namespace reco {
     /// returns the pdg id corresponding to the particle type.
     /// the particle type could be removed at some point to gain some space.
     /// low priority
-    int     translateTypeToPdgId( ParticleType type ) const;
+    int  translateTypeToPdgId( ParticleType type ) const;
 
     /// set Particle Type
     void setParticleType( ParticleType type ); 
@@ -98,58 +90,58 @@ namespace reco {
                             unsigned elementIndex );
 
     /// set track reference
-    void    setTrackRef(const reco::TrackRef& ref);
+    void setTrackRef(const reco::TrackRef& ref);
 
     /// return a reference to the corresponding track, if charged. 
     /// otherwise, return a null reference
     reco::TrackRef trackRef() const { return trackRef_; }
 
     /// set muon reference
-    void    setMuonRef(const reco::MuonRef& ref);
+    void setMuonRef(const reco::MuonRef& ref);
 
     /// return a reference to the corresponding muon, if a muon. 
     /// otherwise, return a null reference
     reco::MuonRef muonRef() const { return muonRef_; }    
 
     /// set nuclear interaction reference
-    void    setNuclearRef(const reco::NuclearInteractionRef& ref);
+    void setNuclearRef(const reco::NuclearInteractionRef& ref);
 
     /// return a reference to the corresponding nuclear interaction,
     /// otherwise, return a null reference
     reco::NuclearInteractionRef nuclearRef() const { return nuclearRef_; }
 
     /// set ref to original reco conversion
-    void    setConversionRef(const reco::ConversionRef& ref);
+    void setConversionRef(const reco::ConversionRef& ref);
 
     /// return a reference to the original conversion
     reco::ConversionRef conversionRef() const { return conversionRef_; }
 
     /// set corrected Ecal energy 
-    void    setEcalEnergy( float ee ) {ecalEnergy_ = ee;}
+    void setEcalEnergy( float ee ) {ecalEnergy_ = ee;}
 
     /// return corrected Ecal energy
     double ecalEnergy() const { return ecalEnergy_;}
     
     /// set corrected Hcal energy 
-    void    setHcalEnergy( float eh ) {hcalEnergy_ = eh;}
+    void setHcalEnergy( float eh ) {hcalEnergy_ = eh;}
 
     /// return corrected Hcal energy
     double hcalEnergy() const { return hcalEnergy_;}
 
     /// set corrected PS1 energy
-    void    setPs1Energy( float e1 ) {ps1Energy_ = e1;}
+    void setPs1Energy( float e1 ) {ps1Energy_ = e1;}
 
     /// return corrected PS1 energy
     double pS1Energy() const { return ps1Energy_;}
 
     /// set corrected PS2 energy 
-    void    setPs2Energy( float e2 ) {ps2Energy_ = e2;}
+    void setPs2Energy( float e2 ) {ps2Energy_ = e2;}
 
     /// return corrected PS2 energy
     double pS2Energy() const { return ps2Energy_;}
 
     /// particle momentum *= rescaleFactor
-    void    rescaleMomentum( double rescaleFactor );
+    void rescaleMomentum( double rescaleFactor );
 
     enum Flags {
       NORMAL=0,
@@ -184,7 +176,11 @@ namespace reco {
     double deltaP() const { return deltaP_;}
     
 
-    /// set mva for electron-pion discrimination
+    /// set mva for electron-pion discrimination. 
+    /// For charged particles, this variable is set 
+    ///   to 0 for particles that are not preided 
+    ///   to 1 otherwise
+    /// For neutral particles, it is set to the default value
     void set_mva_e_pi( float mva ) { mva_e_pi_ = mva; } 
     
     /// mva for electron-pion discrimination
@@ -225,11 +221,19 @@ namespace reco {
     /// mva for neutral hadron - gamma discrimination
     float mva_gamma_nh() const { return mva_gamma_nh_;}
 
+    /// set position at ECAL entrance
+    void setPositionAtECALEntrance(const math::XYZPointF& pos) {
+      positionAtECALEntrance_ = pos;
+    } 
 
+    /// \return position at ECAL entrance
+    const math::XYZPointF& positionAtECALEntrance() const {
+      return positionAtECALEntrance_;
+    }
+    
     /// particle identification code
+    /// \todo use Particle::pdgId_ and remove this data member
     virtual  ParticleType particleId() const { return particleId_;}
-
-
 
     
     /// return indices of elements used in the block
@@ -261,7 +265,7 @@ namespace reco {
     bool flag(unsigned shift, unsigned flag) const;
    
     /// particle identification
-    ParticleType            particleId_; 
+    ParticleType  particleId_; 
     
   
     ElementsInBlocks elementsInBlocks_;
@@ -278,22 +282,22 @@ namespace reco {
     reco::ConversionRef conversionRef_;
     
     /// corrected ECAL energy
-    float        ecalEnergy_;
+    float       ecalEnergy_;
 
     /// corrected HCAL energy
-    float        hcalEnergy_;
+    float       hcalEnergy_;
 
     /// corrected PS1 energy
-    float        ps1Energy_;
+    float       ps1Energy_;
 
     /// corrected PS2 energy
-    float        ps2Energy_;
+    float       ps2Energy_;
 
     /// all flags, packed (ecal regional, hcal regional, tracking)
-    unsigned     flags_;
+    unsigned    flags_;
 
     /// uncertainty on 3-momentum
-    double       deltaP_;
+    double      deltaP_;
 
     /// mva for electron-pion discrimination
     float       mva_e_pi_;
@@ -312,6 +316,10 @@ namespace reco {
 
     /// mva for neutral hadron - gamma discrimination
     float       mva_gamma_nh_;
+
+    /// position at ECAL entrance, from the PFRecTrack
+    math::XYZPointF   positionAtECALEntrance_;
+    
   };
 
   /// particle ID component tag
