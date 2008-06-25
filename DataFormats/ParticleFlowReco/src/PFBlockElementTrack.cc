@@ -15,9 +15,22 @@ PFBlockElementTrack::PFBlockElementTrack(const PFRecTrackRef& ref) :
   trackRefPF_( ref ), 
   trackRef_( ref->trackRef() ),
   trackType_(0) {
-      nuclInterRef_ = NuclearInteractionRef();
-      convRef_ = ConversionRef();
-      setTrackType( DEFAULT, true );      
+  
+
+  if( ref.isNull() ) 
+    throw cms::Exception("NullRef")<<" PFBlockElementTrack constructed from a null reference to PFRecTrack.";
+  
+  const reco::PFTrajectoryPoint& atECAL 
+    = ref->extrapolatedPoint( reco::PFTrajectoryPoint::ECALEntrance );
+
+  if( atECAL.isValid() ) 
+    positionAtECALEntrance_.SetCoordinates( atECAL.position().x(),
+					    atECAL.position().y(),
+					    atECAL.position().z() );
+  // if the position at ecal entrance is invalid, 
+  // positionAtECALEntrance_ is initialized by default to 0,0,0
+
+  setTrackType( DEFAULT, true );      
 } 
 
 

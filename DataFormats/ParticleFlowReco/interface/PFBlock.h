@@ -26,7 +26,7 @@ namespace reco {
     - a set of topologically connected elements.
     - a set of links between these elements
   */
-
+  
   class PFBlock {
 
 

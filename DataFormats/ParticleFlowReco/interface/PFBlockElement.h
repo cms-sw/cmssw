@@ -111,11 +111,12 @@ namespace reco {
   protected:  
   
     /// type, see PFBlockElementType
+    /// \todo replace by a char ?
     Type     type_;
 
     /// locked flag. 
     /// \todo can probably be transient. Could be replaced by a 
-    /// "remaining energy"
+    /// "remaining energy". IS THIS STILL USED ?
     bool       locked_;
     
     /// index in block vector 
