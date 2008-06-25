@@ -25,25 +25,25 @@ public:
     TrackingRecHit(geom ? geom->geographicalId().rawId() : 0), 
     geom_(geom), weight_(weight), annealing_(annealing),
     globalPosition_(0,0,0),hasGlobalPosition_(false),
-    globalError_(),errorR_(0),errorZ_(0),errorRPhi_(0),hasGlobalError_(false){}
+    globalError_(GlobalError::NullMatrix()),errorR_(0),errorZ_(0),errorRPhi_(0),hasGlobalError_(false){}
 
   explicit TransientTrackingRecHit(const GeomDet * geom, DetId id, Type type=valid, float weight=1., float annealing=1. ) : 
     TrackingRecHit(id, type), 
     geom_(geom), weight_(weight), annealing_(annealing),
     globalPosition_(0,0,0),hasGlobalPosition_(false),
-    globalError_(),errorR_(0),errorZ_(0),errorRPhi_(0),hasGlobalError_(false){}
+    globalError_(GlobalError::NullMatrix()),errorR_(0),errorZ_(0),errorRPhi_(0),hasGlobalError_(false){}
 
   explicit TransientTrackingRecHit(const GeomDet * geom, TrackingRecHit::id_type id, Type type=valid, float weight=1., float annealing=1. ) : 
     TrackingRecHit(id, type),
     geom_(geom),  weight_(weight), annealing_(annealing),
     globalPosition_(0,0,0),hasGlobalPosition_(false),
-    globalError_(),errorR_(0),errorZ_(0),errorRPhi_(0),hasGlobalError_(false){}
+    globalError_(GlobalError::NullMatrix()),errorR_(0),errorZ_(0),errorRPhi_(0),hasGlobalError_(false){}
   
   explicit TransientTrackingRecHit(const GeomDet * geom, TrackingRecHit const & rh, float weight=1., float annealing=1. ) : 
     TrackingRecHit(rh.geographicalId(), rh.type()),
     geom_(geom), weight_(weight), annealing_(annealing),
     globalPosition_(0,0,0),hasGlobalPosition_(false),
-    globalError_(),errorR_(0),errorZ_(0),errorRPhi_(0),hasGlobalError_(false){}
+    globalError_(GlobalError::NullMatrix()),errorR_(0),errorZ_(0),errorRPhi_(0),hasGlobalError_(false){}
 
 
 
