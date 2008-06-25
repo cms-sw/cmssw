@@ -5,8 +5,6 @@
 Author : Michail Bachtis
 University of Wisconsin-Madison
 bachtis@hep.wisc.edu
-
-Derived by HLTMuonDQMSource.h
 */
  
 #include <memory>
@@ -26,6 +24,9 @@ Derived by HLTMuonDQMSource.h
 #include "DataFormats/L1Trigger/interface/L1JetParticle.h"
 #include "DataFormats/L1Trigger/interface/L1JetParticleFwd.h"
 #include "Math/GenVector/VectorUtil.h"
+#include "DataFormats/HLTReco/interface/TriggerEvent.h"
+
+
 
 //Electron includes
 
@@ -53,6 +54,14 @@ Derived by HLTMuonDQMSource.h
 //L25Tau Trigger Includes
 #include "DataFormats/BTauReco/interface/IsolatedTauTagInfo.h"
 #include "DataFormats/TrackReco/interface/Track.h"
+
+
+// L1 Trigger data formats
+#include "DataFormats/L1GlobalTrigger/interface/L1GlobalTriggerReadoutRecord.h"
+#include "DataFormats/L1GlobalTrigger/interface/L1GlobalTriggerReadoutSetupFwd.h"
+#include "DataFormats/L1GlobalTrigger/interface/L1GlobalTriggerObjectMapRecord.h"
+#include "DataFormats/L1GlobalTrigger/interface/L1GlobalTriggerObjectMapFwd.h"
+#include "DataFormats/L1GlobalTrigger/interface/L1GlobalTriggerObjectMap.h"
 
 //
 // class declaration
@@ -101,6 +110,7 @@ private:
   std::string mainFolder_; //main DQM Folder
   std::string monitorName_;///Monitor name
   std::string outputFile_;///OutputFile
+
   int counterEvt_;      ///counter
   int prescaleEvt_;     ///every n events 
   bool disable_;        ///disable
@@ -110,16 +120,31 @@ private:
   double EtMax_;
   int NEtBins_;
   int NEtaBins_;
+  bool doBackup_;
 
   //get The Jet Collections per filter level
+  edm::InputTag triggerEvent_;
+
+  //L1 Specific stuff
+  // edm::InputTag L1Taus_;
+  //edm::InputTag L1GTReadoutRecord_;
+  //edm::InputTag L1GTObjectMap_;
+ 
+
   edm::InputTag l1Filter_;
   edm::InputTag l2Filter_;
   edm::InputTag l25Filter_;
   edm::InputTag l3Filter_;
+  edm::InputTag mainPath_;
+  edm::InputTag l1BackupPath_;
+  edm::InputTag l2BackupPath_;
+  edm::InputTag l25BackupPath_;
+  edm::InputTag l3BackupPath_;
+
 
   //Correlations with other Triggers
   std::vector<edm::InputTag> refFilters_;
-  std::vector<int> refIDs_;
+  //  std::vector<int> refIDs_;
   std::vector<double> PtCut_;
   std::vector<std::string> refFilterDesc_;
   double corrDeltaR_;
@@ -132,22 +157,24 @@ private:
   //L25 Monitoring Parameters
   bool doL25Monitoring_;
   edm::InputTag l25IsolInfo_;
-  double l25LeadTrackDeltaR_;
-  double l25LeadTrackPt_;
 
   //L3 Monitoring Parameters
   bool doL3Monitoring_;
   edm::InputTag l3IsolInfo_;
-  double l3LeadTrackDeltaR_;
-  double l3LeadTrackPt_;
-
-
 
   //Number of Tau Events passed the triggers
   int NEventsPassedL1;
   int NEventsPassedL2;
   int NEventsPassedL25;
   int NEventsPassedL3;
+
+  //Number of Tau Events passed the Backup Triggers
+  int NEventsPassedMainFilter;
+  int NEventsPassedL1Backup;
+  int NEventsPassedL2Backup;
+  int NEventsPassedL25Backup;
+  int NEventsPassedL3Backup;
+
 
   //Number of Tau Events passed the triggers matched to reference objects
   std::vector<int> NEventsPassedRefL1;
@@ -158,16 +185,9 @@ private:
   //Number of reference objects
   std::vector<int> NRefEvents;
 
-  //For Efficiencies we need to calculate the et and eta for the reference objects
-  //  std::vector<TH1F*> EtRef_;
-  // std::vector<TH1F*> EtaRef_;
-
-
-
   //MonitorElements(Trigger Bits and Efficiency with ref to L1)
-  MonitorElement *triggerBitInfoSum_;
   MonitorElement *triggerBitInfo_;
-  MonitorElement *triggerEfficiencyL1_;
+  MonitorElement *triggerEfficiencyBackup_;
   
 
   //Matching to reference triggers and trigger efficiencies
@@ -216,8 +236,6 @@ private:
   std::vector<MonitorElement*> L25LeadTrackPtRef_;
   std::vector<MonitorElement*> L25SumTrackPtRef_;
 
-
-
   //MonitorElements for L3 Inclusive
   MonitorElement* L3JetEt_;
   MonitorElement* L3JetEta_;
@@ -237,23 +255,6 @@ private:
   std::vector<MonitorElement*> L3SumTrackPtRef_;
 
 
-
-
-
-  
-  //Efficiencies with ref to L1 - Inclusive
-  //  MonitorElement* L2EtEffL1;
-  //  MonitorElement* L2EtaEffL1;
-
-  //Efficiencies with ref to Reference Triggers
-  //std::vector<MonitorElement*> L2EtEffRef;
-  //std::vector<MonitorElement*> L2EtaEffRef;
-
-
-  
-  
-  
-
   //HELPER FUNCTIONS
   void doSummary(const edm::Event& e, const edm::EventSetup& c);
   void doL2(const edm::Event& e, const edm::EventSetup& c);
@@ -264,7 +265,9 @@ private:
   bool match(const LV&,const LVColl& /*trigger::VRelectron&*/,double,double);
   std::vector<double> calcEfficiency(int,int);
   LVColl importObjectColl(edm::InputTag&,int,const edm::Event&);
-
+  LVColl importFilterColl(edm::InputTag&,const edm::Event&);
+  
+  //Basic Histogram formating since we have not put any render plugins yet
   void formatHistogram(MonitorElement*,int);
 
 
