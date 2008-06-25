@@ -2,8 +2,8 @@
 /*
  * \file EEIntegrityClient.cc
  *
- * $Date: 2008/06/25 14:16:17 $
- * $Revision: 1.81 $
+ * $Date: 2008/06/25 15:08:19 $
+ * $Revision: 1.82 $
  * \author G. Della Ricca
  * \author G. Franzoni
  *
@@ -272,7 +272,7 @@ bool EEIntegrityClient::writeDb(EcalCondDBInterface* econn, RunIOV* runiov, MonR
 
   status = true;
 
-  if ( ! flag ) return false;
+  if ( flag ) this->softReset(false);
 
   EcalLogicID ecid;
 
@@ -682,6 +682,8 @@ bool EEIntegrityClient::writeDb(EcalCondDBInterface* econn, RunIOV* runiov, MonR
       cerr << e.what() << endl;
     }
   }
+
+  if ( ! flag ) this->softReset(true);
 
   return true;
 
