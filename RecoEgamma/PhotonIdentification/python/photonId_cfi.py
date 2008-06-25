@@ -33,9 +33,11 @@ PhotonIDProd = cms.EDProducer("PhotonIDProducer",
     TrackConeInnerRadius = cms.double(0.02),
     EcalRecHitInnerRadius = cms.double(0.0),
     EcalRecHitOuterRadius = cms.double(0.4),
+    EcalRecHitEtaSlice = cms.double(0.02),
     EcalRecThresh = cms.double(0.0),
     HcalRecHitInnerRadius = cms.double(0.1),
     HcalRecHitOuterRadius = cms.double(0.4),
+    HcalRecHitEtaSlice = cms.double(0.),
     HcalRecHitThresh = cms.double(0.0),
     #cuts
     #cuts, two sets, EE and EB
