@@ -55,6 +55,8 @@ GctRawToDigi::GctRawToDigi(const edm::ParameterSet& iConfig) :
   blockUnpacker_(0),
   unpackFailures_(0)
 {
+  edm::LogDebug("GCT") << "GctRawToDigi will unpack FED Id " << fedId_ << endl;
+
   if(grenCompatibilityMode_)
   { 
     edm::LogInfo("GCT") << "GREN 2007 compatibility mode has been selected.";
