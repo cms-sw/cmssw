@@ -20,7 +20,5 @@
  <use name=pythia6>
 </export>
 
- <lib name=lhapdfdummy></lib>
-
  <lib name=g2c></lib>
  <lib name=m></lib>
