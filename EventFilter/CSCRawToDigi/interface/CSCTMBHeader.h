@@ -198,7 +198,7 @@ class CSCTMBHeader {
       return header2007.bxnCount;
     default:
       edm::LogError("CSCTMBHeader|CSCRawToDigi")
-        <<"coundn't get bxncount: TMB firmware version is bad/not defined!";
+        <<"couldn't get bxncount: TMB firmware version is bad/not defined!";
       break;
     }
   }
@@ -210,7 +210,7 @@ class CSCTMBHeader {
       return header2007.matchWin;
     default:
       edm::LogError("CSCTMBHeader|CSCRawToDigi")
-        <<"coundn't get alctMatchTime: TMB firmware version is bad/not defined!";
+        <<"couldn't get alctMatchTime: TMB firmware version is bad/not defined!";
       break;
     }
   }
@@ -222,7 +222,7 @@ class CSCTMBHeader {
       return header2007.clctOnly;
     default:
       edm::LogError("CSCTMBHeader|CSCRawToDigi")
-	<<"coundn't get clctOnly: TMB firmware version is bad/not defined!";
+	<<"couldn't get clctOnly: TMB firmware version is bad/not defined!";
       break;
     }
   }
@@ -234,7 +234,7 @@ class CSCTMBHeader {
       return header2007.alctOnly;
     default:
       edm::LogError("CSCTMBHeader|CSCRawToDigi")
-        <<"coundn't get alctOnly: TMB firmware version is bad/not defined!";
+        <<"couldn't get alctOnly: TMB firmware version is bad/not defined!";
       break;
     }
   }
@@ -246,7 +246,7 @@ class CSCTMBHeader {
       return header2007.tmbMatch;
     default:
       edm::LogError("CSCTMBHeader|CSCRawToDigi")
-        <<"coundn't get TMBMatch : TMB firmware version is bad/not defined!";
+        <<"couldn't get TMBMatch : TMB firmware version is bad/not defined!";
       break;
     }
   }
@@ -259,7 +259,7 @@ class CSCTMBHeader {
       return 0;///header2007.bxn0Diff;
     default:
       edm::LogError("CSCTMBHeader|CSCRawToDigi")
-        <<"coundn't get bxn0diff: TMB firmware version is bad/not defined!";
+        <<"couldn't get bxn0diff: TMB firmware version is bad/not defined!";
       break;
     }
   }
@@ -271,7 +271,7 @@ class CSCTMBHeader {
       return 0;// header2007.bxn1Diff;
     default:
       edm::LogError("CSCTMBHeader|CSCRawToDigi")
-        <<"coundn't get bxn1diff: TMB firmware version is bad/not defined!";
+        <<"couldn't get bxn1diff: TMB firmware version is bad/not defined!";
       break;
     }
   }
@@ -284,7 +284,7 @@ class CSCTMBHeader {
       return header2007.l1aNumber;
     default:
       edm::LogError("CSCTMBHeader|CSCRawToDigi")
-        <<"coundn't get L1A: TMB firmware version is bad/not defined!";
+        <<"couldn't get L1A: TMB firmware version is bad/not defined!";
       break;
     }
   }
@@ -297,7 +297,7 @@ class CSCTMBHeader {
       return header2007.sizeInWords()*2;
     default:
       edm::LogError("CSCTMBHeader|CSCRawToDigi")
-	<<"coundn't get size: TMB firmware version is bad/not defined!";
+	<<"couldn't get size: TMB firmware version is bad/not defined!";
       break;
     }
   }
@@ -313,7 +313,7 @@ class CSCTMBHeader {
       return header2007.nTBins;
     default:
       edm::LogError("CSCTMBHeader|CSCRawToDigi")
-        <<"coundn't get tbin: TMB firmware version is bad/not defined!";
+        <<"couldn't get tbin: TMB firmware version is bad/not defined!";
       break;
     }
   }
@@ -325,7 +325,7 @@ class CSCTMBHeader {
       return header2007.nCFEBs;
     default:
       edm::LogError("CSCTMBHeader|CSCRawToDigi")
-        <<"coundn't get ncfebs: TMB firmware version is bad/not defined!";
+        <<"couldn't get ncfebs: TMB firmware version is bad/not defined!";
       break;
     }
   }
@@ -349,7 +349,7 @@ class CSCTMBHeader {
       return header2007.nHeaderFrames;
     default:
       edm::LogError("CSCTMBHeader|CSCRawToDigi")
-        <<"coundn't header frames: TMB firmware version is bad/not defined!";
+        <<"couldn't header frames: TMB firmware version is bad/not defined!";
       break;
     }
   }
@@ -364,7 +364,7 @@ class CSCTMBHeader {
       break;
     default:
       edm::LogError("CSCTMBHeader|CSCRawToDigi")
-        <<"coundn't access data: TMB firmware version is bad/not defined!";
+        <<"couldn't access data: TMB firmware version is bad/not defined!";
       break;
     }
     return theOriginalBuffer;

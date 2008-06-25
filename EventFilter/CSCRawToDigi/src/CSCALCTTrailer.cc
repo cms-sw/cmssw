@@ -37,7 +37,7 @@ CSCALCTTrailer::CSCALCTTrailer(const unsigned short * buf){
     break;
   default:
     edm::LogError("CSCALCTTrailer|CSCRawToDigi")
-      <<"coundn't construct: ALCT firmware version is bad/not defined!";
+      <<"couldn't construct: ALCT firmware version is bad/not defined!";
     break;
   }
 }

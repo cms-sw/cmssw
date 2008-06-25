@@ -59,7 +59,7 @@ public:
       break;
     default:
       edm::LogError("CSCALCTTrailer|CSCRawToDigi")
-        <<"coundn't access data: ALCT firmware version is bad/not defined!";
+        <<"couldn't access data: ALCT firmware version is bad/not defined!";
       break;
     }
     return theOriginalBuffer;
@@ -76,7 +76,7 @@ public:
       return ((trailer2007.crc1&0x7ff)<<11) | (trailer2007.crc0&0x7ff);
     default:
       edm::LogError("CSCALCTTrailer|CSCRawToDigi")
-        <<"coundn't getCRC: ALCT firmware version is bad/not defined!";
+        <<"couldn't getCRC: ALCT firmware version is bad/not defined!";
       return 0;
     }
   }
@@ -89,7 +89,7 @@ public:
       return (trailer2007.e0dLine & 0xffff) == 0xde0d;
     default:
       edm::LogError("CSCALCTTrailer|CSCRawToDigi")
-	<<"coundn't check: ALCT firmware version is bad/not defined!";
+	<<"couldn't check: ALCT firmware version is bad/not defined!";
       return 0;
     }
   }
@@ -102,7 +102,7 @@ public:
       return trailer2007.frameCount;
     default:
       edm::LogError("CSCALCTTrailer|CSCRawToDigi")
-	<<"coundn't wordCount: ALCT firmware version is bad/not defined!";
+	<<"couldn't wordCount: ALCT firmware version is bad/not defined!";
       return 0;
     }
   }
@@ -115,7 +115,7 @@ public:
       return trailer2007.reserved_3;  
     default:
       edm::LogError("CSCALCTTrailer|CSCRawToDigi")
-	<<"coundn't CRCcheck: ALCT firmware version is bad/not defined!";
+	<<"couldn't CRCcheck: ALCT firmware version is bad/not defined!";
       return 0;
     }
   }

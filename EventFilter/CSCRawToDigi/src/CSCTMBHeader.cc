@@ -50,7 +50,7 @@ CSCTMBHeader::CSCTMBHeader(const unsigned short * buf) {
     break;
   default:
     edm::LogError("CSCTMBHeader|CSCRawToDigi")
-      <<"coundn't construct: TMB firmware version is bad/not defined!";
+      <<"couldn't construct: TMB firmware version is bad/not defined!";
     break;
   }
 }	
