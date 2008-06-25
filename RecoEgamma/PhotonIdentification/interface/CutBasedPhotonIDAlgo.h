@@ -100,9 +100,11 @@ public:
   //Isolation parameters
   double photonEcalRecHitConeInnerRadius_;
   double photonEcalRecHitConeOuterRadius_;
+  double photonEcalRecHitEtaSlice_;
   double photonEcalRecHitThresh_;
   double photonHcalRecHitConeInnerRadius_;
   double photonHcalRecHitConeOuterRadius_;
+  double photonHcalRecHitEtaSlice_;
   double photonHcalRecHitThresh_;
   double trackConeOuterRadius_;
   double trackConeInnerRadius_;
