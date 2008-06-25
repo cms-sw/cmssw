@@ -32,9 +32,9 @@ from TrackingTools.TrajectoryFiltering.TrajectoryFilterESProducer_cff import *
 import TrackingTools.TrajectoryFiltering.TrajectoryFilterESProducer_cfi
 ckfBaseTrajectoryFilterP5 = TrackingTools.TrajectoryFiltering.TrajectoryFilterESProducer_cfi.trajectoryFilterESProducer.clone()
 import RecoTracker.CkfPattern.GroupedCkfTrajectoryBuilderESProducer_cfi
-#replace ckfBaseTrajectoryFilterP5.filterPset.minPt = 0.01
-#replace ckfBaseTrajectoryFilterP5.filterPset.maxLostHits = 4
-#replace ckfBaseTrajectoryFilterP5.filterPset.maxConsecLostHits = 3
+replace ckfBaseTrajectoryFilterP5.filterPset.minPt = 0.5
+replace ckfBaseTrajectoryFilterP5.filterPset.maxLostHits = 4
+replace ckfBaseTrajectoryFilterP5.filterPset.maxConsecLostHits = 3
 #replace ckfBaseTrajectoryFilterP5.filterPset.minimumNumberOfHits =  4
 #
 GroupedCkfTrajectoryBuilderP5 = RecoTracker.CkfPattern.GroupedCkfTrajectoryBuilderESProducer_cfi.GroupedCkfTrajectoryBuilder.clone()
