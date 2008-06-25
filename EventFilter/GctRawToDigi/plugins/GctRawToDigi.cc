@@ -110,8 +110,8 @@ void GctRawToDigi::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
   // do a simple check of the raw data - this will detect empty events
   if(gctRcd.size() < 16)
   {
-      edm::LogDebug("GCT") << "Cannot unpack: empty/invalid GCT raw data (size = "
-                           << gctRcd.size() << "). Returning empty collections!";
+      LogDebug("GCT") << "Cannot unpack: empty/invalid GCT raw data (size = "
+                      << gctRcd.size() << "). Returning empty collections!";
       invalidDataFlag = true;
   }
 
@@ -177,7 +177,7 @@ void GctRawToDigi::unpack(const FEDRawData& d, edm::Event& e, const bool invalid
     // read blocks
     for (unsigned nb=0; dPtr<dEnd; ++nb)
     {
-      if(nb >= MAX_BLOCKS) { edm::LogDebug("GCT") << "Reached block limit - bailing out from this event!"; ++unpackFailures_; break; }
+      if(nb >= MAX_BLOCKS) { LogDebug("GCT") << "Reached block limit - bailing out from this event!"; ++unpackFailures_; break; }
       
       // read block header
       std::auto_ptr<GctBlockHeaderBase> blockHeader;
@@ -187,7 +187,7 @@ void GctRawToDigi::unpack(const FEDRawData& d, edm::Event& e, const bool invalid
       // unpack the block; dPtr+4 is to get to the block data.
       if(!blockUnpacker_->convertBlock(&data[dPtr+4], *blockHeader)) // Record if we had an unpack problem then skip rest of event.
       {
-        edm::LogDebug("GCT") << "Encountered block unpack error - bailing out from this event!";
+        LogDebug("GCT") << "Encountered block unpack error - bailing out from this event!";
         ++unpackFailures_; break;
       } 
   

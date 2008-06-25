@@ -72,13 +72,13 @@ void GctBlockPacker::writeGctOutJetBlock(unsigned char * d,
   {
     const L1GctJetCandCollection * jetCands = jets.at(iCat);
     unsigned& offset = bx0JetCandOffsets.at(iCat);
-    if(!findBx0OffsetInCollection(offset, jetCands)) { edm::LogDebug("GCT") << "No jet candidates with bx=0!\nAborting packing of GCT Jet Output!" << endl; return; }
-    if((jetCands->size()-offset) < 4) { edm::LogDebug("GCT") << "Insufficient jet candidates with bx=0!\nAborting packing of GCT Jet Output!" << endl; return; }
+    if(!findBx0OffsetInCollection(offset, jetCands)) { LogDebug("GCT") << "No jet candidates with bx=0!\nAborting packing of GCT Jet Output!"; return; }
+    if((jetCands->size()-offset) < 4) { LogDebug("GCT") << "Insufficient jet candidates with bx=0!\nAborting packing of GCT Jet Output!"; return; }
   }
   
   // Now find the offset for the jet counts with bx=0
   unsigned bx0JetCountsOffset;
-  if(!findBx0OffsetInCollection(bx0JetCountsOffset, jetCounts)) { edm::LogDebug("GCT") << "No jet counts with bx=0!\nAborting packing of GCT Jet Output!" << endl; return; }
+  if(!findBx0OffsetInCollection(bx0JetCountsOffset, jetCounts)) { LogDebug("GCT") << "No jet counts with bx=0!\nAborting packing of GCT Jet Output!"; return; }
 
   // Now write the header, as we should now have all requisite data.
   writeGctHeader(d, 0x583, 1);  // ** NOTE can only currenly do 1 timesample! **
@@ -138,14 +138,14 @@ void GctBlockPacker::writeGctOutEmAndEnergyBlock(unsigned char * d,
   {
     const L1GctEmCandCollection * cands = emCands.at(iCat);
     unsigned& offset = bx0EmCandOffsets.at(iCat);
-    if(!findBx0OffsetInCollection(offset, cands)) { edm::LogDebug("GCT") << "No EM candidates with bx=0!\nAborting packing of GCT EM Cand and Energy Sum Output!" << endl; return; }
-    if((cands->size()-offset) < 4) { edm::LogDebug("GCT") << "Insufficient EM candidates with bx=0!\nAborting packing of GCT EM Cand and Energy Sum Output!" << endl; return; }
+    if(!findBx0OffsetInCollection(offset, cands)) { LogDebug("GCT") << "No EM candidates with bx=0!\nAborting packing of GCT EM Cand and Energy Sum Output!"; return; }
+    if((cands->size()-offset) < 4) { LogDebug("GCT") << "Insufficient EM candidates with bx=0!\nAborting packing of GCT EM Cand and Energy Sum Output!"; return; }
   }
   
   unsigned bx0EtTotalOffset, bx0EtHadOffset, bx0EtMissOffset;
-  if(!findBx0OffsetInCollection(bx0EtTotalOffset, etTotal)) { edm::LogDebug("GCT") << "No Et Total value for bx=0!\nAborting packing of GCT EM Cand and Energy Sum Output!" << endl; return; }
-  if(!findBx0OffsetInCollection(bx0EtHadOffset, etHad)) { edm::LogDebug("GCT") << "No Et Hadronic value for bx=0!\nAborting packing of GCT EM Cand and Energy Sum Output!" << endl; return; }
-  if(!findBx0OffsetInCollection(bx0EtMissOffset, etMiss)) { edm::LogDebug("GCT") << "No Et Miss value for bx=0!\nAborting packing of GCT EM Cand and Energy Sum Output!" << endl; return; } 
+  if(!findBx0OffsetInCollection(bx0EtTotalOffset, etTotal)) { LogDebug("GCT") << "No Et Total value for bx=0!\nAborting packing of GCT EM Cand and Energy Sum Output!"; return; }
+  if(!findBx0OffsetInCollection(bx0EtHadOffset, etHad)) { LogDebug("GCT") << "No Et Hadronic value for bx=0!\nAborting packing of GCT EM Cand and Energy Sum Output!"; return; }
+  if(!findBx0OffsetInCollection(bx0EtMissOffset, etMiss)) { LogDebug("GCT") << "No Et Miss value for bx=0!\nAborting packing of GCT EM Cand and Energy Sum Output!"; return; } 
   
   // We should now have all requisite data, so we can get on with packing
 
@@ -194,8 +194,8 @@ void GctBlockPacker::writeRctEmCandBlocks(unsigned char * d, const L1CaloEmColle
 
   if(rctEm->size() == 0 || rctEm->size()%144 != 0)  // Should be 18 crates * 2 types (iso/noniso) * 4 electrons = 144 for 1 bx.
   {
-    edm::LogDebug("GCT") << "Block pack error: bad L1CaloEmCollection size detected!\n"
-                         << "Aborting packing of RCT EM Cand data!" << endl;
+    LogDebug("GCT") << "Block pack error: bad L1CaloEmCollection size detected!\n"
+                    << "Aborting packing of RCT EM Cand data!";
     return;
   }
 
@@ -277,8 +277,8 @@ void GctBlockPacker::writeRctCaloRegionBlock(unsigned char * d, const L1CaloRegi
 
   if(rctCalo->size() == 0 || rctCalo->size()%396 != 0)  // Should be 396 calo regions for 1 bx.
   {
-    edm::LogDebug("GCT") << "Block pack error: bad L1CaloRegionCollection size detected!\n"
-                         << "Aborting packing of RCT Calo Region data!" << endl;
+    LogDebug("GCT") << "Block pack error: bad L1CaloRegionCollection size detected!\n"
+                    << "Aborting packing of RCT Calo Region data!";
     return;
   }
 

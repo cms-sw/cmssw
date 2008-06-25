@@ -121,7 +121,7 @@ GctDigiToRaw::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
     if(rctEm.failedToGet())
     {
       packRctEmThisEvent = false;
-      edm::LogDebug("GCT") << "RCT EM Candidate packing requested, but failed to get them from event!";
+      LogDebug("GCT") << "RCT EM Candidate packing requested, but failed to get them from event!";
     }
   }
 
@@ -135,7 +135,7 @@ GctDigiToRaw::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
     if(rctCalo.failedToGet())
     {
       packRctCaloThisEvent = false;
-      edm::LogDebug("GCT") << "RCT Calo Region packing requested, but failed to get them from event!";
+      LogDebug("GCT") << "RCT Calo Region packing requested, but failed to get them from event!";
     }
   }
 
