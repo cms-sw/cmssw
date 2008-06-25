@@ -1,8 +1,8 @@
 /*
  * \file EBTimingClient.cc
  *
- * $Date: 2008/06/25 08:08:14 $
- * $Revision: 1.86 $
+ * $Date: 2008/06/25 08:15:00 $
+ * $Revision: 1.87 $
  * \author G. Della Ricca
  *
 */
@@ -231,7 +231,7 @@ void EBTimingClient::cleanup(void) {
 
 }
 
-bool EBTimingClient::writeDb(EcalCondDBInterface* econn, RunIOV* runiov, MonRunIOV* moniov) {
+bool EBTimingClient::writeDb(EcalCondDBInterface* econn, RunIOV* runiov, MonRunIOV* moniov, bool flag) {
 
   bool status = true;
 

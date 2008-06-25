@@ -1,8 +1,8 @@
 /*
  * \file EETimingClient.cc
  *
- * $Date: 2008/06/25 08:12:00 $
- * $Revision: 1.80 $
+ * $Date: 2008/06/25 08:15:02 $
+ * $Revision: 1.81 $
  * \author G. Della Ricca
  *
 */
@@ -242,7 +242,7 @@ void EETimingClient::cleanup(void) {
 
 }
 
-bool EETimingClient::writeDb(EcalCondDBInterface* econn, RunIOV* runiov, MonRunIOV* moniov) {
+bool EETimingClient::writeDb(EcalCondDBInterface* econn, RunIOV* runiov, MonRunIOV* moniov, bool flag) {
 
   bool status = true;
 

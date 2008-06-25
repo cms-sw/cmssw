@@ -1,8 +1,8 @@
 /*
  * \file EETriggerTowerClient.cc
  *
- * $Date: 2008/06/25 08:12:00 $
- * $Revision: 1.70 $
+ * $Date: 2008/06/25 08:15:02 $
+ * $Revision: 1.71 $
  * \author G. Della Ricca
  * \author F. Cossutti
  *
@@ -320,7 +320,7 @@ void EETriggerTowerClient::cleanup(void) {
 
 }
 
-bool EETriggerTowerClient::writeDb(EcalCondDBInterface* econn, RunIOV* runiov, MonRunIOV* moniov) {
+bool EETriggerTowerClient::writeDb(EcalCondDBInterface* econn, RunIOV* runiov, MonRunIOV* moniov, bool flag) {
 
   bool status = true;
 

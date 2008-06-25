@@ -1,8 +1,8 @@
 /*
  * \file EECosmicClient.cc
  *
- * $Date: 2008/06/25 08:11:59 $
- * $Revision: 1.61 $
+ * $Date: 2008/06/25 08:15:01 $
+ * $Revision: 1.62 $
  * \author G. Della Ricca
  * \author F. Cossutti
  *
@@ -148,7 +148,7 @@ void EECosmicClient::cleanup(void) {
 
 }
 
-bool EECosmicClient::writeDb(EcalCondDBInterface* econn, RunIOV* runiov, MonRunIOV* moniov) {
+bool EECosmicClient::writeDb(EcalCondDBInterface* econn, RunIOV* runiov, MonRunIOV* moniov, bool flag) {
 
   bool status = true;
 

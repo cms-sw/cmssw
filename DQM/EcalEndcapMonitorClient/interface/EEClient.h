@@ -1,11 +1,11 @@
-// $Id: EEClient.h,v 1.12 2008/06/25 08:11:59 dellaric Exp $
+// $Id: EEClient.h,v 1.13 2008/06/25 08:15:01 dellaric Exp $
 
 /*!
   \file EEClient.h
   \brief Ecal Barrel Monitor Client mom class
   \author B. Gobbo
-  \version $Revision: 1.12 $
-  \date $Date: 2008/06/25 08:11:59 $
+  \version $Revision: 1.13 $
+  \date $Date: 2008/06/25 08:15:01 $
 */
 
 
@@ -73,12 +73,12 @@ class EEClient {
   */
   virtual void htmlOutput(int run, std::string& htmlDir, std::string& htmlName) = 0;
 
-  /*! \fn virtual bool writeDb(EcalCondDBInterface* econn, RunIOV* runiov, MonRunIOV* moniov);
+  /*! \fn virtual bool writeDb(EcalCondDBInterface* econn, RunIOV* runiov, MonRunIOV* moniov, bool flag);
     \brief Write data to DataBase
     \param econn DB interface
     \param moniov IOV interface
   */
-  virtual bool writeDb(EcalCondDBInterface* econn, RunIOV* runiov, MonRunIOV* moniov) = 0;
+  virtual bool writeDb(EcalCondDBInterface* econn, RunIOV* runiov, MonRunIOV* moniov, bool flag) = 0;
 
   /*! \fn virtual int getEvtPerJob( void );
     \brief Returns the total number of processed events

@@ -2,8 +2,8 @@
 /*
  * \file EEIntegrityClient.cc
  *
- * $Date: 2008/06/25 13:11:08 $
- * $Revision: 1.79 $
+ * $Date: 2008/06/25 13:23:30 $
+ * $Revision: 1.80 $
  * \author G. Della Ricca
  * \author G. Franzoni
  *
@@ -268,7 +268,7 @@ void EEIntegrityClient::cleanup(void) {
 
 }
 
-bool EEIntegrityClient::writeDb(EcalCondDBInterface* econn, RunIOV* runiov, MonRunIOV* moniov) {
+bool EEIntegrityClient::writeDb(EcalCondDBInterface* econn, RunIOV* runiov, MonRunIOV* moniov, bool flag) {
 
   bool status = true;
 

@@ -1,8 +1,8 @@
 /*
  * \file EBTestPulseClient.cc
  *
- * $Date: 2008/06/25 08:08:14 $
- * $Revision: 1.205 $
+ * $Date: 2008/06/25 08:15:00 $
+ * $Revision: 1.206 $
  * \author G. Della Ricca
  * \author F. Cossutti
  *
@@ -366,7 +366,7 @@ void EBTestPulseClient::cleanup(void) {
 
 }
 
-bool EBTestPulseClient::writeDb(EcalCondDBInterface* econn, RunIOV* runiov, MonRunIOV* moniov) {
+bool EBTestPulseClient::writeDb(EcalCondDBInterface* econn, RunIOV* runiov, MonRunIOV* moniov, bool flag) {
 
   bool status = true;
 

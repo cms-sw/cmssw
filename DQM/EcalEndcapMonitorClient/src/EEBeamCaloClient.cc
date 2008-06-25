@@ -1,8 +1,8 @@
 /*
  * \file EEBeamCaloClient.cc
  *
- * $Date: 2008/06/25 08:11:59 $
- * $Revision: 1.51 $
+ * $Date: 2008/06/25 08:15:01 $
+ * $Revision: 1.52 $
  * \author G. Della Ricca
  * \author A. Ghezzi
  *
@@ -235,7 +235,7 @@ void EEBeamCaloClient::cleanup(void) {
   meEEBCaloRedGreenSteps_ = 0;
 }
 
-bool EEBeamCaloClient::writeDb(EcalCondDBInterface* econn, RunIOV* runiov, MonRunIOV* moniov) {
+bool EEBeamCaloClient::writeDb(EcalCondDBInterface* econn, RunIOV* runiov, MonRunIOV* moniov, bool flag) {
 
   bool status = true;
 

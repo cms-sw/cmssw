@@ -1,8 +1,8 @@
 /*
  * \file EBLaserClient.cc
  *
- * $Date: 2008/06/25 08:08:14 $
- * $Revision: 1.236 $
+ * $Date: 2008/06/25 08:15:00 $
+ * $Revision: 1.237 $
  * \author G. Della Ricca
  * \author G. Franzoni
  *
@@ -1001,7 +1001,7 @@ void EBLaserClient::cleanup(void) {
 
 }
 
-bool EBLaserClient::writeDb(EcalCondDBInterface* econn, RunIOV* runiov, MonRunIOV* moniov) {
+bool EBLaserClient::writeDb(EcalCondDBInterface* econn, RunIOV* runiov, MonRunIOV* moniov, bool flag) {
 
   bool status = true;
 

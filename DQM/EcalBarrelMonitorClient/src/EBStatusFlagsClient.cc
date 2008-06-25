@@ -1,8 +1,8 @@
 /*
  * \file EBStatusFlagsClient.cc
  *
- * $Date: 2008/06/25 08:08:14 $
- * $Revision: 1.20 $
+ * $Date: 2008/06/25 08:15:00 $
+ * $Revision: 1.21 $
  * \author G. Della Ricca
  *
 */
@@ -136,7 +136,7 @@ void EBStatusFlagsClient::cleanup(void) {
 
 }
 
-bool EBStatusFlagsClient::writeDb(EcalCondDBInterface* econn, RunIOV* runiov, MonRunIOV* moniov) {
+bool EBStatusFlagsClient::writeDb(EcalCondDBInterface* econn, RunIOV* runiov, MonRunIOV* moniov, bool flag) {
 
   bool status = true;
 

@@ -1,8 +1,8 @@
 /*
  * \file EcalBarrelMonitorClient.cc
  *
- * $Date: 2008/06/25 08:08:14 $
- * $Revision: 1.429 $
+ * $Date: 2008/06/25 08:15:00 $
+ * $Revision: 1.430 $
  * \author G. Della Ricca
  * \author F. Cossutti
  *
@@ -853,7 +853,7 @@ void EcalBarrelMonitorClient::endRun(void) {
 
   if ( subrun_ != -1 ) {
 
-    this->writeDb();
+    this->writeDb(true);
 
     this->endRunDb();
 
@@ -1140,7 +1140,7 @@ void EcalBarrelMonitorClient::beginRunDb(void) {
 
 }
 
-void EcalBarrelMonitorClient::writeDb(void) {
+void EcalBarrelMonitorClient::writeDb(bool flag) {
 
   subrun_++;
 
@@ -1227,7 +1227,7 @@ void EcalBarrelMonitorClient::writeDb(void) {
             cout << endl;
           }
         }
-        if ( clients_[i]->writeDb(econn, &runiov_, &moniov_) ) {
+        if ( clients_[i]->writeDb(econn, &runiov_, &moniov_, flag) ) {
           tasko |= 0x1 << clientsStatus_[clientsNames_[i]];
         } else {
           tasko |= 0x0 << clientsStatus_[clientsNames_[i]];
@@ -1243,7 +1243,7 @@ void EcalBarrelMonitorClient::writeDb(void) {
     }
   }
 
-  if ( summaryClient_ ) summaryClient_->writeDb(econn, &runiov_, &moniov_);
+  if ( summaryClient_ ) summaryClient_->writeDb(econn, &runiov_, &moniov_, flag);
 
   EcalLogicID ecid;
   MonRunDat md;
@@ -1548,7 +1548,7 @@ void EcalBarrelMonitorClient::analyze(void) {
                runType_ == EcalDCCHeaderBlock::COSMICS_LOCAL ||
                runType_ == EcalDCCHeaderBlock::PHYSICS_LOCAL ||
                runType_ == EcalDCCHeaderBlock::BEAMH2 ||
-               runType_ == EcalDCCHeaderBlock::BEAMH4 ) this->writeDb();
+               runType_ == EcalDCCHeaderBlock::BEAMH4 ) this->writeDb(false);
           last_time_db_ = current_time_;
         }
       }

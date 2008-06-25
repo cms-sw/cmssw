@@ -1,8 +1,8 @@
 /*
  * \file EBCosmicClient.cc
  *
- * $Date: 2008/06/25 08:08:13 $
- * $Revision: 1.114 $
+ * $Date: 2008/06/25 08:15:00 $
+ * $Revision: 1.115 $
  * \author G. Della Ricca
  * \author F. Cossutti
  *
@@ -146,7 +146,7 @@ void EBCosmicClient::cleanup(void) {
 
 }
 
-bool EBCosmicClient::writeDb(EcalCondDBInterface* econn, RunIOV* runiov, MonRunIOV* moniov) {
+bool EBCosmicClient::writeDb(EcalCondDBInterface* econn, RunIOV* runiov, MonRunIOV* moniov, bool flag) {
 
   bool status = true;
 

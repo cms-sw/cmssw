@@ -1,8 +1,8 @@
 /*
  * \file EESummaryClient.cc
  *
- * $Date: 2008/06/25 08:12:00 $
- * $Revision: 1.140 $
+ * $Date: 2008/06/25 08:15:02 $
+ * $Revision: 1.141 $
  * \author G. Della Ricca
  *
 */
@@ -647,7 +647,7 @@ void EESummaryClient::cleanup(void) {
 
 }
 
-bool EESummaryClient::writeDb(EcalCondDBInterface* econn, RunIOV* runiov, MonRunIOV* moniov) {
+bool EESummaryClient::writeDb(EcalCondDBInterface* econn, RunIOV* runiov, MonRunIOV* moniov, bool flag) {
 
   bool status = true;
 

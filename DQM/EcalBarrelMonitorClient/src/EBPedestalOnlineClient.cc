@@ -1,8 +1,8 @@
 /*
  * \file EBPedestalOnlineClient.cc
  *
- * $Date: 2008/06/25 11:01:45 $
- * $Revision: 1.140 $
+ * $Date: 2008/06/25 12:57:03 $
+ * $Revision: 1.141 $
  * \author G. Della Ricca
  * \author F. Cossutti
  *
@@ -211,7 +211,7 @@ void EBPedestalOnlineClient::cleanup(void) {
 
 }
 
-bool EBPedestalOnlineClient::writeDb(EcalCondDBInterface* econn, RunIOV* runiov, MonRunIOV* moniov) {
+bool EBPedestalOnlineClient::writeDb(EcalCondDBInterface* econn, RunIOV* runiov, MonRunIOV* moniov, bool flag) {
 
   bool status = true;
 

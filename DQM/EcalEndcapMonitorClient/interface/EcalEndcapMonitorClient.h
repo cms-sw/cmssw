@@ -4,8 +4,8 @@
 /*
  * \file EcalEndcapMonitorClient.h
  *
- * $Date: 2008/06/25 08:11:59 $
- * $Revision: 1.44 $
+ * $Date: 2008/06/25 08:15:01 $
+ * $Revision: 1.45 $
  * \author G. Della Ricca
  * \author F. Cossutti
  *
@@ -94,7 +94,7 @@ void publish(xdata::InfoSpace *){};
 void beginRunDb(void);
 
 /// WriteDB
-void writeDb(void);
+void writeDb(bool flag);
 
 /// EndRunDB
 void endRunDb(void);

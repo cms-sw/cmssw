@@ -4,8 +4,8 @@
 /*
  * \file EcalBarrelMonitorClient.h
  *
- * $Date: 2008/06/25 08:08:13 $
- * $Revision: 1.108 $
+ * $Date: 2008/06/25 08:14:59 $
+ * $Revision: 1.109 $
  * \author G. Della Ricca
  * \author F. Cossutti
  *
@@ -94,7 +94,7 @@ void publish(xdata::InfoSpace *){};
 void beginRunDb(void);
 
 /// WriteDB
-void writeDb(void);
+void writeDb(bool flag);
 
 /// EndRunDB
 void endRunDb(void);
