@@ -78,8 +78,8 @@ CSCDCCUnpacker::CSCDCCUnpacker(const edm::ParameterSet & pset) :
   unpackMTCCData = pset.getUntrackedParameter<bool>("isMTCCData", false);
 
   // Selective unpacking mode will skip only troublesome CSC blocks and not whole DCC/DDU block
-  useSelectiveUnpacking = pset.getUntrackedParameter<bool>("UseSelectiveUnpacking","false");
-  
+  useSelectiveUnpacking = pset.getUntrackedParameter<bool>("UseSelectiveUnpacking", false);
+
   if(instatiateDQM)  {
     monitor = edm::Service<CSCMonitorInterface>().operator->();
   }
