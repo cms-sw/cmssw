@@ -8,7 +8,7 @@
 //
 // Original Author:  Chris Jones
 //         Created:  Mon Feb 11 11:06:40 EST 2008
-// $Id: FWGUIManager.cc,v 1.37 2008/06/23 09:49:57 jmuelmen Exp $
+// $Id: FWGUIManager.cc,v 1.38 2008/06/23 15:51:11 chrjones Exp $
 //
 
 // system include files
@@ -188,6 +188,7 @@ FWGUIManager::parentForNextView()
    
    FWGUISubviewArea* hf = new FWGUISubviewArea(m_viewFrames.size(),splitParent,m_splitFrame);
    hf->swappedToBigView_.connect(boost::bind(&FWGUIManager::subviewWasSwappedToBig,this,_1));
+   hf->goingToBeDestroyed_.connect(boost::bind(&FWGUIManager::subviewIsBeingDestroyed,this,_1));
    m_viewFrames.push_back(hf);
    (splitParent)->AddFrame(hf,new TGLayoutHints(kLHintsExpandX | kLHintsExpandY) );
    
@@ -331,6 +332,14 @@ FWGUIManager::subviewWasSwappedToBig(unsigned int iIndex)
    m_viewFrames[iIndex]->setIndex(0);
    std::swap(m_viewBases[0], m_viewBases[iIndex]);
    std::swap(m_viewFrames[0],m_viewFrames[iIndex]);
+}
+
+void
+FWGUIManager::subviewIsBeingDestroyed(unsigned int iIndex)
+{
+   m_viewFrames.erase(m_viewFrames.begin()+iIndex);
+   (*(m_viewBases.begin()+iIndex))->destroy();
+   m_viewBases.erase(m_viewBases.begin()+iIndex);
 }
 
 TGVerticalFrame* 
