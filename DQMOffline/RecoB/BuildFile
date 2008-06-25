@@ -9,7 +9,6 @@
 <use name=RecoBTau/JetTagComputer>
 <use name=rootcore>
 <use name=DQMServices/Core>
-<Flags CXXFLAGS="-O0 -g">
 <use name=root>
 <use name=boost>
 <export>
