@@ -1,8 +1,8 @@
 /*
  * \file EBPedestalClient.cc
  *
- * $Date: 2008/04/08 18:04:49 $
- * $Revision: 1.196 $
+ * $Date: 2008/05/08 19:12:44 $
+ * $Revision: 1.197 $
  * \author G. Della Ricca
  * \author F. Cossutti
  *
@@ -40,7 +40,7 @@ using namespace cms;
 using namespace edm;
 using namespace std;
 
-EBPedestalClient::EBPedestalClient(const ParameterSet& ps){
+EBPedestalClient::EBPedestalClient(const ParameterSet& ps) {
 
   // cloneME switch
   cloneME_ = ps.getUntrackedParameter<bool>("cloneME", true);
@@ -138,11 +138,11 @@ EBPedestalClient::EBPedestalClient(const ParameterSet& ps){
 
 }
 
-EBPedestalClient::~EBPedestalClient(){
+EBPedestalClient::~EBPedestalClient() {
 
 }
 
-void EBPedestalClient::beginJob(DQMStore* dqmStore){
+void EBPedestalClient::beginJob(DQMStore* dqmStore) {
 
   dqmStore_ = dqmStore;
 
@@ -153,7 +153,7 @@ void EBPedestalClient::beginJob(DQMStore* dqmStore){
 
 }
 
-void EBPedestalClient::beginRun(void){
+void EBPedestalClient::beginRun(void) {
 
   if ( debug_ ) cout << "EBPedestalClient: beginRun" << endl;
 
@@ -624,7 +624,7 @@ bool EBPedestalClient::writeDb(EcalCondDBInterface* econn, RunIOV* runiov, MonRu
 
 }
 
-void EBPedestalClient::analyze(void){
+void EBPedestalClient::analyze(void) {
 
   ievt_++;
   jevt_++;
@@ -1100,7 +1100,11 @@ void EBPedestalClient::analyze(void){
 
 }
 
-void EBPedestalClient::htmlOutput(int run, string& htmlDir, string& htmlName){
+void EBPedestalClient::softReset(void) {
+
+}
+
+void EBPedestalClient::htmlOutput(int run, string& htmlDir, string& htmlName) {
 
   if ( verbose_ ) cout << "Preparing EBPedestalClient html output ..." << endl;
 
@@ -1628,7 +1632,7 @@ void EBPedestalClient::htmlOutput(int run, string& htmlDir, string& htmlName){
 
     for ( int iCanvas = 1 ; iCanvas <= 2 ; iCanvas++ ) {
 
-      if ( imgNameMEPnPed[iCanvas-1].size() != 0 ){
+      if ( imgNameMEPnPed[iCanvas-1].size() != 0 ) {
         htmlFile << "<td colspan=\"2\"><img src=\"" << imgNameMEPnPed[iCanvas-1] << "\"></td>" << endl;
 
       if ( imgNameMEPnPedRms[iCanvas-1].size() != 0 )

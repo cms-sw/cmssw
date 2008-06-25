@@ -4,8 +4,8 @@
 /*
  * \file EBSummaryClient.h
  *
- * $Date: 2008/04/08 15:06:21 $
- * $Revision: 1.34 $
+ * $Date: 2008/04/08 18:04:48 $
+ * $Revision: 1.35 $
  * \author G. Della Ricca
  *
 */
@@ -56,6 +56,9 @@ void setup(void);
 
 /// Cleanup
 void cleanup(void);
+
+/// SoftReset
+void softReset(void);
 
 /// HtmlOutput
 void htmlOutput(int run, std::string& htmlDir, std::string& htmlName);

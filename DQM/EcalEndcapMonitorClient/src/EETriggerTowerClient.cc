@@ -1,8 +1,8 @@
 /*
  * \file EETriggerTowerClient.cc
  *
- * $Date: 2008/04/08 15:06:26 $
- * $Revision: 1.68 $
+ * $Date: 2008/04/08 18:05:29 $
+ * $Revision: 1.69 $
  * \author G. Della Ricca
  * \author F. Cossutti
  *
@@ -29,7 +29,7 @@ using namespace cms;
 using namespace edm;
 using namespace std;
 
-EETriggerTowerClient::EETriggerTowerClient(const ParameterSet& ps){
+EETriggerTowerClient::EETriggerTowerClient(const ParameterSet& ps) {
 
   // cloneME switch
   cloneME_ = ps.getUntrackedParameter<bool>("cloneME", true);
@@ -104,11 +104,11 @@ EETriggerTowerClient::EETriggerTowerClient(const ParameterSet& ps){
 
 }
 
-EETriggerTowerClient::~EETriggerTowerClient(){
+EETriggerTowerClient::~EETriggerTowerClient() {
 
 }
 
-void EETriggerTowerClient::beginJob(DQMStore* dqmStore){
+void EETriggerTowerClient::beginJob(DQMStore* dqmStore) {
 
   dqmStore_ = dqmStore;
 
@@ -346,7 +346,7 @@ bool EETriggerTowerClient::writeDb(EcalCondDBInterface* econn, RunIOV* runiov, M
 
 }
 
-void EETriggerTowerClient::analyze(void){
+void EETriggerTowerClient::analyze(void) {
 
   ievt_++;
   jevt_++;
@@ -516,7 +516,11 @@ void EETriggerTowerClient::analyze(const char* nameext,
 
 }
 
-void EETriggerTowerClient::htmlOutput(int run, string& htmlDir, string& htmlName){
+void EETriggerTowerClient::softReset(void) {
+
+}
+
+void EETriggerTowerClient::htmlOutput(int run, string& htmlDir, string& htmlName) {
 
   if ( verbose_ ) cout << "Preparing EETriggerTowerClient html output ..." << std::endl;
 
@@ -640,7 +644,7 @@ void EETriggerTowerClient::htmlOutput(int run, string& htmlDir, string& htmlName
       cMe2->SetBit(TGraph::kClipFrame);
       TLine l;
       l.SetLineWidth(1);
-      for ( int i=0; i<201; i=i+1){
+      for ( int i=0; i<201; i=i+1) {
         if ( (Numbers::ixSectorsEE[i]!=0 || Numbers::iySectorsEE[i]!=0) && (Numbers::ixSectorsEE[i+1]!=0 || Numbers::iySectorsEE[i+1]!=0) ) {
           l.DrawLine(Numbers::ixSectorsEE[i], Numbers::iySectorsEE[i], Numbers::ixSectorsEE[i+1], Numbers::iySectorsEE[i+1]);
         }
@@ -700,7 +704,7 @@ void EETriggerTowerClient::htmlOutput(int run, string& htmlDir, string& htmlName
         cMe1->SetBit(TGraph::kClipFrame);
         TLine l;
         l.SetLineWidth(1);
-          for ( int i=0; i<201; i=i+1){
+          for ( int i=0; i<201; i=i+1) {
           if ( (Numbers::ixSectorsEE[i]!=0 || Numbers::iySectorsEE[i]!=0) && (Numbers::ixSectorsEE[i+1]!=0 || Numbers::iySectorsEE[i+1]!=0) ) {
             l.DrawLine(Numbers::ixSectorsEE[i], Numbers::iySectorsEE[i], Numbers::ixSectorsEE[i+1], Numbers::iySectorsEE[i+1]);
           }
@@ -806,7 +810,7 @@ void EETriggerTowerClient::htmlOutput(int run, string& htmlDir, string& htmlName
           cMe2->SetBit(TGraph::kClipFrame);
           TLine l;
           l.SetLineWidth(1);
-          for ( int i=0; i<201; i=i+1){
+          for ( int i=0; i<201; i=i+1) {
             if ( (Numbers::ixSectorsEE[i]!=0 || Numbers::iySectorsEE[i]!=0) && (Numbers::ixSectorsEE[i+1]!=0 || Numbers::iySectorsEE[i+1]!=0) ) {
               l.DrawLine(Numbers::ixSectorsEE[i], Numbers::iySectorsEE[i], Numbers::ixSectorsEE[i+1], Numbers::iySectorsEE[i+1]);
             }
@@ -885,7 +889,7 @@ void EETriggerTowerClient::htmlOutput(int run, string& htmlDir, string& htmlName
           cMe2->SetBit(TGraph::kClipFrame);
           TLine l;
           l.SetLineWidth(1);
-          for ( int i=0; i<201; i=i+1){
+          for ( int i=0; i<201; i=i+1) {
             if ( (Numbers::ixSectorsEE[i]!=0 || Numbers::iySectorsEE[i]!=0) && (Numbers::ixSectorsEE[i+1]!=0 || Numbers::iySectorsEE[i+1]!=0) ) {
               l.DrawLine(Numbers::ixSectorsEE[i], Numbers::iySectorsEE[i], Numbers::ixSectorsEE[i+1], Numbers::iySectorsEE[i+1]);
             }

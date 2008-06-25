@@ -1,8 +1,8 @@
 /*
  * \file EETimingClient.cc
  *
- * $Date: 2008/04/08 18:05:29 $
- * $Revision: 1.78 $
+ * $Date: 2008/05/09 08:08:25 $
+ * $Revision: 1.79 $
  * \author G. Della Ricca
  *
 */
@@ -39,7 +39,7 @@ using namespace cms;
 using namespace edm;
 using namespace std;
 
-EETimingClient::EETimingClient(const ParameterSet& ps){
+EETimingClient::EETimingClient(const ParameterSet& ps) {
 
   // cloneME switch
   cloneME_ = ps.getUntrackedParameter<bool>("cloneME", true);
@@ -93,11 +93,11 @@ EETimingClient::EETimingClient(const ParameterSet& ps){
 
 }
 
-EETimingClient::~EETimingClient(){
+EETimingClient::~EETimingClient() {
 
 }
 
-void EETimingClient::beginJob(DQMStore* dqmStore){
+void EETimingClient::beginJob(DQMStore* dqmStore) {
 
   dqmStore_ = dqmStore;
 
@@ -108,7 +108,7 @@ void EETimingClient::beginJob(DQMStore* dqmStore){
 
 }
 
-void EETimingClient::beginRun(void){
+void EETimingClient::beginRun(void) {
 
   if ( debug_ ) cout << "EETimingClient: beginRun" << endl;
 
@@ -332,7 +332,7 @@ bool EETimingClient::writeDb(EcalCondDBInterface* econn, RunIOV* runiov, MonRunI
 
 }
 
-void EETimingClient::analyze(void){
+void EETimingClient::analyze(void) {
 
   ievt_++;
   jevt_++;
@@ -484,7 +484,11 @@ void EETimingClient::analyze(void){
 
 }
 
-void EETimingClient::htmlOutput(int run, string& htmlDir, string& htmlName){
+void EETimingClient::softReset(void) {
+
+}
+
+void EETimingClient::htmlOutput(int run, string& htmlDir, string& htmlName) {
 
   if ( verbose_ ) cout << "Preparing EETimingClient html output ..." << endl;
 
@@ -595,7 +599,7 @@ void EETimingClient::htmlOutput(int run, string& htmlDir, string& htmlName){
       cQual->SetBit(TGraph::kClipFrame);
       TLine l;
       l.SetLineWidth(1);
-      for ( int i=0; i<201; i=i+1){
+      for ( int i=0; i<201; i=i+1) {
         if ( (Numbers::ixSectorsEE[i]!=0 || Numbers::iySectorsEE[i]!=0) && (Numbers::ixSectorsEE[i+1]!=0 || Numbers::iySectorsEE[i+1]!=0) ) {
           l.DrawLine(Numbers::ixSectorsEE[i], Numbers::iySectorsEE[i], Numbers::ixSectorsEE[i+1], Numbers::iySectorsEE[i+1]);
         }

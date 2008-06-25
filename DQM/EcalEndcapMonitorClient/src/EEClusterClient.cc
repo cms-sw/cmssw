@@ -1,8 +1,8 @@
 /*
  * \file EEClusterClient.cc
  *
- * $Date: 2008/04/08 15:06:25 $
- * $Revision: 1.50 $
+ * $Date: 2008/04/08 18:05:28 $
+ * $Revision: 1.51 $
  * \author G. Della Ricca
  * \author E. Di Marco
  *
@@ -29,7 +29,7 @@ using namespace cms;
 using namespace edm;
 using namespace std;
 
-EEClusterClient::EEClusterClient(const ParameterSet& ps){
+EEClusterClient::EEClusterClient(const ParameterSet& ps) {
 
   // cloneME switch
   cloneME_ = ps.getUntrackedParameter<bool>("cloneME", true);
@@ -81,11 +81,11 @@ EEClusterClient::EEClusterClient(const ParameterSet& ps){
 
 }
 
-EEClusterClient::~EEClusterClient(){
+EEClusterClient::~EEClusterClient() {
 
 }
 
-void EEClusterClient::beginJob(DQMStore* dqmStore){
+void EEClusterClient::beginJob(DQMStore* dqmStore) {
 
   dqmStore_ = dqmStore;
 
@@ -96,7 +96,7 @@ void EEClusterClient::beginJob(DQMStore* dqmStore){
 
 }
 
-void EEClusterClient::beginRun(void){
+void EEClusterClient::beginRun(void) {
 
   if ( debug_ ) cout << "EEClusterClient: beginRun" << endl;
 
@@ -201,7 +201,7 @@ bool EEClusterClient::writeDb(EcalCondDBInterface* econn, RunIOV* runiov, MonRun
 
 }
 
-void EEClusterClient::analyze(void){
+void EEClusterClient::analyze(void) {
 
   ievt_++;
   jevt_++;
@@ -347,7 +347,11 @@ void EEClusterClient::analyze(void){
 
 }
 
-void EEClusterClient::htmlOutput(int run, string& htmlDir, string& htmlName){
+void EEClusterClient::softReset(void) {
+
+}
+
+void EEClusterClient::htmlOutput(int run, string& htmlDir, string& htmlName) {
 
   if ( verbose_ ) cout << "Preparing EEClusterClient html output ..." << endl;
 
@@ -552,7 +556,7 @@ void EEClusterClient::htmlOutput(int run, string& htmlDir, string& htmlName){
         cMap->SetBit(TGraph::kClipFrame);
         TLine l;
         l.SetLineWidth(1);
-        for ( int i=0; i<201; i=i+1){
+        for ( int i=0; i<201; i=i+1) {
           if ( (Numbers::ixSectorsEE[i]!=0 || Numbers::iySectorsEE[i]!=0) && (Numbers::ixSectorsEE[i+1]!=0 || Numbers::iySectorsEE[i+1]!=0) ) {
             l.DrawLine(3.0*(Numbers::ixSectorsEE[i]-50), 3.0*(Numbers::iySectorsEE[i]-50), 3.0*(Numbers::ixSectorsEE[i+1]-50), 3.0*(Numbers::iySectorsEE[i+1]-50));
           }
@@ -631,7 +635,7 @@ void EEClusterClient::htmlOutput(int run, string& htmlDir, string& htmlName){
       cMap->SetBit(TGraph::kClipFrame);
       TLine l;
       l.SetLineWidth(1);
-      for ( int i=0; i<201; i=i+1){
+      for ( int i=0; i<201; i=i+1) {
         if ( (Numbers::ixSectorsEE[i]!=0 || Numbers::iySectorsEE[i]!=0) && (Numbers::ixSectorsEE[i+1]!=0 || Numbers::iySectorsEE[i+1]!=0) ) {
           l.DrawLine(3.0*(Numbers::ixSectorsEE[i]-50), 3.0*(Numbers::iySectorsEE[i]-50), 3.0*(Numbers::ixSectorsEE[i+1]-50), 3.0*(Numbers::iySectorsEE[i+1]-50));
         }

@@ -1,8 +1,8 @@
 /*
  * \file EcalBarrelMonitorClient.cc
  *
- * $Date: 2008/06/12 09:21:21 $
- * $Revision: 1.427 $
+ * $Date: 2008/06/24 07:08:09 $
+ * $Revision: 1.428 $
  * \author G. Della Ricca
  * \author F. Cossutti
  *
@@ -71,7 +71,7 @@ using namespace cms;
 using namespace edm;
 using namespace std;
 
-EcalBarrelMonitorClient::EcalBarrelMonitorClient(const ParameterSet& ps) : ModuleWeb("EcalBarrelMonitorClient"){
+EcalBarrelMonitorClient::EcalBarrelMonitorClient(const ParameterSet& ps) : ModuleWeb("EcalBarrelMonitorClient") {
 
   // verbose switch
 
@@ -670,7 +670,7 @@ EcalBarrelMonitorClient::EcalBarrelMonitorClient(const ParameterSet& ps) : Modul
 
 }
 
-EcalBarrelMonitorClient::~EcalBarrelMonitorClient(){
+EcalBarrelMonitorClient::~EcalBarrelMonitorClient() {
 
   if ( verbose_ ) cout << "Exit ..." << endl;
 
@@ -751,7 +751,7 @@ void EcalBarrelMonitorClient::beginJob(const EventSetup &c) {
 
 }
 
-void EcalBarrelMonitorClient::beginRun(void){
+void EcalBarrelMonitorClient::beginRun(void) {
 
   begin_run_ = true;
   end_run_   = false;
@@ -1391,7 +1391,7 @@ void EcalBarrelMonitorClient::endRunDb(void) {
 
 }
 
-void EcalBarrelMonitorClient::analyze(void){
+void EcalBarrelMonitorClient::analyze(void) {
 
   current_time_ = time(NULL);
 
@@ -1667,7 +1667,23 @@ void EcalBarrelMonitorClient::analyze(const Event &e, const EventSetup &c) {
 
 }
 
-void EcalBarrelMonitorClient::htmlOutput( bool current ){
+void EcalBarrelMonitorClient::softReset(void) { 	 
+	  	 
+   for ( int i=0; i<int(clients_.size()); i++ ) {
+     bool done = false;
+     for ( multimap<EBClient*,int>::iterator j = clientsRuns_.lower_bound(clients_[i]); j != clientsRuns_.upper_bound(clients_[i]); j++ ) {
+       if ( runType_ != -1 && runType_ == (*j).second && !done ) {
+         done = true;
+         clients_[i]->softReset();
+       }
+     }
+   }
+ 
+   summaryClient_->softReset();
+
+}
+
+void EcalBarrelMonitorClient::htmlOutput( bool current ) {
 
   time_t start = time(NULL);
 
@@ -1767,7 +1783,7 @@ void EcalBarrelMonitorClient::htmlOutput( bool current ){
 
 }
 
-void EcalBarrelMonitorClient::defaultWebPage(xgi::Input *in, xgi::Output *out){
+void EcalBarrelMonitorClient::defaultWebPage(xgi::Input *in, xgi::Output *out) {
 
   string path;
   string mname;

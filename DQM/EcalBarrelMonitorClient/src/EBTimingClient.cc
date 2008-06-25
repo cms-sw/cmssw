@@ -1,8 +1,8 @@
 /*
  * \file EBTimingClient.cc
  *
- * $Date: 2008/04/08 18:04:49 $
- * $Revision: 1.84 $
+ * $Date: 2008/05/08 19:13:09 $
+ * $Revision: 1.85 $
  * \author G. Della Ricca
  *
 */
@@ -37,7 +37,7 @@ using namespace cms;
 using namespace edm;
 using namespace std;
 
-EBTimingClient::EBTimingClient(const ParameterSet& ps){
+EBTimingClient::EBTimingClient(const ParameterSet& ps) {
 
   // cloneME switch
   cloneME_ = ps.getUntrackedParameter<bool>("cloneME", true);
@@ -91,11 +91,11 @@ EBTimingClient::EBTimingClient(const ParameterSet& ps){
 
 }
 
-EBTimingClient::~EBTimingClient(){
+EBTimingClient::~EBTimingClient() {
 
 }
 
-void EBTimingClient::beginJob(DQMStore* dqmStore){
+void EBTimingClient::beginJob(DQMStore* dqmStore) {
 
   dqmStore_ = dqmStore;
 
@@ -106,7 +106,7 @@ void EBTimingClient::beginJob(DQMStore* dqmStore){
 
 }
 
-void EBTimingClient::beginRun(void){
+void EBTimingClient::beginRun(void) {
 
   if ( debug_ ) cout << "EBTimingClient: beginRun" << endl;
 
@@ -312,7 +312,7 @@ bool EBTimingClient::writeDb(EcalCondDBInterface* econn, RunIOV* runiov, MonRunI
 
 }
 
-void EBTimingClient::analyze(void){
+void EBTimingClient::analyze(void) {
 
   ievt_++;
   jevt_++;
@@ -443,7 +443,11 @@ void EBTimingClient::analyze(void){
 
 }
 
-void EBTimingClient::htmlOutput(int run, string& htmlDir, string& htmlName){
+void EBTimingClient::softReset(void) {
+
+}
+
+void EBTimingClient::htmlOutput(int run, string& htmlDir, string& htmlName) {
 
   if ( verbose_ ) cout << "Preparing EBTimingClient html output ..." << endl;
 

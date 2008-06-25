@@ -1,8 +1,8 @@
 /*
  * \file EBSummaryClient.cc
  *
- * $Date: 2008/06/17 15:03:24 $
- * $Revision: 1.157 $
+ * $Date: 2008/06/17 15:13:56 $
+ * $Revision: 1.158 $
  * \author G. Della Ricca
  *
 */
@@ -42,7 +42,7 @@ using namespace cms;
 using namespace edm;
 using namespace std;
 
-EBSummaryClient::EBSummaryClient(const ParameterSet& ps){
+EBSummaryClient::EBSummaryClient(const ParameterSet& ps) {
 
   // cloneME switch
   cloneME_ = ps.getUntrackedParameter<bool>("cloneME", true);
@@ -96,11 +96,11 @@ EBSummaryClient::EBSummaryClient(const ParameterSet& ps){
 
 }
 
-EBSummaryClient::~EBSummaryClient(){
+EBSummaryClient::~EBSummaryClient() {
 
 }
 
-void EBSummaryClient::beginJob(DQMStore* dqmStore){
+void EBSummaryClient::beginJob(DQMStore* dqmStore) {
 
   dqmStore_ = dqmStore;
 
@@ -152,7 +152,7 @@ void EBSummaryClient::beginJob(DQMStore* dqmStore){
 
 }
 
-void EBSummaryClient::beginRun(void){
+void EBSummaryClient::beginRun(void) {
 
   if ( debug_ ) cout << "EBSummaryClient: beginRun" << endl;
 
@@ -437,7 +437,7 @@ bool EBSummaryClient::writeDb(EcalCondDBInterface* econn, RunIOV* runiov, MonRun
 
 }
 
-void EBSummaryClient::analyze(void){
+void EBSummaryClient::analyze(void) {
 
   ievt_++;
   jevt_++;
@@ -1232,7 +1232,11 @@ void EBSummaryClient::analyze(void){
 
 }
 
-void EBSummaryClient::htmlOutput(int run, string& htmlDir, string& htmlName){
+void EBSummaryClient::softReset(void) {
+
+}
+
+void EBSummaryClient::htmlOutput(int run, string& htmlDir, string& htmlName) {
 
   if ( verbose_ ) cout << "Preparing EBSummaryClient html output ..." << endl;
 

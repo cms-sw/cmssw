@@ -2,8 +2,8 @@
 /*
  * \file EEIntegrityClient.cc
  *
- * $Date: 2008/04/08 19:06:53 $
- * $Revision: 1.75 $
+ * $Date: 2008/04/08 19:20:18 $
+ * $Revision: 1.76 $
  * \author G. Della Ricca
  * \author G. Franzoni
  *
@@ -50,7 +50,7 @@ using namespace cms;
 using namespace edm;
 using namespace std;
 
-EEIntegrityClient::EEIntegrityClient(const ParameterSet& ps){
+EEIntegrityClient::EEIntegrityClient(const ParameterSet& ps) {
 
   // cloneME switch
   cloneME_ = ps.getUntrackedParameter<bool>("cloneME", true);
@@ -107,11 +107,11 @@ EEIntegrityClient::EEIntegrityClient(const ParameterSet& ps){
 
 }
 
-EEIntegrityClient::~EEIntegrityClient(){
+EEIntegrityClient::~EEIntegrityClient() {
 
 }
 
-void EEIntegrityClient::beginJob(DQMStore* dqmStore){
+void EEIntegrityClient::beginJob(DQMStore* dqmStore) {
 
   dqmStore_ = dqmStore;
 
@@ -122,7 +122,7 @@ void EEIntegrityClient::beginJob(DQMStore* dqmStore){
 
 }
 
-void EEIntegrityClient::beginRun(void){
+void EEIntegrityClient::beginRun(void) {
 
   if ( debug_ ) cout << "EEIntegrityClient: beginRun" << endl;
 
@@ -685,7 +685,7 @@ bool EEIntegrityClient::writeDb(EcalCondDBInterface* econn, RunIOV* runiov, MonR
 
 }
 
-void EEIntegrityClient::analyze(void){
+void EEIntegrityClient::analyze(void) {
 
   ievt_++;
   jevt_++;
@@ -1042,7 +1042,11 @@ void EEIntegrityClient::analyze(void){
 
 }
 
-void EEIntegrityClient::htmlOutput(int run, string& htmlDir, string& htmlName){
+void EEIntegrityClient::softReset(void) {
+
+}
+
+void EEIntegrityClient::htmlOutput(int run, string& htmlDir, string& htmlName) {
 
   if ( verbose_ ) cout << "Preparing EEIntegrityClient html output ..." << endl;
 
@@ -1211,7 +1215,7 @@ void EEIntegrityClient::htmlOutput(int run, string& htmlDir, string& htmlName){
       cQual->SetBit(TGraph::kClipFrame);
       TLine l;
       l.SetLineWidth(1);
-      for ( int i=0; i<201; i=i+1){
+      for ( int i=0; i<201; i=i+1) {
         if ( (Numbers::ixSectorsEE[i]!=0 || Numbers::iySectorsEE[i]!=0) && (Numbers::ixSectorsEE[i+1]!=0 || Numbers::iySectorsEE[i+1]!=0) ) {
           l.DrawLine(Numbers::ixSectorsEE[i], Numbers::iySectorsEE[i], Numbers::ixSectorsEE[i+1], Numbers::iySectorsEE[i+1]);
         }
@@ -1257,7 +1261,7 @@ void EEIntegrityClient::htmlOutput(int run, string& htmlDir, string& htmlName){
       cOcc->SetBit(TGraph::kClipFrame);
       TLine l;
       l.SetLineWidth(1);
-      for ( int i=0; i<201; i=i+1){
+      for ( int i=0; i<201; i=i+1) {
         if ( (Numbers::ixSectorsEE[i]!=0 || Numbers::iySectorsEE[i]!=0) && (Numbers::ixSectorsEE[i+1]!=0 || Numbers::iySectorsEE[i+1]!=0) ) {
           l.DrawLine(Numbers::ixSectorsEE[i], Numbers::iySectorsEE[i], Numbers::ixSectorsEE[i+1], Numbers::iySectorsEE[i+1]);
         }
@@ -1324,7 +1328,7 @@ void EEIntegrityClient::htmlOutput(int run, string& htmlDir, string& htmlName){
         cMe->SetBit(TGraph::kClipFrame);
         TLine l;
         l.SetLineWidth(1);
-        for ( int i=0; i<201; i=i+1){
+        for ( int i=0; i<201; i=i+1) {
           if ( (Numbers::ixSectorsEE[i]!=0 || Numbers::iySectorsEE[i]!=0) && (Numbers::ixSectorsEE[i+1]!=0 || Numbers::iySectorsEE[i+1]!=0) ) {
             l.DrawLine(Numbers::ixSectorsEE[i], Numbers::iySectorsEE[i], Numbers::ixSectorsEE[i+1], Numbers::iySectorsEE[i+1]);
           }
@@ -1437,7 +1441,7 @@ void EEIntegrityClient::htmlOutput(int run, string& htmlDir, string& htmlName){
         gStyle->SetPalette(10, pCol5);
         obj2f->SetMinimum(0.0);
         obj2f->Draw("colz");
-        if ( iCanvas <= 7 ){
+        if ( iCanvas <= 7 ) {
           obj2f->GetXaxis()->SetNdivisions(10);
           obj2f->GetYaxis()->SetNdivisions(5);
           cMeMem->SetGridx();

@@ -1,8 +1,8 @@
 /*
  * \file EETestPulseClient.cc
  *
- * $Date: 2008/05/09 08:08:25 $
- * $Revision: 1.88 $
+ * $Date: 2008/05/09 08:53:02 $
+ * $Revision: 1.89 $
  * \author G. Della Ricca
  * \author F. Cossutti
  *
@@ -44,7 +44,7 @@ using namespace cms;
 using namespace edm;
 using namespace std;
 
-EETestPulseClient::EETestPulseClient(const ParameterSet& ps){
+EETestPulseClient::EETestPulseClient(const ParameterSet& ps) {
 
   // cloneME switch
   cloneME_ = ps.getUntrackedParameter<bool>("cloneME", true);
@@ -126,11 +126,11 @@ EETestPulseClient::EETestPulseClient(const ParameterSet& ps){
 
 }
 
-EETestPulseClient::~EETestPulseClient(){
+EETestPulseClient::~EETestPulseClient() {
 
 }
 
-void EETestPulseClient::beginJob(DQMStore* dqmStore){
+void EETestPulseClient::beginJob(DQMStore* dqmStore) {
 
   dqmStore_ = dqmStore;
 
@@ -141,7 +141,7 @@ void EETestPulseClient::beginJob(DQMStore* dqmStore){
 
 }
 
-void EETestPulseClient::beginRun(void){
+void EETestPulseClient::beginRun(void) {
 
   if ( debug_ ) cout << "EETestPulseClient: beginRun" << endl;
 
@@ -642,7 +642,7 @@ bool EETestPulseClient::writeDb(EcalCondDBInterface* econn, RunIOV* runiov, MonR
 
 }
 
-void EETestPulseClient::analyze(void){
+void EETestPulseClient::analyze(void) {
 
   ievt_++;
   jevt_++;
@@ -1128,7 +1128,11 @@ void EETestPulseClient::analyze(void){
 
 }
 
-void EETestPulseClient::htmlOutput(int run, string& htmlDir, string& htmlName){
+void EETestPulseClient::softReset(void) {
+
+}
+
+void EETestPulseClient::htmlOutput(int run, string& htmlDir, string& htmlName) {
 
   if ( verbose_ ) cout << "Preparing EETestPulseClient html output ..." << endl;
 
@@ -1263,7 +1267,7 @@ void EETestPulseClient::htmlOutput(int run, string& htmlDir, string& htmlName){
         cQual->SetBit(TGraph::kClipFrame);
         TLine l;
         l.SetLineWidth(1);
-        for ( int i=0; i<201; i=i+1){
+        for ( int i=0; i<201; i=i+1) {
           if ( (Numbers::ixSectorsEE[i]!=0 || Numbers::iySectorsEE[i]!=0) && (Numbers::ixSectorsEE[i+1]!=0 || Numbers::iySectorsEE[i+1]!=0) ) {
             l.DrawLine(Numbers::ixSectorsEE[i], Numbers::iySectorsEE[i], Numbers::ixSectorsEE[i+1], Numbers::iySectorsEE[i+1]);
           }

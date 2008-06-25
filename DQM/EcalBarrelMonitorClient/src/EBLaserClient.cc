@@ -1,8 +1,8 @@
 /*
  * \file EBLaserClient.cc
  *
- * $Date: 2008/05/27 18:59:23 $
- * $Revision: 1.234 $
+ * $Date: 2008/05/28 05:48:52 $
+ * $Revision: 1.235 $
  * \author G. Della Ricca
  * \author G. Franzoni
  *
@@ -52,7 +52,7 @@ using namespace cms;
 using namespace edm;
 using namespace std;
 
-EBLaserClient::EBLaserClient(const ParameterSet& ps){
+EBLaserClient::EBLaserClient(const ParameterSet& ps) {
 
   // cloneME switch
   cloneME_ = ps.getUntrackedParameter<bool>("cloneME", true);
@@ -235,11 +235,11 @@ EBLaserClient::EBLaserClient(const ParameterSet& ps){
 
 }
 
-EBLaserClient::~EBLaserClient(){
+EBLaserClient::~EBLaserClient() {
 
 }
 
-void EBLaserClient::beginJob(DQMStore* dqmStore){
+void EBLaserClient::beginJob(DQMStore* dqmStore) {
 
   dqmStore_ = dqmStore;
 
@@ -250,7 +250,7 @@ void EBLaserClient::beginJob(DQMStore* dqmStore){
 
 }
 
-void EBLaserClient::beginRun(void){
+void EBLaserClient::beginRun(void) {
 
   if ( debug_ ) cout << "EBLaserClient: beginRun" << endl;
 
@@ -1967,7 +1967,7 @@ bool EBLaserClient::writeDb(EcalCondDBInterface* econn, RunIOV* runiov, MonRunIO
 
 }
 
-void EBLaserClient::analyze(void){
+void EBLaserClient::analyze(void) {
 
   ievt_++;
   jevt_++;
@@ -3283,7 +3283,11 @@ void EBLaserClient::analyze(void){
 
 }
 
-void EBLaserClient::htmlOutput(int run, string& htmlDir, string& htmlName){
+void EBLaserClient::softReset(void) {
+
+}
+
+void EBLaserClient::htmlOutput(int run, string& htmlDir, string& htmlName) {
 
   if ( verbose_ ) cout << "Preparing EBLaserClient html output ..." << endl;
 

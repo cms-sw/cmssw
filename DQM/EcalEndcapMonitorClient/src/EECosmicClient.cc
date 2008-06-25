@@ -1,8 +1,8 @@
 /*
  * \file EECosmicClient.cc
  *
- * $Date: 2008/04/08 15:06:25 $
- * $Revision: 1.59 $
+ * $Date: 2008/04/08 18:05:28 $
+ * $Revision: 1.60 $
  * \author G. Della Ricca
  * \author F. Cossutti
  *
@@ -34,7 +34,7 @@ using namespace cms;
 using namespace edm;
 using namespace std;
 
-EECosmicClient::EECosmicClient(const ParameterSet& ps){
+EECosmicClient::EECosmicClient(const ParameterSet& ps) {
 
   // cloneME switch
   cloneME_ = ps.getUntrackedParameter<bool>("cloneME", true);
@@ -74,11 +74,11 @@ EECosmicClient::EECosmicClient(const ParameterSet& ps){
 
 }
 
-EECosmicClient::~EECosmicClient(){
+EECosmicClient::~EECosmicClient() {
 
 }
 
-void EECosmicClient::beginJob(DQMStore* dqmStore){
+void EECosmicClient::beginJob(DQMStore* dqmStore) {
 
   dqmStore_ = dqmStore;
 
@@ -89,7 +89,7 @@ void EECosmicClient::beginJob(DQMStore* dqmStore){
 
 }
 
-void EECosmicClient::beginRun(void){
+void EECosmicClient::beginRun(void) {
 
   if ( debug_ ) cout << "EECosmicClient: beginRun" << endl;
 
@@ -255,7 +255,7 @@ bool EECosmicClient::writeDb(EcalCondDBInterface* econn, RunIOV* runiov, MonRunI
 
 }
 
-void EECosmicClient::analyze(void){
+void EECosmicClient::analyze(void) {
 
   ievt_++;
   jevt_++;
@@ -295,7 +295,11 @@ void EECosmicClient::analyze(void){
 
 }
 
-void EECosmicClient::htmlOutput(int run, string& htmlDir, string& htmlName){
+void EECosmicClient::softReset(void) {
+
+}
+
+void EECosmicClient::htmlOutput(int run, string& htmlDir, string& htmlName) {
 
   if ( verbose_ ) cout << "Preparing EECosmicClient html output ..." << endl;
 
@@ -413,7 +417,7 @@ void EECosmicClient::htmlOutput(int run, string& htmlDir, string& htmlName){
         cMe->SetBit(TGraph::kClipFrame);
         TLine l;
         l.SetLineWidth(1);
-        for ( int i=0; i<201; i=i+1){
+        for ( int i=0; i<201; i=i+1) {
           if ( (Numbers::ixSectorsEE[i]!=0 || Numbers::iySectorsEE[i]!=0) && (Numbers::ixSectorsEE[i+1]!=0 || Numbers::iySectorsEE[i+1]!=0) ) {
             l.DrawLine(Numbers::ixSectorsEE[i], Numbers::iySectorsEE[i], Numbers::ixSectorsEE[i+1], Numbers::iySectorsEE[i+1]);
           }

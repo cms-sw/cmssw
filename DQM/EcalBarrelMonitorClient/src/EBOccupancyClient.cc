@@ -1,8 +1,8 @@
 /*
  * \file EBOccupancyClient.cc
  *
- * $Date: 2008/04/08 15:06:21 $
- * $Revision: 1.25 $
+ * $Date: 2008/04/08 18:04:49 $
+ * $Revision: 1.26 $
  * \author G. Della Ricca
  * \author F. Cossutti
  *
@@ -29,7 +29,7 @@ using namespace cms;
 using namespace edm;
 using namespace std;
 
-EBOccupancyClient::EBOccupancyClient(const ParameterSet& ps){
+EBOccupancyClient::EBOccupancyClient(const ParameterSet& ps) {
 
   // cloneME switch
   cloneME_ = ps.getUntrackedParameter<bool>("cloneME", true);
@@ -65,11 +65,11 @@ EBOccupancyClient::EBOccupancyClient(const ParameterSet& ps){
 
 }
 
-EBOccupancyClient::~EBOccupancyClient(){
+EBOccupancyClient::~EBOccupancyClient() {
 
 }
 
-void EBOccupancyClient::beginJob(DQMStore* dqmStore){
+void EBOccupancyClient::beginJob(DQMStore* dqmStore) {
 
   dqmStore_ = dqmStore;
 
@@ -80,7 +80,7 @@ void EBOccupancyClient::beginJob(DQMStore* dqmStore){
 
 }
 
-void EBOccupancyClient::beginRun(void){
+void EBOccupancyClient::beginRun(void) {
 
   if ( debug_ ) cout << "EBOccupancyClient: beginRun" << endl;
 
@@ -154,7 +154,7 @@ bool EBOccupancyClient::writeDb(EcalCondDBInterface* econn, RunIOV* runiov, MonR
 
 }
 
-void EBOccupancyClient::analyze(void){
+void EBOccupancyClient::analyze(void) {
 
   ievt_++;
   jevt_++;
@@ -228,7 +228,11 @@ void EBOccupancyClient::analyze(void){
 
 }
 
-void EBOccupancyClient::htmlOutput(int run, string& htmlDir, string& htmlName){
+void EBOccupancyClient::softReset(void) {
+
+}
+
+void EBOccupancyClient::htmlOutput(int run, string& htmlDir, string& htmlName) {
 
   if ( verbose_ ) cout << "Preparing EBOccupancyClient html output ..." << endl;
 

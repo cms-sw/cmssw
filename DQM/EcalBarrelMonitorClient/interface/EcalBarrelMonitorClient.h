@@ -4,8 +4,8 @@
 /*
  * \file EcalBarrelMonitorClient.h
  *
- * $Date: 2008/05/11 09:35:06 $
- * $Revision: 1.106 $
+ * $Date: 2008/05/15 15:32:28 $
+ * $Revision: 1.107 $
  * \author G. Della Ricca
  * \author F. Cossutti
  *
@@ -79,6 +79,9 @@ void setup(void);
 
 /// Cleanup
 void cleanup(void);
+
+/// SoftReset
+void softReset(void);
 
 /// HtmlOutput
 void htmlOutput(bool current=false);

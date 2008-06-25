@@ -1,8 +1,8 @@
 /*
  * \file EBBeamHodoClient.cc
  *
- * $Date: 2008/04/08 15:06:21 $
- * $Revision: 1.62 $
+ * $Date: 2008/04/08 18:04:48 $
+ * $Revision: 1.63 $
  * \author G. Della Ricca
  * \author G. Franzoni
  *
@@ -26,7 +26,7 @@ using namespace cms;
 using namespace edm;
 using namespace std;
 
-EBBeamHodoClient::EBBeamHodoClient(const ParameterSet& ps){
+EBBeamHodoClient::EBBeamHodoClient(const ParameterSet& ps) {
 
   // cloneME switch
   cloneME_ = ps.getUntrackedParameter<bool>("cloneME", true);
@@ -86,11 +86,11 @@ EBBeamHodoClient::EBBeamHodoClient(const ParameterSet& ps){
 
 }
 
-EBBeamHodoClient::~EBBeamHodoClient(){
+EBBeamHodoClient::~EBBeamHodoClient() {
 
 }
 
-void EBBeamHodoClient::beginJob(DQMStore* dqmStore){
+void EBBeamHodoClient::beginJob(DQMStore* dqmStore) {
 
   dqmStore_ = dqmStore;
 
@@ -101,7 +101,7 @@ void EBBeamHodoClient::beginJob(DQMStore* dqmStore){
 
 }
 
-void EBBeamHodoClient::beginRun(void){
+void EBBeamHodoClient::beginRun(void) {
 
   if ( debug_ ) cout << "EBBeamHodoClient: beginRun" << endl;
 
@@ -225,7 +225,7 @@ bool EBBeamHodoClient::writeDb(EcalCondDBInterface* econn, RunIOV* runiov, MonRu
 
 }
 
-void EBBeamHodoClient::analyze(void){
+void EBBeamHodoClient::analyze(void) {
 
   ievt_++;
   jevt_++;
@@ -329,7 +329,11 @@ void EBBeamHodoClient::analyze(void){
 
 }
 
-void EBBeamHodoClient::htmlOutput(int run, string& htmlDir, string& htmlName){
+void EBBeamHodoClient::softReset(void) {
+
+}
+
+void EBBeamHodoClient::htmlOutput(int run, string& htmlDir, string& htmlName) {
 
   if ( verbose_ ) cout << "Preparing EBBeamHodoClient html output ..." << endl;
 

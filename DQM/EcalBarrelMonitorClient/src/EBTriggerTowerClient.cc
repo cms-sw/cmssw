@@ -1,8 +1,8 @@
 /*
  * \file EBTriggerTowerClient.cc
  *
- * $Date: 2008/04/08 15:06:22 $
- * $Revision: 1.101 $
+ * $Date: 2008/04/08 18:04:49 $
+ * $Revision: 1.102 $
  * \author G. Della Ricca
  * \author F. Cossutti
  *
@@ -27,7 +27,7 @@ using namespace cms;
 using namespace edm;
 using namespace std;
 
-EBTriggerTowerClient::EBTriggerTowerClient(const ParameterSet& ps){
+EBTriggerTowerClient::EBTriggerTowerClient(const ParameterSet& ps) {
 
   // cloneME switch
   cloneME_ = ps.getUntrackedParameter<bool>("cloneME", true);
@@ -102,11 +102,11 @@ EBTriggerTowerClient::EBTriggerTowerClient(const ParameterSet& ps){
 
 }
 
-EBTriggerTowerClient::~EBTriggerTowerClient(){
+EBTriggerTowerClient::~EBTriggerTowerClient() {
 
 }
 
-void EBTriggerTowerClient::beginJob(DQMStore* dqmStore){
+void EBTriggerTowerClient::beginJob(DQMStore* dqmStore) {
 
   dqmStore_ = dqmStore;
 
@@ -344,7 +344,7 @@ bool EBTriggerTowerClient::writeDb(EcalCondDBInterface* econn, RunIOV* runiov, M
 
 }
 
-void EBTriggerTowerClient::analyze(void){
+void EBTriggerTowerClient::analyze(void) {
 
   ievt_++;
   jevt_++;
@@ -510,7 +510,11 @@ void EBTriggerTowerClient::analyze(const char* nameext,
 
 }
 
-void EBTriggerTowerClient::htmlOutput(int run, string& htmlDir, string& htmlName){
+void EBTriggerTowerClient::softReset(void) {
+
+}
+
+void EBTriggerTowerClient::htmlOutput(int run, string& htmlDir, string& htmlName) {
 
   if ( verbose_ ) cout << "Preparing EBTriggerTowerClient html output ..." << std::endl;
 

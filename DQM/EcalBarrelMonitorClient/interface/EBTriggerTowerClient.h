@@ -4,8 +4,8 @@
 /*
  * \file EBTriggerTowerClient.h
  *
- * $Date: 2008/04/08 15:06:21 $
- * $Revision: 1.32 $
+ * $Date: 2008/04/08 18:04:48 $
+ * $Revision: 1.33 $
  * \author G. Della Ricca
  * \author F. Cossutti
  *
@@ -62,6 +62,9 @@ void setup(void);
 
 /// Cleanup
 void cleanup(void);
+
+/// SoftReset
+void softReset(void);
 
 /// HtmlOutput
 void htmlOutput(int run, std::string& htmlDir, std::string& htmlName);

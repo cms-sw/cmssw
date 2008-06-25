@@ -1,8 +1,8 @@
 /*
  * \file EESummaryClient.cc
  *
- * $Date: 2008/06/17 15:03:25 $
- * $Revision: 1.138 $
+ * $Date: 2008/06/17 15:13:56 $
+ * $Revision: 1.139 $
  * \author G. Della Ricca
  *
 */
@@ -46,7 +46,7 @@ using namespace cms;
 using namespace edm;
 using namespace std;
 
-EESummaryClient::EESummaryClient(const ParameterSet& ps){
+EESummaryClient::EESummaryClient(const ParameterSet& ps) {
 
   // cloneME switch
   cloneME_ = ps.getUntrackedParameter<bool>("cloneME", true);
@@ -121,11 +121,11 @@ EESummaryClient::EESummaryClient(const ParameterSet& ps){
 
 }
 
-EESummaryClient::~EESummaryClient(){
+EESummaryClient::~EESummaryClient() {
 
 }
 
-void EESummaryClient::beginJob(DQMStore* dqmStore){
+void EESummaryClient::beginJob(DQMStore* dqmStore) {
 
   dqmStore_ = dqmStore;
 
@@ -179,7 +179,7 @@ void EESummaryClient::beginJob(DQMStore* dqmStore){
 
 }
 
-void EESummaryClient::beginRun(void){
+void EESummaryClient::beginRun(void) {
 
   if ( debug_ ) cout << "EESummaryClient: beginRun" << endl;
 
@@ -655,7 +655,7 @@ bool EESummaryClient::writeDb(EcalCondDBInterface* econn, RunIOV* runiov, MonRun
 
 }
 
-void EESummaryClient::analyze(void){
+void EESummaryClient::analyze(void) {
 
   ievt_++;
   jevt_++;
@@ -1461,7 +1461,11 @@ void EESummaryClient::analyze(void){
 
 }
 
-void EESummaryClient::htmlOutput(int run, string& htmlDir, string& htmlName){
+void EESummaryClient::softReset(void) {
+
+}
+
+void EESummaryClient::htmlOutput(int run, string& htmlDir, string& htmlName) {
 
   if ( verbose_ ) cout << "Preparing EESummaryClient html output ..." << endl;
 
@@ -1599,7 +1603,7 @@ void EESummaryClient::htmlOutput(int run, string& htmlDir, string& htmlName){
     cMap->SetBit(TGraph::kClipFrame);
     TLine l;
     l.SetLineWidth(1);
-    for ( int i=0; i<201; i=i+1){
+    for ( int i=0; i<201; i=i+1) {
       if ( (Numbers::ixSectorsEE[i]!=0 || Numbers::iySectorsEE[i]!=0) && (Numbers::ixSectorsEE[i+1]!=0 || Numbers::iySectorsEE[i+1]!=0) ) {
         l.DrawLine(Numbers::ixSectorsEE[i], Numbers::iySectorsEE[i], Numbers::ixSectorsEE[i+1], Numbers::iySectorsEE[i+1]);
       }
@@ -1636,7 +1640,7 @@ void EESummaryClient::htmlOutput(int run, string& htmlDir, string& htmlName){
     cMap->SetBit(TGraph::kClipFrame);
     TLine l;
     l.SetLineWidth(1);
-    for ( int i=0; i<201; i=i+1){
+    for ( int i=0; i<201; i=i+1) {
       if ( (Numbers::ixSectorsEE[i]!=0 || Numbers::iySectorsEE[i]!=0) && (Numbers::ixSectorsEE[i+1]!=0 || Numbers::iySectorsEE[i+1]!=0) ) {
         l.DrawLine(Numbers::ixSectorsEE[i], Numbers::iySectorsEE[i], Numbers::ixSectorsEE[i+1], Numbers::iySectorsEE[i+1]);
       }
@@ -1673,7 +1677,7 @@ void EESummaryClient::htmlOutput(int run, string& htmlDir, string& htmlName){
     cMap->SetBit(TGraph::kClipFrame);
     TLine l;
     l.SetLineWidth(1);
-    for ( int i=0; i<201; i=i+1){
+    for ( int i=0; i<201; i=i+1) {
       if ( (Numbers::ixSectorsEE[i]!=0 || Numbers::iySectorsEE[i]!=0) && (Numbers::ixSectorsEE[i+1]!=0 || Numbers::iySectorsEE[i+1]!=0) ) {
         l.DrawLine(Numbers::ixSectorsEE[i], Numbers::iySectorsEE[i], Numbers::ixSectorsEE[i+1], Numbers::iySectorsEE[i+1]);
       }
@@ -1710,7 +1714,7 @@ void EESummaryClient::htmlOutput(int run, string& htmlDir, string& htmlName){
     cMap->SetBit(TGraph::kClipFrame);
     TLine l;
     l.SetLineWidth(1);
-    for ( int i=0; i<201; i=i+1){
+    for ( int i=0; i<201; i=i+1) {
       if ( (Numbers::ixSectorsEE[i]!=0 || Numbers::iySectorsEE[i]!=0) && (Numbers::ixSectorsEE[i+1]!=0 || Numbers::iySectorsEE[i+1]!=0) ) {
         l.DrawLine(Numbers::ixSectorsEE[i], Numbers::iySectorsEE[i], Numbers::ixSectorsEE[i+1], Numbers::iySectorsEE[i+1]);
       }
@@ -1747,7 +1751,7 @@ void EESummaryClient::htmlOutput(int run, string& htmlDir, string& htmlName){
     cMap->SetBit(TGraph::kClipFrame);
     TLine l;
     l.SetLineWidth(1);
-    for ( int i=0; i<201; i=i+1){
+    for ( int i=0; i<201; i=i+1) {
       if ( (Numbers::ixSectorsEE[i]!=0 || Numbers::iySectorsEE[i]!=0) && (Numbers::ixSectorsEE[i+1]!=0 || Numbers::iySectorsEE[i+1]!=0) ) {
         l.DrawLine(Numbers::ixSectorsEE[i], Numbers::iySectorsEE[i], Numbers::ixSectorsEE[i+1], Numbers::iySectorsEE[i+1]);
       }
@@ -1784,7 +1788,7 @@ void EESummaryClient::htmlOutput(int run, string& htmlDir, string& htmlName){
     cMap->SetBit(TGraph::kClipFrame);
     TLine l;
     l.SetLineWidth(1);
-    for ( int i=0; i<201; i=i+1){
+    for ( int i=0; i<201; i=i+1) {
       if ( (Numbers::ixSectorsEE[i]!=0 || Numbers::iySectorsEE[i]!=0) && (Numbers::ixSectorsEE[i+1]!=0 || Numbers::iySectorsEE[i+1]!=0) ) {
         l.DrawLine(Numbers::ixSectorsEE[i], Numbers::iySectorsEE[i], Numbers::ixSectorsEE[i+1], Numbers::iySectorsEE[i+1]);
       }
@@ -1821,7 +1825,7 @@ void EESummaryClient::htmlOutput(int run, string& htmlDir, string& htmlName){
     cMap->SetBit(TGraph::kClipFrame);
     TLine l;
     l.SetLineWidth(1);
-    for ( int i=0; i<201; i=i+1){
+    for ( int i=0; i<201; i=i+1) {
       if ( (Numbers::ixSectorsEE[i]!=0 || Numbers::iySectorsEE[i]!=0) && (Numbers::ixSectorsEE[i+1]!=0 || Numbers::iySectorsEE[i+1]!=0) ) {
         l.DrawLine(Numbers::ixSectorsEE[i], Numbers::iySectorsEE[i], Numbers::ixSectorsEE[i+1], Numbers::iySectorsEE[i+1]);
       }
@@ -1858,7 +1862,7 @@ void EESummaryClient::htmlOutput(int run, string& htmlDir, string& htmlName){
     cMap->SetBit(TGraph::kClipFrame);
     TLine l;
     l.SetLineWidth(1);
-    for ( int i=0; i<201; i=i+1){
+    for ( int i=0; i<201; i=i+1) {
       if ( (Numbers::ixSectorsEE[i]!=0 || Numbers::iySectorsEE[i]!=0) && (Numbers::ixSectorsEE[i+1]!=0 || Numbers::iySectorsEE[i+1]!=0) ) {
         l.DrawLine(Numbers::ixSectorsEE[i], Numbers::iySectorsEE[i], Numbers::ixSectorsEE[i+1], Numbers::iySectorsEE[i+1]);
       }
@@ -1895,7 +1899,7 @@ void EESummaryClient::htmlOutput(int run, string& htmlDir, string& htmlName){
     cMap->SetBit(TGraph::kClipFrame);
     TLine l;
     l.SetLineWidth(1);
-    for ( int i=0; i<201; i=i+1){
+    for ( int i=0; i<201; i=i+1) {
       if ( (Numbers::ixSectorsEE[i]!=0 || Numbers::iySectorsEE[i]!=0) && (Numbers::ixSectorsEE[i+1]!=0 || Numbers::iySectorsEE[i+1]!=0) ) {
         l.DrawLine(Numbers::ixSectorsEE[i], Numbers::iySectorsEE[i], Numbers::ixSectorsEE[i+1], Numbers::iySectorsEE[i+1]);
       }
@@ -1932,7 +1936,7 @@ void EESummaryClient::htmlOutput(int run, string& htmlDir, string& htmlName){
     cMap->SetBit(TGraph::kClipFrame);
     TLine l;
     l.SetLineWidth(1);
-    for ( int i=0; i<201; i=i+1){
+    for ( int i=0; i<201; i=i+1) {
       if ( (Numbers::ixSectorsEE[i]!=0 || Numbers::iySectorsEE[i]!=0) && (Numbers::ixSectorsEE[i+1]!=0 || Numbers::iySectorsEE[i+1]!=0) ) {
         l.DrawLine(Numbers::ixSectorsEE[i], Numbers::iySectorsEE[i], Numbers::ixSectorsEE[i+1], Numbers::iySectorsEE[i+1]);
       }
@@ -1974,7 +1978,7 @@ void EESummaryClient::htmlOutput(int run, string& htmlDir, string& htmlName){
     cMap->SetBit(TGraph::kClipFrame);
     TLine l;
     l.SetLineWidth(1);
-    for ( int i=0; i<201; i=i+1){
+    for ( int i=0; i<201; i=i+1) {
       if ( (Numbers::ixSectorsEE[i]!=0 || Numbers::iySectorsEE[i]!=0) && (Numbers::ixSectorsEE[i+1]!=0 || Numbers::iySectorsEE[i+1]!=0) ) {
         l.DrawLine(Numbers::ixSectorsEE[i], Numbers::iySectorsEE[i], Numbers::ixSectorsEE[i+1], Numbers::iySectorsEE[i+1]);
       }
@@ -2011,7 +2015,7 @@ void EESummaryClient::htmlOutput(int run, string& htmlDir, string& htmlName){
     cMap->SetBit(TGraph::kClipFrame);
     TLine l;
     l.SetLineWidth(1);
-    for ( int i=0; i<201; i=i+1){
+    for ( int i=0; i<201; i=i+1) {
       if ( (Numbers::ixSectorsEE[i]!=0 || Numbers::iySectorsEE[i]!=0) && (Numbers::ixSectorsEE[i+1]!=0 || Numbers::iySectorsEE[i+1]!=0) ) {
         l.DrawLine(Numbers::ixSectorsEE[i], Numbers::iySectorsEE[i], Numbers::ixSectorsEE[i+1], Numbers::iySectorsEE[i+1]);
       }
@@ -2053,7 +2057,7 @@ void EESummaryClient::htmlOutput(int run, string& htmlDir, string& htmlName){
     cMap->SetBit(TGraph::kClipFrame);
     TLine l;
     l.SetLineWidth(1);
-    for ( int i=0; i<201; i=i+1){
+    for ( int i=0; i<201; i=i+1) {
       if ( (Numbers::ixSectorsEE[i]!=0 || Numbers::iySectorsEE[i]!=0) && (Numbers::ixSectorsEE[i+1]!=0 || Numbers::iySectorsEE[i+1]!=0) ) {
         l.DrawLine(Numbers::ixSectorsEE[i], Numbers::iySectorsEE[i], Numbers::ixSectorsEE[i+1], Numbers::iySectorsEE[i+1]);
       }
@@ -2090,7 +2094,7 @@ void EESummaryClient::htmlOutput(int run, string& htmlDir, string& htmlName){
     cMap->SetBit(TGraph::kClipFrame);
     TLine l;
     l.SetLineWidth(1);
-    for ( int i=0; i<201; i=i+1){
+    for ( int i=0; i<201; i=i+1) {
       if ( (Numbers::ixSectorsEE[i]!=0 || Numbers::iySectorsEE[i]!=0) && (Numbers::ixSectorsEE[i+1]!=0 || Numbers::iySectorsEE[i+1]!=0) ) {
         l.DrawLine(Numbers::ixSectorsEE[i], Numbers::iySectorsEE[i], Numbers::ixSectorsEE[i+1], Numbers::iySectorsEE[i+1]);
       }
@@ -2132,7 +2136,7 @@ void EESummaryClient::htmlOutput(int run, string& htmlDir, string& htmlName){
     cMap->SetBit(TGraph::kClipFrame);
     TLine l;
     l.SetLineWidth(1);
-    for ( int i=0; i<201; i=i+1){
+    for ( int i=0; i<201; i=i+1) {
       if ( (Numbers::ixSectorsEE[i]!=0 || Numbers::iySectorsEE[i]!=0) && (Numbers::ixSectorsEE[i+1]!=0 || Numbers::iySectorsEE[i+1]!=0) ) {
         l.DrawLine(Numbers::ixSectorsEE[i], Numbers::iySectorsEE[i], Numbers::ixSectorsEE[i+1], Numbers::iySectorsEE[i+1]);
       }
@@ -2169,7 +2173,7 @@ void EESummaryClient::htmlOutput(int run, string& htmlDir, string& htmlName){
     cMap->SetBit(TGraph::kClipFrame);
     TLine l;
     l.SetLineWidth(1);
-    for ( int i=0; i<201; i=i+1){
+    for ( int i=0; i<201; i=i+1) {
       if ( (Numbers::ixSectorsEE[i]!=0 || Numbers::iySectorsEE[i]!=0) && (Numbers::ixSectorsEE[i+1]!=0 || Numbers::iySectorsEE[i+1]!=0) ) {
         l.DrawLine(Numbers::ixSectorsEE[i], Numbers::iySectorsEE[i], Numbers::ixSectorsEE[i+1], Numbers::iySectorsEE[i+1]);
       }
@@ -2211,7 +2215,7 @@ void EESummaryClient::htmlOutput(int run, string& htmlDir, string& htmlName){
     cMap->SetBit(TGraph::kClipFrame);
     TLine l;
     l.SetLineWidth(1);
-    for ( int i=0; i<201; i=i+1){
+    for ( int i=0; i<201; i=i+1) {
       if ( (Numbers::ixSectorsEE[i]!=0 || Numbers::iySectorsEE[i]!=0) && (Numbers::ixSectorsEE[i+1]!=0 || Numbers::iySectorsEE[i+1]!=0) ) {
         l.DrawLine(Numbers::ixSectorsEE[i], Numbers::iySectorsEE[i], Numbers::ixSectorsEE[i+1], Numbers::iySectorsEE[i+1]);
       }
@@ -2248,7 +2252,7 @@ void EESummaryClient::htmlOutput(int run, string& htmlDir, string& htmlName){
     cMap->SetBit(TGraph::kClipFrame);
     TLine l;
     l.SetLineWidth(1);
-    for ( int i=0; i<201; i=i+1){
+    for ( int i=0; i<201; i=i+1) {
       if ( (Numbers::ixSectorsEE[i]!=0 || Numbers::iySectorsEE[i]!=0) && (Numbers::ixSectorsEE[i+1]!=0 || Numbers::iySectorsEE[i+1]!=0) ) {
         l.DrawLine(Numbers::ixSectorsEE[i], Numbers::iySectorsEE[i], Numbers::ixSectorsEE[i+1], Numbers::iySectorsEE[i+1]);
       }
@@ -2285,7 +2289,7 @@ void EESummaryClient::htmlOutput(int run, string& htmlDir, string& htmlName){
     cMap->SetBit(TGraph::kClipFrame);
     TLine l;
     l.SetLineWidth(1);
-    for ( int i=0; i<201; i=i+1){
+    for ( int i=0; i<201; i=i+1) {
       if ( (Numbers::ixSectorsEE[i]!=0 || Numbers::iySectorsEE[i]!=0) && (Numbers::ixSectorsEE[i+1]!=0 || Numbers::iySectorsEE[i+1]!=0) ) {
         l.DrawLine(Numbers::ixSectorsEE[i], Numbers::iySectorsEE[i], Numbers::ixSectorsEE[i+1], Numbers::iySectorsEE[i+1]);
       }
@@ -2322,7 +2326,7 @@ void EESummaryClient::htmlOutput(int run, string& htmlDir, string& htmlName){
     cMap->SetBit(TGraph::kClipFrame);
     TLine l;
     l.SetLineWidth(1);
-    for ( int i=0; i<201; i=i+1){
+    for ( int i=0; i<201; i=i+1) {
       if ( (Numbers::ixSectorsEE[i]!=0 || Numbers::iySectorsEE[i]!=0) && (Numbers::ixSectorsEE[i+1]!=0 || Numbers::iySectorsEE[i+1]!=0) ) {
         l.DrawLine(Numbers::ixSectorsEE[i], Numbers::iySectorsEE[i], Numbers::ixSectorsEE[i+1], Numbers::iySectorsEE[i+1]);
       }
@@ -2359,7 +2363,7 @@ void EESummaryClient::htmlOutput(int run, string& htmlDir, string& htmlName){
     cMap->SetBit(TGraph::kClipFrame);
     TLine l;
     l.SetLineWidth(1);
-    for ( int i=0; i<201; i=i+1){
+    for ( int i=0; i<201; i=i+1) {
       if ( (Numbers::ixSectorsEE[i]!=0 || Numbers::iySectorsEE[i]!=0) && (Numbers::ixSectorsEE[i+1]!=0 || Numbers::iySectorsEE[i+1]!=0) ) {
         l.DrawLine(Numbers::ixSectorsEE[i], Numbers::iySectorsEE[i], Numbers::ixSectorsEE[i+1], Numbers::iySectorsEE[i+1]);
       }
@@ -2396,7 +2400,7 @@ void EESummaryClient::htmlOutput(int run, string& htmlDir, string& htmlName){
     cMap->SetBit(TGraph::kClipFrame);
     TLine l;
     l.SetLineWidth(1);
-    for ( int i=0; i<201; i=i+1){
+    for ( int i=0; i<201; i=i+1) {
       if ( (Numbers::ixSectorsEE[i]!=0 || Numbers::iySectorsEE[i]!=0) && (Numbers::ixSectorsEE[i+1]!=0 || Numbers::iySectorsEE[i+1]!=0) ) {
         l.DrawLine(Numbers::ixSectorsEE[i], Numbers::iySectorsEE[i], Numbers::ixSectorsEE[i+1], Numbers::iySectorsEE[i+1]);
       }
@@ -2433,7 +2437,7 @@ void EESummaryClient::htmlOutput(int run, string& htmlDir, string& htmlName){
     cMap->SetBit(TGraph::kClipFrame);
     TLine l;
     l.SetLineWidth(1);
-    for ( int i=0; i<201; i=i+1){
+    for ( int i=0; i<201; i=i+1) {
       if ( (Numbers::ixSectorsEE[i]!=0 || Numbers::iySectorsEE[i]!=0) && (Numbers::ixSectorsEE[i+1]!=0 || Numbers::iySectorsEE[i+1]!=0) ) {
         l.DrawLine(Numbers::ixSectorsEE[i], Numbers::iySectorsEE[i], Numbers::ixSectorsEE[i+1], Numbers::iySectorsEE[i+1]);
       }
@@ -2470,7 +2474,7 @@ void EESummaryClient::htmlOutput(int run, string& htmlDir, string& htmlName){
     cMap->SetBit(TGraph::kClipFrame);
     TLine l;
     l.SetLineWidth(1);
-    for ( int i=0; i<201; i=i+1){
+    for ( int i=0; i<201; i=i+1) {
       if ( (Numbers::ixSectorsEE[i]!=0 || Numbers::iySectorsEE[i]!=0) && (Numbers::ixSectorsEE[i+1]!=0 || Numbers::iySectorsEE[i+1]!=0) ) {
         l.DrawLine(Numbers::ixSectorsEE[i], Numbers::iySectorsEE[i], Numbers::ixSectorsEE[i+1], Numbers::iySectorsEE[i+1]);
       }
@@ -2507,7 +2511,7 @@ void EESummaryClient::htmlOutput(int run, string& htmlDir, string& htmlName){
     cMap->SetBit(TGraph::kClipFrame);
     TLine l;
     l.SetLineWidth(1);
-    for ( int i=0; i<201; i=i+1){
+    for ( int i=0; i<201; i=i+1) {
       if ( (Numbers::ixSectorsEE[i]!=0 || Numbers::iySectorsEE[i]!=0) && (Numbers::ixSectorsEE[i+1]!=0 || Numbers::iySectorsEE[i+1]!=0) ) {
         l.DrawLine(Numbers::ixSectorsEE[i], Numbers::iySectorsEE[i], Numbers::ixSectorsEE[i+1], Numbers::iySectorsEE[i+1]);
       }
@@ -2544,7 +2548,7 @@ void EESummaryClient::htmlOutput(int run, string& htmlDir, string& htmlName){
     cMap->SetBit(TGraph::kClipFrame);
     TLine l;
     l.SetLineWidth(1);
-    for ( int i=0; i<201; i=i+1){
+    for ( int i=0; i<201; i=i+1) {
       if ( (Numbers::ixSectorsEE[i]!=0 || Numbers::iySectorsEE[i]!=0) && (Numbers::ixSectorsEE[i+1]!=0 || Numbers::iySectorsEE[i+1]!=0) ) {
         l.DrawLine(Numbers::ixSectorsEE[i], Numbers::iySectorsEE[i], Numbers::ixSectorsEE[i+1], Numbers::iySectorsEE[i+1]);
       }

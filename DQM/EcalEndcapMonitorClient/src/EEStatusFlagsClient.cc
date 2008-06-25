@@ -1,8 +1,8 @@
 /*
  * \file EEStatusFlagsClient.cc
  *
- * $Date: 2008/04/08 18:05:29 $
- * $Revision: 1.20 $
+ * $Date: 2008/04/30 17:32:21 $
+ * $Revision: 1.21 $
  * \author G. Della Ricca
  *
 */
@@ -28,7 +28,7 @@ using namespace cms;
 using namespace edm;
 using namespace std;
 
-EEStatusFlagsClient::EEStatusFlagsClient(const ParameterSet& ps){
+EEStatusFlagsClient::EEStatusFlagsClient(const ParameterSet& ps) {
 
   // cloneME switch
   cloneME_ = ps.getUntrackedParameter<bool>("cloneME", true);
@@ -66,11 +66,11 @@ EEStatusFlagsClient::EEStatusFlagsClient(const ParameterSet& ps){
 
 }
 
-EEStatusFlagsClient::~EEStatusFlagsClient(){
+EEStatusFlagsClient::~EEStatusFlagsClient() {
 
 }
 
-void EEStatusFlagsClient::beginJob(DQMStore* dqmStore){
+void EEStatusFlagsClient::beginJob(DQMStore* dqmStore) {
 
   dqmStore_ = dqmStore;
 
@@ -81,7 +81,7 @@ void EEStatusFlagsClient::beginJob(DQMStore* dqmStore){
 
 }
 
-void EEStatusFlagsClient::beginRun(void){
+void EEStatusFlagsClient::beginRun(void) {
 
   if ( debug_ ) cout << "EEStatusFlagsClient: beginRun" << endl;
 
@@ -162,7 +162,7 @@ bool EEStatusFlagsClient::writeDb(EcalCondDBInterface* econn, RunIOV* runiov, Mo
 
 }
 
-void EEStatusFlagsClient::analyze(void){
+void EEStatusFlagsClient::analyze(void) {
 
   ievt_++;
   jevt_++;
@@ -192,7 +192,11 @@ void EEStatusFlagsClient::analyze(void){
 
 }
 
-void EEStatusFlagsClient::htmlOutput(int run, string& htmlDir, string& htmlName){
+void EEStatusFlagsClient::softReset(void) {
+
+}
+
+void EEStatusFlagsClient::htmlOutput(int run, string& htmlDir, string& htmlName) {
 
   if ( verbose_ ) cout << "Preparing EEStatusFlagsClient html output ..." << endl;
 
@@ -298,7 +302,7 @@ void EEStatusFlagsClient::htmlOutput(int run, string& htmlDir, string& htmlName)
       cStatus->SetBit(TGraph::kClipFrame);
       TLine l;
       l.SetLineWidth(1);
-      for ( int i=0; i<201; i=i+1){
+      for ( int i=0; i<201; i=i+1) {
         if ( (Numbers::ixSectorsEE[i]!=0 || Numbers::iySectorsEE[i]!=0) && (Numbers::ixSectorsEE[i+1]!=0 || Numbers::iySectorsEE[i+1]!=0) ) {
           l.DrawLine(Numbers::ixSectorsEE[i], Numbers::iySectorsEE[i], Numbers::ixSectorsEE[i+1], Numbers::iySectorsEE[i+1]);
         }

@@ -1,8 +1,8 @@
 /*
  * \file EcalEndcapMonitorClient.cc
  *
- * $Date: 2008/06/12 09:21:21 $
- * $Revision: 1.186 $
+ * $Date: 2008/06/24 07:08:11 $
+ * $Revision: 1.187 $
  * \author G. Della Ricca
  * \author F. Cossutti
  *
@@ -72,7 +72,7 @@ using namespace cms;
 using namespace edm;
 using namespace std;
 
-EcalEndcapMonitorClient::EcalEndcapMonitorClient(const ParameterSet& ps) : ModuleWeb("EcalEndcapMonitorClient"){
+EcalEndcapMonitorClient::EcalEndcapMonitorClient(const ParameterSet& ps) : ModuleWeb("EcalEndcapMonitorClient") {
 
   // verbose switch
 
@@ -709,7 +709,7 @@ EcalEndcapMonitorClient::EcalEndcapMonitorClient(const ParameterSet& ps) : Modul
 
 }
 
-EcalEndcapMonitorClient::~EcalEndcapMonitorClient(){
+EcalEndcapMonitorClient::~EcalEndcapMonitorClient() {
 
   if ( verbose_ ) cout << "Exit ..." << endl;
 
@@ -790,7 +790,7 @@ void EcalEndcapMonitorClient::beginJob(const EventSetup &c) {
 
 }
 
-void EcalEndcapMonitorClient::beginRun(void){
+void EcalEndcapMonitorClient::beginRun(void) {
 
   begin_run_ = true;
   end_run_   = false;
@@ -1431,7 +1431,7 @@ void EcalEndcapMonitorClient::endRunDb(void) {
 
 }
 
-void EcalEndcapMonitorClient::analyze(void){
+void EcalEndcapMonitorClient::analyze(void) {
 
   current_time_ = time(NULL);
 
@@ -1707,7 +1707,23 @@ void EcalEndcapMonitorClient::analyze(const Event &e, const EventSetup &c) {
 
 }
 
-void EcalEndcapMonitorClient::htmlOutput( bool current ){
+void EcalEndcapMonitorClient::softReset(void) {
+
+   for ( int i=0; i<int(clients_.size()); i++ ) {
+     bool done = false;
+     for ( multimap<EEClient*,int>::iterator j = clientsRuns_.lower_bound(clients_[i]); j != clientsRuns_.upper_bound(clients_[i]); j++ ) {
+       if ( runType_ != -1 && runType_ == (*j).second && !done ) {
+         done = true;
+         clients_[i]->softReset();
+       }
+     }
+   }
+
+   summaryClient_->softReset();
+
+}
+
+void EcalEndcapMonitorClient::htmlOutput( bool current ) {
 
   time_t start = time(NULL);
 
@@ -1809,7 +1825,7 @@ void EcalEndcapMonitorClient::htmlOutput( bool current ){
 
 }
 
-void EcalEndcapMonitorClient::defaultWebPage(xgi::Input *in, xgi::Output *out){
+void EcalEndcapMonitorClient::defaultWebPage(xgi::Input *in, xgi::Output *out) {
 
   string path;
   string mname;

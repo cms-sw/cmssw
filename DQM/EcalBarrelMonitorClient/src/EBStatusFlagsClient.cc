@@ -1,8 +1,8 @@
 /*
  * \file EBStatusFlagsClient.cc
  *
- * $Date: 2008/04/08 18:04:49 $
- * $Revision: 1.18 $
+ * $Date: 2008/04/30 17:32:20 $
+ * $Revision: 1.19 $
  * \author G. Della Ricca
  *
 */
@@ -26,7 +26,7 @@ using namespace cms;
 using namespace edm;
 using namespace std;
 
-EBStatusFlagsClient::EBStatusFlagsClient(const ParameterSet& ps){
+EBStatusFlagsClient::EBStatusFlagsClient(const ParameterSet& ps) {
 
   // cloneME switch
   cloneME_ = ps.getUntrackedParameter<bool>("cloneME", true);
@@ -64,11 +64,11 @@ EBStatusFlagsClient::EBStatusFlagsClient(const ParameterSet& ps){
 
 }
 
-EBStatusFlagsClient::~EBStatusFlagsClient(){
+EBStatusFlagsClient::~EBStatusFlagsClient() {
 
 }
 
-void EBStatusFlagsClient::beginJob(DQMStore* dqmStore){
+void EBStatusFlagsClient::beginJob(DQMStore* dqmStore) {
 
   dqmStore_ = dqmStore;
 
@@ -79,7 +79,7 @@ void EBStatusFlagsClient::beginJob(DQMStore* dqmStore){
 
 }
 
-void EBStatusFlagsClient::beginRun(void){
+void EBStatusFlagsClient::beginRun(void) {
 
   if ( debug_ ) cout << "EBStatusFlagsClient: beginRun" << endl;
 
@@ -160,7 +160,7 @@ bool EBStatusFlagsClient::writeDb(EcalCondDBInterface* econn, RunIOV* runiov, Mo
 
 }
 
-void EBStatusFlagsClient::analyze(void){
+void EBStatusFlagsClient::analyze(void) {
 
   ievt_++;
   jevt_++;
@@ -190,7 +190,11 @@ void EBStatusFlagsClient::analyze(void){
 
 }
 
-void EBStatusFlagsClient::htmlOutput(int run, string& htmlDir, string& htmlName){
+void EBStatusFlagsClient::softReset(void) {
+
+}
+
+void EBStatusFlagsClient::htmlOutput(int run, string& htmlDir, string& htmlName) {
 
   if ( verbose_ ) cout << "Preparing EBStatusFlagsClient html output ..." << endl;
 

@@ -1,8 +1,8 @@
 /*
  * \file EEPedestalClient.cc
  *
- * $Date: 2008/05/09 08:07:54 $
- * $Revision: 1.77 $
+ * $Date: 2008/05/09 08:53:02 $
+ * $Revision: 1.78 $
  * \author G. Della Ricca
  * \author F. Cossutti
  *
@@ -43,7 +43,7 @@ using namespace cms;
 using namespace edm;
 using namespace std;
 
-EEPedestalClient::EEPedestalClient(const ParameterSet& ps){
+EEPedestalClient::EEPedestalClient(const ParameterSet& ps) {
 
   // cloneME switch
   cloneME_ = ps.getUntrackedParameter<bool>("cloneME", true);
@@ -141,11 +141,11 @@ EEPedestalClient::EEPedestalClient(const ParameterSet& ps){
 
 }
 
-EEPedestalClient::~EEPedestalClient(){
+EEPedestalClient::~EEPedestalClient() {
 
 }
 
-void EEPedestalClient::beginJob(DQMStore* dqmStore){
+void EEPedestalClient::beginJob(DQMStore* dqmStore) {
 
   dqmStore_ = dqmStore;
 
@@ -156,7 +156,7 @@ void EEPedestalClient::beginJob(DQMStore* dqmStore){
 
 }
 
-void EEPedestalClient::beginRun(void){
+void EEPedestalClient::beginRun(void) {
 
   if ( debug_ ) cout << "EEPedestalClient: beginRun" << endl;
 
@@ -647,7 +647,7 @@ bool EEPedestalClient::writeDb(EcalCondDBInterface* econn, RunIOV* runiov, MonRu
 
 }
 
-void EEPedestalClient::analyze(void){
+void EEPedestalClient::analyze(void) {
 
   ievt_++;
   jevt_++;
@@ -1176,7 +1176,11 @@ void EEPedestalClient::analyze(void){
 
 }
 
-void EEPedestalClient::htmlOutput(int run, string& htmlDir, string& htmlName){
+void EEPedestalClient::softReset(void) {
+
+}
+
+void EEPedestalClient::htmlOutput(int run, string& htmlDir, string& htmlName) {
 
   if ( verbose_ ) cout << "Preparing EEPedestalClient html output ..." << endl;
 
@@ -1316,7 +1320,7 @@ void EEPedestalClient::htmlOutput(int run, string& htmlDir, string& htmlName){
         cQual->SetBit(TGraph::kClipFrame);
         TLine l;
         l.SetLineWidth(1);
-        for ( int i=0; i<201; i=i+1){
+        for ( int i=0; i<201; i=i+1) {
           if ( (Numbers::ixSectorsEE[i]!=0 || Numbers::iySectorsEE[i]!=0) && (Numbers::ixSectorsEE[i+1]!=0 || Numbers::iySectorsEE[i+1]!=0) ) {
             l.DrawLine(Numbers::ixSectorsEE[i], Numbers::iySectorsEE[i], Numbers::ixSectorsEE[i+1], Numbers::iySectorsEE[i+1]);
           }
@@ -1460,7 +1464,7 @@ void EEPedestalClient::htmlOutput(int run, string& htmlDir, string& htmlName){
         c3Sum->SetBit(TGraph::kClipFrame);
         TLine l;
         l.SetLineWidth(1);
-        for ( int i=0; i<201; i=i+1){
+        for ( int i=0; i<201; i=i+1) {
           if ( (Numbers::ixSectorsEE[i]!=0 || Numbers::iySectorsEE[i]!=0) && (Numbers::ixSectorsEE[i+1]!=0 || Numbers::iySectorsEE[i+1]!=0) ) {
             l.DrawLine(Numbers::ixSectorsEE[i], Numbers::iySectorsEE[i], Numbers::ixSectorsEE[i+1], Numbers::iySectorsEE[i+1]);
           }
@@ -1520,7 +1524,7 @@ void EEPedestalClient::htmlOutput(int run, string& htmlDir, string& htmlName){
         c5Sum->SetBit(TGraph::kClipFrame);
         TLine l;
         l.SetLineWidth(1);
-        for ( int i=0; i<201; i=i+1){
+        for ( int i=0; i<201; i=i+1) {
           if ( (Numbers::ixSectorsEE[i]!=0 || Numbers::iySectorsEE[i]!=0) && (Numbers::ixSectorsEE[i+1]!=0 || Numbers::iySectorsEE[i+1]!=0) ) {
             l.DrawLine(Numbers::ixSectorsEE[i], Numbers::iySectorsEE[i], Numbers::ixSectorsEE[i+1], Numbers::iySectorsEE[i+1]);
           }
@@ -1753,7 +1757,7 @@ void EEPedestalClient::htmlOutput(int run, string& htmlDir, string& htmlName){
 
     for ( int iCanvas = 1 ; iCanvas <= 2 ; iCanvas++ ) {
 
-      if ( imgNameMEPnPed[iCanvas-1].size() != 0 ){
+      if ( imgNameMEPnPed[iCanvas-1].size() != 0 ) {
         htmlFile << "<td colspan=\"2\"><img src=\"" << imgNameMEPnPed[iCanvas-1] << "\"></td>" << endl;
 
         if ( imgNameMEPnPedRms[iCanvas-1].size() != 0 )

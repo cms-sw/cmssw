@@ -1,8 +1,8 @@
 /*
  * \file EEPedestalOnlineClient.cc
  *
- * $Date: 2008/04/08 18:05:29 $
- * $Revision: 1.74 $
+ * $Date: 2008/05/09 08:07:54 $
+ * $Revision: 1.75 $
  * \author G. Della Ricca
  * \author F. Cossutti
  *
@@ -41,7 +41,7 @@ using namespace cms;
 using namespace edm;
 using namespace std;
 
-EEPedestalOnlineClient::EEPedestalOnlineClient(const ParameterSet& ps){
+EEPedestalOnlineClient::EEPedestalOnlineClient(const ParameterSet& ps) {
 
   // cloneME switch
   cloneME_ = ps.getUntrackedParameter<bool>("cloneME", true);
@@ -91,11 +91,11 @@ EEPedestalOnlineClient::EEPedestalOnlineClient(const ParameterSet& ps){
 
 }
 
-EEPedestalOnlineClient::~EEPedestalOnlineClient(){
+EEPedestalOnlineClient::~EEPedestalOnlineClient() {
 
 }
 
-void EEPedestalOnlineClient::beginJob(DQMStore* dqmStore){
+void EEPedestalOnlineClient::beginJob(DQMStore* dqmStore) {
 
   dqmStore_ = dqmStore;
 
@@ -106,7 +106,7 @@ void EEPedestalOnlineClient::beginJob(DQMStore* dqmStore){
 
 }
 
-void EEPedestalOnlineClient::beginRun(void){
+void EEPedestalOnlineClient::beginRun(void) {
 
   if ( debug_ ) cout << "EEPedestalOnlineClient: beginRun" << endl;
 
@@ -317,7 +317,7 @@ bool EEPedestalOnlineClient::writeDb(EcalCondDBInterface* econn, RunIOV* runiov,
 
 }
 
-void EEPedestalOnlineClient::analyze(void){
+void EEPedestalOnlineClient::analyze(void) {
 
   ievt_++;
   jevt_++;
@@ -450,7 +450,11 @@ void EEPedestalOnlineClient::analyze(void){
 
 }
 
-void EEPedestalOnlineClient::htmlOutput(int run, string& htmlDir, string& htmlName){
+void EEPedestalOnlineClient::softReset(void) {
+
+}
+
+void EEPedestalOnlineClient::htmlOutput(int run, string& htmlDir, string& htmlName) {
 
   if ( verbose_ ) cout << "Preparing EEPedestalOnlineClient html output ..." << endl;
 
@@ -557,7 +561,7 @@ void EEPedestalOnlineClient::htmlOutput(int run, string& htmlDir, string& htmlNa
       cQual->SetBit(TGraph::kClipFrame);
       TLine l;
       l.SetLineWidth(1);
-      for ( int i=0; i<201; i=i+1){
+      for ( int i=0; i<201; i=i+1) {
         if ( (Numbers::ixSectorsEE[i]!=0 || Numbers::iySectorsEE[i]!=0) && (Numbers::ixSectorsEE[i+1]!=0 || Numbers::iySectorsEE[i+1]!=0) ) {
           l.DrawLine(Numbers::ixSectorsEE[i], Numbers::iySectorsEE[i], Numbers::ixSectorsEE[i+1], Numbers::iySectorsEE[i+1]);
         }

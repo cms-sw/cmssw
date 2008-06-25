@@ -1,8 +1,8 @@
 /*
  * \file EBCosmicClient.cc
  *
- * $Date: 2008/04/08 15:06:21 $
- * $Revision: 1.112 $
+ * $Date: 2008/04/08 18:04:48 $
+ * $Revision: 1.113 $
  * \author G. Della Ricca
  * \author F. Cossutti
  *
@@ -32,7 +32,7 @@ using namespace cms;
 using namespace edm;
 using namespace std;
 
-EBCosmicClient::EBCosmicClient(const ParameterSet& ps){
+EBCosmicClient::EBCosmicClient(const ParameterSet& ps) {
 
   // cloneME switch
   cloneME_ = ps.getUntrackedParameter<bool>("cloneME", true);
@@ -72,11 +72,11 @@ EBCosmicClient::EBCosmicClient(const ParameterSet& ps){
 
 }
 
-EBCosmicClient::~EBCosmicClient(){
+EBCosmicClient::~EBCosmicClient() {
 
 }
 
-void EBCosmicClient::beginJob(DQMStore* dqmStore){
+void EBCosmicClient::beginJob(DQMStore* dqmStore) {
 
   dqmStore_ = dqmStore;
 
@@ -87,7 +87,7 @@ void EBCosmicClient::beginJob(DQMStore* dqmStore){
 
 }
 
-void EBCosmicClient::beginRun(void){
+void EBCosmicClient::beginRun(void) {
 
   if ( debug_ ) cout << "EBCosmicClient: beginRun" << endl;
 
@@ -244,7 +244,7 @@ bool EBCosmicClient::writeDb(EcalCondDBInterface* econn, RunIOV* runiov, MonRunI
 
 }
 
-void EBCosmicClient::analyze(void){
+void EBCosmicClient::analyze(void) {
 
   ievt_++;
   jevt_++;
@@ -284,7 +284,11 @@ void EBCosmicClient::analyze(void){
 
 }
 
-void EBCosmicClient::htmlOutput(int run, string& htmlDir, string& htmlName){
+void EBCosmicClient::softReset(void) {
+
+}
+
+void EBCosmicClient::htmlOutput(int run, string& htmlDir, string& htmlName) {
 
   if ( verbose_ ) cout << "Preparing EBCosmicClient html output ..." << endl;
 

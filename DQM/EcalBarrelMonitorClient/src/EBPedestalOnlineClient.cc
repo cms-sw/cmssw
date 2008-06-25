@@ -1,8 +1,8 @@
 /*
  * \file EBPedestalOnlineClient.cc
  *
- * $Date: 2008/04/08 18:04:49 $
- * $Revision: 1.136 $
+ * $Date: 2008/05/08 19:12:44 $
+ * $Revision: 1.137 $
  * \author G. Della Ricca
  * \author F. Cossutti
  *
@@ -38,7 +38,7 @@ using namespace cms;
 using namespace edm;
 using namespace std;
 
-EBPedestalOnlineClient::EBPedestalOnlineClient(const ParameterSet& ps){
+EBPedestalOnlineClient::EBPedestalOnlineClient(const ParameterSet& ps) {
 
   // cloneME switch
   cloneME_ = ps.getUntrackedParameter<bool>("cloneME", true);
@@ -88,11 +88,11 @@ EBPedestalOnlineClient::EBPedestalOnlineClient(const ParameterSet& ps){
 
 }
 
-EBPedestalOnlineClient::~EBPedestalOnlineClient(){
+EBPedestalOnlineClient::~EBPedestalOnlineClient() {
 
 }
 
-void EBPedestalOnlineClient::beginJob(DQMStore* dqmStore){
+void EBPedestalOnlineClient::beginJob(DQMStore* dqmStore) {
 
   dqmStore_ = dqmStore;
 
@@ -103,7 +103,7 @@ void EBPedestalOnlineClient::beginJob(DQMStore* dqmStore){
 
 }
 
-void EBPedestalOnlineClient::beginRun(void){
+void EBPedestalOnlineClient::beginRun(void) {
 
   if ( debug_ ) cout << "EBPedestalOnlineClient: beginRun" << endl;
 
@@ -296,7 +296,7 @@ bool EBPedestalOnlineClient::writeDb(EcalCondDBInterface* econn, RunIOV* runiov,
 
 }
 
-void EBPedestalOnlineClient::analyze(void){
+void EBPedestalOnlineClient::analyze(void) {
 
   ievt_++;
   jevt_++;
@@ -411,7 +411,11 @@ void EBPedestalOnlineClient::analyze(void){
 
 }
 
-void EBPedestalOnlineClient::htmlOutput(int run, string& htmlDir, string& htmlName){
+void EBPedestalOnlineClient::softReset(void) {
+
+}
+
+void EBPedestalOnlineClient::htmlOutput(int run, string& htmlDir, string& htmlName) {
 
   if ( verbose_ ) cout << "Preparing EBPedestalOnlineClient html output ..." << endl;
 

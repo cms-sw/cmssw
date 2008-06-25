@@ -1,8 +1,8 @@
 /*
  * \file EELedClient.cc
  *
- * $Date: 2008/05/27 19:00:53 $
- * $Revision: 1.82 $
+ * $Date: 2008/05/28 05:48:52 $
+ * $Revision: 1.83 $
  * \author G. Della Ricca
  * \author G. Franzoni
  *
@@ -49,7 +49,7 @@ using namespace cms;
 using namespace edm;
 using namespace std;
 
-EELedClient::EELedClient(const ParameterSet& ps){
+EELedClient::EELedClient(const ParameterSet& ps) {
 
   // cloneME switch
   cloneME_ = ps.getUntrackedParameter<bool>("cloneME", true);
@@ -184,11 +184,11 @@ EELedClient::EELedClient(const ParameterSet& ps){
 
 }
 
-EELedClient::~EELedClient(){
+EELedClient::~EELedClient() {
 
 }
 
-void EELedClient::beginJob(DQMStore* dqmStore){
+void EELedClient::beginJob(DQMStore* dqmStore) {
 
   dqmStore_ = dqmStore;
 
@@ -199,7 +199,7 @@ void EELedClient::beginJob(DQMStore* dqmStore){
 
 }
 
-void EELedClient::beginRun(void){
+void EELedClient::beginRun(void) {
 
   if ( debug_ ) cout << "EELedClient: beginRun" << endl;
 
@@ -1264,7 +1264,7 @@ bool EELedClient::writeDb(EcalCondDBInterface* econn, RunIOV* runiov, MonRunIOV*
 
 }
 
-void EELedClient::analyze(void){
+void EELedClient::analyze(void) {
 
   ievt_++;
   jevt_++;
@@ -2116,7 +2116,11 @@ void EELedClient::analyze(void){
 
 }
 
-void EELedClient::htmlOutput(int run, string& htmlDir, string& htmlName){
+void EELedClient::softReset(void) {
+
+}
+
+void EELedClient::htmlOutput(int run, string& htmlDir, string& htmlName) {
 
   if ( verbose_ ) cout << "Preparing EELedClient html output ..." << endl;
 
@@ -2296,7 +2300,7 @@ void EELedClient::htmlOutput(int run, string& htmlDir, string& htmlName){
         cQual->SetBit(TGraph::kClipFrame);
         TLine l;
         l.SetLineWidth(1);
-        for ( int i=0; i<201; i=i+1){
+        for ( int i=0; i<201; i=i+1) {
           if ( (Numbers::ixSectorsEE[i]!=0 || Numbers::iySectorsEE[i]!=0) && (Numbers::ixSectorsEE[i+1]!=0 || Numbers::iySectorsEE[i+1]!=0) ) {
             l.DrawLine(Numbers::ixSectorsEE[i], Numbers::iySectorsEE[i], Numbers::ixSectorsEE[i+1], Numbers::iySectorsEE[i+1]);
           }

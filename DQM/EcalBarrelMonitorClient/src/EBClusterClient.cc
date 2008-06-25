@@ -1,8 +1,8 @@
 /*
  * \file EBClusterClient.cc
  *
- * $Date: 2008/04/08 15:06:21 $
- * $Revision: 1.63 $
+ * $Date: 2008/04/08 18:04:48 $
+ * $Revision: 1.64 $
  * \author G. Della Ricca
  * \author F. Cossutti
  * \author E. Di Marco
@@ -28,7 +28,7 @@ using namespace cms;
 using namespace edm;
 using namespace std;
 
-EBClusterClient::EBClusterClient(const ParameterSet& ps){
+EBClusterClient::EBClusterClient(const ParameterSet& ps) {
 
   // cloneME switch
   cloneME_ = ps.getUntrackedParameter<bool>("cloneME", true);
@@ -79,11 +79,11 @@ EBClusterClient::EBClusterClient(const ParameterSet& ps){
 
 }
 
-EBClusterClient::~EBClusterClient(){
+EBClusterClient::~EBClusterClient() {
 
 }
 
-void EBClusterClient::beginJob(DQMStore* dqmStore){
+void EBClusterClient::beginJob(DQMStore* dqmStore) {
 
   dqmStore_ = dqmStore;
 
@@ -94,7 +94,7 @@ void EBClusterClient::beginJob(DQMStore* dqmStore){
 
 }
 
-void EBClusterClient::beginRun(void){
+void EBClusterClient::beginRun(void) {
 
   if ( debug_ ) cout << "EBClusterClient: beginRun" << endl;
 
@@ -195,7 +195,7 @@ bool EBClusterClient::writeDb(EcalCondDBInterface* econn, RunIOV* runiov, MonRun
 
 }
 
-void EBClusterClient::analyze(void){
+void EBClusterClient::analyze(void) {
 
   ievt_++;
   jevt_++;
@@ -293,7 +293,11 @@ void EBClusterClient::analyze(void){
 
 }
 
-void EBClusterClient::htmlOutput(int run, string& htmlDir, string& htmlName){
+void EBClusterClient::softReset(void) {
+
+}
+
+void EBClusterClient::htmlOutput(int run, string& htmlDir, string& htmlName) {
 
   if ( verbose_ ) cout << "Preparing EBClusterClient html output ..." << endl;
 

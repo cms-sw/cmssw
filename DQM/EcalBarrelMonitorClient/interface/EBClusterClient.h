@@ -4,8 +4,8 @@
 /*
  * \file EBClusterClient.h
  *
- * $Date: 2008/04/08 15:06:21 $
- * $Revision: 1.27 $
+ * $Date: 2008/04/08 18:04:48 $
+ * $Revision: 1.28 $
  * \author G. Della Ricca
  * \author F. Cossutti
  * \author E. Di Marco
@@ -61,6 +61,9 @@ void setup(void);
 
 /// Cleanup
 void cleanup(void);
+
+/// SoftReset
+void softReset(void);
 
 /// HtmlOutput
 void htmlOutput(int run, std::string& htmlDir, std::string& htmlName);

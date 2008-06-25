@@ -1,8 +1,8 @@
 /*
  * \file EBBeamCaloClient.cc
  *
- * $Date: 2008/04/08 15:06:21 $
- * $Revision: 1.83 $
+ * $Date: 2008/04/08 18:04:48 $
+ * $Revision: 1.84 $
  * \author G. Della Ricca
  * \author A. Ghezzi
  *
@@ -33,7 +33,7 @@ using namespace cms;
 using namespace edm;
 using namespace std;
 
-EBBeamCaloClient::EBBeamCaloClient(const ParameterSet& ps){
+EBBeamCaloClient::EBBeamCaloClient(const ParameterSet& ps) {
 
   // cloneME switch
   cloneME_ = ps.getUntrackedParameter<bool>("cloneME", true);
@@ -68,7 +68,7 @@ EBBeamCaloClient::EBBeamCaloClient(const ParameterSet& ps){
   prescaling_ = 20;
 
   ///////// task specific histos
-  for(int u=0;u<cryInArray_;u++){
+  for(int u=0;u<cryInArray_;u++) {
     hBGains_[u] = 0;
     hBpulse_[u] = 0;
     //hBGainsMoving_[u] = 0;
@@ -97,11 +97,11 @@ EBBeamCaloClient::EBBeamCaloClient(const ParameterSet& ps){
   meEBBCaloRedGreenSteps_ = 0;
 }
 
-EBBeamCaloClient::~EBBeamCaloClient(){
+EBBeamCaloClient::~EBBeamCaloClient() {
 
 }
 
-void EBBeamCaloClient::beginJob(DQMStore* dqmStore){
+void EBBeamCaloClient::beginJob(DQMStore* dqmStore) {
 
   dqmStore_ = dqmStore;
 
@@ -112,7 +112,7 @@ void EBBeamCaloClient::beginJob(DQMStore* dqmStore){
 
 }
 
-void EBBeamCaloClient::beginRun(void){
+void EBBeamCaloClient::beginRun(void) {
 
   if ( debug_ ) cout << "EBBeamCaloClient: beginRun" << endl;
 
@@ -169,14 +169,14 @@ void EBBeamCaloClient::setup(void) {
   meEBBCaloRedGreenSteps_ = dqmStore_->book2D(histo, histo, 86, 1., 87., 1, 0., 1.);
   meEBBCaloRedGreenSteps_->setAxisTitle("step in the scan");
   meEBBCaloRedGreenSteps_->Reset();
-  for( int bin=1; bin <87; bin++){ meEBBCaloRedGreenSteps_->setBinContent( bin, 1, 2. );}
+  for( int bin=1; bin <87; bin++) { meEBBCaloRedGreenSteps_->setBinContent( bin, 1, 2. );}
 
 }
 
 void EBBeamCaloClient::cleanup(void) {
   if ( ! enableCleanup_ ) return;
   if ( cloneME_ ) {
-    for(int u=0;u<cryInArray_;u++){
+    for(int u=0;u<cryInArray_;u++) {
       if(hBGains_[u]) delete hBGains_[u];
       if(hBpulse_[u]) delete hBpulse_[u];
       //if(hBGainsMoving_[u])delete hBGainsMoving_[u];
@@ -201,7 +201,7 @@ void EBBeamCaloClient::cleanup(void) {
     if(pBCriInBeamEvents_) delete pBCriInBeamEvents_;
   }
 
-  for(int u=0;u<cryInArray_;u++){
+  for(int u=0;u<cryInArray_;u++) {
     hBGains_[u] = 0;
     hBpulse_[u] = 0;
     //hBGainsMoving_[u] = 0;
@@ -280,10 +280,10 @@ bool EBBeamCaloClient::writeDb(EcalCondDBInterface* econn, RunIOV* runiov, MonRu
         //int cry = ip+20*(ie-1);
         int ic = (ip-1) + 20*(ie-1) + 1;
         int step = 0;
-        if (hBcryDone_){ step = (int) hBcryDone_->GetBinContent(ic);}
-        if( step > 0 && step < 86){
-        //if(hBE3x3vsCry_){mean01 = hBE3x3vsCry_->GetBinContent(step);}// E in the 3x3
-        if( hBE1vsCry_ ){mean01 = hBE1vsCry_->GetBinContent(ic);} // E1
+        if (hBcryDone_) { step = (int) hBcryDone_->GetBinContent(ic);}
+        if( step > 0 && step < 86) {
+        //if(hBE3x3vsCry_) {mean01 = hBE3x3vsCry_->GetBinContent(step);}// E in the 3x3
+        if( hBE1vsCry_ ) {mean01 = hBE1vsCry_->GetBinContent(ic);} // E1
         }
 
         if ( update_channel ) {
@@ -331,7 +331,7 @@ bool EBBeamCaloClient::writeDb(EcalCondDBInterface* econn, RunIOV* runiov, MonRu
 
 }
 
-void EBBeamCaloClient::analyze(void){
+void EBBeamCaloClient::analyze(void) {
 
   ievt_++;
   jevt_++;
@@ -420,7 +420,7 @@ void EBBeamCaloClient::analyze(void){
   me = dqmStore_->get(histo);
   hbDesync_ =  UtilsClient::getHisto<TH1F*>( me, cloneME_, hbDesync_);
 
-  for(int ind = 0; ind < cryInArray_; ind ++){
+  for(int ind = 0; ind < cryInArray_; ind ++) {
     sprintf(histo, (prefixME_ + "/EBBeamCaloTask/EBBCT pulse profile in G12 cry %01d").c_str(), ind+1);
     me = dqmStore_->get(histo);
     hBpulse_[ind] = UtilsClient::getHisto<TProfile*>( me, cloneME_, hBpulse_[ind]);
@@ -431,111 +431,115 @@ void EBBeamCaloClient::analyze(void){
   }
 
   int DoneCry = 0;//if it stays 1 the run is not an autoscan
-  if (hBcryDone_){
-    for(int cry=1 ; cry<1701 ; cry ++){
+  if (hBcryDone_) {
+    for(int cry=1 ; cry<1701 ; cry ++) {
       int step = (int) hBcryDone_->GetBinContent(cry);
-      if( step>0 ){//this crystal has been scanned or is being scanned
+      if( step>0 ) {//this crystal has been scanned or is being scanned
         DoneCry++;
         float E3x3RMS = -1, E3x3 =-1, E1=-1;
-        if(hBE3x3vsCry_){
+        if(hBE3x3vsCry_) {
           //E3x3RMS = hBE3x3vsCry_->GetBinError(step);
           //E3x3 = hBE3x3vsCry_->GetBinContent(step);
           E3x3RMS = hBE3x3vsCry_->GetBinError(cry);
           E3x3 = hBE3x3vsCry_->GetBinContent(cry);
         }
-        //if( hBE1vsCry_){E1=hBE1vsCry_->GetBinContent(step);}
-        if( hBE1vsCry_){E1=hBE1vsCry_->GetBinContent(cry);}
+        //if( hBE1vsCry_) {E1=hBE1vsCry_->GetBinContent(step);}
+        if( hBE1vsCry_) {E1=hBE1vsCry_->GetBinContent(cry);}
         bool RMS3x3  =  (  E3x3RMS < RMSEne3x3_ && E3x3RMS >= 0 );
         bool Mean3x3 =  ( fabs( E3x3 - aveEne3x3_ ) < E3x3Th_);
         bool Mean1   =  ( fabs( E1 - aveEne1_ ) < E1Th_ );
         int ieta = ( cry - 1)/20 + 1 ;//+1 for the bin
         int iphi = ( cry - 1)%20 + 1 ;//+1 for the bin
         //fill the RedGreen histo
-        if(ieta >0 && iphi >0 ){
+        if(ieta >0 && iphi >0 ) {
           if(RMS3x3 && Mean3x3 && Mean1) {meEBBCaloRedGreen_->setBinContent(ieta,iphi,1.);}
           else {meEBBCaloRedGreen_->setBinContent(ieta,iphi,0.);}
         }
 
         float Entries = -1;
-        //if ( hBEntriesvsCry_ ){Entries = hBEntriesvsCry_->GetBinContent(step);}
-        if ( hBEntriesvsCry_ ){Entries = hBEntriesvsCry_->GetBinContent(cry);}
+        //if ( hBEntriesvsCry_ ) {Entries = hBEntriesvsCry_->GetBinContent(step);}
+        if ( hBEntriesvsCry_ ) {Entries = hBEntriesvsCry_->GetBinContent(cry);}
         bool Nent = ( Entries * prescaling_  > minEvtNum_ );
         bool readCryOk = true;
         if( hBReadCryErrors_ ) {
           int step_bin = hBReadCryErrors_->GetXaxis()->FindFixBin(step);
-          if ( step_bin > 0 && step_bin < hBReadCryErrors_->GetNbinsX() ){
-            if ( hBReadCryErrors_->GetBinContent(step_bin) <= Entries*ReadCryErrThr_ ){readCryOk = true;}
+          if ( step_bin > 0 && step_bin < hBReadCryErrors_->GetNbinsX() ) {
+            if ( hBReadCryErrors_->GetBinContent(step_bin) <= Entries*ReadCryErrThr_ ) {readCryOk = true;}
             else {readCryOk = false;}
           }
         }
 
-        if(Nent && readCryOk ){ meEBBCaloRedGreenSteps_->setBinContent(step,1,1.);}
+        if(Nent && readCryOk ) { meEBBCaloRedGreenSteps_->setBinContent(step,1,1.);}
         else{ meEBBCaloRedGreenSteps_->setBinContent(step,1,0.);}
 
-        if (readCryOk &&  meEBBCaloRedGreenReadCry_->getBinContent(1,1) != 0.){ meEBBCaloRedGreenReadCry_->setBinContent(1,1, 1.);}
-        else if ( !readCryOk ){ meEBBCaloRedGreenReadCry_->setBinContent(1,1, 0.);}
+        if (readCryOk &&  meEBBCaloRedGreenReadCry_->getBinContent(1,1) != 0.) { meEBBCaloRedGreenReadCry_->setBinContent(1,1, 1.);}
+        else if ( !readCryOk ) { meEBBCaloRedGreenReadCry_->setBinContent(1,1, 0.);}
       }// end of if (step>0)
     }//end of loop over cry
   }//end of if(hBcryDone_)
 
-  if(DoneCry == 1){//this is probably not an auotscan or it is the first crystal
+  if(DoneCry == 1) {//this is probably not an auotscan or it is the first crystal
     float nEvt = 0;
-    if(hBE3x3_){nEvt = hBE3x3_->GetEntries();}
-    if(nEvt > 1*prescaling_ && hBE3x3_ && hBEne1_ && hBCryOnBeam_ && meEBBCaloRedGreen_){//check for mean and RMS
+    if(hBE3x3_) {nEvt = hBE3x3_->GetEntries();}
+    if(nEvt > 1*prescaling_ && hBE3x3_ && hBEne1_ && hBCryOnBeam_ && meEBBCaloRedGreen_) {//check for mean and RMS
       bool RMS3x3  =  ( hBE3x3_->GetRMS() < RMSEne3x3_ );
       bool Mean3x3 =  ( fabs( hBE3x3_->GetMean() - aveEne3x3_ ) < E3x3Th_ );
       bool Mean1   =  ( fabs( hBEne1_->GetMean() - aveEne1_ ) < E1Th_ );
       //fill the RedGreen histo
       int ieta=0,iphi=0;
       float found =0; //there should be just one bin filled but...
-      for (int b_eta =1; b_eta<86; b_eta++){
-        for (int b_phi =1; b_phi<21; b_phi++){
+      for (int b_eta =1; b_eta<86; b_eta++) {
+        for (int b_phi =1; b_phi<21; b_phi++) {
           float bc = hBCryOnBeam_->GetBinContent(b_eta,b_phi);//FIX ME check if this is the correct binning
-          if(bc > found){ found =bc; ieta = b_eta; iphi= b_phi;}
+          if(bc > found) { found =bc; ieta = b_eta; iphi= b_phi;}
         }
       }
-      if(ieta >0 && iphi >0 ){
+      if(ieta >0 && iphi >0 ) {
         if(RMS3x3 && Mean3x3 && Mean1) {meEBBCaloRedGreen_->setBinContent(ieta,iphi,1.);}
         else {meEBBCaloRedGreen_->setBinContent(ieta,iphi,0.);}
       }
     }
-    if(hBReadCryErrors_){
+    if(hBReadCryErrors_) {
       float nErr = hBReadCryErrors_->GetBinContent(1);// for a non autoscan just the first bin should be filled
-      if( nErr > nEvt*ReadCryErrThr_ ){ meEBBCaloRedGreenReadCry_->setBinContent(1,1,0.);}
+      if( nErr > nEvt*ReadCryErrThr_ ) { meEBBCaloRedGreenReadCry_->setBinContent(1,1,0.);}
       else { meEBBCaloRedGreenReadCry_->setBinContent(1,1,1.);}
     }
   }
 
   //   // was done using me instead of histos
-  //   if(DoneCry == 0){//this is probably not an auotscan
+  //   if(DoneCry == 0) {//this is probably not an auotscan
   //     float nEvt = RecEne3x3->getEntries();
-  //     if(nEvt > 1000*prescaling_){//check for mean and RMS
+  //     if(nEvt > 1000*prescaling_) {//check for mean and RMS
   //       bool RMS3x3  =  ( RecEne3x3->getRMS() < RMSEne3x3_ );
   //       bool Mean3x3 =  ( (RecEne3x3->getMean() - aveEne3x3_) < E3x3Th_);
   //       bool Mean1   =  ( (RecEne1->getMean() < aveEne1_) < E1Th_ );
   //       //fill the RedGreen histo
   //       int ieta=0,iphi=0;
   //       float found =0; //there should be just one bin filled but...
-  //       for (int b_eta =1; b_eta<86; b_eta++){
-  //         for (int b_phi =1; b_phi<21; b_phi++){
+  //       for (int b_eta =1; b_eta<86; b_eta++) {
+  //         for (int b_phi =1; b_phi<21; b_phi++) {
   //           float bc = meCryInBeam->getBinContent(b_eta,b_phi);//FIX ME check if this is the correct binning
-  //           if(bc > found){ found =bc; ieta = b_eta; iphi= b_phi;}
+  //           if(bc > found) { found =bc; ieta = b_eta; iphi= b_phi;}
   //         }
   //       }
-  //       if(ieta >0 && iphi >0 ){
+  //       if(ieta >0 && iphi >0 ) {
   //         if(RMS3x3 && Mean3x3 && Mean1) {meEBBCaloRedGreen_->setBinContent(ieta,iphi,1.);}
   //         else {meEBBCaloRedGreen_->setBinContent(ieta,iphi,0.);}
   //       }
   //     }
   //     float nErr = ErrRedCry->getBinContent(1);// for a non autoscan just the first bin should be filled
-  //     if( nErr > nEvt*ReadCryErrThr_ ){ meEBBCaloRedGreenReadCry_->setBinContent(1,1,0.);}
+  //     if( nErr > nEvt*ReadCryErrThr_ ) { meEBBCaloRedGreenReadCry_->setBinContent(1,1,0.);}
   //     else { meEBBCaloRedGreenReadCry_->setBinContent(1,1,1.);}
   //   }
 
 
 }
 
-void EBBeamCaloClient::htmlOutput(int run, string& htmlDir, string& htmlName){
+void EBBeamCaloClient::softReset(void) {
+
+}
+
+void EBBeamCaloClient::htmlOutput(int run, string& htmlDir, string& htmlName) {
 
   if ( verbose_ ) cout << "Preparing EBBeamCaloClient html output ..." << endl;
 
@@ -598,10 +602,10 @@ void EBBeamCaloClient::htmlOutput(int run, string& htmlDir, string& htmlName){
   dummy.SetMinimum(0.1);
 
   TH2I dummyStep( "dummyStep", "dummy2 for sm", 86, 1., 87., 1, 0., 1. );
-  if(hBcryDone_){
-    for(int cry=1 ; cry<1701 ; cry ++){
+  if(hBcryDone_) {
+    for(int cry=1 ; cry<1701 ; cry ++) {
       int step = (int) hBcryDone_->GetBinContent(cry);
-      if (step >0 ){dummyStep.SetBinContent( step+1, 1, cry );}
+      if (step >0 ) {dummyStep.SetBinContent( step+1, 1, cry );}
     }
   }
   //dummyStep.SetBinContent( 6, 1, 1699 );
@@ -1010,7 +1014,7 @@ void EBBeamCaloClient::htmlOutput(int run, string& htmlDir, string& htmlName){
   htmlFile << "<br>" << endl;
   ////////////////////////////////////////////////////////////////////////////////
   string pulseImg[cryInArray_], gainsImg[cryInArray_], pulseImgF[cryInArray_], gainsImgF[cryInArray_];
-  for(int ind = 0; ind < cryInArray_; ind ++){
+  for(int ind = 0; ind < cryInArray_; ind ++) {
     objp1 = hBpulse_[ind];
     if ( objp1 ) {
       TCanvas* can = new TCanvas("can", "Temp", csize, csize);
@@ -1041,7 +1045,7 @@ void EBBeamCaloClient::htmlOutput(int run, string& htmlDir, string& htmlName){
       can->cd();
       obj1f->SetStats(kTRUE);
       gStyle->SetOptStat(1110);
-      if(obj1f->GetEntries() != 0 ){gStyle->SetOptLogy(1);}
+      if(obj1f->GetEntries() != 0 ) {gStyle->SetOptLogy(1);}
       obj1f->Draw();
       can->Update();
       can->SaveAs(gainsImgF[ind].c_str());
@@ -1061,12 +1065,12 @@ void EBBeamCaloClient::htmlOutput(int run, string& htmlDir, string& htmlName){
   htmlFile << "cellpadding=\"10\" align=\"center\"> " << endl;
   htmlFile << "<tr align=\"center\">" << endl;
 
-  for(int ind=0; ind < cryInArray_; ind++){
+  for(int ind=0; ind < cryInArray_; ind++) {
     if ( pulseImgF[ind].size() != 0 )
       htmlFile << "<td><img src=\"" << pulseImg[ind] << "\"></td>" << endl;
     else
       htmlFile << "<td><img src=\"" << " " << "\"></td>" << endl;
-    if ( (ind+1) % row == 0){htmlFile << "</tr>" << endl;}
+    if ( (ind+1) % row == 0) {htmlFile << "</tr>" << endl;}
   }
   htmlFile << "</table>" << endl;
   htmlFile << "<br>" << endl;
@@ -1078,12 +1082,12 @@ void EBBeamCaloClient::htmlOutput(int run, string& htmlDir, string& htmlName){
   htmlFile << "cellpadding=\"10\" align=\"center\"> " << endl;
   htmlFile << "<tr align=\"center\">" << endl;
 
-  for(int ind=0; ind < cryInArray_; ind++){
+  for(int ind=0; ind < cryInArray_; ind++) {
     if ( gainsImgF[ind].size() != 0 )
       htmlFile << "<td><img src=\"" << gainsImg[ind] << "\"></td>" << endl;
     else
       htmlFile << "<td><img src=\"" << " " << "\"></td>" << endl;
-    if ( (ind+1) % row == 0){htmlFile << "</tr>" << endl;}
+    if ( (ind+1) % row == 0) {htmlFile << "</tr>" << endl;}
   }
   htmlFile << "</table>" << endl;
   htmlFile << "<br>" << endl;
@@ -1143,7 +1147,7 @@ void EBBeamCaloClient::htmlOutput(int run, string& htmlDir, string& htmlName){
     obj1f->SetStats(kTRUE);
     gStyle->SetOptStat("e");
 
-    if(obj1f->GetEntries() != 0 ){gStyle->SetOptLogy(1);}
+    if(obj1f->GetEntries() != 0 ) {gStyle->SetOptLogy(1);}
     AdjustRange(obj1f);
     obj1f->Draw();
     can->Update();
@@ -1233,24 +1237,24 @@ void EBBeamCaloClient::htmlOutput(int run, string& htmlDir, string& htmlName){
 
     float dd=0;
     int mbin =0;
-    for( int bin=1; bin < objp1->GetNbinsX()+1; bin++ ){
+    for( int bin=1; bin < objp1->GetNbinsX()+1; bin++ ) {
       float temp = objp1->GetBinContent(bin);
-      if(temp>0){ dd= temp+0.01; mbin=bin; break;}
+      if(temp>0) { dd= temp+0.01; mbin=bin; break;}
     }
     if(mbin >0) { objp1->Fill(20*mbin-1,dd);}
 
     AdjustRange(objp1);
     float Ymin = 1701, Ymax =0;
-    for( int bin=1; bin < objp1->GetNbinsX()+1; bin++ ){
+    for( int bin=1; bin < objp1->GetNbinsX()+1; bin++ ) {
       float temp = objp1->GetBinContent(bin);
-      if(temp >0){
-        if(temp < Ymin){Ymin=temp;}
-        if(temp > Ymax){Ymax=temp;}
+      if(temp >0) {
+        if(temp < Ymin) {Ymin=temp;}
+        if(temp > Ymax) {Ymax=temp;}
       }
     }
-    if( Ymin < Ymax+1 ){
-       for( int bin=1; bin < objp1->GetNbinsX()+1; bin++ ){
-         if( objp1->GetBinError(bin) >0 ){
+    if( Ymin < Ymax+1 ) {
+       for( int bin=1; bin < objp1->GetNbinsX()+1; bin++ ) {
+         if( objp1->GetBinError(bin) >0 ) {
            objp1->SetBinContent(bin, (Ymin+Ymax)/2.*objp1->GetBinEntries(bin) );
          }
        }
@@ -1300,19 +1304,19 @@ void EBBeamCaloClient::htmlOutput(int run, string& htmlDir, string& htmlName){
 
 }
 
-template<class T> void EBBeamCaloClient::AdjustRange( T obj){
+template<class T> void EBBeamCaloClient::AdjustRange( T obj) {
   if (obj->GetEntries() == 0) {return;}
   int first_bin = -1, last_bin=-1;
-  for( int bin=1; bin < obj->GetNbinsX()+1; bin++ ){
-    if( obj->GetBinContent(bin) > 0){
-      if(first_bin == -1){first_bin = bin;}
+  for( int bin=1; bin < obj->GetNbinsX()+1; bin++ ) {
+    if( obj->GetBinContent(bin) > 0) {
+      if(first_bin == -1) {first_bin = bin;}
       last_bin = bin;
     }
   }
 
-  if(first_bin < 1 || last_bin < 1){return;}
-  if(first_bin > 3){first_bin -= 3;}
-  if(last_bin < obj->GetNbinsX() ){last_bin += 3;}
+  if(first_bin < 1 || last_bin < 1) {return;}
+  if(first_bin > 3) {first_bin -= 3;}
+  if(last_bin < obj->GetNbinsX() ) {last_bin += 3;}
 
   obj->GetXaxis()->SetRange(first_bin, last_bin);
 }

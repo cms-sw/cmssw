@@ -1,8 +1,8 @@
 /*
  * \file EEBeamHodoClient.cc
  *
- * $Date: 2008/04/08 15:06:25 $
- * $Revision: 1.31 $
+ * $Date: 2008/04/08 18:05:28 $
+ * $Revision: 1.32 $
  * \author G. Della Ricca
  * \author G. Franzoni
  *
@@ -26,7 +26,7 @@ using namespace cms;
 using namespace edm;
 using namespace std;
 
-EEBeamHodoClient::EEBeamHodoClient(const ParameterSet& ps){
+EEBeamHodoClient::EEBeamHodoClient(const ParameterSet& ps) {
 
   // cloneME switch
   cloneME_ = ps.getUntrackedParameter<bool>("cloneME", true);
@@ -86,11 +86,11 @@ EEBeamHodoClient::EEBeamHodoClient(const ParameterSet& ps){
 
 }
 
-EEBeamHodoClient::~EEBeamHodoClient(){
+EEBeamHodoClient::~EEBeamHodoClient() {
 
 }
 
-void EEBeamHodoClient::beginJob(DQMStore* dqmStore){
+void EEBeamHodoClient::beginJob(DQMStore* dqmStore) {
 
   dqmStore_ = dqmStore;
 
@@ -101,7 +101,7 @@ void EEBeamHodoClient::beginJob(DQMStore* dqmStore){
 
 }
 
-void EEBeamHodoClient::beginRun(void){
+void EEBeamHodoClient::beginRun(void) {
 
   if ( debug_ ) cout << "EEBeamHodoClient: beginRun" << endl;
 
@@ -225,7 +225,7 @@ bool EEBeamHodoClient::writeDb(EcalCondDBInterface* econn, RunIOV* runiov, MonRu
 
 }
 
-void EEBeamHodoClient::analyze(void){
+void EEBeamHodoClient::analyze(void) {
 
   ievt_++;
   jevt_++;
@@ -329,7 +329,11 @@ void EEBeamHodoClient::analyze(void){
 
 }
 
-void EEBeamHodoClient::htmlOutput(int run, string& htmlDir, string& htmlName){
+void EEBeamHodoClient::softReset(void) {
+
+}
+
+void EEBeamHodoClient::htmlOutput(int run, string& htmlDir, string& htmlName) {
 
   if ( verbose_ ) cout << "Preparing EEBeamHodoClient html output ..." << endl;
 

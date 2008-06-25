@@ -1,8 +1,8 @@
 /*
  * \file EEOccupancyClient.cc
  *
- * $Date: 2008/04/08 15:06:25 $
- * $Revision: 1.22 $
+ * $Date: 2008/04/08 18:05:29 $
+ * $Revision: 1.23 $
  * \author G. Della Ricca
  * \author F. Cossutti
  *
@@ -33,7 +33,7 @@ using namespace cms;
 using namespace edm;
 using namespace std;
 
-EEOccupancyClient::EEOccupancyClient(const ParameterSet& ps){
+EEOccupancyClient::EEOccupancyClient(const ParameterSet& ps) {
 
   // cloneME switch
   cloneME_ = ps.getUntrackedParameter<bool>("cloneME", true);
@@ -75,11 +75,11 @@ EEOccupancyClient::EEOccupancyClient(const ParameterSet& ps){
 
 }
 
-EEOccupancyClient::~EEOccupancyClient(){
+EEOccupancyClient::~EEOccupancyClient() {
 
 }
 
-void EEOccupancyClient::beginJob(DQMStore* dqmStore){
+void EEOccupancyClient::beginJob(DQMStore* dqmStore) {
 
   dqmStore_ = dqmStore;
 
@@ -90,7 +90,7 @@ void EEOccupancyClient::beginJob(DQMStore* dqmStore){
 
 }
 
-void EEOccupancyClient::beginRun(void){
+void EEOccupancyClient::beginRun(void) {
 
   if ( debug_ ) cout << "EEOccupancyClient: beginRun" << endl;
 
@@ -176,7 +176,7 @@ bool EEOccupancyClient::writeDb(EcalCondDBInterface* econn, RunIOV* runiov, MonR
 
 }
 
-void EEOccupancyClient::analyze(void){
+void EEOccupancyClient::analyze(void) {
 
   ievt_++;
   jevt_++;
@@ -310,7 +310,11 @@ void EEOccupancyClient::analyze(void){
 
 }
 
-void EEOccupancyClient::htmlOutput(int run, string& htmlDir, string& htmlName){
+void EEOccupancyClient::softReset(void) {
+
+}
+
+void EEOccupancyClient::htmlOutput(int run, string& htmlDir, string& htmlName) {
 
   if ( verbose_ ) cout << "Preparing EEOccupancyClient html output ..." << endl;
 
@@ -436,7 +440,7 @@ void EEOccupancyClient::htmlOutput(int run, string& htmlDir, string& htmlName){
         cMap->SetBit(TGraph::kClipFrame);
         TLine l;
         l.SetLineWidth(1);
-        for ( int i=0; i<201; i=i+1){
+        for ( int i=0; i<201; i=i+1) {
           if ( (Numbers::ixSectorsEE[i]!=0 || Numbers::iySectorsEE[i]!=0) && (Numbers::ixSectorsEE[i+1]!=0 || Numbers::iySectorsEE[i+1]!=0) ) {
             l.DrawLine(Numbers::ixSectorsEE[i], Numbers::iySectorsEE[i], Numbers::ixSectorsEE[i+1], Numbers::iySectorsEE[i+1]);
           }
@@ -522,7 +526,7 @@ void EEOccupancyClient::htmlOutput(int run, string& htmlDir, string& htmlName){
         cMap->SetBit(TGraph::kClipFrame);
         TLine l;
         l.SetLineWidth(1);
-        for ( int i=0; i<201; i=i+1){
+        for ( int i=0; i<201; i=i+1) {
           if ( (Numbers::ixSectorsEE[i]!=0 || Numbers::iySectorsEE[i]!=0) && (Numbers::ixSectorsEE[i+1]!=0 || Numbers::iySectorsEE[i+1]!=0) ) {
             l.DrawLine(Numbers::ixSectorsEE[i], Numbers::iySectorsEE[i], Numbers::ixSectorsEE[i+1], Numbers::iySectorsEE[i+1]);
           }

@@ -1,8 +1,8 @@
 /*
  * \file EBTestPulseClient.cc
  *
- * $Date: 2008/05/08 19:13:09 $
- * $Revision: 1.203 $
+ * $Date: 2008/05/09 06:54:37 $
+ * $Revision: 1.204 $
  * \author G. Della Ricca
  * \author F. Cossutti
  *
@@ -41,7 +41,7 @@ using namespace cms;
 using namespace edm;
 using namespace std;
 
-EBTestPulseClient::EBTestPulseClient(const ParameterSet& ps){
+EBTestPulseClient::EBTestPulseClient(const ParameterSet& ps) {
 
   // cloneME switch
   cloneME_ = ps.getUntrackedParameter<bool>("cloneME", true);
@@ -123,11 +123,11 @@ EBTestPulseClient::EBTestPulseClient(const ParameterSet& ps){
 
 }
 
-EBTestPulseClient::~EBTestPulseClient(){
+EBTestPulseClient::~EBTestPulseClient() {
 
 }
 
-void EBTestPulseClient::beginJob(DQMStore* dqmStore){
+void EBTestPulseClient::beginJob(DQMStore* dqmStore) {
 
   dqmStore_ = dqmStore;
 
@@ -138,7 +138,7 @@ void EBTestPulseClient::beginJob(DQMStore* dqmStore){
 
 }
 
-void EBTestPulseClient::beginRun(void){
+void EBTestPulseClient::beginRun(void) {
 
   if ( debug_ ) cout << "EBTestPulseClient: beginRun" << endl;
 
@@ -619,7 +619,7 @@ bool EBTestPulseClient::writeDb(EcalCondDBInterface* econn, RunIOV* runiov, MonR
 
 }
 
-void EBTestPulseClient::analyze(void){
+void EBTestPulseClient::analyze(void) {
 
   ievt_++;
   jevt_++;
@@ -1053,7 +1053,11 @@ void EBTestPulseClient::analyze(void){
 
 }
 
-void EBTestPulseClient::htmlOutput(int run, string& htmlDir, string& htmlName){
+void EBTestPulseClient::softReset(void) {
+
+}
+
+void EBTestPulseClient::htmlOutput(int run, string& htmlDir, string& htmlName) {
 
   if ( verbose_ ) cout << "Preparing EBTestPulseClient html output ..." << endl;
 

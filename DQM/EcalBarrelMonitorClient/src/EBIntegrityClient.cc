@@ -2,8 +2,8 @@
 /*
  * \file EBIntegrityClient.cc
  *
- * $Date: 2008/04/08 19:06:52 $
- * $Revision: 1.202 $
+ * $Date: 2008/04/08 19:20:18 $
+ * $Revision: 1.203 $
  * \author G. Della Ricca
  * \author G. Franzoni
  *
@@ -46,7 +46,7 @@ using namespace cms;
 using namespace edm;
 using namespace std;
 
-EBIntegrityClient::EBIntegrityClient(const ParameterSet& ps){
+EBIntegrityClient::EBIntegrityClient(const ParameterSet& ps) {
 
   // cloneME switch
   cloneME_ = ps.getUntrackedParameter<bool>("cloneME", true);
@@ -103,11 +103,11 @@ EBIntegrityClient::EBIntegrityClient(const ParameterSet& ps){
 
 }
 
-EBIntegrityClient::~EBIntegrityClient(){
+EBIntegrityClient::~EBIntegrityClient() {
 
 }
 
-void EBIntegrityClient::beginJob(DQMStore* dqmStore){
+void EBIntegrityClient::beginJob(DQMStore* dqmStore) {
 
   dqmStore_ = dqmStore;
 
@@ -118,7 +118,7 @@ void EBIntegrityClient::beginJob(DQMStore* dqmStore){
 
 }
 
-void EBIntegrityClient::beginRun(void){
+void EBIntegrityClient::beginRun(void) {
 
   if ( debug_ ) cout << "EBIntegrityClient: beginRun" << endl;
 
@@ -635,7 +635,7 @@ bool EBIntegrityClient::writeDb(EcalCondDBInterface* econn, RunIOV* runiov, MonR
 
 }
 
-void EBIntegrityClient::analyze(void){
+void EBIntegrityClient::analyze(void) {
 
   ievt_++;
   jevt_++;
@@ -979,7 +979,11 @@ void EBIntegrityClient::analyze(void){
 
 }
 
-void EBIntegrityClient::htmlOutput(int run, string& htmlDir, string& htmlName){
+void EBIntegrityClient::softReset(void) {
+
+}
+
+void EBIntegrityClient::htmlOutput(int run, string& htmlDir, string& htmlName) {
 
   if ( verbose_ ) cout << "Preparing EBIntegrityClient html output ..." << endl;
 
@@ -1331,7 +1335,7 @@ void EBIntegrityClient::htmlOutput(int run, string& htmlDir, string& htmlName){
         gStyle->SetPalette(10, pCol5);
         obj2f->SetMinimum(0.0);
         obj2f->Draw("colz");
-        if ( iCanvas <= 7 ){
+        if ( iCanvas <= 7 ) {
           obj2f->GetXaxis()->SetNdivisions(10);
           obj2f->GetYaxis()->SetNdivisions(5);
           cMeMem->SetGridx();

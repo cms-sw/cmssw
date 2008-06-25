@@ -1,8 +1,8 @@
 /*
  * \file EELaserClient.cc
  *
- * $Date: 2008/05/27 19:00:53 $
- * $Revision: 1.98 $
+ * $Date: 2008/05/28 05:48:52 $
+ * $Revision: 1.99 $
  * \author G. Della Ricca
  * \author G. Franzoni
  *
@@ -55,7 +55,7 @@ using namespace cms;
 using namespace edm;
 using namespace std;
 
-EELaserClient::EELaserClient(const ParameterSet& ps){
+EELaserClient::EELaserClient(const ParameterSet& ps) {
 
   // cloneME switch
   cloneME_ = ps.getUntrackedParameter<bool>("cloneME", true);
@@ -238,11 +238,11 @@ EELaserClient::EELaserClient(const ParameterSet& ps){
 
 }
 
-EELaserClient::~EELaserClient(){
+EELaserClient::~EELaserClient() {
 
 }
 
-void EELaserClient::beginJob(DQMStore* dqmStore){
+void EELaserClient::beginJob(DQMStore* dqmStore) {
 
   dqmStore_ = dqmStore;
 
@@ -253,7 +253,7 @@ void EELaserClient::beginJob(DQMStore* dqmStore){
 
 }
 
-void EELaserClient::beginRun(void){
+void EELaserClient::beginRun(void) {
 
   if ( debug_ ) cout << "EELaserClient: beginRun" << endl;
 
@@ -2028,7 +2028,7 @@ bool EELaserClient::writeDb(EcalCondDBInterface* econn, RunIOV* runiov, MonRunIO
 
 }
 
-void EELaserClient::analyze(void){
+void EELaserClient::analyze(void) {
 
   ievt_++;
   jevt_++;
@@ -3472,7 +3472,11 @@ void EELaserClient::analyze(void){
 
 }
 
-void EELaserClient::htmlOutput(int run, string& htmlDir, string& htmlName){
+void EELaserClient::softReset(void) {
+
+}
+
+void EELaserClient::htmlOutput(int run, string& htmlDir, string& htmlName) {
 
   if ( verbose_ ) cout << "Preparing EELaserClient html output ..." << endl;
 
@@ -3660,7 +3664,7 @@ void EELaserClient::htmlOutput(int run, string& htmlDir, string& htmlName){
         cQual->SetBit(TGraph::kClipFrame);
         TLine l;
         l.SetLineWidth(1);
-        for ( int i=0; i<201; i=i+1){
+        for ( int i=0; i<201; i=i+1) {
           if ( (Numbers::ixSectorsEE[i]!=0 || Numbers::iySectorsEE[i]!=0) && (Numbers::ixSectorsEE[i+1]!=0 || Numbers::iySectorsEE[i+1]!=0) ) {
             l.DrawLine(Numbers::ixSectorsEE[i], Numbers::iySectorsEE[i], Numbers::ixSectorsEE[i+1], Numbers::iySectorsEE[i+1]);
           }
