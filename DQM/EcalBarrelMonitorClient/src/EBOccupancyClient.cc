@@ -1,8 +1,8 @@
 /*
  * \file EBOccupancyClient.cc
  *
- * $Date: 2008/04/08 18:04:49 $
- * $Revision: 1.26 $
+ * $Date: 2008/06/25 08:08:14 $
+ * $Revision: 1.27 $
  * \author G. Della Ricca
  * \author F. Cossutti
  *
@@ -228,7 +228,7 @@ void EBOccupancyClient::analyze(void) {
 
 }
 
-void EBOccupancyClient::softReset(void) {
+void EBOccupancyClient::softReset(bool flag) {
 
 }
 

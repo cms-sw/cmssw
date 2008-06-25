@@ -1,8 +1,8 @@
 /*
  * \file EEBeamHodoClient.cc
  *
- * $Date: 2008/04/08 18:05:28 $
- * $Revision: 1.32 $
+ * $Date: 2008/06/25 08:11:59 $
+ * $Revision: 1.33 $
  * \author G. Della Ricca
  * \author G. Franzoni
  *
@@ -329,7 +329,7 @@ void EEBeamHodoClient::analyze(void) {
 
 }
 
-void EEBeamHodoClient::softReset(void) {
+void EEBeamHodoClient::softReset(bool flag) {
 
 }
 

@@ -1,8 +1,8 @@
 /*
  * \file EECosmicClient.cc
  *
- * $Date: 2008/04/08 18:05:28 $
- * $Revision: 1.60 $
+ * $Date: 2008/06/25 08:11:59 $
+ * $Revision: 1.61 $
  * \author G. Della Ricca
  * \author F. Cossutti
  *
@@ -295,7 +295,7 @@ void EECosmicClient::analyze(void) {
 
 }
 
-void EECosmicClient::softReset(void) {
+void EECosmicClient::softReset(bool flag) {
 
 }
 

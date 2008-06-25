@@ -1,8 +1,8 @@
 /*
  * \file EBPedestalOnlineClient.cc
  *
- * $Date: 2008/05/08 19:12:44 $
- * $Revision: 1.137 $
+ * $Date: 2008/06/25 08:08:14 $
+ * $Revision: 1.138 $
  * \author G. Della Ricca
  * \author F. Cossutti
  *
@@ -411,7 +411,7 @@ void EBPedestalOnlineClient::analyze(void) {
 
 }
 
-void EBPedestalOnlineClient::softReset(void) {
+void EBPedestalOnlineClient::softReset(bool flag) {
 
 }
 

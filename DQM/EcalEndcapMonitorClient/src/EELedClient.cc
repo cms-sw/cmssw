@@ -1,8 +1,8 @@
 /*
  * \file EELedClient.cc
  *
- * $Date: 2008/05/28 05:48:52 $
- * $Revision: 1.83 $
+ * $Date: 2008/06/25 08:12:00 $
+ * $Revision: 1.84 $
  * \author G. Della Ricca
  * \author G. Franzoni
  *
@@ -2116,7 +2116,7 @@ void EELedClient::analyze(void) {
 
 }
 
-void EELedClient::softReset(void) {
+void EELedClient::softReset(bool flag) {
 
 }
 

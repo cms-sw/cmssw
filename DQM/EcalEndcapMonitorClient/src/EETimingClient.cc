@@ -1,8 +1,8 @@
 /*
  * \file EETimingClient.cc
  *
- * $Date: 2008/05/09 08:08:25 $
- * $Revision: 1.79 $
+ * $Date: 2008/06/25 08:12:00 $
+ * $Revision: 1.80 $
  * \author G. Della Ricca
  *
 */
@@ -484,7 +484,7 @@ void EETimingClient::analyze(void) {
 
 }
 
-void EETimingClient::softReset(void) {
+void EETimingClient::softReset(bool flag) {
 
 }
 

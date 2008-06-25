@@ -4,8 +4,8 @@
 /*
  * \file EEIntegrityClient.h
  *
- * $Date: 2008/04/08 18:05:28 $
- * $Revision: 1.20 $
+ * $Date: 2008/06/25 08:11:59 $
+ * $Revision: 1.21 $
  * \author G. Della Ricca
  * \author G. Franzoni
  *
@@ -62,7 +62,7 @@ void setup(void);
 void cleanup(void);
 
 /// SoftReset
-void softReset(void);
+void softReset(bool flag);
 
 /// HtmlOutput
 void htmlOutput(int run, std::string& htmlDir, std::string& htmlName);

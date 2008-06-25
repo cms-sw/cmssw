@@ -1,8 +1,8 @@
 /*
  * \file EEPedestalClient.cc
  *
- * $Date: 2008/05/09 08:53:02 $
- * $Revision: 1.78 $
+ * $Date: 2008/06/25 08:12:00 $
+ * $Revision: 1.79 $
  * \author G. Della Ricca
  * \author F. Cossutti
  *
@@ -1176,7 +1176,7 @@ void EEPedestalClient::analyze(void) {
 
 }
 
-void EEPedestalClient::softReset(void) {
+void EEPedestalClient::softReset(bool flag) {
 
 }
 

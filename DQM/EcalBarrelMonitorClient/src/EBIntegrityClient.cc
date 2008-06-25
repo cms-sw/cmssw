@@ -2,8 +2,8 @@
 /*
  * \file EBIntegrityClient.cc
  *
- * $Date: 2008/04/08 19:20:18 $
- * $Revision: 1.203 $
+ * $Date: 2008/06/25 08:08:13 $
+ * $Revision: 1.204 $
  * \author G. Della Ricca
  * \author G. Franzoni
  *
@@ -979,7 +979,7 @@ void EBIntegrityClient::analyze(void) {
 
 }
 
-void EBIntegrityClient::softReset(void) {
+void EBIntegrityClient::softReset(bool flag) {
 
 }
 

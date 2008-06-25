@@ -4,8 +4,8 @@
 /*
  * \file EESummaryClient.h
  *
- * $Date: 2008/04/08 18:05:28 $
- * $Revision: 1.26 $
+ * $Date: 2008/06/25 08:11:59 $
+ * $Revision: 1.27 $
  * \author G. Della Ricca
  *
 */
@@ -58,7 +58,7 @@ void setup(void);
 void cleanup(void);
 
 /// SoftReset
-void softReset(void);
+void softReset(bool flag);
 
 /// HtmlOutput
 void htmlOutput(int run, std::string& htmlDir, std::string& htmlName);

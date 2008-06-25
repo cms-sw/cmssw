@@ -1,8 +1,8 @@
 /*
  * \file EEBeamCaloClient.cc
  *
- * $Date: 2008/04/08 18:05:28 $
- * $Revision: 1.50 $
+ * $Date: 2008/06/25 08:11:59 $
+ * $Revision: 1.51 $
  * \author G. Della Ricca
  * \author A. Ghezzi
  *
@@ -535,7 +535,7 @@ void EEBeamCaloClient::analyze(void) {
 
 }
 
-void EEBeamCaloClient::softReset(void) {
+void EEBeamCaloClient::softReset(bool flag) {
 
 }
 

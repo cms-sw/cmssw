@@ -1,8 +1,8 @@
 /*
  * \file EEClusterClient.cc
  *
- * $Date: 2008/04/08 18:05:28 $
- * $Revision: 1.51 $
+ * $Date: 2008/06/25 08:11:59 $
+ * $Revision: 1.52 $
  * \author G. Della Ricca
  * \author E. Di Marco
  *
@@ -347,7 +347,7 @@ void EEClusterClient::analyze(void) {
 
 }
 
-void EEClusterClient::softReset(void) {
+void EEClusterClient::softReset(bool flag) {
 
 }
 

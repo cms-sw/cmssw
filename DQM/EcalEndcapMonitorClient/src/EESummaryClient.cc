@@ -1,8 +1,8 @@
 /*
  * \file EESummaryClient.cc
  *
- * $Date: 2008/06/17 15:13:56 $
- * $Revision: 1.139 $
+ * $Date: 2008/06/25 08:12:00 $
+ * $Revision: 1.140 $
  * \author G. Della Ricca
  *
 */
@@ -1461,7 +1461,7 @@ void EESummaryClient::analyze(void) {
 
 }
 
-void EESummaryClient::softReset(void) {
+void EESummaryClient::softReset(bool flag) {
 
 }
 

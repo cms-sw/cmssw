@@ -2,8 +2,8 @@
 /*
  * \file EEIntegrityClient.cc
  *
- * $Date: 2008/04/08 19:20:18 $
- * $Revision: 1.76 $
+ * $Date: 2008/06/25 08:11:59 $
+ * $Revision: 1.77 $
  * \author G. Della Ricca
  * \author G. Franzoni
  *
@@ -1042,7 +1042,7 @@ void EEIntegrityClient::analyze(void) {
 
 }
 
-void EEIntegrityClient::softReset(void) {
+void EEIntegrityClient::softReset(bool flag) {
 
 }
 

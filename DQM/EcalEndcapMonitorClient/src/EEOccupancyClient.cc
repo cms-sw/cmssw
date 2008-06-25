@@ -1,8 +1,8 @@
 /*
  * \file EEOccupancyClient.cc
  *
- * $Date: 2008/04/08 18:05:29 $
- * $Revision: 1.23 $
+ * $Date: 2008/06/25 08:12:00 $
+ * $Revision: 1.24 $
  * \author G. Della Ricca
  * \author F. Cossutti
  *
@@ -310,7 +310,7 @@ void EEOccupancyClient::analyze(void) {
 
 }
 
-void EEOccupancyClient::softReset(void) {
+void EEOccupancyClient::softReset(bool flag) {
 
 }
 

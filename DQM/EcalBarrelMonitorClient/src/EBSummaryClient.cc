@@ -1,8 +1,8 @@
 /*
  * \file EBSummaryClient.cc
  *
- * $Date: 2008/06/17 15:13:56 $
- * $Revision: 1.158 $
+ * $Date: 2008/06/25 08:08:14 $
+ * $Revision: 1.159 $
  * \author G. Della Ricca
  *
 */
@@ -1232,7 +1232,7 @@ void EBSummaryClient::analyze(void) {
 
 }
 
-void EBSummaryClient::softReset(void) {
+void EBSummaryClient::softReset(bool flag) {
 
 }
 

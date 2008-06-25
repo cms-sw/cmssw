@@ -1,8 +1,8 @@
 /*
  * \file EBCosmicClient.cc
  *
- * $Date: 2008/04/08 18:04:48 $
- * $Revision: 1.113 $
+ * $Date: 2008/06/25 08:08:13 $
+ * $Revision: 1.114 $
  * \author G. Della Ricca
  * \author F. Cossutti
  *
@@ -284,7 +284,7 @@ void EBCosmicClient::analyze(void) {
 
 }
 
-void EBCosmicClient::softReset(void) {
+void EBCosmicClient::softReset(bool flag) {
 
 }
 

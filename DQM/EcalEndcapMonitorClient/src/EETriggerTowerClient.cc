@@ -1,8 +1,8 @@
 /*
  * \file EETriggerTowerClient.cc
  *
- * $Date: 2008/04/08 18:05:29 $
- * $Revision: 1.69 $
+ * $Date: 2008/06/25 08:12:00 $
+ * $Revision: 1.70 $
  * \author G. Della Ricca
  * \author F. Cossutti
  *
@@ -516,7 +516,7 @@ void EETriggerTowerClient::analyze(const char* nameext,
 
 }
 
-void EETriggerTowerClient::softReset(void) {
+void EETriggerTowerClient::softReset(bool flag) {
 
 }
 

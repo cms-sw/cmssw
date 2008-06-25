@@ -1,8 +1,8 @@
 /*
  * \file EBLaserClient.cc
  *
- * $Date: 2008/05/28 05:48:52 $
- * $Revision: 1.235 $
+ * $Date: 2008/06/25 08:08:14 $
+ * $Revision: 1.236 $
  * \author G. Della Ricca
  * \author G. Franzoni
  *
@@ -3283,7 +3283,7 @@ void EBLaserClient::analyze(void) {
 
 }
 
-void EBLaserClient::softReset(void) {
+void EBLaserClient::softReset(bool flag) {
 
 }
 

@@ -1,8 +1,8 @@
 /*
  * \file EEStatusFlagsClient.cc
  *
- * $Date: 2008/04/30 17:32:21 $
- * $Revision: 1.21 $
+ * $Date: 2008/06/25 08:12:00 $
+ * $Revision: 1.22 $
  * \author G. Della Ricca
  *
 */
@@ -192,7 +192,7 @@ void EEStatusFlagsClient::analyze(void) {
 
 }
 
-void EEStatusFlagsClient::softReset(void) {
+void EEStatusFlagsClient::softReset(bool flag) {
 
 }
 

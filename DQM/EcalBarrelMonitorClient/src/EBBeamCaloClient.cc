@@ -1,8 +1,8 @@
 /*
  * \file EBBeamCaloClient.cc
  *
- * $Date: 2008/04/08 18:04:48 $
- * $Revision: 1.84 $
+ * $Date: 2008/06/25 08:08:13 $
+ * $Revision: 1.85 $
  * \author G. Della Ricca
  * \author A. Ghezzi
  *
@@ -535,7 +535,7 @@ void EBBeamCaloClient::analyze(void) {
 
 }
 
-void EBBeamCaloClient::softReset(void) {
+void EBBeamCaloClient::softReset(bool flag) {
 
 }
 

@@ -1,8 +1,8 @@
 /*
  * \file EBTriggerTowerClient.cc
  *
- * $Date: 2008/04/08 18:04:49 $
- * $Revision: 1.102 $
+ * $Date: 2008/06/25 08:08:14 $
+ * $Revision: 1.103 $
  * \author G. Della Ricca
  * \author F. Cossutti
  *
@@ -510,7 +510,7 @@ void EBTriggerTowerClient::analyze(const char* nameext,
 
 }
 
-void EBTriggerTowerClient::softReset(void) {
+void EBTriggerTowerClient::softReset(bool flag) {
 
 }
 

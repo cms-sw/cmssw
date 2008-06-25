@@ -1,8 +1,8 @@
 /*
  * \file EBBeamHodoClient.cc
  *
- * $Date: 2008/04/08 18:04:48 $
- * $Revision: 1.63 $
+ * $Date: 2008/06/25 08:08:13 $
+ * $Revision: 1.64 $
  * \author G. Della Ricca
  * \author G. Franzoni
  *
@@ -329,7 +329,7 @@ void EBBeamHodoClient::analyze(void) {
 
 }
 
-void EBBeamHodoClient::softReset(void) {
+void EBBeamHodoClient::softReset(bool flag) {
 
 }
 

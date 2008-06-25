@@ -1,8 +1,8 @@
 /*
  * \file EBTestPulseClient.cc
  *
- * $Date: 2008/05/09 06:54:37 $
- * $Revision: 1.204 $
+ * $Date: 2008/06/25 08:08:14 $
+ * $Revision: 1.205 $
  * \author G. Della Ricca
  * \author F. Cossutti
  *
@@ -1053,7 +1053,7 @@ void EBTestPulseClient::analyze(void) {
 
 }
 
-void EBTestPulseClient::softReset(void) {
+void EBTestPulseClient::softReset(bool flag) {
 
 }
 

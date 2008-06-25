@@ -1,8 +1,8 @@
 /*
  * \file EcalEndcapMonitorClient.cc
  *
- * $Date: 2008/06/24 07:08:11 $
- * $Revision: 1.187 $
+ * $Date: 2008/06/25 08:12:00 $
+ * $Revision: 1.188 $
  * \author G. Della Ricca
  * \author F. Cossutti
  *
@@ -1707,19 +1707,19 @@ void EcalEndcapMonitorClient::analyze(const Event &e, const EventSetup &c) {
 
 }
 
-void EcalEndcapMonitorClient::softReset(void) {
+void EcalEndcapMonitorClient::softReset(bool flag) {
 
    for ( int i=0; i<int(clients_.size()); i++ ) {
      bool done = false;
      for ( multimap<EEClient*,int>::iterator j = clientsRuns_.lower_bound(clients_[i]); j != clientsRuns_.upper_bound(clients_[i]); j++ ) {
        if ( runType_ != -1 && runType_ == (*j).second && !done ) {
          done = true;
-         clients_[i]->softReset();
+         clients_[i]->softReset(flag);
        }
      }
    }
 
-   summaryClient_->softReset();
+   summaryClient_->softReset(flag);
 
 }
 

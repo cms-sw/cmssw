@@ -1,8 +1,8 @@
 /*
  * \file EETestPulseClient.cc
  *
- * $Date: 2008/05/09 08:53:02 $
- * $Revision: 1.89 $
+ * $Date: 2008/06/25 08:12:00 $
+ * $Revision: 1.90 $
  * \author G. Della Ricca
  * \author F. Cossutti
  *
@@ -1128,7 +1128,7 @@ void EETestPulseClient::analyze(void) {
 
 }
 
-void EETestPulseClient::softReset(void) {
+void EETestPulseClient::softReset(bool flag) {
 
 }
 

@@ -1,11 +1,11 @@
-// $Id: EBClient.h,v 1.19 2008/06/25 07:08:26 dellaric Exp $
+// $Id: EBClient.h,v 1.20 2008/06/25 08:08:13 dellaric Exp $
 
 /*!
   \file EBClient.h
   \brief Ecal Barrel Monitor Client mom class
   \author B. Gobbo
-  \version $Revision: 1.19 $
-  \date $Date: 2008/06/25 07:08:26 $
+  \version $Revision: 1.20 $
+  \date $Date: 2008/06/25 08:08:13 $
 */
 
 
@@ -58,10 +58,11 @@ class EBClient {
   */
   virtual void cleanup(void)      = 0;
 
-  /*! \fn virtual void softReset(void)
+  /*! \fn virtual void softReset(bool flag)
     \brief soft reset method
+    \param flag on/off switch
   */
-  virtual void softReset(void)    = 0;
+  virtual void softReset(bool flag)    = 0;
 
   /*! \fn virtual void htmlOutput(int run, std::string& htmlDir, std::string& htmlName);
     \brief create HTML page

@@ -1,8 +1,8 @@
 /*
  * \file EBStatusFlagsClient.cc
  *
- * $Date: 2008/04/30 17:32:20 $
- * $Revision: 1.19 $
+ * $Date: 2008/06/25 08:08:14 $
+ * $Revision: 1.20 $
  * \author G. Della Ricca
  *
 */
@@ -190,7 +190,7 @@ void EBStatusFlagsClient::analyze(void) {
 
 }
 
-void EBStatusFlagsClient::softReset(void) {
+void EBStatusFlagsClient::softReset(bool flag) {
 
 }
 

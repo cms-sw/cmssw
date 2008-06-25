@@ -1,8 +1,8 @@
 /*
  * \file EBTimingClient.cc
  *
- * $Date: 2008/05/08 19:13:09 $
- * $Revision: 1.85 $
+ * $Date: 2008/06/25 08:08:14 $
+ * $Revision: 1.86 $
  * \author G. Della Ricca
  *
 */
@@ -443,7 +443,7 @@ void EBTimingClient::analyze(void) {
 
 }
 
-void EBTimingClient::softReset(void) {
+void EBTimingClient::softReset(bool flag) {
 
 }
 

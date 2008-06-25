@@ -1,8 +1,8 @@
 /*
  * \file EBClusterClient.cc
  *
- * $Date: 2008/04/08 18:04:48 $
- * $Revision: 1.64 $
+ * $Date: 2008/06/25 08:08:13 $
+ * $Revision: 1.65 $
  * \author G. Della Ricca
  * \author F. Cossutti
  * \author E. Di Marco
@@ -293,7 +293,7 @@ void EBClusterClient::analyze(void) {
 
 }
 
-void EBClusterClient::softReset(void) {
+void EBClusterClient::softReset(bool flag) {
 
 }
 
