@@ -27,12 +27,18 @@ class GlobalErrorBase
 {
 
 public:
-
+  /// Tag to request a null error matrix
+  class NullMatrix{};
 
   /**
    * Default constructor, creating a null 3*3 matrix (all values are 0)
    */
   GlobalErrorBase(): theCartesianError(new AlgebraicSymMatrix(3,0)) {}
+
+  /** 
+   * Constructor that allocates a null GlobalErrorBase (it does not create the error matrix at all)
+   */
+  GlobalErrorBase(const NullMatrix &) : theCartesianError(0) {}
 
   /**
    * Constructor.
