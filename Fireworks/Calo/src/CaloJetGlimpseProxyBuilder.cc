@@ -8,7 +8,7 @@
 //
 // Original Author:  
 //         Created:  Sun Jan  6 23:57:00 EST 2008
-// $Id: CaloJetGlimpseProxyBuilder.cc,v 1.4.2.1 2008/06/17 17:54:55 srappocc Exp $
+// $Id: CaloJetGlimpseProxyBuilder.cc,v 1.1 2008/06/19 06:57:27 dmytro Exp $
 //
 
 // system include files
@@ -20,6 +20,7 @@
 #include "TEveGeoNode.h"
 #include "TROOT.h"
 #include "TEveStraightLineSet.h"
+#include "TEveBoxSet.h"
 
 // user include files
 #include "Fireworks/Calo/interface/CaloJetGlimpseProxyBuilder.h"
@@ -90,12 +91,29 @@ CaloJetGlimpseProxyBuilder::build(const FWEventItem* iItem, TEveElementList** pr
 
    for(reco::CaloJetCollection::const_iterator jet = jets->begin(); 
        jet != jets->end(); ++jet, ++counter) {
-
+      TEveBoxSet* cone = new TEveBoxSet(counter.str().c_str());
+      cone->SetPickable(kTRUE);
+      cone->Reset(TEveBoxSet::kBT_Cone, kTRUE, 64);
+      double theta = jet->theta();
+      double phi = jet->phi();
+      double height = jet->et();
+      TEveVector dir, pos;
+      dir.Set(jet->px()/jet->p(), jet->py()/jet->p(), jet->pz()/jet->p());
+      
+      dir *= height;
+      pos.Set(0.0,0.0,0.0);
+      cone->AddCone(pos, dir, 0.5*height);
+      cone->DigitColor( iItem->defaultDisplayProperties().color() );
+      cone->SetDrawConeCap(kTRUE);
+      tList->AddElement(cone);
+      /*
       TEveStraightLineSet* marker = new TEveStraightLineSet(counter.str().c_str());
       marker->SetLineWidth(1);
       marker->SetLineColor(  iItem->defaultDisplayProperties().color() );
       fw::addStraightLineSegment( marker, &*jet );
       tList->AddElement(marker);
+       */
+      
    }
 }
 
