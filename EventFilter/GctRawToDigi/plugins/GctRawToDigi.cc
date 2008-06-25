@@ -55,7 +55,7 @@ GctRawToDigi::GctRawToDigi(const edm::ParameterSet& iConfig) :
   blockUnpacker_(0),
   unpackFailures_(0)
 {
-  LogDebug("GCT") << "GctRawToDigi will unpack FED Id " << fedId_ << endl;
+  LogDebug("GCT") << "GctRawToDigi will unpack FED Id " << fedId_;
 
   if(grenCompatibilityMode_)
   { 

@@ -56,7 +56,7 @@ GctDigiToRaw::GctDigiToRaw(const edm::ParameterSet& iConfig) :
   counter_(0),
   blockPacker_()
 {
-  LogDebug("GCT") << "GctDigiToRaw will pack FED Id " << fedId_ << endl;
+  LogDebug("GCT") << "GctDigiToRaw will pack FED Id " << fedId_;
 
   //register the products
   produces<FEDRawDataCollection>();
