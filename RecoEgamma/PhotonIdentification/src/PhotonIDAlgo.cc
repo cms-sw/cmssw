@@ -8,6 +8,7 @@
 #include "DataFormats/EgammaCandidates/interface/GsfElectronFwd.h"
 #include "RecoEgamma/EgammaIsolationAlgos/interface/PhotonTkIsolation.h"
 #include "RecoEgamma/EgammaIsolationAlgos/interface/EgammaEcalIsolation.h"
+#include "RecoEgamma/EgammaIsolationAlgos/interface/EgammaHcalIsolation.h"
 #include "RecoEgamma/EgammaIsolationAlgos/interface/EgammaRecHitIsolation.h"
 #include "DataFormats/DetId/interface/DetId.h"
 #include "DataFormats/EcalDetId/interface/EEDetId.h"
@@ -151,6 +152,7 @@ double PhotonIDAlgo::calculateEcalRecHitIso(const reco::Photon* photon,
 					    const edm::EventSetup& iSetup,
 					    double RCone,
 					    double RConeInner,
+                                            double etaSlice,
 					    double etMin){
 
 
@@ -171,9 +173,11 @@ double PhotonIDAlgo::calculateEcalRecHitIso(const reco::Photon* photon,
   edm::ESHandle<CaloGeometry> geoHandle;
   iSetup.get<CaloGeometryRecord>().get(geoHandle);
   double ecalIsol=0.;
-  
+
+
   EgammaRecHitIsolation phoIso(RCone,
 			       RConeInner,
+                               etaSlice,
 			       etMin,
 			       geoHandle,
 			       &(*RecHits),
@@ -233,6 +237,7 @@ double PhotonIDAlgo::calculateHcalRecHitIso(const reco::Photon* photon,
 					    const edm::EventSetup& iSetup,
 					    double RCone,
 					    double RConeInner,
+                                            double etaSlice,
 					    double etMin){
 
 
@@ -249,9 +254,11 @@ double PhotonIDAlgo::calculateHcalRecHitIso(const reco::Photon* photon,
   iSetup.get<CaloGeometryRecord>().get(geoHandle);
   double ecalIsol=0.;
   
+
   EgammaRecHitIsolation phoIso(RCone,
 			       RConeInner,
 			       etMin,
+                               etaSlice,
 			       geoHandle,
 			       &(*RecHits),
 			       DetId::Hcal);

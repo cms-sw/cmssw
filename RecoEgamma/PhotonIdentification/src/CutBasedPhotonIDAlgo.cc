@@ -14,9 +14,11 @@ void CutBasedPhotonIDAlgo::setup(const edm::ParameterSet& conf) {
   isolationtrackThreshold_ = conf.getParameter<double>("isolationtrackThreshold");
   photonEcalRecHitConeInnerRadius_ = conf.getParameter<double>("EcalRecHitInnerRadius");
   photonEcalRecHitConeOuterRadius_ = conf.getParameter<double>("EcalRecHitOuterRadius");
+  photonEcalRecHitEtaSlice_ = conf.getParameter<double>("EcalRecHitEtaSlice");
   photonEcalRecHitThresh_ = conf.getParameter<double>("EcalRecThresh");
   photonHcalRecHitConeInnerRadius_ = conf.getParameter<double>("HcalRecHitInnerRadius");
   photonHcalRecHitConeOuterRadius_ = conf.getParameter<double>("HcalRecHitOuterRadius");
+  photonHcalRecHitEtaSlice_ = conf.getParameter<double>("HcalRecHitEtaSlice");
   photonHcalRecHitThresh_ = conf.getParameter<double>("HcalRecHitThresh");
 
   //Decision cuts
@@ -145,6 +147,7 @@ reco::PhotonID CutBasedPhotonIDAlgo::calculate(const reco::Photon* pho, const ed
   double EcalRecHitIso = calculateEcalRecHitIso(pho, e, es,
 						photonEcalRecHitConeOuterRadius_,
 						photonEcalRecHitConeInnerRadius_,
+                                                photonEcalRecHitEtaSlice_,
 						photonEcalRecHitThresh_);
   double rawSCEt = (pho->superCluster()->rawEnergy())/(cosh(pho->p4().Eta()));
   double tempiso = EcalRecHitIso - rawSCEt;
@@ -156,6 +159,7 @@ reco::PhotonID CutBasedPhotonIDAlgo::calculate(const reco::Photon* pho, const ed
   double HcalRecHitIso = calculateHcalRecHitIso(pho, e, es,
 						photonHcalRecHitConeOuterRadius_,
 						photonHcalRecHitConeInnerRadius_,
+                                                photonHcalRecHitEtaSlice_,    
 						photonHcalRecHitThresh_);
 
 //   std::cout << "Output from hcal isolation: ";
