@@ -10,6 +10,9 @@ from RecoEgamma.ElectronIdentification.electronIdCutBasedClassesExt_cfi import e
 from RecoEgamma.ElectronIdentification.electronIdNeuralNetExt_cfi       import eidNeuralNetExt
 from RecoEgamma.ElectronIdentification.electronIdLikelihoodExt_cfi      import eidLikelihoodExt 
 
+# Temporary bugfix waiting for RecoEgamma/ElectronIdentification to be fixed upstream
+electronIdPdfs.connect = 'sqlite_fip:CondCore/SQLiteData/data/electronIdLikelihoodTkIsolated.db'
+
 eidPtdrExtPAT = eidPtdrExt.copy();  
 eidPtdrExtPAT.src = cms.InputTag("allLayer0Electrons")
 electronIdPTDRLoose  = eidPtdrExtPAT.copy(); electronIdPTDRLoose.electronQuality  = cms.string('loose')
