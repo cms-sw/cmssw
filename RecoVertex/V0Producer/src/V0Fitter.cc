@@ -13,7 +13,7 @@
 //
 // Original Author:  Brian Drell
 //         Created:  Fri May 18 22:57:40 CEST 2007
-// $Id: V0Fitter.cc,v 1.26 2008/06/24 00:09:21 drell Exp $
+// $Id: V0Fitter.cc,v 1.27 2008/06/24 23:13:06 drell Exp $
 //
 //
 
@@ -230,11 +230,19 @@ void V0Fitter::fitAll(const edm::Event& iEvent, const edm::EventSetup& iSetup) {
       FreeTrajectoryState posState = posTransTkPtr->impactPointTSCP().theState();
       FreeTrajectoryState negState = negTransTkPtr->impactPointTSCP().theState();
 
-      // Measure distance
+      // Measure distance between tracks at their closest approach
       ClosestApproachInRPhi cApp;
       cApp.calculate(posState, negState);
       float dca = fabs( cApp.distance() );
-      GlobalPoint meanOfDCA = cApp.crossingPoint();
+
+      // Get trajectory states for the tracks at POCA for later cuts
+      GlobalPoint cxPt = cApp.crossingPoint();
+      TrajectoryStateClosestToPoint posTSCP = 
+	posTransTkPtr->trajectoryStateClosestToPoint( cxPt );
+      TrajectoryStateClosestToPoint negTSCP =
+	negTransTkPtr->trajectoryStateClosestToPoint( cxPt );
+
+      if (dca < 0.) continue;
 
       // Create the vertex fitter object
       KalmanVertexFitter theFitter(useRefTrax == 0 ? false : true);
@@ -346,6 +354,9 @@ void V0Fitter::fitAll(const edm::Event& iEvent, const edm::EventSetup& iSetup) {
       GlobalVector negativeP(trajMins->momentum());
       GlobalVector totalP(positiveP + negativeP);
 
+      //double posP = positiveP.mag();
+      //double negP = negativeP.mag();
+
       //cleanup stuff we don't need anymore
       delete trajPlus;
       delete trajMins;
@@ -441,7 +452,8 @@ void V0Fitter::fitAll(const edm::Event& iEvent, const edm::EventSetup& iSetup) {
 
 
       AddFourMomenta addp4;
-      // Store the daughter Candidates in the VertexCompositeCandidates
+      // Store the daughter Candidates in the VertexCompositeCandidates 
+      //    if they pass mass cuts
       if( doKshorts ) {
 	theKshort->addDaughter(thePiPlusCand);
 	theKshort->addDaughter(thePiMinusCand);
