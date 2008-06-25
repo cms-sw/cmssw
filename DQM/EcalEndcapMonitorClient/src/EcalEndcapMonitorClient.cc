@@ -1,8 +1,8 @@
 /*
  * \file EcalEndcapMonitorClient.cc
  *
- * $Date: 2008/06/25 14:16:17 $
- * $Revision: 1.190 $
+ * $Date: 2008/06/25 15:08:20 $
+ * $Revision: 1.191 $
  * \author G. Della Ricca
  * \author F. Cossutti
  *
@@ -1272,6 +1272,8 @@ void EcalEndcapMonitorClient::writeDb(bool flag) {
           if ( status ) {
             tasko |= 0x1 << clientsStatus_[clientsNames_[i]];
           }
+        } else {
+          tasko |= 0x1 << clientsStatus_[clientsNames_[i]];
         }
       }
     }
