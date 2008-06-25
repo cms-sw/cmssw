@@ -10,14 +10,13 @@
 
 ESRawToDigi::ESRawToDigi(ParameterSet const& ps) 
 {
-
-  label_ = ps.getParameter<string>("Label");
-  instanceName_ = ps.getParameter<string>("InstanceES");
+  sourceTag_ = ps.getParameter<edm::InputTag>("sourceTag");
   ESdigiCollection_ = ps.getParameter<string>("ESdigiCollection");
   debug_ = ps.getUntrackedParameter<bool>("debugMode", false);
 
-  ESUnpacker_ = new ESUnpackerV4(ps);
+  ESUnpacker_ = new ESUnpacker(ps);
 
+  //produces<ESRawDataCollection>();
   produces<ESDigiCollection>();
 }
 
@@ -33,7 +32,7 @@ void ESRawToDigi::produce(edm::Event& e, const edm::EventSetup& es) {
 
   // Input
   Handle<FEDRawDataCollection> rawdata;
-  e.getByLabel(label_, instanceName_, rawdata);
+  e.getByLabel(sourceTag_, rawdata);
   if (!rawdata.isValid()) {
     LogDebug("") << "ESRawToDigi : Error! can't get rawdata!" << std::endl;
   }

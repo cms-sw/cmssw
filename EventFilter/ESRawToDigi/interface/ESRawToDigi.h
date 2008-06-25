@@ -6,7 +6,7 @@
 #include "FWCore/Framework/interface/EDProducer.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
-#include "EventFilter/ESRawToDigi/interface/ESUnpackerV4.h"
+#include "EventFilter/ESRawToDigi/interface/ESUnpacker.h"
 
 using namespace std;
 using namespace edm;
@@ -22,13 +22,12 @@ class ESRawToDigi : public EDProducer {
   
  private:
 
-  string label_;
-  string instanceName_;
+  edm::InputTag sourceTag_;
   string ESdigiCollection_;
 
   bool debug_;
 
-  ESUnpackerV4* ESUnpacker_;
+  ESUnpacker* ESUnpacker_;
   
 };
 
