@@ -50,15 +50,28 @@ PhotonProducer::PhotonProducer(const edm::ParameterSet& config) :
   minSCEt_          = conf_.getParameter<double>("minSCEt");
   minR9_            = conf_.getParameter<double>("minR9");
   likelihoodWeights_= conf_.getParameter<std::string>("MVA_weights_location");
-  extRadius_        = conf_.getParameter<double>("ecalIsolExtR");
-  innRadius_        = conf_.getParameter<double>("ecalIsolInnR");
-  minEtRecHit_      = conf_.getParameter<double>("minEtRecHit");     
-  isolEtCut_        = conf_.getParameter<double>("isolEtCut");     
+  //  extRadius_        = conf_.getParameter<double>("ecalIsolExtR");
+  //innRadius_        = conf_.getParameter<double>("ecalIsolInnR");
+  //minEtRecHit_      = conf_.getParameter<double>("minEtRecHit");     
+  //isolEtCut_        = conf_.getParameter<double>("isolEtCut");     
 
   usePrimaryVertex_ = conf_.getParameter<bool>("usePrimaryVertex");
   risolveAmbiguity_ = conf_.getParameter<bool>("risolveConversionAmbiguity");
 
- 
+  paramForIsolBarrel_.push_back(conf_.getParameter<double>("ecalIsolExtRBarrel")); 
+  paramForIsolBarrel_.push_back(conf_.getParameter<double>("ecalIsolInnRBarrel"));
+  paramForIsolBarrel_.push_back(conf_.getParameter<double>("ecalIsolEtaStripBarrel"));
+  paramForIsolBarrel_.push_back(conf_.getParameter<double>("minEtRecHitBarrel"));     
+  paramForIsolBarrel_.push_back(conf_.getParameter<double>("isolEtCutBarrel"));     
+
+  paramForIsolEndcap_.push_back(conf_.getParameter<double>("ecalIsolExtREndcap")); 
+  paramForIsolEndcap_.push_back(conf_.getParameter<double>("ecalIsolInnREndcap"));
+  paramForIsolEndcap_.push_back(conf_.getParameter<double>("ecalIsolEtaStripEndcap"));
+  paramForIsolEndcap_.push_back(conf_.getParameter<double>("minEtRecHitEndcap"));     
+  paramForIsolEndcap_.push_back(conf_.getParameter<double>("isolEtCutEndcap"));     
+
+
+
   // Parameters for the position calculation:
   std::map<std::string,double> providedParameters;
   providedParameters.insert(std::make_pair("LogWeighted",conf_.getParameter<bool>("posCalc_logweight")));
@@ -202,8 +215,8 @@ void PhotonProducer::produce(edm::Event& theEvent, const edm::EventSetup& theEve
 
   int iSC=0; // index in photon collection
   // Loop over barrel and endcap SC collections and fill the  photon collection
-  fillPhotonCollection(scBarrelHandle,barrelGeometry,preshowerGeometry,topology,barrelRecHits,mhbhe.get(),conversionHandle,pixelSeeds,vtx,outputPhotonCollection,iSC);
-  fillPhotonCollection(scEndcapHandle,endcapGeometry,preshowerGeometry,topology,endcapRecHits,mhbhe.get(),conversionHandle,pixelSeeds,vtx,outputPhotonCollection,iSC);
+  fillPhotonCollection(scBarrelHandle,barrelGeometry,preshowerGeometry,topology,barrelRecHits,mhbhe.get(),paramForIsolBarrel_,conversionHandle,pixelSeeds,vtx,outputPhotonCollection,iSC);
+  fillPhotonCollection(scEndcapHandle,endcapGeometry,preshowerGeometry,topology,endcapRecHits,mhbhe.get(),paramForIsolEndcap_,conversionHandle,pixelSeeds,vtx,outputPhotonCollection,iSC);
 
   // put the product in the event
   edm::LogInfo("PhotonProducer") << " Put in the event " << iSC << " Photon Candidates \n";
@@ -219,6 +232,7 @@ void PhotonProducer::fillPhotonCollection(
 		   const CaloTopology *topology,
 		   const EcalRecHitCollection *hits,
 		   HBHERecHitMetaCollection *mhbhe,
+		   std::vector<double> paramsForIsolation,
                    const edm::Handle<reco::ConversionCollection> & conversionHandle,
 		   const reco::ElectronPixelSeedCollection& pixelSeeds,
 		   math::XYZPoint & vtx,
@@ -293,10 +307,17 @@ void PhotonProducer::fillPhotonCollection(
     double ecalIsol=0;
     std::auto_ptr<CaloRecHitMetaCollectionV> ecalRecHits(0); 
     ecalRecHits = std::auto_ptr<CaloRecHitMetaCollectionV>(new EcalRecHitMetaCollection(hits));
-    EgammaRecHitIsolation phoIso(extRadius_,innRadius_,minEtRecHit_,theCaloGeom_,&(*ecalRecHits),DetId::Ecal);
+    double extRadius   = paramsForIsolation[0];
+    double innRadius   = paramsForIsolation[1];
+    double etaStrip    = paramsForIsolation[2];
+    double minEtRecHit = paramsForIsolation[3]; 
+    double isolEtCut   = paramsForIsolation[4]; 
+    //    std::cout << " extR " << extRadius << " innR " << innRadius << " etaStrip " << etaStrip << " minEtRecHit " << minEtRecHit << " isolEtCut " << isolEtCut << std::endl;
+
+    EgammaRecHitIsolation phoIso(extRadius,innRadius,etaStrip,minEtRecHit,theCaloGeom_,&(*ecalRecHits),DetId::Ecal);
     ecalIsol = phoIso.getEtSum(&newCandidate);
-    if ( ecalIsol > isolEtCut_ ) {
-      //std::cout << " ecalIsol is " << ecalIsol << " rejecting the photon " << std::endl;
+    if ( ecalIsol > isolEtCut ) {
+      //       std::cout << " ecalIsol is " << ecalIsol << " rejecting the photon " << std::endl;
       continue;
     }
 
