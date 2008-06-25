@@ -61,12 +61,24 @@ void FWTableManager::MakeFrame (TGCompositeFrame *parent, int width, int height)
      parent->HideFrame(frame);
      
      widget = new TableWidget(frame, this); 
+//      widget = new TableWidget(frame, this, width, height / 3, 5, 19); 
      m_tNameEntry->Resize(width, widget->m_cellHeight);
      m_tNameEntry->SetBackgroundColor(widget->m_titleColor);
      m_tNameEntry->SetAlignment(kTextCenterX);
      m_tNameEntry->ChangeOptions(kRaisedFrame);
      title_frame = m_tNameEntry;
 //      widget->HighlightRow(0);
+}
+
+void FWTableManager::Update ()
+{
+     widget->InitTableCells(); 
+     widget->UpdateTableCells(0, 0); 
+     widget->m_vSlider->
+	  SetRange(widget->m_scrollHeight * 
+		   std::max(NumberOfRows() - widget->m_tabRows + 1, 
+			    0),
+		   widget->m_scrollHeight);
 }
 
 void FWTableManager::Selection (int row, int mask) 

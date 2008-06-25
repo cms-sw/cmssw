@@ -105,8 +105,8 @@ TableWidget::Init(int tabRows,
 
    // vertical slider
    m_vSlider = new TGVScrollBar(m_hFrame,2,m_tabHeight-m_cellHeight); // 2 is default width
-   m_vSlider->SetRange(m_scrollWidth*m_tm->NumberOfRows(),m_scrollWidth);
-   m_vSlider->SetSmallIncrement(m_scrollWidth);
+   m_vSlider->SetRange(m_scrollHeight*m_tm->NumberOfRows(),m_scrollHeight);
+   m_vSlider->SetSmallIncrement(m_scrollHeight);
    m_vSlider->Connect("PositionChanged(Int_t)","TableWidget",this,"OnVScroll(Int_t)");
    m_vFrameHints = new TGLayoutHints(kLHintsTop|kLHintsRight|kLHintsExpandY,0,0,m_cellHeight,0);
    m_hFrame->AddFrame(m_vSlider,m_vFrameHints);
@@ -259,8 +259,11 @@ TableWidget::OnHScroll(Int_t range)
 void
 TableWidget::OnVScroll(Int_t range)
 {
+     printf("start: %d / %d\n", range, m_scrollHeight);
+     if (range < 0)
+	  return;
    // NOTE: the vertical scroll needs to update UpdatteTableRows and UpdateTableCells
-   int startRow=range/m_scrollWidth;
+   int startRow=range/m_scrollHeight;
    UpdateTableRows(startRow);
    UpdateTableCells(startRow,m_iCol);
 }
