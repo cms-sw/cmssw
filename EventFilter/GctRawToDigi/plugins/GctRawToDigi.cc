@@ -57,12 +57,12 @@ GctRawToDigi::GctRawToDigi(const edm::ParameterSet& iConfig) :
 {
   if(grenCompatibilityMode_)
   { 
-    edm::LogInfo("GCT") << "GREN 2007 compatibility mode has been selected." << endl;
+    edm::LogInfo("GCT") << "GREN 2007 compatibility mode has been selected.";
     blockUnpacker_ = new GctBlockUnpacker(hltMode_);
   }
   else { blockUnpacker_ = new GctBlockUnpackerV2(hltMode_); }
 
-  if(hltMode_) { edm::LogInfo("GCT") << "HLT unpack mode selected: HLT unpack optimisations will be used." << endl; }
+  if(hltMode_) { edm::LogInfo("GCT") << "HLT unpack mode selected: HLT unpack optimisations will be used."; }
 
   //register the products
   produces<L1CaloEmCollection>();
@@ -103,16 +103,15 @@ void GctRawToDigi::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
   iEvent.getByLabel(inputLabel_, feds);
   const FEDRawData& gctRcd = feds->FEDData(fedId_);
  
-  if(verbose_) { edm::LogInfo("GCT") << "Upacking FEDRawData of size " << std::dec << gctRcd.size() << std::endl; }
+  if(verbose_) { edm::LogInfo("GCT") << "Upacking FEDRawData of size " << std::dec << gctRcd.size(); }
 
   bool invalidDataFlag = false;
   
   // do a simple check of the raw data - this will detect empty events
   if(gctRcd.size() < 16)
   {
-      edm::LogDebug("Empty/Invalid Data") << "Cannot unpack: empty/invalid GCT raw data (size = "
-                                          << gctRcd.size()
-                                          << "). Returning empty collections!";
+      edm::LogDebug("GCT") << "Cannot unpack: empty/invalid GCT raw data (size = "
+                           << gctRcd.size() << "). Returning empty collections!";
       invalidDataFlag = true;
   }
 
@@ -178,7 +177,7 @@ void GctRawToDigi::unpack(const FEDRawData& d, edm::Event& e, const bool invalid
     // read blocks
     for (unsigned nb=0; dPtr<dEnd; ++nb)
     {
-      if(nb >= MAX_BLOCKS) { edm::LogDebug("GCT") << "Reached block limit - bailing out from this event!" << endl; ++unpackFailures_; break; }
+      if(nb >= MAX_BLOCKS) { edm::LogDebug("GCT") << "Reached block limit - bailing out from this event!"; ++unpackFailures_; break; }
       
       // read block header
       std::auto_ptr<GctBlockHeaderBase> blockHeader;
@@ -188,7 +187,7 @@ void GctRawToDigi::unpack(const FEDRawData& d, edm::Event& e, const bool invalid
       // unpack the block; dPtr+4 is to get to the block data.
       if(!blockUnpacker_->convertBlock(&data[dPtr+4], *blockHeader)) // Record if we had an unpack problem then skip rest of event.
       {
-        edm::LogDebug("GCT") << "Encountered block unpack error - bailing out from this event!" << endl;
+        edm::LogDebug("GCT") << "Encountered block unpack error - bailing out from this event!";
         ++unpackFailures_; break;
       } 
   
@@ -261,7 +260,7 @@ GctRawToDigi::endJob()
   if(unpackFailures_ > 0)
   {
     edm::LogError("GCT") << "GCT unpacker encountered " << unpackFailures_
-                         << " unpack errors in total during this job!" << endl;
+                         << " unpack errors in total during this job!";
   }  
 }
 
