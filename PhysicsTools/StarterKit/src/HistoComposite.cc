@@ -91,13 +91,13 @@ void HistoComposite::fill( const reco::CompositeCandidate * cand )
 
   // Now fill information for daughters
   for (unsigned int i = 0; i < cand->numberOfDaughters(); ++i ) {
-     cout << "-------------processing component " << i << endl;
+//      cout << "-------------processing component " << i << endl;
     const reco::Candidate * c = cand->daughter(i);
     string role = roles[i];
 
-    cout << "Role = " << roles[i] << endl;
-    cout << "pdgid = " << c->pdgId() << endl;
-    cout << "pt = " << c->pt() << endl;
+//     cout << "Role = " << roles[i] << endl;
+//     cout << "pdgid = " << c->pdgId() << endl;
+//     cout << "pt = " << c->pt() << endl;
 
     // Figure out what the candidate is based on type
     const Muon *       pcmuon  = dynamic_cast<const Muon*>( c );
@@ -125,7 +125,7 @@ void HistoComposite::fill( const reco::CompositeCandidate * cand )
     // Fill histograms if the candidate is a muon
     // ------------------------------------------------------
     if      ( pcmuon != 0 ) {
-        cout << "Filling muon" << endl;
+//         cout << "Filling muon" << endl;
        // Here is where we do not yet have a histogram for this role
       if ( histoMuon_.map.find( role ) == histoMuon_.map.end() ) {
 	histoMuon_.map[role] = new HistoMuon( role, role, role,
@@ -148,7 +148,7 @@ void HistoComposite::fill( const reco::CompositeCandidate * cand )
     // Fill histograms if the candidate is a electron
     // ------------------------------------------------------
     if      ( pcelectron != 0 ) {
-        cout << "Filling electron" << endl;
+//         cout << "Filling electron" << endl;
        // Here is where we do not yet have a histogram for this role
       if ( histoElectron_.map.find( role ) == histoElectron_.map.end() ) {
 	histoElectron_.map[role] = new HistoElectron( role, role, role,
@@ -172,7 +172,7 @@ void HistoComposite::fill( const reco::CompositeCandidate * cand )
     // Fill histograms if the candidate is a tau
     // ------------------------------------------------------
     if      ( pctau != 0 ) {
-        cout << "Filling tau" << endl;
+//         cout << "Filling tau" << endl;
        // Here is where we do not yet have a histogram for this role
       if ( histoTau_.map.find( role ) == histoTau_.map.end() ) {
 	histoTau_.map[role] = new HistoTau( role, role, role,
@@ -196,7 +196,7 @@ void HistoComposite::fill( const reco::CompositeCandidate * cand )
     // Fill histograms if the candidate is a jet
     // ------------------------------------------------------
     if      ( pcjet != 0 ) {
-        cout << "Filling jet" << endl;
+//         cout << "Filling jet" << endl;
        // Here is where we do not yet have a histogram for this role
       if ( histoJet_.map.find( role ) == histoJet_.map.end() ) {
 	histoJet_.map[role] = new HistoJet( role, role, role,
@@ -220,7 +220,7 @@ void HistoComposite::fill( const reco::CompositeCandidate * cand )
     // Fill histograms if the candidate is a met
     // ------------------------------------------------------
     if      ( pcmet != 0 ) {
-        cout << "Filling met" << endl;
+//         cout << "Filling met" << endl;
        // Here is where we do not yet have a histogram for this role
       if ( histoMET_.map.find( role ) == histoMET_.map.end() ) {
 	histoMET_.map[role] = new HistoMET( role, role, role,
@@ -245,7 +245,7 @@ void HistoComposite::fill( const reco::CompositeCandidate * cand )
     // Fill histograms if the candidate is a photon
     // ------------------------------------------------------
     if      ( pcphoton != 0 ) {
-        cout << "Filling photon" << endl;
+//         cout << "Filling photon" << endl;
        // Here is where we do not yet have a histogram for this role
       if ( histoPhoton_.map.find( role ) == histoPhoton_.map.end() ) {
 	histoPhoton_.map[role] = new HistoPhoton( role, role, role,
@@ -268,7 +268,7 @@ void HistoComposite::fill( const reco::CompositeCandidate * cand )
     // Fill histograms if the candidate is a track
     // ------------------------------------------------------
     if      ( pctrack != 0 ) {
-        cout << "Filling track" << endl;
+//         cout << "Filling track" << endl;
        // Here is where we do not yet have a histogram for this role
       if ( histoTrack_.map.find( role ) == histoTrack_.map.end() ) {
 	histoTrack_.map[role] = new HistoTrack( role, role, role,
@@ -291,7 +291,7 @@ void HistoComposite::fill( const reco::CompositeCandidate * cand )
     // Fill histograms if the candidate is a composite
     // ------------------------------------------------------
     if      ( pccomposite != 0 ) {
-      cout << "Filling composite with role " << role << endl;
+//       cout << "Filling composite with role " << role << endl;
        // Here is where we do not yet have a histogram for this role
       if ( histoComposite_.map.find( role ) == histoComposite_.map.end() ) {
 	histoComposite_.map[role] = new HistoComposite( role, role, role,

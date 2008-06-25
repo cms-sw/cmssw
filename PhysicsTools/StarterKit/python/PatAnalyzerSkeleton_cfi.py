@@ -1,6 +1,6 @@
 import FWCore.ParameterSet.Config as cms
 
-patAnalyzerSkeleton = cms.EDFilter("PatAnalyzerSkeleton",
+patAnalyzerSkeleton = cms.EDAnalyzer("PatAnalyzerSkeleton",
     electronTag = cms.untracked.InputTag("selectedLayer1Electrons"),
     tauTag = cms.untracked.InputTag("selectedLayer1Taus"),
     muonTag = cms.untracked.InputTag("selectedLayer1Muons"),
