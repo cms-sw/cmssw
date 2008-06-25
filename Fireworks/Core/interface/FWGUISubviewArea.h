@@ -16,7 +16,7 @@
 //
 // Original Author:  Chris Jones
 //         Created:  Fri Feb 15 14:13:29 EST 2008
-// $Id: FWGUISubviewArea.h,v 1.2 2008/03/16 15:23:49 chrjones Exp $
+// $Id: FWGUISubviewArea.h,v 1.3 2008/06/20 20:29:37 chrjones Exp $
 //
 
 // system include files
@@ -28,7 +28,7 @@
 class TGSplitFrame;
 class TGButton;
 
-class FWGUISubviewArea : public TGHorizontalFrame
+class FWGUISubviewArea : public TGVerticalFrame
 {
 
    public:
@@ -43,12 +43,17 @@ class FWGUISubviewArea : public TGHorizontalFrame
    
       // ---------- static member functions --------------------
       static const TGPicture * swapIcon();
+      static const TGPicture * undockIcon();
+      static const TGPicture * closeIcon();
    
       // ---------- member functions ---------------------------
       void swapToBigView();
-    
+      void destroy();
+      void undock();
+   
       void setIndex(unsigned int iIndex);   
       sigc::signal<void,unsigned int> swappedToBigView_;
+      sigc::signal<void,unsigned int> goingToBeDestroyed_;
    private:
       FWGUISubviewArea(const FWGUISubviewArea&); // stop default
 
@@ -58,6 +63,9 @@ class FWGUISubviewArea : public TGHorizontalFrame
       TGSplitFrame* m_mainSplit;
       unsigned int m_index;
       TGButton* m_swapButton;
+      TGButton* m_undockButton;
+      TGButton* m_closeButton;
+      TGCompositeFrame* m_buttons;
 };
 
 
