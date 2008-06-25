@@ -1,8 +1,8 @@
 /*
  * \file EBPedestalOnlineClient.cc
  *
- * $Date: 2008/06/25 08:15:00 $
- * $Revision: 1.139 $
+ * $Date: 2008/06/25 11:01:45 $
+ * $Revision: 1.140 $
  * \author G. Della Ricca
  * \author F. Cossutti
  *
@@ -65,8 +65,6 @@ EBPedestalOnlineClient::EBPedestalOnlineClient(const ParameterSet& ps) {
     int ism = superModules_[i];
 
     h03_[ism-1] = 0;
-
-    meh03_[ism-1] = 0;
 
   }
 
@@ -191,8 +189,6 @@ void EBPedestalOnlineClient::cleanup(void) {
     }
 
     h03_[ism-1] = 0;
-
-    meh03_[ism-1] = 0;
 
   }
 
@@ -327,8 +323,6 @@ void EBPedestalOnlineClient::analyze(void) {
     sprintf(histo, (prefixME_ + "/EBPedestalOnlineTask/Gain12/EBPOT pedestal %s G12").c_str(), Numbers::sEB(ism).c_str());
     me = dqmStore_->get(histo);
     h03_[ism-1] = UtilsClient::getHisto<TProfile2D*>( me, cloneME_, h03_[ism-1] );
-    meh03_[ism-1] = me;
-
     if ( meg03_[ism-1] ) meg03_[ism-1]->Reset();
     if ( mep03_[ism-1] ) mep03_[ism-1]->Reset();
     if ( mer03_[ism-1] ) mer03_[ism-1]->Reset();
@@ -413,14 +407,19 @@ void EBPedestalOnlineClient::analyze(void) {
 
 void EBPedestalOnlineClient::softReset(bool flag) {
 
+  char histo[200];
+
   for ( unsigned int i=0; i<superModules_.size(); i++ ) {
 
     int ism = superModules_[i];
 
+    sprintf(histo, (prefixME_ + "/EBPedestalOnlineTask/Gain12/EBPOT pedestal %s G12").c_str(), Numbers::sEB(ism).c_str());
+    MonitorElement* me = dqmStore_->get(histo);
+
     if ( flag ) {
-      if ( meh03_[ism-1] ) dqmStore_->softReset(meh03_[ism-1]);
+      if ( me ) dqmStore_->softReset(me);
     } else {
-//      if ( meh03_[ism-1] ) dqmStore_->disableSoftReset(meh03_[ism-1]);
+//      if ( me ) dqmStore_->disableSoftReset(me);
     }
 
   } 	 

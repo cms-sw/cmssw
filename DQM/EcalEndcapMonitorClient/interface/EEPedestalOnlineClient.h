@@ -4,8 +4,8 @@
 /*
  * \file EEPedestalOnlineClient.h
  *
- * $Date: 2008/06/25 08:11:59 $
- * $Revision: 1.20 $
+ * $Date: 2008/06/25 08:15:01 $
+ * $Revision: 1.21 $
  * \author G. Della Ricca
  * \author F. Cossutti
  *
@@ -91,8 +91,6 @@ bool enableCleanup_;
 std::vector<int> superModules_;
 
 DQMStore* dqmStore_;
-
-MonitorElement* meh03_[18];
 
 TProfile2D* h03_[18];
 

@@ -69,8 +69,6 @@ EEPedestalOnlineClient::EEPedestalOnlineClient(const ParameterSet& ps) {
 
     h03_[ism-1] = 0;
 
-    meh03_[ism-1] = 0;
-
   }
 
   for ( unsigned int i=0; i<superModules_.size(); i++ ) {
@@ -203,8 +201,6 @@ void EEPedestalOnlineClient::cleanup(void) {
     }
 
     h03_[ism-1] = 0;
-
-    meh03_[ism-1] = 0;
 
   }
 
@@ -348,7 +344,6 @@ void EEPedestalOnlineClient::analyze(void) {
     sprintf(histo, (prefixME_ + "/EEPedestalOnlineTask/Gain12/EEPOT pedestal %s G12").c_str(), Numbers::sEE(ism).c_str());
     me = dqmStore_->get(histo);
     h03_[ism-1] = UtilsClient::getHisto<TProfile2D*>( me, cloneME_, h03_[ism-1] );
-    meh03_[ism-1] = me;
 
     if ( meg03_[ism-1] ) meg03_[ism-1]->Reset();
     if ( mep03_[ism-1] ) mep03_[ism-1]->Reset();
@@ -452,14 +447,19 @@ void EEPedestalOnlineClient::analyze(void) {
 
 void EEPedestalOnlineClient::softReset(bool flag) {
 
+  char histo[200];
+
   for ( unsigned int i=0; i<superModules_.size(); i++ ) {
  
     int ism = superModules_[i];
 
+    sprintf(histo, (prefixME_ + "/EBPedestalOnlineTask/Gain12/EBPOT pedestal %s G12").c_str(), Numbers::sEB(ism).c_str());
+    MonitorElement* me = dqmStore_->get(histo);
+
     if ( flag ) {
-      if ( meh03_[ism-1] ) dqmStore_->softReset(meh03_[ism-1]);       
+      if ( me ) dqmStore_->softReset(me);
     } else {
-//      if ( meh03_[ism-1] ) dqmStore_->disableSoftReset(meh03_[ism-1]);
+//      if ( me ) dqmStore_->disableSoftReset(me);
     }
 
   }
