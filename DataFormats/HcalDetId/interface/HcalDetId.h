@@ -2,6 +2,7 @@
 #define DATAFORMATS_HCALDETID_HCALDETID_H 1
 
 #include <ostream>
+#include <iostream>
 #include "DataFormats/DetId/interface/DetId.h"
 #include "DataFormats/HcalDetId/interface/HcalSubdetector.h"
 
@@ -9,8 +10,8 @@
 /** \class HcalDetId
  *  Cell identifier class for the HCAL subdetectors, precision readout cells only
  *
- *  $Date: 2007/07/31 15:20:09 $
- *  $Revision: 1.10 $
+ *  $Date: 2007/09/26 09:04:17 $
+ *  $Revision: 1.11 $
  *  \author J. Mans - Minnesota
  *
  *  Rev.1.11: A.Kubik,R.Ofierzynski: add the hashed_index
@@ -49,10 +50,33 @@ public:
   /// get the largest crystal_iphi of the crystal in front of this tower (HB and HE tower 17 only)
   int crystal_iphi_high() const;
 
+  static bool validDetId( HcalSubdetector subdet,
+			  int             tower_ieta,
+			  int             tower_iphi,
+			  int             depth       ) ;
+
   // get the hashed index
   int hashed_index() const;
 
+  uint32_t denseIndex() const { return hashed_index() ; }
+
+  static bool validDenseIndex( uint32_t din ) { return ( din < kSizeForDenseIndexing ) ; }
+
+  static HcalDetId detIdFromDenseIndex( uint32_t di ) ;
+
   static const HcalDetId Undefined;
+
+   private:
+
+      enum { kHBhalf = 1296 ,
+	     kHEhalf = 1296 ,
+	     kHOhalf = 1080 ,
+	     kHFhalf = 864  ,
+	     kHcalhalf = kHBhalf + kHEhalf + kHOhalf + kHFhalf } ;
+
+   public:
+
+      enum { kSizeForDenseIndexing = 2*kHcalhalf } ;
 
 };
 

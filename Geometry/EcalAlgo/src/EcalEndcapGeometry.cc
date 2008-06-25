@@ -27,11 +27,11 @@ EcalEndcapGeometry::initialize()
   unsigned nP=0;
   unsigned nN=0;
   m_nref = 0 ;
-  for( CaloSubdetectorGeometry::CellCont::const_iterator i ( cellGeometries().begin() ) ; 
-       i != cellGeometries().end(); ++i )
+
+  for( uint32_t i ( 0 ) ; i != cellGeometries().size() ; ++i )
   {
 //      addCrystalToZGridmap(i->first,dynamic_cast<const TruncatedPyramid*>(i->second));
-     float z=dynamic_cast<const TruncatedPyramid*>(i->second)->getPosition(0.).z();
+     float z=dynamic_cast<const TruncatedPyramid*>(cellGeometries()[i])->getPosition(0.).z();
      if(z>0.)
      {
 	zeP+=z;
@@ -42,7 +42,7 @@ EcalEndcapGeometry::initialize()
 	zeN+=z;
 	++nN;
      }
-     const EEDetId myId ( i->first ) ;
+     const EEDetId myId ( getValidDetIds()[i] ) ;
      const unsigned int ix ( myId.ix() ) ;
      const unsigned int iy ( myId.iy() ) ;
      if( abs( ix ) > m_nref ) m_nref = abs( ix ) ;
@@ -52,23 +52,22 @@ EcalEndcapGeometry::initialize()
   zeN/=(float)nN;
 
   m_href = 0 ;
-  for( CaloSubdetectorGeometry::CellCont::const_iterator i ( cellGeometries().begin() ) ; 
-       i != cellGeometries().end(); ++i )
+  for( uint32_t i ( 0 ) ; i != cellGeometries().size() ; ++i )
   {
-     const EEDetId myId ( i->first ) ;
+     const EEDetId myId ( getValidDetIds()[i] ) ;
      const unsigned int ix ( myId.ix() ) ;
      const unsigned int iy ( myId.iy() ) ;
      if( ix == m_nref ) 
      {
 	const GlobalPoint p ( dynamic_cast<const TruncatedPyramid*>
-			      (i->second)->getPosition(0.)  ) ;
+			      (cellGeometries()[i])->getPosition(0.)  ) ;
 	const float x ( p.x()*fabs(zeP/p.z()) ) ;
 	if( m_href < x ) m_href = x ;
      }
      if( iy == m_nref ) 
      {
 	const GlobalPoint p ( dynamic_cast<const TruncatedPyramid*>
-			      (i->second)->getPosition(0.)  ) ;
+			      (cellGeometries()[i])->getPosition(0.)  ) ;
 	const float x ( p.y()*fabs(zeP/p.z()) ) ;
 	if( m_href < x ) m_href = x ;
      }

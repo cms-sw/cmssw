@@ -6,6 +6,7 @@
 #include "Geometry/Records/interface/IdealGeometryRecord.h"
 #include "Geometry/Records/interface/EcalPreshowerGeometryRecord.h"
 #include "CondFormats/AlignmentRecord/interface/ESAlignmentRcd.h"
+#include "DataFormats/EcalDetId/interface/ESDetId.h"
 #include <vector>
 
 class EcalPreshowerGeometry : public CaloSubdetectorGeometry
@@ -20,7 +21,7 @@ class EcalPreshowerGeometry : public CaloSubdetectorGeometry
       typedef CaloSubdetectorGeometry::ParVec ParVec ;
       typedef CaloSubdetectorGeometry::ParVecVec ParVecVec ;
 
-      enum CornersCount { k_NumberOfCellsForCorners = 137216 } ;
+      enum { k_NumberOfCellsForCorners = ESDetId::kSizeForDenseIndexing } ;
 
       EcalPreshowerGeometry() ;
   

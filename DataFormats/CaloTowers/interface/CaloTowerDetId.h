@@ -7,8 +7,8 @@
  *   
  * CaloTowerDetId uses DetId::Det of Calo and subdetId() of 1.
  *
- * $Date: 2006/07/26 18:20:37 $
- * $Revision: 1.4 $
+ * $Date: 2006/08/29 13:41:25 $
+ * $Revision: 1.5 $
  * \author J. Mans - Minnesota
  */
 class CaloTowerDetId : public DetId {
@@ -34,6 +34,33 @@ public:
   int iphi() const;
 
   static const int SubdetId = 1;
+
+  static bool validDetId( int ie , int ip ) ;
+
+  uint32_t denseIndex() const ;
+
+  static CaloTowerDetId detIdFromDenseIndex( uint32_t din ) ;
+
+  static bool  validDenseIndex(     uint32_t din ) { return ( din < kSizeForDenseIndexing ) ; }
+
+      enum { kMaxIEta = 41 ,
+	     kMaxIPhi = 72 ,
+	     kBarNPhi = kMaxIPhi ,
+	     kEndNPhi = kMaxIPhi/2 ,
+	     kForNPhi = kMaxIPhi/4 ,
+	     kBarIEta = 20 ,
+	     kEndIEta = 39 ,
+	     kForIEta = kMaxIEta ,
+	     kBarNEta = kBarIEta ,
+	     kEndNEta = kEndIEta - kBarNEta ,
+	     kForNEta = kForIEta - kEndIEta ,
+	     kBarNTot = kBarNPhi*kBarNEta   ,
+	     kEndNTot = kEndNPhi*kEndNEta   ,
+	     kForNTot = kForNPhi*kForNEta   ,
+	     kAllNTot = kBarNTot + kEndNTot + kForNTot ,
+	     kNIndex  = 2*kAllNTot } ;
+
+      enum { kSizeForDenseIndexing = kNIndex } ;
 
 };
 

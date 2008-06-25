@@ -15,15 +15,15 @@ Base class for a geometry container for a specific calorimetry
 subdetector.
 
 
-$Date: 2007/09/21 06:08:06 $
-$Revision: 1.13 $
+$Date: 2008/02/29 14:52:51 $
+$Revision: 1.15 $
 \author J. Mans - Minnesota
 */
 class CaloSubdetectorGeometry {
 
    public:
 
-      typedef  __gnu_cxx::hash_map< unsigned int, const CaloCellGeometry *> CellCont;
+      typedef  std::vector< const CaloCellGeometry * > CellCont;
 
       typedef std::set<DetId>       DetIdSet;
 
@@ -38,12 +38,11 @@ class CaloSubdetectorGeometry {
       /// The base class DOES assume that it owns the CaloCellGeometry objects
       virtual ~CaloSubdetectorGeometry();
 
-   public:
       /// the cells
       const CellCont& cellGeometries() const { return m_cellG ; }  
 
       /// Add a cell to the geometry
-      void addCell( const DetId& id, 
+      void addCell( const DetId&            id, 
 		    const CaloCellGeometry* ccg ) ;
 
       /// is this detid present in the geometry?
@@ -56,8 +55,9 @@ class CaloSubdetectorGeometry {
 	  \note The implementation in this class is relevant for SubdetectorGeometries which handle only
 	  a single subdetector at a time.  It does not look at the det and subdet arguments.
       */
-      virtual const std::vector<DetId>& getValidDetIds( DetId::Detector det, 
-							int subdet  ) const ;
+      virtual const std::vector<DetId>& getValidDetIds( DetId::Detector det    = DetId::Detector(0) , 
+							int             subdet = 0  ) const 
+      { return m_validIds ; }
 
       // Get closest cell, etc...
       virtual DetId getClosestCell( const GlobalPoint& r ) const ;
@@ -86,8 +86,6 @@ class CaloSubdetectorGeometry {
 
       ParVecVec m_parVecVec ;
 
-      mutable std::vector<DetId> m_validIds ;
-
       static double deltaR( const GlobalPoint& p1,
 			    const GlobalPoint& p2  ) 
       { return reco::deltaR( p1, p2 ) ; }
@@ -104,6 +102,7 @@ class CaloSubdetectorGeometry {
 
       CellCont m_cellG ;    
 
+      std::vector<DetId> m_validIds ;
 };
 
 

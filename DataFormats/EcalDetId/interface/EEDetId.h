@@ -10,12 +10,12 @@
  *  Crystal/cell identifier class for the ECAL endcap
  *
  *
- *  $Id: EEDetId.h,v 1.15 2008/03/03 15:20:05 ferriff Exp $
+ *  $Id: EEDetId.h,v 1.16 2008/03/26 15:33:55 heltsley Exp $
  */
 
 
 class EEDetId : public DetId {
-   public:
+   public: 
       enum { Subdet=EcalEndcap};
       /** Constructor of a null id */
       EEDetId() {}
@@ -53,12 +53,13 @@ class EEDetId : public DetId {
       static EEDetId idOuterRing( int iPhi , int zEnd ) ;
 
       /// get a compact index for arrays
-      int hashedIndex() const 
-      {
-	 return ( iy() - nBegin[ ix() - 1 ] + 
-		  nIntegral[ ix() - 1 ]  + 
-		  ( positiveZ() ? ICR_FEE : 0 ) ) ;
-      }
+      int hashedIndex() const ;
+
+      uint32_t denseIndex() const { return hashedIndex() ; }
+
+      static bool validDenseIndex( uint32_t din ) { return validHashIndex( din ) ; }
+
+      static EEDetId detIdFromDenseIndex( uint32_t din ) { return unhashIndex( din ) ; }
 
       static bool isNextToBoundary(     EEDetId id ) ;
 
@@ -70,7 +71,7 @@ class EEDetId : public DetId {
       static EEDetId unhashIndex( int hi ) ;
 
       /// check if a valid hash index
-      static bool validHashIndex( int i ) ;
+      static bool validHashIndex( int i ) { return ( i < kSizeForDenseIndexing ) ; }
 
       /// check if a valid index combination
       static bool validDetId( int i, int j, int iz ) ;
@@ -84,13 +85,9 @@ class EEDetId : public DetId {
       static const int ISC_MAX=316;
       static const int ICR_MAX=25;
 
-      // to speed up hashedIndex()
-      static const int ICR_FD   =3870;
-      static const int ICR_FEE  =7740;
-      static const int SIZE_HASH=2*ICR_FEE;
-      static const int MIN_HASH =  0; // always 0 ...
-      static const int MAX_HASH =  2*ICR_FEE-1;
- 
+
+      enum { kEEhalf = 7324 ,
+	     kSizeForDenseIndexing = 2*kEEhalf } ;
 
       // function modes for (int, int) constructor
       static const int XYMODE        = 0;
@@ -109,8 +106,8 @@ class EEDetId : public DetId {
       static const int QuadColLimits[nCols+1];
       static const int iYoffset[nCols+1];
 
-      static const int nBegin[IX_MAX];
-      static const int nIntegral[IX_MAX];
+      static const unsigned short kxf[2*IY_MAX] ;
+      static const unsigned short kdi[2*IY_MAX] ;
   
       int ix( int iSC, int iCrys ) const;
       int iy( int iSC, int iCrys ) const;
