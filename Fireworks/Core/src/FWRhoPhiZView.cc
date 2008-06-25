@@ -8,7 +8,7 @@
 //
 // Original Author:  Chris Jones
 //         Created:  Tue Feb 19 10:33:25 EST 2008
-// $Id: FWRhoPhiZView.cc,v 1.16 2008/06/23 23:00:18 dmytro Exp $
+// $Id: FWRhoPhiZView.cc,v 1.17 2008/06/24 07:40:43 dmytro Exp $
 //
 
 #define private public
@@ -178,6 +178,8 @@ m_cameraMatrix(0)
 
 FWRhoPhiZView::~FWRhoPhiZView()
 {
+   delete m_viewer;
+   delete m_projMgr;
 }
 
 //
