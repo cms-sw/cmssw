@@ -45,15 +45,14 @@ bool MCLongLivedParticles::filter(edm::Event& iEvent, const edm::EventSetup& iSe
       if((*p)->production_vertex()!=0&&(*p)->end_vertex()!=0)
 	{
 	  float dist = sqrt((((*p)->production_vertex())->position().x()-((*p)->end_vertex())->position().x())*(((*p)->production_vertex())->position().x()-((*p)->end_vertex())->position().x())+
-			    (((*p)->production_vertex())->position().y()-((*p)->end_vertex())->position().y())*(((*p)->production_vertex())->position().y()-((*p)->end_vertex())->position().y())+
-			    (((*p)->production_vertex())->position().z()-((*p)->end_vertex())->position().z())*(((*p)->production_vertex())->position().z()-((*p)->end_vertex())->position().z()));
+			    (((*p)->production_vertex())->position().y()-((*p)->end_vertex())->position().y())*(((*p)->production_vertex())->position().y()-((*p)->end_vertex())->position().y()));
 	  if(dist>theCut)
 	    pass=true;
 	}
       
       if((*p)->production_vertex()==0&&!(*p)->end_vertex()!=0)
 	{
-	  if(((*p)->end_vertex())->position().mag()>theCut)
+	  if(((*p)->end_vertex())->position().perp()>theCut)
 	    pass=true;
 	}
       
