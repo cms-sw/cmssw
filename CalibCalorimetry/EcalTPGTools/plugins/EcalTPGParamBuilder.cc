@@ -1,6 +1,6 @@
 #include "EcalTPGParamBuilder.h"
 
-#include "CalibCalorimetry/EcalTPGTools/interface/EcalTPGDBApp.h"
+#include "CalibCalorimetry/EcalTPGTools/plugins/EcalTPGDBApp.h"
 
 
 #include "Geometry/CaloGeometry/interface/CaloGeometry.h"
