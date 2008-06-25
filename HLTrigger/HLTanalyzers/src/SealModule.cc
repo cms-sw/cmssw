@@ -5,7 +5,6 @@
 #include "FWCore/Framework/interface/MakerMacros.h"
 #include "FWCore/Framework/interface/SourceFactory.h"
 
-#include "HLTrigger/HLTanalyzers/interface/L1TrigReport.h"
 #include "HLTrigger/HLTanalyzers/interface/HLTrigReport.h"
 
 #include "DataFormats/EgammaCandidates/interface/ElectronFwd.h"
@@ -18,11 +17,8 @@
 #include "HLTrigger/HLTanalyzers/interface/HLTGetDigi.h"
 #include "HLTrigger/HLTanalyzers/interface/HLTGetRaw.h"
 
-DEFINE_SEAL_MODULE();
+DEFINE_FWK_MODULE(HLTrigReport);
 
-DEFINE_ANOTHER_FWK_MODULE(L1TrigReport);
-DEFINE_ANOTHER_FWK_MODULE(HLTrigReport);
-
-DEFINE_ANOTHER_FWK_MODULE(HLTAnalyzer);
-DEFINE_ANOTHER_FWK_MODULE(HLTGetDigi);
-DEFINE_ANOTHER_FWK_MODULE(HLTGetRaw);
+DEFINE__FWK_MODULE(HLTAnalyzer);
+DEFINE__FWK_MODULE(HLTGetDigi);
+DEFINE__FWK_MODULE(HLTGetRaw);
