@@ -101,6 +101,9 @@ namespace stor
     void setArchiveDQM(bool archiveDQM)
     { dqmServiceManager_->setArchiveDQM(archiveDQM); }
 
+    void setArchiveIntervalDQM(int archiveInterval)
+    { dqmServiceManager_->setArchiveInterval(archiveInterval); }
+
     void setPurgeTimeDQM(int purgeTimeDQM)
     { dqmServiceManager_->setPurgeTime(purgeTimeDQM);}
 

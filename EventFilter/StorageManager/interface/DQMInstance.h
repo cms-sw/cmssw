@@ -8,7 +8,7 @@
      Container class for one snapshot instance of a collection of 
      collated DQM objects
 
-   $Id: DQMInstance.h,v 1.4 2007/06/11 10:04:58 badgett Exp $
+   $Id: DQMInstance.h,v 1.5.4.1 2008/06/18 19:24:20 biery Exp $
 */
 
 #include <string>
@@ -91,6 +91,7 @@ namespace stor
 		       int         eventNumber);
       int writeFile(std::string filePrefix);
       DQMGroup * getDQMGroup(std::string groupName);
+      bool isReady(int currentTime);
       bool isStale(int currentTime);
       std::map<std::string, DQMGroup *> dqmGroups_;
 

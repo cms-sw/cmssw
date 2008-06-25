@@ -1,3 +1,32 @@
+2008-06-25  Kurt Biery <biery@fnal.gov>
+
+	* tag V03-12-11
+	* Fixed bugs in DQM histogram serving and archiving.
+	* Added archiveIntervalDQM configuration parameter to control how often
+	  we archive DQM histograms (once every N lumi sections, where
+	  archiveIntervalDQM = N).
+	* Slightly modified format of DQM archive filenames.
+
+2008-06-23 Constantin Loizides <loizides@mit.edu>
+
+	* tag V03-12-10
+	* Bugfix to handle large files (>2GB).
+
+2008-06-16  Kurt Biery <biery@fnal.gov>
+
+	* tag V03-12-09
+	* Cleanup of the scripts subdirectories and modification of the scripts to
+	  match what was run for Cruzet2 (full blown separate DB and new DB scheme 
+          handling).  [from Constantin]
+	* Modification of the EventServer to match what was run in
+	  Cruzet2 (fair-share off, rates limited at the EventServer input, and 
+	  events for consumers restricted to a single HLT output module).
+
+2008-06-?? Constantin Loizides <loizides@mit.edu>
+
+	* tag V03-12-08
+	* 
+
 2008-06-03  Harry Cheung <cheung@fnal.gov>
 
 	* tag V03-12-07

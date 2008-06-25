@@ -1,4 +1,4 @@
-// $Id: StorageManager.cc,v 1.62 2008/06/12 16:06:15 biery Exp $
+// $Id: StorageManager.cc,v 1.63 2008/06/23 09:37:07 loizides Exp $
 
 #include <iostream>
 #include <iomanip>
@@ -96,6 +96,7 @@ StorageManager::StorageManager(xdaq::ApplicationStub * s)
   pushMode_(false), 
   collateDQM_(false),
   archiveDQM_(false),
+  archiveIntervalDQM_(0),
   filePrefixDQM_("/tmp/DQM"),
   purgeTimeDQM_(DEFAULT_PURGE_TIME),
   readyTimeDQM_(DEFAULT_READY_TIME),
@@ -187,6 +188,7 @@ StorageManager::StorageManager(xdaq::ApplicationStub * s)
   ispace->fireItemAvailable("pushMode2Proxy", &pushmode2proxy_);
   ispace->fireItemAvailable("collateDQM",     &collateDQM_);
   ispace->fireItemAvailable("archiveDQM",     &archiveDQM_);
+  ispace->fireItemAvailable("archiveIntervalDQM",  &archiveIntervalDQM_);
   ispace->fireItemAvailable("purgeTimeDQM",   &purgeTimeDQM_);
   ispace->fireItemAvailable("readyTimeDQM",   &readyTimeDQM_);
   ispace->fireItemAvailable("filePrefixDQM",       &filePrefixDQM_);
@@ -3903,6 +3905,7 @@ void StorageManager::setupFlashList()
   is->fireItemAvailable("pushMode2Proxy",       &pushmode2proxy_);
   is->fireItemAvailable("collateDQM",           &collateDQM_);
   is->fireItemAvailable("archiveDQM",           &archiveDQM_);
+  is->fireItemAvailable("archiveIntervalDQM",   &archiveIntervalDQM_);
   is->fireItemAvailable("purgeTimeDQM",         &purgeTimeDQM_);
   is->fireItemAvailable("readyTimeDQM",         &readyTimeDQM_);
   is->fireItemAvailable("filePrefixDQM",        &filePrefixDQM_);
@@ -3958,6 +3961,7 @@ void StorageManager::setupFlashList()
   is->addItemRetrieveListener("pushMode2Proxy",       this);
   is->addItemRetrieveListener("collateDQM",           this);
   is->addItemRetrieveListener("archiveDQM",           this);
+  is->addItemRetrieveListener("archiveIntervalDQM",   this);
   is->addItemRetrieveListener("purgeTimeDQM",         this);
   is->addItemRetrieveListener("readyTimeDQM",         this);
   is->addItemRetrieveListener("filePrefixDQM",        this);
@@ -4253,6 +4257,7 @@ bool StorageManager::configuring(toolbox::task::WorkLoop* wl)
 
       jc_->setCollateDQM(collateDQM_);
       jc_->setArchiveDQM(archiveDQM_);
+      jc_->setArchiveIntervalDQM(archiveIntervalDQM_);
       jc_->setPurgeTimeDQM(purgeTimeDQM_);
       jc_->setReadyTimeDQM(readyTimeDQM_);
       jc_->setFilePrefixDQM(filePrefixDQM_);

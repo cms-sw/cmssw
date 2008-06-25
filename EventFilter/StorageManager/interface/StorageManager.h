@@ -10,7 +10,7 @@
 
      See CMS EventFilter wiki page for further notes.
 
-   $Id: StorageManager.h,v 1.33 2008/06/03 23:48:10 hcheung Exp $
+   $Id: StorageManager.h,v 1.34 2008/06/12 16:02:38 biery Exp $
 */
 
 #include <string>
@@ -159,6 +159,7 @@ namespace stor {
 
     xdata::Boolean collateDQM_;
     xdata::Boolean archiveDQM_;
+    xdata::Integer archiveIntervalDQM_;
     xdata::String  filePrefixDQM_;
     xdata::Integer purgeTimeDQM_;
     xdata::Integer readyTimeDQM_;
@@ -258,7 +259,7 @@ namespace stor {
     enum
     {
       DEFAULT_PURGE_TIME = 120,
-      DEFAULT_READY_TIME = 10
+      DEFAULT_READY_TIME = 30
     };
 
   }; 

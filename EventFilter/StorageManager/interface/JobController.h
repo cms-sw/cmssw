@@ -1,6 +1,6 @@
 #ifndef HLT_JOB_CNTLER_HPP
 #define HLT_JOB_CNTLER_HPP
-// $Id: JobController.h,v 1.18 2008/01/29 21:10:05 biery Exp $
+// $Id: JobController.h,v 1.19 2008/05/11 13:49:18 hcheung Exp $
 
 #include "EventFilter/StorageManager/interface/FragmentCollector.h"
 #include "EventFilter/StorageManager/interface/EventServer.h"
@@ -69,6 +69,9 @@ namespace stor
     void setSourceId(std::string sourceId)    { collector_->setSourceId(sourceId); }
     void setCollateDQM(bool collateDQM)       { collector_->setCollateDQM(collateDQM);}
     void setArchiveDQM(bool archiveDQM)       { collector_->setArchiveDQM(archiveDQM);}
+    void setArchiveIntervalDQM(int archiveInterval) {
+      collector_->setArchiveIntervalDQM(archiveInterval);
+    }
     void setPurgeTimeDQM(int purgeTimeDQM)    { collector_->setPurgeTimeDQM(purgeTimeDQM);}
     void setReadyTimeDQM(int readyTimeDQM)    { collector_->setReadyTimeDQM(readyTimeDQM);}
     void setFilePrefixDQM(std::string filePrefixDQM)  { collector_->setFilePrefixDQM(filePrefixDQM);}
