@@ -13,14 +13,16 @@ public:
   explicit CastorGeometry(const CastorTopology * topology);
   virtual ~CastorGeometry();
   
-  virtual std::vector<DetId> const & getValidDetIds(DetId::Detector det, int subdet);
+  virtual const std::vector<DetId>& getValidDetIds( DetId::Detector det    = DetId::Detector ( 0 ) ,
+						    int             subdet = 0 ) const ;
+
   virtual DetId getClosestCell(const GlobalPoint& r) const ;
 
 private:
   const CastorTopology * theTopology;
   mutable DetId::Detector lastReqDet_;
   mutable int lastReqSubdet_;
-  std::vector<DetId> m_validIds;
+  mutable std::vector<DetId> m_validIds;
 };
 
 

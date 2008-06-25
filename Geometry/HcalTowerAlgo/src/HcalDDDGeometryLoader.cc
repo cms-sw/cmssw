@@ -39,7 +39,7 @@ HcalDDDGeometryLoader::load(DetId::Detector det, int subdet)
 */
   if( geom->cornersMgr() == 0 ) 
   {
-     geom->allocateCorners( 2592 ) ;
+     geom->allocateCorners( HcalDetId::kSizeForDenseIndexing ) ;
   }
   if( geom->parMgr()     == 0 ) geom->allocatePar( 75, 3 ) ;
 

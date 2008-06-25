@@ -69,7 +69,7 @@ void ZdcHardcodeGeometryLoader::fill( HcalZDCDetId::Section section,
     id = HcalZDCDetId(section, false, idepth);
     if(extTopology->valid(id)) zdcIds.push_back(id);
    }
-  if( geom->cornersMgr() == 0 ) geom->allocateCorners( 1000 ) ;
+  if( geom->cornersMgr() == 0 ) geom->allocateCorners( HcalZDCDetId::kSizeForDenseIndexing ) ;
   if( geom->parMgr()     == 0 ) geom->allocatePar( 500, 3 ) ;
 
   edm::LogInfo("ZdcHardcodeGeometry") << "Number of ZDC DetIds made: " << section << " " << zdcIds.size();

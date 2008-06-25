@@ -54,7 +54,7 @@ HcalHardcodeGeometryLoader::load( DetId::Detector det,
    HcalSubdetector hsub=static_cast<HcalSubdetector>( subdet );
    ReturnType hg( new HcalGeometry( extTopology) );
 
-   if( hg->cornersMgr() == 0 ) hg->allocateCorners( 9072 ) ;
+   if( hg->cornersMgr() == 0 ) hg->allocateCorners( HcalDetId::kSizeForDenseIndexing ) ;
    if( hg->parMgr()     == 0 ) hg->allocatePar( 500, 3 ) ;
 
    switch (hsub) 
@@ -73,7 +73,7 @@ HcalHardcodeGeometryLoader::load()
 {
    ReturnType hg( new HcalGeometry( extTopology ) ) ;
 
-   if( hg->cornersMgr() == 0 ) hg->allocateCorners( 9072 ) ;
+   if( hg->cornersMgr() == 0 ) hg->allocateCorners( HcalDetId::kSizeForDenseIndexing ) ;
    if( hg->parMgr()     == 0 ) hg->allocatePar( 500, 3 ) ;
 
    fill(HcalBarrel,  extTopology->firstHBRing(), extTopology->lastHBRing(), hg); 
