@@ -4,8 +4,8 @@
 /*
  * \file EEPedestalOnlineClient.h
  *
- * $Date: 2008/06/25 12:57:03 $
- * $Revision: 1.22 $
+ * $Date: 2008/06/25 14:16:16 $
+ * $Revision: 1.23 $
  * \author G. Della Ricca
  * \author F. Cossutti
  *
@@ -68,7 +68,7 @@ void softReset(bool flag);
 void htmlOutput(int run, std::string& htmlDir, std::string& htmlName);
 
 /// WriteDB
-bool writeDb(EcalCondDBInterface* econn, RunIOV* runiov, MonRunIOV* moniov, bool flag);
+bool writeDb(EcalCondDBInterface* econn, RunIOV* runiov, MonRunIOV* moniov, bool& status, bool flag);
 
 /// Get Functions
 inline int getEvtPerJob() { return ievt_; }

@@ -1,8 +1,8 @@
 /*
  * \file EEBeamCaloClient.cc
  *
- * $Date: 2008/06/25 08:15:01 $
- * $Revision: 1.52 $
+ * $Date: 2008/06/25 14:16:16 $
+ * $Revision: 1.53 $
  * \author G. Della Ricca
  * \author A. Ghezzi
  *
@@ -235,9 +235,11 @@ void EEBeamCaloClient::cleanup(void) {
   meEEBCaloRedGreenSteps_ = 0;
 }
 
-bool EEBeamCaloClient::writeDb(EcalCondDBInterface* econn, RunIOV* runiov, MonRunIOV* moniov, bool flag) {
+bool EEBeamCaloClient::writeDb(EcalCondDBInterface* econn, RunIOV* runiov, MonRunIOV* moniov, bool& status, bool flag) {
 
-  bool status = true;
+  status = true;
+
+  if ( ! flag ) return false;
 
   EcalLogicID ecid;
 
@@ -327,7 +329,7 @@ bool EEBeamCaloClient::writeDb(EcalCondDBInterface* econn, RunIOV* runiov, MonRu
     }
   }
 
-  return status;
+  return true;
 
 }
 

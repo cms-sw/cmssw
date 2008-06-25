@@ -1,8 +1,8 @@
 /*
  * \file EBLaserClient.cc
  *
- * $Date: 2008/06/25 08:15:00 $
- * $Revision: 1.237 $
+ * $Date: 2008/06/25 14:16:15 $
+ * $Revision: 1.238 $
  * \author G. Della Ricca
  * \author G. Franzoni
  *
@@ -1001,9 +1001,11 @@ void EBLaserClient::cleanup(void) {
 
 }
 
-bool EBLaserClient::writeDb(EcalCondDBInterface* econn, RunIOV* runiov, MonRunIOV* moniov, bool flag) {
+bool EBLaserClient::writeDb(EcalCondDBInterface* econn, RunIOV* runiov, MonRunIOV* moniov, bool& status, bool flag) {
 
-  bool status = true;
+  status = true;
+
+  if ( ! flag ) return false;
 
   EcalLogicID ecid;
 
@@ -1963,7 +1965,7 @@ bool EBLaserClient::writeDb(EcalCondDBInterface* econn, RunIOV* runiov, MonRunIO
   }
 */
 
-  return status;
+  return true;
 
 }
 

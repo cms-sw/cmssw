@@ -1,8 +1,8 @@
 /*
  * \file EEOccupancyClient.cc
  *
- * $Date: 2008/06/25 08:15:01 $
- * $Revision: 1.25 $
+ * $Date: 2008/06/25 14:16:17 $
+ * $Revision: 1.26 $
  * \author G. Della Ricca
  * \author F. Cossutti
  *
@@ -168,11 +168,13 @@ void EEOccupancyClient::cleanup(void) {
 
 }
 
-bool EEOccupancyClient::writeDb(EcalCondDBInterface* econn, RunIOV* runiov, MonRunIOV* moniov, bool flag) {
+bool EEOccupancyClient::writeDb(EcalCondDBInterface* econn, RunIOV* runiov, MonRunIOV* moniov, bool& status, bool flag) {
 
-  bool status = true;
+  status = true;
 
-  return status;
+  if ( ! flag ) return false;
+
+  return true;
 
 }
 

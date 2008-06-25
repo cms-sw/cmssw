@@ -1,8 +1,8 @@
 /*
  * \file EEBeamHodoClient.cc
  *
- * $Date: 2008/06/25 08:15:01 $
- * $Revision: 1.34 $
+ * $Date: 2008/06/25 14:16:16 $
+ * $Revision: 1.35 $
  * \author G. Della Ricca
  * \author G. Franzoni
  *
@@ -217,11 +217,13 @@ void EEBeamHodoClient::cleanup(void) {
 
 }
 
-bool EEBeamHodoClient::writeDb(EcalCondDBInterface* econn, RunIOV* runiov, MonRunIOV* moniov, bool flag) {
+bool EEBeamHodoClient::writeDb(EcalCondDBInterface* econn, RunIOV* runiov, MonRunIOV* moniov, bool& status, bool flag) {
 
-  bool status = true;
+  status = true;
 
-  return status;
+  if ( ! flag ) return false;
+
+  return true;
 
 }
 

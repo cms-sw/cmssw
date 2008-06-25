@@ -1,8 +1,8 @@
 /*
  * \file EBOccupancyClient.cc
  *
- * $Date: 2008/06/25 08:15:00 $
- * $Revision: 1.28 $
+ * $Date: 2008/06/25 14:16:15 $
+ * $Revision: 1.29 $
  * \author G. Della Ricca
  * \author F. Cossutti
  *
@@ -146,11 +146,13 @@ void EBOccupancyClient::cleanup(void) {
 
 }
 
-bool EBOccupancyClient::writeDb(EcalCondDBInterface* econn, RunIOV* runiov, MonRunIOV* moniov, bool flag) {
+bool EBOccupancyClient::writeDb(EcalCondDBInterface* econn, RunIOV* runiov, MonRunIOV* moniov, bool& status, bool flag) {
 
-  bool status = true;
+  status = true;
 
-  return status;
+  if ( ! flag ) return false;
+
+  return true;
 
 }
 

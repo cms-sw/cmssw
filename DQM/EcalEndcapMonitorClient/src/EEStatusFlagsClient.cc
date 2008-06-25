@@ -1,8 +1,8 @@
 /*
  * \file EEStatusFlagsClient.cc
  *
- * $Date: 2008/06/25 08:15:02 $
- * $Revision: 1.23 $
+ * $Date: 2008/06/25 14:16:17 $
+ * $Revision: 1.24 $
  * \author G. Della Ricca
  *
 */
@@ -138,9 +138,11 @@ void EEStatusFlagsClient::cleanup(void) {
 
 }
 
-bool EEStatusFlagsClient::writeDb(EcalCondDBInterface* econn, RunIOV* runiov, MonRunIOV* moniov, bool flag) {
+bool EEStatusFlagsClient::writeDb(EcalCondDBInterface* econn, RunIOV* runiov, MonRunIOV* moniov, bool& status, bool flag) {
 
-  bool status = true;
+  status = true;
+
+  if ( ! flag ) return false;
 
   for ( unsigned int i=0; i<superModules_.size(); i++ ) {
 
@@ -158,7 +160,7 @@ bool EEStatusFlagsClient::writeDb(EcalCondDBInterface* econn, RunIOV* runiov, Mo
 
   }
 
-  return status;
+  return true;
 
 }
 

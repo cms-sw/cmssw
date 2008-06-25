@@ -1,8 +1,8 @@
 /*
  * \file EECosmicClient.cc
  *
- * $Date: 2008/06/25 08:15:01 $
- * $Revision: 1.62 $
+ * $Date: 2008/06/25 14:16:17 $
+ * $Revision: 1.63 $
  * \author G. Della Ricca
  * \author F. Cossutti
  *
@@ -148,9 +148,11 @@ void EECosmicClient::cleanup(void) {
 
 }
 
-bool EECosmicClient::writeDb(EcalCondDBInterface* econn, RunIOV* runiov, MonRunIOV* moniov, bool flag) {
+bool EECosmicClient::writeDb(EcalCondDBInterface* econn, RunIOV* runiov, MonRunIOV* moniov, bool& status, bool flag) {
 
-  bool status = true;
+  status = true;
+
+  if ( ! flag ) return false;
 
   EcalLogicID ecid;
 
@@ -251,7 +253,7 @@ bool EECosmicClient::writeDb(EcalCondDBInterface* econn, RunIOV* runiov, MonRunI
     }
   }
 
-  return status;
+  return true;
 
 }
 

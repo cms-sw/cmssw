@@ -1,8 +1,8 @@
 /*
  * \file EBTimingClient.cc
  *
- * $Date: 2008/06/25 08:15:00 $
- * $Revision: 1.87 $
+ * $Date: 2008/06/25 14:16:16 $
+ * $Revision: 1.88 $
  * \author G. Della Ricca
  *
 */
@@ -231,9 +231,11 @@ void EBTimingClient::cleanup(void) {
 
 }
 
-bool EBTimingClient::writeDb(EcalCondDBInterface* econn, RunIOV* runiov, MonRunIOV* moniov, bool flag) {
+bool EBTimingClient::writeDb(EcalCondDBInterface* econn, RunIOV* runiov, MonRunIOV* moniov, bool& status, bool flag) {
 
-  bool status = true;
+  status = true;
+
+  if ( ! flag ) return false;
 
   EcalLogicID ecid;
 
@@ -308,7 +310,7 @@ bool EBTimingClient::writeDb(EcalCondDBInterface* econn, RunIOV* runiov, MonRunI
     }
   }
 
-  return status;
+  return true;
 
 }
 

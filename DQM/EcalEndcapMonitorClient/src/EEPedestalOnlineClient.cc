@@ -1,8 +1,8 @@
 /*
  * \file EEPedestalOnlineClient.cc
  *
- * $Date: 2008/06/25 12:57:03 $
- * $Revision: 1.79 $
+ * $Date: 2008/06/25 14:16:17 $
+ * $Revision: 1.80 $
  * \author G. Della Ricca
  * \author F. Cossutti
  *
@@ -223,9 +223,11 @@ void EEPedestalOnlineClient::cleanup(void) {
 
 }
 
-bool EEPedestalOnlineClient::writeDb(EcalCondDBInterface* econn, RunIOV* runiov, MonRunIOV* moniov, bool flag) {
+bool EEPedestalOnlineClient::writeDb(EcalCondDBInterface* econn, RunIOV* runiov, MonRunIOV* moniov, bool& status, bool flag) {
 
-  bool status = true;
+  status = true;
+
+  if ( flag ) this->softReset(true);
 
   EcalLogicID ecid;
 
@@ -309,7 +311,9 @@ bool EEPedestalOnlineClient::writeDb(EcalCondDBInterface* econn, RunIOV* runiov,
     }
   }
 
-  return status;
+  if ( ! flag ) this->softReset(true);
+
+  return true;
 
 }
 

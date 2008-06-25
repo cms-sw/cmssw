@@ -1,8 +1,8 @@
 /*
  * \file EBCosmicClient.cc
  *
- * $Date: 2008/06/25 08:15:00 $
- * $Revision: 1.115 $
+ * $Date: 2008/06/25 14:16:15 $
+ * $Revision: 1.116 $
  * \author G. Della Ricca
  * \author F. Cossutti
  *
@@ -146,9 +146,11 @@ void EBCosmicClient::cleanup(void) {
 
 }
 
-bool EBCosmicClient::writeDb(EcalCondDBInterface* econn, RunIOV* runiov, MonRunIOV* moniov, bool flag) {
+bool EBCosmicClient::writeDb(EcalCondDBInterface* econn, RunIOV* runiov, MonRunIOV* moniov, bool& status, bool flag) {
 
-  bool status = true;
+  status = true;
+
+  if ( ! flag ) return false;
 
   EcalLogicID ecid;
 
@@ -240,7 +242,7 @@ bool EBCosmicClient::writeDb(EcalCondDBInterface* econn, RunIOV* runiov, MonRunI
     }
   }
 
-  return status;
+  return true;
 
 }
 

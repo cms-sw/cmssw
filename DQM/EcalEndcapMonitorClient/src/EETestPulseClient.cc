@@ -1,8 +1,8 @@
 /*
  * \file EETestPulseClient.cc
  *
- * $Date: 2008/06/25 08:15:02 $
- * $Revision: 1.91 $
+ * $Date: 2008/06/25 14:16:17 $
+ * $Revision: 1.92 $
  * \author G. Della Ricca
  * \author F. Cossutti
  *
@@ -380,9 +380,11 @@ void EETestPulseClient::cleanup(void) {
 
 }
 
-bool EETestPulseClient::writeDb(EcalCondDBInterface* econn, RunIOV* runiov, MonRunIOV* moniov, bool flag) {
+bool EETestPulseClient::writeDb(EcalCondDBInterface* econn, RunIOV* runiov, MonRunIOV* moniov, bool& status, bool flag) {
 
-  bool status = true;
+  status = true;
+
+  if ( ! flag ) return false;
 
   EcalLogicID ecid;
 
@@ -638,7 +640,7 @@ bool EETestPulseClient::writeDb(EcalCondDBInterface* econn, RunIOV* runiov, MonR
     }
   }
 
-  return status;
+  return true;
 
 }
 

@@ -2,8 +2,8 @@
 /*
  * \file EBIntegrityClient.cc
  *
- * $Date: 2008/06/25 13:23:30 $
- * $Revision: 1.207 $
+ * $Date: 2008/06/25 14:16:15 $
+ * $Revision: 1.208 $
  * \author G. Della Ricca
  * \author G. Franzoni
  *
@@ -255,9 +255,11 @@ void EBIntegrityClient::cleanup(void) {
 
 }
 
-bool EBIntegrityClient::writeDb(EcalCondDBInterface* econn, RunIOV* runiov, MonRunIOV* moniov, bool flag) {
+bool EBIntegrityClient::writeDb(EcalCondDBInterface* econn, RunIOV* runiov, MonRunIOV* moniov, bool& status, bool flag) {
 
-  bool status = true;
+  status = true;
+
+  if ( ! flag ) return false;
 
   EcalLogicID ecid;
 
@@ -631,7 +633,7 @@ bool EBIntegrityClient::writeDb(EcalCondDBInterface* econn, RunIOV* runiov, MonR
     }
   }
 
-  return status;
+  return true;
 
 }
 

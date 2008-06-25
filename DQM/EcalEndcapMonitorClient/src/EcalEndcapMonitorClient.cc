@@ -1,8 +1,8 @@
 /*
  * \file EcalEndcapMonitorClient.cc
  *
- * $Date: 2008/06/25 08:15:02 $
- * $Revision: 1.189 $
+ * $Date: 2008/06/25 14:16:17 $
+ * $Revision: 1.190 $
  * \author G. Della Ricca
  * \author F. Cossutti
  *
@@ -1260,17 +1260,18 @@ void EcalEndcapMonitorClient::writeDb(bool flag) {
         if ( strcmp(clientsNames_[i].c_str(), "Pedestal") == 0 && runType_ != runTypes_[EcalDCCHeaderBlock::PEDESTAL_STD] && runType_ != runTypes_[EcalDCCHeaderBlock::PEDESTAL_GAP] && h_->GetBinContent(2+EcalDCCHeaderBlock::PEDESTAL_STD) == 0 && h_->GetBinContent(2+EcalDCCHeaderBlock::PEDESTAL_GAP) == 0 ) continue;
         if ( strcmp(clientsNames_[i].c_str(), "TestPulse") == 0 && runType_ != runTypes_[EcalDCCHeaderBlock::TESTPULSE_MGPA] && runType_ != runTypes_[EcalDCCHeaderBlock::TESTPULSE_GAP] && h_->GetBinContent(2+EcalDCCHeaderBlock::TESTPULSE_MGPA) == 0 && h_->GetBinContent(2+EcalDCCHeaderBlock::TESTPULSE_GAP) == 0 ) continue;
         done = true;
-        taskl |= 0x1 << clientsStatus_[clientsNames_[i]];
         if ( verbose_ ) {
           if ( econn ) {
             cout << " Writing " << clientsNames_[i] << " results to DB " << endl;
             cout << endl;
           }
         }
-        if ( clients_[i]->writeDb(econn, &runiov_, &moniov_, flag) ) {
-          tasko |= 0x1 << clientsStatus_[clientsNames_[i]];
-        } else {
-          tasko |= 0x0 << clientsStatus_[clientsNames_[i]];
+        bool status;
+        if ( clients_[i]->writeDb(econn, &runiov_, &moniov_, status, flag) ) {
+          taskl |= 0x1 << clientsStatus_[clientsNames_[i]];
+          if ( status ) {
+            tasko |= 0x1 << clientsStatus_[clientsNames_[i]];
+          }
         }
       }
     }
@@ -1283,7 +1284,8 @@ void EcalEndcapMonitorClient::writeDb(bool flag) {
     }
   }
 
-  if ( summaryClient_ ) summaryClient_->writeDb(econn, &runiov_, &moniov_, flag);
+  bool status;
+  if ( summaryClient_ ) summaryClient_->writeDb(econn, &runiov_, &moniov_, status, flag);
 
   EcalLogicID ecid;
   MonRunDat md;
