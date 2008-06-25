@@ -2,7 +2,7 @@ import FWCore.ParameterSet.Config as cms
 
 #
 # producer for photons
-# $Id: photons_cfi.py,v 1.11 2008/06/19 18:19:49 nancy Exp $
+# $Id: photons_cfi.py,v 1.12 2008/06/20 10:28:52 nancy Exp $
 #
 photons = cms.EDProducer("PhotonProducer",
     scHybridBarrelProducer = cms.InputTag("correctedHybridSuperClusters"),
@@ -29,10 +29,18 @@ photons = cms.EDProducer("PhotonProducer",
     posCalc_x0 = cms.double(0.89),
     MVA_weights_location = cms.string('RecoEgamma/EgammaTools/data/TMVAnalysis_Likelihood.weights.txt'),
     posCalc_t0_barl = cms.double(7.7),
-    minEtRecHit = cms.double(0.),
-    ecalIsolInnR = cms.double(0.1),
-    ecalIsolExtR = cms.double(0.4),
-    isolEtCut = cms.double(99999.)
+    minEtRecHitBarrel = cms.double(0.),
+    ecalIsolInnRBarrel = cms.double(0.045),
+    ecalIsolExtRBarrel = cms.double(0.4),
+    ecalIsolEtaStripBarrel = cms.double(0.02),
+#    isolEtCutBarrel = cms.double(12.),
+    isolEtCutBarrel = cms.double(99999.),
+    minEtRecHitEndcap = cms.double(0.),
+    ecalIsolInnREndcap = cms.double(0.07),
+    ecalIsolExtREndcap = cms.double(0.4),
+    ecalIsolEtaStripEndcap = cms.double(0.02),
+#    isolEtCutEndcap = cms.double(9.)
+    isolEtCutEndcap = cms.double(99999.)
                           
    
 )
