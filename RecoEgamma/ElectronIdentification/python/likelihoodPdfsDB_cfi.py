@@ -9,5 +9,6 @@ electronIdPdfs = cms.ESSource("PoolDBESSource",
     ))
 )
 
-CondDBCommon.connect = 'sqlite_fip:CondCore/SQLiteData/data/electronIdLikelihoodTkIsolated.db'
+electronIdPdfs.connect = 'sqlite_fip:CondCore/SQLiteData/data/electronIdLikelihoodTkIsolated.db'
+
 
