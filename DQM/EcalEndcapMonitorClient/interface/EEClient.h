@@ -1,11 +1,11 @@
-// $Id: EEClient.h,v 1.9 2008/03/14 14:38:57 dellaric Exp $
+// $Id: EEClient.h,v 1.10 2008/04/08 15:06:24 dellaric Exp $
 
 /*!
   \file EEClient.h
   \brief Ecal Barrel Monitor Client mom class
   \author B. Gobbo
-  \version $Revision: 1.9 $
-  \date $Date: 2008/03/14 14:38:57 $
+  \version $Revision: 1.10 $
+  \date $Date: 2008/04/08 15:06:24 $
 */
 
 
@@ -29,7 +29,7 @@ class EEClient {
   virtual void analyze(void)      = 0;
 
   /*! \fn virtual void beginJob(DQMStore* dqmStore)
-    \brief Begin of job method
+    \brief Begin of Job method
   */
   virtual void beginJob(DQMStore* dqmStore)     = 0;
 
