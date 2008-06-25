@@ -23,6 +23,8 @@ class TauElementsOperators{
   ~TauElementsOperators(){}   
   // compute size of signal cone possibly depending on E(energy) and/or ET(transverse energy) of the tau-jet candidate
   double computeConeSize(const TFormula& ConeSizeTFormula,double ConeSizeMin,double ConeSizeMax);
+
+
   TFormula computeConeSizeTFormula(const string& ConeSizeFormula,const char* errorMessage);
   void replaceSubStr(string& s,const string& oldSubStr,const string& newSubStr); 
   //return the leading (i.e. highest Pt) Track in a given cone around the jet axis or a given direction
@@ -61,6 +63,8 @@ class TauElementsOperators{
   ElementsInAnnulus<math::XYZVector,Angle<math::XYZVector>,Angle<math::XYZVector>,reco::TrackCollection> TracksinAnnulus_innerAngleouterAnglemetrics_;
   ElementsInAnnulus<math::XYZVector,Angle<math::XYZVector>,DeltaR<math::XYZVector>,reco::TrackCollection> TracksinAnnulus_innerAngleouterDRmetrics_; 
 };
+
+
 #endif
 
 // * different possible metrics for a cone : "DR", "angle", "area"; 

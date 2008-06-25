@@ -34,6 +34,9 @@ TFormula TauElementsOperators::computeConeSizeTFormula(const string& ConeSizeFor
 			     << " and Functions that are supported by ROOT's TFormular Class." << endl;
   }else return ConeSizeTFormula;
 }
+
+
+
 void TauElementsOperators::replaceSubStr(string& s,const string& oldSubStr,const string& newSubStr){
   //--- protect replacement algorithm
   //    from case that oldSubStr and newSubStr are equal
