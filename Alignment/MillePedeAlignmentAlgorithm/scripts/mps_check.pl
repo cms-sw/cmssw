@@ -47,7 +47,6 @@ for ($i=0; $i<@JOBID; ++$i) {
     $stdOut = "jobData/@JOBDIR[$i]/STDOUT";
     open STDFILE,"$stdOut";
     # scan records in input file
-    $nEvent = -1;
     while ($line = <STDFILE>) {
       if (($line =~ m/CERN report: Job Killed/) eq 1) { $killed = 1;}
       if (($line =~ m/Job finished/) eq 1)  { $finished = 1; }
@@ -67,7 +66,6 @@ for ($i=0; $i<@JOBID; ++$i) {
     # open the input file
     open INFILE,"$eazeLog";
     # scan records in input file
-    $nEvent = 0;
     while ($line = <INFILE>) {
       # check if end of file has been reached
       if (($line =~ m/\<StorageStatistics\>/) eq 1) { $eofile = 1;}
@@ -78,9 +76,6 @@ for ($i=0; $i<@JOBID; ++$i) {
       if (($line =~ m/segmentation violation/) eq 1) { $segviol = 1;}
       if (($line =~ m/failed RFIO error/) eq 1) { $rfioerr = 1;}
       if (($line =~ m/Request exceeds quota/) eq 1) { $quota = 1;}
-      if (($line =~ m/\<EventsRead\> *(\d+)\<\/EventsRead\>/) eq 1) {
-	$nEvent = $nEvent + $1;
-      }
     }
     close INFILE;
 
@@ -94,7 +89,6 @@ for ($i=0; $i<@JOBID; ++$i) {
     # open the input file
     open INFILE,"$eazeLog";
     # scan records in input file
-    $nEvent = 0;
     while ($line = <INFILE>) {
       # check if end of file has been reached
       if (($line =~ m/\<StorageStatistics\>/) eq 1) { $eofile = 1;}
@@ -106,8 +100,9 @@ for ($i=0; $i<@JOBID; ++$i) {
       if (($line =~ m/failed RFIO error/) eq 1) { $rfioerr = 1;}
       if (($line =~ m/Request exceeds quota/) eq 1) { $quota = 1;}
       if (($line =~ m/Exception caught in cmsRun/) eq 1) { $exceptionCaught = 1;}
-      if (($line =~ m/\<EventsRead\> *(\d+)\<\/EventsRead\>/) eq 1) {
-	$nEvent = $nEvent + $1;
+      if (($line =~ m/FwkReport            -i main_input:sourc/) eq 1) {
+	@array = split(' ',$line);
+	$nEvent = $array[5];
       }
     }
     close INFILE;
