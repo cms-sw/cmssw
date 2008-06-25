@@ -2,8 +2,8 @@
 /*
  * \file EBIntegrityClient.cc
  *
- * $Date: 2008/06/25 08:08:13 $
- * $Revision: 1.204 $
+ * $Date: 2008/06/25 08:15:00 $
+ * $Revision: 1.205 $
  * \author G. Della Ricca
  * \author G. Franzoni
  *
@@ -980,6 +980,124 @@ void EBIntegrityClient::analyze(void) {
 }
 
 void EBIntegrityClient::softReset(bool flag) {
+
+  char histo[200];
+
+  MonitorElement* me;
+
+  sprintf(histo, (prefixME_ + "/EBIntegrityTask/EBIT DCC size error").c_str());
+  me = dqmStore_->get(histo);
+  if ( flag ) {
+    if ( me ) dqmStore_->softReset( me );
+  }
+  else {
+    //      if ( me ) dqmStore_->disableSoftReset( me );
+  }
+
+  for ( unsigned int i=0; i<superModules_.size(); i++ ) {
+
+    int ism = superModules_[i];
+    
+    sprintf(histo, (prefixME_ + "/EBOccupancyTask/EBOT digi occupancy %s").c_str(), Numbers::sEB(ism).c_str());
+    me = dqmStore_->get(histo);
+    if ( flag ) {
+      if ( me ) dqmStore_->softReset( me );
+    }
+    else {
+      //      if ( me ) dqmStore_->disableSoftReset( me );
+    }
+
+    sprintf(histo, (prefixME_ + "/EBOccupancyTask/EBOT MEM digi occupancy %s").c_str(), Numbers::sEB(ism).c_str());
+    me = dqmStore_->get(histo);
+    if ( flag ) {
+      if ( me ) dqmStore_->softReset( me );
+    }
+    else {
+      //      if ( me ) dqmStore_->disableSoftReset( me );
+    }
+
+    sprintf(histo, (prefixME_ + "/EBIntegrityTask/Gain/EBIT gain %s").c_str(), Numbers::sEB(ism).c_str());
+    me = dqmStore_->get(histo);
+    if ( flag ) {
+      if ( me ) dqmStore_->softReset( me );
+    }
+    else {
+      //      if ( me ) dqmStore_->disableSoftReset( me );
+    }
+
+    sprintf(histo, (prefixME_ + "/EBIntegrityTask/ChId/EBIT ChId %s").c_str(), Numbers::sEB(ism).c_str());
+    me = dqmStore_->get(histo);
+    if ( flag ) {
+      if ( me ) dqmStore_->softReset( me );
+    }
+    else {
+      //      if ( me ) dqmStore_->disableSoftReset( me );
+    }
+
+    sprintf(histo, (prefixME_ + "/EBIntegrityTask/GainSwitch/EBIT gain switch %s").c_str(), Numbers::sEB(ism).c_str());
+    me = dqmStore_->get(histo);
+    if ( flag ) {
+      if ( me ) dqmStore_->softReset( me );
+    }
+    else {
+      //      if ( me ) dqmStore_->disableSoftReset( me );
+    }
+
+    sprintf(histo, (prefixME_ + "/EBIntegrityTask/TTId/EBIT TTId %s").c_str(), Numbers::sEB(ism).c_str());
+    me = dqmStore_->get(histo);
+    if ( flag ) {
+      if ( me ) dqmStore_->softReset( me );
+    }
+    else {
+      //      if ( me ) dqmStore_->disableSoftReset( me );
+    }
+
+    sprintf(histo, (prefixME_ + "/EBIntegrityTask/TTBlockSize/EBIT TTBlockSize %s").c_str(), Numbers::sEB(ism).c_str());
+    me = dqmStore_->get(histo);
+    if ( flag ) {
+      if ( me ) dqmStore_->softReset( me );
+    }
+    else {
+      //      if ( me ) dqmStore_->disableSoftReset( me );
+    }
+
+    sprintf(histo, (prefixME_ + "/EBIntegrityTask/MemChId/EBIT MemChId %s").c_str(), Numbers::sEB(ism).c_str());
+    me = dqmStore_->get(histo);
+    if ( flag ) {
+      if ( me ) dqmStore_->softReset( me );
+    }
+    else {
+      //      if ( me ) dqmStore_->disableSoftReset( me );
+    }
+
+    sprintf(histo, (prefixME_ + "/EBIntegrityTask/MemGain/EBIT MemGain %s").c_str(), Numbers::sEB(ism).c_str());
+    me = dqmStore_->get(histo);
+    if ( flag ) {
+      if ( me ) dqmStore_->softReset( me );
+    }
+    else {
+      //      if ( me ) dqmStore_->disableSoftReset( me );
+    }
+
+    sprintf(histo, (prefixME_ + "/EBIntegrityTask/MemTTId/EBIT MemTTId %s").c_str(), Numbers::sEB(ism).c_str());
+    me = dqmStore_->get(histo);
+    if ( flag ) {
+      if ( me ) dqmStore_->softReset( me );
+    }
+    else {
+      //      if ( me ) dqmStore_->disableSoftReset( me );
+    }
+
+    sprintf(histo, (prefixME_ + "/EBIntegrityTask/MemSize/EBIT MemSize %s").c_str(), Numbers::sEB(ism).c_str());
+    me = dqmStore_->get(histo);
+    if ( flag ) {
+      if ( me ) dqmStore_->softReset( me );
+    }
+    else {
+      //      if ( me ) dqmStore_->disableSoftReset( me );
+    }
+
+  }
 
 }
 
