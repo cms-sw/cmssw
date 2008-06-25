@@ -35,127 +35,24 @@ void HcalDataFormatMonitor::setup(const edm::ParameterSet& ps,
   prtlvl_ = ps.getUntrackedParameter<int>("dfPrtLvl");
 
   if ( m_dbe ) {
+    char* type;
     m_dbe->setCurrentFolder(baseFolder_);
     
-    meEVT_ = m_dbe->bookInt("Data Format Task Event Number");
-    meEVT_->Fill(ievt_);
+    type = "00 DataFormat Problem Map";
+    DATAFORMAT_PROBLEM_MAP = m_dbe->book2D(type, type, 85, -42.5, 42.5, 72, -0.5, 71.5);
+    DATAFORMAT_PROBLEM_MAP-> setAxisTitle("ieta",1);
+    DATAFORMAT_PROBLEM_MAP-> setAxisTitle("iphi",2);
 
-    char* type = "DCC Ev Fragment Size Distribution";
-    meFEDRawDataSizes_=m_dbe->book1D(type,type,12000,-0.5,12000.5);
-    meFEDRawDataSizes_->setAxisTitle("# of Event Fragments",1);
-    meFEDRawDataSizes_->setAxisTitle("# of bytes",2);
+    type = "00 DataFormat Problem Zoo";
+    DATAFORMAT_PROBLEM_ZOO = m_dbe->book1D(type, type, 10, 1, 10);
+    DATAFORMAT_PROBLEM_ZOO-> setBinLabel(1,"CDF",1);
 
-    type = "Spigot Format Errors";
-    meSpigotFormatErrors_=  m_dbe->book1D(type,type,50,-0.5,49.5);
-    meSpigotFormatErrors_->setAxisTitle("# of Errors",1);
-    meSpigotFormatErrors_->setAxisTitle("# of Events",2);
-    type = "Num Bad Quality Digis -DV bit-Err bit-Cap Rotation";
-    meBadQualityDigis_=  m_dbe->book1D(type,type,9100,-1,9099);
-    meBadQualityDigis_->setAxisTitle("# of Bad Digis",1);
-    meBadQualityDigis_->setAxisTitle("# of Events",2);
-    type = "Num Unmapped Digis";
-    meUnmappedDigis_=  m_dbe->book1D(type,type,9100,-1,9099);
-    meUnmappedDigis_->setAxisTitle("# of Unmapped Digis",1);
-    meUnmappedDigis_->setAxisTitle("# of Events",2);
-    type = "Num Unmapped Trigger Primitive Digis";
-    meUnmappedTPDigis_=  m_dbe->book1D(type,type,9100,-1,9099);
-    meUnmappedTPDigis_->setAxisTitle("# of Unmapped Trigger Primitive Digis",1);
-    meUnmappedTPDigis_->setAxisTitle("# of Events",2);
-    type = "FED Error Map from Unpacker Report";
-    meFEDerrorMap_ = m_dbe->book1D(type,type,33,699.5,732.5);
-    meFEDerrorMap_->setAxisTitle("Dcc Id",1);
-    meFEDerrorMap_->setAxisTitle("# of Errors",2);
-    type = "EvN Inconsistent - HTR vs Ref HTR";
-    meEvtNumberSynch_= m_dbe->book2D(type,type,40,-0.25,19.75,18,-0.5,17.5);
-    meEvtNumberSynch_->setAxisTitle("Slot #",1);
-    meEvtNumberSynch_->setAxisTitle("Crate #",2);
-    type = "BCN Inconsistent - HTR vs Ref HTR";
-    meBCNSynch_= m_dbe->book2D(type,type,40,-0.25,19.75,18,-0.5,17.5);
-    meBCNSynch_->setAxisTitle("Slot #",1);
-    meBCNSynch_->setAxisTitle("Crate #",2);
-
-    type = "Invalid HTR Data";
-    meInvHTRData_= m_dbe->book2D(type,type,16,-0.5,15.5,32,699.5,731.5);
-    meInvHTRData_->setAxisTitle("Spigot #",1);
-    meInvHTRData_->setAxisTitle("DCC #",2);
-
-    type = "BCN from HTRs";
-    meBCN_ = m_dbe->book1D(type,type,3564,-0.5,3563.5);
-    meBCN_->setAxisTitle("BCN",1);
-    meBCN_->setAxisTitle("# of Entries",2);
+    m_dbe->setCurrentFolder(baseFolder_ + "/DCC Plots");
 
     type = "BCN from DCCs";
     medccBCN_ = m_dbe->book1D(type,type,3564,-0.5,3563.5);
     medccBCN_->setAxisTitle("BCN",1);
     medccBCN_->setAxisTitle("# of Entries",2);
-
-
-    type = "BCN Difference Between Ref HTR and DCC";
-    meBCNCheck_ = m_dbe->book1D(type,type,501,-250.5,250.5);
-    meBCNCheck_->setAxisTitle("htr BCN - dcc BCN",1);
-    type = "EvN Difference Between Ref HTR and DCC";
-    meEvtNCheck_ = m_dbe->book1D(type,type,601,-300.5,300.5);
-    meEvtNCheck_->setAxisTitle("htr Evt # - dcc Evt #",1);
-    type = "BCN of Fiber Orbit Message";
-    meFibBCN_ = m_dbe->book1D(type,type,3564,-0.5,3563.5);
-    meFibBCN_->setAxisTitle("BCN of Fib Orb Msg",1);
-    // Firmware version
-    type = "HTR Firmware Version";
-    //  Maybe change to Profile histo eventually
-    //meFWVersion_ = m_dbe->bookProfile(type,type,18,-0.5,17.5,245,10.0,255.0,"");
-    meFWVersion_ = m_dbe->book2D(type,type ,18,-0.5,17.5,40,70.5,110.5);
-    meFWVersion_->setAxisTitle("Crate #",1);
-    meFWVersion_->setAxisTitle("HTR Firmware Version",2);
-    // These had too many bins!  They were choking the Online DQM. Better we re-think. 
-    // type = "Event Fragment Size for each FED";
-    // meEvFragSize_ = m_dbe->bookProfile(type,type,32,699.5,731.5,100,-1000.0,7000.0,"");
-    type = "All Evt Frag Sizes";
-    meEvFragSize2_ =  m_dbe->book2D(type,type,64,699.5,731.5,12000,0,12000);
-
-    // Examine conditions of the DCC Event Fragment
-    type = "Number of Event Fragments by FED ID";
-    meFEDId_=m_dbe->book1D(type, type, 32, 699.5, 731.5);
-    meFEDId_->setAxisTitle("HCAL FED ID",1);
-
-    type = "Common Data Format violations";
-    meCDFErrorFound_ = m_dbe->book2D(type,type,32,699.5,731.5,10,0.5,10.5);
-    meCDFErrorFound_->setAxisTitle("HCAL FED ID", 1);
-    meCDFErrorFound_->setBinLabel(1, "Hdr1BitUnset", 2);
-    meCDFErrorFound_->setBinLabel(2, "FmtNumChange", 2);
-    meCDFErrorFound_->setBinLabel(3, "EvTypChange", 2);
-    meCDFErrorFound_->setBinLabel(4, "BOE not '0x5'", 2);
-    meCDFErrorFound_->setBinLabel(5, "Hdr2Bit Set", 2);
-    meCDFErrorFound_->setBinLabel(6, "Hdr1 36-59", 2);
-    meCDFErrorFound_->setBinLabel(7, "BOE not 0", 2);
-    meCDFErrorFound_->setBinLabel(8, "Trlr1Bit Set", 2);
-    meCDFErrorFound_->setBinLabel(9, "Size Error", 2);
-    meCDFErrorFound_->setBinLabel(10, "TrailerBad", 2);
-
-    type = "DCC Event Format violation";
-    meDCCEventFormatError_ = m_dbe->book2D(type,type,32,699.5,731.5,4,0.5,4.5);
-    meDCCEventFormatError_->setAxisTitle("HCAL FED ID", 1);
-    meDCCEventFormatError_->setBinLabel(1, "FmtVersChng", 2);
-    meDCCEventFormatError_->setBinLabel(2, "StrayBits", 2);
-    meDCCEventFormatError_->setBinLabel(3, "HTRStatusPad", 2);
-    meDCCEventFormatError_->setBinLabel(4, "32bitPadErr", 2);
-    //meDCCEventFormatError_->setBinLabel(5, "Spigot Error Flag Miscalculated", 2);      
-    //meDCCEventFormatError_->setBinLabel(7, "LRB Truncation Bit MisCopied", 2);	       
-    //meDCCEventFormatError_->setBinLabel(8, "32-Bit Padding Word Needed But Absent", 2);
-    //meDCCEventFormatError_->setBinLabel(9, "Event Size Internally Misdescribed", 2);
-
-    type = "DCC Status Flags (Nonzero Error Counters)";
-    meDCCStatusFlags_ = m_dbe->book2D(type,type,32,699.5,731.5,10,0.5,10.5);
-    meDCCStatusFlags_->setAxisTitle("HCAL FED ID", 1);      
-    meDCCStatusFlags_->setBinLabel(1, "Saw OFW", 2);
-    meDCCStatusFlags_->setBinLabel(2, "Saw BSY", 2);
-    meDCCStatusFlags_->setBinLabel(3, "Saw SYN", 2);
-    meDCCStatusFlags_->setBinLabel(4, "MxMx_L1AEvN", 2);
-    meDCCStatusFlags_->setBinLabel(5, "MxMx_L1ABcN", 2);
-    meDCCStatusFlags_->setBinLabel(6, "MxMx_CT-EvN", 2);
-    meDCCStatusFlags_->setBinLabel(7, "MxMx_CT-BCN", 2);
-    meDCCStatusFlags_->setBinLabel(8, "BC0 Spacing", 2);
-    meDCCStatusFlags_->setBinLabel(9, "TTCSingErr", 2);
-    meDCCStatusFlags_->setBinLabel(10, "TTCDoubErr", 2);
 
     type = "DCC Error and Warning";
     meDCCErrorAndWarnConditions_ = m_dbe->book2D(type,type,32,699.5,731.5, 25,0.5,25.5);
@@ -186,7 +83,11 @@ void HcalDataFormatMonitor::setup(const edm::ParameterSet& ps,
     meDCCErrorAndWarnConditions_->setBinLabel(24, "TTC_SingErr", 2);
     meDCCErrorAndWarnConditions_->setBinLabel(25, "TTC_DoubErr", 2);
 
-    //type = "DCC View of Spigot Conditions";
+    type = "DCC Ev Fragment Size Distribution";
+    meFEDRawDataSizes_=m_dbe->book1D(type,type,12000,-0.5,12000.5);
+    meFEDRawDataSizes_->setAxisTitle("# of Event Fragments",1);
+    meFEDRawDataSizes_->setAxisTitle("# of bytes",2);
+
     type = "DCC Nonzero Spigot Conditions";
     meDCCSummariesOfHTRs_ = m_dbe->book2D(type,type,32,699.5,731.5, 20,0.5,20.5);
     meDCCSummariesOfHTRs_->setAxisTitle("HCAL FED ID", 1);
@@ -211,11 +112,121 @@ void HcalDataFormatMonitor::setup(const edm::ParameterSet& ps,
     meDCCSummariesOfHTRs_->setBinLabel(19, "P not V", 2);
     meDCCSummariesOfHTRs_->setBinLabel(20, "Trunct by LRB", 2);
 
+    type = "DCC Status Flags (Nonzero Error Counters)";
+    meDCCStatusFlags_ = m_dbe->book2D(type,type,32,699.5,731.5,10,0.5,10.5);
+    meDCCStatusFlags_->setAxisTitle("HCAL FED ID", 1);      
+    meDCCStatusFlags_->setBinLabel(1, "Saw OFW", 2);
+    meDCCStatusFlags_->setBinLabel(2, "Saw BSY", 2);
+    meDCCStatusFlags_->setBinLabel(3, "Saw SYN", 2);
+    meDCCStatusFlags_->setBinLabel(4, "MxMx_L1AEvN", 2);
+    meDCCStatusFlags_->setBinLabel(5, "MxMx_L1ABcN", 2);
+    meDCCStatusFlags_->setBinLabel(6, "MxMx_CT-EvN", 2);
+    meDCCStatusFlags_->setBinLabel(7, "MxMx_CT-BCN", 2);
+    meDCCStatusFlags_->setBinLabel(8, "BC0 Spacing", 2);
+    meDCCStatusFlags_->setBinLabel(9, "TTCSingErr", 2);
+    meDCCStatusFlags_->setBinLabel(10, "TTCDoubErr", 2);
+
+    type = "Event Fragment Size for each FED";
+    meEvFragSize_ = m_dbe->bookProfile(type,type,32,699.5,731.5,100,-1000.0,12000.0,"");
+    type = "All Evt Frag Sizes";
+    meEvFragSize2_ =  m_dbe->book2D(type,type,64,699.5,731.5,12000,0,12000);
+
+    type = "Num Event Frags by FED";
+    meFEDId_=m_dbe->book1D(type, type, 32, 699.5, 731.5);
+    meFEDId_->setAxisTitle("HCAL FED ID",1);
+
+    type = "Spigot Format Errors";
+    meSpigotFormatErrors_=  m_dbe->book1D(type,type,50,-0.5,49.5);
+    meSpigotFormatErrors_->setAxisTitle("# of Errors",1);
+    meSpigotFormatErrors_->setAxisTitle("# of Events",2);
+
+    m_dbe->setCurrentFolder(baseFolder_ + "/DCC Plots/ZZ DCC Expert Plots");
+
+    type = "Common Data Format violations";
+    meCDFErrorFound_ = m_dbe->book2D(type,type,32,699.5,731.5,10,0.5,10.5);
+    meCDFErrorFound_->setAxisTitle("HCAL FED ID", 1);
+    meCDFErrorFound_->setBinLabel(1, "Hdr1BitUnset", 2);
+    meCDFErrorFound_->setBinLabel(2, "FmtNumChange", 2);
+    meCDFErrorFound_->setBinLabel(3, "EvTypChange", 2);
+    meCDFErrorFound_->setBinLabel(4, "BOE not '0x5'", 2);
+    meCDFErrorFound_->setBinLabel(5, "Hdr2Bit Set", 2);
+    meCDFErrorFound_->setBinLabel(6, "Hdr1 36-59", 2);
+    meCDFErrorFound_->setBinLabel(7, "BOE not 0", 2);
+    meCDFErrorFound_->setBinLabel(8, "Trlr1Bit Set", 2);
+    meCDFErrorFound_->setBinLabel(9, "Size Error", 2);
+    meCDFErrorFound_->setBinLabel(10, "TrailerBad", 2);
+
+    type = "DCC Event Format violation";
+    meDCCEventFormatError_ = m_dbe->book2D(type,type,32,699.5,731.5,4,0.5,4.5);
+    meDCCEventFormatError_->setAxisTitle("HCAL FED ID", 1);
+    meDCCEventFormatError_->setBinLabel(1, "FmtVersChng", 2);
+    meDCCEventFormatError_->setBinLabel(2, "StrayBits", 2);
+    meDCCEventFormatError_->setBinLabel(3, "HTRStatusPad", 2);
+    meDCCEventFormatError_->setBinLabel(4, "32bitPadErr", 2);
+    //meDCCEventFormatError_->setBinLabel(5, "Spigot Error Flag Miscalculated", 2);      
+    //meDCCEventFormatError_->setBinLabel(7, "LRB Truncation Bit MisCopied", 2);	       
+    //meDCCEventFormatError_->setBinLabel(8, "32-Bit Padding Word Needed But Absent", 2);
+    //meDCCEventFormatError_->setBinLabel(9, "Event Size Internally Misdescribed", 2);
+
+    type = "FED Error Map from Unpacker Report";
+    meFEDerrorMap_ = m_dbe->book1D(type,type,33,699.5,732.5);
+    meFEDerrorMap_->setAxisTitle("Dcc Id",1);
+    meFEDerrorMap_->setAxisTitle("# of Errors",2);
+
+    m_dbe->setCurrentFolder(baseFolder_ + "/HTR Plots");
+
+    type = "BCN Difference Between Ref HTR and DCC";
+    meBCNCheck_ = m_dbe->book1D(type,type,501,-250.5,250.5);
+    meBCNCheck_->setAxisTitle("htr BCN - dcc BCN",1);
+
+    type = "BCN Inconsistent - HTR vs Ref HTR";
+    meBCNSynch_= m_dbe->book2D(type,type,40,-0.25,19.75,18,-0.5,17.5);
+    meBCNSynch_->setAxisTitle("Slot #",1);
+    meBCNSynch_->setAxisTitle("Crate #",2);
+
+    type = "BCN from HTRs";
+    meBCN_ = m_dbe->book1D(type,type,3564,-0.5,3563.5);
+    meBCN_->setAxisTitle("BCN",1);
+    meBCN_->setAxisTitle("# of Entries",2);
+
+    type = "EvN Difference Between Ref HTR and DCC";
+    meEvtNCheck_ = m_dbe->book1D(type,type,601,-300.5,300.5);
+    meEvtNCheck_->setAxisTitle("htr Evt # - dcc Evt #",1);
+
+    type = "EvN Inconsistent - HTR vs Ref HTR";
+    meEvtNumberSynch_= m_dbe->book2D(type,type,40,-0.25,19.75,18,-0.5,17.5);
+    meEvtNumberSynch_->setAxisTitle("Slot #",1);
+    meEvtNumberSynch_->setAxisTitle("Crate #",2);
+
+    type = "HBHE Data Format Error Word";
+    DCC_ErrWd_HBHE =  m_dbe->book1D(type,type,16,-0.5,15.5);
+    labelHTRBits(DCC_ErrWd_HBHE,1);
+
+    type = "HF Data Format Error Word";
+    DCC_ErrWd_HF =  m_dbe->book1D(type,type,16,-0.5,15.5);
+    labelHTRBits(DCC_ErrWd_HF,1);
+  
+    type = "HO Data Format Error Word";
+    DCC_ErrWd_HO = m_dbe->book1D(type,type,16,-0.5,15.5);
+    labelHTRBits(DCC_ErrWd_HO,1);
+
     int maxbits = 16;//Look at all bits
     type = "HTR Error Word by Crate";
     meErrWdCrate_ = m_dbe->book2D(type,type,18,-0.5,17.5,maxbits,-0.5,maxbits-0.5);
     meErrWdCrate_ -> setAxisTitle("Crate #",1);
     labelHTRBits(meErrWdCrate_,2);
+
+    type = "Invalid HTR Data";
+    meInvHTRData_= m_dbe->book2D(type,type,16,-0.5,15.5,32,699.5,731.5);
+    meInvHTRData_->setAxisTitle("Spigot #",1);
+    meInvHTRData_->setAxisTitle("DCC #",2);
+
+    m_dbe->setCurrentFolder(baseFolder_ + "/HTR Plots/ZZ HTR Expert Plots");
+
+    type = "BCN of Fiber Orbit Message";
+    meFibBCN_ = m_dbe->book1D(type,type,3564,-0.5,3563.5);
+    meFibBCN_->setAxisTitle("BCN of Fib Orb Msg",1);
+
 
     type = "HTR Error Word - Crate 0";
     meCrate0HTRErr_ = m_dbe->book2D(type,type,40,-0.25,19.75,maxbits,-0.5,maxbits-0.5);
@@ -307,6 +318,36 @@ void HcalDataFormatMonitor::setup(const edm::ParameterSet& ps,
     meCrate17HTRErr_ ->setAxisTitle("Slot #",1);
     labelHTRBits(meCrate17HTRErr_,2);
     
+    // Firmware version
+    type = "HTR Firmware Version";
+    //  Maybe change to Profile histo eventually
+    //meFWVersion_ = m_dbe->bookProfile(type,type,18,-0.5,17.5,245,10.0,255.0,"");
+    meFWVersion_ = m_dbe->book2D(type,type ,18,-0.5,17.5,40,70.5,110.5);
+    meFWVersion_->setAxisTitle("Crate #",1);
+    meFWVersion_->setAxisTitle("HTR Firmware Version",2);
+
+    m_dbe->setCurrentFolder(baseFolder_ + "/ZZ HCal-Wide Expert Plots");
+
+    type = "Num Bad Quality Digis -DV bit-Err bit-Cap Rotation";
+    meBadQualityDigis_=  m_dbe->book1D(type,type,9100,-1,9099);
+    meBadQualityDigis_->setAxisTitle("# of Bad Digis",1);
+    meBadQualityDigis_->setAxisTitle("# of Events",2);
+
+    type = "Num Unmapped Digis";
+    meUnmappedDigis_=  m_dbe->book1D(type,type,9100,-1,9099);
+    meUnmappedDigis_->setAxisTitle("# of Unmapped Digis",1);
+    meUnmappedDigis_->setAxisTitle("# of Events",2);
+
+    type = "Num Unmapped Trigger Primitive Digis";
+    meUnmappedTPDigis_=  m_dbe->book1D(type,type,9100,-1,9099);
+    meUnmappedTPDigis_->setAxisTitle("# of Unmapped Trigger Primitive Digis",1);
+    meUnmappedTPDigis_->setAxisTitle("# of Events",2);
+
+    m_dbe->setCurrentFolder(baseFolder_ + "/ZZ DQM Diagnostics");
+
+    meEVT_ = m_dbe->bookInt("Data Format Task Event Number");
+    meEVT_->Fill(ievt_);
+
  /* Disable these histos for now
      type = "Fiber 1 Orbit Message BCN";
      meFib1OrbMsgBCN_= m_dbe->book2D(type,type,40,-0.25,19.75,18,-0.5,17.5);
@@ -325,18 +366,6 @@ void HcalDataFormatMonitor::setup(const edm::ParameterSet& ps,
      type = "Fiber 8 Orbit Message BCN";
      meFib8OrbMsgBCN_= m_dbe->book2D(type,type,40,-0.25,19.75,18,-0.5,17.5);
     */
-
-    type = "HBHE Data Format Error Word";
-    DCC_ErrWd_HBHE =  m_dbe->book1D(type,type,16,-0.5,15.5);
-    labelHTRBits(DCC_ErrWd_HBHE,1);
-
-    type = "HF Data Format Error Word";
-    DCC_ErrWd_HF =  m_dbe->book1D(type,type,16,-0.5,15.5);
-    labelHTRBits(DCC_ErrWd_HF,1);
-  
-    type = "HO Data Format Error Word";
-    DCC_ErrWd_HO = m_dbe->book1D(type,type,16,-0.5,15.5);
-    labelHTRBits(DCC_ErrWd_HO,1);
   
    }
 
@@ -406,7 +435,7 @@ void HcalDataFormatMonitor::unpack(const FEDRawData& raw,
   int EvFragLength = ((*lastDataWord>>32)*8);
   EvFragLength = raw.size();
 
-  // meEvFragSize_ ->Fill(dccid, EvFragLength);
+  meEvFragSize_ ->Fill(dccid, EvFragLength);
   meEvFragSize2_ ->Fill(dccid, EvFragLength);
 
 
