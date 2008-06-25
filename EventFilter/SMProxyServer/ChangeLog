@@ -1,3 +1,17 @@
+2008-06-25  Kurt Biery <biery@fnal.gov>
+
+	* tag V01-08-04
+	* Added archiveIntervalDQM configuration parameter to control how often
+	  we archive DQM histograms (once every N lumi sections, where
+	  archiveIntervalDQM = N)
+
+2008-06-16  Kurt Biery <biery@fnal.gov>
+
+	* tag V01-08-03
+	* Modification of the EventServer to match what was run in
+	  Cruzet2 (fair-share off, rates limited at the EventServer input, and 
+	  events for consumers restricted to a single HLT output module).
+
 2008-05-14  Harry Cheung <cheung@fnal.gov>
 
 	* tag V01-08-02
