@@ -27,13 +27,15 @@
 using namespace std;
 
 EgammaRecHitIsolation::EgammaRecHitIsolation (double extRadius,
-					  double intRadius,
-					  double etLow,
-					  edm::ESHandle<CaloGeometry> theCaloGeom,
-					  CaloRecHitMetaCollectionV* caloHits,
-					  DetId::Detector detector) :
+					      double intRadius,
+					      double etaSlice,
+					      double etLow,
+					      edm::ESHandle<CaloGeometry> theCaloGeom,
+					      CaloRecHitMetaCollectionV* caloHits,
+					      DetId::Detector detector) :
   extRadius_(extRadius),
   intRadius_(intRadius),
+  etaSlice_(etaSlice),
   etLow_(etLow),
   theCaloGeom_(theCaloGeom) ,  
   caloHits_(caloHits)
@@ -69,6 +71,10 @@ double EgammaRecHitIsolation::getSum_(const reco::Candidate* emObject,bool retur
        {
 	 
 	 double eta = theCaloGeom_.product()->getPosition(i->detid()).eta();
+         double etaDiff = eta - pclu.eta();
+	 //	 std::cout << "  EgammaRecHitIsolation::getSum_ eta rec hit " << eta << " eta clus " << pclu.eta() << " diff " << etaDiff << std::endl;
+         if ( fabs(etaDiff) < etaSlice_) continue;
+
 	 double et = i->energy()*sin(2*atan(exp(-eta)));
 	 if ( et > etLow_){
 	   if(returnEt) energySum+=et;
