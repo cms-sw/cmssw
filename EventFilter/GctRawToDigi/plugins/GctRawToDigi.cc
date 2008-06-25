@@ -103,7 +103,7 @@ void GctRawToDigi::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
   iEvent.getByLabel(inputLabel_, feds);
   const FEDRawData& gctRcd = feds->FEDData(fedId_);
  
-  if(verbose_) { edm::LogInfo("GCT") << "Upacking FEDRawData of size " << std::dec << gctRcd.size(); }
+  LogDebug("GCT") << "Upacking FEDRawData of size " << std::dec << gctRcd.size();
 
   bool invalidDataFlag = false;
   
