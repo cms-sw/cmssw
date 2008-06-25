@@ -79,7 +79,7 @@ DQMEventMsgBuilder::DQMEventMsgBuilder(void* buf, uint32 bufSize,
   bufPtr += len;
 
   // copy the subfolder count into the message
-  convert(monitorElementsBySubFolder.size(), bufPtr);
+  convert(static_cast<uint32>(monitorElementsBySubFolder.size()), bufPtr);
   bufPtr += sizeof(uint32);
 
   // copy the ME count and name for each subfolder into the message
@@ -90,7 +90,7 @@ DQMEventMsgBuilder::DQMEventMsgBuilder(void* buf, uint32 bufSize,
       std::string subFolderName = sfIter->first;
       std::vector<TObject *> toList = sfIter->second;
 
-      convert(toList.size(), bufPtr);
+      convert(static_cast<uint32>(toList.size()), bufPtr);
       bufPtr += sizeof(uint32);
 
       len = subFolderName.length();

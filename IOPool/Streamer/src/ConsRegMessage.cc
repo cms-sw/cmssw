@@ -179,7 +179,7 @@ setStreamSelectionTable(std::map<std::string, Strings> const& selTable)
   uint8* bufPtr = buf_ + size();
 
   // add the number of entries in the table to the message
-  convert (selTable.size(), bufPtr);
+  convert (static_cast<uint32>(selTable.size()), bufPtr);
   bufPtr += sizeof(uint32);
   assert(((uint32) (bufPtr - buf_)) <= bufSize_);
 
