@@ -23,9 +23,7 @@
 #include <fstream>
 
 RPCFakeCalibration::RPCFakeCalibration( const edm::ParameterSet& pset ) : RPCPerformanceESSource(pset) {
-
   edm::LogInfo("RPCFakeCalibration::RPCFakeCalibration");
-  //  printdebug_ = pset.getUntrackedParameter<bool>("printDebug", false);
   theRPCCalibSetUp  =  new RPCCalibSetUp(pset);
 }
 
@@ -45,15 +43,13 @@ RPCStripNoises * RPCFakeCalibration::makeNoise() {
       it != (theRPCCalibSetUp->_mapDetIdNoise).end(); it++){
     
     tipoprova.dpid = it->first;
-
-    for(unsigned int k = 0; k < 96; ++k){
-      tipoprova.noise[k] = ((it->second))[k];
-      tipoprova.eff[k] = (theRPCCalibSetUp->getEff(it->first))[k];
-    }
     tipoprova.time =  theRPCCalibSetUp->getTime(it->first);
-
-
-    (obj->v_noises).push_back(tipoprova);
+    
+    for(unsigned int k = 0; k < 96; ++k){
+      tipoprova.noise = ((it->second))[k];
+      tipoprova.eff = (theRPCCalibSetUp->getEff(it->first))[k];
+      (obj->v_noises).push_back(tipoprova);
+    }
   }
 
   return obj;
