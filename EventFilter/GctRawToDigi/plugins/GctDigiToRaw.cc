@@ -56,21 +56,17 @@ GctDigiToRaw::GctDigiToRaw(const edm::ParameterSet& iConfig) :
   counter_(0),
   blockPacker_()
 {
-
   edm::LogInfo("GCT") << "GctDigiToRaw will pack FED Id " << fedId_ << endl;
 
   //register the products
   produces<FEDRawDataCollection>();
-
 }
 
 
 GctDigiToRaw::~GctDigiToRaw()
 {
- 
    // do anything here that needs to be done at destruction time
    // (e.g. close files, deallocate resources etc.)
-
 }
 
 
@@ -125,7 +121,7 @@ GctDigiToRaw::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
     if(rctEm.failedToGet())
     {
       packRctEmThisEvent = false;
-      edm::LogWarning("GCT") << "RCT EM Candidate packing requested, but failed to get them from event!" << endl;
+      edm::LogDebug("GCT") << "RCT EM Candidate packing requested, but failed to get them from event!" << endl;
     }
   }
 
@@ -139,7 +135,7 @@ GctDigiToRaw::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
     if(rctCalo.failedToGet())
     {
       packRctCaloThisEvent = false;
-      edm::LogWarning("GCT") << "RCT Calo Region packing requested, but failed to get them from event!" << endl;
+      edm::LogDebug("GCT") << "RCT Calo Region packing requested, but failed to get them from event!" << endl;
     }
   }
 

@@ -96,8 +96,6 @@ bool GctBlockUnpacker::convertBlock(const unsigned char * data, const GctBlockHe
 
 void GctBlockUnpacker::blockToGctJetCand(const unsigned char * d, const GctBlockHeaderBase& hdr)
 {
-  LogDebug("GCT") << "Unpacking GCT output Jet Cands" << std::endl;
-  
   const unsigned int id = hdr.id();  // Capture block ID.
   const unsigned int nSamples = hdr.nSamples();  // Number of time-samples.
 
@@ -139,8 +137,6 @@ void GctBlockUnpacker::blockToGctJetCand(const unsigned char * d, const GctBlock
 
 void GctBlockUnpacker::blockToGctJetCounts(const unsigned char * d, const GctBlockHeaderBase& hdr)
 {
-  LogDebug("GCT") << "Unpacking GCT output Jet Counts" << std::endl;
-  
   /*
    * Currently only unpacking one timesample of these!
    */
@@ -157,8 +153,6 @@ void GctBlockUnpacker::blockToGctJetCounts(const unsigned char * d, const GctBlo
 // Output EM Candidates unpacking
 void GctBlockUnpacker::blockToGctEmCand(const unsigned char * d, const GctBlockHeaderBase& hdr)
 {
-  LogDebug("GCT") << "Unpacking GCT output EM Cands" << std::endl;
-
   const unsigned int id = hdr.id();
   const unsigned int nSamples = hdr.nSamples();
 
@@ -197,8 +191,6 @@ void GctBlockUnpacker::blockToGctEmCand(const unsigned char * d, const GctBlockH
 
 void GctBlockUnpacker::blockToGctEnergySums(const unsigned char * d, const GctBlockHeaderBase& hdr)
 {
-  LogDebug("GCT") << "Unpacking GCT output Energy Sums" << std::endl;
-  
   /* 
    * Currently only unpacking one timesample of these!
    */

@@ -38,13 +38,13 @@ bool GctBlockUnpackerBase::checkBlock(const GctBlockHeaderBase& hdr)
   // check block is valid
   if ( !hdr.valid() )
   {
-    edm::LogError("GCT") << "Block unpack error: cannot unpack the following unknown/invalid block:\n" << hdr << endl;
+    edm::LogDebug("GCT") << "Block unpack error: cannot unpack the following unknown/invalid block:\n" << hdr << endl;
     return false;     
   }
 
   // check block doesn't have too many time samples
   if ( hdr.nSamples() >= 0xf ) {
-    edm::LogError("GCT") << "Block unpack error: cannot unpack a block with 15 or more time samples:\n" << hdr << endl;
+    edm::LogDebug("GCT") << "Block unpack error: cannot unpack a block with 15 or more time samples:\n" << hdr << endl;
     return false; 
   }
   return true;
@@ -55,8 +55,6 @@ void GctBlockUnpackerBase::blockToGctInternEmCand(const unsigned char * d, const
 {
   // Don't want to do this in HLT optimisation mode!
   if(hltMode()) { LogDebug("GCT") << "HLT mode - skipping unpack of internal EM Cands" << std::endl; return; }
-  
-  LogDebug("GCT") << "Unpacking internal EM Cands" << std::endl;
 
   unsigned int id = hdr.id();
   unsigned int nSamples = hdr.nSamples();
@@ -98,8 +96,6 @@ void GctBlockUnpackerBase::blockToRctEmCand(const unsigned char * d, const GctBl
 {
   // Don't want to do this in HLT optimisation mode!
   if(hltMode()) { LogDebug("GCT") << "HLT mode - skipping unpack of RCT EM Cands" << std::endl; return; }
-  
-  LogDebug("GCT") << "Unpacking RCT EM Cands" << std::endl;
 
   unsigned int id = hdr.id();
   unsigned int nSamples = hdr.nSamples();
@@ -154,8 +150,6 @@ void GctBlockUnpackerBase::blockToRctCaloRegions(const unsigned char * d, const 
 {
   // Don't want to do this in HLT optimisation mode!
   if(hltMode()) { LogDebug("GCT") << "HLT mode - skipping unpack of RCT Regions" << std::endl; return; }
-  
-  LogDebug("GCT") << "Unpacking RCT Regions" << std::endl;
 
   unsigned int id = hdr.id();
   unsigned int nSamples = hdr.nSamples();
@@ -204,8 +198,6 @@ void GctBlockUnpackerBase::blockToFibres(const unsigned char * d, const GctBlock
 {
   // Don't want to do this in HLT optimisation mode!
   if(hltMode()) { LogDebug("GCT") << "HLT mode - skipping unpack of GCT Fibres" << std::endl; return; }
-
-  LogDebug("GCT") << "Unpacking GCT Fibres" << std::endl;
   
   unsigned int id = hdr.id();
   unsigned int nSamples = hdr.nSamples();
@@ -235,8 +227,6 @@ void GctBlockUnpackerBase::blockToAllRctCaloRegions(const unsigned char * d, con
 
   // This method is one giant "temporary" hack whilst waiting for proper
   // pipeline formats for the RCT calo region data.
-  
-  LogDebug("GCT") << "Unpacking RCT Calorimeter Regions" << std::endl;
   
   const int nSamples = hdr.nSamples();  // Number of time-samples.
 

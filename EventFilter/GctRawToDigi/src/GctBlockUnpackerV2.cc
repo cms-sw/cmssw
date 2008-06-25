@@ -245,8 +245,6 @@ bool GctBlockUnpackerV2::convertBlock(const unsigned char * data, const GctBlock
 // Output EM Candidates unpacking
 void GctBlockUnpackerV2::blockToGctEmCandsAndEnergySums(const unsigned char * d, const GctBlockHeaderBase& hdr)
 {
-  LogDebug("GCT") << "Unpacking GCT output EM Cands and Energy Sums" << std::endl;
-
   const unsigned int id = hdr.id();
   const unsigned int nSamples = hdr.nSamples();
 
@@ -300,8 +298,6 @@ void GctBlockUnpackerV2::blockToGctEmCandsAndEnergySums(const unsigned char * d,
 
 void GctBlockUnpackerV2::blockToGctJetCandsAndCounts(const unsigned char * d, const GctBlockHeaderBase& hdr)
 {
-  LogDebug("GCT") << "Unpacking GCT output Jet Cands and Counts" << std::endl;
-
   const unsigned int id = hdr.id();  // Capture block ID.
   const unsigned int nSamples = hdr.nSamples();  // Number of time-samples.
 
