@@ -8,7 +8,7 @@
 //
 // Original Author:  Chris Jones
 //         Created:  Thu Feb 21 14:43:19 EST 2008
-// $Id: FWViewBase.cc,v 1.1 2008/02/21 20:31:24 chrjones Exp $
+// $Id: FWViewBase.cc,v 1.2 2008/03/16 19:58:19 chrjones Exp $
 //
 
 // system include files
@@ -57,6 +57,11 @@ FWViewBase::~FWViewBase()
 //
 // member functions
 //
+void 
+FWViewBase::destroy()
+{
+   beingDestroyed_(this);
+}
 
 //
 // const member functions
