@@ -843,8 +843,8 @@ void HcalDigiMonitor::processEvent(const HBHEDigiCollection& hbhe,
       
 
       
-      calibs_= cond.getHcalCalibrations(digi.id());  // Old method was made private. 
-
+      //calibs_= cond.getHcalCalibrations(digi.id());  // Old method was made private. 
+      
       HcalDigiMap::digiStats(digi, calibs_, occThresh_, normVals, digiErr, digiOcc, digiUpset);      
       if((HcalSubdetector)(digi.id().subdet())==HcalBarrel){	
 	if (!hbHists.check) continue;

@@ -642,7 +642,8 @@ void HcalDigiClient::htmlExpertOutput(int runNo, string htmlDir, string htmlName
     int count = 0;
     htmlFile << "<tr align=\"left\">" << endl;	
     if(isValidGeom(i,0,0,1)){ histoHTML2(runNo,sub_occ_geo_[i][0],"iEta","iPhi", 92, htmlFile,htmlDir); count++; }
-    if(isValidGeom(i,0,0,2)) { histoHTML2(runNo,sub_occ_geo_[i][1],"iEta","iPhi", 100, htmlFile,htmlDir); count++;}
+    // In HB, isValidGeom(i,0,0,2) will fail (no valid depth=2 cell at 0,0,), but there are depth=2 cells (at eta>15) -- Show occ. plots for HB depth 2 regardless of validgeom test.
+    if(isValidGeom(i,0,0,2||i==1)) { histoHTML2(runNo,sub_occ_geo_[i][1],"iEta","iPhi", 100, htmlFile,htmlDir); count++;}
     if(count%2==0){
       htmlFile << "</tr>" << endl;      
       htmlFile << "<tr align=\"left\">" << endl;	
