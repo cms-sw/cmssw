@@ -1,8 +1,8 @@
 /*
  * \file EEPedestalOnlineClient.cc
  *
- * $Date: 2008/06/25 14:16:17 $
- * $Revision: 1.80 $
+ * $Date: 2008/06/25 15:08:20 $
+ * $Revision: 1.81 $
  * \author G. Della Ricca
  * \author F. Cossutti
  *
@@ -227,7 +227,7 @@ bool EEPedestalOnlineClient::writeDb(EcalCondDBInterface* econn, RunIOV* runiov,
 
   status = true;
 
-  if ( flag ) this->softReset(true);
+  if ( flag ) this->softReset(false);
 
   EcalLogicID ecid;
 
