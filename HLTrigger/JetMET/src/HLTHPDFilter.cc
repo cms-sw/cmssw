@@ -1,6 +1,6 @@
 /* \class HLTHPDFilter
  *
- * $Id: HLTHPDFilter.cc,v 1.1 2008/05/19 23:56:45 fedor Exp $
+ * $Id: HLTHPDFilter.cc,v 1.2 2008/06/24 22:47:20 fedor Exp $
  *
  * Fedor Ratnikov (UMd) May 19, 2008
  */
@@ -87,6 +87,7 @@ HLTHPDFilter::~HLTHPDFilter(){}
 
 bool HLTHPDFilter::filter(edm::Event& iEvent, const edm::EventSetup& iSetup)
 {
+  if (mHPDSpikeEnergyThreshold <= 0 && mRBXSpikeEnergyThreshold <= 0) return true; // nothing to filter
   // get hits
   edm::Handle<HBHERecHitCollection> hbhe;
   iEvent.getByLabel(mInputTag,hbhe);
@@ -104,41 +105,45 @@ bool HLTHPDFilter::filter(edm::Event& iEvent, const edm::EventSetup& iSetup)
   }
   
   // not single HPD spike
-  for (size_t partition = 0; partition < 4; ++partition) {
-    for (size_t i = 1; i < 73; ++i) {
-      if (hpdEnergy [partition][i] > mHPDSpikeEnergyThreshold) {
-	int hpdPlus = i + 1;
-	if (hpdPlus == 73) hpdPlus = 1;
-	int hpdMinus = i - 1;
-	if (hpdMinus == 0) hpdMinus = 72;
-	double maxNeighborEnergy = fmax (hpdEnergy[partition][hpdPlus], hpdEnergy[partition][hpdMinus]);
-	if (maxNeighborEnergy < mHPDSpikeIsolationEnergyThreshold)  return false; // HPD spike found
+  if (mHPDSpikeEnergyThreshold > 0) {
+    for (size_t partition = 0; partition < 4; ++partition) {
+      for (size_t i = 1; i < 73; ++i) {
+	if (hpdEnergy [partition][i] > mHPDSpikeEnergyThreshold) {
+	  int hpdPlus = i + 1;
+	  if (hpdPlus == 73) hpdPlus = 1;
+	  int hpdMinus = i - 1;
+	  if (hpdMinus == 0) hpdMinus = 72;
+	  double maxNeighborEnergy = fmax (hpdEnergy[partition][hpdPlus], hpdEnergy[partition][hpdMinus]);
+	  if (maxNeighborEnergy < mHPDSpikeIsolationEnergyThreshold)  return false; // HPD spike found
+	}
       }
-    }
-  }  
+    }  
+  }
 
   // not RBX flash
-  for (size_t partition = 0; partition < 4; ++partition) {
-    for (size_t rbx = 1; rbx < 19; ++rbx) {
-      int ifirst = (rbx-1)*4-1;
-      int iend = (rbx-1)*4+3;
-      double minEnergy = 0;
-      double maxEnergy = -1;
-      double totalEnergy = 0;
-      for (int irm = ifirst; irm < iend; ++irm) {
-	int hpd = irm;
-	if (hpd <= 0) hpd = 72 + hpd;
-	totalEnergy += hpdEnergy[partition][hpd];
-	if (minEnergy > maxEnergy) {
-	  minEnergy = maxEnergy = hpdEnergy[partition][hpd];
+  if (mRBXSpikeEnergyThreshold > 0) {
+    for (size_t partition = 0; partition < 4; ++partition) {
+      for (size_t rbx = 1; rbx < 19; ++rbx) {
+	int ifirst = (rbx-1)*4-1;
+	int iend = (rbx-1)*4+3;
+	double minEnergy = 0;
+	double maxEnergy = -1;
+	double totalEnergy = 0;
+	for (int irm = ifirst; irm < iend; ++irm) {
+	  int hpd = irm;
+	  if (hpd <= 0) hpd = 72 + hpd;
+	  totalEnergy += hpdEnergy[partition][hpd];
+	  if (minEnergy > maxEnergy) {
+	    minEnergy = maxEnergy = hpdEnergy[partition][hpd];
+	  }
+	  else {
+	    if (hpdEnergy[partition][hpd] < minEnergy) minEnergy = hpdEnergy[partition][hpd];
+	    if (hpdEnergy[partition][hpd] > maxEnergy) maxEnergy = hpdEnergy[partition][hpd];
+	  }
 	}
-	else {
-	  if (hpdEnergy[partition][hpd] < minEnergy) minEnergy = hpdEnergy[partition][hpd];
-	  if (hpdEnergy[partition][hpd] > maxEnergy) maxEnergy = hpdEnergy[partition][hpd];
+	if (totalEnergy > mRBXSpikeEnergyThreshold) {
+	  if (minEnergy / maxEnergy > mRBXSpikeUnbalanceThreshold) return false; // likely HPF flash
 	}
-      }
-      if (totalEnergy > mRBXSpikeEnergyThreshold) {
-	if (minEnergy / maxEnergy > mRBXSpikeUnbalanceThreshold) return false; // likely HPF flash
       }
     }
   }
