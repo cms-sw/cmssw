@@ -20,6 +20,7 @@
 #include "DataFormats/Provenance/interface/ProcessHistoryRegistry.h"
 #include "DataFormats/Provenance/interface/RunID.h"
 #include "FWCore/ServiceRegistry/interface/Service.h"
+#include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "FWCore/ParameterSet/interface/Registry.h"
 #include "FWCore/Utilities/interface/Algorithms.h"
@@ -116,7 +117,6 @@ namespace edm {
     // This preserves backward compatibility against friendly class name algorithm changes.
     ProductRegistry tempReg;
     ProductRegistry *ppReg = &tempReg;
-    //branchChildren_.reset(new BranchChildren);  // now set during initialization
     BranchChildren* branchChildrenBuffer = branchChildren_.get();
     typedef std::map<ParameterSetID, ParameterSetBlob> PsetMap;
     PsetMap psetMap;
@@ -212,7 +212,7 @@ namespace edm {
       newReg->setNextID(tempReg.nextID());
       newReg->setFrozen();
       productRegistry_.reset(newReg.release());
-      // This is the elector for drop on input.  It is not yet used.
+      // This is the selector for drop on input.
       groupSelector_.initialize(groupSelectorRules, productRegistry()->allBranchDescriptions());
     }
 
@@ -229,19 +229,38 @@ namespace edm {
     for (ModuleDescriptionMap::const_iterator k = mdMap.begin(), kEnd = mdMap.end(); k != kEnd; ++k) {
       moduleDescriptionRegistry.insertMapped(k->second);
     } 
+
     ProductRegistry::ProductList & prodList  = const_cast<ProductRegistry::ProductList &>(productRegistry()->productList());
 
-    // Do drop on input
+    // Do drop on input. On the first pass, just fill in a set of branches to be dropped.
+    std::set<BranchID> branchesToDrop;
+    for (ProductRegistry::ProductList::const_iterator it = prodList.begin(), itEnd = prodList.end();
+        it != itEnd; ++it) {
+      BranchDescription const& prod = it->second;
+      if(!selected(prod)) {
+        branchChildren_->appendToDescendents(prod.branchID(), branchesToDrop);
+      }
+    }
+
+    // On this pass, actually drop the branches.
+    std::set<BranchID>::const_iterator branchesToDropEnd = branchesToDrop.end();
     for (ProductRegistry::ProductList::iterator it = prodList.begin(), itEnd = prodList.end();
         it != itEnd;) {
       BranchDescription const& prod = it->second;
-      if(selected(prod)) {
-        ++it;
-      } else {
+      bool drop = branchesToDrop.find(prod.branchID()) != branchesToDropEnd;
+      if(drop) {
+	if (selected(prod)) {
+          LogWarning("RootFile")
+            << "Branch '" << prod.branchName() << "' is being dropped from the input\n"
+            << "of file '" << file_ << "' because it is dependent on a branch\n" 
+            << "that was explicitly dropped.\n";
+	}
         treePointers_[prod.branchType()]->dropBranch(newBranchToOldBranch(prod.branchName()));
         ProductRegistry::ProductList::iterator icopy = it;
         ++it;
         prodList.erase(icopy);
+      } else {
+        ++it;
       }
     }
 
