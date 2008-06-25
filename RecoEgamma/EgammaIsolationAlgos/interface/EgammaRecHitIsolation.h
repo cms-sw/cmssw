@@ -25,11 +25,12 @@ class EgammaRecHitIsolation {
   
   //constructors
   EgammaRecHitIsolation (double extRadius,
-		       double intRadius,
-		       double etLow,
-		       edm::ESHandle<CaloGeometry> ,
-		       CaloRecHitMetaCollectionV* ,
-		       DetId::Detector detector);
+			 double intRadius,
+			 double etaSlice,
+			 double etLow,
+			 edm::ESHandle<CaloGeometry> ,
+			 CaloRecHitMetaCollectionV* ,
+			 DetId::Detector detector);
   
   double getEtSum (const reco::Candidate * emObject) const {return getSum_(emObject,true);}
   double getEnergySum (const reco::Candidate * emObject) const{ return  getSum_(emObject,false);}
@@ -42,6 +43,7 @@ class EgammaRecHitIsolation {
 
   double extRadius_ ;
   double intRadius_ ;
+  double etaSlice_;
   double etLow_ ;
 
   
