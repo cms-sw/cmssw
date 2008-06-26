@@ -42,7 +42,7 @@ EcalEndcapGeometry::initialize()
 	zeN+=z;
 	++nN;
      }
-     const EEDetId myId ( getValidDetIds()[i] ) ;
+     const EEDetId myId ( EEDetId::detIdFromDenseIndex(i) ) ;
      const unsigned int ix ( myId.ix() ) ;
      const unsigned int iy ( myId.iy() ) ;
      if( abs( ix ) > m_nref ) m_nref = abs( ix ) ;
@@ -54,7 +54,7 @@ EcalEndcapGeometry::initialize()
   m_href = 0 ;
   for( uint32_t i ( 0 ) ; i != cellGeometries().size() ; ++i )
   {
-     const EEDetId myId ( getValidDetIds()[i] ) ;
+     const EEDetId myId ( EEDetId::detIdFromDenseIndex(i) ) ;
      const unsigned int ix ( myId.ix() ) ;
      const unsigned int iy ( myId.iy() ) ;
      if( ix == m_nref ) 
