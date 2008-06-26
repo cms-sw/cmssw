@@ -1,7 +1,7 @@
  /* 
  *  See header file for a description of this class.
  *
- *  $Date: 2008/02/1 15:35:49 $
+ *  $Date: 2008/02/15 12:15:58 $
  *  $Revision: 1.1 $
  *  \author D. Pagano - Dip. Fis. Nucl. e Teo. & INFN Pavia
  */
@@ -212,3 +212,66 @@ std::vector<RPCdbData::Item> RPCFw::createSTATUS(int from)
   return statusarray;
 
 }
+
+
+
+//------------------------------ S T A T U S ---------------------------------------------------------------------
+std::vector<RPCGas::GasItem> RPCFw::createGAS(int from)
+{
+
+  thr = UTtoT(from);
+  std::cout <<">> Processing since: "<<thr.day()<<"/"<<thr.month()<<"/"<<thr.year()<<" "<<thr.hour()<<":"<<thr.minute()<<"."<<thr.second()<< std::endl;
+  //coral::TimeStamp thr = this->lastValue();
+  //coral::TimeStamp thr = coral::TimeStamp(2007,11,2,03,11,00,00);
+
+  coral::ISession* session = this->connect( m_connectionString,
+                                            m_userName, m_password );
+  session->transaction().start( true );
+  coral::ISchema& schema = session->nominalSchema();
+  int nRows = 0;
+  std::cout << ">> creating GAS object..." << std::endl;
+  coral::IQuery* queryG = schema.newQuery();
+  queryG->addToTableList( "RPCGASCHANNEL" );
+  queryG->addToOutputList( "RPCGASCHANNEL.DPID", "DPID" );
+  queryG->addToOutputList( "RPCGASCHANNEL.CHANGE_DATE", "TSTAMP" );
+  queryG->addToOutputList( "RPCGASCHANNEL.FLOWIN", "FLOWIN" );
+  queryG->addToOutputList( "RPCGASCHANNEL.FLOWOUT", "FLOWOUT" );
+
+  std::string condition = "RPCGASCHANNEL.FLOWIN is not NULL AND RPCGASCHANNEL.CHANGE_DATE >:tmax";
+  coral::AttributeList conditionData;
+  conditionData.extend<coral::TimeStamp>( "tmax" );
+  queryG->setCondition( condition, conditionData );
+  conditionData[0].data<coral::TimeStamp>() = thr;
+  coral::ICursor& cursorG = queryG->execute();
+
+  RPCGas::GasItem Gtemp;
+  std::vector<RPCGas::GasItem> gasarray;
+  while ( cursorG.next() ) {
+    const coral::AttributeList& row = cursorG.currentRow();
+    float idoub = row["DPID"].data<float>();
+    int id = static_cast<int>(idoub);
+    float valin = row["FLOWIN"].data<float>();
+    float valout = row["FLOWOUT"].data<float>();
+    coral::TimeStamp ts =  row["TSTAMP"].data<coral::TimeStamp>();
+    int ndate = (ts.day() * 10000) + (ts.month() * 100) + (ts.year()-2000);
+    int ntime = (ts.hour() * 10000) + (ts.minute() * 100) + ts.second();
+
+    Gtemp.dpid = id;
+    Gtemp.flowin = valin;
+    Gtemp.flowout = valout;
+    Gtemp.day = ndate;
+    Gtemp.time = ntime;
+    gasarray.push_back(Gtemp);
+
+    ++nRows;
+  }
+  std::cout << ">> Gas array --> size: " << gasarray.size() << " >> done." << std::endl << std::endl << std::endl;
+
+  delete queryG;
+  session->transaction().commit();
+  delete session;
+
+  return gasarray;
+
+}
+
