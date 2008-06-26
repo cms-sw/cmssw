@@ -24,6 +24,7 @@
 #include "TEveViewer.h"
 #include "TGTextView.h"
 #include "TStopwatch.h"
+#include "TGTab.h"
 
 #include "boost/bind.hpp"
 #include <iostream>
@@ -34,10 +35,12 @@
 FWTextViewPage::FWTextViewPage (const std::string &title_, 
 				const std::vector<FWTableManager *> &tables_,
 				TGCompositeFrame *frame_,
+				TGTab *parent_tab_,
 				FWTextView *view_)
      : title(title_),
        tables(tables_),
        frame(frame_),
+       parent_tab(parent_tab_),
        undocked(0),
        view(view_),
        prev(0),
@@ -129,6 +132,7 @@ void FWTextViewPage::update ()
 // 	  i != tables.end(); ++i) {
 // 	  printf("\t%s: %d entries\n", (*i)->title().c_str(), (*i)->NumberOfRows());
 //      }     
+     printf("current tab is %d\n", parent_tab->GetCurrent());
      for (std::vector<FWTableManager *>::const_iterator i = tables.begin();
 	  i != tables.end(); ++i) {
 	  (*i)->Update();
@@ -145,7 +149,8 @@ FWTextView::FWTextView (CmsShowMain *de, FWSelectionManager *sel,
        hlt_manager   	(new HLTTableManager),
        track_manager 	(new TrackTableManager),
        vertex_manager  	(new VertexTableManager),
-       seleman		(sel)
+       seleman		(sel),
+       parent_tab	(gui->m_textViewTab)
 {      
      // stick managers in a vector for easier collective operations
      FWTableManager *managers_retreat[] = {
@@ -228,17 +233,21 @@ FWTextView::FWTextView (CmsShowMain *de, FWSelectionManager *sel,
      v_objs.push_back(el_manager);
      v_objs.push_back(jet_manager);
      FWTextViewPage *objects = new FWTextViewPage("Physics objects", v_objs, 
-						  gui->m_textViewFrame[0], this);
+						  gui->m_textViewFrame[0], 
+						  gui->m_textViewTab,
+						  this);
      std::vector<FWTableManager *> v_trigger;
      v_trigger.push_back(l1_manager);
      v_trigger.push_back(hlt_manager);
      FWTextViewPage *trigger = new FWTextViewPage("Trigger information", v_trigger,
-						  gui->m_textViewFrame[1], this);
+						  gui->m_textViewFrame[1], 
+						  gui->m_textViewTab, this);
      std::vector<FWTableManager *> v_tracks;
      v_tracks.push_back(vertex_manager);
      v_tracks.push_back(track_manager);
      FWTextViewPage *tracks = new FWTextViewPage("Tracking", v_tracks,
-						  gui->m_textViewFrame[2], this);
+						  gui->m_textViewFrame[2], 
+						  gui->m_textViewTab, this);
      page = objects;
      objects->setNext(trigger);
      trigger->setPrev(objects);
@@ -250,6 +259,15 @@ FWTextView::FWTextView (CmsShowMain *de, FWSelectionManager *sel,
      pages[0] = objects;
      pages[1] = trigger;
      pages[2] = tracks;
+     parent_tab->Connect("Selected(Int_t)", "FWTextView", this, "update(int)");
+}
+
+void FWTextView::update (int tab)
+{
+     // update a tab, either because of tab click or because of new
+     // event
+     if (tab > 0 && tab < 4)
+ 	  pages[tab - 1]->update();
 }
 
 void FWTextView::newEvent (const fwlite::Event &ev, const CmsShowMain *de)
@@ -529,8 +547,7 @@ void FWTextView::newEvent (const fwlite::Event &ev, const CmsShowMain *de)
      printf("read: ");
      stopwatch_read.Stop();
      stopwatch_read.Print("m");
-     for (int i = 0; i < 3; ++i)
-	  pages[i]->update();
+     update(parent_tab->GetCurrent());
      printf("table: ");
      stopwatch_table.Stop();
      stopwatch_table.Print("m");

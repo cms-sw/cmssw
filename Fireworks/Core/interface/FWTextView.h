@@ -16,6 +16,7 @@ class HLTTableManager;
 class TrackTableManager;
 class VertexTableManager;
 class TGMainFrame;
+class TGTab;
 class TGWindow;
 class TGCompositeFrame;
 class TGTransientFrame;
@@ -32,6 +33,7 @@ public:
      FWTextViewPage (const std::string &title, 
 		     const std::vector<FWTableManager *> &tables,
 		     TGCompositeFrame *frame,
+		     TGTab *parent_tab,
 		     FWTextView *view);
      void	setNext (FWTextViewPage *);
      void	setPrev (FWTextViewPage *);
@@ -45,6 +47,7 @@ public:
      std::string			title;
      std::vector<FWTableManager *>	tables;
      TGCompositeFrame			*frame;
+     TGTab				*parent_tab;
      TGTransientFrame			*undocked;
      const TGWindow			*parent;
      FWTextView				*view;
@@ -61,6 +64,7 @@ public:
      void nextPage ();
      void prevPage ();
      void selectionChanged (const FWSelectionManager &);
+     void update (int tab);
 
 protected:
      // objects
@@ -82,6 +86,8 @@ protected:
      FWTextViewPage		*pages[3];
 
      FWSelectionManager		*seleman;
+
+     TGTab			*parent_tab;
 };
 
 #endif

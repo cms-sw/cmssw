@@ -8,7 +8,7 @@
 //
 // Original Author:  Chris Jones
 //         Created:  Mon Feb 11 11:06:40 EST 2008
-// $Id: FWGUIManager.cc,v 1.39 2008/06/25 22:16:58 chrjones Exp $
+// $Id: FWGUIManager.cc,v 1.40 2008/06/26 08:33:06 jmuelmen Exp $
 //
 
 // system include files
@@ -418,6 +418,7 @@ FWGUIManager::createViews(TGCompositeFrame *p)
 
 TGMainFrame *FWGUIManager::createTextView (TGTab *p) 
 {
+     m_textViewTab = p;
      p->Resize(m_mainFrame->GetWidth(), m_mainFrame->GetHeight());
      m_textViewFrame[0] = p->AddTab("Physics objects");
      printf("current tab: %d\n", p->GetCurrent());
