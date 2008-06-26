@@ -1,4 +1,4 @@
-# /dev/CMSSW_2_1_0_pre6/HLT/V9 (CMSSW_2_1_X_2008-06-24-0000_HLT1)
+# /dev/CMSSW_2_1_0_pre6/HLT/V11 (CMSSW_2_1_X_2008-06-24-0000_HLT1)
 
 import FWCore.ParameterSet.Config as cms
 
@@ -10583,7 +10583,7 @@ hltIsolPixelTrackProd = cms.EDProducer( "IsolatedPixelTrackCandidateProducer",
     PixelIsolationConeSizeHB = cms.double( 0.4 ),
     PixelIsolationConeSizeHE = cms.double( 0.5 ),
     L1GTSeedLabel = cms.InputTag( "hltL1sIsolTrack" ),
-    MaxVtxDXYSeed = cms.double( 0.04 ),
+    MaxVtxDXYSeed = cms.double( 0.0 ),
     MaxVtxDXYIsol = cms.double( 10.0 ),
     VertexLabel = cms.InputTag( "hltPixelVertices" )
 )
@@ -10591,7 +10591,7 @@ hltIsolPixelTrackFilter = cms.EDFilter( "HLTPixelIsolTrackFilter",
     candTag = cms.InputTag( "hltIsolPixelTrackProd" ),
     MinPtTrack = cms.double( 20.0 ),
     MaxPtNearby = cms.double( 2.0 ),
-    MaxEtaTrack = cms.double( 2.1 ),
+    MaxEtaTrack = cms.double( 1.9 ),
     filterTrackEnergy = cms.bool( False ),
     MinEnergyTrack = cms.double( 15.0 )
 )
@@ -10806,7 +10806,7 @@ HLTL1EplusJet30Sequence = cms.Sequence( HLTBeginSequence + hltL1seedEJet30 )
 HLTE3Jet30ElectronSequence = cms.Sequence( HLTDoRegionalEgammaEcalSequence + HLTL1IsolatedEcalClustersSequence + hltL1IsoRecoEcalCandidate + hltL1IsoSingleEJet30L1MatchFilter + hltL1IsoEJetSingleEEt5Filter + HLTDoLocalHcalWithoutHOSequence + hltL1IsolatedElectronHcalIsol + hltL1IsoEJetSingleEEt5HcalIsolFilter + HLTDoLocalPixelSequence + HLTDoLocalStripSequence + HLTPixelMatchElectronL1IsoSequence + hltL1IsoEJetSingleEEt5PixelMatchFilter + HLTPixelMatchElectronL1IsoTrackingSequence + hltL1IsoEJetSingleEEt5EoverpFilter + HLTL1IsoElectronsRegionalRecoTrackerSequence + hltL1IsoElectronTrackIsol + hltL1IsoEJetSingleEEt5TrackIsolFilter + hltSingleElectronL1IsoPresc )
 HLTPixelTrackingForMinBiasSequence = cms.Sequence( hltPixelTracksForMinBias )
 HLTL1SeedFilterSequence = cms.Sequence( hltL1sIsolTrack )
-HLTL3PixelIsolFilterSequence = cms.Sequence( HLTDoLocalPixelSequence + hltPixelTracks + hltIsolPixelTrackProd + hltIsolPixelTrackFilter )
+HLTL3PixelIsolFilterSequence = cms.Sequence( HLTDoLocalPixelSequence + hltPixelTracks + hltPixelVertices + hltIsolPixelTrackProd + hltIsolPixelTrackFilter )
 HLTIsoTrRegFEDSelection = cms.Sequence( hltSiStripRegFED + hltEcalRegFED + hltSubdetFED )
 
 HLTriggerFirstPath = cms.Path( HLTBeginSequence + hltBoolFirst + HLTEndSequence )
