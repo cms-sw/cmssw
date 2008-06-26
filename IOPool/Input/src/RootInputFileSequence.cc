@@ -14,12 +14,11 @@
 #include "FWCore/ServiceRegistry/interface/Service.h"
 #include "FWCore/Utilities/interface/RandomNumberGenerator.h"
 #include "FWCore/Utilities/interface/Algorithms.h"
+#include "Utilities/StorageFactory/interface/StorageFactory.h"
 
 #include "CLHEP/Random/RandFlat.h"
 #include "TTree.h"
 #include "TFile.h"
-
-#include <ctime>
 
 namespace edm {
   RootInputFileSequence::RootInputFileSequence(
@@ -52,7 +51,12 @@ namespace edm {
     groupSelectorRules_(pset, "inputCommands", "InputSource"),
     dropMetaData_(pset.getUntrackedParameter<bool>("dropMetaData", false)),
     primarySequence_(primarySequence),
-    randomAccess_(false) {
+    randomAccess_(false),
+    wantedBranches_() {
+
+    StorageFactory *factory = StorageFactory::get();
+    for(fileIter_ = fileIterBegin_; fileIter_ != fileIterEnd_; ++fileIter_)
+      factory->stagein(fileIter_->fileName());
 
     sort_all(eventsToProcess_);
     std::string matchMode = pset.getUntrackedParameter<std::string>("fileMatchMode", std::string("permissive"));
@@ -126,7 +130,6 @@ namespace edm {
     // Account for events skipped in the file.
       eventsToSkip_ = rootFile_->eventsToSkip();
       rootFile_->close(primary());
-      logFileAction("  Closed file ", rootFile_->file());
       rootFile_.reset();
     }
   }
@@ -137,19 +140,17 @@ namespace edm {
     TTree::SetMaxTreeSize(kMaxLong64);
     boost::shared_ptr<TFile> filePtr;
     try {
-      logFileAction("  Initiating request to open file ", fileIter_->fileName());
-      filePtr.reset(TFile::Open(fileIter_->fileName().c_str()));
+      filePtr = boost::shared_ptr<TFile>(TFile::Open(fileIter_->fileName().c_str()));
     } catch (cms::Exception) {
       if (!skipBadFiles) throw;
     }
     if (filePtr && !filePtr->IsZombie()) {
-      logFileAction("  Successfully opened file ", fileIter_->fileName());
       rootFile_ = RootFileSharedPtr(new RootFile(fileIter_->fileName(), catalog_.url(),
 	  processConfiguration(), fileIter_->logicalFileName(), filePtr,
 	  startAtRun_, startAtLumi_, startAtEvent_, eventsToSkip_, whichLumisToSkip_,
 	  remainingEvents(), remainingLuminosityBlocks(), treeCacheSize_, treeMaxVirtualSize_,
 	  forcedRunOffset_, eventsToProcess_,
-	  dropMetaData_, groupSelectorRules_));
+	  dropMetaData_, groupSelectorRules_, wantedBranches_));
       fileIndexes_[fileIter_ - fileIterBegin_] = rootFile_->fileIndexSharedPtr();
     } else {
       if (!skipBadFiles) {
@@ -407,20 +408,6 @@ namespace edm {
   }
 
   void
-  RootInputFileSequence::dropUnwantedBranches_(std::vector<std::string> const& wantedBranches) {
-    std::vector<std::string> rules;
-    rules.reserve(wantedBranches.size() + 1);
-    rules.push_back(std::string("drop *")); 
-    for (std::vector<std::string>::const_iterator it = wantedBranches.begin(), itEnd = wantedBranches.end();
-	it != itEnd; ++it) {
-      rules.push_back("keep " + *it + "_*");
-    }
-    ParameterSet pset;
-    pset.addUntrackedParameter("inputCommands", rules);
-    groupSelectorRules_ = GroupSelectorRules(pset, "inputCommands", "InputSource");
-  }
-
-  void
   RootInputFileSequence::readMany_(int number, EventPrincipalVector& result) {
     for (int i = 0; i < number; ++i) {
       std::auto_ptr<EventPrincipal> ev = readCurrentEvent();
@@ -479,16 +466,6 @@ namespace edm {
       result.push_back(e);
       --eventsRemainingInFile_;
       rootFile_->nextEventEntry();
-    }
-  }
-
-  void RootInputFileSequence::logFileAction(const char* msg, std::string const& file) {
-    if (primarySequence_) {
-      time_t t = time(0);
-      char ts[] = "dd-Mon-yyyy hh:mm:ss TZN     ";
-      strftime( ts, strlen(ts)+1, "%d-%b-%Y %H:%M:%S %Z", localtime(&t) );
-      edm::LogAbsolute("fileAction") << ts << msg << file;
-      edm::FlushMessageLog();
     }
   }
 }
