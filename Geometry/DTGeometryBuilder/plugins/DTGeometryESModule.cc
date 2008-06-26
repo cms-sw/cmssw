@@ -1,7 +1,7 @@
 /** \file
  *
- *  $Date: 2008/01/22 21:26:40 $
- *  $Revision: 1.4 $
+ *  $Date: 2008/02/22 12:49:23 $
+ *  $Revision: 1.5 $
  *  \author N. Amapane - CERN
  */
 
@@ -26,11 +26,19 @@
 
 using namespace edm;
 
-DTGeometryESModule::DTGeometryESModule(const edm::ParameterSet & p){
+DTGeometryESModule::DTGeometryESModule(const edm::ParameterSet & p)
+  : alignmentsLabel_(p.getParameter<std::string>("alignmentsLabel")),
+    myLabel_(p.getParameter<std::string>("appendToDataLabel"))
+{
 
-  applyAlignment_ = p.getUntrackedParameter<bool>("applyAlignment", false);
+  applyAlignment_ = p.getParameter<bool>("applyAlignment");
 
   setWhatProduced(this, dependsOn(&DTGeometryESModule::geometryCallback_) );
+
+  edm::LogInfo("Geometry") << "@SUB=DTGeometryESModule"
+			   << "Label '" << myLabel_ << "' "
+			   << (applyAlignment_ ? "looking for" : "IGNORING")
+			   << " alignment labels '" << alignmentsLabel_ << "'.";
 }
 
 
@@ -44,16 +52,26 @@ DTGeometryESModule::produce(const MuonGeometryRecord & record) {
   // Called whenever the alignments or alignment errors change
   //  
   if ( applyAlignment_ ) {
-    edm::ESHandle<Alignments> globalPositionRcd;
-    record.getRecord<GlobalPositionRcd>().get( globalPositionRcd );
+    // applyAlignment_ is scheduled for removal. 
+    // Ideal geometry obtained by using 'fake alignment' (with applyAlignment_ = true)
+    edm::ESHandle<Alignments> globalPosition;
+    record.getRecord<GlobalPositionRcd>().get(alignmentsLabel_, globalPosition);
     edm::ESHandle<Alignments> alignments;
-    record.getRecord<DTAlignmentRcd>().get( alignments );
+    record.getRecord<DTAlignmentRcd>().get(alignmentsLabel_, alignments);
     edm::ESHandle<AlignmentErrors> alignmentErrors;
-    record.getRecord<DTAlignmentErrorRcd>().get( alignmentErrors );
-    GeometryAligner aligner;
-    aligner.applyAlignments<DTGeometry>( &(*_dtGeometry),
-                                         &(*alignments), &(*alignmentErrors),
-                                         align::DetectorGlobalPosition(*globalPositionRcd, DetId(DetId::Muon)));
+    record.getRecord<DTAlignmentErrorRcd>().get(alignmentsLabel_, alignmentErrors);
+    // Only apply alignment if values exist
+    if (alignments->empty() && alignmentErrors->empty() && globalPosition->empty()) {
+      edm::LogInfo("Config") << "@SUB=DTGeometryRecord::produce"
+			     << "Alignment(Error)s and global position (label '"
+			     << alignmentsLabel_ << "') empty: Geometry producer (label "
+			     << "'" << myLabel_ << "') assumes fake and does not apply.";
+    } else {
+      GeometryAligner aligner;
+      aligner.applyAlignments<DTGeometry>( &(*_dtGeometry),
+					   &(*alignments), &(*alignmentErrors),
+					   align::DetectorGlobalPosition(*globalPosition, DetId(DetId::Muon)));
+    }
   }
 
   return _dtGeometry;
