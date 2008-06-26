@@ -4,10 +4,6 @@ void PFRecoTauDiscriminationAgainstElectron::produce(Event& iEvent,const EventSe
   Handle<PFTauCollection> thePFTauCollection;
   iEvent.getByLabel(PFTauProducer_,thePFTauCollection);
 
-  ESHandle<MagneticField> myMF;
-  iEventSetup.get<IdealMagneticFieldRecord>().get(myMF);
-  const MagneticField* MagneticField = myMF.product(); 
-
   // fill the AssociationVector object
   auto_ptr<PFTauDiscriminator> thePFTauDiscriminatorAgainstElectron(new PFTauDiscriminator(PFTauRefProd(thePFTauCollection)));
 
@@ -18,22 +14,16 @@ void PFRecoTauDiscriminationAgainstElectron::produce(Event& iEvent,const EventSe
     TrackRef myleadTk;
     if((*thePFTauRef).leadPFChargedHadrCand().isNonnull()){
       myleadTk=(*thePFTauRef).leadPFChargedHadrCand()->trackRef();
-      math::XYZPoint myleadTkEcalPos;
-      
+      math::XYZPointF myleadTkEcalPos = (*thePFTauRef).leadPFChargedHadrCand()->positionAtECALEntrance();
+
       if(myleadTk.isNonnull()){ 
-	if(MagneticField!=0){ 
-	  myleadTkEcalPos = TauTagTools::propagTrackECALSurfContactPoint(MagneticField,myleadTk);
-	} else {
-	  // temporary: outer position is not correct!
-	myleadTkEcalPos = myleadTk->outerPosition();
-	}
 	if (applyCut_ecalCrack_ && isInEcalCrack(abs((double)myleadTkEcalPos.eta()))) {
 	  thePFTauDiscriminatorAgainstElectron->setValue(iPFTau,0);
 	  continue;
 	}
       }
     }
-
+    
     bool decision = false;
     bool emfPass = true, htotPass = true, hmaxPass = true; 
     bool h3x3Pass = true, estripPass = true, erecovPass = true, epreidPass = true;

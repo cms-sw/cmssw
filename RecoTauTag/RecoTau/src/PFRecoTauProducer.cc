@@ -22,9 +22,9 @@ void PFRecoTauProducer::produce(Event& iEvent,const EventSetup& iSetup){
   iSetup.get<TransientTrackRecord>().get("TransientTrackBuilder",myTransientTrackBuilder);
   PFRecoTauAlgo_->setTransientTrackBuilder(myTransientTrackBuilder.product());
 
-  ESHandle<MagneticField> myMF;
-  iSetup.get<IdealMagneticFieldRecord>().get(myMF);
-  PFRecoTauAlgo_->setMagneticField(myMF.product());
+  //ESHandle<MagneticField> myMF;
+  //iSetup.get<IdealMagneticFieldRecord>().get(myMF);
+  //PFRecoTauAlgo_->setMagneticField(myMF.product());
 
   // Electron PreID tracks: Temporary until integrated to PFCandidate
   /*

@@ -17,7 +17,6 @@
 #include "DataFormats/TauReco/interface/PFTauDiscriminator.h"
 #include "DataFormats/TrackReco/interface/Track.h"
 
-#include "MagneticField/Records/interface/IdealMagneticFieldRecord.h"
 #include "RecoTauTag/TauTagTools/interface/TauTagTools.h"
 
 using namespace std; 
