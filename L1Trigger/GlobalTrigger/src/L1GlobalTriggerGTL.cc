@@ -38,6 +38,11 @@
 #include "CondFormats/L1TObjects/interface/L1GtJetCountsTemplate.h"
 #include "CondFormats/L1TObjects/interface/L1GtCorrelationTemplate.h"
 
+#include "CondFormats/L1TObjects/interface/L1MuTriggerScales.h"
+#include "CondFormats/DataRecord/interface/L1MuTriggerScalesRcd.h"
+#include "CondFormats/L1TObjects/interface/L1CaloGeometry.h"
+#include "CondFormats/DataRecord/interface/L1CaloGeometryRecord.h"
+
 #include "L1Trigger/GlobalTrigger/interface/L1GtConditionEvaluation.h"
 #include "L1Trigger/GlobalTrigger/interface/L1GtAlgorithmEvaluation.h"
 
@@ -47,7 +52,9 @@
 #include "L1Trigger/GlobalTrigger/interface/L1GtCaloCondition.h"
 #include "L1Trigger/GlobalTrigger/interface/L1GtEnergySumCondition.h"
 #include "L1Trigger/GlobalTrigger/interface/L1GtJetCountsCondition.h"
-//#include "L1Trigger/GlobalTrigger/interface/L1GtCorrelationCondition.h"
+#include "L1Trigger/GlobalTrigger/interface/L1GtCorrelationCondition.h"
+
+#include "L1Trigger/GlobalTrigger/interface/L1GtEtaPhiConversions.h"
 
 #include "FWCore/Utilities/interface/Exception.h"
 
@@ -67,6 +74,12 @@ L1GlobalTriggerGTL::L1GlobalTriggerGTL() :
 
     // initialize cached IDs
     m_l1GtMenuCacheID = 0ULL;
+    m_l1CaloGeometryCacheID = 0ULL;
+    m_l1MuTriggerScalesCacheID = 0ULL;
+    
+    // pointer to conversion - actually done in the event loop (cached)
+    m_gtEtaPhiConversions = new L1GtEtaPhiConversions();
+ 
 }
 
 // destructor
@@ -74,6 +87,7 @@ L1GlobalTriggerGTL::~L1GlobalTriggerGTL() {
 
     reset();
     delete m_candL1Mu;
+    delete m_gtEtaPhiConversions;
 
 }
 
@@ -171,9 +185,60 @@ void L1GlobalTriggerGTL::run(edm::Event& iEvent, const edm::EventSetup& evSetup,
         m_l1GtMenuCacheID = l1GtMenuCacheID;
         
     }
-
+    
     const std::vector<ConditionMap>& conditionMap = m_l1GtMenu->gtConditionMap();
     const AlgorithmMap& algorithmMap = m_l1GtMenu->gtAlgorithmMap();
+
+    const std::vector<std::vector<L1GtMuonTemplate> >& corrMuon =
+            m_l1GtMenu->corMuonTemplate();
+
+    const std::vector<std::vector<L1GtCaloTemplate> >& corrCalo =
+            m_l1GtMenu->corCaloTemplate();
+
+    const std::vector<std::vector<L1GtEnergySumTemplate> >& corrEnergySum =
+            m_l1GtMenu->corEnergySumTemplate();
+
+    // conversion needed for correlation conditions
+    // waste time - done also when no correlation template is in the menu
+    // TODO timing against "search the conditionMap for correlation conditions, 
+    //      execute it conditionally?" 
+    bool convertScale = false;
+    
+    // get / update the calorimeter geometry from the EventSetup 
+    // local cache & check on cacheIdentifier
+    unsigned long long l1CaloGeometryCacheID =
+            evSetup.get<L1CaloGeometryRecord>().cacheIdentifier();
+
+    if (m_l1CaloGeometryCacheID != l1CaloGeometryCacheID) {
+        
+        edm::ESHandle<L1CaloGeometry> l1CaloGeometry;
+        evSetup.get<L1CaloGeometryRecord>().get(l1CaloGeometry) ;
+        m_l1CaloGeometry =  l1CaloGeometry.product();
+        
+        m_l1CaloGeometryCacheID = l1CaloGeometryCacheID;
+        convertScale = true;
+        
+    }
+
+    // get / update the eta and phi muon trigger scales from the EventSetup 
+    // local cache & check on cacheIdentifier
+    unsigned long long l1MuTriggerScalesCacheID =
+            evSetup.get<L1MuTriggerScalesRcd>().cacheIdentifier();
+
+    if (m_l1MuTriggerScalesCacheID != l1MuTriggerScalesCacheID) {
+
+        edm::ESHandle< L1MuTriggerScales> l1MuTriggerScales;
+        evSetup.get< L1MuTriggerScalesRcd>().get(l1MuTriggerScales);
+        m_l1MuTriggerScales = l1MuTriggerScales.product();
+
+        m_l1MuTriggerScalesCacheID = l1MuTriggerScalesCacheID;
+        convertScale = true;
+    }
+
+    if (convertScale) {
+        m_gtEtaPhiConversions->convert(m_l1CaloGeometry, m_l1MuTriggerScales,
+                ifCaloEtaNumberBits, ifMuEtaNumberBits);
+    }
 
     // loop over condition maps (one map per condition chip)
     // then loop over conditions in the map
@@ -183,9 +248,13 @@ void L1GlobalTriggerGTL::run(edm::Event& iEvent, const edm::EventSetup& evSetup,
     std::vector<L1GtAlgorithmEvaluation::ConditionEvaluationMap> conditionResultMaps;
     conditionResultMaps.reserve(conditionMap.size());
     
+    int iChip = -1;
+    
     for (std::vector<ConditionMap>::const_iterator 
     		itCondOnChip = conditionMap.begin(); itCondOnChip != conditionMap.end(); itCondOnChip++) {
 
+        iChip++;
+        
         //L1GtAlgorithmEvaluation::ConditionEvaluationMap cMapResults;
         L1GtAlgorithmEvaluation::ConditionEvaluationMap cMapResults((*itCondOnChip).size()); // hash map
         
@@ -273,7 +342,134 @@ void L1GlobalTriggerGTL::run(edm::Event& iEvent, const edm::EventSetup& evSetup,
                 }
                     break;
                 case CondCorrelation: {
-                    //L1GtCorrelationCondition correlationCond = FIXME;
+
+                    // get first the sub-conditions
+                    const L1GtCorrelationTemplate* corrTemplate =
+                        static_cast<const L1GtCorrelationTemplate*>(itCond->second);
+                    const L1GtConditionCategory cond0Categ = corrTemplate->cond0Category();
+                    const L1GtConditionCategory cond1Categ = corrTemplate->cond1Category();
+                    const int cond0Ind = corrTemplate->cond0Index();
+                    const int cond1Ind = corrTemplate->cond1Index();
+
+                    const L1GtCondition* cond0Condition = 0;
+                    const L1GtCondition* cond1Condition = 0;
+                    
+                    // maximum number of objects received for evaluation of Type1s condition
+                    int cond0NrL1Objects = 0;
+                    int cond1NrL1Objects = 0;
+                    
+                    int cond0EtaBits = 0;
+                    int cond1EtaBits = 0;
+                    
+                    switch (cond0Categ) {
+                        case CondMuon: {
+                            cond0Condition = &((corrMuon[iChip])[cond0Ind]);
+                            cond0NrL1Objects = nrL1Mu;
+                            cond0EtaBits = ifMuEtaNumberBits;
+                        }
+                            break;
+                        case CondCalo: {
+                            cond0Condition = &((corrCalo[iChip])[cond0Ind]);
+                            
+                            switch ((cond0Condition->objectType())[0]) {
+                                case NoIsoEG:
+                                    cond0NrL1Objects= nrL1NoIsoEG;
+                                    break;
+                                case IsoEG:
+                                    cond0NrL1Objects = nrL1IsoEG;
+                                    break;
+                                case CenJet:
+                                    cond0NrL1Objects = nrL1CenJet;
+                                    break;
+                                case ForJet:
+                                    cond0NrL1Objects = nrL1ForJet;
+                                    break;
+                                case TauJet:
+                                    cond0NrL1Objects = nrL1TauJet;
+                                    break;
+                                default:
+                                    cond0NrL1Objects = 0;
+                                    break;
+                            }
+                            
+                            cond0EtaBits = ifCaloEtaNumberBits;
+                        }
+                            break;
+                        case CondEnergySum: {
+                            cond0Condition = &((corrEnergySum[iChip])[cond0Ind]);
+                            cond0NrL1Objects = 1;
+                        }
+                            break;
+                        default: {
+                            // do nothing, should not arrive here
+                        }                            
+                            break;
+                    }
+                    
+                    switch (cond1Categ) {
+                        case CondMuon: {
+                            cond1Condition = &((corrMuon[iChip])[cond1Ind]);
+                            cond1NrL1Objects = nrL1Mu;
+                            cond1EtaBits = ifMuEtaNumberBits;
+                        }
+                            break;
+                        case CondCalo: {
+                            cond1Condition = &((corrCalo[iChip])[cond1Ind]);
+
+                            switch ((cond1Condition->objectType())[0]) {
+                                case NoIsoEG:
+                                    cond1NrL1Objects= nrL1NoIsoEG;
+                                    break;
+                                case IsoEG:
+                                    cond1NrL1Objects = nrL1IsoEG;
+                                    break;
+                                case CenJet:
+                                    cond1NrL1Objects = nrL1CenJet;
+                                    break;
+                                case ForJet:
+                                    cond1NrL1Objects = nrL1ForJet;
+                                    break;
+                                case TauJet:
+                                    cond1NrL1Objects = nrL1TauJet;
+                                    break;
+                                default:
+                                    cond1NrL1Objects = 0;
+                                    break;
+                            }
+                            
+                             cond1EtaBits = ifCaloEtaNumberBits;
+                        }
+                            break;
+                        case CondEnergySum: {
+                            cond1Condition = &((corrEnergySum[iChip])[cond1Ind]);
+                            cond1NrL1Objects = 1;
+                        }
+                            break;
+                        default: {
+                            // do nothing, should not arrive here
+                        }                            
+                            break;
+                    }
+
+                    L1GtCorrelationCondition* correlationCond =
+                        new L1GtCorrelationCondition(itCond->second,
+                            cond0Condition, cond1Condition,  
+                            cond0NrL1Objects, cond1NrL1Objects, 
+                            cond0EtaBits, cond1EtaBits,
+                            this, ptrGtPSB, m_gtEtaPhiConversions);
+                    correlationCond->evaluateConditionStoreResult();
+
+                    cMapResults[itCond->first] = correlationCond;
+
+                    if (edm::isDebugEnabled() ) {
+                        std::ostringstream myCout;
+                        correlationCond->print(myCout);
+
+                        LogTrace("L1GlobalTriggerGTL") << myCout.str()
+                                << std::endl;
+                    }
+
+                    //                  delete correlationCond;
 
                 }
                     break;

@@ -37,6 +37,9 @@
 // forward declarations
 class L1GlobalTriggerPSB;
 class L1GtTriggerMenu;
+class L1CaloGeometry;
+class L1MuTriggerScales;
+class L1GtEtaPhiConversions;
 
 // class declaration
 class L1GlobalTriggerGTL
@@ -108,6 +111,16 @@ private:
     // trigger menu
     const L1GtTriggerMenu* m_l1GtMenu;
     unsigned long long m_l1GtMenuCacheID;
+    
+    // L1 scales (phi, eta) for Mu, Calo and EnergySum objects
+    const L1CaloGeometry* m_l1CaloGeometry;
+    unsigned long long m_l1CaloGeometryCacheID;
+    
+    const L1MuTriggerScales* m_l1MuTriggerScales;
+    unsigned long long m_l1MuTriggerScalesCacheID;
+    
+    // conversions for eta and phi
+    L1GtEtaPhiConversions* m_gtEtaPhiConversions;
 
 private:
 

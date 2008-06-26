@@ -371,7 +371,7 @@ void L1GlobalTrigger::produce(edm::Event& iEvent, const edm::EventSetup& evSetup
         evSetup.get< L1GtPrescaleFactorsAlgoTrigRcd >().get( l1GtPfAlgo );        
         m_l1GtPfAlgo = l1GtPfAlgo.product();
         
-        m_prescaleFactorsAlgoTrig = m_l1GtPfAlgo->gtPrescaleFactors();
+        m_prescaleFactorsAlgoTrig = &(m_l1GtPfAlgo->gtPrescaleFactors());
         
         m_l1GtPfAlgoCacheID = l1GtPfAlgoCacheID;
 
@@ -386,7 +386,7 @@ void L1GlobalTrigger::produce(edm::Event& iEvent, const edm::EventSetup& evSetup
         evSetup.get< L1GtPrescaleFactorsTechTrigRcd >().get( l1GtPfTech );        
         m_l1GtPfTech = l1GtPfTech.product();
         
-        m_prescaleFactorsTechTrig = m_l1GtPfTech->gtPrescaleFactors();
+        m_prescaleFactorsTechTrig = &(m_l1GtPfTech->gtPrescaleFactors());
         
         m_l1GtPfTechCacheID = l1GtPfTechCacheID;
 
@@ -796,6 +796,17 @@ void L1GlobalTrigger::produce(edm::Event& iEvent, const edm::EventSetup& evSetup
         }
 
     }
+    
+    // get the prescale factor set used in the actual luminosity segment
+    int pfAlgoSetIndex = 0; // FIXME
+    const std::vector<int>& prescaleFactorsAlgoTrig = 
+        (*m_prescaleFactorsAlgoTrig).at(pfAlgoSetIndex);
+
+    int pfTechSetIndex = 0; // FIXME
+    const std::vector<int>& prescaleFactorsTechTrig = 
+        (*m_prescaleFactorsTechTrig).at(pfTechSetIndex);
+    
+    //
 
     // loop over BxInEvent
     for (int iBxInEvent = minBxInEvent; iBxInEvent <= maxBxInEvent;
@@ -865,7 +876,7 @@ void L1GlobalTrigger::produce(edm::Event& iEvent, const edm::EventSetup& evSetup
         //<< std::endl;
 
         m_gtFDL->run(iEvent, 
-                m_prescaleFactorsAlgoTrig, m_prescaleFactorsTechTrig, 
+                prescaleFactorsAlgoTrig, prescaleFactorsTechTrig, 
                 m_triggerMaskAlgoTrig, m_triggerMaskTechTrig, 
                 m_triggerMaskVetoAlgoTrig, m_triggerMaskVetoTechTrig, 
                 boardMaps, m_emulateBxInEvent, iBxInEvent,
