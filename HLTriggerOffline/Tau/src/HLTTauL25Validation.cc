@@ -13,7 +13,7 @@
 //
 // Original Author:  Simone Gennai/Ricardo Vasquez Sierra
 //         Created:  Wed Apr 12 11:12:49 CEST 2006
-// $Id: HLTTauL25Validation.cc,v 1.2 2008/03/01 20:40:10 gennai Exp $
+// $Id: HLTTauL25Validation.cc,v 1.3 2008/06/11 12:21:56 bachtis Exp $
 //
 //
 // user include files
@@ -148,7 +148,7 @@ void HLTTauL25Validation::analyze(const edm::Event& iEvent, const edm::EventSetu
   using namespace edm;
   using namespace reco;
   numEvents_++;
-  double  matching_criteria;
+  double  matching_criteria  =0;
   //  std::cout << "--------------------------------------------------------------"<<endl;
   //std::cout << " RunNumber: " << iEvent.id().run() << ", EventNumber: " << iEvent.id().event() << std:: endl;
   //std::cout << "Event number: " << ++numEvents_ << endl;

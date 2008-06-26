@@ -53,6 +53,7 @@ class L2TauValidation : public edm::EDAnalyzer {
    
       //Parameters to read
       edm::InputTag     l2TauInfoAssoc_; //Path to analyze
+      std::string triggerTag_;//tag for dqm flder
       edm::InputTag     l2Isolated_; //Path to analyze
       edm::InputTag     mcColl_;         // input products from HLTMcInfo
       edm::InputTag     met_;             //Handle to missing Et 
@@ -60,8 +61,6 @@ class L2TauValidation : public edm::EDAnalyzer {
       int matchLevel_;
       double matchDeltaRMC_;
       
-      //Tag to save in DQM File
-      std::string triggerTag_;
       
       //Output file
       std::string outFile_;
