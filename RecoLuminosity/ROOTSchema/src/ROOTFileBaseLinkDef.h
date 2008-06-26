@@ -29,7 +29,7 @@
 #pragma link C++ struct HCAL_HLX::HLT+;
 #pragma link C++ struct HCAL_HLX::LUMI_HF_RING_SET+;
 #pragma link C++ struct HCAL_HLX::LUMI_SECTION+;
-
+#pragma link C++ struct HCAL_HLX::HIGH_FREQ_ET_SUM+;
 
 #endif
 #endif

@@ -17,6 +17,10 @@ ahunt@princeton.edu
 #include "TTree.h"
 
 namespace HCAL_HLX{
+  
+  struct HIGH_FREQ_ET_SUM{
+    ET_SUM_SECTION etSum[HCAL_HLX_MAX_HLXS][64];  // Data stored every four nibbles 
+  };
 
   class ROOTFileBase: public HCAL_HLX::TimeStamp{
     
@@ -33,6 +37,8 @@ namespace HCAL_HLX{
     
     std::string CreateRunFileName(const unsigned int runNumber, const unsigned int firstSection);
     std::string CreateLSFileName(const unsigned int runNumber, const unsigned int sectionNumber);
+
+    void SetEtSumOnly( bool bEtSumOnly );
     
   protected:
 
@@ -58,11 +64,15 @@ namespace HCAL_HLX{
     HCAL_HLX::ET_SUM_SECTION      *EtSumPtr[HCAL_HLX_MAX_HLXS];
     HCAL_HLX::OCCUPANCY_SECTION   *OccupancyPtr[HCAL_HLX_MAX_HLXS];
     HCAL_HLX::LHC_SECTION         *LHCPtr[HCAL_HLX_MAX_HLXS];
+
+    HCAL_HLX::HIGH_FREQ_ET_SUM    *HighFreqEtSum;
     
     std::string fileName_;
     std::string outputDir_;        
     std::string outputFilePrefix_;
       
+    bool bEtSumOnly_;
+
     void CreateTree(const HCAL_HLX::LUMI_SECTION &localSection);
     void FillTree(const HCAL_HLX::LUMI_SECTION &localSection);
     void CloseTree();

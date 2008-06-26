@@ -37,12 +37,16 @@ HCAL_HLX::ROOTFileBase::ROOTFileBase(){
   TriggerDeadtime = new HCAL_HLX::TRIGGER_DEADTIME;
   RingSet         = new HCAL_HLX::LUMI_HF_RING_SET;
 
+  HighFreqEtSum   = new HCAL_HLX::HIGH_FREQ_ET_SUM;
+
   outputDir_ = ".";
   outputFilePrefix_ = "CMS_LUMI_RAW";
 
   m_file = NULL;
 
   fileCounter_ = 0;
+
+  bEtSumOnly_ = false;
 
 #ifdef DEBUG
   std::cout << "End " << __PRETTY_FUNCTION__ << std::endl;
@@ -69,6 +73,8 @@ HCAL_HLX::ROOTFileBase::~ROOTFileBase(){
   delete TriggerDeadtime; 
   delete RingSet;
 
+  delete HighFreqEtSum;
+
 #ifdef DEBUG
   std::cout << "End " << __PRETTY_FUNCTION__ << std::endl;
 #endif
@@ -77,6 +83,12 @@ HCAL_HLX::ROOTFileBase::~ROOTFileBase(){
 void HCAL_HLX::ROOTFileBase::SetFileName(const std::string& fileName){
 
   fileName_ = fileName;
+
+} 
+
+void HCAL_HLX::ROOTFileBase::SetEtSumOnly( bool bEtSumOnly ){
+
+  bEtSumOnly_ = bEtSumOnly;
 
 } 
 
@@ -165,24 +177,29 @@ void HCAL_HLX::ROOTFileBase::CreateTree(const HCAL_HLX::LUMI_SECTION & localSect
   m_tree  = new TTree("LumiTree","");
 
   m_tree->Bronch("Header.",  "HCAL_HLX::LUMI_SECTION_HEADER", &Header,  1);
-  m_tree->Bronch("Summary.", "HCAL_HLX::LUMI_SUMMARY",        &Summary, 1);
-  m_tree->Bronch("Detail.",  "HCAL_HLX::LUMI_DETAIL",         &Detail,  1);
 
-  m_tree->Bronch("Threshold.",        "HCAL_HLX::LUMI_THRESHOLD",   &Threshold, 1);
-  m_tree->Bronch("Level1_Trigger.",   "HCAL_HLX::LEVEL1_TRIGGER",   &L1Trigger, 1);
-  m_tree->Bronch("HLT.",              "HCAL_HLX::HLT",              &HLT,       1);
-  m_tree->Bronch("Trigger_Deadtime.", "HCAL_HLX::TRIGGER_DEADTIME", &TriggerDeadtime, 1);
-  m_tree->Bronch("HF_Ring_Set.",      "HCAL_HLX::LUMI_HF_RING_SET", &RingSet,1);
+  if( !bEtSumOnly_ ){
+    m_tree->Bronch("Summary.", "HCAL_HLX::LUMI_SUMMARY",        &Summary, 1);
+    m_tree->Bronch("Detail.",  "HCAL_HLX::LUMI_DETAIL",         &Detail,  1);
+    
+    m_tree->Bronch("Threshold.",        "HCAL_HLX::LUMI_THRESHOLD",   &Threshold, 1);
+    m_tree->Bronch("Level1_Trigger.",   "HCAL_HLX::LEVEL1_TRIGGER",   &L1Trigger, 1);
+    m_tree->Bronch("HLT.",              "HCAL_HLX::HLT",              &HLT,       1);
+    m_tree->Bronch("Trigger_Deadtime.", "HCAL_HLX::TRIGGER_DEADTIME", &TriggerDeadtime, 1);
+    m_tree->Bronch("HF_Ring_Set.",      "HCAL_HLX::LUMI_HF_RING_SET", &RingSet,1);
+  }
 
   for(int i = 0; i < HCAL_HLX_MAX_HLXS; i++){
     EtSumPtr[i] = &EtSum[i];
     MakeBranch(localSection.etSum[i], &EtSumPtr[i], i);
-
-    OccupancyPtr[i] = &Occupancy[i];
-    MakeBranch(localSection.occupancy[i], &OccupancyPtr[i], i);
-
-    LHCPtr[i] = &LHC[i];
-    MakeBranch(localSection.lhc[i], &LHCPtr[i], i);
+    
+    if( !bEtSumOnly_ ){
+      OccupancyPtr[i] = &Occupancy[i];
+      MakeBranch(localSection.occupancy[i], &OccupancyPtr[i], i);
+      
+      LHCPtr[i] = &LHC[i];
+      MakeBranch(localSection.lhc[i], &LHCPtr[i], i);
+    }
   }
 
 #ifdef DEBUG
