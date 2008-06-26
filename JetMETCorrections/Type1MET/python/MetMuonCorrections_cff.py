@@ -1,13 +1,12 @@
 import FWCore.ParameterSet.Config as cms
 
-import copy
-from JetMETCorrections.Type1MET.corMetMuons_cfi import *
+import JetMETCorrections.Type1MET.corMetMuons_cfi
 # File: MetMuonCorrections.cff
 # Author: K. Terashi
 # Date: 08.31.2007
 #
 # Met corrections for global muons
-corMetGlobalMuons = copy.deepcopy(corMetMuons)
+corMetGlobalMuons = JetMETCorrections.Type1MET.corMetMuons_cfi.corMetMuons.clone()
 MetMuonCorrections = cms.Sequence(corMetGlobalMuons)
 #enable calo tower association only
 # association to hits would fail in AOD
