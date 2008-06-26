@@ -1,8 +1,8 @@
 /*
  *  See headers for a description
  *
- *  $Date: 2008/05/01 15:26:25 $
- *  $Revision: 1.2 $
+ *  $Date: 2008/05/10 14:48:24 $
+ *  $Revision: 1.3 $
  *  \author D. Pagano - Dip. Fis. Nucl. e Teo. & INFN Pavia
  */
 
@@ -32,6 +32,16 @@ popcon::RpcData::~RpcData()
 
 void popcon::RpcData::getNewObjects() {
 
+<<<<<<< RPCSourceHandler.cc
+  std::cout << "Reading log file: " << logpath << std::endl;
+  std::string ltime;
+  std::ifstream logfile;
+  logfile.open(logpath.c_str());
+  getline (logfile,ltime);
+  std::cout << "last time data: " << ltime << std::endl;
+ 
+  logfile.close();
+=======
   std::cout << "Reading log file: " << logpath << std::endl;
   std::string ltime;
   std::ifstream logfile;
@@ -51,11 +61,63 @@ void popcon::RpcData::getNewObjects() {
   
   coral::TimeStamp* mytime = new coral::TimeStamp;
   coral::TimeStamp now = mytime->now();
+>>>>>>> 1.3
 
+<<<<<<< RPCSourceHandler.cc
+  int max_since=0;
+  max_since=(int)tagInfo().lastInterval.first;
+  std::cout << "max_since : "  << max_since << std::endl;
+    
+=======
   time_t Ttll;
   Ttll = time (NULL);  
   tll = time (NULL);
+>>>>>>> 1.3
 
+<<<<<<< RPCSourceHandler.cc
+=======
+  RPCFw caen ( host, user, passw ); // OMDS
+  
+  if (since > 0) {
+     std::cout << std::endl << ">> User since time selection >> " << std::endl;
+     snc = since;
+  } else {
+     std::cout <<  std::endl << ">> Since time from log file >> " << std::endl;
+     snc = atoi(ltime.c_str());
+  }
+>>>>>>> 1.3
+
+<<<<<<< RPCSourceHandler.cc
+  
+  std::cout << "------- " << m_name 
+	    << " - > getNewObjects\n" << "got offlineInfo for " 
+	    << tagInfo().name << ", size " << tagInfo().size 
+	    << ", last object valid since " 
+	    << tagInfo().lastInterval.first << " till "
+	    << tagInfo().lastInterval.second << " token "   
+	    << tagInfo().lastPayloadToken << std::endl;
+  
+  coral::TimeStamp* mytime = new coral::TimeStamp;
+  coral::TimeStamp now = mytime->now();
+=======
+  struct tm * utctime;
+  struct tm * loctime;
+  time ( &Ttll );
+  utctime = gmtime ( &Ttll );
+  loctime = localtime ( &Ttll );
+  printf ( ">> Current UTC Time Stamp is: %s", asctime (utctime) );
+  printf ( ">> Local Time Stamp is: %s", asctime (loctime) );
+>>>>>>> 1.3
+
+<<<<<<< RPCSourceHandler.cc
+  time_t Ttll;
+  Ttll = time (NULL);  
+  tll = time (NULL);
+=======
+  std::cout << ">> UTime = " << tll << "--> IOV :: since = " << snc << " :: till = " << tll << std::endl;
+>>>>>>> 1.3
+
+<<<<<<< RPCSourceHandler.cc
   RPCFw caen ( host, user, passw ); // OMDS
   
   if (since > 0) {
@@ -76,6 +138,8 @@ void popcon::RpcData::getNewObjects() {
 
   std::cout << ">> UTime = " << tll << "--> IOV :: since = " << snc << " :: till = " << tll << std::endl;
 
+=======
+>>>>>>> 1.3
   std::vector<RPCdbData::Item> Icheck;
   std::vector<RPCdbData::Item> Vcheck;
   std::vector<RPCdbData::Item> Scheck;
