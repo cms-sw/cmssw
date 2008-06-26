@@ -1,4 +1,4 @@
-# /dev/CMSSW_2_1_0_pre6/HLT/V8 (CMSSW_2_1_X_2008-06-24-0000_HLT1)
+# /dev/CMSSW_2_1_0_pre6/HLT/V9 (CMSSW_2_1_X_2008-06-24-0000_HLT1)
 
 import FWCore.ParameterSet.Config as cms
 
@@ -10575,9 +10575,6 @@ hltL1sIsolTrack = cms.EDFilter( "HLTLevel1GTSeed",
     L1MuonCollectionTag = cms.InputTag( "hltL1extraParticles" )
 )
 hltPreIsolTrackNoEcalIso = cms.EDFilter( "HLTPrescaler" )
-hltNever = cms.EDFilter( "HLTBool",
-    result = cms.bool( False )
-)
 hltIsolPixelTrackProd = cms.EDProducer( "IsolatedPixelTrackCandidateProducer",
     L1eTauJetsSource = cms.InputTag( 'hltL1extraParticles','Tau' ),
     tauAssociationCone = cms.double( 0.5 ),
@@ -10588,7 +10585,7 @@ hltIsolPixelTrackProd = cms.EDProducer( "IsolatedPixelTrackCandidateProducer",
     L1GTSeedLabel = cms.InputTag( "hltL1sIsolTrack" ),
     MaxVtxDXYSeed = cms.double( 0.04 ),
     MaxVtxDXYIsol = cms.double( 10.0 ),
-    VertexLabel = cms.InputTag( "pixelVertices" )
+    VertexLabel = cms.InputTag( "hltPixelVertices" )
 )
 hltIsolPixelTrackFilter = cms.EDFilter( "HLTPixelIsolTrackFilter",
     candTag = cms.InputTag( "hltIsolPixelTrackProd" ),
@@ -10994,7 +10991,7 @@ HLT_CSCBeamHaloOverlapRing1 = cms.Path( HLTBeginSequence + hltLevel1seedHLTCSCBe
 HLT_CSCBeamHaloOverlapRing2 = cms.Path( HLTBeginSequence + hltLevel1seedHLTCSCBeamHaloOverlapRing2 + hltPrescaleHLTCSCBeamHaloOverlapRing2 + hltMuonCSCDigis + hltCsc2DRecHits + hltOverlapsHLTCSCBeamHaloOverlapRing2 + HLTEndSequence )
 HLT_CSCBeamHaloRing2or3 = cms.Path( HLTBeginSequence + hltLevel1seedHLTCSCBeamHaloRing2or3 + hltPrescaleHLTCSCBeamHaloRing2or3 + hltMuonCSCDigis + hltCsc2DRecHits + hltFilter23HLTCSCBeamHaloRing2or3 + HLTEndSequence )
 HLT_TrackerCosmics = cms.Path( HLTBeginSequence + hltLevel1seedHLTTrackerCosmics + hltPrescaleHLTTrackerCosmics + HLTEndSequence )
-AlCa_IsoTrack = cms.Path( HLTBeginSequence + HLTL1SeedFilterSequence + hltPreIsolTrackNoEcalIso + hltNever + HLTL3PixelIsolFilterSequence + HLTIsoTrRegFEDSelection + HLTEndSequence )
+AlCa_IsoTrack = cms.Path( HLTBeginSequence + HLTL1SeedFilterSequence + hltPreIsolTrackNoEcalIso + HLTL3PixelIsolFilterSequence + HLTIsoTrRegFEDSelection + HLTEndSequence )
 AlCa_EcalPhiSym = cms.Path( HLTBeginSequence + hltL1sEcalPhiSym + hltEcalPhiSymPresc + hltEcalDigis + hltEcalWeightUncalibRecHit + hltEcalRecHit + hltAlCaPhiSymStream + HLTEndSequence )
 AlCa_EcalPi0 = cms.Path( HLTBeginSequence + hltPrePi0Ecal + hltL1sEcalPi0 + HLTDoRegionalEgammaEcalSequence + hltAlCaPi0RegRecHits + HLTEndSequence )
 HLT_TriggerType = cms.Path( HLTBeginSequence + hltPrescaleTriggerType + hltFilterTriggerType + HLTEndSequence )
