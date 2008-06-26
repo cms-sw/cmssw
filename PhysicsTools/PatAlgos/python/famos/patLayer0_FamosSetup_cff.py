@@ -3,6 +3,7 @@ import FWCore.ParameterSet.Config as cms
 # FAMOS replace statements ###
 def setup(process) :
     process.allLayer0Muons.muonSource = cms.InputTag('paramMuons','ParamGlobalMuons')
+    process.corMetType1Icone5Muons.inputMuonsLabel = cms.InputTag('paramMuons', 'ParamGlobalMuons')   ## muons to be used for MET corrections
     process.patAODMuonIsolations.collection   = cms.InputTag('paramMuons','ParamGlobalMuons')
     process.patAODMuonIsolations.associations = cms.VInputTag(
             cms.InputTag('muParamGlobalIsoDepositCalByAssociatorTowers','ecal'),
