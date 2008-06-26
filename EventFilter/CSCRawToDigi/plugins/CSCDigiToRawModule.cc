@@ -1,7 +1,7 @@
 /** \file
  *
- *  $Date: 2008/01/22 18:58:23 $
- *  $Revision: 1.6 $
+ *  $Date: 2008/05/02 20:16:35 $
+ *  $Revision: 1.7 $
  *  \author A. Tumanov - Rice
  */
 
@@ -24,7 +24,11 @@ using namespace std;
 CSCDigiToRawModule::CSCDigiToRawModule(const edm::ParameterSet & pset): 
   packer(new CSCDigiToRaw),
   theStripDigiTag(pset.getParameter<edm::InputTag>("stripDigiTag")),
-  theWireDigiTag(pset.getParameter<edm::InputTag>("wireDigiTag"))
+  theWireDigiTag(pset.getParameter<edm::InputTag>("wireDigiTag")),
+  theComparatorDigiTag(pset.getParameter<edm::InputTag>("comparatorDigiTag")),
+  theALCTDigiTag(pset.getParameter<edm::InputTag>("alctDigiTag")),
+  theCLCTDigiTag(pset.getParameter<edm::InputTag>("clctDigiTag")),
+  theCorrelatedLCTDigiTag(pset.getParameter<edm::InputTag>("correlatedLCTDigiTag"))
 {
   //theStrip = pset.getUntrackedParameter<string>("DigiCreator", "cscunpacker");
   produces<FEDRawDataCollection>("CSCRawData"); 
@@ -49,6 +53,15 @@ void CSCDigiToRawModule::produce(Event & e, const EventSetup& c){
   e.getByLabel(theStripDigiTag, stripDigis);
   Handle<CSCWireDigiCollection> wireDigis;
   e.getByLabel(theWireDigiTag, wireDigis);
+  Handle<CSCComparatorDigiCollection> comparatorDigis;
+  e.getByLabel(theComparatorDigiTag, comparatorDigis);
+  Handle<CSCALCTDigiCollection> alctDigis;
+  e.getByLabel(theALCTDigiTag, alctDigis);
+  Handle<CSCCLCTDigiCollection> clctDigis;
+  e.getByLabel(theCLCTDigiTag, clctDigis);
+  Handle<CSCCorrelatedLCTDigiCollection> correlatedLCTDigis;
+  e.getByLabel(theComparatorDigiTag, correlatedLCTDigis);
+
 
 
   // Create the packed data

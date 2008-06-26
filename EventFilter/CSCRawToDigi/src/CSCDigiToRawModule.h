@@ -3,8 +3,8 @@
 
 /** \class CSCDigiToRawModule
  *
- *  $Date: 2007/10/08 22:01:06 $
- *  $Revision: 1.5 $
+ *  $Date: 2008/05/02 20:16:20 $
+ *  $Revision: 1.6 $
  *  \author A. Tumanov - Rice
  */
 
@@ -27,6 +27,10 @@ class CSCDigiToRawModule : public edm::EDProducer {
   CSCDigiToRaw * packer;
   edm::InputTag theStripDigiTag;
   edm::InputTag theWireDigiTag;
+  edm::InputTag theComparatorDigiTag;
+  edm::InputTag theALCTDigiTag;
+  edm::InputTag theCLCTDigiTag;
+  edm::InputTag theCorrelatedLCTDigiTag;
 };
 #endif
 
