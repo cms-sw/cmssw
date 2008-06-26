@@ -228,9 +228,6 @@ namespace HcalDeadCellCheck
 		 DeadCellHists& hist, DeadCellHists& all, 
 		 DQMStore* dbe)
   { 
-    // This seems to run really slowly; disable it for now
-    return;
-
     if (hist.check==false) 
       return;
     
