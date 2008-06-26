@@ -7,6 +7,8 @@
 #include "Geometry/TrackerGeometryBuilder/interface/TrackerGeometry.h"
 #include <boost/shared_ptr.hpp>
 
+#include <string>
+
 class  TrackerDigiGeometryESModule: public edm::ESProducer{
  public:
   TrackerDigiGeometryESModule(const edm::ParameterSet & p);
@@ -19,6 +21,8 @@ class  TrackerDigiGeometryESModule: public edm::ESProducer{
   boost::shared_ptr<TrackerGeometry> _tracker;
   bool applyAlignment_; // Switch to apply alignment corrections
   bool fromDDD_;
+  const std::string alignmentsLabel_;
+  const std::string myLabel_;
 };
 
 
