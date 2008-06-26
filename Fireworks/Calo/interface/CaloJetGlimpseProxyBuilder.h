@@ -16,7 +16,7 @@
 //
 // Original Author:  
 //         Created:  Sun Jan  6 23:42:33 EST 2008
-// $Id: CaloJetGlimpseProxyBuilder.h,v 1.2 2008/06/09 19:54:03 chrjones Exp $
+// $Id: CaloJetGlimpseProxyBuilder.h,v 1.1 2008/06/19 06:57:27 dmytro Exp $
 //
 
 // system include files
@@ -39,6 +39,7 @@ class CaloJetGlimpseProxyBuilder : public FWGlimpseDataProxyBuilder
    private:
       virtual void build(const FWEventItem* iItem, 
 			 TEveElementList** product);
+      double getTheta( double eta ) { return 2*atan(exp(-eta)); }
 
       CaloJetGlimpseProxyBuilder(const CaloJetGlimpseProxyBuilder&); // stop default
 
