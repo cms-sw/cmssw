@@ -3,7 +3,17 @@
 <use name=FWCore/ParameterSet>
 <use name=CondFormats/Alignment>
 <use name=CondFormats/AlignmentRecord>
+
 <library file=FakeAlignmentProducer.cc>
+  <use name=CondFormats/Alignment>
+  <use name=CondFormats/AlignmentRecord>
+  <use name=FWCore/Framework>
+  <use name=FWCore/MessageLogger>
+  <use name=boost>
+  <flags EDM_PLUGIN=1>
+</library>
+
+<library file=FakeAlignmentSource.cc>
   <use name=CondFormats/Alignment>
   <use name=CondFormats/AlignmentRecord>
   <use name=FWCore/Framework>

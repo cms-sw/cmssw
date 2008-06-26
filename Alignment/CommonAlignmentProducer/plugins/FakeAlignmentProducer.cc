@@ -6,6 +6,7 @@
 /**\class FakeAlignmentProducer FakeAlignmentProducer.h Alignment/FakeAlignmentProducer/interface/FakeAlignmentProducer.h
 
 Description: Producer of fake alignment data for all geometries (currently: Tracker, DT and CSC)
+             (but will not provide IOV as the FakeAlignmentSource)
 
 Implementation: 
 The alignment objects are filled with dummy/empty data, 
@@ -14,7 +15,7 @@ reconstruction Geometry should notice that and not pass to GeometryAligner.
 //
 // Original Author:  Frederic Ronga
 //         Created:  Fri Feb  9 19:24:38 CET 2007
-// $Id: FakeAlignmentProducer.cc,v 1.4 2008/02/18 19:00:32 flucke Exp $
+// $Id: FakeAlignmentProducer.cc,v 1.5 2008/02/18 20:10:48 pivarski Exp $
 //
 //
 
@@ -68,8 +69,9 @@ public:
 
 FakeAlignmentProducer::FakeAlignmentProducer(const edm::ParameterSet& iConfig) 
 {
-
-  edm::LogInfo("Alignments") << "This is a fake alignment producer.";
+  edm::LogInfo("Alignments") 
+    << "@SUB=FakeAlignmentProducer" << "Providing data with label '" 
+    << iConfig.getParameter<std::string>("appendToDataLabel") << "'.";
 
   setWhatProduced( this, &FakeAlignmentProducer::produceTkAli );
   setWhatProduced( this, &FakeAlignmentProducer::produceTkAliErr );
