@@ -1,4 +1,4 @@
-#include "RecoParticleFlow/PFProducer/test/PFCandidateAnalyzer.h"
+#include "RecoParticleFlow/Configuration/test/PFCandidateAnalyzer.h"
 #include "DataFormats/ParticleFlowCandidate/interface/PFCandidate.h"
 
 #include "FWCore/Framework/interface/ESHandle.h"
