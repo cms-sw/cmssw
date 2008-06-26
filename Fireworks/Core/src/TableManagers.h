@@ -30,7 +30,7 @@ public:
      void Dump () { }
      // and has a utility for making a display frame
      void MakeFrame (TGCompositeFrame *parent, int width, int height);
-     void Update ();
+     void Update (int rows = 5);
      void Selection (int row, int mask);
      void selectRows ();
      virtual int table_row_to_index (int) const { return 0; }

@@ -27,6 +27,7 @@
 #pragma link C++ class FWListItemBase;
 #pragma link C++ class TableWidget;
 #pragma link C++ class FWTextView;
+#pragma link C++ class FWTextViewPage;
 #pragma link C++ class FWGUIEventDataAdder;
 
 #pragma link C++ function fwSetInCint(double);

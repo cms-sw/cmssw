@@ -70,15 +70,10 @@ void FWTableManager::MakeFrame (TGCompositeFrame *parent, int width, int height)
 //      widget->HighlightRow(0);
 }
 
-void FWTableManager::Update ()
+void FWTableManager::Update (int rows)
 {
-     widget->InitTableCells(); 
-     widget->UpdateTableCells(0, 0); 
-     widget->m_vSlider->
-	  SetRange(widget->m_scrollHeight * 
-		   std::max(NumberOfRows() - widget->m_tabRows + 1, 
-			    0),
-		   widget->m_scrollHeight);
+//      widget->InitTableCells(); 
+     widget->Reinit(rows);
 }
 
 void FWTableManager::Selection (int row, int mask) 

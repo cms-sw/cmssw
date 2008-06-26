@@ -29,6 +29,7 @@
 #include <iostream>
 
 #include "TableManagers.h"
+#include "Fireworks/Core/interface/FWGUISubviewArea.h"
 
 FWTextViewPage::FWTextViewPage (const std::string &title_, 
 				const std::vector<FWTableManager *> &tables_,
@@ -37,20 +38,67 @@ FWTextViewPage::FWTextViewPage (const std::string &title_,
      : title(title_),
        tables(tables_),
        frame(frame_),
+       undocked(0),
        view(view_),
        prev(0),
        next(0)
 {
+     const int width=frame->GetWidth();
+     const int height=frame->GetHeight();
+     TGPictureButton *m_undockButton = new TGPictureButton(frame, 
+							   FWGUISubviewArea::undockIcon());
+     m_undockButton->SetToolTipText("Undock view to own window");
+     m_undockButton->SetHeight(25);
+     frame->AddFrame(m_undockButton, new TGLayoutHints(kLHintsTop|kLHintsLeft|
+							   kLHintsExpandX));
+     m_undockButton->Connect("Clicked()", "FWTextViewPage", this, "undock()");
      for (std::vector<FWTableManager *>::const_iterator i = tables.begin();
 	  i != tables.end(); ++i) {
-	  int width=1200;
-	  int height=600;
 	  (*i)->MakeFrame(frame, width, height);
 // 	  frame->AddFrame((*i)->frame, tFrameHints);
 // 	  printf("frame: adding frame\n");
      }
      frame->MapSubwindows();
      frame->MapWindow(); 
+     frame->Resize(width, height);
+} 
+
+void FWTextViewPage::undock ()
+{
+   // Extract the frame contained in this split frame an reparent it in a 
+   // transient frame. Keep a pointer on the transient frame to be able to
+   // swallow the child frame back to this.
+   if (frame) {
+	parent = frame->GetParent();
+	frame->UnmapWindow();
+	TGTransientFrame *undocked = new 
+	     TGTransientFrame(gClient->GetDefaultRoot(), frame, 800, 600);
+	frame->ReparentWindow(undocked);
+	undocked->AddFrame(frame, new TGLayoutHints(kLHintsExpandX | kLHintsExpandY));
+	// Layout...
+	undocked->MapSubwindows();
+	undocked->Layout();
+	undocked->MapWindow();
+//       RemoveFrame(frame);
+	undocked->Connect("CloseWindow()", "FWTextViewPage", this, "redock()");
+   }
+}
+
+void FWTextViewPage::redock ()
+{
+     // doesn't work yet
+     return;
+   if (undocked) {
+      TGFrame *frame = (TGFrame *)dynamic_cast<TGFrameElement*>(undocked->GetList()->First())->fFrame;
+      frame->UnmapWindow();
+      undocked->RemoveFrame(frame);
+      frame->ReparentWindow(parent);
+      // Layout...
+      frame->MapSubwindows();
+      frame->Layout();
+      undocked->CloseWindow();
+      undocked = 0;
+   }
 }
 
 void FWTextViewPage::setNext (FWTextViewPage *p)
@@ -75,9 +123,16 @@ void FWTextViewPage::deselect ()
 
 void FWTextViewPage::update ()
 {
+//      printf("size of frame:%d lines\n", frame->GetHeight() / 25);
+//      printf("%d tables\n", tables.size());
+//      for (std::vector<FWTableManager *>::const_iterator i = tables.begin();
+// 	  i != tables.end(); ++i) {
+// 	  printf("\t%s: %d entries\n", (*i)->title().c_str(), (*i)->NumberOfRows());
+//      }     
      for (std::vector<FWTableManager *>::const_iterator i = tables.begin();
 	  i != tables.end(); ++i) {
 	  (*i)->Update();
+// 	  (*i)->Update(std::min(10, (*i)->NumberOfRows()));
      }
 }
 
@@ -191,6 +246,10 @@ FWTextView::FWTextView (CmsShowMain *de, FWSelectionManager *sel,
      tracks->setPrev(trigger);
      // select current page
      page->select();
+     // keep track of all of them
+     pages[0] = objects;
+     pages[1] = trigger;
+     pages[2] = tracks;
 }
 
 void FWTextView::newEvent (const fwlite::Event &ev, const CmsShowMain *de)
@@ -470,7 +529,8 @@ void FWTextView::newEvent (const fwlite::Event &ev, const CmsShowMain *de)
      printf("read: ");
      stopwatch_read.Stop();
      stopwatch_read.Print("m");
-     page->update();
+     for (int i = 0; i < 3; ++i)
+	  pages[i]->update();
      printf("table: ");
      stopwatch_table.Stop();
      stopwatch_table.Print("m");

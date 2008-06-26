@@ -96,7 +96,7 @@ TableWidget::Init(int tabRows,
    // We add 1 row for titles and 1 columns for row's id.
    m_tLayout = new TGTableLayout(m_tFrame,m_tabRows+1,m_tabCols+1,kTRUE,0,0);
    m_tFrame->SetLayoutManager(m_tLayout);
-   m_tFrameHints = new TGLayoutHints(kLHintsTop|kLHintsLeft|kLHintsExpandX|kLHintsExpandY);
+   m_tFrameHints = new TGLayoutHints(kLHintsTop|kLHintsLeft);
    m_hFrame->AddFrame(m_tFrame,m_tFrameHints);
    InitTableCells();
    UpdateTableTitle(0);
@@ -120,6 +120,28 @@ TableWidget::Init(int tabRows,
    m_mainFrame->AddFrame(m_hSlider,m_hFrameHints);
 
 } 
+
+void TableWidget::Reinit (int tabRows)
+{
+//      if (tabRows > m_tabRows) {
+// 	  int startRow = m_tabRows + 1;
+// 	  m_tabRows = tabRows;
+// 	  delete m_tLayout;
+// 	  m_tLayout = new TGTableLayout(m_tFrame,m_tabRows+1,m_tabCols+1,kTRUE,0,0);
+// 	  m_tFrame->SetLayoutManager(m_tLayout);
+// 	  InitTableCells(startRow);
+//      }
+     UpdateTableCells(0, 0); 
+     m_vSlider->SetRange(m_scrollHeight * 
+			 std::max(m_tm->NumberOfRows() - m_tabRows + 1, 
+				  0),
+			 m_scrollHeight);
+     m_tFrame->Resize(m_tFrame->GetWidth(), 
+		      (std::min(tabRows, 5) + 1) * m_cellHeight);
+     m_hFrame->Resize(m_hFrame->GetWidth(), 
+		      (std::min(tabRows, 5) + 1) * m_cellHeight);
+}
+
 void
 TableWidget::UpdateTableTitle(int iCol)
 {
@@ -172,14 +194,14 @@ TableWidget::UpdateTableCells(int iRow, int iCol)
    m_tm->selectRows();
 }
 void
-TableWidget::InitTableCells()
+TableWidget::InitTableCells (int start_row)
 { 
    // Add rows/cols
-   Int_t id=0;
    TGTextEntry *cell;
    TGFrame *rowCell;
-   for(int row = 0; row < m_tabRows+1; ++row) {
+   for(int row = start_row; row < m_tabRows+1; ++row) {
        for(int col = 0; col < m_tabCols+1; ++col) {
+// 	    int id = (m_tabCols + 1) * row + col;
 
            // First row is a title row
            if (!row) {
@@ -195,10 +217,12 @@ TableWidget::InitTableCells()
                cell->Connect("ProcessedEvent(Event_t*)","TableWidget",this,"OnTitleClick(Event_t*)");
                TGTableLayoutHints* tloh = 
                    new TGTableLayoutHints(col,col+1,row,row+1, 
-                                          kLHintsCenterX|kLHintsCenterY|
-                                          kLHintsExpandX|kLHintsExpandY|
-                                          kLHintsShrinkX|kLHintsShrinkY|
-                                          kLHintsFillX|kLHintsFillY);
+                                          kLHintsCenterX|kLHintsCenterY
+// 					  |
+//                                           kLHintsExpandX|kLHintsExpandY|
+//                                           kLHintsShrinkX|kLHintsShrinkY|
+//                                           kLHintsFillX|kLHintsFillY
+			);
                m_tFrame->AddFrame(cell,tloh);
                m_tTitleEntryVector.push_back(cell);
                m_tTitleHintsVector.push_back(tloh);
@@ -213,10 +237,12 @@ TableWidget::InitTableCells()
                rowCell->Connect("ProcessedEvent(Event_t*)","TableWidget",this,"OnRowClick(Event_t*)");
                TGTableLayoutHints* tloh = 
                    new TGTableLayoutHints(col,col+1,row,row+1, 
-                                          kLHintsCenterX|kLHintsCenterY|
-                                          kLHintsExpandX|kLHintsExpandY|
-                                          kLHintsShrinkX|kLHintsShrinkY|
-                                          kLHintsFillX|kLHintsFillY);
+                                          kLHintsCenterX|kLHintsCenterY
+// 					  |
+//                                           kLHintsExpandX|kLHintsExpandY|
+//                                           kLHintsShrinkX|kLHintsShrinkY|
+//                                           kLHintsFillX|kLHintsFillY
+			);
                m_tFrame->AddFrame(rowCell,tloh);
                m_tRowEntryVector.push_back(rowCell);
                m_tRowHintsVector.push_back(tloh);
@@ -233,16 +259,17 @@ TableWidget::InitTableCells()
 //               cell->Connect("HandleDoubleClick(Event_t*)","TableWidget",this,"HandleDoubleClick(Event*)");
                TGTableLayoutHints* tloh = 
                    new TGTableLayoutHints(col,col+1,row,row+1, 
-                                          kLHintsCenterX|kLHintsCenterY|
-                                          kLHintsExpandX|kLHintsExpandY|
-                                          kLHintsShrinkX|kLHintsShrinkY|
-                                          kLHintsFillX|kLHintsFillY);
+                                          kLHintsCenterX|kLHintsCenterY
+// 					  |
+//                                           kLHintsExpandX|kLHintsExpandY|
+//                                           kLHintsShrinkX|kLHintsShrinkY|
+//                                           kLHintsFillX|kLHintsFillY
+			);
                m_tFrame->AddFrame(cell,tloh);
                m_tCellEntryVector.push_back(cell);
                m_tCellHintsVector.push_back(tloh);
                m_tCellIDVector.push_back(cell->GetId());
            }
-           ++id;
        }
    }        
    m_tFrame->Layout();
@@ -259,7 +286,6 @@ TableWidget::OnHScroll(Int_t range)
 void
 TableWidget::OnVScroll(Int_t range)
 {
-     printf("start: %d / %d\n", range, m_scrollHeight);
      if (range < 0)
 	  return;
    // NOTE: the vertical scroll needs to update UpdatteTableRows and UpdateTableCells

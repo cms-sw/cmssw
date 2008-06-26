@@ -63,11 +63,12 @@ class TableWidget {
                 int tabCols=19,     // number of shown cols
                 int iRow=0,        // first shown row
                 int iCol=0,        // first shown column
-                int cellWidth=100, 
+                int cellWidth=60, 
                 int cellHeight=25, 
                 int scrollWidth=18,
                 int scrollHeight=10);
-      void InitTableCells();
+     void Reinit (int tabRows = 5);
+      void InitTableCells (int start_row = 0);
       void UpdateTableTitle(int iCol);
       void UpdateTableRows(int iRow);
       void UpdateTableCells(int iRow, int iCol);

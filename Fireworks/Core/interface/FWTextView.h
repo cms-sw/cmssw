@@ -16,7 +16,9 @@ class HLTTableManager;
 class TrackTableManager;
 class VertexTableManager;
 class TGMainFrame;
+class TGWindow;
 class TGCompositeFrame;
+class TGTransientFrame;
 class FWTableManager;
 class FWTextView;
 class FWDisplayEvent;
@@ -25,6 +27,7 @@ class FWGUIManager;
 class CmsShowMain;
 
 class FWTextViewPage {
+     RQ_OBJECT("FWTextViewPage") 
 public:
      FWTextViewPage (const std::string &title, 
 		     const std::vector<FWTableManager *> &tables,
@@ -35,11 +38,15 @@ public:
      void	deselect ();
      void	select ();
      void	update ();
+     void	undock ();
+     void	redock ();
 		     
 public:
      std::string			title;
      std::vector<FWTableManager *>	tables;
      TGCompositeFrame			*frame;
+     TGTransientFrame			*undocked;
+     const TGWindow			*parent;
      FWTextView				*view;
      FWTextViewPage			*prev;
      FWTextViewPage			*next;
