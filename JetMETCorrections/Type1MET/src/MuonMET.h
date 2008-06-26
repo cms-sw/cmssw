@@ -41,8 +41,8 @@ namespace cms
   private:
     MuonMETAlgo alg_;
     std::string metType;
-    std::string inputUncorMetLabel;
-    std::string inputMuonsLabel;
+    edm::InputTag inputUncorMetLabel;
+    edm::InputTag inputMuonsLabel;
     double muonPtMin;
     double muonEtaRange;
     double muonTrackD0Max;
