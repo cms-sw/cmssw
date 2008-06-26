@@ -11,8 +11,8 @@
 
 /** \class HcalHotCellMonitor
   *  
-  * $Date: 2008/06/10 22:14:30 $
-  * $Revision: 1.16 $
+  * $Date: 2008/06/12 01:35:01 $
+  * $Revision: 1.17 $
   * \author W. Fisher - FNAL
   * \ updated by J. Temple - Univ. of Maryland
   */
@@ -126,6 +126,7 @@ public:
 private:  ///Monitoring elements
 
   bool debug_;
+  bool usenada_;
   
   int ievt_;
 

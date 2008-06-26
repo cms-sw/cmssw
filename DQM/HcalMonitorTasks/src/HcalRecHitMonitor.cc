@@ -225,22 +225,28 @@ void HcalRecHitMonitor::processEvent(const HBHERecHitCollection& hbHits,
   ievt_++;
   meEVT_->Fill(ievt_);
 
-  HBHERecHitCollection::const_iterator _ib;
-  HORecHitCollection::const_iterator _io;
-  HFRecHitCollection::const_iterator _if;
+  HBHERecHitCollection::const_iterator HBHEiter;
+  HORecHitCollection::const_iterator HOiter;
+  HFRecHitCollection::const_iterator HFiter;
   float tot = 0, tot2=0, all =0;
   float totThr = 0, tot2Thr=0, allThr =0;
 
   try{
     if(hbHits.size()>0){    
-      for (_ib=hbHits.begin(); _ib!=hbHits.end(); _ib++) { // loop over all hits
-	float en = _ib->energy();      float ti = _ib->time();
-	float ieta = _ib->id().ieta(); float iphi = _ib->id().iphi();
-	float depth = _ib->id().depth();
-	//for cosmics, want to see all distribution, changed to -100
+      for (HBHEiter=hbHits.begin(); HBHEiter!=hbHits.end(); ++HBHEiter) { // loop over all hits
+	float en = HBHEiter->energy();    
+	float ti = HBHEiter->time();
+	
+	HcalDetId id(HBHEiter->detid().rawId());
+
+	float ieta = id.ieta(); 
+	float iphi = id.iphi();
+	float depth = id.depth();
+	
+	//for cosmics, want to see whole distribution, changed to -100
 	//	if(en>0.0){
 	if(en>-100){
-	  if((HcalSubdetector)(_ib->id().subdet())==HcalBarrel){
+	  if((HcalSubdetector)(id.subdet())==HcalBarrel){
 	    hbHists.meRECHIT_E_all->Fill(en);
 	    hbHists.meRECHIT_E_low->Fill(en);
 	    hbHists.meRECHIT_T_all->Fill(ti);
@@ -276,9 +282,9 @@ void HcalRecHitMonitor::processEvent(const HBHERecHitCollection& hbHits,
 	      }
 	    }      
 	    if(doPerChannel_) 
-	      HcalRecHitPerChan::perChanHists<HBHERecHit>(0,*_ib,hbHists.meRECHIT_E,hbHists.meRECHIT_T,m_dbe,baseFolder_);
+	      HcalRecHitPerChan::perChanHists<HBHERecHit>(0,*HBHEiter,hbHists.meRECHIT_E,hbHists.meRECHIT_T,m_dbe,baseFolder_);
 	  }
-	  else if((HcalSubdetector)(_ib->id().subdet())==HcalEndcap){
+	  else if((HcalSubdetector)(id.subdet())==HcalEndcap){
 	    heHists.meRECHIT_E_all->Fill(en);
 	    heHists.meRECHIT_E_low->Fill(en);
 	    heHists.meRECHIT_T_all->Fill(ti);
@@ -314,7 +320,7 @@ void HcalRecHitMonitor::processEvent(const HBHERecHitCollection& hbHits,
 	      }
 	    }      
 	    if(doPerChannel_) 
-	      HcalRecHitPerChan::perChanHists<HBHERecHit>(1,*_ib,heHists.meRECHIT_E,heHists.meRECHIT_T,m_dbe, baseFolder_);
+	      HcalRecHitPerChan::perChanHists<HBHERecHit>(1,*HBHEiter,heHists.meRECHIT_E,heHists.meRECHIT_T,m_dbe, baseFolder_);
 	  }
 	}
 	
@@ -337,46 +343,47 @@ void HcalRecHitMonitor::processEvent(const HBHERecHitCollection& hbHits,
   try{
     tot = 0; totThr = 0;
     if(hoHits.size()>0){
-      for (_io=hoHits.begin(); _io!=hoHits.end(); _io++) { // loop over all hits
+      for (HOiter=hoHits.begin(); HOiter!=hoHits.end(); ++HOiter) { // loop over all hits
 	//changed to -100 for cosmics
-	//	if(_io->energy()>0.0){
-	if(_io->energy()>-100){
-	  hoHists.meRECHIT_E_all->Fill(_io->energy());
-	  hoHists.meRECHIT_E_low->Fill(_io->energy());
-	  hoHists.meRECHIT_T_all->Fill(_io->time());
+	//	if(HOiter->energy()>0.0){
+	if(HOiter->energy()>-100){
+	  hoHists.meRECHIT_E_all->Fill(HOiter->energy());
+	  hoHists.meRECHIT_E_low->Fill(HOiter->energy());
+	  hoHists.meRECHIT_T_all->Fill(HOiter->time());
 	  //HO for some reason DOES NOT have a non-threshold occupancy map
 	  
-	  tot += _io->energy();
-	  if(_io->energy()>occThresh_){
-	    totThr += _io->energy();
+	  tot += HOiter->energy();
+	  if(HOiter->energy()>occThresh_){
+	    totThr += HOiter->energy();
+	    HcalDetId id(HOiter->detid().rawId());
 
-	    hoHists.meOCC_MAPthresh_GEO->Fill(_io->id().ieta(),_io->id().iphi());
-	    hoHists.meRECHIT_Tthresh_all->Fill(_io->time());
+	    hoHists.meOCC_MAPthresh_GEO->Fill(id.ieta(),id.iphi());
+	    hoHists.meRECHIT_Tthresh_all->Fill(HOiter->time());
 
-	    meOCC_MAP_ETA->Fill(_io->id().ieta());
-	    meOCC_MAP_PHI->Fill(_io->id().iphi());
-	    meOCC_MAP_ETA_E->Fill(_io->id().ieta(),_io->energy());
-	    meOCC_MAP_PHI_E->Fill(_io->id().iphi(),_io->energy());
+	    meOCC_MAP_ETA->Fill(id.ieta());
+	    meOCC_MAP_PHI->Fill(id.iphi());
+	    meOCC_MAP_ETA_E->Fill(id.ieta(),HOiter->energy());
+	    meOCC_MAP_PHI_E->Fill(id.iphi(),HOiter->energy());
 	    
-	    hoHists.meOCC_MAP_GEO->Fill(_io->id().ieta(),_io->id().iphi());
-	    if(_io->id().depth()==1){ 
-	      meOCC_MAP_L1->Fill(_io->id().ieta(),_io->id().iphi());
-	      meOCC_MAP_L1_E->Fill(_io->id().ieta(),_io->id().iphi(), _io->energy());
+	    hoHists.meOCC_MAP_GEO->Fill(id.ieta(),id.iphi());
+	    if(id.depth()==1){ 
+	      meOCC_MAP_L1->Fill(id.ieta(),id.iphi());
+	      meOCC_MAP_L1_E->Fill(id.ieta(),id.iphi(), HOiter->energy());
 	    }
-	    else if(_io->id().depth()==2){ 
-	      meOCC_MAP_L2->Fill(_io->id().ieta(),_io->id().iphi());
-	      meOCC_MAP_L2_E->Fill(_io->id().ieta(),_io->id().iphi(), _io->energy());
+	    else if(id.depth()==2){ 
+	      meOCC_MAP_L2->Fill(id.ieta(),id.iphi());
+	      meOCC_MAP_L2_E->Fill(id.ieta(),id.iphi(), HOiter->energy());
 	    }
-	    else if(_io->id().depth()==3){ 
-	      meOCC_MAP_L3->Fill(_io->id().ieta(),_io->id().iphi());
-	      meOCC_MAP_L3_E->Fill(_io->id().ieta(),_io->id().iphi(), _io->energy());
+	    else if(id.depth()==3){ 
+	      meOCC_MAP_L3->Fill(id.ieta(),id.iphi());
+	      meOCC_MAP_L3_E->Fill(id.ieta(),id.iphi(), HOiter->energy());
 	    }
-	    if(_io->id().depth()==4){ 
-	      meOCC_MAP_L4->Fill(_io->id().ieta(),_io->id().iphi());
-	      meOCC_MAP_L4_E->Fill(_io->id().ieta(),_io->id().iphi(), _io->energy());
+	    if(id.depth()==4){ 
+	      meOCC_MAP_L4->Fill(id.ieta(),id.iphi());
+	      meOCC_MAP_L4_E->Fill(id.ieta(),id.iphi(), HOiter->energy());
 	    }
 	  }
-	  if(doPerChannel_) HcalRecHitPerChan::perChanHists<HORecHit>(2,*_io,hoHists.meRECHIT_E,hoHists.meRECHIT_T,m_dbe, baseFolder_);
+	  if(doPerChannel_) HcalRecHitPerChan::perChanHists<HORecHit>(2,*HOiter,hoHists.meRECHIT_E,hoHists.meRECHIT_T,m_dbe, baseFolder_);
 	}
       }
       //      if(tot>0) hoHists.meRECHIT_E_tot->Fill(tot);
@@ -392,56 +399,57 @@ void HcalRecHitMonitor::processEvent(const HBHERecHitCollection& hbHits,
   try{
     tot=0;  totThr=0;
     if(hfHits.size()>0){
-      for (_if=hfHits.begin(); _if!=hfHits.end(); _if++) { // loop over all hits
+      for (HFiter=hfHits.begin(); HFiter!=hfHits.end(); HFiter++) { // loop over all hits
 	//changed to -100 for cosmics
-	//	if(_if->energy()>0.0){
-	if(_if->energy()>-100){
+	//	if(HFiter->energy()>0.0){
+	if(HFiter->energy()>-100){
 	  //Want to see these 3 histos for Long fibers:
-	  if (_if->id().depth()==1){
-	    hfHists.meRECHIT_E_all->Fill(_if->energy());
-	    hfHists.meRECHIT_E_low->Fill(_if->energy());
-	    hfHists.meRECHIT_T_all->Fill(_if->time());
+	  if (HFiter->id().depth()==1){
+	    hfHists.meRECHIT_E_all->Fill(HFiter->energy());
+	    hfHists.meRECHIT_E_low->Fill(HFiter->energy());
+	    hfHists.meRECHIT_T_all->Fill(HFiter->time());
 	  }
 
+	  HcalDetId id(HFiter->detid().rawId());
 	  //Fill 3 histos for Short Fibers :
-	  if (_if->id().depth()==2){
-	    hfshort_meRECHIT_E_all->Fill(_if->energy());
-	    hfshort_meRECHIT_E_low->Fill(_if->energy());
-	    hfshort_meRECHIT_T_all->Fill(_if->time());
+	  if (id.depth()==2){
+	    hfshort_meRECHIT_E_all->Fill(HFiter->energy());
+	    hfshort_meRECHIT_E_low->Fill(HFiter->energy());
+	    hfshort_meRECHIT_T_all->Fill(HFiter->time());
 	  }
 
 	  //HF: no non-threshold occupancy map is filled?
 	  
-	  tot += _if->energy();
-	  if(_if->energy()>occThresh_){
-	    totThr += _if->energy();
-	    hfHists.meOCC_MAPthresh_GEO->Fill(_if->id().ieta(),_if->id().iphi());
-	    hfHists.meRECHIT_Tthresh_all->Fill(_if->time());
+	  tot += HFiter->energy();
+	  if(HFiter->energy()>occThresh_){
+	    totThr += HFiter->energy();
+	    hfHists.meOCC_MAPthresh_GEO->Fill(id.ieta(),id.iphi());
+	    hfHists.meRECHIT_Tthresh_all->Fill(HFiter->time());
 	    
-	    meOCC_MAP_ETA->Fill(_if->id().ieta());
-	    meOCC_MAP_PHI->Fill(_if->id().iphi());
-	    meOCC_MAP_ETA_E->Fill(_if->id().ieta(),_if->energy());
-	    meOCC_MAP_PHI_E->Fill(_if->id().iphi(),_if->energy());
+	    meOCC_MAP_ETA->Fill(id.ieta());
+	    meOCC_MAP_PHI->Fill(id.iphi());
+	    meOCC_MAP_ETA_E->Fill(id.ieta(),HFiter->energy());
+	    meOCC_MAP_PHI_E->Fill(id.iphi(),HFiter->energy());
 	    
-	    hfHists.meOCC_MAP_GEO->Fill(_if->id().ieta(),_if->id().iphi());
-	    if(_if->id().depth()==1){ 
-	      meOCC_MAP_L1->Fill(_if->id().ieta(),_if->id().iphi());
-	      meOCC_MAP_L1_E->Fill(_if->id().ieta(),_if->id().iphi(), _if->energy());
+	    hfHists.meOCC_MAP_GEO->Fill(id.ieta(),id.iphi());
+	    if(id.depth()==1){ 
+	      meOCC_MAP_L1->Fill(id.ieta(),id.iphi());
+	      meOCC_MAP_L1_E->Fill(id.ieta(),id.iphi(), HFiter->energy());
 	    }
-	    else if(_if->id().depth()==2){ 
-	      meOCC_MAP_L2->Fill(_if->id().ieta(),_if->id().iphi());
-	      meOCC_MAP_L2_E->Fill(_if->id().ieta(),_if->id().iphi(), _if->energy());
+	    else if(id.depth()==2){ 
+	      meOCC_MAP_L2->Fill(id.ieta(),id.iphi());
+	      meOCC_MAP_L2_E->Fill(id.ieta(),id.iphi(), HFiter->energy());
 	    }
-	    else if(_if->id().depth()==3){ 
-	      meOCC_MAP_L3->Fill(_if->id().ieta(),_if->id().iphi());
-	      meOCC_MAP_L3_E->Fill(_if->id().ieta(),_if->id().iphi(), _if->energy());
+	    else if(id.depth()==3){ 
+	      meOCC_MAP_L3->Fill(id.ieta(),id.iphi());
+	      meOCC_MAP_L3_E->Fill(id.ieta(),id.iphi(), HFiter->energy());
 	    }
-	    if(_if->id().depth()==4){ 
-	      meOCC_MAP_L4->Fill(_if->id().ieta(),_if->id().iphi());
-	      meOCC_MAP_L4_E->Fill(_if->id().ieta(),_if->id().iphi(), _if->energy());
+	    if(id.depth()==4){ 
+	      meOCC_MAP_L4->Fill(id.ieta(),id.iphi());
+	      meOCC_MAP_L4_E->Fill(id.ieta(),id.iphi(), HFiter->energy());
 	    }
 	  }
-	  if(doPerChannel_) HcalRecHitPerChan::perChanHists<HFRecHit>(3,*_if,hfHists.meRECHIT_E,hfHists.meRECHIT_T,m_dbe, baseFolder_);
+	  if(doPerChannel_) HcalRecHitPerChan::perChanHists<HFRecHit>(3,*HFiter,hfHists.meRECHIT_E,hfHists.meRECHIT_T,m_dbe, baseFolder_);
 	}
       }
       //      if(tot>0) hfHists.meRECHIT_E_tot->Fill(tot)

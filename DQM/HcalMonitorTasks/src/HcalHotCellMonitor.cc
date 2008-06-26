@@ -164,28 +164,31 @@ namespace HcalHotCellCheck
     if(hits.size()>0)
       {
 	// Loop over all hits
-	typename Hits::const_iterator _cell;
-	for (_cell=hits.begin(); 
-	     _cell!=hits.end(); 
-	     ++_cell) 
+	typename Hits::const_iterator CellIter;
+	for (CellIter=hits.begin(); 
+	     CellIter!=hits.end(); 
+	     ++CellIter) 
 	  { 
+	    HcalDetId id(CellIter->detid().rawId());
 	    // Check that subdetector region is correct
-	    if ((int)(_cell->id().subdet())!=h.type) continue;
+	    if ((int)(id.subdet())!=h.type) continue;
 	    
 	    // Skip vetoed cells
-	    // vetoCell(_cell->id() not available in this namespace.  Make my own copy of vetoCell?
+	    // vetoCell(id not available in this namespace.  Make my own copy of vetoCell?
 
 
-	    if(h.vetoCells.size()>0 && vetoCell(_cell->id(),h.vetoCells))
+	    if(h.vetoCells.size()>0 && vetoCell(id,h.vetoCells))
 	      {
-		if (h.fVerbosity) cout <<"Vetoed cell with id = "<<_cell->id()<<endl;
+		if (h.fVerbosity) cout <<"Vetoed cell with id = "<<id<<endl;
 		continue;
 	      }
 
 
-	    double cellenergy=_cell->energy();
-	    int celldepth = _cell->id().depth();
-	    
+	    double cellenergy=CellIter->energy();
+	    int celldepth = id.depth();
+	    int celleta = id.ieta();
+	    int cellphi = id.iphi();
+
 	    //Diagnostic plot show energy distribution of recHits
 	    if (h.makeDiagnostics)
 	      {
@@ -198,10 +201,10 @@ namespace HcalHotCellCheck
 	    // First threshold is used for ID'ing problem cells
 	    if (cellenergy>h.thresholds[0])
 	      {
-		h.problemHotCells->Fill(_cell->id().ieta(),_cell->id().iphi());
-		hcal.problemHotCells->Fill(_cell->id().ieta(),_cell->id().iphi());
-		h.problemHotCells_depth[celldepth-1]->Fill(_cell->id().ieta(),_cell->id().iphi());
-		hcal.problemHotCells_depth[celldepth-1]->Fill(_cell->id().ieta(),_cell->id().iphi());
+		h.problemHotCells->Fill(celleta,cellphi);
+		hcal.problemHotCells->Fill(celleta,cellphi);
+		h.problemHotCells_depth[celldepth-1]->Fill(celleta,cellphi);
+		hcal.problemHotCells_depth[celldepth-1]->Fill(celleta,cellphi);
 
 	      }
 
@@ -211,18 +214,18 @@ namespace HcalHotCellCheck
 		  {
 		    if (h.threshOccMap[k]!=0)
 		      {
-			h.threshOccMap[k]->Fill(_cell->id().ieta(),
-						_cell->id().iphi());
-			hcal.threshOccMap[k]->Fill(_cell->id().ieta(),
-						   _cell->id().iphi());
+			h.threshOccMap[k]->Fill(celleta,
+						cellphi);
+			hcal.threshOccMap[k]->Fill(celleta,
+						   cellphi);
 		      }
 		    if (h.threshEnergyMap[k]!=0)
 		      {
-			h.threshEnergyMap[k]->Fill(_cell->id().ieta(),
-						   _cell->id().iphi(),
+			h.threshEnergyMap[k]->Fill(celleta,
+						   cellphi,
 						   cellenergy);
-			hcal.threshEnergyMap[k]->Fill(_cell->id().ieta(),
-						      _cell->id().iphi(),
+			hcal.threshEnergyMap[k]->Fill(celleta,
+						      cellphi,
 						      cellenergy);
 		      }
 		    // Fill histograms for individual layers
@@ -230,18 +233,18 @@ namespace HcalHotCellCheck
 		      {
 			if (h.threshOccMap_depth[k][celldepth-1]!=0)
 			  {
-			    h.threshOccMap_depth[k][celldepth-1]->Fill(_cell->id().ieta(),
-								       _cell->id().iphi());
-			    hcal.threshOccMap_depth[k][celldepth-1]->Fill(_cell->id().ieta(),
-									  _cell->id().iphi());
+			    h.threshOccMap_depth[k][celldepth-1]->Fill(celleta,
+								       cellphi);
+			    hcal.threshOccMap_depth[k][celldepth-1]->Fill(celleta,
+									  cellphi);
 			  }
 			if (h.threshEnergyMap_depth[k][celldepth-1]!=0)
 			  {
-			    h.threshEnergyMap_depth[k][celldepth-1]->Fill(_cell->id().ieta(),
-									  _cell->id().iphi(),
+			    h.threshEnergyMap_depth[k][celldepth-1]->Fill(celleta,
+									  cellphi,
 									  cellenergy);
-			    hcal.threshEnergyMap_depth[k][celldepth-1]->Fill(_cell->id().ieta(),
-									     _cell->id().iphi(),
+			    hcal.threshEnergyMap_depth[k][celldepth-1]->Fill(celleta,
+									     cellphi,
 									     cellenergy);
 			  }
 		      } // if (h.makeDiagnostics)
@@ -253,9 +256,9 @@ namespace HcalHotCellCheck
 	    if(cellenergy>h.enS)
 	      {
 		h.enS = cellenergy;
-		h.tS = _cell->time();
-		h.etaS = _cell->id().ieta();
-		h.phiS = _cell->id().iphi();
+		h.tS = CellIter->time();
+		h.etaS = celleta;
+		h.phiS = cellphi;
 		h.idS = 1000*h.etaS;
 		h.depthS = celldepth; // change depth before altering idS?
 		if(h.idS<0) h.idS -= (10*h.phiS+h.depthS);
@@ -302,7 +305,7 @@ namespace HcalHotCellCheck
     
     if (hits.size()>0)
       {
-      typename Hits::const_iterator _cell;
+      typename Hits::const_iterator CellIter;
       
       // Copying NADA algorithm from D0 Note 4057.
       // The implementation needs to be optimized -- double looping over iterators is not an efficient approach?
@@ -315,7 +318,7 @@ namespace HcalHotCellCheck
       float ECellCut=0;
 
       // Store coordinates of candidate hot cells
-       int CellDepth=-1;
+      int CellDepth=-1;
       int CellEta=-1000;
       int CellPhi=-1000;
 
@@ -324,21 +327,23 @@ namespace HcalHotCellCheck
       float cellenergy=0;
 
       if (h.fVerbosity) cout <<"Checking NADA for subdetector "<<h.name.c_str()<<endl;
-      for (_cell=hits.begin(); _cell!=hits.end(); ++_cell)
+      for (CellIter=hits.begin(); CellIter!=hits.end(); ++CellIter)
 	{
-	  if (_cell->id().subdet()!=h.type) continue;
-	  if (vetosize>0 && vetoCell(_cell->id(), h.vetoCells)) continue;
+	  HcalDetId id(CellIter->detid().rawId());
+	  if (id.subdet()!=h.type) continue;
+	  // CellIter points to the current hot cell candidate
+	  Ecube=0; // reset Ecube energy counter
+	  CellDepth=id.depth();
+	  CellEta=id.ieta();
+	  CellPhi=id.iphi();
+
+	  if (vetosize>0 && vetoCell(id, h.vetoCells)) continue;
 	  
-	  cellenergy=_cell->energy();
+	  cellenergy=CellIter->energy();
 
 	  h.nadaEnergy->Fill(cellenergy);
 	  hcal.nadaEnergy->Fill(cellenergy);
 	  
-	  // _cell points to the current hot cell candidate
-	  Ecube=0; // reset Ecube energy counter
-	  CellDepth=_cell->id().depth();
-	  CellEta=_cell->id().ieta();
-	  CellPhi=_cell->id().iphi();
 
 	  if (h.fVerbosity==2) cout <<"<HcalHotCellMonitor:nadaCheck> Cell Energy = "<<cellenergy<<" at position ("<<CellEta<<", "<<CellPhi<<")"<<endl;
 
@@ -421,10 +426,10 @@ namespace HcalHotCellCheck
 	      ECellCut=h.nadaEnergyCellFrac*cellenergy;
 	    }
 	  
-	  // Form cube of nearest neighbor cells around _cell
+	  // Form cube of nearest neighbor cells around CellIter
 
 	  if (h.fVerbosity==2) cout <<"****** Candidate Cell Energy: "<<cellenergy<<endl;
-	  typename Hits::const_iterator _neighbor;
+	  typename Hits::const_iterator NeighborIter;
 
 	  if (cubeSize<=0) continue; // no NADA cells can be found if the number of neighboring cells is zero
 
@@ -435,18 +440,19 @@ namespace HcalHotCellCheck
 	  int cubeComp=-1; // count up number of cells composing cube -- start at -1 because original cell is subtracted
 
 	  int temp_cell_phi = CellPhi; // temporary variable for dealing with neighbors at boundaries between different phi segmentations
-	  for ( _neighbor = hits.begin();_neighbor!=hits.end();++_neighbor)
-	    // Form cube centered on _cell.  This needs to be looked at more carefully to deal with boundary conditions.  Should Ecube constraints change at the boundaries?
+	  for ( NeighborIter = hits.begin();NeighborIter!=hits.end();++NeighborIter)
+	    // Form cube centered on CellIter.  This needs to be looked at more carefully to deal with boundary conditions.  Should Ecube constraints change at the boundaries?
 	    // Also need to deal with regions where phi segmentation changes
 	    {
-	      if (vetosize>0 && vetoCell(_neighbor->id(),h.vetoCells)) continue; 
-	      if (_neighbor->id().subdet()!=h.type) continue;
+	      if (vetosize>0 && vetoCell(NeighborIter->id(),h.vetoCells)) continue; 
+	      HcalDetId NeighborId(NeighborIter->detid().rawId());
+	      if (NeighborId.subdet()!=h.type) continue;
 
-	      NeighborEta=_neighbor->id().ieta();
+	      NeighborEta=NeighborId.ieta();
 	      // etafactor works to expand box size in regions where detectors cover more than 5 degrees in phi
 	    
-	      if (abs(_neighbor->id().depth()-CellDepth)>h.nadaMaxDeltaDepth) continue;
-	      if (abs(_neighbor->id().ieta()-CellEta)>h.nadaMaxDeltaEta) continue;
+	      if (abs(NeighborId.depth()-CellDepth)>h.nadaMaxDeltaDepth) continue;
+	      if (abs(NeighborId.ieta()-CellEta)>h.nadaMaxDeltaEta) continue;
 	      etaFactor = 1+(abs(NeighborEta)>20)+2*(abs(NeighborEta)>39);
 
 	      // Deal with changes in segmentation at eta boundaries
@@ -459,21 +465,21 @@ namespace HcalHotCellCheck
 		temp_cell_phi+=(temp_cell_phi%4==3);
 	      }
 
-	      dPhi = (abs(_neighbor->id().iphi()-temp_cell_phi));
+	      dPhi = (abs(NeighborId.iphi()-temp_cell_phi));
 	      if (dPhi>36)
 		dPhi=72-dPhi;
 	      if (dPhi>=h.nadaMaxDeltaPhi*(1+etaFactor)) continue;
 	      cubeComp++;
 
-	      if (h.fVerbosity==2) cout <<"\t Neighbor energy = "<<_neighbor->energy()<< "  "<<_neighbor->id()<<endl;	  
-	      if (_neighbor->energy()>ECellCut)
+	      if (h.fVerbosity==2) cout <<"\t Neighbor energy = "<<NeighborIter->energy()<< "  "<<NeighborId<<endl;	  
+	      if (NeighborIter->energy()>ECellCut)
 		{
 		  if (h.fVerbosity==2) cout <<"\t     ABOVE ENERGY CUT!"<<endl;
 
-		  Ecube+=_neighbor->energy();
+		  Ecube+=NeighborIter->energy();
 		  if (h.fVerbosity==2) cout <<"\t\t Cube energy = "<<Ecube<<endl;
 		}
-	    } // for (cell_iter _neighbor = c.begin()...)
+	    } // for (cell_iter NeighborIter = c.begin()...)
 	  
 	  //Remove energy due to _cell
 	  Ecube -=cellenergy;
@@ -503,7 +509,7 @@ namespace HcalHotCellCheck
 	      cout <<"NADA Hot Cell found!"<<endl;
 	      cout <<"\t NADA Ecube energy: "<<Ecube<<endl;
 	      cout <<"\t NADA Ecell energy: "<<cellenergy<<endl;
-	      cout <<"\t NADA Cell position: "<<_cell->id()<<endl;
+	      cout <<"\t NADA Cell position: "<<id<<endl;
 	    }
 	  
 	  // Hot cells found -- Identify hot cells by value of Ecube
@@ -535,7 +541,7 @@ namespace HcalHotCellCheck
 		  hcal.HOT_EnergyVsNADAcube->Fill(Ecube, cellenergy);
 		} // if (h.makeDiagnostics)
 	    } // if (Ecube <=EcubeCut*...)
-	} //for (_cell=c.begin(); _cell!=c.end(); _cell++)
+	} //for (CellIter=c.begin(); CellIter!=c.end(); CellIter++)
       if (h.fVerbosity) cout <<"Filling "<<h.name.c_str()<<" NADA NumHotCell histo"<<endl;
       h.nadaNumHotCells->Fill(h.numhotcells);
       h.nadaNumNegCells->Fill(h.numnegcells);
@@ -570,6 +576,9 @@ void HcalHotCellMonitor::setup(const edm::ParameterSet& ps, DQMStore* dbe)
   HcalBaseMonitor::setup(ps,dbe); // set up base class
 
   baseFolder_ = rootFolder_+"HotCellMonitor";
+  
+  // Global bool for disabling NADA tests (slow, not very useful in cosmics runs)
+  usenada_=ps.getUntrackedParameter<bool>("useNADA", true);
 
   // All subdetector values will be set to hcalHists values, unless 
   // explicitly stated otherwise in .cfi file
@@ -577,6 +586,7 @@ void HcalHotCellMonitor::setup(const edm::ParameterSet& ps, DQMStore* dbe)
   hcalHists.etaMin=ps.getUntrackedParameter<double>("MinEta", -29.5);
   hcalHists.phiMax = ps.getUntrackedParameter<double>("MaxPhi", 73);
   hcalHists.phiMin = ps.getUntrackedParameter<double>("MinPhi", 0);
+
   if (hcalHists.etaMax<hcalHists.etaMin && fVerbosity)
     cout <<"<HcalHotCellMonitor> WARNING IN hcalhists!  etaMax is less than etaMin!  Swapping max and min!"<<endl;
   hcalHists.etaBins=(int)(fabs(hcalHists.etaMax-hcalHists.etaMin));
@@ -1118,6 +1128,7 @@ void HcalHotCellMonitor::processEvent( const HBHERecHitCollection& hbHits,
   // Loop over digis
   processEvent_digi(hbhedigi,hodigi,hfdigi,cond); // check for hot digis
 
+
   if (fVerbosity) cout <<"HcalHotCellMonitor::processEvent   Starting process"<<endl;
 
   // Reset overall hcalHists max cell energy to default values
@@ -1132,10 +1143,13 @@ void HcalHotCellMonitor::processEvent( const HBHERecHitCollection& hbHits,
   HcalHotCellCheck::threshCheck(hoHits, hoHists, hcalHists);
   HcalHotCellCheck::threshCheck(hfHits, hfHists, hcalHists);
 
-  HcalHotCellCheck::nadaCheck(hbHits, hbHists, hcalHists);
-  HcalHotCellCheck::nadaCheck(hbHits, heHists, hcalHists);
-  HcalHotCellCheck::nadaCheck(hoHits, hoHists, hcalHists);
-  HcalHotCellCheck::nadaCheck(hfHits, hfHists, hcalHists);
+  if (usenada_)
+    {
+      HcalHotCellCheck::nadaCheck(hbHits, hbHists, hcalHists);
+      HcalHotCellCheck::nadaCheck(hbHits, heHists, hcalHists);
+      HcalHotCellCheck::nadaCheck(hoHits, hoHists, hcalHists);
+      HcalHotCellCheck::nadaCheck(hfHits, hfHists, hcalHists);
+    }
 
   // After checking over all subdetectors, fill hcalHist maximum histograms:
 

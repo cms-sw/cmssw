@@ -47,7 +47,7 @@ namespace HcalDeadCellCheck
 			 bool pedsInFC=false)
   {
 
-    if (hist.check==0) return;
+    if (!hist.check) return;
 
     string type;
     // Get subdet name associated with type value
@@ -237,18 +237,18 @@ namespace HcalDeadCellCheck
     string type;
     type=hist.subdet;
 
-    typename Hits::const_iterator _cell;
-    for (_cell=hits.begin();
-	 _cell!=hits.end(); 
-	 ++_cell)
+    typename Hits::const_iterator CellIter;
+    for (CellIter=hits.begin();
+	 CellIter!=hits.end(); 
+	 ++CellIter)
       {
 	// Fill histogram if cell found in hist region
 
-	//if ((_cell->id().subdet())!=hist.type) continue; // does this cause a slowdown?  Or has Jason's fix cured this?
+	//if ((CellIter->id().subdet())!=hist.type) continue; // does this cause a slowdown?  Or has Jason's fix cured this?
 
-	int cell_eta=_cell->id().ieta();
-	int cell_phi=_cell->id().iphi();
-	int cell_depth=_cell->id().depth();
+	HcalDetId id(CellIter->detid().rawId());
+	int cell_eta=id.ieta();
+	int cell_depth=id.depth();
 	if (hist.type==1)
 	  {
 	    if (abs(cell_eta)>16)
@@ -262,6 +262,7 @@ namespace HcalDeadCellCheck
 	    else if (abs(cell_eta)==16 && cell_depth!=3)
 	      continue;
 	  }
+	int cell_phi=id.iphi();
 
 	int temp_cell_phi = cell_phi;  // temporary variable for dealing with neighbors at boundaries between different phi segmentations
 	
@@ -277,8 +278,8 @@ namespace HcalDeadCellCheck
 	    all.cellCheck_depth[ cell_depth-1]->Fill(cell_eta,cell_phi);
 	  }
 
-	// if (_cell->id().depth()==2) continue; // skip depth=2 for now
-	// if (vetoCell(_cell->id())) continue;
+	// if (id.depth()==2) continue; // skip depth=2 for now
+	// if (vetoCell(id)) continue;
 
 	// Sum energies of neighbors around cell
 	
@@ -294,11 +295,15 @@ namespace HcalDeadCellCheck
 	  {
 	    //if (vetoCell(neighbor->id())) continue;
 	    // Calls to .subdet() are too slow?
-	    //if  ((HcalSubdetector)(neighbor->id().subdet())!=(HcalSubdetector)(_cell->id().subdet())) continue;
-	    if (neighbor->id().depth()!=_cell->id().depth()) continue;
+	    //if  ((HcalSubdetector)(neighbor->id().subdet())!=(HcalSubdetector)(id.subdet())) continue;
+	    HcalDetId neighborId(neighbor->detid().rawId());
+	    int NeighborEta=neighborId.ieta();
+	    // Only check nearest neighbors in eta
+	    if (abs(NeighborEta-cell_eta)>=2)
+	      continue;
 	    
-	    int NeighborEta=neighbor->id().ieta();
-
+	    if (neighborId.depth()!=cell_depth) continue;
+	    
 	    if (hist.type==1)
 	      {
 		if (abs(NeighborEta)>16)
@@ -319,7 +324,7 @@ namespace HcalDeadCellCheck
 	    // boundary between phi=5 and phi=10 segmentation
 	    if (abs(cell_eta)==20 && abs(NeighborEta)==21)
 	      {
-	      temp_cell_phi-=(temp_cell_phi%2); // odd cells treated as even:
+		if (temp_cell_phi%2); --temp_cell_phi; // odd cells treated as even
 	      }
 
 	    /*
@@ -336,23 +341,24 @@ namespace HcalDeadCellCheck
 	    // boundary between phi=10 and phi=20 segmentation
 	    else if (abs(cell_eta)==39 && abs(NeighborEta)==40)
 	      {
-		temp_cell_phi+=(temp_cell_phi%4==3);
+		if ((temp_cell_phi%4)==3) ++temp_cell_phi;
 	      }
 
 	    // Check just against nearest neighbors (+/-1 in eta, phi, same depth)
 
 	    // Find minimum distance in phi between neighbors
-	    dPhi = (abs(neighbor->id().iphi()-temp_cell_phi));
+	    dPhi = (abs(neighborId.iphi()-temp_cell_phi));
 	    if (dPhi>36)
 	      dPhi=72-dPhi;
 
-	    if (dPhi<(1+etaFactor) && 
-		 (abs(neighbor->id().ieta()-cell_eta))<2)
+	    if (dPhi<(1+etaFactor)
+		//&& 		 (abs(NeighborEta-cell_eta))<2)
+		)
 	      {
 		// Skip neighbors with negative energy?
 		//if (neighbor->energy()<0) continue;
 		allneighbors++;
-		if (neighbor->energy()-_cell->energy()>hist.mindiff)
+		if ((neighbor->energy()-CellIter->energy())>hist.mindiff)
 		  {
 		    neighborE+=neighbor->energy();
 		    neighbors++;
@@ -361,11 +367,11 @@ namespace HcalDeadCellCheck
 	  }// for (Hits::const_iterator neighbor=hits.begin()...
 	
 	// Remove cell energy from neighbor calculation
-	neighborE-=_cell->energy();
+	neighborE-=CellIter->energy();
 	neighbors-=1;
 
 	// If cell energy is less than minimum value ("hist.floor") , mark it as cool for the event
-	if (_cell->energy()<hist.floor)
+	if (CellIter->energy()<hist.floor)
 	  {
 	    hist.NADA_cool_cell_map->Fill(cell_eta,cell_phi);
 	    all.NADA_cool_cell_map->Fill(cell_eta,cell_phi);
@@ -383,7 +389,7 @@ namespace HcalDeadCellCheck
 
 	    // hard-code # of neighbors -- may need to be adjusted at phi segmenation boundaries
 	    if ((neighbors>4) &&
-	       (_cell->energy()>0. && _cell->energy()<coolcellfrac*(1.0*neighborE/neighbors)))
+	       (CellIter->energy()>0. && CellIter->energy()<coolcellfrac*(1.0*neighborE/neighbors)))
 
 	    {
 	      hist.NADA_cool_cell_map->Fill(cell_eta, cell_phi);
@@ -395,9 +401,9 @@ namespace HcalDeadCellCheck
 		}
 	    } 
  
-	  } // else (_cell->energy()>=hist.floor)
+	  } // else (CellIter->energy()>=hist.floor)
 
-      } // for (_cell=hits.begin()...)
+      } // for (CellIter=hits.begin()...)
 
     return;
 
