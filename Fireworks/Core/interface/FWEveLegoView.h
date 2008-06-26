@@ -16,7 +16,7 @@
 //
 // Original Author:  Chris Jones
 //         Created:  Thu Feb 21 11:22:37 EST 2008
-// $Id: FWEveLegoView.h,v 1.4 2008/06/09 18:50:04 chrjones Exp $
+// $Id: FWEveLegoView.h,v 1.5 2008/06/11 13:57:32 dmytro Exp $
 //
 
 // system include files
@@ -88,6 +88,7 @@ class FWEveLegoView : public FWViewBase
       
       TGLMatrix* m_cameraMatrix;
       TGLMatrix* m_cameraMatrixBase;
+      bool       m_cameraSet;
 };
 
 

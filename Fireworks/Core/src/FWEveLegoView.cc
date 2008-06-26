@@ -8,7 +8,7 @@
 //
 // Original Author:  Chris Jones
 //         Created:  Thu Feb 21 11:22:41 EST 2008
-// $Id: FWEveLegoView.cc,v 1.12 2008/06/19 21:22:18 jmuelmen Exp $
+// $Id: FWEveLegoView.cc,v 1.13 2008/06/23 06:25:48 dmytro Exp $
 //
 
 // system include files
@@ -63,7 +63,8 @@ FWEveLegoView::FWEveLegoView(TGFrame* iParent, TEveElementList* list):
  m_ecalSlice(0),
  m_hcalSlice(0),
  m_cameraMatrix(0),
- m_cameraMatrixBase(0)
+ m_cameraMatrixBase(0),
+ m_cameraSet(false)
 {
    m_pad = new TEvePad;
    TGLEmbeddedViewer* ev = new TGLEmbeddedViewer(iParent, m_pad);
@@ -118,13 +119,13 @@ FWEveLegoView::draw(TEveCaloDataHist* data)
    m_lego->SetData(data);
    m_lego->ElementChanged();
    m_lego->DataChanged();
-   /*
-   if ( firstTime ) {
+   if ( ! m_cameraSet ) {
       m_scene->Repaint();
       m_viewer->Redraw(kTRUE);
-      m_viewer->GetGLViewer()->ResetCurrentCamera();
+      // std::cout << "Viewer: " <<  m_viewer << std::endl;
+      // m_viewer->GetGLViewer()->ResetCameras();
+      m_cameraSet = true;
    }
-   */ 
    m_viewer->GetGLViewer()->RequestDraw();
 }
 
@@ -206,6 +207,7 @@ FWEveLegoView::setFrom(const FWConfiguration& iFrom)
    }
 
    m_viewer->GetGLViewer()->RequestDraw();
+   m_cameraSet = true;
 }
 
 //
