@@ -13,7 +13,7 @@
 //
 // Original Author:  Vincenzo Chiochia & Andrew York
 //         Created:  
-// $Id: SiPixelClusterSource.cc,v 1.9 2008/06/23 15:06:04 merkelp Exp $
+// $Id: SiPixelClusterSource.cc,v 1.10 2008/06/26 08:27:36 merkelp Exp $
 //
 //
 // Updated by: Lukas Wehrli
@@ -202,7 +202,6 @@ void SiPixelClusterSource::bookMEs(){
       if(theSiPixelFolder.setModuleFolder((*struct_iter).first)){
         (*struct_iter).second->book( conf_ );
       } else {
-        
         if(!isPIB) throw cms::Exception("LogicError")
 	  << "[SiPixelClusterSource::bookMEs] Creation of DQM folder failed";
       }
