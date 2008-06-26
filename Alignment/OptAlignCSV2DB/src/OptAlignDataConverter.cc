@@ -25,7 +25,7 @@ void OptAlignDataConverter::endJob()
   while (! myfile.eof() ){
     std::string line;
     std::getline (myfile,line);
-    std::cout << " line read " << line << std::endl;
+    std::cout << " line read: " << line << std::endl;
 
     CSVBlankLineParser blank;
     if(blank.isBlank(line)){
@@ -44,7 +44,7 @@ void OptAlignDataConverter::endJob()
 	fieldTypes=headerParser.result();
 	int idx=0;
 	for(std::vector<std::string>::iterator it=fieldTypes.begin(); it!=fieldTypes.end(); ++it, ++idx){
-	  std::cout<<fieldNames[idx]<<":"<<*it<<std::endl;
+	  //	  std::cout<<fieldNames[idx]<<":"<<*it<<std::endl;
 	  m_fieldMap.push_back(fieldNames[idx],*it);
 	}
       }
@@ -144,7 +144,7 @@ void OptAlignDataConverter::endJob()
     }
 
     myobj->opticalAlignments_.push_back(*oaInfo);
-    std::cout << " OptAlignInfo read " << *oaInfo << std::endl;
+    std::cout << myobj->opticalAlignments_.size() << " OptAlignInfo constructed: " << *oaInfo << std::endl;
 
     delete oaInfo;
     ++counter;
@@ -169,5 +169,5 @@ void OptAlignDataConverter::endJob()
       std::cout<<"Funny error"<<std::endl;
     }
   }
-  std::cout << "@@@@ OPTICALALIGNMENTS WRITTEN TO DB " << *myobj << std::endl;
+  std::cout << "@@@@ OPTICALALIGNMENTS WRITTEN TO DB " << myobj << std::endl;
 }
