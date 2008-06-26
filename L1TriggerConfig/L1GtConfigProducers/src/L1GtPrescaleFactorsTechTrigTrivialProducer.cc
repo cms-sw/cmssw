@@ -44,9 +44,19 @@ L1GtPrescaleFactorsTechTrigTrivialProducer::L1GtPrescaleFactorsTechTrigTrivialPr
 
     // now do what ever other initialization is needed
 
+
     // prescale factors
-    m_prescaleFactors = 
-            parSet.getParameter<std::vector<int> >("PrescaleFactors");
+
+    std::vector<edm::ParameterSet> prescaleFactorsSet =
+        parSet.getParameter<std::vector<edm::ParameterSet> >("PrescaleFactorsSet");
+
+    for (std::vector<edm::ParameterSet>::const_iterator itPfSet =
+            prescaleFactorsSet.begin(); itPfSet != prescaleFactorsSet.end(); ++itPfSet) {
+
+        // prescale factors
+        m_prescaleFactors.push_back(itPfSet->getParameter<std::vector<int> >("PrescaleFactors"));
+
+    }
 
 }
 
@@ -70,5 +80,5 @@ boost::shared_ptr<L1GtPrescaleFactors>
             boost::shared_ptr<L1GtPrescaleFactors>(
                     new L1GtPrescaleFactors(m_prescaleFactors) );
 
-            return pL1GtPrescaleFactors;
+    return pL1GtPrescaleFactors;
 }

@@ -61,16 +61,14 @@ public:
 public:
 
     ///   get / set the number of condition chips in GTL
-    inline const unsigned int gtNumberConditionChips() const
-    {
+    inline const unsigned int gtNumberConditionChips() const {
         return m_numberConditionChips;
     }
 
     void setGtNumberConditionChips(const unsigned int&);
 
     ///   get / set the number of pins on the GTL condition chips
-    inline const unsigned int gtPinsOnConditionChip() const
-    {
+    inline const unsigned int gtPinsOnConditionChip() const {
         return m_pinsOnConditionChip;
     }
 
@@ -78,29 +76,25 @@ public:
 
     ///   get / set the correspondence "condition chip - GTL algorithm word"
     ///   in the hardware
-    inline std::vector<int> gtOrderConditionChip() const
-    {
+    inline std::vector<int> gtOrderConditionChip() const {
         return m_orderConditionChip;
     }
 
     void setGtOrderConditionChip(const std::vector<int>&);
 
     /// get / set the number of physics trigger algorithms
-    inline const unsigned int gtNumberPhysTriggers() const
-    {
+    inline const unsigned int gtNumberPhysTriggers() const {
         return m_numberPhysTriggers;
     }
 
     void setGtNumberPhysTriggers(const unsigned int&);
 
     ///  get / set the number of L1 jet counts received by GT
-    inline const unsigned int gtNumberL1JetCounts() const
-    {
+    inline const unsigned int gtNumberL1JetCounts() const {
         return m_numberL1JetCounts;
     }
 
     void setGtNumberL1JetCounts(const unsigned int&);
-
 
 public:
 
@@ -133,9 +127,8 @@ public:
     void setVecCaloTemplate(const std::vector<std::vector<L1GtCaloTemplate> >&);
 
     //
-    inline const std::vector<std::vector<L1GtEnergySumTemplate> >& 
-        vecEnergySumTemplate() const {
-        
+    inline const std::vector<std::vector<L1GtEnergySumTemplate> >& vecEnergySumTemplate() const {
+
         return m_vecEnergySumTemplate;
     }
 
@@ -143,9 +136,8 @@ public:
             const std::vector<std::vector<L1GtEnergySumTemplate> >&);
 
     //
-    inline const std::vector<std::vector<L1GtJetCountsTemplate> >& 
-        vecJetCountsTemplate() const {
-        
+    inline const std::vector<std::vector<L1GtJetCountsTemplate> >& vecJetCountsTemplate() const {
+
         return m_vecJetCountsTemplate;
     }
 
@@ -153,9 +145,8 @@ public:
             const std::vector<std::vector<L1GtJetCountsTemplate> >&);
 
     //
-    inline const std::vector<std::vector<L1GtCorrelationTemplate> >& 
-        vecCorrelationTemplate() const {
-        
+    inline const std::vector<std::vector<L1GtCorrelationTemplate> >& vecCorrelationTemplate() const {
+
         return m_vecCorrelationTemplate;
     }
 
@@ -178,16 +169,13 @@ public:
     void setCorCaloTemplate(const std::vector<std::vector<L1GtCaloTemplate> >&);
 
     //
-    inline const std::vector<std::vector<L1GtEnergySumTemplate> >& 
-        corEnergySumTemplate() const {
-        
+    inline const std::vector<std::vector<L1GtEnergySumTemplate> >& corEnergySumTemplate() const {
+
         return m_corEnergySumTemplate;
     }
 
     void setCorEnergySumTemplate(
             const std::vector<std::vector<L1GtEnergySumTemplate> >&);
-
-
 
     /// get / set the algorithm map
     inline const AlgorithmMap& gtAlgorithmMap() const {
@@ -200,8 +188,7 @@ public:
 
     /// parse def.xml and vme.xml files
     void parseXmlFile(const std::string& defXmlFile,
-                      const std::string& vmeXmlFile);
-
+            const std::string& vmeXmlFile);
 
 private:
 
@@ -212,43 +199,45 @@ private:
 
     /// find a named child of a xml node
     XERCES_CPP_NAMESPACE::DOMNode* findXMLChild(
-        XERCES_CPP_NAMESPACE::DOMNode* startChild, const std::string& tagName,
-        bool beginOnly, std::string* rest);
+            XERCES_CPP_NAMESPACE::DOMNode* startChild,
+            const std::string& tagName, bool beginOnly = false,
+            std::string* rest = 0);
 
     /// get a named attribute for an xml node as string
-    std::string getXMLAttribute(
-        const XERCES_CPP_NAMESPACE::DOMNode* node, const std::string& name);
+    std::string getXMLAttribute(const XERCES_CPP_NAMESPACE::DOMNode* node,
+            const std::string& name);
 
     /// get the text value of a xml node as string
     std::string getXMLTextValue(XERCES_CPP_NAMESPACE::DOMNode* node);
 
     /// convert a hexadecimal string with up to 128 to 2 boost::uint64_t
-    bool hexString2UInt128(const std::string& hexString,
-                           boost::uint64_t& dstL, boost::uint64_t& dstH);
+    bool hexString2UInt128(const std::string& hexString, boost::uint64_t& dstL,
+            boost::uint64_t& dstH);
 
     /// get a hexadecimal value of a xml node containing text with up to 128 bit
     bool getXMLHexTextValue128(XERCES_CPP_NAMESPACE::DOMNode* node,
-                               boost::uint64_t& dstL, boost::uint64_t& dstH);
+            boost::uint64_t& dstL, boost::uint64_t& dstH);
 
     /// get a hexadecimal value of a xml node containing text
-    bool getXMLHexTextValue(XERCES_CPP_NAMESPACE::DOMNode* node, boost::uint64_t& dst);
+    bool getXMLHexTextValue(XERCES_CPP_NAMESPACE::DOMNode* node,
+            boost::uint64_t& dst);
 
     /// get the number of bits in the max attribute of a condition child
     bool countConditionChildMaxBits(XERCES_CPP_NAMESPACE::DOMNode* node,
-                                    const std::string& childName, unsigned int& dst);
+            const std::string& childName, unsigned int& dst);
 
     /// get values from a child of a condition
     bool getConditionChildValues(XERCES_CPP_NAMESPACE::DOMNode* node,
-                                 const std::string& childName,
-                                 unsigned int num,
-                                 std::vector<boost::uint64_t>& dst);
+            const std::string& childName, unsigned int num,
+            std::vector<boost::uint64_t>& dst);
 
     /// shutdown the xml utils and deallocate parser and error handler
     void cleanupXML(XERCES_CPP_NAMESPACE::XercesDOMParser* parser);
-    
+
     /// FIXME remove it after new L1 Trigger Menu Editor available
     /// mirrors the LUT table from GTgui format to correct bit format
-    boost::uint64_t mirror(const boost::uint64_t oldLUT, int maxBitsLUT, int maxBitsReal);
+    boost::uint64_t mirror(const boost::uint64_t oldLUT, int maxBitsLUT,
+            int maxBitsReal);
 
 private:
 
@@ -267,7 +256,7 @@ private:
 
     /// insertConditionIntoMap - safe insert of condition into condition map.
     /// if the condition name already exists, do not insert it and return false
-    bool insertConditionIntoMap(const L1GtCondition& cond, const int chipNr);
+    bool insertConditionIntoMap(L1GtCondition& cond, const int chipNr);
 
     /// insert an algorithm into algorithm map
     bool insertAlgorithmIntoMap(const L1GtAlgorithm& alg);
@@ -283,47 +272,53 @@ private:
     int getBitFromNode(XERCES_CPP_NAMESPACE::DOMNode* node);
 
     /// getGEqFlag - get the "greater or equal flag" from a condition
-    int getGEqFlag(XERCES_CPP_NAMESPACE::DOMNode* node, const std::string& nodeName);
+    int getGEqFlag(XERCES_CPP_NAMESPACE::DOMNode* node,
+            const std::string& nodeName);
 
     /// get MIP and Isolation bits from a muon
     bool getMuonMipIsoBits(XERCES_CPP_NAMESPACE::DOMNode* node,
-                           unsigned int num, std::vector<bool>& mipDst,
-                           std::vector<bool>& isoEnDst, std::vector<bool>& isoReqDst);
+            unsigned int num, std::vector<bool>& mipDst,
+            std::vector<bool>& isoEnDst, std::vector<bool>& isoReqDst);
 
     /// parse a muon condition
     bool parseMuon(XERCES_CPP_NAMESPACE::DOMNode* node,
-                   const std::string& name, unsigned int chipNr);
+            const std::string& name, unsigned int chipNr = 0,
+            const bool corrFlag = false);
 
     /// parse a calorimeter condition
     bool parseCalo(XERCES_CPP_NAMESPACE::DOMNode* node,
-                   const std::string& name, unsigned int chipNr);
+            const std::string& name, unsigned int chipNr = 0,
+            const bool corrFlag = false);
 
     /// parse an "energy sum" condition
     bool parseEnergySum(XERCES_CPP_NAMESPACE::DOMNode* node,
-                        const std::string& name, unsigned int chipNr);
+            const std::string& name, unsigned int chipNr = 0,
+            const bool corrFlag = false);
 
     /// parse a "jet counts" condition
     bool parseJetCounts(XERCES_CPP_NAMESPACE::DOMNode* node,
-                        const std::string& name, unsigned int chipNr);
+            const std::string& name, unsigned int chipNr = 0);
+
+    /// parse a correlation condition
+    bool parseCorrelation(XERCES_CPP_NAMESPACE::DOMNode* node,
+            const std::string& name, unsigned int chipNr = 0);
 
     /// choose the parser for a particular condition
     bool workCondition(XERCES_CPP_NAMESPACE::DOMNode* node,
-                       const std::string& name, unsigned int chipNr);
+            const std::string& name, unsigned int chipNr);
 
     /// parse all conditions
     bool parseConditions(XERCES_CPP_NAMESPACE::XercesDOMParser* parser);
 
     /// parse an algorithm and insert it into algorithm map.
     bool workAlgorithm(XERCES_CPP_NAMESPACE::DOMNode* node,
-                       const std::string& name, unsigned int chipNr);
+            const std::string& name, unsigned int chipNr);
 
     /// parse all algorithms
     bool parseAlgorithms(XERCES_CPP_NAMESPACE::XercesDOMParser* parser);
 
     /// do all the steps for filling a trigger menu
     bool workXML(XERCES_CPP_NAMESPACE::XercesDOMParser* parser);
-
-
 
 private:
 
@@ -337,10 +332,10 @@ private:
 
     /// number of pins on the GTL condition chips
     unsigned int m_pinsOnConditionChip;
-    
+
     /// correspondence "condition chip - GTL algorithm word" in the hardware
     /// chip 2: 0 - 95;  chip 1: 96 - 128 (191)
-    std::vector<int> m_orderConditionChip;    
+    std::vector<int> m_orderConditionChip;
 
     /// number of physics trigger algorithms
     unsigned int m_numberPhysTriggers;
@@ -357,14 +352,14 @@ private:
 
     /// menu name 
     std::string m_triggerMenuName;
-    
+
     /// vectors containing the conditions
     /// explicit, due to persistency...    
     std::vector<std::vector<L1GtMuonTemplate> > m_vecMuonTemplate;
     std::vector<std::vector<L1GtCaloTemplate> > m_vecCaloTemplate;
     std::vector<std::vector<L1GtEnergySumTemplate> > m_vecEnergySumTemplate;
     std::vector<std::vector<L1GtJetCountsTemplate> > m_vecJetCountsTemplate;
-    
+
     std::vector<std::vector<L1GtCorrelationTemplate> > m_vecCorrelationTemplate;
     std::vector<std::vector<L1GtMuonTemplate> > m_corMuonTemplate;
     std::vector<std::vector<L1GtCaloTemplate> > m_corCaloTemplate;
@@ -372,7 +367,6 @@ private:
 
     /// map containing the algorithms (global map)
     AlgorithmMap m_algorithmMap;
-
 
 };
 

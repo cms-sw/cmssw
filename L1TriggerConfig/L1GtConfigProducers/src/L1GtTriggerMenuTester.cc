@@ -86,15 +86,19 @@ void L1GtTriggerMenuTester::analyze(const edm::Event& iEvent,
     // L1 GT prescale factors for algorithm triggers
     edm::ESHandle< L1GtPrescaleFactors> l1GtPfAlgo;
     evSetup.get< L1GtPrescaleFactorsAlgoTrigRcd>().get(l1GtPfAlgo);
+    
+    int indexPfSet = 0; // FIXME
 
-    std::vector<int> prescaleFactorsAlgoTrig = l1GtPfAlgo->gtPrescaleFactors();
+    std::vector<int> prescaleFactorsAlgoTrig = 
+        (l1GtPfAlgo->gtPrescaleFactors()).at(indexPfSet);
 
 
     // L1 GT prescale factors for technical triggers
     edm::ESHandle< L1GtPrescaleFactors> l1GtPfTech;
     evSetup.get< L1GtPrescaleFactorsTechTrigRcd>().get(l1GtPfTech);
 
-    std::vector<int> prescaleFactorsTechTrig = l1GtPfTech->gtPrescaleFactors();
+    std::vector<int> prescaleFactorsTechTrig = 
+        (l1GtPfTech->gtPrescaleFactors()).at(indexPfSet);
 
 
     // L1 GT trigger masks for algorithm triggers
@@ -167,5 +171,8 @@ void L1GtTriggerMenuTester::analyze(const edm::Event& iEvent,
         << std::endl;
     }
     
+    std::cout 
+    << "\nNOTE: only the prescale factors from set index zero are printed!"
+    << std::endl;
 
 }

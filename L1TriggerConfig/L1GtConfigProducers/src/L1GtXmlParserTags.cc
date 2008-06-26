@@ -9,8 +9,8 @@
  *   
  * \author: Vasile Mihai Ghete - HEPHY Vienna
  * 
- * $Date$
- * $Revision$
+ * $Date: 2008/02/23 17:14:26 $
+ * $Revision: 1.2 $
  *
  */
 
@@ -51,6 +51,7 @@ const std::string L1GtXmlParserTags::m_xmlConditionAttrConditionMuon("muon");
 const std::string L1GtXmlParserTags::m_xmlConditionAttrConditionCalo("calo");
 const std::string L1GtXmlParserTags::m_xmlConditionAttrConditionEnergySum("esums");
 const std::string L1GtXmlParserTags::m_xmlConditionAttrConditionJetCounts("jet_cnts");
+const std::string L1GtXmlParserTags::m_xmlConditionAttrConditionCorrelation("CondCorrelation");
 
 const std::string L1GtXmlParserTags::m_xmlConditionAttrObjectMu("muon");
 const std::string L1GtXmlParserTags::m_xmlConditionAttrObjectNoIsoEG("eg");

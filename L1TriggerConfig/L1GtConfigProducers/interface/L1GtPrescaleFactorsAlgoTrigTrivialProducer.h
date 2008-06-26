@@ -55,7 +55,7 @@ public:
 private:
 
     /// prescale factors
-    std::vector<int> m_prescaleFactors;
+    std::vector<std::vector<int> > m_prescaleFactors;
 
 };
 

@@ -12,8 +12,8 @@
  *   
  * \author: Vasile Mihai Ghete - HEPHY Vienna
  * 
- * $Date$
- * $Revision$
+ * $Date: 2008/02/23 17:16:33 $
+ * $Revision: 1.2 $
  *
  */
 
@@ -52,7 +52,8 @@ protected:
     static const std::string m_xmlConditionAttrConditionCalo;
     static const std::string m_xmlConditionAttrConditionEnergySum;
     static const std::string m_xmlConditionAttrConditionJetCounts;
-
+    static const std::string m_xmlConditionAttrConditionCorrelation;
+    
     static const std::string m_xmlConditionAttrObjectMu;
     static const std::string m_xmlConditionAttrObjectNoIsoEG;
     static const std::string m_xmlConditionAttrObjectIsoEG;
