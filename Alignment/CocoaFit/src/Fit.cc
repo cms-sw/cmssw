@@ -99,9 +99,10 @@ Fit& Fit::getInstance()
 void Fit::startFit()
 { 
   //  Model::setCocoaStatus( COCOA_InitFit );
-
   NtupleManager* NTmgr = NtupleManager::getInstance();
-  NTmgr->BookNtuple();
+  if(GlobalOptionMgr::getInstance()->GlobalOptions()["rootResults"] > 0) {
+    NTmgr->BookNtuple();
+  }
 
   ALIuint nEvent = 0;
   ALIUtils::setFirstTime( 1 );
@@ -123,8 +124,9 @@ void Fit::startFit()
     FEmgr->MakeHistos();
   }
 
-  NTmgr->WriteNtuple();
-
+  if(GlobalOptionMgr::getInstance()->GlobalOptions()["rootResults"] > 0) {
+    NTmgr->WriteNtuple();
+  }  
 }
 
 
@@ -251,13 +253,15 @@ ALIbool Fit::fitNextEvent( ALIuint& nEvent )
        FittedEntriesManager::getInstance()->AddFittedEntriesSet( new FittedEntriesSet( AtWAMatrix ) );
     }
     
-    NtupleManager* ntupleMgr = NtupleManager::getInstance();
-    ntupleMgr->InitNtuple();
-    ntupleMgr->FillChi2();
-    ntupleMgr->FillOptObjects(AtWAMatrix);
-    ntupleMgr->FillMeasurements();
-    ntupleMgr->FillFitParameters(AtWAMatrix);
-    ntupleMgr->FillNtupleTree();
+    if(GlobalOptionMgr::getInstance()->GlobalOptions()["rootResults"] > 0) {
+      NtupleManager* ntupleMgr = NtupleManager::getInstance();
+      ntupleMgr->InitNtuple();
+      ntupleMgr->FillChi2();
+      ntupleMgr->FillOptObjects(AtWAMatrix);
+      ntupleMgr->FillMeasurements();
+      ntupleMgr->FillFitParameters(AtWAMatrix);
+      ntupleMgr->FillNtupleTree();
+    }
 
     //- only if not stopped in worsening quality state        if(ALIUtils::report >= 0) dumpFittedValues( ALIFileOut::getInstance( Model::ReportFName() ));
     
