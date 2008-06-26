@@ -4,6 +4,16 @@
   <use name=FWCore/ServiceRegistry>
   <use name=FWCore/Catalog>
   <use name=FWCore/Utilities>
+
+  ##### ***** ##### ***** IMPORTANT NOTE! ***** ##### ***** #####
+  # _NOT_ linking against castor is deliberate here, we want just
+  # the headers for the stager API (RFIO API is entirely copied
+  # into this package).  The actual dependency will come in via
+  # RFIOCastorPlugin _IFF_ castor is used at run time.  Stager
+  # calls are guaranteed to be made only on file in castor store.
+  ##### ***** ##### ***** IMPORTANT NOTE! ***** ##### ***** #####
+  <flags CPPFLAGS="-I$(CASTOR_BASE)/include/shift -I$(CASTOR_BASE)/include">
+
   <flags NO_LIB_CHECKING=yes>
   <flags EDM_PLUGIN=1>
   <flags cppflags="-D_FILE_OFFSET_BITS=64">
