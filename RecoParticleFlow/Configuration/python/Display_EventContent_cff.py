@@ -9,6 +9,7 @@ DisplayEventContent = cms.PSet(
         'keep recoPFRecHits_*_*_*', 
         'keep recoPFClusters_*_*_*', 
         'keep recoPFRecTracks_*_*_*', 
+        'keep recoGsfPFRecTracks_*_*_*', 
         'keep recoPFBlocks_particleFlowBlock_*_*', 
         'keep recoPFCandidates_particleFlow_*_*', 
         'keep recoCandidatesOwned_*_*_*', 
