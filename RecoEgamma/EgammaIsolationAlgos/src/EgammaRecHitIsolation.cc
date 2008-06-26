@@ -15,6 +15,7 @@
 //CMSSW includes
 #include "RecoEgamma/EgammaIsolationAlgos/interface/EgammaRecHitIsolation.h"
 #include "DataFormats/DetId/interface/DetId.h"
+#include "DataFormats/EcalDetId/interface/EcalSubdetector.h"
 #include "Geometry/CommonDetUnit/interface/TrackingGeometry.h"
 #include "Geometry/Records/interface/TrackerDigiGeometryRecord.h"
 #include "DataFormats/GeometryVector/interface/GlobalPoint.h"
@@ -32,7 +33,7 @@ EgammaRecHitIsolation::EgammaRecHitIsolation (double extRadius,
 					      double etLow,
 					      edm::ESHandle<CaloGeometry> theCaloGeom,
 					      CaloRecHitMetaCollectionV* caloHits,
-					      DetId::Detector detector) :
+					      DetId::Detector detector):
   extRadius_(extRadius),
   intRadius_(intRadius),
   etaSlice_(etaSlice),
@@ -42,48 +43,60 @@ EgammaRecHitIsolation::EgammaRecHitIsolation (double extRadius,
 {
   //set up the geometry and selector
   const CaloGeometry* caloGeom = theCaloGeom_.product();
-  doubleConeSel_ = new CaloDualConeSelector (intRadius_ ,extRadius_, caloGeom, detector);
+  //special case to avoid slow preshower
+  if(detector == DetId::Ecal ){
+    doubleConeSel_[0] = new CaloDualConeSelector (intRadius_ ,extRadius_, caloGeom, detector, EcalEndcap);
+    doubleConeSel_[1] = new CaloDualConeSelector (intRadius_ ,extRadius_, caloGeom, detector, EcalBarrel);
+  }else{
+    doubleConeSel_[0] = new CaloDualConeSelector (intRadius_ ,extRadius_, caloGeom, detector);
+    doubleConeSel_[1] = NULL;
+  }
 }
 
 EgammaRecHitIsolation::~EgammaRecHitIsolation ()
 {
-  delete doubleConeSel_;
+  for(int i=0; i<=1 ; i++){
+    if(doubleConeSel_[i]){
+      delete doubleConeSel_[i];
+    }
+  }
 }
 
 double EgammaRecHitIsolation::getSum_(const reco::Candidate* emObject,bool returnEt) const
 {
 
   double energySum = 0.;
-  if (caloHits_) 
-   {
-      //Take the SC position
-     reco::SuperClusterRef sc = emObject->get<reco::SuperClusterRef>();
-     math::XYZPoint theCaloPosition = sc.get()->position();
-
-     GlobalPoint pclu (theCaloPosition.x () ,
-		       theCaloPosition.y () ,
-		       theCaloPosition.z () );
-     //Compute the energy in a cone of 0.4 radius
-     std::auto_ptr<CaloRecHitMetaCollectionV> chosen = doubleConeSel_->select(pclu,*caloHits_);
-     for (CaloRecHitMetaCollectionV::const_iterator i = chosen->begin () ; 
-	  i!= chosen->end () ; 
-	  ++i) 
-       {
-	 
-	 double eta = theCaloGeom_.product()->getPosition(i->detid()).eta();
-         double etaDiff = eta - pclu.eta();
-	 //	 std::cout << "  EgammaRecHitIsolation::getSum_ eta rec hit " << eta << " eta clus " << pclu.eta() << " diff " << etaDiff << std::endl;
-         if ( fabs(etaDiff) < etaSlice_) continue;
-
-	 double et = i->energy()*sin(2*atan(exp(-eta)));
-	 if ( et > etLow_){
-	   if(returnEt) energySum+=et;
-	   else energySum+=i->energy();
-	 }
-       }
-     
-   } 
-
+  if (caloHits_){
+    for(int selnr=0; selnr<=1 ; selnr++){
+      if(doubleConeSel_[selnr]){
+	//Take the SC position
+	reco::SuperClusterRef sc = emObject->get<reco::SuperClusterRef>();
+	math::XYZPoint theCaloPosition = sc.get()->position();
+	
+	GlobalPoint pclu (theCaloPosition.x () ,
+			  theCaloPosition.y () ,
+			  theCaloPosition.z () );
+	//Compute the energy in a cone of 0.4 radius
+	std::auto_ptr<CaloRecHitMetaCollectionV> chosen = doubleConeSel_[selnr]->select(pclu,*caloHits_);
+	for (CaloRecHitMetaCollectionV::const_iterator i = chosen->begin () ; 
+	     i!= chosen->end () ; 
+	     ++i) 
+	  {	 
+	    double eta = theCaloGeom_.product()->getPosition(i->detid()).eta();
+	    double etaDiff = eta - pclu.eta();
+	    //	 std::cout << "  EgammaRecHitIsolation::getSum_ eta rec hit " << eta << " eta clus " << pclu.eta() << " diff " << etaDiff << std::endl;
+	    if ( fabs(etaDiff) < etaSlice_) continue;
+	    
+	    double et = i->energy()*sin(2*atan(exp(-eta)));
+	    if ( et > etLow_){
+	      if(returnEt) energySum+=et;
+	      else energySum+=i->energy();
+	    }
+	  }
+	
+      } 
+    }
+  }
   return energySum;
 }
 

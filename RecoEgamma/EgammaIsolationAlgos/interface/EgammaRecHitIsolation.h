@@ -50,7 +50,7 @@ class EgammaRecHitIsolation {
   edm::ESHandle<CaloGeometry>  theCaloGeom_ ;
   CaloRecHitMetaCollectionV* caloHits_ ;
 
-  CaloDualConeSelector* doubleConeSel_;
+  CaloDualConeSelector* doubleConeSel_[2]; // barrel+endcap
   
 
 

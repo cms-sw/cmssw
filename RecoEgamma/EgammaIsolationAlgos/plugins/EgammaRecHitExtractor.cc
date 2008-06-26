@@ -15,6 +15,7 @@
 //CMSSW includes
 #include "RecoEgamma/EgammaIsolationAlgos/plugins/EgammaRecHitExtractor.h"
 #include "DataFormats/DetId/interface/DetId.h"
+#include "DataFormats/EcalDetId/interface/EcalSubdetector.h"
 #include "Geometry/CommonDetUnit/interface/TrackingGeometry.h"
 #include "Geometry/Records/interface/TrackerDigiGeometryRecord.h"
 #include "Geometry/Records/interface/CaloGeometryRecord.h"
@@ -114,7 +115,17 @@ reco::IsoDeposit EgammaRecHitExtractor::deposit(const edm::Event & iEvent,
    double sinTheta = sin(2*atan(exp(-sc->eta())));
    deposit.addCandEnergy(sc->energy() * (useEt_ ? sinTheta : 1.0)) ;
 
-   CaloDualConeSelector doubleConeSel(intRadius_ ,extRadius_, caloGeom, detector_);
+   //avoid slow preshower
+   int bid,eid;
+   if(detector_==DetId::Ecal){
+     bid=EcalBarrel;
+     eid=EcalEndcap;
+   }else{
+     bid=0;eid=0;
+   }
+
+   CaloDualConeSelector doubleConeSelBarrel(intRadius_ ,extRadius_, caloGeom, detector_,bid);
+   CaloDualConeSelector doubleConeSelEndcap(intRadius_ ,extRadius_, caloGeom, detector_,eid);
 
    double fakeEnergy = -sc->rawEnergy();
    if (fakeNegativeDeposit_) {
@@ -124,10 +135,10 @@ reco::IsoDeposit EgammaRecHitExtractor::deposit(const edm::Event & iEvent,
    // 3 possible options
    bool inBarrel = sameTag_ || ( abs(sc->eta()) < 1.5 );
    if (inBarrel || tryBoth_) {
-      collect(deposit, point, doubleConeSel, caloGeom, *barrelRecHits);
+      collect(deposit, point, doubleConeSelBarrel, caloGeom, *barrelRecHits);
    } 
    if ((!inBarrel) || tryBoth_) {
-      collect(deposit, point, doubleConeSel, caloGeom, *endcapRecHits);
+      collect(deposit, point, doubleConeSelEndcap, caloGeom, *endcapRecHits);
    }
    return deposit;
 }
