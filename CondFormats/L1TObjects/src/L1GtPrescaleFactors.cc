@@ -30,7 +30,7 @@ L1GtPrescaleFactors::L1GtPrescaleFactors()
     // empty
 }
 
-L1GtPrescaleFactors::L1GtPrescaleFactors(std::vector<int>& factorValue)
+L1GtPrescaleFactors::L1GtPrescaleFactors(const std::vector<std::vector<int> >& factorValue)
 {
     m_prescaleFactors = factorValue;
 }
@@ -42,7 +42,7 @@ L1GtPrescaleFactors::~L1GtPrescaleFactors()
 }
 
 // set the prescale factors
-void L1GtPrescaleFactors::setGtPrescaleFactors(std::vector<int>& factorValue)
+void L1GtPrescaleFactors::setGtPrescaleFactors(const std::vector<std::vector<int> >& factorValue)
 {
 
     m_prescaleFactors = factorValue;
@@ -50,15 +50,19 @@ void L1GtPrescaleFactors::setGtPrescaleFactors(std::vector<int>& factorValue)
 }
 
 // print the prescale factors
-void L1GtPrescaleFactors::print(std::ostream& s) const
-{
-    s << "\nL1 GT Trigger prescale factors" << std::endl;
+void L1GtPrescaleFactors::print(std::ostream& myOstream) const {
+    myOstream << "\nL1 GT Trigger prescale factors" << std::endl;
 
-    for (unsigned i = 0; i < m_prescaleFactors.size(); i++) {
+    for (unsigned iSet = 0; iSet < m_prescaleFactors.size(); iSet++) {
 
-        s << "  Bit number \t" << i
-        << ":\t prescale factor: " << m_prescaleFactors[i] << std::endl;
+        myOstream << "\n\n Set index " << iSet << "\n " << std::endl;
+        for (unsigned i = 0; i < (m_prescaleFactors[iSet]).size(); i++) {
 
+            myOstream 
+                << "  Bit number \t" << i 
+                << ":\t prescale factor: " << (m_prescaleFactors[iSet])[i] 
+                << std::endl;
+        }
     }
 
 }

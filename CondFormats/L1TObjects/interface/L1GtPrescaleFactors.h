@@ -12,8 +12,8 @@
  *   
  * \author: Vasile Mihai Ghete - HEPHY Vienna
  * 
- * $Date:$
- * $Revision:$
+ * $Date$
+ * $Revision$
  *
  */
 
@@ -35,22 +35,22 @@ public:
     // constructor
     L1GtPrescaleFactors();
 
-    //  from a vector
-    L1GtPrescaleFactors(std::vector<int>&);
+    //  from a vector of prescale-factor set
+    L1GtPrescaleFactors(const std::vector<std::vector<int> >&);
 
     // destructor
     virtual ~L1GtPrescaleFactors();
 
 public:
 
-    /// get the prescale factors
-    inline std::vector<int> gtPrescaleFactors() const
+    /// get the prescale factors by reference
+    inline const std::vector<std::vector<int> >& gtPrescaleFactors() const
     {
         return m_prescaleFactors;
     }
 
     /// set the prescale factors
-    void setGtPrescaleFactors(std::vector<int>&);
+    void setGtPrescaleFactors(const std::vector<std::vector<int> >&);
 
     /// print the prescale factors
     void print(std::ostream&) const;
@@ -58,7 +58,7 @@ public:
 private:
 
     /// prescale factors
-    std::vector<int> m_prescaleFactors;
+    std::vector<std::vector<int> > m_prescaleFactors;
 
 };
 
