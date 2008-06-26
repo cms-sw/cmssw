@@ -4,7 +4,7 @@ import FWCore.ParameterSet.Config as cms
 SimGeneralFEVTDEBUG = cms.PSet(
     outputCommands = cms.untracked.vstring('drop *_trackingtruthprod_*_*', 
         'drop *_electrontruth_*_*', 
-        'keep *_mergedtruth_*_*')
+        'keep *_mergedtruth_MergedTrackTruth_*')
 )
 #RAW content
 SimGeneralRAW = cms.PSet(
