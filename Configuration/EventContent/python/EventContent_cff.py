@@ -26,11 +26,11 @@ import FWCore.ParameterSet.Config as cms
 #  RAWSIM, RECOSIM, AODSIM: 
 #    include reconstruction and simulation
 #
-#  RAWDEBUG(RAWSIM+ALL_SIM_INFO), RAWDEBUGHLT(RAWDEBUG+HLTDEBUG), RECODEBUG(RECO+RAWDIGI)
+#  RAWDEBUG(RAWSIM+ALL_SIM_INFO), RAWDEBUGHLT(RAWDEBUG+HLTDEBUG)
 #
 #  FEVT (RAW+RECO), FEVTSIM (RAWSIM+RECOSIM), FEVTDEBUG (FEVTSIM+ALL_SIM_INFO), FEVTDEBUGHLT (FEVTDEBUG+HLTDEBUG)
 #
-#  $Id: EventContent_cff.py,v 1.3 2008/06/13 07:32:17 fambrogl Exp $
+#  $Id: EventContent_cff.py,v 1.4 2008/06/20 06:57:11 arizzi Exp $
 #
 #
 #
