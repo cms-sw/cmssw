@@ -5,7 +5,7 @@
 #include "Geometry/CaloGeometry/interface/CaloSubdetectorGeometry.h"
 #include "Geometry/EcalAlgo/interface/EcalBarrelGeometry.h"
 #include "Geometry/EcalAlgo/interface/EcalEndcapGeometry.h"
-#include "Geometry/EcalPreshowerAlgo/interface/EcalPreshowerGeometry.h"
+#include "Geometry/EcalAlgo/interface/EcalPreshowerGeometry.h"
 
 #include "Geometry/CaloTopology/interface/CaloTopology.h"
 #include "FastSimulation/CalorimeterProperties/interface/Calorimeter.h"
