@@ -81,6 +81,8 @@ void FWTableManager::Selection (int row, int mask)
      // This function handles the propagation of the table selection
      // to the framework.  For propagation in the opposite direction,
      // see FWTextView::selectionChanged().
+     if (row >= NumberOfRows()) // click on an empty line
+	  return;
      int index = table_row_to_index(row);
      switch (mask) { 
      case 4: 
