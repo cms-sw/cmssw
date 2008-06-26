@@ -19,7 +19,7 @@
 // Updated by: Lukas Wehrli
 // for pixel offline DQM 
 //         Created:  
-// $Id: SiPixelClusterSource.h,v 1.7 2008/06/23 12:14:11 merkelp Exp $
+// $Id: SiPixelClusterSource.h,v 1.8 2008/06/23 15:05:43 merkelp Exp $
 
 #include <memory>
 
@@ -66,6 +66,9 @@
     private:
        edm::ParameterSet conf_;
        edm::InputTag src_;
+       bool saveFile;
+       bool isPIB;
+       bool slowDown;
        int eventNo;
        DQMStore* theDMBE;
        std::map<uint32_t,SiPixelClusterModule*> thePixelStructure;

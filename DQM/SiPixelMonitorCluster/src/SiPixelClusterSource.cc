@@ -13,7 +13,7 @@
 //
 // Original Author:  Vincenzo Chiochia & Andrew York
 //         Created:  
-// $Id: SiPixelClusterSource.cc,v 1.8 2008/06/23 12:14:19 merkelp Exp $
+// $Id: SiPixelClusterSource.cc,v 1.9 2008/06/23 15:06:04 merkelp Exp $
 //
 //
 // Updated by: Lukas Wehrli
@@ -33,6 +33,8 @@
 // DataFormats
 #include "DataFormats/DetId/interface/DetId.h"
 #include "DataFormats/SiPixelDetId/interface/PixelSubdetector.h"
+#include "DataFormats/SiPixelDetId/interface/PixelBarrelName.h"
+#include "DataFormats/SiPixelDetId/interface/PixelEndcapName.h"
 //
 #include <string>
 #include <stdlib.h>
@@ -43,6 +45,9 @@ using namespace edm;
 SiPixelClusterSource::SiPixelClusterSource(const edm::ParameterSet& iConfig) :
   conf_(iConfig),
   src_( conf_.getParameter<edm::InputTag>( "src" ) ),
+  saveFile( conf_.getUntrackedParameter<bool>("saveFile",false) ),
+  isPIB( conf_.getUntrackedParameter<bool>("isPIB",false) ),
+  slowDown( conf_.getUntrackedParameter<bool>("slowDown",false) ),
   modOn( conf_.getUntrackedParameter<bool>("modOn",true) ),
   ladOn( conf_.getUntrackedParameter<bool>("ladOn",false) ), 
   layOn( conf_.getUntrackedParameter<bool>("layOn",false) ), 
@@ -81,9 +86,11 @@ void SiPixelClusterSource::beginJob(const edm::EventSetup& iSetup){
 
 
 void SiPixelClusterSource::endJob(void){
-  LogInfo ("PixelDQM") << " SiPixelClusterSource::endJob - Saving Root File " << std::endl;
-  std::string outputFile = conf_.getParameter<std::string>("outputFile");
-  theDMBE->save( outputFile.c_str() );
+  if(saveFile){
+    LogInfo ("PixelDQM") << " SiPixelClusterSource::endJob - Saving Root File " << std::endl;
+    std::string outputFile = conf_.getParameter<std::string>("outputFile");
+    theDMBE->save( outputFile.c_str() );
+  }
 }
 
 //------------------------------------------------------------------
@@ -113,7 +120,7 @@ SiPixelClusterSource::analyze(const edm::Event& iEvent, const edm::EventSetup& i
   }
 
   // slow down...
-  //usleep(100000);
+  if(slowDown) usleep(10000);
   
 }
 
@@ -141,7 +148,8 @@ void SiPixelClusterSource::buildStructure(const edm::EventSetup& iSetup){
       int ncols = (pixDet->specificTopology()).ncolumns();
 
       if(detId.subdetId() == static_cast<int>(PixelSubdetector::PixelBarrel)) {
-        LogDebug ("PixelDQM") << " ---> Adding Barrel Module " <<  detId.rawId() << endl;
+        if(isPIB) continue;
+	LogDebug ("PixelDQM") << " ---> Adding Barrel Module " <<  detId.rawId() << endl;
 	uint32_t id = detId();
 	SiPixelClusterModule* theModule = new SiPixelClusterModule(id, ncols, nrows);
 	thePixelStructure.insert(pair<uint32_t,SiPixelClusterModule*> (id,theModule));
@@ -150,6 +158,26 @@ void SiPixelClusterSource::buildStructure(const edm::EventSetup& iSetup){
 	LogDebug ("PixelDQM") << " ---> Adding Endcap Module " <<  detId.rawId() << endl;
 	uint32_t id = detId();
 	SiPixelClusterModule* theModule = new SiPixelClusterModule(id, ncols, nrows);
+
+        PixelEndcapName::HalfCylinder side = PixelEndcapName::PixelEndcapName(DetId::DetId(id)).halfCylinder();
+        int disk   = PixelEndcapName::PixelEndcapName(DetId::DetId(id)).diskName();
+        int blade  = PixelEndcapName::PixelEndcapName(DetId::DetId(id)).bladeName();
+        int panel  = PixelEndcapName::PixelEndcapName(DetId::DetId(id)).pannelName();
+        int module = PixelEndcapName::PixelEndcapName(DetId::DetId(id)).plaquetteName();
+
+        char sside[80];  sprintf(sside,  "HalfCylinder_%i",side);
+        char sdisk[80];  sprintf(sdisk,  "Disk_%i",disk);
+        char sblade[80]; sprintf(sblade, "Blade_%02i",blade);
+        char spanel[80]; sprintf(spanel, "Panel_%i",panel);
+        char smodule[80];sprintf(smodule,"Module_%i",module);
+        std::string side_str = sside;
+	std::string disk_str = sdisk;
+	bool mask = side_str.find("HalfCylinder_1")!=string::npos||
+	            side_str.find("HalfCylinder_2")!=string::npos||
+		    side_str.find("HalfCylinder_4")!=string::npos||
+		    disk_str.find("Disk_2")!=string::npos;
+	if(isPIB && mask) continue;
+	
 	thePixelStructure.insert(pair<uint32_t,SiPixelClusterModule*> (id,theModule));
       }
 
@@ -174,7 +202,8 @@ void SiPixelClusterSource::bookMEs(){
       if(theSiPixelFolder.setModuleFolder((*struct_iter).first)){
         (*struct_iter).second->book( conf_ );
       } else {
-        throw cms::Exception("LogicError")
+        
+        if(!isPIB) throw cms::Exception("LogicError")
 	  << "[SiPixelClusterSource::bookMEs] Creation of DQM folder failed";
       }
     }
