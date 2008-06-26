@@ -16,6 +16,280 @@
 using namespace pos;
 using namespace std;
 
+PixelCalibConfiguration::PixelCalibConfiguration(std::vector< std::vector<std::string> > & tableMat):
+						 PixelCalibBase(), PixelConfigBase("","","") 
+{
+  std::map<std::string , int > colM;
+  std::vector<std::string > colNames;
+  /**
+
+  View's name: CONF_KEY_PIXEL_CALIB_MV
+  CONFIG_KEY_ID                             NOT NULL NUMBER(38)
+  CONFG_KEY                                 NOT NULL VARCHAR2(80)
+  VERSION                                            VARCHAR2(40)
+  KIND_OF_COND                              NOT NULL VARCHAR2(40)
+  RUN_TYPE                                           VARCHAR2(40)
+  RUN_NUMBER                                         NUMBER(38)
+  CALIB_OBJ_DATA_FILE                       NOT NULL VARCHAR2(200)
+  CALIB_OBJ_DATA_CLOB                       NOT NULL CLOB
+  */
+
+  colNames.push_back("CONFIG_KEY_ID"      );
+  colNames.push_back("CONFG_KEY"          );
+  colNames.push_back("VERSION"            );
+  colNames.push_back("KIND_OF_COND"       );
+  colNames.push_back("RUN_TYPE"           );
+  colNames.push_back("RUN_NUMBER"         );
+  colNames.push_back("CALIB_OBJ_DATA_FILE");
+  colNames.push_back("CALIB_OBJ_DATA_CLOB");
+  
+  for(unsigned int c = 0 ; c < tableMat[0].size() ; c++)
+    {
+      for(unsigned int n=0; n<colNames.size(); n++)
+	{
+	  if(tableMat[0][c] == colNames[n])
+	    {
+	      colM[colNames[n]] = c;
+	      break;
+	    }
+	}
+    }//end for
+  for(unsigned int n=0; n<colNames.size(); n++)
+    {
+      if(colM.find(colNames[n]) == colM.end())
+	{
+	  std::cerr << "[PixelCalibConfiguration::PixelCalibConfiguration()]\tCouldn't find in the database the column with name " << colNames[n] << std::endl;
+	  assert(0);
+	}
+    }
+
+  _bufferData=true; 
+  
+  std::istringstream in ;
+  in.str(tableMat[1][colM["CALIB_OBJ_DATA_CLOB"]]) ;
+  
+  std::string tmp;
+
+  in >> tmp;
+  
+  if (tmp=="Mode:"){
+    in >> mode_;
+    std::cout << "PixelCalibConfiguration mode="<<mode_<< std::endl;
+    in >>tmp;
+  } else {
+    mode_="FEDChannelOffsetPixel";
+    std::cout << "PixelCalibCOnfiguration mode not set, is this an old file? "
+	      << std::endl;
+    assert(0);
+  }
+  
+  singleROC_=false;
+  
+  if (tmp=="SingleROC") {
+    singleROC_=true;
+    in >> tmp;
+  }
+  
+  // Read in parameters, if any.
+  if (tmp=="Parameters:") {
+    in >> tmp;
+    while (tmp!="Rows:")
+      {
+	assert( !in.eof() );
+	std::string paramName = tmp;
+	in >> tmp; // tmp contains the parameter value
+	parameters_[paramName] = tmp;
+	in >> tmp; // tmp contains the next parameter's name, or "Rows:"
+      }
+  }
+  
+  assert(tmp=="Rows:");
+  
+  in >> tmp;
+  
+  std::vector <unsigned int> rows;
+  while (tmp!="Cols:"){
+    if (tmp=="|") {
+      rows_.push_back(rows);
+      rows.clear();
+    }
+    else{
+      if (tmp!="*"){
+	rows.push_back(atoi(tmp.c_str()));
+      }
+    }
+    in >> tmp;
+  }
+  rows_.push_back(rows);
+  rows.clear();
+  
+  in >> tmp;
+  
+  std::vector <unsigned int> cols;
+  while ((tmp!="VcalLow:")&&(tmp!="VcalHigh:")&&
+	 (tmp!="Vcal:")&&(tmp!="VcalHigh")&&(tmp!="VcalLow")){
+    if (tmp=="|") {
+      cols_.push_back(cols);
+      cols.clear();
+    }
+    else{
+      if (tmp!="*"){
+	cols.push_back(atoi(tmp.c_str()));
+      }
+    }
+    in >> tmp;
+  }
+  cols_.push_back(cols);
+  cols.clear();
+  
+  highVCalRange_=true;
+  
+  if (tmp=="VcalLow") {
+    highVCalRange_=false;
+    in >> tmp;
+  }
+  
+  if (tmp=="VcalHigh") {
+    highVCalRange_=true;
+    in >> tmp;
+  }
+  
+  if (tmp=="VcalLow:") {
+    highVCalRange_=false;
+  }
+  
+  if ((tmp=="VcalLow:")||(tmp=="VcalHigh:")||(tmp=="Vcal:")){
+    unsigned int  first,last,step;
+    in >> first >> last >> step;
+    unsigned int index=1;
+    if (dacs_.size()>0) {
+      index=dacs_.back().index()*dacs_.back().getNPoints();
+    }
+    in >> tmp;
+    bool mix = false;
+    if ( tmp=="mix" )
+      {
+        mix = true;
+        in >> tmp;
+      }
+    PixelDACScanRange dacrange(pos::k_DACName_Vcal,first,last,step,index,mix);
+    dacs_.push_back(dacrange);
+  }
+  else{
+    
+    //in >> tmp;
+    while(tmp=="Scan:"||tmp=="ScanValues:"){
+      if (tmp=="ScanValues:"){
+	std::string dacname;
+	in >> dacname;
+	vector<unsigned int> values;
+	int val;  
+	in >> val;
+	while (val!=-1) {
+	  values.push_back(val);
+	  in >> val;
+	}
+	unsigned int index=1;
+	if (dacs_.size()>0) {
+	  index=dacs_.back().index()*dacs_.back().getNPoints();
+	}
+	PixelDACScanRange dacrange(dacname,values,index,false);
+	dacs_.push_back(dacrange);
+	in >> tmp;
+      }
+      else {
+	std::string dacname;
+	in >> dacname;
+	unsigned int  first,last,step;
+	in >> first >> last >> step;
+	unsigned int index=1;
+	if (dacs_.size()>0) {
+	  index=dacs_.back().index()*dacs_.back().getNPoints();
+	}
+	in >> tmp;
+	bool mix = false;
+	if ( tmp=="mix" )
+	  {
+	    mix = true;
+	    in >> tmp;
+	  }
+	PixelDACScanRange dacrange(dacname,first,last,step,index,mix);
+	dacs_.push_back(dacrange);
+      }
+    }
+    
+    while ((tmp=="Set:")||(tmp=="SetRelative:")){
+      string name;
+      in >> name;
+      unsigned int val;
+      in >> val;
+      unsigned int index=1;
+      if (dacs_.size()>0) index=dacs_.back().index()*dacs_.back().getNPoints();
+      PixelDACScanRange dacrange(name,val,val,1,index,false);
+      if (tmp=="SetRelative:") {
+	dacrange.setRelative();
+      }
+      dacs_.push_back(dacrange);
+      in >> tmp;
+    }
+  }
+  
+  assert(tmp=="Repeat:");
+
+  in >> ntrigger_;
+  
+  in >> tmp;
+  
+  usesROCList_=false;
+  bool buildROCListNow = false;
+  if ( tmp=="Rocs:" ) {
+    buildROCListNow = true;
+    usesROCList_=true;
+  }
+  else { assert(tmp=="ToCalibrate:"); buildROCListNow = false; }
+  
+  while (!in.eof())
+    {
+      tmp = "";
+      in >> tmp;
+      
+      // added by F.Blekman to be able to deal with POS245 style calib.dat files in CMSSW
+      // these files use the syntax: 
+      // Rocs:
+      // all
+      
+      if( tmp=="all" || tmp=="+" || tmp=="-" ){
+	buildROCListNow=false;
+      }
+      // end of addition by F.B.
+      
+      if ( tmp=="" ) continue;
+      rocListInstructions_.push_back(tmp);
+    }
+  
+  rocAndModuleListsBuilt_ = false;
+  if ( buildROCListNow )
+    {
+      std::set<PixelROCName> rocSet;
+      for(std::vector<std::string>::iterator rocListInstructions_itr = rocListInstructions_.begin(); rocListInstructions_itr != rocListInstructions_.end(); rocListInstructions_itr++)
+	{
+          PixelROCName rocname(*rocListInstructions_itr);
+          rocSet.insert(rocname);
+	}
+      buildROCAndModuleListsFromROCSet(rocSet);
+    }
+  
+  objectsDependingOnTheNameTranslationBuilt_ = false;
+  
+  // Added by Dario as a temporary patch for Debbie (this will disappear in the future)
+  calibFileContent_ = in.str() ;
+  // End of temporary patch
+  
+  return;
+  
+}
+
+
 PixelCalibConfiguration::PixelCalibConfiguration(std::string filename):
   PixelCalibBase(), PixelConfigBase("","","") {
 

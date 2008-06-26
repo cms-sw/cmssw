@@ -63,6 +63,7 @@ namespace pos{
   public:
 
     PixelCalibConfiguration(std::string filename="");
+    PixelCalibConfiguration(std::vector<std::vector<std::string> > &);
 
     virtual ~PixelCalibConfiguration();
 

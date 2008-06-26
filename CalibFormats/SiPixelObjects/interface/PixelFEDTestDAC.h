@@ -30,6 +30,7 @@ namespace pos{
 
   public:
     PixelFEDTestDAC(std::string filename);
+    PixelFEDTestDAC(std::vector< std::vector<std::string> > &);
     std::string mode() {return mode_;}
     std::vector<unsigned int> dacs() {return dacs_;}
 

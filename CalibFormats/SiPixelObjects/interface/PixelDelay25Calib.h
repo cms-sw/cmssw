@@ -26,6 +26,7 @@ namespace pos{
   public:
   
     PixelDelay25Calib(std::string);
+    PixelDelay25Calib(std::vector<std::vector<std::string> > &);
     ~PixelDelay25Calib();
 
     virtual void writeASCII(std::string dir="") const;
