@@ -8,7 +8,7 @@
 //
 // Original Author:  
 //         Created:  Sun Jan  6 23:57:00 EST 2008
-// $Id: CaloJetGlimpseProxyBuilder.cc,v 1.1 2008/06/19 06:57:27 dmytro Exp $
+// $Id: CaloJetGlimpseProxyBuilder.cc,v 1.2 2008/06/25 05:22:17 dmytro Exp $
 //
 
 // system include files
@@ -94,15 +94,17 @@ CaloJetGlimpseProxyBuilder::build(const FWEventItem* iItem, TEveElementList** pr
       TEveBoxSet* cone = new TEveBoxSet(counter.str().c_str());
       cone->SetPickable(kTRUE);
       cone->Reset(TEveBoxSet::kBT_Cone, kTRUE, 64);
-      double theta = jet->theta();
-      double phi = jet->phi();
       double height = jet->et();
       TEveVector dir, pos;
       dir.Set(jet->px()/jet->p(), jet->py()/jet->p(), jet->pz()/jet->p());
       
       dir *= height;
       pos.Set(0.0,0.0,0.0);
-      cone->AddCone(pos, dir, 0.5*height);
+      double eta_size = sqrt(jet->etaetaMoment());
+      double theta_size = fabs(getTheta(jet->eta()+eta_size)-getTheta(jet->eta()-eta_size));
+      double phi_size = sqrt(jet->phiphiMoment());
+      double scale = phi_size > 0? theta_size/phi_size : 1;
+      cone->AddCone(pos, dir, phi_size*height, scale);
       cone->DigitColor( iItem->defaultDisplayProperties().color() );
       cone->SetDrawConeCap(kTRUE);
       tList->AddElement(cone);
