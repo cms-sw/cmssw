@@ -87,9 +87,9 @@ FWTextView::FWTextView (CmsShowMain *de, FWSelectionManager *sel,
        mu_manager(new MuonTableManager),
        jet_manager(new JetTableManager),
        l1_manager    	(new ElectronTableManager),
-       hlt_manager   	(new ElectronTableManager),
+       hlt_manager   	(new HLTTableManager),
        track_manager 	(new TrackTableManager),
-       vertex_manager  	(new ElectronTableManager),
+       vertex_manager  	(new VertexTableManager),
        seleman		(sel)
 {      
      // stick managers in a vector for easier collective operations
@@ -180,8 +180,8 @@ FWTextView::FWTextView (CmsShowMain *de, FWSelectionManager *sel,
      FWTextViewPage *trigger = new FWTextViewPage("Trigger information", v_trigger,
 						  gui->m_textViewFrame[1], this);
      std::vector<FWTableManager *> v_tracks;
-     v_tracks.push_back(track_manager);
      v_tracks.push_back(vertex_manager);
+     v_tracks.push_back(track_manager);
      FWTextViewPage *tracks = new FWTextViewPage("Tracking", v_tracks,
 						  gui->m_textViewFrame[2], this);
      page = objects;
@@ -424,7 +424,7 @@ void FWTextView::newEvent (const fwlite::Event &ev, const CmsShowMain *de)
      //------------------------------------------------------------
      // print tracks
      //------------------------------------------------------------
-     printf("%d Tracks\n", n_tracks);
+     printf("Tracks\n");
      track_manager->rows.clear();
 //      printf("Et\t eta\t phi\t ECAL\t HCAL\t emf\t chf\n");
      for (int i = 0; i < n_tracks; ++i) {
@@ -437,11 +437,29 @@ void FWTextView::newEvent (const fwlite::Event &ev, const CmsShowMain *de)
 	       tr.hitPattern().numberOfValidPixelHits(),
 	       tr.hitPattern().numberOfValidStripHits(),
 	       125,
-	       tr.chi2(), int(tr.ndof())
+	       tr.chi2(), tr.ndof()
 	  };
 	  track_manager->rows.push_back(row);
      }
      track_manager->Sort(0, true);
+     //------------------------------------------------------------
+     // print tracks
+     //------------------------------------------------------------
+     printf("Vertices\n");
+     vertex_manager->rows.clear();
+//      printf("Et\t eta\t phi\t ECAL\t HCAL\t emf\t chf\n");
+     for (int i = 0; i < n_vertices; ++i) {
+	  const reco::Vertex &vtx = vertices->at(i);
+	  VertexRowStruct row = {
+	       i,
+	       vtx.x(), vtx.xError(), 
+	       vtx.y(), vtx.yError(), 
+	       vtx.z(), vtx.zError(), 
+	       vtx.tracksSize(), vtx.chi2(), vtx.ndof()
+	  };
+	  vertex_manager->rows.push_back(row);
+     }
+     vertex_manager->Sort(0, true);
 //      static int i = 0; 
 //      i++;
 //      if (i == 3) {

@@ -208,7 +208,7 @@ struct TrackRowStruct {
 	  strip_layers,
 	  outermost_layer;
      float chi2;
-     int ndof;
+     float ndof;
 };
 
 class TrackRow : public TrackRowStruct {
@@ -241,6 +241,106 @@ public:
 	  { return ::index_to_table_row(rows, i); }
 
      std::vector<TrackRow>	rows;
+     static std::string		titles[];
+     static std::string		formats[];
+};
+
+struct VertexRowStruct {
+     int	index;
+     float 	vx,
+	  vx_err,
+	  vy,
+	  vy_err,
+	  vz,
+	  vz_err;
+     int	n_tracks;
+     float	chi2;
+     float	ndof;
+};
+
+class VertexRow : public VertexRowStruct {
+public:
+     VertexRow (const VertexRowStruct &e) : VertexRowStruct(e) { }
+     const std::vector<std::string> 	&str () const;
+     const std::vector<float> 		&vec () const;
+protected:
+     mutable std::vector<std::string>	str_;
+     mutable std::vector<float>		vec_;
+};
+
+class VertexTableManager : public FWTableManager {
+
+public:
+     virtual int NumberOfRows() const;
+     virtual int NumberOfCols() const;
+     virtual void Sort(int col, bool sortOrder); // sortOrder=true means desc order
+     virtual std::vector<std::string> GetTitles(int col);
+     virtual void FillCells(int rowStart, int colStart, 
+			    int rowEnd, int colEnd, 
+			    std::vector<std::string>& oToFill);
+     virtual TGFrame* GetRowCell(int row, TGFrame *parentFrame);
+     virtual void UpdateRowCell(int row, TGFrame *rowCell);
+     const std::string		title () const { return "Vertices"; }
+
+     virtual int table_row_to_index (int i) const 
+	  { return ::table_row_to_index(rows, i); }
+     virtual int index_to_table_row (int i) const 
+	  { return ::index_to_table_row(rows, i); }
+
+     std::vector<VertexRow>	rows;
+     static std::string		titles[];
+     static std::string		formats[];
+};
+
+struct HLTRowStruct {
+     int	index;
+     float	pt,
+	  eta,
+	  phi,
+	  d0,
+	  d0_err,
+	  z0,
+	  z0_err,
+	  vtx_x,
+	  vtx_y,
+	  vtx_z;
+     int 	pix_layers,
+	  strip_layers,
+	  outermost_layer;
+     float chi2;
+     float ndof;
+};
+
+class HLTRow : public HLTRowStruct {
+public:
+     HLTRow (const HLTRowStruct &e) : HLTRowStruct(e) { }
+     const std::vector<std::string> 	&str () const;
+     const std::vector<float> 		&vec () const;
+protected:
+     mutable std::vector<std::string>	str_;
+     mutable std::vector<float>		vec_;
+};
+
+class HLTTableManager : public FWTableManager {
+
+public:
+     virtual int NumberOfRows() const;
+     virtual int NumberOfCols() const;
+     virtual void Sort(int col, bool sortOrder); // sortOrder=true means desc order
+     virtual std::vector<std::string> GetTitles(int col);
+     virtual void FillCells(int rowStart, int colStart, 
+			    int rowEnd, int colEnd, 
+			    std::vector<std::string>& oToFill);
+     virtual TGFrame* GetRowCell(int row, TGFrame *parentFrame);
+     virtual void UpdateRowCell(int row, TGFrame *rowCell);
+     const std::string		title () const { return "HLT names"; }
+
+     virtual int table_row_to_index (int i) const 
+	  { return ::table_row_to_index(rows, i); }
+     virtual int index_to_table_row (int i) const 
+	  { return ::index_to_table_row(rows, i); }
+
+     std::vector<HLTRow>	rows;
      static std::string		titles[];
      static std::string		formats[];
 };

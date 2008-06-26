@@ -1,6 +1,6 @@
 #include "TableManagers.h"
 
-std::string TrackTableManager::titles[] = {
+std::string HLTTableManager::titles[] = {
      "pt"	,
      "eta"	,
      "phi"	,
@@ -18,7 +18,7 @@ std::string TrackTableManager::titles[] = {
      "ndof"	,
 };
 
-std::string TrackTableManager::formats[] = {
+std::string HLTTableManager::formats[] = {
      "%5.1f"	,
      "%6.3f"	,
      "%6.3f"	,
@@ -36,12 +36,12 @@ std::string TrackTableManager::formats[] = {
      "%6.3f"	,
 };
 
-int TrackTableManager::NumberOfRows() const
+int HLTTableManager::NumberOfRows() const
 {
      return rows.size();
 }
 
-int TrackTableManager::NumberOfCols() const
+int HLTTableManager::NumberOfCols() const
 {
      return sizeof(titles) / sizeof(std::string);
 }
@@ -49,7 +49,7 @@ int TrackTableManager::NumberOfCols() const
 struct sort_asc {
      int i;
      bool order;
-     bool operator () (const TrackRow &r1, const TrackRow &r2) const 
+     bool operator () (const HLTRow &r1, const HLTRow &r2) const 
 	  {
 	       if (order)
 		    return r1.vec()[i] > r2.vec()[i];
@@ -57,7 +57,7 @@ struct sort_asc {
 	  }
 };
 
-void TrackTableManager::Sort(int col, bool sortOrder)
+void HLTTableManager::Sort(int col, bool sortOrder)
 {
      sort_asc sort_fun;
      sort_fun.i = col;
@@ -65,14 +65,14 @@ void TrackTableManager::Sort(int col, bool sortOrder)
      std::sort(rows.begin(), rows.end(), sort_fun);
 }
 
-std::vector<std::string> TrackTableManager::GetTitles(int col)
+std::vector<std::string> HLTTableManager::GetTitles(int col)
 {
      std::vector<std::string> ret;
      ret.insert(ret.begin(), titles + col, titles + NumberOfCols());
      return ret;
 }
 
-void TrackTableManager::FillCells(int rowStart, int colStart, 
+void HLTTableManager::FillCells(int rowStart, int colStart, 
 				     int rowEnd, int colEnd, 
 				     std::vector<std::string> &ret)
 {
@@ -92,44 +92,44 @@ void TrackTableManager::FillCells(int rowStart, int colStart,
      // no, don't return ret;
 }
 
-TGFrame* TrackTableManager::GetRowCell(int row, TGFrame *parentFrame)
+TGFrame* HLTTableManager::GetRowCell(int row, TGFrame *parentFrame)
 {
      TGTextEntry *cell = new TGTextEntry(format_string("%d", row) ,parentFrame);
      return cell;
 }
 
-void TrackTableManager::UpdateRowCell(int row, TGFrame *rowCell)
+void HLTTableManager::UpdateRowCell(int row, TGFrame *rowCell)
 {
     rowCell->Clear();
     TGTextEntry *cell = (TGTextEntry *)(rowCell);
     cell->SetText(format_string("%d", row).c_str());
 }
 
-const std::vector<std::string> 	&TrackRow::str () const
+const std::vector<std::string> 	&HLTRow::str () const
 {
      if (str_.size() == 0) {
 	  // cache
 	  int i = 0;
-	  str_.push_back(format_string(TrackTableManager::formats[i++], pt                 ));
-	  str_.push_back(format_string(TrackTableManager::formats[i++], eta                ));
-	  str_.push_back(format_string(TrackTableManager::formats[i++], phi                ));
-	  str_.push_back(format_string(TrackTableManager::formats[i++], d0                 ));
-	  str_.push_back(format_string(TrackTableManager::formats[i++], d0_err             ));
-	  str_.push_back(format_string(TrackTableManager::formats[i++], z0                 ));
-	  str_.push_back(format_string(TrackTableManager::formats[i++], z0_err             ));
-	  str_.push_back(format_string(TrackTableManager::formats[i++], vtx_x              ));
-	  str_.push_back(format_string(TrackTableManager::formats[i++], vtx_y              ));
-	  str_.push_back(format_string(TrackTableManager::formats[i++], vtx_z              ));
-	  str_.push_back(format_string(TrackTableManager::formats[i++], pix_layers         ));
-	  str_.push_back(format_string(TrackTableManager::formats[i++], strip_layers       ));
-	  str_.push_back(format_string(TrackTableManager::formats[i++], outermost_layer    ));
-	  str_.push_back(format_string(TrackTableManager::formats[i++], chi2               ));
-	  str_.push_back(format_string(TrackTableManager::formats[i++], ndof               ));
+	  str_.push_back(format_string(HLTTableManager::formats[i++], pt                 ));
+	  str_.push_back(format_string(HLTTableManager::formats[i++], eta                ));
+	  str_.push_back(format_string(HLTTableManager::formats[i++], phi                ));
+	  str_.push_back(format_string(HLTTableManager::formats[i++], d0                 ));
+	  str_.push_back(format_string(HLTTableManager::formats[i++], d0_err             ));
+	  str_.push_back(format_string(HLTTableManager::formats[i++], z0                 ));
+	  str_.push_back(format_string(HLTTableManager::formats[i++], z0_err             ));
+	  str_.push_back(format_string(HLTTableManager::formats[i++], vtx_x              ));
+	  str_.push_back(format_string(HLTTableManager::formats[i++], vtx_y              ));
+	  str_.push_back(format_string(HLTTableManager::formats[i++], vtx_z              ));
+	  str_.push_back(format_string(HLTTableManager::formats[i++], pix_layers         ));
+	  str_.push_back(format_string(HLTTableManager::formats[i++], strip_layers       ));
+	  str_.push_back(format_string(HLTTableManager::formats[i++], outermost_layer    ));
+	  str_.push_back(format_string(HLTTableManager::formats[i++], chi2               ));
+	  str_.push_back(format_string(HLTTableManager::formats[i++], ndof               ));
      }
      return str_;
 }
 
-const std::vector<float> 	&TrackRow::vec () const
+const std::vector<float> 	&HLTRow::vec () const
 {
      if (vec_.size() == 0) {
 	  // cache

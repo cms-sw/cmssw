@@ -12,7 +12,9 @@ namespace fwlite {
 class ElectronTableManager;
 class MuonTableManager;
 class JetTableManager;
+class HLTTableManager;
 class TrackTableManager;
+class VertexTableManager;
 class TGMainFrame;
 class TGCompositeFrame;
 class FWTableManager;
@@ -60,10 +62,10 @@ protected:
      JetTableManager		*jet_manager;
      // trigger
      ElectronTableManager	*l1_manager;
-     ElectronTableManager	*hlt_manager;
+     HLTTableManager		*hlt_manager;
      // tracks
      TrackTableManager		*track_manager;
-     ElectronTableManager	*vertex_manager;
+     VertexTableManager		*vertex_manager;
 //       TGMainFrame		*fMain;
 
      std::vector<FWTableManager *>	managers;
