@@ -20,13 +20,12 @@ public:
 };
 
 
-RPCStripNoisesRcdRead::RPCStripNoisesRcdRead(const edm::ParameterSet& iConfig ){ std::cout<<"COSTRUTTORE"<<std::endl;}
+RPCStripNoisesRcdRead::RPCStripNoisesRcdRead(const edm::ParameterSet& iConfig ){}
   
-RPCStripNoisesRcdRead::~RPCStripNoisesRcdRead(){std::cout<<"DISTRUTTORE"<<std::endl;}
+RPCStripNoisesRcdRead::~RPCStripNoisesRcdRead(){}
 
 void RPCStripNoisesRcdRead::analyze(const edm::Event& evt, const edm::EventSetup& evtSetup)
 {
- std::cout<<"ANALYZE"<<std::endl;
   edm::ESHandle<RPCStripNoises> noiseRcd;
   evtSetup.get<RPCStripNoisesRcd>().get(noiseRcd);
   edm::LogInfo("RPCStripNoisesReader") << "[RPCStripNoisesReader::analyze] End Reading RPCStripNoises" << std::endl;
