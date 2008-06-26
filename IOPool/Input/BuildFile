@@ -8,6 +8,7 @@
 <use name=FWCore/Sources>
 <use name=FWCore/Utilities>
 <use name=IOPool/Common>
+<use name=Utilities/StorageFactory>
 <use name=boost>
 <use name=clhep>
 <use name=rootcore>
