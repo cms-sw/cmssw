@@ -52,6 +52,7 @@ namespace {
 		       TrackAssociatorParameters& trackAssociatorParameters,
 		       vector<T>* corMET) 
   {
+  
     if (!corMET) {
       std::cerr << "MuonMETAlgo_run-> undefined output MET collection. Stop. " << std::endl;
       return;
@@ -60,7 +61,7 @@ namespace {
     double DeltaPx = 0.0;
     double DeltaPy = 0.0;
     double DeltaSumET = 0.0;
-
+    
     double DeltaExDep = 0.0;
     double DeltaEyDep = 0.0;
     double DeltaSumETDep = 0.0;
@@ -68,24 +69,24 @@ namespace {
     // ---------------- which are above the given threshold.  This requires that the
     // ---------------- uncorrected jets be matched with the corrected jets.
     for( edm::View<reco::Muon>::const_iterator muon = Muons.begin(); muon != Muons.end(); ++muon) {
-      if( muon->combinedMuon()->pt() > muonPtMin && 
-	  fabs(muon->combinedMuon()->eta()) < muonEtaRange &&
-	  fabs(muon->combinedMuon()->d0()) < muonTrackD0Max &&
-	  fabs(muon->combinedMuon()->dz()) < muonTrackDzMax &&
-	  muon->combinedMuon()->numberOfValidHits() > muonNHitsMin ) {
-	float dpt_track = muon->combinedMuon()->error(0)/(muon->combinedMuon()->qoverp());
-	float chisq = muon->combinedMuon()->normalizedChi2();
-	if (dpt_track < muonDPtMax &&
+      const reco::Track * mu_track = muon->bestTrack();
+      if( mu_track->pt() > muonPtMin &&
+	  fabs(mu_track->eta()) < muonEtaRange &&
+	  fabs(mu_track->d0()) < muonTrackD0Max &&
+	  fabs(mu_track->dz()) < muonTrackDzMax &&
+	  mu_track->numberOfValidHits() > muonNHitsMin ) {
+	float dpt_track = mu_track->error(0)/(mu_track->qoverp());
+	float chisq = mu_track->normalizedChi2();
+	if (dpt_track < muonDPtMax && 
 	    chisq < muonChiSqMax) {
 	  DeltaPx +=  muon->px();
 	  DeltaPy +=  muon->py();
 	  DeltaSumET += muon->et();
-
+	  
 	  //----------- Calculate muon energy deposition in the calorimeters
 	  if (muonDepositCor) {
-	    //std::cout << "   MuonMETAlgo: muon pt=" << muon->combinedMuon()->pt() << std::endl;
-	    TrackRef mu_track = muon->combinedMuon();	    
-	    TrackDetMatchInfo info = 
+	    //std::cout << "   MuonMETAlgo: muon pt=" << mu_track->pt() << std::endl;
+	    TrackDetMatchInfo info =
 	      trackAssociator.associate(iEvent, iSetup,
 					trackAssociator.getFreeTrajectoryState(iSetup, *mu_track),
 					trackAssociatorParameters);
