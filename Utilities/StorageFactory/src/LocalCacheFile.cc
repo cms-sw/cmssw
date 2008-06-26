@@ -31,7 +31,7 @@ LocalCacheFile::LocalCacheFile(Storage *base, const std::string &tmpdir /* = "" 
     if (char *p = getenv("TMPDIR"))
       pattern = p;
   if (pattern.empty())
-    pattern = ".";
+    pattern = "/tmp";
   pattern += "/cmssw-shadow-XXXXXX";
 
   std::vector<char> temp(pattern.c_str(), pattern.c_str()+pattern.size()+1);
