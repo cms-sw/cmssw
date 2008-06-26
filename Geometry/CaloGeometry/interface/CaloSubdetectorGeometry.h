@@ -15,8 +15,8 @@ Base class for a geometry container for a specific calorimetry
 subdetector.
 
 
-$Date: 2008/02/29 14:52:51 $
-$Revision: 1.15 $
+$Date: 2008/06/25 22:18:23 $
+$Revision: 1.16 $
 \author J. Mans - Minnesota
 */
 class CaloSubdetectorGeometry {
@@ -33,7 +33,8 @@ class CaloSubdetectorGeometry {
 
       CaloSubdetectorGeometry() : 
 	 m_parMgr ( 0 ) ,
-	 m_cmgr   ( 0 )   {}
+	 m_cmgr   ( 0 ) ,
+	 m_sortedIds (false) {}
 
       /// The base class DOES assume that it owns the CaloCellGeometry objects
       virtual ~CaloSubdetectorGeometry();
@@ -56,8 +57,7 @@ class CaloSubdetectorGeometry {
 	  a single subdetector at a time.  It does not look at the det and subdet arguments.
       */
       virtual const std::vector<DetId>& getValidDetIds( DetId::Detector det    = DetId::Detector(0) , 
-							int             subdet = 0  ) const 
-      { return m_validIds ; }
+							int             subdet = 0                   ) const ;
 
       // Get closest cell, etc...
       virtual DetId getClosestCell( const GlobalPoint& r ) const ;
@@ -69,8 +69,6 @@ class CaloSubdetectorGeometry {
       eta/phi and ieta/iphi and test on the boundaries.
       */
       virtual DetIdSet getCells( const GlobalPoint& r, double dR ) const ;
-
-      //FIXME: Hcal implements its own  getValidDetId....
 
       void allocateCorners( CaloCellGeometry::CornersVec::size_type n ) ;
 
@@ -102,7 +100,9 @@ class CaloSubdetectorGeometry {
 
       CellCont m_cellG ;    
 
-      std::vector<DetId> m_validIds ;
+      mutable bool m_sortedIds ;
+
+      mutable std::vector<DetId> m_validIds ;
 };
 
 
