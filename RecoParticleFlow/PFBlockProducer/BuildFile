@@ -1,6 +1,7 @@
 <use name=DataFormats/GeometrySurface>
 <use name=DataFormats/GeometryVector>
 <use name=DataFormats/ParticleFlowReco>
+<use name=DataFormats/MuonReco>
 <use name=FWCore/Framework>
 <use name=FWCore/MessageLogger>
 <use name=FWCore/ParameterSet>
