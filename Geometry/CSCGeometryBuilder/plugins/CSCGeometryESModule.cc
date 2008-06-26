@@ -20,7 +20,10 @@
 
 using namespace edm;
 
-CSCGeometryESModule::CSCGeometryESModule(const edm::ParameterSet & p){
+CSCGeometryESModule::CSCGeometryESModule(const edm::ParameterSet & p)
+  : alignmentsLabel_(p.getParameter<std::string>("alignmentsLabel")),
+    myLabel_(p.getParameter<std::string>("appendToDataLabel"))
+{
 
   setWhatProduced(this, dependsOn(&CSCGeometryESModule::geometryCallback_) );
 
@@ -54,8 +57,12 @@ CSCGeometryESModule::CSCGeometryESModule(const edm::ParameterSet & p){
 
   // Switch to apply the alignment corrections
 
-  applyAlignment_ = p.getUntrackedParameter<bool>("applyAlignment", false);
+  applyAlignment_ = p.getParameter<bool>("applyAlignment");
 
+  edm::LogInfo("Geometry") << "@SUB=CSCGeometryESModule" 
+			   << "Label '" << myLabel_ << "' "
+			   << (applyAlignment_ ? "looking for" : "IGNORING")
+			   << " alignment labels '" << alignmentsLabel_ << "'.";
 }
 
 
@@ -70,16 +77,17 @@ boost::shared_ptr<CSCGeometry> CSCGeometryESModule::produce(const MuonGeometryRe
     // applyAlignment_ is scheduled for removal. 
     // Ideal geometry obtained by using 'fake alignment' (with applyAlignment_ = true)
     edm::ESHandle<Alignments> globalPosition;
-    record.getRecord<GlobalPositionRcd>().get( globalPosition );
+    record.getRecord<GlobalPositionRcd>().get(alignmentsLabel_, globalPosition);
     edm::ESHandle<Alignments> alignments;
-    record.getRecord<CSCAlignmentRcd>().get( alignments );
+    record.getRecord<CSCAlignmentRcd>().get(alignmentsLabel_, alignments);
     edm::ESHandle<AlignmentErrors> alignmentErrors;
-    record.getRecord<CSCAlignmentErrorRcd>().get( alignmentErrors );
+    record.getRecord<CSCAlignmentErrorRcd>().get(alignmentsLabel_,  alignmentErrors);
     // Only apply alignment if values exist
     if (alignments->empty() && alignmentErrors->empty() && globalPosition->empty()) {
-      edm::LogWarning("Config") << "@SUB=CSCGeometryBuilder::produce"
-                                << "Empty Alignment(Error)s and global position, "
-                                << "so nothing to apply.";
+      edm::LogInfo("Config") << "@SUB=CSCGeometryRecord::produce"
+			     << "Alignment(Error)s and global position (label '"
+			     << alignmentsLabel_ << "') empty: Geometry producer (label "
+			     << "'" << myLabel_ << "') assumes fake and does not apply.";
     } else {
       GeometryAligner aligner;
       aligner.applyAlignments<CSCGeometry>( &(*cscGeometry), &(*alignments), &(*alignmentErrors),

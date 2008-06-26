@@ -42,6 +42,8 @@ private:
 
   bool applyAlignment_; // Switch to apply alignment corrections
 
+  const std::string alignmentsLabel_;
+  const std::string myLabel_;
 };
 #endif
 
