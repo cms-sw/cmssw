@@ -8,6 +8,7 @@
 <use name=DataFormats/L1GlobalCaloTrigger>
 <use name=CondFormats/L1TObjects>
 <use name=CondFormats/DataRecord>
+<use name=PhysicsTools/UtilAlgos>
 <use name=clhep>
 <use name=root>
 <export>
@@ -21,6 +22,7 @@
    <use name=DataFormats/L1GlobalCaloTrigger>
    <use name=CondFormats/L1TObjects>
    <use name=CondFormats/DataRecord>
+   <use name=PhysicsTools/UtilAlgos>
    <use name=clhep>
    <use name=root>
 </export>

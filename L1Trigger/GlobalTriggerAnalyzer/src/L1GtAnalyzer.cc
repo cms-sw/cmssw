@@ -46,6 +46,7 @@
 
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 
+#include "L1Trigger/GlobalTriggerAnalyzer/interface/L1GtUtils.h"
 
 // constructor(s)
 L1GtAnalyzer::L1GtAnalyzer(const edm::ParameterSet& parSet)
@@ -165,8 +166,8 @@ void L1GtAnalyzer::analyzeDecisionPhysics(const edm::Event& iEvent,
     if (!gtRecord.isValid()) {
 
         edm::LogInfo("L1GtAnalyzer")
-                << "\nL1GlobalTriggerRecord for " << m_l1GtRecordInputTag
-                << " not found"
+                << "\nL1GlobalTriggerRecord with \n  " << m_l1GtRecordInputTag
+                << "\nnot found"
                 "\n  --> returning false by default!\n"
                 << std::endl;
         
@@ -188,6 +189,27 @@ void L1GtAnalyzer::analyzeDecisionPhysics(const edm::Event& iEvent,
 
 }
 
+// analyze: decision for a given algorithm using L1GtUtils functions
+void L1GtAnalyzer::analyzeDecisionUtils(const edm::Event& iEvent,
+        const edm::EventSetup& evSetup) {
+
+    bool algResult = false;
+
+    algResult = l1AlgorithmResult(iEvent, evSetup, m_algoName);
+    edm::LogVerbatim("L1GtAnalyzer")
+            << "\nanalyzeDecisionUtils: automatic label for L1GlobalTriggerRecord" 
+            << "\nResult for algorithm " << m_algoName << ": " << algResult
+            << "\n" << std::endl;
+
+    algResult = l1AlgorithmResult(iEvent, evSetup, m_l1GtRecordInputTag,
+            m_algoName);
+    edm::LogVerbatim("L1GtAnalyzer")
+            << "\nanalyzeDecisionUtils: input label for L1GlobalTriggerRecord:"
+            << "\n  " << m_l1GtRecordInputTag 
+            << "\nResult for algorithm " << m_algoName
+            << ": " << algResult << "\n" << std::endl;
+
+}
 
 // analyze: test setting decision
 //   bunch cross in event BxInEvent = 0 - L1Accept event
@@ -348,6 +370,9 @@ void L1GtAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& evSe
     // analyze: decision for a given algorithm via trigger menu
     analyzeDecisionPhysics(iEvent, evSetup);
     
+    // analyze: decision for a given algorithm using L1GtUtils functions
+    analyzeDecisionUtils(iEvent, evSetup);
+
     // analyze: test setting decision
     //   bunch cross in event BxInEvent = 0 - L1Accept event
     analyzeSetDecision(iEvent, evSetup);

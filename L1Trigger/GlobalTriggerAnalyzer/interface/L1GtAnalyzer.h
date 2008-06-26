@@ -52,6 +52,9 @@ private:
     /// analyze: decision for a given algorithm via trigger menu
     void analyzeDecisionPhysics(const edm::Event&, const edm::EventSetup&);
 
+    /// analyze: decision for a given algorithm using L1GtUtils functions
+    void analyzeDecisionUtils(const edm::Event&, const edm::EventSetup&);
+
     /// analyze: test setting decision
     ///   bunch cross in event BxInEvent = 0 - L1Accept event
     virtual void analyzeSetDecision(const edm::Event&, const edm::EventSetup&);

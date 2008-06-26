@@ -88,8 +88,8 @@ private:
     const L1GtPrescaleFactors* m_l1GtPfTech;
     unsigned long long m_l1GtPfTechCacheID;
        
-    std::vector<int> m_prescaleFactorsAlgoTrig;
-    std::vector<int> m_prescaleFactorsTechTrig;
+    const std::vector<std::vector<int> >* m_prescaleFactorsAlgoTrig;
+    const std::vector<std::vector<int> >* m_prescaleFactorsTechTrig;
 
     /// trigger masks & veto masks
     const L1GtTriggerMask* m_l1GtTmAlgo;

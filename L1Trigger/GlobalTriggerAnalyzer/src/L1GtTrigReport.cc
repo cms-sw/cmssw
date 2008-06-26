@@ -214,7 +214,7 @@ void L1GtTrigReport::analyze(const edm::Event& iEvent, const edm::EventSetup& ev
         evSetup.get< L1GtPrescaleFactorsAlgoTrigRcd >().get( l1GtPfAlgo );        
         m_l1GtPfAlgo = l1GtPfAlgo.product();
         
-        m_prescaleFactorsAlgoTrig = m_l1GtPfAlgo->gtPrescaleFactors();
+        m_prescaleFactorsAlgoTrig = &(m_l1GtPfAlgo->gtPrescaleFactors());
         
         m_l1GtPfAlgoCacheID = l1GtPfAlgoCacheID;
 
@@ -229,7 +229,7 @@ void L1GtTrigReport::analyze(const edm::Event& iEvent, const edm::EventSetup& ev
         evSetup.get< L1GtPrescaleFactorsTechTrigRcd >().get( l1GtPfTech );        
         m_l1GtPfTech = l1GtPfTech.product();
         
-        m_prescaleFactorsTechTrig = m_l1GtPfTech->gtPrescaleFactors();
+        m_prescaleFactorsTechTrig = &(m_l1GtPfTech->gtPrescaleFactors());
         
         m_l1GtPfTechCacheID = l1GtPfTechCacheID;
 
@@ -334,6 +334,9 @@ void L1GtTrigReport::analyze(const edm::Event& iEvent, const edm::EventSetup& ev
 
     bool validRecord = false;
     
+    int pfAlgoSetIndex = 0; // FIXME get it later from the record
+    //int pfTechSetIndex = 0; // FIXME
+
     DecisionWord gtDecisionWordBeforeMask;
     DecisionWord gtDecisionWordAfterMask;
     
@@ -401,6 +404,14 @@ void L1GtTrigReport::analyze(const edm::Event& iEvent, const edm::EventSetup& ev
 
     }
     
+    // get the prescale factor set used in the actual luminosity segment
+    const std::vector<int>& prescaleFactorsAlgoTrig = 
+        (*m_prescaleFactorsAlgoTrig).at(pfAlgoSetIndex);
+
+    //const std::vector<int>& prescaleFactorsTechTrig = 
+    //    (*m_prescaleFactorsTechTrig).at(pfTechSetIndex);
+
+    
     if (validRecord) {
 
         // loop over algorithms and increase the corresponding counters
@@ -414,7 +425,7 @@ void L1GtTrigReport::analyze(const edm::Event& iEvent, const edm::EventSetup& ev
             // in both L1GlobalTriggerReadoutRecord or L1GlobalTriggerRecord
             bool algResultBeforeMask = gtDecisionWordBeforeMask[algBitNumber];
 
-            int prescaleFactor = m_prescaleFactorsAlgoTrig.at(algBitNumber);
+            int prescaleFactor = prescaleFactorsAlgoTrig.at(algBitNumber);
 
             for (unsigned int iDaqPartition = 0; 
                 iDaqPartition < m_numberDaqPartitions; ++iDaqPartition) {
@@ -483,7 +494,7 @@ void L1GtTrigReport::analyze(const edm::Event& iEvent, const edm::EventSetup& ev
             std::string algName = itAlgo->first;
             int algBitNumber = (itAlgo->second).algoBitNumber();
 
-            int prescaleFactor = m_prescaleFactorsAlgoTrig.at(algBitNumber);
+            int prescaleFactor = prescaleFactorsAlgoTrig.at(algBitNumber);
 
             for (unsigned int iDaqPartition = 0; 
                 iDaqPartition < m_numberDaqPartitions; ++iDaqPartition) {
