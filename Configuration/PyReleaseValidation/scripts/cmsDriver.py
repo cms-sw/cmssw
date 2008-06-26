@@ -8,23 +8,6 @@ import os
 import Configuration.PyReleaseValidation
 from Configuration.PyReleaseValidation.ConfigBuilder import ConfigBuilder
 
-#---------------------------------------------------------
-
-def print_options(options):
-    """
-    Prints on screen the options specified in the command line.
-    """
-    opt_dictionary=options.__dict__
-    print "\n"
-    print "The configuration parameters |-------------"
-    opt_dictionary_keys=opt_dictionary.keys()
-    opt_dictionary_keys.sort()
-    for key in opt_dictionary_keys:
-        print key+" "+" "+str(opt_dictionary[key])
-    print "-------------------------------------------"
-
-#---------------------------------------------------------
-
 # Prepare a parser to read the options
 usage=\
 """%prog <TYPE> [options].
@@ -204,8 +187,6 @@ parser.add_option("--customise",
 
 (options,args) = parser.parse_args() # by default the arg is sys.argv[1:]
 
-print options.__dict__
-
 # A simple check on the consistency of the arguments
 if len(sys.argv)==1:
     raise "Event Type: ", "No event type specified!"
@@ -289,10 +270,6 @@ if options.writeraw:
                 fileraw=fileraw+'.'+w
         else:
             fileraw=fileraw+'_rawonly.'+w
-
-# Print the options to screen
-if not options.dump_dsetname_flag:
-    print_options(options)  
 
 #set process name:
 ext_process_name=trimmedEvtType+trimmedStep
