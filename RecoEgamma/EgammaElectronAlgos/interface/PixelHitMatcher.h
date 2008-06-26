@@ -17,7 +17,7 @@
 //
 // Original Author:  Ursula Berthon, Claude Charlot
 //         Created:  Mon Mar 27 13:22:06 CEST 2006
-// $Id: PixelHitMatcher.h,v 1.18 2008/04/12 22:33:57 charlot Exp $
+// $Id: PixelHitMatcher.h,v 1.19 2008/04/21 09:47:34 uberthon Exp $
 //
 //
 
@@ -66,7 +66,6 @@ class RecHitWithDist
   
    ConstRecHitPointer rh_;  
    float dphi_;
-
 };
 
 class PixelHitMatcher{  
@@ -121,10 +120,9 @@ class PixelHitMatcher{
   float vertex_;
 
   bool searchInTIDTEC_;
-
-
+  std::vector<std::pair<const GeomDet*, TrajectoryStateOnSurface> >  mapTsos_;
+  std::vector<std::pair<std::pair<const GeomDet*,GlobalPoint>,  TrajectoryStateOnSurface> >  mapTsos2_;
 };
-
 #endif
 
 

@@ -13,7 +13,7 @@
 //
 // Original Author:  Ursula Berthon, Claude Charlot
 //         Created:  Mon Mar 27 13:22:06 CEST 2006
-// $Id: PixelHitMatcher.cc,v 1.25 2008/04/21 09:47:35 uberthon Exp $
+// $Id: PixelHitMatcher.cc,v 1.26 2008/06/11 13:47:24 uberthon Exp $
 //
 //
 
@@ -370,6 +370,10 @@ std::vector<TrajectorySeed> PixelHitMatcher::compatibleSeeds(TrajectorySeedColle
   TrajectoryStateOnSurface tsos(fts, *bpb(fts.position(), fts.momentum()));
   
   std::vector<TrajectorySeed> result;
+  mapTsos_.clear();
+  mapTsos2_.clear();
+  mapTsos_.reserve(seeds->size());
+  mapTsos2_.reserve(seeds->size());
  
   for (unsigned int i=0;i<seeds->size();++i)
     {
@@ -383,7 +387,21 @@ std::vector<TrajectorySeed> PixelHitMatcher::compatibleSeeds(TrajectorySeedColle
       LocalPoint lp=(*it).localPosition();
       GlobalPoint hitPos=geomdet->surface().toGlobal(lp);
 
-      const TrajectoryStateOnSurface tsos1 = prop1stLayer->propagate(tsos,geomdet->surface()) ; 
+       TrajectoryStateOnSurface tsos1;
+       bool found = false;
+       std::vector<std::pair<const GeomDet *, TrajectoryStateOnSurface> >::iterator itTsos;
+       for (itTsos=mapTsos_.begin();itTsos!=mapTsos_.end();++itTsos) {
+       if ((*itTsos).first==geomdet) {
+         found=true;
+         break;
+       }
+       }
+       if (!found) {
+       tsos1 = prop1stLayer->propagate(tsos,geomdet->surface()) ;
+       mapTsos_.push_back(std::pair<const GeomDet *, TrajectoryStateOnSurface>(geomdet,tsos1));
+       } else {
+       tsos1=(*itTsos).second;
+       }
 
       if (tsos1.isValid()) {
 
@@ -417,8 +435,25 @@ std::vector<TrajectorySeed> PixelHitMatcher::compatibleSeeds(TrajectorySeedColle
 	GlobalPoint vertexPred(vprim.x(),vprim.y(),zVertexPred);
     	FreeTrajectoryState fts2 = myFTS(theMagField,hitPos,vertexPred,energy, charge);
 
+       found = false;
+       std::vector<std::pair< std::pair<const GeomDet *,GlobalPoint>, TrajectoryStateOnSurface> >::iterator itTsos2;
+       for (itTsos2=mapTsos2_.begin();itTsos2!=mapTsos2_.end();++itTsos2) {
+         if (((*itTsos2).first).first==geomdet2 &&
+             (((*itTsos2).first).second).x()==hitPos.x() &&
+             (((*itTsos2).first).second).y()== hitPos.y() &&
+             (((*itTsos2).first).second).z()==hitPos.z()  ) {
+           found=true;
+           break;
+         }
+       }
+       if (!found) {
+         tsos2 = prop2ndLayer->propagate(fts2,geomdet2->surface()) ;
+         std::pair<const GeomDet *,GlobalPoint> pair(geomdet2,hitPos);
+         mapTsos2_.push_back(std::pair<std::pair<const GeomDet *,GlobalPoint>, TrajectoryStateOnSurface> (pair,tsos2));
+       } else {
+         tsos2=(*itTsos2).second;
+       }
 
-        tsos2 = prop2ndLayer->propagate(fts2,geomdet2->surface()) ; 
 	if (tsos2.isValid()) {
 	  LocalPoint lp2=(*it).localPosition();
 	  GlobalPoint hitPos2=geomdet2->surface().toGlobal(lp2); 
