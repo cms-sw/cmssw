@@ -49,10 +49,25 @@ hcalSimParameters = cms.PSet(
         doPhotoStatistics = cms.bool(True),
         photoelectronsToAnalog = cms.double(0.3305),
         simHitToPhotoelectrons = cms.double(2000.0),
-        samplingFactors = cms.vdouble(120.58, 120.58, 119.9, 120.14, 120.63, 
-            120.21, 119.69, 119.55, 119.62, 119.6, 
-            118.65, 119.38, 118.89, 120.34, 119.01, 
-            132.37),
+        samplingFactors = cms.vdouble(
+            118.98, 118.60, 118.97, 118.76, 119.13,
+            118.74, 117.80, 118.14, 116.87, 117.87,
+            117.46, 116.79, 117.15, 117.29, 118.41,
+            134.86),
+        syncPhase = cms.bool(True),
+        timePhase = cms.double(5.0)
+    ),
+    he = cms.PSet(
+        readoutFrameSize = cms.int32(10),
+        firstRing = cms.int32(16),
+        binOfMaximum = cms.int32(5),
+        doPhotoStatistics = cms.bool(True),
+        photoelectronsToAnalog = cms.double(0.3305),
+        simHitToPhotoelectrons = cms.double(2000.0),
+        samplingFactors = cms.vdouble(
+            197.84, 184.67, 170.60, 172.06, 173.08,
+            171.92, 173.00, 173.22, 173.72, 174.21,
+            173.91, 175.88, 171.65, 171.65),
         syncPhase = cms.bool(True),
         timePhase = cms.double(5.0)
     ),
@@ -65,19 +80,6 @@ hcalSimParameters = cms.PSet(
         simHitToPhotoelectrons = cms.double(6.0),
         syncPhase = cms.bool(True),
         timePhase = cms.double(-4.0)
-    ),
-    he = cms.PSet(
-        readoutFrameSize = cms.int32(10),
-        firstRing = cms.int32(16),
-        binOfMaximum = cms.int32(5),
-        doPhotoStatistics = cms.bool(True),
-        photoelectronsToAnalog = cms.double(0.3305),
-        simHitToPhotoelectrons = cms.double(2000.0),
-        samplingFactors = cms.vdouble(196.83, 188.3, 175.24, 177.2, 178.45, 
-            177.39, 178.18, 177.6, 178.26, 179.63, 
-            179.98, 180.52, 174.63, 174.63),
-        syncPhase = cms.bool(True),
-        timePhase = cms.double(5.0)
     )
 )
 
