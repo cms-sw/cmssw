@@ -26,7 +26,8 @@ void PFRecoTauDiscriminationAgainstElectron::produce(Event& iEvent,const EventSe
     
     bool decision = false;
     bool emfPass = true, htotPass = true, hmaxPass = true; 
-    bool h3x3Pass = true, estripPass = true, erecovPass = true, epreidPass = true;
+    bool h3x3Pass = true, estripPass = true, erecovPass = true;
+    bool epreidPass = true, epreid2DPass = true;
 
     if (applyCut_emFraction_) {
       if ((*thePFTauRef).emFraction() > emFraction_maxValue_) {
@@ -48,9 +49,9 @@ void PFRecoTauDiscriminationAgainstElectron::produce(Event& iEvent,const EventSe
 	h3x3Pass = false;
       }
     }
-    if (applyCut_ecalStripSumEOverPLead_) {
-      if ((*thePFTauRef).ecalStripSumEOverPLead() > ecalStripSumEOverPLead_minValue_ &&
-	  (*thePFTauRef).ecalStripSumEOverPLead() < ecalStripSumEOverPLead_maxValue_) {
+    if (applyCut_EOverPLead_) {
+      if ((*thePFTauRef).ecalStripSumEOverPLead() > EOverPLead_minValue_ &&
+	  (*thePFTauRef).ecalStripSumEOverPLead() < EOverPLead_maxValue_) {
 	estripPass = false;
       } else {
 	estripPass = true;
@@ -65,23 +66,31 @@ void PFRecoTauDiscriminationAgainstElectron::produce(Event& iEvent,const EventSe
       } 
     }
     if (applyCut_electronPreID_) {
+      if ((*thePFTauRef).electronPreIDDecision()) {
+	epreidPass = false;
+      }  else {
+	epreidPass = true;
+      }
+    }
+      
+    if (applyCut_electronPreID_2D_) {
       if (
 	  ((*thePFTauRef).electronPreIDDecision() &&
-	   ((*thePFTauRef).ecalStripSumEOverPLead() < elecPreID1_SumEOverPLead_maxValue ||
-	    (*thePFTauRef).hcal3x3OverPLead() > elecPreID1_Hcal3x3_minValue))
+	   ((*thePFTauRef).ecalStripSumEOverPLead() < elecPreID1_EOverPLead_maxValue ||
+	    (*thePFTauRef).hcalTotOverPLead() > elecPreID1_HOverPLead_minValue))
 	  ||
 	  (!(*thePFTauRef).electronPreIDDecision() &&
-	   ((*thePFTauRef).ecalStripSumEOverPLead() < elecPreID0_SumEOverPLead_maxValue ||
-	    (*thePFTauRef).hcal3x3OverPLead() > elecPreID0_Hcal3x3_minValue))
+	   ((*thePFTauRef).ecalStripSumEOverPLead() < elecPreID0_EOverPLead_maxValue ||
+	    (*thePFTauRef).hcalTotOverPLead() > elecPreID0_HOverPLead_minValue))
 	  ){
-	epreidPass = true;
+	epreid2DPass = true;
       }  else {
-	epreidPass = false;
+	epreid2DPass = false;
       }
     }
 
     decision = emfPass && htotPass && hmaxPass && 
-      h3x3Pass && estripPass && erecovPass && epreidPass;
+      h3x3Pass && estripPass && erecovPass && epreidPass && epreid2DPass;
     if (decision) {
       thePFTauDiscriminatorAgainstElectron->setValue(iPFTau,1);
     } else {
