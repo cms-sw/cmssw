@@ -1,8 +1,8 @@
 /*
  * \file EESummaryClient.cc
  *
- * $Date: 2008/06/25 14:16:17 $
- * $Revision: 1.142 $
+ * $Date: 2008/06/25 15:08:20 $
+ * $Revision: 1.143 $
  * \author G. Della Ricca
  *
 */
@@ -152,7 +152,7 @@ void EESummaryClient::beginJob(DQMStore* dqmStore) {
   dqmStore_->setCurrentFolder( prefixME_ + "/EventInfo/reportSummaryContents" );
 
   for (int i = 0; i < 18; i++) {
-    sprintf(histo, "status %s", Numbers::sEE(i+1).c_str());
+    sprintf(histo, "EcalEndcap_%s", Numbers::sEE(i+1).c_str());
     if ( me = dqmStore_->get(prefixME_ + "/EventInfo/reportSummaryContents/" + histo) ) {
       dqmStore_->removeElement(me->getName());
     }
@@ -1402,7 +1402,7 @@ void EESummaryClient::analyze(void) {
     float reportSummaryEE = -1.0;
     if ( nValidChannelsEE[i] != 0 )
       reportSummaryEE = 1.0 - float(nGlobalErrorsEE[i])/float(nValidChannelsEE[i]);
-    sprintf(histo, "status %s", Numbers::sEE(i+1).c_str());
+    sprintf(histo, "EcalEndcap_%s", Numbers::sEE(i+1).c_str());
     me = dqmStore_->get(prefixME_ + "/EventInfo/reportSummaryContents/" + histo);
     if ( me ) me->Fill(reportSummaryEE);
   }

@@ -1,8 +1,8 @@
 /*
  * \file EBSummaryClient.cc
  *
- * $Date: 2008/06/25 14:16:16 $
- * $Revision: 1.161 $
+ * $Date: 2008/06/25 15:08:18 $
+ * $Revision: 1.162 $
  * \author G. Della Ricca
  *
 */
@@ -127,7 +127,7 @@ void EBSummaryClient::beginJob(DQMStore* dqmStore) {
   dqmStore_->setCurrentFolder( prefixME_ + "/EventInfo/reportSummaryContents" );
 
   for (int i = 0; i < 36; i++) {
-    sprintf(histo, "status %s", Numbers::sEB(i+1).c_str());
+    sprintf(histo, "EcalBarrel_%s", Numbers::sEB(i+1).c_str());
     if ( me = dqmStore_->get(prefixME_ + "/EventInfo/reportSummaryContents/" + histo) ) {
       dqmStore_->removeElement(me->getName());
     }
@@ -1185,7 +1185,7 @@ void EBSummaryClient::analyze(void) {
     float reportSummaryEB = -1.0;
     if ( nValidChannelsEB[i] != 0 )
       reportSummaryEB = 1.0 - float(nGlobalErrorsEB[i])/float(nValidChannelsEB[i]);
-    sprintf(histo, "status %s", Numbers::sEB(i+1).c_str());
+    sprintf(histo, "EcalBarrel_%s", Numbers::sEB(i+1).c_str());
     me = dqmStore_->get(prefixME_ + "/EventInfo/reportSummaryContents/" + histo);
     if ( me ) me->Fill(reportSummaryEB);
   }
