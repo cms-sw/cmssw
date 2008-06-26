@@ -14,7 +14,7 @@
 //
 // Original Author:  Vincenzo Chiochia
 //         Created:  
-// $Id: SiPixelRecHitSource.cc,v 1.7 2008/04/11 12:24:17 gpetrucc Exp $
+// $Id: SiPixelRecHitSource.cc,v 1.8 2008/06/23 15:52:18 merkelp Exp $
 //
 //
 // Adapted by:  Keith Rose
@@ -36,6 +36,8 @@
 // DataFormats
 #include "DataFormats/DetId/interface/DetId.h"
 #include "DataFormats/SiPixelDetId/interface/PixelSubdetector.h"
+#include "DataFormats/SiPixelDetId/interface/PixelBarrelName.h"
+#include "DataFormats/SiPixelDetId/interface/PixelEndcapName.h"
 
 
 //
@@ -48,6 +50,9 @@ using namespace edm;
 SiPixelRecHitSource::SiPixelRecHitSource(const edm::ParameterSet& iConfig) :
   conf_(iConfig),
   src_( conf_.getParameter<edm::InputTag>( "src" ) ),
+  saveFile( conf_.getUntrackedParameter<bool>("saveFile",false) ),
+  isPIB( conf_.getUntrackedParameter<bool>("isPIB",false) ),
+  slowDown( conf_.getUntrackedParameter<bool>("slowDown",false) ),
   modOn( conf_.getUntrackedParameter<bool>("modOn",true) ),
   ladOn( conf_.getUntrackedParameter<bool>("ladOn",false) ), 
   layOn( conf_.getUntrackedParameter<bool>("layOn",false) ), 
@@ -95,9 +100,12 @@ void SiPixelRecHitSource::endJob(void){
     int total = rechit_count[TheID];
     (*struct_iter).second->nfill(total, modOn, ladOn, layOn, phiOn, bladeOn, diskOn, ringOn);
   }
-  //cout << " SiPixelDigiSource::endJob - Saving Root File " << std::endl;
-  std::string outputFile = conf_.getParameter<std::string>("outputFile");
-  theDMBE->save( outputFile );
+
+  if(saveFile){
+    LogInfo ("PixelDQM") << " SiPixelRecHitSource::endJob - Saving Root File " << std::endl;
+    std::string outputFile = conf_.getParameter<std::string>("outputFile");
+    theDMBE->save( outputFile );
+  }
 
 }
 
@@ -153,7 +161,7 @@ void SiPixelRecHitSource::analyze(const edm::Event& iEvent, const edm::EventSetu
   }
 
   // slow down...
-  //usleep(100000);
+  if(slowDown) usleep(10000);
   
 }
 
@@ -184,16 +192,36 @@ void SiPixelRecHitSource::buildStructure(const edm::EventSetup& iSetup){
 	
 	
 	      if(detId.subdetId() == static_cast<int>(PixelSubdetector::PixelBarrel)) {
+                if(isPIB) continue;
 		LogDebug ("PixelDQM") << " ---> Adding Barrel Module " <<  detId.rawId() << endl;
 		uint32_t id = detId();
-	
-	SiPixelRecHitModule* theModule = new SiPixelRecHitModule(id);
+	        SiPixelRecHitModule* theModule = new SiPixelRecHitModule(id);
 		thePixelStructure.insert(pair<uint32_t,SiPixelRecHitModule*> (id,theModule));
 		
 	      }	else if(detId.subdetId() == static_cast<int>(PixelSubdetector::PixelEndcap)) {
 		LogDebug ("PixelDQM") << " ---> Adding Endcap Module " <<  detId.rawId() << endl;
 		uint32_t id = detId();
 		SiPixelRecHitModule* theModule = new SiPixelRecHitModule(id);
+
+                PixelEndcapName::HalfCylinder side = PixelEndcapName::PixelEndcapName(DetId::DetId(id)).halfCylinder();
+                int disk   = PixelEndcapName::PixelEndcapName(DetId::DetId(id)).diskName();
+                int blade  = PixelEndcapName::PixelEndcapName(DetId::DetId(id)).bladeName();
+                int panel  = PixelEndcapName::PixelEndcapName(DetId::DetId(id)).pannelName();
+                int module = PixelEndcapName::PixelEndcapName(DetId::DetId(id)).plaquetteName();
+
+                char sside[80];  sprintf(sside,  "HalfCylinder_%i",side);
+                char sdisk[80];  sprintf(sdisk,  "Disk_%i",disk);
+                char sblade[80]; sprintf(sblade, "Blade_%02i",blade);
+                char spanel[80]; sprintf(spanel, "Panel_%i",panel);
+                char smodule[80];sprintf(smodule,"Module_%i",module);
+                std::string side_str = sside;
+	        std::string disk_str = sdisk;
+	        bool mask = side_str.find("HalfCylinder_1")!=string::npos||
+	                    side_str.find("HalfCylinder_2")!=string::npos||
+		            side_str.find("HalfCylinder_4")!=string::npos||
+		            disk_str.find("Disk_2")!=string::npos;
+	        if(isPIB && mask) continue;
+	
 		thePixelStructure.insert(pair<uint32_t,SiPixelRecHitModule*> (id,theModule));
 	      }
       
@@ -219,7 +247,7 @@ void SiPixelRecHitSource::bookMEs(){
       if(theSiPixelFolder.setModuleFolder((*struct_iter).first)){
 	(*struct_iter).second->book( conf_ );
       } else {
-	throw cms::Exception("LogicError")
+	if(!isPIB) throw cms::Exception("LogicError")
 	  << "[SiPixelDigiSource::bookMEs] Creation of DQM folder failed";
       }
     }

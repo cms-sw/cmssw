@@ -16,7 +16,7 @@
 //
 // Original Author:  Vincenzo Chiochia
 //         Created:  
-// $Id: SiPixelRecHitSource.h,v 1.3 2008/03/01 20:19:50 lat Exp $
+// $Id: SiPixelRecHitSource.h,v 1.4 2008/06/23 15:52:05 merkelp Exp $
 //
 // Updated by: Keith Rose
 // for use in SiPixelMonitorRecHits
@@ -69,6 +69,9 @@
     private:
        edm::ParameterSet conf_;
        edm::InputTag src_;
+       bool saveFile;
+       bool isPIB;
+       bool slowDown;
        int eventNo;
        DQMStore* theDMBE;
        std::map<uint32_t,SiPixelRecHitModule*> thePixelStructure;
