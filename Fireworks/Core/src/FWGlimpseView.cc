@@ -8,7 +8,7 @@
 //
 // Original Author:  Chris Jones
 //         Created:  Thu Feb 21 11:22:41 EST 2008
-// $Id: FWGlimpseView.cc,v 1.10 2008/06/11 13:57:32 dmytro Exp $
+// $Id: FWGlimpseView.cc,v 1.1 2008/06/19 06:57:28 dmytro Exp $
 //
 
 // system include files
@@ -72,7 +72,7 @@ FWGlimpseView::FWGlimpseView(TGFrame* iParent, TEveElementList* list):
    nv->SetGLViewer(ev);
    nv->IncDenyDestroy();
    // ev->SetCurrentCamera(TGLViewer::kCameraOrthoXOY);
-   ev->SetCurrentCamera(TGLViewer::kCameraPerspYOZ);
+   ev->SetCurrentCamera(TGLViewer::kCameraPerspXOZ);
    //? ev->SetEventHandler(new TGlimpseEventHandler("Lego", ev->GetGLWidget(), ev));
    m_cameraMatrix = const_cast<TGLMatrix*>(&(ev->CurrentCamera().GetCamTrans()));
    m_cameraMatrixBase = const_cast<TGLMatrix*>(&(ev->CurrentCamera().GetCamBase()));
