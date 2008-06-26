@@ -38,7 +38,11 @@
      <class name="std::vector<reco::PFJet::Specific>"   />
      <class name="std::vector<reco::BaseTagInfo*>" />
      <class name="edm::OwnVector<reco::BaseTagInfo, edm::ClonePolicy<reco::BaseTagInfo> >" />
-  <class name="pat::MET" />
+  <class name="pat::MET" >
+    <field name="uncorInfo_" transient="true"/>     
+    <field name="nCorrections_" transient="true"/>     
+    <field name="oldPt_" transient="true"/>     
+  </class>
      <class name="std::vector<SpecificCaloMETData> "/>
   <class name="pat::Particle" />
   <class name="pat::GenericParticle" />
