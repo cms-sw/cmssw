@@ -5,7 +5,7 @@
 
 DEFINE_SEAL_MODULE();
 
-#include "PhysicsTools/UtilsAlgo/interface/EventSelector.h"
+#include "PhysicsTools/UtilAlgos/interface/EventSelector.h"
 
 /*
 #include "Workspace/ConfigurableAnalysis/plugins/JetMetDphiEventSelector.h"
@@ -25,7 +25,7 @@ DEFINE_EDM_PLUGIN(EventSelectorFactory, MuonEventSelector, "MuonEventSelector");
 DEFINE_EDM_PLUGIN(EventSelectorFactory, MuonSEventSelector, "MuonSEventSelector");
 */
 
-#include "PhysicsTools/UtilsAlgo/interface/CachingVariable.h"
+#include "PhysicsTools/UtilAlgos/interface/CachingVariable.h"
 
 namespace configurableAnalysis{
   char Jet[]="pat::Jet";
@@ -56,7 +56,7 @@ DEFINE_EDM_PLUGIN(CachingVariableFactory, ElectronExpressionVariable, "ElectronE
 DEFINE_EDM_PLUGIN(CachingVariableFactory, PhotonExpressionVariable, "PhotonExpressionVariable");
 DEFINE_EDM_PLUGIN(CachingVariableFactory, TauExpressionVariable, "TauExpressionVariable");
 
-#include "PhysicsTools/UtilsAlgo/interface/TwoObjectCalculator.h"
+#include "PhysicsTools/UtilAlgos/interface/TwoObjectCalculator.h"
 
 typedef TwoObjectVariable<pat::Jet,configurableAnalysis::Jet,pat::Muon,configurableAnalysis::Muon, CosDphiCalculator> JetMuonCosDphiVariable;
 typedef TwoObjectVariable<pat::Jet,configurableAnalysis::Jet,pat::MET,configurableAnalysis::MET, CosDphiCalculator> JetMETCosDphiVariable;

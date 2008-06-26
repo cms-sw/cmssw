@@ -5,6 +5,6 @@
 <use name=FWCore/PluginManager>
 <use name=FWCore/ParameterSet>
 <use name=PhysicsTools/Utilities>
-<use name=PhysicsTools/UtilsAlgo>
+<use name=PhysicsTools/UtilAlgos>
 <use name=DataFormats/PatCandidates>
 </library>
