@@ -15,7 +15,7 @@ reconstruction Geometry should notice that and not pass to GeometryAligner.
 //
 // Original Author:  Frederic Ronga
 //         Created:  Fri Feb  9 19:24:38 CET 2007
-// $Id: FakeAlignmentProducer.cc,v 1.5 2008/02/18 20:10:48 pivarski Exp $
+// $Id: FakeAlignmentProducer.cc,v 1.6 2008/06/26 10:00:35 flucke Exp $
 //
 //
 
@@ -69,6 +69,9 @@ public:
 
 FakeAlignmentProducer::FakeAlignmentProducer(const edm::ParameterSet& iConfig) 
 {
+  // This 'appendToDataLabel' is used by the framework to distinguish providers
+  // with different settings and to request a special one by e.g.
+  // iSetup.get<TrackerDigiGeometryRecord>().get("theLabel", tkGeomHandle);
   edm::LogInfo("Alignments") 
     << "@SUB=FakeAlignmentProducer" << "Providing data with label '" 
     << iConfig.getParameter<std::string>("appendToDataLabel") << "'.";

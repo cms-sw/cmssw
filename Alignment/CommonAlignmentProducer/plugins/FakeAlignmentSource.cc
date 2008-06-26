@@ -87,6 +87,9 @@ public:
 
 FakeAlignmentSource::FakeAlignmentSource(const edm::ParameterSet& iConfig) 
 {
+  // This 'appendToDataLabel' is used by the framework to distinguish providers
+  // with different settings and to request a special one by e.g.
+  // iSetup.get<TrackerDigiGeometryRecord>().get("theLabel", tkGeomHandle);
 
   edm::LogInfo("Alignments") 
     << "@SUB=FakeAlignmentSource" << "Providing data with label '" 
