@@ -13,7 +13,7 @@
 //
 // Original Author:  Freya Blekman
 //         Created:  Wed Sep 19 13:43:52 CEST 2007
-// $Id: SiPixelCalibConfigurationObjectMaker.cc,v 1.2 2008/03/06 10:02:07 chiochia Exp $
+// $Id: SiPixelCalibConfigurationObjectMaker.cc,v 1.3 2008/06/12 10:09:39 fblekman Exp $
 //
 //
 
@@ -95,7 +95,8 @@ void SiPixelCalibConfigurationObjectMaker::analyze(const edm::Event&, const edm:
   std::string fixedmode = fancyCalib.mode();
   std::string tobereplaced = "WithSLink";
   std::cout << "mode = " << fixedmode << std::endl;
-  fixedmode.erase(fixedmode.find(tobereplaced),tobereplaced.length());
+  if(fixedmode.find(tobereplaced)!=std::string::npos)
+    fixedmode.erase(fixedmode.find(tobereplaced),tobereplaced.length());
   std::cout << "mode = " << fixedmode << std::endl;
   myCalib->setCalibrationMode(fixedmode);
 
