@@ -1,10 +1,5 @@
 import FWCore.ParameterSet.Config as cms
 
-#
-# This cfi should be included to build the DT geometry model.
-#
-DTGeometryESModule = cms.ESProducer("DTGeometryESModule",
-    applyAlignment = cms.untracked.bool(False)
-)
-
+# kept for backward compatibility
+from Geometry.DTGeometryBuilder.dtGeometry_cfi import *
 
