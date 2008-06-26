@@ -2,7 +2,6 @@
 #define RecoTauTag_RecoTau_PFRecoTauAlgorithm_H
 
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
-#include "FWCore/MessageLogger/interface/MessageLogger.h"
 
 #include "DataFormats/ParticleFlowReco/interface/PFCluster.h"
 #include "DataFormats/TauReco/interface/PFTau.h"
