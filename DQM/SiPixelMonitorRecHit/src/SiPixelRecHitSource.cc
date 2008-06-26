@@ -14,7 +14,7 @@
 //
 // Original Author:  Vincenzo Chiochia
 //         Created:  
-// $Id: SiPixelRecHitSource.cc,v 1.8 2008/06/23 15:52:18 merkelp Exp $
+// $Id: SiPixelRecHitSource.cc,v 1.9 2008/06/26 08:36:23 merkelp Exp $
 //
 //
 // Adapted by:  Keith Rose
@@ -183,49 +183,39 @@ void SiPixelRecHitSource::buildStructure(const edm::EventSetup& iSetup){
     if(dynamic_cast<PixelGeomDetUnit*>((*it))!=0){
 
       DetId detId = (*it)->geographicalId();
-      // const GeomDetUnit      * geoUnit = pDD->idToDetUnit( detId );
-      //const PixelGeomDetUnit * pixDet  = dynamic_cast<const PixelGeomDetUnit*>(geoUnit);
+      if(detId.subdetId() == static_cast<int>(PixelSubdetector::PixelBarrel)) {
+        if(isPIB) continue;
+	LogDebug ("PixelDQM") << " ---> Adding Barrel Module " <<  detId.rawId() << endl;
+	uint32_t id = detId();
+	SiPixelRecHitModule* theModule = new SiPixelRecHitModule(id);
+	thePixelStructure.insert(pair<uint32_t,SiPixelRecHitModule*> (id,theModule));
+      }	else if(detId.subdetId() == static_cast<int>(PixelSubdetector::PixelEndcap)) {
+	LogDebug ("PixelDQM") << " ---> Adding Endcap Module " <<  detId.rawId() << endl;
+	uint32_t id = detId();
+	SiPixelRecHitModule* theModule = new SiPixelRecHitModule(id);
 
-     	  
-	  
-	      // SiPixelRecHitModule *theModule = new SiPixelRecHitModule(id, rechit_x, rechit_y, x_res, y_res, x_pull, y_pull);
-	
-	
-	      if(detId.subdetId() == static_cast<int>(PixelSubdetector::PixelBarrel)) {
-                if(isPIB) continue;
-		LogDebug ("PixelDQM") << " ---> Adding Barrel Module " <<  detId.rawId() << endl;
-		uint32_t id = detId();
-	        SiPixelRecHitModule* theModule = new SiPixelRecHitModule(id);
-		thePixelStructure.insert(pair<uint32_t,SiPixelRecHitModule*> (id,theModule));
-		
-	      }	else if(detId.subdetId() == static_cast<int>(PixelSubdetector::PixelEndcap)) {
-		LogDebug ("PixelDQM") << " ---> Adding Endcap Module " <<  detId.rawId() << endl;
-		uint32_t id = detId();
-		SiPixelRecHitModule* theModule = new SiPixelRecHitModule(id);
+        PixelEndcapName::HalfCylinder side = PixelEndcapName::PixelEndcapName(DetId::DetId(id)).halfCylinder();
+        int disk   = PixelEndcapName::PixelEndcapName(DetId::DetId(id)).diskName();
+        int blade  = PixelEndcapName::PixelEndcapName(DetId::DetId(id)).bladeName();
+        int panel  = PixelEndcapName::PixelEndcapName(DetId::DetId(id)).pannelName();
+        int module = PixelEndcapName::PixelEndcapName(DetId::DetId(id)).plaquetteName();
 
-                PixelEndcapName::HalfCylinder side = PixelEndcapName::PixelEndcapName(DetId::DetId(id)).halfCylinder();
-                int disk   = PixelEndcapName::PixelEndcapName(DetId::DetId(id)).diskName();
-                int blade  = PixelEndcapName::PixelEndcapName(DetId::DetId(id)).bladeName();
-                int panel  = PixelEndcapName::PixelEndcapName(DetId::DetId(id)).pannelName();
-                int module = PixelEndcapName::PixelEndcapName(DetId::DetId(id)).plaquetteName();
-
-                char sside[80];  sprintf(sside,  "HalfCylinder_%i",side);
-                char sdisk[80];  sprintf(sdisk,  "Disk_%i",disk);
-                char sblade[80]; sprintf(sblade, "Blade_%02i",blade);
-                char spanel[80]; sprintf(spanel, "Panel_%i",panel);
-                char smodule[80];sprintf(smodule,"Module_%i",module);
-                std::string side_str = sside;
-	        std::string disk_str = sdisk;
-	        bool mask = side_str.find("HalfCylinder_1")!=string::npos||
-	                    side_str.find("HalfCylinder_2")!=string::npos||
-		            side_str.find("HalfCylinder_4")!=string::npos||
-		            disk_str.find("Disk_2")!=string::npos;
-	        if(isPIB && mask) continue;
+        char sside[80];  sprintf(sside,  "HalfCylinder_%i",side);
+        char sdisk[80];  sprintf(sdisk,  "Disk_%i",disk);
+        char sblade[80]; sprintf(sblade, "Blade_%02i",blade);
+        char spanel[80]; sprintf(spanel, "Panel_%i",panel);
+        char smodule[80];sprintf(smodule,"Module_%i",module);
+        std::string side_str = sside;
+	std::string disk_str = sdisk;
+	bool mask = side_str.find("HalfCylinder_1")!=string::npos||
+	            side_str.find("HalfCylinder_2")!=string::npos||
+	            side_str.find("HalfCylinder_4")!=string::npos||
+	            disk_str.find("Disk_2")!=string::npos;
+	if(isPIB && mask) continue;
 	
-		thePixelStructure.insert(pair<uint32_t,SiPixelRecHitModule*> (id,theModule));
-	      }
-      
-	}	    
+	thePixelStructure.insert(pair<uint32_t,SiPixelRecHitModule*> (id,theModule));
+      }
+    }	    
   }
 
   LogInfo ("PixelDQM") << " *** Pixel Structure Size " << thePixelStructure.size() << endl;
