@@ -8,7 +8,7 @@
 //
 // Original Author:  Chris Jones
 //         Created:  Thu Feb 28 11:13:37 PST 2008
-// $Id: FWListEventItem.cc,v 1.14 2008/06/05 14:39:50 chrjones Exp $
+// $Id: FWListEventItem.cc,v 1.15 2008/06/08 16:59:01 dmytro Exp $
 //
 
 // system include files
@@ -273,7 +273,7 @@ FWListEventItem::itemChanged(const FWEventItem* iItem)
                                    const_cast<void*>(eventItem()->modelData(index)));
          obj=temp;
          data = stringValueFor(obj,m_memberFunction);
-         doubleData = doubleValueFor(obj,m_memberFunction);
+         doubleData = doubleValueFor(obj,m_memberFunction)+index*1e-6;
       }
       FWListModel* model = new FWListModel(FWModelId(eventItem(),index), 
                                            m_detailViewManager,
