@@ -8,7 +8,7 @@
 //
 // Original Author:  
 //         Created:  Sun Jan  6 23:57:00 EST 2008
-// $Id: CaloJetGlimpseProxyBuilder.cc,v 1.2 2008/06/25 05:22:17 dmytro Exp $
+// $Id: CaloJetGlimpseProxyBuilder.cc,v 1.3 2008/06/26 00:32:02 dmytro Exp $
 //
 
 // system include files
@@ -93,7 +93,7 @@ CaloJetGlimpseProxyBuilder::build(const FWEventItem* iItem, TEveElementList** pr
        jet != jets->end(); ++jet, ++counter) {
       TEveBoxSet* cone = new TEveBoxSet(counter.str().c_str());
       cone->SetPickable(kTRUE);
-      cone->Reset(TEveBoxSet::kBT_Cone, kTRUE, 64);
+      cone->Reset(TEveBoxSet::kBT_EllipticCone, kTRUE, 64);
       double height = jet->et();
       TEveVector dir, pos;
       dir.Set(jet->px()/jet->p(), jet->py()/jet->p(), jet->pz()/jet->p());
@@ -103,10 +103,13 @@ CaloJetGlimpseProxyBuilder::build(const FWEventItem* iItem, TEveElementList** pr
       double eta_size = sqrt(jet->etaetaMoment());
       double theta_size = fabs(getTheta(jet->eta()+eta_size)-getTheta(jet->eta()-eta_size));
       double phi_size = sqrt(jet->phiphiMoment());
-      double scale = phi_size > 0? theta_size/phi_size : 1;
-      cone->AddCone(pos, dir, phi_size*height, scale);
-      cone->DigitColor( iItem->defaultDisplayProperties().color() );
-      cone->SetDrawConeCap(kTRUE);
+      cone->AddEllipticCone(pos, dir, theta_size*height, phi_size*height);
+      
+      cone->DigitColor( iItem->defaultDisplayProperties().color(), 50 );
+      // TColor* c = gROOT->GetColor(iItem->defaultDisplayProperties().color());
+      // cone->DigitColor( UChar_t(255*c->GetRed()), UChar_t(255*c->GetGreen()), UChar_t(255*c->GetBlue()), 20 );
+      cone->SetDrawConeCap(kFALSE);
+      cone->SetMainTransparency(50);
       tList->AddElement(cone);
       /*
       TEveStraightLineSet* marker = new TEveStraightLineSet(counter.str().c_str());
