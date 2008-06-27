@@ -4,8 +4,8 @@
 /*
  * \file L1TDTTF.h
  *
- * $Date: 2008/03/10 09:30:27 $
- * $Revision: 1.8 $
+ * $Date: 2008/04/30 08:44:32 $
+ * $Revision: 1.6 $
  * \author J. Berryhill
  *
  */
@@ -89,8 +89,16 @@ class L1TDTTF : public edm::EDAnalyzer {
   MonitorElement* dttf_p_phi[3][6][12];
   MonitorElement* dttf_p_qual[3][6][12];
   MonitorElement* dttf_p_q[3][6][12];
-  MonitorElement* dttf_p_pt[3][6][12];
-  
+  MonitorElement* dttf_p_pt[3][6][12];  
+  MonitorElement* dttf_p_phi_integ;
+  MonitorElement* dttf_p_eta_integ;
+  MonitorElement* dttf_p_pt_integ;
+  MonitorElement* dttf_p_qual_integ;
+  MonitorElement* dttf_phys_phi_integ;
+  MonitorElement* dttf_phys_eta_integ;
+  MonitorElement* dttf_phys_pt_integ;
+  MonitorElement* dttf_p_phi_eta_integ;
+  MonitorElement* dttf_p_phi_eta[6];
 
   MonitorElement* dttpgphmap;
   MonitorElement* dttpgphmap2nd;
