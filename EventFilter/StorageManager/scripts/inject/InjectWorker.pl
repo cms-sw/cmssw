@@ -1,5 +1,5 @@
 #!/usr/bin/perl -w
-# $Id: InjectWorker.pl,v 1.14 2008/06/10 13:18:45 loizides Exp $
+# $Id: InjectWorker.pl,v 1.15 2008/06/27 14:37:31 loizides Exp $
 
 use strict;
 use DBI;
@@ -150,10 +150,10 @@ sub inject($$)
 	$destination = 'TransferTest';
     }
 
-    # could also redirect for minidaq/localdaq runs
-    #if($hostname eq 'cmsdisk1') {
-    #    $destination = 'tochose';
-    #}
+    # have to redirect for minidaq/localdaq runs
+    if($hostname eq 'srv-s2c17-01' || $hostname eq 'srv-C2D05-02') {
+        $hostname = 'cmsdisk1';
+    }
 
     # fix a left over bug from CMSSW_2_0_4
     $appversion=$1 if $appversion =~ /\"(.*)'/;
