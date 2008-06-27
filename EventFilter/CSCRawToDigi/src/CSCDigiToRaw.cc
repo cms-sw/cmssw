@@ -1,7 +1,7 @@
 /** \file
  *
- *  $Date: 2008/06/20 00:17:07 $
- *  $Revision: 1.24 $
+ *  $Date: 2008/06/27 02:56:35 $
+ *  $Revision: 1.25 $
  *  \author A. Tumanov - Rice
  */
 
@@ -101,7 +101,6 @@ void CSCDigiToRaw::add(const CSCWireDigiCollection& wireDigis)
 
 void CSCDigiToRaw::add(const CSCComparatorDigiCollection & comparatorDigis)
 {
-std::cout << "COMP" << std::endl;
   for (CSCComparatorDigiCollection::DigiRangeIterator j=comparatorDigis.begin(); j!=comparatorDigis.end(); ++j)
     {
       CSCDetId cscDetId=(*j).first;
@@ -116,7 +115,6 @@ std::cout << "COMP" << std::endl;
 
 void CSCDigiToRaw::add(const CSCALCTDigiCollection & alctDigis)
 {
-std::cout << "ALCT" << std::endl;
   for (CSCALCTDigiCollection::DigiRangeIterator j=alctDigis.begin(); j!=alctDigis.end(); ++j)
     {
       CSCDetId cscDetId=(*j).first;
@@ -131,7 +129,6 @@ std::cout << "ALCT" << std::endl;
 
 void CSCDigiToRaw::add(const CSCCLCTDigiCollection & clctDigis)
 {
-std::cout << "CLCT" << std::endl;
   for (CSCCLCTDigiCollection::DigiRangeIterator j=clctDigis.begin(); j!=clctDigis.end(); ++j)
     {
       CSCDetId cscDetId=(*j).first;
@@ -146,7 +143,6 @@ std::cout << "CLCT" << std::endl;
 
 void CSCDigiToRaw::add(const CSCCorrelatedLCTDigiCollection & corrLCTDigis)
 {
-std::cout << "CORR" << std::endl;
   for (CSCCorrelatedLCTDigiCollection::DigiRangeIterator j=corrLCTDigis.begin(); j!=corrLCTDigis.end(); ++j)
     {
       CSCDetId cscDetId=(*j).first;
