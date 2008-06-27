@@ -19,6 +19,8 @@ class _Sequenceable(object):
             return lookuptable[id(self)]
         except:
             raise KeyError("no "+str(type(self))+" with id "+str(id(self))+" found")
+    def _replace(self, original, replacement):
+        pass
     def resolve(self, processDict):
         return self
     def isOperation(self):
@@ -83,6 +85,16 @@ class _ModuleSequenceType(_ConfigureComponent, _Labelable):
     def _postProcessFixup(self,lookuptable):
         self._seq = self._seq._clonesequence(lookuptable)
         return self
+    def replace(self, original, replacement):
+        if not isinstance(original,_Sequenceable) or not isinstance(replacement,_Sequenceable):
+           raise ValueError
+        else:
+           self._replace(original, replacement)
+    def _replace(self, original, replacement):
+        if self._seq == original:
+            self._seq = replacement
+        else:
+            self._seq._replace(original,replacement)
     def resolve(self, processDict):
         self._seq = self._seq.resolve(processDict)
         return self
@@ -148,6 +160,15 @@ class _SequenceOperator(_Sequenceable):
         return returnValue
     def _clonesequence(self, lookuptable):
         return type(self)(self._left._clonesequence(lookuptable),self._right._clonesequence(lookuptable))
+    def _replace(self, original, replacement):
+        if self._left == original:
+            self._left = replacement
+        else:
+            self._left._replace(original, replacement)
+        if self._right == original:
+            self._right = replacement
+        else:
+            self._right._replace(original, replacement)                    
     def resolve(self, processDict):
         self._left = self._left.resolve(processDict)
         self._right = self._right.resolve(processDict)
@@ -213,6 +234,11 @@ class _SequenceNegation(_Sequenceable):
         l.append(self.dumpSequenceConfig())
     def _clonesequence(self, lookuptable):
         return type(self)(self.__operand._clonesequence(lookuptable))
+    def _replace(self, original, replacement):
+        if self.__operand == original:
+            self.__operand = replacement
+        else:
+            self.__operand._replace(original, replacement)
     def resolve(self, processDict):
         self.__operand = self.__operand.resolve(processDict)
         return self
@@ -239,6 +265,11 @@ class _SequenceIgnore(_Sequenceable):
         l.append(self.dumpSequenceConfig())
     def _clonesequence(self, lookuptable):
         return type(self)(self.__operand._clonesequence(lookuptable))
+    def _replace(self, original, replacement):
+        if self.__operand == original:
+            self.__operand = replacement
+        else:
+            self.__operand._replace(original, replacement)
     def resolve(self, processDict):
         self.__operand = self.__operand.resolve(processDict)
         return self
@@ -341,6 +372,7 @@ class Schedule(_ValidatingParameterListBase,_ConfigureComponent,_Unlabelable):
     def fillNamesList(self, l, processDict):
         for seq in self:
             seq.fillNamesList(l, processDict)
+
 
 if __name__=="__main__":
     import unittest
@@ -448,7 +480,36 @@ if __name__=="__main__":
             l = list()
             p.fillNamesList(l, d)
             self.assertEqual(l, ['m1', 'm2'])
-    
-    unittest.main()
+        def testReplace(self):
+            m1 = DummyModule("m1")
+            m2 = DummyModule("m2")
+            m3 = DummyModule("m3")
+            s1 = Sequence(m1*~m2*m1*m2*ignore(m2))
+            s2 = Sequence(m1*m2)
+            s3 = Sequence(~m1*s2)  
+            d = {'m1':m1 ,'m2':m2, 'm3':m3,'s1':s1, 's2':s2}  
+            l = []
+            s1.fillNamesList(l,d)
+            self.assertEqual(l,['m1', '!m2', 'm1', 'm2', '-m2'])
+            s1.replace(m2,m3)
+            l = []
+            s1.fillNamesList(l,d)
+            self.assertEqual(l,['m1', '!m3', 'm1', 'm3', '-m3'])
+            s2 = Sequence(m1*m2)
+            s3 = Sequence(~m1*s2)
+            s3.fillNamesList(l,d)
+            self.assertEqual(l,['m1', '!m3', 'm1', 'm3', '-m3', '!m1', 'm1', 'm2'])
+            l= []
+            s3.replace(s2,m1)
+            s3.fillNamesList(l,d)
+            self.assertEqual(l,['!m1', 'm1'])
 
+    unittest.main()
+                          
+
+
+                           
+    
+
+        
         
