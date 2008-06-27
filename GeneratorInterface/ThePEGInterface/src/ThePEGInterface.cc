@@ -1,5 +1,5 @@
 /** \class ThePEGInterface
- *  $Id: ThePEGInterface.cc,v 1.1 2008/05/14 18:35:59 saout Exp $
+ *  $Id: ThePEGInterface.cc,v 1.2 2008/06/27 16:34:01 stober Exp $
  *  
  *  Oliver Oberst <oberst@ekp.uni-karlsruhe.de>
  *  Fred-Markus Stober <stober@ekp.uni-karlsruhe.de>
@@ -96,7 +96,7 @@ string ThePEGInterface::resolveEnvVars(const string &s)
 	return result;
 }
 
-void ThePEGInterface::readParameterSet(const edm::ParameterSet &pset, const string paramSet) const
+void ThePEGInterface::readParameterSet(const edm::ParameterSet &pset, const string &paramSet) const
 {
 	stringstream logstream;
 
