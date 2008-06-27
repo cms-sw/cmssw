@@ -12,6 +12,8 @@ TtSemiJetCombMVAComputer::TtSemiJetCombMVAComputer(const edm::ParameterSet& cfg)
   nJetsMax_(cfg.getParameter<int>("nJetsMax"))
 {
   produces< std::vector<int> >();
+  produces< std::string      >("Meth");
+  produces< double           >("Disc");
 }
 
 TtSemiJetCombMVAComputer::~TtSemiJetCombMVAComputer()
@@ -21,15 +23,27 @@ TtSemiJetCombMVAComputer::~TtSemiJetCombMVAComputer()
 void
 TtSemiJetCombMVAComputer::produce(edm::Event& evt, const edm::EventSetup& setup)
 {
+  std::auto_ptr< std::vector<int> > pOutCombi(new std::vector<int>);
+  std::auto_ptr< std::string >      pOutMeth (new std::string);
+  std::auto_ptr< double >           pOutDisc (new double);
+
   mvaComputer.update<TtSemiJetCombMVARcd>(setup, "ttSemiJetCombMVA");
 
+  // read name of the last processor in the MVA calibration
+  // (to be used as meta information)
+  edm::ESHandle<PhysicsTools::Calibration::MVAComputerContainer> calibContainer;
+  setup.get<TtSemiJetCombMVARcd>().get( calibContainer );
+  std::vector<PhysicsTools::Calibration::VarProcessor*> processors
+    = (calibContainer->find("ttSemiJetCombMVA")).getProcessors();
+  *pOutMeth = ( processors[ processors.size()-1 ] )->getInstanceName();
+  evt.put(pOutMeth, "Meth");
+
+  // get lepton and jets
   edm::Handle< edm::View<reco::RecoCandidate> > leptons; 
   evt.getByLabel(leptons_, leptons);
 
   edm::Handle< std::vector<pat::Jet> > jets;
   evt.getByLabel(jets_, jets);
-
-  std::auto_ptr< std::vector<int> > pOut(new std::vector<int>);
 
   unsigned int nPartons = 4;
 
@@ -37,8 +51,10 @@ TtSemiJetCombMVAComputer::produce(edm::Event& evt, const edm::EventSetup& setup)
   // or less jets than partons
   if( leptons->empty() || jets->size() < nPartons ) {
     for(unsigned int i = 0; i < nPartons; ++i) 
-      pOut->push_back( -1 );
-    evt.put(pOut);
+      pOutCombi->push_back( -1 );
+    evt.put(pOutCombi);
+    *pOutDisc = 0.;
+    evt.put(pOutDisc, "Disc");
     return;
   }
 
@@ -77,10 +93,13 @@ TtSemiJetCombMVAComputer::produce(edm::Event& evt, const edm::EventSetup& setup)
   }
   while(stdcomb::next_combination( jetIndices.begin(), jetIndices.end(), combi.begin(), combi.end() ));
 
-  for(unsigned int i=0; i<combi.size(); ++i) 
-    pOut->push_back( combi[i] );
+  // write result into the event
+  for(unsigned int i = 0; i < combiMax.size(); ++i) 
+    pOutCombi->push_back( combiMax[i] );
+  evt.put(pOutCombi);
 
-  evt.put(pOut);
+  *pOutDisc = discrimMax;
+  evt.put(pOutDisc, "Disc");
 }
 
 void 
