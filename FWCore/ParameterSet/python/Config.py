@@ -87,7 +87,7 @@ class Process(object):
     def name_(self):
         return self.__name
     def setName_(self,name):
-        self.__name = name
+        self.__dict__['_Process__name'] = name
     process = property(name_,setName_, doc="name of the process")
     def producers_(self):
         """returns a dict of the producers which have been added to the Process"""
