@@ -49,7 +49,7 @@ class TFileAdaptor
 public:
   TFileAdaptor(const edm::ParameterSet &p, edm::ActivityRegistry &ar)
     : enabled_(true),
-      doStats_(true),
+      doStats_(false),
       cacheHint_("application-only"),
       readHint_("auto-detect"),
       tempDir_(".")
