@@ -8,7 +8,7 @@
 //
 // Original Author:  
 //         Created:  Mon Dec  3 08:38:38 PST 2007
-// $Id: CmsShowMain.cc,v 1.8 2008/06/24 07:38:57 dmytro Exp $
+// $Id: CmsShowMain.cc,v 1.9 2008/06/27 03:31:55 dmytro Exp $
 //
 
 // system include files
@@ -135,6 +135,7 @@ CmsShowMain::CmsShowMain(int argc, char *argv[]) :
   }
   bool debugMode = vm.count("debug");
    
+
   if ( !vm.count("fast") )
      m_textView = std::auto_ptr<FWTextView>( new FWTextView(this, &*m_selectionManager, &*m_guiManager) );
 
@@ -214,6 +215,48 @@ CmsShowMain::CmsShowMain(int argc, char *argv[]) :
                             "$.pt()>15",
                             3);
 
+
+   FWPhysicsObjectDesc l1EmTrigs("L1EmTrig",
+                            TClass::GetClass("l1extra::L1EmParticleCollection"),
+                            "L1EmTrig",
+                            FWDisplayProperties(kOrange),
+                            "hltL1extraParticles",
+                            "Isolated",
+                            "",
+                            "",
+                            3);
+
+   FWPhysicsObjectDesc l1MuonTrigs("L1MuonTrig",
+                            TClass::GetClass("l1extra::L1MuonParticleCollection"),
+                            "L1MuonTrig",
+                            FWDisplayProperties(kViolet),
+                            "hltL1extraParticles",
+                            "",
+                            "",
+                            "",
+                            3);
+
+   FWPhysicsObjectDesc l1EtMissTrigs("L1EtMissTrig",
+                            TClass::GetClass("l1extra::L1EtMissParticleCollection"),
+                            "L1EtMissTrig",
+                            FWDisplayProperties(kTeal),
+                            "hltL1extraParticles",
+                            "",
+                            "",
+                            "",
+                            3);
+
+   FWPhysicsObjectDesc l1JetTrigs("L1JetTrig",
+                            TClass::GetClass("l1extra::L1JetParticleCollection"),
+                            "L1JetTrig",
+                            FWDisplayProperties(kMagenta),
+                            "hltL1extraParticles",
+                            "Central",
+                            "",
+                            "",
+                            3);
+
+
    FWPhysicsObjectDesc tracks("Tracks",
                               TClass::GetClass("reco::TrackCollection"),
 			      "Tracks",
@@ -278,6 +321,10 @@ CmsShowMain::CmsShowMain(int argc, char *argv[]) :
    registerPhysicsObject(ecal);
    registerPhysicsObject(hcal);
    registerPhysicsObject(jets);
+   registerPhysicsObject(l1EmTrigs);
+   registerPhysicsObject(l1MuonTrigs);
+   registerPhysicsObject(l1EtMissTrigs);
+   registerPhysicsObject(l1JetTrigs);
    registerPhysicsObject(tracks);
    registerPhysicsObject(muons);
    registerPhysicsObject(electrons);
