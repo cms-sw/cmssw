@@ -58,7 +58,7 @@ CSCTMBHeader::CSCTMBHeader(const unsigned short * buf) {
 
 std::vector<CSCCLCTDigi> CSCTMBHeader::CLCTDigis(uint32_t idlayer) {
   std::vector<CSCCLCTDigi> result;
-  theChamberId = CSCDetId(idlayer);
+  //theChamberId = CSCDetId(idlayer);
 
 
   switch (firmwareVersion) {
@@ -137,7 +137,7 @@ std::vector<CSCCLCTDigi> CSCTMBHeader::CLCTDigis(uint32_t idlayer) {
   return result;
 }
 
-
+/*
 void CSCTMBHeader::offlineStripNumbering(int & strip, int & cfeb,
 					 int & pattern, int & bend) const
 {
@@ -214,6 +214,7 @@ void CSCTMBHeader::hardwareStripNumbering(int & strip, int & cfeb, int & pattern
 
 }
 
+
 void CSCTMBHeader::swapCLCTs(CSCCLCTDigi& digi1, CSCCLCTDigi& digi2)
 {
   bool me11 = (theChamberId.station() == 1 && 
@@ -274,11 +275,11 @@ void CSCTMBHeader::hardwareHalfStripNumbering(int & strip) const
   if ( me1a && zplus ) { strip = 31-strip; } // 0-31 -> 31-0
   if ( me1b && !zplus) { strip = 127 - strip;} // 0-127 -> 127-0 ...
 }
-
+*/
 
 
 std::vector<CSCCorrelatedLCTDigi> CSCTMBHeader::CorrelatedLCTDigis(uint32_t idlayer) const {
-  theChamberId = CSCDetId(idlayer);
+  //theChamberId = CSCDetId(idlayer);
 
   std::vector<CSCCorrelatedLCTDigi> result;  
 
@@ -472,7 +473,7 @@ void CSCTMBHeader::selfTest()
 
       CSCTMBHeader tmbHeader;
       tmbHeader.firmwareVersion = testversion;
-      tmbHeader.theChamberId = detId;
+      //tmbHeader.theChamberId = detId;
       tmbHeader.addCLCT0(clct0);
       tmbHeader.addCLCT1(clct1);
       tmbHeader.addCorrelatedLCT0(lct0);

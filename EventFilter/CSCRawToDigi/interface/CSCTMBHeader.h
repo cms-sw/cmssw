@@ -387,7 +387,7 @@ class CSCTMBHeader {
   }
 
   /// Needed before data packing
-  void setChamberId(const CSCDetId & detId) {theChamberId = detId;}
+  //void setChamberId(const CSCDetId & detId) {theChamberId = detId;}
 
   /// for data packing
   void addCLCT0(const CSCCLCTDigi & digi);
@@ -414,12 +414,12 @@ class CSCTMBHeader {
 
 private:
   // helper method to reverse the strip numbers in the ME1 readout
-  void offlineStripNumbering(int & strip, int & cfeb,
-			     int& pattern, int& bend) const;
-  void hardwareStripNumbering(int & strip, int & cfeb,
-                              int& pattern, int& bend) const;
-  void offlineHalfStripNumbering(int & strip) const;
-  void hardwareHalfStripNumbering(int & strip) const;
+  //void offlineStripNumbering(int & strip, int & cfeb,
+  //			     int& pattern, int& bend) const;
+  //  void hardwareStripNumbering(int & strip, int & cfeb,
+  //                              int& pattern, int& bend) const;
+  //  void offlineHalfStripNumbering(int & strip) const;
+  //  void hardwareHalfStripNumbering(int & strip) const;
 
   void swapCLCTs(CSCCLCTDigi& digi1, CSCCLCTDigi& digi2);
 
@@ -439,9 +439,9 @@ private:
   static bool debug;
   static unsigned short int firmwareVersion;
 
-  // only used in data packing, and noti set during unpacking
+  // only used in data packing, and not set during unpacking
   // but set during LCT retrieval
-  mutable CSCDetId theChamberId;
+  //mutable CSCDetId theChamberId;
 };
 
 
