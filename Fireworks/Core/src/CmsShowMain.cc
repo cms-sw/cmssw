@@ -8,7 +8,7 @@
 //
 // Original Author:  
 //         Created:  Mon Dec  3 08:38:38 PST 2007
-// $Id: CmsShowMain.cc,v 1.7 2008/06/23 23:01:10 dmytro Exp $
+// $Id: CmsShowMain.cc,v 1.8 2008/06/24 07:38:57 dmytro Exp $
 //
 
 // system include files
@@ -100,6 +100,7 @@ CmsShowMain::CmsShowMain(int argc, char *argv[]) :
     ("input-file", po::value<std::string>(), "Input root file")
     ("config-file,c", po::value<std::string>(), "Include configuration file")
     ("geom-file,g", po::value<std::string>(), "Include geometry file")
+    ("fast,f", "Load fast")
     ("debug,d","Show Eve browser to help debug problems");
   po::positional_options_description p;
   p.add("input-file", -1);
@@ -134,7 +135,7 @@ CmsShowMain::CmsShowMain(int argc, char *argv[]) :
   }
   bool debugMode = vm.count("debug");
    
-//  if ( debugMode )
+  if ( !vm.count("fast") )
      m_textView = std::auto_ptr<FWTextView>( new FWTextView(this, &*m_selectionManager, &*m_guiManager) );
 
   printf("Input: %s\n", m_inputFileName.c_str());
