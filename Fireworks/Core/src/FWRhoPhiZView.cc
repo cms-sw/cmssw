@@ -8,7 +8,7 @@
 //
 // Original Author:  Chris Jones
 //         Created:  Tue Feb 19 10:33:25 EST 2008
-// $Id: FWRhoPhiZView.cc,v 1.17 2008/06/24 07:40:43 dmytro Exp $
+// $Id: FWRhoPhiZView.cc,v 1.18 2008/06/25 22:18:47 chrjones Exp $
 //
 
 #define private public
@@ -304,6 +304,7 @@ FWRhoPhiZView::updateCalo(TEveElement* iParent, bool dataChanged)
    while ( TEveElement* element = child.current() )
      {
 	if ( TEveCalo2D* calo2d = dynamic_cast<TEveCalo2D*>(element) ) {
+	   calo2d->SetDestroyOnZeroRefCnt(kFALSE);
 	   calo2d->SetValueIsColor(kFALSE);
 	   calo2d->SetMaxTowerH( 150 );
 	   calo2d->SetMaxValAbs( 150/m_caloFixedScale.value() );
