@@ -66,7 +66,7 @@ class TableWidget {
                 int cellWidth=60, 
                 int cellHeight=25, 
                 int scrollWidth=18,
-                int scrollHeight=10);
+                int scrollHeight=25);
      void Reinit (int tabRows = 5);
       void InitTableCells (int start_row = 0);
       void UpdateTableTitle(int iCol);

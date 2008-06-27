@@ -105,7 +105,7 @@ TableWidget::Init(int tabRows,
 
    // vertical slider
    m_vSlider = new TGVScrollBar(m_hFrame,2,m_tabHeight-m_cellHeight); // 2 is default width
-   m_vSlider->SetRange(m_scrollHeight*m_tm->NumberOfRows(),m_scrollHeight);
+   m_vSlider->SetRange(m_scrollHeight * m_tm->NumberOfRows(),m_scrollHeight);
    m_vSlider->SetSmallIncrement(m_scrollHeight);
    m_vSlider->Connect("PositionChanged(Int_t)","TableWidget",this,"OnVScroll(Int_t)");
    m_vFrameHints = new TGLayoutHints(kLHintsTop|kLHintsRight|kLHintsExpandY,0,0,m_cellHeight,0);
@@ -136,10 +136,12 @@ void TableWidget::Reinit (int tabRows)
 			 std::max(m_tm->NumberOfRows() - m_tabRows + 1, 
 				  0),
 			 m_scrollHeight);
+#if 0
      m_tFrame->Resize(m_tFrame->GetWidth(), 
 		      (std::min(tabRows, 5) + 1) * m_cellHeight);
      m_hFrame->Resize(m_hFrame->GetWidth(), 
 		      (std::min(tabRows, 5) + 1) * m_cellHeight);
+#endif
 }
 
 void
@@ -393,25 +395,49 @@ void TableWidget::OnCellClick(Event_t *event)
        }
        if(rowId!=-1) break;
    }
-
    if (event->fType==kButtonPress) {
-	// Emit SIGNAL
-	ULong_t mask = event->fState;
-	ULong_t sColor = m_selectColor;
-	ULong_t args[3];
-	args[0] = (ULong_t)rowId + m_iRow;
-	args[1] = (ULong_t)mask;
-	args[2] = (ULong_t)sColor;
-	Emit("SelectRow(Int_t,Mask_t,Pixel_t)",args);
-	std::cout<<"select row="<<rowId<<" mask="<<mask<<" color="<<sColor<<std::endl;
-	// but for the manager, do it lighter-weight
-	m_tm->Selection(rowId + m_iRow, mask);
-	// don't do this: wait for a signal to come back instead
-	// SelectRow(rowId,event->fState,m_selectColor);
+	switch (event->fCode) {
+	case 4: // scroll up
+	{
+	     int pos = m_vSlider->GetPosition();
+	     printf("pos %d\n", pos);
+	     if (pos > 0)
+		  m_vSlider->SetPosition(pos - m_scrollHeight);
+	     break;
+	}
+	case 5: // scroll down
+	{
+	     int pos = m_vSlider->GetPosition();
+	     printf("pos %d\n", pos);
+	     if (pos < m_scrollHeight * (m_tm->NumberOfRows() - 1))
+		  m_vSlider->SetPosition(pos + m_scrollHeight);
+	     break;
+	}
+	case 1: 
+	{
+	     // Emit SIGNAL
+	     ULong_t mask = event->fState;
+	     ULong_t sColor = m_selectColor;
+	     ULong_t args[3];
+	     args[0] = (ULong_t)rowId + m_iRow;
+	     args[1] = (ULong_t)mask;
+	     args[2] = (ULong_t)sColor;
+	     Emit("SelectRow(Int_t,Mask_t,Pixel_t)",args);
+	     std::cout<<"select row="<<rowId<<" mask="<<mask<<" color="<<sColor<<std::endl;
+	     // but for the manager, do it lighter-weight
+	     m_tm->Selection(rowId + m_iRow, mask);
+	     // don't do this: wait for a signal to come back instead
+	     // SelectRow(rowId,event->fState,m_selectColor);
+	     break;
+	}
+	default:
+	     // ignore all other buttons
+	     return;
+	}
    } else if(event->fType==kEnterNotify) {
-       HighlightRow(rowId);
+	HighlightRow(rowId);
    } else if(event->fType==kLeaveNotify) {
-       HighlightRow(rowId,m_cellColor);
+	HighlightRow(rowId,m_cellColor);
    }
 }
 void TableWidget::OnCellDoubleClick()
