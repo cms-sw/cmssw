@@ -59,6 +59,10 @@ class PixelCPETemplateReco : public PixelCPEBase
  private:
   // Template storage
   mutable SiPixelTemplate templ_ ;
+ //---------------------------
+  // [Morris, 6/25/08]
+  // Cache the template ID number
+  mutable int templID_;   // in general this will change in time and via DetID
   
   // The result of PixelTemplateReco2D
   mutable float templXrec_ ; 
