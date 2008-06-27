@@ -252,7 +252,7 @@ class InputTag(_ParameterTypeBase):
         return v
     def value(self):
         "The only value is itself"
-        return self
+        return self.configValue()
     @staticmethod
     def formatValueForConfig(value):
         return value.configValue()
