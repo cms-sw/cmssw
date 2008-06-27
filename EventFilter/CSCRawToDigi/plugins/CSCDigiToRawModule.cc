@@ -1,7 +1,7 @@
 /** \file
  *
- *  $Date: 2008/05/02 20:16:35 $
- *  $Revision: 1.7 $
+ *  $Date: 2008/06/26 18:43:57 $
+ *  $Revision: 1.8 $
  *  \author A. Tumanov - Rice
  */
 
@@ -60,14 +60,14 @@ void CSCDigiToRawModule::produce(Event & e, const EventSetup& c){
   Handle<CSCCLCTDigiCollection> clctDigis;
   e.getByLabel(theCLCTDigiTag, clctDigis);
   Handle<CSCCorrelatedLCTDigiCollection> correlatedLCTDigis;
-  e.getByLabel(theComparatorDigiTag, correlatedLCTDigis);
+  e.getByLabel(theCorrelatedLCTDigiTag, correlatedLCTDigis);
 
 
 
   // Create the packed data
-  packer->createFedBuffers(*stripDigis, *wireDigis, *(fed_buffers.get()), theMapping, e);
-
-
+  packer->createFedBuffers(*stripDigis, *wireDigis, *comparatorDigis, 
+                           *alctDigis, *clctDigis, *correlatedLCTDigis,
+                           *(fed_buffers.get()), theMapping, e);
   
   // put the raw data to the event
   e.put(fed_buffers, "CSCRawData");

@@ -3,8 +3,8 @@
 
 /** \class CSCDigiToRaw
  *
- *  $Date: 2008/06/11 02:12:57 $
- *  $Revision: 1.7 $
+ *  $Date: 2008/06/20 18:11:01 $
+ *  $Revision: 1.8 $
  *  \author A. Tumanov - Rice
  */
 
@@ -28,6 +28,18 @@ public:
   /// Constructor
   CSCDigiToRaw();
 
+  /// Take a vector of digis and fill the FEDRawDataCollection
+  void createFedBuffers(const CSCStripDigiCollection& stripDigis,
+			const CSCWireDigiCollection& wireDigis, 
+                        const CSCComparatorDigiCollection& comparatorDigis,
+                        const CSCALCTDigiCollection& alctDigis,
+                        const CSCCLCTDigiCollection& clctDigis,
+                        const CSCCorrelatedLCTDigiCollection& correlatedLCTDigis,
+			FEDRawDataCollection& fed_buffers,
+		        const CSCChamberMap* theMapping, 
+			edm::Event & e);
+
+private:
   void beginEvent(const CSCChamberMap* electronicsMap);
 
   // specialized because it reverses strip direction
@@ -38,18 +50,6 @@ public:
   void add(const CSCCLCTDigiCollection & clctDigis);
   void add(const CSCCorrelatedLCTDigiCollection & corrLCTDigis);
 
-  /// Take a vector of digis and fill the FEDRawDataCollection
-  void createFedBuffers(const CSCStripDigiCollection& stripDigis,
-			const CSCWireDigiCollection& wireDigis, 
-			FEDRawDataCollection& fed_buffers,
-		        const CSCChamberMap* theMapping, 
-			edm::Event & e);
-
-  std::map <CSCDetId, CSCEventData> fillChamberDataMap(const CSCStripDigiCollection& stripDigis,
-						       const CSCWireDigiCollection& wireDigis,
-						       const CSCChamberMap* theMapping);
-
-private:
   /// pick out the correct data object for this chamber
   CSCEventData & findEventData(const CSCDetId & cscDetId);
 

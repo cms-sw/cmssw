@@ -1,7 +1,7 @@
 /** \file
  *
- *  $Date: 2008/06/11 02:13:00 $
- *  $Revision: 1.23 $
+ *  $Date: 2008/06/20 00:17:07 $
+ *  $Revision: 1.24 $
  *  \author A. Tumanov - Rice
  */
 
@@ -13,6 +13,7 @@
 #include "DataFormats/FEDRawData/interface/FEDRawData.h"
 #include "DataFormats/FEDRawData/interface/FEDNumbering.h"
 #include <boost/dynamic_bitset.hpp>
+#include <boost/foreach.hpp>
 #include "EventFilter/CSCRawToDigi/src/bitset_append.h"
 #include <DataFormats/FEDRawData/interface/FEDHeader.h>
 #include <DataFormats/FEDRawData/interface/FEDTrailer.h>
@@ -100,87 +101,72 @@ void CSCDigiToRaw::add(const CSCWireDigiCollection& wireDigis)
 
 void CSCDigiToRaw::add(const CSCComparatorDigiCollection & comparatorDigis)
 {
+std::cout << "COMP" << std::endl;
   for (CSCComparatorDigiCollection::DigiRangeIterator j=comparatorDigis.begin(); j!=comparatorDigis.end(); ++j)
     {
       CSCDetId cscDetId=(*j).first;
       CSCEventData & cscData = findEventData(cscDetId);
 
-      std::vector<CSCComparatorDigi>::const_iterator digiItr = (*j).second.first;
-      std::vector<CSCComparatorDigi>::const_iterator last = (*j).second.second;
-      for( ; digiItr != last; ++digiItr)
+      BOOST_FOREACH(CSCComparatorDigi digi, (*j).second)
         {
-          cscData.add(*digiItr, cscDetId.layer() );
+          cscData.add(digi, cscDetId.layer() );
         }
     }
 }
 
 void CSCDigiToRaw::add(const CSCALCTDigiCollection & alctDigis)
 {
+std::cout << "ALCT" << std::endl;
   for (CSCALCTDigiCollection::DigiRangeIterator j=alctDigis.begin(); j!=alctDigis.end(); ++j)
     {
       CSCDetId cscDetId=(*j).first;
       CSCEventData & cscData = findEventData(cscDetId);
 
-      std::vector<CSCALCTDigi>::const_iterator digiItr = (*j).second.first;
-      std::vector<CSCALCTDigi>::const_iterator last = (*j).second.second;
-      for( ; digiItr != last; ++digiItr)
+      BOOST_FOREACH(CSCALCTDigi digi, (*j).second)
         {
-          cscData.add(*digiItr);
+          cscData.add(digi);
         }
     }
 }
 
 void CSCDigiToRaw::add(const CSCCLCTDigiCollection & clctDigis)
 {
-
+std::cout << "CLCT" << std::endl;
   for (CSCCLCTDigiCollection::DigiRangeIterator j=clctDigis.begin(); j!=clctDigis.end(); ++j)
     {
       CSCDetId cscDetId=(*j).first;
       CSCEventData & cscData = findEventData(cscDetId);
 
-      std::vector<CSCCLCTDigi>::const_iterator digiItr = (*j).second.first;
-      std::vector<CSCCLCTDigi>::const_iterator last = (*j).second.second;
-      for( ; digiItr != last; ++digiItr)
+      BOOST_FOREACH(CSCCLCTDigi digi, (*j).second)
         {
-          cscData.add(*digiItr);
+          cscData.add(digi);
         }
     }
 }
 
 void CSCDigiToRaw::add(const CSCCorrelatedLCTDigiCollection & corrLCTDigis)
 {
+std::cout << "CORR" << std::endl;
   for (CSCCorrelatedLCTDigiCollection::DigiRangeIterator j=corrLCTDigis.begin(); j!=corrLCTDigis.end(); ++j)
     {
       CSCDetId cscDetId=(*j).first;
       CSCEventData & cscData = findEventData(cscDetId);
 
-      std::vector<CSCCorrelatedLCTDigi>::const_iterator digiItr = (*j).second.first;
-      std::vector<CSCCorrelatedLCTDigi>::const_iterator last = (*j).second.second;
-      for( ; digiItr != last; ++digiItr)
+      BOOST_FOREACH(CSCCorrelatedLCTDigi digi, (*j).second)
         {
-          cscData.add(*digiItr);
+          cscData.add(digi);
         }
     }
 
 }
 
 
-map<CSCDetId, CSCEventData> 
-CSCDigiToRaw::fillChamberDataMap(const CSCStripDigiCollection & stripDigis, 
-                                 const CSCWireDigiCollection & wireDigis, 
-                                 const CSCChamberMap* mapping) 
-{
-  beginEvent(mapping);
-  add(stripDigis);
-  add(wireDigis);
-
-  //std::cout<<"finished iterating and about to return the map size "<<chamberMap.size()<<std::endl;
-  return theChamberDataMap;
-}
-
-
 void CSCDigiToRaw::createFedBuffers(const CSCStripDigiCollection& stripDigis,
                                     const CSCWireDigiCollection& wireDigis,
+                                    const CSCComparatorDigiCollection& comparatorDigis,
+                                    const CSCALCTDigiCollection& alctDigis,
+                                    const CSCCLCTDigiCollection& clctDigis,
+                                    const CSCCorrelatedLCTDigiCollection& correlatedLCTDigis,
                                     FEDRawDataCollection& fed_buffers,
                                     const CSCChamberMap* mapping,
                                     Event & e)
@@ -190,8 +176,13 @@ void CSCDigiToRaw::createFedBuffers(const CSCStripDigiCollection& stripDigis,
   
   //get fed object from fed_buffers
   // make a map from the index of a chamber to the event data from it
-  map<CSCDetId, CSCEventData> chamberDataMap 
-    = fillChamberDataMap(stripDigis, wireDigis, mapping);
+  beginEvent(mapping);
+  add(stripDigis);
+  add(wireDigis);
+  //add(comparatorDigis);
+  //add(alctDigis);
+  //add(clctDigis);
+  //add(correlatedLCTDigis);
   
   int l1a=1; //need to add increments or get it from lct digis 
   int bx = 0;//same as above
@@ -213,8 +204,8 @@ void CSCDigiToRaw::createFedBuffers(const CSCStripDigiCollection& stripDigis,
 
       CSCDCCEventData dccEvent(idcc, nDDUs, bx, l1a);
       // for every chamber with data, add to a DDU in this DCC Event
-      for(map<CSCDetId, CSCEventData>::iterator chamberItr = chamberDataMap.begin();
-            chamberItr != chamberDataMap.end(); ++chamberItr)
+      for(map<CSCDetId, CSCEventData>::iterator chamberItr = theChamberDataMap.begin();
+            chamberItr != theChamberDataMap.end(); ++chamberItr)
         {
 
            //std::cout<<"inside the pack loop" <<std::endl;
