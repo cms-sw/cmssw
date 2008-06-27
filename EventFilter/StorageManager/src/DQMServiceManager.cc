@@ -3,7 +3,7 @@
 //
 // (W.Badgett)
 //
-// $Id: DQMServiceManager.cc,v 1.4.4.1 2008/06/18 19:28:04 biery Exp $
+// $Id: DQMServiceManager.cc,v 1.5 2008/06/25 18:03:22 biery Exp $
 //
 
 #include "FWCore/Utilities/interface/DebugMacros.h"
@@ -38,9 +38,6 @@ DQMServiceManager::DQMServiceManager(std::string filePrefix,
   dqmInstances_.reserve(20);
 
   gROOT->SetBatch(kTRUE);
-
-  int argc = 0;
-  rootApplication_ = new TApplication("DQMServiceManager", &argc, NULL);
 } 
 
 DQMServiceManager::~DQMServiceManager()

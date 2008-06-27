@@ -1,7 +1,7 @@
 #ifndef _DQMSERVICEMANAGER_H_
 #define _DQMSERVICEMANAGER_H_
 
-// $Id: DQMServiceManager.h,v 1.2.4.1 2008/06/18 19:24:20 biery Exp $
+// $Id: DQMServiceManager.h,v 1.3 2008/06/25 18:03:22 biery Exp $
 
 #include "FWCore/ParameterSet/interface/ProcessDesc.h"
 #include "FWCore/Framework/interface/EventSelector.h"
@@ -17,8 +17,6 @@
 #include "EventFilter/StorageManager/interface/DQMEventServer.h"
 #include <IOPool/Streamer/interface/DQMEventMessage.h>
 //#include <EventFilter/StorageManager/interface/DQMStreamService.h>
-
-#include "TApplication.h"
 
 #include <boost/shared_ptr.hpp>
 #include <vector>
@@ -69,7 +67,6 @@ namespace stor
       std::string   filePrefix_;
       int           purgeTime_;
       int           readyTime_;
-      TApplication *rootApplication_;
       int  writeAndPurgeDQMInstances(bool purgeAll=false);
       std::vector<DQMInstance *>    dqmInstances_;
 
