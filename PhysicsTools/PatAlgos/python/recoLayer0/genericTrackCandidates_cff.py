@@ -14,9 +14,13 @@ patAODTrackCands = cms.EDFilter("CandViewSelector",
 )
 
 ## Configure tracker isolation
-from PhysicsTools.IsolationAlgos.test.mu.candIsoDepositCtfTk_cfi import candIsoDepositCtfTk
-patAODTrackIsoDepositCtfTk = candIsoDepositCtfTk.clone()
-patAODTrackIsoDepositCtfTk.src = cms.InputTag('patAODTrackCands')
+from RecoMuon.MuonIsolationProducers.trackExtractorBlocks_cff import MIsoTrackExtractorCtfBlock
+patAODTrackIsoDepositCtfTk = cms.EDProducer("CandIsoDepositProducer",
+    src                  = cms.InputTag("patAODTrackCands"),
+    trackType            = cms.string('best'),
+    MultipleDepositsFlag = cms.bool(False),
+    ExtractorPSet        = cms.PSet( MIsoTrackExtractorCtfBlock )
+)
 
 ## Configure calorimetric isolation
 from RecoMuon.MuonIsolationProducers.caloExtractorByAssociatorBlocks_cff import MIsoCaloExtractorByAssociatorTowersBlock
