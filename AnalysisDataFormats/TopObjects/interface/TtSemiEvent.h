@@ -102,7 +102,7 @@ class TtSemiEvent {
   void setGenMatch(const std::vector<int>& match) {genMatch_=match;};
   void setGenMatchSumPt(const double& val) {genMatchSumPt_=val;};
   void setGenMatchSumDR(const double& val) {genMatchSumDR_=val;};
-  void setMvaDiscAndMethod(std::string& name, double& val) {mvaDisc_=std::pair<std::string, double>(name, val);};
+  void setMvaDiscAndMethod(const std::string& name, const double& val) {mvaDisc_=std::pair<std::string, double>(name, val);};
   void setFitChi2(double& val) { fitChi2_=val; };
 
  private:
