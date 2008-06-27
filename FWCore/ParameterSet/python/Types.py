@@ -251,7 +251,7 @@ class InputTag(_ParameterTypeBase):
                 v=self.__processName <> other.__processName
         return v
     def value(self):
-        "The only value is itself"
+        "Return the string rep"
         return self.configValue()
     @staticmethod
     def formatValueForConfig(value):
