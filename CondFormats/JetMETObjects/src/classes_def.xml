@@ -1,5 +1,6 @@
 <lcgdict>
 <selection>
+  <class name="GlobalFitCorrector"/>
   <class name="SimpleMCJetCorrector"/>
   <class name="SimpleZSPJetCorrector"/>
   <class name="Simple3DMCJetCorrector"/>
