@@ -10,7 +10,18 @@ using namespace edm;
 map<string, MonitorElement*> RPCMonitorDigi::bookDetUnitME(RPCDetId & detId, const EventSetup & iSetup) {
   map<string, MonitorElement*> meMap;  
 
-  string ringType = (detId.region() ==  0)?"Wheel":"Disk";
+  string ringType;
+  int ring;
+  if(detId.region() == 0) {
+      ringType = "Wheel";  
+    ring = detId.ring();
+  }else if (detId.region() == -1){  
+    ringType =  "Disk";
+    ring = detId.region()*detId.layer();
+  }else {
+    ringType =  "Disk";
+    ring = detId.layer();
+  }
 
   RPCBookFolderStructure *  folderStr = new RPCBookFolderStructure();
   string folder = "RPC/RecHits/" +  folderStr->folderStructure(detId);
@@ -22,18 +33,15 @@ map<string, MonitorElement*> RPCMonitorDigi::bookDetUnitME(RPCDetId & detId, con
   if (nstrips == 0 ) nstrips = 1;
 
   /// Name components common to current RPCDetId  
-   RPCGeomServ RPCname(detId);
+  RPCGeomServ RPCname(detId);
   string nameRoll = RPCname.name();
-
-  RPCGeomServ RPCindex(detId);
-  int index = RPCindex.chambernr();
-
+ 
   stringstream os;
+  os.str("");
+  os<<"Occupancy_"<<nameRoll;
+  meMap[os.str()] = dbe->book1D(os.str(), os.str(), nstrips, 0.5, nstrips+0.5);
+
   if (dqmexpert) {    
-    os.str("");
-    os<<"Occupancy_"<<nameRoll;
-    meMap[os.str()] = dbe->book1D(os.str(), os.str(), nstrips, 0.5, nstrips+0.5);
-    
     os.str("");
     os<<"BXN_"<<nameRoll;
     meMap[os.str()] = dbe->book1D(os.str(), os.str(), 21, -10.5, 10.5);
@@ -60,7 +68,7 @@ map<string, MonitorElement*> RPCMonitorDigi::bookDetUnitME(RPCDetId & detId, con
     
     os.str("");
     os<<"BXWithData_"<<nameRoll;
-    meMap[os.str()] = dbe->book1D(os.str(), os.str(), 11, -5.5, 5.5);
+    meMap[os.str()] = dbe->book1D(os.str(), os.str(), 10, 0.5, 10.5);
 
     /// RPCRecHits
     os.str("");
@@ -73,7 +81,7 @@ map<string, MonitorElement*> RPCMonitorDigi::bookDetUnitME(RPCDetId & detId, con
     
     os.str("");
     os<<"RecHitCounter_"<<nameRoll;
-    meMap[os.str()] = dbe->book1D(os.str(), os.str(),nstrips,-0.5,nstrips+0.5);
+    meMap[os.str()] = dbe->book1D(os.str(), os.str(),20,0.5,20.5);
   }
   
   if (dqmsuperexpert) {    
@@ -106,44 +114,80 @@ map<string, MonitorElement*> RPCMonitorDigi::bookDetUnitME(RPCDetId & detId, con
     os<<"RecHitX_vs_dx_"<<nameRoll;
     meMap[os.str()] = dbe->book2D(os.str(), os.str(),30, -100, 100,30,10,10);
   }
-  
-  dbe->setCurrentFolder(GlobalHistogramsFolder);
-  
+
+  MonitorElement * myMe;
+
   os.str("");
-  os<<"SectorOccupancy_"<<ringType<<"_"<<detId.ring()<<"_Sector_"<<detId.sector(); 
+  os<<"Occupancy_"<<ringType<<"_"<<ring<<"_Sector_"<<detId.sector();
+  myMe = dbe->get(folder+"/"+os.str());
+  //check if ME for this sector have already been booked
+  if(myMe)  meMap[os.str()]=myMe;
+  else {
+    if(detId.region()==0){
+      if (detId.sector()==9 || detId.sector()==11)
+	meMap[os.str()] = dbe->book2D(os.str(), os.str(), 96, 0.5,96.5, 15, 0.5, 15.5);
+      else  if (detId.sector()==4) 
+	meMap[os.str()] = dbe->book2D(os.str(), os.str(),  96, 0.5, 96.5, 21, 0.5, 21.5);
+      else
+	meMap[os.str()] = dbe->book2D(os.str(), os.str(), 96, 0.5,  96.5, 17, 0.5, 17.5);
+    }
+  }
 
-  //check if ME already exists for this sector
-  MonitorElement * me = dbe->get(folder+"/"+os.str());
-  if(me) return meMap;
+  os.str("");
+  os<<"BxDistribution_"<<ringType<<"_"<<ring<<"_Sector_"<<detId.sector();
+  myMe = dbe->get(folder+"/"+os.str());
+  if(myMe)  meMap[os.str()]=myMe;
+  else meMap[os.str()] = dbe->book1D(os.str(), os.str(), 11, -5.5, 5.5);
 
-  if (detId.sector()==9 || detId.sector()==11 )
-    meMap[os.str()] = dbe->book2D(os.str(), os.str(), 96, 0.5,96.5, 15, 0.5, 15.5);
-  else  if (detId.sector()==4) 
-    meMap[os.str()] = dbe->book2D(os.str(), os.str(),  96, 0.5, 96.5, 21, 0.5, 21.5);
-  else
-    meMap[os.str()] = dbe->book2D(os.str(), os.str(), 96, 0.5,  96.5, 17, 0.5, 17.5);
-    
+  os.str("");
+  os<<"NumberOfDigi_"<<ringType<<"_"<<ring<<"_Sector_"<<detId.sector();
+  myMe = dbe->get(folder+"/"+os.str());
+  if(myMe)  meMap[os.str()]=myMe;
+  else meMap[os.str()] = dbe->book1D(os.str(), os.str(), 50, 0.5, 50.5);
+
+  os.str("");
+  os<<"ClusterSize_"<<ringType<<"_"<<ring<<"_Sector_"<<detId.sector();
+  myMe = dbe->get(folder+"/"+os.str());
+  if(myMe)  meMap[os.str()]=myMe;
+  else meMap[os.str()] = dbe->book1D(os.str(), os.str(), 20, 0.5, 20.5);
+
+  os.str("");
+  os<<"NumberOfClusters_"<<ringType<<"_"<<ring<<"_Sector_"<<detId.sector();
+  myMe = dbe->get(folder+"/"+os.str());
+  if(myMe)  meMap[os.str()]=myMe;
+  else  meMap[os.str()] = dbe->book1D(os.str(), os.str(), 50, 0.5, 50.5);
+
+  os.str("");
+  os<<"BXWithData_"<<ringType<<"_"<<ring<<"_Sector_"<<detId.sector();
+  myMe = dbe->get(folder+"/"+os.str());
+  if(myMe)  meMap[os.str()]=myMe;
+  else  meMap[os.str()] = dbe->book1D(os.str(), os.str(), 11, -5.5, 5.5);
+
   return meMap;
 }
 
 map<string, MonitorElement*> RPCMonitorDigi::bookRegionRing(int region, int ring) {  
   map<string, MonitorElement*> meMap;  
   string ringType = (region ==  0)?"Wheel":"Disk";
-  
+
   dbe->setCurrentFolder(GlobalHistogramsFolder);
-  
   stringstream os;
-  
-  os<<"WheelOccupancyXY_"<<ringType<<"_"<<region<<"_"<<ring;
+
+  os<<"OccupancyXY_"<<ringType<<"_"<<ring;
   meMap[os.str()] = dbe->book2D(os.str(), os.str(),63, -800, 800, 63, -800, 800);
 
   os.str("");
-  os<<"WheelClusterSize_"<<ringType<<"_"<<region<<"_"<<ring;
+  os<<"ClusterSize_"<<ringType<<"_"<<ring;
   meMap[os.str()] = dbe->book1D(os.str(), os.str(),20, 0.5, 20.5);
 
   os.str("");
-  os<<"Wheel1DOccupancy_"<<ringType<<"_"<<region<<"_"<<ring;
+  if (region!=0) ring = ring*region;
+  os<<"1DOccupancy_"<<ringType<<"_"<<ring;
   meMap[os.str()] = dbe->book1D(os.str(), os.str(), 12, 0.5, 12.5);
+
+  os.str("");
+  os<<"BxDistribution_"<<ringType<<"_"<<ring;
+  meMap[os.str()] = dbe->book1D(os.str(), os.str(), 11, -5.5, 5.5);
 
   return meMap; 
 }
