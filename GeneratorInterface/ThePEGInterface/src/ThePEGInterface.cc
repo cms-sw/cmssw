@@ -1,5 +1,5 @@
 /** \class ThePEGInterface
- *  $Id: ThePEGInterface.cc 93 2008-02-25 20:15:36Z stober $
+ *  $Id: ThePEGInterface.cc,v 1.1 2008/05/14 18:35:59 saout Exp $
  *  
  *  Oliver Oberst <oberst@ekp.uni-karlsruhe.de>
  *  Fred-Markus Stober <stober@ekp.uni-karlsruhe.de>
@@ -96,6 +96,37 @@ string ThePEGInterface::resolveEnvVars(const string &s)
 	return result;
 }
 
+void ThePEGInterface::readParameterSet(const edm::ParameterSet &pset, const string paramSet) const
+{
+	stringstream logstream;
+
+	// Read CMSSW config file parameter set
+	vector<string> params = pset.getParameter<vector<string> >(paramSet);
+
+	// Loop over the parameter sets
+	for(vector<string>::const_iterator psIter = params.begin();
+	    psIter != params.end(); ++psIter) {
+
+		// Include other parameter sets specified by +psName
+		if (psIter->find_first_of('+') == 0) {
+			edm::LogInfo("ThePEGInterface") << "Loading parameter set (" << psIter->substr(1) << ")";
+			readParameterSet(pset, psIter->substr(1));
+		}
+		// Topmost parameter set is called "parameterSets"
+		else if (paramSet == "parameterSets") {
+			edm::LogInfo("ThePEGInterface") << "Loading parameter set (" << *psIter << ")";
+			readParameterSet(pset, *psIter);
+		}
+		// Transfer parameters to the repository
+		else {
+			string line = resolveEnvVars(*psIter);
+			string out = ThePEG::Repository::exec(line, logstream);
+			if (out != "")
+				edm::LogInfo("ThePEGInterface") << line << " => " << out;
+		}
+	}
+}
+
 void ThePEGInterface::initRepository(const edm::ParameterSet &pset) const
 {
 	/* Initialize the repository from
@@ -138,27 +169,8 @@ void ThePEGInterface::initRepository(const edm::ParameterSet &pset) const
                 edm::LogInfo("ThePEGSource") << logstream.str();
 	}
 
-	// Read CMSSW config file parameter sets
-	vector<string> paramSets = pset.getParameter<vector<string> >("parameterSets");
-
-	// Loop over the parameter sets
-	for(vector<string>::const_iterator psIter = paramSets.begin();
-	    psIter != paramSets.end(); ++psIter) {
-		edm::LogInfo("ThePEGInterface") << "Loading parameter set (" << *psIter << ")";
-
-		// Read parameters in the set
-		vector<string> params =
-				pset.getParameter< vector<string> >(*psIter);
-
-		// Transfer parameters to the repository
-		for(vector<string>::const_iterator pIter = params.begin();
-		    pIter != params.end(); ++pIter) {
-			string line = resolveEnvVars(*pIter);
-			string out = ThePEG::Repository::exec(line, logstream);
-			if (out != "")
-				edm::LogInfo("ThePEGInterface") << line << " => " << out;
-		}
-	}
+	// Read CMSSW config file parameter sets starting from "parameterSets"
+	readParameterSet(pset, "parameterSets");
 
 	// Print the directories where ThePEG looks for libs
 	vector<string> libdirlist = ThePEG::DynamicLoader::allPaths();

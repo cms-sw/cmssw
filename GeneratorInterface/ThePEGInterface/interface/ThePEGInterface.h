@@ -2,7 +2,7 @@
 #define GeneratorInterface_ThePEGInterface_ThePEGInterface_h
 
 /** \class ThePEGInterface
- *  $Id: ThePEGInterface.h 93 2008-02-25 20:15:36Z stober $
+ *  $Id: ThePEGInterface.h,v 1.1 2008/05/14 18:35:58 saout Exp $
  *  
  *  Oliver Oberst <oberst@ekp.uni-karlsruhe.de>
  *  Fred-Markus Stober <stober@ekp.uni-karlsruhe.de>
@@ -51,6 +51,7 @@ class ThePEGInterface {
 	const std::string			generator_;
 	const std::string			run_;
 	const int				skipEvents_;
+	void readParameterSet(const edm::ParameterSet &base, const std::string paramSet) const;
 };
 
 #endif // GeneratorInterface_ThePEGInterface_ThePEGInterface_h

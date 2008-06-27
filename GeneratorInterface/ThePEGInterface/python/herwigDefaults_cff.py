@@ -9,23 +9,50 @@ herwigDefaultsBlock = cms.PSet(
 	run = cms.string('LHC'),
 
 	cmsDefaults = cms.vstring(
-		'mkdir /LHAPDF', 
-		'cd /LHAPDF', 
-		'create ThePEG::LHAPDF CTEQ5l', 
-		'set CTEQ5l:PDFName cteq5l.LHgrid', 
-		'set CTEQ5l:RemnantHandler /Herwig/Partons/HadronRemnants', 
-		'cp CTEQ5l cmsPDFSet', 
-		'set /Herwig/Particles/p+:PDF cmsPDFSet', 
-		'set /Herwig/Particles/pbar-:PDF cmsPDFSet', 
-		'cd /Herwig/Generators', 
-		'set LHCGenerator:NumberOfEvents 10000000', 
-		'set LHCGenerator:DebugLevel 1', 
-		'set LHCGenerator:PrintEvent 0', 
-		'set LHCGenerator:MaxErrors 10000', 
-		'set LHCGenerator:EventHandler:LuminosityFunction:Energy 14000.0', 
-		'set /Herwig/Shower/Evolver:IntrinsicPtGaussian 5.7*GeV'
+		'+basicSetup',
+		'+pdfCTEQ6l',
+		'+cm14TeV',
+		'+disableCtau10mmDecays',
 	),
 
+	basicSetup = cms.vstring(
+		'cd /Herwig/Generators',
+		'set LHCGenerator:NumberOfEvents 10000000',
+		'set LHCGenerator:DebugLevel 1',
+		'set LHCGenerator:PrintEvent 0',
+		'set LHCGenerator:MaxErrors 10000',
+		'cd /',
+	),
+	pdfCTEQ5l1 = cms.vstring(
+		'mkdir /LHAPDF',
+		'cd /LHAPDF',
+		'create ThePEG::LHAPDF CTEQ5l',
+		'set CTEQ5l:PDFName cteq5l.LHgrid',
+		'set CTEQ5l:RemnantHandler /Herwig/Partons/HadronRemnants',
+		'cp CTEQ5l cmsPDFSet',
+		'set /Herwig/Particles/p+:PDF cmsPDFSet',
+		'set /Herwig/Particles/pbar-:PDF cmsPDFSet',
+		'cd /',
+	),
+	pdfCTEQ6l = cms.vstring(
+		'mkdir /LHAPDF',
+		'cd /LHAPDF',
+		'create ThePEG::LHAPDF CTEQ6l',
+		'set CTEQ6l:PDFName cteq6l.LHpdf',
+		'set CTEQ6l:RemnantHandler /Herwig/Partons/HadronRemnants',
+		'cp CTEQ6l cmsPDFSet',
+		'set /Herwig/Particles/p+:PDF cmsPDFSet',
+		'set /Herwig/Particles/pbar-:PDF cmsPDFSet',
+		'cd /',
+	),
+	cm10TeV = cms.vstring(
+		'set /Herwig/Generators/LHCGenerator:EventHandler:LuminosityFunction:Energy 10000.0',
+		'set /Herwig/Shower/Evolver:IntrinsicPtGaussian 2.1*GeV',
+	),
+	cm14TeV = cms.vstring(
+		'set /Herwig/Generators/LHCGenerator:EventHandler:LuminosityFunction:Energy 14000.0',
+		'set /Herwig/Shower/Evolver:IntrinsicPtGaussian 2.2*GeV',
+	),
 	disableCtau10mmDecays = cms.vstring(
 		'cd /Herwig/Particles',
 		'set K-/K-->nu_ebar,e-;:OnOff Off',
@@ -201,7 +228,8 @@ herwigDefaultsBlock = cms.PSet(
 		'set Xi-/Xi-->Lambda0,nu_ebar,e-;:OnOff Off',
 		'set Xi-/Xi-->Lambda0,nu_ebar,e-;:OnOff Off',
 		'set Xi-/Xi-->Lambda0,pi-;:OnOff Off',
-		'set Xi-/Xi-->Lambda0,pi-;:OnOff Off'
+		'set Xi-/Xi-->Lambda0,pi-;:OnOff Off',
+		'cd /'
 	),
 
 	lheDefaults = cms.vstring(
@@ -220,12 +248,14 @@ herwigDefaultsBlock = cms.PSet(
 		'set LHEHandler:DecayHandler /Herwig/Decays/DecayHandler', 
 		'insert LHEHandler:LesHouchesReaders 0 LHEReader', 
 		'cd /Herwig/Generators', 
-		'set LHCGenerator:EventHandler /Herwig/EventHandlers/LHEHandler'
+		'set LHCGenerator:EventHandler /Herwig/EventHandlers/LHEHandler',
+		'cd /'
 	),
 
 	lheDefaultPDFs = cms.vstring(
 		'cd /Herwig/EventHandlers', 
 		'set LHEReader:PDFA /LHAPDF/cmsPDFSet', 
-		'set LHEReader:PDFB /LHAPDF/cmsPDFSet'
+		'set LHEReader:PDFB /LHAPDF/cmsPDFSet',
+		'cd /'
 	)
 )
