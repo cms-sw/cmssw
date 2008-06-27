@@ -3,16 +3,20 @@
 
 
 TtSemiEventBuilder::TtSemiEventBuilder(const edm::ParameterSet& cfg):
-  hyps_(cfg.getParameter<std::vector<edm::InputTag> >("hyps")),
-  keys_(cfg.getParameter<std::vector<edm::InputTag> >("keys")),
-  decay_(cfg.getParameter<int>("decay")),
-  genEvt_(cfg.getParameter<edm::InputTag>("genEvent")),
-  genMatch_(cfg.getParameter<edm::ParameterSet>("genMatch"))
+  hyps_    (cfg.getParameter<std::vector<edm::InputTag> >("hyps")),
+  keys_    (cfg.getParameter<std::vector<edm::InputTag> >("keys")),
+  decay_   (cfg.getParameter<int>("decay")),
+  genEvt_  (cfg.getParameter<edm::InputTag>("genEvent")),
+  genMatch_(cfg.getParameter<edm::ParameterSet>("genMatch")),
+  mvaDisc_ (cfg.getParameter<edm::ParameterSet>("mvaDisc"))
 {
   // get parameter subsets for genMatch
   match_=genMatch_.getParameter<edm::InputTag>("match");
   sumPt_=genMatch_.getParameter<edm::InputTag>("sumPt");
   sumDR_=genMatch_.getParameter<edm::InputTag>("sumDR");
+  // get parameter subsets for mvaDisc
+  meth_=mvaDisc_.getParameter<edm::InputTag>("meth");
+  disc_=mvaDisc_.getParameter<edm::InputTag>("disc");
 
   // produces an TtSemiEvent from hypothesis
   // and associated extra information
@@ -48,7 +52,7 @@ TtSemiEventBuilder::produce(edm::Event& evt, const edm::EventSetup& setup)
     event.addEventHypo((TtSemiEvent::HypoKey&)*key, *hyp);
   }
 
-  // set extras
+  // set genMatch extras
   edm::Handle<std::vector<int> > match;
   evt.getByLabel(match_, match);
   event.setGenMatch(*match);  
@@ -60,6 +64,13 @@ TtSemiEventBuilder::produce(edm::Event& evt, const edm::EventSetup& setup)
   edm::Handle<double> sumDR;
   evt.getByLabel(sumDR_, sumDR);
   event.setGenMatchSumDR(*sumDR);  
+
+  // set mvaDisc extras
+  edm::Handle<std::string> meth;
+  evt.getByLabel(meth_, meth);
+  edm::Handle<double> disc;
+  evt.getByLabel(disc_, disc);
+  event.setMvaDiscAndMethod((std::string&)*meth, *disc);
 
   // feed out 
   std::auto_ptr<TtSemiEvent> pOut(new TtSemiEvent);

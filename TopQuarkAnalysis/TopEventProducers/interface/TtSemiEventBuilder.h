@@ -39,6 +39,12 @@ class TtSemiEventBuilder : public edm::EDProducer {
   edm::InputTag match_;
   edm::InputTag sumPt_;
   edm::InputTag sumDR_;
+
+  // mvaDisc extras
+
+  edm::ParameterSet mvaDisc_;
+  edm::InputTag meth_;
+  edm::InputTag disc_;
 };
 
 #endif
