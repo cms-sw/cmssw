@@ -52,6 +52,9 @@ class CSCTMBData {
   std::bitset<22> nextCRC22_D16(const std::bitset<16>& D, const std::bitset<22>& C);
   int TMBCRCcalc();
   
+  /// tests packing
+  static void selfTest();
+
  private:
 
   int CRCCnt;
