@@ -5,10 +5,6 @@
   <MinEventTime  Value="0.000648022" />
   <TotalTime  Value="0.017045" />
 </TimingService>
-<StorageStatistics>
-Storage parameters: adaptor: true Stats:true Buffering:false Caching:0,0
-Storage statistics: ; tfile/read=?/?/0MB/?ms/?ms/?ms; tfile/write=?/?/0MB/?ms/?ms/?ms
-</StorageStatistics>
 
 <GeneratorInfo>
 </GeneratorInfo>
