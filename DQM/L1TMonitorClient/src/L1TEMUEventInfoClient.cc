@@ -86,26 +86,26 @@ void L1TEMUEventInfoClient::beginJob(const EventSetup& context){
   
   for (int i = 0; i < nSubsystems; i++) {    
 
-  if(i==0)  sprintf(histo,"l1t_dqm_emuGT");
-  if(i==1)  sprintf(histo,"l1t_dqm_emuGMT");
-  if(i==2)  sprintf(histo,"l1t_dqm_emuGCT");
-  if(i==3)  sprintf(histo,"l1t_dqm_emuRCT");
-  if(i==4)  sprintf(histo,"l1t_dqm_emuDTTF");
-  if(i==5)  sprintf(histo,"l1t_dqm_emuRPCTF");
-  if(i==6)  sprintf(histo,"l1t_dqm_emuCSCTF");
-  if(i==7)  sprintf(histo,"l1t_dqm_emuDTTPG");
-  if(i==8)  sprintf(histo,"l1t_dqm_emuRPCTPG");
-  if(i==9)  sprintf(histo,"l1t_dqm_emuCSCTPG");
-  if(i==10) sprintf(histo,"l1t_dqm_emuECAL");
-  if(i==11) sprintf(histo,"l1t_dqm_emuHCAL");
-  if(i==12) sprintf(histo,"l1t_dqm_emuEMUL");
-  if(i==13) sprintf(histo,"l1t_dqm_Test1");
-  if(i==14) sprintf(histo,"l1t_dqm_Test2");
-  if(i==15) sprintf(histo,"l1t_dqm_Test3");
-  if(i==16) sprintf(histo,"l1t_dqm_Test4");
-  if(i==17) sprintf(histo,"l1t_dqm_Test5");
-  if(i==18) sprintf(histo,"l1t_dqm_Test6");
-  if(i==19) sprintf(histo,"l1t_dqm_Test7");
+  if(i==0)  sprintf(histo,"L1TEMU_GT");
+  if(i==1)  sprintf(histo,"L1TEMU_GMT");
+  if(i==2)  sprintf(histo,"L1TEMU_GCT");
+  if(i==3)  sprintf(histo,"L1TEMU_RCT");
+  if(i==4)  sprintf(histo,"L1TEMU_DTTF");
+  if(i==5)  sprintf(histo,"L1TEMU_RPCTF");
+  if(i==6)  sprintf(histo,"L1TEMU_CSCTF");
+  if(i==7)  sprintf(histo,"L1TEMU_DTTPG");
+  if(i==8)  sprintf(histo,"L1TEMU_RPCTPG");
+  if(i==9)  sprintf(histo,"L1TEMU_CSCTPG");
+  if(i==10) sprintf(histo,"L1TEMU_ECAL");
+  if(i==11) sprintf(histo,"L1TEMU_HCAL");
+  if(i==12) sprintf(histo,"L1TEMU_EMUL");
+  if(i==13) sprintf(histo,"L1TEMU_Test1");
+  if(i==14) sprintf(histo,"L1TEMU_Test2");
+  if(i==15) sprintf(histo,"L1TEMU_Test3");
+  if(i==16) sprintf(histo,"L1TEMU_Test4");
+  if(i==17) sprintf(histo,"L1TEMU_Test5");
+  if(i==18) sprintf(histo,"L1TEMU_Test6");
+  if(i==19) sprintf(histo,"L1TEMU_Test7");
   
 //  if( reportSummaryContent_[i] = dbe_->get("L1T/EventInfo/reportSummaryContents/" + histo) ) 
 //  {
