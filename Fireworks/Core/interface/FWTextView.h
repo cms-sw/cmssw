@@ -17,7 +17,6 @@ class TrackTableManager;
 class VertexTableManager;
 class TGMainFrame;
 class TGTab;
-class TGWindow;
 class TGCompositeFrame;
 class TGTransientFrame;
 class FWTableManager;
@@ -49,7 +48,7 @@ public:
      TGCompositeFrame			*frame;
      TGTab				*parent_tab;
      TGTransientFrame			*undocked;
-     const TGWindow			*parent;
+     TGCompositeFrame			*parent;
      FWTextView				*view;
      FWTextViewPage			*prev;
      FWTextViewPage			*next;

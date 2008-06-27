@@ -72,36 +72,44 @@ void FWTextViewPage::undock ()
    // transient frame. Keep a pointer on the transient frame to be able to
    // swallow the child frame back to this.
    if (frame) {
-	parent = frame->GetParent();
-	frame->UnmapWindow();
-	TGTransientFrame *undocked = new 
+	parent = (TGCompositeFrame *)dynamic_cast<const TGCompositeFrame *>(frame->GetParent());
+	assert(parent != 0);
+	printf("this frame: %d, parent: %d; TGTab: %d\n", 
+	       frame->GetId(), parent->GetId(), parent_tab->GetId());
+// 	frame->UnmapWindow();
+	undocked = new 
 	     TGTransientFrame(gClient->GetDefaultRoot(), frame, 800, 600);
 	frame->ReparentWindow(undocked);
-	undocked->AddFrame(frame, new TGLayoutHints(kLHintsExpandX | kLHintsExpandY));
+	undocked->AddFrame(frame, new TGLayoutHints(kLHintsExpandX |
+						    kLHintsExpandY));
 	// Layout...
 	undocked->MapSubwindows();
 	undocked->Layout();
 	undocked->MapWindow();
-//       RemoveFrame(frame);
-	undocked->Connect("CloseWindow()", "FWTextViewPage", this, "redock()");
+// 	parent->RemoveFrame(frame);
+	undocked->Connect("CloseWindow()", "FWTextViewPage", this,
+			  "redock()");
    }
 }
 
 void FWTextViewPage::redock ()
 {
-     // doesn't work yet
-     return;
-   if (undocked) {
-      TGFrame *frame = (TGFrame *)dynamic_cast<TGFrameElement*>(undocked->GetList()->First())->fFrame;
-      frame->UnmapWindow();
-      undocked->RemoveFrame(frame);
-      frame->ReparentWindow(parent);
-      // Layout...
-      frame->MapSubwindows();
-      frame->Layout();
-      undocked->CloseWindow();
-      undocked = 0;
-   }
+     if (undocked) {
+	  TGFrame *frame = (TGFrame *)
+	       dynamic_cast<TGFrameElement*>(undocked->GetList()->First())->fFrame;
+	  printf("undocked window: %d, frame to reparent: %d; parent: %d\n", 
+		 undocked->GetId(), frame->GetId(), parent->GetId());
+	  frame->UnmapWindow();
+	  undocked->RemoveFrame(frame);
+	  frame->ReparentWindow(parent);
+// 	  parent->AddFrame(frame, new TGLayoutHints(kLHintsExpandX |
+// 						    kLHintsExpandY));
+	  // Layout...
+	  parent->MapSubwindows();
+	  parent->Layout();
+	  undocked->CloseWindow();
+	  undocked = 0;
+     }
 }
 
 void FWTextViewPage::setNext (FWTextViewPage *p)
@@ -135,8 +143,8 @@ void FWTextViewPage::update ()
      printf("current tab is %d\n", parent_tab->GetCurrent());
      for (std::vector<FWTableManager *>::const_iterator i = tables.begin();
 	  i != tables.end(); ++i) {
-	  (*i)->Update();
-// 	  (*i)->Update(std::min(10, (*i)->NumberOfRows()));
+ 	  (*i)->Update();
+//  	  (*i)->Update(std::min(10, (*i)->NumberOfRows()));
      }
 }
 
