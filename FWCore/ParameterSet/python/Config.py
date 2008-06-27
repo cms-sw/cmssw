@@ -58,6 +58,10 @@ class Process(object):
         self.__dict__['_cloneToObjectDict'] = {}
         # policy switch to avoid object overwriting during extend/load
         self.__dict__['_Process__OverWriteCheck'] = False
+        self.__isStrict = False
+
+    def setStrict(self, value):
+        self.__isStrict = value
 
     def __setstate__(self, pkldict):
         """
@@ -152,6 +156,10 @@ class Process(object):
         return DictTypes.FixedKeysDict(self.__vpsets)
     vpsets = property(vpsets_,doc="dictionary containing the PSets for the process")
     def __setattr__(self,name,value):
+        # private variable exempt from all this
+        if name.startswith('_Process__'):
+            self.__dict__[name]=value
+            return
         if not isinstance(value,_ConfigureComponent):
             raise TypeError("can only assign labels to an object which inherits from '_ConfigureComponent'\n"
                             +"an instance of "+str(type(value))+" will not work")
@@ -163,7 +171,11 @@ class Process(object):
                 raise TypeError("an instance of "+str(type(value))+" can not be assigned the label '"+name+"'.\n"+
                                 "Please either use the label '"+value.type_()+" or use the 'add_' method instead.")
         #clone the item
-        newValue =value.copy()
+        if self.__isStrict:
+            newValue =value.copy()
+            value.setIsFrozen()
+        else:
+            newValue =value
         if not self._okToPlace(name, value, self.__dict__):
             #print "WARNING: trying to override definition of process."+name
             return
@@ -174,8 +186,6 @@ class Process(object):
             self._cloneToObjectDict[id(newValue)] = newValue
         #now put in proper bucket
         newValue._place(name,self)
-        #the old value is read only now
-        value.setIsFrozen()
         
     def __delattr__(self,name):
         pass
@@ -187,10 +197,13 @@ class Process(object):
         if not isinstance(value,_Unlabelable):
             raise TypeError
         #clone the item
-        newValue =value.copy()
+        #clone the item
+        if self.__isStrict:
+            newValue =value.copy()
+            value.setIsFrozen()
+        else:
+            newValue =value
         newValue._place('',self)
-        #the old value is read only now
-        value.setIsFrozen()        
         
     def _okToPlace(self, name, mod, d):
         if not self.__OverWriteCheck:  
@@ -944,10 +957,10 @@ process.schedule = cms.Schedule(process.p2,process.p)
             m.p.i = 2
             process.m = m
             # should be frozen
-            self.assertRaises(ValueError, setattr, m.p, 'i', 3)
-            self.assertRaises(ValueError, setattr, m, 'p', PSet(i=int32(1)))
-            self.assertRaises(ValueError, setattr, m.p, 'j', 1)
-            self.assertRaises(ValueError, setattr, m, 'j', 1)
+            #self.assertRaises(ValueError, setattr, m.p, 'i', 3)
+            #self.assertRaises(ValueError, setattr, m, 'p', PSet(i=int32(1)))
+            #self.assertRaises(ValueError, setattr, m.p, 'j', 1)
+            #self.assertRaises(ValueError, setattr, m, 'j', 1)
             # But OK to change through the process
             process.m.p.i = 4
             self.assertEqual(process.m.p.i.value(), 4)
