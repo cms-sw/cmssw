@@ -5,15 +5,15 @@
  *  to MC and (eventually) data. 
  *  Implementation file contents follow.
  *
- *  $Date: 2008/04/25 20:38:58 $
- *  $Revision: 1.51 $
+ *  $Date: 2008/06/16 05:20:47 $
+ *  $Revision: 1.52 $
  *  \author Vyacheslav Krutelyov (slava77)
  */
 
 //
 // Original Author:  Vyacheslav Krutelyov
 //         Created:  Fri Mar  3 16:01:24 CST 2006
-// $Id: SteppingHelixPropagator.cc,v 1.51 2008/04/25 20:38:58 slava77 Exp $
+// $Id: SteppingHelixPropagator.cc,v 1.52 2008/06/16 05:20:47 slava77 Exp $
 //
 //
 
@@ -72,6 +72,10 @@ SteppingHelixPropagator::SteppingHelixPropagator(const MagneticField* field,
     svBuf_[i].hasErrorPropagated_ = !noErrorPropagation_;
   }
   defaultStep_ = 5.;
+
+  ecShiftPos_ = 0;
+  ecShiftNeg_ = 0;
+
 }
 
 TrajectoryStateOnSurface 
@@ -1124,6 +1128,10 @@ double SteppingHelixPropagator::getDeDx(const SteppingHelixPropagator::StateInfo
     if (lZ < 785 ) rzLims = MatBounds(380, 1e4, 0, 785);
   }
 
+  //this def makes sense assuming we don't jump into endcap volume from the other z-side in one step
+  //also, it is a positive shift only (at least for now): can't move ec further into the detector
+  double ecShift = sv.r3.z() > 0 ? fabs(ecShiftPos_) : fabs(ecShiftNeg_); 
+
   //this should roughly figure out where things are 
   //(numbers taken from Fig1.1.2 TDR and from geom xmls)
   if (lR < 2.9){ //inside beampipe
@@ -1132,8 +1140,8 @@ double SteppingHelixPropagator::getDeDx(const SteppingHelixPropagator::StateInfo
   }
   else if (lR < 129){
     if (lZ < 294){ 
-      rzLims = MatBounds(2.9, 129, 0, 294);
-      dEdx = dEdx = dEdX_Trk; radX0 = radX0_Trk; 
+      rzLims = MatBounds(2.9, 129, 0, 294); //tracker boundaries
+      dEdx = dEdX_Trk; radX0 = radX0_Trk; 
       //somewhat empirical formula that ~ matches the average if going from 0,0,0
       //assuming "uniform" tracker material
       //doesn't really track material layer to layer
@@ -1144,53 +1152,67 @@ double SteppingHelixPropagator::getDeDx(const SteppingHelixPropagator::StateInfo
       if (lEtaDet > 2.5 && lZ > 20) scaleRadX *= (lEtaDet-1.);
       radX0 *= scaleRadX;
     }
-    else if (lZ < 372){ 
-      rzLims = MatBounds(2.9, 129, 294, 372);
+    //endcap part begins here
+    else if ( lZ < 294 + ecShift ){
+      //gap in front of EE here, piece inside 2.9<R<129
+      rzLims = MatBounds(2.9, 129, 294, 294 + ecShift); 
+      dEdx = dEdX_Air; radX0 = radX0_Air;
+    }
+    else if (lZ < 372 + ecShift){ 
+      rzLims = MatBounds(2.9, 129, 294 + ecShift, 372 + ecShift); //EE here, piece inside 2.9<R<129
       dEdx = dEdX_ECal; radX0 = radX0_ECal; 
     }//EE averaged out over a larger space
-    else if (lZ < 398){
-      rzLims = MatBounds(2.9, 129, 372, 398);
+    else if (lZ < 398 + ecShift){
+      rzLims = MatBounds(2.9, 129, 372 + ecShift, 398 + ecShift); //whatever goes behind EE 2.9<R<129 is air up to Z=398
       dEdx = dEdX_HCal*0.05; radX0 = radX0_Air; 
     }//betw EE and HE
-    else if (lZ < 555){ 
-      rzLims = MatBounds(2.9, 129, 398, 555);
+    else if (lZ < 555 + ecShift){ 
+      rzLims = MatBounds(2.9, 129, 398 + ecShift, 555 + ecShift); //HE piece 2.9<R<129; 
       dEdx = dEdX_HCal*0.96; radX0 = radX0_HCal/0.96; 
     } //HE calor abit less dense
     else {
       //      rzLims = MatBounds(2.9, 129, 555, 785);
-      if (lZ < 568 ) rzLims = MatBounds(2.9, 129, 555, 568);
-      else if (lZ < 625){
-	if (lR < 85) rzLims = MatBounds(2.9, 85, 568, 625);
-	else rzLims = MatBounds(85, 129, 568, 625);
-      } else if (lZ < 785) rzLims = MatBounds(2.9, 129, 625, 785);
+      // set the boundaries first: they serve as stop-points here
+      // the material is set below
+      if (lZ < 568  + ecShift) rzLims = MatBounds(2.9, 129, 555 + ecShift, 568 + ecShift); //a piece of HE support R<129, 555<Z<568
+      else if (lZ < 625 + ecShift){
+	if (lR < 85 + ecShift) rzLims = MatBounds(2.9, 85, 568 + ecShift, 625 + ecShift); 
+	else rzLims = MatBounds(85, 129, 568 + ecShift, 625 + ecShift);
+      } else if (lZ < 785 + ecShift) rzLims = MatBounds(2.9, 129, 625 + ecShift, 785 + ecShift);
+      else if (lZ < 1500 + ecShift)  rzLims = MatBounds(2.9, 129, 785 + ecShift, 1500 + ecShift);
+      else rzLims = MatBounds(2.9, 129, 1500 + ecShift, 1E4);
 
       //iron .. don't care about no material in front of HF (too forward)
-      if (! (lZ > 568 && lZ < 625 && lR > 85 ) // HE support 
-	  && ! (lZ > 785 && lZ < 850 && lR > 118)) {dEdx = dEdX_Fe; radX0 = radX0_Fe; }
+      if (! (lZ > 568 + ecShift && lZ < 625 + ecShift && lR > 85 ) // HE support 
+	  && ! (lZ > 785 + ecShift && lZ < 850 + ecShift && lR > 118)) {dEdx = dEdX_Fe; radX0 = radX0_Fe; }
       else  { dEdx = dEdX_MCh; radX0 = radX0_MCh; } //ME at eta > 2.2
     }
   }
   else if (lR < 287){
-    if (lZ < 372 && lR < 177){ 
-      if (lZ < 304) rzLims = MatBounds(129, 177, 0, 304);
-      else if (lZ < 343){
-	if (lR < 135 ) rzLims = MatBounds(129, 135, 304, 343);
-	else if (lR < 172 ){
+    if (lZ < 372 + ecShift && lR < 177){ // 129<<R<177
+      if (lZ < 304) rzLims = MatBounds(129, 177, 0, 304); //EB  129<<R<177 0<Z<304
+      else if (lZ < 343){ // 129<<R<177 304<Z<343
+	if (lR < 135 ) rzLims = MatBounds(129, 135, 304, 343);// tk piece 129<<R<135 304<Z<343
+	else if (lR < 172 ){ //
 	  if (lZ < 311 ) rzLims = MatBounds(135, 172, 304, 311);
 	  else rzLims = MatBounds(135, 172, 311, 343);
 	} else {
 	  if (lZ < 328) rzLims = MatBounds(172, 177, 304, 328);
 	  else rzLims = MatBounds(172, 177, 328, 343);
 	}
-      } else {
-	if (lR < 156 ) rzLims = MatBounds(129, 156, 343, 372);
-	else if ( (lZ - 343) > (lR - 156)*1.38 ) 
-	  rzLims = MatBounds(156, 177, 127.73, 372, 0.943726, 0);
-	else rzLims = MatBounds(156, 177, 343, 127.73, 0, 0.943726);
+      }
+      else if ( lZ < 343 + ecShift){
+	rzLims = MatBounds(129, 177, 343, 343 + ecShift); //gap
+      }
+      else {
+	if (lR < 156 ) rzLims = MatBounds(129, 156, 343 + ecShift, 372 + ecShift);
+	else if ( (lZ - 343 - ecShift) > (lR - 156)*1.38 ) 
+	  rzLims = MatBounds(156, 177, 127.73 + ecShift, 372 + ecShift, 0.943726, 0);
+	else rzLims = MatBounds(156, 177, 343 + ecShift, 127.73 + ecShift, 0, 0.943726);
       }
 
-      if (!(lR > 135 && lZ <343 && lZ > 304 )
-	  && ! (lR > 156 && lZ < 372 && lZ > 343 && ((lZ-343.)< (lR-156.)*1.38)))
+      if (!(lR > 135 && lZ <343 + ecShift && lZ > 304 )
+	  && ! (lR > 156 && lZ < 372 + ecShift  && lZ > 343 + ecShift  && ((lZ-343. - ecShift )< (lR-156.)*1.38)))
 	{
 	  //the crystals are the same length, but they are not 100% of material
 	  double cosThetaEquiv = 0.8/sqrt(1.+lZ*lZ/lR/lR) + 0.2;
@@ -1200,103 +1222,119 @@ double SteppingHelixPropagator::getDeDx(const SteppingHelixPropagator::StateInfo
       else { 
 	if ( (lZ > 304 && lZ < 328 && lR < 177 && lR > 135) 
 	     && ! (lZ > 311 && lR < 172) ) {dEdx = dEdX_Fe; radX0 = radX0_Fe; } //Tk_Support
-	else {dEdx = dEdX_ECal*0.2; radX0 = radX0_Air;} //cables go here
+	else if ( lZ > 343 && lZ < 343 + ecShift) { dEdx = dEdX_Air; radX0 = radX0_Air; }
+	else {dEdx = dEdX_ECal*0.2; radX0 = radX0_Air;} //cables go here <-- will be abit too dense for ecShift > 0
       }
     }
-    else if (lZ < 554){ 
-      if (lR < 177){
-	if ( lZ > 372 && lZ < 398 )rzLims = MatBounds(129, 177, 372, 398);
-	else if (lZ < 548) rzLims = MatBounds(129, 177, 398, 548);
-	else rzLims = MatBounds(129, 177, 548, 554);
+    else if (lZ < 554 + ecShift){ // 129<R<177 372<Z<554  AND 177<R<287 0<Z<554
+      if (lR < 177){ //  129<R<177 372<Z<554
+	if ( lZ > 372 + ecShift && lZ < 398 + ecShift )rzLims = MatBounds(129, 177, 372 + ecShift, 398 + ecShift); // EE 129<R<177 372<Z<398
+	else if (lZ < 548 + ecShift) rzLims = MatBounds(129, 177, 398 + ecShift, 548 + ecShift); // HE 129<R<177 398<Z<548
+	else rzLims = MatBounds(129, 177, 548 + ecShift, 554 + ecShift); // HE gap 129<R<177 548<Z<554
       }
-      else if (lR < 193){
+      else if (lR < 193){ // 177<R<193 0<Z<554
 	if ((lZ - 307) < (lR - 177.)*1.739) rzLims = MatBounds(177, 193, 0, -0.803, 0, 1.04893);
 	else if ( lZ < 389)  rzLims = MatBounds(177, 193, -0.803, 389, 1.04893, 0.);
-	else if ( lZ < 548 ) rzLims = MatBounds(177, 193, 389, 548);
-	else rzLims = MatBounds(177, 193, 548, 554);
+	else if ( lZ < 389 + ecShift)  rzLims = MatBounds(177, 193, 389, 389 + ecShift); // air insert
+	else if ( lZ < 548 + ecShift ) rzLims = MatBounds(177, 193, 389 + ecShift, 548 + ecShift);// HE 177<R<193 389<Z<548
+	else rzLims = MatBounds(177, 193, 548 + ecShift, 554 + ecShift); // HE gap 177<R<193 548<Z<554
       }
-      else if (lR < 264){
-	if ( (lZ - 375.7278) < (lR - 193.)/1.327) rzLims = MatBounds(193, 264, 0, 230.287, 0, 0.645788);
-	else if ( (lZ - 392.7278) < (lR - 193.)/1.327) 
-	  rzLims = MatBounds(193, 264, 230.287, 247.287, 0.645788, 0.645788);
-	else if ( lZ < 517 ) rzLims = MatBounds(193, 264, 247.287, 517, 0.645788, 0);
-	else if (lZ < 548){
-	  if (lR < 246 ) rzLims = MatBounds(193, 246, 517, 548);
-	  else rzLims = MatBounds(246, 264, 517, 548);
-	}
-	else rzLims = MatBounds(193, 264, 548, 554);
+      else if (lR < 264){ // 193<R<264 0<Z<554
+	if ( (lZ - 375.7278) < (lR - 193.)/1.327) rzLims = MatBounds(193, 264, 0, 230.287, 0, 0.645788); //HB
+	else if ( (lZ - 392.7278 ) < (lR - 193.)/1.327) 
+	  rzLims = MatBounds(193, 264, 230.287, 247.287, 0.645788, 0.645788); // HB-HE gap
+	else if ( (lZ - 392.7278 - ecShift ) < (lR - 193.)/1.327) 
+	  rzLims = MatBounds(193, 264, 247.287, 247.287 + ecShift, 0.645788, 0.645788); // HB-HE gap air insert
+	// HE (372,193)-(517,193)-(517,264)-(417.8,264)
+	else if ( lZ < 517 + ecShift ) rzLims = MatBounds(193, 264, 247.287 + ecShift, 517 + ecShift, 0.645788, 0);
+	else if (lZ < 548 + ecShift){ // HE+gap 193<R<264 517<Z<548
+	  if (lR < 246 ) rzLims = MatBounds(193, 246, 517 + ecShift, 548 + ecShift); // HE 193<R<246 517<Z<548
+	  else rzLims = MatBounds(246, 264, 517 + ecShift, 548 + ecShift); // HE gap 246<R<264 517<Z<548
+	} 
+	else rzLims = MatBounds(193, 264, 548 + ecShift, 554 + ecShift); // HE gap  193<R<246 548<Z<554
       }
-      else if ( lR < 275){
-	if (lZ < 433) rzLims = MatBounds(264, 275, 0, 433);
-	else rzLims = MatBounds(264, 275, 433, 554);
+      else if ( lR < 275){ // 264<R<275 0<Z<554
+	if (lZ < 433) rzLims = MatBounds(264, 275, 0, 433); //HB
+	else if (lZ < 554 ) rzLims = MatBounds(264, 275, 433, 554); // HE gap 264<R<275 433<Z<554
+	else rzLims = MatBounds(264, 275, 554, 554 + ecShift); // HE gap 264<R<275 554<Z<554 air insert
       }
-      else {
-	if (lZ < 402) rzLims = MatBounds(275, 287, 0, 402);
-	else rzLims = MatBounds(275, 287, 402, 554);
+      else { // 275<R<287 0<Z<554
+	if (lZ < 402) rzLims = MatBounds(275, 287, 0, 402);// HB 275<R<287 0<Z<402
+	else if (lZ < 554) rzLims = MatBounds(275, 287, 402, 554);//  //HE gap 275<R<287 402<Z<554
+	else rzLims = MatBounds(275, 287, 554, 554 + ecShift); //HE gap 275<R<287 554<Z<554 air insert
       }
 
-      if ((lZ < 433 || lR < 264) && (lZ < 402 || lR < 275) && (lZ < 517 || lR < 246) //notches
+      if ((lZ < 433 || lR < 264) && (lZ < 402 || lR < 275) && (lZ < 517 + ecShift || lR < 246) //notches
 	  //I should've made HE and HF different .. now need to shorten HE to match
-	  && lZ < 548
-	  && ! (lZ < 389 && lZ > 335 && lR < 193 ) //not a gap
-	  && ! (lZ > 307 && lZ < 335 && lR < 193 && ((lZ - 307) > (lR - 177.)*1.739)) //not a gap
-	  && ! (lR < 177 && lZ < 398) //under the HE nose
-	  && ! (lR < 264 && lR > 175 && fabs(441.5 - lZ + (lR - 269.)/1.327) < 8.5) ) //not a gap
-	{ dEdx = dEdX_HCal; radX0 = radX0_HCal; }//hcal
+	  && lZ < 548 + ecShift
+	  && ! (lZ < 389 + ecShift && lZ > 335 && lR < 193 ) //not a gap EB-EE 129<R<193
+	  && ! (lZ > 307 && lZ < 335 && lR < 193 && ((lZ - 307) > (lR - 177.)*1.739)) //not a gap 
+	  && ! (lR < 177 && lZ < 398 + ecShift) //under the HE nose
+	  && ! (lR < 264 && lR > 175 && fabs(441.5+0.5*ecShift - lZ + (lR - 269.)/1.327) < (8.5 + ecShift*0.5)) ) //not a gap
+	{ dEdx = dEdX_HCal; radX0 = radX0_HCal; //hcal
+	}
+      else if( (lR < 193 && lZ > 389 && lZ < 389 + ecShift ) || (lR > 264 && lR < 287 && lZ > 554 && lZ < 554 + ecShift)
+	       ||(lR < 264 && lR > 175 && fabs(441.5+8.5+0.5*ecShift - lZ + (lR - 269.)/1.327) < ecShift*0.5) )  {
+	dEdx = dEdX_Air; radX0 = radX0_Air; 
+      }
       else {dEdx = dEdX_HCal*0.05; radX0 = radX0_Air; }//endcap gap
     }
-    else if (lZ < 564){
+    //the rest is a tube of endcap volume  129<R<251 554<Z<largeValue
+    else if (lZ < 564 + ecShift){ // 129<R<287  554<Z<564
       if (lR < 251) {
-	rzLims = MatBounds(129, 251, 554, 564);      
+	rzLims = MatBounds(129, 251, 554 + ecShift, 564 + ecShift);  // HE support 129<R<251  554<Z<564    
 	dEdx = dEdX_Fe; radX0 = radX0_Fe; 
       }//HE support
       else { 
-	rzLims = MatBounds(251, 287, 554, 564);      
+	rzLims = MatBounds(251, 287, 554 + ecShift, 564 + ecShift); //HE/ME gap 251<R<287  554<Z<564    
 	dEdx = dEdX_MCh; radX0 = radX0_MCh; 
       }
     }
-    else if (lZ < 625){ 
-      rzLims = MatBounds(129, 287, 564, 625);      
+    else if (lZ < 625 + ecShift){ // ME/1/1 129<R<287  564<Z<625
+      rzLims = MatBounds(129, 287, 564 + ecShift, 625 + ecShift);      
       dEdx = dEdX_MCh; radX0 = radX0_MCh; 
     }
-    else if (lZ < 785){
-      if (lR < 275) rzLims = MatBounds(129, 275, 625, 785);
-      else {
-	if (lZ < 720) rzLims = MatBounds(275, 287, 625, 720);
-	else rzLims = MatBounds(275, 287, 720, 785);
+    else if (lZ < 785 + ecShift){ //129<R<287  625<Z<785
+      if (lR < 275) rzLims = MatBounds(129, 275, 625 + ecShift, 785 + ecShift); //YE/1 129<R<275 625<Z<785
+      else { // 275<R<287  625<Z<785
+	if (lZ < 720 + ecShift) rzLims = MatBounds(275, 287, 625 + ecShift, 720 + ecShift); // ME/1/2 275<R<287  625<Z<720
+	else rzLims = MatBounds(275, 287, 720 + ecShift, 785 + ecShift); // YE/1 275<R<287  720<Z<785
       }
-      if (! (lR > 275 && lZ < 720)) { dEdx = dEdX_Fe; radX0 = radX0_Fe; }//iron
+      if (! (lR > 275 && lZ < 720 + ecShift)) { dEdx = dEdX_Fe; radX0 = radX0_Fe; }//iron
       else { dEdx = dEdX_MCh; radX0 = radX0_MCh; }
     }
-    else if (lZ < 850){
-      rzLims = MatBounds(129, 287, 785, 850);
+    else if (lZ < 850 + ecShift){
+      rzLims = MatBounds(129, 287, 785 + ecShift, 850 + ecShift);
       dEdx = dEdX_MCh; radX0 = radX0_MCh; 
     }
-    else if (lZ < 910){
-      rzLims = MatBounds(129, 287, 850, 910);
+    else if (lZ < 910 + ecShift){
+      rzLims = MatBounds(129, 287, 850 + ecShift, 910 + ecShift);
       dEdx = dEdX_Fe; radX0 = radX0_Fe; 
     }//iron
-    else if (lZ < 975){
-      rzLims = MatBounds(129, 287, 910, 975);
+    else if (lZ < 975 + ecShift){
+      rzLims = MatBounds(129, 287, 910 + ecShift, 975 + ecShift);
       dEdx = dEdX_MCh; radX0 = radX0_MCh; 
     }
-    else if (lZ < 1000){
-      rzLims = MatBounds(129, 287, 975, 1000);
+    else if (lZ < 1000 + ecShift){
+      rzLims = MatBounds(129, 287, 975 + ecShift, 1000 + ecShift);
       dEdx = dEdX_Fe; radX0 = radX0_Fe; 
     }//iron
-    else if (lZ < 1063){
-      rzLims = MatBounds(129, 287, 1000, 1063);
+    else if (lZ < 1063 + ecShift){
+      rzLims = MatBounds(129, 287, 1000 + ecShift, 1063 + ecShift);
       dEdx = dEdX_MCh; radX0 = radX0_MCh; 
     }
-    else if ( lZ < 1073){
-      rzLims = MatBounds(129, 287, 1063, 1073);
+    else if ( lZ < 1073 + ecShift){
+      rzLims = MatBounds(129, 287, 1063 + ecShift, 1073 + ecShift);
       dEdx = dEdX_Fe; radX0 = radX0_Fe; 
     }
     else if (lZ < 1E4 )  { 
-      rzLims = MatBounds(129, 287, 1073, 1E4);
+      rzLims = MatBounds(129, 287, 1073 + ecShift, 1E4);
       dEdx = dEdX_Air; radX0 = radX0_Air;
     }
-    else { dEdx = dEdX_Air; radX0 = radX0_Air;}
+    else { 
+      
+      dEdx = dEdX_Air; radX0 = radX0_Air;
+    }
   }
   else if (lR <380 && lZ < 667){
     if (lZ < 630){
@@ -1324,57 +1362,64 @@ double SteppingHelixPropagator::getDeDx(const SteppingHelixPropagator::StateInfo
 	rzLims = MatBounds(380, 850, 0, 667);
 	if (isIron) { dEdx = dEdX_Fe; radX0 = radX0_Fe; }//iron
 	else { dEdx = dEdX_MCh; radX0 = radX0_MCh; }
-      } else {dEdx = dEdX_Air; radX0 = radX0_Air; }
+      } else {
+	rzLims = MatBounds(850, 1E4, 0, 667);
+	dEdx = dEdX_Air; radX0 = radX0_Air; 
+      }
     } 
     else if (lR > 750 ){
       rzLims = MatBounds(750, 1E4, 667, 1E4);
       dEdx = dEdX_Air; radX0 = radX0_Air; 
     }
-    else if (lZ < 724){
-      if (lR < 380 ) rzLims = MatBounds(287, 380, 667, 724); 
-      else rzLims = MatBounds(380, 750, 667, 724); 
+    else if (lZ < 667 + ecShift){
+      rzLims = MatBounds(287, 750, 667, 667 + ecShift);
+      dEdx = dEdX_Air; radX0 = radX0_Air;       
+    }
+    //the rest is endcap piece with 287<R<750 Z>667
+    else if (lZ < 724 + ecShift){
+      if (lR < 380 ) rzLims = MatBounds(287, 380, 667 + ecShift, 724 + ecShift); 
+      else rzLims = MatBounds(380, 750, 667 + ecShift, 724 + ecShift); 
       dEdx = dEdX_MCh; radX0 = radX0_MCh; 
     }
-    else if (lZ < 785){
-      if (lR < 380 ) rzLims = MatBounds(287, 380, 724, 785); 
-      else rzLims = MatBounds(380, 750, 724, 785); 
+    else if (lZ < 785 + ecShift){
+      if (lR < 380 ) rzLims = MatBounds(287, 380, 724 + ecShift, 785 + ecShift); 
+      else rzLims = MatBounds(380, 750, 724 + ecShift, 785 + ecShift); 
       dEdx = dEdX_Fe; radX0 = radX0_Fe; 
     }//iron
-    else if (lZ < 850){
-      rzLims = MatBounds(287, 750, 785, 850); 
+    else if (lZ < 850 + ecShift){
+      rzLims = MatBounds(287, 750, 785 + ecShift, 850 + ecShift); 
       dEdx = dEdX_MCh; radX0 = radX0_MCh; 
     }
-    else if (lZ < 910){
-      rzLims = MatBounds(287, 750, 850, 910); 
+    else if (lZ < 910 + ecShift){
+      rzLims = MatBounds(287, 750, 850 + ecShift, 910 + ecShift); 
       dEdx = dEdX_Fe; radX0 = radX0_Fe; 
     }//iron
-    else if (lZ < 975){
-      rzLims = MatBounds(287, 750, 910, 975); 
+    else if (lZ < 975 + ecShift){
+      rzLims = MatBounds(287, 750, 910 + ecShift, 975 + ecShift); 
       dEdx = dEdX_MCh; radX0 = radX0_MCh; 
     }
-    else if (lZ < 1000){
-      rzLims = MatBounds(287, 750, 975, 1000); 
+    else if (lZ < 1000 + ecShift){
+      rzLims = MatBounds(287, 750, 975 + ecShift, 1000 + ecShift); 
       dEdx = dEdX_Fe; radX0 = radX0_Fe; 
     }//iron
-    else if (lZ < 1063){
-      //account for ME4/1, not ME4/2
-      if (lR<360){
-	rzLims = MatBounds(287, 360, 1000, 1063);
+    else if (lZ < 1063 + ecShift){
+      if (lR < 360){
+	rzLims = MatBounds(287, 360, 1000 + ecShift, 1063 + ecShift);
 	dEdx = dEdX_MCh; radX0 = radX0_MCh; 
-      }
-      //put air where me4/2 should be (future)
+      } 
+      //put empty air where me4/2 should be (future)
       else {
-        rzLims = MatBounds(360, 750, 1000, 1063);
+        rzLims = MatBounds(360, 750, 1000 + ecShift, 1063 + ecShift);
         dEdx = dEdX_Air; radX0 = radX0_Air;
       }
     }
-    else if ( lZ < 1073){
-      rzLims = MatBounds(287, 750, 1063, 1073);
+    else if ( lZ < 1073 + ecShift){
+      rzLims = MatBounds(287, 750, 1063 + ecShift, 1073 + ecShift);
       //this plate does not exist: air
       dEdx = dEdX_Air; radX0 = radX0_Air; 
     }
     else if (lZ < 1E4 )  { 
-      rzLims = MatBounds(287, 750, 1073, 1E4);
+      rzLims = MatBounds(287, 750, 1073 + ecShift, 1E4);
       dEdx = dEdX_Air; radX0 = radX0_Air;
     }
     else {dEdx = dEdX_Air; radX0 = radX0_Air; }//air
