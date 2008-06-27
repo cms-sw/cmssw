@@ -1,7 +1,7 @@
 #include "DataFormats/ParticleFlowReco/interface/PFTrack.h"
 #include "Math/GenVector/PositionVector3D.h" 
 #include "DataFormats/Math/interface/Point3D.h" 
-// #include "FWCore/MessageLogger/interface/MessageLogger.h"
+#include "FWCore/Utilities/interface/Exception.h"
 
 using namespace reco;
 using namespace std;
@@ -80,7 +80,14 @@ const reco::PFTrajectoryPoint& PFTrack::extrapolatedPoint(unsigned layerid) cons
 
     // cout<<(*this)<<endl;
     // cout<<"lid "<<layerid<<" "<<nTrajectoryMeasurements()<<" "<<trajectoryPoints_.size()<<endl;
-    assert(0);
+    
+    throw cms::Exception("SizeError")<<"PFRecTrack::extrapolatedPoint: cannot access "
+				     <<layerid
+				     <<" #traj meas = "<<nTrajectoryMeasurements()
+				     <<" #traj points = "<<trajectoryPoints_.size()
+				     <<endl
+				     <<(*this);
+    // assert(0);
   }
   if (layerid < indexInnermost_)
     return trajectoryPoints_[ layerid ];
