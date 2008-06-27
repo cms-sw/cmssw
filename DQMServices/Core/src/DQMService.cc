@@ -5,6 +5,8 @@
 #include "DQMServices/Core/interface/DQMScope.h"
 #include "DQMServices/Core/interface/MonitorElement.h"
 #include "FWCore/ServiceRegistry/interface/Service.h"
+#include "classlib/utils/Regexp.h"
+#include "classlib/utils/Error.h"
 #include <pthread.h>
 #include <iostream>
 #include <string>
@@ -44,6 +46,7 @@ releaseDQMAccessM(const edm::ModuleDescription &)
 DQMService::DQMService(const edm::ParameterSet &pset, edm::ActivityRegistry &ar)
   : store_(&*edm::Service<DQMStore>()),
     net_(0),
+    filter_(0),
     lastFlush_(0),
     publishFrequency_(5.0)
 {
@@ -60,6 +63,7 @@ DQMService::DQMService(const edm::ParameterSet &pset, edm::ActivityRegistry &ar)
   int port = pset.getUntrackedParameter<int>("collectorPort", 9090);
   bool verbose = pset.getUntrackedParameter<bool>("verbose", false);
   publishFrequency_ = pset.getUntrackedParameter<double>("publishFrequency", publishFrequency_);
+  std::string filter = pset.getUntrackedParameter<std::string>("filter", "");
 
   if (host != "" && port > 0)
   {
@@ -67,6 +71,26 @@ DQMService::DQMService(const edm::ParameterSet &pset, edm::ActivityRegistry &ar)
     net_->debug(verbose);
     net_->updateToCollector(host, port);
     net_->start();
+  }
+
+  if (! filter.empty())
+  {
+    try
+    {
+      filter_ = new lat::Regexp(filter);
+      if (! filter_->valid())
+	throw cms::Exception("DQMService")
+	  << "Invalid 'filter' parameter value '" << filter << "':"
+	  << " bad regular expression syntax at character "
+	  << filter_->errorOffset() << ": " << filter_->errorMessage();
+      filter_->study();
+    }
+    catch (lat::Error &e)
+    {
+      throw cms::Exception("DQMService")
+	<< "Invalid regular expression 'filter' parameter value '"
+	<< filter << "': " << e.explain();
+    }
   }
 }
 
@@ -102,7 +126,10 @@ DQMService::flush(const edm::Event &, const edm::EventSetup &)
       MonitorElement &me = i->second;
       if (! me.wasUpdated())
 	continue;
-      
+
+      if (filter_ && filter_->search(me.data_.name) < 0)
+	continue;
+
       assert(me.data_.object);
 
       DQMNet::Object o;

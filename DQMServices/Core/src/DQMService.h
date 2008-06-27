@@ -7,6 +7,7 @@
 
 class DQMStore;
 class DQMNet;
+namespace lat { class Regexp; }
 
 /** A bridge to udpate the DQM network layer at the end of every event.  */
 class DQMService
@@ -21,6 +22,7 @@ private:
 
   DQMStore	*store_;
   DQMNet	*net_;
+  lat::Regexp	*filter_;
   double	lastFlush_;
   double	publishFrequency_;
 };
