@@ -9,7 +9,6 @@
 #include "FWCore/Framework/interface/EventSetup.h"
 #include "FWCore/Framework/interface/ESHandle.h"
 #include "RecoEgamma/EgammaMCTools/interface/PhotonMCTruthFinder.h"
-#include "MagneticField/Engine/interface/MagneticField.h"
 #include "SimTracker/TrackAssociation/interface/TrackAssociatorBase.h"
 //
 //DQM services
@@ -24,8 +23,8 @@
  **  
  **
  **  $Id: PhotonValidator
- **  $Date:  $ 
- **  $Revision: $
+ **  $Date: 2008/06/26 20:19:06 $ 
+ **  $Revision: 1.1 $
  **  \author Nancy Marinelli, U. of Notre Dame, US
  **
  ***/
@@ -89,7 +88,7 @@ class PhotonValidator : public edm::EDAnalyzer
   std::string conversionIOTrackProducer_;
 
 
-  edm::ESHandle<MagneticField> theMF_;
+
   PhotonMCTruthFinder*  thePhotonMCTruthFinder_;
   TrackAssociatorBase * theTrackAssociator_;
 

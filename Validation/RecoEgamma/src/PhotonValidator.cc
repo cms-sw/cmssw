@@ -53,7 +53,7 @@
 #include "Geometry/CaloTopology/interface/CaloTopology.h"
 #include "Geometry/CaloEventSetup/interface/CaloTopologyRecord.h"
 //
-#include "MagneticField/Records/interface/IdealMagneticFieldRecord.h"
+//#include "MagneticField/Records/interface/IdealMagneticFieldRecord.h"
 //
 #include "TFile.h"
 #include "TH1.h"
@@ -66,8 +66,8 @@
  **  
  **
  **  $Id: PhotonValidator
- **  $Date:  $ 
- **  $Revision: $
+ **  $Date: 2008/06/26 20:19:58 $ 
+ **  $Revision: 1.1 $
  **  \author Nancy Marinelli, U. of Notre Dame, US
  **
  ***/
