@@ -8,7 +8,7 @@
 //
 // Original Author:  
 //         Created:  Sun Jan  6 23:57:00 EST 2008
-// $Id: MuonsGlimpseProxyBuilder.cc,v 1.1.2.1 2008/06/17 17:54:56 srappocc Exp $
+// $Id: MuonsGlimpseProxyBuilder.cc,v 1.1 2008/06/19 06:57:28 dmytro Exp $
 //
 
 // system include files
@@ -80,7 +80,7 @@ MuonsGlimpseProxyBuilder::build(const FWEventItem* iItem, TEveElementList** prod
        muon != muons->end(); ++muon, ++counter) {
 
       TEveStraightLineSet* marker = new TEveStraightLineSet(counter.str().c_str());
-      marker->SetLineWidth(1);
+      marker->SetLineWidth(2);
       marker->SetLineColor(  iItem->defaultDisplayProperties().color() );
       fw::addStraightLineSegment( marker, &*muon );
       tList->AddElement(marker);
