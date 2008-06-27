@@ -15,6 +15,7 @@
 
 #include "Alignment/CocoaModel/interface/Entry.h"
 #include "Alignment/CocoaUtilities/interface/ALIFileIn.h"
+#include "Alignment/CocoaUtilities/interface/GlobalOptionMgr.h"
 #include "Alignment/CocoaModel/interface/Measurement.h"
 #include "Alignment/CocoaModel/interface/OpticalObject.h"
 #include "Alignment/CocoaModel/interface/ParameterMgr.h"
@@ -23,6 +24,7 @@
 #include "Alignment/IgCocoaFileWriter/interface/IgCocoaFileMgr.h"
 #endif
 #include "CondFormats/OptAlignObjects/interface/OpticalAlignMeasurementInfo.h"
+#include "CondFormats/OptAlignObjects/interface/OpticalAlignInfo.h"
 
 
 ALIdouble Measurement::cameraScaleFactor = 1.;
@@ -88,27 +90,27 @@ void Measurement::construct()
 }
 
 //@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@
-void Measurement::constructFromOA( OpticalAlignMeasurementInfo&  measInfo ) 
+void Measurement::constructFromOA( OpticalAlignMeasurementInfo&  measInfo) 
 {
   //---- Build wordlist to build object name list
   std::vector<std::string> objNames = measInfo.measObjectNames_;
   std::vector<std::string>::const_iterator site;
   std::vector<ALIstring> wordlist;
+  //--- Fill the list of names of OptOs that take part in this measurement ( names only )
   for( site = objNames.begin(); site != objNames.end(); site++) {
     if( site != objNames.begin() ) wordlist.push_back("&");
     wordlist.push_back(*site);
   }
-  //--- Fill the list of names of OptOs that take part in this measurement ( names only )
   buildOptONamesList( wordlist );
-  
+
   if(ALIUtils::debug >= 3) {
-    std::cout << "@@@@ Reading Measurement " << name() << " TYPE= " << type() << " " << measInfo << std::endl
+    std::cout << this << "@@@@ Reading Measurement " << name() << " TYPE= " << type() << " " << measInfo << std::endl
 	      << " MEASURED OPTO NAMES: ";
-    std::ostream_iterator<ALIstring> outs(std::cout," ");
-    copy(wordlist.begin(), wordlist.end(), outs);
+    for( size_t ii = 0; ii < _OptONameList.size(); ii++ ){
+      std::cout << _OptONameList[ii] << " ";
+    }
     std::cout << std::endl;
   }
-
 
   //---------- No data, set to simulated_value
   for ( uint ii=0; ii<dim(); ii++){
@@ -144,6 +146,7 @@ void Measurement::constructFromOA( OpticalAlignMeasurementInfo&  measInfo )
   postConstruct();
 
 }
+
 
 //@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@
 void Measurement::postConstruct()
@@ -195,7 +198,7 @@ void Measurement::buildOptONamesList( const std::vector<ALIstring>& wl )
 void Measurement::fillData( ALIuint coor, const std::vector<ALIstring>& wordlist) 
 {
   if ( ALIUtils::debug >= 3 ) {
-    std::cout << "@@ Reading coordinate " << coor << std::endl ;
+    std::cout << "@@ Filling coordinate " << coor << std::endl ;
     //-   ostream_iterator<ALIstring> outs(std::cout," ");
     //-  copy(wordlist.begin(), wordlist.end(), outs);
   }
@@ -267,6 +270,43 @@ void Measurement::fillData( ALIuint coor, const std::vector<ALIstring>& wordlist
 
 }
 
+
+//@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@
+void Measurement::fillData( ALIuint coor, OpticalAlignParam* oaParam) 
+{
+  if ( ALIUtils::debug >= 3 ) {
+    std::cout << "@@ Filling coordinate " << coor << std::endl ;
+  }
+  
+  ParameterMgr* parmgr = ParameterMgr::getInstance();
+
+  //---------- check coor value
+  if (coor >= theDim ) {
+    std::cerr << "Trying to fill Measurement coordinate No "
+	 << coor << " but the dimension is " << theDim << std::endl; 
+    exit(2);
+  }
+
+  //---------- set data members 
+  //----- Set value (translate it if a PARAMETER is used)
+  ALIdouble val = 0.;
+  theValueIsSimulated[coor] = 0;
+  val = oaParam->value();
+  val *= valueDimensionFactor();
+  theValue[coor] = val;
+  if( ALIUtils::debug >= 3 ) std::cout << "Meas VALUE= " << val << " (ValueDimensionFactor= " << valueDimensionFactor() <<std::endl;
+
+  ALIbool sigmaFF = GlobalOptionMgr::getInstance()->GlobalOptions()["measurementErrorFromFile"];
+  if( sigmaFF ) {
+    //----- Set sigma (translate it if a PARAMETER is used)
+    ALIdouble sig = 0.;
+    sig = oaParam->sigma(); // it is in mm always
+    sig *= sigmaDimensionFactor();
+    theSigma[coor] = sig;
+    if( ALIUtils::debug >= 3) std::cout << "SIGMA= " << sig << " (SigmaDimensionFactor= " << sigmaDimensionFactor() <<std::endl;
+   
+  }
+}
 
 //@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@
 //@@ Once the complete list of OptOs is read, convert OptO names to pointers

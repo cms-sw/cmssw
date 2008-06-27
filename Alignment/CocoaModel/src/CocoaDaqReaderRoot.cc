@@ -1,5 +1,9 @@
 #include "../interface/CocoaDaqReaderRoot.h"
+#include "TFile.h" 
 #include "Alignment/CocoaDaq/interface/CocoaDaqRootEvent.h"
+#include "Alignment/CocoaModel/interface/Measurement.h"
+#include "Alignment/CocoaModel/interface/Model.h"
+#include "Alignment/CocoaUtilities/interface/ALIUtils.h"
 
 #include "CondFormats/OptAlignObjects/interface/OpticalAlignMeasurements.h"
 
@@ -11,12 +15,22 @@
 //----------------------------------------------------------------------
 CocoaDaqReaderRoot::CocoaDaqReaderRoot(const std::string& m_inFileName )
 {
-
+  std::cout << " CocoaDaqReaderRoot opening file: " << m_inFileName << std::endl;
   // Open root file
   theFile = new TFile(m_inFileName.c_str()); 
-
+  if( !theTree ) {
+    std::cerr << " CocoaDaqReaderRoot TTree file not found " << m_inFileName << std::endl;
+    std::exception();
+  }
+  
   // Read TTree named "CocoaDaq" in memory.  !! SHOULD BE CALLED Alignment_Cocoa
-  theTree = (TTree*)theFile->Get("CocoaDaq");
+   theTree = (TTree*)theFile->Get("CocoaDaq");
+  //  theTree = (TTree*)theFile->Get("Alignment_Link_Cocoa");
+  
+  if( !theTree ) {
+    std::cerr << " CocoaDaqReaderRoot TTree in file " << m_inFileName << " should be called 'CocoaDaq' " << std::endl;
+    std::exception();
+  }
 
   nev = theTree->GetEntries(); // number of entries in Tree
   //if ( ALIUtils::debug >= 2) std::cout << "CocoaDaqReaderRoot::CocoaDaqReaderRoot:  number of entries in Tree " << nev << std::endl;
@@ -27,7 +41,8 @@ CocoaDaqReaderRoot::CocoaDaqReaderRoot(const std::string& m_inFileName )
   theEvent = new CocoaDaqRootEvent();
 
   // link pointer to Tree branch
-  theTree->SetBranchAddress("CocoaDaq", &theEvent);  //  !! SHOULD BE CALLED Alignment_Cocoa
+   theTree->SetBranchAddress("CocoaDaq", &theEvent);  //  !! SHOULD BE CALLED Alignment_Cocoa
+  // theTree->SetBranchAddress("Alignment_Link", &theEvent);  //  !! SHOULD BE CALLED Alignment_Cocoa
 
   CocoaDaqReader::SetDaqReader( this );
 
@@ -55,7 +70,7 @@ bool CocoaDaqReaderRoot::ReadEvent( int nev )
   // Loop over all events
   nb = theTree->GetEntry(nev);  // read in entire event
  
-  //if ( ALIUtils::debug >= 2) std::cout << "CocoaDaqReaderRoot reading event " << nev << " " << nb << std::endl;
+ if ( ALIUtils::debug >= -2) std::cout << "CocoaDaqReaderRoot reading event " << nev << " " << nb << std::endl;
   if( nb == 0 ) return 0; //end of file reached??
 
   // Every n events, dump one to screen
@@ -63,35 +78,46 @@ bool CocoaDaqReaderRoot::ReadEvent( int nev )
   
   //if ( ALIUtils::debug >= 2) std::cout<<" CocoaDaqReaderRoot::ReadEvent "<< nev <<std::endl;
 
-   //if ( ALIUtils::debug >= 2) std::cout<<" CocoaDaqReaderRoot::ReadEvent npos2D "<< theEvent->GetNumPos2D() << " nCOPS " << theEvent->GetNumPosCOPS() << std::endl;
+   if ( ALIUtils::debug >= -2) std::cout<<" CocoaDaqReaderRoot::ReadEvent npos2D "<< theEvent->GetNumPos2D() << " nCOPS " << theEvent->GetNumPosCOPS() << std::endl;
   
   for(int ii=0; ii<theEvent->GetNumPos2D(); ii++) {
     AliDaqPosition2D* pos2D = (AliDaqPosition2D*) theEvent->GetArray_Position2D()->At(ii);
- //   std::cout<<"2D sensor "<<ii<<" has ID = "<<pos2D->GetID()
-//	<<" and (x,y) = ("<<pos2D->GetX()<<","<<pos2D->GetY()<<")"<<std::endl;
+    std::cout<<"2D sensor "<<ii<<" has ID = "<<pos2D->GetID()
+	<<" and (x,y) = ("<<pos2D->GetX()<<","<<pos2D->GetY()<<")"<<std::endl;
      measList.push_back( GetMeasFromPosition2D( pos2D ) );
   }
   for(int ii=0; ii<theEvent->GetNumPosCOPS(); ii++) {
     AliDaqPositionCOPS* posCOPS = (AliDaqPositionCOPS*) theEvent->GetArray_PositionCOPS()->At(ii);
-     measList.push_back( GetMeasFromPositionCOPS( posCOPS ) );
-     //if ( ALIUtils::debug >= 2) std::cout<<"COPS sensor "<<ii<<" has ID = "<<posCOPS->GetID()<< std::endl;
-     posCOPS->DumpIt("COPS"); 
- }
+    measList.push_back( GetMeasFromPositionCOPS( posCOPS ) );
+    if ( ALIUtils::debug >= 2) {
+      std::cout<<"COPS sensor "<<ii<<" has ID = "<<posCOPS->GetID()<< std::endl;
+      posCOPS->DumpIt("COPS"); 
+    }
+  }
   for(int ii=0; ii<theEvent->GetNumTilt(); ii++) {
     AliDaqTilt* tilt = (AliDaqTilt*) theEvent->GetArray_Tilt()->At(ii);
-     measList.push_back( GetMeasFromTilt( tilt ) );
+    measList.push_back( GetMeasFromTilt( tilt ) );
+     if ( ALIUtils::debug >= 2) {
+       std::cout<<"TILT sensor "<<ii<<" has ID = "<<tilt->GetID()<< std::endl;
+       tilt->DumpIt("TILT"); 
+     }
+     
   }
   for(int ii=0; ii<theEvent->GetNumDist(); ii++) {
     AliDaqDistance* dist = (AliDaqDistance*) theEvent->GetArray_Dist()->At(ii);
-     measList.push_back( GetMeasFromDist( dist ) );
+    measList.push_back( GetMeasFromDist( dist ) );
+    if ( ALIUtils::debug >= 2) {
+      std::cout<<"DIST sensor "<<ii<<" has ID = "<<dist->GetID()<< std::endl;
+      dist->DumpIt("DIST"); 
+    }
   }
-
+  
   nextEvent = nev + 1;
-
+  
   BuildMeasurementsFromOptAlign( measList );
-
+  
   return 1;
-
+  
 }
 
 //----------------------------------------------------------------------
@@ -176,7 +202,7 @@ OpticalAlignMeasurementInfo CocoaDaqReaderRoot::GetMeasFromTilt( AliDaqTilt* til
 {
   OpticalAlignMeasurementInfo meas;
   
-  meas.type_ = "SENSOR2D";
+  meas.type_ = "TILTMETER";
   meas.name_ = tilt->GetID();
   //-   std::vector<std::string> measObjectNames_;
   std::vector<bool> isSimu;
@@ -204,7 +230,7 @@ OpticalAlignMeasurementInfo CocoaDaqReaderRoot::GetMeasFromDist( AliDaqDistance*
 {
   OpticalAlignMeasurementInfo meas;
   
-  meas.type_ = "SENSOR2D";
+  meas.type_ = "DISTANCEMETER";
   meas.name_ = dist->GetID();
   //-   std::vector<std::string> measObjectNames_;
   std::vector<bool> isSimu;
@@ -225,7 +251,63 @@ OpticalAlignMeasurementInfo CocoaDaqReaderRoot::GetMeasFromDist( AliDaqDistance*
 
 }
 
+
+//----------------------------------------------------------------------
 void CocoaDaqReaderRoot::BuildMeasurementsFromOptAlign( std::vector<OpticalAlignMeasurementInfo>& measList )
 {
+  std::cout << "  CocoaDaqReaderRoot::BuildMeasurementsFromOptAlign " << ALIUtils::debug << std::endl;
+
+ //set date and time of current measurement
+  //  if( wordlist[0] == "DATE:" ) {
+  //   Measurement::setCurrentDate( wordlist ); 
+  // } 
+
+  //---------- loop measurements read from ROOT and check for corresponding measurement in Model
+  //  ALIint nMeasModel = Model::MeasurementList().size();
+  ALIint nMeasRoot = measList.size();
+  if(ALIUtils::debug >= 4) {
+    std::cout << " Building " << nMeasRoot << " measurements from ROOT file " << std::endl;
+  }
+  ALIint ii;
+  std::vector< Measurement* >::const_iterator vmcite;
+  for(ii = 0; ii < nMeasRoot; ii++) {
+    OpticalAlignMeasurementInfo measInfo = measList[ii];
+
+    //--- Loop to Measurements in Model
+    for( vmcite = Model::MeasurementList().begin();  vmcite != Model::MeasurementList().end(); vmcite++ ) {
+      ALIint fcolon = (*vmcite)->name().find(':');
+      ALIstring oname = (*vmcite)->name();
+      oname = oname.substr(fcolon+1,oname.length());
+      std::cout << " measurement name ROOT " << measInfo.name_ << " Model= " << (*vmcite)->name() << " short " << oname << std::endl;
+      if( oname == measInfo.name_ ) {
+	//-------- Measurement found, fill data
+	//---- Check that type is the same
+	if( (*vmcite)->type() != measInfo.type_ ) {
+	  std::cerr << "!!! Measurement from ROOT file: type in file is " 
+		    <<measInfo.type_ << " and should be " << (*vmcite)->type() << std::endl;
+	  exit(1);
+	}
+
+	std::cout << " NOBJECTS IN MEAS " << (*vmcite)->OptOList().size() << " NMEAS " << Model::MeasurementList().size() << std::endl;
+	
+	std::vector<OpticalAlignParam> measValues = measInfo.values_;
+	for( size_t jj= 0; jj < measValues.size(); jj++ ){
+	  (*vmcite)->fillData( jj, &(measValues[jj]) );
+	}
+
+	std::cout << " NOBJECTS IN MEAS after " << (*vmcite)->OptOList().size() << " NMEAS " << Model::MeasurementList().size()  << std::endl;
+
+	break;
+      }
+    }
+    if( vmcite == Model::MeasurementList().end() ) {
+      for( vmcite = Model::MeasurementList().begin(); vmcite != Model::MeasurementList().end(); vmcite++ ) {
+	std::cerr << "MEAS: " << (*vmcite)->name() << " " << (*vmcite)->type() << std::endl;
+      }
+      std::cerr << "!!! Reading measurement from file: measurement not found in list: type in file is "  <<  measInfo.name_  << std::endl;
+      exit(1);
+    }
+  }
 
 }
+
