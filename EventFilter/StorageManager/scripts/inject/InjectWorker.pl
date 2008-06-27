@@ -1,11 +1,10 @@
 #!/usr/bin/perl -w
-# $Id: InjectWorker.pl,v 1.13 2008/06/10 12:41:34 loizides Exp $
+# $Id: InjectWorker.pl,v 1.14 2008/06/10 13:18:45 loizides Exp $
 
 use strict;
 use DBI;
 use Getopt::Long;
 use File::Basename;
-use Sys::Hostname;
 use Cwd;
 use Cwd 'abs_path';
 
@@ -284,9 +283,10 @@ if (!-d $errpath) {
 
 my $errfile;
 my $outfile;
-my $thedate = getdatestr();
-my @harray  = split(/\./,hostname());
-my $host    = $harray[0];
+my $thedate  = getdatestr();
+my $hostname = `hostname -f`;
+my @harray   = split(/\./,$hostname);
+my $host     = $harray[0];
 
 my $waiting = -1;
 if ($fileflag==0) {
