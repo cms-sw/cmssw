@@ -1,5 +1,5 @@
-#ifndef RecoMuon_SeedValidatorHisto_H
-#define RecoMuon_SeedValidatorHisto_H
+#ifndef RecoMuon_MuonSeedValidatorHisto_H
+#define RecoMuon_MuonSeedValidatorHisto_H
 
 /** \class SeedValidatorHisto
  *  Collection of histograms for SeedGenerator test.
