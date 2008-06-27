@@ -8,7 +8,7 @@
 //
 // Original Author:  
 //         Created:  Sun Jan  6 23:57:00 EST 2008
-// $Id: L1MuonTrigProxyRhoPhiZ2DBuilder.cc,v 1.2 2008/06/09 19:54:03 chrjones Exp $
+// $Id: L1MuonTrigProxyRhoPhiZ2DBuilder.cc,v 1.1 2008/06/13 18:06:35 srappocc Exp $
 //
 
 // system include files
@@ -22,7 +22,7 @@
 #include "TColor.h"
 #include "TROOT.h"
 #include "TEvePointSet.h"
-#include "TEveStraightLineSet.h"
+#include "TEveScalableStraightLineSet.h"
 
 // user include files
 #include "Fireworks/Calo/interface/L1MuonTrigProxyRhoPhiZ2DBuilder.h"
@@ -118,12 +118,13 @@ L1MuonTrigProxyRhoPhiZ2DBuilder::buildRhoPhi(const FWEventItem* iItem,
      TEveGeoShapeExtract *sc = fw::getShapeExtract( "spread", sc_box, iItem->defaultDisplayProperties().color() );
       
      if ( trigIt->pt() > minJetEt ) {
-       TEveStraightLineSet* marker = new TEveStraightLineSet("energy");
+       TEveScalableStraightLineSet* marker = new TEveScalableStraightLineSet("energy");
        marker->SetLineWidth(4);
        marker->SetLineColor(  iItem->defaultDisplayProperties().color() );
        TEveElement* element = TEveGeoShape::ImportShapeExtract(sc, 0);
        element->SetPickable(kTRUE);
        container->AddElement(element);
+       marker->SetScaleCenter( r_ecal*cos(phi), r_ecal*sin(phi), 0 );
        marker->AddLine( r_ecal*cos(phi), r_ecal*sin(phi), 0, (r_ecal+size)*cos(phi), (r_ecal+size)*sin(phi), 0);
        container->AddElement(marker);
      }
@@ -210,9 +211,10 @@ L1MuonTrigProxyRhoPhiZ2DBuilder::buildRhoZ(const FWEventItem* iItem,
      double size = scale*trigIt->pt();
       
      if ( trigIt->pt() > minJetEt ) {
-       TEveStraightLineSet* marker = new TEveStraightLineSet("energy");
+       TEveScalableStraightLineSet* marker = new TEveScalableStraightLineSet("energy");
        marker->SetLineWidth(4);
        marker->SetLineColor(  iItem->defaultDisplayProperties().color() );
+       marker->SetScaleCenter( 0., (trigIt->phi()>0 ? r_ecal*fabs(sin(theta)) : -r_ecal*fabs(sin(theta))), r_ecal*cos(theta) );
        marker->AddLine(0., (trigIt->phi()>0 ? r*fabs(sin(theta)) : -r*fabs(sin(theta))), r*cos(theta),
 		       0., (trigIt->phi()>0 ? (r+size)*fabs(sin(theta)) : -(r+size)*fabs(sin(theta))), (r+size)*cos(theta) );
        container->AddElement( marker );

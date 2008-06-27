@@ -8,7 +8,7 @@
 //
 // Original Author:  
 //         Created:  Sun Jan  6 23:57:00 EST 2008
-// $Id: L1EmTrigProxyRhoPhiZ2DBuilder.cc,v 1.2 2008/06/09 19:54:03 chrjones Exp $
+// $Id: L1EmTrigProxyRhoPhiZ2DBuilder.cc,v 1.1 2008/06/13 18:06:35 srappocc Exp $
 //
 
 // system include files
@@ -22,7 +22,7 @@
 #include "TColor.h"
 #include "TROOT.h"
 #include "TEvePointSet.h"
-#include "TEveStraightLineSet.h"
+#include "TEveScalableStraightLineSet.h"
 
 // user include files
 #include "Fireworks/Calo/interface/L1EmTrigProxyRhoPhiZ2DBuilder.h"
@@ -93,7 +93,6 @@ L1EmTrigProxyRhoPhiZ2DBuilder::buildRhoPhi(const FWEventItem* iItem,
   // make a counter
    double r_ecal = 126;
    double scale = FWDisplayEvent::getCaloScale();
-   if ( scale < 0 ) scale = 2;
    //double minJetEt = 15;
    double minJetEt = 0;
    fw::NamedCounter counter("l1emtrigs");
@@ -113,17 +112,18 @@ L1EmTrigProxyRhoPhiZ2DBuilder::buildRhoPhi(const FWEventItem* iItem,
       
      double phi = trigIt->phi();
 
-     double size = scale*trigIt->pt();
+     double size = trigIt->pt();
      TGeoBBox *sc_box = new TGeoTubeSeg(r_ecal - 1, r_ecal + 1, 1, min_phi * 180 / M_PI, max_phi * 180 / M_PI);
      TEveGeoShapeExtract *sc = fw::getShapeExtract( "spread", sc_box, iItem->defaultDisplayProperties().color() );
       
      if ( trigIt->pt() > minJetEt ) {
-       TEveStraightLineSet* marker = new TEveStraightLineSet("energy");
+       TEveScalableStraightLineSet* marker = new TEveScalableStraightLineSet("energy");
        marker->SetLineWidth(4);
        marker->SetLineColor(  iItem->defaultDisplayProperties().color() );
        TEveElement* element = TEveGeoShape::ImportShapeExtract(sc, 0);
        element->SetPickable(kTRUE);
        container->AddElement(element);
+       marker->SetScaleCenter( r_ecal*cos(phi), r_ecal*sin(phi), 0 );
        marker->AddLine( r_ecal*cos(phi), r_ecal*sin(phi), 0, (r_ecal+size)*cos(phi), (r_ecal+size)*sin(phi), 0);
        container->AddElement(marker);
      }
@@ -170,7 +170,6 @@ L1EmTrigProxyRhoPhiZ2DBuilder::buildRhoZ(const FWEventItem* iItem,
 
 
    double scale = FWDisplayEvent::getCaloScale();
-   if ( scale < 0 ) scale = 2;
    double z_ecal = 306; // ECAL endcap inner surface
    double r_ecal = 126;
    double transition_angle = atan(r_ecal/z_ecal);
@@ -207,12 +206,13 @@ L1EmTrigProxyRhoPhiZ2DBuilder::buildRhoZ(const FWEventItem* iItem,
      else
        r = r_ecal/sin(theta);
       
-     double size = scale*trigIt->pt();
+     double size = trigIt->pt();
       
      if ( trigIt->pt() > minJetEt ) {
-       TEveStraightLineSet* marker = new TEveStraightLineSet("energy");
+       TEveScalableStraightLineSet* marker = new TEveScalableStraightLineSet("energy");
        marker->SetLineWidth(4);
        marker->SetLineColor(  iItem->defaultDisplayProperties().color() );
+       marker->SetScaleCenter( 0., (trigIt->phi()>0 ? r_ecal*fabs(sin(theta)) : -r_ecal*fabs(sin(theta))), r_ecal*cos(theta) );
        marker->AddLine(0., (trigIt->phi()>0 ? r*fabs(sin(theta)) : -r*fabs(sin(theta))), r*cos(theta),
 		       0., (trigIt->phi()>0 ? (r+size)*fabs(sin(theta)) : -(r+size)*fabs(sin(theta))), (r+size)*cos(theta) );
        container->AddElement( marker );
