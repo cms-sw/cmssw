@@ -12,10 +12,6 @@
 // Data Formats 
 #include "DataFormats/TrajectorySeed/interface/TrajectorySeedCollection.h"
 
-// For efficiency study
-#include <SimDataFormats/Track/interface/SimTrackContainer.h>
-#include <SimDataFormats/TrackingHit/interface/PSimHitContainer.h>
-
 // Magnetic Field
 #include "MagneticField/Engine/interface/MagneticField.h"
 #include "MagneticField/Records/interface/IdealMagneticFieldRecord.h"
@@ -82,11 +78,7 @@ void MuonSeedProducer::produce(edm::Event& event, const edm::EventSetup& eSetup)
   const MagneticField* theField = &*field;
   muonSeedBuilder_->setBField( theField );
 
-  // Simtrack for efficiency study
-  edm::Handle<edm::SimTrackContainer> simTracks;
-  event.getByLabel("g4SimHits",simTracks);
-
-  // Create pointer to the seed container
+   // Create pointer to the seed container
 
   std::auto_ptr<TrajectorySeedCollection> output(new TrajectorySeedCollection() );
 
