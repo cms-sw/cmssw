@@ -13,6 +13,10 @@ process.source = cms.Source("PoolSource",
         'file:testRunMerge1.root', 
         'file:testRunMerge2.root', 
         'file:testRunMerge3.root'
+    ),
+    inputCommands = cms.untracked.vstring(
+        'keep *', 
+        'drop *_C_*_*'
     )
 )
 
@@ -158,7 +162,12 @@ process.out = cms.OutputModule("PoolOutputModule",
     fileName = cms.untracked.string('testRunMerge.root'),
     outputCommands = cms.untracked.vstring(
         'keep *', 
-        'drop *_makeThingToBeDropped_*_*'
+        'drop *_makeThingToBeDropped_*_*',
+        'drop *_B_*_*',
+        'drop *_G_*_*',
+        'drop *_H_*_*',
+        'drop *_I_*_*',
+        'drop *_J_*_*'
     )
 )
 

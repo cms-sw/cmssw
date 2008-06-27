@@ -22,7 +22,7 @@ process.source = cms.Source("EmptySource",
 
 process.thingWithMergeProducer = cms.EDProducer("ThingWithMergeProducer",
     changeIsEqualValue = cms.untracked.bool(True),
-    labelToGet = cms.untracked.string('m3')
+    labelsToGet = cms.untracked.vstring('m3')
 )
 
 # These are here only for tests of parentage merging
@@ -85,14 +85,73 @@ process.test = cms.EDFilter("TestMergeResults",
         'm3', 'm3', 'm3', 'm3', 'm3')
 )
 
+process.A = cms.EDProducer("ThingWithMergeProducer")
+
+process.B = cms.EDProducer("ThingWithMergeProducer",
+    labelsToGet = cms.untracked.vstring('A')
+)
+
+process.C = cms.EDProducer("ThingWithMergeProducer",
+    labelsToGet = cms.untracked.vstring('A')
+)
+
+process.D = cms.EDProducer("ThingWithMergeProducer",
+    labelsToGet = cms.untracked.vstring('B')
+)
+
+process.E = cms.EDProducer("ThingWithMergeProducer",
+    labelsToGet = cms.untracked.vstring('B', 'C')
+)
+
+process.F = cms.EDProducer("ThingWithMergeProducer",
+    labelsToGet = cms.untracked.vstring('C')
+)
+
+process.G = cms.EDProducer("ThingWithMergeProducer",
+    labelsToGet = cms.untracked.vstring('A')
+)
+
+process.H = cms.EDProducer("ThingWithMergeProducer",
+    labelsToGet = cms.untracked.vstring('G')
+)
+
+process.I = cms.EDProducer("ThingWithMergeProducer",
+    labelsToGet = cms.untracked.vstring('A')
+)
+
+process.J = cms.EDProducer("ThingWithMergeProducer",
+    labelsToGet = cms.untracked.vstring('I')
+)
+
+process.K = cms.EDProducer("ThingWithMergeProducer",
+    labelsToGet = cms.untracked.vstring('I')
+)
+
+process.L = cms.EDProducer("ThingWithMergeProducer",
+    labelsToGet = cms.untracked.vstring('F')
+)
+
 process.out = cms.OutputModule("PoolOutputModule",
     fileName = cms.untracked.string('testRunMerge3.root')
 )
 
-process.p = cms.Path((process.m1 + process.m2 + process.m3) *
+process.p1 = cms.Path((process.m1 + process.m2 + process.m3) *
                      process.thingWithMergeProducer *
                      process.test *
                      process.tryNoPut *
                      process.makeThingToBeDropped)
+
+process.p2 = cms.Path(process.A *
+                      process.B *
+                      process.C *
+                      process.D *
+                      process.E *
+                      process.F *
+                      process.G *
+                      process.H *
+                      process.I *
+                      process.J *
+                      process.K *
+                      process.L)
 
 process.e = cms.EndPath(process.out)

@@ -5,6 +5,7 @@
 #include "FWCore/Framework/interface/EDProducer.h"
 
 #include <string>
+#include <vector>
 
 namespace edmtest {
   class ThingWithMergeProducer : public edm::EDProducer {
@@ -26,8 +27,10 @@ namespace edmtest {
 
   private:
 
+    typedef std::vector<std::string>::const_iterator Iter;
+
     bool changeIsEqualValue_;
-    std::string labelToGet_;
+    std::vector<std::string> labelsToGet_;
     bool noPut_;
   };
 }

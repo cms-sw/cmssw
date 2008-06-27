@@ -1,5 +1,5 @@
 
-// $Id: ThingWithMergeProducer.cc,v 1.3 2008/02/14 15:55:55 wdd Exp $
+// $Id: ThingWithMergeProducer.cc,v 1.4 2008/04/24 20:47:15 wmtan Exp $
 //
 // Puts some simple test objects in the event, run, and lumi
 // principals.  The values put into these objects are just
@@ -23,7 +23,7 @@
 namespace edmtest {
   ThingWithMergeProducer::ThingWithMergeProducer(edm::ParameterSet const& pset) :
     changeIsEqualValue_(pset.getUntrackedParameter<bool>("changeIsEqualValue", false)),
-    labelToGet_(pset.getUntrackedParameter<std::string>("labelToGet", std::string())),
+    labelsToGet_(pset.getUntrackedParameter<std::vector<std::string> >("labelsToGet", std::vector<std::string>())),
     noPut_(pset.getUntrackedParameter<bool>("noPut", false))
 {
     produces<Thing>("event");
@@ -50,11 +50,11 @@ namespace edmtest {
   void ThingWithMergeProducer::produce(edm::Event& e, edm::EventSetup const&) {
 
     // The purpose of this first getByLabel call is to cause the products
-    // that are "put" below to have a parent so we can test the parentage
-    // provenance.
-    if (labelToGet_ != "") {
+    // that are "put" below to have a parent so we can do tests with the
+    // parentage provenance.
+    for (Iter iter = labelsToGet_.begin(), ie = labelsToGet_.end(); iter != ie; ++iter) {
       edm::Handle<Thing> h;
-      edm::InputTag tag(labelToGet_, "event", "PROD");
+      edm::InputTag tag(*iter, "event", "PROD");
       e.getByLabel(tag, h);
     }
 
@@ -74,9 +74,9 @@ namespace edmtest {
 
   void ThingWithMergeProducer::beginLuminosityBlock(edm::LuminosityBlock& lb, edm::EventSetup const&) {
 
-    if (labelToGet_ != "") {
+    for (Iter iter = labelsToGet_.begin(), ie = labelsToGet_.end(); iter != ie; ++iter) {
       edm::Handle<Thing> h;
-      edm::InputTag tag(labelToGet_, "beginLumi", "PROD");
+      edm::InputTag tag(*iter, "beginLumi", "PROD");
       lb.getByLabel(tag, h);
     }
 
@@ -96,9 +96,9 @@ namespace edmtest {
 
   void ThingWithMergeProducer::endLuminosityBlock(edm::LuminosityBlock& lb, edm::EventSetup const&) {
 
-    if (labelToGet_ != "") {
+    for (Iter iter = labelsToGet_.begin(), ie = labelsToGet_.end(); iter != ie; ++iter) {
       edm::Handle<Thing> h;
-      edm::InputTag tag(labelToGet_, "endLumi", "PROD");
+      edm::InputTag tag(*iter, "endLumi", "PROD");
       lb.getByLabel(tag, h);
     }
 
@@ -119,9 +119,9 @@ namespace edmtest {
   // Functions that gets called by framework every run
   void ThingWithMergeProducer::beginRun(edm::Run& r, edm::EventSetup const&) {
 
-    if (labelToGet_ != "") {
+    for (Iter iter = labelsToGet_.begin(), ie = labelsToGet_.end(); iter != ie; ++iter) {
       edm::Handle<Thing> h;
-      edm::InputTag tag(labelToGet_, "beginRun", "PROD");
+      edm::InputTag tag(*iter, "beginRun", "PROD");
       r.getByLabel(tag, h);
     }
 
@@ -141,9 +141,9 @@ namespace edmtest {
 
   void ThingWithMergeProducer::endRun(edm::Run& r, edm::EventSetup const&) {
 
-    if (labelToGet_ != "") {
+    for (Iter iter = labelsToGet_.begin(), ie = labelsToGet_.end(); iter != ie; ++iter) {
       edm::Handle<Thing> h;
-      edm::InputTag tag(labelToGet_, "endRun", "PROD");
+      edm::InputTag tag(*iter, "endRun", "PROD");
       r.getByLabel(tag, h);
     }
 
