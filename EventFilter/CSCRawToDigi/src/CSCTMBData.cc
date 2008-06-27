@@ -1,7 +1,7 @@
 /** \class CSCTMBData
  *
- *  $Date: 2008/01/22 18:58:24 $
- *  $Revision: 1.19 $
+ *  $Date: 2008/06/24 15:51:50 $
+ *  $Revision: 1.20 $
  *  \author A. Tumanov - Rice
  */
 
@@ -12,6 +12,7 @@
 #include <iostream>
 #include <cstdio>
 #include "EventFilter/CSCRawToDigi/src/bitset_append.h"
+#include "EventFilter/CSCRawToDigi/src/cscPackerCompare.h"
 
 bool CSCTMBData::debug =false;
 
@@ -286,5 +287,12 @@ boost::dynamic_bitset<> CSCTMBData::pack()
 									  theTMBTrailer.data());
   result = bitset_utilities::append(result,tmbTrailer);
   return result;
+}
+
+
+void CSCTMBData::selfTest()
+{
+  CSCTMBData tmbData;
+  cscClassPackerCompare(tmbData);
 }
 
