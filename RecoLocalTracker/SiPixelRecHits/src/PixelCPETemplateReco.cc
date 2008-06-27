@@ -43,20 +43,35 @@ PixelCPETemplateReco::PixelCPETemplateReco(edm::ParameterSet const & conf,
 {
   // &&& initialize the templates, etc.
   
-  // Initialize template store, CMSSW simulation as thePixelTemp[0]
-  //templ_.pushfile(201);
-
-  // Initialize template store, Pixelav 125V simulation as
-  // thePixelTemp[1]
-  //templ_.pushfile(4);
-
-  // Initialize template store, CMSSW simulation w/ reduced difusion
-  // as thePixelTemp[2]
-  //templ_.pushfile(401);
+  //-- Use Magnetic field at (0,0,0) to select a template ID [Morris, 6/25/08] (temporary until we implement DB access)
   
-  // Initialize template store, Pixelav 150V, 3.8T simulation
-  templ_.pushfile(1);
+  GlobalPoint center(0.0, 0.0, 0.0);
+  float field_magnitude = magfield_->inTesla(center).mag();
 
+  //cout << "----------------------------------------- field_magnitude = " << field_magnitude << endl;
+
+  if ( field_magnitude > 3.9 ) 
+    {
+      templID_ = 4;
+    } 
+  else 
+    {
+      if ( field_magnitude > 1.0 ) 
+	{
+	  templID_ = 1;
+	} 
+      else 
+	{	 
+	  //--- allow for zero field operation with new template ID=2
+	  templID_ = 2;
+	}
+    }
+  
+  //cout << "--------------------------------------------- templID_ = " << templID_ << endl;
+
+  // Initialize template store to the selected ID [Morris, 6/25/08]
+  
+  templ_.pushfile( templID_ );
 
   //cout << "About to read speed..." << endl;
   speed_ = conf.getParameter<int>( "speed");
@@ -99,8 +114,7 @@ PixelCPETemplateReco::localPosition(const SiPixelCluster& cluster, const GeomDet
   setTheDet( det );
 
   //int ierr;   //!< return status
-  //int ID = 4; //!< picks the third entry from the template store
-  int ID = 1; //!< picks the 3.8T entry in the template store
+  int ID = templID_; //!< take the template ID that was selected by the constructor [Morris, 6/25/2008]
 
 
   bool fpix;  //!< barrel(false) or forward(true)
