@@ -16,7 +16,7 @@
 //
 // Original Author:  Chris Jones
 //         Created:  Thu Feb 21 11:22:37 EST 2008
-// $Id: FWEveLegoView.h,v 1.5 2008/06/11 13:57:32 dmytro Exp $
+// $Id: FWEveLegoView.h,v 1.6 2008/06/26 00:33:57 dmytro Exp $
 //
 
 // system include files
@@ -69,6 +69,7 @@ class FWEveLegoView : public FWViewBase
 
       void setMinEcalEnergy(double);
       void setMinHcalEnergy(double);
+      void setCameras();
    
       // ---------- member data --------------------------------
       TEvePad* m_pad;
@@ -86,9 +87,16 @@ class FWEveLegoView : public FWViewBase
       TEveCaloData::SliceInfo_t* m_ecalSlice;
       TEveCaloData::SliceInfo_t* m_hcalSlice;
       
-      TGLMatrix* m_cameraMatrix;
-      TGLMatrix* m_cameraMatrixBase;
-      bool       m_cameraSet;
+      TGLMatrix*  m_cameraMatrix;
+      TGLMatrix*  m_cameraMatrixBase;
+      TGLMatrix*  m_cameraMatrixRef;
+      TGLMatrix*  m_cameraMatrixBaseRef;
+      double      m_orthoCameraZoom;
+      TGLMatrix*  m_orthoCameraMatrix;
+      double*     m_orthoCameraZoomRef;
+      TGLMatrix*  m_orthoCameraMatrixRef;
+      bool        m_topView;
+      bool        m_cameraSet;
 };
 
 
