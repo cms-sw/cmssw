@@ -1,3 +1,4 @@
+<use name=TopQuarkAnalysis/TopJetCombination>
 <use name=AnalysisDataFormats/TopObjects>
 <use name=DataFormats/PatCandidates>
 <use name=TopQuarkAnalysis/TopTools>
