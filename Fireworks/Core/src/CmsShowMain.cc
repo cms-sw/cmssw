@@ -8,7 +8,7 @@
 //
 // Original Author:  
 //         Created:  Mon Dec  3 08:38:38 PST 2007
-// $Id: CmsShowMain.cc,v 1.9 2008/06/27 03:31:55 dmytro Exp $
+// $Id: CmsShowMain.cc,v 1.10 2008/06/27 05:34:43 srappocc Exp $
 //
 
 // system include files
@@ -97,11 +97,12 @@ CmsShowMain::CmsShowMain(int argc, char *argv[]) :
     namespace po = boost::program_options;
   po::options_description desc("Allowed options");
   desc.add_options()
-    ("input-file", po::value<std::string>(), "Input root file")
+    ("input-file",    po::value<std::string>(), "Input root file")
     ("config-file,c", po::value<std::string>(), "Include configuration file")
-    ("geom-file,g", po::value<std::string>(), "Include geometry file")
-    ("fast,f", "Load fast")
-    ("debug,d","Show Eve browser to help debug problems");
+    ("geom-file,g",   po::value<std::string>(), "Include geometry file")
+    ("noconfig,n",    "Don't load any configuration file")
+    ("fast,f",        "Load fast")
+    ("debug,d",       "Show Eve browser to help debug problems");
   po::positional_options_description p;
   p.add("input-file", -1);
 
@@ -123,9 +124,12 @@ CmsShowMain::CmsShowMain(int argc, char *argv[]) :
   if (vm.count("config-file")) 
     m_configFileName = vm["config-file"].as<std::string>();
   else {
-    printf("No config file name.  Choosing default.\n");
-    //    m_configFileName = "myconfig.fwc";
-    m_configFileName = "";
+     if (vm.count("noconfig")){
+	printf("No configiguration is loaded, show everything.\n");
+	m_configFileName = "";
+     } else {
+	m_configFileName = "src/Fireworks/Core/macros/default.fwc";
+     }
   }
   if (vm.count("geom-file"))
     m_geomFileName = vm["geom-file"].as<std::string>();
@@ -437,7 +441,7 @@ void CmsShowMain::openData()
 
 void CmsShowMain::quit() 
 {
-  m_configurationManager->writeToFile(m_configFileName);
+  // m_configurationManager->writeToFile(m_configFileName);
   gApplication->Terminate(0);
 }
 
