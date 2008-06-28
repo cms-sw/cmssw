@@ -33,6 +33,7 @@
 #include "FWCore/Framework/src/InputSourceFactory.h"
 
 #include "FWCore/ParameterSet/interface/ProcessDesc.h"
+#include "FWCore/ParameterSet/interface/PythonProcessDesc.h"
 
 #include "FWCore/ServiceRegistry/interface/ServiceRegistry.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
@@ -528,6 +529,49 @@ namespace edm {
     init(processDesc, token, legacy);
   }
 
+
+  EventProcessor::EventProcessor(std::string const& config, bool isPython):
+    preProcessEventSignal_(),
+    postProcessEventSignal_(),
+    maxEventsPset_(),
+    maxLumisPset_(),
+    actReg_(new ActivityRegistry),
+    wreg_(actReg_),
+    preg_(),
+    serviceToken_(),
+    input_(),
+    schedule_(),
+    esp_(),
+    act_table_(),
+    state_(sInit),
+    event_loop_(),
+    state_lock_(),
+    stop_lock_(),
+    stopper_(),
+    stop_count_(-1),
+    last_rc_(epSuccess),
+    last_error_text_(),
+    id_set_(false),
+    event_loop_id_(),
+    my_sig_num_(getSigNum()),
+    fb_(),
+    looper_(),
+    shouldWeStop_(false),
+    sourceActive_(false),
+    alreadyHandlingException_(false),
+    forceLooperToEnd_(false)
+  {
+    if(isPython)
+    {
+      boost::shared_ptr<edm::ProcessDesc> processDesc = PythonProcessDesc(config).processDesc();
+      init(processDesc, ServiceToken(), serviceregistry::kOverlapIsError);
+    }
+    else
+    {
+      boost::shared_ptr<edm::ProcessDesc> processDesc(new edm::ProcessDesc(config));
+      init(processDesc, ServiceToken(), serviceregistry::kOverlapIsError);
+    }
+  }
 
   void
   EventProcessor::init(boost::shared_ptr<edm::ProcessDesc> & processDesc,

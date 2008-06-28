@@ -6,7 +6,7 @@
 EventProcessor: This defines the 'framework application' object. It is
 configured in the user's main() function, and is set running.
 
-$Id: EventProcessor.h,v 1.63 2008/04/15 19:20:49 wdd Exp $
+$Id: EventProcessor.h,v 1.64 2008/04/22 22:31:41 wdd Exp $
 
 ----------------------------------------------------------------------*/
 
@@ -82,15 +82,18 @@ namespace edm {
 
     // Same as previous constructor, but without a 'token'.  Token will be defaulted.
 
-    explicit EventProcessor(std::string const& config,
-			    std::vector<std::string> const& defaultServices,
-			    std::vector<std::string> const& forcedServices =
-			    std::vector<std::string>());
+   EventProcessor(std::string const& config,
+                  std::vector<std::string> const& defaultServices,
+                  std::vector<std::string> const& forcedServices =
+                  std::vector<std::string>());
     
 
     EventProcessor(boost::shared_ptr<edm::ProcessDesc> & processDesc,
                    ServiceToken const& token,
                    serviceregistry::ServiceLegacy legacy);
+
+    /// meant for unit tests
+    EventProcessor(std::string const& config, bool isPython);
 
     ~EventProcessor();
 
