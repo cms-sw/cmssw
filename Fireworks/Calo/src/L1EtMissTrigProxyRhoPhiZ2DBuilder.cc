@@ -8,7 +8,7 @@
 //
 // Original Author:  
 //         Created:  Sun Jan  6 23:57:00 EST 2008
-// $Id: L1EtMissTrigProxyRhoPhiZ2DBuilder.cc,v 1.1 2008/06/13 18:06:35 srappocc Exp $
+// $Id: L1EtMissTrigProxyRhoPhiZ2DBuilder.cc,v 1.2 2008/06/27 18:15:22 srappocc Exp $
 //
 
 // system include files
@@ -92,7 +92,6 @@ L1EtMissTrigProxyRhoPhiZ2DBuilder::buildRhoPhi(const FWEventItem* iItem,
 
   // make a counter
    double r_ecal = 126;
-   double scale = FWDisplayEvent::getCaloScale();
    //double minJetEt = 15;
    double minJetEt = 0;
    fw::NamedCounter counter("l1etmisstrigs");
@@ -169,7 +168,6 @@ L1EtMissTrigProxyRhoPhiZ2DBuilder::buildRhoZ(const FWEventItem* iItem,
    static const std::vector<std::pair<double,double> > thetaBins = ECalCaloTowerProxyRhoPhiZ2DBuilder::getThetaBins();
 
 
-   double scale = FWDisplayEvent::getCaloScale();
    double z_ecal = 306; // ECAL endcap inner surface
    double r_ecal = 126;
    double transition_angle = atan(r_ecal/z_ecal);
