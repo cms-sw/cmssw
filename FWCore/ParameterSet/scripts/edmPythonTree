@@ -1,50 +1,24 @@
-#!/usr/bin/env python
+#! /usr/bin/env python
 
-from FWCore.ParameterSet.TreeCrawler import Color, TreeCrawler
-import sys
+from FWCore.ParameterSet.TreeCrawler import getImportTree
+import sys, os
 
-class TreePrinter:
-  def do(self, filePath, level):
-    self._indent = "  " * level
-    if filePath == None:
-      print self._indent, "!", Color.hilight, "[NOT FOUND]  ", filePath, Color.none
-    else:
-      print self._indent, "+" + Color.info, filePath, Color.none
+try:
+    filename = sys.argv[1]
+except:
+    parser.error("Please specify a python config file to inspect")
 
-  def doContent(self, contents):
-    return
-    content = contents.splitlines()
-    if len(content) < 1:  return
-    if len(content[-1].strip()) < 1:  content = content[:-2]
-    if len(content) < 1:  return
-    maxLength   = 10
-    for line in content:
-      maxLength = max(maxLength, len(line))
-      for include in includes:
-        line    = line.replace(include[1], Color.alternate + include[1] + Color.none)
-      print self._indent, "|", line
-    print self._indent, "|_" + ("_" * maxLength)
+sys.path.append(os.environ["PWD"])
+path = sys.path[:]
+
+# get the dependencies
+importTree = getImportTree(filename, path)  
+
+# finally dump the tree
+importTree.dump(0)
 
 
-class TreeGrepper:
-  def __init__(self, pattern):
-    self.__pattern = pattern
-  def do(self, filePath, level):
-    self.__filePath = filePath
-  def doContent(self, contents):
-    content = contents.splitlines()
-    for line in contents:
-      if find(line, self.__pattern) != -1:
-        print line
 
 
-if __name__ == '__main__':
-  # the doer needs to have the methods
-  # do(filename, level) and doContents(contents)
-  filePath = sys.argv[1]
-  doer = TreePrinter()
-  crawler = TreeCrawler(doer)
-  crawler.parseArgs(sys.argv)
-  crawler.crawlInto(filePath)
 
 

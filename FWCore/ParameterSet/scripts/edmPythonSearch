@@ -1,29 +1,34 @@
-#!/usr/bin/env python
+#! /usr/bin/env python
 
-from FWCore.ParameterSet.TreeCrawler import TreeCrawler
-import sys
+from FWCore.ParameterSet.TreeCrawler import getImportTree, Color
+import sys, os
 
-class TreeGrepper:
-    def __init__(self, pattern):
-        self.__pattern = pattern
-    def do(self, filePath, level):
-        self.__filePath = filePath
-    def doContent(self, contents):
-        content = contents.splitlines()
-        for line in content:
-            if line.find(self.__pattern) != -1:
-                print self.__filePath+':  '+line
+try:
+    filename = sys.argv[2]
+    pattern = sys.argv[1]
+except:
+    raise StandardError("Usage: edmPythonSearch <target> <fileName>")
+
+sys.path.append(os.environ["PWD"])
+path = sys.path[:]
+
+# get the import tree
+importTree = getImportTree(filename, path)  
+
+# search the tree
+result = []
+importTree.search(pattern,result)
+
+# sort the output by file name
+result.sort(key= lambda x: x.filename)
+
+# dump to screen
+for item in result:
+    print "%s (line: %s) : %s"  %(item.filename, item.number, item.line.replace(pattern,Color.hilight+pattern+Color.none) )
+                
 
 
-if __name__ == '__main__':
-  if len(sys.argv) != 3:
-     print "Usage: edmPythonSearch <target> <fileName>"
-  pattern = sys.argv[1]
-  filePath = sys.argv[2]
 
-  doer = TreeGrepper(pattern)
-  crawler = TreeCrawler(doer)
-  crawler.parseArgs(sys.argv)
-  crawler.crawlInto(filePath)
+
 
 
