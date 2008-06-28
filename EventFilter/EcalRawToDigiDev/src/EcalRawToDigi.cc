@@ -295,14 +295,14 @@ void EcalRawToDigiDev::produce(edm::Event& e, const edm::EventSetup& es) {
     const FEDRawData & fedData = rawdata->FEDData(*i);
     int length = fedData.size();
 
-    edm::LogInfo("EcalRawToDigiDev") << "raw data lenght: " << length ;
+    LogDebug("EcalRawToDigiDev") << "raw data length: " << length ;
     //if data size is not null interpret data
     if ( length >= EMPTYEVENTSIZE ){
       
       if(myMap_->setActiveDCC(*i)){
 
 	int smId = myMap_->getActiveSM();
-	edm::LogInfo("EcalRawToDigiDev") << "Getting FED = " << *i <<"(SM = "<<smId<<")"<<" data size is: " << length;
+	LogDebug("EcalRawToDigiDev") << "Getting FED = " << *i <<"(SM = "<<smId<<")"<<" data size is: " << length;
 
 	uint64_t * pData = (uint64_t *)(fedData.data());
 	theUnpacker_->unpack( pData, static_cast<uint>(length),smId,*i);
