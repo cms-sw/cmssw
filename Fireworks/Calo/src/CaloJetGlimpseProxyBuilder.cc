@@ -8,7 +8,7 @@
 //
 // Original Author:  
 //         Created:  Sun Jan  6 23:57:00 EST 2008
-// $Id: CaloJetGlimpseProxyBuilder.cc,v 1.3 2008/06/26 00:32:02 dmytro Exp $
+// $Id: CaloJetGlimpseProxyBuilder.cc,v 1.4 2008/06/27 00:58:34 dmytro Exp $
 //
 
 // system include files
@@ -29,6 +29,7 @@
 
 #include "DataFormats/JetReco/interface/CaloJetCollection.h"
 #include "DataFormats/JetReco/interface/CaloJet.h"
+#include "Fireworks/Core/interface/FWGlimpseView.h"
 
 //
 // constants, enums and typedefs
@@ -94,7 +95,7 @@ CaloJetGlimpseProxyBuilder::build(const FWEventItem* iItem, TEveElementList** pr
       TEveBoxSet* cone = new TEveBoxSet(counter.str().c_str());
       cone->SetPickable(kTRUE);
       cone->Reset(TEveBoxSet::kBT_EllipticCone, kTRUE, 64);
-      double height = jet->et();
+      double height = jet->et()*FWGlimpseView::getScale();
       TEveVector dir, pos;
       dir.Set(jet->px()/jet->p(), jet->py()/jet->p(), jet->pz()/jet->p());
       

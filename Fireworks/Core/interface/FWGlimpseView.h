@@ -16,7 +16,7 @@
 //
 // Original Author:  Chris Jones
 //         Created:  Thu Feb 21 11:22:37 EST 2008
-// $Id: FWGlimpseView.h,v 1.5 2008/06/11 13:57:32 dmytro Exp $
+// $Id: FWGlimpseView.h,v 1.1 2008/06/19 06:57:27 dmytro Exp $
 //
 
 // system include files
@@ -36,6 +36,7 @@ class TEveViewer;
 class TEveScene;
 class TEveElementList;
 class TGLMatrix;
+class FWGlimpseViewManager;
 
 class FWGlimpseView : public FWViewBase
 {
@@ -53,15 +54,20 @@ class FWGlimpseView : public FWViewBase
 
       // ---------- static member functions --------------------
       static const std::string& staticTypeName();
+      static double getScale();
+      static void   setScale( double scale );
    
       // ---------- member functions ---------------------------
       void draw(TEveCaloDataHist* data);
       virtual void setFrom(const FWConfiguration&);
+      void setManager( FWGlimpseViewManager* manager );
    
    private:
       FWGlimpseView(const FWGlimpseView&); // stop default
 
       const FWGlimpseView& operator=(const FWGlimpseView&); // stop default
+   
+      void updateScale( double scale );
 
       // ---------- member data --------------------------------
       TEvePad* m_pad;
@@ -71,6 +77,10 @@ class FWGlimpseView : public FWViewBase
       
       TGLMatrix* m_cameraMatrix;
       TGLMatrix* m_cameraMatrixBase;
+   
+      FWDoubleParameter m_scaleParam;
+      static double m_scale;
+      FWGlimpseViewManager* m_manager;
 };
 
 

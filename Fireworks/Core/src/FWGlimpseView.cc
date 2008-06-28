@@ -8,7 +8,7 @@
 //
 // Original Author:  Chris Jones
 //         Created:  Thu Feb 21 11:22:41 EST 2008
-// $Id: FWGlimpseView.cc,v 1.1 2008/06/19 06:57:28 dmytro Exp $
+// $Id: FWGlimpseView.cc,v 1.2 2008/06/26 00:32:48 dmytro Exp $
 //
 
 // system include files
@@ -46,6 +46,7 @@
 
 // user include files
 #include "Fireworks/Core/interface/FWGlimpseView.h"
+#include "Fireworks/Core/interface/FWGlimpseViewManager.h"
 #include "Fireworks/Core/interface/FWConfiguration.h"
 #include "Fireworks/Core/interface/BuilderUtils.h"
 
@@ -57,17 +58,21 @@
 //
 // static data member definitions
 //
+double FWGlimpseView::m_scale = 1;
 
 //
 // constructors and destructor
 //
 FWGlimpseView::FWGlimpseView(TGFrame* iParent, TEveElementList* list):
  m_cameraMatrix(0),
- m_cameraMatrixBase(0)
+ m_cameraMatrixBase(0),
+ m_scaleParam(this,"Energy scale", 2.0, 0.01, 1000.),
+ m_manager(0)
 {
    m_pad = new TEvePad;
    TGLEmbeddedViewer* ev = new TGLEmbeddedViewer(iParent, m_pad);
    m_embeddedViewer=ev;
+   ev->SetGuideState(TGLUtil::kAxesOrigin, kTRUE, kFALSE, 0);
    TEveViewer* nv = new TEveViewer(staticTypeName().c_str());
    nv->SetGLViewer(ev);
    nv->IncDenyDestroy();
@@ -92,7 +97,8 @@ FWGlimpseView::FWGlimpseView(TGFrame* iParent, TEveElementList* list):
    element->SetPickable(kFALSE);
    element->SetMainTransparency(98);
    gEve->AddElement(element, ns);
-	 
+   
+   m_scaleParam.changed_.connect(boost::bind(&FWGlimpseView::updateScale,this,_1));
 }
 
 FWGlimpseView::~FWGlimpseView()
@@ -189,6 +195,30 @@ FWGlimpseView::saveImageTo(const std::string& iName) const
    }
 }
 
+void   
+FWGlimpseView::setScale( double scale ) 
+{ 
+   m_scale = scale; 
+}
+
+double 
+FWGlimpseView::getScale() 
+{ 
+   return m_scale; 
+}
+
+void 
+FWGlimpseView::setManager( FWGlimpseViewManager* manager ) 
+{ 
+   m_manager = manager; 
+}
+
+void 
+FWGlimpseView::updateScale( double scale ) 
+{ 
+   setScale( scale );
+   if ( m_manager ) m_manager->newEventAvailable();
+}
 
 //
 // static member functions

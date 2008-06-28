@@ -8,7 +8,7 @@
 //
 // Original Author:  
 //         Created:  Sun Jan  6 23:57:00 EST 2008
-// $Id: ElectronsGlimpseProxyBuilder.cc,v 1.1 2008/06/19 06:57:28 dmytro Exp $
+// $Id: ElectronsGlimpseProxyBuilder.cc,v 1.2 2008/06/27 00:59:17 dmytro Exp $
 //
 
 // system include files
@@ -29,6 +29,7 @@
 
 #include "DataFormats/EgammaCandidates/interface/GsfElectron.h"
 #include "DataFormats/EgammaCandidates/interface/GsfElectronFwd.h"
+#include "Fireworks/Core/interface/FWGlimpseView.h"
 
 //
 // constants, enums and typedefs
@@ -82,7 +83,7 @@ ElectronsGlimpseProxyBuilder::build(const FWEventItem* iItem, TEveElementList** 
       TEveStraightLineSet* marker = new TEveStraightLineSet( counter.str().c_str() );
       marker->SetLineWidth(2);
       marker->SetLineColor(  iItem->defaultDisplayProperties().color() );
-      fw::addStraightLineSegment( marker, &*electron );
+      fw::addStraightLineSegment( marker, &*electron, FWGlimpseView::getScale() );
       tList->AddElement(marker);
    }
 }

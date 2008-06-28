@@ -8,7 +8,7 @@
 //
 // Original Author:  
 //         Created:  Sun Jan  6 23:57:00 EST 2008
-// $Id: MuonsGlimpseProxyBuilder.cc,v 1.1 2008/06/19 06:57:28 dmytro Exp $
+// $Id: MuonsGlimpseProxyBuilder.cc,v 1.2 2008/06/27 00:59:17 dmytro Exp $
 //
 
 // system include files
@@ -26,6 +26,7 @@
 #include "Fireworks/Muons/interface/MuonsGlimpseProxyBuilder.h"
 #include "Fireworks/Core/interface/FWEventItem.h"
 #include "Fireworks/Core/interface/BuilderUtils.h"
+#include "Fireworks/Core/interface/FWGlimpseView.h"
 
 #include "DataFormats/MuonReco/interface/MuonFwd.h"
 #include "DataFormats/MuonReco/interface/Muon.h"
@@ -82,7 +83,7 @@ MuonsGlimpseProxyBuilder::build(const FWEventItem* iItem, TEveElementList** prod
       TEveStraightLineSet* marker = new TEveStraightLineSet(counter.str().c_str());
       marker->SetLineWidth(2);
       marker->SetLineColor(  iItem->defaultDisplayProperties().color() );
-      fw::addStraightLineSegment( marker, &*muon );
+      fw::addStraightLineSegment( marker, &*muon, FWGlimpseView::getScale() );
       tList->AddElement(marker);
    }
 }
