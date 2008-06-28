@@ -4,6 +4,7 @@
 
 #include "TableWidget.h"
 #include <vector>
+#include <stdio.h>
 
 class FWEventItem;
 
@@ -27,7 +28,7 @@ public:
      FWTableManager ();
      // can do all the things a TableManager can, but is also
      // text-dumpable
-     void Dump () { }
+     virtual void dump (FILE *);
      // and has a utility for making a display frame
      void MakeFrame (TGCompositeFrame *parent, int width, int height);
      void Update (int rows = 5);

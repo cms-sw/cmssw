@@ -128,3 +128,57 @@ void FWTableManager::selectRows ()
      if (widget != 0)
 	  widget->SelectRows(rows);
 }
+
+void FWTableManager::dump (FILE *f)
+{
+     std::vector<std::string> titles = GetTitles(0);
+     std::vector<int> col_width;
+     for (std::vector<std::string>::const_iterator i = titles.begin();
+	  i != titles.end(); ++i) {
+	  col_width.push_back(i->length());
+     }
+     std::vector<std::string> row_content;
+     for (int row = 0; row < NumberOfRows(); ++row) {
+	  FillCells(row, 0, row + 1, NumberOfCols(), row_content);
+	  for (std::vector<std::string>::const_iterator i = row_content.begin();
+	       i != row_content.end(); ++i) {
+	       const int length = i->length();
+	       if (col_width[i - row_content.begin()] < length)
+		    col_width[i - row_content.begin()] = length;
+	  }
+     }
+     int total_len = 0;
+     for (unsigned int i = 0; i < col_width.size(); ++i) 
+	  total_len += col_width[i] + 1;
+     for (int i = 0; i < total_len; ++i)
+	  fprintf(f, "="); 
+     fprintf(f, "\n");
+     fprintf(f, "%*s", (total_len + title().length()) / 2, title().c_str());
+     fprintf(f, "\n");
+     for (int i = 0; i < total_len; ++i)
+	  fprintf(f, "-"); 
+     fprintf(f, "\n");
+     for (unsigned int i = 0; i < titles.size(); ++i) {
+	  fprintf(f, "%*s", col_width[i] + 1, titles[i].c_str());
+     }
+     fprintf(f, "\n");
+     for (int i = 0; i < total_len; ++i)
+	  fprintf(f, "-"); 
+     fprintf(f, "\n");
+     for (int row = 0; row < NumberOfRows(); ++row) {
+	  if (row == 20) {
+	       const char no_more[] = "more skipped";
+	       fprintf(f, "%*d %s\n", (total_len - sizeof(no_more)) / 2, 
+		       NumberOfRows() - 20, no_more);
+	       break;
+	  }
+	  FillCells(row, 0, row + 1, NumberOfCols(), row_content);
+	  for (unsigned int i = 0; i < row_content.size(); ++i) {
+	       fprintf(f, "%*s", col_width[i] + 1, row_content[i].c_str());
+	  }
+	  fprintf(f, "\n");
+     }
+     for (int i = 0; i < total_len; ++i)
+	  fprintf(f, "="); 
+     fprintf(f, "\n\n");
+}

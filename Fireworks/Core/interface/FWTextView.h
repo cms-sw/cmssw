@@ -41,6 +41,7 @@ public:
      void	update ();
      void	undock ();
      void	redock ();
+     void	dump ();
 		     
 public:
      std::string			title;

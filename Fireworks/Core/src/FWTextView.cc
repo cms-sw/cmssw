@@ -48,13 +48,20 @@ FWTextViewPage::FWTextViewPage (const std::string &title_,
 {
      const int width=frame->GetWidth();
      const int height=frame->GetHeight();
-     TGPictureButton *m_undockButton = new TGPictureButton(frame, 
-							   FWGUISubviewArea::undockIcon());
+     TGPictureButton *m_undockButton = 
+	  new TGPictureButton(frame, FWGUISubviewArea::undockIcon());
      m_undockButton->SetToolTipText("Undock view to own window");
      m_undockButton->SetHeight(25);
      frame->AddFrame(m_undockButton, new TGLayoutHints(kLHintsTop|kLHintsLeft|
 							   kLHintsExpandX));
      m_undockButton->Connect("Clicked()", "FWTextViewPage", this, "undock()");
+     TGTextButton *m_dumpButton = 
+	  new TGTextButton(frame, "Dump to terminal");
+     m_dumpButton->SetToolTipText("Dump tables to terminal");
+     m_dumpButton->SetHeight(25);
+     frame->AddFrame(m_dumpButton, new TGLayoutHints(kLHintsTop|kLHintsLeft|
+						     kLHintsExpandX));
+     m_dumpButton->Connect("Clicked()", "FWTextViewPage", this, "dump()");
      for (std::vector<FWTableManager *>::const_iterator i = tables.begin();
 	  i != tables.end(); ++i) {
 	  (*i)->MakeFrame(frame, width, height);
@@ -74,8 +81,8 @@ void FWTextViewPage::undock ()
    if (frame) {
 	parent = (TGCompositeFrame *)dynamic_cast<const TGCompositeFrame *>(frame->GetParent());
 	assert(parent != 0);
-	printf("this frame: %d, parent: %d; TGTab: %d\n", 
-	       frame->GetId(), parent->GetId(), parent_tab->GetId());
+// 	printf("this frame: %d, parent: %d; TGTab: %d\n", 
+// 	       frame->GetId(), parent->GetId(), parent_tab->GetId());
 // 	frame->UnmapWindow();
 	undocked = new 
 	     TGTransientFrame(gClient->GetDefaultRoot(), frame, 800, 600);
@@ -97,8 +104,8 @@ void FWTextViewPage::redock ()
      if (undocked) {
 	  TGFrame *frame = (TGFrame *)
 	       dynamic_cast<TGFrameElement*>(undocked->GetList()->First())->fFrame;
-	  printf("undocked window: %d, frame to reparent: %d; parent: %d\n", 
-		 undocked->GetId(), frame->GetId(), parent->GetId());
+// 	  printf("undocked window: %d, frame to reparent: %d; parent: %d\n", 
+// 		 undocked->GetId(), frame->GetId(), parent->GetId());
 	  frame->UnmapWindow();
 	  undocked->RemoveFrame(frame);
 	  frame->ReparentWindow(parent);
@@ -140,11 +147,19 @@ void FWTextViewPage::update ()
 // 	  i != tables.end(); ++i) {
 // 	  printf("\t%s: %d entries\n", (*i)->title().c_str(), (*i)->NumberOfRows());
 //      }     
-     printf("current tab is %d\n", parent_tab->GetCurrent());
+//      printf("current tab is %d\n", parent_tab->GetCurrent());
      for (std::vector<FWTableManager *>::const_iterator i = tables.begin();
 	  i != tables.end(); ++i) {
  	  (*i)->Update();
 //  	  (*i)->Update(std::min(10, (*i)->NumberOfRows()));
+     }
+}
+
+void FWTextViewPage::dump ()
+{
+     for (std::vector<FWTableManager *>::const_iterator i = tables.begin();
+	  i != tables.end(); ++i) {
+ 	  (*i)->dump(stdout);
      }
 }
 
