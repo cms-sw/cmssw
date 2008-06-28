@@ -75,7 +75,7 @@ cmsRun --parameter-set ${LOCAL_TMP_DIR}/PreFastMergeTest_2.cfg || die 'Failure u
 cat > ${LOCAL_TMP_DIR}/FastMergeTest.cfg << !
 # Configuration file for FastMergeTest
 process TESTMERGE = {
-	service = AdaptorConfig{untracked bool Stats = false}
+	service = AdaptorConfig{untracked bool stats = false}
 	untracked PSet maxEvents = {untracked int32 input = -1}
         include "FWCore/Framework/test/cmsExceptionsFatal.cff"
 	module output = PoolOutputModule {
