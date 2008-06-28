@@ -2,7 +2,7 @@
 
 Test of the EventProcessor class.
 
-$Id: eventprocessor_t.cppunit.cc,v 1.31 2007/11/29 17:00:23 wmtan Exp $
+$Id: eventprocessor_t.cppunit.cc,v 1.32 2008/04/04 16:11:03 wdd Exp $
 
 ----------------------------------------------------------------------*/  
 #include <exception>
@@ -71,6 +71,7 @@ class testeventprocessor: public CppUnit::TestFixture
   std::auto_ptr<edm::AssertHandler> m_handler;
   void work()
   {
+/*
     std::string configuration("process p = {\n"
 			      "untracked PSet maxEvents = {untracked int32 input = 5}\n"
 			      "source = EmptySource { }\n"
@@ -78,7 +79,19 @@ class testeventprocessor: public CppUnit::TestFixture
 			      "module m2 = TestMod { int32 ivalue = -3 }\n"
 			      "path p1 = { m1,m2 }\n"
 			      "}\n");
-    edm::EventProcessor proc(configuration);
+*/
+    std::string configuration(
+      "import FWCore.ParameterSet.Config as cms\n"
+      "process = cms.Process('p')\n"
+      "process.maxEvents = cms.untracked.PSet(\n"
+      "  input = cms.untracked.int32(5))\n"
+      "process.source = cms.Source('EmptySource')\n"
+      "process.m1 = cms.EDFilter('TestMod',\n"
+      "   ivalue = cms.int32(10))\n"
+      "process.m2 = cms.EDFilter('TestMod',\n"
+      "ivalue = cms.int32(-3))\n"
+      "process.p1 = cms.Path(process.m1*process.m2)\n");
+    edm::EventProcessor proc(configuration, true);
     proc.beginJob();
     proc.run();
     proc.endJob();
