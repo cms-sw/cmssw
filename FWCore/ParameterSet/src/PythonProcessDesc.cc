@@ -2,7 +2,6 @@
 #include "FWCore/ParameterSet/src/PythonModule.h"
 #include "FWCore/ParameterSet/src/PythonWrapper.h"
 #include <sstream>
-
 using namespace boost::python;
 
 PythonProcessDesc::PythonProcessDesc()
@@ -79,7 +78,7 @@ void PythonProcessDesc::readString(const std::string & pyConfig, object & main_n
   std::string command = pyConfig;
   command += "\nprocess.fillProcessDesc(libFWCoreParameterSet.processDesc, libFWCoreParameterSet.processPSet)";
   handle<>(PyRun_String(command.c_str(),
-                        Py_eval_input,
+                        Py_file_input,
                         main_namespace.ptr(),
                         main_namespace.ptr()));
 }
