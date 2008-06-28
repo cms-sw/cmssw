@@ -49,7 +49,8 @@ TtSemiJetCombMVATrainer::analyze(const edm::Event& evt, const edm::EventSetup& s
   math::XYZTLorentzVector lepton = leptons->begin()->p4();
 
   // skip events with less jets than partons
-  if( jets->size() < 4 ) return;
+  unsigned int nPartons = 4;
+  if( jets->size() < nPartons ) return;
 
   edm::Handle< std::vector<int> > matching;
   // get jet-parton matching if signal channel
@@ -64,17 +65,17 @@ TtSemiJetCombMVATrainer::analyze(const edm::Event& evt, const edm::EventSetup& s
   // analyze true and false jet combinations
   std::vector<int> jetIndices;
   for(unsigned int i=0; i<jets->size(); ++i) {
-    if(nJetsMax_>=4 && i==(unsigned int) nJetsMax_) break;
+    if(nJetsMax_ >= nPartons && i == (unsigned int) nJetsMax_) break;
     jetIndices.push_back(i);
   }
 
   std::vector<int> combi;
-  for(unsigned int i = 0; i < 4; ++i) 
+  for(unsigned int i = 0; i < nPartons; ++i) 
     combi.push_back(i);
 
   do{
-    // number of possible combinations from number of partons: 4! = 24
-    for(unsigned int cnt = 0; cnt < 24 ; ++cnt) {
+    // number of possible combinations from number of partons: e.g. 4! = 24
+    for(unsigned int cnt = 0; cnt < TMath::Factorial( combi.size() ); ++cnt) {
       
       // take into account indistinguishability of the two jets from the hadr. W decay,
       // reduces combinatorics by a factor of 2
