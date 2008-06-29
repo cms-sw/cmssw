@@ -1,8 +1,8 @@
 /** \class BTaSkimLeptonJet
  *
  *
- * $Date: 2007/09/24 19:17:58 $
- * $Revision: 1.5 $
+ * $Date: 2008/04/15 07:13:34 $
+ * $Revision: 1.6 $
  *
  * \author Francisco Yumiceva, FERMILAB
  *
@@ -12,7 +12,6 @@
 
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include "DataFormats/Common/interface/Handle.h"    
-#include "PluginManager/ModuleDef.h"
 #include "FWCore/Framework/interface/MakerMacros.h"
 
 #include "DataFormats/JetReco/interface/CaloJet.h"
