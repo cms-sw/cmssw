@@ -68,3 +68,12 @@ tmp/%LinkDef.d:  %LinkDef.h
                        | sed 's/.*\.o[ :]*\(.*\)\(\.c*\)/tmp\/\1.ro tmp\/\1.cc tmp\/\1.d : \1\2/g' > $@; \
                      [ -s $@ ] || rm -f $@
 -include /dev/null $(ProjectRootDicSources:.cc=.d)
+
+tmp/%classes.d : %classes.h
+	$(QUIET) echo "dependencies for dictionaries based on $*classes_def.xml"; \
+	mkdir -p $(dir $@); \
+	$(CXX) -M $(CFLAGS) $(INCLUDE) $< \
+                       | sed 's/.*\.o[ :]*\(.*\)\(\.c*\)/tmp\/\1.do tmp\/\1.cpp tmp\/\1.do : \1\2/g' > $@; \
+                     [ -s $@ ] || rm -f $@
+
+-include /dev/null $(ProjectDictionarySources:.cpp=.d)
