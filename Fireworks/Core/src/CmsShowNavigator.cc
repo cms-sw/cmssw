@@ -8,7 +8,7 @@
 //
 // Original Author:  
 //         Created:  Tue Jun 10 14:56:46 EDT 2008
-// $Id: CmsShowNavigator.cc,v 1.2 2008/06/19 06:49:51 dmytro Exp $
+// $Id: CmsShowNavigator.cc,v 1.3 2008/06/20 05:59:34 dmytro Exp $
 //
 
 // system include files
@@ -19,7 +19,7 @@
 // user include files
 #include "Fireworks/Core/interface/CmsShowNavigator.h"
 #include "DataFormats/FWLite/interface/Event.h"
-
+#include "DataFormats/Provenance/interface/EventID.h"
 
 //
 // constants, enums and typedefs
@@ -68,7 +68,6 @@ void
 CmsShowNavigator::loadFile(std::string fileName) 
 {
   if (fileName == "") fileName = "data.root";
-  printf("File name: %s\n", fileName.c_str());
   if (m_file != 0) {
     delete m_eventList;
     delete m_eventTree;
@@ -94,6 +93,10 @@ CmsShowNavigator::loadFile(std::string fileName)
   m_nEntries = m_event->size();
   if ( m_eventTree && m_eventTree->GetEventList() ) m_nEntries = m_eventList->GetN();
   newFileLoaded.emit();
+  m_event->to(realEntry(0));
+  m_firstID = m_event->id();
+  m_event->to(realEntry(m_nEntries - 1));
+  m_lastID = m_event->id();
   firstEvent();
 }
 
@@ -107,65 +110,58 @@ CmsShowNavigator::realEntry(Int_t rawEntry) {
 
 void
 CmsShowNavigator::checkPosition() {
-  if ( m_currentEntry == 0 )
+  if ( m_event->id() == m_firstID )
     atBeginning.emit();
-  if ( m_currentEntry == m_nEntries - 1)
+  if ( m_event->id() == m_lastID)
     atEnd.emit();
 }      
     
 void
 CmsShowNavigator::nextEvent() 
 {
-  if ( m_currentEntry == m_nEntries - 1 ) {
-    printf("At end of file\n"); //Make throw exception
-  }
-  else {
-    ++m_currentEntry;
-    m_event->to(realEntry(m_currentEntry));
+  if (m_event->to(m_event->id().next())) {
     newEvent.emit(*m_event);
-    newEventIndex.emit(m_currentEntry);
     checkPosition();
   }
+  else oldEvent.emit(*m_event);
 }
 
 void
 CmsShowNavigator::previousEvent()
 {
-  if ( m_currentEntry == 0 ) {
-    printf("At begining of file\n"); //Make throw exception
-  }
-  else {
-    --m_currentEntry;
-    m_event->to(realEntry(m_currentEntry));
+  if (m_event->to(m_event->id().previous())) {
     newEvent.emit(*m_event);
-    newEventIndex.emit(m_currentEntry);
     checkPosition();
   }
+  else oldEvent.emit(*m_event);
 }
 
 void
 CmsShowNavigator::firstEvent()
 {
-  m_currentEntry = 0;
-  m_event->to(realEntry(m_currentEntry));
+  m_event->to(realEntry(0));
   newEvent.emit(*m_event);
-  newEventIndex.emit(m_currentEntry);
   atBeginning.emit();
 }
 
 void
-CmsShowNavigator::event(Int_t i)
+CmsShowNavigator::goToRun(Double_t run)
 {
-  if (i > m_nEntries || i < 0) {
-    printf("Invalid selection: larger than number of entries\n");//Throw exception
+  if (m_event->to(static_cast<UInt_t>(run), 0)) {
+    newEvent.emit(*m_event);
+    checkPosition();
   }
-  else {
-    m_currentEntry = i;
-    m_event->to(realEntry(m_currentEntry));
+  else oldEvent.emit(*m_event);
+}
+
+void
+CmsShowNavigator::goToEvent(Double_t event)
+{
+  if (m_event->to(m_event->id().run(), static_cast<UInt_t>(event))) {
+    newEvent.emit(*m_event);
+    checkPosition();
   }
-  newEvent.emit(*m_event);
-  newEventIndex.emit(m_currentEntry);
-  checkPosition();
+  else oldEvent.emit(*m_event);
 }
 
 //

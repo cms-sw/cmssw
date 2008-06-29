@@ -16,7 +16,7 @@
 //
 // Original Author:  Joshua Berger
 //         Created:  Tue Jun 10 14:56:34 EDT 2008
-// $Id$
+// $Id: CmsShowNavigator.h,v 1.1 2008/06/17 00:08:11 chrjones Exp $
 //
 
 // system include files
@@ -28,6 +28,10 @@
 
 // forward declarations
 class TEventList;
+
+namespace edm {
+  class EventID;
+}
 
 class CmsShowNavigator
 {
@@ -43,7 +47,8 @@ class CmsShowNavigator
       void nextEvent();
       void previousEvent();
       void firstEvent();
-      void event(Int_t i);
+      void goToRun(Double_t run);
+      void goToEvent(Double_t event);
       // ---------- static member functions --------------------
 
       // ---------- member functions --------------------------- 
@@ -52,7 +57,8 @@ class CmsShowNavigator
       //      sigc::signal<void, bool> notBegin;
       //      sigc::signal<void, bool> notEnd;
       sigc::signal<void, const fwlite::Event&> newEvent;
-      sigc::signal<void, int> newEventIndex; //To be replaced when we can get index from fwlite::Event
+      sigc::signal<void, const fwlite::Event&> oldEvent;
+      //      sigc::signal<void, int> newEventIndex; //To be replaced when we can get index from fwlite::Event
       sigc::signal<void> newFileLoaded;
       sigc::signal<void> atBeginning;
       sigc::signal<void> atEnd;
@@ -65,6 +71,8 @@ class CmsShowNavigator
       // ---------- member data --------------------------------
       TFile *m_file;
       fwlite::Event *m_event;
+      edm::EventID m_firstID;
+      edm::EventID m_lastID;
       TTree *m_eventTree;
       const char *m_selection;
       TEventList *m_eventList;
