@@ -10,8 +10,6 @@ TtSemiHypothesis::TtSemiHypothesis(const edm::ParameterSet& cfg):
   lightQ_(0), lightQBar_(0), hadronicB_(0), 
   leptonicB_(0), neutrino_(0), lepton_(0)
 {
-  // produces an event hypothesis based on 
-  // a multivariate analysis plus corresponding key
   produces<reco::NamedCompositeCandidate>();
   produces<int>("Key");
 }
