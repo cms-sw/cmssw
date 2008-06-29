@@ -1,7 +1,6 @@
 #include "DataFormats/TrackReco/interface/Track.h"
 #include "DataFormats/TrackReco/interface/TrackFwd.h"
 
-#include "PluginManager/ModuleDef.h"
 #include "FWCore/Framework/interface/MakerMacros.h"
 
 #include "PhysicsTools/UtilAlgos/interface/ObjectSelector.h"
