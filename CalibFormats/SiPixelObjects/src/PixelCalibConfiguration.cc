@@ -16,6 +16,8 @@
 using namespace pos;
 using namespace std;
 
+#define BPIX
+
 PixelCalibConfiguration::PixelCalibConfiguration(std::vector< std::vector<std::string> > & tableMat):
 						 PixelCalibBase(), PixelConfigBase("","","") 
 {
@@ -889,7 +891,14 @@ void PixelCalibConfiguration::nextFECState(std::map<unsigned int, PixelFECConfig
       PixelModuleName module(rocs_[i].rocname());
       rocInfo.trims_=(*trims)[module]->getTrimBits(rocs_[i]);
       rocInfo.masks_=(*masks)[module]->getMaskBits(rocs_[i]);
-      
+
+#ifdef BPIX      
+      const PixelChannel channel = trans->getChannelForROC(rocs_[i]);
+      string tbmChannel = channel.TBMChannelString();
+      cout<<" tbm channel "<<tbmChannel<<endl; 
+      rocInfo.tbmChannel_ = tbmChannel;
+#endif
+
       std::map<std::string, unsigned int> defaultDACValues;
       (*dacs)[PixelModuleName(rocs_[i].rocname())]->getDACSettings(rocs_[i])->getDACs(defaultDACValues);
 
@@ -949,6 +958,16 @@ void PixelCalibConfiguration::nextFECState(std::map<unsigned int, PixelFECConfig
       disablePixels(pixelFECs[theROC.fecnumber()], rocTrims, theROC);
 
     }
+
+    // reset
+    //cout<<"finish init"<<endl;
+    //sleep(1);
+    //pixelFEC->injectrstroc(7,1);
+    // or do    pixelFEC->rocreset(theROC.mfec(),
+    // 		       theROC.mfecchannel(),
+    // 		       14,                    //FIXME hardcode for Channel A
+    // 		       theROC.hubaddress());
+
    
   }
 
@@ -1116,21 +1135,26 @@ void PixelCalibConfiguration::nextFECState(std::map<unsigned int, PixelFECConfig
       iPixelFEC->second->qbufsend();
     }
   }
-
+  
   if (changedWBC){
     for(unsigned int i=0;i<rocs_.size();i++){
-
+      
       PixelHdwAddress theROC=*rocInfo_[i].hdwadd_;
+      
+      int tbmRegister = 14;  // define for TBM-A
+#ifdef BPIX
+      string tbmChannel = rocInfo_[i].tbmChannel_; // get TBM channel
+      if( tbmChannel=="B") tbmRegister = 15;  // for TBM=B
+#endif     
 
       pixelFECs[theROC.fecnumber()]->rocreset(theROC.mfec(),
-					      theROC.mfecchannel(),
-					      14,  //FIXME hardcode for Channel A
-					      theROC.hubaddress());
-    }
+			 theROC.mfecchannel(),
+			 tbmRegister, 
+			 theROC.hubaddress());
+    } // for rocs
   }
 
   return;
-
 } 
 
 // FIXME This code breaks if it is called more than once with different crate numbers!
@@ -1384,6 +1408,7 @@ void PixelCalibConfiguration::disablePixels(PixelFECConfigInterface* pixelFEC,
 					    pos::PixelROCTrimBits* trims, 
 					    PixelHdwAddress theROC) const{
 
+  cout<<" disable ROC "<<theROC.hubaddress()<<" "<<theROC.rocid()<<endl;
   //FIXME This should be done with more efficient commands!
   for (unsigned int row=0;row<80;row++){
     for (unsigned int col=0;col<52;col++){

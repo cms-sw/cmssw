@@ -43,6 +43,7 @@ namespace pos{
     PixelROCTrimBits* trims_;
     PixelROCMaskBits* masks_;
     std::vector<std::pair<unsigned int, unsigned int> > defaultDACs_;
+    std::string tbmChannel_;
   };
 
 
