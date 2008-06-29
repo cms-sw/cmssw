@@ -8,7 +8,7 @@
 //
 // Original Author:  Chris Jones
 //         Created:  Fri Mar  7 14:16:20 EST 2008
-// $Id: FWParameterSetterBase.cc,v 1.1 2008/03/11 02:43:55 chrjones Exp $
+// $Id: FWParameterSetterBase.cc,v 1.2 2008/05/18 09:42:48 jmuelmen Exp $
 //
 
 // system include files
@@ -24,7 +24,7 @@
 
 #include "Fireworks/Core/interface/FWParameterSetterBase.h"
 #include "Fireworks/Core/interface/FWParameterBase.h"
-
+#include "Fireworks/Core/interface/FWParameterSetterEditorBase.h"
 
 //
 // constants, enums and typedefs
@@ -68,7 +68,7 @@ FWParameterSetterBase::~FWParameterSetterBase()
 //
 
 void 
-FWParameterSetterBase::attach(FWParameterBase* iBase, TGedFrame* iFrame)
+FWParameterSetterBase::attach(FWParameterBase* iBase, FWParameterSetterEditorBase* iFrame)
 {
    m_frame=iFrame;
    attach(iBase);
@@ -81,7 +81,8 @@ FWParameterSetterBase::attach(FWParameterBase* iBase, TGedFrame* iFrame)
 void 
 FWParameterSetterBase::update() const
 {
-   m_frame->Update();
+  if (m_frame != 0)
+    m_frame->updateEditor();
 }
 
 //
