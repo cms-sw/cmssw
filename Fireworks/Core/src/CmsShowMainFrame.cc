@@ -8,7 +8,7 @@
 //
 // Original Author:  Chris Jones
 //         Created:  Thu May 29 20:58:23 CDT 2008
-// $Id: CmsShowMainFrame.cc,v 1.2 2008/06/23 01:05:55 chrjones Exp $
+// $Id: CmsShowMainFrame.cc,v 1.3 2008/06/23 09:49:57 jmuelmen Exp $
 //
 
 // system include files
@@ -16,6 +16,7 @@
 #include <TCollection.h>
 #include <TApplication.h>
 #include <TGClient.h>
+#include <TGResourcePool.h>
 #include <TGFrame.h>
 #include <TGSplitter.h>
 #include <TGSplitFrame.h>
@@ -30,8 +31,12 @@
 #include <KeySymbols.h>
 
 // user include files
+#include "DataFormats/FWLite/interface/Event.h"
+#include "DataFormats/Provenance/interface/EventID.h"
 #include "Fireworks/Core/interface/CSGAction.h"
+#include "Fireworks/Core/interface/CSGNumAction.h"
 #include "Fireworks/Core/interface/CmsShowMainFrame.h"
+#include "Fireworks/Core/interface/ActionsList.h"
 
 #include "Fireworks/Core/interface/FWGUIManager.h"
 
@@ -57,32 +62,33 @@ TGMainFrame(p, w, h)
    m_playBackTimer = new TTimer(m_playBackRate);
    m_playTimer->SetObject(this);
    m_playBackTimer->SetObject(this);
-   CSGAction *goToFirst = new CSGAction(this, "Home");
-   /*
-   CSGAction *addRhoPhi = new CSGAction(this, "Rho Phi");
-   CSGAction *addRhoZ = new CSGAction(this, "Rho Z");
-   CSGAction *addLego = new CSGAction(this, "Lego");
-    */
-   CSGAction *openData = new CSGAction(this, "Open Data File...");
-   CSGAction *loadConfig = new CSGAction(this, "Load Configuration...");
-   CSGAction *saveConfig = new CSGAction(this, "Save Configuration");
-   CSGAction *saveConfigAs = new CSGAction(this, "Save Configuration As...");
-   CSGAction *exportImage = new CSGAction(this, "Export Main Viewer Image...");
-   CSGAction *quit = new CSGAction(this, "Quit");
-   CSGAction *undo = new CSGAction(this, "Undo");
-   CSGAction *redo = new CSGAction(this, "Redo");
-   CSGAction *cut = new CSGAction(this, "Cut");
-   CSGAction *copy = new CSGAction(this, "Copy");
-   CSGAction *paste = new CSGAction(this, "Paste");
-   CSGAction *nextEvent = new CSGAction(this, "Goto Next Event");
-   CSGAction *previousEvent = new CSGAction(this, "Goto Previous Event");
-   CSGAction *playEvents = new CSGAction(this, "Play Events");
-   CSGAction *playEventsBack = new CSGAction(this, "Play Events Backwards");
-   CSGAction *pause = new CSGAction(this, "Pause");
-   CSGAction *showObjInsp = new CSGAction(this, "Show Object Inspector");
-   CSGAction *showMainViewCtl = new CSGAction(this, "Show Main View Controller");
-   CSGAction *help = new CSGAction(this, "cmsShow Help...");
-   CSGAction *keyboardShort = new CSGAction(this, "Keyboard Shortcuts...");
+   CSGAction *goToFirst = new CSGAction(this, cmsshow::sHome.c_str());
+   CSGAction *addRhoPhi = new CSGAction(this, cmsshow::sAddRhoPhi.c_str());
+   CSGAction *addRhoZ = new CSGAction(this, cmsshow::sAddRhoZ.c_str());
+   CSGAction *addLego = new CSGAction(this, cmsshow::sAddLego.c_str());
+   CSGAction *openData = new CSGAction(this, cmsshow::sOpenData.c_str());
+   CSGAction *loadConfig = new CSGAction(this, cmsshow::sLoadConfig.c_str());
+   CSGAction *saveConfig = new CSGAction(this, cmsshow::sSaveConfig.c_str());
+   CSGAction *saveConfigAs = new CSGAction(this, cmsshow::sSaveConfigAs.c_str());
+   CSGAction *exportImage = new CSGAction(this, cmsshow::sExportImage.c_str());
+   CSGAction *quit = new CSGAction(this, cmsshow::sQuit.c_str());
+   CSGAction *undo = new CSGAction(this, cmsshow::sUndo.c_str());
+   CSGAction *redo = new CSGAction(this, cmsshow::sRedo.c_str());
+   CSGAction *cut = new CSGAction(this, cmsshow::sCut.c_str());
+   CSGAction *copy = new CSGAction(this, cmsshow::sCopy.c_str());
+   CSGAction *paste = new CSGAction(this, cmsshow::sPaste.c_str());
+   CSGAction *nextEvent = new CSGAction(this, cmsshow::sNextEvent.c_str());
+   CSGAction *previousEvent = new CSGAction(this, cmsshow::sPreviousEvent.c_str());
+   CSGAction *playEvents = new CSGAction(this, cmsshow::sPlayEvents.c_str());
+   CSGAction *playEventsBack = new CSGAction(this, cmsshow::sPlayEventsBack.c_str());
+   CSGAction *pause = new CSGAction(this, cmsshow::sPause.c_str());
+   CSGAction *showObjInsp = new CSGAction(this, cmsshow::sShowObjInsp.c_str());
+   CSGAction *showEventDisplayInsp = new CSGAction(this, cmsshow::sShowEventDisplayInsp.c_str());
+   CSGAction *showMainViewCtl = new CSGAction(this, cmsshow::sShowMainViewCtl.c_str());
+   CSGAction *help = new CSGAction(this, cmsshow::sHelp.c_str());
+   CSGAction *keyboardShort = new CSGAction(this, cmsshow::sKeyboardShort.c_str());
+   m_runEntry = new CSGNumAction(this, "Run Entry");
+   m_eventEntry = new CSGNumAction(this, "Event Entry");
    //   saveConfigAs->activated.connect(sigc::mem_fun(*m_manager, &FWGUIManager::saveConfigAs));
    //   saveConfig->activated.connect(sigc::mem_fun(*m_manager, &FWGUIManager::saveConfig));
    //   goToFirst->activated.connect(sigc::mem_fun(*m_manager, &FWGUIManager::goToFirst));
@@ -90,6 +96,7 @@ TGMainFrame(p, w, h)
    //   previousEvent->activated.connect(sigc::mem_fun(*m_manager, &FWGUIManager::goBack));
    m_nextEvent = nextEvent;
    m_previousEvent = previousEvent;
+   m_goToFirst = goToFirst; 
    //   playEvents->activated.connect(sigc::mem_fun(*this, &CmsShowMainFrame::playEvents));
    //   playEventsBack->activated.connect(sigc::mem_fun(*this, &CmsShowMainFrame::playEventsBack));
    //   pause->activated.connect(sigc::mem_fun(*m_manager, &FWGUIManager::stop));
@@ -160,6 +167,7 @@ TGMainFrame(p, w, h)
    
    showObjInsp->createMenuEntry(viewMenu);
    showObjInsp->createShortcut(kKey_I, "CTRL");
+   showEventDisplayInsp->createMenuEntry(viewMenu);
    showMainViewCtl->createMenuEntry(viewMenu);
    
    TGPopupMenu *helpMenu = new TGPopupMenu(gClient->GetRoot());
@@ -170,6 +178,15 @@ TGMainFrame(p, w, h)
    //   enableNext->createShortcut(kKey_M, "CTRL");
    
    AddFrame(menuBar, new TGLayoutHints(kLHintsExpandX,2,2,2,2));
+
+   FontStruct_t font = gClient->GetResourcePool()->GetMenuHiliteFont()->GetFontStruct();
+   std::vector<CSGAction*>::iterator it_act;
+   printf("Width of <shift> : %d\n", gVirtualX->TextWidth(font, "<shift> ", 8));
+   for (it_act = m_actionList.begin(); it_act != m_actionList.end(); ++it_act) {
+     if ((*it_act)->getMenu() != 0 && (*it_act)->getMenu()->GetEntry((*it_act)->getMenuEntry()) != 0) {
+       printf("Menu %s has width %d\n", (*it_act)->getMenu()->GetEntry((*it_act)->getMenuEntry())->GetLabel()->Data(), gVirtualX->TextWidth(font, (*it_act)->getMenu()->GetEntry((*it_act)->getMenuEntry())->GetLabel()->Data(), (*it_act)->getMenu()->GetEntry((*it_act)->getMenuEntry())->GetLabel()->Length()));
+     }
+   }
 
    /*
    if(0==gSystem->Getenv("ROOTSYS")) {
@@ -190,12 +207,12 @@ TGMainFrame(p, w, h)
    TGHorizontalFrame *texts = new TGHorizontalFrame(fullbar, fullbar->GetWidth() - tools->GetWidth(), 30);
    TGLabel *runText = new TGLabel(texts, "Run: ");
    texts->AddFrame(runText, new TGLayoutHints(kLHintsCenterY,2,2,2,2));
-   m_runEntry = new TGNumberEntryField(texts, -1, 1);
-   texts->AddFrame(m_runEntry, new TGLayoutHints(kLHintsCenterY,2,2,2,2));
+   //   m_runEntry = new TGNumberEntryField(texts, -1, 1);
+   m_runEntry->createNumberEntry(texts, new TGLayoutHints(kLHintsCenterY,2,2,2,2));
    TGLabel *eventText = new TGLabel(texts, "Event: ");
    texts->AddFrame(eventText, new TGLayoutHints(kLHintsCenterY,2,2,2,2));
-   m_eventEntry = new TGNumberEntryField(texts, -1, 1);
-   texts->AddFrame(m_eventEntry, new TGLayoutHints(kLHintsCenterY,2,2,2,2));
+   //   m_eventEntry = new TGNumberEntryField(texts, -1, 1);
+   m_eventEntry->createNumberEntry(texts, new TGLayoutHints(kLHintsCenterY,2,2,2,2));
    fullbar->AddFrame(texts, new TGLayoutHints(kLHintsExpandX,2,2,2,2));
    AddFrame(fullbar, new TGLayoutHints(kLHintsExpandX,2,2,2,2));
    
@@ -330,17 +347,18 @@ void CmsShowMainFrame::defaultAction() {
    printf("Default action!\n");
 }
 
-void CmsShowMainFrame::loadEvent(int i) {
-  m_eventEntry->SetNumber(i);
+void CmsShowMainFrame::loadEvent(const fwlite::Event& event) {
+  m_runEntry->setNumber(event.id().run());
+  m_eventEntry->setNumber(event.id().event());
 }
 
 void CmsShowMainFrame::goForward() {
-  m_eventEntry->SetNumber(m_eventEntry->GetNumber()+1);
+  m_eventEntry->setNumber(m_eventEntry->getNumber()+1);
 }
 
 void CmsShowMainFrame::goBackward() {
-   if (m_eventEntry->GetNumber() > 1) {
-      m_eventEntry->SetNumber(m_eventEntry->GetNumber()-1);
+   if (m_eventEntry->getNumber() > 1) {
+      m_eventEntry->setNumber(m_eventEntry->getNumber()-1);
    }
    else {
       m_playBackTimer->TurnOff();
@@ -348,7 +366,7 @@ void CmsShowMainFrame::goBackward() {
 }
 
 void CmsShowMainFrame::goToFirst() {
-  m_eventEntry->SetNumber(1);
+  m_eventEntry->setNumber(1);
 }
 
 void CmsShowMainFrame::playEvents() {
@@ -392,6 +410,14 @@ CmsShowMainFrame::enableActions(bool enable)
     else
       (*it_act)->disable();
   }
+  if (enable) {
+    m_runEntry->enable();
+    m_eventEntry->enable();
+  }
+  else {
+    m_runEntry->disable();
+    m_eventEntry->disable();
+  }    
 }
 
 void
@@ -402,6 +428,12 @@ CmsShowMainFrame::enablePrevious(bool enable)
       m_previousEvent->enable();
     else
       m_previousEvent->disable();
+  }
+  if (m_goToFirst != 0) {
+    if (enable)
+      m_goToFirst->enable();
+    else
+      m_goToFirst->disable();
   }
 }
 
@@ -473,6 +505,16 @@ void CmsShowMainFrame::resizeMenu(TGPopupMenu *menu) {
 
 const std::vector<CSGAction *>& CmsShowMainFrame::getListOfActions() const {
    return m_actionList;
+}
+
+CSGNumAction* 
+CmsShowMainFrame::getRunEntry() const {
+  return m_runEntry;
+}
+
+CSGNumAction* 
+CmsShowMainFrame::getEventEntry() const {
+  return m_eventEntry;
 }
 
 /*

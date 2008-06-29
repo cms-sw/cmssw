@@ -8,6 +8,9 @@
 #include "Fireworks/Core/interface/DetIdToMatrix.h"
 #include "Fireworks/Core/interface/TEveElementIter.h"
 #include "Fireworks/Core/interface/FWGUIManager.h"
+#include "Fireworks/Core/interface/CmsShowEDI.h"
+#include "Fireworks/Core/interface/CmsShowModelPopup.h"
+#include "Fireworks/Core/interface/CmsShowViewPopup.h"
 #include "Fireworks/Core/interface/FWGUISubviewArea.h"
 #include "Fireworks/Core/interface/FWConfiguration.h"
 #include "Fireworks/Core/interface/FWRhoPhiZViewManager.h"
@@ -34,6 +37,7 @@
 #include "Fireworks/Core/src/FWBoolParameterSetter.h"
 #include "Fireworks/Core/interface/FWBoolParameter.h"
 #include "Fireworks/Core/interface/GenParticleDetailView.h"
+#include "Fireworks/Core/interface/CSGNumAction.h"
 
 
 namespace {

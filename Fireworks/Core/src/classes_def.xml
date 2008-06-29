@@ -7,6 +7,9 @@
   <class name="DetIdToMatrix"/>
   <class name="TEveElementIter"/>
   <class name="FWGUIManager"/>
+  <class name="CmsShowEDI"/>
+  <class name="CmsShowModelPopup"/>
+  <class name="CmsShowViewPopup"/>
   <class name="FWGUISubviewArea"/>
   <class name="FW3DLegoView"/>
   <class name="FWConfiguration"/>
@@ -34,4 +37,5 @@
   <class name="FWLongParameter"/>
   <class name="FWConfiguration::KeyValues"/>
   <class name="GenParticleDetailView"/>
+  <class name="CSGNumAction"/>
 </lcgdict>

@@ -8,7 +8,7 @@
 //
 // Original Author:  Chris Jones
 //         Created:  Thu May 29 20:58:11 CDT 2008
-// $Id$
+// $Id: CSGAction.cc,v 1.1 2008/06/17 00:08:11 chrjones Exp $
 //
 
 // system include files
@@ -134,7 +134,7 @@ void CSGAction::createShortcut(UInt_t key, const char *mod) {
    }
    else if (strcmp(mod, "CTRL+SHIFT") == 0) {
       modcode = kKeyControlMask | kKeyShiftMask;
-      scText = "<ctrl> <shift> "; 
+      scText = "<ctrl> "; 
    }
    else {
       // Default to ALT for now
@@ -237,7 +237,7 @@ Bool_t CSGAction::resizeMenuEntry() {
       realName.Replace(0,2,0,0);
    }
    TString scText = m_scCombo;
-   while (gVirtualX->TextWidth(font, realName.Data(), realName.Length()) + gVirtualX->TextWidth(font, scText.Data(), scText.Length()) + 50 < (Int_t)width) {
+   while (gVirtualX->TextWidth(font, realName.Data(), realName.Length()) + gVirtualX->TextWidth(font, scText.Data(), scText.Length()) + 53 < (Int_t)width) {
       widthChanged = kFALSE;
       realName += " ";
    }

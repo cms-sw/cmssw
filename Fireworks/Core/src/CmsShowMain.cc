@@ -8,7 +8,7 @@
 //
 // Original Author:  
 //         Created:  Mon Dec  3 08:38:38 PST 2007
-// $Id: CmsShowMain.cc,v 1.10 2008/06/27 05:34:43 srappocc Exp $
+// $Id: CmsShowMain.cc,v 1.11 2008/06/28 22:23:39 dmytro Exp $
 //
 
 // system include files
@@ -64,6 +64,7 @@
 
 #include "Fireworks/Core/interface/CmsShowNavigator.h"
 #include "Fireworks/Core/interface/CSGAction.h"
+#include "Fireworks/Core/interface/CSGNumAction.h"
 
 #include "Fireworks/Core/interface/ActionsList.h"
 
@@ -94,7 +95,7 @@ CmsShowMain::CmsShowMain(int argc, char *argv[]) :
   m_textView(0)
   //  m_configFileName(iConfigFileName)
 {
-    namespace po = boost::program_options;
+  namespace po = boost::program_options;
   po::options_description desc("Allowed options");
   desc.add_options()
     ("input-file",    po::value<std::string>(), "Input root file")
@@ -369,16 +370,21 @@ CmsShowMain::CmsShowMain(int argc, char *argv[]) :
   registerDetailView("GenParticles", new GenParticleDetailView);
   
   m_navigator = new CmsShowNavigator();
-  m_navigator->newEventIndex.connect(sigc::mem_fun(*m_guiManager, &FWGUIManager::loadEvent));
+  m_navigator->oldEvent.connect(sigc::mem_fun(*m_guiManager, &FWGUIManager::loadEvent));
+  m_navigator->newEvent.connect(sigc::mem_fun(*m_guiManager, &FWGUIManager::loadEvent));
   m_navigator->newEvent.connect(sigc::mem_fun(*this, &CmsShowMain::draw));
   m_navigator->newFileLoaded.connect(sigc::mem_fun(*this, &CmsShowMain::resetInitialization));
   m_navigator->atBeginning.connect(sigc::mem_fun(*m_guiManager, &FWGUIManager::disablePrevious));
   m_navigator->atEnd.connect(sigc::mem_fun(*m_guiManager, &FWGUIManager::disableNext));
-  if (m_guiManager->getAction(sOpenData) != 0) m_guiManager->getAction(sOpenData)->activated.connect(sigc::mem_fun(*this, &CmsShowMain::openData));
-  if (m_guiManager->getAction(sNextEvent) != 0) m_guiManager->getAction(sNextEvent)->activated.connect(sigc::mem_fun(*m_navigator, &CmsShowNavigator::nextEvent));
-  if (m_guiManager->getAction(sPreviousEvent) != 0) m_guiManager->getAction(sPreviousEvent)->activated.connect(sigc::mem_fun(*m_navigator, &CmsShowNavigator::previousEvent));
-  if (m_guiManager->getAction(sQuit) != 0) m_guiManager->getAction(sQuit)->activated.connect(sigc::mem_fun(*this, &CmsShowMain::quit));
-  
+  if (m_guiManager->getAction(cmsshow::sOpenData) != 0) m_guiManager->getAction(cmsshow::sOpenData)->activated.connect(sigc::mem_fun(*this, &CmsShowMain::openData));
+  if (m_guiManager->getAction(cmsshow::sNextEvent) != 0) m_guiManager->getAction(cmsshow::sNextEvent)->activated.connect(sigc::mem_fun(*m_navigator, &CmsShowNavigator::nextEvent));
+  if (m_guiManager->getAction(cmsshow::sPreviousEvent) != 0) m_guiManager->getAction(cmsshow::sPreviousEvent)->activated.connect(sigc::mem_fun(*m_navigator, &CmsShowNavigator::previousEvent));
+  if (m_guiManager->getAction(cmsshow::sHome) != 0) m_guiManager->getAction(cmsshow::sHome)->activated.connect(sigc::mem_fun(*m_navigator, &CmsShowNavigator::firstEvent));
+  if (m_guiManager->getAction(cmsshow::sQuit) != 0) m_guiManager->getAction(cmsshow::sQuit)->activated.connect(sigc::mem_fun(*this, &CmsShowMain::quit));
+  if (m_guiManager->getAction(cmsshow::sShowEventDisplayInsp) != 0) m_guiManager->getAction(cmsshow::sShowEventDisplayInsp)->activated.connect(sigc::mem_fun(*m_guiManager, &FWGUIManager::createEDIFrame));
+  if (m_guiManager->getAction(cmsshow::sShowMainViewCtl) != 0) m_guiManager->getAction(cmsshow::sShowMainViewCtl)->activated.connect(sigc::mem_fun(*m_guiManager, &FWGUIManager::createViewPopup));
+  if (m_guiManager->getRunEntry() != 0) m_guiManager->getRunEntry()->activated.connect(sigc::mem_fun(*m_navigator, &CmsShowNavigator::goToRun));
+  if (m_guiManager->getEventEntry() != 0) m_guiManager->getEventEntry()->activated.connect(sigc::mem_fun(*m_navigator, &CmsShowNavigator::goToEvent));
   m_navigator->loadFile(m_inputFileName);
    
    if(debugMode) {
@@ -436,7 +442,7 @@ void CmsShowMain::openData()
   fi.fFileTypes = kRootType;
   fi.fIniDir = ".";
   new TGFileDialog(gClient->GetDefaultRoot(), gClient->GetDefaultRoot(), kFDOpen, &fi);
-  m_navigator->loadFile(fi.fFilename);
+  if (fi.fFilename) m_navigator->loadFile(fi.fFilename);
 }
 
 void CmsShowMain::quit() 

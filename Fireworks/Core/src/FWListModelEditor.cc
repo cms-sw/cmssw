@@ -8,7 +8,7 @@
 //
 // Original Author:  Chris Jones
 //         Created:  Mon Mar  3 17:20:28 EST 2008
-// $Id: FWListModelEditor.cc,v 1.1 2008/03/05 15:07:31 chrjones Exp $
+// $Id: FWListModelEditor.cc,v 1.2 2008/03/18 15:39:09 chrjones Exp $
 //
 
 // system include files
@@ -17,7 +17,7 @@
 // user include files
 #include "Fireworks/Core/src/FWListModelEditor.h"
 #include "Fireworks/Core/src/FWListModel.h"
-
+#include "Fireworks/Core/interface/FWGUIManager.h"
 
 //
 // constants, enums and typedefs
@@ -71,6 +71,7 @@ FWListModelEditor::SetModel(TObject* obj)
 {
    m_model = dynamic_cast<FWListModel*>(obj);
    m_showDetailViewButton->SetEnabled(m_model->hasDetailView());
+   FWGUIManager::getGUIManager()->updateModel(m_model);
 }
 
 void 

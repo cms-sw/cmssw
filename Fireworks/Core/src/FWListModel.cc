@@ -8,11 +8,12 @@
 //
 // Original Author:  Chris Jones
 //         Created:  Mon Mar  3 17:20:14 EST 2008
-// $Id: FWListModel.cc,v 1.11 2008/03/25 13:54:51 chrjones Exp $
+// $Id: FWListModel.cc,v 1.12 2008/06/08 16:59:01 dmytro Exp $
 //
 
 // system include files
 #include <assert.h>
+#include <iostream>
 #include <sstream>
 
 // user include files
@@ -64,6 +65,7 @@ m_id(iId),
 
 FWListModel::~FWListModel()
 {
+  //  std::cout<<"Here I am with address "<<this<<std::endl;
 }
 
 //

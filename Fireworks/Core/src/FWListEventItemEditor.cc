@@ -8,7 +8,7 @@
 //
 // Original Author:  Chris Jones
 //         Created:  Mon Mar  3 09:36:01 EST 2008
-// $Id: FWListEventItemEditor.cc,v 1.2 2008/06/12 15:08:06 chrjones Exp $
+// $Id: FWListEventItemEditor.cc,v 1.3 2008/06/25 22:14:09 chrjones Exp $
 //
 
 // system include files
@@ -17,6 +17,7 @@
 #include "TEveManager.h"
 
 // user include files
+#include "Fireworks/Core/interface/FWGUIManager.h"
 #include "Fireworks/Core/src/FWListEventItemEditor.h"
 #include "Fireworks/Core/src/FWListEventItem.h"
 #include "Fireworks/Core/interface/FWEventItem.h"
@@ -88,27 +89,27 @@ FWListEventItemEditor::SetModel(TObject* iObj)
    m_item = dynamic_cast<FWListEventItem*>(iObj);
    assert(0!=m_item);
    m_filterExpression->SetText(m_item->eventItem()->filterExpression().c_str());
-   
+   FWGUIManager::getGUIManager()->updateEDI(m_item->eventItem());
 }
 
 void
 FWListEventItemEditor::runFilter()
 {
    if(m_item!=0) {
-      m_item->eventItem()->setFilterExpression(m_filterExpression->GetText());
+     m_item->eventItem()->setFilterExpression(m_filterExpression->GetText());
    }
 }
 
 void
 FWListEventItemEditor::removeItem()
 {
-   if(m_item !=0) {
-      m_item->eventItem()->destroy();
-      delete m_item;
-      m_item = 0;
-      gEve->EditElement(0);
-      gEve->Redraw3D();
-   }
+  if (m_item != 0) {
+    m_item->eventItem()->destroy();
+    //    delete m_item;
+    m_item = 0;
+    gEve->EditElement(0);
+    gEve->Redraw3D();
+  }
 }
 //
 // const member functions

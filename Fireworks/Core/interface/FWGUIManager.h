@@ -16,15 +16,16 @@
 //
 // Original Author:  Chris Jones
 //         Created:  Mon Feb 11 10:52:24 EST 2008
-// $Id: FWGUIManager.h,v 1.26 2008/06/23 15:51:11 chrjones Exp $
+// $Id: FWGUIManager.h,v 1.27 2008/06/25 22:16:59 chrjones Exp $
 //
 
 // system include files
 #include <map>
 #include <boost/function.hpp>
 #include <boost/shared_ptr.hpp>
-#include <sigc++/signal.h>
+#include <sigc++/sigc++.h>
 #include "Rtypes.h"
+#include "GuiTypes.h"
 
 // user include files
 #include "Fireworks/Core/interface/FWConfigurable.h"
@@ -43,11 +44,15 @@ class CmsShowMainFrame;
 class TGMainFrame;
 class TGTab;
 class TGCompositeFrame;
+class TGCheckButton;
 class FWGUISubviewArea;
 
 class FWEventItemsManager;
 class FWEventItem;
+class FWListEventItem;
 class FWViewBase;
+
+class FWListModel;
 
 class TGListTreeItem;
 class TGListTree;
@@ -62,8 +67,17 @@ class FWModelChangeManager;
 
 class  TGPopupMenu;
 class CSGAction;
+class CSGNumAction;
 
 class FWGUIEventDataAdder;
+
+namespace fwlite {
+  class Event;
+}
+
+class CmsShowEDI;
+class CmsShowModelPopup;
+class CmsShowViewPopup;
 
 class FWGUIManager : public FWConfigurable
 {
@@ -82,9 +96,22 @@ class FWGUIManager : public FWConfigurable
       TGVerticalFrame* createList(TGSplitFrame *p);
       TGMainFrame* createViews(TGCompositeFrame *p);
       TGMainFrame* createTextView(TGTab *p);
+      void createEDIFrame();
+      void updateEDI(FWEventItem* iItem);
+      void resetEDIFrame();
+      void createModelPopup();
+      void updateModel(FWListModel* iModel);
+      void resetModelPopup();
+      void createViewPopup();
+      void refillViewPopup(FWViewBase* iView);
+      void resetViewPopup();
       // ---------- const member functions ---------------------
+      //      bool waitingForUserAction() const;
+      CSGNumAction* getRunEntry();
+      CSGNumAction* getEventEntry();
 
       // ---------- static member functions --------------------
+      static FWGUIManager* getGUIManager();
 
       // ---------- member functions ---------------------------
       void addFrameHoldingAView(TGFrame*);
@@ -102,7 +129,7 @@ class FWGUIManager : public FWConfigurable
       void enableActions(bool enable = true);
       void disablePrevious();
       void disableNext();
-      void loadEvent(int i);
+      void loadEvent(const fwlite::Event& event);
 
       CSGAction* getAction(const std::string name);
 
@@ -140,6 +167,7 @@ class FWGUIManager : public FWConfigurable
 
       // ---------- member data --------------------------------
 
+      static FWGUIManager* m_guiManager;
       FWSelectionManager* m_selectionManager;
       FWEventItemsManager* m_eiManager;
       FWModelChangeManager* m_changeManager;
@@ -188,8 +216,15 @@ class FWGUIManager : public FWConfigurable
    
       FWGUIEventDataAdder* m_dataAdder;
 
+      // event data inspector
+      CmsShowEDI* m_ediFrame;
+      CmsShowModelPopup* m_modelPopup;
+      CmsShowViewPopup* m_viewPopup;
+
       TGTab		*m_textViewTab;
       TGCompositeFrame	*m_textViewFrame[3];
+
+      sigc::connection m_modelChangeConn;
 };
 
 

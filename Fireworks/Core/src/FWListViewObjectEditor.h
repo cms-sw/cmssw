@@ -16,7 +16,7 @@
 //
 // Original Author:  Chris Jones
 //         Created:  Mon Mar 10 09:02:56 CDT 2008
-// $Id$
+// $Id: FWListViewObjectEditor.h,v 1.1 2008/03/11 02:45:43 chrjones Exp $
 //
 
 // system include files
@@ -24,12 +24,13 @@
 #include "TGedFrame.h"
 
 // user include files
+#include "Fireworks/Core/interface/FWParameterSetterEditorBase.h"
 
 // forward declarations
 class TGVerticalFrame;
 class FWParameterSetterBase;
 
-class FWListViewObjectEditor : public TGedFrame
+class FWListViewObjectEditor : public TGedFrame, public FWParameterSetterEditorBase
 {
 
    public:
@@ -43,6 +44,7 @@ class FWListViewObjectEditor : public TGedFrame
 
       // ---------- member functions ---------------------------
       virtual void SetModel(TObject* obj);
+      virtual void updateEditor();
       ClassDef(FWListViewObjectEditor, 0);
 
    private:

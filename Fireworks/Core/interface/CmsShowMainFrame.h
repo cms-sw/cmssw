@@ -16,7 +16,7 @@
 //
 // Original Author:  Chris Jones
 //         Created:  Thu May 29 18:11:16 CDT 2008
-// $Id: CmsShowMainFrame.h,v 1.1 2008/06/17 00:08:11 chrjones Exp $
+// $Id: CmsShowMainFrame.h,v 1.2 2008/06/23 01:05:55 chrjones Exp $
 //
 
 // system include files
@@ -33,11 +33,15 @@ class TGWindow;
 class TGTextButton;
 class TGPictureButton;
 class TGPopupMenu;
-class TGNumberEntryField;
 class TTimer;
 class CSGAction;
+class CSGNumAction;
 class FWGUIManager;
 class TGPopupMenu;
+
+namespace fwlite {
+  class Event;
+}
 
 class CmsShowMainFrame : public TGMainFrame, public sigc::trackable {
    RQ_OBJECT("CmsShowMainFrame")
@@ -48,6 +52,8 @@ public:
    
    // ---------- const member functions ---------------------
    const std::vector<CSGAction*>& getListOfActions() const;
+   CSGNumAction* getRunEntry() const;
+   CSGNumAction* getEventEntry() const;
    Long_t getDelay() const;
    
    // ---------- static member functions --------------------
@@ -60,7 +66,7 @@ public:
    Bool_t activateToolBarEntry(int entry);
    void connect(TQObject *sender, const char *signal, const char *slot);
    void defaultAction();
-   void loadEvent(int i);
+   void loadEvent(const fwlite::Event& event);
    void goForward();
    void goBackward();
    void goToFirst();
@@ -89,10 +95,11 @@ private:
    std::vector<CSGAction*> m_actionList;
    FWGUIManager *m_manager;
    Long_t m_delay;
-   TGNumberEntryField *m_runEntry;
-   TGNumberEntryField *m_eventEntry;
+   CSGNumAction *m_runEntry;
+   CSGNumAction *m_eventEntry;
    CSGAction *m_nextEvent;
    CSGAction *m_previousEvent;
+   CSGAction *m_goToFirst;
    Int_t m_playRate;
    Int_t m_playBackRate;
    TTimer *m_playTimer;

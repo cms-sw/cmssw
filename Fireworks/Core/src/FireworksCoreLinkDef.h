@@ -12,6 +12,7 @@
 #include "Fireworks/Core/src/CSGConnector.h"
 #include "Fireworks/Core/src/CmsShowMain.h"
 #include "Fireworks/Core/src/FWGUIEventDataAdder.h"
+#include "Fireworks/Core/src/FWColorSelect.h"
 
 #ifdef __CINT__
 #pragma link off all globals;
@@ -35,5 +36,10 @@
 #pragma link C++ function fwGetObjectPtr();
 #pragma link C++ class CSGConnector;
 #pragma link C++ class CmsShowMain;
+#pragma link C++ class FWColorFrame;
+#pragma link C++ class FWColorPopup;
+#pragma link C++ class FWColorRow;
+#pragma link C++ class FWColorSelect;
+
 
 #endif

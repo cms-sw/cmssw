@@ -8,7 +8,7 @@
 //
 // Original Author:  Chris Jones
 //         Created:  Mon Mar 10 09:02:57 CDT 2008
-// $Id: FWListViewObjectEditor.cc,v 1.2 2008/05/18 09:42:48 jmuelmen Exp $
+// $Id: FWListViewObjectEditor.cc,v 1.3 2008/06/06 13:24:40 fwyzard Exp $
 //
 
 // system include files
@@ -23,7 +23,6 @@
 #include "Fireworks/Core/interface/FWParameterSetterBase.h"
 #include "Fireworks/Core/interface/FWParameterizable.h"
 #include "Fireworks/Core/interface/FWViewBase.h"
-
 
 
 //
@@ -81,7 +80,7 @@ FWListViewObjectEditor::SetModel(TObject* iView)
    assert(0!=obj);
    
    FWViewBase* view = obj->view();
-   
+
    if (m_frame) {
       m_frame->UnmapWindow();
       RemoveFrame(m_frame);
@@ -105,6 +104,11 @@ FWListViewObjectEditor::SetModel(TObject* iView)
    }
    
    MapSubwindows();
+}
+
+void
+FWListViewObjectEditor::updateEditor() {
+  Update();
 }
 //
 // const member functions
