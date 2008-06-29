@@ -738,6 +738,18 @@ PixelFEDCard::PixelFEDCard(string fileName):
   if(localDEBUG)
     printf("Fifo-3 almost full level,sets TTs WARN (max 8191):%d\n",fifo3Wrnlvl);
 
+  fscanf(infile,"FED Master delay 0=0,1=32,2=48,3=64:%d\n",
+			   &FedTTCDelay);
+  if(localDEBUG)
+    printf("FED Master delay 0=0,1=32,2=48,3=64:%d\n",FedTTCDelay);
+
+	int checkword=0;
+  fscanf(infile,"Params FED file check word:%d\n",
+			   &checkword);
+	if(checkword!=60508)cout<<"FEDID:"<<fedNumber<<" Params FED File read error. Checkword read "<<checkword<<" check word expected 060508"<<endl;
+
+	if(localDEBUG)
+    printf("Params FED file check word:%d\n",checkword);
 
 
 
@@ -1020,6 +1032,13 @@ void PixelFEDCard::writeASCII(std::string dir) const{
       //These bits set the Almost Full level in fifo-3, Almost full = TTs WARN in fifo-3
   fprintf(outfile,"Fifo-3 almost full level,sets TTs WARN (max 8191):%d\n",
          fifo3Wrnlvl);
+
+	fprintf(outfile,"FED Master delay 0=0,1=32,2=48,3=64:%d\n",
+				 FedTTCDelay);
+		
+ int checkword=60508;
+  fprintf(outfile,"Params FED file check word:%d\n",
+			   checkword);
 
   fclose(outfile);
 
