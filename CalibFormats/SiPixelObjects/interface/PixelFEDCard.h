@@ -114,6 +114,9 @@ namespace pos{
 
     //data Regs adjustable fifo Almost Full levels
     int Nfifo1Bzlvl,NCfifo1Bzlvl,SCfifo1Bzlvl,Sfifo1Bzlvl,fifo3Wrnlvl;
+		
+		//Master delay for FED TTC signals 
+		int FedTTCDelay;
 
     //The values as read from file so that they can be restored after
     //calibration
