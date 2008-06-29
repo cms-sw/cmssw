@@ -17,6 +17,8 @@ class TrackTableManager;
 class VertexTableManager;
 class TGMainFrame;
 class TGTab;
+class TGTextEntry;
+class TGCheckButton;
 class TGCompositeFrame;
 class TGTransientFrame;
 class FWTableManager;
@@ -41,7 +43,8 @@ public:
      void	update ();
      void	undock ();
      void	redock ();
-     void	dump ();
+     void	dumpToFile ();
+     void	dumpToPrinter ();
 		     
 public:
      std::string			title;
@@ -50,6 +53,9 @@ public:
      TGTab				*parent_tab;
      TGTransientFrame			*undocked;
      TGCompositeFrame			*parent;
+     TGTextEntry			*file_name;
+     TGCheckButton			*append_button;
+     TGTextEntry			*print_command;
      FWTextView				*view;
      FWTextViewPage			*prev;
      FWTextViewPage			*next;

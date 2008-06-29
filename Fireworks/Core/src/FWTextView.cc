@@ -23,6 +23,8 @@
 #include "TEveManager.h"
 #include "TEveViewer.h"
 #include "TGTextView.h"
+#include "TGTextEntry.h"
+#include "TGButton.h"
 #include "TStopwatch.h"
 #include "TGTab.h"
 
@@ -48,20 +50,38 @@ FWTextViewPage::FWTextViewPage (const std::string &title_,
 {
      const int width=frame->GetWidth();
      const int height=frame->GetHeight();
+     TGHorizontalFrame *m_buttons = new TGHorizontalFrame(frame, width, 25);
      TGPictureButton *m_undockButton = 
-	  new TGPictureButton(frame, FWGUISubviewArea::undockIcon());
+	  new TGPictureButton(m_buttons, FWGUISubviewArea::undockIcon());
      m_undockButton->SetToolTipText("Undock view to own window");
      m_undockButton->SetHeight(25);
-     frame->AddFrame(m_undockButton, new TGLayoutHints(kLHintsTop|kLHintsLeft|
-							   kLHintsExpandX));
+     m_buttons->AddFrame(m_undockButton, new TGLayoutHints);
      m_undockButton->Connect("Clicked()", "FWTextViewPage", this, "undock()");
      TGTextButton *m_dumpButton = 
-	  new TGTextButton(frame, "Dump to terminal");
-     m_dumpButton->SetToolTipText("Dump tables to terminal");
+	  new TGTextButton(m_buttons, "Dump to file");
+     m_dumpButton->SetToolTipText("Dump tables to file");
      m_dumpButton->SetHeight(25);
-     frame->AddFrame(m_dumpButton, new TGLayoutHints(kLHintsTop|kLHintsLeft|
-						     kLHintsExpandX));
-     m_dumpButton->Connect("Clicked()", "FWTextViewPage", this, "dump()");
+     m_buttons->AddFrame(m_dumpButton, new TGLayoutHints);
+     m_dumpButton->Connect("Clicked()", "FWTextViewPage", this, "dumpToFile()");
+     file_name = new TGTextEntry(m_buttons, "event_dump.txt");
+     file_name->SetToolTipText("File name for dump (- for stdout)");
+     file_name->SetHeight(25);
+     m_buttons->AddFrame(file_name, new TGLayoutHints(kLHintsExpandX));
+     append_button = new TGCheckButton(m_buttons, "append to file");
+     append_button->SetToolTipText("Append to dump file");
+     append_button->SetHeight(25);
+     m_buttons->AddFrame(append_button, new TGLayoutHints());
+     TGTextButton *m_printButton = 
+	  new TGTextButton(m_buttons, "Dump to printer");
+     m_printButton->SetToolTipText("Dump tables to printer");
+     m_printButton->SetHeight(25);
+     m_buttons->AddFrame(m_printButton, new TGLayoutHints());
+     m_printButton->Connect("Clicked()", "FWTextViewPage", this, "dumpToPrinter()");
+     print_command = new TGTextEntry(m_buttons, "enscript -r -f Courier7");
+     print_command->SetToolTipText("Print command");
+     print_command->SetHeight(25);
+     m_buttons->AddFrame(print_command, new TGLayoutHints(kLHintsExpandX));
+     frame->AddFrame(m_buttons, new TGLayoutHints(kLHintsTop | kLHintsExpandX));
      for (std::vector<FWTableManager *>::const_iterator i = tables.begin();
 	  i != tables.end(); ++i) {
 	  (*i)->MakeFrame(frame, width, height);
@@ -78,7 +98,7 @@ void FWTextViewPage::undock ()
    // Extract the frame contained in this split frame an reparent it in a 
    // transient frame. Keep a pointer on the transient frame to be able to
    // swallow the child frame back to this.
-   if (frame) {
+   if (undocked == 0) {
 	parent = (TGCompositeFrame *)dynamic_cast<const TGCompositeFrame *>(frame->GetParent());
 	assert(parent != 0);
 // 	printf("this frame: %d, parent: %d; TGTab: %d\n", 
@@ -155,12 +175,46 @@ void FWTextViewPage::update ()
      }
 }
 
-void FWTextViewPage::dump ()
+void FWTextViewPage::dumpToFile ()
 {
+     if (strcmp(file_name->GetBuffer()->GetString(), "-") == 0) {
+	  printf("dumping to stdout... ");
+	  for (std::vector<FWTableManager *>::const_iterator i = tables.begin();
+	       i != tables.end(); ++i) {
+	       (*i)->dump(stdout);
+	  }
+	  printf("done.\n");
+     } else {
+	  FILE *f = fopen(file_name->GetBuffer()->GetString(),
+			  append_button->IsOn() ? "a" : "w");
+	  if (f == 0) {
+	       perror(file_name->GetBuffer()->GetString());
+	       return;
+	  }
+	  printf("dumping to file... ");
+	  for (std::vector<FWTableManager *>::const_iterator i = tables.begin();
+	       i != tables.end(); ++i) {
+	       (*i)->dump(f);
+	  }
+	  fclose(f);
+	  printf("done.\n");
+     }
+}
+
+void FWTextViewPage::dumpToPrinter ()
+{
+     FILE *f = popen(print_command->GetBuffer()->GetString(), "w");
+     if (f == 0) {
+	  perror(print_command->GetBuffer()->GetString());
+	  return;
+     }
+     printf("dumping to printer... ");
      for (std::vector<FWTableManager *>::const_iterator i = tables.begin();
 	  i != tables.end(); ++i) {
- 	  (*i)->dump(stdout);
+ 	  (*i)->dump(f);
      }
+     printf("done.\n");
+     pclose(f);
 }
 
 FWTextView::FWTextView (CmsShowMain *de, FWSelectionManager *sel,
