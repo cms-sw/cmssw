@@ -221,14 +221,14 @@ void SiPixelRawDataErrorModule::fill(const edm::DetSetVector<SiPixelRawDataError
 	  int T6 = (errorWord >> DB6_shift) & DataBit_mask;
 	  int T7 = (errorWord >> DB7_shift) & DataBit_mask;
 	  int TBMMessage;
-	  if (T0==1) TBMMessage=0; (meTBMMessage_)->Fill((int)TBMMessage);
-	  if (T1==1) TBMMessage=1; (meTBMMessage_)->Fill((int)TBMMessage);
-	  if (T2==1) TBMMessage=2; (meTBMMessage_)->Fill((int)TBMMessage);
-	  if (T3==1) TBMMessage=3; (meTBMMessage_)->Fill((int)TBMMessage);
-	  if (T4==1) TBMMessage=4; (meTBMMessage_)->Fill((int)TBMMessage);
-	  if (T5==1) TBMMessage=5; (meTBMMessage_)->Fill((int)TBMMessage);
-	  if (T6==1) TBMMessage=6; (meTBMMessage_)->Fill((int)TBMMessage);
-	  if (T7==1) TBMMessage=7; (meTBMMessage_)->Fill((int)TBMMessage);
+	  if (T0==1) { TBMMessage=0; (meTBMMessage_)->Fill((int)TBMMessage); }
+	  if (T1==1) { TBMMessage=1; (meTBMMessage_)->Fill((int)TBMMessage); }
+	  if (T2==1) { TBMMessage=2; (meTBMMessage_)->Fill((int)TBMMessage); }
+	  if (T3==1) { TBMMessage=3; (meTBMMessage_)->Fill((int)TBMMessage); }
+	  if (T4==1) { TBMMessage=4; (meTBMMessage_)->Fill((int)TBMMessage); }
+	  if (T5==1) { TBMMessage=5; (meTBMMessage_)->Fill((int)TBMMessage); }
+	  if (T6==1) { TBMMessage=6; (meTBMMessage_)->Fill((int)TBMMessage); }
+	  if (T7==1) { TBMMessage=7; (meTBMMessage_)->Fill((int)TBMMessage); }
 	  int StateMach_bits      = 4;
 	  int StateMach_shift     = 8;
 	  uint32_t StateMach_mask = ~(~uint32_t(0) << StateMach_bits);
@@ -352,14 +352,14 @@ void SiPixelRawDataErrorModule::fillFED(const edm::DetSetVector<SiPixelRawDataEr
 	    int T6 = (errorWord >> DB6_shift) & DataBit_mask;
 	    int T7 = (errorWord >> DB7_shift) & DataBit_mask;
 	    int TBMMessage;
-	    if (T0==1) TBMMessage=0; (meTBMMessage_)->Fill((int)TBMMessage);
-	    if (T1==1) TBMMessage=1; (meTBMMessage_)->Fill((int)TBMMessage);
-	    if (T2==1) TBMMessage=2; (meTBMMessage_)->Fill((int)TBMMessage);
-	    if (T3==1) TBMMessage=3; (meTBMMessage_)->Fill((int)TBMMessage);
-	    if (T4==1) TBMMessage=4; (meTBMMessage_)->Fill((int)TBMMessage);
-	    if (T5==1) TBMMessage=5; (meTBMMessage_)->Fill((int)TBMMessage);
-	    if (T6==1) TBMMessage=6; (meTBMMessage_)->Fill((int)TBMMessage);
-	    if (T7==1) TBMMessage=7; (meTBMMessage_)->Fill((int)TBMMessage);
+	    if (T0==1) { TBMMessage=0; (meTBMMessage_)->Fill((int)TBMMessage); }
+	    if (T1==1) { TBMMessage=1; (meTBMMessage_)->Fill((int)TBMMessage); }
+	    if (T2==1) { TBMMessage=2; (meTBMMessage_)->Fill((int)TBMMessage); }
+	    if (T3==1) { TBMMessage=3; (meTBMMessage_)->Fill((int)TBMMessage); }
+	    if (T4==1) { TBMMessage=4; (meTBMMessage_)->Fill((int)TBMMessage); }
+	    if (T5==1) { TBMMessage=5; (meTBMMessage_)->Fill((int)TBMMessage); }
+	    if (T6==1) { TBMMessage=6; (meTBMMessage_)->Fill((int)TBMMessage); }
+	    if (T7==1) { TBMMessage=7; (meTBMMessage_)->Fill((int)TBMMessage); }
 	    int StateMach_bits      = 4;
 	    int StateMach_shift     = 8;
 	    uint32_t StateMach_mask = ~(~uint32_t(0) << StateMach_bits);
