@@ -1,4 +1,3 @@
-#include "PluginManager/ModuleDef.h"
 #include "FWCore/Framework/interface/InputSourceMacros.h"
 #include "FWCore/Framework/interface/MakerMacros.h"
 #include "IORawData/RPCFileReader/interface/RPCFileReader.h"
