@@ -1,5 +1,3 @@
-//#include "FWCore/PluginManager/interface/ModuleDef.h"
-#include "PluginManager/ModuleDef.h"
 #include "FWCore/Framework/interface/MakerMacros.h"
 #include "EventFilter/ESRawToDigi/interface/ESRawToDigi.h"
 #include "EventFilter/ESRawToDigi/interface/ESRawToDigiTB.h"
