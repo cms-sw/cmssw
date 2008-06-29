@@ -12,7 +12,7 @@ include project.mk
 # 
 # common compiler flags
 # COMPILERFLAGS := -Wall -O2
-COMPILERFLAGS := -Wall -O0 -g -m32
+COMPILERFLAGS := -Wall -O2 -g -m32
 # common includes
 INCLUDE := -I./ -Isrc -I$(FWROOTSYS)/include -Icms $(addprefix -I,$(CoreIncludes)) $(addprefix -I,$(ProjectIncludes))
 # compiler
@@ -50,7 +50,7 @@ LinkerOptions := -Wl,-rpath -Wl,
 LDLIBRARYPATH := `pwd` `pwd`/external/lib $(FWROOTSYS)/lib
 
 all: display
-	
+
 display: lib$(LibProject).so tmp/lib$(LibProject).so.out
 
 lib$(LibProject).so: $(ProjectObjects) $(ProjectRootDicObjects) $(ProjectDictionaryObjects) lib$(LibCore).so
@@ -74,3 +74,5 @@ project.mk: extractCMSDataFormats.pl $(ProjectBuildFiles)
 # 	$(QUIET) ./check_dependencies.pl $< $@ $(INCLUDE)
 # 
 # include $(addprefix tmp/,$(ProjectSources:.cc=.d))
+
+.PRECIOUS: $(ProjectDictionarySources) $(ProjectRootDicSources)
