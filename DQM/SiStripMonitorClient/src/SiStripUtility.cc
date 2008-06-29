@@ -1,4 +1,6 @@
 #include "DQM/SiStripMonitorClient/interface/SiStripUtility.h"
+#include "DQMServices/Core/interface/MonitorElement.h"
+#include "DQMServices/Core/interface/DQMStore.h"
 using namespace std;
 //
 // Get a list of MEs in a folder
@@ -118,4 +120,22 @@ int SiStripUtility::getMEStatus(MonitorElement* me) {
     status = dqm::qstatus::STATUS_OK;
   }
   return status;
+}
+//
+// --  Fill Module Names
+// 
+void SiStripUtility::getModuleFolderList(DQMStore * dqm_store, vector<string>& mfolders){
+  string currDir = dqm_store->pwd();
+  if (currDir.find("module_") != string::npos)  {
+    string mId = currDir.substr(currDir.find("module_")+7, 9);
+    mfolders.push_back(mId);
+  } else {  
+    vector<string> subdirs = dqm_store->getSubdirs();
+    for (vector<string>::const_iterator it = subdirs.begin();
+	 it != subdirs.end(); it++) {
+      dqm_store->cd(*it);
+      getModuleFolderList(dqm_store, mfolders);
+      dqm_store->goUp();
+    }
+  }
 }

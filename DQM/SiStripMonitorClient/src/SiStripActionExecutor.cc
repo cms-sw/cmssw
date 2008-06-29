@@ -117,15 +117,36 @@ void SiStripActionExecutor::bookGlobalStatus(DQMStore* dqm_store) {
     
     dqm_store->setCurrentFolder("SiStrip/EventInfo/reportSummaryContents");      
     
-    SummaryTIB  = dqm_store->bookFloat("SummaryTIB");
-    SummaryTOB  = dqm_store->bookFloat("SummaryTOB");
-    SummaryTIDF = dqm_store->bookFloat("SummaryTIDF");
-    SummaryTIDB = dqm_store->bookFloat("SummaryTIDB");
-    SummaryTECF = dqm_store->bookFloat("SummaryTECF");
-    SummaryTECB = dqm_store->bookFloat("SummaryTECB");
+    SummaryTIB  = dqm_store->bookFloat("SiStrip_TIB");
+    SummaryTOB  = dqm_store->bookFloat("SiStrip_TOB");
+    SummaryTIDF = dqm_store->bookFloat("SiStrip_TIDF");
+    SummaryTIDB = dqm_store->bookFloat("SiStrip_TIDB");
+    SummaryTECF = dqm_store->bookFloat("SiStrip_TECF");
+    SummaryTECB = dqm_store->bookFloat("SiStrip_TECB");
     
     bookedGlobalStatus_ = true;
+    fillDummyGlobalStatus();
   }
+}
+//
+// -- Fill Dummy Global Status
+//
+void SiStripActionExecutor::fillDummyGlobalStatus(){
+  SummaryReport->Fill(-1.0);
+
+  SummaryTIB->Fill(-1.0);
+  SummaryTOB->Fill(-1.0);
+  SummaryTIDF->Fill(-1.0);
+  SummaryTIDB->Fill(-1.0);
+  SummaryTECF->Fill(-1.0);
+  SummaryTECB->Fill(-1.0);
+  
+  for (unsigned int xbin = 1; xbin < 7; xbin++) {
+    for (unsigned int ybin = 1; ybin < 10; ybin++) {
+      SummaryReportMap->Fill(xbin, ybin, -1.0);
+    }
+  }
+
 }
 // 
 // -- Fill Global Status
@@ -220,20 +241,6 @@ void SiStripActionExecutor::fillGlobalStatus(const edm::ESHandle<SiStripDetCabli
       }
   }
   SummaryReportMap->Reset();
-  string dname;
-  dname = "SiStrip/MechanicalView/TIB";
-  fillSubDetStatus(dqm_store, dname, nMeTIBTot, nMeTIBErr, 1);  
-  dname = "SiStrip/MechanicalView/TOB";
-  fillSubDetStatus(dqm_store, dname, nMeTOBTot, nMeTOBErr, 2);  
-  dname = "SiStrip/MechanicalView/TID/side_2";
-  fillSubDetStatus(dqm_store, dname,  nMeTIDFTot, nMeTIDFErr, 3);  
-  dname = "SiStrip/MechanicalView/TID/side_1";
-  fillSubDetStatus(dqm_store, dname,  nMeTIDBTot, nMeTIDBErr, 4);  
-  dname = "SiStrip/MechanicalView/TEC/side_2";
-  fillSubDetStatus(dqm_store, dname,  nMeTECFTot, nMeTECFErr, 5);  
-  dname = "SiStrip/MechanicalView/TEC/side_1";
-  fillSubDetStatus(dqm_store, dname,  nMeTECBTot, nMeTECBErr, 6);  
-
   if (nDetTot > 0) {
     gStatus = (1 - nDetErr*1.0/nDetTot);
     
@@ -244,6 +251,20 @@ void SiStripActionExecutor::fillGlobalStatus(const edm::ESHandle<SiStripDetCabli
     if (nDetTECFTot > 0) statusTECF = (1 - nDetTECFErr*1.0/nDetTECFTot);
     if (nDetTECBTot > 0) statusTECB = (1 - nDetTECBErr*1.0/nDetTECBTot);
     
+    string dname;
+    dname = "SiStrip/MechanicalView/TIB";
+    fillSubDetStatus(dqm_store, dname, 1);  
+    dname = "SiStrip/MechanicalView/TOB";
+    fillSubDetStatus(dqm_store, dname, 2);  
+    dname = "SiStrip/MechanicalView/TID/side_2";
+    fillSubDetStatus(dqm_store, dname, 3);  
+    dname = "SiStrip/MechanicalView/TID/side_1";
+    fillSubDetStatus(dqm_store, dname, 4);  
+    dname = "SiStrip/MechanicalView/TEC/side_2";
+    fillSubDetStatus(dqm_store, dname, 5);  
+    dname = "SiStrip/MechanicalView/TEC/side_1";
+    fillSubDetStatus(dqm_store, dname, 6);  
+
     cout <<"# of Det TIB : (tot)"<<setw(5)<<nDetTIBTot<< " (error) "<<nDetTIBErr <<" ==> "<<statusTIB<< endl; 
     cout <<"# of Det TOB : (tot)"<<setw(5)<<nDetTOBTot<< " (error) "<<nDetTOBErr <<" ==> "<<statusTOB<< endl; 
     cout <<"# of Det TIDF: (tot)"<<setw(5)<<nDetTIDFTot<<" (error) "<<nDetTIDFErr<<" ==> "<<statusTIDF<< endl; 
@@ -251,6 +272,20 @@ void SiStripActionExecutor::fillGlobalStatus(const edm::ESHandle<SiStripDetCabli
     cout <<"# of Det TECF: (tot)"<<setw(5)<<nDetTECFTot<<" (error) "<<nDetTECFErr<<" ==> "<<statusTECF<< endl; 
     cout <<"# of Det TECB: (tot)"<<setw(5)<<nDetTECBTot<<" (error) "<<nDetTECBErr<<" ==> "<<statusTECB<< endl; 
   } else {
+
+    string dname;
+    dname = "SiStrip/MechanicalView/TIB";
+    fillSubDetStatus(dqm_store, dname, nMeTIBTot, nMeTIBErr, 1);  
+    dname = "SiStrip/MechanicalView/TOB";
+    fillSubDetStatus(dqm_store, dname, nMeTOBTot, nMeTOBErr, 2);  
+    dname = "SiStrip/MechanicalView/TID/side_2";
+    fillSubDetStatus(dqm_store, dname,  nMeTIDFTot, nMeTIDFErr, 3);  
+    dname = "SiStrip/MechanicalView/TID/side_1";
+    fillSubDetStatus(dqm_store, dname,  nMeTIDBTot, nMeTIDBErr, 4);  
+    dname = "SiStrip/MechanicalView/TEC/side_2";
+    fillSubDetStatus(dqm_store, dname,  nMeTECFTot, nMeTECFErr, 5);  
+    dname = "SiStrip/MechanicalView/TEC/side_1";
+    fillSubDetStatus(dqm_store, dname,  nMeTECBTot, nMeTECBErr, 6);  
 
     nMeTot = nMeTIBTot + nMeTOBTot + nMeTIDFTot + nMeTIDBTot + nMeTECFTot + nMeTECBTot;
     nMeErr = nMeTIBErr + nMeTOBErr + nMeTIDFErr + nMeTIDBErr + nMeTECFErr + nMeTECBErr;
@@ -284,27 +319,71 @@ void SiStripActionExecutor::fillGlobalStatus(const edm::ESHandle<SiStripDetCabli
 //
 // -- fill subDetStatus
 //
+void SiStripActionExecutor::fillSubDetStatus(DQMStore* dqm_store, string& dname, unsigned int xbin) {
+  if (dqm_store->dirExists(dname)) {
+    dqm_store->cd(dname);
+    SiStripFolderOrganizer folder_organizer;
+    vector<string> subDirVec = dqm_store->getSubdirs();
+    unsigned int ybin = 0;
+    for (vector<string>::const_iterator ic = subDirVec.begin();
+	 ic != subDirVec.end(); ic++) {
+      int tot_det = 0, err_det =0;
+      dqm_store->cd((*ic));
+      vector<string> mids;
+      SiStripUtility::getModuleFolderList(dqm_store, mids);
+      for (vector<string>::const_iterator im = mids.begin();
+           im != mids.end(); im++) {
+         uint32_t detId = atoi((*im).c_str());
+	 string subdir_path;
+	 folder_organizer.getFolderName(detId, subdir_path);
+	 vector<MonitorElement*> meVec = dqm_store->getContents(subdir_path);
+         if (meVec.size() == 0) continue;
+         tot_det++; 
+         int err_me = 0;
+	 for (vector<MonitorElement*>::const_iterator it = meVec.begin();
+	      it != meVec.end(); it++) {
+	   MonitorElement * me = (*it);     
+	   if (!me) continue;
+	   if (me->getQReports().size() == 0) continue;
+	   int istat =  SiStripUtility::getMEStatus((*it)); 
+	   if (istat == dqm::qstatus::ERROR)   err_me++;
+	 }
+         if (err_me > 0) err_det++;
+      }
+      ybin++;
+      float eff_fac = 1 - (err_det*1.0/tot_det);
+      if (tot_det > 0.0) SummaryReportMap->Fill(xbin,ybin, eff_fac);
+      else SummaryReportMap->Fill(xbin,ybin, -1.0);
+    }
+    unsigned ytot = SummaryReportMap->getNbinsY();
+    if (ybin < ytot) {
+      for (unsigned int ic = ybin+1; ic < ytot+1; ic++) SummaryReportMap->Fill(xbin,ic,-1);
+    }
+  }
+}
 void SiStripActionExecutor::fillSubDetStatus(DQMStore* dqm_store, string& dname,  
-                            int& tot_me_subdet, int& error_me_subdet, int xbin) {
+                            int& tot_me_subdet, int& error_me_subdet, unsigned int xbin) {
   if (dqm_store->dirExists(dname)) {
     dqm_store->cd(dname);
     vector<string> subDirVec = dqm_store->getSubdirs();
-    int ybin = 0;
+    unsigned int ybin = 0;
     tot_me_subdet = error_me_subdet = 0;
     for (vector<string>::const_iterator ic = subDirVec.begin();
 	 ic != subDirVec.end(); ic++) {
+      vector<string> mids;
+      SiStripUtility::getModuleFolderList(dqm_store, mids);
       vector<MonitorElement*> meVec;
+      
       meVec = dqm_store->getAllContents((*ic));
-      float error_me = 0.0;
-      float tot_me = 0.0;
+      int error_me = 0;
+      int tot_me = 0;
       for (vector<MonitorElement*>::const_iterator it = meVec.begin();
                it != meVec.end(); it++) {
 	MonitorElement * me = (*it);     
 	if (!me) continue;
-
-	if (me->getQReports().size() == 0) continue;
         tot_me++;
         tot_me_subdet++;
+	if (me->getQReports().size() == 0) continue;
 	int istat =  SiStripUtility::getMEStatus((*it)); 
 	if (istat == dqm::qstatus::ERROR)  {
           error_me++;
@@ -312,10 +391,11 @@ void SiStripActionExecutor::fillSubDetStatus(DQMStore* dqm_store, string& dname,
         }
       }
       ybin++;
-      if (tot_me > 0.0) SummaryReportMap->Fill(xbin,ybin, (1-error_me/tot_me));
+      float eff_fac = 1 - (error_me*1.0/tot_me);
+      if (tot_me > 0.0) SummaryReportMap->Fill(xbin,ybin, eff_fac);
       else SummaryReportMap->Fill(xbin,ybin, -1.0);
     }
-    int ytot = SummaryReportMap->getNbinsY();
+    unsigned ytot = SummaryReportMap->getNbinsY();
     if (ybin < ytot) {
       for (unsigned int ic = ybin+1; ic < ytot+1; ic++) SummaryReportMap->Fill(xbin,ic,-1);
     }
