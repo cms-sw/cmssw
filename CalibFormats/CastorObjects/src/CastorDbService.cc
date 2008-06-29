@@ -19,7 +19,6 @@
 #include "CondFormats/CastorObjects/interface/CastorQIEData.h"
 #include "CondFormats/CastorObjects/interface/CastorChannelQuality.h"
 #include "CondFormats/CastorObjects/interface/CastorElectronicsMap.h"
-#include "RecoLocalCalo/CaloTowersCreator/interface/EScales.h"
 
 
 CastorDbService::CastorDbService () 
