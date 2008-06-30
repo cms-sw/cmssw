@@ -21,7 +21,7 @@ template <class T>
 T cscPackAndUnpack(T & t)
 {
   boost::dynamic_bitset<> firstPack = t.pack();
-  unsigned char data[1000];
+  unsigned char data[10000];
   bitset_utilities::bitsetToChar(firstPack, data);
   return T((unsigned short int *)data);
 }
