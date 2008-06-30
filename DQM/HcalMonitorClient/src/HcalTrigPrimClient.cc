@@ -23,7 +23,7 @@ void HcalTrigPrimClient::init(const ParameterSet& ps, DQMStore* dbe, string clie
   OCC_ELEC_VME_ = NULL;
   OCC_ELEC_DCC_ = NULL;
   OCC_MAP_GEO_ = NULL;
-  OCC_MAP_SLB_ = NULL;
+
   OCC_MAP_THR_ = NULL;
   EN_ETA_ = NULL;
   EN_PHI_ = NULL;
@@ -98,7 +98,7 @@ void HcalTrigPrimClient::cleanup(void) {
     if(OCC_ELEC_VME_) delete OCC_ELEC_VME_;
     if(OCC_ELEC_DCC_) delete OCC_ELEC_DCC_;
     if(OCC_MAP_GEO_) delete OCC_MAP_GEO_;
-    if(OCC_MAP_SLB_) delete OCC_MAP_SLB_;
+
     if(OCC_MAP_THR_) delete OCC_MAP_THR_;
     if(EN_ETA_) delete EN_ETA_;
     if(EN_PHI_) delete EN_PHI_;
@@ -129,7 +129,7 @@ void HcalTrigPrimClient::cleanup(void) {
   OCC_ELEC_VME_ = NULL;
   OCC_ELEC_DCC_ = NULL;
   OCC_MAP_GEO_ = NULL;
-  OCC_MAP_SLB_ = NULL;
+ 
   OCC_MAP_THR_ = NULL;
   EN_ETA_ = NULL;
   EN_PHI_ = NULL;
@@ -183,7 +183,7 @@ void HcalTrigPrimClient::getHistograms(){
   OCC_ELEC_VME_ = getHisto2("TrigPrimMonitor/TrigPrim VME Occupancy Map",process_, dbe_, debug_,cloneME_);  
   OCC_ELEC_DCC_ = getHisto2("TrigPrimMonitor/TrigPrim Spigot Occupancy Map",process_, dbe_, debug_,cloneME_);  
   OCC_MAP_GEO_ = getHisto2("TrigPrimMonitor/TrigPrim Geo Occupancy Map",process_, dbe_, debug_,cloneME_);  
-  OCC_MAP_SLB_ = getHisto2("TrigPrimMonitor/TrigPrim SLB Occupancy Map",process_, dbe_, debug_,cloneME_);  
+
   OCC_MAP_THR_ = getHisto2("TrigPrimMonitor/TrigPrim Geo Threshold Map",process_, dbe_, debug_,cloneME_);  
   EN_ETA_ = getHisto("TrigPrimMonitor/TrigPrim Eta Energy Map",process_, dbe_, debug_,cloneME_);  
   EN_PHI_ = getHisto("TrigPrimMonitor/TrigPrim Phi Energy Map",process_, dbe_, debug_,cloneME_);  
@@ -255,8 +255,7 @@ void HcalTrigPrimClient::resetAllME(){
   resetME(name,dbe_);  
   sprintf(name,"%sHcal/TrigPrimMonitor/TrigPrim Geo Occupancy Map",process_.c_str());
   resetME(name,dbe_);  
-  sprintf(name,"%sHcal/TrigPrimMonitor/TrigPrim SLB Occupancy Map",process_.c_str());
-  resetME(name,dbe_);  
+
   sprintf(name,"%sHcal/TrigPrimMonitor/TrigPrim Geo Threshold Map",process_.c_str());
   resetME(name,dbe_);  
   sprintf(name,"%sHcal/TrigPrimMonitor/TrigPrim Eta Energy Map",process_.c_str());
@@ -393,7 +392,7 @@ void HcalTrigPrimClient::htmlOutput(int runNo, string htmlDir, string htmlName){
   htmlFile << "</tr>" << endl;
 
   htmlFile << "<tr align=\"left\">" << endl;
-  histoHTML2(runNo,OCC_MAP_SLB_,"SLB","SLB Chan", 100, htmlFile,htmlDir);
+ 
   histoHTML2(runNo,OCC_MAP_THR_,"iEta","iPhi", 92, htmlFile,htmlDir);
   htmlFile << "</tr>" << endl;
 
