@@ -1,255 +1,219 @@
-/*
- *  See header file for a description of this class.
- *
- *  $Date: 2008/04/25 14:24:57 $
- *  $Revision: 1.1 $
- *  \author Anna Cimmino
- */
-
+/*  \author Anna Cimmino*/
+#include <string>
+#include <sstream>
+#include <map>
 #include <DQM/RPCMonitorClient/interface/RPCEventSummary.h>
-
+#include "DQM/RPCMonitorDigi/interface/RPCBookFolderStructure.h"
 // Framework
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include <FWCore/Framework/interface/LuminosityBlock.h>
-#include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include <FWCore/Framework/interface/Event.h>
-
+#include "FWCore/ParameterSet/interface/ParameterSet.h"
 //DQM Services
 #include "DQMServices/Core/interface/DQMStore.h"
-
 //DataFormats
 #include <DataFormats/MuonDetId/interface/RPCDetId.h>
-#include "DataFormats/RPCDigi/interface/RPCDigi.h"
-#include "DataFormats/RPCDigi/interface/RPCDigiCollection.h"
-
-// Geometry
+//Geometry
 #include "Geometry/RPCGeometry/interface/RPCGeomServ.h"
-
-#include <stdio.h>
-#include <string>
-#include <sstream>
-#include <math.h>
+#include "Geometry/RPCGeometry/interface/RPCGeometry.h"
+#include "Geometry/Records/interface/MuonGeometryRecord.h"
 
 using namespace edm;
 using namespace std;
-
 RPCEventSummary::RPCEventSummary(const ParameterSet& ps ){
- 
   LogVerbatim ("rpceventsummary") << "[RPCEventSummary]: Constructor";
 
-  //get event info folder (remenber: this module must run after EventInfo!!!!
+  enableReportSummary_ = ps.getUntrackedParameter<bool>("EnableSummaryReport",true);
+  prescaleFactor_ =  ps.getUntrackedParameter<int>("PrescaleFactor", 10);
   eventInfoPath_ = ps.getUntrackedParameter<string>("EventInfoPath", "RPC/EventInfo");
-
   prefixDir_ = ps.getUntrackedParameter<string>("RPCPrefixDir", "RPC/RecHits");
-
-
-  enableDetectorSegmentation_ = ps.getUntrackedParameter<bool>("EnableDetectorSegmentation", true);
+  verbose_=ps.getUntrackedParameter<unsigned int>("VerboseLevel", 0);
 
 }
 
-
 RPCEventSummary::~RPCEventSummary(){
-  
   LogVerbatim ("rpceventsummary") << "[RPCEventSummary]: Destructor ";
-  
+
   dbe_=0;
 }
 
-//called only once
 void RPCEventSummary::beginJob(const EventSetup& iSetup){
-
- LogVerbatim ("rpceventsummary") << "[RPCEventSummary]: Begin job ---------------------------------------------";
+ LogVerbatim ("rpceventsummary") << "[RPCEventSummary]: Begin job ";
   
- // get hold of back-end interface
  dbe_ = Service<DQMStore>().operator->();
 
+ dbe_->setVerbose(verbose_);
 }
 
-
-//Begin Run
 void RPCEventSummary::beginRun(const Run& r, const EventSetup& c){
-
  LogVerbatim ("rpceventsummary") << "[RPCEventSummary]: Begin run";
-
-//set to -1 the event summary info (-1 = no info yet ... but it's coming....)
 
  MonitorElement* me;
  dbe_->setCurrentFolder(eventInfoPath_);
 
- string histoName="reportSummary";
-
  //a global summary float [0,1] providing a global summary of the status 
  //and showing the goodness of the data taken by the the sub-system 
+ string histoName="reportSummary";
  if ( me = dbe_->get(eventInfoPath_ +"/"+ histoName) ) {
     dbe_->removeElement(me->getName());
   }
 
   me = dbe_->bookFloat(histoName);
-  me->Fill(1);
+  me->Fill(-1);
 
+  //TH2F ME providing a map of values[0-1] to show if problems are localized or distributed
   if ( me = dbe_->get(eventInfoPath_ + "/reportSummaryMap") ) {
      dbe_->removeElement(me->getName());
   }
-  me = dbe_->book2D("reportSummaryMap", "reportSummaryMap", 100, 0, 100, 100, 0, 100);
-  me->setAxisTitle("jphi", 1);
-  me->setAxisTitle("jeta", 2);
+  me = dbe_->book2D("reportSummaryMap", "RPC Report Summary Map", 15, -7.5, 7.5, 12, 0.5 ,12.5);
+  
+  //customize the 2d histo
+  stringstream BinLabel;
+  for (int i= 1 ; i<=15; i++){
+    BinLabel.str("");
+    if(i<13){
+      BinLabel<<"Sec"<<i;
+       me->setBinLabel(i,BinLabel.str(),2);
+    } 
 
-  //fill the histo with "-1" --- just for the moment
-  for(int i=0; i<100; i++){
-    for (int j=0; j<100; j++ ){
-      me->setBinContent(i,j,1);
-    }
+    BinLabel.str("");
+    if(i<5)
+      BinLabel<<"Disk"<<i-5;
+    else if(i>11)
+      BinLabel<<"Disk"<<i-11;
+    else if(i==11 || i==5)
+      BinLabel.str("");
+    else
+      BinLabel<<"Wheel"<<i-8;
+ 
+     me->setBinLabel(i,BinLabel.str(),1);
   }
 
-
- dbe_->setCurrentFolder(eventInfoPath_+ "/reportSummaryContents");
+  //fill the histo with "1" --- just for the moment
+  for(int i=1; i<=15; i++){
+     for (int j=1; j<=12; j++ ){
+       me->setBinContent(i,j,0);
+     }
+   }
 
  //the reportSummaryContents folder containins a collection of ME floats [0-1] (order of 5-10)
- // which describe the behavior of the respective subsystem sub-component.
-  segmentNames.push_back("RPCEndcap-");
-  segmentNames.push_back("RPCBarrel");
-  segmentNames.push_back("RPCEndcap+");
+ // which describe the behavior of the respective subsystem sub-components.
+ dbe_->setCurrentFolder(eventInfoPath_+ "/reportSummaryContents");
+
+  segmentNames.push_back("RPC_Wheel-2");
+  segmentNames.push_back("RPC_Wheel-1");
+  segmentNames.push_back("RPC_Wheel0");
+  segmentNames.push_back("RPC_Wheel1");
+  segmentNames.push_back("RPC_Wheel2");
+
+  segmentNames.push_back("RPC_Disk-4");
+  segmentNames.push_back("RPC_Disk-3");
+  segmentNames.push_back("RPC_Disk-2");
+  segmentNames.push_back("RPC_Disk-1");
+  segmentNames.push_back("RPC_Disk1");
+  segmentNames.push_back("RPC_Disk2");
+  segmentNames.push_back("RPC_Disk3");
+  segmentNames.push_back("RPC_Disk4");
+  
+  //  segmentNames.push_back("RPC_DataIntegrity");
+  // segmentNames.push_back("RPC_Timing");
 
   for(int i=0; i<segmentNames.size(); i++){
     if ( me = dbe_->get(eventInfoPath_ + "/reportSummaryContents/" +segmentNames[i]) ) {
       dbe_->removeElement(me->getName());
     }
     me = dbe_->bookFloat(segmentNames[i]);
-    me->Fill(1);
+    me->Fill(-1);
   }
 }
-  
 
-void RPCEventSummary::beginLuminosityBlock(LuminosityBlock const& lumiSeg, EventSetup const& context) {
+void RPCEventSummary::beginLuminosityBlock(LuminosityBlock const& lumiSeg, EventSetup const& context){} 
 
-  LogVerbatim ("rpceventsummary") <<"[RPCEventSummary]: Begin of LS transition";
+void RPCEventSummary::analyze(const Event& iEvent, const EventSetup& c) {}
 
-  // Get the run number & luminosity block
-  // run = lumiSeg.run();
-  //  lumiBlock=lumiSeg.luminosityBlock();
-}
-
-
-//called at each event
-void RPCEventSummary::analyze(const edm::Event& iEvent, const edm::EventSetup& c){
-  
-  LogVerbatim ("rpceventsummary") << "[RPCEventSummary]:  analyzer called ";
-
-  /// get didgi collection for event
-  Handle<RPCDigiCollection> rpcdigis;
-  iEvent.getByType(rpcdigis);
-
-  //get new Histos
-  //loop on digi collection 
-  for( RPCDigiCollection::DigiRangeIterator collectionItr=rpcdigis->begin();collectionItr!=rpcdigis->end(); ++collectionItr){
-    RPCDetId detId=(*collectionItr ).first; 
-    map<RPCDetId ,string>::iterator meItr = meCollection.find(detId);
-    if (meItr == meCollection.end() || (meCollection.size()==0)) {
-      
-      meCollection[detId] = getMEName(detId);
-    }
-  }// end loop on digi collection
-}      
-
-
-void RPCEventSummary::endLuminosityBlock(LuminosityBlock const& lumiSeg, EventSetup const& context) {  
-
-
-  edm::LogVerbatim ("rpceventsummary") <<"[RPCEventSummary]: End of LS transition, performing the DQM client operation";
+void RPCEventSummary::endLuminosityBlock(LuminosityBlock const& lumiSeg, EventSetup const& iSetup) {  
+  LogVerbatim ("rpceventsummary") <<"[RPCEventSummary]: End of LS transition, performing DQM client operation";
   
   // counts number of lumiSegs 
-  //  nLumiSegs_ = lumiSeg.id().luminosityBlock();
-  vector <float> badChannelsInSegment; 
-  vector <float> channelsInSegment;
-
-  for(int i =0 ;i<3; i++){
-    badChannelsInSegment.push_back(0);
-    channelsInSegment.push_back(0);
-  }
-
-  float totalBadChannels=0;
-  float  totalChannels=0;
-
- /* 
+  nLumiSegs_ = lumiSeg.id().luminosityBlock();
   //check some statements and prescale Factor
-  if( !getQualityTestsFromFile ||  nLumiSegs_%prescaleFactor != 0 ) return;
- */
+  if(!enableReportSummary_  ||  nLumiSegs_%prescaleFactor_ != 0) return;
 
-  // Occupancy test - the test was already performed and attached to the ME. Here we only retreive the results
-  string OccupancyTestName ="DeadChannel_0"; 
+  ESHandle<RPCGeometry> rpcGeo;
+  iSetup.get<MuonGeometryRecord>().get(rpcGeo);
  
-  //Loop over Histos
-  for(std::map<RPCDetId, string>::const_iterator hOccIt = meCollection.begin();hOccIt != meCollection.end(); hOccIt++) {
- 
-    //get hold of ME
-    MonitorElement * myMe = dbe_->get((*hOccIt).second);//(*hOccIt).second);
-
-    //get quality report
-    if (!myMe) continue; 
-    const QReport * theOccupancyQReport = myMe->getQReport(OccupancyTestName);
-  
-    if(theOccupancyQReport) {
-      vector<dqm::me_util::Channel> badChannels = theOccupancyQReport->getBadChannels();
-      
-      totalBadChannels+=badChannels.size();
-      totalChannels += myMe->getNbinsX();
-     
-      //check if region is barrel or endcap
-      if (enableDetectorSegmentation_){
-	  badChannelsInSegment[(*hOccIt).first.region()+1]+=badChannels.size();
-	  channelsInSegment[(*hOccIt).first.region()+1]+= myMe->getNbinsX();
-      }
-    }
-    else 
-      LogVerbatim ("rpceventsummary") << "[RPCEventSummary]: No Event Summary from  "<<(*hOccIt).second;       
-  }//end loop over Histos
-  
-
-  //calulate total alive fraction of strips to give an event summary status label (number from 0 -> 1)
-  float fraction = 1;
-  if(totalChannels!=0) fraction = ((int)(((totalChannels-totalBadChannels)/totalChannels)*100))/100.0;
-  LogVerbatim ("rpceventsummary") << "[RPCEventSummary]: Total Alive Detector Fraction:"<<fraction;
-
-  MonitorElement * meEventSummary = dbe_->get(eventInfoPath_+"/reportSummary");
-  if(meEventSummary) meEventSummary->Fill(fraction);
-  
-  if (enableDetectorSegmentation_){
-    stringstream meSegmentName;
+  map<int, map< int ,  pair<float,float> > >  barrelMap, endcapPlusMap, endcapMinusMap;
     
-    //loop on detector segments
-        for (int i = 0 ; i<channelsInSegment.size(); i++){
-      float fraction1=1;
-      if (channelsInSegment[i]!=0) fraction1 = ((int)(((channelsInSegment[i]-badChannelsInSegment[i])/channelsInSegment[i])*100))/100.0;
+  //Loop on chambers
+  for (TrackingGeometry::DetContainer::const_iterator it=rpcGeo->dets().begin();it<rpcGeo->dets().end();it++){
+    if( dynamic_cast< RPCChamber* >( *it ) != 0 ){
+       RPCChamber* ch = dynamic_cast< RPCChamber* >( *it ); 
+       std::vector< const RPCRoll*> roles = (ch->rolls());
+       int ty=1;
+       //Loop on rolls in given chamber
+       for(std::vector<const RPCRoll*>::const_iterator r = roles.begin();r != roles.end(); ++r){
+	 RPCDetId detId = (*r)->id();
+	 //Get Occupancy ME for roll
+	 RPCGeomServ RPCname(detId);
+	 RPCBookFolderStructure *  folderStr = new RPCBookFolderStructure();
+	 MonitorElement * myMe = dbe_->get(prefixDir_+"/"+ folderStr->folderStructure(detId)+"/Occupancy_"+RPCname.name()); 
+	 if (!myMe)continue;
+	 const QReport * theOccupancyQReport = myMe->getQReport("DeadChannel_0");  
+	 if(!theOccupancyQReport) continue;
+	 vector<dqm::me_util::Channel> badChannels = theOccupancyQReport->getBadChannels();
+	 float goodFraction =((*r)->nstrips() - badChannels.size())/(*r)->nstrips();		  
+	 if (detId.region()==0) {
+	   barrelMap[detId.ring()][detId.sector()].first += goodFraction;
+	   barrelMap[detId.ring()][detId.sector()].second++ ;
+	 }else if(detId.region()==-1){
+	   endcapMinusMap[detId.station()][detId.sector()].first +=  badChannels.size();
+	   endcapMinusMap[detId.station()][detId.sector()].second+=(*r)->nstrips() ;
+	 }else {
+	   endcapPlusMap[detId.station()][detId.sector()].first +=  badChannels.size();
+	   endcapPlusMap[detId.station()][detId.sector()].second+=(*r)->nstrips();
+	 }
+	 ty++;      
+       }//End loop on rolls in given chambers
+    }
+  }//End loop on chamber
+  
+  //fill report Summary MEs
+  MonitorElement *   reportSummary = dbe_->get(eventInfoPath_ +"/reportSummary");
+  MonitorElement *   reportSummaryMap = dbe_->get(eventInfoPath_ +"/reportSummaryMap");
+  // MonitorElement *   reportSummaryBarrel = dbe_->get(eventInfoPath_ +"/reportSummaryContents/RPCSummaryBarrel");
 
-      meSegmentName.str("");
-      meSegmentName<<eventInfoPath_<<"/reportSummaryContents/"<<segmentNames[i];
-      MonitorElement * meSegment = dbe_->get(meSegmentName.str());
-      if(meSegment){ meSegment->Fill(fraction1);
-      }
-    }//end loop on detector segments
+  
+  //Loop on barrel report summary data 
+  map<int,map<int,pair<float,float> > >::const_iterator itr;
+  stringstream meName;
+
+  float allRolls=0;
+  float allGood=0;
+
+  for (itr=barrelMap.begin(); itr!=barrelMap.end(); itr++){
+    float wheelRolls=0; 
+    float wheelGood=0;
+    for (map< int ,  pair<float,float> >::const_iterator meItr = (*itr).second.begin(); meItr!=(*itr).second.end();meItr++){
+      //Fill report summary map, a TH2F ME.
+      if ((*meItr).second.second != 0) 
+	reportSummaryMap->setBinContent((*itr).first+8,(*meItr).first, ((*meItr).second.first/(*meItr).second.second) ); 
+      else reportSummaryMap->setBinContent((*itr).first+8,(*meItr).first,-1);
+      wheelGood += (*meItr).second.first;
+      wheelRolls += (*meItr).second.second;
+    }
+    allGood += wheelGood;
+    allRolls +=  wheelRolls ;
+    //Fill wheel/disk report summary
+    meName.str("");
+    meName<<eventInfoPath_<<"/reportSummaryContents/RPC_Wheel"<<(*itr).first;
+    MonitorElement *   reportSummaryContents = dbe_->get( meName.str());
+    if (wheelRolls != 0)  reportSummaryContents->Fill(wheelGood/wheelRolls);
+    else reportSummary->Fill(-1);
   }
+  //Fill report summary
+  if (allRolls!=0)   reportSummary->Fill( allGood/allRolls);
+  else reportSummary->Fill(-1);
 }
 
-// find ME name using RPC geometry
-string RPCEventSummary::getMEName(RPCDetId & detId) {    
-  string regionName;
-  string ringType;
-  
-  if(detId.region() ==  0) {
-    regionName="Barrel";
-    ringType="Wheel";
-  }else{
-    ringType="Disk";
-    if(detId.region() == -1) regionName="Encap-";
-    if(detId.region() ==  1) regionName="Encap+";
-  }
-  
-  //get hold of RPCName  
-  RPCGeomServ RPCname(detId);
-  
-  /// Get histos
-  stringstream myStream ;
-  myStream <<prefixDir_<<"/" <<regionName<<"/"<<ringType<<"_"<<detId.ring()<<"/station_"<<detId.station()<<"/sector_"<<detId.sector()<<"/Occupancy_"<<RPCname.name();
-  
-  return myStream.str();
-}
+
+

@@ -6,8 +6,8 @@
  * *
  *  DQM Event Summary module for RPCs
  *
- *  $Date: 2008/04/25 14:24:56 $
- *  $Revision: 1.1 $
+ *  $Date: 2008/05/27 18:26:47 $
+ *  $Revision: 1.2 $
  *  \author Anna Cimmino
  *   
  */
@@ -15,20 +15,10 @@
 #include "FWCore/Framework/interface/Frameworkfwd.h"
 #include <FWCore/Framework/interface/EDAnalyzer.h>
 #include <FWCore/Framework/interface/ESHandle.h>
-//#include <FWCore/Framework/interface/Event.h>
-//#include <FWCore/Framework/interface/Run.h>
 #include <FWCore/Framework/interface/MakerMacros.h>
-
-//#include "FWCore/ParameterSet/interface/ParameterSet.h"
-//#include <FWCore/Framework/interface/LuminosityBlock.h>
-
 #include "FWCore/ServiceRegistry/interface/Service.h"
-
 #include "DQMServices/Core/interface/MonitorElement.h"
-
 #include "Geometry/RPCGeometry/interface/RPCGeometry.h"
-//#include "Geometry/CommonDetUnit/interface/GeomDet.h"
-
 #include "DQM/RPCMonitorClient/interface/RPCClient.h"
 
 #include <memory>
@@ -77,8 +67,9 @@ public:
   
   std::string eventInfoPath_, prefixDir_;
   
-  bool enableDetectorSegmentation_;
-
+  bool enableReportSummary_;
+  bool prescaleFactor_;
+  bool verbose_;
   DQMStore* dbe_;
 
   int nLumiSegs_;
