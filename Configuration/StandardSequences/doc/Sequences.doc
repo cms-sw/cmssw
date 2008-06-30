@@ -3,6 +3,7 @@
 
 \page Software_StandardSequences Package Configuration/StandardSequences
 
+
 <center>
 <small>
 
@@ -68,28 +69,13 @@ the default configuration fragment for CMSSW Reconstruction. Changes with time a
 space on disk, time available for reconstruction. 
 At the moment, the standard \b reconstruction sequence is composed of (please note that at least the distinction between 
 global/highlevel reconstruction does not really reflect functional aspects):
+- <b> localreco </b> \ref localreco "More details"
+- <b> globalreco </b> \ref globalreco "More details"
+- <b> highlevelreco </b> \ref highlevelreco "More details"
 
-- <b> localreco = cms.Sequence(<a href="https://twiki.cern.ch/twiki/bin/view/CMS/SWGuideTrackReco#DefSeq">trackerlocalreco</a>+<a href="https://twiki.cern.ch/twiki/bin/view/CMS/SWGuideMuonSystemReco#DefSeq">muonlocalreco</a>+calolocalreco)</b>
- - Local reconstruction simulation-compatible (no frontier, no oracle) for all the subdetectors. 
- - \b trackerlocalreco is defined in <a href="http://cmssw.cvs.cern.ch/cgi-bin/cmssw.cgi/CMSSW/RecoLocalTracker/Configuration/python/RecoLocalTracker_cff.py">RecoLocalTracker/Configuration/python/RecoLocalTracker_cff.py</a> and includes
-   - <b> trackerlocalreco = cms.Sequence(pixeltrackerlocalreco*striptrackerlocalreco)</b>
-   - <b> pixeltrackerlocalreco = cms.Sequence(siPixelClusters*siPixelRecHits)</b>
-   - <b> striptrackerlocalreco = cms.Sequence(siStripZeroSuppression*siStripClusters*siStripMatchedRecHits)</b>
- - \b muonlocalreco is defined in <a href="http://cmssw.cvs.cern.ch/cgi-bin/cmssw.cgi/CMSSW/RecoLocalMuon/Configuration/python/RecoLocalMuon_cff.py">RecoLocalMuon/Configuration/python/RecoLocalMuon_cff.py</a> and includes 
-   - <b> muonlocalreco = cms.Sequence(dtlocalreco+csclocalreco+rpcRecHits)</b>
- - \b calolocalreco is defined in <a href="http://cmssw.cvs.cern.ch/cgi-bin/cmssw.cgi/CMSSW/RecoLocalCalo/Configuration/python/RecoLocalCalo_cff.py">RecoLocalCalo/Configuration/python/RecoLocalCalo_cff.py</a> and includes
-   - <b> calolocalreco = cms.Sequence(<a href="https://twiki.cern.ch/twiki/bin/view/CMS/SWGuideEcalReco#DefSeq">ecalLocalRecoSequence</a>+<a href="https://twiki.cern.ch/twiki/bin/view/CMS/SWGuideHcalReco#DefSeq">hcalLocalRecoSequence</a>) </b>
-- <b> globalreco = cms.Sequence(offlineBeamSpot+recopixelvertexing*<a href="https://twiki.cern.ch/twiki/bin/view/CMS/SWGuideTrackReco#DefSeq">ckftracks</a>+<a href="https://twiki.cern.ch/twiki/bin/view/CMS/SWGuideEcalReco#DefSeq">ecalClusters</a>+<a href="https://twiki.cern.ch/twiki/bin/view/CMS/SWGuideHcalReco#DefSeq">caloTowersRec</a>*<a href="https://twiki.cern.ch/twiki/bin/view/CMS/SWGuideJetMet#DefSeq">recoJets</a>+<a href="https://twiki.cern.ch/twiki/bin/view/CMS/SWGuideJetMet#DefSeq">metreco</a>+<a href="https://twiki.cern.ch/twiki/bin/view/CMS/SWGuideMuons#DefSeq">muonreco_plus_isolation</a>)</b>
- - Global reconstruction is the reconstruction within only one subdetector. The standard sequence include only 
-   CKF Global Tracking, Muon Reconstruction (STA Muons and Mu+Tk Muons), ECAL Clusterization (Island+Hybrid), 
-   Calorimetric Towers, Reconstructed Jets (MidPoint+KT) and Missing ET.
-- <b> highlevelreco = cms.Sequence(<a href="https://twiki.cern.ch/twiki/bin/view/CMS/SWGuideVertexReco#DefSeq">vertexreco</a>*<a href="https://twiki.cern.ch/twiki/bin/view/CMS/SWGuideJetMet#DefSeq">recoJetAssociations</a>*<a href="https://twiki.cern.ch/twiki/bin/view/CMS/SWGuideBTagging#DefSeq">btagging</a>*<a href="https://twiki.cern.ch/twiki/bin/view/CMS/SWGuideVertexReco#DefSeq">tautagging</a>*<a href="https://twiki.cern.ch/twiki/bin/view/CMS/SWGuideEgamma#DefSeq">egammarecoFull</a>*<a href="https://twiki.cern.ch/twiki/bin/view/CMS/SWGuideParticleFlow#DefSeq">particleFlowReco*recoPFJets*PFTau</a>)</b>
- - High Level reconstruction. With the caveat as in the previous paragraph, this sequence considers modules which need 
-   information from more than a subdetector. The current sequence includes tracking and vertexing with only pixels, 
-   vertexing with full tracking, b tagging with track counting, and tau tagging with cone isolation.
 
+Other options are:
 - \b reconstruction_withRS = reconstruction: the default, with Road Search global tracking activated.
-
 - \b reconstruction_plusGSF : the same as the default, with Gaussian Sum Filter global tracking activated.
 
 \section additional Additional Files
@@ -139,5 +125,37 @@ global/highlevel reconstruction does not really reflect functional aspects):
 Last updated: @DATE@ K. Lassila-Perini
 
 
-*/
 
+*/
+/*!
+
+\page Software_StandardSequencesMore Package Configuration/StandardSequences - more details
+
+\section localreco Local reconstruction sequences
+
+- <b> localreco = cms.Sequence(<a href="https://twiki.cern.ch/twiki/bin/view/CMS/SWGuideTrackReco#DefSeq">trackerlocalreco</a>+<a href="https://twiki.cern.ch/twiki/bin/view/CMS/SWGuideMuonSystemReco#DefSeq">muonlocalreco</a>+calolocalreco)</b>
+ - Local reconstruction simulation-compatible (no frontier, no oracle) for all the subdetectors. 
+ - \b trackerlocalreco is defined in <a href="http://cmssw.cvs.cern.ch/cgi-bin/cmssw.cgi/CMSSW/RecoLocalTracker/Configuration/python/RecoLocalTracker_cff.py">RecoLocalTracker/Configuration/python/RecoLocalTracker_cff.py</a> and includes
+   - <b> trackerlocalreco = cms.Sequence(pixeltrackerlocalreco*striptrackerlocalreco)</b>
+   - <b> pixeltrackerlocalreco = cms.Sequence(siPixelClusters*siPixelRecHits)</b>
+   - <b> striptrackerlocalreco = cms.Sequence(siStripZeroSuppression*siStripClusters*siStripMatchedRecHits)</b>
+ - \b muonlocalreco is defined in <a href="http://cmssw.cvs.cern.ch/cgi-bin/cmssw.cgi/CMSSW/RecoLocalMuon/Configuration/python/RecoLocalMuon_cff.py">RecoLocalMuon/Configuration/python/RecoLocalMuon_cff.py</a> and includes 
+   - <b> muonlocalreco = cms.Sequence(dtlocalreco+csclocalreco+rpcRecHits)</b>
+ - \b calolocalreco is defined in <a href="http://cmssw.cvs.cern.ch/cgi-bin/cmssw.cgi/CMSSW/RecoLocalCalo/Configuration/python/RecoLocalCalo_cff.py">RecoLocalCalo/Configuration/python/RecoLocalCalo_cff.py</a> and includes
+   - <b> calolocalreco = cms.Sequence(<a href="https://twiki.cern.ch/twiki/bin/view/CMS/SWGuideEcalReco#DefSeq">ecalLocalRecoSequence</a>+<a href="https://twiki.cern.ch/twiki/bin/view/CMS/SWGuideHcalReco#DefSeq">hcalLocalRecoSequence</a>) </b>
+
+\section globalreco Global reconstruction sequences
+
+- <b> globalreco = cms.Sequence(offlineBeamSpot+recopixelvertexing*<a href="https://twiki.cern.ch/twiki/bin/view/CMS/SWGuideTrackReco#DefSeq">ckftracks</a>+<a href="https://twiki.cern.ch/twiki/bin/view/CMS/SWGuideEcalReco#DefSeq">ecalClusters</a>+<a href="https://twiki.cern.ch/twiki/bin/view/CMS/SWGuideHcalReco#DefSeq">caloTowersRec</a>*<a href="https://twiki.cern.ch/twiki/bin/view/CMS/SWGuideJetMet#DefSeq">recoJets</a>+<a href="https://twiki.cern.ch/twiki/bin/view/CMS/SWGuideJetMet#DefSeq">metreco</a>+<a href="https://twiki.cern.ch/twiki/bin/view/CMS/SWGuideMuons#DefSeq">muonreco_plus_isolation</a>)</b>
+ - Global reconstruction is the reconstruction within only one subdetector. The standard sequence include only 
+   CKF Global Tracking, Muon Reconstruction (STA Muons and Mu+Tk Muons), ECAL Clusterization (Island+Hybrid), 
+   Calorimetric Towers, Reconstructed Jets (MidPoint+KT) and Missing ET.
+
+\section highlevelreco High level reconstruction sequences
+ 
+<b> highlevelreco = cms.Sequence(<a href="https://twiki.cern.ch/twiki/bin/view/CMS/SWGuideVertexReco#DefSeq">vertexreco</a>*<a href="https://twiki.cern.ch/twiki/bin/view/CMS/SWGuideJetMet#DefSeq">recoJetAssociations</a>*<a href="https://twiki.cern.ch/twiki/bin/view/CMS/SWGuideBTagging#DefSeq">btagging</a>*<a href="https://twiki.cern.ch/twiki/bin/view/CMS/SWGuideVertexReco#DefSeq">tautagging</a>*<a href="https://twiki.cern.ch/twiki/bin/view/CMS/SWGuideEgamma#DefSeq">egammarecoFull</a>*<a href="https://twiki.cern.ch/twiki/bin/view/CMS/SWGuideParticleFlow#DefSeq">particleFlowReco*recoPFJets*PFTau</a>)</b>
+ - High Level reconstruction. With the caveat as in the previous paragraph, this sequence considers modules which need 
+   information from more than a subdetector. The current sequence includes tracking and vertexing with only pixels, 
+   vertexing with full tracking, b tagging with track counting, and tau tagging with cone isolation.
+
+*/
