@@ -143,7 +143,8 @@ from RecoJets.Configuration.GenJetParticles_cff import *
 from RecoJets.Configuration.RecoGenJets_cff import *
 from RecoMET.Configuration.GenMETParticles_cff import *
 from RecoMET.Configuration.RecoGenMET_cff import *
-genCandidatesForMET.verbose = False
+# No longer applicable according to Ronny
+#genCandidatesForMET.verbose = False
 caloJetMetGen = cms.Sequence(
     genParticles+
     genJetParticles+
