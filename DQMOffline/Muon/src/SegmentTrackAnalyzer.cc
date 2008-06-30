@@ -2,8 +2,8 @@
 /*
  *  See header file for a description of this class.
  *
- *  $Date: 2008/05/23 12:29:34 $
- *  $Revision: 1.9 $
+ *  $Date: 2008/05/23 13:47:44 $
+ *  $Revision: 1.10 $
  *  \author G. Mila - INFN Torino
  */
 
@@ -55,7 +55,7 @@ void SegmentTrackAnalyzer::beginJob(edm::EventSetup const& iSetup,DQMStore * dbe
   hitsNotUsed = dbe->book1D("HitsNotUsedForGlobalTracking_"+trackCollection, "HitsNotUsedForGlobalTracking_"+trackCollection, 50, -0.5, 49.5);
   hitsNotUsedPercentual = dbe->book1D("HitsNotUsedForGlobalTrackingDvHitUsed_"+trackCollection, "HitsNotUsedForGlobalTrackingDvHitUsed_"+trackCollection, 100, 0, 1.);
 
-  TrackSegm = dbe->book2D("trackSegments_"+trackCollection, "trackSegments_"+trackCollection, 3, 0.5, 3.5, 50, -0.5, 49.5);
+  TrackSegm = dbe->book2D("trackSegments_"+trackCollection, "trackSegments_"+trackCollection, 3, 0.5, 3.5, 8, 0, 8);
   TrackSegm->setBinLabel(1,"DT+CSC",1);
   TrackSegm->setBinLabel(2,"DT",1);
   TrackSegm->setBinLabel(3,"CSC",1);
@@ -187,9 +187,12 @@ void SegmentTrackAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSet
   hitsNotUsed->Fill(hitsFromSegmDt+hitsFromSegmCsc+hitsFromRpc+hitsFromTk-hitsFromTrack);
   hitsNotUsedPercentual->Fill(double(hitsFromSegmDt+hitsFromSegmCsc+hitsFromRpc+hitsFromTk-hitsFromTrack)/hitsFromTrack);
 
-  TrackSegm->Fill(1,segmFromDt+segmFromCsc);
-  TrackSegm->Fill(2,segmFromDt);
-  TrackSegm->Fill(3,segmFromCsc);
+  if(hitsFromDt!=0 && hitsFromCsc!=0)
+    TrackSegm->Fill(1,segmFromDt+segmFromCsc);
+  if(hitsFromDt!=0 && hitsFromCsc==0)
+    TrackSegm->Fill(2,segmFromDt);
+  if(hitsFromDt==0 && hitsFromCsc!=0)
+    TrackSegm->Fill(3,segmFromCsc);
 
   if(hitsFromDt!=0 && hitsFromCsc==0 && hitsFromRpc==0) hitStaProvenance->Fill(1);
   if(hitsFromCsc!=0 && hitsFromDt==0 && hitsFromRpc==0) hitStaProvenance->Fill(2);
