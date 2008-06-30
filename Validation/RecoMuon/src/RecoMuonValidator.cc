@@ -140,10 +140,6 @@ RecoMuonValidator::RecoMuonValidator(const ParameterSet& pset)
   meMap_["RecoEta"] = theDQM->book1D("RecoEta", "#eta of recoTracks" , nBinEta, minEta, maxEta);
   meMap_["RecoPhi"] = theDQM->book1D("RecoPhi", "#phi of recoTracks" , nBinPhi, minPhi, maxPhi);
 
-  // -- histogram for efficiency vs nHits
-  meMap_["SimNHits" ] = theDQM->book1D("SimNHits" , "number of hits of simTracks" , nHits, 0, nHits);
-  meMap_["RecoNHits"] = theDQM->book1D("RecoNHits", "number of hits of recoTracks", nHits, 0, nHits);
-
   // - Resolutions
   meMap_["ErrP"  ] = theDQM->book1D("ErrP"  , "#Delta(p)/p"        , nBinErr, minErrP  , maxErrP  );
   meMap_["ErrPt" ] = theDQM->book1D("ErrPt" , "#Delta(p_{T})/p_{T}", nBinErr, minErrPt , maxErrPt );
@@ -173,7 +169,6 @@ RecoMuonValidator::RecoMuonValidator(const ParameterSet& pset)
 
 
   // - Pulls
-  meMap_["PullP"  ] = theDQM->book1D("PullP"  , "Pull(#p)"     , nBinPull, -wPull, wPull);
   meMap_["PullPt" ] = theDQM->book1D("PullPt" , "Pull(#p_{T})" , nBinPull, -wPull, wPull);
   meMap_["PullEta"] = theDQM->book1D("PullEta", "Pull(#eta)"   , nBinPull, -wPull, wPull);
   meMap_["PullPhi"] = theDQM->book1D("PullPhi", "Pull(#phi)"   , nBinPull, -wPull, wPull);
@@ -182,8 +177,6 @@ RecoMuonValidator::RecoMuonValidator(const ParameterSet& pset)
   meMap_["PullDz" ] = theDQM->book1D("PullDz" , "Pull(D_{z})"  , nBinPull, -wPull, wPull);
 
   // -- Pulls vs Eta
-  meMap_["PullP_vs_Eta"  ] = theDQM->book2D("PullP_vs_Eta", "Pull(p) vs #eta",
-                                            nBinEta, minEta, maxEta, nBinPull, -wPull, wPull);
   meMap_["PullPt_vs_Eta" ] = theDQM->book2D("PullPt_vs_Eta", "Pull(p_{T}) vs #eta",
                                             nBinEta, minEta, maxEta, nBinPull, -wPull, wPull);
   meMap_["PullEta_vs_Eta"] = theDQM->book2D("PullEta_vs_Eta", "Pull(#eta) vs #eta",
@@ -210,7 +203,7 @@ RecoMuonValidator::RecoMuonValidator(const ParameterSet& pset)
   meMap_["NAssocSimToReco"] = theDQM->book1D("NAssocSimToReco", "Number of sim to reco associations", nAssoc, 0, nAssoc);
   meMap_["NAssocRecoToSim"] = theDQM->book1D("NAssocRecoToSim", "Number of reco to sim associations", nAssoc, 0, nAssoc);
 
-  meMap_["NRecoToSim"] = theDQM->book1D("NRecoToSim", "Number of reco to sim associations", nAssoc, 0, nAssoc);
+//  meMap_["NRecoToSim"] = theDQM->book1D("NRecoToSim", "Number of reco to sim associations", nAssoc, 0, nAssoc);
   meMap_["NSimToReco"] = theDQM->book1D("NSimToReco", "Number of sim to reco associations", nAssoc, 0, nAssoc);
 
   // -- Number of Hits
@@ -236,7 +229,7 @@ RecoMuonValidator::RecoMuonValidator(const ParameterSet& pset)
 
   meMap_["NDof"] = theDQM->book1D("NDof", "Number of DoF", nDof, 0, nDof);
   meMap_["Chi2"] = theDQM->book1D("Chi2", "#Chi^{2}", 200, 0, 200);
-  meMap_["Chi2Norm"] = theDQM->book1D("Chi2Nrom", "Normalized #Chi^{2}", nBinErr, 0, 100);
+  meMap_["Chi2Norm"] = theDQM->book1D("Chi2Norm", "Normalized #Chi^{2}", nBinErr, 0, 100);
   meMap_["Chi2Prob"] = theDQM->book1D("Chi2Prob", "Prob(#Chi^{2})", nBinErr, 0, 1);
 
   meMap_["NDof_vs_Eta"] = theDQM->book2D("NDof_vs_Eta", "Number of DoF vs #eta",
@@ -386,10 +379,19 @@ void RecoMuonValidator::analyze(const Event& event, const EventSetup& eventSetup
       meMap_["NLostHits_vs_Pt" ]->Fill(simPt , nLostHits);
       meMap_["NLostHits_vs_Eta"]->Fill(simEta, nLostHits);
 
-      const double recoChi2 = recoRef->normalizedChi2();
+      const double recoNDof = recoRef->ndof();
+      const double recoChi2 = recoRef->chi2();
+      const double recoChi2Norm = recoRef->normalizedChi2();
       const double recoChi2Prob = TMath::Prob(recoRef->chi2(), static_cast<int>(recoRef->ndof()));
 
+      meMap_["NDof"]->Fill(recoNDof);
+      meMap_["Chi2"]->Fill(recoChi2);
+      meMap_["Chi2Norm"]->Fill(recoChi2Norm);
+      meMap_["Chi2Prob"]->Fill(recoChi2Prob);
+
+      meMap_["NDof_vs_Eta"]->Fill(simEta, recoNDof);
       meMap_["Chi2_vs_Eta"]->Fill(simEta, recoChi2);
+      meMap_["Chi2Norm_vs_Eta"]->Fill(simEta, recoChi2Norm);
       meMap_["Chi2Prob_vs_Eta"]->Fill(simEta, recoChi2Prob);
 
       const double recoQ   = recoRef->charge();
@@ -431,21 +433,30 @@ void RecoMuonValidator::analyze(const Event& event, const EventSetup& eventSetup
       meMap_["ErrPt_vs_Pt" ]->Fill(simPt , errPt );
       meMap_["ErrQPt_vs_Pt"]->Fill(simQPt, errQPt);
 
+      meMap_["ErrEta_vs_Eta"]->Fill(simEta, errEta);
+
+      const double pullPt  = (recoPt-simPt)/recoRef->ptError();
+      const double pullQPt = (recoQPt-simQPt)/recoRef->qoverpError();
       const double pullEta = (recoEta-simEta)/recoRef->etaError();
       const double pullPhi = (recoPhi-simPhi)/recoRef->phiError();
       const double pullDxy = (recoDxy-simDxy)/recoRef->dxyError();
       const double pullDz  = (recoDz-simDz)/recoRef->dzError();
 
+      meMap_["PullPt" ]->Fill(pullPt );
       meMap_["PullEta"]->Fill(pullEta);
       meMap_["PullPhi"]->Fill(pullPhi);
-      meMap_["PullQPt"]->Fill((recoQPt-simQPt)/recoRef->qoverpError());
+      meMap_["PullQPt"]->Fill(pullQPt);
       meMap_["PullDxy"]->Fill(pullDxy);
       meMap_["PullDz" ]->Fill(pullDz );
+
+      meMap_["PullPt_vs_Eta"]->Fill(simEta, pullPt);
+      meMap_["PullPt_vs_Pt" ]->Fill(simPt, pullPt);
 
       meMap_["PullEta_vs_Eta"]->Fill(simEta, pullEta);
       meMap_["PullPhi_vs_Eta"]->Fill(simEta, pullPhi);
 
       meMap_["PullEta_vs_Pt"]->Fill(simPt, pullEta);
+
     }
   }
 }
