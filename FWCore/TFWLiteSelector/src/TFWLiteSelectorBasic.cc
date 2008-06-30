@@ -8,7 +8,7 @@
 //
 // Original Author:  Chris Jones
 //         Created:  Tue Jun 27 17:58:10 EDT 2006
-// $Id: TFWLiteSelectorBasic.cc,v 1.37 2008/03/20 15:10:33 chrjones Exp $
+// $Id: TFWLiteSelectorBasic.cc,v 1.38 2008/05/14 02:05:06 wmtan Exp $
 //
 
 // system include files
@@ -58,8 +58,8 @@ namespace edm {
       void set(boost::shared_ptr<const edm::ProductRegistry> iReg) { reg_ = iReg;}
      private:
       virtual std::auto_ptr<EDProduct> getProduct_(BranchKey const& k, EDProductGetter const* ep) const;
-      virtual std::auto_ptr<EntryDescription> getProvenance_(BranchKey const&) const {
-        return std::auto_ptr<EntryDescription>();
+      virtual std::auto_ptr<EventEntryDescription> getProvenance_(BranchKey const&) const {
+        return std::auto_ptr<EventEntryDescription>();
       }
       Long64_t entry_;
       TTree* eventTree_;
@@ -154,8 +154,8 @@ namespace edm {
       boost::shared_ptr<FWLiteDelayedReader> reader_;
       typedef std::map<ProductID, BranchDescription> ProductMap;
       ProductMap productMap_;
-      std::vector<edm::EntryDescription> prov_;
-      std::vector<edm::EntryDescription*> pointerToBranchBuffer_;
+      std::vector<edm::EventEntryDescription> prov_;
+      std::vector<edm::EventEntryDescription*> pointerToBranchBuffer_;
       edm::FileFormatVersion fileFormatVersion_;
     };
   }
@@ -391,9 +391,9 @@ TFWLiteSelectorBasic::setupNewFile(TFile& iFile) {
   m_->pointerToBranchBuffer_.erase(m_->pointerToBranchBuffer_.begin(),
                                    m_->pointerToBranchBuffer_.end());
   edm::ProductRegistry::ProductList const& prodList = pReg->productList();
-  std::vector<edm::EntryDescription> temp( prodList.size(), edm::EntryDescription() );
+  std::vector<edm::EventEntryDescription> temp( prodList.size(), edm::EventEntryDescription() );
   m_->prov_.swap( temp);
-  std::vector<edm::EntryDescription>::iterator itB = m_->prov_.begin();
+  std::vector<edm::EventEntryDescription>::iterator itB = m_->prov_.begin();
   m_->pointerToBranchBuffer_.reserve(prodList.size());
   for (edm::ProductRegistry::ProductList::const_iterator it = prodList.begin(), itEnd = prodList.end();
        it != itEnd; ++it, ++itB) {
@@ -406,7 +406,7 @@ TFWLiteSelectorBasic::setupNewFile(TFile& iFile) {
       //std::cout <<"id "<<it->second.oldProductID()<<" branch "<<it->second.branchName()<<std::endl;
       m_->pointerToBranchBuffer_.push_back( & (*itB));
       void* tmp = &(m_->pointerToBranchBuffer_.back());
-      //edm::EntryDescription* tmp = & (*itB);
+      //edm::EventEntryDescription* tmp = & (*itB);
       //CDJ need to fix provenance and be backwards compatible, for now just don't read the branch
       //m_->metaTree_->SetBranchAddress( prod.branchName().c_str(), tmp);
     }
