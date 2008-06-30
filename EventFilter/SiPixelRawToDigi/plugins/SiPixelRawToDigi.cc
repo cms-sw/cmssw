@@ -62,7 +62,6 @@ SiPixelRawToDigi::~SiPixelRawToDigi() {
     delete theTimer;
   }
 
-  cout << " end.."<<endl;
 }
 
 
