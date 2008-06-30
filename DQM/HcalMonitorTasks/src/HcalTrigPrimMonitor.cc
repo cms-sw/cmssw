@@ -82,8 +82,7 @@ void HcalTrigPrimMonitor::setup(const edm::ParameterSet& ps, DQMStore* dbe){
 				 36,-0.5,35.5);
     OCC_MAP_GEO = m_dbe->book2D("TrigPrim Geo Occupancy Map","TrigPrim Geo Occupancy Map",
 				etaBins_,etaMin_,etaMax_,phiBins_,phiMin_,phiMax_);
-    OCC_MAP_SLB = m_dbe->book2D("TrigPrim SLB Occupancy Map","TrigPrim SLB Occupancy Map",
-				10,-0.5,9.5,10,-0.5,9.5);
+
 
     OCC_MAP_THR = m_dbe->book2D("TrigPrim Geo Threshold Map","TrigPrim Geo Threshold Map",
 				etaBins_,etaMin_,etaMax_,phiBins_,phiMin_,phiMax_);
@@ -125,7 +124,9 @@ void HcalTrigPrimMonitor::processEvent(const HBHERecHitCollection& hbHits,
 				       const HBHEDigiCollection& hbhedigi,
 				       const HODigiCollection& hodigi,
 				       const HFDigiCollection& hfdigi,
-				       const HcalTrigPrimDigiCollection& tpDigis){
+				     const HcalTrigPrimDigiCollection& tpDigis,
+				       const HcalElectronicsMap& emap
+				       ){
   
 
   if(!m_dbe) { 
@@ -155,16 +156,15 @@ void HcalTrigPrimMonitor::processEvent(const HBHERecHitCollection& hbHits,
   //        HcalTriggerPrimitiveDigi digi = (const HcalTriggerPrimitiveDigi)(*j);
 
       // find corresponding rechit and digis
-      HcalTrigTowerDetId tpid=digi.id();	
-      HcalDetId did(HcalBarrel,tpid.ieta(),tpid.iphi(),1);
-      HcalElectronicsId eid(did.rawId());      
+      HcalTrigTowerDetId tpid=digi.id();
+      HcalElectronicsId eid = emap.lookupTrigger(tpid);
+
       tpSOI_ET_->Fill(digi.SOI_compressedEt());      
       if(digi.SOI_compressedEt()>0 || true){	
 	tpSize_->Fill(digi.size());	
 	OCC_ETA->Fill(tpid.ieta());
 	OCC_PHI->Fill(tpid.iphi());
 	OCC_MAP_GEO->Fill(tpid.ieta(), tpid.iphi());
-	OCC_MAP_SLB->Fill(digi.t0().slb(),digi.t0().slbChan());
 
 	EN_ETA->Fill(tpid.ieta(),digi.SOI_compressedEt());
 	EN_PHI->Fill(tpid.iphi(),digi.SOI_compressedEt());
