@@ -2,7 +2,7 @@
 <use name=DataFormats/SiStripDetId>
 <use name=FWCore/MessageLogger>
 <use name=boost>
-<use name=root>
+<use name=roothistmatrix>
 <use name=rootrflx>
 <export>
   <use name=DataFormats/FEDRawData>

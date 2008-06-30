@@ -1,11 +1,11 @@
 <use name=boost>
 <use name=rootrflx>
-<use name=root>
+<use name=roothistmatrix>
 <use name=DataFormats/Common>
 <export>
   <use name=boost>
   <use name=rootrflx>
-  <use name=root>
+  <use name=roothistmatrix>
   <lib name=DataFormatsHistograms>
 </export>
 
