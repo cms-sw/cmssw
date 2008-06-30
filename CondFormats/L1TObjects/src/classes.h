@@ -20,13 +20,6 @@
 #include "CondFormats/L1TObjects/interface/L1MuCSCTFAlignment.h"
 #include "CondFormats/L1TObjects/interface/L1CSCTPParameters.h"
 #include "CondFormats/L1TObjects/interface/EcalTPParameters.h"
-#include "CondFormats/L1TObjects/interface/DTConfigBti.h"
-#include "CondFormats/L1TObjects/interface/DTConfigTraco.h"
-#include "CondFormats/L1TObjects/interface/DTConfigTSTheta.h"
-#include "CondFormats/L1TObjects/interface/DTConfigTSPhi.h"
-#include "CondFormats/L1TObjects/interface/DTConfigTrigUnit.h"
-#include "CondFormats/L1TObjects/interface/DTConfigSectColl.h"
-#include "CondFormats/L1TObjects/interface/DTConfigManager.h"
 #include "CondFormats/L1TObjects/interface/L1RCTParameters.h"
 #include "CondFormats/L1TObjects/interface/L1RCTChannelMask.h"
 #include "CondFormats/L1TObjects/interface/L1CaloEcalScale.h"
@@ -49,11 +42,6 @@
 namespace {
   namespace {
     std::map< std::string, std::map< std::string, std::string > > dummy0 ;
-    //    std::map< std::string, std::string > dummy0a ;
-    std::map<DTBtiId,DTConfigBti> dummy1 ;
-    std::map<DTChamberId,std::map<DTBtiId,DTConfigBti> > dummy1a ;
-    std::map<DTTracoId,DTConfigTraco> dummy2 ;
-    std::map<DTChamberId,std::map<DTTracoId,DTConfigTraco> > dummy2a ;
     std::vector<L1MuDTExtLut::LUT> dummy3 ;
     std::vector<L1GtMuonTemplate> dummy4 ;
     std::vector<L1GtCaloTemplate> dummy5 ;
