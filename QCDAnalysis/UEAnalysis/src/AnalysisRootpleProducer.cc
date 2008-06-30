@@ -223,6 +223,17 @@ void AnalysisRootpleProducer::analyze( const Event& e, const EventSetup& )
 	    it!=itEnd; ++it )
 	{
 	  GenJetContainer.push_back(*it);
+
+	  // 	  Jet::Constituents constituents( (*it).getJetConstituents() );
+	  // 	  //cout << "get " << constituents.size() << " constituents" << endl;
+	  // 	  for (int iJC(0); iJC<constituents.size(); ++iJC )
+	  // 	    {
+	  // 	      //cout << "[" << iJC << "] constituent pT = " << constituents[iJC]->pt() << endl;
+	  // 	      if (constituents[iJC]->et()<0.5)
+	  // 		{
+	  // 		  cout << "ERROR!!! [" << iJC << "] constituent pT = " << constituents[iJC]->pt() << endl;
+	  // 		}
+	  // 	    }
 	}
 
       std::stable_sort(GenJetContainer.begin(),GenJetContainer.end(),GenJetSort());
@@ -320,6 +331,17 @@ void AnalysisRootpleProducer::analyze( const Event& e, const EventSetup& )
 	      it!=itEnd;++it)
 	    {
 	      TracksJetContainer.push_back(*it);
+
+	      // 	      Jet::Constituents constituents( (*it).getJetConstituents() );
+	      // 	      //cout << "get " << constituents.size() << " constituents" << endl;
+	      // 	      for (int iJC(0); iJC<constituents.size(); ++iJC )
+	      // 		{
+	      // 		  //cout << "[" << iJC << "] constituent pT = " << constituents[iJC]->pt() << endl;
+	      // 		  if (constituents[iJC]->et()<0.5)
+	      // 		    {
+	      // 		      cout << "ERROR!!! [" << iJC << "] constituent pT = " << constituents[iJC]->pt() << endl;
+	      // 		    }
+	      // 		}
 	    }
 	  std::stable_sort(TracksJetContainer.begin(),TracksJetContainer.end(),BasicJetSort());
 	  
