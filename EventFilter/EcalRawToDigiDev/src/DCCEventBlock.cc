@@ -66,11 +66,13 @@ void DCCEventBlock::unpack( uint64_t * buffer, uint numbBytes, uint expFedId){
   
   // Check if fed id is the same as expected...
   if( fedId_ != expFedId  ){ 
-    
-  edm::LogWarning("EcalRawToDigiDev")
-    <<"\n For event L1A: "<<l1_
-    <<"\n Expected FED id is: "<<expFedId<<" while current FED id is: "<<fedId_
-    <<"\n => Skipping to next fed block...";
+
+  if( ! DCCDataUnpacker::silentMode_ ){  
+    edm::LogWarning("EcalRawToDigiDev")
+      <<"\n For event L1A: "<<l1_
+      <<"\n Expected FED id is: "<<expFedId<<" while current FED id is: "<<fedId_
+      <<"\n => Skipping to next fed block...";
+    }
   
   //TODO : add this to an error event collection
   
@@ -79,22 +81,23 @@ void DCCEventBlock::unpack( uint64_t * buffer, uint numbBytes, uint expFedId){
   
   // Check if this event is an empty event 
   if( eventSize_ == EMPTYEVENTSIZE ){ 
-    
-    edm::LogWarning("EcalRawToDigiDev")
-      <<"\n Event L1A: "<<l1_<<" is empty for fed: "<<fedId_
-      <<"\n => Skipping to next fed block...";
-   
+    if( ! DCCDataUnpacker::silentMode_ ){
+      edm::LogWarning("EcalRawToDigiDev")
+        <<"\n Event L1A: "<<l1_<<" is empty for fed: "<<fedId_
+        <<"\n => Skipping to next fed block...";
+    }
     return;
     
   } 
   
   //Check if event size allows at least building the header
   else if( eventSize_ < HEADERSIZE ){    
-    
-    edm::LogError("EcalRawToDigiDev")
-      <<"\n Event L1A: "<<l1_<<" in fed: "<< fedId_
-      <<"\n Event size is "<<eventSize_<<" bytes while the minimum is "<<HEADERSIZE<<" bytes"
-      <<"\n => Skipping to next fed block..."; 
+    if( ! DCCDataUnpacker::silentMode_ ){
+      edm::LogError("EcalRawToDigiDev")
+        <<"\n Event L1A: "<<l1_<<" in fed: "<< fedId_
+        <<"\n Event size is "<<eventSize_<<" bytes while the minimum is "<<HEADERSIZE<<" bytes"
+        <<"\n => Skipping to next fed block..."; 
+     }
     
     //TODO : add this to a dcc size error collection  
     
@@ -111,12 +114,13 @@ void DCCEventBlock::unpack( uint64_t * buffer, uint numbBytes, uint expFedId){
   
   
   if( eventSize_ != blockLength_*8 ){
-    
-    edm::LogError("EcalRawToDigiDev")
-      <<"\n Event L1A: "<<l1_<<" in fed: "<< fedId_
-      <<"\n size is "<<eventSize_<<" bytes while "<<(blockLength_*8)<<" are set in the event header "
-      <<"\n => Skipping to next fed block..."; 
-    //TODO : add this to a dcc size error collection 
+    if( ! DCCDataUnpacker::silentMode_ ){
+      edm::LogError("EcalRawToDigiDev")
+        <<"\n Event L1A: "<<l1_<<" in fed: "<< fedId_
+        <<"\n size is "<<eventSize_<<" bytes while "<<(blockLength_*8)<<" are set in the event header "
+        <<"\n => Skipping to next fed block..."; 
+      //TODO : add this to a dcc size error collection 
+     }
     return;
     
   }  
@@ -185,11 +189,13 @@ void DCCEventBlock::unpack( uint64_t * buffer, uint numbBytes, uint expFedId){
   if(       triggerType_ == PHYSICTRIGGER      ){ numbChannels = 68; }
   else if ( triggerType_ == CALIBRATIONTRIGGER ){ numbChannels = 70; }
   else {
-    edm::LogError("EcalRawToDigiDev")
-      <<"\n Event L1A: "<<l1_<<" in fed: "<< fedId_
-      <<"\n Event has an unsupported trigger type "<<triggerType_
-      <<"\n => Skipping to next fed block..."; 
-    //TODO : add this to a dcc trigger type error collection 
+    if( ! DCCDataUnpacker::silentMode_ ){
+      edm::LogError("EcalRawToDigiDev")
+        <<"\n Event L1A: "<<l1_<<" in fed: "<< fedId_
+        <<"\n Event has an unsupported trigger type "<<triggerType_
+        <<"\n => Skipping to next fed block..."; 
+      //TODO : add this to a dcc trigger type error collection 
+    }
     return;
   }
   
@@ -214,10 +220,12 @@ void DCCEventBlock::unpack( uint64_t * buffer, uint numbBytes, uint expFedId){
       // issuiung messages for problematic cases, even though handled by the DCC
       else if( chStatus == CH_TIMEOUT || chStatus == CH_HEADERERR || chStatus == CH_LINKERR )
 	{
-	  edm::LogWarning("EcalRawToDigiDev") << "In fed: " << fedId_ << " at LV1: " << l1_
-					      << " the DCC channel: " << chNumber 
-					      << " has channel status: " << chStatus 
-					      << " and is not being unpacked";
+	  if( ! DCCDataUnpacker::silentMode_ ){ 
+            edm::LogWarning("EcalRawToDigiDev") << "In fed: " << fedId_ << " at LV1: " << l1_
+    					        << " the DCC channel: " << chNumber 
+					        << " has channel status: " << chStatus 
+					        << " and is not being unpacked";
+          }
 	  continue;
 	}
       

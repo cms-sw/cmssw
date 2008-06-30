@@ -11,6 +11,8 @@
 #include "DataFormats/EcalRawData/interface/EcalListOfFEDS.h"
 
 
+bool DCCDataUnpacker::silentMode_ = false; 
+
 EcalRawToDigiDev::EcalRawToDigiDev(edm::ParameterSet const& conf):
   
   //define the list of FED to be unpacked
@@ -65,7 +67,7 @@ EcalRawToDigiDev::EcalRawToDigiDev(edm::ParameterSet const& conf):
   
   first_ = true;
   mmm_ = new EcalElectronicsMapping();
-
+  DCCDataUnpacker::silentMode_ = conf.getUntrackedParameter<bool>("silentMode",false) ;
   
   if( numbXtalTSamples_ <6 || numbXtalTSamples_>64 || (numbXtalTSamples_-2)%4 ){
     std::ostringstream output;

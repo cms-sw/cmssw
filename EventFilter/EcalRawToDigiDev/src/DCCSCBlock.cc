@@ -42,11 +42,13 @@ int DCCSCBlock::unpackXtalData(uint expStripID, uint expXtalID){
   
 
   if( !zs_ && (expStripID != stripId || expXtalID != xtalId)){ 
-	 
-    edm::LogWarning("EcalRawToDigiDevChId")
-      <<"\n For event LV1: "<<event_->l1A()<<", fed "<<mapper_->getActiveDCC()<<" and tower "<<towerId_
-      <<"\n The expected strip is "<<expStripID<<" and "<<stripId<<" was found"
-      <<"\n The expected xtal  is "<<expXtalID <<" and "<<xtalId<<" was found";	
+
+    if( ! DCCDataUnpacker::silentMode_ ){	 
+      edm::LogWarning("EcalRawToDigiDevChId")
+        <<"\n For event LV1: "<<event_->l1A()<<", fed "<<mapper_->getActiveDCC()<<" and tower "<<towerId_
+        <<"\n The expected strip is "<<expStripID<<" and "<<stripId<<" was found"
+        <<"\n The expected xtal  is "<<expXtalID <<" and "<<xtalId<<" was found";	
+     }
     
     
     // using expected cry_di to raise warning about xtal_id problem
@@ -70,10 +72,13 @@ int DCCSCBlock::unpackXtalData(uint expStripID, uint expXtalID){
     // Check for valid Ids 1) values out of range
 
     if(stripId == 0 || stripId > 5 || xtalId == 0 || xtalId > 5){
-      edm::LogWarning("EcalRawToDigiDevChId")
-        <<"\n For event LV1: "<<event_->l1A()<<", fed "<<mapper_->getActiveDCC()<<" and tower "<<towerId_
-        <<"\n Invalid strip : "<<stripId<<" or xtal : "<<xtalId
-        <<" ids ( last strip was: " << lastStripId_ << " last ch was: " << lastXtalId_ << ")";
+
+      if( ! DCCDataUnpacker::silentMode_ ){
+        edm::LogWarning("EcalRawToDigiDevChId")
+          <<"\n For event LV1: "<<event_->l1A()<<", fed "<<mapper_->getActiveDCC()<<" and tower "<<towerId_
+          <<"\n Invalid strip : "<<stripId<<" or xtal : "<<xtalId
+          <<" ids ( last strip was: " << lastStripId_ << " last ch was: " << lastXtalId_ << ")";
+       }
       
       int st = lastStripId_;
       int ch = lastXtalId_;
@@ -100,11 +105,12 @@ int DCCSCBlock::unpackXtalData(uint expStripID, uint expXtalID){
       if( ( stripId == lastStripId_ && xtalId <= lastXtalId_ ) ||
 	  (stripId < lastStripId_))
 	{
-	  
-          edm::LogWarning("EcalRawToDigiDevChId")
-            <<"\n For event LV1: "<<event_->l1A()<<", fed "<<mapper_->getActiveDCC()<<" and tower "<<towerId_
-            <<"\n Xtal id was expected to increase but it didn't. "
-            <<"\n Last unpacked xtal was "<<lastXtalId_<<" while current xtal is "<<xtalId<<".";
+	  if( ! DCCDataUnpacker::silentMode_ ){ 
+            edm::LogWarning("EcalRawToDigiDevChId")
+              <<"\n For event LV1: "<<event_->l1A()<<", fed "<<mapper_->getActiveDCC()<<" and tower "<<towerId_
+              <<"\n Xtal id was expected to increase but it didn't. "
+              <<"\n Last unpacked xtal was "<<lastXtalId_<<" while current xtal is "<<xtalId<<".";
+          }
 
 	  int st = lastStripId_;
 	  int ch = lastXtalId_;
@@ -156,9 +162,11 @@ int DCCSCBlock::unpackXtalData(uint expStripID, uint expXtalID){
       }	
     
       if(wrongGain){ 
-        edm::LogWarning("EcalRawToDigiDevGainZero")
-        <<"\n For event LV1: "<<event_->l1A()<<", fed "<<mapper_->getActiveDCC()<<" and tower "<<towerId_
-        <<"\n Gain zero was found in strip "<<stripId<<" and xtal "<<xtalId;   
+        if( ! DCCDataUnpacker::silentMode_ ){
+          edm::LogWarning("EcalRawToDigiDevGainZero")
+          <<"\n For event LV1: "<<event_->l1A()<<", fed "<<mapper_->getActiveDCC()<<" and tower "<<towerId_
+          <<"\n Gain zero was found in strip "<<stripId<<" and xtal "<<xtalId;   
+        }
 	
 	(*invalidGains_)->push_back(*pDetId_); 
         errorOnXtal = true;
@@ -184,10 +192,11 @@ int DCCSCBlock::unpackXtalData(uint expStripID, uint expXtalID){
       }
       
       if (numGainWrong>0) {
-
-        edm::LogWarning("EcalRawToDigiDevGainSwitch")
-          <<"\n For event LV1: "<<event_->l1A()<<", fed "<<mapper_->getActiveDCC()<<" and tower "<<towerId_
-          <<"\n A wrong gain transition switch was found in strip "<<stripId<<" and xtal "<<xtalId;    
+        if( ! DCCDataUnpacker::silentMode_ ){
+          edm::LogWarning("EcalRawToDigiDevGainSwitch")
+            <<"\n For event LV1: "<<event_->l1A()<<", fed "<<mapper_->getActiveDCC()<<" and tower "<<towerId_
+            <<"\n A wrong gain transition switch was found in strip "<<stripId<<" and xtal "<<xtalId;    
+        }
 	
 	(*invalidGainsSwitch_)->push_back(*pDetId_);
 	
@@ -202,9 +211,11 @@ int DCCSCBlock::unpackXtalData(uint expStripID, uint expXtalID){
     }// End 'if EE id exist'
     
     else{// in case EE did not exist
-      edm::LogWarning("EcalRawToDigiDevChId")
-          <<"\n For event LV1: "<<event_->l1A()<<", fed "<<mapper_->getActiveDCC()<<" and tower "<<towerId_
-          <<"\n An EEDetId was requested that does not exist";    
+      if( ! DCCDataUnpacker::silentMode_ ){
+        edm::LogWarning("EcalRawToDigiDevChId")
+            <<"\n For event LV1: "<<event_->l1A()<<", fed "<<mapper_->getActiveDCC()<<" and tower "<<towerId_
+            <<"\n An EEDetId was requested that does not exist";    
+      }
     }
     
 

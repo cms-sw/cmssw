@@ -78,11 +78,14 @@ bool DCCEETCCBlock::checkTccIdAndNumbTTs(){
    }
 	
   if(!tccFound){
-    edm::LogWarning("EcalRawToDigiDevTCC") 
-      <<"\n Error on event "<<event_->l1A()<<" with bx "<<event_->bx()<<" in fed <<"<<mapper_->getActiveDCC()
-      <<"\n TCC id "<<tccId_<<" is not valid for this dcc "
-      <<"\n => Skipping to next fed block...";
-     //todo : add to error collection   
+
+    if( ! DCCDataUnpacker::silentMode_ ){
+      edm::LogWarning("EcalRawToDigiDevTCC") 
+        <<"\n Error on event "<<event_->l1A()<<" with bx "<<event_->bx()<<" in fed <<"<<mapper_->getActiveDCC()
+        <<"\n TCC id "<<tccId_<<" is not valid for this dcc "
+        <<"\n => Skipping to next fed block...";
+       //todo : add to error collection   
+     }
   }
 
  return tccFound;
