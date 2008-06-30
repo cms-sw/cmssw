@@ -663,7 +663,7 @@ void HcalSummaryClient::htmlOutput(int& run, time_t& mytime, int& minlumi, int& 
   // Produce the plots to be shown as .png files from existing histograms
 
   // values taken from EBSummaryClient.cc
-  const int csize = 400;
+  //const int csize = 400;
 
   //TCanvas* cMap = new TCanvas("cMap", "Temp", int(360./170.*csize), csize);
   //TCanvas* cMapPN = new TCanvas("cMapPN", "Temp", int(360./170.*csize), int(20./90.*360./170.*csize));
