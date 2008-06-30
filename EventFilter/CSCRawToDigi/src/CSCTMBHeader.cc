@@ -494,6 +494,18 @@ void CSCTMBHeader::selfTest()
 	std::cout << "Match for: " << lct0 << "\n";
 	std::cout << "           " << lct1 << "\n";
       }
+
+      // try packing and re-packing, to make sure they're the same
+      unsigned short int * data = tmbHeader.data();
+      CSCTMBHeader newHeader(data);
+      clcts = newHeader.CLCTDigis(detId.rawId());
+      assert(cscPackerCompare(clcts[0],clct0));
+      assert(cscPackerCompare(clcts[1],clct1));
+      lcts = newHeader.CorrelatedLCTDigis(detId.rawId());
+      assert(cscPackerCompare(lcts[0], lct0));
+      assert(cscPackerCompare(lcts[1], lct1));
+
+
     }
   }
 }
