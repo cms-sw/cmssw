@@ -13,7 +13,6 @@
 <use name=clhep>
 <use name=rootcore>
 <use name=rootrflx>
-<use name=root>
 <flags EDM_PLUGIN=1>
 <export>
  <lib name=IOPoolInput>
