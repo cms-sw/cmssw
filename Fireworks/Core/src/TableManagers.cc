@@ -91,16 +91,16 @@ void FWTableManager::Selection (int row, int mask)
 	  for (std::set<int>::const_iterator 
 		    i = sel_indices.begin(), end = sel_indices.end();
 	       i != end; ++i) {
-	       printf("selected index %d\n", *i);
+// 	       printf("selected index %d\n", *i);
 	  }
 	  std::set<int>::iterator existing_row = sel_indices.find(index);
 	  if (existing_row == sel_indices.end()) {
 	       // row is not selected, select it
-	       printf("selecting index %d\n", index);
+// 	       printf("selecting index %d\n", index);
 	       item->select(index);
 	  } else {
 	       // row is selected yet, unselect it
-	       printf("unselecting index %d\n", index);
+// 	       printf("unselecting index %d\n", index);
 	       item->unselect(index);
 	  }
 	  break;

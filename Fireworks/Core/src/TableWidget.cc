@@ -74,7 +74,7 @@ TableWidget::Init(int tabRows,
    m_minRowSelected=-1;
    m_maxRowSelected=-1;
 
-   std::cout<<"Created table widget with nRows="<<m_tabRows<<" nCols="<<m_tabCols<<std::endl;
+//    std::cout<<"Created table widget with nRows="<<m_tabRows<<" nCols="<<m_tabCols<<std::endl;
    // we used fixed size for cell width/height. So total table size should be calculated on a fly.
    m_tabWidth=m_cellWidth*(m_tabCols+1); // 1 for additional row id column
    m_tabHeight=m_cellHeight*(m_tabRows+1); // 1 for additional title row
@@ -423,7 +423,7 @@ void TableWidget::OnCellClick(Event_t *event)
 	     args[1] = (ULong_t)mask;
 	     args[2] = (ULong_t)sColor;
 	     Emit("SelectRow(Int_t,Mask_t,Pixel_t)",args);
-	     std::cout<<"select row="<<rowId<<" mask="<<mask<<" color="<<sColor<<std::endl;
+// 	     std::cout<<"select row="<<rowId<<" mask="<<mask<<" color="<<sColor<<std::endl;
 	     // but for the manager, do it lighter-weight
 	     m_tm->Selection(rowId + m_iRow, mask);
 	     // don't do this: wait for a signal to come back instead
@@ -442,7 +442,7 @@ void TableWidget::OnCellClick(Event_t *event)
 }
 void TableWidget::OnCellDoubleClick()
 {
-   std::cout<<"OnCellDoubleClick"<<std::endl;
+//    std::cout<<"OnCellDoubleClick"<<std::endl;
 }
 //void TableWidget::HandleDoubleClick(Event_t *event)
 //{
