@@ -8,12 +8,14 @@
 //
 // Original Author:  
 //         Created:  Fri Jun 27 11:23:08 EDT 2008
-// $Id$
+// $Id: CmsShowModelPopup.cc,v 1.1 2008/06/29 13:23:47 chrjones Exp $
 //
 
 // system include file
 #include <iostream>
+#include <set>
 #include <sigc++/sigc++.h>
+#include <boost/bind.hpp>
 #include "TClass.h"
 #include "TGFrame.h"
 #include "TGButton.h"
@@ -31,7 +33,9 @@
 #include "Fireworks/Core/interface/FWModelChangeSignal.h"
 #include "Fireworks/Core/interface/FWModelChangeManager.h"
 #include "Fireworks/Core/interface/FWEventItem.h"
-#include "Fireworks/Core/src/FWListModel.h"
+//#include "Fireworks/Core/src/FWListModel.h"
+#include "Fireworks/Core/interface/FWModelId.h"
+#include "Fireworks/Core/interface/FWSelectionManager.h"
 
 //
 // constants, enums and typedefs
@@ -47,17 +51,12 @@
 CmsShowModelPopup::CmsShowModelPopup(const TGWindow* p, UInt_t w, UInt_t h)
 {
   SetCleanup(kDeepCleanup);
-  m_model = 0;
   TGHorizontalFrame* objectFrame = new TGHorizontalFrame(this);
   m_modelLabel = new TGLabel(objectFrame, " ");
   TGFont* defaultFont = gClient->GetFontPool()->GetFont(m_modelLabel->GetDefaultFontStruct());
   m_modelLabel->SetTextFont(gClient->GetFontPool()->GetFont(defaultFont->GetFontAttributes().fFamily, 14, defaultFont->GetFontAttributes().fWeight + 2, defaultFont->GetFontAttributes().fSlant));
   m_modelLabel->SetTextJustify(kTextLeft);
   objectFrame->AddFrame(m_modelLabel, new TGLayoutHints(kLHintsExpandX));
-  m_removeButton = new TGTextButton(objectFrame, "Remove", -1, TGTextButton::GetDefaultGC()(), TGTextButton::GetDefaultFontStruct(), kRaisedFrame|kDoubleBorder|kFixedWidth);
-  m_removeButton->SetWidth(60);
-  m_removeButton->SetEnabled(kFALSE);
-  objectFrame->AddFrame(m_removeButton);
   AddFrame(objectFrame, new TGLayoutHints(kLHintsExpandX, 2, 2, 0, 0));
   TGHorizontal3DLine* nameObjectSeperator = new TGHorizontal3DLine(this, 200, 5);
   AddFrame(nameObjectSeperator, new TGLayoutHints(kLHintsNormal, 0, 0, 5, 5));
@@ -131,38 +130,58 @@ CmsShowModelPopup::~CmsShowModelPopup()
 // member functions
 //
 void
-CmsShowModelPopup::fillModelPopup(FWListModel* iModel) {
-  if (iModel != m_model) {
-    m_model = iModel;
-    m_modelLabel->SetText(iModel->GetName());
-    m_colorSelectWidget->SetColor(gVirtualX->GetPixel(iModel->GetMainColor()));
-    m_isVisibleButton->SetDisabledAndSelected(m_model->GetRnrState());
+CmsShowModelPopup::fillModelPopup(const FWSelectionManager& iSelMgr) {
+  disconnectAll();
+  if (iSelMgr.selected().size() > 0) {
+    bool multipleNames(false);
+    bool multipleColors(false);
+    bool multipleVis(false);
+    m_models = iSelMgr.selected();
+    FWModelId id;
+    FWModelId prevId;
+    const FWEventItem* item = 0;
+    const FWEventItem* prevItem = 0;
+    for (std::set<FWModelId>::iterator it_mod = m_models.begin(); it_mod != m_models.end(); ++it_mod) {
+      if (it_mod != m_models.begin()) {
+	item = (*it_mod).item();
+	if (item->name() != prevItem->name()) multipleNames = true;
+	if (item->modelInfo((*it_mod).index()).displayProperties().color() != prevItem->modelInfo(prevId.index()).displayProperties().color()) 
+	  multipleColors = true;
+	if (item->modelInfo((*it_mod).index()).displayProperties().isVisible() != prevItem->modelInfo(prevId.index()).displayProperties().isVisible())
+	  multipleVis = true;
+      }
+      prevId = *it_mod;
+      prevItem = (*it_mod).item();
+    }
+    id = *m_models.begin();
+    item = (*(m_models.begin())).item();
+    if (multipleNames) 
+      m_modelLabel->SetText("Multiple Items");
+    else 
+      m_modelLabel->SetText(item->name().c_str());
+    m_colorSelectWidget->SetColor(gVirtualX->GetPixel(item->modelInfo(id.index()).displayProperties().color()));
+    m_isVisibleButton->SetDisabledAndSelected(item->modelInfo(id.index()).displayProperties().isVisible());
     m_colorSelectWidget->SetEnabled(kTRUE);
     m_isVisibleButton->SetEnabled(kTRUE);
-    m_removeButton->SetEnabled(kTRUE);
     if (!(m_colorSelectWidget->HasConnection("ColorSelected(Pixel_t)")))
       m_colorSelectWidget->Connect("ColorSelected(Pixel_t)", "CmsShowModelPopup", this, "changeModelColor(Pixel_t)");
     if (!(m_isVisibleButton->HasConnection("Toggled(Bool_T)")))
       m_isVisibleButton->Connect("Toggled(Bool_t)", "CmsShowModelPopup", this, "toggleModelVisible(Bool_t)");
-    if (!(m_removeButton->HasConnection("Clicked()")))
-      m_removeButton->Connect("Clicked()", "CmsShowModelPopup", this, "removeModel()");
     //    m_displayChangedConn = m_item->defaultDisplayPropertiesChanged_.connect(boost::bind(&CmsShowEDI::updateDisplay, this));
-    //    m_modelChangedConn = m_item->changed_.connect(boost::bind(&CmsShowEDI::updateDisplay, this));
+    m_modelChangedConn = item->changed_.connect(boost::bind(&CmsShowModelPopup::updateDisplay, this));
     //    m_selectionChangedConn = m_selectionManager->selectionChanged_.connect(boost::bind(&CmsShowEDI::updateSelection, this));
-    //    m_destroyedConn = m_item->goingToBeDestroyed_.connect(boost::bind(&CmsShowEDI::disconnectAll, this));
+    m_destroyedConn = item->goingToBeDestroyed_.connect(boost::bind(&CmsShowModelPopup::disconnectAll, this));
     Layout();
- }
-}
-
-void
-CmsShowModelPopup::removeModel() {
+  }    
 }
 
 void
 CmsShowModelPopup::updateDisplay() {
-  if (m_model != 0) {
-    m_colorSelectWidget->SetColor(gVirtualX->GetPixel(m_model->GetMainColor()));
-    m_isVisibleButton->SetState(m_model->GetRnrState() ? kButtonDown : kButtonUp, kFALSE);
+  const FWEventItem* item;
+  for (std::set<FWModelId>::iterator it_mod = m_models.begin(); it_mod != m_models.end(); ++it_mod) {
+    item = (*it_mod).item();
+    m_colorSelectWidget->SetColor(gVirtualX->GetPixel(item->modelInfo((*it_mod).index()).displayProperties().color()));
+    m_isVisibleButton->SetState(item->modelInfo((*it_mod).index()).displayProperties().isVisible() ? kButtonDown : kButtonUp, kFALSE);
   }
 }
 
@@ -172,28 +191,36 @@ CmsShowModelPopup::disconnectAll() {
   m_destroyedConn.disconnect();
   m_colorSelectWidget->Disconnect("ColorSelected(Pixel_t)", this, "changeModelColor(Pixel_t)");
   m_isVisibleButton->Disconnect("Toggled(Bool_t)", this, "toggleModelVisible(Bool_t)");
-  m_removeButton->Disconnect("Clicked()", this, "removeItem()");
-  m_item = 0;
-  m_model = 0;
+  //  m_item = 0;
+  //  m_model = 0;
   m_modelLabel->SetText(" ");
   m_colorSelectWidget->SetColor(gVirtualX->GetPixel(kRed));
   m_isVisibleButton->SetDisabledAndSelected(kTRUE);
   m_colorSelectWidget->SetEnabled(kFALSE);
   m_isVisibleButton->SetEnabled(kFALSE);
-  m_removeButton->SetEnabled(kFALSE);
 }
 
 void
 CmsShowModelPopup::changeModelColor(Pixel_t pixel) {
-  std::cout<<"Changing color..."<<std::endl;
   Color_t color(TColor::GetColor(pixel));
-  m_model->SetMainColor(color);
+  const FWEventItem* item;
+  for (std::set<FWModelId>::iterator it_mod = m_models.begin(); it_mod != m_models.end(); ++it_mod) {
+    item = (*it_mod).item();
+    const FWDisplayProperties changeProperties(color, item->modelInfo((*it_mod).index()).displayProperties().isVisible());
+    item->setDisplayProperties((*it_mod).index(), changeProperties);
+  }
 }
 
 void
 CmsShowModelPopup::toggleModelVisible(Bool_t on) {
-  std::cout<<"Toggling visibility..."<<std::endl;
-  m_model->SetRnrState(on);
+  const FWEventItem* item;
+  for (std::set<FWModelId>::iterator it_mod = m_models.begin(); it_mod != m_models.end(); ++it_mod) {
+    item = (*it_mod).item();
+    const FWDisplayProperties changeProperties(item->modelInfo((*it_mod).index()).displayProperties().color(), on);
+    item->setDisplayProperties((*it_mod).index(), changeProperties);
+  }
+  //  const FWDisplayProperties changeProperties(m_item->modelInfo(m_model->index()).displayProperties().color(), on);
+  //  m_item->setDisplayProperties(m_model->index(), changeProperties);
 }
 
 

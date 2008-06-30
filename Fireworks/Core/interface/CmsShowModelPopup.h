@@ -16,10 +16,11 @@
 //
 // Original Author:  
 //         Created:  Fri Jun 27 11:23:31 EDT 2008
-// $Id$
+// $Id: CmsShowModelPopup.h,v 1.1 2008/06/29 13:23:47 chrjones Exp $
 //
 
 // system include files
+#include <set>
 #include <sigc++/connection.h>
 #include "GuiTypes.h"
 #include "TGFrame.h"
@@ -29,7 +30,8 @@
 
 // forward declarations
 class FWEventItem;
-class FWListModel;
+class FWSelectionManager;
+//class FWModelId;
 class FWColorSelect;
 class TGLabel;
 class TGTextButton;
@@ -47,8 +49,7 @@ class CmsShowModelPopup : public TGMainFrame
       // ---------- static member functions --------------------
 
       // ---------- member functions ---------------------------
-      void fillModelPopup(FWListModel* iModel = 0);
-      void removeModel();
+      void fillModelPopup(const FWSelectionManager& iSelMgr);
       void updateDisplay();
       void disconnectAll();
       void changeModelColor(Pixel_t pixel = 0x000000);
@@ -61,12 +62,9 @@ class CmsShowModelPopup : public TGMainFrame
 
       // ---------- member data --------------------------------
       TGLabel* m_modelLabel;
-      TGTextButton* m_removeButton;
       FWColorSelect* m_colorSelectWidget;
       TGCheckButton* m_isVisibleButton;
-      FWListModel* m_model;
-      FWEventItem* m_item;
-      //      sigc::connection m_displayChangedConn;
+      std::set<FWModelId> m_models;
       sigc::connection m_modelChangedConn;
       sigc::connection m_destroyedConn;
 
