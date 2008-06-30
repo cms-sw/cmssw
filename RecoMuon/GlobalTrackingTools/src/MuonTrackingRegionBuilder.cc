@@ -3,8 +3,8 @@
  *
  *  Build a TrackingRegion around a standalone muon 
  *
- *  $Date: 2008/03/05 21:12:55 $
- *  $Revision: 1.7 $
+ *  $Date: 2008/03/20 18:18:55 $
+ *  $Revision: 1.8 $
  *
  *  \author A. Everett - Purdue University
  *  \author A. Grelli -  Purdue University, Pavia University
@@ -71,6 +71,7 @@ MuonTrackingRegionBuilder::MuonTrackingRegionBuilder(const edm::ParameterSet& pa
   // perigee reference point
   theVertexPos = GlobalPoint(0.0,0.0,0.0);
 
+  theOnDemand = par.getParameter<double>("OnDemand");
 }
 
 
@@ -215,7 +216,8 @@ MuonTrackingRegionBuilder::region(const reco::Track& staTrack) const {
 
   region = new RectangularEtaPhiTrackingRegion(dirVector, vertexPos,
                                                minPt, deltaR,
-                                               deltaZ, region_dEta, region_dPhi);
+                                               deltaZ, region_dEta, region_dPhi,
+					       theOnDemand);
   
   return region;
   

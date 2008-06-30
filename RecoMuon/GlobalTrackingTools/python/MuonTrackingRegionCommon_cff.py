@@ -32,6 +32,10 @@ MuonTrackingRegionCommon = cms.PSet(
 
         UseVertex = cms.bool(False) ## use reconstructed vertex instead of beamspot
 
+        ## -1. : nothing is made on demand
+        ## 0.0 : strip only are made on demand
+        ## 1.0 : strip and pixel are made on demand
+        OnDemand = cms.double(-1.0)
     )
 )
 
