@@ -62,13 +62,6 @@ REGISTER_L1_WRITER(L1MuTriggerPtScaleRcd, L1MuTriggerPtScale);
 REGISTER_PLUGIN(L1MuGMTScalesRcd, L1MuGMTScales);
 REGISTER_L1_WRITER(L1MuGMTScalesRcd, L1MuGMTScales);
 
-// DT TPG records
-#include "CondFormats/L1TObjects/interface/DTConfigManager.h"
-#include "CondFormats/DataRecord/interface/DTConfigManagerRcd.h"
-
-REGISTER_PLUGIN(DTConfigManagerRcd, DTConfigManager);
-REGISTER_L1_WRITER(DTConfigManagerRcd, DTConfigManager);
-
 // DT TF records
 #include "CondFormats/L1TObjects/interface/L1MuDTEtaPatternLut.h"
 #include "CondFormats/L1TObjects/interface/L1MuDTExtLut.h"
