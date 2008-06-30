@@ -1,8 +1,9 @@
 <use name=DataFormats/HepMCCandidate>
 <use name=PhysicsTools/UtilAlgos>
-<use name=FWCore/ParameterSet>
+<use name=SimGeneral/HepPDTRecord>
 <export>
+  <lib name=PhysicsToolsHepMCCandAlgos>
   <use name=DataFormats/HepMCCandidate>
   <use name=PhysicsTools/UtilAlgos>
-  <use name=FWCore/ParameterSet>
+  <use name=SimGeneral/HepPDTRecord>
 </export>
