@@ -24,7 +24,7 @@
 using namespace std;
 using namespace edm;
 
-void TrackerSeedValidator::beginJob( const EventSetup & setup) {
+void TrackerSeedValidator::beginRun( const EventSetup & setup) {
   setup.get<IdealMagneticFieldRecord>().get(theMF);  
   setup.get<TransientRecHitRecord>().get(builderName,theTTRHBuilder);
 
@@ -418,8 +418,8 @@ void TrackerSeedValidator::analyze(const edm::Event& event, const edm::EventSetu
   }
 }
 
-void TrackerSeedValidator::endJob() {
-  LogTrace("TrackValidator") << "TrackerSeedValidator::endJob()";
+void TrackerSeedValidator::endRun() {
+  LogTrace("TrackValidator") << "TrackerSeedValidator::endRun()";
   int w=0;
   for (unsigned int ww=0;ww<associators.size();ww++){
     for (unsigned int www=0;www<label.size();www++){
