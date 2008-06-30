@@ -2,53 +2,69 @@ import FWCore.ParameterSet.Config as cms
 
 # Full Event content 
 RecoEcalFEVT = cms.PSet(
-    outputCommands = cms.untracked.vstring('keep *_reducedEcalRecHits*_*_*', 
+    outputCommands = cms.untracked.vstring(
+	# Hits
+	'keep *_reducedEcalRecHits*_*_*', 
         'keep *_interestingEcalDetId*_*_*', 
         'keep *_ecalWeightUncalibRecHit_*_*', 
         'keep *_ecalPreshowerRecHit_*_*', 
-        'keep *_islandBasicClusters_*_*', 
-        'keep *_islandSuperClusters_*_*', 
-        'keep *_hybridSuperClusters_*_*', 
-        'keep *_correctedMulti5x5*_*_*', 
-        'keep *_multi5x5*_*_*', 
-        'keep *_correctedIslandBarrelSuperClusters_*_*', 
-        'keep *_correctedIslandEndcapSuperClusters_*_*', 
-        'keep *_correctedHybridSuperClusters_*_*', 
-        'keep *_correctedEndcapSuperClustersWithPreshower_*_*', 
-        'keep *_preshowerClusterShape_*_*')
+	# Barrel clusters
+        'keep *_hybridSuperClusters_*_*',
+        'keep *_correctedHybridSuperClusters_*_*',
+	# Endcap clusters
+        'keep *_multi5x5*_*_*',
+        'keep *_correctedMulti5x5*_*_*',
+        # Preshower clusters
+        'keep recoPreshowerClusters_multi5x5SuperClustersWithPreshower_*_*', 
+        'keep recoPreshowerClusterShapes_multi5x5PreshowerClusterShape_*_*'
+	# DROP statements
+	'drop recoBasicClusters_multi5x5BasicClusters_multi5x5BarrelBasicClusters_*',
+        'drop recoSuperClusters_multi5x5SuperClusters_multi5x5BarrelSuperClusters_*')
+	
+
 )
 # RECO content
 RecoEcalRECO = cms.PSet(
-    outputCommands = cms.untracked.vstring('keep *_islandBasicClusters_*_*', 
-        'keep *_multi5x5BasicClusters_*_*', 
-        'keep *_hybridSuperClusters_*_*', 
-        'keep EcalRecHitsSorted_reducedEcalRecHits*_*_*', 
-        'drop recoSuperClusters_hybridSuperClusters_*_*', 
+    outputCommands = cms.untracked.vstring(
+	# Hits
+	'keep EcalRecHitsSorted_reducedEcalRecHits*_*_*',
+	# Barrel clusters
+        'keep *_hybridSuperClusters_*_*',
+        'keep recoSuperClusters_correctedHybridSuperClusters_*_*',
+	# Endcap clusters
+        'keep *_multi5x5BasicClusters_*_*',
+        'keep recoSuperClusters_multi5x5SuperClusters_*_*',
+        'keep recoSuperClusters_multi5x5SuperClustersWithPreshower_*_*',
+        'keep recoSuperClusters_correctedMulti5x5SuperClustersWithPreshower_*_*',
+	# Preshower clusters
+        'keep recoPreshowerClusters_multi5x5SuperClustersWithPreshower_*_*',
+        'keep recoPreshowerClusterShapes_multi5x5PreshowerClusterShape_*_*',
+	# DROP statements
         'drop recoClusterShapes_*_*_*', 
-        'drop recoBasicClustersToOnerecoClusterShapesAssociation_*_*_*', 
-        'keep recoSuperClusters_islandSuperClusters_islandBarrelSuperClusters_*', 
-        'keep recoSuperClusters_correctedHybridSuperClusters_*_*', 
-        'keep *_correctedMulti5x5SuperClustersWithPreshower_*_*', 
-        'keep recoPreshowerClusters_multi5x5SuperClustersWithPreshower_*_*', 
-        'keep *_correctedEndcapSuperClustersWithPreshower_*_*', 
-        'keep recoPreshowerClusterShapes_preshowerClusterShape_*_*', 
-        'keep recoPreshowerClusterShapes_multi5x5PreshowerClusterShape_*_*')
+        'drop recoBasicClustersToOnerecoClusterShapesAssociation_*_*_*',
+        'drop recoBasicClusters_multi5x5BasicClusters_multi5x5BarrelBasicClusters_*',
+        'drop recoSuperClusters_multi5x5SuperClusters_multi5x5BarrelSuperClusters_*')
 )
 # AOD content
 RecoEcalAOD = cms.PSet(
-    outputCommands = cms.untracked.vstring('keep *_islandBasicClusters_*_*', 
-        'keep *_multi5x5BasicClusters_*_*', 
-        'keep *_hybridSuperClusters_*_*', 
+    outputCommands = cms.untracked.vstring(
+	# Hits
         'keep EcalRecHitsSorted_reducedEcalRecHits*_*_*', 
-        'drop recoSuperClusters_hybridSuperClusters_*_*', 
-        'drop recoClusterShapes_*_*_*', 
-        'drop recoBasicClustersToOnerecoClusterShapesAssociation_*_*_*', 
-        'keep recoSuperClusters_islandSuperClusters_islandBarrelSuperClusters_*', 
-        'keep recoSuperClusters_correctedHybridSuperClusters_*_*', 
-        'keep recoSuperClusters_correctedEndcapSuperClustersWithPreshower_*_*', 
+	# Barrel clusters
+        'keep *_hybridSuperClusters_*_*', 
+        'keep recoSuperClusters_correctedHybridSuperClusters_*_*',
+	# Endcap clusters	
+        'keep *_multi5x5BasicClusters_*_*', 
+        'keep recoSuperClusters_multi5x5SuperClusters_*_*',
+        'keep recoSuperClusters_multi5x5SuperClustersWithPreshower_*_*',
+        'keep recoSuperClusters_correctedMulti5x5SuperClustersWithPreshower_*_*',
+	# Preshower clusters
         'keep recoPreshowerClusters_multi5x5SuperClustersWithPreshower_*_*', 
-        'keep recoSuperClusters_correctedMulti5x5SuperClustersWithPreshower_*_*', 
-        'keep recoPreshowerClusterShapes_preshowerClusterShape_*_*', 
-        'keep recoPreshowerClusterShapes_multi5x5PreshowerClusterShape_*_*')
+        'keep recoPreshowerClusterShapes_multi5x5PreshowerClusterShape_*_*',
+	# DROP statements
+        'drop recoClusterShapes_*_*_*', 
+        'drop recoBasicClustersToOnerecoClusterShapesAssociation_*_*_*',
+        'drop recoBasicClusters_multi5x5BasicClusters_multi5x5BarrelBasicClusters_*',
+        'drop recoSuperClusters_multi5x5SuperClusters_multi5x5BarrelSuperClusters_*')
 )
 
