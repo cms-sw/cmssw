@@ -7,11 +7,14 @@
  *
  * Version 0.0. A.Savin 2008/04/26
  *
- * $Date: 2008/05/05 18:42:23 $
- * $Revision: 1.3 $
+ * $Date: 2008/05/06 18:04:02 $
+ * $Revision: 1.4 $
  * \author P. Wittich
- * $Id: L1TdeRCT.h,v 1.3 2008/05/05 18:42:23 asavin Exp $
+ * $Id: L1TdeRCT.h,v 1.4 2008/05/06 18:04:02 nuno Exp $
  * $Log: L1TdeRCT.h,v $
+ * Revision 1.4  2008/05/06 18:04:02  nuno
+ * cruzet update
+ *
  * Revision 1.3  2008/05/05 18:42:23  asavin
  * DataOcc added
  *
@@ -93,6 +96,9 @@ private:
   // ----------member data ---------------------------
   DQMStore * dbe;
 
+  MonitorElement* rctInputTPGEcalOcc_ ;
+  MonitorElement* rctInputTPGHcalOcc_ ;
+  MonitorElement* rctInputTPGHcalSample_ ;
 
   MonitorElement* rctIsoEmDataOcc_ ;
   MonitorElement* rctIsoEmEmulOcc_ ;
@@ -157,6 +163,9 @@ private:
 
   edm::InputTag rctSourceEmul_;
   edm::InputTag rctSourceData_;
+  edm::InputTag ecalTPGData_;
+  edm::InputTag hcalTPGData_;
+
 
 protected:
 

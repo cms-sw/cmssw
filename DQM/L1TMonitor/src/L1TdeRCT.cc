@@ -12,6 +12,12 @@
 #include "DataFormats/L1CaloTrigger/interface/L1CaloCollections.h"
 #include "DQMServices/Core/interface/DQMStore.h"
 
+// TPGs
+
+#include "DataFormats/EcalDigi/interface/EcalDigiCollections.h"
+#include "DataFormats/HcalDigi/interface/HcalDigiCollections.h"
+
+
 #include "TF2.h"
 
 #include <iostream>
@@ -26,17 +32,30 @@ const unsigned int ETABINS = 22;
 const float ETAMIN = -0.5;
 const float ETAMAX = 21.5;
 
-const unsigned int DEBINS = 101;
-const float DEMIN = -50.5;
-const float DEMAX = 50.5;
+const unsigned int TPGPHIBINS = 72;
+const float TPGPHIMIN = -0.5;
+const float TPGPHIMAX = 71.5;
+
+const unsigned int TPGETABINS = 50;
+const float TPGETAMIN = -25.;
+const float TPGETAMAX = 25.;
+
+
+const unsigned int DEBINS = 127;
+const float DEMIN = -63.5;
+const float DEMAX = 63.5;
 
 const unsigned int PhiEtaMax = 396;
 const unsigned int CHNLBINS = 396;
 const float CHNLMIN = -0.5;
 const float CHNLMAX = 395.5;
 
+bool first = true ;
+
 
 L1TdeRCT::L1TdeRCT(const ParameterSet & ps) :
+   ecalTPGData_( ps.getParameter< InputTag >("ecalTPGData") ),
+   hcalTPGData_( ps.getParameter< InputTag >("hcalTPGData") ),
    rctSourceData_( ps.getParameter< InputTag >("rctSourceData") ),
    rctSourceEmul_( ps.getParameter< InputTag >("rctSourceEmul") )
 
@@ -46,7 +65,7 @@ L1TdeRCT::L1TdeRCT(const ParameterSet & ps) :
   singlechannelhistos_ = ps.getUntrackedParameter < bool > ("singlechannelhistos", false);
                                                                                                                         
   if (singlechannelhistos_)
-    std::cout << "L1TdeRCT: single channels histos ON" << std::endl;
+    if(verbose_) std::cout << "L1TdeRCT: single channels histos ON" << std::endl;
                                                                                                                         
   // verbosity switch
   verbose_ = ps.getUntrackedParameter < bool > ("verbose", false);
@@ -64,7 +83,7 @@ L1TdeRCT::L1TdeRCT(const ParameterSet & ps) :
   outputFile_ =
       ps.getUntrackedParameter < std::string > ("outputFile", "");
   if (outputFile_.size() != 0) {
-    std::
+    if(verbose_) std::
 	cout << "L1T Monitoring histograms will be saved to " <<
 	outputFile_.c_str() << std::endl;
   }
@@ -81,6 +100,7 @@ L1TdeRCT::L1TdeRCT(const ParameterSet & ps) :
   if (dbe != NULL) {
     dbe->setCurrentFolder(histFolder_);
   }
+
 
 
 }
@@ -105,6 +125,19 @@ void L1TdeRCT::beginJob(const EventSetup & c)
 
 
   if (dbe) {
+
+    dbe->setCurrentFolder(histFolder_);
+
+    rctInputTPGEcalOcc_ =
+	dbe->book2D("rctInputTPGEcalOcc", "rctInputTPGEcalOcc", TPGETABINS, TPGETAMIN,
+		    TPGETAMAX, TPGPHIBINS, TPGPHIMIN, TPGPHIMAX);
+
+    rctInputTPGHcalOcc_ =
+	dbe->book2D("rctInputTPGHcalOcc", "rctInputTPGHcalOcc", TPGETABINS, TPGETAMIN,
+		    TPGETAMAX, TPGPHIBINS, TPGPHIMIN, TPGPHIMAX);
+
+    rctInputTPGHcalSample_ =
+	dbe->book1D("rctInputTPGHcalSample", "rctInputTPGHcalSample", 10, -0.5, 9.5) ;
 
     dbe->setCurrentFolder(histFolder_+"IsoEm");
 
@@ -352,6 +385,10 @@ void L1TdeRCT::analyze(const Event & e, const EventSetup & c)
     std::cout << "L1TdeRCT: analyze...." << std::endl;
   }
 
+  // get TPGs
+  edm::Handle<EcalTrigPrimDigiCollection> ecalTpData;
+  edm::Handle<HcalTrigPrimDigiCollection> hcalTpData;
+
   // Get the RCT digis
   edm::Handle < L1CaloEmCollection > emData;
   edm::Handle < L1CaloRegionCollection > rgnData;
@@ -363,6 +400,85 @@ void L1TdeRCT::analyze(const Event & e, const EventSetup & c)
   // need to change to getByLabel
   bool doEm = true; 
   bool doHd = true;
+  bool doEcal = true;
+  bool doHcal = true;
+
+  // TPG, first try:  
+  e.getByLabel(ecalTPGData_,ecalTpData);
+  e.getByLabel(hcalTPGData_,hcalTpData);
+   
+  if (!ecalTpData.isValid()) {
+    edm::LogInfo("TPG DataNotFound") << "can't find EcalTrigPrimDigiCollection with label "
+			       << ecalTPGData_.label() ;
+    if (verbose_)std::cout << "Can not find ecalTpData!" << std::endl ;
+
+    doEcal = false ;
+  }
+
+  if(doEcal)
+  {
+  for(EcalTrigPrimDigiCollection::const_iterator iEcalTp = ecalTpData->begin(); iEcalTp != ecalTpData->end(); iEcalTp++)
+    if(iEcalTp->compressedEt() > 0)
+    {
+
+  if(iEcalTp->id().ieta() > 0)
+  rctInputTPGEcalOcc_ -> Fill(1.*(iEcalTp->id().ieta())-0.5,iEcalTp->id().iphi()) ;
+  else
+  rctInputTPGEcalOcc_ -> Fill(1.*(iEcalTp->id().ieta())+0.5,iEcalTp->id().iphi()) ;
+
+if(verbose_) std::cout << " ECAL data: Energy: " << iEcalTp->compressedEt() << " eta " << iEcalTp->id().ieta() << " phi " << iEcalTp->id().iphi() << std::endl ;
+    }
+   }
+
+  if (!hcalTpData.isValid()) {
+    edm::LogInfo("TPG DataNotFound") << "can't find HcalTrigPrimDigiCollection with label "
+			       << hcalTPGData_.label() ;
+    if (verbose_)std::cout << "Can not find hcalTpData!" << std::endl ;
+    
+    doHcal = false ;
+  }
+
+
+  if(doHcal)
+  {
+
+  for(HcalTrigPrimDigiCollection::const_iterator iHcalTp = hcalTpData->begin(); iHcalTp != hcalTpData->end(); iHcalTp++)
+  {
+    int highSample=0;
+    int highEt=0;
+
+    for (int nSample = 0; nSample < 10; nSample++)
+      {
+	if (iHcalTp->sample(nSample).compressedEt() != 0)
+	  {
+	    if(verbose_) std::cout << "HCAL data: Et " 
+		      << iHcalTp->sample(nSample).compressedEt()
+		      << "  fg "
+		      << iHcalTp->sample(nSample).fineGrain()
+		      << "  ieta " << iHcalTp->id().ieta()
+		      << "  iphi " << iHcalTp->id().iphi()
+		      << "  sample " << nSample 
+                      << std::endl ;
+	    if (iHcalTp->sample(nSample).compressedEt() > highEt)
+	      {
+		highSample = nSample;
+                highEt =  iHcalTp->sample(nSample).compressedEt() ;
+	      }
+	  }
+
+       }
+
+     if(highEt != 0)
+      { 
+                  if(iHcalTp->id().ieta() > 0)
+                  rctInputTPGHcalOcc_ -> Fill(1.*(iHcalTp->id().ieta())-0.5,iHcalTp->id().iphi()) ;
+                  else
+                  rctInputTPGHcalOcc_ -> Fill(1.*(iHcalTp->id().ieta())+0.5,iHcalTp->id().iphi()) ;
+                  rctInputTPGHcalSample_ -> Fill(highSample) ; 
+       }
+
+    }
+  }
 
   
   e.getByLabel(rctSourceData_,rgnData);
@@ -423,6 +539,24 @@ void L1TdeRCT::analyze(const Event & e, const EventSetup & c)
   int electronEmulEta[2][PhiEtaMax]={0};
   int electronEmulPhi[2][PhiEtaMax]={0};
 
+// just to fix a scale for the ratios //
+if(first)
+{
+  rctIsoEmEmulOcc_->Fill(0.,0.) ;
+  rctIsoEmDataOcc_->Fill(0.,0.) ;
+  rctIsoEmEff1Occ_->Fill(0.,0.) ;
+  rctIsoEmEff2Occ_->Fill(0.,0.) ;
+  rctIsoEmIneffOcc_->Fill(0.,0.) ;
+  rctIsoEmOvereffOcc_->Fill(0.,0.) ;
+  rctNisoEmEmulOcc_->Fill(0.,0.) ;
+  rctNisoEmDataOcc_->Fill(0.,0.) ;
+  rctNisoEmEff1Occ_->Fill(0.,0.) ;
+  rctNisoEmEff2Occ_->Fill(0.,0.) ;
+  rctNisoEmIneffOcc_->Fill(0.,0.) ;
+  rctNisoEmOvereffOcc_->Fill(0.,0.) ;
+  first = false ;
+}
+
 
   // StepII: fill variables
 
@@ -432,6 +566,9 @@ void L1TdeRCT::analyze(const Event & e, const EventSetup & c)
     if (iem->isolated()) {
       rctIsoEmEmulOcc_->Fill(iem->regionId().ieta(),
 			       iem->regionId().iphi());
+// to  show bad channles in the 2D ineff
+      rctIsoEmIneffOcc_->Fill(iem->regionId().ieta(),
+			       iem->regionId().iphi(),0.00001);
       int channel; channel=18*iem->regionId().ieta()+iem->regionId().iphi();
       rctIsoEmEmulOcc1D_->Fill(channel);
       electronEmulRank[0][nelectrIsoEmul]=iem->rank();
@@ -442,6 +579,9 @@ void L1TdeRCT::analyze(const Event & e, const EventSetup & c)
     else {
       rctNisoEmEmulOcc_->Fill(iem->regionId().ieta(),
 			       iem->regionId().iphi());
+// to  show bad channles in the 2D ineff
+      rctNisoEmIneffOcc_->Fill(iem->regionId().ieta(),
+			       iem->regionId().iphi(),0.00001);
       int channel; channel=18*iem->regionId().ieta()+iem->regionId().iphi();
       rctNisoEmEmulOcc1D_->Fill(channel);
       electronEmulRank[1][nelectrNisoEmul]=iem->rank();
@@ -458,8 +598,13 @@ void L1TdeRCT::analyze(const Event & e, const EventSetup & c)
     if (iem->isolated()) {
       rctIsoEmDataOcc_->Fill(iem->regionId().ieta(),
 			       iem->regionId().iphi());
+// new stuff to avoid 0's in emulator 2D //
+      rctIsoEmEmulOcc_->Fill(iem->regionId().ieta(),
+			       iem->regionId().iphi(),0.00001);
       int channel; channel=18*iem->regionId().ieta()+iem->regionId().iphi();
       rctIsoEmDataOcc1D_->Fill(channel);
+// new stuff to avoid 0's 
+      rctIsoEmEmulOcc1D_->Fill(channel,0.0001);
       electronDataRank[0][nelectrIsoData]=iem->rank();
       electronDataEta[0][nelectrIsoData]=iem->regionId().ieta();
       electronDataPhi[0][nelectrIsoData]=iem->regionId().iphi();
@@ -468,8 +613,13 @@ void L1TdeRCT::analyze(const Event & e, const EventSetup & c)
     else {
       rctNisoEmDataOcc_->Fill(iem->regionId().ieta(),
 			       iem->regionId().iphi());
+// new stuff to avoid 0's in emulator 2D //
+      rctNisoEmEmulOcc_->Fill(iem->regionId().ieta(),
+			       iem->regionId().iphi(),0.00001);
       int channel; channel=18*iem->regionId().ieta()+iem->regionId().iphi();
       rctNisoEmDataOcc1D_->Fill(channel);
+// new stuff to avoid 0's 
+      rctNisoEmEmulOcc1D_->Fill(channel,0.0001);
       electronDataRank[1][nelectrNisoData]=iem->rank();
       electronDataEta[1][nelectrNisoData]=iem->regionId().ieta();
       electronDataPhi[1][nelectrNisoData]=iem->regionId().iphi();
@@ -478,7 +628,13 @@ void L1TdeRCT::analyze(const Event & e, const EventSetup & c)
    }
   }
 
-// std::cout << "I found something! Iso: " << nelectrIsoEmul << " Niso: " << nelectrNisoEmul <<  std::endl ;
+ if(verbose_) std::cout << "I found Data! Iso: " << nelectrIsoData << " Niso: " << nelectrNisoData <<  std::endl ;
+  for(int i=0; i<nelectrNisoData; i++) 
+ if(verbose_)  std::cout << " Energy " << electronDataRank[1][i] << " eta " << electronDataEta[1][i] << " phi " << electronDataPhi[1][i] << std::endl ;
+
+if(verbose_) std::cout << "I found Emul! Iso: " << nelectrIsoEmul << " Niso: " << nelectrNisoEmul <<  std::endl ;
+  for(int i=0; i<nelectrNisoEmul; i++) 
+if(verbose_)   std::cout << " Energy " << electronEmulRank[1][i] << " eta " << electronEmulEta[1][i] << " phi " << electronEmulPhi[1][i] << std::endl ;
 
   // StepIII: calculate and fill
 
@@ -590,8 +746,11 @@ void L1TdeRCT::analyze(const Event & e, const EventSetup & c)
         int chnl; chnl=18*electronDataEta[k][i]+electronDataPhi[k][i];
         rctIsoEmOvereffOcc1D_->Fill(chnl) ;
 //        rctIsoEmOvereff_->Divide(rctIsoEmOvereffOcc_, rctIsoEmEmulOcc_, 1., 1.);
-        DivideME1D(rctIsoEmOvereffOcc1D_, rctIsoEmEmulOcc1D_,rctIsoEmOvereff1D_) ;
-        DivideME2D(rctIsoEmOvereffOcc_, rctIsoEmEmulOcc_,rctIsoEmOvereff_) ;
+//        DivideME1D(rctIsoEmOvereffOcc1D_, rctIsoEmEmulOcc1D_,rctIsoEmOvereff1D_) ;
+//        DivideME2D(rctIsoEmOvereffOcc_, rctIsoEmEmulOcc_,rctIsoEmOvereff_) ;
+// we try new definition of overefficiency:
+        DivideME1D(rctIsoEmOvereffOcc1D_, rctIsoEmDataOcc1D_,rctIsoEmOvereff1D_) ;
+        DivideME2D(rctIsoEmOvereffOcc_, rctIsoEmDataOcc_,rctIsoEmOvereff_) ;
         if(singlechannelhistos_)
         {
          rctIsoOvereffChannel_[chnl]->Fill(electronDataRank[k][i]) ;
@@ -602,8 +761,11 @@ void L1TdeRCT::analyze(const Event & e, const EventSetup & c)
         int chnl; chnl=18*electronDataEta[k][i]+electronDataPhi[k][i]; 
         rctNisoEmOvereffOcc1D_->Fill(chnl) ;
 //        rctNisoEmOvereff_->Divide(rctNisoEmOvereffOcc_, rctNisoEmEmulOcc_, 1., 1.);  
-        DivideME1D(rctNisoEmOvereffOcc1D_, rctNisoEmEmulOcc1D_,rctNisoEmOvereff1D_) ;
-        DivideME2D(rctNisoEmOvereffOcc_, rctNisoEmEmulOcc_,rctNisoEmOvereff_) ;
+//        DivideME1D(rctNisoEmOvereffOcc1D_, rctNisoEmEmulOcc1D_,rctNisoEmOvereff1D_) ;
+//        DivideME2D(rctNisoEmOvereffOcc_, rctNisoEmEmulOcc_,rctNisoEmOvereff_) ;
+// we try new defintiion of overefficiency
+        DivideME1D(rctNisoEmOvereffOcc1D_, rctNisoEmDataOcc1D_,rctNisoEmOvereff1D_) ;
+        DivideME2D(rctNisoEmOvereffOcc_, rctNisoEmDataOcc_,rctNisoEmOvereff_) ;
         if(singlechannelhistos_)
         {
          rctNisoOvereffChannel_[chnl]->Fill(electronDataRank[k][i]) ;
@@ -623,7 +785,7 @@ void L1TdeRCT::DivideME2D(MonitorElement* numerator, MonitorElement* denominator
    TH2F* res = result->getTH2F();
 
    res->Divide(num,den,1,1,"");
-   
+
 }
 
 void L1TdeRCT::DivideME1D(MonitorElement* numerator, MonitorElement* denominator, MonitorElement* result){
