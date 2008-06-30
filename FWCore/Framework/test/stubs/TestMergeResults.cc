@@ -1,5 +1,5 @@
 
-// $Id: TestMergeResults.cc,v 1.8 2008/06/24 21:12:44 wdd Exp $
+// $Id: TestMergeResults.cc,v 1.9 2008/06/27 20:21:27 wdd Exp $
 //
 // Reads some simple test objects in the event, run, and lumi
 // principals.  Then checks to see if the values in these
@@ -176,15 +176,6 @@ namespace edmtest
 
   void TestMergeResults::analyze(edm::Event const& e,edm::EventSetup const&)
   {
-    static bool iFirst = true;
-    if (iFirst) {
-      iFirst = false;
-      edm::Service<edm::ConstProductRegistry> reg;
-      for (edm::ProductRegistry::ProductList::const_iterator it = reg->productList().begin(); it != reg->productList().end(); ++it) {
-        std::cout << "WDD PRODUCT: " << it->first << "\n";
-      }
-    }
-
     if (verbose_) edm::LogInfo("TestMergeResults") << "analyze";
 
     Run const& run = e.getRun();

@@ -58,22 +58,24 @@ CPPUNIT_TEST_SUITE_REGISTRATION(testStandalone);
 
 void testStandalone::writeFile()
 {
-  std::string configuration("process p = {\n"
-			    "  untracked PSet maxEvents = {untracked int32 input = 5}\n"
-			    "  source = EmptySource { }\n"
-			    "  module m1 = IntProducer { int32 ivalue = 11 }\n"
-			    "  module out = PoolOutputModule {\n"
-                            "    untracked string fileName = \"testStandalone.root\"\n"
-                            "  }"
-			    "  path p1 = { m1 }\n"
-                            "  endpath e = { out }\n"
-			    "}\n");
+  std::string configuration("import FWCore.ParameterSet.Config as cms\n"
+                            "process = cms.Process('TEST')\n"
+                            "process.maxEvents = cms.untracked.PSet(\n"
+                            "    input = cms.untracked.int32(5)\n"
+                            ")\n"
+                            "process.source = cms.Source('EmptySource')\n"
+                            "process.JobReportService = cms.Service('JobReportService')\n"
+			    // "process.MessageLogger = cms.Service('MessageLogger')\n"
+                            "process.m1 = cms.EDProducer('IntProducer',\n"
+                            "    ivalue = cms.int32(11)\n"
+                            ")\n"
+                            "process.out = cms.OutputModule('PoolOutputModule',\n"
+                            "    fileName = cms.untracked.string('testStandalone.root')\n"
+                            ")\n"
+                            "process.p = cms.Path(process.m1)\n"
+                            "process.e = cms.EndPath(process.out)\n");
 
-  std::vector<std::string> defaultServices;
-  defaultServices.push_back(std::string("JobReportService"));
-  // defaultServices.push_back(std::string("MessageLogger"));
-
-  edm::EventProcessor proc(configuration, defaultServices);
+  edm::EventProcessor proc(configuration, true);
   proc.beginJob();
   proc.run();
   proc.endJob();
@@ -81,15 +83,16 @@ void testStandalone::writeFile()
 
 void testStandalone::readFile()
 {
-  std::string configuration("process p = {\n"
-                            "  source = PoolSource{ untracked vstring fileNames ={\"file:testStandalone.root\"} }\n"
-			    "}\n");
+  std::string configuration("import FWCore.ParameterSet.Config as cms\n"
+                            "process = cms.Process('TEST1')\n"
+                            "process.source = cms.Source('PoolSource',\n"
+                            "    fileNames = cms.untracked.vstring('file:testStandalone.root')\n"
+                            ")\n"
+                            "process.JobReportService = cms.Service('JobReportService')\n"
+			    // "process.MessageLogger = cms.Service('MessageLogger')\n"
+                           );
 
-  std::vector<std::string> defaultServices;
-  defaultServices.push_back(std::string("JobReportService"));
-  // defaultServices.push_back(std::string("MessageLogger"));
-
-  edm::EventProcessor proc(configuration, defaultServices);
+  edm::EventProcessor proc(configuration, true);
   proc.beginJob();
   proc.run();
   proc.endJob();

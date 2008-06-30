@@ -37,7 +37,7 @@ namespace edmtest {
   };
 
   HistoryAnalyzer::HistoryAnalyzer(const ParameterSet& params) :
-    pass_(params.getParameter<int>("pass")),
+    pass_(params.getParameter<int>("historySize")),
     eventCount_(0),
     expectedCount_(params.getParameter<int>("expectedCount")),
     emptyID_(ParameterSet().id()),

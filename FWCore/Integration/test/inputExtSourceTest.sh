@@ -2,9 +2,4 @@
 
 function die { echo $1: status $2 ;  exit $2; }
 
-cmsRun --parameter-set ${LOCAL_TEST_DIR}/inputExtSourceTest.cfg || die 'Failed in inputExtSourceTest.cfg' $?
-
-# Pass in name and status
-
-
-
+cmsRun --parameter-set ${LOCAL_TEST_DIR}/inputExtSourceTest_cfg.py || die 'Failed in inputExtSourceTest_cfg.py' $?
