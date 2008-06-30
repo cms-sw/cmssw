@@ -3,8 +3,8 @@
 /*
  *  See header file for a description of this class.
  *
- *  $Date: 2008/05/12 16:01:56 $
- *  $Revision: 1.1 $
+ *  $Date: 2008/05/13 14:51:46 $
+ *  $Revision: 1.2 $
  *  \author C. Botta - INFN Torino
  *  Revised by G. Mila
  */
@@ -74,7 +74,8 @@ MuonTransientTrackingRecHit::MuonRecHitContainer SegmentsTrackAssociator::associ
   DTRecSegment4DCollection::const_iterator segment;
   CSCSegmentCollection::const_iterator segment2;
   MuonTransientTrackingRecHit::MuonRecHitContainer SelectedSegments;
-
+  MuonTransientTrackingRecHit::MuonRecHitContainer SelectedDtSegments;
+  MuonTransientTrackingRecHit::MuonRecHitContainer SelectedCscSegments;
 
   //loop over recHit
   for(trackingRecHit_iterator recHit =  Track.recHitsBegin(); recHit != Track.recHitsEnd(); ++recHit){
@@ -85,7 +86,7 @@ MuonTransientTrackingRecHit::MuonRecHitContainer SegmentsTrackAssociator::associ
     DetId IdRivHit = (*recHit)->geographicalId();
     LocalPoint posTrackRecHit = (*recHit)->localPosition(); 
     
-    
+
     // for DT recHits
     if (IdRivHit.det() == DetId::Muon && IdRivHit.subdetId() == MuonSubdetId::DT ) {
 
@@ -128,19 +129,19 @@ MuonTransientTrackingRecHit::MuonRecHitContainer SegmentsTrackAssociator::associ
 	  
 	  if (IdRivHit == IdRivHitSeg && rDT<0.0001){  
 
-	    if (SelectedSegments.empty()){
-		SelectedSegments.push_back(MuonTransientTrackingRecHit::specificBuild(det,&*segment));
+	    if (SelectedDtSegments.empty()){
+		SelectedDtSegments.push_back(MuonTransientTrackingRecHit::specificBuild(det,&*segment));
 		LogTrace(metname) <<"First selected segment (from DT). Position : "<<posDTSegment<<"  Chamber : "<<segment->chamberId();
 	    }
 	    else{
 	      int check=0;
-	      for(int segm=0; segm < int(SelectedSegments.size()); ++segm) {
-		double dist=sqrt(pow((((*(SelectedSegments[segm])).localPosition()).x()-posDTSegment.x()),2) +pow((((*(SelectedSegments[segm])).localPosition()).y()-posDTSegment.y()),2) + pow((((*(SelectedSegments[segm])).localPosition()).z()-posDTSegment.z()),2));
-		if(dist>0.000001) check++;
+	      for(int segm=0; segm < int(SelectedDtSegments.size()); ++segm) {
+		double dist=sqrt(pow((((*(SelectedDtSegments[segm])).localPosition()).x()-posDTSegment.x()),2) +pow((((*(SelectedDtSegments[segm])).localPosition()).y()-posDTSegment.y()),2) + pow((((*(SelectedDtSegments[segm])).localPosition()).z()-posDTSegment.z()),2));
+		if(dist>30) check++;
 	      }     
 		
-	      if(check==int(SelectedSegments.size())){
-		SelectedSegments.push_back(MuonTransientTrackingRecHit::specificBuild(det,&*segment));
+	      if(check==int(SelectedDtSegments.size())){
+		SelectedDtSegments.push_back(MuonTransientTrackingRecHit::specificBuild(det,&*segment));
 		LogTrace(metname) <<"New DT selected segment. Position : "<<posDTSegment<<"  Chamber : "<<segment->chamberId();
 	      }      
 	    }	
@@ -150,7 +151,6 @@ MuonTransientTrackingRecHit::MuonRecHitContainer SegmentsTrackAssociator::associ
 
       } // loop over DT segments
     }
-    
     
    
     // for CSC recHits
@@ -190,18 +190,18 @@ MuonTransientTrackingRecHit::MuonRecHitContainer SegmentsTrackAssociator::associ
 
 	  if (IdRivHit==IdRivHitSeg && rCSC < 0.0001){
 
-	    if (SelectedSegments.empty()){
-	      SelectedSegments.push_back(MuonTransientTrackingRecHit::specificBuild(det2,&*segment2));
+	    if (SelectedCscSegments.empty()){
+	      SelectedCscSegments.push_back(MuonTransientTrackingRecHit::specificBuild(det2,&*segment2));
 	      LogTrace(metname) <<"First selected segment (from CSC). Position: "<<posCSCSegment;
 	    }
 	    else{
 	      int check=0;
-	      for(int n=0; n< int(SelectedSegments.size()); n++){
-		double dist = sqrt(pow(((*(SelectedSegments[n])).localPosition().x()-posCSCSegment.x()),2) +pow(((*(SelectedSegments[n])).localPosition().y()-posCSCSegment.y()),2) + pow(((*(SelectedSegments[n])).localPosition().z()-posCSCSegment.z()),2));
-		if(dist>0.000001) check++;
+	      for(int n=0; n< int(SelectedCscSegments.size()); n++){
+		double dist = sqrt(pow(((*(SelectedCscSegments[n])).localPosition().x()-posCSCSegment.x()),2) +pow(((*(SelectedCscSegments[n])).localPosition().y()-posCSCSegment.y()),2) + pow(((*(SelectedCscSegments[n])).localPosition().z()-posCSCSegment.z()),2));
+		if(dist>30) check++;
 	      }
-	      if(SelectedSegments.size()){  
-		SelectedSegments.push_back(MuonTransientTrackingRecHit::specificBuild(det2,&*segment2));
+	      if(check==int(SelectedCscSegments.size())){  
+		SelectedCscSegments.push_back(MuonTransientTrackingRecHit::specificBuild(det2,&*segment2));
 		LogTrace(metname) <<"New CSC segment selected. Position : "<<posCSCSegment;	
 	      }
 	    }
@@ -221,8 +221,13 @@ MuonTransientTrackingRecHit::MuonRecHitContainer SegmentsTrackAssociator::associ
   NrecHitDT=0;
   LogTrace(metname) <<"N recHit CSC:"<<NrecHitCSC;
   NrecHitCSC=0;
-  LogTrace(metname) <<"N selected segments:"<<SelectedSegments.size();
   
+  copy(SelectedDtSegments.begin(), SelectedDtSegments.end(), back_inserter(SelectedSegments));
+  LogTrace(metname) <<"N selected Dt segments:"<<SelectedDtSegments.size();
+  copy(SelectedCscSegments.begin(), SelectedCscSegments.end(), back_inserter(SelectedSegments));
+  LogTrace(metname) <<"N selected Csc segments:"<<SelectedCscSegments.size();
+  LogTrace(metname) <<"N selected segments:"<<SelectedSegments.size();
+
   return SelectedSegments;
   
 }
