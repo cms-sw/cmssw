@@ -2,10 +2,11 @@
 #include "EventFilter/CSCRawToDigi/interface/CSCCFEBData.h"
 #include "DataFormats/CSCDigi/interface/CSCStripDigi.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
-
+#include "EventFilter/CSCRawToDigi/src/cscPackerCompare.h"
 #include <iostream>
 #include <iterator>
 #include "EventFilter/CSCRawToDigi/src/bitset_append.h"
+#include "FWCore/Utilities/interface/Exception.h"
 
 
 bool CSCEventData::debug = false;
@@ -267,34 +268,34 @@ CSCCFEBData* CSCEventData::cfebData(unsigned icfeb) const {
 
 
 CSCALCTHeader* CSCEventData::alctHeader() const{
-  if(nalct() == 0) throw("No ALCT for this chamber");
+  if(nalct() == 0) throw cms::Exception("No ALCT for this chamber");
   return theALCTHeader;
 }
 
 CSCALCTTrailer * CSCEventData::alctTrailer() const{
-  if(nalct() == 0) throw("No ALCT for this chamber");
+  if(nalct() == 0) throw cms::Exception("No ALCT for this chamber");
   return theALCTTrailer;
 }
 
 
 CSCAnodeData * CSCEventData::alctData() const {
-  if(nalct() == 0) throw("No ALCT for this chamber");
+  if(nalct() == 0) throw cms::Exception("No ALCT for this chamber");
   return theAnodeData;
 }
 
 CSCTMBData * CSCEventData::tmbData() const {
-  if(nclct() == 0) throw("No CLCT for this chamber");
+  if(nclct() == 0) throw cms::Exception("No CLCT for this chamber");
   return theTMBData;
 }
 
 
 CSCTMBHeader * CSCEventData::tmbHeader() const {
-  if((nclct() == 0)||(tmbData()==NULL)) throw("No CLCT for this chamber");
+  if((nclct() == 0)||(tmbData()==NULL)) throw cms::Exception("No CLCT header for this chamber");
   return tmbData()->tmbHeader();
 }
 
 CSCCLCTData * CSCEventData::clctData() const {
-  if((nclct() == 0)||(tmbData()==NULL)) throw("No CLCT for this chamber");
+  if((nclct() == 0)||(tmbData()==NULL)) throw cms::Exception("No CLCT data for this chamber");
   return tmbData()->clctData();
 }
 
@@ -344,6 +345,7 @@ void CSCEventData::add(const CSCWireDigi & digi, int layer) {
 void CSCEventData::add(const CSCComparatorDigi & digi, int layer) {
   if(theTMBData == NULL)    {
     theTMBData = new CSCTMBData();
+    theDMBHeader.addNCLCT();
   }
   theTMBData->clctData()->add(digi, layer);
 }
@@ -361,6 +363,7 @@ void CSCEventData::add(const CSCALCTDigi & digi) {
 void CSCEventData::add(const CSCCLCTDigi & digi) {
   if(theTMBData == NULL)    {
     theTMBData = new CSCTMBData();
+    theDMBHeader.addNCLCT();
   }
   theTMBData->tmbHeader()->add(digi);
 }
@@ -368,6 +371,7 @@ void CSCEventData::add(const CSCCLCTDigi & digi) {
 void CSCEventData::add(const CSCCorrelatedLCTDigi & digi) {
   if(theTMBData == NULL)    {
     theTMBData = new CSCTMBData();
+    theDMBHeader.addNCLCT();
   }
   theTMBData->tmbHeader()->add(digi);
 }
@@ -421,7 +425,40 @@ boost::dynamic_bitset<> CSCEventData::pack() {
   boost::dynamic_bitset<> dmbTrailer = bitset_utilities::ushortToBitset( theDMBTrailer.sizeInWords()*16,
 									 theDMBTrailer.data());
   result = bitset_utilities::append(result, dmbTrailer);
-
   return result;
 }
 
+
+void CSCEventData::selfTest() {
+  CSCEventData chamberData(5);
+  CSCDetId detId(1, 3, 2, 1, 3);
+  CSCCLCTDigi clct0(1, 1, 4, 1, 0, 30, 3, 0, 1); // valid for 2007
+  CSCCLCTDigi clct1(1, 1, 2, 1, 1, 31, 1, 2, 2);
+
+  // BX of LCT (8th argument) is 1-bit word (the least-significant bit
+  // of ALCT's bx).
+  CSCCorrelatedLCTDigi lct0(1, 1, 2, 10, 98, 5, 0, 1, 0, 0, 0, 0);
+  CSCCorrelatedLCTDigi lct1(2, 1, 2, 20, 15, 9, 1, 0, 0, 0, 0, 0);
+
+  chamberData.add(clct0);
+  chamberData.add(clct1);
+  chamberData.add(lct0);
+  chamberData.add(lct1);
+
+  CSCWireDigi wireDigi(10, 6);
+  CSCComparatorDigi comparatorDigi(30, 1, 6);
+  chamberData.add(wireDigi, 3);
+  chamberData.add(comparatorDigi, 3);
+
+  CSCEventData newData = cscPackAndUnpack(chamberData);
+
+  std::vector<CSCCLCTDigi> clcts = newData.tmbHeader()->CLCTDigis(detId.rawId());
+  assert(cscPackerCompare(clcts[0],clct0));
+  assert(cscPackerCompare(clcts[1],clct1));
+
+  std::vector<CSCCorrelatedLCTDigi> lcts = newData.tmbHeader()->CorrelatedLCTDigis(detId.rawId());
+  assert(cscPackerCompare(lcts[0], lct0));
+  assert(cscPackerCompare(lcts[1], lct1));
+
+}
+ 

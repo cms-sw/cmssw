@@ -134,6 +134,7 @@ class CSCEventData {
 
   static bool debug;
   //uint16_t dataPresent; // 7 bit word which will tell if alct, clct, and 5 cfebs are present
+  static void selfTest();
 
 private:
   /// helpers for ctors, dtor, and op=
