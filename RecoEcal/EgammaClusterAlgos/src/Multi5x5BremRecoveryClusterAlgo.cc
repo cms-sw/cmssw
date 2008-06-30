@@ -47,7 +47,8 @@ void Multi5x5BremRecoveryClusterAlgo::makeIslandSuperClusters(reco::BasicCluster
   for (currentSeed = clusters_v.begin(); !clusters_v.empty(); clusters_v.erase(currentSeed))
     {
       // Does our highest energy cluster have high enough energy?
-      if ((*currentSeed)->energy() * sin((*currentSeed)->position().theta()) < seedTransverseEnergyThreshold) break;
+      // changed this to continue from break (to be robust against the order of sorting of the seed clusters)
+      if ((*currentSeed)->energy() * sin((*currentSeed)->position().theta()) < seedTransverseEnergyThreshold) continue;
 
       // if yes, make it a seed for a new SuperCluster:
       double energy = (*currentSeed)->energy();
