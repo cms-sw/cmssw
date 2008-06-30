@@ -16,8 +16,3 @@ LinuxElapsedTime::~LinuxElapsedTime() {
 }
 
 
-namespace {
-
-  LinuxElapsedTime totaltime("Main Thread");
-
-}
