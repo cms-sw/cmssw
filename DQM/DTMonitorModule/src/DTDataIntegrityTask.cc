@@ -2,8 +2,8 @@
 /*
  * \file DTDataIntegrityTask.cc
  * 
- * $Date: 2008/06/10 14:59:57 $
- * $Revision: 1.46 $
+ * $Date: 2008/06/11 17:51:35 $
+ * $Revision: 1.47 $
  * \author M. Zanetti (INFN Padova), S. Bolognesi (INFN Torino)
  *
  */
@@ -71,7 +71,7 @@ void DTDataIntegrityTask::postEndJob(){
 
 //   if(doTimeHisto) TimeHistos("Event_word_vs_time");	
 	
-  // dbe->rmdir("DT/DataIntegrity");
+  // dbe->rmdir("DT/00-DataIntegrity");
 
 }
 
@@ -96,7 +96,7 @@ void DTDataIntegrityTask::bookHistos(string folder, DTROChainCoding code) {
 
   // DDU Histograms
   if (folder == "DDU") {
-    dbe->setCurrentFolder("DT/DataIntegrity/FED" + dduID_s.str());
+    dbe->setCurrentFolder("DT/00-DataIntegrity/FED" + dduID_s.str());
 
     histoType = "TTSValues";
     histoName = "FED" + dduID_s.str() + "_" + histoType;
@@ -253,7 +253,7 @@ void DTDataIntegrityTask::bookHistos(string folder, DTROChainCoding code) {
 
   // ROS Histograms
   if ( folder == "ROS_S" ) { // The summary of the error of the ROS on the same FED
-    dbe->setCurrentFolder("DT/DataIntegrity/");
+    dbe->setCurrentFolder("DT/00-DataIntegrity/");
 
     histoType = "ROSSummary";
     histoName = "FED" + dduID_s.str() + "_ROSSummary";
@@ -289,11 +289,12 @@ void DTDataIntegrityTask::bookHistos(string folder, DTROChainCoding code) {
   }
 
   if ( folder == "ROS" ) {
-    dbe->setCurrentFolder("DT/DataIntegrity/FED" + dduID_s.str() + "/" + folder + rosID_s.str());
+    dbe->setCurrentFolder("DT/00-DataIntegrity/FED" + dduID_s.str() + "/" + folder + rosID_s.str());
 
     histoType = "ROSEventLenght";
     histoName = "FED" + dduID_s.str() + "_" + folder + rosID_s.str() + "_ROSEventLenght";
     (rosHistos[histoType])[code.getROSID()] = dbe->book1D(histoName,histoName,100,0,1000);
+
 
     histoType = "ROSTrailerBits";
     histoName = "FED" + dduID_s.str() + "_" + folder + rosID_s.str() + "_ROSTrailerBits";
@@ -358,13 +359,13 @@ void DTDataIntegrityTask::bookHistos(string folder, DTROChainCoding code) {
 
 //     histoType = "Event_word_vs_time";
 //     histoName = "FED" + dduID_s.str() + "_" + folder + rosID_s.str() + "_Event_word_vs_time";
-//     string fullName = "DT/DataIntegrity/FED" + dduID_s.str() + "/" + folder + rosID_s.str()+ "/" + histoName;
+//     string fullName = "DT/00-DataIntegrity/FED" + dduID_s.str() + "/" + folder + rosID_s.str()+ "/" + histoName;
 //     names.insert (pair<std::string,std::string> (histoType,string(fullName)));
 //     (rosHistos[histoType])[code.getROSID()] = dbe->book2D(histoName,histoName,1440,0,28800,100,0,3000);    
     
     histoType = "ROB_mean";
     histoName = "FED" + dduID_s.str() + "_" + "ROS" + rosID_s.str() + "_ROB_mean";
-    string fullName = "DT/DataIntegrity/FED" + dduID_s.str() + "/" + folder + rosID_s.str()+ "/" + histoName;    
+    string fullName = "DT/00-DataIntegrity/FED" + dduID_s.str() + "/" + folder + rosID_s.str()+ "/" + histoName;    
     names.insert (pair<std::string,std::string> (histoType,string(fullName)));   
     (rosHistos[histoType])[code.getROSID()] = dbe->book2D(histoName,histoName,25,0,25,100,0,100);
     (rosHistos[histoType])[code.getROSID()]->setAxisTitle("ROB #",1);
@@ -383,7 +384,7 @@ void DTDataIntegrityTask::bookHistos(string folder, DTROChainCoding code) {
 //   // ROB/TDC Histograms
 //   if ( folder == "ROB_O") {
     
-//     dbe->setCurrentFolder("DT/DataIntegrity/FED" + dduID_s.str()+"/ROS"+rosID_s.str()+"/ROB"+robID_s.str());
+//     dbe->setCurrentFolder("DT/00-DataIntegrity/FED" + dduID_s.str()+"/ROS"+rosID_s.str()+"/ROB"+robID_s.str());
 
 //     histoType = "Occupancy";
 //     histoName = "FED" + dduID_s.str() + "_ROS" + rosID_s.str() + "_ROB"+robID_s.str()+"_Occupancy";
@@ -393,7 +394,7 @@ void DTDataIntegrityTask::bookHistos(string folder, DTROChainCoding code) {
 
 //   if ( folder == "ROB_T") {
 
-//     dbe->setCurrentFolder("DT/DataIntegrity/FED" + dduID_s.str()+"/ROS"+rosID_s.str()+"/ROB"+robID_s.str());
+//     dbe->setCurrentFolder("DT/00-DataIntegrity/FED" + dduID_s.str()+"/ROS"+rosID_s.str()+"/ROB"+robID_s.str());
 
 //     histoType = "TimeBox";
 //     histoName = "FED" + dduID_s.str() + "_ROS" + rosID_s.str() + "_ROB" + robID_s.str()+"_TimeBox";
@@ -435,7 +436,7 @@ void DTDataIntegrityTask::bookHistos(string folder, DTROChainCoding code) {
 
   if ( folder == "TDCError") {
 
-    dbe->setCurrentFolder("DT/DataIntegrity/FED" + dduID_s.str()+"/ROS"+rosID_s.str()+"/ROB"+robID_s.str());
+    dbe->setCurrentFolder("DT/00-DataIntegrity/FED" + dduID_s.str()+"/ROS"+rosID_s.str()+"/ROB"+robID_s.str());
 
     histoType = "TDCError";
     histoName = "FED" + dduID_s.str() + "_ROS" + rosID_s.str() + "_ROB"+robID_s.str()+"_TDCError";
@@ -455,7 +456,7 @@ void DTDataIntegrityTask::bookHistos(string folder, DTROChainCoding code) {
   // SC Histograms
   if ( folder == "SC" ) {
     // Same numbering for SC as for ROS
-    dbe->setCurrentFolder("DT/DataIntegrity/FED" + dduID_s.str() + "/" + folder + rosID_s.str());
+    dbe->setCurrentFolder("DT/00-DataIntegrity/FED" + dduID_s.str() + "/" + folder + rosID_s.str());
 
     // the SC histos belong to the ROS map (pay attention) since the data come from the corresponding ROS
 
