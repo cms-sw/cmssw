@@ -186,28 +186,28 @@ void HcalSummaryClient::setup(void)
   // Create floats showing subtasks status
   dqmStore_->setCurrentFolder( prefixME_ + "/EventInfo/reportSummaryContents" );
 
-  sprintf(histo,"HBstatus");
+  sprintf(histo,"Hcal_HB");
   if ( me = dqmStore_->get(prefixME_ + "/EventInfo/reportSummaryContents/" + histo) )
     {
       dqmStore_->removeElement(me->getName());
     }
   me = dqmStore_->bookFloat(histo);
 
-  sprintf(histo,"HEstatus");
+  sprintf(histo,"Hcal_HE");
   if ( me = dqmStore_->get(prefixME_ + "/EventInfo/reportSummaryContents/" + histo) )
     {
       dqmStore_->removeElement(me->getName());
     }
   me = dqmStore_->bookFloat(histo);
 
-  sprintf(histo,"HOstatus");
+  sprintf(histo,"Hcal_HO");
   if ( me = dqmStore_->get(prefixME_ + "/EventInfo/reportSummaryContents/" + histo) )
     {
       dqmStore_->removeElement(me->getName());
     }
   me = dqmStore_->bookFloat(histo);
 
-  sprintf(histo,"HFstatus");
+  sprintf(histo,"Hcal_HF");
   if ( me = dqmStore_->get(prefixME_ + "/EventInfo/reportSummaryContents/" + histo) )
     {
       dqmStore_->removeElement(me->getName());
@@ -319,13 +319,13 @@ void HcalSummaryClient::analyze(void)
   if (me) me->Fill(status_global_);
 
   dqmStore_->setCurrentFolder( prefixME_ + "/EventInfo/reportSummaryContents" );
-  if ( me = dqmStore_->get(prefixME_ + "/EventInfo/reportSummaryContents/HBstatus") )
-    me->Fill(status_HB_);
-  if ( me = dqmStore_->get(prefixME_ + "/EventInfo/reportSummaryContents/HEstatus") )
-    me->Fill(status_HE_);
-  if ( me = dqmStore_->get(prefixME_ + "/EventInfo/reportSummaryContents/HOstatus") )
-    me->Fill(status_HO_);
-  if ( me = dqmStore_->get(prefixME_ + "/EventInfo/reportSummaryContents/HFstatus") )
+  if ( me = dqmStore_->get(prefixME_ + "/EventInfo/reportSummaryContents/Hcal_HB") )
+    me->Fill(status_HB_);						 
+  if ( me = dqmStore_->get(prefixME_ + "/EventInfo/reportSummaryContents/Hcal_HE") )
+    me->Fill(status_HE_);						 
+  if ( me = dqmStore_->get(prefixME_ + "/EventInfo/reportSummaryContents/Hcal_HO") )
+    me->Fill(status_HO_);						 
+  if ( me = dqmStore_->get(prefixME_ + "/EventInfo/reportSummaryContents/Hcal_HF") )
     me->Fill(status_HF_);
   
   dqmStore_->setCurrentFolder( prefixME_);
