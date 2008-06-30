@@ -15,22 +15,30 @@ void UEAnalysisAntiKtJets::Begin(TFile * f, string hltBit)
   f->cd( hltBit.c_str() );
 
   h_pTJet = new TH1D("h_pTJet", "h_pTJet;p_{T}(jet 1) (GeV/c)", 150, 0., 300. );
-  h_nConstituentsJet = new TH1D("h_nConstituentsJet", "h_nConstituentsJet;N(jet constituents)", 30, 0.5, 30.5);
-  h_pTByNConstituentsJet = new TH1D("h_pTByNConstituentsJet", "h_pTByNConstituentsJet;p_{T}(jet 1)/N(jet constituents) (GeV/c)", 100, 0., 50. );
-  h_areaJet = new TH1D("h_areaJet", "h_areaJet;jet area (rad)", 100, 0., 1.5);
-  h_pTConstituent = new TH1D("h_pTConstituent", "h_pTConstituent;p_{T}(jet constituent) (GeV/c)", 100, 0., 50. );
+  h_nConstituents = new TH1D("h_nConstituents", "h_nConstituents;N(jet constituents)", 30, 0.5, 30.5);
+  h_pTSumConstituents = new TH1D("h_pTSumConstituents", "h_pTSumConstituents;d#Sigmap_{T}(jet constituents) (GeV/c)", 150, 0., 300.);
+  h_pTByNConstituents = new TH1D("h_pTByNConstituents", "h_pTByNConstituents;p_{T}(jet 1)/N(jet constituents) (GeV/c)", 100, 0., 100. );
+  h_areaJet1 = new TH1D("h_areaJet1", "h_areaJet1;area(jet 1) (rad)", 100, 0., 1.5);
+  h_pTConstituent = new TH1D("h_pTConstituent", "h_pTConstituent;p_{T}(jet constituent) (GeV/c)", 100, 0., 100. );
   h_dphiJC = new TH1D("h_dphiJC", "h_dphiJC;#Delta#phi(jet 1, jet constituent) (rad)", 100, 0., TMath::Pi() );
   h_dphiEcal = new TH1D("h_dphiEcal", "h_dphiEcal;constituent #Delta#phi(Vtx, ECAL) (rad)", 100, 0., 1.5 );
+  h_pTAllJets = new TH1D("h_pTAllJets", "h_pTAllJets;p_{T}(jet) (GeV/c)", 150, 0., 300.);
+  h_areaAllJets = new TH1D("h_areaAllJets", "h_areaAllJets;area(jet) (rad);", 100, 0., 1.5);
+  h_pTByAreaAllJets = new TH1D("h_pTByAreaAllJets", "h_pTByAreaAllJets", 150, 0., 600.);
 
-  h2d_nConstituentsJet_vs_pTJet = new TH2D("h2d_nConstituentsJet_vs_pTJet", "h2d_nConstituentsJet_vs_pTJet;p_{T}(jet 1) (GeV/c);N(jet constituents)",
+  h2d_nConstituents_vs_pTJet = new TH2D("h2d_nConstituents_vs_pTJet", "h2d_nConstituents_vs_pTJet;p_{T}(jet 1) (GeV/c);N(jet constituents)",
 					   150, 0., 300., 30, 0.5, 30.5);
-  h2d_pTByNConstituentsJet_vs_pTJet = new TH2D("h2d_pTByNConstituentsJet_vs_pTJet",
-					       "h2d_pTByNConstituentsJet_vs_pTJet;p_{T}(jet 1) (GeV/c);p_{T}(jet 1)/N(jet constituents) (GeV/c)",
-					       100, 0., 50., 30, 0.5, 30.5);
-  h2d_areaJet_vs_pTJet = new TH2D("h2d_areaJet_vs_pTJet", "h2d_areaJet_vs_pTJet;p_{T}(jet 1) (GeV/c);jet area (rad)",
+  h2d_pTSumConstituents_vs_pTJet = new TH2D("h2d_pTSumConstituents_vs_pTJet", 
+					    "h2d_pTSumConstituents_vs_pTJet;p_{T}(jet 1) (GeV/c);d#Sigmap_{T}(jet constituents) (GeV/c)",
+					    150, 0., 300., 150, 0., 300.);
+  h2d_pTByNConstituents_vs_pTJet = new TH2D("h2d_pTByNConstituents_vs_pTJet",
+					    "h2d_pTByNConstituents_vs_pTJet;p_{T}(jet 1) (GeV/c);p_{T}(jet 1)/N(jet constituents) (GeV/c)",
+					    150, 0., 300., 100, 0., 100.);
+  h2d_areaJet1_vs_pTJet1 = new TH2D("h2d_areaJet1_vs_pTJet1", "h2d_areaJet1_vs_pTJet1;p_{T}(jet 1) (GeV/c);jet 1 area (rad)",
 				  150, 0., 300., 100, 0., 1.5);
-  h2d_pTConstituent_vs_pTJet = new TH2D("h2d_pTConstituent_vs_pTJet", "h2d_pTConstituent_vs_pTJet;p_{T}(jet 1) (GeV/c);p_{T}(jet constituent) (GeV/c)",
-					150, 0., 300., 100, 0., 50.);
+  h2d_pTConstituent_vs_pTJet = new TH2D("h2d_pTConstituent_vs_pTJet", 
+					"h2d_pTConstituent_vs_pTJet;p_{T}(jet 1) (GeV/c);<p_{T}>(jet constituents) (GeV/c)",
+					150, 0., 300., 100, 0., 100.);
   h2d_dphiJC_vs_pTConstituent = new TH2D("h2d_dphiJC_vs_pTConstituent", 
 				       "h2d_dphiJC_vs_pTConstituent;p_{T}(jet constituent) (GeV/c);#Delta#phi(jet 1, jet constituent) (rad)",
 				       100, 0., 50., 100, 0., TMath::Pi() );
@@ -41,6 +49,7 @@ void UEAnalysisAntiKtJets::Begin(TFile * f, string hltBit)
 					   100, 0., 3., 100, 0., 1.5 );
   h2d_dphiEcal_vs_pTJet = new TH2D("h2d_dphiEcal_vs_pTJet", "h2d_dphiEcal_vs_pTJet;p_{T}(jet 1) (GeV/c);constituent #Delta#phi(Vtx, ECAL) (rad)",
 				 150, 0., 300., 100, 0., 1.5 );
+  h2d_pTByAreaAllJets_vs_pTJet = new TH2D("h2d_pTByAreaAllJets_vs_pTJet", "h2d_pTByAreaAllJets_vs_pTJet;p_{T}(jet 1) (GeV/c);p_{T}(jet) / area(jet) (GeV/c / rad)", 150, 0., 300., 150, 0., 600.);
       
 }
 
@@ -132,9 +141,9 @@ void UEAnalysisAntiKtJets::jetAnalysis(float weight, float etaRegion, float ptTh
   double ghostArea     ( 1. );
 
   // calculate jet areas (if commented out, no areas are calculated)
-  //   ghostEtaMax       = 6.;
-  //   activeAreaRepeats = 5;
-  //   ghostArea         = 0.01;
+  ghostEtaMax       = 6.;
+  activeAreaRepeats = 5;
+  ghostArea         = 0.01;
 
   fastjet::GhostedAreaSpec* mActiveArea( new fastjet::ActiveAreaSpec (ghostEtaMax, activeAreaRepeats, ghostArea) );
 
@@ -198,6 +207,18 @@ void UEAnalysisAntiKtJets::jetAnalysis(float weight, float etaRegion, float ptTh
   //     }
 
   vector<fastjet::PseudoJet> sorted_jets = sorted_by_pt(jets); 
+
+  vector<fastjet::PseudoJet>::iterator jet1It  ( sorted_jets.begin() );
+  vector<fastjet::PseudoJet>::iterator jetIt   ( sorted_jets.begin() );
+  vector<fastjet::PseudoJet>::iterator jetItEnd( sorted_jets.end()   );
+
+  for ( ; jetIt!=jetItEnd; ++jetIt )
+    {
+      h_pTAllJets  ->Fill( (*jetIt).perp()                      , weight );
+      h_areaAllJets->Fill( clusterSequenceWithArea->area(*jetIt), weight );      
+      h_pTByAreaAllJets->Fill( (*jetIt).perp()/clusterSequenceWithArea->area(*jetIt), weight );
+      h2d_pTByAreaAllJets_vs_pTJet->Fill( (*jet1It).perp() , (*jetIt).perp()/clusterSequenceWithArea->area(*jetIt), weight );
+    }
   
   if ( sorted_jets.size() > 0 )
     {
@@ -214,24 +235,25 @@ void UEAnalysisAntiKtJets::jetAnalysis(float weight, float etaRegion, float ptTh
       // 	   << ", area=" << clusterSequenceWithArea->area(jet1)
       // 	   << endl;
 
-      h_pTJet               ->Fill( jet1.perp()                        , weight );
-      h_nConstituentsJet    ->Fill( constituents.size()                , weight );
-      h_pTByNConstituentsJet->Fill( jet1.perp()/constituents.size()    , weight );
-      h_areaJet             ->Fill( clusterSequenceWithArea->area(jet1), weight );
+      h_pTJet            ->Fill( jet1.perp()                        , weight );
+      h_nConstituents    ->Fill( constituents.size()                , weight );
+      h_pTByNConstituents->Fill( jet1.perp()/constituents.size()    , weight );
+      h_areaJet1         ->Fill( clusterSequenceWithArea->area(jet1), weight );
 
-      h2d_nConstituentsJet_vs_pTJet    ->Fill( jet1.perp(), constituents.size()                , weight );
-      h2d_pTByNConstituentsJet_vs_pTJet->Fill( jet1.perp(), jet1.perp()/constituents.size()    , weight );
-      h2d_areaJet_vs_pTJet             ->Fill( jet1.perp(), clusterSequenceWithArea->area(jet1), weight );
+      h2d_nConstituents_vs_pTJet    ->Fill( jet1.perp(), constituents.size()                , weight );
+      h2d_pTByNConstituents_vs_pTJet->Fill( jet1.perp(), jet1.perp()/constituents.size()    , weight );
+      h2d_areaJet1_vs_pTJet1        ->Fill( jet1.perp(), clusterSequenceWithArea->area(jet1), weight );
 
       std::vector<fastjet::PseudoJet>::iterator it   ( constituents.begin() );
       std::vector<fastjet::PseudoJet>::iterator itEnd( constituents.end()   );
+
+      double pTSumConstituents( 0. );
       for ( ; it!=itEnd; ++it )
 	{
 	  //	  cout << "\tconstituent pT=" << (*it).perp() << endl;
 
 	  h_pTConstituent->Fill( (*it).perp(), weight );
-
-	  h2d_pTConstituent_vs_pTJet->Fill( jet1.perp(), (*it).perp(), weight );
+	  pTSumConstituents += (*it).perp();
 
 	  TVector2* jvec = new TVector2(jet1.px(), jet1.py());
 	  TVector2* cvec = new TVector2((*it).px(), (*it).py());
@@ -246,10 +268,12 @@ void UEAnalysisAntiKtJets::jetAnalysis(float weight, float etaRegion, float ptTh
 	  h2d_dphiEcal_vs_pTConstituent->Fill( (*it).perp(), ecalPhi((*it).perp()), weight );
 	  h2d_dphiEcal_vs_pTJet        ->Fill( jet1.perp() , ecalPhi((*it).perp()), weight );
 	}
+      h_pTSumConstituents->Fill( pTSumConstituents, weight );
 
-      // ?????????????
-
+      h2d_pTConstituent_vs_pTJet->Fill( jet1.perp(), pTSumConstituents/constituents.size(), weight );
+      h2d_pTSumConstituents_vs_pTJet->Fill( jet1.perp(), pTSumConstituents, weight );
     }
+
 
   iJet = 0;
   int iSavedJet( 0 );
