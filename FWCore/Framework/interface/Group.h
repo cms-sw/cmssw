@@ -61,8 +61,6 @@ namespace edm {
 
     EDProduct const* product() const { return product_.get(); }
 
-    //EntryDescription const* entryDescriptionPtr() const {return &provenance_->entryDescription();}
-
     boost::shared_ptr<T> entryInfoPtr() const {return entryInfo_;}
 
     ConstBranchDescription const& productDescription() const {return *branchDescription_;}
