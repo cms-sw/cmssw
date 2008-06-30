@@ -7,8 +7,8 @@
  *   studies
  *
  *
- *   $Date: 2007/10/12 13:40:22 $
- *   $Revision: 1.8 $
+ *   $Date: 2008/03/04 00:13:30 $
+ *   $Revision: 1.9 $
  *
  *   \author C. Battilana
  */
@@ -22,8 +22,8 @@
 #include "FWCore/Framework/interface/EventSetup.h"
 #include "FWCore/Framework/interface/ESHandle.h"
 
-#include "CondFormats/L1TObjects/interface/DTConfigManager.h"
-#include "CondFormats/DataRecord/interface/DTConfigManagerRcd.h"
+#include "L1TriggerConfig/DTTPGConfig/interface/DTConfigManager.h"
+#include "L1TriggerConfig/DTTPGConfig/interface/DTConfigManagerRcd.h"
 
 // Trigger and DataFormats headers
 #include "L1Trigger/DTSectorCollector/interface/DTSectCollPhSegm.h"

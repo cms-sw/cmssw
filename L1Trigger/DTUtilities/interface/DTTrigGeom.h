@@ -4,8 +4,8 @@
  *     Muon Barrel Trigger Geometry
  *
  *
- *   $Date: 2007/03/09 15:17:45 $
- *   $Revision: 1.4 $
+ *   $Date: 2007/04/27 09:05:05 $
+ *   $Revision: 1.5 $
  *
  *   \author C.Grandi
  *   \modifications S.Vanini
@@ -27,7 +27,7 @@
 #include "DataFormats/MuonDetId/interface/DTLayerId.h"
 #include "DataFormats/MuonDetId/interface/DTWireId.h"
 #include "Geometry/DTGeometry/interface/DTChamber.h"
-#include "CondFormats/L1TObjects/interface/DTConfig.h"
+#include "L1TriggerConfig/DTTPGConfig/interface/DTConfig.h"
 #include "DataFormats/MuonDetId/interface/DTBtiId.h"
 #include "DataFormats/MuonDetId/interface/DTTracoId.h"
 #include "DataFormats/GeometryVector/interface/LocalPoint.h" 

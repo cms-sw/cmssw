@@ -6,8 +6,8 @@
  *   Internally uses DTBtiHit to store muon digis
  *
  *
- *   $Date: 2007/04/04 10:44:30 $
- *   $Revision: 1.4 $
+ *   $Date: 2007/04/27 08:37:37 $
+ *   $Revision: 1.5 $
  *
  *   \author S. Vanini
  */
@@ -31,9 +31,9 @@ class DTDigi;
 #include "DataFormats/GeometryVector/interface/LocalPoint.h"
 #include "DataFormats/MuonDetId/interface/DTBtiId.h"
 #include "L1Trigger/DTUtilities/interface/DTTrigGeom.h"
-#include "CondFormats/L1TObjects/interface/DTConfig.h"
-#include "CondFormats/L1TObjects/interface/BitArray.h"
-#include "CondFormats/L1TObjects/interface/DTConfigBti.h"
+#include "L1TriggerConfig/DTTPGConfig/interface/DTConfig.h"
+#include "L1TriggerConfig/DTTPGConfig/interface/BitArray.h"
+#include "L1TriggerConfig/DTTPGConfig/interface/DTConfigBti.h"
 
 
 //---------------

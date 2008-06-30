@@ -5,8 +5,8 @@
  *   Implementation of DTTracoChip candidate 
  * 
  *
- *   $Date: 2006/07/19 10:24:02 $
- *   $Revision: 1.1 $
+ *   $Date: 2007/04/27 08:41:29 $
+ *   $Revision: 1.2 $
  *
  *   \author C. Grandi, S. Vanini
  *
@@ -27,7 +27,7 @@ class DTTracoChip;
 //----------------------
 // Base Class Headers --
 //----------------------
-#include "CondFormats/L1TObjects/interface/BitArray.h"
+#include "L1TriggerConfig/DTTPGConfig/interface/BitArray.h"
 
 //---------------
 // C++ Headers --

@@ -10,7 +10,7 @@
 <use name=L1Trigger/DTTriggerServerTheta>
 <use name=L1Trigger/DTSectorCollector>
 <use name=DataFormats/L1DTTrackFinder>
-<use name=CondFormats/DataRecord>
+<use name=L1TriggerConfig/DTTPGConfig>
 <use name=Utilities/General>
 
 <use name=CLHEP>
@@ -29,7 +29,7 @@
    <use name=L1Trigger/DTTriggerServerTheta>
    <use name=L1Trigger/DTSectorCollector>
    <use name=DataFormats/L1DTTrackFinder>
-   <use name=CondFormats/DataRecord>
+   <use name=L1TriggerConfig/DTTPGConfig>
    <use name=FWCore/Framework>
    <use name=FWCore/PluginManager>
    <use name=FWCore/ParameterSet>

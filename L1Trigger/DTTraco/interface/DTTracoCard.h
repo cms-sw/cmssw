@@ -4,8 +4,8 @@
  *   Contains active DTTracoChips
  *
  *
- *   $Date: 2007/04/20 15:41:01 $
- *   $Revision: 1.6 $
+ *   $Date: 2007/04/27 08:41:29 $
+ *   $Revision: 1.7 $
  *
  *   \author C. Grandi, S. Vanini 
  *
@@ -31,11 +31,11 @@ class DTTrigGeom;
 //----------------------
 #include "L1Trigger/DTUtilities/interface/DTGeomSupplier.h"
 #include "DataFormats/MuonDetId/interface/DTTracoId.h"
-#include "CondFormats/L1TObjects/interface/DTConfig.h"
+#include "L1TriggerConfig/DTTPGConfig/interface/DTConfig.h"
 #include "L1Trigger/DTTraco/interface/DTTracoTrigData.h"
 #include "L1Trigger/DTUtilities/interface/DTCache.h"
-#include "CondFormats/L1TObjects/interface/DTConfigTraco.h"
-#include "CondFormats/L1TObjects/interface/DTConfigManager.h"
+#include "L1TriggerConfig/DTTPGConfig/interface/DTConfigTraco.h"
+#include "L1TriggerConfig/DTTPGConfig/interface/DTConfigManager.h"
 //#include "FWCore/ParameterSet/interface/ParameterSet.h"
 
 //---------------

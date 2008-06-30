@@ -29,7 +29,7 @@
 #include "L1Trigger/DTTraco/interface/DTTracoTrigData.h"
 #include "L1Trigger/DTTriggerServerTheta/interface/DTTSTheta.h"
 #include "L1Trigger/DTTraco/interface/DTTracoCand.h"
-#include "CondFormats/L1TObjects/interface/BitArray.h"
+#include "L1TriggerConfig/DTTPGConfig/interface/BitArray.h"
 
 //---------------
 // C++ Headers --

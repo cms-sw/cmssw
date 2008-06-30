@@ -4,8 +4,8 @@
  *    Implementation of TS Phi trigger algorithm
  *
  *
- *   $Date: 2007/04/04 10:44:36 $
- *   $Revision: 1.4 $
+ *   $Date: 2007/04/27 08:55:47 $
+ *   $Revision: 1.5 $
  *
  *   \author C. Grandi, D. Bonacorsi, S. Marcellini
  */
@@ -35,8 +35,8 @@ class DTTrigGeom;
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "L1Trigger/DTUtilities/interface/DTCache.h"
 #include "L1Trigger/DTUtilities/interface/DTGeomSupplier.h"
-#include "CondFormats/L1TObjects/interface/DTConfigTSPhi.h"
-#include "CondFormats/L1TObjects/interface/DTConfigManager.h"
+#include "L1TriggerConfig/DTTPGConfig/interface/DTConfigTSPhi.h"
+#include "L1TriggerConfig/DTTPGConfig/interface/DTConfigManager.h"
 
 #include "L1Trigger/DTTriggerServerPhi/interface/DTChambPhSegm.h"
 

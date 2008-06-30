@@ -3,8 +3,8 @@
 /**  \class DTTSTheta
  *    Implementation of TS Theta L1Trigger algorithm
  *
- *   $Date: 2007/04/04 10:44:37 $
- *   $Revision: 1.4 $
+ *   $Date: 2007/04/27 09:00:08 $
+ *   $Revision: 1.5 $
  *
  *   \author C.Grandi
  */
@@ -24,10 +24,10 @@ class DTTrigGeom;
 // Base Class Headers --
 //----------------------
 #include "L1Trigger/DTUtilities/interface/DTGeomSupplier.h"
-#include "CondFormats/L1TObjects/interface/BitArray.h"
+#include "L1TriggerConfig/DTTPGConfig/interface/BitArray.h"
 #include "L1Trigger/DTTriggerServerTheta/interface/DTChambThSegm.h"
-#include "CondFormats/L1TObjects/interface/DTConfigTSTheta.h"
-#include "CondFormats/L1TObjects/interface/DTConfigManager.h"
+#include "L1TriggerConfig/DTTPGConfig/interface/DTConfigTSTheta.h"
+#include "L1TriggerConfig/DTTPGConfig/interface/DTConfigManager.h"
 #include "L1Trigger/DTUtilities/interface/DTCache.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 

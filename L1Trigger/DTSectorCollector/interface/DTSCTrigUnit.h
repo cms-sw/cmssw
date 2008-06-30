@@ -3,8 +3,8 @@
 /**  \class  DTSCTrigUnit
  *     Muon Barrel Sector Collector Trigger Unit (Chamber trigger)
  *
- *   $Date: 2007/04/27 08:45:51 $
- *   $Revision: 1.5 $
+ *   $Date: 2008/03/04 00:10:43 $
+ *   $Revision: 1.6 $
  *
  *   \author C.Grandi, S. Marcellini
  */
@@ -26,7 +26,7 @@
 //------------------------------------
 // Collaborating Class Declarations --
 //------------------------------------
-#include "CondFormats/L1TObjects/interface/DTConfigManager.h"
+#include "L1TriggerConfig/DTTPGConfig/interface/DTConfigManager.h"
 #include "L1Trigger/DTUtilities/interface/DTTrigGeom.h"
 #include "L1Trigger/DTUtilities/interface/DTTrigData.h"
 #include "L1Trigger/DTBti/interface/DTBtiChip.h"

@@ -4,8 +4,8 @@
  *     Contains active DTBtiChips
  *
  *
- *   $Date: 2007/04/27 08:37:37 $
- *   $Revision: 1.7 $
+ *   $Date: 2008/03/04 00:08:10 $
+ *   $Revision: 1.8 $
  *
  *   \author C. Grandi, S. Vanini
  *
@@ -34,8 +34,8 @@ class DTTTrigBaseSync;
 #include "DataFormats/MuonDetId/interface/DTBtiId.h"
 #include "L1Trigger/DTBti/interface/DTBtiTrigData.h"
 #include "L1Trigger/DTUtilities/interface/DTCache.h"
-#include "CondFormats/L1TObjects/interface/DTConfigBti.h"
-#include "CondFormats/L1TObjects/interface/DTConfigManager.h"
+#include "L1TriggerConfig/DTTPGConfig/interface/DTConfigBti.h"
+#include "L1TriggerConfig/DTTPGConfig/interface/DTConfigManager.h"
 
 
 //---------------
