@@ -78,6 +78,8 @@ EcalUnpackerWorker::EcalUnpackerWorker(const edm::ParameterSet & conf){
   rechitMaker_ = new EcalRecHitSimpleAlgo();
   
   v_chstatus_ = conf.getParameter<std::vector<int> >("ChannelStatusToBeExcluded");
+
+  DCCDataUnpacker::silentMode_ = conf.getUntrackedParameter<bool> ("silentMode",true);
 }
 
 EcalUnpackerWorker::~EcalUnpackerWorker(){
