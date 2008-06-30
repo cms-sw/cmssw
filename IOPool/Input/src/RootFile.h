@@ -211,7 +211,6 @@ namespace edm {
         }
       }
     } else {
-/*
       for(ProductRegistry::ProductList::const_iterator it = productRegistry_->productList().begin(),
           itEnd = productRegistry_->productList().end(); it != itEnd; ++it) {
         if (type == it->second.branchType() && !it->second.transient()) {
@@ -220,13 +219,13 @@ namespace edm {
           BranchEntryDescription* ppb = pb.get();
           br->SetAddress(&ppb);
           br->GetEntry(rootTree.entryNumber());
-          std::auto_ptr<EventEntryDescription> entryDesc = pb->convertToEntryDescription();
+          std::auto_ptr<EntryDescription> entryDesc = pb->convertToEntryDescription();
 	  ProductStatus status = (ppb->creatorStatus() == BranchEntryDescription::Success ? productstatus::present() : productstatus::neverCreated());
-	  T entry(it->second.branchID(), status, entryDesc->moduleDescriptionID(), it->second.oldProductID(), entryDesc->parents());
+	  // Throws parents away for now.
+	  T entry(it->second.branchID(), status, entryDesc->moduleDescriptionID_, it->second.oldProductID());
 	  mapper->insert(entry);
        }
       }
-*/
     }
     return mapper;
   }

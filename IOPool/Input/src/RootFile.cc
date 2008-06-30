@@ -294,17 +294,35 @@ namespace edm {
     EntryDescriptionID* pidBuffer = &idBuffer;
     entryDescriptionTree->SetBranchAddress(poolNames::entryDescriptionIDBranchName().c_str(), &pidBuffer);
 
-    EventEntryDescription entryDescriptionBuffer;
-    EventEntryDescription *pEventEntryDescriptionBuffer = &entryDescriptionBuffer;
-    entryDescriptionTree->SetBranchAddress(poolNames::entryDescriptionBranchName().c_str(), &pEventEntryDescriptionBuffer);
+    if (fileFormatVersion_.value_ <= 8) {
+      EntryDescription entryDescriptionBuffer;
+      EntryDescription *pEntryDescriptionBuffer = &entryDescriptionBuffer;
+      entryDescriptionTree->SetBranchAddress(poolNames::entryDescriptionBranchName().c_str(), &pEntryDescriptionBuffer);
 
-    EntryDescriptionRegistry& registry = *EntryDescriptionRegistry::instance();
+      EntryDescriptionRegistry& registry = *EntryDescriptionRegistry::instance();
 
-    for (Long64_t i = 0, numEntries = entryDescriptionTree->GetEntries(); i < numEntries; ++i) {
-      entryDescriptionTree->GetEntry(i);  // magically fills idBuffer and entryDescriptionBuffer
-      if (idBuffer != entryDescriptionBuffer.id())
-	throw edm::Exception(edm::errors::EventCorruption) << "Corruption of EventEntryDescription tree detected.";
-      registry.insertMapped(entryDescriptionBuffer);
+      for (Long64_t i = 0, numEntries = entryDescriptionTree->GetEntries(); i < numEntries; ++i) {
+        entryDescriptionTree->GetEntry(i);
+        if (idBuffer != entryDescriptionBuffer.id())
+	  throw edm::Exception(edm::errors::EventCorruption) << "Corruption of EntryDescription tree detected.";
+	// This throws away the parentage information, for now.
+	EventEntryDescription eid;
+	eid.moduleDescriptionID_ = entryDescriptionBuffer.moduleDescriptionID_;
+        registry.insertMapped(eid);
+      }
+    } else {
+      EventEntryDescription entryDescriptionBuffer;
+      EventEntryDescription *pEntryDescriptionBuffer = &entryDescriptionBuffer;
+      entryDescriptionTree->SetBranchAddress(poolNames::entryDescriptionBranchName().c_str(), &pEntryDescriptionBuffer);
+
+      EntryDescriptionRegistry& registry = *EntryDescriptionRegistry::instance();
+
+      for (Long64_t i = 0, numEntries = entryDescriptionTree->GetEntries(); i < numEntries; ++i) {
+        entryDescriptionTree->GetEntry(i);
+        if (idBuffer != entryDescriptionBuffer.id())
+	  throw edm::Exception(edm::errors::EventCorruption) << "Corruption of EntryDescription tree detected.";
+        registry.insertMapped(entryDescriptionBuffer);
+      }
     }
     entryDescriptionTree->SetBranchAddress(poolNames::entryDescriptionIDBranchName().c_str(), 0);
     entryDescriptionTree->SetBranchAddress(poolNames::entryDescriptionBranchName().c_str(), 0);
