@@ -1,5 +1,4 @@
 <use name=FWCore/Framework>
-<use name=Foundation/PluginManager>
 <use name=FWCore/ParameterSet>
 <use name=DataFormats/ParticleFlowReco>
 <use name=DataFormats/EcalRecHit>
@@ -12,7 +11,6 @@
 <export>
    <lib name=RecoParticleFlowPFClusterShapeProducer>
    <use name=FWCore/Framework>
-   <use name=Foundation/PluginManager>
    <use name=FWCore/ParameterSet>
    <use name=DataFormats/ParticleFlowReco>
    <use name=DataFormats/EcalRecHit>
