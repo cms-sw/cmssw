@@ -50,6 +50,7 @@ namespace cms
     simhit_map SimHitMap;
     std::vector<edm::DetSet<PixelDigi> > theDigiVector;
     std::vector<edm::DetSet<PixelDigiSimLink> > theDigiLinkVector;
+    std::string geometryType;
     //   std::vector<PixelDigiSimLink> linkcollector;
 
     // infrastructure to reject dead pixels as defined in db (added by F.Blekman)

@@ -58,6 +58,7 @@ simSiStripDigis = cms.EDFilter("SiStripDigitizer",
                           "g4SimHitsTrackerHitsTECLowTof","g4SimHitsTrackerHitsTECHighTof"),
     GevPerElectron = cms.double(3.61e-09),
     chargeDivisionsPerStrip = cms.int32(10),
+    GeometryType = cms.string('idealForDigi'),                           
     #-----SiStripDigitizerAlgorithm 
     electronPerAdc = cms.double(250.0),
     APVpeakmode = cms.bool(False),

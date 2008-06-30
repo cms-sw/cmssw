@@ -13,7 +13,7 @@
 //
 // Original Author:  Andrea GIAMMANCO
 //         Created:  Thu Sep 22 14:23:22 CEST 2005
-// $Id: SiStripDigitizer.cc,v 1.10 2008/05/14 10:53:34 giordano Exp $
+// $Id: SiStripDigitizer.cc,v 1.11 2008/06/25 11:31:54 vciulli Exp $
 //
 //
 
@@ -91,6 +91,7 @@ SiStripDigitizer::SiStripDigitizer(const edm::ParameterSet& conf) :
   produces<edm::DetSetVector<SiStripRawDigi> >(ParamSet.getParameter<std::string>("PRDigi")).setBranchAlias( alias + ParamSet.getParameter<std::string>("PRDigi") );
   trackerContainers.clear();
   trackerContainers = conf.getParameter<std::vector<std::string> >("ROUList");
+  geometryType = conf.getParameter<std::string>("GeometryType");
   useConfFromDB = conf.getParameter<bool>("TrackerConfigurationFromDB");
   edm::Service<edm::RandomNumberGenerator> rng;
   if ( ! rng.isAvailable()) {
@@ -151,7 +152,7 @@ void SiStripDigitizer::produce(edm::Event& iEvent, const edm::EventSetup& iSetup
   
   edm::ESHandle<TrackerGeometry> pDD;
   
-  iSetup.get<TrackerDigiGeometryRecord>().get(pDD);
+  iSetup.get<TrackerDigiGeometryRecord>().get(geometryType,pDD);
   
   edm::ESHandle<MagneticField> pSetup;
   iSetup.get<IdealMagneticFieldRecord>().get(pSetup);
@@ -176,17 +177,17 @@ void SiStripDigitizer::produce(edm::Event& iEvent, const edm::EventSetup& iSetup
   
   theDigiLinkVector.reserve(10000);
   theDigiLinkVector.clear();
-  
-  for(TrackingGeometry::DetUnitContainer::const_iterator iu = pDD->detUnits().begin(); iu != pDD->detUnits().end(); iu ++){
 
+  for(TrackingGeometry::DetUnitContainer::const_iterator iu = pDD->detUnits().begin(); iu != pDD->detUnits().end(); iu ++){
+    
     if(useConfFromDB){
       //apply the cable map _before_ digitization: consider only the detis that are connected 
       if(theDetIdList.find((*iu)->geographicalId().rawId())==theDetIdList.end())
-	continue;
+        continue;
     }
-
+    
     GlobalVector bfield=pSetup->inTesla((*iu)->surface().position());
-
+    
     StripGeomDetUnit* sgd = dynamic_cast<StripGeomDetUnit*>((*iu));
     if (sgd != 0){
       edm::DetSet<SiStripDigi> collectorZS((*iu)->geographicalId().rawId());
@@ -198,27 +199,26 @@ void SiStripDigitizer::produce(edm::Event& iEvent, const edm::EventSetup& iSetup
       theDigiAlgo->run(collectorZS,collectorRaw,SimHitMap[(*iu)->geographicalId().rawId()],sgd,bfield,langle,gainHandle,thresholdHandle,noiseHandle);
       
       if(zeroSuppression){
-	if(collectorZS.data.size()>0){
-	  theDigiVector.push_back(collectorZS);
-	  if(SimHitMap[(*iu)->geographicalId().rawId()].size()>0){
-	    linkcollector.data = theDigiAlgo->make_link();
-	    if(linkcollector.data.size()>0)
-	      theDigiLinkVector.push_back(linkcollector);
-	  }
-	}
+        if(collectorZS.data.size()>0){
+          theDigiVector.push_back(collectorZS);
+          if(SimHitMap[(*iu)->geographicalId().rawId()].size()>0){
+            linkcollector.data = theDigiAlgo->make_link();
+            if(linkcollector.data.size()>0)
+              theDigiLinkVector.push_back(linkcollector);
+          }
+        }
       }else{
-	if(collectorRaw.data.size()>0){
-	  theRawDigiVector.push_back(collectorRaw);
-	  if(SimHitMap[(*iu)->geographicalId().rawId()].size()>0){
-	    linkcollector.data = theDigiAlgo->make_link();
-	    if(linkcollector.data.size()>0)
-	      theDigiLinkVector.push_back(linkcollector);
-	  }
-	}
+        if(collectorRaw.data.size()>0){
+          theRawDigiVector.push_back(collectorRaw);
+          if(SimHitMap[(*iu)->geographicalId().rawId()].size()>0){
+            linkcollector.data = theDigiAlgo->make_link();
+            if(linkcollector.data.size()>0)
+              theDigiLinkVector.push_back(linkcollector);
+          }
+        }
       }
     }
   }
-  
 
   if(zeroSuppression){
     // Step C: create output collection

@@ -14,7 +14,7 @@
 // Original Author:  Michele Pioppi-INFN perugia
 //   Modifications: Freya Blekman - Cornell University
 //         Created:  Mon Sep 26 11:08:32 CEST 2005
-// $Id: SiPixelDigitizer.cc,v 1.2 2007/09/03 10:11:11 fambrogl Exp $
+// $Id: SiPixelDigitizer.cc,v 1.3 2008/05/06 13:14:26 fblekman Exp $
 //
 //
 
@@ -90,6 +90,7 @@ namespace cms
     produces<edm::DetSetVector<PixelDigiSimLink> >().setBranchAlias ( alias + "siPixelDigiSimLink");
     trackerContainers.clear();
     trackerContainers = iConfig.getParameter<std::vector<std::string> >("ROUList");
+    geometryType = iConfig.getParameter<std::string>("GeometryType");
 
   
 
@@ -123,7 +124,7 @@ namespace cms
 
     edm::ESHandle<TrackerGeometry> pDD;
     
-    iSetup.get<TrackerDigiGeometryRecord> ().get(pDD);
+    iSetup.get<TrackerDigiGeometryRecord> ().get(geometryType,pDD);
  
     edm::ESHandle<MagneticField> pSetup;
     iSetup.get<IdealMagneticFieldRecord>().get(pSetup);
@@ -143,39 +144,40 @@ namespace cms
     // Step B: LOOP on PixelGeomDetUnit //
     for(TrackingGeometry::DetUnitContainer::const_iterator iu = pDD->detUnits().begin(); iu != pDD->detUnits().end(); iu ++){
       DetId idet=DetId((*iu)->geographicalId().rawId());
-       unsigned int isub=idet.subdetId();
-       
-       
+      unsigned int isub=idet.subdetId();
+      
+      
       if  ((isub==  PixelSubdetector::PixelBarrel) || (isub== PixelSubdetector::PixelEndcap)) {  
-  
- 
-	//access to magnetic field in global coordinates
-	GlobalVector bfield=pSetup->inTesla((*iu)->surface().position());
-	LogDebug ("PixelDigitizer ") << "B-field(T) at "<<(*iu)->surface().position()<<"(cm): " 
-				     << pSetup->inTesla((*iu)->surface().position());
-	//
-
-	edm::DetSet<PixelDigi> collector((*iu)->geographicalId().rawId());
-	edm::DetSet<PixelDigiSimLink> linkcollector((*iu)->geographicalId().rawId());
-	
-	
- 	collector.data=
- 	  _pixeldigialgo.run(SimHitMap[(*iu)->geographicalId().rawId()],
- 			     dynamic_cast<PixelGeomDetUnit*>((*iu)),
- 			     bfield);
-	if (collector.data.size()>0){
-	  theDigiVector.push_back(collector);
-
-	  //digisimlink
-	  if(SimHitMap[(*iu)->geographicalId().rawId()].size()>0){
-	    linkcollector.data=_pixeldigialgo.make_link();
-	    if (linkcollector.data.size()>0) theDigiLinkVector.push_back(linkcollector);
-       	  }
-	
-	}
+        
+        
+        //access to magnetic field in global coordinates
+        GlobalVector bfield=pSetup->inTesla((*iu)->surface().position());
+        LogDebug ("PixelDigitizer ") << "B-field(T) at "<<(*iu)->surface().position()<<"(cm): " 
+                                     << pSetup->inTesla((*iu)->surface().position());
+        //
+        
+        edm::DetSet<PixelDigi> collector((*iu)->geographicalId().rawId());
+        edm::DetSet<PixelDigiSimLink> linkcollector((*iu)->geographicalId().rawId());
+        
+        
+        collector.data=
+          _pixeldigialgo.run(SimHitMap[(*iu)->geographicalId().rawId()],
+                             dynamic_cast<PixelGeomDetUnit*>((*iu)),
+                             bfield);
+        if (collector.data.size()>0){
+          theDigiVector.push_back(collector);
+          
+          //digisimlink
+          if(SimHitMap[(*iu)->geographicalId().rawId()].size()>0){
+              linkcollector.data=_pixeldigialgo.make_link();
+              if (linkcollector.data.size()>0) theDigiLinkVector.push_back(linkcollector);
+          }
+          
+        }
       }
-
+      
     }
+    
     // Step C: create collection with the cache vector of DetSet 
     std::auto_ptr<edm::DetSetVector<PixelDigi> > 
       output(new edm::DetSetVector<PixelDigi>(theDigiVector) );

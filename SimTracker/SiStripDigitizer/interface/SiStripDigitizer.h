@@ -62,6 +62,7 @@ private:
   simhit_map SimHitMap;
   int numStrips;    // number of strips in the module
   CLHEP::HepRandomEngine* rndEngine;
+  std::string geometryType;
   std::string alias;
   bool zeroSuppression;
   bool useConfFromDB;

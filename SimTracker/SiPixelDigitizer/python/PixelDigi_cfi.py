@@ -21,6 +21,7 @@ simSiPixelDigis = cms.EDFilter("SiPixelDigitizer",
     AddPixelInefficiency = cms.int32(0),
     AddNoise = cms.bool(True),
     GainSmearing = cms.double(0.0),
+    GeometryType = cms.string('idealForDigi'),                           
     useDB = cms.bool(False) 
 )
 
