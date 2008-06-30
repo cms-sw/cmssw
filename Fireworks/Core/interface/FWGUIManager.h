@@ -16,7 +16,7 @@
 //
 // Original Author:  Chris Jones
 //         Created:  Mon Feb 11 10:52:24 EST 2008
-// $Id: FWGUIManager.h,v 1.27 2008/06/25 22:16:59 chrjones Exp $
+// $Id: FWGUIManager.h,v 1.28 2008/06/29 13:23:47 chrjones Exp $
 //
 
 // system include files
@@ -100,7 +100,7 @@ class FWGUIManager : public FWConfigurable
       void updateEDI(FWEventItem* iItem);
       void resetEDIFrame();
       void createModelPopup();
-      void updateModel(FWListModel* iModel);
+      void updateModel(FWEventItem* iItem);
       void resetModelPopup();
       void createViewPopup();
       void refillViewPopup(FWViewBase* iView);

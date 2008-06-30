@@ -8,7 +8,7 @@
 //
 // Original Author:  Chris Jones
 //         Created:  Mon Feb 11 11:06:40 EST 2008
-// $Id: FWGUIManager.cc,v 1.41 2008/06/26 09:52:54 jmuelmen Exp $
+// $Id: FWGUIManager.cc,v 1.42 2008/06/29 13:23:48 chrjones Exp $
 //
 
 // system include files
@@ -474,19 +474,20 @@ FWGUIManager::createModelPopup() {
   if (m_modelPopup == 0) {
     m_modelPopup = new CmsShowModelPopup(gClient->GetRoot(), 200, 200);
     m_modelPopup->Connect("CloseWindow()", "FWGUIManager", this, "resetModelPopup()");
-    m_modelChangeConn = m_changeManager->changeSignalsAreDone_.connect(boost::bind(&CmsShowModelPopup::updateDisplay, m_modelPopup));
+    m_selectionManager->selectionChanged_.connect(boost::bind(&CmsShowModelPopup::fillModelPopup, m_modelPopup, _1));
+    //    m_modelChangeConn = m_changeManager->changeSignalsAreDone_.connect(boost::bind(&CmsShowModelPopup::updateDisplay, m_modelPopup));
   }
 }
 
 void
-FWGUIManager::updateModel(FWListModel* iModel) {
+FWGUIManager::updateModel(FWEventItem* iItem) {
   if (m_modelPopup == 0) createModelPopup();
-  m_modelPopup->fillModelPopup(iModel);
+  //  m_modelPopup->fillModelPopup(iItem);
 }
 
 void
 FWGUIManager::resetModelPopup() {
-  m_modelChangeConn.disconnect();
+  //  m_modelChangeConn.disconnect();
   m_modelPopup = 0;
 }
 
