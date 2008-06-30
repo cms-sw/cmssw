@@ -249,7 +249,7 @@ FWTextView::FWTextView (CmsShowMain *de, FWSelectionManager *sel,
 	       i = de->m_eiManager->m_items.begin(),
 	       end = de->m_eiManager->m_items.end(); 
 	  i != end; ++i) {
-	  printf("event item: %s\n", (*i)->name().c_str());
+// 	  printf("event item: %s\n", (*i)->name().c_str());
 	  if ((*i)->name() == "Electrons") { 
 	       el_manager->item = *i;
 	  } else if ((*i)->name() == "Muons") { 
@@ -364,7 +364,7 @@ void FWTextView::newEvent (const fwlite::Event &ev, const CmsShowMain *de)
 	       i = de->m_eiManager->m_items.begin(),
 	       end = de->m_eiManager->m_items.end(); 
 	  i != end; ++i) {
-	  printf("event item: %s\n", (*i)->name().c_str());
+// 	  printf("event item: %s\n", (*i)->name().c_str());
 	  if ((*i)->name() == "Electrons") { 
 	       (*i)->get(els);
 //   	       (*i)->select(0);
@@ -387,7 +387,7 @@ void FWTextView::newEvent (const fwlite::Event &ev, const CmsShowMain *de)
 	       i = de->m_eiManager->m_items.begin(),
 	       end = de->m_eiManager->m_items.end(); 
 	  i != end; ++i) {
-	  printf("event item: %s\n", (*i)->name().c_str());
+// 	  printf("event item: %s\n", (*i)->name().c_str());
 	  if ((*i)->name() == "Electrons") { 
 	       el_manager->item = *i;
 	  } else if ((*i)->name() == "Muons") { 
@@ -440,6 +440,7 @@ void FWTextView::newEvent (const fwlite::Event &ev, const CmsShowMain *de)
      //------------------------------------------------------------
      // print header
      //------------------------------------------------------------
+#if 0
      printf("run %d event %d:\n", ev.aux_.run(), ev.aux_.event());
      std::cout << ev.aux_;
 #if 1
@@ -450,14 +451,17 @@ void FWTextView::newEvent (const fwlite::Event &ev, const CmsShowMain *de)
 #endif
      printf("%d electrons\t%d muons\t%d jets\t\n", 
 	    n_els, n_mus, n_jets);
+#endif
      //------------------------------------------------------------
      // print muons
      //------------------------------------------------------------
      mu_manager->rows.clear();
+#if 0
      printf("Muons\n");
      printf("pt\t global\t tk\t SA\t calo\t iso(3)\t iso(5)\t tr pt\t eta\t"
 	    " phi\t chi^2/ndof\t matches\t d0\t sig(d0)\t"
 	    " loose(match)\t tight(match)\t loose(depth)\t tight(depth)\n");
+#endif
      for (int i = 0; i < n_mus; ++i) {
 	  const reco::Muon &muon = mus->at(i);
 // 	  if (i == 5 || muon.pt() < 1) {
@@ -472,6 +476,7 @@ void FWTextView::newEvent (const fwlite::Event &ev, const CmsShowMain *de)
 	       trd0 = muon.track()->d0();
 	       trsd0 = muon.track()->d0Error();
 	  }
+#if 0
 	  printf("%5.1f\t %c\t %c\t %c\t %c\t %6.3f\t %6.3f\t %6.3f\t %6.3f\t %6.3f\t"
 		 "%6.3f\t\t %d\t\t %6.3f\t %7.3f\t %c\t\t %c\t\t %c\t\t %c\n",
 		 muon.pt(), // is this right?
@@ -486,6 +491,7 @@ void FWTextView::newEvent (const fwlite::Event &ev, const CmsShowMain *de)
 		 trd0, trd0 / trsd0,
 		 'm', 'm', 'm', 'm' // get these flags!
 	       );
+#endif
 	  MuonRowStruct row = {
 	       i,
 	       muon.pt(), // is this right?
@@ -507,9 +513,11 @@ void FWTextView::newEvent (const fwlite::Event &ev, const CmsShowMain *de)
      // print electrons
      //------------------------------------------------------------
      el_manager->rows.clear();
+#if 0
      printf("Electrons\n");
      printf("Et\t eta\t phi\t E/p\t H/E\t fbrem\t dei\t dpi\t see\t spp\t"
 	    " iso\t robust\t loose\t tight\n");
+#endif
      for (int i = 0; i < n_els; ++i) {
 	  const reco::GsfElectron &electron = els->at(i);
 	  const double et = electron.caloEnergy() / cosh(electron.eta()); // is this the right way to get ET?
@@ -519,6 +527,7 @@ void FWTextView::newEvent (const fwlite::Event &ev, const CmsShowMain *de)
 // 	  }
 	  const double pin  = electron.trackMomentumAtVtx().R();
 	  const double pout = electron.trackMomentumOut().R();
+#if 0
 	  printf("%5.1f\t %6.3f\t %6.3f\t %6.3f\t %6.3f\t %6.3f\t %6.3f\t %6.3f\t"
 		 "%6.3f\t %6.3f\t %6.3f\t %c\t %c\t %c\n",
 		 et, electron.eta(), electron.phi(),
@@ -530,6 +539,7 @@ void FWTextView::newEvent (const fwlite::Event &ev, const CmsShowMain *de)
 		 0., // can we get the iso?
 		 'm', 'm', 'm' // can we get these flags?
 	       );
+#endif
 	  ElectronRowStruct row = { 		 
 	       i,
 	       et, electron.eta(), electron.phi(),
@@ -548,8 +558,10 @@ void FWTextView::newEvent (const fwlite::Event &ev, const CmsShowMain *de)
      // print jets
      //------------------------------------------------------------
      jet_manager->rows.clear();
+#if 0
      printf("Jets\n");
      printf("Et\t eta\t phi\t ECAL\t HCAL\t emf\t chf\n");
+#endif
      for (int i = 0; i < n_jets; ++i) {
 	  const reco::CaloJet &jet = jets->at(i);
 	  const double et = jet.p4().Et();
@@ -557,6 +569,7 @@ void FWTextView::newEvent (const fwlite::Event &ev, const CmsShowMain *de)
 // 	       printf("skipping %d jets\n", n_jets - i);
 // 	       break;
 // 	  }
+#if 0
 	  printf("%5.1f\t %6.3f\t %6.3f\t %5.1f\t %5.1f\t %6.3f\t %6.3f\n",
 		 et, jet.eta(), jet.phi(),
 		 jet.p4().E() * jet.emEnergyFraction(),		// this has got
@@ -564,6 +577,7 @@ void FWTextView::newEvent (const fwlite::Event &ev, const CmsShowMain *de)
 		 jet.emEnergyFraction(), 
 		 0.	// how do we get the charge fraction?
 	       );
+#endif
 	  JetRowStruct row = {
 	       i,
 	       et, jet.eta(), jet.phi(),
@@ -578,7 +592,7 @@ void FWTextView::newEvent (const fwlite::Event &ev, const CmsShowMain *de)
      //------------------------------------------------------------
      // print tracks
      //------------------------------------------------------------
-     printf("Tracks\n");
+//     printf("Tracks\n");
      track_manager->rows.clear();
 //      printf("Et\t eta\t phi\t ECAL\t HCAL\t emf\t chf\n");
      for (int i = 0; i < n_tracks; ++i) {
@@ -599,7 +613,7 @@ void FWTextView::newEvent (const fwlite::Event &ev, const CmsShowMain *de)
      //------------------------------------------------------------
      // print tracks
      //------------------------------------------------------------
-     printf("Vertices\n");
+//     printf("Vertices\n");
      vertex_manager->rows.clear();
 //      printf("Et\t eta\t phi\t ECAL\t HCAL\t emf\t chf\n");
      for (int i = 0; i < n_vertices; ++i) {

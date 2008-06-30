@@ -400,7 +400,7 @@ void TableWidget::OnCellClick(Event_t *event)
 	case 4: // scroll up
 	{
 	     int pos = m_vSlider->GetPosition();
-	     printf("pos %d\n", pos);
+// 	     printf("pos %d\n", pos);
 	     if (pos > 0)
 		  m_vSlider->SetPosition(pos - m_scrollHeight);
 	     break;
@@ -408,7 +408,7 @@ void TableWidget::OnCellClick(Event_t *event)
 	case 5: // scroll down
 	{
 	     int pos = m_vSlider->GetPosition();
-	     printf("pos %d\n", pos);
+// 	     printf("pos %d\n", pos);
 	     if (pos < m_scrollHeight * (m_tm->NumberOfRows() - 1))
 		  m_vSlider->SetPosition(pos + m_scrollHeight);
 	     break;
