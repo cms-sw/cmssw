@@ -2,8 +2,8 @@
 /*
  * \file HcalMonitorModule.cc
  * 
- * $Date: 2008/06/19 22:55:32 $
- * $Revision: 1.63 $
+ * $Date: 2008/06/30 21:47:37 $
+ * $Revision: 1.64 $
  * \author W Fisher
  *
 */
@@ -38,6 +38,8 @@ HcalMonitorModule::HcalMonitorModule(const edm::ParameterSet& ps){
 
   debug_ = ps.getUntrackedParameter<bool>("debug", false);
   if(debug_) cout << "HcalMonitorModule: constructor...." << endl;
+
+  showTiming_ = ps.getUntrackedParameter<bool>("showTiming", false);
   
   if ( ps.getUntrackedParameter<bool>("DataFormatMonitor", false) ) {
     if(debug_) cout << "HcalMonitorModule: DataFormat monitor flag is on...." << endl;
@@ -372,47 +374,95 @@ void HcalMonitorModule::analyze(const edm::Event& e, const edm::EventSetup& even
   if (!hf_hits.isValid()) {
     rechitOK_ = false;
   }
-
-
-  /// Run the configured tasks, protect against missing products
+  
+  
+  // Run the configured tasks, protect against missing products
 
   // Data Format monitor task
+  
+  if (showTiming_)
+    {
+      cpu_timer.reset(); cpu_timer.start();
+    }
+
   if((dfMon_ != NULL) && (evtMask&DO_HCAL_DFMON) && rawOK_) 
     dfMon_->processEvent(*rawraw,*report,*readoutMap_);
-
+  if (showTiming_)
+    {
+      cpu_timer.stop();
+      if (dfMon_ !=NULL) cout <<"TIMER:: DATAFORMAT MONITOR ->"<<cpu_timer.cpuTime()<<endl;
+      cpu_timer.reset(); cpu_timer.start();
+    }
   // Digi monitor task
   if((digiMon_!=NULL) && (evtMask&DO_HCAL_DIGIMON) && digiOK_) 
    digiMon_->processEvent(*hbhe_digi,*ho_digi,*hf_digi,*conditions_,*report);
-
+  if (showTiming_)
+    {
+      cpu_timer.stop();
+      if (digiMon_ != NULL) cout <<"TIMER:: DIGI MONITOR ->"<<cpu_timer.cpuTime()<<endl;
+      cpu_timer.reset(); cpu_timer.start();
+    }
   // Pedestal monitor task
   if((pedMon_!=NULL) && (evtMask&DO_HCAL_PED_CALIBMON) && digiOK_) 
     pedMon_->processEvent(*hbhe_digi,*ho_digi,*hf_digi,*conditions_);
+  if (showTiming_)
+    {
+      cpu_timer.stop();
+      if (pedMon_!=NULL) cout <<"TIMER:: PEDESTAL MONITOR ->"<<cpu_timer.cpuTime()<<endl;
+      cpu_timer.reset(); cpu_timer.start();
+    }
 
   // LED monitor task
   if((ledMon_!=NULL) && (evtMask&DO_HCAL_LED_CALIBMON) && digiOK_)
     ledMon_->processEvent(*hbhe_digi,*ho_digi,*hf_digi,*conditions_);
-  
+  if (showTiming_)
+    {
+      cpu_timer.stop();
+      if (ledMon_!=NULL) cout <<"TIMER:: LED MONITOR ->"<<cpu_timer.cpuTime()<<endl;
+      cpu_timer.reset(); cpu_timer.start();
+    }
+
   // Rec Hit monitor task
   if((rhMon_ != NULL) && (evtMask&DO_HCAL_RECHITMON) && rechitOK_) 
     rhMon_->processEvent(*hb_hits,*ho_hits,*hf_hits);
-
+  if (showTiming_)
+    {
+      cpu_timer.stop();
+      if (rhMon_!=NULL) cout <<"TIMER:: RECHIT MONITOR ->"<<cpu_timer.cpuTime()<<endl;
+      cpu_timer.reset(); cpu_timer.start();
+    }
   // Hot Cell monitor task
   if((hotMon_ != NULL) && (evtMask&DO_HCAL_RECHITMON) && rechitOK_) 
     hotMon_->processEvent(*hb_hits,*ho_hits,*hf_hits, 
 			  *hbhe_digi,*ho_digi,*hf_digi,*conditions_);
-
+  if (showTiming_)
+    {
+      cpu_timer.stop();
+      if (hotMon_!=NULL) cout <<"TIMER:: HOTCELL MONITOR ->"<<cpu_timer.cpuTime()<<endl;
+      cpu_timer.reset(); cpu_timer.start();
+    }
   // Dead Cell monitor task -- may end up using both rec hits and digis?
   if((deadMon_ != NULL) && (evtMask&DO_HCAL_RECHITMON) && rechitOK_ && digiOK_) 
     deadMon_->processEvent(*hb_hits,*ho_hits,*hf_hits,
 			   *hbhe_digi,*ho_digi,*hf_digi,*conditions_);			     
+  if (showTiming_)
+    {
+      cpu_timer.stop();
+      if (deadMon_!=NULL) cout <<"TIMER:: DEADCELL MONITOR ->"<<cpu_timer.cpuTime()<<endl;
+      cpu_timer.reset(); cpu_timer.start();
+    }
 
-  // Dead Cell monitor task -- may end up using both rec hits and digis?
+  // Trigger Primitive monitor task -- may end up using both rec hits and digis?
   if((tpMon_ != NULL) && rechitOK_ && digiOK_ && tpdOK_) 
     tpMon_->processEvent(*hb_hits,*ho_hits,*hf_hits,
-			 *hbhe_digi,*ho_digi,*hf_digi,*tp_digi,*readoutMap_);			     
+			 *hbhe_digi,*ho_digi,*hf_digi,*tp_digi, *readoutMap_);			     
+  
 
-
-
+  if (showTiming_)
+    {
+      cpu_timer.stop();
+      if (tpMon_!=NULL) cout <<"TIMER:: TRIGGERPRIMITIVE MONITOR ->"<<cpu_timer.cpuTime()<<endl;
+    }
 
   if(ievt_%1000 == 0)
     cout << "HcalMonitorModule: processed " << ievt_ << " events" << endl;
