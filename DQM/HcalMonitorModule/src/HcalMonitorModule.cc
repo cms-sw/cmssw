@@ -2,8 +2,8 @@
 /*
  * \file HcalMonitorModule.cc
  * 
- * $Date: 2008/05/27 03:09:17 $
- * $Revision: 1.62 $
+ * $Date: 2008/06/19 22:55:32 $
+ * $Revision: 1.63 $
  * \author W Fisher
  *
 */
@@ -409,7 +409,7 @@ void HcalMonitorModule::analyze(const edm::Event& e, const edm::EventSetup& even
   // Dead Cell monitor task -- may end up using both rec hits and digis?
   if((tpMon_ != NULL) && rechitOK_ && digiOK_ && tpdOK_) 
     tpMon_->processEvent(*hb_hits,*ho_hits,*hf_hits,
-			 *hbhe_digi,*ho_digi,*hf_digi,*tp_digi);			     
+			 *hbhe_digi,*ho_digi,*hf_digi,*tp_digi,*readoutMap_);			     
 
 
 
