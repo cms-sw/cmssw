@@ -13,7 +13,7 @@ Test of the EventPrincipal class.
 
 #include "DataFormats/Provenance/interface/BranchDescription.h"
 #include "DataFormats/Provenance/interface/BranchID.h"
-#include "DataFormats/Provenance/interface/EntryDescription.h"
+#include "DataFormats/Provenance/interface/EventEntryDescription.h"
 #include "DataFormats/Provenance/interface/ModuleDescription.h"
 #include "DataFormats/Provenance/interface/ParameterSetID.h"
 #include "DataFormats/Provenance/interface/ProcessConfiguration.h"
@@ -180,7 +180,7 @@ void test_ep::setUp()
 
     const edm::ConstBranchDescription branchFromRegistry(it->second);
 
-    boost::shared_ptr<edm::EntryDescription> entryDescriptionPtr(new edm::EntryDescription);
+    boost::shared_ptr<edm::EventEntryDescription> entryDescriptionPtr(new edm::EventEntryDescription);
     entryDescriptionPtr->moduleDescriptionID_ = branchFromRegistry.moduleDescriptionID();
     std::auto_ptr<edm::EventEntryInfo> branchEntryInfoPtr(
       new edm::EventEntryInfo(branchFromRegistry.branchID(),

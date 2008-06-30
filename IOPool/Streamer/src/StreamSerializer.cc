@@ -140,7 +140,7 @@ namespace edm
       if (!oh.entryInfo()) {
 	// No product with this ID was put in the event.
 	// Create and write the provenance.
-	boost::shared_ptr<EntryDescription> entryDescription(new EntryDescription);
+	boost::shared_ptr<EventEntryDescription> entryDescription(new EventEntryDescription);
 	entryDescription->moduleDescriptionID_ = desc.moduleDescriptionID();
 	boost::shared_ptr<EventEntryInfo> branchEntryInfo(
 	    new EventEntryInfo(desc.branchID(), productstatus::neverCreated(), desc.productIDtoAssign(), entryDescription));

@@ -118,7 +118,6 @@ namespace edm {
     template <typename T>
     void fillBranches(BranchType const& branchType, Principal<T> const& principal, std::vector<T> * entryInfoVecPtr);
 
-    //    void addEntryDescription(EntryDescription const& desc);
     void pruneOutputItemList(BranchType branchType, FileBlock const& inputFile);
 
     //-------------------------------

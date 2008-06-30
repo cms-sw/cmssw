@@ -161,7 +161,7 @@ void testGenericHandle::getbyLabelTest() {
   edm::EventAuxiliary eventAux(col, uuid, fakeTime, lbp->luminosityBlock(), true);
   edm::EventPrincipal ep(eventAux, pregc, lbp, pc);
   const edm::BranchDescription& branchFromRegistry = it->second;
-  boost::shared_ptr<edm::EntryDescription> entryDescriptionPtr(new edm::EntryDescription);
+  boost::shared_ptr<edm::EventEntryDescription> entryDescriptionPtr(new edm::EventEntryDescription);
   entryDescriptionPtr->moduleDescriptionID_ = branchFromRegistry.moduleDescriptionID();
   std::auto_ptr<edm::EventEntryInfo> branchEntryInfoPtr(
       new edm::EventEntryInfo(branchFromRegistry.branchID(),

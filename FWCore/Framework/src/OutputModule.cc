@@ -4,6 +4,7 @@
 
 #include "FWCore/Framework/interface/OutputModule.h"
 #include "DataFormats/Provenance/interface/BranchDescription.h"
+#include "DataFormats/Provenance/interface/EntryDescriptionRegistry.h"
 #include "DataFormats/Common/interface/Handle.h"
 #include "FWCore/Framework/interface/ConstProductRegistry.h"
 #include "FWCore/ServiceRegistry/interface/Service.h"
@@ -464,7 +465,7 @@ namespace edm {
       std::set<EntryDescriptionID> const& eIds = i->second;
       for (std::set<EntryDescriptionID>::const_iterator it = eIds.begin(), itEnd = eIds.end();
           it != itEnd; ++it) {
-        EntryDescription entryDesc;
+        EventEntryDescription entryDesc;
         EntryDescriptionRegistry::instance()->getMapped(*it, entryDesc);
 	std::vector<BranchID> const& parents = entryDesc.parents_;
 	for (std::vector<BranchID>::const_iterator j = parents.begin(), jEnd = parents.end();

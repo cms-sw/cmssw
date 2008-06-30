@@ -294,16 +294,16 @@ namespace edm {
     EntryDescriptionID* pidBuffer = &idBuffer;
     entryDescriptionTree->SetBranchAddress(poolNames::entryDescriptionIDBranchName().c_str(), &pidBuffer);
 
-    EntryDescription entryDescriptionBuffer;
-    EntryDescription *pEntryDescriptionBuffer = &entryDescriptionBuffer;
-    entryDescriptionTree->SetBranchAddress(poolNames::entryDescriptionBranchName().c_str(), &pEntryDescriptionBuffer);
+    EventEntryDescription entryDescriptionBuffer;
+    EventEntryDescription *pEventEntryDescriptionBuffer = &entryDescriptionBuffer;
+    entryDescriptionTree->SetBranchAddress(poolNames::entryDescriptionBranchName().c_str(), &pEventEntryDescriptionBuffer);
 
     EntryDescriptionRegistry& registry = *EntryDescriptionRegistry::instance();
 
     for (Long64_t i = 0, numEntries = entryDescriptionTree->GetEntries(); i < numEntries; ++i) {
       entryDescriptionTree->GetEntry(i);  // magically fills idBuffer and entryDescriptionBuffer
       if (idBuffer != entryDescriptionBuffer.id())
-	throw edm::Exception(edm::errors::EventCorruption) << "Corruption of EntryDescription tree detected.";
+	throw edm::Exception(edm::errors::EventCorruption) << "Corruption of EventEntryDescription tree detected.";
       registry.insertMapped(entryDescriptionBuffer);
     }
     entryDescriptionTree->SetBranchAddress(poolNames::entryDescriptionIDBranchName().c_str(), 0);

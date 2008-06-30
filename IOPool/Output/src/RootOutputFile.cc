@@ -20,7 +20,7 @@
 #include "DataFormats/Provenance/interface/BranchID.h"
 // BMM #include "DataFormats/Provenance/interface/BranchMapper.h"
 // BMM #include "DataFormats/Provenance/interface/BranchMapperRegistry.h"
-#include "DataFormats/Provenance/interface/EntryDescription.h"
+#include "DataFormats/Provenance/interface/EventEntryDescription.h"
 #include "DataFormats/Provenance/interface/EntryDescriptionRegistry.h"
 #include "DataFormats/Provenance/interface/EventID.h"
 #include "DataFormats/Provenance/interface/History.h"
@@ -428,7 +428,7 @@ namespace edm {
 
   void RootOutputFile::writeEntryDescriptions() {
     EntryDescriptionID const* hash(0);
-    EntryDescription const*   desc(0);
+    EventEntryDescription const*   desc(0);
     
     if (!entryDescriptionTree_->Branch(poolNames::entryDescriptionIDBranchName().c_str(), 
 					&hash, om_->basketSize(), 0))
@@ -438,7 +438,7 @@ namespace edm {
     if (!entryDescriptionTree_->Branch(poolNames::entryDescriptionBranchName().c_str(), 
 					&desc, om_->basketSize(), 0))
       throw edm::Exception(edm::errors::FatalRootError) 
-	<< "Failed to create a branch for EntryDescriptions in the output file";
+	<< "Failed to create a branch for EventEntryDescriptions in the output file";
 
     EntryDescriptionRegistry& edreg = *EntryDescriptionRegistry::instance();
     for (EntryDescriptionRegistry::const_iterator
