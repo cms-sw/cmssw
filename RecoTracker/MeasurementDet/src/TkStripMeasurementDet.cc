@@ -54,12 +54,16 @@ fastMeasurements( const TrajectoryStateOnSurface& stateOnThisDet,
   //  if (theClusterRange.first == theClusterRange.second) { // empty
   if (empty  == true){
     //LogDebug("TkStripMeasurementDet") << " DetID " << id_ << " empty ";
+    if (stateOnThisDet.hasError()){
     uerr= sqrt(theStripGDU->specificTopology().measurementError(stateOnThisDet.localPosition(),stateOnThisDet.localError().positionError()).uu());
      if (testStrips(utraj,uerr)) {
         result.push_back( TrajectoryMeasurement( stateOnThisDet, InvalidTransientRecHit::build(&geomDet(), TrackingRecHit::missing), 0.F));
      } else { 
         result.push_back( TrajectoryMeasurement( stateOnThisDet, InvalidTransientRecHit::build(&geomDet(), TrackingRecHit::inactive), 0.F));
      }
+    }else{
+      result.push_back( TrajectoryMeasurement( stateOnThisDet, InvalidTransientRecHit::build(&geomDet(), TrackingRecHit::missing), 0.F));
+    }
     return result;
   }
   
@@ -135,6 +139,7 @@ fastMeasurements( const TrajectoryStateOnSurface& stateOnThisDet,
 
   if ( result.empty()) {
     // create a TrajectoryMeasurement with an invalid RecHit and zero estimate
+    if (stateOnThisDet.hasError()){
     uerr= sqrt(theStripGDU->specificTopology().measurementError(stateOnThisDet.localPosition(),stateOnThisDet.localError().positionError()).uu());
      if (testStrips(utraj,uerr)) {
        //LogDebug("TkStripMeasurementDet") << " DetID " << id_ << " empty after search, but active ";
@@ -143,6 +148,9 @@ fastMeasurements( const TrajectoryStateOnSurface& stateOnThisDet,
        //LogDebug("TkStripMeasurementDet") << " DetID " << id_ << " empty after search, and inactive ";
        result.push_back( TrajectoryMeasurement( stateOnThisDet, InvalidTransientRecHit::build(&geomDet(), TrackingRecHit::inactive), 0.F));
      }
+    }else{
+      result.push_back( TrajectoryMeasurement( stateOnThisDet, InvalidTransientRecHit::build(&geomDet(), TrackingRecHit::missing), 0.F));
+    }
   }
   else {
     //LogDebug("TkStripMeasurementDet") << " DetID " << id_ << " full: " << (result.size()) << " compatible hits";
