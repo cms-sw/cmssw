@@ -29,11 +29,11 @@ void SeedParaFit(int type, int s1, int b1, int b2, int np1){
    *
    */
 
- TFile *file = TFile::Open("para_mp5-200.root");
+ TFile *file = TFile::Open("para_mix210pre6.root");
 
  float  nsigmas = 1.5;  
  TString suffixps = ".jpg";
- TString hfolder = "h_pt5to200";
+ TString hfolder = "h_mix210pre6";
 
  // name the file title by detector type
  char det[6];
