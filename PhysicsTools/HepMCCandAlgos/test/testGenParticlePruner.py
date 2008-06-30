@@ -27,8 +27,8 @@ process.prunedGenParticles = cms.EDProducer(
     src = cms.InputTag("genParticles"),
     select = cms.vstring(
     "drop  *  ", # this is the default
-    "keep++ pdgId = 23",
-    "drop pdgId = 23 & status = 2"
+    "keep++ pdgId = {Z0}",
+    "drop pdgId = {Z0} & status = 2"
     )
 )
 

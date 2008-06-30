@@ -25,11 +25,12 @@ private:
   void produce(edm::Event&, const edm::EventSetup&);
   void beginJob(const edm::EventSetup&);
   edm::InputTag src_;
+  int keepOrDropAll_;
+  std::vector<std::string> selection_;
   std::vector<std::pair<StringCutObjectSelector<reco::GenParticle>, helper::SelectCode> > select_;
   std::vector<int> flags_;
   std::vector<size_t> indices_;
   void parse(const std::string & selection, helper::SelectCode & code, std::string & cut) const;
-  int keepOrDropAll_;
   void flagDaughters(const reco::GenParticle &, int); 
   void flagMothers(const reco::GenParticle &, int); 
   void recursiveFlagDaughters(size_t, const reco::GenParticleCollection &, int); 
@@ -89,29 +90,33 @@ void GenParticlePruner::parse(const std::string & selection, ::helper::SelectCod
 }
 
 GenParticlePruner::GenParticlePruner(const ParameterSet& cfg) :
-  src_(cfg.getParameter<InputTag>("src")), keepOrDropAll_(drop) {
+  src_(cfg.getParameter<InputTag>("src")), keepOrDropAll_(drop),
+  selection_(cfg.getParameter<vector<string> >("select")) {
   using namespace ::helper;
   produces<GenParticleCollection>();
+}
 
-  vector<string> str = cfg.getParameter<vector<string> >("select");
-  for(vector<string>::const_iterator i = str.begin(); i != str.end(); ++i) {
+void GenParticlePruner::beginJob(const EventSetup& es) {
+  PdgEntryReplacer rep(es);
+  for(vector<string>::const_iterator i = selection_.begin(); i != selection_.end(); ++i) {
     string cut;
-    SelectCode code;
+    ::helper::SelectCode code;
     parse(*i, code, cut);
     if(code.all_) {
-      if(i != str.begin()) 
+      if(i != selection_.begin()) 
 	throw Exception(errors::Configuration)
 	  << "selections \"keep *\" and \"drop *\" can be used only as first options. Here used in position # " 
-	  << (i - str.begin()) + 1 << "\n" << endl;
+	  << (i - selection_.begin()) + 1 << "\n" << endl;
       if(code.keepOrDrop_) {
 	switch(code.keepOrDrop_) {
-	case SelectCode::kDrop :
+	case ::helper::SelectCode::kDrop :
 	  keepOrDropAll_ = drop; break;
-	case  SelectCode::kKeep :
+	case ::helper::SelectCode::kKeep :
 	  keepOrDropAll_ = keep; 
 	};
       }
     } else {
+      cut = rep.replace(cut);
       select_.push_back(make_pair(StringCutObjectSelector<GenParticle>(cut), code));
     }
   }
@@ -145,12 +150,6 @@ void GenParticlePruner::recursiveFlagMothers(size_t index, const reco::GenPartic
     flags_[index] = keepOrDrop;
     recursiveFlagMothers(index, src, keepOrDrop);
   }
-}
-
-void GenParticlePruner::beginJob(const EventSetup& es) {
-  PdgEntryReplacer rep(es);
-  rep.replace("aaaa{mu+}bbbb{e-}cccc{pi+}");
-  
 }
 
 void GenParticlePruner::produce(Event& evt, const EventSetup&) {
