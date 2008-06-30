@@ -24,7 +24,11 @@
 
 
 
+<<<<<<< RPCQualityTests.xml
+<LINK name="*/Occupancy*RB*">
+=======
 <LINK name="*/Occupancy_*">
+>>>>>>> 1.5
 	<TestName activate="true">DeadChannel_0</TestName>
 </LINK>
 
