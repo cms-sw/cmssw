@@ -17,6 +17,16 @@ bool cscPackerCompare(const T & t1, const T & t2)
 }
 
 
+template <class T>
+T cscPackAndUnpack(T & t)
+{
+  boost::dynamic_bitset<> firstPack = t.pack();
+  unsigned char data[1000];
+  bitset_utilities::bitsetToChar(firstPack, data);
+  return T((unsigned short int *)data);
+}
+
+
 // packs a class, then unpacks, packs again, and compares
 template <class T>
 bool cscClassPackerCompare(T & t)
