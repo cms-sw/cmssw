@@ -10,18 +10,19 @@
 using namespace edm;
 using namespace reco;
 
-TrajectoryStateOnSurface TrackAssociatorByPosition::getState(const TrackingParticle & simtrack)const{
+TrajectoryStateOnSurface TrackAssociatorByPosition::getState(const TrackingParticle & st)const{
+  TrackingParticle* simtrack = const_cast<TrackingParticle*>(&st);
   //loop over PSimHits
   const PSimHit * psimhit=0;
   const BoundPlane * plane=0;
   double dLim=thePositionMinimumDistance;
 
   //    look for the further most hit beyond a certain limit
-  LogDebug("TrackAssociatorByPosition")<<(int)(simtrack.pSimHit_end()-simtrack.pSimHit_begin())<<" PSimHits.";
-  for (std::vector<PSimHit> ::const_iterator psit=simtrack.pSimHit_begin();psit!=simtrack.pSimHit_end();++psit){
+  LogDebug("TrackAssociatorByPosition")<<(int)(simtrack->trackerPSimHit_end()-simtrack->trackerPSimHit_begin())<<" PSimHits.";
+  for (std::vector<PSimHit> ::const_iterator psit=simtrack->trackerPSimHit_begin();psit!=simtrack->trackerPSimHit_end();++psit){
     //get the detid
     DetId dd(psit->detUnitId());
-    LogDebug("TrackAssociatorByPosition")<<psit-simtrack.pSimHit_begin()
+    LogDebug("TrackAssociatorByPosition")<<psit-simtrack->trackerPSimHit_begin()
 					 <<"] PSimHit on: "<<dd.rawId();
     //get the surface from the global geometry
     const GeomDet * gd=theGeometry->idToDet(dd);

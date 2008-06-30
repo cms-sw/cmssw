@@ -75,7 +75,7 @@ TrackAssociatorByHits::associateRecoToSim(edm::RefToBaseVector<reco::Track>& tC,
   TrackerHitAssociator * associate = new TrackerHitAssociator::TrackerHitAssociator(*e, conf_);
   
   TrackingParticleCollection tPC;
-  if (TPCollectionH.size()!=0)  tPC = *(TPCollectionH.product());
+  if (TPCollectionH.size()!=0)  tPC = *const_cast<TrackingParticleCollection*>(TPCollectionH.product());
 
   //get the ID of the recotrack  by hits 
   int tindex=0;
@@ -97,8 +97,8 @@ TrackAssociatorByHits::associateRecoToSim(edm::RefToBaseVector<reco::Track>& tC,
     if(!matchedIds.empty()){
 
       int tpindex =0;
-      for (TrackingParticleCollection::const_iterator t = tPC.begin(); t != tPC.end(); ++t, ++tpindex) {
-	int nsimhit = t->pSimHit_end()-t->pSimHit_begin();
+      for (TrackingParticleCollection::iterator t = tPC.begin(); t != tPC.end(); ++t, ++tpindex) {
+	int nsimhit = t->trackerPSimHit_end()-t->trackerPSimHit_begin();
 	LogTrace("TrackAssociator") << "TP number " << tpindex << " pdgId=" << t->pdgId() << " with number of PSimHits: "  << nsimhit;
 	idcachev.clear();
 	nshared = getShared(matchedIds, idcachev, t);
@@ -146,7 +146,7 @@ TrackAssociatorByHits::associateSimToReco(edm::RefToBaseVector<reco::Track>& tC,
   TrackerHitAssociator * associate = new TrackerHitAssociator::TrackerHitAssociator(*e, conf_);
   
   TrackingParticleCollection tPC;
-  if (TPCollectionH.size()!=0)  tPC = *(TPCollectionH.product());
+  if (TPCollectionH.size()!=0)  tPC = *const_cast<TrackingParticleCollection*>(TPCollectionH.product());
 
   //for (TrackingParticleCollection::const_iterator t = tPC.begin(); t != tPC.end(); ++t) {
   //  LogTrace("TrackAssociator") << "NEW TP DUMP";
@@ -167,16 +167,16 @@ TrackAssociatorByHits::associateSimToReco(edm::RefToBaseVector<reco::Track>& tC,
     if(!matchedIds.empty()){
 	
       int tpindex =0;
-      for (TrackingParticleCollection::const_iterator t = tPC.begin(); t != tPC.end(); ++t, ++tpindex) {
+      for (TrackingParticleCollection::iterator t = tPC.begin(); t != tPC.end(); ++t, ++tpindex) {
 	idcachev.clear();
-	int nsimhit = t->trackPSimHit().size();
+	int nsimhit = t->trackerPSimHit().size();
 	float totsimhit = 0; 
 	std::vector<PSimHit> tphits;
 	LogTrace("TrackAssociator") << "TP number " << tpindex << " pdgId=" << t->pdgId() << " with number of PSimHits: "  << nsimhit;
 
 	nshared = getShared(matchedIds, idcachev, t);
 
-	//for(std::vector<PSimHit>::const_iterator TPhit = t->pSimHit_begin(); TPhit != t->pSimHit_end(); TPhit++){
+	//for(std::vector<PSimHit>::const_iterator TPhit = t->trackerPSimHit_begin(); TPhit != t->trackerPSimHit_end(); TPhit++){
 	//  unsigned int detid = TPhit->detUnitId();
 	//  DetId detId = DetId(TPhit->detUnitId());
 	//  LogTrace("TrackAssociator") <<  " hit trackId= " << TPhit->trackId() << " det ID = " << detid 
@@ -187,7 +187,7 @@ TrackAssociatorByHits::associateSimToReco(edm::RefToBaseVector<reco::Track>& tC,
 
 	  //count the TP simhit
 	  LogTrace("TrackAssociator") << "recounting of tp hits";
-	  for(std::vector<PSimHit>::const_iterator TPhit = t->pSimHit_begin(); TPhit != t->pSimHit_end(); TPhit++){
+	  for(std::vector<PSimHit>::const_iterator TPhit = t->trackerPSimHit_begin(); TPhit != t->trackerPSimHit_end(); TPhit++){
 	    DetId dId = DetId(TPhit->detUnitId());
 	  
 	    unsigned int subdetId = static_cast<unsigned int>(dId.subdetId());
@@ -387,7 +387,7 @@ TrackAssociatorByHits::associateSimToReco(edm::Handle<edm::View<TrajectorySeed> 
 
   TrackerHitAssociator * associate = new TrackerHitAssociator::TrackerHitAssociator(*e, conf_);
   
-  const TrackingParticleCollection tPC   = *(TPCollectionH.product());
+  TrackingParticleCollection tPC =*const_cast<TrackingParticleCollection*>(TPCollectionH.product());
 
   const edm::View<TrajectorySeed> sC = *(seedCollectionH.product()); 
 
@@ -402,9 +402,9 @@ TrackAssociatorByHits::associateSimToReco(edm::Handle<edm::View<TrajectorySeed> 
     std::vector<SimHitIdpr> idcachev;
     if(!matchedIds.empty()){
       int tpindex =0;
-      for (TrackingParticleCollection::const_iterator t = tPC.begin(); t != tPC.end(); ++t, ++tpindex) {
+      for (TrackingParticleCollection::iterator t = tPC.begin(); t != tPC.end(); ++t, ++tpindex) {
 	idcachev.clear();
-	int nsimhit = t->trackPSimHit().size();
+	int nsimhit = t->trackerPSimHit().size();
 	LogTrace("TrackAssociator") << "TP number " << tpindex << " pdgId=" << t->pdgId() << " with number of PSimHits: "  << nsimhit;
 	nshared = getShared(matchedIds, idcachev, t);
 	
