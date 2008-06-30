@@ -25,20 +25,53 @@ EgammaIsoEcalFromHitsExtractorBlock = cms.PSet(
     endcapRecHits = cms.InputTag("ecalRecHit","EcalRecHitsEE"),
     isolationVariable = cms.string('et'),
     detector = cms.string('Ecal'),
-    extRadius = cms.double(0.6),
+    minCandEt = cms.double(10.),
+    extRadius = cms.double(0.5),
     intRadius = cms.double(0.0),
+    intStrip = cms.double(0.02),
     etMin = cms.double(-999.0),
     energyMin = cms.double(0.08),
     subtractSuperClusterEnergy = cms.bool(False),
     tryBoth = cms.bool(True)
+
+    barrelEcalHits = cms.InputTag("ecalRecHit","EcalRecHitsEB"),
+    endcapEcalHits = cms.InputTag("ecalRecHit","EcalRecHitsEE"),
+
+    checkIsoExtRBarrel            = cms.double(0.4),
+    checkIsoInnRBarrel            = cms.double(0.045),
+    checkIsoEtaStripBarrel        = cms.double(0.02),
+    checkIsoEtRecHitBarrel        = cms.double(0.08),
+    checkIsoEtCutBarrel           = cms.double(9.),
+
+    checkIsoExtREndcap            = cms.double(0.4),
+    checkIsoInnREndcap            = cms.double(0.07),
+    checkIsoEtaStripEndcap        = cms.double(0.02),
+    checkIsoEtRecHitEndcap        = cms.double(0.30),
+    checkIsoEtCutEndcap           = cms.double(12.)
 )
 EgammaIsoHcalFromHitsExtractorBlock = cms.PSet(
     ComponentName = cms.string('EgammaHcalExtractor'),
     DepositLabel = cms.untracked.string(''),
     hcalRecHits = cms.InputTag("hbhereco"),
-    extRadius = cms.double(0.6),
-    intRadius = cms.double(0.0),
+    minCandEt = cms.double(10.),
+    extRadius = cms.double(0.5),
+    intStrip = cms.double(0.02),
     etMin = cms.double(-999.0)
+
+    barrelEcalHits = cms.InputTag("ecalRecHit","EcalRecHitsEB"),
+    endcapEcalHits = cms.InputTag("ecalRecHit","EcalRecHitsEE"),
+
+    checkIsoExtRBarrel            = cms.double(0.4),
+    checkIsoInnRBarrel            = cms.double(0.045),
+    checkIsoEtaStripBarrel        = cms.double(0.02),
+    checkIsoEtRecHitBarrel        = cms.double(0.08),
+    checkIsoEtCutBarrel           = cms.double(9.),
+
+    checkIsoExtREndcap            = cms.double(0.4),
+    checkIsoInnREndcap            = cms.double(0.07),
+    checkIsoEtaStripEndcap        = cms.double(0.02),
+    checkIsoEtRecHitEndcap        = cms.double(0.30),
+    checkIsoEtCutEndcap           = cms.double(12.)
 )
 EgammaIsoHcalFromTowersExtractorBlock = cms.PSet(
     caloTowers = cms.InputTag("towerMaker"),

@@ -1,5 +1,5 @@
-#ifndef EgammaIsolationProducers_EgammaRecHitIsolation_h
-#define EgammaIsolationProducers_EgammaRecHitIsolation_h
+#ifndef EgammaIsolationProducers_EgammaRecHitExtractor_h
+#define EgammaIsolationProducers_EgammaRecHitExtractor_h
 //*****************************************************************************
 // File:      EgammaRecHitExtractor.h
 // ----------------------------------------------------------------------------
@@ -49,10 +49,16 @@ namespace egammaisolation {
 
          double etMin_ ;
          double energyMin_ ;
+         double minCandEt_ ;
          double extRadius_ ;
          double intRadius_ ;
+         double intStrip_ ;
+         std::vector<double> paramForIsolBarrel_;  //Barrel requirements to check if isolated
+         std::vector<double> paramForIsolEndcap_;  //Endcap requirements to check if isolated
          edm::InputTag barrelRecHitsTag_;
          edm::InputTag endcapRecHitsTag_;
+         edm::InputTag barrelEcalHitsTag_;
+         edm::InputTag endcapEcalHitsTag_;
          bool fakeNegativeDeposit_;
          bool  tryBoth_;
          bool  sameTag_;

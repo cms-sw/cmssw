@@ -12,6 +12,8 @@
 <use name=Geometry/CaloEventSetup>
 <use name=RecoCaloTools/MetaCollections>
 <use name=RecoCaloTools/Selectors>
+<use name=CommonTools/Statistics>
+<use name=RecoEgamma/EgammaIsolationAlgos>
 <export>
   <use name=RecoCaloTools/MetaCollections>
   <use name=DataFormats/RecoCandidate>

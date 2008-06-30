@@ -37,11 +37,7 @@ namespace egammaisolation {
 
    class EgammaHcalExtractor  : public reco::isodeposit::IsoDepositExtractor {
       public:
-         EgammaHcalExtractor ( const edm::ParameterSet& par ) :
-           extRadius_(par.getParameter<double>("extRadius")),
-           intRadius_(par.getParameter<double>("intRadius")),
-           etLow_(par.getParameter<double>("etMin")),
-           hcalRecHitProducer_(par.getParameter<edm::InputTag>("hcalRecHits")) { }
+         EgammaHcalExtractor ( const edm::ParameterSet& par ); 
 
          virtual ~EgammaHcalExtractor() ;
 
@@ -56,12 +52,18 @@ namespace egammaisolation {
                                               const reco::Candidate & c) const ;
 
       private:
+         double minCandEt_ ;
          double extRadius_ ;
          double intRadius_ ;
          double etLow_ ;
 
+         edm::InputTag barrelEcalHitsTag_;
+         edm::InputTag endcapEcalHitsTag_;
          edm::InputTag hcalRecHitProducer_;
          //HBHERecHitMetaCollection* mhbhe_ ;    // to recover later when we add begin(), end()
+
+         std::vector<double> paramForIsolBarrel_;  //Barrel requirements to check if isolated
+         std::vector<double> paramForIsolEndcap_;  //Endcap requirements to check if isolated
    };
 }
 #endif
