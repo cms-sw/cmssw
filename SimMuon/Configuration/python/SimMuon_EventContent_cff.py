@@ -1,8 +1,8 @@
 # The following comments couldn't be translated into the new config version:
 
-#save digis sim link and trigger infos
-
 #save digis
+
+#save digis sim link and trigger infos
 
 import FWCore.ParameterSet.Config as cms
 
@@ -12,7 +12,7 @@ SimMuonFEVTDEBUG = cms.PSet(
         'keep *_simMuonDTDigis_*_*', 
         'keep *_simMuonRPCDigis_*_*')
 )
-#RAW content 
+#RAW content
 SimMuonRAW = cms.PSet(
     outputCommands = cms.untracked.vstring('keep StripDigiSimLinkedmDetSetVector_simMuonCSCDigis_*_*', 
         'keep CSCDetIdCSCComparatorDigiMuonDigiCollection_simMuonCSCDigis_*_*', 
