@@ -11,7 +11,7 @@ existence.
 
 #include "DataFormats/Provenance/interface/BranchDescription.h"
 #include "DataFormats/Provenance/interface/EventEntryInfo.h"
-#include "DataFormats/Provenance/interface/EntryDescription.h"
+#include "DataFormats/Provenance/interface/EventEntryDescription.h"
 #include "DataFormats/Provenance/interface/RunLumiEntryInfo.h"
 #include "DataFormats/Provenance/interface/ConstBranchDescription.h"
 #include "boost/shared_ptr.hpp"
@@ -39,7 +39,7 @@ namespace edm {
 
     ~Provenance() {}
 
-    EntryDescription const& event() const {return entryDescription();}
+    EventEntryDescription const& event() const {return entryDescription();}
     BranchDescription const& product() const {return branchDescription_.me();}
 
     BranchDescription const& branchDescription() const {return branchDescription_.me();}
@@ -47,7 +47,7 @@ namespace edm {
     EventEntryInfo const* branchEntryInfoPtr() const {return branchEntryInfoPtr_.get();}
     boost::shared_ptr<EventEntryInfo> branchEntryInfoSharedPtr() const {return branchEntryInfoPtr_;}
     EventEntryInfo const& branchEntryInfo() const {return *branchEntryInfoPtr_;}
-    EntryDescription const& entryDescription() const {return branchEntryInfo().entryDescription();}
+    EventEntryDescription const& entryDescription() const {return branchEntryInfo().entryDescription();}
     BranchID const& branchID() const {return product().branchID();}
     std::string const& branchName() const {return product().branchName();}
     std::string const& className() const {return product().className();}

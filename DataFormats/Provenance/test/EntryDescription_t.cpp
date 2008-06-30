@@ -1,4 +1,4 @@
-#include "DataFormats/Provenance/interface/EntryDescription.h"
+#include "DataFormats/Provenance/interface/EventEntryDescription.h"
 #include "DataFormats/Provenance/interface/ModuleDescription.h"
 #include "DataFormats/Provenance/interface/ModuleDescriptionID.h"
 #include "DataFormats/Provenance/interface/BranchID.h"
@@ -6,13 +6,13 @@
 
 int main()
 {
-  edm::EntryDescription ed1;
+  edm::EventEntryDescription ed1;
   assert(ed1 == ed1);
-  edm::EntryDescription ed2;
+  edm::EventEntryDescription ed2;
   assert(ed1 == ed2);
 
   ed2.parents_ = std::vector<edm::BranchID>(1);
-  edm::EntryDescription ed3;
+  edm::EventEntryDescription ed3;
   ed3.parents_ = std::vector<edm::BranchID>(2);
 
   edm::EntryDescriptionID id1 = ed1.id();
@@ -26,7 +26,7 @@ int main()
   assert(id2 != id3);
   assert(ed2 != ed3); 
 
-  edm::EntryDescription ed4;
+  edm::EventEntryDescription ed4;
   ed4.parents_ = std::vector<edm::BranchID>(1);
   edm::EntryDescriptionID id4 = ed4.id();
   assert(ed4 == ed2);

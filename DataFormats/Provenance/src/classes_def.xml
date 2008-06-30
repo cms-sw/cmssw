@@ -50,6 +50,9 @@
  <class name="edm::EntryDescription">
    <field name="moduleDescriptionPtr_" transient="true"/>
  </class>
+ <class name="edm::EventEntryDescription">
+   <field name="moduleDescriptionPtr_" transient="true"/>
+ </class>
  <class name="edm::BranchDescription">
    <field name="branchName_" transient="true"/>
    <field name="wrappedName_" transient="true"/>

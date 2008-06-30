@@ -1,6 +1,6 @@
 #include "DataFormats/Provenance/interface/RunLumiEntryInfo.h"
 #include "DataFormats/Provenance/interface/EntryDescriptionID.h"
-#include "DataFormats/Provenance/interface/EntryDescription.h"
+#include "DataFormats/Provenance/interface/EventEntryDescription.h"
 #include "DataFormats/Provenance/interface/EntryDescriptionRegistry.h"
 #include <ostream>
 
@@ -47,7 +47,7 @@ namespace edm {
     branchID_(bid),
     productStatus_(status),
     moduleDescriptionID_() {
-     EntryDescription ed;
+     EventEntryDescription ed;
      EntryDescriptionRegistry::instance()->getMapped(edid, ed);
      moduleDescriptionID_ = ed.moduleDescriptionID();
   } 

@@ -47,7 +47,7 @@ namespace edm {
    EventEntryInfo::EventEntryInfo(BranchID const& bid,
 				    ProductStatus status,
 				    ProductID const& pid,
-				    boost::shared_ptr<EntryDescription> edPtr) :
+				    boost::shared_ptr<EventEntryDescription> edPtr) :
     branchID_(bid),
     productID_(pid),
     productStatus_(status),
@@ -64,17 +64,17 @@ namespace edm {
     productID_(pid),
     productStatus_(status),
     entryDescriptionID_(),
-    entryDescriptionPtr_(new EntryDescription) {
+    entryDescriptionPtr_(new EventEntryDescription) {
       entryDescriptionPtr_->parents_ = parents;
       entryDescriptionPtr_->moduleDescriptionID_ = mdid;
       entryDescriptionID_ = entryDescriptionPtr_->id();
       EntryDescriptionRegistry::instance()->insertMapped(*entryDescriptionPtr_);
   }
 
-  EntryDescription const &
+  EventEntryDescription const &
   EventEntryInfo::entryDescription() const {
     if (!entryDescriptionPtr_) {
-      entryDescriptionPtr_.reset(new EntryDescription);
+      entryDescriptionPtr_.reset(new EventEntryDescription);
       EntryDescriptionRegistry::instance()->getMapped(entryDescriptionID_, *entryDescriptionPtr_);
     }
     return *entryDescriptionPtr_;

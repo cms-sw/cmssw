@@ -11,7 +11,7 @@ and how it came into existence.
 #include <vector>
 #include "boost/shared_ptr.hpp"
 
-#include "DataFormats/Provenance/interface/BranchID.h"
+#include "DataFormats/Provenance/interface/ProductID.h"
 #include "DataFormats/Provenance/interface/EventEntryInfo.h"
 #include "DataFormats/Provenance/interface/EntryDescription.h"
 #include "DataFormats/Provenance/interface/ModuleDescription.h"
@@ -35,14 +35,14 @@ namespace edm {
 			 CreatorNotRun };
 
     BranchEntryDescription();
-    BranchEntryDescription(BranchID const& pid, CreatorStatus const& status);
+    BranchEntryDescription(ProductID const& pid, CreatorStatus const& status);
 
     ~BranchEntryDescription() {}
 
-    BranchID productID_;
+    ProductID productID_;
 
     // The EDProduct IDs of the parents
-    std::vector<BranchID> parents_;
+    std::vector<ProductID> parents_;
 
     // a single identifier that describes all the conditions used
     unsigned int cid_; // frame ID?
@@ -79,7 +79,7 @@ namespace edm {
     ReleaseVersion const& releaseVersion() const {init(); return moduleDescriptionPtr_->releaseVersion();}
     bool const& isPresent() const {return isPresent_;}
     CreatorStatus const& creatorStatus() const {return status_;}
-    std::vector<BranchID> const& parents() const {return parents_;}
+    std::vector<ProductID> const& parents() const {return parents_;}
 
     ModuleDescriptionID const& moduleDescriptionID() const {return moduleDescriptionID_;}
     ModuleDescription const& moduleDescription() const {init(); return *moduleDescriptionPtr_;}

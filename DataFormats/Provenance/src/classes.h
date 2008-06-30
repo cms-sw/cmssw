@@ -7,6 +7,7 @@
 //#include "DataFormats/Provenance/interface/BranchMapper.h"
 //#include "DataFormats/Provenance/interface/BranchMapperID.h"
 #include "DataFormats/Provenance/interface/EntryDescription.h"
+#include "DataFormats/Provenance/interface/EventEntryDescription.h"
 #include "DataFormats/Provenance/interface/EntryDescriptionID.h"
 #include "DataFormats/Provenance/interface/EventAux.h"
 #include "DataFormats/Provenance/interface/EventAuxiliary.h"

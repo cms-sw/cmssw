@@ -3,7 +3,7 @@
 
 namespace edm {
   class BranchDescription;
-  class EntryDescription;
+  class EventEntryDescription;
   class BranchID;
   class BranchKey;
   class ConstBranchDescription;

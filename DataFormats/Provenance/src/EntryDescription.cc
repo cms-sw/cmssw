@@ -36,7 +36,7 @@ namespace edm {
     // This implementation is ripe for optimization.
     std::ostringstream oss;
     oss << moduleDescriptionID_ << ' ';
-    for (std::vector<BranchID>::const_iterator 
+    for (std::vector<ProductID>::const_iterator 
 	   i = parents_.begin(),
 	   e = parents_.end();
 	 i != e;

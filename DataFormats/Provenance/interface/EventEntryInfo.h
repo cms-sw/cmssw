@@ -33,7 +33,7 @@ namespace edm {
     EventEntryInfo(BranchID const& bid,
 		    ProductStatus status,
 		    ProductID const& pid,
-		    boost::shared_ptr<EntryDescription> edPtr);
+		    boost::shared_ptr<EventEntryDescription> edPtr);
     EventEntryInfo(BranchID const& bid,
 		    ProductStatus status,
 		    ProductID const& pid,
@@ -53,7 +53,7 @@ namespace edm {
     ProductID const& productID() const {return productID_;}
     ProductStatus const& productStatus() const {return productStatus_;}
     EntryDescriptionID const& entryDescriptionID() const {return entryDescriptionID_;}
-    EntryDescription const& entryDescription() const;
+    EventEntryDescription const& entryDescription() const;
     void setStatus(ProductStatus status) {productStatus_ = status;}
     void setPresent();
     void setNotPresent();
@@ -63,7 +63,7 @@ namespace edm {
     ProductID productID_;
     ProductStatus productStatus_;
     EntryDescriptionID entryDescriptionID_;
-    mutable boost::shared_ptr<EntryDescription> entryDescriptionPtr_;
+    mutable boost::shared_ptr<EventEntryDescription> entryDescriptionPtr_;
   };
 
   inline
