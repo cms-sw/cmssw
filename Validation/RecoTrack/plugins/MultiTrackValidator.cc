@@ -259,7 +259,8 @@ void MultiTrackValidator::analyze(const edm::Event& event, const edm::EventSetup
       int ats = 0;
       int st=0;
       for (TrackingParticleCollection::size_type i=0; i<tPCeff.size(); i++){
-	TrackingParticleRef tp(TPCollectionHeff, i);
+	TrackingParticleRef tpr(TPCollectionHeff, i);
+	TrackingParticle* tp=const_cast<TrackingParticle*>(tpr.get());
 	if( (! tpSelector(*tp))) continue;
 	st++;
 	h_ptSIM[w]->Fill(sqrt(tp->momentum().perp2()));
@@ -267,8 +268,8 @@ void MultiTrackValidator::analyze(const edm::Event& event, const edm::EventSetup
 	h_vertposSIM[w]->Fill(sqrt(tp->vertex().perp2()));
 
 	std::vector<std::pair<RefToBase<Track>, double> > rt;
-	if(simRecColl.find(tp) != simRecColl.end()){
-	  rt = (std::vector<std::pair<RefToBase<Track>, double> >) simRecColl[tp];
+	if(simRecColl.find(tpr) != simRecColl.end()){
+	  rt = (std::vector<std::pair<RefToBase<Track>, double> >) simRecColl[tpr];
 	  if (rt.size()!=0) {
 	    ats++;
 	    edm::LogVerbatim("TrackValidator") << "TrackingParticle #" << st 
@@ -300,7 +301,7 @@ void MultiTrackValidator::analyze(const edm::Event& event, const edm::EventSetup
 	    }
 	  }
 	} // END for (unsigned int f=0; f<pTintervals[w].size()-1; f++){
-	int tmp = std::min((int)(tp->pSimHit_end()-tp->pSimHit_begin()),int(maxHit-1));
+	int tmp = std::min((int)(tp->trackerPSimHit_end()-tp->trackerPSimHit_begin()),int(maxHit-1));
 	totSIM_hit[w][tmp]++;
 	if (rt.size()!=0) totASS_hit[w][tmp]++;
       }

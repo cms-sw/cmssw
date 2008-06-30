@@ -4,8 +4,8 @@
 /** \class MultiTrackValidatorBase
  *  Base class for analyzers that produces histrograms to validate Track Reconstruction performances
  *
- *  $Date: 2008/05/28 15:36:08 $
- *  $Revision: 1.9.2.1 $
+ *  $Date: 2008/06/24 08:33:35 $
+ *  $Revision: 1.9.2.2 $
  *  \author cerati
  */
 
@@ -43,20 +43,7 @@ class MultiTrackValidatorBase {
     label_tp_effic(pset.getParameter< edm::InputTag >("label_tp_effic")),
     label_tp_fake(pset.getParameter< edm::InputTag >("label_tp_fake")),
     associators(pset.getParameter< std::vector<std::string> >("associators")),
-    associatormap(pset.getParameter< edm::InputTag >("associatormap")),
-    UseAssociators(pset.getParameter< bool >("UseAssociators")),
-    out(pset.getParameter<std::string>("out")),
-
-    tpSelector(pset.getParameter<double>("ptMinTP"),
-	       pset.getParameter<double>("minRapidityTP"),
-	       pset.getParameter<double>("maxRapidityTP"),
-	       pset.getParameter<double>("tipTP"),
-	       pset.getParameter<double>("lipTP"),
-	       pset.getParameter<int>("minHitTP"),
-	       pset.getParameter<bool>("signalOnlyTP"),
-	       pset.getParameter<bool>("chargedOnlyTP"),
-	       pset.getParameter<std::vector<int> >("pdgIdTP")),
-    
+    out(pset.getParameter<std::string>("out")),   
     min(pset.getParameter<double>("min")),
     max(pset.getParameter<double>("max")),
     nint(pset.getParameter<int>("nint")),
@@ -70,10 +57,6 @@ class MultiTrackValidatorBase {
     useInvPt(pset.getParameter<bool>("useInvPt"))
     {
       dbe_ = edm::Service<DQMStore>().operator->();
-      if (!UseAssociators) {
-	associators.clear();
-	associators.push_back(associatormap.label());
-      }
     }
   
   /// Destructor
@@ -193,14 +176,8 @@ class MultiTrackValidatorBase {
   edm::InputTag label_tp_effic;
   edm::InputTag label_tp_fake;
   std::vector<std::string> associators;
-  edm::InputTag associatormap;
-  bool UseAssociators;
   std::string out;
-  
-  // select tracking particles 
-  //(i.e. "denominator" of the efficiency ratio)
-  TrackingParticleSelector tpSelector;				      
-	       
+        
   double  min, max;
   int nint;
   bool useFabs;

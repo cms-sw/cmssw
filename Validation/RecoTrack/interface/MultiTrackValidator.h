@@ -4,8 +4,8 @@
 /** \class MultiTrackValidator
  *  Class that prodecs histrograms to validate Track Reconstruction performances
  *
- *  $Date: 2008/02/21 09:36:20 $
- *  $Revision: 1.40 $
+ *  $Date: 2008/06/24 08:33:35 $
+ *  $Revision: 1.41.4.1 $
  *  \author cerati
  */
 #include "FWCore/Framework/interface/Frameworkfwd.h"
@@ -17,6 +17,21 @@ class MultiTrackValidator : public edm::EDAnalyzer, protected MultiTrackValidato
   /// Constructor
   MultiTrackValidator(const edm::ParameterSet& pset):MultiTrackValidatorBase(pset){
     dirName_ = pset.getParameter<std::string>("dirName");
+    associatormap = pset.getParameter< edm::InputTag >("associatormap");
+    UseAssociators = pset.getParameter< bool >("UseAssociators");
+    tpSelector = TrackingParticleSelector(pset.getParameter<double>("ptMinTP"),
+					  pset.getParameter<double>("minRapidityTP"),
+					  pset.getParameter<double>("maxRapidityTP"),
+					  pset.getParameter<double>("tipTP"),
+					  pset.getParameter<double>("lipTP"),
+					  pset.getParameter<int>("minHitTP"),
+					  pset.getParameter<bool>("signalOnlyTP"),
+					  pset.getParameter<bool>("chargedOnlyTP"),
+					  pset.getParameter<std::vector<int> >("pdgIdTP"));
+    if (!UseAssociators) {
+      associators.clear();
+      associators.push_back(associatormap.label());
+    }
   }
 
   /// Destructor
@@ -31,6 +46,12 @@ class MultiTrackValidator : public edm::EDAnalyzer, protected MultiTrackValidato
 
  private:
   std::string dirName_;
+  edm::InputTag associatormap;
+  bool UseAssociators;
+  // select tracking particles 
+  //(i.e. "denominator" of the efficiency ratio)
+  TrackingParticleSelector tpSelector;				      
+
   //1D
   std::vector<MonitorElement*> h_nchi2, h_nchi2_prob, h_losthits;
 

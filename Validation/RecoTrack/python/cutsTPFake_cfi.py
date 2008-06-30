@@ -1,16 +1,12 @@
 import FWCore.ParameterSet.Config as cms
 
-cutsTPFake = cms.EDFilter("TrackingParticleSelector",
-    src = cms.InputTag("mergedtruth","MergedTrackTruth"),
-    chargedOnly = cms.bool(True),
-    pdgId = cms.vint32(),
-    tip = cms.double(120.0),
-    signalOnly = cms.bool(False),
-    minRapidity = cms.double(-3.0),
-    lip = cms.double(250.0),
-    ptMin = cms.double(0.1),
-    maxRapidity = cms.double(3.0),
-    minHit = cms.int32(0)
-)
+import PhysicsTools.RecoAlgos.trackingParticleSelector_cfi
+cutsTPFake = PhysicsTools.RecoAlgos.trackingParticleSelector_cfi.trackingParticleSelector.clone()
+cutsTPFake.ptMin = 0.1
+cutsTPFake.minRapidity = -3.0
+cutsTPFake.maxRapidity = 3.0
+cutsTPFake.tip = 120
+cutsTPFake.lip = 250
+cutsTPFake.signalOnly = False
 
 
