@@ -1,4 +1,4 @@
-// Last commit: $Id: SiStripDigiToRaw.cc,v 1.26 2008/04/02 08:47:43 bainbrid Exp $
+// Last commit: $Id: SiStripDigiToRaw.cc,v 1.27 2008/04/02 08:49:52 bainbrid Exp $
 
 #include "EventFilter/SiStripRawToDigi/interface/SiStripDigiToRaw.h"
 #include "CondFormats/SiStripObjects/interface/SiStripFedCabling.h"
@@ -7,7 +7,7 @@
 #include "DataFormats/FEDRawData/interface/FEDTrailer.h"
 #include "DataFormats/SiStripDigi/interface/SiStripDigi.h"
 #include "DataFormats/SiStripCommon/interface/SiStripConstants.h"
-#include "EventFilter/Utilities/interface/Crc.h"
+#include "FWCore/Utilities/interface/CRC16.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include "Fed9UUtils.hh"
 #include <iostream>
