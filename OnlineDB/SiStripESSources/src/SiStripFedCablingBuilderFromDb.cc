@@ -1,4 +1,4 @@
-// Last commit: $Id: SiStripFedCablingBuilderFromDb.cc,v 1.50 2008/05/16 15:30:07 bainbrid Exp $
+// Last commit: $Id: SiStripFedCablingBuilderFromDb.cc,v 1.51 2008/06/05 13:30:01 bainbrid Exp $
 
 #include "OnlineDB/SiStripESSources/interface/SiStripFedCablingBuilderFromDb.h"
 #include "CalibFormats/SiStripObjects/interface/SiStripFecCabling.h"
@@ -305,12 +305,18 @@ void SiStripFedCablingBuilderFromDb::buildFecCablingFromFedConnections( SiStripC
 			       fed_id, fed_ch,
 			       length );
 
+    uint16_t fed_crate = sistrip::invalid_; 
+    uint16_t fed_slot  = sistrip::invalid_; 
 #ifdef USING_NEW_DATABASE_MODEL
-    uint16_t fed_crate = static_cast<uint16_t>( (*ifed)->getFedCrateId() );
-    uint16_t fed_slot = static_cast<uint16_t>( (*ifed)->getFedSlot() );
+    fed_crate = static_cast<uint16_t>( (*ifed)->getFedCrateId() );
+    fed_slot  = static_cast<uint16_t>( (*ifed)->getFedSlot() );
+#else
+    uint16_t fed_id = static_cast<uint16_t>( (*ifed)->getFedId() );
+    fed_crate = fed_id / 16 + 1; // dummy numbering: FED crate starts from 1 (16 FEDs per crate)
+    fed_slot  = fed_id % 16 + 2; // dummy numbering: FED slot starts from 2 (16 FEDs per crate)
+#endif
     conn.fedCrate( fed_crate );
     conn.fedSlot( fed_slot );
-#endif
 
     fec_cabling.addDevices( conn );
 
@@ -835,6 +841,12 @@ void SiStripFedCablingBuilderFromDb::assignDcuAndDetIds( SiStripFecCabling& fec_
   LogTrace(mlCabling_) 
     << "[SiStripFedCablingBuilderFromDb::" << __func__ << "]"
     << " Assigning DCU ids and DetIds to constructed modules...";
+
+  uint16_t channels = 0;
+  uint16_t six      = 0;
+  uint16_t four     = 0;
+  uint16_t unknown  = 0;
+  uint16_t missing  = 0;
   
   for ( vector<SiStripFecCrate>::const_iterator icrate = fec_cabling.crates().begin(); icrate != fec_cabling.crates().end(); icrate++ ) {
     for ( vector<SiStripFec>::const_iterator ifec = icrate->fecs().begin(); ifec != icrate->fecs().end(); ifec++ ) {
@@ -885,42 +897,52 @@ void SiStripFedCablingBuilderFromDb::assignDcuAndDetIds( SiStripFecCabling& fec_
 		module.detId( iter->second->getDetId() ); 
 		module.nApvPairs(0); 
 		
+		// count expected channels
+		uint16_t pairs = iter->second->getApvNumber()/2;
+		channels += pairs;
+		if ( pairs == 2 ) { four++; }
+		else if ( pairs == 3 ) { six++; }
+		else { unknown++; }
+		
 		// --- Check number of APV pairs is valid and consistent with cached map ---
 
-		if ( module.nApvPairs() != 2 &&
-		     module.nApvPairs() != 3 ) { 
+		if ( module.nApvPairs() != 2 && module.nApvPairs() != 3 ) { 
+
+		  missing += ( iter->second->getApvNumber()/2 - module.nApvPairs() );
 		  stringstream ss1;
-		  ss1 << "[SiStripFedCablingBuilderFromDb::" << __func__ << "]"
+		  ss1 << "[SiStripFedCablingBuilderFromDb::" << __func__ << "]" << std::endl
 		      << " Module with DCU id 0x" 
 		      << hex << setw(8) << setfill('0') << module.dcuId() << dec
 		      << " and DetId 0x"
 		      << hex << setw(8) << setfill('0') << module.detId() << dec
 		      << " has unexpected number of APV pairs (" 
-		      << module.nApvPairs()
-		      << "). Some APV pairs may have not been detected by the FEC scan."
+		      << module.nApvPairs() << ")." << std::endl
+		      << " Some APV pairs may have not been detected by the FEC scan." << std::endl
 		      << " Setting to value found in static map (" 
 		      << iter->second->getApvNumber()/2 << ")...";
 		  edm::LogWarning(mlCabling_) << ss1.str();
 		  module.nApvPairs( iter->second->getApvNumber()/2 ); 
-		}
-		
-		if ( module.nApvPairs() < iter->second->getApvNumber()/2 ) {
+
+		} else if ( module.nApvPairs() < iter->second->getApvNumber()/2 ) {
+
+		  missing += ( iter->second->getApvNumber()/2 - module.nApvPairs() );
 		  stringstream ss2;
-		  ss2 << "[SiStripFedCablingBuilderFromDb::" << __func__ << "]"
+		  ss2 << "[SiStripFedCablingBuilderFromDb::" << __func__ << "]" << std::endl
 		      << " Module with DCU id 0x" 
 		      << hex << setw(8) << setfill('0') << module.dcuId() << dec
 		      << " and DetId 0x"
 		      << hex << setw(8) << setfill('0') << module.detId() << dec
 		      << " has number of APV pairs (" 
-		      << module.nApvPairs()
+		      << module.nApvPairs() 
 		      << ") that does not match value found in DCU-DetId vector (" 
-		      << iter->second->getApvNumber()/2 
-		      << "). Some APV pairs may have not been detected by"
-		      << " the FEC scan or the DCU-DetId vector may be incorrect."
+		      << iter->second->getApvNumber()/2 << ")." << std::endl
+		      << " Some APV pairs may have not been detected by"
+		      << " the FEC scan or the DCU-DetId vector may be incorrect." << std::endl
 		      << " Setting to value found in static map ("
 		      << iter->second->getApvNumber()/2 << ")...";
 		  edm::LogWarning(mlCabling_) << ss2.str();
 		  module.nApvPairs( iter->second->getApvNumber()/2 ); 
+
 		}
 		
 		// --- Check for null fibre length ---
@@ -941,6 +963,16 @@ void SiStripFedCablingBuilderFromDb::assignDcuAndDetIds( SiStripFecCabling& fec_
       } // FEC ring loop
     } // FEC loop
   } // FEC crate loop
+
+  std::stringstream sss;
+  sss << "[SiStripFedCablingBuilderFromDb::" << __func__ << "]" << std::endl
+      << " Connections in DCU-DetId map : " << channels << std::endl
+      << " 4-APV modules                : " << four << std::endl
+      << " 6-APV modules                : " << six << std::endl
+      << " Unknown number of APV pairs  : " << unknown << std::endl
+      << " Total found APV pairs        : " << ( channels - missing ) << std::endl
+      << " Total missing APV pairs      : " << missing << std::endl;
+  edm::LogVerbatim(mlCabling_) << sss.str();
   
   LogTrace(mlCabling_) 
     << "[SiStripFedCablingBuilderFromDb::" << __func__ << "]"
