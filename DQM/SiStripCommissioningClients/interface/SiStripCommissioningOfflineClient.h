@@ -1,4 +1,4 @@
-// Last commit: $Id: SiStripCommissioningOfflineClient.h,v 1.10 2008/03/06 13:30:08 delaer Exp $
+// Last commit: $Id: SiStripCommissioningOfflineClient.h,v 1.11 2008/03/08 17:23:43 delaer Exp $
 
 #ifndef DQM_SiStripCommissioningClients_SiStripCommissioningOfflineClient_H
 #define DQM_SiStripCommissioningClients_SiStripCommissioningOfflineClient_H
@@ -96,7 +96,7 @@ class SiStripCommissioningOfflineClient : public edm::EDAnalyzer {
   std::vector<SummaryPlot> plots_;
 
   /** */
-  const edm::ParameterSet& parameters_;
+  edm::ParameterSet parameters_;
   
 };
 
