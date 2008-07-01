@@ -462,9 +462,13 @@ namespace edm {
   void
   RootInputFileSequence::readManyRandom_(int number, EventPrincipalVector& result, unsigned int& fileSeqNumber) {
     skipBadFiles_ = false;
+    unsigned int currentSeqNumber = fileIter_ - fileIterBegin_;
     while (eventsRemainingInFile_ < number) {
       fileIter_ = fileIterBegin_ + flatDistribution_->fireInt(fileCatalogItems().size());
-      initFile(false);
+      unsigned int newSeqNumber = fileIter_ - fileIterBegin_;
+      if (newSeqNumber != currentSeqNumber) {
+        initFile(false);
+      }
       eventsRemainingInFile_ = rootFile_->eventTree().entries();
       if (eventsRemainingInFile_ == 0) {
 	throw edm::Exception(edm::errors::FatalRootError) <<
