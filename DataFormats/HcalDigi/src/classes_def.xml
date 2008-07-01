@@ -31,15 +31,15 @@
    <class name="edm::SortedCollection<HcalHistogramDigi,edm::StrictWeakOrdering<HcalHistogramDigi> >"/>
    <class name="edm::SortedCollection<ZDCDataFrame,edm::StrictWeakOrdering<ZDCDataFrame> >"/>
    <class name="edm::SortedCollection<CastorDataFrame,edm::StrictWeakOrdering<CastorDataFrame> >"/>
-   <class name="edm::Wrapper<edm::SortedCollection<HBHEDataFrame,edm::StrictWeakOrdering<HBHEDataFrame> > >"/>
-   <class name="edm::Wrapper<edm::SortedCollection<HODataFrame,edm::StrictWeakOrdering<HODataFrame> > >"/>
-   <class name="edm::Wrapper<edm::SortedCollection<HFDataFrame,edm::StrictWeakOrdering<HFDataFrame> > >"/>
+   <class name="edm::Wrapper<edm::SortedCollection<HBHEDataFrame,edm::StrictWeakOrdering<HBHEDataFrame> > >" splitLevel="0" />
+   <class name="edm::Wrapper<edm::SortedCollection<HODataFrame,edm::StrictWeakOrdering<HODataFrame> > >" splitLevel="0" />
+   <class name="edm::Wrapper<edm::SortedCollection<HFDataFrame,edm::StrictWeakOrdering<HFDataFrame> > >" splitLevel="0" />
    <class name="edm::Wrapper<edm::SortedCollection<HcalCalibDataFrame,edm::StrictWeakOrdering<HcalCalibDataFrame> > >"/>
    <class name="edm::Wrapper<edm::SortedCollection<HcalTriggerPrimitiveDigi,edm::StrictWeakOrdering<HcalTriggerPrimitiveDigi> > >" splitLevel="0"/>
    <class name="edm::Wrapper<edm::SortedCollection<HOTriggerPrimitiveDigi,edm::StrictWeakOrdering<HOTriggerPrimitiveDigi> > >" splitLevel="0"/>
    <class name="edm::Wrapper<edm::SortedCollection<HcalHistogramDigi,edm::StrictWeakOrdering<HcalHistogramDigi> > >" splitLevel="0"/>
-   <class name="edm::Wrapper<edm::SortedCollection<ZDCDataFrame,edm::StrictWeakOrdering<ZDCDataFrame> > >"/>
-   <class name="edm::Wrapper<edm::SortedCollection<CastorDataFrame,edm::StrictWeakOrdering<CastorDataFrame> > >"/>
+   <class name="edm::Wrapper<edm::SortedCollection<ZDCDataFrame,edm::StrictWeakOrdering<ZDCDataFrame> > >" splitLevel="0" />
+   <class name="edm::Wrapper<edm::SortedCollection<CastorDataFrame,edm::StrictWeakOrdering<CastorDataFrame> > >" splitLevel="0" />
    <class name="edm::Wrapper<HcalUnpackerReport>"/>
    <class name="HcalLaserDigi"/>
    <class name="edm::Wrapper<HcalLaserDigi>" splitLevel="0"/>
