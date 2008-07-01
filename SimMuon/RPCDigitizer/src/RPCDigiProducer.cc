@@ -36,6 +36,7 @@ RPCDigiProducer::RPCDigiProducer(const edm::ParameterSet& ps) {
   produces<RPCDigiCollection>();
   produces<RPCDigitizerSimLinks>("RPCDigiSimLink");
 
+  geometryType = ps.getParameter<std::string>("GeometryType");
   //Name of Collection used for create the XF 
   collection_for_XF = ps.getParameter<std::string>("InputCollection");
 }
@@ -55,7 +56,7 @@ void RPCDigiProducer::produce(edm::Event& e, const edm::EventSetup& eventSetup) 
 
   // find the geometry & conditions for this event
   edm::ESHandle<RPCGeometry> hGeom;
-  eventSetup.get<MuonGeometryRecord>().get( hGeom );
+  eventSetup.get<MuonGeometryRecord>().get( geometryType,hGeom );
   const RPCGeometry *pGeom = &*hGeom;
 
   edm::ESHandle<RPCStripNoises> noiseRcd;
