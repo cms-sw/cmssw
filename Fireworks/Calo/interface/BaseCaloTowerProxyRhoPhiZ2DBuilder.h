@@ -16,7 +16,7 @@
 //
 // Original Author:  Chris Jones
 //         Created:  Wed Mar 12 21:32:49 CDT 2008
-// $Id$
+// $Id: BaseCaloTowerProxyRhoPhiZ2DBuilder.h,v 1.1 2008/03/13 03:02:01 chrjones Exp $
 //
 
 // system include files
@@ -40,8 +40,8 @@ class BaseCaloTowerProxyRhoPhiZ2DBuilder : public FWRPZ2DDataProxyBuilder
       // ---------- member functions ---------------------------
 protected:
       //need to special handle selection or other changes
-      virtual void modelChangesRhoPhi(const FWModelIds&, TEveElement*);
-      virtual void modelChangesRhoZ(const FWModelIds&, TEveElement*);
+      virtual void modelChanges(const FWModelIds&, TEveElement*);
+      virtual void applyChangesToAllModels(TEveElement*);
    
    
    private:

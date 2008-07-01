@@ -8,7 +8,7 @@
 //
 // Original Author:  
 //         Created:  Thu Dec  6 17:49:54 PST 2007
-// $Id: FWRPZ2DDataProxyBuilder.cc,v 1.11 2008/06/23 06:34:51 dmytro Exp $
+// $Id: FWRPZ2DDataProxyBuilder.cc,v 1.12 2008/06/25 22:23:36 chrjones Exp $
 //
 
 // system include files
@@ -41,10 +41,10 @@ TEveCalo3D* FWRPZ2DDataProxyBuilder::m_caloRhoZ = 0;
 //
 FWRPZ2DDataProxyBuilder::FWRPZ2DDataProxyBuilder():
   m_priority(false),
-  m_item(0),
   m_rhoPhiElements(0),
-  m_rhoPhiZElements(0),
-  m_viewsAvailable(true)
+  m_rhoZElements(0),
+  m_rhoPhiNeedsUpdate(true),
+  m_rhoZNeedsUpdate(true)
 {
 }
 
@@ -72,75 +72,58 @@ FWRPZ2DDataProxyBuilder::~FWRPZ2DDataProxyBuilder()
 //
 // member functions
 //
-void
-FWRPZ2DDataProxyBuilder::setItem(const FWEventItem* iItem)
+ 
+void 
+FWRPZ2DDataProxyBuilder::itemChangedImp(const FWEventItem*)
 {
-  m_item = iItem;
-   if(0 != m_item) {
-      m_item->changed_.connect(boost::bind(&FWRPZ2DDataProxyBuilder::modelChangesRhoPhi,this,_1));
-      m_item->changed_.connect(boost::bind(&FWRPZ2DDataProxyBuilder::modelChangesRhoZ,this,_1));
-      m_item->goingToBeDestroyed_.connect(boost::bind(&FWRPZ2DDataProxyBuilder::itemBeingDestroyed,this,_1));
+   /* inheriting classes own the elements
+   if(0!=m_rhoPhiElements) {
+      m_rhoPhiElements->DestroyElements();
    }
-}
-
-void
-FWRPZ2DDataProxyBuilder::viewsAvailable(bool iAvailable)
-{
-   m_viewsAvailable = iAvailable;
-   //NOTE: when set from false to true we really need to 
-   // 1 rebuild the objects
-   // 2 assume all of them changed so update them all
+   if(0!=m_rhoZElements) {
+      m_rhoZElements->DestroyElements();
+   }
+    */
+   m_rhoPhiNeedsUpdate=true;
+   m_rhoZNeedsUpdate=true;
 }
 
 void 
-FWRPZ2DDataProxyBuilder::itemBeingDestroyed(const FWEventItem* iItem)
+FWRPZ2DDataProxyBuilder::itemBeingDestroyedImp(const FWEventItem* iItem)
 {
-   m_item=0;
-   delete m_rhoPhiElements;
-   bool unique = m_rhoPhiElements!=m_rhoPhiZElements;
+   if(0!=m_rhoPhiElements) {
+      //m_rhoPhiElements->DestroyElements();
+      delete m_rhoPhiElements;
+   }
+   bool unique = m_rhoPhiElements!=m_rhoZElements;
    m_rhoPhiElements=0;
    if(unique) {
-      delete m_rhoPhiZElements;
-      m_rhoPhiZElements=0;
+      if(0!=m_rhoZElements) {
+         //m_rhoZElements->DestroyElements();
+      }
+      delete m_rhoZElements;
+      m_rhoZElements=0;
    }
-   m_rhoPhiProjs.RemoveElements();
-   m_rhoZProjs.RemoveElements();
-   m_ids.clear();
 }
 
-
-static void
-setUserDataElementAndChildren(TEveElement* iElement, 
-                              void* iInfo)
+TEveElementList* 
+FWRPZ2DDataProxyBuilder::getRhoPhiProduct() const
 {
-   iElement->SetUserData(iInfo);
-   for(TEveElement::List_i itElement = iElement->BeginChildren(),
-       itEnd = iElement->EndChildren();
-       itElement != itEnd;
-       ++itElement) {
-      setUserDataElementAndChildren(*itElement, iInfo);
+   if(m_rhoPhiNeedsUpdate) {
+      m_rhoPhiNeedsUpdate=false;
+      const_cast<FWRPZ2DDataProxyBuilder*>(this)->buildRhoPhi(&m_rhoPhiElements);
    }
+   return m_rhoPhiElements;
 }
 
-static
-void
-setUserData(const FWEventItem* iItem,TEveElementList* iElements, std::vector<FWModelId>& iIds) {
-   if(iElements &&  static_cast<int>(iItem->size()) == iElements->NumChildren() ) {
-      int index=0;
-      int largestIndex = iIds.size();
-      if(iIds.size()<iItem->size()) {
-         iIds.resize(iItem->size());
-      }
-      std::vector<FWModelId>::iterator itId = iIds.begin();
-      for(TEveElement::List_i it = iElements->BeginChildren(), itEnd = iElements->EndChildren();
-          it != itEnd;
-          ++it,++itId,++index) {
-         if(largestIndex<=index) {
-            *itId=FWModelId(iItem,index);
-         }
-         setUserDataElementAndChildren(*it,&(*itId));
-      }
+TEveElementList* 
+FWRPZ2DDataProxyBuilder::getRhoZProduct() const
+{
+   if(m_rhoZNeedsUpdate) {
+      m_rhoZNeedsUpdate=false;
+      const_cast<FWRPZ2DDataProxyBuilder*>(this)->buildRhoZ(&m_rhoZElements);
    }
+   return m_rhoZElements;
 }
 
 
@@ -148,118 +131,24 @@ setUserData(const FWEventItem* iItem,TEveElementList* iElements, std::vector<FWM
 void
 FWRPZ2DDataProxyBuilder::buildRhoPhi(TEveElementList** iObject)
 {
-  if(0!= m_item) {
-     buildRhoPhi(m_item, iObject);
-     setUserData(m_item,*iObject,m_ids);
+  if(0!= item()) {
+     buildRhoPhi(item(), iObject);
+     setUserData(item(),*iObject,ids());
   }
 }
 
 void
 FWRPZ2DDataProxyBuilder::buildRhoZ(TEveElementList** iObject)
 {
-  if(0!= m_item) {
-     buildRhoZ(m_item, iObject);
-     setUserData(m_item,*iObject,m_ids);
+  if(0!= item()) {
+     buildRhoZ(item(), iObject);
+     setUserData(item(),*iObject,ids());
   }
 }
 
 void 
-FWRPZ2DDataProxyBuilder::modelChangesRhoPhi(const FWModelIds& iIds)
+FWRPZ2DDataProxyBuilder::modelChangesImp(const FWModelIds& iIds)
 {
-   std::for_each(m_rhoPhiProjs.BeginChildren(),
-                 m_rhoPhiProjs.EndChildren(),
-                 boost::bind(&FWRPZ2DDataProxyBuilder::modelChangesRhoPhi,
-                             this,
-                             iIds,
-                             _1));
-}
-
-void 
-FWRPZ2DDataProxyBuilder::modelChangesRhoZ(const FWModelIds& iIds)
-{
-   std::for_each(m_rhoZProjs.BeginChildren(),
-                 m_rhoZProjs.EndChildren(),
-                 boost::bind(&FWRPZ2DDataProxyBuilder::modelChangesRhoZ,
-                             this,
-                             iIds,
-                             _1));
-}
-
-static 
-void 
-modelChanges(const FWEventItem* iItem, 
-             const FWModelIds& iIds,
-             TEveElement* iElements )
-{
-   if(0==iElements) {return;}
-   //std::cout <<"modelChanged "<<iItem->size()<<" "<<iElements->GetNChildren()<<std::endl;
-   assert(iItem && "item is not set");
-   if ( static_cast<int>(iItem->size()) != iElements->NumChildren() ) {
-      std::cout << "Inconsistent number of entries in the primary data collection and the proxy builder.\n" <<
-	"Item name: " << iItem->name() << "\nN(data): " << iItem->size() <<
-	"\nN(proxy): " << iElements->NumChildren() << std::endl;
-   }
-   assert(iItem && static_cast<int>(iItem->size()) == iElements->NumChildren() && "can not use default modelChanges implementation");
-   TEveElement::List_i itElement = iElements->BeginChildren();
-   int index = 0;
-   for(FWModelIds::const_iterator it = iIds.begin(), itEnd = iIds.end();
-       it != itEnd;
-       ++it,++itElement,++index) {
-      assert(itElement != iElements->EndChildren());         
-      while(index < it->index()) {
-         ++itElement;
-         ++index;
-         assert(itElement != iElements->EndChildren());         
-      }
-      const FWEventItem::ModelInfo& info = it->item()->modelInfo(index);
-      changeElementAndChildren(*itElement, info);
-      (*itElement)->SetRnrSelf(info.displayProperties().isVisible());
-      (*itElement)->SetRnrChildren(info.displayProperties().isVisible());
-      (*itElement)->ElementChanged();
-   }
-}
-
-void 
-FWRPZ2DDataProxyBuilder::modelChangesRhoPhi(const FWModelIds& iIds, TEveElement* iElements)
-{
-   if(m_viewsAvailable) {
-      modelChanges(m_item,iIds,iElements);
-   }
-}
-void 
-FWRPZ2DDataProxyBuilder::modelChangesRhoZ(const FWModelIds& iIds, TEveElement* iElements)
-{
-   if(m_viewsAvailable) {
-      modelChanges(m_item,iIds,iElements);
-   }
-}
-
-void 
-FWRPZ2DDataProxyBuilder::addRhoPhiProj(TEveElement* iElement)
-{
-   
-   //std::cout <<"setRhoPhiProj "<<m_item->name()<<" "<<iElement->GetRnrElName()<<" "<<iElement->GetNChildren()<<" "<<m_item->size()<<std::endl;
-   assert(0!=iElement);
-   m_rhoPhiProjs.AddElement(iElement);
-   //assert(0==iElement || iElement->GetNChildren() == m_item->size());
-}
-void 
-FWRPZ2DDataProxyBuilder::addRhoZProj(TEveElement* iElement)
-{
-   assert(0!=iElement);
-   m_rhoZProjs.AddElement(iElement);
-   //assert(0==iElement || iElement->GetNChildren() == m_item->size());
-}
-
-void 
-FWRPZ2DDataProxyBuilder::clearRhoPhiProjs()
-{
-   m_rhoPhiProjs.RemoveElements();
-}
-void 
-FWRPZ2DDataProxyBuilder::clearRhoZProjs()
-{
-   m_rhoZProjs.RemoveElements();
 }
 
 //

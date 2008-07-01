@@ -16,7 +16,7 @@
 //
 // Original Author:  
 //         Created:  Sat Jan  5 15:02:03 EST 2008
-// $Id: FWRPZDataProxyBuilder.h,v 1.10 2008/06/23 06:33:43 dmytro Exp $
+// $Id: FWRPZDataProxyBuilder.h,v 1.11 2008/06/25 22:23:36 chrjones Exp $
 //
 
 // system include files
@@ -26,6 +26,7 @@
 // user include files
 #include "Fireworks/Core/interface/FWRPZDataProxyBuilderFactory.h"
 #include "Fireworks/Core/interface/FWModelChangeSignal.h"
+#include "Fireworks/Core/interface/FWRPZDataProxyBuilderBase.h"
 
 // forward declarations
 class FWEventItem;
@@ -34,7 +35,7 @@ class TEveElement;
 class FWModelId;
 class TEveCalo3D;
 
-class FWRPZDataProxyBuilder
+class FWRPZDataProxyBuilder : public FWRPZDataProxyBuilderBase
 {
 
    public:
@@ -47,45 +48,34 @@ class FWRPZDataProxyBuilder
       // ---------- static member functions --------------------
 
       // ---------- member functions ---------------------------
-      void setItem(const FWEventItem* iItem);
-      void build(TEveElementList** product);
+      void build();
 
-      void modelChanges(const FWModelIds&);
-   
-      void addRhoPhiProj(TEveElement*);
-      void addRhoZProj(TEveElement*);
-
-      void clearRhoPhiProjs();
-      void clearRhoZProjs();
       void setHighPriority( bool priority ){ m_priority = priority; }
    
-      void viewsAvailable(bool);
-   
    protected:
+      static TEveCalo3D* m_calo3d;
+
+   private:
       virtual void build(const FWEventItem* iItem, 
 			 TEveElementList** product) = 0 ;
 
 
-      //Override this if you need to special handle selection or other changes
-      virtual void modelChanges(const FWModelIds&, TEveElement*);
+      //abstract functions from the base class
+      virtual void itemChangedImp(const FWEventItem*) ;
+      virtual void itemBeingDestroyedImp(const FWEventItem*);
+      virtual void modelChangesImp(const FWModelIds&);
+      virtual TEveElementList* getRhoPhiProduct() const;
+      virtual TEveElementList* getRhoZProduct() const;
    
-      virtual void itemBeingDestroyed(const FWEventItem*);
-
       FWRPZDataProxyBuilder(const FWRPZDataProxyBuilder&); // stop default
 
       const FWRPZDataProxyBuilder& operator=(const FWRPZDataProxyBuilder&); // stop default
 
       // ---------- member data --------------------------------
       bool m_priority;
-      const FWEventItem* m_item;
-      TEveElementList* m_elements;
-      TEveElementList m_rhoPhiProjs;
-      TEveElementList m_rhoZProjs;
-      std::vector<FWModelId> m_ids;
+      mutable TEveElementList* m_elements;
    
-      static TEveCalo3D* m_calo3d;
-      
-      bool m_viewsAvailable;
+      mutable bool m_needsUpdate;
 };
 
 

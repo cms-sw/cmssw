@@ -8,7 +8,7 @@
 //
 // Original Author:  
 //         Created:  Thu Dec  6 17:49:54 PST 2007
-// $Id: FWRPZDataProxyBuilder.cc,v 1.14 2008/06/23 06:34:51 dmytro Exp $
+// $Id: FWRPZDataProxyBuilder.cc,v 1.15 2008/06/25 22:23:36 chrjones Exp $
 //
 
 // system include files
@@ -39,10 +39,7 @@ TEveCalo3D* FWRPZDataProxyBuilder::m_calo3d = 0;
 //
 FWRPZDataProxyBuilder::FWRPZDataProxyBuilder():
   m_priority(false),
-  m_item(0),
-  m_rhoPhiProjs(),
-  m_rhoZProjs(),
-  m_viewsAvailable(true)
+m_needsUpdate(true)
 {
 }
 
@@ -70,150 +67,61 @@ FWRPZDataProxyBuilder::~FWRPZDataProxyBuilder()
 //
 // member functions
 //
-void
-FWRPZDataProxyBuilder::viewsAvailable(bool iAvailable)
+void 
+FWRPZDataProxyBuilder::itemChangedImp(const FWEventItem* iItem)
 {
-   m_viewsAvailable = iAvailable;
-   //NOTE: when set from false to true we really need to 
-   // 1 rebuild the objects
-   // 2 assume all of them changed so update them all
+   m_needsUpdate=true;
+   if(0!=m_elements) {
+      m_elements->DestroyElements();
+   }
+}
+
+void 
+FWRPZDataProxyBuilder::itemBeingDestroyedImp(const FWEventItem* iItem)
+{
+   m_needsUpdate=false;
+   if(0!=m_elements) {
+      m_elements->DestroyElements();
+      delete m_elements;
+      m_elements=0;
+   }
+}
+
+TEveElementList* 
+FWRPZDataProxyBuilder::getRhoPhiProduct() const
+{
+   if(m_needsUpdate) {
+      m_needsUpdate=false;
+      const_cast<FWRPZDataProxyBuilder*>(this)->build();
+   }
+   return m_elements;
+}
+TEveElementList* 
+FWRPZDataProxyBuilder::getRhoZProduct() const
+{
+   if(m_needsUpdate) {
+      m_needsUpdate=false;
+      const_cast<FWRPZDataProxyBuilder*>(this)->build();
+   }
+   return m_elements;
 }
 
 void
-FWRPZDataProxyBuilder::setItem(const FWEventItem* iItem)
+FWRPZDataProxyBuilder::build()
 {
-  m_item = iItem;
-  if(0 != m_item) {
-     m_item->changed_.connect(boost::bind(&FWRPZDataProxyBuilder::modelChanges,this,_1));
-     m_item->goingToBeDestroyed_.connect(boost::bind(&FWRPZDataProxyBuilder::itemBeingDestroyed,this,_1));
+  if(0!= item()) {
+    build(item(), &m_elements);
 
+     setUserData(item(),m_elements,ids());
   }
 }
 
 void 
-FWRPZDataProxyBuilder::itemBeingDestroyed(const FWEventItem* iItem)
+FWRPZDataProxyBuilder::modelChangesImp(const FWModelIds& iIds)
 {
-   m_item=0;
-   delete m_elements;
-   m_elements=0;
-   m_rhoPhiProjs.RemoveElements();
-   m_rhoZProjs.RemoveElements();
-   m_ids.clear();
+   //I'm not sure I want to update the 3D version
+   modelChanges(iIds,m_elements);
 }
-
-static void
-setUserDataElementAndChildren(TEveElement* iElement, 
-                         void* iInfo)
-{
-   iElement->SetUserData(iInfo);
-   for(TEveElement::List_i itElement = iElement->BeginChildren(),
-       itEnd = iElement->EndChildren();
-       itElement != itEnd;
-       ++itElement) {
-      setUserDataElementAndChildren(*itElement, iInfo);
-   }
-}
-
-void
-FWRPZDataProxyBuilder::build(TEveElementList** iObject)
-{
-  if(0!= m_item) {
-    build(m_item, iObject);
-    m_elements=*iObject;
-
-     if(m_elements &&  static_cast<int>(m_item->size()) == m_elements->NumChildren() ) {
-        int index=0;
-        int largestIndex = m_ids.size();
-        if(m_ids.size()<m_item->size()) {
-           m_ids.resize(m_item->size());
-        }
-        std::vector<FWModelId>::iterator itId = m_ids.begin();
-        for(TEveElement::List_i it = m_elements->BeginChildren(), itEnd = m_elements->EndChildren();
-            it != itEnd;
-            ++it,++itId,++index) {
-           if(largestIndex<=index) {
-              *itId=FWModelId(m_item,index);
-           }
-           setUserDataElementAndChildren(*it,&(*itId));
-        }
-     }
-  }
-}
-
-void 
-FWRPZDataProxyBuilder::modelChanges(const FWModelIds& iIds)
-{
-   if(m_elements !=0 && m_viewsAvailable) {
-      modelChanges(iIds,m_elements);
-      std::for_each(m_rhoPhiProjs.BeginChildren(),
-                    m_rhoPhiProjs.EndChildren(),
-                    boost::bind(&FWRPZDataProxyBuilder::modelChanges,
-                                this,
-                                iIds,
-                                _1));
-      std::for_each(m_rhoZProjs.BeginChildren(),
-                    m_rhoZProjs.EndChildren(),
-                    boost::bind(&FWRPZDataProxyBuilder::modelChanges,
-                                this,
-                                iIds,
-                                _1));
-   }
-}
-
-
-void 
-FWRPZDataProxyBuilder::modelChanges(const FWModelIds& iIds,
-                                    TEveElement* iElements )
-{
-   //std::cout <<"modelChanged "<<m_item->size()<<" "<<iElements->GetNChildren()<<std::endl;
-   assert(m_item && static_cast<int>(m_item->size()) == iElements->NumChildren() && "can not use default modelChanges implementation");
-   TEveElement::List_i itElement = iElements->BeginChildren();
-   int index = 0;
-   for(FWModelIds::const_iterator it = iIds.begin(), itEnd = iIds.end();
-       it != itEnd;
-       ++it,++itElement,++index) {
-      assert(itElement != iElements->EndChildren());         
-      while(index < it->index()) {
-         ++itElement;
-         ++index;
-         assert(itElement != iElements->EndChildren());         
-      }
-      const FWEventItem::ModelInfo& info = it->item()->modelInfo(index);
-      changeElementAndChildren(*itElement, info);
-      (*itElement)->SetRnrSelf(info.displayProperties().isVisible());
-      (*itElement)->SetRnrChildren(info.displayProperties().isVisible());
-      (*itElement)->ElementChanged();
-   }
-}
-
-void 
-FWRPZDataProxyBuilder::addRhoPhiProj(TEveElement* iElement)
-{
-
-   //std::cout <<"setRhoPhiProj "<<m_item->name()<<" "<<iElement->GetRnrElName()<<" "<<iElement->GetNChildren()<<" "<<m_item->size()<<std::endl;
-   assert(0!=iElement);
-   m_rhoPhiProjs.AddElement(iElement);
-   //assert(0==iElement || iElement->GetNChildren() == m_item->size());
-}
-void 
-FWRPZDataProxyBuilder::addRhoZProj(TEveElement* iElement)
-{
-   assert(0!=iElement);
-   m_rhoZProjs.AddElement(iElement);
-   //assert(0==iElement || iElement->GetNChildren() == m_item->size());
-}
-
-void 
-FWRPZDataProxyBuilder::clearRhoPhiProjs()
-{
-   m_rhoPhiProjs.RemoveElements();
-}
-void 
-FWRPZDataProxyBuilder::clearRhoZProjs()
-{
-   m_rhoZProjs.RemoveElements();
-}
-
 
 //
 // const member functions

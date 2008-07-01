@@ -8,7 +8,7 @@
 //
 // Original Author:  Chris Jones
 //         Created:  Wed Mar 12 21:32:54 CDT 2008
-// $Id$
+// $Id: BaseCaloTowerProxyRhoPhiZ2DBuilder.cc,v 1.1 2008/03/13 03:02:01 chrjones Exp $
 //
 
 // system include files
@@ -60,12 +60,20 @@ BaseCaloTowerProxyRhoPhiZ2DBuilder::~BaseCaloTowerProxyRhoPhiZ2DBuilder()
 // member functions
 //
 void 
-BaseCaloTowerProxyRhoPhiZ2DBuilder::modelChangesRhoPhi(const FWModelIds& iIds, TEveElement* iElements)
+BaseCaloTowerProxyRhoPhiZ2DBuilder::modelChanges(const FWModelIds& iIds, TEveElement* iElements)
 {
    //for now, only if all items selected will will apply the action
    if(iIds.size() && iIds.size() == iIds.begin()->item()->size()) {
+      applyChangesToAllModels(iElements);
+   }
+}
+
+void 
+BaseCaloTowerProxyRhoPhiZ2DBuilder::applyChangesToAllModels(TEveElement* iElements)
+{
+   if(ids().size() != 0 ) {
       //make the bad assumption that everything is being changed indentically
-      const FWEventItem::ModelInfo& info = iIds.begin()->item()->modelInfo(iIds.begin()->index());
+      const FWEventItem::ModelInfo& info = ids().begin()->item()->modelInfo(ids().begin()->index());
       changeElementAndChildren(iElements, info);
       iElements->SetRnrSelf(info.displayProperties().isVisible());
       iElements->SetRnrChildren(info.displayProperties().isVisible());
@@ -73,6 +81,7 @@ BaseCaloTowerProxyRhoPhiZ2DBuilder::modelChangesRhoPhi(const FWModelIds& iIds, T
    }
 }
 
+/*
 void 
 BaseCaloTowerProxyRhoPhiZ2DBuilder::modelChangesRhoZ(const FWModelIds& iIds, TEveElement* iElements)
 {
@@ -86,7 +95,7 @@ BaseCaloTowerProxyRhoPhiZ2DBuilder::modelChangesRhoZ(const FWModelIds& iIds, TEv
       iElements->ElementChanged();      
    }
 }
-
+*/
 //
 // const member functions
 //
