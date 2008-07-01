@@ -277,6 +277,12 @@ void HcalSummaryClient::analyze(void)
 	cout << "HcalSummaryClient: ievt/jevt = " << ievt_ << "/" << jevt_ << endl;
     }
 
+  // set status words to unknown by default
+  status_HB_=-1;
+  status_HE_=-1;
+  status_HO_=-1;
+  status_HF_=-1;
+
   
   for (int i=0;i<4;++i)
     {
@@ -286,6 +292,12 @@ void HcalSummaryClient::analyze(void)
       status_hotcell[i]=-1;
     }
 
+  if (subDetsOn_[0]) status_digi[0]=analyze_everything("HB",status_HB_);
+  if (subDetsOn_[1]) status_digi[1]=analyze_everything("HE",status_HE_);
+  if (subDetsOn_[2]) status_digi[2]=analyze_everything("HO",status_HO_);
+  if (subDetsOn_[3]) status_digi[3]=analyze_everything("HF",status_HF_);
+
+  /*
     if (digiClient_)
     {
       if (subDetsOn_[0]) status_digi[0]=analyze_digi("HB",status_HB_);
@@ -310,7 +322,7 @@ void HcalSummaryClient::analyze(void)
       if (subDetsOn_[2]) status_hotcell[2]=analyze_hotcell("HO",status_HO_);
       if (subDetsOn_[3]) status_hotcell[3]=analyze_hotcell("HF",status_HF_);
     }
-  
+  */
 
   MonitorElement* me;
   dqmStore_->setCurrentFolder( prefixME_ + "/EventInfo" );
@@ -334,6 +346,141 @@ void HcalSummaryClient::analyze(void)
   return;
 } //void HcalSummaryClient::analyze(void)
 
+
+float HcalSummaryClient::analyze_everything(std::string subdetname, float& subdet)
+{
+  /* analyze_everything calculates overall status from all available client checks */
+
+  if (debug_) cout<<"<HcalSummaryClient> Running analyze_everything"<<endl;
+  float status = -1; // default status value
+  // Get 2D map (histogram) of known problems; return -1 if map not found
+  MonitorElement* me;
+  me = dqmStore_->get(prefixME_ + "/EventInfo/reportSummaryMap");
+
+  if (!me)
+    return status;
+  
+  char name[150];
+
+  MonitorElement* me_digi;
+  MonitorElement* me_hotcell;
+  MonitorElement* me_deadcell;
+
+  // Check for histogram containing known Digi problems.  (Formed & filled in DigiMonitor task)
+  if (digiClient_)
+    {
+      sprintf(name,"%s/DigiMonitor/%s/%sProblemDigiCells",prefixME_.c_str(),
+	      subdetname.c_str(),subdetname.c_str());  // form histogram name
+      me_digi = dqmStore_->get(name);
+      if (!me_digi) return status; // histogram couldn't be found
+    }
+
+  //Check for histogram containing known HotCell problems
+  if (hotCellClient_)
+    {
+      sprintf(name,"%s/HotCellMonitor/%s/%sProblemHotCells",prefixME_.c_str(),
+	      subdetname.c_str(),subdetname.c_str());
+      me_hotcell = dqmStore_->get(name); // get Monitor Element named 'name'
+      if (!me_hotcell) 
+	{
+	  if (debug_) cout <<"<HcalSummaryClient>  Could not get ProblemHotCells"<<endl;
+	  return status;
+	}
+    }
+
+  // Check for histogram containing known DeadCell problems
+  if (deadCellClient_)
+    {
+      sprintf(name,"%s/DeadCellMonitor/%s/%sProblemDeadCells",prefixME_.c_str(),
+	      subdetname.c_str(),subdetname.c_str());
+      me_deadcell = dqmStore_->get(name); // get Monitor Element named 'name'
+      if (!me_deadcell) return status;
+    }
+
+  // loop over cells
+  double newbincontent=0;
+  float badcells=0.; 
+  float eta;
+  //float phi;
+
+  for (int ieta=1;ieta<=etaBins_;++ieta)
+    {   
+      eta=ieta+int(etaMin_)-1;
+      if (eta==0) continue; // skip eta=0 bin -- unphysical
+      if (abs(eta)>41) continue; // skip unphysical "boundary" bins in histogram
+
+      for (int iphi=1; iphi<=phiBins_;++iphi)
+	{
+	  // Now check for errors from each client histogram:
+	  if (digiClient_) newbincontent+=me_digi->getBinContent(ieta,iphi);
+	  if (hotCellClient_) newbincontent+=me_hotcell->getBinContent(ieta,iphi);
+	  if (deadCellClient_) newbincontent+=me_deadcell->getBinContent(ieta,iphi);
+	  
+	  //if (newbincontent==0) continue; // nope; need to set summary bin to 0; otherwise it remains as -1
+	  // Is this the kind of default behavior we want?
+
+	  
+	  newbincontent/=ievt_; // normalize to number of events
+	  if (newbincontent>1) newbincontent=1;  // bad bin content represents fraction of bad events
+
+	  //phi=iphi+int(phiMin_)-1;
+	  
+	  me->setBinContent(ieta,iphi,newbincontent);
+	  
+	  if (newbincontent>0)
+	    {
+	      badcells+=newbincontent; // this is already normalized to give # of bad cells per event
+	    }
+	} // loop over iphi
+    } // loop over ieta
+
+// subdetCells_ stores number of cells in each subdetector
+  std::map<std::string, int>::const_iterator it;
+  it =subdetCells_.find(subdetname);
+
+  // didn't find subdet in map -- return -1
+  if (it==subdetCells_.end())
+    return -1;
+
+  // Map claims that subdetector has no cells, or fewer cells than # of bad cells found:  return -1
+  if (it->second == 0 || (it->second)<badcells)
+    return -1;
+
+  // Status is 1 if no bad cells found
+  // Otherwise, status = 1 - (avg fraction of bad cells/event)
+  status=1.-(1.*badcells)/it->second;
+ 
+  // Set subdetector status to 'status' value
+  subdet=status;
+  // Global status set by multiplying subdetector statuses
+  if (status_global_==-1)
+    status_global_=status;
+  else
+    status_global_*=status;
+
+  return status;
+} // float HcalSummaryClient::analyze_everything
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+// DEPRECATED FUNCTIONS:  SEPARATE CALLS FOR EACH CLIENT OBJECT NO LONGER USED
 
 float HcalSummaryClient::analyze_digi(std::string subdetname, float& subdet)
 {

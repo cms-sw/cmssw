@@ -51,7 +51,8 @@ void HcalMonitorClient::initialize(const ParameterSet& ps){
   debug_ = ps.getUntrackedParameter<bool>("debug", false);
   if(debug_) cout << "HcalMonitorClient: constructor...." << endl;
 
-
+  // timing switch 
+  showTiming_ = ps.getUntrackedParameter<bool>("showTiming",false);  
 
   // MonitorDaemon switch
   enableMonitorDaemon_ = ps.getUntrackedParameter<bool>("enableMonitorDaemon", true);
@@ -424,14 +425,15 @@ void HcalMonitorClient::analyze(const Event& e, const edm::EventSetup& eventSetu
   minlumisec_=min(minlumisec_,ilumisec_);
   maxlumisec_=max(maxlumisec_,ilumisec_);
 
-  if (debug_) cout << "HcalMonitorClient: evts: "<< ievt_ << ", run: " << irun_ << ", LS: " << ilumisec_ << ", evt: " << ievent_ << ", time: " << itime_ << endl; 
+  if (debug_) 
+    cout << "HcalMonitorClient: evts: "<< ievt_ << ", run: " << irun_ << ", LS: " << ilumisec_ << ", evt: " << ievent_ << ", time: " << itime_ << endl; 
 
   ievt_++; //I think we want our web pages, etc. to display this counter (the number of events used in the task) rather than nevt_ (the number of times the MonitorClient analyze function below is called) -- Jeff, 1/22/08
 
-  if( summary_client_ ) {
-    summary_client_->incrementCounters(); 	// all this does is increment a counter
-    summary_client_->analyze();
-  }
+
+  // Need to increment summary client on every event, not just when prescale is called, since summary_client_ plots error rates/event.
+  if( summary_client_ )    summary_client_->incrementCounters(); 	// all this does is increment a counter
+
   if ( runningStandalone_ || prescale()) return;
 
   else analyze();
@@ -440,7 +442,8 @@ void HcalMonitorClient::analyze(const Event& e, const edm::EventSetup& eventSetu
 
 //--------------------------------------------------------
 void HcalMonitorClient::analyze(){
-  if (debug_) cout <<"Entered HcalMonitorClient::analyze()"<<endl;
+  if (debug_) 
+    cout <<"Entered HcalMonitorClient::analyze()"<<endl;
 
   //nevt_++; // counter not currently displayed anywhere 
   if(debug_) printf("\nHcal Monitor Client heartbeat....\n");
@@ -450,15 +453,89 @@ void HcalMonitorClient::analyze(){
   dbe_->runQTests();
 
   // summary_client_ analyze performed separately, at end of run before htmlOutput of summary generated
+
+  if (showTiming_) 
+    { 
+      cpu_timer.reset(); cpu_timer.start(); 
+    } 
   if( dataformat_client_ ) dataformat_client_->analyze(); 	
+  if (showTiming_) 
+    { 
+      cpu_timer.stop(); 
+      if (dataformat_client_) cout <<"TIMER:: DATAFORMAT CLIENT ->"<<cpu_timer.cpuTime()<<endl; 
+      cpu_timer.reset(); cpu_timer.start(); 
+    } 
+
   if( digi_client_ )       digi_client_->analyze(); 
+  if (showTiming_) 
+    { 
+      cpu_timer.stop(); 
+      if (digi_client_) cout <<"TIMER:: DIGI CLIENT ->"<<cpu_timer.cpuTime()<<endl; 
+      cpu_timer.reset(); cpu_timer.start(); 
+    } 
+
   if( rechit_client_ )     rechit_client_->analyze(); 
+  if (showTiming_) 
+    { 
+      cpu_timer.stop(); 
+      if (rechit_client_) cout <<"TIMER:: RECHIT CLIENT ->"<<cpu_timer.cpuTime()<<endl; 
+      cpu_timer.reset(); cpu_timer.start(); 
+    } 
+
   if( pedestal_client_ )   pedestal_client_->analyze();      
+  if (showTiming_) 
+    { 
+      cpu_timer.stop(); 
+      if (pedestal_client_) cout <<"TIMER:: PEDESTAL CLIENT ->"<<cpu_timer.cpuTime()<<endl; 
+      cpu_timer.reset(); cpu_timer.start(); 
+    } 
+
   if( led_client_ )        led_client_->analyze(); 
+  if (showTiming_) 
+    { 
+      cpu_timer.stop(); 
+      if (led_client_) cout <<"TIMER:: LED CLIENT ->"<<cpu_timer.cpuTime()<<endl; 
+      cpu_timer.reset(); cpu_timer.start(); 
+    } 
+
   if( hot_client_ )        hot_client_->analyze(); 
+  if (showTiming_) 
+    { 
+      cpu_timer.stop(); 
+      if (hot_client_) cout <<"TIMER:: HOT CLIENT ->"<<cpu_timer.cpuTime()<<endl; 
+      cpu_timer.reset(); cpu_timer.start(); 
+    } 
+
   if( dead_client_ )       dead_client_->analyze(); 
+  if (showTiming_) 
+    { 
+      cpu_timer.stop(); 
+      if (dead_client_) cout <<"TIMER:: DEAD CLIENT ->"<<cpu_timer.cpuTime()<<endl; 
+      cpu_timer.reset(); cpu_timer.start(); 
+    } 
+
   if( tp_client_ )         tp_client_->analyze(); 
+  if (showTiming_) 
+    { 
+      cpu_timer.stop(); 
+      if (tp_client_) cout <<"TIMER:: TP CLIENT ->"<<cpu_timer.cpuTime()<<endl; 
+      cpu_timer.reset(); cpu_timer.start(); 
+    } 
+
   if( ct_client_ )         ct_client_->analyze(); 
+  if (showTiming_) 
+    { 
+      cpu_timer.stop(); 
+      if (ct_client_) cout <<"TIMER:: CT CLIENT ->"<<cpu_timer.cpuTime()<<endl; 
+      cpu_timer.reset(); cpu_timer.start(); 
+    } 
+
+  if (summary_client_ )    summary_client_->analyze();
+  if (showTiming_) 
+    { 
+      cpu_timer.stop(); 
+      if (summary_client_) cout <<"TIMER:: SUMMARY CLIENT ->"<<cpu_timer.cpuTime()<<endl; 
+    } 
 
   errorSummary();
 
@@ -816,7 +893,9 @@ bool HcalMonitorClient::prescale(){
 
   //check each instance
   if(lsPS && (ilumisec_%prescaleLS_)!=0) lsPS = false; //LS veto
-  if(evtPS && (ievent_%prescaleEvt_)!=0) evtPS = false; //evt # veto
+  // BAH!  This doesn't work -- ievent is the raw event number, and doesn't have to be in strict numerical order.  Use ievt instead.
+  //if(evtPS && (ievent_%prescaleEvt_)!=0) evtPS = false; //evt # veto
+  if (evtPS && (ievt_%prescaleEvt_)!=0) evtPS = false;
   if(timePS){
     float time = psTime_.elapsedTime - psTime_.updateTime;
     if(time<prescaleTime_){

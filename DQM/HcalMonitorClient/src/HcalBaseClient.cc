@@ -25,6 +25,9 @@ void HcalBaseClient::init(const ParameterSet& ps, DQMStore* dbe, string clientNa
   debug_ = ps.getUntrackedParameter<bool>("debug", false);
   if(debug_) cout << clientName_ <<" debugging switch is on"<<endl;
   
+  // timing switch
+  showTiming_ = ps.getUntrackedParameter<bool>("showTiming",false); 
+
   // DQM default process name
   process_ = ps.getUntrackedParameter<string>("processName", "Hcal/");
   
