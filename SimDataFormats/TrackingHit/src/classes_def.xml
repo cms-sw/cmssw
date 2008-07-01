@@ -1,7 +1,7 @@
 <lcgdict>
   <class name="PSimHit"/>
   <class name="std::vector<PSimHit>"/>
-  <class name="edm::Wrapper<std::vector<PSimHit> >" id="9B228D09-A609-35A4-24E8-96837A1C243F"/>
+  <class name="edm::Wrapper<std::vector<PSimHit> >" splitLevel="0" />
   <class name="edm::RefProd<std::vector<PSimHit> >"/>
   <class name="edm::Ref<std::vector<PSimHit>,PSimHit,edm::refhelper::FindUsingAdvance<std::vector<PSimHit>,PSimHit> >"/>
 
