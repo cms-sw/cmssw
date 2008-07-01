@@ -33,7 +33,6 @@ private:
   RPCDigitizer* theDigitizer;
   RPCSimSetUp* theRPCSimSetUp;
 
-  std::string geometryType;
   //Name of Collection used for create the XF 
   std::string collection_for_XF;
 };
