@@ -8,7 +8,7 @@
 //
 // Original Author:  
 //         Created:  Mon Dec  3 08:38:38 PST 2007
-// $Id: CmsShowMain.cc,v 1.11 2008/06/28 22:23:39 dmytro Exp $
+// $Id: CmsShowMain.cc,v 1.12 2008/06/29 13:23:47 chrjones Exp $
 //
 
 // system include files
@@ -95,6 +95,7 @@ CmsShowMain::CmsShowMain(int argc, char *argv[]) :
   m_textView(0)
   //  m_configFileName(iConfigFileName)
 {
+  try {
   namespace po = boost::program_options;
   po::options_description desc("Allowed options");
   desc.add_options()
@@ -389,6 +390,10 @@ CmsShowMain::CmsShowMain(int argc, char *argv[]) :
    
    if(debugMode) {
       m_guiManager->openEveBrowserForDebugging();
+   }
+   } catch(std::exception& iException) {
+      std::cerr <<"CmsShowMain caught exception "<<iException.what()<<std::endl;
+      throw;
    }
 }
 
