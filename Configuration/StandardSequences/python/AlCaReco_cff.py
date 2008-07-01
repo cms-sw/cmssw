@@ -1,6 +1,6 @@
 import FWCore.ParameterSet.Config as cms
 
-# last update: $Date: 2008/04/21 01:09:45 $ by $Author: rpw $
+# last update: $Date: 2008/06/23 12:42:09 $ by $Author: futyand $
 # Please update the sequence defined at the very end of this file
 # with any new/changed sequences
 # Tracker Alignment
@@ -74,7 +74,7 @@ pathALCARECOTkAlMinBias = cms.Path(seqALCARECOTkAlMinBias*ALCARECOTkAlMinBiasDQM
 pathALCARECOSiPixelLorentzAngle = cms.Path(seqALCARECOSiPixelLorentzAngle)
 pathALCARECOSiStripCalMinBias = cms.Path(seqALCARECOSiStripCalMinBias)
 pathALCARECOEcalCalElectron = cms.Path(seqALCARECOEcalCalElectron)
-pathALCARECOEcalCalPhiSym = cms.Path(seqALCARECOEcalCalPhiSym)
+pathALCARECOEcalCalPhiSym = cms.Path(seqALCARECOEcalCalPhiSym*ALCARECOEcalCalPhisymDQM)
 pathALCARECOEcalCalPi0Calib = cms.Path(seqALCARECOEcalCalPi0Calib)
 pathALCARECOHcalCalMinBias = cms.Path(seqALCARECOHcalCalMinBias)
 pathALCARECOHcalCalDijets = cms.Path(seqALCARECOHcalCalDijets)
