@@ -8,7 +8,7 @@
 //
 // Original Author:  
 //         Created:  Mon Dec  3 08:38:38 PST 2007
-// $Id: CmsShowMain.cc,v 1.12 2008/06/29 13:23:47 chrjones Exp $
+// $Id: CmsShowMain.cc,v 1.13 2008/07/01 04:23:57 chrjones Exp $
 //
 
 // system include files
@@ -306,7 +306,7 @@ CmsShowMain::CmsShowMain(int argc, char *argv[]) :
    // Vertices
    FWPhysicsObjectDesc vertices("Vertices",
 				TClass::GetClass("std::vector<reco::Vertex>"),
-				"",
+				"Vertices",
 				FWDisplayProperties(kYellow),
 				"offlinePrimaryVertices",
 				"",
