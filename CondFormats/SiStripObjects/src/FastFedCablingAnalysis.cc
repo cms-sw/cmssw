@@ -222,7 +222,7 @@ void FastFedCablingAnalysis::print( std::stringstream& ss, uint32_t not_used ) {
      << std::hex
      << std::setw(8) << std::setfill('0') << dcuHardId_ << std::endl
      << std::dec
-     << " LLD chan extracted from histo   : " << lldCh_ << std::endl
+     << " LLD chan extracted from histo   : " <<  ( lldCh_ > 3 ? sistrip::invalid_ : lldCh_ )  << std::endl
      << " \"High\" level (mean+/-rms) [ADC] : " << highMean_ << " +/- " << highRms_ << std::endl
      << " \"Low\" level (mean+/-rms)  [ADC] : " << lowMean_ << " +/- " << lowRms_ << std::endl
      << " Median \"high\" level       [ADC] : " << highMedian_ << std::endl
