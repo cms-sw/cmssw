@@ -1,5 +1,5 @@
 // -*- C++ -*-
-// $Id: ECalCaloTowerProxyRhoPhiZ2DBuilder.cc,v 1.13 2008/06/27 03:30:26 dmytro Exp $
+// $Id: ECalCaloTowerProxyRhoPhiZ2DBuilder.cc,v 1.14 2008/07/01 12:44:54 chrjones Exp $
 //
 
 // system include files
@@ -59,7 +59,10 @@ void ECalCaloTowerProxyRhoPhiZ2DBuilder::buildCalo(const FWEventItem* iItem,
 						   TEveCalo3D*& calo3d,
 						   bool ecal)
 {
-   if( *product == 0) *product = new TEveElementList();
+   if( *product == 0)  {
+      *product = new TEveElementList();
+      gEve->AddElement(*product);
+   }
    TH2F* hist = 0;
    TEveCaloDataHist* data = 0;
    if ( calo3d ) data = dynamic_cast<TEveCaloDataHist*>( calo3d->GetData() );
@@ -167,7 +170,7 @@ ECalCaloTowerProxyRhoPhiZ2DBuilder::getThetaBins()
 //
 // const member functions
 //
-REGISTER_FWRPZ2DDATAPROXYBUILDER(ECalCaloTowerProxyRhoPhiZ2DBuilder,CaloTowerCollection,"ECal");
+REGISTER_FWRPZ2DDATAPROXYBUILDER(ECalCaloTowerProxyRhoPhiZ2DBuilder,CaloTowerCollection,"ECalRhoZSeparate");
 
 //
 // static member functions

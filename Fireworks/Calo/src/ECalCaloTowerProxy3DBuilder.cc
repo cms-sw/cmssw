@@ -1,5 +1,5 @@
 // -*- C++ -*-
-// $Id: ECalCaloTowerProxy3DBuilder.cc,v 1.2 2008/06/18 17:40:31 chrjones Exp $
+// $Id: ECalCaloTowerProxy3DBuilder.cc,v 1.3 2008/06/23 06:29:03 dmytro Exp $
 //
 
 // system include files
@@ -21,9 +21,13 @@
 #include "Fireworks/Calo/interface/ECalCaloTowerProxy3DBuilder.h"
 #include "Fireworks/Core/interface/FW3DLegoDataProxyBuilder.h"
 
+TEveCaloDataHist*ECalCaloTowerProxy3DBuilder::m_data=0;
+
+
 void ECalCaloTowerProxy3DBuilder::build(const FWEventItem* iItem, TEveElementList** product)
 {
    if( *product == 0) *product = new TEveElementList();
+/*
    TH2F* hist = 0;
    TEveCaloDataHist* data = 0;
    std::string name = "ecal3D";
@@ -38,39 +42,83 @@ void ECalCaloTowerProxy3DBuilder::build(const FWEventItem* iItem, TEveElementLis
 	 }
       }
    }
-   const CaloTowerCollection* towers=0;
-   iItem->get(towers);
-   if(0==towers) {
+ */
+   m_towers=0;
+   iItem->get(m_towers);
+   if(0==m_towers) {
       std::cout <<"Failed to get CaloTowers"<<std::endl;
       return;
    }
    bool newHist = false;
-   if ( hist == 0 ) {
+   if ( m_hist == 0 ) {
      Bool_t status = TH1::AddDirectoryStatus();
      TH1::AddDirectory(kFALSE); //Keeps histogram from going into memory
-     hist = new TH2F(name.c_str(),"CaloTower ECAL Et distribution", 82, fw3dlego::xbins, 72, -M_PI, M_PI);
+     m_hist = new TH2F(histName().c_str(),"CaloTower ECAL Et distribution", 82, fw3dlego::xbins, 72, -M_PI, M_PI);
      TH1::AddDirectory(status);
       newHist = true;
    }
-   hist->Reset();
-   for(CaloTowerCollection::const_iterator tower = towers->begin(); tower != towers->end(); ++tower)
-     (hist)->Fill(tower->eta(), tower->phi(), tower->emEt());
-   
-   if ( ! data ) data = new TEveCaloDataHist();
+   m_hist->Reset();
+   if(iItem->defaultDisplayProperties().isVisible()) {
+      for(CaloTowerCollection::const_iterator tower = m_towers->begin(); tower != m_towers->end(); ++tower) {
+         if(m_handleEcal) {
+            (m_hist)->Fill(tower->eta(), tower->phi(), tower->emEt());
+         } else {
+            (m_hist)->Fill(tower->eta(), tower->phi(), tower->hadEt()+tower->outerEt());
+         }
+      }
+   }
+   if ( ! m_data ) m_data = new TEveCaloDataHist();
    if ( newHist ) {
-      Int_t s = data->AddHistogram(hist);
-      data->RefSliceInfo(s).Setup("ECAL", 0., iItem->defaultDisplayProperties().color());
+      m_sliceIndex = m_data->AddHistogram(m_hist);
+      m_data->RefSliceInfo(m_sliceIndex).Setup(histName().c_str(), 0., iItem->defaultDisplayProperties().color());
    }
    
    if ( m_calo3d == 0 ) {
-      m_calo3d = new TEveCalo3D(data);
+      m_calo3d = new TEveCalo3D(m_data);
       m_calo3d->SetBarrelRadius(129);
       m_calo3d->SetEndCapPos(310);
       //	 m_calo3d->IncDenyDestroy();
       // gEve->AddElement(m_calo3d);
       //	(*product)->AddElement(m_calo3d);
+      gEve->AddElement(*product);
       gEve->AddElement(m_calo3d, *product);
    }
 }
 
-REGISTER_FWRPZDATAPROXYBUILDER(ECalCaloTowerProxy3DBuilder,CaloTowerCollection,"ECalOld");
+std::string 
+ECalCaloTowerProxy3DBuilder::histName() const
+{
+   return "ecal3D";
+}
+
+void 
+ECalCaloTowerProxy3DBuilder::modelChanges(const FWModelIds& iIds,
+                                          TEveElement* iElements )
+{
+   applyChangesToAllModels(iElements);
+}
+
+void 
+ECalCaloTowerProxy3DBuilder::applyChangesToAllModels(TEveElement* iElements)
+{
+   if(m_data && m_towers && item()) {
+      m_hist->Reset();
+      if(item()->defaultDisplayProperties().isVisible()) {
+
+         assert(item()->size() >= m_towers->size());
+         unsigned int index=0;
+         for(CaloTowerCollection::const_iterator tower = m_towers->begin(); tower != m_towers->end(); ++tower,++index) {
+            if(item()->modelInfo(index).displayProperties().isVisible()) {
+               if(m_handleEcal) {
+                  (m_hist)->Fill(tower->eta(), tower->phi(), tower->emEt());
+               } else {
+                  (m_hist)->Fill(tower->eta(), tower->phi(), tower->hadEt()+tower->outerEt());
+               }
+            }
+         }
+      }
+      m_data->DataChanged();
+   }   
+}
+
+REGISTER_FWRPZDATAPROXYBUILDER(ECalCaloTowerProxy3DBuilder,CaloTowerCollection,"ECal");

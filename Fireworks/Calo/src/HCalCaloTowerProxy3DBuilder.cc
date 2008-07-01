@@ -1,5 +1,5 @@
 // -*- C++ -*-
-// $Id: HCalCaloTowerProxy3DBuilder.cc,v 1.2 2008/06/18 17:40:31 chrjones Exp $
+// $Id: HCalCaloTowerProxy3DBuilder.cc,v 1.3 2008/06/23 06:29:03 dmytro Exp $
 //
 
 // system include files
@@ -10,8 +10,14 @@
 #include "TEveCalo.h"
 #include "TEveCaloData.h"
 #include "TH2F.h"
+#include "Fireworks/Calo/interface/HCalCaloTowerProxy3DBuilder.h"
+
+#include "DataFormats/CaloTowers/interface/CaloTower.h"
+#include "DataFormats/CaloTowers/interface/CaloTowerFwd.h"
+
 
 // user include files
+/*
 #include "Fireworks/Core/interface/FWEventItem.h"
 #include "Fireworks/Core/interface/FWRPZDataProxyBuilder.h"
 
@@ -72,5 +78,11 @@ void HCalCaloTowerProxy3DBuilder::build(const FWEventItem* iItem, TEveElementLis
       gEve->AddElement(m_calo3d, *product);
    }
 }
+*/
+std::string 
+HCalCaloTowerProxy3DBuilder::histName() const
+{
+   return "hcal3D";
+}
 
-REGISTER_FWRPZDATAPROXYBUILDER(HCalCaloTowerProxy3DBuilder,CaloTowerCollection,"HCalOld");
+REGISTER_FWRPZDATAPROXYBUILDER(HCalCaloTowerProxy3DBuilder,CaloTowerCollection,"HCal");

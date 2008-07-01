@@ -3,7 +3,7 @@
 //
 // Original Author:  
 //         Created:  Thu Dec  6 18:01:21 PST 2007
-// $Id: HCalCaloTowerProxy3DBuilder.h,v 1.1 2008/06/16 18:35:38 dmytro Exp $
+// $Id: HCalCaloTowerProxy3DBuilder.h,v 1.2 2008/06/23 06:29:03 dmytro Exp $
 //
 
 // system include files
@@ -13,23 +13,23 @@ class FWEventItem;
 class TEveCalo3D;
 
 // user include files
-#include "Fireworks/Core/interface/FWRPZDataProxyBuilder.h"
+#include "Fireworks/Calo/interface/ECalCaloTowerProxy3DBuilder.h"
 
-class HCalCaloTowerProxy3DBuilder : public FWRPZDataProxyBuilder
+class HCalCaloTowerProxy3DBuilder : public ECalCaloTowerProxy3DBuilder
 {
 
    public:
-      HCalCaloTowerProxy3DBuilder() { setHighPriority(true); }
+      HCalCaloTowerProxy3DBuilder() { handleHcal(); }
       virtual ~HCalCaloTowerProxy3DBuilder() {}
 
       // ---------- const member functions ---------------------
+      virtual std::string histName() const;
 
       // ---------- static member functions --------------------
 
       // ---------- member functions ---------------------------
-      REGISTER_PROXYBUILDER_METHODS();
+   REGISTER_PROXYBUILDER_METHODS();
    private:
-      virtual void build(const FWEventItem* iItem, TEveElementList** product);
 
       HCalCaloTowerProxy3DBuilder(const HCalCaloTowerProxy3DBuilder&); // stop default
 

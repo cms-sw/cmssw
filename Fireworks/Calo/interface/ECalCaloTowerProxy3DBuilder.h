@@ -3,14 +3,19 @@
 //
 // Original Author:  
 //         Created:  Thu Dec  6 18:01:21 PST 2007
-// $Id: ECalCaloTowerProxy3DBuilder.h,v 1.1 2008/06/16 18:35:38 dmytro Exp $
+// $Id: ECalCaloTowerProxy3DBuilder.h,v 1.2 2008/06/23 06:29:03 dmytro Exp $
 //
 
 // system include files
+#include "Rtypes.h"
+#include "DataFormats/CaloTowers/interface/CaloTower.h"
+#include "DataFormats/CaloTowers/interface/CaloTowerFwd.h"
 
 class TEveElementList;
 class FWEventItem;
 class TEveCalo3D;
+class TH2F;
+class TEveCaloDataHist;
 
 // user include files
 #include "Fireworks/Core/interface/FWRPZDataProxyBuilder.h"
@@ -19,7 +24,7 @@ class ECalCaloTowerProxy3DBuilder : public FWRPZDataProxyBuilder
 {
 
    public:
-      ECalCaloTowerProxy3DBuilder() { setHighPriority( true ); }
+      ECalCaloTowerProxy3DBuilder():m_hist(0), m_sliceIndex(-1), m_handleEcal(true), m_towers(0) { setHighPriority( true ); }
       virtual ~ECalCaloTowerProxy3DBuilder() {}
 
       // ---------- const member functions ---------------------
@@ -28,14 +33,28 @@ class ECalCaloTowerProxy3DBuilder : public FWRPZDataProxyBuilder
 
       // ---------- member functions ---------------------------
       REGISTER_PROXYBUILDER_METHODS();
+   protected:
+      void handleHcal() {
+         m_handleEcal=false;
+      }
+   
+      virtual std::string histName() const;
    private:
       virtual void build(const FWEventItem* iItem, TEveElementList** product);
 
-      ECalCaloTowerProxy3DBuilder(const ECalCaloTowerProxy3DBuilder&); // stop default
+      virtual void modelChanges(const FWModelIds& iIds,
+                                TEveElement* iElements );
+      virtual void applyChangesToAllModels(TEveElement* iElements);
+   ECalCaloTowerProxy3DBuilder(const ECalCaloTowerProxy3DBuilder&); // stop default
 
       const ECalCaloTowerProxy3DBuilder& operator=(const ECalCaloTowerProxy3DBuilder&); // stop default
 
       // ---------- member data --------------------------------
+      TH2F* m_hist;
+      static TEveCaloDataHist* m_data;
+      Int_t m_sliceIndex;
+      bool m_handleEcal;
+     const CaloTowerCollection* m_towers;
 };
 
 #endif
