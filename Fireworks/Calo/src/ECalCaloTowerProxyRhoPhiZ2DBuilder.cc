@@ -1,5 +1,5 @@
 // -*- C++ -*-
-// $Id: ECalCaloTowerProxyRhoPhiZ2DBuilder.cc,v 1.12 2008/06/23 22:56:50 dmytro Exp $
+// $Id: ECalCaloTowerProxyRhoPhiZ2DBuilder.cc,v 1.13 2008/06/27 03:30:26 dmytro Exp $
 //
 
 // system include files
@@ -81,7 +81,10 @@ void ECalCaloTowerProxyRhoPhiZ2DBuilder::buildCalo(const FWEventItem* iItem,
    }
    bool newHist = false;
    if ( hist == 0 ) {
+      Bool_t status = TH1::AddDirectoryStatus();
+      TH1::AddDirectory(kFALSE); //Keeps histogram from going into memory
       hist = new TH2F(name.c_str(),"CaloTower Et distribution", 82, fw3dlego::xbins, 72, -M_PI, M_PI);
+      TH1::AddDirectory(status);
       newHist = true;
    }
    hist->Reset();
