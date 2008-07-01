@@ -3,7 +3,7 @@
 <use name=DataFormats/EcalDigi>
 <use name=DataFormats/EcalDetId>
 <use name=DataFormats/FEDRawData>
-<use name=EventFilter/Utilities>
+<use name=EventFilter/FEDInterface>
 <use name=FWCore/Framework>
 <use name=FWCore/ParameterSet>
 <use name=Foundation/PluginManager>
