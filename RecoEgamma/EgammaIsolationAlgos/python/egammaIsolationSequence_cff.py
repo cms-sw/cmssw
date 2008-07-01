@@ -1,7 +1,8 @@
 import FWCore.ParameterSet.Config as cms
 
-from RecoEgamma.EgammaIsolationAlgos.egammaIsoDeposits_cff import *
-from RecoEgamma.EgammaIsolationAlgos.egammaIsoFromDeposits_cff import *
+from RecoEgamma.EgammaIsolationAlgos.gamIsolationSequence_cff import *
+from RecoEgamma.EgammaIsolationAlgos.eleIsolationSequence_cff import *
 
-egammaIsolationSequence = cms.Sequence(egammaIsoDeposits*egammaIsoFromDeposits)
+#Standard reco sequence with both electrons and photons
+egammaIsolationSequence = cms.Sequence(eleIsolationSequence*gamIsolationSequence)
 
