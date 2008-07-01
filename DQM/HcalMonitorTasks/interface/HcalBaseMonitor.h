@@ -18,6 +18,7 @@
 #include "DataFormats/HcalRecHit/interface/HcalRecHitCollections.h"
 #include "EventFilter/HcalRawToDigi/interface/HcalDCCHeader.h"
 #include "CondFormats/HcalObjects/interface/HcalElectronicsMap.h"
+#include "FWCore/Utilities/interface/CPUTimer.h"
 
 #include <iostream>
 
@@ -27,8 +28,8 @@
 using namespace std;
 /** \class HcalBaseMonitor
   *  
-  * $Date: 2008/05/27 03:08:57 $
-  * $Revision: 1.10 $
+  * $Date: 2008/06/04 01:18:40 $
+  * $Revision: 1.11 $
   * \author W. Fisher - FNAL
   */
 class HcalBaseMonitor {
@@ -51,6 +52,9 @@ public:
 protected:
   
   int fVerbosity;
+  bool showTiming; // controls whether to show timing diagnostic info
+  edm::CPUTimer cpu_timer; // 
+
   bool makeDiagnostics; // controls whether to make diagnostic plots
 
   DQMStore* m_dbe;

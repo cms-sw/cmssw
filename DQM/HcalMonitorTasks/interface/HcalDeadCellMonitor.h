@@ -6,11 +6,10 @@
 #include "DQMServices/Core/interface/DQMStore.h"
 #include "DQMServices/Core/interface/MonitorElement.h"
 
-
 /** \class HcalDeadCellMonitor
   *  
-  * $Date: 2008/06/04 01:18:40 $
-  * $Revision: 1.10 $
+  * $Date: 2008/06/10 22:14:30 $
+  * $Revision: 1.11 $
   * \author J. Temple - Univ. of Maryland
   */
 
@@ -92,6 +91,7 @@ class HcalDeadCellMonitor: public HcalBaseMonitor {
  private:  ///Methods
   
    bool debug_;
+
    bool doFCpeds_; // true if ped values are in FC; otherwise, assume peds in ADC counts
 
    int ievt_;
