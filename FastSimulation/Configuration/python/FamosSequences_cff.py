@@ -43,14 +43,9 @@ from FastSimulation.CaloRecHitsProducer.CaloRecHits_cff import *
 
 # ECAL clusters
 from RecoEcal.Configuration.RecoEcal_cff import *
-islandBasicClusters.barrelHitProducer = 'caloRecHits'
-islandBasicClusters.endcapHitProducer = 'caloRecHits'
 hybridSuperClusters.ecalhitproducer = 'caloRecHits'
 correctedHybridSuperClusters.recHitProducer = cms.InputTag("caloRecHits","EcalRecHitsEB")
-correctedIslandBarrelSuperClusters.recHitProducer = cms.InputTag("caloRecHits","EcalRecHitsEB")
-correctedIslandEndcapSuperClusters.recHitProducer = cms.InputTag("caloRecHits","EcalRecHitsEE")
-correctedEndcapSuperClustersWithPreshower.preshRecHitProducer = cms.InputTag("caloRecHits","EcalRecHitsES")
-preshowerClusterShape.preshRecHitProducer = cms.InputTag("caloRecHits","EcalRecHitsES")
+correctedMulti5x5SuperClustersWithPreshower.preshRecHitProducer = cms.InputTag("caloRecHits","EcalRecHitsES")
 reducedEcalRecHitsEB.recHitsLabel = cms.InputTag("caloRecHits","EcalRecHitsEB")
 reducedEcalRecHitsEE.recHitsLabel = cms.InputTag("caloRecHits","EcalRecHitsEE")
 interestingEcalDetIdEB.recHitsLabel = cms.InputTag("caloRecHits","EcalRecHitsEB")
