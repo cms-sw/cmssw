@@ -28,7 +28,7 @@ process.load("FastSimulation/Configuration/HZZllll_cfi")
 # process.load("FastSimulation/Configuration/FlatPtMuonGun_cfi")
 # replace FlatRandomPtGunSource.PGunParameters.PartID={130}
 # Generate di-electrons with pT=35 GeV
-# process.load("FastSimulation/Configuration/DiElectrons_.cfi")
+# process.load("FastSimulation/Configuration/DiElectrons_cfi")
 
 # Famos sequences (Frontier conditions)
 process.load("FastSimulation/Configuration/CommonInputsFake_cff")
