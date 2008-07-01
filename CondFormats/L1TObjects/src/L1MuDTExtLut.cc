@@ -5,8 +5,8 @@
 //   Description: Look-up tables for extrapolation
 //
 //
-//   $Date: 2007/03/30 07:48:02 $
-//   $Revision: 1.1 $
+//   $Date: 2008/02/25 15:26:57 $
+//   $Revision: 1.2 $
 //
 //   Author :
 //   N. Neumeister            CERN EP
@@ -24,6 +24,7 @@
 // C++ Headers --
 //---------------
 
+#include <iostream>
 #include <ostream>
 #include <iomanip>
 #include <string>
@@ -33,7 +34,7 @@
 //-------------------------------
 
 #include "FWCore/ParameterSet/interface/FileInPath.h"
-#include "CondFormats/L1TObjects/interface/BitArray.h"
+// #include "CondFormats/L1TObjects/interface/BitArray.h"
 #include "CondFormats/L1TObjects/interface/L1MuDTExtParam.h"
 #include "CondFormats/L1TObjects/interface/L1TriggerLutFile.h"
 
@@ -214,22 +215,22 @@ void L1MuDTExtLut::print() const {
       iter1 = ext_lut[ext].high.find(address);
       int high    = (*iter1).second;
 
-      BitArray<10> b_address(static_cast<unsigned>(abs(address)));
-      BitArray<12> b_low(static_cast<unsigned>(abs(low)));
-      BitArray<12> b_high(static_cast<unsigned>(abs(high)));
+//       BitArray<10> b_address(static_cast<unsigned>(abs(address)));
+//       BitArray<12> b_low(static_cast<unsigned>(abs(low)));
+//       BitArray<12> b_high(static_cast<unsigned>(abs(high)));
 
-      if ( address < 0 ) b_address.twoComplement();
-      if ( low < 0 ) b_low.twoComplement();
-      if ( high < 0 ) b_high.twoComplement();
+//       if ( address < 0 ) b_address.twoComplement();
+//       if ( low < 0 ) b_low.twoComplement();
+//       if ( high < 0 ) b_high.twoComplement();
 
-      cout.setf(ios::right,ios::adjustfield);
-      cout << " " << setbase(10) << setw(5) << address << " (";
-      for ( int i = nbit_phib-1; i >= 0; i-- ) cout << b_address[i];
-      cout << ")   " << setw(5) << low  << " (";
-      for ( int i = nbit_phi-1; i >= 0; i-- ) cout << b_low[i];
-      cout << ")   " << setw(5) << high << " (";
-      for ( int i = nbit_phi-1; i >= 0; i-- ) cout << b_high[i];
-      cout << ")  " << endl;
+//       cout.setf(ios::right,ios::adjustfield);
+//       cout << " " << setbase(10) << setw(5) << address << " (";
+//       for ( int i = nbit_phib-1; i >= 0; i-- ) cout << b_address[i];
+//       cout << ")   " << setw(5) << low  << " (";
+//       for ( int i = nbit_phi-1; i >= 0; i-- ) cout << b_low[i];
+//       cout << ")   " << setw(5) << high << " (";
+//       for ( int i = nbit_phi-1; i >= 0; i-- ) cout << b_high[i];
+//       cout << ")  " << endl;
 
       iter++;
     }

@@ -5,8 +5,8 @@
 //   Description: Look-up tables for phi assignment 
 //
 //
-//   $Date: 2007/03/30 07:48:02 $
-//   $Revision: 1.1 $
+//   $Date: 2008/02/25 15:26:57 $
+//   $Revision: 1.2 $
 //
 //   Author :
 //   N. Neumeister            CERN EP
@@ -24,6 +24,7 @@
 // C++ Headers --
 //---------------
 
+#include <iostream>
 #include <ostream>
 #include <iomanip>
 #include <string>
@@ -33,7 +34,7 @@
 //-------------------------------
 
 #include "FWCore/ParameterSet/interface/FileInPath.h"
-#include "CondFormats/L1TObjects/interface/BitArray.h"
+// #include "CondFormats/L1TObjects/interface/BitArray.h"
 #include "CondFormats/L1TObjects/interface/L1TriggerLutFile.h"
 
 using namespace std;
@@ -191,18 +192,18 @@ void L1MuDTPhiLut::print() const {
       int address = (*iter).first;
       int value   = (*iter).second;
 
-      BitArray<10> b_address(static_cast<unsigned>(abs(address)));
-      BitArray<12> b_value(static_cast<unsigned>(abs(value)));
+//       BitArray<10> b_address(static_cast<unsigned>(abs(address)));
+//       BitArray<12> b_value(static_cast<unsigned>(abs(value)));
 
-      if ( address < 0 ) b_address.twoComplement();
-      if ( value < 0 ) b_value.twoComplement();
+//       if ( address < 0 ) b_address.twoComplement();
+//       if ( value < 0 ) b_value.twoComplement();
 
-      cout.setf(ios::right,ios::adjustfield);
-      cout << " " << setbase(10) << setw(5) << address << " (";
-      for ( int i = nbit_phib-1; i >= 0; i-- ) cout << b_address[i];
-      cout << ")   " << setw(5) << value  << " (";
-      for ( int i = nbit_phi-1; i >= 0; i-- ) cout << b_value[i];
-      cout << ")  " << endl;
+//       cout.setf(ios::right,ios::adjustfield);
+//       cout << " " << setbase(10) << setw(5) << address << " (";
+//       for ( int i = nbit_phib-1; i >= 0; i-- ) cout << b_address[i];
+//       cout << ")   " << setw(5) << value  << " (";
+//       for ( int i = nbit_phi-1; i >= 0; i-- ) cout << b_value[i];
+//       cout << ")  " << endl;
 
       iter++;
     }
