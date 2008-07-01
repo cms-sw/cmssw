@@ -1,4 +1,4 @@
-// Last commit: $Id: SiStripCommissioningOfflineClient.cc,v 1.36 2008/03/17 17:39:28 bainbrid Exp $
+// Last commit: $Id: SiStripCommissioningOfflineClient.cc,v 1.37 2008/05/19 15:44:37 bainbrid Exp $
 
 #include "DQM/SiStripCommissioningClients/interface/SiStripCommissioningOfflineClient.h"
 #include "DataFormats/SiStripCommon/interface/SiStripEnumsAndStrings.h"
@@ -173,7 +173,7 @@ void SiStripCommissioningOfflineClient::beginJob( const edm::EventSetup& setup )
     if ( clientHistos_ ) {
       bei->open( *jfile, false, sistrip::collate_, "" );
     } else { 
-      bei->open( *jfile, true, "SiStrip", sistrip::collate_ );
+      bei->open( *jfile, false, "SiStrip", sistrip::collate_ );
     }
 #else
     bei->open( *jfile );
@@ -360,7 +360,15 @@ void SiStripCommissioningOfflineClient::beginJob( const edm::EventSetup& setup )
   }
   
   // Save client root file
-  if ( histos_ ) { histos_->save( outputFileName_, runNumber_ ); }
+  if ( histos_ ) {
+    bool save = parameters_.getUntrackedParameter<bool>( "SaveClientFile", true );
+    if ( save ) { histos_->save( outputFileName_, runNumber_ ); }
+    else {
+      LogTrace(mlDqmClient_)
+	<< "[SiStripCommissioningOfflineClient::" << __func__ << "]"
+	<< " Client file not saved!";
+    }
+  }
   
   // Virtual method to trigger the database upload
   uploadToConfigDb();
