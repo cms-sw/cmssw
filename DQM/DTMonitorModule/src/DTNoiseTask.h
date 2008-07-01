@@ -4,12 +4,14 @@
 /** \class DTNoiseTask
  *  No description available.
  *
- *  $Date: $
- *  $Revision: $
+ *  $Date: 2008/06/30 12:50:03 $
+ *  $Revision: 1.1 $
  *  \author G. Cerminara - INFN Torino
  */
 
 #include <FWCore/Framework/interface/EDAnalyzer.h>
+#include "DQMServices/Core/interface/DQMStore.h"
+#include "DQMServices/Core/interface/MonitorElement.h"
 
 #include <DataFormats/MuonDetId/interface/DTChamberId.h>
 #include <FWCore/Framework/interface/ESHandle.h>
@@ -54,9 +56,19 @@ private:
   void bookHistos(DTChamberId chId);
 
   // counter of processed events
-  int nevents;
+  int evtNumber;
   DQMStore *dbe;
-  edm::ESHandle<DTGeometry> muonGeom;
+  edm::ESHandle<DTGeometry> dtGeom;
+
+  //tTrig map per Station
+  std::map<DTChamberId, int> tTrigStMap;
+
+  //the noise histo (Hz)
+  std::map<DTChamberId, MonitorElement*> noiseHistos;
+
+  //map for histo normalization
+  std::map<DTChamberId, int> mapEvt;
+
 };
 #endif
 
