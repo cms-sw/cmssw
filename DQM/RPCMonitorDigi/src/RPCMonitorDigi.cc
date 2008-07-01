@@ -296,8 +296,6 @@ void RPCMonitorDigi::analyze(const Event& iEvent,const EventSetup& iSetup ){
     os<<"BXWithData_"<<ringType<<"_"<<ring<<"_Sector_"<<detId.sector();
     meMap[os.str()]->Fill(bxs.size());
 
-    LogInfo (nameInLog) <<"------------------" << numberOfDigi;
-
     os.str("");
     os<<"NumberOfDigi_"<<ringType<<"_"<<ring<<"_Sector_"<<detId.sector();
     meMap[os.str()]->Fill(numberOfDigi);
