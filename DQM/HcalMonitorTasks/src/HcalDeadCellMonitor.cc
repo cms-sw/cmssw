@@ -3,6 +3,7 @@
 #include <math.h>
 #include <sstream>
 using namespace std;
+#include "FWCore/Utilities/interface/CPUTimer.h"
 
 
 //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -49,6 +50,10 @@ namespace HcalDeadCellCheck
 
     if (!hist.check) return;
 
+    // Timing doesn't work well on individual digis -- times almost always come out as 0.
+    //edm::CPUTimer XXX;
+    //XXX.reset(); XXX.start();
+
     string type;
     // Get subdet name associated with type value
     if(hist.type==1) type = "HB";
@@ -75,6 +80,7 @@ namespace HcalDeadCellCheck
     hist.digiCheck->Fill(digi_eta,digi_phi);
     all.digiCheck->Fill(digi_eta,digi_phi);
 
+
     if (hist.makeDiagnostics)
       {
 	hist.digiCheck_depth[digi_depth-1]->Fill(digi_eta,digi_phi);
@@ -94,8 +100,6 @@ namespace HcalDeadCellCheck
 
     const HcalQIEShape* shape = cond.getHcalShape();
     const HcalQIECoder* coder = cond.getHcalCoder(digi.id());  
-
-
 
     // Loop over the 10 time slices of the digi to find the time slice with maximum charge deposition
     // We'll assume steeply-peaked distribution, so that charge deposit occurs
@@ -126,7 +130,6 @@ namespace HcalDeadCellCheck
 	    maxi=i;
 	  }
       } // for (int i=0;i<10;++i)	
-
 
     // Now loop over 4 time slices around maximum value
     
@@ -168,6 +171,7 @@ namespace HcalDeadCellCheck
 	hist.ADCdist->Fill(digi.sample(i).adc());
 	all.ADCdist->Fill(digi.sample(i).adc());
       } // for (int i = max(0,maxi-1)...)
+    
 
     // Compare sum around max digi value to sum of pedestals
     total_pedwidth=pow(total_pedwidth,0.5);
@@ -213,6 +217,7 @@ namespace HcalDeadCellCheck
 	    all.deadcapADC_map[zz]->Fill(digi_eta,digi_phi);
 	  }
       }
+
     return;
   } // void CheckForDeadDigis(...)
 
@@ -522,7 +527,7 @@ void HcalDeadCellMonitor::setupHists(DeadCellHists& hist,  DQMStore* dbe)
       the total "Hcal" combination.)
   */
 
-  if (hist.check==0) return;
+  if (hist.check==false) return;
   if (hist.type==1)
     hist.subdet="HB";
   else if (hist.type==2)
@@ -790,6 +795,10 @@ void HcalDeadCellMonitor::processEvent_digi(const HBHEDigiCollection& hbhedigi,
     compare readout values vs. pedestals).
   */
 
+  if (showTiming)
+    {
+      cpu_timer.reset(); cpu_timer.start(); 
+    }
 
   if (fVerbosity) cout <<"HcalDeadCellMonitor::processEvent_digi     Starting process"<<endl;
 
@@ -817,6 +826,12 @@ void HcalDeadCellMonitor::processEvent_digi(const HBHEDigiCollection& hbhedigi,
       if(fVerbosity) cout <<"HcalDeadCellMonitor::processEvent_digi   No HBHE Digis."<<endl;
     }
 
+  if (showTiming)
+    {
+      cpu_timer.stop(); std::cout << " TIMER::HcalDeadCell DIGI HBHE-> " << cpu_timer.cpuTime() << std::endl;
+  cpu_timer.reset(); cpu_timer.start(); 
+    }
+
   // Loop over HO
   try
     {
@@ -833,7 +848,14 @@ void HcalDeadCellMonitor::processEvent_digi(const HBHEDigiCollection& hbhedigi,
       if(fVerbosity) cout <<"HcalDeadCellMonitor::processEvent_digi   No HO Digis."<<endl;
     }
 
-  // Loop over HF
+  if (showTiming)
+    {
+      cpu_timer.stop(); std::cout << " TIMER::HcalDeadCell HO DIGI-> " << cpu_timer.cpuTime() << std::endl;
+      
+      cpu_timer.reset(); cpu_timer.start(); 
+    }
+
+  // Load HF
   try
     {
       for (HFDigiCollection::const_iterator j=hfdigi.begin(); j!=hfdigi.end(); ++j)
@@ -849,6 +871,10 @@ void HcalDeadCellMonitor::processEvent_digi(const HBHEDigiCollection& hbhedigi,
       if(fVerbosity) cout <<"HcalDeadCellMonitor::processEvent_digi   No HF Digis."<<endl;
     }
 
+  if (showTiming)
+    {
+      cpu_timer.stop(); std::cout << " TIMER::HcalDeadCell HF DIGI-> " << cpu_timer.cpuTime() << std::endl;
+    }
   return;
 
 } // void HcalDeadCellMonitor::processEvent_digi
@@ -865,6 +891,8 @@ void HcalDeadCellMonitor::processEvent_hits(const HBHERecHitCollection& hbHits,
      (by comparing to neighboring cell energies)
   */
 
+  return;  // CheckHits doesn't seem to provide much info?
+
   if(!m_dbe) 
     {
       if(fVerbosity) cout <<"HcalDeadCellMonitor::processEvent_hits    DQMStore not instantiated!!!\n";
@@ -873,7 +901,11 @@ void HcalDeadCellMonitor::processEvent_hits(const HBHERecHitCollection& hbHits,
   if (fVerbosity) cout <<"HcalDeadCellMonitor::processEvent_hits     Starting process"<<endl;
 
 
-  // Loop over HB digis
+  // Loop over HB rechits
+  if (showTiming)
+    {
+      cpu_timer.reset(); cpu_timer.start();
+    }
   try
     {
       HcalDeadCellCheck::CheckHits(coolcellfrac_,hbHits,hbHists,
@@ -883,8 +915,13 @@ void HcalDeadCellMonitor::processEvent_hits(const HBHERecHitCollection& hbHits,
 	{
 	  if(fVerbosity) cout <<"HcalDeadCellMonitor::processEvent_hits:   Could not process HB Hits"<<endl;
 	}
+  if (showTiming)
+    {
+      cpu_timer.stop(); std::cout << " TIMER:: HcalDeadCell HB RECHITS-> " << cpu_timer.cpuTime() << std::endl;
+      cpu_timer.reset(); cpu_timer.start();
+    }
 
-  // Loop over HE digis
+  // Loop over HE Rechits
   try
     {
       HcalDeadCellCheck::CheckHits(coolcellfrac_,hbHits,heHists,
@@ -894,8 +931,14 @@ void HcalDeadCellMonitor::processEvent_hits(const HBHERecHitCollection& hbHits,
     {
       if(fVerbosity) cout <<"HcalDeadCellMonitor::processEvent_hits:   Could not process HE Hits"<<endl;
     }
-  
-  // Loop over HO digis
+
+  if (showTiming)
+    {
+      cpu_timer.stop(); std::cout << " TIMER::HcalDeadCell HE RECHITS-> " << cpu_timer.cpuTime() << std::endl;
+      cpu_timer.reset(); cpu_timer.start();
+    }
+
+  // Loop over HO rechits
   try
     {
       HcalDeadCellCheck::CheckHits(coolcellfrac_,hoHits,hoHists,
@@ -906,7 +949,13 @@ void HcalDeadCellMonitor::processEvent_hits(const HBHERecHitCollection& hbHits,
       if(fVerbosity) cout <<"HcalDeadCellMonitor::processEvent_hits:   Could not process HO Hits"<<endl;
     }
 
-  // Loop over HF digis
+  if (showTiming)
+    {
+      cpu_timer.stop(); std::cout << " TIMER::HcalDeadCell HO RECHITS-> " << cpu_timer.cpuTime() << std::endl;
+      cpu_timer.reset(); cpu_timer.start();
+    }
+  
+  // Loop over HF rechits
   try
     {
       HcalDeadCellCheck::CheckHits(coolcellfrac_,hfHits,
@@ -916,7 +965,11 @@ void HcalDeadCellMonitor::processEvent_hits(const HBHERecHitCollection& hbHits,
     {
       if(fVerbosity) cout <<"HcalDeadCellMonitor::processEvent_hits:   Could not process HF Hits"<<endl;
     }
-
+  
+  if (showTiming)
+    {
+      cpu_timer.stop(); std::cout << " TIMER::HcalDeadCell HF RECHITS-> " << cpu_timer.cpuTime() << std::endl;
+    }
   return;
 
 } // void HcalDeadCellMonitor::processEvent_hits(...)
@@ -933,7 +986,7 @@ void HcalDeadCellMonitor::reset_Nevents(DeadCellHists &h)
 
   if (fVerbosity)
     cout <<"<HcalDeadCellMonitor> Entered reset_Nevents routine"<<endl;
-  if (h.check==0) return;
+  if (h.check==false) return;
   
   int eta, phi; // these will store detector eta, phi
   for (int ieta=1;ieta<=etaBins_;++ieta)

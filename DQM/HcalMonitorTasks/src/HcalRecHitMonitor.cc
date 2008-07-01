@@ -225,11 +225,18 @@ void HcalRecHitMonitor::processEvent(const HBHERecHitCollection& hbHits,
   ievt_++;
   meEVT_->Fill(ievt_);
 
+
   HBHERecHitCollection::const_iterator HBHEiter;
   HORecHitCollection::const_iterator HOiter;
   HFRecHitCollection::const_iterator HFiter;
   float tot = 0, tot2=0, all =0;
   float totThr = 0, tot2Thr=0, allThr =0;
+
+  if (showTiming) 
+    { 
+      cpu_timer.reset(); cpu_timer.start();  
+    } 
+
 
   try{
     if(hbHits.size()>0){    
@@ -340,6 +347,12 @@ void HcalRecHitMonitor::processEvent(const HBHERecHitCollection& hbHits,
     if(fVerbosity) printf("HcalRecHitMonitor::processEvent  Error in HBHE RecHit loop\n");
   }
 
+  if (showTiming)
+    { 
+      cpu_timer.stop(); std::cout << " TIMER::HcalRecHit RECHIT HBHE-> " << cpu_timer.cpuTime() << std::endl; 
+      cpu_timer.reset(); cpu_timer.start();  
+    } 
+
   try{
     tot = 0; totThr = 0;
     if(hoHits.size()>0){
@@ -395,7 +408,12 @@ void HcalRecHitMonitor::processEvent(const HBHERecHitCollection& hbHits,
   } catch (...) {    
     if(fVerbosity) printf("HcalRecHitMonitor::processEvent  Error in HO RecHit loop\n");
   }
-  
+   if (showTiming)
+    { 
+      cpu_timer.stop(); std::cout << " TIMER::HcalRecHit RECHIT HO-> " << cpu_timer.cpuTime() << std::endl; 
+      cpu_timer.reset(); cpu_timer.start();  
+    } 
+
   try{
     tot=0;  totThr=0;
     if(hfHits.size()>0){
@@ -461,7 +479,11 @@ void HcalRecHitMonitor::processEvent(const HBHERecHitCollection& hbHits,
   } catch (...) {    
     if(fVerbosity) printf("HcalRecHitMonitor::processEvent  Error in HF RecHit loop\n");
   }
-  
+
+  if (showTiming)
+    { 
+      cpu_timer.stop(); std::cout << " TIMER::HcalRecHit RECHIT HF-> " << cpu_timer.cpuTime() << std::endl; 
+    } 
   
   //  if(all>0) meRECHIT_E_all->Fill(all);
   if(all>-100) meRECHIT_E_all->Fill(all);

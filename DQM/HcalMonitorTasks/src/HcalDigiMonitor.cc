@@ -833,12 +833,17 @@ void HcalDigiMonitor::processEvent(const HBHEDigiCollection& hbhe,
   float normVals[10]; bool digiErr=false;
   bool digiOcc=false; bool digiUpset=false;
   int ndigi = 0;  int nbqdigi = 0;
+
+  if (showTiming)
+    {
+      cpu_timer.reset(); cpu_timer.start();
+    }
 	  
   try{
     int nhedigi = 0;   int nhbdigi = 0;
     int nhbbqdigi = 0;  int nhebqdigi = 0;
     int firsthbcap = -1; int firsthecap = -1;
-    for (HBHEDigiCollection::const_iterator j=hbhe.begin(); j!=hbhe.end(); j++){
+    for (HBHEDigiCollection::const_iterator j=hbhe.begin(); j!=hbhe.end(); ++j){
       const HBHEDataFrame digi = (const HBHEDataFrame)(*j);
       
 
@@ -901,11 +906,11 @@ void HcalDigiMonitor::processEvent(const HBHEDigiCollection& hbhe,
 
 	//for timing plot, find max-TS
 	int maxadc=0;
-	for (int j=0; j<digi.size(); j++){     
+	for (int j=0; j<digi.size(); ++j){     
 	  if (digi.sample(j).adc() > maxadc) maxadc = digi.sample(j).adc();
 	}
 
-	for (int i=0; i<digi.size(); i++) {	    
+	for (int i=0; i<digi.size(); ++i) {	    
 	  hbHists.QIE_CAPID->Fill(digi.sample(i).capid());
 	  hbHists.QIE_ADC->Fill(digi.sample(i).adc());
 	  //Timing plot: skipping ped. subtraction and fC conversion, just lin.adc counts
@@ -991,11 +996,11 @@ void HcalDigiMonitor::processEvent(const HBHEDigiCollection& hbhe,
 
 	//for timing plot, find max-TS
 	int maxadc=0;
-	for (int j=0; j<digi.size(); j++){     
+	for (int j=0; j<digi.size(); ++j){     
 	  if (digi.sample(j).adc() > maxadc) maxadc = digi.sample(j).adc();
 	}
 
-	for (int i=0; i<digi.size(); i++) {	    
+	for (int i=0; i<digi.size(); ++i) {	    
 	  heHists.QIE_CAPID->Fill(digi.sample(i).capid());
 	  heHists.QIE_ADC->Fill(digi.sample(i).adc());
 	  //Timing plot: skipping ped. subtraction and fC conversion, just lin.adc counts
@@ -1042,17 +1047,26 @@ void HcalDigiMonitor::processEvent(const HBHEDigiCollection& hbhe,
   } catch (...) {    
     if(fVerbosity) printf("HcalDigiMonitor::processEvent  No HBHE Digis.\n");
   }
-  
+
+  if (showTiming)
+    {
+      cpu_timer.stop();
+      cout <<"TIMER:: HcalDigiMonitor DIGI HBHE -> "<<cpu_timer.cpuTime()<<endl;
+      cpu_timer.reset(); cpu_timer.start();
+    }
+	  
   try{
     int firsthocap = -1; int nhobqdigi = 0;
+
     int nhodigi = ho.size();
     //    hoHists.DIGI_NUM->Fill(ho.size());
-    for (HODigiCollection::const_iterator j=ho.begin(); j!=ho.end(); j++){
+
+
+    for (HODigiCollection::const_iterator j=ho.begin(); j!=ho.end(); ++j){
       if (!hoHists.check) continue;
       const HODataFrame digi = (const HODataFrame)(*j);	
-      HcalDigiMap::digiStats(digi, calibs_, occThresh_, normVals, digiErr, digiOcc, digiUpset);      
-
-
+      HcalDigiMap::digiStats(digi, calibs_, occThresh_, normVals, digiErr, digiOcc, digiUpset);     
+      
       if ( digiOcc)
 	{
 	  hoHists.PROBLEMDIGICELLS_TEMP->Fill(digi.id().ieta(),digi.id().iphi(),1);
@@ -1067,6 +1081,9 @@ void HcalDigiMonitor::processEvent(const HBHEDigiCollection& hbhe,
 	hcalHists.PROBLEMDIGICELLS_DEPTH[digi.id().depth()-1]->Fill(digi.id().ieta(),digi.id().iphi());
 
 	nhobqdigi++; nbqdigi++;
+      }
+      
+      if (digiErr){
 	HcalDigiMap::fillErrors<HODataFrame>(digi,normVals,
 					       hoHists.ERR_MAP_GEO,hoHists.ERR_MAP_VME,
 					       hoHists.ERR_MAP_DCC);	  
@@ -1090,6 +1107,7 @@ void HcalDigiMonitor::processEvent(const HBHEDigiCollection& hbhe,
 						  OCC_ETA,OCC_PHI);	  
       }
       
+
       hoHists.DIGI_SIZE->Fill(digi.size());
       hoHists.DIGI_PRESAMPLE->Fill(digi.presamples());
 
@@ -1101,17 +1119,20 @@ void HcalDigiMonitor::processEvent(const HBHEDigiCollection& hbhe,
       
       //for timing plot, find max-TS
       int maxadc=0;
-      for (int j=0; j<digi.size(); j++){     
+
+      for (int j=0; j<digi.size(); ++j){     
 	if (digi.sample(j).adc() > maxadc) maxadc = digi.sample(j).adc();
       }
 
-      for (int i=0; i<digi.size(); i++) {	    
+      for (int i=0; i<digi.size(); ++i) {	    
 	hoHists.QIE_CAPID->Fill(digi.sample(i).capid());
 	hoHists.QIE_ADC->Fill(digi.sample(i).adc());
 	//Timing plot: skipping ped. subtraction and fC conversion, just lin.adc counts
 	//  hoHists.SHAPE_tot->Fill(i,normVals[i]);
+
 	int jadc=digi.sample(i).adc();
 	float tmp = (LedMonAdc2fc[jadc]+0.5);
+
 	hoHists.SHAPE_tot->Fill(i,tmp);
 	
 	//Timing plot: skipping ped. subtraction and fC conversion, just lin.adc counts
@@ -1121,8 +1142,9 @@ void HcalDigiMonitor::processEvent(const HBHEDigiCollection& hbhe,
 	if(digiUpset) hoHists.QIE_CAPID->Fill(5);
 	int dver = 2*digi.sample(i).er() + digi.sample(i).dv();
 	hoHists.QIE_DV->Fill(dver);
-      }    
-      
+      } // for (int i=0; i<digi.size();++i)
+
+
       if(doPerChannel_)	  
 	HcalDigiPerChan::perChanHists<HODataFrame>(3,digi,normVals,hoHists.SHAPE,m_dbe, baseFolder_);
 
@@ -1147,12 +1169,19 @@ void HcalDigiMonitor::processEvent(const HBHEDigiCollection& hbhe,
   catch (...) {
     if(fVerbosity) cout << "HcalDigiMonitor::processEvent  No HO Digis." << endl;
   }
+
+  if (showTiming)
+    {
+      cpu_timer.stop();
+      cout <<"TIMER:: HcalDigiMonitor DIGI HO -> "<<cpu_timer.cpuTime()<<endl;
+      cpu_timer.reset(); cpu_timer.start();
+    }
   
   try{
     int firsthfcap = -1; int nhfbqdigi = 0;
     int nhfdigi = hf.size();
     //    hfHists.DIGI_NUM->Fill(hf.size());
-    for (HFDigiCollection::const_iterator j=hf.begin(); j!=hf.end(); j++){
+    for (HFDigiCollection::const_iterator j=hf.begin(); j!=hf.end(); ++j){
       if (!hfHists.check) continue;
       const HFDataFrame digi = (const HFDataFrame)(*j);
  
@@ -1206,11 +1235,11 @@ void HcalDigiMonitor::processEvent(const HBHEDigiCollection& hbhe,
       
       //for timing plot, find max-TS
       int maxadc=0;
-      for (int j=0; j<digi.size(); j++){     
+      for (int j=0; j<digi.size(); ++j){     
 	if (digi.sample(j).adc() > maxadc) maxadc = digi.sample(j).adc();
       }
    
-      for (int i=0; i<digi.size(); i++) {	    
+      for (int i=0; i<digi.size(); ++i) {	    
 	hfHists.QIE_CAPID->Fill(digi.sample(i).capid());
 	hfHists.QIE_ADC->Fill(digi.sample(i).adc());
 	//Timing plot: skipping ped. subtraction and fC conversion, just lin.adc counts
@@ -1252,6 +1281,13 @@ void HcalDigiMonitor::processEvent(const HBHEDigiCollection& hbhe,
   } catch (...) {
     if(fVerbosity) cout << "HcalDigiMonitor::processEvent  No HF Digis." << endl;
   }
+
+ if (showTiming)
+    {
+      cpu_timer.stop();
+      cout <<"TIMER:: HcalDigiMonitor DIGI HF -> "<<cpu_timer.cpuTime()<<endl;
+    }
+
   DIGI_NUM->Fill(ndigi);
   if (nbqdigi !=0) BQDIGI_NUM->Fill(nbqdigi);
   if (ndigi !=0){
@@ -1270,7 +1306,16 @@ void HcalDigiMonitor::processEvent(const HBHEDigiCollection& hbhe,
   // Check for consistently missing digis
   if (ievt_>0 && ievt_%(checkNevents_)==0)
     {
+      if (showTiming) 
+	{
+	  cpu_timer.reset(); cpu_timer.start();
+	}
       reset_Nevents();
+      if (showTiming)
+	{
+	  cpu_timer.stop();
+	  cout <<"TIMER:: HcalDigiMonitor DIGI CheckNevents -> "<<cpu_timer.cpuTime()<<endl;
+	}
     }
 
   return;
