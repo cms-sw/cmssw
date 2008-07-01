@@ -229,6 +229,23 @@ void HcalSummaryClient::setup(void)
   me->setAxisTitle("i#eta", 1);
   me->setAxisTitle("i#phi", 2);
  
+
+  // set status words to unknown by default
+  status_HB_=-1;
+  status_HE_=-1;
+  status_HO_=-1;
+  status_HF_=-1;
+
+  
+  for (int i=0;i<4;++i)
+    {
+      // All values set to unknown by default
+      status_digi[i]=-1;
+      status_deadcell[i]=-1;
+      status_hotcell[i]=-1;
+    }
+
+
 } // void HcalSummaryClient::setup(void)
 
 
@@ -277,25 +294,17 @@ void HcalSummaryClient::analyze(void)
 	cout << "HcalSummaryClient: ievt/jevt = " << ievt_ << "/" << jevt_ << endl;
     }
 
-  // set status words to unknown by default
+  // Reset values to 'unknown' status; they'll be set by analyze_everything routines
+  status_global_=-1;
   status_HB_=-1;
   status_HE_=-1;
   status_HO_=-1;
   status_HF_=-1;
 
-  
-  for (int i=0;i<4;++i)
-    {
-      // All values set to unknown by default
-      status_digi[i]=-1;
-      status_deadcell[i]=-1;
-      status_hotcell[i]=-1;
-    }
-
-  if (subDetsOn_[0]) status_digi[0]=analyze_everything("HB",status_HB_);
-  if (subDetsOn_[1]) status_digi[1]=analyze_everything("HE",status_HE_);
-  if (subDetsOn_[2]) status_digi[2]=analyze_everything("HO",status_HO_);
-  if (subDetsOn_[3]) status_digi[3]=analyze_everything("HF",status_HF_);
+  if (subDetsOn_[0]) analyze_everything("HB",1,status_HB_);
+  if (subDetsOn_[1]) analyze_everything("HE",2,status_HE_);
+  if (subDetsOn_[2]) analyze_everything("HO",3,status_HO_);
+  if (subDetsOn_[3]) analyze_everything("HF",4,status_HF_);
 
   /*
     if (digiClient_)
@@ -347,7 +356,7 @@ void HcalSummaryClient::analyze(void)
 } //void HcalSummaryClient::analyze(void)
 
 
-float HcalSummaryClient::analyze_everything(std::string subdetname, float& subdet)
+float HcalSummaryClient::analyze_everything(std::string subdetname, int type, float& subdet)
 {
   /* analyze_everything calculates overall status from all available client checks */
 
@@ -400,9 +409,13 @@ float HcalSummaryClient::analyze_everything(std::string subdetname, float& subde
   // loop over cells
   double newbincontent=0;
   float badcells=0.; 
+  float baddigis=0.;
+  float badhotcells=0.;
+  float baddeadcells=0.;
   float eta;
   //float phi;
 
+  float tempval=0.;
   for (int ieta=1;ieta<=etaBins_;++ieta)
     {   
       eta=ieta+int(etaMin_)-1;
@@ -411,28 +424,51 @@ float HcalSummaryClient::analyze_everything(std::string subdetname, float& subde
 
       for (int iphi=1; iphi<=phiBins_;++iphi)
 	{
+	  newbincontent=0;
 	  // Now check for errors from each client histogram:
-	  if (digiClient_) newbincontent+=me_digi->getBinContent(ieta,iphi);
-	  if (hotCellClient_) newbincontent+=me_hotcell->getBinContent(ieta,iphi);
-	  if (deadCellClient_) newbincontent+=me_deadcell->getBinContent(ieta,iphi);
-	  
-	  //if (newbincontent==0) continue; // nope; need to set summary bin to 0; otherwise it remains as -1
-	  // Is this the kind of default behavior we want?
+	  if (digiClient_) 
+	    {
+	      tempval=me_digi->getBinContent(ieta,iphi);
+	      if (tempval>ievt_)
+		if (type!=3 || (abs(eta)!=16 || abs(eta)!=17))
+		  tempval=ievt_; // can't have more bad events than total events
+	      baddigis+=tempval;
+	      newbincontent+=tempval;
 
-	  
+	    }
+	  if (hotCellClient_) 
+	    {
+	      tempval=me_hotcell->getBinContent(ieta,iphi);
+	      if (tempval>ievt_ ) 
+		if (type!=3 || (abs(eta)!=16 || abs(eta)!=17)) tempval=ievt_;
+	      badhotcells+=tempval;
+	      newbincontent+=tempval;
+	    }
+	   if (deadCellClient_) 
+	    {
+	      tempval=me_deadcell->getBinContent(ieta,iphi);
+	      if (tempval>ievt_) 
+		if (type!=3 || (abs(eta)!=16 || abs(eta)!=17)) tempval=ievt_;
+	      baddeadcells+=tempval;
+	      newbincontent+=tempval;
+	    }
+	   
+	   if (newbincontent==0) continue; 
+
 	  newbincontent/=ievt_; // normalize to number of events
-	  if (newbincontent>1) newbincontent=1;  // bad bin content represents fraction of bad events
 
-	  //phi=iphi+int(phiMin_)-1;
+	  if (newbincontent>0)
+	    {
+	      badcells+=newbincontent;
+	    }
+	  
+	  if (newbincontent>1) newbincontent=1;  // bad bin content represents fraction of bad events
 	  
 	  me->setBinContent(ieta,iphi,newbincontent);
 	  
-	  if (newbincontent>0)
-	    {
-	      badcells+=newbincontent; // this is already normalized to give # of bad cells per event
-	    }
 	} // loop over iphi
     } // loop over ieta
+
 
 // subdetCells_ stores number of cells in each subdetector
   std::map<std::string, int>::const_iterator it;
@@ -446,10 +482,21 @@ float HcalSummaryClient::analyze_everything(std::string subdetname, float& subde
   if (it->second == 0 || (it->second)<badcells)
     return -1;
 
+  // Normalize by number of events
+  baddigis/=ievt_;
+  badhotcells/=ievt_;
+  baddeadcells/=ievt_;
+  
   // Status is 1 if no bad cells found
   // Otherwise, status = 1 - (avg fraction of bad cells/event)
-  status=1.-(1.*badcells)/it->second;
+  status_digi[type-1]=1.-(1.*baddigis)/it->second;
+  status_deadcell[type-1]=1.-(1.*baddeadcells)/it->second;
+  status_hotcell[type-1]=1.-(1.*badhotcells)/it->second;
  
+  // overall status is product of individual statuses.  Is this what we want?
+  status=status_digi[type-1]*status_deadcell[type-1]*status_hotcell[type-1];
+  // status = 1. - (1.*badcells)/it->second;  // old definition
+
   // Set subdetector status to 'status' value
   subdet=status;
   // Global status set by multiplying subdetector statuses
@@ -842,7 +889,7 @@ void HcalSummaryClient::htmlOutput(int& run, time_t& mytime, int& minlumi, int& 
   
   // Make table that lists all status words for each subdet
   
-  htmlFile<<"<hr><br><h2>Summary Values for each Task and Subdetector</h2><br>"<<endl;
+  htmlFile<<"<hr><br><h2>Summary Values for Each Subdetector</h2><br>"<<endl;
   htmlFile << "<table border=\"2\" cellspacing=\"0\" " << endl;
   htmlFile << "cellpadding=\"10\" align=\"center\"> " << endl;
   htmlFile << "<tr align=\"center\">" << endl;
@@ -909,7 +956,7 @@ void HcalSummaryClient::htmlOutput(int& run, time_t& mytime, int& minlumi, int& 
       htmlFile<<"<td>"<< tempstatus  <<"</td>"<<endl;
       htmlFile<<"</tr>"<<endl;
     }
-  
+
   // Dump out final status words
 
   htmlFile <<"<tr><td><font color = \"blue\"> Status Values </font></td>"<<endl;
