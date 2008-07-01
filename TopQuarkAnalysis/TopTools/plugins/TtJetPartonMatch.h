@@ -33,7 +33,7 @@ class TtJetPartonMatch : public edm::EDProducer {
 
   edm::InputTag jets_;
 
-  unsigned int nJets_;
+  int nJets_;
   int algorithm_;
   bool useDeltaR_;
   bool useMaxDist_;
@@ -43,7 +43,7 @@ class TtJetPartonMatch : public edm::EDProducer {
 template<typename C>
 TtJetPartonMatch<C>::TtJetPartonMatch(const edm::ParameterSet& cfg):
   jets_(cfg.getParameter<edm::InputTag>("jets")),
-  nJets_(cfg.getParameter<unsigned int>("nJets")),
+  nJets_(cfg.getParameter<int>("nJets")),
   algorithm_(cfg.getParameter<int>("algorithm")),
   useDeltaR_(cfg.getParameter<bool>("useDeltaR")),
   useMaxDist_(cfg.getParameter<bool>("useMaxDist")),
@@ -79,7 +79,7 @@ TtJetPartonMatch<C>::produce(edm::Event& evt, const edm::EventSetup& setup)
   // prepare vector of jets
   std::vector<pat::JetType> jets;
   for(unsigned int ij=0; ij<topJets->size(); ++ij) {
-    if(nJets_>=partons.size()){ if(ij==nJets_) break; }
+    if(nJets_>=(int)partons.size()){ if((int)ij==nJets_) break; }
     else{ if(ij==partons.size()) break; }
     pat::JetType jet = (*topJets)[ij].recJet();
     jets.push_back( jet );
