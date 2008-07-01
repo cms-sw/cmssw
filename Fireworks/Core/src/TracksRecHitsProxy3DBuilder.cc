@@ -15,7 +15,7 @@
 // Original Author:  
 //         Created:  Thu Dec  6 18:01:21 PST 2007
 // Based on
-// $Id: TracksRecHitsProxy3DBuilder.cc,v 1.2 2008/03/09 19:29:31 dmytro Exp $
+// $Id: TracksRecHitsProxy3DBuilder.cc,v 1.3 2008/06/09 19:54:03 chrjones Exp $
 // New File:
 // $Id: TracksRecHitsProxy3DBuilder.cc,v 1.0 2008/02/22 10:37:00 Tom Danielson
 //
@@ -142,9 +142,9 @@ void TracksRecHitsProxy3DBuilder::build(const FWEventItem* iItem, TEveElementLis
 	  // localError we don't use just yet.
 	  //	  LocalError le = (*recIt)->localPositionError();
 	  // Here's the local->global transformation matrix
-	  const TGeoHMatrix* matrix = m_item->getGeom()->getMatrix( detid );
+	  const TGeoHMatrix* matrix = iItem->getGeom()->getMatrix( detid );
 	  // And here are the shapes of the hit modules
-	  TEveGeoShapeExtract* extract = m_item->getGeom()->getExtract( detid );
+	  TEveGeoShapeExtract* extract = iItem->getGeom()->getExtract( detid );
 	  if(0!=extract) {
 	    TEveElement* shape = TEveGeoShape::ImportShapeExtract(extract,0);
 	    shape->SetMainTransparency(50);
