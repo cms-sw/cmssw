@@ -115,11 +115,11 @@ void SiTrivialInduceChargeOnStrips::induce(SiChargeCollectionDrifter::collection
       
       int nSignalCoupling = (*signalCoupling).size();
       
-      // debug
+      /* debug
       std::cout << "SiTrivialInduceChargeOnStrips ChargeCoupling for subdetector " << subDet_enum << std::endl;
       for(unsigned int iCC=0; iCC!=nSignalCoupling ; iCC++)
 	std::cout << "\t Strip " << iCC << " value " << (*signalCoupling)[iCC] << std::endl;
-      //
+      */
 
       int low = std::max(0,i-nSignalCoupling+1);
       int high = std::min(numStrips-1,i+nSignalCoupling-1);
