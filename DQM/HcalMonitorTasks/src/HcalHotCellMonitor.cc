@@ -176,13 +176,11 @@ namespace HcalHotCellCheck
 	    // Skip vetoed cells
 	    // vetoCell(id not available in this namespace.  Make my own copy of vetoCell?
 
-
 	    if(h.vetoCells.size()>0 && vetoCell(id,h.vetoCells))
 	      {
 		if (h.fVerbosity) cout <<"Vetoed cell with id = "<<id<<endl;
 		continue;
 	      }
-
 
 	    double cellenergy=CellIter->energy();
 	    int celldepth = id.depth();
@@ -1138,17 +1136,79 @@ void HcalHotCellMonitor::processEvent( const HBHERecHitCollection& hbHits,
   hcalHists.idS=0;
   hcalHists.numhotcells=0, hcalHists.numnegcells=0;
 
+  if (showTiming)
+    {
+      cpu_timer.reset();
+      cpu_timer.start();
+    }
+
   HcalHotCellCheck::threshCheck(hbHits, hbHists, hcalHists);
+  if (showTiming)
+    {
+      cpu_timer.stop();
+      cout <<"TIMER:: HcalHotCell RECHIT Threshold HB -> "<<cpu_timer.cpuTime()<<endl;
+      cpu_timer.reset();cpu_timer.start();
+    }
+
   HcalHotCellCheck::threshCheck(hbHits, heHists, hcalHists);
+  if (showTiming)
+    {
+      cpu_timer.stop();
+      cout <<"TIMER:: HcalHotCell RECHIT Threshold HE -> "<<cpu_timer.cpuTime()<<endl;
+      cpu_timer.reset(); cpu_timer.start();
+    }
+  
   HcalHotCellCheck::threshCheck(hoHits, hoHists, hcalHists);
+  if (showTiming)
+    {
+      cpu_timer.stop();
+      cout <<"TIMER:: HcalHotCell RECHIT Threshold HO -> "<<cpu_timer.cpuTime()<<endl;
+      cpu_timer.reset(); cpu_timer.start();
+    }
   HcalHotCellCheck::threshCheck(hfHits, hfHists, hcalHists);
+
+
+  if (showTiming) 
+    {
+      cpu_timer.stop();
+      cout <<"TIMER:: HcalHotCell RECHIT Threshold HF -> "<<cpu_timer.cpuTime()<<endl;
+    }
 
   if (usenada_)
     {
+      if (showTiming) 
+	{
+	  cpu_timer.reset();cpu_timer.start();
+	}
+
       HcalHotCellCheck::nadaCheck(hbHits, hbHists, hcalHists);
+      if (showTiming)
+	{
+	  cpu_timer.stop();
+	  cout <<"TIMER:: HcalHotCell RECHIT NADA HB -> "<<cpu_timer.cpuTime()<<endl;
+	  cpu_timer.reset(); cpu_timer.start();
+	}
       HcalHotCellCheck::nadaCheck(hbHits, heHists, hcalHists);
+      if (showTiming)
+	{
+	  cpu_timer.stop();
+	  cout <<"TIMER:: HcalHotCell RECHIT NADA HE -> "<<cpu_timer.cpuTime()<<endl;
+	  cpu_timer.reset(); cpu_timer.start();
+	}
       HcalHotCellCheck::nadaCheck(hoHits, hoHists, hcalHists);
-      HcalHotCellCheck::nadaCheck(hfHits, hfHists, hcalHists);
+      if (showTiming)
+	{
+	  cpu_timer.stop();
+	  cout <<"TIMER:: HcalHotCell RECHIT NADA HO-> "<<cpu_timer.cpuTime()<<endl;
+	  cpu_timer.reset(); cpu_timer.start();
+	}
+      // HF nada check is much slower than other subdets -- investigate later!  -- JT, 30/06/08
+      //HcalHotCellCheck::nadaCheck(hfHits, hfHists, hcalHists);
+      if (showTiming)	
+	{
+	  cpu_timer.stop();
+	  cout <<"TIMER:: HcalHotCell RECHIT NADA HF-> "<<cpu_timer.cpuTime()<<endl;
+	}
     }
 
   // After checking over all subdetectors, fill hcalHist maximum histograms:
@@ -1184,6 +1244,11 @@ void HcalHotCellMonitor::processEvent_digi(const HBHEDigiCollection& hbhedigi,
 
   // Loop over HBHE
 
+  if (showTiming)
+    {
+      cpu_timer.reset(); cpu_timer.start();
+    }
+
   try
     {
       for (HBHEDigiCollection::const_iterator j=hbhedigi.begin(); j!=hbhedigi.end(); ++j)
@@ -1204,6 +1269,13 @@ void HcalHotCellMonitor::processEvent_digi(const HBHEDigiCollection& hbhedigi,
       if(fVerbosity) cout <<"HcalHotCellMonitor::processEvent_digi   No HBHE Digis."<<endl;
     }
 
+  if (showTiming)
+    {
+      cpu_timer.stop();
+      cout <<" TIMER:: HcalHotCell DIGI HBHE-> "<<cpu_timer.cpuTime()<<endl;
+      cpu_timer.reset(); cpu_timer.start();
+    }
+
   // Loop over HO
   try
     {
@@ -1219,6 +1291,13 @@ void HcalHotCellMonitor::processEvent_digi(const HBHEDigiCollection& hbhedigi,
       if(fVerbosity) cout <<"HcalHotCellMonitor::processEvent_digi   No HO Digis."<<endl;
     }
 
+  if (showTiming)
+    {
+      cpu_timer.stop();
+      cout <<"TIMER:: HcalHotCell DIGI HO-> "<<cpu_timer.cpuTime()<<endl;
+      cpu_timer.reset(); cpu_timer.start();
+    }
+
   // Loop over HF
   try
     {
@@ -1232,6 +1311,12 @@ void HcalHotCellMonitor::processEvent_digi(const HBHEDigiCollection& hbhedigi,
   catch(...)
     {
       if(fVerbosity) cout <<"HcalHotCellMonitor::processEvent_digi   No HF Digis."<<endl;
+    }
+  
+  if (showTiming)
+    {
+      cpu_timer.stop();
+      cout <<"TIMER:  HcalHotCell DIGI HF-> "<<cpu_timer.cpuTime()<<endl;
     }
 
   return;
