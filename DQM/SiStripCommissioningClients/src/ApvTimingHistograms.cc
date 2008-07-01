@@ -92,8 +92,8 @@ void ApvTimingHistograms::histoAnalysis( bool debug ) {
     algo.analysis( profs );
     data()[iter->first] = anal; 
 
-    // Check time of rising edge
-    if ( anal->time() > sistrip::valid_ ) { continue; }
+    // Check if tick mark found
+    if ( !anal->foundTickMark() ) { continue; }
     
     // Find maximum time
     if ( anal->time() > time_max ) { 
@@ -114,7 +114,7 @@ void ApvTimingHistograms::histoAnalysis( bool debug ) {
        time_max < -1.*sistrip::valid_ ) { 
 
     edm::LogWarning(mlDqmClient_)
-      << "[SiStripCommissioningOffline::" << __func__ << "]"
+      << "[ApvTimingHistograms::" << __func__ << "]"
       << " Unable to set maximum time! Found unexpected value: "
       << time_max;
     
@@ -122,7 +122,7 @@ void ApvTimingHistograms::histoAnalysis( bool debug ) {
     
     SiStripFecKey min( device_min );
     edm::LogVerbatim(mlDqmClient_)
-      << "[SiStripCommissioningOffline::" << __func__ << "]"
+      << "[ApvTimingHistograms::" << __func__ << "]"
       << " Crate/FEC/Ring/CCU/module/channel: " 
       << min.fecCrate() << "/" 
       << min.fecSlot() << "/" 
@@ -134,7 +134,7 @@ void ApvTimingHistograms::histoAnalysis( bool debug ) {
     
     SiStripFecKey max( device_max );
     edm::LogVerbatim(mlDqmClient_)
-      << "[SiStripCommissioningOffline::" << __func__ << "]"
+      << "[ApvTimingHistograms::" << __func__ << "]"
       << " Crate/FEC/Ring/CCU/module/channel: " 
       << max.fecCrate() << "/" 
       << max.fecSlot() << "/" 
@@ -145,7 +145,7 @@ void ApvTimingHistograms::histoAnalysis( bool debug ) {
       << " has maximum time for tick mark rising edge [ns]: " << time_max;
 
     edm::LogVerbatim(mlDqmClient_)
-      << "[SiStripCommissioningOffline::" << __func__ << "]"
+      << "[ApvTimingHistograms::" << __func__ << "]"
       << " Difference b/w minimum and maximum times"
       << " for tick mark rising edges [ns] is: " << ( time_max - time_min );
 
