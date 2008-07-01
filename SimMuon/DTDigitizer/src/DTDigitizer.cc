@@ -1,7 +1,7 @@
 /** \file
  *
- *  $Date: 2008/05/12 06:46:15 $
- *  $Revision: 1.36 $
+ *  $Date: 2008/05/12 06:48:50 $
+ *  $Revision: 1.37 $
  *  \authors: G. Bevilacqua, N. Amapane, G. Cerminara, R. Bellan
  */
 
@@ -123,6 +123,9 @@ DTDigitizer::DTDigitizer(const ParameterSet& conf_) {
 
   //Name of Collection used for create the XF 
   collection_for_XF = conf_.getParameter<std::string>("InputCollection");
+
+  //String to choice between ideal (the deafult) and (mis)aligned geometry for the digitization step 
+  geometryType = conf_.getParameter<std::string>("GeometryType");
 }
 
 // Destructor
@@ -156,7 +159,7 @@ void DTDigitizer::produce(Event& iEvent, const EventSetup& iSetup){
   
   // Muon Geometry
   ESHandle<DTGeometry> muonGeom;
-  iSetup.get<MuonGeometryRecord>().get(muonGeom);
+  iSetup.get<MuonGeometryRecord>().get(geometryType,muonGeom);
 
   // Magnetic Field  
   ESHandle<MagneticField> magnField;

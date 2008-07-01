@@ -31,7 +31,8 @@ simMuonDTDigis = cms.EDFilter("DTDigitizer",
     # It uses constant drift velocity and it hasn't any external delay 	
     IdealModel = cms.bool(False),
     LinksTimeWindow = cms.double(10.0),
-    onlyMuHits = cms.bool(False)
+    onlyMuHits = cms.bool(False),
+    GeometryType = cms.string('idealForDigi')                          
 )
 
 
