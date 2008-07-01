@@ -34,24 +34,25 @@ GctBlockUnpackerV2::GctBlockUnpackerV2(bool hltMode):
     rctCrate_[0xc84] = 0;
 
     // Setup RCT jet crate map.
-    rctJetCrate_[0x900] = 8; // Leaf 1 JF1
-    rctJetCrate_[0x908] = 0; // Leaf 1 JF2
-    rctJetCrate_[0x988] = 1; // Leaf 1 JF3 
-    rctJetCrate_[0xa00] = 2; // Leaf 2 JF1
-    rctJetCrate_[0xa08] = 3; // Leaf 2 JF2
-    rctJetCrate_[0xa88] = 4; // Leaf 2 JF3 
-    rctJetCrate_[0xb00] = 5; // Leaf 3 JF1
-    rctJetCrate_[0xb08] = 6; // Leaf 3 JF2
-    rctJetCrate_[0xb88] = 7; // Leaf 3 JF3 
-    rctJetCrate_[0xd00] = 17; // Leaf 1 JF1
-    rctJetCrate_[0xd08] = 9;  // Leaf 1 JF2
-    rctJetCrate_[0xd88] = 10; // Leaf 1 JF3 
-    rctJetCrate_[0xe00] = 11; // Leaf 2 JF1
-    rctJetCrate_[0xe08] = 12; // Leaf 2 JF2
-    rctJetCrate_[0xe88] = 13; // Leaf 2 JF3 
-    rctJetCrate_[0xf00] = 14; // Leaf 3 JF1
-    rctJetCrate_[0xf08] = 15; // Leaf 3 JF2
-    rctJetCrate_[0xf88] = 16; // Leaf 3 JF3 
+    rctJetCrate_[0x900] = 17; // Leaf 1 JF1
+    rctJetCrate_[0x908] = 9; // Leaf 1 JF2
+    rctJetCrate_[0x988] = 10; // Leaf 1 JF3 
+    rctJetCrate_[0xa00] = 11; // Leaf 2 JF1
+    rctJetCrate_[0xa08] = 12; // Leaf 2 JF2
+    rctJetCrate_[0xa88] = 13; // Leaf 2 JF3 
+    rctJetCrate_[0xb00] = 14; // Leaf 3 JF1
+    rctJetCrate_[0xb08] = 15; // Leaf 3 JF2
+    rctJetCrate_[0xb88] = 16; // Leaf 3 JF3 
+
+    rctJetCrate_[0xd00] = 8; // Leaf 1 JF1
+    rctJetCrate_[0xd08] = 0;  // Leaf 1 JF2
+    rctJetCrate_[0xd88] = 1; // Leaf 1 JF3 
+    rctJetCrate_[0xe00] = 2; // Leaf 2 JF1
+    rctJetCrate_[0xe08] = 3; // Leaf 2 JF2
+    rctJetCrate_[0xe88] = 4; // Leaf 2 JF3 
+    rctJetCrate_[0xf00] = 5; // Leaf 3 JF1
+    rctJetCrate_[0xf08] = 6; // Leaf 3 JF2
+    rctJetCrate_[0xf88] = 7; // Leaf 3 JF3 
 
     // Setup Block ID map for pipeline payload positions of isolated Internal EM Cands.
     internEmIsoBounds_[0x680] = IsoBoundaryPair(8,15);

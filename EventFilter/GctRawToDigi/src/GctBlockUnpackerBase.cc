@@ -173,19 +173,23 @@ void GctBlockUnpackerBase::blockToRctCaloRegions(const unsigned char * d, const 
       if (i>0) {
         if (crate<9){ // negative eta
           ieta = 11-i; 
-          iphi = crate*2;
+          iphi = 18-(abs(crate-2)*2);
         } else {      // positive eta
           ieta = 10+i;
-          iphi = (crate-9)*2;
+          iphi = 18-(abs(crate-11)*2);
         }        
         // First region is phi=0
         rctCalo_->push_back( L1CaloRegion(*p, ieta, iphi, bx) );
         ++p;
         // Second region is phi=1
-        iphi+=1;
+        if (iphi>0){
+          iphi-=1;
+        } else {
+          iphi = 17;
+        }
         rctCalo_->push_back( L1CaloRegion(*p, ieta, iphi, bx) );
         ++p;
-      } else { // Skip the first two regions which are duplicates. Check with Magnus
+      } else { // Skip the first two regions which are duplicates. 
         ++p;
         ++p;
       }
