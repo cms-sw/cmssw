@@ -20,7 +20,7 @@ LibraryDirs = \
         -L$(XDAQ_ROOT)/lib 
 
 
-Libraries= -l SiPixelObjects
+Libraries= -l SiPixelObjects -l PixelTestStandUtilities
 
 
 HAL = -L$(XDAQ_ROOT)/daq/hal/lib/$(XDAQ_OS)/$(XDAQ_PLATFORM)  -lGenericHAL -lHALUtilities -lCAENVME -lconfig

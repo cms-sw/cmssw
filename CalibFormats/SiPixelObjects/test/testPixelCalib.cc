@@ -11,10 +11,10 @@
 #include "CalibFormats/SiPixelObjects/interface/PixelCalibConfiguration.h"
 #include "CalibFormats/SiPixelObjects/interface/PixelDetectorConfig.h"
 #include "CalibFormats/SiPixelObjects/interface/PixelNameTranslation.h"
-#include "PixelFECInterface/include/PixelFECInterface.h"
-#include "CalibFormats/SiPixelObjects/interface/PixelFECConfigInterface.h"
+#include "PixelUtilities/PixelTestStandUtilities/include/PixelTimer.h"
 
 using namespace pos;
+using namespace std;
 
 int main(){
  
@@ -24,15 +24,29 @@ int main(){
   //path+="/pixel/PixelFEDInterface/test/";
   //PixelFEDCard card(path+"params_fed.dat");
 
-  //PixelCalibConfiguration calib("scan_calib.dat");
+  //PixelCalibConfiguration calib("calib.dat_orig");
+
+  //calib.writeASCII("");
+
+  //return 0;
 
   //PixelDetectorConfig detconfig("detconfig.dat");
 
+  cout << "Will open translation.dat" << endl;
+
+  PixelTimer t;
+
+  t.start();
+
   PixelNameTranslation nametranslation("translation.dat");
+
+  t.stop();
+
+  cout << "Done opening translation.dat:"<<t.tottime() << endl;
 
   
   
-  
+  /* 
   for(unsigned int fednumber=1; fednumber<2; fednumber++){
     for (unsigned int channel=1; channel<7; ++channel) {
       std::cout << "Will check fednumber="<<fednumber<<" and channel="<<channel<<std::endl;
@@ -42,7 +56,7 @@ int main(){
       }
     }
   }
-
+  */
   
 
 
