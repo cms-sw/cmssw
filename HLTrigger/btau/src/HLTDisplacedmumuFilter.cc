@@ -35,9 +35,6 @@ using namespace trigger;
 // constructors and destructor
 //
 HLTDisplacedmumuFilter::HLTDisplacedmumuFilter(const edm::ParameterSet& iConfig):	
-	minLxySignificance_ (iConfig.getParameter<double>("MinLxySignificance")),
-	maxNormalisedChi2_ (iConfig.getParameter<double>("MaxNormalisedChi2")), 
-	minCosinePointingAngle_ (iConfig.getParameter<double>("MinCosinePointingAngle")),
 	src_ (iConfig.getParameter<edm::InputTag>("Src")),
 	maxEta_ (iConfig.getParameter<double>("MaxEta")),
 	minPt_ (iConfig.getParameter<double>("MinPt")),
@@ -46,7 +43,11 @@ HLTDisplacedmumuFilter::HLTDisplacedmumuFilter(const edm::ParameterSet& iConfig)
 	maxInvMass_ (iConfig.getParameter<double>("MaxInvMass")),
 	chargeOpt_ (iConfig.getParameter<int>("ChargeOpt")),
 	fastAccept_ (iConfig.getParameter<bool>("FastAccept")),
-		saveTag_ (iConfig.getUntrackedParameter<bool> ("SaveTag",false))
+	minLxySignificance_ (iConfig.getParameter<double>("MinLxySignificance")),
+	maxNormalisedChi2_ (iConfig.getParameter<double>("MaxNormalisedChi2")), 
+	minCosinePointingAngle_ (iConfig.getParameter<double>("MinCosinePointingAngle")),
+	saveTag_ (iConfig.getUntrackedParameter<bool> ("SaveTag",false)),
+	beamSpotTag_ (iConfig.getParameter<edm::InputTag> ("BeamSpotTag"))
 {
 	//now do what ever initialization is needed
 
@@ -83,10 +84,10 @@ bool HLTDisplacedmumuFilter::filter(edm::Event& iEvent, const edm::EventSetup& i
 
 	reco::BeamSpot vertexBeamSpot;
 	edm::Handle<reco::BeamSpot> recoBeamSpotHandle;
-	iEvent.getByType(recoBeamSpotHandle);
+	iEvent.getByLabel(beamSpotTag_,recoBeamSpotHandle);
 	vertexBeamSpot = *recoBeamSpotHandle;
 	
-	std::cout << "Beamspot x0: " << vertexBeamSpot.x0() <<  ", y0: " << vertexBeamSpot.y0() <<  ", z0: " << vertexBeamSpot.z0() << ", sigmaZ: " << vertexBeamSpot.sigmaZ() << ", dxdz: " << vertexBeamSpot.dxdz() << ", dydz: " << vertexBeamSpot.dydz() << ", beamwidth: " << vertexBeamSpot.BeamWidth() << endl;
+// 	std::cout << "Beamspot x0: " << vertexBeamSpot.x0() <<  ", y0: " << vertexBeamSpot.y0() <<  ", z0: " << vertexBeamSpot.z0() << ", sigmaZ: " << vertexBeamSpot.sigmaZ() << ", dxdz: " << vertexBeamSpot.dxdz() << ", dydz: " << vertexBeamSpot.dydz() << ", beamwidth: " << vertexBeamSpot.BeamWidth() << endl;
 	// The filter object  
 	// All HLT filters must create and fill an HLT filter object,
 	// recording any reconstructed physics objects satisfying (or not)
@@ -173,36 +174,20 @@ bool HLTDisplacedmumuFilter::filter(edm::Event& iEvent, const edm::EventSetup& i
 					
 			if (!tv.isValid()) continue;
 			Vertex vertex = tv;
-					
-			// get vertex position and error to calculate the decay length significance
-			GlobalPoint v = tv.position();
-			GlobalError err = tv.positionError();
-			float lxyold = v.perp();
-			float lxyerrold = sqrt(err.rerr(v));
-			
-			// get normalizes chi2
-// 			float normChi2 = tv.normalisedChiSquared();
-			
-			//calculate the angle between the decay length and the mumu momentum
-// 			Vertex::Point vperp(v.x(),v.y(),0.);
-// 			math::XYZVector pperp(p.x(),p.y(),0.);
-			 
 			 
 			// get vertex position and error to calculate the decay length significance
 			GlobalPoint secondaryVertex = tv.position();
-// 			GlobalError err = tv.positionError();
+			GlobalError err = tv.positionError();
 
-			std:: cout << "vertexBeamSpot.x0(): " << vertexBeamSpot.x0() << ", secondaryVertex.x(): " << secondaryVertex.x() << ", vertexBeamSpot.y0(): " << vertexBeamSpot.y0() <<  ", secondaryVertex.y(): " << secondaryVertex.y() <<", vertexBeamSpot.z0(): " << vertexBeamSpot.z0() <<  ", secondaryVertex.z(): " << secondaryVertex.z() << endl;
+// 			std:: cout << "vertexBeamSpot.x0(): " << vertexBeamSpot.x0() << ", secondaryVertex.x(): " << secondaryVertex.x() << ", vertexBeamSpot.y0(): " << vertexBeamSpot.y0() <<  ", secondaryVertex.y(): " << secondaryVertex.y() <<", vertexBeamSpot.z0(): " << vertexBeamSpot.z0() <<  ", secondaryVertex.z(): " << secondaryVertex.z() << endl;
 			GlobalPoint displacementFromBeamspot( -1*((vertexBeamSpot.x0() -  secondaryVertex.x()) +  (secondaryVertex.z() - vertexBeamSpot.z0()) * vertexBeamSpot.dxdz()),
  -1*((vertexBeamSpot.y0() - secondaryVertex.y())+  (secondaryVertex.z() - vertexBeamSpot.z0()) * vertexBeamSpot.dydz()), 0);
-//          GlobalError err = tv.positionError();
-
 
 			float lxy = displacementFromBeamspot.perp();
 			float lxyerr = sqrt(err.rerr(displacementFromBeamspot));
 			
-			cout << "lxy: " << lxy << ", lxyerr: " << lxyerr << endl;
-			cout << "lxy old: " << lxyold << ", lxyerr old: " << lxyerrold << endl;
+			LogDebug("HLTMuonDimuonFilter") << "lxy: " << lxy << ", lxyerr: " << lxyerr << endl;
+
              // get normalizes chi2
 			float normChi2 = tv.normalisedChiSquared();
 

@@ -47,6 +47,7 @@ class HLTDisplacedmumuFilter : public HLTFilter {
 // 		edm::ParameterSet conf_;
 		int nevent_;
 		int ntrigger_;
+		edm::InputTag src_;
 		double maxEta_;
 		double minPt_;
 		double minPtPair_;
@@ -57,7 +58,7 @@ class HLTDisplacedmumuFilter : public HLTFilter {
 		double minLxySignificance_;
 		double maxNormalisedChi2_;
 		double minCosinePointingAngle_;
-		edm::InputTag src_;
 		bool saveTag_;
+		edm::InputTag beamSpotTag_;
 };
 #endif

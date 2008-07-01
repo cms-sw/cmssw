@@ -54,6 +54,7 @@ class HLTmmkFilter : public HLTFilter {
   const double minCosinePointingAngle_;
   const bool fastAccept_;
 	bool saveTag_;
+	edm::InputTag beamSpotTag_;
 
 };
 #endif

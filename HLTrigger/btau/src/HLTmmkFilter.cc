@@ -39,7 +39,8 @@ HLTmmkFilter::HLTmmkFilter(const edm::ParameterSet& iConfig):thirdTrackMass_(iCo
                                                              minLxySignificance_(iConfig.getParameter<double>("MinLxySignificance")),
                                                              minCosinePointingAngle_(iConfig.getParameter<double>("MinCosinePointingAngle")),
                                                              fastAccept_(iConfig.getParameter<bool>("FastAccept")),
-							     saveTag_ (iConfig.getUntrackedParameter<bool> ("SaveTag",false)){
+							     saveTag_ (iConfig.getUntrackedParameter<bool> ("SaveTag",false))	,
+								 beamSpotTag_ (iConfig.getParameter<edm::InputTag> ("BeamSpotTag")){
 
   muCandLabel_   = iConfig.getParameter<edm::InputTag>("MuCand");
   trkCandLabel_  = iConfig.getParameter<edm::InputTag>("TrackCand");
@@ -76,7 +77,7 @@ bool HLTmmkFilter::filter(edm::Event& iEvent, const edm::EventSetup& iSetup) {
   const double MuMass2(MuMass*MuMass);
   
   const double thirdTrackMass2(thirdTrackMass_*thirdTrackMass_);
-
+  
   // The filter object
   auto_ptr<TriggerFilterObjectWithRefs> filterobject (new TriggerFilterObjectWithRefs(path(),module()));
   
@@ -89,7 +90,7 @@ bool HLTmmkFilter::filter(edm::Event& iEvent, const edm::EventSetup& iSetup) {
 
   //get the beamspot position
   edm::Handle<reco::BeamSpot> recoBeamSpotHandle;
-  iEvent.getByType(recoBeamSpotHandle);
+  iEvent.getByLabel(beamSpotTag_,recoBeamSpotHandle);
   const reco::BeamSpot& vertexBeamSpot = *recoBeamSpotHandle;
 
   // Ref to Candidate object to be recorded in filter object
