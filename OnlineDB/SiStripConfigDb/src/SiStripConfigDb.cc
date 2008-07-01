@@ -1,4 +1,4 @@
-// Last commit: $Id: SiStripConfigDb.cc,v 1.69 2008/06/04 14:11:42 bainbrid Exp $
+// Last commit: $Id: SiStripConfigDb.cc,v 1.70 2008/06/06 14:48:53 bainbrid Exp $
 
 #include "OnlineDB/SiStripConfigDb/interface/SiStripConfigDb.h"
 #include "DataFormats/SiStripCommon/interface/SiStripConstants.h"
@@ -798,6 +798,14 @@ void SiStripConfigDb::handleException( const std::string& method_name,
     if ( extra_info != "" ) { ss << "Additional info: " << extra_info << std::endl; }
     //throw cms::Exception(mlConfigDb_) << ss.str() << std::endl;
   }
+
+//   catch ( const Fed9UDeviceFactoryException& e ) {
+//     ss << " Caught Fed9UDeviceFactoryException exception in method "
+//        << method_name << " with message: " << std::endl 
+//        << e.what();
+//     if ( extra_info != "" ) { ss << "Additional info: " << extra_info << std::endl; }
+//     //throw cms::Exception(mlConfigDb_) << ss.str() << std::endl;
+//   }
 
   catch ( const ICUtils::ICException& e ) {
     ss << " Caught ICUtils::ICException in method "
