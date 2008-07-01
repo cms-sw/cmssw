@@ -1,5 +1,8 @@
 import FWCore.ParameterSet.Config as cms
 
-SiStripQualityFakeESSource = cms.ESSource("SiStripQualityFakeESSource")
+siStripQualityFakeESSource = cms.ESSource("SiStripQualityFakeESSource",
+    appendToDataLabel = cms.string('')
+)
+
 
 
