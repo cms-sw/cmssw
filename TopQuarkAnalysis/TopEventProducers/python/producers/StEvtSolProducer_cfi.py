@@ -1,34 +1,37 @@
 import FWCore.ParameterSet.Config as cms
 
 #
-# module to build the single top event solutions (one solution for each possible jet combination)
+# module to build the single top event solutions
+# (one solution for each possible jet combination)
 #
 solutions = cms.EDProducer("StEvtSolutionMaker",
-    metSource = cms.InputTag("selectedLayer1METs"),
-    jetParametrisation = cms.int32(0), ## 0: EMom, 1: EtEtaPhi, 2: EtThetaPhi
-
-    muonSource = cms.InputTag("selectedLayer1Muons"),
-    jetSource  = cms.InputTag("selectedLayer1Jets"),
-    # select the jet energy scale correction scheme to be used
-    jetCorrectionScheme = cms.int32(0),
+    metSource      = cms.InputTag("selectedLayer1METs"),
+    muonSource     = cms.InputTag("selectedLayer1Muons"),
     electronSource = cms.InputTag("selectedLayer1Electrons"),
+    jetSource      = cms.InputTag("selectedLayer1Jets"),
+
+    ## lepton flavor
+    leptonFlavour = cms.string('muon'),
+                           
+    ## choose jet correction scheme                       
+    jetCorrectionScheme = cms.int32(0),
+
+    ## match to gen event?
+    matchToGenEvt = cms.bool(False),
+
+    ## configuration of kinemtaic fit
     doKinFit  = cms.bool(True),
     maxNrIter = cms.int32(200),
     maxDeltaS = cms.double(5e-05),
-    lrJetCombFile = cms.string('TopQuarkAnalysis/TopJetCombination/data/to_be_added.root'),
-    # 2 = use flavour of role of jet in event
-    # other = use standard MCJet calibrations (i.e. no flavour distinction)
-    matchToGenEvt = cms.bool(False),
-    metParametrisation = cms.int32(0), ## 0: EMom, 1: EtEtaPhi, 2: EtThetaPhi
+    maxF      = cms.double(0.0001),
+    constraints = cms.vint32(1, 2),
+    jetParametrisation = cms.int32(0),
+    metParametrisation = cms.int32(0),
+    lepParametrisation = cms.int32(0),
 
-    lepParametrisation = cms.int32(0), ## 0: EMom, 1: EtEtaPhi, 2: EtThetaPhi
-
-    addLRJetComb = cms.bool(False),
-    maxF = cms.double(0.0001),
-    leptonFlavour = cms.string('muon'), ##electron or muon
-
-    constraints = cms.vint32(1, 2) ##1: Wlep, 2:tlep, 3:nu-mass
-
+    ## configuration of private LH ratio method
+    addLRJetComb  = cms.bool(False),
+    lrJetCombFile = cms.string('TopQuarkAnalysis/TopJetCombination/data/to_be_added.root')
 )
 
 

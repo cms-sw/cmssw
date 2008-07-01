@@ -1,32 +1,48 @@
 import FWCore.ParameterSet.Config as cms
 
+#
+# module to build semi-leptonic ttbar event solutions
+# (one solution for each possible jet combination)
+#
 solutions = cms.EDProducer("TtSemiEvtSolutionMaker",
     metSource = cms.InputTag("selectedLayer1METs"),
-    maximalDistance = cms.double(0.3),
-    addLRSignalSel = cms.bool(True),
-    electronSource = cms.InputTag("selectedLayer1Electrons"),
-    matchToGenEvt = cms.bool(True),
-    maxF = cms.double(0.0001),
-    matchingAlgorithm = cms.int32(0),
-    jetCorrectionScheme = cms.int32(0),
-    leptonFlavour = cms.string('muon'),
-    maxNrIter = cms.int32(200),
-    lepParametrisation = cms.int32(0),
-    nrCombJets = cms.uint32(4),
-    lrSignalSelObs = cms.vint32(-1),
-    jetSource = cms.InputTag("selectedLayer1Jets"),
-    lrSignalSelFile = cms.string('TopQuarkAnalysis/TopEventSelection/data/TtSemiLRSignalSelSelObsAndPurity.root'),
-    doKinFit = cms.bool(True),
-    useDeltaR = cms.bool(True),
-    lrJetCombObs = cms.vint32(-1),
-    jetParametrisation = cms.int32(0),
     muonSource = cms.InputTag("selectedLayer1Muons"),
-    lrJetCombFile = cms.string('TopQuarkAnalysis/TopJetCombination/data/TtSemiLRJetCombSelObsAndPurity.root'),
-    addLRJetComb = cms.bool(True),
-    maxDeltaS = cms.double(5e-05),
+    electronSource = cms.InputTag("selectedLayer1Electrons"),
+    jetSource = cms.InputTag("selectedLayer1Jets"),
+
+    ## considered channel
+    leptonFlavour = cms.string('muon'),
+
+    ## choose jet correction scheme
+    jetCorrectionScheme = cms.int32(0),
+
+    ## match to gen event?
+    matchToGenEvt      = cms.bool(True),
+    matchingAlgorithm  = cms.int32(0),
+    useDeltaR          = cms.bool(True),
+    maximalDistance    = cms.double(0.3),
     useMaximalDistance = cms.bool(True),
+                           
+    ## configure kinematic fit
+    doKinFit = cms.bool(True),
+    maxNrIter = cms.int32(200),
+    maxDeltaS = cms.double(5e-05),
+    maxF = cms.double(0.0001),
+    constraints = cms.vint32(1),
+    jetParametrisation = cms.int32(0),
     metParametrisation = cms.int32(0),
-    constraints = cms.vint32(1)
+    lepParametrisation = cms.int32(0),
+
+    ## configuration of private LH ratio method                           
+    addLRJetComb = cms.bool(True),
+    lrJetCombObs    = cms.vint32(-1),
+    lrJetCombFile   = cms.string('TopQuarkAnalysis/TopJetCombination/data/TtSemiLRJetCombSelObsAndPurity.root'),
+
+    addLRSignalSel  = cms.bool(True),
+    lrSignalSelObs  = cms.vint32(-1),
+    lrSignalSelFile = cms.string('TopQuarkAnalysis/TopEventSelection/data/TtSemiLRSignalSelSelObsAndPurity.root'),
+
+    nrCombJets = cms.uint32(4)
 )
 
 
