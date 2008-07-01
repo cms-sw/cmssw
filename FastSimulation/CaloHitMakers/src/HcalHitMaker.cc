@@ -1,6 +1,7 @@
 #include "FastSimulation/CaloHitMakers/interface/HcalHitMaker.h"
 #include "FastSimulation/CaloGeometryTools/interface/CaloGeometryHelper.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
+#include "DataFormats/HcalDetId/interface/HcalDetId.h" // PV
 #include <algorithm>
 #include <cmath>
 
@@ -51,12 +52,40 @@ HcalHitMaker::addHit(double r,double phi,unsigned layer)
   if(pointeta > 5.19) return false; 
 
   DetId thecellID(myCalorimeter->getClosestCell(point,false,false));
+  
+  HcalDetId myDetId(thecellID);
+                                                                                                                                      
+//   if ( myDetId.subdetId() == HcalForward ) {
+//     std::cout << "HcalHitMaker : " << point.Z() << " " << myDetId.depth()    << std::endl;
+//   }
+                                                                                                                                      
+//   std::cout << "BEFORE" << std::endl;
+//   std::cout << "HcalHitMaker : subdetId : " << myDetId.subdetId() << std::endl;
+//   std::cout << "HcalHitMaker : depth    : " << myDetId.depth()    << std::endl;
+//   std::cout << "HcalHitMaker : ieta     : " << myDetId.ieta()     << std::endl;
+//   std::cout << "HcalHitMaker : iphi     : " << myDetId.iphi()     << std::endl;
+//   std::cout << "HcalHitMaker : spotE    : " << spotEnergy         << std::endl;
+//   std::cout << "HcalHitMaker : point.X  : " << point.X()          << std::endl;
+//   std::cout << "HcalHitMaker : point.Y  : " << point.Y()          << std::endl;
+//   std::cout << "HcalHitMaker : point.Z  : " << point.Z()          << std::endl;
+                                                                                                                                      
+  if ( myDetId.subdetId() == HcalForward ) {
+    int mylayer = layer;
+    if ( myDetId.depth()==2 ) {
+      mylayer = (int)layer;
+    } else {
+      mylayer = 1;
+    }
+    HcalDetId myDetId2((HcalSubdetector)myDetId.subdetId(),myDetId.ieta(),myDetId.iphi(),mylayer);
+    thecellID = myDetId2;
+  }
+
 
   
   if(!thecellID.null())
-    {
+    {	
       uint32_t cell(thecellID.rawId());
-  
+      
       //      std::cout << " FamosHcalHitMaker::addHit - the cell num " << cell
       //      		<< std::endl;
 
