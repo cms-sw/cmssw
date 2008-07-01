@@ -1200,11 +1200,13 @@ DQMStore::extract(TObject *obj, const std::string &dir, bool overwrite)
 	return false;
       }
 
-      DQMNet::QValue qv;
-      qv.qtname = qrname;
-      qv.code = atoi(m.matchString(value, 1).c_str());
-      qv.message = m.matchString(value, 2);
-      me->addQReport(qv, /* FIXME: getQTest(qv.qtname)? */ 0);
+      if ( dir.find(s_referenceDirName + "/") != 0 ) {
+        DQMNet::QValue qv;
+        qv.qtname = qrname;
+        qv.code = atoi(m.matchString(value, 1).c_str());
+        qv.message = m.matchString(value, 2);
+        me->addQReport(qv, /* FIXME: getQTest(qv.qtname)? */ 0);
+      }
     }
     else
     {
