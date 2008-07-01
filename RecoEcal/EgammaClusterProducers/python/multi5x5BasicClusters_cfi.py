@@ -2,6 +2,11 @@ import FWCore.ParameterSet.Config as cms
 
 # Multi5x5 BasicCluster producer
 multi5x5BasicClusters = cms.EDProducer("Multi5x5ClusterProducer",
+
+    # which regions should be clusterized
+    doEndcap = cms.bool(True),
+    doBarrel = cms.bool(False),
+
     posCalc_x0 = cms.double(0.89),
     endcapHitProducer = cms.string('ecalRecHit'),
     posCalc_t0_endcPresh = cms.double(1.2),

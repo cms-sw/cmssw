@@ -37,6 +37,10 @@ class Multi5x5ClusterProducer : public edm::EDProducer
       int nMaxPrintout_; // max # of printouts
       int nEvt_;         // internal counter of events
 
+      // cluster which regions
+      bool doBarrel_;
+      bool doEndcap_;
+
       Multi5x5ClusterAlgo::VerbosityLevel verbosity;
 
       std::string barrelHitProducer_;

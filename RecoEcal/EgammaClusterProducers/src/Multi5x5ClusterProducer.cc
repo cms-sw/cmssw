@@ -52,6 +52,10 @@ Multi5x5ClusterProducer::Multi5x5ClusterProducer(const edm::ParameterSet& ps)
   barrelHitCollection_ = ps.getParameter<std::string>("barrelHitCollection");
   endcapHitCollection_ = ps.getParameter<std::string>("endcapHitCollection");
 
+  // should cluster algo be run in barrel and endcap?
+  doEndcap_ = ps.getParameter<bool>("doEndcap");
+  doBarrel_ = ps.getParameter<bool>("doBarrel");
+
   // The names of the produced cluster collections
   barrelClusterCollection_  = ps.getParameter<std::string>("barrelClusterCollection");
   endcapClusterCollection_  = ps.getParameter<std::string>("endcapClusterCollection");
@@ -101,8 +105,14 @@ Multi5x5ClusterProducer::~Multi5x5ClusterProducer()
 
 void Multi5x5ClusterProducer::produce(edm::Event& evt, const edm::EventSetup& es)
 {
-  clusterizeECALPart(evt, es, endcapHitProducer_, endcapHitCollection_, endcapClusterCollection_, endcapClusterShapeAssociation_, Multi5x5ClusterAlgo::endcap); 
-  clusterizeECALPart(evt, es, barrelHitProducer_, barrelHitCollection_, barrelClusterCollection_, barrelClusterShapeAssociation_, Multi5x5ClusterAlgo::barrel);
+
+  if (doEndcap_) {
+    clusterizeECALPart(evt, es, endcapHitProducer_, endcapHitCollection_, endcapClusterCollection_, endcapClusterShapeAssociation_, Multi5x5ClusterAlgo::endcap); 
+  }
+  if (doBarrel_) {
+    clusterizeECALPart(evt, es, barrelHitProducer_, barrelHitCollection_, barrelClusterCollection_, barrelClusterShapeAssociation_, Multi5x5ClusterAlgo::barrel);
+  }
+
   nEvt_++;
 }
 
