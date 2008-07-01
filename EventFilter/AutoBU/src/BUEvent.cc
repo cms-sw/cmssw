@@ -9,7 +9,7 @@
 
 #include "EventFilter/AutoBU/interface/BUEvent.h"
 #include <assert.h>
-#include "EventFilter/Utilities/interface/Crc.h"
+#include "FWCore/Utilities/interface/CRC16.h"
 
 #include "interface/shared/fed_header.h"
 #include "interface/shared/fed_trailer.h"

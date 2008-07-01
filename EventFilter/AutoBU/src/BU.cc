@@ -10,7 +10,7 @@
 
 #include "EventFilter/AutoBU/interface/BU.h"
 
-#include "EventFilter/Utilities/interface/Crc.h"
+#include "FWCore/Utilities/interface/CRC16.h"
 
 #include "DataFormats/FEDRawData/interface/FEDNumbering.h"
 #include "DataFormats/FEDRawData/interface/FEDRawDataCollection.h"
