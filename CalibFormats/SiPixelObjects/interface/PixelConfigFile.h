@@ -36,6 +36,7 @@
 #include "CalibFormats/SiPixelObjects/interface/PixelTTCciConfig.h"
 #include "CalibFormats/SiPixelObjects/interface/PixelLTCConfig.h"
 #include "CalibFormats/SiPixelObjects/interface/PixelFEDTestDAC.h"
+#include "CalibFormats/SiPixelObjects/interface/PixelGlobalDelay25.h"
 #include <string>
 #include <vector>
 #include <map>
@@ -453,6 +454,11 @@ namespace pos{
 	assert(dir=="ltcconfig");
 	data = (T*) new PixelLTCConfig(fullpath+"LTCConfiguration.txt");
 	return;
+      }else if (typeid(data)==typeid(PixelGlobalDelay25*)){
+	//std::cout << "[pos::PixelConfigFile::get()]\t\t\tWill return PixelGlobalDelay25" << std::endl;
+	assert(dir=="globaldelay25");
+	data = (T*) new PixelGlobalDelay25(fullpath+"globaldelay25.dat");
+	return;
       }else{
 	std::cout << "[pos::PixelConfigFile::get()]\t\t\tNo match" << std::endl;
 	assert(0);
@@ -545,6 +551,8 @@ namespace pos{
 	fileName = fullpath+"TTCciConfiguration.txt";
       }else if (typeid(data)==typeid(PixelLTCConfig*)){
 	fileName = fullpath+"LTCConfiguration.txt";
+      }else if (typeid(data)==typeid(PixelGlobalDelay25*)){
+	fileName = fullpath+"globaldelay25.dat";
       }else if (typeid(data)==typeid(PixelCalibBase*)){
 	assert(dir=="calib");
 	std::string calibfile=fullpath+"calib.dat";
@@ -733,6 +741,11 @@ namespace pos{
 	//cout << "[pos::PixelConfigFile::get()]\t\t\tWill return PixelLTCConfig" << std::endl;
 	assert(dir=="ltcconfig");
 	data = (T*) new PixelLTCConfig(fullpath+"LTCConfiguration.txt");
+	return;
+      }else if (typeid(data)==typeid(PixelGlobalDelay25*)){
+	//std::cout << "[pos::PixelConfigFile::get()]\t\t\tWill return PixelGlobalDelay25" << std::endl;
+	assert(dir=="globaldelay25");
+	data = (T*) new PixelGlobalDelay25(fullpath+"globaldelay25.dat");
 	return;
       }else{
 	std::cout << "[pos::PixelConfigFile::get()]\t\t\tNo match" << std::endl;
