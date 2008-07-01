@@ -10,8 +10,8 @@ OutALCARECOEcalCalPhiSym = cms.PSet(
     ),
     outputCommands = cms.untracked.vstring('drop *', 
         'keep *_*_phiSymEcalRecHitsEB_*', 
-        'keep *_*_phiSymEcalRecHitsEE_*', 
-        'keep *_hltL1GtUnpack_*_*', 
-        'keep *_hltGtDigis_*_*')
+        'keep *_*_phiSymEcalRecHitsEE_*',
+        'keep L1GlobalTriggerReadoutRecord_hltGtDigis_*_*',
+        'keep *_MEtoEDMConverter_*_*')
 )
 
