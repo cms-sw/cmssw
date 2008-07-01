@@ -1,4 +1,4 @@
-// Last commit: $Id: ApvTimingHistosUsingDb.cc,v 1.19 2008/03/06 13:30:52 delaer Exp $
+// Last commit: $Id: ApvTimingHistosUsingDb.cc,v 1.20 2008/05/06 12:38:07 bainbrid Exp $
 
 #include "DQM/SiStripCommissioningDbClients/interface/ApvTimingHistosUsingDb.h"
 #include "CondFormats/SiStripObjects/interface/ApvTimingAnalysis.h"
@@ -155,20 +155,23 @@ bool ApvTimingHistosUsingDb::update( SiStripConfigDb::DeviceDescriptionsRange de
     for ( uint16_t ichan = 0; ichan < sistrip::CHANS_PER_LLD; ichan++ ) {
       
       // Construct key from device description
-      uint32_t fec_key = SiStripFecKey( addr.fecCrate_,
-					addr.fecSlot_, 
-					addr.fecRing_,
-					addr.ccuAddr_, 
-					addr.ccuChan_,
-					ichan+1 ).key();
-      fec_path = SiStripFecKey( fec_key );
-
-      // Locate appropriate analysis object    
-      Analyses::const_iterator iter = data().find( fec_key );
+      SiStripFecKey fec_key( addr.fecCrate_,
+			     addr.fecSlot_, 
+			     addr.fecRing_,
+			     addr.ccuAddr_, 
+			     addr.ccuChan_,
+			     ichan+1 );
+      fec_path = fec_key;
+      
+      // Locate appropriate analysis object
+      Analyses::const_iterator iter = data().find( fec_key.key() );
       if ( iter != data().end() ) { 
-
-	if ( !iter->second->isValid() ) { continue; }
-
+	
+	if ( !iter->second->isValid() ) { 
+	  addProblemDevice( fec_key ); //@@ Remove problem device
+	  continue; 
+	}
+	
 	ApvTimingAnalysis* anal = dynamic_cast<ApvTimingAnalysis*>( iter->second );
 	if ( !anal ) { 
 	  edm::LogError(mlDqmClient_)
@@ -184,20 +187,22 @@ bool ApvTimingHistosUsingDb::update( SiStripConfigDb::DeviceDescriptionsRange de
 	fine = ( static_cast<uint16_t>( desc->getDelayFine() ) + delay ) % 24;
 	
 	// Record PPLs maximum coarse setting
-	if ( coarse > 15 ) { invalid.push_back(fec_path); }
+	if ( coarse > 15 ) { invalid.push_back(fec_key); }
 	
       } else {
-	edm::LogWarning(mlDqmClient_) 
-	  << "[ApvTimingHistosUsingDb::" << __func__ << "]"
-	  << " Unable to find FEC key with params Crate/FEC/slot/ring/CCU/LLD: " 
-	  << fec_path.fecCrate() << "/"
-	  << fec_path.fecSlot() << "/"
-	  << fec_path.fecRing() << "/"
-	  << fec_path.ccuAddr() << "/"
-	  << fec_path.ccuChan() << "/"
-	  << fec_path.channel();
+	if ( deviceIsPresent(fec_key) ) { 
+	  edm::LogWarning(mlDqmClient_) 
+	    << "[ApvTimingHistosUsingDb::" << __func__ << "]"
+	    << " Unable to find FEC key with params crate/FEC/ring/CCU/module/LLD: " 
+	    << fec_key.fecCrate() << "/"
+	    << fec_key.fecSlot() << "/"
+	    << fec_key.fecRing() << "/"
+	    << fec_key.ccuAddr() << "/" 
+	    << fec_key.ccuChan() << "/"
+	    << fec_key.channel();
+	}
       }
-
+      
       // Exit LLD channel loop if coarse and fine delays are known
       if ( coarse != sistrip::invalid_ && 
 	   fine != sistrip::invalid_ ) { break; }
@@ -211,7 +216,7 @@ bool ApvTimingHistosUsingDb::update( SiStripConfigDb::DeviceDescriptionsRange de
       std::stringstream ss;
       ss << "[ApvTimingHistosUsingDb::" << __func__ << "]"
 	 << " Updating coarse/fine PLL settings"
-	 << " for Crate/FEC/slot/ring/CCU "
+	 << " for crate/FEC/ring/CCU/module "
 	 << fec_path.fecCrate() << "/"
 	 << fec_path.fecSlot() << "/"
 	 << fec_path.fecRing() << "/"
@@ -229,34 +234,33 @@ bool ApvTimingHistosUsingDb::update( SiStripConfigDb::DeviceDescriptionsRange de
       //LogTrace(mlDqmClient_) << ss.str();
 
     } else {
-      LogTrace(mlDqmClient_) 
+      edm::LogWarning(mlDqmClient_) 
 	<< "[ApvTimingHistosUsingDb::" << __func__ << "]"
-	<< " Unexpected PLL delay settings for Crate/FEC/slot/ring/CCU " 
+	<< " Invalid PLL delay settings for crate/FEC/ring/CCU/module " 
 	<< fec_path.fecCrate() << "/"
 	<< fec_path.fecSlot() << "/"
 	<< fec_path.fecRing() << "/"
 	<< fec_path.ccuAddr() << "/"
 	<< fec_path.ccuChan();
     }
-
+    
   }
 
   // Check if invalid settings were found
   if ( !invalid.empty() ) {
     std::stringstream ss;
     ss << "[ApvTimingHistosUsingDb::" << __func__ << "]"
-       << " Found PLL coarse setting of 15" 
-       << " (not allowed!) for following channels"
-       << " (Crate/FEC/slot/ring/CCU/LLD): ";
-    std::vector<SiStripFecKey>::iterator ikey = invalid.begin();
-    std::vector<SiStripFecKey>::iterator jkey = invalid.end();
-    for ( ; ikey != jkey; ++ikey ) {
-      ss << ikey->fecCrate() << "/"
-	 << ikey->fecSlot() << "/"
-	 << ikey->fecRing() << "/"
-	 << ikey->ccuAddr() << "/"
-	 << ikey->ccuChan() << ", ";
-    }
+       << " Found PLL coarse setting of >15" 
+       << " (not allowed!) for "
+       << invalid.size()
+       << " channels";
+    ss << " (Example is crate/FEC/ring/CCU/module/LLD: "
+       << invalid.front().fecCrate() << "/"
+       << invalid.front().fecSlot() << "/"
+       << invalid.front().fecRing() << "/"
+       << invalid.front().ccuAddr() << "/"
+       << invalid.front().ccuChan() << "/"
+       << invalid.front().channel();
     edm::LogWarning(mlDqmClient_) << ss.str();
     return false;
   }
@@ -274,7 +278,7 @@ bool ApvTimingHistosUsingDb::update( SiStripConfigDb::DeviceDescriptionsRange de
 void ApvTimingHistosUsingDb::update( SiStripConfigDb::FedDescriptionsRange feds ) {
   
   // Retrieve FED ids from cabling
-  std::vector<uint16_t> ids = cabling()->feds() ;
+  std::vector<uint16_t> ids = cabling()->feds();
   
   // Iterate through feds and update fed descriptions
   uint16_t updated = 0;
@@ -316,53 +320,64 @@ void ApvTimingHistosUsingDb::update( SiStripConfigDb::FedDescriptionsRange feds 
 	  continue; 
 	}
 	
+	// Update frame finding threshold
 	Fed9U::Fed9UAddress addr( ichan );
+	uint16_t old_threshold = static_cast<uint16_t>( (*ifed)->getFrameThreshold( addr ) );
+	if ( anal->isValid() ) {
+	  (*ifed)->setFrameThreshold( addr, anal->frameFindingThreshold() );
+	  updated++;
+	}
+	uint16_t new_threshold = static_cast<uint16_t>( (*ifed)->getFrameThreshold( addr ) );
+	
+	// Debug
 	std::stringstream ss;
-	ss << "[ApvTimingHistosUsingDb::" << __func__ << "]"
-	   << " Updating the frame-finding threshold"
-	   << " for Crate/FEC/slot/ring/CCU "
+	ss << "[ApvTimingHistosUsingDb::" << __func__ << "]";
+	if ( anal->isValid() ) {
+	  ss << " Updating the frame-finding threshold"
+	     << " from " << old_threshold
+	     << " to " << new_threshold
+	     << " using tick mark base/peak/height "
+	     << anal->base() << "/"
+	     << anal->peak() << "/"
+	     << anal->height();
+	} else {
+	  ss << " Cannot update the frame-finding threshold"
+	     << " from " << old_threshold
+	     << " to a new value using invalid analysis ";
+	}
+	ss << " for crate/FEC/ring/CCU/module/LLD "
 	   << fec_key.fecCrate() << "/"
 	   << fec_key.fecSlot() << "/"
 	   << fec_key.fecRing() << "/"
 	   << fec_key.ccuAddr() << "/"
 	   << fec_key.ccuChan() 
+	   << fec_key.channel() 
 	   << " and FED id/ch "
 	   << fed_key.fedId() << "/"
-	   << fed_key.fedChannel()
-	   << " in loop FED id/ch " 
-	   << (*ifed)->getFedId() << "/" << ichan
-	   << " from "
-	   << static_cast<uint16_t>( (*ifed)->getFrameThreshold( addr ) );
-	if ( anal->frameFindingThreshold() < sistrip::valid_ ) {
-	  (*ifed)->setFrameThreshold( addr, anal->frameFindingThreshold() );
-	  updated++;
-	  ss << " to "
-	     << static_cast<uint16_t>( (*ifed)->getFrameThreshold( addr ) )
-	     << " tick base/peak/height: " 
-	     << anal->base() << "/"
-	     << anal->peak() << "/"
-	     << anal->height();
-	} else { ss << " to same value! (Invalid returned!)"; }
-	ss << std::endl; 
+	   << fed_key.fedChannel();
 	anal->print(ss);
 	//LogTrace(mlDqmClient_) << ss.str();
 	
       } else {
-	edm::LogWarning(mlDqmClient_) 
-	  << "[ApvTimingHistosUsingDb::" << __func__ << "]"
-	  << " Unable to find ticker thresholds for FedKey/Id/Ch: 0x" 
-	  << hex << setw(8) << setfill('0') << fed_key.key() << dec << "/"
-	  << (*ifed)->getFedId() << "/"
-	  << ichan
-	  << " and device with Crate/FEC/slot/ring/CCU/LLD " 
-	  << fec_key.fecCrate() << "/"
-	  << fec_key.fecSlot() << "/"
-	  << fec_key.fecRing() << "/"
-	  << fec_key.ccuAddr() << "/"
-	  << fec_key.ccuChan() << "/"
-	  << fec_key.channel();
+	if ( deviceIsPresent(fec_key) ) { 
+	  std::stringstream ss;
+	  ss << "[ApvTimingHistosUsingDb::" << __func__ << "]"
+	     << " Unable to find analysis object and update ticker thresholds"
+	     << " for key/crate/FEC/ring/CCU/module/LLD " 
+	     << std::hex << std::setw(8) << std::setfill('0') << fec_key.key() << std::dec
+	     << fec_key.fecCrate() << "/"
+	     << fec_key.fecSlot() << "/"
+	     << fec_key.fecRing() << "/"
+	     << fec_key.ccuAddr() << "/"
+	     << fec_key.ccuChan() << "/"
+	     << fec_key.channel()
+	     << " and FED key/id/ch "
+	     << std::hex << std::setw(8) << std::setfill('0') << fed_key.key() << std::dec
+	     << fed_key.fedId() << "/"
+	     << fed_key.fedChannel();
+	  edm::LogWarning(mlDqmClient_) << ss.str();
+	}
       }
-
     }
   }
 
@@ -387,6 +402,17 @@ void ApvTimingHistosUsingDb::create( SiStripConfigDb::AnalysisDescriptionsV& des
   SiStripFedKey fed_key( anal->fedKey() );
   
   for ( uint16_t iapv = 0; iapv < 2; ++iapv ) {
+    
+//     std::stringstream ss;
+//     if ( anal->isValid() ) { ss << " TEST VALID "; } 
+//     else { ss << " TEST INVALID "; }
+//     ss << std::hex << anal->fecKey() << std::dec << " "
+//        << anal->base() << " "
+//        << anal->peak() << " "
+//        << anal->height() << " "
+//        << ( anal->base() + anal->height() * ApvTimingAnalysis::frameFindingThreshold_ ) << " "
+//        << anal->frameFindingThreshold();
+//     edm::LogError("TEST") << ss.str();
     
     // Create description
     TimingAnalysisDescription* tmp;
