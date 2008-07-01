@@ -1,6 +1,10 @@
 <use name=DQMServices/Core>
 <use name=EventFilter/Utilities>
 <use name=xdaq>
+<use name=curl>
+<use name=DQMServices/Components>
+<use name=DQMServices/WebComponents>
+
 <export>
   <use name=DQMServices/Core>
   <use name=EventFilter/Utilities>

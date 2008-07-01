@@ -1,0 +1,7 @@
+<library file="*.cc" name=DQMServicesXdaqCollectorPlugins>
+	<use name=DQMServices/XdaqCollector>
+	<flags EDM_PLUGIN=1>
+	<use name=FWCore/MessageLogger>
+	<use name=FWCore/Framework>
+	<use name=DQMServices/Core>
+</library>
