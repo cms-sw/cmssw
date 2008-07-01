@@ -1,4 +1,4 @@
-// Last commit: $Id: SiStripFedCablingBuilderFromDb.cc,v 1.51 2008/06/05 13:30:01 bainbrid Exp $
+// Last commit: $Id: SiStripFedCablingBuilderFromDb.cc,v 1.52 2008/07/01 12:23:03 bainbrid Exp $
 
 #include "OnlineDB/SiStripESSources/interface/SiStripFedCablingBuilderFromDb.h"
 #include "CalibFormats/SiStripObjects/interface/SiStripFecCabling.h"
@@ -311,9 +311,9 @@ void SiStripFedCablingBuilderFromDb::buildFecCablingFromFedConnections( SiStripC
     fed_crate = static_cast<uint16_t>( (*ifed)->getFedCrateId() );
     fed_slot  = static_cast<uint16_t>( (*ifed)->getFedSlot() );
 #else
-    uint16_t fed_id = static_cast<uint16_t>( (*ifed)->getFedId() );
-    fed_crate = fed_id / 16 + 1; // dummy numbering: FED crate starts from 1 (16 FEDs per crate)
-    fed_slot  = fed_id % 16 + 2; // dummy numbering: FED slot starts from 2 (16 FEDs per crate)
+    uint16_t id = static_cast<uint16_t>( (*ifed)->getFedId() );
+    fed_crate = id / 16 + 1; // dummy numbering: FED crate starts from 1 (16 FEDs per crate)
+    fed_slot  = id % 16 + 2; // dummy numbering: FED slot starts from 2 (16 FEDs per crate)
 #endif
     conn.fedCrate( fed_crate );
     conn.fedSlot( fed_slot );
