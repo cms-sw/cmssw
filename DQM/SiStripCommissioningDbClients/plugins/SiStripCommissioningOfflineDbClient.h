@@ -1,4 +1,4 @@
-// Last commit: $Id: SiStripCommissioningOfflineDbClient.h,v 1.4 2008/02/07 17:02:56 bainbrid Exp $
+// Last commit: $Id: SiStripCommissioningOfflineDbClient.h,v 1.5 2008/03/08 17:23:39 delaer Exp $
 
 #ifndef DQM_SiStripCommissioningDbClients_SiStripCommissioningOfflineDbClient_H
 #define DQM_SiStripCommissioningDbClients_SiStripCommissioningOfflineDbClient_H
@@ -20,24 +20,28 @@ class SiStripCommissioningOfflineDbClient : public SiStripCommissioningOfflineCl
  public:
   
   SiStripCommissioningOfflineDbClient( const edm::ParameterSet& );
+
   virtual ~SiStripCommissioningOfflineDbClient();
   
  protected:
   
   void createHistos( const edm::ParameterSet&, const edm::EventSetup& );
+  
   void uploadToConfigDb();
-
+  
  private:
-
+  
   bool uploadToDb_;
-
+  
   bool uploadAnal_;
-
+  
   bool uploadConf_;
-
+  
   bool uploadFecSettings_;
-
+  
   bool uploadFedSettings_;
+  
+  bool disableDevices_;
   
 };
 
