@@ -90,6 +90,8 @@ namespace pos{
         
     std::map<PixelROCName,PixelHdwAddress> translationtable_;  
 
+    std::map<PixelHdwAddress, PixelROCName, PixelHdwAddress> fedlookup_;  
+
     // This is a bit ugly, since the PixelHdwAddress contains the ROC number, which isn't really relevant to a PixelChannel.
     std::map<PixelChannel, PixelHdwAddress > channelTranslationTable_;
 
