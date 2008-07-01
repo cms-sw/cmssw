@@ -229,8 +229,13 @@ void RPCMonitorDigi::analyze(const Event& iEvent,const EventSetup& iSetup ){
       //sector based histograms for dqm shifter
       os.str("");
       os<<"1DOccupancy_"<<ringType<<"_"<<ring;
-      meRingMap[os.str()]->Fill(detId.sector());
-  
+      string meId = os.str();
+      meRingMap[meId]->Fill(detId.sector());
+      //Set X bin labels
+      os.str("");
+      os<<"Sec"<<detId.sector();
+      meRingMap[meId] -> setBinLabel(detId.sector(), os.str(), 1);
+      
       os.str("");
       os<<"BxDistribution_"<<ringType<<"_"<<ring<<"_Sector_"<<detId.sector();
       meMap[os.str()]->Fill(bx);
