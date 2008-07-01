@@ -22,6 +22,8 @@
 #include "DataFormats/HLTReco/interface/TriggerFilterObjectWithRefs.h"
 #include "DataFormats/HLTReco/interface/TriggerRefsCollections.h"
 
+#include "DataFormats/BeamSpot/interface/BeamSpot.h"
+
 #include "HLTDisplacedmumuFilter.h"
 
 using namespace edm;
@@ -78,6 +80,13 @@ bool HLTDisplacedmumuFilter::filter(edm::Event& iEvent, const edm::EventSetup& i
 	double const MuMass = 0.106;
 	double const MuMass2 = MuMass*MuMass;
 	
+
+	reco::BeamSpot vertexBeamSpot;
+	edm::Handle<reco::BeamSpot> recoBeamSpotHandle;
+	iEvent.getByType(recoBeamSpotHandle);
+	vertexBeamSpot = *recoBeamSpotHandle;
+	
+	std::cout << "Beamspot x0: " << vertexBeamSpot.x0() <<  ", y0: " << vertexBeamSpot.y0() <<  ", z0: " << vertexBeamSpot.z0() << ", sigmaZ: " << vertexBeamSpot.sigmaZ() << ", dxdz: " << vertexBeamSpot.dxdz() << ", dydz: " << vertexBeamSpot.dydz() << ", beamwidth: " << vertexBeamSpot.BeamWidth() << endl;
 	// The filter object  
 	// All HLT filters must create and fill an HLT filter object,
 	// recording any reconstructed physics objects satisfying (or not)
@@ -168,16 +177,39 @@ bool HLTDisplacedmumuFilter::filter(edm::Event& iEvent, const edm::EventSetup& i
 			// get vertex position and error to calculate the decay length significance
 			GlobalPoint v = tv.position();
 			GlobalError err = tv.positionError();
-			float lxy = v.perp();
-			float lxyerr = sqrt(err.rerr(v));
+			float lxyold = v.perp();
+			float lxyerrold = sqrt(err.rerr(v));
 			
 			// get normalizes chi2
-			float normChi2 = tv.normalisedChiSquared();
+// 			float normChi2 = tv.normalisedChiSquared();
 			
 			//calculate the angle between the decay length and the mumu momentum
-			Vertex::Point vperp(v.x(),v.y(),0.);
-			math::XYZVector pperp(p.x(),p.y(),0.);
+// 			Vertex::Point vperp(v.x(),v.y(),0.);
+// 			math::XYZVector pperp(p.x(),p.y(),0.);
+			 
+			 
+			// get vertex position and error to calculate the decay length significance
+			GlobalPoint secondaryVertex = tv.position();
+// 			GlobalError err = tv.positionError();
+
+			std:: cout << "vertexBeamSpot.x0(): " << vertexBeamSpot.x0() << ", secondaryVertex.x(): " << secondaryVertex.x() << ", vertexBeamSpot.y0(): " << vertexBeamSpot.y0() <<  ", secondaryVertex.y(): " << secondaryVertex.y() <<", vertexBeamSpot.z0(): " << vertexBeamSpot.z0() <<  ", secondaryVertex.z(): " << secondaryVertex.z() << endl;
+			GlobalPoint displacementFromBeamspot( -1*((vertexBeamSpot.x0() -  secondaryVertex.x()) +  (secondaryVertex.z() - vertexBeamSpot.z0()) * vertexBeamSpot.dxdz()),
+ -1*((vertexBeamSpot.y0() - secondaryVertex.y())+  (secondaryVertex.z() - vertexBeamSpot.z0()) * vertexBeamSpot.dydz()), 0);
+//          GlobalError err = tv.positionError();
+
+
+			float lxy = displacementFromBeamspot.perp();
+			float lxyerr = sqrt(err.rerr(displacementFromBeamspot));
 			
+			cout << "lxy: " << lxy << ", lxyerr: " << lxyerr << endl;
+			cout << "lxy old: " << lxyold << ", lxyerr old: " << lxyerrold << endl;
+             // get normalizes chi2
+			float normChi2 = tv.normalisedChiSquared();
+
+ 			//calculate the angle between the decay length and the mumu momentum
+			Vertex::Point vperp(displacementFromBeamspot.x(),displacementFromBeamspot.y(),0.);
+			math::XYZVector pperp(p.x(),p.y(),0.);
+
 			float cosAlpha = vperp.Dot(pperp)/(vperp.R()*pperp.R());
 			
 			// put vertex in the event

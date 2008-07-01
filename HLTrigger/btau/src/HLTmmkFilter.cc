@@ -17,6 +17,8 @@
 #include "DataFormats/VertexReco/interface/VertexFwd.h"
 #include "DataFormats/HLTReco/interface/TriggerFilterObjectWithRefs.h"
 
+#include "DataFormats/BeamSpot/interface/BeamSpot.h"
+
 #include "PhysicsTools/Utilities/interface/deltaPhi.h"
 
 #include "HLTmmkFilter.h"
@@ -35,9 +37,9 @@ HLTmmkFilter::HLTmmkFilter(const edm::ParameterSet& iConfig):thirdTrackMass_(iCo
                                                              maxInvMass_(iConfig.getParameter<double>("MaxInvMass")),
                                                              maxNormalisedChi2_(iConfig.getParameter<double>("MaxNormalisedChi2")),
                                                              minLxySignificance_(iConfig.getParameter<double>("MinLxySignificance")),
-                                                             minCosinePointingAngle_(iConfig.getParameter<double>("MinCosinePointingAngle")),                                                             
+                                                             minCosinePointingAngle_(iConfig.getParameter<double>("MinCosinePointingAngle")),
                                                              fastAccept_(iConfig.getParameter<bool>("FastAccept")),
-															saveTag_ (iConfig.getUntrackedParameter<bool> ("SaveTag",false)){
+							     saveTag_ (iConfig.getUntrackedParameter<bool> ("SaveTag",false)){
 
   muCandLabel_   = iConfig.getParameter<edm::InputTag>("MuCand");
   trkCandLabel_  = iConfig.getParameter<edm::InputTag>("TrackCand");
@@ -85,6 +87,11 @@ bool HLTmmkFilter::filter(edm::Event& iEvent, const edm::EventSetup& iSetup) {
   edm::ESHandle<TransientTrackBuilder> theB;
   iSetup.get<TransientTrackRecord>().get("TransientTrackBuilder",theB);
 
+  //get the beamspot position
+  edm::Handle<reco::BeamSpot> recoBeamSpotHandle;
+  iEvent.getByType(recoBeamSpotHandle);
+  const reco::BeamSpot& vertexBeamSpot = *recoBeamSpotHandle;
+
   // Ref to Candidate object to be recorded in filter object
   RecoChargedCandidateRef refMu1;
   RecoChargedCandidateRef refMu2;
@@ -120,8 +127,7 @@ bool HLTmmkFilter::filter(edm::Event& iEvent, const edm::EventSetup& iSetup) {
   	if ( trkcands->size()<3) break;
   
   	TrackRef trk1 = mucand1->get<TrackRef>();
-  	
-  	LogDebug("HLTDisplacedMumukFilter") << " 1st muon: q*pt= " << trk1->charge()*trk1->pt() << ", eta= " << trk1->eta() << ", hits= " << trk1->numberOfValidHits();
+	LogDebug("HLTDisplacedMumukFilter") << " 1st muon: q*pt= " << trk1->charge()*trk1->pt() << ", eta= " << trk1->eta() << ", hits= " << trk1->numberOfValidHits();
   
   	// eta cut
 	if (fabs(trk1->eta()) > maxEta_) continue;
@@ -138,7 +144,7 @@ bool HLTmmkFilter::filter(edm::Event& iEvent, const edm::EventSetup& iSetup) {
 		LogDebug("HLTDisplacedMumukFilter") << " 2nd muon: q*pt= " << trk2->charge()*trk2->pt() << ", eta= " << trk2->eta() << ", hits= " << trk2->numberOfValidHits();
 
 		// eta cut
-		if (fabs(trk2->eta()) > maxEta_) continue;
+ 		if (fabs(trk2->eta()) > maxEta_) continue;
 	
 		// Pt threshold cut
 		if (trk2->pt() < minPt_) continue;
@@ -216,18 +222,22 @@ bool HLTmmkFilter::filter(edm::Event& iEvent, const edm::EventSetup& iSetup) {
 			Vertex vertex = tv;
 			
 			// get vertex position and error to calculate the decay length significance
-			GlobalPoint v = tv.position();
+			GlobalPoint secondaryVertex = tv.position();
 			GlobalError err = tv.positionError();
-			float lxy = v.perp();
-			float lxyerr = sqrt(err.rerr(v));
-			
+
+			//calculate decay length  significance w.r.t. the beamspot
+			GlobalPoint displacementFromBeamspot( -1*((vertexBeamSpot.x0() -secondaryVertex.x()) +  (secondaryVertex.z() - vertexBeamSpot.z0()) * vertexBeamSpot.dxdz()), -1*((vertexBeamSpot.y0() - secondaryVertex.y())+ (secondaryVertex.z() -vertexBeamSpot.z0()) * vertexBeamSpot.dydz()), 0);
+
+			float lxy = displacementFromBeamspot.perp();
+			float lxyerr = sqrt(err.rerr(displacementFromBeamspot));
+
 			// get normalizes chi2
 			float normChi2 = tv.normalisedChiSquared();
 			
 			//calculate the angle between the decay length and the mumu momentum
-			Vertex::Point vperp(v.x(),v.y(),0.);
+			Vertex::Point vperp(displacementFromBeamspot.x(),displacementFromBeamspot.y(),0.);
 			math::XYZVector pperp(p.x(),p.y(),0.);
-			
+
 			float cosAlpha = vperp.Dot(pperp)/(vperp.R()*pperp.R());
 			
 			LogDebug("HLTDisplacedMumukFilter") << " vertex fit normalised chi2: " << normChi2 << ", Lxy significance: " << lxy/lxyerr << ", cosine pointing angle: " << cosAlpha;
