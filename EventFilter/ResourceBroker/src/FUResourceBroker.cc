@@ -12,7 +12,7 @@
 #include "EventFilter/ResourceBroker/interface/BUProxy.h"
 #include "EventFilter/ResourceBroker/interface/SMProxy.h"
 
-#include "EventFilter/Utilities/interface/Crc.h"
+#include "FWCore/Utilities/interface/CRC16.h"
 
 #include "i2o/Method.h"
 #include "interface/shared/i2oXFunctionCodes.h"

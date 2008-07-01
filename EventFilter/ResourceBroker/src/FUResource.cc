@@ -8,7 +8,7 @@
 
 
 #include "EventFilter/ResourceBroker/interface/FUResource.h"
-#include "EventFilter/Utilities/interface/Crc.h"
+#include "FWCore/Utilities/interface/CRC16.h"
 #include "EventFilter/Utilities/interface/GlobalEventNumber.h"
 #include "DataFormats/FEDRawData/interface/FEDNumbering.h"
 
