@@ -17,6 +17,10 @@ from Geometry.DTGeometry.dtGeometry_cfi import *
 from Geometry.CSCGeometry.cscGeometry_cfi import *
 #  RPC
 from Geometry.RPCGeometry.rpcGeometry_cfi import *
+#  Alignment
+from Geometry.TrackerGeometryBuilder.idealForDigiTrackerGeometry_cff import *
+from Geometry.CSCGeometryBuilder.idealForDigiCscGeometry_cff import *
+from Geometry.DTGeometryBuilder.idealForDigiDtGeometry_cff import *
 #  Calorimeters
 from Geometry.CaloEventSetup.CaloGeometry_cff import *
 from Geometry.CaloEventSetup.EcalTrigTowerConstituents_cfi import *
