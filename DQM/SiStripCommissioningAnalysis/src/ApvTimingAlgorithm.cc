@@ -202,7 +202,11 @@ void ApvTimingAlgorithm::analyse() {
       // Calc local derivative 
       float temp = 0;
       if ( static_cast<uint32_t>(bin-1) < 0 ||
-	   static_cast<uint32_t>(bin+1) >= nbins ) { continue; }
+	   static_cast<uint32_t>(bin+1) >= nbins ) { 
+	valid = false; //@@ require complete plateau is found within histo
+	anal->addErrorCode(sistrip::incompletePlateau_);
+	continue; 
+      }
       temp = bin_contents[bin+1] - bin_contents[bin-1];
       
       // Store max derivative
