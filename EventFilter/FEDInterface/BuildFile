@@ -1,0 +1,5 @@
+<use name=xdaq>
+<export>
+  <lib name=EventFilterFEDInterface>
+  <use name=xdaq>
+</export>
