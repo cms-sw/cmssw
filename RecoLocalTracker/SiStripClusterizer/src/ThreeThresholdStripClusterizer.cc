@@ -169,20 +169,24 @@ void ThreeThresholdStripClusterizer::clusterizeDetUnit_(const InputDetSet& input
 // 	  gainFactor=0.73;
 // 	//ENDDEBUGG
 
-
+//correct for gain only non-truncated channel charge. Throw exception if channel charge exceeding 255 ADC counts is found
+ 
 	  if(stripCharge<254){
 	    stripCharge /= gainFactor;	  
 	    
 	    if(stripCharge>511.5){stripCharge=255;}
 	    else if(stripCharge>253.5){stripCharge=254;}
 	  }  
+	  else if(stripCharge>255){
+	    throw cms::Exception("LogicError") << "Cluster charge (" << stripCharge << ") out of range. This clustering algorithm should only work with input charges lower than or equal to 255 ADC counts";
 
+	  }
 
 //  	//dummy DEBUGG
 // 	  std::vector<SiStripDigi> b; b.push_back(SiStripDigi(itest->strip(), static_cast<uint8_t>(stripCharge+0.5)));; 
 // 	  SiStripCluster c( detID, SiStripCluster::SiStripDigiRange( b.begin(),b.end()));
 // 	  edm::LogInfo("MYTEST") << "myadc="<<myadc<<" stripCharge="<<stripCharge<<" stored charge="<< (unsigned int)(c.amplitudes()[0])<< std::endl;
-
+//	  edm::LogInfo("MYTEST") << "myadc="<< (unsigned int)(static_cast<uint8_t>(255.5));
 // 	} 
 // 	  //ENDDEBUGG
 
