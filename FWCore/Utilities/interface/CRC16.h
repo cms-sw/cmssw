@@ -1,11 +1,11 @@
 #ifndef FWCore_Utilities_CRC16_h
 #define FWCore_Utilities_CRC16_h 1
 
-#
-# Calculates the 16bit CRC (applied to 64-bit words) used in the daq hardware
-# Do not modify without contacting Philipp Schieferdecker/Emilio Meschi 
-# It is in FWCore/Utilities to avoid dependencies on xdaq
-#
+//
+// Calculates the 16bit CRC (applied to 64-bit words) used in the daq hardware
+// Do not modify without contacting Philipp Schieferdecker/Emilio Meschi 
+// It is in FWCore/Utilities to avoid dependencies on xdaq
+//
 
 namespace evf
 {
