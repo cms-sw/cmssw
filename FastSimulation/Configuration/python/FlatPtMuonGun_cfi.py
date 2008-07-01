@@ -14,7 +14,7 @@ source = cms.Source(
         MinPhi = cms.untracked.double(-3.14159265359), ## it must be in radians
         MaxPhi = cms.untracked.double(3.14159265359),
     ),
-    AddAntiParticle = cms.untracked.bool(false), # back-to-back particles
+    AddAntiParticle = cms.untracked.bool(False), # back-to-back particles
     Verbosity = cms.untracked.int32(0) ## for printouts, set it to 1 (or greater)   
 )
 

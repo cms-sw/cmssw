@@ -1,11 +1,12 @@
 import FWCore.ParameterSet.Config as cms
 
-from Geometry.TrackerGeometryBuilder.trackerGeometry_cfi import *
-#The same, but as above for misaligned Tracker geometry
-misalignedTrackerGeometry = cms.ESProducer("TrackerDigiGeometryESModule",
-    appendToDataLabel = cms.string('MisAligned'),
-    fromDDD = cms.bool(True),
-    applyAlignment = cms.untracked.bool(False)
-)
+# The aligned Tracker geometry
+import Geometry.TrackerGeometryBuilder.trackerGeometry_cfi
 
+# The same, but for a misaligned Tracker geometry
+misalignedTrackerGeometry = Geometry.TrackerGeometryBuilder.trackerGeometry_cfi.TrackerDigiGeometryESModule.clone()
+# The misalignment won't be applied
+misalignedTrackerGeometry.applyAlignment = False
+# Label of the produced TrackerGeometry:
+misalignedTrackerGeometry.appendToDataLabel = 'MisAligned'
 
