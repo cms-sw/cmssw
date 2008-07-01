@@ -13,7 +13,7 @@
 <SummaryPlot monitorable="HighLightLevel" presentation="Profile1D" level="SiStrip/ReadoutView" granularity="FrontEndUnit"/>
 <SummaryPlot monitorable="LowLightLevel" presentation="Profile1D" level="SiStrip/ReadoutView" granularity="FrontEndUnit"/>
 
-<SummaryPlot monitorable="ConnectionsPerFed" presentation="Histo2DSum" level="SiStrip/ReadoutView" granularity="FrontEndUnit"/>
+<SummaryPlot monitorable="ConnectionsPerFed" presentation="Histo2DSum" level="SiStrip/ReadoutView" granularity="FrontEndDriver"/>
 
 </RunType>
 
