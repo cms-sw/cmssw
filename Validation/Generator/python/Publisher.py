@@ -25,10 +25,10 @@ class StaticWeb:
     self.releaseDifference = None
   
   ## Given a root file plots all the histograms.  
-  def plot ( self, mainfile, reffile, location, file_prefix, package, release, reference ):
+  def plot ( self, mainfile, reffile, location, file_prefix, package ):
     # Creates a temporal file for executing root
-    rootFile = tempfile.NamedTemporaryFile('w',suffix='.C')    
-    #rootFile = open ('Holanda.C','w')
+    #rootFile = tempfile.NamedTemporaryFile('w',suffix='.C')    
+    rootFile = open ('Holanda.C','w')
     # Create string to plot histograms
     #string = 'void '
     string = ''
@@ -51,8 +51,6 @@ class StaticWeb:
       string = string + "plot.SetExtension(\"png\");\n"
       string = string + "plot.SetFilePrefix(\""+file_prefix+"\");\n"
       string = string + "plot.SetDirectory(\""+package+"\");\n"
-      string = string + "plot.SetRelease(\""+release+"\");\n"
-      string = string + "plot.SetReference(\""+reference+"\");\n"
     string = string + "plot.Draw();\n }"
     # Write the string
     rootFile.write( string )
@@ -74,26 +72,8 @@ class StaticWeb:
     <b><center>Plots for Release:  ' + release +'    Reference:    ' + reference + '   Process:    ' +process+'</center></b>\n'
     for file in os.listdir(dir):
       newDir = file.split('.')[0]
-      if ' ' in file:
-        file_string = file.replace(' ','')
-      else:
-        file_string = file
-      temp_file = file_string
-      if '<' in file:
-        file_string = file_string.replace('<', 'lt')
-        shutil.move(dir+'/'+file,dir+'/'+file_string)
-        temp_file = file_string
-      elif '>' in file:
-        file_string = file_string.replace('>', 'gt')
-        shutil.move(dir+'/'+file,dir+'/'+file_string)
-        temp_file = file_string
-      if '<' in newDir:
-        newDir = newDir.replace('<', 'lt')
-      if '>' in newDir:
-        newDir = newDir.replace('>', 'gt')
-      if os.path.isdir(  dir+'/'+newDir+'/') == False:
-        os.mkdir(dir+'/'+newDir+'/')
-      shutil.copyfile(dir+'/'+file_string, dir+'/'+newDir+'/'+file_string)
+      os.mkdir(dir+'/'+newDir+'/')
+      shutil.copyfile(dir+'/'+file, dir+'/'+newDir+'/'+file)
       file1 = open(dir+'/'+newDir+'/index.html', 'w')
       string = '<html>\n\
       <head>\n\
@@ -101,17 +81,17 @@ class StaticWeb:
       </head>\n\
       <body>\n\n\n\
       <b><center>Plots for Release:  ' + release +'    Reference:    ' + reference + '   Process:    '+process+ '   Plot:    '+file+'</center></b>\n'
-      string = string + '<img align =\"center\" src='+file_string+'> </html>'
+      string = string + '<img align =\"center\" src='+file+'> </html>'
       file1.write(string)
       file1.close()
       b = b + 1
       str = str + '<p>\n\
       <a href=\"' + newDir + '/\">'
       if b % 2 !=0:
-        str = str + '<img WIDTH="40%" src=' + temp_file + ' align="left"></a>\n\
+        str = str + '<img WIDTH="40%" src=' + file + ' align="left"></a>\n\
         </p>\n '
       else:
-        str = str + '<img WIDTH="40%" src=' + temp_file + ' align="right"></a>\n\
+        str = str + '<img WIDTH="40%" src=' + file + ' align="right"></a>\n\
         </p>\n '
     str = str + "</body>\n\n\n\
     </html> \n "

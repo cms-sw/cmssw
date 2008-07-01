@@ -20,69 +20,47 @@ parser.add_option("-p", "--process", dest="process", default="ALL", help="Proces
 parser.add_option("-r", "--run", dest="run", default="ALL", help="Which process to run, pythia, or herwig")
 parser.add_option("-c", "--compare", dest="compare", default='all',  help="Which processes to compare run to, opposite, same, all")
 parser.add_option("-l", "--list", action="store_true", dest="list", default=False, help="List all process available ")
-parser.add_option("-v", "--vista", action="store_true", dest="vista", default=False, help="List all process available ")
 parser.add_option("-a", "--allreleases", action="store_true", dest="all", default=False, help="Enables comparison of all releasess of generators")
 parser.add_option("-o", "--port", type="int", dest="port", default=Configuration.variables["PortNumber"], help="port used by the server")
 parser.add_option("-t", "--howto", dest="howto", action="store_true", default=False, help="Prints a 'howto'")
 parser.add_option("-d", "--data", dest="data", action="store_true", default=False, help="Compares to data.  Overrides all comparison steps")
 parser.add_option("-b", "--batch", dest="batch", action="store_false", default=True, help="Decides whether batch (true) or local (false).  Default is true")
-parser.add_option("-s", "--site", dest="site", action="store_true", default=False, help="For which batch system false for FNAL, true for CERN")
 
 (options, args) = parser.parse_args()
 
-if options.batch == True:# and options.site == False:
+if options.batch == True:
     Batch = "BATCH"
 if options.batch == False:
     Batch = "LOCAL"
-if options.site == False:
-    Site = "FNAL"
-if options.site == True:
-    Site = "CERN"
-    
 datajob = ""
 
-if options.run != None and options.howto == False and options.list == False:
-    List = os.listdir(Configuration.variables["HomeDirectory"]+'data/')
+if options.run != None and options.howto == False:
+    List = os.listdir(Configuration.variables["HomeDirectory"]+'test/')
     Processes = []
     for file in List:
-        if options.vista == False and 'VISTA' in file.upper():
-            continue
-        if options.run.upper() != "ALL":
-            if file.split('.')[0].split('__')[1].upper() != options.run.upper():
-                continue
         if options.process.upper() == "ALL":
-            if file.split('.')[0].split('__')[0] not in Processes:
-                Processes.append(file.split('.')[0].split('__')[0])
+            if file.split('__')[0] not in Processes:
+                Processes.append(file.split('__')[0])
         else: # options.process.upper() != "ALL":
-            if file.split('.')[0].split('__')[0] not in Processes and options.process.upper() == file.split('.')[0].split('__')[0].upper():
-                Processes.append(file.split('.')[0].split('__')[0])
-        
+            if file.split('__')[0] not in Processes and options.process.upper() == file.split('__')[0].upper():
+                Processes.append(file.split('__')[0])
     #print Processes
     for job in Processes:
         client = socket.socket ( socket.AF_INET, socket.SOCK_STREAM )
         client.connect ( ( 'localhost', options.port ) )
         message = {}
-        message['normaljob'] = {'Run' : options.run, 'Process' : job, 'Compare' : options.compare, 'Release' : str(options.all), "JobType" : Batch, "Vista" : str(options.vista), "Site" : Site}
-        print message
-        client.send ( pickle.dumps(message))
-        client.close()
-    if len(Processes) == 0 and options.vista == True:
-        client = socket.socket ( socket.AF_INET, socket.SOCK_STREAM )
-        client.connect ( ( 'localhost', options.port ) )
-        message = {}
-        message['normaljob'] = {'Run' : options.run, 'Process' : "Vista", 'Compare' : options.compare, 'Release' : str(options.all), "JobType" : Batch, "Vista" : str(options.vista), "Site" : Site}
-        print message
+        message['normaljob'] = {'Run' : options.run, 'Process' : job, 'Compare' : options.compare, 'Release' : str(options.all), "JobType" : Batch}
         client.send ( pickle.dumps(message))
         client.close()
 
 
-#if options.run != None and options.data == True and options.process != "ALL":
-#   client = socket.socket ( socket.AF_INET, socket.SOCK_STREAM )
-#   client.connect ( ( 'localhost', options.port ) )
-#   message = {}
-#   message['datajob'] = {'Run' : options.run, 'Process' : options.process}
-#   client.send ( pickle.dumps(message))
-#   client.close() 
+if options.run != None and options.data == True and options.process != "ALL":
+   client = socket.socket ( socket.AF_INET, socket.SOCK_STREAM )
+   client.connect ( ( 'localhost', options.port ) )
+   message = {}
+   message['datajob'] = {'Run' : options.run, 'Process' : options.process}
+   client.send ( pickle.dumps(message))
+   client.close() 
     
 
 if options.run == None and options.list == False and options.howto == False:
@@ -106,7 +84,8 @@ if options.howto != False:
     \n\
     -l lists all available processes, and how to type them \n\
     \n\
-    -v runs any 'vista' files that exist. To run just vista type ./Client --process=none -v\n   
+    -d runs all processes that have a corresponding 'data' cfg file.  For special cases   \n\
+      to run -d only type process, run and -d \n\
     \n\
     -b turns batch jobs off.  Default runs on condor, if you want to run locally type -b\n\
     \n\
@@ -120,7 +99,7 @@ if options.howto != False:
     ./Client --process=MinBias --run=pythia --compare=opposite -a \n\
     \n\
     This would run any pythia (--run=pythia) MinBias (--process=MinBias) cfg files in the  \n\
-    GeneratorValidation/cfg directory and then run any herwig (--compare=opposite) MinBias\n\
+    GeneratorValidation/test directory and then run any herwig (--compare=opposite) MinBias\n\
     cfg files.  It would compare the two. It will also compare the newest pythia release to\n\
     ALL(-a) of the herwig MinBias samples kept in the data directory. If you were to change\n\
     compare to pythia, it would then compare the current version of pythia to any that you \n\
@@ -132,7 +111,7 @@ if options.howto != False:
     \n\
     ./Client
     \n\
-    This will run all of your processes located in the cfg directory in batch jobs.
+    This will run all of your processes located in the test directory in batch jobs.
     \n\
     
 
@@ -140,18 +119,34 @@ if options.howto != False:
     print print_out
 
 if options.list != False:
-    process_List = []
-    for file in os.listdir(Configuration.variables['HomeDirectory']+'data/'):
-        if file.split('__')[0] not in process_List:
-            process_List.append(file.split('__')[0])
-    string = ''
-    for process in process_List:
-        string = string + '    '+process + '\n'
-    if string == '':
-        string = "None"
-    print """
-    ========================== 
-          Process List 
-    ==========================
-    \n"""+string
-        
+    pythia_List = []
+    herwig_List = []
+    both_List = []
+    pythia_String = '============\nJust Pythia \n============\n'
+    herwig_String = '============\nJust Herwig \n============\n'
+    both_String = '============\nIn Both \n============\n'
+    for file in os.listdir(Configuration.variables['HomeDirectory']+'test/'):
+        if 'PYTHIA' in file.upper() and file.split('__')[0] not in pythia_List and "DATA" not in file.upper():
+            pythia_List.append(file.split('__')[0])
+        if 'HERWIG' in file.upper() and file.split('__')[0] not in herwig_List and "DATA" not in file.upper():
+            pythia_List.append(file.split('__')[0])
+    for probe in pythia_List:
+        for probe1 in herwig_List:
+            if probe1 == probe:
+                both_List.append(probe)
+                herwig_List.remove(probe1)
+                pythia_List.remove(probe)
+                continue
+    for blist in both_List:
+        both_String = both_String + blist + '\n'
+    for hlist in herwig_List:
+        herwig_String = herwig_String + hlist + '\n'
+    for plist in pythia_List:
+        pythia_String = pythia_String + plist + '\n'
+    if pythia_String == '============\nJust Pythia \n============\n' :
+        pythia_String = pythia_String + 'None' + '\n'
+    if herwig_String == '============\nJust Herwig \n============\n' :
+        herwig_String = herwig_String + 'None' +'\n'
+    if both_String == '============\nIn Both \n============\n' :
+        both_String = both_String + 'None' + '\n'
+    print pythia_String, herwig_String, both_String

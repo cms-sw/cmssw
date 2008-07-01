@@ -6,7 +6,7 @@ import Queue
 import socket
 import pickle
 #import CMSInterface
-import GeneratorValidator
+import TempGeneratorValidator
 import ErrorManager
 import Configuration
 import Publisher
@@ -27,7 +27,7 @@ pool = {}
 queue = Queue.Queue (0)
 
 ## Our thread class
-class ClientThread ( threading.Thread, GeneratorValidator.JobManager):
+class ClientThread ( threading.Thread, TempGeneratorValidator.JobManager):
 # Define the lock for this class
   lock = threading.Lock()
 
@@ -56,7 +56,7 @@ class ClientThread ( threading.Thread, GeneratorValidator.JobManager):
     while True:
        # Get a client out of the queue
        client = queue.get()
-       print client
+       #print client
        
        # Check if we actually have an actual client in the client variable:
        if client != None:
@@ -66,22 +66,16 @@ class ClientThread ( threading.Thread, GeneratorValidator.JobManager):
            process = client['normaljob']['Process']
            compare = client['normaljob']['Compare']
            release = client['normaljob']['Release']
-           vista = client['normaljob']['Vista']
            self.__JobType = client['normaljob']['JobType']
-           site = client['normaljob']['Site']
            # To run Config files on local node, uncomment next two lines
-           if "VISTA" not in process.upper():
-             if self.__JobType.upper() == "LOCAL":
-               self.new_config_run(run, process, compare) ## Local Node!!
-             else:
-               self.new_batch_run(run, process, compare, site) ##  Batch Jobs!!
-               self.NewPublisher(run, process, compare, release, site)
-               message = {}
-               message['Matrix'] = {"Status" : "Start"}
-               self.send(pickle.dumps(message))
-           if vista.upper() == "TRUE" and "VISTA" in process.upper():
-             print process, self.__JobType.upper() 
-             self.Vista_run(site, self.__JobType.upper() )
+           if self.__JobType.upper() != "BATCH":
+             self.config_run(run, process, compare) ## Local Node!!
+           else:
+             self.batch_run(run, process, compare) ## Condor Batch Jobs!!
+           self.NewPublisher(run, process, compare, release, self.__JobType)
+           message = {}
+           message['Matrix'] = {"Status" : "Start"}
+           self.send(pickle.dumps(message))
          if client.has_key("Matrix"):
            print "MatrixCreator Started"
            self.MatrixCreator(self.__JobType)
