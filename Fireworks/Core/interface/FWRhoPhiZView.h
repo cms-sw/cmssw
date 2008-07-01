@@ -16,7 +16,7 @@
 //
 // Original Author:  Chris Jones
 //         Created:  Tue Feb 19 10:33:21 EST 2008
-// $Id: FWRhoPhiZView.h,v 1.9 2008/06/23 06:34:51 dmytro Exp $
+// $Id: FWRhoPhiZView.h,v 1.10 2008/06/24 07:40:43 dmytro Exp $
 //
 
 // system include files
@@ -38,6 +38,7 @@ class TGFrame;
 class TGLMatrix;
 class TEveCalo2D;
 class FWRhoPhiZViewManager;
+class TEveScene;
 
 class FWRhoPhiZView : public FWViewBase
 {
