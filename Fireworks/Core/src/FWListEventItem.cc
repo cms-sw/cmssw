@@ -8,7 +8,7 @@
 //
 // Original Author:  Chris Jones
 //         Created:  Thu Feb 28 11:13:37 PST 2008
-// $Id: FWListEventItem.cc,v 1.16 2008/06/27 05:30:59 dmytro Exp $
+// $Id: FWListEventItem.cc,v 1.17 2008/06/29 13:23:48 chrjones Exp $
 //
 
 // system include files
@@ -267,7 +267,7 @@ FWListEventItem::itemChanged(const FWEventItem* iItem)
    this->DestroyElements();
    m_indexOrderedItems.clear();
    m_indexOrderedItems.reserve(eventItem()->size());
-   typedef std::map<double, FWListModel*, std::greater<double> > OrderedMap;
+   typedef std::multimap<double, FWListModel*, std::greater<double> > OrderedMap;
    OrderedMap orderedMap;
    for(unsigned int index = 0; index < eventItem()->size(); ++index) {
       ROOT::Reflex::Object obj;
@@ -279,7 +279,7 @@ FWListEventItem::itemChanged(const FWEventItem* iItem)
                                    const_cast<void*>(eventItem()->modelData(index)));
          obj=temp;
          data = stringValueFor(obj,m_memberFunction);
-         doubleData = doubleValueFor(obj,m_memberFunction)+index*1e-6;
+         doubleData = doubleValueFor(obj,m_memberFunction);
       }
       FWListModel* model = new FWListModel(FWModelId(eventItem(),index), 
                                            m_detailViewManager,
