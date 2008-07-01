@@ -18,8 +18,7 @@
   <use name=FWCore/Framework>
   <use name=FWCore/MessageLogger>
   <use name=FWCore/ParameterSet>
-  <use name=TkOnlineSw>
+  <use name=tkonlinesw>
   <use name=boost>
-  <use name=xdaq>
   <flags EDM_PLUGIN=1>
 </library>
