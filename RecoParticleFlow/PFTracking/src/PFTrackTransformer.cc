@@ -372,7 +372,9 @@ PFTrackTransformer::addPointsAndBrems( reco::GsfPFRecTrack& pftrack,
   
     // --------------------------   Fill Brem "Track" --------------------------------- 
     // Fill the brem for each traj point
-    
+
+    //check that the vertex of the brem is in the tracker volume
+    if ((v.perp()>110) ||(fabs(v.z())>280)) continue;    
     uint iTrajPoint =  iTrajPos + 2;
 
     PFBrem brem(DP,SigmaDP,iTrajPoint);
