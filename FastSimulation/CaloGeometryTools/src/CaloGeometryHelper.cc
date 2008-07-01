@@ -90,6 +90,21 @@ DetId CaloGeometryHelper::getClosestCell(const XYZPoint& point, bool ecal, bool 
     {
       result=HcalGeometry_->getClosestCell(GlobalPoint(point.X(),point.Y(),point.Z()));
       HcalDetId myDetId(result);
+
+      // special patch for HF
+      if ( myDetId.subdetId() == HcalForward ) {
+	int mylayer;
+	if ( fabs(point.Z()) > 1132. ) {
+	  mylayer = 2;
+	} else {
+	  mylayer = 1;
+	}
+	HcalDetId myDetId2((HcalSubdetector)myDetId.subdetId(),myDetId.ieta(),myDetId.iphi(),mylayer);
+	result = myDetId2;
+	return result;
+      }
+
+
       if(result.subdetId()!=HcalEndcap) return result;
       // Special patch to correct the HCAL geometry
       if(myDetId.depth()==3) return result;
