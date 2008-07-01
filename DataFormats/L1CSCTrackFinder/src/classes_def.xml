@@ -27,7 +27,7 @@
 
    <class name="edm::Wrapper<std::vector<std::pair<csc::L1Track,MuonDigiCollection<CSCDetId,CSCCorrelatedLCTDigi> > > >" splitLevel="0"/>
 
-   <class name="edm::Wrapper<CSCTriggerContainer<csctf::TrackStub> >"/>
+   <class name="edm::Wrapper<CSCTriggerContainer<csctf::TrackStub> >" splitLevel="0"/>
 
    <class name="edm::Wrapper< std::pair< int, std::vector<L1CSCSPStatusDigi> > >" splitLevel="0"/>
 </lcgdict>

@@ -26,16 +26,16 @@
   <class name="edm::RefProd<L1GctEtTotal>"/>
   <class name="edm::RefProd<L1GctEtHad>"/>
   <class name="edm::RefProd<L1GctEtMiss>"/>
-  <class name="edm::Wrapper<std::vector<L1GctInternEmCand>>"/>
-  <class name="edm::Wrapper<std::vector<L1GctEmCand>>"/>
-  <class name="edm::Wrapper<std::vector<L1GctJetCand>>"/>
-  <class name="edm::Wrapper<std::vector<L1GctFibreWord>>"/>
-  <class name="edm::Wrapper<L1GctEtTotal>"/>
-  <class name="edm::Wrapper<L1GctEtHad>"/>
-  <class name="edm::Wrapper<L1GctEtMiss>"/>
-  <class name="edm::Wrapper<L1GctJetCounts>"/>
-  <class name="edm::Wrapper<std::vector<L1GctEtHad>>"/>
-  <class name="edm::Wrapper<std::vector<L1GctEtMiss>>"/>
-  <class name="edm::Wrapper<std::vector<L1GctEtTotal>>"/>
-  <class name="edm::Wrapper<std::vector<L1GctJetCounts>>"/>
+  <class name="edm::Wrapper<std::vector<L1GctInternEmCand>>" splitLevel="0"/>
+  <class name="edm::Wrapper<std::vector<L1GctEmCand>>" splitLevel="0"/>
+  <class name="edm::Wrapper<std::vector<L1GctJetCand>>" splitLevel="0"/>
+  <class name="edm::Wrapper<std::vector<L1GctFibreWord>>" splitLevel="0"/>
+  <class name="edm::Wrapper<L1GctEtTotal>" splitLevel="0"/>
+  <class name="edm::Wrapper<L1GctEtHad>" splitLevel="0"/>
+  <class name="edm::Wrapper<L1GctEtMiss>" splitLevel="0"/>
+  <class name="edm::Wrapper<L1GctJetCounts>" splitLevel="0"/>
+  <class name="edm::Wrapper<std::vector<L1GctEtHad>>" splitLevel="0"/>
+  <class name="edm::Wrapper<std::vector<L1GctEtMiss>>" splitLevel="0"/>
+  <class name="edm::Wrapper<std::vector<L1GctEtTotal>>" splitLevel="0"/>
+  <class name="edm::Wrapper<std::vector<L1GctJetCounts>>" splitLevel="0"/>
 </lcgdict>
