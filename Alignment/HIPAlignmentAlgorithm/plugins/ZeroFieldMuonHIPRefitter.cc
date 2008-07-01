@@ -13,7 +13,7 @@
 //
 // Original Author:  Jim Pivarski
 //         Created:  Wed Dec 12 13:31:55 CST 2007
-// $Id: ZeroFieldMuonHIPRefitter.cc,v 1.10 2008/06/16 15:43:14 pivarski Exp $
+// $Id: ZeroFieldMuonHIPRefitter.cc,v 1.1 2008/07/01 21:57:52 pivarski Exp $
 //
 //
 
@@ -172,22 +172,10 @@ ZeroFieldMuonHIPRefitter::produce(edm::Event& iEvent, const edm::EventSetup& iSe
       }
    }
 
-//    GlobalPoint cheatPoint(0.52, -0.84, 1.22);
-//    GlobalVector cheatVector(-8.4, 15.2, -9.6);
-//    std::vector<double> cheatx, cheaty, cheatz;
-//    for (double z = 0.;  z < 100.;  z += 1.) {
-//       GlobalPoint cheatHit = cheatPoint + cheatVector * z;
-//       cheatx.push_back(cheatHit.x());
-//       cheaty.push_back(cheatHit.y());
-//       cheatz.push_back(cheatHit.z());
-//    }
-
    // we want the independent variable of the fit to be roughly collinear with the resulting line
    // (so the final fitted slope will be a small correction)
    // we convert from local to global, and then left-multiply by this rotation
    math::XYZVector direction = best_track->momentum();
-//   math::XYZVector direction = math::XYZVector(cheatVector.x(), cheatVector.y(), cheatVector.z());
-// CHEAT
 
    double theta1 = atan2(-direction.x(), direction.y());
    double theta2 = atan2(direction.z(), sqrt(direction.perp2()));
@@ -198,20 +186,12 @@ ZeroFieldMuonHIPRefitter::produce(edm::Event& iEvent, const edm::EventSetup& iSe
                                    sin(theta1), -cos(theta1)*sin(theta2),  cos(theta1)*cos(theta2),
                                             0.,              cos(theta2),              sin(theta2));
 
-//    align::RotationType coordrot(1., 0., 0.,
-// 				0., 1., 0.,
-// 				0., 0., 1.);
-//    align::RotationType coordrotinv(1., 0., 0.,
-// 				   0., 1., 0.,
-// 				   0., 0., 1.);
-
    // these x and y values are perpendicular to the direction-of-momentum axis
    std::vector<const TrackingRecHit*> hits;
    std::vector<double> listx, listy, listz, listXX, listXY, listYY;
    double SXX, SxXX, SxXY, SXY, SxzXX, SxzXY, SyXY, SYY, SyYY, SyzXY, SyzYY, SzXX, SzXY, SzYY, SzzXX, SzzXY, SzzYY;
    SXX = SxXX = SxXY = SXY = SxzXX = SxzXY = SyXY = SYY = SyYY = SyzXY = SyzYY = SzXX = SzXY = SzYY = SzzXX = SzzXY = SzzYY = 0.;
 
-//   int cheati = 0;
    for (trackingRecHit_iterator hit = best_track->recHitsBegin();  hit != best_track->recHitsEnd();  ++hit) {
       DetId id = (*hit)->geographicalId();
       if (id.det() == DetId::Tracker) {
@@ -221,31 +201,11 @@ ZeroFieldMuonHIPRefitter::produce(edm::Event& iEvent, const edm::EventSetup& iSe
 	 const Surface& surface = trackerGeometry->idToDet(id)->surface();
 	 
 	 GlobalPoint position = surface.toGlobal(localPoint);
-//	 GlobalPoint position(cheatx[cheati], cheaty[cheati], cheatz[cheati]);
-//	 cheati++;
-// CHEAT
-
 	 position = GlobalPoint(coordrot.xx()*position.x() + coordrot.xy()*position.y() + coordrot.xz()*position.z(),
 				coordrot.yx()*position.x() + coordrot.yy()*position.y() + coordrot.yz()*position.z(),
 				coordrot.zx()*position.x() + coordrot.zy()*position.y() + coordrot.zz()*position.z());
 	 
-//	 std::cout << "before = " << std::endl << error << std::endl;
-
-// 	 GlobalVector vect = surface.toGlobal(LocalVector(localPoint.x(), localPoint.y(), localPoint.z()));
-// 	 vect = GlobalVector(coordrot.xx()*vect.x() + coordrot.xy()*vect.y() + coordrot.xz()*vect.z(),
-// 			     coordrot.yx()*vect.x() + coordrot.yy()*vect.y() + coordrot.yz()*vect.z(),
-// 			     coordrot.zx()*vect.x() + coordrot.zy()*vect.y() + coordrot.zz()*vect.z());
-
  	 align::RotationType rotation = coordrot * surface.rotation().transposed();
-
-// 	 GlobalPoint vect2(rotation.xx()*localPoint.x() + rotation.xy()*localPoint.y() + rotation.xz()*localPoint.z(),
-// 			   rotation.yx()*localPoint.x() + rotation.yy()*localPoint.y() + rotation.yz()*localPoint.z(),
-// 			   rotation.zx()*localPoint.x() + rotation.zy()*localPoint.y() + rotation.zz()*localPoint.z());
-
-// 	 std::cout << "vect = " << vect << " " << vect2 << std::endl;
-// 	 // this works.  what's wrong with my error propagation?
-
-	 
 	 align::RotationType errorAsRotation = rotation * align::RotationType(localError.xx(), localError.xy(), 0, localError.xy(), localError.yy(), 0, 0, 0, 0) * rotation.transposed();
 
 	 AlgebraicSymMatrix error(2);
@@ -259,21 +219,6 @@ ZeroFieldMuonHIPRefitter::produce(edm::Event& iEvent, const edm::EventSetup& iSe
 	    edm::LogError("ZeroFieldMuonHIPRefitter") << "Matrix inversion failed!  ierr = " << ierr << " matrix = " << std::endl << error << std::endl;
 	    return;
 	 }
-
-
-
-// 	 if ((*hit)->dimension() == 1) {
-// 	    error[0][0] = 1./localError.xx();
-// 	    error[0][1] = 0.;
-// 	    error[1][1] = 0.;
-// 	 }
-// 	 else {
-// 	    error[0][0] = localError.xx();
-// 	    error[0][1] = localError.xy();
-// 	    error[1][1] = localError.yy();
-// 	 }
-
-//	 std::cout << "after = " << std::endl << error << std::endl;
 
 	 // these x and y values are perpendicular to the direction-of-momentum axis
 	 double xi = position.x();
@@ -340,7 +285,6 @@ ZeroFieldMuonHIPRefitter::produce(edm::Event& iEvent, const edm::EventSetup& iSe
    std::vector<double>::const_iterator XY = listXY.begin();
    std::vector<double>::const_iterator YY = listYY.begin();
 
-//   cheati = 0;
    for (;  hit != hits.end();  ++hit, ++xi, ++yi, ++zi, ++XX, ++XY, ++YY) {
       GlobalPoint realspace = GlobalPoint(b, d, 0.) + GlobalVector(a, c, 1.) * (*zi);
       realspace = GlobalPoint(coordrot.xx() * realspace.x() + coordrot.yx() * realspace.y() + coordrot.zx() * realspace.z(),
@@ -348,9 +292,6 @@ ZeroFieldMuonHIPRefitter::produce(edm::Event& iEvent, const edm::EventSetup& iSe
 			      coordrot.xz() * realspace.x() + coordrot.yz() * realspace.y() + coordrot.zz() * realspace.z());
 
       GlobalPoint realhit = trackerGeometry->idToDet((*hit)->geographicalId())->toGlobal((*hit)->localPosition());
-//      GlobalPoint realhit(cheatx[cheati], cheaty[cheati], cheatz[cheati]);
-//      cheati++;
-// CHEAT      
 
       double x = a * (*zi) + b;
       double y = c * (*zi) + d;
@@ -360,7 +301,7 @@ ZeroFieldMuonHIPRefitter::produce(edm::Event& iEvent, const edm::EventSetup& iSe
       if ((*hit)->dimension() == 1) dof += 1;
       else dof += 2;
 
-      std::cout << "x y " << x << " " << y << " xresid " << (x - (*xi)) << " +- " << sqrt(1./(*XX)) << " yresid " << (y - (*yi)) << " +- " << sqrt(1./(*YY)) << " xyresid " << (2*(x - (*xi))*(y - (*yi))) << " +- " << (1./(*XY)) << " chi2i = " << chi2i << std::endl;
+//      std::cout << "x y " << x << " " << y << " xresid " << (x - (*xi)) << " +- " << sqrt(1./(*XX)) << " yresid " << (y - (*yi)) << " +- " << sqrt(1./(*YY)) << " xyresid " << (2*(x - (*xi))*(y - (*yi))) << " +- " << (1./(*XY)) << " chi2i = " << chi2i << std::endl;
 
    }
    dof -= 4;
