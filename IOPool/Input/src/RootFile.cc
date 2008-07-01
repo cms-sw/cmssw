@@ -844,7 +844,7 @@ namespace edm {
 			 pReg,
 			 processConfiguration_,
 			 runAux_.processHistoryID_,
-			 makeBranchMapper<LumiEntryInfo>(runTree_, InRun, pLumiEntryInfoVector_),
+			 makeBranchMapper<RunEntryInfo>(runTree_, InRun, pRunEntryInfoVector_),
 			 runTree_.makeDelayedReader()));
     // Create a group in the run for each product
     runTree_.fillGroups(*thisRun);
@@ -901,7 +901,7 @@ namespace edm {
 	new LuminosityBlockPrincipal(lumiAux_,
 				     pReg, rp, processConfiguration_,
 				     lumiAux_.processHistoryID_,
-				     makeBranchMapper<RunEntryInfo>(lumiTree_, InLumi, pRunEntryInfoVector_),
+				     makeBranchMapper<LumiEntryInfo>(lumiTree_, InLumi, pLumiEntryInfoVector_),
 				     lumiTree_.makeDelayedReader()));
     // Create a group in the lumi for each product
     lumiTree_.fillGroups(*thisLumi);
