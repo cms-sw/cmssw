@@ -43,6 +43,8 @@ namespace pos{
 
 
     const PixelHdwAddress& operator=(const PixelHdwAddress& aROC);
+
+    bool operator()(const PixelHdwAddress& roc1, const PixelHdwAddress& roc2) const;
     
     // Checks for equality of all parts except the ROC numbers and portaddress.
     const bool operator|=(const PixelHdwAddress& aHdwAddress) const{

@@ -109,3 +109,14 @@ void PixelHdwAddress::setAddress(std::string what, int value)
       assert(0) ;
     }
 }
+
+bool PixelHdwAddress::operator()(const PixelHdwAddress& roc1, const PixelHdwAddress& roc2) const{
+
+  if (roc1.fednumber_<roc2.fednumber_) return true;
+  if (roc1.fednumber_>roc2.fednumber_) return false;
+  if (roc1.fedchannel_<roc2.fedchannel_) return true;
+  if (roc1.fedchannel_>roc2.fedchannel_) return false;
+
+  return (roc1.fedrocnumber_<=roc2.fedrocnumber_);
+
+}
