@@ -27,6 +27,7 @@ CSCDigiProducer::CSCDigiProducer(const edm::ParameterSet& ps)
   produces<DigiSimLinks>("MuonCSCWireDigiSimLinks");
   produces<DigiSimLinks>("MuonCSCStripDigiSimLinks");
   std::string stripConditions( ps.getParameter<std::string>("stripConditions") );
+  geometryType = ps.getParameter<std::string>("GeometryType");
   edm::ParameterSet stripPSet = ps.getParameter<edm::ParameterSet>("strips");
   if( stripConditions == "Configurable" )
   {
@@ -90,7 +91,7 @@ void CSCDigiProducer::produce(edm::Event& e, const edm::EventSetup& eventSetup) 
   {
     // find the geometry & conditions for this event
     edm::ESHandle<CSCGeometry> hGeom;
-    eventSetup.get<MuonGeometryRecord>().get( hGeom );
+    eventSetup.get<MuonGeometryRecord>().get(geometryType,hGeom);
     const CSCGeometry *pGeom = &*hGeom;
 
     theDigitizer.setGeometry( pGeom );
