@@ -8,7 +8,7 @@
 //
 // Original Author:  
 //         Created:  Sun Jan  6 23:57:00 EST 2008
-// $Id: L1JetTrigProxyRhoPhiZ2DBuilder.cc,v 1.3 2008/06/27 18:20:58 srappocc Exp $
+// $Id: L1JetTrigProxyRhoPhiZ2DBuilder.cc,v 1.4 2008/06/28 22:17:33 dmytro Exp $
 //
 //
 // system include files
@@ -23,6 +23,11 @@
 #include "TROOT.h"
 #include "TEvePointSet.h"
 #include "TEveScalableStraightLineSet.h"
+#include "TEveCompound.h"
+
+#include <boost/shared_ptr.hpp>
+#include <boost/mem_fn.hpp>
+
 
 // user include files
 #include "Fireworks/Calo/interface/L1JetTrigProxyRhoPhiZ2DBuilder.h"
@@ -75,6 +80,7 @@ L1JetTrigProxyRhoPhiZ2DBuilder::buildRhoPhi(const FWEventItem* iItem,
     tList =  new TEveElementList(iItem->name().c_str(),"L1 RhoPhi",true);
     *product = tList;
     tList->SetMainColor(iItem->defaultDisplayProperties().color());
+    gEve->AddElement(tList);
   } else {
     tList->DestroyElements();
   }
@@ -103,7 +109,11 @@ L1JetTrigProxyRhoPhiZ2DBuilder::buildRhoPhi(const FWEventItem* iItem,
    for ( ; trigIt != trigEnd; ++trigIt ) {
 
 
-     TEveElementList* container = new TEveElementList( counter.str().c_str() );
+     TEveCompound* container = new TEveCompound( counter.str().c_str() );
+     container->OpenCompound();
+     //guarantees that CloseCompound will be called no matter what happens
+     boost::shared_ptr<TEveCompound> sentry(container,boost::mem_fn(&TEveCompound::CloseCompound));
+      
      std::vector<double> p4phis; p4phis.push_back( trigIt->phi() );
      std::pair<double,double> phiRange = fw::getPhiRange( p4phis, trigIt->phi() );
      double min_phi = phiRange.first-M_PI/36/2;
@@ -146,6 +156,7 @@ L1JetTrigProxyRhoPhiZ2DBuilder::buildRhoZ(const FWEventItem* iItem,
     tList =  new TEveElementList(iItem->name().c_str(),"L1 RhoZ",true);
     *product = tList;
     tList->SetMainColor(iItem->defaultDisplayProperties().color());
+    gEve->AddElement(tList);
   } else {
     tList->DestroyElements();
   }
@@ -183,8 +194,11 @@ L1JetTrigProxyRhoPhiZ2DBuilder::buildRhoZ(const FWEventItem* iItem,
    for ( ; trigIt != trigEnd; ++trigIt ) {
 
 
-     TEveElementList* container = new TEveElementList( counter.str().c_str() );
-
+     TEveCompound* container = new TEveCompound( counter.str().c_str() );
+     container->OpenCompound();
+     //guarantees that CloseCompound will be called no matter what happens
+     boost::shared_ptr<TEveCompound> sentry(container,boost::mem_fn(&TEveCompound::CloseCompound));
+      
       
      // 	 double max_theta = thetaBins[iEtaRange.first].first;
      // 	 double min_theta = thetaBins[iEtaRange.second].second;;
