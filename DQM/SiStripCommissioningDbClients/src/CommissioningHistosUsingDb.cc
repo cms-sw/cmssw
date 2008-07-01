@@ -1,4 +1,4 @@
-// Last commit: $Id: CommissioningHistosUsingDb.cc,v 1.11 2008/03/06 13:30:52 delaer Exp $
+// Last commit: $Id: CommissioningHistosUsingDb.cc,v 1.12 2008/05/06 12:38:07 bainbrid Exp $
 
 #include "DQM/SiStripCommissioningDbClients/interface/CommissioningHistosUsingDb.h"
 #include "CalibFormats/SiStripObjects/interface/NumberOfDevices.h"
@@ -23,6 +23,8 @@ CommissioningHistosUsingDb::CommissioningHistosUsingDb( SiStripConfigDb* const d
     runType_(type),
     db_(db),
     cabling_(0),
+    detInfo_(),
+    disabled_(),
     uploadAnal_(true),
     uploadConf_(false)
 {
@@ -64,6 +66,8 @@ CommissioningHistosUsingDb::CommissioningHistosUsingDb( SiStripConfigDb* const d
     runType_(type),
     db_(db),
     cabling_(0),
+    detInfo_(),
+    disabled_(),
     uploadAnal_(true),
     uploadConf_(false)
 {
@@ -103,6 +107,8 @@ CommissioningHistosUsingDb::CommissioningHistosUsingDb()
     runType_(sistrip::UNDEFINED_RUN_TYPE),
     db_(0),
     cabling_(0),
+    detInfo_(),
+    disabled_(),
     uploadAnal_(false),
     uploadConf_(false)
 {
@@ -118,6 +124,17 @@ CommissioningHistosUsingDb::~CommissioningHistosUsingDb() {
   LogTrace(mlDqmClient_) 
     << "[" << __PRETTY_FUNCTION__ << "]"
     << " Destructing object...";
+}
+
+// -----------------------------------------------------------------------------
+/** */
+void CommissioningHistosUsingDb::uploadToConfigDb() {
+  disabled_.clear(); 
+  buildDetInfo();
+  addDcuDetIds(); 
+  uploadConfigurations();
+  uploadAnalyses(); 
+  disableProblemDevices();
 }
 
 // -----------------------------------------------------------------------------
@@ -141,10 +158,10 @@ void CommissioningHistosUsingDb::uploadAnalyses() {
 
     // Upload commissioning analysis results 
     SiStripConfigDb::AnalysisDescriptionsV anals;
-    create( anals );
+    createAnalyses( anals );
     
     edm::LogVerbatim(mlDqmClient_) 
-      << "[ApvTimingHistosUsingDb::" << __func__ << "]"
+      << "[CommissioningHistosUsingDb::" << __func__ << "]"
       << " Created analysis descriptions for " 
       << anals.size() << " devices";
     
@@ -255,8 +272,8 @@ void CommissioningHistosUsingDb::addDcuDetIds() {
 
 // -----------------------------------------------------------------------------
 //
-void CommissioningHistosUsingDb::create( SiStripConfigDb::AnalysisDescriptionsV& desc ) {
-
+void CommissioningHistosUsingDb::createAnalyses( SiStripConfigDb::AnalysisDescriptionsV& desc ) {
+  
   LogTrace(mlDqmClient_) 
     << "[CommissioningHistosUsingDb::" << __func__ << "]"
     << " Creating AnalysisDescriptions...";
@@ -294,53 +311,220 @@ void CommissioningHistosUsingDb::create( SiStripConfigDb::AnalysisDescriptionsV&
 
 // -----------------------------------------------------------------------------
 //
-void CommissioningHistosUsingDb::detInfo( DetInfoMap& det_info ) {
-
+void CommissioningHistosUsingDb::buildDetInfo() {
+  
+  detInfo_.clear();
+  
   if ( !db() ) {
     edm::LogError(mlDqmClient_) 
       << "[CommissioningHistosUsingDb::" << __func__ << "]"
-      << " NULL pointer to SiStripConfigDb interface!"
-      << " Aborting upload...";
+      << " NULL pointer to SiStripConfigDb interface!";
     return;
   }
 
-  // Retrieve DCUs and DetIds
-  SiStripConfigDb::DeviceDescriptionsRange dcus = db()->getDeviceDescriptions( DCU ); 
-  SiStripConfigDb::DcuDetIdsRange detids = db()->getDcuDetIds(); 
-  
-  // Iterate through DCUs
-  SiStripConfigDb::DeviceDescriptionsV::const_iterator idcu = dcus.begin();
-  SiStripConfigDb::DeviceDescriptionsV::const_iterator jdcu = dcus.end();
-  for ( ; idcu != jdcu; ++idcu ) {
-
-    // Extract descriptions for FEH DCUs
-    dcuDescription* dcu = dynamic_cast<dcuDescription*>( *idcu );
-    if ( !dcu ) { continue; }
-    if ( dcu->getDcuType() != "FEH" ) { continue; }
-
-    // Set DCU id
-    DetInfo info;
-    info.dcuId_ = dcu->getDcuHardId();
-
-    // Set DetId adn number of APV pairs
-    SiStripConfigDb::DcuDetIdsV::const_iterator idet = detids.end();
-    SiStripConfigDb::findDcuDetId( detids.begin(), detids.end(), dcu->getDcuHardId() );
-    if ( idet != detids.end() ) { 
-      info.detId_ = idet->second->getDetId();
-      info.pairs_ = idet->second->getApvNumber()/2; 
-    }
-
-    // Build FEC key
-    const SiStripConfigDb::DeviceAddress& addr = db()->deviceAddress( *dcu );
-    SiStripFecKey fec_key( addr.fecCrate_,
-			   addr.fecSlot_,
-			   addr.fecRing_,
-			   addr.ccuAddr_,
-			   addr.ccuChan_ );
+  SiStripDbParams::SiStripPartitions::const_iterator ii = db_->dbParams().partitions().begin();
+  SiStripDbParams::SiStripPartitions::const_iterator jj = db_->dbParams().partitions().end();
+  for ( ; ii != jj; ++ii ) {
     
-    // Add to map
-    if ( fec_key.isValid() ) { det_info[ fec_key.key() ] = info; }
+    // Retrieve DCUs and DetIds for given partition
+    std::string pp = ii->second.partitionName();
+    SiStripConfigDb::DeviceDescriptionsRange dcus = db()->getDeviceDescriptions( DCU, pp ); 
+    SiStripConfigDb::DcuDetIdsRange dets = db()->getDcuDetIds( pp ); 
+    
+    // Iterate through DCUs
+    SiStripConfigDb::DeviceDescriptionsV::const_iterator idcu = dcus.begin();
+    SiStripConfigDb::DeviceDescriptionsV::const_iterator jdcu = dcus.end();
+    for ( ; idcu != jdcu; ++idcu ) {
+      
+      // Extract DCU-FEH description 
+      dcuDescription* dcu = dynamic_cast<dcuDescription*>( *idcu );
+      if ( !dcu ) { continue; }
+      if ( dcu->getDcuType() != "FEH" ) { continue; }
+      
+      // Find TkDcuInfo object corresponding to given DCU description
+      SiStripConfigDb::DcuDetIdsV::const_iterator idet = dets.end();
+      idet = SiStripConfigDb::findDcuDetId( dets.begin(), dets.end(), dcu->getDcuHardId() );
+      if ( idet == dets.begin() ) { continue; }
+      
+      // Extract TkDcuInfo object
+      TkDcuInfo* det = idet->second;
+      if ( !det ) { continue; }
+      
+      // Build FEC key
+      const SiStripConfigDb::DeviceAddress& addr = db()->deviceAddress( *dcu );
+      SiStripFecKey fec_key( addr.fecCrate_,
+			     addr.fecSlot_,
+			     addr.fecRing_,
+			     addr.ccuAddr_,
+			     addr.ccuChan_ );
+      
+      // Build DetInfo object
+      DetInfo info;
+      info.dcuId_ = det->getDcuHardId();
+      info.detId_ = det->getDetId();
+      info.pairs_ = det->getApvNumber()/2; 
 
+      // Add it to map
+      if ( fec_key.isValid() ) { detInfo_[pp][fec_key.key()] = info; }
+      
+    } 
+  }
+  
+  // Debug
+  if ( edm::isDebugEnabled() ) {
+    std::stringstream ss;
+    ss << "[CommissioningHistosUsingDb::" << __func__ << "]"
+       << " List of modules for "
+       << detInfo_.size()
+       << " partitions, with their DCUids, DetIds, and nApvPairs: " << std::endl;
+    std::map<std::string,DetInfos>::const_iterator ii = detInfo_.begin();
+    std::map<std::string,DetInfos>::const_iterator jj = detInfo_.end();
+    for ( ; ii != jj; ++ii ) {
+      ss << " Partition \"" << ii->first 
+	 << "\" has " << ii->second.size()
+	 << " modules:"
+	 << std::endl;
+      DetInfos::const_iterator iii = ii->second.begin();
+      DetInfos::const_iterator jjj = ii->second.end();
+      for ( ; iii != jjj; ++iii ) {
+	SiStripFecKey key = iii->first;
+	ss << "  module= "
+	   << key.fecCrate() << "/"    
+	   << key.fecSlot() << "/"
+	   << key.fecRing() << "/"
+	   << key.ccuAddr() << "/"
+	   << key.ccuChan() << ", "
+	   << std::hex
+	   << " DCUid= " 
+	   << std::setw(8) << std::setfill('0') << iii->second.dcuId_
+	   << " DetId= " 
+	   << std::setw(8) << std::setfill('0') << iii->second.detId_
+	   << std::dec
+	   << " nPairs= "
+	   << iii->second.pairs_
+	   << std::endl;
+      }
+    }
+    //LogTrace(mlDqmClient_) << ss.str();
   }
   
 }
+
+// -----------------------------------------------------------------------------
+//
+std::pair<std::string,CommissioningHistosUsingDb::DetInfo> CommissioningHistosUsingDb::detInfo( const SiStripFecKey& key ) {
+  SiStripFecKey tmp( key, sistrip::CCU_CHAN );
+  if ( tmp.isInvalid() ) { return std::make_pair("",DetInfo()); }
+  std::map<std::string,DetInfos>::const_iterator ii = detInfo_.begin();
+  std::map<std::string,DetInfos>::const_iterator jj = detInfo_.end();
+  for ( ; ii != jj; ++ii ) {
+    DetInfos::const_iterator iii = ii->second.find( tmp.key() );
+    if ( iii != ii->second.end() ) { return std::make_pair(ii->first,iii->second); }
+  }
+  return std::make_pair("",DetInfo());
+}
+
+// -----------------------------------------------------------------------------
+//
+bool CommissioningHistosUsingDb::deviceIsPresent( const SiStripFecKey& key ) {
+  SiStripFecKey tmp( key, sistrip::CCU_CHAN );
+  std::pair<std::string,DetInfo> info = detInfo(key);
+  if ( info.second.dcuId_ != sistrip::invalid32_ ) {
+    if ( key.channel() == 2 && info.second.pairs_ == 2 ) { return false; }
+    else { return true; }
+  } else {
+    std::stringstream ss;
+    ss << "[CommissioningHistosUsingDb::" << __func__ << "]"
+       << " Cannot find module (crate/FEC/ring/CCU/module): "
+       << tmp.fecCrate() << "/"
+       << tmp.fecSlot() << "/"
+       << tmp.fecRing() << "/"
+       << tmp.ccuAddr() << "/"
+       << tmp.ccuChan()
+       << "!";
+    edm::LogWarning(mlDqmClient_) << ss.str();
+    return true;
+  }
+}
+
+// -----------------------------------------------------------------------------
+//
+void CommissioningHistosUsingDb::addProblemDevice( const SiStripFecKey& key ) {
+  SiStripFecKey tmp( key, sistrip::CCU_CHAN );
+  std::pair<std::string,DetInfo> info = detInfo(key);
+  if ( info.second.dcuId_ != sistrip::invalid32_ ) { disabled_[info.first][info.second.dcuId_] = info.second.pairs_; }
+}
+
+// -----------------------------------------------------------------------------
+//
+void CommissioningHistosUsingDb::disableProblemDevices() {
+
+  if ( edm::isDebugEnabled() ) {
+    std::stringstream ss;
+    ss << "[CommissioningHistosUsingDb::" << __func__ << "]"
+       << " List of devices from " << disabled_.size() 
+       << " partitions to be disabled: " << std::endl;
+    std::map<std::string,DisabledDevices>::const_iterator ii = disabled_.begin();
+    std::map<std::string,DisabledDevices>::const_iterator jj = disabled_.end();
+    for ( ; ii != jj; ++ii ) {
+      ss << " Partition= " << ii->first << std::endl;
+      DisabledDevices::const_iterator iii = ii->second.begin();
+      DisabledDevices::const_iterator jjj = ii->second.end();
+      for ( ; iii != jjj; ++iii ) {
+	ss << "  DCUid= " 
+	   << std::setw(8) << std::setfill('0') 
+	   << std::hex << iii->first << std::dec
+	   << ", ApvPair= " << iii->second << std::endl;
+      }
+    }
+    LogTrace(mlDqmClient_) << ss.str();
+  }
+  
+  if ( !db_ ) {
+    edm::LogError(mlDqmClient_) 
+      << "[CommissioningHistosUsingDb::" << __func__ << "]"
+      << " NULL pointer to SiStripConfigDb interface!"
+      << " Aborting disable of devices...";
+    return;
+  }
+  
+  DeviceFactory* df = db_->deviceFactory();
+  if ( !df ) {
+    edm::LogError(mlDqmClient_) 
+      << "[CommissioningHistosUsingDb::" << __func__ << "]"
+      << " NULL pointer to DeviceFactory interface!"
+      << " Aborting disable of devices...";
+    return;
+  }
+  
+  if ( disableDevices_ ) {
+    std::map<std::string,DisabledDevices>::const_iterator ii = disabled_.begin();
+    std::map<std::string,DisabledDevices>::const_iterator jj = disabled_.end();
+    for ( ; ii != jj; ++ii ) {
+      std::vector<uint32_t> dcus;
+      DisabledDevices::const_iterator iii = ii->second.begin();
+      DisabledDevices::const_iterator jjj = ii->second.end();
+      for ( ; iii != jjj; ++iii ) { dcus.push_back(iii->first); }
+#ifdef USING_NEW_DATABASE_MODEL
+      try { df->setEnableModules( ii->first, dcus, false ); } //@@ disable!
+      catch (...) { db_->handleException( __func__ ); }
+#else
+      edm::LogWarning(mlDqmClient_) 
+	<< "[CommissioningHistosUsingDb::" << __func__ << "]"
+	<< " Cannot disable devices using old DB model!";
+#endif
+      edm::LogVerbatim(mlDqmClient_) 
+	<< "[CommissioningHistosUsingDb::" << __func__ << "]"
+	<< " Disabled " << dcus.size() 
+	<< " devices for partition " << ii->first;
+      edm::LogWarning(mlDqmClient_) << "TEST 6";
+    }
+  } else {
+    edm::LogVerbatim(mlDqmClient_) 
+      << "[CommissioningHistosUsingDb::" << __func__ << "]"
+      << " TEST! Devices have not been disabled!...";
+  }
+  
+}
+
+  
