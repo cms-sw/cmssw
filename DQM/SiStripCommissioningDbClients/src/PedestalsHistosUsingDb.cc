@@ -1,4 +1,4 @@
-// Last commit: $Id: PedestalsHistosUsingDb.cc,v 1.15 2008/03/17 17:40:55 bainbrid Exp $
+// Last commit: $Id: PedestalsHistosUsingDb.cc,v 1.16 2008/05/06 12:38:07 bainbrid Exp $
 
 #include "DQM/SiStripCommissioningDbClients/interface/PedestalsHistosUsingDb.h"
 #include "CondFormats/SiStripObjects/interface/PedestalsAnalysis.h"
@@ -111,7 +111,10 @@ void PedestalsHistosUsingDb::update( SiStripConfigDb::FedDescriptionsRange feds 
       if ( iter != data().end() ) {
 
 	// Check if analysis is valid
-	if ( !iter->second->isValid() ) { continue; }
+	if ( !iter->second->isValid() ) { 
+	  addProblemDevice( fec_key ); //@@ Remove problem device
+	  continue; 
+	}
 	
 	PedestalsAnalysis* anal = dynamic_cast<PedestalsAnalysis*>( iter->second );
 	if ( !anal ) { 
@@ -141,23 +144,25 @@ void PedestalsHistosUsingDb::update( SiStripConfigDb::FedDescriptionsRange feds 
 	updated++;
       
       } else {
-	edm::LogWarning(mlDqmClient_) 
-	  << "[PedestalsHistosUsingDb::" << __func__ << "]"
-	  << " Unable to find pedestals/noise for FedKey/Id/Ch: " 
-	  << hex << setw(8) << setfill('0') << fed_key.key() << dec << "/"
-	  << (*ifed)->getFedId() << "/"
-	  << ichan
-	  << " and device with FEC/slot/ring/CCU/LLD " 
-	  << fec_key.fecCrate() << "/"
-	  << fec_key.fecSlot() << "/"
-	  << fec_key.fecRing() << "/"
-	  << fec_key.ccuAddr() << "/"
-	  << fec_key.ccuChan() << "/"
-	  << fec_key.channel();
+	if ( deviceIsPresent(fec_key) ) {
+	  edm::LogWarning(mlDqmClient_) 
+	    << "[PedestalsHistosUsingDb::" << __func__ << "]"
+	    << " Unable to find pedestals/noise for FedKey/Id/Ch: " 
+	    << hex << setw(8) << setfill('0') << fed_key.key() << dec << "/"
+	    << (*ifed)->getFedId() << "/"
+	    << ichan
+	    << " and device with FEC/slot/ring/CCU/LLD " 
+	    << fec_key.fecCrate() << "/"
+	    << fec_key.fecSlot() << "/"
+	    << fec_key.fecRing() << "/"
+	    << fec_key.ccuAddr() << "/"
+	    << fec_key.ccuChan() << "/"
+	    << fec_key.channel();
+	}
       }
     }
   }
-
+  
   edm::LogVerbatim(mlDqmClient_) 
     << "[PedestalsHistosUsingDb::" << __func__ << "]"
     << " Updated FED pedestals/noise for " 
@@ -171,7 +176,7 @@ void PedestalsHistosUsingDb::create( SiStripConfigDb::AnalysisDescriptionsV& des
 				     Analysis analysis ) {
 
 #ifdef USING_NEW_DATABASE_MODEL
-
+  
   PedestalsAnalysis* anal = dynamic_cast<PedestalsAnalysis*>( analysis->second );
   if ( !anal ) { return; }
   

@@ -1,4 +1,4 @@
-// Last commit: $Id: VpspScanHistosUsingDb.cc,v 1.15 2008/03/06 13:30:53 delaer Exp $
+// Last commit: $Id: VpspScanHistosUsingDb.cc,v 1.16 2008/05/06 12:38:07 bainbrid Exp $
 
 #include "DQM/SiStripCommissioningDbClients/interface/VpspScanHistosUsingDb.h"
 #include "CondFormats/SiStripObjects/interface/VpspScanAnalysis.h"
@@ -95,26 +95,27 @@ void VpspScanHistosUsingDb::update( SiStripConfigDb::DeviceDescriptionsRange dev
     
     // Retrieve device addresses from device description
     const SiStripConfigDb::DeviceAddress& addr = db()->deviceAddress(*desc);
-    SiStripFecKey fec_path;
     
     // Retrieve LLD channel and APV numbers
     uint16_t ichan = ( desc->getAddress() - 0x20 ) / 2;
     uint16_t iapv  = ( desc->getAddress() - 0x20 ) % 2;
     
     // Construct key from device description
-    uint32_t fec_key = SiStripFecKey( addr.fecCrate_, 
-				      addr.fecSlot_, 
-				      addr.fecRing_, 
-				      addr.ccuAddr_, 
-				      addr.ccuChan_,
-				      ichan+1 ).key();
-    fec_path = SiStripFecKey( fec_key );
+    SiStripFecKey fec_key( addr.fecCrate_, 
+			   addr.fecSlot_, 
+			   addr.fecRing_, 
+			   addr.ccuAddr_, 
+			   addr.ccuChan_,
+			   ichan+1 );
       
     // Iterate through all channels and extract LLD settings 
-    Analyses::const_iterator iter = data().find( fec_key );
+    Analyses::const_iterator iter = data().find( fec_key.key() );
     if ( iter != data().end() ) {
 
-      if ( !iter->second->isValid() ) { continue; }
+      if ( !iter->second->isValid() ) { 
+	addProblemDevice( fec_key ); //@@ Remove problem device
+	continue; 
+      }
 
       VpspScanAnalysis* anal = dynamic_cast<VpspScanAnalysis*>( iter->second );
       if ( !anal ) { 
@@ -127,12 +128,12 @@ void VpspScanHistosUsingDb::update( SiStripConfigDb::DeviceDescriptionsRange dev
       std::stringstream ss;
       ss << "[VpspScanHistosUsingDb::" << __func__ << "]"
 	 << " Updating VPSP setting for crate/FEC/slot/ring/CCU/LLD/APV " 
-	 << fec_path.fecCrate() << "/"
-	 << fec_path.fecSlot() << "/"
-	 << fec_path.fecRing() << "/"
-	 << fec_path.ccuAddr() << "/"
-	 << fec_path.ccuChan() << "/"
-	 << fec_path.channel() 
+	 << fec_key.fecCrate() << "/"
+	 << fec_key.fecSlot() << "/"
+	 << fec_key.fecRing() << "/"
+	 << fec_key.ccuAddr() << "/"
+	 << fec_key.ccuChan() << "/"
+	 << fec_key.channel() 
 	 << iapv
 	 << " from "
 	 << static_cast<uint16_t>(desc->getVpsp());
@@ -142,19 +143,19 @@ void VpspScanHistosUsingDb::update( SiStripConfigDb::DeviceDescriptionsRange dev
       LogTrace(mlDqmClient_) << ss.str();
       
     } else {
-      edm::LogWarning(mlDqmClient_) 
-	<< "[VpspScanHistosUsingDb::" << __func__ << "]"
-	<< " Unable to find FEC key with params FEC/slot/ring/CCU/LLDchan/APV: " 
-	<< fec_path.fecCrate() << "/"
-	<< fec_path.fecSlot() << "/"
-	<< fec_path.fecRing() << "/"
-	<< fec_path.ccuAddr() << "/"
-	<< fec_path.ccuChan() << "/"
-	<< fec_path.channel() << "/" 
-	<< iapv+1;
-      
+      if ( deviceIsPresent(fec_key) ) {
+	edm::LogWarning(mlDqmClient_) 
+	  << "[VpspScanHistosUsingDb::" << __func__ << "]"
+	  << " Unable to find FEC key with params FEC/slot/ring/CCU/LLDchan/APV: " 
+	  << fec_key.fecCrate() << "/"
+	  << fec_key.fecSlot() << "/"
+	  << fec_key.fecRing() << "/"
+	  << fec_key.ccuAddr() << "/"
+	  << fec_key.ccuChan() << "/"
+	  << fec_key.channel() << "/" 
+	  << iapv+1;
+      }
     }
-    
   }
   
 }

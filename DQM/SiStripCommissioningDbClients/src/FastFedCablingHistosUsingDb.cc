@@ -1,4 +1,4 @@
-// Last commit: $Id: FastFedCablingHistosUsingDb.cc,v 1.18 2008/05/06 12:38:07 bainbrid Exp $
+// Last commit: $Id: FastFedCablingHistosUsingDb.cc,v 1.19 2008/05/16 17:16:16 bainbrid Exp $
 
 #include "DQM/SiStripCommissioningDbClients/interface/FastFedCablingHistosUsingDb.h"
 #include "CondFormats/SiStripObjects/interface/FastFedCablingAnalysis.h"
@@ -131,8 +131,8 @@ void FastFedCablingHistosUsingDb::update( SiStripConfigDb::FedConnectionsV& conn
 	<< " NULL pointer to analysis object!";
       continue; 
     }
-
-    if ( !anal->isValid() ) { continue; }
+    
+    if ( !anal->isValid() || anal->dcuId() == sistrip::invalid32_ ) { continue; }
     
     SiStripFecKey fec_key( anal->fecKey() );
     SiStripFedKey fed_key( anal->fedKey() );
@@ -143,7 +143,7 @@ void FastFedCablingHistosUsingDb::update( SiStripConfigDb::FedConnectionsV& conn
     conn->setFedId( fed_key.fedId() );
     conn->setFedChannel( fed_key.fedChannel() );
     conn->setFecHardwareId( "" ); //@@
-    conn->setFecCrateSlot( fec_key.fecCrate() );
+    conn->setFecCrateId( fec_key.fecCrate() );
     conn->setFecSlot( fec_key.fecSlot() );
     conn->setRingSlot( fec_key.fecRing() );
     conn->setCcuAddress( fec_key.ccuAddr() );
@@ -158,7 +158,7 @@ void FastFedCablingHistosUsingDb::update( SiStripConfigDb::FedConnectionsV& conn
       if ( *ifed ) {
 	uint16_t fed_id = static_cast<uint16_t>( (*ifed)->getFedId() );
 	if ( fed_key.fedId() == fed_id ) {
-	  conn->setFedCrateSlot( static_cast<uint16_t>( (*ifed)->getCrateNumber() ) );
+	  conn->setFedCrateId( static_cast<uint16_t>( (*ifed)->getCrateNumber() ) );
 	  conn->setFedSlot( static_cast<uint16_t>( (*ifed)->getSlotNumber() ) );
 	  found = true;
 	}
@@ -375,7 +375,7 @@ void FastFedCablingHistosUsingDb::addDcuDetIds() {
   Analyses::iterator janal = data().end();
   for ( ; ianal != janal; ++ianal ) { 
 
-    // check if dcu id and lld channel have been identified 
+    // check if analysis is valid (ie, dcu id and lld channel have been identified)
     if ( !ianal->second->isValid() ) { continue; }
     
     // retrieve analysis object
@@ -387,7 +387,7 @@ void FastFedCablingHistosUsingDb::addDcuDetIds() {
 	<< " NULL pointer to FastFedCablingAnalysis object!";
       return;
     }
-    
+
     // find dcu that matches analysis result 
     bool found = false;
     SiStripConfigDb::DeviceDescriptionsV::const_iterator idcu = dcus.begin();
@@ -429,8 +429,8 @@ void FastFedCablingHistosUsingDb::create( SiStripConfigDb::AnalysisDescriptionsV
   
   FastFedCablingAnalysis* anal = dynamic_cast<FastFedCablingAnalysis*>( analysis->second );
   if ( !anal ) { return; }
-
-  if ( !anal->isValid() ) { return; } //@@ only store valid descriptions for now!
+  
+  if ( !anal->isValid() || anal->dcuId() == sistrip::invalid32_ ) { return; } //@@ only store valid descriptions!
   
   SiStripFecKey fec_key( anal->fecKey() );
   SiStripFedKey fed_key( anal->fedKey() );

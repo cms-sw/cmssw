@@ -1,4 +1,4 @@
-// Last commit: $Id: OptoScanHistosUsingDb.cc,v 1.15 2008/04/08 14:13:31 delaer Exp $
+// Last commit: $Id: OptoScanHistosUsingDb.cc,v 1.16 2008/05/06 12:38:07 bainbrid Exp $
 
 #include "DQM/SiStripCommissioningDbClients/interface/OptoScanHistosUsingDb.h"
 #include "CondFormats/SiStripObjects/interface/OptoScanAnalysis.h"
@@ -55,14 +55,10 @@ void OptoScanHistosUsingDb::uploadConfigurations() {
       << " Aborting upload...";
     return;
   }
-
-  // Retrieve DetInfo
-  std::map<uint32_t,DetInfo> info;
-  detInfo( info );
   
   // Update LLD descriptions with new bias/gain settings
   SiStripConfigDb::DeviceDescriptionsRange devices = db()->getDeviceDescriptions( LASERDRIVER ); 
-  update( devices, info );
+  update( devices );
   if ( doUploadConf() ) { 
     edm::LogVerbatim(mlDqmClient_) 
       << "[OptoScanHistosUsingDb::" << __func__ << "]"
@@ -81,9 +77,8 @@ void OptoScanHistosUsingDb::uploadConfigurations() {
 
 // -----------------------------------------------------------------------------
 /** */
-void OptoScanHistosUsingDb::update( SiStripConfigDb::DeviceDescriptionsRange devices,
-				    const DetInfoMap& info ) {
-
+void OptoScanHistosUsingDb::update( SiStripConfigDb::DeviceDescriptionsRange devices ) {
+  
   // Iterate through devices and update device descriptions
   uint16_t updated = 0;
   SiStripConfigDb::DeviceDescriptionsV::const_iterator idevice;
@@ -97,25 +92,26 @@ void OptoScanHistosUsingDb::update( SiStripConfigDb::DeviceDescriptionsRange dev
     
     // Retrieve device addresses from device description
     const SiStripConfigDb::DeviceAddress& addr = db()->deviceAddress(*desc);
-    SiStripFecKey fec_path;
     
     // Iterate through LLD channels
     for ( uint16_t ichan = 0; ichan < sistrip::CHANS_PER_LLD; ichan++ ) {
       
       // Construct key from device description
-      uint32_t fec_key = SiStripFecKey( addr.fecCrate_, 
-					addr.fecSlot_, 
-					addr.fecRing_, 
-					addr.ccuAddr_, 
-					addr.ccuChan_,
-					ichan+1 ).key();
-      fec_path = SiStripFecKey( fec_key );
+      SiStripFecKey fec_key( addr.fecCrate_, 
+			     addr.fecSlot_, 
+			     addr.fecRing_, 
+			     addr.ccuAddr_, 
+			     addr.ccuChan_,
+			     ichan+1 );
       
       // Iterate through all channels and extract LLD settings 
-      Analyses::const_iterator iter = data().find( fec_key );
+      Analyses::const_iterator iter = data().find( fec_key.key() );
       if ( iter != data().end() ) {
 
-	if ( !iter->second->isValid() ) { continue; }
+	if ( !iter->second->isValid() ) { 
+	  addProblemDevice( fec_key ); //@@ Remove problem device
+	  continue; 
+	}
 
 	OptoScanAnalysis* anal = dynamic_cast<OptoScanAnalysis*>( iter->second );
 	if ( !anal ) { 
@@ -128,13 +124,13 @@ void OptoScanHistosUsingDb::update( SiStripConfigDb::DeviceDescriptionsRange dev
 	uint16_t gain = anal->gain();
 	std::stringstream ss;
 	ss << "[OptoScanHistosUsingDb::" << __func__ << "]"
-	   << " Updating LLD gain/bias settings for crate/FEC/slot/ring/CCU/LLD "
-	   << fec_path.fecCrate() << "/"
-	   << fec_path.fecSlot() << "/"
-	   << fec_path.fecRing() << "/"
-	   << fec_path.ccuAddr() << "/"
-	   << fec_path.ccuChan() << "/"
-	   << fec_path.channel() 
+	   << " Updating LLD gain/bias settings for crate/crate/FEC/ring/CCU/module/LLD "
+	   << fec_key.fecCrate() << "/"
+	   << fec_key.fecSlot() << "/"
+	   << fec_key.fecRing() << "/"
+	   << fec_key.ccuAddr() << "/"
+	   << fec_key.ccuChan() << "/"
+	   << fec_key.channel() 
 	   << " from "
 	   << static_cast<uint16_t>( desc->getGain(ichan) ) << "/" 
 	   << static_cast<uint16_t>( desc->getBias(ichan) );
@@ -147,35 +143,19 @@ void OptoScanHistosUsingDb::update( SiStripConfigDb::DeviceDescriptionsRange dev
 	LogTrace(mlDqmClient_) << ss.str();
 	
       } else {
-
-	// Find DetInfo
-	SiStripFecKey key( fec_path, sistrip::CCU_CHAN );
-	DetInfoMap::const_iterator iter = info.find( key.key() );
-	if ( iter == info.end() ) { 
-	  std::stringstream ss;
-	  ss << "[OptoScanHistosUsingDb::" << __func__ << "]"
-	     << " Unable to find FEC key in DetInfoMap: "; 
-	  key.terse(ss);
-	  edm::LogWarning(mlDqmClient_) << ss.str();
-	  continue;
+	if ( deviceIsPresent(fec_key) ) { 
+	  edm::LogWarning(mlDqmClient_) 
+	    << "[OptoScanHistosUsingDb::" << __func__ << "]"
+	    << " Unable to find FEC key with params crate/FEC/ring/CCU/module/LLD " 
+	    << fec_key.fecCrate() << "/"
+	    << fec_key.fecSlot() << "/"
+	    << fec_key.fecRing() << "/"
+	    << fec_key.ccuAddr() << "/"
+	    << fec_key.ccuChan() << "/"
+	    << fec_key.channel();
 	}
-
-	// If middle LLD channel and 4-APV module, then do not print warning
-	if ( fec_path.channel() == 2 && iter->second.pairs_ == 2 ) { continue; }
-
-	edm::LogWarning(mlDqmClient_) 
-	  << "[OptoScanHistosUsingDb::" << __func__ << "]"
-	  << " Unable to find FEC key with params FEC/slot/ring/CCU/LLD " 
-	  << fec_path.fecCrate() << "/"
-	  << fec_path.fecSlot() << "/"
-	  << fec_path.fecRing() << "/"
-	  << fec_path.ccuAddr() << "/"
-	  << fec_path.ccuChan() << "/"
-	  << fec_path.channel();
       }
-      
     }
-
   }
 
   edm::LogVerbatim(mlDqmClient_) 
