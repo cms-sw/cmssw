@@ -8,9 +8,6 @@
 <use name=DataFormats/EgammaReco>
 <use name=DataFormats/CaloTowers>
 <use name=DataFormats/HcalDetId>
-
-<use name=DataFormats/EcalRecHit>
-<use name=DataFormats/EgammaReco>
 <use name=DataFormats/EgammaCandidates>
 <use name=rootcore>
 <use name=rootminuit>
