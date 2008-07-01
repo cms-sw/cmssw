@@ -92,11 +92,13 @@ void ApvTimingAnalysis::refTime( const float& time ) {
 
   // Check reference time
   if ( refTime_ < 0. || refTime_ > sistrip::valid_ ) { 
+    refTime_ = sistrip::invalid_;
     addErrorCode(sistrip::invalidRefTime_);
   }
   
   // Check delay is valid
   if ( delay_ < 0. || delay_ > sistrip::valid_ ) { 
+    delay_ = sistrip::invalid_;
     addErrorCode(sistrip::invalidDelayTime_);
   }
 
@@ -104,28 +106,43 @@ void ApvTimingAnalysis::refTime( const float& time ) {
 
 // ----------------------------------------------------------------------------
 // 
-uint32_t ApvTimingAnalysis::frameFindingThreshold() const { 
-  if ( base_ < sistrip::valid_ &&
-       peak_ < sistrip::valid_ &&
+uint16_t ApvTimingAnalysis::frameFindingThreshold() const { 
+  if ( getErrorCodes().empty() &&
+       time_   < sistrip::valid_ &&
+       base_   < sistrip::valid_ && 
+       peak_   < sistrip::valid_ && 
+       height_ < sistrip::valid_  &&
        height_ > tickMarkHeightThreshold_ ) { 
-    float temp1 = base() + height() * ApvTimingAnalysis::frameFindingThreshold_;
-    uint32_t temp2 = static_cast<uint32_t>( temp1 );
-    return ((temp2/32)*32);
+    return ( ( static_cast<uint16_t>( base_ + 
+				      height_ * 
+				      ApvTimingAnalysis::frameFindingThreshold_ ) / 32 ) * 32 );
   } else { return sistrip::invalid_; }
 }
 
 // ----------------------------------------------------------------------------
 // 
-bool ApvTimingAnalysis::isValid() const {
-  return ( time_    < sistrip::valid_ &&
-	   refTime_ < sistrip::valid_ && 
-	   // ( !synchronized_ || refTime_ < sistrip::valid_ ) && //@@ ignore validity if not synchronized (ie, set)
-	   delay_   < sistrip::valid_ &&
-	   height_  < sistrip::valid_ && 
-	   base_    < sistrip::valid_ &&
-	   peak_    < sistrip::valid_ &&
-	   getErrorCodes().empty() );
+bool ApvTimingAnalysis::foundTickMark() const {
+  return ( getErrorCodes().empty() &&
+	   time_   < sistrip::valid_ &&
+	   base_   < sistrip::valid_ &&
+	   peak_   < sistrip::valid_ &&
+	   height_ < sistrip::valid_ &&
+	   frameFindingThreshold() < sistrip::valid_ );
 } 
+
+// ----------------------------------------------------------------------------
+// 
+bool ApvTimingAnalysis::isValid() const {
+  return ( getErrorCodes().empty() &&
+	   time_   < sistrip::valid_ &&
+	   base_   < sistrip::valid_ &&
+	   peak_   < sistrip::valid_ &&
+	   height_ < sistrip::valid_ &&
+	   frameFindingThreshold() < sistrip::valid_ &&
+	   synchronized_ &&
+	   refTime_ < sistrip::valid_ && 
+	   delay_   < sistrip::valid_ );
+}
 
 // ----------------------------------------------------------------------------
 // 
@@ -144,20 +161,22 @@ void ApvTimingAnalysis::print( std::stringstream& ss, uint32_t not_used ) {
   ss <<  std::fixed << std::setprecision(2)
      << " Tick mark: time of rising edge     [ns] : " << time_ << std::endl 
     //<< " Error on time of rising edge     [ns] : " << error_ << std::endl
-     << " Last tick: time of rising edge     [ns] : " << refTime_ << std::endl 
      << " Tick mark: time of sampling point  [ns] : " << sampling1 << std::endl 
-     << " Last tick: time of sampling point  [ns] : " << sampling2 << std::endl 
-     << " Last tick: adjusted sampling point [ns] : " << adjust << std::endl 
+     << " Ref tick: time of rising edge      [ns] : " << refTime_ << std::endl 
+     << " Ref tick: time of sampling point   [ns] : " << sampling2 << std::endl 
+     << " Ref tick: adjusted sampling point  [ns] : " << adjust << std::endl 
      << " Delay required to synchronise      [ns] : " << delay_ << std::endl 
      << " Tick mark bottom (baseline)       [ADC] : " << base_ << std::endl 
      << " Tick mark top                     [ADC] : " << peak_ << std::endl 
      << " Tick mark height                  [ADC] : " << height_ << std::endl
+     << " Frame finding threshold           [ADC] : " << frameFindingThreshold() << std::endl
      << std::boolalpha 
+     << " Tick mark found                         : " << foundTickMark()  << std::endl
      << " isValid                                 : " << isValid()  << std::endl
      << std::noboolalpha
      << " Error codes (found "
-     << std::setw(2) << std::setfill(' ') << getErrorCodes().size() 
-     << ")                  : ";
+     << std::setw(3) << std::setfill(' ') << getErrorCodes().size() 
+     << ")                 : ";
   if ( getErrorCodes().empty() ) { ss << "(none)"; }
   else { 
     VString::const_iterator istr = getErrorCodes().begin();
