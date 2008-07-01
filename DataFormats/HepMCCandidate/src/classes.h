@@ -5,7 +5,9 @@
 #include "DataFormats/Common/interface/Holder.h"
 #include "DataFormats/Common/interface/RefVectorHolder.h"
 #include "DataFormats/Common/interface/VectorHolder.h"
+#include "DataFormats/Common/interface/ValueMap.h"
 #include "DataFormats/HepMCCandidate/interface/PdfInfo.h"
+#include "DataFormats/HepMCCandidate/interface/FlavorHistory.h"
 
 namespace {
   namespace {
@@ -22,5 +24,10 @@ namespace {
     edm::reftobase::RefVectorHolder<reco::GenParticleRefVector> hcg4;
     reco::PdfInfo p1;
     edm::Wrapper<reco::PdfInfo> wp1;
+    reco::FlavorHistory fh1;
+    std::vector<reco::FlavorHistory> vfh1;
+    edm::Wrapper<std::vector<reco::FlavorHistory> > wvfh1;
+    edm::ValueMap<reco::FlavorHistory> vmfh1;
+    edm::Wrapper<edm::ValueMap<reco::FlavorHistory> > wvmfh1;
   }
 }
