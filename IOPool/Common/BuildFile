@@ -10,7 +10,7 @@
   <use name=FWCore/Utilities>
   <use name=boost>
   <use name=rootcore>
-  <use name=root>
+  <use name=roothistmatrix>
   <lib name=IOPoolCommon>
 </export>
 
