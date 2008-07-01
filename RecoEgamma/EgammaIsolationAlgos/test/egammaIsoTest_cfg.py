@@ -4,7 +4,7 @@ process = cms.Process("eleIso")
 
 process.load("Configuration.EventContent.EventContent_cff")
 process.source = cms.Source("PoolSource",
-    fileNames = cms.untracked.vstring('/store/relval/2008/6/22/RelVal-RelValTTbar-1214048167-IDEAL_V2-2nd/0003/1C57E5B2-C040-DD11-AE7A-000423D98804.root')
+    fileNames = cms.untracked.vstring('REPLACE ME')
 )
 
 process.out = cms.OutputModule("PoolOutputModule",
