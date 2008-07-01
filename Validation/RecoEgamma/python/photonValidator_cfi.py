@@ -24,6 +24,7 @@ photonValidation = cms.EDAnalyzer("PhotonValidator",
     OutputFileName = cms.string('PhotonValidationHistos.root'),
     photonCollection = cms.string(''),
     etaBin = cms.int32(100),
+    etaBin2 = cms.int32(100),
     dEtaTracksBin = cms.int32(100),
     hbheInstance = cms.string(''),
     endcapEcalHits = cms.InputTag("ecalRecHit","EcalRecHitsEE"),
@@ -59,6 +60,15 @@ photonValidation = cms.EDAnalyzer("PhotonValidator",
     dPhiMin = cms.double(-0.05),
     dPhiMax = cms.double(0.05),
     dPhiBin = cms.int32(100),
+    rMin = cms.double(0.),
+    rMax = cms.double(120),
+    rBin = cms.int32(24),
+    zMin = cms.double(-220.),
+    zMax = cms.double(220),
+    zBin = cms.int32(100)
+
+                                  
+                                   
 )
 
 
