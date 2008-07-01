@@ -5,18 +5,20 @@
 #               can be used standalone or called from other scripts
 #
 #  author:      Markus Merschmeyer, RWTH Aachen
-#  date:        2008/03/25
-#  version:     1.2
+#  date:        2008/06/05
+#  version:     1.3
 #
 
 print_help() {
     echo "" && \
-    echo "install_lhapdf version 1.2" && echo && \
+    echo "install_lhapdf version 1.3" && echo && \
     echo "options: -v  version    define LHAPDF version ( "${LHAPDFVER}" )" && \
     echo "         -d  path       define LHAPDF installation directory" && \
     echo "                         -> ( "${IDIR}" )" && \
     echo "         -f             require flags for 32-bit compilation ( "${FLAGS}" )" && \
     echo "         -n             use 'nopdf' version ( "${NOPDF}" )" && \
+    echo "         -W  location   (web)location of LHAPDF tarball ( "${LHAPDFWEBLOCATION}" )" && \
+    echo "         -S  filename   file name of LHAPDF tarball ( "${LHAPDFFILE}" )" && \
     echo "         -h             display this help and exit" && echo
 }
 
@@ -31,16 +33,20 @@ LHCFLAGS=" "               # compiler flags
 LHMFLAGS=" "               # 'make' flags
 FLAGS="FALSE"              # apply compiler/'make' flags
 NOPDF="FALSE"              # install 'nopdf' version
+LHAPDFWEBLOCATION=""       # (web)location of LHAPDF tarball
+LHAPDFFILE=""              # file name of LHAPDF tarball
 
 
 # get & evaluate options
-while getopts :v:d:fnh OPT
+while getopts :v:d:W:S:fnh OPT
 do
   case $OPT in
   v) LHAPDFVER=$OPTARG ;;
   d) IDIR=$OPTARG ;;
   f) FLAGS=TRUE ;;
   n) NOPDF=TRUE ;;
+  W) LHAPDFWEBLOCATION=$OPTARG ;;
+  S) LHAPDFFILE=$OPTARG ;;
   h) print_help && exit 0 ;;
   \?)
     shift `expr $OPTIND - 1`
@@ -58,20 +64,33 @@ do
 done
 
 
+# set LHAPDF download location
+if [ "$LHAPDFWEBLOCATION" = "" ]; then
+  LHAPDFWEBLOCATION="http://www.hepforge.org/archive/lhapdf"
+fi
+if [ "$LHAPDFFILE" = "" ]; then
+  if [ "$NOPDF" = "TRUE" ]; then
+    LHAPDFFILE="lhapdf-"${LHAPDFVER}"-nopdf.tar.gz"
+  else
+    LHAPDFFILE="lhapdf-"${LHAPDFVER}".tar.gz"
+  fi
+fi
+
 # make LHAPDF version a global variable
 export LHAPDFVER=${LHAPDFVER}
 # always use absolute path name...
 cd ${IDIR}; IDIR=`pwd`
 
+echo " LHAPDF installation: "
+echo "  -> LHAPDF version: '"${LHAPDFVER}"'"
+echo "  -> installation directory: '"${IDIR}"'"
+echo "  -> flags: '"${FLAGS}"'"
+echo "  -> no PDF version: '"${NOPDF}"'"
+echo "  -> LHAPDF location: '"${LHAPDFWEBLOCATION}"'"
+echo "  -> LHAPDF file name: '"${LHAPDFFILE}"'"
 
-# set LHAPDF download location
-LHAPDFWEBLOCATION="http://www.hepforge.org/archive/lhapdf"
-if [ "$NOPDF" = "TRUE" ]; then
-  LHAPDFFILE="lhapdf-"${LHAPDFVER}"-nopdf.tar.gz"
-else
-  LHAPDFFILE="lhapdf-"${LHAPDFVER}".tar.gz"
-fi
-export LHAPDFDIR=${IDIR}"/lhapdf-"${LHAPDFVER} # set path to local LHAPDF installation
+# set path to local LHAPDF installation
+export LHAPDFDIR=${IDIR}"/lhapdf-"${LHAPDFVER}
 
 
 # add compiler & linker flags

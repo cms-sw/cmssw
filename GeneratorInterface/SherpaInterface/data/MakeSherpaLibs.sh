@@ -97,6 +97,22 @@ clean_libs() {
     echo "======================"
     cd $J
     make clean
+###FIXME: MM (27 May 2008)
+    rm config* Makefile* *.tex
+    rm aclocal.m4 ChangeLog depcomp install-sh libtool ltmain.sh missing
+    rm AUTHORS COPYING INSTALL NEWS README 
+    rm -rf autom4te.cache
+    ddir=fsrchannels
+    rm -rf ${ddir}*/Makefile*
+    rm -rf ${ddir}*/.deps
+    rm -rf ${ddir}*/*.C
+    rm -rf ${ddir}*/*.H
+    ddir=P2_
+    rm -rf ${ddir}*/Makefile*
+    rm -rf ${ddir}*/.deps
+    rm -rf ${ddir}*/*.C
+    rm -rf ${ddir}*/*.H
+###FIXME: MM (27 May 2008)
     cd ../..
   done
 }

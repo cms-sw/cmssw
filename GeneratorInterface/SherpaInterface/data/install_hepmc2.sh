@@ -5,17 +5,19 @@
 #               can be used standalone or called from other scripts
 #
 #  author:      Markus Merschmeyer, RWTH Aachen
-#  date:        2008/03/25
-#  version:     1.2
+#  date:        2008/06/05
+#  version:     1.3
 #
 
 print_help() {
     echo "" && \
-    echo "install_hepmc2 version 1.2" && echo && \
+    echo "install_hepmc2 version 1.3" && echo && \
     echo "options: -v  version    define HepMC2 version ( "${HEPMC2VER}" )" && \
     echo "         -d  path       define HepMC2 installation directory" && \
     echo "                         -> ( "${IDIR}" )" && \
     echo "         -f             require flags for 32-bit compilation ( "${FLAGS}" )" && \
+    echo "         -W  location   (web)location of HepMC2 tarball ( "${HEPMC2WEBLOCATION}" )" && \
+    echo "         -S  filename   file name of HepMC2 tarball ( "${HEPMC2FILE}" )" && \
     echo "         -h             display this help and exit" && echo
 }
 
@@ -29,15 +31,19 @@ HEPMC2VER="2.01.10"        # HepMC2 version  to be installed
 HMCFLAGS=" "               # compiler flags
 HMMFLAGS=" "               # 'make' flags
 FLAGS="FALSE"              # apply compiler/'make' flags
+HEPMC2WEBLOCATION=""       # (web)location of HEPMC2 tarball
+HEPMC2FILE=""              # file name of HEPMC2 tarball
 
 
 # get & evaluate options
-while getopts :v:d:fh OPT
+while getopts :v:d:W:S:fh OPT
 do
   case $OPT in
   v) HEPMC2VER=$OPTARG ;;
   d) IDIR=$OPTARG ;;
   f) FLAGS=TRUE ;;
+  W) HEPMC2WEBLOCATION=$OPTARG ;;
+  S) HEPMC2FILE=$OPTARG ;;
   h) print_help && exit 0 ;;
   \?)
     shift `expr $OPTIND - 1`
@@ -55,16 +61,28 @@ do
 done
 
 
+# set HEPMC2 download location
+if [ "$HEPMC2WEBLOCATION" = "" ]; then
+  HEPMC2WEBLOCATION="http://lcgapp.cern.ch/project/simu/HepMC/download"
+fi
+if [ "$HEPMC2FILE" = "" ]; then
+  HEPMC2FILE="HepMC-"${HEPMC2VER}".tar.gz"
+fi
+
 # make HEPMC2 version a global variable
 export HEPMC2VER=${HEPMC2VER}
 # always use absolute path name...
 cd ${IDIR}; IDIR=`pwd`
 
+echo " HepMC2 installation: "
+echo "  -> HepMC2 version: '"${HEPMC2VER}"'"
+echo "  -> installation directory: '"${IDIR}"'"
+echo "  -> flags: '"${FLAGS}"'"
+echo "  -> HepMC2 location: '"${HEPMC2WEBLOCATION}"'"
+echo "  -> HepMC2 file name: '"${HEPMC2FILE}"'"
 
-# set HEPMC2 download location
-HEPMC2WEBLOCATION="http://lcgapp.cern.ch/project/simu/HepMC/download"
-HEPMC2FILE="HepMC-"${HEPMC2VER}".tar.gz"
-export HEPMC2DIR=${IDIR}"/HepMC-"${HEPMC2VER} # set path to local HEPMC2 installation
+# set path to local HEPMC2 installation
+export HEPMC2DIR=${IDIR}"/HepMC-"${HEPMC2VER}
 
 
 # add compiler & linker flags
