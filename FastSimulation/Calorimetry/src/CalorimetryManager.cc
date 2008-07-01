@@ -9,6 +9,7 @@
 #include "FastSimulation/ShowerDevelopment/interface/EMShower.h"
 #include "FastSimulation/ShowerDevelopment/interface/HDShowerParametrization.h"
 #include "FastSimulation/ShowerDevelopment/interface/HDShower.h"
+#include "FastSimulation/ShowerDevelopment/interface/HFShower.h"
 #include "FastSimulation/ShowerDevelopment/interface/HDRShower.h"
 #include "FastSimulation/ShowerDevelopment/interface/HSParameters.h"
 #include "FastSimulation/CaloGeometryTools/interface/CaloGeometryHelper.h"
@@ -703,25 +704,49 @@ void CalorimetryManager::HDShowerSimulation(const FSimTrack& myTrack)
     
     // Shower simulation
     bool status;
-    if(hdSimMethod_ == 0) {
-      HDShower theShower(random,
+    // Use HFShower for HF
+    if ( !myTrack.onEcal() && !myTrack.onHcal() ) {
+      //      std::cout << "CalorimetryManager::HDShowerSimulation(): track entrance = "
+      //		<< myTrack.vfcalEntrance().vertex().X() << " "
+      //		<< myTrack.vfcalEntrance().vertex().Y() << " "
+      //		<< myTrack.vfcalEntrance().vertex().Z() << " "
+      //		<< " , Energy (Gen/Scale) = " << eGen << " " << e << std::endl;
+
+      // Warning : We give here the particle energy with the response
+      //           but without the resolution/gaussian smearing
+      //           For HF, the resolution is due to the PE statistic
+
+      HFShower theShower(random,
 			 &theHDShowerparam,
 			 &myGrid,
 			 &myHcalHitMaker,
 			 onECAL,
 			 emeas);
-      status = theShower.compute();
-    }
-    else {
-      HDRShower theShower(random,
-			  &theHDShowerparam,
-			  &myGrid,
-			  &myHcalHitMaker,
-			  onECAL,
-			  emeas);
-      status = theShower.computeShower();
-    }
+			 //			 eGen);
+			 //			 e); // PV Warning : temporarly set the energy to the generated E
 
+      status = theShower.compute();
+    } else { 
+      if(hdSimMethod_ == 0) {
+	HDShower theShower(random,
+			   &theHDShowerparam,
+			   &myGrid,
+			   &myHcalHitMaker,
+			   onECAL,
+			   emeas);
+	status = theShower.compute();
+      }
+      else {
+	HDRShower theShower(random,
+			    &theHDShowerparam,
+			    &myGrid,
+			    &myHcalHitMaker,
+			    onECAL,
+			    emeas);
+	status = theShower.computeShower();
+      }
+    }
+    
     if(status) {
       
       // was map<unsigned,double> but CaloHitMaker uses float
