@@ -10,7 +10,7 @@
   file in DQMServices/Daemon/test, but modified to include another top level
   folder, to remove the 1 sec wait, and to do the fitting without printout.
 
-  $Id: SMDQMSourceExample.cc,v 1.10 2008/05/11 13:54:19 hcheung Exp $
+  $Id: SMDQMSourceExample.cc,v 1.11 2008/06/03 17:03:05 biery Exp $
 
 */
 
@@ -46,8 +46,11 @@ public:
    
   virtual void analyze( const edm::Event&, const edm::EventSetup& );
 
+  virtual void beginJob( const edm::EventSetup& );
+
   virtual void endJob(void);
 
+  void beginRun(edm::Run const& run, edm::EventSetup const& eSetup);
   void endLuminosityBlock(edm::LuminosityBlock const& lumiSeg,
                           edm::EventSetup const& eSetup);
   void endRun(edm::Run const& run, edm::EventSetup const& eSetup);
@@ -143,33 +146,61 @@ SMDQMSourceExample::SMDQMSourceExample( const edm::ParameterSet& iConfig )
 
 SMDQMSourceExample::~SMDQMSourceExample()
 {
+  std::cout << "SMDQMSourceExample: "
+            << "Destructor called." << std::endl;
    
    // do anything here that needs to be done at desctruction time
    // (e.g. close files, deallocate resources etc.)
   
 }
 
+void SMDQMSourceExample::beginJob(const edm::EventSetup& iSetup)
+{
+  std::cout << "SMDQMSourceExample: "
+            << "Doing beginning of job processing." << std::endl;
+}
+
 void SMDQMSourceExample::endJob(void)
 {
+  std::cout << "SMDQMSourceExample: "
+            << "Doing end of job processing." << std::endl;
   dbe->save("test.root");  
   dbe->rmdir("C1");
   dbe->rmdir("D1");
 }
 
+void SMDQMSourceExample::beginRun(edm::Run const& run, edm::EventSetup const& eSetup)
+{
+  std::cout << "SMDQMSourceExample: "
+            << "Doing beginning of run processing for run number "
+            <<  run.run() << std::endl;
+}
+
 void SMDQMSourceExample::endLuminosityBlock(edm::LuminosityBlock const& lumiSeg,
                                             edm::EventSetup const& eSetup)
 {
-  std::cout << "Doing end of lumi processing for lumi number "
+  std::cout << "SMDQMSourceExample: "
+            << "Doing end of lumi processing for lumi number "
             << lumiSeg.luminosityBlock() << " of run "
             << lumiSeg.run() << std::endl;
 }
 
 void SMDQMSourceExample::endRun(edm::Run const& run, edm::EventSetup const& eSetup)
 {
-  std::cout << "Doing end of run processing for run number "
+  std::cout << "SMDQMSourceExample: "
+            << "Doing end of run processing for run number "
             <<  run.run() << std::endl;
-  dbe->rmdir("C1");
-  dbe->rmdir("D1");
+  h1->Reset();
+  h2->Reset();
+  h3->Reset();
+  h4->Reset();
+  h5->Reset();
+  h6->Reset();
+  h7->Reset();
+  h8->Reset();
+  h9->Reset();
+  //dbe->rmdir("C1");
+  //dbe->rmdir("D1");
 }
 
 //
