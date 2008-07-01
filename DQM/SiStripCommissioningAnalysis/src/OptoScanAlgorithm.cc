@@ -292,53 +292,83 @@ void OptoScanAlgorithm::analyse() {
       }
       
     }
-
+    
     // Extract width between two curves at midpoint within range
     float mid = min + 0.5*range;
     sistrip::LinearFit::Params peak_params;
     sistrip::LinearFit::Params base_params;
     peak_high.fit( peak_params );
     base_high.fit( base_params );
-    float peak_pos = ( mid - peak_params.a_ ) / peak_params.b_;
-    float base_pos = ( mid - base_params.a_ ) / base_params.b_;
-    float width = base_pos - peak_pos;
+
+    float peak_pos = sistrip::invalid_;
+    float base_pos = sistrip::invalid_;
+    float width    = sistrip::invalid_;
+    if ( peak_params.b_ > 0. ) {
+      peak_pos = ( mid - peak_params.a_ ) / peak_params.b_;
+    }
+    if ( base_params.b_ > 0. ) {
+      base_pos = ( mid - base_params.a_ ) / base_params.b_;
+    }
+    if ( base_pos < sistrip::valid_ &&
+	 peak_pos < sistrip::valid_ ) {
+      width = base_pos - peak_pos;
+    }
 
     // Extrapolate to zero light to find "lift off"
     sistrip::LinearFit::Params low_params;
     base_low.fit( low_params );
-    float lift_off = ( zero_light_level - low_params.a_ ) / low_params.b_;
+    float lift_off = sistrip::invalid_;
+    if ( low_params.b_ > 0. ) {
+      lift_off = ( zero_light_level - low_params.a_ ) / low_params.b_;
+    }
     
     // ---------- Set all parameters ----------
-
+    
     // Slope of baseline
-    anal->baseSlope_[igain] = low_params.b_;
-
+    if ( low_params.b_ > 0. ) {
+      anal->baseSlope_[igain] = low_params.b_;
+    } 
+    
     // Check "lift off" value and set bias setting accordingly
     if ( lift_off <= sistrip::maximum_ ) {
       anal->bias_[igain] = static_cast<uint16_t>( lift_off ) + 2;
     } else { anal->bias_[igain] = OptoScanAnalysis::defaultBiasSetting_; } 
     
-    // Calculate "lift off" and laser threshold (in mA)
-    anal->liftOff_[igain] = 0.45 * lift_off;
-    anal->threshold_[igain] = 0.45 * ( lift_off - width/2. );
-
-    // Set "zero light" level and link noise
-    anal->zeroLight_[igain] = zero_light_level;
-    uint16_t bin_number = static_cast<uint16_t>( anal->threshold_[igain] / 0.45 ); 
-    if ( bin_number < noise_contents.size() ) { anal->linkNoise_[igain] = noise_contents[bin_number]; }
-    else { anal->addErrorCode(sistrip::unexpectedBinNumber_); }
+    // Calculate "lift off" (in mA)
+    if ( lift_off <= sistrip::maximum_ ) {
+      anal->liftOff_[igain] = 0.45 * lift_off;
+    }
     
+    // Calculate laser threshold (in mA)
+    if ( width < sistrip::invalid_ ) {
+      anal->threshold_[igain] = 0.45 * ( lift_off - width/2. );
+    }
+
+    // Set "zero light" level
+    anal->zeroLight_[igain] = zero_light_level;
+    
+    // Set link noise
+    uint16_t bin_number = sistrip::invalid_;
+    if ( anal->threshold_[igain] < sistrip::valid_ ) {
+      bin_number = static_cast<uint16_t>( anal->threshold_[igain] / 0.45 ); 
+    }
+    if ( bin_number < sistrip::valid_ ) {
+      if ( bin_number < noise_contents.size() ) { 
+	anal->linkNoise_[igain] = noise_contents[bin_number]; 
+      } else { anal->addErrorCode(sistrip::unexpectedBinNumber_); }
+    }
+      
     // Calculate tick mark height
     if ( low_params.b_ <= sistrip::maximum_ &&
 	 width <= sistrip::maximum_ ) {
       anal->tickHeight_[igain] = width * low_params.b_;
     }
-
+      
     // Set measured gain 
     if ( anal->tickHeight_[igain] < sistrip::invalid_-1. ) {
       anal->measGain_[igain] = anal->tickHeight_[igain] * OptoScanAnalysis::fedAdcGain_ / 0.800;
-    } else { anal->measGain_[igain] = 0.; }
-    
+    } else { anal->measGain_[igain] = sistrip::invalid_; }
+      
   } // gain loop
 
   // Iterate through four gain settings and identify optimum gain setting
@@ -356,7 +386,7 @@ void OptoScanAlgorithm::analyse() {
     }
     
   } 
-
+  
   // Check optimum gain setting
   if ( anal->gain_ > sistrip::maximum_ ) { anal->gain_ = OptoScanAnalysis::defaultGainSetting_; }
   
