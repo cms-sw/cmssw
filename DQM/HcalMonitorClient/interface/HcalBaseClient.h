@@ -5,6 +5,7 @@
 #include "FWCore/Framework/interface/MakerMacros.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
+#include "FWCore/Utilities/interface/CPUTimer.h" 
 
 #include "DQMServices/Core/interface/DQMStore.h"
 #include "DQMServices/Core/interface/MonitorElement.h"
@@ -57,6 +58,10 @@ class HcalBaseClient{
   string process_;
   string baseFolder_;
   string clientName_;
+  
+  bool showTiming_; // controls whether to show timing diagnostic info 
+  edm::CPUTimer cpu_timer; //  
+
 
   DQMStore* dbe_;
   

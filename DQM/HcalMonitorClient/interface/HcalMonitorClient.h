@@ -7,6 +7,7 @@
 #include "FWCore/Framework/interface/Run.h"
 #include "FWCore/Framework/interface/LuminosityBlock.h"
 #include "FWCore/Framework/interface/MakerMacros.h"
+#include "FWCore/Utilities/interface/CPUTimer.h" 
 
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
@@ -123,6 +124,10 @@ public:
 
   /// Verbosity switch used for debugging or informational output
   bool debug_ ;
+  
+  // Timing diagnostic switch
+  bool showTiming_; // controls whether to show timing diagnostic info 
+  edm::CPUTimer cpu_timer; //  
 
   /// counters and flags
     //int nevt_; // counts number of events actually analyzed by HcalMonitorClient
