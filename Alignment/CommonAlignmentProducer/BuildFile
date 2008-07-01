@@ -19,6 +19,7 @@
 <use name=FWCore/ParameterSet>
 <use name=PhysicsTools/RecoAlgos>
 <use name=rootcore>
+<use name=root>
 <export>
   <use name=DataFormats/MuonReco>
   <use name=DataFormats/TrackReco>
