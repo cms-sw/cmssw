@@ -11,7 +11,6 @@
 <use name=DataFormats/BTauReco>
 <use name=DataFormats/GeometryCommonDetAlgo>
 <use name=rootrflx>
-<use name=root>
 <export>
   <use name=DataFormats/Common>
   <use name=DataFormats/Candidate>
@@ -24,6 +23,5 @@
   <use name=DataFormats/HepMCCandidate>
   <use name=DataFormats/BTauReco>
   <use name=DataFormats/GeometryCommonDetAlgo>
-  <use name=root>
   <lib name=DataFormatsPatCandidates>
 </export>
