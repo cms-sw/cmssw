@@ -27,8 +27,8 @@ class StaticWeb:
   ## Given a root file plots all the histograms.  
   def plot ( self, mainfile, reffile, location, file_prefix, package ):
     # Creates a temporal file for executing root
-    #rootFile = tempfile.NamedTemporaryFile('w',suffix='.C')    
-    rootFile = open ('Holanda.C','w')
+    rootFile = tempfile.NamedTemporaryFile('w',suffix='.C')    
+    #rootFile = open ('Holanda.C','w')
     # Create string to plot histograms
     #string = 'void '
     string = ''

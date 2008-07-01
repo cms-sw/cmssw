@@ -56,6 +56,12 @@ class JobManager:
                         generator_List.append(compare)
             if run.upper() == "ALL" or compare.upper() == "ALL":
                 for probe in dir:
+                    if '~' in probe:
+                        continue
+                    if  '.cfg' not in probe:
+                        continue
+                    if len(probe.split('__')) == 1:
+                        continue
                     if probe.split('.')[0].split('__')[1] not in generator_List:
                         print 'scramv1 tool info '+probe.split('.')[0].split('__')[1] 
                         temp_status, temp_output =  commands.getstatusoutput('scramv1 tool info '+probe.split('.')[0].split('__')[1] )
@@ -70,7 +76,11 @@ class JobManager:
             
             # run each config file in the 'test' directory
             for file in dir:
-                if '~' in file or '.cfg' not in file:
+                if '~' in file:
+                    continue
+                if  '.cfg' not in file:
+                    continue
+                if len(file.split('__')) == 1:
                     continue
                 if run.upper() != "ALL" and compare.upper() != "ALL" and run.upper() not in file.upper() and compare.upper() not in file.upper():
                     continue
@@ -93,12 +103,12 @@ class JobManager:
                                     directory1 = file.split('.')[0].split('__')[1]+'/'+file.split('.')[0].split('__')[1]+'__'+file.split('.')[0].split('__')[2]+'EDM'
                                 else:
                                     directory1 = file.split('.')[0].split('__')[1]+'/'+self.__release_List[file.split('.')[0].split('__')[1]]
-                                if os.path.exists(Configuration.variables["HomeDirectory"]+'DropBox/releases/'+directory1+'/'+file.split('.')[0].split('__')[0]+'/') == True:
-                                    if data_file in os.listdir(Configuration.variables["HomeDirectory"]+'DropBox/releases/'+directory1+'/'+file.split('.')[0].split('__')[0]+'/') and '.log' not in data_file:
+                                if os.path.exists(Configuration.variables["ReleaseDirectory"]+directory1+'/'+file.split('.')[0].split('__')[0]+'/') == True:
+                                    if data_file in os.listdir(Configuration.variables["ReleaseDirectory"]+directory1+'/'+file.split('.')[0].split('__')[0]+'/') and '.log' not in data_file:
                                         continue
-                                if os.path.exists(Configuration.variables["HomeDirectory"]+'DropBox/releases/'+directory1+'/'+file.split('.')[0].split('__')[0]+'/') != True:
-                                    os.makedirs(Configuration.variables["HomeDirectory"]+'DropBox/releases/'+directory1+'/'+file.split('.')[0].split('__')[0]+'/')
-                                shutil.copyfile(Configuration.variables["HomeDirectory"]+'DropBox/scratch/'+process+'/'+directory+'/'+data_file, Configuration.variables["HomeDirectory"]+'DropBox/releases/'+directory1+'/'+file.split('.')[0].split('__')[0]+'/'+data_file)
+                                if os.path.exists(Configuration.variables["ReleaseDirectory"]+directory1+'/'+file.split('.')[0].split('__')[0]+'/') != True:
+                                    os.makedirs(Configuration.variables["ReleaseDirectory"]+directory1+'/'+file.split('.')[0].split('__')[0]+'/')
+                                shutil.copyfile(Configuration.variables["HomeDirectory"]+'DropBox/scratch/'+process+'/'+directory+'/'+data_file, Configuration.variables["ReleaseDirectory"]+directory1+'/'+file.split('.')[0].split('__')[0]+'/'+data_file)
                                 if '.root' in data_file:
                                     root_files = 1
                         os.system('rm '+Configuration.variables["HomeDirectory"]+'DropBox/scratch/'+process+'/'+directory+'/*')
@@ -149,6 +159,8 @@ class JobManager:
                                 self.__release_List[probe.split('.')[0].split('__')[1]] = probe.split('.')[0].split('__')[1]+"__"+line.split(':')[-1].strip(' ')
                                 generator_List.append(probe.split('.')[0].split('__')[1])
             for file in dir:
+                if 'CVS' in dir:
+                    continue
                 if len(file.split('__')) == 3:
                     continue
                 if '~' in file or '.cfg' not in file:
@@ -208,40 +220,42 @@ class JobManager:
                 for sub_gen in os.listdir(Configuration.variables["HomeDirectory"]+'DropBox/scratch/'+process+'/'+generator+'/'):
                     for subdir in os.listdir(Configuration.variables["HomeDirectory"]+'DropBox/scratch/'+process+'/'+generator+'/'+sub_gen+'/'):
                         if '.root' in subdir or '.log' in subdir:
-                            if os.path.isdir(Configuration.variables["HomeDirectory"]+'DropBox/releases/'+generator+'/'+sub_gen+'/'+process+'/') == False:
-                                os.makedirs(Configuration.variables["HomeDirectory"]+'DropBox/releases/'+generator+'/'+sub_gen+'/'+process+'/')
-                            shutil.copyfile(Configuration.variables["HomeDirectory"]+'DropBox/scratch/'+process+'/'+generator+'/'+sub_gen+'/'+subdir, Configuration.variables["HomeDirectory"]+'DropBox/releases/'+generator+'/'+sub_gen+'/'+process+'/'+subdir)
+                            if os.path.isdir(Configuration.variables["ReleaseDirectory"]+generator+'/'+sub_gen+'/'+process+'/') == False:
+                                os.makedirs(Configuration.variables["ReleaseDirectory"]+generator+'/'+sub_gen+'/'+process+'/')
+                            shutil.copyfile(Configuration.variables["HomeDirectory"]+'DropBox/scratch/'+process+'/'+generator+'/'+sub_gen+'/'+subdir, Configuration.variables["ReleaseDirectory"]+generator+'/'+sub_gen+'/'+process+'/'+subdir)
                     os.system('rm '+Configuration.variables["HomeDirectory"]+'DropBox/scratch/'+process+'/'+generator+'/'+sub_gen+'/*')
                 
         print "Begin Publishing" , process
         ### Publishes and compares, may be able to replace 'data' too ###
-        gen_List = os.listdir(Configuration.variables["HomeDirectory"]+'DropBox/releases/')
+        gen_List = os.listdir(Configuration.variables["ReleaseDirectory"])
         if compare.upper() == "SAME" or compare.upper() == "ALL":
             for List in gen_List:
                 if compare.upper() == "SAME" and List not in run and run.upper() != "ALL":
                     continue
-                sub_dir = os.listdir(Configuration.variables["HomeDirectory"]+'DropBox/releases/'+List)
+                if 'CVS' in List:
+                    continue
+                sub_dir = os.listdir(Configuration.variables["ReleaseDirectory"]+List)
                 for i in range(len(sub_dir) - 1):
                     for j in range(i+1, len(sub_dir)):
                         if sub_dir[i] == sub_dir[j]:
                             continue
-                        if os.path.isdir(Configuration.variables["HomeDirectory"]+'DropBox/releases/'+List+'/'+sub_dir[i]+'/'+process) == False:
+                        if os.path.isdir(Configuration.variables["ReleaseDirectory"]+List+'/'+sub_dir[i]+'/'+process) == False:
                             continue
-                        if os.path.isdir(Configuration.variables["HomeDirectory"]+'DropBox/releases/'+List+'/'+sub_dir[j]+'/'+process) == False:
+                        if os.path.isdir(Configuration.variables["ReleaseDirectory"]+List+'/'+sub_dir[j]+'/'+process) == False:
                             continue
                         web_dir = Configuration.variables["WebDirectory"]+sub_dir[i]+'/'+sub_dir[j]+'/'+process+'/'
                         if os.path.isdir(web_dir) == True:
                             continue
                         if os.path.isdir(Configuration.variables["WebDirectory"]+sub_dir[j]+'/'+sub_dir[i]+'/'+process+'/') and os.listdir(Configuration.variables["WebDirectory"]+sub_dir[j]+'/'+sub_dir[i]+'/'+process+'/') < 2:
                             continue 
-                        for rel_file in os.listdir(Configuration.variables["HomeDirectory"]+'DropBox/releases/'+List+'/'+sub_dir[i]+'/'+process):
+                        for rel_file in os.listdir(Configuration.variables["ReleaseDirectory"]+List+'/'+sub_dir[i]+'/'+process):
                             if '.root' in rel_file:
-                                for ref_file in os.listdir(Configuration.variables["HomeDirectory"]+'DropBox/releases/'+List+'/'+sub_dir[j]+'/'+process):
+                                for ref_file in os.listdir(Configuration.variables["ReleaseDirectory"]+List+'/'+sub_dir[j]+'/'+process):
                                     if '.root' in ref_file:
                                         if os.path.isdir(web_dir) == False:
                                             os.makedirs(web_dir)
                                         
-                                        Publisher.StaticWeb().plot(Configuration.variables["HomeDirectory"]+'DropBox/releases/'+List+'/'+sub_dir[i]+'/'+process+'/'+rel_file, Configuration.variables["HomeDirectory"]+'DropBox/releases/'+List+'/'+sub_dir[j]+'/'+process+'/'+ref_file, web_dir, process+'--'+sub_dir[i]+'--'+sub_dir[j], '')
+                                        Publisher.StaticWeb().plot(Configuration.variables["ReleaseDirectory"]+List+'/'+sub_dir[i]+'/'+process+'/'+rel_file, Configuration.variables["ReleaseDirectory"]+List+'/'+sub_dir[j]+'/'+process+'/'+ref_file, web_dir, process+'--'+sub_dir[i]+'--'+sub_dir[j], '')
                                         Publisher.StaticWeb().index(sub_dir[i], sub_dir[j], process, web_dir)
                                               
 
@@ -257,13 +271,15 @@ class JobManager:
                         if run.upper() != "ALL":
                             if run.upper() not in gen_List[i] or run.upper() not in gen_List[j]:
                                 continue
-                    rel_List = os.listdir(Configuration.variables["HomeDirectory"]+'DropBox/releases/'+gen_List[i])
-                    ref_List = os.listdir(Configuration.variables["HomeDirectory"]+'DropBox/releases/'+gen_List[j])
+                        if gen_List[i] == 'CVS' or gen_List[j] == 'CVS':
+                            continue
+                    rel_List = os.listdir(Configuration.variables["ReleaseDirectory"]+gen_List[i])
+                    ref_List = os.listdir(Configuration.variables["ReleaseDirectory"]+gen_List[j])
                     for rel_dir in rel_List:
-                        if os.path.isdir(Configuration.variables["HomeDirectory"]+'DropBox/releases/'+gen_List[i]+'/'+rel_dir+'/'+process) == False:
+                        if os.path.isdir(Configuration.variables["ReleaseDirectory"]+gen_List[i]+'/'+rel_dir+'/'+process) == False:
                             continue
                         for ref_dir in ref_List:
-                            if os.path.isdir(Configuration.variables["HomeDirectory"]+'DropBox/releases/'+gen_List[j]+'/'+ref_dir+'/'+process) == False:
+                            if os.path.isdir(Configuration.variables["ReleaseDirectory"]+gen_List[j]+'/'+ref_dir+'/'+process) == False:
                                 continue
                             if ref_dir == rel_dir:
                                 continue 
@@ -275,8 +291,8 @@ class JobManager:
                                 continue
                             if os.path.exists(Configuration.variables["WebDirectory"]+ref_dir+'/'+rel_dir+'/'+process+'/'):
                                 continue
-                            rel_loc = Configuration.variables["HomeDirectory"]+'DropBox/releases/'+gen_List[i]+'/'+rel_dir+ '/' + process+'/'
-                            ref_loc = Configuration.variables["HomeDirectory"]+'DropBox/releases/'+gen_List[j]+'/'+ref_dir+ '/' + process+'/'
+                            rel_loc = Configuration.variables["ReleaseDirectory"]+gen_List[i]+'/'+rel_dir+ '/' + process+'/'
+                            ref_loc = Configuration.variables["ReleaseDirectory"]+gen_List[j]+'/'+ref_dir+ '/' + process+'/'
                             print gen_List[i], gen_List[j]
                             for rel_file in os.listdir(rel_loc):
                                 if '.root' in rel_file:

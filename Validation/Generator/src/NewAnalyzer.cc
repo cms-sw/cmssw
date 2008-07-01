@@ -4,9 +4,9 @@
 */
 
 //
-// Original Author:  Fabian Stoeckli
+// Original Author:  Kenneth Smith
 //         Created:  Tue Nov 14 13:43:02 CET 2006
-// $Id: NewAnalyzer.cc,v 1.1 2008/05/23 17:02:43 ksmith Exp $
+// $Id: NewAnalyzer.cc,v 1.2 2008/03/26 21:23:49 ksmith Exp $
 //
 //
 
@@ -18,7 +18,8 @@
 // user include files
 #include "NewAnalyzer.h"
 #include "DataFormats/JetReco/interface/GenJet.h"
-
+#include "TH1D.h"
+#include "TFile.h"
 
 #include <DataFormats/HepMCCandidate/interface/GenParticleCandidate.h>
 #include <DataFormats/Candidate/interface/Candidate.h>
@@ -34,22 +35,53 @@
 #include "TLorentzVector.h"
 
 NewAnalyzer::NewAnalyzer(const edm::ParameterSet& iConfig)
-{ /// Copy plots from Steve exactly 
+{ 
   outputFilename=iConfig.getUntrackedParameter<std::string>("OutputFilename","dummy.root");
+  Jetmult_histo = new TH1F("Jetmult_histo","Jetmult_histo",5,0,5);
   J1Pt_histo = new TH1F("J1pT","J1pT",38,0,220);
   J2Pt_histo = new TH1F("J2pT","J2pT",38,0,120);
+  Z1JJ1Pt_histo = new TH1F("Z1JJ1pT","Z1JJ1pT",38,0,220);
+  Z2JJ1Pt_histo = new TH1F("Z2JJ1pT","Z2JJ1pT",38,0,220);
+  Z2JJ2Pt_histo = new TH1F("Z2JJ2pT","Z2JJ2pT",38,0,120);
+  Z3JJ1Pt_histo = new TH1F("Z3JJ1pT","Z3JJ1pT",38,0,220);
+  Z3JJ2Pt_histo = new TH1F("Z3JJ2pT","Z3JJ2pT",38,0,120);
+  Z4JJ1Pt_histo = new TH1F("Z4JJ1pT","Z4JJ1pT",38,0,220);
+  Z4JJ2Pt_histo = new TH1F("Z4JJ2pT","Z4HJ2pT",38,0,120);
   E1Pt_histo = new TH1F("E1pT","E1pT",38,0,150);
   E2Pt_histo = new TH1F("E2pT","E2pT",38,0,150);
   ZPz_histo = new TH1F("ZPz","ZPz",100,0,20);
   ZPt_histo = new TH1F("ZPt","ZPt",38,0,200);
-  J1Eta_histo = new TH1F("J1Eta_histo", "J1Eta_histo", 40, -3, 3); 
-  J2Eta_histo = new TH1F("J2Eta_histo", "J2Eta_histo", 40, -3, 3);
+  J1Eta_histo = new TH1F("J1Eta_histo", "J1Eta_histo", 40, -3, 3);
+  Z1JJ1Eta_histo = new TH1F("Z1JJ1Eta_histo", "Z1JJ1Eta_histo", 40, -3, 3); 
+  Z2JJ1Eta_histo = new TH1F("Z2JJ1Eta_histo", "Z2JJ1Eta_histo", 40, -3, 3); 
+  Z2JJ2Eta_histo = new TH1F("Z2JJ2Eta_histo", "Z2JJ2Eta_histo", 40, -3, 3);
+  Z3JJ1Eta_histo = new TH1F("Z3JJ1Eta_histo", "Z3JJ1Eta_histo", 40, -3, 3); 
+  Z3JJ2Eta_histo = new TH1F("Z3JJ2Eta_histo", "Z3JJ2Eta_histo", 40, -3, 3);
+  Z4JJ1Eta_histo = new TH1F("Z4JJ1Eta_histo", "Z4JJ1Eta_histo", 40, -3, 3); 
+  Z4JJ2Eta_histo = new TH1F("Z4JJ2Eta_histo", "Z4JJ2Eta_histo", 40, -3, 3);
   JDelR_histo = new TH1F("JDelR_histo", "JDelR_histo", 38, 0, 6);
+  Z2JJDelR_histo = new TH1F("Z2JJDelR_histo", "Z2JJDelR_histo", 38, 0, 6);
+  Z3JJDelR_histo = new TH1F("Z3JJDelR_histo", "Z3JJDelR_histo", 38, 0, 6);
+  Z4JJDelR_histo = new TH1F("Z4JJDelR_histo", "Z4JJDelR_histo", 38, 0, 6);
   EJDelR_histo = new TH1F("EJDelR_histo", "EJDelR_histo", 38, 0, 6);
-  JDelPhi_histo = new TH1F("JDelPhi_histo", "JDelPhi_histo", 38, 0, 3.2);
+  JDelPhi_histo = new TH1F("JDelPhi_histo", "JDelPhi_histo", 38, -3.2, 3.2);
+  Z2JJDelPhi_histo = new TH1F("Z2JJDelPhi_histo", "Z2JJDelPhi_histo", 38, -3.2, 3.2);
+  Z3JJDelPhi_histo = new TH1F("Z3JJDelPhi_histo", "Z3JJDelPhi_histo", 38, -3.2, 3.2);
+  Z4JJDelPhi_histo = new TH1F("Z4JJDelPhi_histo", "Z4JJDelPhi_histo", 38, -3.2, 3.2);
   J1Phi_histo = new TH1F("J1Phi_histo", "J1Phi_histo", 38, 0, 5); 
-  J2Phi_histo = new TH1F("J2Phi_histo", "J2Phi_histo", 38, 0, 5);
-  EE_invmass_histo = new TH1F("EE_invmass_histo","EE_invmass_histo",100,0,100);
+  Z1JJ1Phi_histo = new TH1F("Z1JJ1Phi_histo", "Z1JJ1Phi_histo", 38, 0, 5); 
+  Z2JJ1Phi_histo = new TH1F("Z2JJ1Phi_histo", "Z2JJ1Phi_histo", 38, 0, 5); 
+  Z2JJ2Phi_histo = new TH1F("Z2JJ2Phi_histo", "Z2JJ2Phi_histo", 38, 0, 5);
+  Z3JJ1Phi_histo = new TH1F("Z3JJ1Phi_histo", "Z3JJ1Phi_histo", 38, 0, 5); 
+  Z3JJ2Phi_histo = new TH1F("Z3JJ2Phi_histo", "Z3JJ2Phi_histo", 38, 0, 5);
+  Z4JJ1Phi_histo = new TH1F("Z4JJ1Phi_histo", "Z4JJ1Phi_histo", 38, 0, 5); 
+  Z4JJ2Phi_histo = new TH1F("Z4JJ2Phi_histo", "Z4JJ2Phi_histo", 38, 0, 5);
+  Z_invmass_histo = new TH1F("Z_invmass_histo","Z_invmass_histo",100,0,100);
+  Z0J_invmass_histo = new TH1F("Z0J_invmass_histo","Z0J_invmass_histo",100,0,100);
+  Z1J_invmass_histo = new TH1F("Z1J_invmass_histo","Z1J_invmass_histo",100,0,100);
+  Z2J_invmass_histo = new TH1F("Z2J_invmass_histo","Z2J_invmass_histo",100,0,100);
+  Z3J_invmass_histo = new TH1F("Z3J_invmass_histo","Z3J_invmass_histo",100,0,100);
+  Z4J_invmass_histo = new TH1F("Z4J_invmass_histo","Z4J_invmass_histo",100,0,100);
   int event = 0 ; 
 }
 
@@ -62,7 +94,7 @@ NewAnalyzer::~NewAnalyzer()
 // ------------ method called to for each event  ------------
 void
 NewAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
-{
+{ std::cout << "A" << std::endl;
   ++event;
    using namespace edm;
    using namespace std;
@@ -110,9 +142,11 @@ typedef std::vector<reco::GenJet> GenJetCollection;
   elecPy.clear();
   elecPz.clear();
   float ptot, etot;
+  double Jet1Pt, Jet2Pt;
+  Jet1Pt = 0; 
+  Jet2Pt = 0; 
   math::XYZTLorentzVector MyJets1 (0,0,0,0);
   math::XYZTLorentzVector MyJets2 (0,0,0,0);
-  //std::vector<math::XYZTLorentzVector> MyJets;
   for(size_t q = 0; q < genPart->size(); q++)
     {
       const Candidate & p = (*genPart)[q];
@@ -139,49 +173,32 @@ typedef std::vector<reco::GenJet> GenJetCollection;
 	      elecPz.push_back(p.pz());
 	    }
 	}
-      std::cout << "B" << std::endl;
-      //if(abs(id) == 11 && sqrt(p.px()*p.px()+p.py()*p.py()) > 20 )  elec++;
+      
     }
   if (elec > 1) 
     { 
-      for(size_t elec1 = 0; elec1 < elec-1; elec1++)
-	{
-	  //const Candidate & p1 = (*genPart)[elec1];
-	  //int id1 = p1.pdgId();
-	  //int motherId1 = p1.mother()->pdgId;
-	  //if(abs(id1) != 11) continue;
-	  //TLorentzVector momentum = p1.momentum();
-	  //cout <<" PT = " << sqrt(p1.px()*p1.px() +p1.py()*p1.py()) <<  endl;
-	  for(size_t elec2 = elec1; elec2 < elec; elec2++)
-	    {
-	      //const Candidate & p2 = (*genPart)[elec2];
-	      //int id2 = p2.pdgId();
-	      //int motherId2 = p2->mother(0);
-	      std::cout << "C1" << std::endl;
-	      etot = sqrt(elecPx[elec1]*elecPx[elec1]+elecPy[elec1]*elecPy[elec1]+elecPz[elec1]*elecPz[elec1])+sqrt(elecPx[elec2]*elecPx[elec2]+elecPy[elec2]*elecPy[elec2]+elecPz[elec2]*elecPz[elec2]);
-	      std::cout << "yay" << std::endl;
-	      ptot =  sqrt((elecPx[elec1] + elecPx[elec2])* (elecPx[elec1] + elecPx[elec2]) + (elecPy[elec1] + elecPy[elec2]) * (elecPy[elec2] + elecPy[elec1]) + (elecPz[elec1] + elecPz[elec2]) * (elecPz[elec1] + elecPz[elec2]));
-	      std::cout << "yay2" << std::endl;
-	      EEInvaMass = sqrt((etot+ptot)*(etot-ptot));
-	      //EEInvaMass = sqrt(sqrt(elecPx[elec1]*elecPx[elec1]+elecPy[elec1]*elecPy[elec1]+elecPz[elec1]*elecPz[elec1])+sqrt(elecPx[elec2]*elecPx[elec2]+elecPy[elec2]*elecPy[elec2]+elecPz[elec2]*elecPz[elec2]) - sqrt((elecPx[elec1] + elecPx[elec2])* (elecPx[elec1] + elecPx[elec2]) + (elecPy[elec1] + elecPy[elec2])* (elecPy[elec2] + elecPy[elec1]) + (elecPz[elec1] + elecPz[elec2])* (elecPz[elec1] + elecPz[elec2]))) ; 
-	      std::cout << "C2" << std::endl;
-	      //EE_invmass_histo->Fill(EEInvaMass);
-	      std::cout << "C3" << std::endl;	
-	      //if(abs(id2) != 11) continue;
-	      
-	    }
-	}
-
-     std::cout << "C" << std::endl;
       if(genJets.isValid()){
 	if(genJets->size() > 1)
 	  {
+	    for(size_t elec1 = 0; elec1 < elec-1; elec1++)
+	      {
+		for(size_t elec2 = elec1; elec2 < elec; elec2++)
+		  {
+		    etot = sqrt(elecPx[elec1]*elecPx[elec1]+elecPy[elec1]*elecPy[elec1]+elecPz[elec1]*elecPz[elec1])+sqrt(elecPx[elec2]*elecPx[elec2]+elecPy[elec2]*elecPy[elec2]+elecPz[elec2]*elecPz[elec2]);
+		    ptot =  sqrt((elecPx[elec1] + elecPx[elec2])* (elecPx[elec1] + elecPx[elec2]) + (elecPy[elec1] + elecPy[elec2]) * (elecPy[elec2] + elecPy[elec1]) + (elecPz[elec1] + elecPz[elec2]) * (elecPz[elec1] + elecPz[elec2]));
+		    EEInvaMass = sqrt((etot+ptot)*(etot-ptot));
+		    Z_invmass_histo->Fill(EEInvaMass);
+		  }
+	      }
+	    std::cout << "A" << std::endl;
 	    int nmyJets = 0;
+	    //Jet1Pt = 0.0;
+	    //Jet2Pt = 0.0;
 	    for(int Jets = 0; Jets < genJets->size(); Jets++)
 	      {
 		int incone = 0;
 		const Candidate & J1 = (*genJets)[Jets];
-		for(int elecs = 0; elecs < elecPhi.size(); elecs++)
+		for(int elecs = 0; elecs < elec; elecs++)
 		  {
 		    float EJDelPhi = fabs(J1.phi()-elecPhi[elecs]);
 		    if(EJDelPhi >  3.1415926) EJDelPhi = 6.2831852 - EJDelPhi;
@@ -189,63 +206,199 @@ typedef std::vector<reco::GenJet> GenJetCollection;
 		   
 		    if (EJDelR < .2) {  cout << EJDelR << endl; incone++;}
 		    if(elecs == elecPhi.size()) continue;
-		    /*for(int elecs1 = elecs+1; elecs1 < elecPhi.size(); elecs1++)
-		      {
-			
-			if(elecs == elecs1) continue;
-				    
-			}*/
 		  }
-		//if(nmyJets > 1) continue;
-		if (incone == 0 && nmyJets == 0) MyJets1 = math::XYZTLorentzVector(J1.px(),J1.py(),J1.pz(),0.);///// ***** Filled e with 0
-		if (incone == 0 && nmyJets == 1) MyJets2 = math::XYZTLorentzVector(J1.px(),J1.py(),J1.pz(),0.);
-		nmyJets++;
-		
-		
+		cout << J1.pt() << " Jet pT " << endl;
+		if (incone == 0 && J1.pt() > 12)
+		  {
+		    if(nmyJets == 0 ) 
+		      {
+			MyJets1 = math::XYZTLorentzVector(J1.px(),J1.py(),J1.pz(),J1.energy());
+			Jet1Pt = J1.pt();
+			cout << "Jet 1 found " << endl;
+		      }
+		    if ( nmyJets == 1)
+		      {
+			MyJets2 = math::XYZTLorentzVector(J1.px(),J1.py(),J1.pz(),J1.energy());
+			Jet2Pt = J1.pt();
+			cout << "Jet 2 found " << endl;
+		      }
+		    nmyJets++;
+		  }	
 	      }
-	    std::cout << "D" << std::endl;
-	    if(nmyJets >= 2)
+	    std::cout << nmyJets << " my Jets" << std::endl;
+	    std::cout << "Jet 1 pt " << Jet1Pt << " Jet 2 Pt " << Jet2Pt <<  std::endl;
+	    if(nmyJets == 0 || Jet1Pt < 12 || Jet2Pt < 12)
 	      {
-		
-		//for(int J1int = 0; J1int < genJets->size()-1 ; J1int++)
-		//{
-		//const Candidate & J1 = (*genJets)[J1int];
-		//const Candidate & J1 = (*genJets)[0];
+		for(size_t elec1 = 0; elec1 < elec-1; elec1++)
+		  {
+		    for(size_t elec2 = elec1; elec2 < elec; elec2++)
+		      {
+			std::cout << "C1" << std::endl;
+			etot = sqrt(elecPx[elec1]*elecPx[elec1]+elecPy[elec1]*elecPy[elec1]+elecPz[elec1]*elecPz[elec1])+sqrt(elecPx[elec2]*elecPx[elec2]+elecPy[elec2]*elecPy[elec2]+elecPz[elec2]*elecPz[elec2]);
+			ptot =  sqrt((elecPx[elec1] + elecPx[elec2])* (elecPx[elec1] + elecPx[elec2]) + (elecPy[elec1] + elecPy[elec2]) * (elecPy[elec2] + elecPy[elec1]) + (elecPz[elec1] + elecPz[elec2]) * (elecPz[elec1] + elecPz[elec2]));
+			EEInvaMass = sqrt((etot+ptot)*(etot-ptot));
+			Z0J_invmass_histo->Fill(EEInvaMass);
+		      }
+		  }
+		Jetmult_histo->Fill(0);
+	      }
+	    if(nmyJets > 0 )
+	      {
 		double PtJ1 = MyJets1.pt();
-		//float PtJ1 = sqrt(J1.px()*J1.px() + J1.py()*J1.py());
 		float J1Eta = MyJets1.eta(); 
 		float J1Phi = MyJets1.phi();
-		if(PtJ1 > 20)
+		if(Jet1Pt > 12)
 		  { 
-		    //const Candidate & Temp = (*genJets)[J1int + 1 ];
-		    //if(sqrt(Temp.px()*Temp.px()+Temp.py()*Temp.py()))
-		    // {
-		    J1Eta_histo->Fill(J1Eta);
 		    J1Pt_histo->Fill(PtJ1);
 		    J1Phi_histo->Fill(J1Phi);
-		    //  }
-		    //for(int J2int = J1int; J2int < genJets->size() ; J2int++)
-		    // {
-		    //const Candidate & J2 = (*genJets)[1];
-			//const Candidate & J2 = (*genJets)[J2int];
+		    
+		  }
+	      }
+	    if(nmyJets == 1 )
+	      {
+		Jetmult_histo->Fill(1);
+		double PtJ1 = MyJets1.pt();
+		cout << Jet1Pt << " Jet Pt" << endl;
+		float J1Eta = MyJets1.eta(); 
+		float J1Phi = MyJets1.phi();
+		if(Jet1Pt > 12)
+		  { 
+		    Z1JJ1Eta_histo->Fill(J1Eta);
+		    Z1JJ1Pt_histo->Fill(PtJ1);
+		    Z1JJ1Phi_histo->Fill(J1Phi);
+		    
+		  }
+		for(size_t elec1 = 0; elec1 < elec-1; elec1++)
+		  {
+		    for(size_t elec2 = elec1; elec2 < elec; elec2++)
+		      {
+			
+			etot = sqrt(elecPx[elec1]*elecPx[elec1]+elecPy[elec1]*elecPy[elec1]+elecPz[elec1]*elecPz[elec1])+sqrt(elecPx[elec2]*elecPx[elec2]+elecPy[elec2]*elecPy[elec2]+elecPz[elec2]*elecPz[elec2]);
+			ptot =  sqrt((elecPx[elec1] + elecPx[elec2])* (elecPx[elec1] + elecPx[elec2]) + (elecPy[elec1] + elecPy[elec2]) * (elecPy[elec2] + elecPy[elec1]) + (elecPz[elec1] + elecPz[elec2]) * (elecPz[elec1] + elecPz[elec2]));
+			EEInvaMass = sqrt((etot+ptot)*(etot-ptot));
+			Z1J_invmass_histo->Fill(EEInvaMass);
+		      }
+		  }
+	      }
+	    if(nmyJets == 2)
+	      {
+		Jetmult_histo->Fill(2);
+		double PtJ1 = MyJets1.pt();
+		float J1Eta = MyJets1.eta(); 
+		float J1Phi = MyJets1.phi();
+		if(Jet1Pt > 12)
+		  { 
+		    Z2JJ1Eta_histo->Fill(J1Eta);
+		    Z2JJ1Pt_histo->Fill(PtJ1);
+		    Z2JJ1Phi_histo->Fill(J1Phi);
 		    double PtJ2 = MyJets2.pt();
-		    //float PtJ2 = sqrt(J2.px()*J2.px() + J2.py()*J2.py());
-			if(PtJ2 > 20)
+			if(Jet2Pt > 12)
 			  {
 			    float J2Eta = MyJets2.eta(); 
 			    float J2Phi = MyJets2.phi();
-			    J2Eta_histo->Fill(J2Eta);
-			    J2Pt_histo->Fill(PtJ2);
+			    Z2JJ2Eta_histo -> Fill(J2Eta);
+			    Z2JJ2Pt_histo -> Fill(PtJ2);
 			    float DelPhi = fabs(J1Phi-J2Phi); 
 			    if(DelPhi >  3.1415926) DelPhi = 6.2831852 - DelPhi;
-			    JDelPhi_histo->Fill(DelPhi);
+			    Z2JJDelPhi_histo -> Fill(DelPhi);
 			    float DelR = sqrt((J2Eta - J1Eta)*(J2Eta - J1Eta)+DelPhi*DelPhi);
-			    JDelR_histo->Fill(DelR);
-			    J2Phi_histo->Fill(J2Phi);
+			    Z2JJDelR_histo -> Fill(DelR);
+			    Z2JJ2Phi_histo -> Fill(J2Phi);
 			  }
 		  }
-		
-	      }  
+		for(size_t elec1 = 0; elec1 < elec-1; elec1++)
+		  {
+		    for(size_t elec2 = elec1; elec2 < elec; elec2++)
+		      {
+			etot = sqrt(elecPx[elec1]*elecPx[elec1]+elecPy[elec1]*elecPy[elec1]+elecPz[elec1]*elecPz[elec1])+sqrt(elecPx[elec2]*elecPx[elec2]+elecPy[elec2]*elecPy[elec2]+elecPz[elec2]*elecPz[elec2]);
+			ptot =  sqrt((elecPx[elec1] + elecPx[elec2])* (elecPx[elec1] + elecPx[elec2]) + (elecPy[elec1] + elecPy[elec2]) * (elecPy[elec2] + elecPy[elec1]) + (elecPz[elec1] + elecPz[elec2]) * (elecPz[elec1] + elecPz[elec2]));
+			EEInvaMass = sqrt((etot+ptot)*(etot-ptot));
+			Z2J_invmass_histo->Fill(EEInvaMass);
+	      
+		      }
+		  }
+	      }
+	    if(nmyJets == 3)
+	      {
+		Jetmult_histo->Fill(3);
+		double PtJ1 = MyJets1.pt();
+		float J1Eta = MyJets1.eta(); 
+		float J1Phi = MyJets1.phi();
+		if(Jet1Pt > 12)
+		  { 
+		    Z3JJ1Eta_histo->Fill(J1Eta);
+		    Z3JJ1Pt_histo->Fill(PtJ1);
+		    Z3JJ1Phi_histo->Fill(J1Phi);
+		    double PtJ2 = MyJets2.pt();
+			if(Jet2Pt > 12)
+			  {
+			    float J2Eta = MyJets2.eta(); 
+			    float J2Phi = MyJets2.phi();
+			    Z3JJ2Eta_histo->Fill(J2Eta);
+			    Z3JJ2Pt_histo->Fill(PtJ2);
+			    float DelPhi = fabs(J1Phi-J2Phi); 
+			    if(DelPhi >  3.1415926) DelPhi = 6.2831852 - DelPhi;
+			    Z3JJDelPhi_histo->Fill(DelPhi);
+			    float DelR = sqrt((J2Eta - J1Eta)*(J2Eta - J1Eta)+DelPhi*DelPhi);
+			    Z3JJDelR_histo->Fill(DelR);
+			    Z3JJ2Phi_histo->Fill(J2Phi);
+			  }
+		  }
+		for(size_t elec1 = 0; elec1 < elec-1; elec1++)
+		  {
+		    for(size_t elec2 = elec1; elec2 < elec; elec2++)
+		      {
+			etot = sqrt(elecPx[elec1]*elecPx[elec1]+elecPy[elec1]*elecPy[elec1]+elecPz[elec1]*elecPz[elec1])+sqrt(elecPx[elec2]*elecPx[elec2]+elecPy[elec2]*elecPy[elec2]+elecPz[elec2]*elecPz[elec2]);
+			ptot =  sqrt((elecPx[elec1] + elecPx[elec2])* (elecPx[elec1] + elecPx[elec2]) + (elecPy[elec1] + elecPy[elec2]) * (elecPy[elec2] + elecPy[elec1]) + (elecPz[elec1] + elecPz[elec2]) * (elecPz[elec1] + elecPz[elec2]));
+			EEInvaMass = sqrt((etot+ptot)*(etot-ptot));
+			Z3J_invmass_histo->Fill(EEInvaMass);
+	      
+		      }
+		  }
+	      }
+	    if(nmyJets > 3)
+	      {
+		Jetmult_histo->Fill(4);
+		std::cout << "C7" << std::endl;
+		double PtJ1 = MyJets1.pt();
+		float J1Eta = MyJets1.eta(); 
+		float J1Phi = MyJets1.phi();
+		if(Jet1Pt > 12)
+		  { 
+		    std::cout << "C8" << std::endl;
+		    Z4JJ1Eta_histo->Fill(J1Eta);
+		    Z4JJ1Pt_histo->Fill(PtJ1);
+		    Z4JJ1Phi_histo->Fill(J1Phi);
+		    double PtJ2 = MyJets2.pt();
+		    std::cout << "C9" << std::endl;
+			if(Jet2Pt > 12)
+			  {
+			    float J2Eta = MyJets2.eta(); 
+			    float J2Phi = MyJets2.phi();
+			    std::cout << "C10" << std::endl;
+			    Z4JJ2Eta_histo->Fill(J2Eta);
+			    Z4JJ2Pt_histo->Fill(PtJ2);
+			    float DelPhi = fabs(J1Phi-J2Phi); 
+			    if(DelPhi >  3.1415926) DelPhi = 6.2831852 - DelPhi;
+			    std::cout << "C10" << std::endl;
+			    Z4JJDelPhi_histo->Fill(DelPhi);
+			    float DelR = sqrt((J2Eta - J1Eta)*(J2Eta - J1Eta)+DelPhi*DelPhi);
+			    Z4JJDelR_histo->Fill(DelR);
+			    Z4JJ2Phi_histo->Fill(J2Phi);
+			  }
+		  }
+		for(size_t elec1 = 0; elec1 < elec-1; elec1++)
+		  {
+		    for(size_t elec2 = elec1; elec2 < elec; elec2++)
+		      {
+			etot = sqrt(elecPx[elec1]*elecPx[elec1]+elecPy[elec1]*elecPy[elec1]+elecPz[elec1]*elecPz[elec1])+sqrt(elecPx[elec2]*elecPx[elec2]+elecPy[elec2]*elecPy[elec2]+elecPz[elec2]*elecPz[elec2]);
+			ptot =  sqrt((elecPx[elec1] + elecPx[elec2])* (elecPx[elec1] + elecPx[elec2]) + (elecPy[elec1] + elecPy[elec2]) * (elecPy[elec2] + elecPy[elec1]) + (elecPz[elec1] + elecPz[elec2]) * (elecPz[elec1] + elecPz[elec2]));
+			EEInvaMass = sqrt((etot+ptot)*(etot-ptot));
+			Z4J_invmass_histo->Fill(EEInvaMass);
+	      
+		      }
+		  }
+	      }
 	  }
       std::cout << "E" << std::endl;
       }
@@ -279,14 +432,40 @@ NewAnalyzer::endJob() {
    TFile file("Test.root","RECREATE");
   J1Pt_histo->Write();
   J2Pt_histo->Write();
-  EE_invmass_histo->Write();
+  Z_invmass_histo->Write();
+  Z1J_invmass_histo->Write();
+  Z2J_invmass_histo->Write();
+  Z3J_invmass_histo->Write();
+  Z4J_invmass_histo->Write();
   ZPt_histo->Write();
   JDelR_histo->Write();
   JDelPhi_histo->Write();
-  J1Eta_histo->Write();
-  J2Eta_histo->Write();
-  J1Phi_histo->Write();
-  J2Phi_histo->Write();
+  Z1JJ1Eta_histo->Write();
+  Z1JJ1Phi_histo->Write();
+  Z2JJ1Eta_histo->Write();
+  Z2JJ2Eta_histo->Write();
+  Z2JJ1Phi_histo->Write();
+  Z2JJ2Phi_histo->Write();
+  Z3JJ1Eta_histo->Write();
+  Z3JJ2Eta_histo->Write();
+  Z3JJ1Phi_histo->Write();
+  Z3JJ2Phi_histo->Write();
+  Z4JJ1Eta_histo->Write();
+  Z4JJ2Eta_histo->Write();
+  Z4JJ1Phi_histo->Write();
+  Z4JJ2Phi_histo->Write();
+  Jetmult_histo->Write();
+  Z2JJDelR_histo->Write();
+  Z2JJ2Phi_histo->Write();
+  Z3JJDelR_histo->Write();
+  Z3JJ2Phi_histo->Write();
+  Z4JJDelR_histo->Write();
+  Z4JJ2Phi_histo->Write();
+  Z0J_invmass_histo->Write();
+  Z1J_invmass_histo->Write();
+  Z2J_invmass_histo->Write();
+  Z3J_invmass_histo->Write();
+  Z4J_invmass_histo->Write();
   file.Close();
 
 }

@@ -12,10 +12,15 @@ import os
 variables = {}
 
 # initial directory
-variables['HomeDirectory'] =  "/uscmst1b_scratch/lpc1/3DayLifetime/kjsmith/CMSSW_2_1_0_pre6/src/MC/GeneratorValidation/"
+variables['HomeDirectory'] =  "/uscms_data/d1/kjsmith/CMSSW_2_1_0_pre6/src/Validation/Generator/"
+
+# Directory where references are stored
+variables['ReleaseDirectory'] = "/uscms_data/d1/kjsmith/CMSSW_2_1_0_pre6/src/Validation/Generator/DropBox/releases/"
 
 # web directory
-variables['WebDirectory'] = "/afs/fnal.gov/files/home/room2/kjsmith/public_html/"
+#variables['WebDirectory'] = "/afs/fnal.gov/files/home/room2/kjsmith/public_html/"
+variables['WebDirectory'] = "/uscms_data/d1/kjsmith/CMSSW_2_1_0_pre6/src/Validation/Generator/DropBox/web/"
+
 variables['HTTPLocation'] = "http://home.fnal.gov/~kjsmith/"
 
 # Set port number

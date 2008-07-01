@@ -38,6 +38,12 @@ if options.run != None and options.howto == False:
     List = os.listdir(Configuration.variables["HomeDirectory"]+'test/')
     Processes = []
     for file in List:
+        if len(file.split('__')) == 1:
+            continue
+        if '~' in file:
+            continue
+        if '.cfg' not in file:
+            continue
         if options.process.upper() == "ALL":
             if file.split('__')[0] not in Processes:
                 Processes.append(file.split('__')[0])
