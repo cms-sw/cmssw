@@ -8,7 +8,7 @@
 //
 // Original Author:  
 //         Created:  Sun Jan  6 23:57:00 EST 2008
-// $Id: ElectronsProxyRhoPhiZ2DBuilder.cc,v 1.7 2008/06/09 19:54:04 chrjones Exp $
+// $Id: ElectronsProxyRhoPhiZ2DBuilder.cc,v 1.8 2008/06/10 22:31:08 chrjones Exp $
 //
 
 // system include files
@@ -100,7 +100,7 @@ ElectronsProxyRhoPhiZ2DBuilder::buildRhoPhi(const FWEventItem* iItem,
 	std::vector<DetId> detids = electron->superCluster()->getHitsByDetId();
 	std::vector<double> phis;
 	for (std::vector<DetId>::const_iterator id = detids.begin(); id != detids.end(); ++id) {
-	   const TGeoHMatrix* matrix = m_item->getGeom()->getMatrix( id->rawId() );
+	   const TGeoHMatrix* matrix = iItem->getGeom()->getMatrix( id->rawId() );
 	   if ( matrix ) phis.push_back( atan2(matrix->GetTranslation()[1], matrix->GetTranslation()[0]) );
 	}
 	
@@ -156,7 +156,7 @@ ElectronsProxyRhoPhiZ2DBuilder::buildRhoZ(const FWEventItem* iItem,
 	double theta_max = 0;
 	double theta_min = 10;
 	for (std::vector<DetId>::const_iterator id = detids.begin(); id != detids.end(); ++id) {
-	   const TGeoHMatrix* matrix = m_item->getGeom()->getMatrix( id->rawId() );
+	   const TGeoHMatrix* matrix = iItem->getGeom()->getMatrix( id->rawId() );
 	   if ( matrix ) {
 	      double r = sqrt( matrix->GetTranslation()[0]*matrix->GetTranslation()[0] +
 			       matrix->GetTranslation()[1]*matrix->GetTranslation()[1] );
