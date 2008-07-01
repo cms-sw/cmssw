@@ -1,4 +1,4 @@
-// Last commit: $Id: SiStripCommissioningOfflineDbClient.cc,v 1.15 2008/03/17 17:40:55 bainbrid Exp $
+// Last commit: $Id: SiStripCommissioningOfflineDbClient.cc,v 1.16 2008/05/06 12:38:06 bainbrid Exp $
 
 #include "DQM/SiStripCommissioningDbClients/plugins/SiStripCommissioningOfflineDbClient.h"
 #include "DataFormats/SiStripCommon/interface/SiStripEnumsAndStrings.h"
@@ -29,7 +29,8 @@ SiStripCommissioningOfflineDbClient::SiStripCommissioningOfflineDbClient( const 
     uploadAnal_( pset.getUntrackedParameter<bool>("UploadAnalyses",false) ),
     uploadConf_( pset.getUntrackedParameter<bool>("UploadHwConfig",false) ),
     uploadFecSettings_( pset.getUntrackedParameter<bool>("UploadFecSettings",true) ),
-    uploadFedSettings_( pset.getUntrackedParameter<bool>("UploadFedSettings",true) )
+    uploadFedSettings_( pset.getUntrackedParameter<bool>("UploadFedSettings",true) ),
+    disableDevices_( pset.getUntrackedParameter<bool>("DisableDevices",false) )
 {
   LogTrace(mlDqmClient_)
     << "[SiStripCommissioningOfflineDbClient::" << __func__ << "]"
@@ -138,6 +139,7 @@ void SiStripCommissioningOfflineDbClient::createHistos( const edm::ParameterSet&
   if ( tmp ) { 
     tmp->doUploadConf( uploadConf_ ); 
     tmp->doUploadAnal( uploadAnal_ ); 
+    tmp->disableDevices( disableDevices_ );
     std::stringstream ss;
     ss << "[SiStripCommissioningOfflineDbClient::" << __func__ << "]" 
        << std::endl
@@ -145,7 +147,10 @@ void SiStripCommissioningOfflineDbClient::createHistos( const edm::ParameterSet&
        << ( tmp->doUploadConf() ? "true" : "false" )
        << std::endl
        << " Uploading calibrations from analysis? : " 
-       << ( tmp->doUploadAnal() ? "true" : "false" );
+       << ( tmp->doUploadAnal() ? "true" : "false" )
+       << std::endl
+       << " Disable problematic devices? : " 
+       << ( tmp->disableDevices() ? "true" : "false" );
     edm::LogVerbatim(mlDqmClient_) << ss.str();
   } else {
     edm::LogError(mlDqmClient_) 
@@ -170,11 +175,6 @@ void SiStripCommissioningOfflineDbClient::uploadToConfigDb() {
     << " Uploading parameters to database...";
   
   CommissioningHistosUsingDb* tmp = dynamic_cast<CommissioningHistosUsingDb*>(histos_);
-  if ( tmp ) { 
-    tmp->addDcuDetIds(); 
-    tmp->uploadConfigurations(); 
-    tmp->uploadAnalyses(); 
-  }
+  if ( tmp ) { tmp->uploadToConfigDb(); }
   
 }
-
