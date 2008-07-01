@@ -1,7 +1,7 @@
 #include "PhysicsTools/HepMCCandAlgos/interface/FlavorHistoryProducer.h"
 
-#include "DataFormats/Common/interface/ValueMap.h"
-#include <iterators>
+// #include "DataFormats/Common/interface/ValueMap.h"
+// #include <iterators>
 
 using namespace std;
 using namespace reco;
@@ -11,10 +11,32 @@ using namespace edm;
 ostream & operator<<( ostream & out, Candidate const & cand) 
 {
   char buff[1000];
-  sprintf(buff, "%5d, status = %5d, nda = %5d, pt = %6.2f, eta = %6.2f, phi = %6.2f, m = %6.2f", 
-	  cand.pdgId(), cand.status(), cand.numberOfDaughters(),
+  sprintf(buff, "%5d, status = %5d, nmo = %5d, nda = %5d, pt = %6.2f, eta = %6.2f, phi = %6.2f, m = %6.2f", 
+	  cand.pdgId(), cand.status(), 
+	  cand.numberOfMothers(),
+	  cand.numberOfDaughters(),
 	  cand.pt(), cand.eta(), cand.phi(), cand.mass() );
   out << buff;
+  return out;
+}
+
+ostream & operator<<( ostream & out, FlavorHistory const & cand) 
+{
+  cout << "Source     = " << cand.flavorSource() << endl;
+  if ( cand.hasParton() ) 
+    cout << "Parton     = " << cand.parton().key() << " : " << *(cand.parton()) << endl;
+  if ( cand.hasProgenitor() ) 
+    cout << "Progenitor = " << cand.progenitor().key() << " : " << *(cand.progenitor()) << endl;
+  if ( cand.hasSister() ) 
+    cout << "Sister     = " << cand.sister().key() << " : " << *(cand.sister()) << endl;
+  if ( cand.hasParton() ) {
+    cout << "Ancestry: " << endl;
+    Candidate const * ipar = cand.parton()->mother();
+    while ( ipar->numberOfMothers() > 0 ) {
+      cout << *ipar << endl;
+      ipar = ipar->mother();
+    }
+  }
   return out;
 }
 
@@ -28,7 +50,7 @@ FlavorHistoryProducer::FlavorHistoryProducer( const ParameterSet & p ) :
   flavorHistoryName_( p.getParameter<string>("flavorHistoryName") ),
   verbose_( p.getUntrackedParameter<bool>( "verbose" ) )
 {
-  produces<ValueMap<FlavorHistory> >(flavorHistoryName_);
+  produces<vector<FlavorHistory> >(flavorHistoryName_);
 }
 
 FlavorHistoryProducer::~FlavorHistoryProducer() { 
@@ -54,9 +76,7 @@ void FlavorHistoryProducer::produce( Event& evt, const EventSetup& )
   }
   
   // Make a new flavor history vector
-  auto_ptr<ValueMap<FlavorHistory> > flavorHistory ( new ValueMap<FlavorHistory> () ) ;
-
-  vector<FlavorHistory> flavorHistoryVector;
+  auto_ptr<vector<FlavorHistory> > flavorHistoryVector ( new vector<FlavorHistory> () ) ;
 
   // ------------------------------------------------------------
   // Loop over partons
@@ -71,6 +91,8 @@ void FlavorHistoryProducer::produce( Event& evt, const EventSetup& )
     vector<Candidate const *>::size_type partonIndex=j;
     vector<Candidate const *>::size_type progenitorIndex=0;
     vector<Candidate const *>::size_type sisterIndex=0;
+    bool foundProgenitor = false; 
+    bool foundSister = false;
     FlavorHistory::FLAVOR_T flavorSource=FlavorHistory::FLAVOR_NULL;
 
 
@@ -78,17 +100,21 @@ void FlavorHistoryProducer::produce( Event& evt, const EventSetup& )
     int nDa = (p)->numberOfDaughters();
 
     // Check if we have a status 2 or 3 particle, which is a parton before the string
-    if ( p->status() > 1 ) {
-      if(verbose_) cout << "--------------------------" << endl;
-      if(verbose_) cout << "Processing particle " << j  << " = " << *p << endl;
+    if ( p->status() == 2 ) {
+//       if(verbose_) cout << "--------------------------" << endl;
+//       if(verbose_) cout << "Processing particle " << j  << " = " << *p << endl;
       // Ensure the parton in question has daughters 
       //       if ( nDa > 0 && ( (p)->daughter(0)->pdgId() == 91 || (p)->daughter(0)->pdgId() == 92 ||
       // 			(p)->daughter(0)->pdgId() == 93) ) {
       if ( nDa > 0 ) {
-	if(verbose_) cout << "Has daughters" << endl;
+// 	if(verbose_) cout << "Has daughters" << endl;
 	// Ensure the parton passes some minimum kinematic cuts
 	if((p)->pt() > ptMinShower_ && fabs((p)->eta())<etaMaxShower_) {
-	  if(verbose_) cout << "Passes kin cuts" << endl;
+// 	  if(verbose_) cout << "Passes kin cuts" << endl;
+
+ 	  if(verbose_) cout << "--------------------------" << endl;
+ 	  if(verbose_) cout << "Processing particle " << j  << " = " << *p << endl;
+
 
 	  //Main (but simple) workhorse to get all ancestors
 	  vector<Candidate const *> allParents;
@@ -108,7 +134,7 @@ void FlavorHistoryProducer::produce( Event& evt, const EventSetup& )
 	  // ======               =======
 	  // incoming quarks      ISR, likely gluon splitting
 	  //   light flavor
-	  // incoming quarks      ISR, likely flavor excitation
+	  // incoming partons     ISR, likely flavor excitation
 	  //   heavy flavor           
 	  // outgoing quark       FSR
 	  //   light flavor
@@ -126,10 +152,8 @@ void FlavorHistoryProducer::produce( Event& evt, const EventSetup& )
 	  // 
 	  // Loop over all the ancestors of this parton and find the progenitor.
 	  // 
-	  bool foundProgenitor = false; 
 	  for( vector<Candidate const *>::size_type i=0 ; i < a_size && !foundProgenitor; ++i,++parentIndex ) {
 	    const Candidate * aParent=allParents[i];
-	    if(verbose_) cout << "Examining parent " << *aParent << endl;
 	    vector<Candidate const *>::const_iterator found = find(particles.begin(),particles.end(),aParent);
 
 
@@ -138,10 +162,8 @@ void FlavorHistoryProducer::produce( Event& evt, const EventSetup& )
 
 	    int aParentId = abs(aParent->pdgId());
 
-	    if(verbose_) cout << "Progenitor index = " << progenitorIndex << endl;
-
 	    // Here we examine particles that were produced after the collision
-	    if( aParent->numberOfMothers() == 2 && progenitorIndex > 5 ) {
+ 	    if( aParent->numberOfMothers() == 2 && progenitorIndex > 5 ) {
 	      // Here is where we have a matrix element
 	      if( aParentId == pdgIdToSelect_ ) {
 		if(verbose_) cout << "Matrix Element progenitor" << endl;
@@ -162,8 +184,12 @@ void FlavorHistoryProducer::produce( Event& evt, const EventSetup& )
 
 	    // Here we examine particles that were produced before the collision
 	    else if( progenitorIndex==2 || progenitorIndex==3 ) {
-	      // Here is a flavor excitation
-	      if( aParentId==pdgIdToSelect_ ) {
+ 	      // Here is a flavor excitation
+	      flavorSource = FlavorHistory::FLAVOR_EXC;
+
+	      // Parent has a quark daughter equal and opposite to this
+	      if( aParent->numberOfDaughters() > 0 && 
+		  aParent->daughter(0)->pdgId() == -1 * p->pdgId()  ) {
 		if(verbose_) cout << "Flavor excitation progenitor" << endl;
 		flavorSource = FlavorHistory::FLAVOR_EXC;
 	      }
@@ -181,51 +207,98 @@ void FlavorHistoryProducer::produce( Event& evt, const EventSetup& )
 	  // 
 	  // Now find sister of this particle if there is one
 	  // 
-	  bool foundSister = false;
 	  if ( foundProgenitor ) {
 	    // Get the progenitor
 	    const Candidate * progenitorCand = particles[progenitorIndex];
-	    
-	    // Make sure the progenitor has two daughters
-	    if ( progenitorCand->numberOfDaughters() == 2 ) {
-	      
-	      // Get both daughters
-	      const Candidate * da1Cand = progenitorCand->daughter(0);
-	      const Candidate * da2Cand = progenitorCand->daughter(1);
-		
-	      // Find which one is NOT this candidate (the other is the sister)
+
+	    // Here is the normal case of a sister around
+	    if ( progenitorCand->numberOfDaughters() >= 2 ) {
 	      const Candidate * sisterCand = 0;
-	      if ( da1Cand == particles[partonIndex] ) 
-		sisterCand = da2Cand;
-	      else
-		sisterCand = da1Cand;
 	      
-	      foundSister = true;
+	      for ( unsigned int iida = 0; iida < progenitorCand->numberOfDaughters(); ++iida ) {
+		const Candidate * dai = progenitorCand->daughter(iida);
+
+		if ( verbose_ ) cout << "Sister " << *dai << endl;
 		
-	      // Find index of daughter in master list
-	      vector<Candidate const *>::const_iterator found = find(particles.begin(),particles.end(),sisterCand);
-	      sisterIndex = found - particles.begin();
-	      if(verbose_) cout << "Sister index = " << sisterIndex << endl;
-	      if ( found != particles.end() )
-		if(verbose_) cout << "Sister = " << *found << endl;
+		if ( dai->pdgId() == -1 * p->pdgId() ) {
+		  if ( verbose_ ) cout << "Found sister" << endl;
+		  sisterCand = dai;
+		  foundSister = true;
+		}
+	      }
+		
+	      if ( foundSister ) {
+		// Find index of daughter in master list
+		vector<Candidate const *>::const_iterator found = find(particles.begin(),particles.end(),sisterCand);
+		sisterIndex = found - particles.begin();
+		if(verbose_) cout << "Sister index = " << sisterIndex << endl;
+		if ( found != particles.end() )
+		  if(verbose_) cout << "Sister = " << **found << endl;
+	      } // end if found sister
 	    }
-	  }
+	    // Here is if we have a "transient" decay in the code that isn't
+	    // really a decay, so we need to look at the parent of the progenitor
+	    else {
+	      const Candidate * grandProgenitorCand = progenitorCand->mother(0);
+	      const Candidate * sisterCand = 0;
+
+	      if ( verbose_ ) cout << "Looking for sister, progenitor is " << *progenitorCand << endl;
+	    
+	      // Make sure the progenitor has two daughters
+	      if ( grandProgenitorCand->numberOfDaughters() >= 2 ) {
+
+		for ( unsigned int iida = 0; iida < grandProgenitorCand->numberOfDaughters(); ++iida ) {
+		  const Candidate * dai = grandProgenitorCand->daughter(iida);
+
+		  if ( verbose_ ) cout << "Looking for sister " << *dai << endl;
+		
+		  if ( dai->pdgId() == -1 * p->pdgId() ) {
+		    if ( verbose_ ) cout << "Found sister" << endl;
+		    sisterCand = dai;
+		    foundSister = true;
+		  }
+		}
+		
+		if ( foundSister ) {
+		  // Find index of daughter in master list
+		  vector<Candidate const *>::const_iterator found = find(particles.begin(),particles.end(),sisterCand);
+		  sisterIndex = found - particles.begin();
+		  if(verbose_) cout << "Sister index = " << sisterIndex << endl;
+		  if ( found != particles.end() )
+		    if(verbose_) cout << "Sister = " << **found << endl;
+		} // end if found sister
+	      } // End of have at least 2 grand progenitor daughters
+	    } // End if we have to look at parents of progenitor to find sister
+
+	  } // end if found progenitor
 	  
 	}// End if this parton passes some minimal kinematic cuts
       }// End if this particle has strings as daughters
     }// End if this particle was a status==2 parton
 
+    // Make sure we've actually found a sister and a progenitor
+    if ( !foundProgenitor ) progenitorIndex = 0;
+    if ( !foundSister ) sisterIndex = 0;
 
-    // Add these particles to the flavor history
-    flavorHistoryVector.push_back( FlavorHistory( flavorSource, particlesViewH, partonIndex, progenitorIndex, sisterIndex ) ); 
+    // We've found the particle, add to the list (status 2 only)
+    if ( idabs == pdgIdToSelect_ && p->status() == 2 ) 
+      flavorHistoryVector->push_back( FlavorHistory( flavorSource, particlesViewH, partonIndex, progenitorIndex, sisterIndex ) ); 
   }
 
 
-  ValueMap<FlavorHistory>::Filler filler(*flavorHistory);
-  filler.insert( particlesViewH, flavorHistoryVector.begin(), flavorHistoryVector.end()  );
-  filler.fill();
+//   ValueMap<FlavorHistory>::Filler filler(*flavorHistory);
+//   filler.insert( particlesViewH, flavorHistoryVector.begin(), flavorHistoryVector.end()  );
+//   filler.fill();
   // Now add the flavor history to the event record
-  evt.put( flavorHistory, flavorHistoryName_ );
+  if ( true ) {
+    cout << "Outputting pdg id = " << pdgIdToSelect_ << " with nelements = " << flavorHistoryVector->size() << endl;
+    vector<FlavorHistory>::const_iterator i = flavorHistoryVector->begin(),
+      iend = flavorHistoryVector->end();
+    for ( ; i !=iend; ++i ) {
+      cout << *i << endl;
+    }
+  }
+  evt.put( flavorHistoryVector, flavorHistoryName_ );
 }
 
  
