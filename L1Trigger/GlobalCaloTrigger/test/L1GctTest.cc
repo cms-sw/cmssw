@@ -9,18 +9,17 @@
 #include "CondFormats/L1TObjects/interface/L1GctJetEtCalibrationFunction.h"
 #include "CondFormats/L1TObjects/interface/L1CaloEtScale.h"
 #include "CondFormats/L1TObjects/interface/L1GctJetCounterSetup.h"
+#include "CondFormats/L1TObjects/interface/L1GctChannelMask.h"
 #include "CondFormats/DataRecord/interface/L1GctJetCalibFunRcd.h"
 #include "CondFormats/DataRecord/interface/L1GctJetFinderParamsRcd.h"
 #include "CondFormats/DataRecord/interface/L1JetEtScaleRcd.h"
 #include "CondFormats/DataRecord/interface/L1GctJetCounterPositiveEtaRcd.h"
 #include "CondFormats/DataRecord/interface/L1GctJetCounterNegativeEtaRcd.h"
+#include "CondFormats/DataRecord/interface/L1GctChannelMaskRcd.h"
 
 // GCT include files
 #include "L1Trigger/GlobalCaloTrigger/interface/L1GctJetEtCalibrationLut.h"
 #include "L1Trigger/GlobalCaloTrigger/interface/L1GlobalCaloTrigger.h"
-
-using std::cout;
-using std::endl;
 
 //
 // constants, enums and typedefs
@@ -40,6 +39,8 @@ L1GctTest::L1GctTest(const edm::ParameterSet& iConfig) :
   theInputDataFileName       (iConfig.getUntrackedParameter<std::string>("inputFile",     "")),
   theReferenceDataFileName   (iConfig.getUntrackedParameter<std::string>("referenceFile", "")),
   theEnergySumsDataFileName  (iConfig.getUntrackedParameter<std::string>("energySumsFile", "")),
+  m_firstBx (-iConfig.getParameter<unsigned>("preSamples")),
+  m_lastBx  ( iConfig.getParameter<unsigned>("postSamples")),
   m_eventNo(0), m_allGood(true)
 {
   //now do what ever initialization is needed
@@ -94,15 +95,18 @@ L1GctTest::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
    m_gct->reset();
    m_tester->reset();
 
-   // Load data into the gct according to the tests to be carried out
-   if (theElectronTestIsEnabled) {
-     m_tester->loadNextEvent(m_gct,theInputDataFileName); }
+   for (int bx=m_firstBx; bx<=m_lastBx; bx++) {
+     // Load data into the gct according to the tests to be carried out
+     if (theElectronTestIsEnabled) {
+       m_tester->loadNextEvent(m_gct,theInputDataFileName, bx); }
 
-   if (theEnergyAlgosTestIsEnabled) {
-     m_tester->loadNextEvent(m_gct, (100>m_eventNo)); }
+     if (theEnergyAlgosTestIsEnabled) {
+       m_tester->loadNextEvent(m_gct, (100>m_eventNo), bx); }
 
-   if (theFirmwareTestIsEnabled) {
-     m_tester->loadNextEvent(m_gct, theInputDataFileName, endOfFile); }
+     if (theFirmwareTestIsEnabled) {
+       m_tester->loadNextEvent(m_gct, theInputDataFileName, endOfFile, bx);
+       if (endOfFile) break; }
+   }
 
    // Run the gct emulator on the input data
    m_gct->process();
@@ -115,13 +119,13 @@ L1GctTest::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
      passAllTests &= m_tester->checkElectrons(m_gct);
    }
 
-   if (theFirmwareTestIsEnabled) {
+   if (theFirmwareTestIsEnabled && !endOfFile) {
      m_tester->fillJetsFromFirmware(theReferenceDataFileName);
      passAllTests &= m_tester->checkJetFinder(m_gct);
      passAllTests &= m_tester->checkEnergySumsFromFirmware(m_gct, theEnergySumsDataFileName);
    }
 
-   if (theEnergyAlgosTestIsEnabled || theFirmwareTestIsEnabled) {
+   if (theEnergyAlgosTestIsEnabled || (theFirmwareTestIsEnabled && !endOfFile)) {
      m_tester->fillRawJetData(m_gct);
      passAllTests &= m_tester->checkEnergySums(m_gct);
      passAllTests &= m_tester->checkHtSums(m_gct);
@@ -131,7 +135,7 @@ L1GctTest::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
 
    m_eventNo++;
    if (theFirmwareTestIsEnabled && endOfFile) {
-     std::cout << "Reached the end of input file after " << m_eventNo << " events\n";
+     edm::LogInfo("L1GctTest") << "Reached the end of input file after " << m_eventNo << " events\n";
    }
    theFirmwareTestIsEnabled &= !endOfFile;
 
@@ -139,7 +143,7 @@ L1GctTest::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
    m_allGood &= passAllTests;
    if (passAllTests)
    {
-      //std::cout << "All tests passed for this event!" << std::endl;
+      //edm::LogInfo("L1GctTest") << "All tests passed for this event!" << std::endl;
    } else {
       throw cms::Exception("L1GctTestError") << "\ntest failed\n\n";
    }
@@ -157,9 +161,9 @@ L1GctTest::beginJob(const edm::EventSetup& c)
 void 
 L1GctTest::endJob() {
   if (m_allGood) {
-    std::cout << "\n\n=== All tests passed Ok! ===\n\n" << std::endl;
+    edm::LogInfo("L1GctTest") << "\n\n=== All tests passed Ok! ===\n\n" << std::endl;
   } else {
-    std::cout << "\n\n=== Tests unsuccessful, exiting after "
+    edm::LogInfo("L1GctTest") << "\n\n=== Tests unsuccessful, exiting after "
               << m_eventNo << " events ===\n\n" << std::endl;
   }
 }
@@ -178,13 +182,15 @@ L1GctTest::configureGct(const edm::EventSetup& c)
   c.get< L1GctJetCounterNegativeEtaRcd >().get( jcNegPars ) ; // which record?
   edm::ESHandle< L1GctJetEtCalibrationFunction > calibFun ;
   c.get< L1GctJetCalibFunRcd >().get( calibFun ) ; // which record?
+  edm::ESHandle< L1GctChannelMask > chanMask ;
+  c.get< L1GctChannelMaskRcd >().get( chanMask ) ; // which record?
   edm::ESHandle< L1CaloEtScale > etScale ;
   c.get< L1JetEtScaleRcd >().get( etScale ) ; // which record?
 
   if (calibFun.product() == 0) {
     throw cms::Exception("L1GctConfigError")
-      << "Failed to find a L1GctJetCalibFunRcd:L1GctJetEtCalibrationFunction in EventSetup!" << endl
-      << "Cannot continue without this function" << endl;
+      << "Failed to find a L1GctJetCalibFunRcd:L1GctJetEtCalibrationFunction in EventSetup!" << std::endl
+      << "Cannot continue without this function" << std::endl;
   }
 
   m_gct->setJetFinderParams(jfPars.product());
@@ -197,6 +203,7 @@ L1GctTest::configureGct(const edm::EventSetup& c)
 
   m_gct->setJetEtCalibrationLut(m_jetEtCalibLut);
   m_gct->setupJetCounterLuts(jcPosPars.product(), jcNegPars.product());
+  m_gct->setChannelMask(chanMask.product());
 
 }
 
