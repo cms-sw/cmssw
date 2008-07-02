@@ -8,8 +8,8 @@
 
 /** \class HcalDigiMonitor
   *  
-  * $Date: 2008/06/12 01:35:01 $
-  * $Revision: 1.24 $
+  * $Date: 2008/06/13 03:25:31 $
+  * $Revision: 1.25 $
   * \author W. Fisher - FNAL
   */
 class HcalDigiMonitor: public HcalBaseMonitor {
@@ -38,6 +38,7 @@ private:  ///Methods
   double etaMax_, etaMin_, phiMax_, phiMin_;
   int etaBins_, phiBins_;
   bool doPerChannel_;
+  bool doFCpeds_;
   int occThresh_;
   HcalCalibrations calibs_;
   int checkNevents_;
@@ -62,6 +63,19 @@ private:  ///Monitoring elements
   MonitorElement* DIGI_NUM;
   MonitorElement* BQDIGI_NUM;
   MonitorElement* BQDIGI_FRAC;
+  
+  //Quick pedestal code
+  int pedcounts[83][72][4];
+  float rawpedsum[83][72][4];
+  float rawpedsum2[83][72][4];
+  float subpedsum[83][72][4]; 
+  float subpedsum2[83][72][4]; 
+
+  MonitorElement* RAW_PEDESTAL_MEAN[4];
+  MonitorElement* RAW_PEDESTAL_RMS[4];
+  MonitorElement* SUB_PEDESTAL_MEAN[4]; 
+  MonitorElement* SUB_PEDESTAL_RMS[4]; 
+ 
 
   struct{
     // check whether to create histograms for each subdetector

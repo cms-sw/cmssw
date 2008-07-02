@@ -12,7 +12,7 @@ void HcalDigiClient::init(const ParameterSet& ps, DQMStore* dbe, string clientNa
   errorFrac_=ps.getUntrackedParameter<double>("digiErrorFrac",0.05);
 
 
-  for(int i=0; i<4; i++){
+  for(int i=0; i<4; ++i){
     gl_occ_geo_[i]=0;
     if(i<3) gl_occ_elec_[i]=0;
     if(i<3) gl_err_elec_[i]=0;
@@ -39,6 +39,10 @@ void HcalDigiClient::init(const ParameterSet& ps, DQMStore* dbe, string clientNa
     sub_digi_size_[i] = 0;
 
     ProblemDigiCells_DEPTH[i]=0;
+    RawPedestalMean[i]=0; 
+    RawPedestalRMS[i]=0; 
+    SubPedestalMean[i]=0;  
+    SubPedestalRMS[i]=0;  
   }
   
   ProblemDigiCells=0;
@@ -154,6 +158,10 @@ void HcalDigiClient::cleanup(void) {
       if(sub_digi_shape_[i]) delete sub_digi_shape_[i];           
       if(sub_digi_size_[i]) delete sub_digi_size_[i];
       if (ProblemDigiCells_DEPTH[i]) delete ProblemDigiCells_DEPTH[i];
+      if (RawPedestalMean[i]) delete RawPedestalMean[i]; 
+      if (RawPedestalRMS[i])  delete RawPedestalRMS[i]; 
+      if (SubPedestalMean[i]) delete SubPedestalMean[i];  
+      if (SubPedestalMean[i]) delete SubPedestalRMS[i];  
     } // for (int i=0;i<4;++i)
     /*
     if (gl_occ_geo_)   delete gl_occ_geo_;
@@ -186,8 +194,13 @@ void HcalDigiClient::cleanup(void) {
   gl_bqdigi_frac_ = 0;
   gl_capid_t0_ = 0;
   
-  for(int i=0; i<4; i++){
+  for(int i=0; i<4; ++i){
     ProblemDigiCells_DEPTH[i]=0;
+    RawPedestalMean[i]=0; 
+    RawPedestalRMS[i]=0; 
+    SubPedestalMean[i]=0;  
+    SubPedestalRMS[i]=0;  
+
     gl_occ_geo_[i]=0;
     if(i<3) gl_occ_elec_[i]=0;
     if(i<3) gl_err_elec_[i]=0;
@@ -261,6 +274,15 @@ void HcalDigiClient::getHistograms(){
     {
       sprintf(name,"DigiMonitor/HCAL/expertPlots/HCALProblemDigiCells_depth%i",i+1);
       ProblemDigiCells_DEPTH[i]=getHisto2(name,process_,dbe_,debug_,cloneME_);
+      
+      sprintf(name,"DigiMonitor/HCAL/RawPedestalMeanDepth%i",i+1);
+      RawPedestalMean[i]=getHisto2(name,process_,dbe_,debug_,cloneME_); 
+      sprintf(name,"DigiMonitor/HCAL/RawPedestalRMSDepth%i",i+1);
+      RawPedestalRMS[i]=getHisto2(name,process_,dbe_,debug_,cloneME_); 
+      sprintf(name,"DigiMonitor/HCAL/SubPedestalMeanDepth%i",i+1);
+      SubPedestalMean[i]=getHisto2(name,process_,dbe_,debug_,cloneME_); 
+      sprintf(name,"DigiMonitor/HCAL/SubPedestalRMSDepth%i",i+1);
+      SubPedestalRMS[i]=getHisto2(name,process_,dbe_,debug_,cloneME_); 
     }
   
   
@@ -309,7 +331,7 @@ void HcalDigiClient::getHistograms(){
   sprintf(name,"DigiMonitor/Bad Digi Fraction");
   gl_bqdigi_frac_ = getHisto(name,process_, dbe_,debug_,cloneME_);
    
-  for(int i=0; i<4; i++){
+  for(int i=0; i<4; ++i){
     if(!subDetsOn_[i]) continue;
     string type = "HB";
     if(i==1) type = "HE";
@@ -395,11 +417,23 @@ void HcalDigiClient::resetAllME(){
 
   Char_t name[150];    
   
-  for(int i=1; i<5; i++){
-    sprintf(name,"%sHcal/DigiMonitor/Digi Depth %d Occupancy Map",process_.c_str(),i);
-    resetME(name,dbe_);
-    sprintf(name,"%sHcal/DigiMonitor/HCAL/expertPlots/HCALProblemDigiCells_depth%i",process_.c_str(),i);
-    resetME(name,dbe_);
+  for(int i=1; i<5; ++i)
+    {
+      sprintf(name,"%sHcal/DigiMonitor/Digi Depth %d Occupancy Map",process_.c_str(),i);
+      resetME(name,dbe_);
+      sprintf(name,"%sHcal/DigiMonitor/HCAL/expertPlots/HCALProblemDigiCells_depth%i",process_.c_str(),i);
+      resetME(name,dbe_);
+      
+      sprintf(name,"DigiMonitor/HCAL/expertPlots/HCALProblemDigiCells_depth%i",i);
+      resetME(name,dbe_);
+      sprintf(name,"DigiMonitor/HCAL/RawPedestalMeanDepth%i",i);
+      resetME(name,dbe_);
+      sprintf(name,"DigiMonitor/HCAL/RawPedestalRMSDepth%i",i);
+      resetME(name,dbe_);
+      sprintf(name,"DigiMonitor/HCAL/SubPedestalMeanDepth%i",i);
+      resetME(name,dbe_);
+      sprintf(name,"DigiMonitor/HCAL/SubPedestalRMSDepth%i",i);
+      resetME(name,dbe_);
   }
 
   sprintf(name,"%sHcal/DigMonitor/HCAL/HCALProblemDigiCells",process_.c_str());
@@ -431,7 +465,7 @@ void HcalDigiClient::resetAllME(){
   sprintf(name,"%sDigiMonitor/Bad Digi Fraction",process_.c_str());
   resetME(name,dbe_);
   
-  for(int i=0; i<4; i++){
+  for(int i=0; i<4; ++i){
     if(!subDetsOn_[i]) continue;
     string type = "HB";
     if(i==1) type = "HE"; 
@@ -619,7 +653,7 @@ void HcalDigiClient::htmlExpertOutput(int runNo, string htmlDir, string htmlName
   histoHTML2(runNo,gl_err_elec_[2],"Spigot","DCC Id", 100, htmlFile,htmlDir);
   htmlFile << "</tr>" << endl;
 
-  for(int i=0; i<4; i++){
+  for(int i=0; i<4; ++i){
     if(!subDetsOn_[i]) continue;
     string type = "HB";
     if(i==1) type = "HE"; 
@@ -653,7 +687,11 @@ void HcalDigiClient::htmlExpertOutput(int runNo, string htmlDir, string htmlName
       htmlFile << "</tr>" << endl;      
       htmlFile << "<tr align=\"left\">" << endl;	
     }
-    if(isValidGeom(i,0,0,4)){ histoHTML2(runNo,sub_occ_geo_[i][3],"iEta","iPhi", 100, htmlFile,htmlDir); count++;}
+    if(isValidGeom(i,0,0,4))
+      { 
+	histoHTML2(runNo,sub_occ_geo_[i][3],"iEta","iPhi", 100, htmlFile,htmlDir);
+	count++;
+      }
     htmlFile << "</tr>" << endl;
     
     htmlFile << "<tr align=\"left\">" << endl;
@@ -685,7 +723,24 @@ void HcalDigiClient::htmlExpertOutput(int runNo, string htmlDir, string htmlName
     histoHTML(runNo,qie_capid_[i],"QIE CAPID Value","Events", 100, htmlFile,htmlDir);
     htmlFile << "</tr>" << endl;
     
-  }
+  } // for (int i=0;i<4;++i)
+
+  for (int i=0;i<4;++i)
+    {
+      htmlFile<<" <tr>"<<endl;
+      histoHTML2(runNo,RawPedestalMean[i],"i#eta","i#phi",92, htmlFile, htmlDir);
+      histoHTML2(runNo,RawPedestalRMS[i],"i#eta","i#phi",92, htmlFile, htmlDir);
+      htmlFile<<" </tr>"<<endl;
+    }
+
+  for (int i=0;i<4;++i)
+    {
+      htmlFile<<" <tr>"<<endl;
+      histoHTML2(runNo,SubPedestalMean[i],"i#eta","i#phi",92, htmlFile, htmlDir);
+      histoHTML2(runNo,SubPedestalRMS[i],"i#eta","i#phi",92, htmlFile, htmlDir);
+      htmlFile<<" </tr>"<<endl;
+    }
+
   htmlFile << "</table>" << endl;
   htmlFile << "<br>" << endl;
 
@@ -708,7 +763,7 @@ void HcalDigiClient::createTests(){
   
   if(debug_) printf("Creating Digi tests...\n");
   
-  for(int i=0; i<4; i++){
+  for(int i=0; i<4; ++i){
     if(!subDetsOn_[i]) continue;
 
     string type = "HB";
@@ -796,47 +851,47 @@ void HcalDigiClient::loadHistograms(TFile* infile){
   
   sprintf(name,"DQMData/Hcal/DigiMonitor/Digi VME Error Map");
   gl_err_elec_[0] = (TH2F*)infile->Get(name);
+  
+  sprintf(name,"DQMData/Hcal/DigiMonitor/Digi Spigot Error Map");
+  gl_err_elec_[2] = (TH2F*)infile->Get(name);
+  
+  sprintf(name,"DQMData/Hcal/DigiMonitor/Digi Depth 1 Occupancy Map");
+  gl_occ_geo_[0] = (TH2F*)infile->Get(name);
+  
+  sprintf(name,"DQMData/Hcal/DigiMonitor/Digi Depth 2 Occupancy Map");
+  gl_occ_geo_[1] = (TH2F*)infile->Get(name);
+  
+  sprintf(name,"DQMData/Hcal/DigiMonitor/Digi Depth 3 Occupancy Map");
+  gl_occ_geo_[2] = (TH2F*)infile->Get(name);
+  
+  sprintf(name,"DQMData/Hcal/DigiMonitor/Digi Depth 4 Occupancy Map");
+  gl_occ_geo_[3] = (TH2F*)infile->Get(name);
+  
+  sprintf(name,"DQMData/Hcal/DigiMonitor/Digi Eta Occupancy Map");
+  gl_occ_eta_ = (TH1F*)infile->Get(name);
+  
+  sprintf(name,"DQMData/Hcal/DigiMonitor/Digi Phi Occupancy Map");
+  gl_occ_phi_ = (TH1F*)infile->Get(name);
 
-    sprintf(name,"DQMData/Hcal/DigiMonitor/Digi Spigot Error Map");
-    gl_err_elec_[2] = (TH2F*)infile->Get(name);
-
-    sprintf(name,"DQMData/Hcal/DigiMonitor/Digi Depth 1 Occupancy Map");
-    gl_occ_geo_[0] = (TH2F*)infile->Get(name);
-
-    sprintf(name,"DQMData/Hcal/DigiMonitor/Digi Depth 2 Occupancy Map");
-    gl_occ_geo_[1] = (TH2F*)infile->Get(name);
-
-    sprintf(name,"DQMData/Hcal/DigiMonitor/Digi Depth 3 Occupancy Map");
-    gl_occ_geo_[2] = (TH2F*)infile->Get(name);
-
-    sprintf(name,"DQMData/Hcal/DigiMonitor/Digi Depth 4 Occupancy Map");
-    gl_occ_geo_[3] = (TH2F*)infile->Get(name);
-
-    sprintf(name,"DQMData/Hcal/DigiMonitor/Digi Eta Occupancy Map");
-    gl_occ_eta_ = (TH1F*)infile->Get(name);
-    
-    sprintf(name,"DQMData/Hcal/DigiMonitor/Digi Phi Occupancy Map");
-    gl_occ_phi_ = (TH1F*)infile->Get(name);
-
-    sprintf(name,"DQMData/Hcal/DigiMonitor/Digi VME Occupancy Map");
-    gl_occ_elec_[0] = (TH2F*)infile->Get(name);
-
-    sprintf(name,"DQMData/Hcal/DigiMonitor/Digi Spigot Occupancy Map");
-    gl_occ_elec_[2] = (TH2F*)infile->Get(name);
-
-    sprintf(name,"DigiMonitor/Capid 1st Time Slice");
-    gl_capid_t0_ =  (TH1F*)infile->Get(name);
-
-    sprintf(name,"DigiMonitor/# of Digis");
-    gl_num_digi_ =  (TH1F*)infile->Get(name);
-
-    sprintf(name,"DigiMonitor/# Bad Qual Digis");
-    gl_num_bqdigi_ =  (TH1F*)infile->Get(name);
-
-    sprintf(name,"DigiMonitor/Bad Digi Fraction");
-    gl_bqdigi_frac_ =  (TH1F*)infile->Get(name);
-   
-  for(int i=0; i<4; i++){
+  sprintf(name,"DQMData/Hcal/DigiMonitor/Digi VME Occupancy Map");
+  gl_occ_elec_[0] = (TH2F*)infile->Get(name);
+  
+  sprintf(name,"DQMData/Hcal/DigiMonitor/Digi Spigot Occupancy Map");
+  gl_occ_elec_[2] = (TH2F*)infile->Get(name);
+  
+  sprintf(name,"DigiMonitor/Capid 1st Time Slice");
+  gl_capid_t0_ =  (TH1F*)infile->Get(name);
+  
+  sprintf(name,"DigiMonitor/# of Digis");
+  gl_num_digi_ =  (TH1F*)infile->Get(name);
+  
+  sprintf(name,"DigiMonitor/# Bad Qual Digis");
+  gl_num_bqdigi_ =  (TH1F*)infile->Get(name);
+  
+  sprintf(name,"DigiMonitor/Bad Digi Fraction");
+  gl_bqdigi_frac_ =  (TH1F*)infile->Get(name);
+  
+  for(int i=0; i<4; ++i){
     if(!subDetsOn_[i]) continue;
     string type = "HB";
     if(i==1) type = "HE"; 
@@ -912,6 +967,18 @@ void HcalDigiClient::loadHistograms(TFile* infile){
 
     sprintf(name,"DQMData/Hcal/DigiMonitor/%s/%s Bad Digi Fraction",type.c_str(),type.c_str());
     sub_bqdigi_frac_[i] = (TH1F*)infile->Get(name);
+
+    sprintf(name,"DigiMonitor/HCAL/expertPlots/HCALProblemDigiCells_depth%i",i+1);
+    ProblemDigiCells_DEPTH[i]=(TH2F*)infile->Get(name);
+
+    sprintf(name,"DigiMonitor/HCAL/RawPedestalMeanDepth%i",i+1);
+    RawPedestalMean[i]=(TH2F*)infile->Get(name); 
+    sprintf(name,"DigiMonitor/HCAL/RawPedestalRMSDepth%i",i+1);
+    RawPedestalRMS[i]=(TH2F*)infile->Get(name); 
+    sprintf(name,"DigiMonitor/HCAL/SubPedestalMeanDepth%i",i+1);
+    SubPedestalMean[i]=(TH2F*)infile->Get(name); 
+    sprintf(name,"DigiMonitor/HCAL/SubPedestalRMSDepth%i",i+1);
+    SubPedestalRMS[i]=(TH2F*)infile->Get(name); 
 
   }
   return;

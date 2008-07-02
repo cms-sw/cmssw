@@ -2,6 +2,7 @@
 #include "DQMServices/Core/interface/DQMStore.h"
 #include "DQMServices/Core/interface/MonitorElement.h"
 #include "DQM/HcalMonitorTasks/interface/HcalLEDMonitor.h"
+#include <cmath>
 
 HcalDigiMonitor::HcalDigiMonitor() {
   doPerChannel_ = false;
@@ -127,6 +128,8 @@ void HcalDigiMonitor::setup(const edm::ParameterSet& ps,
   occThresh_ = ps.getUntrackedParameter<int>("DigiOccThresh", -9999);
   cout << "Digi occupancy threshold set to " << occThresh_ << endl;
 
+  doFCpeds_ = ps.getUntrackedParameter<bool>("PedestalsInFC", true);
+
   // Allow for diagnostic plots to be made if user wishes
   hcalHists.makeDiagnostics=ps.getUntrackedParameter<bool>("MakeDigiDiagnosticPlots",false);
   hbHists.makeDiagnostics=hcalHists.makeDiagnostics;
@@ -151,6 +154,19 @@ void HcalDigiMonitor::setup(const edm::ParameterSet& ps,
   checkNevents_ = ps.getUntrackedParameter<int>("checkNevents",100); 
 
   ievt_=0;
+
+
+  for (int eta=0;eta<83;++eta){
+    for (int phi=0;phi<72;++phi){
+      for (int depth=0;depth<4;++depth){
+	pedcounts[eta][phi][depth]=0;
+	rawpedsum[eta][phi][depth]=0;
+	rawpedsum2[eta][phi][depth]=0;
+	subpedsum[eta][phi][depth]=0;
+	subpedsum2[eta][phi][depth]=0;
+      }
+    }
+  }
   
   if ( m_dbe ) {
 
@@ -218,6 +234,8 @@ void HcalDigiMonitor::setup(const edm::ParameterSet& ps,
     BQDIGI_FRAC -> setAxisTitle("Bad Quality Digi Fraction",1);  
     BQDIGI_FRAC -> setAxisTitle("# of Events",2);
 
+
+    // HB Plots
     m_dbe->setCurrentFolder(baseFolder_+"/HB");
 
     hbHists.check=ps.getUntrackedParameter<bool>("checkHB","true");
@@ -598,6 +616,63 @@ void HcalDigiMonitor::setup(const edm::ParameterSet& ps,
 					  etaBins_, etaMin_, etaMax_, 
 					  phiBins_, phiMin_, phiMax_); 
 
+    RAW_PEDESTAL_MEAN[0] = m_dbe->book2D("RawPedestalMeanDepth1","Raw Pedestal Mean Value Map (Time Slices 0-1) Depth 1",etaBins_,etaMin_,etaMax_,phiBins_,phiMin_,phiMax_);
+    RAW_PEDESTAL_MEAN[0]->setAxisTitle("#ieta",1);
+    RAW_PEDESTAL_MEAN[0]->setAxisTitle("#iphi",2);
+    RAW_PEDESTAL_RMS[0]  = m_dbe->book2D("RawPedestalRMSDepth1", "Raw Pedestal RMS Map (Time Slices 0-1) Depth 1", etaBins_,etaMin_,etaMax_,phiBins_,phiMin_,phiMax_);
+    RAW_PEDESTAL_RMS[0]->setAxisTitle("#ieta",1);
+    RAW_PEDESTAL_RMS[0]->setAxisTitle("#iphi",2);
+    
+    SUB_PEDESTAL_MEAN[0] = m_dbe->book2D("SubPedestalMeanDepth1","Sub Pedestal Mean Value Map (Time Slices 0-1) Depth 1",etaBins_,etaMin_,etaMax_,phiBins_,phiMin_,phiMax_);
+    SUB_PEDESTAL_MEAN[0]->setAxisTitle("#ieta",1);
+    SUB_PEDESTAL_MEAN[0]->setAxisTitle("#iphi",2);
+    SUB_PEDESTAL_RMS[0]  = m_dbe->book2D("SubPedestalRMSDepth1", "Sub Pedestal RMS Map (Time Slices 0-1) Depth 1", etaBins_,etaMin_,etaMax_,phiBins_,phiMin_,phiMax_);
+    SUB_PEDESTAL_RMS[0]->setAxisTitle("#ieta",1);
+    SUB_PEDESTAL_RMS[0]->setAxisTitle("#iphi",2);
+    
+    RAW_PEDESTAL_MEAN[1] = m_dbe->book2D("RawPedestalMeanDepth2","Raw Pedestal Mean Value Map (Time Slices 0-1) Depth 2",etaBins_,etaMin_,etaMax_,phiBins_,phiMin_,phiMax_);
+    RAW_PEDESTAL_MEAN[1]->setAxisTitle("#ieta",1);
+    RAW_PEDESTAL_MEAN[1]->setAxisTitle("#iphi",2);
+    RAW_PEDESTAL_RMS[1]  = m_dbe->book2D("RawPedestalRMSDepth2", "Raw Pedestal RMS Map (Time Slices 0-1) Depth 2", etaBins_,etaMin_,etaMax_,phiBins_,phiMin_,phiMax_);
+    RAW_PEDESTAL_RMS[1]->setAxisTitle("#ieta",1);
+    RAW_PEDESTAL_RMS[1]->setAxisTitle("#iphi",2);
+
+
+    SUB_PEDESTAL_MEAN[1] = m_dbe->book2D("SubPedestalMeanDepth2","Sub Pedestal Mean Value Map (Time Slices 0-1) Depth 2",etaBins_,etaMin_,etaMax_,phiBins_,phiMin_,phiMax_);
+    SUB_PEDESTAL_MEAN[1]->setAxisTitle("#ieta",1);
+    SUB_PEDESTAL_MEAN[1]->setAxisTitle("#iphi",2);
+    SUB_PEDESTAL_RMS[1]  = m_dbe->book2D("SubPedestalRMSDepth2", "Sub Pedestal RMS Map (Time Slices 0-1) Depth 2", etaBins_,etaMin_,etaMax_,phiBins_,phiMin_,phiMax_);
+    SUB_PEDESTAL_RMS[1]->setAxisTitle("#ieta",1);
+    SUB_PEDESTAL_RMS[1]->setAxisTitle("#iphi",2);
+
+    RAW_PEDESTAL_MEAN[2] = m_dbe->book2D("RawPedestalMeanDepth3","Raw Pedestal Mean Value Map (Time Slices 0-1) Depth 3",etaBins_,etaMin_,etaMax_,phiBins_,phiMin_,phiMax_);
+    RAW_PEDESTAL_MEAN[2]->setAxisTitle("#ieta",1);
+    RAW_PEDESTAL_MEAN[2]->setAxisTitle("#iphi",2);
+    RAW_PEDESTAL_RMS[2]  = m_dbe->book2D("RawPedestalRMSDepth3", "Raw Pedestal RMS Map (Time Slices 0-1) Depth 3", etaBins_,etaMin_,etaMax_,phiBins_,phiMin_,phiMax_);
+    RAW_PEDESTAL_RMS[2]->setAxisTitle("#ieta",1);
+    RAW_PEDESTAL_RMS[2]->setAxisTitle("#iphi",2);
+    
+    SUB_PEDESTAL_MEAN[2] = m_dbe->book2D("SubPedestalMeanDepth3","Sub Pedestal Mean Value Map (Time Slices 0-1) Depth 3",etaBins_,etaMin_,etaMax_,phiBins_,phiMin_,phiMax_);
+    SUB_PEDESTAL_MEAN[2]->setAxisTitle("#ieta",1);
+    SUB_PEDESTAL_MEAN[2]->setAxisTitle("#iphi",2);
+    SUB_PEDESTAL_RMS[2]  = m_dbe->book2D("SubPedestalRMSDepth3", "Sub Pedestal RMS Map (Time Slices 0-1) Depth 3", etaBins_,etaMin_,etaMax_,phiBins_,phiMin_,phiMax_);
+    SUB_PEDESTAL_RMS[2]->setAxisTitle("#ieta",1);
+    SUB_PEDESTAL_RMS[2]->setAxisTitle("#iphi",2);
+
+    RAW_PEDESTAL_MEAN[3] = m_dbe->book2D("RawPedestalMeanDepth4","Raw Pedestal Mean Value Map (Time Slices 0-1) Depth 4",etaBins_,etaMin_,etaMax_,phiBins_,phiMin_,phiMax_);
+    RAW_PEDESTAL_MEAN[3]->setAxisTitle("#ieta",1);
+    RAW_PEDESTAL_MEAN[3]->setAxisTitle("#iphi",2);
+    RAW_PEDESTAL_RMS[3]  = m_dbe->book2D("RawPedestalRMSDepth4", "Raw Pedestal RMS Map (Time Slices 0-1) Depth 4", etaBins_,etaMin_,etaMax_,phiBins_,phiMin_,phiMax_);
+    RAW_PEDESTAL_RMS[3]->setAxisTitle("#ieta",1);
+    RAW_PEDESTAL_RMS[3]->setAxisTitle("#iphi",2);
+    
+    SUB_PEDESTAL_MEAN[3] = m_dbe->book2D("SubPedestalMeanDepth4","Sub Pedestal Mean Value Map (Time Slices 0-1) Depth 4",etaBins_,etaMin_,etaMax_,phiBins_,phiMin_,phiMax_);
+    SUB_PEDESTAL_MEAN[3]->setAxisTitle("#ieta",1);
+    SUB_PEDESTAL_MEAN[3]->setAxisTitle("#iphi",2);
+    SUB_PEDESTAL_RMS[3]  = m_dbe->book2D("SubPedestalRMSDepth4", "Sub Pedestal RMS Map (Time Slices 0-1) Depth 4", etaBins_,etaMin_,etaMax_,phiBins_,phiMin_,phiMax_);
+    SUB_PEDESTAL_RMS[3]->setAxisTitle("#ieta",1);
+    SUB_PEDESTAL_RMS[3]->setAxisTitle("#iphi",2);
+
     std::stringstream histname; 
     std::stringstream histtitle; 
 
@@ -834,6 +909,10 @@ void HcalDigiMonitor::processEvent(const HBHEDigiCollection& hbhe,
   bool digiOcc=false; bool digiUpset=false;
   int ndigi = 0;  int nbqdigi = 0;
 
+  CaloSamples tool;
+  const HcalQIECoder* channelCoder;
+  const HcalQIEShape* shape;
+
   if (showTiming)
     {
       cpu_timer.reset(); cpu_timer.start();
@@ -847,10 +926,13 @@ void HcalDigiMonitor::processEvent(const HBHEDigiCollection& hbhe,
       const HBHEDataFrame digi = (const HBHEDataFrame)(*j);
       
 
-      
-      //calibs_= cond.getHcalCalibrations(digi.id());  // Old method was made private. 
-      
-      HcalDigiMap::digiStats(digi, calibs_, occThresh_, normVals, digiErr, digiOcc, digiUpset);      
+      calibs_= cond.getHcalCalibrations(digi.id());  // Old method was made private; we will need it for forming subtracted pedestals
+      int iEta = digi.id().ieta();
+      int iPhi = digi.id().iphi();
+      int iDepth = digi.id().depth();
+
+      HcalDigiMap::digiStats(digi, calibs_, occThresh_, normVals, digiErr, digiOcc, digiUpset); 
+
       if((HcalSubdetector)(digi.id().subdet())==HcalBarrel){	
 	if (!hbHists.check) continue;
 
@@ -858,19 +940,19 @@ void HcalDigiMonitor::processEvent(const HBHEDigiCollection& hbhe,
 	// Digi found; "unfill it" so that it doesn't appear empty:
 	if ( digiOcc) // require digi to have a value (don't know if this is the best way to proceed?)
 	  {
-	    hbHists.PROBLEMDIGICELLS_TEMP->Fill(digi.id().ieta(),digi.id().iphi(),1);
-	    hbHists.PROBLEMDIGICELLS_TEMP_DEPTH[digi.id().depth()-1]->Fill(digi.id().ieta(),digi.id().iphi(),1);
+	    hbHists.PROBLEMDIGICELLS_TEMP->Fill(iEta,iPhi,1);
+	    hbHists.PROBLEMDIGICELLS_TEMP_DEPTH[iDepth-1]->Fill(iEta,iPhi,1);
 	
-	    hcalHists.PROBLEMDIGICELLS_TEMP->Fill(digi.id().ieta(),digi.id().iphi(),1);
-	    hcalHists.PROBLEMDIGICELLS_TEMP_DEPTH[digi.id().depth()-1]->Fill(digi.id().ieta(),digi.id().iphi(),1);
+	    hcalHists.PROBLEMDIGICELLS_TEMP->Fill(iEta,iPhi,1);
+	    hcalHists.PROBLEMDIGICELLS_TEMP_DEPTH[iDepth-1]->Fill(iEta,iPhi,1);
 	  }
 	if(digiErr){
 	  nhbbqdigi++; nbqdigi++;
 
-	  hbHists.PROBLEMDIGICELLS->Fill(digi.id().ieta(),digi.id().iphi());
-	  hbHists.PROBLEMDIGICELLS_DEPTH[digi.id().depth()-1]->Fill(digi.id().ieta(),digi.id().iphi());
-	  hcalHists.PROBLEMDIGICELLS->Fill(digi.id().ieta(),digi.id().iphi());
-	  hcalHists.PROBLEMDIGICELLS_DEPTH[digi.id().depth()-1]->Fill(digi.id().ieta(),digi.id().iphi());
+	  hbHists.PROBLEMDIGICELLS->Fill(iEta,iPhi);
+	  hbHists.PROBLEMDIGICELLS_DEPTH[iDepth-1]->Fill(iEta,iPhi);
+	  hcalHists.PROBLEMDIGICELLS->Fill(iEta,iPhi);
+	  hcalHists.PROBLEMDIGICELLS_DEPTH[iDepth-1]->Fill(iEta,iPhi);
 
 	  HcalDigiMap::fillErrors<HBHEDataFrame>(digi,normVals,
 						 hbHists.ERR_MAP_GEO,hbHists.ERR_MAP_VME,
@@ -906,8 +988,36 @@ void HcalDigiMonitor::processEvent(const HBHEDigiCollection& hbhe,
 
 	//for timing plot, find max-TS
 	int maxadc=0;
-	for (int j=0; j<digi.size(); ++j){     
-	  if (digi.sample(j).adc() > maxadc) maxadc = digi.sample(j).adc();
+	float myval=0;
+
+	
+	if (doFCpeds_)
+	  {
+	    channelCoder = cond.getHcalCoder(digi.id());
+	    HcalCoderDb coderDB(*channelCoder, *shape);
+	    coderDB.adc2fC(digi,tool);
+	    // digi (ADC) is input, tool (fC) is output
+	  }
+
+	for (int j=0; j<digi.size(); ++j)
+	  {     
+	    if (digi.sample(j).adc() > maxadc) maxadc = digi.sample(j).adc();
+	    // add pedestal plots
+	    if (j<2) // only plot for first 2 time slices
+	      {	      
+		pedcounts[iEta+41][iPhi-1][iDepth-1]++;
+		myval=digi.sample(j).adc();
+		rawpedsum[iEta+41][iPhi-1][iDepth-1]+=myval;
+		rawpedsum2[iEta+41][iPhi-1][iDepth-1]+=myval*myval;
+		
+
+		if (doFCpeds_) // Pedestals in fC; convert digi ADC to fC as well
+		  myval=tool[j]-calibs_.pedestal(digi.sample(j).capid());
+		else
+		  myval=digi.sample(j).adc()-calibs_.pedestal(digi.sample(j).capid());
+		subpedsum[iEta+41][iPhi-1][iDepth-1]+=myval;
+		subpedsum2[iEta+41][iPhi-1][iDepth-1]+=myval*myval;
+	      }
 	}
 
 	for (int i=0; i<digi.size(); ++i) {	    
@@ -932,12 +1042,12 @@ void HcalDigiMonitor::processEvent(const HBHEDigiCollection& hbhe,
 	    HcalDigiPerChan::perChanHists<HBHEDataFrame>(1,digi,normVals,hbHists.SHAPE,m_dbe,baseFolder_);
 
 
-	if (digi.id().ieta() > 0) {
+	if (iEta > 0) {
 	  hbHists.TS_SUM_P[0]->Fill(digi.sample(2).adc() + digi.sample(3).adc());
 	  hbHists.TS_SUM_P[1]->Fill(digi.sample(3).adc() + digi.sample(4).adc());
 	  hbHists.TS_SUM_P[2]->Fill(digi.sample(4).adc() + digi.sample(5).adc());	  
 	}
-	else if (digi.id().ieta() < 0) {
+	else if (iEta < 0) {
 	  hbHists.TS_SUM_M[0]->Fill(digi.sample(2).adc() + digi.sample(3).adc());
 	  hbHists.TS_SUM_M[1]->Fill(digi.sample(3).adc() + digi.sample(4).adc());
 	  hbHists.TS_SUM_M[2]->Fill(digi.sample(4).adc() + digi.sample(5).adc());	  
@@ -949,18 +1059,18 @@ void HcalDigiMonitor::processEvent(const HBHEDigiCollection& hbhe,
 
  	if ( digiOcc)
 	  {
-	    heHists.PROBLEMDIGICELLS_TEMP->Fill(digi.id().ieta(),digi.id().iphi(),1);
-	    heHists.PROBLEMDIGICELLS_TEMP_DEPTH[digi.id().depth()-1]->Fill(digi.id().ieta(),digi.id().iphi(),1);
-	    hcalHists.PROBLEMDIGICELLS_TEMP->Fill(digi.id().ieta(),digi.id().iphi(),1);
-	    hcalHists.PROBLEMDIGICELLS_TEMP_DEPTH[digi.id().depth()-1]->Fill(digi.id().ieta(),digi.id().iphi(),1);
+	    heHists.PROBLEMDIGICELLS_TEMP->Fill(iEta,iPhi,1);
+	    heHists.PROBLEMDIGICELLS_TEMP_DEPTH[iDepth-1]->Fill(iEta,iPhi,1);
+	    hcalHists.PROBLEMDIGICELLS_TEMP->Fill(iEta,iPhi,1);
+	    hcalHists.PROBLEMDIGICELLS_TEMP_DEPTH[iDepth-1]->Fill(iEta,iPhi,1);
 	  }
 
 	if(digiErr){
 	  nhebqdigi++; nbqdigi++;
-	  heHists.PROBLEMDIGICELLS->Fill(digi.id().ieta(),digi.id().iphi());
-	  heHists.PROBLEMDIGICELLS_DEPTH[digi.id().depth()-1]->Fill(digi.id().ieta(),digi.id().iphi());
-	  hcalHists.PROBLEMDIGICELLS->Fill(digi.id().ieta(),digi.id().iphi());
-	  hcalHists.PROBLEMDIGICELLS_DEPTH[digi.id().depth()-1]->Fill(digi.id().ieta(),digi.id().iphi());
+	  heHists.PROBLEMDIGICELLS->Fill(iEta,iPhi);
+	  heHists.PROBLEMDIGICELLS_DEPTH[iDepth-1]->Fill(iEta,iPhi);
+	  hcalHists.PROBLEMDIGICELLS->Fill(iEta,iPhi);
+	  hcalHists.PROBLEMDIGICELLS_DEPTH[iDepth-1]->Fill(iEta,iPhi);
 	  HcalDigiMap::fillErrors<HBHEDataFrame>(digi,normVals,
 						 heHists.ERR_MAP_GEO,heHists.ERR_MAP_VME,
 						 heHists.ERR_MAP_DCC);	  
@@ -996,9 +1106,34 @@ void HcalDigiMonitor::processEvent(const HBHEDigiCollection& hbhe,
 
 	//for timing plot, find max-TS
 	int maxadc=0;
-	for (int j=0; j<digi.size(); ++j){     
-	  if (digi.sample(j).adc() > maxadc) maxadc = digi.sample(j).adc();
-	}
+	float myval=0;
+
+	if (doFCpeds_)
+	  {
+	    channelCoder = cond.getHcalCoder(digi.id());
+	    HcalCoderDb coderDB(*channelCoder, *shape);
+	    coderDB.adc2fC(digi,tool);
+	    // digi (ADC) is input, tool (fC) is output
+	  }
+
+
+	for (int j=0; j<digi.size(); ++j)
+	  {     
+	    if (digi.sample(j).adc() > maxadc) maxadc = digi.sample(j).adc();
+	    if (j<2) // only plot for first 2 time slices
+	      {	      
+		pedcounts[iEta+41][iPhi-1][iDepth-1]++;
+		myval=digi.sample(j).adc();
+		rawpedsum[iEta+41][iPhi-1][iDepth-1]+=myval;
+		rawpedsum2[iEta+41][iPhi-1][iDepth-1]+=myval*myval;
+		if (doFCpeds_) // Pedestals in fC; convert digi ADC to fC as well
+		  myval=tool[j]-calibs_.pedestal(digi.sample(j).capid());
+		else
+		  myval=digi.sample(j).adc()-calibs_.pedestal(digi.sample(j).capid());
+		subpedsum[iEta+41][iPhi-1][iDepth-1]+=myval;
+		subpedsum2[iEta+41][iPhi-1][iDepth-1]+=myval*myval;
+	      }
+	  }
 
 	for (int i=0; i<digi.size(); ++i) {	    
 	  heHists.QIE_CAPID->Fill(digi.sample(i).capid());
@@ -1022,12 +1157,12 @@ void HcalDigiMonitor::processEvent(const HBHEDigiCollection& hbhe,
 	  HcalDigiPerChan::perChanHists<HBHEDataFrame>(2,digi,normVals,heHists.SHAPE,m_dbe,baseFolder_);
 
 
-	if (digi.id().ieta() > 0) {
+	if (iEta > 0) {
 	  heHists.TS_SUM_P[0]->Fill(digi.sample(2).adc() + digi.sample(3).adc());
 	  heHists.TS_SUM_P[1]->Fill(digi.sample(3).adc() + digi.sample(4).adc());
 	  heHists.TS_SUM_P[2]->Fill(digi.sample(4).adc() + digi.sample(5).adc());	  
 	}
-	else if (digi.id().ieta() < 0) {
+	else if (iEta < 0) {
 	  heHists.TS_SUM_M[0]->Fill(digi.sample(2).adc() + digi.sample(3).adc());
 	  heHists.TS_SUM_M[1]->Fill(digi.sample(3).adc() + digi.sample(4).adc());
 	  heHists.TS_SUM_M[2]->Fill(digi.sample(4).adc() + digi.sample(5).adc());	  
@@ -1065,6 +1200,11 @@ void HcalDigiMonitor::processEvent(const HBHEDigiCollection& hbhe,
     for (HODigiCollection::const_iterator j=ho.begin(); j!=ho.end(); ++j){
       if (!hoHists.check) continue;
       const HODataFrame digi = (const HODataFrame)(*j);	
+      
+      calibs_= cond.getHcalCalibrations(digi.id());  // Old method was made private; we will need it for forming subtracted pedestals
+      int iEta = digi.id().ieta();
+      int iPhi = digi.id().iphi();
+      int iDepth = digi.id().depth();
       HcalDigiMap::digiStats(digi, calibs_, occThresh_, normVals, digiErr, digiOcc, digiUpset);     
       
       if ( digiOcc)
@@ -1119,10 +1259,34 @@ void HcalDigiMonitor::processEvent(const HBHEDigiCollection& hbhe,
       
       //for timing plot, find max-TS
       int maxadc=0;
+      float myval=0;
+      
+      if (doFCpeds_)
+	{
+	  channelCoder = cond.getHcalCoder(digi.id());
+	  HcalCoderDb coderDB(*channelCoder, *shape);
+	  coderDB.adc2fC(digi,tool);
+	  // digi (ADC) is input, tool (fC) is output
+	}
+      
+      for (int j=0; j<digi.size(); ++j)
+	{     
+	  if (digi.sample(j).adc() > maxadc) maxadc = digi.sample(j).adc();
 
-      for (int j=0; j<digi.size(); ++j){     
-	if (digi.sample(j).adc() > maxadc) maxadc = digi.sample(j).adc();
-      }
+	  if (j<2) // only plot for first 2 time slices
+	    {	      
+	      pedcounts[iEta+41][iPhi-1][iDepth-1]++;
+	      myval=digi.sample(j).adc();
+	      rawpedsum[iEta+41][iPhi-1][iDepth-1]+=myval;
+	      rawpedsum2[iEta+41][iPhi-1][iDepth-1]+=myval*myval;
+	      if (doFCpeds_) // Pedestals in fC; convert digi ADC to fC as well
+		myval=tool[j]-calibs_.pedestal(digi.sample(j).capid());
+	      else
+		myval=digi.sample(j).adc()-calibs_.pedestal(digi.sample(j).capid());
+	      subpedsum[iEta+41][iPhi-1][iDepth-1]+=myval;
+	      subpedsum2[iEta+41][iPhi-1][iDepth-1]+=myval*myval;
+	    }
+	}
 
       for (int i=0; i<digi.size(); ++i) {	    
 	hoHists.QIE_CAPID->Fill(digi.sample(i).capid());
@@ -1193,6 +1357,10 @@ void HcalDigiMonitor::processEvent(const HBHEDigiCollection& hbhe,
 	  hcalHists.PROBLEMDIGICELLS_TEMP_DEPTH[digi.id().depth()-1]->Fill(digi.id().ieta(),digi.id().iphi(),1);
 	}
 
+      calibs_= cond.getHcalCalibrations(digi.id());  // Old method was made private; we will need it for forming subtracted pedestals
+      int iEta = digi.id().ieta();
+      int iPhi = digi.id().iphi();
+      int iDepth = digi.id().depth();
       HcalDigiMap::digiStats(digi, calibs_, occThresh_, normVals, digiErr, digiOcc, digiUpset);      
 	
       if(digiErr){
@@ -1235,9 +1403,35 @@ void HcalDigiMonitor::processEvent(const HBHEDigiCollection& hbhe,
       
       //for timing plot, find max-TS
       int maxadc=0;
-      for (int j=0; j<digi.size(); ++j){     
-	if (digi.sample(j).adc() > maxadc) maxadc = digi.sample(j).adc();
-      }
+      float myval=0;
+
+      if (doFCpeds_)
+	{
+	  channelCoder = cond.getHcalCoder(digi.id());
+	  HcalCoderDb coderDB(*channelCoder, *shape);
+	  coderDB.adc2fC(digi,tool);
+	  // digi (ADC) is input, tool (fC) is output
+	}
+
+      for (int j=0; j<digi.size(); ++j)
+	{     
+	  if (digi.sample(j).adc() > maxadc) maxadc = digi.sample(j).adc();
+
+	  if (j<2) // only plot for first 2 time slices
+	    {	      
+	      // Depth values increased by 2 to avoid overlap with HE at |eta|=29
+	      pedcounts[iEta+41][iPhi-1][iDepth+1]++;
+	      myval=digi.sample(j).adc();
+	      rawpedsum[iEta+41][iPhi-1][iDepth+1]+=myval;
+	      rawpedsum2[iEta+41][iPhi-1][iDepth+1]+=myval*myval;
+	      if (doFCpeds_) // Pedestals in fC; convert digi ADC to fC as well
+		myval=tool[j]-calibs_.pedestal(digi.sample(j).capid());
+	      else
+		myval=digi.sample(j).adc()-calibs_.pedestal(digi.sample(j).capid());
+	      subpedsum[iEta+41][iPhi-1][iDepth+1]+=myval;
+	      subpedsum2[iEta+41][iPhi-1][iDepth+1]+=myval*myval;
+	    }
+	}
    
       for (int i=0; i<digi.size(); ++i) {	    
 	hfHists.QIE_CAPID->Fill(digi.sample(i).capid());
@@ -1443,7 +1637,7 @@ void HcalDigiMonitor::EmptyDigiFill()
 	      hcalHists.PROBLEMDIGICELLS_TEMP_DEPTH[1]->Fill(eta,phi,-1);
 
 	    } // end HF loop
-
+	  
 	} //for (int iphi=1; ...)
     } // for (int ieta=1; ...)
 } // void HcalDigiMonitor::EmptyDigiFill()
@@ -1451,8 +1645,80 @@ void HcalDigiMonitor::EmptyDigiFill()
 
 void HcalDigiMonitor::reset_Nevents(void)
 {
+  
   if (fVerbosity)
     cout <<"<HcalDigiMonitor> Entered reset_Nevents routine"<<endl;
+  
+  // Fill Pedestal Histograms
+  int mydepth=0;
+
+
+  for (int eta=0;eta<83;++eta)
+    {
+      for (int phi=0;phi<72;++phi)
+	{
+	  for (int depth=0;depth<4;++depth)
+	    {
+	      if (fabs(eta-41)>28 && depth>1) // shift HF cells back to their appropriate depths
+		mydepth=depth-2;
+	      else mydepth=depth;
+
+	      if (pedcounts[eta][phi][depth]==0) continue;
+	      
+	      // When setting Bin Content, bins start at count of 1, not 0.
+	      // Also, first bins around eta,phi are empty.
+	      // Thus, eta,phi must be shifted by +2 (+1 for bin count, +1 to ignore empty row)
+	      
+	      if (fabs(eta-41)==29 && depth==2)
+		// This value of eta is shared by HB, HE -- add their values together.  Maybe average them at some point instead?
+		{
+		  // raw pedestals
+		  double myval= rawpedsum[eta][phi][depth]/pedcounts[eta][phi][2]; // HF
+		  double myval2 = rawpedsum[eta][phi][0]/pedcounts[eta][phi][0]; // HE
+		  RAW_PEDESTAL_MEAN[mydepth]->setBinContent(eta+2,phi+2,myval+myval2);
+		  double RMS = 1.0*rawpedsum2[eta][phi][2]/pedcounts[eta][phi][2]-myval*myval;
+		  
+		  RMS=pow(fabs(RMS),0.5); // HF
+		  double RMS2 = 1.0*rawpedsum2[eta][phi][0]/pedcounts[eta][phi][0]-myval2*myval2;
+		  
+		  RMS2=pow(fabs(RMS2),0.5); // HE
+		  RAW_PEDESTAL_RMS[mydepth]->setBinContent(eta+2,phi+2,RMS+RMS2);
+		  
+		  // subtracted pedestals
+		  myval= subpedsum[eta][phi][2]/pedcounts[eta][phi][2]; // HF
+		  myval2 = subpedsum[eta][phi][0]/pedcounts[eta][phi][0]; // HE
+		  SUB_PEDESTAL_MEAN[mydepth]->setBinContent(eta+2,phi+2,myval+myval2);
+		  RMS = 1.0*subpedsum2[eta][phi][2]/pedcounts[eta][phi][2]-myval*myval;
+		  
+		  RMS=pow(fabs(RMS),0.5); // HF
+		  RMS2 = 1.0*subpedsum2[eta][phi][0]/pedcounts[eta][phi][0]-myval2*myval2;
+		  
+		  RMS2=pow(fabs(RMS2),0.5); // HF
+		  SUB_PEDESTAL_RMS[mydepth]->setBinContent(eta+2,phi+2,RMS+RMS2);
+		}
+
+	      else
+		{
+		  double myval= rawpedsum[eta][phi][depth]/pedcounts[eta][phi][depth];
+		  RAW_PEDESTAL_MEAN[mydepth]->setBinContent(eta+2,phi+2,myval);
+		  double RMS = 1.0*rawpedsum2[eta][phi][depth]/pedcounts[eta][phi][depth]-myval*myval;
+		  
+		  RMS=pow(fabs(RMS),0.5); // use fabs just in case we run into rounding issues near 0
+		  RAW_PEDESTAL_RMS[mydepth]->setBinContent(eta+2,phi+2,RMS);
+		  
+		  myval= subpedsum[eta][phi][depth]/pedcounts[eta][phi][depth];
+		  SUB_PEDESTAL_MEAN[mydepth]->setBinContent(eta+2,phi+2,myval);
+		  RMS = 1.0*subpedsum2[eta][phi][depth]/pedcounts[eta][phi][depth]-myval*myval;
+		  
+		  RMS=pow(fabs(RMS),0.5);
+		  SUB_PEDESTAL_RMS[mydepth]->setBinContent(eta+2,phi+2,RMS);
+		}
+
+	      // Now add back in HE value at |eta|=29 (it gets overwritten by HF setBinContent
+	      
+	    } // for (int depth)
+	} // for (int phi)
+    } // for (int eta)
 
   double temp;
   int eta,phi;
