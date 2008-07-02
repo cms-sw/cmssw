@@ -13,7 +13,7 @@
 //
 // Original Author:  Brian Drell
 //         Created:  Fri May 18 22:57:40 CEST 2007
-// $Id: V0Fitter.cc,v 1.27 2008/06/24 23:13:06 drell Exp $
+// $Id: V0Fitter.cc,v 1.28 2008/06/25 17:53:09 drell Exp $
 //
 //
 
@@ -138,20 +138,13 @@ void V0Fitter::fitAll(const edm::Event& iEvent, const edm::EventSetup& iSetup) {
 
     if( doTkQualCuts && 
         tmpRef->normalizedChi2() < tkChi2Cut &&
-        tmpRef->recHitsSize() ) {
-      trackingRecHit_iterator tkHitIt = tmpRef->recHitsBegin();
-      int nHitsOnTk = 0;
-      for( ; tkHitIt < tmpRef->recHitsEnd(); ++tkHitIt ) {
-	if( (*tkHitIt)->isValid() ) nHitsOnTk++;
-      }
-      if( nHitsOnTk >= tkNhitsCut ) {
-	TransientTrack tmpTk( *tmpRef, &(*bFieldHandle), globTkGeomHandle );
-	TrajectoryStateClosestToBeamLine tscb( tmpTk.stateAtBeamLine() );
-	if( tscb.isValid() ) {
-	  if( tscb.transverseImpactParameter().value() > impactParameterCut ) {
-	    theTrackRefs.push_back( tmpRef );
-	    theTransTracks.push_back( tmpTk );
-	  }
+        tmpRef->numberOfValidHits() >= tkNhitsCut ) {
+      TransientTrack tmpTk( *tmpRef, &(*bFieldHandle), globTkGeomHandle );
+      TrajectoryStateClosestToBeamLine tscb( tmpTk.stateAtBeamLine() );
+      if( tscb.isValid() ) {
+	if( tscb.transverseImpactParameter().value() > impactParameterCut ) {
+	  theTrackRefs.push_back( tmpRef );
+	  theTransTracks.push_back( tmpTk );
 	}
       }
     }
@@ -273,7 +266,7 @@ void V0Fitter::fitAll(const edm::Event& iEvent, const edm::EventSetup& iSetup) {
       //  refitted tracks
       TransientTrack* thePositiveRefTrack = 0;
       TransientTrack* theNegativeRefTrack = 0;
-	
+        
       // 
       for( ; traxIter != traxEnd; ++traxIter) {
 	if( traxIter->track().charge() > 0. ) {
@@ -297,6 +290,8 @@ void V0Fitter::fitAll(const edm::Event& iEvent, const edm::EventSetup& iSetup) {
       double sigmaRvtxMag =
 	sqrt( sig00*(x_*x_) + sig11*(y_*y_) + 2*sig01*(x_*y_) ) / rVtxMag;
 
+      // The methods innerOk() and innerPosition() require TrackExtra, which
+      // is only available in the RECO data tier, not AOD. This may be a problem.
       if( positiveTrackRef->innerOk() ) {
 	reco::Vertex::Point posTkHitPos = positiveTrackRef->innerPosition();
 	if( sqrt( posTkHitPos.Perp2() ) < ( rVtxMag - sigmaRvtxMag*4. ) 
