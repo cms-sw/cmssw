@@ -1,4 +1,4 @@
-# /dev/CMSSW_2_1_0_pre6/HLT/V11 (CMSSW_2_1_X_2008-06-24-0000_HLT1)
+# /dev/CMSSW_2_1_0_pre6/HLT/V12 (CMSSW_2_1_X_2008-06-24-0000_HLT1)
 
 import FWCore.ParameterSet.Config as cms
 
@@ -10425,7 +10425,7 @@ hltPixelTracksForMinBias = cms.EDProducer( "PixelTrackProducer",
     RegionFactoryPSet = cms.PSet( 
       ComponentName = cms.string( "GlobalRegionProducer" ),
       RegionPSet = cms.PSet( 
-        ptMin = cms.double( 0.2 ),
+        ptMin = cms.double( 0.9 ),
         originRadius = cms.double( 0.2 ),
         originHalfLength = cms.double( 15.9 ),
         originXPos = cms.double( 0.0 ),
