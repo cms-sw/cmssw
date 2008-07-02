@@ -1,12 +1,13 @@
 /*
  * \file EcalSelectiveReadoutValidation.cc
  *
- * $Date: 2008/07/02 07:54:28 $
- * $Revision: 1.14 $
+ * $Date: 2008/07/02 08:28:34 $
+ * $Revision: 1.15 $
  *
  */
 
 #include "Validation/EcalDigis/interface/EcalSelectiveReadoutValidation.h"
+#include "Validation/EcalDigis/src/EcalSRPCompat.h"
 
 #include "Validation/EcalDigis/src/ecalDccMap.h"
 
@@ -18,9 +19,6 @@
 
 #include "Geometry/EcalMapping/interface/EcalElectronicsMapping.h"
 #include "Geometry/EcalMapping/interface/EcalMappingRcd.h"
-#include "Geometry/Records/interface/IdealGeometryRecord.h"
-
-#include "Geometry/Records/interface/IdealGeometryRecord.h"
 #include "Geometry/CaloGeometry/interface/CaloSubdetectorGeometry.h"
 #include "Geometry/CaloGeometry/interface/CaloCellGeometry.h"
 #include "Geometry/CaloGeometry/interface/CaloGeometry.h"
@@ -32,7 +30,14 @@
 #include <string.h>
 #include "DQMServices/Core/interface/MonitorElement.h"
 
-#include "Validation/EcalDigis/src/EcalSRPCompat.h"
+#if (CMSSW_COMPAT_VERSION>=210)
+#   include "Geometry/Records/interface/CaloGeometryRecord.h"
+/**/typedef CaloGeometryRecord MyCaloGeometryRecord;
+#else
+#   include "Geometry/Records/interface/IdealGeometryRecord.h"
+/**/typedef IdealGeometryRecord MyCaloGeometryRecord;
+#endif
+
 
 using namespace cms;
 using namespace edm;
@@ -392,7 +397,7 @@ void EcalSelectiveReadoutValidation::analyzeEE(const edm::Event& event,
   
   // gets the endcap geometry:
   edm::ESHandle<CaloGeometry> geoHandle;
-  es.get<IdealGeometryRecord>().get(geoHandle);
+  es.get<MyCaloGeometryRecord>().get(geoHandle);
   const CaloSubdetectorGeometry *geometry_p
     = (*geoHandle).getSubdetectorGeometry(DetId::Ecal, EcalEndcap);
   CaloSubdetectorGeometry const& geometry = *geometry_p;
@@ -524,7 +529,7 @@ EcalSelectiveReadoutValidation::analyzeEB(const edm::Event& event,
   
   // get the barrel geometry:
   edm::ESHandle<CaloGeometry> geoHandle;
-  es.get<IdealGeometryRecord>().get(geoHandle);
+  es.get<CaloGeometryRecord>().get(geoHandle);
   const CaloSubdetectorGeometry *geometry_p
     = (*geoHandle).getSubdetectorGeometry(DetId::Ecal, EcalBarrel);
   CaloSubdetectorGeometry const& geometry = *geometry_p;
@@ -712,7 +717,7 @@ EcalSelectiveReadoutValidation::analyzeTP(const edm::Event& event,
     //const int iTT = elecMap_->iTT(it->id());
     double tpEt;
     if(tpInGeV_){
-#if (CMSSW_COMPAT_VERSION<=210)
+#if (CMSSW_COMPAT_VERSION<210)
       tpEt = ecalScale.getTPGInGeV(es, *it);
 #else
       tpEt = ecalScale.getTPGInGeV(it->compressedEt(), it->id()) ;
@@ -954,7 +959,7 @@ EcalSelectiveReadoutValidation::setTtEtSums(const edm::EventSetup& es,
   static const CaloSubdetectorGeometry* ebGeometry = 0;
   if(eeGeometry==0 || ebGeometry==0){
     edm::ESHandle<CaloGeometry> geoHandle;
-    es.get<IdealGeometryRecord>().get(geoHandle);
+    es.get<CaloGeometryRecord>().get(geoHandle);
     eeGeometry
       = (*geoHandle).getSubdetectorGeometry(DetId::Ecal, EcalEndcap);
     ebGeometry
