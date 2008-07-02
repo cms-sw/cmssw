@@ -34,7 +34,7 @@ maxLayer1Taus.maxNumber = 999999
 # leptons in general
 #
 countLayer1Leptons.minNumber = 2
-countLayer1Leptons.maxNumber = 2
+countLayer1Leptons.maxNumber = 999999
 
 
 
