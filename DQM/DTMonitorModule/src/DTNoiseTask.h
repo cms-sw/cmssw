@@ -6,7 +6,7 @@
  *
  *  $Date: 2008/06/30 12:50:03 $
  *  $Revision: 1.1 $
- *  \author G. Cerminara - INFN Torino
+ *  \authors G. Mila , G. Cerminara - INFN Torino
  */
 
 #include <FWCore/Framework/interface/EDAnalyzer.h>
@@ -14,6 +14,7 @@
 #include "DQMServices/Core/interface/MonitorElement.h"
 
 #include <DataFormats/MuonDetId/interface/DTChamberId.h>
+#include <DataFormats/MuonDetId/interface/DTSuperLayerId.h>
 #include <FWCore/Framework/interface/ESHandle.h>
 
 
@@ -54,20 +55,29 @@ protected:
 private:
   
   void bookHistos(DTChamberId chId);
+  void bookHistos(DTSuperLayerId slId);
 
   // counter of processed events
   int evtNumber;
+  //switch for time boxes filling
+  bool doTimeBoxHistos;
+  // Lable of 4D segments in the event
+  std::string theRecHits4DLabel;
+
   DQMStore *dbe;
   edm::ESHandle<DTGeometry> dtGeom;
 
   //tTrig map per Station
   std::map<DTChamberId, int> tTrigStMap;
 
-  //the noise histo (Hz)
+  //the noise histos (Hz)
   std::map<DTChamberId, MonitorElement*> noiseHistos;
 
   //map for histo normalization
   std::map<DTChamberId, int> mapEvt;
+
+  //the time boxes
+  std::map<DTSuperLayerId, MonitorElement*> tbHistos;
 
 };
 #endif

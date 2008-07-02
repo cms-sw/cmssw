@@ -4,7 +4,7 @@
  *
  *  $Date: 2008/06/30 12:50:03 $
  *  $Revision: 1.1 $
- *  \author G. Cerminara - INFN Torino
+ *  \authors G. Mila , G. Cerminara - INFN Torino
  */
 
 #include "DTNoiseTask.h"
@@ -28,6 +28,8 @@
 #include "CondFormats/DTObjects/interface/DTStatusFlag.h"
 #include "CondFormats/DTObjects/interface/DTReadOutMapping.h"
 
+// RecHit
+#include "DataFormats/DTRecHit/interface/DTRecSegment4DCollection.h"
 
 // Database
 #include <CondFormats/DTObjects/interface/DTTtrig.h>
@@ -42,7 +44,17 @@ using namespace std;
 
 
 DTNoiseTask::DTNoiseTask(const ParameterSet& ps) : evtNumber(0) {
+
+  cout<< "[DTNoiseTask]: Constructor"<<endl;
+
   dbe = edm::Service<DQMStore>().operator->();
+
+  //switch for timeBox booking
+  doTimeBoxHistos = ps.getUntrackedParameter<bool>("doTbHistos", false);
+  
+  // the name of the 4D rec hits collection
+  theRecHits4DLabel = ps.getParameter<string>("recHits4DLabel");
+  
 }
 
 
@@ -55,7 +67,7 @@ DTNoiseTask::~DTNoiseTask(){}
 /// BeginJob
 void DTNoiseTask::beginJob(const edm::EventSetup& setup) {
 
-  //cout<<"begin job"<<endl;
+  cout<< "[DTNoiseTask]: BeginJob"<<endl;
 
   // tTrig Map
   edm::ESHandle<DTTtrig> tTrigMap;
@@ -75,7 +87,9 @@ void DTNoiseTask::beginJob(const edm::EventSetup& setup) {
     vector<const DTSuperLayer*>::const_iterator sl_end = (*ch_it)->superLayers().end(); 	 
     // Loop over the SLs 	 
     for(; sl_it != sl_end; ++sl_it) { 
-      DTSuperLayerId slId = (*sl_it)->id(); 	
+      DTSuperLayerId slId = (*sl_it)->id();
+      if(doTimeBoxHistos)
+	bookHistos(slId);
       float tTrig, tTrigRMS;
       tTrigMap->slTtrig(slId, tTrig, tTrigRMS);
       // tTrig mapping per station
@@ -91,16 +105,50 @@ void DTNoiseTask::beginJob(const edm::EventSetup& setup) {
 
 /// To reset the MEs
 void DTNoiseTask::beginLuminosityBlock(const edm::LuminosityBlock&  lumiSeg,
-				       const edm::EventSetup& context) {}
+				       const edm::EventSetup& context) {
+
+  cout<<"[DTNoiseTask]: Begin of LS transition"<<endl;
+
+  for(map<DTChamberId, MonitorElement* > ::const_iterator histo = noiseHistos.begin();
+	histo != noiseHistos.end();
+	histo++) {
+    (*histo).second->Reset();
+  }
+
+  if(doTimeBoxHistos){
+    for(map<DTSuperLayerId, MonitorElement* > ::const_iterator histo = tbHistos.begin();
+	histo != tbHistos.end();
+	histo++) {
+      (*histo).second->Reset();
+    }
+  }
+
+}
 
 
   
 /// Analyze
 void DTNoiseTask::analyze(const edm::Event& e, const edm::EventSetup& c) {
- 
-  //cout<<"analyze"<<endl;
+
   evtNumber++;
+  if(evtNumber%1000==0)
+    cout<<"[DTNoiseTask]: Analyzing evt number :"<<evtNumber<<endl;
+
+  // map of the chambers with at least 1 segment
+  std::map<DTChamberId, int> segmentsChId;
+
+  // Get the 4D segment collection from the event
+  edm::Handle<DTRecSegment4DCollection> all4DSegments;
+  e.getByLabel(theRecHits4DLabel, all4DSegments);
   
+  // Loop over all chambers containing a segment and look for the number of segments
+  DTRecSegment4DCollection::id_iterator chamberId;
+  for (chamberId = all4DSegments->id_begin();
+       chamberId != all4DSegments->id_end();
+       ++chamberId){
+    segmentsChId[*chamberId]=1;
+  }
+ 
   // Get the digis from the event
   edm::Handle<DTDigiCollection> dtdigis;
   e.getByLabel("dtunpacker", dtdigis);
@@ -114,9 +162,15 @@ void DTNoiseTask::analyze(const edm::Event& e, const edm::EventSetup& c) {
       //Check the TDC trigger width
       int tdcTime = (*digiIt).countsTDC();
       int upperLimit = tTrigStMap[(*dtLayerId_It).first.superlayerId().chamberId()]-200;
+      if(doTimeBoxHistos)
+	tbHistos[(*dtLayerId_It).first.superlayerId()]->Fill(tdcTime);
       if(tdcTime>upperLimit)
 	continue;
-      
+
+      //Check the chamber has no 4D segments
+      if(segmentsChId.find((*dtLayerId_It).first.superlayerId().chamberId())!=segmentsChId.end())
+	continue;
+
       // fill the occupancy histo
       TH2F* noise_root = noiseHistos[(*dtLayerId_It).first.superlayerId().chamberId()]->getTH2F();
       double normalization=0;
@@ -162,11 +216,11 @@ void DTNoiseTask::bookHistos(DTChamberId chId) {
     + "_St" + station.str() 
     + "_Sec" + sector.str() ;
   
-  cout<<"[DTNoiseTask]: booking chamber histo:"<<endl;
-  cout<<"              folder "<< "DT/01-Noise/Wheel" + wheel.str() +
+  cout<< "[DTNoiseTask]: booking chamber histo:"<<endl;
+  cout<< "              folder "<< "DT/01-Noise/Wheel" + wheel.str() +
     "/Station" + station.str() +
-    "/Sector" + sector.str() + "/" << endl; 
-  cout<<"              histoName "<<histoName<<endl;
+    "/Sector" + sector.str() + "/"<<endl; 
+  cout<< "              histoName "<<histoName<<endl;
 
   // Get the chamber from the geometry
   int nWires_max = 0;
@@ -198,5 +252,34 @@ void DTNoiseTask::bookHistos(DTChamberId chId) {
   noiseHistos[chId]->setBinLabel(10,"SL3_L2",2);
   noiseHistos[chId]->setBinLabel(11,"SL3_L3",2);
   noiseHistos[chId]->setBinLabel(12,"SL3_L4",2);
+
+}
+
+
+void DTNoiseTask::bookHistos(DTSuperLayerId slId) {
+
+  // set the folder
+  stringstream wheel; wheel << slId.chamberId().wheel();	
+  stringstream station; station << slId.chamberId().station();	
+  stringstream sector; sector << slId.chamberId().sector();	
+  stringstream superlayer; superlayer << slId.superlayer();
+  dbe->setCurrentFolder("DT/05-Noise/Wheel" + wheel.str() +
+			"/Station" + station.str() +
+			"/Sector" + sector.str());
+
+  // Build the histo name
+  string histoName = string("TimeBox")
+    + "_W" + wheel.str() 
+    + "_St" + station.str() 
+    + "_Sec" + sector.str()
+    + "_SL" + superlayer.str();
+  
+  cout<<"[DTNoiseTask]: booking SL histo:"<<endl;
+  cout<<"              folder "<< "DT/01-Noise/Wheel" + wheel.str() +
+    "/Station" + station.str() +
+    "/Sector" + sector.str() + "/" << endl; 
+  cout<<"              histoName "<<histoName<<endl;
+
+  tbHistos[slId] = dbe->book1D(histoName,"Time Box (TDC counts)", 1000, 0, 6000);
 
 }
