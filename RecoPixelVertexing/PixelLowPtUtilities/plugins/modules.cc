@@ -12,52 +12,41 @@ DEFINE_ANOTHER_FWK_MODULE(PixelTrackProducerWithZPos);
 #include "PixelVertexProducerMedian.h"
 DEFINE_ANOTHER_FWK_MODULE(PixelVertexProducerMedian);
 
-// Remover
-#include "SiPixelRecHitRemover.h"
-DEFINE_ANOTHER_FWK_MODULE(SiPixelRecHitRemover);
-
-// Region
-#include "RecoTracker/TkTrackingRegions/interface/TrackingRegionProducerFactory.h"
-#include "RecoTracker/TkTrackingRegions/interface/TrackingRegionProducer.h"
-#include "GlobalTrackingRegionProducerWithVertices.h"
-
-DEFINE_EDM_PLUGIN(TrackingRegionProducerFactory, GlobalTrackingRegionProducerWithVertices, "GlobalRegionProducerWithVertices");
+#include "TrackListCombiner.h"
+DEFINE_ANOTHER_FWK_MODULE(TrackListCombiner);
 
 // Generator
 #include "RecoPixelVertexing/PixelTriplets/interface/HitTripletGeneratorFromPairAndLayers.h"
 #include "RecoPixelVertexing/PixelTriplets/interface/HitTripletGeneratorFromPairAndLayersFactory.h"
-#include "RecoPixelVertexing/PixelLowPtUtilities/interface/PixelTripletLowPtGenerator.h"
-DEFINE_EDM_PLUGIN(HitTripletGeneratorFromPairAndLayersFactory, PixelTripletLowPtGenerator,"PixelTripletLowPtGenerator");
+#include "RecoPixelVertexing/PixelLowPtUtilities/interface/TripletGenerator.h"
+DEFINE_EDM_PLUGIN(HitTripletGeneratorFromPairAndLayersFactory, TripletGenerator,"TripletGenerator");
 
-// Filter
+// Filters
 #include "RecoPixelVertexing/PixelLowPtUtilities/interface/TrackHitsFilter.h"
 #include "RecoPixelVertexing/PixelLowPtUtilities/interface/TrackHitsFilterFactory.h"
 #include "RecoPixelVertexing/PixelLowPtUtilities/interface/ClusterShapeTrackFilter.h"
 DEFINE_EDM_PLUGIN(TrackHitsFilterFactory, ClusterShapeTrackFilter, "ClusterShapeTrackFilter");
 
+#include "RecoPixelVertexing/PixelLowPtUtilities/interface/ValidHitPairFilter.h"
+DEFINE_EDM_PLUGIN(TrackHitsFilterFactory, ValidHitPairFilter, "ValidHitPairFilter");
+
 // Fitter
 #include "RecoPixelVertexing/PixelTrackFitting/interface/PixelFitter.h"
 #include "RecoPixelVertexing/PixelTrackFitting/interface/PixelFitterFactory.h"
-#include "RecoPixelVertexing/PixelLowPtUtilities/interface/LowPtPixelFitterByHelixProjections.h"
-DEFINE_EDM_PLUGIN(PixelFitterFactory, LowPtPixelFitterByHelixProjections, "LowPtPixelFitterByHelixProjections");
+#include "RecoPixelVertexing/PixelLowPtUtilities/interface/TrackFitter.h"
+DEFINE_EDM_PLUGIN(PixelFitterFactory, TrackFitter, "TrackFitter");
 
 // Cleaner
 #include "RecoPixelVertexing/PixelTrackFitting/interface/PixelTrackCleaner.h"
 #include "RecoPixelVertexing/PixelTrackFitting/interface/PixelTrackCleanerFactory.h"
-#include "RecoPixelVertexing/PixelLowPtUtilities/interface/LowPtPixelTrackCleanerBySharedHits.h"
-DEFINE_EDM_PLUGIN(PixelTrackCleanerFactory, LowPtPixelTrackCleanerBySharedHits, "LowPtPixelTrackCleanerBySharedHits");
+#include "RecoPixelVertexing/PixelLowPtUtilities/interface/TrackCleaner.h"
+DEFINE_EDM_PLUGIN(PixelTrackCleanerFactory, TrackCleaner, "TrackCleaner");
 
 // Seed
-#include "RecoPixelVertexing/PixelLowPtUtilities/interface/PixelTrackSeedProducer.h"
-DEFINE_ANOTHER_FWK_MODULE(PixelTrackSeedProducer);
+#include "RecoPixelVertexing/PixelLowPtUtilities/interface/SeedProducer.h"
+DEFINE_ANOTHER_FWK_MODULE(SeedProducer);
 
-// TrajectoryCleaner
-#include "TrackingTools/TrajectoryCleaning/interface/TrajectoryCleanerFactory.h"
-#include "RecoPixelVertexing/PixelLowPtUtilities/interface/TrajectoryCleanerBySharedSeeds.h"
-
-DEFINE_EDM_PLUGIN(TrajectoryCleanerFactory, TrajectoryCleanerBySharedSeeds, "TrajectoryCleanerBySharedSeeds");
-
-// TrajectoryFilter producer
+// TrajectoryFilter
 #include "RecoPixelVertexing/PixelLowPtUtilities/interface/ClusterShapeTrajectoryFilterESProducer.h"
 #include "FWCore/Framework/interface/eventsetupdata_registration_macro.h"
 DEFINE_ANOTHER_FWK_EVENTSETUP_MODULE(ClusterShapeTrajectoryFilterESProducer);

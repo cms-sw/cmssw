@@ -23,6 +23,7 @@
 #include "RecoPixelVertexing/PixelLowPtUtilities/interface/TrackHitsFilter.h"
 #include "RecoPixelVertexing/PixelLowPtUtilities/interface/TrackHitsFilterFactory.h"
 #include "RecoPixelVertexing/PixelLowPtUtilities/interface/ClusterShapeTrackFilter.h"
+#include "RecoPixelVertexing/PixelLowPtUtilities/interface/ValidHitPairFilter.h"
 
 #include "RecoPixelVertexing/PixelTrackFitting/interface/PixelTrackCleaner.h"
 #include "RecoPixelVertexing/PixelTrackFitting/interface/PixelTrackCleanerFactory.h"
@@ -72,7 +73,7 @@ using edm::ParameterSet;
 /*****************************************************************************/
 PixelTrackProducerWithZPos::PixelTrackProducerWithZPos
   (const edm::ParameterSet& conf)
-  : theConfig(conf), theFitter(0), theFilter(0), theCleaner(0), theGenerator(0), theRegionProducer(0)
+  : ps(conf), theFitter(0), theFilter(0), theHitsFilter(0), theCleaner(0), theGenerator(0), theRegionProducer(0)
 {
   edm::LogInfo("PixelTrackProducerWithZPos")<<" construction...";
   produces<reco::TrackCollection>();
@@ -85,6 +86,7 @@ PixelTrackProducerWithZPos::PixelTrackProducerWithZPos
 PixelTrackProducerWithZPos::~PixelTrackProducerWithZPos()
 { 
   delete theFilter;
+  delete theHitsFilter;
   delete theFitter;
   delete theCleaner;
   delete theGenerator;
@@ -94,31 +96,37 @@ PixelTrackProducerWithZPos::~PixelTrackProducerWithZPos()
 /*****************************************************************************/
 void PixelTrackProducerWithZPos::beginJob(const edm::EventSetup& es)
 {
-  ParameterSet regfactoryPSet = theConfig.getParameter<ParameterSet>("RegionFactoryPSet");
+  // Region
+  ParameterSet regfactoryPSet = ps.getParameter<ParameterSet>("RegionFactoryPSet");
   std::string regfactoryName = regfactoryPSet.getParameter<std::string>("ComponentName");
   theRegionProducer = TrackingRegionProducerFactory::get()->create(regfactoryName,regfactoryPSet);
 
-  ParameterSet orderedPSet = theConfig.getParameter<ParameterSet>("OrderedHitsFactoryPSet");
+  // OrderesHits
+  ParameterSet orderedPSet = ps.getParameter<ParameterSet>("OrderedHitsFactoryPSet");
   std::string orderedName = orderedPSet.getParameter<std::string>("ComponentName");
   theGenerator = OrderedHitsGeneratorFactory::get()->create( orderedName, orderedPSet);
 
-  ParameterSet fitterPSet = theConfig.getParameter<ParameterSet>("FitterPSet");
+  // Fitter
+  ParameterSet fitterPSet = ps.getParameter<ParameterSet>("FitterPSet");
   std::string fitterName = fitterPSet.getParameter<std::string>("ComponentName");
   theFitter = PixelFitterFactory::get()->create( fitterName, fitterPSet);
 
-  ParameterSet filterPSet = theConfig.getParameter<ParameterSet>("FilterPSet");
+  // Filter
+  ParameterSet filterPSet = ps.getParameter<ParameterSet>("FilterPSet");
   std::string  filterName = filterPSet.getParameter<std::string>("ComponentName");
-  theFilter = TrackHitsFilterFactory::get()->create( filterName, filterPSet,
-es);
+  theFilter = TrackHitsFilterFactory::get()->create( filterName, filterPSet, es);
 
-  ParameterSet cleanerPSet = theConfig.getParameter<ParameterSet>("CleanerPSet");
+  // Cleaner
+  theHitsFilter = TrackHitsFilterFactory::get()->create("ValidHitPairFilter", filterPSet, es);
+
+  ParameterSet cleanerPSet = ps.getParameter<ParameterSet>("CleanerPSet");
   std::string  cleanerName = cleanerPSet.getParameter<std::string>("ComponentName");
   theCleaner = PixelTrackCleanerFactory::get()->create( cleanerName, cleanerPSet);
 
   // Get transient track builder
   edm::ParameterSet regionPSet = regfactoryPSet.getParameter<edm::ParameterSet>("RegionPSet");
   theUseFoundVertices = regionPSet.getParameter<bool>("useFoundVertices");
-  theUseChi2Cut       = regionPSet.getParameter<bool>("useChi2Cut");
+//  theUseChi2Cut       = regionPSet.getParameter<bool>("useChi2Cut");
   thePtMin            = regionPSet.getParameter<double>("ptMin");
   theOriginRadius     = regionPSet.getParameter<double>("originRadius");
 
@@ -179,9 +187,10 @@ pair<float,float> PixelTrackProducerWithZPos::refitWithVertex
 void PixelTrackProducerWithZPos::produce
    (edm::Event& ev, const edm::EventSetup& es)
 {
-  std::cerr << "["
-            << theConfig.getParameter<string>("passLabel")
-            << "]" << std::endl;
+  LogTrace("MinBiasTracking")
+            << "\033[22;31m["
+            << ps.getParameter<string>("passLabel")
+            << "]\033[22;0m";
   
   TracksWithRecHits tracks;
 
@@ -206,8 +215,9 @@ void PixelTrackProducerWithZPos::produce
     const OrderedSeedingHits & triplets = theGenerator->run(region,ev,es); 
     unsigned int nTriplets = triplets.size();
 
-    std::cerr << " [TrackProducer] number of triplets     : "
-              << triplets.size() << std::endl;
+    LogTrace("MinBiasTracking")
+              << " [TrackProducer] number of triplets     : "
+              << triplets.size();
 
     // producing tracks
     for(unsigned int iTriplet = 0; iTriplet < nTriplets; ++iTriplet)
@@ -220,37 +230,22 @@ void PixelTrackProducerWithZPos::produce
   
       // Fitter
       reco::Track* track = theFitter->run(es, hits, region);
+
+if(hits.size() == 2)
+      if ( ! (*theHitsFilter)(track, hits) )
+{
+        delete track; 
+        continue; 
+}
   
       // Filter
       if ( ! (*theFilter)(track,hits) )
       { 
-//        cerr << " [TrackProducer] track did not pass cluster shape filter" << endl;
+        LogTrace("MinBiasTracking") << " [TrackProducer] track did not pass cluster shape filter";
         delete track; 
         continue; 
       }
 
-      if(track->pt() < thePtMin ||
-         track->d0() > theOriginRadius)
-      {
-//        cerr << " [TrackProducer] track did not pass pt and d0 filter (" << track->pt() << " " << track->d0() << ")" << endl;
-        delete track; 
-        continue; 
-      }
-
-      if (theUseFoundVertices)
-      if (theUseChi2Cut)
-      {
-//        float ptv  = refitWithVertex(*track,vertices).first;
-        float chi2 = refitWithVertex(*track,vertices).second;
-
-        if(chi2/3 > 10.)
-        {
-//          cerr << " [TrackProducer] track did not pass chi2 filter (" << chi2 << ")" << endl;
-          delete track; 
-          continue; 
-        }
-      }
-  
       // add tracks 
       tracks.push_back(TrackWithRecHits(track, hits));
     }

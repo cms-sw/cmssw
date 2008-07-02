@@ -4,6 +4,8 @@
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "FWCore/ParameterSet/interface/FileInPath.h"
 
+#include "FWCore/MessageLogger/interface/MessageLogger.h"
+
 #include "Geometry/Records/interface/TrackerDigiGeometryRecord.h"
 
 #include "RecoPixelVertexing/PixelLowPtUtilities/interface/ClusterShape.h"
@@ -62,7 +64,8 @@ void ClusterShapeTrackFilter::loadClusterLimits()
   
   inFile.close();
 
-  cerr << "[TrackFilter  ] pixel cluster shape filter loaded" << endl;
+  LogTrace("MinBiasTracking")
+    << "[TrackFilter  ] pixel cluster shape filter loaded";
 }
 
 /*****************************************************************************/
@@ -120,6 +123,13 @@ bool ClusterShapeTrackFilter::isCompatible
 bool ClusterShapeTrackFilter::operator()
   (const reco::Track* track, std::vector<const TrackingRecHit *> recHits) const
 {
+  if(recHits.size() > 2) return true;
+
+//  LogTrace("MinBiasTracking")
+//    << " ClusterShapeTrackFilter: TRACK " << recHits.size() << endl;
+// !!!!! Now make it a valid hit pair filter
+  
+
   // !!!!!
   return true;
 
@@ -127,9 +137,6 @@ bool ClusterShapeTrackFilter::operator()
   bool ok = true;
 //  vector<const TrackingRecHit*> recHits;
 //  vector<LocalVector> localDirs;
-
-//  cerr << " !! " << track->recHitsSize() << endl;
-//  cerr << " rr " << recHits.size() << endl;
 
 //  vector<LocalVector>::const_iterator localDir = localDirs.begin();
   for(vector<const TrackingRecHit*>::const_iterator recHit = recHits.begin();
@@ -146,7 +153,7 @@ bool ClusterShapeTrackFilter::operator()
 //    localDir++;
   }
 
-cerr << " [TrackFilter$$] ok = " << (ok == true ? 1 : 0) << endl;
+//cerr << " [TrackFilter$$] ok = " << (ok == true ? 1 : 0) << endl;
 
   return ok;
 }

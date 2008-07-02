@@ -15,6 +15,7 @@
 class PixelFitter;
 class PixelTrackCleaner;
 class TrackHitsFilter;
+class HitsFilter;
 class OrderedHitsGenerator;
 class TrackingRegionProducer;
 class Track;
@@ -37,17 +38,18 @@ class PixelTrackProducerWithZPos :  public edm::EDProducer
     void store(edm::Event& ev,
                const pixeltrackfitting::TracksWithRecHits & selectedTracks);
 
-    edm::ParameterSet theConfig;
+    edm::ParameterSet ps;
 
     const PixelFitter       * theFitter;
     const TrackHitsFilter   * theFilter;
+    const TrackHitsFilter   * theHitsFilter;
           PixelTrackCleaner * theCleaner;  
           OrderedHitsGenerator * theGenerator;
           TrackingRegionProducer* theRegionProducer;
 
     const TransientTrackBuilder * theTTBuilder;
     bool theUseFoundVertices;
-    bool theUseChi2Cut;
+//    bool theUseChi2Cut;
 
    double thePtMin, theOriginRadius;
 };

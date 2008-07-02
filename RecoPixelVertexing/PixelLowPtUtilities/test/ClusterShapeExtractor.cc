@@ -32,9 +32,13 @@
 #include "MagneticField/Records/interface/IdealMagneticFieldRecord.h"
 #include "MagneticField/Engine/interface/MagneticField.h"
 
+#include "CondFormats/DataRecord/interface/SiStripLorentzAngleRcd.h"
+#include "CondFormats/SiStripObjects/interface/SiStripLorentzAngle.h"
+
 #include "TROOT.h"
 #include "TFile.h"
 #include "TNtuple.h"
+//#include "TTree.h"
 
 #include <utility>
 #include <vector>
@@ -52,14 +56,8 @@ class ClusterShapeExtractor : public edm::EDAnalyzer
    virtual void endJob() { }
 
  private:
-   pair<float,float> pointToPixel(DetId id, Local3DPoint point);
-   void printCluster(const TrackingRecHit* recHit);
    bool isSuitable(const PSimHit* simHit);
    bool getOrientation(const SiStripRecHit2D& recHit, float& tangent, int& nstrips, bool& isBarrel);
-
-   void processEnergyLoss
-     (const SiPixelRecHit* recHit, vector<PSimHit> simHits);
-
    void process(const SiPixelRecHit*   recHit, vector<PSimHit> simHits);
    void process(const SiStripRecHit2D* recHit, vector<PSimHit> simHits);
 
@@ -67,9 +65,13 @@ class ClusterShapeExtractor : public edm::EDAnalyzer
    TFile * file;
    TNtuple * pixelShape;
    TNtuple * stripShape;
+//   TTree * pixelShape;
+//   TTree * stripShape;
 
    const TrackerGeometry* theTracker;
-   const MagneticField* theMagField;
+   const MagneticField* theMagneticField;
+   const SiStripLorentzAngle * theLorentzAngle;
+
    const SiPixelRecHitCollection* recHits_;
 
    edm::ParameterSet theConfig;
@@ -81,14 +83,19 @@ class ClusterShapeExtractor : public edm::EDAnalyzer
 void ClusterShapeExtractor::beginJob(const edm::EventSetup& es)
 {
   // Get tracker geometry
-  edm::ESHandle<TrackerGeometry> tracker;
+  edm::ESHandle<TrackerGeometry>          tracker;
   es.get<TrackerDigiGeometryRecord>().get(tracker);
-  theTracker = tracker.product();
+  theTracker =                            tracker.product();
 
-    // Get magnetic field
-  edm::ESHandle<MagneticField> magField;
-  es.get<IdealMagneticFieldRecord>().get(magField);
-  theMagField = magField.product();
+  // Get magnetic field
+  edm::ESHandle<MagneticField>           magneticField;
+  es.get<IdealMagneticFieldRecord>().get(magneticField);
+  theMagneticField =                     magneticField.product();
+
+  // Get Lorentz angle for strips
+  edm::ESHandle<SiStripLorentzAngle>   lorentzAngle;
+  es.get<SiStripLorentzAngleRcd>().get(lorentzAngle);
+  theLorentzAngle =                    lorentzAngle.product();
 }
 
 /*****************************************************************************/
@@ -100,6 +107,9 @@ ClusterShapeExtractor::ClusterShapeExtractor
 
   pixelShape = new TNtuple("pixelShape","pixelShape", "nh:subdet:ex:ey:mx:my");
   stripShape = new TNtuple("stripShape","stripShape", "mw:pw:fs:ns:dw:orient");
+
+//  pixelShape = new TTree("pixelShape","pixelShape");
+//  stripShape = new TTree("stripShape","stripShape");
 }
 
 /*****************************************************************************/
@@ -111,111 +121,6 @@ ClusterShapeExtractor::~ClusterShapeExtractor()
   stripShape->Write();
 
   file->Close();
-}
-
-/*****************************************************************************/
-pair<float,float> ClusterShapeExtractor::pointToPixel(DetId id, Local3DPoint point)
-{
-  const PixelGeomDetUnit* pixelDet =
-    dynamic_cast<const PixelGeomDetUnit*> (theTracker->idToDet(id));
-
-  float thickness = pixelDet->surface().bounds().thickness();
-  float TanLorentzAnglePerTesla = 0.106;
-  float Bfield = 4.;
-
-  float dx = (thickness/2 + point.z()) * TanLorentzAnglePerTesla * Bfield;
-
-  // drift to -z
-  Local3DPoint drifted(point.x() + dx, point.y(), -thickness/2);
-
-  return pixelDet->specificTopology().pixel(drifted);
-}
-
-/*****************************************************************************/
-void ClusterShapeExtractor::printCluster(const TrackingRecHit* recHit)
-{
-  ofstream outFile("event/cluster.dat");
-
-  DetId id = recHit->geographicalId();
-
-  // recCluster
-  const SiPixelRecHit* pixelRecHit =
-    dynamic_cast<const SiPixelRecHit *>(recHit);
-
-  SiPixelRecHit::ClusterRef const& cluster = pixelRecHit->cluster();
-  vector<SiPixelCluster::Pixel> pixels = cluster->pixels();
-
-  float x0 = 1e+9, x1=-1;
-  float y0 = 1e+9, y1=-1;
-
-  for(vector<SiPixelCluster::Pixel>::const_iterator
-        pixel = pixels.begin(); pixel!= pixels.end(); pixel++)
-  {
-    if(pixel->x < x0) x0 = pixel->x;
-    if(pixel->x > x1) x1 = pixel->x;
-
-    if(pixel->y < y0) y0 = pixel->y;
-    if(pixel->y > y1) y1 = pixel->y;
-  }
-
-  float d = 2.;
-  float dx,dy;
-
-  if(x1-x0 > y1-y0)
-  { 
-    dx = d; dy = dx + 1./2 * ((x1-x0) - (y1-y0));
-  }
-  else
-  {
-    dy = d; dx = dy + 1./2 * ((y1-y0) - (x1-x0));
-  }
-
-  // ranges
-  outFile << "   " << x0-dx << " " << x1+dx
-            << " " << y0-dy << " " << y1+dy << endl;
-
-  // actual cluster
-  for(vector<SiPixelCluster::Pixel>::const_iterator
-        pixel = pixels.begin(); pixel!= pixels.end(); pixel++)
-    outFile << "   " << pixel->x
-              << " " << pixel->y
-              << " " << pixel->adc / 135
-              << endl;
-
-  // all clusters in unit
-  SiPixelRecHitCollection::range range = recHits_->get(id);
-  for(SiPixelRecHitCollection::const_iterator rHit = range.first;
-                                              rHit!= range.second; rHit++)
-  {
-    const SiPixelRecHit* pixelRecHit = 
-      dynamic_cast<const SiPixelRecHit *>(&(*rHit));
-  
-    SiPixelRecHit::ClusterRef const& cluster = pixelRecHit->cluster();
-    vector<SiPixelCluster::Pixel> pixels = cluster->pixels();
-  
-    for(vector<SiPixelCluster::Pixel>::const_iterator 
-          pixel = pixels.begin(); pixel!= pixels.end(); pixel++)
-      outFile << "   " << pixel->x
-                << " " << pixel->y
-                << " " << - pixel->adc/135
-                << endl;
-  }
-  
-  // simCluster
-  vector<PSimHit> simHits = theHitAssociator->associateHit(*recHit);
-
-  for(vector<PSimHit>::const_iterator
-        simHit = simHits.begin(); simHit!= simHits.end(); simHit++)
-  { 
-    pair<float,float> entryPoint = pointToPixel(id,simHit->entryPoint());
-    pair<float,float> exitPoint  = pointToPixel(id,simHit->exitPoint());
-
-    outFile << "   " << entryPoint.first
-              << " " << entryPoint.second
-              << " " << exitPoint.first
-              << " " << exitPoint.second
-              << endl;
-  }
 }
 
 /*****************************************************************************/
@@ -314,9 +219,11 @@ void ClusterShapeExtractor::process(const SiStripRecHit2D* recHit,
       LocalPoint  lpos = recHit->localPosition();
       GlobalPoint gpos = theTracker->idToDet(id)->toGlobal(lpos);
 
-      GlobalVector bfld = theMagField->inTesla(gpos);
+      GlobalVector bfld = theMagneticField->inTesla(gpos);
       LocalVector Bfield = theTracker->idToDet(id)->toLocal(bfld);
-      double theTanLorentzAnglePerTesla = 0.032;
+
+      double theTanLorentzAnglePerTesla =
+        theLorentzAngle->getLorentzAngle(id.rawId());
 
       float dir_x =  theTanLorentzAnglePerTesla * Bfield.y();
       float dir_z = -1.;
@@ -330,21 +237,6 @@ void ClusterShapeExtractor::process(const SiStripRecHit2D* recHit,
 
       stripShape->Fill(&result[0]);
     }
-  }
-}
-
-/*****************************************************************************/
-void ClusterShapeExtractor::processEnergyLoss
-  (const SiPixelRecHit* recHit, vector<PSimHit> simHits)
-{
-  if(simHits.size() == 1)
-  {
-    const PSimHit* simHit = &(simHits[0]);
-
-    vector<float> result;
-
-    result.push_back(simHit->momentumAtEntry().mag());
-    result.push_back(simHit->particleType());
   }
 }
 
@@ -389,30 +281,6 @@ void ClusterShapeExtractor::process(const SiPixelRecHit* recHit,
       result.push_back(data.size.second);
       result.push_back(move.first );
       result.push_back(move.second);
-
-      // Infos needed for dE/dx calibration 
-/*
-      for(pixels)
-      {
-      result.push_back(simHit->momentumAtEntry().mag());           // p
-      result.push_back(simHit->particleType());                    // id
-      result.push_back(pixel->calculatedValues.partialLength * len);  // dx
-      result.push_back(pixel->measuredValues.adc/135.);               // de,adc 
-      result.push_back((hit.pixelDet->type().subDetector() ==
-                         GeomDetEnumerators::PixelBarrel ? 0 : 1)); // type
-      }
-*/
-  
-
-/*
-      if(data.size.first == 0 && data.size.second == 0 && fabs(move.second) > 6)
-      {
-        printCluster(recHit);
-        cerr << " pixel cluster printed " << move.first
-                                   << " " << move.second << endl;
-        while(getchar() == 0);
-      }
-*/
 
       pixelShape->Fill(&result[0]);
     }

@@ -73,9 +73,10 @@ void PixelVertexProducerMedian::produce
     }
   }
 
-  std::cerr << " [VertexProducer] selected tracks: "
+  LogTrace("MinBiasTracking")
+            << " [VertexProducer] selected tracks: "
             << tracks.size() << " (out of " << tracks_.size()
-            << ")" << std::endl; 
+            << ")"; 
 
   std::auto_ptr<reco::VertexCollection> vertices(new reco::VertexCollection);
 
@@ -91,7 +92,8 @@ void PixelVertexProducerMedian::produce
   else
     med =  tracks[tracks.size()/2  ]->vz();
 
-  std::cerr << "  [vertex position] median    = " << med << " cm" << std::endl;
+  LogTrace("MinBiasTracking")
+   << "  [vertex position] median    = " << med << " cm";
 
   // Binning around med, halfWidth
   int nBin = 100;
@@ -104,9 +106,11 @@ void PixelVertexProducerMedian::produce
       track = tracks.begin(); track!= tracks.end(); track++)
     if(fabs((*track)->vz() - med) < halfWidth)
       histo.Fill((*track)->vz() - med);
-  std::cerr << "  [vertex position] most prob = "
+
+  LogTrace("MinBiasTracking")
+            << "  [vertex position] most prob = "
             << med + histo.GetBinCenter(histo.GetMaximumBin())
-            << " cm" << std::endl;
+            << " cm";
 
   // Fit above max/2
   histo.Sumw2();
@@ -116,9 +120,10 @@ void PixelVertexProducerMedian::produce
 
   histo.Fit("f1","QN");
 
-  std::cerr << "  [vertex position] fitted    = "
+  LogTrace("MinBiasTracking")
+            << "  [vertex position] fitted    = "
             << med + f1.GetParameter(1) << " +- " << f1.GetParError(1)
-            << " cm" << std::endl;
+            << " cm";
 
   // Store
   reco::Vertex::Error err;

@@ -22,30 +22,17 @@
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include <boost/shared_ptr.hpp>
 
-class DetLayer;
+class TrackingRecHit;
+
 class SeedFromConsecutiveHits{
  public:
   typedef edm::OwnVector<TrackingRecHit> recHitContainer;
   
-  // obsolete!
-  SeedFromConsecutiveHits( const TrackingRecHit* outerHit,
-			   const TrackingRecHit* innerHit,
-			   const GlobalPoint& vertexPos,
-			   const GlobalError& vertexErr,
-			   const edm::EventSetup& iSetup,
-			   const edm::ParameterSet& p
-			   );
-
-  SeedFromConsecutiveHits(const SeedingHitSet & hits,
-    const GlobalPoint& vertexPos,
-    const GlobalError& vertexErr,
-    const edm::EventSetup& es); 
-
   SeedFromConsecutiveHits(const std::vector<const TrackingRecHit *>& hits,
     const GlobalPoint& vertexPos,
     const GlobalError& vertexErr,
     const edm::EventSetup& es,
-    const edm::ParameterSet& p);
+    const edm::ParameterSet& ps);
  
   virtual  ~SeedFromConsecutiveHits(){};
 
@@ -60,19 +47,8 @@ class SeedFromConsecutiveHits{
   PTrajectoryStateOnDet trajectoryState(){return *PTraj;};
   TrajectorySeed TrajSeed(){return TrajectorySeed(trajectoryState(),hits(),direction());};
  private:
+  CurvilinearTrajectoryError initialError( const GlobalPoint& vertexPos, const GlobalError& vertexErr, float sinTheta);
 
-  bool construct( const TrackingRecHit* outerHit,
-		  const TrackingRecHit* innerHit,
-		  const GlobalPoint& vertexPos,
-		  const GlobalError& vertexErr,
-		  const edm::EventSetup& iSetup,
-		  const edm::ParameterSet& p
-		  );
-
-  CurvilinearTrajectoryError initialError( const TrackingRecHit* outerHit,
-					   const TrackingRecHit* innerHit,
-					   const GlobalPoint& vertexPos,
-					   const GlobalError& vertexErr);
 
   TrajectoryStateTransform transformer;
   TransientTrackingRecHit::ConstRecHitPointer outrhit;

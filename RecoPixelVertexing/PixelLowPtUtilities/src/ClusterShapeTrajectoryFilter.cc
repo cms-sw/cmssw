@@ -24,6 +24,8 @@
 
 #include "MagneticField/Engine/interface/MagneticField.h"
 
+#include "FWCore/MessageLogger/interface/MessageLogger.h"
+
 #include "FWCore/ParameterSet/interface/FileInPath.h"
 #include <fstream>
 
@@ -33,12 +35,9 @@ using namespace std;
 
 /*****************************************************************************/
 ClusterShapeTrajectoryFilter::ClusterShapeTrajectoryFilter
-// (const edm::ParameterSet & pset)
  (const TrackingGeometry* theTracker_,
   const MagneticField* theMagneticField_)
-//  const int theMode_) :
   : theTracker(theTracker_), theMagneticField(theMagneticField_)
-//, theMode(theMode_)
 {
   // Load pixel
   {
@@ -69,7 +68,8 @@ ClusterShapeTrajectoryFilter::ClusterShapeTrajectoryFilter
 
   inFile.close();
 
-  cerr << "[TrajectFilter] pixel-cluster-shape filter loaded" << endl;
+  LogTrace("MinBiasTracking")
+    << "[TrajectFilter] pixel-cluster-shape filter loaded";
   }
  
   {
@@ -90,11 +90,10 @@ ClusterShapeTrajectoryFilter::ClusterShapeTrajectoryFilter
   }
 
   inFile.close();
-
-  cerr << "[TrajectFilter] strip-cluster-width filter loaded" << endl;
+ 
+  LogTrace("MinBiasTracking")
+    << "[TrajectFilter] strip-cluster-width filter loaded";
   }
-
-//  cerr << " theMode = " << theMode << endl;
 }
 
 /*****************************************************************************/
@@ -171,6 +170,9 @@ bool ClusterShapeTrajectoryFilter::processHit
 
   LocalVector lbfield = (stripDet->surface()).toLocal(theMagneticField->inTesla(stripDet->surface().position()));
   double theTanLorentzAnglePerTesla = 0.032;
+//  double theTanLorentzAnglePerTesla =
+//        theLorentzAngle->getLorentzAngle(id.rawId());
+
   float dir_x =  theTanLorentzAnglePerTesla * lbfield.y();
  
   float drift = dir_x / tangent;
@@ -198,25 +200,11 @@ bool ClusterShapeTrajectoryFilter::processHit
     float m = stripLimits[meas][0];
     float s = stripLimits[meas][1];
 
-/*
-    if( theMode == 0 ) // pp
-    {
-*/
-      if( (pred >  m - Nsigma * s && pred <  m + Nsigma * s) ||
-          (pred > -m - Nsigma * s && pred < -m + Nsigma * s) )
-        return true;
-      else
-        return false;
-/*
-    }
-    else // PbPb
-    {
-      if(fabs(pred) <  m + Nsigma * s)
-        return true;
-      else
-        return false;
-    }
-*/
+    if( (pred >  m - Nsigma * s && pred <  m + Nsigma * s) ||
+        (pred > -m - Nsigma * s && pred < -m + Nsigma * s) )
+      return true;
+    else
+      return false;
   }
   else
   {
@@ -324,7 +312,8 @@ bool ClusterShapeTrajectoryFilter::toBeContinued
         if(recHit != 0)
           if(processHit(gdir, recHit) == false)
           {
-            cerr << "  [TrajectFilter] fail pixel" << endl;
+            LogTrace("MinBiasTracking")
+              << "  [TrajectFilter] fail pixel";
             return false;
           }
       }
@@ -339,13 +328,15 @@ bool ClusterShapeTrajectoryFilter::toBeContinued
           { 
             if(processHit(gdir, recHit->monoHit()  ) == false)
             {
-              cerr << "  [TrajectFilter] fail strip matched 1st" << endl;
+              LogTrace("MinBiasTracking")
+               << "  [TrajectFilter] fail strip matched 1st";
               return false;
             }
 
             if(processHit(gdir, recHit->stereoHit()) == false)
             {
-              cerr << "  [TrajectFilter] fail strip matched 2nd" << endl;
+              LogTrace("MinBiasTracking")
+                << "  [TrajectFilter] fail strip matched 2nd";
               return false;
             }
           }
@@ -360,7 +351,8 @@ bool ClusterShapeTrajectoryFilter::toBeContinued
             if(recHit != 0)
               if(processHit(gdir, recHit) == false)
               {
-                cerr << "  [TrajectFilter] fail strip single" << endl;
+                LogTrace("MinBiasTracking")
+                  << "  [TrajectFilter] fail strip single";
                 return false;
               }
           }
@@ -372,7 +364,8 @@ bool ClusterShapeTrajectoryFilter::toBeContinued
             if(recHit != 0)
               if(processHit(gdir, &(recHit->originalHit())) == false)
               {
-                cerr << "  [TrajectFilter] fail strip projected" << endl;
+                LogTrace("MinBiasTracking")
+                  << "  [TrajectFilter] fail strip projected";
                 return false;
               }
           }
@@ -388,32 +381,30 @@ bool ClusterShapeTrajectoryFilter::toBeContinued
 bool ClusterShapeTrajectoryFilter::qualityFilter
   (const Trajectory& trajectory) const
 {
+return true;
+/*
   const FreeTrajectoryState * fts =
     trajectory.lastMeasurement().updatedState().freeTrajectoryState();
-  float pt  = fts->momentum().perp();
-  int nhits = trajectory.foundHits();
 
-  if( (pt < 1. && nhits >= 3) ||
-      (pt < 2. && nhits >= 4) || nhits >= 5)
-    return true;
-  else
-    return false;
-//  return true;
+  float pt2 = fts->momentum().perp2();
+
+  if(pt2 > 0) return true;
+         else return false;
+*/
 }
 
 /*****************************************************************************/
 bool ClusterShapeTrajectoryFilter::qualityFilter
   (const TempTrajectory& trajectory) const
 {
+return true;
+/*
   const FreeTrajectoryState * fts =
     trajectory.lastMeasurement().updatedState().freeTrajectoryState();
-  float pt  = fts->momentum().perp();
-  int nhits = trajectory.foundHits();
 
-  if( (pt < 1. && nhits >= 3) ||
-      (pt < 2. && nhits >= 4) || nhits >= 5)
-    return true;
-  else
-    return false;
-//  return true;
+  float pt2 = fts->momentum().perp2();
+
+  if(pt2 > 0) return true;
+         else return false;
+*/
 }
