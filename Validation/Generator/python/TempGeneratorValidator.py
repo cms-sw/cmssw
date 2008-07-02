@@ -400,6 +400,8 @@ class JobManager:
         List1 = []
         TempList1 = os.listdir(Configuration.variables["WebDirectory"])
         for probe in TempList1:
+            if 'CVS' in probe:
+                continue
             if '.html' in probe:
                 continue
             List1.append(probe)
