@@ -2,8 +2,8 @@
 /*
  *  See header file for a description of this class.
  *
- *  $Date: $
- *  $Revision: $
+ *  $Date: 2008/07/02 16:32:48 $
+ *  $Revision: 1.1 $
  *  \author G. Cerminara - INFN Torino
  */
 
@@ -19,7 +19,10 @@ using namespace std;
 
 
 DTOccupancyClusterBuilder::  DTOccupancyClusterBuilder() : maxMean(-1.),
-							   maxRMS(-1.) {}
+							   maxRMS(-1.) {
+  debug = false; //FIXME: remove it
+
+}
 
 DTOccupancyClusterBuilder::~DTOccupancyClusterBuilder(){}
 
@@ -53,7 +56,7 @@ void DTOccupancyClusterBuilder::buildClusters() {
     if(clusterCandidate.maxMean() > maxMean) maxMean = clusterCandidate.maxMean();
     if(clusterCandidate.maxRMS() > maxRMS) maxRMS = clusterCandidate.maxRMS();
   }
-  cout << " # of valid clusters: " << theClusters.size() << endl;
+  if(debug) cout << " # of valid clusters: " << theClusters.size() << endl;
   sortClusters();
   
 }
@@ -112,12 +115,12 @@ void DTOccupancyClusterBuilder::computeDistancesToCluster(const DTOccupancyClust
 
 
 bool DTOccupancyClusterBuilder::buildNewCluster() {
-  cout << "--------- New Cluster Candidate ----------------------" << endl;
+  if(debug) cout << "--------- New Cluster Candidate ----------------------" << endl;
   pair<DTOccupancyPoint, DTOccupancyPoint> initialPair = getInitialPair();
-  cout << "   Initial Pair: " << endl;
-  cout << "           point1: mean " << initialPair.first.mean()
+  if(debug) cout << "   Initial Pair: " << endl;
+  if(debug) cout << "           point1: mean " << initialPair.first.mean()
        << " rms " << initialPair.first.rms() << endl;
-  cout << "           point2: mean " << initialPair.second.mean()
+  if(debug) cout << "           point2: mean " << initialPair.second.mean()
        << " rms " << initialPair.second.rms() << endl;
   DTOccupancyCluster clusterCandidate(initialPair.first, initialPair.second);
   if(clusterCandidate.isValid()) {
@@ -147,16 +150,16 @@ bool DTOccupancyClusterBuilder::buildNewCluster() {
 
 
 void DTOccupancyClusterBuilder::sortClusters() {
-  cout << " sorting" << endl;
+  if(debug) cout << " sorting" << endl;
   sort(theClusters.begin(), theClusters.end(), clusterIsLessThan);
   // we save the detid of the clusters which are not the best one
   for(vector<DTOccupancyCluster>::const_iterator cluster = ++(theClusters.begin());
       cluster != theClusters.end(); ++cluster) { // loop over clusters skipping the first
     set<DTLayerId> clusterLayers = (*cluster).getLayerIDs();
-    cout << "     # layers in the cluster: " << clusterLayers.size() << endl;
+    if(debug) cout << "     # layers in the cluster: " << clusterLayers.size() << endl;
     theProblematicLayers.insert(clusterLayers.begin(), clusterLayers.end());
   }
-  cout << " # of problematic layers: " << theProblematicLayers.size() << endl;
+  if(debug) cout << " # of problematic layers: " << theProblematicLayers.size() << endl;
 }
 
 

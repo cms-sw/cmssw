@@ -2,8 +2,8 @@
 /*
  *  See header file for a description of this class.
  *
- *  $Date: $
- *  $Revision: $
+ *  $Date: 2008/07/02 16:32:48 $
+ *  $Revision: 1.1 $
  *  \author G. Cerminara - INFN Torino
  */
 
@@ -14,17 +14,24 @@
 
 
 DTOccupancyPoint::DTOccupancyPoint() : theMean(0.),
-				       theRMS(0.) {}
+				       theRMS(0.) {
+ debug = false; // FIXME: to be removed
+
+}
 
 
 
 DTOccupancyPoint::DTOccupancyPoint(double mean, double rms) : theMean(mean),
-							      theRMS(rms) {}
+							      theRMS(rms) {
+ debug = false; // FIXME: to be removed
+}
 
 
 DTOccupancyPoint::DTOccupancyPoint(double mean, double rms, DTLayerId layerId) : theMean(mean),
 										 theRMS(rms),
-										 theLayerId(layerId) {}
+										 theLayerId(layerId) {
+ debug = false; // FIXME: to be removed
+}
 
 
 

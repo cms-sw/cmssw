@@ -6,8 +6,8 @@
  * *
  *  DQM Test Client
  *
- *  $Date: 2008/06/03 16:35:12 $
- *  $Revision: 1.2 $
+ *  $Date: 2008/07/02 16:32:48 $
+ *  $Revision: 1.3 $
  *  \author  G. Cerminara - University and INFN Torino
  *   
  */
@@ -90,7 +90,7 @@ private:
   TFile *rootFile;
   TNtuple *ntuple;
 
-  
+  bool debug; // FIXME: remove it
 };
 
 #endif

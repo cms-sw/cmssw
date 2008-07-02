@@ -5,8 +5,8 @@
  *  This class is used for evaluation of layer occupancy in DTOccupancyTest.
  *  It describes a point in the 2D plane (average cell occupancy vs cell occupancy RMS).
  *
- *  $Date: $
- *  $Revision: $
+ *  $Date: 2008/07/02 16:32:48 $
+ *  $Revision: 1.1 $
  *  \author G. Cerminara - INFN Torino
  */
 
@@ -55,6 +55,8 @@ private:
   double theRMS;
   DTLayerId theLayerId;
   
+  bool debug; // FIXME: to be removed
+
 };
 
 // Compute the average RMS among two DTOccupancyPoints

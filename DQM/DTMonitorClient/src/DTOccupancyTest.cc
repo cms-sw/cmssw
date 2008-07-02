@@ -3,8 +3,8 @@
 /*
  *  See header file for a description of this class.
  *
- *  $Date: 2008/06/05 12:50:59 $
- *  $Revision: 1.5 $
+ *  $Date: 2008/07/02 16:32:48 $
+ *  $Revision: 1.6 $
  *  \author G. Cerminara - University and INFN Torino
  */
 
@@ -42,6 +42,8 @@ DTOccupancyTest::DTOccupancyTest(const edm::ParameterSet& ps){
     rootFile = new TFile("DTOccupancyTest.root","RECREATE");
     ntuple = new TNtuple("OccupancyNtuple", "OccupancyNtuple", "ls:wh:st:se:lay1MeanCell:lay1RMS:lay2MeanCell:lay2RMS:lay3MeanCell:lay3RMS:lay4MeanCell:lay4RMS:lay5MeanCell:lay5RMS:lay6MeanCell:lay6RMS:lay7MeanCell:lay7RMS:lay8MeanCell:lay8RMS:lay9MeanCell:lay9RMS:lay10MeanCell:lay10RMS:lay11MeanCell:lay11RMS:lay12MeanCell:lay12RMS");
   }
+
+  debug = false; // FIXME: remove it
 
 }
 
@@ -244,7 +246,7 @@ int DTOccupancyTest::runOccupancyTest(TH2F *histo, const DTChamberId& chId) {
     return 4;
   }
 
-  cout << "--- Occupancy test for chamber: " << chId << endl;
+  if(debug) cout << "--- Occupancy test for chamber: " << chId << endl;
   // set the # of SLs
   int nSL = 3;
   if(chId.station() == 4) nSL = 2;
@@ -322,7 +324,7 @@ int DTOccupancyTest::runOccupancyTest(TH2F *histo, const DTChamberId& chId) {
       double averageSquaredCellOccup = layerSquaredSum/nWires;
       double rmsCellOccup = sqrt(averageSquaredCellOccup - averageCellOccup*averageCellOccup);
       averageCellOccupAndRMS[layID] = make_pair(averageCellOccup, rmsCellOccup);
-      cout << "  " << layID
+      if(debug) cout << "  " << layID
 				  << " average cell occ.: " << averageCellOccup
 				  << " RMS: " << rmsCellOccup << endl;
       if(writeRootFile) {
@@ -354,7 +356,7 @@ int DTOccupancyTest::runOccupancyTest(TH2F *histo, const DTChamberId& chId) {
     double rms = (*layAndValues).second.second;
     double lOcc = layerOccupancyMap[lid]; // FIXME: useless
     double avCellOcc = (*layAndValues).second.first;
-    cout << "   " << lid << " tot. occ: " << lOcc
+    if(debug) cout << "   " << lid << " tot. occ: " << lOcc
 				<< " average cell occ: " << avCellOcc
 				<< " RMS: " << rms << endl;
     DTOccupancyPoint point(avCellOcc, rms, lid);
@@ -368,7 +370,7 @@ int DTOccupancyTest::runOccupancyTest(TH2F *histo, const DTChamberId& chId) {
   double safeFactor = 3.;
 //   if(minCellRMS > referenceCellOccup) safeFactor = 5;
 
-  cout << " Reference cell occup.: " << referenceCellOccup
+  if(debug) cout << " Reference cell occup.: " << referenceCellOccup
        << " RMS: " << minCellRMS << endl;
   
   // Set a warning for particularly high RMS: noise can "mask" dead channels
@@ -398,7 +400,7 @@ int DTOccupancyTest::runOccupancyTest(TH2F *histo, const DTChamberId& chId) {
       int binY = binYlow+(lay-1);
 
       double layerInteg = histo->Integral(1,nBinsX,binY,binY);
-      cout << "     layer: " << layID << " integral: " << layerInteg << endl;
+      if(debug) cout << "     layer: " << layID << " integral: " << layerInteg << endl;
 
 
       // if RMS is big check all layers
@@ -430,14 +432,14 @@ int DTOccupancyTest::runOccupancyTest(TH2F *histo, const DTChamberId& chId) {
 	  int interDeadCells = 0;
 	  for(int cell = firstWire; cell != (nWires+firstWire); ++cell) { // loop over cells
 	    double cellOccup = histo->GetBinContent(cell,binY);
-	    cout << "        cell occup: " << cellOccup;
+	    if(debug) cout << "        cell occup: " << cellOccup;
 	    if(cellOccup == 0 || cellOccup < (referenceCellOccup-safeFactor*sqrt(referenceCellOccup))) {
 	      if(cellOccup == 0) nCellsZeroCount++;
 	      totalDeadCells++;
 	      if(previousIsDead) nDeadCellsInARow++;
 	      previousIsDead = true;
 	      interDeadCells = 0;
-	      cout << " below referece" << endl;
+	      if(debug) cout << " below referece" << endl;
 	    } else {
 	      previousIsDead = false;
 	      interDeadCells++;
@@ -447,11 +449,11 @@ int DTOccupancyTest::runOccupancyTest(TH2F *histo, const DTChamberId& chId) {
 		if(nDeadCellsInARow > nDeadCellsInARowMax) nDeadCellsInARowMax = nDeadCellsInARow;
 		nDeadCellsInARow = 1; 
 	      }
-	      cout << endl;
+	      if(debug) cout << endl;
 	    }
 	  }
 	  if(nDeadCellsInARow > nDeadCellsInARowMax) nDeadCellsInARowMax = nDeadCellsInARow;
-	  cout << "       # wires: " << nWires
+	  if(debug) cout << "       # wires: " << nWires
 	       << " # cells 0 count: " << nCellsZeroCount
 	       << " # dead cells in a row: " << nDeadCellsInARowMax
 	       << " total # of dead cells: " << totalDeadCells;
@@ -470,7 +472,7 @@ int DTOccupancyTest::runOccupancyTest(TH2F *histo, const DTChamberId& chId) {
 	      nDeadCellsInARowMax>= 10.) ||
 	     (TMath::Erfc(referenceCellOccup/sqrt(referenceCellOccup)) < 0.5 &&
 	      totalDeadCells > nWires/2.)) {
-	    cout << " -> fail layer!" << endl;
+	    if(debug) cout << " -> fail layer!" << endl;
 	    nFailingLayers++;
 	    failLayer = true;
 	    histo->SetBinContent(nBinsX+1,binY,-1.);
@@ -478,18 +480,18 @@ int DTOccupancyTest::runOccupancyTest(TH2F *histo, const DTChamberId& chId) {
 		     nCellsZeroCount > nWires/3. &&
 		     (double)nCellsZeroCount/(double)nWires >
 		     2.*TMath::Erfc(referenceCellOccup/sqrt(referenceCellOccup))) {
-	      cout << " -> would fail cells!" << endl;
-	      cout << "  # of cells with 0 count: " << nCellsZeroCount
+	      if(debug) cout << " -> would fail cells!" << endl;
+	      if(debug) cout << "  # of cells with 0 count: " << nCellsZeroCount
 		   << " # wires: " << nWires
 		   << "  erfc: " <<   TMath::Erfc(referenceCellOccup/sqrt(referenceCellOccup)) << endl;
 // 	      failCells = true;
 // 	      histo->SetBinContent(nBinsX+1,binY,-1.);
 	  } else {
-	    cout << endl;
+	    if(debug) cout << endl;
 	  }
 
 	} else { // all layer is dead
-	  cout << "     fail layer: no entries" << endl;
+	  if(debug) cout << "     fail layer: no entries" << endl;
 	  failLayer = true;
 	}
 	// If monitored only because of RMS warning remove the layer from the list of monitored
