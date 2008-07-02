@@ -4,7 +4,7 @@
 <use name=FWCore/Utilities>
 <use name=Iguana/Utilities>
 <use name=rootcintex>
-<use name=root>
+<use name=rootgraphics>
 <export>
   <use name=FWCore/Framework>
   <use name=FWCore/ParameterSet>
@@ -12,6 +12,6 @@
   <use name=FWCore/Utilities>
   <use name=Iguana/Utilities>
   <use name=rootcintex>
-  <use name=root>
+  <use name=rootgraphics>
   <lib name=DQMServicesCore>
 </export>
