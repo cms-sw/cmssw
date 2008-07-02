@@ -1,21 +1,4 @@
 <flags EDM_PLUGIN=1>
-<use name=FWCore/Framework>
-<use name=FWCore/ParameterSet>
-<use name=FWCore/PluginManager>
-<use name=Geometry/Records>
-<use name=Geometry/TrackerGeometryBuilder>
-<use name=TrackingTools/PatternTools>
-<use name=RecoVertex/VertexTools>
-<use name=DataFormats/VZero>
 
 <export>
- <lib name=RecoPixelVZeroPixelVZeroFinding>
- <use name=FWCore/Framework>
- <use name=FWCore/ParameterSet>
- <use name=FWCore/PluginManager>
- <use name=Geometry/Records>
- <use name=Geometry/TrackerGeometryBuilder>
- <use name=TrackingTools/PatternTools>
- <use name=RecoVertex/VertexTools>
- <use name=DataFormats/VZero>
 </export>
