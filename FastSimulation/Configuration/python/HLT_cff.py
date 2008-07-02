@@ -1,4 +1,4 @@
-# /dev/CMSSW_2_1_0_pre6/HLT/V11 (CMSSW_2_1_X_2008-06-24-0000_HLT1)
+# /dev/CMSSW_2_1_0_pre6/HLT/V21 (CMSSW_2_1_X_2008-07-02-0400_HLT1)
 # Begin replace statements specific to the FastSim HLT
 # For all HLTLevel1GTSeed objects, make the following replacements:
 #   - L1GtReadoutRecordTag changed from hltGtDigis to gtDigis
@@ -6021,8 +6021,7 @@ hltBLifetimeL25TagInfos = cms.EDProducer( "TrackIPProducer",
 )
 hltBLifetimeL25BJetTags = cms.EDProducer( "JetTagProducer",
     jetTagComputer = cms.string( "trackCounting3D2nd" ),
-    tagInfos = cms.VInputTag( 'hltBLifetimeL25TagInfos' ),
-    tagInfo = cms.InputTag( "hltBLifetimeL25TagInfos" )
+    tagInfos = cms.VInputTag( 'hltBLifetimeL25TagInfos' )
 )
 hltBLifetimeL25filter = cms.EDFilter( "HLTJetTag",
     JetTag = cms.InputTag( "hltBLifetimeL25BJetTags" ),
@@ -6055,8 +6054,7 @@ hltBLifetimeL3TagInfos = cms.EDProducer( "TrackIPProducer",
 )
 hltBLifetimeL3BJetTags = cms.EDProducer( "JetTagProducer",
     jetTagComputer = cms.string( "trackCounting3D2nd" ),
-    tagInfos = cms.VInputTag( 'hltBLifetimeL3TagInfos' ),
-    tagInfo = cms.InputTag( "hltBLifetimeL3TagInfos" )
+    tagInfos = cms.VInputTag( 'hltBLifetimeL3TagInfos' )
 )
 hltBLifetimeL3filter = cms.EDFilter( "HLTJetTag",
     JetTag = cms.InputTag( "hltBLifetimeL3BJetTags" ),
@@ -6106,8 +6104,7 @@ hltBLifetimeL25TagInfosRelaxed = cms.EDProducer( "TrackIPProducer",
 )
 hltBLifetimeL25BJetTagsRelaxed = cms.EDProducer( "JetTagProducer",
     jetTagComputer = cms.string( "trackCounting3D2nd" ),
-    tagInfos = cms.VInputTag( 'hltBLifetimeL25TagInfosRelaxed' ),
-    tagInfo = cms.InputTag( "hltBLifetimeL25TagInfosRelaxed" )
+    tagInfos = cms.VInputTag( 'hltBLifetimeL25TagInfosRelaxed' )
 )
 hltBLifetimeL25filterRelaxed = cms.EDFilter( "HLTJetTag",
     JetTag = cms.InputTag( "hltBLifetimeL25BJetTagsRelaxed" ),
@@ -6140,8 +6137,7 @@ hltBLifetimeL3TagInfosRelaxed = cms.EDProducer( "TrackIPProducer",
 )
 hltBLifetimeL3BJetTagsRelaxed = cms.EDProducer( "JetTagProducer",
     jetTagComputer = cms.string( "trackCounting3D2nd" ),
-    tagInfos = cms.VInputTag( 'hltBLifetimeL3TagInfosRelaxed' ),
-    tagInfo = cms.InputTag( "hltBLifetimeL3TagInfosRelaxed" )
+    tagInfos = cms.VInputTag( 'hltBLifetimeL3TagInfosRelaxed' )
 )
 hltBLifetimeL3filterRelaxed = cms.EDFilter( "HLTJetTag",
     JetTag = cms.InputTag( "hltBLifetimeL3BJetTagsRelaxed" ),
@@ -6280,8 +6276,7 @@ hltBSoftmuonL25TagInfos = cms.EDProducer( "SoftLepton",
 )
 hltBSoftmuonL25BJetTags = cms.EDProducer( "JetTagProducer",
     jetTagComputer = cms.string( "softLeptonByDistance" ),
-    tagInfos = cms.VInputTag( 'hltBSoftmuonL25TagInfos' ),
-    tagInfo = cms.InputTag( "hltBSoftmuonL25TagInfos" )
+    tagInfos = cms.VInputTag( 'hltBSoftmuonL25TagInfos' )
 )
 hltBSoftmuonL25filter = cms.EDFilter( "HLTJetTag",
     JetTag = cms.InputTag( "hltBSoftmuonL25BJetTags" ),
@@ -6301,13 +6296,11 @@ hltBSoftmuonL3TagInfos = cms.EDProducer( "SoftLepton",
 )
 hltBSoftmuonL3BJetTags = cms.EDProducer( "JetTagProducer",
     jetTagComputer = cms.string( "softLeptonByPt" ),
-    tagInfos = cms.VInputTag( 'hltBSoftmuonL3TagInfos' ),
-    tagInfo = cms.InputTag( "hltBSoftmuonL3TagInfos" )
+    tagInfos = cms.VInputTag( 'hltBSoftmuonL3TagInfos' )
 )
 hltBSoftmuonL3BJetTagsByDR = cms.EDProducer( "JetTagProducer",
     jetTagComputer = cms.string( "softLeptonByDistance" ),
-    tagInfos = cms.VInputTag( 'hltBSoftmuonL3TagInfos' ),
-    tagInfo = cms.InputTag( "hltBSoftmuonL3TagInfos" )
+    tagInfos = cms.VInputTag( 'hltBSoftmuonL3TagInfos' )
 )
 hltBSoftmuonL3filter = cms.EDFilter( "HLTJetTag",
     JetTag = cms.InputTag( "hltBSoftmuonL3BJetTags" ),
@@ -6435,9 +6428,6 @@ hltJpsitoMumuL1FilteredRelaxed = cms.EDFilter( "HLTMuonL1Filter",
     MinN = cms.int32( 2 )
 )
 hltDisplacedJpsitoMumuFilterRelaxed = cms.EDFilter( "HLTDisplacedmumuFilter",
-    MinLxySignificance = cms.double( 3.0 ),
-    MaxNormalisedChi2 = cms.double( 10.0 ),
-    MinCosinePointingAngle = cms.double( 0.9 ),
     Src = cms.InputTag( "hltMuTracks" ),
     MaxEta = cms.double( 2.5 ),
     MinPt = cms.double( 3.0 ),
@@ -6445,7 +6435,11 @@ hltDisplacedJpsitoMumuFilterRelaxed = cms.EDFilter( "HLTDisplacedmumuFilter",
     MinInvMass = cms.double( 1.0 ),
     MaxInvMass = cms.double( 6.0 ),
     ChargeOpt = cms.int32( -1 ),
-    FastAccept = cms.bool( False )
+    FastAccept = cms.bool( False ),
+    MinLxySignificance = cms.double( 3.0 ),
+    MaxNormalisedChi2 = cms.double( 10.0 ),
+    MinCosinePointingAngle = cms.double( 0.9 ),
+    BeamSpotTag = cms.InputTag( "offlineBeamSpot" )
 )
 hltJpsitoMumuL1Seed = cms.EDFilter( "HLTLevel1GTSeed",
     L1TechTriggerSeeding = cms.bool( False ),
@@ -6463,9 +6457,6 @@ hltJpsitoMumuL1Filtered = cms.EDFilter( "HLTMuonL1Filter",
     MinN = cms.int32( 2 )
 )
 hltDisplacedJpsitoMumuFilter = cms.EDFilter( "HLTDisplacedmumuFilter",
-    MinLxySignificance = cms.double( 3.0 ),
-    MaxNormalisedChi2 = cms.double( 10.0 ),
-    MinCosinePointingAngle = cms.double( 0.9 ),
     Src = cms.InputTag( "hltMuTracks" ),
     MaxEta = cms.double( 2.5 ),
     MinPt = cms.double( 4.0 ),
@@ -6473,7 +6464,11 @@ hltDisplacedJpsitoMumuFilter = cms.EDFilter( "HLTDisplacedmumuFilter",
     MinInvMass = cms.double( 1.0 ),
     MaxInvMass = cms.double( 6.0 ),
     ChargeOpt = cms.int32( -1 ),
-    FastAccept = cms.bool( False )
+    FastAccept = cms.bool( False ),
+    MinLxySignificance = cms.double( 3.0 ),
+    MaxNormalisedChi2 = cms.double( 10.0 ),
+    MinCosinePointingAngle = cms.double( 0.9 ),
+    BeamSpotTag = cms.InputTag( "offlineBeamSpot" )
 )
 hltMuMukL1Seed = cms.EDFilter( "HLTLevel1GTSeed",
     L1TechTriggerSeeding = cms.bool( False ),
@@ -6491,9 +6486,6 @@ hltMuMukL1Filtered = cms.EDFilter( "HLTMuonL1Filter",
     MinN = cms.int32( 2 )
 )
 hltDisplacedMuMukFilter = cms.EDFilter( "HLTDisplacedmumuFilter",
-    MinLxySignificance = cms.double( 3.0 ),
-    MaxNormalisedChi2 = cms.double( 10.0 ),
-    MinCosinePointingAngle = cms.double( 0.9 ),
     Src = cms.InputTag( "hltMuTracks" ),
     MaxEta = cms.double( 2.5 ),
     MinPt = cms.double( 3.0 ),
@@ -6501,7 +6493,11 @@ hltDisplacedMuMukFilter = cms.EDFilter( "HLTDisplacedmumuFilter",
     MinInvMass = cms.double( 0.2 ),
     MaxInvMass = cms.double( 3.0 ),
     ChargeOpt = cms.int32( 0 ),
-    FastAccept = cms.bool( False )
+    FastAccept = cms.bool( False ),
+    MinLxySignificance = cms.double( 3.0 ),
+    MaxNormalisedChi2 = cms.double( 10.0 ),
+    MinCosinePointingAngle = cms.double( 0.9 ),
+    BeamSpotTag = cms.InputTag( "offlineBeamSpot" )
 )
 hltmmkFilter = cms.EDFilter( "HLTmmkFilter",
     ThirdTrackMass = cms.double( 0.106 ),
@@ -6513,9 +6509,10 @@ hltmmkFilter = cms.EDFilter( "HLTmmkFilter",
     MinLxySignificance = cms.double( 3.0 ),
     MinCosinePointingAngle = cms.double( 0.9 ),
     FastAccept = cms.bool( False ),
-    SaveTag = cms.untracked.bool( True ),
+    BeamSpotTag = cms.InputTag( "offlineBeamSpot" ),
     MuCand = cms.InputTag( "hltMuTracks" ),
-    TrackCand = cms.InputTag( "hltMumukAllConeTracks" )
+    TrackCand = cms.InputTag( "hltMumukAllConeTracks" ),
+    SaveTag = cms.untracked.bool( True )
 )
 hltSingleTauPrescaler = cms.EDFilter( "HLTPrescaler" )
 hltSingleTauL1SeedFilter = cms.EDFilter( "HLTLevel1GTSeed",
@@ -8811,7 +8808,7 @@ HLT_BTagMu_TripleJet40_Relaxed = cms.Path( HLTBeginSequence + hltPrescalerBSoftm
 HLT_BTagMu_QuadJet40 = cms.Path( HLTBeginSequence + hltPrescalerBSoftmuon4jet + hltBSoftmuonNjetL1seeds + HLTBCommonL2recoSequence + hltBSoftmuon4jetL2filter + HLTBSoftmuonL25recoSequence + hltBSoftmuonL25filter + HLTBSoftmuonL3recoSequence + hltBSoftmuonL3filter + cms.SequencePlaceholder("HLTEndSequence") )
 HLT_BTagMu_QuadJet35_Relaxed = cms.Path( HLTBeginSequence + hltPrescalerBSoftmuon4jet35 + hltBSoftmuonNjetL1seeds + HLTBCommonL2recoSequence + hltBSoftmuon4jetL2filter35 + HLTBSoftmuonL25recoSequence + hltBSoftmuonL25filter + HLTBSoftmuonL3recoSequence + hltBSoftmuonL3filterRelaxed + cms.SequencePlaceholder("HLTEndSequence") )
 HLT_BTagMu_QuadJet30_Relaxed = cms.Path( HLTBeginSequence + hltPrescalerBSoftmuon4jet30 + hltBSoftmuonNjetL1seeds + HLTBCommonL2recoSequence + hltBSoftmuon4jetL2filter30 + HLTBSoftmuonL25recoSequence + hltBSoftmuonL25filter + HLTBSoftmuonL3recoSequence + hltBSoftmuonL3filterRelaxed + cms.SequencePlaceholder("HLTEndSequence") )
-HLT_BTagMu_HT300 = cms.Path( HLTBeginSequence + hltPrescalerBSoftmuonHT + hltBSoftmuonHTL1seeds + HLTBCommonL2recoSequence + hltBSoftmuonHTL2filter + HLTBSoftmuonL25recoSequence + hltBSoftmuonL25filter + HLTBSoftmuonL3recoSequence + hltBSoftmuonL3filter + cms.SequencePlaceholder("HLTEndSequence") )
+HLT_BTagMu_HT370 = cms.Path( HLTBeginSequence + hltPrescalerBSoftmuonHT + hltBSoftmuonHTL1seeds + HLTBCommonL2recoSequence + hltBSoftmuonHTL2filter + HLTBSoftmuonL25recoSequence + hltBSoftmuonL25filter + HLTBSoftmuonL3recoSequence + hltBSoftmuonL3filter + cms.SequencePlaceholder("HLTEndSequence") )
 HLT_BTagMu_HT330_Relaxed = cms.Path( HLTBeginSequence + hltPrescalerBSoftmuonHT330 + hltBSoftmuonHTL1seeds + HLTBCommonL2recoSequence + hltBSoftmuonHTL2filter330 + HLTBSoftmuonL25recoSequence + hltBSoftmuonL25filter + HLTBSoftmuonL3recoSequence + hltBSoftmuonL3filterRelaxed + cms.SequencePlaceholder("HLTEndSequence") )
 HLT_BTagMu_HT250_Relaxed = cms.Path( HLTBeginSequence + hltPrescalerBSoftmuonHT250 + hltBSoftmuonHTL1seedsLowEnergy + HLTBCommonL2recoSequence + hltBSoftmuonHTL2filter250 + HLTBSoftmuonL25recoSequence + hltBSoftmuonL25filter + HLTBSoftmuonL3recoSequence + hltBSoftmuonL3filterRelaxed + cms.SequencePlaceholder("HLTEndSequence") )
 HLT_DoubleMu3_BJPsi = cms.Path( HLTBeginSequence + hltJpsitoMumuL1SeedRelaxed + hltJpsitoMumuL1FilteredRelaxed + HLTL2muonrecoSequence + HLTL3displacedMumurecoSequence + hltDisplacedJpsitoMumuFilterRelaxed + cms.SequencePlaceholder("HLTEndSequence") )

@@ -16,6 +16,8 @@ from Geometry.CaloEventSetup.EcalTrigTowerConstituents_cfi import *
 from Geometry.EcalMapping.EcalMappingRecord_cfi import *
 # The muon geometry
 from RecoMuon.DetLayers.muonDetLayerGeometry_cfi import *
+from FastSimulation.Configuration.muonGeometry_cfi import *
+
 # The muon digi calibration
 from CalibMuon.Configuration.DT_FakeConditions_cff import *
 from CalibMuon.Configuration.CSC_FakeDBConditions_cff import *

@@ -16,6 +16,8 @@ from Geometry.CaloEventSetup.EcalTrigTowerConstituents_cfi import *
 from Geometry.EcalMapping.EcalMappingRecord_cfi import *
 # The muon geometry
 from RecoMuon.DetLayers.muonDetLayerGeometry_cfi import *
+from FastSimulation.Configuration.muonGeometry_cfi import *
+
 # The muon tracker trajectory, to be fit without rechit refit
 from RecoMuon.GlobalTrackingTools.GlobalTrajectoryBuilderCommon_cff import *
 GlobalTrajectoryBuilderCommon.TrackRecHitBuilder = 'WithoutRefit'
