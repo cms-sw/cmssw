@@ -219,12 +219,15 @@ class JobManager:
                     cfile.write(template.safe_substitute(directory=scratch, cfg = scratch+'/'+file, CMSSW=CMS_dir ))
                     cfile.close()
                     os.chmod(scratch+"/cmsrunbsub"+file.split('.')[0].split('__')[0], 0755)
-                    status, output = commands.getstatusoutput("bsub " + scratch+"/cmsrunbsub"+file.split('.')[0].split('__')[0])
+                    os.chdir(scratch)
+                    status, output = commands.getstatusoutput("bsub cmsrunbsub"+file.split('.')[0].split('__')[0])
                     for line in output.split('\n'):
                         if "submitted" in line:
                             self.__jobNumber[file.split('.')[0].split('__')[0]].append(line.split(' ')[2].lstrip('<').rstrip('>'))
                     if status != 0:
                         print file + " wasn't submitted properly"
+                    os.chdir(Configuration.variables["HomeDirectory"]+'/bin/')
+                    time.sleep(20)
 
                                 
                                     
@@ -294,7 +297,7 @@ class JobManager:
                                         if os.path.isdir(web_dir) == False:
                                             os.makedirs(web_dir)
                                         
-                                        Publisher.StaticWeb().plot(Configuration.variables["ReleaseDirectory"]+List+'/'+sub_dir[i]+'/'+process+'/'+rel_file, Configuration.variables["ReleaseDirectory"]+List+'/'+sub_dir[j]+'/'+process+'/'+ref_file, web_dir, process+'--'+sub_dir[i]+'--'+sub_dir[j], '')
+                                        Publisher.StaticWeb().plot(Configuration.variables["ReleaseDirectory"]+List+'/'+sub_dir[i]+'/'+process+'/'+rel_file, Configuration.variables["ReleaseDirectory"]+List+'/'+sub_dir[j]+'/'+process+'/'+ref_file, web_dir, process+'--'+sub_dir[i]+'--'+sub_dir[j], '',sub_dir[i], sub_dir[j]))
                                         Publisher.StaticWeb().index(sub_dir[i], sub_dir[j], process, web_dir)
                                               
 
@@ -340,7 +343,7 @@ class JobManager:
                                             if os.path.isdir(web_dir) == False:
                                                 os.makedirs(web_dir)
                                             
-                                            Publisher.StaticWeb().plot(rel_loc+'/'+rel_file, ref_loc+'/'+ref_file, web_dir, process+'--'+rel_dir+'--'+ref_dir, '')
+                                            Publisher.StaticWeb().plot(rel_loc+'/'+rel_file, ref_loc+'/'+ref_file, web_dir, process+'--'+rel_dir+'--'+ref_dir, '',rel_dir, ref_dir)
                                             Publisher.StaticWeb().index(rel_dir, ref_dir, process, web_dir)
                                 
                                                     

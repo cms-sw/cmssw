@@ -25,7 +25,7 @@ class StaticWeb:
     self.releaseDifference = None
   
   ## Given a root file plots all the histograms.  
-  def plot ( self, mainfile, reffile, location, file_prefix, package ):
+  def plot ( self, mainfile, reffile, location, file_prefix, package, release, reference ):
     # Creates a temporal file for executing root
     rootFile = tempfile.NamedTemporaryFile('w',suffix='.C')    
     #rootFile = open ('Holanda.C','w')
@@ -51,6 +51,8 @@ class StaticWeb:
       string = string + "plot.SetExtension(\"png\");\n"
       string = string + "plot.SetFilePrefix(\""+file_prefix+"\");\n"
       string = string + "plot.SetDirectory(\""+package+"\");\n"
+      string = string + "plot.SetRelease(\""+release+"\");\n"
+      string = string + "plot.SetReference(\""+reference+"\");\n"
     string = string + "plot.Draw();\n }"
     # Write the string
     rootFile.write( string )

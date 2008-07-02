@@ -6,7 +6,7 @@
  *
  * \author Francisco Yumiceva, Fermilab (yumiceva@fnal.gov)
  *
- * \version $Id: MyMakePlots.h,v 1.1 2008/03/24 19:31:48 ksmith Exp $
+ * \version $Id: MyMakePlots.h,v 1.2 2008/05/23 17:02:43 ksmith Exp $
  *
  */
 
@@ -26,9 +26,10 @@ class MyMakePlots {
 	void SetLogAxis( bool option) { logaxis = option; }
 	void SetFilePrefix(TString name) {fileprefix = name;}
 	void SetDirectory(TString name) {directory = name;}
-	void SetRelease(TString name) {release = name;}
-	void SetReference(TString name) {reference = name;}
+	void SetRelease(TString name) {_release = name;}
+	void SetReference(TString name) {_reference = name;}
 	void SetDataset(TString name) {dataset = name;}
+	
 	
   private:
 	TString root_filename;
@@ -39,8 +40,8 @@ class MyMakePlots {
 	bool logaxis;
 	TString fileprefix;
 	TString directory;
-	TString release;
-	TString reference;
+	TString _release;
+	TString _reference;
 	TString dataset;
 };
 
