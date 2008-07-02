@@ -2,8 +2,8 @@
 /*
  *  See header file for a description of this class.
  *
- *  $Date: 2008/05/30 08:37:00 $
- *  $Revision: 1.12 $
+ *  $Date: 2008/05/30 13:37:24 $
+ *  $Revision: 1.13 $
  *  \author G. Cerminara - INFN Torino
  *  revised by G. Mila - INFN Torino
  */
@@ -50,7 +50,7 @@ DTSegmentAnalysisTask::DTSegmentAnalysisTask(const edm::ParameterSet& pset) {
 
   // Get the DQM needed services
   theDbe = edm::Service<DQMStore>().operator->();
-  theDbe->setCurrentFolder("DT/Segments");
+  theDbe->setCurrentFolder("DT/02-Segments");
 
  }
 
@@ -81,7 +81,7 @@ void DTSegmentAnalysisTask::endJob(){
   edm::LogVerbatim ("segment") <<"[DTSegmentAnalysisTask] endjob called!";
 
   theDbe->save("prova.root");
-  theDbe->rmdir("DT/Segments");
+  theDbe->rmdir("DT/02-Segments");
 }
   
 
@@ -222,7 +222,7 @@ void DTSegmentAnalysisTask::bookHistos(DTChamberId chamberId) {
 
   for(int wh=-2; wh<=2; wh++){
     stringstream wheel; wheel << wh;
-    theDbe->setCurrentFolder("DT/Segments/Wheel" + wheel.str());
+    theDbe->setCurrentFolder("DT/02-Segments/Wheel" + wheel.str());
     string histoName =  "numberOfSegments_W" + wheel.str();
     summaryHistos[wh] = theDbe->book2D(histoName.c_str(),histoName.c_str(),12,1,13,4,1,5);
     summaryHistos[wh]->setAxisTitle("Sector",1);
@@ -245,7 +245,7 @@ void DTSegmentAnalysisTask::bookHistos(DTChamberId chamberId) {
   }
 
 
-  theDbe->setCurrentFolder("DT/Segments/Wheel" + wheel.str() +
+  theDbe->setCurrentFolder("DT/02-Segments/Wheel" + wheel.str() +
 			   "/Station" + station.str() +
 			   "/Sector" + sector.str());
   // Create the monitor elements
