@@ -7,26 +7,17 @@
 
 #include <DataFormats/MuonDetId/interface/RPCDetId.h>
 #include <DQMOffline/Muon/interface/RPCEfficiency.h>
+#include <DQMOffline/Muon/interface/RPCBookFolderStructure.h>
 #include "DQMServices/Core/interface/MonitorElement.h"
 
 #include "Geometry/RPCGeometry/interface/RPCGeomServ.h"
 std::map<std::string, MonitorElement*> RPCEfficiency::bookDetUnitSeg(RPCDetId & detId,int nstrips) {
   
   std::map<std::string, MonitorElement*> meMap;
-  std::string regionName;
-  std::string ringType;
-  if(detId.region()==0) {
-    regionName="Barrel";
-    ringType="Wheel";
-  }
-  else{
-    ringType="Disk";
-    if(detId.region() == -1) regionName="Endcap-";
-    if(detId.region() ==  1) regionName="Endcap+";
-  }
-  
-  char  folder[120];
-  sprintf(folder,"RPC/MuonSegEff/%s/%s_%d/station_%d/sector_%d",regionName.c_str(),ringType.c_str(),detId.ring(),detId.station(),detId.sector());
+   
+  RPCBookFolderStructure *  folderStr = new RPCBookFolderStructure(); //Anna
+  std::string folder = "RPC/MuonSegEff/" +  folderStr->folderStructure(detId);
+
   dbe->setCurrentFolder(folder);
 
   RPCGeomServ RPCname(detId);
