@@ -3,7 +3,7 @@
 <use name=FWCore/Framework>
 <use name=FWCore/TFWLiteSelector>
 <use name=rootcore>
-<use name=root>
+<use name=rootgraphics>
 <use name=rootrflx>
 <export>
   <lib name=FWCoreTFWLiteSelectorTest>
