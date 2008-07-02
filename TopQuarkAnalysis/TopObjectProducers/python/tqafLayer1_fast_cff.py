@@ -8,15 +8,12 @@ import FWCore.ParameterSet.Config as cms
 from PhysicsTools.PatAlgos.famos.famosSequences_cff import *
 
 ## extra replacements for fastsim
-allLayer1Photons.addTrigMatch = False
+#allLayer1Photons.addTrigMatch = False
 
 #-----------------------------------------------------------------
 # build tqafLayer0 objects (jets, muons, electrons, mets, taus)
 #-----------------------------------------------------------------
 from PhysicsTools.PatAlgos.patLayer0_cff import *
-
-## used for debugging
-# include "PhysicsTools/PatAlgos/data/famos/patLayer0_FamosSetup.cff"
 
 ## define the tqafLayer0 input
 from TopQuarkAnalysis.TopObjectProducers.fast.tqafLayer0_Jets_cff import *
@@ -29,9 +26,6 @@ from TopQuarkAnalysis.TopObjectProducers.fast.tqafLayer0_METs_cff import *
 # build tqafLayer1 objects (jets, muons, electrons, mets, taus)
 #-----------------------------------------------------------------
 from PhysicsTools.PatAlgos.patLayer1_cff import *
-
-##used for debugging
-# include "PhysicsTools/PatAlgos/data/famos/patLayer1_FamosSetup.cff"
 
 ## define the tqafLayer1 input
 from TopQuarkAnalysis.TopObjectProducers.fast.tqafLayer1_Jets_cff import *
