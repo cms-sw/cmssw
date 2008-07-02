@@ -1,5 +1,5 @@
 #!/usr/bin/perl -w
-# $Id: injectFileIntoTransferSystem.pl,v 1.11 2008/06/24 13:47:41 mrudolph Exp $
+# $Id: injectFileIntoTransferSystem.pl,v 1.12 2008/07/02 13:32:45 jserrano Exp $
 #
 # Written by Matt Rudolph June 2008
 #
@@ -267,7 +267,7 @@ if($check) {
     unless($result[4]) {print "FILES_TRANS_COPIED\n"; exit;}
     unless($result[5]) {print "FILES_TRANS_CHECKED\n"; exit;}
     unless($result[6]) {print "FILES_TRANS_INSERTED\n"; exit;}
-    print "File has been copied and checked successfully.\n"; exit;
+    print "FILES_DELETED.\n"; exit;
 }
 
 # filename, path, host and filesize must be correct or transfer will never work
