@@ -89,7 +89,7 @@ std::vector<reco::BasicCluster> Multi5x5ClusterAlgo::makeClusters(
    }
 
    mainSearch(hits,geometry_p,topology_p,geometryES_p,ecalPart);
-   sort(clusters_v.begin(), clusters_v.end());
+   sort(clusters_v.rbegin(), clusters_v.rend());
 
    if (verbosity < pINFO)
    {
