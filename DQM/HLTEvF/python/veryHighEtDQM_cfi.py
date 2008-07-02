@@ -7,19 +7,19 @@ veryHighEtDQM = cms.EDFilter("HLTMonElectron",
     DaqMonitorBEInterface = cms.untracked.bool(True),
     filters = cms.VPSet(cms.PSet(
         PlotBounds = cms.vdouble(0.0, 0.0),
-        HLTCollectionLabels = cms.InputTag("l1seedRelaxedSingle"),
+        HLTCollectionLabels = cms.InputTag("hltL1seedRelaxedSingleEgamma::HLT"),
         IsoCollections = cms.VInputTag(cms.InputTag("none")),
         theHLTOutputTypes = cms.uint32(82)
     ), 
         cms.PSet(
             PlotBounds = cms.vdouble(0.0, 0.0),
-            HLTCollectionLabels = cms.InputTag("hltL1NonIsoSingleEMVeryHighEtL1MatchFilterRegional"),
+            HLTCollectionLabels = cms.InputTag("hltL1NonIsoSingleEMVeryHighEtL1MatchFilterRegional::HLT"),
             IsoCollections = cms.VInputTag(cms.InputTag("none")),
             theHLTOutputTypes = cms.uint32(100)
         ), 
         cms.PSet(
             PlotBounds = cms.vdouble(0.0, 0.0),
-            HLTCollectionLabels = cms.InputTag("hltL1NonIsoSinglePhotonEMVeryHighEtEtFilter"),
+            HLTCollectionLabels = cms.InputTag("hltL1NonIsoSinglePhotonEMVeryHighEtEtFilter::HLT"),
             IsoCollections = cms.VInputTag(cms.InputTag("none")),
             theHLTOutputTypes = cms.uint32(100)
         )),

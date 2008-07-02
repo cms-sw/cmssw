@@ -7,44 +7,44 @@ singleElectronDQM = cms.EDFilter("HLTMonElectron",
     DaqMonitorBEInterface = cms.untracked.bool(True),
     filters = cms.VPSet(cms.PSet(
         PlotBounds = cms.vdouble(0.0, 0.0),
-        HLTCollectionLabels = cms.InputTag("l1seedSingle"),
+        HLTCollectionLabels = cms.InputTag("hltL1seedSingleEgamma::HLT"),
         IsoCollections = cms.VInputTag(cms.InputTag("none")),
         theHLTOutputTypes = cms.uint32(83)
     ), 
         cms.PSet(
             PlotBounds = cms.vdouble(0.0, 0.0),
-            HLTCollectionLabels = cms.InputTag("hltL1IsoSingleL1MatchFilter"),
+            HLTCollectionLabels = cms.InputTag("hltL1IsoSingleL1MatchFilter::HLT"),
             IsoCollections = cms.VInputTag(cms.InputTag("none")),
             theHLTOutputTypes = cms.uint32(100)
         ), 
         cms.PSet(
             PlotBounds = cms.vdouble(0.0, 0.0),
-            HLTCollectionLabels = cms.InputTag("hltL1IsoSingleElectronEtFilter"),
+            HLTCollectionLabels = cms.InputTag("hltL1IsoSingleElectronEtFilter::HLT"),
             IsoCollections = cms.VInputTag(cms.InputTag("none")),
             theHLTOutputTypes = cms.uint32(100)
         ), 
         cms.PSet(
             PlotBounds = cms.vdouble(0.0, 10.0),
-            HLTCollectionLabels = cms.InputTag("hltL1IsoSingleElectronHcalIsolFilter"),
-            IsoCollections = cms.VInputTag(cms.InputTag("l1IsolatedElectronHcalIsol")),
+            HLTCollectionLabels = cms.InputTag("hltL1IsoSingleElectronHcalIsolFilter::HLT"),
+            IsoCollections = cms.VInputTag(cms.InputTag("hltL1IsolatedElectronHcalIsol::HLT")),
             theHLTOutputTypes = cms.uint32(100)
         ), 
         cms.PSet(
             PlotBounds = cms.vdouble(0.0, 0.0),
-            HLTCollectionLabels = cms.InputTag("hltL1IsoSingleElectronPixelMatchFilter"),
+            HLTCollectionLabels = cms.InputTag("hltL1IsoSingleElectronPixelMatchFilter::HLT"),
             IsoCollections = cms.VInputTag(cms.InputTag("none")),
             theHLTOutputTypes = cms.uint32(100)
         ), 
         cms.PSet(
             PlotBounds = cms.vdouble(0.0, 0.0),
-            HLTCollectionLabels = cms.InputTag("hltL1IsoSingleElectronHOneOEMinusOneOPFilter"),
+            HLTCollectionLabels = cms.InputTag("hltL1IsoSingleElectronHOneOEMinusOneOPFilter::HLT"),
             IsoCollections = cms.VInputTag(cms.InputTag("none")),
             theHLTOutputTypes = cms.uint32(92)
         ), 
         cms.PSet(
             PlotBounds = cms.vdouble(0.0, 10.0),
-            HLTCollectionLabels = cms.InputTag("hltL1IsoSingleElectronTrackIsolFilter"),
-            IsoCollections = cms.VInputTag(cms.InputTag("l1IsoElectronTrackIsol")),
+            HLTCollectionLabels = cms.InputTag("hltL1IsoSingleElectronTrackIsolFilter::HLT"),
+            IsoCollections = cms.VInputTag(cms.InputTag("hltL1IsoElectronTrackIsol::HLT")),
             theHLTOutputTypes = cms.uint32(92)
         )),
     disableROOToutput = cms.untracked.bool(True),
