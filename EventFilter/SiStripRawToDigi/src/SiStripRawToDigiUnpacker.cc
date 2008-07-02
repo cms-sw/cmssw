@@ -3,6 +3,8 @@
 #include "DataFormats/Common/interface/DetSet.h"
 #include "DataFormats/FEDRawData/interface/FEDRawDataCollection.h"
 #include "DataFormats/FEDRawData/interface/FEDNumbering.h"
+#include "DataFormats/FEDRawData/interface/FEDHeader.h"
+#include "DataFormats/FEDRawData/interface/FEDTrailer.h"
 #include "DataFormats/SiStripCommon/interface/SiStripConstants.h"
 //#include "DataFormats/SiStripCommon/interface/SiStripFedKey.h"
 #include "DataFormats/SiStripCommon/interface/SiStripEventSummary.h"
@@ -12,8 +14,6 @@
 #include "FWCore/Utilities/interface/Exception.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include "Utilities/Timing/interface/TimingReport.h"
-#include "interface/shared/fed_header.h"
-#include "interface/shared/fed_trailer.h"
 #include "Fed9UUtils.hh"
 #include "ICException.hh"
 #include <iostream>
@@ -557,10 +557,10 @@ void SiStripRawToDigiUnpacker::triggerFed( const FEDRawDataCollection& buffers,
       const FEDRawData& trigger_fed = buffers.FEDData( ifed );
       if ( trigger_fed.data() && trigger_fed.size() ) {
 	uint8_t*  temp = const_cast<uint8_t*>( trigger_fed.data() );
-	data_u32 = reinterpret_cast<uint32_t*>( temp ) + sizeof(fedh_t)/sizeof(uint32_t) + 1;
-	size_u32 = trigger_fed.size()/sizeof(uint32_t) - sizeof(fedh_t)/sizeof(uint32_t) - 1;
-	fedt_t* fed_trailer = reinterpret_cast<fedt_t*>( temp + trigger_fed.size() - sizeof(fedt_t) );
-	if ( fed_trailer->conscheck == 0xDEADFACE ) { 
+	data_u32 = reinterpret_cast<uint32_t*>( temp ) + sizeof(FEDHeader)/sizeof(uint32_t) + 1;
+	size_u32 = trigger_fed.size()/sizeof(uint32_t) - sizeof(FEDHeader)/sizeof(uint32_t) - 1;
+	FEDTrailer* fed_trailer = reinterpret_cast<FEDTrailer*>( temp + trigger_fed.size() - sizeof(FEDTrailer) );
+	if ( fed_trailer->check() ) { 
 	  triggerFedId_ = ifed; 
 	  std::stringstream ss;
 	  ss << "[SiStripRawToDigiUnpacker::" << __func__ << "]"
@@ -585,10 +585,10 @@ void SiStripRawToDigiUnpacker::triggerFed( const FEDRawDataCollection& buffers,
     const FEDRawData& trigger_fed = buffers.FEDData( triggerFedId_ );
     if ( trigger_fed.data() && trigger_fed.size() ) {
       uint8_t*  temp = const_cast<uint8_t*>( trigger_fed.data() );
-      data_u32 = reinterpret_cast<uint32_t*>( temp ) + sizeof(fedh_t)/sizeof(uint32_t) + 1;
-      size_u32 = trigger_fed.size()/sizeof(uint32_t) - sizeof(fedh_t)/sizeof(uint32_t) - 1;
-      fedt_t* fed_trailer = reinterpret_cast<fedt_t*>( temp + trigger_fed.size() - sizeof(fedt_t) );
-      if ( fed_trailer->conscheck != 0xDEADFACE ) { 
+      data_u32 = reinterpret_cast<uint32_t*>( temp ) + sizeof(FEDHeader)/sizeof(uint32_t) + 1;
+      size_u32 = trigger_fed.size()/sizeof(uint32_t) - sizeof(FEDTrailer)/sizeof(uint32_t) - 1;
+      FEDTrailer* fed_trailer = reinterpret_cast<FEDTrailer*>( temp + trigger_fed.size() - sizeof(FEDTrailer) );
+      if ( fed_trailer->check() ) { 
 	edm::LogWarning(mlRawToDigi_) 
 	  << "[SiStripRawToDigiUnpacker::" << __func__ << "]"
 	  << " Unexpected stamp found in DAQ trailer (ie, not 0xDEADFACE)!"

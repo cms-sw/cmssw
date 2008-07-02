@@ -3,11 +3,11 @@
 #include "CondFormats/SiStripObjects/interface/SiStripFedCabling.h"
 #include "DataFormats/Common/interface/Handle.h"
 #include "DataFormats/FEDRawData/interface/FEDRawDataCollection.h"
+#include "DataFormats/FEDRawData/interface/FEDTrailer.h"
 #include "DataFormats/SiStripCommon/interface/SiStripConstants.h"
 #include "EventFilter/SiStripRawToDigi/interface/SiStripRawToDigiUnpacker.h"
 #include "FWCore/Framework/interface/ESHandle.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
-#include "interface/shared/fed_trailer.h"
 #include "Fed9UUtils.hh"
 #include "ICException.hh"
 #include <sstream>
@@ -67,8 +67,8 @@ void SiStripFEDRawDataCheck::analyze( const edm::Event& event,
   for ( uint16_t ifed = 0; ifed <= sistrip::CMS_FED_ID_MAX; ++ifed ) {
     const FEDRawData& fed = buffers->FEDData( static_cast<int>(ifed) );
     uint8_t* data = const_cast<uint8_t*>( fed.data() ); // look for trigger fed
-    fedt_t* fed_trailer = reinterpret_cast<fedt_t*>( data + fed.size() - sizeof(fedt_t) );
-    if ( fed.size() && fed_trailer->conscheck == 0xDEADFACE ) { trg_feds.push_back(Fed(ifed,fed.size())); }
+    FEDTrailer* fed_trailer = reinterpret_cast<FEDTrailer*>( data + fed.size() - sizeof(FEDTrailer) );
+    if ( fed.size() && fed_trailer->check() ) { trg_feds.push_back(Fed(ifed,fed.size())); }
     else {
       if ( ifed < sistrip::FED_ID_MIN ||
 	   ifed > sistrip::FED_ID_MAX ) {
