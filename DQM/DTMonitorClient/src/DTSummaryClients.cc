@@ -3,8 +3,8 @@
 /*
  *  See header file for a description of this class.
  *
- *  $Date: 2008/05/27 16:25:09 $
- *  $Revision: 1.2 $
+ *  $Date: 2008/06/03 16:35:37 $
+ *  $Revision: 1.3 $
  *  \author G. Mila - INFN Torino
  */
 
@@ -33,7 +33,7 @@ using namespace std;
 
 DTSummaryClients::DTSummaryClients(const edm::ParameterSet& ps) : nevents(0) {
 
-  edm::LogVerbatim ("summary") << "[DTSummaryClients]: Constructor";
+  edm::LogVerbatim ("DTSummaryClient") << "[DTSummaryClients]: Constructor";
   
   
   dbe = edm::Service<DQMStore>().operator->();
@@ -42,58 +42,43 @@ DTSummaryClients::DTSummaryClients(const edm::ParameterSet& ps) : nevents(0) {
 
 DTSummaryClients::~DTSummaryClients(){
 
-  edm::LogVerbatim ("summary") << "DTSummaryClients: analyzed " << nevents << " events";
+  edm::LogVerbatim ("DTSummaryClient") << "DTSummaryClients: analyzed " << nevents << " events";
 
 }
 
 void DTSummaryClients::beginRun(Run const& run, EventSetup const& eSetup) {
 
-  edm::LogVerbatim ("summary") <<"[DTSummaryClients]: BeginRun"; 
+  edm::LogVerbatim ("DTSummaryClient") <<"[DTSummaryClients]: BeginRun"; 
 
   // book the summary histos
   dbe->setCurrentFolder("DT/EventInfo"); 
-  SummaryReport = dbe->bookFloat("reportSummary");
+  summaryReport = dbe->bookFloat("reportSummary");
 
-  SummaryReportMap = dbe->book2D("reportSummaryMap","DT Report Summary Map",14,0.5,14.5,5,-2.5,2.5);
-  SummaryReportMap->setBinLabel(1,"Sec1",1);
-  SummaryReportMap->setBinLabel(2,"Sec2",1);
-  SummaryReportMap->setBinLabel(3,"Sec3",1);
-  SummaryReportMap->setBinLabel(4,"Sec4",1);
-  SummaryReportMap->setBinLabel(5,"Sec5",1);
-  SummaryReportMap->setBinLabel(6,"Sec6",1);
-  SummaryReportMap->setBinLabel(7,"Sec7",1);
-  SummaryReportMap->setBinLabel(8,"Sec8",1);
-  SummaryReportMap->setBinLabel(9,"Sec9",1);
-  SummaryReportMap->setBinLabel(10,"Sec10",1);
-  SummaryReportMap->setBinLabel(11,"Sec11",1);
-  SummaryReportMap->setBinLabel(12,"Sec12",1);
-  SummaryReportMap->setBinLabel(13,"Sec13",1);
-  SummaryReportMap->setBinLabel(14,"Sec14",1);
-  SummaryReportMap->setBinLabel(1,"Wh-2",2);
-  SummaryReportMap->setBinLabel(2,"Wh-1",2);
-  SummaryReportMap->setBinLabel(3,"Wh0",2);
-  SummaryReportMap->setBinLabel(4,"Wh+1",2);
-  SummaryReportMap->setBinLabel(5,"Wh+2",2);
+  summaryReportMap = dbe->book2D("reportSummaryMap","DT Report Summary Map",12,1,13,5,-2,3);
+  summaryReportMap->setAxisTitle("sector",1);
+  summaryReportMap->setAxisTitle("wheel",2);
 
   dbe->setCurrentFolder("DT/EventInfo/reportSummaryContents");
 
-  SummaryLocalTrigger  = dbe->bookFloat("SummaryLocalTrigger");
-  SummaryOccupancy  = dbe->bookFloat("SummaryOccupancy");
-  SummaryDataIntegrity  = dbe->bookFloat("SummaryDataIntegrity");
-
+  for(int wheel = -2; wheel != 3; ++wheel) {
+    stringstream streams;
+    streams << "DT_Wheel" << wheel;
+    string meName = streams.str();    
+    theSummaryContents.push_back(dbe->bookFloat(meName));
+  }
 }
 
 
 void DTSummaryClients::endJob(void){
   
-  edm::LogVerbatim ("summary") <<"[DTSummaryClients]: endJob"; 
+  edm::LogVerbatim ("DTSummaryClient") <<"[DTSummaryClients]: endJob"; 
 
 }
 
 
 void DTSummaryClients::endRun(Run const& run, EventSetup const& eSetup) {
   
-  edm::LogVerbatim ("summary") <<"[DTSummaryClients]: endRun"; 
+  edm::LogVerbatim ("DTSummaryClient") <<"[DTSummaryClients]: endRun"; 
 
 }
 
@@ -101,31 +86,71 @@ void DTSummaryClients::endRun(Run const& run, EventSetup const& eSetup) {
 void DTSummaryClients::analyze(const edm::Event& e, const edm::EventSetup& context){
 
    nevents++;
-   edm::LogVerbatim ("summary") << "[DTSummaryClients]: "<<nevents<<" events";
+   edm::LogVerbatim ("DTSummaryClient") << "[DTSummaryClients]: "<<nevents<<" events";
    
 }
 
 
 void DTSummaryClients::endLuminosityBlock(LuminosityBlock const& lumiSeg, EventSetup const& context) {
   
-  edm::LogVerbatim ("summary") <<"[DTSummaryClients]: End of LS transition, performing the DQM client operation";
+  LogVerbatim ("DTSummaryClient")
+    <<"[DTSummaryClients]: End of LS transition, performing the DQM client operation";
 
-  // fill the summary histos
+  // Check if DT data in each ROS have been read out and set the SummaryContents and the ErrorSummary
+  // accordignly
+  MonitorElement * dataIntegritySummary = dbe->get("DT/00-DataIntegrity/DataIntegritySummary");
+  if(dataIntegritySummary != 0) {
+  int nDisabledFED = 0;
+  for(int wheel = 1; wheel != 6; ++wheel) { // loop over the wheels
+    int nDisablesROS = 0;
+    for(int sect = 1; sect != 13; ++sect) { // loop over sectors
+      if(dataIntegritySummary->getBinContent(sect,wheel) == -1) {
+	nDisablesROS++;
+      }
+    }
+    if(nDisablesROS == 12) {
+      nDisabledFED++;
+      theSummaryContents[wheel-1]->Fill(0);
+    }
+  }
+  
+  if(nDisabledFED == 5) summaryReport->Fill(-1);
+  
+  } else {
+    cout <<  "Data Integrity Summary not found with name: DT/00-DataIntegrity/DataIntegritySummary" <<endl;
+  }
 
-  SummaryReport->Fill(1);
+  double totalStatus = 0;
+  
+  // Fill the map using, at the moment, only the information from DT occupancy
+  // problems at a granularity smaller than the chamber are ignored
+  for(int wheel=-2; wheel<=2; wheel++){ // loop over wheels
+    // retrieve the occupancy summary
+    stringstream str;
+    str << "DT/01-Digi/OccupancySummary_W" << wheel;
+    MonitorElement * wheelOccupancySummary =  dbe->get(str.str());
+    if(wheelOccupancySummary != 0) {
+      int nFailingChambers = 0;
+      for(int sector=1; sector<=12; sector++){ // loop over sectors
+	for(int station = 1; station != 5; ++station) { // loop over stations
+	  if(wheelOccupancySummary->getBinContent(sector, wheel+3) != 4) {
+	    summaryReportMap->Fill(sector, wheel, 0.25);
+	  } else {
+	    nFailingChambers++;
+	  }
+	}
 
-  for(int sector=1; sector<=14; sector++){
-    for(int wheel=-2; wheel<=2; wheel++){
-      
-      SummaryReportMap->Fill(sector, wheel, 1);
-
+      }
+      theSummaryContents[wheel+2]->Fill((48.-nFailingChambers)/48.);
+      totalStatus += (48.-nFailingChambers)/48.;
+    } else {
+      cout << " Wheel Occupancy Summary not found with name: " << str.str() << endl;
     }
   }
 
-  SummaryLocalTrigger->Fill(1);
-  SummaryOccupancy->Fill(1);
-  SummaryDataIntegrity->Fill(1);
 
+
+  summaryReport->Fill(totalStatus/5.);
 }
 
 
