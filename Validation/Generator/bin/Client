@@ -99,6 +99,8 @@ if options.howto != False:
     \n\
     -b turns batch jobs off.  Default runs on condor, if you want to run locally type -b\n\
     \n\
+    -s is to be activated when running at CERN. \n\
+    \n\
     To run:
     You need to name which generator you want to run, and which you wish to compare it to. \n\
     It's the same to run pythia and compare to herwig, or run herwig and compare to pythia \n\
@@ -106,25 +108,32 @@ if options.howto != False:
     You can compare pythia to all herwig samples available by typing -a.  Otherwise it only\n\
     compares to the version of the current environment.  A sample command line would be:   \n\
     \n\
-    ./Client --process=MinBias --run=pythia --compare=opposite -a \n\
+    ./Client --process=MinBias --run=pythia6 --compare=opposite -a \n\
     \n\
-    This would run any pythia (--run=pythia) MinBias (--process=MinBias) cfg files in the  \n\
-    GeneratorValidation/test directory and then run any herwig (--compare=opposite) MinBias\n\
+    This would run any pythia (--run=pythia6) MinBias (--process=MinBias) cfg files in the  \n\
+    GeneratorValidation/test directory and then run any non-pythia6 (--compare=opposite) MinBias\n\
     cfg files.  It would compare the two. It will also compare the newest pythia release to\n\
-    ALL(-a) of the herwig MinBias samples kept in the data directory. If you were to change\n\
+    ALL(-a) of the non-pythia6 MinBias samples kept in the data directory. If you were to change\n\
     compare to pythia, it would then compare the current version of pythia to any that you \n\
-    have in the data directory.  If you change compare to both, it compare to all herwig   \n\
-    and all pythia releases available including the current herwig version.  \n\
+    have in the data directory.  If you change compare to all, it compare to non-pythia \n\
+    and all pythia releases available.  \n\
     \n\
     If you just want to run the current versions of all generators that you have a cfg file\n\
     for, and compare the releases to each other, then type: \n\
     \n\
-    ./Client
+    ./Client 
     \n\
-    This will run all of your processes located in the test directory in batch jobs.
+    This will run all of your processes located in the test directory in batch jobs.\n\
     \n\
-    
-
+    To run interactively add '-b' to any command \n\
+    \n\
+    To run in a batch job, with bsub (at CERN) type:\n\
+    ./Client -s \n\
+    \n\
+    Any combination of these options will work.  e.g. I usually run the following at CERN: \n\
+    ./Client -s -a \n\
+    \n\
+    This runs all of my processes through bsub and compares them to possible reference combinations \n\
     """
     print print_out
 
