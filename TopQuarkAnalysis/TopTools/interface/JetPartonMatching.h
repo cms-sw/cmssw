@@ -36,7 +36,7 @@ class TtHadEvtPartons {
   // defined order for fully hadronic ttbar decays
  public:
 
-  enum { LightQTop, LightQTopBar, B, LightQAntiTop, LightQBarAntiTop, BBar};
+  enum { LightQTop, LightQBarTop, B, LightQTopBar, LightQBarTopBar, BBar};
 
   TtHadEvtPartons(){};
   ~TtHadEvtPartons(){};
