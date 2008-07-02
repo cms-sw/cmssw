@@ -5,14 +5,18 @@
 #include "DataFormats/VZero/interface/VZeroFwd.h"
 #include "DataFormats/VertexReco/interface/Vertex.h"
 #include "DataFormats/Math/interface/Point3D.h"
+#include "DataFormats/GeometryVector/interface/GlobalVector.h"
+
+#include <utility>
 
 namespace reco {
 
   class VZeroData
   {
    public:
-     float dcaR,dcaZ, impactMother, armenterosPt,armenterosAlpha;
+     float dca, impactMother, armenterosPt,armenterosAlpha;
      math::GlobalPoint crossingPoint;
+     std::pair<GlobalVector,GlobalVector> momenta;
   };
 
   class VZero
@@ -38,18 +42,18 @@ namespace reco {
      TrackRef negativeDaughter() const
      { return (*(vertex_.tracks_begin()+1)).castTo<reco::TrackRef>(); }
 
-     // distance of closest approach (radial)
-     float dcaR() const { return data_.dcaR; }
-
-     // distance of closest approach (z)
-     float dcaZ() const { return data_.dcaZ; }
+     // distance of closest approach
+     float dca() const { return data_.dca; }
 
      // impact parameter of the mother particle
      float impactMother() const { return data_.impactMother; }
 
      // Armenteros variables
-     float armenterosPt() const { return data_.armenterosPt; }
+     float armenterosPt()    const { return data_.armenterosPt; }
      float armenterosAlpha() const { return data_.armenterosAlpha; }
+
+     // Momentum
+     std::pair<GlobalVector,GlobalVector> momenta() const { return data_.momenta; }
 
    private:
      Vertex vertex_;
