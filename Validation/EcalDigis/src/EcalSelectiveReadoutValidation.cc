@@ -1,8 +1,8 @@
 /*
  * \file EcalSelectiveReadoutValidation.cc
  *
- * $Date: 2008/06/19 14:20:32 $
- * $Revision: 1.12 $
+ * $Date: 2008/06/24 13:01:50 $
+ * $Revision: 1.13 $
  *
  */
 
@@ -18,8 +18,9 @@
 
 #include "Geometry/EcalMapping/interface/EcalElectronicsMapping.h"
 #include "Geometry/EcalMapping/interface/EcalMappingRcd.h"
+#include "Geometry/Records/interface/IdealGeometryRecord.h"
 
-#include "Geometry/Records/interface/CaloGeometryRecord.h"
+#include "Geometry/Records/interface/IdealGeometryRecord.h"
 #include "Geometry/CaloGeometry/interface/CaloSubdetectorGeometry.h"
 #include "Geometry/CaloGeometry/interface/CaloCellGeometry.h"
 #include "Geometry/CaloGeometry/interface/CaloGeometry.h"
@@ -51,10 +52,14 @@ EcalSelectiveReadoutValidation::EcalSelectiveReadoutValidation(const ParameterSe
   tps_(ps.getParameter<edm::InputTag>("TrigPrimCollection"), false),
   ebRecHits_(ps.getParameter<edm::InputTag>("EbRecHitCollection"), false),
   eeRecHits_(ps.getParameter<edm::InputTag>("EeRecHitCollection"), false),
+  fedRaw_(ps.getParameter<edm::InputTag>("FEDRawCollection"), false),
   triggerTowerMap_(0),
   localReco_(ps.getParameter<bool>("LocalReco")),
   weights_(ps.getParameter<vector<double> >("weights")),
-  ievt_(0){
+  tpInGeV_(ps.getParameter<bool>("tpInGeV")),
+  ievt_(0),
+  allHists_(false),
+  histDir_(ps.getParameter<string>("histDir")){
   
   // DQM ROOT output
   outputFile_ = ps.getUntrackedParameter<string>("outputFile", "");
@@ -86,12 +91,24 @@ EcalSelectiveReadoutValidation::EcalSelectiveReadoutValidation(const ParameterSe
   
   if(verbose_) dbe_->showDirStructure();
   
-  dbe_->setCurrentFolder("EcalDigisV/EcalDigiTask");
+  dbe_->setCurrentFolder(histDir_);
 
+  vector<string>
+    hists(ps.getUntrackedParameter<vector<string> >("histograms",
+						    vector<string>(1, "all")));
+  
+  for(vector<string>::iterator it = hists.begin();
+      it!=hists.end(); ++it) histList_.insert(*it);
+  if(histList_.find("all") != histList_.end()) allHists_ = true;
+  
   //Data volume
   meDccVol_ = bookProfile("dccVol",
 			  "DCC event fragment size;Dcc id; "
 			  "<Event size> (kB)", nDccs, .5, .5+nDccs);
+
+  meDccVolFromData_ = bookProfile("dccVolFromData",
+				  "DCC event fragment size;Dcc id; "
+				  "<Event size> (kB)", nDccs, .5, .5+nDccs);
   
   meVolBLI_ = book1D("volBLI",
 		     "Barrel low interest data volume;"
@@ -144,34 +161,94 @@ EcalSelectiveReadoutValidation::EcalSelectiveReadoutValidation(const ParameterSe
 		    360, -.5, 359.5);
 
   //TP
+  string tpUnit;
+  if(tpInGeV_) tpUnit = string("GeV"); else tpUnit = string("");
+  string title;
+  title = string("Trigger primitive TT E_{T};E_{T} ")
+    + tpUnit + string(";Event Count");
   meTp_ = book1D("tp",
-		 "Trigger primitive TT E_{T};E_{T} (GeV);Event count",
-		 100, 0., 10.);
+		 title.c_str(),
+		 100, 0., (tpInGeV_?10.:40.));
   
   meTtf_ = book1D("ttFlag",
 		  "Trigger primitive TT flag;Flag number;Event count",
 		  8, -.5, 7.5);
   
+  title = string("Trigger tower flag vs TP;E_{T}(TT) (")
+    + tpUnit + string(");Flag number");
   meTtfVsTp_ = book2D("ttfVsTp",
-		      "Trigger tower flag vs TP;E_{T}(TT) (GeV);"
-		      "Flag number",
-		      100, 0., 10.,
+		      title.c_str(),
+		      100, 0., (tpInGeV_?10.:40.),
 		      8, -.5, 7.5);
   
   meTtfVsEtSum_ = book2D("ttfVsEtSum",
 			 "Trigger tower flag vs #sumE_{T};"
 			 "E_{T}(TT) (GeV);"
 			 "TTF",
-			 100, 0., 10.,
+			 100, 0., (tpInGeV_?10.:40.),
 			 8, -.5, 7.5);
+  title = string("Trigger primitive Et (TP) vs #sumE_{T};"
+		 "E_{T} (sum) (GeV);"
+		 "E_{T} (TP) (") + tpUnit + string (")");
   
   meTpVsEtSum_ = book2D("tpVsEtSum",
-			"Trigger primitive Et (TP) vs #sumE_{T};"
-			"E_{T} (sum) (GeV);"
-			"E_{T} (TP) (GeV)",
+			title.c_str(),
 			100, 0., 10.,
-			100, 0., 10.);
+			100, 0., (tpInGeV_?10.:40.));
+
+  meTpMap_ = bookProfile2D("tpMap",
+			   "Trigger primitive;"
+			   "iPhi;"
+			   "iEta;"
+			   "Event count",
+			   72, 1, 73,
+			   38, -19, 19) ;
+
+  //SRF
+  meFullRoTt_ = book2D("fullRoTt",
+		       "Full Read-out trigger tower;"
+		       "iPhi;"
+		       "iEta;"
+		       "Event count",
+		       72, 1, 73,
+		       38, -19, 19) ;
   
+  meZs1Tt_ = book2D("zs1Tt",
+		    "Trigger tower read-out with ZS threshold 1;"
+		    "iPhi;"
+		    "iEta;"
+		    "Event count",
+		    72, 1, 73,
+		    38, -19, 19) ;
+
+  
+  meForcedTt_ = book2D("forcedTt",
+		       "Trigger tower readout forced bit on;"
+		       "iPhi;"
+		       "iEta;"
+		       "Event count",
+		       72, 1, 73,
+		       38, -19, 19) ;
+
+  
+  meLiTtf_ = book2D("liTtf",
+		    "Low interest trigger tower flags "
+		    "iPhi;"
+		    "iEta;"
+		    "Event count",
+		    72, 1, 73,
+		    38, -19, 19) ;
+
+  
+  meHiTtf_ = book2D("hiTtf",
+		    "High interest trigger tower flags "
+		    "1 distribution;"
+		    "iPhi;"
+		    "iEta;"
+		    "Event count",
+		    72, 1, 73, 38, -19, 19) ;
+  
+
   const float ebMinE = 0.;
   const float ebMaxE = 120.;
  
@@ -254,6 +331,26 @@ EcalSelectiveReadoutValidation::EcalSelectiveReadoutValidation(const ParameterSe
 			      "energy;Esim (GeV);Erec GeV);Event count",
 			      100, eeMinE, eeMaxE,
 			      100, eeMinE, eeMaxE);
+  //print list of available histograms (must be called after
+  //the bookXX methods):
+  printAvailableHists();
+
+  //check the histList parameter:
+  stringstream s;
+  for(set<string>::iterator it = histList_.begin();
+      it!=histList_.end();
+      ++it){
+    if(*it!=string("all")
+       && availableHistList_.find(*it)==availableHistList_.end()){
+      s << (s.str().size()==0?"":", ") << *it;
+    }
+  }
+  if(s.str().size()!=0){
+    LogWarning("Configuration")
+      << "Parameter 'histList' contains some unknown histogram(s). "
+      "Check spelling. Following name were not found: "
+      << s.str(); 
+  }
 }
 
 void EcalSelectiveReadoutValidation::analyze(const Event& event,
@@ -293,7 +390,7 @@ void EcalSelectiveReadoutValidation::analyzeEE(const edm::Event& event,
   
   // gets the endcap geometry:
   edm::ESHandle<CaloGeometry> geoHandle;
-  es.get<CaloGeometryRecord>().get(geoHandle);
+  es.get<IdealGeometryRecord>().get(geoHandle);
   const CaloSubdetectorGeometry *geometry_p
     = (*geoHandle).getSubdetectorGeometry(DetId::Ecal, EcalEndcap);
   CaloSubdetectorGeometry const& geometry = *geometry_p;
@@ -380,7 +477,7 @@ void EcalSelectiveReadoutValidation::analyzeEE(const edm::Event& event,
       if(localReco_){
         eeEnergies[iZ0][iX0][iY0].recE = frame2Energy(frame);
       }
-      meChOcc_->Fill(iX0 + iZ0*310, iY0);
+      fill(meChOcc_, iX0 + iZ0*310, iY0);
     } //next ZS digi.
   
   for(int iZ0=0; iZ0<nEndcaps; ++iZ0){
@@ -388,20 +485,20 @@ void EcalSelectiveReadoutValidation::analyzeEE(const edm::Event& event,
       for(int iY0=0; iY0<nEeY; ++iY0){        
         double recE = eeEnergies[iZ0][iX0][iY0].recE;
         if(recE==-numeric_limits<double>::max()) continue; //not a crystal or ZS
-        meEeRecE_->Fill(eeEnergies[iZ0][iX0][iY0].recE);
+        fill(meEeRecE_, eeEnergies[iZ0][iX0][iY0].recE);
 	
-        meEeEMean_->Fill(ievt_+1,
+        fill(meEeEMean_, ievt_+1,
 			 eeEnergies[iZ0][iX0][iY0].recE);
         
         if(!eeEnergies[iZ0][iX0][iY0].simHit){//noise only crystal channel
-          meEeNoise_->Fill(eeEnergies[iZ0][iX0][iY0].noZsRecE);
+          fill(meEeNoise_, eeEnergies[iZ0][iX0][iY0].noZsRecE);
         } else{
-          meEeSimE_->Fill(eeEnergies[iZ0][iX0][iY0].simE);	  
-          meEeRecEHitXtal_->Fill(eeEnergies[iZ0][iX0][iY0].recE);
+          fill(meEeSimE_, eeEnergies[iZ0][iX0][iY0].simE);	  
+          fill(meEeRecEHitXtal_, eeEnergies[iZ0][iX0][iY0].recE);
         }
-	meEeRecVsSimE_->Fill(eeEnergies[iZ0][iX0][iY0].simE,
+	fill(meEeRecVsSimE_, eeEnergies[iZ0][iX0][iY0].simE,
 			     eeEnergies[iZ0][iX0][iY0].recE);
-	meEeNoZsRecVsSimE_->Fill(eeEnergies[iZ0][iX0][iY0].simE,
+	fill(meEeNoZsRecVsSimE_, eeEnergies[iZ0][iX0][iY0].simE,
 				 eeEnergies[iZ0][iX0][iY0].noZsRecE); 
       }
     }
@@ -425,11 +522,11 @@ EcalSelectiveReadoutValidation::analyzeEB(const edm::Event& event,
   
   // get the barrel geometry:
   edm::ESHandle<CaloGeometry> geoHandle;
-  es.get<CaloGeometryRecord>().get(geoHandle);
+  es.get<IdealGeometryRecord>().get(geoHandle);
   const CaloSubdetectorGeometry *geometry_p
     = (*geoHandle).getSubdetectorGeometry(DetId::Ecal, EcalBarrel);
   CaloSubdetectorGeometry const& geometry = *geometry_p;
-
+  
   //EB unsuppressed digis:
   for(EBDigiCollection::const_iterator it = ebDigis_->begin();
       it != ebDigis_->end(); ++it){
@@ -487,15 +584,15 @@ EcalSelectiveReadoutValidation::analyzeEB(const edm::Event& event,
     ++nEbDigi;
     const EBDataFrame& frame = *it;
     int iEta = static_cast<const EBDetId&>(frame.id()).ieta();
-      int iPhi = static_cast<const EBDetId&>(frame.id()).iphi();
-      int iEta0 = iEta2cIndex(iEta);
-      int iPhi0 = iPhi2cIndex(iPhi);
-      if(iEta0<0 || iEta0>=nEbEta){
-	throw (cms::Exception("EcalSelectiveReadoutValidation")
-	       << "iEta0 (= " << iEta0 << ") is out of range ("
-	       << "[0," << nEbEta -1 << "]");
-      }
-      if(iPhi0<0 || iPhi0>=nEbPhi){
+    int iPhi = static_cast<const EBDetId&>(frame.id()).iphi();
+    int iEta0 = iEta2cIndex(iEta);
+    int iPhi0 = iPhi2cIndex(iPhi);
+    if(iEta0<0 || iEta0>=nEbEta){
+      throw (cms::Exception("EcalSelectiveReadoutValidation")
+	     << "iEta0 (= " << iEta0 << ") is out of range ("
+	     << "[0," << nEbEta -1 << "]");
+    }
+    if(iPhi0<0 || iPhi0>=nEbPhi){
 	throw (cms::Exception("EcalSelectiveReadoutValidation")
 	       << "iPhi0 (= " << iPhi0 << ") is out of range ("
 	       << "[0," << nEbPhi -1 << "]");
@@ -511,7 +608,7 @@ EcalSelectiveReadoutValidation::analyzeEB(const edm::Event& event,
       if(localReco_){
         ebEnergies[iEta0][iPhi0].recE = frame2Energy(frame);
       }
-      meChOcc_->Fill(iEta0+120, iPhi0);
+      fill(meChOcc_, iEta0+120, iPhi0);
   } //next EB digi
 
   if(!localReco_){
@@ -548,18 +645,36 @@ EcalSelectiveReadoutValidation::analyzeEB(const edm::Event& event,
 
     double recE = ebEnergies[iEta0][iPhi0].recE;
     if(recE!=-numeric_limits<double>::max()){//not zero suppressed
-      meEbRecE_->Fill(ebEnergies[iEta0][iPhi0].recE);
-      meEbEMean_->Fill(ievt_+1, recE);
+      fill(meEbRecE_, ebEnergies[iEta0][iPhi0].recE);
+      fill(meEbEMean_, ievt_+1, recE);
     } //not zero suppressed
         
     if(!energies.simHit){//noise only crystal channel
-      meEbNoise_->Fill(energies.noZsRecE);
+      fill(meEbNoise_, energies.noZsRecE);
     } else{
-      meEbSimE_->Fill(energies.simE);
-      meEbRecEHitXtal_->Fill(energies.recE);
+      fill(meEbSimE_, energies.simE);
+      fill(meEbRecEHitXtal_, energies.recE);
     }
-    meEbRecVsSimE_->Fill(energies.simE, energies.recE);
-    meEbNoZsRecVsSimE_->Fill(energies.simE, energies.noZsRecE);
+    fill(meEbRecVsSimE_, energies.simE, energies.recE);
+    fill(meEbNoZsRecVsSimE_, energies.simE, energies.noZsRecE);
+  }
+
+  //SRF
+  for(EBSrFlagCollection::const_iterator it = ebSrFlags_->begin();
+      it != ebSrFlags_->end(); ++it){
+    const EBSrFlag& srf = *it;
+    int iEta = srf.id().ieta();
+    int iPhi = srf.id().iphi();
+    int flag = srf.value() & ~EcalSrFlag::SRF_FORCED_MASK;
+    if(flag == EcalSrFlag::SRF_ZS1){ 
+      fill(meZs1Tt_, iPhi, iEta);
+    }
+    if(flag == EcalSrFlag::SRF_FULL){ 
+      fill(meFullRoTt_, iPhi, iEta);
+    }
+    if(srf.value() & EcalSrFlag::SRF_FORCED_MASK){
+      fill(meForcedTt_, iPhi, iEta);
+    }
   }
 }
 
@@ -586,21 +701,41 @@ void
 EcalSelectiveReadoutValidation::analyzeTP(const edm::Event& event,
 					  const edm::EventSetup& es){
   EcalTPGScale ecalScale;
+#if (CMSSW_COMPAT_VERSION>=210)
   ecalScale.setEventSetup(es) ;
+#endif
   for(EcalTrigPrimDigiCollection::const_iterator it = tps_->begin();
       it != tps_->end(); ++it){
-    const int iTcc = elecMap_->TCCid(it->id());
-    const int iTT = elecMap_->iTT(it->id());
-    const double tpEt = ecalScale.getTPGInGeV(it->compressedEt(), it->id()) ;
-    // const double tpEt = ecalScale.getTPGInGeV(es, *it) ;
-    const int iEta0 = iTTEta2cIndex(it->id().ieta());
-    const int iPhi0 = iTTEta2cIndex(it->id().iphi());
-    const double etSum = ttEtSums[iEta0][iPhi0];
-    meTp_->Fill(tpEt);
-    meTpVsEtSum_->Fill(etSum, tpEt);
-    meTtf_->Fill(it->ttFlag());
-    meTtfVsTp_->Fill(tpEt, it->ttFlag());
-    meTtfVsEtSum_->Fill(etSum, it->ttFlag());
+    //const int iTcc = elecMap_->TCCid(it->id());
+    //const int iTT = elecMap_->iTT(it->id());
+    double tpEt;
+    if(tpInGeV_){
+#if (CMSSW_COMPAT_VERSION<=210)
+      tpEt = ecalScale.getTPGInGeV(es, *it);
+#else
+      tpEt = ecalScale.getTPGInGeV(it->compressedEt(), it->id()) ;
+#endif
+    } else{
+      tpEt = it->compressedEt();
+    }
+    int iEta = it->id().ieta();
+    int iEta0 = iTTEta2cIndex(iEta);
+    int iPhi = it->id().iphi();
+    int iPhi0 = iTTEta2cIndex(iPhi);
+    double etSum = ttEtSums[iEta0][iPhi0];
+    fill(meTp_, tpEt);
+    fill(meTpVsEtSum_, etSum, tpEt);
+    fill(meTtf_, it->ttFlag());
+    if((it->ttFlag() & 0x3) == 0){
+      fill(meLiTtf_, iPhi, iEta);
+    }
+
+    if((it->ttFlag() & 0x3) == 3){ 
+      fill(meHiTtf_, iPhi, iEta);
+    }
+    fill(meTtfVsTp_, tpEt, it->ttFlag());
+    fill(meTtfVsEtSum_, etSum, it->ttFlag());
+    fill(meTpMap_, iPhi, iEta, tpEt, 1.);
   }
 }
 
@@ -622,31 +757,34 @@ void EcalSelectiveReadoutValidation::analyzeDataVolume(const Event& e,
   }
 
   //histos
-  for(unsigned iDcc = 0; iDcc <  nDccs; ++iDcc){ 
-    meDccVol_->Fill(iDcc, getDccEventSize(iDcc, nPerDcc_[iDcc])/kByte_);
+  for(unsigned iDcc = 0; iDcc <  nDccs; ++iDcc){
+    fill(meDccVol_, iDcc+1, getDccEventSize(iDcc, nPerDcc_[iDcc])/kByte_);
+    const FEDRawDataCollection& raw = *fedRaw_;
+    fill(meDccVolFromData_, iDcc+1,
+			    ((double)raw.FEDData(601+iDcc).size())/kByte_);
   }
 
 
   //low interesest channels:
   double a = getEbEventSize(nEbLI_)/kByte_;
-  meVolBLI_->Fill(a);
+  fill(meVolBLI_, a);
   double b = getEeEventSize(nEeLI_)/kByte_;
-  meVolELI_->Fill(b);	
-  meVolLI_->Fill(a+b);	
+  fill(meVolELI_, b);	
+  fill(meVolLI_, a+b);	
 
   //high interest chanels:
   a = getEbEventSize(nEbHI_)/kByte_;
-  meVolBHI_->Fill(a);
+  fill(meVolBHI_, a);
   b = getEeEventSize(nEeHI_)/kByte_;
-  meVolEHI_->Fill(b);	
-  meVolHI_->Fill(a+b);
+  fill(meVolEHI_, b);	
+  fill(meVolHI_, a+b);
 
   //any-interest channels:
   a = getEbEventSize(nEb_)/kByte_;
-  meVolB_->Fill(a);
+  fill(meVolB_, a);
   b = getEeEventSize(nEe_)/kByte_;
-  meVolE_->Fill(b);
-  meVol_->Fill(a+b);
+  fill(meVolE_, b);
+  fill(meVol_, a+b);
   ++ievt_;
 }
 
@@ -674,12 +812,26 @@ void EcalSelectiveReadoutValidation::anaDigi(const T& frame,
     } else{//low interest
       ++nEbLI_;
     }
+    int iEta0 = iEta2cIndex(static_cast<const EBDetId&>(xtalId).ieta());
+    int iPhi0 = iPhi2cIndex(static_cast<const EBDetId&>(xtalId).iphi());
+    if(!ebRuActive_[iEta0/ebTtEdge][iPhi0/ebTtEdge]){
+      ++nRuPerDcc_[dccNum(xtalId)-1];
+      ebRuActive_[iEta0/ebTtEdge][iPhi0/ebTtEdge] = true;
+    }
   } else{//endcap
     ++nEe_;
     if(highInterest){
       ++nEeHI_;
     } else{//low interest
       ++nEeLI_;
+    }
+    int iX0 = iXY2cIndex(static_cast<const EEDetId&>(frame.id()).ix());
+    int iY0 = iXY2cIndex(static_cast<const EEDetId&>(frame.id()).iy());
+    int iZ0 = static_cast<const EEDetId&>(frame.id()).zside()>0?1:0;
+    
+    if(!eeRuActive_[iZ0][iX0/scEdge][iY0/scEdge]){
+      ++nRuPerDcc_[dccNum(xtalId)];
+      eeRuActive_[iZ0][iX0/scEdge][iY0/scEdge] = true;
     }
   }
 
@@ -694,6 +846,9 @@ void EcalSelectiveReadoutValidation::anaDigiInit(){
   nEbLI_ = 0;
   nEbHI_ = 0;
   bzero(nPerDcc_, sizeof(nPerDcc_));
+  bzero(nRuPerDcc_, sizeof(nRuPerDcc_));
+  bzero(ebRuActive_, sizeof(ebRuActive_));
+  bzero(eeRuActive_, sizeof(eeRuActive_));
 }
 
 double EcalSelectiveReadoutValidation::frame2Energy(const EcalDataFrame& frame) const{
@@ -729,15 +884,16 @@ double EcalSelectiveReadoutValidation::frame2Energy(const EcalDataFrame& frame) 
 }
   
 int EcalSelectiveReadoutValidation::getRuCount(int iDcc0) const{
-  static int nEemRu[] = {34, 32, 33, 33, 32, 34, 33, 34, 33};
-  static int nEepRu[] = {32, 33, 33, 32, 34, 33, 34, 33, 34};
-  if(iDcc0<9){//EE-
-    return nEemRu[iDcc0];
-  } else if(iDcc0>=45){//EE+
-    return nEepRu[iDcc0-45];
-  } else{//EB
-    return 68;
-  }
+//   static int nEemRu[] = {34, 32, 33, 33, 32, 34, 33, 34, 33};
+//   static int nEepRu[] = {32, 33, 33, 32, 34, 33, 34, 33, 34};
+//   if(iDcc0<9){//EE-
+//     return nEemRu[iDcc0];
+//   } else if(iDcc0>=45){//EE+
+//     return nEepRu[iDcc0-45];
+//   } else{//EB
+//     return 68;
+//   }
+  return nRuPerDcc_[iDcc0];
 }
 
 unsigned EcalSelectiveReadoutValidation::dccNum(const DetId& xtalId) const{
@@ -796,7 +952,7 @@ EcalSelectiveReadoutValidation::setTtEtSums(const edm::EventSetup& es,
   static const CaloSubdetectorGeometry* ebGeometry = 0;
   if(eeGeometry==0 || ebGeometry==0){
     edm::ESHandle<CaloGeometry> geoHandle;
-    es.get<CaloGeometryRecord>().get(geoHandle);
+    es.get<IdealGeometryRecord>().get(geoHandle);
     eeGeometry
       = (*geoHandle).getSubdetectorGeometry(DetId::Ecal, EcalEndcap);
     ebGeometry
@@ -916,6 +1072,7 @@ double EcalSelectiveReadoutValidation::frame2EnergyForTp(const T& frame,
 }
 
 MonitorElement* EcalSelectiveReadoutValidation::book1D(const std::string& name, const std::string& title, int nbins, double xmin, double xmax){
+  if(!registerHist(name, title)) return 0; //this histo is disabled
   MonitorElement* result = dbe_->book1D(name, title, nbins, xmin, xmax);
   if(result==0){
     throw cms::Exception("Histo")
@@ -925,6 +1082,7 @@ MonitorElement* EcalSelectiveReadoutValidation::book1D(const std::string& name, 
 }
 
 MonitorElement* EcalSelectiveReadoutValidation::book2D(const std::string& name, const std::string& title, int nxbins, double xmin, double xmax, int nybins, double ymin, double ymax){
+  if(!registerHist(name, title)) return 0; //this histo is disabled
   MonitorElement* result = dbe_->book2D(name, title, nxbins, xmin, xmax,
 					nybins, ymin, ymax);
   if(result==0){
@@ -935,6 +1093,7 @@ MonitorElement* EcalSelectiveReadoutValidation::book2D(const std::string& name, 
 }
 
 MonitorElement* EcalSelectiveReadoutValidation::bookProfile(const std::string& name, const std::string& title, int nbins, double xmin, double xmax){
+  if(!registerHist(name, title)) return 0; //this histo is disabled
   MonitorElement* result = dbe_->bookProfile(name, title, nbins, xmin, xmax,
 					     0, 0, 0);
   if(result==0){
@@ -942,6 +1101,28 @@ MonitorElement* EcalSelectiveReadoutValidation::bookProfile(const std::string& n
       << "Failed to book histogram " << name;
   }
   return result;
+}
+
+MonitorElement* EcalSelectiveReadoutValidation::bookProfile2D(const std::string& name, const std::string& title, int nbinx, double xmin, double xmax, int nbiny, double ymin, double ymax, const char* option){
+  if(!registerHist(name, title)) return 0; //this histo is disabled
+  MonitorElement* result
+    = dbe_->bookProfile2D(name,
+			  title,
+			  nbinx, xmin, xmax,
+			  nbiny, ymin, ymax,
+			  0, 0, 0,
+			  option);
+  if(result==0){
+    throw cms::Exception("Histo")
+      << "Failed to book histogram " << name;
+  }
+  return result;
+}
+
+bool EcalSelectiveReadoutValidation::registerHist(const std::string& name,
+						  const std::string& title){
+  availableHistList_.insert(pair<string, string>(name, title));
+  return allHists_ || histList_.find(name)!=histList_.end();
 }
 
 void EcalSelectiveReadoutValidation::readAllCollections(const edm::Event& event){
@@ -956,4 +1137,18 @@ void EcalSelectiveReadoutValidation::readAllCollections(const edm::Event& event)
   ebSimHits_.read(event);
   eeSimHits_.read(event);
   tps_.read(event);
+  fedRaw_.read(event);
 }
+ 
+void EcalSelectiveReadoutValidation::printAvailableHists(){
+   LogInfo log("EcalSelectiveReadout");
+   log << "Avalailable histograms (DQM monitor elements): \n";
+   for(map<string, string>::iterator it = availableHistList_.begin();
+       it != availableHistList_.end();
+       ++it){
+     log << it->first << ": " << it->second << "\n";
+   }
+   log << "\nTo include an histogram add its name in the vstring parameter "
+     "'histograms' of the EcalSelectiveReadoutValidation module\n";
+ }
+ 
