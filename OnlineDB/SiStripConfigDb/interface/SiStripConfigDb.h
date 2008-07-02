@@ -1,4 +1,4 @@
-// Last commit: $Id: SiStripConfigDb.h,v 1.68 2008/05/13 14:17:57 bainbrid Exp $
+// Last commit: $Id: SiStripConfigDb.h,v 1.69 2008/05/16 15:29:17 bainbrid Exp $
 
 #ifndef OnlineDB_SiStripConfigDb_SiStripConfigDb_h
 #define OnlineDB_SiStripConfigDb_SiStripConfigDb_h
@@ -16,8 +16,8 @@
 #include "CalibFormats/SiStripObjects/interface/SiStripFecCabling.h"
 #include "OnlineDB/SiStripConfigDb/interface/SiStripDbParams.h"
 #include "DeviceFactory.h"
-#include "boost/cstdint.hpp"
 #include "boost/range/iterator_range.hpp"
+#include "boost/cstdint.hpp"
 #include <iostream>
 #include <fstream>
 #include <sstream>
@@ -237,6 +237,8 @@ class SiStripConfigDb {
   /** Retrieves all partitions names from database. */
   void partitions( std::list<std::string>& ) const;
   
+  //@@ SiStripPartition::Versions ???
+
   
   // ---------- FED connections ----------
 

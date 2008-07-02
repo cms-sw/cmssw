@@ -1,4 +1,4 @@
-// Last commit: $Id: SiStripPartition.cc,v 1.10 2008/06/04 14:11:42 bainbrid Exp $
+// Last commit: $Id: SiStripPartition.cc,v 1.11 2008/06/06 14:48:53 bainbrid Exp $
 
 #include "OnlineDB/SiStripConfigDb/interface/SiStripPartition.h"
 #include "DataFormats/SiStripCommon/interface/SiStripEnumsAndStrings.h"
@@ -614,6 +614,9 @@ void SiStripPartition::update( const SiStripConfigDb* const db ) {
 		  runTableVersion_ = fastCablingV_;
 		  fastCablingV_.first = ivers->second.back().first;
 		  fastCablingV_.second = ivers->second.back().second;
+
+		  //@@
+
 		} else if ( type == CommissioningAnalysisDescription::T_ANALYSIS_TIMING ) {
 		  runTableVersion_ = apvTimingV_;
 		  apvTimingV_.first = ivers->second.back().first;
