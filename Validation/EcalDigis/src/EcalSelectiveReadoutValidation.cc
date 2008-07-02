@@ -1,8 +1,8 @@
 /*
  * \file EcalSelectiveReadoutValidation.cc
  *
- * $Date: 2008/06/24 13:01:50 $
- * $Revision: 1.13 $
+ * $Date: 2008/07/02 07:54:28 $
+ * $Revision: 1.14 $
  *
  */
 
@@ -31,6 +31,8 @@
 
 #include <string.h>
 #include "DQMServices/Core/interface/MonitorElement.h"
+
+#include "Validation/EcalDigis/src/EcalSRPCompat.h"
 
 using namespace cms;
 using namespace edm;
