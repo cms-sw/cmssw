@@ -11,6 +11,7 @@
 <use name=DataFormats/EgammaCandidates>
 <use name=rootcore>
 <use name=rootminuit>
+<use name=rootgraphics>
 
 <use name=Geometry/CaloGeometry>
 <use name=Geometry/CommonDetUnit>
@@ -48,6 +49,7 @@
    <use name=DataFormats/EgammaCandidates>	
    <use name=rootcore>
    <use name=rootminuit>
+   <use name=rootgraphics>
 </export>
 
 # add debug symbols
