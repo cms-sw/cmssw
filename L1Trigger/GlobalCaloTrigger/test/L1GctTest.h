@@ -64,6 +64,9 @@ private:
   std::string theReferenceDataFileName;
   std::string theEnergySumsDataFileName;
 
+  int m_firstBx;
+  int m_lastBx;
+
   unsigned m_eventNo;
   bool m_allGood;
 };
