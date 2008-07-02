@@ -1,8 +1,8 @@
 /*
  *  See header file for a description of this class.
  *
- *  $Date: 2008/06/05 08:00:50 $
- *  $Revision: 1.3 $
+ *  $Date: 2008/06/10 15:11:16 $
+ *  $Revision: 1.4 $
  *  \author C. Battilana S. Marcellini - INFN Bologna
  */
 
@@ -43,6 +43,7 @@ void DTLocalTriggerBaseTest::beginJob(const edm::EventSetup& context){
 
   edm::LogVerbatim ("localTrigger") << "[" << testName << "Test]: BeginJob";
   nevents = 0;
+  nLumiSegs = 0;
   context.get<MuonGeometryRecord>().get(muonGeom);
   
 }
@@ -110,10 +111,12 @@ string DTLocalTriggerBaseTest::getMEName(string histoTag, string subfolder, cons
   stringstream station; station << chambid.station();
   stringstream sector; sector << chambid.sector();
 
+  string hwFolder = hwSource=="DCC" ? "DCC/" : ""; 
+
   string folderName = 
-    "DT/LocalTrigger/Wheel" +  wheel.str() +
+    "DT/03-LocalTrigger/" + hwFolder + "Wheel" +  wheel.str() +
     "/Sector" + sector.str() +
-    "/Station" + station.str() + "/" +  subfolder + "/";  
+    "/Station" + station.str() + "/" + subfolder + "/";  
 
   string histoname = sourceFolder + folderName 
     + fullName(histoTag) 
@@ -154,11 +157,12 @@ void DTLocalTriggerBaseTest::bookSectorHistos(int wheel,int sector,string folder
   stringstream wh; wh << wheel;
   stringstream sc; sc << sector;
   int sectorid = (wheel+3) + (sector-1)*5;
-  dbe->setCurrentFolder("DT/LocalTrigger/Wheel"+ wh.str()+"/Sector"+ sc.str()+"/"+folder);
+  string hwFolder = hwSource=="DCC" ? "DCC/" : ""; 
+  dbe->setCurrentFolder("DT/03-LocalTrigger/"+hwFolder+"/Wheel"+wh.str()+"/Sector"+sc.str()+"/"+folder);
 
   string fullTag = fullName(hTag);
   string hname    = fullTag + "_W" + wh.str()+"_Sec" +sc.str();
-  edm::LogVerbatim ("localTrigger") << "[" << testName << "Test]: booking DT/LocalTrigger/Wheel" << wheel 
+  edm::LogVerbatim ("localTrigger") << "[" << testName << "Test]: booking DT/03-LocalTrigger/Wheel" << wheel 
 				    <<"/Sector" << sector << "/" << folder << "/" << hname;
   if (hTag.find("Phi") != string::npos || 
       hTag.find("TkvsTrig") != string::npos ){    
@@ -183,8 +187,9 @@ void DTLocalTriggerBaseTest::bookSectorHistos(int wheel,int sector,string folder
 }
 
 void DTLocalTriggerBaseTest::bookCmsHistos( string hTag ) {
-  string basedir = "DT/LocalTrigger";
-   if(hwSource != "DDU") 
+
+  string basedir = "DT/03-LocalTrigger";
+   if(hwSource == "DCC") 
       basedir += "/" + hwSource;
   dbe->setCurrentFolder(basedir);
 
@@ -203,17 +208,13 @@ void DTLocalTriggerBaseTest::bookCmsHistos( string hTag ) {
 void DTLocalTriggerBaseTest::bookWheelHistos(int wheel, string folder, string hTag) {
   
   stringstream wh; wh << wheel;
-  string basedir;
+  string basedir;  
+  string hwFolder = hwSource=="DCC" ? "DCC/" : "" ;  
   if (hTag.find("Summary") != string::npos ) {
-    basedir = "DT/LocalTrigger/";   //Book summary histo outside wheel directories
-    if(folder == "") {
-      if(hwSource != "DDU") 
-	basedir = basedir + hwSource;
-    } else {
-      basedir += folder;
-    }
-  } else
-    basedir = "DT/LocalTrigger/Wheel"+ wh.str()+"/"+folder;
+    basedir = "DT/03-LocalTrigger/" + hwFolder;   //Book summary histo outside wheel directories
+  } else {
+    basedir = "DT/03-LocalTrigger/" + hwFolder + "Wheel"+ wh.str()+"/" + folder;
+  }
   dbe->setCurrentFolder(basedir);
 
   string fullTag = fullName(hTag);
