@@ -144,6 +144,7 @@ void L1GctEmulator::configureGct(const edm::EventSetup& c)
   m_jetEtCalibLut->setOutputEtScale(etScale.product());
   m_gct->setJetEtCalibrationLut(m_jetEtCalibLut);
   m_gct->setupJetCounterLuts(jcPosPars.product(), jcNegPars.product());
+  m_gct->setChannelMask(chanMask.product());
   
 }
 
