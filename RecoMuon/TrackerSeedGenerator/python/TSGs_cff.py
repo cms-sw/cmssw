@@ -50,10 +50,10 @@ TSGsBlock = cms.PSet(
         errorMatrixPset = cms.PSet(
 
         ),
-        UpdateState = cms.bool(True),
+        UpdateState = cms.bool(False),
         UseSecondMeasurements = cms.bool(False),
         SelectState = cms.bool(True),
-        MaxChi2 = cms.double(15.0),
+        MaxChi2 = cms.double(30.0),
         UseVertexState = cms.bool(True),
         Propagator = cms.string('SmartPropagatorAnyOpposite')
     ),

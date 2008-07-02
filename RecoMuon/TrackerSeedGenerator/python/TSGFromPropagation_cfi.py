@@ -6,10 +6,10 @@ SeedGeneratorParameters = cms.PSet(
     errorMatrixPset = cms.PSet(
 
     ),
-    UpdateState = cms.bool(True),
-    SelectState = cms.bool(True),
+    UpdateState = cms.bool(False),
     UseSecondMeasurements = cms.bool(False),
-    MaxChi2 = cms.double(15.0),
+    SelectState = cms.bool(False),
+    MaxChi2 = cms.double(30.0),
     UseVertexState = cms.bool(True),
     Propagator = cms.string('SmartPropagatorAnyOpposite')
 )
