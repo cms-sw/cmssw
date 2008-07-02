@@ -352,11 +352,17 @@ void SiStripRecHitsValid::analyze(const edm::Event& e, const edm::EventSetup& es
   edm::ESHandle<TrackerGeometry> pDD;
   es.get<TrackerDigiGeometryRecord> ().get (pDD);
   const TrackerGeometry &tracker(*pDD);
-  
+  //  std::vector<DetId> rphidetIDs = rechitsrphi->ids();
+  std::vector<DetId> stereodetIDs = rechitsstereo->ids();
+  std::vector<DetId> matcheddetIDs = rechitsmatched->ids();
+  std::vector<DetId> IDs=rechitsrphi->ids();
+  IDs.insert(IDs.end(),stereodetIDs.begin(),stereodetIDs.end());
+  IDs.insert(IDs.end(),matcheddetIDs.begin(),matcheddetIDs.end());
   // loop over detunits
-  for(TrackerGeometry::DetContainer::const_iterator it = pDD->dets().begin(); it != pDD->dets().end(); it++){
-    uint32_t myid=((*it)->geographicalId()).rawId();       
-    DetId detid = ((*it)->geographicalId());
+  //  for(TrackerGeometry::DetContainer::const_iterator it = pDD->dets().begin(); it != pDD->dets().end(); it++){
+  for(std::vector<DetId>::const_iterator it = IDs.begin(); it != IDs.end(); ++it ){//loop on rphi detector with hits
+    uint32_t myid=((*it).rawId());       
+    DetId detid = ((*it));
     
     // initialize here
     for(int i=0; i<MAXHIT; i++){
