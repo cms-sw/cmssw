@@ -24,13 +24,13 @@ parser.add_option("-a", "--allreleases", action="store_true", dest="all", defaul
 parser.add_option("-o", "--port", type="int", dest="port", default=Configuration.variables["PortNumber"], help="port used by the server")
 parser.add_option("-t", "--howto", dest="howto", action="store_true", default=False, help="Prints a 'howto'")
 parser.add_option("-d", "--data", dest="data", action="store_true", default=False, help="Compares to data.  Overrides all comparison steps")
-parser.add_option("-b", "--batch", dest="batch", action="store_false", default=True, help="Decides whether batch (true) or local (false).  Default is true")
+parser.add_option("-i", "--interactive", dest="interactive", action="store_false", default=True, help="Decides whether batch (true) or local (false).  Default is true")
 parser.add_option("-s", "--site", dest="site", action="store_true", default=False, help="Activate if running at CERN, otherwise, leave False")
 (options, args) = parser.parse_args()
 
-if options.batch == True:
+if options.interactive == True:
     Batch = "BATCH"
-if options.batch == False:
+if options.interactive == False:
     Batch = "LOCAL"
 datajob = ""
 if options.site == False:
@@ -81,26 +81,6 @@ if options.howto != False:
     ====================================================================================== \n\
     You must run: ' ./Server & '  before this will work
     ====================================================================================== \n\
-    \n\
-    --run=<generator> runs generator, default is ALL \n\
-    \n\
-    --compare=<generator> compares this generator to the one in --run default is opposite \n\
-      choices are --compare=opposite, same or all.  Where opposite/same refers to --run \n\
-      value \n\
-    \n\
-    --process=<process> runs only this process, default is all.  For list see -l \n\
-    \n\
-    -a compares all available --compare files in data directory to --run generator        \n\
-    \n\
-    -l lists all available processes, and how to type them \n\
-    \n\
-    -d runs all processes that have a corresponding 'data' cfg file.  For special cases   \n\
-      to run -d only type process, run and -d \n\
-    \n\
-    -b turns batch jobs off.  Default runs on condor, if you want to run locally type -b\n\
-    \n\
-    -s is to be activated when running at CERN. \n\
-    \n\
     To run:
     You need to name which generator you want to run, and which you wish to compare it to. \n\
     It's the same to run pythia and compare to herwig, or run herwig and compare to pythia \n\
@@ -125,7 +105,27 @@ if options.howto != False:
     \n\
     This will run all of your processes located in the test directory in batch jobs.\n\
     \n\
-    To run interactively add '-b' to any command \n\
+    \n\
+    --run=<generator> runs generator, default is ALL \n\
+    \n\
+    --compare=<generator> compares this generator to the one in --run default is opposite \n\
+      choices are --compare=opposite, same or all.  Where opposite/same refers to --run \n\
+      value \n\
+    \n\
+    --process=<process> runs only this process, default is all.  For list see -l \n\
+    \n\
+    -a compares all available --compare files in data directory to --run generator        \n\
+    \n\
+    -l lists all available processes, and how to type them \n\
+    \n\
+    -d runs all processes that have a corresponding 'data' cfg file.  For special cases   \n\
+      to run -d only type process, run and -d \n\
+    \n\
+    -i turns batch jobs off.  Default runs on condor, if you want to run locally type -i\n\
+    \n\
+    -s is to be activated when running at CERN. \n\
+    \n\
+    To run interactively add '-i' to any command \n\
     \n\
     To run in a batch job, with bsub (at CERN) type:\n\
     ./Client -s \n\
