@@ -56,6 +56,17 @@
   <class name="std::vector<pat::Particle>" />
   <class name="std::vector<pat::GenericParticle>" />
   <class name="std::vector<pat::Hemisphere>" />
+
+  <class name="std::vector<pat::Electron>::const_iterator" />
+  <class name="std::vector<pat::Muon>::const_iterator" />
+  <class name="std::vector<pat::Tau>::const_iterator" />
+  <class name="std::vector<pat::Photon>::const_iterator" />
+  <class name="std::vector<pat::Jet>::const_iterator" />
+  <class name="std::vector<pat::MET>::const_iterator" />
+  <class name="std::vector<pat::Particle>::const_iterator" />
+  <class name="std::vector<pat::GenericParticle>::const_iterator" />
+  <class name="std::vector<pat::Hemisphere>::const_iterator" />
+
   <class name="edm::Wrapper<std::vector<pat::Electron> >" />
   <class name="edm::Wrapper<std::vector<pat::Muon> >" />
   <class name="edm::Wrapper<std::vector<pat::Tau> >" />

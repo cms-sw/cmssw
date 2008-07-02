@@ -128,6 +128,17 @@ namespace {
     edm::Wrapper<std::vector<pat::GenericParticle> > w_v_gpart;
     edm::Wrapper<std::vector<pat::Hemisphere> > w_v_hemi;
 
+    // iterators (as requested for StarterKit)
+    std::vector<pat::Electron>::const_iterator        itr_v_el;
+    std::vector<pat::Muon>::const_iterator            itr_v_mu;
+    std::vector<pat::Tau>::const_iterator             itr_v_tau;
+    std::vector<pat::Photon>::const_iterator          itr_v_photon;
+    std::vector<pat::Jet>::const_iterator             itr_v_jet;
+    std::vector<pat::MET>::const_iterator             itr_v_met;
+    std::vector<pat::Particle>::const_iterator        itr_v_part;
+    std::vector<pat::GenericParticle>::const_iterator itr_v_gpart;
+    std::vector<pat::Hemisphere>::const_iterator      itr_v_hemi;
+
     edm::Ref<std::vector<pat::Electron> >       r_el;
     edm::Ref<std::vector<pat::Muon> >           r_mu;
     edm::Ref<std::vector<pat::Tau> >            r_tau;
