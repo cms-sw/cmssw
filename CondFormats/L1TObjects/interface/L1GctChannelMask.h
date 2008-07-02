@@ -15,10 +15,10 @@ class L1GctChannelMask {
   void maskRegion(unsigned ieta, unsigned iphi);
 
   /// get EM masks for an RCT crate
-  bool emCrateMask(unsigned crate);
+  bool emCrateMask(unsigned crate) const;
 
   /// get region masks
-  bool regionMask(unsigned ieta, unsigned iphi);
+  bool regionMask(unsigned ieta, unsigned iphi) const;
 
  private:
   bool emCrateMask_[18];     // mask EM from RCT crate[n]

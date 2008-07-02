@@ -19,12 +19,12 @@ void L1GctChannelMask::maskRegion(unsigned ieta, unsigned iphi) {
   if (ieta < 22 && iphi < 18) regionMask_[ieta][iphi] = true;
 }
 
-bool L1GctChannelMask::emCrateMask(unsigned crate) {
+bool L1GctChannelMask::emCrateMask(unsigned crate) const {
   if (crate < 18) { return emCrateMask_[crate]; }
   else return true;
 }
 
-bool L1GctChannelMask::regionMask(unsigned ieta, unsigned iphi) {
+bool L1GctChannelMask::regionMask(unsigned ieta, unsigned iphi) const {
   if (ieta < 22 && iphi < 18) { return regionMask_[ieta][iphi]; }
   else return true;
 }
