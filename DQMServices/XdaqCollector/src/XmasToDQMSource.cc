@@ -10,8 +10,11 @@
 
 #include <boost/tokenizer.hpp>
 //#include <set>
+#include <sstream>
 
 #include <time.h>
+
+
 
 using namespace std;
 using namespace edm;
@@ -19,6 +22,9 @@ using namespace edm;
 
 #define BXBIN 3564
 #define WCBIN 257
+
+//minimun event fragment size = header (8 bytes) + trailer (8 bytes) + zero payload = 16
+#define MIN_EVENT_FRAGMENT_SIZE 16
 
 
 typedef boost::tokenizer<boost::char_separator<char> > tokenizer;
@@ -34,15 +40,7 @@ counterEvt_(0)
      
      dbe_ = Service<DQMStore>().operator->();
      parameters_ = ps;
-     monitorName_ = parameters_.getUntrackedParameter<string>("monitorName","YourSubsystemName");
-     
-     /*NBINS = parameters_.getUntrackedParameter<string>("NBINS","YourSubsystemName");
-     XMIN = parameters_.getUntrackedParameter<string>("XMIN","YourSubsystemName");
-     XMAX = parameters_.getUntrackedParameter<string>("XMAX","YourSubsystemName");*/
-     
-    cout << "NBINS = " << NBINS << endl;
-    cout << "XMIN = " << XMIN << endl;
-    cout << "XMAX = " << XMAX << endl;
+     monitorName_ = parameters_.getUntrackedParameter<string>("monitorName","DAQ");
      
      cout << "Monitor name = " << monitorName_ << endl;
      if (monitorName_ != "" ) 
@@ -51,14 +49,6 @@ counterEvt_(0)
      prescaleEvt_ = parameters_.getUntrackedParameter<int>("prescaleEvt", -1);
      cout << "===> DQM event prescale = " << prescaleEvt_ << " events "<< endl;
  
-     if(NBINS == "")
-     	NBINS = "50";
-	
-     if(XMIN == "")
-     	XMIN = "0";
-	
-     if(XMAX == "")
-     	XMAX = "2000";
  
 /// book some histograms here
   //const int NBINS = 50; XMIN = 0; XMAX = 20000;
@@ -104,13 +94,13 @@ void XmasToDQMSource::beginLuminosityBlock(const LuminosityBlock& lumiSeg,
 void XmasToDQMSource::analyze(const Event& iEvent, 
 			       const EventSetup& iSetup )
 {  
-	time_t start,end;
+	/*time_t start,end;
 	static int times_called=0;
 	
-	times_called++;
+	times_called++;*/
 	
 	
-	std::cout << "inside Analyze.... " << std::endl;
+	//std::cout << "inside Analyze.... " << std::endl;
 	
 	std::map<std::string, std::string, std::less<std::string> >::iterator i;
 	
@@ -134,7 +124,7 @@ void XmasToDQMSource::analyze(const Event& iEvent,
 	
 	std::cout << "inside DQMSource::Analyze...data queue has elements...proceeding..." << std::endl;
 	
-	start = time(NULL);
+	//start = time(NULL);
 	
 	//xdata::Table::Reference ref_table;
 	xdata::Table *ref_table = NULL;
@@ -199,10 +189,10 @@ void XmasToDQMSource::analyze(const Event& iEvent,
 				HostSlotMap[host_slot]->lastTimestamp = ref_table->columnData_["timestamp"]->elementAt(r)->toString();
 				
 				// create and cd into new folder for bxHistograms
-  				dbe_->setCurrentFolder(/*monitorName_+*/"bxHisto");
-				HostSlotMap[host_slot]->bxHistogram1D = dbe_->book1D("bx_"+ host_slot, "FRL histo", BXBIN/*atoi(NBINS.c_str())*/, 0/*atoi(XMIN.c_str())*/, BXBIN-1/*atoi(XMAX.c_str())*/);
+  				dbe_->setCurrentFolder(monitorName_ + "bxHisto");
+				HostSlotMap[host_slot]->bxHistogram1D = dbe_->book1D("bx_"+ host_slot, "FRL bxHisto", BXBIN, 1, BXBIN);
 				
-	  			HostSlotMap[host_slot]->bxHistogram1D->setAxisTitle("BX"/*"x-axis title"*/, 1);
+	  			HostSlotMap[host_slot]->bxHistogram1D->setAxisTitle("LHC orbit Bunch"/*"x-axis title"*/, 1);
   				HostSlotMap[host_slot]->bxHistogram1D->setAxisTitle("Events"/*"y-axis title"*/, 2);
 			
 				/* remove prints for benchmarking*/
@@ -219,18 +209,26 @@ void XmasToDQMSource::analyze(const Event& iEvent,
 					string s = *itok;
 					//HostSlotMap[host_slot]->Fill(atoi(s.c_str()));
 					
-					HostSlotMap[host_slot]->bxHistogram1D->setBinContent(ibx-1,atoi(s.c_str()));					
+					std::istringstream istrfloat(s);
+   					float bin_value;
+   					istrfloat >> bin_value;
+					
+					HostSlotMap[host_slot]->bxHistogram1D->setBinContent(ibx-1,bin_value/*atoi(s.c_str())*/);					
 					if(ibx >= BXBIN)
 						break;
    				}
 				
 				
 				// create and cd into new folder for wcHistograms
-  				dbe_->setCurrentFolder(/*monitorName_+*/"wcHisto");
-				HostSlotMap[host_slot]->wcHistogram1D = dbe_->book1D("wc_"+ host_slot, "FRL histo", WCBIN/*atoi(NBINS.c_str())*/, 0/*atoi(XMIN.c_str())*/, WCBIN-1/*atoi(XMAX.c_str())*/);
+  				dbe_->setCurrentFolder(monitorName_ + "wcHisto");
 				
-	  			HostSlotMap[host_slot]->wcHistogram1D->setAxisTitle("WC"/*"x-axis title"*/, 1);
-  				HostSlotMap[host_slot]->wcHistogram1D->setAxisTitle("Words"/*"y-axis title"*/, 2);
+				//the wcHistogramResolution equals the value of the register Histogram of the FRL, not the value of the bytes resolution for the bin
+				// the value of the register multiplied by 16 gives the byte resolution - range of a wcHistogram bin
+				HostSlotMap[host_slot]->wcHistogram1D = dbe_->book1D("wc_"+ host_slot, "FRL wcHisto", WCBIN, 
+				MIN_EVENT_FRAGMENT_SIZE, MIN_EVENT_FRAGMENT_SIZE + WCBIN*16*atoi(ref_table->columnData_["wcHistogramResolution"]->elementAt(r)->toString().c_str()));
+				
+	  			HostSlotMap[host_slot]->wcHistogram1D->setAxisTitle("Event framgent size (Bytes)"/*"x-axis title"*/, 1);
+  				HostSlotMap[host_slot]->wcHistogram1D->setAxisTitle("Events"/*"y-axis title"*/, 2);
 			
 				/* remove prints for benchmarking*/
 				/*std::cout << "booked histogram = " << host_slot << std::endl;*/
@@ -246,7 +244,12 @@ void XmasToDQMSource::analyze(const Event& iEvent,
 					string s = *itok;
 					//HostSlotMap[host_slot]->Fill(atoi(s.c_str()));
 					
-					HostSlotMap[host_slot]->wcHistogram1D->setBinContent(iwc-1,atoi(s.c_str()));					
+					std::istringstream istrfloat(s);
+   					float bin_value;
+   					istrfloat >> bin_value;
+					
+					
+					HostSlotMap[host_slot]->wcHistogram1D->setBinContent(iwc-1, bin_value/*atoi(s.c_str())*/);					
 					if(iwc >= WCBIN)
 						break;
    				}
@@ -259,12 +262,12 @@ void XmasToDQMSource::analyze(const Event& iEvent,
 				//check if the timestamp has changed and proceed adding data only if timestamp has changed
 				if(HostSlotMap[host_slot]->lastTimestamp == ref_table->columnData_["timestamp"]->elementAt(r)->toString())
 				{
-					std::cout << host_slot << " same timestamp found..." << std::endl;
+					//std::cout << host_slot << " same timestamp found..." << std::endl;
 					continue;
 				}
 				else
 				{
-					std::cout << host_slot << " different timestamp found..." << std::endl;
+					//std::cout << host_slot << " different timestamp found..." << std::endl;
 					HostSlotMap[host_slot]->lastTimestamp == ref_table->columnData_["timestamp"]->elementAt(r)->toString();
 				}
 				
@@ -284,7 +287,11 @@ void XmasToDQMSource::analyze(const Event& iEvent,
 					string s = *itok;
 					//HostSlotMap[host_slot]->Fill(atoi(s.c_str()));
 					
-					HostSlotMap[host_slot]->bxHistogram1D->setBinContent(ibx-1,atoi(s.c_str()));					
+					std::istringstream istrfloat(s);
+   					float bin_value;
+   					istrfloat >> bin_value;
+					
+					HostSlotMap[host_slot]->bxHistogram1D->setBinContent(ibx-1,bin_value/*atoi(s.c_str())*/);					
 					if(ibx >= BXBIN)
 						break;
    				}
@@ -303,7 +310,11 @@ void XmasToDQMSource::analyze(const Event& iEvent,
 					string s = *itok;
 					//HostSlotMap[host_slot]->Fill(atoi(s.c_str()));
 					
-					HostSlotMap[host_slot]->wcHistogram1D->setBinContent(iwc-1,atoi(s.c_str()));					
+					std::istringstream istrfloat(s);
+   					float bin_value;
+   					istrfloat >> bin_value;
+					
+					HostSlotMap[host_slot]->wcHistogram1D->setBinContent(iwc-1, bin_value/*atoi(s.c_str())*/);					
 					if(iwc >= WCBIN)
 						break;
    				}
@@ -322,23 +333,23 @@ void XmasToDQMSource::analyze(const Event& iEvent,
 		ref_table->~Table();
 	}
 	
-	std::cout << "after calling xdata::Table::Reference destructor...."<< std::endl;
+	//std::cout << "after calling xdata::Table::Reference destructor...."<< std::endl;
 	
 	delete ref_table ;
 	
-	std::cout << "after call of delete...."<< std::endl;
+	//std::cout << "after call of delete...."<< std::endl;
 	
 	
-	end = time(NULL);
+	/*end = time(NULL);
 	
-	std::cout << "time called = " << times_called << " time in seconds needed = " << (end - start) << std::endl;
+	std::cout << "time called = " << times_called << " time in seconds needed = " << (end - start) << std::endl;*/
 	
 	//cout << "DQMSourceExample::analyze before BSem_.give()" << endl;
 	
 	//signal that a new element has been inserted
 	pthread_cond_signal(&xmas2dqm::wse::ToDqm::instance()->less_);
 	
-	std::cout << "after signaligng less...." << std::endl;
+	//std::cout << "after signaligng less...." << std::endl;
 	
 	//allow access to the queue
     	pthread_mutex_unlock(&xmas2dqm::wse::ToDqm::instance()->mymutex_);
@@ -358,7 +369,7 @@ void XmasToDQMSource::analyze(const Event& iEvent,
 		dbe_->save("/tmp/thehisto.root","/wse");
   	}*/
   	
-	std::cout << "returning from XmasToDQMSource::analyze...." << std::endl;
+	//std::cout << "returning from XmasToDQMSource::analyze...." << std::endl;
 	//usleep(100);
 	//sleep(1000);
 
