@@ -95,7 +95,8 @@ namespace HcalDigiMap{
     int last = -1; float pval = -1;
     bitUp=false; err=false; occ=false;
     
-    //if (digi.size()!=10) err=true; 
+    // Add in for CRUZET 3:  require digi size = 10
+    if (digi.size()!=10) err=true; 
 
     for (int i=0; i<digi.size(); i++) {
       int thisCapid = digi.sample(i).capid();
@@ -318,18 +319,17 @@ void HcalDigiMonitor::setup(const edm::ParameterSet& ps,
     hbHists.OCC_MAP_DCC -> setAxisTitle("Spigot",1);  
     hbHists.OCC_MAP_DCC -> setAxisTitle("DCC Id",2);
 
-    hbHists.TS_SUM_P.push_back( m_dbe->book1D("HBP Timeslices 2 and 3", "HBP Timeslices 2 and 3", 50, -5, 45) );
-    hbHists.TS_SUM_P.back()->setAxisTitle("Sum of ADC counts", 1);
-    hbHists.TS_SUM_P.push_back( m_dbe->book1D("HBP Timeslices 3 and 4", "HBP Timeslices 3 and 4", 50, -5, 45) );
-    hbHists.TS_SUM_P.back()->setAxisTitle("Sum of ADC counts", 1);
-    hbHists.TS_SUM_P.push_back( m_dbe->book1D("HBP Timeslices 4 and 5", "HBP Timeslices 4 and 5", 50, -5, 45) );
-    hbHists.TS_SUM_P.back()->setAxisTitle("Sum of ADC counts", 1);
-    hbHists.TS_SUM_M.push_back( m_dbe->book1D("HBM Timeslices 2 and 3", "HBM Timeslices 2 and 3", 50, -5, 45) );
-    hbHists.TS_SUM_M.back()->setAxisTitle("Sum of ADC counts", 1);
-    hbHists.TS_SUM_M.push_back( m_dbe->book1D("HBM Timeslices 3 and 4", "HBM Timeslices 3 and 4", 50, -5, 45) );
-    hbHists.TS_SUM_M.back()->setAxisTitle("Sum of ADC counts", 1);
-    hbHists.TS_SUM_M.push_back( m_dbe->book1D("HBM Timeslices 4 and 5", "HBM Timeslices 4 and 5", 50, -5, 45) );
-    hbHists.TS_SUM_M.back()->setAxisTitle("Sum of ADC counts", 1);
+    for (int kk=0;kk<9;++kk)
+      {
+	char histname[1024];
+	sprintf(histname,"HBP Timeslices %i and %i",kk,kk+1);
+	hbHists.TS_SUM_P.push_back( m_dbe->book1D(histname, "histname", 50, -5, 45) );
+	hbHists.TS_SUM_P.back()->setAxisTitle("Sum of ADC counts", 1);
+	sprintf(histname,"HBM Timeslices %i and %i",kk,kk+1);
+	hbHists.TS_SUM_M.push_back( m_dbe->book1D(histname, "histname", 50, -5, 45) );
+	hbHists.TS_SUM_M.back()->setAxisTitle("Sum of ADC counts", 1);
+
+      }
 
     m_dbe->setCurrentFolder(baseFolder_+"/HE");
     heHists.check=ps.getUntrackedParameter<bool>("checkHE","true");
@@ -409,18 +409,17 @@ void HcalDigiMonitor::setup(const edm::ParameterSet& ps,
     heHists.OCC_MAP_DCC -> setAxisTitle("Spigot",1);  
     heHists.OCC_MAP_DCC -> setAxisTitle("DCC Id",2);
 
-    heHists.TS_SUM_P.push_back( m_dbe->book1D("HEP Timeslices 2 and 3", "HEP Timeslices 2 and 3", 50, -5, 45) );
-    heHists.TS_SUM_P.back()->setAxisTitle("Sum of ADC counts", 1);
-    heHists.TS_SUM_P.push_back( m_dbe->book1D("HEP Timeslices 3 and 4", "HEP Timeslices 3 and 4", 50, -5, 45) );
-    heHists.TS_SUM_P.back()->setAxisTitle("Sum of ADC counts", 1);
-    heHists.TS_SUM_P.push_back( m_dbe->book1D("HEP Timeslices 4 and 5", "HEP Timeslices 4 and 5", 50, -5, 45) );
-    heHists.TS_SUM_P.back()->setAxisTitle("Sum of ADC counts", 1);
-    heHists.TS_SUM_M.push_back( m_dbe->book1D("HEM Timeslices 2 and 3", "HEM Timeslices 2 and 3", 50, -5, 45) );
-    heHists.TS_SUM_M.back()->setAxisTitle("Sum of ADC counts", 1);
-    heHists.TS_SUM_M.push_back( m_dbe->book1D("HEM Timeslices 3 and 4", "HEM Timeslices 3 and 4", 50, -5, 45) );
-    heHists.TS_SUM_M.back()->setAxisTitle("Sum of ADC counts", 1);
-    heHists.TS_SUM_M.push_back( m_dbe->book1D("HEM Timeslices 4 and 5", "HEM Timeslices 4 and 5", 50, -5, 45) );
-    heHists.TS_SUM_M.back()->setAxisTitle("Sum of ADC counts", 1);
+    for (int kk=0;kk<9;++kk)
+      {
+	char histname[1024];
+	sprintf(histname,"HEP Timeslices %i and %i",kk,kk+1);
+	heHists.TS_SUM_P.push_back( m_dbe->book1D(histname, "histname", 50, -5, 45) );
+	heHists.TS_SUM_P.back()->setAxisTitle("Sum of ADC counts", 1);
+	sprintf(histname,"HEM Timeslices %i and %i",kk,kk+1);
+	heHists.TS_SUM_M.push_back( m_dbe->book1D(histname, "histname", 50, -5, 45) );
+	heHists.TS_SUM_M.back()->setAxisTitle("Sum of ADC counts", 1);
+
+      }
 
     m_dbe->setCurrentFolder(baseFolder_+"/HF");
     hfHists.check=ps.getUntrackedParameter<bool>("checkHF","true");
@@ -502,18 +501,16 @@ void HcalDigiMonitor::setup(const edm::ParameterSet& ps,
     hfHists.OCC_MAP_DCC -> setAxisTitle("Spigot",1);  
     hfHists.OCC_MAP_DCC -> setAxisTitle("DCC Id",2);
 
-    hfHists.TS_SUM_P.push_back( m_dbe->book1D("HFP Timeslices 2 and 3", "HFP Timeslices 2 and 3", 50, -5, 45) );
-    hfHists.TS_SUM_P.back()->setAxisTitle("Sum of ADC counts", 1);
-    hfHists.TS_SUM_P.push_back( m_dbe->book1D("HFP Timeslices 3 and 4", "HFP Timeslices 3 and 4", 50, -5, 45) );
-    hfHists.TS_SUM_P.back()->setAxisTitle("Sum of ADC counts", 1);
-    hfHists.TS_SUM_P.push_back( m_dbe->book1D("HFP Timeslices 4 and 5", "HFP Timeslices 4 and 5", 50, -5, 45) );
-    hfHists.TS_SUM_P.back()->setAxisTitle("Sum of ADC counts", 1);
-    hfHists.TS_SUM_M.push_back( m_dbe->book1D("HFM Timeslices 2 and 3", "HFM Timeslices 2 and 3", 50, -5, 45) );
-    hfHists.TS_SUM_M.back()->setAxisTitle("Sum of ADC counts", 1);
-    hfHists.TS_SUM_M.push_back( m_dbe->book1D("HFM Timeslices 3 and 4", "HFM Timeslices 3 and 4", 50, -5, 45) );
-    hfHists.TS_SUM_M.back()->setAxisTitle("Sum of ADC counts", 1);
-    hfHists.TS_SUM_M.push_back( m_dbe->book1D("HFM Timeslices 4 and 5", "HFM Timeslices 4 and 5", 50, -5, 45) );
-    hfHists.TS_SUM_M.back()->setAxisTitle("Sum of ADC counts", 1);
+    for (int kk=0;kk<9;++kk)
+      {
+	char histname[1024];
+	sprintf(histname,"HFP Timeslices %i and %i",kk,kk+1);
+	hfHists.TS_SUM_P.push_back( m_dbe->book1D(histname, "histname", 50, -5, 45) );
+	hfHists.TS_SUM_P.back()->setAxisTitle("Sum of ADC counts", 1);
+	sprintf(histname,"HFM Timeslices %i and %i",kk,kk+1);
+	hfHists.TS_SUM_M.push_back( m_dbe->book1D(histname, "histname", 50, -5, 45) );
+	hfHists.TS_SUM_M.back()->setAxisTitle("Sum of ADC counts", 1);
+      }
 
     m_dbe->setCurrentFolder(baseFolder_+"/HO");
     hoHists.check=ps.getUntrackedParameter<bool>("checkHO","true");
@@ -594,18 +591,17 @@ void HcalDigiMonitor::setup(const edm::ParameterSet& ps,
     hoHists.OCC_MAP_DCC -> setAxisTitle("Spigot",1);  
     hoHists.OCC_MAP_DCC -> setAxisTitle("DCC Id",2);
 
-    hoHists.TS_SUM_P.push_back( m_dbe->book1D("HOP Timeslices 2 and 3", "HOP Timeslices 2 and 3", 50, -5, 45) );
-    hoHists.TS_SUM_P.back()->setAxisTitle("Sum of ADC counts", 1);
-    hoHists.TS_SUM_P.push_back( m_dbe->book1D("HOP Timeslices 3 and 4", "HOP Timeslices 3 and 4", 50, -5, 45) );
-    hoHists.TS_SUM_P.back()->setAxisTitle("Sum of ADC counts", 1);
-    hoHists.TS_SUM_P.push_back( m_dbe->book1D("HOP Timeslices 4 and 5", "HOP Timeslices 4 and 5", 50, -5, 45) );
-    hoHists.TS_SUM_P.back()->setAxisTitle("Sum of ADC counts", 1);
-    hoHists.TS_SUM_M.push_back( m_dbe->book1D("HOM Timeslices 2 and 3", "HOM Timeslices 2 and 3", 50, -5, 45) );
-    hoHists.TS_SUM_M.back()->setAxisTitle("Sum of ADC counts", 1);
-    hoHists.TS_SUM_M.push_back( m_dbe->book1D("HOM Timeslices 3 and 4", "HOM Timeslices 3 and 4", 50, -5, 45) );
-    hoHists.TS_SUM_M.back()->setAxisTitle("Sum of ADC counts", 1);
-    hoHists.TS_SUM_M.push_back( m_dbe->book1D("HOM Timeslices 4 and 5", "HOM Timeslices 4 and 5", 50, -5, 45) );
-    hoHists.TS_SUM_M.back()->setAxisTitle("Sum of ADC counts", 1);
+    for (int kk=0;kk<9;++kk)
+      {
+	char histname[1024];
+	sprintf(histname,"HOP Timeslices %i and %i",kk,kk+1);
+	hoHists.TS_SUM_P.push_back( m_dbe->book1D(histname, "histname", 50, -5, 45) );
+	hoHists.TS_SUM_P.back()->setAxisTitle("Sum of ADC counts", 1);
+	sprintf(histname,"HOM Timeslices %i and %i",kk,kk+1);
+	hoHists.TS_SUM_M.push_back( m_dbe->book1D(histname, "histname", 50, -5, 45) );
+	hoHists.TS_SUM_M.back()->setAxisTitle("Sum of ADC counts", 1);
+      }
+
 
     // Summary histograms for storing problem info (cells with either a digi error or with low digi occupancy)
     m_dbe->setCurrentFolder(baseFolder_+"/HCAL");
@@ -1042,18 +1038,26 @@ void HcalDigiMonitor::processEvent(const HBHEDigiCollection& hbhe,
 	    HcalDigiPerChan::perChanHists<HBHEDataFrame>(1,digi,normVals,hbHists.SHAPE,m_dbe,baseFolder_);
 
 
-	if (iEta > 0) {
-	  hbHists.TS_SUM_P[0]->Fill(digi.sample(2).adc() + digi.sample(3).adc());
-	  hbHists.TS_SUM_P[1]->Fill(digi.sample(3).adc() + digi.sample(4).adc());
-	  hbHists.TS_SUM_P[2]->Fill(digi.sample(4).adc() + digi.sample(5).adc());	  
-	}
-	else if (iEta < 0) {
-	  hbHists.TS_SUM_M[0]->Fill(digi.sample(2).adc() + digi.sample(3).adc());
-	  hbHists.TS_SUM_M[1]->Fill(digi.sample(3).adc() + digi.sample(4).adc());
-	  hbHists.TS_SUM_M[2]->Fill(digi.sample(4).adc() + digi.sample(5).adc());	  
-	}
-      }
-      else if((HcalSubdetector)(digi.id().subdet())==HcalEndcap){
+	if (iEta > 0) 
+	  {
+	    for (int kk=0;kk<9;kk++)
+	      {
+		if (kk>=digi.size()-1) continue;
+		hbHists.TS_SUM_P[kk]->Fill(digi.sample(kk).adc()+digi.sample(kk+1).adc());
+	      }
+	  }
+	else if (iEta < 0) 
+	  {
+	 for (int kk=0;kk<9;kk++)
+	      {
+		if (kk>=digi.size()-1) continue;
+		hbHists.TS_SUM_M[kk]->Fill(digi.sample(kk).adc()+digi.sample(kk+1).adc());
+	      }
+	  }
+      } // if (HcalSubdetector)
+
+      //else if((HcalSubdetector)(digi.id().subdet())==HcalEndcap){
+      else{ // extra subdet() call seems unnecessary -- if digi isn't HB, it must be HE
 	if (!heHists.check) continue;
 	nhedigi++;  ndigi++;
 
@@ -1157,19 +1161,25 @@ void HcalDigiMonitor::processEvent(const HBHEDigiCollection& hbhe,
 	  HcalDigiPerChan::perChanHists<HBHEDataFrame>(2,digi,normVals,heHists.SHAPE,m_dbe,baseFolder_);
 
 
-	if (iEta > 0) {
-	  heHists.TS_SUM_P[0]->Fill(digi.sample(2).adc() + digi.sample(3).adc());
-	  heHists.TS_SUM_P[1]->Fill(digi.sample(3).adc() + digi.sample(4).adc());
-	  heHists.TS_SUM_P[2]->Fill(digi.sample(4).adc() + digi.sample(5).adc());	  
-	}
-	else if (iEta < 0) {
-	  heHists.TS_SUM_M[0]->Fill(digi.sample(2).adc() + digi.sample(3).adc());
-	  heHists.TS_SUM_M[1]->Fill(digi.sample(3).adc() + digi.sample(4).adc());
-	  heHists.TS_SUM_M[2]->Fill(digi.sample(4).adc() + digi.sample(5).adc());	  
-	}
+	if (iEta > 0) 
+	  {
+	    for (int kk=0;kk<9;kk++)
+	      {
+		if (kk>=digi.size()-1) continue;
+		heHists.TS_SUM_P[kk]->Fill(digi.sample(kk).adc()+digi.sample(kk+1).adc());
+	      }
+	  }
+	else if (iEta < 0) 
+	  {
+	    for (int kk=0;kk<9;kk++)
+	      {
+		if (kk>=digi.size()-1) continue;
+		heHists.TS_SUM_M[kk]->Fill(digi.sample(kk).adc()+digi.sample(kk+1).adc());
+	      }
+	  }
 
-      }
-    }
+      } //else (loop over HE)
+    } // loop over HBHE digi collection
     
     hbHists.DIGI_NUM->Fill(nhbdigi);
     hbHists.BQDIGI_NUM->Fill(nhbbqdigi);
@@ -1313,16 +1323,23 @@ void HcalDigiMonitor::processEvent(const HBHEDigiCollection& hbhe,
 	HcalDigiPerChan::perChanHists<HODataFrame>(3,digi,normVals,hoHists.SHAPE,m_dbe, baseFolder_);
 
 
-	if (digi.id().ieta() > 0) {
-	  hoHists.TS_SUM_P[0]->Fill(digi.sample(2).adc() + digi.sample(3).adc());
-	  hoHists.TS_SUM_P[1]->Fill(digi.sample(3).adc() + digi.sample(4).adc());
-	  hoHists.TS_SUM_P[2]->Fill(digi.sample(4).adc() + digi.sample(5).adc());	  
+      if (digi.id().ieta() > 0) 
+	{
+	  for (int kk=0;kk<9;kk++)
+	    {
+	      if (kk>=digi.size()-1) continue;
+	      hoHists.TS_SUM_P[kk]->Fill(digi.sample(kk).adc()+digi.sample(kk+1).adc());
+	    }
 	}
-	else if (digi.id().ieta() < 0) {
-	  hoHists.TS_SUM_M[0]->Fill(digi.sample(2).adc() + digi.sample(3).adc());
-	  hoHists.TS_SUM_M[1]->Fill(digi.sample(3).adc() + digi.sample(4).adc());
-	  hoHists.TS_SUM_M[2]->Fill(digi.sample(4).adc() + digi.sample(5).adc());	  
+      else if (digi.id().ieta() < 0) 
+	{
+	  for (int kk=0;kk<9;kk++)
+	    {
+	      if (kk>=digi.size()-1) continue;
+	      hoHists.TS_SUM_M[kk]->Fill(digi.sample(kk).adc()+digi.sample(kk+1).adc());
+	    }
 	}
+      
 
     }
     hoHists.DIGI_NUM->Fill(nhodigi);
@@ -1456,16 +1473,23 @@ void HcalDigiMonitor::processEvent(const HBHEDigiCollection& hbhe,
 	HcalDigiPerChan::perChanHists<HFDataFrame>(4,digi,normVals,hfHists.SHAPE,m_dbe, baseFolder_);
 
 
-      if (digi.id().ieta() > 0) {
-	hfHists.TS_SUM_P[0]->Fill(digi.sample(2).adc() + digi.sample(3).adc());
-	hfHists.TS_SUM_P[1]->Fill(digi.sample(3).adc() + digi.sample(4).adc());
-	hfHists.TS_SUM_P[2]->Fill(digi.sample(4).adc() + digi.sample(5).adc());	  
-      }
-      else if (digi.id().ieta() < 0) {
-	hfHists.TS_SUM_M[0]->Fill(digi.sample(2).adc() + digi.sample(3).adc());
-	hfHists.TS_SUM_M[1]->Fill(digi.sample(3).adc() + digi.sample(4).adc());
-	hfHists.TS_SUM_M[2]->Fill(digi.sample(4).adc() + digi.sample(5).adc());	  
-      }
+      if (digi.id().ieta() > 0) 
+	{
+	  for (int kk=0;kk<9;kk++)
+	    {
+	      if (kk>=digi.size()-1) continue;
+	      hfHists.TS_SUM_P[kk]->Fill(digi.sample(kk).adc()+digi.sample(kk+1).adc());
+	    }
+	}
+      else if (digi.id().ieta() < 0) 
+	{
+	  for (int kk=0;kk<9;kk++)
+	    {
+	      if (kk>=digi.size()-1) continue;
+	      hfHists.TS_SUM_M[kk]->Fill(digi.sample(kk).adc()+digi.sample(kk+1).adc());
+	    }
+	}
+      
 
     }
     hfHists.DIGI_NUM->Fill(nhfdigi);
