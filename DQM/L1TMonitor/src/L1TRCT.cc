@@ -1,8 +1,8 @@
 /*
  * \file L1TRCT.cc
  *
- * $Date: 2008/03/20 19:38:25 $
- * $Revision: 1.13 $
+ * $Date: 2008/05/07 15:19:07 $
+ * $Revision: 1.14 $
  * \author P. Wittich
  *
  */
@@ -103,16 +103,16 @@ void L1TRCT::beginJob(const EventSetup & c)
     dbe->setCurrentFolder("L1T/L1TRCT");
 
     rctIsoEmEtEtaPhi_ =
-	dbe->book2D("RctIsoEmEtEtaPhi", "ISO EM E_{T}", ETABINS, ETAMIN,
+	dbe->book2D("RctEmIsoEmEtEtaPhi", "ISO EM E_{T}", ETABINS, ETAMIN,
 		    ETAMAX, PHIBINS, PHIMIN, PHIMAX);
     rctIsoEmOccEtaPhi_ =
-	dbe->book2D("RctIsoEmOccEtaPhi", "ISO EM OCCUPANCY", ETABINS,
+	dbe->book2D("RctEmIsoEmOccEtaPhi", "ISO EM OCCUPANCY", ETABINS,
 		    ETAMIN, ETAMAX, PHIBINS, PHIMIN, PHIMAX);
     rctNonIsoEmEtEtaPhi_ =
-	dbe->book2D("RctNonIsoEmEtEtaPhi", "NON-ISO EM E_{T}", ETABINS,
+	dbe->book2D("RctEmNonIsoEmEtEtaPhi", "NON-ISO EM E_{T}", ETABINS,
 		    ETAMIN, ETAMAX, PHIBINS, PHIMIN, PHIMAX);
     rctNonIsoEmOccEtaPhi_ =
-	dbe->book2D("RctNonIsoEmOccEtaPhi", "NON-ISO EM OCCUPANCY",
+	dbe->book2D("RctEmNonIsoEmOccEtaPhi", "NON-ISO EM OCCUPANCY",
 		    ETABINS, ETAMIN, ETAMAX, PHIBINS, PHIMIN, PHIMAX);
 
     // global regions
@@ -122,11 +122,29 @@ void L1TRCT::beginJob(const EventSetup & c)
     rctRegionsOccEtaPhi_ =
 	dbe->book2D("RctRegionsOccEtaPhi", "REGION OCCUPANCY", ETABINS,
 		    ETAMIN, ETAMAX, PHIBINS, PHIMIN, PHIMAX);
+
+    rctOverFlowEtaPhi_ =
+	dbe->book2D("RctBitOverFlowEtaPhi", "OVER FLOW OCCUPANCY", ETABINS,
+		    ETAMIN, ETAMAX, PHIBINS, PHIMIN, PHIMAX);
+
     rctTauVetoEtaPhi_ =
-	dbe->book2D("RctTauVetoEtaPhi", "TAU VETO OCCUPANCY", ETABINS,
+	dbe->book2D("RctBitTauVetoEtaPhi", "TAU VETO OCCUPANCY", ETABINS,
+		    ETAMIN, ETAMAX, PHIBINS, PHIMIN, PHIMAX);
+
+    rctMipEtaPhi_ =
+	dbe->book2D("RctBitMipEtaPhi", "MIP OCCUPANCY", ETABINS,
+		    ETAMIN, ETAMAX, PHIBINS, PHIMIN, PHIMAX);
+
+    rctQuietEtaPhi_ =
+	dbe->book2D("RctBitQuietEtaPhi", "QUIET OCCUPANCY", ETABINS,
+		    ETAMIN, ETAMAX, PHIBINS, PHIMIN, PHIMAX);
+
+    rctFineGrainEtaPhi_ =
+	dbe->book2D("RctBitFineGrainEtaPhi", "FINE GRANE OCCUPANCY", ETABINS,
 		    ETAMIN, ETAMAX, PHIBINS, PHIMIN, PHIMAX);
 
     // local regions
+/*
     const int nlocphibins = 2; 
     const float locphimin = -0.5;
     const float locphimax = 1.5;
@@ -145,19 +163,19 @@ void L1TRCT::beginJob(const EventSetup & c)
 	dbe->book2D("RctTauLocalVetoEtaPhi", "TAU VETO OCCUPANCY (Local)",
 		    nlocetabins, locetamin, locetamax,
 		    nlocphibins, locphimin, locphimax);
-
+*/
     // rank histos
     rctRegionRank_ =
 	dbe->book1D("RctRegionRank", "REGION RANK", R10BINS, R10MIN,
 		    R10MAX);
     rctIsoEmRank_ =
-	dbe->book1D("RctIsoEmRank", "ISO EM RANK", R6BINS, R6MIN, R6MAX);
+	dbe->book1D("RctEmIsoEmRank", "ISO EM RANK", R6BINS, R6MIN, R6MAX);
     rctNonIsoEmRank_ =
-	dbe->book1D("RctNonIsoEmRank", "NON-ISO EM RANK", R6BINS, R6MIN,
+	dbe->book1D("RctEmNonIsoEmRank", "NON-ISO EM RANK", R6BINS, R6MIN,
 		    R6MAX);
     // hw coordinates
-    rctEmCardRegion_ = dbe->book1D("rctEmCardRegion", "Em Card * Region",
-				   256, -127.5, 127.5);
+//    rctEmCardRegion_ = dbe->book1D("rctEmCardRegion", "Em Card * Region",
+//				   256, -127.5, 127.5);
 
     // bx histos
     rctRegionBx_ = dbe->book1D("RctRegionBx", "Region BX", 256, -0.5, 4095.5);
@@ -211,22 +229,28 @@ void L1TRCT::analyze(const Event & e, const EventSetup & c)
     // Regions
     for (L1CaloRegionCollection::const_iterator ireg = rgn->begin();
 	 ireg != rgn->end(); ireg++) {
-      rctRegionRank_->Fill(ireg->et());
       if(ireg->et()>0)
       {
+      rctRegionRank_->Fill(ireg->et());
       rctRegionsOccEtaPhi_->Fill(ireg->gctEta(), ireg->gctPhi());
       rctRegionsEtEtaPhi_->Fill(ireg->gctEta(), ireg->gctPhi(), ireg->et());
-      rctTauVetoEtaPhi_->Fill(ireg->gctEta(), ireg->gctPhi(),
-			      ireg->tauVeto());
+//      rctTauVetoEtaPhi_->Fill(ireg->gctEta(), ireg->gctPhi(),
+//			      ireg->tauVeto());
 
       // now do local coordinate eta and phi
-      rctRegionsLocalOccEtaPhi_->Fill(ireg->rctEta(), ireg->rctPhi());
-      rctRegionsLocalEtEtaPhi_->Fill(ireg->rctEta(), ireg->rctPhi(), 
-				     ireg->et());
-      rctTauVetoLocalEtaPhi_->Fill(ireg->rctEta(), ireg->rctPhi(),
-				   ireg->tauVeto());
-      }
+//      rctRegionsLocalOccEtaPhi_->Fill(ireg->rctEta(), ireg->rctPhi());
+//      rctRegionsLocalEtEtaPhi_->Fill(ireg->rctEta(), ireg->rctPhi(), 
+//				     ireg->et());
+//      rctTauVetoLocalEtaPhi_->Fill(ireg->rctEta(), ireg->rctPhi(),
+//				   ireg->tauVeto());
       rctRegionBx_->Fill(ireg->bx());
+      }
+
+    if(ireg->overFlow())  rctOverFlowEtaPhi_ ->Fill(ireg->gctEta(), ireg->gctPhi());
+    if(ireg->tauVeto())   rctTauVetoEtaPhi_  ->Fill(ireg->gctEta(), ireg->gctPhi());
+    if(ireg->mip())       rctMipEtaPhi_      ->Fill(ireg->gctEta(), ireg->gctPhi());
+    if(ireg->quiet())     rctQuietEtaPhi_    ->Fill(ireg->gctEta(), ireg->gctPhi());
+    if(ireg->fineGrain()) rctFineGrainEtaPhi_->Fill(ireg->gctEta(), ireg->gctPhi()); 
     
     }
   }
@@ -244,29 +268,30 @@ void L1TRCT::analyze(const Event & e, const EventSetup & c)
   for (L1CaloEmCollection::const_iterator iem = em->begin();
        iem != em->end(); iem++) {
     
-    rctEmCardRegion_->Fill((iem->rctRegion()==0?1:-1)*(iem->rctCard()));
+ //   rctEmCardRegion_->Fill((iem->rctRegion()==0?1:-1)*(iem->rctCard()));
 
     if (iem->isolated()) {
-      rctIsoEmRank_->Fill(iem->rank());
       if(iem->rank()>0)
       {
+      rctIsoEmRank_->Fill(iem->rank());
       rctIsoEmEtEtaPhi_->Fill(iem->regionId().ieta(),
 			      iem->regionId().iphi(), iem->rank());
       rctIsoEmOccEtaPhi_->Fill(iem->regionId().ieta(),
 			       iem->regionId().iphi());
+      rctEmBx_->Fill(iem->bx());
       }
     }
     else {
-      rctNonIsoEmRank_->Fill(iem->rank());
       if(iem->rank()>0)
       { 
+      rctNonIsoEmRank_->Fill(iem->rank());
       rctNonIsoEmEtEtaPhi_->Fill(iem->regionId().ieta(),
 				 iem->regionId().iphi(), iem->rank());
       rctNonIsoEmOccEtaPhi_->Fill(iem->regionId().ieta(),
 				  iem->regionId().iphi());
+      rctEmBx_->Fill(iem->bx());
       }
     }
-    rctEmBx_->Fill(iem->bx());
 
   }
 
