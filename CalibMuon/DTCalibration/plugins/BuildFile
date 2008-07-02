@@ -9,7 +9,7 @@
 <use name=CondCore/DBOutputService>
 <use name=CalibMuon/DTDigiSync>
 <use name=CalibMuon/DTCalibration>
-<use name=root>
+<use name=rootgraphics>
 
  <library file="*.cc" name=CalibMuonDTCalibrationPlugins>
 	<flags EDM_PLUGIN=1> 
