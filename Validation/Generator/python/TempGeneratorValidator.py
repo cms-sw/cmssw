@@ -187,7 +187,6 @@ class JobManager:
                     scratch = Configuration.variables["HomeDirectory"]+'DropBox/scratch/'+file.split('.')[0].split('__')[0]+"/"+file.split('.')[0].split('__')[1]+'/'+self.__release_List[file.split('.')[0].split('__')[1]]
                 if os.path.exists(scratch+'/') == False:
                     os.makedirs(scratch+'/')
-                shutil.copyfile(dir+'/'+file, scratch+'/'+file)
                 CMSstatus, CMSoutput = commands.getstatusoutput('$CMSSW_BASE')
                 CMS_dir = CMSoutput.split(':')[1].strip(' ')
                 if 'CERN' not in batch.upper():
@@ -212,7 +211,7 @@ class JobManager:
                     if status != 0:
                         print file + " wasn't submitted properly"
                 else:
-                    tfile = open (Configuration.variables['HomeDirectory'] + '/interface/cmsrun.template' ,'r')
+                    tfile = open (Configuration.variables['HomeDirectory'] + '/interface/cmsrunbsub.template' ,'r')
                     template = Template(tfile.read())
                     tfile.close()
                     cfile = open(scratch+"/cmsrunbsub"+file.split('.')[0].split('__')[0], 'w')
@@ -265,7 +264,7 @@ class JobManager:
                             if os.path.isdir(Configuration.variables["ReleaseDirectory"]+generator+'/'+sub_gen+'/'+process+'/') == False:
                                 os.makedirs(Configuration.variables["ReleaseDirectory"]+generator+'/'+sub_gen+'/'+process+'/')
                             shutil.copyfile(Configuration.variables["HomeDirectory"]+'DropBox/scratch/'+process+'/'+generator+'/'+sub_gen+'/'+subdir, Configuration.variables["ReleaseDirectory"]+generator+'/'+sub_gen+'/'+process+'/'+subdir)
-                    os.system('rm '+Configuration.variables["HomeDirectory"]+'DropBox/scratch/'+process+'/'+generator+'/'+sub_gen+'/*')
+                    #os.system('rm '+Configuration.variables["HomeDirectory"]+'DropBox/scratch/'+process+'/'+generator+'/'+sub_gen+'/*')
                 
         print "Begin Publishing" , process
         ### Publishes and compares, may be able to replace 'data' too ###
@@ -297,7 +296,7 @@ class JobManager:
                                         if os.path.isdir(web_dir) == False:
                                             os.makedirs(web_dir)
                                         
-                                        Publisher.StaticWeb().plot(Configuration.variables["ReleaseDirectory"]+List+'/'+sub_dir[i]+'/'+process+'/'+rel_file, Configuration.variables["ReleaseDirectory"]+List+'/'+sub_dir[j]+'/'+process+'/'+ref_file, web_dir, process+'--'+sub_dir[i]+'--'+sub_dir[j], '',sub_dir[i], sub_dir[j]))
+                                        Publisher.StaticWeb().plot(Configuration.variables["ReleaseDirectory"]+List+'/'+sub_dir[i]+'/'+process+'/'+rel_file, Configuration.variables["ReleaseDirectory"]+List+'/'+sub_dir[j]+'/'+process+'/'+ref_file, web_dir, process+'--'+sub_dir[i]+'--'+sub_dir[j], '',sub_dir[i], sub_dir[j])
                                         Publisher.StaticWeb().index(sub_dir[i], sub_dir[j], process, web_dir)
                                               
 

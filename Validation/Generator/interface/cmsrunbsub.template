@@ -1,0 +1,6 @@
+#! /bin/csh
+
+cd ${CMSSW}/src
+eval `scramv1 r -csh`
+cd ${directory}
+cmsRun ${cfg}
