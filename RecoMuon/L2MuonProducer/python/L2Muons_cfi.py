@@ -24,12 +24,12 @@ L2Muons = cms.EDProducer("L2MuonProducer",
             CSCRecSegmentLabel = cms.InputTag("cscSegments"),
             EnableDTMeasurement = cms.bool(True),
             RPCRecSegmentLabel = cms.InputTag("rpcRecHits"),
-            Propagator = cms.string('SteppingHelixPropagatorAny'),
+            Propagator = cms.string('SteppingHelixPropagatorL2Any'),
             EnableCSCMeasurement = cms.bool(True)
         ),
         # a precise propagation direction can be choosen accordingly with the 
         # above seed position
-        SeedPropagator = cms.string('SteppingHelixPropagatorAny'),
+        SeedPropagator = cms.string('SteppingHelixPropagatorL2Any'),
         NavigationType = cms.string('Standard'),
         DoBackwardFilter = cms.bool(True),
         # where you want the seed (in,out)
@@ -50,7 +50,7 @@ L2Muons = cms.EDProducer("L2MuonProducer",
             CSCRecSegmentLabel = cms.InputTag("cscSegments"),
             EnableDTMeasurement = cms.bool(True),
             RPCRecSegmentLabel = cms.InputTag("rpcRecHits"),
-            Propagator = cms.string('SteppingHelixPropagatorAny'),
+            Propagator = cms.string('SteppingHelixPropagatorL2Any'),
             EnableCSCMeasurement = cms.bool(True)
         ),
         RefitterParameters = cms.PSet(
