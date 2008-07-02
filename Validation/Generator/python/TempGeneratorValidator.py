@@ -187,7 +187,10 @@ class JobManager:
                     scratch = Configuration.variables["HomeDirectory"]+'DropBox/scratch/'+file.split('.')[0].split('__')[0]+"/"+file.split('.')[0].split('__')[1]+'/'+self.__release_List[file.split('.')[0].split('__')[1]]
                 if os.path.exists(scratch+'/') == False:
                     os.makedirs(scratch+'/')
-                if batch.upper != 'CERN':
+                shutil.copyfile(dir+'/'+file, scratch+'/'+file)
+                CMSstatus, CMSoutput = commands.getstatusoutput('$CMSSW_BASE')
+                CMS_dir = CMSoutput.split(':')[1].strip(' ')
+                if 'CERN' not in batch.upper():
                     tfile = open (Configuration.variables['HomeDirectory'] + '/data/condor.template' ,'r')
                     template = Template(tfile.read())
                     tfile.close()
@@ -197,8 +200,7 @@ class JobManager:
                     tfile = open (Configuration.variables['HomeDirectory'] + '/data/cmsrun.template' ,'r')
                     template = Template(tfile.read())
                     tfile.close()
-                    CMSstatus, CMSoutput = commands.getstatusoutput('$CMSSW_BASE')
-                    CMS_dir = CMSoutput.split(':')[1].strip(' ')
+                    
                     cfile = open(scratch+"/cmsrun"+file.split('.')[0].split('__')[0], 'w')
                     cfile.write(template.safe_substitute(directory=scratch, cfg = Configuration.variables["HomeDirectory"]+'test/'+file, CMSSW=CMS_dir ))
                     cfile.close()
@@ -210,11 +212,11 @@ class JobManager:
                     if status != 0:
                         print file + " wasn't submitted properly"
                 else:
-                    tfile = open (Configuration.variables['HomeDirectory'] + '/interface/cmsrunb.template' ,'r')
+                    tfile = open (Configuration.variables['HomeDirectory'] + '/interface/cmsrun.template' ,'r')
                     template = Template(tfile.read())
                     tfile.close()
                     cfile = open(scratch+"/cmsrunbsub"+file.split('.')[0].split('__')[0], 'w')
-                    cfile.write(template.safe_substitute(directory=scratch, cfg = scratch+'/'+cfg_filename, CMSSW=CMS_dir ))
+                    cfile.write(template.safe_substitute(directory=scratch, cfg = scratch+'/'+file, CMSSW=CMS_dir ))
                     cfile.close()
                     os.chmod(scratch+"/cmsrunbsub"+file.split('.')[0].split('__')[0], 0755)
                     status, output = commands.getstatusoutput("bsub " + scratch+"/cmsrunbsub"+file.split('.')[0].split('__')[0])
