@@ -42,14 +42,14 @@ process.maxEvents = cms.untracked.PSet(
 process.load("FWCore.MessageService.MessageLogger_cfi")
 process.MessageLogger.cerr.FwkReport.reportEvery = 1000
 
-import FWCore.Framework.cmsExceptionsFatalOption_cff
+import FWCore.Framework.test.cmsExceptionsFatalOption_cff
 process.options = cms.untracked.PSet(
 #  wantSummary = cms.untracked.bool(True),
-  Rethrow = FWCore.Framework.cmsExceptionsFatalOption_cff.Rethrow
+  Rethrow = FWCore.Framework.test.cmsExceptionsFatalOption_cff.Rethrow
 )
 
-#import FWCore.Framework.cmsExceptionsFatal_cff
-#process.options = FWCore.Framework.cmsExceptionsFatal_cff.options
+#import FWCore.Framework.test.cmsExceptionsFatal_cff
+#process.options = FWCore.Framework.test.cmsExceptionsFatal_cff.options
 
 process.f1 = cms.EDFilter("TestFilterModule",
   acceptValue = cms.untracked.int32(98),

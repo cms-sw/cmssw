@@ -2,7 +2,7 @@ import FWCore.ParameterSet.Config as cms
 
 process = cms.Process("TEST")
 
-process.load("FWCore.Framework.cmsExceptionsFatal_cff")
+process.load("FWCore.Framework.test.cmsExceptionsFatal_cff")
 
 process.maxEvents = cms.untracked.PSet(
     input = cms.untracked.int32(20)
