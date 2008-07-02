@@ -1,8 +1,8 @@
 /*
  *  See header file for a description of this class.
  *
- *  $Date: 2008/05/30 13:48:59 $
- *  $Revision: 1.2 $
+ *  $Date: 2008/06/05 08:00:50 $
+ *  $Revision: 1.3 $
  *  \author C. Battilana S. Marcellini - INFN Bologna
  */
 
@@ -100,7 +100,7 @@ void DTLocalTriggerEfficiencyTest::endLuminosityBlock(LuminosityBlock const& lum
   edm::LogVerbatim ("localTrigger") <<"[DT" << testName << "Test]: End of LS transition, performing the DQM client operation";
 
   // counts number of lumiSegs 
-  nLumiSegs = lumiSeg.id().luminosityBlock();
+  nLumiSegs++;
 
   // prescale factor
   if ( nLumiSegs%prescaleFactor != 0 ) return;
@@ -302,13 +302,14 @@ void DTLocalTriggerEfficiencyTest::bookChambHistos(DTChamberId chambId, string h
   stringstream sector; sector << chambId.sector();
 
   string fullType  = fullName(htype);
+  string hwFolder = hwSource=="DCC" ? "DCC/" : "";
   string HistoName = fullType + "_W" + wheel.str() + "_Sec" + sector.str() + "_St" + station.str();
 
-  dbe->setCurrentFolder("DT/LocalTrigger/Wheel" + wheel.str() +
+  dbe->setCurrentFolder("DT/03-LocalTrigger/" + hwFolder +"Wheel" + wheel.str() +
 			"/Sector" + sector.str() +
 			"/Station" + station.str() + "/Segment");
 
-  edm::LogVerbatim ("localTrigger") << "[" << testName << "Test]: booking DT/LocalTrigger/Wheel" << wheel.str() 
+  edm::LogVerbatim ("localTrigger") << "[" << testName << "Test]: booking DT/03-LocalTrigger/" + hwFolder + "Wheel" << wheel.str() 
 				    <<"/Sector" << sector.str() << "/Station" << station.str() << "/Segment/" << HistoName;
 
   
