@@ -1,8 +1,8 @@
 /*
  *  See header file for a description of this class.
  *
- *  $Date: 2008/05/30 13:48:59 $
- *  $Revision: 1.2 $
+ *  $Date: 2008/06/05 08:00:50 $
+ *  $Revision: 1.3 $
  *  \author C. Battilana S. Marcellini - INFN Bologna
  */
 
@@ -83,6 +83,21 @@ void DTLocalTriggerLutTest::beginJob(const edm::EventSetup& c){
     }
   }
 
+  // Summary test histo booking (only static)
+  for (iTr = trigSources.begin(); iTr != trEnd; ++iTr){
+    trigSource = (*iTr);
+    for (iHw = hwSources.begin(); iHw != hwSources.end(); ++iHw){
+      hwSource = (*iHw);
+      // Loop over the TriggerUnits
+      for (int wh=-2; wh<=2; ++wh){
+	bookWheelHistos(wh,"","PhiSlopeSummary");
+	bookWheelHistos(wh,"","PhibSlopeSummary");
+      }
+      bookCmsHistos("PhiSlopeSummary");
+      bookCmsHistos("PhibSlopeSummary");
+    }	
+  }
+
 }
 
 
@@ -91,7 +106,7 @@ void DTLocalTriggerLutTest::endLuminosityBlock(LuminosityBlock const& lumiSeg, E
   edm::LogVerbatim ("localTrigger") <<"[" << testName << "Test]: End of LS transition, performing the DQM client operation";
 
   // counts number of lumiSegs 
-  nLumiSegs = lumiSeg.id().luminosityBlock();
+  nLumiSegs++;
 
   // prescale factor
   if ( nLumiSegs%prescaleFactor != 0 ) return;
@@ -187,7 +202,68 @@ void DTLocalTriggerLutTest::endLuminosityBlock(LuminosityBlock const& lumiSeg, E
 	}
       }
     }
-  }	
-  
+  }
+	
+  // Summary Plots
+  map<int,map<string,MonitorElement*> >::const_iterator imapIt = secME.begin();
+  map<int,map<string,MonitorElement*> >::const_iterator mapEnd = secME.end();
+
+  for(; imapIt != mapEnd; ++imapIt){
+    int sector = ((*imapIt).first-1)/5 + 1;
+    int wheel  = ((*imapIt).first-1)%5 - 2;
+
+    for (vector<string>::const_iterator iTr = trigSources.begin(); iTr != trigSources.end(); ++iTr){
+      trigSource = (*iTr);
+      for (vector<string>::const_iterator iHw = hwSources.begin(); iHw != hwSources.end(); ++iHw){
+	hwSource = (*iHw);
+
+	MonitorElement *testME = (*imapIt).second.find(fullName("PhiTkvsTrigSlope"))->second;
+	bool hasEntries = testME->getEntries()>=1;
+	const QReport *testQReport = testME->getQReport("TrigPhiSlopeInRange");
+
+	if (testQReport) {
+	  int err = testQReport->getBadChannels().size();	  
+	  if (err<0 || err>4) err=4;
+	  cmsME.find(fullName("PhiSlopeSummary"))->second->setBinContent(sector,wheel+3,err);
+	  vector<dqm::me_util::Channel> badChannels = testQReport->getBadChannels();
+	  int cherr[4];
+	  for (int i=0;i<4;++i) 
+	    cherr[i] = hasEntries ? 0 : 1;
+	  if (hasEntries) {
+	    for (vector<dqm::me_util::Channel>::iterator channel = badChannels.begin(); 
+		 channel != badChannels.end(); channel++) {
+	      cherr[(*channel).getBin()-1] = 2 ; 
+	    }
+	  }
+	  for (int i=0;i<4;++i)
+	    whME.find(wheel)->second.find(fullName("PhiSlopeSummary"))->second->setBinContent(sector,i+1,cherr[i]);
+	}
+
+	testME = (*imapIt).second.find(fullName("PhibTkvsTrigSlope"))->second;
+	hasEntries = testME->getEntries()>=1;
+	testQReport = testME->getQReport("TrigPhibSlopeInRange");
+
+	if (testQReport) {
+	  int err = testQReport->getBadChannels().size();	  
+	  if (err<0 || err>4) err=4;
+	  vector<dqm::me_util::Channel> badChannels = testQReport->getBadChannels();
+	  int cherr[4];
+	  for (int i=0;i<4;++i)
+	    cherr[i] = hasEntries ? 0 : 1;
+	  if (hasEntries) {
+	    for (vector<dqm::me_util::Channel>::iterator channel = badChannels.begin(); 
+		 channel != badChannels.end(); channel++) {
+	      cherr[(*channel).getBin()-1] = 2 ;
+	      if ((*channel).getBin()==3) err-=1;
+	    }
+	  }
+	  cherr[2] = 1; //MB3 has no meaningful phib info!
+	  cmsME.find(fullName("PhibSlopeSummary"))->second->setBinContent(sector,wheel+3,err);
+	  for (int i=0;i<4;++i)
+	    whME.find(wheel)->second.find(fullName("PhibSlopeSummary"))->second->setBinContent(sector,i+1,cherr[i]);
+	}
+      }
+    }
+  }
 }
 

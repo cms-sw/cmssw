@@ -143,8 +143,8 @@
 
 <QTEST name="TrigPhiSlopeInRange">
 	<TYPE>ContentsYRange</TYPE>	
-	<PARAM name="ymin">0.80</PARAM>
-	<PARAM name="ymax">1.20</PARAM>
+	<PARAM name="ymin">0.92</PARAM>
+	<PARAM name="ymax">1.08</PARAM>
 	<PARAM name="error">0.80</PARAM>
 	<PARAM name="warning">0.90</PARAM>
 	<PARAM name="useEmptyBins">1</PARAM>
@@ -153,8 +153,8 @@
 
 <QTEST name="TrigPhibSlopeInRange">
 	<TYPE>ContentsYRange</TYPE>	
-	<PARAM name="ymin">0.80</PARAM>
-	<PARAM name="ymax">1.20</PARAM>
+	<PARAM name="ymin">0.92</PARAM>
+	<PARAM name="ymax">1.08</PARAM>
 	<PARAM name="error">0.55</PARAM>
 	<PARAM name="warning">0.70</PARAM>
 	<PARAM name="useEmptyBins">1</PARAM>
