@@ -19,13 +19,21 @@ do
 	echo Processing $host:
 
 	echo;echo;echo OPEN FILES
-	ssh $host "ls -1 $CHECK_PATH_OPEN"
+	for file in $( ssh $host "ls -1 $CHECK_PATH_OPEN" )
+	do
+		echo $file;
+		if [ `echo $file | grep -v -E '/|.ind$'` ]
+		then
+			$CHECK_INJECTION_CMD$file;
+		fi
+		echo;
+	done
 	
 	echo;echo;echo CLOSED FILES
 	for file in $( ssh $host "ls -1 $CHECK_PATH_CLOSED" )
 	do
 		echo $file;
-		if [ `echo $file | grep -v '/'` ]
+		if [ `echo $file | grep -v -E '/|.ind$'` ]
 		then
 			$CHECK_INJECTION_CMD$file;
 		fi
