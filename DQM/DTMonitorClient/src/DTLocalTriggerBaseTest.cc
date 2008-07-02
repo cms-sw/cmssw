@@ -1,8 +1,8 @@
 /*
  *  See header file for a description of this class.
  *
- *  $Date: 2008/06/10 15:11:16 $
- *  $Revision: 1.4 $
+ *  $Date: 2008/07/02 15:15:17 $
+ *  $Revision: 1.5 $
  *  \author C. Battilana S. Marcellini - INFN Bologna
  */
 
@@ -158,7 +158,7 @@ void DTLocalTriggerBaseTest::bookSectorHistos(int wheel,int sector,string folder
   stringstream sc; sc << sector;
   int sectorid = (wheel+3) + (sector-1)*5;
   string hwFolder = hwSource=="DCC" ? "DCC/" : ""; 
-  dbe->setCurrentFolder("DT/03-LocalTrigger/"+hwFolder+"/Wheel"+wh.str()+"/Sector"+sc.str()+"/"+folder);
+  dbe->setCurrentFolder("DT/03-LocalTrigger/"+hwFolder+"Wheel"+wh.str()+"/Sector"+sc.str()+"/"+folder);
 
   string fullTag = fullName(hTag);
   string hname    = fullTag + "_W" + wh.str()+"_Sec" +sc.str();
