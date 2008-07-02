@@ -3,7 +3,7 @@
 
 TtSemiHypothesisMaxSumPtWMass::TtSemiHypothesisMaxSumPtWMass(const edm::ParameterSet& cfg):
   TtSemiHypothesis( cfg ),  
-  maxNJets_(cfg.getParameter<unsigned>("maxNJets" ))
+  maxNJets_(cfg.getParameter<unsigned>("nJetsMax" ))
 { 
 
 }
