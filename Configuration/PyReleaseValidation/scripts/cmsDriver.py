@@ -251,7 +251,7 @@ python_config_filename = standardFileName
 conditionsSP = options.conditions.split(',')
 if len(conditionsSP) > 1:
     python_config_filename += "_"+str(conditionsSP[1].split("::")[0])
-    python_config_filename+=".py"
+python_config_filename+=".py"
 
 
 #if desired, just add _rawonly to the end of the output file name
