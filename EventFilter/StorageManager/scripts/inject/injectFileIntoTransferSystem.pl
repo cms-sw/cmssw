@@ -1,5 +1,5 @@
 #!/usr/bin/perl -w
-# $Id: injectFileIntoTransferSystem.pl,v 1.10 2008/06/24 13:45:00 mrudolph Exp $
+# $Id: injectFileIntoTransferSystem.pl,v 1.11 2008/06/24 13:47:41 mrudolph Exp $
 #
 # Written by Matt Rudolph June 2008
 #
@@ -216,14 +216,27 @@ unless($filename) {
 
 # when $check is enabled, just want to query for a file and then exit
 if($check) {
-    my $SQLcheck = "select CMS_STOMGR.FILES_CREATED.FILENAME, CMS_STOMGR.FILES_INJECTED.FILENAME, CMS_STOMGR.FILES_TRANS_NEW.FILENAME," .
-        "CMS_STOMGR.FILES_TRANS_COPIED.FILENAME, CMS_STOMGR.FILES_TRANS_CHECKED.FILENAME from CMS_STOMGR.FILES_CREATED " .
-        "left outer join CMS_STOMGR.FILES_INJECTED      on CMS_STOMGR.FILES_CREATED.FILENAME=CMS_STOMGR.FILES_INJECTED.FILENAME " .
-        "left outer join CMS_STOMGR.FILES_TRANS_NEW     on CMS_STOMGR.FILES_CREATED.FILENAME=CMS_STOMGR.FILES_TRANS_NEW.FILENAME " .
-        "left outer join CMS_STOMGR.FILES_TRANS_COPIED  on CMS_STOMGR.FILES_CREATED.FILENAME=CMS_STOMGR.FILES_TRANS_COPIED.FILENAME " .
-        "left outer join CMS_STOMGR.FILES_TRANS_CHECKED on CMS_STOMGR.FILES_CREATED.FILENAME=CMS_STOMGR.FILES_TRANS_CHECKED.FILENAME " .
+    my $SQLcheck = "select CMS_STOMGR.FILES_CREATED.FILENAME".
+	", CMS_STOMGR.FILES_INJECTED.FILENAME".
+	", CMS_STOMGR.FILES_TRANS_NEW.FILENAME".
+        ", CMS_STOMGR.FILES_TRANS_COPIED.FILENAME".
+	", CMS_STOMGR.FILES_TRANS_CHECKED.FILENAME".
+	", CMS_STOMGR.FILES_TRANS_INSERTED.FILENAME".
+	", CMS_STOMGR.FILES_DELETED.FILENAME".
+	" from CMS_STOMGR.FILES_CREATED " .
+        "left outer join CMS_STOMGR.FILES_INJECTED ".
+	"on CMS_STOMGR.FILES_CREATED.FILENAME=CMS_STOMGR.FILES_INJECTED.FILENAME " .
+        "left outer join CMS_STOMGR.FILES_TRANS_NEW ".
+	"on CMS_STOMGR.FILES_CREATED.FILENAME=CMS_STOMGR.FILES_TRANS_NEW.FILENAME " .
+        "left outer join CMS_STOMGR.FILES_TRANS_COPIED  ".
+	"on CMS_STOMGR.FILES_CREATED.FILENAME=CMS_STOMGR.FILES_TRANS_COPIED.FILENAME " .
+        "left outer join CMS_STOMGR.FILES_TRANS_CHECKED ".
+	"on CMS_STOMGR.FILES_CREATED.FILENAME=CMS_STOMGR.FILES_TRANS_CHECKED.FILENAME " .
+        "left outer join CMS_STOMGR.FILES_TRANS_INSERTED ".
+        "on CMS_STOMGR.FILES_CREATED.FILENAME=CMS_STOMGR.FILES_TRANS_INSERTED.FILENAME " .
+        "left outer join CMS_STOMGR.FILES_DELETED ".
+        "on CMS_STOMGR.FILES_CREATED.FILENAME=CMS_STOMGR.FILES_DELETED.FILENAME " .
         "where CMS_STOMGR.FILES_CREATED.FILENAME='$filename'";
-
 
     # setup DB connection
     my $dbi    = "DBI:Oracle:cms_rcms";
@@ -248,14 +261,13 @@ if($check) {
     my @result = $checkHan->fetchrow_array;
 
     unless($result[0]) {print "File not found in database.\n"; exit;}
-    unless($result[1]) {print "File inserted but not injected for transfer.\n"; exit;}
-    unless($result[2]) {print "File injected for transfer but not found in transfer system known files.\n"; exit;}
-    unless($result[3]) {print "File injected into transfer system but copy not completed.\n"; exit;}
-    unless($result[4]) {print "File copied but not yet checked.\n"; exit;}
-    if($result[0] && $result[1] && $result[2] && $result[3] && $result[4]) {print "File has been copied and checked successfully.\n";}
-    else {print "File has incorrect formatting in DB - this shouldn't happen.\n";}
-
-    exit 1;
+    unless($result[1]) {print "FILES_CREATED\n"; exit;}
+    unless($result[2]) {print "FILES_INJECTED\n"; exit;}
+    unless($result[3]) {print "FILES_TRANS_NEW\n"; exit;}
+    unless($result[4]) {print "FILES_TRANS_COPIED\n"; exit;}
+    unless($result[5]) {print "FILES_TRANS_CHECKED\n"; exit;}
+    unless($result[6]) {print "FILES_TRANS_INSERTED\n"; exit;}
+    print "File has been copied and checked successfully.\n"; exit;
 }
 
 # filename, path, host and filesize must be correct or transfer will never work
