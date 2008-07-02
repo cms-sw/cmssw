@@ -65,10 +65,10 @@ photonValidation = cms.EDAnalyzer("PhotonValidator",
     rBin = cms.int32(24),
     zMin = cms.double(-220.),
     zMax = cms.double(220),
-    zBin = cms.int32(100)
-
-                                  
-                                   
+    zBin = cms.int32(100),
+    resMin = cms.double(0.7),
+    resMax = cms.double(1.2),
+    resBin = cms.int32(100)
 )
 
 
