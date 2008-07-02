@@ -1,10 +1,13 @@
 import FWCore.ParameterSet.Config as cms
 
-ttSemiHypothesisMVADisc = cms.EDFilter("TtSemiHypothesisMVADisc",
-    jets = cms.InputTag("selectedLayer1Jets"),
-    mets = cms.InputTag("selectedLayer1METs"),
+#
+# module to make the mvaDiscriminator hypothesis
+#
+ttSemiHypothesisMVADisc = cms.EDProducer("TtSemiHypothesisMVADisc",
+    leps  = cms.InputTag("selectedLayer1Muons")
+    mets  = cms.InputTag("selectedLayer1METs"),
+    jets  = cms.InputTag("selectedLayer1Jets"),
     match = cms.InputTag("findTtSemiJetCombMVA"),
-    leps = cms.InputTag("selectedLayer1Muons")
 )
 
 

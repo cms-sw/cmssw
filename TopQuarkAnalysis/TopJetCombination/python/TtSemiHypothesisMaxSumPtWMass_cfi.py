@@ -1,11 +1,14 @@
 import FWCore.ParameterSet.Config as cms
 
-ttSemiHypothesisMaxSumPtWMass = cms.EDFilter("TtSemiHypothesisMaxSumPtWMass",
-    jets = cms.InputTag("selectedLayer1Jets"),
-    mets = cms.InputTag("selectedLayer1METs"),
-    maxNJets = cms.uint32(4),
-    match = cms.InputTag("ttSemiJetPartonMatch"),
-    leps = cms.InputTag("selectedLayer1Muons")
+#
+# module to make the maxSumPtWMAss hypothesis
+#
+ttSemiHypothesisMaxSumPtWMass = cms.EDProducer("TtSemiHypothesisMaxSumPtWMass",
+    leps  = cms.InputTag("selectedLayer1Muons")
+    mets  = cms.InputTag("selectedLayer1METs"),
+    jets  = cms.InputTag("selectedLayer1Jets"),
+    match = cms.InputTag( ),
+    nJetsMax = cms.uint32(4),
 )
 
 

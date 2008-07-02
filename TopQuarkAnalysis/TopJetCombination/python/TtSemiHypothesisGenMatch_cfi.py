@@ -1,10 +1,13 @@
 import FWCore.ParameterSet.Config as cms
 
-ttSemiHypothesisGenMatch = cms.EDFilter("TtSemiHypothesisGenMatch",
-    jets = cms.InputTag("selectedLayer1Jets"),
-    mets = cms.InputTag("selectedLayer1METs"),
+#
+# module to make the genMatch hypothesis
+#
+ttSemiHypothesisGenMatch = cms.EDProducer("TtSemiHypothesisGenMatch",
+    leps  = cms.InputTag("selectedLayer1Muons")
+    mets  = cms.InputTag("selectedLayer1METs"),
+    jets  = cms.InputTag("selectedLayer1Jets"),
     match = cms.InputTag("ttSemiJetPartonMatch"),
-    leps = cms.InputTag("selectedLayer1Muons")
 )
 
 
