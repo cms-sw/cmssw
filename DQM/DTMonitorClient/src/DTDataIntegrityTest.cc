@@ -2,8 +2,8 @@
 /*
  * \file DTDataIntegrityTest.cc
  * 
- * $Date: 2008/06/04 16:25:49 $
- * $Revision: 1.20 $
+ * $Date: 2008/06/05 14:13:21 $
+ * $Revision: 1.21 $
  * \author S. Bolognesi - CERN
  *
  */
@@ -64,7 +64,7 @@ void DTDataIntegrityTest::beginJob(const edm::EventSetup& context){
   run=0;
   
   // book the summary histogram
-  dbe->setCurrentFolder("DT/DataIntegrity");
+  dbe->setCurrentFolder("DT/00-DataIntegrity");
   summaryHisto = dbe->book2D("DataIntegritySummary","Summary Data Integrity",12,1,13,5,770,775);
   summaryHisto->setAxisTitle("ROS",1);
   summaryHisto->setBinLabel(1,"FED770",2);
@@ -201,9 +201,9 @@ void DTDataIntegrityTest::endLuminosityBlock(LuminosityBlock const& lumiSeg, Eve
  	for(int i=1;i<13;i++){
 	  if(ros_histo->getBinContent(1,i) != ros_histo->getBinContent(9,i))
 	    edm::LogError ("dataIntegrity") <<"[DTDataIntegrityTest]:WARNING: ROS"<<i<<" in "
-					    <<tts_histo->getBinContent(9,i)<<" events"<<endl
+					    <<ros_histo->getBinContent(9,i)<<" events"<<endl
 					    <<"               but channel"<<i<<" enabled in "
-					    <<tts_histo->getBinContent(1,i)<<" events";
+					    <<ros_histo->getBinContent(1,i)<<" events";
 	  //FIXME: how to notify this warning in a LogFile?
 	}
     }
@@ -258,7 +258,7 @@ void DTDataIntegrityTest::endLuminosityBlock(LuminosityBlock const& lumiSeg, Eve
 
      // Fill the summary histo   
      // Get the error summary histo
-     string wheelSummaryName = "DT/DataIntegrity/FED" + dduId_s.str() + "_ROSSummary";
+     string wheelSummaryName = "DT/00-DataIntegrity/FED" + dduId_s.str() + "_ROSSummary";
      MonitorElement * FED_ROSSummary = dbe->get(wheelSummaryName);
      if(FED_ROSSummary) {
        TH2F * histo_FEDSummary = FED_ROSSummary->getTH2F();
@@ -301,7 +301,7 @@ string DTDataIntegrityTest::getMEName(string histoType, int FEDId){
   //Use the DDU name to find the ME
   stringstream dduID_s; dduID_s << FEDId;
 
-  string folderName = "DT/DataIntegrity/FED" + dduID_s.str(); 
+  string folderName = "DT/00-DataIntegrity/FED" + dduID_s.str(); 
 
   string histoName = folderName + "/FED" + dduID_s.str() + "_" + histoType;
   return histoName;
@@ -311,7 +311,7 @@ string DTDataIntegrityTest::getMEName(string histoType, int FEDId){
 
 void DTDataIntegrityTest::bookHistos(string histoType, int dduId){
   stringstream dduId_s; dduId_s << dduId;
-  dbe->setCurrentFolder("DT/DataIntegrity/FED" + dduId_s.str());
+  dbe->setCurrentFolder("DT/00-DataIntegrity/FED" + dduId_s.str());
   string histoName;
 
   if(histoType == "TTSValues_Percent"){
@@ -337,7 +337,7 @@ void DTDataIntegrityTest::bookTimeHistos(string histoType, int dduId, int nLumiS
   counter = 1;//assuming synchronized booking for all histo VS time
 
   if(histoType == "TTSVSTime"){
-    dbe->setCurrentFolder("DT/DataIntegrity/FED" + dduId_s.str()+ "/TimeInfo/TTSVSTime");
+    dbe->setCurrentFolder("DT/00-DataIntegrity/FED" + dduId_s.str()+ "/TimeInfo/TTSVSTime");
     histoName = "FED" + dduId_s.str() + "_" + histoType + "_disconn_LumBlock" + nLumiSegs_s.str();
     ((dduVectorHistos[histoType])[dduId]).push_back(dbe->book1D(histoName,histoName,nTimeBin,nLumiSegs,nLumiSegs+nTimeBin));
     histoName = "FED" + dduId_s.str() + histoType + "_overflow_LumBlock" + nLumiSegs_s.str();
@@ -354,17 +354,17 @@ void DTDataIntegrityTest::bookTimeHistos(string histoType, int dduId, int nLumiS
     ((dduVectorHistos[histoType])[dduId]).push_back(dbe->book1D(histoName,histoName,nTimeBin,nLumiSegs,nLumiSegs+nTimeBin));
   }
   else if(histoType == "ROSVSTime"){
-    dbe->setCurrentFolder("DT/DataIntegrity/FED" + dduId_s.str()+ "/TimeInfo/ROSVSTime");
+    dbe->setCurrentFolder("DT/00-DataIntegrity/FED" + dduId_s.str()+ "/TimeInfo/ROSVSTime");
     histoName = "FED" + dduId_s.str() + "_" + histoType + "_LumBlock" + nLumiSegs_s.str();
     (dduHistos[histoType])[dduId] = dbe->book1D(histoName,histoName,nTimeBin,nLumiSegs,nLumiSegs+nTimeBin);
   }
   else if(histoType == "EvLenghtVSTime"){
-    dbe->setCurrentFolder("DT/DataIntegrity/FED" + dduId_s.str()+ "/TimeInfo/EvLenghtVSTime");
+    dbe->setCurrentFolder("DT/00-DataIntegrity/FED" + dduId_s.str()+ "/TimeInfo/EvLenghtVSTime");
     histoName = "FED" + dduId_s.str() + "_" + histoType + "_LumBlock" +  nLumiSegs_s.str();
     (dduHistos[histoType])[dduId] = dbe->book1D(histoName,histoName,nTimeBin,nLumiSegs,nLumiSegs+nTimeBin);
   }
   else if(histoType == "FIFOVSTime"){
-    dbe->setCurrentFolder("DT/DataIntegrity/FED" + dduId_s.str()+ "/TimeInfo/FIFOVSTime");
+    dbe->setCurrentFolder("DT/00-DataIntegrity/FED" + dduId_s.str()+ "/TimeInfo/FIFOVSTime");
     histoName = "FED" + dduId_s.str() + "_" + histoType + "_Input1_LumBlock" + nLumiSegs_s.str();
     ((dduVectorHistos[histoType])[dduId]).push_back(dbe->book1D(histoName,histoName,nTimeBin,nLumiSegs,nLumiSegs+nTimeBin));
     histoName = "FED" + dduId_s.str() + "_" + histoType + "_Input2_LumBlock" + nLumiSegs_s.str();
