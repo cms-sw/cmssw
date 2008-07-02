@@ -1,4 +1,4 @@
-# /dev/CMSSW_2_1_0_pre6/HLT/V12 (CMSSW_2_1_X_2008-06-24-0000_HLT1)
+# /dev/CMSSW_2_1_0_pre6/HLT/V19 (CMSSW_2_1_X_2008-07-02-0400_HLT1)
 
 import FWCore.ParameterSet.Config as cms
 
@@ -632,6 +632,7 @@ hltEcalRegionalRestDigis = cms.EDProducer( "EcalRawToDigiDev",
     InputLabel = cms.untracked.string( "rawDataCollector" ),
     DoRegional = cms.untracked.bool( True ),
     FedLabel = cms.untracked.InputTag( "hltEcalRegionalRestFEDs" ),
+    silentMode = cms.untracked.bool( True ),
     orderedFedList = cms.untracked.vint32( 601, 602, 603, 604, 605, 606, 607, 608, 609, 610, 611, 612, 613, 614, 615, 616, 617, 618, 619, 620, 621, 622, 623, 624, 625, 626, 627, 628, 629, 630, 631, 632, 633, 634, 635, 636, 637, 638, 639, 640, 641, 642, 643, 644, 645, 646, 647, 648, 649, 650, 651, 652, 653, 654 ),
     orderedDCCIdList = cms.untracked.vint32( 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21, 22, 23, 24, 25, 26, 27, 28, 29, 30, 31, 32, 33, 34, 35, 36, 37, 38, 39, 40, 41, 42, 43, 44, 45, 46, 47, 48, 49, 50, 51, 52, 53, 54 )
 )
@@ -815,6 +816,7 @@ hltEcalRegionalJetsDigis = cms.EDProducer( "EcalRawToDigiDev",
     InputLabel = cms.untracked.string( "rawDataCollector" ),
     DoRegional = cms.untracked.bool( True ),
     FedLabel = cms.untracked.InputTag( "hltEcalRegionalJetsFEDs" ),
+    silentMode = cms.untracked.bool( True ),
     orderedFedList = cms.untracked.vint32( 601, 602, 603, 604, 605, 606, 607, 608, 609, 610, 611, 612, 613, 614, 615, 616, 617, 618, 619, 620, 621, 622, 623, 624, 625, 626, 627, 628, 629, 630, 631, 632, 633, 634, 635, 636, 637, 638, 639, 640, 641, 642, 643, 644, 645, 646, 647, 648, 649, 650, 651, 652, 653, 654 ),
     orderedDCCIdList = cms.untracked.vint32( 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21, 22, 23, 24, 25, 26, 27, 28, 29, 30, 31, 32, 33, 34, 35, 36, 37, 38, 39, 40, 41, 42, 43, 44, 45, 46, 47, 48, 49, 50, 51, 52, 53, 54 )
 )
@@ -1515,6 +1517,7 @@ hltEcalRegionalEgammaDigis = cms.EDProducer( "EcalRawToDigiDev",
     InputLabel = cms.untracked.string( "rawDataCollector" ),
     DoRegional = cms.untracked.bool( True ),
     FedLabel = cms.untracked.InputTag( "hltEcalRegionalEgammaFEDs" ),
+    silentMode = cms.untracked.bool( True ),
     orderedFedList = cms.untracked.vint32( 601, 602, 603, 604, 605, 606, 607, 608, 609, 610, 611, 612, 613, 614, 615, 616, 617, 618, 619, 620, 621, 622, 623, 624, 625, 626, 627, 628, 629, 630, 631, 632, 633, 634, 635, 636, 637, 638, 639, 640, 641, 642, 643, 644, 645, 646, 647, 648, 649, 650, 651, 652, 653, 654 ),
     orderedDCCIdList = cms.untracked.vint32( 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21, 22, 23, 24, 25, 26, 27, 28, 29, 30, 31, 32, 33, 34, 35, 36, 37, 38, 39, 40, 41, 42, 43, 44, 45, 46, 47, 48, 49, 50, 51, 52, 53, 54 )
 )
@@ -6232,6 +6235,7 @@ hltEcalRegionalMuonsDigis = cms.EDProducer( "EcalRawToDigiDev",
     InputLabel = cms.untracked.string( "rawDataCollector" ),
     DoRegional = cms.untracked.bool( True ),
     FedLabel = cms.untracked.InputTag( "hltEcalRegionalMuonsFEDs" ),
+    silentMode = cms.untracked.bool( True ),
     orderedFedList = cms.untracked.vint32( 601, 602, 603, 604, 605, 606, 607, 608, 609, 610, 611, 612, 613, 614, 615, 616, 617, 618, 619, 620, 621, 622, 623, 624, 625, 626, 627, 628, 629, 630, 631, 632, 633, 634, 635, 636, 637, 638, 639, 640, 641, 642, 643, 644, 645, 646, 647, 648, 649, 650, 651, 652, 653, 654 ),
     orderedDCCIdList = cms.untracked.vint32( 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21, 22, 23, 24, 25, 26, 27, 28, 29, 30, 31, 32, 33, 34, 35, 36, 37, 38, 39, 40, 41, 42, 43, 44, 45, 46, 47, 48, 49, 50, 51, 52, 53, 54 )
 )
@@ -7732,8 +7736,7 @@ hltBLifetimeL25TagInfos = cms.EDProducer( "TrackIPProducer",
 )
 hltBLifetimeL25BJetTags = cms.EDProducer( "JetTagProducer",
     jetTagComputer = cms.string( "trackCounting3D2nd" ),
-    tagInfos = cms.VInputTag( 'hltBLifetimeL25TagInfos' ),
-    tagInfo = cms.InputTag( "hltBLifetimeL25TagInfos" )
+    tagInfos = cms.VInputTag( 'hltBLifetimeL25TagInfos' )
 )
 hltBLifetimeL25filter = cms.EDFilter( "HLTJetTag",
     JetTag = cms.InputTag( "hltBLifetimeL25BJetTags" ),
@@ -7814,8 +7817,7 @@ hltBLifetimeL3TagInfos = cms.EDProducer( "TrackIPProducer",
 )
 hltBLifetimeL3BJetTags = cms.EDProducer( "JetTagProducer",
     jetTagComputer = cms.string( "trackCounting3D2nd" ),
-    tagInfos = cms.VInputTag( 'hltBLifetimeL3TagInfos' ),
-    tagInfo = cms.InputTag( "hltBLifetimeL3TagInfos" )
+    tagInfos = cms.VInputTag( 'hltBLifetimeL3TagInfos' )
 )
 hltBLifetimeL3filter = cms.EDFilter( "HLTJetTag",
     JetTag = cms.InputTag( "hltBLifetimeL3BJetTags" ),
@@ -7865,8 +7867,7 @@ hltBLifetimeL25TagInfosRelaxed = cms.EDProducer( "TrackIPProducer",
 )
 hltBLifetimeL25BJetTagsRelaxed = cms.EDProducer( "JetTagProducer",
     jetTagComputer = cms.string( "trackCounting3D2nd" ),
-    tagInfos = cms.VInputTag( 'hltBLifetimeL25TagInfosRelaxed' ),
-    tagInfo = cms.InputTag( "hltBLifetimeL25TagInfosRelaxed" )
+    tagInfos = cms.VInputTag( 'hltBLifetimeL25TagInfosRelaxed' )
 )
 hltBLifetimeL25filterRelaxed = cms.EDFilter( "HLTJetTag",
     JetTag = cms.InputTag( "hltBLifetimeL25BJetTagsRelaxed" ),
@@ -7947,8 +7948,7 @@ hltBLifetimeL3TagInfosRelaxed = cms.EDProducer( "TrackIPProducer",
 )
 hltBLifetimeL3BJetTagsRelaxed = cms.EDProducer( "JetTagProducer",
     jetTagComputer = cms.string( "trackCounting3D2nd" ),
-    tagInfos = cms.VInputTag( 'hltBLifetimeL3TagInfosRelaxed' ),
-    tagInfo = cms.InputTag( "hltBLifetimeL3TagInfosRelaxed" )
+    tagInfos = cms.VInputTag( 'hltBLifetimeL3TagInfosRelaxed' )
 )
 hltBLifetimeL3filterRelaxed = cms.EDFilter( "HLTJetTag",
     JetTag = cms.InputTag( "hltBLifetimeL3BJetTagsRelaxed" ),
@@ -8087,8 +8087,7 @@ hltBSoftmuonL25TagInfos = cms.EDProducer( "SoftLepton",
 )
 hltBSoftmuonL25BJetTags = cms.EDProducer( "JetTagProducer",
     jetTagComputer = cms.string( "softLeptonByDistance" ),
-    tagInfos = cms.VInputTag( 'hltBSoftmuonL25TagInfos' ),
-    tagInfo = cms.InputTag( "hltBSoftmuonL25TagInfos" )
+    tagInfos = cms.VInputTag( 'hltBSoftmuonL25TagInfos' )
 )
 hltBSoftmuonL25filter = cms.EDFilter( "HLTJetTag",
     JetTag = cms.InputTag( "hltBSoftmuonL25BJetTags" ),
@@ -8108,13 +8107,11 @@ hltBSoftmuonL3TagInfos = cms.EDProducer( "SoftLepton",
 )
 hltBSoftmuonL3BJetTags = cms.EDProducer( "JetTagProducer",
     jetTagComputer = cms.string( "softLeptonByPt" ),
-    tagInfos = cms.VInputTag( 'hltBSoftmuonL3TagInfos' ),
-    tagInfo = cms.InputTag( "hltBSoftmuonL3TagInfos" )
+    tagInfos = cms.VInputTag( 'hltBSoftmuonL3TagInfos' )
 )
 hltBSoftmuonL3BJetTagsByDR = cms.EDProducer( "JetTagProducer",
     jetTagComputer = cms.string( "softLeptonByDistance" ),
-    tagInfos = cms.VInputTag( 'hltBSoftmuonL3TagInfos' ),
-    tagInfo = cms.InputTag( "hltBSoftmuonL3TagInfos" )
+    tagInfos = cms.VInputTag( 'hltBSoftmuonL3TagInfos' )
 )
 hltBSoftmuonL3filter = cms.EDFilter( "HLTJetTag",
     JetTag = cms.InputTag( "hltBSoftmuonL3BJetTags" ),
@@ -8293,9 +8290,6 @@ hltMuTracks = cms.EDProducer( "ConcreteChargedCandidateProducer",
     particleType = cms.string( "mu-" )
 )
 hltDisplacedJpsitoMumuFilterRelaxed = cms.EDFilter( "HLTDisplacedmumuFilter",
-    MinLxySignificance = cms.double( 3.0 ),
-    MaxNormalisedChi2 = cms.double( 10.0 ),
-    MinCosinePointingAngle = cms.double( 0.9 ),
     Src = cms.InputTag( "hltMuTracks" ),
     MaxEta = cms.double( 2.5 ),
     MinPt = cms.double( 3.0 ),
@@ -8303,7 +8297,11 @@ hltDisplacedJpsitoMumuFilterRelaxed = cms.EDFilter( "HLTDisplacedmumuFilter",
     MinInvMass = cms.double( 1.0 ),
     MaxInvMass = cms.double( 6.0 ),
     ChargeOpt = cms.int32( -1 ),
-    FastAccept = cms.bool( False )
+    FastAccept = cms.bool( False ),
+    MinLxySignificance = cms.double( 3.0 ),
+    MaxNormalisedChi2 = cms.double( 10.0 ),
+    MinCosinePointingAngle = cms.double( 0.9 ),
+    BeamSpotTag = cms.InputTag( "hltOfflineBeamSpot" )
 )
 hltJpsitoMumuL1Seed = cms.EDFilter( "HLTLevel1GTSeed",
     L1TechTriggerSeeding = cms.bool( False ),
@@ -8321,9 +8319,6 @@ hltJpsitoMumuL1Filtered = cms.EDFilter( "HLTMuonL1Filter",
     MinN = cms.int32( 2 )
 )
 hltDisplacedJpsitoMumuFilter = cms.EDFilter( "HLTDisplacedmumuFilter",
-    MinLxySignificance = cms.double( 3.0 ),
-    MaxNormalisedChi2 = cms.double( 10.0 ),
-    MinCosinePointingAngle = cms.double( 0.9 ),
     Src = cms.InputTag( "hltMuTracks" ),
     MaxEta = cms.double( 2.5 ),
     MinPt = cms.double( 4.0 ),
@@ -8331,7 +8326,11 @@ hltDisplacedJpsitoMumuFilter = cms.EDFilter( "HLTDisplacedmumuFilter",
     MinInvMass = cms.double( 1.0 ),
     MaxInvMass = cms.double( 6.0 ),
     ChargeOpt = cms.int32( -1 ),
-    FastAccept = cms.bool( False )
+    FastAccept = cms.bool( False ),
+    MinLxySignificance = cms.double( 3.0 ),
+    MaxNormalisedChi2 = cms.double( 10.0 ),
+    MinCosinePointingAngle = cms.double( 0.9 ),
+    BeamSpotTag = cms.InputTag( "hltOfflineBeamSpot" )
 )
 hltMuMukL1Seed = cms.EDFilter( "HLTLevel1GTSeed",
     L1TechTriggerSeeding = cms.bool( False ),
@@ -8349,9 +8348,6 @@ hltMuMukL1Filtered = cms.EDFilter( "HLTMuonL1Filter",
     MinN = cms.int32( 2 )
 )
 hltDisplacedMuMukFilter = cms.EDFilter( "HLTDisplacedmumuFilter",
-    MinLxySignificance = cms.double( 3.0 ),
-    MaxNormalisedChi2 = cms.double( 10.0 ),
-    MinCosinePointingAngle = cms.double( 0.9 ),
     Src = cms.InputTag( "hltMuTracks" ),
     MaxEta = cms.double( 2.5 ),
     MinPt = cms.double( 3.0 ),
@@ -8359,7 +8355,11 @@ hltDisplacedMuMukFilter = cms.EDFilter( "HLTDisplacedmumuFilter",
     MinInvMass = cms.double( 0.2 ),
     MaxInvMass = cms.double( 3.0 ),
     ChargeOpt = cms.int32( 0 ),
-    FastAccept = cms.bool( False )
+    FastAccept = cms.bool( False ),
+    MinLxySignificance = cms.double( 3.0 ),
+    MaxNormalisedChi2 = cms.double( 10.0 ),
+    MinCosinePointingAngle = cms.double( 0.9 ),
+    BeamSpotTag = cms.InputTag( "hltOfflineBeamSpot" )
 )
 hltMumukPixelSeedFromL2Candidate = cms.EDProducer( "SeedGeneratorFromRegionHitsEDProducer",
     RegionFactoryPSet = cms.PSet( 
@@ -8422,9 +8422,10 @@ hltmmkFilter = cms.EDFilter( "HLTmmkFilter",
     MinLxySignificance = cms.double( 3.0 ),
     MinCosinePointingAngle = cms.double( 0.9 ),
     FastAccept = cms.bool( False ),
-    SaveTag = cms.untracked.bool( True ),
+    BeamSpotTag = cms.InputTag( "hltOfflineBeamSpot" ),
     MuCand = cms.InputTag( "hltMuTracks" ),
-    TrackCand = cms.InputTag( "hltMumukAllConeTracks" )
+    TrackCand = cms.InputTag( "hltMumukAllConeTracks" ),
+    SaveTag = cms.untracked.bool( True )
 )
 hltSingleTauPrescaler = cms.EDFilter( "HLTPrescaler" )
 hltSingleTauL1SeedFilter = cms.EDFilter( "HLTLevel1GTSeed",
@@ -8956,6 +8957,7 @@ hltEcalRegionalTausDigis = cms.EDProducer( "EcalRawToDigiDev",
     InputLabel = cms.untracked.string( "rawDataCollector" ),
     DoRegional = cms.untracked.bool( True ),
     FedLabel = cms.untracked.InputTag( "hltEcalRegionalTausFEDs" ),
+    silentMode = cms.untracked.bool( True ),
     orderedFedList = cms.untracked.vint32( 601, 602, 603, 604, 605, 606, 607, 608, 609, 610, 611, 612, 613, 614, 615, 616, 617, 618, 619, 620, 621, 622, 623, 624, 625, 626, 627, 628, 629, 630, 631, 632, 633, 634, 635, 636, 637, 638, 639, 640, 641, 642, 643, 644, 645, 646, 647, 648, 649, 650, 651, 652, 653, 654 ),
     orderedDCCIdList = cms.untracked.vint32( 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21, 22, 23, 24, 25, 26, 27, 28, 29, 30, 31, 32, 33, 34, 35, 36, 37, 38, 39, 40, 41, 42, 43, 44, 45, 46, 47, 48, 49, 50, 51, 52, 53, 54 )
 )
@@ -10627,6 +10629,7 @@ hltEcalDigis = cms.EDProducer( "EcalRawToDigiDev",
     syncCheck = cms.untracked.bool( False ),
     eventPut = cms.untracked.bool( True ),
     InputLabel = cms.untracked.string( "rawDataCollector" ),
+    silentMode = cms.untracked.bool( True ),
     orderedFedList = cms.untracked.vint32( 601, 602, 603, 604, 605, 606, 607, 608, 609, 610, 611, 612, 613, 614, 615, 616, 617, 618, 619, 620, 621, 622, 623, 624, 625, 626, 627, 628, 629, 630, 631, 632, 633, 634, 635, 636, 637, 638, 639, 640, 641, 642, 643, 644, 645, 646, 647, 648, 649, 650, 651, 652, 653, 654 ),
     orderedDCCIdList = cms.untracked.vint32( 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21, 22, 23, 24, 25, 26, 27, 28, 29, 30, 31, 32, 33, 34, 35, 36, 37, 38, 39, 40, 41, 42, 43, 44, 45, 46, 47, 48, 49, 50, 51, 52, 53, 54 )
 )
