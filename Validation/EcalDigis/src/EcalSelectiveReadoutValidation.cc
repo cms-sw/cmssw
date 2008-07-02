@@ -1,8 +1,8 @@
 /*
  * \file EcalSelectiveReadoutValidation.cc
  *
- * $Date: 2008/07/02 08:28:34 $
- * $Revision: 1.15 $
+ * $Date: 2008/07/02 08:53:55 $
+ * $Revision: 1.16 $
  *
  */
 
@@ -529,7 +529,7 @@ EcalSelectiveReadoutValidation::analyzeEB(const edm::Event& event,
   
   // get the barrel geometry:
   edm::ESHandle<CaloGeometry> geoHandle;
-  es.get<CaloGeometryRecord>().get(geoHandle);
+  es.get<MyCaloGeometryRecord>().get(geoHandle);
   const CaloSubdetectorGeometry *geometry_p
     = (*geoHandle).getSubdetectorGeometry(DetId::Ecal, EcalBarrel);
   CaloSubdetectorGeometry const& geometry = *geometry_p;
@@ -959,7 +959,7 @@ EcalSelectiveReadoutValidation::setTtEtSums(const edm::EventSetup& es,
   static const CaloSubdetectorGeometry* ebGeometry = 0;
   if(eeGeometry==0 || ebGeometry==0){
     edm::ESHandle<CaloGeometry> geoHandle;
-    es.get<CaloGeometryRecord>().get(geoHandle);
+    es.get<MyCaloGeometryRecord>().get(geoHandle);
     eeGeometry
       = (*geoHandle).getSubdetectorGeometry(DetId::Ecal, EcalEndcap);
     ebGeometry
