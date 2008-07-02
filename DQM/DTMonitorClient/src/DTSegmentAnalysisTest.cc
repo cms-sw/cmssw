@@ -3,8 +3,8 @@
 /*
  *  See header file for a description of this class.
  *
- *  $Date: 2008/06/03 16:40:43 $
- *  $Revision: 1.11 $
+ *  $Date: 2008/06/03 16:44:59 $
+ *  $Revision: 1.12 $
  *  \author G. Mila - INFN Torino
  */
 
@@ -223,7 +223,7 @@ string DTSegmentAnalysisTest::getMEName(const DTChamberId & chID, string histoTa
   
   string folderRoot = parameters.getUntrackedParameter<string>("folderRoot", "Collector/FU0/");
   string folderName = 
-    folderRoot + "DT/Segments/Wheel" +  wheel.str() +
+    folderRoot + "DT/02-Segments/Wheel" +  wheel.str() +
     "/Station" + station.str() +
     "/Sector" + sector.str() + "/";
 
@@ -234,7 +234,7 @@ string DTSegmentAnalysisTest::getMEName(const DTChamberId & chID, string histoTa
   
   if(histoTag == "numberOfSegments")
     histoname = 
-      folderRoot + "DT/Segments/Wheel" +  wheel.str() + "/" +
+      folderRoot + "DT/02-Segments/Wheel" +  wheel.str() + "/" +
       histoTag  + + "_W" + wheel.str();
 
   return histoname;
@@ -244,7 +244,7 @@ string DTSegmentAnalysisTest::getMEName(const DTChamberId & chID, string histoTa
 
 void DTSegmentAnalysisTest::bookHistos() {
   
-  dbe->setCurrentFolder("DT/Segments");
+  dbe->setCurrentFolder("DT/02-Segments");
 
   for(int wh=-2; wh<=2; wh++){
       stringstream wheel; wheel << wh;
