@@ -1,13 +1,16 @@
 import FWCore.ParameterSet.Config as cms
 
-#the famous 0.97 factor..
+#To include the ECAL RecHit containment corrections (the famous 0.97 factor)
 from SimCalorimetry.EcalSimProducers.ecalNotContainmentSim_cff import *
-# The includes needed for the HCAL digi
+
+# Thes includes are needed for the HCAL digi
 from SimCalorimetry.HcalTrigPrimProducers.hcaltpdigi_cff import *
-#The includes needed for the ECAL digis
+from SimCalorimetry.HcalSimProducers.hcalSimParameters_cfi import *
+
+# This includes is needed for the ECAL digis
 from Geometry.EcalMapping.EcalMapping_cfi import *
 from SimCalorimetry.EcalTrigPrimProducers.ecalTriggerPrimitiveDigis_cff import *
-from SimCalorimetry.HcalSimProducers.hcalSimParameters_cfi import *
+
 caloRecHits = cms.EDProducer("CaloRecHitsProducer",
     RecHitsFactory = cms.PSet(
         ECALPreshower = cms.PSet(
@@ -25,7 +28,7 @@ caloRecHits = cms.EDProducer("CaloRecHitsProducer",
         EErechitCollection = cms.string('EcalRecHitsEE'),
         ESrechitCollection = cms.string('EcalRecHitsES'),
         EBrechitCollection = cms.string('EcalRecHitsEB'),
-        doMiscalib = cms.bool(False), ## not for PS
+        doMiscalib = cms.bool(False), ## does not apply in the PS
 
         HCAL = cms.PSet(
             NoiseHO = cms.double(0.17),
@@ -37,7 +40,7 @@ caloRecHits = cms.EDProducer("CaloRecHitsProducer",
             NoiseHF = cms.double(0.0),
             SaturationHO = cms.double(14000.0),
             ThresholdHO = cms.double(1.1),
-            fileNameHcal = cms.string('hcalmiscalib_0.1.xml'),
+            fileNameHcal = cms.string('hcalmiscalib_startup.xml'),
             ThresholdHB = cms.double(0.9),
             SaturationHE = cms.double(14000.0),
             SaturationHF = cms.double(14000.0),
