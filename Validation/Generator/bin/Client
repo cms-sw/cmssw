@@ -52,7 +52,7 @@ if options.run != None and options.howto == False:
             if file.split('__')[0] not in Processes:
                 Processes.append(file.split('__')[0])
         else: # options.process.upper() != "ALL":
-            if file.split('__')[0] not in Processes and options.process.upper() == file.split('__')[0].upper():
+            if file.split('__')[0] not in Processes and file.split('__')[0].upper() not in options.process.upper():
                 Processes.append(file.split('__')[0])
     #print Processes
     for job in Processes:
