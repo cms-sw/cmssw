@@ -47,6 +47,7 @@ namespace fw {
 	  m_name( name ), m_index(0){}
 	void operator++() { ++m_index; }
 	std::string str() const;
+	unsigned int index() const { return m_index; }
      };
 
      TEveElementList *getEcalCrystals (const EcalRecHitCollection *,

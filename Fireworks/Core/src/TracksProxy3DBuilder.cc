@@ -14,7 +14,7 @@
 //
 // Original Author:  
 //         Created:  Thu Dec  6 18:01:21 PST 2007
-// $Id: TracksProxy3DBuilder.cc,v 1.6 2008/05/12 15:43:29 dmytro Exp $
+// $Id: TracksProxy3DBuilder.cc,v 1.7 2008/06/09 19:54:03 chrjones Exp $
 //
 
 // system include files
@@ -22,6 +22,7 @@
 #include "TEveTrack.h"
 #include "TEveTrackPropagator.h"
 #include "RVersion.h"
+// #include <sstream>
 
 // user include files
 #include "Fireworks/Core/interface/FWEventItem.h"
@@ -89,6 +90,9 @@ void TracksProxy3DBuilder::build(const FWEventItem* iItem, TEveElementList** pro
                         it->vz());
       t.fSign = it->charge();
       TEveTrack* trk = new TEveTrack(&t,rnrStyle);
+      char s[1024];
+      sprintf(s,"Track-%d, Pt: %0.1f GeV",index,it->pt());
+      trk->SetTitle(s);
       trk->SetMainColor(iItem->defaultDisplayProperties().color());
       gEve->AddElement(trk,tlist);
       //cout << it->px()<<" "
