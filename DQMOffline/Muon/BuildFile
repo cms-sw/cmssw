@@ -8,4 +8,5 @@
 <use name=DataFormats/CSCDigi>
 <use name=DataFormats/CSCRecHit>
 <use name=DataFormats/DTRecHit>
+<use name=DataFormats/RPCDigi>
 <flags EDM_PLUGIN=1>
