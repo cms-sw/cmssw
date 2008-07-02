@@ -447,33 +447,47 @@ void SiStripRawToDigiUnpacker::createDigis( const SiStripFedCabling& cabling,
     
   } 
   
-  // Populate final DetSetVector container with VR data 
-  if ( !virgin_raw_vector.empty() ) {
+//   // Populate final DetSetVector container with VR data 
+//   std::cout << "TEST 01" << std::endl;
+//   if ( !virgin_raw_vector.empty() ) {
+//   std::cout << "TEST 02" << std::endl;
     
-    std::sort( virgin_raw_vector.begin(), virgin_raw_vector.end() );
-    std::vector< edm::DetSet<SiStripRawDigi> > sorted_and_merged;
-    sorted_and_merged.reserve( virgin_raw_vector.size() );
+//     std::sort( virgin_raw_vector.begin(), virgin_raw_vector.end() );
+//     std::vector< edm::DetSet<SiStripRawDigi> > sorted_and_merged;
+//     sorted_and_merged.reserve( virgin_raw_vector.size() );
+//     std::cout << "TEST 03 SIZE " << virgin_raw_vector.size();
     
-    edm::det_id_type old_id = 0;
-    std::vector< edm::DetSet<SiStripRawDigi> >::iterator ii = virgin_raw_vector.begin();
-    std::vector< edm::DetSet<SiStripRawDigi> >::iterator jj = virgin_raw_vector.end(); 
-    for ( ; ii != jj; ++ii ) {
-      if ( old_id == ii->detId() ) {
-	if ( ii->data.size() > sorted_and_merged.back().data.size() ) { sorted_and_merged.back().data.resize( ii->data.size() ); }
-	copy( ii->begin() + ii->data.size() - 256, 
-	      ii->begin() + ii->data.size(), 
-	      sorted_and_merged.back().data.begin() + ii->data.size() - 256 );
-      } else {
-	sorted_and_merged.push_back( *ii );
-	old_id = ii->detId();
-      }
-    }
+//     edm::det_id_type old_id = 0;
+//     std::vector< edm::DetSet<SiStripRawDigi> >::iterator ii = virgin_raw_vector.begin();
+//     std::vector< edm::DetSet<SiStripRawDigi> >::iterator jj = virgin_raw_vector.end(); 
+//     for ( ; ii != jj; ++ii ) {
+//   std::cout << "TEST 04" << std::endl;
+//       if ( old_id == ii->detId() ) {
+//   std::cout << "TEST 05" << std::endl;
+// 	if ( ii->data.size() > sorted_and_merged.back().data.size() ) { sorted_and_merged.back().data.resize( ii->data.size() ); }
+//   std::cout << "TEST 06" << std::endl;
+// 	copy( ii->begin() + ii->data.size() - 256, 
+// 	      ii->begin() + ii->data.size(), 
+// 	      sorted_and_merged.back().data.begin() + ii->data.size() - 256 );
+//   std::cout << "TEST 07" << std::endl;
+//       } else {
+//   std::cout << "TEST 08" << std::endl;
+// 	sorted_and_merged.push_back( *ii );
+// 	old_id = ii->detId();
+//   std::cout << "TEST 09" << std::endl;
+//       }
+//   std::cout << "TEST 010" << std::endl;
+//     }
+//   std::cout << "TEST 011" << std::endl;
 
-    edm::DetSetVector<SiStripRawDigi> virgin_raw_dsv( sorted_and_merged, true ); 
-    virgin_raw.swap( virgin_raw_dsv );
+//     edm::DetSetVector<SiStripRawDigi> virgin_raw_dsv( sorted_and_merged, true ); 
+//   std::cout << "TEST 012" << std::endl;
+//     virgin_raw.swap( virgin_raw_dsv );
+//   std::cout << "TEST 013" << std::endl;
 
-  } 
-  
+//   } 
+//   std::cout << "TEST 014" << std::endl;
+
   // Populate final DetSetVector container with PR data 
   if ( !proc_raw_vector.empty() ) {
     
@@ -528,7 +542,7 @@ void SiStripRawToDigiUnpacker::createDigis( const SiStripFedCabling& cabling,
 
   } 
 
-  // Incrememt event counter
+  // Increment event counter
   event_++;
   
   if ( first_ ) { first_ = false; }
