@@ -79,7 +79,7 @@ HLTMonElectron::HLTMonElectron(const edm::ParameterSet& iConfig)
     if (isoNames.back().at(0).label()=="none")
       plotiso.push_back(false);
     else{
-	plotiso.push_back(true);
+      plotiso.push_back(true);
     }
   }
   
@@ -110,7 +110,7 @@ HLTMonElectron::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
    
 
   edm::Handle<trigger::TriggerEventWithRefs> triggerObj;
-  iEvent.getByLabel("triggerSummaryRAW",triggerObj); 
+  iEvent.getByLabel("hltTriggerSummaryRAW",triggerObj); 
   if(!triggerObj.isValid()) { 
     edm::LogWarning("HLTMonElectron") << "RAW-type HLT results not found, skipping event";
     return;
@@ -140,15 +140,15 @@ HLTMonElectron::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
 template <class T> void HLTMonElectron::fillHistos(edm::Handle<trigger::TriggerEventWithRefs>& triggerObj,const edm::Event& iEvent  ,unsigned int n){
   
   std::vector<edm::Ref<T> > recoecalcands;
-  if (!( triggerObj->filterIndex(theHLTCollectionLabels[n].label())>=triggerObj->size() )){ // only process if availabel
+  if (!( triggerObj->filterIndex(theHLTCollectionLabels[n])>=triggerObj->size() )){ // only process if availabel
   
     // retrieve saved filter objects
-    triggerObj->getObjects(triggerObj->filterIndex(theHLTCollectionLabels[n].label()),theHLTOutputTypes[n],recoecalcands);
+    triggerObj->getObjects(triggerObj->filterIndex(theHLTCollectionLabels[n]),theHLTOutputTypes[n],recoecalcands);
     //Danger: special case, L1 non-isolated
     // needs to be merged with L1 iso
     if(theHLTOutputTypes[n]==82){
       std::vector<edm::Ref<T> > isocands;
-      triggerObj->getObjects(triggerObj->filterIndex(theHLTCollectionLabels[n].label()),83,isocands);
+      triggerObj->getObjects(triggerObj->filterIndex(theHLTCollectionLabels[n]),83,isocands);
       if(isocands.size()>0)
 	for(unsigned int i=0; i < isocands.size(); i++)
 	  recoecalcands.push_back(isocands[i]);
@@ -162,6 +162,7 @@ template <class T> void HLTMonElectron::fillHistos(edm::Handle<trigger::TriggerE
       for (unsigned int i=0; i<recoecalcands.size(); i++) {
 	//unmatched
 	ethist[n]->Fill(recoecalcands[i]->et() );
+	phihist[n]->Fill(recoecalcands[i]->phi() );
 	etahist[n]->Fill(recoecalcands[i]->eta() );
 
 
@@ -174,6 +175,7 @@ template <class T> void HLTMonElectron::fillHistos(edm::Handle<trigger::TriggerE
 	      typename edm::AssociationMap<edm::OneToValue< T , float > >::const_iterator mapi = depMap->find(recoecalcands[i]);
 	      if(mapi!=depMap->end()){  // found candidate in isolation map! 
 		etahistiso[n+1]->Fill(recoecalcands[i]->eta(),mapi->val);
+		phihistiso[n+1]->Fill(recoecalcands[i]->phi(),mapi->val);
 		ethistiso[n+1]->Fill(recoecalcands[i]->et(),mapi->val);
 		break; // to avoid multiple filling we only look until we found the candidate once.
 	      }
@@ -219,6 +221,10 @@ HLTMonElectron::beginJob(const edm::EventSetup&)
       tmphisto =  dbe->book1D(histoname.c_str(),histoname.c_str(),theNbins,-2.7,2.7);
       etahist.push_back(tmphisto);          
  
+      histoname = theHLTCollectionLabels[i].label()+"phi";
+      tmphisto =  dbe->book1D(histoname.c_str(),histoname.c_str(),theNbins,-3.2,3.2);
+      phihist.push_back(tmphisto);          
+ 
       if(plotiso[i]){
 	histoname = theHLTCollectionLabels[i].label()+"eta isolation";
 	tmphisto = dbe->book2D(histoname.c_str(),histoname.c_str(),theNbins,-2.7,2.7,theNbins,plotBounds[i].first,plotBounds[i].second);
@@ -227,6 +233,15 @@ HLTMonElectron::beginJob(const edm::EventSetup&)
 	tmphisto = NULL;
       }
       etahistiso.push_back(tmphisto);
+      
+      if(plotiso[i]){
+	histoname = theHLTCollectionLabels[i].label()+"phi isolation";
+	tmphisto = dbe->book2D(histoname.c_str(),histoname.c_str(),theNbins,-3.2,3.2,theNbins,plotBounds[i].first,plotBounds[i].second);
+      }
+      else{
+	tmphisto = NULL;
+      }
+      phihistiso.push_back(tmphisto);
       
       if(plotiso[i]){
 	histoname = theHLTCollectionLabels[i].label()+"et isolation";

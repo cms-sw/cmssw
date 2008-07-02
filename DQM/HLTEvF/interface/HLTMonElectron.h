@@ -17,7 +17,7 @@
 //
 // Original Author:  Lorenzo AGOSTINO
 //         Created:  Wed Jan 16 15:55:28 CET 2008
-// $Id: HLTMonElectron.h,v 1.2 2008/02/25 19:00:08 mmozer Exp $
+// $Id: HLTMonElectron.h,v 1.3 2008/03/01 00:39:59 lat Exp $
 //
 //
 
@@ -64,8 +64,10 @@ class HLTMonElectron : public edm::EDAnalyzer {
       int nev_;
       DQMStore * dbe;
       std::vector<MonitorElement *> etahist;
+      std::vector<MonitorElement *> phihist;
       std::vector<MonitorElement *> ethist;
       std::vector<MonitorElement *> etahistiso;
+      std::vector<MonitorElement *> phihistiso;
       std::vector<MonitorElement *> ethistiso;
       MonitorElement* total;
       std::vector<edm::InputTag> theHLTCollectionLabels;  
