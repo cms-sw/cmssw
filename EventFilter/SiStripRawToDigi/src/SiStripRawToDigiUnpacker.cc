@@ -70,10 +70,10 @@ void SiStripRawToDigiUnpacker::createDigis( const SiStripFedCabling& cabling,
   digi_work_vector zero_suppr_vector;
 
   // Create temp containers for raw data
-  typedef std::vector< edm::DetSet<SiStripRawDigi> > raw_digi_work_vector;
-  raw_digi_work_vector virgin_raw_vector;
-  raw_digi_work_vector proc_raw_vector;
-  raw_digi_work_vector scope_mode_vector;
+  //typedef std::vector< edm::DetSet<SiStripRawDigi> > raw_digi_work_vector;
+  //raw_digi_work_vector virgin_raw_vector;
+  //raw_digi_work_vector proc_raw_vector;
+  //raw_digi_work_vector scope_mode_vector;
 
   // Check if FEDs found in cabling map and event data
   if ( cabling.feds().empty() ) {
@@ -196,7 +196,7 @@ void SiStripRawToDigiUnpacker::createDigis( const SiStripFedCabling& cabling,
     
     // Retrive run type
     sistrip::RunType runType_ = summary.runType();
-    if(runType_ == sistrip::APV_LATENCY || runType_ == sistrip::FINE_DELAY ) useFedKey_ = false;
+    if( runType_ == sistrip::APV_LATENCY || runType_ == sistrip::FINE_DELAY ) { useFedKey_ = false; } //@@ force!
      
     // Dump of FED buffer
     if ( fedEventDumpFreq_ && !(event_%fedEventDumpFreq_) ) {
@@ -247,9 +247,10 @@ void SiStripRawToDigiUnpacker::createDigis( const SiStripFedCabling& cabling,
 
       if ( mode == sistrip::FED_SCOPE_MODE ) {
 
-        if ( scope_mode_vector.empty() ) { scope_mode_vector.reserve(40000); }
-        scope_mode_vector.push_back( edm::DetSet<SiStripRawDigi>(key) );
-	edm::DetSet<SiStripRawDigi>& sm = scope_mode_vector.back();
+	edm::DetSet<SiStripRawDigi>& sm = scope_mode.find_or_insert(key);
+        //if ( scope_mode_vector.empty() ) { scope_mode_vector.reserve(40000); }
+        //scope_mode_vector.push_back( edm::DetSet<SiStripRawDigi>(key) );
+	//edm::DetSet<SiStripRawDigi>& sm = scope_mode_vector.back();
 	
 	std::vector<uint16_t> samples; 
 	samples.reserve( 1024 ); // theoretical maximum for scope mode length
@@ -271,10 +272,11 @@ void SiStripRawToDigiUnpacker::createDigis( const SiStripFedCabling& cabling,
 	}
 	
       } else if ( mode == sistrip::FED_VIRGIN_RAW ) {
-	
-        if ( virgin_raw_vector.empty() ) { virgin_raw_vector.reserve(40000); }
-        virgin_raw_vector.push_back( edm::DetSet<SiStripRawDigi>(key) );
-	edm::DetSet<SiStripRawDigi>& vr = virgin_raw_vector.back();
+
+	edm::DetSet<SiStripRawDigi>& vr = virgin_raw.find_or_insert(key);
+        //if ( virgin_raw_vector.empty() ) { virgin_raw_vector.reserve(40000); }
+        //virgin_raw_vector.push_back( edm::DetSet<SiStripRawDigi>(key) );
+	//edm::DetSet<SiStripRawDigi>& vr = virgin_raw_vector.back();
 	
 	std::vector<uint16_t> samples; 
 	samples.reserve(256);
@@ -301,9 +303,10 @@ void SiStripRawToDigiUnpacker::createDigis( const SiStripFedCabling& cabling,
 
       } else if ( mode == sistrip::FED_PROC_RAW ) {
 
-        if ( proc_raw_vector.empty() ) { proc_raw_vector.reserve(40000); }
-        proc_raw_vector.push_back( edm::DetSet<SiStripRawDigi>(key) );
-	edm::DetSet<SiStripRawDigi>& pr = proc_raw_vector.back();
+	edm::DetSet<SiStripRawDigi>& pr = proc_raw.find_or_insert(key);
+        //if ( proc_raw_vector.empty() ) { proc_raw_vector.reserve(40000); }
+        //proc_raw_vector.push_back( edm::DetSet<SiStripRawDigi>(key) );
+	//edm::DetSet<SiStripRawDigi>& pr = proc_raw_vector.back();
 
 	std::vector<uint16_t> samples; 
 	samples.reserve(256);
@@ -381,9 +384,10 @@ void SiStripRawToDigiUnpacker::createDigis( const SiStripFedCabling& cabling,
 	   << ")! Assuming SCOPE MODE..."; 
   	edm::LogWarning(mlRawToDigi_) << ss.str();
 
-        if ( scope_mode_vector.empty() ) { scope_mode_vector.reserve(40000); }
-        scope_mode_vector.push_back( edm::DetSet<SiStripRawDigi>(key) );
-	edm::DetSet<SiStripRawDigi>& sm = scope_mode_vector.back();
+	edm::DetSet<SiStripRawDigi>& sm = scope_mode.find_or_insert(key);
+        //if ( scope_mode_vector.empty() ) { scope_mode_vector.reserve(40000); }
+        //scope_mode_vector.push_back( edm::DetSet<SiStripRawDigi>(key) );
+	//edm::DetSet<SiStripRawDigi>& sm = scope_mode_vector.back();
 	
 	std::vector<uint16_t> samples; 
 	samples.reserve( 1024 ); // theoretical maximum
@@ -446,101 +450,87 @@ void SiStripRawToDigiUnpacker::createDigis( const SiStripFedCabling& cabling,
     zero_suppr.swap( zero_suppr_dsv );
     
   } 
-  
+
 //   // Populate final DetSetVector container with VR data 
-//   std::cout << "TEST 01" << std::endl;
 //   if ( !virgin_raw_vector.empty() ) {
-//   std::cout << "TEST 02" << std::endl;
     
 //     std::sort( virgin_raw_vector.begin(), virgin_raw_vector.end() );
 //     std::vector< edm::DetSet<SiStripRawDigi> > sorted_and_merged;
 //     sorted_and_merged.reserve( virgin_raw_vector.size() );
-//     std::cout << "TEST 03 SIZE " << virgin_raw_vector.size();
     
 //     edm::det_id_type old_id = 0;
 //     std::vector< edm::DetSet<SiStripRawDigi> >::iterator ii = virgin_raw_vector.begin();
 //     std::vector< edm::DetSet<SiStripRawDigi> >::iterator jj = virgin_raw_vector.end(); 
 //     for ( ; ii != jj; ++ii ) {
-//   std::cout << "TEST 04" << std::endl;
 //       if ( old_id == ii->detId() ) {
-//   std::cout << "TEST 05" << std::endl;
 // 	if ( ii->data.size() > sorted_and_merged.back().data.size() ) { sorted_and_merged.back().data.resize( ii->data.size() ); }
-//   std::cout << "TEST 06" << std::endl;
+//  	copy( ii->begin() + ii->data.size() - 256, 
+//  	      ii->begin() + ii->data.size(), 
+//  	      sorted_and_merged.back().data.begin() + ii->data.size() - 256 );
+//       } else {
+// 	sorted_and_merged.push_back( *ii );
+// 	old_id = ii->detId();
+//       }
+//     }
+    
+//     edm::DetSetVector<SiStripRawDigi> virgin_raw_dsv( sorted_and_merged, true ); 
+//     virgin_raw.swap( virgin_raw_dsv );
+    
+//   } 
+
+//   // Populate final DetSetVector container with PR data 
+//   if ( !proc_raw_vector.empty() ) {
+    
+//     std::sort( proc_raw_vector.begin(), proc_raw_vector.end() );
+//     std::vector< edm::DetSet<SiStripRawDigi> > sorted_and_merged;
+//     sorted_and_merged.reserve( proc_raw_vector.size() );
+    
+//     edm::det_id_type old_id = 0;
+//     std::vector< edm::DetSet<SiStripRawDigi> >::iterator ii = proc_raw_vector.begin();
+//     std::vector< edm::DetSet<SiStripRawDigi> >::iterator jj = proc_raw_vector.end(); 
+//     for ( ; ii != jj; ++ii ) {
+//       if ( old_id == ii->detId() ) {
+// 	if ( ii->data.size() > sorted_and_merged.back().data.size() ) { sorted_and_merged.back().data.resize( ii->data.size() ); }
 // 	copy( ii->begin() + ii->data.size() - 256, 
 // 	      ii->begin() + ii->data.size(), 
 // 	      sorted_and_merged.back().data.begin() + ii->data.size() - 256 );
-//   std::cout << "TEST 07" << std::endl;
 //       } else {
-//   std::cout << "TEST 08" << std::endl;
 // 	sorted_and_merged.push_back( *ii );
 // 	old_id = ii->detId();
-//   std::cout << "TEST 09" << std::endl;
 //       }
-//   std::cout << "TEST 010" << std::endl;
 //     }
-//   std::cout << "TEST 011" << std::endl;
 
-//     edm::DetSetVector<SiStripRawDigi> virgin_raw_dsv( sorted_and_merged, true ); 
-//   std::cout << "TEST 012" << std::endl;
-//     virgin_raw.swap( virgin_raw_dsv );
-//   std::cout << "TEST 013" << std::endl;
+//     edm::DetSetVector<SiStripRawDigi> proc_raw_dsv( sorted_and_merged, true ); 
+//     proc_raw.swap( proc_raw_dsv );
 
 //   } 
-//   std::cout << "TEST 014" << std::endl;
-
-  // Populate final DetSetVector container with PR data 
-  if ( !proc_raw_vector.empty() ) {
-    
-    std::sort( proc_raw_vector.begin(), proc_raw_vector.end() );
-    std::vector< edm::DetSet<SiStripRawDigi> > sorted_and_merged;
-    sorted_and_merged.reserve( proc_raw_vector.size() );
-    
-    edm::det_id_type old_id = 0;
-    std::vector< edm::DetSet<SiStripRawDigi> >::iterator ii = proc_raw_vector.begin();
-    std::vector< edm::DetSet<SiStripRawDigi> >::iterator jj = proc_raw_vector.end(); 
-    for ( ; ii != jj; ++ii ) {
-      if ( old_id == ii->detId() ) {
-	if ( ii->data.size() > sorted_and_merged.back().data.size() ) { sorted_and_merged.back().data.resize( ii->data.size() ); }
-	copy( ii->begin() + ii->data.size() - 256, 
-	      ii->begin() + ii->data.size(), 
-	      sorted_and_merged.back().data.begin() + ii->data.size() - 256 );
-      } else {
-	sorted_and_merged.push_back( *ii );
-	old_id = ii->detId();
-      }
-    }
-
-    edm::DetSetVector<SiStripRawDigi> proc_raw_dsv( sorted_and_merged, true ); 
-    proc_raw.swap( proc_raw_dsv );
-
-  } 
   
-  // Populate final DetSetVector container with SM data 
-  if ( !scope_mode_vector.empty() ) {
+//   // Populate final DetSetVector container with SM data 
+//   if ( !scope_mode_vector.empty() ) {
     
-    std::sort( scope_mode_vector.begin(), scope_mode_vector.end() );
-    std::vector< edm::DetSet<SiStripRawDigi> > sorted_and_merged;
-    sorted_and_merged.reserve( scope_mode_vector.size() );
+//     std::sort( scope_mode_vector.begin(), scope_mode_vector.end() );
+//     std::vector< edm::DetSet<SiStripRawDigi> > sorted_and_merged;
+//     sorted_and_merged.reserve( scope_mode_vector.size() );
     
-    edm::det_id_type old_id = 0;
-    std::vector< edm::DetSet<SiStripRawDigi> >::iterator ii = scope_mode_vector.begin();
-    std::vector< edm::DetSet<SiStripRawDigi> >::iterator jj = scope_mode_vector.end(); 
-    for ( ; ii != jj; ++ii ) {
-      if ( old_id == ii->detId() ) {
-	if ( ii->data.size() > sorted_and_merged.back().data.size() ) { sorted_and_merged.back().data.resize( ii->data.size() ); }
-	copy( ii->begin() + ii->data.size() - 256, 
-	      ii->begin() + ii->data.size(), 
-	      sorted_and_merged.back().data.begin() + ii->data.size() - 256 );
-      } else {
-	sorted_and_merged.push_back( *ii );
-	old_id = ii->detId();
-      }
-    }
+//     edm::det_id_type old_id = 0;
+//     std::vector< edm::DetSet<SiStripRawDigi> >::iterator ii = scope_mode_vector.begin();
+//     std::vector< edm::DetSet<SiStripRawDigi> >::iterator jj = scope_mode_vector.end(); 
+//     for ( ; ii != jj; ++ii ) {
+//       if ( old_id == ii->detId() ) {
+// 	if ( ii->data.size() > sorted_and_merged.back().data.size() ) { sorted_and_merged.back().data.resize( ii->data.size() ); }
+// 	copy( ii->begin() + ii->data.size() - 256, 
+// 	      ii->begin() + ii->data.size(), 
+// 	      sorted_and_merged.back().data.begin() + ii->data.size() - 256 );
+//       } else {
+// 	sorted_and_merged.push_back( *ii );
+// 	old_id = ii->detId();
+//       }
+//     }
 
-    edm::DetSetVector<SiStripRawDigi> scope_mode_dsv( sorted_and_merged, true ); 
-    scope_mode.swap( scope_mode_dsv );
+//     edm::DetSetVector<SiStripRawDigi> scope_mode_dsv( sorted_and_merged, true ); 
+//     scope_mode.swap( scope_mode_dsv );
 
-  } 
+//   } 
 
   // Increment event counter
   event_++;
