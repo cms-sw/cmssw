@@ -168,15 +168,15 @@ void RPCEfficiency::analyze(const edm::Event& iEvent, const edm::EventSetup& iSe
   iEvent.getByLabel(muonRPCDigis, rpcDigis);
 
   if(incldt){
-#include "dtpart.inl"
+#include "RPCEfficiencydtpart.inl"
   }
   
   if(incldtMB4){
-#include "rb4part.inl"
+#include "RPCEfficiencyrb4part.inl"
   }
   
   if(inclcsc){
-#include "cscpart.inl"
+#include "RPCEfficiencycscpart.inl"
   }
 }
 
