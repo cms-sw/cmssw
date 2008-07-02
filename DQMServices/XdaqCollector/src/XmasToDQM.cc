@@ -73,7 +73,7 @@ xmas2dqm::wse::XmasToDQM::XmasToDQM(xdaq::ApplicationStub* s)  throw (xdaq::exce
 {	
 	getApplicationDescriptor()->setAttribute("icon", "/xmas2dqm/wse/images/Las.png");
 	
-	LOG4CPLUS_INFO(this->getApplicationLogger(),"inside constructor of xmas2dqm::wse::Application");
+	LOG4CPLUS_DEBUG(this->getApplicationLogger(),"inside constructor of xmas2dqm::wse::Application");
 
 	
 	// Activates work loop for las asynchronous operations (SOAP messages)
@@ -150,7 +150,7 @@ xmas2dqm::wse::XmasToDQM::XmasToDQM(xdaq::ApplicationStub* s)  throw (xdaq::exce
 //         
 // 	LASReadoutTimer_->scheduleAtFixedRate( startLASReadout_, this, interval,  0, std::string("LASReadout") );	
 
-	LOG4CPLUS_INFO(this->getApplicationLogger(),"finish of Constructor of xmas2dqm::wse::XmasToDQM");
+	LOG4CPLUS_DEBUG(this->getApplicationLogger(),"finish of Constructor of xmas2dqm::wse::XmasToDQM");
 	
 }
 
@@ -161,15 +161,15 @@ bool xmas2dqm::wse::XmasToDQM::LASReadoutWorkLoop (toolbox::task::WorkLoop* wl)
 	static int times = 0;
 	times++;
 	
-	LOG4CPLUS_INFO (getApplicationLogger(), "inside WorkLoop...ready to ask LAS for EXDR data : time " << times <<"th");
-	LOG4CPLUS_INFO (getApplicationLogger(), "Period = " + Period_.toString() + " LASurl = " + LASurl_.toString());
+	LOG4CPLUS_DEBUG (getApplicationLogger(), "inside WorkLoop...ready to ask LAS for EXDR data : time " << times <<"th");
+	LOG4CPLUS_DEBUG (getApplicationLogger(), "Period = " + Period_.toString() + " LASurl = " + LASurl_.toString());
 	
 	
 	xdata::Table * ptr_table = new xdata::Table();
 	
 	int ret = getEXDR_LAS(ptr_table);
 	
-	LOG4CPLUS_INFO (getApplicationLogger(), "return value from getEXDR_LAS = " << ret );
+	LOG4CPLUS_DEBUG (getApplicationLogger(), "return value from getEXDR_LAS = " << ret );
 	
 	if (ret == -1 || ret == -2) //exception during xdata::exdr deserialization occured or during CURL (could log different messages)
 	{	
@@ -178,7 +178,7 @@ bool xmas2dqm::wse::XmasToDQM::LASReadoutWorkLoop (toolbox::task::WorkLoop* wl)
 		//ref_table->~Table();
 		
 		
-		LOG4CPLUS_INFO (getApplicationLogger(), "LASWorkLoop freeing xdata::Table * space" );
+		LOG4CPLUS_DEBUG (getApplicationLogger(), "LASWorkLoop freeing xdata::Table * space" );
 		
 		delete ptr_table;
 		
@@ -188,7 +188,7 @@ bool xmas2dqm::wse::XmasToDQM::LASReadoutWorkLoop (toolbox::task::WorkLoop* wl)
 
 	
 	
-	LOG4CPLUS_INFO (getApplicationLogger(), "inside WorkLoop...lock the mutex ");
+	LOG4CPLUS_DEBUG (getApplicationLogger(), "inside WorkLoop...lock the mutex ");
 	
 	
 	//BSem_.take();
@@ -228,17 +228,17 @@ bool xmas2dqm::wse::XmasToDQM::LASReadoutWorkLoop (toolbox::task::WorkLoop* wl)
 // 	}
 	
 	
-	LOG4CPLUS_INFO (getApplicationLogger(), "inside WorkLoop...ready to call XmastoDQM::ToDQM::digest " );
+	LOG4CPLUS_DEBUG (getApplicationLogger(), "inside WorkLoop...ready to call XmastoDQM::ToDQM::digest " );
 	
 	//insert LAS data table to ToDQM objec - queue
 	xmas2dqm::wse::ToDqm::instance()->digest("flashListName", "originator", "tagName", ptr_table /*ref_table*/);
 	
-	LOG4CPLUS_INFO (getApplicationLogger(), "inside WorkLoop...signaling new element added to the data queue ");
+	LOG4CPLUS_DEBUG (getApplicationLogger(), "inside WorkLoop...signaling new element added to the data queue ");
 	
 	//signal that a new element has been inserted
 	pthread_cond_signal(&xmas2dqm::wse::ToDqm::instance()->more_);
 
-	LOG4CPLUS_INFO (getApplicationLogger(), "inside WorkLoop...release mutex, allow access to the data queue");
+	LOG4CPLUS_DEBUG (getApplicationLogger(), "inside WorkLoop...release mutex, allow access to the data queue");
 
 	//allow access to the queue
     	pthread_mutex_unlock(&xmas2dqm::wse::ToDqm::instance()->mymutex_);	
@@ -250,7 +250,7 @@ bool xmas2dqm::wse::XmasToDQM::LASReadoutWorkLoop (toolbox::task::WorkLoop* wl)
 
 int xmas2dqm::wse::XmasToDQM::getEXDR_LAS(/*xdata::Table::Reference & rtable*/ xdata::Table * rtable)
 {
-	LOG4CPLUS_INFO(this->getApplicationLogger(),"inside getEXDR_LAS.........");	
+	LOG4CPLUS_DEBUG(this->getApplicationLogger(),"inside getEXDR_LAS.........");	
 	
     	CURL *curl_handle;
 	CURLcode code;
@@ -267,7 +267,7 @@ int xmas2dqm::wse::XmasToDQM::getEXDR_LAS(/*xdata::Table::Reference & rtable*/ x
   
   	if (curl_handle == NULL)
     	{
-      		LOG4CPLUS_INFO(getApplicationLogger(), "Failed to create CURL connection");
+      		LOG4CPLUS_WARN(getApplicationLogger(), "Failed to create CURL connection");
   
       		return -2;
     	}  	
@@ -275,7 +275,7 @@ int xmas2dqm::wse::XmasToDQM::getEXDR_LAS(/*xdata::Table::Reference & rtable*/ x
     	code = curl_easy_setopt(curl_handle, CURLOPT_POSTFIELDS, data);
     	if (code != CURLE_OK)
     	{
-      		LOG4CPLUS_INFO (getApplicationLogger(),"Failed to set post fields");
+      		LOG4CPLUS_WARN (getApplicationLogger(),"Failed to set post fields");
   
      		return -2;
    	}
@@ -310,7 +310,7 @@ int xmas2dqm::wse::XmasToDQM::getEXDR_LAS(/*xdata::Table::Reference & rtable*/ x
     	* you're done with it, you should free() it as a nice application.
     	*/
  
- 	LOG4CPLUS_INFO (getApplicationLogger(),"chunk.memory length = " << chunk.size);
+ 	LOG4CPLUS_DEBUG (getApplicationLogger(),"chunk.memory length = " << chunk.size);
  	
 	xdata::exdr::FixedSizeInputStreamBuffer inBuffer(chunk.memory,chunk.size);
 	
@@ -353,7 +353,7 @@ void xmas2dqm::wse::XmasToDQM::timeExpired (toolbox::task::TimerEvent& e)
 	
 	times++;	
 	
-	LOG4CPLUS_INFO (getApplicationLogger(), "timeExpired was called... : time " << times <<"th");
+	LOG4CPLUS_DEBUG (getApplicationLogger(), "timeExpired was called... : time " << times <<"th");
 	LASReadoutWorkLoop_->submit(LASReadout_);
  
 }
@@ -391,8 +391,8 @@ size_t xmas2dqm::wse::XmasToDQM::WriteMemoryCallback(void *ptr, size_t size, siz
 //listening to exported paramater values
 void xmas2dqm::wse::XmasToDQM::actionPerformed (xdata::Event& e) 
 { 
-	LOG4CPLUS_INFO(getApplicationLogger(), "start of actionperformed");
-	LOG4CPLUS_INFO(getApplicationLogger(), e.type());
+	LOG4CPLUS_DEBUG(getApplicationLogger(), "start of actionperformed");
+	LOG4CPLUS_DEBUG(getApplicationLogger(), e.type());
  	
 	// update exported parameters		
 	if (e.type() == "ItemChangedEvent")
@@ -402,7 +402,7 @@ void xmas2dqm::wse::XmasToDQM::actionPerformed (xdata::Event& e)
 		if ( item == "Period")
 		{
 
-			LOG4CPLUS_INFO(getApplicationLogger(), "item = " + item);		
+			LOG4CPLUS_DEBUG(getApplicationLogger(), "item = " + item);		
 			
 			if(fsm_.getStateName (fsm_.getCurrentState()) != "Enabled")
 			{
@@ -439,7 +439,7 @@ void xmas2dqm::wse::XmasToDQM::actionPerformed (xdata::Event& e)
 	
 	}
 	
-	LOG4CPLUS_INFO(getApplicationLogger(), "end of actionperformed");
+	LOG4CPLUS_DEBUG(getApplicationLogger(), "end of actionperformed");
 }
 
 
@@ -504,7 +504,7 @@ xoap::MessageReference xmas2dqm::wse::XmasToDQM::fireEvent (xoap::MessageReferen
 	
 xoap::MessageReference xmas2dqm::wse::XmasToDQM::reset (xoap::MessageReference msg) throw (xoap::exception::Exception)
 {
-	LOG4CPLUS_INFO (getApplicationLogger(), "New state before reset is: " << fsm_.getStateName (fsm_.getCurrentState()) );
+	LOG4CPLUS_DEBUG (getApplicationLogger(), "New state before reset is: " << fsm_.getStateName (fsm_.getCurrentState()) );
 
 	fsm_.reset();
 	state_ = fsm_.getStateName (fsm_.getCurrentState());
@@ -515,7 +515,7 @@ xoap::MessageReference xmas2dqm::wse::XmasToDQM::reset (xoap::MessageReference m
 	// xoap::SOAPBodyElement e = envelope.getBody().addBodyElement ( responseName );
 	(void) envelope.getBody().addBodyElement ( responseName );
 
-	LOG4CPLUS_INFO (getApplicationLogger(), "New state after reset is: " << fsm_.getStateName (fsm_.getCurrentState()) );
+	LOG4CPLUS_DEBUG (getApplicationLogger(), "New state after reset is: " << fsm_.getStateName (fsm_.getCurrentState()) );
 
 	return reply;
 }
@@ -523,7 +523,7 @@ xoap::MessageReference xmas2dqm::wse::XmasToDQM::reset (xoap::MessageReference m
 	
 void xmas2dqm::wse::XmasToDQM::EnableAction (toolbox::Event::Reference e) throw (toolbox::fsm::exception::Exception) 
 {
-	LOG4CPLUS_INFO (getApplicationLogger(), e->type());
+	LOG4CPLUS_DEBUG (getApplicationLogger(), e->type());
 	
 	
 	try
@@ -557,7 +557,7 @@ void xmas2dqm::wse::XmasToDQM::EnableAction (toolbox::Event::Reference e) throw 
 
 void xmas2dqm::wse::XmasToDQM::HaltAction (toolbox::Event::Reference e) throw (toolbox::fsm::exception::Exception) 
 {
-	LOG4CPLUS_INFO (getApplicationLogger(), e->type());
+	LOG4CPLUS_DEBUG (getApplicationLogger(), e->type());
 	
 	try
 	{
@@ -586,13 +586,13 @@ void xmas2dqm::wse::XmasToDQM::stateChanged (toolbox::fsm::FiniteStateMachine & 
 {
 	// Reflect the new state
 	state_ = fsm.getStateName (fsm.getCurrentState());
-	LOG4CPLUS_INFO (getApplicationLogger(), "New state is:" << fsm.getStateName (fsm.getCurrentState()) );
+	LOG4CPLUS_DEBUG (getApplicationLogger(), "New state is:" << fsm.getStateName (fsm.getCurrentState()) );
 }
 
 void xmas2dqm::wse::XmasToDQM::failedTransition (toolbox::Event::Reference e) throw (toolbox::fsm::exception::Exception)
 {
 	toolbox::fsm::FailedEvent & fe = dynamic_cast<toolbox::fsm::FailedEvent&>(*e);
-	LOG4CPLUS_INFO (getApplicationLogger(), "Failure occurred when performing transition from: "  <<
+	LOG4CPLUS_ERROR (getApplicationLogger(), "Failure occurred when performing transition from: "  <<
 			fe.getFromState() <<  " to: " << fe.getToState() << " exception: " << fe.getException().what() );
 }
 
