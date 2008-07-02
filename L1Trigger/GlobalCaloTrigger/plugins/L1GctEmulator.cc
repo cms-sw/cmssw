@@ -19,10 +19,12 @@
 #include "CondFormats/L1TObjects/interface/L1GctJetFinderParams.h"
 #include "CondFormats/L1TObjects/interface/L1GctJetEtCalibrationFunction.h"
 #include "CondFormats/L1TObjects/interface/L1GctJetCounterSetup.h"
+#include "CondFormats/L1TObjects/interface/L1GctChannelMask.h"
 #include "CondFormats/DataRecord/interface/L1GctJetFinderParamsRcd.h"
 #include "CondFormats/DataRecord/interface/L1GctJetCalibFunRcd.h"
 #include "CondFormats/DataRecord/interface/L1GctJetCounterPositiveEtaRcd.h"
 #include "CondFormats/DataRecord/interface/L1GctJetCounterNegativeEtaRcd.h"
+#include "CondFormats/DataRecord/interface/L1GctChannelMaskRcd.h"
 
 // GCT include files
 #include "L1Trigger/GlobalCaloTrigger/interface/L1GctJetEtCalibrationLut.h"
@@ -112,6 +114,8 @@ void L1GctEmulator::configureGct(const edm::EventSetup& c)
   c.get< L1GctJetCounterNegativeEtaRcd >().get( jcNegPars ) ; // which record?
   edm::ESHandle< L1GctJetEtCalibrationFunction > calibFun ;
   c.get< L1GctJetCalibFunRcd >().get( calibFun ) ; // which record?
+  edm::ESHandle< L1GctChannelMask > chanMask ;
+  c.get< L1GctChannelMaskRcd >().get( chanMask ) ; // which record?
   edm::ESHandle< L1CaloEtScale > etScale ;
   c.get< L1JetEtScaleRcd >().get( etScale ) ; // which record?
 
@@ -125,6 +129,12 @@ void L1GctEmulator::configureGct(const edm::EventSetup& c)
     throw cms::Exception("L1GctConfigError")
       << "Failed to find a L1GctJetCalibFunRcd:L1GctJetEtCalibrationFunction in EventSetup!" << std::endl
       << "Cannot continue without this function" << std::endl;
+  }
+
+  if (chanMask.product() == 0) {
+    throw cms::Exception("L1GctConfigError")
+      << "Failed to find a L1GctChannelMaskRcd:L1GctChannelMask in EventSetup!" << std::endl
+      << "Cannot continue without the channel mask" << std::endl;
   }
 
   m_gct->setJetFinderParams(jfPars.product());

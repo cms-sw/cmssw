@@ -39,6 +39,7 @@ class L1GctElectronFinalSort;
 class L1GctJetFinderParams;
 class L1GctJetEtCalibrationLut;
 class L1GctJetCounterSetup;
+class L1GctChannelMask;
 class L1CaloEtScale;
 
 
@@ -81,6 +82,9 @@ public:
   /// setup Jet Counter LUTs
   void setupJetCounterLuts(const L1GctJetCounterSetup* jcPosPars,
                            const L1GctJetCounterSetup* jcNegPars);
+
+  /// setup the input channel mask
+  void setChannelMask(const L1GctChannelMask* mask); 
 
   ///=================================================================================================
   /// Multiple bunch operation
@@ -206,7 +210,8 @@ public:
 
   /// check we have done all the setup
   bool setupOk() { return (m_jetFinderParams != 0)
-                           && (m_jetEtCalLut != 0); }
+                           && (m_jetEtCalLut != 0)
+                      && (m_inputChannelMask != 0); }
 
   /// ordering of the electron sorters to give the correct
   /// priority to the candidates in the final sort 
@@ -262,6 +267,9 @@ public:
 
   /// Jet Et calibration LUT
   const L1GctJetEtCalibrationLut* m_jetEtCalLut;
+
+  /// Input channel mask
+  const L1GctChannelMask* m_inputChannelMask;
 
   /// Multiple bunch crossing operation
   bool m_bxRangeAuto;
