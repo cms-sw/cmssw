@@ -5,8 +5,8 @@ process = cms.Process("PROD")
 process.load("FWCore.MessageService.MessageLogger_cfi")
 process.MessageLogger.cerr.FwkReport.reportEvery = 1000
 
-import FWCore.Framework.test.cmsExceptionsFatal_cff
-process.options = FWCore.Framework.test.cmsExceptionsFatal_cff.options
+import FWCore.Framework.cmsExceptionsFatal_cff
+process.options = FWCore.Framework.cmsExceptionsFatal_cff.options
 
 process.maxEvents = cms.untracked.PSet(
     input = cms.untracked.int32(10)

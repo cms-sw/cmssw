@@ -26,10 +26,10 @@ process = cms.Process("PROD")
 process.load("FWCore.MessageService.MessageLogger_cfi")
 process.MessageLogger.cerr.FwkReport.reportEvery = 1000
 
-import FWCore.Framework.test.cmsExceptionsFatalOption_cff
+import FWCore.Framework.cmsExceptionsFatalOption_cff
 process.options = cms.untracked.PSet(
 #  wantSummary = cms.untracked.bool(True),
-  Rethrow = FWCore.Framework.test.cmsExceptionsFatalOption_cff.Rethrow
+  Rethrow = FWCore.Framework.cmsExceptionsFatalOption_cff.Rethrow
 )
 
 process.source = cms.Source("NewEventStreamFileReader",

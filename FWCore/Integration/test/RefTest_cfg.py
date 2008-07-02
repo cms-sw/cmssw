@@ -2,7 +2,7 @@ import FWCore.ParameterSet.Config as cms
 
 process = cms.Process("TEST")
 
-process.load("FWCore.Framework.test.cmsExceptionsFatal_cff")
+process.load("FWCore.Framework.cmsExceptionsFatal_cff")
 
 # The following two lines reduce the clutter of repeated printouts
 # of the same exception message.
