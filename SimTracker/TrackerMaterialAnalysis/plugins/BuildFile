@@ -16,6 +16,6 @@
   <use name=TrackingTools/DetLayers>
   <use name=boost>
   <use name=geant4>
-  <use name=root>
+  <use name=rootgraphics>
   <flags EDM_PLUGIN=1>
 </library>
