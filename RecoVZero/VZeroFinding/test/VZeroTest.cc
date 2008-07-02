@@ -72,8 +72,8 @@ void VZeroTest::analyze(
 
     result.push_back(it->positiveDaughter()->d0());
     result.push_back(it->negativeDaughter()->d0());
-    result.push_back(it->dcaR());
-    result.push_back(it->dcaZ());
+    result.push_back(it->dca());
+    result.push_back(it->dca());
     result.push_back(it->crossingPoint().Rho());
     result.push_back(it->crossingPoint().R());
     result.push_back(it->impactMother());

@@ -1,8 +1,13 @@
 #include "RecoVZero/VZeroFinding/interface/VZeroFinder.h"
 
 #include "DataFormats/Math/interface/Vector3D.h"
-#include<utiity>
-using std::pair;
+
+#include "FWCore/MessageLogger/interface/MessageLogger.h"
+
+#include "TrackingTools/PatternTools/interface/TwoTrackMinimumDistance.h"
+
+#include <utility>
+using namespace std;
 
 /*****************************************************************************/
 VZeroFinder::VZeroFinder
@@ -10,8 +15,7 @@ VZeroFinder::VZeroFinder
    const edm::ParameterSet& pset)
 {
   // Get track-pair level cuts
-  maxDcaR = pset.getParameter<double>("maxDcaR");
-  maxDcaZ = pset.getParameter<double>("maxDcaZ");
+  maxDca = pset.getParameter<double>("maxDca");
 
   // Get mother cuts
   minCrossingRadius = pset.getParameter<double>("minCrossingRadius");
@@ -22,20 +26,17 @@ VZeroFinder::VZeroFinder
   edm::ESHandle<MagneticField> magField;
   es.get<IdealMagneticFieldRecord>().get(magField);
   theMagField = magField.product();
-
-  // Get closest approach finder
-  theApproach = new ClosestApproachInRPhi();
 }
 
 /*****************************************************************************/
 VZeroFinder::~VZeroFinder()
 {
-  delete theApproach;
 }
 
 /*****************************************************************************/
-FreeTrajectoryState VZeroFinder::getTrajectory(const reco::Track& track)
-{ 
+GlobalTrajectoryParameters VZeroFinder::getGlobalTrajectoryParameters
+  (const reco::Track& track)
+{
   GlobalPoint position(track.vertex().x(),
                        track.vertex().y(),
                        track.vertex().z());
@@ -46,11 +47,16 @@ FreeTrajectoryState VZeroFinder::getTrajectory(const reco::Track& track)
 
   GlobalTrajectoryParameters gtp(position,momentum,
                                  track.charge(),theMagField);
-  
-  FreeTrajectoryState fts(gtp);
 
-  return fts; 
-} 
+  return gtp;
+}
+
+/*****************************************************************************/
+GlobalVector VZeroFinder::rotate(const GlobalVector & p, double a)
+{
+  double pt = p.perp();
+  return GlobalVector( -pt*cos(a), -pt*sin(a), p.z());
+}
 
 /*****************************************************************************/
 bool VZeroFinder::checkTrackPair(const reco::Track& posTrack,
@@ -58,90 +64,105 @@ bool VZeroFinder::checkTrackPair(const reco::Track& posTrack,
                                  const reco::VertexCollection* vertices,
                                        reco::VZeroData& data)
 {
+/*
+  LogTrace("MinBiasTracking") << " [VZeroFinder] tracks"
+   << " +" << posTrack.algoName() << " " << posTrack.d0()
+   << " -" << negTrack.algoName() << " " << negTrack.d0();
+*/
+
   // Get trajectories
-  FreeTrajectoryState posTraj = getTrajectory(posTrack);
-  FreeTrajectoryState negTraj = getTrajectory(negTrack);
+  GlobalTrajectoryParameters posGtp = getGlobalTrajectoryParameters(posTrack);
+  GlobalTrajectoryParameters negGtp = getGlobalTrajectoryParameters(negTrack);
+
+  // Two track minimum distance
+  TwoTrackMinimumDistance theMinimum(TwoTrackMinimumDistance::SlowMode);
 
   // Closest approach
-  bool status = theApproach->calculate(posTraj,negTraj);
-  pair<GlobalTrajectoryParameters, GlobalTrajectoryParameters>  
-    gtp = theApproach->trajectoryParameters();
+  theMinimum.calculate(posGtp,negGtp);
 
   // Closest points
-  pair<GlobalPoint, GlobalPoint>
-    points(gtp.first.position(), gtp.second.position());
+  pair<GlobalPoint, GlobalPoint> points = theMinimum.points();
 
   // Momenta at closest point
-  pair<GlobalVector,GlobalVector>
-    momenta(gtp.first.momentum(), gtp.second.momentum());
+  pair<GlobalVector,GlobalVector> momenta;
+  momenta.first  = rotate(posGtp.momentum(), theMinimum.firstAngle() );
+  momenta.second = rotate(negGtp.momentum(), theMinimum.secondAngle());
 
   // dcaR
-  float dcaR = (points.first - points.second).perp();
-  GlobalPoint crossing(0.5*(points.first.x() + points.second.x()),
-                       0.5*(points.first.y() + points.second.y()),
-                       0.5*(points.first.z() + points.second.z()));
+  float dca            = theMinimum.distance();
+  GlobalPoint crossing = theMinimum.crossingPoint();
 
-  if(dcaR < maxDcaR &&
+/*
+  LogTrace("MinBiasTracking") << fixed << setprecision(2)
+    << "  [VZeroFinder] dca    = "<<dca<<" (<"<<maxDca<<")";
+  LogTrace("MinBiasTracking") << fixed << setprecision(2)
+    << "  [VZeroFinder] crossR = "<<crossing.perp()<<" ("
+    <<minCrossingRadius<<"< <"<<maxCrossingRadius<<")";
+*/
+
+  if(dca < maxDca &&
      crossing.perp() > minCrossingRadius &&
      crossing.perp() < maxCrossingRadius)
   {
-    // dcaZ
-    float theta = 0.5*(posTrack.theta() + negTrack.theta());
-    float dcaZ = fabs((points.first - points.second).z()) * sin(theta); 
+    // Momentum of the mother
+    GlobalVector momentum = momenta.first + momenta.second;
+    float impact = -1.;
 
-    if(dcaZ < maxDcaZ)
+    if(vertices->size() > 0)
     {
-      // Momentum of the mother
-      GlobalVector momentum = momenta.first + momenta.second;
-      float impact = -1.;
-
-      if(vertices->size() > 0)
+      // Impact parameter of the mother wrt vertices, choose smallest
+      for(reco::VertexCollection::const_iterator
+          vertex = vertices->begin(); vertex!= vertices->end(); vertex++)
       {
-        // Impact parameter of the mother wrt vertices, choose smallest
-
-        for(reco::VertexCollection::const_iterator
-            vertex = vertices->begin(); vertex!= vertices->end(); vertex++)
-        {
         GlobalVector r(crossing.x(),
                        crossing.y(),
                        crossing.z() - vertex->position().z());
         GlobalVector p(momentum.x(),momentum.y(),momentum.z());
   
         GlobalVector b = r - (r*p)*p / p.mag2();
-
+  
         float im = b.mag();
         if(im < impact || vertex == vertices->begin())
           impact = im; 
-        }
       }
-      else
-      {
-        // Impact parameter of the mother in the plane
-        GlobalVector r_(crossing.x(),crossing.y(),0);
-        GlobalVector p_(momentum.x(),momentum.y(),0);
-  
-        GlobalVector b_ = r_ - (r_*p_)*p_ / p_.mag2();
-        impact = b_.mag(); 
-      }
+    }
+    else
+    {
+      // Impact parameter of the mother in the plane
+      GlobalVector r_(crossing.x(),crossing.y(),0);
+      GlobalVector p_(momentum.x(),momentum.y(),0);
 
-      if(impact < maxImpactMother)
-      {
-        // Armenteros variables
-        float pt =
-          (momenta.first.cross(momenta.second)).mag()/momentum.mag();
-        float alpha =
-          (momenta.first.mag2() - momenta.second.mag2())/momentum.mag2();
+      GlobalVector b_ = r_ - (r_*p_)*p_ / p_.mag2();
+      impact = b_.mag(); 
+    }
 
-        // Fill data
-        data.dcaR = dcaR;
-        data.dcaZ = dcaZ;
-        data.crossingPoint = crossing;
-        data.impactMother  = impact;
-        data.armenterosPt    = pt;
-        data.armenterosAlpha = alpha;
+/*
+    LogTrace("MinBiasTracking") << fixed << setprecision(2)
+      << "  [VZeroFinder] impact = "<<impact<<" (<"<<maxImpactMother<<")";
+*/
 
-        return true;
-      }
+    if(impact < maxImpactMother)
+    {
+      // Armenteros variables
+      float pt =
+        (momenta.first.cross(momenta.second)).mag()/momentum.mag();
+      float alpha =
+        (momenta.first.mag2() - momenta.second.mag2())/momentum.mag2();
+
+      // Fill data
+      data.dca             = dca;
+      data.crossingPoint   = crossing;
+      data.impactMother    = impact;
+      data.armenterosPt    = pt;
+      data.armenterosAlpha = alpha;
+      data.momenta         = momenta;
+
+/*
+      LogTrace("MinBiasTracking") << fixed << setprecision(2)
+      << "  [VZeroFinder] success {alpha = "<<alpha<<", pt = "<<pt<<"}";
+*/
+
+      return true;
     }
   }
 

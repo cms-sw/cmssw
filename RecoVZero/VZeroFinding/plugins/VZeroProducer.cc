@@ -9,8 +9,8 @@
 
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
+
 #include "DataFormats/TrackReco/interface/TrackFwd.h"
-#include<iostream>
 
 /*****************************************************************************/
 VZeroProducer::VZeroProducer(const edm::ParameterSet& pset)
@@ -32,20 +32,17 @@ VZeroProducer::~VZeroProducer()
   edm::LogInfo("VZeroProducer") << " destructor";
 }
 
+/*****************************************************************************/
 void VZeroProducer::produce(edm::Event& ev, const edm::EventSetup& es)
 {
-  LogDebug("VZeroProducer, produce")<<"event# :"<<ev.id();
-
-  //std::cerr << "[V0 finder]" << std::endl;
-
   // Get tracks
   edm::Handle<reco::TrackCollection> trackCollection;
-  ev.getByLabel("globalSecoTracks",  trackCollection);
+  ev.getByLabel("allTracks",  trackCollection);
   const reco::TrackCollection tracks = *(trackCollection.product());
 
   // Get primary vertices
   edm::Handle<reco::VertexCollection> vertexCollection;
-  ev.getByType(vertexCollection);
+  ev.getByLabel("pixelVertices",      vertexCollection);
   const reco::VertexCollection* vertices = vertexCollection.product();
 
   // Find vzeros

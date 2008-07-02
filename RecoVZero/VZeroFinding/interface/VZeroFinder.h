@@ -26,18 +26,16 @@ class VZeroFinder
                     const edm::ParameterSet& pset);
    ~VZeroFinder();
 
+   GlobalVector rotate(const GlobalVector & p, double a);
    bool checkTrackPair(const reco::Track& posTrack,
                        const reco::Track& negTrack,
                        const reco::VertexCollection* vertices,
                        reco::VZeroData& data);
 
  private:
-   FreeTrajectoryState getTrajectory(const reco::Track& track);
+   GlobalTrajectoryParameters getGlobalTrajectoryParameters(const reco::Track& track);
 
-   ClosestApproachInRPhi * theApproach;
-
-   float maxDcaR,
-         maxDcaZ,
+   float maxDca,
          minCrossingRadius,
          maxCrossingRadius,
          maxImpactMother; 
