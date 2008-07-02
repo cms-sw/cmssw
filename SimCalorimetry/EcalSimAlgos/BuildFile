@@ -6,12 +6,12 @@
 <use name=CondFormats/EcalObjects>
 <use name=CalibFormats/CaloObjects>
 <use name=clhep>
-<use name=root>
+<use name=rootgraphics>
 
 <export>
   <lib name=SimCalorimetryEcalSimAlgos>
   <use name=clhep>
-  <use name=root>
+  <use name=rootgraphics>
   <use name=SimDataFormats/CaloHit>
   <use name=DataFormats/EcalDigi>
   <use name=DataFormats/EcalDetId>
