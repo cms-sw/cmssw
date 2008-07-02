@@ -216,7 +216,7 @@ class JobManager:
                     template = Template(tfile.read())
                     tfile.close()
                     cfile = open(scratch+"/cmsrunbsub"+file.split('.')[0].split('__')[0], 'w')
-                    cfile.write(template.safe_substitute(directory=scratch, cfg = scratch+'/'+file, CMSSW=CMS_dir ))
+                    cfile.write(template.safe_substitute(directory=scratch, cfg = Configuration.variables["HomeDirectory"]+'test/'+file, CMSSW=CMS_dir ))
                     cfile.close()
                     os.chmod(scratch+"/cmsrunbsub"+file.split('.')[0].split('__')[0], 0755)
                     os.chdir(scratch)
