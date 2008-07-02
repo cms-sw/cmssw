@@ -173,10 +173,10 @@ void GctBlockUnpackerBase::blockToRctCaloRegions(const unsigned char * d, const 
       if (i>0) {
         if (crate<9){ // negative eta
           ieta = 11-i; 
-          iphi = 18-(abs(crate-2)*2);
+          iphi = (11-crate)%9;
         } else {      // positive eta
           ieta = 10+i;
-          iphi = 18-(abs(crate-11)*2);
+          iphi = (20-crate)%9;
         }        
         // First region is phi=0
         rctCalo_->push_back( L1CaloRegion(*p, ieta, iphi, bx) );
