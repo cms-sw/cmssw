@@ -116,7 +116,7 @@ class JobManager:
                             print file+" didn't run properly, please check log file"
         
     ### Runs config files
-    def batch_run(self, run, process, compare):
+    def batch_run(self, run, process, compare, batch):
         generator_List = []
         self.__release_List = {}
         self.__jobNumber = {}
@@ -147,6 +147,14 @@ class JobManager:
                         generator_List.append(compare)
             if run.upper() == "ALL" or compare.upper() == "ALL":
                 for probe in dir:
+                    if 'CVS' in probe:
+                        continue
+                    if len(probe.split('__')) == 1:
+                        continue
+                    if '~' in probe:
+                        continue
+                    if '.cfg' not in probe:
+                        continue
                     if probe.split('.')[0].split('__')[1] not in generator_List:
                         print 'scramv1 tool info '+probe.split('.')[0].split('__')[1] 
                         temp_status, temp_output =  commands.getstatusoutput('scramv1 tool info '+probe.split('.')[0].split('__')[1] )
@@ -159,11 +167,13 @@ class JobManager:
                                 self.__release_List[probe.split('.')[0].split('__')[1]] = probe.split('.')[0].split('__')[1]+"__"+line.split(':')[-1].strip(' ')
                                 generator_List.append(probe.split('.')[0].split('__')[1])
             for file in dir:
-                if 'CVS' in dir:
+                if 'CVS' in file:
                     continue
-                if len(file.split('__')) == 3:
+                if len(file.split('__')) == 1:
                     continue
-                if '~' in file or '.cfg' not in file:
+                if '~' in file:
+                    continue
+                if '.cfg' not in file:
                     continue
                 if process.upper() != "ALL" and process.upper() not in file.upper():
                     continue
@@ -172,50 +182,77 @@ class JobManager:
                     process_List.append(file.split('.')[0].split('__')[0])
                 splitter = file.split('.')[0].split('__')
                 if len(splitter) == 3:
-                    scratch = Configuration.variables["HomeDirectory"]+'DropBox/scratch/'+file.split('.')[0].split('__')[0]+"/"+file.split('.')[0].split('__')[1]+'/'+file.split('.').split('__')[2]+'EDM'
+                    scratch = Configuration.variables["HomeDirectory"]+'DropBox/scratch/'+file.split('.')[0].split('__')[0]+"/"+file.split('.')[0].split('__')[1]+'/'+file.split('.')[0].split('__')[2]+'EDM'
                 else:
                     scratch = Configuration.variables["HomeDirectory"]+'DropBox/scratch/'+file.split('.')[0].split('__')[0]+"/"+file.split('.')[0].split('__')[1]+'/'+self.__release_List[file.split('.')[0].split('__')[1]]
                 if os.path.exists(scratch+'/') == False:
                     os.makedirs(scratch+'/')
-                tfile = open (Configuration.variables['HomeDirectory'] + '/data/condor.template' ,'r')
-                template = Template(tfile.read())
-                tfile.close()
-                cfile = open(scratch+"/condor.submit", 'w')
-                cfile.write(template.safe_substitute(file = scratch+'/cmsrun'+file.split('.')[0].split('__')[0], scratch = scratch))
-                cfile.close()
-                tfile = open (Configuration.variables['HomeDirectory'] + '/data/cmsrun.template' ,'r')
-                template = Template(tfile.read())
-                tfile.close()
-                CMSstatus, CMSoutput = commands.getstatusoutput('$CMSSW_BASE')
-                CMS_dir = CMSoutput.split(':')[1].strip(' ')
-                cfile = open(scratch+"/cmsrun"+file.split('.')[0].split('__')[0], 'w')
-                cfile.write(template.safe_substitute(directory=scratch, cfg = Configuration.variables["HomeDirectory"]+'test/'+file, CMSSW=CMS_dir ))
-                cfile.close()
-                os.chmod(scratch+"/cmsrun"+file.split('.')[0].split('__')[0], 0755)
-                status, output = commands.getstatusoutput("condor_submit " + scratch+"/condor.submit")
-                for line in output.split('\n'):
-                    if "submitted" in line:
-                        self.__jobNumber[file.split('.')[0].split('__')[0]].append(line.split(' ')[5])
-                if status != 0:
-                    print file + " wasn't submitted properly"
-           
+                if batch.upper != 'CERN':
+                    tfile = open (Configuration.variables['HomeDirectory'] + '/data/condor.template' ,'r')
+                    template = Template(tfile.read())
+                    tfile.close()
+                    cfile = open(scratch+"/condor.submit", 'w')
+                    cfile.write(template.safe_substitute(file = scratch+'/cmsrun'+file.split('.')[0].split('__')[0], scratch = scratch))
+                    cfile.close()
+                    tfile = open (Configuration.variables['HomeDirectory'] + '/data/cmsrun.template' ,'r')
+                    template = Template(tfile.read())
+                    tfile.close()
+                    CMSstatus, CMSoutput = commands.getstatusoutput('$CMSSW_BASE')
+                    CMS_dir = CMSoutput.split(':')[1].strip(' ')
+                    cfile = open(scratch+"/cmsrun"+file.split('.')[0].split('__')[0], 'w')
+                    cfile.write(template.safe_substitute(directory=scratch, cfg = Configuration.variables["HomeDirectory"]+'test/'+file, CMSSW=CMS_dir ))
+                    cfile.close()
+                    os.chmod(scratch+"/cmsrun"+file.split('.')[0].split('__')[0], 0755)
+                    status, output = commands.getstatusoutput("condor_submit " + scratch+"/condor.submit")
+                    for line in output.split('\n'):
+                        if "submitted" in line:
+                            self.__jobNumber[file.split('.')[0].split('__')[0]].append(line.split(' ')[5])
+                    if status != 0:
+                        print file + " wasn't submitted properly"
+                else:
+                    tfile = open (Configuration.variables['HomeDirectory'] + '/interface/cmsrunb.template' ,'r')
+                    template = Template(tfile.read())
+                    tfile.close()
+                    cfile = open(scratch+"/cmsrunbsub"+file.split('.')[0].split('__')[0], 'w')
+                    cfile.write(template.safe_substitute(directory=scratch, cfg = scratch+'/'+cfg_filename, CMSSW=CMS_dir ))
+                    cfile.close()
+                    os.chmod(scratch+"/cmsrunbsub"+file.split('.')[0].split('__')[0], 0755)
+                    status, output = commands.getstatusoutput("bsub " + scratch+"/cmsrunbsub"+file.split('.')[0].split('__')[0])
+                    for line in output.split('\n'):
+                        if "submitted" in line:
+                            self.__jobNumber[file.split('.')[0].split('__')[0]].append(line.split(' ')[2].lstrip('<').rstrip('>'))
+                    if status != 0:
+                        print file + " wasn't submitted properly"
+
+                                
                                     
 
-    def NewPublisher(self, run, process, compare, all, job):
+    def NewPublisher(self, run, process, compare, all, job, location):
         os.chdir(Configuration.variables["HomeDirectory"]+'/bin/')
         if job.upper() == "BATCH":
-            condor_status = 0
-            while condor_status == 0:
-                Unfinished_Job = 0
-                for jobid in self.__jobNumber[process]:
-                    status, output = commands.getstatusoutput('condor_q '+jobid)
-                    if jobid in output:
-                        Unfinished_Job = Unfinished_Job + 1 
-                if Unfinished_Job == 0:
-                    condor_status = 1
-                    print "All jobs for " +process+ " are done" 
-                if Unfinished_Job > 0:
-                    time.sleep(15)
+            if location.upper() != 'CERN':
+                condor_status = 0
+                while condor_status == 0:
+                    Unfinished_Job = 0
+                    for jobid in self.__jobNumber[process]:
+                        status, output = commands.getstatusoutput('condor_q '+jobid)
+                        if jobid in output:
+                            Unfinished_Job = Unfinished_Job + 1 
+                    if Unfinished_Job == 0:
+                        condor_status = 1
+                        print "All jobs for " +process+ " are done" 
+                    if Unfinished_Job > 0:
+                        time.sleep(15)
+            else:
+                bsub_status = 0
+                while bsub_status == 0:
+                    Unfinished_Job = 0
+                    status, output = commands.getstatusoutput('bjobs ')
+                    if 'No unfinished job' in output:
+                        bsub_status = 1
+                        print "All jobs for " +process+ " are done" 
+                    else:
+                        time.sleep(15)
             for generator in os.listdir(Configuration.variables["HomeDirectory"]+'DropBox/scratch/'+process):
                 for sub_gen in os.listdir(Configuration.variables["HomeDirectory"]+'DropBox/scratch/'+process+'/'+generator+'/'):
                     for subdir in os.listdir(Configuration.variables["HomeDirectory"]+'DropBox/scratch/'+process+'/'+generator+'/'+sub_gen+'/'):

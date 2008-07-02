@@ -67,12 +67,13 @@ class ClientThread ( threading.Thread, TempGeneratorValidator.JobManager):
            compare = client['normaljob']['Compare']
            release = client['normaljob']['Release']
            self.__JobType = client['normaljob']['JobType']
+           site = client['normaljob']['Site']
            # To run Config files on local node, uncomment next two lines
            if self.__JobType.upper() != "BATCH":
              self.config_run(run, process, compare) ## Local Node!!
            else:
-             self.batch_run(run, process, compare) ## Condor Batch Jobs!!
-           self.NewPublisher(run, process, compare, release, self.__JobType)
+             self.batch_run(run, process, compare, site) ## Condor Batch Jobs!!
+           self.NewPublisher(run, process, compare, release, self.__JobType, site)
            message = {}
            message['Matrix'] = {"Status" : "Start"}
            self.send(pickle.dumps(message))

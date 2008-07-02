@@ -25,7 +25,7 @@ parser.add_option("-o", "--port", type="int", dest="port", default=Configuration
 parser.add_option("-t", "--howto", dest="howto", action="store_true", default=False, help="Prints a 'howto'")
 parser.add_option("-d", "--data", dest="data", action="store_true", default=False, help="Compares to data.  Overrides all comparison steps")
 parser.add_option("-b", "--batch", dest="batch", action="store_false", default=True, help="Decides whether batch (true) or local (false).  Default is true")
-
+parser.add_option("-s", "--site", dest="site", action="store_true", default=False, help="Activate if running at CERN, otherwise, leave False")
 (options, args) = parser.parse_args()
 
 if options.batch == True:
@@ -33,6 +33,10 @@ if options.batch == True:
 if options.batch == False:
     Batch = "LOCAL"
 datajob = ""
+if options.site == False:
+    Site = "FNAL"
+if options.site == True:
+    Site = "CERN"
 
 if options.run != None and options.howto == False:
     List = os.listdir(Configuration.variables["HomeDirectory"]+'test/')
@@ -55,7 +59,7 @@ if options.run != None and options.howto == False:
         client = socket.socket ( socket.AF_INET, socket.SOCK_STREAM )
         client.connect ( ( 'localhost', options.port ) )
         message = {}
-        message['normaljob'] = {'Run' : options.run, 'Process' : job, 'Compare' : options.compare, 'Release' : str(options.all), "JobType" : Batch}
+        message['normaljob'] = {'Run' : options.run, 'Process' : job, 'Compare' : options.compare, 'Release' : str(options.all), "JobType" : Batch, "Site" : Site}
         client.send ( pickle.dumps(message))
         client.close()
 
