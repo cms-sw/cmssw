@@ -1,3 +1,11 @@
+2008-07-03  Kurt Biery <biery@fnal.gov>
+
+	* tag V03-12-12
+	* Updated DQMHttpSource to take advantage of RawInputSource changes
+	  (to correctly set the run and lumi numbers).
+	* Removed unneeded TApplication attributed from DQMServiceManager.
+	* Various (minor?) script changes from Constantin.
+
 2008-06-25  Kurt Biery <biery@fnal.gov>
 
 	* tag V03-12-11
