@@ -19,7 +19,6 @@ public:
   ~EcalShape(){}
   
   double operator () (double time_) const;
-  void   display () const;
   double derivative (double time_) const;
   
   double computeTimeOfMaximum() const;
@@ -27,6 +26,8 @@ public:
   double computeRisingTime() const;
 
   void   load(int xtal_, int SuperModule_); //modif Alex 20/07/07
+  const std::vector<double>& getTimeTable() const;
+  const std::vector<double>& getDerivTable() const;
 
  private:
 

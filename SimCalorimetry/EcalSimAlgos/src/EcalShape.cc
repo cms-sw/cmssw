@@ -6,11 +6,6 @@
 #include <iomanip>
 #include <fstream>
 
-#include "TROOT.h"
-#include "TStyle.h"
-#include "TH1F.h"
-#include "TCanvas.h"
-
 EcalShape::EcalShape(double timePhase)
 {
   setTpeak(timePhase);
@@ -429,38 +424,6 @@ double EcalShape::computeRisingTime() const {
 
 }
 
-void EcalShape::display () const 
-{
-
-  const int csize = 500;
-  TCanvas * showShape = new TCanvas("showShape","showShape",2*csize,csize);
-
-  unsigned int histsiz = nsamp*tconv;
-  TH1F* shape1 = new TH1F("shape1","Tabulated Ecal MGPA shape",histsiz,0.,(float)(histsiz));
-  TH1F* deriv1 = new TH1F("deriv1","Tabulated Ecal MGPA derivative",histsiz,0.,(float)(histsiz));
-  
-  std::cout << "interpolated ECAL pulse shape and its derivative \n" << std::endl;
-  for ( unsigned int i = 0; i < histsiz; ++i ) {
-    shape1->Fill((float)(i+0.5),(float)nt[i]);
-    deriv1->Fill((float)(i+0.5),(float)ntd[i]);
-    std::cout << " time (ns) = " << std::fixed << std::setw(6) << std::setprecision(2) << (double)i/tconv+0.05 
-              << " shape = " << std::setw(11) << std::setprecision(8) << nt[i] 
-              << " derivative = " << std::setw(11) << std::setprecision(8) << ntd[i] << std::endl;
-  }
-
-  showShape->Divide(2,1);
-  showShape->cd(1);
-  shape1->Draw();
-  showShape->cd(2);
-  deriv1->Draw();
-  showShape->SaveAs("EcalShape.jpg");
-
-  delete shape1;
-  delete deriv1;
-  delete showShape;
-
-}
-
 // Alex Zabi 20/07/07 
 // Adding member function load which can be used to load a 
 // specific profile. The signal output profile of a given
@@ -581,3 +544,15 @@ void EcalShape::load(int xtal_, int SuperModule_)
 
   profile.close();
 }//loading new shape
+
+const std::vector<double>& EcalShape::getTimeTable() const{
+
+  return nt;
+
+}
+
+const std::vector<double>& EcalShape::getDerivTable() const{
+
+  return ntd;
+
+}

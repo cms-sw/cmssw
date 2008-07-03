@@ -6,7 +6,7 @@
 <use name=CondFormats/EcalObjects>
 <use name=CalibFormats/CaloObjects>
 <use name=clhep>
-<use name=rootgraphics>
+<use name=roothistmatrix>
 
 <export>
   <lib name=SimCalorimetryEcalSimAlgos>
