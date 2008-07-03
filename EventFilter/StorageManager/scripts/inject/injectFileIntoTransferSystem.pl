@@ -1,5 +1,5 @@
 #!/usr/bin/perl -w
-# $Id: injectFileIntoTransferSystem.pl,v 1.14 2008/07/03 13:36:21 loizides Exp $
+# $Id: injectFileIntoTransferSystem.pl,v 1.15 2008/07/03 13:48:50 loizides Exp $
 
 use strict;
 use DBI;
@@ -272,7 +272,6 @@ if($check) {
 
     #Get query result - array elements will be '' when file not in that table.
     my @result = $checkHan->fetchrow_array;
-
     unless($result[0]) {print "File not found in database.\n"; exit;}
     unless($result[1]) {print "FILES_CREATED: File found in database but not passed over to T0 system.\n";              exit 0;}
     unless($result[2]) {print "FILES_INJECTED: File found in database and handed over to T0 system.\n";                 exit 0;}
@@ -280,9 +279,8 @@ if($check) {
     unless($result[4]) {print "FILES_TRANS_COPIED: File found in database and copied by T0 system.\n";                  exit 0;}
     unless($result[5]) {print "FILES_TRANS_CHECKED: File found in database and checked by T0 system.\n";                exit 0;}
     unless($result[6]) {print "FILES_TRANS_INSERTED: File found in database and sucessfully processed by T0 system.\n"; exit 0;}
-    unless($result[7]) {print "FILES_DELETED: File found in database, sucessfully processed and locally deleted\n";     exit 0;}
-    print "Could not interpret query result: @result\n"; 
-    exit 1;
+    print "FILES_DELETED: File found in database, sucessfully processed and locally deleted\n";     
+    exit 0;
 }
 
 # filename, path, host and filesize must be correct or transfer will never work
