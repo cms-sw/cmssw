@@ -58,8 +58,8 @@ bool DCCEBSRPBlock::checkSrpIdAndNumbSRFlags(){
       edm::LogWarning("EcalRawToDigi@SUB=DCCSRPBlock::unpack")
         <<"\nUnable to unpack SRP block for event "<<event_->l1A()<<" in fed <<"<<mapper_->getActiveDCC()
         <<"\nNumber of flags "<<nSRFlags_<<" is different from expected "<<expNumbSrFlags_;
-      //Note : add to error collection ?		 
-    }
+     }
+    //Note : add to error collection ?
     return false;
   }
   return true;

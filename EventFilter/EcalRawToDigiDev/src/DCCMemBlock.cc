@@ -78,12 +78,11 @@ int DCCMemBlock::unpack(uint64_t ** data, uint * dwToEnd, uint expectedTowerID){
     // chosing channel 1 as representative of a dummy...
     EcalElectronicsId id( mapper_->getActiveSM() , expTowerID_,1, 1);
     (*invalidMemBlockSizes_)->push_back(id);
-    if( ! DCCDataUnpacker::silentMode_ ){
+    if( ! DCCDataUnpacker::silentMode_ ){ 
       edm::LogWarning("EcalRawToDigiDevMemBlock")
         <<"\nFor event "<<event_->l1A()<<", fed "<<mapper_->getActiveDCC()<<" and tower block "<<towerId_
         <<"\nExpected mem block size is "<<(unfilteredTowerBlockLength_*8)<<" bytes while "<<(blockLength_*8)<<" was found";
-     }
-    
+    }
     return STOP_EVENT_UNPACKING;
     
   }
@@ -94,8 +93,8 @@ int DCCMemBlock::unpack(uint64_t ** data, uint * dwToEnd, uint expectedTowerID){
       edm::LogWarning("EcalRawToDigiDevMemBlock")
         <<"\nUnable to unpack MEM block for event "<<event_->l1A()<<" in fed <<"<<mapper_->getActiveDCC()
         <<"\n Only "<<((*dwToEnd_)*8)<<" bytes are available while "<<(blockLength_*8)<<" are needed!";
-    }
-    // chosing channel 1 as representative of a dummy...
+      // chosing channel 1 as representative of a dummy...
+    } 
     EcalElectronicsId id( mapper_->getActiveSM() , expTowerID_,1, 1);
     (*invalidMemBlockSizes_)->push_back(id);
     return STOP_EVENT_UNPACKING;
@@ -140,15 +139,15 @@ int DCCMemBlock::unpack(uint64_t ** data, uint * dwToEnd, uint expectedTowerID){
       edm::LogWarning("EcalRawToDigiDevMemTowerId")
         <<"\nFor event "<<event_->l1A()<<" and fed "<<mapper_->getActiveDCC() << " and sm: "  << mapper_->getActiveSM()
         <<"\nExpected mem tower block is "<<expTowerID_<<" while "<<towerId_<<" was found ";
-    }
+     }
     
     towerId_=expTowerID_;
     
     // todo : go to the next mem
     error_= true;
 	
-    updateEventPointers();
-    return SKIP_BLOCK_UNPACKING;
+	updateEventPointers();
+	return SKIP_BLOCK_UNPACKING;
   }
    
  
@@ -199,19 +198,20 @@ void DCCMemBlock::unpackMemTowerData(){
         // chosing channel and strip as EcalElectronicsId
         EcalElectronicsId id( mapper_->getActiveSM() , towerId_, expStripId, expXtalId);
        (*invalidMemChIds_)->push_back(id);
-
-       if( ! DCCDataUnpacker::silentMode_ ){
-         edm::LogWarning("EcalRawToDigiDevMemChId")
+      
+        if( ! DCCDataUnpacker::silentMode_ ){
+          edm::LogWarning("EcalRawToDigiDevMemChId")
             <<"\nFor event "<<event_->l1A()<<", fed "<<mapper_->getActiveDCC()<<" and tower mem block "<<towerId_
             <<"\nThe expected strip is "<<expStripId<<" and "<<stripId<<" was found"
             <<"\nThe expected xtal  is "<<expXtalId <<" and "<<xtalId<<" was found";
-       }
-       stripId = expStripId;
-       xtalId  = expXtalId;
+        }
+
+        stripId = expStripId;
+        xtalId  = expXtalId;
 		 
 
 
-       errorOnDecoding = true; 
+         errorOnDecoding = true; 
 	
        //Note : move to the next ...   
 		 
@@ -256,12 +256,13 @@ void DCCMemBlock::unpackMemTowerData(){
 
           EcalElectronicsId id(mapper_->getActiveSM() , towerId_, stripId,xtalId);
           (*invalidMemGains_)->push_back(id);
+          
+           if( ! DCCDataUnpacker::silentMode_ ){
+	      edm::LogWarning("EcalRawToDigiDevMemGain")
+	       <<"\nFor event "<<event_->l1A()<<", fed "<<mapper_->getActiveDCC()<<" , mem tower block "<<towerId_
+	       <<"\nIn strip "<<stripId<<" xtal "<<xtalId<<" the gain is "<<gain<<" in sample "<<(i+1);
+           }
 
-          if( ! DCCDataUnpacker::silentMode_ ){ 
-	     edm::LogWarning("EcalRawToDigiDevMemGain")
-	      <<"\nFor event "<<event_->l1A()<<", fed "<<mapper_->getActiveDCC()<<" , mem tower block "<<towerId_
-	      <<"\nIn strip "<<stripId<<" xtal "<<xtalId<<" the gain is "<<gain<<" in sample "<<(i+1);
-          }
           errorOnDecoding=true;
         }
 		
