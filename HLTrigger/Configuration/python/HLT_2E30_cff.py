@@ -1,4 +1,4 @@
-# /dev/CMSSW_2_1_0_pre6/HLT/V20 (CMSSW_2_1_X_2008-07-02-0400_HLT1)
+# /dev/CMSSW_2_1_0_pre6/HLT/V21 (CMSSW_2_1_X_2008-07-02-0400_HLT1)
 
 import FWCore.ParameterSet.Config as cms
 
@@ -10952,7 +10952,7 @@ HLT_BTagMu_TripleJet40_Relaxed = cms.Path( HLTBeginSequence + hltPrescalerBSoftm
 HLT_BTagMu_QuadJet40 = cms.Path( HLTBeginSequence + hltPrescalerBSoftmuon4jet + hltBSoftmuonNjetL1seeds + HLTBCommonL2recoSequence + hltBSoftmuon4jetL2filter + HLTBSoftmuonL25recoSequence + hltBSoftmuonL25filter + HLTBSoftmuonL3recoSequence + hltBSoftmuonL3filter + HLTEndSequence )
 HLT_BTagMu_QuadJet35_Relaxed = cms.Path( HLTBeginSequence + hltPrescalerBSoftmuon4jet35 + hltBSoftmuonNjetL1seeds + HLTBCommonL2recoSequence + hltBSoftmuon4jetL2filter35 + HLTBSoftmuonL25recoSequence + hltBSoftmuonL25filter + HLTBSoftmuonL3recoSequence + hltBSoftmuonL3filterRelaxed + HLTEndSequence )
 HLT_BTagMu_QuadJet30_Relaxed = cms.Path( HLTBeginSequence + hltPrescalerBSoftmuon4jet30 + hltBSoftmuonNjetL1seeds + HLTBCommonL2recoSequence + hltBSoftmuon4jetL2filter30 + HLTBSoftmuonL25recoSequence + hltBSoftmuonL25filter + HLTBSoftmuonL3recoSequence + hltBSoftmuonL3filterRelaxed + HLTEndSequence )
-HLT_BTagMu_HT300 = cms.Path( HLTBeginSequence + hltPrescalerBSoftmuonHT + hltBSoftmuonHTL1seeds + HLTBCommonL2recoSequence + hltBSoftmuonHTL2filter + HLTBSoftmuonL25recoSequence + hltBSoftmuonL25filter + HLTBSoftmuonL3recoSequence + hltBSoftmuonL3filter + HLTEndSequence )
+HLT_BTagMu_HT370 = cms.Path( HLTBeginSequence + hltPrescalerBSoftmuonHT + hltBSoftmuonHTL1seeds + HLTBCommonL2recoSequence + hltBSoftmuonHTL2filter + HLTBSoftmuonL25recoSequence + hltBSoftmuonL25filter + HLTBSoftmuonL3recoSequence + hltBSoftmuonL3filter + HLTEndSequence )
 HLT_BTagMu_HT330_Relaxed = cms.Path( HLTBeginSequence + hltPrescalerBSoftmuonHT330 + hltBSoftmuonHTL1seeds + HLTBCommonL2recoSequence + hltBSoftmuonHTL2filter330 + HLTBSoftmuonL25recoSequence + hltBSoftmuonL25filter + HLTBSoftmuonL3recoSequence + hltBSoftmuonL3filterRelaxed + HLTEndSequence )
 HLT_BTagMu_HT250_Relaxed = cms.Path( HLTBeginSequence + hltPrescalerBSoftmuonHT250 + hltBSoftmuonHTL1seedsLowEnergy + HLTBCommonL2recoSequence + hltBSoftmuonHTL2filter250 + HLTBSoftmuonL25recoSequence + hltBSoftmuonL25filter + HLTBSoftmuonL3recoSequence + hltBSoftmuonL3filterRelaxed + HLTEndSequence )
 HLT_DoubleMu3_BJPsi = cms.Path( HLTBeginSequence + hltJpsitoMumuL1SeedRelaxed + hltJpsitoMumuL1FilteredRelaxed + HLTL2muonrecoSequence + HLTL3displacedMumurecoSequence + hltDisplacedJpsitoMumuFilterRelaxed + HLTEndSequence )
