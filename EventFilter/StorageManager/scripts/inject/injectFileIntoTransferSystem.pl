@@ -1,5 +1,5 @@
 #!/usr/bin/perl -w
-# $Id: injectFileIntoTransferSystem.pl,v 1.13 2008/07/02 14:12:04 jserrano Exp $
+# $Id: injectFileIntoTransferSystem.pl,v 1.14 2008/07/03 13:36:21 loizides Exp $
 
 use strict;
 use DBI;
@@ -61,6 +61,7 @@ sub usage
 
   Other parameters (leave out if you do not know what they mean):
   --debug           : Print out extra messages
+  --test            : Run in test modus to check logic. No DB inserts or T0 notification.
   --producer        : Producer of file
   --appname         : Application name for file (e.g. CMSSW)
   --appversion      : Application version (e.g. CMSSW_2_0_8)
@@ -133,13 +134,14 @@ sub checkOption($) {
     return $theOpt;
 }
 
-my ($help, $debug, $hostname, $filename, $pathname, $index, $filesize);
+my ($help, $debug, $hostname, $filename, $pathname, $index, $filesize, $test);
 my ($producer, $stream, $type, $runnumber, $lumisection, $count,$instance);
 my ($createtime, $injecttime, $ctime, $itime, $comment, $destination);
 my ($appname, $appversion, $nevents, $checksum, $setuplabel, $check);
 
 $help        = 0;
 $debug       = 0;
+$test        = 0;
 $hostname    = '';
 $filename    = ''; 
 $pathname    = '';
@@ -169,6 +171,7 @@ $comment     = '';
 GetOptions(
            "h|help"                   => \$help,
            "debug"                    => \$debug,
+           "test"                     => \$test,
            "check"                    => \$check,
            "hostname=s"               => \$hostname,
 	   "file|filename=s"          => \$filename,
@@ -194,6 +197,8 @@ GetOptions(
 	  ) or usage;
 
 $help && usage;
+# enable debug for test option
+if ($test) {$debug=1;}
 
 ############################################
 # Main starts here
@@ -342,7 +347,7 @@ if($type eq "streamer") {
 # will just use time now as creation and injection if no other time specified.
 if(!$ctime) {
     $ctime =time;
-    $debug && print "No creation time specified, using time now \n";
+    $debug && print "No creation time specified, using curren time \n";
 }
 $createtime = gettimestamp($ctime);
 
@@ -462,43 +467,53 @@ my $injectHan = $dbh->prepare($SQLinject) or die("Error: Prepare failed, $dbh->e
 
 my $dbErr;
 $debug && print "Inserting into FILES_CREATED \n";
-my $rowsCreate = $createHan->execute() or $dbErr=$createHan->errstr;
-if(defined($dbErr)) {
-    print "Error: Insert into FILES_CREATED failed.\n";
-    if($dbErr =~ /unique constraint/ ) { print "File is already in the database.\n";}
-    print "Error string from DB is $dbErr\n";
-    $dbh->disconnect;
-    exit 1;
+my $rowsCreate = 0;
+if ($test==0) {
+    $rowsCreate = $createHan->execute() or $dbErr=$createHan->errstr;
+    if(defined($dbErr)) {
+        print "Error: Insert into FILES_CREATED failed.\n";
+        if($dbErr =~ /unique constraint/ ) { print "File is already in the database.\n";}
+        print "Error string from DB is $dbErr\n";
+        $dbh->disconnect;
+        exit 1;
+    }
 }
 
 $debug && print "Inserting into FILES_INJECTED \n";
-my $rowsInject = $injectHan->execute() or $dbErr=$injectHan->errstr;
-if(defined($dbErr)) {
-    print "Error: Insert into FILES_INJECTED failed.\n";
-    if($dbErr =~ /unique constraint/ ) { print "File is already in the database.\n";}
-    print "Error string from DB is $dbErr\n";
-    $dbh->disconnect;
-    exit 1;
+my $rowsInject = 0;
+if ($test==0) {
+    $rowsInject = $injectHan->execute() or $dbErr=$injectHan->errstr;
+    if(defined($dbErr)) {
+        print "Error: Insert into FILES_INJECTED failed.\n";
+        if($dbErr =~ /unique constraint/ ) { print "File is already in the database.\n";}
+        print "Error string from DB is $dbErr\n";
+        $dbh->disconnect;
+        exit 1;
+    }
 }
 
-my $T0out;
-
-# check return values before calling notification script. want to make sure no DB errors
-if($rowsCreate==1 && $rowsInject==1) {
-    print "DB inserts completed, running Tier 0 notification script \n";
-    $T0out=`$TIERZERO 2>&1`;
-    if($T0out =~ /Connection established/ ) {
-	print "File sucessfully submitted for transfer.\n";
+if ($test==0) {
+    my $T0out;
+    if($rowsCreate==1 && $rowsInject==1) {
+        print "DB inserts completed, running Tier 0 notification script \n";
+        $T0out=`$TIERZERO 2>&1`;
+        if($T0out =~ /Connection established/ ) {
+            print "File sucessfully submitted for transfer.\n";
+        } else {
+            print "Did not connect properly to transfer system logger. Error follows below\n\n";
+            print $T0out;
+            print "\n";
+        }
     } else {
-	print "Did not connect properly to transfer system logger. Error follows below\n\n";
-	print $T0out;
-	print "\n";
+        ($rowsCreate!=1) && print "Error: DB returned strange code on $SQLcreate - rows=$rowsCreate\n";
+        ($rowsInject!=1) && print "Error: DB returned strange code on $SQLinject - rows=$rowsInject\n";
+        print "Not calling Tier 0 notification script\n";
     }
-} else {
-    ($rowsCreate!=1) && print "Error: DB returned strange code on $SQLcreate - rows=$rowsCreate\n";
-    ($rowsInject!=1) && print "Error: DB returned strange code on $SQLinject - rows=$rowsInject\n";
-    print "Not calling Tier 0 notification script\n";
 }
 
 $dbh->disconnect;
+
+if ($test==1) {
+    print "\n\nNo obvious logic errors detected\n";
+}
 exit 0;
