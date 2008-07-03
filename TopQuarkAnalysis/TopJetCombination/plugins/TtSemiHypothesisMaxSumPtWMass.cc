@@ -100,8 +100,6 @@ TtSemiHypothesisMaxSumPtWMass::buildHypo(const edm::Handle<edm::View<reco::RecoC
     lightQ_= new reco::ShallowCloneCandidate( buffer );
   }
 
-  std::cout << "point5" << std::endl;
-
   if( isValid(closestToWMassIndices[1], jets) ){
     edm::Ref<std::vector<pat::Jet> > ref=edm::Ref<std::vector<pat::Jet> >(jets, closestToWMassIndices[1]);
     reco::ShallowCloneCandidate buffer(reco::CandidateBaseRef( ref ), ref->charge(), ref->p4(), ref->vertex());
