@@ -40,8 +40,7 @@ mix = cms.EDFilter("MixingModule",
             '/store/relval/2008/4/9/RelVal-RelValMinBias-1207754630/0002/6012E6A6-6106-DD11-B9C6-003048562890.root', 
             '/store/relval/2008/4/9/RelVal-RelValMinBias-1207754630/0002/66D7FE91-5606-DD11-A3C7-00304885A74E.root', 
             '/store/relval/2008/4/9/RelVal-RelValMinBias-1207754630/0002/B6CDB304-5706-DD11-B9E4-001617C3B76E.root', 
-            '/store/relval/2008/4/9/RelVal-RelValMinBias-1207754630/0002/DC900058-5506-DD11-96DD-000423D98AF0.root', 
-            '/store/relval/2008/4/9/RelVal-RelValMinBias-1207754630/0002/F80E6D8B-5706-DD11-B8A9-001617C3B76E.root')
+            '/store/relval/2008/4/9/RelVal-RelValMinBias-1207754630/0002/DC900058-5506-DD11-96DD-000423D98AF0.root')
     ),
     maxBunch = cms.int32(3),
     playback = cms.untracked.bool(False),
@@ -64,7 +63,6 @@ mix = cms.EDFilter("MixingModule",
             '/store/relval/2008/4/9/RelVal-RelValMinBias-1207754630/0002/DC900058-5506-DD11-96DD-000423D98AF0.root', 
             '/store/relval/2008/4/9/RelVal-RelValMinBias-1207754630/0002/F80E6D8B-5706-DD11-B8A9-001617C3B76E.root')
     ),
- 
     input = cms.SecSource("PoolSource",
         nbPileupEvents = cms.PSet(
             sigmaInel = cms.double(80.0),
@@ -99,5 +97,6 @@ mix = cms.EDFilter("MixingModule",
         )
     )
 )
+
 
 
