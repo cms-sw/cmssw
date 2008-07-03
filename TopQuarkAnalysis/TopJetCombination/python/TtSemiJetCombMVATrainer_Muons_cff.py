@@ -9,7 +9,7 @@ from TopQuarkAnalysis.TopJetCombination.TtSemiJetCombMVATrainer_Muons_cfi import
 
 ## path for mva save file
 mvaTtSemiJetCombSaveFile = cms.EDAnalyzer("TtSemiJetCombMVASaveFile",
-    ttSemiJetCombMVA = cms.string('TtSemiJetComb_Muons.mva')
+    ttSemiJetCombMVA = cms.string('TopQuarkAnalysis/TopJetCombination/data/TtSemiJetComb_Muons.mva')
 )
 
 ## configuration of event looper for mva taining
