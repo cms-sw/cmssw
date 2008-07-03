@@ -16,11 +16,11 @@ TtSemiHypothesisMaxSumPtWMass::buildHypo(const edm::Handle<edm::View<reco::RecoC
 				    const edm::Handle<std::vector<pat::Jet> >& jets, 
 				    const edm::Handle<std::vector<int> >& match)
 {
-  if(jets->size()<maxNJets_ || maxNJets_<4){
+  if(leps->empty() || mets->empty() || jets->size()<maxNJets_ || maxNJets_<4){
     // create empty hypothesis
     return;
   }
-  
+
   // -----------------------------------------------------
   // associate those jets with maximum pt of the vectorial 
   // sum to the hadronic decay chain
@@ -100,6 +100,8 @@ TtSemiHypothesisMaxSumPtWMass::buildHypo(const edm::Handle<edm::View<reco::RecoC
     lightQ_= new reco::ShallowCloneCandidate( buffer );
   }
 
+  std::cout << "point5" << std::endl;
+
   if( isValid(closestToWMassIndices[1], jets) ){
     edm::Ref<std::vector<pat::Jet> > ref=edm::Ref<std::vector<pat::Jet> >(jets, closestToWMassIndices[1]);
     reco::ShallowCloneCandidate buffer(reco::CandidateBaseRef( ref ), ref->charge(), ref->p4(), ref->vertex());
@@ -128,7 +130,7 @@ TtSemiHypothesisMaxSumPtWMass::buildHypo(const edm::Handle<edm::View<reco::RecoC
   // -----------------------------------------------------
   // add lepton
   // -----------------------------------------------------
-  if( !leps->empty() ){
+  {
     edm::Ref<edm::View<reco::RecoCandidate> > ref=edm::Ref<edm::View<reco::RecoCandidate> >(leps, 0);
     reco::ShallowCloneCandidate buffer(reco::CandidateBaseRef( ref ), ref->charge(), ref->p4(), ref->vertex());
     lepton_= new reco::ShallowCloneCandidate( buffer );
@@ -137,7 +139,7 @@ TtSemiHypothesisMaxSumPtWMass::buildHypo(const edm::Handle<edm::View<reco::RecoC
   // -----------------------------------------------------
   // add neutrino
   // -----------------------------------------------------
-  if( !mets->empty() ){
+  {
     edm::Ref<std::vector<pat::MET> > ref=edm::Ref<std::vector<pat::MET> >(mets, 0);
     reco::ShallowCloneCandidate buffer(reco::CandidateBaseRef( ref ), ref->charge(), ref->p4(), ref->vertex());
     neutrino_= new reco::ShallowCloneCandidate( buffer );

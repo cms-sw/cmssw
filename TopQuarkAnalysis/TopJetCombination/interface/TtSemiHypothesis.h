@@ -14,9 +14,9 @@
 #include "DataFormats/RecoCandidate/interface/RecoCandidate.h"
 
 #include "DataFormats/Candidate/interface/CandidateWithRef.h"
-#include "AnalysisDataFormats/TopObjects/interface/TtSemiEvent.h"
+#include "DataFormats/Candidate/interface/CompositeCandidate.h"
 #include "DataFormats/Candidate/interface/ShallowCloneCandidate.h"
-#include "DataFormats/Candidate/interface/NamedCompositeCandidate.h"
+#include "AnalysisDataFormats/TopObjects/interface/TtSemiEvent.h"
 
 
 class TtSemiHypothesis : public edm::EDProducer {
@@ -28,12 +28,12 @@ class TtSemiHypothesis : public edm::EDProducer {
 
  protected:
   
-  /// produce the event hypothesis as NamedCompositeCandidate and Key
+  /// produce the event hypothesis as CompositeCandidate and Key
   virtual void produce(edm::Event&, const edm::EventSetup&);
   /// return key
   int key() const { return key_; };
   /// return event hypothesis
-  reco::NamedCompositeCandidate hypo();
+  reco::CompositeCandidate hypo();
   /// check if index is in valid range of selected jets
   bool isValid(const int& idx, const edm::Handle<std::vector<pat::Jet> >& jets){ return (0<=idx && idx<(int)jets->size()); };
 

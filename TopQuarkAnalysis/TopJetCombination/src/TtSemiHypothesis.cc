@@ -10,7 +10,7 @@ TtSemiHypothesis::TtSemiHypothesis(const edm::ParameterSet& cfg):
   lightQ_(0), lightQBar_(0), hadronicB_(0), 
   leptonicB_(0), neutrino_(0), lepton_(0)
 {
-  produces<reco::NamedCompositeCandidate>();
+  produces<reco::CompositeCandidate>();
   produces<int>("Key");
 }
 
@@ -40,7 +40,7 @@ TtSemiHypothesis::produce(edm::Event& evt, const edm::EventSetup& setup)
   evt.getByLabel(match_, match);
 
   // feed out hyp
-  std::auto_ptr<reco::NamedCompositeCandidate> pOut(new reco::NamedCompositeCandidate);
+  std::auto_ptr<reco::CompositeCandidate> pOut(new reco::CompositeCandidate);
   buildHypo(leps, mets, jets, match);
   *pOut=hypo();
   evt.put(pOut);
@@ -52,16 +52,16 @@ TtSemiHypothesis::produce(edm::Event& evt, const edm::EventSetup& setup)
   evt.put(pKey, "Key");
 }
 
-reco::NamedCompositeCandidate
+reco::CompositeCandidate
 TtSemiHypothesis::hypo()
 {
   // check for sanity of the hypothesis
   if( !lightQ_ || !lightQBar_ || !hadronicB_ || 
       !leptonicB_ || !neutrino_ || !lepton_ )
-    return reco::NamedCompositeCandidate();
+    return reco::CompositeCandidate();
   
   // setup transient references
-  reco::NamedCompositeCandidate hyp, hadTop, hadW, lepTop, lepW;
+  reco::CompositeCandidate hyp, hadTop, hadW, lepTop, lepW;
 
   AddFourMomenta addFourMomenta;  
   // build up the top branch that decays leptonically
@@ -79,11 +79,11 @@ TtSemiHypothesis::hypo()
   hadTop.addDaughter( hadW,      TtSemiDaughter::HadW   );
   hadTop.addDaughter(*hadronicB_,TtSemiDaughter::HadB   );
   addFourMomenta.set( hadTop );
-  
+
   // build ttbar hypotheses
   hyp.addDaughter( lepTop,       TtSemiDaughter::LepTop );
   hyp.addDaughter( hadTop,       TtSemiDaughter::HadTop );
   addFourMomenta.set( hyp );
-  
+
   return hyp;
 }
