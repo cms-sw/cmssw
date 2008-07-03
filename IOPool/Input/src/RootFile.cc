@@ -132,7 +132,7 @@ namespace edm {
 
     // Read the metadata tree.
     TTree *metaDataTree = dynamic_cast<TTree *>(filePtr_->Get(poolNames::metaDataTreeName().c_str()));
-    if (!metaDataTree) 
+    if (!metaDataTree)
       throw edm::Exception(edm::errors::EventCorruption) << "Could not find tree " << poolNames::metaDataTreeName()
 							 << " in the input file.";
 
@@ -589,7 +589,10 @@ namespace edm {
     if (!fid_.isValid()) {
       fid_ = FileID(createGlobalIdentifier());
     }
-    assert(eventTree_.isValid());
+    if(!eventTree_.isValid()) {
+      throw edm::Exception(edm::errors::EventCorruption) <<
+	 "'Events' tree is corrupted or not present\n" << "in the input file.";
+    }
     if (fileIndex_.empty()) {
       fillFileIndex();
     }
