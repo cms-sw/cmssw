@@ -42,9 +42,9 @@ camilo.carrilloATcern.ch
 
 
 void RPCEfficiency::beginJob(const edm::EventSetup& iSetup){
-  std::cout<<"Begin beginJob"<<std::endl;
+  //std::cout<<"Begin beginJob"<<std::endl;
   
-  std::cout <<"\t Getting the RPC Geometry"<<std::endl;
+  //std::cout <<"\t Getting the RPC Geometry"<<std::endl;
   edm::ESHandle<RPCGeometry> rpcGeo;
   iSetup.get<MuonGeometryRecord>().get(rpcGeo);
   
@@ -60,7 +60,7 @@ void RPCEfficiency::beginJob(const edm::EventSetup& iSetup){
 	int region=rpcId.region();
 	
 	if(region==0&&(incldt||incldtMB4)){
-	  std::cout<<"--Filling the dtstore"<<rpcId<<std::endl;
+	  //std::cout<<"--Filling the dtstore"<<rpcId<<std::endl;
 	  int wheel=rpcId.ring();
 	  int sector=rpcId.sector();
 	  int station=rpcId.station();
@@ -71,7 +71,7 @@ void RPCEfficiency::beginJob(const edm::EventSetup& iSetup){
 	  rollstoreDT[ind]=myrolls;
 	}
 	else if(inclcsc){
-	  std::cout<<"--Filling the cscstore"<<rpcId<<std::endl;
+	  //std::cout<<"--Filling the cscstore"<<rpcId<<std::endl;
 	  int region=rpcId.region();
           int station=rpcId.station();
           int ring=rpcId.ring();
@@ -99,12 +99,12 @@ void RPCEfficiency::beginJob(const edm::EventSetup& iSetup){
       }
     }
   }
-  std::cout<<"Containers Ready"<<std::endl;
+  //std::cout<<"Containers Ready"<<std::endl;
 }
 
 
 RPCEfficiency::RPCEfficiency(const edm::ParameterSet& iConfig){
-  std::cout<<"Begin Constructor"<<std::endl;
+  //std::cout<<"Begin Constructor"<<std::endl;
   
   std::map<RPCDetId, int> buff;
   counter.clear();
@@ -134,9 +134,9 @@ RPCEfficiency::RPCEfficiency(const edm::ParameterSet& iConfig){
 
   // Giuseppe
   nameInLog = iConfig.getUntrackedParameter<std::string>("moduleLogName", "RPC_Eff");
-  EffSaveRootFile  = iConfig.getUntrackedParameter<bool>("EffSaveRootFile", true); 
+  EffSaveRootFile  = iConfig.getUntrackedParameter<bool>("EffSaveRootFile", false); 
   EffSaveRootFileEventsInterval  = iConfig.getUntrackedParameter<int>("EffEventsInterval", 10000); 
-  EffRootFileName  = iConfig.getUntrackedParameter<std::string>("EffRootFileName", "CMSRPCEff.root"); 
+  EffRootFileName  = iConfig.getUntrackedParameter<std::string>("EffRootFileName", "RPCEfficiencyFirst.root"); 
   //Interface
   dbe = edm::Service<DQMStore>().operator->();
   _idList.clear(); 
@@ -145,7 +145,7 @@ RPCEfficiency::RPCEfficiency(const edm::ParameterSet& iConfig){
 
 RPCEfficiency::~RPCEfficiency()
 {
-  std::cout<<"Begin Destructor "<<std::endl;
+  //std::cout<<"Begin Destructor "<<std::endl;
 }
 
 void RPCEfficiency::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
@@ -157,13 +157,13 @@ void RPCEfficiency::analyze(const edm::Event& iEvent, const edm::EventSetup& iSe
   char layerLabel[128];
   char meIdRPC [128];
   char meIdDT [128];
-  char meIdCSC [128];
+  //char meIdCSC [128];
 
-  std::cout <<"\t Getting the RPC Geometry"<<std::endl;
+  //std::cout <<"\t Getting the RPC Geometry"<<std::endl;
   edm::ESHandle<RPCGeometry> rpcGeo;
   iSetup.get<MuonGeometryRecord>().get(rpcGeo);
   
-  std::cout <<"\t Getting the RPC Digis"<<std::endl;
+  //std::cout <<"\t Getting the RPC Digis"<<std::endl;
   edm::Handle<RPCDigiCollection> rpcDigis;
   iEvent.getByLabel(muonRPCDigis, rpcDigis);
 
@@ -180,9 +180,15 @@ void RPCEfficiency::analyze(const edm::Event& iEvent, const edm::EventSetup& iSe
   }
 }
 
+void RPCEfficiency::endRun(const edm::Run& r, const edm::EventSetup& iSetup){
+  if (EffSaveRootFile){
+    dbe->save(EffRootFileName);
+  }
+}
+
+
 void RPCEfficiency::endJob()
 {
-  std::cout<<"Begin End Job"<<std::endl;
-  std::cout<<"Saving RootFile"<<std::endl;
-  dbe->save(EffRootFileName);
+  //std::cout<<"Begin End Job"<<std::endl;
+  dbe =0;
 }
