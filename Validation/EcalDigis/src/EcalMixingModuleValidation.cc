@@ -1,8 +1,8 @@
 /*
  * \file EcalMixingModuleValidation.cc
  *
- * $Date: 2008/05/05 10:45:22 $
- * $Revision: 1.18 $
+ * $Date: 2008/05/15 17:13:45 $
+ * $Revision: 1.19 $
  * \author F. Cossutti
  *
 */
@@ -731,10 +731,7 @@ void EcalMixingModuleValidation::computeSDBunchDigi(const edm::EventSetup & even
 
   // vector of DetId with energy above a fraction of the gun's energy
 
-  std::vector<DetId> theSDId;
-  if ( thisDet == EcalBarrel ) { theSDId = theGeometry->getValidDetIds(DetId::Ecal, EcalBarrel); }
-  else if ( thisDet == EcalEndcap ) { theSDId = theGeometry->getValidDetIds(DetId::Ecal, EcalEndcap); }
-  else if ( thisDet == EcalPreshower ) { theSDId = theGeometry->getValidDetIds(DetId::Ecal, EcalPreshower); }
+  const std::vector<DetId>& theSDId = theGeometry->getValidDetIds( DetId::Ecal, thisDet );
 
   std::vector<DetId> theOverThresholdId;
   for ( unsigned int i = 0 ; i < theSDId.size() ; i++ ) {
