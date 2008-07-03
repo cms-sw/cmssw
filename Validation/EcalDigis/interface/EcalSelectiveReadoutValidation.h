@@ -4,8 +4,8 @@
 /*
  * \file EcalSelectiveReadoutValidation.h
  *
- * $Date: 2008/02/29 20:48:25 $
- * $Revision: 1.3 $
+ * $Date: 2008/07/02 07:54:28 $
+ * $Revision: 1.4 $
  *
  */
 
@@ -128,19 +128,13 @@ private:
    * @param nReadXtals number of read crystal channels
    * @return the event fragment size in bytes
    */
-  double getEbEventSize(double nReadXtals) const{
-    return getDccOverhead(EB)*nEbDccs + nReadXtals*getBytesPerCrystal()
-      + nEbRus*8;
-  }
+  double getEbEventSize(double nReadXtals) const;
 
   /** Computes the size of an ECAL endcap event fragment.
    * @param nReadXtals number of read crystal channels
    * @return the event fragment size in bytes
    */
-  double getEeEventSize(double nReadXtals) const{
-    return getDccOverhead(EE)*nEeDccs + nReadXtals*getBytesPerCrystal()
-      + nEeRus*8;
-  }
+  double getEeEventSize(double nReadXtals) const;
 
   /** Gets the size in bytes fixed-size part of a DCC event fragment.
    * @return the fixed size in bytes.
@@ -402,6 +396,9 @@ private:
   ///Output file for histograms
   std::string outputFile_;
 
+  ///Switch for collection-not-found warning
+  bool collNotFoundWarn_;
+  
   //@{
   /** The event product collections.
    */

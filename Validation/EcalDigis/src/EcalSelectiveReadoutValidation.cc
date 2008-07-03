@@ -1,8 +1,8 @@
 /*
  * \file EcalSelectiveReadoutValidation.cc
  *
- * $Date: 2008/07/02 08:53:55 $
- * $Revision: 1.16 $
+ * $Date: 2008/07/02 09:00:55 $
+ * $Revision: 1.17 $
  *
  */
 
@@ -46,20 +46,31 @@ using namespace std;
 const double EcalSelectiveReadoutValidation::rad2deg = 45./atan(1.);
 
 EcalSelectiveReadoutValidation::EcalSelectiveReadoutValidation(const ParameterSet& ps):
-  ebDigis_(ps.getParameter<edm::InputTag>("EbDigiCollection"), false),
-  eeDigis_(ps.getParameter<edm::InputTag>("EeDigiCollection"), false),
+  collNotFoundWarn_(ps.getUntrackedParameter<bool>("warnIfCollectionNotFound", true)),
+  ebDigis_(ps.getParameter<edm::InputTag>("EbDigiCollection"), false,
+	   collNotFoundWarn_),
+  eeDigis_(ps.getParameter<edm::InputTag>("EeDigiCollection"), false,
+	   collNotFoundWarn_),
   ebNoZsDigis_(ps.getParameter<edm::InputTag>("EbUnsuppressedDigiCollection"),
-	       false),
+	       false, collNotFoundWarn_),
   eeNoZsDigis_(ps.getParameter<edm::InputTag>("EeUnsuppressedDigiCollection"),
-	       false),
-  ebSrFlags_(ps.getParameter<edm::InputTag>("EbSrFlagCollection"), false),
-  eeSrFlags_(ps.getParameter<edm::InputTag>("EeSrFlagCollection"), false),
-  ebSimHits_(ps.getParameter<edm::InputTag>("EbSimHitCollection"), false),
-  eeSimHits_(ps.getParameter<edm::InputTag>("EeSimHitCollection"), false),
-  tps_(ps.getParameter<edm::InputTag>("TrigPrimCollection"), false),
-  ebRecHits_(ps.getParameter<edm::InputTag>("EbRecHitCollection"), false),
-  eeRecHits_(ps.getParameter<edm::InputTag>("EeRecHitCollection"), false),
-  fedRaw_(ps.getParameter<edm::InputTag>("FEDRawCollection"), false),
+	       false, collNotFoundWarn_),
+  ebSrFlags_(ps.getParameter<edm::InputTag>("EbSrFlagCollection"), false,
+	     collNotFoundWarn_),
+  eeSrFlags_(ps.getParameter<edm::InputTag>("EeSrFlagCollection"), false,
+	     collNotFoundWarn_),
+  ebSimHits_(ps.getParameter<edm::InputTag>("EbSimHitCollection"), false,
+	     collNotFoundWarn_),
+  eeSimHits_(ps.getParameter<edm::InputTag>("EeSimHitCollection"), false,
+	     collNotFoundWarn_),
+  tps_(ps.getParameter<edm::InputTag>("TrigPrimCollection"), false,
+       collNotFoundWarn_),
+  ebRecHits_(ps.getParameter<edm::InputTag>("EbRecHitCollection"), false,
+	     collNotFoundWarn_),
+  eeRecHits_(ps.getParameter<edm::InputTag>("EeRecHitCollection"), false,
+	     collNotFoundWarn_),
+  fedRaw_(ps.getParameter<edm::InputTag>("FEDRawCollection"), false,
+	  collNotFoundWarn_),
   triggerTowerMap_(0),
   localReco_(ps.getParameter<bool>("LocalReco")),
   weights_(ps.getParameter<vector<double> >("weights")),
@@ -109,58 +120,58 @@ EcalSelectiveReadoutValidation::EcalSelectiveReadoutValidation(const ParameterSe
   if(histList_.find("all") != histList_.end()) allHists_ = true;
   
   //Data volume
-  meDccVol_ = bookProfile("dccVol",
-			  "DCC event fragment size;Dcc id; "
+  meDccVol_ = bookProfile("EcalDccEventSizeComputed",
+			  "ECAL DCC event fragment size;Dcc id; "
 			  "<Event size> (kB)", nDccs, .5, .5+nDccs);
 
-  meDccVolFromData_ = bookProfile("dccVolFromData",
-				  "DCC event fragment size;Dcc id; "
+  meDccVolFromData_ = bookProfile("EcalDccEventSize",
+				  "ECAL DCC event fragment size;Dcc id; "
 				  "<Event size> (kB)", nDccs, .5, .5+nDccs);
   
-  meVolBLI_ = book1D("volBLI",
-		     "Barrel low interest data volume;"
+  meVolBLI_ = book1D("EBLowInterestPayload",
+		     "ECAL Barrel low interest crystal data payload;"
 		     "Event size (kB);Nevts",
 		     100, 0., 200.);
   
-  meVolELI_ = book1D("volELI",
-		     "Endcap low interest data volume;"
+  meVolELI_ = book1D("EELowInterestPayload",
+		     "Endcap low interest crystal data payload;"
 		     "Event size (kB);Nevts",
 		     100, 0., 200.);
   
-  meVolLI_ = book1D("volLI",
-		    "ECAL low interest data volume;"
+  meVolLI_ = book1D("EcalLowInterestPayload",
+		    "ECAL low interest crystal data payload;"
 		    "Event size (kB);Nevts",
 		    100, 0., 200.);
   
-  meVolBHI_ = book1D("volBHI",
-		     "Barrel high interest data volume;"
+  meVolBHI_ = book1D("EBHighInterestPayload",
+		     "Barrel high interest crystal data payload;"
 		     "Event size (kB);Nevts",
 		     100, 0., 200.);
   
-  meVolEHI_ = book1D("volEHI",
-		     "Endcap high interest data volume;"
+  meVolEHI_ = book1D("EEHighInterestPayload",
+		     "Endcap high interest crystal data payload;"
 		     "Event size (kB);Nevts",
 		     100, 0., 200.);
   
-  meVolHI_ = book1D("volHI",
-		    "ECAL high interest data volume;"
+  meVolHI_ = book1D("EcalHighInterestPayload",
+		    "ECAL high interest crystal data payload;"
 		    "Event size (kB);Nevts",
 		    100, 0., 200.);
   
-  meVolB_ = book1D("volB",
+  meVolB_ = book1D("EBEventSize",
 		   "Barrel data volume;Event size (kB);Nevts",
 		   100, 0., 200.);
   
-  meVolE_ = book1D("volE",
+  meVolE_ = book1D("EEEventSize",
 		   "Endcap data volume;Event size (kB);Nevts",
 		   100, 0., 200.);
   
-  meVol_ = book1D("vol",
+  meVol_ = book1D("EcalEventSize",
 		  "ECAL data volume;Event size (kB);Nevts",
 		  100, 0., 200.);
 
-  meChOcc_ = book2D("hChOcc",
-		    "Crystal channel occupency after zero suppression;"
+  meChOcc_ = book2D("EcalChannelOccupancy",
+		    "ECAL crystal channel occupancy after zero suppression;"
 		    "iX0 / iEta0+120 / iX0 + 310;"
 		    "iY0 / iPhi0 (starting from 0);"
 		    "Event count",
@@ -173,11 +184,11 @@ EcalSelectiveReadoutValidation::EcalSelectiveReadoutValidation(const ParameterSe
   string title;
   title = string("Trigger primitive TT E_{T};E_{T} ")
     + tpUnit + string(";Event Count");
-  meTp_ = book1D("tp",
+  meTp_ = book1D("EcalTriggerPrimitiveEt",
 		 title.c_str(),
 		 100, 0., (tpInGeV_?10.:40.));
   
-  meTtf_ = book1D("ttFlag",
+  meTtf_ = book1D("EcalTriggerTowerFlag",
 		  "Trigger primitive TT flag;Flag number;Event count",
 		  8, -.5, 7.5);
   
@@ -203,7 +214,7 @@ EcalSelectiveReadoutValidation::EcalSelectiveReadoutValidation(const ParameterSe
 			100, 0., 10.,
 			100, 0., (tpInGeV_?10.:40.));
 
-  meTpMap_ = bookProfile2D("tpMap",
+  meTpMap_ = bookProfile2D("EcalTriggerPrimitiveEtMap",
 			   "Trigger primitive;"
 			   "iPhi;"
 			   "iEta;"
@@ -212,7 +223,7 @@ EcalSelectiveReadoutValidation::EcalSelectiveReadoutValidation(const ParameterSe
 			   38, -19, 19) ;
 
   //SRF
-  meFullRoTt_ = book2D("fullRoTt",
+  meFullRoTt_ = book2D("EcalFullReadoutSRFlagMap",
 		       "Full Read-out trigger tower;"
 		       "iPhi;"
 		       "iEta;"
@@ -220,7 +231,7 @@ EcalSelectiveReadoutValidation::EcalSelectiveReadoutValidation(const ParameterSe
 		       72, 1, 73,
 		       38, -19, 19) ;
   
-  meZs1Tt_ = book2D("zs1Tt",
+  meZs1Tt_ = book2D("EbZeroSupp1SRFlagMap",
 		    "Trigger tower read-out with ZS threshold 1;"
 		    "iPhi;"
 		    "iEta;"
@@ -229,8 +240,8 @@ EcalSelectiveReadoutValidation::EcalSelectiveReadoutValidation(const ParameterSe
 		    38, -19, 19) ;
 
   
-  meForcedTt_ = book2D("forcedTt",
-		       "Trigger tower readout forced bit on;"
+  meForcedTt_ = book2D("EcalReadoutUnitForcedBitMap",
+		       "ECAL readout unit with forced bit of SR flag on;"
 		       "iPhi;"
 		       "iEta;"
 		       "Event count",
@@ -238,7 +249,7 @@ EcalSelectiveReadoutValidation::EcalSelectiveReadoutValidation(const ParameterSe
 		       38, -19, 19) ;
 
   
-  meLiTtf_ = book2D("liTtf",
+  meLiTtf_ = book2D("EcalLowInterestTriggerTowerFlagMap",
 		    "Low interest trigger tower flags "
 		    "iPhi;"
 		    "iEta;"
@@ -247,7 +258,7 @@ EcalSelectiveReadoutValidation::EcalSelectiveReadoutValidation(const ParameterSe
 		    38, -19, 19) ;
 
   
-  meHiTtf_ = book2D("hiTtf",
+  meHiTtf_ = book2D("EcalHighInterestTriggerTowerFlagMap",
 		    "High interest trigger tower flags "
 		    "1 distribution;"
 		    "iPhi;"
@@ -773,16 +784,16 @@ void EcalSelectiveReadoutValidation::analyzeDataVolume(const Event& e,
 
 
   //low interesest channels:
-  double a = getEbEventSize(nEbLI_)/kByte_;
+  double a = nEbLI_*getBytesPerCrystal()/kByte_; //getEbEventSize(nEbLI_)/kByte_;
   fill(meVolBLI_, a);
-  double b = getEeEventSize(nEeLI_)/kByte_;
+  double b = nEeLI_*getBytesPerCrystal()/kByte_; //getEeEventSize(nEeLI_)/kByte_;
   fill(meVolELI_, b);	
   fill(meVolLI_, a+b);	
 
   //high interest chanels:
-  a = getEbEventSize(nEbHI_)/kByte_;
+  a = nEbHI_*getBytesPerCrystal()/kByte_; //getEbEventSize(nEbHI_)/kByte_;
   fill(meVolBHI_, a);
-  b = getEeEventSize(nEeHI_)/kByte_;
+  b = nEeHI_*getBytesPerCrystal()/kByte_; //getEeEventSize(nEeHI_)/kByte_;
   fill(meVolEHI_, b);	
   fill(meVolHI_, a+b);
 
@@ -1159,3 +1170,25 @@ void EcalSelectiveReadoutValidation::printAvailableHists(){
      "'histograms' of the EcalSelectiveReadoutValidation module\n";
  }
  
+double EcalSelectiveReadoutValidation::getEbEventSize(double nReadXtals) const{
+  double ruHeaderPayload = 0.;
+  const int firstEbDcc0 = nEeDccs/2;
+  for(int iDcc0 = firstEbDcc0; iDcc0 < firstEbDcc0 + nEbDccs; ++iDcc0){
+    ruHeaderPayload += getRuCount(iDcc0)*8.;
+  }
+  
+  return getDccOverhead(EB)*nEbDccs + nReadXtals*getBytesPerCrystal()
+    + ruHeaderPayload;
+}
+
+double EcalSelectiveReadoutValidation::getEeEventSize(double nReadXtals) const{
+  double ruHeaderPayload = 0.;
+  const unsigned firstEbDcc0 = nEeDccs/2;
+  for(unsigned iDcc0 = 0; iDcc0 < nDccs; ++iDcc0){
+    //skip barrel:
+    if(iDcc0== firstEbDcc0) iDcc0 += nEbDccs;
+      ruHeaderPayload += getRuCount(iDcc0)*8.;      
+  }
+  return getDccOverhead(EE)*nEeDccs + nReadXtals*getBytesPerCrystal()
+    + ruHeaderPayload;
+}

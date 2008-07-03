@@ -1,5 +1,5 @@
 /*
- * $Id: CollHandle.h,v 1.1 2007/05/21 15:59:17 pgras Exp $
+ * $Id: CollHandle.h,v 1.3 2008/01/11 11:25:44 pgras Exp $
  */
 
 #ifndef EcalDigis_CollHandle_h
@@ -31,10 +31,12 @@ public:
    * in the event must be considered as an error. See read() method.
    */
   CollHandle(const edm::InputTag& tag,
-	     bool failIfNotFound = true): tag_(tag),
-					  currentColl_(&emptyColl_),
-					  notFoundAlreadyWarned_(false),
-					  failIfNotFound_(failIfNotFound){}
+	     bool failIfNotFound = true,
+	     bool notFoundWarn = true): tag_(tag),
+					currentColl_(&emptyColl_),
+					notFoundAlreadyWarned_(false),
+					failIfNotFound_(failIfNotFound),
+					notFoundWarn_(notFoundWarn){}
   
   //method(s)
 public:
@@ -48,24 +50,26 @@ public:
    */
   void read(const edm::Event& event){
     //    try{
-      edm::Handle<T> hColl;
-      event.getByLabel(tag_, hColl);
-
-      //If we must be tolerant to product absence, then
-      //we must check validaty before calling Handle::operator*
-      //to prevent exception throw:
-      if(!failIfNotFound_     // product-not-found tolerant mode
-	 && !hColl.isValid()){// and the product was not found
-	if(!notFoundAlreadyWarned_){//warning logged only once
-	  edm::LogWarning("ProductNoFound") << tag_
-					    << " product was not found!";
-	  notFoundAlreadyWarned_ = true;
-	}
-	currentColl_ = &emptyColl_;
-      } else {
-	currentColl_ = &(*hColl);
+    edm::Handle<T> hColl;
+    event.getByLabel(tag_, hColl);
+  
+    //If we must be tolerant to product absence, then
+    //we must check validaty before calling Handle::operator*
+    //to prevent exception throw:
+    if(!failIfNotFound_     // product-not-found tolerant mode
+       && !hColl.isValid()){// and the product was not found
+      if(notFoundWarn_
+	 && !notFoundAlreadyWarned_){//warning logged only once
+	edm::LogWarning("ProductNotFound") << tag_
+					   << " product was not found!";
+	notFoundAlreadyWarned_ = true;
       }
+      currentColl_ = &emptyColl_;
+    } else {
+      currentColl_ = &(*hColl);
+    }
   }
+
   
   /** Accessor to a member of the collection retrieved by read method().
    * Considering h a CollHandle instance, h->f() is equivalent to (*h).f().
@@ -76,7 +80,7 @@ public:
    * absent from the event an empty collection is returned.
    */
   const T& operator*() const { return *currentColl_;}
-
+  
 private:
 
   //attribute(s)
@@ -102,6 +106,10 @@ private:
   /** Switch for collection absence toleration.
    */
   bool failIfNotFound_;
+
+  /** Switch for the warning in case of not found collection
+   */
+  bool notFoundWarn_;
 };
 
 #endif
