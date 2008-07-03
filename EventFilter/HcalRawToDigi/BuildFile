@@ -3,7 +3,7 @@
 <use name=DataFormats/FEDRawData>
 <use name=FWCore/MessageLogger>
 <use name=CondFormats/HcalObjects>
-<use name=EventFilter/Utilities>
+<use name=FWCore/Utilities>
 <use name=boost>
 
 <export>
@@ -13,7 +13,7 @@
   <use name=DataFormats/FEDRawData>
   <use name=CondFormats/HcalObjects>
   <use name=FWCore/MessageLogger>
-  <use name=EventFilter/Utilities>
+  <use name=FWCore/Utilities>
   <use name=boost>
 </export>
 
