@@ -23,13 +23,12 @@ namespace {
     edm::Wrapper<std::vector<JetRejObs> > w_v_jro;
     edm::Ref<std::vector<JetRejObs> > r_jro;
 
-    std::vector<std::pair<double, double> > v_p_dbl_dbl;
-    std::pair<unsigned int, std::vector<unsigned int> > p_uint_vint;
-    std::vector<std::pair<std::string, double> > v_p_str_dbl;
-    std::vector<std::pair<unsigned int, double> > v_p_uint_dbl;
     std::pair<unsigned int, double> p_uint_dbl;
-    //std::vector<std::pair<std::string, reco::JetTagRef> > v_p_str_jtr;
-    //std::pair<std::string, reco::JetTagRef> p_str_jtr;
+    std::vector<std::pair<double, double> > v_p_dbl_dbl;
+    std::vector<std::pair<unsigned int, double> > v_p_uint_dbl;
+    std::pair<unsigned int, std::vector<unsigned int> > p_uint_vint;
+    std::vector<int> v_int;
+    std::vector<std::pair<std::string, double> > v_p_str_dbl;
     std::map<TtSemiEvent::HypoKey, reco::CompositeCandidate> m_key_hyp;
 
     TtGenEvent ttgen;

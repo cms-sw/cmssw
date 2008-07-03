@@ -9,11 +9,12 @@
   <class name="edm::Wrapper<std::vector<JetRejObs> >" />
   <class name="JetRejObsRef" />
 
-  <class name="std::vector<std::pair<double, double> >" />
-  <class name="std::pair<unsigned int, std::vector<unsigned int> >" />
-  <class name="std::vector<std::pair<std::string, double> >" />
-  <class name="std::vector<std::pair<unsigned int, double> >" />
   <class name="std::pair<unsigned int, double>" />
+  <class name="std::vector<std::pair<double, double> >" />
+  <class name="std::vector<std::pair<unsigned int, double> >" />
+  <class name="std::pair<unsigned int, std::vector<unsigned int> >" />
+  <class name="std::vector<int>" />
+  <class name="std::vector<std::pair<std::string, double> >" />
   <class name="std::map<TtSemiEvent::HypoKey, reco::CompositeCandidate>" />
 
   <class name="TtGenEvent" />
