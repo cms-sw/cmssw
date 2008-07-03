@@ -32,6 +32,7 @@ HLTTauDQMSource::HLTTauDQMSource( const edm::ParameterSet& ps ) :counterEvt_(0)
   doBackup_               = mainParams.getUntrackedParameter < bool > ("UseBackupTriggers", false);
 
   l1Filter_               = mainParams.getUntrackedParameter<InputTag>("L1Seed");
+  l2Reco_                 = mainParams.getUntrackedParameter<InputTag>("L2Reco");
   l2Filter_               = mainParams.getUntrackedParameter<InputTag>("L2EcalIsolJets");
   l25Filter_              = mainParams.getUntrackedParameter<InputTag>("L25PixelIsolJets");
   l3Filter_               = mainParams.getUntrackedParameter<InputTag>("L3SiliconIsolJets");
@@ -42,12 +43,12 @@ HLTTauDQMSource::HLTTauDQMSource( const edm::ParameterSet& ps ) :counterEvt_(0)
   l2BackupPath_           = mainParams.getUntrackedParameter<edm::InputTag>("L2BackupFilter");
   l25BackupPath_          = mainParams.getUntrackedParameter<edm::InputTag>("L25BackupFilter");
   l3BackupPath_           = mainParams.getUntrackedParameter<edm::InputTag>("L3BackupFilter");
+  prescales_              = mainParams.getUntrackedParameter<std::vector<int> >("Prescales");
 
-  
+  refFilters_             = mainParams.getUntrackedParameter<std::vector<edm::InputTag> >("refFilters");
+  ref_prescales_          = mainParams.getUntrackedParameter<std::vector<int> >("refPrescales");
 
-  refFilters_             = mainParams.getUntrackedParameter<std::vector<InputTag> >("refFilters");
   refFilterDesc_          = mainParams.getUntrackedParameter<std::vector<string> >("refFilterDescriptions");
-  //  refIDs_                 = mainParams.getUntrackedParameter<std::vector<int> >("refFilterIDs");
   PtCut_                  = mainParams.getUntrackedParameter<std::vector<double> >("refObjectPtCut"); 
   corrDeltaR_             = mainParams.getUntrackedParameter<double>("matchingDeltaR",0.5);
 
@@ -61,16 +62,15 @@ HLTTauDQMSource::HLTTauDQMSource( const edm::ParameterSet& ps ) :counterEvt_(0)
   ParameterSet l25Params  = ps.getParameter<edm::ParameterSet>("L25Monitoring");
   doL25Monitoring_        = l25Params.getUntrackedParameter < bool > ("doL25Monitoring", false);
   l25IsolInfo_            = l25Params.getUntrackedParameter<InputTag>("L25IsolatedTauTagInfo");
+  //  matchCone_              = l25Params.getUntrackedParameter<double>("MatchingCone");
+  //minTrackPt_             = l25Params.getUntrackedParameter<double>("MinTrackPt");
 
   //L3 DQM Setup
   ParameterSet l3Params  = ps.getParameter<edm::ParameterSet>("L3Monitoring");
   doL3Monitoring_        = l3Params.getUntrackedParameter < bool > ("doL3Monitoring", false);
   l3IsolInfo_            = l3Params.getUntrackedParameter<InputTag>("L3IsolatedTauTagInfo");
-
-
-
-
-
+  //l3matchCone_           = l3Params.getUntrackedParameter<double>("MatchingCone");
+  //l3minTrackPt_          = l3Params.getUntrackedParameter<double>("MinTrackPt");
 
 
   dbe_ = Service < DQMStore > ().operator->();
@@ -115,16 +115,19 @@ HLTTauDQMSource::beginJob(const EventSetup& context){
 
        dbe_->setCurrentFolder(mainFolder_);
        //Book Static Histos
-       triggerBitInfo_ = dbe_->book1D((monitorName_+"_triggerBitInclusive").c_str(),(monitorName_+":Trigger Bits (#tau inclusive)").c_str(),8,0,8);
+       triggerBitInfo_ = dbe_->book1D((monitorName_+"_triggerBitInclusive").c_str(),(monitorName_+":Trigger Bits (#tau inclusive)").c_str(),10,0,10);
        triggerBitInfo_->setAxisTitle("#tau Trigger Paths");
        triggerBitInfo_->setBinLabel(1,"");
        triggerBitInfo_->setBinLabel(2,"L1Seed");
        triggerBitInfo_->setBinLabel(3,"");
-       triggerBitInfo_->setBinLabel(4,"L2");
+       triggerBitInfo_->setBinLabel(4,"L2Reco");
        triggerBitInfo_->setBinLabel(5,"");
-       triggerBitInfo_->setBinLabel(6,"L25");
+       triggerBitInfo_->setBinLabel(6,"L2");
        triggerBitInfo_->setBinLabel(7,"");
-       triggerBitInfo_->setBinLabel(8,"L3");
+       triggerBitInfo_->setBinLabel(8,"L2.5");
+       triggerBitInfo_->setBinLabel(9,"");
+       triggerBitInfo_->setBinLabel(10,"L3");
+
        formatHistogram(triggerBitInfo_,1);
 
        if(doBackup_)
@@ -149,31 +152,38 @@ HLTTauDQMSource::beginJob(const EventSetup& context){
        for(size_t i=0;i<refFilters_.size();++i)
 	 {
 	   dbe_->setCurrentFolder(mainFolder_);
-	   triggerBitInfoRef_.push_back(dbe_->book1D((monitorName_+"_triggerBitInfo_"+refFilterDesc_[i]).c_str(),(monitorName_+":Trigger Bit (match to "+refFilterDesc_[i] + ") ").c_str(),8,0,8));
+	   triggerBitInfoRef_.push_back(dbe_->book1D((monitorName_+"_triggerBitInfo_"+refFilterDesc_[i]).c_str(),(monitorName_+":Trigger Bit (match to "+refFilterDesc_[i] + ") ").c_str(),10,0,10));
 
 	   triggerBitInfoRef_[i]->setAxisTitle("#tau Trigger Paths");
 	   triggerBitInfoRef_[i]->setBinLabel(1,"");
 	   triggerBitInfoRef_[i]->setBinLabel(2,"L1Seed");
 	   triggerBitInfoRef_[i]->setBinLabel(3,"");
-	   triggerBitInfoRef_[i]->setBinLabel(4,"L2");
+	   triggerBitInfoRef_[i]->setBinLabel(4,"L2Reco");
 	   triggerBitInfoRef_[i]->setBinLabel(5,"");
-	   triggerBitInfoRef_[i]->setBinLabel(6,"L25");
+	   triggerBitInfoRef_[i]->setBinLabel(6,"L2");
 	   triggerBitInfoRef_[i]->setBinLabel(7,"");
-	   triggerBitInfoRef_[i]->setBinLabel(8,"L3");
+	   triggerBitInfoRef_[i]->setBinLabel(8,"L25");
+	   triggerBitInfoRef_[i]->setBinLabel(9,"");
+	   triggerBitInfoRef_[i]->setBinLabel(10,"L3");
 	   formatHistogram(triggerBitInfoRef_[i],1);
 
    	   dbe_->setCurrentFolder(mainFolder_);
-	   triggerEfficiencyRef_.push_back(dbe_->book1D((monitorName_+"_triggerEfficiencyRefTo_"+refFilterDesc_[i]).c_str(),("#tau Path Efficiency with ref to "+refFilterDesc_[i]).c_str() ,8,0,8));
+	   triggerEfficiencyRef_.push_back(dbe_->book1D((monitorName_+"_triggerEfficiencyRefTo_"+refFilterDesc_[i]).c_str(),("#tau Path Efficiency with ref to "+refFilterDesc_[i]).c_str() ,10,0,10));
 	   triggerEfficiencyRef_[i]->setAxisTitle("#tau Trigger Paths");
 	   triggerEfficiencyRef_[i]->setBinLabel(1,"");
 	   triggerEfficiencyRef_[i]->setBinLabel(2,"L1Seed");
 	   triggerEfficiencyRef_[i]->setBinLabel(3,"");
-	   triggerEfficiencyRef_[i]->setBinLabel(4,"L2");
+	   triggerEfficiencyRef_[i]->setBinLabel(4,"L2Reco");
 	   triggerEfficiencyRef_[i]->setBinLabel(5,"");
-	   triggerEfficiencyRef_[i]->setBinLabel(6,"L25");
+	   triggerEfficiencyRef_[i]->setBinLabel(6,"L2");
 	   triggerEfficiencyRef_[i]->setBinLabel(7,"");
-	   triggerEfficiencyRef_[i]->setBinLabel(8,"L3");
+	   triggerEfficiencyRef_[i]->setBinLabel(8,"L25");
+	   triggerEfficiencyRef_[i]->setBinLabel(9,"");
+	   triggerEfficiencyRef_[i]->setBinLabel(10,"L3");
+
+
 	   triggerEfficiencyRef_[i]->setAxisRange(0,1,2);
+
 	   formatHistogram(triggerEfficiencyRef_[i],2);
 
 
@@ -184,6 +194,7 @@ HLTTauDQMSource::beginJob(const EventSetup& context){
 
      //Initialize Counters;
      NEventsPassedL1     =0;
+     NEventsPassedL2Reco =0;
      NEventsPassedL2     =0;
      NEventsPassedL25    =0;
      NEventsPassedL3     =0;
@@ -198,6 +209,7 @@ HLTTauDQMSource::beginJob(const EventSetup& context){
        {
 	 NEventsPassedRefL1.push_back(0);
 	 NEventsPassedRefL2.push_back(0);
+	 NEventsPassedRefL2Reco.push_back(0);
 	 NEventsPassedRefL25.push_back(0);
 	 NEventsPassedRefL3.push_back(0);
 	 NRefEvents.push_back(0);
@@ -546,17 +558,36 @@ HLTTauDQMSource::doSummary(const Event& iEvent, const EventSetup& iSetup)
 	   if(iEvent.getByLabel(triggerEvent_,tev))
 	     if(tev.isValid())
 	     {
-	       if(tev->filterIndex(mainPath_)!=tev->sizeFilters())
-		 NEventsPassedMainFilter++;
+	     if(tev->filterIndex(mainPath_)!=tev->sizeFilters())
+		{
+		  LVColl obj = importFilterColl(mainPath_,iEvent);
+		  if(obj.size()>=nTriggeredTaus_)
+		    NEventsPassedMainFilter++;
+		}
 	     if(tev->filterIndex(l1BackupPath_)!=tev->sizeFilters())
-		 NEventsPassedL1Backup++;
+		{
+		  LVColl obj = importFilterColl(l1BackupPath_,iEvent);
+		  if(obj.size()>=nTriggeredTaus_)
+		     NEventsPassedL1Backup++;
+		}
 	     if(tev->filterIndex(l2BackupPath_)!=tev->sizeFilters())
-		 NEventsPassedL2Backup++;
+		{
+		   LVColl obj = importFilterColl(l2BackupPath_,iEvent);
+		   if(obj.size()>=nTriggeredTaus_)
+			  NEventsPassedL2Backup++;
+		}
 	     if(tev->filterIndex(l25BackupPath_)!=tev->sizeFilters())
-		 NEventsPassedL25Backup++;
+		{
+		   LVColl obj = importFilterColl(l25BackupPath_,iEvent);
+		   if(obj.size()>=nTriggeredTaus_)
+		     NEventsPassedL25Backup++;
+		}
 	     if(tev->filterIndex(l3BackupPath_)!=tev->sizeFilters())
-		 NEventsPassedL3Backup++;
-	        
+	       { 
+		  LVColl obj = importFilterColl(l3BackupPath_,iEvent);
+		  if(obj.size()>=nTriggeredTaus_)
+			 NEventsPassedL3Backup++;
+	       }
 	     
 	     }
 
@@ -593,7 +624,7 @@ HLTTauDQMSource::doSummary(const Event& iEvent, const EventSetup& iSetup)
 
       //Look at the L1Trigger
       
-      LVColl L1Taus = importObjectColl(l1Filter_,trigger::TriggerTau,iEvent);
+      LVColl L1Taus = importObjectColl(l1Filter_,trigger::TriggerL1TauJet,iEvent);
 
 	  if(L1Taus.size()>=nTriggeredTaus_)
 	    {
@@ -622,6 +653,42 @@ HLTTauDQMSource::doSummary(const Event& iEvent, const EventSetup& iSetup)
 	  
 
 	    }
+
+	  //Look at the L2 Reconstruction
+      
+	  LVColl L2RTaus = importObjectColl(l2Reco_,trigger::TriggerTau,iEvent);
+
+
+	  if(L2RTaus.size()>=nTriggeredTaus_)
+	    {
+	      NEventsPassedL2Reco++;
+	    
+	    }
+	  //Match With REFERENCE OBjects
+	  for(size_t i = 0;i<refFilters_.size();++i)
+	    {
+	      refObjects.clear();
+	      refObjects = importFilterColl(refFilters_[i],iEvent);
+
+	      size_t match_counter = 0;
+	       for(size_t j = 0;j<L2RTaus.size();++j)
+		{
+		  if(match(L2RTaus[j],refObjects,corrDeltaR_,PtCut_[i]))
+		    {
+		      match_counter++;
+		    }
+		}
+	      if(match_counter>=nTriggeredTaus_)
+		{
+		  NEventsPassedRefL2Reco[i]++;
+		
+		}
+	  
+
+	    }
+
+
+
 
 	  //Look at the L2Trigger
       
@@ -655,6 +722,9 @@ HLTTauDQMSource::doSummary(const Event& iEvent, const EventSetup& iSetup)
 	  
 
 	    }
+
+
+
 
 	
 
@@ -733,40 +803,44 @@ HLTTauDQMSource::doSummary(const Event& iEvent, const EventSetup& iSetup)
       //Fill Histogram Information
 
       triggerBitInfo_->setBinContent(2,NEventsPassedL1);
-      triggerBitInfo_->setBinContent(4,NEventsPassedL2);
-      triggerBitInfo_->setBinContent(6,NEventsPassedL25);
-      triggerBitInfo_->setBinContent(8,NEventsPassedL3);
+      triggerBitInfo_->setBinContent(4,NEventsPassedL2Reco);
+      triggerBitInfo_->setBinContent(6,NEventsPassedL2);
+      triggerBitInfo_->setBinContent(8,NEventsPassedL25);
+      triggerBitInfo_->setBinContent(10,NEventsPassedL3);
       
       //Efficiency with ref to Backup
       if(doBackup_)
 	{
-	  triggerEfficiencyBackup_->setBinContent(2,calcEfficiency(NEventsPassedMainFilter,NEventsPassedL1Backup)[0]);
-	  triggerEfficiencyBackup_->setBinError(2,calcEfficiency(NEventsPassedMainFilter,NEventsPassedL1Backup)[1]);
-	  triggerEfficiencyBackup_->setBinContent(4,calcEfficiency(NEventsPassedMainFilter,NEventsPassedL2Backup)[0]);
-	  triggerEfficiencyBackup_->setBinError(4,calcEfficiency(NEventsPassedMainFilter,NEventsPassedL2Backup)[1]);
-	  triggerEfficiencyBackup_->setBinContent(6,calcEfficiency(NEventsPassedMainFilter,NEventsPassedL25Backup)[0]);
-	  triggerEfficiencyBackup_->setBinError(6,calcEfficiency(NEventsPassedMainFilter,NEventsPassedL25Backup)[1]);
-	  triggerEfficiencyBackup_->setBinContent(8,calcEfficiency(NEventsPassedMainFilter,NEventsPassedL3Backup)[0]);
-	  triggerEfficiencyBackup_->setBinError(8,calcEfficiency(NEventsPassedMainFilter,NEventsPassedL3Backup)[1]);
+	  triggerEfficiencyBackup_->setBinContent(2,calcEfficiency(prescales_[0]*NEventsPassedMainFilter,prescales_[1]*NEventsPassedL1Backup)[0]);
+	  triggerEfficiencyBackup_->setBinError(2,calcEfficiency(prescales_[0]*NEventsPassedMainFilter,prescales_[1]*NEventsPassedL1Backup)[1]);
+	  triggerEfficiencyBackup_->setBinContent(4,calcEfficiency(prescales_[0]*NEventsPassedMainFilter,prescales_[2]*NEventsPassedL2Backup)[0]);
+	  triggerEfficiencyBackup_->setBinError(4,calcEfficiency(prescales_[0]*NEventsPassedMainFilter,prescales_[2]*NEventsPassedL2Backup)[1]);
+	  triggerEfficiencyBackup_->setBinContent(6,calcEfficiency(prescales_[0]*NEventsPassedMainFilter,prescales_[3]*NEventsPassedL25Backup)[0]);
+	  triggerEfficiencyBackup_->setBinError(6,calcEfficiency(prescales_[0]*NEventsPassedMainFilter,prescales_[3]*NEventsPassedL25Backup)[1]);
+	  triggerEfficiencyBackup_->setBinContent(8,calcEfficiency(prescales_[0]*NEventsPassedMainFilter,prescales_[4]*NEventsPassedL3Backup)[0]);
+	  triggerEfficiencyBackup_->setBinError(8,calcEfficiency(prescales_[0]*NEventsPassedMainFilter,prescales_[4]*NEventsPassedL3Backup)[1]);
 	}
 
       //REFERENCE TRIGGER STUFF
       for(size_t i=0;i<refFilters_.size();++i)
 	{
 	  triggerBitInfoRef_[i]->setBinContent(2,NEventsPassedRefL1[i]);
-	  triggerBitInfoRef_[i]->setBinContent(4,NEventsPassedRefL2[i]);
-	  triggerBitInfoRef_[i]->setBinContent(6,NEventsPassedRefL25[i]);
-	  triggerBitInfoRef_[i]->setBinContent(8,NEventsPassedRefL3[i]);
+	  triggerBitInfoRef_[i]->setBinContent(4,NEventsPassedRefL2Reco[i]);
+	  triggerBitInfoRef_[i]->setBinContent(6,NEventsPassedRefL2[i]);
+	  triggerBitInfoRef_[i]->setBinContent(8,NEventsPassedRefL25[i]);
+	  triggerBitInfoRef_[i]->setBinContent(10,NEventsPassedRefL3[i]);
 
-	  //Efficiency With Ref to Electron trigger
-	  triggerEfficiencyRef_[i]->setBinContent(2,calcEfficiency(NEventsPassedRefL1[i],NRefEvents[i])[0]);
-	  triggerEfficiencyRef_[i]->setBinError(2,calcEfficiency(NEventsPassedRefL1[i],NRefEvents[i])[1]);
-	  triggerEfficiencyRef_[i]->setBinContent(4,calcEfficiency(NEventsPassedRefL2[i],NRefEvents[i])[0]);
-	  triggerEfficiencyRef_[i]->setBinError(4,calcEfficiency(NEventsPassedRefL2[i],NRefEvents[i])[1]);
-	  triggerEfficiencyRef_[i]->setBinContent(6,calcEfficiency(NEventsPassedRefL25[i],NRefEvents[i])[0]);
-	  triggerEfficiencyRef_[i]->setBinError(6,calcEfficiency(NEventsPassedRefL25[i],NRefEvents[i])[1]);
-	  triggerEfficiencyRef_[i]->setBinContent(8,calcEfficiency(NEventsPassedRefL3[i],NRefEvents[i])[0]);
-	  triggerEfficiencyRef_[i]->setBinError(8,calcEfficiency(NEventsPassedRefL3[i],NRefEvents[i])[1]);
+	  //Efficiency With Ref to Reference trigger
+	  triggerEfficiencyRef_[i]->setBinContent(2,calcEfficiency(prescales_[0]*NEventsPassedRefL1[i],ref_prescales_[i]*NRefEvents[i])[0]);
+	  triggerEfficiencyRef_[i]->setBinError(2,calcEfficiency(prescales_[0]*NEventsPassedRefL1[i],ref_prescales_[i]*NRefEvents[i])[1]);
+	  triggerEfficiencyRef_[i]->setBinContent(4,calcEfficiency(prescales_[0]*NEventsPassedRefL2Reco[i],ref_prescales_[i]*NRefEvents[i])[0]);
+	  triggerEfficiencyRef_[i]->setBinError(4,calcEfficiency(prescales_[0]*NEventsPassedRefL2Reco[i],ref_prescales_[i]*NRefEvents[i])[1]);
+	  triggerEfficiencyRef_[i]->setBinContent(6,calcEfficiency(prescales_[0]*NEventsPassedRefL2[i],ref_prescales_[i]*NRefEvents[i])[0]);
+	  triggerEfficiencyRef_[i]->setBinError(6,calcEfficiency(prescales_[0]*NEventsPassedRefL2[i],ref_prescales_[i]*NRefEvents[i])[1]);
+	  triggerEfficiencyRef_[i]->setBinContent(8,calcEfficiency(prescales_[0]*NEventsPassedRefL25[i],ref_prescales_[i]*NRefEvents[i])[0]);
+	  triggerEfficiencyRef_[i]->setBinError(8,calcEfficiency(prescales_[0]*NEventsPassedRefL25[i],ref_prescales_[i]*NRefEvents[i])[1]);
+	  triggerEfficiencyRef_[i]->setBinContent(10,calcEfficiency(prescales_[0]*NEventsPassedRefL3[i],ref_prescales_[i]*NRefEvents[i])[0]);
+	  triggerEfficiencyRef_[i]->setBinError(10,calcEfficiency(prescales_[0]*NEventsPassedRefL3[i],ref_prescales_[i]*NRefEvents[i])[1]);
 
 	}
 
@@ -1039,7 +1113,9 @@ HLTTauDQMSource::importObjectColl(edm::InputTag& filter,int id,const Event& iEve
 	  if(iEvent.getByLabel(filter,f))
 	    {
 	      VRl1jet jets; 
-	      f->getObjects(id,jets);
+
+	      //TEMPORARYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYY--Seed with CenJets for CRUZET 3
+	      f->getObjects(trigger::TriggerL1CenJet,jets);
 	      for(size_t i = 0; i<jets.size();++i)
 		out.push_back(jets[i]->p4());
 

@@ -127,41 +127,28 @@ private:
   //get The Jet Collections per filter level
   edm::InputTag triggerEvent_;
 
-  //L1 Specific stuff
-  // edm::InputTag L1Taus_;
-  //edm::InputTag L1GTReadoutRecord_;
-  //edm::InputTag L1GTObjectMap_;
- 
 
   edm::InputTag l1Filter_;
+  edm::InputTag l2Reco_;
   edm::InputTag l2Filter_;
   edm::InputTag l25Filter_;
   edm::InputTag l3Filter_;
-<<<<<<< HLTTauDQMSource.h
 
-  std::string mainPath_;
-  std::string l1BackupPath_;
-  std::string l2BackupPath_;
-  std::string l25BackupPath_;
-  std::string l3BackupPath_;
-  std::vector<int> prescales_;
-=======
+
+
   edm::InputTag mainPath_;
   edm::InputTag l1BackupPath_;
   edm::InputTag l2BackupPath_;
   edm::InputTag l25BackupPath_;
   edm::InputTag l3BackupPath_;
->>>>>>> 1.5
-
+  std::vector<int> prescales_;
 
   //Correlations with other Triggers
-<<<<<<< HLTTauDQMSource.h
-  std::vector<std::string> refFilters_;
+
+  std::vector<edm::InputTag> refFilters_;
   std::vector<int> ref_prescales_;
 
-=======
-  std::vector<edm::InputTag> refFilters_;
->>>>>>> 1.5
+
   //  std::vector<int> refIDs_;
   std::vector<double> PtCut_;
   std::vector<std::string> refFilterDesc_;
@@ -175,13 +162,20 @@ private:
   //L25 Monitoring Parameters
   bool doL25Monitoring_;
   edm::InputTag l25IsolInfo_;
+  //  double matchCone_;
+  //double minTrackPt_;
+
 
   //L3 Monitoring Parameters
   bool doL3Monitoring_;
   edm::InputTag l3IsolInfo_;
+  // double l3matchCone_;
+  //double l3minTrackPt_;
+
 
   //Number of Tau Events passed the triggers
   int NEventsPassedL1;
+  int NEventsPassedL2Reco;
   int NEventsPassedL2;
   int NEventsPassedL25;
   int NEventsPassedL3;
@@ -196,6 +190,7 @@ private:
 
   //Number of Tau Events passed the triggers matched to reference objects
   std::vector<int> NEventsPassedRefL1;
+  std::vector<int> NEventsPassedRefL2Reco;
   std::vector<int> NEventsPassedRefL2;
   std::vector<int> NEventsPassedRefL25;
   std::vector<int> NEventsPassedRefL3;
