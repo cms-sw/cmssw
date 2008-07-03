@@ -30,3 +30,4 @@ hltBLifetimeHLTJets.jets = 'hltBLifetimeL3filter'
 hltBLifetimeL3filterRelaxed.JetTag = 'hltBLifetimeL3BJetTagsRelaxed'
 hltBLifetimeL3filterRelaxed.MinTag = 3.5
 hltBLifetimeHLTJetsRelaxed.jets = 'hltBLifetimeL3filterRelaxed'
+

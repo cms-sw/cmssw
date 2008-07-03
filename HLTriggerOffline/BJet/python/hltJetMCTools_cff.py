@@ -34,3 +34,4 @@ hltIC5byValAlgo = cms.EDFilter("JetFlavourIdentifier",
 )
 
 hltJetMCTools = cms.Sequence(require_iterativeCone5CaloJets*hltPartons*hltIC5byRef*hltIC5byValPhys+hltIC5byValAlgo)
+
