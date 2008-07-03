@@ -1,6 +1,7 @@
 import FWCore.ParameterSet.Config as cms
 
 process = cms.Process("p")
+
 process.maxEvents = cms.untracked.PSet(
     input = cms.untracked.int32(2)
 )
@@ -11,4 +12,3 @@ process.m1 = cms.EDAnalyzer("TestFailuresAnalyzer",
 )
 
 process.p1 = cms.Path(process.m1)
-
