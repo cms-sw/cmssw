@@ -14,7 +14,7 @@
 #include "CondFormats/DataRecord/interface/EcalPedestalsRcd.h"
 
 EcalDigiProducer::EcalDigiProducer(const edm::ParameterSet& params) 
-:  theGeometry(0)
+  :  theGeometry(0)
 {
 
   /// output collections names
@@ -143,6 +143,10 @@ void EcalDigiProducer::produce(edm::Event& event, const edm::EventSetup& eventSe
 
   // Get input
   edm::Handle<CrossingFrame<PCaloHit> > crossingFrame;
+
+  const std::vector<DetId>& theBarrelDets =  theGeometry->getValidDetIds(DetId::Ecal, EcalBarrel);
+  const std::vector<DetId>& theEndcapDets =  theGeometry->getValidDetIds(DetId::Ecal, EcalEndcap);
+  const std::vector<DetId>& theESDets     =  theGeometry->getValidDetIds(DetId::Ecal, EcalPreshower);
 
   // test access to SimHits
   const std::string barrelHitsName(hitsProducer_+"EcalHitsEB");
@@ -314,13 +318,9 @@ void EcalDigiProducer::updateGeometry() {
   theEcalResponse->setGeometry(theGeometry);
   theESResponse->setGeometry(theGeometry);
 
-  theBarrelDets.clear();
-  theEndcapDets.clear();
-  theESDets.clear();
-
-  theBarrelDets =  theGeometry->getValidDetIds(DetId::Ecal, EcalBarrel);
-  theEndcapDets =  theGeometry->getValidDetIds(DetId::Ecal, EcalEndcap);
-  theESDets     =  theGeometry->getValidDetIds(DetId::Ecal, EcalPreshower);
+  const std::vector<DetId>& theBarrelDets =  theGeometry->getValidDetIds(DetId::Ecal, EcalBarrel);
+  const std::vector<DetId>& theEndcapDets =  theGeometry->getValidDetIds(DetId::Ecal, EcalEndcap);
+  const std::vector<DetId>& theESDets     =  theGeometry->getValidDetIds(DetId::Ecal, EcalPreshower);
 
   edm::LogInfo("EcalDigi") << "deb geometry: " << "\n" 
                       << "\t barrel: " << theBarrelDets.size () << "\n"

@@ -72,9 +72,6 @@ private:
   EcalCoder * theCoder;
 
   const CaloGeometry * theGeometry;
-  std::vector<DetId> theBarrelDets;
-  std::vector<DetId> theEndcapDets;
-  std::vector<DetId> theESDets;
 
   std::string EBdigiCollection_;
   std::string EEdigiCollection_;
