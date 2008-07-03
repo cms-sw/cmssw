@@ -7,31 +7,16 @@
 
 #include <DataFormats/MuonDetId/interface/RPCDetId.h>
 #include <DQMOffline/Muon/interface/RPCEfficiency.h>
+#include <DQMOffline/Muon/interface/RPCBookFolderStructure.h>
 #include "DQMServices/Core/interface/MonitorElement.h"
-#include "DQMOffline/Muon/interface/RPCBookFolderStructure.h"
-#include "Geometry/RPCGeometry/interface/RPCGeomServ.h"
 
+#include "Geometry/RPCGeometry/interface/RPCGeomServ.h"
 std::map<std::string, MonitorElement*> RPCEfficiency::bookDetUnitSeg(RPCDetId & detId,int nstrips) {
   
   std::map<std::string, MonitorElement*> meMap;
-  std::string regionName;
-  std::string ringType;
-  if(detId.region()==0) {
-    regionName="Barrel";
-    ringType="Wheel";
-  }
-  else{
-    ringType="Disk";
-    if(detId.region() == -1) regionName="Endcap-";
-    if(detId.region() ==  1) regionName="Endcap+";
-  }
-  
-  
+   
   RPCBookFolderStructure *  folderStr = new RPCBookFolderStructure(); //Anna
-  //string folder = "RPC/MuonSegEff/" +  folderStr->folderStructure(detId);
-
-  char  folder[120];
-  sprintf(folder,"RPC/MuonSegEff/%s/%s_%d/station_%d/sector_%d",regionName.c_str(),ringType.c_str(),detId.ring(),detId.station(),detId.sector());
+  std::string folder = "RPC/MuonSegEff/" +  folderStr->folderStructure(detId);
 
   dbe->setCurrentFolder(folder);
 
@@ -46,13 +31,10 @@ std::map<std::string, MonitorElement*> RPCEfficiency::bookDetUnitSeg(RPCDetId & 
 
   char meId [128];
   char meTitle [128];
-
-  
-
   
   //Begin booking DT
   if(detId.region()==0) {
-    std::cout<<"Booking for the Barrel"<<detUnitLabel<<std::endl;
+    //   std::cout<<"Booking for the Barrel"<<detUnitLabel<<std::endl;
     
     sprintf(meId,"ExpectedOccupancyFromDT_%s",detUnitLabel);
     sprintf(meTitle,"ExpectedOccupancyFromDT_for_%s",layerLabel);
@@ -70,6 +52,7 @@ std::map<std::string, MonitorElement*> RPCEfficiency::bookDetUnitSeg(RPCDetId & 
     sprintf(meTitle,"BXDistribution_for_%s",layerLabel);
     meMap[meId] = dbe->book1D(meId, meTitle, 11,-5, 5);
   }
+
   return meMap;
 }
 

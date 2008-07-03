@@ -94,17 +94,11 @@ class RPCEfficiencySecond : public edm::EDAnalyzer {
       virtual void beginJob(const edm::EventSetup&) ;
       virtual void analyze(const edm::Event&, const edm::EventSetup&);
       virtual void endJob() ;
-      std::string file;
-      std::string fileOut;
-      std::ofstream rpcInfo;
-      std::ofstream rpcNames;
-      std::ofstream rollsWithData;
-      std::ofstream rollsWithOutData;
-      std::ofstream rollsBarrel;
-      std::ofstream rollsEndCap;
-      std::ofstream rollsPointedForASegment;
-      std::ofstream rollsNotPointedForASegment;
-      std::ofstream bxMeanList;
+      virtual void endRun(const edm::Run& , const edm::EventSetup& );
+
+      bool SaveFile;
+      std::string NameFile;
+
       DQMStore * dbe;
 
 };
