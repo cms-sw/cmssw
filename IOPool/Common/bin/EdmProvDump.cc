@@ -21,6 +21,8 @@
 #include "boost/scoped_ptr.hpp"
 
 namespace {
+typedef std::map<edm::ParameterSetID, edm::ParameterSetBlob> ParameterSetMap;
+
   class HistoryNode {
   public:
     HistoryNode() :
@@ -75,11 +77,15 @@ namespace {
 	 << std::endl;
     }
 
+    void printHistory(const std::string& iIndent = std::string("  ")) const;
+    void printEventSetupHistory(const ParameterSetMap& iPSM, std::ostream& oErrorLog) const;
+
     edm::ProcessConfigurationID
     configurationID() const {
       return config_.id();
     }
 
+    static bool sort_;
   private:
     edm::ProcessConfiguration config_;
     std::vector<HistoryNode>  children_;
@@ -90,9 +96,9 @@ namespace {
     node.print(os);
     return os;
   }
+  bool HistoryNode::sort_ = false;
 }
 
-typedef std::map<edm::ParameterSetID, edm::ParameterSetBlob> ParameterSetMap;
 
 std::ostream&
 operator<< (std::ostream& os, edm::ProcessHistory& iHist)
@@ -113,31 +119,34 @@ operator<< (std::ostream& os, edm::ProcessHistory& iHist)
   return os;
 }
 
-void printHistory(const HistoryNode& iNode, const std::string& iIndent = std::string("  "))
+void HistoryNode::printHistory(const std::string& iIndent) const
 {
   const std::string indentDelta("  ");
   std::string indent = iIndent;
-  for (HistoryNode::const_iterator i = iNode.begin(), e = iNode.end();
+  for (const_iterator i = begin(), e = end();
        i != e;
        ++i) {
     std::cout << indent << *i;
-    printHistory(*i, indent+indentDelta);
+    i->printHistory(indent+indentDelta);
   }
 }
 
-void printEventSetupComponent(const char* iType, const std::string& iCompName, const edm::ParameterSet& iProcessConfig, const std::string& iProcessName) {
+std::string eventSetupComponent(const char* iType, const std::string& iCompName, const edm::ParameterSet& iProcessConfig, const std::string& iProcessName) {
+  std::ostringstream result;
   const edm::ParameterSet& pset = iProcessConfig.getParameter<edm::ParameterSet>(iCompName);
   std::string name( pset.getParameter<std::string>("@module_label") );
   if(0 == name.size() ) {
     name = pset.getParameter<std::string>("@module_type");
   }
   
-  std::cout <<iType<<": "<< name<<" "<<iProcessName <<std::endl;
-  std::cout <<" parameters: "<<pset <<std::endl;
+  result <<iType<<": "<< name<<" "<<iProcessName << "\n"
+         <<" parameters: "<<pset;
+  return result.str();
 }
-void printEventSetupHistory(const HistoryNode& iNode, const ParameterSetMap& iPSM, ostream& oErrorLog)
+
+void HistoryNode::printEventSetupHistory(const ParameterSetMap& iPSM, ostream& oErrorLog) const
 {
-  for (HistoryNode::const_iterator itH = iNode.begin(), e = iNode.end();
+  for (const_iterator itH = begin(), e = end();
        itH != e;
        ++itH) {
     //Get ParameterSet for process
@@ -146,24 +155,35 @@ void printEventSetupHistory(const HistoryNode& iNode, const ParameterSetMap& iPS
       oErrorLog << "No ParameterSetID for " << itH->parameterSetID() << std::endl;
     } else {
       edm::ParameterSet processConfig(itFind->second.pset_);
+      std::vector<std::string> sourceStrings, moduleStrings;
       //get the sources
       std::vector<std::string> sources = processConfig.getParameter<std::vector<std::string> >("@all_essources");
       for(std::vector<std::string>::iterator itM = sources.begin(); itM != sources.end(); ++itM) {
-        printEventSetupComponent("ESSource",
+        sourceStrings.push_back(eventSetupComponent("ESSource",
                                  *itM,
                                  processConfig,
-                                 itH->processName());
+                                 itH->processName()) );
       }
       //get the modules
       std::vector<std::string> modules = processConfig.getParameter<std::vector<std::string> >("@all_esmodules");
       for(std::vector<std::string>::iterator itM = modules.begin(); itM != modules.end(); ++itM) {
-        printEventSetupComponent("ESModule",
+        moduleStrings.push_back(eventSetupComponent("ESModule",
                                  *itM,
                                  processConfig,
-                                 itH->processName());
+                                 itH->processName()));
       }
+      if(sort_) 
+      {
+        std::sort(sourceStrings.begin(), sourceStrings.end());
+        std::sort(moduleStrings.begin(), moduleStrings.end());
+      }
+      std::copy(sourceStrings.begin(), sourceStrings.end(), 
+                std::ostream_iterator<std::string>(std::cout,"\n"));
+      std::copy(moduleStrings.begin(), moduleStrings.end(), 
+                std::ostream_iterator<std::string>(std::cout,"\n"));
+
     }
-    printEventSetupHistory(*itH, iPSM, oErrorLog);
+    itH->printEventSetupHistory(iPSM, oErrorLog);
   }
 }
 
@@ -354,7 +374,7 @@ ProvenanceDumper::dumpProcessHistory_(TTree& history)
 	}
       }
     }
-    printHistory(historyGraph_);
+    historyGraph_.printHistory();
   }
 }
 
@@ -459,7 +479,7 @@ ProvenanceDumper::work_() {
     }
   }
   std::cout <<"---------EventSetup---------"<<std::endl;
-  printEventSetupHistory( historyGraph_, psm_, errorLog_);
+  historyGraph_.printEventSetupHistory(psm_, errorLog_);
   if (errorCount_ != 0) {
     exitCode_ = 1;
   }
@@ -468,14 +488,25 @@ ProvenanceDumper::work_() {
 
 int main(int argc, char* argv[])
 {
-
-  if (argc != 2) {
-    std::cerr << argv[0] << " requires one argument, the name of the file to open.\n";
+  // will need boost::program_options someday
+  std::string fileName;
+  if(argc == 3 && std::string(argv[1]) == "--sort")
+  {
+    HistoryNode::sort_ = true;
+    fileName = argv[2];
+  }
+  else if (argc == 2)
+  {
+     fileName = argv[1];
+  }
+  else
+  {
+    std::cerr << "Usage: " << argv[0] << " [--sort] <filename> \n";
     return 2;
   }
 
   ROOT::Cintex::Cintex::Enable();
-  ProvenanceDumper dumper(argv[1]);
+  ProvenanceDumper dumper(fileName.c_str());
   int exitCode(0);
   try 
     {
