@@ -386,7 +386,7 @@ void HLTBtagLifetimeAnalyzer::analyze(const edm::Event & event, const edm::Event
 void HLTBtagLifetimeAnalyzer::endJob()
 {
   // print event rates
-  edm::LogVerbatim("HLTBtagAnalyzer") << "HLT Trigger path" << m_triggerPath;
+  edm::LogVerbatim("HLTBtagAnalyzer") << "HLT Trigger path: " << m_triggerPath;
   {
     std::stringstream out;
     out << std::left << std::setw(32) << m_triggerPath << ": " 
