@@ -88,12 +88,12 @@ if options.howto != False:
     You can compare pythia to all herwig samples available by typing -a.  Otherwise it only\n\
     compares to the version of the current environment.  A sample command line would be:   \n\
     \n\
-    ./Client --process=MinBias --run=pythia6 --compare=opposite -a \n\
+    ./Client --process=HZZ --run=pythia6 --compare=opposite -a \n\
     \n\
-    This would run any pythia (--run=pythia6) MinBias (--process=MinBias) cfg files in the  \n\
-    GeneratorValidation/test directory and then run any non-pythia6 (--compare=opposite) MinBias\n\
+    This would run any pythia (--run=pythia6) HZZ (--process=HZZ) cfg files in the  \n\
+    GeneratorValidation/test directory and then run any non-pythia6 (--compare=opposite) HZZ\n\
     cfg files.  It would compare the two. It will also compare the newest pythia release to\n\
-    ALL(-a) of the non-pythia6 MinBias samples kept in the data directory. If you were to change\n\
+    ALL(-a) of the non-pythia6 HZZ samples kept in the data directory. If you were to change\n\
     compare to pythia, it would then compare the current version of pythia to any that you \n\
     have in the data directory.  If you change compare to all, it compare to non-pythia \n\
     and all pythia releases available.  \n\
