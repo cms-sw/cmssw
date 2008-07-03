@@ -185,11 +185,11 @@ void HcalDigiProducer::checkGeometry(const edm::EventSetup & eventSetup) {
   theHFResponse->setGeometry(&*geometry);
   theZDCResponse->setGeometry(&*geometry);
 
-  vector<DetId> hbCells =  geometry->getValidDetIds(DetId::Hcal, HcalBarrel);
-  vector<DetId> heCells =  geometry->getValidDetIds(DetId::Hcal, HcalEndcap);
-  vector<DetId> hoCells =  geometry->getValidDetIds(DetId::Hcal, HcalOuter);
-  vector<DetId> hfCells =  geometry->getValidDetIds(DetId::Hcal, HcalForward);
-  vector<DetId> zdcCells = geometry->getValidDetIds(DetId::Calo, HcalZDCDetId::SubdetectorId);
+  const vector<DetId>& hbCells =  geometry->getValidDetIds(DetId::Hcal, HcalBarrel);
+  const vector<DetId>& heCells =  geometry->getValidDetIds(DetId::Hcal, HcalEndcap);
+  const vector<DetId>& hoCells =  geometry->getValidDetIds(DetId::Hcal, HcalOuter);
+  const vector<DetId>& hfCells =  geometry->getValidDetIds(DetId::Hcal, HcalForward);
+  const vector<DetId>& zdcCells = geometry->getValidDetIds(DetId::Calo, HcalZDCDetId::SubdetectorId);
 
   //std::cout<<"HcalDigiProducer::CheckGeometry number of cells: "<<zdcCells.size()<<std::endl;
   if(zdcCells.size()==0) doZDC = false;
