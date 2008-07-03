@@ -6,6 +6,10 @@ MuonTrackingRegionCommon = cms.PSet(
         # you are changing the parametrization
         EtaR_UpperLimit_Par1 = cms.double(0.25),
         Eta_fixed = cms.double(0.2),
+        # -1. : nothing is made on demand
+        # 0.0 : strip only are made on demand
+        # 1.0 : strip and pixel are made on demand
+        OnDemand = cms.double(-1.0),
         beamSpot = cms.InputTag("offlineBeamSpot"),
         Rescale_Dz = cms.double(3.0), ## Delta Z from tracker
 
@@ -32,10 +36,7 @@ MuonTrackingRegionCommon = cms.PSet(
 
         UseVertex = cms.bool(False) ## use reconstructed vertex instead of beamspot
 
-        ## -1. : nothing is made on demand
-        ## 0.0 : strip only are made on demand
-        ## 1.0 : strip and pixel are made on demand
-        OnDemand = cms.double(-1.0)
     )
 )
+
 
