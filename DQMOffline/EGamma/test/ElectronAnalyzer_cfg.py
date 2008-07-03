@@ -26,7 +26,7 @@ process.source = cms.Source("PoolSource",
 )
 
 
-mergedSuperCluster = cms.EDFilter("SuperClusterMerger",
+process.mergedSuperCluster = cms.EDFilter("SuperClusterMerger",
     src = cms.VInputTag(cms.InputTag("correctedHybridSuperClusters"), cms.InputTag("correctedMulti5x5SuperClustersWithPreshower"))
 )
 
