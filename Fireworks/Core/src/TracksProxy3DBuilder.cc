@@ -14,7 +14,7 @@
 //
 // Original Author:  
 //         Created:  Thu Dec  6 18:01:21 PST 2007
-// $Id: TracksProxy3DBuilder.cc,v 1.7 2008/06/09 19:54:03 chrjones Exp $
+// $Id: TracksProxy3DBuilder.cc,v 1.8 2008/07/02 22:47:25 dmytro Exp $
 //
 
 // system include files
@@ -91,7 +91,7 @@ void TracksProxy3DBuilder::build(const FWEventItem* iItem, TEveElementList** pro
       t.fSign = it->charge();
       TEveTrack* trk = new TEveTrack(&t,rnrStyle);
       char s[1024];
-      sprintf(s,"Track-%d, Pt: %0.1f GeV",index,it->pt());
+      sprintf(s,"Track %d, Pt: %0.1f GeV",index,it->pt());
       trk->SetTitle(s);
       trk->SetMainColor(iItem->defaultDisplayProperties().color());
       gEve->AddElement(trk,tlist);

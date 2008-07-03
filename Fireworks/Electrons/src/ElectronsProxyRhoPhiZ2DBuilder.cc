@@ -8,7 +8,7 @@
 //
 // Original Author:  
 //         Created:  Sun Jan  6 23:57:00 EST 2008
-// $Id: ElectronsProxyRhoPhiZ2DBuilder.cc,v 1.8 2008/06/10 22:31:08 chrjones Exp $
+// $Id: ElectronsProxyRhoPhiZ2DBuilder.cc,v 1.9 2008/07/01 04:12:40 chrjones Exp $
 //
 
 // system include files
@@ -91,7 +91,9 @@ ElectronsProxyRhoPhiZ2DBuilder::buildRhoPhi(const FWEventItem* iItem,
      // loop over electrons
      for (reco::GsfElectronCollection::const_iterator electron = electrons->begin();
 	  electron != electrons->end(); ++electron,++counter) {
-	TEveCompound* container = new TEveCompound( counter.str().c_str() );
+	char title[1024];
+	sprintf(title,"Electron %d, Pt: %0.1f GeV",counter.index(), electron->pt());
+	TEveCompound* container = new TEveCompound( counter.str().c_str(), title );
         container->OpenCompound();
         //guarantees that CloseCompound will be called no matter what happens
         boost::shared_ptr<TEveCompound> sentry(container,boost::mem_fn(&TEveCompound::CloseCompound));

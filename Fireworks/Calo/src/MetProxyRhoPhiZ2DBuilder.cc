@@ -8,7 +8,7 @@
 //
 // Original Author:  
 //         Created:  Sun Jan  6 23:57:00 EST 2008
-// $Id: MetProxyRhoPhiZ2DBuilder.cc,v 1.6 2008/02/29 21:14:11 chrjones Exp $
+// $Id: MetProxyRhoPhiZ2DBuilder.cc,v 1.1 2008/06/24 07:42:16 dmytro Exp $
 //
 
 // system include files
@@ -23,6 +23,7 @@
 #include "TROOT.h"
 #include "TEvePointSet.h"
 #include "TEveScalableStraightLineSet.h"
+#include "TEveCompound.h"
 
 // user include files
 #include "Fireworks/Calo/interface/MetProxyRhoPhiZ2DBuilder.h"
@@ -90,7 +91,9 @@ MetProxyRhoPhiZ2DBuilder::buildRhoPhi(const FWEventItem* iItem,
    fw::NamedCounter counter("met");
 
    for(unsigned int i = 0; i < mets->size(); ++i, ++counter) {
-      TEveElementList* container = new TEveElementList( counter.str().c_str() );
+      char title[1024]; 
+      sprintf(title,"MET: %0.1f GeV",mets->at(i).et());
+      TEveCompound* container = new TEveCompound( counter.str().c_str(), title );
       double phi = mets->at(i).phi();
       double min_phi = phi-M_PI/36/2;
       double max_phi = phi+M_PI/36/2;
@@ -144,7 +147,9 @@ MetProxyRhoPhiZ2DBuilder::buildRhoZ(const FWEventItem* iItem,
    fw::NamedCounter counter("met");
 
    for(unsigned int i = 0; i < mets->size(); ++i, ++counter) {
-      TEveElementList* container = new TEveElementList( counter.str().c_str() );
+      char title[1024]; 
+      sprintf(title,"MET: %0.1f GeV",mets->at(i).et());
+      TEveCompound* container = new TEveCompound( counter.str().c_str(), title );
 
       double phi = mets->at(i).phi();
       double size = mets->at(i).et();

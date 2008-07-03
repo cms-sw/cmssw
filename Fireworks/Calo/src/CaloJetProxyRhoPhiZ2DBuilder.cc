@@ -8,7 +8,7 @@
 //
 // Original Author:  
 //         Created:  Sun Jan  6 23:57:00 EST 2008
-// $Id: CaloJetProxyRhoPhiZ2DBuilder.cc,v 1.12 2008/06/24 07:42:16 dmytro Exp $
+// $Id: CaloJetProxyRhoPhiZ2DBuilder.cc,v 1.13 2008/07/02 22:47:25 dmytro Exp $
 //
 
 // system include files
@@ -98,7 +98,7 @@ CaloJetProxyRhoPhiZ2DBuilder::buildRhoPhi(const FWEventItem* iItem,
    for(reco::CaloJetCollection::const_iterator jet = jets->begin(); 
        jet != jets->end(); ++jet, ++counter) {
       char title[1024]; 
-      sprintf(title,"Jet-%d, Et: %0.1f GeV",counter.index(),jet->et());
+      sprintf(title,"Jet %d, Et: %0.1f GeV",counter.index(),jet->et());
       TEveCompound* container = new TEveCompound( counter.str().c_str(), title );
       container->OpenCompound();
       //guarantees that CloseCompound will be called no matter what happens
@@ -169,7 +169,7 @@ CaloJetProxyRhoPhiZ2DBuilder::buildRhoZ(const FWEventItem* iItem,
    for(reco::CaloJetCollection::const_iterator jet = jets->begin(); 
        jet != jets->end(); ++jet, ++counter) {
       char title[1024]; 
-      sprintf(title,"Jet-%d, Et: %0.1f GeV", counter.index(), jet->et());
+      sprintf(title,"Jet %d, Et: %0.1f GeV", counter.index(), jet->et());
       TEveCompound* container = new TEveCompound( counter.str().c_str(), title );
       container->OpenCompound();
       //guarantees that CloseCompound will be called no matter what happens

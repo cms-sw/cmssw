@@ -103,7 +103,9 @@ void MuonsProxyRhoPhiZ2DBuilder::build(const FWEventItem* iItem,
 	s << "muon" << index;
         //in order to keep muonList having the same number of elements as 'muons' we will always
         // create a list even if it will get no children
-	TEveCompound* muonList = new TEveCompound(s.str().c_str());
+	char title[1024];
+	sprintf(title,"Muon %d, Pt: %0.1f GeV",index,muon->pt());
+	TEveCompound* muonList = new TEveCompound(s.str().c_str(), title);
         muonList->OpenCompound();
         //guarantees that CloseCompound will be called no matter what happens
         boost::shared_ptr<TEveCompound> sentry(muonList,boost::mem_fn(&TEveCompound::CloseCompound));

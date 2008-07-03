@@ -8,7 +8,7 @@
 //
 // Original Author:  
 //         Created:  Sun Jan  6 23:57:00 EST 2008
-// $Id: CaloJetGlimpseProxyBuilder.cc,v 1.4 2008/06/27 00:58:34 dmytro Exp $
+// $Id: CaloJetGlimpseProxyBuilder.cc,v 1.5 2008/06/28 22:15:54 dmytro Exp $
 //
 
 // system include files
@@ -92,7 +92,9 @@ CaloJetGlimpseProxyBuilder::build(const FWEventItem* iItem, TEveElementList** pr
 
    for(reco::CaloJetCollection::const_iterator jet = jets->begin(); 
        jet != jets->end(); ++jet, ++counter) {
-      TEveBoxSet* cone = new TEveBoxSet(counter.str().c_str());
+      char title[1024]; 
+      sprintf(title,"Jet %d, Et: %0.1f GeV",counter.index(),jet->et());
+      TEveBoxSet* cone = new TEveBoxSet(counter.str().c_str(),title);
       cone->SetPickable(kTRUE);
       cone->Reset(TEveBoxSet::kBT_EllipticCone, kTRUE, 64);
       double height = jet->et()*FWGlimpseView::getScale();

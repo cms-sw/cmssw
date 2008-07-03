@@ -8,7 +8,7 @@
 //
 // Original Author:  
 //         Created:  Sun Jan  6 23:57:00 EST 2008
-// $Id: MuonsGlimpseProxyBuilder.cc,v 1.2 2008/06/27 00:59:17 dmytro Exp $
+// $Id: MuonsGlimpseProxyBuilder.cc,v 1.3 2008/06/28 22:15:54 dmytro Exp $
 //
 
 // system include files
@@ -79,8 +79,9 @@ MuonsGlimpseProxyBuilder::build(const FWEventItem* iItem, TEveElementList** prod
 
    for(reco::MuonCollection::const_iterator muon = muons->begin(); 
        muon != muons->end(); ++muon, ++counter) {
-
-      TEveStraightLineSet* marker = new TEveStraightLineSet(counter.str().c_str());
+      char title[1024];
+      sprintf(title,"Muon %d, Pt: %0.1f GeV",counter.index(),muon->pt());
+      TEveStraightLineSet* marker = new TEveStraightLineSet(counter.str().c_str(),title);
       marker->SetLineWidth(2);
       marker->SetLineColor(  iItem->defaultDisplayProperties().color() );
       fw::addStraightLineSegment( marker, &*muon, FWGlimpseView::getScale() );
