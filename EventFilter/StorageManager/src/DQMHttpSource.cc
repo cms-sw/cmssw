@@ -2,7 +2,7 @@
  *  An input source for DQM consumers run in cmsRun that connect to
  *  the StorageManager or SMProxyServer to get DQM data.
  *
- *  $Id: DQMHttpSource.cc,v 1.11 2008/03/04 17:12:38 hcheung Exp $
+ *  $Id: DQMHttpSource.cc,v 1.12 2008/06/03 17:04:44 biery Exp $
  */
 
 #include "EventFilter/StorageManager/src/DQMHttpSource.h"
@@ -71,11 +71,6 @@ namespace edm
     registerWithDQMEventServer();
     // when running Async it seems bei_ is not NULL at the start after default ctor
     bei_ = NULL;
-
-    // 30-May-2008, KAB - fake the run number and lumi block until we find
-    // a reasonable way to set them
-    setRunNumber(999);
-    setLuminosityBlockNumber_t(1);
   }
 
 
@@ -313,7 +308,7 @@ namespace edm
 
     // make a fake event containing no data but the evId and runId from DQMEvent
     // and the time stamp from the event at update
-    std::auto_ptr<Event> e = makeEvent(eventId,timeStamp);
+    std::auto_ptr<Event> e = makeEvent(iRun,iLumi,iEvent,timeStamp);
 
     return e;
   }
