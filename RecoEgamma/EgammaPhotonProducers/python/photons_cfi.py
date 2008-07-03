@@ -2,7 +2,7 @@ import FWCore.ParameterSet.Config as cms
 
 #
 # producer for photons
-# $Id: photons_cfi.py,v 1.12 2008/06/20 10:28:52 nancy Exp $
+# $Id: photons_cfi.py,v 1.8 2008/06/04 19:25:32 rpw Exp $
 #
 photons = cms.EDProducer("PhotonProducer",
     scHybridBarrelProducer = cms.InputTag("correctedHybridSuperClusters"),
@@ -20,29 +20,18 @@ photons = cms.EDProducer("PhotonProducer",
     pixelSeedProducer = cms.string('electronPixelSeeds'),
     hbheInstance = cms.string(''),
     posCalc_t0_endc = cms.double(6.3),
+    # Old endcap clustering
+    #    string scIslandEndcapProducer   =     "correctedEndcapSuperClustersWithPreshower"
+    #    string scIslandEndcapCollection =     ""
     barrelEcalHits = cms.InputTag("ecalRecHit","EcalRecHitsEB"),
     hbheModule = cms.string('hbhereco'),
     endcapEcalHits = cms.InputTag("ecalRecHit","EcalRecHitsEE"),
-    minSCEt = cms.double(10.0),
+    minSCEt = cms.double(5.0),
     maxHOverE = cms.double(999.),
     hOverEConeSize = cms.double(0.1),
     posCalc_x0 = cms.double(0.89),
     MVA_weights_location = cms.string('RecoEgamma/EgammaTools/data/TMVAnalysis_Likelihood.weights.txt'),
-    posCalc_t0_barl = cms.double(7.7),
-    minEtRecHitBarrel = cms.double(0.),
-    ecalIsolInnRBarrel = cms.double(0.045),
-    ecalIsolExtRBarrel = cms.double(0.4),
-    ecalIsolEtaStripBarrel = cms.double(0.02),
-#    isolEtCutBarrel = cms.double(12.),
-    isolEtCutBarrel = cms.double(99999.),
-    minEtRecHitEndcap = cms.double(0.),
-    ecalIsolInnREndcap = cms.double(0.07),
-    ecalIsolExtREndcap = cms.double(0.4),
-    ecalIsolEtaStripEndcap = cms.double(0.02),
-#    isolEtCutEndcap = cms.double(9.)
-    isolEtCutEndcap = cms.double(99999.)
-                          
-   
+    posCalc_t0_barl = cms.double(7.7)
 )
 
 
