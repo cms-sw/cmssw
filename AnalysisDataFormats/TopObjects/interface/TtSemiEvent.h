@@ -18,7 +18,7 @@
 #include "AnalysisDataFormats/TopObjects/interface/TtGenEvent.h"
 
 #include "DataFormats/Candidate/interface/CandidateWithRef.h"
-#include "DataFormats/Candidate/interface/NamedCompositeCandidate.h"
+#include "DataFormats/Candidate/interface/CompositeCandidate.h"
 
 namespace TtSemiDaughter{
   // semileptonic daughter names
@@ -51,7 +51,7 @@ class TtSemiEvent {
   Decay decay() const { return decay_;}
 
   // access objects according to corresponding EventHyposes
-  const reco::NamedCompositeCandidate& eventHypo(const HypoKey& key) const { return evtHyp_.find(key)->second; };
+  const reco::CompositeCandidate& eventHypo(const HypoKey& key) const { return evtHyp_.find(key)->second; };
   const reco::Candidate* eventHypoCandidate(const HypoKey& key, const std::string& name) const { return eventHypo(key).daughter(name); };
   const reco::Candidate* hadronicTop(const HypoKey& key, const std::string& name) const { return eventHypoCandidate(key, "hadronicTop"); };
   const reco::Candidate* hadronicB  (const HypoKey& key, const std::string& name) const { return eventHypoCandidate(key, "hadronicB"  ); };
@@ -96,7 +96,7 @@ class TtSemiEvent {
   void setGenEvent(const edm::Handle<TtGenEvent>& evt) { genEvt_=edm::RefProd<TtGenEvent>(evt); };
 
   // add EventHypotheses
-  void addEventHypo(const HypoKey& key, reco::NamedCompositeCandidate hyp) { evtHyp_[key]=hyp; };
+  void addEventHypo(const HypoKey& key, reco::CompositeCandidate hyp) { evtHyp_[key]=hyp; };
   
   // set meta information
   void setGenMatch(const std::vector<int>& match) {genMatch_=match;};
@@ -110,7 +110,7 @@ class TtSemiEvent {
   // event content
   Decay decay_;
   edm::RefProd<TtGenEvent> genEvt_;
-  std::map<HypoKey, reco::NamedCompositeCandidate> evtHyp_;
+  std::map<HypoKey, reco::CompositeCandidate> evtHyp_;
   
   //meta information
   double fitChi2_;                          // result of kinematic fit

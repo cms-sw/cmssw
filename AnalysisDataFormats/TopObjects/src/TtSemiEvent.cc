@@ -2,9 +2,9 @@
 #include "AnalysisDataFormats/TopObjects/interface/TtSemiEvent.h"
 
 
-// empty constructor
+//empty constructor
 TtSemiEvent::TtSemiEvent():
-  decay_(kNone), fitChi2_(-1.), genMatchSumPt_(-1.), genMatchSumDR_(-1.)
+  decay_(kNone), fitChi2_(-1.), genMatchSumPt_(-2.), genMatchSumDR_(-3.) 
 {
 }
 
