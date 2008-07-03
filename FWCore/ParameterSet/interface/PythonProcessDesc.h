@@ -31,6 +31,7 @@ private:
   void readFile(const std::string & fileName, boost::python::object & main_namespace);
   void readString(const std::string & pyConfig, boost::python::object & main_namespace);
 
+  static bool initialized_;
   PythonParameterSet theProcessPSet;
   std::vector<PythonParameterSet> theServices;
 

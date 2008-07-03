@@ -2,7 +2,11 @@
 #include "FWCore/ParameterSet/src/PythonModule.h"
 #include "FWCore/ParameterSet/src/PythonWrapper.h"
 #include <sstream>
+#include <iostream>
+#include <boost/foreach.hpp>
 using namespace boost::python;
+
+bool PythonProcessDesc::initialized_ = false;
 
 PythonProcessDesc::PythonProcessDesc()
 :  theProcessPSet(),
@@ -15,24 +19,21 @@ PythonProcessDesc::PythonProcessDesc(const std::string & config)
 :  theProcessPSet(),
    theServices()
 {
-  // If given an argument, that argument must be the name of a file to read.
-  Py_Initialize();
   PyImport_AppendInittab( "libFWCoreParameterSet", &initlibFWCoreParameterSet );
-
+  Py_Initialize();
+  if(!initialized_)
+  {
+    PyImport_ImportModule("libFWCoreParameterSet");
+    initialized_ = true;
+  }
 
   object main_module((
     handle<>(borrowed(PyImport_AddModule("__main__")))));
 
   object main_namespace = main_module.attr("__dict__");
+  main_namespace["processDesc"] = ptr(this);
+  main_namespace["processPSet"] = ptr(&theProcessPSet);
 
-  // load the library
-  object libModule( (handle<>(PyImport_ImportModule("libFWCoreParameterSet"))) );
-  // put it in the main namespace
-  main_namespace["libFWCoreParameterSet"] = libModule;
-
-  // make an instance in python-land
-  scope(libModule).attr("processDesc") = ptr(this);
-  scope(libModule).attr("processPSet") = ptr(&theProcessPSet);
   try {
     // if it ends with py, it's a file
     if(config.substr(config.size()-3) == ".py")
@@ -48,7 +49,6 @@ PythonProcessDesc::PythonProcessDesc(const std::string & config)
      edm::pythonToCppException("Configuration");
      Py_Finalize();
   }
-
   Py_Finalize();
 }
 
@@ -56,16 +56,15 @@ PythonProcessDesc::PythonProcessDesc(const std::string & config)
 void PythonProcessDesc::readFile(const std::string & fileName, object & main_namespace)
 {
   std::string initCommand("import FWCore.ParameterSet.Config as cms\n"
-                      "fileDict = dict()\n"
                       "execfile('");
-  initCommand += fileName + "',fileDict)";
+  initCommand += fileName + "')";
 
 
   handle<>(PyRun_String(initCommand.c_str(),
                         Py_file_input,
                         main_namespace.ptr(),
                         main_namespace.ptr()));
-  std::string command("cms.findProcess(fileDict).fillProcessDesc(libFWCoreParameterSet.processDesc, libFWCoreParameterSet.processPSet)");
+  std::string command("process.fillProcessDesc(processDesc, processPSet)");
   handle<>(PyRun_String(command.c_str(),
                         Py_eval_input,
                         main_namespace.ptr(),
@@ -76,7 +75,7 @@ void PythonProcessDesc::readFile(const std::string & fileName, object & main_nam
 void PythonProcessDesc::readString(const std::string & pyConfig, object & main_namespace)
 {
   std::string command = pyConfig;
-  command += "\nprocess.fillProcessDesc(libFWCoreParameterSet.processDesc, libFWCoreParameterSet.processPSet)";
+  command += "\nprocess.fillProcessDesc(processDesc, processPSet)";
   handle<>(PyRun_String(command.c_str(),
                         Py_file_input,
                         main_namespace.ptr(),
@@ -87,10 +86,9 @@ void PythonProcessDesc::readString(const std::string & pyConfig, object & main_n
 boost::shared_ptr<edm::ProcessDesc> PythonProcessDesc::processDesc() const
 {
   boost::shared_ptr<edm::ProcessDesc> result(new edm::ProcessDesc(theProcessPSet.pset()));
-  for(std::vector<PythonParameterSet>::const_iterator serviceItr = theServices.begin();
-      serviceItr != theServices.end(); ++serviceItr)
+  BOOST_FOREACH(PythonParameterSet service, theServices)
   {
-    result->addService(serviceItr->pset());
+    result->addService(service.pset());
   }
   return result;
 }
@@ -100,10 +98,9 @@ std::string PythonProcessDesc::dump() const
 {
   std::ostringstream os;
   os << theProcessPSet.dump();
-  for(std::vector<PythonParameterSet>::const_iterator serviceItr = theServices.begin();
-      serviceItr != theServices.end(); ++serviceItr)
+  BOOST_FOREACH(PythonParameterSet service, theServices)
   {
-    os << serviceItr->dump();
+    os << service.dump();
   }
   return os.str();
 }
