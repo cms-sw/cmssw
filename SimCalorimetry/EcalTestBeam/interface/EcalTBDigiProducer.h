@@ -70,7 +70,6 @@ private:
   EcalCoder * theCoder;
 
   const CaloGeometry * theGeometry;
-  std::vector<DetId> theBarrelDets;
 
   const EcalTrigTowerConstituentsMap * theTTmap;
 

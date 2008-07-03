@@ -252,9 +252,7 @@ void EcalTBDigiProducer::checkGeometry(const edm::EventSetup & eventSetup)
 void EcalTBDigiProducer::updateGeometry() {
   theEcalResponse->setGeometry(theGeometry);
 
-  theBarrelDets.clear();
-
-  theBarrelDets =  theGeometry->getValidDetIds(DetId::Ecal, EcalBarrel);
+  const std::vector<DetId>& theBarrelDets =  theGeometry->getValidDetIds(DetId::Ecal, EcalBarrel);
 
   edm::LogInfo("EcalDigi") << "deb geometry: " << "\n" 
                        << "\t barrel: " << theBarrelDets.size ();
