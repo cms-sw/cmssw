@@ -114,6 +114,7 @@ private:
   int counterEvt_;      ///counter
   int prescaleEvt_;     ///every n events 
   bool disable_;        ///disable
+
   bool verbose_;          
   unsigned  nTriggeredTaus_;
   double EtMin_;
@@ -135,15 +136,31 @@ private:
   edm::InputTag l2Filter_;
   edm::InputTag l25Filter_;
   edm::InputTag l3Filter_;
+<<<<<<< HLTTauDQMSource.h
+
+  std::string mainPath_;
+  std::string l1BackupPath_;
+  std::string l2BackupPath_;
+  std::string l25BackupPath_;
+  std::string l3BackupPath_;
+  std::vector<int> prescales_;
+=======
   edm::InputTag mainPath_;
   edm::InputTag l1BackupPath_;
   edm::InputTag l2BackupPath_;
   edm::InputTag l25BackupPath_;
   edm::InputTag l3BackupPath_;
+>>>>>>> 1.5
 
 
   //Correlations with other Triggers
+<<<<<<< HLTTauDQMSource.h
+  std::vector<std::string> refFilters_;
+  std::vector<int> ref_prescales_;
+
+=======
   std::vector<edm::InputTag> refFilters_;
+>>>>>>> 1.5
   //  std::vector<int> refIDs_;
   std::vector<double> PtCut_;
   std::vector<std::string> refFilterDesc_;
