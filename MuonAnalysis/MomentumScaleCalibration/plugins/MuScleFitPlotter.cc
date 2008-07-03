@@ -1,7 +1,7 @@
 //  \class MuScleFitPlotter
 //  Plotter for simulated,generated and reco info of muons
 //
-//  $Date: 2008/06/20 15:15:59 $
+//  $Date: 2008/07/03 10:39:22 $
 //  $Revision: 1.1 $
 //  \author  C.Mariotti, S.Bolognesi - INFN Torino / T.Dorigo, M.De Mattia - INFN Padova
 //
@@ -171,10 +171,10 @@ void MuScleFitPlotter::fillGen2(Handle<HepMCProduct> evtMC){
    
     // Plots for the best possible simulated resonance
      pair<SimTrack,SimTrack> simMuFromBestRes = MuScleFitUtils::findBestSimuRes(simMuons);
-     HepLorentzVector bestSimZ = (simMuFromBestRes.first).momentum()+(simMuFromBestRes.second).momentum();
+     reco::Particle::LorentzVector bestSimZ = (simMuFromBestRes.first).momentum()+(simMuFromBestRes.second).momentum();
      mapHisto["hSimBestRes"]->Fill(bestSimZ);
      if (fabs(simMuFromBestRes.first.momentum().eta())<2.5 && fabs(simMuFromBestRes.second.momentum().eta())<2.5 &&
-	 simMuFromBestRes.first.momentum().perp()>2.5 && simMuFromBestRes.second.momentum().perp()>2.5) {
+	 simMuFromBestRes.first.momentum().pt()>2.5 && simMuFromBestRes.second.momentum().pt()>2.5) {
        mapHisto["hSimBestRes_Acc"]->Fill(bestSimZ);
        mapHisto["hSimBestResVSMu"]->Fill (simMuFromBestRes.first.momentum(), bestSimZ, simMuFromBestRes.first.charge());
        mapHisto["hSimBestResVSMu"]->Fill (simMuFromBestRes.second.momentum(),bestSimZ, simMuFromBestRes.second.charge());
