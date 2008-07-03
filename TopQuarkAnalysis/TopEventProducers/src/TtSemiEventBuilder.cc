@@ -2,22 +2,25 @@
 #include "TopQuarkAnalysis/TopEventProducers/interface/TtSemiEventBuilder.h"
 
 
-TtSemiEventBuilder::TtSemiEventBuilder(const edm::ParameterSet& cfg):
+TtSemiEventBuilder::TtSemiEventBuilder(const edm::ParameterSet& cfg) :
   hyps_    (cfg.getParameter<std::vector<edm::InputTag> >("hyps")),
   keys_    (cfg.getParameter<std::vector<edm::InputTag> >("keys")),
   decay_   (cfg.getParameter<int>("decay")),
-  genEvt_  (cfg.getParameter<edm::InputTag>("genEvent")),
-  genMatch_(cfg.getParameter<edm::ParameterSet>("genMatch")),
-  mvaDisc_ (cfg.getParameter<edm::ParameterSet>("mvaDisc"))
+  genEvt_  (cfg.getParameter<edm::InputTag>("genEvent"))
 {
   // get parameter subsets for genMatch
-  match_=genMatch_.getParameter<edm::InputTag>("match");
-  sumPt_=genMatch_.getParameter<edm::InputTag>("sumPt");
-  sumDR_=genMatch_.getParameter<edm::InputTag>("sumDR");
+  if( cfg.exists("genMatch") ) {
+    genMatch_= cfg.getParameter<edm::ParameterSet>("genMatch");
+    match_=genMatch_.getParameter<edm::InputTag>("match");
+    sumPt_=genMatch_.getParameter<edm::InputTag>("sumPt");
+    sumDR_=genMatch_.getParameter<edm::InputTag>("sumDR");
+  }
   // get parameter subsets for mvaDisc
-  meth_=mvaDisc_.getParameter<edm::InputTag>("meth");
-  disc_=mvaDisc_.getParameter<edm::InputTag>("disc");
-
+  if( cfg.exists("mvaDisc") ) {
+    mvaDisc_= cfg.getParameter<edm::ParameterSet>("mvaDisc");
+    meth_=mvaDisc_.getParameter<edm::InputTag>("meth");
+    disc_=mvaDisc_.getParameter<edm::InputTag>("disc");
+  }
   // produces an TtSemiEvent from hypothesis
   // and associated extra information
   produces<TtSemiEvent>();
@@ -31,7 +34,7 @@ void
 TtSemiEventBuilder::produce(edm::Event& evt, const edm::EventSetup& setup)
 {
   TtSemiEvent event;
-  
+
   // set decay
   event.setDecay((TtSemiEvent::Decay&)decay_);
 
@@ -46,7 +49,7 @@ TtSemiEventBuilder::produce(edm::Event& evt, const edm::EventSetup& setup)
     edm::Handle<int> key; 
     evt.getByLabel(*k, key);
 
-    edm::Handle<reco::NamedCompositeCandidate> hyp; 
+    edm::Handle<reco::CompositeCandidate> hyp; 
     evt.getByLabel(*h, hyp);
 
     event.addEventHypo((TtSemiEvent::HypoKey&)*key, *hyp);
@@ -68,6 +71,7 @@ TtSemiEventBuilder::produce(edm::Event& evt, const edm::EventSetup& setup)
   // set mvaDisc extras
   edm::Handle<std::string> meth;
   evt.getByLabel(meth_, meth);
+
   edm::Handle<double> disc;
   evt.getByLabel(disc_, disc);
   event.setMvaDiscAndMethod((std::string&)*meth, *disc);

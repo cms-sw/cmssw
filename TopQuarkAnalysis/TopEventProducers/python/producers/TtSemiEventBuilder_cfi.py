@@ -11,17 +11,19 @@ ttSemiEvent = cms.EDProducer("TtSemiEventBuilder",
                            # 3: tau
 
     ## add genEvt (if available)
-    genEvent = cms.InputTag("genEvt")
+    genEvent = cms.InputTag("genEvt"),
                              
     ## considered event hypotheses                             
     hyps = cms.VInputTag(cms.InputTag("ttSemiHypothesisMaxSumPtWMass"),
                          cms.InputTag("ttSemiHypothesisGenMatch"),
-                         cms.InputTag("ttSemiHypothesisMVADisc")),
+                         cms.InputTag("ttSemiHypothesisMVADisc")
+                         ),
 
     ## event hypotheses' keys for mapping
     keys = cms.VInputTag(cms.InputTag("ttSemiHypothesisMaxSumPtWMass","Key"),
                          cms.InputTag("ttSemiHypothesisGenMatch","Key"),
-                         cms.InputTag("ttSemiHypothesisMVADisc","Key")),
+                         cms.InputTag("ttSemiHypothesisMVADisc","Key")
+                         ),
 
     ## add extra information on genMatch
     genMatch = cms.PSet(

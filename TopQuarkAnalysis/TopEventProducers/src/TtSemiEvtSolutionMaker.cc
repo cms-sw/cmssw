@@ -1,5 +1,5 @@
 //
-// $Id: TtSemiEvtSolutionMaker.cc,v 1.35 2008/04/14 22:35:41 rwolf Exp $
+// $Id: TtSemiEvtSolutionMaker.cc,v 1.36 2008/04/24 20:08:26 rwolf Exp $
 //
 
 #include "TopQuarkAnalysis/TopEventProducers/interface/TtSemiEvtSolutionMaker.h"
@@ -113,7 +113,6 @@ void TtSemiEvtSolutionMaker::produce(edm::Event & iEvent, const edm::EventSetup 
   //
   // Build Event solutions according to the ambiguity in the jet combination
   //
-  std::cout << "Build Event solutions according to the ambiguity in the jet combination" << std::endl;
   std::vector<TtSemiEvtSolution> * evtsols = new std::vector<TtSemiEvtSolution>();
   if(leptonFound && metFound && jetsFound){
     // protect against reading beyond array boundaries
