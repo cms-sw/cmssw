@@ -8,7 +8,7 @@ DQMStore = cms.Service("DQMStore")
 
 
 process.maxEvents = cms.untracked.PSet(
-    input = cms.untracked.int32(100)
+    input = cms.untracked.int32(5000)
 )
 
 
@@ -23,7 +23,7 @@ process.source = cms.Source("PoolSource",
 
 process.FEVT = cms.OutputModule("PoolOutputModule",
     outputCommands = cms.untracked.vstring("keep *_MEtoEDMConverter_*_*"),
-    fileName = cms.untracked.string('pippo.root')
+    fileName = cms.untracked.string('photonsMEtoEDMConverter.root')
 )
 
 process.p1 = cms.Path(process.photonAnalysis)
