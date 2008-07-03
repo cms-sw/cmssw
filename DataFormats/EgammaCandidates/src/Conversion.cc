@@ -121,16 +121,19 @@ GlobalVector  Conversion::pairMomentum() const  {
 
 double  Conversion::EoverP() const  {
 
+
   double ep=-99.;
 
   if ( nTracks() > 0  ) {
     unsigned int size= this->caloCluster().size();
     float etot=0.;
     for ( unsigned int i=0; i<size; i++) {
-      etot+= caloCluster()[0]->energy();
+      etot+= caloCluster()[i]->energy();
     }
     ep= etot/this->pairMomentum().mag();
   }
+
+  std::cout << " Conversion::EoverP() " << ep << std::endl;
 
   return ep;  
 
