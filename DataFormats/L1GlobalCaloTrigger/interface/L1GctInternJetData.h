@@ -79,9 +79,6 @@ public:
   /// region associated with the candidate
   L1CaloRegionDetId regionId() const { return regionId_; }
 
-  /// name of object
-  std::string name() const;
-
   /// was an object really found?
   bool empty() const { return (data_ != 0); }
 
