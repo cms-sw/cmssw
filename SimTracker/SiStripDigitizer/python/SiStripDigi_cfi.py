@@ -67,7 +67,8 @@ simSiStripDigis = cms.EDFilter("SiStripDigitizer",
     ChargeDistributionRMS = cms.double(6.5e-10),
     CosmicDelayShift = cms.untracked.double(0.0),
     ChargeMobility = cms.double(480.0),
-    LorentzAngle = cms.string('fake')
+    LorentzAngle = cms.string('fake'),
+    Gain = cms.string('fake')
 )
 
 
