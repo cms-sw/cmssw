@@ -53,14 +53,6 @@ const unsigned short EEDetId::kdi[] = {
  7204, 7219, 7234, 7249, 7264, 7274, 7284, 7294, 7304, 7314
 } ;
 
-int 
-EEDetId::hashedIndex() const 
-{
-   const uint32_t jx ( ix() ) ;
-   const uint32_t jd ( 2*( iy() - 1 ) + ( jx - 1 )/50 ) ;
-   return (  ( zside()<0 ? 0 : kEEhalf ) + kdi[jd] + jx - kxf[jd] ) ;
-}
-
 EEDetId::EEDetId( int index1, int index2, int iz, int mode ) : DetId( Ecal, EcalEndcap ) 
 {
    int crystal_ix=0;

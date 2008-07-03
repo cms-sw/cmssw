@@ -10,7 +10,7 @@
  *  Crystal/cell identifier class for the ECAL endcap
  *
  *
- *  $Id: EEDetId.h,v 1.16 2008/03/26 15:33:55 heltsley Exp $
+ *  $Id: EEDetId.h,v 1.17 2008/06/25 22:11:14 heltsley Exp $
  */
 
 
@@ -53,7 +53,12 @@ class EEDetId : public DetId {
       static EEDetId idOuterRing( int iPhi , int zEnd ) ;
 
       /// get a compact index for arrays
-      int hashedIndex() const ;
+      int hashedIndex() const 
+      {
+	 const uint32_t jx ( ix() ) ;
+	 const uint32_t jd ( 2*( iy() - 1 ) + ( jx - 1 )/50 ) ;
+	 return (  ( zside()<0 ? 0 : kEEhalf ) + kdi[jd] + jx - kxf[jd] ) ;
+      }
 
       uint32_t denseIndex() const { return hashedIndex() ; }
 
@@ -114,6 +119,7 @@ class EEDetId : public DetId {
       int ixQuadrantOne() const;
       int iyQuadrantOne() const;
 };
+
 
 std::ostream& operator<<(std::ostream& s,const EEDetId& id);
 
