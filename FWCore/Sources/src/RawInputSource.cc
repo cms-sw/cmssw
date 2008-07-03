@@ -44,7 +44,6 @@ namespace edm {
     return boost::shared_ptr<LuminosityBlockPrincipal>(
 	new LuminosityBlockPrincipal(lumiAux,
 				     productRegistry(),
-				     runPrincipal(),
 				     processConfiguration()));
   }
 
@@ -59,7 +58,7 @@ namespace edm {
     EventAuxiliary eventAux(EventID(run, event),
       processGUID(), tstamp, lumi, true, EventAuxiliary::Data);
     ep_ = std::auto_ptr<EventPrincipal>(
-	new EventPrincipal(eventAux, productRegistry(), luminosityBlockPrincipal(), processConfiguration()));
+	new EventPrincipal(eventAux, productRegistry(), processConfiguration()));
     std::auto_ptr<Event> e(new Event(*ep_, moduleDescription()));
     return e;
   }
