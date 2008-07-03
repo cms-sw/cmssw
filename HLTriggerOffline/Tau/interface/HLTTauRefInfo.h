@@ -19,7 +19,7 @@ in Offline Trigger DQM etc
 #include <string>
 
 class HLTTauRefInfo : public edm::EDProducer {
-
+  
 public:
   explicit HLTTauRefInfo(const edm::ParameterSet&);
   ~HLTTauRefInfo();
@@ -29,20 +29,30 @@ public:
  private:
   typedef math::XYZTLorentzVectorD LorentzVector;
   typedef std::vector<LorentzVector> LorentzVectorCollection;
-
+  
   edm::InputTag PFTaus_;
   edm::InputTag PFTauDis_;
   bool doPFTaus_;
   double ptMinPFTau_;
-
+  
   edm::InputTag CaloTaus_;
   edm::InputTag CaloTauDis_;
   bool doCaloTaus_;
   double ptMinCaloTau_;
-
+  
   edm::InputTag Electrons_;
   bool doElectrons_;
+  edm::InputTag e_idAssocProd_;
+  edm::InputTag e_ctfTrackCollection_;
   double ptMinElectron_;
+  bool e_doID_;
+  bool e_doTrackIso_;
+  double e_trackMinPt_;
+  double e_lipCut_;
+  double e_minIsoDR_;
+  double e_maxIsoDR_;
+  double e_isoMaxSumPt_;
+  
 
   edm::InputTag Muons_;
   bool doMuons_;
