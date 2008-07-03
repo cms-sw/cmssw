@@ -2,8 +2,8 @@
  *
  * Class for RPC Monitoring using RPCDigi and DT and CSC Segments.
  *
- *  $Date: 2008/06/16 12:25:25 $
- *  $Revision: 1.21 $
+ *  $Date: 2008/07/02 08:18:30 $
+ *  $Revision: 1.1 $
  *
  * \author Camilo Carrillo (Uniandes)
  *
@@ -43,50 +43,50 @@ class RPCEfficiencySecond : public edm::EDAnalyzer {
   TFile * theFile;
   TFile * theFileout;
 
-  TH1F * histoRPC;
-  TH1F * histoDT;
-  TH1F * histoRPC_2D;
-  TH1F * histoDT_2D;
-  TH1F * histoeffIdRPC_DT_2D;
-  TH1F * histoeffIdRPC_DT;
-  TH1F * BXDistribution;
-  TH1F * histoRealRPC;
+  MonitorElement * histoRPC;
+  MonitorElement * histoDT;
+  MonitorElement * histoRPC_2D;
+  MonitorElement * histoDT_2D;
+  MonitorElement * histoeffIdRPC_DT_2D;
+  MonitorElement * histoeffIdRPC_DT;
+  MonitorElement * BXDistribution;
+  MonitorElement * histoRealRPC;
 
-  TH1F * EffGlobWm2;
-  TH1F * EffGlobWm1;
-  TH1F * EffGlobW0;
-  TH1F * EffGlobW1;
-  TH1F * EffGlobW2;
+  MonitorElement * EffGlobWm2;
+  MonitorElement * EffGlobWm1;
+  MonitorElement * EffGlobW0;
+  MonitorElement * EffGlobW1;
+  MonitorElement * EffGlobW2;
 
-  TH1F * EffGlobWm2far;
-  TH1F * EffGlobWm1far;
-  TH1F * EffGlobW0far;
-  TH1F * EffGlobW1far;
-  TH1F * EffGlobW2far;
+  MonitorElement * EffGlobWm2far;
+  MonitorElement * EffGlobWm1far;
+  MonitorElement * EffGlobW0far;
+  MonitorElement * EffGlobW1far;
+  MonitorElement * EffGlobW2far;
 
-  TH1F * BXGlobWm2;
-  TH1F * BXGlobWm1;
-  TH1F * BXGlobW0;
-  TH1F * BXGlobW1;
-  TH1F * BXGlobW2;
+  MonitorElement * BXGlobWm2;
+  MonitorElement * BXGlobWm1;
+  MonitorElement * BXGlobW0;
+  MonitorElement * BXGlobW1;
+  MonitorElement * BXGlobW2;
   
-  TH1F * BXGlobWm2far;
-  TH1F * BXGlobWm1far;
-  TH1F * BXGlobW0far;
-  TH1F * BXGlobW1far;
-  TH1F * BXGlobW2far;
+  MonitorElement * BXGlobWm2far;
+  MonitorElement * BXGlobWm1far;
+  MonitorElement * BXGlobW0far;
+  MonitorElement * BXGlobW1far;
+  MonitorElement * BXGlobW2far;
 
-  TH1F * MaskedGlobWm2;
-  TH1F * MaskedGlobWm1;
-  TH1F * MaskedGlobW0;
-  TH1F * MaskedGlobW1;
-  TH1F * MaskedGlobW2;
+  MonitorElement * MaskedGlobWm2;
+  MonitorElement * MaskedGlobWm1;
+  MonitorElement * MaskedGlobW0;
+  MonitorElement * MaskedGlobW1;
+  MonitorElement * MaskedGlobW2;
   
-  TH1F * MaskedGlobWm2far;
-  TH1F * MaskedGlobWm1far;
-  TH1F * MaskedGlobW0far;
-  TH1F * MaskedGlobW1far;
-  TH1F * MaskedGlobW2far;
+  MonitorElement * MaskedGlobWm2far;
+  MonitorElement * MaskedGlobWm1far;
+  MonitorElement * MaskedGlobW0far;
+  MonitorElement * MaskedGlobW1far;
+  MonitorElement * MaskedGlobW2far;
 
   TGaxis * bxAxis;
   
@@ -105,5 +105,7 @@ class RPCEfficiencySecond : public edm::EDAnalyzer {
       std::ofstream rollsPointedForASegment;
       std::ofstream rollsNotPointedForASegment;
       std::ofstream bxMeanList;
+      DQMStore * dbe;
+
 };
 
