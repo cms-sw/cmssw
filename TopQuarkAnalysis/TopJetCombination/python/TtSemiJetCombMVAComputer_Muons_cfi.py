@@ -8,5 +8,3 @@ findTtSemiJetCombMVA = cms.EDProducer("TtSemiJetCombMVAComputer",
     leptons  = cms.InputTag("selectedLayer1Muons"),
     nJetsMax = cms.int32(4)
 )
-
-

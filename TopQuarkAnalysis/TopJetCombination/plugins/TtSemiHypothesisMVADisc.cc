@@ -15,22 +15,22 @@ TtSemiHypothesisMVADisc::buildHypo(const edm::Handle<edm::View<reco::RecoCandida
   // -----------------------------------------------------
   // add jets; the order of match is Q, QBar, hadB, lepB
   // -----------------------------------------------------
-  std::vector<reco::ShallowCloneCandidate> leafs;
-  for(std::vector<int>::const_iterator idx=match->begin(); idx!=match->end(); ++idx){    
-    if( !isValid(*idx, jets) ){
-      reco::ShallowCloneCandidate buffer;
-      leafs.push_back( buffer );
-    }
-    else{
-      edm::Ref<std::vector<pat::Jet> > ref=edm::Ref<std::vector<pat::Jet> >(jets, *idx);
+  for(unsigned idx=0; idx<match->size(); ++idx){    
+    if( isValid( (*match)[idx], jets) ){
+      edm::Ref<std::vector<pat::Jet> > ref=edm::Ref<std::vector<pat::Jet> >(jets, (*match)[idx]);
       reco::ShallowCloneCandidate buffer(reco::CandidateBaseRef( ref ), ref->charge(), ref->p4(), ref->vertex());
-      leafs.push_back( buffer );
+      switch(idx){
+      case 0: 
+	lightQ_   = new reco::ShallowCloneCandidate( buffer ); break;
+      case 1: 
+	lightQBar_= new reco::ShallowCloneCandidate( buffer ); break;
+      case 2: 
+	hadronicB_= new reco::ShallowCloneCandidate( buffer ); break;
+      case 3: 
+	leptonicB_= new reco::ShallowCloneCandidate( buffer ); break;
+      }
     }
   }
-  lightQ_   = new reco::ShallowCloneCandidate( leafs[ 0 ] );
-  lightQBar_= new reco::ShallowCloneCandidate( leafs[ 1 ] );
-  hadronicB_= new reco::ShallowCloneCandidate( leafs[ 2 ] );
-  leptonicB_= new reco::ShallowCloneCandidate( leafs[ 3 ] );
 
   // -----------------------------------------------------
   // add lepton

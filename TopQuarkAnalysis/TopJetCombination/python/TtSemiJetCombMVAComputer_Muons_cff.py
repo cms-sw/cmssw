@@ -7,7 +7,5 @@ from TopQuarkAnalysis.TopJetCombination.TtSemiJetCombMVAComputer_Muons_cfi impor
 
 ## path for mva input file
 TtSemiJetCombMVAFileSource = cms.ESSource("TtSemiJetCombMVAFileSource",
-    ttSemiJetCombMVA = cms.FileInPath('TtSemiJetComb_Muons.mva')
+    ttSemiJetCombMVA = cms.FileInPath('TopQuarkAnalysis/TopJetCombination/data/TtSemiJetComb_Muons.mva')
 )
-
-
