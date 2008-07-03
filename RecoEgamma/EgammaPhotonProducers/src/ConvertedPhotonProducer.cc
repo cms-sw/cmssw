@@ -276,8 +276,10 @@ void ConvertedPhotonProducer::buildCollections (  const edm::Handle<edm::View<re
     if ( allPairs.size() ) {
 
       nFound=0;
-      for (  std::map<std::vector<reco::TransientTrack>, reco::CaloClusterPtr>::const_iterator iPair= allPairs.begin(); iPair!= allPairs.end(); ++iPair ) {
 
+
+      for (  std::map<std::vector<reco::TransientTrack>, reco::CaloClusterPtr>::const_iterator iPair= allPairs.begin(); iPair!= allPairs.end(); ++iPair ) {
+	scPtrVec.clear();
        
 	reco::CaloClusterPtr caloPtr=iPair->second;
 	if ( !( aClus == caloPtr ) ) continue;
@@ -285,7 +287,7 @@ void ConvertedPhotonProducer::buildCollections (  const edm::Handle<edm::View<re
         scPtrVec.push_back(aClus);     
 	nFound++;
 	
-	
+
 	const string metname = "ConvertedPhotons|ConvertedPhotonProducer";
 	if ( (iPair->first).size()  > 1 ) {
 	  try{
@@ -346,7 +348,8 @@ void ConvertedPhotonProducer::buildCollections (  const edm::Handle<edm::View<re
 	  
 	}
 	LogDebug("ConvertedPhotonProducer") << " ConvertedPhotonProducer trackPairRef  " << trackPairRef.size() <<  "\n";
-		
+
+	
 	reco::Conversion  newCandidate(scPtrVec,  trackPairRef, trkPositionAtEcal, theConversionVertex, matchingBC);
 	outputConvPhotonCollection.push_back(newCandidate);
 	
@@ -370,6 +373,7 @@ void ConvertedPhotonProducer::buildCollections (  const edm::Handle<edm::View<re
       std::vector<math::XYZPoint> trkPositionAtEcal;
       std::vector<reco::CaloClusterPtr> matchingBC;
 
+      scPtrVec.clear();
       scPtrVec.push_back(aClus);     
       reco::Conversion  newCandidate(scPtrVec,  trackPairRef, trkPositionAtEcal, theConversionVertex, matchingBC);
       outputConvPhotonCollection.push_back(newCandidate);
