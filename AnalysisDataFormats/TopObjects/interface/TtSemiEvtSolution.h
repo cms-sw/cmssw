@@ -1,5 +1,5 @@
 //
-// $Id: TtSemiEvtSolution.h,v 1.24 2008/02/15 12:10:47 rwolf Exp $
+// $Id: TtSemiEvtSolution.h,v 1.25 2008/04/24 19:52:11 rwolf Exp $
 //
 
 #ifndef TopObjects_TtSemiEvtSolution_h
@@ -23,8 +23,8 @@
 #include "DataFormats/PatCandidates/interface/Jet.h"
 #include "DataFormats/PatCandidates/interface/MET.h"
 
-#include "DataFormats/Candidate/interface/CandidateWithRef.h"
-#include "DataFormats/Candidate/interface/NamedCompositeCandidate.h"
+#include "DataFormats/Candidate/interface/ShallowClonePtrCandidate.h"
+#include "DataFormats/Candidate/interface/CompositeCandidate.h"
 
 // FIXME: make the decay member an enumerable
 // FIXME: Can we generalize all the muon and electron to lepton?
@@ -40,11 +40,6 @@ class TtSemiEvtSolution {
   
  public:
 
-
-  typedef reco::CandidateWithRef<edm::Ref<std::vector<pat::Jet> > >         JetCandRef;
-  typedef reco::CandidateWithRef<edm::Ref<std::vector<pat::Electron> > >    ElectronCandRef;
-  typedef reco::CandidateWithRef<edm::Ref<std::vector<pat::Muon> > >        MuonCandRef;
-  typedef reco::CandidateWithRef<edm::Ref<std::vector<pat::MET> > >         METCandRef;
   
   TtSemiEvtSolution();
   virtual ~TtSemiEvtSolution();
@@ -170,9 +165,9 @@ class TtSemiEvtSolution {
   //-------------------------------------------  
   // get the various event hypotheses
   //-------------------------------------------  
-  const reco::NamedCompositeCandidate & getRecoHyp() const { return recoHyp_; }
-  const reco::NamedCompositeCandidate & getFitHyp () const { return fitHyp_;  }
-  const reco::NamedCompositeCandidate & getMCHyp  () const { return mcHyp_;   }
+  const reco::CompositeCandidate & getRecoHyp() const { return recoHyp_; }
+  const reco::CompositeCandidate & getFitHyp () const { return fitHyp_;  }
+  const reco::CompositeCandidate & getMCHyp  () const { return mcHyp_;   }
   
  protected:         
 
@@ -186,19 +181,19 @@ class TtSemiEvtSolution {
   //-------------------------------------------  
   void setJetCorrectionScheme(int scheme) { jetCorrScheme_ = scheme; };
   void setHadp(const edm::Handle<std::vector<pat::Jet> > & jet, int i)
-  { hadp_ = edm::Ref<std::vector<pat::Jet> >(jet, i); };
+  { hadp_ = edm::Ptr<pat::Jet>(jet, i); };
   void setHadq(const edm::Handle<std::vector<pat::Jet> > & jet, int i)
-  { hadq_ = edm::Ref<std::vector<pat::Jet> >(jet, i); };
+  { hadq_ = edm::Ptr<pat::Jet>(jet, i); };
   void setHadb(const edm::Handle<std::vector<pat::Jet> > & jet, int i)
-  { hadb_ = edm::Ref<std::vector<pat::Jet> >(jet, i); };
+  { hadb_ = edm::Ptr<pat::Jet>(jet, i); };
   void setLepb(const edm::Handle<std::vector<pat::Jet> > & jet, int i)
-  { lepb_ = edm::Ref<std::vector<pat::Jet> >(jet, i); };
+  { lepb_ = edm::Ptr<pat::Jet>(jet, i); };
   void setMuon(const edm::Handle<std::vector<pat::Muon> > & muon, int i)
-  { muon_ = edm::Ref<std::vector<pat::Muon> >(muon, i); decay_ = "muon"; };
+  { muon_ = edm::Ptr<pat::Muon>(muon, i); decay_ = "muon"; };
   void setElectron(const edm::Handle<std::vector<pat::Electron> > & elec, int i)
-  { electron_ = edm::Ref<std::vector<pat::Electron> >(elec, i); decay_ = "electron"; };
+  { electron_ = edm::Ptr<pat::Electron>(elec, i); decay_ = "electron"; };
   void setNeutrino(const edm::Handle<std::vector<pat::MET> > & met, int i)
-  { neutrino_ = edm::Ref<std::vector<pat::MET> >(met, i); };
+  { neutrino_ = edm::Ptr<pat::MET>(met, i); };
 
   //-------------------------------------------  
   // set the fitted objects 
@@ -260,16 +255,16 @@ class TtSemiEvtSolution {
   // particle content
   //-------------------------------------------  
   edm::RefProd<TtGenEvent> theGenEvt_;
-  edm::Ref<std::vector<pat::Jet> > hadb_, hadp_, hadq_, lepb_;
-  edm::Ref<std::vector<pat::Muon> > muon_;
-  edm::Ref<std::vector<pat::Electron> > electron_;
-  edm::Ref<std::vector<pat::MET> > neutrino_;
+  edm::Ptr<pat::Jet> hadb_, hadp_, hadq_, lepb_;
+  edm::Ptr<pat::Muon> muon_;
+  edm::Ptr<pat::Electron> electron_;
+  edm::Ptr<pat::MET> neutrino_;
   std::vector<pat::Particle> fitHadb_, fitHadp_, fitHadq_;
   std::vector<pat::Particle> fitLepb_, fitLepl_, fitLepn_;
 
-  reco::NamedCompositeCandidate mcHyp_;
-  reco::NamedCompositeCandidate recoHyp_;
-  reco::NamedCompositeCandidate fitHyp_;
+  reco::CompositeCandidate mcHyp_;
+  reco::CompositeCandidate recoHyp_;
+  reco::CompositeCandidate fitHyp_;
 
   void setupHyp();
 

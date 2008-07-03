@@ -1,10 +1,10 @@
 //
-// $Id: TtSemiEvtSolution.cc,v 1.24 2008/04/24 19:52:11 rwolf Exp $
+// $Id: TtSemiEvtSolution.cc,v 1.25 2008/05/09 21:20:42 srappocc Exp $
 //
 
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include "AnalysisDataFormats/TopObjects/interface/TtSemiEvtSolution.h"
-#include "DataFormats/Candidate/interface/ShallowCloneCandidate.h"
+#include "DataFormats/Candidate/interface/ShallowClonePtrCandidate.h"
 #include "PhysicsTools/CandUtils/interface/AddFourMomenta.h"
 
 TtSemiEvtSolution::TtSemiEvtSolution() : 
@@ -218,18 +218,18 @@ void TtSemiEvtSolution::setupHyp()
   recoHyp_.clearRoles();
 
   // Setup transient references
-  reco::NamedCompositeCandidate recHadt;
-  reco::NamedCompositeCandidate recLept;
-  reco::NamedCompositeCandidate recHadW;
-  reco::NamedCompositeCandidate recLepW;
+  reco::CompositeCandidate recHadt;
+  reco::CompositeCandidate recLept;
+  reco::CompositeCandidate recHadW;
+  reco::CompositeCandidate recLepW;
 
   // Get refs to leaf nodes
-  reco::ShallowCloneCandidate hadp( reco::CandidateBaseRef( hadp_ ), hadp_->charge(), hadp_->p4(), hadp_->vertex() );
-  reco::ShallowCloneCandidate hadq( reco::CandidateBaseRef( hadq_ ), hadq_->charge(), hadq_->p4(), hadq_->vertex() );
-  reco::ShallowCloneCandidate hadb( reco::CandidateBaseRef( hadb_ ), hadb_->charge(), hadb_->p4(), hadb_->vertex() );
-  reco::ShallowCloneCandidate lepb( reco::CandidateBaseRef( lepb_ ), lepb_->charge(), lepb_->p4(), lepb_->vertex() );
+  reco::ShallowClonePtrCandidate hadp( hadp_, hadp_->charge(), hadp_->p4(), hadp_->vertex() );
+  reco::ShallowClonePtrCandidate hadq( hadq_, hadq_->charge(), hadq_->p4(), hadq_->vertex() );
+  reco::ShallowClonePtrCandidate hadb( hadb_, hadb_->charge(), hadb_->p4(), hadb_->vertex() );
+  reco::ShallowClonePtrCandidate lepb( lepb_, lepb_->charge(), lepb_->p4(), lepb_->vertex() );
 
-  reco::ShallowCloneCandidate neutrino( reco::CandidateBaseRef( neutrino_ ), neutrino_->charge(), neutrino_->p4(), neutrino_->vertex() );
+  reco::ShallowClonePtrCandidate neutrino( neutrino_, neutrino_->charge(), neutrino_->p4(), neutrino_->vertex() );
 
 
 //   JetCandRef hadp( hadp_->p4(), hadp_->charge(), hadp_->vertex());  hadp.setRef( hadp_ );
@@ -253,11 +253,11 @@ void TtSemiEvtSolution::setupHyp()
   
   recLepW.addDaughter( neutrino,"neutrino" );
   if ( getDecay() == "electron" ) {
-    reco::ShallowCloneCandidate electron ( reco::CandidateBaseRef( electron_), electron_->charge(), electron_->p4(), electron_->vertex() );
+    reco::ShallowClonePtrCandidate electron ( electron_, electron_->charge(), electron_->p4(), electron_->vertex() );
 //     ElectronCandRef electron ( electron_->p4(), electron_->charge(), electron_->vertex() ); electron.setRef( electron_ );
     recLepW.addDaughter ( electron, "electron" );
   } else if ( getDecay() == "muon" ) {
-    reco::ShallowCloneCandidate muon ( reco::CandidateBaseRef( muon_ ), muon_->charge(),  muon_->p4(), muon_->vertex() );
+    reco::ShallowClonePtrCandidate muon ( muon_, muon_->charge(),  muon_->p4(), muon_->vertex() );
 //     MuonCandRef muon ( muon_->p4(), muon_->charge(), muon_->vertex() ); muon.setRef( muon_ );
     recLepW.addDaughter ( muon, "muon" );
   }
@@ -276,22 +276,22 @@ void TtSemiEvtSolution::setupHyp()
 
 
 //   // Setup transient references
-//   reco::NamedCompositeCandidate fitHadt;
-//   reco::NamedCompositeCandidate fitLept;
-//   reco::NamedCompositeCandidate fitHadW;
-//   reco::NamedCompositeCandidate fitLepW;
+//   reco::CompositeCandidate fitHadt;
+//   reco::CompositeCandidate fitLept;
+//   reco::CompositeCandidate fitHadW;
+//   reco::CompositeCandidate fitLepW;
 
 //   // Get refs to leaf nodes
 //   pat::Particle afitHadp = getFitHadp();
 //   pat::Particle afitHadq = getFitHadq();
 //   pat::Particle afitHadb = getFitHadb();
 //   pat::Particle afitLepb = getFitLepb();
-//   reco::ShallowCloneCandidate fitHadp( hadp_, afitHadp.charge(), afitHadp.p4(), afitHadp.vertex());
-//   reco::ShallowCloneCandidate fitHadq( hadq_, afitHadq.charge(), afitHadq.p4(), afitHadq.vertex());
-//   reco::ShallowCloneCandidate fitHadb( hadb_, afitHadb.charge(), afitHadb.p4(), afitHadb.vertex());
-//   reco::ShallowCloneCandidate fitLepb( lepb_, afitLepb.charge(), afitLepb.p4(), afitLepb.vertex());
+//   reco::ShallowClonePtrCandidate fitHadp( hadp_, afitHadp.charge(), afitHadp.p4(), afitHadp.vertex());
+//   reco::ShallowClonePtrCandidate fitHadq( hadq_, afitHadq.charge(), afitHadq.p4(), afitHadq.vertex());
+//   reco::ShallowClonePtrCandidate fitHadb( hadb_, afitHadb.charge(), afitHadb.p4(), afitHadb.vertex());
+//   reco::ShallowClonePtrCandidate fitLepb( lepb_, afitLepb.charge(), afitLepb.p4(), afitLepb.vertex());
 
-//   reco::ShallowCloneCandidate fitNeutrino  ( neutrino_, fitLepn_.charge(),  fitLepn_.p4(),  fitLepn_.vertex() );
+//   reco::ShallowClonePtrCandidate fitNeutrino  ( neutrino_, fitLepn_.charge(),  fitLepn_.p4(),  fitLepn_.vertex() );
 
 //   fitHadW.addDaughter( fitHadp,    "hadp" );
 //   fitHadW.addDaughter( fitHadq,    "hadq" );
@@ -301,10 +301,10 @@ void TtSemiEvtSolution::setupHyp()
 //   fitLepW.addDaughter( fitNeutrino,"neutrino" );
 
 //   if ( getDecay() == "electron" ) {
-//     reco::ShallowCloneCandidate fitElectron ( electron_, electron_.charge(),  electron_.p4(), electron_.vertex() );
+//     reco::ShallowClonePtrCandidate fitElectron ( electron_, electron_.charge(),  electron_.p4(), electron_.vertex() );
 //     fitLepW.addDaughter ( fitElectron, "electron" );
 //   } else if ( getDecay() == "muon" ) {
-//     reco::ShallowCloneCandidate fitMuon ( muon_, muon_.charge(),  muon_.p4(), muon_.vertex() );
+//     reco::ShallowClonePtrCandidate fitMuon ( muon_, muon_.charge(),  muon_.p4(), muon_.vertex() );
 //     fitLepW.addDaughter ( fitMuon, "muon" );
 //   }
 //   fitLept.addDaughter( fitLepb,    "lepb" );
