@@ -8,7 +8,7 @@
 //
 // Original Author:  Chris Jones
 //         Created:  Thu Feb 21 11:22:41 EST 2008
-// $Id: FWGlimpseView.cc,v 1.2 2008/06/26 00:32:48 dmytro Exp $
+// $Id: FWGlimpseView.cc,v 1.3 2008/06/28 22:15:54 dmytro Exp $
 //
 
 // system include files
@@ -90,6 +90,7 @@ FWGlimpseView::FWGlimpseView(TGFrame* iParent, TEveElementList* list):
    gEve->AddElement(list,ns);
    gEve->AddToListTree(list, kTRUE);
    
+   /*
    // made detector outline
    TGeoTube* tube = new TGeoTube(129,130,310);
    TEveGeoShapeExtract* extract = fw::getShapeExtract("Detector outline", tube, kWhite);
@@ -97,7 +98,7 @@ FWGlimpseView::FWGlimpseView(TGFrame* iParent, TEveElementList* list):
    element->SetPickable(kFALSE);
    element->SetMainTransparency(98);
    gEve->AddElement(element, ns);
-   
+   */
    m_scaleParam.changed_.connect(boost::bind(&FWGlimpseView::updateScale,this,_1));
 }
 
