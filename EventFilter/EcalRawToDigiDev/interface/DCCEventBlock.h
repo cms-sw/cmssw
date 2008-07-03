@@ -41,8 +41,6 @@ class DCCEventBlock {
    void unpack( uint64_t * buffer, uint bufferSize, uint expFedId);
 	
    void enableSyncChecks();
-	
-   void enableFeIdChecks();
 
    void updateCollectors();
 	

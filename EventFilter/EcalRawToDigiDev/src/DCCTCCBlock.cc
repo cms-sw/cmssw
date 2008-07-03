@@ -1,7 +1,6 @@
 #include "EventFilter/EcalRawToDigiDev/interface/DCCTCCBlock.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include "EventFilter/EcalRawToDigiDev/interface/EcalElectronicsMapper.h"
-#include "EventFilter/EcalRawToDigiDev/interface/DCCDataUnpacker.h"
 #include "EventFilter/EcalRawToDigiDev/interface/DCCEventBlock.h"
 #include "EventFilter/EcalRawToDigiDev/interface/DCCDataUnpacker.h"
 
@@ -16,15 +15,6 @@ int DCCTCCBlock::unpack(uint64_t ** data, uint * dwToEnd){
   data_       = *data;
   
   if( (*dwToEnd_)<blockLength_ ){
-<<<<<<< DCCTCCBlock.cc
-    if( ! DCCDataUnpacker::silentMode_ ){
-      edm::LogWarning("EcalRawToDigiDevTCC")
-        <<"EcalRawToDigi@SUB=DCCTCCBlock:unpack"
-        <<"\n Unable to unpack TCC block for event "<<event_->l1A()<<" in fed "<<mapper_->getActiveDCC()
-        <<"\n Only "<<((*dwToEnd_)*8)<<" bytes are available until the end of event while "<<(blockLength_*8)<<" are needed!"
-        <<"\n => Skipping to next fed block...";
-    }
-=======
     if( ! DCCDataUnpacker::silentMode_ ){
       edm::LogWarning("EcalRawToDigiDevTCC")
         <<"EcalRawToDigi@SUB=DCCTCCBlock:unpack"
@@ -32,7 +22,6 @@ int DCCTCCBlock::unpack(uint64_t ** data, uint * dwToEnd){
         <<"\n Only "<<((*dwToEnd_)*8)<<" bytes are available until the end of event while "<<(blockLength_*8)<<" are needed!"
         <<"\n => Skipping to next fed block...";
      }
->>>>>>> 1.12
     
     //todo : add this to error colection
     
@@ -60,24 +49,14 @@ int DCCTCCBlock::unpack(uint64_t ** data, uint * dwToEnd){
       uint dccBx = (event_->bx())  & TCC_BX_MASK;
       uint dccL1 = (event_->l1A()) & TCC_L1_MASK;    
       if( dccBx != bx_ || dccL1 != l1_ ){
-<<<<<<< DCCTCCBlock.cc
         if( ! DCCDataUnpacker::silentMode_ ){
           edm::LogWarning("EcalRawToDigiDevTCC")
   	    <<"\n Synchronization error for TCC block in event "<<event_->l1A()
 	    <<" with bx "<<event_->bx()<<" in fed <<"<<mapper_->getActiveDCC()
 	    <<"\n TCC local l1A is  "<<l1_<<" and local bx is "<<bx_
 	    <<"\n TCC block skipped ...";
-	}
-=======
-        if( ! DCCDataUnpacker::silentMode_ ){
-          edm::LogWarning("EcalRawToDigiDevTCC")
-  	    <<"\n Synchronization error for TCC block in event "<<event_->l1A()
-	    <<" with bx "<<event_->bx()<<" in fed <<"<<mapper_->getActiveDCC()
-	    <<"\n TCC local l1A is  "<<l1_<<" and local bx is "<<bx_
-	    <<"\n TCC block skipped ...";
-        }
+         }
 	
->>>>>>> 1.12
 	//Note : add to error collection ?	
 	updateEventPointers();
 	return SKIP_BLOCK_UNPACKING;

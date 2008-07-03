@@ -1,8 +1,4 @@
 #include <EventFilter/EcalRawToDigiDev/interface/EcalDCCHeaderRuntypeDecoder.h>
-<<<<<<< EcalDCCHeaderRuntypeDecoder.cc
-=======
-#include "EventFilter/EcalRawToDigiDev/interface/DCCDataUnpacker.h"
->>>>>>> 1.12
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include "EventFilter/EcalRawToDigiDev/interface/DCCDataUnpacker.h"
 #include <string>
@@ -132,15 +128,9 @@ void EcalDCCHeaderRuntypeDecoder::DecodeSettingGlobal ( ulong TrigType, ulong de
     }
 
     else {
-<<<<<<< EcalDCCHeaderRuntypeDecoder.cc
-      if( ! DCCDataUnpacker::silentMode_ ){
-        edm::LogError("EcalDCCHeaderRuntypeDecoder") <<"Unrecognized detailedTriggerTypeInTTCCommand: " << detailedTriggerTypeInTTCCommand;
-      } 
-=======
       if( ! DCCDataUnpacker::silentMode_ ){
         edm::LogError("EcalDCCHeaderRuntypeDecoder") <<"Unrecognized detailedTriggerTypeInTTCCommand: " << detailedTriggerTypeInTTCCommand;
       }
->>>>>>> 1.12
       theHeader->setRunType(-1);
       WasDecodingOk_ = false;
     }
@@ -150,18 +140,10 @@ void EcalDCCHeaderRuntypeDecoder::DecodeSettingGlobal ( ulong TrigType, ulong de
   }
   
   else {
-<<<<<<< EcalDCCHeaderRuntypeDecoder.cc
     if( ! DCCDataUnpacker::silentMode_ ){
       edm::LogError("EcalDCCHeaderRuntypeDecoder") <<"Unrecognized detailed trigger type";
     } 
-      theHeader->setRunType(-1);
-
-=======
-    if( ! DCCDataUnpacker::silentMode_ ){
-      edm::LogError("EcalDCCHeaderRuntypeDecoder") <<"Unrecognized detailed trigger type";
-    }
     theHeader->setRunType(-1);
->>>>>>> 1.12
     WasDecodingOk_ = false;
   }
 

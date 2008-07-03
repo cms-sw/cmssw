@@ -11,8 +11,8 @@
  *
  * \file DCCDataUnpacker.h
  *
- * $Date: 2008/06/30 16:56:44 $
- * $Revision: 1.16 $
+ * $Date: 2008/02/20 23:51:57 $
+ * $Revision: 1.12 $
  * \author N. Almeida
  * \author G. Franzoni
  *
@@ -50,7 +50,7 @@ class DCCDataUnpacker{
 
 public : 
   
-  DCCDataUnpacker(EcalElectronicsMapper *, bool hU,bool srpU, bool tccU, bool feU, bool memU, bool syncCheck, bool feIdCheck);
+  DCCDataUnpacker(EcalElectronicsMapper *, bool hU,bool srpU, bool tccU, bool feU, bool memU, bool syncCheck);
   ~DCCDataUnpacker();
   /**
      Unpack data from a buffer
@@ -195,13 +195,8 @@ public :
   Get the associated event
   */
   DCCEventBlock * currentEvent(){ return currentEvent_;}
-<<<<<<< DCCDataUnpacker.h
-
-  static bool silentMode_;
-=======
 
   static bool silentMode_; 
->>>>>>> 1.16
  
 protected :
 
@@ -237,3 +232,4 @@ protected :
 };
 
 #endif
+
