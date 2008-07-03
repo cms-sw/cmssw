@@ -19,12 +19,20 @@ bool DCCEBTCCBlock::checkTccIdAndNumbTTs(){
   expTccId_ = mapper_->getActiveSM()+TCCID_SMID_SHIFT_EB;
 
   if( tccId_ != expTccId_ ){
+<<<<<<< DCCEBTCCBlock.cc
+    if( ! DCCDataUnpacker::silentMode_ ){ 
+      edm::LogWarning("EcalRawToDigiDevTCC")
+       <<"\n Error on event "<<event_->l1A()<<" with bx "<<event_->bx()<<" in fed "<<mapper_->getActiveDCC()
+       <<"\n TCC id is "<<tccId_<<" while expected is "<<expTccId_
+       <<"\n TCC Block Skipped ...";  
+=======
 
     if( ! DCCDataUnpacker::silentMode_ ){
       edm::LogWarning("EcalRawToDigiDevTCC")
         <<"\n Error on event "<<event_->l1A()<<" with bx "<<event_->bx()<<" in fed "<<mapper_->getActiveDCC()
         <<"\n TCC id is "<<tccId_<<" while expected is "<<expTccId_
         <<"\n TCC Block Skipped ...";  
+>>>>>>> 1.15
 	 //todo : add this to error colection
      }
      return false;

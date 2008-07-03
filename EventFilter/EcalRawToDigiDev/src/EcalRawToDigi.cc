@@ -10,6 +10,7 @@
 
 #include "DataFormats/EcalRawData/interface/EcalListOfFEDS.h"
 
+bool DCCDataUnpacker::silentMode_ = false;
 
 bool DCCDataUnpacker::silentMode_ = false; 
 
@@ -297,7 +298,11 @@ void EcalRawToDigiDev::produce(edm::Event& e, const edm::EventSetup& es) {
     const FEDRawData & fedData = rawdata->FEDData(*i);
     int length = fedData.size();
 
+<<<<<<< EcalRawToDigi.cc
+    LogDebug("EcalRawToDigiDev") << "raw data lenght: " << length ;
+=======
     LogDebug("EcalRawToDigiDev") << "raw data length: " << length ;
+>>>>>>> 1.32
     //if data size is not null interpret data
     if ( length >= EMPTYEVENTSIZE ){
       
