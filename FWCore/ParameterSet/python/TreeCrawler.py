@@ -135,7 +135,8 @@ def getDependenciesFromConfig(filename,toplevelname,path):
     
     for line in config.readlines():
         # look for all load statements
-        if "process.load" in line:
+        if line.startswith("process.load"):
+            line = line.replace('"', "'") 
             moduleName = line.split("'")[1]
             module = __import__(moduleName,[],[],"*")
             imports.append(inspect.getsourcefile(module))
