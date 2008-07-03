@@ -11,7 +11,7 @@ using namespace pat;
 //
 TtSemiEvtKit::TtSemiEvtKit(const edm::ParameterSet& iConfig) 
   :
-  LepJetMetKit( iConfig )
+  PatAnalyzerKit( iConfig )
 {
 
 
@@ -87,7 +87,7 @@ void TtSemiEvtKit::produce( edm::Event& iEvent, const edm::EventSetup& iSetup)
   using namespace edm;
 
 //   cout << "About to produce LepJetMetKit" << endl;
-  LepJetMetKit::produce( iEvent, iSetup );
+  PatAnalyzerKit::produce( iEvent, iSetup );
 
   // INSIDE OF LepJetMetKit::produce:
 
@@ -165,7 +165,7 @@ void TtSemiEvtKit::produce( edm::Event& iEvent, const edm::EventSetup& iSetup)
 void
 TtSemiEvtKit::beginJob(const edm::EventSetup& iSetup)
 {
-  LepJetMetKit::beginJob(iSetup);
+  PatAnalyzerKit::beginJob(iSetup);
 }
 
 
@@ -173,7 +173,7 @@ TtSemiEvtKit::beginJob(const edm::EventSetup& iSetup)
 // ------------ method called once each job just after ending the event loop  ------------
 void
 TtSemiEvtKit::endJob() {
-  LepJetMetKit::endJob();
+  PatAnalyzerKit::endJob();
 }
 
 //define this as a plug-in

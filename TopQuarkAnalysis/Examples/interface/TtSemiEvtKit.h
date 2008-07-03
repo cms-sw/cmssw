@@ -40,7 +40,7 @@
 //
 // Original Author:  Malina Kirn
 //         Created:  Wed Jan 23 12:31:57 EST 2008
-// $Id: TtSemiEvtKit.h,v 1.2 2008/05/10 06:55:46 srappocc Exp $
+// $Id: TtSemiEvtKit.h,v 1.1 2008/07/03 21:28:31 srappocc Exp $
 //
 // Revision History:
 //       -  Malina Kirn, v0.9, Wed Jan 23 12:31:57 EST 2008:
@@ -53,14 +53,15 @@
 #include <fstream>
 
 // user include files
-#include "PhysicsTools/StarterKit/test/LepJetMetKit.h"
+#include "PhysicsTools/StarterKit/interface/PatAnalyzerKit.h"
 #include "AnalysisDataFormats/TopObjects/interface/TtSemiEvtSolution.h"
+#include "PhysicsTools/StarterKit/interface/HistoComposite.h"
 
 //
 // class declaration
 //
 
-class TtSemiEvtKit : public LepJetMetKit 
+class TtSemiEvtKit : public PatAnalyzerKit 
 {
 public:
   explicit TtSemiEvtKit(const edm::ParameterSet&);
