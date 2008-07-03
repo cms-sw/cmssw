@@ -1,4 +1,4 @@
-// Last commit: $Id: SiStripDbParams.cc,v 1.10 2008/06/04 14:11:42 bainbrid Exp $
+// Last commit: $Id: SiStripDbParams.cc,v 1.11 2008/06/06 14:48:53 bainbrid Exp $
 
 #include "OnlineDB/SiStripConfigDb/interface/SiStripDbParams.h"
 #include "DataFormats/SiStripCommon/interface/SiStripEnumsAndStrings.h"
@@ -144,7 +144,7 @@ void SiStripDbParams::addPartition( const SiStripPartition& in ) {
       ss << " (Currently have " 
 	 << partitions_.size()
 	 << " partitions in cache...)";
-      edm::LogVerbatim(mlConfigDb_) << ss.str();
+      LogTrace(mlConfigDb_) << ss.str();
     }
   } else {
     std::stringstream ss;

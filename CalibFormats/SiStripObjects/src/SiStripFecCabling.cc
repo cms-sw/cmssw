@@ -1,4 +1,4 @@
-// Last commit: $Id: SiStripFecCabling.cc,v 1.24 2008/02/06 16:40:42 bainbrid Exp $
+// Last commit: $Id: SiStripFecCabling.cc,v 1.25 2008/05/16 15:26:11 bainbrid Exp $
 
 #include "FWCore/Framework/interface/eventsetupdata_registration_macro.h"
 #include "CalibFormats/SiStripObjects/interface/SiStripFecCabling.h"
@@ -78,7 +78,7 @@ void SiStripFecCabling::addDevices( const FedChannelConnection& conn ) {
 void SiStripFecCabling::connections( std::vector<FedChannelConnection>& conns ) const {
   LogTrace(mlCabling_)
     << "[SiStripFecCabling::" << __func__ << "]"
-    << " Building vector if FedChannelConnection objects...";
+    << " Building vector of FedChannelConnection objects...";
   conns.clear();
   for ( std::vector<SiStripFecCrate>::const_iterator icrate = this->crates().begin(); icrate != this->crates().end(); icrate++ ) {
     for ( std::vector<SiStripFec>::const_iterator ifec = icrate->fecs().begin(); ifec != icrate->fecs().end(); ifec++ ) {

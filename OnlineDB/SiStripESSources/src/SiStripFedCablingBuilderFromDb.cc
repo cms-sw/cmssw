@@ -1,4 +1,4 @@
-// Last commit: $Id: SiStripFedCablingBuilderFromDb.cc,v 1.52 2008/07/01 12:23:03 bainbrid Exp $
+// Last commit: $Id: SiStripFedCablingBuilderFromDb.cc,v 1.53 2008/07/01 14:39:43 bainbrid Exp $
 
 #include "OnlineDB/SiStripESSources/interface/SiStripFedCablingBuilderFromDb.h"
 #include "CalibFormats/SiStripObjects/interface/SiStripFecCabling.h"
@@ -218,7 +218,7 @@ void SiStripFedCablingBuilderFromDb::buildFecCabling( SiStripConfigDb* const db,
 */
 void SiStripFedCablingBuilderFromDb::buildFecCablingFromFedConnections( SiStripConfigDb* const db,
 									SiStripFecCabling& fec_cabling ) {
-  LogTrace(mlCabling_)
+  edm::LogVerbatim(mlCabling_)
     << "[SiStripFedCablingBuilderFromDb::" << __func__ << "]"
     << " Building FEC cabling from FED connections descriptions...";
   
@@ -373,7 +373,7 @@ void SiStripFedCablingBuilderFromDb::buildFecCablingFromFedConnections( SiStripC
 */
 void SiStripFedCablingBuilderFromDb::buildFecCablingFromDevices( SiStripConfigDb* const db,
 								 SiStripFecCabling& fec_cabling ) {
-  LogTrace(mlCabling_) 
+  edm::LogVerbatim(mlCabling_) 
     << "[SiStripFedCablingBuilderFromDb::" << __func__ << "]"
     << " Building FEC cabling object from device descriptions...";
   
@@ -470,7 +470,7 @@ void SiStripFedCablingBuilderFromDb::buildFecCablingFromDevices( SiStripConfigDb
   
   // ---------- Populate FEC cabling object with retrieved info ----------
 
-  LogTrace(mlCabling_) 
+  edm::LogVerbatim(mlCabling_) 
     << "[SiStripFedCablingBuilderFromDb::" << __func__ << "]"
     << " Building FEC cabling object from APV and DCU descriptions...";
   
@@ -702,7 +702,7 @@ void SiStripFedCablingBuilderFromDb::buildFecCablingFromDevices( SiStripConfigDb
 */
 void SiStripFedCablingBuilderFromDb::buildFecCablingFromDetIds( SiStripConfigDb* const db,
 								SiStripFecCabling& fec_cabling ) {
-  LogTrace(mlCabling_)
+  edm::LogVerbatim(mlCabling_)
     << "[SiStripFedCablingBuilderFromDb::" << __func__ << "]"
     << " Building FEC cabling object from DetIds...";
   

@@ -1,4 +1,4 @@
-// Last commit: $Id: SiStripConfigDb.cc,v 1.70 2008/06/06 14:48:53 bainbrid Exp $
+// Last commit: $Id: SiStripConfigDb.cc,v 1.71 2008/07/01 15:48:06 bainbrid Exp $
 
 #include "OnlineDB/SiStripConfigDb/interface/SiStripConfigDb.h"
 #include "DataFormats/SiStripCommon/interface/SiStripConstants.h"
@@ -254,7 +254,7 @@ void SiStripConfigDb::usingDatabase() {
 	 << dbParams_.path() 
 	 << "\" read from .cfg file)";
     }
-    LogTrace(mlConfigDb_) << ss.str() << std::endl;
+    edm::LogVerbatim(mlConfigDb_) << ss.str() << std::endl;
     dbParams_.confdb( user, passwd, path );
 
   } else if ( dbParams_.user() != null_ && 
@@ -268,7 +268,7 @@ void SiStripConfigDb::usingDatabase() {
        << dbParams_.passwd() << "@" 
        << dbParams_.path() 
        << "\" using 'ConfDb' configurable read from .cfg file";
-    LogTrace(mlConfigDb_) << ss.str();
+    edm::LogVerbatim(mlConfigDb_) << ss.str();
 
   } else {
     edm::LogWarning(mlConfigDb_)
@@ -288,7 +288,7 @@ void SiStripConfigDb::usingDatabase() {
   std::string tns_admin = "/afs/cern.ch/project/oracle/admin";
   if ( getenv( pattern.c_str() ) != NULL ) { 
     tns_admin = getenv( pattern.c_str() ); 
-    LogTrace(mlConfigDb_)
+    edm::LogVerbatim(mlConfigDb_)
       << "[SiStripConfigDb::" << __func__ << "]"
       << " TNS_ADMIN is set to: \"" 
       << tns_admin << "\"";
@@ -418,8 +418,8 @@ void SiStripConfigDb::usingDatabase() {
 	 << dbParams_.partitionNames( dbParams_.partitionNames() )
 	 << "\" read from .cfg file)";
     }
-    LogTrace(mlConfigDb_) << ss.str() << std::endl;
-
+    edm::LogVerbatim(mlConfigDb_) << ss.str() << std::endl;
+    
     // Build partitions from env. var.
     std::vector<std::string> partitions = dbParams_.partitionNames( getenv( partition.c_str() ) );
     if ( !partitions.empty() ) {
@@ -438,7 +438,7 @@ void SiStripConfigDb::usingDatabase() {
        << " Setting \"partitions\" to \""
        << dbParams_.partitionNames( dbParams_.partitionNames() )
        << "\" using 'PartitionName' configurables read from .cfg file";
-    LogTrace(mlConfigDb_) << ss.str();
+    edm::LogVerbatim(mlConfigDb_) << ss.str();
   } else { 
     edm::LogWarning(mlConfigDb_)
       << "[SiStripConfigDb::" << __func__ << "]"

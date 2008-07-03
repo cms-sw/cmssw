@@ -1,4 +1,4 @@
-// Last commit: $Id: SiStripPartition.cc,v 1.11 2008/06/06 14:48:53 bainbrid Exp $
+// Last commit: $Id: SiStripPartition.cc,v 1.12 2008/07/02 09:03:31 bainbrid Exp $
 
 #include "OnlineDB/SiStripConfigDb/interface/SiStripPartition.h"
 #include "DataFormats/SiStripCommon/interface/SiStripEnumsAndStrings.h"
@@ -274,7 +274,7 @@ void SiStripPartition::update( const SiStripConfigDb* const db ) {
      << " Updating description versions for partition \""
      << partitionName_
      << "\"...";
-  edm::LogVerbatim(mlConfigDb_) << ss.str();
+  LogTrace(mlConfigDb_) << ss.str();
 
   try {
 
