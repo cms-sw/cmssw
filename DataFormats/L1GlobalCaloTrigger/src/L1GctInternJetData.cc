@@ -127,12 +127,7 @@ void L1GctInternJetData::setData(uint8_t sgnEta,
 
 /// equality operator
 bool L1GctInternJetData::operator==(const L1GctInternJetData& c) const {
-  return (type_ == c.type() && data_ == c.raw() && rgn_ == c.regionId() && bx_ == c.bx());
-}
-
-/// inequality operator
-bool L1GctInternJetData::operator!=(const L1GctInternJetData& c) const { 
-  return !(*this == c); 
+  return (type_ == c.type() && data_ == c.raw() && regionId_ == c.regionId() && bx_ == c.bx());
 }
 
 /// pretty print
@@ -143,12 +138,12 @@ std::ostream& operator<<(std::ostream& s, const L1GctInternJetData& c) {
     return s; 
   }
   else {
-    s << " oflow=" << oflow_;
-    s << " et=" << et_;
-    s << " eta=" << eta_;
-    s << " phi=" << phi_;
-    s << " tauVeto=" << tauVeto_;
-    s << " rank=" << rank_;
+    s << " oflow=" << c.oflow();
+    s << " et=" << c.et();
+    s << " eta=" << c.eta();
+    s << " phi=" << c.phi();
+    s << " tauVeto=" << c.tauVeto();
+    s << " rank=" << c.rank();
   }
   return s; 
 }
