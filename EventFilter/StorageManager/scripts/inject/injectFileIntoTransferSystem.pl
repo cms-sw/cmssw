@@ -1,15 +1,11 @@
 #!/usr/bin/perl -w
-# $Id: injectFileIntoTransferSystem.pl,v 1.12 2008/07/02 13:32:45 jserrano Exp $
-#
-# Written by Matt Rudolph June 2008
-#
+# $Id: injectFileIntoTransferSystem.pl,v 1.13 2008/07/02 14:12:04 jserrano Exp $
 
 use strict;
 use DBI;
 use Getopt::Long;
 use File::Basename;
 use Sys::Hostname;
-
 
 sub usageShort
 {
@@ -31,33 +27,43 @@ sub usage
 
   --------------------------------------------------------------------------------------------
 
+  This script will inform the Tier-0 transfer system to transfer a given file from a host
+  in Cessy to Castor (DBS). In order to allow for safe copying it will insert relevant
+  meta information into an online database. This database ensures the integrity of all 
+  transmitted files and therefore does not allow you to transmit the same file twice.
+  You therefore must be sure about all options before you run this script.
+
   Required parameters for injecting files to be transferred:
-  $0 --filename file --path path --filesize size 
-                                    --type type --hostname host [--destination default]
+  $0 --filename file --path path  --type type --hostname host [--destination default] [--filesize size]
  
-  Filename, path, and filesize are self explanatory.
+  Filename and path to file on the given host point to the file to be transferred.
 
   Type is the type of file, which requires extra parameters to be specified
   Current supported types: streamer, edm, lumi:
-    Streamers require runnumber, lumisection, numevents, appname, appversion, stream, 
-      setup abel, and index specified
-    Edm files require runnumber, lumisection, numevents, appname, appversion, setuplabel, stream
-    Lumi files require runnumber, lumisection, appname, and appversion
+    - Streamers require runnumber, lumisection, numevents, appname, appversion, stream, 
+      setup abel, and index.
+    - Edm files require runnumber, lumisection, numevents, appname, appversion, setuplabel, stream.
+      (Edm files could also be general root files)
+    - Lumi files require runnumber, lumisection, appname, and appversion.
 
   Hostname is the host on which the file is found. (This should be the name as returned by the
   `hostname` command. Supported hosts for copies: cmsdisk1, srv-c2c06-02.cms (cmsmon) and
   the Storage Manager nodes.
 
   Destination determines where file goes on Tier0. It is set to default if not set by user.
- 
-  If you are not sure about what you are doing please send an inquiry to hn-tier0-ops\@cern.ch.
 
-  Other parameters:
-  --debug           : Print out extra messages
+  Filesize in Bytes is required. In case the submitting host is where the file resides filesize 
+  will be determined automatically.
+ 
+  --------------------------------------------------------------------------------------------
+  If you are not sure about what you are doing please send an inquiry to hn-tier0-ops\@cern.ch.
+  --------------------------------------------------------------------------------------------
+
+  Other parameters (leave out if you do not know what they mean):
   --debug           : Print out extra messages
   --producer        : Producer of file
   --appname         : Application name for file (e.g. CMSSW)
-  --appversion      : Application version
+  --appversion      : Application version (e.g. CMSSW_2_0_8)
   --runnumber       : Run number file belongs to
   --lumisection     : Lumisection of file
   --count           : Count within lumisection
@@ -66,18 +72,20 @@ sub usage
   --nevents         : Number of events in the file
   --ctime           : Creation time of file in seconds since epoch, defaults to current time
   --itime           : Injection time of file in seconds since epoch, set to current time
-                    : File times are for bookkeeping purposes; use own time if desired
+                    : (File times are for bookkeeping purposes; use your own time if desired)
   --index           : Name of index file defaults to changing data file .dat to .ind
   --checksum        : Checksum of the file
   --comment         : Comment field in the database
 
   --------------------------------------------------------------------------------------------
+  !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+  --------------------------------------------------------------------------------------------
 
-  $0 --check --filename=file
+  $0 --check --filename file
   Check on the status of a file previously injected into the transfer system.
   ############################################################################################  
   \n";
-  exit;
+  exit 1;
 }
 
 # subroutine for getting formatted time for SQL to_date method
@@ -89,7 +97,6 @@ sub gettimestamp($)
 
     $year += 1900;
     $mon++;
-
 
     my $timestr = $year."-";
     if ($mon < 10) {
@@ -119,8 +126,8 @@ sub checkOption($) {
     # check string for spaces
     # return an error if found
     if($theOpt=~ / /) {
-	print "Option specified as '$theOpt' has spaces in it.  Please use without spaces.  Exit\n";
-	exit;
+	print "Option specified as '$theOpt' has spaces in it. Please use without spaces. Exit\n";
+	exit 1;
     }
 
     return $theOpt;
@@ -210,13 +217,14 @@ $comment =~ s/\'//g;
 $comment =~ s/\"//g;
 
 unless($filename) {
-    print "Error: No filename supplied, exiting \n";
+    print "Error: No filename supplied, exiting!\n";
     usageShort();
 }
 
 # when $check is enabled, just want to query for a file and then exit
 if($check) {
-    my $SQLcheck = "select CMS_STOMGR.FILES_CREATED.FILENAME".
+    my $SQLcheck = "select" .
+        "  CMS_STOMGR.FILES_CREATED.FILENAME".
 	", CMS_STOMGR.FILES_INJECTED.FILENAME".
 	", CMS_STOMGR.FILES_TRANS_NEW.FILENAME".
         ", CMS_STOMGR.FILES_TRANS_COPIED.FILENAME".
@@ -253,30 +261,29 @@ if($check) {
     my $rowsCcheck = $checkHan->execute() or $dbErr=$checkHan->errstr;
     if(defined($dbErr)) {
 	print "Error: Query failed.\n";
-	print "Error string from db was $dbErr\n";
-	exit;
+	print "Error string from DB is $dbErr\n";
+	exit 1;
     }
 
     #Get query result - array elements will be '' when file not in that table.
     my @result = $checkHan->fetchrow_array;
 
     unless($result[0]) {print "File not found in database.\n"; exit;}
-    unless($result[1]) {print "FILES_CREATED\n"; exit;}
-    unless($result[2]) {print "FILES_INJECTED\n"; exit;}
-    unless($result[3]) {print "FILES_TRANS_NEW\n"; exit;}
-    unless($result[4]) {print "FILES_TRANS_COPIED\n"; exit;}
-    unless($result[5]) {print "FILES_TRANS_CHECKED\n"; exit;}
-    unless($result[6]) {print "FILES_TRANS_INSERTED\n"; exit;}
-    print "FILES_DELETED.\n"; exit;
+    unless($result[1]) {print "FILES_CREATED: File found in database but not passed over to T0 system.\n";              exit 0;}
+    unless($result[2]) {print "FILES_INJECTED: File found in database and handed over to T0 system.\n";                 exit 0;}
+    unless($result[3]) {print "FILES_TRANS_NEW: File found in database and processed by T0 system.\n";                  exit 0;}
+    unless($result[4]) {print "FILES_TRANS_COPIED: File found in database and copied by T0 system.\n";                  exit 0;}
+    unless($result[5]) {print "FILES_TRANS_CHECKED: File found in database and checked by T0 system.\n";                exit 0;}
+    unless($result[6]) {print "FILES_TRANS_INSERTED: File found in database and sucessfully processed by T0 system.\n"; exit 0;}
+    unless($result[7]) {print "FILES_DELETED: File found in database, sucessfully processed and locally deleted\n";     exit 0;}
+    print "Could not interpret query result: @result\n"; 
+    exit 1;
 }
 
 # filename, path, host and filesize must be correct or transfer will never work
 # first check to make sure all of these are set and exit if not
-
-
-
 unless($pathname) {
-    print "Error: No path supplied, exiting \n";
+    print "Error: No path supplied, exiting!\n";
     usageShort();
 }
 
@@ -286,15 +293,15 @@ unless($hostname eq 'cmsdisk1' || $hostname eq 'srv-c2c06-02.cms' || $hostname =
 }
 
 if(hostname() eq $hostname && !(-e "$pathname/$filename")) {
-    print "Error: Hostname = this machine, but file does not exist, exiting \n";
+    print "Error: Hostname = this machine, but file does not exist, exiting!\n";
     usageShort();
 } 
 
 # if we are running this on same host as the file can find out filesize as a fallback
 unless($filesize) {
-    print "Warning: No filesize supplied or filesize=0, ";
+    print "Warning: No filesize supplied (or filesize=0 chosen), ";
     if(hostname() ne $hostname) {
-	print "exiting \n";
+	print "exiting!\n";
         usageShort();
     } else {
 	print "but hostname = this machine: using size of file on disk \n"; 
@@ -303,7 +310,7 @@ unless($filesize) {
 }
 
 unless($type) {
-    print "Error: No type specified, exiting \n";
+    print "Error: No type specified, exiting!\n";
     usageShort();
 }
 
@@ -346,12 +353,20 @@ if(!$itime) {
 $injecttime = gettimestamp($itime);
 
 # create inserts into FILES_CREATED and FILES_INJECTED
+my $SQLcquery = "SELECT FILENAME,HOSTNAME,SETUPLABEL,STREAM,TYPE,PRODUCER,APP_NAME,APP_VERSION," .
+    " RUNNUMBER,LUMISECTION,COUNT,INSTANCE,CTIME" .
+    " from CMS_STOMGR.FILES_CREATED where CMS_STOMGR.FILES_CREATED.FILENAME='$filename'";
+
+my $SQLiquery = "SELECT FILENAME,PATHNAME,DESTINATION,NEVENTS,FILESIZE,CHECKSUM,ITIME" .
+    " from CMS_STOMGR.FILES_INJECTED where CMS_STOMGR.FILES_INJECTED.FILENAME='$filename'";
+
 my $SQLcreate = "INSERT INTO CMS_STOMGR.FILES_CREATED (" .
             "FILENAME,CPATH,HOSTNAME,SETUPLABEL,STREAM,TYPE,PRODUCER,APP_NAME,APP_VERSION," .
             "RUNNUMBER,LUMISECTION,COUNT,INSTANCE,CTIME,COMMENT_STR) " .
             "VALUES ('$filename','$pathname','$hostname','$setuplabel','$stream','$type','$producer'," .
             "'$appname','$appversion',$runnumber,$lumisection,$count,$instance," .
             "TO_DATE('$createtime','YYYY-MM-DD HH24:MI:SS'),'$comment')";
+
 my $SQLinject = "INSERT INTO CMS_STOMGR.FILES_INJECTED (" .
                "FILENAME,PATHNAME,DESTINATION,NEVENTS,FILESIZE,CHECKSUM,ITIME,COMMENT_STR) " .
                "VALUES ('$filename','$pathname','$destination',$nevents,$filesize,'$checksum'," . 
@@ -365,7 +380,6 @@ if (!defined $notscript) {
     $notscript = "/nfshome0/cmsprod/TransferTest/injection/sendNotification.sh";
 }
 
-
 # if file is a .dat and there is an index file, supply it
 my $indfile='';
 if($filename=~/\.dat$/  && !$index) {
@@ -374,9 +388,9 @@ if($filename=~/\.dat$/  && !$index) {
     if (-e "$pathname/$indfile") { 
 	$index = $indfile;
     } elsif($type eq 'streamer') {
-	print "Index file required for streamer files, not found in usual place please specify. Exiting \n";
+	print "Index file required for streamer files, not found in usual place please specify. Exiting!\n";
         usage();
-	exit;
+	exit 1;
     }
 }
 
@@ -400,7 +414,46 @@ my $dbi    = "DBI:Oracle:cms_rcms";
 my $reader = "CMS_STOMGR_W";
 $debug && print "Setting up DB connection for $dbi and $reader\n";
 my $dbh = DBI->connect($dbi,$reader,"qwerty") or die("Error: Connection to Oracle DB failed");
-$debug && print "DB connection set up succesfully \n";
+$debug && print "DB connection set up successfully \n";
+
+# do DB checks
+my $dodbins = 1;
+my $dot0not = 1;
+
+my $dbcheck = 1;
+if($dbcheck == 1) {
+    my $cqueryHan = $dbh->prepare($SQLcquery) or die("Error: Prepare failed, $dbh->errstr \n");
+    my $dbcqErr;
+    my $cqstr = $cqueryHan->execute() or $dbcqErr=$cqueryHan->errstr;
+    if(defined($dbcqErr)) {
+        print "Error: Check query on FILES_CREATED failed.\n";
+        print "Error string from DB is $dbcqErr\n";
+        $dbh->disconnect;
+        exit 1;
+    }
+
+    my @cqres = $cqueryHan->fetchrow_array;
+    $cqueryHan->finish;
+
+    my @iqres;
+    if (defined($cqres[0])) {
+        my $iqueryHan = $dbh->prepare($SQLiquery) or die("Error: Prepare failed, $dbh->errstr \n");
+        my $dbiqErr;
+        my $iqstr = $iqueryHan->execute() or $dbiqErr=$iqueryHan->errstr;
+        if(defined($dbiqErr)) {
+            print "Error: Check query on FILES_INJECTED failed.\n";
+            print "Error string from DB is $dbiqErr\n";
+            $dbh->disconnect;
+            exit 1;
+        }
+        @iqres = $iqueryHan->fetchrow_array;
+        $iqueryHan->finish;
+
+        print "Error: Found file in DB. To see its status please execute:\n $0 --check --filename $filename\n";
+        exit 1;
+        $dodbins = 0;
+    }
+}
 
 # do DB inserts
 $debug && print "Preparing DB inserts\n";
@@ -412,23 +465,25 @@ $debug && print "Inserting into FILES_CREATED \n";
 my $rowsCreate = $createHan->execute() or $dbErr=$createHan->errstr;
 if(defined($dbErr)) {
     print "Error: Insert into FILES_CREATED failed.\n";
-    if($dbErr =~ /unique constraint/ ) { print "File was already in the database.\n";}
-    print "Error string from db was $dbErr\n";
-    exit;
+    if($dbErr =~ /unique constraint/ ) { print "File is already in the database.\n";}
+    print "Error string from DB is $dbErr\n";
+    $dbh->disconnect;
+    exit 1;
 }
 
 $debug && print "Inserting into FILES_INJECTED \n";
 my $rowsInject = $injectHan->execute() or $dbErr=$injectHan->errstr;
 if(defined($dbErr)) {
     print "Error: Insert into FILES_INJECTED failed.\n";
-    if($dbErr =~ /unique constraint/ ) { print "File was already in the database.\n";}
-    print "Error string from db was $dbErr\n";
-    exit;
+    if($dbErr =~ /unique constraint/ ) { print "File is already in the database.\n";}
+    print "Error string from DB is $dbErr\n";
+    $dbh->disconnect;
+    exit 1;
 }
 
 my $T0out;
 
-# check return values before calling notification script.  Want to make sure no DB errors
+# check return values before calling notification script. want to make sure no DB errors
 if($rowsCreate==1 && $rowsInject==1) {
     print "DB inserts completed, running Tier 0 notification script \n";
     $T0out=`$TIERZERO 2>&1`;
@@ -446,3 +501,4 @@ if($rowsCreate==1 && $rowsInject==1) {
 }
 
 $dbh->disconnect;
+exit 0;
