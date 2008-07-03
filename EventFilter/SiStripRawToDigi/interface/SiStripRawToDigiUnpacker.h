@@ -1,4 +1,4 @@
-// Last commit: $Id: SiStripRawToDigiUnpacker.h,v 1.19 2007/12/12 13:09:26 bainbrid Exp $
+// Last commit: $Id: SiStripRawToDigiUnpacker.h,v 1.20.2.1 2008/07/03 14:27:39 gpetrucc Exp $
 
 #ifndef EventFilter_SiStripRawToDigi_SiStripRawToDigiUnpacker_H
 #define EventFilter_SiStripRawToDigi_SiStripRawToDigiUnpacker_H
@@ -101,6 +101,25 @@ class SiStripRawToDigiUnpacker {
 
   bool quiet_;
 
+  struct DetSet_SiStripDig_registry {
+    uint32_t detid;
+    uint16_t first;
+    size_t   index;
+    uint16_t length;
+    DetSet_SiStripDig_registry(uint32_t aDetid, uint16_t firstStrip, size_t indexInVector, uint16_t numberOfDigis) : 
+        detid(aDetid), first(firstStrip), index(indexInVector), length(numberOfDigis) {}
+    bool operator<(const DetSet_SiStripDig_registry &other) const {
+        return (detid != other.detid ? detid < other.detid : first < other.first);
+    }
+  };
+
+  std::vector<DetSet_SiStripDig_registry> zs_work_registry_;
+  std::vector<DetSet_SiStripDig_registry> virgin_work_registry_;
+  std::vector<DetSet_SiStripDig_registry> scope_work_registry_;
+  std::vector<DetSet_SiStripDig_registry> proc_work_registry_;
+  std::vector<SiStripDigi>     zs_work_digis_;
+  std::vector<SiStripRawDigi>  virgin_work_digis_, scope_work_digis_, proc_work_digis_;
+  void cleanupWorkVectors() ;
 };
 
 // ---------- inline methods ----------
