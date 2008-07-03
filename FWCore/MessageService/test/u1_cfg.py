@@ -1,5 +1,3 @@
-# The following comments couldn't be translated into the new config version:
-
 # Unit test configuration file for MessageLogger service:
 # threshold levels for destinations
 # limit=0 for a category (needed to avoid time stamps in files to be compared)
@@ -14,12 +12,6 @@ import FWCore.Framework.test.cmsExceptionsFatal_cff
 process.options = FWCore.Framework.test.cmsExceptionsFatal_cff.options
 
 process.load("FWCore.MessageService.test.Services_cff")
-
-process.maxEvents = cms.untracked.PSet(
-    input = cms.untracked.int32(2)
-)
-
-process.source = cms.Source("EmptySource")
 
 process.MessageLogger = cms.Service("MessageLogger",
     u1_infos = cms.untracked.PSet(
@@ -69,6 +61,12 @@ process.MessageLogger = cms.Service("MessageLogger",
         'u1_debugs', 
         'u1_default')
 )
+
+process.maxEvents = cms.untracked.PSet(
+    input = cms.untracked.int32(2)
+)
+
+process.source = cms.Source("EmptySource")
 
 process.sendSomeMessages = cms.EDAnalyzer("UnitTestClient_A")
 

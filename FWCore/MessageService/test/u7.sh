@@ -6,7 +6,7 @@ status=0
   
 rm -f  u7_log.log u7_restrict.log u7_job_report.mxml
 
-cmsRun -j u7_job_report.mxml -p $LOCAL_TEST_DIR/u7.cfg 
+cmsRun -j u7_job_report.mxml -p $LOCAL_TEST_DIR/u7_cfg.py 
  
 for file in  u7_log.log u7_restrict.log u7_job_report.mxml
 do

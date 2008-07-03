@@ -6,7 +6,7 @@ status=0
   
 rm -f  u2_warnings.log u2_cerr.mout 
 
-cmsRun -p $LOCAL_TEST_DIR/u2.cfg 2> $LOCAL_TMP_DIR/u2_cerr.mout
+cmsRun -p $LOCAL_TEST_DIR/u2_cfg.py 2> $LOCAL_TMP_DIR/u2_cerr.mout
  
 for file in u2_warnings.log u2_cerr.mout   
 do

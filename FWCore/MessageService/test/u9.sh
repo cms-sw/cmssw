@@ -6,7 +6,7 @@ status=0
   
 rm -f warnings.log infos.log job_report.xml 
 
-cmsRun -j job_report.xml -p $LOCAL_TEST_DIR/u9.cfg
+cmsRun -j job_report.xml -p $LOCAL_TEST_DIR/u9_cfg.py
  
 for file in warnings.log infos.log job_report.xml   
 do

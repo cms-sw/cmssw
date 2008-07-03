@@ -6,7 +6,7 @@ status=0
   
 rm -f  u6_warnings.log  
 
-cmsRun -p $LOCAL_TEST_DIR/u6.cfg 
+cmsRun -p $LOCAL_TEST_DIR/u6_cfg.py 
  
 for file in u6_warnings.log    
 do
