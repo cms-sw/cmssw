@@ -19,6 +19,11 @@
 #include "Geometry/Records/interface/MuonGeometryRecord.h"
 // KK_end
 
+// JAG start: grab reco info
+#include "DataFormats/TrackReco/interface/Track.h"
+#include "DataFormats/MuonDetId/interface/CSCDetId.h"
+#include "DataFormats/MuonDetId/interface/CSCTriggerNumbering.h"
+//JAG end
 
 using namespace std;
 using namespace edm;
@@ -64,7 +69,6 @@ L1TCSCTF::L1TCSCTF(const ParameterSet& ps)
   	}
 
   	// KK_start: instantiate standard on-fly SR LUTs from CSC TF emulator package
-
   	bzero(srLUTs_,sizeof(srLUTs_));
   	int endcap=1, sector=1; // assume SR LUTs are all same for every sector in either of endcaps
   	bool TMB07=true; // specific TMB firmware
@@ -107,24 +111,24 @@ void L1TCSCTF::beginJob(const EventSetup& c)
   	{
     	dbe->setCurrentFolder("L1T/L1TCSCTF");
 
-    	csctfetavalue[1] = dbe->book1D("CSCTF_eta_value","CSCTF eta value", 100, -2.5, 2.5 ) ;
-    	csctfetavalue[2] = dbe->book1D("CSCTF_eta_value_+1","CSCTF eta value bx +1", 100, -2.5, 2.5 ) ;
-    	csctfetavalue[0] = dbe->book1D("CSCTF_eta_value_-1","CSCTF eta value bx -1", 100, -2.5, 2.5 ) ;
-    	csctfphivalue[1] = dbe->book1D("CSCTF_phi_value","CSCTF phi value", 100, 0.0, 6.2832 ) ;
-    	csctfphivalue[2] = dbe->book1D("CSCTF_phi_value_+1","CSCTF phi value bx +1", 100, 0.0, 6.2832 ) ;
-    	csctfphivalue[0] = dbe->book1D("CSCTF_phi_value_-1","CSCTF phi value bx -1", 100, 0.0, 6.2832 ) ;
-    	csctfptvalue[1] = dbe->book1D("CSCTF_pt_value","CSCTF pt value", 160, -0.5, 159.5 ) ;
-    	csctfptvalue[2] = dbe->book1D("CSCTF_pt_value_+1","CSCTF pt value bx +1", 160, -0.5, 159.5 ) ;
-    	csctfptvalue[0] = dbe->book1D("CSCTF_pt_value_-1","CSCTF pt value bx -1", 160, -0.5, 159.5 ) ;
-    	csctfchargevalue[1] = dbe->book1D("CSCTF_charge_value","CSCTF charge value", 3, -1.5, 1.5 ) ;
-    	csctfchargevalue[2] = dbe->book1D("CSCTF_charge_value_+1","CSCTF charge value bx +1", 3, -1.5, 1.5 ) ;
-    	csctfchargevalue[0] = dbe->book1D("CSCTF_charge_value_-1","CSCTF charge value bx -1", 3, -1.5, 1.5 ) ;
-    	csctfquality[1] = dbe->book1D("CSCTF_quality","CSCTF quality", 20, -0.5, 19.5 ) ;
-    	csctfquality[2] = dbe->book1D("CSCTF_quality_+1","CSCTF quality bx +1", 20, -0.5, 19.5 ) ;
-    	csctfquality[0] = dbe->book1D("CSCTF_quality_-1","CSCTF quality bx -1", 20, -0.5, 19.5 ) ;
-    	csctfntrack = dbe->book1D("CSCTF_ntrack","CSCTF ntrack", 20, -0.5, 19.5 ) ;
-    	csctfbx = dbe->book1D("CSCTF_bx","CSCTF bx", 3, -1.5, 1.5 ) ;
-
+    	//csctfetavalue[1] = dbe->book1D("CSCTF_eta_value","CSCTF eta value", 100, -2.5, 2.5 ) ;
+    	//csctfetavalue[2] = dbe->book1D("CSCTF_eta_value_+1","CSCTF eta value bx +1", 100, -2.5, 2.5 ) ;
+    	//csctfetavalue[0] = dbe->book1D("CSCTF_eta_value_-1","CSCTF eta value bx -1", 100, -2.5, 2.5 ) ;
+    	//csctfphivalue[1] = dbe->book1D("CSCTF_phi_value","CSCTF phi value", 100, 0.0, 6.2832 ) ;
+    	//csctfphivalue[2] = dbe->book1D("CSCTF_phi_value_+1","CSCTF phi value bx +1", 100, 0.0, 6.2832 ) ;
+    	//csctfphivalue[0] = dbe->book1D("CSCTF_phi_value_-1","CSCTF phi value bx -1", 100, 0.0, 6.2832 ) ;
+    	//csctfptvalue[1] = dbe->book1D("CSCTF_pt_value","CSCTF pt value", 160, -0.5, 159.5 ) ;
+    	//csctfptvalue[2] = dbe->book1D("CSCTF_pt_value_+1","CSCTF pt value bx +1", 160, -0.5, 159.5 ) ;
+    	//csctfptvalue[0] = dbe->book1D("CSCTF_pt_value_-1","CSCTF pt value bx -1", 160, -0.5, 159.5 ) ;
+    	//csctfchargevalue[1] = dbe->book1D("CSCTF_charge_value","CSCTF charge value", 3, -1.5, 1.5 ) ;
+    	//csctfchargevalue[2] = dbe->book1D("CSCTF_charge_value_+1","CSCTF charge value bx +1", 3, -1.5, 1.5 ) ;
+    	//csctfchargevalue[0] = dbe->book1D("CSCTF_charge_value_-1","CSCTF charge value bx -1", 3, -1.5, 1.5 ) ;
+    	//csctfquality[1] = dbe->book1D("CSCTF_quality","CSCTF quality", 20, -0.5, 19.5 ) ;
+    	//csctfquality[2] = dbe->book1D("CSCTF_quality_+1","CSCTF quality bx +1", 20, -0.5, 19.5 ) ;
+    	//csctfquality[0] = dbe->book1D("CSCTF_quality_-1","CSCTF quality bx -1", 20, -0.5, 19.5 ) ;
+    	//csctfntrack = dbe->book1D("CSCTF_ntrack","CSCTF ntrack", 20, -0.5, 19.5 ) ;
+    	
+		
   		// KK_start: declaration of two monitoring histograms
   		//  Error counting histogram:
   		//  1) checks TF data integrity (error rate - first bin),
@@ -158,7 +162,17 @@ void L1TCSCTF::beginJob(const EventSetup& c)
   		// KK_end
   		
 		//JAG
-  		csctfChamberOccupancies = dbe->book2D("CSCTF_Chamber_Occupancies","CSCTF Chamber Occupancies", 60, 0.0, 6.0, 10, -5.5, 4.5);
+		csctfTrackQ = dbe->book1D("CSCTF_Track_Q","CSC Track Quality", 16, -0.5, 15.5);
+		csctfTrackQ->setAxisTitle("Track Type", 1);
+		csctfTrackQ->setBinLabel(1,"None",1);
+		csctfTrackQ->setBinLabel(3,"ME1-2-3",1);
+		csctfTrackQ->setBinLabel(7,"ME1-2",1);
+		csctfTrackQ->setBinLabel(8,"ME1-3",1);
+		csctfTrackQ->setBinLabel(9,"ME2-3",1);
+		csctfTrackQ->setBinLabel(16,"Halo Trigger",1);
+		
+  		csctfChamberOccupancies = dbe->book2D("CSCTF_Chamber_Occupancies","CSCTF Chamber Occupancies", 54, -0.05, 5.35, 10, -5.5, 4.5);
+		csctfChamberOccupancies->setAxisTitle("Sector (Endcap), (chambers 1-9 not labeled)",1);
   		csctfChamberOccupancies->setBinLabel(1,"ME-4",2);
 		csctfChamberOccupancies->setBinLabel(2,"ME-3",2);
 		csctfChamberOccupancies->setBinLabel(3,"ME-2",2);
@@ -169,13 +183,37 @@ void L1TCSCTF::beginJob(const EventSetup& c)
 		csctfChamberOccupancies->setBinLabel(8,"ME+2",2);
 		csctfChamberOccupancies->setBinLabel(9,"ME+3",2);
 		csctfChamberOccupancies->setBinLabel(10,"ME+4",2);
-		csctfChamberOccupancies->setBinLabel(1,"Sector1",1);
-		csctfChamberOccupancies->setBinLabel(11,"Sector2",1);
-		csctfChamberOccupancies->setBinLabel(21,"Sector3",1);
-		csctfChamberOccupancies->setBinLabel(31,"Sector4",1);
-		csctfChamberOccupancies->setBinLabel(41,"Sector5",1);
-		csctfChamberOccupancies->setBinLabel(51,"Sector6",1);
+		csctfChamberOccupancies->setBinLabel(1, "1(+), 7(-)",1);
+		csctfChamberOccupancies->setBinLabel(10,"2(+), 8(-)",1);
+		csctfChamberOccupancies->setBinLabel(19,"3(+), 9(-)",1);
+		csctfChamberOccupancies->setBinLabel(28,"4(+), 10(-)",1);
+		csctfChamberOccupancies->setBinLabel(37,"5(+), 11(-)",1);
+		csctfChamberOccupancies->setBinLabel(46,"6(+), 12(-)",1);
 		
+		csctfTrackPhi = dbe->book1D("CSCTF_Track_Phi", "CSCTF Track Phi", 144, 0, 360);
+		csctfTrackPhi->setAxisTitle("Track #phi", 1);
+		csctfTrackEta = dbe->book1D("CSCTF_Track_Eta", "CSCTF Track Eta", 32, 0.9, 2.5);
+		csctfTrackEta->setAxisTitle("Track #eta", 1);
+		
+		//cscTrackStubNumbers = dbe->book1D("CSC_Track_Stub_Numbers", "Number of Track Stubs for a CSCTrack", 5, -0.5, 4.5);
+		csctfbx = dbe->bookProfile("CSCTF_bx","CSCTF bx", 12, 0.5, 12.5, 15, -5.5,9.5 ) ;
+		csctfbx->setAxisTitle("Sector, Endcap", 1);
+		csctfbx->setBinLabel(1,"1, +",1);
+		csctfbx->setBinLabel(2,"2, +",1);
+		csctfbx->setBinLabel(3,"3, +",1);
+		csctfbx->setBinLabel(4,"4, +",1);
+		csctfbx->setBinLabel(5,"5, +",1);
+		csctfbx->setBinLabel(6,"6, +",1);
+		csctfbx->setBinLabel(7,"1, -",1);
+		csctfbx->setBinLabel(8,"2, -",1);
+		csctfbx->setBinLabel(9,"3, -",1);
+		csctfbx->setBinLabel(10,"4, -",1);
+		csctfbx->setBinLabel(11,"5, -",1);
+		csctfbx->setBinLabel(12,"6, -",1);
+		
+		cscTrackStubNumbers = dbe->book1D("CSCTF_TrackStubs", "Number of Stubs in CSC Tracks", 5, 0.5, 5.5);
+		
+		csctfntrack = dbe->book1D("CSCTF_ntrack","Number of CSCTracks found per event", 5, 0.5, 5.5 ) ;
   		//JAG
 	}
 }
@@ -194,13 +232,14 @@ void L1TCSCTF::endJob(void)
 
 void L1TCSCTF::analyze(const Event& e, const EventSetup& c)
 {
+	int NumCSCTfTracksRep = 0;
 	nev_++;
   	if(verbose_) cout << "L1TCSCTF: analyze...." << endl;
 
   	edm::Handle<L1MuGMTReadoutCollection> pCollection;
 
   	// KK_start ///////////////////////////////////
-	//  e.getByLabel(csctfSource_,pCollection);
+	
   	if( gmtProducer.label() != "null" )
 	{ // GMT block
     	e.getByLabel(gmtProducer,pCollection);
@@ -217,77 +256,8 @@ void L1TCSCTF::analyze(const Event& e, const EventSetup& c)
   		vector<L1MuGMTReadoutRecord>::const_iterator RRItr;
 
   		int ncsctftrack = 0;
-  		for( RRItr = gmt_records.begin(); RRItr != gmt_records.end(); RRItr++ )
-  		{
-
-    		if(verbose_)
-    		{
-    			cout << "Readout Record " << RRItr->getBxInEvent() << endl;
-   			}
-
-   			vector<L1MuRegionalCand> CSCTFCands = RRItr->getCSCCands();
-
-
-   			if (verbose_)
-    		{
-     			cout << "CSCTFCands " << CSCTFCands.size() << endl;
-    		}
-
-    		for( vector<L1MuRegionalCand>::const_iterator ECItr = CSCTFCands.begin(); ECItr != CSCTFCands.end(); ++ECItr )
-    		{
-
-	      		int bxindex = ECItr->bx() + 1;
-
-	      		if (ECItr->quality() > 0 )
-	     		{
-	      			ncsctftrack++;
-	
-	      			if (verbose_)
-					{
-						cout << "CSCTFCand bx " << ECItr->bx() << endl;
-					}
-	     
-		 			csctfbx->Fill(ECItr->bx());
-		
-	    	  		csctfetavalue[bxindex]->Fill(ECItr->etaValue());
-   	   	
-		  			if (verbose_)
-					{
-	   	  				cout << "\tCSCTFCand eta value " << ECItr->etaValue() << endl;
-					}
-
-	    	  		csctfphivalue[bxindex]->Fill(ECItr->phiValue());
-	      	
-		  			if (verbose_)
-					{
-	   	  				cout << "\tCSCTFCand phi value " << ECItr->phiValue() << endl;
-					}
-
-	      			csctfptvalue[bxindex]->Fill(ECItr->ptValue());
-      
-		  			if (verbose_)
-					{
-	     				cout << "\tCSCTFCand pt value " << ECItr->ptValue() << endl;
-					}
-	
-	    	  		csctfchargevalue[bxindex]->Fill(ECItr->chargeValue());
-				
-	      			if (verbose_)
-					{
-	     				cout << "\tCSCTFCand charge value " << ECItr->chargeValue() << endl;
-					}	
-
-	      			csctfquality[bxindex]->Fill(ECItr->quality());
-      
-		  			if (verbose_)
-					{
-     					cout << "\tCSCTFCand quality " << ECItr->quality() << endl;
-					}
-	     		}//ECItr->quality() > 0
-			}//ECItr != CSCTFCands.end()
-  		}//RRItr != gmt_records.end()
-
-      	csctfntrack->Fill(ncsctftrack);
+  		
+      	//csctfntrack->Fill(ncsctftrack);
 		
       	if (verbose_)
 		{
@@ -344,25 +314,41 @@ void L1TCSCTF::analyze(const Event& e, const EventSetup& c)
            		int cscId   = (*csc).first.triggerCscId()-1;
            		int fpga    = ( subSector ? subSector-1 : station+1 );
 				
-				
 				//JAG
 				int endcapAssignment = 1;
 				int shift = 1;
+				float sectorArg = sector;
+				//float sectorArg = j;
+				
 				if( endcap == 1 ){
 					endcapAssignment = -1;
 					shift = 2;
+					sectorArg = sector - 6;
 				}
 				
 				int signedStation = (station + shift)* endcapAssignment;
 				if( (station == 0) && (endcap == 0)) signedStation = subSector - 1;
 				if( (station == 0) && (endcap == 1)) signedStation = (-1)*subSector;
 				
-					
+				float chamberArg1 = cscId * 0.1 + sectorArg;
+				//float chamberArg1 = i*0.1 + sectorArg;
+				//std::cout << "First" << i << " " << sectorArg << " " << chamberArg1 << std::endl;
 				
-				float chamberArg1 = cscId * 0.1 + sector;
-				csctfChamberOccupancies->Fill(chamberArg1, signedStation); 
+				float chamberArg11 = chamberArg1;
+				if(sectorArg == 1) chamberArg1 = chamberArg11 - 0.1;
+				if(sectorArg == 2) chamberArg1 = chamberArg11 - 0.2;
+				if(sectorArg == 3) chamberArg1 = chamberArg11 - 0.3;
+				if(sectorArg == 4) chamberArg1 = chamberArg11 - 0.4;
+				if(sectorArg == 5) chamberArg1 = chamberArg11 - 0.5;
 
-//				std::cout << "Encap: " << endcap << ", station: " << station << ", sector: " << sector << ", subSector: " << subSector << ", cscId: " << cscId << std:: endl;
+				//std::cout << "cscId, sectorArg, chamber Arg: " << i << ", " << sectorArg << ", " << chamberArg1 << std::endl;			
+
+				csctfChamberOccupancies->Fill(chamberArg1, signedStation); 
+				int bunchX = lct->getBX();
+				
+				csctfbx->Fill(sector + 1.0, bunchX );
+				
+				//std::cout << "LCT'S, encap: " << endcap << ", station: " << station << ", sector: " << sector << ", subSector: " << subSector << ", cscId: " << cscId << std:: endl;
 
 				//End JAG
 				
@@ -405,11 +391,47 @@ void L1TCSCTF::analyze(const Event& e, const EventSetup& c)
 
   	if( trackProducer.label() != "null" )
 	{
+		
      	edm::Handle<L1CSCTrackCollection> tracks;
      	e.getByLabel(trackProducer.label(),trackProducer.instance(),tracks);
-     	for(L1CSCTrackCollection::const_iterator trk=tracks->begin(); trk<tracks->end(); trk++)
-        csctfoccupancies->Fill( trk->first.eta_packed()/32. * 1.5 + 0.9, trk->first.phi_packed()*0.2/32. + 1.);
+     	for(L1CSCTrackCollection::const_iterator trk=tracks->begin(); trk<tracks->end(); trk++){
+        	NumCSCTfTracksRep++;
+			//std::cout << "Hello" << std::endl << std::endl;
+			csctfoccupancies->Fill( trk->first.eta_packed()/32. * 1.5 + 0.9, trk->first.phi_packed()*0.2/32. + 1.);
+			//JAG_START
+			edm::Handle<CSCCorrelatedLCTDigiCollection> corrlcts;
+     		e.getByLabel(lctProducer.label(),lctProducer.instance(),corrlcts);
+			
+			long LUTAdd = trk->first.ptLUTAddress();
+			int trigMode = ( (LUTAdd)&0xf0000) >> 16;
+			csctfTrackQ->Fill( trigMode );
+			
+			csctfTrackPhi->Fill( (trk->first.phi_packed()) *2.5 + (trk->first.sector() - 1 )*60 );
+			csctfTrackEta->Fill( ( (trk->first.eta_packed() )*1.5)/(32.0) + 0.9 );
+			
+			int cscTrackStub = 0;
+
+			CSCCorrelatedLCTDigiCollection lctsOfTracks=trk->second;
+
+     		for(CSCCorrelatedLCTDigiCollection::DigiRangeIterator trackStub=lctsOfTracks.begin(); trackStub!=lctsOfTracks.end(); trackStub++)
+			{
+        		CSCCorrelatedLCTDigiCollection::Range range2 = lctsOfTracks.get((*trackStub).first);
+        		for(CSCCorrelatedLCTDigiCollection::const_iterator lct=range2.first; lct!=range2.second; lct++)
+				{
+					cscTrackStub++;
+           			
+				}
+			}
+			
+			//
+     		edm::Handle<L1CSCTrack> tfInf;
+			e.getByLabel(trackProducer.label(), tfInf);
+			
+			cscTrackStubNumbers->Fill(cscTrackStub);
+				
+			//JAG_END
+		}
   	}
+	csctfntrack->Fill(NumCSCTfTracksRep);
   	// KK_end    ///////////////////////////////////
 }
-

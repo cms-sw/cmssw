@@ -69,11 +69,11 @@ private:
   // ----------member data ---------------------------
   DQMStore * dbe;
 
-  MonitorElement* csctfetavalue[3];
-  MonitorElement* csctfphivalue[3];
-  MonitorElement* csctfptvalue[3];
-  MonitorElement* csctfchargevalue[3];
-  MonitorElement* csctfquality[3];
+ // MonitorElement* csctfetavalue[3];
+ // MonitorElement* csctfphivalue[3];
+ // MonitorElement* csctfptvalue[3];
+ // MonitorElement* csctfchargevalue[3];
+ // MonitorElement* csctfquality[3];
   MonitorElement* csctfntrack;
   MonitorElement* csctfbx;
 
@@ -85,6 +85,10 @@ private:
   
   // JAG
   MonitorElement* csctfChamberOccupancies;
+  MonitorElement* csctfTrackPhi;
+  MonitorElement* csctfTrackEta;
+  MonitorElement* cscTrackStubNumbers;
+  MonitorElement* csctfTrackQ;
   // JAG
 
   int nev_; // Number of events processed
