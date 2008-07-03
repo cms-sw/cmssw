@@ -18,8 +18,7 @@
 // user include files
 #include "NewAnalyzer.h"
 #include "DataFormats/JetReco/interface/GenJet.h"
-#include "TH1D.h"
-#include "TFile.h"
+
 
 #include <DataFormats/HepMCCandidate/interface/GenParticleCandidate.h>
 #include <DataFormats/Candidate/interface/Candidate.h>
@@ -59,6 +58,7 @@ NewAnalyzer::NewAnalyzer(const edm::ParameterSet& iConfig)
   Z3JJ2Eta_histo = new TH1F("Z3JJ2Eta_histo", "Z3JJ2Eta_histo", 40, -3, 3);
   Z4JJ1Eta_histo = new TH1F("Z4JJ1Eta_histo", "Z4JJ1Eta_histo", 40, -3, 3); 
   Z4JJ2Eta_histo = new TH1F("Z4JJ2Eta_histo", "Z4JJ2Eta_histo", 40, -3, 3);
+  ZEta_histo =  new TH1F("ZEta_histo", "ZEta_histo", 40, -3, 3);
   JDelR_histo = new TH1F("JDelR_histo", "JDelR_histo", 38, 0, 6);
   Z2JJDelR_histo = new TH1F("Z2JJDelR_histo", "Z2JJDelR_histo", 38, 0, 6);
   Z3JJDelR_histo = new TH1F("Z3JJDelR_histo", "Z3JJDelR_histo", 38, 0, 6);
@@ -94,7 +94,7 @@ NewAnalyzer::~NewAnalyzer()
 // ------------ method called to for each event  ------------
 void
 NewAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
-{ std::cout << "A" << std::endl;
+{
   ++event;
    using namespace edm;
    using namespace std;
@@ -158,6 +158,7 @@ typedef std::vector<reco::GenJet> GenJetCollection;
       if(abs(id) == 23)
       {
         ZPt_histo->Fill(sqrt(p.px()*p.px() + p.py()*p.py()));
+	ZEta_histo->Fill(p.eta());
       }
       if(abs(id) != 11) continue;
       for ( size_t moth1=0; moth1<NMoth; moth1++ )
@@ -190,7 +191,6 @@ typedef std::vector<reco::GenJet> GenJetCollection;
 		    Z_invmass_histo->Fill(EEInvaMass);
 		  }
 	      }
-	    std::cout << "A" << std::endl;
 	    int nmyJets = 0;
 	    //Jet1Pt = 0.0;
 	    //Jet2Pt = 0.0;
@@ -441,6 +441,7 @@ NewAnalyzer::endJob() {
   JDelR_histo->Write();
   JDelPhi_histo->Write();
   Z1JJ1Eta_histo->Write();
+  ZEta_histo->Write();
   Z1JJ1Phi_histo->Write();
   Z2JJ1Eta_histo->Write();
   Z2JJ2Eta_histo->Write();

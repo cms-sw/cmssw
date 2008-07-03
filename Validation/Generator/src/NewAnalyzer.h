@@ -1,5 +1,5 @@
-#ifndef New_ANALYZER
-#define New_ANALYZER
+#ifndef H4MU_ANALYZER
+#define H4MU_ANALYZER
 
 #include "FWCore/Framework/interface/Frameworkfwd.h"
 #include "FWCore/Framework/interface/EDAnalyzer.h"
@@ -14,7 +14,7 @@
 #include "HepMC/GenParticle.h"
 
 #include "SimDataFormats/HepMCProduct/interface/HepMCProduct.h"
-#include "TH1.h"
+
 #include "TH1D.h"
 #include "TFile.h"
 
@@ -38,7 +38,7 @@ class NewAnalyzer : public edm::EDAnalyzer {
   std::string outputFilename;
   TH1D* weight_histo; int event;
   TH1F* Z_invmass_histo; TH1F* Z0J_invmass_histo; TH1F* Z1J_invmass_histo; TH1F*  Z2J_invmass_histo; TH1F* Z3J_invmass_histo; TH1F*  Z4J_invmass_histo; 
-  TH1F* Z1JJ1Eta_histo; TH1F* Z2JJ1Eta_histo;  TH1F* Z3JJ1Eta_histo;  TH1F* Z4JJ1Eta_histo; 
+  TH1F* Z1JJ1Eta_histo; TH1F* Z2JJ1Eta_histo;  TH1F* Z3JJ1Eta_histo;  TH1F* Z4JJ1Eta_histo; TH1F* ZEta_histo;
   TH1F* Z2JJ2Eta_histo; TH1F*  Z3JJ2Eta_histo; TH1F*  Z4JJ2Eta_histo; TH1F* Jetmult_histo;
   TH1F* Pt_histo; TH1F* J1Pt_histo; TH1F* J2Pt_histo; TH1F* EJDelR_histo; 
   TH1F* E1Pt_histo; TH1F* E2Pt_histo; TH1F* ZPz_histo; TH1F* ZPt_histo; TH1F* Z2JJDelPhi_histo; TH1F* Z3JJDelPhi_histo; TH1F* Z4JJDelPhi_histo;
