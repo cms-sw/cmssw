@@ -1,6 +1,7 @@
 import FWCore.ParameterSet.Config as cms
 
-SiStripGainFakeESSource = cms.ESSource("SiStripGainFakeESSource",
+siStripGainFakeESSource = cms.ESSource("SiStripGainFakeESSource",
+    appendToDataLabel = cms.string('fakeAPVGain'),
     file = cms.FileInPath('CalibTracker/SiStripCommon/data/SiStripDetInfo.dat')
 )
 
