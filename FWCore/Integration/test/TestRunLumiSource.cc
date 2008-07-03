@@ -1,5 +1,5 @@
 /*----------------------------------------------------------------------
-$Id: TestRunLumiSource.cc,v 1.6 2008/01/18 17:47:54 wmtan Exp $
+$Id: TestRunLumiSource.cc,v 1.7 2008/01/31 04:56:16 wmtan Exp $
 ----------------------------------------------------------------------*/
 
 #include "FWCore/Integration/test/TestRunLumiSource.h"
@@ -52,7 +52,8 @@ namespace edm {
 
     LuminosityBlockAuxiliary lumiAux(rp2->run(), lumi, ts, Timestamp::invalidTimestamp());
     boost::shared_ptr<LuminosityBlockPrincipal> luminosityBlockPrincipal(
-        new LuminosityBlockPrincipal(lumiAux, productRegistry(), rp2, processConfiguration()));
+        new LuminosityBlockPrincipal(lumiAux, productRegistry(), processConfiguration()));
+    luminosityBlockPrincipal->setRunPrincipal(rp2);
 
     currentIndex_ += 3;
     return luminosityBlockPrincipal;
@@ -71,13 +72,15 @@ namespace edm {
 
     LuminosityBlockAuxiliary lumiAux(rp2->run(), lumi, ts, Timestamp::invalidTimestamp());
     boost::shared_ptr<LuminosityBlockPrincipal> lbp2(
-        new LuminosityBlockPrincipal(lumiAux, productRegistry(), rp2, processConfiguration()));
+        new LuminosityBlockPrincipal(lumiAux, productRegistry(), processConfiguration()));
+    lbp2->setRunPrincipal(rp2);
 
     EventID id(run, event);
     currentIndex_ += 3;
     EventAuxiliary eventAux(id, processGUID(), ts, lbp2->luminosityBlock(), false);
     std::auto_ptr<EventPrincipal> result(
-	new EventPrincipal(eventAux, productRegistry(), lbp2, processConfiguration()));
+	new EventPrincipal(eventAux, productRegistry(), processConfiguration()));
+    result->setLuminosityBlockPrincipal(lbp2);
     return result;
   }
 
