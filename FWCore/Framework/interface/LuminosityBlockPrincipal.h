@@ -10,7 +10,7 @@ such code sees the LuminosityBlock class, which is a proxy for LuminosityBlockPr
 The major internal component of the LuminosityBlockPrincipal
 is the DataBlock.
 
-$Id: LuminosityBlockPrincipal.h,v 1.31 2008/06/13 20:22:24 wdd Exp $
+$Id: LuminosityBlockPrincipal.h,v 1.32 2008/06/24 23:25:39 wmtan Exp $
 
 ----------------------------------------------------------------------*/
 
@@ -35,7 +35,6 @@ namespace edm {
     typedef Principal<EntryInfo> Base;
     LuminosityBlockPrincipal(LuminosityBlockAuxiliary const& aux,
 	boost::shared_ptr<ProductRegistry const> reg,
-	boost::shared_ptr<RunPrincipal> rp,
 	ProcessConfiguration const& pc,
 	ProcessHistoryID const& hist = ProcessHistoryID(),
 	boost::shared_ptr<Mapper> mapper = boost::shared_ptr<Mapper>(new Mapper),

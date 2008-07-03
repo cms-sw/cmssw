@@ -351,14 +351,15 @@ void testEvent::setUp()
   RunAuxiliary runAux(id.run(), time, time);
   boost::shared_ptr<RunPrincipal> rp(new RunPrincipal(runAux, preg, pc));
   LuminosityBlockAuxiliary lumiAux(rp->run(), 1, time, time);
-  boost::shared_ptr<LuminosityBlockPrincipal>lbp(new LuminosityBlockPrincipal(lumiAux, preg, rp, pc));
+  boost::shared_ptr<LuminosityBlockPrincipal>lbp(new LuminosityBlockPrincipal(lumiAux, preg, pc));
+  lbp->setRunPrincipal(rp);
   EventAuxiliary eventAux(id, uuid, time, lbp->luminosityBlock(), true);
   principal_  = new EventPrincipal(eventAux,
 				   preg,
-                                   lbp,
                                    pc,
                                    processHistoryID);
 
+  principal_->setLuminosityBlockPrincipal(lbp);
   currentEvent_ = new Event(*principal_, *currentModuleDescription_);
 
   delete processHistory;

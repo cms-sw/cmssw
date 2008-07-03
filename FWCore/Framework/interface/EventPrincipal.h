@@ -43,7 +43,6 @@ namespace edm {
     static int const invalidStoreNumber = EventAuxiliary::invalidStoreNumber;
     EventPrincipal(EventAuxiliary const& aux,
 	boost::shared_ptr<ProductRegistry const> reg,
-	boost::shared_ptr<LuminosityBlockPrincipal> lbp,
 	ProcessConfiguration const& pc,
 	ProcessHistoryID const& hist = ProcessHistoryID(),
 	boost::shared_ptr<Mapper> mapper = boost::shared_ptr<Mapper>(new Mapper),

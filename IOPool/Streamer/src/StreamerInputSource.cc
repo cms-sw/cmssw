@@ -303,7 +303,6 @@ namespace edm {
       setLuminosityBlockPrincipal(boost::shared_ptr<LuminosityBlockPrincipal>(
         new LuminosityBlockPrincipal(lumiAux,
 				     productRegistry(),
-				     runPrincipal(),
 				     processConfiguration())));
       newLumi_ = true;
     }
@@ -312,7 +311,6 @@ namespace edm {
       processGUID(), sd->time_, luminosityBlockPrincipal()->luminosityBlock(), true);
     std::auto_ptr<EventPrincipal> ep(new EventPrincipal(eventAux,
                                                    productRegistry(),
-                                                   luminosityBlockPrincipal(),
                                                    processConfiguration(),
 						   processHistoryID_));
     // no process name list handling

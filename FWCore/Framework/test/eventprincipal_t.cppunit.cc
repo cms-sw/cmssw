@@ -196,9 +196,11 @@ void test_ep::setUp()
     edm::RunAuxiliary runAux(eventID_.run(), now, now);
     boost::shared_ptr<edm::RunPrincipal> rp(new edm::RunPrincipal(runAux, preg, *process));
     edm::LuminosityBlockAuxiliary lumiAux(rp->run(), 1, now, now);
-    boost::shared_ptr<edm::LuminosityBlockPrincipal>lbp(new edm::LuminosityBlockPrincipal(lumiAux, preg, rp, *process));
+    boost::shared_ptr<edm::LuminosityBlockPrincipal>lbp(new edm::LuminosityBlockPrincipal(lumiAux, preg, *process));
+    lbp->setRunPrincipal(rp);
     edm::EventAuxiliary eventAux(eventID_, uuid, now, lbp->luminosityBlock(), true);
-    pEvent_ = new edm::EventPrincipal(eventAux, preg, lbp, *process);
+    pEvent_ = new edm::EventPrincipal(eventAux, preg, *process);
+    pEvent_->setLuminosityBlockPrincipal(lbp);
     pEvent_->put(product, branchFromRegistry, branchEntryInfoPtr);
   }
   CPPUNIT_ASSERT(pEvent_->size() == 1);

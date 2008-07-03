@@ -6,10 +6,15 @@
 
 namespace edm {
 
+  namespace {
+    LuminosityBlock * newLumi(EventPrincipal& ep, ModuleDescription const& md) {
+      return (ep.luminosityBlockPrincipalSharedPtr() ? new LuminosityBlock(ep.luminosityBlockPrincipal(), md) : 0);
+    }
+  }
     Event::Event(EventPrincipal& ep, ModuleDescription const& md) :
 	DataViewImpl<EventEntryInfo>(ep, md, InEvent),
 	aux_(ep.aux()),
-	luminosityBlock_(new LuminosityBlock(ep.luminosityBlockPrincipal(), md)),
+	luminosityBlock_(newLumi(ep, md)),
 	gotBranchIDs_(),
 	gotViews_() {
     }

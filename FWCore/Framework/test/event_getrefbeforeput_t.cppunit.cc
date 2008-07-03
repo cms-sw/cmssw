@@ -63,9 +63,11 @@ void testEventGetRefBeforePut::failGetProductNotRegisteredTest() {
   edm::RunAuxiliary runAux(col.run(), fakeTime, fakeTime);
   boost::shared_ptr<edm::RunPrincipal> rp(new edm::RunPrincipal(runAux, pregc, pc));
   edm::LuminosityBlockAuxiliary lumiAux(rp->run(), 1, fakeTime, fakeTime);
-  boost::shared_ptr<edm::LuminosityBlockPrincipal>lbp(new edm::LuminosityBlockPrincipal(lumiAux, pregc, rp, pc));
+  boost::shared_ptr<edm::LuminosityBlockPrincipal>lbp(new edm::LuminosityBlockPrincipal(lumiAux, pregc, pc));
+  lbp->setRunPrincipal(rp);
   edm::EventAuxiliary eventAux(col, uuid, fakeTime, lbp->luminosityBlock(), true);
-  edm::EventPrincipal ep(eventAux, pregc, lbp, pc);
+  edm::EventPrincipal ep(eventAux, pregc, pc);
+  ep.setLuminosityBlockPrincipal(lbp);
   try {
      edm::ModuleDescription modDesc;
      modDesc.moduleName_ = "Blah";
@@ -123,9 +125,11 @@ void testEventGetRefBeforePut::getRefTest() {
   edm::RunAuxiliary runAux(col.run(), fakeTime, fakeTime);
   boost::shared_ptr<edm::RunPrincipal> rp(new edm::RunPrincipal(runAux, pregc, pc));
   edm::LuminosityBlockAuxiliary lumiAux(rp->run(), 1, fakeTime, fakeTime);
-  boost::shared_ptr<edm::LuminosityBlockPrincipal>lbp(new edm::LuminosityBlockPrincipal(lumiAux, pregc, rp, pc));
+  boost::shared_ptr<edm::LuminosityBlockPrincipal>lbp(new edm::LuminosityBlockPrincipal(lumiAux, pregc, pc));
+  lbp->setRunPrincipal(rp);
   edm::EventAuxiliary eventAux(col, uuid, fakeTime, lbp->luminosityBlock(), true);
-  edm::EventPrincipal ep(eventAux, pregc, lbp, pc);
+  edm::EventPrincipal ep(eventAux, pregc, pc);
+  ep.setLuminosityBlockPrincipal(lbp);
 
   edm::RefProd<edmtest::IntProduct> refToProd;
   try {

@@ -773,8 +773,8 @@ namespace edm {
 	lbp.reset(
 	  new LuminosityBlockPrincipal(lumiAux,
 				       pReg,
-				       rp,
 				       processConfiguration_));
+	  lbp->setRunPrincipal(rp);
     }
     assert(eventAux_.run() == lbp->run());
     assert(eventAux_.luminosityBlock() == lbp->luminosityBlock());
@@ -783,7 +783,6 @@ namespace edm {
     std::auto_ptr<EventPrincipal> thisEvent(new EventPrincipal(
 		eventAux_,
 		pReg,
-		lbp,
 		processConfiguration_,
 		eventAux_.processHistoryID_,
 		makeBranchMapper<EventEntryInfo>(eventTree_, InEvent, pEventEntryInfoVector_),
@@ -876,7 +875,6 @@ namespace edm {
       return boost::shared_ptr<LuminosityBlockPrincipal>(
 	new LuminosityBlockPrincipal(lumiAux,
 				     pReg,
-				     rp,
 				     processConfiguration_));
     }
     // End code for backward compatibility before the exixtence of lumi trees.
@@ -899,7 +897,7 @@ namespace edm {
     }
     boost::shared_ptr<LuminosityBlockPrincipal> thisLumi(
 	new LuminosityBlockPrincipal(lumiAux_,
-				     pReg, rp, processConfiguration_,
+				     pReg, processConfiguration_,
 				     lumiAux_.processHistoryID_,
 				     makeBranchMapper<LumiEntryInfo>(lumiTree_, InLumi, pLumiEntryInfoVector_),
 				     lumiTree_.makeDelayedReader()));

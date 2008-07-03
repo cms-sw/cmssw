@@ -6,13 +6,12 @@ namespace edm {
 
   LuminosityBlockPrincipal::LuminosityBlockPrincipal(LuminosityBlockAuxiliary const& aux,
 	boost::shared_ptr<ProductRegistry const> reg,
-	boost::shared_ptr<RunPrincipal> rp,
 	ProcessConfiguration const& pc,
 	ProcessHistoryID const& hist,
 	boost::shared_ptr<Mapper> mapper, 
 	boost::shared_ptr<DelayedReader> rtrv) :
 	  Base(reg, pc, hist, mapper, rtrv),
-	  runPrincipal_(rp),
+	  runPrincipal_(),
 	  aux_(aux) {}
 
   void

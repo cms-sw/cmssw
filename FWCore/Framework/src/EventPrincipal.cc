@@ -11,14 +11,13 @@
 namespace edm {
   EventPrincipal::EventPrincipal(EventAuxiliary const& aux,
 	boost::shared_ptr<ProductRegistry const> reg,
-	boost::shared_ptr<LuminosityBlockPrincipal> lbp,
 	ProcessConfiguration const& pc,
 	ProcessHistoryID const& hist,
 	boost::shared_ptr<Mapper> mapper,
 	boost::shared_ptr<DelayedReader> rtrv) :
 	  Base(reg, pc, hist, mapper, rtrv),
 	  aux_(aux),
-	  luminosityBlockPrincipal_(lbp),
+	  luminosityBlockPrincipal_(),
 	  unscheduledHandler_(),
 	  moduleLabelsRunning_(),
 	  eventHistory_() {

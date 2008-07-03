@@ -5,10 +5,17 @@
 
 namespace edm {
 
+  namespace {
+    Run *
+    newRun(LuminosityBlockPrincipal& lbp, ModuleDescription const& md) {
+      return (lbp.runPrincipalSharedPtr() ? new Run(lbp.runPrincipal(), md) : 0);
+    }
+  }
+
   LuminosityBlock::LuminosityBlock(LuminosityBlockPrincipal& lbp, ModuleDescription const& md) :
 	DataViewImpl<RunLumiEntryInfo>(lbp, md, InLumi),
 	aux_(lbp.aux()),
-	run_(new Run(lbp.runPrincipal(), md)) {
+	run_(newRun(lbp, md)) {
   }
 
   LuminosityBlockPrincipal &

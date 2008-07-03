@@ -1,5 +1,5 @@
 /*----------------------------------------------------------------------
-$Id: ConfigurableInputSource.cc,v 1.35 2008/04/03 16:18:37 paterno Exp $
+$Id: ConfigurableInputSource.cc,v 1.37 2008/04/03 21:59:55 wmtan Exp $
 ----------------------------------------------------------------------*/
 
 #include "DataFormats/Provenance/interface/LuminosityBlockAuxiliary.h"
@@ -71,7 +71,7 @@ namespace edm {
     LuminosityBlockAuxiliary lumiAux(runPrincipal()->run(), luminosityBlock_, ts, Timestamp::invalidTimestamp());
     boost::shared_ptr<LuminosityBlockPrincipal> lumiPrincipal(
         new LuminosityBlockPrincipal(
-	    lumiAux, productRegistry(), runPrincipal(), processConfiguration()));
+	    lumiAux, productRegistry(), processConfiguration()));
     LuminosityBlock lb(*lumiPrincipal, moduleDescription());
     beginLuminosityBlock(lb);
     lb.commit_();
@@ -90,7 +90,7 @@ namespace edm {
     EventAuxiliary eventAux(eventID_,
       processGUID(), Timestamp(presentTime_), lbp->luminosityBlock(), isRealData_, eType_);
     std::auto_ptr<EventPrincipal> result(
-	new EventPrincipal(eventAux, productRegistry(), lbp, processConfiguration()));
+	new EventPrincipal(eventAux, productRegistry(), processConfiguration()));
     Event e(*result, moduleDescription());
     if (!produce(e)) {
       ep_.reset(); 
