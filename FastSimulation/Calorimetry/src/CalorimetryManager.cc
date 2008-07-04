@@ -156,8 +156,8 @@ void CalorimetryManager::reconstruct()
       const CaloSubdetectorGeometry* geom=myCalorimeter_->getHcalGeometry();
       for(int subdetn=1;subdetn<=4;++subdetn)
 	{
-	  std::vector<DetId> ids=geom->getValidDetIds(DetId::Hcal,subdetn);  
-	  for (std::vector<DetId>::iterator i=ids.begin(); i!=ids.end(); i++) 
+	  const std::vector<DetId>& ids(geom->getValidDetIds(DetId::Hcal,subdetn));  
+	  for (std::vector<DetId>::const_iterator i=ids.begin(); i!=ids.end(); i++) 
 	    {
 	      HcalDetId myDetId(*i);
 	      unsigned hi=myDetId.hashed_index();
