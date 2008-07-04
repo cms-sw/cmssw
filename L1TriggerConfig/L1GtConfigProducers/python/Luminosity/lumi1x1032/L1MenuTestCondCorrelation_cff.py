@@ -5,6 +5,7 @@ import FWCore.ParameterSet.Config as cms
 
 # menu definition
 from L1TriggerConfig.L1GtConfigProducers.l1GtTriggerMenuXml_cfi import *
+
 l1GtTriggerMenuXml.TriggerMenuLuminosity = 'lumi1x1032'
 l1GtTriggerMenuXml.DefXmlFile = 'L1MenuTestCondCorrelation.xml'
 l1GtTriggerMenuXml.VmeXmlFile = ''

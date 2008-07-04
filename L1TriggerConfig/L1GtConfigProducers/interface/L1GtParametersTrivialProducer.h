@@ -65,6 +65,9 @@ private:
     /// active boards in the L1 EVM record
     boost::uint16_t m_evmActiveBoards;
 
+    /// length of BST record (in bytes)
+    unsigned int m_bstLengthBytes;
+
 };
 
 #endif

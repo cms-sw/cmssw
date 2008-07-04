@@ -74,8 +74,10 @@ L1GtParametersTrivialProducer::L1GtParametersTrivialProducer(const edm::Paramete
     m_daqActiveBoards =
         static_cast<boost::uint16_t>(parSet.getParameter<unsigned int>("DaqActiveBoards"));
 
-    m_evmActiveBoards =
+    m_evmActiveBoards = 
         static_cast<boost::uint16_t>(parSet.getParameter<unsigned int>("EvmActiveBoards"));
+
+    m_bstLengthBytes = parSet.getParameter<unsigned int>("BstLengthBytes");
 
 }
 
@@ -110,6 +112,9 @@ boost::shared_ptr<L1GtParameters> L1GtParametersTrivialProducer::produceGtParame
 
     // set the active boards for L1 GT EVM record
     pL1GtParameters->setGtEvmActiveBoards(m_evmActiveBoards);
+
+    // set length of BST record (in bytes) for L1 GT EVM record
+    pL1GtParameters->setGtBstLengthBytes(m_bstLengthBytes);
 
     return pL1GtParameters ;
 }
