@@ -13,7 +13,7 @@
 //
 // Original Author:  Vincenzo Chiochia & Andrew York
 //         Created:  
-// $Id: SiPixelClusterModule.cc,v 1.13 2008/06/23 12:14:25 merkelp Exp $
+// $Id: SiPixelClusterModule.cc,v 1.14 2008/06/23 15:06:13 merkelp Exp $
 //
 //
 // Updated by: Lukas Wehrli
@@ -405,7 +405,7 @@ void SiPixelClusterModule::book(const edm::ParameterSet& iConfig, int type) {
 //
 // Fill histograms
 //
-void SiPixelClusterModule::fill(const edm::DetSetVector<SiPixelCluster>& input, 
+void SiPixelClusterModule::fill(const edmNew::DetSetVector<SiPixelCluster>& input, 
                                 bool modon, 
 				bool ladon, 
 				bool layon, 
@@ -417,14 +417,14 @@ void SiPixelClusterModule::fill(const edm::DetSetVector<SiPixelCluster>& input,
   bool barrel = DetId::DetId(id_).subdetId() == static_cast<int>(PixelSubdetector::PixelBarrel);
   bool endcap = DetId::DetId(id_).subdetId() == static_cast<int>(PixelSubdetector::PixelEndcap);
   
-  edm::DetSetVector<SiPixelCluster>::const_iterator isearch = input.find(id_); // search  clusters of detid
+  edmNew::DetSetVector<SiPixelCluster>::const_iterator isearch = input.find(id_); // search  clusters of detid
   
   if( isearch != input.end() ) {  // Not an empty iterator
 
     unsigned int numberOfClusters = 0;
     
     // Look at clusters now
-    edm::DetSet<SiPixelCluster>::const_iterator  di;
+    edmNew::DetSet<SiPixelCluster>::const_iterator  di;
     for(di = isearch->data.begin(); di != isearch->data.end(); di++) {
       numberOfClusters++;
       float charge = 0.001*(di->charge()); // total charge of cluster
