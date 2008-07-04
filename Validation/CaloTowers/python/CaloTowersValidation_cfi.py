@@ -2,9 +2,11 @@ import FWCore.ParameterSet.Config as cms
 
 from Configuration.StandardSequences.SimulationRandomNumberGeneratorSeeds_cff import *
 from Configuration.StandardSequences.Simulation_cff import *
+from Configuration.StandardSequences.Geometry_cff import *
 from Configuration.StandardSequences.MixingNoPileUp_cff import *
 from Configuration.StandardSequences.FakeConditions_cff import *
 from Configuration.StandardSequences.Reconstruction_cff import *
+
 from DQMServices.Core.DQM_cfg import *
 maxEvents = cms.untracked.PSet(
     input = cms.untracked.int32(-1)
@@ -23,7 +25,15 @@ myanalyzer = cms.EDFilter("CaloTowersValidation",
     hcalselector = cms.untracked.string('HB')
 )
 
-p = cms.Path(mix*calDigi*ecalLocalRecoSequence*hbhereco*hfreco*horeco*caloTowersRec*myanalyzer)
 DQM.collectorHost = ''
 
+hbhereco.digiLabel = 'simHcalDigis'
+horeco.digiLabel = 'simHcalDigis'
+hfreco.digiLabel = 'simHcalDigis'
+
+ecalPreshowerRecHit.ESdigiCollection = 'simEcalPreshowerDigis'
+ecalWeightUncalibRecHit.EBdigiCollection = 'simEcalDigis:ebDigis'
+ecalWeightUncalibRecHit.EEdigiCollection = 'simEcalDigis:eeDigis'
+
+p = cms.Path(mix*calDigi*calolocalreco*caloTowersRec*myanalyzer)
 
