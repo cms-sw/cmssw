@@ -1,4 +1,4 @@
-# /dev/CMSSW_2_1_0_pre6/HLT/V27 (CMSSW_2_1_X_2008-07-03-0200_HLT1)
+# /dev/CMSSW_2_1_0_pre6/HLT/V29 (CMSSW_2_1_X_2008-07-03-0200_HLT1)
 
 import FWCore.ParameterSet.Config as cms
 
@@ -206,7 +206,8 @@ block_hltL3TrajectorySeed = cms.PSet(
   PhiR_UpperLimit_Par2 = cms.double( 0.2 ),
   vertexCollection = cms.InputTag( "pixelVertices" ),
   Eta_fixed = cms.double( 0.2 ),
-  Phi_fixed = cms.double( 0.2 )
+  Phi_fixed = cms.double( 0.2 ),
+  OnDemand = cms.double( -1.0 )
 )
 
 

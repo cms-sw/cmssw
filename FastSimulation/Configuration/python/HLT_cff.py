@@ -1,4 +1,4 @@
-# /dev/CMSSW_2_1_0_pre6/HLT/V27 (CMSSW_2_1_X_2008-07-03-0200_HLT1)
+# /dev/CMSSW_2_1_0_pre6/HLT/V29 (CMSSW_2_1_X_2008-07-03-0200_HLT1)
 # Begin replace statements specific to the FastSim HLT
 # For all HLTLevel1GTSeed objects, make the following replacements:
 #   - L1GtReadoutRecordTag changed from hltGtDigis to gtDigis
