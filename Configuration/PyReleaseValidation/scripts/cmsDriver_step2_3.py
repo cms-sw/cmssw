@@ -13,7 +13,7 @@ parser = optparse.OptionParser(usage)
 
 parser.add_option("--globaltag",
                    help="Name of global conditions to use",
-                   default="STARTUP",
+                   default="STARTUP_V4",
                    dest="gt")
 
 parser.add_option("--rereco",
