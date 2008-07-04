@@ -8,7 +8,7 @@
 //
 // Original Author:  
 //         Created:  Mon Dec  3 08:38:38 PST 2007
-// $Id: CmsShowMain.cc,v 1.13 2008/07/01 04:23:57 chrjones Exp $
+// $Id: CmsShowMain.cc,v 1.14 2008/07/01 19:13:16 chrjones Exp $
 //
 
 // system include files
@@ -23,6 +23,7 @@
 #include "TClass.h"
 #include "TEveTrackProjected.h"
 #include "TEveSelection.h"
+#include "TEveLine.h"
 
 //geometry
 #include "TFile.h"
@@ -104,7 +105,8 @@ CmsShowMain::CmsShowMain(int argc, char *argv[]) :
     ("geom-file,g",   po::value<std::string>(), "Include geometry file")
     ("noconfig,n",    "Don't load any configuration file")
     ("fast,f",        "Load fast")
-    ("debug,d",       "Show Eve browser to help debug problems");
+    ("debug,d",       "Show Eve browser to help debug problems")
+    ("shine,s",       "Use advance options to improve rendering quality (anti-alias etc)");
   po::positional_options_description p;
   p.add("input-file", -1);
 
@@ -140,8 +142,9 @@ CmsShowMain::CmsShowMain(int argc, char *argv[]) :
     m_geomFileName = "cmsGeom10.root";
   }
   bool debugMode = vm.count("debug");
-   
-
+  
+  if ( vm.count("shine") ) TEveLine::SetDefaultSmooth(kTRUE);
+     
   if ( !vm.count("fast") )
      m_textView = std::auto_ptr<FWTextView>( new FWTextView(this, &*m_selectionManager, &*m_guiManager) );
 
@@ -229,12 +232,12 @@ CmsShowMain::CmsShowMain(int argc, char *argv[]) :
                             "hltL1extraParticles",
                             "Isolated",
                             "",
-                            "",
+                            "$.pt()>15",
                             3);
 
-   FWPhysicsObjectDesc l1MuonTrigs("L1MuonTrig",
+   FWPhysicsObjectDesc l1Muons("L1-Muons",
                             TClass::GetClass("l1extra::L1MuonParticleCollection"),
-                            "L1MuonTrig",
+                            "L1-Muons",
                             FWDisplayProperties(kViolet),
                             "hltL1extraParticles",
                             "",
@@ -242,9 +245,9 @@ CmsShowMain::CmsShowMain(int argc, char *argv[]) :
                             "",
                             3);
 
-   FWPhysicsObjectDesc l1EtMissTrigs("L1EtMissTrig",
+   FWPhysicsObjectDesc l1MET("L1-MET",
                             TClass::GetClass("l1extra::L1EtMissParticleCollection"),
-                            "L1EtMissTrig",
+                            "L1-MET",
                             FWDisplayProperties(kTeal),
                             "hltL1extraParticles",
                             "",
@@ -252,14 +255,14 @@ CmsShowMain::CmsShowMain(int argc, char *argv[]) :
                             "",
                             3);
 
-   FWPhysicsObjectDesc l1JetTrigs("L1JetTrig",
+   FWPhysicsObjectDesc l1Jets("L1-Jets",
                             TClass::GetClass("l1extra::L1JetParticleCollection"),
-                            "L1JetTrig",
+                            "L1-Jets",
                             FWDisplayProperties(kMagenta),
                             "hltL1extraParticles",
                             "Central",
                             "",
-                            "",
+                            "$.pt()>15",
                             3);
 
 
@@ -300,7 +303,7 @@ CmsShowMain::CmsShowMain(int argc, char *argv[]) :
 				    "genParticles",
 				    "",
 				    "",
-				    "$.pt()>1 && $.status() == 3",
+				    "abs($.pdgId())==11 || abs($.pdgId())==13",
 				    6);
 
    // Vertices
@@ -314,9 +317,9 @@ CmsShowMain::CmsShowMain(int argc, char *argv[]) :
 	 			"",
 				10);
 
-   FWPhysicsObjectDesc mets("METs",
+   FWPhysicsObjectDesc mets("MET",
 			    TClass::GetClass("reco::CaloMETCollection"),
-			    "METs",
+			    "MET",
 			    FWDisplayProperties(kRed),
 			    "metNoHF",
 			    "",
@@ -324,19 +327,30 @@ CmsShowMain::CmsShowMain(int argc, char *argv[]) :
 			    "",
 			    3);
 
+   FWPhysicsObjectDesc dtSegments("DT-segments",
+				  TClass::GetClass("DTRecSegment4DCollection"),
+				  "DT-segments",
+				  FWDisplayProperties(kBlue),
+				  "dt4DSegments",
+				  "",
+				  "",
+				  "",
+				  1);
+
    registerPhysicsObject(ecal);
    registerPhysicsObject(hcal);
    registerPhysicsObject(jets);
    registerPhysicsObject(l1EmTrigs);
-   registerPhysicsObject(l1MuonTrigs);
-   registerPhysicsObject(l1EtMissTrigs);
-   registerPhysicsObject(l1JetTrigs);
+   registerPhysicsObject(l1Muons);
+   registerPhysicsObject(l1MET);
+   registerPhysicsObject(l1Jets);
    registerPhysicsObject(tracks);
    registerPhysicsObject(muons);
    registerPhysicsObject(electrons);
    registerPhysicsObject(genParticles);
    registerPhysicsObject(vertices);
    registerPhysicsObject(mets);
+   registerPhysicsObject(dtSegments);
    
   } else {
     char* whereConfig = gSystem->Which(TROOT::GetMacroPath(), m_configFileName.c_str(), kReadPermission);
@@ -390,7 +404,10 @@ CmsShowMain::CmsShowMain(int argc, char *argv[]) :
    
    if(debugMode) {
       m_guiManager->openEveBrowserForDebugging();
+   }else{
+      gSystem->IgnoreSignal(kSigSegmentationViolation, true);
    }
+     
    } catch(std::exception& iException) {
       std::cerr <<"CmsShowMain caught exception "<<iException.what()<<std::endl;
       throw;
