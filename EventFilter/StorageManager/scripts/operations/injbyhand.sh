@@ -1,18 +1,21 @@
 #!/bin/bash
-# $Id:$
+# $Id: injbyhand.sh,v 1.1 2008/06/16 11:37:41 loizides Exp $
 #
 # Script that extracts necessary information for transfer from written file
 # and injects the file in to DB using the standalone script.
 #
-
-doinject=1
-#debug=echo
 
 name=$1
 if test -z $name; then 
     echo "Specify valid pathname"
     exit 1; 
 fi
+
+debug=echo
+if test -n $2; then 
+    debug=
+fi
+
 if ! test -e $name; then
     echo "$name was not found."
     exit 2;
@@ -54,19 +57,30 @@ echo Size:       $size
 echo Ctime:      $ctime
 echo Itime:      $itime
 
-if test "$inject" = "1"; then
-    tier0="/nfshome0/tier0/scripts/injectFileIntoTransferSystem.pl"
+tier0="/nfshome0/tier0/scripts/injectFileIntoTransferSystem.pl"
+result=`$tier0 --check --filename $fname`;
+echo 
+echo "Query on file resulted in: $result";
+echo
+
+if test -n "`echo $result | grep 'File not found in database'`"; then
     $debug $tier0 --filename $fname --path $pname --filesize $size --type streamer \
         --hostname $hname --destination Global --producer StorageManager --appname CMSSW \
         --appversion CMSSW_2_0_8_ONLINE1-cms2 --runnumber $runno  --lumisection $lumi \
         --count $fc --stream $stream  --instance $inst --setuplabel $setuplabel \
         --nevents 1 --ctime $ctime --itime $itime --index $ifile \
-        --checksum 0 --comment 'Injected by hand'
-else
+        --checksum 0 --comment 'Injected with injbyhand.sh';
+elif test -n "`echo $result | grep FILES_INJECTED`"; then
     notscript="/nfshome0/cmsprod/TransferTest/injection/sendNotification.sh"
     $debug $notscript --APP_NAME CMSSW --APP_VERSION CMSSW_2_0_8_ONLINE1-cms2 --RUNNUMBER $runno \
         --LUMISECTION $lumi  --START_TIME $ctime \
         --STOP_TIME $ctime --FILENAME $fname --PATHNAME $pname --HOSTNAME $hname \
         --DESTINATION Global --SETUPLABEL $setuplabel --STREAM $stream --TYPE streamer \
         --NEVENTS 1 --FILESIZE $size --CHECKSUM 0 --INDEX $ifile
+elif test -n "`echo $result | grep FILES_TRANS_CHECKED`"; then
+    echo "Nothing to be done. File is already transferred and checked.";
+    exit 0;
+else
+    echo "Cowardly refusing to do anything."
+    exit 1;
 fi
