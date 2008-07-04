@@ -8,7 +8,7 @@
 //
 // Original Author:  Chris Jones
 //         Created:  Thu Feb 21 11:22:41 EST 2008
-// $Id: FWGlimpseView.cc,v 1.3 2008/06/28 22:15:54 dmytro Exp $
+// $Id: FWGlimpseView.cc,v 1.4 2008/07/03 02:05:43 dmytro Exp $
 //
 
 // system include files
@@ -46,7 +46,7 @@
 
 // user include files
 #include "Fireworks/Core/interface/FWGlimpseView.h"
-#include "Fireworks/Core/interface/FWGlimpseViewManager.h"
+#include "Fireworks/Core/interface/FWEveValueScaler.h"
 #include "Fireworks/Core/interface/FWConfiguration.h"
 #include "Fireworks/Core/interface/BuilderUtils.h"
 
@@ -58,15 +58,17 @@
 //
 // static data member definitions
 //
-double FWGlimpseView::m_scale = 1;
+//double FWGlimpseView::m_scale = 1;
 
 //
 // constructors and destructor
 //
-FWGlimpseView::FWGlimpseView(TGFrame* iParent, TEveElementList* list):
+FWGlimpseView::FWGlimpseView(TGFrame* iParent, TEveElementList* list, 
+                             FWEveValueScaler* iScaler):
  m_cameraMatrix(0),
  m_cameraMatrixBase(0),
- m_scaleParam(this,"Energy scale", 2.0, 0.01, 1000.),
+ m_scaleParam(this,"Energy scale", static_cast<double>(iScaler->scale()), 0.01, 1000.),
+ m_scaler(iScaler),
  m_manager(0)
 {
    m_pad = new TEvePad;
@@ -196,18 +198,6 @@ FWGlimpseView::saveImageTo(const std::string& iName) const
    }
 }
 
-void   
-FWGlimpseView::setScale( double scale ) 
-{ 
-   m_scale = scale; 
-}
-
-double 
-FWGlimpseView::getScale() 
-{ 
-   return m_scale; 
-}
-
 void 
 FWGlimpseView::setManager( FWGlimpseViewManager* manager ) 
 { 
@@ -217,8 +207,7 @@ FWGlimpseView::setManager( FWGlimpseViewManager* manager )
 void 
 FWGlimpseView::updateScale( double scale ) 
 { 
-   setScale( scale );
-   if ( m_manager ) m_manager->newEventAvailable();
+   m_scaler->setScale(scale);
 }
 
 //
