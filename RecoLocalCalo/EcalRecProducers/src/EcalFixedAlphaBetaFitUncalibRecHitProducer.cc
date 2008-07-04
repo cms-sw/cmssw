@@ -48,8 +48,10 @@ EcalFixedAlphaBetaFitUncalibRecHitProducer::EcalFixedAlphaBetaFitUncalibRecHitPr
   produces< EEUncalibratedRecHitCollection >(EEhitCollection_);
 
   
-  alpha_= ps.getParameter<double>("alpha");
-  beta_= ps.getParameter<double>("beta");
+  alphaEB_= ps.getParameter<double>("alphaEB");
+  betaEB_= ps.getParameter<double>("betaEB");
+  alphaEE_= ps.getParameter<double>("alphaEE");
+  betaEE_= ps.getParameter<double>("betaEE");
 
    alphabetaFilename_= ps.getUntrackedParameter<std::string>("AlphaBetaFilename","NOFILE");
    useAlphaBetaArray_=setAlphaBeta();//set crystalwise values of alpha and beta
@@ -202,16 +204,16 @@ EcalFixedAlphaBetaFitUncalibRecHitProducer::produce(edm::Event& evt, const edm::
 	   a=alphaBetaValues_[EBDetId(itdg->id()).ism()-1][EBDetId(itdg->id()).ic()-1].first;
 	   b=alphaBetaValues_[EBDetId(itdg->id()).ism()-1][EBDetId(itdg->id()).ic()-1].second;
 	   if ((a==-1)&&(b==-1)){
-	     a=alpha_;
-	     b=beta_;
+	     a=alphaEB_;
+	     b=betaEB_;
 	   }
 	 }else{
-	   a=alpha_;
-	   b=beta_;
+	   a=alphaEB_;
+	   b=betaEB_;
 	 }
        }else{
-	 a=alpha_;
-	 b=beta_;
+	 a=alphaEB_;
+	 b=betaEB_;
        }
      
        algoEB_.SetAlphaBeta(a,b);
@@ -221,7 +223,7 @@ EcalFixedAlphaBetaFitUncalibRecHitProducer::produce(edm::Event& evt, const edm::
        
        /*
 	 if(aHit.amplitude()>0. && !counterExceeded() ) {
-	 std::cout << "EcalFixedAlphaBetaFitUncalibRecHitProducer: processed EBDataFrame with id: "
+	 std::cout << "EcalFixedAlphaEBBetaFitUncalibRecHitProducer: processed EBDataFrame with id: "
 	 << itdg->id() << "\n"
 	 << "uncalib rechit amplitude: " << aHit.amplitude()
 	 << std::endl;
@@ -230,11 +232,12 @@ EcalFixedAlphaBetaFitUncalibRecHitProducer::produce(edm::Event& evt, const edm::
      }
    }
    evt.put( EBuncalibRechits, EBhitCollection_ );
+
    //loop over EE digis
    if( EEdigis ){
      for(EEDigiCollection::const_iterator itdg = EEdigis->begin(); itdg != EEdigis->end(); ++itdg) {
        //FIX ME load in a and b from a file
-       algoEE_.SetAlphaBeta(alpha_,beta_);
+       algoEE_.SetAlphaBeta(alphaEE_,betaEE_);
 
        // find pedestals for this channel
        LogDebug("EcalUncalibRecHitDebug") << "looking up pedestal for crystal: " << EEDetId(itdg->id()) ;

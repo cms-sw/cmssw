@@ -5,12 +5,14 @@ ecalFixedAlphaBetaFitUncalibRecHit = cms.EDProducer("EcalFixedAlphaBetaFitUncali
     EEdigiCollection = cms.InputTag("ecalDigis","eeDigis"),
     EBdigiCollection = cms.InputTag("ecalDigis","ebDigis"),
     EEhitCollection = cms.string('EcalUncalibRecHitsEE'),
-    beta = cms.double(1.7),
+    betaEB = cms.double(1.7),
+    betaEE = cms.double(1.37),
     AlphaBetaFilename = cms.untracked.string('NOFILE'),
-    MinAmplEndcap = cms.double(8.0),
+    MinAmplEndcap = cms.double(14.0),
     MinAmplBarrel = cms.double(8.0),
     UseDynamicPedestal = cms.bool(True),
-    alpha = cms.double(1.2),
+    alphaEB = cms.double(1.2),
+    alphaEE = cms.double(1.63),
     EBhitCollection = cms.string('EcalUncalibRecHitsEB')
 )
 

@@ -33,8 +33,10 @@ class EcalFixedAlphaBetaFitUncalibRecHitProducer : public edm::EDProducer {
    EcalUncalibRecHitFixedAlphaBetaAlgo<EBDataFrame> algoEB_;
    EcalUncalibRecHitFixedAlphaBetaAlgo<EEDataFrame> algoEE_;
 
-    double alpha_;
-    double beta_;
+    double alphaEB_;
+    double betaEB_;
+    double alphaEE_;
+    double betaEE_;
     std::vector<std::vector<std::pair<double,double> > > alphaBetaValues_;//List of alpha and Beta values [SM#][CRY#](alpha, beta)
     bool useAlphaBetaArray_;
     std::string alphabetaFilename_;
