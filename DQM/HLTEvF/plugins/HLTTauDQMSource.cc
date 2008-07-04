@@ -560,33 +560,23 @@ HLTTauDQMSource::doSummary(const Event& iEvent, const EventSetup& iSetup)
 	     {
 	     if(tev->filterIndex(mainPath_)!=tev->sizeFilters())
 		{
-		  LVColl obj = importFilterColl(mainPath_,iEvent);
-		  if(obj.size()>=nTriggeredTaus_)
 		    NEventsPassedMainFilter++;
 		}
 	     if(tev->filterIndex(l1BackupPath_)!=tev->sizeFilters())
 		{
-		  LVColl obj = importFilterColl(l1BackupPath_,iEvent);
-		  if(obj.size()>=nTriggeredTaus_)
 		     NEventsPassedL1Backup++;
 		}
 	     if(tev->filterIndex(l2BackupPath_)!=tev->sizeFilters())
 		{
-		   LVColl obj = importFilterColl(l2BackupPath_,iEvent);
-		   if(obj.size()>=nTriggeredTaus_)
-			  NEventsPassedL2Backup++;
+		  NEventsPassedL2Backup++;
 		}
 	     if(tev->filterIndex(l25BackupPath_)!=tev->sizeFilters())
 		{
-		   LVColl obj = importFilterColl(l25BackupPath_,iEvent);
-		   if(obj.size()>=nTriggeredTaus_)
 		     NEventsPassedL25Backup++;
 		}
 	     if(tev->filterIndex(l3BackupPath_)!=tev->sizeFilters())
 	       { 
-		  LVColl obj = importFilterColl(l3BackupPath_,iEvent);
-		  if(obj.size()>=nTriggeredTaus_)
-			 NEventsPassedL3Backup++;
+   		 NEventsPassedL3Backup++;
 	       }
 	     
 	     }
@@ -831,16 +821,16 @@ HLTTauDQMSource::doSummary(const Event& iEvent, const EventSetup& iSetup)
 	  triggerBitInfoRef_[i]->setBinContent(10,NEventsPassedRefL3[i]);
 
 	  //Efficiency With Ref to Reference trigger
-	  triggerEfficiencyRef_[i]->setBinContent(2,calcEfficiency(prescales_[0]*NEventsPassedRefL1[i],ref_prescales_[i]*NRefEvents[i])[0]);
-	  triggerEfficiencyRef_[i]->setBinError(2,calcEfficiency(prescales_[0]*NEventsPassedRefL1[i],ref_prescales_[i]*NRefEvents[i])[1]);
-	  triggerEfficiencyRef_[i]->setBinContent(4,calcEfficiency(prescales_[0]*NEventsPassedRefL2Reco[i],ref_prescales_[i]*NRefEvents[i])[0]);
-	  triggerEfficiencyRef_[i]->setBinError(4,calcEfficiency(prescales_[0]*NEventsPassedRefL2Reco[i],ref_prescales_[i]*NRefEvents[i])[1]);
-	  triggerEfficiencyRef_[i]->setBinContent(6,calcEfficiency(prescales_[0]*NEventsPassedRefL2[i],ref_prescales_[i]*NRefEvents[i])[0]);
-	  triggerEfficiencyRef_[i]->setBinError(6,calcEfficiency(prescales_[0]*NEventsPassedRefL2[i],ref_prescales_[i]*NRefEvents[i])[1]);
-	  triggerEfficiencyRef_[i]->setBinContent(8,calcEfficiency(prescales_[0]*NEventsPassedRefL25[i],ref_prescales_[i]*NRefEvents[i])[0]);
-	  triggerEfficiencyRef_[i]->setBinError(8,calcEfficiency(prescales_[0]*NEventsPassedRefL25[i],ref_prescales_[i]*NRefEvents[i])[1]);
-	  triggerEfficiencyRef_[i]->setBinContent(10,calcEfficiency(prescales_[0]*NEventsPassedRefL3[i],ref_prescales_[i]*NRefEvents[i])[0]);
-	  triggerEfficiencyRef_[i]->setBinError(10,calcEfficiency(prescales_[0]*NEventsPassedRefL3[i],ref_prescales_[i]*NRefEvents[i])[1]);
+	  triggerEfficiencyRef_[i]->setBinContent(2,calcEfficiency(NEventsPassedRefL1[i],NRefEvents[i])[0]);
+	  triggerEfficiencyRef_[i]->setBinError(2,calcEfficiency(NEventsPassedRefL1[i],NRefEvents[i])[1]);
+	  triggerEfficiencyRef_[i]->setBinContent(4,calcEfficiency(NEventsPassedRefL2Reco[i],NRefEvents[i])[0]);
+	  triggerEfficiencyRef_[i]->setBinError(4,calcEfficiency(NEventsPassedRefL2Reco[i],NRefEvents[i])[1]);
+	  triggerEfficiencyRef_[i]->setBinContent(6,calcEfficiency(NEventsPassedRefL2[i],NRefEvents[i])[0]);
+	  triggerEfficiencyRef_[i]->setBinError(6,calcEfficiency(NEventsPassedRefL2[i],NRefEvents[i])[1]);
+	  triggerEfficiencyRef_[i]->setBinContent(8,calcEfficiency(NEventsPassedRefL25[i],NRefEvents[i])[0]);
+	  triggerEfficiencyRef_[i]->setBinError(8,calcEfficiency(NEventsPassedRefL25[i],NRefEvents[i])[1]);
+	  triggerEfficiencyRef_[i]->setBinContent(10,calcEfficiency(NEventsPassedRefL3[i],NRefEvents[i])[0]);
+	  triggerEfficiencyRef_[i]->setBinError(10,calcEfficiency(NEventsPassedRefL3[i],NRefEvents[i])[1]);
 
 	}
 
@@ -1113,9 +1103,7 @@ HLTTauDQMSource::importObjectColl(edm::InputTag& filter,int id,const Event& iEve
 	  if(iEvent.getByLabel(filter,f))
 	    {
 	      VRl1jet jets; 
-
-	      //TEMPORARYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYY--Seed with CenJets for CRUZET 3
-	      f->getObjects(trigger::TriggerL1CenJet,jets);
+	      f->getObjects(trigger::TriggerL1TauJet,jets);
 	      for(size_t i = 0; i<jets.size();++i)
 		out.push_back(jets[i]->p4());
 
@@ -1183,13 +1171,8 @@ HLTTauDQMSource::importObjectColl(edm::InputTag& filter,int id,const Event& iEve
 	    {
 	      for(size_t i = 0; i<obj->size();++i)
 		out.push_back((*obj)[i].p4());
-
 	    }
-
 	}
-
-
-
 
   return out;
 }
