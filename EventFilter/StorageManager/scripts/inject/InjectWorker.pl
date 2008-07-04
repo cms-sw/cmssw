@@ -1,5 +1,5 @@
 #!/usr/bin/perl -w
-# $Id: InjectWorker.pl,v 1.15 2008/06/27 14:37:31 loizides Exp $
+# $Id: InjectWorker.pl,v 1.16 2008/06/27 15:59:39 loizides Exp $
 
 use strict;
 use DBI;
@@ -157,6 +157,7 @@ sub inject($$)
 
     # fix a left over bug from CMSSW_2_0_4
     $appversion=$1 if $appversion =~ /\"(.*)'/;
+    $appversion=$1 if $appversion =~ /\"(.*)\"/;
 
     my $stime;
     if ($doNotify==0) {
