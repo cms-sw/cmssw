@@ -1,21 +1,17 @@
 //
-// $Id:$
+// $Id: Centrality.cc,v 1.1 2008/07/04 13:45:07 pyoungso Exp $
 //
 
 #include "DataFormats/HeavyIonEvent/interface/Centrality.h"
 
 using namespace reco;
 
-Centrality::Centrality(double energy, int bin, float npart, float npart_sig , float ncoll, float ncoll_sig, float b, float b_sig)
+Centrality::Centrality(double eHF, double eCASTOR, double eZDC, int ZDCHits)
   : 
-HFEnergy_(energy),
-Bin_(bin), 
-Npart_(npart), 
-Npart_sigma_(npart_sig), 
-Ncoll_(ncoll), 
-Ncoll_sigma_(ncoll_sig), 
-imp_par_(b), 
-imp_par_sigma_(b_sig)
+HFEnergy_(eHF),
+CASTOREnergy_(eCASTOR),
+ZDCEnergy_(eZDC),
+ZDCHitCounts_(ZDCHits)
 {
   // default constructor
 }

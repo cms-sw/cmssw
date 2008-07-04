@@ -1,5 +1,5 @@
 //
-// $Id:$
+// $Id: Centrality.h,v 1.1 2008/07/04 13:44:31 pyoungso Exp $
 //
 
 #ifndef DataFormats_Centrality_h
@@ -8,29 +8,21 @@
 
 namespace reco { class Centrality {
 public:
-  Centrality(double energy = 0, int bin = -1, float npart = 0, float npart_sig = 0, float ncoll = 0, float ncoll_sig = 0, float b = 0, float b_sig = 0);
+  Centrality(double eHF=0, double eCASTOR=0, double eZDC=0, int ZDCHits=0);
   virtual ~Centrality();
 
-  double    HFEnergy()          const { return HFEnergy_; }
-  int	    Bin()		const { return Bin_; }
-  double    Npart()             const { return Npart_; } 
-  double    Npart_sigma()       const { return Npart_sigma_; }
-  double    Ncoll()             const { return Ncoll_; }
-  double    Ncoll_sigma()       const { return Ncoll_sigma_; }
-  double    imp_par()           const { return imp_par_; }
-  double    imp_par_sigma()     const { return imp_par_sigma_; }  
+  double    HFEnergy()          const { return HFEnergy_; } 
+  double    CASTOREnergy()      const { return CASTOREnergy_; } 
+  double    ZDCEnergy()         const { return ZDCEnergy_; } 
+  int       ZDCHitCounts()      const { return ZDCHitCounts_; } 
 
 
 
 private:
   double    HFEnergy_  ;
-  int	    Bin_ ;       
-  double    Npart_  ;
-  double    Npart_sigma_ ;
-  double    Ncoll_ ;
-  double    Ncoll_sigma_ ;
-  double    imp_par_ ;
-  double    imp_par_sigma_ ;
+  double    CASTOREnergy_  ;
+  double    ZDCEnergy_  ;
+  int       ZDCHitCounts_  ;
 
 };
 }
