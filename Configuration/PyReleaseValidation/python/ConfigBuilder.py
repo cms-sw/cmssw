@@ -5,7 +5,7 @@
 # creates a complete config file.
 # relval_main + the custom config for it is not needed any more
 
-__version__ = "$Revision: 1.37 $"
+__version__ = "$Revision: 1.38 $"
 __source__ = "$Source: /cvs_server/repositories/CMSSW/CMSSW/Configuration/PyReleaseValidation/python/ConfigBuilder.py,v $"
 
 import FWCore.ParameterSet.Config as cms
@@ -172,6 +172,9 @@ class ConfigBuilder(object):
                 getattr(self,"prepare_"+step)()            
             elif len(stepParts)==2:
                 getattr(self,"prepare_"+stepName)(sequence = stepParts[1])
+            elif len(stepParts)==3:
+                getattr(self,"prepare_"+stepName)(sequence = stepParts[1]+','+stepParts[2])
+
             else:
                 raise ValueError("Step definition "+step+" invalid")
 
@@ -292,8 +295,11 @@ class ConfigBuilder(object):
   
 
     def prepare_RAW2DIGI(self, sequence = None):
-        self.loadAndRemember("Configuration/StandardSequences/RawToDigi_cff")
-        self.process.raw2digi_step = cms.Path( self.process.RawToDigi )
+        if ( len(sequence.split(','))==1 ):
+            self.loadAndRemember("Configuration/StandardSequences/RawToDigi_cff")
+        else:    
+            self.loadAndRemember(sequence.split(',')[0])
+        self.process.raw2digi_step = cms.Path( getattr(self.process, sequence.split(',')[-1]) )
         self.process.schedule.append(self.process.raw2digi_step)
         return
 
@@ -334,7 +340,7 @@ class ConfigBuilder(object):
     def build_production_info(self, evt_type, evtnumber):
         """ Add useful info for the production. """
         prod_info=cms.untracked.PSet\
-              (version=cms.untracked.string("$Revision: 1.37 $"),
+              (version=cms.untracked.string("$Revision: 1.38 $"),
                name=cms.untracked.string("PyReleaseValidation"),
                annotation=cms.untracked.string(evt_type+ " nevts:"+str(evtnumber))
               )
