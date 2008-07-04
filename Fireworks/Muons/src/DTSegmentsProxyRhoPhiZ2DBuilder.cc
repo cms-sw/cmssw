@@ -59,7 +59,7 @@ void DTSegmentsProxyRhoPhiZ2DBuilder::build(const FWEventItem* iItem,
       std::cout <<"failed to get DT segments"<<std::endl;
       return;
    }
-   unsigned int index;
+   unsigned int index = 0;
    for (  DTRecSegment4DCollection::id_iterator chamberId = segments->id_begin(); 
 	 chamberId != segments->id_end(); ++chamberId, ++index )
      {
@@ -120,4 +120,4 @@ void DTSegmentsProxyRhoPhiZ2DBuilder::build(const FWEventItem* iItem,
      }
 }
 
-REGISTER_FWRPZ2DDATAPROXYBUILDER(DTSegmentsProxyRhoPhiZ2DBuilder,DTRecSegment4DCollection,"DTSegments");
+REGISTER_FWRPZ2DDATAPROXYBUILDER(DTSegmentsProxyRhoPhiZ2DBuilder,DTRecSegment4DCollection,"DT-segments");
