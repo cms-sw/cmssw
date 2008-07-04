@@ -14,6 +14,7 @@ mix = cms.EDFilter("MixingModule",
     bunchspace = cms.int32(1632), ## ns
 
     playback = cms.untracked.bool(False),
+    useCurrentProcessOnly = cms.bool(False),
     input = cms.SecSource("PoolSource",
         nbPileupEvents = cms.PSet(
             sigmaInel = cms.double(80.0),

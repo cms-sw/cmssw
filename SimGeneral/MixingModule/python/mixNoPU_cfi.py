@@ -11,6 +11,7 @@ mix = cms.EDFilter("MixingModule",
 
     bunchspace = cms.int32(25),
     playback = cms.untracked.bool(False),
+    useCurrentProcessOnly = cms.bool(False),
     mixObjects = cms.PSet(
         mixCH = cms.PSet(
             mixCaloHits
