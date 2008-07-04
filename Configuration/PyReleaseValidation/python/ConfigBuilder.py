@@ -5,7 +5,7 @@
 # creates a complete config file.
 # relval_main + the custom config for it is not needed any more
 
-__version__ = "$Revision: 1.38 $"
+__version__ = "$Revision: 1.39 $"
 __source__ = "$Source: /cvs_server/repositories/CMSSW/CMSSW/Configuration/PyReleaseValidation/python/ConfigBuilder.py,v $"
 
 import FWCore.ParameterSet.Config as cms
@@ -50,6 +50,7 @@ class ConfigBuilder(object):
         # not sure if the latter is a good idea
         self.imports.append(includeFile)
         self.process.load(includeFile)
+        return __import__(includeFile)
 
     def executeAndRemember(self, command):
         """helper routine to remember replace statements"""
@@ -222,6 +223,21 @@ class ConfigBuilder(object):
     # prepare_STEPNAME modifies self.process and what else's needed.
     #----------------------------------------------------------------------------
 
+    def prepare_ALCA(self, sequence = None):
+        """ Enrich the process with alca streams """
+        alcaConfig = self.loadAndRemember("Configuration/StandardSequences/AlCaReco_cff")
+
+        # decide which ALCA paths to use
+        alcaList = sequence.split("+")
+        alcaPathList = ["path"+name for name in alcaList]
+
+        # put it in the schedule
+        for pathname in halcaConfig.__dict__:
+            if isinstance(getattr(alcaConfig,pathname),cms.Path) and pathname in alcaPathList:
+                self.process.Schedule.append(getattr(self.process,pathname))                
+
+        # for now omit outputs as RelVal output is undefined
+
     def prepare_GEN(self, sequence = None):
         """ Enrich the schedule with the generation step """    
         self.loadAndRemember("Configuration/StandardSequences/Generator_cff")
@@ -294,7 +310,7 @@ class ConfigBuilder(object):
         [self.blacklist_paths.append(name) for name in hltconfig.__dict__ if isinstance(getattr(hltconfig,name),cms.EndPath)]
   
 
-    def prepare_RAW2DIGI(self, sequence = None):
+    def prepare_RAW2DIGI(self, sequence = "RawToDigi"):
         if ( len(sequence.split(','))==1 ):
             self.loadAndRemember("Configuration/StandardSequences/RawToDigi_cff")
         else:    
@@ -340,7 +356,7 @@ class ConfigBuilder(object):
     def build_production_info(self, evt_type, evtnumber):
         """ Add useful info for the production. """
         prod_info=cms.untracked.PSet\
-              (version=cms.untracked.string("$Revision: 1.38 $"),
+              (version=cms.untracked.string("$Revision: 1.39 $"),
                name=cms.untracked.string("PyReleaseValidation"),
                annotation=cms.untracked.string(evt_type+ " nevts:"+str(evtnumber))
               )

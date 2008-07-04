@@ -228,7 +228,7 @@ first_step=trimmedStep.split(',')[0]
 if options.filein=="" and not first_step in ("ALL","GEN","SIM_CHAIN"):
     if options.dirin=="":
         options.dirin="file:"
-    options.filein=trimmedEvtType+"_"+prec_step[trimmedStep]+".root"
+    options.filein=trimmedEvtType+"_"+prec_step[first_step]+".root"
 
 
 # Prepare the canonical file name for output / config file etc
