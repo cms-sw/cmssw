@@ -1,6 +1,6 @@
 //-----------------------------------------------------------------------------
 //
-//   Class: L1CSCTPParameters
+//   Class: CSCL1TPParameters
 //
 //   Description: Configuration parameters for the Level-1 CSC Trigger
 //                Primitives emulator.
@@ -9,18 +9,18 @@
 //
 //-----------------------------------------------------------------------------
 
-#include <CondFormats/L1TObjects/interface/L1CSCTPParameters.h>
+#include <CondFormats/CSCObjects/interface/CSCL1TPParameters.h>
 
 //----------------
 // Constructors --
 //----------------
 
-L1CSCTPParameters::L1CSCTPParameters() {
+CSCL1TPParameters::CSCL1TPParameters() {
 }
 
 //----------------
 //  Destructor  --
 //----------------
 
-L1CSCTPParameters::~L1CSCTPParameters() {
+CSCL1TPParameters::~CSCL1TPParameters() {
 }

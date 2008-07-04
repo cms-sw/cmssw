@@ -1,7 +1,7 @@
-#ifndef L1TObjects_L1CSCTPParameters_h
-#define L1TObjects_L1CSCTPParameters_h
+#ifndef CSCObjects_CSCL1TPParameters_h
+#define CSCObjects_CSCL1TPParameters_h
 
-/** \class L1CSCTPParameters
+/** \class CSCL1TPParameters
  *  \author Slava Valuev
  *
  * Description: Configuration parameters needed for the Level-1 CSC Trigger
@@ -9,11 +9,11 @@
  *              from the conditions database.
  */
 
-class L1CSCTPParameters
+class CSCL1TPParameters
 {
  public:
-  L1CSCTPParameters();
-  ~L1CSCTPParameters();
+  CSCL1TPParameters();
+  ~CSCL1TPParameters();
 
   /** returns ALCT fifo_tbins */
   inline unsigned int alctFifoTbins() const   {return m_alct_fifo_tbins;}
