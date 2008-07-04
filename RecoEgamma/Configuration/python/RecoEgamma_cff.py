@@ -12,8 +12,7 @@ from RecoEgamma.EgammaIsolationAlgos.eleIsolationSequence_cff import *
 
 egammareco = cms.Sequence(electronSequence*conversionSequence*photonSequence)
 egammarecoFull = cms.Sequence(egammareco*egammaIsolationSequence*photonIDSequence*eIdSequence)
-egammarecoFullSmall = cms.Sequence(egammareco*eleIsolationSequence*photonIDSequence*eIdSequence)
-
+egammarecoWithID = cms.Sequence(egammareco*photonIDSequence*eIdSequence)
 egammareco_woConvPhotons = cms.Sequence(electronSequence*photonSequence)
 egammareco_withIsolation = cms.Sequence(egammareco*egammaIsolationSequence)
 egammareco_withIsolation_woConvPhotons = cms.Sequence(egammareco_woConvPhotons*egammaIsolationSequence)
