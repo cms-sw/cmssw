@@ -169,6 +169,40 @@ void HcalDigiMonitor::setup(const edm::ParameterSet& ps,
     }
   }
   
+  for (int ii=0;ii<10;++ii)
+    {
+      hbHists.temp_SHAPE_tot[ii]=0;
+      hbHists.temp_SHAPE_THR_tot[ii]=0;
+      heHists.temp_SHAPE_tot[ii]=0;
+      heHists.temp_SHAPE_THR_tot[ii]=0;
+      hoHists.temp_SHAPE_tot[ii]=0;
+      hoHists.temp_SHAPE_THR_tot[ii]=0;
+      hfHists.temp_SHAPE_tot[ii]=0;
+      hfHists.temp_SHAPE_THR_tot[ii]=0;
+    }
+
+  for (int ii=0;ii<5;++ii)
+    {
+      hbHists.temp_QIE_CAPID[ii]=0;
+      heHists.temp_QIE_CAPID[ii]=0;
+      hoHists.temp_QIE_CAPID[ii]=0;
+      hfHists.temp_QIE_CAPID[ii]=0;
+      if (ii=4) continue;
+      hbHists.temp_QIE_DV[ii]=0;
+      heHists.temp_QIE_DV[ii]=0;
+      hoHists.temp_QIE_DV[ii]=0;
+      hfHists.temp_QIE_DV[ii]=0;
+    }
+
+  for (int ii=0;ii<100;++ii)
+    {
+      hbHists.temp_QIE_ADC[ii]=0;
+      heHists.temp_QIE_ADC[ii]=0;
+      hoHists.temp_QIE_ADC[ii]=0;
+      hfHists.temp_QIE_ADC[ii]=0;
+    }
+
+  
   if ( m_dbe ) {
 
     m_dbe->setCurrentFolder(baseFolder_);
@@ -894,616 +928,52 @@ void HcalDigiMonitor::processEvent(const HBHEDigiCollection& hbhe,
   
   ievt_++;
   meEVT_->Fill(ievt_);
-  
-  //EmptyDigiFill(); // fill all cells as being empty; "unfill" for all digis that are found -- not used at the moment
 
-
+  int ndigi = 0;  int nbqdigi = 0;
   int nbqdigi_report = report.badQualityDigis();
   if (nbqdigi_report != 0)BQDIGI_NUM->Fill(nbqdigi_report);
 
-  float normVals[10]; bool digiErr=false;
-  bool digiOcc=false; bool digiUpset=false;
-  int ndigi = 0;  int nbqdigi = 0;
 
-  CaloSamples tool;
-  const HcalQIECoder* channelCoder;
-  const HcalQIEShape* shape;
-
-  if (showTiming)
+// DO HBHE DIGI Tests
+  if (hbHists.check || heHists.check)
     {
-      cpu_timer.reset(); cpu_timer.start();
+      if (showTiming)
+	{
+	  cpu_timer.reset(); cpu_timer.start();
+	}
+      HBHEDigiCheck(hbhe, hbHists, heHists, hcalHists, cond, ndigi, nbqdigi);
+      if (showTiming)
+	{
+	  cpu_timer.stop();  cout <<"TIMER:: HcalDigiMonitor DIGI HBHE -> "<<cpu_timer.cpuTime()<<endl;
+	}
     }
-	  
-  try{
-    int nhedigi = 0;   int nhbdigi = 0;
-    int nhbbqdigi = 0;  int nhebqdigi = 0;
-    int firsthbcap = -1; int firsthecap = -1;
-    for (HBHEDigiCollection::const_iterator j=hbhe.begin(); j!=hbhe.end(); ++j){
-      const HBHEDataFrame digi = (const HBHEDataFrame)(*j);
-      
 
-      calibs_= cond.getHcalCalibrations(digi.id());  // Old method was made private; we will need it for forming subtracted pedestals
-      int iEta = digi.id().ieta();
-      int iPhi = digi.id().iphi();
-      int iDepth = digi.id().depth();
-
-      HcalDigiMap::digiStats(digi, calibs_, occThresh_, normVals, digiErr, digiOcc, digiUpset); 
-
-      if((HcalSubdetector)(digi.id().subdet())==HcalBarrel){	
-	if (!hbHists.check) continue;
-
-	nhbdigi++;  ndigi++;
-	// Digi found; "unfill it" so that it doesn't appear empty:
-	if ( digiOcc) // require digi to have a value (don't know if this is the best way to proceed?)
-	  {
-	    hbHists.PROBLEMDIGICELLS_TEMP->Fill(iEta,iPhi,1);
-	    hbHists.PROBLEMDIGICELLS_TEMP_DEPTH[iDepth-1]->Fill(iEta,iPhi,1);
-	
-	    hcalHists.PROBLEMDIGICELLS_TEMP->Fill(iEta,iPhi,1);
-	    hcalHists.PROBLEMDIGICELLS_TEMP_DEPTH[iDepth-1]->Fill(iEta,iPhi,1);
-	  }
-	if(digiErr){
-	  nhbbqdigi++; nbqdigi++;
-
-	  hbHists.PROBLEMDIGICELLS->Fill(iEta,iPhi);
-	  hbHists.PROBLEMDIGICELLS_DEPTH[iDepth-1]->Fill(iEta,iPhi);
-	  hcalHists.PROBLEMDIGICELLS->Fill(iEta,iPhi);
-	  hcalHists.PROBLEMDIGICELLS_DEPTH[iDepth-1]->Fill(iEta,iPhi);
-
-	  HcalDigiMap::fillErrors<HBHEDataFrame>(digi,normVals,
-						 hbHists.ERR_MAP_GEO,hbHists.ERR_MAP_VME,
-						 hbHists.ERR_MAP_DCC);	  
-	  
-	  HcalDigiMap::fillErrors<HBHEDataFrame>(digi,normVals,
-						 ERR_MAP_GEO,ERR_MAP_VME,
-						 ERR_MAP_DCC);	  
-	}
-
-	if(digiOcc){
-	  HcalDigiMap::fillOccupancy<HBHEDataFrame>(digi,normVals,
-						    hbHists.OCC_MAP_GEO1,hbHists.OCC_MAP_GEO2,
-						    hbHists.OCC_MAP_GEO3,hbHists.OCC_MAP_GEO4,
-						    hbHists.OCC_MAP_VME, 
-						    hbHists.OCC_MAP_DCC,
-						    hbHists.OCC_ETA,hbHists.OCC_PHI);
-	  
-	  HcalDigiMap::fillOccupancy<HBHEDataFrame>(digi,normVals,
-						    OCC_L1,OCC_L2,OCC_L3,OCC_L4,
-						    OCC_ELEC_VME,OCC_ELEC_DCC,
-						    OCC_ETA,OCC_PHI);	  
-	}
-
-	hbHists.DIGI_SIZE->Fill(digi.size());
-	hbHists.DIGI_PRESAMPLE->Fill(digi.presamples());
-
-	if (firsthbcap == -1) firsthbcap = digi.sample(0).capid();
-	int capdif = digi.sample(0).capid() - firsthbcap;
-	capdif = capdif%3 - capdif/3;
-	hbHists.CAPID_T0->Fill(capdif);
-	CAPID_T0->Fill(capdif);
-
-	//for timing plot, find max-TS
-	int maxadc=0;
-	float myval=0;
-
-	
-	if (doFCpeds_)
-	  {
-	    channelCoder = cond.getHcalCoder(digi.id());
-	    HcalCoderDb coderDB(*channelCoder, *shape);
-	    coderDB.adc2fC(digi,tool);
-	    // digi (ADC) is input, tool (fC) is output
-	  }
-
-	for (int j=0; j<digi.size(); ++j)
-	  {     
-	    if (digi.sample(j).adc() > maxadc) maxadc = digi.sample(j).adc();
-	    // add pedestal plots
-	    if (j<2) // only plot for first 2 time slices
-	      {	      
-		pedcounts[iEta+41][iPhi-1][iDepth-1]++;
-		myval=digi.sample(j).adc();
-		rawpedsum[iEta+41][iPhi-1][iDepth-1]+=myval;
-		rawpedsum2[iEta+41][iPhi-1][iDepth-1]+=myval*myval;
-		
-
-		if (doFCpeds_) // Pedestals in fC; convert digi ADC to fC as well
-		  myval=tool[j]-calibs_.pedestal(digi.sample(j).capid());
-		else
-		  myval=digi.sample(j).adc()-calibs_.pedestal(digi.sample(j).capid());
-		subpedsum[iEta+41][iPhi-1][iDepth-1]+=myval;
-		subpedsum2[iEta+41][iPhi-1][iDepth-1]+=myval*myval;
-	      }
-	}
-
-	for (int i=0; i<digi.size(); ++i) {	    
-	  hbHists.QIE_CAPID->Fill(digi.sample(i).capid());
-	  hbHists.QIE_ADC->Fill(digi.sample(i).adc());
-	  //Timing plot: skipping ped. subtraction and fC conversion, just lin.adc counts
-	  //   hbHists.SHAPE_tot->Fill(i,normVals[i]);
-	  int jadc=digi.sample(i).adc();
-	  float tmp = (LedMonAdc2fc[jadc]+0.5);
-	  hbHists.SHAPE_tot->Fill(i,tmp);
-	  
-	  //Timing plot: skipping ped. subtraction and fC conversion, just lin.adc counts
-	  //and introducing threshold able to find muons
-	  //   if(digiOcc) hbHists.SHAPE_THR_tot->Fill(i,normVals[i]);
-	  if(maxadc>10) hbHists.SHAPE_THR_tot->Fill(i,tmp);	  
-	  if(digiUpset) hbHists.QIE_CAPID->Fill(5);
-	  int dver = 2*digi.sample(i).er() + digi.sample(i).dv();
-	  hbHists.QIE_DV->Fill(dver);
-	}    
-	
-	if(doPerChannel_)	  
-	    HcalDigiPerChan::perChanHists<HBHEDataFrame>(1,digi,normVals,hbHists.SHAPE,m_dbe,baseFolder_);
-
-
-	if (iEta > 0) 
-	  {
-	    for (int kk=0;kk<9;kk++)
-	      {
-		if (kk>=digi.size()-1) continue;
-		hbHists.TS_SUM_P[kk]->Fill(digi.sample(kk).adc()+digi.sample(kk+1).adc());
-	      }
-	  }
-	else if (iEta < 0) 
-	  {
-	 for (int kk=0;kk<9;kk++)
-	      {
-		if (kk>=digi.size()-1) continue;
-		hbHists.TS_SUM_M[kk]->Fill(digi.sample(kk).adc()+digi.sample(kk+1).adc());
-	      }
-	  }
-      } // if (HcalSubdetector)
-
-      //else if((HcalSubdetector)(digi.id().subdet())==HcalEndcap){
-      else{ // extra subdet() call seems unnecessary -- if digi isn't HB, it must be HE
-	if (!heHists.check) continue;
-	nhedigi++;  ndigi++;
-
- 	if ( digiOcc)
-	  {
-	    heHists.PROBLEMDIGICELLS_TEMP->Fill(iEta,iPhi,1);
-	    heHists.PROBLEMDIGICELLS_TEMP_DEPTH[iDepth-1]->Fill(iEta,iPhi,1);
-	    hcalHists.PROBLEMDIGICELLS_TEMP->Fill(iEta,iPhi,1);
-	    hcalHists.PROBLEMDIGICELLS_TEMP_DEPTH[iDepth-1]->Fill(iEta,iPhi,1);
-	  }
-
-	if(digiErr){
-	  nhebqdigi++; nbqdigi++;
-	  heHists.PROBLEMDIGICELLS->Fill(iEta,iPhi);
-	  heHists.PROBLEMDIGICELLS_DEPTH[iDepth-1]->Fill(iEta,iPhi);
-	  hcalHists.PROBLEMDIGICELLS->Fill(iEta,iPhi);
-	  hcalHists.PROBLEMDIGICELLS_DEPTH[iDepth-1]->Fill(iEta,iPhi);
-	  HcalDigiMap::fillErrors<HBHEDataFrame>(digi,normVals,
-						 heHists.ERR_MAP_GEO,heHists.ERR_MAP_VME,
-						 heHists.ERR_MAP_DCC);	  
-
-	  HcalDigiMap::fillErrors<HBHEDataFrame>(digi,normVals,
-						 ERR_MAP_GEO,ERR_MAP_VME,
-						 ERR_MAP_DCC);	  
-	}
-
-	if(digiOcc){
-	  HcalDigiMap::fillOccupancy<HBHEDataFrame>(digi,normVals,
-						    heHists.OCC_MAP_GEO1,heHists.OCC_MAP_GEO2,
-						    heHists.OCC_MAP_GEO3,heHists.OCC_MAP_GEO4,
-						    heHists.OCC_MAP_VME, 
-						    heHists.OCC_MAP_DCC,
-						    heHists.OCC_ETA,heHists.OCC_PHI);
-	  
-	  HcalDigiMap::fillOccupancy<HBHEDataFrame>(digi,normVals,
-						    OCC_L1,OCC_L2,OCC_L3,OCC_L4,
-						    OCC_ELEC_VME,OCC_ELEC_DCC,
-						    OCC_ETA,OCC_PHI);	  
-	}
-	
-	heHists.DIGI_SIZE->Fill(digi.size());
-	heHists.DIGI_PRESAMPLE->Fill(digi.presamples());
-
-	if (firsthecap == -1) firsthecap = digi.sample(0).capid();
-	int capdif = digi.sample(0).capid() - firsthecap;
-	capdif = capdif%3 - capdif/3;
-	heHists.CAPID_T0->Fill(capdif);
-	CAPID_T0->Fill(capdif);
-
-
-	//for timing plot, find max-TS
-	int maxadc=0;
-	float myval=0;
-
-	if (doFCpeds_)
-	  {
-	    channelCoder = cond.getHcalCoder(digi.id());
-	    HcalCoderDb coderDB(*channelCoder, *shape);
-	    coderDB.adc2fC(digi,tool);
-	    // digi (ADC) is input, tool (fC) is output
-	  }
-
-
-	for (int j=0; j<digi.size(); ++j)
-	  {     
-	    if (digi.sample(j).adc() > maxadc) maxadc = digi.sample(j).adc();
-	    if (j<2) // only plot for first 2 time slices
-	      {	      
-		pedcounts[iEta+41][iPhi-1][iDepth-1]++;
-		myval=digi.sample(j).adc();
-		rawpedsum[iEta+41][iPhi-1][iDepth-1]+=myval;
-		rawpedsum2[iEta+41][iPhi-1][iDepth-1]+=myval*myval;
-		if (doFCpeds_) // Pedestals in fC; convert digi ADC to fC as well
-		  myval=tool[j]-calibs_.pedestal(digi.sample(j).capid());
-		else
-		  myval=digi.sample(j).adc()-calibs_.pedestal(digi.sample(j).capid());
-		subpedsum[iEta+41][iPhi-1][iDepth-1]+=myval;
-		subpedsum2[iEta+41][iPhi-1][iDepth-1]+=myval*myval;
-	      }
-	  }
-
-	for (int i=0; i<digi.size(); ++i) {	    
-	  heHists.QIE_CAPID->Fill(digi.sample(i).capid());
-	  heHists.QIE_ADC->Fill(digi.sample(i).adc());
-	  //Timing plot: skipping ped. subtraction and fC conversion, just lin.adc counts
-	  //   heHists.SHAPE_tot->Fill(i,normVals[i]);
-	  int jadc=digi.sample(i).adc();
-	  float tmp = (LedMonAdc2fc[jadc]+0.5);
-	  heHists.SHAPE_tot->Fill(i,tmp);
-	  
-	  //Timing plot: skipping ped. subtraction and fC conversion, just lin.adc counts
-	  //and introducing threshold able to find muons
-	  //   if(digiOcc) heHists.SHAPE_THR_tot->Fill(i,normVals[i]);
-	  if(maxadc>10) heHists.SHAPE_THR_tot->Fill(i,tmp);
-	  if(digiUpset) heHists.QIE_CAPID->Fill(5);
-	  int dver = 2*digi.sample(i).er() + digi.sample(i).dv();
-	  heHists.QIE_DV->Fill(dver);
-	}    
-	
-	if(doPerChannel_)
-	  HcalDigiPerChan::perChanHists<HBHEDataFrame>(2,digi,normVals,heHists.SHAPE,m_dbe,baseFolder_);
-
-
-	if (iEta > 0) 
-	  {
-	    for (int kk=0;kk<9;kk++)
-	      {
-		if (kk>=digi.size()-1) continue;
-		heHists.TS_SUM_P[kk]->Fill(digi.sample(kk).adc()+digi.sample(kk+1).adc());
-	      }
-	  }
-	else if (iEta < 0) 
-	  {
-	    for (int kk=0;kk<9;kk++)
-	      {
-		if (kk>=digi.size()-1) continue;
-		heHists.TS_SUM_M[kk]->Fill(digi.sample(kk).adc()+digi.sample(kk+1).adc());
-	      }
-	  }
-
-      } //else (loop over HE)
-    } // loop over HBHE digi collection
-    
-    hbHists.DIGI_NUM->Fill(nhbdigi);
-    hbHists.BQDIGI_NUM->Fill(nhbbqdigi);
-    if (nhbdigi != 0)hbHists.BQDIGI_FRAC->Fill((1.0*nhbbqdigi)/(1.0*nhbdigi));
-
-    heHists.DIGI_NUM->Fill(nhedigi);
-    heHists.BQDIGI_NUM->Fill(nhebqdigi);
-    if (nhedigi != 0)heHists.BQDIGI_FRAC->Fill((1.0*nhebqdigi)/(1.0*nhedigi));
-    
-  } catch (...) {    
-    if(fVerbosity) printf("HcalDigiMonitor::processEvent  No HBHE Digis.\n");
-  }
-
-  if (showTiming)
+  // DO HO DIGI Tests
+  if (hoHists.check)
     {
-      cpu_timer.stop();
-      cout <<"TIMER:: HcalDigiMonitor DIGI HBHE -> "<<cpu_timer.cpuTime()<<endl;
-      cpu_timer.reset(); cpu_timer.start();
+      if (showTiming)
+	{
+	  cpu_timer.reset(); cpu_timer.start();
+	}
+      HODigiCheck(ho, hoHists, hcalHists, cond, ndigi, nbqdigi);
+      if (showTiming)
+	{
+	  cpu_timer.stop();  cout <<"TIMER:: HcalDigiMonitor DIGI HO -> "<<cpu_timer.cpuTime()<<endl;
+	}
     }
-	  
-  try{
-    int firsthocap = -1; int nhobqdigi = 0;
 
-    int nhodigi = ho.size();
-    //    hoHists.DIGI_NUM->Fill(ho.size());
-
-
-    for (HODigiCollection::const_iterator j=ho.begin(); j!=ho.end(); ++j){
-      if (!hoHists.check) continue;
-      const HODataFrame digi = (const HODataFrame)(*j);	
-      
-      calibs_= cond.getHcalCalibrations(digi.id());  // Old method was made private; we will need it for forming subtracted pedestals
-      int iEta = digi.id().ieta();
-      int iPhi = digi.id().iphi();
-      int iDepth = digi.id().depth();
-      HcalDigiMap::digiStats(digi, calibs_, occThresh_, normVals, digiErr, digiOcc, digiUpset);     
-      
-      if ( digiOcc)
-	{
-	  hoHists.PROBLEMDIGICELLS_TEMP->Fill(digi.id().ieta(),digi.id().iphi(),1);
-	  hoHists.PROBLEMDIGICELLS_TEMP_DEPTH[digi.id().depth()-1]->Fill(digi.id().ieta(),digi.id().iphi(),1);
-	  hcalHists.PROBLEMDIGICELLS_TEMP->Fill(digi.id().ieta(),digi.id().iphi(),1);
-	  hcalHists.PROBLEMDIGICELLS_TEMP_DEPTH[digi.id().depth()-1]->Fill(digi.id().ieta(),digi.id().iphi(),1);
-	}
-      if(digiErr){
-	hoHists.PROBLEMDIGICELLS->Fill(digi.id().ieta(),digi.id().iphi());
-	hoHists.PROBLEMDIGICELLS_DEPTH[digi.id().depth()-1]->Fill(digi.id().ieta(),digi.id().iphi());
-	hcalHists.PROBLEMDIGICELLS->Fill(digi.id().ieta(),digi.id().iphi());
-	hcalHists.PROBLEMDIGICELLS_DEPTH[digi.id().depth()-1]->Fill(digi.id().ieta(),digi.id().iphi());
-
-	nhobqdigi++; nbqdigi++;
-      }
-      
-      if (digiErr){
-	HcalDigiMap::fillErrors<HODataFrame>(digi,normVals,
-					       hoHists.ERR_MAP_GEO,hoHists.ERR_MAP_VME,
-					       hoHists.ERR_MAP_DCC);	  
-	
-	HcalDigiMap::fillErrors<HODataFrame>(digi,normVals,
-					       ERR_MAP_GEO,ERR_MAP_VME,
-					       ERR_MAP_DCC);	  
-      }
-      
-      if(digiOcc){
-	HcalDigiMap::fillOccupancy<HODataFrame>(digi,normVals,
-						  hoHists.OCC_MAP_GEO1,hoHists.OCC_MAP_GEO2,
-						  hoHists.OCC_MAP_GEO3,hoHists.OCC_MAP_GEO4,
-						hoHists.OCC_MAP_VME, 
-						  hoHists.OCC_MAP_DCC,
-						  hoHists.OCC_ETA,hoHists.OCC_PHI);
-	
-	HcalDigiMap::fillOccupancy<HODataFrame>(digi,normVals,
-						  OCC_L1,OCC_L2,OCC_L3,OCC_L4,
-						  OCC_ELEC_VME,OCC_ELEC_DCC,
-						  OCC_ETA,OCC_PHI);	  
-      }
-      
-
-      hoHists.DIGI_SIZE->Fill(digi.size());
-      hoHists.DIGI_PRESAMPLE->Fill(digi.presamples());
-
-      if (firsthocap == -1) firsthocap = digi.sample(0).capid();
-      int capdif = digi.sample(0).capid() - firsthocap;
-      capdif = capdif%3 - capdif/3;
-      hoHists.CAPID_T0->Fill(capdif);
-      CAPID_T0->Fill(capdif);
-      
-      //for timing plot, find max-TS
-      int maxadc=0;
-      float myval=0;
-      
-      if (doFCpeds_)
-	{
-	  channelCoder = cond.getHcalCoder(digi.id());
-	  HcalCoderDb coderDB(*channelCoder, *shape);
-	  coderDB.adc2fC(digi,tool);
-	  // digi (ADC) is input, tool (fC) is output
-	}
-      
-      for (int j=0; j<digi.size(); ++j)
-	{     
-	  if (digi.sample(j).adc() > maxadc) maxadc = digi.sample(j).adc();
-
-	  if (j<2) // only plot for first 2 time slices
-	    {	      
-	      pedcounts[iEta+41][iPhi-1][iDepth-1]++;
-	      myval=digi.sample(j).adc();
-	      rawpedsum[iEta+41][iPhi-1][iDepth-1]+=myval;
-	      rawpedsum2[iEta+41][iPhi-1][iDepth-1]+=myval*myval;
-	      if (doFCpeds_) // Pedestals in fC; convert digi ADC to fC as well
-		myval=tool[j]-calibs_.pedestal(digi.sample(j).capid());
-	      else
-		myval=digi.sample(j).adc()-calibs_.pedestal(digi.sample(j).capid());
-	      subpedsum[iEta+41][iPhi-1][iDepth-1]+=myval;
-	      subpedsum2[iEta+41][iPhi-1][iDepth-1]+=myval*myval;
-	    }
-	}
-
-      for (int i=0; i<digi.size(); ++i) {	    
-	hoHists.QIE_CAPID->Fill(digi.sample(i).capid());
-	hoHists.QIE_ADC->Fill(digi.sample(i).adc());
-	//Timing plot: skipping ped. subtraction and fC conversion, just lin.adc counts
-	//  hoHists.SHAPE_tot->Fill(i,normVals[i]);
-
-	int jadc=digi.sample(i).adc();
-	float tmp = (LedMonAdc2fc[jadc]+0.5);
-
-	hoHists.SHAPE_tot->Fill(i,tmp);
-	
-	//Timing plot: skipping ped. subtraction and fC conversion, just lin.adc counts
-	//and introducing threshold able to find muons
-	//   if(digiOcc) hoHists.SHAPE_THR_tot->Fill(i,normVals[i]);
-	if(maxadc>10) hoHists.SHAPE_THR_tot->Fill(i,tmp);
-	if(digiUpset) hoHists.QIE_CAPID->Fill(5);
-	int dver = 2*digi.sample(i).er() + digi.sample(i).dv();
-	hoHists.QIE_DV->Fill(dver);
-      } // for (int i=0; i<digi.size();++i)
-
-
-      if(doPerChannel_)	  
-	HcalDigiPerChan::perChanHists<HODataFrame>(3,digi,normVals,hoHists.SHAPE,m_dbe, baseFolder_);
-
-
-      if (digi.id().ieta() > 0) 
-	{
-	  for (int kk=0;kk<9;kk++)
-	    {
-	      if (kk>=digi.size()-1) continue;
-	      hoHists.TS_SUM_P[kk]->Fill(digi.sample(kk).adc()+digi.sample(kk+1).adc());
-	    }
-	}
-      else if (digi.id().ieta() < 0) 
-	{
-	  for (int kk=0;kk<9;kk++)
-	    {
-	      if (kk>=digi.size()-1) continue;
-	      hoHists.TS_SUM_M[kk]->Fill(digi.sample(kk).adc()+digi.sample(kk+1).adc());
-	    }
-	}
-      
-
-    }
-    hoHists.DIGI_NUM->Fill(nhodigi);
-    hoHists.BQDIGI_NUM->Fill(nhobqdigi);
-    if (nhodigi != 0)hoHists.BQDIGI_FRAC->Fill((1.0*nhobqdigi)/(1.0*nhodigi));
-    ndigi = ndigi + nhodigi;
-  }
-  catch (...) {
-    if(fVerbosity) cout << "HcalDigiMonitor::processEvent  No HO Digis." << endl;
-  }
-
-  if (showTiming)
+  // DO HF DIGI Tests
+  if (hfHists.check)
     {
-      cpu_timer.stop();
-      cout <<"TIMER:: HcalDigiMonitor DIGI HO -> "<<cpu_timer.cpuTime()<<endl;
-      cpu_timer.reset(); cpu_timer.start();
-    }
-  
-  try{
-    int firsthfcap = -1; int nhfbqdigi = 0;
-    int nhfdigi = hf.size();
-    //    hfHists.DIGI_NUM->Fill(hf.size());
-    for (HFDigiCollection::const_iterator j=hf.begin(); j!=hf.end(); ++j){
-      if (!hfHists.check) continue;
-      const HFDataFrame digi = (const HFDataFrame)(*j);
- 
-      if ( digiOcc)
+      if (showTiming)
 	{
-	  hfHists.PROBLEMDIGICELLS_TEMP->Fill(digi.id().ieta(),digi.id().iphi(),1);
-	  hfHists.PROBLEMDIGICELLS_TEMP_DEPTH[digi.id().depth()-1]->Fill(digi.id().ieta(),digi.id().iphi(),1);
-	  hcalHists.PROBLEMDIGICELLS_TEMP->Fill(digi.id().ieta(),digi.id().iphi(),1);
-	  hcalHists.PROBLEMDIGICELLS_TEMP_DEPTH[digi.id().depth()-1]->Fill(digi.id().ieta(),digi.id().iphi(),1);
+	  cpu_timer.reset(); cpu_timer.start();
 	}
-
-      calibs_= cond.getHcalCalibrations(digi.id());  // Old method was made private; we will need it for forming subtracted pedestals
-      int iEta = digi.id().ieta();
-      int iPhi = digi.id().iphi();
-      int iDepth = digi.id().depth();
-      HcalDigiMap::digiStats(digi, calibs_, occThresh_, normVals, digiErr, digiOcc, digiUpset);      
-	
-      if(digiErr){
-	hfHists.PROBLEMDIGICELLS->Fill(digi.id().ieta(),digi.id().iphi());
-	hfHists.PROBLEMDIGICELLS_DEPTH[digi.id().depth()-1]->Fill(digi.id().ieta(),digi.id().iphi());
-	hcalHists.PROBLEMDIGICELLS->Fill(digi.id().ieta(),digi.id().iphi());
-	hcalHists.PROBLEMDIGICELLS_DEPTH[digi.id().depth()-1]->Fill(digi.id().ieta(),digi.id().iphi());
-	nhfbqdigi++;  nbqdigi++;
-	HcalDigiMap::fillErrors<HFDataFrame>(digi,normVals,
-					       hfHists.ERR_MAP_GEO,hfHists.ERR_MAP_VME,
-					       hfHists.ERR_MAP_DCC);	  
-	
-	HcalDigiMap::fillErrors<HFDataFrame>(digi,normVals,
-					       ERR_MAP_GEO,ERR_MAP_VME,
-					       ERR_MAP_DCC);	  
-      }
-      
-      if(digiOcc){
-	HcalDigiMap::fillOccupancy<HFDataFrame>(digi,normVals,
-						  hfHists.OCC_MAP_GEO1,hfHists.OCC_MAP_GEO2,
-						  hfHists.OCC_MAP_GEO3,hfHists.OCC_MAP_GEO4,
-						  hfHists.OCC_MAP_VME, 
-						  hfHists.OCC_MAP_DCC,
-						  hfHists.OCC_ETA,hfHists.OCC_PHI);
-	
-	HcalDigiMap::fillOccupancy<HFDataFrame>(digi,normVals,
-						  OCC_L1,OCC_L2,OCC_L3,OCC_L4,
-						  OCC_ELEC_VME,OCC_ELEC_DCC,
-						  OCC_ETA,OCC_PHI);	  
-      }
-      
-      hfHists.DIGI_SIZE->Fill(digi.size());
-      hfHists.DIGI_PRESAMPLE->Fill(digi.presamples());
-
-      if (firsthfcap == -1) firsthfcap = digi.sample(0).capid();
-      int capdif = digi.sample(0).capid() - firsthfcap;
-      capdif = capdif%3 - capdif/3;
-      hfHists.CAPID_T0->Fill(capdif);
-      CAPID_T0->Fill(capdif);
-      
-      //for timing plot, find max-TS
-      int maxadc=0;
-      float myval=0;
-
-      if (doFCpeds_)
+      HFDigiCheck(hf, hfHists, hcalHists, cond, ndigi, nbqdigi);
+      if (showTiming)
 	{
-	  channelCoder = cond.getHcalCoder(digi.id());
-	  HcalCoderDb coderDB(*channelCoder, *shape);
-	  coderDB.adc2fC(digi,tool);
-	  // digi (ADC) is input, tool (fC) is output
+	  cpu_timer.stop();  cout <<"TIMER:: HcalDigiMonitor DIGI HF -> "<<cpu_timer.cpuTime()<<endl;
 	}
-
-      for (int j=0; j<digi.size(); ++j)
-	{     
-	  if (digi.sample(j).adc() > maxadc) maxadc = digi.sample(j).adc();
-
-	  if (j<2) // only plot for first 2 time slices
-	    {	      
-	      // Depth values increased by 2 to avoid overlap with HE at |eta|=29
-	      pedcounts[iEta+41][iPhi-1][iDepth+1]++;
-	      myval=digi.sample(j).adc();
-	      rawpedsum[iEta+41][iPhi-1][iDepth+1]+=myval;
-	      rawpedsum2[iEta+41][iPhi-1][iDepth+1]+=myval*myval;
-	      if (doFCpeds_) // Pedestals in fC; convert digi ADC to fC as well
-		myval=tool[j]-calibs_.pedestal(digi.sample(j).capid());
-	      else
-		myval=digi.sample(j).adc()-calibs_.pedestal(digi.sample(j).capid());
-	      subpedsum[iEta+41][iPhi-1][iDepth+1]+=myval;
-	      subpedsum2[iEta+41][iPhi-1][iDepth+1]+=myval*myval;
-	    }
-	}
-   
-      for (int i=0; i<digi.size(); ++i) {	    
-	hfHists.QIE_CAPID->Fill(digi.sample(i).capid());
-	hfHists.QIE_ADC->Fill(digi.sample(i).adc());
-	//Timing plot: skipping ped. subtraction and fC conversion, just lin.adc counts
-	//  hfHists.SHAPE_tot->Fill(i,normVals[i]);
-	int jadc=digi.sample(i).adc();
-	float tmp = (LedMonAdc2fc[jadc]+0.5);
-	hfHists.SHAPE_tot->Fill(i,tmp);
-	
-	//Timing plot: skipping ped. subtraction and fC conversion, just lin.adc counts
-	//and introducing threshold able to find muons
-	//  if(digiOcc) hfHists.SHAPE_THR_tot->Fill(i,normVals[i]);
-        if(maxadc>10) hfHists.SHAPE_THR_tot->Fill(i,tmp);
-	if(digiUpset) hfHists.QIE_CAPID->Fill(5);
-	int dver = 2*digi.sample(i).er() + digi.sample(i).dv();
-	hfHists.QIE_DV->Fill(dver);
-      }    
-
-
-      if(doPerChannel_)	  
-	HcalDigiPerChan::perChanHists<HFDataFrame>(4,digi,normVals,hfHists.SHAPE,m_dbe, baseFolder_);
-
-
-      if (digi.id().ieta() > 0) 
-	{
-	  for (int kk=0;kk<9;kk++)
-	    {
-	      if (kk>=digi.size()-1) continue;
-	      hfHists.TS_SUM_P[kk]->Fill(digi.sample(kk).adc()+digi.sample(kk+1).adc());
-	    }
-	}
-      else if (digi.id().ieta() < 0) 
-	{
-	  for (int kk=0;kk<9;kk++)
-	    {
-	      if (kk>=digi.size()-1) continue;
-	      hfHists.TS_SUM_M[kk]->Fill(digi.sample(kk).adc()+digi.sample(kk+1).adc());
-	    }
-	}
-      
-
-    }
-    hfHists.DIGI_NUM->Fill(nhfdigi);
-    hfHists.BQDIGI_NUM->Fill(nhfbqdigi);
-    if (nhfdigi != 0)hfHists.BQDIGI_FRAC->Fill((1.0*nhfbqdigi)/(1.0*nhfdigi));
-    ndigi = ndigi + nhfdigi;
-  } catch (...) {
-    if(fVerbosity) cout << "HcalDigiMonitor::processEvent  No HF Digis." << endl;
-  }
-
- if (showTiming)
-    {
-      cpu_timer.stop();
-      cout <<"TIMER:: HcalDigiMonitor DIGI HF -> "<<cpu_timer.cpuTime()<<endl;
     }
 
   DIGI_NUM->Fill(ndigi);
@@ -1533,6 +1003,18 @@ void HcalDigiMonitor::processEvent(const HBHEDigiCollection& hbhe,
 	{
 	  cpu_timer.stop();
 	  cout <<"TIMER:: HcalDigiMonitor DIGI CheckNevents -> "<<cpu_timer.cpuTime()<<endl;
+	  cpu_timer.reset(); cpu_timer.start();
+	}
+      
+      // Fill some diagnostic histograms only every N events
+      fill_Nevents(hbHists);
+      fill_Nevents(hbHists);
+      fill_Nevents(hoHists);
+      fill_Nevents(hfHists);
+      if (showTiming)
+	{
+	  cpu_timer.stop();
+	  cout <<"TIMER:: HcalDigiMonitor DIGI fill_Nevents -> "<<cpu_timer.cpuTime()<<endl;
 	}
     }
 
@@ -1540,142 +1022,55 @@ void HcalDigiMonitor::processEvent(const HBHEDigiCollection& hbhe,
 } // void HcalDigiMonitor::processEvent(const HBHEDigiCollection& hbhe,...)
 
 
-void HcalDigiMonitor::EmptyDigiFill()
+void HcalDigiMonitor::fill_Nevents(DigiHists& h)
 {
-  int eta, phi;
+  /* 
+     fill_Nevents Function fills histogram only when called, and resets counters that have been holding values to be filled.  (This saves time in code, since histogram Fills are time-intensive.)
+  */
 
-  // Fill all digi values with -1 every event
-  // Digis that are found will then fill a 1, cancelling this out
-  // (so that histogram should be filled with 0's if all digis are in every event)
-
-  // In the case of no digis seen, this will
-  for (int ieta=1;ieta<=etaBins_;++ieta)
+  if (!h.check)
+    return;
+  if (fVerbosity)
+    cout <<"<HcalDigiMonitor> Entered fill_Nevents routine for subdetector "<<h.subdet.c_str()<<endl;
+    
+  for (int i=0;i<5;++i)
     {
-      for (int iphi=1; iphi<=phiBins_;++iphi)
-	{
-	  eta=ieta+int(etaMin_)-1;
-	  phi=iphi+int(phiMin_)-1;
+      if (h.temp_QIE_CAPID[i]>0)
+	h.QIE_CAPID->Fill(i,h.temp_QIE_CAPID[i]);
+      h.temp_QIE_CAPID[i]=0;
+      if (i==4) continue;
+      if (h.temp_QIE_DV[i]>0)
+	h.QIE_DV->Fill(i,h.temp_QIE_DV[i]);
+      h.temp_QIE_DV[i]=0;
+    }
+  
+  for (int i=0;i<200;++i)
+    {
+      if (h.temp_QIE_ADC[i]>0)
+	h.QIE_ADC->Fill(i,h.temp_QIE_ADC[i]);
+      h.temp_QIE_ADC[i]=0;
 
-	  // ignore unphysical values
-	  if (phi==0) continue; 
-	  if (phi>72) continue;
-	  if (eta==0) continue; 
-	  if (abs(eta)>41) continue;
-
-	  // HB first
-	  if (abs(eta)<17)
-	    {
-	      hbHists.PROBLEMDIGICELLS_TEMP->Fill(eta,phi,-1);
-	      hbHists.PROBLEMDIGICELLS_TEMP_DEPTH[0]->Fill(eta,phi,-1);
-	      hcalHists.PROBLEMDIGICELLS_TEMP->Fill(eta,phi,-1);
-	      hcalHists.PROBLEMDIGICELLS_TEMP_DEPTH[0]->Fill(eta,phi,-1);
-	    
-	  
-	      if (abs(eta)>14) // last two rows of HB have two depths
-		{
-		  hbHists.PROBLEMDIGICELLS_TEMP->Fill(eta,phi,-1);
-		  hbHists.PROBLEMDIGICELLS_TEMP_DEPTH[1]->Fill(eta,phi,-1);
-		  hcalHists.PROBLEMDIGICELLS_TEMP->Fill(eta,phi,-1);
-		  hcalHists.PROBLEMDIGICELLS_TEMP_DEPTH[1]->Fill(eta,phi,-1);
-		}
-	    } // if (abs(eta)<17)  // HB Block
-
-	  // HO loop -- depth = 4
-	  if (abs(eta)<16)
-	    {
-	      hoHists.PROBLEMDIGICELLS_TEMP->Fill(eta,phi,-1);
-	      hoHists.PROBLEMDIGICELLS_TEMP_DEPTH[3]->Fill(eta,phi,-1);
-	      hcalHists.PROBLEMDIGICELLS_TEMP->Fill(eta,phi,-1);
-	      hcalHists.PROBLEMDIGICELLS_TEMP_DEPTH[3]->Fill(eta,phi,-1);
-	    } // if (abs(eta)<16)
-	  
-	  // HE loop (careful; phi values are odd only for eta>20)
-
-	  if (abs(eta)==16) // at eta=16, HE depth=3
-	    {
-	      heHists.PROBLEMDIGICELLS_TEMP->Fill(eta,phi,-1);
-	      heHists.PROBLEMDIGICELLS_TEMP_DEPTH[2]->Fill(eta,phi,-1);
-	      hcalHists.PROBLEMDIGICELLS_TEMP->Fill(eta,phi,-1);
-	      hcalHists.PROBLEMDIGICELLS_TEMP_DEPTH[2]->Fill(eta,phi,-1);
-	    }
-
-	  if (abs(eta)>16 && abs(eta)<30) // HE has depth = 1-2 for eta=18-29; 27-28 also depth=3
-	    // This differs from documentation, which claimed that depth=3 for eta=28-29
-	    {
-	      if (abs(eta)<21 ||(abs(eta)>20 && (phi%2)==1)) // decreased phi segementation above eta=20
-		{
-		  heHists.PROBLEMDIGICELLS_TEMP->Fill(eta,phi,-1);
-		  heHists.PROBLEMDIGICELLS_TEMP_DEPTH[0]->Fill(eta,phi,-1);
-		  hcalHists.PROBLEMDIGICELLS_TEMP->Fill(eta,phi,-1);
-		  hcalHists.PROBLEMDIGICELLS_TEMP_DEPTH[0]->Fill(eta,phi,-1);
-		}  
-	      if (abs(eta)>17) // only one layer for HE in eta=17 -- skip it when filling depth=2
-		{
-		  if (abs(eta)>20 && (phi%2)==0)
-		    continue;
-		  heHists.PROBLEMDIGICELLS_TEMP->Fill(eta,phi,-1);
-		  heHists.PROBLEMDIGICELLS_TEMP_DEPTH[1]->Fill(eta,phi,-1);
-		  hcalHists.PROBLEMDIGICELLS_TEMP->Fill(eta,phi,-1);
-		  hcalHists.PROBLEMDIGICELLS_TEMP_DEPTH[1]->Fill(eta,phi,-1);
-		}
-
-	      if (abs(eta)>26 && abs(eta)<29 && (phi%2)==1) // depth 3
-		{
-		  heHists.PROBLEMDIGICELLS_TEMP->Fill(eta,phi,-1);
-		  heHists.PROBLEMDIGICELLS_TEMP_DEPTH[2]->Fill(eta,phi,-1);
-		  hcalHists.PROBLEMDIGICELLS_TEMP->Fill(eta,phi,-1);
-		  hcalHists.PROBLEMDIGICELLS_TEMP_DEPTH[2]->Fill(eta,phi,-1);
-		} // if (abs(eta)>26 && abs(eta)<29 ...)
-	    } //  if (abs(eta)>15 && abs(eta)<30) // ends HE loop
-	  
-
-
-	  // HF Loop
-	  if (abs(eta)>28 && abs(eta)<40 && (phi%2)==1)
-	    {
-	      //depth1
-	      hfHists.PROBLEMDIGICELLS_TEMP->Fill(eta,phi,-1);
-	      hfHists.PROBLEMDIGICELLS_TEMP_DEPTH[0]->Fill(eta,phi,-1);
-	      hcalHists.PROBLEMDIGICELLS_TEMP->Fill(eta,phi,-1);
-	      hcalHists.PROBLEMDIGICELLS_TEMP_DEPTH[0]->Fill(eta,phi,-1);
-
-	      //depth2
-	      hfHists.PROBLEMDIGICELLS_TEMP->Fill(eta,phi,-1);
-	      hfHists.PROBLEMDIGICELLS_TEMP_DEPTH[1]->Fill(eta,phi,-1);
-	      hcalHists.PROBLEMDIGICELLS_TEMP->Fill(eta,phi,-1);
-	      hcalHists.PROBLEMDIGICELLS_TEMP_DEPTH[1]->Fill(eta,phi,-1);
-
-	    }
-	  else if (abs(eta)>39 && (phi%4)==3)
-	    {
-	      //depth1
-	      hfHists.PROBLEMDIGICELLS_TEMP->Fill(eta,phi,-1);
-	      hfHists.PROBLEMDIGICELLS_TEMP_DEPTH[0]->Fill(eta,phi,-1);
-	      hcalHists.PROBLEMDIGICELLS_TEMP->Fill(eta,phi,-1);
-	      hcalHists.PROBLEMDIGICELLS_TEMP_DEPTH[0]->Fill(eta,phi,-1);
-	      
-	      //depth2
-	      hfHists.PROBLEMDIGICELLS_TEMP->Fill(eta,phi,-1);
-	      hfHists.PROBLEMDIGICELLS_TEMP_DEPTH[1]->Fill(eta,phi,-1);
-	      hcalHists.PROBLEMDIGICELLS_TEMP->Fill(eta,phi,-1);
-	      hcalHists.PROBLEMDIGICELLS_TEMP_DEPTH[1]->Fill(eta,phi,-1);
-
-	    } // end HF loop
-	  
-	} //for (int iphi=1; ...)
-    } // for (int ieta=1; ...)
-} // void HcalDigiMonitor::EmptyDigiFill()
+    }
+ for (int i=0;i<10;++i)
+    {
+      if (h.temp_SHAPE_tot[i]>0)
+	h.SHAPE_tot->Fill(i,h.temp_SHAPE_tot[i]);
+	if (h.temp_SHAPE_THR_tot[i]>0)
+	h.SHAPE_THR_tot->Fill(i,h.temp_SHAPE_THR_tot[i]);
+      h.temp_SHAPE_tot[i]=0;
+      h.temp_SHAPE_THR_tot[i]=0;
+    }
+ return;
+}// void fill_Nevents(DigiHists& h)
 
 
 void HcalDigiMonitor::reset_Nevents(void)
 {
-  
   if (fVerbosity)
     cout <<"<HcalDigiMonitor> Entered reset_Nevents routine"<<endl;
   
   // Fill Pedestal Histograms
   int mydepth=0;
-
 
   for (int eta=0;eta<83;++eta)
     {
@@ -1929,4 +1324,646 @@ void HcalDigiMonitor::reset_Nevents(void)
       if (hfHists.check) hfHists.PROBLEMDIGICELLS_TEMP_DEPTH[d]->Reset();
     }
 
-} //void HcalDigiMonitor::CheckNevents(void)
+} //void HcalDigiMonitor::reset_Nevents(void)
+
+
+//////////////////////////////////////
+
+void HcalDigiMonitor::HBHEDigiCheck(const HBHEDigiCollection& hbhe, DigiHists& hbHists, DigiHists& heHists, 
+				  DigiHists& hcalHists,  const HcalDbService& cond, 
+				  int& ndigi, int& nbqdigi)
+{
+  //try
+    {
+      
+      float normVals[10]; bool digiErr=false;
+      bool digiOcc=false; bool digiUpset=false;
+      
+      CaloSamples tool;
+      const HcalQIECoder* channelCoder=0;
+      const HcalQIEShape* shape=0;
+      
+      int nhedigi = 0;   int nhbdigi = 0;
+      int nhbbqdigi = 0;  int nhebqdigi = 0;
+      int firsthbcap = -1; int firsthecap = -1;
+    
+      for (HBHEDigiCollection::const_iterator j=hbhe.begin(); j!=hbhe.end(); ++j){
+	const HBHEDataFrame digi = (const HBHEDataFrame)(*j);
+      
+	
+	calibs_= cond.getHcalCalibrations(digi.id());  // Old method was made private; we will need it for forming subtracted pedestals
+	int iEta = digi.id().ieta();
+	int iPhi = digi.id().iphi();
+	int iDepth = digi.id().depth();
+
+	HcalDigiMap::digiStats(digi, calibs_, occThresh_, normVals, digiErr, digiOcc, digiUpset); 
+
+	if((HcalSubdetector)(digi.id().subdet())==HcalBarrel)
+	  {	
+	    if (!hbHists.check) continue;
+	    nhbdigi++;  ndigi++;
+	    // Digi found; "unfill it" so that it doesn't appear empty:
+	    if ( digiOcc) // require digi to have a value (don't know if this is the best way to proceed?)
+	      {
+		hbHists.PROBLEMDIGICELLS_TEMP->Fill(iEta,iPhi,1);
+		hbHists.PROBLEMDIGICELLS_TEMP_DEPTH[iDepth-1]->Fill(iEta,iPhi,1);
+		hcalHists.PROBLEMDIGICELLS_TEMP->Fill(iEta,iPhi,1);
+		hcalHists.PROBLEMDIGICELLS_TEMP_DEPTH[iDepth-1]->Fill(iEta,iPhi,1);
+	      }
+	  if(digiErr)
+	    {
+	      nhbbqdigi++; nbqdigi++;
+	    
+	      hbHists.PROBLEMDIGICELLS->Fill(iEta,iPhi);
+	      hbHists.PROBLEMDIGICELLS_DEPTH[iDepth-1]->Fill(iEta,iPhi);
+	      hcalHists.PROBLEMDIGICELLS->Fill(iEta,iPhi);
+	      hcalHists.PROBLEMDIGICELLS_DEPTH[iDepth-1]->Fill(iEta,iPhi);
+	    
+	      HcalDigiMap::fillErrors<HBHEDataFrame>(digi,normVals,
+						     hbHists.ERR_MAP_GEO,hbHists.ERR_MAP_VME,
+						     hbHists.ERR_MAP_DCC);	  
+	    
+	      HcalDigiMap::fillErrors<HBHEDataFrame>(digi,normVals,
+						     ERR_MAP_GEO,ERR_MAP_VME,
+						     ERR_MAP_DCC);	  
+	    }
+
+	  if(digiOcc)
+	    {
+	      HcalDigiMap::fillOccupancy<HBHEDataFrame>(digi,normVals,
+							hbHists.OCC_MAP_GEO1,hbHists.OCC_MAP_GEO2,
+							hbHists.OCC_MAP_GEO3,hbHists.OCC_MAP_GEO4,
+							hbHists.OCC_MAP_VME, 
+							hbHists.OCC_MAP_DCC,
+							hbHists.OCC_ETA,hbHists.OCC_PHI);
+	    
+	      HcalDigiMap::fillOccupancy<HBHEDataFrame>(digi,normVals,
+							OCC_L1,OCC_L2,OCC_L3,OCC_L4,
+							OCC_ELEC_VME,OCC_ELEC_DCC,
+							OCC_ETA,OCC_PHI);	  
+	    }
+	  hbHists.DIGI_SIZE->Fill(digi.size());
+	  hbHists.DIGI_PRESAMPLE->Fill(digi.presamples());
+
+	  if (firsthbcap == -1) firsthbcap = digi.sample(0).capid();
+	  int capdif = digi.sample(0).capid() - firsthbcap;
+	  capdif = capdif%3 - capdif/3;
+	  hbHists.CAPID_T0->Fill(capdif);
+	  CAPID_T0->Fill(capdif);
+	  //for timing plot, find max-TS
+	  int maxadc=0;
+	  float myval=0;
+
+	
+	  if (doFCpeds_)
+	    {
+	      channelCoder = cond.getHcalCoder(digi.id());
+	      HcalCoderDb coderDB(*channelCoder, *shape);
+	      coderDB.adc2fC(digi,tool);
+	      // digi (ADC) is input, tool (fC) is output
+	    }
+
+	  for (int k=0; k<digi.size(); ++k)
+	    {     
+	      if (digi.sample(k).adc() > maxadc) maxadc = digi.sample(k).adc();
+	      // add pedestal plots
+	      if (k<2) // only plot for first 2 time slices
+		{	      
+		  pedcounts[iEta+41][iPhi-1][iDepth-1]++;
+		  myval=digi.sample(k).adc();
+		  rawpedsum[iEta+41][iPhi-1][iDepth-1]+=myval;
+		  rawpedsum2[iEta+41][iPhi-1][iDepth-1]+=myval*myval;
+		
+
+		  if (doFCpeds_) // Pedestals in fC; convert digi ADC to fC as well
+		    myval=tool[k]-calibs_.pedestal(digi.sample(k).capid());
+		  else
+		    myval=digi.sample(k).adc()-calibs_.pedestal(digi.sample(k).capid());
+		  subpedsum[iEta+41][iPhi-1][iDepth-1]+=myval;
+		  subpedsum2[iEta+41][iPhi-1][iDepth-1]+=myval*myval;
+		}
+	    }
+
+	  for (int i=0; i<digi.size(); ++i) 
+	    {	    
+	      // We will only fill the histograms every N events.  
+	      // The rest of the time, we just store values in temp variables
+	      hbHists.temp_QIE_CAPID[digi.sample(i).capid()]++;
+	      hbHists.temp_QIE_ADC[int(digi.sample(i).adc())]++;
+
+	      //Timing plot: skipping ped. subtraction and fC conversion, just lin.adc counts
+	      int jadc=digi.sample(i).adc();
+	      float tmp = (LedMonAdc2fc[jadc]+0.5);
+	      if (digiOcc) hbHists.temp_SHAPE_tot[i]+=tmp;
+
+	      //Timing plot: skipping ped. subtraction and fC conversion, just lin.adc counts
+	      //and introducing threshold able to find muons
+	    
+	      if (maxadc>10) hbHists.temp_SHAPE_THR_tot[i]+=tmp;
+	      if(digiUpset) hbHists.QIE_CAPID->Fill(5);
+	      int dver = 2*digi.sample(i).er() + digi.sample(i).dv();
+	      hbHists.temp_QIE_DV[dver]++;
+	    }    
+
+	  if(doPerChannel_)	  
+	    HcalDigiPerChan::perChanHists<HBHEDataFrame>(1,digi,normVals,hbHists.SHAPE,m_dbe,baseFolder_);
+
+	  if (iEta > 0) 
+	    {
+	      for (int kk=0;kk<9;++kk)
+		{
+		  if (kk>=digi.size()-1) continue;
+		  hbHists.TS_SUM_P[kk]->Fill(digi.sample(kk).adc()+digi.sample(kk+1).adc());
+		}
+	    }
+	  else if (iEta < 0) 
+	    {
+	      for (int kk=0;kk<9;++kk)
+		{
+		  if (kk>=digi.size()-1) continue;
+		  hbHists.TS_SUM_M[kk]->Fill(digi.sample(kk).adc()+digi.sample(kk+1).adc());
+		}
+	    }
+
+	} // if ((HcalSubdetector)(digi.id().subdet())==HcalBarrel)
+
+	//else if((HcalSubdetector)(digi.id().subdet())==HcalEndcap){
+	else{ // extra subdet() call seems unnecessary -- if digi isn't HB, it must be HE
+	  if (!heHists.check) continue;
+	  nhedigi++;  ndigi++;
+
+	  if ( digiOcc)
+	    {
+	      heHists.PROBLEMDIGICELLS_TEMP->Fill(iEta,iPhi,1);
+	      heHists.PROBLEMDIGICELLS_TEMP_DEPTH[iDepth-1]->Fill(iEta,iPhi,1);
+	      hcalHists.PROBLEMDIGICELLS_TEMP->Fill(iEta,iPhi,1);
+	      hcalHists.PROBLEMDIGICELLS_TEMP_DEPTH[iDepth-1]->Fill(iEta,iPhi,1);
+	    }
+
+	  if(digiErr){
+	    nhebqdigi++; nbqdigi++;
+	    heHists.PROBLEMDIGICELLS->Fill(iEta,iPhi);
+	    heHists.PROBLEMDIGICELLS_DEPTH[iDepth-1]->Fill(iEta,iPhi);
+	    hcalHists.PROBLEMDIGICELLS->Fill(iEta,iPhi);
+	    hcalHists.PROBLEMDIGICELLS_DEPTH[iDepth-1]->Fill(iEta,iPhi);
+	    HcalDigiMap::fillErrors<HBHEDataFrame>(digi,normVals,
+						   heHists.ERR_MAP_GEO,heHists.ERR_MAP_VME,
+						   heHists.ERR_MAP_DCC);	  
+
+	    HcalDigiMap::fillErrors<HBHEDataFrame>(digi,normVals,
+						   ERR_MAP_GEO,ERR_MAP_VME,
+						   ERR_MAP_DCC);	  
+	  }
+
+	  if(digiOcc){
+	    HcalDigiMap::fillOccupancy<HBHEDataFrame>(digi,normVals,
+						      heHists.OCC_MAP_GEO1,heHists.OCC_MAP_GEO2,
+						      heHists.OCC_MAP_GEO3,heHists.OCC_MAP_GEO4,
+						      heHists.OCC_MAP_VME, 
+						      heHists.OCC_MAP_DCC,
+						      heHists.OCC_ETA,heHists.OCC_PHI);
+	  
+	    HcalDigiMap::fillOccupancy<HBHEDataFrame>(digi,normVals,
+						      OCC_L1,OCC_L2,OCC_L3,OCC_L4,
+						      OCC_ELEC_VME,OCC_ELEC_DCC,
+						      OCC_ETA,OCC_PHI);	  
+	  }
+	
+	  heHists.DIGI_SIZE->Fill(digi.size());
+	  heHists.DIGI_PRESAMPLE->Fill(digi.presamples());
+
+	  if (firsthecap == -1) firsthecap = digi.sample(0).capid();
+	  int capdif = digi.sample(0).capid() - firsthecap;
+	  capdif = capdif%3 - capdif/3;
+	  heHists.CAPID_T0->Fill(capdif);
+	  CAPID_T0->Fill(capdif);
+
+
+	  //for timing plot, find max-TS
+	  int maxadc=0;
+	  float myval=0;
+
+	  if (doFCpeds_)
+	    {
+	      channelCoder = cond.getHcalCoder(digi.id());
+	      HcalCoderDb coderDB(*channelCoder, *shape);
+	      coderDB.adc2fC(digi,tool);
+	      // digi (ADC) is input, tool (fC) is output
+	    }
+
+
+	  for (int k=0; k<digi.size(); ++k)
+	    {     
+	      if (digi.sample(k).adc() > maxadc) maxadc = digi.sample(k).adc();
+	      if (k<2) // only plot for first 2 time slices
+		{	      
+		  pedcounts[iEta+41][iPhi-1][iDepth-1]++;
+		  myval=digi.sample(k).adc();
+		  rawpedsum[iEta+41][iPhi-1][iDepth-1]+=myval;
+		  rawpedsum2[iEta+41][iPhi-1][iDepth-1]+=myval*myval;
+		  if (doFCpeds_) // Pedestals in fC; convert digi ADC to fC as well
+		    myval=tool[k]-calibs_.pedestal(digi.sample(k).capid());
+		  else
+		    myval=digi.sample(k).adc()-calibs_.pedestal(digi.sample(k).capid());
+		  subpedsum[iEta+41][iPhi-1][iDepth-1]+=myval;
+		  subpedsum2[iEta+41][iPhi-1][iDepth-1]+=myval*myval;
+		}
+	    }
+
+	  for (int i=0; i<digi.size(); ++i) 
+	    {	    
+	      // We will only fill the histograms every N events.  
+	      // The rest of the time, we just store values in temp variables
+	      heHists.temp_QIE_CAPID[digi.sample(i).capid()]++;
+	      heHists.temp_QIE_ADC[int(digi.sample(i).adc())]++;
+
+	      //Timing plot: skipping ped. subtraction and fC conversion, just lin.adc counts
+	      int jadc=digi.sample(i).adc();
+	      float tmp = (LedMonAdc2fc[jadc]+0.5);
+	      heHists.temp_SHAPE_tot[i]+=tmp;
+
+	      //Timing plot: skipping ped. subtraction and fC conversion, just lin.adc counts
+	      //and introducing threshold able to find muons
+	      if (maxadc>10) heHists.temp_SHAPE_THR_tot[i]+=tmp;
+	      if(digiUpset) heHists.QIE_CAPID->Fill(5);
+	      int dver = 2*digi.sample(i).er() + digi.sample(i).dv();
+	      heHists.temp_QIE_DV[dver]++;
+	    }    
+
+	  if(doPerChannel_)
+	    HcalDigiPerChan::perChanHists<HBHEDataFrame>(2,digi,normVals,heHists.SHAPE,m_dbe,baseFolder_);
+
+
+	  if (iEta > 0) 
+	    {
+	      for (int kk=0;kk<9;++kk)
+		{
+		  if (kk>=digi.size()-1) continue;
+		  heHists.TS_SUM_P[kk]->Fill(digi.sample(kk).adc()+digi.sample(kk+1).adc());
+		}
+	    }
+	  else if (iEta < 0) 
+	    {
+	      for (int kk=0;kk<9;++kk)
+		{
+		  if (kk>=digi.size()-1) continue;
+		  heHists.TS_SUM_M[kk]->Fill(digi.sample(kk).adc()+digi.sample(kk+1).adc());
+		}
+	    }
+
+	} //else (loop over HE)
+      } // loop over HBHE digi collection
+    
+      hbHists.DIGI_NUM->Fill(nhbdigi);
+      hbHists.BQDIGI_NUM->Fill(nhbbqdigi);
+      if (nhbdigi != 0)hbHists.BQDIGI_FRAC->Fill((1.0*nhbbqdigi)/(1.0*nhbdigi));
+
+      heHists.DIGI_NUM->Fill(nhedigi);
+      heHists.BQDIGI_NUM->Fill(nhebqdigi);
+      if (nhedigi != 0)heHists.BQDIGI_FRAC->Fill((1.0*nhebqdigi)/(1.0*nhedigi));
+    
+    } // try(...)
+  /*
+  catch (...) 
+    {    
+      if(fVerbosity) cout <<"HcalDigiMonitor::processEvent  No HBHE Digis."<<endl;
+    }
+  */
+
+} // void HcalDigiMonitor::HBHEDigiCheck
+
+
+
+void HcalDigiMonitor::HODigiCheck(const HODigiCollection& ho, DigiHists& hoHists, 
+				  DigiHists& hcalHists,  const HcalDbService& cond, 
+				  int& ndigi, int& nbqdigi)
+{
+  try
+    {
+      float normVals[10]; bool digiErr=false;
+      bool digiOcc=false; bool digiUpset=false;
+     
+      CaloSamples tool;
+      const HcalQIECoder* channelCoder=0;
+      const HcalQIEShape* shape=0;
+    
+      int firsthocap = -1; int nhobqdigi = 0;
+      int nhodigi = ho.size();
+      //    hoHists.DIGI_NUM->Fill(ho.size());
+
+
+      for (HODigiCollection::const_iterator j=ho.begin(); j!=ho.end(); ++j)
+	{
+	  if (!hoHists.check) continue;
+	  const HODataFrame digi = (const HODataFrame)(*j);	
+      
+
+	  calibs_= cond.getHcalCalibrations(digi.id());  // Old method was made private; we will need it for forming subtracted pedestals
+	  int iEta = digi.id().ieta();
+	  int iPhi = digi.id().iphi();
+	  int iDepth = digi.id().depth();
+	  HcalDigiMap::digiStats(digi, calibs_, occThresh_, normVals, digiErr, digiOcc, digiUpset);     
+
+	  if ( digiOcc)
+	    {
+	      hoHists.PROBLEMDIGICELLS_TEMP->Fill(digi.id().ieta(),digi.id().iphi(),1);
+	      hoHists.PROBLEMDIGICELLS_TEMP_DEPTH[digi.id().depth()-1]->Fill(digi.id().ieta(),digi.id().iphi(),1);
+	      hcalHists.PROBLEMDIGICELLS_TEMP->Fill(digi.id().ieta(),digi.id().iphi(),1);
+	      hcalHists.PROBLEMDIGICELLS_TEMP_DEPTH[digi.id().depth()-1]->Fill(digi.id().ieta(),digi.id().iphi(),1);
+	    }
+
+	  if(digiErr)
+	    {
+	      hoHists.PROBLEMDIGICELLS->Fill(digi.id().ieta(),digi.id().iphi());
+	      hoHists.PROBLEMDIGICELLS_DEPTH[digi.id().depth()-1]->Fill(digi.id().ieta(),digi.id().iphi());
+	      hcalHists.PROBLEMDIGICELLS->Fill(digi.id().ieta(),digi.id().iphi());
+	      hcalHists.PROBLEMDIGICELLS_DEPTH[digi.id().depth()-1]->Fill(digi.id().ieta(),digi.id().iphi());
+	      
+	      nhobqdigi++; nbqdigi++;
+	    }
+
+	  if (digiErr)
+	    {
+	      HcalDigiMap::fillErrors<HODataFrame>(digi,normVals,
+						   hoHists.ERR_MAP_GEO,hoHists.ERR_MAP_VME,
+						   hoHists.ERR_MAP_DCC);	  
+	      
+	      HcalDigiMap::fillErrors<HODataFrame>(digi,normVals,
+						   ERR_MAP_GEO,ERR_MAP_VME,
+						   ERR_MAP_DCC);	  
+	    }
+	  
+	  if(digiOcc)
+	    {
+	      HcalDigiMap::fillOccupancy<HODataFrame>(digi,normVals,
+						      hoHists.OCC_MAP_GEO1,hoHists.OCC_MAP_GEO2,
+						      hoHists.OCC_MAP_GEO3,hoHists.OCC_MAP_GEO4,
+						      hoHists.OCC_MAP_VME, 
+						      hoHists.OCC_MAP_DCC,
+						      hoHists.OCC_ETA,hoHists.OCC_PHI);
+	      
+	    HcalDigiMap::fillOccupancy<HODataFrame>(digi,normVals,
+						    OCC_L1,OCC_L2,OCC_L3,OCC_L4,
+						    OCC_ELEC_VME,OCC_ELEC_DCC,
+						    OCC_ETA,OCC_PHI);	  
+	    }
+	  
+	  hoHists.DIGI_SIZE->Fill(digi.size());
+	  hoHists.DIGI_PRESAMPLE->Fill(digi.presamples());
+
+	  if (firsthocap == -1) firsthocap = digi.sample(0).capid();
+	  int capdif = digi.sample(0).capid() - firsthocap;
+	  capdif = capdif%3 - capdif/3;
+	  hoHists.CAPID_T0->Fill(capdif);
+	  CAPID_T0->Fill(capdif);
+      
+	  //for timing plot, find max-TS
+	  int maxadc=0;
+	  float myval=0;
+
+	  if (doFCpeds_)
+	    {
+	      channelCoder = cond.getHcalCoder(digi.id());
+	      HcalCoderDb coderDB(*channelCoder, *shape);
+	      coderDB.adc2fC(digi,tool);
+	      // digi (ADC) is input, tool (fC) is output
+	    }
+      
+	  for (int k=0; k<digi.size(); ++k)
+	    {     
+	      if (digi.sample(k).adc() > maxadc) maxadc = digi.sample(k).adc();
+
+	      if (k<2) // only plot for first 2 time slices
+		{	      
+		  pedcounts[iEta+41][iPhi-1][iDepth-1]++;
+		  myval=digi.sample(k).adc();
+		  rawpedsum[iEta+41][iPhi-1][iDepth-1]+=myval;
+		  rawpedsum2[iEta+41][iPhi-1][iDepth-1]+=myval*myval;
+		  if (doFCpeds_) // Pedestals in fC; convert digi ADC to fC as well
+		    myval=tool[k]-calibs_.pedestal(digi.sample(k).capid());
+		  else
+		    myval=digi.sample(k).adc()-calibs_.pedestal(digi.sample(k).capid());
+		  subpedsum[iEta+41][iPhi-1][iDepth-1]+=myval;
+		  subpedsum2[iEta+41][iPhi-1][iDepth-1]+=myval*myval;
+		}
+	    }
+
+	  for (int i=0; i<digi.size(); ++i) 
+	    {	    // We will only fill the histograms every N events.  
+	      // The rest of the time, we just store values in temp variables
+	      hoHists.temp_QIE_CAPID[digi.sample(i).capid()]++;
+	      hoHists.temp_QIE_ADC[int(digi.sample(i).adc())]++;
+
+	      //Timing plot: skipping ped. subtraction and fC conversion, just lin.adc counts
+	      int jadc=digi.sample(i).adc();
+	      float tmp = (LedMonAdc2fc[jadc]+0.5);
+	      hoHists.temp_SHAPE_tot[i]+=tmp;
+
+	      //Timing plot: skipping ped. subtraction and fC conversion, just lin.adc counts
+	      //and introducing threshold able to find muons
+
+	      if (maxadc>10) hoHists.temp_SHAPE_THR_tot[i]+=tmp;
+	      if(digiUpset) hoHists.QIE_CAPID->Fill(5);
+	      int dver = 2*digi.sample(i).er() + digi.sample(i).dv();
+	      hoHists.temp_QIE_DV[dver]++;
+	    } // for (int i=0; i<digi.size();++i)
+	  
+	  if(doPerChannel_)	  
+	    HcalDigiPerChan::perChanHists<HODataFrame>(3,digi,normVals,hoHists.SHAPE,m_dbe, baseFolder_);
+
+
+	  if (digi.id().ieta() > 0) 
+	    {
+	      for (int kk=0;kk<9;++kk)
+		{
+		  if (kk>=digi.size()-1) continue;
+		  hoHists.TS_SUM_P[kk]->Fill(digi.sample(kk).adc()+digi.sample(kk+1).adc());
+		}
+	    }
+	  else if (digi.id().ieta() < 0) 
+	    {
+	      for (int kk=0;kk<9;++kk)
+		{
+		  if (kk>=digi.size()-1) continue;
+		  hoHists.TS_SUM_M[kk]->Fill(digi.sample(kk).adc()+digi.sample(kk+1).adc());
+		}
+	    }
+	} // loop over HO digi collection
+
+      hoHists.DIGI_NUM->Fill(nhodigi);
+      hoHists.BQDIGI_NUM->Fill(nhobqdigi);
+      if (nhodigi != 0)hoHists.BQDIGI_FRAC->Fill((1.0*nhobqdigi)/(1.0*nhodigi));
+      ndigi += nhodigi;
+    } //try
+
+ catch (...) 
+    {
+      if(fVerbosity) cout << "HcalDigiMonitor::processEvent  No HO Digis." << endl;
+    }
+
+} //void HcalDigiMoniotr::HODigiCheck(...)
+
+
+void HcalDigiMonitor::HFDigiCheck(const HFDigiCollection& hf, DigiHists& hfHists, 
+				  DigiHists& hcalHists,  const HcalDbService& cond, 
+				  int& ndigi, int& nbqdigi)
+{
+ try
+   {
+     float normVals[10]; bool digiErr=false;
+     bool digiOcc=false; bool digiUpset=false;
+     
+     CaloSamples tool;
+     const HcalQIECoder* channelCoder=0;
+     const HcalQIEShape* shape=0;
+     
+     int firsthfcap = -1; int nhfbqdigi = 0;
+     int nhfdigi = hf.size();
+     
+     for (HFDigiCollection::const_iterator j=hf.begin(); j!=hf.end(); ++j)
+       {
+	 if (!hfHists.check) continue;
+	 const HFDataFrame digi = (const HFDataFrame)(*j);
+	
+
+	 if ( digiOcc)
+	   {
+	     hfHists.PROBLEMDIGICELLS_TEMP->Fill(digi.id().ieta(),digi.id().iphi(),1);
+	     hfHists.PROBLEMDIGICELLS_TEMP_DEPTH[digi.id().depth()-1]->Fill(digi.id().ieta(),digi.id().iphi(),1);
+	     hcalHists.PROBLEMDIGICELLS_TEMP->Fill(digi.id().ieta(),digi.id().iphi(),1);
+	     hcalHists.PROBLEMDIGICELLS_TEMP_DEPTH[digi.id().depth()-1]->Fill(digi.id().ieta(),digi.id().iphi(),1);
+	   }
+	
+	 calibs_= cond.getHcalCalibrations(digi.id());  // Old method was made private; we will need it for forming subtracted pedestals
+	 int iEta = digi.id().ieta();
+	 int iPhi = digi.id().iphi();
+	 int iDepth = digi.id().depth();
+	 HcalDigiMap::digiStats(digi, calibs_, occThresh_, normVals, digiErr, digiOcc, digiUpset);      
+	
+	 if(digiErr)
+	   {
+	     hfHists.PROBLEMDIGICELLS->Fill(digi.id().ieta(),digi.id().iphi());
+	     hfHists.PROBLEMDIGICELLS_DEPTH[digi.id().depth()-1]->Fill(digi.id().ieta(),digi.id().iphi());
+	     hcalHists.PROBLEMDIGICELLS->Fill(digi.id().ieta(),digi.id().iphi());
+	     hcalHists.PROBLEMDIGICELLS_DEPTH[digi.id().depth()-1]->Fill(digi.id().ieta(),digi.id().iphi());
+	     nhfbqdigi++;  
+	     nbqdigi++;
+	     HcalDigiMap::fillErrors<HFDataFrame>(digi,normVals,
+						  hfHists.ERR_MAP_GEO,hfHists.ERR_MAP_VME,
+						  hfHists.ERR_MAP_DCC);	  
+	    
+	     HcalDigiMap::fillErrors<HFDataFrame>(digi,normVals,
+						  ERR_MAP_GEO,ERR_MAP_VME,
+						  ERR_MAP_DCC);	  
+	   }
+	
+	 if(digiOcc)
+	   {
+	     HcalDigiMap::fillOccupancy<HFDataFrame>(digi,normVals,
+						     hfHists.OCC_MAP_GEO1,hfHists.OCC_MAP_GEO2,
+						     hfHists.OCC_MAP_GEO3,hfHists.OCC_MAP_GEO4,
+						     hfHists.OCC_MAP_VME, 
+						     hfHists.OCC_MAP_DCC,
+						     hfHists.OCC_ETA,hfHists.OCC_PHI);
+	    
+	     HcalDigiMap::fillOccupancy<HFDataFrame>(digi,normVals,
+						     OCC_L1,OCC_L2,OCC_L3,OCC_L4,
+						     OCC_ELEC_VME,OCC_ELEC_DCC,
+						     OCC_ETA,OCC_PHI);	  
+	   }
+	
+	 hfHists.DIGI_SIZE->Fill(digi.size());
+	 hfHists.DIGI_PRESAMPLE->Fill(digi.presamples());
+	
+	 if (firsthfcap == -1) firsthfcap = digi.sample(0).capid();
+	 int capdif = digi.sample(0).capid() - firsthfcap;
+	 capdif = capdif%3 - capdif/3;
+	 hfHists.CAPID_T0->Fill(capdif);
+	 CAPID_T0->Fill(capdif);
+	
+	 //for timing plot, find max-TS
+	 int maxadc=0;
+	 float myval=0;
+	
+	 if (doFCpeds_)
+	   {
+	     channelCoder = cond.getHcalCoder(digi.id());
+	     HcalCoderDb coderDB(*channelCoder, *shape);
+	     coderDB.adc2fC(digi,tool);
+	     // digi (ADC) is input, tool (fC) is output
+	   }
+	
+	 for (int k=0; k<digi.size(); ++k)
+	   {     
+	     if (digi.sample(k).adc() > maxadc) maxadc = digi.sample(k).adc();
+	    
+	     if (k<2) // only plot for first 2 time slices
+	       {	      
+		 // Depth values increased by 2 to avoid overlap with HE at |eta|=29
+		 pedcounts[iEta+41][iPhi-1][iDepth+1]++;
+		 myval=digi.sample(k).adc();
+		 rawpedsum[iEta+41][iPhi-1][iDepth+1]+=myval;
+		 rawpedsum2[iEta+41][iPhi-1][iDepth+1]+=myval*myval;
+		 if (doFCpeds_) // Pedestals in fC; convert digi ADC to fC as well
+		   myval=tool[k]-calibs_.pedestal(digi.sample(k).capid());
+		 else
+		   myval=digi.sample(k).adc()-calibs_.pedestal(digi.sample(k).capid());
+		 subpedsum[iEta+41][iPhi-1][iDepth+1]+=myval;
+		 subpedsum2[iEta+41][iPhi-1][iDepth+1]+=myval*myval;
+	       }
+	   }
+   
+	 for (int i=0; i<digi.size(); ++i) 
+	   {	    
+	     // We will only fill the histograms every N events.  
+	      // The rest of the time, we just store values in temp variables
+	      hfHists.temp_QIE_CAPID[digi.sample(i).capid()]++;
+	      hfHists.temp_QIE_ADC[int(digi.sample(i).adc())]++;
+
+	      //Timing plot: skipping ped. subtraction and fC conversion, just lin.adc counts
+	      int jadc=digi.sample(i).adc();
+	      float tmp = (LedMonAdc2fc[jadc]+0.5);
+	      
+	      hfHists.temp_SHAPE_tot[i]+=tmp;
+	      //Timing plot: skipping ped. subtraction and fC conversion, just lin.adc counts
+	      //and introducing threshold able to find muons
+	      if (maxadc>10) hfHists.temp_SHAPE_THR_tot[i]+=tmp;
+	      if(digiUpset) hfHists.QIE_CAPID->Fill(5);
+	      int dver = 2*digi.sample(i).er() + digi.sample(i).dv();
+	      hfHists.temp_QIE_DV[dver]++;
+	   }    
+	   		
+	 if(doPerChannel_)	  
+	   HcalDigiPerChan::perChanHists<HFDataFrame>(4,digi,normVals,hfHists.SHAPE,m_dbe, baseFolder_);
+	
+
+	 if (digi.id().ieta() > 0) 
+	   {
+	     for (int kk=0;kk<9;++kk)
+	       {
+		 if (kk>=digi.size()-1) continue;
+		 hfHists.TS_SUM_P[kk]->Fill(digi.sample(kk).adc()+digi.sample(kk+1).adc());
+	       }
+	   }
+	 else if (digi.id().ieta() < 0) 
+	   {
+	     for (int kk=0;kk<9;++kk)
+	       {
+		 if (kk>=digi.size()-1) continue;
+		 hfHists.TS_SUM_M[kk]->Fill(digi.sample(kk).adc()+digi.sample(kk+1).adc());
+	       }
+	   }
+       } //for (HFDigiCollection j...)
+     hfHists.DIGI_NUM->Fill(nhfdigi);
+     hfHists.BQDIGI_NUM->Fill(nhfbqdigi);
+     if (nhfdigi != 0)
+       hfHists.BQDIGI_FRAC->Fill((1.0*nhfbqdigi)/(1.0*nhfdigi));
+     ndigi += nhfdigi;
+   } //try 
+ catch (...) 
+   {
+     if(fVerbosity) cout << "HcalDigiMonitor::processEvent  No HF Digis." << endl;
+   }
+} // void HcalDigiMonitor::HFDigiCheck()
+
+
