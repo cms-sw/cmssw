@@ -98,12 +98,6 @@ void RPCSimSetUp::setRPCSetUp(std::vector<RPCStripNoises::NoiseItem> vnoise, std
     }
     n++;
   }
-
-//    int j = 0;
-//    for(std::map<uint32_t, std::vector<float> >::iterator it = _mapDetIdEff.begin();it != _mapDetIdEff.end(); ++it ){
-//      std::cout<<"DIGITIZER"<<"  "<<j<<"  "<<"First El: "<<it->first<<"  "<<"Sec el: "<<(it->second).size()<<std::endl;
-//      j++;
-//    }
 }
 
 std::vector<float> RPCSimSetUp::getNoise(uint32_t id)
