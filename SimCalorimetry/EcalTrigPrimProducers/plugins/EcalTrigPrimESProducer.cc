@@ -236,8 +236,16 @@ void EcalTrigPrimESProducer::parseTextFile()
   std::string iString;
   std::string fString;
   std::string filename = "SimCalorimetry/EcalTrigPrimProducers/data/"+dbFilename_;
-  edm::FileInPath fileInPath(filename);
-  gzFile gzf=gzopen(fileInPath.fullPath().c_str(),"rb");
+  size_t slash=dbFilename_.find("/");
+  gzFile gzf;
+  if (slash!=0) {
+    edm::FileInPath fileInPath(filename);
+    gzf=gzopen(fileInPath.fullPath().c_str(),"rb");
+  }
+  else {
+    gzf=gzopen(dbFilename_.c_str(),"rb");
+    edm::LogWarning("EcalTPG") <<"Couldnt find database file via fileinpath, trying with pathname directly!!";
+  }
   bufpos_=0;
  
   bool eof = false;
@@ -346,7 +354,7 @@ void EcalTrigPrimESProducer::parseTextFile()
       }
 
     }
-  }
+  } else     edm::LogWarning("EcalTPG") <<"Database file not found!!!";
 }
 
 std::vector<int> EcalTrigPrimESProducer::getRange(int subdet, int tccNb, int towerNbInTcc, int stripNbInTower, int xtalNbInStrip)
