@@ -7,10 +7,10 @@
 
 // using namespace edm::serviceregistry;
 #include "MuonAnalysis/MomentumScaleCalibration/plugins/MuScleFit.h"
-#include "MuonAnalysis/MomentumScaleCalibration/plugins/Filter.h"
+#include "MuonAnalysis/MomentumScaleCalibration/plugins/MuScleFitFilter.h"
 
 DEFINE_SEAL_MODULE();
 DEFINE_FWK_LOOPER(MuScleFit);
-DEFINE_FWK_MODULE(Filter);
+DEFINE_FWK_MODULE(MuScleFitFilter);
 
 
