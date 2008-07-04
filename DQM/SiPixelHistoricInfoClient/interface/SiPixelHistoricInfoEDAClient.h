@@ -37,19 +37,23 @@ private:
   void retrievePointersToModuleMEs(const edm::EventSetup&);
   void fillSummaryObjects(const edm::Run&) const;
 
-  float calculatePercentOver(MonitorElement*) const; 
   void writetoDB(edm::EventID, edm::Timestamp) const;
   void writetoDB(const edm::Run&) const; 
   void savetoFile(std::string) const; 
+  // float calculatePercentOver(MonitorElement*) const; 
   // void printMEs() const; 
 
 private: 
-  bool firstEventInRun;
-  int nEvents;
+  bool printDebug_;
+  bool writeHisto_;
+  std::string outputDir_; 
   edm::ParameterSet parameterSet_;
   DQMStore* dbe_;
+
+  bool firstEventInRun; 
+  int nEventsInRun; 
   std::map< uint32_t, std::vector<MonitorElement*> > ClientPointersToModuleMEs;
-  SiPixelPerformanceSummary* performanceSummary_;
+  SiPixelPerformanceSummary* performanceSummary;
 
   // SiPixelHistoricInfoWebInterface* webInterface_;
   // bool defaultWebPageCreated_; 
