@@ -127,6 +127,9 @@ L1GlobalTrigger::L1GlobalTrigger(const edm::ParameterSet& parSet)
     // even numbers (except 0) "rounded" to the nearest lower odd number
     m_emulateBxInEvent = parSet.getParameter<int>("EmulateBxInEvent");
 
+    // length of BST record (in bytes) from parameter set
+    m_psBstLengthBytes = parSet.getParameter<int>("BstLengthBytes");
+
     LogTrace("L1GlobalTrigger")
     << "\nInput tag for muon collection from GMT:         "
     << m_muGmtInputTag
@@ -146,6 +149,8 @@ L1GlobalTrigger::L1GlobalTrigger(const edm::ParameterSet& parSet)
     << m_readTechnicalTriggerRecords << " \n"
     << "\nNumber of BxInEvent to be emulated:             "
     << m_emulateBxInEvent << " \n"
+    << "\nLength of BST message [bytes]:                  " 
+    << m_psBstLengthBytes << "\n"
     << std::endl;
 
     if ((m_emulateBxInEvent > 0)  && ( (m_emulateBxInEvent%2) == 0) ) {
@@ -213,7 +218,8 @@ L1GlobalTrigger::L1GlobalTrigger(const edm::ParameterSet& parSet)
     
     m_activeBoardsGtDaq = 0;
     m_activeBoardsGtEvm = 0;
-
+    m_bstLengthBytes = 0;
+    
     //
     m_l1GtBMCacheID = 0ULL;
     
@@ -315,6 +321,9 @@ void L1GlobalTrigger::produce(edm::Event& iEvent, const edm::EventSetup& evSetup
         //    active boards in L1 GT DAQ record and in L1 GT EVM record
         m_activeBoardsGtDaq = m_l1GtPar->gtDaqActiveBoards();
         m_activeBoardsGtEvm = m_l1GtPar->gtEvmActiveBoards();
+
+        ///   length of BST message (in bytes) for L1 GT EVM record
+        m_bstLengthBytes = m_l1GtPar->gtBstLengthBytes();
 
 
         m_l1GtParCacheID = l1GtParCacheID;
@@ -633,6 +642,23 @@ void L1GlobalTrigger::produce(edm::Event& iEvent, const edm::EventSetup& evSetup
     // fill the boards not depending on the BxInEvent in the L1 GT DAQ record
     // GMT, PSB and FDL depend on BxInEvent
 
+    // fill in emulator the same bunch crossing (12 bits - hardwired number of bits...)
+    // and the same local bunch crossing for all boards
+    int bxCross = iEvent.bunchCrossing();
+    boost::uint16_t bxCrossHw = 0;
+    if ((bxCross & 0xFFF) == bxCross) {
+        bxCrossHw = static_cast<boost::uint16_t> (bxCross);
+    }
+    else {
+        bxCrossHw = 0; // Bx number too large, set to 0!
+        LogDebug("L1GlobalTrigger")
+            << "\nBunch cross number [hex] = "
+            << std::hex << bxCross
+            << "\n  larger than 12 bits. Set to 0! \n"
+            << std::dec << std::endl;
+    }
+
+
     if (m_produceL1GtDaqRecord) {
 
         for (CItBoardMaps
@@ -664,6 +690,9 @@ void L1GlobalTrigger::produce(edm::Event& iEvent, const edm::EventSetup& evSetup
                                 // there are normally 3 or 5 BxInEvent
                                 gtfeWordValue.setRecordLength(
                                     static_cast<boost::uint16_t>(m_emulateBxInEvent));
+
+                                // bunch crossing
+                                gtfeWordValue.setBxNr(bxCrossHw);
 
                                 // set the list of active boards
                                 gtfeWordValue.setActiveBoards(m_activeBoardsGtDaq);
@@ -706,8 +735,25 @@ void L1GlobalTrigger::produce(edm::Event& iEvent, const edm::EventSetup& evSetup
     // fill the boards not depending on the BxInEvent in the L1 GT EVM record
 
     int evmNrFdlBoards = 0;
-
+    
     if (m_produceL1GtEvmRecord) {
+
+        // get the length of the BST message from parameter set or from event setup
+        
+        int bstLengthBytes = 0;
+        
+        if (m_psBstLengthBytes < 0) {
+            // length from event setup
+            bstLengthBytes = static_cast<int> (m_bstLengthBytes);
+            
+        } else {
+            // length from parameter set
+            bstLengthBytes = m_psBstLengthBytes;
+        }
+
+        LogTrace("L1GlobalTrigger")
+        << "\n Length of BST message (in bytes): " << bstLengthBytes << "\n"
+        << std::endl;
 
         for (CItBoardMaps
                 itBoard = boardMaps.begin();
@@ -730,14 +776,17 @@ void L1GlobalTrigger::produce(edm::Event& iEvent, const edm::EventSetup& evSetup
                     switch (itBoard->gtBoardType()) {
 
                         case GTFE: {
-                                L1GtfeExtWord gtfeWordValue;
+                                L1GtfeExtWord gtfeWordValue(bstLengthBytes);
 
-                                gtfeWordValue.setBoardId( itBoard->gtBoardId() );
+                                gtfeWordValue.setBoardId(itBoard->gtBoardId() );
 
                                 // cast int to boost::uint16_t
                                 // there are normally 3 or 5 BxInEvent
-                                gtfeWordValue.setRecordLength(
+                                gtfeWordValue.setRecordLength( 
                                     static_cast<boost::uint16_t>(m_emulateBxInEvent));
+
+                                // bunch crossing 
+                                gtfeWordValue.setBxNr(bxCrossHw);
 
                                 // set the list of active boards
                                 gtfeWordValue.setActiveBoards(m_activeBoardsGtEvm);
@@ -745,8 +794,22 @@ void L1GlobalTrigger::produce(edm::Event& iEvent, const edm::EventSetup& evSetup
                                 // set the TOTAL_TRIGNR as read from iEvent
                                 // TODO check again - PTC stuff
 
-                                gtfeWordValue.setTotalTriggerNr(
+                                gtfeWordValue.setTotalTriggerNr( 
                                     static_cast<boost::uint32_t>(iEvent.id().event()));
+
+                                // set the GPS time to the value read from Timestamp
+                                edm::TimeValue_t evTime = iEvent.time().value();
+
+                                gtfeWordValue.setGpsTime(evTime);
+
+                                //LogDebug("L1GlobalTrigger")
+                                //<< "\nEvent timestamp value [hex] = " << std::hex << evTime 
+                                //<< "\nBST retrieved value [hex]   = " << gtfeWordValue.gpsTime()
+                                //<< std::dec << std::endl;
+
+                                // source of BST message: DDDD simulated data
+                                boost::uint16_t bstSourceVal = 0xDDDD;
+                                gtfeWordValue.setBstSource(bstSourceVal);
 
                                 // ** fill L1GtfeWord in GT EVM record
 
@@ -765,12 +828,24 @@ void L1GlobalTrigger::produce(edm::Event& iEvent, const edm::EventSetup& evSetup
 
                                 tcsWordValue.setBoardId( itBoard->gtBoardId() );
 
+                                // bunch crossing
+                                tcsWordValue.setBxNr(bxCrossHw);
+
                                 boost::uint16_t trigType = 0x5; // 0101 simulated event
                                 tcsWordValue.setTriggerType(trigType);
+                                
+                                // luminosity segment number
+                                tcsWordValue.setLuminositySegmentNr(
+                                        static_cast<boost::uint16_t>(iEvent.luminosityBlock()));
+
 
                                 // set the Event_Nr as read from iEvent
                                 tcsWordValue.setEventNr(
                                     static_cast<boost::uint32_t>(iEvent.id().event()));
+
+                                // orbit number
+                                tcsWordValue.setOrbitNr(
+                                        static_cast<boost::uint64_t>(iEvent.orbitNumber()) );
 
                                 // ** fill L1TcsWord in the EVM record
 
@@ -882,7 +957,9 @@ void L1GlobalTrigger::produce(edm::Event& iEvent, const edm::EventSetup& evSetup
                 boardMaps, m_emulateBxInEvent, iBxInEvent,
                 m_numberPhysTriggers, m_numberTechnicalTriggers,
                 m_numberDaqPartitions,
-                m_gtGTL, m_gtPSB);
+                m_gtGTL, m_gtPSB, 
+                pfAlgoSetIndex,
+                pfTechSetIndex);
 
         if (m_produceL1GtDaqRecord && (daqNrFdlBoards > 0)) {
             m_gtFDL->fillDaqFdlBlock(

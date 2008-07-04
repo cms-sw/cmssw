@@ -41,7 +41,12 @@ gtDigis = cms.EDFilter("L1GlobalTrigger",
     #    1 (BxInEvent = 0); 3 (F 0 1) (standard record); 5 (E F 0 1 2) (debug record)
     # even numbers (except 0) "rounded" to the nearest lower odd number
     # negative value: emulate TotalBxInEvent as given in EventSetup  
-    EmulateBxInEvent = cms.int32(3)   
+    EmulateBxInEvent = cms.int32(3),   
+    
+    # length of BST record (in bytes) from parameter set
+    # negative value: take the value from EventSetup      
+    BstLengthBytes = cms.int32(-1)
+    
 )
 
 

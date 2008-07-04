@@ -129,6 +129,9 @@ private:
     boost::uint16_t m_activeBoardsGtDaq;
     boost::uint16_t m_activeBoardsGtEvm;
 
+    /// length of BST record (in bytes) from event setup
+    unsigned int m_bstLengthBytes;
+
     /// board maps - cache only the record
     const L1GtBoardMaps* m_l1GtBM;
     unsigned long long m_l1GtBMCacheID;
@@ -200,6 +203,8 @@ private:
     /// even numbers (except 0) "rounded" to the nearest lower odd number
     int m_emulateBxInEvent;
 
+    /// length of BST record (in bytes) from parameter set
+    int m_psBstLengthBytes;
 
 };
 

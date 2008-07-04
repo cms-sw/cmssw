@@ -86,7 +86,9 @@ void L1GlobalTriggerFDL::run(
     const unsigned int numberPhysTriggers, const unsigned int numberTechnicalTriggers,
     const unsigned int numberDaqPartitions,
     const L1GlobalTriggerGTL* ptrGTL,
-    const L1GlobalTriggerPSB* ptrPSB)
+    const L1GlobalTriggerPSB* ptrPSB, 
+    const int pfAlgoSetIndex,
+    const int pfTechSetIndex)
 {
 
     // FIXME get rid of bitset in GTL in order to use only EventSetup 
@@ -362,19 +364,54 @@ void L1GlobalTriggerFDL::run(
             // BxInEvent
             m_gtFdlWord->setBxInEvent(iBxInEvent);
             
+            // bunch crossing
+            
+            // fill in emulator the same bunch crossing (12 bits - hardwired number of bits...)
+            // and the same local bunch crossing for all boards
+            int bxCross = iEvent.bunchCrossing();
+            boost::uint16_t bxCrossHw = 0;
+            if ((bxCross & 0xFFF) == bxCross) {
+                bxCrossHw = static_cast<boost::uint16_t> (bxCross);
+            }
+            else {
+                bxCrossHw = 0; // Bx number too large, set to 0!
+                LogDebug("L1GlobalTrigger")
+                    << "\nBunch cross number [hex] = "
+                    << std::hex << bxCross
+                    << "\n  larger than 12 bits. Set to 0! \n"
+                    << std::dec << std::endl;
+            }
+
+            m_gtFdlWord->setBxNr(bxCrossHw);
+
             // set event number since last L1 reset generated in FDL
             m_gtFdlWord->setEventNr(
                 static_cast<boost::uint32_t>(iEvent.id().event()) );
 
+            // technical trigger decision word
+            m_gtFdlWord->setGtTechnicalTriggerWord(techDecisionWord);
 
             // algorithm trigger decision word
             m_gtFdlWord->setGtDecisionWord(algoDecisionWord);
             
-            // technical trigger decision word
-            m_gtFdlWord->setGtTechnicalTriggerWord(techDecisionWord);
+            // index of prescale factor set - technical triggers and algo
+            m_gtFdlWord->setGtPrescaleFactorIndexTech(static_cast<boost::uint16_t>(pfTechSetIndex));
+            m_gtFdlWord->setGtPrescaleFactorIndexAlgo(static_cast<boost::uint16_t>(pfAlgoSetIndex));
 
+            // NoAlgo bit FIXME
+            
             // finalOR
             m_gtFdlWord->setFinalOR(finalOrValue);
+
+            // orbit number
+            m_gtFdlWord->setOrbitNr(static_cast<boost::uint32_t>(iEvent.orbitNumber()) );
+
+            // luminosity segment number
+            m_gtFdlWord->setLumiSegmentNr(static_cast<boost::uint16_t>(iEvent.luminosityBlock()));
+
+            // local bunch crossing - set identical with absolute BxNr
+            m_gtFdlWord->setLocalBxNr(bxCrossHw);
+
 
         }
 
