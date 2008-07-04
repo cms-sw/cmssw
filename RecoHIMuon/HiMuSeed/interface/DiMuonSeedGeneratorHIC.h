@@ -79,7 +79,7 @@ class DiMuonSeedGeneratorHIC  {
                          const HICConst*,
 			 int aMult);
 
-  virtual SeedContainer  produce(const edm::Event& e, const edm::EventSetup& c,
+  virtual std::map<DetLayer*,SeedContainer>  produce(const edm::Event& e, const edm::EventSetup& c,
   			 FreeTrajectoryState&, 
 			 TrajectoryStateOnSurface&,
 			 FreeTrajectoryState&,

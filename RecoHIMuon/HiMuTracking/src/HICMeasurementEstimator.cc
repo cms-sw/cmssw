@@ -84,6 +84,10 @@ HICMeasurementEstimator::estimate(const TrajectoryStateOnSurface& tsos,
   
     if( est > theChi2Cut )
     {
+#ifdef DEBUG
+    std::cout<<" HICMeasurementEstimator::chi2::failed "<<est<<" "<<theChi2Cut<<std::endl;
+#endif
+    
       return HitReturnType(false,est);
     }
   
@@ -98,7 +102,9 @@ bool HICMeasurementEstimator::estimate( const TrajectoryStateOnSurface& ts,
   double pi = 4.*atan(1.);
   double twopi = 2.*pi;
   float theZError = plane.bounds().length() + 4.;
-  float thePhiError = 2.*plane.bounds().width()/plane.position().perp();
+  float thePhiError = 2.*plane.bounds().width()/plane.position().perp(); 
+// Change 02.07.08
+//  float thePhiError = 4.*plane.bounds().width()/plane.position().perp();
 
 #ifdef DEBUG  
   cout<<" ======================================================================================== ";
@@ -138,13 +144,13 @@ vector<double> HICMeasurementEstimator::setCuts(Trajectory& traj, const DetLayer
      theZWinMean = 0.;
      thePhiWin = 0.;
      theZWin = 0.;
-     theNewCut = 5.;
+     theNewCut = 10.; // change 5->10 03.07.2008
      theNewCutB = 5.;
      
      thePhiWinMeanB = 0.002;
      theZWinMeanB = 0.;
      thePhiWinB = 0.008;
-     theZWinB = 12.;
+     theZWinB = 17.;
           
      theZCutMean = 0.;
      thePhiCutMean = 0.;
@@ -255,7 +261,7 @@ vector<double> HICMeasurementEstimator::setCuts(Trajectory& traj, const DetLayer
         if( b->subDetector() ==  GeomDetEnumerators::PixelBarrel) theNewCut = 20.;
 
         thePhiWinMeanB = 0.004;
-        thePhiWinB = 0.015;
+        thePhiWinB = 0.016;
 
 	theCuts.push_back(thePhiWin); theCuts.push_back(theZWin);
 	theCuts.push_back(thePhiCut); theCuts.push_back(theZCut);

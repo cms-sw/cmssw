@@ -27,14 +27,14 @@ TrajectoryStateOnSurface
   if(!checkfts(fts)) return badtsos;
 
 #ifdef PROPAGATOR_DB 
-  cout<<"Start propagation in barrel"<<endl;
+  cout<<"FastMuPropagator::propagate::Start propagation in barrel::zvert "<<theFmpConst->zvert<<endl;
 #endif    
 
   // Extract information from muchambers
 
   int charge;
   int imin0,imax0;
-  double ptmax,ptmin,pt,phi,theta,z,pl;
+  double ptmax,ptmin,pt,phi,theta,theta0,z,pl;
   double dfcalc,phnext,bound;
   float ptboun=theFmpConst->ptboun;
   float step=theFmpConst->step;
@@ -42,7 +42,16 @@ TrajectoryStateOnSurface
   GlobalVector moment=fts.parameters().momentum();
   GlobalPoint posit=fts.parameters().position();
   pt=moment.perp();
-  theta=moment.theta();
+  theta0=moment.theta();
+// Correct theta
+          double zfts=fts.parameters().position().z()-theFmpConst->zvert;
+          double rfts=fts.parameters().position().perp();
+  theta = atan2(rfts,zfts);
+
+#ifdef PROPAGATOR_DB
+  cout<<"FastMuPropagator::propagate::Start propagation in barrel::theta old, new "<<theta0<<" "<<theta<<endl;
+#endif
+
   phi=posit.phi();
   ptmax=pt+fts.curvilinearError().matrix()(1,1);
   ptmin=pt-fts.curvilinearError().matrix()(1,1);
@@ -90,7 +99,13 @@ TrajectoryStateOnSurface
 #endif    
     // ==========================  Z  ========================================    
     if(abs(theta-pi/2.)>0.00001){
-      z=bound/tan(theta);
+      z=bound/tan(theta)+theFmpConst->zvert;
+      if(fabs(z)>140) {
+// Temporary implementation =====      
+//         if(z>0.) z = z-45.;
+//	 if(z<0.) z = z+45.;
+// ==============================	 
+      }
     }else{
       z=0.;
     }
@@ -161,14 +176,14 @@ TrajectoryStateOnSurface
   TrajectoryStateOnSurface badtsos;
 
 #ifdef PROPAGATOR_DB 
-  cout<<"Start propagation in forward"<<endl;
+  cout<<"FastMuPropagator::propagate::Start propagation in forward::zvert "<<theFmpConst->zvert<<endl;
 #endif    
   if(!checkfts(fts)) return badtsos;
    
   // Extract information from muchambers
 
   int imin0,imax0;
-  double ptmax,ptmin,pt,phi,theta,z,r,pl,plmin,plmax;
+  double ptmax,ptmin,pt,phi,theta,theta0,z,r,pl,plmin,plmax;
   double dfcalc,phnext;
   TrackCharge charge;
   float ptboun=theFmpConst->ptboun;
@@ -178,7 +193,16 @@ TrajectoryStateOnSurface
   GlobalVector moment=fts.parameters().momentum();
   GlobalPoint posit=fts.parameters().position();
   pt=moment.perp();
-  theta=moment.theta();
+  theta0=moment.theta();
+// Correct theta
+          double zfts=fts.parameters().position().z()-theFmpConst->zvert;
+          double rfts=fts.parameters().position().perp();
+  theta = atan2(rfts,zfts);
+
+#ifdef PROPAGATOR_DB
+  cout<<"FastMuPropagator::propagate::Start propagation in forward::theta old, new "<<theta0<<" "<<theta<<endl;
+#endif
+
   phi=posit.phi();
   ptmax=pt+fts.curvilinearError().matrix()(1,1);
   ptmin=pt-fts.curvilinearError().matrix()(1,1);
@@ -197,7 +221,7 @@ TrajectoryStateOnSurface
     if(imin0<1) imin0=1;
   
     z=boundplane.position().z();
-    r=z*tan(theta);
+    r=(z-theFmpConst->zvert)*tan(theta);
     charge=fts.parameters().charge();
 
     // pl evaluation  

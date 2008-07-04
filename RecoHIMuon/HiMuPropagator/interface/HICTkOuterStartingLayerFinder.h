@@ -47,7 +47,7 @@ private:
   const GeometricSearchTracker*              theTracker;
   int                                        NumberOfSigm;
   const HICConst*                            theHICConst;
-
+  double                                     length; 
 };
 }
 #endif

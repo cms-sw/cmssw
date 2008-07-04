@@ -16,6 +16,8 @@
 //#define CORRECT_DEBUG
 //#define LINEFIT_DEBUG
 
+//#define DEBUG
+
 using namespace std;
 
 TrajectoryStateOnSurface HICMuonUpdator::update(const Trajectory& mt,
@@ -32,10 +34,11 @@ TrajectoryStateOnSurface HICMuonUpdator::update(const Trajectory& mt,
 // trajectory type
   
   vector<TrajectoryMeasurement> MTM=mt.measurements();
-//  std::cout<<" HICMuonUpdator::update::MTM size "<<MTM.size()<<" vertex "<<zvert<<std::endl;
-//  std::cout<<" HICMuonUpdator::update::charge "<<(MTM.back()).updatedState().freeTrajectoryState()->parameters().charge()<<std::endl;
-//  std::cout<<" HICMuonUpdator::update::momentum "<<(MTM.back()).updatedState().freeTrajectoryState()->parameters().momentum()<<std::endl;
- 
+#ifdef DEBUG   
+  std::cout<<" HICMuonUpdator::update::MTM size "<<MTM.size()<<" vertex "<<zvert<<std::endl;
+  std::cout<<" HICMuonUpdator::update::charge "<<(MTM.back()).updatedState().freeTrajectoryState()->parameters().charge()<<std::endl;
+  std::cout<<" HICMuonUpdator::update::momentum "<<(MTM.back()).updatedState().freeTrajectoryState()->parameters().momentum()<<std::endl;
+#endif 
   vector<double> phihit,rhit,zhit,dphihit,drhit,dzhit,dzhitl,ehitphi,dehitphi,ehitstrip;
 
   double rvert=0.;
@@ -144,6 +147,9 @@ if ( (*(MTM.begin())).layer()->location()==GeomDetEnumerators::barrel){
                                                                  nTsos, chirz, chirf, tType);
 	
 	if(!tsos.isValid()) {
+#ifdef DEBUG
+      std::cout<<" Trajectory is not valid "<<std::endl;
+#endif	
 	 return badtsos;
 	}							
               
@@ -357,8 +363,13 @@ TrajectoryStateOnSurface HICMuonUpdator::updateBarrel(vector<double>& rhit, vect
   cout<<" co1="<<co1<<" co2="<<co2<<endl;
 #endif  
 
-  if(!fitrz) return badtsos;
+  if(!fitrz) {
+#ifdef DEBUG  
+  cout<<"UPDATE::BARREL::line fit failed rz= "<<fitrz<<" chirz="<<chirz<<endl;
+#endif  
   
+  return badtsos;
+  }   
   if(dphihit.size()>1){
   fitrf=this->linefit1(dphihit,drhit,dehitphi,ch1,chirf);
   
@@ -367,7 +378,12 @@ TrajectoryStateOnSurface HICMuonUpdator::updateBarrel(vector<double>& rhit, vect
   cout<<" ch1="<<ch1<<endl;
 #endif
 
-  if(!fitrf) return badtsos;
+  if(!fitrf) {
+#ifdef DEBUG  
+  cout<<"UPDATE::BARREL::line fit failed dphi= "<<fitrf<<" chirz="<<chirf<<endl;
+#endif  
+  return badtsos;
+  }
   }else{
 
   chirf = 0.;
@@ -447,8 +463,12 @@ TrajectoryStateOnSurface HICMuonUpdator::updateEndcap(vector<double>& rhit, vect
   cout<<" co1="<<co1<<" co2="<<co2<<endl;
 #endif  
 
-  if(!fitrz) return badtsos;
-  
+  if(!fitrz) {
+#ifdef DEBUG  
+  cout<<"UPDATE::ENDCAP::line fit failed rz= "<<fitrz<<" chirz="<<chirz<<endl;
+#endif  
+  return badtsos;
+  }
   if(dphihit.size()>1){
   fitrf=this->linefit1(dphihit,drhit,dehitphi,ch1,chirf);
   if(zhit.front()<0.) ch1=-1.*ch1;
@@ -456,7 +476,13 @@ TrajectoryStateOnSurface HICMuonUpdator::updateEndcap(vector<double>& rhit, vect
   cout<<"MuUpdate::barrel::line fit dphi= "<<fitrf<<" chirf="<<chirf<<endl;
   cout<<" ch1="<<ch1<<endl;
 #endif
-  if(!fitrf) return badtsos;
+  if(!fitrf) {
+#ifdef DEBUG  
+  cout<<"UPDATE::ENDCAP::line fit failed dphi= "<<fitrf<<" chirz="<<chirf<<endl;
+#endif  
+  
+  return badtsos;
+  }
   }else{
   dphi=fabs(dphihit.back());
   dr=fabs(drhit.back());
@@ -492,7 +518,10 @@ TrajectoryStateOnSurface HICMuonUpdator::updateEndcap(vector<double>& rhit, vect
 //  cout<<" point 10 "<<endl;
   GlobalVector pnew(ptnew*cos(psi),ptnew*sin(psi),pznew);
 //  cout<<" point 11 "<<endl;
-  GlobalPoint xnew(xrclus*cos(phinew),xrclus*sin(phinew),xzclus);
+  GlobalPoint xnew(xrclus*cos(phinew),xrclus*sin(phinew),xzclus); 
+// OK changes. Start each time from the RealHit cluster.
+//
+//  GlobalPoint xnew(xrhit.x(),xrhit.y(),xzclus);
   
 #ifdef UPDATOR_ENDCAP_DEBUG  
   cout<< "MuUpdator::xnew=" << xnew<<endl;

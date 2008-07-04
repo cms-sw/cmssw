@@ -43,6 +43,11 @@ HICSimpleNavigationSchool::HICSimpleNavigationSchool(const GeometricSearchTracke
     }
   }
 
+
+// barrel pixel layers
+
+
+
   // get forward layers
   vector<ForwardDetLayer*> flc = theTracker->forwardLayers(); 
   for ( vector<ForwardDetLayer*>::iterator i = flc.begin(); i != flc.end(); i++) {
@@ -129,7 +134,9 @@ void HICSimpleNavigationSchool::linkNextForwardLayer( BarrelDetLayer* bl,
    //	 radius < (**fli).specificSurface().outerRadius()) 
   if(fabs((**fli).position().z())>130. && fabs((**fli).position().z())<132.)
     {
-   //   cout<<" Add to barrel layer "<<radius<<" Forward layer "<<(**fli).position().z()<<endl;
+#ifdef DEBUG
+      cout<<" Add to barrel layer "<<radius<<" Forward layer "<<(**fli).position().z()<<endl;
+#endif
       rightFL.push_back( *fli);
       return;
     }
@@ -223,7 +230,7 @@ void HICSimpleNavigationSchool::linkNextBarrelLayer( ForwardDetLayer* fl,
 //	 zpos        < (**bli).surface().bounds().length() / 2.)
    if( fabs(zpos) > 130. && fabs(zpos) < 132. ) 
     {
-    //   cout<<" Forward layer "<<fl->position().z()<<" to Barrel layer "<<(**bli).specificSurface().radius()<<endl;
+      cout<<" Forward layer "<<fl->position().z()<<" to Barrel layer "<<(**bli).specificSurface().radius()<<endl;
       reachableBL.push_back( *bli);
       return;
     }

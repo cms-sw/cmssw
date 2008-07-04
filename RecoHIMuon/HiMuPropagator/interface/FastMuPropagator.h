@@ -20,6 +20,10 @@ public:
   FastMuPropagator(const MagneticField * mf, PropagationDirection dir = alongMomentum)
                                     {theFmpConst=new FmpConst(); field = mf;} 
                         
+  FastMuPropagator(const MagneticField * mf, FmpConst* fmp, PropagationDirection dir = alongMomentum)
+                                    {theFmpConst=fmp; field = mf;}
+
+
 
   virtual  ~FastMuPropagator() {delete theFmpConst;}
 

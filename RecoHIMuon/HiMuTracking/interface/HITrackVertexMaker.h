@@ -12,7 +12,7 @@
 //
 // Original Author:  Dong Ho Moon
 //         Created:  Wed May  9 06:22:36 CEST 2007
-// $Id: TestMuL1L2.h,v 1.3 2007/08/17 14:30:58 kodolova Exp $
+// $Id: HITrackVertexMaker.h,v 1.1 2008/05/09 13:20:47 kodolova Exp $
 //
 //
 
@@ -49,6 +49,7 @@
 // HI reconstruction includes
 
 #include "RecoHIMuon/HiMuSeed/interface/HICConst.h"
+#include "RecoHIMuon/HiMuPropagator/interface/FmpConst.h"
 #include "RecoHIMuon/HiMuTracking/interface/HICTrajectoryBuilder.h"
 #include "RecoHIMuon/HiMuTracking/interface/HICMeasurementEstimator.h"
 #include "RecoHIMuon/HiMuTracking/interface/HICMuonUpdator.h"
@@ -71,7 +72,7 @@ class HITrackVertexMaker {
       ~HITrackVertexMaker();
 
   //produceTracks 
-       bool produceTracks(const edm ::Event&, const edm::EventSetup&, HICConst*);
+       bool produceTracks(const edm ::Event&, const edm::EventSetup&, HICConst*, FmpConst*);
 
 
    private:

@@ -10,6 +10,8 @@
 
 using namespace edm;
 using namespace std;
+//#define DEBUG
+
 namespace cms {
 DiMuonSeedGeneratorHIC::DiMuonSeedGeneratorHIC(edm::InputTag rphirecHitsTag0,
                                                const MagneticField* magfield0, 
@@ -32,7 +34,7 @@ DiMuonSeedGeneratorHIC::DiMuonSeedGeneratorHIC(edm::InputTag rphirecHitsTag0,
   
 }
 
-DiMuonSeedGeneratorHIC::SeedContainer DiMuonSeedGeneratorHIC::produce(const edm::Event& e, const edm::EventSetup& iSetup, 
+map<DetLayer*,DiMuonSeedGeneratorHIC::SeedContainer> DiMuonSeedGeneratorHIC::produce(const edm::Event& e, const edm::EventSetup& iSetup, 
                                                     FreeTrajectoryState& theFtsTracker, 
 						    TrajectoryStateOnSurface& newtsos,
 						    FreeTrajectoryState& theFtsMuon,
@@ -46,6 +48,7 @@ DiMuonSeedGeneratorHIC::SeedContainer DiMuonSeedGeneratorHIC::produce(const edm:
 
   //  cout<<" Point 0 "<<endl;
 					    
+    std::map<DetLayer*,DiMuonSeedGeneratorHIC::SeedContainer> seedMap;
     SeedContainer seedContainer;
     
     bl = theTracker->barrelLayers();
@@ -101,13 +104,13 @@ DiMuonSeedGeneratorHIC::SeedContainer DiMuonSeedGeneratorHIC::produce(const edm:
          }// end else
 // ==========================================       
        theEstimator.set(phipred, zpred);
-       
-      // std::cout<<" DiMuonSeedGenerator::estimator::set cuts "<<std::endl;
-
+#ifdef DEBUG       
+       std::cout<<" DiMuonSeedGenerator::estimator::set cuts "<<std::endl;
+#endif
        std::vector<TrajectoryMeasurement> vTM = theLayerMeasurements->measurements((**ml),newtsos, *thePropagator, theEstimator);
-
-     //  std::cout<<" Size of compatible TM "<<vTM.size()<<std::endl;
-
+#ifdef DEBUG
+       std::cout<<" DiMuonSeedGenerator::Size of compatible TM found by measurements "<<vTM.size()<<std::endl;
+#endif
        
         int measnum = 0;
 
@@ -117,23 +120,28 @@ DiMuonSeedGeneratorHIC::SeedContainer DiMuonSeedGeneratorHIC::produce(const edm:
 
        if( bl != 0 )
        {
-    //    cout<<" Barrel seed "<<endl;
+#ifdef DEBUG
+        cout<<" DiMuonSeedGenerator::Barrel seed "<<endl;
+#endif
         newtmr = barrelUpdateSeed(theFtsMuon,(*it));
 
        }
          else
          {
-      //      cout<<" Endcap seed "<<endl;
+#ifdef DEBUG
+            cout<<" DiMuonSeedGenerator::Endcap seed "<<endl;
+#endif
             newtmr = forwardUpdateSeed(theFtsMuon,(*it));
          }
-
-        //   cout<<" Estimate seed "<<newtmr.first.estimate()<<" True or false  "<<newtmr.second<<endl;
-
-          if(newtmr.second) seedContainer.push_back(DiMuonTrajectorySeed(newtmr.first,theFtsMuon,theLowMult));  
+#ifdef DEBUG
+           cout<<" DiMuonSeedGenerator::Estimate seed "<<newtmr.first.estimate()<<" True or false  "<<newtmr.second<<endl;
+#endif
+          if(newtmr.second) seedContainer.push_back(DiMuonTrajectorySeed(newtmr.first,theFtsMuon,theLowMult));
        }
+       seedMap[*ml] = seedContainer;
     }       
     delete theLayerMeasurements;
-    return  seedContainer; 
+    return  seedMap; 
   
 }      
 
@@ -144,16 +152,23 @@ pair<TrajectoryMeasurement,bool> DiMuonSeedGeneratorHIC::barrelUpdateSeed (
 {
 
   bool good=false;
-
- // std::cout<<" BarrelSeed "<<std::endl;
+#ifdef DEBUG
+  std::cout<<" DiMuonSeedGeneratorHIC::barrelUpdateSeed::BarrelSeed "<<std::endl;
+#endif
   const DetLayer* dl = tm.layer();
  // std::cout<<" BarrelSeed 0"<<std::endl;  
   const TransientTrackingRecHit::ConstRecHitPointer rh = tm.recHit(); 
  // std::cout<<" BarrelSeed 1"<<std::endl;
   if(!(rh->isValid())) 
   {
+#ifdef DEBUG
+     std::cout<<" DiMuonSeedGeneratorHIC::barrelUpdateSeed::hit is not valid "<<std::endl;
+#endif
      return pair<TrajectoryMeasurement,bool>(tm,good);
   }
+#ifdef DEBUG
+     std::cout<<" DiMuonSeedGeneratorHIC::barrelUpdateSeed::hit is  valid "<<std::endl;
+#endif
 //  std::cout<<" BarrelSeed 2"<<std::endl;
   FreeTrajectoryState FTS = *(tm.forwardPredictedState().freeTrajectoryState());
 
@@ -168,7 +183,8 @@ pair<TrajectoryMeasurement,bool> DiMuonSeedGeneratorHIC::barrelUpdateSeed (
   double pt = FTS.parameters().momentum().perp();
   double aCharge = FTS.parameters().charge();
   AlgebraicSymMatrix55 e = FTS.curvilinearError().matrix();
-  double dpt = 0.2*pt;
+//  double dpt = 0.2*pt;
+  double dpt = 0.35*pt;
   
 //  std::cout<<" BarrelSeed 3 "<<std::endl;  
 //
@@ -177,9 +193,9 @@ pair<TrajectoryMeasurement,bool> DiMuonSeedGeneratorHIC::barrelUpdateSeed (
   int imax0 = (int)((pt+dpt-theHICConst->ptboun)/theHICConst->step) + 1;
   int imin0 = (int)((pt-dpt-theHICConst->ptboun)/theHICConst->step) + 1;
   if( imin0 < 1 ) imin0 = 1;
-//#ifdef DIMUONGENERATOR_DB	
-//	cout<<" imin0,imax0 "<<imin0<<" "<<imax0<<" pt,dpt "<<pt<<" "<<dpt<<endl;
-//#endif	
+#ifdef DEBUG	
+	std::cout<<" DiMuonSeedGeneratorHIC::barrelUpdateSeed::imin0,imax0 "<<imin0<<" "<<imax0<<" pt,dpt "<<pt<<" "<<dpt<<std::endl;
+#endif	
 
   double dens,df,ptmax,ptmin;
 
@@ -203,27 +219,33 @@ pair<TrajectoryMeasurement,bool> DiMuonSeedGeneratorHIC::barrelUpdateSeed (
 	
 	ptmax = (dens-(double)(theHICConst->phias[26]))/(double)(theHICConst->phibs[26]) + theHICConst->ptbmax;
 	ptmin = (dens-(double)(theHICConst->phiai[26]))/(double)(theHICConst->phibi[26]) + theHICConst->ptbmax;
-
-    // std::cout<<" Phias,phibs,phiai,phibi "<<theHICConst->phias[26]<<" "<<theHICConst->phibs[26]<<" "<<
-     //theHICConst->phiai[26]<<" "<<theHICConst->phibi[26]<<" "<<theHICConst->ptbmax<<std::endl;
-     //std::cout<<" ptmin= "<<ptmin<<" ptmax "<<ptmax<<std::endl;
-     //std::cout<<" ptboun "<<theHICConst->ptboun<<" "<<theHICConst->step<<std::endl;
- 
+#ifdef DEBUG
+     std::cout<<" Phias,phibs,phiai,phibi "<<theHICConst->phias[26]<<" "<<theHICConst->phibs[26]<<" "<<
+     theHICConst->phiai[26]<<" "<<theHICConst->phibi[26]<<" "<<theHICConst->ptbmax<<std::endl;
+     std::cout<<" ptmin= "<<ptmin<<" ptmax "<<ptmax<<std::endl;
+     std::cout<<" ptboun "<<theHICConst->ptboun<<" "<<theHICConst->step<<std::endl;
+#endif 
 	imax = (int)((ptmax-theHICConst->ptboun)/theHICConst->step)+1;
 	imin = (int)((ptmin-theHICConst->ptboun)/theHICConst->step)+1;
 	if(imin > imax) {
-           //     std::cout<<" imin>imax "<<imin<<" "<<imax<<std::endl; 
+#ifdef DEBUG	
+                std::cout<<" imin>imax "<<imin<<" "<<imax<<std::endl; 
+#endif		
            return pair<TrajectoryMeasurement,bool>(tm,good);}
 	if(imax < 1) { 
-              //std::cout<<"imax < 1 "<<imax<<std::endl; 
+#ifdef DEBUG	
+              std::cout<<"imax < 1 "<<imax<<std::endl; 
+#endif	      
               return pair<TrajectoryMeasurement,bool>(tm,good);}
 
 	imin1 = max(imin,imin0);
 	imax1 = min(imax,imax0);
 	if(imin1 > imax1) {
-        // std::cout<<" imin,imax "<<imin<<" "<<imax<<std::endl; 
-        // std::cout<<" imin,imax "<<imin0<<" "<<imax0<<std::endl;
-        // std::cout<<" imin1>imax1 "<<imin1<<" "<<imax1<<std::endl;
+#ifdef DEBUG	
+         std::cout<<" imin,imax "<<imin<<" "<<imax<<std::endl; 
+         std::cout<<" imin,imax "<<imin0<<" "<<imax0<<std::endl;
+         std::cout<<" imin1>imax1 "<<imin1<<" "<<imax1<<std::endl;
+#endif	
          return pair<TrajectoryMeasurement,bool>(tm,good);
 	}
 
@@ -290,16 +312,26 @@ pair<TrajectoryMeasurement,bool> DiMuonSeedGeneratorHIC::forwardUpdateSeed (
 							               ) const
 {
   bool good=false;
-//  std::cout<<" EndcapSeed "<<std::endl;
+#ifdef DEBUG
+  std::cout<<" DiMuonSeedGeneratorHIC::forwardUpdateSeed::EndcapSeed::start "<<std::endl;
+#endif
   const DetLayer* dl = tm.layer();
 //  std::cout<<" EndcapSeed 0"<<std::endl;
   const TransientTrackingRecHit::ConstRecHitPointer rh = tm.recHit();
 //  std::cout<<" EndcapSeed 1"<<std::endl;   
   if(!(rh->isValid())) 
   {
+#ifdef DEBUG
+  std::cout<<" DiMuonSeedGeneratorHIC::forwardUpdateSeed::EndcapSeed::EndcapSeed::hit is not valid "<<std::endl;
+#endif
+
      return pair<TrajectoryMeasurement,bool>(tm,good);
   }
-//  std::cout<<" EndcapSeed 2"<<std::endl; 
+
+#ifdef DEBUG
+  std::cout<<" DiMuonSeedGeneratorHIC::forwardUpdateSeed::EndcapSeed::EndcapSeed::valid "<<std::endl;
+#endif 
+
   FreeTrajectoryState FTS = *(tm.forwardPredictedState().freeTrajectoryState());
 
 //
@@ -320,10 +352,13 @@ pair<TrajectoryMeasurement,bool> DiMuonSeedGeneratorHIC::forwardUpdateSeed (
 //  std::cout<<" Point 1 "<<std::endl;
 	
 	double df = fabs(realhit.phi() - phi);
-	
-//	cout<<" DiMuonSeedGeneratorHIC::forwardUpdateSeed "<<phi<<" "<<realhit.phi()<<endl;
-	
+
 	if(df > pi) df = twopi-df;
+
+#ifdef DEBUG
+        cout<<" DiMuonSeedGeneratorHIC::forwardUpdateSeed::phipred::phihit::df "<<phi<<" "<<realhit.phi()<<" "<<df<<endl;
+#endif
+
 	//
 	// calculate the new Pl
 	//
@@ -340,34 +375,43 @@ pair<TrajectoryMeasurement,bool> DiMuonSeedGeneratorHIC::forwardUpdateSeed (
 
 	if( fabs(FTSOLD.parameters().momentum().eta()) > 1.9 )
 	{
-//	   cout<<" First parametrization "<<df<<endl;
+#ifdef DEBUG	
+	   cout<<" First parametrization "<<df<<endl;
+#endif	   
 	   pznew = fabs(( df - 0.0191878 )/(-0.0015952))/3.;
 	   
-	   if( df > 0.1 ) pznew = 5;
+	   if( df > 0.1 ) pznew = 5.;
+	   if( fabs(pznew)<3.) pznew = 3.;
 	   
            if( FTSOLD.parameters().position().z() < 0. ) pznew = (-1)*pznew;
 	   ptnew = pznew * tan( theta );
 	}
 	if( fabs(FTSOLD.parameters().momentum().eta()) > 1.7 && fabs(FTSOLD.parameters().momentum().eta()) < 1.9 )
 	{
-//	   cout<<" Second parametrization "<<df<<endl;
-	
+#ifdef DEBUG	
+	   cout<<" Second parametrization "<<df<<endl;
+#endif	
 	   pznew = fabs(( df - 0.38 )/(-0.009))/3.;
+	   if( fabs(pznew)<2.) pznew = 2.;
+	   
            if( FTSOLD.parameters().position().z() < 0. ) pznew = (-1)*pznew;
 	   ptnew = pznew * tan( theta );
 	}
 	if( fabs(FTSOLD.parameters().momentum().eta()) > 1.6 && fabs(FTSOLD.parameters().momentum().eta()) < 1.7 )
 	{
-//	   cout<<" Third parametrization "<<df<<endl;
-	
+#ifdef DEBUG	
+	   cout<<" Third parametrization "<<df<<endl;
+#endif	
 	   pznew = fabs(( df - 0.9 )/(-0.02))/3.;
+	   if( fabs(pznew)<1.) pznew = 1.;
            if( FTSOLD.parameters().position().z() < 0. ) pznew = (-1)*pznew;
 	   ptnew = pznew * tan( theta );
 	}
 	if( fabs(FTSOLD.parameters().momentum().eta()) > 0.7 && fabs(FTSOLD.parameters().momentum().eta()) < 1.6 )
 	{
-//	   cout<<" Forth parametrization "<<df<<endl;
-	
+#ifdef DEBUG
+	   cout<<" Forth parametrization "<<df<<endl;
+#endif	
 	   double dfinv = 0.;
 	   if( df < 0.0000001 ) {
 	        dfinv = 1000000.; 
@@ -381,17 +425,22 @@ pair<TrajectoryMeasurement,bool> DiMuonSeedGeneratorHIC::forwardUpdateSeed (
 	   ptmax = (dfinv - 0.5)/0.3 + 3.;
 	   ptnew = ( ptmin + ptmax )/2.;
 	   pznew = ptnew/tan( theta );
-	}
-// std::cout<<" Point 6 "<<std::endl;
 	
-//	cout<<" Paramters of algorithm "<<df<<" "<<theHicConst->forwparam[1]<<" "<<theHicConst->forwparam[0]<<endl;
-//	cout<<" check "<<pt<<" "<<ptnew<<" "<<dpt<<" pz "<<pznew<<" "<<pz<<endl;
+// std::cout<<" Point 6 "<<std::endl;
+#ifdef DEBUG	
+	std::cout<<" Paramters of algorithm "<<df<<" "<<theHICConst->forwparam[1]<<" "<<theHICConst->forwparam[0]<<std::endl;
+        std::cout<<" dfinv  "<<dfinv<<" ptmax "<<ptmax<<" ptmin "<<ptmin<<std::endl;
+	std::cout<<" check "<<pt<<" "<<ptnew<<" "<<dpt<<" pz "<<pznew<<" "<<pz<<std::endl;
+#endif
+        }
         //
 	// Check if it is valid
 	//  	
 	if( (pt - ptnew)/pt < -2 || (pt - ptnew)/pt > 1 )
 	{
-  //          cout<<" Return fake 0 "<<endl;
+#ifdef DEBUG
+            cout<<" Return fake 0 pt::ptnew "<<pt<<" "<<ptnew<<endl;
+#endif
 	   return pair<TrajectoryMeasurement,bool>(tm,good); // bad rhit
 	}
     //        cout<<" Start recalculation 0 "<<endl;
@@ -402,11 +451,17 @@ pair<TrajectoryMeasurement,bool> DiMuonSeedGeneratorHIC::forwardUpdateSeed (
 	double alfnew = realhit.phi() + aCharge*alf;
 	GlobalPoint xnew0(realhit.x(), realhit.y(), realhit.z()); 
 	GlobalVector pnew0( ptnew*cos(alfnew), ptnew*sin(alfnew), pznew );
-      //           cout<<" Start recalculation 1 "<<endl;	
+#ifdef DEBUG	
+        cout<<" Start recalculation 1 FTSOLD eta, r hit, pt "<<FTSOLD.parameters().momentum().eta()<<" "<<realhit.perp()<<
+                                                                   " "<<FTSOLD.parameters().momentum().perp()<<endl;	
+#endif	
 	if( fabs(FTSOLD.parameters().momentum().eta()) < 1.7 && fabs(FTSOLD.parameters().momentum().eta()) > 0.8 )
 	{
 	    if( realhit.perp() < 80. ) {
-        //      cout<<" Return fake 1 "<<endl;
+//	    if( realhit.perp() < 72. ) {
+#ifdef DEBUG
+              cout<<" Return fake 1 "<<realhit.perp()<<endl;
+#endif	      
 	      return pair<TrajectoryMeasurement,bool>(tm,good);
 	    }  
 	}
@@ -415,15 +470,20 @@ pair<TrajectoryMeasurement,bool> DiMuonSeedGeneratorHIC::forwardUpdateSeed (
         if( FTSOLD.parameters().momentum().perp() > 2.0){
 	  if( fabs(FTSOLD.parameters().momentum().eta()) < 2.0 && fabs(FTSOLD.parameters().momentum().eta()) >= 1.7 )
 	  {
-	    if( realhit.perp() > 80. || realhit.perp() < 60. ) {
-          //    cout<<" Return fake 2 "<<endl;
+	    if( realhit.perp() > 100. || realhit.perp() < 60. ) {
+#ifdef DEBUG	    
+              cout<<" Return fake 2 "<<endl;
+#endif	      
 	      return pair<TrajectoryMeasurement,bool>(tm,good);
 	  }  
 	  }
 	  if( fabs(FTSOLD.parameters().momentum().eta()) < 2.4 && fabs(FTSOLD.parameters().momentum().eta()) >= 2.0 )
 	  {
 	    if( realhit.perp() > 75. || realhit.perp() < 40. ) {
-            //  cout<<" Return fake 3 "<<endl;
+//	    if( realhit.perp() > 82. || realhit.perp() < 40. ) {
+#ifdef DEBUG	    
+              cout<<" Return fake 3 "<<endl;
+#endif	      
 	      return pair<TrajectoryMeasurement,bool>(tm,good);
 	    }  
 	  }
@@ -434,21 +494,25 @@ pair<TrajectoryMeasurement,bool> DiMuonSeedGeneratorHIC::forwardUpdateSeed (
 	  if( fabs(FTSOLD.parameters().momentum().eta()) < 2.0 && fabs(FTSOLD.parameters().momentum().eta()) >= 1.7 )
 	  {	  
 	    if( realhit.perp() > 84. || realhit.perp() < 40. ) {
-              //  cout<<" Return fake 4 "<<endl;
+#ifdef DEBUG	    
+              cout<<" Return fake 4 "<<endl;
+#endif	      
 	      return pair<TrajectoryMeasurement,bool>(tm,good);
 	    }  
 	  }
  	  if( fabs(FTSOLD.parameters().momentum().eta()) < 2.4 && fabs(FTSOLD.parameters().momentum().eta()) >= 2.0 )
 	  {
 	    if( realhit.perp() > 84. || realhit.perp() < 40. ) {
-              // cout<<" Return fake 5 "<<endl;
+#ifdef DEBUG	    
+              cout<<" Return fake 5 "<<endl;
+#endif	      
 	      return pair<TrajectoryMeasurement,bool>(tm,good);
 	    }  
 	  }
        } // pt ><2
-
-         //  cout<<" Create new TM "<<endl;
-	
+#ifdef DEBUG
+          cout<<" Create new TM "<<endl;
+#endif	
 	AlgebraicSymMatrix m(5,0);        
 	m(1,1) = fabs(0.5*pznew); m(2,2) = theHICConst->phiro[13]; 
 	m(3,3) = theHICConst->tetro[13];
@@ -463,8 +527,9 @@ pair<TrajectoryMeasurement,bool> DiMuonSeedGeneratorHIC::forwardUpdateSeed (
      TrajectoryMeasurement newtm(tm.forwardPredictedState(), updatedTsosOnDet, rh,estimate, dl);
      good=true;
       pair<TrajectoryMeasurement,bool> newtmr(newtm,good);
-    // std::cout<<" Endcap newtm estimate= "<<newtmr.first.estimate()<<" "<<newtmr.second<<std::endl;
-
+#ifdef DEBUG      
+     std::cout<<" Endcap newtm estimate= "<<newtmr.first.estimate()<<" "<<newtmr.second<<" pt "<<pnew0.perp()<<" pz "<<pnew0.z()<<std::endl;
+#endif
   return newtmr;
 }
 }

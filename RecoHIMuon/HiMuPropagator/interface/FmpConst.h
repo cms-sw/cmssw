@@ -63,7 +63,10 @@ public:
  cylinderoffset=5.;
  diskoffset=5.;			     
  partrack=0.006;
+ zvert=0.;
   }
+
+ void setVertex(double a);
 
  float newparam[3];
  float newparamgt40[3];
@@ -88,6 +91,7 @@ public:
  float cylinderoffset;
  float diskoffset;			     
  float partrack;
+ float zvert;
 };
 }
 #endif
