@@ -1,4 +1,5 @@
-#include "GeneratorInterface/GenFilters/interface/MCDecayingPionKaonFilter.h"
+
+#include "GeneratorInterface/GenFilters/interface/MCSmartSingleParticleFilter.h"
 
 #include "SimDataFormats/HepMCProduct/interface/HepMCProduct.h"
 #include <iostream>
@@ -7,7 +8,7 @@ using namespace edm;
 using namespace std;
 
 
-MCDecayingPionKaonFilter::MCDecayingPionKaonFilter(const edm::ParameterSet& iConfig) :
+MCSmartSingleParticleFilter::MCSmartSingleParticleFilter(const edm::ParameterSet& iConfig) :
 label_(iConfig.getUntrackedParameter("moduleLabel",std::string("source")))
 {
    //here do whatever other initialization is needed
@@ -24,28 +25,31 @@ label_(iConfig.getUntrackedParameter("moduleLabel",std::string("source")))
    vector<double> defetamax ;
    defetamax.push_back(10.);
    etaMax = iConfig.getUntrackedParameter< vector<double> >("MaxEta", defetamax);
+   vector<int> defstat ;
+   defstat.push_back(0);
+   status = iConfig.getUntrackedParameter< vector<int> >("Status", defstat);
 
-   vector<double> defDecayRadiusmin ;
-   defDecayRadiusmin.push_back(-10.);
+   vector<double> defDecayRadiusmin;
+   defDecayRadiusmin.push_back(-1.);
    decayRadiusMin = iConfig.getUntrackedParameter< vector<double> >("MinDecayRadius", defDecayRadiusmin);
 
-   vector<double> defDecayRadiusmax ;
+   vector<double> defDecayRadiusmax;
    defDecayRadiusmax.push_back(1.e5);
    decayRadiusMax = iConfig.getUntrackedParameter< vector<double> >("MaxDecayRadius", defDecayRadiusmax);
 
-   vector<double> defDecayZmin ;
+   vector<double> defDecayZmin;
    defDecayZmin.push_back(-1.e5);
    decayZMin = iConfig.getUntrackedParameter< vector<double> >("MinDecayZ", defDecayZmin);
 
-   vector<double> defDecayZmax ;
+   vector<double> defDecayZmax;
    defDecayZmax.push_back(1.e5);
    decayZMax = iConfig.getUntrackedParameter< vector<double> >("MaxDecayZ", defDecayZmax);
 
-    ptMuMin = iConfig.getUntrackedParameter<double>("PtMuMin",0.);  
     // check for same size
     if ( (ptMin.size() > 1 &&  particleID.size() != ptMin.size())
      ||  (etaMin.size() > 1 && particleID.size() != etaMin.size())
      ||  (etaMax.size() > 1 && particleID.size() != etaMax.size())
+     ||  (status.size() > 1 && particleID.size() != status.size())
      ||  (decayRadiusMin.size() > 1 && particleID.size() != decayRadiusMin.size())
      ||  (decayRadiusMax.size() > 1 && particleID.size() != decayRadiusMax.size())
      ||  (decayZMin.size() > 1 && particleID.size() != decayZMin.size())
@@ -71,6 +75,12 @@ label_(iConfig.getUntrackedParameter("moduleLabel",std::string("source")))
        for (unsigned int i = 0; i < particleID.size(); i++){ defetamax2.push_back(10.);}
        etaMax = defetamax2;   
     }     
+    // if status size smaller than particleID , fill up further with defaults
+    if (particleID.size() > status.size() ){
+       vector<int> defstat2 ;
+       for (unsigned int i = 0; i < particleID.size(); i++){ defstat2.push_back(0);}
+       status = defstat2;   
+    } 
 
     // if decayRadiusMin size smaller than particleID , fill up further with defaults
     if (particleID.size() > decayRadiusMin.size() ){
@@ -98,10 +108,11 @@ label_(iConfig.getUntrackedParameter("moduleLabel",std::string("source")))
        decayZMax = decayZmax2;   
     }     
 
+
 }
 
 
-MCDecayingPionKaonFilter::~MCDecayingPionKaonFilter()
+MCSmartSingleParticleFilter::~MCSmartSingleParticleFilter()
 {
  
    // do anything here that needs to be done at desctruction time
@@ -111,7 +122,7 @@ MCDecayingPionKaonFilter::~MCDecayingPionKaonFilter()
 
 
 // ------------ method called to skim the data  ------------
-bool MCDecayingPionKaonFilter::filter(edm::Event& iEvent, const edm::EventSetup& iSetup)
+bool MCSmartSingleParticleFilter::filter(edm::Event& iEvent, const edm::EventSetup& iSetup)
 {
    using namespace edm;
    bool accepted = false;
@@ -125,42 +136,29 @@ bool MCDecayingPionKaonFilter::filter(edm::Event& iEvent, const edm::EventSetup&
 	  p != myGenEvent->particles_end(); ++p ) {
 
     
-     for (unsigned int i = 0; i < particleID.size(); i++){
-      if (!((*p)->end_vertex())) continue;
-      if (particleID[i] != (*p)->pdg_id() && particleID[i] != 0) continue;
+    for (unsigned int i = 0; i < particleID.size(); i++){
+     if (particleID[i] == (*p)->pdg_id() || particleID[i] == 0) {
+    
+      if ( (*p)->momentum().perp() > ptMin[i] && (*p)->momentum().eta() > etaMin[i] 
+       && (*p)->momentum().eta() < etaMax[i] && ((*p)->status() == status[i] || status[i] == 0)) { 
 
-      if ( (*p)->momentum().perp() < ptMin[i] ) continue;
+            if (!((*p)->production_vertex())) continue;
 
-      if ( (*p)->momentum().eta() < etaMin[i] ) continue;
-      if ( (*p)->momentum().eta() > etaMax[i] ) continue;
+            double decx = (*p)->production_vertex()->position().x();
+            double decy = (*p)->production_vertex()->position().y();
+            double decrad = sqrt(decx*decx+decy*decy);
+            if (decrad<decayRadiusMin[i] ) continue;
+            if (decrad>decayRadiusMax[i] ) continue;
 
-      double decx = (*p)->end_vertex()->position().x();
-      double decy = (*p)->end_vertex()->position().y();
-      double decrad = sqrt(decx*decx+decy*decy);
-      if (decrad<decayRadiusMin[i] ) continue;
-      if (decrad>decayRadiusMax[i] ) continue;
+            double decz = (*p)->production_vertex()->position().z();
+            if (decz<decayZMin[i] ) continue;
+            if (decz>decayZMax[i] ) continue;
 
-      double decz = (*p)->end_vertex()->position().z();
-      if (decz<decayZMin[i] ) continue;
-      if (decz>decayZMax[i] ) continue;
-
-
-      if ((*p)->status()==2) {
-            for (HepMC::GenVertex::particle_iterator         
-              vpdec= (*p)->end_vertex()->particles_begin(HepMC::children);
-              vpdec != (*p)->end_vertex()->particles_end(HepMC::children); 
-              ++vpdec) {
-                  if (abs((*vpdec)->pdg_id())!=13) continue;
-                  if (fabs((*vpdec)->momentum().perp())>ptMuMin) {
-                        accepted = true;
-                        break;
-                  }
-            }
-      } else if ((*p)->status()==1) {
-            accepted = true;
-      }
+            accepted = true; 
+      }  
 
      } 
+    }
 
 
     }

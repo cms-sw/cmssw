@@ -15,6 +15,7 @@
 #include "GeneratorInterface/GenFilters/interface/MCProcessFilter.h"
 #include "GeneratorInterface/GenFilters/interface/MCProcessRangeFilter.h"
 #include "GeneratorInterface/GenFilters/interface/MCSingleParticleFilter.h"
+#include "GeneratorInterface/GenFilters/interface/MCSmartSingleParticleFilter.h"
 #include "GeneratorInterface/GenFilters/interface/MCZll.h"
 #include "GeneratorInterface/GenFilters/interface/MinimumBiasFilter.h"
 #include "GeneratorInterface/GenFilters/interface/RecoDiMuon.h"
@@ -47,6 +48,7 @@ DEFINE_SEAL_MODULE();
   DEFINE_ANOTHER_FWK_MODULE(MCProcessFilter);
   DEFINE_ANOTHER_FWK_MODULE(MCProcessRangeFilter);
   DEFINE_ANOTHER_FWK_MODULE(MCSingleParticleFilter);
+  DEFINE_ANOTHER_FWK_MODULE(MCSmartSingleParticleFilter);
   DEFINE_ANOTHER_FWK_MODULE(MCZll);
   DEFINE_ANOTHER_FWK_MODULE(MinimumBiasFilter);
   DEFINE_ANOTHER_FWK_MODULE(RecoDiMuon);

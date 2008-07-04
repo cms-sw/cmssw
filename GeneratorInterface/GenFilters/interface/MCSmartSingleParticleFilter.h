@@ -1,20 +1,18 @@
-#ifndef MCDecayingPionKaonFilter_h
-#define MCDecayingPionKaonFilter_h
+#ifndef MCSmartSingleParticleFilter_h
+#define MCSmartSingleParticleFilter_h
 // -*- C++ -*-
 //
-// Package:    MCDecayingPionKaonFilter
-// Class:      MCDecayingPionKaonFilter
+// Package:    MCSmartSingleParticleFilter
+// Class:      MCSmartSingleParticleFilter
 // 
 /* 
 
- Description: filter events based on the Pythia particleID and the Pt_hat
+ Description: filter events based on the Pythia particleID, the Pt and the production vertex
 
  Implementation: inherits from generic EDFilter
      
 */
-//
-// Original Author:  Juan Alcaraz (13/03/2008)
-//
+//         Created:  J. Alcaraz, 04/07/2008
 //
 
 
@@ -35,13 +33,13 @@ using namespace edm;
 using namespace std;
 
 //
-// class decleration
+// class declaration
 //
 
-class MCDecayingPionKaonFilter : public edm::EDFilter {
+class MCSmartSingleParticleFilter : public edm::EDFilter {
    public:
-      explicit MCDecayingPionKaonFilter(const edm::ParameterSet&);
-      ~MCDecayingPionKaonFilter();
+      explicit MCSmartSingleParticleFilter(const edm::ParameterSet&);
+      ~MCSmartSingleParticleFilter();
 
 
       virtual bool filter(Event&, const EventSetup&);
@@ -53,10 +51,10 @@ class MCDecayingPionKaonFilter : public edm::EDFilter {
        std::vector<double> ptMin;
        std::vector<double> etaMin;  
        std::vector<double> etaMax;
+       std::vector<int> status;
        std::vector<double> decayRadiusMin;  
        std::vector<double> decayRadiusMax;
        std::vector<double> decayZMin;  
        std::vector<double> decayZMax;
-       double ptMuMin;
 };
 #endif
