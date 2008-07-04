@@ -296,8 +296,22 @@ void DCCMemBlock::fillPnDiodeDigisCollection(){
 
     //     mapper_->getActiveDCC() : this is the FED_id (601 - 654 for ECAL at CMS)
 
-    EcalPnDiodeDetId PnId(EcalBarrel,  mapper_->getActiveSM(), realPnId );
+    int subdet(0);
+    if (NUMB_SM_EB_MIN_MIN <= mapper_->getActiveSM() && mapper_->getActiveSM() <= NUMB_SM_EB_PLU_MAX)
+    { subdet = EcalBarrel;}
+    else if(NUMB_SM_EE_MIN_MIN <= mapper_->getActiveSM() && mapper_->getActiveSM() <= NUMB_SM_EE_MIN_MAX ||
+            NUMB_SM_EE_PLU_MIN <= mapper_->getActiveSM() && mapper_->getActiveSM() <= NUMB_SM_EE_PLU_MAX)
+    { subdet = EcalEndcap;}
+    else{
+        if( ! DCCDataUnpacker::silentMode_ ){
+            edm::LogWarning("EcalRawToDigiDevMemBlock")
+                <<"\n mapper points to non existing dccid: " <<  mapper_->getActiveSM();
+        }
+    }
 
+
+    EcalPnDiodeDetId PnId(subdet,  mapper_->getActiveSM(), realPnId );
+    
     EcalPnDiodeDigi thePnDigi(PnId );
     thePnDigi.setSize(kSamplesPerPn_);
     
