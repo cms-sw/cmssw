@@ -106,7 +106,6 @@ void SiPixelRawToDigi::produce( edm::Event& ev,
   
   for (FLI fedIds = feds.begin(); fedIds != feds.end(); fedIds++) {
     fedId = (int) (*fedIds)->id();
-    cout << "Fed ID: " << fedId << endl;
     LogDebug("SiPixelRawToDigi")<< " PRODUCE DIGI FOR FED: " <<  fedId << endl;
     PixelDataFormatter::Digis digis;
     PixelDataFormatter::Errors errors;
