@@ -3,7 +3,7 @@
 #include <Geometry/EcalMapping/interface/EcalElectronicsMapping.h>
 #include <DataFormats/EcalDigi/interface/EBSrFlag.h>
 #include <DataFormats/EcalDigi/interface/EESrFlag.h>
-
+#include <EventFilter/EcalRawToDigiDev/interface/DCCDataUnpacker.h>
 
 EcalElectronicsMapper::EcalElectronicsMapper( uint numbXtalTSamples, uint numbTriggerTSamples)
 : pathToMapFile_(""),
