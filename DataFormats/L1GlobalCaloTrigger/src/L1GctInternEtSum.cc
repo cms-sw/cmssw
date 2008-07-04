@@ -11,7 +11,7 @@ L1GctInternEtSum::L1GctInternEtSum() {
 L1GctInternEtSum::L1GctInternEtSum(uint16_t capBlock,
 				   uint16_t capIndex,
 				   int16_t bx,
-				   uint16_t et,
+				   uint32_t et,
 				   uint8_t oflow) :
   type_(null),
   capBlock_(capBlock),
@@ -37,7 +37,7 @@ bool L1GctInternEtSum::operator==(const L1GctInternEtSum& c) const {
 
 
 /// set Et sum
-void L1GctInternEtSum::setEt(uint16_t et) {
+void L1GctInternEtSum::setEt(uint32_t et) {
   data_ &= 0xfffe0000;
   data_ |= et & 0x1ffff;
 }

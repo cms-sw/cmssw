@@ -17,7 +17,7 @@ class L1GctInternEtSum {
  public:
 
   /// et sum type - not clear this is required
-  enum L1GctInternEtSumType { null }
+  enum L1GctInternEtSumType { null };
 
   /// default constructor (for vector initialisation etc.)
   L1GctInternEtSum();
