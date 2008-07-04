@@ -26,20 +26,68 @@ public:
   /// default constructor
   L1CaloRegion();
 
-  /// constructor for RCT emulator (HB/HE regions)
-  L1CaloRegion(unsigned et, bool overFlow, bool tauVeto, bool mip, bool quiet, unsigned crate, unsigned card, unsigned rgn);
 
-  /// constructor for RCT emulator (HF regions)
-  L1CaloRegion(unsigned et, bool fineGrain, unsigned crate, unsigned rgn);
-
-  /// construct with GCT eta,phi indices, for testing GCT emulator - note argument ordering!
-  L1CaloRegion(unsigned et, bool overFlow, bool fineGrain, bool mip, bool quiet, unsigned ieta, unsigned iphi);
-
-  /// constructor from raw data and GCT indices for unpacking
-  L1CaloRegion(uint16_t data, unsigned ieta, unsigned iphi, int16_t bx);
-
+  /// constructor for RCT emulator (HB/HE regions) - to be removed!
+  L1CaloRegion(unsigned et, 
+	       bool overFlow, 
+	       bool tauVeto, 
+	       bool mip, 
+	       bool quiet, 
+	       unsigned crate, 
+	       unsigned card, 
+	       unsigned rgn);
+  
+  /// constructor for RCT emulator (HF regions) - to be removed!
+  L1CaloRegion(unsigned et, 
+	       bool fineGrain, 
+	       unsigned crate, 
+	       unsigned rgn);
+  
+  /// construct with GCT eta,phi indices, for testing GCT emulator - note argument ordering! - to be removed!
+  L1CaloRegion(unsigned et, 
+	       bool overFlow, 
+	       bool fineGrain, 
+	       bool mip, 
+	       bool quiet, 
+	       unsigned ieta, 
+	       unsigned iphi);
+  
+  /// constructor from raw data and GCT indices for unpacking - to be removed!
+  L1CaloRegion(uint16_t data, 
+	       unsigned ieta, 
+	       unsigned iphi, 
+	       int16_t bx);
+  
   /// destructor
   ~L1CaloRegion();
+
+
+  // named ctors
+
+  /// constructor HB/HE region from components
+  static L1CaloRegion makeHBHERegion(unsigned et, 
+				     bool overFlow, 
+				     bool tauVeto, 
+				     bool mip,
+				     bool quiet, 
+				     unsigned crate, 
+				     unsigned card, 
+				     unsigned rgn);
+  
+  /// construct HF region from components
+  static L1CaloRegion makeHFRegion(unsigned et, 
+				   bool fineGrain, 
+				   unsigned crate, 
+				   unsigned rgn);
+  
+  /// construct region from GCT indices
+  static L1CaloRegion makeRegionFromGctIndices(unsigned et, 
+					       bool overFlow, 
+					       bool fineGrain, 
+					       bool mip, 
+					       bool quiet, 
+					       unsigned ieta, 
+					       unsigned iphi);
   
 
   // get/set methods for the data
@@ -124,6 +172,9 @@ public:
   friend std::ostream& operator << (std::ostream& os, const L1CaloRegion& reg);
 
  private:
+
+  /// set region ID
+  void setRegionId(L1CaloRegionDetId id) { m_id = id; }
 
   /// pack the raw data from arguments (used in constructors)
   void pack(unsigned et, bool overFlow, bool fineGrain, bool mip, bool quiet);
