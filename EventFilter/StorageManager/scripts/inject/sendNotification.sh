@@ -1,9 +1,9 @@
 #!/bin/sh
-# $Id: sendNotification.sh,v 1.3 2008/05/14 10:43:20 loizides Exp $
+# $Id: sendNotification.sh,v 1.4 2008/06/12 13:56:05 loizides Exp $
 
 # error dir and file
 errordir=/tmp
-if test -n "$SMT0_LOCAL_RUN_DIRR"; then
+if test -n "$SMT0_LOCAL_RUN_DIR"; then
     errordir=$SMT0_LOCAL_RUN_DIR/logs
 fi
 mkdir -p $errordir
@@ -19,6 +19,7 @@ fi
 # test if copyworker is running
 cpw=`ps ax | grep -i CopyWorker | grep -v grep`
 if test -z "$cpw"; then
+    echo "#Error: Copyworker is not running" >> $errorfile
     echo $0 $@ >> $errorfile
     exit 0;
 fi
@@ -31,6 +32,7 @@ export PERL5LIB=${T0ROOT}/perl_lib:${T0_BASE_DIR}/perl
 
 res=`${T0_BASE_DIR}/injection/sendNotification.pl --config $CONFIG $@ 2>&1 | grep "Connection established (3)"`
 if test -z "$res"; then
+    echo "#Error: $res" >> $errorfile
     echo $0 $@ >> $errorfile
     exit 0;
 fi
