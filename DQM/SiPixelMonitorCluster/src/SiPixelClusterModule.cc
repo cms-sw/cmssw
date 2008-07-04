@@ -13,7 +13,7 @@
 //
 // Original Author:  Vincenzo Chiochia & Andrew York
 //         Created:  
-// $Id: SiPixelClusterModule.cc,v 1.14 2008/06/23 15:06:13 merkelp Exp $
+// $Id: SiPixelClusterModule.cc,v 1.15 2008/07/04 09:26:33 merkelp Exp $
 //
 //
 // Updated by: Lukas Wehrli
@@ -425,7 +425,7 @@ void SiPixelClusterModule::fill(const edmNew::DetSetVector<SiPixelCluster>& inpu
     
     // Look at clusters now
     edmNew::DetSet<SiPixelCluster>::const_iterator  di;
-    for(di = isearch->data.begin(); di != isearch->data.end(); di++) {
+    for(di = isearch->begin(); di != isearch->end(); di++) {
       numberOfClusters++;
       float charge = 0.001*(di->charge()); // total charge of cluster
       float x = di->x();                   // barycenter x position
