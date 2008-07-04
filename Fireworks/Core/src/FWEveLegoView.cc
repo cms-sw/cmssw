@@ -8,7 +8,7 @@
 //
 // Original Author:  Chris Jones
 //         Created:  Thu Feb 21 11:22:41 EST 2008
-// $Id: FWEveLegoView.cc,v 1.14 2008/06/26 00:33:57 dmytro Exp $
+// $Id: FWEveLegoView.cc,v 1.15 2008/06/28 22:20:54 dmytro Exp $
 //
 
 // system include files
@@ -65,8 +65,8 @@
 // constructors and destructor
 //
 FWEveLegoView::FWEveLegoView(TGFrame* iParent, TEveElementList* list):
- m_minEcalEnergy(this,"ECAL energy threshold (GeV)",0.,0.,100.),
- m_minHcalEnergy(this,"HCAL energy threshold (GeV)",0.,0.,100.),
+ m_minEcalEnergy(this,"ECAL energy threshold (GeV)",1.,0.,100.),
+ m_minHcalEnergy(this,"HCAL energy threshold (GeV)",1.,0.,100.),
  m_ecalSlice(0),
  m_hcalSlice(0),
  m_cameraMatrix(0),
