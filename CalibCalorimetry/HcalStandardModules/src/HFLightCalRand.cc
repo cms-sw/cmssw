@@ -57,7 +57,7 @@ void HFLightCalRand::beginJob(const edm::EventSetup& fSetup) {
   // General Histos
   htmax = new TH1F("htmax","Max TS",10,-0.5,9.5);
   htmean = new TH1F("htmean","Mean signal TS",100,0,10);
-  hsignalmean = new TH1F("hsignalmean","Mean ADC 4maxTS",1251,-20,25000);
+  hsignalmean = new TH1F("hsignalmean","Mean ADC 4maxTS",1201,-25,30000);
   hsignalrms = new TH1F("hsignalrms","RMS ADC 4maxTS",500,0,500);
   hpedmean = new TH1F("hpedmean","Mean ADC 4lowTS",200,-10,90);
   hpedrms = new TH1F("hpedrms","RMS ADC 4lowTS",200,0,100);
@@ -79,7 +79,7 @@ void HFLightCalRand::beginJob(const edm::EventSetup& fSetup) {
     sprintf(htit,"tsmean_+%d_%d_%d",i+29,j*2+1,k+1);
     htsm[i][j][k] = new TH1F(htit,htit,100,0,10);   // Mean signal time estimated from TS 
     sprintf(htit,"sp_+%d_%d_%d",i+29,j*2+1,k+1);
-    hsp[i][j][k] = new TH1F(htit,htit,1251,-20,25000); // Big-scale spectrum (linear ADC)
+    hsp[i][j][k] = new TH1F(htit,htit,1201,-25,30000); // Big-scale spectrum (linear ADC)
     sprintf(htit,"spe_+%d_%d_%d",i+29,j*2+1,k+1);
     hspe[i][j][k] = new TH1F(htit,htit,200,-9.5,190.5); // Small-scale spectrum (linear ADC)
     sprintf(htit,"ped_+%d_%d_%d",i+29,j*2+1,k+1);
@@ -89,7 +89,7 @@ void HFLightCalRand::beginJob(const edm::EventSetup& fSetup) {
     sprintf(htit,"tsmean_-%d_%d_%d",i+29,j*2+1,k+1);
     htsm[i+13][j][k] = new TH1F(htit,htit,100,0,10);  
     sprintf(htit,"sp_-%d_%d_%d",i+29,j*2+1,k+1);
-    hsp[i+13][j][k] = new TH1F(htit,htit,1251,-20,25000);
+    hsp[i+13][j][k] = new TH1F(htit,htit,1201,-25,30000);
     sprintf(htit,"spe_-%d_%d_%d",i+29,j*2+1,k+1);
     hspe[i+13][j][k] = new TH1F(htit,htit,200,-9.5,190.5); 
     sprintf(htit,"ped_-%d_%d_%d",i+29,j*2+1,k+1);
@@ -100,7 +100,7 @@ void HFLightCalRand::beginJob(const edm::EventSetup& fSetup) {
     sprintf(htit,"ts_PIN%d_+Q%d",j+1,i+1);
     htspin[i][j] = new TH1F(htit,htit,10,-0.5,9.5);
     sprintf(htit,"sp_PIN%d_+Q%d",j+1,i+1);
-    hsppin[i][j] = new TH1F(htit,htit,1251,-20,25000);
+    hsppin[i][j] = new TH1F(htit,htit,1601,-25,40000);
     sprintf(htit,"spe_PIN%d_+Q%d",j+1,i+1);
     hspepin[i][j] = new TH1F(htit,htit,200,-9.5,190.5);
     sprintf(htit,"ped_PIN%d_+Q%d",j+1,i+1);
@@ -110,7 +110,7 @@ void HFLightCalRand::beginJob(const edm::EventSetup& fSetup) {
     sprintf(htit,"ts_PIN%d_-Q%d",j+1,i+1);
     htspin[i+4][j] = new TH1F(htit,htit,10,-0.5,9.5);
     sprintf(htit,"sp_PIN%d_-Q%d",j+1,i+1);
-    hsppin[i+4][j] = new TH1F(htit,htit,1251,-20,25000);
+    hsppin[i+4][j] = new TH1F(htit,htit,1601,-25,40000);
     sprintf(htit,"spe_PIN%d_-Q%d",j+1,i+1);
     hspepin[i+4][j] = new TH1F(htit,htit,200,-9.5,190.5);
     sprintf(htit,"ped_PIN%d_-Q%d",j+1,i+1);
@@ -340,7 +340,7 @@ void HFLightCalRand::endJob(void)
   for (int i=0;i<8;i++) for (int j=0;j<3;j++) {
     HistSpec(hpedpin[i][j],meanped,rmsped);
     HistSpec(hsppin[i][j],mean,rms);
-    if (hspepin[i][j]->Integral()+100>hsppin[i][j]->Integral() || mean<100) {
+    if (hspepin[i][j]->Integral()>hsppin[i][j]->Integral()*0.9 || mean<100) {
       HistSpec(hspepin[i][j],mean,rms);
     }
     if (i<4) fprintf(tFile," PIN%d  +Q%d  %12.2f  %6.2f",j+1,i+1,mean,rms);
