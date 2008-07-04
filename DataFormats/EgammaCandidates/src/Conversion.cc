@@ -133,7 +133,7 @@ double  Conversion::EoverP() const  {
     ep= etot/this->pairMomentum().mag();
   }
 
-  std::cout << " Conversion::EoverP() " << ep << std::endl;
+
 
   return ep;  
 
