@@ -33,6 +33,7 @@
 #include "CondFormats/DataRecord/interface/EcalTPGFineGrainEBGroupRcd.h"
 #include "CondFormats/DataRecord/interface/EcalTPGPhysicsConstRcd.h"
 
+#include "zlib.h"
 
 //
 // class declaration
@@ -70,6 +71,14 @@ class EcalTrigPrimESProducer : public edm::ESProducer {
   std::map<uint32_t, std::vector<uint32_t> > mapFg_ ;
   std::map<uint32_t, std::vector<uint32_t> > mapLut_ ;
   std::map<uint32_t, std::vector<float> > mapPhys_ ;
+
+  typedef voidp gzFile;
+  bool getNextString(gzFile &gzf);
+  int converthex();
+  char buf_[100];
+  std::string bufString_;
+  std::string sub_;
+  int bufpos_;
 
 };
 

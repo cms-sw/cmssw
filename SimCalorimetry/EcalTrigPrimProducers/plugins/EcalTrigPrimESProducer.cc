@@ -4,6 +4,7 @@
 #include <iostream>
 #include <fstream>
 #include <TMath.h>
+#include <sstream>
 
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 
@@ -220,8 +221,10 @@ void EcalTrigPrimESProducer::parseTextFile()
 {
   if (mapXtal_.size() != 0) return ; // just parse the file once!
 
+  typedef voidp gzFile;
   uint32_t id ;
   std::string dataCard ;
+  std::string line;
   std::ifstream infile ; 
   std::vector<unsigned int> param ;
   std::vector<float> paramF ;
@@ -229,72 +232,77 @@ void EcalTrigPrimESProducer::parseTextFile()
   unsigned int data ;
   float dataF ;
 
+  std::string bufString;
+  std::string iString;
+  std::string fString;
   std::string filename = "SimCalorimetry/EcalTrigPrimProducers/data/"+dbFilename_;
-  size_t found=filename.find(".gz");
-  std::string file_to_read=filename;
   edm::FileInPath fileInPath(filename);
-  bool zipped=false;
-  if (found==std::string::npos) {
-    file_to_read=fileInPath.fullPath();
-  }else {
-    zipped=true;
-    std::string todo="gunzip "+fileInPath.fullPath()+" -c >/tmp/dbFilename_";
-    system(todo.c_str());
-    file_to_read="/tmp/dbFilename_";
-    edm::LogInfo("EcalTPG") <<" !!!! Database file "<< dbFilename_<<" was zipped, will be unzipped temporarily !!!!!";
-  }
-  infile.open(file_to_read.c_str()) ;
-
-  if (infile.is_open()) {
-    while (!infile.eof()) {
-
-      infile>>dataCard ;
-	
+  gzFile gzf=gzopen(fileInPath.fullPath().c_str(),"rb");
+  bufpos_=0;
+ 
+  bool eof = false;
+  if  (gzf) {
+    while (!eof) {
+      eof= getNextString(gzf);
+      if (eof) break;
+      dataCard=sub_;
       if (dataCard == "PHYSICS_EB" || dataCard == "PHYSICS_EE") {
-	infile>>id ;
+	getNextString(gzf);
+        id=atoi(sub_.c_str());
 	paramF.clear() ;
 	for (int i=0 ; i <7 ; i++) {
-	  infile>>dataF ;
+	  getNextString(gzf);
+	  dataF=atof(sub_.c_str());
 	  paramF.push_back(dataF) ;
 	}
 	mapPhys_[id] = paramF ;
       }
 	
       if (dataCard == "CRYSTAL") {
-	infile>>std::dec>>id ;
+	getNextString(gzf);
+        id=atoi(sub_.c_str());
+
 	param.clear() ;
 	for (int i=0 ; i <9 ; i++) {
-	  infile>>std::hex>>data ;
+	  getNextString(gzf);
+	  data = converthex();
 	  param.push_back(data) ;
 	}
 	mapXtal_[id] = param ;
       }
 	
       if (dataCard == "STRIP_EB") {
-	infile>>std::dec>>id ;
+	getNextString(gzf);
+        id=atoi(sub_.c_str());
 	param.clear() ;
 	for (int i=0 ; i <NBstripparams[0] ; i++) {
-	  infile>>std::hex>>data ;
+	  getNextString(gzf);
+	  data=atoi(sub_.c_str());
 	  param.push_back(data) ;
 	}
 	mapStrip_[0][id] = param ;
       }
 
       if (dataCard == "STRIP_EE") {
-	infile>>std::dec>>id ;
+	//	infile>>std::dec>>id ;
+	getNextString(gzf);
+        id=atoi(sub_.c_str());
 	param.clear() ;
 	for (int i=0 ; i <NBstripparams[1] ; i++) {
-	  infile>>std::hex>>data ;
+	  getNextString(gzf);
+	  data=atoi(sub_.c_str());
 	  param.push_back(data) ;
 	}
 	mapStrip_[1][id] = param ;
       }
 	
       if (dataCard == "TOWER_EB" || dataCard == "TOWER_EE") {
-	infile>>std::dec>>id ;
-	param.clear() ;
+	getNextString(gzf);
+        id=atoi(sub_.c_str());
+
 	for (int i=0 ; i <2 ; i++) {
-	  infile>>std::hex>>data ;
+	  getNextString(gzf);
+	  data=atoi(sub_.c_str());
 	  param.push_back(data) ;
 	}
 	if (dataCard == "TOWER_EB") mapTower_[0][id] = param ;
@@ -302,30 +310,36 @@ void EcalTrigPrimESProducer::parseTextFile()
       }
 		
       if (dataCard == "WEIGHT") {
-	infile>>std::hex>>id ;
+	getNextString(gzf);
+        id=atoi(sub_.c_str());
 	param.clear() ;
 	for (int i=0 ; i <5 ; i++) {
-	  infile>>std::hex>>data ;
+	  getNextString(gzf);
+	  data=atoi(sub_.c_str());
 	  param.push_back(data) ;
 	}
 	mapWeight_[id] = param ;
       }
 	
       if (dataCard == "FG") {
-	infile>>std::hex>>id ;
+	getNextString(gzf);
+        id=atoi(sub_.c_str());
 	param.clear() ;
 	for (int i=0 ; i <5 ; i++) {
-	  infile>>std::hex>>data ;
+	  getNextString(gzf);
+	  data=atoi(sub_.c_str());
 	  param.push_back(data) ;
 	}
 	mapFg_[id] = param ;
       }
 	
       if (dataCard == "LUT") {
-	infile>>std::hex>>id ;
+	getNextString(gzf);
+        id=atoi(sub_.c_str());
 	param.clear() ;
 	for (int i=0 ; i <1024 ; i++) {
-	  infile>>std::hex>>data ;
+	  getNextString(gzf);
+	  data=atoi(sub_.c_str());
 	  param.push_back(data) ;
 	}
 	mapLut_[id] = param ;
@@ -335,7 +349,7 @@ void EcalTrigPrimESProducer::parseTextFile()
   }
 }
 
- std::vector<int> EcalTrigPrimESProducer::getRange(int subdet, int tccNb, int towerNbInTcc, int stripNbInTower, int xtalNbInStrip)
+std::vector<int> EcalTrigPrimESProducer::getRange(int subdet, int tccNb, int towerNbInTcc, int stripNbInTower, int xtalNbInStrip)
 {
   std::vector<int> range ;
   if (subdet == 0) { 
@@ -385,3 +399,39 @@ void EcalTrigPrimESProducer::parseTextFile()
   return range ;
 }
 
+bool EcalTrigPrimESProducer::getNextString(gzFile &gzf){
+  size_t blank;
+  if (bufpos_==0) {
+    gzgets(gzf,buf_,80);
+    if (gzeof(gzf)) return true;
+    bufString_=std::string(buf_);
+  }
+  int  pos=0;
+  pos =bufpos_;
+  // look for next non-blank
+  while (pos<bufString_.size()) {
+    if (!bufString_.compare(pos,1," ")) pos++;
+    else break;
+  }
+  blank=bufString_.find(" ",pos);
+  size_t end = blank;
+  if (blank==std::string::npos) end=bufString_.size();
+  sub_=bufString_.substr(pos,end-pos);
+  bufpos_= blank;
+  if (blank==std::string::npos) bufpos_=0;
+  return false;
+}
+ 
+int EcalTrigPrimESProducer::converthex() {
+  // converts hex dec string sub to hexa
+  //FIXME:: find something better (istrstream?)!!!!
+
+  std::string chars("0123456789abcdef");
+  int hex=0;
+  for (size_t i=2;i<sub_.length();++i) {
+    size_t f=chars.find(sub_[i]);
+    if (f==std::string::npos) break;  //FIXME: length is 4 for 0x3!!
+    hex=hex*16+chars.find(sub_[i]);
+  }
+  return hex;
+}
