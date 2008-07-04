@@ -23,7 +23,7 @@ using namespace std;
 PixelMaskAllPixels::PixelMaskAllPixels(std::vector< std::vector<std::string> >& tableMat) : PixelMaskBase("","","")
 {
 
-//std::cout<<"Table Size in const:"<<tableMat.size()<<std::endl;
+  std::cout<<"Table Size in const:"<<tableMat.size()<<std::endl;
 
  std::vector< std::string > ins = tableMat[0];
  std::map<std::string , int > colM;

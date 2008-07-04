@@ -22,7 +22,6 @@ namespace pos{
   public:
 
     explicit PixelConfigKey(unsigned int key) { key_=key;}
-
     unsigned int key() {return key_;}
 
   private:

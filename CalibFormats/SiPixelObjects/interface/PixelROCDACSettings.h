@@ -10,6 +10,8 @@
 #include <iostream>
 #include <vector>
 #include <map>
+#include <fstream>
+#include <sstream>
 #include "CalibFormats/SiPixelObjects/interface/PixelROCName.h"
 
 namespace pos{
@@ -34,6 +36,7 @@ namespace pos{
     std::string getConfigCommand();
 
     int read(std::ifstream& in, const PixelROCName& rocid);
+    int read(std::istringstream& in, const PixelROCName& rocid);
 
     int readBinary(std::ifstream& in, const PixelROCName& rocid);
 

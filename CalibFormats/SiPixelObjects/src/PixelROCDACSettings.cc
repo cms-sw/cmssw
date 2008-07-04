@@ -348,6 +348,117 @@ void PixelROCDACSettings::checkTag(string tag,
 
 }
 
+int PixelROCDACSettings::read(std::istringstream& in, const PixelROCName& rocid)
+{
+    rocid_=rocid;
+
+    unsigned int tmp;
+    string tag;
+
+    in >> tag; 
+    checkTag(tag,k_DACName_Vdd,rocid);
+    in >> tmp; Vdd_=tmp;
+    in >> tag; 
+    checkTag(tag,k_DACName_Vana,rocid);
+    in >> tmp; Vana_=tmp;
+    in >> tag; 
+    checkTag(tag,k_DACName_Vsf,rocid);
+    in >> tmp; Vsf_=tmp;
+    in >> tag; 
+    checkTag(tag,k_DACName_Vcomp,rocid);
+    in >> tmp; Vcomp_=tmp;
+    in >> tag; 
+    checkTag(tag,k_DACName_Vleak,rocid);
+    in >> tmp; Vleak_=tmp;
+    in >> tag; 
+    checkTag(tag,k_DACName_VrgPr,rocid);
+    in >> tmp; VrgPr_=tmp;
+    in >> tag; 
+    checkTag(tag,k_DACName_VwllPr,rocid);
+    in >> tmp; VwllPr_=tmp;
+    in >> tag; 
+    checkTag(tag,k_DACName_VrgSh,rocid);
+    in >> tmp; VrgSh_=tmp;
+    in >> tag; 
+    checkTag(tag,k_DACName_VwllSh,rocid);
+    in >> tmp; VwllSh_=tmp;
+    in >> tag; 
+    checkTag(tag,k_DACName_VHldDel,rocid);
+    in >> tmp; VHldDel_=tmp;
+    in >> tag; 
+    checkTag(tag,k_DACName_Vtrim,rocid);
+    in >> tmp; Vtrim_=tmp;
+    in >> tag; 
+    checkTag(tag,k_DACName_VcThr,rocid);
+    in >> tmp; VcThr_=tmp;
+    in >> tag; 
+    checkTag(tag,k_DACName_VIbias_bus,rocid);
+    in >> tmp; VIbias_bus_=tmp;
+    in >> tag; 
+    checkTag(tag,k_DACName_VIbias_sf,rocid);
+    in >> tmp; VIbias_sf_=tmp;
+    in >> tag; 
+    checkTag(tag,k_DACName_VOffsetOp,rocid);
+    in >> tmp; VOffsetOp_=tmp;
+    in >> tag; 
+    checkTag(tag,k_DACName_VbiasOp,rocid);
+    in >> tmp; VbiasOp_=tmp;
+    in >> tag; 
+    checkTag(tag,k_DACName_VOffsetRO,rocid);
+    in >> tmp; VOffsetRO_=tmp;
+    in >> tag; 
+    checkTag(tag,k_DACName_VIon,rocid);
+    in >> tmp; VIon_=tmp;
+    in >> tag; 
+    checkTag(tag,k_DACName_VIbias_PH,rocid);
+    in >> tmp; VIbias_PH_=tmp;
+    in >> tag; 
+    checkTag(tag,k_DACName_VIbias_DAC,rocid);
+    in >> tmp; VIbias_DAC_=tmp;
+    in >> tag; 
+    checkTag(tag,k_DACName_VIbias_roc,rocid);
+    in >> tmp; VIbias_roc_=tmp;
+    in >> tag; 
+    checkTag(tag,k_DACName_VIColOr,rocid);
+    in >> tmp; VIColOr_=tmp;
+    in >> tag; 
+    checkTag(tag,k_DACName_Vnpix,rocid);
+    in >> tmp; Vnpix_=tmp;
+    in >> tag; 
+    checkTag(tag,k_DACName_VsumCol,rocid);
+    in >> tmp; VsumCol_=tmp;
+    in >> tag; 
+    checkTag(tag,k_DACName_Vcal,rocid);
+    in >> tmp; Vcal_=tmp;
+    in >> tag; 
+    checkTag(tag,k_DACName_CalDel,rocid);
+    in >> tmp; CalDel_=tmp;
+    in >> tag; 
+    if (tag==k_DACName_WBC+":"){
+      static bool first=true;
+      if (first){
+	cout << "**********************************************"<<endl;
+	cout << "Did not find TempRange setting in DAC settings"<<endl;
+	cout << "Will use a default value of 4."<<endl;
+	cout << "This message will only be printed out once"<<endl;
+	cout << "**********************************************"<<endl;
+	TempRange_=4;
+	first=false;
+      }
+      in >> tmp; WBC_=tmp;
+    } else {	
+      checkTag(tag,k_DACName_TempRange,rocid);
+      in >> tmp; TempRange_=tmp;
+      in >> tag; 
+      checkTag(tag,k_DACName_WBC,rocid);
+      in >> tmp; WBC_=tmp;
+    }
+    in >> tag; 
+    checkTag(tag,k_DACName_ChipContReg,rocid);
+    in >> tmp; ChipContReg_=tmp;
+
+    return 0;
+}
 
 int PixelROCDACSettings::read(ifstream& in, const PixelROCName& rocid){
     

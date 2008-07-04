@@ -9,12 +9,14 @@
 
 #include "CalibFormats/SiPixelObjects/interface/PixelDACSettings.h"
 #include "CalibFormats/SiPixelObjects/interface/PixelROCDACSettings.h"
+#include "CalibFormats/SiPixelObjects/interface/PixelDACNames.h"
 #include <fstream>
 #include <iostream>
 #include <ios>
 #include <assert.h>
 #include <map>
 #include <sstream>
+#include <sys/time.h>
 
 using namespace pos;
 
@@ -150,15 +152,17 @@ void PixelDACSettings::addROC(PixelROCDACSettings &rocname)
 
 PixelDACSettings::PixelDACSettings(std::vector< std::vector<std::string> > &tableMat): PixelConfigBase("","","")
 {
- 
 //   std::multimap<std::string,std::pair<std::string,int > > pDSM;
   //  std::stringstream currentRocName;
   std::vector< std::string > ins = tableMat[0];
+  std::string mthn("[PixelDACSettings::PixelDACSettings()] ") ;
   std::string dacName;
-  int dacValue;
+  std::istringstream dbin ;
+//   int dacValue;
   int skipColumns = 0 ;
   std::map<std::string , int > colM;
   std::vector<std::string > colNames;
+  std::map<std::string, std::string> nameTranslation ;
   //   colNames.push_back("CONFIG_KEY_ID");
   //   colNames.push_back("CONFIG_KEY");
   //   colNames.push_back("VERSION");
@@ -198,6 +202,36 @@ PixelDACSettings::PixelDACSettings(std::vector< std::vector<std::string> > &tabl
   colNames.push_back("WBC");
   colNames.push_back("CHIPCONTREG");
 
+  nameTranslation["VDD"]          = k_DACName_Vdd ;
+  nameTranslation["VANA"]         = k_DACName_Vana;               
+  nameTranslation["VSF"]          = k_DACName_Vsf;                 
+  nameTranslation["VCOMP"]        = k_DACName_Vcomp;             
+  nameTranslation["VLEAK"]        = k_DACName_Vleak;             
+  nameTranslation["VRGPR"]        = k_DACName_VrgPr;             
+  nameTranslation["VWLLPR"]       = k_DACName_VwllPr;           
+  nameTranslation["VRGSH"]        = k_DACName_VrgSh;             
+  nameTranslation["VWLLSH"]       = k_DACName_VwllSh;           
+  nameTranslation["VHLDDEL"]      = k_DACName_VHldDel;         
+  nameTranslation["VTRIM"]        = k_DACName_Vtrim;             
+  nameTranslation["VCTHR"]        = k_DACName_VcThr;             
+  nameTranslation["VIBIAS_BUS"]   = k_DACName_VIbias_bus;  
+  nameTranslation["VIBIAS_SF"]    = k_DACName_VIbias_sf;     
+  nameTranslation["VOFFSETOP"]    = k_DACName_VOffsetOp;     
+  nameTranslation["VBIASOP"]      = k_DACName_VbiasOp;         
+  nameTranslation["VOFFSETRO"]    = k_DACName_VOffsetRO;     
+  nameTranslation["VION"]         = k_DACName_VIon;               
+  nameTranslation["VIBIAS_PH"]    = k_DACName_VIbias_PH;     
+  nameTranslation["VIBIAS_DAC"]   = k_DACName_VIbias_DAC;   
+  nameTranslation["VIBIAS_ROC"]   = k_DACName_VIbias_roc;   
+  nameTranslation["VICOLOR"]      = k_DACName_VIColOr;         
+  nameTranslation["VNPIX"]        = k_DACName_Vnpix;             
+  nameTranslation["VSUMCOL"]      = k_DACName_VsumCol;         
+  nameTranslation["VCAL"]         = k_DACName_Vcal;               
+  nameTranslation["CALDEL"]       = k_DACName_CalDel;           
+  nameTranslation["TEMPRANGE"]    = k_DACName_TempRange;     
+  nameTranslation["WBC"]          = k_DACName_WBC;                 
+  nameTranslation["CHIPCONTREG"]  = k_DACName_ChipContReg; 
+
   // modified by MR on 25-02-2008 10:00:45
   // colM stores the index (referred to tableMat) where the specified dac setting is store!!!
   for(unsigned int c = skipColumns ; c < ins.size() ; c++){
@@ -217,6 +251,9 @@ PixelDACSettings::PixelDACSettings(std::vector< std::vector<std::string> > &tabl
 
 	
   dacsettings_.clear();
+  struct timeval  start_time  ;
+  struct timeval  end_time    ;
+  gettimeofday(&start_time, (struct timezone *)0 );
   for(unsigned int r = 1 ; r < tableMat.size() ; r++){    //Goes to every row of the Matrix
     // currentRocName.str("");
     // currentRocName << tableMat[r][colM["NAME"]] ; 
@@ -230,15 +267,25 @@ PixelDACSettings::PixelDACSettings(std::vector< std::vector<std::string> > &tabl
     // +1 to get rid of the unwanted ROC_NAME...
     PixelROCName rocid(tableMat[r][colM["ROC_NAME"]]);
     PixelROCDACSettings tmp(rocid);
-    for(unsigned int n=skipColumns+1; n<colNames.size(); n++){
-      dacName  = colNames[n];
-      dacValue = atoi(tableMat[r][colM[colNames[n]]].c_str());
-//       pDSM.insert(std::pair<std::string,std::pair<std::string,int> >(tableMat[r][colM["ROC_NAME"]],std::pair<std::string,int>(dacName,dacValue)));
-//       std::cout << "On " << tableMat[r][colM["ROC_NAME"]] << " DAC:\t" << dacName << " value:\t" << dacValue<< std::endl ;
-      tmp.setDac(dacName, dacValue) ;
-    }
+//     std::map<std::string, unsigned int> tmpDACs ;
+    std::ostringstream dacs("") ;
+    for(unsigned int n=skipColumns+1; n<colNames.size(); n++)
+      {
+	dacs << nameTranslation[colNames[n]] <<": "<< atoi(tableMat[r][colM[colNames[n]]].c_str()) << std::endl ;
+	//       dacName  = colNames[n];
+	//       dacValue = atoi(tableMat[r][colM[colNames[n]]].c_str());
+	//       pDSM.insert(std::pair<std::string,std::pair<std::string,int> >(tableMat[r][colM["ROC_NAME"]],std::pair<std::string,int>(dacName,dacValue)));
+	//       std::cout << "On " << tableMat[r][colM["ROC_NAME"]] << " DAC:\t" << dacName << " value:\t" << dacValue<< std::endl ;
+	//       tmp.setDac(dacName, dacValue) ;
+      }
+//     tmp.setDACs(tmpDACs) ;
+    dbin.str(dacs.str()) ;
+    tmp.read(dbin, rocid) ;
     dacsettings_.push_back(tmp) ;
   }//end for r
+  gettimeofday(&end_time, (struct timezone *)0 );
+  int total_usecs = (end_time.tv_sec - start_time.tv_sec)*1000000 + (end_time.tv_usec - start_time.tv_usec);
+  std::cout << mthn << "Time taken : " << total_usecs / 1000000.  << " secs" << std::endl;
   
 //   dacsettings_.clear();
 //   std::string currentRocName2 = "";
