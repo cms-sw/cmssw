@@ -1,6 +1,6 @@
 #include <L1Trigger/CSCTrackFinder/src/CSCTFDTReceiver.h>
 #include <L1Trigger/DTTrackFinder/src/L1MuDTTFConfig.h>
-#include <CondFormats/L1TObjects/interface/DTConfigTraco.h>
+#include <L1TriggerConfig/DTTPGConfig/interface/DTConfigTraco.h>
 #include <DataFormats/MuonDetId/interface/CSCDetId.h>
 #include <DataFormats/MuonDetId/interface/CSCTriggerNumbering.h>
 #include <DataFormats/L1CSCTrackFinder/interface/CSCBitWidths.h>
