@@ -664,7 +664,7 @@ bool HFShower::compute() {
 	  //		    << " , Erem = " << eremaining 
 	  //		    << std::endl;
 	} else {
-	  std::cout << "WARNING : hit not added" << std::endl;
+	  //	  std::cout << "WARNING : hit not added" << std::endl;
 	}
       }
 
