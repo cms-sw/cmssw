@@ -62,6 +62,12 @@ void L1GtParameters::setGtEvmActiveBoards(const boost::uint16_t& activeBoardsVal
 
 }
 
+void L1GtParameters::setGtBstLengthBytes(const unsigned int& bstLengthBytesValue) {
+    
+    m_bstLengthBytes = bstLengthBytesValue;
+        
+}
+
 // print all the L1 GT parameters
 void L1GtParameters::print(std::ostream& myCout) const
 {
@@ -83,6 +89,11 @@ void L1GtParameters::print(std::ostream& myCout) const
     << std::hex << std::setw(sizeof(m_evmActiveBoards)*2) << std::setfill('0')
     << m_evmActiveBoards
     << std::dec << std::setfill(' ')
+    << std::endl;
+
+    myCout
+    << "\n  Length of the BST message = "
+    << m_bstLengthBytes
     << std::endl;
 
     myCout
