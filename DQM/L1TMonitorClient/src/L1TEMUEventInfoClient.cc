@@ -252,14 +252,14 @@ void L1TEMUEventInfoClient::endLuminosityBlock(const edm::LuminosityBlock& lumiS
   }
   
   reportSummary = summarySum / nSubsystems;
-  cout << "reportSummary " << reportSummary << endl;
+//  cout << "reportSummary " << reportSummary << endl;
   if (reportSummary_) reportSummary_->Fill(reportSummary);
 
   int jcount = 0;
 
   //fill the known systems
   for (int i = 0; i < nSubsystems; i++) {
-    cout << "summaryContent[" << i << "]" << summaryContent[i] << endl;
+//    cout << "summaryContent[" << i << "]" << summaryContent[i] << endl;
     if((i%5)==0)jcount++;
     reportSummaryMap_->setBinContent(i%5+1,jcount, summaryContent[i]);
   }
