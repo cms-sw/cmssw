@@ -968,8 +968,8 @@ MonitorElement::copyFunctions(TH1 *from, TH1 *to)
 
     if(TF1 *fn = dynamic_cast<TF1 *>(obj))
       tof->Add(new TF1(*fn));
-    else if (dynamic_cast<TPaveStats *>(obj))
-      ; // FIXME? tof->Add(new TPaveStats(*stats));
+    //else if (dynamic_cast<TPaveStats *>(obj))
+    //  ; // FIXME? tof->Add(new TPaveStats(*stats));
     else
       throw cms::Exception("MonitorElement")
 	<< "Cannot extract function '" << obj->GetName()
