@@ -4,8 +4,8 @@
 /** \class Histograms
  *  Collection of histograms for GLB muon analysis
  *
- *  $Date: 2008/06/20 16:47:03 $
- *  $Revision: 1.6 $
+ *  $Date: 2008/07/03 10:39:21 $
+ *  $Revision: 1.1 $
  *  \author S. Bolognesi - INFN Torino / T.Dorigo - INFN Padova
  */
 
@@ -576,14 +576,14 @@ class HMassVSPart : public Histograms{
 
     // Kinematical variables
     // ---------------------
-    hMassVSPt     = new TH2F (N+"_MassVSPt", "Z mass vs muon transverse momentum", 40, 0., 200., 80, 80., 100.);
-    hMassVSEta    = new TH2F (N+"_MassVSEta", "Z mass vs muon pseudorapidity", 30, -6., 6., 80, 80., 100.);
-    hMassVSPhiPlus    = new TH2F (N+"_MassVSPhiPlus", "Z mass vs muon+ phi angle", 32, -3.2, 3.2, 80, 80., 100.);
-    hMassVSPhiMinus    = new TH2F (N+"_MassVSPhiMinus", "Z mass vs muon- phi angle", 32, -3.2, 3.2, 80, 80., 100.);
-    hMassVSPt_prof     = new TProfile (N+"_MassVSPt_prof", "Z mass vs muon transverse momentum", 40, 0., 200., 86., 96.);
-    hMassVSEta_prof    = new TProfile (N+"_MassVSEta_prof", "Z mass vs muon pseudorapidity", 30, -6., 6., 86., 96.);
-    hMassVSPhiPlus_prof    = new TProfile (N+"_MassVSPhiPlus_prof", "Z mass vs muon+ phi angle", 32, -3.2, 3.2, 86., 96.);
-    hMassVSPhiMinus_prof    = new TProfile (N+"_MassVSPhiMinus_prof", "Z mass vs muon- phi angle", 32, -3.2, 3.2, 86., 96.);
+    hMassVSPt     = new TH2F (N+"_MassVSPt", "re sonance mass vs muon transverse momentum", 200, 0., 200., 1200, 0, 150.);
+    hMassVSEta    = new TH2F (N+"_MassVSEta", "resonance mass vs muon pseudorapidity", 30, -6., 6., 1200, 0, 150.);
+    hMassVSPhiPlus    = new TH2F (N+"_MassVSPhiPlus", "resonance mass vs muon+ phi angle", 32, -3.2, 3.2, 1200, 0, 150.);
+    hMassVSPhiMinus    = new TH2F (N+"_MassVSPhiMinus", "resonance mass vs muon- phi angle", 32, -3.2, 3.2, 1200, 0, 150.);
+    hMassVSPt_prof     = new TProfile (N+"_MassVSPt_prof", "resonance mass vs muon transverse momentum", 100, 0., 200., 0, 150.);
+    hMassVSEta_prof    = new TProfile (N+"_MassVSEta_prof", "resonance mass vs muon pseudorapidity", 30, -6., 6., 0, 150.);
+    hMassVSPhiPlus_prof    = new TProfile (N+"_MassVSPhiPlus_prof", "resonance mass vs muon+ phi angle", 32, -3.2, 3.2, 0, 150.);
+    hMassVSPhiMinus_prof    = new TProfile (N+"_MassVSPhiMinus_prof", "resonance mass vs muon- phi angle", 32, -3.2, 3.2, 0, 150.);
    }
   
   HMassVSPart(TString name_, TFile* file){
@@ -686,16 +686,16 @@ class HResolutionVSPart : public Histograms{
     name=N;
     // Kinematical variables
     hReso    = new TH1F (N+"_Reso", "resolution", 200, -1, 1);
-    hResoVSPt    = new TH2F (N+"_ResoVSPt", "resolution VS pt", 20, 0, 200, 50, -1, 1);
-    hResoVSPt_prof = new TProfile (N+"_ResoVSPt_prof", "resolution VS pt", 20, 0, 200, -1, 1);
-    hResoVSEta    = new TH2F (N+"_ResoVSEta", "resolution VS eta", 10, -2.5, 2.5, 50, -1, 1);
+    hResoVSPt    = new TH2F (N+"_ResoVSPt", "resolution VS pt", 200, 0, 200, 500, -1, 1);
+    hResoVSPt_prof = new TProfile (N+"_ResoVSPt_prof", "resolution VS pt", 100, 0, 200, -1, 1);
+    hResoVSEta    = new TH2F (N+"_ResoVSEta", "resolution VS eta", 10, -2.5, 2.5, 500, -1, 1);
     hResoVSEta_prof = new TProfile (N+"_ResoVSEta_prof", "resolution VS eta", 10, -2.5, 2.5, -1, 1);
-    hResoVSPhi    = new TH2F (N+"_ResoVSPhi", "resolution VS phi", 14, -3.2, 3.2, 50, -1, 1);
+    hResoVSPhi    = new TH2F (N+"_ResoVSPhi", "resolution VS phi", 14, -3.2, 3.2, 500, -1, 1);
     hResoVSPhi_prof = new TProfile (N+"_ResoVSPhi_prof", "resolution VS phi", 14, -3.2, 3.2, -1, 1);
-    hAbsReso    = new TH1F (N+"_AbsReso", "resolution", 200, -5, 5);
-    hAbsResoVSPt    = new TH2F (N+"_AbsResoVSPt", "Abs resolution VS pt", 20, 0, 200, 100, -5, 5);
-    hAbsResoVSEta    = new TH2F (N+"_AbsResoVSEta", "Abs resolution VS eta", 10, -2.5, 2.5, 100, -5, 5);
-    hAbsResoVSPhi    = new TH2F (N+"_AbsResoVSPhi", "Abs resolution VS phi", 14, -3.2, 3.2, 100, -5, 5);
+    hAbsReso    = new TH1F (N+"_AbsReso", "resolution", 100, 0, 1);
+    hAbsResoVSPt    = new TH2F (N+"_AbsResoVSPt", "Abs resolution VS pt", 200, 0, 500, 100, 0, 1);
+    hAbsResoVSEta    = new TH2F (N+"_AbsResoVSEta", "Abs resolution VS eta", 10, -2.5, 2.5, 100, 0, 1);
+    hAbsResoVSPhi    = new TH2F (N+"_AbsResoVSPhi", "Abs resolution VS phi", 14, -3.2, 3.2, 100, 0, 1);
   }
   
   HResolutionVSPart(TString name_, TFile* file){
