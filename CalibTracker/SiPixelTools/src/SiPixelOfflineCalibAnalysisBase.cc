@@ -14,7 +14,7 @@
 // Original Author:  Evan Klose Friis
 //    additions by:  Freya Blekman
 //         Created:  Tue Nov  6 17:27:19 CET 2007
-// $Id: SiPixelOfflineCalibAnalysisBase.cc,v 1.10 2008/02/27 21:22:36 fblekman Exp $
+// $Id: SiPixelOfflineCalibAnalysisBase.cc,v 1.11 2008/03/03 09:52:59 chiochia Exp $
 //
 //
 
@@ -203,7 +203,7 @@ SiPixelOfflineCalibAnalysisBase::setDQMDirectory(std::string dirName)
 bool
 SiPixelOfflineCalibAnalysisBase::setDQMDirectory(uint32_t detID)
 {
-   return folderMaker_->setModuleFolder(detID);
+  return folderMaker_->setModuleFolder(detID,0);
 }
 
 

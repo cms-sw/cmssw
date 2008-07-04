@@ -13,7 +13,7 @@
 //
 // Original Author:  Ricardo Vasquez Sierra
 //         Created:  Wed Apr  9 12:43:02 CEST 2008
-// $Id: SiPixelErrorsDigisToCalibDigis.cc,v 1.5 2008/05/13 12:54:59 vasquez Exp $
+// $Id: SiPixelErrorsDigisToCalibDigis.cc,v 1.6 2008/05/20 11:36:28 vasquez Exp $
 //
 //
 
@@ -171,5 +171,5 @@ bool SiPixelErrorsDigisToCalibDigis::setDQMDirectory(std::string dirName)
 
 bool SiPixelErrorsDigisToCalibDigis::setDQMDirectory(uint32_t detID)
 {
-   return folderMaker_->setModuleFolder(detID);
+  return folderMaker_->setModuleFolder(detID,0);
 }
