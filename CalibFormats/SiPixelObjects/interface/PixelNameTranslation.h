@@ -81,6 +81,7 @@ namespace pos{
     std::vector<PixelROCName> getROCsFromModule(const PixelModuleName& aModule) const;
 
     void writeASCII(std::string dir="") const;
+    void writeXML(pos::PixelConfigKey key, std::string path) const ;
     
     bool ROCexists(PixelROCName theROC) ; // Added by Dario
     const PixelChannel& getChannelFromHdwAddress(const PixelHdwAddress& aHdwAddress) const;

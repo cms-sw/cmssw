@@ -15,6 +15,7 @@
 //
 
 #include <string>
+#include "CalibFormats/SiPixelObjects/interface/PixelConfigKey.h"
 
 
 namespace pos{
@@ -49,6 +50,7 @@ namespace pos{
 
     //Interface to write out data to ascii file
     virtual void writeASCII(std::string dir="") const = 0;
+    virtual void writeXML(pos::PixelConfigKey key, std::string path) const {;}
     
   private:
 

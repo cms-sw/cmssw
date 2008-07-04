@@ -30,6 +30,7 @@ namespace pos{
     ~PixelDelay25Calib();
 
     virtual void writeASCII(std::string dir="") const;
+    virtual void writeXML(pos::PixelConfigKey key, std::string path) const {;}
 
 
     virtual std::string mode() {return mode_;}

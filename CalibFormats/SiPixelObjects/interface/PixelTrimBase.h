@@ -64,6 +64,7 @@ namespace pos{
     virtual void writeBinary(std::string filename) const =0;
 
     virtual void writeASCII(std::string filename) const =0;
+    virtual void writeXML(pos::PixelConfigKey key, std::string path) const {;}
 
     virtual PixelROCTrimBits getTrimBits(int ROCId) const =0;
 

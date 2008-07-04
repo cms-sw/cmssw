@@ -45,6 +45,7 @@ namespace pos{
     void writeBinary(std::string filename) const;
 
     void writeASCII(std::string filename) const;
+    void writeXML(pos::PixelConfigKey key, std::string path) const {;}
 
     PixelROCTrimBits getTrimBits(int ROCId) const;
 

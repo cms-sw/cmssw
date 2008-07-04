@@ -35,6 +35,7 @@ namespace pos{
     std::stringstream& getLTCConfigStream() {return ltcConfigStream_;}
 
     virtual void writeASCII(std::string dir) const;
+    virtual void writeXML(pos::PixelConfigKey key, std::string path) const {;}
 
  
   private:

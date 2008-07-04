@@ -36,6 +36,7 @@ namespace pos{
     PixelLowVoltageMap(std::string filename);
 
     void writeASCII(std::string dir="") const;
+    void writeXML(pos::PixelConfigKey key, std::string path) const {;}
 
     std::string dpNameIana(const PixelModuleName& module) const;
     std::string dpNameIdigi(const PixelModuleName& module) const;

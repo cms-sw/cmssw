@@ -26,6 +26,7 @@ namespace pos{
     std::stringstream& getTTCConfigStream() {return ttcConfigStream_;}
 
     virtual void writeASCII(std::string dir) const;
+    virtual void writeXML(pos::PixelConfigKey key, std::string path) const {;}
  
   private:
  

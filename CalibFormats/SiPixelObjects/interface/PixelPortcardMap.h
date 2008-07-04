@@ -57,6 +57,7 @@ namespace pos{
     std::set< std::string > portcards();
 
     virtual void writeASCII(std::string dir) const;
+    virtual void writeXML(pos::PixelConfigKey key, std::string path) const {;}
 
   private:
     //                               portcardname, AOH #

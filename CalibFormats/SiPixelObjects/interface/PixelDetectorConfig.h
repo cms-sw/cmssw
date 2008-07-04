@@ -55,6 +55,7 @@ namespace pos{
     const std::map<PixelROCName, PixelROCStatus>& getROCsList() const { return rocs_; } ; // Added by Dario (March 3, 2008)
 
     void writeASCII(std::string dir="") const;
+    void writeXML(pos::PixelConfigKey key, std::string path) const {;}
 
     bool containsModule(const PixelModuleName& moduleToFind) const;
 
