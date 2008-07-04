@@ -43,7 +43,7 @@ def main(argv) :
     import getopt
     
     try:
-        opts, args = getopt.getopt(argv, "", ["nproc=","dohighstat",'hlt'])
+        opts, args = getopt.getopt(argv, "", ["nproc=","dohighstat",'hlt','inFile='])
     except getopt.GetoptError, e:
         print "unknown option", str(e)
         sys.exit(2)
@@ -52,7 +52,10 @@ def main(argv) :
     np=1
     doHighStat=0
     hlt = False
+    inFile = None
     for opt, arg in opts :
+        if opt == "--inFile" :
+            inFile=arg
         if opt == "--nproc" :
             np=arg
         if opt == "--dohighstat" :
@@ -64,17 +67,23 @@ def main(argv) :
     if hlt:
         hltSuffix = '_hlt'
 
-    commands_standard_file=open('cmsDriver_standard'+hltSuffix+'.txt','r')
-    lines_standard=commands_standard_file.readlines()
-    commands_standard_file.close()
-    lines=lines_standard
+    if inFile:
+        commands_standard_file=open(inFile,'r')
+        lines_standard=commands_standard_file.readlines()
+        commands_standard_file.close()
+        lines=lines_standard
+    else:
+        commands_standard_file=open('cmsDriver_standard'+hltSuffix+'.txt','r')
+        lines_standard=commands_standard_file.readlines()
+        commands_standard_file.close()
+        lines=lines_standard
 
-    if doHighStat==1:
-        commands_highstat_file=open('cmsDriver_highstats'+hltSuffix+'.txt','r')
-        lines_highstat=commands_highstat_file.readlines()
-        commands_highstat_file.close()
+        if doHighStat==1:
+            commands_highstat_file=open('cmsDriver_highstats'+hltSuffix+'.txt','r')
+            lines_highstat=commands_highstat_file.readlines()
+            commands_highstat_file.close()
 
-        lines=lines+lines_highstat
+            lines=lines+lines_highstat
    
 
     commands=[]
