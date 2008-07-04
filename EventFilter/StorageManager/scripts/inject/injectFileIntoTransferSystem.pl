@@ -1,5 +1,5 @@
 #!/usr/bin/perl -w
-# $Id: injectFileIntoTransferSystem.pl,v 1.15 2008/07/03 13:48:50 loizides Exp $
+# $Id: injectFileIntoTransferSystem.pl,v 1.16 2008/07/03 14:52:11 loizides Exp $
 
 use strict;
 use DBI;
@@ -41,10 +41,11 @@ sub usage
   Type is the type of file, which requires extra parameters to be specified
   Current supported types: streamer, edm, lumi:
     - Streamers require runnumber, lumisection, numevents, appname, appversion, stream, 
-      setup abel, and index.
-    - Edm files require runnumber, lumisection, numevents, appname, appversion, setuplabel, stream.
-      (Edm files could also be general root files)
-    - Lumi files require runnumber, lumisection, appname, and appversion.
+      setuplabel, and index.
+    - EDM files require runnumber, lumisection, numevents, appname, appversion and setuplabel.
+      (EDM type can be choses also for general ROOT files)
+    - Lumi files require runnumber, lumisection, appname, and appversion. 
+    - DQM files  require runnumber, lumisection, appname, and appversion.
 
   Hostname is the host on which the file is found. (This should be the name as returned by the
   `hostname` command. Supported hosts for copies: cmsdisk1, srv-c2c06-02.cms (cmsmon) and
@@ -79,7 +80,7 @@ sub usage
   --comment         : Comment field in the database
 
   --------------------------------------------------------------------------------------------
-  !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+  | IMPORTANT --- QUERY/CHECK mode --- IMPORTANT                            
   --------------------------------------------------------------------------------------------
 
   $0 --check --filename file
@@ -324,14 +325,20 @@ if($type eq "streamer") {
         usageShort();
     }
 } elsif($type eq "edm") {
-    unless($runnumber && $lumisection != -1 && $nevents && $appname && $appversion && $stream && $setuplabel ne 'default') {
+    unless($runnumber && $lumisection != -1 && $nevents && $appname && $appversion && $setuplabel ne 'default') {
 	print "Error: For edm files need runnumber, lumisection, numevents, appname, appversion, setuplabel, and stream specified\n";
         usageShort();
     }
-} elsif($type eq "lumi") {
+} elsif(($type eq "lumi") || ($type eq "lumi-sa") || ($type eq "lumi-vdm")) {
     $destination = 'cms_lumi' if ($destination eq 'default');
     unless( $runnumber && $lumisection != -1 && $appname && $appversion) {
 	print "Error: For lumi files need runnumber, lumisection, appname, and appversion specified.\n";
+        usageShort();
+    }
+} elsif($type eq "dqm") {
+    $destination = 'dqm'; # if ($destination eq 'default');
+    unless( $runnumber && $lumisection != -1 && $appname && $appversion) {
+	print "Error: For dqm files need runnumber, lumisection, appname, and appversion specified.\n";
         usageShort();
     }
 } else {
