@@ -8,7 +8,7 @@
 //
 // Original Author:  
 //         Created:  Sun Jan  6 23:57:00 EST 2008
-// $Id: CaloJetGlimpseProxyBuilder.cc,v 1.5 2008/06/28 22:15:54 dmytro Exp $
+// $Id: CaloJetGlimpseProxyBuilder.cc,v 1.6 2008/07/03 02:06:41 dmytro Exp $
 //
 
 // system include files
@@ -30,6 +30,8 @@
 #include "DataFormats/JetReco/interface/CaloJetCollection.h"
 #include "DataFormats/JetReco/interface/CaloJet.h"
 #include "Fireworks/Core/interface/FWGlimpseView.h"
+#include "Fireworks/Core/interface/FWEveValueScaler.h"
+#include "Fireworks/Calo/interface/FWGlimpseEveJet.h"
 
 //
 // constants, enums and typedefs
@@ -94,10 +96,12 @@ CaloJetGlimpseProxyBuilder::build(const FWEventItem* iItem, TEveElementList** pr
        jet != jets->end(); ++jet, ++counter) {
       char title[1024]; 
       sprintf(title,"Jet %d, Et: %0.1f GeV",counter.index(),jet->et());
-      TEveBoxSet* cone = new TEveBoxSet(counter.str().c_str(),title);
+      //TEveBoxSet* cone = new TEveBoxSet(counter.str().c_str(),title);
+      FWGlimpseEveJet* cone = new FWGlimpseEveJet(&(*jet),counter.str().c_str(),title);
       cone->SetPickable(kTRUE);
+      /*
       cone->Reset(TEveBoxSet::kBT_EllipticCone, kTRUE, 64);
-      double height = jet->et()*FWGlimpseView::getScale();
+      double height = jet->et()*(scaler()->scale());
       TEveVector dir, pos;
       dir.Set(jet->px()/jet->p(), jet->py()/jet->p(), jet->pz()/jet->p());
       
@@ -107,13 +111,16 @@ CaloJetGlimpseProxyBuilder::build(const FWEventItem* iItem, TEveElementList** pr
       double theta_size = fabs(getTheta(jet->eta()+eta_size)-getTheta(jet->eta()-eta_size));
       double phi_size = sqrt(jet->phiphiMoment());
       cone->AddEllipticCone(pos, dir, theta_size*height, phi_size*height);
-      
-      cone->DigitColor( iItem->defaultDisplayProperties().color(), 50 );
+      */
+      cone->SetMainColor(iItem->defaultDisplayProperties().color());
+      cone->SetMainTransparency(50);
+      //cone->DigitColor( iItem->defaultDisplayProperties().color(), 50 );
       // TColor* c = gROOT->GetColor(iItem->defaultDisplayProperties().color());
       // cone->DigitColor( UChar_t(255*c->GetRed()), UChar_t(255*c->GetGreen()), UChar_t(255*c->GetBlue()), 20 );
       cone->SetDrawConeCap(kFALSE);
       cone->SetMainTransparency(50);
       tList->AddElement(cone);
+      scaler()->addElement(cone);
       /*
       TEveStraightLineSet* marker = new TEveStraightLineSet(counter.str().c_str());
       marker->SetLineWidth(1);

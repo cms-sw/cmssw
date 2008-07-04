@@ -8,7 +8,7 @@
 //
 // Original Author:  
 //         Created:  Sun Jan  6 23:57:00 EST 2008
-// $Id: ElectronsGlimpseProxyBuilder.cc,v 1.3 2008/06/28 22:15:54 dmytro Exp $
+// $Id: ElectronsGlimpseProxyBuilder.cc,v 1.4 2008/07/03 02:06:42 dmytro Exp $
 //
 
 // system include files
@@ -19,7 +19,6 @@
 #include "TEveTrans.h"
 #include "TEveGeoNode.h"
 #include "TROOT.h"
-#include "TEveStraightLineSet.h"
 #include "TEveCompound.h"
 
 // user include files
@@ -30,6 +29,8 @@
 #include "DataFormats/EgammaCandidates/interface/GsfElectron.h"
 #include "DataFormats/EgammaCandidates/interface/GsfElectronFwd.h"
 #include "Fireworks/Core/interface/FWGlimpseView.h"
+#include "Fireworks/Core/interface/FWEveScalableStraightLineSet.h"
+#include "Fireworks/Core/interface/FWEveValueScaler.h"
 
 //
 // constants, enums and typedefs
@@ -81,11 +82,13 @@ ElectronsGlimpseProxyBuilder::build(const FWEventItem* iItem, TEveElementList** 
        electron != electrons->end(); ++electron, ++counter) {
       char title[1024];
       sprintf(title,"Electron %d, Pt: %0.1f GeV",counter.index(), electron->pt());
-      TEveStraightLineSet* marker = new TEveStraightLineSet( counter.str().c_str(), title );
+      FWEveScalableStraightLineSet* marker = new FWEveScalableStraightLineSet( counter.str().c_str(), title );
       marker->SetLineWidth(2);
       marker->SetLineColor(  iItem->defaultDisplayProperties().color() );
-      fw::addStraightLineSegment( marker, &*electron, FWGlimpseView::getScale() );
+      fw::addStraightLineSegment( marker, &*electron, 1.0 );
       tList->AddElement(marker);
+      //add to scaler at end so that it can scale the line after all ends have been added
+      scaler()->addElement(marker);
    }
 }
 
