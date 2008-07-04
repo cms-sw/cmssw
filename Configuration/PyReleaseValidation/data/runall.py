@@ -18,7 +18,8 @@ class testit(Thread):
         for word in self.command.split(' ')[1:]:
             commandbase+='%s_'%word
         logfile='%s.log' %commandbase[:-1]
-            
+        logfile = logfile.replace('/','_') # otherwise the path in the args to --cusotmize make trouble
+        
         startime='date %s' %time.asctime()
         executable='%s > %s 2>&1' %(self.command,logfile)
     
