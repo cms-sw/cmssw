@@ -28,15 +28,13 @@ namespace cms {
     virtual void endRun(const edm::Run&, const edm::EventSetup&) ;
     virtual void endJob();
     
-    void fillHistograms(edm::ESHandle<SiPixelPerformanceSummary>);
-
   private:
+    unsigned int presentRun_;
     bool printDebug_;
     std::string outputDir_;
-    unsigned int presentRun_;
     std::vector<uint32_t> allDetIds;
-    TH1F *NumberOfDigisAllDets;
-    TObjArray *AllDetHistograms;
+    TObjArray* AllDetHistograms;
+    TString hisID; 
     TFile *outputFile;
   };
 }
