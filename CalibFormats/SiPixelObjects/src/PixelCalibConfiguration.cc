@@ -295,16 +295,18 @@ PixelCalibConfiguration::PixelCalibConfiguration(std::vector< std::vector<std::s
 PixelCalibConfiguration::PixelCalibConfiguration(std::string filename):
   PixelCalibBase(), PixelConfigBase("","","") {
 
+  std::string mthn = "[PixelCalibConfiguration::PixelCalibConfiguration()]\t    " ;
+
   _bufferData=true; 
   
     std::ifstream in(filename.c_str());
 
     if (!in.good()){
-	std::cout << "Could not open:"<<filename<<std::endl;
+	std::cout << mthn << "Could not open:"<<filename<<std::endl;
 	assert(0);
     }
     else {
-	std::cout << "Opened:"<<filename<<std::endl;
+	std::cout << mthn << "Opened:"<<filename<<std::endl;
     }
 
     std::string tmp;
@@ -313,11 +315,11 @@ PixelCalibConfiguration::PixelCalibConfiguration(std::string filename):
 
     if (tmp=="Mode:"){
       in >> mode_;
-      std::cout << "PixelCalibConfiguration mode="<<mode_<< std::endl;
+      std::cout << mthn << "PixelCalibConfiguration mode="<<mode_<< std::endl;
       in >>tmp;
     } else {
       mode_="FEDChannelOffsetPixel";
-      std::cout << "PixelCalibCOnfiguration mode not set, is this an old file? "
+      std::cout << mthn << "PixelCalibCOnfiguration mode not set, is this an old file? "
 		<< std::endl;
       assert(0);
     }
