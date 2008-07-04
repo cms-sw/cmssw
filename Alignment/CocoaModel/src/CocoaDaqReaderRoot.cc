@@ -32,7 +32,11 @@ CocoaDaqReaderRoot::CocoaDaqReaderRoot(const std::string& m_inFileName )
     std::exception();
   }
 
-  nev = theTree->GetEntries(); // number of entries in Tree
+  TBranch *branch = theTree->GetBranch("Alignment_Cocoa");
+
+  nev = branch->GetEntries(); // number of entries in Tree
+
+  //nev = theTree->GetEntries(); // number of entries in Tree
   //if ( ALIUtils::debug >= 2) std::cout << "CocoaDaqReaderRoot::CocoaDaqReaderRoot:  number of entries in Tree " << nev << std::endl;
  
   nextEvent = 0;
@@ -40,8 +44,9 @@ CocoaDaqReaderRoot::CocoaDaqReaderRoot(const std::string& m_inFileName )
   // Event object must be created before setting the branch address
   theEvent = new CocoaDaqRootEvent();
 
-  // link pointer to Tree branch
-   theTree->SetBranchAddress("CocoaDaq", &theEvent);  //  !! SHOULD BE CALLED Alignment_Cocoa
+  // link pointer to Tree branch  
+  theTree->SetBranchAddress("Alignment_Cocoa", &theEvent);
+  //theTree->SetBranchAddress("CocoaDaq", &theEvent);  //  !! SHOULD BE CALLED Alignment_Cocoa
   // theTree->SetBranchAddress("Alignment_Link", &theEvent);  //  !! SHOULD BE CALLED Alignment_Cocoa
 
   CocoaDaqReader::SetDaqReader( this );
@@ -262,23 +267,25 @@ void CocoaDaqReaderRoot::BuildMeasurementsFromOptAlign( std::vector<OpticalAlign
   //   Measurement::setCurrentDate( wordlist ); 
   // } 
 
-  //---------- loop measurements read from ROOT and check for corresponding measurement in Model
   //  ALIint nMeasModel = Model::MeasurementList().size();
   ALIint nMeasRoot = measList.size();
   if(ALIUtils::debug >= 4) {
     std::cout << " Building " << nMeasRoot << " measurements from ROOT file " << std::endl;
   }
-  ALIint ii;
-  std::vector< Measurement* >::const_iterator vmcite;
-  for(ii = 0; ii < nMeasRoot; ii++) {
-    OpticalAlignMeasurementInfo measInfo = measList[ii];
 
-    //--- Loop to Measurements in Model
-    for( vmcite = Model::MeasurementList().begin();  vmcite != Model::MeasurementList().end(); vmcite++ ) {
-      ALIint fcolon = (*vmcite)->name().find(':');
-      ALIstring oname = (*vmcite)->name();
-      oname = oname.substr(fcolon+1,oname.length());
+  //--- Loop to Measurements in Model and check for corresponding measurement in ROOT
+  std::vector< Measurement* >::const_iterator vmcite;
+  for( vmcite = Model::MeasurementList().begin();  vmcite != Model::MeasurementList().end(); vmcite++ ) {
+    ALIint fcolon = (*vmcite)->name().find(':');
+    ALIstring oname = (*vmcite)->name();
+    oname = oname.substr(fcolon+1,oname.length());
+    
+    //---------- loop measurements read from ROOT 
+    ALIint ii;
+    for(ii = 0; ii < nMeasRoot; ii++) {
+      OpticalAlignMeasurementInfo measInfo = measList[ii];
       std::cout << " measurement name ROOT " << measInfo.name_ << " Model= " << (*vmcite)->name() << " short " << oname << std::endl;
+      
       if( oname == measInfo.name_ ) {
 	//-------- Measurement found, fill data
 	//---- Check that type is the same
@@ -287,10 +294,11 @@ void CocoaDaqReaderRoot::BuildMeasurementsFromOptAlign( std::vector<OpticalAlign
 		    <<measInfo.type_ << " and should be " << (*vmcite)->type() << std::endl;
 	  exit(1);
 	}
-
+	
 	std::cout << " NOBJECTS IN MEAS " << (*vmcite)->OptOList().size() << " NMEAS " << Model::MeasurementList().size() << std::endl;
 	
 	std::vector<OpticalAlignParam> measValues = measInfo.values_;
+	
 	for( size_t jj= 0; jj < measValues.size(); jj++ ){
 	  (*vmcite)->fillData( jj, &(measValues[jj]) );
 	}
@@ -300,11 +308,8 @@ void CocoaDaqReaderRoot::BuildMeasurementsFromOptAlign( std::vector<OpticalAlign
 	break;
       }
     }
-    if( vmcite == Model::MeasurementList().end() ) {
-      for( vmcite = Model::MeasurementList().begin(); vmcite != Model::MeasurementList().end(); vmcite++ ) {
-	std::cerr << "MEAS: " << (*vmcite)->name() << " " << (*vmcite)->type() << std::endl;
-      }
-      std::cerr << "!!! Reading measurement from file: measurement not found in list: type in file is "  <<  measInfo.name_  << std::endl;
+    if (ii==nMeasRoot) {
+      std::cerr << "!!! Reading measurement from file: measurement not found! Type in list is "  <<  oname  << std::endl;
       exit(1);
     }
   }
