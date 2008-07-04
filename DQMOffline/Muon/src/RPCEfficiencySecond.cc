@@ -47,42 +47,44 @@ void RPCEfficiencySecond::beginJob(const edm::EventSetup&){
 
   dbe = edm::Service<DQMStore>().operator->();
 
-  dbe->setCurrentFolder("Muons/RPCEfficiency");
-
+  dbe->setCurrentFolder("Muons/RPCEfficiency/Wheel_-2");
   EffGlobWm2=dbe->book1D("GlobEfficiencyWheel_-2near","Efficiency Near Wheel -2 ",101,0.5,101.5);
-  EffGlobWm1= dbe->book1D("GlobEfficiencyWheel_-1near","Efficiency Near Wheel -1",101,0.5,101.5);
-  EffGlobW0 = dbe->book1D("GlobEfficiencyWheel_0near","Efficiency Near Wheel 0",101,0.5,101.5);
-  EffGlobW1 = dbe->book1D("GlobEfficiencyWheel_1near","Efficiency Near Wheel 1",101,0.5,101.5);
-  EffGlobW2 = dbe->book1D("GlobEfficiencyWheel_2near","Efficiency Near Wheel 2",101,0.5,101.5);
-
   EffGlobWm2far=dbe->book1D("GlobEfficiencyWheel_-2far","Efficiency Far Wheel -2",105,0.5,105.5);
-  EffGlobWm1far=dbe->book1D("GlobEfficiencyWheel_-1far","Efficiency Far Wheel -1",105,0.5,105.5);
-  EffGlobW0far =dbe->book1D("GlobEfficiencyWheel_0far","Efficiency Far Wheel 0",105,0.5,105.5);
-  EffGlobW1far =dbe->book1D("GlobEfficiencyWheel_1far","Efficiency Far Wheel 1",105,0.5,105.5);
-  EffGlobW2far =dbe->book1D("GlobEfficiencyWheel_2far","Efficiency Far Wheel 2",105,0.5,105.5);
-
   BXGlobWm2= dbe->book1D("GlobBXWheel_-2near","BX Near Wheel -2",101,0.5,101.5);
-  BXGlobWm1= dbe->book1D("GlobBXWheel_-1near","BX Near Wheel -1",101,0.5,101.5);
-  BXGlobW0 = dbe->book1D("GlobBXWheel_0near","BX Near Wheel 0",101,0.5,101.5);
-  BXGlobW1 = dbe->book1D("GlobBXWheel_1near","BX Near Wheel 1",101,0.5,101.5);
-  BXGlobW2 = dbe->book1D("GlobBXWheel_2near","BX Near Wheel 2",101,0.5,101.5);
-  
   BXGlobWm2far= dbe->book1D("GlobBXWheel_-2far","BX Far Wheel -2",105,0.5,105.5);
-  BXGlobWm1far= dbe->book1D("GlobBXWheel_-1far","BX Far Wheel -1",105,0.5,105.5);
-  BXGlobW0far = dbe->book1D("GlobBXWheel_0far","BX Far Wheel 0",105,0.5,105.5);
-  BXGlobW1far = dbe->book1D("GlobBXWheel_1far","BX Far Wheel 1",105,0.5,105.5);
-  BXGlobW2far = dbe->book1D("GlobBXWheel_2far","BX Far Wheel 2",105,0.5,105.5);
-
   MaskedGlobWm2= dbe->book1D("GlobMaskedWheel_-2near","Masked Near Wheel -2",101,0.5,101.5);
-  MaskedGlobWm1= dbe->book1D("GlobMaskedWheel_-1near","Masked Near Wheel -1",101,0.5,101.5);
-  MaskedGlobW0 = dbe->book1D("GlobMaskedWheel_0near","Masked Near Wheel 0",101,0.5,101.5);
-  MaskedGlobW1 = dbe->book1D("GlobMaskedWheel_1near","Masked Near Wheel 1",101,0.5,101.5);
-  MaskedGlobW2 = dbe->book1D("GlobMaskedWheel_2near","Masked Near Wheel 2",101,0.5,101.5);
-
   MaskedGlobWm2far= dbe->book1D("GlobMaskedWheel_-2far","Masked Far Wheel -2",105,0.5,105.5);
+
+  dbe->setCurrentFolder("Muons/RPCEfficiency/Wheel_-1");
+  EffGlobWm1= dbe->book1D("GlobEfficiencyWheel_-1near","Efficiency Near Wheel -1",101,0.5,101.5);
+  EffGlobWm1far=dbe->book1D("GlobEfficiencyWheel_-1far","Efficiency Far Wheel -1",105,0.5,105.5);
+  BXGlobWm1= dbe->book1D("GlobBXWheel_-1near","BX Near Wheel -1",101,0.5,101.5);
+  BXGlobWm1far= dbe->book1D("GlobBXWheel_-1far","BX Far Wheel -1",105,0.5,105.5);
+  MaskedGlobWm1= dbe->book1D("GlobMaskedWheel_-1near","Masked Near Wheel -1",101,0.5,101.5);
   MaskedGlobWm1far= dbe->book1D("GlobMaskedWheel_-1far","Masked Far Wheel -1",105,0.5,105.5);
+
+  dbe->setCurrentFolder("Muons/RPCEfficiency/Wheel_0");
+  EffGlobW0 = dbe->book1D("GlobEfficiencyWheel_0near","Efficiency Near Wheel 0",101,0.5,101.5);
+  EffGlobW0far =dbe->book1D("GlobEfficiencyWheel_0far","Efficiency Far Wheel 0",105,0.5,105.5);
+  BXGlobW0 = dbe->book1D("GlobBXWheel_0near","BX Near Wheel 0",101,0.5,101.5);
+  BXGlobW0far = dbe->book1D("GlobBXWheel_0far","BX Far Wheel 0",105,0.5,105.5);
+  MaskedGlobW0 = dbe->book1D("GlobMaskedWheel_0near","Masked Near Wheel 0",101,0.5,101.5);
   MaskedGlobW0far = dbe->book1D("GlobMaskedWheel_0far","Masked Far Wheel 0",105,0.5,105.5);
+
+  dbe->setCurrentFolder("Muons/RPCEfficiency/Wheel_1");
+  EffGlobW1 = dbe->book1D("GlobEfficiencyWheel_1near","Efficiency Near Wheel 1",101,0.5,101.5);
+  EffGlobW1far =dbe->book1D("GlobEfficiencyWheel_1far","Efficiency Far Wheel 1",105,0.5,105.5);  
+  BXGlobW1 = dbe->book1D("GlobBXWheel_1near","BX Near Wheel 1",101,0.5,101.5);
+  BXGlobW1far = dbe->book1D("GlobBXWheel_1far","BX Far Wheel 1",105,0.5,105.5);
+  MaskedGlobW1 = dbe->book1D("GlobMaskedWheel_1near","Masked Near Wheel 1",101,0.5,101.5);
   MaskedGlobW1far = dbe->book1D("GlobMaskedWheel_1far","Masked Far Wheel 1",105,0.5,105.5);
+
+  dbe->setCurrentFolder("Muons/RPCEfficiency/Wheel_2");
+  EffGlobW2 = dbe->book1D("GlobEfficiencyWheel_2near","Efficiency Near Wheel 2",101,0.5,101.5);
+  EffGlobW2far =dbe->book1D("GlobEfficiencyWheel_2far","Efficiency Far Wheel 2",105,0.5,105.5);
+  BXGlobW2 = dbe->book1D("GlobBXWheel_2near","BX Near Wheel 2",101,0.5,101.5);
+  BXGlobW2far = dbe->book1D("GlobBXWheel_2far","BX Far Wheel 2",105,0.5,105.5);
+  MaskedGlobW2 = dbe->book1D("GlobMaskedWheel_2near","Masked Near Wheel 2",101,0.5,101.5);
   MaskedGlobW2far = dbe->book1D("GlobMaskedWheel_2far","Masked Far Wheel 2",105,0.5,105.5);
 }
 
