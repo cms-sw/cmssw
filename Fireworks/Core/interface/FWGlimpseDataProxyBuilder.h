@@ -16,7 +16,7 @@
 //
 // Original Author:  
 //         Created:  Sat Jan  5 15:02:03 EST 2008
-// $Id: FWGlimpseDataProxyBuilder.h,v 1.9 2008/06/16 18:23:15 dmytro Exp $
+// $Id: FWGlimpseDataProxyBuilder.h,v 1.1 2008/06/19 06:57:27 dmytro Exp $
 //
 
 // system include files
@@ -32,6 +32,7 @@ class TEveElementList;
 class TEveElement;
 class FWModelId;
 class TEveCalo3D;
+class FWEveValueScaler;
 
 class FWGlimpseDataProxyBuilder
 {
@@ -46,11 +47,30 @@ class FWGlimpseDataProxyBuilder
 
       // ---------- member functions ---------------------------
       void setItem(const FWEventItem* iItem);
-      void build(TEveElementList** product);
+      void setHaveAWindow(bool iFlag);
+      void build();
 
       void modelChanges(const FWModelIds&);
+      void itemChanged(const FWEventItem*);
+
+      TEveElement* usedInScene();
    
+      void setScaler(FWEveValueScaler* iScaler) {
+         m_scaler = iScaler;
+      }
+   
+      FWEveValueScaler* scaler() const {
+         return m_scaler;
+      }
    protected:
+      const FWEventItem* item() const {
+         return m_item;
+      }
+   
+      std::vector<FWModelId>& ids() {
+         return m_ids;
+      }
+   private:
       virtual void build(const FWEventItem* iItem, 
 			 TEveElementList** product) = 0 ;
 
@@ -66,8 +86,12 @@ class FWGlimpseDataProxyBuilder
 
       // ---------- member data --------------------------------
       const FWEventItem* m_item;
-      TEveElementList* m_elements;
+      TEveElementList m_elementHolder;//Used as a smart pointer for the item created by the builder
       std::vector<FWModelId> m_ids;
+   
+      bool m_modelsChanged;
+      bool m_haveViews;
+      FWEveValueScaler* m_scaler;
 };
 
 

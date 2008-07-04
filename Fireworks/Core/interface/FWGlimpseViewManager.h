@@ -1,7 +1,7 @@
 #ifndef Fireworks_Core_FWGlimpseViewManager_h
 #define Fireworks_Core_FWGlimpseViewManager_h
 // -*- C++ -*-
-// $Id: FWGlimpseViewManager.h,v 1.4 2008/06/10 19:28:01 chrjones Exp $
+// $Id: FWGlimpseViewManager.h,v 1.1 2008/06/19 06:57:27 dmytro Exp $
 
 // system include files
 #include <string>
@@ -11,6 +11,7 @@
 
 // user include files
 #include "Fireworks/Core/interface/FWViewManagerBase.h"
+#include "Fireworks/Core/interface/FWEveValueScaler.h"
 
 // forward declarations
 class TList;
@@ -23,16 +24,6 @@ class FWViewBase;
 class TEveElementList;
 class TEveSelection;
 class FWSelectionManager;
-
-struct FWGlimpseModelProxy
-{
-   boost::shared_ptr<FWGlimpseDataProxyBuilder>   builder;
-   TEveElementList*                           product; //owned by builder
-   bool ignore;
-   FWGlimpseModelProxy():product(0),ignore(false){}
-   FWGlimpseModelProxy(boost::shared_ptr<FWGlimpseDataProxyBuilder> iBuilder):
-    builder(iBuilder),product(0),ignore(false){}
-};
 
 class FWGlimpseViewManager : public FWViewManagerBase
 {
@@ -47,8 +38,6 @@ class FWGlimpseViewManager : public FWViewManagerBase
       // ---------- static member functions --------------------
 
       // ---------- member functions ---------------------------
-      virtual void newEventAvailable();
-
       virtual void newItem(const FWEventItem*);
 
       FWViewBase* buildView(TGFrame* iParent);
@@ -68,19 +57,20 @@ class FWGlimpseViewManager : public FWViewManagerBase
       const FWGlimpseViewManager& operator=(const FWGlimpseViewManager&); // stop default
    
       void makeProxyBuilderFor(const FWEventItem* iItem);
-      void itemChanged(const FWEventItem*);
+      void beingDestroyed(const FWViewBase*); 
 
       // ---------- member data --------------------------------
       typedef  std::map<std::string,std::vector<std::string> > TypeToBuilders;
       TypeToBuilders m_typeToBuilders;
-      std::vector<FWGlimpseModelProxy> m_modelProxies;
+      std::vector<boost::shared_ptr<FWGlimpseDataProxyBuilder> > m_builders;
 
       std::vector<boost::shared_ptr<FWGlimpseView> > m_views;
-      TEveElementList* m_elements;
+      TEveElementList m_elements;
       
-      bool m_itemChanged;
       TEveSelection* m_eveSelection;
       FWSelectionManager* m_selectionManager;
+   
+      FWEveValueScaler m_scaler;
 };
 
 #endif

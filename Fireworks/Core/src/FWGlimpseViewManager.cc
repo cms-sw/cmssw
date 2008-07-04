@@ -8,7 +8,7 @@
 //
 // Original Author:  
 //         Created:  Sun Jan  6 22:01:27 EST 2008
-// $Id: FWGlimpseViewManager.cc,v 1.1 2008/06/19 06:57:28 dmytro Exp $
+// $Id: FWGlimpseViewManager.cc,v 1.2 2008/06/28 22:15:54 dmytro Exp $
 //
 
 // system include files
@@ -50,10 +50,10 @@
 //
 FWGlimpseViewManager::FWGlimpseViewManager(FWGUIManager* iGUIMgr):
 FWViewManagerBase(),
-  m_elements(0),
-  m_itemChanged(false),
+  m_elements("Glimpse"),
   m_eveSelection(0),
-  m_selectionManager(0)
+  m_selectionManager(0),
+  m_scaler(2.0)
 {
    FWGUIManager::ViewBuildFunctor f;
    f=boost::bind(&FWGlimpseViewManager::buildView,
@@ -103,45 +103,43 @@ FWGlimpseViewManager::~FWGlimpseViewManager()
 FWViewBase* 
 FWGlimpseViewManager::buildView(TGFrame* iParent)
 {
-   if ( ! m_elements ) m_elements = new TEveElementList("Glimpse");
-   
-   //? TEveManager::TRedrawDisabler disableRedraw(gEve);
-   boost::shared_ptr<FWGlimpseView> view( new FWGlimpseView(iParent, m_elements) );
+   TEveManager::TRedrawDisabler disableRedraw(gEve);
+   boost::shared_ptr<FWGlimpseView> view( new FWGlimpseView(iParent, &m_elements,&m_scaler) );
    view->setManager( this );
    m_views.push_back(view);
    //? pView->resetCamera();
+   if(1 == m_views.size()) {
+      for(std::vector<boost::shared_ptr<FWGlimpseDataProxyBuilder> >::iterator it
+          =m_builders.begin(), itEnd = m_builders.end();
+          it != itEnd;
+          ++it) {
+         (*it)->setHaveAWindow(true);
+      }
+   }
    return view.get();
 }
-
-
 void 
-FWGlimpseViewManager::newEventAvailable()
+FWGlimpseViewManager::beingDestroyed(const FWViewBase* iView)
 {
-  
-   if( 0==m_views.size()) return;
    
-   for ( unsigned int i = 0; i < m_modelProxies.size(); ++i ) {
-      if ( m_modelProxies[i].ignore ) continue;
-      FWGlimpseModelProxy* proxy = & (m_modelProxies[i]);
-      if ( proxy->product == 0) // first time
-	{
-	   TEveElementList* product(0);
-	   proxy->builder->build( &product );
-	   if ( ! product) {
-	      printf("WARNING: proxy builder failed to initialize product for FWGlimpseViewManager. Ignored\n");
-	      proxy->ignore = true;
-	      continue;
-	   } 
-	   
-	   m_elements->AddElement( product );
-	   proxy->product = product;
-	} else {
-	   proxy->builder->build( &(proxy->product) );
-	}
+   if(1 == m_views.size()) {
+      for(std::vector<boost::shared_ptr<FWGlimpseDataProxyBuilder> >::iterator it
+          =m_builders.begin(), itEnd = m_builders.end();
+          it != itEnd;
+          ++it) {
+         (*it)->setHaveAWindow(false);
+      }
    }
-
-//   std::for_each(m_views.begin(), m_views.end(),
-//                 boost::bind(&FWGlimpseView::draw,_1, m_data) );
+   for(std::vector<boost::shared_ptr<FWGlimpseView> >::iterator it=
+       m_views.begin(), itEnd = m_views.end();
+       it != itEnd;
+       ++it) {
+      if(it->get() == iView) {
+         m_views.erase(it);
+         return;
+      }
+   }
+   
 }
 
 void 
@@ -160,11 +158,13 @@ FWGlimpseViewManager::makeProxyBuilderFor(const FWEventItem* iItem)
 	  if(0!=builder) {
 	     boost::shared_ptr<FWGlimpseDataProxyBuilder> pB( builder );
 	     builder->setItem(iItem);
-	     m_modelProxies.push_back(FWGlimpseModelProxy(pB) );
+             builder->setHaveAWindow(!m_views.empty());
+             builder->setScaler(&m_scaler);
+             m_elements.AddElement(builder->usedInScene());
+             m_builders.push_back(pB);
 	  }
        }
   }
-   iItem->itemChanged_.connect(boost::bind(&FWGlimpseViewManager::itemChanged,this,_1));
 }
 
 void 
@@ -174,10 +174,6 @@ FWGlimpseViewManager::newItem(const FWEventItem* iItem)
 }
 
 void 
-FWGlimpseViewManager::itemChanged(const FWEventItem*) {
-   m_itemChanged=true;
-}
-void 
 FWGlimpseViewManager::modelChangesComing()
 {
    gEve->DisableRedraw();
@@ -185,10 +181,6 @@ FWGlimpseViewManager::modelChangesComing()
 void 
 FWGlimpseViewManager::modelChangesDone()
 {
-   if(m_itemChanged) {
-      newEventAvailable();
-   }
-   m_itemChanged=false;
    gEve->EnableRedraw();
 }
 

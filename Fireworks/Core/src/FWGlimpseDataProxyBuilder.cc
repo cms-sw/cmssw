@@ -8,7 +8,7 @@
 //
 // Original Author:  
 //         Created:  Thu Dec  6 17:49:54 PST 2007
-// $Id: FWGlimpseDataProxyBuilder.cc,v 1.1 2008/06/19 06:57:27 dmytro Exp $
+// $Id: FWGlimpseDataProxyBuilder.cc,v 1.2 2008/06/21 21:19:31 chrjones Exp $
 //
 
 // system include files
@@ -37,8 +37,7 @@
 // constructors and destructor
 //
 FWGlimpseDataProxyBuilder::FWGlimpseDataProxyBuilder():
-  m_item(0),
-  m_elements(0)
+  m_item(0),m_haveViews(false), m_scaler(0)
 {
 }
 
@@ -66,6 +65,28 @@ FWGlimpseDataProxyBuilder::~FWGlimpseDataProxyBuilder()
 //
 // member functions
 //
+void 
+FWGlimpseDataProxyBuilder::setHaveAWindow(bool iFlag) 
+{
+   bool oldValue = m_haveViews;
+
+   m_haveViews=iFlag;
+
+   if(iFlag && !oldValue) {
+      //this is our first view so may need to rerun our building
+      build();
+      if(m_modelsChanged) {
+      }
+   }
+}
+
+TEveElement* 
+FWGlimpseDataProxyBuilder::usedInScene()
+{
+   return &m_elementHolder;
+}
+
+
 void
 FWGlimpseDataProxyBuilder::setItem(const FWEventItem* iItem)
 {
@@ -73,16 +94,24 @@ FWGlimpseDataProxyBuilder::setItem(const FWEventItem* iItem)
   if(0 != m_item) {
      m_item->changed_.connect(boost::bind(&FWGlimpseDataProxyBuilder::modelChanges,this,_1));
      m_item->goingToBeDestroyed_.connect(boost::bind(&FWGlimpseDataProxyBuilder::itemBeingDestroyed,this,_1));
-
+     m_item->itemChanged_.connect(boost::bind(&FWGlimpseDataProxyBuilder::itemChanged,this,_1));
   }
+}
+
+void
+FWGlimpseDataProxyBuilder::itemChanged(const FWEventItem* iItem)
+{
+   if(m_haveViews) {
+      build();
+   }
+   m_modelsChanged=false;
 }
 
 void 
 FWGlimpseDataProxyBuilder::itemBeingDestroyed(const FWEventItem* iItem)
 {
    m_item=0;
-   delete m_elements;
-   m_elements=0;
+   m_elementHolder.RemoveElements();
    m_ids.clear();
 }
 
@@ -100,20 +129,29 @@ setUserDataElementAndChildren(TEveElement* iElement,
 }
 
 void
-FWGlimpseDataProxyBuilder::build(TEveElementList** iObject)
+FWGlimpseDataProxyBuilder::build()
 {
   if(0!= m_item) {
-    build(m_item, iObject);
-    m_elements=*iObject;
+     TEveElementList* newElements=0;
+     bool notFirstTime = m_elementHolder.NumChildren();
+     if(notFirstTime) {
+        //we know the type since it is enforced in this routine so static_cast is safe
+        newElements = static_cast<TEveElementList*>(*(m_elementHolder.BeginChildren()));
+     }
+     build(m_item, &newElements);
+     if(!notFirstTime && newElements) {
+        m_elementHolder.AddElement(newElements);
+     }
 
-     if(m_elements &&  static_cast<int>(m_item->size()) == m_elements->NumChildren() ) {
+     if(newElements &&  static_cast<int>(m_item->size()) == newElements->NumChildren() ) {
         int index=0;
         int largestIndex = m_ids.size();
         if(m_ids.size()<m_item->size()) {
            m_ids.resize(m_item->size());
         }
         std::vector<FWModelId>::iterator itId = m_ids.begin();
-        for(TEveElement::List_i it = m_elements->BeginChildren(), itEnd = m_elements->EndChildren();
+        for(TEveElement::List_i it = newElements->BeginChildren(),
+            itEnd = newElements->EndChildren();
             it != itEnd;
             ++it,++itId,++index) {
            if(largestIndex<=index) {
@@ -128,8 +166,13 @@ FWGlimpseDataProxyBuilder::build(TEveElementList** iObject)
 void 
 FWGlimpseDataProxyBuilder::modelChanges(const FWModelIds& iIds)
 {
-   if(0!=m_elements) {
-      modelChanges(iIds,m_elements);
+   if(m_haveViews) {
+      if(0!=m_elementHolder.NumChildren()) {
+         modelChanges(iIds,*(m_elementHolder.BeginChildren()));
+      }
+      m_modelsChanged=false;
+   }else {
+      m_modelsChanged=true;
    }
 }
 
