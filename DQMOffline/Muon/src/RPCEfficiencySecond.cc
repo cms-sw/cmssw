@@ -145,7 +145,7 @@ void RPCEfficiencySecond::endRun(const edm::Run& r, const edm::EventSetup& iSetu
 	    }
 	    p=histoDT->getTH1F()->Integral();
 	    o=histoRPC->getTH1F()->Integral();
-
+	    
 	    mybxhisto = 50.+BXDistribution->getMean()*10;
 	    mybxerror = BXDistribution->getRMS()*10;
 	  }
