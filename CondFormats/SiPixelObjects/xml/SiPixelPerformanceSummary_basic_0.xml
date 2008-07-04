@@ -12,6 +12,7 @@
        </Object >
      </Container >
      <Primitive column="RUNNUMBER" name="runNumber_" />
+     <Primitive column="NUMEVENTS" name="numEvents_" />
      <Primitive column="TIMEVALUE" name="timeValue_" />
    </Class >
   </PoolContainer >
