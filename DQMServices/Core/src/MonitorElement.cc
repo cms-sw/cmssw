@@ -1,7 +1,6 @@
 #define DQM_ROOT_METHODS 1
 #include "DQMServices/Core/interface/MonitorElement.h"
 #include "DQMServices/Core/interface/QTest.h"
-#include "TPaveStats.h"
 #include "TClass.h"
 #include "TMath.h"
 #include "TList.h"
