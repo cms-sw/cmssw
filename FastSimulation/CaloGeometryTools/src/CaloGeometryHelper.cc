@@ -188,7 +188,7 @@ void CaloGeometryHelper::buildNeighbourArray()
   
   //std::cout << " Building the array of neighbours (barrel) " ;
 
-  std::vector<DetId> vec(EcalBarrelGeometry_->getValidDetIds(DetId::Ecal,EcalBarrel));
+  const std::vector<DetId>&  vec(EcalBarrelGeometry_->getValidDetIds(DetId::Ecal,EcalBarrel));
   unsigned size=vec.size();    
   for(unsigned ic=0; ic<size; ++ic) 
     {
@@ -241,9 +241,9 @@ void CaloGeometryHelper::buildNeighbourArray()
   //  std::cout << " done " << size << std::endl;
   //  std::cout << " Building the array of neighbours (endcap) " ;
 
-  vec.clear();
-  vec=EcalEndcapGeometry_->getValidDetIds(DetId::Ecal,EcalEndcap);
-  size=vec.size();    
+
+  const std::vector<DetId> & vece(EcalEndcapGeometry_->getValidDetIds(DetId::Ecal,EcalEndcap));
+  size=vece.size();    
   // There are some holes in the hashedIndex for the EE. Hence the array is bigger than the number
   // of crystals
   const unsigned nendcap=19960;
@@ -252,10 +252,10 @@ void CaloGeometryHelper::buildNeighbourArray()
   for(unsigned ic=0; ic<size; ++ic) 
     {
       // We get the 9 cells in a square. 
-      std::vector<DetId> neighbours(EcalEndcapTopology_->getWindow(vec[ic],3,3));
+      std::vector<DetId> neighbours(EcalEndcapTopology_->getWindow(vece[ic],3,3));
       unsigned nneighbours=neighbours.size();
       // remove the centre
-      unsigned hashedindex=EEDetId(vec[ic]).hashedIndex();
+      unsigned hashedindex=EEDetId(vece[ic]).hashedIndex();
       
       if(hashedindex>=nendcap)
 	{
@@ -268,7 +268,7 @@ void CaloGeometryHelper::buildNeighbourArray()
 	  for(unsigned in=0;in<nneighbours;++in)
 	    {	  
 	      // remove the centre
-	      if(neighbours[in]!=vec[ic]) 
+	      if(neighbours[in]!=vece[ic]) 
 		{
 		  endcapNeighbours_[hashedindex].push_back(neighbours[in]);
 		}
@@ -276,7 +276,7 @@ void CaloGeometryHelper::buildNeighbourArray()
 	}
       else
 	{
-	  DetId central(vec[ic]);
+	  DetId central(vece[ic]);
 	  endcapNeighbours_[hashedindex].resize(8,DetId(0));
 	  for(unsigned idir=0;idir<8;++idir)
 	    {
@@ -445,7 +445,7 @@ void CaloGeometryHelper::buildCrystalArray()
   barrelCrystals_.resize(nbarrel,BaseCrystal());
 
   //std::cout << " Building the array of crystals (barrel) " ;
-  std::vector<DetId> vec(EcalBarrelGeometry_->getValidDetIds(DetId::Ecal,EcalBarrel));
+  const std::vector<DetId>&  vec(EcalBarrelGeometry_->getValidDetIds(DetId::Ecal,EcalBarrel));
   unsigned size=vec.size();    
   const CaloCellGeometry * geom=0;
   for(unsigned ic=0; ic<size; ++ic) 
@@ -460,9 +460,9 @@ void CaloGeometryHelper::buildCrystalArray()
   //  std::cout << " done " << size << std::endl;
   //  std::cout << " Building the array of crystals (endcap) " ;
   
-  vec.clear();
-  vec=EcalEndcapGeometry_->getValidDetIds(DetId::Ecal,EcalEndcap);
-  size=vec.size();    
+
+  const std::vector<DetId>&  vece(EcalEndcapGeometry_->getValidDetIds(DetId::Ecal,EcalEndcap));
+  size=vece.size();    
   // There are some holes in the hashedIndex for the EE. Hence the array is bigger than the number
   // of crystals
   const unsigned nendcap=19960;
@@ -470,9 +470,9 @@ void CaloGeometryHelper::buildCrystalArray()
   endcapCrystals_.resize(nendcap,BaseCrystal());
   for(unsigned ic=0; ic<size; ++ic) 
     {
-      unsigned hashedindex=EEDetId(vec[ic]).hashedIndex();
-      geom = EcalEndcapGeometry_->getGeometry(vec[ic]);
-      BaseCrystal xtal(vec[ic]);
+      unsigned hashedindex=EEDetId(vece[ic]).hashedIndex();
+      geom = EcalEndcapGeometry_->getGeometry(vece[ic]);
+      BaseCrystal xtal(vece[ic]);
       xtal.setCorners(geom->getCorners(),geom->getPosition());
       endcapCrystals_[hashedindex]=xtal;
     }

@@ -151,7 +151,7 @@ testCaloGeometryTools::analyze( const edm::Event& iEvent, const edm::EventSetup&
 
 void testCaloGeometryTools::checkSM()
 {
-  std::vector<DetId> vec(myGeometry.getEcalBarrelGeometry()->getValidDetIds(DetId::Ecal,EcalBarrel));
+  const std::vector<DetId>& vec(myGeometry.getEcalBarrelGeometry()->getValidDetIds(DetId::Ecal,EcalBarrel));
   unsigned size=vec.size();
   for(unsigned ic=0;ic<size;++ic)
     {
@@ -173,7 +173,7 @@ void testCaloGeometryTools::checkSM()
 
 void testCaloGeometryTools::checkSC()
 {
-  std::vector<DetId> vec(myGeometry.getEcalEndcapGeometry()->getValidDetIds(DetId::Ecal,EcalEndcap));
+  const std::vector<DetId>& vec(myGeometry.getEcalEndcapGeometry()->getValidDetIds(DetId::Ecal,EcalEndcap));
   unsigned size=vec.size();
   for(unsigned ic=0;ic<size;++ic)
     {
@@ -240,7 +240,7 @@ void testCaloGeometryTools::testpoint(const XYZPoint& point, std::string name, b
 void testCaloGeometryTools::testBorderCrossing()
 {
   // Barrel 
-  std::vector<DetId> vec(myGeometry.getEcalBarrelGeometry()->getValidDetIds(DetId::Ecal,EcalBarrel));
+  const std::vector<DetId>& vec(myGeometry.getEcalBarrelGeometry()->getValidDetIds(DetId::Ecal,EcalBarrel));
   unsigned size=vec.size();
   unsigned counter=0;
   for(unsigned ic=0;ic<size;++ic)
@@ -267,18 +267,18 @@ void testCaloGeometryTools::testBorderCrossing()
     }
   
   // Endcap 
-  vec=myGeometry.getEcalEndcapGeometry()->getValidDetIds(DetId::Ecal,EcalEndcap);
-  size=vec.size();
+  const std::vector<DetId>& vec2(myGeometry.getEcalEndcapGeometry()->getValidDetIds(DetId::Ecal,EcalEndcap));
+  size=vec2.size();
   counter=0;
   for(unsigned ic=0;ic<size;++ic)
     {
-      std::vector<DetId> neighbours=myGeometry.getNeighbours(vec[ic]);
+      std::vector<DetId> neighbours=myGeometry.getNeighbours(vec2[ic]);
       for(unsigned in=0;in<8;++in)
 	{
 	  if(neighbours[in].null()) continue;
-	  if(myGeometry.borderCrossing(vec[ic],neighbours[in]))
+	  if(myGeometry.borderCrossing(vec2[ic],neighbours[in]))
 	    {
-	      const CaloCellGeometry * geom=myGeometry.getEcalEndcapGeometry()->getGeometry(vec[ic]);
+	      const CaloCellGeometry * geom=myGeometry.getEcalEndcapGeometry()->getGeometry(vec2[ic]);
 	      GlobalPoint p1=geom->getPosition();
 	      XYZPoint pp1(p1.x(),p1.y(),p1.z());
 	      geom=myGeometry.getEcalEndcapGeometry()->getGeometry(neighbours[in]);
