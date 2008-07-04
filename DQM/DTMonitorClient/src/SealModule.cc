@@ -28,6 +28,9 @@ DEFINE_ANOTHER_FWK_MODULE(DTDeadChannelTest);
 #include "DQM/DTMonitorClient/src/DTNoiseTest.h"
 DEFINE_ANOTHER_FWK_MODULE(DTNoiseTest);
 
+#include "DQM/DTMonitorClient/src/DTNoiseAnalysisTest.h"
+DEFINE_ANOTHER_FWK_MODULE(DTNoiseAnalysisTest);
+
 #include "DQM/DTMonitorClient/src/DTLocalTriggerTest.h"
 DEFINE_ANOTHER_FWK_MODULE(DTLocalTriggerTest);
 
