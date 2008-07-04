@@ -6,8 +6,6 @@ from RecoEgamma.EgammaPhotonProducers.conversionSequence_cff import *
 from RecoEgamma.EgammaIsolationAlgos.egammaIsolationSequence_cff import *
 from RecoEgamma.PhotonIdentification.photonId_cff import *
 from RecoEgamma.ElectronIdentification.electronIdSequence_cff import *
-from RecoEgamma.EgammaIsolationAlgos.gamIsolationSequence_cff import *
-from RecoEgamma.EgammaIsolationAlgos.eleIsolationSequence_cff import *
 
 
 egammareco = cms.Sequence(electronSequence*conversionSequence*photonSequence)
