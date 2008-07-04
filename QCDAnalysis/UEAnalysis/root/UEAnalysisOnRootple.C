@@ -199,12 +199,11 @@ void UEAnalysisOnRootple::Loop(Float_t we,Float_t ptThreshold,string type,string
   
   Long64_t nbytes = 0, nb = 0;
 
-  //  for (Long64_t jentry=0; jentry<nentries;jentry++) {
+  for (Long64_t jentry=0; jentry<nentries;jentry++) {
 
-  // for debugging:
-
-  cout << "start debug loop" << endl;
-  for (Long64_t jentry=0; jentry<100; jentry++) {
+    // for debugging:
+    //   cout << "start debug loop" << endl;
+    //   for (Long64_t jentry=0; jentry<100; jentry++) {
 
     Long64_t ientry = LoadTree(jentry);
     if (ientry < 0) break;
