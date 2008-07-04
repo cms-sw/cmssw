@@ -13,7 +13,7 @@
 //
 // Original Author:  Werner Man-Li Sun
 //         Created:  Thu May 29 23:36:18 CEST 2008
-// $Id$
+// $Id: produceL1RCTParameters.cc,v 1.1 2008/05/29 21:50:18 wsun Exp $
 //
 //
 
@@ -78,7 +78,7 @@ L1TriggerConfigOnlineProd::produceL1RCTParameters( const L1RCTParametersRcd& iRe
 
      // ~~~~~~~~~ Cut values ~~~~~~~~~
 
-     // select egamma_lsb, jetmet_lsb, e_min_for_fg_cut, e_max_for_fg_cut, h_over_e_cut, e_min_for_h_over_e_cut, e_activity_cut, h_activity_cut, eic_isolation_threshold, noisevetohb, noisevetoheplus, noisevetoheminus from parem_conf where parem_conf.parem_key = (select rct_parameter from rct_conf where rct_conf.rct_key = 'rct_cmssw_def');
+     // select egamma_lsb, jetmet_lsb, e_min_for_fg_cut, e_max_for_fg_cut, h_over_e_cut, e_min_for_h_over_e_cut, e_max_for_h_over_e_cut, h_min_for_h_over_e_cut, e_activity_cut, h_activity_cut, eic_isolation_threshold, jsc_quiet_threshold_barrel, jsc_quiet_threshold_endcap, noisevetohb, noisevetoheplus, noisevetoheminus from parem_conf where parem_conf.parem_key = (select rct_parameter from rct_conf where rct_conf.rct_key = 'rct_cmssw_def');
 
      table = "PAREM_CONF" ;
 
@@ -90,9 +90,12 @@ L1TriggerConfigOnlineProd::produceL1RCTParameters( const L1RCTParametersRcd& iRe
      queryStrings.push_back( "H_OVER_E_CUT" ) ;
      queryStrings.push_back( "E_MIN_FOR_H_OVER_E_CUT" ) ;
      queryStrings.push_back( "E_MAX_FOR_H_OVER_E_CUT" ) ;
+     queryStrings.push_back( "H_MIN_FOR_H_OVER_E_CUT" ) ;
      queryStrings.push_back( "E_ACTIVITY_CUT" ) ;
      queryStrings.push_back( "H_ACTIVITY_CUT" ) ;
      queryStrings.push_back( "EIC_ISOLATION_THRESHOLD" ) ;
+     queryStrings.push_back( "JSC_QUIET_THRESHOLD_BARREL" ) ;
+     queryStrings.push_back( "JSC_QUIET_THRESHOLD_ENDCAP" ) ;
      queryStrings.push_back( "NOISEVETOHB" ) ;
      queryStrings.push_back( "NOISEVETOHEPLUS" ) ;
      queryStrings.push_back( "NOISEVETOHEMINUS" ) ;
@@ -111,8 +114,13 @@ L1TriggerConfigOnlineProd::produceL1RCTParameters( const L1RCTParametersRcd& iRe
      double hOeCut = row2[ "H_OVER_E_CUT" ].data< double >() ;
      double eMinForHoECut = row2[ "E_MIN_FOR_H_OVER_E_CUT" ].data< double >();
      double eMaxForHoECut = row2[ "E_MAX_FOR_H_OVER_E_CUT" ].data< double >();
+     double hMinForHoECut = row2[ "H_MIN_FOR_H_OVER_E_CUT" ].data< double >();
      double eActivityCut = row2[ "E_ACTIVITY_CUT" ].data< double >() ;
      double hActivityCut = row2[ "H_ACTIVITY_CUT" ].data< double >() ;
+     double jscQuietThreshBarrel =
+       row2[ "JSC_QUIET_THRESHOLD_BARREL" ].data< double >() ;
+     double jscQuietThreshEndcap =
+       row2[ "JSC_QUIET_THRESHOLD_ENDCAP" ].data< double >() ;
      unsigned int eicIsolationThreshold =
        ( unsigned int ) row2[ "EIC_ISOLATION_THRESHOLD" ].data< double >() ;
      bool noiseVetoHB = row2[ "NOISEVETOHB" ].data< bool >() ;
@@ -126,9 +134,12 @@ L1TriggerConfigOnlineProd::produceL1RCTParameters( const L1RCTParametersRcd& iRe
 //      std::cout << "hOeCut = " << hOeCut << std::endl ;
 //      std::cout << "eMinForHoECut = " << eMinForHoECut << std::endl ;
 //      std::cout << "eMaxForHoECut = " << eMaxForHoECut << std::endl ;
+//      std::cout << "hMinForHoECut = " << hMinForHoECut << std::endl ;
 //      std::cout << "eActivityCut = " << eActivityCut << std::endl ;
 //      std::cout << "hActivityCut = " << hActivityCut << std::endl ;
 //      std::cout << "eicIsolationThreshold = " << eicIsolationThreshold << std::endl ;
+//      std::cout << "jscQuietThreshBarrel = " << jscQuietThreshBarrel << std::endl ;
+//      std::cout << "jscQuietThreshEndcap = " << jscQuietThreshEndcap << std::endl ;
 //      std::cout << "noiseVetoHB = " << noiseVetoHB << std::endl ;
 //      std::cout << "noiseVetoHEplus = " << noiseVetoHEplus << std::endl ;
 //      std::cout << "noiseVetoHEminus = " << noiseVetoHEminus << std::endl ;
@@ -380,12 +391,12 @@ L1TriggerConfigOnlineProd::produceL1RCTParameters( const L1RCTParametersRcd& iRe
 			     hOeCut,
 			     eMinForHoECut,
 			     eMaxForHoECut,
-			     3.0, // hMinForHoECut,
+			     hMinForHoECut,
 			     eActivityCut,
 			     hActivityCut,
 			     eicIsolationThreshold,
-			     3, // jscQuietThresholdBarrel,
-			     3, // jscQuietThresholdEndcap,
+			     (int) jscQuietThreshBarrel,
+			     (int) jscQuietThreshEndcap,
 			     noiseVetoHB,
 			     noiseVetoHEplus,
 			     noiseVetoHEminus,
