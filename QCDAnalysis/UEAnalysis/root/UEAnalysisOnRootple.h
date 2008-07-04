@@ -60,7 +60,9 @@ public :
   virtual Int_t    GetEntry(Long64_t entry);
   virtual Long64_t LoadTree(Long64_t entry);
   virtual void     MultiAnalysis(char* filelist,char* outname,vector<float> weight,Float_t eta,string type,string trigger,string tkpt,Float_t ptCut);
-  virtual void     Init(TTree *tree);
+  //  virtual void     Init(TTree *tree);
+  virtual void     Init(TTree *tree, string);
+  //  UEAnalysisOnRootple.C:169: error: no matching function for call to `UEAnalysisOnRootple::Init(TTree*&, std::string&)'
   virtual void     BeginJob(char* outname,string);
   virtual void     EndJob(string);
   virtual void     Loop(Float_t we,Float_t triggerPt,string type,string trigger,string tkpt);
@@ -110,6 +112,7 @@ public :
   UEAnalysisAntiKtJets* antiKtJetsHLT1jet180;
   UEAnalysisAntiKtJets* antiKtJetsHLT1jet250;
 
+  UEAnalysisAntiKtJets* antiKtJetsOnlyMC;
 
   UEAnalysisMPI* mpi;
 

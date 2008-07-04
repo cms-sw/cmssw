@@ -60,6 +60,8 @@ UEAnalysisOnRootple::UEAnalysisOnRootple()
   antiKtJetsHLT1jet250      = new UEAnalysisAntiKtJets();
   //  antiKtJetsAll             = new UEAnalysisAntiKtJets();
 
+  antiKtJetsOnlyMC = new UEAnalysisAntiKtJets();
+
   //antiKtJets = new UEAnalysisAntiKtJets();
 
   mpi = new UEAnalysisMPI();
@@ -126,10 +128,12 @@ void UEAnalysisOnRootple::MultiAnalysis(char* filelist,char* outname,vector<floa
 	{
 	  // highest pThat bin: no restriction
 	  cout << "choose pthat for jetET150 range" << endl;
+	  pThatMax = 14000.;
 	}
       else 
 	{
-	  cout << "!!! ERROR !!! Cannot determine dataset range (expect MinBias, JetET20, JetET30, ...)" << endl;
+	  cout << "!!! WARNING !!! Cannot determine dataset range (expect MinBias, JetET20, JetET30, ...)" << endl;
+	  cout << "!!! WARNING !!! Will accept all pthat values" << endl;
 	  pThatMax = 14000.;
 	}
 
@@ -139,15 +143,22 @@ void UEAnalysisOnRootple::MultiAnalysis(char* filelist,char* outname,vector<floa
       // TFileService puts UEAnalysisTree in a directory named after the module
       // which called the EDAnalyzer
 
+      // different directory names for gen-level only analysis
+      //
+      //    KEY: TDirectoryFile   UEAnalysisRootpleOnlyMC;1       UEAnalysisRootpleOnlyMC (AnalysisRootpleProducerOnlyMC) folder
+      //    KEY: TDirectoryFile   UEAnalysisRootpleOnlyMC500;1    UEAnalysisRootpleOnlyMC500 (AnalysisRootpleProducerOnlyMC) folder
+
       if ( TMath::Abs(ptThreshold - 0.9) < 0.001 ) 
 	{ 
-	  cout << "changing to directory UEAnalysisRootple" << endl;
-	  f->cd("UEAnalysisRootple");
+	  cout << "pT threshold set to 900 MeV/c" << endl;
+	  if ( trigger == "Gen" ) f->cd("UEAnalysisRootpleOnlyMC");
+	  else                    f->cd("UEAnalysisRootple");
 	}
       else if ( TMath::Abs(ptThreshold - 0.5) < 0.001 )
 	{
-	  cout << "changing to directory UEAnalysisRootple500" << endl;
-	  f->cd("UEAnalysisRootple500");
+	  cout << "pT threshold set to 500 MeV/c" << endl;
+	  if ( trigger == "Gen" ) f->cd("UEAnalysisRootpleOnlyMC500");
+	  else                    f->cd("UEAnalysisRootple500");
 	}
       else
 	{
@@ -156,7 +167,7 @@ void UEAnalysisOnRootple::MultiAnalysis(char* filelist,char* outname,vector<floa
 	}
 
       TTree * tree = (TTree*)gDirectory->Get("AnalysisTree");
-      Init(tree);
+      Init(tree, trigger);
 
       Loop(weight[filenumber],ptThreshold,type,trigger,tkpt);
     
@@ -188,203 +199,200 @@ void UEAnalysisOnRootple::Loop(Float_t we,Float_t ptThreshold,string type,string
   
   Long64_t nbytes = 0, nb = 0;
 
-  for (Long64_t jentry=0; jentry<nentries;jentry++) {
+  //  for (Long64_t jentry=0; jentry<nentries;jentry++) {
 
-    // for debugging:
-    //for (Long64_t jentry=0; jentry<10; jentry++) {
+  // for debugging:
+
+  cout << "start debug loop" << endl;
+  for (Long64_t jentry=0; jentry<100; jentry++) {
 
     Long64_t ientry = LoadTree(jentry);
     if (ientry < 0) break;
     nb = fChain->GetEntry(jentry);   nbytes += nb;
 
-
-    if ( genEventScale >= pThatMax ) continue;
-
-    int nAcceptedTriggers( 0 );
-    nAcceptedTriggers = acceptedTriggers->GetSize();
-    for ( int iAcceptedTrigger(0); iAcceptedTrigger<nAcceptedTriggers; ++iAcceptedTrigger )
+    if ( trigger != "Gen" )
       {
-	std::string filterName( acceptedTriggers->At(iAcceptedTrigger)->GetName() );
+	//	cout << "genEventScale=" << genEventScale << " < " << pThatMax << "=pThatMax ?" << endl;
+	if ( genEventScale >= pThatMax ) continue;
 
-	if      ( filterName=="HLTMinBiasPixel" ) h_acceptedTriggers->Fill( 0 );
-	else if ( filterName=="HLTMinBiasHcal"  ) h_acceptedTriggers->Fill( 1 );
-	else if ( filterName=="HLTMinBiasEcal"  ) h_acceptedTriggers->Fill( 2 );
-	else if ( filterName=="HLTMinBias"      ) h_acceptedTriggers->Fill( 3 );
-	else if ( filterName=="HLTZeroBias"     ) h_acceptedTriggers->Fill( 4 );
-	else if ( filterName=="HLT1jet30"       ) h_acceptedTriggers->Fill( 5 );
-	else if ( filterName=="HLT1jet50"       ) h_acceptedTriggers->Fill( 6 );
-	else if ( filterName=="HLT1jet80"       ) h_acceptedTriggers->Fill( 7 );
-	else if ( filterName=="HLT1jet110"      ) h_acceptedTriggers->Fill( 8 );
-	else if ( filterName=="HLT1jet180"      ) h_acceptedTriggers->Fill( 9 );
-	else if ( filterName=="HLT1jet250"      ) h_acceptedTriggers->Fill( 10 );
-	else                                      h_acceptedTriggers->Fill( 11 );
-
-	// fill histos for each HLT bit separately
-	if ( filterName=="HLTMinBiasPixel" )
+	int nAcceptedTriggers( 0 );
+	nAcceptedTriggers = acceptedTriggers->GetSize();
+	for ( int iAcceptedTrigger(0); iAcceptedTrigger<nAcceptedTriggers; ++iAcceptedTrigger )
 	  {
-	    if (type=="Jet") jetsHLTMinBiasPixel->jetCalibAnalysis(we,etaRegion,InclusiveJet,ChargedJet,
-								   TracksJet,CalorimeterJet, acceptedTriggers, 
-								   hFile, "HLTMinBiasPixel");
-	    if (type=="UE") 
+	    std::string filterName( acceptedTriggers->At(iAcceptedTrigger)->GetName() );
+	    
+	    if      ( filterName=="HLTMinBiasPixel" ) h_acceptedTriggers->Fill( 0 );
+	    else if ( filterName=="HLTMinBiasHcal"  ) h_acceptedTriggers->Fill( 1 );
+	    else if ( filterName=="HLTMinBiasEcal"  ) h_acceptedTriggers->Fill( 2 );
+	    else if ( filterName=="HLTMinBias"      ) h_acceptedTriggers->Fill( 3 );
+	    else if ( filterName=="HLTZeroBias"     ) h_acceptedTriggers->Fill( 4 );
+	    else if ( filterName=="HLT1jet30"       ) h_acceptedTriggers->Fill( 5 );
+	    else if ( filterName=="HLT1jet50"       ) h_acceptedTriggers->Fill( 6 );
+	    else if ( filterName=="HLT1jet80"       ) h_acceptedTriggers->Fill( 7 );
+	    else if ( filterName=="HLT1jet110"      ) h_acceptedTriggers->Fill( 8 );
+	    else if ( filterName=="HLT1jet180"      ) h_acceptedTriggers->Fill( 9 );
+	    else if ( filterName=="HLT1jet250"      ) h_acceptedTriggers->Fill( 10 );
+	    else                                      h_acceptedTriggers->Fill( 11 );
+	    
+	    // fill histos for each HLT bit separately
+	    if ( filterName=="HLTMinBiasPixel" )
 	      {
-		ueHLTMinBiasPixel->ueAnalysisMC(we,tkpt,etaRegion,ptThreshold,MonteCarlo,ChargedJet, hFile, "HLTMinBiasPixel");
-		ueHLTMinBiasPixel->ueAnalysisRECO(we,tkpt,etaRegion,ptThreshold,Track,TracksJet, hFile, "HLTMinBiasPixel");
+		if (type=="Jet") jetsHLTMinBiasPixel->jetCalibAnalysis(we,etaRegion,InclusiveJet,ChargedJet,
+								       TracksJet,CalorimeterJet, acceptedTriggers, 
+								       hFile, "HLTMinBiasPixel");
+		if (type=="UE") 
+		  {
+		    ueHLTMinBiasPixel->ueAnalysisMC(we,tkpt,etaRegion,ptThreshold,MonteCarlo,ChargedJet, hFile, "HLTMinBiasPixel");
+		    ueHLTMinBiasPixel->ueAnalysisRECO(we,tkpt,etaRegion,ptThreshold,Track,TracksJet, hFile, "HLTMinBiasPixel");
+		  }
+		
+		if (type=="AntiKtJet") 
+		  {
+		    antiKtJetsHLTMinBiasPixel->jetAnalysis(we, etaRegion, ptThreshold, Track, hFile, "HLTMinBiasPixel" );
+		  }
 	      }
-
-	    if (type=="AntiKtJet") antiKtJetsHLTMinBiasPixel->jetAnalysis(we, etaRegion, ptThreshold, Track, hFile, "HLTMinBiasPixel" );
-	  }
-	else if ( filterName=="HLTMinBiasHcal"  )
-	  {
-	    if(type=="Jet") jetsHLTMinBiasHcal->jetCalibAnalysis(we,etaRegion,InclusiveJet,ChargedJet,
+	    else if ( filterName=="HLTMinBiasHcal"  )
+	      {
+		if(type=="Jet") jetsHLTMinBiasHcal->jetCalibAnalysis(we,etaRegion,InclusiveJet,ChargedJet,
+								     TracksJet,CalorimeterJet, acceptedTriggers, 
+								     hFile, "HLTMinBiasHcal");
+		if(type=="UE") 
+		  {
+		    ueHLTMinBiasHcal->ueAnalysisMC(we,tkpt,etaRegion,ptThreshold,MonteCarlo,ChargedJet, hFile, "HLTMinBiasHcal");
+		    ueHLTMinBiasHcal->ueAnalysisRECO(we,tkpt,etaRegion,ptThreshold,Track,TracksJet, hFile, "HLTMinBiasHcal");
+		  }
+		
+		if (type=="AntiKtJet") antiKtJetsHLTMinBiasHcal->jetAnalysis(we, etaRegion, ptThreshold, Track, hFile, "HLTMinBiasHcal" );
+	      }
+	    else if ( filterName=="HLTMinBiasEcal"  )
+	      {
+		if(type=="Jet") jetsHLTMinBiasEcal->jetCalibAnalysis(we,etaRegion,InclusiveJet,ChargedJet,
+								     TracksJet,CalorimeterJet, acceptedTriggers, 
+								     hFile, "HLTMinBiasEcal");
+		if(type=="UE") 
+		  {
+		    ueHLTMinBiasEcal->ueAnalysisMC(we,tkpt,etaRegion,ptThreshold,MonteCarlo,ChargedJet, hFile, "HLTMinBiasEcal");
+		    ueHLTMinBiasEcal->ueAnalysisRECO(we,tkpt,etaRegion,ptThreshold,Track,TracksJet, hFile, "HLTMinBiasEcal");
+		  }
+		
+		if (type=="AntiKtJet") antiKtJetsHLTMinBiasEcal->jetAnalysis(we, etaRegion, ptThreshold, Track, hFile, "HLTMinBiasEcal" );
+	      }
+	    else if ( filterName=="HLTMinBias"      )
+	      {
+		if(type=="Jet") jetsHLTMinBias->jetCalibAnalysis(we,etaRegion,InclusiveJet,ChargedJet,
 								 TracksJet,CalorimeterJet, acceptedTriggers, 
-								 hFile, "HLTMinBiasHcal");
-	    if(type=="UE") 
-	      {
-		ueHLTMinBiasHcal->ueAnalysisMC(we,tkpt,etaRegion,ptThreshold,MonteCarlo,ChargedJet, hFile, "HLTMinBiasHcal");
-		ueHLTMinBiasHcal->ueAnalysisRECO(we,tkpt,etaRegion,ptThreshold,Track,TracksJet, hFile, "HLTMinBiasHcal");
+								 hFile, "HLTMinBias");
+		if(type=="UE") 
+		  {
+		    ueHLTMinBias->ueAnalysisMC(we,tkpt,etaRegion,ptThreshold,MonteCarlo,ChargedJet, hFile, "HLTMinBias");
+		    ueHLTMinBias->ueAnalysisRECO(we,tkpt,etaRegion,ptThreshold,Track,TracksJet, hFile, "HLTMinBias");
+		  }
+		
+		if (type=="AntiKtJet") antiKtJetsHLTMinBias->jetAnalysis(we, etaRegion, ptThreshold, Track, hFile, "HLTMinBias" );
 	      }
-
-	    if (type=="AntiKtJet") antiKtJetsHLTMinBiasHcal->jetAnalysis(we, etaRegion, ptThreshold, Track, hFile, "HLTMinBiasHcal" );
-	  }
-	else if ( filterName=="HLTMinBiasEcal"  )
-	  {
-	    if(type=="Jet") jetsHLTMinBiasEcal->jetCalibAnalysis(we,etaRegion,InclusiveJet,ChargedJet,
+	    else if ( filterName=="HLTZeroBias"     )
+	      {
+		if(type=="Jet") jetsHLTZeroBias->jetCalibAnalysis(we,etaRegion,InclusiveJet,ChargedJet,
+								  TracksJet,CalorimeterJet, acceptedTriggers, 
+								  hFile, "HLTZeroBias");
+		if(type=="UE") 
+		  {
+		    ueHLTZeroBias->ueAnalysisMC(we,tkpt,etaRegion,ptThreshold,MonteCarlo,ChargedJet, hFile, "HLTZeroBias");
+		    ueHLTZeroBias->ueAnalysisRECO(we,tkpt,etaRegion,ptThreshold,Track,TracksJet, hFile, "HLTZeroBias");
+		  }
+		
+		if (type=="AntiKtJet") antiKtJetsHLTZeroBias->jetAnalysis(we, etaRegion, ptThreshold, Track, hFile, "HLTZeroBias" );
+	      }
+	    else if ( filterName=="HLT1jet30"       )
+	      {
+		if(type=="Jet") jetsHLT1jet30->jetCalibAnalysis(we,etaRegion,InclusiveJet,ChargedJet,
+								TracksJet,CalorimeterJet, acceptedTriggers, 
+								hFile, "HLT1jet30");
+		if(type=="UE") 
+		  {
+		    ueHLT1jet30->ueAnalysisMC(we,tkpt,etaRegion,ptThreshold,MonteCarlo,ChargedJet, hFile, "HLT1jet30");
+		    ueHLT1jet30->ueAnalysisRECO(we,tkpt,etaRegion,ptThreshold,Track,TracksJet, hFile, "HLT1jet30");
+		  }
+		
+		if (type=="AntiKtJet") antiKtJetsHLT1jet30->jetAnalysis(we, etaRegion, ptThreshold, Track, hFile, "HLT1jet30" );
+	      }
+	    else if ( filterName=="HLT1jet50"       )
+	      {
+		if(type=="Jet") jetsHLT1jet50->jetCalibAnalysis(we,etaRegion,InclusiveJet,ChargedJet,
+								TracksJet,CalorimeterJet, acceptedTriggers, 
+								hFile, "HLT1jet50");
+		if(type=="UE") 
+		  {
+		    ueHLT1jet50->ueAnalysisMC(we,tkpt,etaRegion,ptThreshold,MonteCarlo,ChargedJet, hFile, "HLT1jet50");
+		    ueHLT1jet50->ueAnalysisRECO(we,tkpt,etaRegion,ptThreshold,Track,TracksJet, hFile, "HLT1jet50");
+		  }
+		
+		if (type=="AntiKtJet") antiKtJetsHLT1jet50->jetAnalysis(we, etaRegion, ptThreshold, Track, hFile, "HLT1jet50" );
+	      }
+	    else if ( filterName=="HLT1jet80"       )
+	      {
+		if(type=="Jet") jetsHLT1jet80->jetCalibAnalysis(we,etaRegion,InclusiveJet,ChargedJet,
+								TracksJet,CalorimeterJet, acceptedTriggers, 
+								hFile, "HLT1jet80");
+		if(type=="UE") 
+		  {
+		    ueHLT1jet80->ueAnalysisMC(we,tkpt,etaRegion,ptThreshold,MonteCarlo,ChargedJet, hFile, "HLT1jet80");
+		    ueHLT1jet80->ueAnalysisRECO(we,tkpt,etaRegion,ptThreshold,Track,TracksJet, hFile, "HLT1jet80");
+		  }
+		
+		if (type=="AntiKtJet") antiKtJetsHLT1jet80->jetAnalysis(we, etaRegion, ptThreshold, Track, hFile, "HLT1jet80" );
+	      }
+	    else if ( filterName=="HLT1jet110"      )
+	      {
+		if(type=="Jet") jetsHLT1jet110->jetCalibAnalysis(we,etaRegion,InclusiveJet,ChargedJet,
 								 TracksJet,CalorimeterJet, acceptedTriggers, 
-								 hFile, "HLTMinBiasEcal");
-	    if(type=="UE") 
-	      {
-		ueHLTMinBiasEcal->ueAnalysisMC(we,tkpt,etaRegion,ptThreshold,MonteCarlo,ChargedJet, hFile, "HLTMinBiasEcal");
-		ueHLTMinBiasEcal->ueAnalysisRECO(we,tkpt,etaRegion,ptThreshold,Track,TracksJet, hFile, "HLTMinBiasEcal");
+								 hFile, "HLT1jet110");
+		if(type=="UE") 
+		  {
+		    ueHLT1jet110->ueAnalysisMC(we,tkpt,etaRegion,ptThreshold,MonteCarlo,ChargedJet, hFile, "HLT1jet110");
+		    ueHLT1jet110->ueAnalysisRECO(we,tkpt,etaRegion,ptThreshold,Track,TracksJet, hFile, "HLT1jet110");
+		  }
+		
+		if (type=="AntiKtJet") antiKtJetsHLT1jet110->jetAnalysis(we, etaRegion, ptThreshold, Track, hFile, "HLT1jet110" );
 	      }
-
-	    if (type=="AntiKtJet") antiKtJetsHLTMinBiasEcal->jetAnalysis(we, etaRegion, ptThreshold, Track, hFile, "HLTMinBiasEcal" );
-	  }
-	else if ( filterName=="HLTMinBias"      )
-	  {
-	    if(type=="Jet") jetsHLTMinBias->jetCalibAnalysis(we,etaRegion,InclusiveJet,ChargedJet,
-							     TracksJet,CalorimeterJet, acceptedTriggers, 
-							     hFile, "HLTMinBias");
-	    if(type=="UE") 
+	    else if ( filterName=="HLT1jet180"      )
 	      {
- 		ueHLTMinBias->ueAnalysisMC(we,tkpt,etaRegion,ptThreshold,MonteCarlo,ChargedJet, hFile, "HLTMinBias");
- 		ueHLTMinBias->ueAnalysisRECO(we,tkpt,etaRegion,ptThreshold,Track,TracksJet, hFile, "HLTMinBias");
+		if(type=="Jet") jetsHLT1jet180->jetCalibAnalysis(we,etaRegion,InclusiveJet,ChargedJet,
+								 TracksJet,CalorimeterJet, acceptedTriggers, 
+								 hFile, "HLT1jet180");
+		if(type=="UE") 
+		  {
+		    ueHLT1jet180->ueAnalysisMC(we,tkpt,etaRegion,ptThreshold,MonteCarlo,ChargedJet, hFile, "HLT1jet180");
+		    ueHLT1jet180->ueAnalysisRECO(we,tkpt,etaRegion,ptThreshold,Track,TracksJet, hFile, "HLT1jet180");
+		  }
+		
+		if (type=="AntiKtJet") antiKtJetsHLT1jet180->jetAnalysis(we, etaRegion, ptThreshold, Track, hFile, "HLT1jet180" );
 	      }
-
-	    if (type=="AntiKtJet") antiKtJetsHLTMinBias->jetAnalysis(we, etaRegion, ptThreshold, Track, hFile, "HLTMinBias" );
-	  }
-	else if ( filterName=="HLTZeroBias"     )
-	  {
-	    if(type=="Jet") jetsHLTZeroBias->jetCalibAnalysis(we,etaRegion,InclusiveJet,ChargedJet,
-							      TracksJet,CalorimeterJet, acceptedTriggers, 
-							      hFile, "HLTZeroBias");
-	    if(type=="UE") 
+	    else if ( filterName=="HLT1jet250"      )
 	      {
-		ueHLTZeroBias->ueAnalysisMC(we,tkpt,etaRegion,ptThreshold,MonteCarlo,ChargedJet, hFile, "HLTZeroBias");
-		ueHLTZeroBias->ueAnalysisRECO(we,tkpt,etaRegion,ptThreshold,Track,TracksJet, hFile, "HLTZeroBias");
+		if(type=="Jet") jetsHLT1jet250->jetCalibAnalysis(we,etaRegion,InclusiveJet,ChargedJet,
+								 TracksJet,CalorimeterJet, acceptedTriggers, 
+								 hFile, "HLT1jet250");
+		if(type=="UE") 
+		  {
+		    ueHLT1jet250->ueAnalysisMC(we,tkpt,etaRegion,ptThreshold,MonteCarlo,ChargedJet, hFile, "HLT1jet250");
+		    ueHLT1jet250->ueAnalysisRECO(we,tkpt,etaRegion,ptThreshold,Track,TracksJet, hFile, "HLT1jet250");
+		  }
+		
+		if (type=="AntiKtJet") antiKtJetsHLT1jet250->jetAnalysis(we, etaRegion, ptThreshold, Track, hFile, "HLT1jet250" );
 	      }
-
-	    if (type=="AntiKtJet") antiKtJetsHLTZeroBias->jetAnalysis(we, etaRegion, ptThreshold, Track, hFile, "HLTZeroBias" );
 	  }
-	else if ( filterName=="HLT1jet30"       )
-	  {
-	    if(type=="Jet") jetsHLT1jet30->jetCalibAnalysis(we,etaRegion,InclusiveJet,ChargedJet,
-							    TracksJet,CalorimeterJet, acceptedTriggers, 
-							    hFile, "HLT1jet30");
-	    if(type=="UE") 
-	      {
-		ueHLT1jet30->ueAnalysisMC(we,tkpt,etaRegion,ptThreshold,MonteCarlo,ChargedJet, hFile, "HLT1jet30");
-		ueHLT1jet30->ueAnalysisRECO(we,tkpt,etaRegion,ptThreshold,Track,TracksJet, hFile, "HLT1jet30");
-	      }
+	h_eventScale->Fill( genEventScale );
+      
+	if(type=="Jet") jetsAll->jetCalibAnalysis(we,etaRegion,InclusiveJet,ChargedJet,TracksJet,CalorimeterJet, acceptedTriggers, hFile, "All");
+	if(type=="MPI") mpi->mpiAnalysisRECO(we,etaRegion,ptThreshold,TracksJet);
+	if(type=="UE")  ueAll->ueAnalysisRECO(we,tkpt,etaRegion,ptThreshold,Track,TracksJet, hFile, "All");
 
-	    if (type=="AntiKtJet") antiKtJetsHLT1jet30->jetAnalysis(we, etaRegion, ptThreshold, Track, hFile, "HLT1jet30" );
-	  }
-	else if ( filterName=="HLT1jet50"       )
-	  {
-	    if(type=="Jet") jetsHLT1jet50->jetCalibAnalysis(we,etaRegion,InclusiveJet,ChargedJet,
-							    TracksJet,CalorimeterJet, acceptedTriggers, 
-							    hFile, "HLT1jet50");
-	    if(type=="UE") 
-	      {
-		ueHLT1jet50->ueAnalysisMC(we,tkpt,etaRegion,ptThreshold,MonteCarlo,ChargedJet, hFile, "HLT1jet50");
-		ueHLT1jet50->ueAnalysisRECO(we,tkpt,etaRegion,ptThreshold,Track,TracksJet, hFile, "HLT1jet50");
-	      }
+      } // end reco-level analysis
 
-	    if (type=="AntiKtJet") antiKtJetsHLT1jet50->jetAnalysis(we, etaRegion, ptThreshold, Track, hFile, "HLT1jet50" );
-	  }
-	else if ( filterName=="HLT1jet80"       )
-	  {
-	    if(type=="Jet") jetsHLT1jet80->jetCalibAnalysis(we,etaRegion,InclusiveJet,ChargedJet,
-							    TracksJet,CalorimeterJet, acceptedTriggers, 
-							    hFile, "HLT1jet80");
-	    if(type=="UE") 
-	      {
-		ueHLT1jet80->ueAnalysisMC(we,tkpt,etaRegion,ptThreshold,MonteCarlo,ChargedJet, hFile, "HLT1jet80");
-		ueHLT1jet80->ueAnalysisRECO(we,tkpt,etaRegion,ptThreshold,Track,TracksJet, hFile, "HLT1jet80");
-	      }
-
-	    if (type=="AntiKtJet") antiKtJetsHLT1jet80->jetAnalysis(we, etaRegion, ptThreshold, Track, hFile, "HLT1jet80" );
-	  }
-	else if ( filterName=="HLT1jet110"      )
-	  {
-	    if(type=="Jet") jetsHLT1jet110->jetCalibAnalysis(we,etaRegion,InclusiveJet,ChargedJet,
-							     TracksJet,CalorimeterJet, acceptedTriggers, 
-							     hFile, "HLT1jet110");
-	    if(type=="UE") 
-	      {
-		ueHLT1jet110->ueAnalysisMC(we,tkpt,etaRegion,ptThreshold,MonteCarlo,ChargedJet, hFile, "HLT1jet110");
-		ueHLT1jet110->ueAnalysisRECO(we,tkpt,etaRegion,ptThreshold,Track,TracksJet, hFile, "HLT1jet110");
-	      }
-
-	    if (type=="AntiKtJet") antiKtJetsHLT1jet110->jetAnalysis(we, etaRegion, ptThreshold, Track, hFile, "HLT1jet110" );
-	  }
-	else if ( filterName=="HLT1jet180"      )
-	  {
-	    if(type=="Jet") jetsHLT1jet180->jetCalibAnalysis(we,etaRegion,InclusiveJet,ChargedJet,
-							     TracksJet,CalorimeterJet, acceptedTriggers, 
-							     hFile, "HLT1jet180");
-	    if(type=="UE") 
-	      {
-		ueHLT1jet180->ueAnalysisMC(we,tkpt,etaRegion,ptThreshold,MonteCarlo,ChargedJet, hFile, "HLT1jet180");
-		ueHLT1jet180->ueAnalysisRECO(we,tkpt,etaRegion,ptThreshold,Track,TracksJet, hFile, "HLT1jet180");
-	      }
-
-	    if (type=="AntiKtJet") antiKtJetsHLT1jet180->jetAnalysis(we, etaRegion, ptThreshold, Track, hFile, "HLT1jet180" );
-	  }
-	else if ( filterName=="HLT1jet250"      )
-	  {
-	    if(type=="Jet") jetsHLT1jet250->jetCalibAnalysis(we,etaRegion,InclusiveJet,ChargedJet,
-							     TracksJet,CalorimeterJet, acceptedTriggers, 
-							     hFile, "HLT1jet250");
-	    if(type=="UE") 
-	      {
-		ueHLT1jet250->ueAnalysisMC(we,tkpt,etaRegion,ptThreshold,MonteCarlo,ChargedJet, hFile, "HLT1jet250");
-		ueHLT1jet250->ueAnalysisRECO(we,tkpt,etaRegion,ptThreshold,Track,TracksJet, hFile, "HLT1jet250");
-	      }
-
-	    if (type=="AntiKtJet") antiKtJetsHLT1jet250->jetAnalysis(we, etaRegion, ptThreshold, Track, hFile, "HLT1jet250" );
-	  }
-      }
-    h_eventScale->Fill( genEventScale );
-
-
-    if(type=="Jet") {
-      jetsAll->jetCalibAnalysis(we,etaRegion,InclusiveJet,ChargedJet,TracksJet,CalorimeterJet, acceptedTriggers, hFile, "All");
-    }
-
-//     if(type=="AntiKtJet")
-//       {
-// 	antiKtJets->jetAnalysis(we, etaRegion, ptThreshold, Track );
-//       }
-
-    if(type=="MPI"){
-      mpi->mpiAnalysisMC(we,etaRegion,ptThreshold,ChargedJet);
-      mpi->mpiAnalysisRECO(we,etaRegion,ptThreshold,TracksJet);
-    }
-    
-    if(type=="UE"){
-      ueAll->ueAnalysisMC(we,tkpt,etaRegion,ptThreshold,MonteCarlo,ChargedJet, hFile, "All");
-      ueAll->ueAnalysisRECO(we,tkpt,etaRegion,ptThreshold,Track,TracksJet, hFile, "All");
-    }
+    if(type=="MPI"      ) mpi->mpiAnalysisMC(we,etaRegion,ptThreshold,ChargedJet);
+    if(type=="UE"       ) ueAll->ueAnalysisMC(we,tkpt,etaRegion,ptThreshold,MonteCarlo,ChargedJet, hFile, "All");
+    if(type=="AntiKtJet") antiKtJetsOnlyMC->jetAnalysis(we, etaRegion, ptThreshold, MonteCarlo, hFile, "GenLevel" );
 
   }
 }
@@ -394,6 +402,8 @@ void UEAnalysisOnRootple::BeginJob(char* outname,string type)
 {    
   hFile = new TFile(outname, "RECREATE" );
   
+  hFile->mkdir("GenLevel");
+
   hFile->mkdir("HLTMinBiasPixel");
   hFile->mkdir("HLTMinBiasHcal");
   hFile->mkdir("HLTMinBiasEcal");
@@ -450,6 +460,9 @@ void UEAnalysisOnRootple::BeginJob(char* outname,string type)
       antiKtJetsHLT1jet110->Begin(hFile, "HLT1jet110");
       antiKtJetsHLT1jet180->Begin(hFile, "HLT1jet180");
       antiKtJetsHLT1jet250->Begin(hFile, "HLT1jet250");
+
+      // GenLevel
+      antiKtJetsOnlyMC->Begin(hFile, "GenLevel");
     }
   if(type=="MPI")
     mpi->Begin(hFile);
@@ -514,6 +527,8 @@ UEAnalysisOnRootple::~UEAnalysisOnRootple()
    delete antiKtJetsHLT1jet180;
    delete antiKtJetsHLT1jet250;
 
+   delete antiKtJetsOnlyMC;
+
    delete mpi;
 }
 
@@ -538,7 +553,7 @@ Long64_t UEAnalysisOnRootple::LoadTree(Long64_t entry)
    return centry;
 }
 
-void UEAnalysisOnRootple::Init(TTree *tree)
+void UEAnalysisOnRootple::Init(TTree *tree, string trigger)
 {
    // The Init() function is called when the selector needs to initialize
    // a new tree or chain. Typically here the branch addresses and branch
@@ -567,16 +582,26 @@ void UEAnalysisOnRootple::Init(TTree *tree)
    fCurrent = -1;
    fChain->SetMakeClass(1);
 
+   // gen-level only:
+   //
+   // *Br    0 :EventKind : EventKind/I                                            *
+   // *Br    1 :MonteCarlo :                                                       *
+   // *Br    2 :InclusiveJet :                                                     *
+   // *Br    3 :ChargedJet :                                                       *
+
    fChain->SetBranchAddress("EventKind", &EventKind, &b_EventKind);
    fChain->SetBranchAddress("MonteCarlo", &MonteCarlo, &b_MonteCarlo);
-   fChain->SetBranchAddress("Track", &Track, &b_Track);
    fChain->SetBranchAddress("InclusiveJet", &InclusiveJet, &b_InclusiveJet);
    fChain->SetBranchAddress("ChargedJet", &ChargedJet, &b_ChargedJet);
-   fChain->SetBranchAddress("TracksJet", &TracksJet, &b_TracksJet);
-   fChain->SetBranchAddress("CalorimeterJet", &CalorimeterJet, &b_CalorimeterJet);
-   fChain->SetBranchAddress("acceptedTriggers", &acceptedTriggers, &b_acceptedTriggers);
-   fChain->SetBranchAddress("genEventScale", &genEventScale, &b_genEventScale );
 
+   if ( trigger != "Gen" )
+     {
+       fChain->SetBranchAddress("Track", &Track, &b_Track);
+       fChain->SetBranchAddress("TracksJet", &TracksJet, &b_TracksJet);
+       fChain->SetBranchAddress("CalorimeterJet", &CalorimeterJet, &b_CalorimeterJet);
+       fChain->SetBranchAddress("acceptedTriggers", &acceptedTriggers, &b_acceptedTriggers);
+       fChain->SetBranchAddress("genEventScale", &genEventScale, &b_genEventScale );
+     }
    Notify();
 }
 
