@@ -15,7 +15,7 @@
 //
 // Original Author:  Vincenzo Chiochia & Andrew York
 //         Created:  
-// $Id: SiPixelClusterModule.h,v 1.6 2008/06/23 12:14:03 merkelp Exp $
+// $Id: SiPixelClusterModule.h,v 1.7 2008/06/23 15:05:50 merkelp Exp $
 //
 //
 //  Updated by: Lukas Wehrli
@@ -45,7 +45,7 @@ class SiPixelClusterModule {
   /// Book histograms
   void book(const edm::ParameterSet& iConfig, int type=0);
   /// Fill histograms
-  void fill(const edm::DetSetVector<SiPixelCluster> & input, 
+  void fill(const edmNew::DetSetVector<SiPixelCluster> & input, 
             bool modon=true, 
 	    bool ladon=false, 
 	    bool layon=false, 
