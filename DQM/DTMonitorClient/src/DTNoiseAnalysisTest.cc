@@ -1,0 +1,197 @@
+
+
+/*
+ *  See header file for a description of this class.
+ *
+ *  $Date: 2008/05/30 16:30:17 $
+ *  $Revision: 1.10 $
+ *  \author G. Mila - INFN Torino
+ */
+
+
+#include <DQM/DTMonitorClient/src/DTNoiseAnalysisTest.h>
+
+// Framework
+#include <FWCore/Framework/interface/Event.h>
+#include "DataFormats/Common/interface/Handle.h" 
+#include <FWCore/Framework/interface/ESHandle.h>
+#include <FWCore/Framework/interface/MakerMacros.h>
+#include <FWCore/Framework/interface/EventSetup.h>
+#include <FWCore/ParameterSet/interface/ParameterSet.h>
+
+
+// Geometry
+#include "Geometry/Records/interface/MuonGeometryRecord.h"
+#include "Geometry/DTGeometry/interface/DTGeometry.h"
+#include "Geometry/DTGeometry/interface/DTLayer.h"
+#include "Geometry/DTGeometry/interface/DTTopology.h"
+
+#include "DQMServices/Core/interface/DQMStore.h"
+#include "DQMServices/Core/interface/MonitorElement.h"
+#include "FWCore/MessageLogger/interface/MessageLogger.h"
+
+#include <iostream>
+#include <stdio.h>
+#include <string>
+#include <sstream>
+#include <math.h>
+
+
+using namespace edm;
+using namespace std;
+
+
+DTNoiseAnalysisTest::DTNoiseAnalysisTest(const edm::ParameterSet& ps){
+
+  edm::LogVerbatim ("noise") << "[DTNoiseAnalysisTest]: Constructor";
+
+  dbe = edm::Service<DQMStore>().operator->();
+
+  // get the cfi parameters
+  noisyCellDef = ps.getUntrackedParameter<int>("noisyCellDef",500);
+
+}
+
+
+DTNoiseAnalysisTest::~DTNoiseAnalysisTest(){
+
+  edm::LogVerbatim ("noise") << "DTNoiseAnalysisTest: analyzed " << nevents << " events";
+}
+
+
+void DTNoiseAnalysisTest::beginJob(const edm::EventSetup& context){
+
+  edm::LogVerbatim ("noise") <<"[DTNoiseAnalysisTest]: BeginJob"; 
+
+  nevents = 0;
+  // Get the geometry
+  context.get<MuonGeometryRecord>().get(muonGeom);
+
+}
+
+
+void DTNoiseAnalysisTest::beginLuminosityBlock(LuminosityBlock const& lumiSeg, EventSetup const& context) {
+
+  edm::LogVerbatim ("noise") <<"[DTNoiseAnalysisTest]: Begin of LS transition";
+
+  // book the histos
+  bookHistos();  
+
+}
+
+
+void DTNoiseAnalysisTest::analyze(const edm::Event& e, const edm::EventSetup& context){
+
+  nevents++;
+  edm::LogVerbatim ("noise") << "[DTNoiseAnalysisTest]: "<<nevents<<" events";
+
+}
+
+void DTNoiseAnalysisTest::endLuminosityBlock(LuminosityBlock const& lumiSeg, EventSetup const& context) {
+  
+  edm::LogVerbatim ("noise") <<"[DTNoiseAnalysisTest]: End of LS transition, performing the DQM client operation";
+
+  vector<DTChamber*>::const_iterator ch_it = muonGeom->chambers().begin();
+  vector<DTChamber*>::const_iterator ch_end = muonGeom->chambers().end();
+  
+  edm::LogVerbatim ("noise") <<"[DTNoiseAnalysisTest]: Fill the summary histos";
+
+  for (; ch_it != ch_end; ++ch_it) {
+    DTChamberId chID = (*ch_it)->id();
+    
+    MonitorElement * histo = dbe->get(getMEName(chID));
+    
+    if(histo){
+      
+      TH2F * histo_root = histo->getTH2F();
+
+      for(int wire=1; wire<histo_root->GetXaxis()->GetXmax(); wire++){
+	for(int layer=1; layer<13; layer++){
+	  
+	  double noise = histo_root->GetBinContent(wire, layer);
+	  // fill the histos
+	  if(noise!=0){
+	    noiseHistos[chID.wheel()]->Fill(noise);
+	    noiseHistos[3]->Fill(noise);
+	    if(noise>noisyCellDef)
+	      noisyCellHistos[chID.wheel()]->Fill(chID.sector(),chID.station());
+	  }
+	}
+      }
+
+    }
+  } // loop over all the chambers
+
+}	       
+
+
+string DTNoiseAnalysisTest::getMEName(const DTChamberId & chID) {
+  
+  stringstream wheel; wheel << chID.wheel();	
+  stringstream station; station << chID.station();	
+  stringstream sector; sector << chID.sector();	
+  
+  string folderName = 
+    "DT/05-Noise/Wheel" +  wheel.str() +
+    "/Station" + station.str() +
+    "/Sector" + sector.str() + "/";
+
+  string histoname = folderName + string("NoiseRate")  
+    + "_W" + wheel.str() 
+    + "_St" + station.str() 
+    + "_Sec" + sector.str();
+  
+  return histoname;
+  
+}
+
+
+void DTNoiseAnalysisTest::bookHistos() {
+  
+  dbe->setCurrentFolder("DT/05-Noise");
+  string histoName;
+
+  for(int wh=-2; wh<=2; wh++){
+      stringstream wheel; wheel << wh;
+      histoName =  "noiseSummary_W" + wheel.str();
+      noiseHistos[wh] = dbe->book1D(histoName.c_str(),histoName.c_str(),100,0,2000);
+      noiseHistos[wh]->setAxisTitle("rate (Hz)",1);
+      noiseHistos[wh]->setAxisTitle("entries",2);
+  }
+  histoName =  "noiseSummary_allW";
+  noiseHistos[3] = dbe->book1D(histoName.c_str(),histoName.c_str(),100,0,2000);
+  noiseHistos[3]->setAxisTitle("rate (Hz)",1);
+  noiseHistos[3]->setAxisTitle("entries",2);
+
+  
+  for(int wh=-2; wh<=2; wh++){
+    stringstream wheel; wheel << wh;
+    histoName =  "noisyCell_W" + wheel.str();
+    noisyCellHistos[wh] = dbe->book2D(histoName.c_str(),histoName.c_str(),14,1,15,4,1,5);
+    noisyCellHistos[wh]->setBinLabel(1,"Sector1",1);
+    noisyCellHistos[wh]->setBinLabel(2,"Sector2",1);
+    noisyCellHistos[wh]->setBinLabel(3,"Sector3",1);
+    noisyCellHistos[wh]->setBinLabel(4,"Sector4",1);
+    noisyCellHistos[wh]->setBinLabel(5,"Sector5",1);
+    noisyCellHistos[wh]->setBinLabel(6,"Sector6",1);
+    noisyCellHistos[wh]->setBinLabel(7,"Sector7",1);
+    noisyCellHistos[wh]->setBinLabel(8,"Sector8",1);
+    noisyCellHistos[wh]->setBinLabel(9,"Sector9",1);
+    noisyCellHistos[wh]->setBinLabel(10,"Sector10",1);
+    noisyCellHistos[wh]->setBinLabel(11,"Sector11",1);
+    noisyCellHistos[wh]->setBinLabel(12,"Sector12",1);
+    noisyCellHistos[wh]->setBinLabel(13,"Sector13",1);
+    noisyCellHistos[wh]->setBinLabel(14,"Sector14",1);
+    noisyCellHistos[wh]->setBinLabel(1,"MB1",2);
+    noisyCellHistos[wh]->setBinLabel(2,"MB2",2);
+    noisyCellHistos[wh]->setBinLabel(3,"MB3",2);
+    noisyCellHistos[wh]->setBinLabel(4,"MB4",2);  
+  }
+
+  histoName =  "noisyCellSummary_allW";
+  summaryNoiseHisto =  dbe->book2D(histoName.c_str(),histoName.c_str(),12,1,13,5,-2,3);
+  summaryNoiseHisto->setAxisTitle("Sector",1);
+  summaryNoiseHisto->setAxisTitle("Wheel",2);
+
+}
+
