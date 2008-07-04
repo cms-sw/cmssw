@@ -1,94 +1,24 @@
 <MonElementConfiguration> 
 <TkMap name="Summary Map" update_frequency="200">
-     <MonElement name="ndigis"></MonElement> 
-     <MonElement name="adc"></MonElement> 
-     <MonElement name="nclusters"></MonElement>
-     <MonElement name="y">	</MonElement>
-     <MonElement name="x">	</MonElement>
-     <MonElement name="charge"> </MonElement>
-     <MonElement name="size">	</MonElement>
-     <MonElement name="sizeX">  </MonElement>
-     <MonElement name="sizeY">  </MonElement>
-     <MonElement name="minrow"> </MonElement>
-     <MonElement name="maxrow"> </MonElement>
-     <MonElement name="mincol"> </MonElement>
-     <MonElement name="maxcol"> </MonElement>
-     <MonElement name="ClustX"> </MonElement>
-     <MonElement name="ClustY"> </MonElement>
-     <MonElement name="nRecHits"> </MonElement>
+     <MonElement name="ndigis">         </MonElement> 
+     <MonElement name="adc">            </MonElement> 
 </TkMap>
 <SummaryPlot>
-<SubStructureBarrelLevel name="Layer_" update_frequency="300"> 
-     <MonElement name="ndigis"></MonElement> 
-     <MonElement name="adc"></MonElement> 
-     <MonElement name="nclusters"></MonElement>
-     <MonElement name="y">	</MonElement>
-     <MonElement name="x">	</MonElement>
-     <MonElement name="charge"> </MonElement>
-     <MonElement name="size">	</MonElement>
-     <MonElement name="sizeX">  </MonElement>
-     <MonElement name="sizeY">  </MonElement>
-     <MonElement name="minrow"> </MonElement>
-     <MonElement name="maxrow"> </MonElement>
-     <MonElement name="mincol"> </MonElement>
-     <MonElement name="maxcol"> </MonElement>
-     <MonElement name="ClustX"> </MonElement>
-     <MonElement name="ClustY"> </MonElement>
-     <MonElement name="nRecHits"> </MonElement>
+<SubStructureBarrelLevel name="Ladder_" update_frequency="300"> 
+     <MonElement name="ndigis">    	</MonElement> 
+     <MonElement name="adc">       	</MonElement> 
 </SubStructureBarrelLevel> 
-<SubStructureGrandBarrelLevel name="Ladder_" update_frequency="300"> 
-     <MonElement name="ndigis"></MonElement> 
-     <MonElement name="adc"></MonElement> 
-     <MonElement name="nclusters"></MonElement>
-     <MonElement name="y">	</MonElement>
-     <MonElement name="x">	</MonElement>
-     <MonElement name="charge"> </MonElement>
-     <MonElement name="size">	</MonElement>
-     <MonElement name="sizeX">  </MonElement>
-     <MonElement name="sizeY">  </MonElement>
-     <MonElement name="minrow"> </MonElement>
-     <MonElement name="maxrow"> </MonElement>
-     <MonElement name="mincol"> </MonElement>
-     <MonElement name="maxcol"> </MonElement>
-     <MonElement name="ClustX"> </MonElement>
-     <MonElement name="ClustY"> </MonElement>
-     <MonElement name="nRecHits"> </MonElement>
+<SubStructureGrandBarrelLevel name="Layer_" update_frequency="300"> 
+     <MonElement name="ndigis">         </MonElement> 
+     <MonElement name="adc">            </MonElement> 
 </SubStructureGrandBarrelLevel> 
-<SubStructureEndcapLevel name="Disk_" update_frequency="300"> 
-     <MonElement name="ndigis"></MonElement> 
-     <MonElement name="adc"></MonElement> 
-     <MonElement name="nclusters"></MonElement>
-     <MonElement name="y">	</MonElement>
-     <MonElement name="x">	</MonElement>
-     <MonElement name="charge"> </MonElement>
-     <MonElement name="size">	</MonElement>
-     <MonElement name="sizeX">  </MonElement>
-     <MonElement name="sizeY">  </MonElement>
-     <MonElement name="minrow"> </MonElement>
-     <MonElement name="maxrow"> </MonElement>
-     <MonElement name="mincol"> </MonElement>
-     <MonElement name="maxcol"> </MonElement>
-     <MonElement name="ClustX"> </MonElement>
-     <MonElement name="ClustY"> </MonElement>
-     <MonElement name="nRecHits"> </MonElement>
+<SubStructureEndcapLevel name="Panel_" update_frequency="300"> 
+     <MonElement name="ndigis">    	</MonElement> 
+     <MonElement name="adc">       	</MonElement> 
 </SubStructureEndcapLevel> 
 <SubStructureGrandEndcapLevel name="Blade_" update_frequency="300"> 
-     <MonElement name="ndigis"></MonElement> 
-     <MonElement name="adc"></MonElement> 
-     <MonElement name="nclusters"></MonElement>
-     <MonElement name="y">	</MonElement>
-     <MonElement name="x">	</MonElement>
-     <MonElement name="charge"> </MonElement>
-     <MonElement name="size">	</MonElement>
-     <MonElement name="sizeX">  </MonElement>
-     <MonElement name="sizeY">  </MonElement>
-     <MonElement name="minrow"> </MonElement>
-     <MonElement name="maxrow"> </MonElement>
-     <MonElement name="mincol"> </MonElement>
-     <MonElement name="maxcol"> </MonElement>
-     <MonElement name="ClustX"> </MonElement>
-     <MonElement name="ClustY"> </MonElement>
-     <MonElement name="nRecHits"> </MonElement>
+     <MonElement name="ndigis">         </MonElement> 
+     <MonElement name="adc">            </MonElement> 
 </SubStructureGrandEndcapLevel> 
 </SummaryPlot>
 
@@ -98,7 +28,7 @@
 </QTests>
 
 <Source>
-<SourceType name="source" code="20">
+<SourceType name="source" code="5">
 </SourceType>
 </Source>
 
