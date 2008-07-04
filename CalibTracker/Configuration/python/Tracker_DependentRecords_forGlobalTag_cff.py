@@ -10,16 +10,20 @@ from CalibTracker.SiStripESProducers.SiStripQualityFakeESSource_cfi import *
 #
 from Geometry.TrackerGeometryBuilder.trackerGeometry_cfi import *
 #Gain
+# first SiStripGainESProducer takes SiStripGainRcd from DB
+from CalibTracker.SiStripESProducers.SiStripGainESProducer_cfi import *
+#second SiStripGainESProducer is used in the digitizer and takes SiStripGainRcd from SiStripGainFakeSource
 from CalibTracker.SiStripESProducers.SiStripGainFakeSource_cfi import *
-#SiStripGainFakeESSource.appendToDataLabel = 'fake'
 import CalibTracker.SiStripESProducers.SiStripGainESProducer_cfi
 siStripGainESProducerforSimulation = CalibTracker.SiStripESProducers.SiStripGainESProducer_cfi.siStripGainESProducer.clone()
 siStripGainESProducerforSimulation.appendToDataLabel = 'fake'
 siStripGainESProducerforSimulation.APVGain = 'fakeAPVGain'
 
 #Lorentz Angle
+#this SiStripLAFakeESSource is used by the digitizer
 import CalibTracker.SiStripESProducers.SiStripLAFakeESSource_cfi
 siStripLAFakeESSourceforSimulation = CalibTracker.SiStripESProducers.SiStripLAFakeESSource_cfi.siStripLAFakeESSource.clone()
+
 siStripLAFakeESSourceforSimulation.appendToDataLabel = 'fake'
 
 from RecoLocalTracker.SiStripRecHitConverter.StripCPEfromTrackAngle_cfi import *
@@ -29,6 +33,5 @@ from RecoLocalTracker.SiStripRecHitConverter.SiStripRecHitMatcher_cfi import *
 sistripconn = cms.ESProducer("SiStripConnectivity")
 
 TrackerDigiGeometryESModule.applyAlignment = True
-
 
 
