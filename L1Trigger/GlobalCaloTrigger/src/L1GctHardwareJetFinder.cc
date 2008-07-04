@@ -12,27 +12,11 @@ const unsigned int L1GctHardwareJetFinder::CENTRAL_COL0 = 0;
 L1GctHardwareJetFinder::L1GctHardwareJetFinder(int id):
   L1GctJetFinderBase(id),
   m_positiveEtaWheel(id >= (int) (L1CaloRegionDetId::N_PHI/2)),
-  m_protoJetRegions (MAX_REGIONS_IN),
+//   m_protoJetRegions (MAX_REGIONS_IN),
   m_localMaxima     (MAX_JETS_OUT),
   m_clusters        (MAX_JETS_OUT),
   m_numberOfClusters(0)
 {
-  // Setup the position info in protoJetRegions.
-  for (unsigned column=0; column<2; ++column) {
-    for (unsigned row=0; row<COL_OFFSET; ++row) {
-      unsigned ieta;
-      unsigned iphi;
-      if (!m_positiveEtaWheel) {
-	ieta = (L1CaloRegionDetId::N_ETA/2-row);
-	iphi = (L1CaloRegionDetId::N_PHI - (m_id)*2 + 4)%L1CaloRegionDetId::N_PHI + (1-column);
-      } else {
-	ieta = (L1CaloRegionDetId::N_ETA/2-1+row);
-	iphi = ((L1CaloRegionDetId::N_PHI - m_id)*2 + 4)%L1CaloRegionDetId::N_PHI + (1-column);
-      }
-      L1GctRegion temp(0, false, false, ieta, iphi);
-      m_protoJetRegions.at(column*COL_OFFSET+row) = temp;
-    }
-  }
   this->reset();
   // Initialise parameters for Region input calculations in the 
   // derived class so we get the right values of constants.
@@ -55,10 +39,6 @@ std::ostream& operator << (std::ostream& os, const L1GctHardwareJetFinder& algo)
 void L1GctHardwareJetFinder::reset()
 {
   L1GctJetFinderBase::reset();
-  // Reset m_protoJetRegions without disturbing the position information
-  for (unsigned j=0; j<m_protoJetRegions.size(); ++j) {
-    m_protoJetRegions.at(j).reset();
-  }
 }
 
 void L1GctHardwareJetFinder::fetchInput()
@@ -87,7 +67,6 @@ void L1GctHardwareJetFinder::findProtoJets()
 /// The second stage of clustering, called by process()
 void L1GctHardwareJetFinder::findJets()
 {
-  fillRegionsFromProtoJets();
   findFinalClusters();
   convertClustersToOutputJets();
 }
@@ -162,7 +141,6 @@ void L1GctHardwareJetFinder::findLocalMaxima()
 
 }
 
-/// Both clustering stages need to convert local maxima to clusters
 //  For each local maximum, find the cluster et in a 2x3 region.
 //  The logic ensures that a given region et cannot be used in more than one cluster.
 //  The sorting of the local maxima ensures the highest et maximum has priority.
@@ -300,20 +278,6 @@ void L1GctHardwareJetFinder::findFinalClusters()
 
 		}
 	}
-  }
-}
-
-/// Fill search array for the second stage of clustering based on the pre-clustered jets
-void L1GctHardwareJetFinder::fillRegionsFromProtoJets()
-{
-  static const unsigned int MAX_TOPBOT_JETS = MAX_JETS_OUT/2;
-  for (unsigned j=0; j<MAX_JETS_OUT; ++j) {
-    unsigned eta0 = m_rcvdProtoJets.at(j).rctEta();
-    unsigned JET_THRESHOLD = ( (eta0 >= m_EtaBoundry) ? m_FwdJetSeed : m_CenJetSeed);
-    if (m_rcvdProtoJets.at(j).et()>=JET_THRESHOLD) {
-      if (j>=MAX_TOPBOT_JETS) { eta0 += COL_OFFSET; }
-      m_protoJetRegions.at(eta0+1) = m_rcvdProtoJets.at(j);
-    }
   }
 }
 

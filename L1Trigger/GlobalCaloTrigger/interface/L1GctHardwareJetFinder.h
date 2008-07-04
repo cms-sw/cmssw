@@ -57,9 +57,6 @@ private:
   /// Positive/negative eta flag used in the initial clustering
   bool m_positiveEtaWheel;
 
-  /// Vector of pre-clustered jets formatted as a search array for the final clustering
-  RegionsVector m_protoJetRegions;
-
   /// Local vectors used during both stages of clustering
   RegionsVector m_localMaxima;
   /// Each local maximum becomes a cluster
@@ -80,8 +77,6 @@ private:
   /// Convert protojets to final jets
   void findFinalClusters();
 
-  /// Fill search array for the second stage of clustering based on the pre-clustered jets
-  void fillRegionsFromProtoJets();
   /// Organise the pre-clustered jets into the ones we keep and those we send to the neighbour
   void convertClustersToProtoJets();
   /// Organise the final clustered jets into L1GctJets
