@@ -95,12 +95,18 @@ void SiPixelRawToDigi::produce( edm::Event& ev,
 
   if (theTimer) theTimer->start();
 
-  FEDNumbering fednum;
-  pair<int,int> fedIds = fednum.getSiPixelFEDIds();
-  fedIds.first = 0;
-  fedIds.second = 39; //  temporary FIX !!!!
+//  FEDNumbering fednum;
+//  pair<int,int> fedIds = fednum.getSiPixelFEDIds();
+//  fedIds.first = 0;
+//  fedIds.second = 39; //  temporary FIX !!!!
+  typedef sipixelobjects::PixelFEDCabling PixelFEDCabling;
+  typedef std::vector<const PixelFEDCabling *>::iterator FLI;
+  std::vector<const PixelFEDCabling *> feds = map.product()->fedList();
+  int fedId = 0;
   
-  for (int fedId = fedIds.first; fedId <= fedIds.second; fedId++) {
+  for (FLI fedIds = feds.begin(); fedIds != feds.end(); fedIds++) {
+    fedId = (int) (*fedIds)->id();
+    cout << "Fed ID: " << fedId << endl;
     LogDebug("SiPixelRawToDigi")<< " PRODUCE DIGI FOR FED: " <<  fedId << endl;
     PixelDataFormatter::Digis digis;
     PixelDataFormatter::Errors errors;
