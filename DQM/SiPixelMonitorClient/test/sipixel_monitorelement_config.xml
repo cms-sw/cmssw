@@ -1,25 +1,96 @@
 <MonElementConfiguration> 
 <TkMap name="Summary Map" update_frequency="200">
+     <MonElement name="errorType">	</MonElement> 
+     <MonElement name="NErrors">	</MonElement> 
+     <MonElement name="fullType">	</MonElement> 
+     <MonElement name="chanNmbr">	</MonElement> 
+     <MonElement name="TBMType">	</MonElement> 
+     <MonElement name="EvtNbr">		</MonElement> 
+     <MonElement name="evtSize">	</MonElement> 
+     <MonElement name="linkId">		</MonElement> 
+     <MonElement name="ROCId">		</MonElement> 
+     <MonElement name="DCOLId">		</MonElement> 
+     <MonElement name="PXId">		</MonElement> 
+     <MonElement name="ROCNmbr">	</MonElement> 
      <MonElement name="ndigis">         </MonElement> 
      <MonElement name="adc">            </MonElement> 
 </TkMap>
 <SummaryPlot>
 <SubStructureBarrelLevel name="Ladder_" update_frequency="300"> 
+     <MonElement name="errorType">	</MonElement> 
+     <MonElement name="NErrors">	</MonElement> 
+     <MonElement name="fullType">	</MonElement> 
+     <MonElement name="chanNmbr">	</MonElement> 
+     <MonElement name="TBMType">	</MonElement> 
+     <MonElement name="EvtNbr">		</MonElement> 
+     <MonElement name="evtSize">	</MonElement> 
+     <MonElement name="linkId">		</MonElement> 
+     <MonElement name="ROCId">		</MonElement> 
+     <MonElement name="DCOLId">		</MonElement> 
+     <MonElement name="PXId">		</MonElement> 
+     <MonElement name="ROCNmbr">	</MonElement> 
      <MonElement name="ndigis">    	</MonElement> 
      <MonElement name="adc">       	</MonElement> 
 </SubStructureBarrelLevel> 
 <SubStructureGrandBarrelLevel name="Layer_" update_frequency="300"> 
+     <MonElement name="errorType">	</MonElement> 
+     <MonElement name="NErrors">	</MonElement> 
+     <MonElement name="fullType">	</MonElement> 
+     <MonElement name="chanNmbr">	</MonElement> 
+     <MonElement name="TBMType">	</MonElement> 
+     <MonElement name="EvtNbr">		</MonElement> 
+     <MonElement name="evtSize">	</MonElement> 
+     <MonElement name="linkId">		</MonElement> 
+     <MonElement name="ROCId">		</MonElement> 
+     <MonElement name="DCOLId">		</MonElement> 
+     <MonElement name="PXId">		</MonElement> 
+     <MonElement name="ROCNmbr">	</MonElement> 
      <MonElement name="ndigis">         </MonElement> 
      <MonElement name="adc">            </MonElement> 
 </SubStructureGrandBarrelLevel> 
 <SubStructureEndcapLevel name="Panel_" update_frequency="300"> 
+     <MonElement name="errorType">	</MonElement> 
+     <MonElement name="NErrors">	</MonElement> 
+     <MonElement name="fullType">	</MonElement> 
+     <MonElement name="chanNmbr">	</MonElement> 
+     <MonElement name="TBMType">	</MonElement> 
+     <MonElement name="EvtNbr">		</MonElement> 
+     <MonElement name="evtSize">	</MonElement> 
+     <MonElement name="linkId">		</MonElement> 
+     <MonElement name="ROCId">		</MonElement> 
+     <MonElement name="DCOLId">		</MonElement> 
+     <MonElement name="PXId">		</MonElement> 
+     <MonElement name="ROCNmbr">	</MonElement> 
      <MonElement name="ndigis">    	</MonElement> 
      <MonElement name="adc">       	</MonElement> 
 </SubStructureEndcapLevel> 
 <SubStructureGrandEndcapLevel name="Blade_" update_frequency="300"> 
+     <MonElement name="errorType">	</MonElement> 
+     <MonElement name="NErrors">	</MonElement> 
+     <MonElement name="fullType">	</MonElement> 
+     <MonElement name="chanNmbr">	</MonElement> 
+     <MonElement name="TBMType">	</MonElement> 
+     <MonElement name="EvtNbr">		</MonElement> 
+     <MonElement name="evtSize">	</MonElement> 
+     <MonElement name="linkId">		</MonElement> 
+     <MonElement name="ROCId">		</MonElement> 
+     <MonElement name="DCOLId">		</MonElement> 
+     <MonElement name="PXId">		</MonElement> 
+     <MonElement name="ROCNmbr">	</MonElement> 
      <MonElement name="ndigis">         </MonElement> 
      <MonElement name="adc">            </MonElement> 
 </SubStructureGrandEndcapLevel> 
+<SubStructureNonDetId name="AdditionalPixelErrors" update_frequency="300"> 
+     <MonElement name="errorType"></MonElement> 
+     <MonElement name="fullType"></MonElement> 
+     <MonElement name="NErrors"></MonElement> 
+     <MonElement name="TBMType"></MonElement> 
+     <MonElement name="EvtNbr"></MonElement> 
+     <MonElement name="TBMMessage"></MonElement> 
+     <MonElement name="chanNmbr"></MonElement> 
+     <MonElement name="evtSize"></MonElement> 
+     <MonElement name="linkId"></MonElement> 
+</SubStructureNonDetId> 
 </SummaryPlot>
 
 <QTests>
