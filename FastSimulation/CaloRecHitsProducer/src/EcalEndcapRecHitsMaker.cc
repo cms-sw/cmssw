@@ -154,7 +154,7 @@ void EcalEndcapRecHitsMaker::init(const edm::EventSetup &es,bool doDigis,bool do
   es.get<CaloGeometryRecord>().get(pG);   
   
   const EcalEndcapGeometry * myEcalEndcapGeometry = dynamic_cast<const EcalEndcapGeometry*>(pG->getSubdetectorGeometry(DetId::Ecal,EcalEndcap));
-  std::vector<DetId> vec(myEcalEndcapGeometry->getValidDetIds(DetId::Ecal,EcalEndcap));
+  const std::vector<DetId>& vec(myEcalEndcapGeometry->getValidDetIds(DetId::Ecal,EcalEndcap));
   unsigned size=vec.size();    
   for(unsigned ic=0; ic<size; ++ic) 
     {

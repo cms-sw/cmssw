@@ -165,7 +165,7 @@ void EcalBarrelRecHitsMaker::init(const edm::EventSetup &es,bool doDigis,bool do
   
   const EcalBarrelGeometry * myEcalBarrelGeometry = dynamic_cast<const EcalBarrelGeometry*>(pG->getSubdetectorGeometry(DetId::Ecal,EcalBarrel));
   //  std::cout << " Got the geometry " << myEcalBarrelGeometry << std::endl;
-  std::vector<DetId> vec(myEcalBarrelGeometry->getValidDetIds(DetId::Ecal,EcalBarrel));
+  const std::vector<DetId>& vec(myEcalBarrelGeometry->getValidDetIds(DetId::Ecal,EcalBarrel));
   unsigned size=vec.size();    
   for(unsigned ic=0; ic<size; ++ic) 
     {

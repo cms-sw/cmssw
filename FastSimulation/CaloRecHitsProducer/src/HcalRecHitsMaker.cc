@@ -451,8 +451,8 @@ unsigned HcalRecHitsMaker::createVectorsOfCells(const edm::EventSetup &es)
 unsigned HcalRecHitsMaker::createVectorOfSubdetectorCells(const CaloGeometry& cg,int subdetn,std::vector<int>& cellsvec ) 
 {
   const CaloSubdetectorGeometry* geom=cg.getSubdetectorGeometry(DetId::Hcal,subdetn);  
-  std::vector<DetId> ids=geom->getValidDetIds(DetId::Hcal,subdetn);  
-  for (std::vector<DetId>::iterator i=ids.begin(); i!=ids.end(); i++) 
+  const std::vector<DetId>& ids=geom->getValidDetIds(DetId::Hcal,subdetn);  
+  for (std::vector<DetId>::const_iterator i=ids.begin(); i!=ids.end(); i++) 
     {
       HcalDetId myDetId(*i);
       //      std::cout << myDetId << myHcalSimParameterMap_->simParameters(myDetId).simHitToPhotoelectrons() << std::endl;;

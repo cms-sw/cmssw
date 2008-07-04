@@ -67,7 +67,7 @@ void  DigiCheck::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup
   // builds the tower-cell map
   if(mapTow_sintheta.size()==0)
     {
-      std::vector<DetId> vec(myGeometry.getEcalBarrelGeometry()->getValidDetIds(DetId::Ecal,EcalBarrel));
+      const std::vector<DetId>& vec(myGeometry.getEcalBarrelGeometry()->getValidDetIds(DetId::Ecal,EcalBarrel));
       std::map<EcalTrigTowerDetId,std::vector<GlobalPoint> > mapTow_Centers;
       //  std::map<EcalTrigTowerDetId,GlobalPoint> mapTow_Pos;
       unsigned size=vec.size();
@@ -79,13 +79,13 @@ void  DigiCheck::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup
 	  mapTow_Centers[towid1].push_back(p);
 	}
       
-      vec=myGeometry.getEcalEndcapGeometry()->getValidDetIds(DetId::Ecal,EcalEndcap);
-      size=vec.size();
+      const std::vector<DetId>& vece(myGeometry.getEcalEndcapGeometry()->getValidDetIds(DetId::Ecal,EcalEndcap));
+      size=vece.size();
       for(unsigned ic=0;ic<size;++ic)
 	{
-	  const CaloCellGeometry * geom=myGeometry.getEcalEndcapGeometry()->getGeometry(vec[ic]);
+	  const CaloCellGeometry * geom=myGeometry.getEcalEndcapGeometry()->getGeometry(vece[ic]);
 	  GlobalPoint p=geom->getPosition();
-	  EcalTrigTowerDetId towid1= eTTmap_->towerOf(vec[ic]);
+	  EcalTrigTowerDetId towid1= eTTmap_->towerOf(vece[ic]);
 	  mapTow_Centers[towid1].push_back(p);
 	}
   

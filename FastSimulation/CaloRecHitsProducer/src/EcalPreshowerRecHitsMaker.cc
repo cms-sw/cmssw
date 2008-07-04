@@ -110,8 +110,8 @@ unsigned EcalPreshowerRecHitsMaker::createVectorsOfCells(const edm::EventSetup &
     escells_.reserve(137728);
 
     const CaloSubdetectorGeometry* geom=pG->getSubdetectorGeometry(DetId::Ecal,EcalPreshower);  
-    std::vector<DetId> ids=geom->getValidDetIds(DetId::Ecal,EcalPreshower);  
-    for (std::vector<DetId>::iterator i=ids.begin(); i!=ids.end(); i++) 
+    const std::vector<DetId>& ids(geom->getValidDetIds(DetId::Ecal,EcalPreshower));  
+    for (std::vector<DetId>::const_iterator i=ids.begin(); i!=ids.end(); i++) 
       {
 	escells_.push_back(i->rawId());
 	++total;
