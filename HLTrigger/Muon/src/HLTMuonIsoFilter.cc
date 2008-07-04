@@ -70,7 +70,6 @@ HLTMuonIsoFilter::filter(edm::Event& iEvent, const edm::EventSetup& iSetup)
    Handle<TriggerFilterObjectWithRefs> mucands;
    if(saveTag_) {
      filterproduct->addCollectionTag(candTag_);
-     filterproduct->addCollectionTag(isoTag_);
    }
    iEvent.getByLabel (candTag_,mucands);
 
