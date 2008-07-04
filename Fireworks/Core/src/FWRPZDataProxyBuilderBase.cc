@@ -8,7 +8,7 @@
 //
 // Original Author:  Chris Jones
 //         Created:  Sat Jun 28 09:51:35 PDT 2008
-// $Id$
+// $Id: FWRPZDataProxyBuilderBase.cc,v 1.1 2008/07/01 04:05:56 chrjones Exp $
 //
 
 // system include files
@@ -226,7 +226,8 @@ FWRPZDataProxyBuilderBase::applyChangesToAllModels(TEveElement* iElements)
 {
    //it appears that passing iterators to 0 length vector to a set causes a crash
    if(m_item->size()) {
-      assert(m_ids.size() >= m_item->size());
+      //cassert(m_ids.size() >= m_item->size());
+      if ( ! m_ids.size() >= m_item->size() ) return;
       //any of them may have changed so we need to update them all
       FWModelIds ids(m_ids.begin(),m_ids.begin()+m_item->size());
       modelChanges(ids,iElements);
