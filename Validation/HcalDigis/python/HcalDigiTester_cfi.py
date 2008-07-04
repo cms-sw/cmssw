@@ -2,11 +2,13 @@ import FWCore.ParameterSet.Config as cms
 
 from Configuration.StandardSequences.Simulation_cff import *
 from Configuration.StandardSequences.SimulationRandomNumberGeneratorSeeds_cff import *
+from Configuration.StandardSequences.Geometry_cff import *
+from Configuration.StandardSequences.Digi_cff     import *
 from Configuration.StandardSequences.MixingNoPileUp_cff import *
 from Configuration.StandardSequences.FakeConditions_cff import *
 from Configuration.StandardSequences.Reconstruction_cff import *
 from DQMServices.Core.DQM_cfg import *
-from Geometry.CMSCommonData.cmsIdealGeometryXML_cfi import *
+
 maxEvents = cms.untracked.PSet(
     input = cms.untracked.int32(-1)
 )
@@ -25,10 +27,10 @@ hcalDigiAnalyzer = cms.EDFilter("HcalDigiTester",
     hcalselector = cms.untracked.string('HB')
 )
 
-p = cms.Path(mix*calDigi*hcalDigiAnalyzer)
 DQM.collectorHost = ''
-# ECAL is included in CalDigi, so minimize required resources
+
 simEcalUnsuppressedDigis.doNoise = False
 simEcalUnsuppressedDigis.doESNoise = False
 
+p = cms.Path(mix*calDigi*hcalDigiAnalyzer)
 
