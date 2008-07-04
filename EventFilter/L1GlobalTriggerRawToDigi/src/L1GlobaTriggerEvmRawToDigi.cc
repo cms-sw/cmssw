@@ -53,6 +53,8 @@
 #include "CondFormats/L1TObjects/interface/L1GtBoardMaps.h"
 #include "CondFormats/DataRecord/interface/L1GtBoardMapsRcd.h"
 
+#include "CondFormats/L1TObjects/interface/L1GtParameters.h"
+#include "CondFormats/DataRecord/interface/L1GtParametersRcd.h"
 
 
 // constructor(s)
@@ -79,6 +81,9 @@ L1GlobalTriggerEvmRawToDigi::L1GlobalTriggerEvmRawToDigi(const edm::ParameterSet
 
     m_unpackBxInEvent = pSet.getParameter<int>("UnpackBxInEvent");
 
+    // length of BST record (in bytes)
+    m_bstLengthBytes = pSet.getParameter<int>("BstLengthBytes");
+
     LogDebug("L1GlobalTriggerEvmRawToDigi")
     << "\nInput tag for EVM GT record:             "
     << m_evmGtInputTag.label()
@@ -89,7 +94,8 @@ L1GlobalTriggerEvmRawToDigi::L1GlobalTriggerEvmRawToDigi(const edm::ParameterSet
     << m_activeBoardsMaskGt
     << std::dec << std::setfill(' ')
     << "\nNumber of bunch crossing to be unpacked: "
-    << m_unpackBxInEvent << "\n"
+    << m_unpackBxInEvent
+    << "\nLength of BST message [bytes]:           " << m_bstLengthBytes << "\n"
     << std::endl;
 
     if ((m_unpackBxInEvent > 0)  && ( (m_unpackBxInEvent%2) == 0) ) {
@@ -100,7 +106,6 @@ L1GlobalTriggerEvmRawToDigi::L1GlobalTriggerEvmRawToDigi(const edm::ParameterSet
         << m_unpackBxInEvent << "\n         The number must be an odd number!\n"
         << std::endl;
     }
-
 
     // create GTFE, TCS, FDL cards once per analyzer
     // content will be reset whenever needed
@@ -208,6 +213,28 @@ void L1GlobalTriggerEvmRawToDigi::produce(edm::Event& iEvent, const edm::EventSe
     // here GTFE assumed immediately after the header
 
     bool gtfeUnpacked = false;
+    
+    // get the length of the BST message from parameter set or from event setup
+    
+    int bstLengthBytes = 0;
+    
+    if (m_bstLengthBytes < 0) {
+        // length from event setup // TODO cache it, if too slow
+
+        edm::ESHandle< L1GtParameters > l1GtPar;
+        evSetup.get< L1GtParametersRcd >().get( l1GtPar );        
+        const L1GtParameters* m_l1GtPar = l1GtPar.product();
+       
+        bstLengthBytes = static_cast<int> (m_l1GtPar->gtBstLengthBytes());
+        
+    } else {
+        // length from parameter set
+        bstLengthBytes = m_bstLengthBytes;
+    }
+    
+    LogTrace("L1GlobalTriggerEvmRawToDigi")
+    << "\n Length of BST message (in bytes): " << bstLengthBytes << "\n"
+    << std::endl;
 
     for (CItBoardMaps
             itBoard = boardMaps.begin();
@@ -218,6 +245,9 @@ void L1GlobalTriggerEvmRawToDigi::produce(edm::Event& iEvent, const edm::EventSe
             // unpack GTFE
             if (itBoard->gtPositionEvmRecord() == 1) {
 
+                // resize to the right size before unapacking
+                m_gtfeWord->resize(bstLengthBytes);
+                
                 m_gtfeWord->unpack(ptrGt);
                 ptrGt += m_gtfeWord->getSize(); // advance with GTFE block size
                 gtfeUnpacked = true;

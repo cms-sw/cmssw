@@ -103,6 +103,10 @@ private:
 
     /// total Bx's in the event, obtained from GTFE block
     int m_totalBxInEvent;
+    
+    /// length of BST record (in bytes)
+    int m_bstLengthBytes;
+    
 
 };
 

@@ -460,7 +460,20 @@ void L1GTDigiToRaw::packHeader(unsigned char* ptrGt, edm::Event& iEvent)
     int lvl1IdVal = iEvent.id().event();
 
     // The bunch crossing number
-    int bxIdVal = 0;
+    int bxCross = iEvent.bunchCrossing();
+    boost::uint16_t bxCrossHw = 0;
+    if ((bxCross & 0xFFF) == bxCross) {
+        bxCrossHw = static_cast<boost::uint16_t> (bxCross);
+    }
+    else {
+        bxCrossHw = 0; // Bx number too large, set to 0!
+        LogDebug("L1GlobalTrigger")
+            << "\nBunch cross number [hex] = "
+            << std::hex << bxCross
+            << "\n  larger than 12 bits. Set to 0! \n"
+            << std::dec << std::endl;
+    }
+    int bxIdVal = bxCrossHw;
 
     // Identifier of the FED
     int sourceIdVal = m_daqGtFedId;
@@ -575,9 +588,13 @@ void L1GTDigiToRaw::packFDL(
 
         fdlBlock.setGtDecisionWordExtendedWord64(tmpWord64[iWord], iWord);
 
+        fdlBlock.setGtPrescaleFactorIndexTechWord64(tmpWord64[iWord], iWord);
+        fdlBlock.setGtPrescaleFactorIndexAlgoWord64(tmpWord64[iWord], iWord);
         fdlBlock.setNoAlgoWord64(tmpWord64[iWord], iWord);
         fdlBlock.setFinalORWord64(tmpWord64[iWord], iWord);
 
+        fdlBlock.setOrbitNrWord64(tmpWord64[iWord], iWord);
+        fdlBlock.setLumiSegmentNrWord64(tmpWord64[iWord], iWord);
         fdlBlock.setLocalBxNrWord64(tmpWord64[iWord], iWord);
 
     }

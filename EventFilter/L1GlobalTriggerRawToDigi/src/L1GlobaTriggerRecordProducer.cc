@@ -205,12 +205,21 @@ void L1GlobalTriggerRecordProducer::produce(edm::Event& iEvent, const edm::Event
     
     
 
-    /// set global decision, decision word and technical trigger word
-    /// for bunch cross with L1Accept (BxInEvent = 0) after applying the trigger masks
+    // set global decision, decision word and technical trigger word
+    // for bunch cross with L1Accept (BxInEvent = 0) after applying the trigger masks
     gtRecord->setDecision(gtDecision);
     gtRecord->setDecisionWord(algoDecisionWord);
     gtRecord->setTechnicalTriggerWord(techDecisionWord);
-
+    
+    // get/set index of the set of prescale factors
+    unsigned int pfIndexTech = 
+        static_cast<unsigned int> ((gtReadoutRecord->gtFdlWord()).gtPrescaleFactorIndexTech());
+    unsigned int pfIndexAlgo =
+        static_cast<unsigned int> ((gtReadoutRecord->gtFdlWord()).gtPrescaleFactorIndexAlgo());
+    
+    gtRecord->setGtPrescaleFactorIndexTech(pfIndexTech);
+    gtRecord->setGtPrescaleFactorIndexAlgo(pfIndexAlgo);
+    
     if ( edm::isDebugEnabled() ) {
         std::ostringstream myCoutStream;
         gtRecord->print(myCoutStream);
