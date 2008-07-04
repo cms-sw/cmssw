@@ -1,4 +1,4 @@
-# /dev/CMSSW_2_1_0_pre6/HLT/V24 (CMSSW_2_1_X_2008-07-02-0400_HLT1)
+# /dev/CMSSW_2_1_0_pre6/HLT/V27 (CMSSW_2_1_X_2008-07-03-0200_HLT1)
 # Begin replace statements specific to the FastSim HLT
 # For all HLTLevel1GTSeed objects, make the following replacements:
 #   - L1GtReadoutRecordTag changed from hltGtDigis to gtDigis
@@ -518,6 +518,21 @@ hlt2jetAco = cms.EDFilter( "HLT2JetJet",
     MinMinv = cms.double( 0.0 ),
     MaxMinv = cms.double( -1.0 ),
     MinN = cms.int32( 1 )
+)
+hltL1s2jetGap = cms.EDFilter( "HLTLevel1GTSeed",
+    L1TechTriggerSeeding = cms.bool( False ),
+    L1SeedsLogicalExpression = cms.string( "L1_SingleJet30" ),
+    L1GtReadoutRecordTag = cms.InputTag( "gtDigis" ),
+    L1GtObjectMapTag = cms.InputTag( "gtDigis" ),
+    L1CollectionsTag = cms.InputTag( "l1extraParticles" ),
+    L1MuonCollectionTag = cms.InputTag( "l1ParamMuons" )
+)
+hltPre2jetGap = cms.EDFilter( "HLTPrescaler" )
+hlt2jetGapFilter = cms.EDFilter( "HLT2jetGapFilter",
+    inputTag = cms.InputTag( "hltMCJetCorJetIcone5" ),
+    saveTag = cms.untracked.bool( True ),
+    minEt = cms.double( 50.0 ),
+    minEta = cms.double( 1.7 )
 )
 hltL1sdijetave15 = cms.EDFilter( "HLTLevel1GTSeed",
     L1TechTriggerSeeding = cms.bool( False ),
@@ -6509,10 +6524,10 @@ hltmmkFilter = cms.EDFilter( "HLTmmkFilter",
     MinLxySignificance = cms.double( 3.0 ),
     MinCosinePointingAngle = cms.double( 0.9 ),
     FastAccept = cms.bool( False ),
+    SaveTag = cms.untracked.bool( True ),
     BeamSpotTag = cms.InputTag( "offlineBeamSpot" ),
     MuCand = cms.InputTag( "hltMuTracks" ),
-    TrackCand = cms.InputTag( "hltMumukAllConeTracks" ),
-    SaveTag = cms.untracked.bool( True )
+    TrackCand = cms.InputTag( "hltMumukAllConeTracks" )
 )
 hltSingleTauPrescaler = cms.EDFilter( "HLTPrescaler" )
 hltSingleTauL1SeedFilter = cms.EDFilter( "HLTLevel1GTSeed",
@@ -8679,6 +8694,7 @@ HLT_Jet250 = cms.Path( HLTBeginSequence + hltL1s1jet250 + hltPre1jet250 + HLTRec
 HLT_FwdJet20 = cms.Path( HLTBeginSequence + hltL1RapGap + hltPrerapgap + HLTRecoJetMETSequence + hltRapGap + cms.SequencePlaceholder("HLTEndSequence") )
 HLT_DoubleJet150 = cms.Path( HLTBeginSequence + hltL1s2jet + hltPre2jet + HLTRecoJetRegionalSequence + hlt2jet150 + cms.SequencePlaceholder("HLTEndSequence") )
 HLT_DoubleJet125_Aco = cms.Path( HLTBeginSequence + hltL1s2jetAco + hltPre2jetAco + HLTRecoJetRegionalSequence + hlt2jet125 + hlt2jetAco + cms.SequencePlaceholder("HLTEndSequence") )
+HLT_DoubleFwdJet50 = cms.Path( HLTBeginSequence + hltL1s2jetGap + hltPre2jetGap + HLTRecoJetMETSequence + hlt2jetGapFilter + cms.SequencePlaceholder("HLTEndSequence") )
 HLT_DiJetAve15 = cms.Path( HLTBeginSequence + hltL1sdijetave15 + hltPredijetave15 + HLTRecoJetMETSequence + hltdijetave15 + cms.SequencePlaceholder("HLTEndSequence") )
 HLT_DiJetAve30 = cms.Path( HLTBeginSequence + hltL1sdijetave30 + hltPredijetave30 + HLTRecoJetMETSequence + hltdijetave30 + cms.SequencePlaceholder("HLTEndSequence") )
 HLT_DiJetAve50 = cms.Path( HLTBeginSequence + hltL1sdijetave50 + hltPredijetave50 + HLTRecoJetMETSequence + hltdijetave50 + cms.SequencePlaceholder("HLTEndSequence") )
