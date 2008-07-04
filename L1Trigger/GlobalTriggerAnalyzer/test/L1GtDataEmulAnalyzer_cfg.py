@@ -10,7 +10,7 @@ import FWCore.ParameterSet.Config as cms
 # process
 process = cms.Process("RunL1GtDataEmulAnalyzer")
 
-# number of events and source
+# number of events to be processed and source file
 process.maxEvents = cms.untracked.PSet(
     input = cms.untracked.int32(50)
 )
@@ -111,8 +111,8 @@ process.PoolSource.fileNames = ['/store/data/2008/5/20/T0ReReco-GlobalCruzet1-A-
     '/store/data/2008/5/20/T0ReReco-GlobalCruzet1-A-v1/0004/FA19908B-C526-DD11-A839-0019B9F730D2.root']
 
 
-# configuration
-#
+# load and configure modules
+
 process.load("Configuration.StandardSequences.FakeConditions_cff")
 process.load("Configuration.StandardSequences.Geometry_cff")
 
@@ -187,7 +187,7 @@ process.l1GtTrigReportEmul.L1GtRecordInputTag = 'l1GtEmulDigis'
 process.load("L1Trigger.GlobalTriggerAnalyzer.l1GtDataEmulAnalyzer_cfi")
 process.l1GtDataEmulAnalyzer.L1GtEmulInputTag = 'l1GtEmulDigis'
 
-# path to be run
+# paths to be run
 process.p = cms.Path(process.l1GtEmulDigis*process.l1GtDataEmulAnalyzer*process.l1GtTrigReportData*process.l1GtTrigReportEmul)
 
 # services

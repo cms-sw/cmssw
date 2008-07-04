@@ -82,9 +82,27 @@ void L1GtPackUnpackAnalyzer::analyzeGT(const edm::Event& iEvent, const edm::Even
     edm::Handle<L1GlobalTriggerReadoutRecord> gtReadoutRecordInitial;
     iEvent.getByLabel(m_initialDaqGtInputTag, gtReadoutRecordInitial);
 
+    if (!gtReadoutRecordInitial.isValid()) {
+        edm::LogError("L1GtTrigReport")
+                << "Initial L1GlobalTriggerReadoutRecord with input tag \n  "
+                << m_initialDaqGtInputTag << " not found.\n\n"
+                << std::endl;
+        return;
+               
+    }
+    
     // get the final L1GlobalTriggerReadoutRecord
     edm::Handle<L1GlobalTriggerReadoutRecord> gtReadoutRecordFinal;
     iEvent.getByLabel(m_finalGtGmtInputTag, gtReadoutRecordFinal);
+
+    if (!gtReadoutRecordFinal.isValid()) {
+        edm::LogError("L1GtTrigReport")
+                << "Final L1GlobalTriggerReadoutRecord with input tag \n  "
+                << m_finalGtGmtInputTag << " not found.\n\n"
+                << std::endl;
+        return;
+               
+    }
     
     // compare GTFE
     const L1GtfeWord& gtfeWordInitial = gtReadoutRecordInitial->gtfeWord();
@@ -280,11 +298,29 @@ void L1GtPackUnpackAnalyzer::analyzeGMT(const edm::Event& iEvent,
     edm::Handle<L1MuGMTReadoutCollection> gmtRcInitial;
     iEvent.getByLabel(m_initialMuGmtInputTag, gmtRcInitial);
 
+    if (!gmtRcInitial.isValid()) {
+        edm::LogError("L1GtPackUnpackAnalyzer")
+                << "Initial L1MuGMTReadoutCollection with input tag \n  "
+                << m_initialMuGmtInputTag << " not found.\n\n"
+                << std::endl;
+        return;
+               
+    }
+
     std::vector<L1MuGMTReadoutRecord> muRecordsInitial = gmtRcInitial->getRecords();
 
     // get final L1MuGMTReadoutCollection
     edm::Handle<L1MuGMTReadoutCollection> gmtRcFinal;
-    iEvent.getByLabel(m_initialMuGmtInputTag, gmtRcFinal);
+    iEvent.getByLabel(m_finalGtGmtInputTag, gmtRcFinal);
+
+    if (!gmtRcFinal.isValid()) {
+        edm::LogError("L1GtPackUnpackAnalyzer")
+                << "Final L1MuGMTReadoutCollection with input tag \n  "
+                << m_finalGtGmtInputTag << " not found.\n\n"
+                << std::endl;
+        return;
+               
+    }
 
     std::vector<L1MuGMTReadoutRecord> muRecordsFinal = gmtRcFinal->getRecords();
 

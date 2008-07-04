@@ -334,8 +334,8 @@ void L1GtTrigReport::analyze(const edm::Event& iEvent, const edm::EventSetup& ev
 
     bool validRecord = false;
     
-    int pfAlgoSetIndex = 0; // FIXME get it later from the record
-    //int pfTechSetIndex = 0; // FIXME
+    unsigned int pfIndexAlgo = 0; // get it later from the record
+    //unsigned int pfIndexTech = 0; // FIXME
 
     DecisionWord gtDecisionWordBeforeMask;
     DecisionWord gtDecisionWordAfterMask;
@@ -348,10 +348,12 @@ void L1GtTrigReport::analyze(const edm::Event& iEvent, const edm::EventSetup& ev
             bool gtDecision = gtRecord->decision();
             gtDecisionWordBeforeMask = gtRecord->decisionWordBeforeMask();
             gtDecisionWordAfterMask = gtRecord->decisionWord();
-
+                        
             if (gtDecision) {
                 m_globalNrAccepts[m_physicsDaqPartition]++;
             }
+
+            pfIndexAlgo = gtRecord->gtPrescaleFactorIndexAlgo();
 
             validRecord = true;
 
@@ -386,7 +388,10 @@ void L1GtTrigReport::analyze(const edm::Event& iEvent, const edm::EventSetup& ev
 
             }
 
-            validRecord = true;
+            pfIndexAlgo =
+                static_cast<unsigned int> ((gtReadoutRecord->gtFdlWord()).gtPrescaleFactorIndexAlgo());
+
+                validRecord = true;
         }
         else {
 
@@ -406,10 +411,10 @@ void L1GtTrigReport::analyze(const edm::Event& iEvent, const edm::EventSetup& ev
     
     // get the prescale factor set used in the actual luminosity segment
     const std::vector<int>& prescaleFactorsAlgoTrig = 
-        (*m_prescaleFactorsAlgoTrig).at(pfAlgoSetIndex);
+        (*m_prescaleFactorsAlgoTrig).at(pfIndexAlgo);
 
     //const std::vector<int>& prescaleFactorsTechTrig = 
-    //    (*m_prescaleFactorsTechTrig).at(pfTechSetIndex);
+    //    (*m_prescaleFactorsTechTrig).at(pfIndexTech);
 
     
     if (validRecord) {

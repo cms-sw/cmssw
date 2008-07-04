@@ -8,7 +8,7 @@ import FWCore.ParameterSet.Config as cms
 # process
 process = cms.Process("RunL1GtTrigReport")
 
-# number of events and source
+# number of events to be processed and source file
 process.maxEvents = cms.untracked.PSet(
     input = cms.untracked.int32(200)
 )
@@ -23,7 +23,7 @@ process.PoolSource.fileNames = [
     '/store/relval/2008/6/25/RelVal-RelValQCD_Pt_120_170-1214239099-STARTUP_V1-2nd/0007/0AF90409-AF42-DD11-BA95-001617DBCF6A.root'
 ]
 
-# configuration
+# load and configure modules
 
 # L1 GT EventSetup
 process.load("L1TriggerConfig.L1GtConfigProducers.L1GtConfig_cff")

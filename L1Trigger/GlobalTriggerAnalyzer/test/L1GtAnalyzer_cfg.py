@@ -7,7 +7,7 @@ import FWCore.ParameterSet.Config as cms
 # process
 process = cms.Process("TestGtAnalyzer")
 
-# number of events and source
+# number of events to be processed and source file
 process.maxEvents = cms.untracked.PSet(
     input = cms.untracked.int32(10)
 )
@@ -22,7 +22,8 @@ process.source = cms.Source("PoolSource",
 #    '/store/relval/2008/6/25/RelVal-RelValQCD_Pt_120_170-1214239099-STARTUP_V1-2nd/0007/0AF90409-AF42-DD11-BA95-001617DBCF6A.root'
 #]
 
-# configuration
+# load and configure modules
+
 process.load("L1TriggerConfig.L1GtConfigProducers.L1GtConfig_cff")
 
 process.load("L1TriggerConfig.L1GtConfigProducers.Luminosity.lumi1x1032.L1Menu2007_cff")
