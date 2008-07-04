@@ -2,15 +2,15 @@ import FWCore.ParameterSet.Config as cms
 
 from Validation.RecoTrack.TrackingParticleSelectionForEfficiency_cfi import *
 multiTrackValidator = cms.EDFilter("MultiTrackValidator",
-    #InputTag associatormap = assoc2secStepTk
-    #InputTag associatormap = assoc2thStepTk   
-    #InputTag associatormap = assoc2GsfTracks   
     # selection of TP for evaluation of efficiency
     TrackingParticleSelectionForEfficiency,
     useFabsEta = cms.bool(False),
     minpT = cms.double(0.0),
     nintHit = cms.int32(35),
     associatormap = cms.InputTag("trackingParticleRecoTrackAsssociation"),
+    #associatormap = cms.InputTag("assoc2secStepTk"),
+    #associatormap = cms.InputTag("assoc2thStepTk"),
+    #associatormap = cms.InputTag("assoc2GsfTracks"),
     label_tp_fake = cms.InputTag("mergedtruth","MergedTrackTruth"),
     out = cms.string('validationPlots.root'),
     min = cms.double(-2.5),
