@@ -3,7 +3,7 @@
 
 //////////////////////////////////////////////////////////////////////
 //
-// $Id: PoolOutputModule.h,v 1.45 2008/02/01 20:23:42 wmtan Exp $
+// $Id: PoolOutputModule.h,v 1.46 2008/03/04 00:05:03 paterno Exp $
 //
 // Class PoolOutputModule. Output module to POOL file
 //
@@ -35,6 +35,7 @@ namespace edm {
     int const& compressionLevel() const {return compressionLevel_;}
     int const& basketSize() const {return basketSize_;}
     int const& splitLevel() const {return splitLevel_;}
+    int const& treeMaxVirtualSize() const {return treeMaxVirtualSize_;}
     bool const& fastCloning() const {return fastCloning_;}
     bool const& fastMetaCloning() const {return fastMetaCloning_;}
 
@@ -71,6 +72,7 @@ namespace edm {
     int const compressionLevel_;
     int const basketSize_;
     int const splitLevel_;
+    int const treeMaxVirtualSize_;
     bool fastCloning_;
     bool fastMetaCloning_;
     FileBlock *fileBlock_;

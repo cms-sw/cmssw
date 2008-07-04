@@ -16,7 +16,7 @@ int main(){
     pooldb.start(false);
     cond::IOVService iovmanager(pooldb);
     cond::IOVEditor* editor=iovmanager.newIOVEditor();
-    editor->create(0);
+    editor->create(1);
     editor->insert(20,"pay1tok");
     editor->insert(40,"pay2tok");
     editor->insert(60,"pay3tok");

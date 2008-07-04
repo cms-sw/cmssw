@@ -65,8 +65,10 @@ namespace edm
    
     // external cross section and filter efficiency
     double extCrossSect;
-    double extFilterEff;    
- 
+    double extFilterEff;  
+    
+    // impose proper time for pi/k at gen.level  
+    bool imposeProperTimes_ ;
     // for single particle generation in pythia
     int    particleID;
     bool   doubleParticle;

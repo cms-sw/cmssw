@@ -1,0 +1,35 @@
+
+///DB
+//frontier:online
+include "L1Trigger/HardwareValidation/hwtest/globrun/FrontierConditions.cff"
+include "L1Trigger/Configuration/data/L1DBOnlineConfig.cff"
+//frontier:offline
+#include "Configuration/StandardSequences/data/FrontierConditions.cff"
+#include "L1Trigger/Configuration/data/L1DBConfig.cff"
+//dummy 
+#include "L1Trigger/Configuration/data/L1DummyConfig.cff"
+
+
+include "Geometry/CSCGeometry/data/cscGeometry.cfi"
+
+
+///RawToDigi
+#include "L1Trigger/HardwareValidation/data/RawToDigiGR.cff"
+include "Configuration/GlobalRuns/data/RawToDigiGR.cff"
+
+///Emulator/Comparator
+include "L1Trigger/HardwareValidation/data/L1HardwareValidationGR.cff"
+replace l1CaloScales.L1CaloEmEtScaleLSB = 1.0 //common Rct/Gct
+
+///DQM
+include "DQM/L1TMonitor/data/L1TDEMON.cfi"
+
+include "DQM/L1TMonitor/data/L1TdeECAL.cfi"
+
+include "DQM/L1TMonitor/data/L1TdeRCT.cfi"
+replace l1tderct.rctSourceData = gctDigis
+replace l1tderct.rctSourceEmul = valRctDigis
+
+#path unpack = { RawToDigi }
+#path emucmp = { L1HardwareValidation }
+#path dqmana = { l1demon, l1demonecal, l1tderct}

@@ -221,9 +221,6 @@ void SummaryGenerator::printMap() {
     }
     ss << std::endl;
   }
-  
-  ss << " Max value: " << max_ << std::endl
-     << " Min value: " << min_ << std::endl;
 
   LogTrace(mlSummaryPlots_) << ss.str();
   
@@ -237,14 +234,13 @@ void SummaryGenerator::fillMap( const std::string& top_level_dir,
 				const float& value,
 				const float& error ) {
   
-  // Check if value is valid
-  if ( value > 1. * sistrip::valid_ ) { return; }
-  
   // Calculate maximum and minimum values in std::map
-  if ( value > max_ ) { max_ = value; }
-  if ( value < min_ ) { min_ = value; }
+  if ( value < 1. * sistrip::valid_ ) { 
+    if ( value > max_ ) { max_ = value; }
+    if ( value < min_ ) { min_ = value; }
+  }
   
-  // Check if error is valid
+  // Fill map if value (and error) are valid
   if ( error < 1. * sistrip::valid_ ) { 
     fill( top_level_dir, gran, device_key, value, error );
   } else { 

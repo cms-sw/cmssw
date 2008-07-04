@@ -4,6 +4,5 @@
 #include "SiPixelRawToDigi.h"
 #include "SiPixelDigiToRaw.h"
 
-DEFINE_SEAL_MODULE();
-DEFINE_ANOTHER_FWK_MODULE(SiPixelDigiToRaw);
-DEFINE_ANOTHER_FWK_MODULE(SiPixelRawToDigi);
+DEFINE_FWK_MODULE(SiPixelDigiToRaw);
+DEFINE_FWK_MODULE(SiPixelRawToDigi);

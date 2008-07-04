@@ -8,7 +8,6 @@
 
 #include <iostream>
 
-
 #include "DataFormats/Candidate/interface/CompositeCandidate.h"
 #include "DataFormats/ParticleFlowReco/interface/PFBlockFwd.h"
 // #include "DataFormats/ParticleFlowReco/interface/PFBlock.h"
@@ -79,47 +78,23 @@ namespace reco {
     /// set track reference
     void    setTrackRef(const reco::TrackRef& ref);
 
-    /// return a reference to the corresponding track, if charged. 
-    /// otherwise, return a null reference
-    reco::TrackRef trackRef() const { return trackRef_; }
-
     /// set muon reference
     void    setMuonRef(const reco::MuonRef& ref);
-
-    /// return a reference to the corresponding muon, if a muon. 
-    /// otherwise, return a null reference
-    reco::MuonRef muonRef() const { return muonRef_; }    
 
     /// set nuclear interaction reference
     void    setNuclearRef(const reco::NuclearInteractionRef& ref);
 
-    /// return a reference to the corresponding nuclear interaction,
-    /// otherwise, return a null reference
-    reco::NuclearInteractionRef nuclearRef() const { return nuclearRef_; }
-
     /// set corrected Ecal energy 
     void    setEcalEnergy( float ee ) {ecalEnergy_ = ee;}
 
-    /// return corrected Ecal energy
-    double ecalEnergy() const { return ecalEnergy_;}
-    
     /// set corrected Hcal energy 
     void    setHcalEnergy( float eh ) {hcalEnergy_ = eh;}
-
-    /// return corrected Hcal energy
-    double hcalEnergy() const { return hcalEnergy_;}
 
     /// set corrected PS1 energy
     void    setPs1Energy( float e1 ) {ps1Energy_ = e1;}
 
-    /// return corrected PS1 energy
-    double pS1Energy() const { return ps1Energy_;}
-
     /// set corrected PS2 energy 
     void    setPs2Energy( float e2 ) {ps2Energy_ = e2;}
-
-    /// return corrected PS2 energy
-    double pS2Energy() const { return ps2Energy_;}
 
     /// particle momentum *= rescaleFactor
     void    rescaleMomentum( double rescaleFactor );
@@ -200,8 +175,21 @@ namespace reco {
 
     /// particle identification code
     virtual int particleId() const { return particleId_;}
+    
+    /// return reference to the block
+    /*     const reco::PFBlockRef& blockRef() const { return blockRef_; }  */
 
+    /// return a reference to the corresponding track, if charged. 
+    /// otherwise, return a null reference
+    reco::TrackRef trackRef() const { return trackRef_; }
 
+    /// return a reference to the corresponding muon, if a muon. 
+    /// otherwise, return a null reference
+    reco::MuonRef muonRef() const { return muonRef_; }    
+
+    /// return a reference to the corresponding nuclear interaction,
+    /// otherwise, return a null reference
+    reco::NuclearInteractionRef nuclearRef() const { return nuclearRef_; }
 
     
     /// return indices of elements used in the block
@@ -214,7 +202,6 @@ namespace reco {
 
     /// return elements in blocks
     typedef std::pair<reco::PFBlockRef, unsigned> ElementInBlock;
-
     typedef std::vector< ElementInBlock > ElementsInBlocks;
     const ElementsInBlocks& elementsInBlocks() const { 
       return elementsInBlocks_;

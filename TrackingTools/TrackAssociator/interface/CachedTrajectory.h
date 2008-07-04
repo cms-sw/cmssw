@@ -18,7 +18,7 @@
 //
 // Original Author:  Dmytro Kovalskyi
 //         Created:  Fri Apr 21 10:59:41 PDT 2006
-// $Id: CachedTrajectory.h,v 1.9 2007/10/08 11:23:34 dmytro Exp $
+// $Id: CachedTrajectory.h,v 1.10 2007/10/09 02:38:16 dmytro Exp $
 //
 //
 
@@ -93,6 +93,7 @@ class CachedTrajectory {
    void setMinDetectorLength(float l = 0.){ minZ_ = l/2.;}
 
    void setPropagationStep(float s = 20.){ step_ = s;}
+   float getPropagationStep() const { return step_;}
    
  protected:
    

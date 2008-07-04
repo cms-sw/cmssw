@@ -13,7 +13,7 @@
 //
 // Original Author:  Seth COOPER
 //         Created:  Th Nov 22 5:46:22 CEST 2007
-// $Id: EcalURecHitHists.h,v 1.1 2008/01/22 22:20:54 scooper Exp $
+// $Id: EcalURecHitHists.cc,v 1.1 2007/12/05 12:01:04 scooper Exp $
 //
 //
 
@@ -76,11 +76,8 @@ class EcalURecHitHists : public edm::EDAnalyzer {
   std::vector<int> maskedFEDs_;
   std::vector<std::string> maskedEBs_;
   std::map<int,TH1F*> FEDsAndHists_;
-  std::map<int,TH1F*> FEDsAndTimingHists_;
 
   TH1F* allFedsHist_;
-  TH1F* allFedsTimingHist_;
-
   TFile* file;
   EcalFedMap* fedMap_;
 };

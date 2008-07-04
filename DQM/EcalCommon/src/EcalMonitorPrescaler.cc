@@ -1,11 +1,11 @@
-// $Id: EcalMonitorPrescaler.cc,v 1.6 2007/12/18 08:43:40 dellaric Exp $
+// $Id: EcalMonitorPrescaler.cc,v 1.7 2008/01/22 18:47:42 muzaffar Exp $
 
 /*!
   \file EcalMonitorPrescaler.cc
   \brief Ecal specific Prescaler
   \author G. Della Ricca
-  \version $Revision: 1.6 $
-  \date $Date: 2007/12/18 08:43:40 $
+  \version $Revision: 1.7 $
+  \date $Date: 2008/01/22 18:47:42 $
 */
 
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
@@ -26,16 +26,19 @@ EcalMonitorPrescaler::EcalMonitorPrescaler(ParameterSet const& ps) {
 
   occupancyPrescaleFactor_ = ps.getUntrackedParameter<int>("occupancyPrescaleFactor" , 0);
   integrityPrescaleFactor_ = ps.getUntrackedParameter<int>("integrityPrescaleFactor", 0);
+  statusflagsPrescaleFactor_ = ps.getUntrackedParameter<int>("statusflagsPrescaleFactor" , 0);
 
-  cosmicPrescaleFactor_ = ps.getUntrackedParameter<int>("cosmicPrescaleFactor", 0);
-  laserPrescaleFactor_ = ps.getUntrackedParameter<int>("laserPrescaleFactor", 0);
   pedestalonlinePrescaleFactor_ = ps.getUntrackedParameter<int>("pedestalonlinePrescaleFactor", 0);
+
+  laserPrescaleFactor_ = ps.getUntrackedParameter<int>("laserPrescaleFactor", 0);
+  ledPrescaleFactor_ = ps.getUntrackedParameter<int>("ledPrescaleFactor", 0);
   pedestalPrescaleFactor_ = ps.getUntrackedParameter<int>("pedestalPrescaleFactor", 0);
   testpulsePrescaleFactor_ = ps.getUntrackedParameter<int>("testpulsePrescaleFactor", 0);
 
   triggertowerPrescaleFactor_ = ps.getUntrackedParameter<int>("triggertowerPrescaleFactor" , 0);
   timingPrescaleFactor_ = ps.getUntrackedParameter<int>("timingPrescaleFactor" , 0);
 
+  cosmicPrescaleFactor_ = ps.getUntrackedParameter<int>("cosmicPrescaleFactor", 0);
   clusterPrescaleFactor_ = ps.getUntrackedParameter<int>("clusterPrescaleFactor", 0);
 
 }
@@ -53,6 +56,9 @@ bool EcalMonitorPrescaler::filter(Event & e, EventSetup const&) {
   }
   if ( integrityPrescaleFactor_ ) {
     if ( count_ % integrityPrescaleFactor_ == 0 ) status = true;
+  }
+  if ( statusflagsPrescaleFactor_ ) {
+    if ( count_ % statusflagsPrescaleFactor_ == 0 ) status = true;
   }
 
   if ( pedestalonlinePrescaleFactor_ ) {
@@ -78,24 +84,39 @@ bool EcalMonitorPrescaler::filter(Event & e, EventSetup const&) {
 
       EcalDCCHeaderBlock dcch = (*dcchItr);
 
-      if ( dcch.getRunType() == EcalDCCHeaderBlock::COSMIC ) {
-        if ( cosmicPrescaleFactor_ ) {
-          if ( count_ % cosmicPrescaleFactor_ == 0 ) status = true;
-        }
-      }
-      if ( dcch.getRunType() == EcalDCCHeaderBlock::LASER_STD ) {
+      if ( dcch.getRunType() == EcalDCCHeaderBlock::LASER_STD ||
+           dcch.getRunType() == EcalDCCHeaderBlock::LASER_GAP ) {
         if ( laserPrescaleFactor_ ) { 
           if ( count_ % laserPrescaleFactor_ == 0 ) status = true;
         }
       }
-      if ( dcch.getRunType() == EcalDCCHeaderBlock::PEDESTAL_STD ) {
+      if ( dcch.getRunType() == EcalDCCHeaderBlock::LED_STD ||
+           dcch.getRunType() == EcalDCCHeaderBlock::LED_GAP ) {
+        if ( ledPrescaleFactor_ ) {
+          if ( count_ % ledPrescaleFactor_ == 0 ) status = true;
+        }
+      }
+      if ( dcch.getRunType() == EcalDCCHeaderBlock::PEDESTAL_STD ||
+           dcch.getRunType() == EcalDCCHeaderBlock::PEDESTAL_GAP ) {
         if ( pedestalPrescaleFactor_ ) { 
           if ( count_ % pedestalPrescaleFactor_ == 0 ) status = true;
         }
       }
-      if ( dcch.getRunType() == EcalDCCHeaderBlock::TESTPULSE_MGPA ) {
+      if ( dcch.getRunType() == EcalDCCHeaderBlock::TESTPULSE_MGPA ||
+           dcch.getRunType() == EcalDCCHeaderBlock::TESTPULSE_GAP ) {
         if ( testpulsePrescaleFactor_ ) { 
           if ( count_ % testpulsePrescaleFactor_ == 0 ) status = true;
+        }
+      }
+
+      if ( dcch.getRunType() == EcalDCCHeaderBlock::COSMIC ||
+           dcch.getRunType() == EcalDCCHeaderBlock::MTCC ||
+           dcch.getRunType() == EcalDCCHeaderBlock::COSMICS_GLOBAL ||
+           dcch.getRunType() == EcalDCCHeaderBlock::PHYSICS_GLOBAL ||
+           dcch.getRunType() == EcalDCCHeaderBlock::COSMICS_LOCAL ||
+           dcch.getRunType() == EcalDCCHeaderBlock::PHYSICS_LOCAL ) {
+        if ( cosmicPrescaleFactor_ ) {
+          if ( count_ % cosmicPrescaleFactor_ == 0 ) status = true;
         }
       }
 

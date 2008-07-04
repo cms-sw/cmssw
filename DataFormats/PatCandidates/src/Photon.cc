@@ -1,5 +1,5 @@
 //
-// $Id$
+// $Id: Photon.cc,v 1.11 2008/05/15 17:20:44 lowette Exp $
 //
 
 #include "DataFormats/PatCandidates/interface/Photon.h"
@@ -10,8 +10,7 @@ using pat::Photon;
 
 /// default constructor
 Photon::Photon() :
-    PATObject<PhotonType>(PhotonType(reco::Particle::LorentzVector(0, 0, 0, 0), reco::Particle::Point(0, 0, 0), 
-				     reco::SuperClusterRef(), reco::ClusterShapeRef(), 0)),
+    PATObject<PhotonType>(PhotonType()),
     embeddedSuperCluster_(false),
     photonID_(-1.0) 
 {
@@ -26,7 +25,6 @@ Photon::Photon(const PhotonType & aPhoton) :
 {
 }
 
-
 /// constructor from ref to PhotonType
 Photon::Photon(const edm::RefToBase<PhotonType> & aPhotonRef) :
     PATObject<PhotonType>(aPhotonRef),
@@ -35,6 +33,13 @@ Photon::Photon(const edm::RefToBase<PhotonType> & aPhotonRef) :
 {
 }
 
+/// constructor from ref to PhotonType
+Photon::Photon(const edm::Ptr<PhotonType> & aPhotonRef) :
+    PATObject<PhotonType>(aPhotonRef),
+    embeddedSuperCluster_(false),
+    photonID_(-1.0) 
+{
+}
 
 /// destructor
 Photon::~Photon() {
@@ -59,9 +64,10 @@ const reco::Particle * Photon::genPhoton() const {
 
 
 /// method to store the photon's supercluster internally
-void Photon::setSuperCluster(const reco::SuperClusterRef & superCluster) {
+void Photon::embedSuperCluster() {
   superCluster_.clear();
-  superCluster_.push_back(*superCluster);
+  superCluster_.push_back(*PhotonType::superCluster());
+  embeddedSuperCluster_ = true;
 }
 
 

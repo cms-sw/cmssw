@@ -21,6 +21,9 @@ class TSiTrackerMultiRecHit : public TransientTrackingRecHit {
 	    	//return theHitData.parametersError();
 	}
 
+        virtual void getKfComponents( KfComponentsHolder & holder ) const {
+            HelpertRecHit2DLocalPos().getKfComponents(holder, theHitData, *det()); 
+        }
 	virtual DetId geographicalId() const {return theHitData.geographicalId();}
 	virtual AlgebraicMatrix projectionMatrix() const {return theHitData.projectionMatrix();}
 	virtual int dimension() const {return theHitData.dimension();}

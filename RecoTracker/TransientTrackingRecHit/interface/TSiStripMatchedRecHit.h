@@ -10,6 +10,9 @@
 class TSiStripMatchedRecHit : public GenericTransientTrackingRecHit{
 public:
 
+  virtual void getKfComponents( KfComponentsHolder & holder ) const {
+      HelpertRecHit2DLocalPos().getKfComponents(holder, *hit(), *det()); 
+  }
 
   virtual AlgebraicSymMatrix parametersError() const {
     return HelpertRecHit2DLocalPos().parError( localPositionError(), *det()); 

@@ -53,17 +53,22 @@ namespace pat {
   class HistoTau : public HistoGroup<Tau> {
 
   public:
-    HistoTau(std::string dir = "tau",
+    HistoTau(std::string dir = "tau", std::string group = "Tau",std::string pre="tau",
 		   double pt1=0, double pt2=200, double m1=0, double m2=200 );
     virtual ~HistoTau() { } ;
 
-    virtual void fill( const Tau *tau, uint iPart = 0 );
 
-    // &&& Isn't this one already provided in the base class?
-    virtual void fill( const Tau &tau, uint iPart = 0 ) { fill(&tau, iPart); }
+    // fill a plain ol' tau:
+    virtual void fill( const Tau *tau, uint iPart = 1, double weight = 1.0 );
+    virtual void fill( const Tau &tau, uint iPart = 1, double weight = 1.0 ) { fill(&tau, iPart, weight); }
 
+    // fill a tau that is a shallow clone, and take kinematics from 
+    // shallow clone but detector plots from the tau itself
+    virtual void fill( const reco::ShallowClonePtrCandidate *tau, uint iPart = 1, double weight = 1.0 );
+    virtual void fill( const reco::ShallowClonePtrCandidate &tau, uint iPart = 1, double weight = 1.0 )
+    { fill(&tau, iPart, weight); }
 
-    virtual void fillCollection( const std::vector<Tau> & coll );
+    virtual void fillCollection( const std::vector<Tau> & coll, double weight = 1.0 );
 
     // Clear ntuple cache
     void clearVec();

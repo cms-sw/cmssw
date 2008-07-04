@@ -55,6 +55,9 @@ namespace evf {
     UInt_t buResourceId() const { return buResourceId_; }
     UInt_t evtNumber()    const { return evtNumber_; }
     
+    UInt_t nbSent()       const  { return nbSent_; }
+    void   incNbSent()           { nbSent_++; }
+    
     UInt_t nbErrors(bool reset=true);
     UInt_t nbCrcErrors(bool reset=true);
     UInt_t nbBytes(bool reset=true);
@@ -88,7 +91,9 @@ namespace evf {
     UInt_t    nBlock_;
     UInt_t    iSuperFrag_;
     UInt_t    nSuperFrag_;
-        
+    
+    UInt_t    nbSent_;
+    
     UInt_t    nbErrors_;
     UInt_t    nbCrcErrors_;
     UInt_t    nbBytes_;

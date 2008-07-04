@@ -10,8 +10,8 @@
  *
  * \file DCCEventBlock.h
  *
- * $Date: 2007/08/15 14:23:28 $
- * $Revision: 1.7 $
+ * $Date: 2007/12/04 16:03:57 $
+ * $Revision: 1.8 $
  *
  * \author N. Almeida
  * \author G. Franzoni

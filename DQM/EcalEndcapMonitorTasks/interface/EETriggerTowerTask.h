@@ -4,8 +4,8 @@
 /*
  * \file EETriggerTowerTask.h
  *
- * $Date: 2008/01/04 15:23:03 $
- * $Revision: 1.11 $
+ * $Date: 2008/04/08 15:32:10 $
+ * $Revision: 1.14 $
  * \author C. Bernet
  *
 */
@@ -51,6 +51,15 @@ class EETriggerTowerTask : public edm::EDAnalyzer {
 
   /// EndJob
   void endJob(void);
+
+  /// BeginRun
+  void beginRun(const edm::Run & r, const edm::EventSetup & c);
+
+  /// EndRun
+  void endRun(const edm::Run & r, const edm::EventSetup & c);
+
+  /// Reset
+  void reset(void);
 
   /// Setup
   void setup(void);
@@ -113,7 +122,16 @@ class EETriggerTowerTask : public edm::EDAnalyzer {
   bool init_;
 
   /// DQM back-end interface
-  DQMStore* dbe_;
+  DQMStore* dqmStore_;
+
+  /// path to MEs
+  std::string prefixME_;
+
+  /// remove MEs
+  bool enableCleanup_;
+
+  /// merge MEs across runs
+  bool mergeRuns_;
 
   /// to find the input collection of real digis 
   edm::InputTag realCollection_;
@@ -123,8 +141,6 @@ class EETriggerTowerTask : public edm::EDAnalyzer {
   
   /// debug output root file. if empty, no output file created.
   std::string outputFile_;
-
-  bool enableCleanup_;
 
 };
 

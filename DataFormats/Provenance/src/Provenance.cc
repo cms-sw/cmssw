@@ -3,44 +3,50 @@
 
 /*----------------------------------------------------------------------
 
-$Id: Provenance.cc,v 1.7 2007/06/28 23:30:50 wmtan Exp $
+$Id: Provenance.cc,v 1.8 2008/01/30 00:17:54 wmtan Exp $
 
 ----------------------------------------------------------------------*/
 
 namespace edm {
-  Provenance::Provenance(BranchDescription const& p) :
+  Provenance::Provenance(BranchDescription const& p, bool present) :
     product_(ConstBranchDescription(p)),
     event_(),
+    isPresent_(present),
     store_()
   { }
 
-  Provenance::Provenance(ConstBranchDescription const& p) :
+  Provenance::Provenance(ConstBranchDescription const& p, bool present) :
     product_(p),
     event_(),
+    isPresent_(present),
     store_()
   { }
 
-  Provenance::Provenance(BranchDescription const& p, boost::shared_ptr<EntryDescription> e) :
+  Provenance::Provenance(BranchDescription const& p, boost::shared_ptr<EntryDescription> e, bool present) :
     product_(ConstBranchDescription(p)),
     event_(e),
+    isPresent_(present),
     store_()
   { }
 
-  Provenance::Provenance(ConstBranchDescription const& p, boost::shared_ptr<EntryDescription> e) :
+  Provenance::Provenance(ConstBranchDescription const& p, boost::shared_ptr<EntryDescription> e, bool present) :
     product_(p),
     event_(e),
+    isPresent_(present),
     store_()
   { }
 
- Provenance::Provenance(BranchDescription const& p, EntryDescription const& e) :
+ Provenance::Provenance(BranchDescription const& p, EntryDescription const& e, bool present) :
     product_(ConstBranchDescription(p)),
     event_(new EntryDescription(e)),
+    isPresent_(present),
     store_()
   { }
 
- Provenance::Provenance(ConstBranchDescription const& p, EntryDescription const& e) :
+ Provenance::Provenance(ConstBranchDescription const& p, EntryDescription const& e, bool present) :
     product_(p),
     event_(new EntryDescription(e)),
+    isPresent_(present),
     store_()
   { }
 

@@ -13,7 +13,7 @@ unsigned int GctBlockHeaderBase::length() const
 
 std::string GctBlockHeaderBase::name() const
 {
-  if(!valid()) { return "Unknown/invalid block header"; }
+  if(!valid()) { return "UNKNOWN/INVALID BLOCK HEADER"; }
   return blockNameMap().find(this->id())->second;
 }
 

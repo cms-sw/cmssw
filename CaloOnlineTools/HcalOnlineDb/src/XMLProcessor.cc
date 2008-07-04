@@ -8,7 +8,7 @@
 //
 // Original Author:  
 //         Created:  Fri Sep 21 15:56:27 CEST 2007
-// $Id: XMLProcessor.cc,v 1.1 2008/02/12 17:02:02 kukartse Exp $
+// $Id: XMLProcessor.cc,v 1.3 2007/12/06 02:26:37 kukartse Exp $
 //
 
 // system include files
@@ -22,7 +22,6 @@
 #include <xercesc/dom/DOMNode.hpp>
 #include <xercesc/framework/StdOutFormatTarget.hpp>
 #include <xercesc/framework/LocalFileFormatTarget.hpp>
-#include <xercesc/framework/MemBufFormatTarget.hpp>
 #include <sys/types.h>
 #include <pwd.h>
 #include <unistd.h>
@@ -208,10 +207,7 @@ int XMLProcessor::write( XMLDOMBlock * doc, string target )
   DOMDocument * loader = doc -> getDocument();
   //DOMElement * root = loader -> getDocumentElement();
 
-  //XMLFormatTarget * _t;
-  //_t = 
   serializeDOM( loader, target );
-  //delete _t;
 
   return 0;
 }
@@ -228,17 +224,13 @@ int XMLProcessor::test( void )
   cout << "===> Tag name: " << XMLString::transcode( dataBlockDocument -> getElementsByTagName( _toXMLCh( "CREATED_BY_USER" ) ) -> item(0) -> getNodeName() ) << endl;
   dataBlockDocument -> getElementsByTagName( _toXMLCh( "CREATED_BY_USER" ) ) -> item(0) -> getFirstChild() -> setNodeValue( _toXMLCh( "kukarzev test" ) );
 
-  //XMLFormatTarget * _t;
-  //_t = 
   serializeDOM( dataBlockDocument );
-  //delete _t;
 
   //terminate();
 
   return 0;
 }
 
-//XMLFormatTarget * XMLProcessor::serializeDOM(DOMNode* node, string target)
 int XMLProcessor::serializeDOM(DOMNode* node, string target)
 {
   XMLCh tempStr[100];
@@ -255,14 +247,10 @@ int XMLProcessor::serializeDOM(DOMNode* node, string target)
     
   // StdOutFormatTarget prints the resultant XML stream
   // to stdout once it receives any thing from the serializer.
-  XMLFormatTarget * myFormTarget;
-  if ( target == "stdout" )
+  XMLFormatTarget *myFormTarget;
+ if ( target == "stdout" )
     {
       myFormTarget = new StdOutFormatTarget();
-    }
-  else if ( target == "memory" )
-    {
-      myFormTarget = new MemBufFormatTarget();
     }
   else
     {
@@ -278,7 +266,6 @@ int XMLProcessor::serializeDOM(DOMNode* node, string target)
     cout << "Exception message is: \n"
 	 << message << "\n";
     XMLString::release(&message);
-    //return NULL;
     return -1;
   }
   catch (const DOMException& toCatch) {
@@ -286,19 +273,16 @@ int XMLProcessor::serializeDOM(DOMNode* node, string target)
     cout << "Exception message is: \n"
 	 << message << "\n";
     XMLString::release(&message);
-    //return NULL;
     return -1;
   }
   catch (...) {
     cout << "Unexpected Exception \n" ;
-    //return NULL;
     return -1;
   }
     
   theSerializer->release();
   delete myFormTarget;
   return 0;
-  //return myFormTarget;
 }
 
 int XMLProcessor::init( void )

@@ -2,12 +2,14 @@
 // user include files
 #include "EcalElectronicsMappingBuilder.h"
 #include "DataFormats/EcalDetId/interface/EEDetId.h"
+#include "DataFormats/EcalDetId/interface/EBDetId.h"
 #include "DataFormats/EcalDetId/interface/EcalElectronicsId.h"
 #include "DataFormats/EcalDetId/interface/EcalTriggerElectronicsId.h"
 
 #include <iostream>
 #include <fstream>
 
+#include "FWCore/MessageLogger/interface/MessageLogger.h"
 
 //
 // constructors and destructor

@@ -50,14 +50,22 @@ namespace pat {
   class HistoPhoton : public HistoGroup<Photon> {
 
   public:
-    HistoPhoton( std::string dir = "photon",
+    HistoPhoton( std::string dir = "photon",std::string group = "Photon",std::string pre="photon",
 		   double pt1=0, double pt2=200, double m1=0, double m2=200 );
     virtual ~HistoPhoton();
 
-    virtual void fill( const Photon * photon, uint iPart = 0 );
-    virtual void fill( const Photon & photon, uint iPart = 0 ) { fill(&photon, iPart); }
 
-    virtual void fillCollection( const std::vector<Photon> & coll );
+    // fill a plain ol' photon:
+    virtual void fill( const Photon *photon, uint iPart = 1, double weight = 1.0);
+    virtual void fill( const Photon &photon, uint iPart = 1, double weight = 1.0 ) { fill(&photon, iPart,weight); }
+
+    // fill a photon that is a shallow clone, and take kinematics from 
+    // shallow clone but detector plots from the photon itself
+    virtual void fill( const reco::ShallowClonePtrCandidate *photon, uint iPart = 1, double weight = 1.0 );
+    virtual void fill( const reco::ShallowClonePtrCandidate &photon, uint iPart = 1, double weight = 1.0 )
+    { fill(&photon, iPart, weight); }
+
+    virtual void fillCollection( const std::vector<Photon> & coll, double weight = 1.0 );
 
     // Clear ntuple cache
     void clearVec();

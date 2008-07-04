@@ -1,11 +1,12 @@
 import FWCore.ParameterSet.Config as cms
 
 ecalBarrelLaserTask = cms.EDFilter("EBLaserTask",
+    prefixME = cms.untracked.string('EcalBarrel'),
+    enableCleanup = cms.untracked.bool(False),
+    mergeRuns = cms.untracked.bool(False),    
+    EcalRawDataCollection = cms.InputTag("ecalEBunpacker"),
     EBDigiCollection = cms.InputTag("ecalEBunpacker","ebDigis"),
     EcalPnDiodeDigiCollection = cms.InputTag("ecalEBunpacker"),
-    EcalUncalibratedRecHitCollection = cms.InputTag("ecalUncalibHit","EcalUncalibRecHitsEB"),
-    EcalRawDataCollection = cms.InputTag("ecalEBunpacker"),
-    enableCleanup = cms.untracked.bool(True)
+    EcalUncalibratedRecHitCollection = cms.InputTag("ecalUncalibHit","EcalUncalibRecHitsEB")
 )
-
 

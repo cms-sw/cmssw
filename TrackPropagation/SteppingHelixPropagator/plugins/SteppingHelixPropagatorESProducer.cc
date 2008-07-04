@@ -83,6 +83,14 @@ SteppingHelixPropagatorESProducer::produce(const TrackingComponentsRecord & iRec
   bool useTuningForL2Speed = pset_.getParameter<bool>("useTuningForL2Speed");
   shProp->setUseTuningForL2Speed(useTuningForL2Speed);
 
+
+  bool useECoffsets = pset_.getParameter<bool>("useEndcapShiftsInZ");
+  if (useECoffsets){
+    double valPos = pset_.getParameter<double>("endcapShiftInZPos");
+    double valNeg = pset_.getParameter<double>("endcapShiftInZNeg");
+    shProp->setEndcapShiftsInZPosNeg(valPos, valNeg);
+  }
+
   _propagator  = boost::shared_ptr<Propagator>(shProp);
   return _propagator;
 }

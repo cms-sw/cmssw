@@ -3,10 +3,6 @@
 #include "DQMServices/Core/interface/DQMStore.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 
-#define NBINS (100)
-#define LOWBIN (-25)
-#define HIGHBIN (25)
-
 // -----------------------------------------------------------------------------
 //
 std::map<std::string, CommissioningTask::HistoSet> FineDelayTask::timingMap_;
@@ -15,11 +11,15 @@ std::map<std::string, CommissioningTask::HistoSet> FineDelayTask::timingMap_;
 //
 FineDelayTask::FineDelayTask( DQMStore* dqm,
 			      const FedChannelConnection& conn ) :
-  CommissioningTask( dqm, conn, "FineDelayTask" ), timing_(0)
+  CommissioningTask( dqm, conn, "FineDelayTask" ),
+  dummy_(),
+  timing_(dummy_),
+  nBins_(100) //TODO: tune this to the expected PLL step/range
 {
   LogDebug("Commissioning") << "[FineDelayTask::FineDelayTask] Constructing object...";
   // compute the fiber length correction
   float length=conn.fiberLength();
+  // TODO: check the units... this is subject to change.
   // convert cm to ns
   float c=30; //speed of light in cm/ns
   float refractionIndex = 1.4; // refraction index of the optical fibers
@@ -43,27 +43,25 @@ void FineDelayTask::book() {
   std::string title = SiStripHistoTitle( sistrip::EXPERT_HISTO, 
 					 sistrip::FINE_DELAY, 
   					 sistrip::DET_KEY, 
-					 0,
+					 connection().detId(),
 					 sistrip::TRACKER, 
 					 0 ).title(); 
   // look if such an histogram is already booked
   if(timingMap_.find(title)!=timingMap_.end()) {
     // if already booked, use it
-    LogDebug("Commissioning") << "[FineDelayTask::book] using existing histogram.";
+    timing_ = timingMap_[title];
   } else {
     // if not, book it
-    int nBins = NBINS;
-    LogDebug("Commissioning") << "[LatencyTask::book] booking a new histogram.";
-    timingMap_[title].histo_ = dqm()->bookProfile( title, title,    // name and title
-                                         nBins, LOWBIN, HIGHBIN,   // binning + range
-                                         100, 0., -1. );  // Y range : automatic
-
-    timingMap_[title].vNumOfEntries_.resize(nBins,0);
-    timingMap_[title].vSumOfContents_.resize(nBins,0);
-    timingMap_[title].vSumOfSquares_.resize(nBins,0);
+    timingMap_[title] = HistoSet();
+    timing_ = timingMap_[title];
+    timing_.histo_ = dqm()->bookProfile( title, title,    // name and title
+  				         nBins_, -25, 25, // binning + range
+				         100, 0., -1. );  // Y range : automatic
+  
+    timing_.vNumOfEntries_.resize(nBins_,0);
+    timing_.vSumOfContents_.resize(nBins_,0);
+    timing_.vSumOfSquares_.resize(nBins_,0);
   }
-  timing_ = &(timingMap_[title]);
-  LogDebug("Commissioning") << "Binning is " << timing_->vNumOfEntries_.size();
   LogDebug("Commissioning") << "[FineDelayTask::book] done";
   
 }
@@ -81,18 +79,14 @@ void FineDelayTask::fill( const SiStripEventSummary& summary,
   for(unsigned int strip=0;strip<digis.data.size();strip++) {
     if(digis.data[strip].adc()!=0) {
       // apply the TOF correction
-      float tof = (digis.data[strip].adc()>>8)/10.;
-      correctedDelay = delay - tof;
+      correctedDelay = delay - (digis.data[strip].adc()>>8)/10.;
       if((digis.data[strip].adc()>>8)==255) continue; // skip hit if TOF is in overflow
       // apply the fiber length correction
       correctedDelay += fiberLengthCorrection_;
-      // compute the bin
-      int nbins = NBINS;
-      int bin = int((correctedDelay-LOWBIN)/((HIGHBIN-LOWBIN)/nbins));
       LogDebug("Commissioning") << "[FineDelayTask::fill]; using a hit with value " << ( digis.data[strip].adc()&0xff )
-                                << " at corrected delay of " << correctedDelay
-				<< " in bin " << bin << "  (tof is " << tof << "( since adc = " << digis.data[strip].adc() << "))";
-      updateHistoSet( *timing_,bin,digis.data[strip].adc()&0xff);
+                                << " at corrected delay of " << correctedDelay;
+      updateHistoSet( timing_,int(correctedDelay),digis.data[strip].adc()&0xff);
+      break;
     }
   }
 }
@@ -101,6 +95,6 @@ void FineDelayTask::fill( const SiStripEventSummary& summary,
 //
 void FineDelayTask::update() {
   LogDebug("Commissioning") << "[FineDelayTask::update]";
-  updateHistoSet( *timing_ );
+  updateHistoSet( timing_ );
 }
 

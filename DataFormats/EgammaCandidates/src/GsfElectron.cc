@@ -151,3 +151,7 @@ bool GsfElectron::overlap( const Candidate & c ) const {
 GsfElectron * GsfElectron::clone() const { 
   return new GsfElectron( * this ); 
 }
+
+bool GsfElectron::isElectron() const {
+  return true;
+}

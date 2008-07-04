@@ -1,5 +1,5 @@
 //
-// $Id: PATMETProducer.cc,v 1.1 2008/03/06 09:23:10 llista Exp $
+// $Id: PATMETProducer.cc,v 1.2 2008/04/01 19:05:24 lowette Exp $
 //
 
 #include "PhysicsTools/PatAlgos/plugins/PATMETProducer.h"
@@ -20,6 +20,8 @@ PATMETProducer::PATMETProducer(const edm::ParameterSet & iConfig) {
   metSrc_         = iConfig.getParameter<edm::InputTag>("metSource");
   addGenMET_      = iConfig.getParameter<bool>         ("addGenMET");
   genMETSrc_      = iConfig.getParameter<edm::InputTag>("genMETSource");
+  addTrigMatch_   = iConfig.getParameter<bool>         ( "addTrigMatch" );
+  trigMatchSrc_   = iConfig.getParameter<std::vector<edm::InputTag> >( "trigPrimMatch" );
   addResolutions_ = iConfig.getParameter<bool>         ("addResolutions");
   useNNReso_      = iConfig.getParameter<bool>         ("useNNResolutions");
   metResoFile_    = iConfig.getParameter<std::string>  ("metResoFile");
@@ -66,6 +68,17 @@ void PATMETProducer::produce(edm::Event & iEvent, const edm::EventSetup & iSetup
     MET amet(metsRef);
     // add the generated MET
     if (addGenMET_) amet.setGenMET((*genMETs)[idx]);
+    // matches to trigger primitives
+    if ( addTrigMatch_ ) {
+      for ( size_t i = 0; i < trigMatchSrc_.size(); ++i ) {
+        edm::Handle<edm::Association<TriggerPrimitiveCollection> > trigMatch;
+        iEvent.getByLabel(trigMatchSrc_[i], trigMatch);
+        TriggerPrimitiveRef trigPrim = (*trigMatch)[metsRef];
+        if ( trigPrim.isNonnull() && trigPrim.isAvailable() ) {
+          amet.addTriggerMatch(*trigPrim);
+        }
+      }
+    }
     // add MET resolution info if demanded
     if (addResolutions_) {
       (*metResoCalc_)(amet);

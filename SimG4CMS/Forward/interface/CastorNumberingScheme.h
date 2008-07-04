@@ -16,7 +16,7 @@
 //
 // Original Author: 
 //         Created:  Tue May 16 10:14:34 CEST 2006
-// $Id: CastorNumberingScheme.h,v 1.2 2008/02/20 00:47:33 katsas Exp $
+// $Id$
 //
  
 // system include files
@@ -45,12 +45,9 @@ public:
    Bits 28-31: subdetector   <br>
    *  (+z=1,-z=2);  sector=1..16, zmodule=1..18;
    */
-  //  static uint32_t packIndex(int det, int z, int sector, int zmodule);
-  //  static void   unpackIndex(const uint32_t& idx, int& det, int& z, int& sector, int& zmodule);
-
-
-static uint32_t packIndex(int z, int sector, int zmodule);
-static void   unpackIndex(const uint32_t& idx, int& z, int& sector, int& zmodule);
+  static uint32_t packIndex(int det, int z, int sector, int zmodule);
+  static void   unpackIndex(const uint32_t& idx, int& det, int& z, 
+			    int& sector, int& zmodule);
 
   // Utilities to get detector levels during a step
   int  detectorLevel(const G4Step*) const;

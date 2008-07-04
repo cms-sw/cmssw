@@ -1,10 +1,10 @@
 #COMMON
-$(particle)_$(type)(0) <= '0';
-dtack_$(particle)_$(type)(0) <= '0';
+$(particle)_$(type)(0);
+dtack_$(particle)_$(type)(0);
 ##
 
 #PREALGO
-$(particle)_$(type)($(ser_no)));
+$(particle)_$(type)($(ser_no)) <!-- ); -->
 ##
 
 $(name): cond_$(type)_reg

@@ -4,8 +4,8 @@
 /** \class AlignableCSCChamber
  *  The alignable muon CSC chamber.
  *
- *  $Date: 2008/02/14 09:39:19 $
- *  $Revision: 1.12 $
+ *  $Date: 2007/12/06 01:30:47 $
+ *  $Revision: 1.10.4.1 $
  *  \author Andre Sznajder - UERJ(Brazil)
  */
  
@@ -14,20 +14,74 @@
 #include <iostream>
 #include <vector>
 
-#include "Alignment/CommonAlignment/interface/StructureType.h"
-#include "Alignment/CommonAlignment/interface/AlignableDet.h"
-
 #include "Geometry/CommonDetUnit/interface/GeomDet.h"
+
+#include "Alignment/CommonAlignment/interface/AlignableDet.h"
 #include "Alignment/CommonAlignment/interface/AlignableComposite.h"
 
-/// A muon CSC Chamber( an AlignableDet )
+/// A muon CSC Chamber( composite of AlignableDets )
 
-class AlignableCSCChamber: public AlignableDet {
+
+class AlignableCSCChamber: public AlignableComposite 
+{
+
  public:
-  friend std::ostream& operator<< (std::ostream&, const AlignableCSCChamber &);
 
-  /// Constructor
-  AlignableCSCChamber(const GeomDet *geomDet);
+  typedef GlobalPoint           PositionType;
+  typedef TkRotation<float>     RotationType;
+
+  friend std::ostream& operator << ( std::ostream &, const AlignableCSCChamber & ); 
+  
+
+  /// Constructor from geomdet corresponding to CSCChamber
+  AlignableCSCChamber( const GeomDet* geomDet );
+  
+  /// Destructor
+  ~AlignableCSCChamber();
+  
+  /// Return all direct components (superlayers)
+  virtual std::vector<Alignable*> components() const ;
+
+  /// Return component (superlayer) at given index
+  AlignableDet &det(int i);
+
+  /// Return length of alignable
+  virtual float length() const { return theLength; }
+
+  /// Set alignment position error of this and all components to given error
+  virtual void setAlignmentPositionError(const AlignmentPositionError& ape);
+
+  /// Add (or set if it does not exist yet) the AlignmentPositionError
+  virtual void addAlignmentPositionError(const AlignmentPositionError& ape);
+
+  /// Add (or set if it does not exist yet) the AlignmentPositionError
+  /// resulting from a rotation in the global reference frame
+  virtual void addAlignmentPositionErrorFromRotation(const RotationType& rot);
+
+  /// Add (or set if it does not exist yet) the AlignmentPositionError
+  /// resulting from a rotation in the local reference frame
+  virtual void addAlignmentPositionErrorFromLocalRotation(const RotationType& rot);
+
+  /// Alignable object identifier
+  virtual StructureType alignableObjectId () const { return align::AlignableCSCChamber; }
+
+  /// Return vector of alignment data
+  virtual Alignments* alignments() const;
+
+  /// Return vector of alignment errors
+  virtual AlignmentErrors* alignmentErrors() const;
+
+ private:
+
+  std::vector<AlignableDet*> theDets;      ///< Vector of components
+
+  float theWidth, theLength;
+
+  AlignmentPositionError* theAlignmentPositionError;
+
 };
 
+
 #endif  // ALIGNABLE_CSC_CHAMBER_H
+
+

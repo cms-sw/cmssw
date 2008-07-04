@@ -1,16 +1,16 @@
-// Last commit: $Id: LatencyHistosUsingDb.h,v 1.4 2008/03/06 13:30:50 delaer Exp $
+// Last commit: $Id: LatencyHistosUsingDb.h,v 1.3 2008/02/14 13:53:04 bainbrid Exp $
 
 #ifndef DQM_SiStripCommissioningClients_LatencyHistosUsingDb_H
 #define DQM_SiStripCommissioningClients_LatencyHistosUsingDb_H
 
-#include "DQM/SiStripCommissioningClients/interface/SamplingHistograms.h"
+#include "DQM/SiStripCommissioningClients/interface/LatencyHistograms.h"
 #include "DQM/SiStripCommissioningDbClients/interface/CommissioningHistosUsingDb.h"
 #include "OnlineDB/SiStripConfigDb/interface/SiStripConfigDb.h"
 #include <boost/cstdint.hpp>
 #include <string>
 #include <map>
 
-class LatencyHistosUsingDb : public CommissioningHistosUsingDb, public SamplingHistograms {
+class LatencyHistosUsingDb : public CommissioningHistosUsingDb, public LatencyHistograms {
   
  public:
   

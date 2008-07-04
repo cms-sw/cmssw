@@ -1,8 +1,8 @@
 /*
  * \file EBTriggerTowerTask.cc
  *
- * $Date: 2008/02/29 15:04:46 $
- * $Revision: 1.65 $
+ * $Date: 2008/04/24 18:38:05 $
+ * $Revision: 1.72 $
  * \author C. Bernet
  * \author G. Della Ricca
  * \author E. Di Marco
@@ -32,8 +32,13 @@ EBTriggerTowerTask::EBTriggerTowerTask(const ParameterSet& ps) {
 
   init_ = false;
 
-  // get hold of back-end interface
-  dbe_ = Service<DQMStore>().operator->();
+  dqmStore_ = Service<DQMStore>().operator->();
+
+  prefixME_ = ps.getUntrackedParameter<string>("prefixME", "");
+
+  enableCleanup_ = ps.getUntrackedParameter<bool>("enableCleanup", false);
+
+  mergeRuns_ = ps.getUntrackedParameter<bool>("mergeRuns", false);
 
   reserveArray(meEtMapReal_);
   reserveArray(meVetoReal_);
@@ -49,23 +54,16 @@ EBTriggerTowerTask::EBTriggerTowerTask(const ParameterSet& ps) {
   emulCollection_ =  ps.getParameter<InputTag>("EcalTrigPrimDigiCollectionEmul");
 
 //   realModuleLabel_
-//     = ps.getUntrackedParameter<string>("real_digis_moduleLabel",
-//                                        "ecalEBunpacker");
+//     = ps.getUntrackedParameter<string>("real_digis_moduleLabel", "ecalEBunpacker");
 //   emulModuleLabel_
-//     = ps.getUntrackedParameter<string>("emulated_digis_moduleLabel",
-//                                        "ecalTriggerPrimitiveDigis");
-  outputFile_
-    = ps.getUntrackedParameter<string>("OutputRootFile",
-                                       "");
-
+//     = ps.getUntrackedParameter<string>("emulated_digis_moduleLabel", "ecalTriggerPrimitiveDigis");
+  outputFile_ = ps.getUntrackedParameter<string>("OutputRootFile", "");
 
   ostringstream  str;
   str<<"Module label for producer of REAL     digis: "<<realCollection_<<endl;
   str<<"Module label for producer of EMULATED digis: "<<emulCollection_<<endl;
 
   LogDebug("EBTriggerTowerTask")<<str.str()<<endl;
-
-  enableCleanup_ = ps.getUntrackedParameter<bool>("enableCleanup", false);
 
 }
 
@@ -84,12 +82,40 @@ void EBTriggerTowerTask::beginJob(const EventSetup& c){
 
   ievt_ = 0;
 
-  if ( dbe_ ) {
-    dbe_->setCurrentFolder("EcalBarrel/EBTriggerTowerTask");
-    dbe_->rmdir("EcalBarrel/EBTriggerTowerTask");
+  if ( dqmStore_ ) {
+    dqmStore_->setCurrentFolder(prefixME_ + "/EBTriggerTowerTask");
+    dqmStore_->rmdir(prefixME_ + "/EBTriggerTowerTask");
   }
 
-  Numbers::initGeometry(c);
+  Numbers::initGeometry(c, false);
+
+}
+
+void EBTriggerTowerTask::beginRun(const Run& r, const EventSetup& c) {
+
+  if ( ! mergeRuns_ ) this->reset();
+
+}
+
+void EBTriggerTowerTask::endRun(const Run& r, const EventSetup& c) {
+
+}
+
+void EBTriggerTowerTask::reset(void) {
+
+  for (int i = 0; i < 36; i++) {
+
+    if ( meEtMapReal_[i] ) meEtMapReal_[i]->Reset();
+    if ( meVetoReal_[i] ) meVetoReal_[i]->Reset();
+    if ( meFlagsReal_[i] ) meFlagsReal_[i]->Reset();
+    if ( meEtMapEmul_[i] ) meEtMapEmul_[i]->Reset();
+    if ( meVetoEmul_[i] ) meVetoEmul_[i]->Reset();
+    if ( meFlagsEmul_[i] ) meFlagsEmul_[i]->Reset();
+    if ( meEmulError_[i] ) meEmulError_[i]->Reset();
+    if ( meVetoEmulError_[i] ) meVetoEmulError_[i]->Reset();
+    if ( meFlagEmulError_[i] ) meFlagEmulError_[i]->Reset();
+
+  }
 
 }
 
@@ -97,14 +123,14 @@ void EBTriggerTowerTask::setup(void){
 
   init_ = true;
 
-  if ( dbe_ ) {
-    // dbe_->showDirStructure();
+  if ( dqmStore_ ) {
+    // dqmStore_->showDirStructure();
 
     setup( "Real Digis",
-           "EcalBarrel/EBTriggerTowerTask", false );
+           (prefixME_ + "/EBTriggerTowerTask").c_str(), false );
 
     setup( "Emulated Digis",
-           "EcalBarrel/EBTriggerTowerTask/Emulated", true);
+           (prefixME_ + "/EBTriggerTowerTask/Emulated").c_str(), true);
   }
   else {
     LogError("EBTriggerTowerTask")<<"Bad DQMStore, "
@@ -126,7 +152,7 @@ void EBTriggerTowerTask::setup( const char* nameext,
     meFlags= &meFlagsEmul_;
   }
 
-  dbe_->setCurrentFolder(folder);
+  dqmStore_->setCurrentFolder(folder);
 
   static const unsigned namesize = 200;
 
@@ -146,74 +172,73 @@ void EBTriggerTowerTask::setup( const char* nameext,
     string etMapNameSM = etMapName;
     etMapNameSM += " " + Numbers::sEB(i+1);
 
-    (*meEtMap)[i] = dbe_->book3D(etMapNameSM.c_str(), etMapNameSM.c_str(),
+    (*meEtMap)[i] = dqmStore_->book3D(etMapNameSM.c_str(), etMapNameSM.c_str(),
                                 nTTEta, 0, nTTEta,
                                 nTTPhi, 0, nTTPhi,
                                 256, 0, 256.);
     (*meEtMap)[i]->setAxisTitle("ieta'", 1);
     (*meEtMap)[i]->setAxisTitle("iphi'", 2);
-    dbe_->tag((*meEtMap)[i], i+1);
+    dqmStore_->tag((*meEtMap)[i], i+1);
 
     string  fineGrainVetoNameSM = fineGrainVetoName;
     fineGrainVetoNameSM += " " + Numbers::sEB(i+1);
 
-    (*meVeto)[i] = dbe_->book3D(fineGrainVetoNameSM.c_str(),
+    (*meVeto)[i] = dqmStore_->book3D(fineGrainVetoNameSM.c_str(),
                                fineGrainVetoNameSM.c_str(),
                                nTTEta, 0, nTTEta,
                                nTTPhi, 0, nTTPhi,
                                2, 0., 2.);
     (*meVeto)[i]->setAxisTitle("ieta'", 1);
     (*meVeto)[i]->setAxisTitle("iphi'", 2);
-    dbe_->tag((*meVeto)[i], i+1);
+    dqmStore_->tag((*meVeto)[i], i+1);
 
     string  flagsNameSM = flagsName;
     flagsNameSM += " " + Numbers::sEB(i+1);
 
-    (*meFlags)[i] = dbe_->book3D(flagsNameSM.c_str(), flagsNameSM.c_str(),
+    (*meFlags)[i] = dqmStore_->book3D(flagsNameSM.c_str(), flagsNameSM.c_str(),
                                 nTTEta, 0, nTTEta,
                                 nTTPhi, 0, nTTPhi,
                                 8, 0., 8.);
     (*meFlags)[i]->setAxisTitle("ieta'", 1);
     (*meFlags)[i]->setAxisTitle("iphi'", 2);
-    dbe_->tag((*meFlags)[i], i+1);
-
+    dqmStore_->tag((*meFlags)[i], i+1);
 
     if(!emulated) {
 
       string  emulErrorNameSM = emulErrorName;
       emulErrorNameSM += " " + Numbers::sEB(i+1);
 
-      meEmulError_[i] = dbe_->book2D(emulErrorNameSM.c_str(),
+      meEmulError_[i] = dqmStore_->book2D(emulErrorNameSM.c_str(),
                                     emulErrorNameSM.c_str(),
                                     nTTEta, 0., nTTEta,
                                     nTTPhi, 0., nTTPhi );
       meEmulError_[i]->setAxisTitle("ieta'", 1);
       meEmulError_[i]->setAxisTitle("iphi'", 2);
-      dbe_->tag(meEmulError_[i], i+1);
+      dqmStore_->tag(meEmulError_[i], i+1);
 
       string  emulFineGrainVetoErrorNameSM = emulFineGrainVetoErrorName;
       emulFineGrainVetoErrorNameSM += " " + Numbers::sEB(i+1);
 
-      meVetoEmulError_[i] = dbe_->book3D(emulFineGrainVetoErrorNameSM.c_str(),
+      meVetoEmulError_[i] = dqmStore_->book3D(emulFineGrainVetoErrorNameSM.c_str(),
                                           emulFineGrainVetoErrorNameSM.c_str(),
                                           nTTEta, 0., nTTEta,
                                           nTTPhi, 0., nTTPhi,
                                           8, 0., 8.);
       meVetoEmulError_[i]->setAxisTitle("ieta'", 1);
       meVetoEmulError_[i]->setAxisTitle("iphi'", 2);
-      dbe_->tag(meVetoEmulError_[i], i+1);
+      dqmStore_->tag(meVetoEmulError_[i], i+1);
 
       string  emulFlagErrorNameSM = emulFlagErrorName;
       emulFlagErrorNameSM += " " + Numbers::sEB(i+1);
 
-      meFlagEmulError_[i] = dbe_->book3D(emulFlagErrorNameSM.c_str(),
+      meFlagEmulError_[i] = dqmStore_->book3D(emulFlagErrorNameSM.c_str(),
                                           emulFlagErrorNameSM.c_str(),
                                           nTTEta, 0., nTTEta,
                                           nTTPhi, 0., nTTPhi,
                                           8, 0., 8.);
       meFlagEmulError_[i]->setAxisTitle("ieta'", 1);
       meFlagEmulError_[i]->setAxisTitle("iphi'", 2);
-      dbe_->tag(meFlagEmulError_[i], i+1);
+      dqmStore_->tag(meFlagEmulError_[i], i+1);
 
     }
   }
@@ -222,13 +247,13 @@ void EBTriggerTowerTask::setup( const char* nameext,
 
 void EBTriggerTowerTask::cleanup(void) {
 
-  if ( ! enableCleanup_ ) return;
+  if ( ! init_ ) return;
 
-  if ( dbe_ ) {
+  if ( dqmStore_ ) {
 
-    if( !outputFile_.empty() ) dbe_->save( outputFile_.c_str() );
+    if( !outputFile_.empty() ) dqmStore_->save( outputFile_.c_str() );
 
-    dbe_->rmdir( "EcalBarrel/EBTriggerTowerTask" );
+    dqmStore_->rmdir( prefixME_ + "/EBTriggerTowerTask" );
 
   }
 
@@ -240,7 +265,7 @@ void EBTriggerTowerTask::endJob(void){
 
   LogInfo("EBTriggerTowerTask") << "analyzed " << ievt_ << " events";
 
-  if ( init_ ) this->cleanup();
+  if ( enableCleanup_ ) this->cleanup();
 
 }
 
@@ -267,8 +292,7 @@ void EBTriggerTowerTask::analyze(const Event& e, const EventSetup& c){
                   meFlagsReal_);
 
   } else {
-    LogWarning("EBTriggerTowerTask")
-      << realCollection_ << " not available"; 
+    LogWarning("EBTriggerTowerTask") << realCollection_ << " not available"; 
   }
 
   Handle<EcalTrigPrimDigiCollection> emulDigis;
@@ -281,10 +305,8 @@ void EBTriggerTowerTask::analyze(const Event& e, const EventSetup& c){
                   meFlagsEmul_,
                   realDigis);
 
-
   } else {
-    LogWarning("EBTriggerTowerTask")
-      << emulCollection_ << " not available";
+    LogWarning("EBTriggerTowerTask") << emulCollection_ << " not available";
   }
 
 }
@@ -346,7 +368,6 @@ EBTriggerTowerTask::processDigis( const Handle<EcalTrigPrimDigiCollection>&
 
     xval = 0.5 + data.ttFlag();
     if ( meFlags[ismt-1] ) meFlags[ismt-1]->Fill(xiet, xipt, xval);
-
 
     if( compDigis.isValid() ) {
       bool good = true;

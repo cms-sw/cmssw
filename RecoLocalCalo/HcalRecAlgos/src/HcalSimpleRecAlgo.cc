@@ -55,7 +55,7 @@ namespace HcalSimpleRecAlgoImpl {
     float time=-9999;
     ////Cannot calculate time value with max ADC sample at first or last position in window....
     if(maxI==0 || maxI==(tool.size()-1)) {      
-      edm::LogWarning("HCAL Pulse") << "HcalSimpleRecAlgo::reconstruct :" 
+      LogDebug("HCAL Pulse") << "HcalSimpleRecAlgo::reconstruct :" 
 					       << " Invalid max amplitude position, " 
 					       << " max Amplitude: "<< maxI
 					       << " first: "<<ifirst
@@ -130,7 +130,7 @@ HFRecHit HcalSimpleRecAlgo::reconstruct(const HFDataFrame& digi, const HcalCoder
   float time=-9999.0;
   ////Cannot calculate time value with max ADC sample at first or last position in window....
   if(maxI==0 || maxI==(tool.size()-1)) {
-      edm::LogWarning("HCAL Pulse") << "HcalSimpleRecAlgo::reconstruct :" 
+      LogDebug("HCAL Pulse") << "HcalSimpleRecAlgo::reconstruct :" 
 					       << " Invalid max amplitude position, " 
 					       << " max Amplitude: "<< maxI
 					       << " first: "<<firstSample_

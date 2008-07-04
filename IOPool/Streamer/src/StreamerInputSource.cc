@@ -9,6 +9,7 @@
 #include "FWCore/Framework/interface/FileBlock.h"
 #include "DataFormats/Provenance/interface/BranchDescription.h"
 #include "DataFormats/Provenance/interface/EntryDescription.h"
+#include "DataFormats/Provenance/interface/EntryDescriptionRegistry.h"
 #include "DataFormats/Provenance/interface/EventAuxiliary.h"
 #include "DataFormats/Provenance/interface/LuminosityBlockAuxiliary.h"
 #include "DataFormats/Provenance/interface/RunAuxiliary.h"
@@ -31,6 +32,7 @@
 
 #include <string>
 #include <iostream>
+#include <set>
 
 namespace edm {
   namespace {
@@ -83,48 +85,25 @@ namespace edm {
 
     mergeIntoRegistry(descs, productRegistryUpdate());
 
-    SendDescs::const_iterator i(descs.begin()), e(descs.end());
 
-    // the next line seems to be not good.  what if the productdesc is
-    // already there? it looks like I replace it.  maybe that it correct
 
-    std::string processName;
+    FDEBUG(10) << "StreamerInputSource::mergeWithRegistry :" << processName_ << std::endl; 
 
-    //process name is already stored in deserializer, if for Protocol version 4 and above.
-    //From the INIT Message itself.
-    
-    if ( protocolVersion_ > 3) {
-           processName = processName_;
-    } else { 
-    	if (i != e) {
-       		processName = i->processName();
-	}
-    	for (; i != e; ++i) {
-		if(processName != i->processName()) {
-	   	throw cms::Exception("MultipleProcessNames")
-	      		<< "at least two different process names ('"
-	      		<< processName
-	      		<< "', '"
-	      		<< i->processName()
-	      		<< "' found in JobHeader. We can only support one.";
-		}
-    	}
-    }
-
-    FDEBUG(10) << "StreamerInputSource::mergeWithRegistry :"<<processName<<std::endl; 
-
-    // NOTE: The process history of the events is NOT preserved by the streamer, except for the process name
-    // of the process that created them.  So, except for the process name, the rest of the process configuration
-    // is default constructed.
+    // NOTE: The process history of the events is NOT preserved by the streamer,
+    // except for the process name of the process that created them.
+    // So, we reconstruct a process history from all the branch names.
 
     ProcessHistory ph;
-    ph.reserve(1);
-    ProcessConfiguration pc;
-    pc.processName_ = processName;
-    ph.push_back(pc);
+    std::set<std::string> processNames;
+    for (SendDescs::const_iterator i = descs.begin(), e = descs.end(); i != e; ++i) {
+      if (processNames.insert(i->processName()).second) { 
+        ProcessConfiguration pc;
+        pc.processName_ = i->processName();
+        ph.push_back(pc);
+      }
+    }
     ProcessHistoryRegistry::instance()->insertMapped(ph);
     setProcessHistoryID(ph.id());
-
   }
 
   void
@@ -355,7 +334,8 @@ namespace edm {
         std::auto_ptr<BranchDescription>
           adesc(const_cast<BranchDescription*>(spi->desc()));
 
-        std::auto_ptr<Provenance> aprov(new Provenance(*(adesc.get()), *(aedesc.get())));
+        std::auto_ptr<Provenance> aprov(new Provenance(*(adesc.get()), *(aedesc.get()), spi->prod() != 0));
+        EntryDescriptionRegistry::instance()->insertMapped(aprov->event());
         if(spi->prod() != 0) {
           std::auto_ptr<EDProduct>
             aprod(const_cast<EDProduct*>(spi->prod()));
@@ -419,5 +399,24 @@ namespace edm {
     }
 
     return (unsigned int) uncompressedSize;
+  }
+
+  void StreamerInputSource::resetAfterEndRun()
+  {
+     // called from an online streamer source to reset after a stop command
+     // so an enable command will work
+     assert(ep_.get() == 0);
+     reset();
+     runEndingFlag_ = false;
+  }
+
+  void StreamerInputSource::setRun(RunNumber_t) 
+  {
+     // Need to define a dummy setRun here or else the InputSource::setRun is called
+     // if we have a source inheriting from this and wants to define a setRun method
+     throw edm::Exception(edm::errors::LogicError)
+     << "StreamerInputSource::setRun()\n"
+     << "Run number cannot be modified for this type of Input Source\n"
+     << "Contact a Storage Manager Developer\n";
   }
 }

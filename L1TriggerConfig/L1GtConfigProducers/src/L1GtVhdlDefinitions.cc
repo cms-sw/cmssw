@@ -38,9 +38,6 @@ const std::string L1GtVhdlDefinitions::vhdlTemplateDefValPkg_("def_val_pkg.vhd")
 const std::string L1GtVhdlDefinitions::quartusSetupFileChip1_("cond1_chip.qsf");
 const std::string L1GtVhdlDefinitions::quartusSetupFileChip2_("cond2_chip.qsf");
 
-const std::string L1GtVhdlDefinitions::outputSubDir1_("cond1");
-const std::string L1GtVhdlDefinitions::outputSubDir2_("cond2");
-
 const std::string L1GtVhdlDefinitions::substParamAlgos_("prealgos");
 const std::string L1GtVhdlDefinitions::substParamParticle_("particle");
 const std::string L1GtVhdlDefinitions::substParamType_("type");

@@ -7,6 +7,8 @@
 
 #include "FWCore/Utilities/interface/Exception.h"  
 
+using namespace std;
+
 //DEFINE STATICS
 const unsigned int L1GctJetFinderBase::MAX_JETS_OUT = 6;
 const unsigned int L1GctJetFinderBase::COL_OFFSET = ((L1CaloRegionDetId::N_ETA)/2)+1;
@@ -18,7 +20,6 @@ const unsigned int L1GctJetFinderBase::CENTRAL_COL0 = 0;
 
 
 L1GctJetFinderBase::L1GctJetFinderBase(int id):
-  L1GctProcessor(),
   m_id(id),
   m_neighbourJetFinders(2),
   m_gotNeighbourPointers(false),
@@ -29,8 +30,7 @@ L1GctJetFinderBase::L1GctJetFinderBase(int id):
   m_sentProtoJets(MAX_JETS_OUT), m_rcvdProtoJets(MAX_JETS_OUT), m_keptProtoJets(MAX_JETS_OUT),
   m_outputJets(MAX_JETS_OUT), m_sortedJets(MAX_JETS_OUT),
   m_outputEtStrip0(0), m_outputEtStrip1(0), m_outputHt(0),
-  m_outputHfSums(),
-  m_outputJetsPipe(MAX_JETS_OUT)
+  m_outputHfSums()
 {
   // Call reset to initialise vectors for input and output
   this->reset();
@@ -86,9 +86,8 @@ void L1GctJetFinderBase::setJetEtCalibrationLut(const L1GctJetEtCalibrationLut* 
   m_jetEtCalLut = lut;
 }
 
-std::ostream& operator << (std::ostream& os, const L1GctJetFinderBase& algo)
+ostream& operator << (ostream& os, const L1GctJetFinderBase& algo)
 {
-  using std::endl;
   os << "ID = " << algo.m_id << endl;
   os << "JetEtCalibrationLut* = " <<  algo.m_jetEtCalLut << endl;
   os << "No of input regions " << algo.m_inputRegions.size() << endl;
@@ -110,7 +109,7 @@ std::ostream& operator << (std::ostream& os, const L1GctJetFinderBase& algo)
 }
 
 
-void L1GctJetFinderBase::resetProcessor()
+void L1GctJetFinderBase::reset()
 {
   m_inputRegions.clear();
   m_inputRegions.resize(this->maxRegionsIn());
@@ -131,34 +130,6 @@ void L1GctJetFinderBase::resetProcessor()
   m_outputHt = 0;
 
   m_outputHfSums.reset();
-}
-
-void L1GctJetFinderBase::resetPipelines()
-{
-  m_outputJetsPipe.reset(numOfBx());
-}
-
-/// Initialise inputs with null objects for the correct bunch crossing
-/// If no other input candidates "arrive", we have the correct
-/// bunch crossing to propagate through the processing.
-void L1GctJetFinderBase::setupObjects()
-{
-  /// Create a null input region with the right bunch crossing, 
-  /// and fill the input candidates with copies of this.
-  L1GctRegion tempRgn;
-  tempRgn.setBx(bxAbs());
-  m_inputRegions.assign(this->maxRegionsIn(), tempRgn);
-
-  /// The same for the lists of pre-clustered jets
-  /// passed between neighbour jetFinders
-  m_sentProtoJets.assign(MAX_JETS_OUT, tempRgn);
-  m_rcvdProtoJets.assign(MAX_JETS_OUT, tempRgn);
-  m_keptProtoJets.assign(MAX_JETS_OUT, tempRgn);
-
-  /// The same for the lists of output jets
-  L1GctJet tempJet;
-  tempJet.setBx(bxAbs());
-  m_outputJets.assign(MAX_JETS_OUT, tempJet);
 }
 
 // This is how the regions from the RCT get into the GCT for processing 
@@ -224,8 +195,6 @@ void L1GctJetFinderBase::sortJets()
   }
   //presort the jets into descending order of energy
   sort(m_sortedJets.begin(), m_sortedJets.end(), rankGreaterThan());
-  //store jets in "pipeline memory" for checking
-  m_outputJetsPipe.store(m_outputJets, bxRel());
 }
    
 /// Fill the Et strip sums and Ht sum. All jetFinders should call this in process().

@@ -4,8 +4,8 @@
 /*
  * \file EBOccupancyClient.h
  *
- * $Date: 2008/03/14 14:38:54 $
- * $Revision: 1.5 $
+ * $Date: 2008/06/25 14:16:15 $
+ * $Revision: 1.13 $
  * \author G. Della Ricca
  * \author F. Cossutti
  *
@@ -44,7 +44,7 @@ virtual ~EBOccupancyClient();
 void analyze(void);
 
 /// BeginJob
-void beginJob(DQMStore* mui);
+void beginJob(DQMStore* dqmStore);
 
 /// EndJob
 void endJob(void);
@@ -61,11 +61,14 @@ void setup(void);
 /// Cleanup
 void cleanup(void);
 
+/// SoftReset
+void softReset(bool flag);
+
 /// HtmlOutput
 void htmlOutput(int run, std::string& htmlDir, std::string& htmlName);
 
 /// WriteDB
-bool writeDb(EcalCondDBInterface* econn, RunIOV* runiov, MonRunIOV* moniov);
+bool writeDb(EcalCondDBInterface* econn, RunIOV* runiov, MonRunIOV* moniov, bool& status, bool flag);
 
 /// Get Functions
 inline int getEvtPerJob() { return ievt_; }
@@ -79,12 +82,15 @@ int jevt_;
 bool cloneME_;
 
 bool verbose_;
+bool debug_;
+
+std::string prefixME_;
 
 bool enableCleanup_;
 
 std::vector<int> superModules_;
 
-DQMStore* dbe_;
+DQMStore* dqmStore_;
 
 TH2F* h01_[3];
 TH1F* h01ProjEta_[3];

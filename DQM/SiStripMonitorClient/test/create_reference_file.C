@@ -6,11 +6,11 @@
 #include <TH1.h>
 #include <string>
 #include <vector>
-void parseXML(TXMLNode *node, TFile* file1, TDirectory* ts, bool flag);
+void parseXML(TXMLNode *node, TFile* file1, TDirectory* ts, bool flag, string store_path);
 void split(const string& str, vector<string>& tokens, const string& delimiters);
 void setPath(TH1* th1, string& path, TDirectory* topDir);
 
-void create_reference_file(string fname1, string fname2)
+void create_reference_file(string fname1, string fname2, string irun)
 {
   TFile* file1 = new TFile(fname1.c_str());
   if (!file1) return;
@@ -36,7 +36,9 @@ void create_reference_file(string fname1, string fname2)
 
   TXMLNode *node = domParser->GetXMLDocument()->GetRootNode();
 
-  parseXML(node, file1, td, online);
+  string store_path;
+  store_path = "DQMData/Run "+ irun + "/SiStrip/Run summary";
+  parseXML(node, file1, td, online, store_path);
 
   delete domParser;
   file1->Close();
@@ -44,7 +46,7 @@ void create_reference_file(string fname1, string fname2)
   file2->Close();
 }
 
-void parseXML(TXMLNode *node, TFile* file1, TDirectory* td, bool flag)
+void parseXML(TXMLNode *node, TFile* file1, TDirectory* td, bool flag, string store_path)
 {
   for ( ; node; node = node->GetNextNode()) {
     if (node->GetNodeType() == TXMLNode::kXMLElementNode) { // Element Node
@@ -60,7 +62,7 @@ void parseXML(TXMLNode *node, TFile* file1, TDirectory* td, bool flag)
 	  cout << attr_name << " : " << attr_value << endl;
           if (node_name == "monitorable") {
             string path, fname;
-            path = "DQMData/" + attr_value;
+            path = store_path + attr_value.substr(attr_value.find("SiStrip")+7);
             TH1F* th1 = dynamic_cast<TH1F*> ( file1->Get(path.c_str()));
             if (th1) {
               cout << " copying " << th1->GetName() << " to " << attr_value << endl;
@@ -82,7 +84,7 @@ void parseXML(TXMLNode *node, TFile* file1, TDirectory* td, bool flag)
       cout << "Comment: " << node->GetContent();
     }
     
-    parseXML(node->GetChildren(), file1, td, flag);
+    parseXML(node->GetChildren(), file1, td, flag,store_path);
   }
 }
 //

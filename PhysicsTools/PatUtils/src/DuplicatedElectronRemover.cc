@@ -4,13 +4,13 @@
 
 
 std::auto_ptr< std::vector<size_t> > 
-pat::DuplicatedElectronRemover::duplicatesToRemove(const std::vector<reco::PixelMatchGsfElectron> &electrons) const {
-    return duplicatesToRemove< std::vector<reco::PixelMatchGsfElectron> >(electrons);
+pat::DuplicatedElectronRemover::duplicatesToRemove(const std::vector<reco::GsfElectron> &electrons) const {
+    return duplicatesToRemove< std::vector<reco::GsfElectron> >(electrons);
 }
 
 std::auto_ptr< std::vector<size_t> > 
-pat::DuplicatedElectronRemover::duplicatesToRemove(const edm::View<reco::PixelMatchGsfElectron>   &electrons) const {
-    return duplicatesToRemove< edm::View<reco::PixelMatchGsfElectron> >(electrons);
+pat::DuplicatedElectronRemover::duplicatesToRemove(const edm::View<reco::GsfElectron>   &electrons) const {
+    return duplicatesToRemove< edm::View<reco::GsfElectron> >(electrons);
 }
 
 
@@ -18,7 +18,7 @@ pat::DuplicatedElectronRemover::duplicatesToRemove(const edm::View<reco::PixelMa
 
 /*
 std::auto_ptr< std::vector<size_t> >
-pat::DuplicatedElectronRemover::duplicatesToRemove(const std::vector<reco::PixelMatchGsfElectron> &electrons) 
+pat::DuplicatedElectronRemover::duplicatesToRemove(const std::vector<reco::GsfElectron> &electrons) 
 {
     using namespace std;
 

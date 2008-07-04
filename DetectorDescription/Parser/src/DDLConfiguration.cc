@@ -17,14 +17,21 @@
 // Parser parts
 #include "DetectorDescription/Parser/interface/DDLConfiguration.h"
 #include "DetectorDescription/Parser/interface/DDLParser.h"
+#include "DetectorDescription/Parser/interface/DDLSAX2ConfigHandler.h"
+#include "StrX.h"
 #include "DetectorDescription/Base/interface/DDdebug.h"
+#include "DetectorDescription/Base/interface/DDException.h"
 
 
 // Xerces dependencies
+#include <xercesc/util/PlatformUtils.hpp>
+#include <xercesc/sax2/SAX2XMLReader.hpp>
 #include <xercesc/sax2/XMLReaderFactory.hpp>
 #include <xercesc/sax/SAXException.hpp>
 
+#include <string>
 #include <iostream>
+#include <map>
 
 using namespace xercesc_2_7;
 

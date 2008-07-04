@@ -68,6 +68,8 @@
        edm::ParameterSet conf_;
        edm::InputTag src_;
        bool saveFile;
+       bool isPIB;
+       bool slowDown;
        int eventNo;
        DQMStore* theDMBE;
        std::map<uint32_t,SiPixelRawDataErrorModule*> thePixelStructure;

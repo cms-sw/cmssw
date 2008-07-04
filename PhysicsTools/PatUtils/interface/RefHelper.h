@@ -1,7 +1,7 @@
 #ifndef PhysicsTools_PatUtils_RefHelper_h
 #define PhysicsTools_PatUtils_RefHelper_h
 
-#include "DataFormats/Common/interface/RefToBase.h"
+#include "DataFormats/Common/interface/Ptr.h"
 #include "DataFormats/Common/interface/ValueMap.h"
 namespace pat { namespace helper {
 /*** \brief A class to help manage references and associative containers in some tricky cases (e.g.  selection by copy)
@@ -9,10 +9,10 @@ namespace pat { namespace helper {
 template<typename T>
 class RefHelper {
     public:
-        typedef typename edm::RefToBase<T> Ref;
+        typedef typename edm::Ptr<T> Ref;
 
         /// Constructor taking a ValueMap of back-references daughter => mother.
-        RefHelper(const edm::ValueMap< edm::RefToBase <T> > &backRefMap) : backRefMap_(backRefMap) { }
+        RefHelper(const edm::ValueMap< Ref > &backRefMap) : backRefMap_(backRefMap) { }
 
         /// Returns a Ref to the direct parent of "ref", or a null Ref if "ref" is already root
         Ref parentOrNull(const Ref &ref) const ;
@@ -42,7 +42,7 @@ class RefHelper {
         V ancestorLookup(const SomeRef &ref, const edm::ValueMap<V> &map) const ;
 
     private:
-        const edm::ValueMap< edm::RefToBase <T> > & backRefMap_;
+        const edm::ValueMap< Ref > & backRefMap_;
 };
 
 template<typename T>

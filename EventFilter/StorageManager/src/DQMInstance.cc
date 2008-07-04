@@ -159,6 +159,20 @@ int DQMInstance::updateObject(std::string groupName,
   return(nUpdates_);
 }
 
+bool DQMInstance::isReady(int currentTime)
+{
+  bool readyFlag = true;
+  for (std::map<std::string, DQMGroup * >::iterator i0 = 
+	 dqmGroups_.begin(); i0 != dqmGroups_.end() ; ++i0)
+  {
+    DQMGroup  * group     = i0->second;
+    if ( group != NULL && ! group->isReady(currentTime) ) {
+      readyFlag = false;
+    }
+  }
+  return readyFlag;
+}
+
 bool DQMInstance::isStale(int currentTime)
 {
   return( ( currentTime - lastUpdate_->GetSec() ) > purgeTime_);
@@ -176,7 +190,7 @@ int DQMInstance::writeFile(std::string filePrefix)
   {
     std::string groupName = i0->first;
     DQMGroup * group = i0->second;
-    sprintf(fileName,"%s_%s_%8.8d_%4.4d_%d.root", 
+    sprintf(fileName,"%s/dqm_%s_%8.8d_%4.4d_%4.4d.root", 
 	    filePrefix.c_str(), 
 	    groupName.c_str(), 
 	    runNumber_, 

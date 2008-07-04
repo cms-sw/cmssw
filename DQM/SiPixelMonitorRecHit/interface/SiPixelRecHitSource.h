@@ -16,10 +16,12 @@
 //
 // Original Author:  Vincenzo Chiochia
 //         Created:  
-// $Id: SiPixelRecHitSource.h,v 1.2 2007/11/13 21:46:15 krose Exp $
+// $Id: SiPixelRecHitSource.h,v 1.4 2008/06/23 15:52:05 merkelp Exp $
 //
 // Updated by: Keith Rose
 // for use in SiPixelMonitorRecHits
+// Updated by: Lukas Wehrli
+// for pixel offline DQM 
 
 
 #include <memory>
@@ -67,10 +69,19 @@
     private:
        edm::ParameterSet conf_;
        edm::InputTag src_;
+       bool saveFile;
+       bool isPIB;
+       bool slowDown;
        int eventNo;
        DQMStore* theDMBE;
        std::map<uint32_t,SiPixelRecHitModule*> thePixelStructure;
        std::map<uint32_t,int> rechit_count;
+       bool modOn; 
+       //barrel:
+       bool ladOn, layOn, phiOn;
+       //forward:
+       bool ringOn, bladeOn, diskOn; 
+
  };
 
 #endif

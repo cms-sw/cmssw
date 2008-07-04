@@ -1,12 +1,14 @@
 #ifndef PixelFEDConfig_h
 #define PixelFEDConfig_h
-/**
-*   \file CalibFormats/SiPixelObjects/interface/PixelFEDConfig.h
-*   \brief This class implements..
-*
-*   This class specifies which FED boards
-*   are used and how they are addressed
-*/
+//
+// This class specifies which FED boards
+// are used and how they are addressed
+// 
+// 
+// 
+//
+//
+//
 
 #include <vector>
 #include <string>
@@ -14,16 +16,6 @@
 #include "CalibFormats/SiPixelObjects/interface/PixelFEDParameters.h"
 
 namespace pos{
-/*!  \ingroup ConfigurationObjects "Configuration Objects"
-*    
-*  @{
-*
-*  \class PixelFEDConfig PixelFEDConfig.h
-*  \brief This is the documentation about PixelFEDConfig...
-*
-*  This class specifies which FED boards
-*  are used and how they are addressed
-*/
   class PixelFEDConfig: public PixelConfigBase {
 
   public:
@@ -60,5 +52,4 @@ namespace pos{
  
   };
 }
-/* @} */
 #endif

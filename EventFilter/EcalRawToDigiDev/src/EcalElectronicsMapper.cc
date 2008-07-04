@@ -1,6 +1,7 @@
 #include <FWCore/MessageLogger/interface/MessageLogger.h>
 #include <EventFilter/EcalRawToDigiDev/interface/EcalElectronicsMapper.h>
 #include <Geometry/EcalMapping/interface/EcalElectronicsMapping.h>
+#include "EventFilter/EcalRawToDigiDev/interface/DCCDataUnpacker.h"
 #include <DataFormats/EcalDigi/interface/EBSrFlag.h>
 #include <DataFormats/EcalDigi/interface/EESrFlag.h>
 
@@ -347,7 +348,9 @@ uint EcalElectronicsMapper::getDCCId(uint aSMId_) const{
   if(it!= myDCCMap_.end()) return it->second;
  
   //error return
-  edm::LogError("EcalElectronicsMapper") << "DCC requested for SM id: " << aSMId_ << " not found";
+  if( ! DCCDataUnpacker::silentMode_ ){
+    edm::LogError("EcalElectronicsMapper") << "DCC requested for SM id: " << aSMId_ << " not found";
+  }
   return 0;
 }
 
@@ -362,7 +365,9 @@ uint EcalElectronicsMapper::getSMId(uint aDCCId_) const {
       return it->first;
 
   //error return
-  edm::LogError("EcalEcalElectronicsMapper") << "SM requested DCC id: " << aDCCId_ << " not found";
+  if( ! DCCDataUnpacker::silentMode_ ){
+    edm::LogError("EcalEcalElectronicsMapper") << "SM requested DCC id: " << aDCCId_ << " not found";
+  }
   return 0;
 }
 

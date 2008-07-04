@@ -1,3 +1,29 @@
+2008-06-18  Kurt Biery <biery@fnal.gov>
+
+	* tag V03-11-07
+	* Fixed bugs in DQM histogram serving and archiving.
+	* Added archiveIntervalDQM configuration parameter to control how often
+	  we archive DQM histograms (once every N lumi sections, where
+	  archiveIntervalDQM = N).
+	* Slightly modified format of DQM archive filenames.
+
+2008-06-03  Harry Cheung <cheung@fnal.gov>
+
+	* tag V03-11-05
+	* Quick fix for registration problem with 2 rails (threads)
+	* earlier tags fixes backporting of event server changes and fix for DQM ME receiving
+
+2008-04-21  Constantin Loizides <loizides@mit.edu>
+
+	* tag V03-11-01
+	* Implemented transfer to t0 with independent daemon (daemon to be written seperately).
+	* General cleanup of code
+
+2008-04-17  Harry Cheung <cheung@fnal.gov>
+
+	* tag V03-11-00
+	* Include fair share event consumer handling in event server and consumer monitoring
+
 2008-03-10  Harry Cheung <cheung@fnal.gov>
 
 	* tag V03-10-02

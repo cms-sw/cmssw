@@ -67,42 +67,12 @@
   <class name="L1GtPrescaleFactors"/>
   <class name="L1GtTriggerMask"/>
   <class name="L1GtBoard"/>
+  <class name="std::vector<L1GtPsbQuad>"/>
   <class name="L1GtBoardMaps"/>
   <class name="std::vector<L1GtBoard>"/>
-  <class name="std::vector<L1GtPsbQuad>"/>
-  <class name="L1GtMuonTemplate"/>
-  <class name="L1GtMuonTemplate::ObjectParameter"/>
-  <class name="std::vector<L1GtMuonTemplate::ObjectParameter>"/>
-  <class name="L1GtMuonTemplate::CorrelationParameter"/>
-  <class name="std::vector<L1GtMuonTemplate>"/>
-  <class name="std::vector<std::vector<L1GtMuonTemplate> >"/>
-  <class name="L1GtCaloTemplate"/>
-  <class name="L1GtCaloTemplate::ObjectParameter"/>
-  <class name="std::vector<L1GtCaloTemplate::ObjectParameter>"/>
-  <class name="L1GtCaloTemplate::CorrelationParameter"/>
-  <class name="std::vector<L1GtCaloTemplate>"/>
-  <class name="std::vector<std::vector<L1GtCaloTemplate> >"/>
-  <class name="L1GtEnergySumTemplate"/>
-  <class name="L1GtEnergySumTemplate::ObjectParameter"/>
-  <class name="std::vector<L1GtEnergySumTemplate::ObjectParameter>"/>
-  <class name="std::vector<L1GtEnergySumTemplate>"/>
-  <class name="std::vector<std::vector<L1GtEnergySumTemplate> >"/>
-  <class name="L1GtJetCountsTemplate"/>
-  <class name="L1GtJetCountsTemplate::ObjectParameter"/>
-  <class name="std::vector<L1GtJetCountsTemplate::ObjectParameter>"/>
-  <class name="std::vector<L1GtJetCountsTemplate>"/>
-  <class name="std::vector<std::vector<L1GtJetCountsTemplate> >"/>
-  <class name="L1GtCorrelationTemplate"/>
-  <class name="L1GtCorrelationTemplate::CorrelationParameter"/>
-  <class name="std::vector<L1GtCorrelationTemplate>"/>
-  <class name="std::vector<std::vector<L1GtCorrelationTemplate> >"/>
-  <class name="L1GtAlgorithm">
-    <field name="m_algoRpnVector" transient="true" />
-  </class>
-  <class name="std::map<std::string, L1GtAlgorithm>"/>
-  <class name="std::map<std::string, L1GtAlgorithm>::value_type"/>
-  <class name="L1GtTriggerMenu">
-    <field name="m_conditionMap" transient="true" />
-  </class>
+  <class name="std::map<std::string, L1GtCondition*>"/>
+  <class name="std::vector<std::map<std::string, L1GtCondition*> >"/>
+  <class name="std::map<std::string, L1GtAlgorithm*>"/>
+  <class name="L1GtTriggerMenu"/>
 
 </lcgdict>

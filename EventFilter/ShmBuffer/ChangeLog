@@ -1,3 +1,21 @@
+2008-06-13  Philipp SCHIEFERDECKER  <philipp.schieferdecker@cern.ch>
+
+	* tag V00-06-06
+	* fix to error event sending: set the discard counter to 1 (not
+	2), since no client will ever schedule the raw cell for
+	discard.
+
+2008-06-02  Philipp SCHIEFERDECKER  <philipp.schieferdecker@cern.ch>
+
+	* tag V00-06-05
+	* update FUShmBuffer/FUShmRecoCell, pass outModId when the INIT
+	message is written
+
+2008-05-30  Philipp SCHIEFERDECKER  <philipp.schieferdecker@cern.ch>
+
+	* tag V00-06-04
+	* update to FUShmBuffer::writeErrorEventData()
+
 2008-03-12  Philipp SCHIEFERDECKER  <philipp.schieferdecker@cern.ch>
 
 	* tag V00-06-03

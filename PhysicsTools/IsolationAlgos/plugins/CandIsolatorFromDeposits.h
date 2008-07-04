@@ -21,6 +21,8 @@ namespace edm { class EventSetup; }
 class CandIsolatorFromDeposits : public edm::EDProducer {
 
 public:
+  typedef edm::ValueMap<double> CandDoubleMap;
+
   //enum Mode { Sum, SumRelative, Max, MaxRelative, Count };
   enum Mode { Sum, SumRelative, Count };
   CandIsolatorFromDeposits(const edm::ParameterSet&);

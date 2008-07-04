@@ -78,7 +78,10 @@ class CSCRecHitDBuilder
 
   //bool isData;
   bool useCalib;
+  bool debug;  
   int stripWireDeltaT;
+  bool useCleanStripCollection;
+  bool useCleanWireCollection;
   bool makePseudo2DHits;
 
   /**

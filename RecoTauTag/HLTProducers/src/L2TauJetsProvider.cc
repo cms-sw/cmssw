@@ -101,7 +101,7 @@ void L2TauJetsProvider::produce(edm::Event& iEvent, const edm::EventSetup& iES)
     //    typedef std::vector<l1extra::L1JetParticleRef>     VRl1jet;
 vector<L1JetParticleRef> tauCandRefVec;
     L1JetParticleRef tauCandRef;
-    l1TriggeredTaus->getObjects(trigger::TriggerL1TauJet,tauCandRefVec);
+    l1TriggeredTaus->getObjects(trigger::TriggerL1CenJet,tauCandRefVec);
 
 
     for( unsigned int iL1Tau=0; iL1Tau <tauCandRefVec.size();iL1Tau++)

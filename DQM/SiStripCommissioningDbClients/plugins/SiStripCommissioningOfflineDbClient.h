@@ -1,4 +1,4 @@
-// Last commit: $Id: SiStripCommissioningOfflineDbClient.h,v 1.4 2008/02/07 17:02:56 bainbrid Exp $
+// Last commit: $Id: SiStripCommissioningOfflineDbClient.h,v 1.3 2007/07/13 14:17:51 bainbrid Exp $
 
 #ifndef DQM_SiStripCommissioningDbClients_SiStripCommissioningOfflineDbClient_H
 #define DQM_SiStripCommissioningDbClients_SiStripCommissioningOfflineDbClient_H
@@ -24,7 +24,7 @@ class SiStripCommissioningOfflineDbClient : public SiStripCommissioningOfflineCl
   
  protected:
   
-  void createHistos( const edm::ParameterSet&, const edm::EventSetup& );
+  void createHistos();
   void uploadToConfigDb();
 
  private:

@@ -10,7 +10,10 @@
 #include "SimDataFormats/HepMCProduct/interface/HepMCProduct.h"
 
 #include "FWCore/Framework/interface/Event.h"
+#include "FWCore/ServiceRegistry/interface/Service.h"
 #include "FWCore/Utilities/interface/RandomNumberGenerator.h"
+#include "CLHEP/Random/JamesRandom.h"
+#include "CLHEP/Random/RandFlat.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include "SimDataFormats/HepMCProduct/interface/GenInfoProduct.h"
 #include "FWCore/Framework/interface/Run.h"
@@ -24,6 +27,7 @@ using namespace std;
 
 #include "HepMC/HerwigWrapper6_4.h"
 #include "HepMC/IO_HERWIG.h"
+#include "HepMC/HEPEVT_Wrapper.h"
 
 // INCLUDE JIMMY,HERWIG,LHAPDF,POMWIG COMMON BLOCKS AND FUNTIONS
 #include "herwig.h"
@@ -473,7 +477,7 @@ bool PomwigSource::produce(Event & e) {
   // if event was killed by HERWIG; skip 
   if(hwevnt.IERROR!=0) return true;
 
-  //intCrossSect = 1000.0*survivalProbability*hwevnt.AVWGT;
+  intCrossSect = 1000.0*survivalProbability*hwevnt.AVWGT;
 
   // -----------------  HepMC converter --------------------
   HepMC::IO_HERWIG conv;
@@ -1287,17 +1291,8 @@ bool PomwigSource::setRngSeeds(int mseed)
 void PomwigSource::endRun(Run & r) {
  
  auto_ptr<GenInfoProduct> giprod (new GenInfoProduct());
-
- //-----------------------------------------------
- // compute cross-section (internal HERWIG style)
- double RNWGT=1./hwevnt.NWGTS;
- double AVWGT=hwevnt.WGTSUM*RNWGT;
-
- intCrossSect=1000.*survivalProbability*AVWGT;
- //-----------------------------------------------
-
  giprod->set_cross_section(intCrossSect);
- cout<<">>>>> Cross section = " << intCrossSect << std::endl;
+ cout<<"cross section = "<<intCrossSect<<std::endl;
  giprod->set_external_cross_section(extCrossSect);
  giprod->set_filter_efficiency(extFilterEff);
  r.put(giprod);

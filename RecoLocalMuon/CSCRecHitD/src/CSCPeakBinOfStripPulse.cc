@@ -11,6 +11,7 @@
 
 CSCPeakBinOfStripPulse::CSCPeakBinOfStripPulse( const edm::ParameterSet& ps ) {
 
+  debug                      = ps.getUntrackedParameter<bool>("CSCDebug");
 
 }
 

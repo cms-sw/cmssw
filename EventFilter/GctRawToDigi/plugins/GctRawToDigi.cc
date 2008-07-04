@@ -55,19 +55,16 @@ GctRawToDigi::GctRawToDigi(const edm::ParameterSet& iConfig) :
   blockUnpacker_(0),
   unpackFailures_(0)
 {
-  edm::LogInfo("GCT") << "GctRawToDigi will unpack FED Id " << fedId_ << endl;
+  LogDebug("GCT") << "GctRawToDigi will unpack FED Id " << fedId_;
 
   if(grenCompatibilityMode_)
   { 
-    edm::LogInfo("GCT") << "GREN 2007 compatibility mode has been selected." << endl;
+    edm::LogInfo("GCT") << "GREN 2007 compatibility mode has been selected.";
     blockUnpacker_ = new GctBlockUnpacker(hltMode_);
   }
-  else
-  {
-    blockUnpacker_ = new GctBlockUnpackerV2(hltMode_);
-  }
+  else { blockUnpacker_ = new GctBlockUnpackerV2(hltMode_); }
 
-  if(hltMode_) { edm::LogInfo("GCT") << "HLT unpack mode selected: HLT unpack optimisations will be used." << endl; }
+  if(hltMode_) { edm::LogInfo("GCT") << "HLT unpack mode selected: HLT unpack optimisations will be used."; }
 
   //register the products
   produces<L1CaloEmCollection>();
@@ -108,16 +105,15 @@ void GctRawToDigi::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
   iEvent.getByLabel(inputLabel_, feds);
   const FEDRawData& gctRcd = feds->FEDData(fedId_);
  
-  edm::LogInfo("GCT") << "Upacking FEDRawData of size " << std::dec << gctRcd.size() << std::endl;
+  LogDebug("GCT") << "Upacking FEDRawData of size " << std::dec << gctRcd.size();
 
   bool invalidDataFlag = false;
   
   // do a simple check of the raw data - this will detect empty events
   if(gctRcd.size() < 16)
   {
-      edm::LogWarning("Empty/Invalid Data") << "Cannot unpack: empty/invalid GCT raw data (size = "
-                                            << gctRcd.size()
-                                            << "). Returning empty collections!";
+      LogDebug("GCT") << "Cannot unpack: empty/invalid GCT raw data (size = "
+                      << gctRcd.size() << "). Returning empty collections!";
       invalidDataFlag = true;
   }
 
@@ -176,14 +172,14 @@ void GctRawToDigi::unpack(const FEDRawData& d, edm::Event& e, const bool invalid
     
     if(grenCompatibilityMode_) { dPtr = 8; }  // No software-controlled secondary header in old scheme. 
     
-    const unsigned dEnd = d.size() - dPtr - 8; // bytes in payload = packet size - initial header(s) - final slink header.
+    const unsigned dEnd = d.size() - 8; // End of payload is at (packet size - final slink header)
 
     edm::OwnVector<GctBlockHeaderBase> bHdrs; // Self-cleaning vector for storing block headers for verbosity print-out.
 
     // read blocks
     for (unsigned nb=0; dPtr<dEnd; ++nb)
     {
-      if(nb >= MAX_BLOCKS) { edm::LogError("GCT") << "Reached block limit - bailing out from this event!" << endl; ++unpackFailures_; break; }
+      if(nb >= MAX_BLOCKS) { LogDebug("GCT") << "Reached block limit - bailing out from this event!"; ++unpackFailures_; break; }
       
       // read block header
       std::auto_ptr<GctBlockHeaderBase> blockHeader;
@@ -193,7 +189,7 @@ void GctRawToDigi::unpack(const FEDRawData& d, edm::Event& e, const bool invalid
       // unpack the block; dPtr+4 is to get to the block data.
       if(!blockUnpacker_->convertBlock(&data[dPtr+4], *blockHeader)) // Record if we had an unpack problem then skip rest of event.
       {
-        edm::LogError("GCT") << "Encountered block unpack error - bailing out from this event!" << endl;
+        LogDebug("GCT") << "Encountered block unpack error - bailing out from this event!";
         ++unpackFailures_; break;
       } 
   
@@ -222,6 +218,7 @@ void GctRawToDigi::unpack(const FEDRawData& d, edm::Event& e, const bool invalid
       edm::LogVerbatim("GCT") << os.str();
     }
   }
+  else { ++unpackFailures_; }
 
   // put data into the event
   if (hltMode_ || doEm_)
@@ -265,7 +262,7 @@ GctRawToDigi::endJob()
   if(unpackFailures_ > 0)
   {
     edm::LogError("GCT") << "GCT unpacker encountered " << unpackFailures_
-                         << " unpack errors in total during this job!" << endl;
+                         << " unpack errors in total during this job!";
   }  
 }
 

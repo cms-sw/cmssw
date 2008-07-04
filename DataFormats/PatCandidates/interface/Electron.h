@@ -1,5 +1,5 @@
 //
-// $Id: Electron.h,v 1.7 2008/03/05 14:47:33 fronga Exp $
+// $Id: Electron.h,v 1.11 2008/05/15 18:20:46 lowette Exp $
 //
 
 #ifndef DataFormats_PatCandidates_Electron_h
@@ -13,11 +13,13 @@
    namespace.
 
   \author   Steven Lowette
-  \version  $Id: Electron.h,v 1.7 2008/03/05 14:47:33 fronga Exp $
+  \version  $Id: Electron.h,v 1.11 2008/05/15 18:20:46 lowette Exp $
 */
+
 
 #include "DataFormats/EgammaCandidates/interface/GsfElectron.h"
 #include "DataFormats/EgammaCandidates/interface/GsfElectronFwd.h"
+#include "DataFormats/GsfTrackReco/interface/GsfTrack.h"
 #include "DataFormats/PatCandidates/interface/Lepton.h"
 
 
@@ -35,16 +37,37 @@ namespace pat {
       Electron();
       Electron(const ElectronType & anElectron);
       Electron(const edm::RefToBase<ElectronType> & anElectronRef);
+      Electron(const edm::Ptr<ElectronType> & anElectronRef);
       virtual ~Electron();
 
+      virtual Electron * clone() const { return new Electron(*this); }
+
+      /// override the ElectronType::gsfTrack method, to access the internal storage of the supercluster
+      reco::GsfTrackRef gsfTrack() const;
+      /// override the ElectronType::superCluster method, to access the internal storage of the supercluster
+      reco::SuperClusterRef superCluster() const;
+      /// override the ElectronType::track method, to access the internal storage of the track
+      reco::TrackRef track() const;
       float leptonID() const;
       float electronIDRobust() const;
 
+      /// method to store the electron's supercluster internally
+      void embedGsfTrack();
+      /// method to store the electron's supercluster internally
+      void embedSuperCluster();
+      /// method to store the electron's supercluster internally
+      void embedTrack();
       void setLeptonID(float id);
       void setElectronIDRobust(float id);
 
     protected:
 
+      bool embeddedGsfTrack_;
+      std::vector<reco::GsfTrack> gsfTrack_;
+      bool embeddedSuperCluster_;
+      std::vector<reco::SuperCluster> superCluster_;
+      bool embeddedTrack_;
+      std::vector<reco::Track> track_;
       float leptonID_;
       float electronIDRobust_;
 

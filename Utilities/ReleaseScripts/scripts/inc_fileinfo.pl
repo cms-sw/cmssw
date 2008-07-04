@@ -13,6 +13,7 @@ $file=&SCRAMGenUtils::fixPath($file);
 my $rel=dirname($file);
 while(!-d "${rel}/.SCRAM"){$rel=dirname($rel);}
 if(!-d "${rel}/.SCRAM"){die "not a scram base dir";}
+my $tmpdir="${rel}/tmp/IncludeChecker/${arch}";
 
 $file=~s/^$rel\///;
 $file=~s/^src\///;
@@ -33,7 +34,7 @@ sub getIncludes ()
   my $f=shift;
   my $c=shift || {};
   if(exists $c->{all}{$f}){return;}
-  my $cfile="${rel}/tmp/${arch}/includechecker/cache/files/${f}";
+  my $cfile="${tmpdir}/cache/files/${f}";
   if(!-f $cfile){return;}
   $c->{all}{$f}=1;
   push @{$c->{order}},$f;
@@ -46,7 +47,7 @@ sub readcachefile()
 {
   my $file=shift;
   if(exists $cache->{data}{$file}){return $cache->{data}{$file};}
-  my $cfile="${rel}/tmp/${arch}/includechecker/cache/files/${file}";
+  my $cfile="${tmpdir}/cache/files/${file}";
   my $c={};
   if(-f $cfile){$c=&SCRAMGenUtils::readHashCache($cfile);}
   $cache->{data}{$file}=$c;
@@ -57,8 +58,8 @@ sub wasremoved ()
 {
   my $file=shift;
   my $inc=shift;
-  my $cfile="${rel}/tmp/${arch}/includechecker/includechecker/src/${file}.modified_by_incchk";
-  if(!-f $cfile){$cfile="${rel}/tmp/${arch}/includechecker/includechecker/src/${file}";}
+  my $cfile="${tmpdir}/includechecker/src/${file}.modified_by_incchk";
+  if(!-f $cfile){$cfile="${tmpdir}/includechecker/src/${file}";}
   if(!-f $cfile){return 0;}
   foreach my $l (`cat $cfile`)
   {

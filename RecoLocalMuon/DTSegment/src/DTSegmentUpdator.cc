@@ -1,7 +1,7 @@
 /** \file
  *
- * $Date: 2007/12/19 15:54:06 $
- * $Revision: 1.23 $
+ * $Date: 2007/11/04 13:41:34 $
+ * $Revision: 1.22 $
  * \author Stefano Lacaprara - INFN Legnaro <stefano.lacaprara@pd.infn.it>
  * \author Riccardo Bellan - INFN TO <riccardo.bellan@cern.ch>
  * \       A.Meneguzzo - Padova University  <anna.meneguzzo@pd.infn.it>
@@ -319,52 +319,86 @@ void DTSegmentUpdator::fitT0(DTRecSegment2D* seg) {
   // WARNING: since this method is called both with a 2D and a 2DPhi as argument
   // seg->geographicalId() can be a superLayerId or a chamberId 
 
-  double x,y;
-  double sx=0,sy=0,sxy=0,sxx=0,ssx=0,ssy=0,s=0,ss=0;
-  int leftHits=0,rightHits=0;
+  vector<float> xl;
+  vector<float> xr;
+  vector<float> yl;
+  vector<float> yr;
+  vector<float> sigyl;
+  vector<float> sigyr;
 
+  // Separate the left and right hits
   vector<DTRecHit1D> hits=seg->specificRecHits();
-
   for (vector<DTRecHit1D>::const_iterator hit=hits.begin(); hit!=hits.end(); ++hit) {
 
     // I have to get the hits position (the hit is in the layer rf) in SL frame...
     GlobalPoint glbPos = ( theGeom->layer( hit->wireId().layerId() ) )->toGlobal(hit->localPosition());
     LocalPoint pos = ( theGeom->idToDet(seg->geographicalId()) )->toLocal(glbPos);
 
-    x=pos.z();
-    y=pos.x();
+    // Get local error in SL frame
+    //RB: is it right in this way? 
+    ErrorFrameTransformer tran;
+    GlobalError glbErr =
+      tran.transform( hit->localPositionError(),(theGeom->layer( hit->wireId().layerId() ))->surface());
+    LocalError slErr =
+      tran.transform( glbErr, (theGeom->idToDet(seg->geographicalId()))->surface());
 
-    sx+=x;
-    sy+=y;
-    sxy+=x*y;
-    sxx+=x*x;
-    s++;
-    
     if (hit->lrSide()==DTEnums::Left) {
-      leftHits++;
-      ssx+=x;
-      ssy+=y;
-      ss++;
+      xl.push_back(pos.z()); 
+      yl.push_back(pos.x());
+      sigyl.push_back(sqrt(slErr.xx()));
     } else {
-      rightHits++;
-      ssx-=x;
-      ssy-=y;
-      ss--;
+      xr.push_back(pos.z()); 
+      yr.push_back(pos.x());
+      sigyr.push_back(sqrt(slErr.xx()));
     }  
-  }      
-                    
-  double t0_corr=0.;
-
-  if (leftHits && rightHits) {
-    double delta = ss*ss*sxx+s*sx*sx+s*ssx*ssx-s*s*sxx-2*ss*sx*ssx;
-    if (delta) {
-//      a=(ssy*s*ssx+sxy*ss*ss+sy*sx*s-sy*ss*ssx-ssy*sx*ss-sxy*s*s)/delta;
-//      b=(ssx*sy*ssx+sxx*ssy*ss+sx*sxy*s-sxx*sy*s-ssx*sxy*ss-sx*ssy*ssx)/delta;
-      t0_corr=(ssx*s*sxy+sxx*ss*sy+sx*sx*ssy-sxx*s*ssy-sx*ss*sxy-ssx*sx*sy)/delta;
-    }
   }
 
-  t0_corr/=-0.00543; // convert drift distance to time
+  float a,b,covss,covii,covsi;
+  float ar=0,br=0,al=0,bl=0;
+
+  // Do the fit separately for left and right hits
+  if (xl.size()>1) theFitter->fit(xl,yl,xl.size(),sigyl,al,bl,covss,covii,covsi); 
+  else if (xl.size()==1) bl=yl[0];
+  if (xr.size()>1) theFitter->fit(xr,yr,xr.size(),sigyr,ar,br,covss,covii,covsi);
+  else if (xr.size()==1) br=yr[0];
+
+  // If there's only 1 hit on one side, take the slope from the other side and adjust the constant
+  // so that the line passes through the single hit  
+
+  if (al==0) { 
+    al=ar; 
+    if (bl==0) bl=br; 
+    else bl-=al*xl[0];
+  }    
+  if (ar==0) {
+    ar=al;
+    if (br==0) br=bl; 
+    else br-=ar*xr[0];
+  }
+
+  // The best fit is the average of the left and right fits
+
+  a=(al+ar)/2.;
+  b=(bl+br)/2.;
+
+  // Now we can calculate the t0 correction for the hits
+  // as the average over all the individual hit t0 measurements
+
+  double t0_left=0, t0_right=0, t0_corr;
+  if (xl.size())
+    for (unsigned int i=0; i<xl.size(); i++) 
+      t0_left+=yl[i]-a*xl[i]-b;
+
+  if (xr.size())
+    for (unsigned int i=0; i<xr.size(); i++) 
+      t0_right+=yr[i]-a*xr[i]-b;
+
+  t0_corr=(t0_right-t0_left)/(xr.size()+xl.size());
+
+  if ((t0_left==0) || (t0_right==0)) t0_corr=0;
+  // convert drift distance to time
+  // TODO: a smarter conversion? (using 1D rechit algo?)
+  t0_corr/=0.00543;
 
   seg->setT0(t0_corr);  
 }

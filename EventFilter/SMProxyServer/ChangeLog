@@ -1,3 +1,8 @@
+2008-04-17  Harry Cheung <cheung@fnal.gov>
+
+	* tag V01-07-00
+	* Include stream-based subscriptions and event server statistics monitoring
+
 2008-03-03  Harry Cheung <cheung@fnal.gov>
 
 	* tag V01-06-01

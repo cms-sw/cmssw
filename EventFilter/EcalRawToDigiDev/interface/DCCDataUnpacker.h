@@ -195,6 +195,8 @@ public :
   Get the associated event
   */
   DCCEventBlock * currentEvent(){ return currentEvent_;}
+
+  static bool silentMode_; 
  
 protected :
 

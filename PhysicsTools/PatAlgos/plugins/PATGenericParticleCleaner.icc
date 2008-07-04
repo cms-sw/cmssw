@@ -1,0 +1,75 @@
+#include "PhysicsTools/PatAlgos/plugins/PATGenericParticleCleaner.h"
+#include "DataFormats/PatCandidates/interface/Flags.h"
+#include "Utilities/General/interface/ClassName.h"
+
+template<typename GP>
+pat::PATGenericParticleCleaner<GP>::PATGenericParticleCleaner(const edm::ParameterSet & iConfig) :
+  src_(iConfig.getParameter<edm::InputTag>( "src" )),
+  helper_(src_),
+  isolator_(iConfig.exists("isolation") ? iConfig.getParameter<edm::ParameterSet>("isolation") : edm::ParameterSet() )
+{
+  helper_.configure(iConfig);      // learn whether to save good, bad, all, ...
+  helper_.registerProducts(*this); // issue the produces<>() commands
+
+  if (iConfig.exists("removeOverlaps")) {
+    edm::ParameterSet overlapConf = iConfig.getParameter<edm::ParameterSet>("removeOverlaps");
+    overlapHelper_ = pat::helper::OverlapHelper(overlapConf);
+  }
+}
+
+
+template<typename GP>
+pat::PATGenericParticleCleaner<GP>::~PATGenericParticleCleaner() {
+}
+
+
+template<typename GP>
+void pat::PATGenericParticleCleaner<GP>::produce(edm::Event & iEvent, const edm::EventSetup & iSetup) {     
+  // start a new event
+  helper_.newEvent(iEvent);
+  if (isolator_.enabled()) isolator_.beginEvent(iEvent);
+
+  for (size_t idx = 0, size = helper_.srcSize(); idx < size; ++idx) {
+    // read the source object
+    const GP * srcGenericParticle = dynamic_cast<const GP *>(& helper_.srcAt(idx));
+
+    // if the type is wrong
+    if (srcGenericParticle == 0) {
+        throw cms::Exception("PATGenericParticleCleaner") << "Type Error: input candidate from " << src_.encode()<< " is of type " << className<reco::Candidate>(helper_.srcAt(idx)) 
+                                                          << ", and can't be converted in " << (Demangle(typeid(GP).name())()) << ".\n";
+    }
+    
+    // clone the object and convert it to the new type
+    GP ourGenericParticle = * srcGenericParticle;
+
+    // write the object
+    size_t selIdx = helper_.addItem(idx, ourGenericParticle);
+    
+    // test for isolation and set the bit if needed
+    if (isolator_.enabled()) {
+        uint32_t isolationWord = isolator_.test( helper_.source(), idx );
+        helper_.addMark(selIdx, isolationWord);
+    }
+  }
+
+  if (overlapHelper_.enabled()) {
+     typedef typename pat::helper::OverlapHelper::Result Result;
+     std::auto_ptr<Result> result = overlapHelper_.test( iEvent, helper_.selected() );
+     for (size_t i = 0, n = helper_.size(); i < n; ++i) {
+        helper_.setMark( i, (*result)[i] );
+     }
+  }
+
+  helper_.done();
+  if (isolator_.enabled()) isolator_.endEvent();
+
+}
+
+template<typename GP>
+void pat::PATGenericParticleCleaner<GP>::endJob() { 
+    typename edm::LogVerbatim("PATLayer0Summary|PATGenericParticleCleaner") << "PATGenericParticleCleaner end job. \n" <<
+            "Input tag was " << src_.encode() <<
+            "\nCleaner summary information:\n" <<
+            helper_.printSummary();
+    helper_.endJob(); 
+}

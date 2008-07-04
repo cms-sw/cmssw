@@ -18,7 +18,7 @@
  *
  * \version   May 3, 2006, F.Ratnikov, include all different
  *            energy components separately
- * \version   $Id: CaloJet.h,v 1.32.2.1 2008/02/18 21:30:32 fedor Exp $
+ * \version   $Id: CaloJet.h,v 1.33 2008/02/29 00:52:45 fedor Exp $
  ************************************************************/
 
 
@@ -134,9 +134,9 @@ class CaloJet : public Jet {
   /// convert generic constituent to specific type
   static CaloTowerRef caloTower (const reco::Candidate* fConstituent);
   /// get specific constituent
-  CaloTowerRef getConstituent (unsigned fIndex) const;
+  virtual CaloTowerRef getConstituent (unsigned fIndex) const;
   /// get all constituents
-  std::vector <CaloTowerRef> getConstituents () const;
+  virtual std::vector <CaloTowerRef> getConstituents () const;
   
   // block accessors
   

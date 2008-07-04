@@ -17,7 +17,7 @@
 //
 // Original Author:  Vyacheslav Krutelyov
 //         Created:  Fri Mar  3 16:01:24 CST 2006
-// $Id: SteppingHelixPropagatorAnalyzer.cc,v 1.15 2007/05/10 17:40:34 slava77 Exp $
+// $Id: SteppingHelixPropagatorAnalyzer.cc,v 1.17 2008/02/01 22:47:13 slava77 Exp $
 //
 //
 
@@ -200,6 +200,21 @@ SteppingHelixPropagatorAnalyzer::SteppingHelixPropagatorAnalyzer(const edm::Para
   startFromPrevHit_ = iConfig.getParameter<bool>("startFromPrevHit");
 
   g4SimName_ = iConfig.getParameter<std::string>("g4SimName");
+
+
+  //initialize the variables
+  for(int i=0;i<1000;++i){
+    q_[i] = 0;
+    eType_[i] = 0;
+    for(int j=0;j<3;++j) pStatus_[i][j] = 0;
+    for(int j=0;j<9;++j) p3_[i][j] = 0;
+    for(int j=0;j<9;++j) r3_[i][j] = 0;
+    id_[i] = 0;
+    for(int j=0;j<3;++j)p3R_[i][j] = 0;
+    for(int j=0;j<3;++j) r3R_[i][j] = 0;
+    for(int j=0;j<21;++j) covFlat_[i][j] = 0;
+  }
+
 }
 
 void SteppingHelixPropagatorAnalyzer::beginJob(const edm::EventSetup& es){

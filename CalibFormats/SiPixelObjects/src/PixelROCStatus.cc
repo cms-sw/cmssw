@@ -14,13 +14,11 @@
 using namespace std;
 using namespace pos;
 
-//======================================================================================
 PixelROCStatus::PixelROCStatus():
   bits_(0)
 {}
 
 
-//======================================================================================
 PixelROCStatus::PixelROCStatus(const std::set<ROCstatus>& stat){
 
   std::set<ROCstatus>::const_iterator i=stat.begin();
@@ -31,26 +29,18 @@ PixelROCStatus::PixelROCStatus(const std::set<ROCstatus>& stat){
 
 }
 
-//======================================================================================
 PixelROCStatus::~PixelROCStatus(){}
     
-//======================================================================================
 void PixelROCStatus::set(ROCstatus stat){
-  bits_=bits_|(1<<stat);
+  bits_=bits_^(1>>stat);
 }
 
-//======================================================================================
 void PixelROCStatus::clear(ROCstatus stat){
-  bits_=bits_&(0<<stat);
+  bits_=bits_&(0>>stat);
 }
 
-//======================================================================================
-// Added by Dario (March 4th 2008)
-void PixelROCStatus::reset(void){
-  bits_=0;
-}
 
-//======================================================================================
+
 void PixelROCStatus::set(ROCstatus stat, bool mode){
   if (mode) {
     set(stat);
@@ -60,12 +50,11 @@ void PixelROCStatus::set(ROCstatus stat, bool mode){
   }
 }
 
-//======================================================================================
+
 bool PixelROCStatus::get(ROCstatus stat) const{
-  return bits_&(1<<stat);
+  return bits_&(1>>stat);
 }
 
-//======================================================================================
 string PixelROCStatus::statusName(ROCstatus stat) const{
   if (stat==off) return "off";
   if (stat==noHits) return "noHits";
@@ -73,7 +62,6 @@ string PixelROCStatus::statusName(ROCstatus stat) const{
   return "";
 }
 
-//======================================================================================
 // modified by MR on 11-01-2008 15:06:28
 string PixelROCStatus::statusName() const {
   string result = "" ;
@@ -87,7 +75,6 @@ string PixelROCStatus::statusName() const {
   return result ;
 }
 
-//======================================================================================
 void PixelROCStatus::set(const string& statName){
 
   for (ROCstatus istat=off; istat!=nStatus; istat=ROCstatus(istat+1)){
@@ -96,7 +83,7 @@ void PixelROCStatus::set(const string& statName){
       return;
     }
   }
-  cout << "[PixelROCStatus::set()] statName "
-       << statName <<" is an invalid keyword"<<endl;
+  cout << "In PixelROCStatus::set the statusName:"
+       << statName <<" is not known"<<endl;
   ::abort();
 }

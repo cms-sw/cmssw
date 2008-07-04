@@ -80,7 +80,7 @@ class EcalRawToDigiDev : public edm::EDProducer{
 
   // -- For regional unacking :
   bool REGIONAL_ ;
-  edm::InputTag fedsLabel_ ;
+  std::string fedsLabel_ ;
 
   //an electronics mapper class 
   EcalElectronicsMapper * myMap_;

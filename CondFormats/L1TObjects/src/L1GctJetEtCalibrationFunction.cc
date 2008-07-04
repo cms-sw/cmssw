@@ -13,10 +13,7 @@ const unsigned L1GctJetEtCalibrationFunction::NUMBER_ETA_VALUES = 11;
 const unsigned L1GctJetEtCalibrationFunction::N_CENTRAL_ETA_VALUES = 7;
 
 L1GctJetEtCalibrationFunction::L1GctJetEtCalibrationFunction()
-  : m_corrFunType(POWER_SERIES_CORRECTION),
-    m_convertToEnergy(false),
-    m_htScaleLSB(1.0), m_threshold(1.0),
-    m_jetCalibFunc(), m_tauCalibFunc(), m_energyConversion()
+  : m_corrFunType(POWER_SERIES_CORRECTION)
 {
 }
 
@@ -33,18 +30,6 @@ void L1GctJetEtCalibrationFunction::setParams(const double& htScale,
   m_threshold  = threshold;
   m_jetCalibFunc = jetCalibFunc;
   m_tauCalibFunc = tauCalibFunc;
-}
-
-/// set the look-up table to return energy, rather than Et
-void L1GctJetEtCalibrationFunction::setConversionToEnergyOn(const std::vector<double>& conversionFunc) {
-  assert (conversionFunc.size() == NUMBER_ETA_VALUES);
-  m_convertToEnergy=true;
-  m_energyConversion = conversionFunc;
-}
-
-void L1GctJetEtCalibrationFunction::setConversionToEnergyOff() {
-  m_convertToEnergy = false;
-  m_energyConversion.clear();
 }
 
 std::ostream& operator << (std::ostream& os, const L1GctJetEtCalibrationFunction& fn)
@@ -116,7 +101,6 @@ double L1GctJetEtCalibrationFunction::correctedEt(const double et,
       assert(eta<m_tauCalibFunc.size());
       result=findCorrectedEt(et, m_tauCalibFunc.at(eta));
     }
-    if (m_convertToEnergy)  { result *= m_energyConversion.at(eta); }
     if (result>m_threshold) { return result; }
     else { return 0; }
   }

@@ -8,7 +8,7 @@
 //
 // Original Author:  Petar Maksimovic
 //         Created:  Christmas 2007
-// $Id: PhysicsHistograms.cc,v 1.2 2008/02/22 20:36:49 srappocc Exp $
+// $Id: PhysicsHistograms.cc,v 1.3 2008/02/22 22:21:37 srappocc Exp $
 //
 // Revision History:
 //------------------------------------------------------------------------
@@ -114,6 +114,18 @@ PhysicsHistograms::select( std::string  vars_to_select,   // comma separated lis
   jetHistograms_     ->select( vars_to_select, selectedVars ) ;
   photonHistograms_  ->select( vars_to_select, selectedVars ) ;
   trackHistograms_   ->select( vars_to_select, selectedVars ) ;
+  
+  std::vector<pat::PhysVarHisto*>::iterator i = allVarHistos_.begin();
+  std::vector<pat::PhysVarHisto*>::iterator end = allVarHistos_.end();
+  std::string temp = "," + vars_to_select + ",";
+  for ( ; i != end; ++i  ) {
+    std::string test = "," + (*i)->name() + ",";
+    std::cout << "testing " << test << std::endl;
+    if ( temp.find( test ) != std::string::npos || temp == ",all," ) {
+      std::cout << "FOUND!" << std::endl;
+      selectedVars.push_back ( *i );
+    }
+  }
 
   std::cout << "PhysicsHistograms:: selected " << selectedVars.size()
 	    << " variables." << std::endl;
@@ -121,6 +133,13 @@ PhysicsHistograms::select( std::string  vars_to_select,   // comma separated lis
 
 void PhysicsHistograms::clearVec()
 {
+  muonHistograms_    ->clearVec() ;
+  electronHistograms_->clearVec() ;
+  tauHistograms_     ->clearVec() ;
+  metHistograms_     ->clearVec() ;
+  jetHistograms_     ->clearVec() ;
+  photonHistograms_  ->clearVec() ;
+  trackHistograms_   ->clearVec() ;
   for ( uint i = 0; i < allVarHistos_.size(); i++ ) {
     allVarHistos_[i]->clearVec();
   }

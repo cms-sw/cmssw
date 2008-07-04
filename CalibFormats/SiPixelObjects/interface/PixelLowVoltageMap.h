@@ -1,11 +1,14 @@
 #ifndef PixelLowVoltageMap_h
 #define PixelLowVoltageMap_h
-/**
-*   \file CalibFormats/SiPixelObjects/interface/PixelLowVoltageMap.h
-*   \brief This class implements..
-*
-*   A longer explanation will be placed here later
-*/
+//
+// This class specifies which detector
+// components are used in the configuration
+// (and eventually should specify which 
+// xdaq process controlls which components).
+// 
+//
+//
+//
 
 #include <vector>
 #include <set>
@@ -19,15 +22,6 @@
 #include "CalibFormats/SiPixelObjects/interface/PixelROCStatus.h"
 
 namespace pos{
-/*!  \ingroup ConfigurationObjects "Configuration Objects"
-*    
-*  @{
-*
-*  \class PixelLowVoltageMap PixelLowVoltageMap.h
-*  \brief This is the documentation about PixelLowVoltageMap...
-*
-*   A longer explanation will be placed here later
-*/
   class PixelLowVoltageMap: public PixelConfigBase {
 
   public:
@@ -49,5 +43,4 @@ namespace pos{
     //                                    base                    Iana          Idigi 
   };
 }
-/* @} */
 #endif

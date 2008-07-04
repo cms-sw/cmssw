@@ -8,16 +8,19 @@ SiStripMonitorDigi = cms.EDFilter("SiStripMonitorDigi",
     DigiProducersList = cms.VPSet(cms.PSet(
         DigiLabel = cms.string('ZeroSuppressed'),
         DigiProducer = cms.string('SiStripDigis')
-    ), cms.PSet(
-        DigiLabel = cms.string('VirginRaw'),
-        DigiProducer = cms.string('siStripZeroSuppression')
-    ), cms.PSet(
-        DigiLabel = cms.string('ProcessedRaw'),
-        DigiProducer = cms.string('siStripZeroSuppression')
-    ), cms.PSet(
-        DigiLabel = cms.string('ScopeMode'),
-        DigiProducer = cms.string('siStripZeroSuppression')
-    )),
+    ), 
+        cms.PSet(
+            DigiLabel = cms.string('VirginRaw'),
+            DigiProducer = cms.string('siStripZeroSuppression')
+        ), 
+        cms.PSet(
+            DigiLabel = cms.string('ProcessedRaw'),
+            DigiProducer = cms.string('siStripZeroSuppression')
+        ), 
+        cms.PSet(
+            DigiLabel = cms.string('ScopeMode'),
+            DigiProducer = cms.string('siStripZeroSuppression')
+        )),
     OutputFileName = cms.string('test_digi.root'),
     # rest of parameters
     SelectAllDetectors = cms.bool(False),

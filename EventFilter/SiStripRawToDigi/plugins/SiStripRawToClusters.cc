@@ -17,12 +17,14 @@ SiStripRawToClusters::SiStripRawToClusters( const edm::ParameterSet& conf ) :
   clusterizer_(0)
   
 {
-  LogTrace(mlRawToDigi_)
-    << "[SiStripRawToClusters::" 
-    << __func__ 
-    << "]"
+  if ( edm::isDebugEnabled() ) {
+    LogTrace(mlRawToDigi_)
+      << "[SiStripRawToClusters::" 
+      << __func__ 
+      << "]"
     << " Constructing object...";
-  
+  }
+
   clusterizer_ = new SiStripClusterizerFactory(conf);
   produces< LazyGetter >();
 }
@@ -31,11 +33,13 @@ SiStripRawToClusters::~SiStripRawToClusters() {
 
   if (clusterizer_) delete clusterizer_;
 
-  LogTrace(mlRawToDigi_)
-    << "[SiStripRawToClusters::" 
-    << __func__ 
-    << "]"
-    << " Destructing object...";
+  if ( edm::isDebugEnabled() ) {
+    LogTrace(mlRawToDigi_)
+      << "[SiStripRawToClusters::" 
+      << __func__ 
+      << "]"
+      << " Destructing object...";
+  }
 }
 
 void SiStripRawToClusters::beginJob( const edm::EventSetup& setup) {

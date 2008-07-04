@@ -5,11 +5,23 @@
 /*
  * \file L1TGCT.h
  *
- * $Date: 2008/02/20 19:24:24 $
- * $Revision: 1.9 $
+ * $Date: 2008/06/02 11:08:58 $
+ * $Revision: 1.13 $
  * \author J. Berryhill
- * $Id: L1TGCT.h,v 1.9 2008/02/20 19:24:24 tapper Exp $
+ * $Id: L1TGCT.h,v 1.13 2008/06/02 11:08:58 tapper Exp $
  * $Log: L1TGCT.h,v $
+ * Revision 1.13  2008/06/02 11:08:58  tapper
+ * Added HF ring histograms....
+ *
+ * Revision 1.12  2008/04/28 09:23:07  tapper
+ * Added 1D eta and phi histograms for electrons and jets as input to Q tests.
+ *
+ * Revision 1.11  2008/04/25 15:40:21  tapper
+ * Added histograms to EventInfo//errorSummarySegments.
+ *
+ * Revision 1.10  2008/03/01 00:40:00  lat
+ * DQM core migration.
+ *
  * Revision 1.9  2008/02/20 19:24:24  tapper
  * Removed noisy include.
  *
@@ -114,6 +126,18 @@ private:
   MonitorElement* l1GctIsoEmOccEtaPhi_;    
   MonitorElement* l1GctNonIsoEmOccEtaPhi_; 
 
+  MonitorElement* l1GctCenJetsOccEta_;
+  MonitorElement* l1GctForJetsOccEta_;  
+  MonitorElement* l1GctTauJetsOccEta_;  
+  MonitorElement* l1GctIsoEmOccEta_;    
+  MonitorElement* l1GctNonIsoEmOccEta_; 
+
+  MonitorElement* l1GctCenJetsOccPhi_;
+  MonitorElement* l1GctForJetsOccPhi_;  
+  MonitorElement* l1GctTauJetsOccPhi_;  
+  MonitorElement* l1GctIsoEmOccPhi_;    
+  MonitorElement* l1GctNonIsoEmOccPhi_; 
+
   MonitorElement* l1GctCenJetsRank_;
   MonitorElement* l1GctForJetsRank_;
   MonitorElement* l1GctTauJetsRank_;
@@ -124,11 +148,21 @@ private:
   MonitorElement* l1GctEtMissPhi_;
   MonitorElement* l1GctEtTotal_;
   MonitorElement* l1GctEtHad_;
+  
+  //HF Rings stuff
+  MonitorElement* l1GctHFRing0PosEtaNegEta_;
+  MonitorElement* l1GctHFRing1PosEtaNegEta_;
+  MonitorElement* l1GctHFTowerCountPosEtaNegEta_;
+  MonitorElement* l1GctHFTowerCountPosEta_;
+  MonitorElement* l1GctHFTowerCountNegEta_;
+  MonitorElement* l1GctHFRing0ETSumPosEta_;
+  MonitorElement* l1GctHFRing0ETSumNegEta_;
+  MonitorElement* l1GctHFRing1ETSumPosEta_;
+  MonitorElement* l1GctHFRing1ETSumNegEta_;
+  MonitorElement* l1GctHFRingRatioPosEta_;
+  MonitorElement* l1GctHFRingRatioNegEta_;
 
   // GCT electron stuff
-  MonitorElement* l1GctIsoEmRankBin_[22][18];
-  MonitorElement* l1GctNonIsoEmRankBin_[22][18];
-
   MonitorElement* l1GctIsoEmRankCand0_;
   MonitorElement* l1GctIsoEmRankCand1_;
   MonitorElement* l1GctIsoEmRankCand2_;

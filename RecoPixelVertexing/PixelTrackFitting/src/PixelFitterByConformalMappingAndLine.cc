@@ -4,6 +4,7 @@
 #include "FWCore/Framework/interface/ESHandle.h"
 #include "Geometry/Records/interface/TrackerDigiGeometryRecord.h"
 #include "Geometry/TrackerGeometryBuilder/interface/TrackerGeometry.h"
+#include "FWCore/ParameterSet/interface/ParameterSet.h"
 
 #include "DataFormats/GeometryVector/interface/LocalPoint.h"
 #include "DataFormats/GeometryVector/interface/GlobalPoint.h"
@@ -28,7 +29,7 @@ template <class T> T sqr( T t) {return t*t;}
 
 
 PixelFitterByConformalMappingAndLine::PixelFitterByConformalMappingAndLine(
-    const edm::ParameterSet& cfg) : theConfig(cfg)
+    const edm::ParameterSet& cfg)
 { }
 
 PixelFitterByConformalMappingAndLine::PixelFitterByConformalMappingAndLine()
@@ -49,11 +50,15 @@ reco::Track* PixelFitterByConformalMappingAndLine::run(
   typedef ConformalMappingFit::PointXY PointXY;
   vector<PointXY> xy;
 
+  //temporary check!!!
+//  xy.push_back( PointXY(0.0001, 0.0001) );
+
   edm::ESHandle<TrackerGeometry> tracker;
   es.get<TrackerDigiGeometryRecord>().get(tracker);
 
   edm::ESHandle<MagneticField> field;
   es.get<IdealMagneticFieldRecord>().get(field);
+
 
   for ( vector<const TrackingRecHit *>::const_iterator
         ih = hits.begin();  ih != hits.end(); ih++) {
@@ -67,7 +72,7 @@ reco::Track* PixelFitterByConformalMappingAndLine::run(
   //
   // simple fit to get pt, phi0 used for precise calcul.
   //
-  ConformalMappingFit parabola(xy, theConfig);
+  ConformalMappingFit parabola(xy);
 
   //
   // precalculate theta to correct errors:
@@ -77,13 +82,15 @@ reco::Track* PixelFitterByConformalMappingAndLine::run(
     errZ.push_back(0.01); // temporary
 // const GeomDet * det = tracker->idToDet( (*hits[i]).geographicalId());
 // GlobalError err = det->surface().toGlobal( (*hits[i]).localPositionError());
-//   GlobalError err = hits[i].globalPositionError();
-//   r[i] += PixelRecoUtilities::longitudinalBendingCorrection(r[i],simple.pT());
-//   if (hits[i].layer()->part() == barrel) {
-//     errZ.push_back( sqrt(err.czz()) );
-//   } else {
-//     errZ.push_back( sqrt( err.rerr(hits[i].globalPosition()) )*simpleCot );
-//   }
+/*
+    GlobalError err = hits[i].globalPositionError();
+    r[i] += PixelRecoUtilities::longitudinalBendingCorrection(r[i],simple.pT());
+    if (hits[i].layer()->part() == barrel) {
+      errZ.push_back( sqrt(err.czz()) );
+    } else {
+      errZ.push_back( sqrt( err.rerr(hits[i].globalPosition()) )*simpleCot );
+    }
+*/
   }
 
   //
@@ -105,7 +112,7 @@ reco::Track* PixelFitterByConformalMappingAndLine::run(
   Measurement1D tip = parabola.impactParameter();
   Measurement1D zip(intercept, sqrt(covii));
   Measurement1D cotTheta(cottheta, sqrt(covss));  
-  float chi2 = parabola.chi2();
+  float chi2 = 0.;
   int charge = parabola.charge();
 
 

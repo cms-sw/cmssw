@@ -1,7 +1,7 @@
 //  Author     : Gero Flucke (based on code by Edmund Widl replacing ORCA's TkReferenceTrack)
 //  date       : 2006/09/17
-//  last update: $Date: 2008/02/15 15:38:47 $
-//  by         : $Author: ewidl $
+//  last update: $Date: 2008/05/08 13:56:23 $
+//  by         : $Author: flucke $
 
 #include "Alignment/ReferenceTrajectories/interface/ReferenceTrajectory.h"
 #include "DataFormats/GeometrySurface/interface/Surface.h" 
@@ -22,10 +22,13 @@
 #include "TrackingTools/GeomPropagators/interface/AnalyticalPropagator.h"
 
 #include "TrackingTools/TrajectoryState/interface/TrajectoryStateOnSurface.h"
+#include "TrackingTools/TrajectoryState/interface/SurfaceSideDefinition.h"
 
 #include "TrackingTools/MaterialEffects/interface/MultipleScatteringUpdator.h"
 #include "TrackingTools/MaterialEffects/interface/EnergyLossUpdator.h"
 #include "TrackingTools/MaterialEffects/interface/CombinedMaterialEffectsUpdator.h"
+
+using namespace SurfaceSideDefinition; // for beforeSurface etc.
 
 //__________________________________________________________________________________
 
@@ -126,8 +129,10 @@ bool ReferenceTrajectory::construct(const TrajectoryStateOnSurface &refTsos,
     const TrajectoryStateOnSurface tmpTsos(theTsosVec.back().localParameters(), zeroErrors,
 					   theTsosVec.back().surface(), magField, beforeSurface);
     const TrajectoryStateOnSurface updatedTsos = aMaterialEffectsUpdator->updateState(tmpTsos, propDir);
-    if ( theTsosVec.back().localParameters().charge() )
-    {
+    if (!updatedTsos.isValid()) {
+      return false;
+    }
+    if (theTsosVec.back().localParameters().charge()) {
       previousChangeInCurvature[0][0] = updatedTsos.localParameters().signedInverseMomentum() 
 	/ theTsosVec.back().localParameters().signedInverseMomentum();
     }

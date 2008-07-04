@@ -13,7 +13,7 @@
 //
 // Original Author:  Roberto Covarelli
 //         Created:  Mon Jan 15 10:39:42 CET 2007
-// $Id: TrackHitFilter.cc,v 1.6 2007/12/06 01:57:45 ratnik Exp $
+// $Id: TrackHitFilter.cc,v 1.7 2008/02/05 14:30:54 covarell Exp $
 //
 //
 
@@ -90,21 +90,21 @@ void TrackHitFilter::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
      
      unsigned int allhits = 0;
      unsigned int acchits = 0;
-     for (trackingRecHit_iterator iHit = trk->recHitsBegin(); iHit != trk->recHitsEnd(); iHit++) {
+     for (trackingRecHit_iterator iHit = trk->recHitsBegin(); iHit != trk->recHitsEnd(); ++iHit) {
        
-       allhits++;
+       ++allhits;
        TrackingRecHit * hit = (*iHit)->clone();
        std::pair<int,int> typeAndLay = TkMap->typeAndLayerFromDetId( hit->geographicalId() );
        int type = typeAndLay.first;   
        int layer = typeAndLay.second;
        
-       if (keepThisHit( hit->geographicalId(), type, layer )) acchits++; 
+       if (hit->isValid() && this->keepThisHit( hit->geographicalId(), type, layer )) ++acchits;
        
      }
      
      if (!nTr) {
        LogDebug("HitFilter") << "TrackHitFilter **** In first track " << acchits << " RecHits retained out of " << allhits;
-       nTr++;
+      ++nTr;
      }
      allHits.push_back(allhits);
      accHits.push_back(acchits);
@@ -127,7 +127,7 @@ void TrackHitFilter::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
 					   trk->innerStateCovariance(), trk->innerDetId() , seedDir ) ;	
 
        unsigned int i = 0; 
-       for (trackingRecHit_iterator iHit = trk->recHitsBegin(); iHit != trk->recHitsEnd(); iHit++) {
+       for (trackingRecHit_iterator iHit = trk->recHitsBegin(); iHit != trk->recHitsEnd(); ++iHit) {
 
 	 TrackingRecHit * hit = (*iHit)->clone();
 	 std::pair<int,int> typeAndLay = TkMap->typeAndLayerFromDetId( hit->geographicalId() );
@@ -147,7 +147,7 @@ void TrackHitFilter::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
        txSelectedHits->push_back( *tx );
      }
        
-     nTr++;
+     ++nTr;
    }
     
    iEvent.put( trackSelectedHits );     

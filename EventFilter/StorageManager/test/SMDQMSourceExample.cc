@@ -10,7 +10,7 @@
   file in DQMServices/Daemon/test, but modified to include another top level
   folder, to remove the 1 sec wait, and to do the fitting without printout.
 
-  $Id: SMDQMSourceExample.cc,v 1.8 2008/01/31 03:46:20 wmtan Exp $
+  $Id: SMDQMSourceExample.cc,v 1.9 2008/03/04 17:12:40 hcheung Exp $
 
 */
 
@@ -59,9 +59,9 @@ private:
   MonitorElement * h7;
   MonitorElement * h8;
   MonitorElement * h9;
-  MonitorElement * i1;
-  MonitorElement * f1;
-  MonitorElement * s1;
+  //MonitorElement * i1;
+  //MonitorElement * f1;
+  //MonitorElement * s1;
   float XMIN; float XMAX;
   // event counter
   int counter;
@@ -100,9 +100,9 @@ SMDQMSourceExample::SMDQMSourceExample( const edm::ParameterSet& iConfig )
       sprintf(temp, " bin no. %d", i);
       h7->setBinLabel(i, temp);
     }
-  i1 = dbe->bookInt("int1");
-  f1 = dbe->bookFloat("float1");
-  s1 = dbe->bookString("s1", "my string");
+  //i1 = dbe->bookInt("int1");
+  //f1 = dbe->bookFloat("float1");
+  //s1 = dbe->bookString("s1", "my string");
 
   // create and cd into a new top level folder
   dbe->setCurrentFolder("D1");
@@ -160,8 +160,8 @@ void SMDQMSourceExample::endJob(void)
 void SMDQMSourceExample::analyze(const edm::Event& iEvent, 
 			       const edm::EventSetup& iSetup )
 {   
-  i1->Fill(4);
-  f1->Fill(-3.14);
+  //i1->Fill(4);
+  //f1->Fill(-3.14);
  
    // Filling the histogram with random data
   srand( 0 );

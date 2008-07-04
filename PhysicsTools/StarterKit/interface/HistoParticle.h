@@ -53,8 +53,8 @@ namespace pat {
     HistoParticle( std::string subDir );
     virtual ~HistoParticle();
 
-    void fill( const Particle * part );
-    void fill( const Particle & part ) { return fill(&part); }
+    void fill( const Particle * part, double weight = 1.0 );
+    void fill( const Particle & part, double weight = 1.0 ) { return fill(&part, weight); }
 
 
     // Clear ntuple cache

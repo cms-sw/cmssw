@@ -1,5 +1,5 @@
 /*----------------------------------------------------------------------
-$Id: RootDelayedReader.cc,v 1.21 2008/02/06 06:26:53 wmtan Exp $
+$Id: RootDelayedReader.cc,v 1.23 2008/04/18 01:57:58 wmtan Exp $
 ----------------------------------------------------------------------*/
 
 #include "RootDelayedReader.h"
@@ -69,15 +69,12 @@ namespace edm {
     EntryDescriptionID *phash = &hash;
     br->SetAddress(&phash);
     br->GetEntry(entryNumber_);
-    if (hash == EntryDescription().id()) {
-      return std::auto_ptr<EntryDescription>(0);
-    }
     std::auto_ptr<EntryDescription> result(new EntryDescription);
     if (!EntryDescriptionRegistry::instance()->getMapped(hash, *result))
-      throw edm::Exception(errors::EventCorruption)
-	<< "Could not find EntryDescriptionID "
-	<< hash
-	<< " in the EntryDescriptionRegistry read from the input file";
+      //  throw edm::Exception(errors::EventCorruption)
+      // 	<< "Could not find EntryDescriptionID "
+      // 	<< hash
+      // 	<< " in the EntryDescriptionRegistry read from the input file";
     br->SetAddress(0);
     return result;
   }

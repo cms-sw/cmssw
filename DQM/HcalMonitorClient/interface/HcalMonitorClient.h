@@ -19,6 +19,7 @@
 #include "CalibFormats/HcalObjects/interface/HcalDbRecord.h"
           
 #include <DQM/HcalMonitorClient/interface/HcalClientUtils.h>
+#include <DQM/HcalMonitorClient/interface/HcalSummaryClient.h>
 #include <DQM/HcalMonitorClient/interface/HcalDataFormatClient.h>
 #include <DQM/HcalMonitorClient/interface/HcalDigiClient.h>
 #include <DQM/HcalMonitorClient/interface/HcalRecHitClient.h>
@@ -141,6 +142,10 @@ public:
   
   // environment variables
   int irun_,ilumisec_,ievent_,itime_;
+  int maxlumisec_, minlumisec_;
+
+  time_t mytime_;
+
   bool actonLS_ ;
   std::string rootFolder_;
 
@@ -158,6 +163,7 @@ public:
   string inputFile_;
   string baseHtmlDir_;
 
+  HcalSummaryClient* summary_client_;
   HcalDataFormatClient* dataformat_client_;
   HcalDigiClient* digi_client_;
   HcalRecHitClient* rechit_client_;

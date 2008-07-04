@@ -15,9 +15,11 @@
 */
 //
 // Original Author:  Vincenzo Chiochia & Andrew York
-//         Created:  
-// $Id: SiPixelClusterSource.h,v 1.4 2007/04/20 21:46:39 andrewdc Exp $
 //
+// Updated by: Lukas Wehrli
+// for pixel offline DQM 
+//         Created:  
+// $Id: SiPixelClusterSource.h,v 1.8 2008/06/23 15:05:43 merkelp Exp $
 
 #include <memory>
 
@@ -30,7 +32,7 @@
 
 #include "DQM/SiPixelMonitorCluster/interface/SiPixelClusterModule.h"
 
-#include "DataFormats/Common/interface/DetSetVector.h"
+#include "DataFormats/Common/interface/DetSetVectorNew.h"
 #include "DataFormats/SiPixelDigi/interface/PixelDigi.h"
 #include "DataFormats/SiPixelCluster/interface/SiPixelCluster.h"
 #include "DataFormats/Common/interface/EDProduct.h"
@@ -45,6 +47,7 @@
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 
 #include <boost/cstdint.hpp>
+
 
  class SiPixelClusterSource : public edm::EDAnalyzer {
     public:
@@ -63,9 +66,17 @@
     private:
        edm::ParameterSet conf_;
        edm::InputTag src_;
+       bool saveFile;
+       bool isPIB;
+       bool slowDown;
        int eventNo;
        DQMStore* theDMBE;
        std::map<uint32_t,SiPixelClusterModule*> thePixelStructure;
+       bool modOn; 
+       //barrel:
+       bool ladOn, layOn, phiOn;
+       //forward:
+       bool ringOn, bladeOn, diskOn; 
  };
 
 #endif

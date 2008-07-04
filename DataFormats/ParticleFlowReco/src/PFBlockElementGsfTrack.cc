@@ -10,12 +10,13 @@ using namespace reco;
 using namespace std;
 
 
-PFBlockElementGsfTrack::PFBlockElementGsfTrack(const GsfPFRecTrackRef& gsfref, const math::XYZTLorentzVector& Pin, const math::XYZTLorentzVector& Pout ) : 
-  PFBlockElement( GSF ),
-  GsftrackRefPF_( gsfref ), 
-  GsftrackRef_( gsfref->gsfTrackRef() ),
-  Pin_(Pin),
-  Pout_(Pout) {}
+PFBlockElementGsfTrack::PFBlockElementGsfTrack(const PFRecTrackRef& Gsfref, const PFRecTrackRef& Kfref, TrackType tracktype ) : 
+  PFBlockElementTrack( Kfref, tracktype  ),
+  GsftrackRefPF_( Gsfref ), 
+  GsftrackRef_( Gsfref->trackRef() ),
+  Pin_(Pin()),
+  Pout_(Pout()){}
+
 
 void PFBlockElementGsfTrack::Dump(ostream& out, 
                                const char* tab ) const {
@@ -23,8 +24,6 @@ void PFBlockElementGsfTrack::Dump(ostream& out,
   if(! out ) return;
  
   if( !GsftrackRefPF_.isNull() ) {
-
-    //    double charge = trackPF().charge;
     double charge = GsftrackRefPF_->charge();
     math::XYZTLorentzVector pin = Pin_;
     math::XYZTLorentzVector pout = Pout_;

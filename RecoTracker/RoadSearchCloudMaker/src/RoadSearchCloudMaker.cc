@@ -8,9 +8,9 @@
 // Original Author: Oliver Gutsche, gutsche@fnal.gov
 // Created:         Sat Jan 14 22:00:00 UTC 2006
 //
-// $Author: gutsche $
-// $Date: 2007/07/08 20:27:09 $
-// $Revision: 1.18 $
+// $Author: noeding $
+// $Date: 2007/11/07 23:42:04 $
+// $Revision: 1.19 $
 //
 
 #include <memory>
@@ -73,7 +73,7 @@ void RoadSearchCloudMaker::produce(edm::Event& e, const edm::EventSetup& es)
   if( e.getByLabel(matchedStripRecHitsInputTag_, matchedRecHits)) {
     matchedRecHitCollection = matchedRecHits.product();
   } else {
-    edm::LogWarning("RoadSearch") << "Collection SiStripMatchedRecHit2DCollection with InputTag " << matchedStripRecHitsInputTag_ << " cannot be found, using empty collection of same type. The RoadSearch algorithm is also fully functional without matched RecHits.";
+    LogDebug("RoadSearch") << "Collection SiStripMatchedRecHit2DCollection with InputTag " << matchedStripRecHitsInputTag_ << " cannot be found, using empty collection of same type. The RoadSearch algorithm is also fully functional without matched RecHits.";
   }
   
   // special treatment for getting pixel collection
@@ -85,7 +85,7 @@ void RoadSearchCloudMaker::produce(edm::Event& e, const edm::EventSetup& es)
   if( e.getByLabel(pixelRecHitsInputTag_, pixelRecHits)) {
     pixelRecHitCollection = pixelRecHits.product();
   } else {
-    edm::LogWarning("RoadSearch") << "Collection SiPixelRecHitCollection with InputTag " << pixelRecHitsInputTag_ << " cannot be found, using empty collection of same type. The RoadSearch algorithm is also fully functional without Pixel RecHits.";
+    LogDebug("RoadSearch") << "Collection SiPixelRecHitCollection with InputTag " << pixelRecHitsInputTag_ << " cannot be found, using empty collection of same type. The RoadSearch algorithm is also fully functional without Pixel RecHits.";
   }
   
 

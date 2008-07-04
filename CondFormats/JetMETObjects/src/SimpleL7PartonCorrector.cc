@@ -36,21 +36,20 @@ double SimpleL7PartonCorrector::correctionPtEta (double fPt, double fEta) const 
   const std::vector<float>& p = mParameters->record (0).parameters ();
 /*
   std::cout << p[0] << " " 
-            << p[1] << " " 
-            << p[2] << " "
-            << p[3] << " "
-            << p[4] << " "
-            << p[5] << " "
-            << p[6] << " "
-            << p[7] << " "
-            << p[8] << " "
-            << p[9] << " "
-            << fEta << " " << fPt << std::endl;
+       << p[1] << " " 
+       << p[2] << " "
+       << p[3] << " "
+       << p[4] << " "
+       << p[5] << " "
+       << p[6] << " "
+       << p[7] << " "
+       << p[8] << " "
+       << fEta << " " << fPt << std::endl;
 */
   if( fPt < p[0] ) return 1.;
   float aPar = 1/(p[2]*fPt+p[3]) + p[4];
-  float bPar = p[5]+p[6]*log(fPt)+p[7]*log(fPt)*log(fPt);
-  float cPar = p[8]+p[9]*fPt;
+  float bPar = p[5]+p[6]*log(fPt);
+  float cPar = p[7]+p[8]*fPt;
   float correction = aPar+bPar*fabs(fEta)+cPar*fEta*fEta;
   return 1./correction;
 }

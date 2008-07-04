@@ -1,8 +1,8 @@
 /*
  * \file EETriggerTowerTask.cc
  *
- * $Date: 2008/02/29 15:08:58 $
- * $Revision: 1.29 $
+ * $Date: 2008/04/24 18:38:05 $
+ * $Revision: 1.36 $
  * \author C. Bernet
  * \author G. Della Ricca
  * \author E. Di Marco
@@ -34,8 +34,13 @@ EETriggerTowerTask::EETriggerTowerTask(const ParameterSet& ps) {
 
   init_ = false;
 
-  // get hold of back-end interface
-  dbe_ = Service<DQMStore>().operator->();
+  dqmStore_ = Service<DQMStore>().operator->();
+
+  prefixME_ = ps.getUntrackedParameter<string>("prefixME", "");
+
+  mergeRuns_ = ps.getUntrackedParameter<bool>("mergeRuns", false);
+
+  enableCleanup_ = ps.getUntrackedParameter<bool>("enableCleanup", false);
 
   reserveArray(meEtMapReal_);
   reserveArray(meVetoReal_);
@@ -51,23 +56,16 @@ EETriggerTowerTask::EETriggerTowerTask(const ParameterSet& ps) {
   emulCollection_ =  ps.getParameter<InputTag>("EcalTrigPrimDigiCollectionEmul");
 
 //   realModuleLabel_
-//     = ps.getUntrackedParameter<string>("real_digis_moduleLabel",
-//                                        "ecalEBunpacker");
+//     = ps.getUntrackedParameter<string>("real_digis_moduleLabel", "ecalEBunpacker");
 //   emulModuleLabel_
-//     = ps.getUntrackedParameter<string>("emulated_digis_moduleLabel",
-//                                        "ecalTriggerPrimitiveDigis");
-  outputFile_
-    = ps.getUntrackedParameter<string>("OutputRootFile",
-                                       "");
-
+//     = ps.getUntrackedParameter<string>("emulated_digis_moduleLabel", "ecalTriggerPrimitiveDigis");
+  outputFile_ = ps.getUntrackedParameter<string>("OutputRootFile", "");
 
   ostringstream  str;
   str<<"Module label for producer of REAL     digis: "<<realCollection_<<endl;
   str<<"Module label for producer of EMULATED digis: "<<emulCollection_<<endl;
 
   LogDebug("EETriggerTowerTask")<<str.str()<<endl;
-
-  enableCleanup_ = ps.getUntrackedParameter<bool>("enableCleanup", false);
 
 }
 
@@ -86,12 +84,40 @@ void EETriggerTowerTask::beginJob(const EventSetup& c){
 
   ievt_ = 0;
 
-  if ( dbe_ ) {
-    dbe_->setCurrentFolder("EcalEndcap/EETriggerTowerTask");
-    dbe_->rmdir("EcalEndcap/EETriggerTowerTask");
+  if ( dqmStore_ ) {
+    dqmStore_->setCurrentFolder(prefixME_ + "/EETriggerTowerTask");
+    dqmStore_->rmdir(prefixME_ + "/EETriggerTowerTask");
   }
 
-  Numbers::initGeometry(c);
+  Numbers::initGeometry(c, false);
+
+}
+
+void EETriggerTowerTask::beginRun(const Run& r, const EventSetup& c) {
+
+  if ( ! mergeRuns_ ) this->reset();
+
+}
+
+void EETriggerTowerTask::endRun(const Run& r, const EventSetup& c) {
+
+}
+
+void EETriggerTowerTask::reset(void) {
+
+  for (int i = 0; i < 18; i++) {
+
+    if ( meEtMapReal_[i] ) meEtMapReal_[i]->Reset();
+    if ( meVetoReal_[i] ) meVetoReal_[i]->Reset();
+    if ( meFlagsReal_[i] ) meFlagsReal_[i]->Reset();
+    if ( meEtMapEmul_[i] ) meEtMapEmul_[i]->Reset();
+    if ( meVetoEmul_[i] ) meVetoEmul_[i]->Reset();
+    if ( meFlagsEmul_[i] ) meFlagsEmul_[i]->Reset();
+    if ( meEmulError_[i] ) meEmulError_[i]->Reset();
+    if ( meVetoEmulError_[i] ) meVetoEmulError_[i]->Reset();
+    if ( meFlagEmulError_[i] ) meFlagEmulError_[i]->Reset();
+
+  }
 
 }
 
@@ -99,14 +125,14 @@ void EETriggerTowerTask::setup(void){
 
   init_ = true;
 
-  if ( dbe_ ) {
-    // dbe_->showDirStructure();
+  if ( dqmStore_ ) {
+    // dqmStore_->showDirStructure();
 
     setup( "Real Digis",
-           "EcalEndcap/EETriggerTowerTask", false );
+           (prefixME_ + "/EETriggerTowerTask").c_str(), false );
 
     setup( "Emulated Digis",
-           "EcalEndcap/EETriggerTowerTask/Emulated", true);
+           (prefixME_ + "/EETriggerTowerTask/Emulated").c_str(), true);
   }
   else {
     LogError("EETriggerTowerTask")<<"Bad DQMStore, "
@@ -128,7 +154,7 @@ void EETriggerTowerTask::setup( const char* nameext,
     meFlags= &meFlagsEmul_;
   }
 
-  dbe_->setCurrentFolder(folder);
+  dqmStore_->setCurrentFolder(folder);
 
   static const unsigned namesize = 200;
 
@@ -148,74 +174,73 @@ void EETriggerTowerTask::setup( const char* nameext,
     string etMapNameSM = etMapName;
     etMapNameSM += " " + Numbers::sEE(i+1);
 
-    (*meEtMap)[i] = dbe_->book3D(etMapNameSM.c_str(), etMapNameSM.c_str(),
+    (*meEtMap)[i] = dqmStore_->book3D(etMapNameSM.c_str(), etMapNameSM.c_str(),
                                 50, Numbers::ix0EE(i+1)+0., Numbers::ix0EE(i+1)+50.,
                                 50, Numbers::iy0EE(i+1)+0., Numbers::iy0EE(i+1)+50.,
                                 256, 0, 256.);
     (*meEtMap)[i]->setAxisTitle("jx", 1);
     (*meEtMap)[i]->setAxisTitle("jy", 2);
-    dbe_->tag((*meEtMap)[i], i+1);
+    dqmStore_->tag((*meEtMap)[i], i+1);
 
     string  fineGrainVetoNameSM = fineGrainVetoName;
     fineGrainVetoNameSM += " " + Numbers::sEE(i+1);
 
-    (*meVeto)[i] = dbe_->book3D(fineGrainVetoNameSM.c_str(),
+    (*meVeto)[i] = dqmStore_->book3D(fineGrainVetoNameSM.c_str(),
                                fineGrainVetoNameSM.c_str(),
                                50, Numbers::ix0EE(i+1)+0., Numbers::ix0EE(i+1)+50.,
                                50, Numbers::iy0EE(i+1)+0., Numbers::iy0EE(i+1)+50.,
                                2, 0., 2.);
     (*meVeto)[i]->setAxisTitle("jx", 1);
     (*meVeto)[i]->setAxisTitle("jy", 2);
-    dbe_->tag((*meVeto)[i], i+1);
+    dqmStore_->tag((*meVeto)[i], i+1);
 
     string  flagsNameSM = flagsName;
     flagsNameSM += " " + Numbers::sEE(i+1);
 
-    (*meFlags)[i] = dbe_->book3D(flagsNameSM.c_str(), flagsNameSM.c_str(),
+    (*meFlags)[i] = dqmStore_->book3D(flagsNameSM.c_str(), flagsNameSM.c_str(),
                                 50, Numbers::ix0EE(i+1)+0., Numbers::ix0EE(i+1)+50.,
                                 50, Numbers::iy0EE(i+1)+0., Numbers::iy0EE(i+1)+50.,
                                 8, 0., 8.);
     (*meFlags)[i]->setAxisTitle("jx", 1);
     (*meFlags)[i]->setAxisTitle("jy", 2);
-    dbe_->tag((*meFlags)[i], i+1);
-
+    dqmStore_->tag((*meFlags)[i], i+1);
 
     if(!emulated) {
 
       string  emulErrorNameSM = emulErrorName;
       emulErrorNameSM += " " + Numbers::sEE(i+1);
 
-      meEmulError_[i] = dbe_->book2D(emulErrorNameSM.c_str(),
+      meEmulError_[i] = dqmStore_->book2D(emulErrorNameSM.c_str(),
                                     emulErrorNameSM.c_str(),
                                     50, Numbers::ix0EE(i+1)+0., Numbers::ix0EE(i+1)+50.,
                                     50, Numbers::iy0EE(i+1)+0., Numbers::iy0EE(i+1)+50. );
       meEmulError_[i]->setAxisTitle("jx", 1);
       meEmulError_[i]->setAxisTitle("jy", 2);
-      dbe_->tag(meEmulError_[i], i+1);
+      dqmStore_->tag(meEmulError_[i], i+1);
 
       string  emulFineGrainVetoErrorNameSM = emulFineGrainVetoErrorName;
       emulFineGrainVetoErrorNameSM += " " + Numbers::sEE(i+1);
 
-      meVetoEmulError_[i] = dbe_->book3D(emulFineGrainVetoErrorNameSM.c_str(),
+      meVetoEmulError_[i] = dqmStore_->book3D(emulFineGrainVetoErrorNameSM.c_str(),
                                           emulFineGrainVetoErrorNameSM.c_str(),
                                           50, Numbers::ix0EE(i+1)+0., Numbers::ix0EE(i+1)+50.,
                                           50, Numbers::iy0EE(i+1)+0., Numbers::iy0EE(i+1)+50.,
                                           8, 0., 8.);
       meVetoEmulError_[i]->setAxisTitle("jx", 1);
       meVetoEmulError_[i]->setAxisTitle("jy", 2);
-      dbe_->tag(meVetoEmulError_[i], i+1);
+      dqmStore_->tag(meVetoEmulError_[i], i+1);
 
       string  emulFlagErrorNameSM = emulFlagErrorName;
       emulFlagErrorNameSM += " " + Numbers::sEE(i+1);
 
-      meFlagEmulError_[i] = dbe_->book3D(emulFlagErrorNameSM.c_str(),
+      meFlagEmulError_[i] = dqmStore_->book3D(emulFlagErrorNameSM.c_str(),
                                           emulFlagErrorNameSM.c_str(),
                                           50, Numbers::ix0EE(i+1)+0., Numbers::ix0EE(i+1)+50.,
                                           50, Numbers::iy0EE(i+1)+0., Numbers::iy0EE(i+1)+50.,
                                           8, 0., 8.);
       meFlagEmulError_[i]->setAxisTitle("jx", 1);
       meFlagEmulError_[i]->setAxisTitle("jy", 2);
-      dbe_->tag(meFlagEmulError_[i], i+1);
+      dqmStore_->tag(meFlagEmulError_[i], i+1);
 
     }
   }
@@ -224,13 +249,13 @@ void EETriggerTowerTask::setup( const char* nameext,
 
 void EETriggerTowerTask::cleanup(void) {
 
-  if ( ! enableCleanup_ ) return;
+  if ( ! init_ ) return;
 
-  if ( dbe_ ) {
+  if ( dqmStore_ ) {
 
-    if( !outputFile_.empty() ) dbe_->save( outputFile_.c_str() );
+    if( !outputFile_.empty() ) dqmStore_->save( outputFile_.c_str() );
 
-    dbe_->rmdir( "EcalEndcap/EETriggerTowerTask" );
+    dqmStore_->rmdir( prefixME_ + "/EETriggerTowerTask" );
 
   }
 
@@ -242,7 +267,7 @@ void EETriggerTowerTask::endJob(void){
 
   LogInfo("EETriggerTowerTask") << "analyzed " << ievt_ << " events";
 
-  if ( init_ ) this->cleanup();
+  if ( enableCleanup_ ) this->cleanup();
 
 }
 
@@ -269,8 +294,7 @@ void EETriggerTowerTask::analyze(const Event& e, const EventSetup& c){
                   meFlagsReal_);
 
   } else {
-    LogWarning("EBTriggerTowerTask")
-      << realCollection_ << " not available"; 
+    LogWarning("EETriggerTowerTask") << realCollection_ << " not available"; 
   }
 
   Handle<EcalTrigPrimDigiCollection> emulDigis;
@@ -283,10 +307,8 @@ void EETriggerTowerTask::analyze(const Event& e, const EventSetup& c){
                   meFlagsEmul_,
                   realDigis);
 
-
   } else {
-    LogWarning("EETriggerTowerTask")
-      << emulCollection_ << " not available";
+    LogWarning("EETriggerTowerTask") << emulCollection_ << " not available";
   }
 
 }
@@ -348,7 +370,6 @@ EETriggerTowerTask::processDigis( const Handle<EcalTrigPrimDigiCollection>&
     xval = 0.5 + data.ttFlag();
     if ( meFlags[ismt-1] ) meFlags[ismt-1]->Fill(xix, xiy, xval);
 
-
     if( compDigis.isValid() ) {
       bool good = true;
       bool goodFlag = true;
@@ -388,7 +409,7 @@ EETriggerTowerTask::processDigis( const Handle<EcalTrigPrimDigiCollection>&
         if ( meVetoEmulError_[ismt-1] ) meVetoEmulError_[ismt-1]->Fill(xix, xiy, zval);
       }
     }
-  }
+    }
   }
   LogDebug("EETriggerTowerTask")<<str.str()<<endl;
 }

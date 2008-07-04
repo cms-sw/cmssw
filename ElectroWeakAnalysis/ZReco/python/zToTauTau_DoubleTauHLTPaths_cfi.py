@@ -1,7 +1,6 @@
 import FWCore.ParameterSet.Config as cms
 
-import copy
-from HLTrigger.HLTfilters.hltHighLevel_cfi import *
-zToTauTau_DoubleTauHLTFilter = copy.deepcopy(hltHighLevel)
+import HLTrigger.HLTfilters.hltHighLevel_cfi
+zToTauTau_DoubleTauHLTFilter = HLTrigger.HLTfilters.hltHighLevel_cfi.hltHighLevel.clone()
 zToTauTau_DoubleTauHLTFilter.HLTPaths = ['HLT2TauPixel']
 

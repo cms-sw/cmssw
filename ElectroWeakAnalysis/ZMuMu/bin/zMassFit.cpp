@@ -11,6 +11,7 @@
 #include "PhysicsTools/Utilities/interface/HistoChiSquare.h"
 #include "PhysicsTools/Utilities/interface/RootMinuit.h"
 #include "PhysicsTools/Utilities/interface/RootFunctionAdapter.h"
+#include "PhysicsTools/Utilities/interface/rootPlot.h"
 #include "TFile.h"
 #include "TH1.h"
 #include "TF1.h"
@@ -20,9 +21,6 @@
 //#include "TStyle.h"
 #include <boost/shared_ptr.hpp>
 #include <boost/program_options.hpp>
-using namespace boost;
-namespace po = boost::program_options;
-
 #include <iostream>
 #include <algorithm> 
 #include <exception>
@@ -30,7 +28,8 @@ namespace po = boost::program_options;
 #include <string>
 #include <vector>
 using namespace std;
-using namespace ::function;
+using namespace boost;
+namespace po = boost::program_options;
 
 // A helper function to simplify the main part.
 template<class T>
@@ -38,6 +37,8 @@ ostream& operator<<(ostream& os, const vector<T>& v) {
   copy(v.begin(), v.end(), ostream_iterator<T>(cout, " ")); 
   return os;
 }
+
+typedef funct::GaussIntegrator IntegratorConv;
 
 int main(int ac, char *av[]) { 
   try {
@@ -122,20 +123,25 @@ int main(int ac, char *av[]) {
       }
       cout << v_file.size() << ", " << v_ZMassHistos.size() << ", " << v_eps.size() << endl;
       cout <<">>> Input files loaded\n";
-    } 
+    } 	
+
+    IntegratorConv integratorConv(1.e-5);
+
     //PDG values for Z mass and width
-    Parameter mass("Mass", 91.1876);
-    Parameter gamma("Gamma", 2.4952);
+    funct::Parameter mass("Mass", 91.1876);
+    funct::Parameter gamma("Gamma", 2.4952);
     //Parameters for Z Line Shape
-    Parameter f_gamma("Photon factor", 0);
-    Parameter f_int("Interference factor", 0.001);
+    funct::Parameter f_gamma("Photon factor", 0);
+    funct::Parameter f_int("Interference factor", 0.001);
     //Parameters for fits with gaussians
-    Parameter yield("Yield", 482000);
-    Parameter alpha("Alpha", 0.771);
-    Parameter mean("Mean", 0); //0.229
-    Parameter sigma1("Sigma 1", 1.027); 
-    Parameter sigma2("Sigma 2", 2.94);
-    
+    funct::Parameter yield("Yield", 482000);
+    funct::Parameter alpha("Alpha", 0.771);
+    funct::Parameter mean("Mean", 0); //0.229
+    funct::Parameter sigma1("Sigma 1", 1.027); 
+    funct::Parameter sigma2("Sigma 2", 2.94);
+    funct::Constant c_yield(yield), c_alpha(alpha);
+    funct::Number _1(1);
+
     if (vm.count("breitwigner")) {
       cout << "Fitting histograms in input file to a Breit-Wigner\n";
       cout << ">>> set pars: " << endl;
@@ -146,10 +152,10 @@ int main(int ac, char *av[]) {
 	cout << ">>> load histogram\n";
 	TH1D * zMass = v_ZMassHistos[i];
 	cout << ">>> histogram loaded\n";
-	BreitWigner bw(mass, gamma);
-	Constant c(yield);
-	typedef Product<Constant, BreitWigner> FitFunction;
-	FitFunction f = c * bw;
+	funct::BreitWigner bw(mass, gamma);
+	funct::Constant c_yield(yield);
+	typedef funct::Product<funct::Constant, funct::BreitWigner>::type FitFunction;
+	FitFunction f = c_yield * bw;
 	typedef fit::HistoChiSquare<FitFunction> ChiSquared;
 	ChiSquared chi2(f, zMass, fMin, fMax);
 	int fullBins = chi2.degreesOfFreedom();
@@ -182,9 +188,9 @@ int main(int ac, char *av[]) {
       cout << sigma1 << endl;
       for(size_t i = 0; i < v_ZMassHistos.size(); ++i) { 
 	TH1D * zMass = v_ZMassHistos[i]; 
-	Gaussian gaus(mean, sigma1);
-	Constant c(yield);
-	typedef Product<Constant, Gaussian> FitFunction;
+	funct::Gaussian gaus(mean, sigma1);
+	funct::Constant c(yield);
+	typedef funct::Product<funct::Constant, funct::Gaussian>::type FitFunction;
 	FitFunction f = c * gaus;
 	typedef fit::HistoChiSquare<FitFunction> ChiSquared;
 	ChiSquared chi2(f, zMass, fMin, fMax);
@@ -220,9 +226,9 @@ int main(int ac, char *av[]) {
 	  cout << f_int << endl; 
 	  for(size_t i = 0; i < v_ZMassHistos.size(); ++i) { 
 	    TH1D * zMass = v_ZMassHistos[i]; 
-	    ZLineShape zls(mass, gamma, f_gamma, f_int);
-	    Constant c(yield);
-	    typedef Product<Constant, ZLineShape> FitFunction;
+	    funct::ZLineShape zls(mass, gamma, f_gamma, f_int);
+	    funct::Constant c(yield);
+	    typedef funct::Product<funct::Constant, funct::ZLineShape>::type FitFunction;
 	    FitFunction f = c * zls;
 	    cout << "set functions" << endl;
 	    vector<shared_ptr<double> > pars;
@@ -270,9 +276,9 @@ int main(int ac, char *av[]) {
 	  cout << f_int << endl; 
 	  for(size_t i = 0; i < v_ZMassHistos.size(); ++i) { 
 	    TH1D * zMass = v_ZMassHistos[i]; 
-	    ZLineShape zls(mass, gamma, f_gamma, f_int);
-	    Constant c(yield);
-	    typedef Product<Constant, ZLineShape> FitFunction;
+	    funct::ZLineShape zls(mass, gamma, f_gamma, f_int);
+	    funct::Constant c(yield);
+	    typedef funct::Product<funct::Constant, funct::ZLineShape>::type FitFunction;
 	    FitFunction f = c * zls;
 	    cout << "set functions" << endl;
 	    vector<shared_ptr<double> > pars;
@@ -319,9 +325,9 @@ int main(int ac, char *av[]) {
 	  cout << f_int << endl; 
 	  for(size_t i = 0; i < v_ZMassHistos.size(); ++i) { 
 	    TH1D * zMass = v_ZMassHistos[i]; 
-	    ZLineShape zls(mass, gamma, f_gamma, f_int);
-	    Constant c(yield);
-	    typedef Product<Constant, ZLineShape> FitFunction;
+	    funct::ZLineShape zls(mass, gamma, f_gamma, f_int);
+	    funct::Constant c(yield);
+	    typedef funct::Product<funct::Constant, funct::ZLineShape>::type FitFunction;
 	    FitFunction f = c * zls;
 	    cout << "set functions" << endl;
 	    vector<shared_ptr<double> > pars;
@@ -367,12 +373,12 @@ int main(int ac, char *av[]) {
 	  cout << sigma1 << endl;
 	  for(size_t i = 0; i < v_ZMassHistos.size(); ++i) { 
 	    TH1D * zMass = v_ZMassHistos[i]; 
-	    BreitWigner bw(mass, gamma);
-	    Gaussian gauss(mean, sigma1);
+	    funct::BreitWigner bw(mass, gamma);
+	    funct::Gaussian gauss(mean, sigma1);
 	    double range = 3 * sigma1.value();
-	    Convolution<BreitWigner, Gaussian> cbg(bw, gauss, -range , range, 1000);
-	    Constant c(yield);
-	    typedef Product<Constant, Convolution<BreitWigner, Gaussian> > FitFunction;
+	    funct::Convolution<funct::BreitWigner, funct::Gaussian, IntegratorConv>::type cbg(bw, gauss, -range , range, integratorConv);
+	    funct::Constant c(yield);
+	    typedef funct::Product<funct::Constant, funct::Convolution<funct::BreitWigner, funct::Gaussian, IntegratorConv>::type >::type FitFunction;
 	    FitFunction f = c * cbg;
 	    cout << "set functions" << endl;
 	    typedef fit::HistoChiSquare<FitFunction> ChiSquared;
@@ -422,12 +428,12 @@ int main(int ac, char *av[]) {
 	  cout << sigma1 << endl;
 	  for(size_t i = 0; i < v_ZMassHistos.size(); ++i) { 
 	    TH1D * zMass = v_ZMassHistos[i]; 
-	    ZLineShape zls(mass, gamma, f_gamma, f_int);
-	    Gaussian gauss(mean, sigma1);
+	    funct::ZLineShape zls(mass, gamma, f_gamma, f_int);
+	    funct::Gaussian gauss(mean, sigma1);
 	    double range = 3 * sigma1.value();
-	    Convolution<ZLineShape, Gaussian> czg(zls, gauss, -range , range, 1000);
-	    Constant c(yield);
-	    typedef Product<Constant, Convolution<ZLineShape, Gaussian> > FitFunction;
+	    funct::Convolution<funct::ZLineShape, funct::Gaussian, IntegratorConv>::type czg(zls, gauss, -range , range, integratorConv);
+	    funct::Constant c(yield);
+	    typedef funct::Product<funct::Constant, funct::Convolution<funct::ZLineShape, funct::Gaussian, IntegratorConv>::type >::type FitFunction;
 	    FitFunction f = c * czg;
 	    cout << "set functions" << endl;
 	    typedef fit::HistoChiSquare<FitFunction> ChiSquared;
@@ -482,12 +488,12 @@ int main(int ac, char *av[]) {
 	  cout << sigma1 << endl;
 	  for(size_t i = 0; i < v_ZMassHistos.size(); ++i) { 
 	    TH1D * zMass = v_ZMassHistos[i]; 
-	    ZLineShape zls(mass, gamma, f_gamma, f_int);
-	    Gaussian gauss(mean, sigma1);
+	    funct::ZLineShape zls(mass, gamma, f_gamma, f_int);
+	    funct::Gaussian gauss(mean, sigma1);
 	    double range = 3 * sigma1.value();
-	    Convolution<ZLineShape, Gaussian> czg(zls, gauss, -range , range, 1000);
-	    Constant c(yield);
-	    typedef Product<Constant, Convolution<ZLineShape, Gaussian> > FitFunction;
+	    funct::Convolution<funct::ZLineShape, funct::Gaussian, IntegratorConv>::type czg(zls, gauss, -range , range, integratorConv);
+	    funct::Constant c(yield);
+	    typedef funct::Product<funct::Constant, funct::Convolution<funct::ZLineShape, funct::Gaussian, IntegratorConv>::type >::type FitFunction;
 	    FitFunction f = c * czg;
 	    cout << "set functions" << endl;
 	    typedef fit::HistoChiSquare<FitFunction> ChiSquared;
@@ -543,15 +549,14 @@ int main(int ac, char *av[]) {
 	  cout << sigma2 << endl;
 	  for(size_t i = 0; i < v_ZMassHistos.size(); ++i) { 
 	    TH1D * zMass = v_ZMassHistos[i]; 
-	    BreitWigner bw(mass, gamma);
-	    Gaussian gaus1(mean, sigma1);
-	    Gaussian gaus2(mean, sigma2);
-	    Number _1(1);
-	    typedef Product<Constant, Gaussian> G1;
-	    typedef Product<Difference<Number,Constant>, Gaussian> G2;
-	    typedef Product<Constant,Sum<G1, G2> > GaussComb;
-	    GaussComb gc = yield*(alpha*gaus1 + (_1 - alpha)*gaus2);
-	    typedef Convolution<BreitWigner, GaussComb> FitFunction;
+	    funct::BreitWigner bw(mass, gamma);
+	    funct::Gaussian gaus1(mean, sigma1);
+	    funct::Gaussian gaus2(mean, sigma2);
+	    typedef funct::Product<funct::Constant, funct::Gaussian>::type G1;
+	    typedef funct::Product<funct::Difference<funct::Number,funct::Constant>::type, funct::Gaussian>::type G2;
+	    typedef funct::Product<funct::Constant,funct::Sum<G1, G2>::type >::type GaussComb;
+	    GaussComb gc = c_yield*(c_alpha*gaus1 + (_1 - c_alpha)*gaus2);
+	    typedef funct::Convolution<funct::BreitWigner, GaussComb, IntegratorConv>::type FitFunction;
 	    double range = 3 * max(sigma1.value(), sigma2.value());
 	    FitFunction f(bw, gc, -range , range, 1000);
 	    cout << "set functions" << endl;
@@ -613,15 +618,14 @@ int main(int ac, char *av[]) {
 	  cout << sigma2 << endl;
 	  for(size_t i = 0; i < v_ZMassHistos.size(); ++i) { 
 	    TH1D * zMass = v_ZMassHistos[i]; 
-	    BreitWigner bw(mass, gamma);
-	    Gaussian gaus1(mean, sigma1);
-	    Gaussian gaus2(mean, sigma2);
-	    Number _1(1);
-	    typedef Product<Constant, Gaussian> G1;
-	    typedef Product<Difference<Number,Constant>, Gaussian> G2;
-	    typedef Product<Constant,Sum<G1, G2> > GaussComb;
-	    GaussComb gc = yield*(alpha*gaus1 + (_1 - alpha)*gaus2);
-	    typedef Convolution<BreitWigner, GaussComb> FitFunction;
+	    funct::BreitWigner bw(mass, gamma);
+	    funct::Gaussian gaus1(mean, sigma1);
+	    funct::Gaussian gaus2(mean, sigma2);
+	    typedef funct::Product<funct::Constant, funct::Gaussian>::type G1;
+	    typedef funct::Product<funct::Difference<funct::Number,funct::Constant>::type, funct::Gaussian>::type G2;
+	    typedef funct::Product<funct::Constant,funct::Sum<G1, G2>::type >::type GaussComb;
+	    GaussComb gc = c_yield*(c_alpha*gaus1 + (_1 - c_alpha)*gaus2);
+	    typedef funct::Convolution<funct::BreitWigner, GaussComb, IntegratorConv>::type FitFunction;
 	    double range = 3 * max(sigma1.value(), sigma2.value());
 	    FitFunction f(bw, gc, -range , range, 1000);
 	    cout << "set functions" << endl;
@@ -685,17 +689,16 @@ int main(int ac, char *av[]) {
 	  cout << sigma2 << endl;
 	  for(size_t i = 0; i < v_ZMassHistos.size(); ++i) { 
 	    TH1D * zMass = v_ZMassHistos[i]; 
-	    ZLineShape zls(mass, gamma, f_gamma, f_int);
-	    Gaussian gaus1(mean, sigma1);
-	    Gaussian gaus2(mean, sigma2);
-	    Number _1(1);
-	    typedef Product<Constant, Gaussian> G1;
-	    typedef Product<Difference<Number,Constant>, Gaussian> G2;
-	    typedef Product<Constant,Sum<G1, G2> > GaussComb;
-	    GaussComb gc = yield*(alpha*gaus1 + (_1 - alpha)*gaus2);
-	    typedef Convolution<ZLineShape, GaussComb> FitFunction;
+	    funct::ZLineShape zls(mass, gamma, f_gamma, f_int);
+	    funct::Gaussian gaus1(mean, sigma1);
+	    funct::Gaussian gaus2(mean, sigma2);
+	    typedef funct::Product<funct::Constant, funct::Gaussian>::type G1;
+	    typedef funct::Product<funct::Difference<funct::Number,funct::Constant>::type, funct::Gaussian>::type G2;
+	    typedef funct::Product<funct::Constant,funct::Sum<G1, G2>::type >::type GaussComb;
+	    GaussComb gc = c_yield*(c_alpha*gaus1 + (_1 - c_alpha)*gaus2);
+	    typedef funct::Convolution<funct::ZLineShape, GaussComb, IntegratorConv>::type FitFunction;
 	    double range = 3 * max(sigma1.value(), sigma2.value());
-	    FitFunction f(zls, gc, -range , range, 1000);
+	    FitFunction f(zls, gc, -range , range, integratorConv);
 	    cout << "set functions" << endl;
 	    typedef fit::HistoChiSquare<FitFunction> ChiSquared;
 	    ChiSquared chi2(f, zMass, fMin, fMax);
@@ -764,17 +767,16 @@ int main(int ac, char *av[]) {
 	  cout << sigma2 << endl;
 	  for(size_t i = 0; i < v_ZMassHistos.size(); ++i) { 
 	    TH1D * zMass = v_ZMassHistos[i]; 
-	    ZLineShape zls(mass, gamma, f_gamma, f_int);
-	    Gaussian gaus1(mean, sigma1);
-	    Gaussian gaus2(mean, sigma2);
-	    Number _1(1);
-	    typedef Product<Constant, Gaussian> G1;
-	    typedef Product<Difference<Number,Constant>, Gaussian> G2;
-	    typedef Product<Constant,Sum<G1, G2> > GaussComb;
-	    GaussComb gc = yield*(alpha*gaus1 + (_1 - alpha)*gaus2);
-	    typedef Convolution<ZLineShape, GaussComb> FitFunction;
+	    funct::ZLineShape zls(mass, gamma, f_gamma, f_int);
+	    funct::Gaussian gaus1(mean, sigma1);
+	    funct::Gaussian gaus2(mean, sigma2);
+	    typedef funct::Product<funct::Constant, funct::Gaussian>::type G1;
+	    typedef funct::Product<funct::Difference<funct::Number,funct::Constant>::type, funct::Gaussian>::type G2;
+	    typedef funct::Product<funct::Constant,funct::Sum<G1, G2>::type >::type GaussComb;
+	    GaussComb gc = c_yield*(c_alpha*gaus1 + (_1 - c_alpha)*gaus2);
+	    typedef funct::Convolution<funct::ZLineShape, GaussComb, IntegratorConv>::type FitFunction;
 	    double range = 3 * max(sigma1.value(), sigma2.value());
-	    FitFunction f(zls, gc, -range , range, 1000);
+	    FitFunction f(zls, gc, -range , range, integratorConv);
 	    cout << "set functions" << endl;
 	    typedef fit::HistoChiSquare<FitFunction> ChiSquared;
 	    ChiSquared chi2(f, zMass, fMin, fMax);
@@ -843,17 +845,16 @@ int main(int ac, char *av[]) {
 	  cout << sigma2 << endl;
 	  for(size_t i = 0; i < v_ZMassHistos.size(); ++i) { 
 	    TH1D * zMass = v_ZMassHistos[i];
-	    ZLineShape zls(mass, gamma, f_gamma, f_int);
-	    Gaussian gaus1(mean, sigma1);
-	    Gaussian gaus2(mean, sigma2);
-	    Number _1(1);
-	    typedef Product<Constant, Gaussian> G1;
-	    typedef Product<Difference<Number,Constant>, Gaussian> G2;
-	    typedef Product<Constant,Sum<G1, G2> > GaussComb;
-	    GaussComb gc = yield*(alpha*gaus1 + (_1 - alpha)*gaus2);
-	    typedef Convolution<ZLineShape, GaussComb> FitFunction;
+	    funct::ZLineShape zls(mass, gamma, f_gamma, f_int);
+	    funct::Gaussian gaus1(mean, sigma1);
+	    funct::Gaussian gaus2(mean, sigma2);
+	    typedef funct::Product<funct::Constant, funct::Gaussian>::type G1;
+	    typedef funct::Product<funct::Difference<funct::Number,funct::Constant>::type, funct::Gaussian>::type G2;
+	    typedef funct::Product<funct::Constant,funct::Sum<G1, G2>::type >::type GaussComb;
+	    GaussComb gc = c_yield*(c_alpha*gaus1 + (_1 - c_alpha)*gaus2);
+	    typedef funct::Convolution<funct::ZLineShape, GaussComb, IntegratorConv>::type FitFunction;
 	    double range = 3 * max(sigma1.value(), sigma2.value());
-	    FitFunction f(zls, gc, -range , range, 1000);
+	    FitFunction f(zls, gc, -range , range, integratorConv);
 	    cout << "set functions" << endl;
 	    typedef fit::HistoChiSquare<FitFunction> ChiSquared;
 	    ChiSquared chi2(f, zMass, fMin, fMax);
@@ -922,17 +923,16 @@ int main(int ac, char *av[]) {
 	  cout << sigma2 << endl;
 	  for(size_t i = 0; i < v_ZMassHistos.size(); ++i) { 
 	    TH1D * zMass = v_ZMassHistos[i]; 
-	    ZLineShape zls(mass, gamma, f_gamma, f_int);
-	    Gaussian gaus1(mean, sigma1);
-	    Gaussian gaus2(mean, sigma2);
-	    Number _1(1);
-	    typedef Product<Constant, Gaussian> G1;
-	    typedef Product<Difference<Number,Constant>, Gaussian> G2;
-	    typedef Product<Constant,Sum<G1, G2> > GaussComb;
-	    GaussComb gc = yield*(alpha*gaus1 + (_1 - alpha)*gaus2);
-	    typedef Convolution<ZLineShape, GaussComb> FitFunction;
+	    funct::ZLineShape zls(mass, gamma, f_gamma, f_int);
+	    funct::Gaussian gaus1(mean, sigma1);
+	    funct::Gaussian gaus2(mean, sigma2);
+	    typedef funct::Product<funct::Constant, funct::Gaussian>::type G1;
+	    typedef funct::Product<funct::Difference<funct::Number,funct::Constant>::type, funct::Gaussian>::type G2;
+	    typedef funct::Product<funct::Constant, funct::Sum<G1, G2>::type >::type GaussComb;
+	    GaussComb gc = c_yield*(c_alpha*gaus1 + (_1 - c_alpha)*gaus2);
+	    typedef funct::Convolution<funct::ZLineShape, GaussComb, IntegratorConv>::type FitFunction;
 	    double range = 3 * max(sigma1.value(), sigma2.value());
-	    FitFunction f(zls, gc, -range , range, 1000);
+	    FitFunction f(zls, gc, -range , range, integratorConv);
 	    cout << "set functions" << endl;
 	    typedef fit::HistoChiSquare<FitFunction> ChiSquared;
 	    ChiSquared chi2(f, zMass, fMin, fMax);

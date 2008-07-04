@@ -1,8 +1,8 @@
  /*
  * \file DTDigiForNoiseTask.cc
  * 
- * $Date: 2008/01/22 18:46:59 $
- * $Revision: 1.6 $
+ * $Date: 2008/03/01 00:39:54 $
+ * $Revision: 1.7 $
  * \author G. Mila - INFN Torino
  *
  */
@@ -44,7 +44,6 @@ DTDigiForNoiseTask::DTDigiForNoiseTask(const edm::ParameterSet& ps){
   parameters = ps;
   
   dbe = edm::Service<DQMStore>().operator->();
-  dbe->setVerbose(1);
 
 }
 

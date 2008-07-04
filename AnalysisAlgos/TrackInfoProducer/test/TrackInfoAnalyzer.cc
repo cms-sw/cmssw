@@ -1,11 +1,14 @@
 #include <memory>
 
+#include "FWCore/Framework/interface/Frameworkfwd.h"
 #include "FWCore/Framework/interface/EDAnalyzer.h"
 
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/MakerMacros.h"
 
+#include "FWCore/Framework/interface/ESHandle.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
+#include "DataFormats/TrackReco/interface/TrackFwd.h"
 #include "AnalysisDataFormats/TrackInfo/interface/TrackInfo.h"
 #include "DataFormats/TrackingRecHit/interface/TrackingRecHit.h"
 //#include "DataFormats/DetId/interface/DetId.h"

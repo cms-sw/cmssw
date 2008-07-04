@@ -6,8 +6,8 @@
  *  shared surfaces. Build MagVolume6Faces and organise them in a hierarchical
  *  structure. Build MagGeometry out of it.
  *
- *  $Date: 2008/03/10 16:26:36 $
- *  $Revision: 1.7 $
+ *  $Date: 2007/03/09 14:38:23 $
+ *  $Revision: 1.6 $
  *  \author N. Amapane - INFN Torino
  */
 #include "DataFormats/GeometrySurface/interface/ReferenceCounted.h" 
@@ -41,10 +41,6 @@ public:
 
   /// Get endcap layers
   std::vector<MagESector*> endcapSectors() const;
-
-  float maxR() const;
-
-  float maxZ() const;  
 
 private:
   typedef ConstReferenceCountingPointer<Surface> RCPS;

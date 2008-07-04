@@ -133,6 +133,7 @@ std::vector<Trajectory> SimpleTrackRefitter::refitTrack(const reco::Track& theT,
     }
   }
   if ((*firstHit)->globalPosition().mag2() > ((*lastHit)->globalPosition().mag2()) ){
+    //TODO: temporary should use reverse
     for (TransientTrackingRecHit::RecHitContainer::const_iterator it=tmp.end()-1;it!=tmp.begin()-1;it--){
       hits.push_back(*it);
     }

@@ -1,4 +1,4 @@
-// Last commit: $Id: SiStripRawToDigiModule.h,v 1.1 2007/04/24 16:58:58 bainbrid Exp $
+// Last commit: $Id: SiStripRawToDigiModule.h,v 1.4 2008/06/09 18:16:41 bainbrid Exp $
 
 #ifndef EventFilter_SiStripRawToDigi_SiStripRawToDigiModule_H
 #define EventFilter_SiStripRawToDigi_SiStripRawToDigiModule_H
@@ -7,6 +7,7 @@
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/EventSetup.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
+#include "boost/cstdint.hpp"
 #include <string>
 
 class SiStripRawToDigiUnpacker;
@@ -28,10 +29,16 @@ class SiStripRawToDigiModule : public edm::EDProducer {
 
   virtual void beginJob( const edm::EventSetup& );
   virtual void endJob();
+
+  virtual void beginRun( edm::Run&, const edm::EventSetup& );
+  virtual void endRun( edm::Run&, const edm::EventSetup& ) {;}
   
   virtual void produce( edm::Event&, const edm::EventSetup& );
   
  private: 
+
+  void updateCabling( const edm::EventSetup& );
+  void deleteCabling();
   
   SiStripRawToDigiUnpacker* rawToDigi_;
 
@@ -40,6 +47,8 @@ class SiStripRawToDigiModule : public edm::EDProducer {
 
   SiStripFedCabling* cabling_;
   
+  uint32_t cacheId_;
+
 };
 
 #endif // EventFilter_SiStripRawToDigi_SiStripRawToDigiModule_H

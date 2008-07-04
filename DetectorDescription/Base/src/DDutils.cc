@@ -1,4 +1,6 @@
 #include "DetectorDescription/Base/interface/DDutils.h"
+#include <vector>
+#include <string>
 #include <sstream>
 
 std::vector<int> dbl_to_int ( const std::vector<double> & vecdbl) {

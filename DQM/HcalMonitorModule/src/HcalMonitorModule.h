@@ -4,8 +4,8 @@
 /*
  * \file HcalMonitorModule.h
  *
- * $Date: 2007/12/19 19:02:23 $
- * $Revision: 1.24 $
+ * $Date: 2008/03/05 20:48:57 $
+ * $Revision: 1.26 $
  * \author W. Fisher
  *
 */
@@ -140,6 +140,7 @@ public:
   std::string rootFolder_;
 
   int ievt_;
+  int ievt_pre_; // copy of counter used for prescale purposes
   bool fedsListed_;
   
   edm::InputTag inputLabelGT_;

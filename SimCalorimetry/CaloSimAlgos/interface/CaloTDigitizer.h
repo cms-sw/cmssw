@@ -8,7 +8,6 @@
 */
 #include "SimCalorimetry/CaloSimAlgos/interface/CaloHitResponse.h"
 #include "SimCalorimetry/CaloSimAlgos/interface/CaloVNoiseHitGenerator.h"
-#include "SimCalorimetry/CaloSimAlgos/interface/CaloVNoiseSignalGenerator.h"
 #include "SimDataFormats/CrossingFrame/interface/MixCollection.h"
 #include "SimDataFormats/CaloHit/interface/PCaloHit.h"
 #include <cassert>
@@ -27,7 +26,6 @@ public:
   CaloTDigitizer(CaloHitResponse * hitResponse, ElectronicsSim * electronicsSim, bool addNoise)
   :  theHitResponse(hitResponse),
      theNoiseHitGenerator(0),
-     theNoiseSignalGenerator(0),
      theElectronicsSim(electronicsSim),
      theDetIds(0),
      addNoise_(addNoise)
@@ -46,12 +44,6 @@ public:
     theNoiseHitGenerator = generator;
   }
 
-  void setNoiseSignalGenerator(CaloVNoiseSignalGenerator * generator)
-  {
-    theNoiseSignalGenerator = generator;
-  }
-
-
   /// turns hits into digis
   void run(MixCollection<PCaloHit> & input, DigiCollection & output) {
     assert(theDetIds.size() != 0);
@@ -59,7 +51,7 @@ public:
     theHitResponse->run(input);
 
     if(theNoiseHitGenerator != 0) addNoiseHits();
-    if(theNoiseSignalGenerator != 0) addNoiseSignals();
+
     theElectronicsSim->newEvent();
 
     // reserve space for how many digis we expect
@@ -103,22 +95,10 @@ public:
     }
   }
 
-  void addNoiseSignals()
-  {
-    std::vector<CaloSamples> noiseSignals;
-    // noise signals need to be in units of photoelectrons.  Fractional is OK
-    theNoiseSignalGenerator->getNoiseSignals(noiseSignals);
-    for(std::vector<CaloSamples>::const_iterator signalItr = noiseSignals.begin(),
-        signalEnd = noiseSignals.end(); signalItr != signalEnd; ++signalItr)
-    {
-      theHitResponse->add(*signalItr);
-    }
-  }
 
 private:
   CaloHitResponse * theHitResponse;
   CaloVNoiseHitGenerator * theNoiseHitGenerator;
-  CaloVNoiseSignalGenerator * theNoiseSignalGenerator;
   ElectronicsSim * theElectronicsSim;
   std::vector<DetId> theDetIds;
   bool addNoise_;

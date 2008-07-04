@@ -306,15 +306,15 @@ DQMNet::reinstateObject(DQMStore *store, Object &o)
   name.erase(0, name.rfind('/')+1);
   store->setCurrentFolder(folder);
   if (TProfile2D *t = dynamic_cast<TProfile2D *>(o.object))
-    store->cloneProfile2D(name, t);
+    store->bookProfile2D(name, t);
   else if (TProfile *t = dynamic_cast<TProfile *>(o.object))
-    store->cloneProfile(name, t);
+    store->bookProfile(name, t);
   else if (TH3F *t = dynamic_cast<TH3F *>(o.object))
-    store->clone3D(name, t);
+    store->book3D(name, t);
   else if (TH2F *t = dynamic_cast<TH2F *>(o.object))
-    store->clone2D(name, t);
+    store->book2D(name, t);
   else if (TH1F *t = dynamic_cast<TH1F *>(o.object))
-    store->clone1D(name, t);
+    store->book1D(name, t);
   else if (TObjString *t = dynamic_cast<TObjString *>(o.object))
   {
     RegexpMatch m;
@@ -607,13 +607,9 @@ DQMNet::onMessage(Bucket *msg, Peer *p, unsigned char *data, size_t len)
 	  << "DEBUG: received message 'LIST END' from "
 	  << p->peeraddr << std::endl;
 
-      // Send an object update to all peers that requested it
-      // and reset the updated flag on the objects.
-      lock();
-      sendObjectListToPeers(flags != 0);
-      unlock();
-
       // Indicate we have received another update from this peer.
+      // Also indicate we should flush to our clients.
+      flush_ = true;
       p->updates++;
     }
     return true;
@@ -835,7 +831,7 @@ DQMNet::onPeerData(IOSelectEvent *ev, Peer *p)
 	      << p->peeraddr << std::endl;
 	  DataBlob &data = p->incoming;
 	  if (data.capacity () < data.size () + sz)
-	    data.reserve (data.size() + 10240);
+	    data.reserve (data.size() + 8*1024*1024);
 	  data.insert (data.end(), buf, buf + sz);
 	}
       while (sz == sizeof (buf));
@@ -1318,24 +1314,14 @@ DQMNet::run(void)
     now = Time::current();
 
     // Check if flush is required.  Flush only if one is needed.
-    // Even then prefer to make incremental flushes and send the
-    // full list of objects only relatively rarely.
-    if (flush_)
+    // Always sends the full object list, but only rarely.
+    if (flush_ && now > nextFlush)
     {
-      bool fullFlush = false;
-      if (now > nextFlush)
-      {
-	nextFlush = now + TimeSpan(0, 0, 0, 30 /* seconds */, 0);
-	fullFlush = true;
-      }
-
       flush_ = false;
+      nextFlush = now + TimeSpan(0, 0, 0, 60 /* seconds */, 0);
 
-      // Queue updates for changed or all objects for peers that have
-      // requested automatic notifications and mark updated objects
-      // old.
       lock();
-      sendObjectListToPeers(fullFlush);
+      sendObjectListToPeers(true);
       unlock();
     }
 

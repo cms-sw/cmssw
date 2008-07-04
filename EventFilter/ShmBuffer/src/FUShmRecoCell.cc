@@ -67,7 +67,8 @@ void FUShmRecoCell::clear()
 
 
 //______________________________________________________________________________
-void FUShmRecoCell::writeInitMsg(unsigned char *data,
+void FUShmRecoCell::writeInitMsg(unsigned int   outModId,
+				 unsigned char *data,
 				 unsigned int   dataSize)
 {
   if (eventSize_!=0)
@@ -81,6 +82,7 @@ void FUShmRecoCell::writeInitMsg(unsigned char *data,
   rawCellIndex_=0xffffffff;
   runNumber_   =0xffffffff;
   evtNumber_   =0xffffffff;
+  outModId_    =outModId;
   type_        =0;
   unsigned char* targetAddr=payloadAddr();
   memcpy(targetAddr,data,dataSize);

@@ -3,8 +3,8 @@
 
 #include "PhysicsTools/PatUtils/interface/GenericDuplicateRemover.h"
 
-#include "DataFormats/EgammaCandidates/interface/PixelMatchGsfElectronFwd.h"
-#include "DataFormats/EgammaCandidates/interface/PixelMatchGsfElectron.h"
+#include "DataFormats/EgammaCandidates/interface/GsfElectronFwd.h"
+#include "DataFormats/EgammaCandidates/interface/GsfElectron.h"
 #include "DataFormats/Common/interface/View.h"
 
 #include <memory>
@@ -40,11 +40,11 @@ namespace pat {
 
             // List of duplicate electrons to remove 
             // Among those that share the same cluster or track, the one with E/P nearer to 1 is kept
-            std::auto_ptr< std::vector<size_t> > duplicatesToRemove(const std::vector<reco::PixelMatchGsfElectron> &electrons) const ;
+            std::auto_ptr< std::vector<size_t> > duplicatesToRemove(const std::vector<reco::GsfElectron> &electrons) const ;
 
             // List of duplicate electrons to remove 
             // Among those that share the same cluster or track, the one with E/P nearer to 1 is kept
-            std::auto_ptr< std::vector<size_t> > duplicatesToRemove(const edm::View<reco::PixelMatchGsfElectron>   &electrons) const ;
+            std::auto_ptr< std::vector<size_t> > duplicatesToRemove(const edm::View<reco::GsfElectron>   &electrons) const ;
 
             // Generic method. Collection can be vector, view or whatever you like
             template<typename Collection>

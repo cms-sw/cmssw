@@ -1,7 +1,7 @@
 <MonElementConfiguration> 
 <TkMap name="Summary Map" update_frequency="200">
-     <MonElement name="ScurveChi2NDFSummary_RMS">    </MonElement> 
-     <MonElement name="ScurveChi2NDFSummary_mean">   </MonElement> 
+     <MonElement name="ScurveChi2ProbSummary_RMS">    </MonElement> 
+     <MonElement name="ScurveChi2ProbSummary_mean">   </MonElement> 
      <MonElement name="ScurveFitResultSummary_RMS">  </MonElement> 
      <MonElement name="ScurveFitResultSummary_mean"> </MonElement> 
      <MonElement name="ScurveSigmasSummary_RMS">     </MonElement> 
@@ -11,14 +11,14 @@
 </TkMap>
 <SummaryPlot>
 <SubStructureBarrelLevel name="Ladder_" update_frequency="300"> 
-     <MonElement name="ScurveChi2NDFSummary">    </MonElement> 
+     <MonElement name="ScurveChi2ProbSummary">    </MonElement> 
      <MonElement name="ScurveFitResultSummary">  </MonElement> 
      <MonElement name="ScurveSigmasSummary">     </MonElement> 
      <MonElement name="ScurveThresholdSummary">  </MonElement> 
 </SubStructureBarrelLevel> 
 <SubStructureGrandBarrelLevel name="Layer_" update_frequency="300"> 
-     <MonElement name="ScurveChi2NDFSummary_RMS">    </MonElement> 
-     <MonElement name="ScurveChi2NDFSummary_mean">   </MonElement> 
+     <MonElement name="ScurveChi2ProbSummary_RMS">    </MonElement> 
+     <MonElement name="ScurveChi2ProbSummary_mean">   </MonElement> 
      <MonElement name="ScurveFitResultSummary_RMS">  </MonElement> 
      <MonElement name="ScurveFitResultSummary_mean"> </MonElement> 
      <MonElement name="ScurveSigmasSummary_RMS">     </MonElement> 
@@ -27,14 +27,14 @@
      <MonElement name="ScurveThresholdSummary_mean"> </MonElement> 
 </SubStructureGrandBarrelLevel> 
 <SubStructureEndcapLevel name="Panel_" update_frequency="300"> 
-     <MonElement name="ScurveChi2NDFSummary">    </MonElement> 
+     <MonElement name="ScurveChi2ProbSummary">    </MonElement> 
      <MonElement name="ScurveFitResultSummary">  </MonElement> 
      <MonElement name="ScurveSigmasSummary">     </MonElement> 
      <MonElement name="ScurveThresholdSummary">  </MonElement> 
 </SubStructureEndcapLevel> 
 <SubStructureGrandEndcapLevel name="Blade_" update_frequency="300"> 
-     <MonElement name="ScurveChi2NDFSummary_RMS">    </MonElement> 
-     <MonElement name="ScurveChi2NDFSummary_mean">   </MonElement> 
+     <MonElement name="ScurveChi2ProbSummary_RMS">    </MonElement> 
+     <MonElement name="ScurveChi2ProbSummary_mean">   </MonElement> 
      <MonElement name="ScurveFitResultSummary_RMS">  </MonElement> 
      <MonElement name="ScurveFitResultSummary_mean"> </MonElement> 
      <MonElement name="ScurveSigmasSummary_RMS">     </MonElement> 

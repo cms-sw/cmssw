@@ -75,7 +75,9 @@ class TrackAssociatorByHits : public TrackAssociatorBase {
   const edm::ParameterSet& conf_;
   const bool AbsoluteNumberOfHits;
   const std::string SimToRecoDenominator;
-  const double theMinHitCut;    
+  const double quality_SimToReco;
+  const double purity_SimToReco;
+  const double cut_RecoToSim;
   const bool UsePixels;
   const bool UseGrouped;
   const bool UseSplitting;

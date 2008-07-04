@@ -1,9 +1,7 @@
 #ifndef EcalEndcapGeometry_h
 #define EcalEndcapGeometry_h
 
-#include "Geometry/CaloGeometry/interface/EZArrayFL.h"
 #include "DataFormats/EcalDetId/interface/EEDetId.h"
-#include "DataFormats/EcalDetId/interface/EBDetId.h"
 #include "Geometry/EcalCommonData/interface/EcalEndcapNumberingScheme.h"
 #include "Geometry/CaloGeometry/interface/CaloSubdetectorGeometry.h"
 #include <vector>
@@ -14,10 +12,6 @@ class TruncatedPyramid;
 class EcalEndcapGeometry : public CaloSubdetectorGeometry 
 {
    public:
-
-      typedef EZArrayFL<EBDetId> OrderedListOfEBDetId ; // like an stl vector: begin(), end(), [i]
-
-      typedef std::vector<OrderedListOfEBDetId*>  VecOrdListEBDetIdPtr ;
 
       typedef EcalEndcapNumberingScheme NumberingScheme ;
 
@@ -35,8 +29,6 @@ class EcalEndcapGeometry : public CaloSubdetectorGeometry
 
       void setNumberOfCrystalPerModule( const int nncrys ) { _nncrys=nncrys ; }
 
-      const OrderedListOfEBDetId* getClosestBarrelCells( EEDetId id ) const ;
-
       // Get closest cell, etc...
       virtual DetId getClosestCell( const GlobalPoint& r ) const ;
 
@@ -50,8 +42,6 @@ class EcalEndcapGeometry : public CaloSubdetectorGeometry
       static std::string producerName() { return "EcalEndcap" ; }
 
    private:
-
-      static int myPhi( int i ) { i+=720; return ( 1 + (i-1)%360 ) ; }
 
       /// number of modules
       int _nnmods;
@@ -67,10 +57,6 @@ class EcalEndcapGeometry : public CaloSubdetectorGeometry
 
       unsigned int index( float x ) const ;
       EEDetId gId( float x, float y, float z ) const ;
-
-      mutable EZMgrFL<EBDetId>*     m_borderMgr ;
-
-      mutable VecOrdListEBDetIdPtr* m_borderPtrVec ;
 } ;
 
 

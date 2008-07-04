@@ -1,7 +1,7 @@
 #ifndef _DQMSERVICEMANAGER_H_
 #define _DQMSERVICEMANAGER_H_
 
-// $Id$
+// $Id: DQMServiceManager.h,v 1.2 2007/05/16 22:53:44 hcheung Exp $
 
 #include "FWCore/ParameterSet/interface/ProcessDesc.h"
 #include "FWCore/Framework/interface/EventSelector.h"
@@ -31,12 +31,13 @@ namespace stor
     public:  
     
     explicit DQMServiceManager(std::string filePrefix = "/tmp/DQM",
-			       int purgeTime = DEFAULT_PURGE_TIME,
-			       int readyTime = DEFAULT_READY_TIME,
+                               int purgeTime = DEFAULT_PURGE_TIME,
+                               int readyTime = DEFAULT_READY_TIME,
                                bool collateDQM = false,
                                bool archiveDQM = false,
-			       bool useCompression = true,
-			       int compressionLevel = 1);
+                               int archiveInterval = 0,
+                               bool useCompression = true,
+                               int compressionLevel = 1);
      ~DQMServiceManager(); 
     
       void manageDQMEventMsg(DQMEventMsgView& msg);
@@ -49,6 +50,7 @@ namespace stor
 
       void setCollateDQM(bool collateDQM) { collateDQM_ = collateDQM; }
       void setArchiveDQM(bool archiveDQM) { archiveDQM_ = archiveDQM; }
+      void setArchiveInterval(int archiveInterval) { archiveInterval_ = archiveInterval; }
       void setDQMEventServer(boost::shared_ptr<DQMEventServer>& es) 
       { DQMeventServer_ = es; }
       void setUseCompression(bool useCompression) 
@@ -62,9 +64,7 @@ namespace stor
       int           compressionLevel_;
       bool          collateDQM_;
       bool          archiveDQM_;
-      int           runNumber_;
-      int           lumiSection_;
-      int           instance_;
+      int           archiveInterval_;
       int           nUpdates_;
       std::string   filePrefix_;
       int           purgeTime_;
@@ -73,15 +73,15 @@ namespace stor
       int  writeAndPurgeDQMInstances(bool purgeAll=false);
       std::vector<DQMInstance *>    dqmInstances_;
 
-      DQMInstance * findDQMInstance(int runNumber_, 
-				    int lumiSection_,
-				    int instance_);
+      DQMInstance * findDQMInstance(int runNumber, 
+                                    int lumiSection,
+                                    int instance);
 
       boost::shared_ptr<DQMEventServer> DQMeventServer_;
       enum 
       {
-	DEFAULT_PURGE_TIME = 20,
-	DEFAULT_READY_TIME = 10
+        DEFAULT_PURGE_TIME = 120,
+        DEFAULT_READY_TIME = 30
       }; 
 
       //      boost::shared_ptr<stor::DQMEventSelector>  dqmEventSelector_;

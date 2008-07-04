@@ -5,8 +5,8 @@
 //   Description: Extrapolator
 //
 //
-//   $Date: 2007/02/27 11:44:00 $
-//   $Revision: 1.2 $
+//   $Date: 2007/03/30 09:05:32 $
+//   $Revision: 1.3 $
 //
 //   Author :
 //   N. Neumeister            CERN EP
@@ -153,7 +153,7 @@ void L1MuDTEUX::run(const edm::EventSetup& c) {
   int high = (theExtLUTs->getHigh(lut_idx,phib_start ) >> sh_phi) + offset;
 
   // is phi-difference within the extrapolation window?
-  if ( diff >= low && diff <= high ) {
+  if (( diff >= low && diff <= high ) || L1MuDTTFConfig::getopenLUTs() ) {
     m_result = true;
     int qual_st = m_start->quality();
     int qual_ta = m_target->quality();

@@ -6,20 +6,20 @@ using namespace std;
 
 using pat::HistoElectron;
 
-HistoElectron::HistoElectron( std::string dir,
+HistoElectron::HistoElectron( std::string dir,std::string group,std::string pre,
 			      double pt1, double pt2, double m1, double m2 ) :
-  HistoGroup<Electron>( dir, "Electron", "e", pt1, pt2, m1, m2)
+  HistoGroup<Electron>( dir, group, pre, pt1, pt2, m1, m2)
 {
   // book relevant electron histograms
 
   addHisto( h_trackIso_      =
-	    new PhysVarHisto("eTrackIso",       "Electron Track Isolation"    , 100, 0, 10, currDir_, "", "vD")
+	    new PhysVarHisto( pre + "TrackIso",       "Electron Track Isolation"    , 100, 0, 10, currDir_, "", "vD")
 	    );
   addHisto( h_caloIso_       =
-	    new PhysVarHisto("eCaloIso",        "Electron Calo Isolation"     , 100, -20, 20, currDir_, "", "vD")
+	    new PhysVarHisto( pre + "CaloIso",        "Electron Calo Isolation"     , 100, -20, 20, currDir_, "", "vD")
 	    );
   addHisto( h_leptonID_      =
-	    new PhysVarHisto("eLeptonID",       "Electron Lepton ID"          , 100, 0, 1, currDir_, "", "vD")
+	    new PhysVarHisto( pre + "LeptonID",       "Electron Lepton ID"          , 100, 0, 1, currDir_, "", "vD")
 	    );
 }
 
@@ -28,26 +28,47 @@ HistoElectron::~HistoElectron()
 }
 
 
-void HistoElectron::fill( const Electron * electron, uint iE )
+void HistoElectron::fill( const Electron * electron, uint iE, double weight )
 {
 
   // First fill common 4-vector histograms
-  HistoGroup<Electron>::fill( electron, iE );
+  HistoGroup<Electron>::fill( electron, iE , weight);
 
   // fill relevant electron histograms
-  h_trackIso_       ->fill( electron->trackIso(), iE );
-  h_caloIso_        ->fill( electron->caloIso(), iE );
-  h_leptonID_       ->fill( electron->leptonID(), iE );
+  h_trackIso_       ->fill( electron->trackIso(), iE, weight );
+  h_caloIso_        ->fill( electron->caloIso(), iE, weight );
+  h_leptonID_       ->fill( electron->leptonID(), iE, weight );
 
 }
 
 
-void HistoElectron::fillCollection( const std::vector<Electron> & coll ) 
+void HistoElectron::fill( const reco::ShallowClonePtrCandidate * pshallow, uint iE, double weight )
 {
 
-  HistoGroup<Electron>::fillCollection( coll );
+  // Get the underlying object that the shallow clone represents
+  const pat::Electron * electron = dynamic_cast<const pat::Electron*>(pshallow);
+
+  if ( electron == 0 ) {
+    cout << "Error! Was passed a shallow clone that is not at heart a electron" << endl;
+    return;
+  }
+
+
+  // First fill common 4-vector histograms
+  HistoGroup<Electron>::fill( pshallow, iE, weight );
+
+  // fill relevant electron histograms
+  h_trackIso_       ->fill( electron->trackIso(), iE, weight );
+  h_caloIso_        ->fill( electron->caloIso(), iE, weight );
+  h_leptonID_       ->fill( electron->leptonID(), iE, weight );
+
+}
+
+
+void HistoElectron::fillCollection( const std::vector<Electron> & coll,double weight ) 
+{
  
-  h_size_->fill( coll.size() );     //! Save the size of the collection.
+  h_size_->fill( coll.size(), 1, weight );     //! Save the size of the collection.
 
   std::vector<Electron>::const_iterator
     iobj = coll.begin(),
@@ -55,7 +76,7 @@ void HistoElectron::fillCollection( const std::vector<Electron> & coll )
 
   uint i = 1;              //! Fortran-style indexing
   for ( ; iobj != iend; ++iobj, ++i ) {
-    fill( &*iobj, i);      //! &*iobj dereferences to the pointer to a PHYS_OBJ*
+    fill( &*iobj, i, weight);      //! &*iobj dereferences to the pointer to a PHYS_OBJ*
   } 
 }
 

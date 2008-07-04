@@ -4,8 +4,8 @@
 /*
  * \file EBBeamCaloClient.h
  *
- * $Date: 2008/03/14 14:38:54 $
- * $Revision: 1.33 $
+ * $Date: 2008/06/25 14:16:15 $
+ * $Revision: 1.41 $
  * \author G. Della Ricca
  * \author A. Ghezzi
  *
@@ -43,7 +43,7 @@ virtual ~EBBeamCaloClient();
 void analyze(void);
 
 /// BeginJob
-void beginJob(DQMStore* dbe);
+void beginJob(DQMStore* dqmStore);
 
 /// EndJob
 void endJob(void);
@@ -60,11 +60,14 @@ void setup(void);
 /// Cleanup
 void cleanup(void);
 
+/// SoftReset 	 
+void softReset(bool flag);
+
 /// HtmlOutput
 void htmlOutput(int run, std::string& htmlDir, std::string& htmlName);
 
 /// WriteDB
-bool writeDb(EcalCondDBInterface* econn, RunIOV* runiov, MonRunIOV* moniov);
+bool writeDb(EcalCondDBInterface* econn, RunIOV* runiov, MonRunIOV* moniov, bool& status, bool flag);
 
 template<class T> void AdjustRange(T obj);
 
@@ -82,12 +85,15 @@ int jevt_;
 bool cloneME_;
 
 bool verbose_;
+bool debug_;
+
+std::string prefixME_;
 
 bool enableCleanup_;
 
 std::vector<int> superModules_;
 
-DQMStore* dbe_;
+DQMStore* dqmStore_;
 
 //specific task me
 std::vector<int> checkedSteps_;

@@ -1,5 +1,5 @@
 //
-// $Id: Particle.h,v 1.1 2008/01/15 12:59:28 lowette Exp $
+// $Id: Particle.h,v 1.3 2008/04/04 18:22:08 srappocc Exp $
 //
 
 #ifndef DataFormats_PatCandidates_Particle_h
@@ -13,17 +13,17 @@
    namespace.
 
   \author   Steven Lowette
-  \version  $Id: Particle.h,v 1.1 2008/01/15 12:59:28 lowette Exp $
+  \version  $Id: Particle.h,v 1.3 2008/04/04 18:22:08 srappocc Exp $
 */
 
-#include "DataFormats/Candidate/interface/Particle.h"
+#include "DataFormats/Candidate/interface/LeafCandidate.h"
 #include "DataFormats/PatCandidates/interface/PATObject.h"
 
 
 namespace pat {
 
 
-  typedef reco::Particle ParticleType;
+  typedef reco::LeafCandidate ParticleType;
 
 
   class Particle : public PATObject<ParticleType> {
@@ -33,6 +33,8 @@ namespace pat {
       Particle();
       Particle(const ParticleType & aParticle);
       virtual ~Particle();
+
+      virtual Particle * clone() const { return new Particle(*this); }
 
   };
 

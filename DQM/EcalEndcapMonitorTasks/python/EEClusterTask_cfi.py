@@ -1,10 +1,11 @@
 import FWCore.ParameterSet.Config as cms
 
 ecalEndcapClusterTask = cms.EDFilter("EEClusterTask",
-    ClusterShapeAssociation = cms.InputTag("islandBasicClusters","islandEndcapShapeAssoc"),
+    prefixME = cms.untracked.string('EcalEndcap'),
+    enableCleanup = cms.untracked.bool(False),
+    mergeRuns = cms.untracked.bool(False),    
     BasicClusterCollection = cms.InputTag("islandBasicClusters","islandEndcapBasicClusters"),
-    enableCleanup = cms.untracked.bool(True),
-    SuperClusterCollection = cms.InputTag("islandSuperClusters","islandEndcapSuperClusters")
+    SuperClusterCollection = cms.InputTag("islandSuperClusters","islandEndcapSuperClusters"),
+    ClusterShapeAssociation = cms.InputTag("islandBasicClusters","islandEndcapShapeAssoc")
 )
-
 

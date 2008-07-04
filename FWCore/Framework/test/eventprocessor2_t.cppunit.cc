@@ -2,7 +2,7 @@
 
 Test of the EventProcessor class.
 
-$Id: eventprocessor2_t.cppunit.cc,v 1.10 2007/08/07 22:10:55 wmtan Exp $
+$Id: eventprocessor2_t.cppunit.cc,v 1.11 2007/09/20 19:35:24 wmtan Exp $
 
 ----------------------------------------------------------------------*/  
 #include <exception>
@@ -45,23 +45,17 @@ void work()
 }
 
 void testeventprocessor2::eventprocessor2Test()
-//int main()
 {
-  /*try { work(); rc = 0;}
-  int rc = -1;                // we should never return this value!
+  try { work();}
   catch (cms::Exception& e) {
       std::cerr << "CMS exception caught: "
 		<< e.explainSelf() << std::endl;
-      rc = 1;
   }
   catch (std::runtime_error& e) {
       std::cerr << "Standard library exception caught: "
 		<< e.what() << std::endl;
-      rc = 1;
   }
   catch (...) {
       std::cerr << "Unknown exception caught" << std::endl;
-      rc = 2;
   }
-  return rc;*/
 }

@@ -5,4 +5,4 @@
 
 typedef Merger<reco::SuperClusterCollection> SuperClusterMerger;
 
-DEFINE_FWK_MODULE( SuperClusterMerger );
+DEFINE_FWK_MODULE(SuperClusterMerger);

@@ -15,7 +15,7 @@
 //
 // Original Author:  Vincent ROBERFROID
 //         Created:  Wed Feb 28 12:05:36 CET 2007
-// $Id: NuclearSeedsEDProducer.h,v 1.5 2007/10/09 14:55:03 roberfro Exp $
+// $Id: NuclearSeedsEDProducer.h,v 1.4 2007/09/05 15:15:28 roberfro Exp $
 //
 //
 
@@ -38,10 +38,6 @@
 
 #include "DataFormats/TrackReco/interface/TrackFwd.h"
 #include "RecoTracker/NuclearSeedGenerator/interface/TrajectoryToSeedMap.h"
-
-#include "TrackingTools/DetLayers/interface/NavigationSetter.h"
-#include "TrackingTools/DetLayers/interface/NavigationSchool.h"
-#include "RecoTracker/TkNavigation/interface/SimpleNavigationSchool.h"
 
 namespace reco {class TransientTrack;}
 
@@ -68,7 +64,5 @@ class NuclearSeedsEDProducer : public edm::EDProducer {
 
       bool improveSeeds;
       std::string producer_;
-      std::string   navigationSchoolName;
-      const NavigationSchool*         theNavigationSchool;
 };
 #endif

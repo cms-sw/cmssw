@@ -9,8 +9,6 @@
 
 #include <xercesc/dom/DOM.hpp>
 
-#include <TH1.h>
-
 #include "FWCore/Utilities/interface/Exception.h"
 
 #include "PhysicsTools/MVAComputer/interface/AtomicId.h"
@@ -249,27 +247,6 @@ void ProcNormalize::trainEnd()
 
 	if (done)
 		trained = true;
-
-	if (done && monitoring) {
-		std::vector<SourceVariable*> inputs = getInputs().get();
-		for(std::vector<PDF>::iterator iter = pdfs.begin();
-		    iter != pdfs.end(); iter++) {
-			SourceVariable *var = inputs[iter - pdfs.begin()];
-			std::string name =
-				(const char*)var->getSource()->getName()
-				+ std::string("_")
-				+ (const char*)var->getName();
-			unsigned int n = iter->distr.size() - 1;
-			double min = iter->range.min -
-			             0.5 * iter->range.width() / n;
-			double max = iter->range.max +
-			             0.5 * iter->range.width() / n;
-			TH1F *histo = monitoring->book<TH1F>(name + "_pdf",
-				name.c_str(), name.c_str(), n + 1, min, max);
-			for(unsigned int i = 0; i < n; i++)
-				histo->SetBinContent(i + 1, iter->distr[i]);
-		}
-	}
 }
 
 bool ProcNormalize::load()

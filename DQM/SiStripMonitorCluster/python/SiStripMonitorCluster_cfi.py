@@ -10,7 +10,7 @@ SiStripMonitorCluster = cms.EDFilter("SiStripMonitorCluster",
     #
     SelectAllDetectors = cms.bool(False),
     ClusterProducer = cms.string('siStripClusters'),
-    FillSignalNoiseHistos = cms.bool(False),
+    FillSignalNoiseHistos = cms.bool(True),
     ShowMechanicalStructureView = cms.bool(True),
     ShowControlView = cms.bool(False),
     ResetMEsEachRun = cms.bool(False),

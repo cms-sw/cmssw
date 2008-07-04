@@ -1,10 +1,10 @@
-#include "PhysicsTools/Utilities/interface/RootFunctionAdapter.h"
 #include "PhysicsTools/Utilities/interface/BreitWigner.h"
 #include "PhysicsTools/Utilities/interface/HistoChiSquare.h"
 #include "PhysicsTools/Utilities/interface/RootMinuitCommands.h"
 #include "PhysicsTools/Utilities/interface/RootMinuit.h"
 #include "PhysicsTools/Utilities/interface/Parameter.h"
-#include "PhysicsTools/Utilities/interface/Constant.h"
+#include "PhysicsTools/Utilities/interface/rootTf1.h"
+#include "PhysicsTools/Utilities/interface/rootPlot.h"
 #include "TFile.h"
 #include "TH1.h"
 #include "TF1.h"
@@ -18,7 +18,7 @@
 
 int main() { 
   gROOT->SetStyle("Plain");
-  typedef funct::Product<funct::Constant, funct::BreitWigner>::type FitFunction;
+  typedef funct::Product<funct::Parameter, funct::BreitWigner>::type FitFunction;
   typedef fit::HistoChiSquare<FitFunction> ChiSquared;
   try {
     fit::RootMinuitCommands<ChiSquared> commands("PhysicsTools/Utilities/test/testZMassFit.txt");
@@ -31,21 +31,20 @@ int main() {
     funct::Parameter mass(kMass, commands.par(kMass));
     funct::Parameter gamma(kGamma, commands.par(kGamma));
     funct::BreitWigner bw(mass, gamma);
-    funct::Constant c(yield);
     
-    FitFunction f = c * bw;
-    TF1 fun = root::tf1("fun", f, 0, 200, yield, mass, gamma);
+    FitFunction f = yield * bw;
+    TF1 startFun = root::tf1("startFun", f, 0, 200, yield, mass, gamma);
     TH1D histo("histo", "Z mass (GeV/c)", 200, 0, 200);
-    histo.FillRandom("fun", yield);
+    histo.FillRandom("startFun", yield);
     TCanvas canvas;
-    fun.Draw();
-    canvas.SaveAs("breitWigned.eps");
+    startFun.Draw();
+    canvas.SaveAs("breitWigner.eps");
     histo.Draw();
-    canvas.SaveAs("breitWignedHisto.eps");
-    fun.Draw("same");
-    canvas.SaveAs("breitWignedHistoFun.eps");
+    canvas.SaveAs("breitWignerHisto.eps");
+    startFun.Draw("same");
+    canvas.SaveAs("breitWignerHistoFun.eps");
     histo.Draw("e");
-    fun.Draw("same");
+    startFun.Draw("same");
     
     ChiSquared chi2(f, &histo, 80, 120);
     int fullBins = chi2.degreesOfFreedom();
@@ -55,11 +54,16 @@ int main() {
     commands.add(minuit, mass);
     commands.add(minuit, gamma);
     commands.run(minuit);
-    fun.SetParameters(yield, mass, gamma);
-    fun.SetParNames(yield.name().c_str(), mass.name().c_str(), gamma.name().c_str());
-    fun.SetLineColor(kRed);
-    fun.Draw("same");
-    canvas.SaveAs("breitWignedHistoFunFit.eps");
+    ROOT::Math::SMatrix<double, 3, 3, ROOT::Math::MatRepSym<double, 3> > err;
+    minuit.getErrorMatrix(err);
+    std::cout << "error matrix:" << std::endl;
+    for(size_t i = 0; i < 3; ++i) {
+      for(size_t j = 0; j < 3; ++j) {
+	std::cout << err(i, j) << "\t";
+      }
+      std::cout << std::endl;
+    } 
+    root::plot<FitFunction>("breitWignerHistoFunFit.eps", histo, f, 80, 120, yield, mass, gamma);
   } catch(std::exception & err){
     std::cerr << "Exception caught:\n" << err.what() << std::endl;
     return 1;

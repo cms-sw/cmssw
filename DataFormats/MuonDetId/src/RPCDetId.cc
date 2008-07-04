@@ -2,7 +2,7 @@
  * Impl of RPCDetId
  *
  * \author Ilaria Segoni
- * \version $Id: RPCDetId.cc,v 1.20 2007/10/23 05:53:39 mmaggi Exp $
+ * \version $Id: RPCDetId.cc,v 1.21 2007/10/24 14:31:39 fabiocos Exp $
  * \date 02 Aug 2005
  */
 
@@ -39,6 +39,97 @@ RPCDetId::RPCDetId(int region, int ring, int station, int sector, int layer,int 
   this->init(region,ring,station,sector,layer,subsector,roll);
 }
 
+
+void 
+RPCDetId::buildfromDB(int region, int ring, int trlayer, int sector, 
+		      const std::string& subs,
+		      const std::string& roll,
+		      const std::string& dbname){
+
+  bool barrel = (region==0);
+
+  //STATION
+  int station = -1;
+  if (barrel) {
+    if (trlayer==1 || trlayer==2) station = 1;
+    else if (trlayer==3 || trlayer==4) station = 2;
+    else station = trlayer-2;
+  } else {   
+   station = abs(ring); 
+  }
+
+  //LAYER
+  int layer = 1;
+  if (barrel && station==1) layer = trlayer;
+  if (barrel && station==2) layer = trlayer-2; 
+
+  //SUBSECTOR
+  int subsector = 1;
+
+  if (barrel) {
+    if (station==3 && subs=="+") subsector = 2;
+    if (station==4 && 
+         (   sector==1 || sector==2 || sector==3 
+                       || sector==5 || sector==6   
+          || sector==7 || sector==8 
+          || sector==10             || sector==12)
+          && (subs=="+")) {
+         subsector = 2;
+    }
+
+    if (station==4 && sector==4) {
+      if (subs=="--") subsector=1;
+      if (subs=="-")  subsector=2;
+      if (subs=="+")  subsector=3;
+      if (subs=="++") subsector=4;
+    } 
+  }
+
+   // ROLL
+  int iroll=0;
+
+  if      (roll=="Backward" || roll=="A") iroll = 1;
+  else if (roll=="Central" || roll=="B") iroll = 2;
+  else if (roll=="Forward" || roll=="C") iroll = 3;
+  else if (roll=="D") iroll = 4;
+  else {
+    std::cout << "** RPC: DBSpecToDetUnit, how to assigne roll to: "
+         <<roll<<" ???" << std::endl;
+  }
+
+  int trIndex = 0;
+  if(barrel){   
+    //cout <<" BARREL: " << endl; 
+    int eta_id = 6+ring;
+    int plane_id = station;
+    if(trlayer==2) plane_id=5;
+    if(trlayer==4) plane_id=6;
+    int sector_id = sector*3;
+    int copy_id = subsector;
+    int roll_id = iroll;
+    trIndex=(eta_id*10000+plane_id*1000+sector_id*10+copy_id)*10+roll_id;
+  } 
+  else { 
+    //    cout << "ENDCAP : " << endl;
+    int eta_id = trlayer;
+    if(ring>0) eta_id = 12-trlayer;
+    int plane_id = abs(ring);
+    int sector_id = sector;
+    // patch to fix phi rotation
+    sector_id--;
+    if (sector_id==0){
+      sector_id=36;
+      if (plane_id > 1 && trlayer == 1 )
+	sector_id=18;
+    }
+    //
+    int copy_id = 1;
+    int roll_id = iroll;
+    trIndex=(eta_id*10000+plane_id*1000+sector_id*10+copy_id)*10+ roll_id;
+  }
+  this->buildfromTrIndex(trIndex);
+
+}
 
 void
 RPCDetId::buildfromTrIndex(int trIndex)

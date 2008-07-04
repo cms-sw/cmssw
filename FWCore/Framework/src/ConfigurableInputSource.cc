@@ -1,5 +1,5 @@
 /*----------------------------------------------------------------------
-$Id: ConfigurableInputSource.cc,v 1.34 2008/01/31 04:56:51 wmtan Exp $
+$Id: ConfigurableInputSource.cc,v 1.35 2008/04/03 16:18:37 paterno Exp $
 ----------------------------------------------------------------------*/
 
 #include "DataFormats/Provenance/interface/LuminosityBlockAuxiliary.h"
