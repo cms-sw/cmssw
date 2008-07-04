@@ -5,8 +5,8 @@
 //   Description: Assignment Unit
 //
 //
-//   $Date: 2008/05/09 15:09:42 $
-//   $Revision: 1.6 $
+//   $Date: 2008/06/16 09:00:37 $
+//   $Revision: 1.7 $
 //
 //   Author :
 //   N. Neumeister            CERN EP
@@ -481,13 +481,14 @@ int L1MuDTAssignmentUnit::getPtAddress(PtAssMethod method, int bendcharge) const
   }
 
   int signo = 1;
-  if (bendangle < 0) signo=-1;
-  bendangle = signo*bendangle;
-  bendangle = bendangle%1024;
-  if (bendangle > 511) bendangle=1024-bendangle;
-  bendangle = signo*bendangle;
+  bendangle = (bendangle+8192)%4096;
+  if ( bendangle > 2047 ) bendangle -= 4096;
+  if ( bendangle < 0 ) signo = -1;
 
   if (bendcharge) return signo;
+
+  bendangle = (bendangle+2048)%1024;
+  if ( bendangle > 511 ) bendangle -= 1024;
 
   return bendangle;
 
