@@ -18,7 +18,7 @@
 #include <DQM/CSCMonitorModule/interface/CSCMonitorModule.h>
 #include <xercesc/parsers/XercesDOMParser.hpp>
 #include <xercesc/dom/DOMNodeList.hpp>
-#include "csc_utilities.cc"
+#include "CSCUtilities.cc"
 
 #define DEF_HISTO_COLOR 48
 

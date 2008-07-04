@@ -17,6 +17,7 @@
  */
 
 #include "DQM/CSCMonitorModule/interface/CSCDetector.h"
+#include "CSCUtilities.cc"
 
 /**
  * @brief  Constructor
@@ -31,6 +32,7 @@ CSCDetector::CSCDetector() {
   adr.mask.layer = false;
   adr.mask.side = adr.mask.station = adr.mask.ring = adr.mask.chamber = adr.mask.cfeb = adr.mask.hv = true;
 
+  // Creating real eta/phi boxes for available addresses
   for (adr.side = 1; adr.side <= N_SIDES; adr.side++) { 
     float sign = +1.0;
     if(adr.side == 2) sign = -1.0;
@@ -87,6 +89,11 @@ CSCDetector::CSCDetector() {
   station_area[3] = Area(adr);
 }
 
+/**
+ * @brief  Calculate station area in eta/phi space
+ * @param  station Station number
+ * @return Area that is being covered by station
+ */
 const float CSCDetector::Area(const unsigned int station) const {
   if (station > 0 && station <= N_STATIONS) {
     return station_area[station - 1];
@@ -94,6 +101,11 @@ const float CSCDetector::Area(const unsigned int station) const {
   return 0;
 }
 
+/**
+ * @brief  Calculate address area in eta/phi space
+ * @param  adr Address
+ * @return Area that is being covered by address
+ */
 const float CSCDetector::Area(const CSCAddress& adr) const {
   float a = 0;
   for(unsigned int i = 0; i < N_ELEMENTS; i++ ) {
@@ -395,5 +407,95 @@ const float CSCDetector::PhiMaxCFEB(const int station, const int ring, const int
   phi_max_cfeb = 0.0 + 2.0 * 3.14159 / (float) n_chambers * ((float) (chamber - 1) + (float) (cfeb) / (float) n_cfeb);
   
   return phi_max_cfeb;
+}
+
+/**
+ * @brief  Get the full name of the address prefixed with CSC_. It is being used by summaryReportContent variables
+ * @param  adr Address
+ * @return Address name as string
+ */
+const std::string CSCDetector::AddressName(const CSCAddress& adr) const {
+  std::ostringstream oss;
+  oss << "CSC";
+  if (adr.mask.side) {
+    oss << "_Side" << (adr.side == 1 ? "Plus" : "Minus");
+    if (adr.mask.station) {
+      oss << "_Station" << std::setfill('0') << std::setw(2) << adr.station;
+      if (adr.mask.ring) {
+        oss << "_Ring" << std::setfill('0') << std::setw(2) << adr.ring;
+        if (adr.mask.chamber) {
+          oss << "_Chamber" << std::setfill('0') << std::setw(2) << adr.chamber;
+          if (adr.mask.layer) {
+            oss << "_Layer" << std::setfill('0') << std::setw(2) << adr.layer;
+            if (adr.mask.cfeb) {
+              oss << "_CFEB" << std::setfill('0') << std::setw(2) << adr.cfeb;
+              if (adr.mask.hv) {
+                oss << "_HV" << std::setfill('0') << std::setw(2) << adr.hv;
+              }
+            }
+          }
+        }
+      }
+    }
+  }
+  return oss.str();
+}
+
+const bool CSCDetector::AddressFromString(const std::string str_address, CSCAddress& adr) const {
+  
+  std::vector<std::string> tokens;
+  splitString(str_address, ",", tokens);
+
+  if (tokens.size() != ADDR_SIZE) return false;
+
+  for (unsigned int r = 0; r < ADDR_SIZE; r++) {
+
+    std::string token = tokens.at(r);
+    trimString(token);
+    bool mask = false;
+    unsigned int num  = 0;
+
+    if (token.compare("*") != 0) {
+      if(stringToNumber<unsigned int>(num, token, std::dec)) {
+        mask = true;
+      } else {
+        return false;
+      }
+    }
+
+    switch (r) {
+      case 0:
+        adr.mask.side = mask;
+        adr.side = num;
+        break;
+      case 1:
+        adr.mask.station = mask;
+        adr.station = num;
+        break;
+      case 2:
+        adr.mask.ring = mask;
+        adr.ring = num;
+        break;
+      case 3:
+        adr.mask.chamber = mask;
+        adr.chamber = num;
+        break;
+      case 4:
+        adr.mask.layer = mask;
+        adr.layer = num;
+        break;
+      case 5:
+        adr.mask.cfeb = mask;
+        adr.cfeb = num;
+        break;
+      case 6:
+        adr.mask.hv = mask;
+        adr.hv = num;
+    }
+
+  } 
+
+  return true;
+
 }
 

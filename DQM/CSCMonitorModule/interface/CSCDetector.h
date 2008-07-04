@@ -23,7 +23,10 @@
 #include <float.h>
 #include <string>
 #include <map>
+#include <vector>
 #include <iostream>
+#include <sstream>
+#include <iomanip>
 
 #define N_SIDES    2
 #define N_STATIONS 4
@@ -32,6 +35,8 @@
 #define N_LAYERS   6
 #define N_CFEBS    5
 #define N_HVS      5
+
+#define ADDR_SIZE  7
 
 #define N_ELEMENTS 7740
 
@@ -109,6 +114,8 @@ class CSCDetector {
     const float Area(const CSCAddress& adr) const;
 
     void PrintAddress(const CSCAddress& adr) const;
+    const std::string AddressName(const CSCAddress& adr) const;
+    const bool AddressFromString(const std::string str_address, CSCAddress& adr) const;
 
     const unsigned int NumberOfRings(const unsigned int station) const;
     const unsigned int NumberOfChambers(const unsigned int station, const unsigned int ring) const;

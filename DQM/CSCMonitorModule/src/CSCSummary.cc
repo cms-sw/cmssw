@@ -30,11 +30,25 @@ CSCSummary::CSCSummary() {
 }
 
 /**
+ * @brief  Destructor
+ * @param  
+ * @return 
+ */
+CSCSummary::~CSCSummary() {
+  // Lets delete masked elements
+  for (unsigned int r = 0; r < masked.size(); r++) { 
+    delete (CSCAddress*) masked.at(r);
+  }
+}
+
+/**
  * @brief  Resets all detector map
  * @return 
  */
 void CSCSummary::Reset() {
   CSCAddress adr;
+
+  // Setting Zeros (no data) for each HW element (and beyond)
   adr.mask.side = adr.mask.station = adr.mask.layer = false;
   adr.mask.ring = adr.mask.chamber = adr.mask.cfeb = adr.mask.hv = true;
   for (adr.ring = 1; adr.ring <= N_RINGS; adr.ring++) { 
@@ -97,7 +111,7 @@ void CSCSummary::ReadErrorChambers(TH2*& evs, TH2*& err, const double eps_max, c
         if(ChamberCoords(x, y, adr)) {
           if(SignificanceAlpha(N, n, eps_max) > Sfail) { 
             //LOGINFO("ReadErrorChambers") << " N = " << N << ", n = " << n << ", Salpha = " << SignificanceAlpha(N, n, eps_max);
-            SetValue(adr, 0);
+            SetValue(adr, -1);
           }
         }
       }
@@ -127,12 +141,8 @@ void CSCSummary::Write(TH2*& h2, const unsigned int station) const {
 
     unsigned int x = 1 + (box->adr.side - 1) * 9 + (box->adr.ring - 1) * 3 + (box->adr.hv - 1);
     unsigned int y = 1 + (box->adr.chamber - 1) * 5 + (box->adr.cfeb - 1);
+    h2->SetBinContent(x, y, GetValue(box->adr));
 
-    if (GetValue(box->adr) > 0) {
-      h2->SetBinContent(x, y, 1.0);
-    } else {
-      h2->SetBinContent(x, y, 0.0);
-    }
   }
 
   TString title = Form("ME%d Status: Physics Efficiency %.2f", station, GetEfficiencyArea(adr));
@@ -253,7 +263,9 @@ void CSCSummary::SetValue(CSCAddress adr, const int value) {
       adr.ring > 0 && adr.ring <= N_RINGS && adr.chamber > 0 && adr.chamber <= N_CHAMBERS && 
       adr.layer > 0 && adr.layer <= N_LAYERS && adr.cfeb > 0 && adr.cfeb <= N_CFEBS && adr.hv > 0 && adr.hv <= N_HVS) {
 
-    map[adr.side - 1][adr.station - 1][adr.ring - 1][adr.chamber - 1][adr.layer - 1][adr.cfeb - 1][adr.hv - 1] = value;
+    if (map[adr.side - 1][adr.station - 1][adr.ring - 1][adr.chamber - 1][adr.layer - 1][adr.cfeb - 1][adr.hv - 1] != 2 ){
+      map[adr.side - 1][adr.station - 1][adr.ring - 1][adr.chamber - 1][adr.layer - 1][adr.cfeb - 1][adr.hv - 1] = value;
+    }
 
   }
 
@@ -302,14 +314,14 @@ const bool CSCSummary::IsPhysicsReady(const float xmin, const float xmax, const 
       //std::cout << "Respons: " << box->xmin << ", " << box->xmax << ", " << box->ymin << ", " << box->ymax << std::endl;
       //detector.PrintAddress(box->adr);
 
-      if (GetValue(box->adr) > 0) {
+      if (GetValue(box->adr) == 1) {
         sum++;
         break;
       }
 
     }
 
-    if (sum > 1) return true;
+    if (sum >= 2) return true;
 
   }
 
@@ -494,7 +506,9 @@ const double CSCSummary::GetReportingArea(CSCAddress adr) const {
 }
 /**
  * @brief  Get value of some address (address must be fully filled except layers! otherwise function returns 0) 
- * If layer is ommited then function returns 1 if at least two layers for the HW element are active. 
+ * If layer is ommited then function returns 1 if at least two layers for the HW element are live. 
+ * If layer is ommited then function returns -1 if at least two layers for the HW element are errorous. 
+ * If layer is ommited then function returns 2 if at least two layers for the HW element are off. 
  * @param  adr Address of atomic element to return value from
  * @return Value of the requested element
  */
@@ -515,19 +529,50 @@ const int CSCSummary::GetValue(const CSCAddress& adr) const {
       }
     } else {
       unsigned int n_live_layers = 0;
+      unsigned int n_err_layers  = 0;
+      unsigned int n_off_layers  = 0;
       for (unsigned int layer = 1; layer < N_LAYERS; layer++) {
-        if (map[adr.side - 1][adr.station - 1][adr.ring - 1][adr.chamber - 1][layer - 1][adr.cfeb - 1][adr.hv - 1] > 0) {
-          n_live_layers ++;
+        int value = map[adr.side - 1][adr.station - 1][adr.ring - 1][adr.chamber - 1][layer - 1][adr.cfeb - 1][adr.hv - 1];
+        switch (value) {
+          case 1:
+            n_live_layers ++;
+            break;
+          case -1:
+            n_err_layers++;
+            break;
+          case 2:
+            n_off_layers++;
+            break;
         }
       }
-      if (n_live_layers >= 2) {
-        return 1;
-      }
+
+      if (n_live_layers >= 2) return  1;
+      if (n_err_layers  >= 2) return -1;
+      if (n_off_layers  >= 2) return  2;
+
     }
   }
 
   return 0;
 
+}
+
+/**
+ * @brief  Read HW element masks (strings), create Address and apply to detector map
+ * @param  tokens Vector of mask strings
+ * @return number of read and applied masks
+ */
+const unsigned int CSCSummary::setMaskedHWElements(std::vector<std::string>& tokens) {
+  unsigned int applied = 0;
+  for (unsigned int r = 0; r < tokens.size(); r++) {
+    std::string token = (std::string) tokens.at(r);
+    CSCAddress adr;
+    if (detector.AddressFromString(token, adr)) {
+      SetValue(adr, 2);
+      applied++; 
+    }
+  }
+  return applied;
 }
 
 /**

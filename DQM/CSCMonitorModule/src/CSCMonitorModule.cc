@@ -17,7 +17,7 @@
  */
 
 #include "DQM/CSCMonitorModule/interface/CSCMonitorModule.h"
-#include "csc_utilities.cc"
+#include "CSCUtilities.cc"
 
 /**
  * @brief  MonitorModule Constructor
@@ -38,6 +38,10 @@ CSCMonitorModule::CSCMonitorModule(const edm::ParameterSet& ps){
   examinerCRCKey = parameters.getUntrackedParameter<unsigned int>("ExaminerCRCKey", 0);
   fractUpdateKey = parameters.getUntrackedParameter<unsigned int>("FractUpdateKey", 1);
   fractUpdateEvF = parameters.getUntrackedParameter<unsigned int>("FractUpdateEventFreq", 1);
+
+  std::vector<std::string> hwMasks = parameters.getUntrackedParameter<std::vector<std::string> >("AddressMask");
+  unsigned int masks_ok = summary.setMaskedHWElements(hwMasks);
+  LOGINFO("HW Address Masks") << masks_ok << " out of " << hwMasks.size() << " HW Masks are accepted.";
 
   // Initialize some variables
   inputObjectsTag = parameters.getUntrackedParameter<edm::InputTag>("InputObjects", (edm::InputTag)"source");
@@ -73,7 +77,7 @@ CSCMonitorModule::~CSCMonitorModule(){
 
 /**
  * @brief  Function that is being executed prior job. Actuall histogram
- * bookings are done here. All initialization tasks as well.
+ 1* bookings are done here. All initialization tasks as well.
  * @param  c Event setup object
  * @return
  */
@@ -89,19 +93,6 @@ void CSCMonitorModule::setup() {
   // Book EMU level histograms
   book("EMU");
 
-  // Prebook DDU histograms
-  /* Removed because we do not know the exact numbers of ddu's
-
-  for (int d = 1; d <= 36; d++) {
-    if(!loadDDU.test(d - 1)) continue;
-    std::string buffer;
-    dbe->setCurrentFolder(rootDir + DDU_FOLDER + getDDUTag(d, buffer));
-    book("DDU");
-  }
-  LOGINFO("DDU histograms") << " # of DDU to be prebooked for monitoring = " << loadDDU.count() << " following bitset = " << loadDDU << " (hitBookDDU = " << std::boolalpha << hitBookDDU << ")";
-
-  */
-
   // Book detector summary histograms and stuff
   MonitorElement* me;
   me = dbe->book2D("Summary_ME1", "EMU status: ME1", 18, 1, 16, 180, 1, 180);
@@ -116,22 +107,32 @@ void CSCMonitorModule::setup() {
   // reportSummary stuff booking
   dbe->setCurrentFolder(rootDir + EVENTINFO_FOLDER);
   me = dbe->bookFloat("reportSummary");
+  me->Fill(-1.0);
   me = dbe->book2D("reportSummaryMap", "CSC Report Summary Map", 100, 1, 100, 100, 1, 100);
   me->getTH1()->SetOption("colz");
 
   // reportSummaryContents booking
   dbe->setCurrentFolder(rootDir + SUMCONTENTS_FOLDER);
-  me = dbe->bookFloat("EMUPhysicsEfficiency");
-  me = dbe->bookFloat("ME1PhysicsEfficiency");
-  me = dbe->bookFloat("ME2PhysicsEfficiency");
-  me = dbe->bookFloat("ME3PhysicsEfficiency");
-  me = dbe->bookFloat("ME4PhysicsEfficiency");
-  me = dbe->bookFloat("EMUHWEfficiency");
-  me = dbe->bookFloat("ME1HWEfficiency");
-  me = dbe->bookFloat("ME2HWEfficiency");
-  me = dbe->bookFloat("ME3HWEfficiency");
-  me = dbe->bookFloat("ME4HWEfficiency");
-
+  CSCAddress adr;
+  adr.mask.chamber = adr.mask.layer = adr.mask.cfeb = adr.mask.hv = false;
+  adr.mask.side = true;
+  for (adr.side = 1; adr.side <= N_SIDES; adr.side++) {
+    adr.mask.station = adr.mask.ring = false;
+    me = dbe->bookFloat(summary.Detector().AddressName(adr));
+    me->Fill(0.0);
+    adr.mask.station = true; 
+    for (adr.station = 1; adr.station <= N_STATIONS; adr.station++) {
+      adr.mask.ring = false;
+      dbe->bookFloat(summary.Detector().AddressName(adr));
+      me->Fill(0.0);
+      adr.mask.ring = true;
+      for (adr.ring = 1; adr.ring <= summary.Detector().NumberOfRings(adr.station); adr.ring++) {
+        dbe->bookFloat(summary.Detector().AddressName(adr));
+        me->Fill(0.0);
+      }
+    }
+  }
+  
   LOGINFO("Fraction histograms") << " updateKey = " << fractUpdateKey << ", update on events (freq) = " << fractUpdateEvF;
 
   this->init = true;
@@ -161,7 +162,7 @@ void CSCMonitorModule::analyze(const edm::Event& e, const edm::EventSetup& c){
   monitorEvent(e);
 
   // Update fractional histograms if appropriate
-  if (fractUpdateKey.test(2) && (nEvents % fractUpdateEvF) == 0) { 
+  if (nEvents > 0 && fractUpdateKey.test(2) && (nEvents % fractUpdateEvF) == 0) { 
     updateFracHistos();
   }
 

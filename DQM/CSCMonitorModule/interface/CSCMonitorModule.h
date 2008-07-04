@@ -166,6 +166,7 @@ class CSCMonitorModule: public edm::EDAnalyzer {
 
     /** CSC summary map */
     CSCSummary summary;
+    
 };
 
 #endif

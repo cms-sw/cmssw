@@ -21,6 +21,7 @@
 
 #include <TH2.h>
 #include <math.h>
+#include <vector>
 #include "DQM/CSCMonitorModule/interface/CSCDetector.h"
 
 class CSCSummary {
@@ -28,6 +29,7 @@ class CSCSummary {
   public:
 
     CSCSummary();
+    ~CSCSummary();
 
     void Reset();
 
@@ -35,6 +37,8 @@ class CSCSummary {
 
     void ReadReportingChambers(TH2*& h2, const double threshold = 1);
     void ReadErrorChambers(TH2*& evs, TH2*& err, const double eps_max = 0.1, const double Sfail = 5.0);
+
+    const unsigned int setMaskedHWElements(std::vector<std::string>& tokens);
 
     void Write(TH2*& h2, const unsigned int station) const;
     const float WriteMap(TH2*& h2) const;
@@ -57,7 +61,18 @@ class CSCSummary {
     const double GetReportingArea(CSCAddress adr) const; 
     const double SignificanceAlpha(const unsigned int N, const unsigned int n, const double eps_max) const;
 
+    // Atomic HW element status matrix
+    // Possible values and appropriate color codes in maps:
+    // - null  = not covered (18, grey)
+    // -  0    = no data (10, white)
+    // - +1    = reporting with data, OK (8, green)
+    // - +2    = not in readout, i.e. swithed off by mask (15, dark grey)
+    // - -1    = error (2, red) 
+    // - other = application error (6, magenta)
     int map[N_SIDES][N_STATIONS][N_RINGS][N_CHAMBERS][N_LAYERS][N_CFEBS][N_HVS];
+
+    std::vector<CSCAddress*> masked;
+
     CSCDetector detector;
 
 };
