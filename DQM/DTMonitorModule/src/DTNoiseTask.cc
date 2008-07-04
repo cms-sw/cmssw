@@ -109,7 +109,7 @@ void DTNoiseTask::beginLuminosityBlock(const edm::LuminosityBlock&  lumiSeg,
 
   cout<<"[DTNoiseTask]: Begin of LS transition"<<endl;
 
-  for(map<DTChamberId, MonitorElement* > ::const_iterator histo = noiseHistos.begin();
+  /*for(map<DTChamberId, MonitorElement* > ::const_iterator histo = noiseHistos.begin();
 	histo != noiseHistos.end();
 	histo++) {
     (*histo).second->Reset();
@@ -121,7 +121,7 @@ void DTNoiseTask::beginLuminosityBlock(const edm::LuminosityBlock&  lumiSeg,
 	histo++) {
       (*histo).second->Reset();
     }
-  }
+    }*/
 
 }
 
@@ -162,6 +162,8 @@ void DTNoiseTask::analyze(const edm::Event& e, const edm::EventSetup& c) {
       //Check the TDC trigger width
       int tdcTime = (*digiIt).countsTDC();
       int upperLimit = tTrigStMap[(*dtLayerId_It).first.superlayerId().chamberId()]-200;
+      double upperLimit_ns = double(upperLimit*25)/32;
+      double upperLimit_s = upperLimit_ns/1e9;
       if(doTimeBoxHistos)
 	tbHistos[(*dtLayerId_It).first.superlayerId()]->Fill(tdcTime);
       if(tdcTime>upperLimit)
@@ -175,16 +177,16 @@ void DTNoiseTask::analyze(const edm::Event& e, const edm::EventSetup& c) {
       TH2F* noise_root = noiseHistos[(*dtLayerId_It).first.superlayerId().chamberId()]->getTH2F();
       double normalization=0;
       if(mapEvt.find((*dtLayerId_It).first.superlayerId().chamberId())!=mapEvt.end()){
-	normalization = upperLimit*mapEvt[(*dtLayerId_It).first.superlayerId().chamberId()];
+	normalization = upperLimit_s*mapEvt[(*dtLayerId_It).first.superlayerId().chamberId()];
 	noise_root->Scale(normalization);
       }
       int yBin=(*dtLayerId_It).first.layer()+(4*((*dtLayerId_It).first.superlayerId().superlayer()-1));
       noise_root->Fill((*digiIt).wire(),yBin);
       // normalize the occupancy histo
       mapEvt[(*dtLayerId_It).first.superlayerId().chamberId()]=evtNumber;
-      normalization = 1/double(upperLimit*mapEvt[(*dtLayerId_It).first.superlayerId().chamberId()]);
+      normalization = 1/double(upperLimit_s*mapEvt[(*dtLayerId_It).first.superlayerId().chamberId()]);
       noise_root->Scale(normalization);
-
+      
     }
   }
 
@@ -275,7 +277,7 @@ void DTNoiseTask::bookHistos(DTSuperLayerId slId) {
     + "_SL" + superlayer.str();
   
   cout<<"[DTNoiseTask]: booking SL histo:"<<endl;
-  cout<<"              folder "<< "DT/01-Noise/Wheel" + wheel.str() +
+  cout<<"              folder "<< "DT/05-Noise/Wheel" + wheel.str() +
     "/Station" + station.str() +
     "/Sector" + sector.str() + "/" << endl; 
   cout<<"              histoName "<<histoName<<endl;
