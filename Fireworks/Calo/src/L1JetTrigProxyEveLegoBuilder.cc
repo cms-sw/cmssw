@@ -8,7 +8,7 @@
 //
 // Original Author:  
 //         Created:  Sun Jan  6 23:57:00 EST 2008
-// $Id: L1JetTrigProxyEveLegoBuilder.cc,v 1.2 2008/06/09 19:54:03 chrjones Exp $
+// $Id: L1JetTrigProxyEveLegoBuilder.cc,v 1.1 2008/06/13 18:06:35 srappocc Exp $
 //
 
 // system include files
@@ -19,6 +19,7 @@
 #include "TEveTrans.h"
 #include "TEveGeoNode.h"
 #include "TROOT.h"
+#include "TEveStraightLineSet.h"
 
 // user include files
 #include "Fireworks/Calo/interface/L1JetTrigProxyEveLegoBuilder.h"
@@ -100,45 +101,33 @@ L1JetTrigProxyEveLegoBuilder::build(const FWEventItem* iItem, TEveElementList** 
   }
 
   // Ready to loop over the triggered objects
-  l1extra::L1JetParticleCollection::const_iterator trigIt = triggerColl->begin(),
-    trigEnd = triggerColl->end();
+  l1extra::L1JetParticleCollection::const_iterator jet = triggerColl->begin(),
+  trigEnd = triggerColl->end();
+  const unsigned int nLineSegments = 6;
+  const double jetRadius = 0.5;
+   
   // Loop over triggered objects and make some 4-vectors
-  for ( ; trigIt != trigEnd; ++trigIt ) {
-
-    // Get eve container
-    TEveElementList* container = new TEveElementList( counter.str().c_str() );
-    TGeoTube *shape = new TGeoTube(0.48, 0.5, 0.0001);
-    TEveTrans t;
-    t.RotateLF(1,2,M_PI/2);
-
-    // Find eta and phi based on object type
-    double eta = trigIt->eta();
-    double phi = trigIt->phi();
-
-	
-    // Fill eta and phi
-    t(1,4) = eta;
-    t(2,4) = phi;
-    t(3,4) = 0.1;
-    TEveGeoShapeExtract *extract = new TEveGeoShapeExtract("outline");
-    extract->SetTrans(t.Array());
-    extract->SetRGBA(rgba);
-    extract->SetRnrSelf(true);
-    extract->SetRnrElements(true);
-    extract->SetShape(shape);
-    TEveElement* element = TEveGeoShape::ImportShapeExtract(extract, container);
-    element->SetPickable(kTRUE);
-    /* if ( triggeredObjects[iTriggeredObjects]->p4().et()<15)
-       element->SetMainTransparency(90);
-       else
-       element->SetMainTransparency(50);
-    */
-    tList->AddElement(container);
+  for ( ; jet != trigEnd; ++jet ) {
+      char title[1024]; 
+      sprintf(title,"L1 Jet %d, Et: %0.1f GeV",counter.index(),jet->et());
+      TEveStraightLineSet* container = new TEveStraightLineSet( counter.str().c_str(), title );
+      // container->SetLineWidth(4);
+      container->SetLineColor(  iItem->defaultDisplayProperties().color() );
+      
+      for ( unsigned int iphi = 0; iphi < nLineSegments; ++iphi ) {
+	 container->AddLine(jet->eta()+jetRadius*cos(2*M_PI/nLineSegments*iphi),
+			    jet->phi()+jetRadius*sin(2*M_PI/nLineSegments*iphi),
+			    0.1,
+			    jet->eta()+jetRadius*cos(2*M_PI/nLineSegments*(iphi+1)),
+			    jet->phi()+jetRadius*sin(2*M_PI/nLineSegments*(iphi+1)),
+			    0.1);
+      }
+      tList->AddElement(container);
   }// end loop over em particle objects
 
   
 
 }
 
-REGISTER_FW3DLEGODATAPROXYBUILDER(L1JetTrigProxyEveLegoBuilder,l1extra::L1JetParticleCollection,"L1JetTrig");
+REGISTER_FW3DLEGODATAPROXYBUILDER(L1JetTrigProxyEveLegoBuilder,l1extra::L1JetParticleCollection,"L1-Jets");
 

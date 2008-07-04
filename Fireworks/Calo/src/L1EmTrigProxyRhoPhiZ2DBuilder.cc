@@ -8,7 +8,7 @@
 //
 // Original Author:  
 //         Created:  Sun Jan  6 23:57:00 EST 2008
-// $Id: L1EmTrigProxyRhoPhiZ2DBuilder.cc,v 1.2 2008/06/27 18:15:21 srappocc Exp $
+// $Id: L1EmTrigProxyRhoPhiZ2DBuilder.cc,v 1.3 2008/06/28 22:17:33 dmytro Exp $
 //
 
 // system include files
@@ -210,7 +210,7 @@ L1EmTrigProxyRhoPhiZ2DBuilder::buildRhoZ(const FWEventItem* iItem,
        TEveScalableStraightLineSet* marker = new TEveScalableStraightLineSet("energy");
        marker->SetLineWidth(4);
        marker->SetLineColor(  iItem->defaultDisplayProperties().color() );
-       marker->SetScaleCenter( 0., (trigIt->phi()>0 ? r_ecal*fabs(sin(theta)) : -r_ecal*fabs(sin(theta))), r_ecal*cos(theta) );
+       marker->SetScaleCenter( 0., (trigIt->phi()>0 ? r*fabs(sin(theta)) : -r*fabs(sin(theta))), r*cos(theta) );
        marker->AddLine(0., (trigIt->phi()>0 ? r*fabs(sin(theta)) : -r*fabs(sin(theta))), r*cos(theta),
 		       0., (trigIt->phi()>0 ? (r+size)*fabs(sin(theta)) : -(r+size)*fabs(sin(theta))), (r+size)*cos(theta) );
        container->AddElement( marker );

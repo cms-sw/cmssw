@@ -8,7 +8,7 @@
 //
 // Original Author:  
 //         Created:  Sun Jan  6 23:57:00 EST 2008
-// $Id: MetProxyRhoPhiZ2DBuilder.cc,v 1.1 2008/06/24 07:42:16 dmytro Exp $
+// $Id: MetProxyRhoPhiZ2DBuilder.cc,v 1.2 2008/07/03 02:06:41 dmytro Exp $
 //
 
 // system include files
@@ -94,6 +94,10 @@ MetProxyRhoPhiZ2DBuilder::buildRhoPhi(const FWEventItem* iItem,
       char title[1024]; 
       sprintf(title,"MET: %0.1f GeV",mets->at(i).et());
       TEveCompound* container = new TEveCompound( counter.str().c_str(), title );
+      container->OpenCompound();
+      //guarantees that CloseCompound will be called no matter what happens
+      boost::shared_ptr<TEveCompound> sentry(container,boost::mem_fn(&TEveCompound::CloseCompound));
+      
       double phi = mets->at(i).phi();
       double min_phi = phi-M_PI/36/2;
       double max_phi = phi+M_PI/36/2;
@@ -150,6 +154,9 @@ MetProxyRhoPhiZ2DBuilder::buildRhoZ(const FWEventItem* iItem,
       char title[1024]; 
       sprintf(title,"MET: %0.1f GeV",mets->at(i).et());
       TEveCompound* container = new TEveCompound( counter.str().c_str(), title );
+      container->OpenCompound();
+      //guarantees that CloseCompound will be called no matter what happens
+      boost::shared_ptr<TEveCompound> sentry(container,boost::mem_fn(&TEveCompound::CloseCompound));
 
       double phi = mets->at(i).phi();
       double size = mets->at(i).et();
@@ -169,4 +176,4 @@ MetProxyRhoPhiZ2DBuilder::buildRhoZ(const FWEventItem* iItem,
    }
 }
    
-REGISTER_FWRPZ2DDATAPROXYBUILDER(MetProxyRhoPhiZ2DBuilder,reco::CaloMETCollection,"METs");
+REGISTER_FWRPZ2DDATAPROXYBUILDER(MetProxyRhoPhiZ2DBuilder,reco::CaloMETCollection,"MET");

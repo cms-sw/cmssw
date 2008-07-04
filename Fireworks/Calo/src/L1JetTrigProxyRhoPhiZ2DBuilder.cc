@@ -8,7 +8,7 @@
 //
 // Original Author:  
 //         Created:  Sun Jan  6 23:57:00 EST 2008
-// $Id: L1JetTrigProxyRhoPhiZ2DBuilder.cc,v 1.4 2008/06/28 22:17:33 dmytro Exp $
+// $Id: L1JetTrigProxyRhoPhiZ2DBuilder.cc,v 1.5 2008/07/01 04:15:47 chrjones Exp $
 //
 //
 // system include files
@@ -106,10 +106,10 @@ L1JetTrigProxyRhoPhiZ2DBuilder::buildRhoPhi(const FWEventItem* iItem,
    l1extra::L1JetParticleCollection::const_iterator trigIt = triggerColl->begin(),
      trigEnd = triggerColl->end();
    // Loop over triggered objects and make some 4-vectors
-   for ( ; trigIt != trigEnd; ++trigIt ) {
-
-
-     TEveCompound* container = new TEveCompound( counter.str().c_str() );
+   for ( ; trigIt != trigEnd; ++trigIt, ++counter ) {
+     char title[1024]; 
+     sprintf(title,"L1 Jet %d, Et: %0.1f GeV",counter.index(),trigIt->et());
+     TEveCompound* container = new TEveCompound( counter.str().c_str(), title );
      container->OpenCompound();
      //guarantees that CloseCompound will be called no matter what happens
      boost::shared_ptr<TEveCompound> sentry(container,boost::mem_fn(&TEveCompound::CloseCompound));
@@ -127,7 +127,8 @@ L1JetTrigProxyRhoPhiZ2DBuilder::buildRhoPhi(const FWEventItem* iItem,
       
      if ( trigIt->pt() > minJetEt ) {
        TEveScalableStraightLineSet* marker = new TEveScalableStraightLineSet("energy");
-       marker->SetLineWidth(4);
+       marker->SetLineWidth(2);
+       marker->SetLineStyle(2);
        marker->SetLineColor(  iItem->defaultDisplayProperties().color() );
        TEveElement* element = TEveGeoShape::ImportShapeExtract(sc, 0);
        element->SetPickable(kTRUE);
@@ -191,10 +192,10 @@ L1JetTrigProxyRhoPhiZ2DBuilder::buildRhoZ(const FWEventItem* iItem,
    l1extra::L1JetParticleCollection::const_iterator trigIt = triggerColl->begin(),
      trigEnd = triggerColl->end();
    // Loop over triggered objects and make some 4-vectors
-   for ( ; trigIt != trigEnd; ++trigIt ) {
-
-
-     TEveCompound* container = new TEveCompound( counter.str().c_str() );
+   for ( ; trigIt != trigEnd; ++trigIt, ++counter ) {
+     char title[1024]; 
+     sprintf(title,"L1 Jet %d, Et: %0.1f GeV",counter.index(),trigIt->et());
+     TEveCompound* container = new TEveCompound( counter.str().c_str(), title );
      container->OpenCompound();
      //guarantees that CloseCompound will be called no matter what happens
      boost::shared_ptr<TEveCompound> sentry(container,boost::mem_fn(&TEveCompound::CloseCompound));
@@ -222,9 +223,10 @@ L1JetTrigProxyRhoPhiZ2DBuilder::buildRhoZ(const FWEventItem* iItem,
       
      if ( trigIt->pt() > minJetEt ) {
        TEveScalableStraightLineSet* marker = new TEveScalableStraightLineSet("energy");
-       marker->SetLineWidth(4);
+       marker->SetLineWidth(2);
+       marker->SetLineStyle(2);
        marker->SetLineColor(  iItem->defaultDisplayProperties().color() );
-       marker->SetScaleCenter(0., (trigIt->phi()>0 ? r_ecal*fabs(sin(theta)) : -r_ecal*fabs(sin(theta))), r_ecal*cos(theta) );
+       marker->SetScaleCenter(0., (trigIt->phi()>0 ? r*fabs(sin(theta)) : -r*fabs(sin(theta))), r*cos(theta));
        marker->AddLine(0., (trigIt->phi()>0 ? r*fabs(sin(theta)) : -r*fabs(sin(theta))), r*cos(theta),
 		       0., (trigIt->phi()>0 ? (r+size)*fabs(sin(theta)) : -(r+size)*fabs(sin(theta))), (r+size)*cos(theta) );
        container->AddElement( marker );
@@ -239,4 +241,4 @@ L1JetTrigProxyRhoPhiZ2DBuilder::buildRhoZ(const FWEventItem* iItem,
 
 }
 
-REGISTER_FWRPZ2DDATAPROXYBUILDER(L1JetTrigProxyRhoPhiZ2DBuilder,l1extra::L1JetParticleCollection,"L1JetTrig");
+REGISTER_FWRPZ2DDATAPROXYBUILDER(L1JetTrigProxyRhoPhiZ2DBuilder,l1extra::L1JetParticleCollection,"L1-Jets");
