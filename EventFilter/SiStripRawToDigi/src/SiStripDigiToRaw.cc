@@ -1,4 +1,4 @@
-// Last commit: $Id: SiStripDigiToRaw.cc,v 1.27 2008/04/02 08:49:52 bainbrid Exp $
+// Last commit: $Id: SiStripDigiToRaw.cc,v 1.28 2008/07/01 17:30:48 elmer Exp $
 
 #include "EventFilter/SiStripRawToDigi/interface/SiStripDigiToRaw.h"
 #include "CondFormats/SiStripObjects/interface/SiStripFedCabling.h"
@@ -25,13 +25,21 @@ SiStripDigiToRaw::SiStripDigiToRaw( std::string mode,
   nAppendedBytes_(nbytes),
   useFedKey_(use_fed_key)
 {
-  LogDebug("DigiToRaw") << "[SiStripDigiToRaw::SiStripDigiToRaw] Constructing object...";
+  if ( edm::isDebugEnabled() ) {
+    LogDebug("DigiToRaw")
+      << "[SiStripDigiToRaw::SiStripDigiToRaw]"
+      << " Constructing object...";
+  }
 }
 
 // -----------------------------------------------------------------------------
 /** */
 SiStripDigiToRaw::~SiStripDigiToRaw() {
-  LogDebug("DigiToRaw") << "[SiStripDigiToRaw::~SiStripDigiToRaw] Destructing object...";
+  if ( edm::isDebugEnabled() ) {
+    LogDebug("DigiToRaw")
+      << "[SiStripDigiToRaw::~SiStripDigiToRaw]"
+      << " Destructing object...";
+  }
 }
 
 // -----------------------------------------------------------------------------
@@ -86,27 +94,35 @@ void SiStripDigiToRaw::createFedBuffers( edm::Event& event,
 	  if ( (*idigi).strip() < ipair*256 ||
 	       (*idigi).strip() > ipair*256+255 ) { continue; }
 	  unsigned short strip = iconn->fedCh()*256 + (*idigi).strip() % 256;
+
 	  if ( strip >= strips_per_fed ) {
-	    std::stringstream ss;
-	    ss << "[SiStripDigiToRaw::createFedBuffers]"
-	       << " strip >= strips_per_fed";
-	    edm::LogWarning("DigiToRaw") << ss.str();
+	    if ( edm::isDebugEnabled() ) {
+	      std::stringstream ss;
+	      ss << "[SiStripDigiToRaw::createFedBuffers]"
+		 << " strip >= strips_per_fed";
+	      edm::LogWarning("DigiToRaw") << ss.str();
+	    }
+	    continue;
+	  }
+	  
+	  // check if value already exists
+	  if ( edm::isDebugEnabled() ) {
+	    if ( raw_data[strip] && raw_data[strip] != (*idigi).adc() ) {
+	      std::stringstream ss; 
+	      ss << "[SiStripDigiToRaw::createFedBuffers]" 
+		 << " Incompatible ADC values in buffer!"
+		 << "  FedId/FedCh: " << *ifed << "/" << iconn->fedCh()
+		 << "  DetStrip: " << (*idigi).strip() 
+		 << "  FedStrip: " << strip
+		 << "  AdcValue: " << (*idigi).adc()
+	       << "  RawData[" << strip << "]: " << raw_data[strip];
+	      edm::LogWarning("DigiToRaw") << ss.str();
+	    }
 	  }
 
-	  // check if value already exists
-	  if ( raw_data[strip] && raw_data[strip] != (*idigi).adc() ) {
-	    std::stringstream ss; 
-	    ss << "[SiStripDigiToRaw::createFedBuffers]" 
-	       << " Incompatible ADC values in buffer!"
-	       << "  FedId/FedCh: " << *ifed << "/" << iconn->fedCh()
-	       << "  DetStrip: " << (*idigi).strip() 
-	       << "  FedStrip: " << strip
-	       << "  AdcValue: " << (*idigi).adc()
-	       << "  RawData[" << strip << "]: " << raw_data[strip];
-	    edm::LogWarning("DigiToRaw") << ss.str();
-	  }
 	  // Add digi to buffer
 	  raw_data[strip] = (*idigi).adc();
+
 	}
 	// if ((*idigi).strip() >= (ipair+1)*256) break;
       }
@@ -114,7 +130,11 @@ void SiStripDigiToRaw::createFedBuffers( edm::Event& event,
       // instantiate appropriate buffer creator object depending on readout mode
       Fed9U::Fed9UBufferCreator* creator = 0;
       if ( readoutMode_ == "SCOPE_MODE" ) {
-	edm::LogWarning("DigiToRaw") << "Fed9UBufferCreatorScopeMode not implemented yet!";
+	if ( edm::isDebugEnabled() ) {
+	  edm::LogWarning("DigiToRaw")
+ 	    << "[SiStripDigiToRaw::createFedBuffers]" 
+	    << " Fed9UBufferCreatorScopeMode not implemented yet!";
+	}
       } else if ( readoutMode_ == "VIRGIN_RAW" ) {
 	creator = new Fed9U::Fed9UBufferCreatorRaw();
       } else if ( readoutMode_ == "PROCESSED_RAW" ) {
@@ -122,11 +142,19 @@ void SiStripDigiToRaw::createFedBuffers( edm::Event& event,
       } else if ( readoutMode_ == "ZERO_SUPPRESSED" ) {
 	creator = new Fed9U::Fed9UBufferCreatorZS();
       } else {
-	edm::LogWarning("DigiToRaw") << "UNKNOWN readout mode";
+	if ( edm::isDebugEnabled() ) {
+	  edm::LogWarning("DigiToRaw")
+ 	    << "[SiStripDigiToRaw::createFedBuffers]" 
+	    << " UNKNOWN readout mode";
+	}
       }
   
       if ( !creator ) { 
-	edm::LogWarning("DigiToRaw") << "NULL pointer to Fed9UBufferCreator";
+	if ( edm::isDebugEnabled() ) {
+	  edm::LogWarning("DigiToRaw")
+ 	    << "[SiStripDigiToRaw::createFedBuffers]" 
+	    << " NULL pointer to Fed9UBufferCreator";
+	}
 	return; 
       }
 
@@ -169,9 +197,13 @@ void SiStripDigiToRaw::createFedBuffers( edm::Event& event,
     
   }
   catch ( std::string err ) {
-    edm::LogWarning("DigiToRaw") << "SiStripDigiToRaw::createFedBuffers] " 
-				 << "Exception caught : " << err;
+    if ( edm::isDebugEnabled() ) {
+      edm::LogWarning("DigiToRaw") 
+	<< "SiStripDigiToRaw::createFedBuffers] " 
+	<< "Exception caught : " << err;
+    }
   }
   
 }
+
 

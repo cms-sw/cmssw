@@ -1,4 +1,4 @@
-// Last commit: $Id: SiStripRawToDigiModule.cc,v 1.7 2008/06/09 16:37:14 bainbrid Exp $
+// Last commit: $Id: SiStripRawToDigiModule.cc,v 1.8 2008/06/09 18:16:41 bainbrid Exp $
 
 #include "EventFilter/SiStripRawToDigi/plugins/SiStripRawToDigiModule.h"
 #include "CondFormats/SiStripObjects/interface/SiStripFedCabling.h"
@@ -26,10 +26,12 @@ SiStripRawToDigiModule::SiStripRawToDigiModule( const edm::ParameterSet& pset ) 
   cabling_(0),
   cacheId_(0)
 {
-  LogTrace(mlRawToDigi_)
-    << "[SiStripRawToDigiModule::" << __func__ << "]"
-    << " Constructing object...";
-  
+  if ( edm::isDebugEnabled() ) {
+    LogTrace(mlRawToDigi_)
+      << "[SiStripRawToDigiModule::" << __func__ << "]"
+      << " Constructing object...";
+  }
+
   int16_t appended_bytes = pset.getUntrackedParameter<int>("AppendedBytes",0);
   int16_t fed_buffer_dump_freq = pset.getUntrackedParameter<int>("FedBufferDumpFreq",0);
   int16_t fed_event_dump_freq = pset.getUntrackedParameter<int>("FedEventDumpFreq",0);
@@ -56,9 +58,11 @@ SiStripRawToDigiModule::SiStripRawToDigiModule( const edm::ParameterSet& pset ) 
 SiStripRawToDigiModule::~SiStripRawToDigiModule() {
   if ( rawToDigi_ ) { delete rawToDigi_; }
   deleteCabling();
-  LogTrace(mlRawToDigi_)
-    << "[SiStripRawToDigiModule::" << __func__ << "]"
-    << " Destructing object...";
+  if ( edm::isDebugEnabled() ) {
+    LogTrace(mlRawToDigi_)
+      << "[SiStripRawToDigiModule::" << __func__ << "]"
+      << " Destructing object...";
+  }
 }
 
 // -----------------------------------------------------------------------------
@@ -92,21 +96,25 @@ void SiStripRawToDigiModule::updateCabling( const edm::EventSetup& setup ) {
     setup.get<SiStripFedCablingRcd>().get( cabling );
     cabling_ = new SiStripFedCabling( *cabling );
     
-    if ( !cacheId_ ) {
-      std::stringstream ss;
-      ss << "[SiStripRawToDigiModule::" << __func__ << "]"
-	 << " Updating cabling for first time..." << std::endl;
-      ss << "[SiStripRawToDigiModule::" << __func__ << "]"
-	 << " Terse print out of FED cabling:" << std::endl;
-      cabling_->terse(ss);
-      LogTrace(mlRawToDigi_) << ss.str();
+    if ( edm::isDebugEnabled() ) {
+      if ( !cacheId_ ) {
+	std::stringstream ss;
+	ss << "[SiStripRawToDigiModule::" << __func__ << "]"
+	   << " Updating cabling for first time..." << std::endl;
+	ss << "[SiStripRawToDigiModule::" << __func__ << "]"
+	   << " Terse print out of FED cabling:" << std::endl;
+	cabling_->terse(ss);
+	LogTrace(mlRawToDigi_) << ss.str();
+      }
     }
     
-    std::stringstream sss;
-    sss << "[SiStripRawToDigiModule::" << __func__ << "]"
-	<< " Summary of FED cabling:" << std::endl;
-    cabling_->summary(sss);
-    edm::LogVerbatim(mlRawToDigi_) << sss.str();
+    if ( edm::isDebugEnabled() ) {
+      std::stringstream sss;
+      sss << "[SiStripRawToDigiModule::" << __func__ << "]"
+	  << " Summary of FED cabling:" << std::endl;
+      cabling_->summary(sss);
+      edm::LogVerbatim(mlRawToDigi_) << sss.str();
+    }
 
     cacheId_ = cache_id;
     
@@ -133,12 +141,6 @@ void SiStripRawToDigiModule::deleteCabling() {
 void SiStripRawToDigiModule::produce( edm::Event& event, 
 				      const edm::EventSetup& setup ) {
 
-  LogTrace(mlRawToDigi_) 
-    << "[SiStripRawToDigiModule::" << __func__ << "]"
-    << " Analyzing run/event "
-    << event.id().run() << "/"
-    << event.id().event();
-  
   // Retrieve FED raw data (by label, which is "source" by default)
   edm::Handle<FEDRawDataCollection> buffers;
   event.getByLabel( label_, instance_, buffers ); 

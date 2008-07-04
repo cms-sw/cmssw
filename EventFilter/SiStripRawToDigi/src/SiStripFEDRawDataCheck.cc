@@ -24,18 +24,22 @@ SiStripFEDRawDataCheck::SiStripFEDRawDataCheck( const edm::ParameterSet& pset )
     instance_( pset.getUntrackedParameter<string>("ProductInstance","") ),
     unpacker_( new SiStripRawToDigiUnpacker(0,0,0,0,0) )
 {
-  LogTrace(mlRawToDigi_)
-    << "[SiStripFEDRawDataCheck::" << __func__ << "]"
-    << " Constructing object...";
+  if ( edm::isDebugEnabled() ) {
+    LogTrace(mlRawToDigi_)
+      << "[SiStripFEDRawDataCheck::" << __func__ << "]"
+      << " Constructing object...";
+  }
 }
 
 // -----------------------------------------------------------------------------
 // 
 SiStripFEDRawDataCheck::~SiStripFEDRawDataCheck() 
 {
-  LogTrace(mlRawToDigi_)
-    << "[SiStripFEDRawDataCheck::" << __func__ << "]"
-    << " Destructing object...";
+  if ( edm::isDebugEnabled() ) {
+    LogTrace(mlRawToDigi_)
+      << "[SiStripFEDRawDataCheck::" << __func__ << "]"
+      << " Destructing object...";
+  }
   if ( unpacker_ ) { delete unpacker_; }
 }
 
@@ -85,7 +89,7 @@ void SiStripFEDRawDataCheck::analyze( const edm::Event& event,
   }
 
   // Trigger FEDs
-  {
+  if ( edm::isDebugEnabled() ) {
     stringstream ss;
     ss << "[SiStripFEDRawDataCheck::" << __func__ << "]"
        << " Found " << trg_feds.size() 
@@ -99,7 +103,7 @@ void SiStripFEDRawDataCheck::analyze( const edm::Event& event,
   }
 
   // Not strip tracker FEDs
-  {
+  if ( edm::isDebugEnabled() ) {
     stringstream ss;
     ss << "[SiStripFEDRawDataCheck::" << __func__ << "]"
        << " Found " << non_trk.size() 
@@ -113,7 +117,7 @@ void SiStripFEDRawDataCheck::analyze( const edm::Event& event,
   }
 
   // Strip tracker FEDs
-  {
+  if ( edm::isDebugEnabled() ) {
     stringstream ss;
     ss << "[SiStripFEDRawDataCheck::" << __func__ << "]"
        << " Found " << trk_feds.size() 
@@ -127,7 +131,7 @@ void SiStripFEDRawDataCheck::analyze( const edm::Event& event,
   }
   
   // FEDs in data but missing from cabling
-  {
+  if ( edm::isDebugEnabled() ) {
     stringstream ss;
     ss << "[SiStripFEDRawDataCheck::" << __func__ << "]"
        << " Found " << in_data.size() 
@@ -141,7 +145,7 @@ void SiStripFEDRawDataCheck::analyze( const edm::Event& event,
   }
 
   // FEDs in cabling but missing from data 
-  {
+  if ( edm::isDebugEnabled() ) {
     stringstream ss;
     ss << "[SiStripFEDRawDataCheck::" << __func__ << "]"
        << " Found " << in_cabl.size() 
@@ -248,7 +252,7 @@ void SiStripFEDRawDataCheck::analyze( const edm::Event& event,
 
 
   // constructing fed9uevents
-  {
+  if ( edm::isDebugEnabled() ) {
     stringstream ss;
     ss << "[SiStripFEDRawDataCheck::" << __func__ << "]"
        << " Found " << construct.size() 
@@ -262,7 +266,7 @@ void SiStripFEDRawDataCheck::analyze( const edm::Event& event,
   }
 
   // "check event" on fed9uevents
-  {
+  if ( edm::isDebugEnabled() ) {
     stringstream ss;
     ss << "[SiStripFEDRawDataCheck::" << __func__ << "]"
        << " Found " << check.size() 
@@ -276,7 +280,7 @@ void SiStripFEDRawDataCheck::analyze( const edm::Event& event,
   }
 
   // fed9uaddress exceptions
-  {
+  if ( edm::isDebugEnabled() ) {
     stringstream ss;
     ss << "[SiStripFEDRawDataCheck::" << __func__ << "]"
        << " Found " << address.size() 
@@ -291,7 +295,7 @@ void SiStripFEDRawDataCheck::analyze( const edm::Event& event,
   }
 
   //  connected channels with data
-  {
+  if ( edm::isDebugEnabled() ) {
     stringstream ss;
     ss << "[SiStripFEDRawDataCheck::" << __func__ << "]"
        << " Found " << channels_with_data.size() 
@@ -306,7 +310,7 @@ void SiStripFEDRawDataCheck::analyze( const edm::Event& event,
   }
 
   //  connected channels with missing data
-  {
+  if ( edm::isDebugEnabled() ) {
     stringstream ss;
     ss << "[SiStripFEDRawDataCheck::" << __func__ << "]"
        << " Found " << channels_missing_data.size() 
@@ -321,7 +325,7 @@ void SiStripFEDRawDataCheck::analyze( const edm::Event& event,
   }
 
   //  channels with data but not in cabling
-  {
+  if ( edm::isDebugEnabled() ) {
     stringstream ss;
     ss << "[SiStripFEDRawDataCheck::" << __func__ << "]"
        << " Found " << cabling_missing_channels.size() 

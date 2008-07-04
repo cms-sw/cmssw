@@ -81,22 +81,26 @@ void SiStripRawToClustersLazyUnpacker::fill(const uint32_t& index, record_type& 
 	
 	// Check on FEDRawData pointer
 	if ( !data_u32 ) {
-	  edm::LogWarning(mlRawToCluster_)
-	    << "[SiStripRawToClustersLazyGetter::" 
-	    << __func__ 
-	    << "]"
-	    << " NULL pointer to FEDRawData for FED id " 
-	    << iconn->fedId();
+	  if ( edm::isDebugEnabled() ) {
+	    edm::LogWarning(mlRawToCluster_)
+	      << "[SiStripRawToClustersLazyGetter::" 
+	      << __func__ 
+	      << "]"
+	      << " NULL pointer to FEDRawData for FED id " 
+	      << iconn->fedId();
+	  }
 	  continue;
 	}	
 	
 	// Check on FEDRawData size
 	if ( !size_u32 ) {
-	  edm::LogWarning(mlRawToCluster_)
-	    << "[SiStripRawToClustersLazyGetter::" 
-	    << __func__ << "]"
-	    << " FEDRawData has zero size for FED id " 
-	    << iconn->fedId();
+	  if ( edm::isDebugEnabled() ) {
+	    edm::LogWarning(mlRawToCluster_)
+	      << "[SiStripRawToClustersLazyGetter::" 
+	      << __func__ << "]"
+	      << " FEDRawData has zero size for FED id " 
+	      << iconn->fedId();
+	  }
 	  continue;
 	}
 	

@@ -1,4 +1,4 @@
-// Last commit: $Id: SiStripDigiToRawModule.cc,v 1.4 2008/01/22 19:28:07 muzaffar Exp $
+// Last commit: $Id: SiStripDigiToRawModule.cc,v 1.5 2008/04/02 08:47:42 bainbrid Exp $
 
 #include "EventFilter/SiStripRawToDigi/plugins/SiStripDigiToRawModule.h"
 #include "EventFilter/SiStripRawToDigi/interface/SiStripDigiToRaw.h"
@@ -26,8 +26,12 @@ SiStripDigiToRawModule::SiStripDigiToRawModule( const edm::ParameterSet& pset ) 
   digiToRaw_(0),
   eventCounter_(0)
 {
-  LogDebug("DigiToRaw") << "[SiStripDigiToRawModule::SiStripDigiToRawModule] Constructing object...";
-  
+  if ( edm::isDebugEnabled() ) {
+    LogDebug("DigiToRaw") 
+      << "[SiStripDigiToRawModule::SiStripDigiToRawModule]"
+      << " Constructing object...";
+  }
+
   // Create instance of DigiToRaw formatter
   std::string mode = pset.getUntrackedParameter<std::string>("FedReadoutMode","VIRGIN_RAW");
   int16_t nbytes = pset.getUntrackedParameter<int>("AppendedBytes",0);
@@ -41,7 +45,11 @@ SiStripDigiToRawModule::SiStripDigiToRawModule( const edm::ParameterSet& pset ) 
 // -----------------------------------------------------------------------------
 /** */
 SiStripDigiToRawModule::~SiStripDigiToRawModule() {
-  LogDebug("DigiToRaw") << "[SiStripDigiToRawModule::~SiStripDigiToRawModule] Destructing object...";
+  if ( edm::isDebugEnabled() ) {
+    LogDebug("DigiToRaw")
+      << "[SiStripDigiToRawModule::~SiStripDigiToRawModule]"
+      << " Destructing object...";
+  }
   if ( digiToRaw_ ) delete digiToRaw_;
 }
 
@@ -56,7 +64,6 @@ void SiStripDigiToRawModule::produce( edm::Event& iEvent,
 				      const edm::EventSetup& iSetup ) {
 
   eventCounter_++; 
-  LogDebug("DigiToRaw") << "[SiStripDigiToRawModule::produce] Event number: " << eventCounter_;
   
   edm::ESHandle<SiStripFedCabling> cabling;
   iSetup.get<SiStripFedCablingRcd>().get( cabling );
