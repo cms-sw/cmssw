@@ -95,15 +95,15 @@ TtSemiHypothesisMaxSumPtWMass::buildHypo(const edm::Handle<edm::View<reco::RecoC
   // add jets
   // -----------------------------------------------------
   if( isValid(closestToWMassIndices[0], jets) ){
-    edm::Ref<std::vector<pat::Jet> > ref=edm::Ref<std::vector<pat::Jet> >(jets, closestToWMassIndices[0]);
-    reco::ShallowCloneCandidate buffer(reco::CandidateBaseRef( ref ), ref->charge(), ref->p4(), ref->vertex());
-    lightQ_= new reco::ShallowCloneCandidate( buffer );
+    int ij = closestToWMassIndices[0];  
+    edm::Ptr<pat::Jet> jet = edm::Ptr<pat::Jet>(jets, ij);
+    lightQ_= new reco::ShallowClonePtrCandidate( jet, jet->charge(), jet->p4(), jet->vertex() );
   }
 
   if( isValid(closestToWMassIndices[1], jets) ){
-    edm::Ref<std::vector<pat::Jet> > ref=edm::Ref<std::vector<pat::Jet> >(jets, closestToWMassIndices[1]);
-    reco::ShallowCloneCandidate buffer(reco::CandidateBaseRef( ref ), ref->charge(), ref->p4(), ref->vertex());
-    lightQBar_= new reco::ShallowCloneCandidate( buffer );
+    int ij = closestToWMassIndices[1];  
+    edm::Ptr<pat::Jet> jet = edm::Ptr<pat::Jet>(jets, ij);
+    lightQBar_= new reco::ShallowClonePtrCandidate( jet, jet->charge(), jet->p4(), jet->vertex() );
   }
 
   for(unsigned idx=0; idx<maxPtIndices.size(); ++idx){
@@ -111,35 +111,29 @@ TtSemiHypothesisMaxSumPtWMass::buildHypo(const edm::Handle<edm::View<reco::RecoC
     if( std::find( closestToWMassIndices.begin(), closestToWMassIndices.end(), maxPtIndices[idx]) == closestToWMassIndices.end() ){
       // ...and if it is valid
       if( isValid(maxPtIndices[idx], jets) ){
-	edm::Ref<std::vector<pat::Jet> > ref=edm::Ref<std::vector<pat::Jet> >(jets, maxPtIndices[idx]);
-	reco::ShallowCloneCandidate buffer(reco::CandidateBaseRef( ref ), ref->charge(), ref->p4(), ref->vertex());
-	hadronicB_= new reco::ShallowCloneCandidate( buffer );
+	int ij = maxPtIndices[idx];  
+	edm::Ptr<pat::Jet> jet = edm::Ptr<pat::Jet>(jets, ij);
+	hadronicB_= new reco::ShallowClonePtrCandidate( jet, jet->charge(), jet->p4(), jet->vertex() );
 	break; // there should be no other cadidates!
       }
     }
   }
 
   if( isValid(lepB, jets) ){
-    edm::Ref<std::vector<pat::Jet> > ref=edm::Ref<std::vector<pat::Jet> >(jets, lepB);
-    reco::ShallowCloneCandidate buffer(reco::CandidateBaseRef( ref ), ref->charge(), ref->p4(), ref->vertex());
-    leptonicB_= new reco::ShallowCloneCandidate( buffer );
+    int ij = lepB;  
+    edm::Ptr<pat::Jet> jet = edm::Ptr<pat::Jet>(jets, ij);
+    leptonicB_= new reco::ShallowClonePtrCandidate( jet, jet->charge(), jet->p4(), jet->vertex() );
   }
 
   // -----------------------------------------------------
   // add lepton
   // -----------------------------------------------------
-  {
-    edm::Ref<edm::View<reco::RecoCandidate> > ref=edm::Ref<edm::View<reco::RecoCandidate> >(leps, 0);
-    reco::ShallowCloneCandidate buffer(reco::CandidateBaseRef( ref ), ref->charge(), ref->p4(), ref->vertex());
-    lepton_= new reco::ShallowCloneCandidate( buffer );
-  }
+  edm::Ptr<reco::RecoCandidate> lep = edm::Ptr<reco::RecoCandidate>(leps, 0);
+  lepton_= new reco::ShallowClonePtrCandidate( lep, lep->charge(), lep->p4(), lep->vertex() );
   
   // -----------------------------------------------------
   // add neutrino
   // -----------------------------------------------------
-  {
-    edm::Ref<std::vector<pat::MET> > ref=edm::Ref<std::vector<pat::MET> >(mets, 0);
-    reco::ShallowCloneCandidate buffer(reco::CandidateBaseRef( ref ), ref->charge(), ref->p4(), ref->vertex());
-    neutrino_= new reco::ShallowCloneCandidate( buffer );
-  }
+  edm::Ptr<pat::MET> met = edm::Ptr<pat::MET>(mets, 0);
+  neutrino_= new reco::ShallowClonePtrCandidate( met, met->charge(), met->p4(), met->vertex() );
 }

@@ -13,8 +13,6 @@
 #include "DataFormats/PatCandidates/interface/MET.h"
 #include "DataFormats/RecoCandidate/interface/RecoCandidate.h"
 
-#include "DataFormats/Candidate/interface/CandidateWithRef.h"
-#include "DataFormats/Candidate/interface/CompositeCandidate.h"
 #include "DataFormats/Candidate/interface/ShallowCloneCandidate.h"
 #include "AnalysisDataFormats/TopObjects/interface/TtSemiEvent.h"
 
@@ -59,12 +57,12 @@ class TtSemiHypothesis : public edm::EDProducer {
 
   int key_;
 
-  reco::ShallowCloneCandidate *lightQ_;
-  reco::ShallowCloneCandidate *lightQBar_;
-  reco::ShallowCloneCandidate *hadronicB_;
-  reco::ShallowCloneCandidate *leptonicB_;
-  reco::ShallowCloneCandidate *neutrino_;
-  reco::ShallowCloneCandidate *lepton_;
+  reco::ShallowClonePtrCandidate *lightQ_;
+  reco::ShallowClonePtrCandidate *lightQBar_;
+  reco::ShallowClonePtrCandidate *hadronicB_;
+  reco::ShallowClonePtrCandidate *leptonicB_;
+  reco::ShallowClonePtrCandidate *neutrino_;
+  reco::ShallowClonePtrCandidate *lepton_;
 };
 
 #endif
