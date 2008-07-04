@@ -114,12 +114,12 @@ void L1GctInternJetData::setData(uint8_t sgnEta,
 				 uint8_t tauVeto,
 				 uint8_t rank) {
   data_ = rank & 0x3f;
-  data_ += (tauVeto & 0x1) << 6;
-  data_ += (phi & 0x1f) << 7;
-  data_ += (eta & 0xf) << 12;
-  data_ += (et & 0xfff) << 16;
-  data_ += (oflow & 0x1) << 28;
-  data_ += (sgnEta & 0x1) << 29;
+  data_ |= (tauVeto & 0x1) << 6;
+  data_ |= (phi & 0x1f) << 7;
+  data_ |= (eta & 0xf) << 12;
+  data_ |= (et & 0xfff) << 16;
+  data_ |= (oflow & 0x1) << 28;
+  data_ |= (sgnEta & 0x1) << 29;
 }
  
 
