@@ -252,6 +252,8 @@ ALIbool Fit::fitNextEvent( ALIuint& nEvent )
     if(gomgr->GlobalOptions()["histograms"] > 0) {
        FittedEntriesManager::getInstance()->AddFittedEntriesSet( new FittedEntriesSet( AtWAMatrix ) );
     }
+    GetSChi2(1); // Pedro's email to print the chi2 with final fit values. by SG 
+    // I am able to print these things in report.out on adding 1407 & 1408 lines 
     
     if(GlobalOptionMgr::getInstance()->GlobalOptions()["rootResults"] > 0) {
       NtupleManager* ntupleMgr = NtupleManager::getInstance();
@@ -1345,7 +1347,7 @@ void Fit::dumpEntryCorrelations( ALIFileOut& fileout )
         if(ALIUtils::debug >= 0) {
 	  std::cout  << "CORR:" << E1 << "" << E2 << " (" << i1 << ")" <<  " (" << i2 << ")" << " " << corrf << std::endl;
 	}
-	fileout  << "CORR:" << E1 << "" << E2 << " (" << i1 << ")" <<  " (" << i2 << ")" << " " << corrf << std::endl;
+//	fileout  << "CORR:" << E1 << "" << E2 << " (" << i1 << ")" <<  " (" << i2 << ")" << " " << corrf << std::endl; //not to print on report if possible by SG
       }
     }
   }
@@ -1431,6 +1433,9 @@ void Fit::PrintChi2( ALIdouble fit_quality, ALIbool isFirst )
       chi2meas += c2*c2; 
       if( ALIUtils::debug >= 0) {
 	std::cout << c2 << " adding chi2meas "  << chi2meas << " " << (*vmcite)->name() << ": " << ii << " (mm)R: " << (*vmcite)->value(ii)*1000. << " S: " << (*vmcite)->valueSimulated(ii)*1000. << " Diff= " << ((*vmcite)->value(ii) - (*vmcite)->valueSimulated(ii))*1000. << std::endl;
+	// it prints all iteration values at the report.out which I do not want. I want only final but works. 
+	ALIFileOut& fileout = ALIFileOut::getInstance( Model::ReportFName() );
+	fileout << c2 << " adding chi2meas "  << chi2meas << " "<< (*vmcite)->name() << ": " << ii << " (mm)R: " << (*vmcite)->value(ii)*1000. << " S: " << (*vmcite)->valueSimulated(ii)*1000. << " Diff= " << ((*vmcite)->value(ii) - (*vmcite)->valueSimulated(ii))*1000. << std::endl; //SG added this line to get real and simulted values in report.out 
       }
     }
   }
