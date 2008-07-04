@@ -1,5 +1,5 @@
 #!/usr/bin/perl -w
-# $Id: injectFileIntoTransferSystem.pl,v 1.16 2008/07/03 14:52:11 loizides Exp $
+# $Id: injectFileIntoTransferSystem.pl,v 1.17 2008/07/04 14:28:21 loizides Exp $
 
 use strict;
 use DBI;
@@ -68,6 +68,8 @@ sub usage
   --appversion      : Application version (e.g. CMSSW_2_0_8)
   --runnumber       : Run number file belongs to
   --lumisection     : Lumisection of file
+  --setuplabel      : Setup label used in the configuration
+  --dataset         : Same as --setuplabel
   --count           : Count within lumisection
   --stream          : Stream file comes from
   --instance        : Instance of creating application
@@ -75,7 +77,7 @@ sub usage
   --ctime           : Creation time of file in seconds since epoch, defaults to current time
   --itime           : Injection time of file in seconds since epoch, set to current time
                     : (File times are for bookkeeping purposes; use your own time if desired)
-  --index           : Name of index file defaults to changing data file .dat to .ind
+  --index           : Name of index file (default is to changing data file .dat to .ind)
   --checksum        : Checksum of the file
   --comment         : Comment field in the database
 
