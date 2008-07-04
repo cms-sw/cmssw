@@ -17,6 +17,11 @@
   <class name="std::vector<std::pair<std::string, double> >" />
   <class name="std::map<TtSemiEvent::HypoKey, reco::CompositeCandidate>" />
 
+  <class name="PtrMet" />
+  <class name="PtrJet" />
+  <class name="PtrMuon" />
+  <class name="PtrElec" />
+
   <class name="TtGenEvent" />
   <class name="StGenEvent" />
   <class name="TopGenEvent" />

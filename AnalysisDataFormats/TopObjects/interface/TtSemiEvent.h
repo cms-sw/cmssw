@@ -17,8 +17,8 @@
 #include "DataFormats/HepMCCandidate/interface/GenParticle.h"
 #include "AnalysisDataFormats/TopObjects/interface/TtGenEvent.h"
 
-#include "DataFormats/Candidate/interface/CandidateWithRef.h"
 #include "DataFormats/Candidate/interface/CompositeCandidate.h"
+#include "DataFormats/Candidate/interface/ShallowClonePtrCandidate.h"
 
 namespace TtSemiDaughter{
   // semileptonic daughter names
@@ -36,12 +36,6 @@ class TtSemiEvent {
   // supported EventHypotheses
   enum HypoKey {kWMassMaxSumPt, kMaxSumPtWMass, kKinFit, kGenMatch, kMVADisc};
 
-  // typdefs for hierarchical EventHypothesis
-  typedef reco::CandidateWithRef<edm::Ref<std::vector<pat::Jet> > > JetCandRef;
-  typedef reco::CandidateWithRef<edm::Ref<std::vector<pat::Electron> > > ElectronCandRef;
-  typedef reco::CandidateWithRef<edm::Ref<std::vector<pat::Muon> > > MuonCandRef;
-  typedef reco::CandidateWithRef<edm::Ref<std::vector<pat::MET> > > METCandRef;
-  
  public:
 
   TtSemiEvent();

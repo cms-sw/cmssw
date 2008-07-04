@@ -31,6 +31,15 @@ namespace {
     std::vector<std::pair<std::string, double> > v_p_str_dbl;
     std::map<TtSemiEvent::HypoKey, reco::CompositeCandidate> m_key_hyp;
 
+    typedef edm::Ptr<pat::MET> PtrMet;
+    typedef edm::Ptr<pat::Jet> PtrJet;
+    typedef edm::Ptr<pat::Muon> PtrMuon;
+    typedef edm::Ptr<pat::Electron> PtrElec;
+    PtrMet  p_met;
+    PtrJet  p_jet;
+    PtrMuon p_muon;
+    PtrElec p_elec;
+
     TtGenEvent ttgen;
     StGenEvent stgen;
     TopGenEvent topgen;
