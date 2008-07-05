@@ -52,66 +52,93 @@ void HcalTrigPrimMonitor::setup(const edm::ParameterSet& ps, DQMStore* dbe){
   
   if ( m_dbe !=NULL ) {    
 
+    char* type;
+//    char name[128];
     m_dbe->setCurrentFolder(baseFolder_);
-    meEVT_ = m_dbe->bookInt("TrigPrim Event Number");  
 
-    tpCount_ = m_dbe->book1D("# TP Digis","# TP Digis",500,-0.5,4999.5);
-    tpCountThr_ = m_dbe->book1D("# TP Digis over Threshold","# TP Digis over Threshold",100,-0.5,999.5);
-    tpSize_ = m_dbe->book1D("TP Size","TP Size",20,-0.5,19.5);
+//ZZ Expert Plots
+    m_dbe->setCurrentFolder(baseFolder_ + "/ZZ Expert Plots/ZZ DQM Expert Plots");
+    type = "TrigPrim Event Number";
+    meEVT_ = m_dbe->bookInt(type);
 
-    char name[128];
+// 00 TP Occupancy
+    m_dbe->setCurrentFolder(baseFolder_);
+    type = "00 TP Occupancy";
+    TPOcc_          = m_dbe->book2D(type,type,etaBins_,etaMin_,etaMax_,phiBins_,phiMin_,phiMax_);
+
+//Timing Plots
+    m_dbe->setCurrentFolder(baseFolder_+"/Timing Plots");
+    type = "TP Size";
+    tpSize_ = m_dbe->book1D(type,type,20,-0.5,19.5);
+    type = "TP Timing";
+    TPTiming_       = m_dbe->book1D(type,type,10,0,10);
+    type = "TP Timing (Top wedges)";
+    TPTimingTop_    = m_dbe->book1D(type,type,10,0,10);
+    type = "TP Timing (Bottom wedges)";
+    TPTimingBot_    = m_dbe->book1D(type,type,10,0,10);
+    type = "TS with max ADC";
+    TS_MAX_         = m_dbe->book1D(type,type,10,0,10);
+//Energy Plots
+    m_dbe->setCurrentFolder(baseFolder_+"/Energy Plots");
+    type = "# TP Digis";
+    tpCount_ = m_dbe->book1D(type,type,500,-0.5,4999.5);
+    type = "# TP Digis over Threshold";
+    tpCountThr_ = m_dbe->book1D(type,type,100,-0.5,999.5);
+    type = "ADC spectrum positive TP";
+    TP_ADC_         = m_dbe->book1D(type,type,200,-0.5,199.5);
+    type = "Max ADC in TP";
+    MAX_ADC_        = m_dbe->book1D(type,type,20,-0.5,19.5);
+    type = "Full TP Spectrum";
+    tpSpectrumAll_ = m_dbe->book1D(type,type,200,-0.5,199.5);
+    type = "TP ET Sum";
+    tpETSumAll_ = m_dbe->book1D(type,type,200,-0.5,199.5);
+    type = "TP SOI ET";
+    tpSOI_ET_ = m_dbe->book1D(type,type,100,-0.5,99.5);
+    
+    m_dbe->setCurrentFolder(baseFolder_+"/Energy Plots/TP Spectra by TS");
     for (int i=0; i<10; i++) {
-      sprintf(name,"TP Spectrum sample %d",i);
-      tpSpectrum_[i]= m_dbe->book1D(name,name,100,-0.5,99.5);      
+      type = "TP Spectrum sample ";
+      std::stringstream samp;
+      std::string teststr;
+      samp << i;
+      samp >> teststr;
+      teststr = type + teststr;
+      tpSpectrum_[i]= m_dbe->book1D(teststr,teststr,100,-0.5,99.5);      
     }
-    sprintf(name,"Full TP Spectrum");
-    tpSpectrumAll_ = m_dbe->book1D(name,name,200,-0.5,199.5);
-    sprintf(name,"TP ET Sum");
-    tpETSumAll_ = m_dbe->book1D(name,name,200,-0.5,199.5);
 
-    sprintf(name,"TP SOI ET");
-    tpSOI_ET_ = m_dbe->book1D(name,name,100,-0.5,99.5);
-
-    OCC_ETA = m_dbe->book1D("TrigPrim Eta Occupancy Map","TrigPrim Eta Occupancy Map",etaBins_,etaMin_,etaMax_);
-    OCC_PHI = m_dbe->book1D("TrigPrim Phi Occupancy Map","TrigPrim Phi Occupancy Map",phiBins_,phiMin_,phiMax_);
-
-    OCC_ELEC_VME = m_dbe->book2D("TrigPrim VME Occupancy Map","TrigPrim VME Occupancy Map",
-				 40,-0.25,19.75,18,-0.5,17.5);
-    OCC_ELEC_DCC = m_dbe->book2D("TrigPrim Spigot Occupancy Map","TrigPrim Spigot Occupancy Map",
-				 HcalDCCHeader::SPIGOT_COUNT,-0.5,HcalDCCHeader::SPIGOT_COUNT-0.5,
-				 36,-0.5,35.5);
-    OCC_MAP_GEO = m_dbe->book2D("TrigPrim Geo Occupancy Map","TrigPrim Geo Occupancy Map",
-				etaBins_,etaMin_,etaMax_,phiBins_,phiMin_,phiMax_);
-
-
-    OCC_MAP_THR = m_dbe->book2D("TrigPrim Geo Threshold Map","TrigPrim Geo Threshold Map",
-				etaBins_,etaMin_,etaMax_,phiBins_,phiMin_,phiMax_);
-
-
-    EN_ETA = m_dbe->book1D("TrigPrim Eta Energy Map","TrigPrim Eta Energy Map",etaBins_,etaMin_,etaMax_);
-    EN_PHI = m_dbe->book1D("TrigPrim Phi Energy Map","TrigPrim Phi Energy Map",phiBins_,phiMin_,phiMax_);
-
-    EN_ELEC_VME = m_dbe->book2D("TrigPrim VME Energy Map","TrigPrim VME Energy Map",
-				 40,-0.25,19.75,18,-0.5,17.5);
-    EN_ELEC_DCC = m_dbe->book2D("TrigPrim Spigot Energy Map","TrigPrim Spigot Energy Map",
-				 HcalDCCHeader::SPIGOT_COUNT,-0.5,HcalDCCHeader::SPIGOT_COUNT-0.5,
-				 36,-0.5,35.5);
-    EN_MAP_GEO = m_dbe->book2D("TrigPrim Geo Energy Map","TrigPrim Geo Energy Map",
-				etaBins_,etaMin_,etaMax_,phiBins_,phiMin_,phiMax_);
-  
-    meEVT_->Fill(ievt_);
-
-    TPTiming_       = m_dbe->book1D("TP Timing","TP Timing",10,0,10);
-    TPTimingTop_    = m_dbe->book1D("TP Timing (Top wedges)","TP Timing (Top wedges)",10,0,10);
-    TPTimingBot_    = m_dbe->book1D("TP Timing (Bottom wedges)","TP Timing (Bottom wedges)",10,0,10);
-    TP_ADC_         = m_dbe->book1D("ADC spectrum positive TP","ADC spectrum positive TP",200,-0.5,199.5);
-    MAX_ADC_        = m_dbe->book1D("Max ADC in TP","Max ADC in TP",20,-0.5,19.5);
-    TS_MAX_         = m_dbe->book1D("TS with max ADC","TS with max ADC",10,0,10);
-    TPOcc_          = m_dbe->book2D("TP Occupancy","TP Occupancy",etaBins_,etaMin_,etaMax_,phiBins_,phiMin_,phiMax_);
-    TPvsDigi_       = m_dbe->book2D("TP vs Digi","TP vs Digi",128,0,128,200,0,200);
+//Electronics Plots
+    m_dbe->setCurrentFolder(baseFolder_+"/Electronics Plots");
+    type = "TP vs Digi";
+    TPvsDigi_       = m_dbe->book2D(type,type,128,0,128,200,0,200);
     TPvsDigi_->setAxisTitle("lin ADC digi",1);
     TPvsDigi_->setAxisTitle("TP digi",2);
+    type = "TrigPrim VME Occupancy Map";
+    OCC_ELEC_VME = m_dbe->book2D(type,type,40,-0.25,19.75,18,-0.5,17.5);
+    type = "TrigPrim Spigot Occupancy Map";
+    OCC_ELEC_DCC = m_dbe->book2D(type,type,HcalDCCHeader::SPIGOT_COUNT,-0.5,HcalDCCHeader::SPIGOT_COUNT-0.5,36,-0.5,35.5);
+    type = "TrigPrim VME Energy Map";
+    EN_ELEC_VME = m_dbe->book2D(type,type,40,-0.25,19.75,18,-0.5,17.5);
+    type = "TrigPrim Spigot Energy Map";
+    EN_ELEC_DCC = m_dbe->book2D(type,type,HcalDCCHeader::SPIGOT_COUNT,-0.5,HcalDCCHeader::SPIGOT_COUNT-0.5,36,-0.5,35.5);
 
+//Geometry Plots
+    m_dbe->setCurrentFolder(baseFolder_+"/Geometry Plots");
+    type = "TrigPrim Eta Occupancy Map";
+    OCC_ETA = m_dbe->book1D(type,type,etaBins_,etaMin_,etaMax_);
+    type = "TrigPrim Phi Occupancy Map";
+    OCC_PHI = m_dbe->book1D(type,type,phiBins_,phiMin_,phiMax_);
+    type = "TrigPrim Geo Occupancy Map";
+    OCC_MAP_GEO = m_dbe->book2D(type,type,etaBins_,etaMin_,etaMax_,phiBins_,phiMin_,phiMax_);
+    type = "TrigPrim Geo Threshold Map";
+    OCC_MAP_THR = m_dbe->book2D(type,type,etaBins_,etaMin_,etaMax_,phiBins_,phiMin_,phiMax_);
+    type = "TrigPrim Eta Energy Map";
+    EN_ETA = m_dbe->book1D(type,type,etaBins_,etaMin_,etaMax_);
+    type = "TrigPrim Phi Energy Map";
+    EN_PHI = m_dbe->book1D(type,type,phiBins_,phiMin_,phiMax_);
+    type = "TrigPrim Geo Energy Map";
+    EN_MAP_GEO = m_dbe->book2D(type,type,etaBins_,etaMin_,etaMax_,phiBins_,phiMin_,phiMax_);
+  
+    meEVT_->Fill(ievt_);
 
   }
 
@@ -124,7 +151,7 @@ void HcalTrigPrimMonitor::processEvent(const HBHERecHitCollection& hbHits,
 				       const HBHEDigiCollection& hbhedigi,
 				       const HODigiCollection& hodigi,
 				       const HFDigiCollection& hfdigi,
-				     const HcalTrigPrimDigiCollection& tpDigis,
+                                       const HcalTrigPrimDigiCollection& tpDigis,
 				       const HcalElectronicsMap& emap
 				       ){
   

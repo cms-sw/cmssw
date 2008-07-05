@@ -165,40 +165,40 @@ void HcalTrigPrimClient::getHistograms(){
 
   if(!dbe_) return;
 
-  tpCount_ = getHisto("TrigPrimMonitor/# TP Digis", process_, dbe_, debug_,cloneME_);
+  tpCount_ = getHisto("TrigPrimMonitor/Energy Plots/# TP Digis", process_, dbe_, debug_,cloneME_);
   assert(tpCount_!=NULL);
 
-  tpCountThr_ = getHisto("TrigPrimMonitor/# TP Digis over Threshold", process_, dbe_, debug_,cloneME_);
-  tpSize_ = getHisto("TrigPrimMonitor/TP Size", process_, dbe_, debug_,cloneME_);  
+  tpCountThr_ = getHisto("TrigPrimMonitor/Energy Plots/# TP Digis over Threshold", process_, dbe_, debug_,cloneME_);
+  tpSize_ = getHisto("TrigPrimMonitor/Timing Plots/TP Size", process_, dbe_, debug_,cloneME_);  
   char name[150];      
   for (int i=0; i<10; i++) {
-    sprintf(name,"TrigPrimMonitor/TP Spectrum sample %d",i);
+    sprintf(name,"TrigPrimMonitor/Energy Plots/TP Spectra by TS/TP Spectrum sample %d",i);
     tpSpectrum_[i]= getHisto(name, process_, dbe_, debug_,cloneME_);
   }
-  tpSpectrumAll_ = getHisto("TrigPrimMonitor/Full TP Spectrum", process_, dbe_, debug_,cloneME_);
-  tpETSumAll_ = getHisto("TrigPrimMonitor/TP ET Sum", process_, dbe_, debug_,cloneME_);
-  tpSOI_ET_ = getHisto("TrigPrimMonitor/TP SOI ET", process_, dbe_, debug_,cloneME_);  
-  OCC_ETA_ = getHisto("TrigPrimMonitor/TrigPrim Eta Occupancy Map",process_, dbe_, debug_,cloneME_);  
-  OCC_PHI_ = getHisto("TrigPrimMonitor/TrigPrim Phi Occupancy Map",process_, dbe_, debug_,cloneME_);  
-  OCC_ELEC_VME_ = getHisto2("TrigPrimMonitor/TrigPrim VME Occupancy Map",process_, dbe_, debug_,cloneME_);  
-  OCC_ELEC_DCC_ = getHisto2("TrigPrimMonitor/TrigPrim Spigot Occupancy Map",process_, dbe_, debug_,cloneME_);  
-  OCC_MAP_GEO_ = getHisto2("TrigPrimMonitor/TrigPrim Geo Occupancy Map",process_, dbe_, debug_,cloneME_);  
+  tpSpectrumAll_ = getHisto("TrigPrimMonitor/Energy Plots/Full TP Spectrum", process_, dbe_, debug_,cloneME_);
+  tpETSumAll_ = getHisto("TrigPrimMonitor/Energy Plots/TP ET Sum", process_, dbe_, debug_,cloneME_);
+  tpSOI_ET_ = getHisto("TrigPrimMonitor/Energy Plots/TP SOI ET", process_, dbe_, debug_,cloneME_);  
+  OCC_ETA_ = getHisto("TrigPrimMonitor/Geometry Plots/TrigPrim Eta Occupancy Map",process_, dbe_, debug_,cloneME_);  
+  OCC_PHI_ = getHisto("TrigPrimMonitor/Geometry Plots/TrigPrim Phi Occupancy Map",process_, dbe_, debug_,cloneME_);  
+  OCC_ELEC_VME_ = getHisto2("TrigPrimMonitor/Electronics Plots/ZZ Expert Plots/TrigPrim VME Occupancy Map",process_, dbe_, debug_,cloneME_);  
+  OCC_ELEC_DCC_ = getHisto2("TrigPrimMonitor/Electronics Plots/ZZ Expert Plots/TrigPrim Spigot Occupancy Map",process_, dbe_, debug_,cloneME_);  
+  OCC_MAP_GEO_ = getHisto2("TrigPrimMonitor/Geometry Plots/TrigPrim Geo Occupancy Map",process_, dbe_, debug_,cloneME_);  
 
-  OCC_MAP_THR_ = getHisto2("TrigPrimMonitor/TrigPrim Geo Threshold Map",process_, dbe_, debug_,cloneME_);  
-  EN_ETA_ = getHisto("TrigPrimMonitor/TrigPrim Eta Energy Map",process_, dbe_, debug_,cloneME_);  
-  EN_PHI_ = getHisto("TrigPrimMonitor/TrigPrim Phi Energy Map",process_, dbe_, debug_,cloneME_);  
-  EN_ELEC_VME_ = getHisto2("TrigPrimMonitor/TrigPrim VME Energy Map",process_, dbe_, debug_,cloneME_);  
-  EN_ELEC_DCC_ = getHisto2("TrigPrimMonitor/TrigPrim Spigot Energy Map",process_, dbe_, debug_,cloneME_);  
-  EN_MAP_GEO_ = getHisto2("TrigPrimMonitor/TrigPrim Geo Energy Map",process_, dbe_, debug_,cloneME_);  
+  OCC_MAP_THR_ = getHisto2("TrigPrimMonitor/Geometry Plots/TrigPrim Geo Threshold Map",process_, dbe_, debug_,cloneME_);  
+  EN_ETA_ = getHisto("TrigPrimMonitor/Geometry Plots/TrigPrim Eta Energy Map",process_, dbe_, debug_,cloneME_);  
+  EN_PHI_ = getHisto("TrigPrimMonitor/Geometry Plots/TrigPrim Phi Energy Map",process_, dbe_, debug_,cloneME_);  
+  EN_ELEC_VME_ = getHisto2("TrigPrimMonitor/Electronics Plots/ZZ Expert Plots/TrigPrim VME Energy Map",process_, dbe_, debug_,cloneME_);  
+  EN_ELEC_DCC_ = getHisto2("TrigPrimMonitor/Electronics Plots/ZZ Expert Plots/TrigPrim Spigot Energy Map",process_, dbe_, debug_,cloneME_);  
+  EN_MAP_GEO_ = getHisto2("TrigPrimMonitor/Geometry Plots/TrigPrim Geo Energy Map",process_, dbe_, debug_,cloneME_);  
 
-  TPTiming_ = getHisto("TrigPrimMonitor/TP Timing",process_, dbe_, debug_,cloneME_);  
-  TPTimingTop_ = getHisto("TrigPrimMonitor/TP Timing (Top wedges)",process_, dbe_, debug_,cloneME_);  
-  TPTimingBot_ = getHisto("TrigPrimMonitor/TP Timing (Bottom wedges)",process_, dbe_, debug_,cloneME_);  
-  TP_ADC_ = getHisto("TrigPrimMonitor/ADC spectrum positive TP",process_, dbe_, debug_,cloneME_);  
-  MAX_ADC_ = getHisto("TrigPrimMonitor/Max ADC in TP",process_, dbe_, debug_,cloneME_);  
-  TS_MAX_ = getHisto("TrigPrimMonitor/TS with max ADC",process_, dbe_, debug_,cloneME_);  
-  TPOcc_ = getHisto2("TrigPrimMonitor/TP Occupancy",process_, dbe_, debug_,cloneME_);  
-  TPvsDigi_ = getHisto2("TrigPrimMonitor/TP vs Digi",process_, dbe_, debug_,cloneME_);  
+  TPTiming_ = getHisto("TrigPrimMonitor/Timing Plots/TP Timing",process_, dbe_, debug_,cloneME_);  
+  TPTimingTop_ = getHisto("TrigPrimMonitor/Timing Plots/TP Timing (Top wedges)",process_, dbe_, debug_,cloneME_);  
+  TPTimingBot_ = getHisto("TrigPrimMonitor/Timing Plots/TP Timing (Bottom wedges)",process_, dbe_, debug_,cloneME_);  
+  TP_ADC_ = getHisto("TrigPrimMonitor/Energy Plots/ADC spectrum positive TP",process_, dbe_, debug_,cloneME_);  
+  MAX_ADC_ = getHisto("TrigPrimMonitor/Energy Plots/Max ADC in TP",process_, dbe_, debug_,cloneME_);  
+  TS_MAX_ = getHisto("TrigPrimMonitor/Timing Plots/TS with max ADC",process_, dbe_, debug_,cloneME_);  
+  TPOcc_ = getHisto2("TrigPrimMonitor/00 TP Occupancy",process_, dbe_, debug_,cloneME_);  
+  TPvsDigi_ = getHisto2("TrigPrimMonitor/Electronics Plots/TP vs Digi",process_, dbe_, debug_,cloneME_);  
 
 
   return;
@@ -210,7 +210,7 @@ void HcalTrigPrimClient::report(){
   
   char name[256];
   
-  sprintf(name, "%sHcal/TrigPrimMonitor/TrigPrim Event Number",process_.c_str());
+  sprintf(name, "%sHcal/TrigPrimMonitor/ZZ Expert Plots/ZZ DQM Expert Plots/TrigPrim Event Number",process_.c_str());
   MonitorElement* me = dbe_->get(name);
   if ( me ) {
     string s = me->valueString();
@@ -229,61 +229,61 @@ void HcalTrigPrimClient::resetAllME(){
   if(!dbe_) return;
   
   char name[150];     
-  sprintf(name,"%sHcal/TrigPrimMonitor/# TP Digis",process_.c_str());
+  sprintf(name,"%sHcal/TrigPrimMonitor/Energy Plots/# TP Digis",process_.c_str());
   resetME(name, dbe_);
-  sprintf(name,"%sHcal/TrigPrimMonitor/# TP Digis over Threshold",process_.c_str());
+  sprintf(name,"%sHcal/TrigPrimMonitor/Energy Plots/# TP Digis over Threshold",process_.c_str());
   resetME(name, dbe_);
-  sprintf(name,"%sHcal/TrigPrimMonitor/TP Size",process_.c_str());
+  sprintf(name,"%sHcal/TrigPrimMonitor/Timing Plots/TP Size",process_.c_str());
   resetME(name, dbe_);  
   for (int i=0; i<10; i++) {
-    sprintf(name,"%sHcal/TrigPrimMonitor/TP Spectrum sample %d",process_.c_str(),i);
+    sprintf(name,"%sHcal/TrigPrimMonitor/Energy Plots/TP Spectra by TS/TP Spectrum sample %d",process_.c_str(),i);
     resetME(name, dbe_);
   }
-  sprintf(name,"%sHcal/TrigPrimMonitor/Full TP Spectrum",process_.c_str());
+  sprintf(name,"%sHcal/TrigPrimMonitor/Energy Plots/Full TP Spectrum",process_.c_str());
   resetME(name, dbe_);
-  sprintf(name,"%sHcal/TrigPrimMonitor/TP ET Sum",process_.c_str());
+  sprintf(name,"%sHcal/TrigPrimMonitor/Energy Plots/TP ET Sum",process_.c_str());
   resetME(name, dbe_);
-  sprintf(name,"%sHcal/TrigPrimMonitor/TP SOI ET",process_.c_str());
+  sprintf(name,"%sHcal/TrigPrimMonitor/Energy Plots/TP SOI ET",process_.c_str());
   resetME(name, dbe_);  
-  sprintf(name,"%sHcal/TrigPrimMonitor/TrigPrim Eta Occupancy Map",process_.c_str());
+  sprintf(name,"%sHcal/TrigPrimMonitor/Geometry Plots/TrigPrim Eta Occupancy Map",process_.c_str());
   resetME(name,dbe_);  
-  sprintf(name,"%sHcal/TrigPrimMonitor/TrigPrim Phi Occupancy Map",process_.c_str());
+  sprintf(name,"%sHcal/TrigPrimMonitor/Geometry Plots/TrigPrim Phi Occupancy Map",process_.c_str());
   resetME(name,dbe_);  
-  sprintf(name,"%sHcal/TrigPrimMonitor/TrigPrim VME Occupancy Map",process_.c_str());
+  sprintf(name,"%sHcal/TrigPrimMonitor/Electronics Plots/ZZ Expert Plots/TrigPrim VME Occupancy Map",process_.c_str());
   resetME(name,dbe_);  
-  sprintf(name,"%sHcal/TrigPrimMonitor/TrigPrim Spigot Occupancy Map",process_.c_str());
+  sprintf(name,"%sHcal/TrigPrimMonitor/Electronics Plots/ZZ Expert Plots/TrigPrim Spigot Occupancy Map",process_.c_str());
   resetME(name,dbe_);  
-  sprintf(name,"%sHcal/TrigPrimMonitor/TrigPrim Geo Occupancy Map",process_.c_str());
-  resetME(name,dbe_);  
-
-  sprintf(name,"%sHcal/TrigPrimMonitor/TrigPrim Geo Threshold Map",process_.c_str());
-  resetME(name,dbe_);  
-  sprintf(name,"%sHcal/TrigPrimMonitor/TrigPrim Eta Energy Map",process_.c_str());
-  resetME(name,dbe_);  
-  sprintf(name,"%sHcal/TrigPrimMonitor/TrigPrim Phi Energy Map",process_.c_str());
-  resetME(name,dbe_);  
-  sprintf(name,"%sHcal/TrigPrimMonitor/TrigPrim VME Energy Map",process_.c_str());
-  resetME(name,dbe_);  
-  sprintf(name,"%sHcal/TrigPrimMonitor/TrigPrim Spigot Energy Map",process_.c_str());
-  resetME(name,dbe_);  
-  sprintf(name,"%sHcal/TrigPrimMonitor/TrigPrim Geo Energy Map",process_.c_str());
+  sprintf(name,"%sHcal/TrigPrimMonitor/Geometry Plots/TrigPrim Geo Occupancy Map",process_.c_str());
   resetME(name,dbe_);  
 
-  sprintf(name,"%sHcal/TrigPrimMonitor/TP Timing",process_.c_str());
+  sprintf(name,"%sHcal/TrigPrimMonitor/Geometry Plots/TrigPrim Geo Threshold Map",process_.c_str());
   resetME(name,dbe_);  
-  sprintf(name,"%sHcal/TrigPrimMonitor/TP Timing (Top wedges)",process_.c_str());
+  sprintf(name,"%sHcal/TrigPrimMonitor/Geometry Plots/TrigPrim Eta Energy Map",process_.c_str());
   resetME(name,dbe_);  
-  sprintf(name,"%sHcal/TrigPrimMonitor/TP Timing (Bottom Wedges)",process_.c_str());
+  sprintf(name,"%sHcal/TrigPrimMonitor/Geometry Plots/TrigPrim Phi Energy Map",process_.c_str());
   resetME(name,dbe_);  
-  sprintf(name,"%sHcal/TrigPrimMonitor/ADC spectrum positive TP",process_.c_str());
+  sprintf(name,"%sHcal/TrigPrimMonitor/Electronics Plots/ZZ Expert Plots/TrigPrim VME Energy Map",process_.c_str());
   resetME(name,dbe_);  
-  sprintf(name,"%sHcal/TrigPrimMonitor/Max ADC in TP",process_.c_str());
+  sprintf(name,"%sHcal/TrigPrimMonitor/Electronics Plots/ZZ Expert Plots/TrigPrim Spigot Energy Map",process_.c_str());
   resetME(name,dbe_);  
-  sprintf(name,"%sHcal/TrigPrimMonitor/TS with max ADC",process_.c_str());
+  sprintf(name,"%sHcal/TrigPrimMonitor/Geometry Plots/TrigPrim Geo Energy Map",process_.c_str());
   resetME(name,dbe_);  
-  sprintf(name,"%sHcal/TrigPrimMonitor/TP Occupancy",process_.c_str());
+
+  sprintf(name,"%sHcal/TrigPrimMonitor/Timing Plots/TP Timing",process_.c_str());
   resetME(name,dbe_);  
-  sprintf(name,"%sHcal/TrigPrimMonitor/TP vs Digi",process_.c_str());
+  sprintf(name,"%sHcal/TrigPrimMonitor/Timing Plots/TP Timing (Top wedges)",process_.c_str());
+  resetME(name,dbe_);  
+  sprintf(name,"%sHcal/TrigPrimMonitor/Timing Plots/TP Timing (Bottom Wedges)",process_.c_str());
+  resetME(name,dbe_);  
+  sprintf(name,"%sHcal/TrigPrimMonitor/Energy Plots/ADC spectrum positive TP",process_.c_str());
+  resetME(name,dbe_);  
+  sprintf(name,"%sHcal/TrigPrimMonitor/Energy Plots/Max ADC in TP",process_.c_str());
+  resetME(name,dbe_);  
+  sprintf(name,"%sHcal/TrigPrimMonitor/Timing Plots/TS with max ADC",process_.c_str());
+  resetME(name,dbe_);  
+  sprintf(name,"%sHcal/TrigPrimMonitor/00 TP Occupancy",process_.c_str());
+  resetME(name,dbe_);  
+  sprintf(name,"%sHcal/TrigPrimMonitor/Electronics Plots/TP vs Digi",process_.c_str());
   resetME(name,dbe_);  
 
   return;
@@ -328,7 +328,11 @@ void HcalTrigPrimClient::htmlOutput(int runNo, string htmlDir, string htmlName){
   htmlFile << "</tr></table>" << endl;
   htmlFile << "<hr>" << endl;
 
-
+//Timing Plots
+//Energy Plots
+//Electronics Plots
+//Geometry Plots
+//ZZ Expert Plots
   htmlFile << "<td>&nbsp;&nbsp;&nbsp;<h3>Global Histograms</h3></td></tr>" << endl;
   htmlFile << "<tr align=\"left\">" << endl;
   histoHTML(runNo,tpCount_,"# TP Digis"," ", 92, htmlFile,htmlDir);
@@ -377,6 +381,11 @@ void HcalTrigPrimClient::htmlOutput(int runNo, string htmlDir, string htmlName){
   htmlFile << "</tr>" << endl;
 
   htmlFile << "<tr align=\"left\">" << endl;
+  histoHTML(runNo,MAX_ADC_,"","raw ADC", 92, htmlFile,htmlDir);
+  histoHTML(runNo,TS_MAX_,"TS","num at TS", 100, htmlFile,htmlDir);
+  htmlFile << "</tr>" << endl;
+  
+  htmlFile << "<tr align=\"left\">" << endl;
   histoHTML(runNo,MAX_ADC_,"ADC","raw ADC", 92, htmlFile,htmlDir);
   histoHTML(runNo,TS_MAX_,"TS","num at TS", 100, htmlFile,htmlDir);
   htmlFile << "</tr>" << endl;
@@ -386,9 +395,9 @@ void HcalTrigPrimClient::htmlOutput(int runNo, string htmlDir, string htmlName){
   histoHTML(runNo,TPTimingBot_,"","time", 100, htmlFile,htmlDir);
   htmlFile << "</tr>" << endl;
 
- htmlFile << "<tr align=\"left\">" << endl;
- histoHTML2(runNo,TPOcc_,"iEta","iPhi", 92, htmlFile,htmlDir);  
- histoHTML2(runNo,TPvsDigi_,"Digi","TP", 100, htmlFile,htmlDir);
+  htmlFile << "<tr align=\"left\">" << endl;
+  histoHTML2(runNo,TPOcc_,"iEta","iPhi", 92, htmlFile,htmlDir);  
+  histoHTML2(runNo,TPvsDigi_,"Digi","TP", 100, htmlFile,htmlDir);
   htmlFile << "</tr>" << endl;
 
   htmlFile << "<tr align=\"left\">" << endl;
