@@ -8,6 +8,7 @@
 <use name=Framework/SealKernel>
 <use name=RelationalAccess>
 <use name=rootcore>
+<use name=rootgraphics>
 <use name=xerces-c>
 <export>
   <use name=CoralBase>
@@ -19,6 +20,8 @@
   <use name=Foundation/PluginManager>
   <use name=Framework/SealKernel>
   <use name=RelationalAccess>
+  <use name=rootcore>
+  <use name=rootgraphics>
   <use name=xerces-c>
   <lib name=DQMEcalBarrelMonitorDbModule>
 </export>
