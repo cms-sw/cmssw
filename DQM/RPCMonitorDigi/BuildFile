@@ -6,7 +6,6 @@
 <use name=DataFormats/RPCRecHit>
 <use name=DQMServices/Core>
 <use name=EventFilter/RPCRawToDigi>
-<use name=DataFormats/L1GlobalMuonTrigger>
 <use name=FWCore/MessageLogger>
 <use name=FWCore/ServiceRegistry>
 <use name=Geometry/RPCGeometry>
@@ -19,7 +18,7 @@
 <use name=TrackingTools/PatternTools>
 <use name=boost>
 <use name=CLHEP>
-<use name=root>
+<use name=rootgraphics>
 <export>
   <lib name=DQMRPCMonitorDigi>
   <use name=FWCore/Framework>
@@ -41,5 +40,5 @@
   <use name=TrackingTools/PatternTools>
   <use name=boost>
   <use name=CLHEP>
-  <use name=root>
+  <use name=rootgraphics>
 </export>
