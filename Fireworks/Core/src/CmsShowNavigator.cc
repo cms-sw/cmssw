@@ -8,7 +8,7 @@
 //
 // Original Author:  
 //         Created:  Tue Jun 10 14:56:46 EDT 2008
-// $Id: CmsShowNavigator.cc,v 1.4 2008/06/29 13:15:32 chrjones Exp $
+// $Id: CmsShowNavigator.cc,v 1.5 2008/07/05 20:24:30 dmytro Exp $
 //
 
 // hacks
@@ -173,16 +173,17 @@ CmsShowNavigator::goToRun(Double_t run)
       oldEvent.emit(*m_event);
       return;
    }
-  if (m_eventTree && m_eventTree->GetEventList() &&
-      !m_eventTree->GetEventList()->Contains(entry) )
-     std::cout << "WARNING: requested event is not among preselected events! " << std::endl;
-   
-  if (m_event->to(entry)) {
-     m_currentSelectedEntry = entry;
-     newEvent.emit(*m_event);
-     checkPosition();
-  }
-  else oldEvent.emit(*m_event);
+   Int_t index = entry;
+   if (m_eventTree && m_eventTree->GetEventList() ) index = m_eventTree->GetEventList()->GetIndex(entry);
+   if (m_event->to(entry)) {
+      if ( index < 0 )
+	std::cout << "WARNING: requested event is not among preselected events! " << std::endl;
+      else
+	m_currentSelectedEntry = index;
+      newEvent.emit(*m_event);
+      checkPosition();
+   }
+   else oldEvent.emit(*m_event);
 }
 
 void
@@ -193,16 +194,17 @@ CmsShowNavigator::goToEvent(Double_t event)
       oldEvent.emit(*m_event);
       return;
    }
-  if (m_eventTree && m_eventTree->GetEventList() &&
-      !m_eventTree->GetEventList()->Contains(entry) )
-     std::cout << "WARNING: requested event is not among preselected events! " << std::endl;
-   
-  if (m_event->to(entry)) {
-     m_currentSelectedEntry = entry;
-     newEvent.emit(*m_event);
-     checkPosition();
-  }
-  else oldEvent.emit(*m_event);
+   Int_t index = entry;
+   if (m_eventTree && m_eventTree->GetEventList() ) index = m_eventTree->GetEventList()->GetIndex(entry);
+   if (m_event->to(entry)) {
+      if ( index < 0 )
+	std::cout << "WARNING: requested event is not among preselected events! " << std::endl;
+      else
+	m_currentSelectedEntry = index;
+      newEvent.emit(*m_event);
+      checkPosition();
+   }
+   else oldEvent.emit(*m_event);
 }
 
 //
