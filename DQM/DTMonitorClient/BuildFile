@@ -12,7 +12,7 @@
 <use name=CalibMuon/DTDigiSync>
 <use name=CalibMuon/DTCalibration>
 <use name=boost>
-<use name=root>
+<use name=rootgraphics>
 
 <export>
  <lib name=DQMDTMonitorModule>
@@ -30,5 +30,5 @@
  <use name=CalibMuon/DTDigiSync>
  <use name=CalibMuon/DTCalibration>
  <use name=boost>
- <use name=root>
+ <use name=rootgraphics>
 </export>
