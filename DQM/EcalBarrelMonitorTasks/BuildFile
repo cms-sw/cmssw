@@ -11,7 +11,7 @@
 <use name=FWCore/ParameterSet>
 <use name=FWCore/ServiceRegistry>
 <use name=TBDataFormats/EcalTBObjects>
-<use name=rootcore>
+<use name=rootphysics>
 <export>
   <use name=DQM/EcalCommon>
   <use name=DQMServices/Core>
@@ -26,6 +26,6 @@
   <use name=FWCore/ParameterSet>
   <use name=FWCore/ServiceRegistry>
   <use name=TBDataFormats/EcalTBObjects>
-  <use name=rootcore>
+  <use name=rootphysics>
   <lib name=DQMEcalBarrelMonitorTasks>
 </export>
