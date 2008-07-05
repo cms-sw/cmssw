@@ -8,7 +8,7 @@
 //
 // Original Author:  
 //         Created:  Sun Jan  6 22:01:27 EST 2008
-// $Id: FWGlimpseViewManager.cc,v 1.2 2008/06/28 22:15:54 dmytro Exp $
+// $Id: FWGlimpseViewManager.cc,v 1.3 2008/07/04 23:54:13 chrjones Exp $
 //
 
 // system include files
@@ -105,7 +105,6 @@ FWGlimpseViewManager::buildView(TGFrame* iParent)
 {
    TEveManager::TRedrawDisabler disableRedraw(gEve);
    boost::shared_ptr<FWGlimpseView> view( new FWGlimpseView(iParent, &m_elements,&m_scaler) );
-   view->setManager( this );
    m_views.push_back(view);
    //? pView->resetCamera();
    if(1 == m_views.size()) {

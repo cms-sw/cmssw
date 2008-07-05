@@ -8,7 +8,7 @@
 //
 // Original Author:  Chris Jones
 //         Created:  Thu Feb 21 11:22:41 EST 2008
-// $Id: FWGlimpseView.cc,v 1.4 2008/07/03 02:05:43 dmytro Exp $
+// $Id: FWGlimpseView.cc,v 1.5 2008/07/04 23:48:47 chrjones Exp $
 //
 
 // system include files
@@ -68,8 +68,7 @@ FWGlimpseView::FWGlimpseView(TGFrame* iParent, TEveElementList* list,
  m_cameraMatrix(0),
  m_cameraMatrixBase(0),
  m_scaleParam(this,"Energy scale", static_cast<double>(iScaler->scale()), 0.01, 1000.),
- m_scaler(iScaler),
- m_manager(0)
+ m_scaler(iScaler)
 {
    m_pad = new TEvePad;
    TGLEmbeddedViewer* ev = new TGLEmbeddedViewer(iParent, m_pad);
@@ -196,12 +195,6 @@ FWGlimpseView::saveImageTo(const std::string& iName) const
    if(!succeeded) {
       throw std::runtime_error("Unable to save picture");
    }
-}
-
-void 
-FWGlimpseView::setManager( FWGlimpseViewManager* manager ) 
-{ 
-   m_manager = manager; 
 }
 
 void 

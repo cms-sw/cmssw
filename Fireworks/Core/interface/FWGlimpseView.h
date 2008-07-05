@@ -16,7 +16,7 @@
 //
 // Original Author:  Chris Jones
 //         Created:  Thu Feb 21 11:22:37 EST 2008
-// $Id: FWGlimpseView.h,v 1.2 2008/06/28 22:18:14 dmytro Exp $
+// $Id: FWGlimpseView.h,v 1.3 2008/07/04 23:48:45 chrjones Exp $
 //
 
 // system include files
@@ -57,9 +57,7 @@ class FWGlimpseView : public FWViewBase
       static const std::string& staticTypeName();
    
       // ---------- member functions ---------------------------
-      void draw(TEveCaloDataHist* data);
       virtual void setFrom(const FWConfiguration&);
-      void setManager( FWGlimpseViewManager* manager );
    
    private:
       FWGlimpseView(const FWGlimpseView&); // stop default
@@ -79,7 +77,6 @@ class FWGlimpseView : public FWViewBase
    
       FWDoubleParameter m_scaleParam;
       FWEveValueScaler* m_scaler;
-      FWGlimpseViewManager* m_manager;
 };
 
 
