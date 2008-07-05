@@ -8,8 +8,13 @@
 //
 // Original Author:  
 //         Created:  Tue Jun 10 14:56:46 EDT 2008
-// $Id: CmsShowNavigator.cc,v 1.3 2008/06/20 05:59:34 dmytro Exp $
+// $Id: CmsShowNavigator.cc,v 1.4 2008/06/29 13:15:32 chrjones Exp $
 //
+
+// hacks
+#define private public
+#include "DataFormats/FWLite/interface/Event.h"
+#undef private
 
 // system include files
 #include "TTree.h"
@@ -38,6 +43,7 @@ CmsShowNavigator::CmsShowNavigator()
   m_eventTree = 0;
   m_eventList = 0;
   m_selection = "";
+  m_currentSelectedEntry = 0;
 }
 
 // CmsShowNavigator::CmsShowNavigator(const CmsShowNavigator& rhs)
@@ -101,13 +107,23 @@ CmsShowNavigator::loadFile(std::string fileName)
 }
 
 Int_t
-CmsShowNavigator::realEntry(Int_t rawEntry) {
+CmsShowNavigator::realEntry(Int_t selectedEntry) {
   if (m_eventTree && m_eventTree->GetEventList() )
-    return m_eventTree->GetEntryNumber(rawEntry);
+    return m_eventTree->GetEntryNumber(selectedEntry);
   else
-    return rawEntry;
+    return selectedEntry;
 }
 
+Int_t
+CmsShowNavigator::realEntry(Int_t run, Int_t event) {
+   m_event->fillFileIndex();
+   edm::FileIndex::const_iterator i = m_event->fileIndex_.findEventPosition(run, 0, event, true);
+   if (m_event->fileIndex_.end() != i) 
+     return i->entry_;
+   else
+     return -1;
+}
+	
 void
 CmsShowNavigator::checkPosition() {
   if ( m_event->id() == m_firstID )
@@ -119,9 +135,11 @@ CmsShowNavigator::checkPosition() {
 void
 CmsShowNavigator::nextEvent() 
 {
-  if (m_event->to(m_event->id().next())) {
-    newEvent.emit(*m_event);
-    checkPosition();
+  if (m_currentSelectedEntry < m_nEntries-1 &&
+      m_event->to(m_currentSelectedEntry+1) ) {
+     ++m_currentSelectedEntry;
+     newEvent.emit(*m_event);
+     checkPosition();
   }
   else oldEvent.emit(*m_event);
 }
@@ -129,9 +147,11 @@ CmsShowNavigator::nextEvent()
 void
 CmsShowNavigator::previousEvent()
 {
-  if (m_event->to(m_event->id().previous())) {
-    newEvent.emit(*m_event);
-    checkPosition();
+  if (m_currentSelectedEntry > 0 &&
+      m_event->to(m_currentSelectedEntry-1) ) {
+     --m_currentSelectedEntry;
+     newEvent.emit(*m_event);
+     checkPosition();
   }
   else oldEvent.emit(*m_event);
 }
@@ -139,7 +159,8 @@ CmsShowNavigator::previousEvent()
 void
 CmsShowNavigator::firstEvent()
 {
-  m_event->to(realEntry(0));
+  m_currentSelectedEntry = 0;
+  m_event->to(realEntry(m_currentSelectedEntry));
   newEvent.emit(*m_event);
   atBeginning.emit();
 }
@@ -147,9 +168,19 @@ CmsShowNavigator::firstEvent()
 void
 CmsShowNavigator::goToRun(Double_t run)
 {
-  if (m_event->to(static_cast<UInt_t>(run), 0)) {
-    newEvent.emit(*m_event);
-    checkPosition();
+   Int_t entry = realEntry(static_cast<UInt_t>(run), 0);
+   if ( entry < 0 ) {
+      oldEvent.emit(*m_event);
+      return;
+   }
+  if (m_eventTree && m_eventTree->GetEventList() &&
+      !m_eventTree->GetEventList()->Contains(entry) )
+     std::cout << "WARNING: requested event is not among preselected events! " << std::endl;
+   
+  if (m_event->to(entry)) {
+     m_currentSelectedEntry = entry;
+     newEvent.emit(*m_event);
+     checkPosition();
   }
   else oldEvent.emit(*m_event);
 }
@@ -157,9 +188,19 @@ CmsShowNavigator::goToRun(Double_t run)
 void
 CmsShowNavigator::goToEvent(Double_t event)
 {
-  if (m_event->to(m_event->id().run(), static_cast<UInt_t>(event))) {
-    newEvent.emit(*m_event);
-    checkPosition();
+   Int_t entry = realEntry(m_event->id().run(), static_cast<UInt_t>(event));
+   if ( entry < 0 ) {
+      oldEvent.emit(*m_event);
+      return;
+   }
+  if (m_eventTree && m_eventTree->GetEventList() &&
+      !m_eventTree->GetEventList()->Contains(entry) )
+     std::cout << "WARNING: requested event is not among preselected events! " << std::endl;
+   
+  if (m_event->to(entry)) {
+     m_currentSelectedEntry = entry;
+     newEvent.emit(*m_event);
+     checkPosition();
   }
   else oldEvent.emit(*m_event);
 }

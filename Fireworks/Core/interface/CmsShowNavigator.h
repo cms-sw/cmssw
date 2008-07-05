@@ -16,7 +16,7 @@
 //
 // Original Author:  Joshua Berger
 //         Created:  Tue Jun 10 14:56:34 EDT 2008
-// $Id: CmsShowNavigator.h,v 1.1 2008/06/17 00:08:11 chrjones Exp $
+// $Id: CmsShowNavigator.h,v 1.2 2008/06/29 13:15:32 chrjones Exp $
 //
 
 // system include files
@@ -41,14 +41,15 @@ class CmsShowNavigator
       virtual ~CmsShowNavigator();
       //      void startLoop();
       Int_t realEntry(Int_t rawEntry);
+      Int_t realEntry(Int_t run, Int_t event); // -1 means event not found
       // ---------- const member functions --------------------- 
       void loadFile(std::string fileName);
       void checkPosition();
       void nextEvent();
       void previousEvent();
       void firstEvent();
-      void goToRun(Double_t run);
-      void goToEvent(Double_t event);
+      void goToRun(Double_t run);  // FIXME, run is integer
+      void goToEvent(Double_t event); // FIXME, event is integer
       // ---------- static member functions --------------------
 
       // ---------- member functions --------------------------- 
@@ -78,6 +79,7 @@ class CmsShowNavigator
       TEventList *m_eventList;
       int m_currentEntry;
       int m_nEntries;
+      int m_currentSelectedEntry;
 };
 
 
