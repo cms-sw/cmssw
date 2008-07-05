@@ -14,7 +14,7 @@
 //
 // Original Author:  
 //         Created:  Thu Dec  6 18:01:21 PST 2007
-// $Id: GenParticleProxy3DBuilder.cc,v 1.2 2008/06/09 19:54:03 chrjones Exp $
+// $Id: GenParticleProxy3DBuilder.cc,v 1.3 2008/06/23 06:26:07 dmytro Exp $
 //
 
 // system include files
@@ -22,6 +22,7 @@
 #include "TEveTrack.h"
 #include "TEveTrackPropagator.h"
 #include "RVersion.h"
+#include "TDatabasePDG.h"
 
 // user include files
 #include "Fireworks/Core/interface/FWEventItem.h"
@@ -32,6 +33,10 @@
 
 #include "Fireworks/Core/interface/GenParticleProxy3DBuilder.h"
 
+GenParticleProxy3DBuilder::GenParticleProxy3DBuilder()
+{
+  m_pdg = new TDatabasePDG();
+}
 
 void GenParticleProxy3DBuilder::build(const FWEventItem* iItem, TEveElementList** product)
 {
@@ -90,6 +95,13 @@ void GenParticleProxy3DBuilder::build(const FWEventItem* iItem, TEveElementList*
                         it->vz());
       t.fSign = it->charge();
       TEveTrack* genPart = new TEveTrack(&t,rnrStyle);
+      char s[1024];
+      TParticlePDG* pID = m_pdg->GetParticle(it->pdgId());
+      if ( pID ) 
+	  sprintf(s,"gen %s, Pt: %0.1f GeV", pID->GetName(), it->pt());
+      else
+	  sprintf(s,"gen pdg %d, Pt: %0.1f GeV", it->pdgId(), it->pt());
+      genPart->SetTitle(s);
       genPart->SetMainColor(iItem->defaultDisplayProperties().color());
       gEve->AddElement(genPart,tlist);
       //cout << it->px()<<" "
