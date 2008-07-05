@@ -8,7 +8,7 @@
 //
 // Original Author:  Chris Jones
 //         Created:  Thu Feb 21 11:22:41 EST 2008
-// $Id: FWEveLegoView.cc,v 1.15 2008/06/28 22:20:54 dmytro Exp $
+// $Id: FWEveLegoView.cc,v 1.16 2008/07/04 01:35:33 dmytro Exp $
 //
 
 // system include files
@@ -115,6 +115,7 @@ FWEveLegoView::FWEveLegoView(TGFrame* iParent, TEveElementList* list):
    m_lego = new TEveCaloLego();
    m_lego->InitMainTrans();
    m_lego->RefMainTrans().SetScale(2*M_PI, 2*M_PI, M_PI);
+   m_lego->SetTopViewTowerColor(kWhite);
    
    m_lego->SetPalette(pal);
    // m_lego->SetMainColor(Color_t(TColor::GetColor("#0A0A0A")));
