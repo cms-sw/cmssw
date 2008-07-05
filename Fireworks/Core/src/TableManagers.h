@@ -3,6 +3,7 @@
 #define Fireworks_Core_TableManagers_h
 
 #include "TableWidget.h"
+#include "LightTableWidget.h"
 #include <vector>
 #include <stdio.h>
 
@@ -11,7 +12,9 @@ class FWEventItem;
 // go from row in the table to index in the underlying collection
 template <class T> int table_row_to_index (const std::vector<T> &v, int row)
 {
-     return v[row].index;
+     if ((unsigned int)row < v.size())
+	  return v[row].index;
+     else return -1;
 }
 
 // go from index in the underlying collection to row in the table
@@ -29,6 +32,10 @@ public:
      // can do all the things a TableManager can, but is also
      // text-dumpable
      virtual void dump (FILE *);
+     virtual void format (std::vector<std::string> &ret, 
+			  std::vector<int> &col_widths,
+			  int n_rows);
+     void sort (int col, bool reset = false);
      // and has a utility for making a display frame
      void MakeFrame (TGCompositeFrame *parent, int width, int height);
      void Update (int rows = 5);
@@ -38,11 +45,13 @@ public:
      virtual int index_to_table_row (int) const { return 0; }
 
 public:
-     TableWidget 	*widget;
+     LightTableWidget 	*widget;
      TGCompositeFrame	*frame;
      TGTextEntry	*title_frame;
      FWEventItem	*item;
      std::set<int> 	sel_indices;
+     int		sort_col_;
+     bool		sort_asc_;
 };
 
 std::string format_string (const std::string &fmt, int x);

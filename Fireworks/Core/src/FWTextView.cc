@@ -90,7 +90,7 @@ FWTextViewPage::FWTextViewPage (const std::string &title_,
      }
      frame->MapSubwindows();
      frame->MapWindow(); 
-     frame->Resize(width, height);
+     frame->Layout();
 } 
 
 void FWTextViewPage::undock ()
@@ -508,7 +508,7 @@ void FWTextView::newEvent (const fwlite::Event &ev, const CmsShowMain *de)
 	  };
 	  mu_manager->rows.push_back(row);
      }
-     mu_manager->Sort(0, true);
+     mu_manager->sort(0, true);
      //------------------------------------------------------------
      // print electrons
      //------------------------------------------------------------
@@ -553,7 +553,7 @@ void FWTextView::newEvent (const fwlite::Event &ev, const CmsShowMain *de)
 	  };
 	  el_manager->rows.push_back(row);
      }
-     el_manager->Sort(0, true);
+     el_manager->sort(0, true);
      //------------------------------------------------------------
      // print jets
      //------------------------------------------------------------
@@ -588,7 +588,7 @@ void FWTextView::newEvent (const fwlite::Event &ev, const CmsShowMain *de)
 	  };
 	  jet_manager->rows.push_back(row);
      }
-     jet_manager->Sort(0, true);
+     jet_manager->sort(0, true);
      //------------------------------------------------------------
      // print tracks
      //------------------------------------------------------------
@@ -609,7 +609,7 @@ void FWTextView::newEvent (const fwlite::Event &ev, const CmsShowMain *de)
 	  };
 	  track_manager->rows.push_back(row);
      }
-     track_manager->Sort(0, true);
+     track_manager->sort(0, true);
      //------------------------------------------------------------
      // print tracks
      //------------------------------------------------------------
@@ -627,7 +627,7 @@ void FWTextView::newEvent (const fwlite::Event &ev, const CmsShowMain *de)
 	  };
 	  vertex_manager->rows.push_back(row);
      }
-     vertex_manager->Sort(0, true);
+     vertex_manager->sort(0, true);
 //      static int i = 0; 
 //      i++;
 //      if (i == 3) {

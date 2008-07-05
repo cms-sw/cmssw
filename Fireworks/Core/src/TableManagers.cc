@@ -1,5 +1,6 @@
 #define private public
 #include "TableWidget.h"
+#include "LightTableWidget.h"
 #include "Fireworks/Core/interface/FWEventItem.h"
 #include "Fireworks/Core/interface/FWSelectionManager.h"
 #undef private
@@ -60,13 +61,17 @@ void FWTableManager::MakeFrame (TGCompositeFrame *parent, int width, int height)
      parent->AddFrame(frame,tFrameHints);
      parent->HideFrame(frame);
      
-     widget = new TableWidget(frame, this); 
-//      widget = new TableWidget(frame, this, width, height / 3, 5, 19); 
+//      widget = new LightTableWidget(frame, this); 
+     widget = new LightTableWidget(frame, this, width, height / 4); 
      m_tNameEntry->Resize(width, widget->m_cellHeight);
      m_tNameEntry->SetBackgroundColor(widget->m_titleColor);
      m_tNameEntry->SetAlignment(kTextCenterX);
      m_tNameEntry->ChangeOptions(kRaisedFrame);
      title_frame = m_tNameEntry;
+//      parent->MapSubwindows();
+//      parent->MapWindow();
+//      parent->Layout();
+
 //      widget->HighlightRow(0);
 }
 
@@ -181,4 +186,73 @@ void FWTableManager::dump (FILE *f)
      for (int i = 0; i < total_len; ++i)
 	  fprintf(f, "="); 
      fprintf(f, "\n\n");
+}
+
+void FWTableManager::format (std::vector<std::string> &ret, 
+			     std::vector<int> &col_width,
+			     int)
+{
+     ret.reserve(NumberOfRows() + 2); // col titles, horizontal line
+     char s[1024];
+     std::vector<std::string> titles = GetTitles(0);
+     col_width.reserve(titles.size());
+     for (std::vector<std::string>::const_iterator i = titles.begin();
+	  i != titles.end(); ++i) {
+	  col_width.push_back(i->length());
+     }
+     std::vector<std::string> row_content;
+     for (int row = 0; row < NumberOfRows(); ++row) {
+	  FillCells(row, 0, row + 1, NumberOfCols(), row_content);
+	  for (std::vector<std::string>::const_iterator i = row_content.begin();
+	       i != row_content.end(); ++i) {
+	       const int length = i->length();
+	       if (col_width[i - row_content.begin()] < length)
+		    col_width[i - row_content.begin()] = length;
+	  }
+     }
+     int total_len = 0;
+     for (unsigned int i = 0; i < col_width.size(); ++i) 
+	  total_len += col_width[i] + 1;
+//      ret.push_back(std::string(total_len, '=')); 
+//      sprintf(s, "%*s", (total_len + title().length()) / 2, title().c_str());
+//      ret.push_back(s);
+//      ret.push_back(std::string(total_len, '-')); 
+     char *p = s;
+     for (unsigned int i = 0; i < titles.size(); ++i) {
+	  p += sprintf(p, "%*s", col_width[i] + 1, titles[i].c_str());
+     }
+     ret.push_back(s);
+     ret.push_back(std::string(total_len, '-')); 
+     for (int row = 0; row < NumberOfRows(); ++row) {
+// 	  if (row == n_rows) {
+// 	       const char no_more[] = "more skipped";
+// 	       sprintf(s, "%*d %s", (total_len - sizeof(no_more)) / 2, 
+// 		       NumberOfRows() - row, no_more);
+// 	       ret.push_back(s);
+// 	       break;
+// 	  }
+	  FillCells(row, 0, row + 1, NumberOfCols(), row_content);
+	  char *p = s;
+	  for (unsigned int i = 0; i < row_content.size(); ++i) {
+	       p += sprintf(p, "%*s", col_width[i] + 1, row_content[i].c_str());
+	  }
+	  ret.push_back(s);
+     }
+//      ret.push_back(std::string(total_len, '-')); 
+}
+
+void FWTableManager::sort (int col, bool reset) 
+{
+     if (reset) {
+	  sort_asc_ = true;
+	  sort_col_ = col; 
+     } else { 
+	  if (sort_col_ == col) {
+	       sort_asc_ = not sort_asc_;
+	  } else {
+	       sort_asc_ = true;
+	  }
+	  sort_col_ = col;
+     }
+     Sort(sort_col_, sort_asc_);
 }
