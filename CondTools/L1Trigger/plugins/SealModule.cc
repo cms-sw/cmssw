@@ -94,13 +94,6 @@ REGISTER_L1_WRITER(L1MuDTQualPatternLutRcd, L1MuDTQualPatternLut);
 REGISTER_PLUGIN(L1MuDTTFParametersRcd, L1MuDTTFParameters);
 REGISTER_L1_WRITER(L1MuDTTFParametersRcd, L1MuDTTFParameters);
 
-// CSC TPG records
-#include "CondFormats/DataRecord/interface/L1CSCTPParametersRcd.h"
-#include "CondFormats/L1TObjects/interface/L1CSCTPParameters.h"
-
-REGISTER_PLUGIN(L1CSCTPParametersRcd, L1CSCTPParameters);
-REGISTER_L1_WRITER(L1CSCTPParametersRcd, L1CSCTPParameters);
-
 // CSC TF records
 #include "CondFormats/L1TObjects/interface/L1MuCSCTFConfiguration.h"
 #include "CondFormats/L1TObjects/interface/L1MuCSCTFAlignment.h"

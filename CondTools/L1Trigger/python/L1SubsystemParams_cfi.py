@@ -32,12 +32,6 @@ L1SubsystemParams = cms.PSet(
             key = cms.string('dummy')
         ), 
         cms.PSet(
-            record = cms.string('L1CSCTPParametersRcd'),
-            tag = cms.string('L1CSCTPParameters_CRUZET_hlt'),
-            type = cms.string('L1CSCTPParameters'),
-            key = cms.string('dummy')
-        ), 
-        cms.PSet(
             record = cms.string('L1MuCSCTFConfigurationRcd'),
             tag = cms.string('L1MuCSCTFConfiguration_CRUZET_hlt'),
             type = cms.string('L1MuCSCTFConfiguration'),

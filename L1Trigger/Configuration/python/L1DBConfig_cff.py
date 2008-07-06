@@ -15,11 +15,6 @@ l1pooldb = cms.ESSource("PoolDBESSource",
             type = cms.string('L1CaloEtScale')
         ), 
         cms.PSet(
-            record = cms.string('L1CSCTPParametersRcd'),
-            tag = cms.string('L1CSCTPParameters_CRUZET_hlt'),
-            type = cms.string('L1CSCTPParameters')
-        ), 
-        cms.PSet(
             record = cms.string('L1MuDTEtaPatternLutRcd'),
             tag = cms.string('L1MuDTEtaPatternLut_CRUZET_hlt'),
             type = cms.string('L1MuDTEtaPatternLut')
