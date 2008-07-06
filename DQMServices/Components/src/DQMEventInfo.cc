@@ -2,9 +2,9 @@
  * \file DQMEventInfo.cc
  * \author M. Zanetti - CERN PH
  * Last Update:
- * $Date: 2008/04/11 18:22:35 $
- * $Revision: 1.19 $
- * $Author: lat $
+ * $Date: 2008/05/06 05:13:05 $
+ * $Revision: 1.20 $
+ * $Author: dellaric $
  *
  */
 
@@ -47,7 +47,7 @@ DQMEventInfo::DQMEventInfo(const ParameterSet& ps){
   lumisecId_ = dbe_->bookInt("iLumiSection");
   eventId_   = dbe_->bookInt("iEvent");
   eventTimeStamp_ = dbe_->bookFloat("eventTimeStamp");
-
+  
   dbe_->setCurrentFolder(currentfolder) ;
   //Process specific contents
   processTimeStamp_ = dbe_->bookFloat("processTimeStamp");
@@ -64,6 +64,9 @@ DQMEventInfo::DQMEventInfo(const ParameterSet& ps){
   //Static Contents
   processId_= dbe_->bookInt("processID"); 
   processId_->Fill(gSystem->GetPid());
+  processStartTimeStamp_ = dbe_->bookFloat("processStartTimeStamp");
+  processStartTimeStamp_->Fill(getUTCtime(&currentTime_));
+  runStartTimeStamp_ = dbe_->bookFloat("runStartTimeStamp");
   hostName_= dbe_->bookString("hostName",gSystem->HostName());
   processName_= dbe_->bookString("processName",subsystemname);
   workingDir_= dbe_->bookString("workingDir",gSystem->pwd());
@@ -82,8 +85,23 @@ DQMEventInfo::~DQMEventInfo(){
 
 }
 
-void DQMEventInfo::analyze(const Event& e, const EventSetup& c){
+void DQMEventInfo::beginRun(const edm::Run& r, const edm::EventSetup &c ) {
+    
+  const edm::Timestamp time = r.beginTime();
 
+  float sec = time.value() >> 32; 
+  float usec = 0xFFFFFFFF & time.value() ; 
+
+  // cout << " begin Run " << r.run() << " " << time.value() << endl;
+  // cout << setprecision(16) << getUTCtime(&currentTime_) << endl;
+  // cout << sec+usec/1000000. << endl;
+
+  runStartTimeStamp_->Fill(sec+usec/1000000.);
+  
+} 
+
+void DQMEventInfo::analyze(const Event& e, const EventSetup& c){
+ 
   runId_->Fill(e.id().run());
   lumisecId_->Fill(e.luminosityBlock());
   eventId_->Fill(e.id().event());
