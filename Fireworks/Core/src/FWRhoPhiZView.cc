@@ -8,7 +8,7 @@
 //
 // Original Author:  Chris Jones
 //         Created:  Tue Feb 19 10:33:25 EST 2008
-// $Id: FWRhoPhiZView.cc,v 1.18 2008/06/25 22:18:47 chrjones Exp $
+// $Id: FWRhoPhiZView.cc,v 1.19 2008/06/27 03:30:26 dmytro Exp $
 //
 
 #define private public
@@ -157,6 +157,7 @@ m_cameraMatrix(0)
    if ( TGLOrthoCamera* camera = dynamic_cast<TGLOrthoCamera*>( &(ev->CurrentCamera()) ) ) {
       m_cameraZoom = & (camera->fZoom);
       m_cameraMatrix = const_cast<TGLMatrix*>(&(camera->GetCamTrans()));
+      camera->SetZoomMax(1e6);
    }
    
    TEveScene* ns = gEve->SpawnNewScene(iName.c_str());
