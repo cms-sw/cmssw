@@ -7,8 +7,8 @@
 //
 //   Author List: S. Valuev, UCLA.
 //
-//   $Date: 2007/08/21 10:17:07 $
-//   $Revision: 1.3 $
+//   $Date: 2007/08/22 10:23:13 $
+//   $Revision: 1.4 $
 //
 //   Modifications:
 //
@@ -32,8 +32,8 @@
 #include <DataFormats/CSCDigi/interface/CSCCorrelatedLCTDigiCollection.h>
 
 // Configuration via EventSetup
-#include "CondFormats/L1TObjects/interface/L1CSCTPParameters.h"
-#include "CondFormats/DataRecord/interface/L1CSCTPParametersRcd.h"
+#include "CondFormats/CSCObjects/interface/CSCL1TPParameters.h"
+#include "CondFormats/DataRecord/interface/CSCL1TPParametersRcd.h"
 
 
 CSCTriggerPrimitivesProducer::CSCTriggerPrimitivesProducer(const edm::ParameterSet& conf) : iev(0) {
@@ -77,11 +77,11 @@ void CSCTriggerPrimitivesProducer::produce(edm::Event& ev,
   // Get config. parameters using EventSetup mechanism.  This must be done
   // in produce() for every event and not in beginJob() (see mail from
   // Jim Brooke sent to hn-cms-L1TrigEmulator on July 30, 2007).
-  edm::ESHandle<L1CSCTPParameters> conf;
-  setup.get<L1CSCTPParametersRcd>().get(conf);
+  edm::ESHandle<CSCL1TPParameters> conf;
+  setup.get<CSCL1TPParametersRcd>().get(conf);
   if (conf.product() == 0) {
     throw cms::Exception("CSCTriggerPrimitivesProducer")
-      << "+++ Failed to find a L1CSCTPParametersRcd in EventSetup! +++\n"
+      << "+++ Failed to find a CSCL1TPParametersRcd in EventSetup! +++\n"
       << "+++ Cannot continue without these parameters +++\n";
   }
   lctBuilder_->setConfigParameters(conf.product());

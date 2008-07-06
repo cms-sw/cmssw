@@ -20,8 +20,8 @@
 //                Porting from ORCA by S. Valuev (Slava.Valuev@cern.ch),
 //                May 2006.
 //
-//   $Date: 2008/05/07 14:13:33 $
-//   $Revision: 1.22 $
+//   $Date: 2008/06/04 14:17:50 $
+//   $Revision: 1.23 $
 //
 //   Modifications: 
 //
@@ -216,7 +216,7 @@ void CSCAnodeLCTProcessor::setDefaultConfigParameters() {
 }
 
 // Set configuration parameters obtained via EventSetup mechanism.
-void CSCAnodeLCTProcessor::setConfigParameters(const L1CSCTPParameters* conf) {
+void CSCAnodeLCTProcessor::setConfigParameters(const CSCL1TPParameters* conf) {
   static bool config_dumped = false;
 
   fifo_tbins   = conf->alctFifoTbins();
