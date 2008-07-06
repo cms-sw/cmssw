@@ -11,6 +11,7 @@
 <use name=DataFormats/GeometryVector>
 <use name=DataFormats/L1Trigger>
 <use name=DataFormats/L1GlobalTrigger>
+<use name=DataFormats/HLTReco>
 <use name=DataFormats/Common>
 <use name=TrackingTools/TrajectoryParametrization>
 <use name=TrackingTools/TransientTrack>
@@ -24,7 +25,7 @@
 <use name=CLHEP>
 <flags EDM_PLUGIN=1>
 <export>
-   <lib name=quarkoniumAnalysisQuarkoniumAnalysis>
+   <lib name=triggerValidationTriggerValidation>
    <use name=FWCore/Framework>
    <use name=FWCore/PluginManager>
    <use name=FWCore/ParameterSet>
@@ -38,6 +39,7 @@
    <use name=DataFormats/GeometryVector>
    <use name=DataFormats/L1Trigger>
    <use name=Dataformats/L1GlobalTrigger>	
+   <use name=DataFormats/HLTReco>
    <use name=DataFormats/Common>
    <use name=TrackingTools/TrajectoryParametrization>
    <use name=TrackingTools/TransientTrack>		
