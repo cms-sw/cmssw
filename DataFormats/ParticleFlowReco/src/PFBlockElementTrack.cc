@@ -47,14 +47,20 @@ void PFBlockElementTrack::Dump(ostream& out,
     string s = "  at vertex";
     double tracketa = trackRef_->eta();
     double trackphi = trackRef_->phi();
-    const reco::PFTrajectoryPoint& atECAL 
-      = trackRefPF_->extrapolatedPoint( reco::PFTrajectoryPoint::ECALShowerMax );
-    // check if  reach ecal Shower max 
-    if( atECAL.isValid() ) { 
-      s = "  at ECAL shower max";  
-      tracketa = atECAL.position().Eta();
-      trackphi = atECAL.position().Phi();
-    }
+
+    // COLIN
+    // the following lines rely on the presence of the PFRecTrack, 
+    // which for most people is not there (PFRecTracks are transient) 
+    // commented these lines out to remove the spurious error message
+    // for the missing PFRecTrack product
+    //     const reco::PFTrajectoryPoint& atECAL 
+    //       = trackRefPF_->extrapolatedPoint( reco::PFTrajectoryPoint::ECALShowerMax );
+    //     // check if  reach ecal Shower max 
+    //     if( atECAL.isValid() ) { 
+    //       s = "  at ECAL shower max";  
+    //       tracketa = atECAL.position().Eta();
+    //       trackphi = atECAL.position().Phi();
+    //     }
     
     out<<setprecision(0);
     out<<tab<<setw(7)<<"charge="<<setw(3)<<charge;
@@ -67,5 +73,6 @@ void PFBlockElementTrack::Dump(ostream& out,
     out<<tracketa<<",";
     out<<trackphi<<")" << s;
     
-    out<<resetiosflags(ios::right|ios::fixed);  }
+    out<<resetiosflags(ios::right|ios::fixed);  
+  }
 }

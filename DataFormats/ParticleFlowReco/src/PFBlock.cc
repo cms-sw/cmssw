@@ -218,7 +218,7 @@ ostream& reco::operator<<(  ostream& out,
       break;
     case PFBlockElement::BREM:
       iBREM++;
-      ss << "BREM" << iBREM;
+      ss << "BR" << iBREM;
       break;    
     default:{
       PFClusterRef clusterref = elements[ie].clusterRef();
