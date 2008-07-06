@@ -364,7 +364,7 @@ void FWTextView::newEvent (const fwlite::Event &ev, const CmsShowMain *de)
 	       i = de->m_eiManager->m_items.begin(),
 	       end = de->m_eiManager->m_items.end(); 
 	  i != end; ++i) {
-// 	  printf("event item: %s\n", (*i)->name().c_str());
+//  	  printf("event item: %s found\n", (*i)->name().c_str());
 	  if ((*i)->name() == "Electrons") { 
 	       (*i)->get(els);
 //   	       (*i)->select(0);
@@ -373,7 +373,7 @@ void FWTextView::newEvent (const fwlite::Event &ev, const CmsShowMain *de)
 	       (*i)->get(mus);
 	  } else if ((*i)->name() == "Jets") { 
 	       (*i)->get(jets);
-	  } else if ((*i)->name() == "METs") { 
+	  } else if ((*i)->name() == "MET") { 
 	       (*i)->get(mets);
 	  } else if ((*i)->name() == "Tracks") { 
 	       (*i)->get(tracks);
@@ -428,7 +428,7 @@ void FWTextView::newEvent (const fwlite::Event &ev, const CmsShowMain *de)
      // tracks
      //------------------------------------------------------------
      int n_tracks = 0;
-     if (mets != 0)
+     if (tracks != 0)
 	  n_tracks = tracks->size();
      //------------------------------------------------------------
      // vertices
@@ -592,7 +592,7 @@ void FWTextView::newEvent (const fwlite::Event &ev, const CmsShowMain *de)
      //------------------------------------------------------------
      // print tracks
      //------------------------------------------------------------
-//     printf("Tracks\n");
+//      printf("%d tracks\n", n_tracks);
      track_manager->rows.clear();
 //      printf("Et\t eta\t phi\t ECAL\t HCAL\t emf\t chf\n");
      for (int i = 0; i < n_tracks; ++i) {
@@ -611,7 +611,7 @@ void FWTextView::newEvent (const fwlite::Event &ev, const CmsShowMain *de)
      }
      track_manager->sort(0, true);
      //------------------------------------------------------------
-     // print tracks
+     // print vertices
      //------------------------------------------------------------
 //     printf("Vertices\n");
      vertex_manager->rows.clear();
@@ -638,7 +638,8 @@ void FWTextView::newEvent (const fwlite::Event &ev, const CmsShowMain *de)
      printf("read: ");
      stopwatch_read.Stop();
      stopwatch_read.Print("m");
-     update(parent_tab->GetCurrent());
+     for (int i = 0; i < 3; ++i)
+	  pages[i]->update();
      printf("table: ");
      stopwatch_table.Stop();
      stopwatch_table.Print("m");
