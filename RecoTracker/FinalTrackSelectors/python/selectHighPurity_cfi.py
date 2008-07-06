@@ -17,14 +17,14 @@ selectHighPurity = cms.EDFilter("AnalyticalTrackSelector",
     vtxNumber = cms.int32(-1),
     copyExtras = cms.untracked.bool(True), ## set to false on AOD
 
-    minNumberLayers = cms.uint32(5),
+    minNumberLayers = cms.uint32(0),
     # parameters for cuts: tight 
     chi2n_par = cms.double(0.9),
     d0_par2 = cms.vdouble(0.4, 4.0),
     d0_par1 = cms.vdouble(0.3, 4.0),
     dz_par1 = cms.vdouble(0.35, 4.0),
     # resolution parameters: normal 
-    res_par = cms.vdouble(0.003, 0.01),
+    res_par = cms.vdouble(0.003, 0.001),
     dz_par2 = cms.vdouble(0.4, 4.0)
 )
 
