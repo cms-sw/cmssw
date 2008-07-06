@@ -8,10 +8,12 @@
 #include "Fireworks/Core/interface/FWEventItem.h"
 #include "Fireworks/Vertices/interface/VerticesProxy3DBuilder.h"
 #include "DataFormats/VertexReco/interface/Vertex.h"
+#include "TEveCompound.h"
+#include "TEvePointSet.h"
 
 #include <cmath>
 
-static const double scaleError  = 1000.;
+static const double scaleError  = 1.;
 
 VerticesProxy3DBuilder::VerticesProxy3DBuilder() { }
 
@@ -39,16 +41,25 @@ void VerticesProxy3DBuilder::build(const FWEventItem* item, TEveElementList** pr
   
   for (unsigned int i = 0; i < vertices->size(); ++i) {
     const reco::Vertex & vertex = (*vertices)[i];
-    std::cerr << "Vertex " << i << ":" << std::endl;
-    std::cerr << "\tx:" << std::setw(6) << std::setprecision(1) << std::fixed << vertex.x() * 10000. << " um ± " << std::setw(6) << std::setprecision(1) << std::fixed << vertex.xError() * 10000. << " um" << std::endl;
-    std::cerr << "\ty:" << std::setw(6) << std::setprecision(1) << std::fixed << vertex.y() * 10000. << " um ± " << std::setw(6) << std::setprecision(1) << std::fixed << vertex.yError() * 10000. << " um" << std::endl;
-    std::cerr << "\tz:" << std::setw(6) << std::setprecision(1) << std::fixed << vertex.z()          << " cm ± " << std::setw(6) << std::setprecision(1) << std::fixed << vertex.zError() * 10000. << " um" << std::endl;
-    std::cerr << std::endl;
+     /* std::cerr << "Vertex " << i << ":" << std::endl;
+      std::cerr << "\tx:" << std::setw(6) << std::setprecision(1) << std::fixed << vertex.x() * 10000. << " um ± " << std::setw(6) << std::setprecision(1) << std::fixed << vertex.xError() * 10000. << " um" << std::endl;
+      std::cerr << "\ty:" << std::setw(6) << std::setprecision(1) << std::fixed << vertex.y() * 10000. << " um ± " << std::setw(6) << std::setprecision(1) << std::fixed << vertex.yError() * 10000. << " um" << std::endl;
+      std::cerr << "\tz:" << std::setw(6) << std::setprecision(1) << std::fixed << vertex.z()          << " cm ± " << std::setw(6) << std::setprecision(1) << std::fixed << vertex.zError() * 10000. << " um" << std::endl;
+      std::cerr << std::endl;
+      */
+     std::stringstream s;
+     s << "Primary Vertex " << i;
+     TEveCompound *vList = new TEveCompound(s.str().c_str(),s.str().c_str());
+     vList->OpenCompound();
+     //guarantees that CloseCompound will be called no matter what happens
+     boost::shared_ptr<TEveCompound> sentry(vList,boost::mem_fn(&TEveCompound::CloseCompound));
+     gEve->AddElement( vList, list );
 
-    std::stringstream s;
-    s << "Primary Vertex " << i;
-    TEveElementList *vList = new TEveElementList(s.str().c_str());
-    gEve->AddElement( vList, list );
+     // put point first
+     TEvePointSet* pointSet = new TEvePointSet();
+     pointSet->SetMainColor(item->defaultDisplayProperties().color());
+     pointSet->SetNextPoint( vertex.x(), vertex.y(), vertex.z() );
+     vList->AddElement(pointSet);
 
     // actual 3D shape
     TGeoSphere * sphere = new TGeoSphere(0.0, 1.0);
