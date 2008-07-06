@@ -2,8 +2,8 @@
  *
  * Class for RPC Monitoring using RPCDigi and DT and CSC Segments.
  *
- *  $Date: 2008/07/02 08:18:23 $
- *  $Revision: 1.1 $
+ *  $Date: 2008/07/03 16:25:04 $
+ *  $Revision: 1.2 $
  *
  * \author Camilo Carrillo (Uniandes)
  *
@@ -19,7 +19,10 @@
 #include "DQMServices/Core/interface/MonitorElement.h"
 
 #include <DataFormats/MuonDetId/interface/RPCDetId.h>
-
+#include "FWCore/Framework/interface/ESHandle.h"
+#include <Geometry/RPCGeometry/interface/RPCGeometry.h>
+#include <Geometry/DTGeometry/interface/DTGeometry.h>
+#include <Geometry/CSCGeometry/interface/CSCGeometry.h>
 
 #include<string>
 #include<map>
@@ -108,12 +111,12 @@ class RPCEfficiency : public edm::EDAnalyzer {
       std::map<std::string, MonitorElement*> bookDetUnitSeg(RPCDetId & detId,int nstrips);
       virtual void endRun(const edm::Run& r, const edm::EventSetup& iSetup);
       std::set<RPCDetId>  allrollstoreBarrel;    
-
       std::map<DTStationIndex,std::set<RPCDetId> > rollstoreDT;
-      std::map<CSCStationIndex,std::set<RPCDetId> > rollstoreCSC;    
-
+      std::map<CSCStationIndex,std::set<RPCDetId> > rollstoreCSC;
+      edm::ESHandle<RPCGeometry> rpcGeo;
+      edm::ESHandle<DTGeometry> dtGeo;
+      edm::ESHandle<CSCGeometry> cscGeo;
    private:
-
       std::vector<std::map<RPCDetId, int> > counter;
       std::vector<int> totalcounter;
       std::ofstream ofrej;
@@ -136,10 +139,10 @@ class RPCEfficiency : public edm::EDAnalyzer {
       std::string dt4DSegments;
       std::string rejected;
       std::string rollseff;
-
       
       //Giuseppe
       std::map<std::string, std::map<std::string, MonitorElement*> >  meCollection;
+      MonitorElement * statistics;
       bool EffSaveRootFile;
       int  EffSaveRootFileEventsInterval;
       std::string EffRootFileName;

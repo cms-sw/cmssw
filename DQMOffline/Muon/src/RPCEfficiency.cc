@@ -15,14 +15,9 @@ camilo.carrilloATcern.ch
 
 #include "FWCore/Framework/interface/MakerMacros.h"
 
-#include "FWCore/Framework/interface/ESHandle.h"
-
 #include <DataFormats/RPCDigi/interface/RPCDigiCollection.h>
 
-#include <Geometry/RPCGeometry/interface/RPCGeometry.h>
 #include <Geometry/RPCGeometry/interface/RPCGeomServ.h>
-#include <Geometry/DTGeometry/interface/DTGeometry.h>
-#include <Geometry/CSCGeometry/interface/CSCGeometry.h>
 
 #include <DataFormats/DTRecHit/interface/DTRecSegment4DCollection.h>
 #include <DataFormats/CSCRecHit/interface/CSCSegmentCollection.h>
@@ -42,11 +37,16 @@ camilo.carrilloATcern.ch
 
 
 void RPCEfficiency::beginJob(const edm::EventSetup& iSetup){
-  //std::cout<<"Begin beginJob"<<std::endl;
-  
-  //std::cout <<"\t Getting the RPC Geometry"<<std::endl;
-  edm::ESHandle<RPCGeometry> rpcGeo;
+  std::cout<<"Begin beginJob"<<std::endl;
+  std::cout <<"\t Getting the RPC Geometry"<<std::endl;
   iSetup.get<MuonGeometryRecord>().get(rpcGeo);
+
+  std::cout <<"\t Getting the DT Geometry"<<std::endl;
+  iSetup.get<MuonGeometryRecord>().get(dtGeo);
+
+  //std::cout <<"\t Getting the CSC Geometry"<<std::endl;
+  //iSetup.get<MuonGeometryRecord>().get(cscGeo);
+
   
   for (TrackingGeometry::DetContainer::const_iterator it=rpcGeo->dets().begin();it<rpcGeo->dets().end();it++){
     if( dynamic_cast< RPCChamber* >( *it ) != 0 ){
@@ -140,6 +140,44 @@ RPCEfficiency::RPCEfficiency(const edm::ParameterSet& iConfig){
   //Interface
   dbe = edm::Service<DQMStore>().operator->();
   _idList.clear(); 
+  
+  std::string folder = "RPC/MuonSegEff/";
+  dbe->setCurrentFolder(folder);
+  
+  statistics = dbe->book1D("Statistics","All Statistics",33,0.5,33.5);
+  statistics->setBinLabel(1,"Events ",1);
+  statistics->setBinLabel(2,"Events with DT segments",1);
+  statistics->setBinLabel(3,"Events with 1 DT segment",1);
+  statistics->setBinLabel(4,"Events with 2 DT segments",1);
+  statistics->setBinLabel(5,"Events with 3 DT segments",1);
+  statistics->setBinLabel(6,"Events with 4 DT segments",1);
+  statistics->setBinLabel(7,"Events with 5 DT segments",1);
+  statistics->setBinLabel(8,"Events with 6 DT segments",1);
+  statistics->setBinLabel(9,"Events with 7 DT segments",1);
+  statistics->setBinLabel(10,"Events with 8 DT segments",1);
+  statistics->setBinLabel(11,"Events with 9 DT segments",1);
+  statistics->setBinLabel(12,"Events with 10 DT segments",1);
+  statistics->setBinLabel(13,"Events with 11 DT segments",1);
+  statistics->setBinLabel(14,"Events with 12 DT segments",1);
+  statistics->setBinLabel(15,"Events with 13 DT segments",1);
+  statistics->setBinLabel(16,"Events with 14 DT segments",1);
+  statistics->setBinLabel(17,"Events with 15 DT segments",1);
+  statistics->setBinLabel(18,"Events with CSC segments",1);
+  statistics->setBinLabel(16+3,"Events with 1 CSC segment",1);
+  statistics->setBinLabel(16+4,"Events with 2 CSC segments",1);
+  statistics->setBinLabel(16+5,"Events with 3 CSC segments",1);
+  statistics->setBinLabel(16+6,"Events with 4 CSC segments",1);
+  statistics->setBinLabel(16+7,"Events with 5 CSC segments",1);
+  statistics->setBinLabel(16+8,"Events with 6 CSC segments",1);
+  statistics->setBinLabel(16+9,"Events with 7 CSC segments",1);
+  statistics->setBinLabel(16+10,"Events with 8 CSC segments",1);
+  statistics->setBinLabel(16+11,"Events with 9 CSC segments",1);
+  statistics->setBinLabel(16+12,"Events with 10 CSC segments",1);
+  statistics->setBinLabel(16+13,"Events with 11 CSC segments",1);
+  statistics->setBinLabel(16+14,"Events with 12 CSC segments",1);
+  statistics->setBinLabel(16+15,"Events with 13 CSC segments",1);
+  statistics->setBinLabel(16+16,"Events with 14 CSC segments",1);
+  statistics->setBinLabel(16+17,"Events with 15 CSC segments",1);
 
 }
 
@@ -150,6 +188,9 @@ RPCEfficiency::~RPCEfficiency()
 
 void RPCEfficiency::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
 {
+
+  statistics->Fill(1);
+
   using namespace edm;
   
   std::map<RPCDetId, int> buff;
@@ -159,24 +200,17 @@ void RPCEfficiency::analyze(const edm::Event& iEvent, const edm::EventSetup& iSe
   char meIdDT [128];
   //char meIdCSC [128];
 
-  //std::cout <<"\t Getting the RPC Geometry"<<std::endl;
-  edm::ESHandle<RPCGeometry> rpcGeo;
-  iSetup.get<MuonGeometryRecord>().get(rpcGeo);
-  
   //std::cout <<"\t Getting the RPC Digis"<<std::endl;
   edm::Handle<RPCDigiCollection> rpcDigis;
   iEvent.getByLabel(muonRPCDigis, rpcDigis);
 
   if(incldt){
 
-    //#include "RPCEfficiencydtpart.inl"
-    edm::ESHandle<DTGeometry> dtGeo;
-    iSetup.get<MuonGeometryRecord>().get(dtGeo);
-    
     edm::Handle<DTRecSegment4DCollection> all4DSegments;
     iEvent.getByLabel(dt4DSegments, all4DSegments);
 
     if(all4DSegments->size()>0){
+      statistics->Fill(2);
   
       std::map<DTChamberId,int> scounter;
       DTRecSegment4DCollection::const_iterator segment;  
@@ -185,6 +219,8 @@ void RPCEfficiency::analyze(const edm::Event& iEvent, const edm::EventSetup& iSe
 	scounter[segment->chamberId()]++;
       }    
   
+      statistics->Fill(all4DSegments->size()+2);
+
       for (segment = all4DSegments->begin(); segment != all4DSegments->end(); ++segment){ 
     
 	DTChamberId DTId = segment->chamberId();
@@ -381,9 +417,6 @@ void RPCEfficiency::analyze(const edm::Event& iEvent, const edm::EventSetup& iSe
 
     //#include "RPCEfficiencyrb4part.inl"
 
-    edm::ESHandle<DTGeometry> dtGeo;
-    iSetup.get<MuonGeometryRecord>().get(dtGeo);
-   
     edm::Handle<DTRecSegment4DCollection> all4DSegments;
     iEvent.getByLabel(dt4DSegments, all4DSegments);
     
@@ -633,7 +666,27 @@ void RPCEfficiency::analyze(const edm::Event& iEvent, const edm::EventSetup& iSe
   
   if(inclcsc){
     //#include "RPCEfficiencycscpart.inl"
-  }
+    
+    edm::Handle<CSCSegmentCollection> allCSCSegments;
+    iEvent.getByLabel(cscSegments, allCSCSegments);
+    
+    if(allCSCSegments->size()>0){
+      statistics->Fill(18);
+      
+      std::map<CSCDetId,int> CSCSegmentsCounter;
+      CSCSegmentCollection::const_iterator segment;
+      
+      int segmentsInThisEventInTheEndcap=0;
+      
+      for (segment = allCSCSegments->begin();segment!=allCSCSegments->end(); ++segment){
+	CSCSegmentsCounter[segment->cscDetId()]++;
+	segmentsInThisEventInTheEndcap++;
+      }    
+     
+      statistics->Fill(allCSCSegments->size()+18);
+      
+    }
+  } 
 }
 
 void RPCEfficiency::endRun(const edm::Run& r, const edm::EventSetup& iSetup){
