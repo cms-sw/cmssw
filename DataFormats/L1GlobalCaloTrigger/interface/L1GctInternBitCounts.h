@@ -1,48 +1,41 @@
-#ifndef L1GCTINTERNETSUM_H
-#define L1GCTINTERNETSUM_H
+#ifndef L1GCTINTERNBITCOUNTS_H
+#define L1GCTINTERNBITCOUNTS_H
 
 #include <ostream>
 #include <string>
 
 
-/// \class L1GctInternEtSum
-/// \brief L1 GCT internal energy sum
+/// \class L1GctInternBitCounts
+/// \brief L1 GCT internal ring sum
 /// \author Jim Brooke
 /// \date June 2008
 ///
 
 
-class L1GctInternEtSum {
+class L1GctInternBitCounts {
 
  public:
 
   /// et sum type - not clear this is required
-  enum L1GctInternEtSumType { null };
+  enum L1GctInternBitCountsType { null }
 
   /// default constructor (for vector initialisation etc.)
-  L1GctInternEtSum();
+  L1GctInternBitCounts();
 
   /// construct from individual quantities
-  L1GctInternEtSum(uint16_t capBlock,
-		   uint16_t capIndex,
-		   int16_t bx,
-		   uint32_t et,
-		   uint8_t oflow);
-
-  /// construct from individual quantities
-  L1GctInternEtSum(uint16_t capBlock,
-		   uint16_t capIndex,
-		   int16_t bx,
-		   uint32_t data);
+  L1GctInternBitCounts(uint16_t capBlock,
+		      uint16_t capIndex,
+		      int16_t bx
+		      );
 
   /// destructor
-  ~L1GctInternEtSum();
+  ~L1GctInternBitCounts();
 
 
   /// metadata
 
   /// 'type' of object - not required?
-  L1GctInternEtSum::L1GctInternEtSumType type() const { return type_; }
+  L1GctInternBitCounts::L1GctInternBitCountsType type() const { return type_; }
 
   /// get capture block
   uint16_t capBlock() const { return capBlock_; }
@@ -62,20 +55,14 @@ class L1GctInternEtSum {
   /// get the raw data
   uint32_t raw() const { return data_; }
   
-  /// get et
-  uint32_t et() const { return data_ & 0x1ffff; }
-
-  /// get oflow
-  uint8_t oflow() const { return (data_>>16) & 0x1; }
-
 
   /// operators
 
   /// equality operator
-  bool operator==(const L1GctInternEtSum& c) const;
+  bool operator==(const L1GctInternBitCounts& c) const;
   
   /// inequality operator
-  bool operator!=(const L1GctInternEtSum& c) const { return !(*this == c); }
+  bool operator!=(const L1GctInternBitCounts& c) const { return !(*this == c); }
   
   // private methods
  private:
@@ -90,19 +77,14 @@ class L1GctInternEtSum {
   void setBx(uint16_t bx) { bx_ = bx; }
 
   /// set type
-  void setType(L1GctInternEtSumType type) { type_ = type; }
+  void setType(L1GctInternBitCountsType type) { type_ = type; }
 
-  /// set Et sum
-  void setEt(uint32_t et);
-
-  /// set overflow bit
-  void setOflow(uint8_t oflow);
 
   // private data
  private:
 
   // type of data
-  L1GctInternEtSumType type_;
+  L1GctInternBitCountsType type_;
 
   // source of the data
   uint16_t capBlock_;
@@ -114,6 +96,6 @@ class L1GctInternEtSum {
 
  };
 
-std::ostream& operator<<(std::ostream& s, const L1GctInternEtSum& cand);
+std::ostream& operator<<(std::ostream& s, const L1GctInternBitCounts& cand);
 
 #endif

@@ -24,6 +24,21 @@ L1GctInternEtSum::L1GctInternEtSum(uint16_t capBlock,
 }
 
 
+/// construct from individual quantities
+L1GctInternEtSum::L1GctInternEtSum(uint16_t capBlock,
+				   uint16_t capIndex,
+				   int16_t bx,
+				   uint32_t data) :
+  type_(null),
+  capBlock_(capBlock),
+  capIndex_(capIndex),
+  bx_(bx),
+  data_(data)
+{
+
+}
+
+
 /// destructor
 L1GctInternEtSum::~L1GctInternEtSum() {
 
