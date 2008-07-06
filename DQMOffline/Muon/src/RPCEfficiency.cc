@@ -46,7 +46,7 @@ void RPCEfficiency::beginJob(const edm::EventSetup& iSetup){
 
   //std::cout <<"\t Getting the CSC Geometry"<<std::endl;
   //iSetup.get<MuonGeometryRecord>().get(cscGeo);
-
+  
   
   for (TrackingGeometry::DetContainer::const_iterator it=rpcGeo->dets().begin();it<rpcGeo->dets().end();it++){
     if( dynamic_cast< RPCChamber* >( *it ) != 0 ){
@@ -70,7 +70,7 @@ void RPCEfficiency::beginJob(const edm::EventSetup& iSetup){
 	  myrolls.insert(rpcId);
 	  rollstoreDT[ind]=myrolls;
 	}
-	else if(inclcsc){
+	if(inclcsc){
 	  //std::cout<<"--Filling the cscstore"<<rpcId<<std::endl;
 	  int region=rpcId.region();
           int station=rpcId.station();
@@ -99,7 +99,7 @@ void RPCEfficiency::beginJob(const edm::EventSetup& iSetup){
       }
     }
   }
-  //std::cout<<"Containers Ready"<<std::endl;
+  std::cout<<"Maps Ready"<<std::endl;
 }
 
 
@@ -143,8 +143,8 @@ RPCEfficiency::RPCEfficiency(const edm::ParameterSet& iConfig){
   
   std::string folder = "RPC/MuonSegEff/";
   dbe->setCurrentFolder(folder);
-  
   statistics = dbe->book1D("Statistics","All Statistics",33,0.5,33.5);
+
   statistics->setBinLabel(1,"Events ",1);
   statistics->setBinLabel(2,"Events with DT segments",1);
   statistics->setBinLabel(3,"Events with 1 DT segment",1);
@@ -178,7 +178,29 @@ RPCEfficiency::RPCEfficiency(const edm::ParameterSet& iConfig){
   statistics->setBinLabel(16+15,"Events with 13 CSC segments",1);
   statistics->setBinLabel(16+16,"Events with 14 CSC segments",1);
   statistics->setBinLabel(16+17,"Events with 15 CSC segments",1);
+  
+  folder = "RPC/MuonSegEff/Residuals";
+  dbe->setCurrentFolder(folder);
+  hGlobalResClu1La1 = dbe->book1D("GlobalResidualsClu1La1","RPC Residuals Layer 1 Cluster Size 1",100,-10.,10.);
+  hGlobalResClu1La2 = dbe->book1D("GlobalResidualsClu1La2","RPC Residuals Layer 2 Cluster Size 1",100,-10.,10.);
+  hGlobalResClu1La3 = dbe->book1D("GlobalResidualsClu1La3","RPC Residuals Layer 3 Cluster Size 1",100,-10.,10.);
+  hGlobalResClu1La4 = dbe->book1D("GlobalResidualsClu1La4","RPC Residuals Layer 4 Cluster Size 1",100,-10.,10.);
+  hGlobalResClu1La5 = dbe->book1D("GlobalResidualsClu1La5","RPC Residuals Layer 5 Cluster Size 1",100,-10.,10.);
+  hGlobalResClu1La6 = dbe->book1D("GlobalResidualsClu1La6","RPC Residuals Layer 6 Cluster Size 1",100,-10.,10.);
 
+  hGlobalResClu2La1 = dbe->book1D("GlobalResidualsClu2La1","RPC Residuals Layer 1 Cluster Size 2",100,-10.,10.);
+  hGlobalResClu2La2 = dbe->book1D("GlobalResidualsClu2La2","RPC Residuals Layer 2 Cluster Size 2",100,-10.,10.);
+  hGlobalResClu2La3 = dbe->book1D("GlobalResidualsClu2La3","RPC Residuals Layer 3 Cluster Size 2",100,-10.,10.);
+  hGlobalResClu2La4 = dbe->book1D("GlobalResidualsClu2La4","RPC Residuals Layer 4 Cluster Size 2",100,-10.,10.);
+  hGlobalResClu2La5 = dbe->book1D("GlobalResidualsClu2La5","RPC Residuals Layer 5 Cluster Size 2",100,-10.,10.);
+  hGlobalResClu2La6 = dbe->book1D("GlobalResidualsClu2La6","RPC Residuals Layer 6 Cluster Size 2",100,-10.,10.);
+
+  hGlobalResClu3La1 = dbe->book1D("GlobalResidualsClu3La1","RPC Residuals Layer 1 Cluster Size 3",100,-10.,10.);
+  hGlobalResClu3La2 = dbe->book1D("GlobalResidualsClu3La2","RPC Residuals Layer 2 Cluster Size 3",100,-10.,10.);
+  hGlobalResClu3La3 = dbe->book1D("GlobalResidualsClu3La3","RPC Residuals Layer 3 Cluster Size 3",100,-10.,10.);
+  hGlobalResClu3La4 = dbe->book1D("GlobalResidualsClu3La4","RPC Residuals Layer 4 Cluster Size 3",100,-10.,10.);
+  hGlobalResClu3La5 = dbe->book1D("GlobalResidualsClu3La5","RPC Residuals Layer 5 Cluster Size 3",100,-10.,10.);
+  hGlobalResClu3La6 = dbe->book1D("GlobalResidualsClu3La6","RPC Residuals Layer 6 Cluster Size 3",100,-10.,10.);
 }
 
 RPCEfficiency::~RPCEfficiency()
@@ -370,7 +392,15 @@ void RPCEfficiency::analyze(const edm::Event& iEvent, const edm::EventSetup& iSe
 
 		    if(fabs(meanrescms) < MinimalResidual ){
 		
-		
+
+		      //-----RESIDUALS----------
+		      if(rollId.station()==1&&rollId.layer()==1)     { if(stripCounter==2) hGlobalResClu1La1->Fill(meanrescms); if(stripCounter==4) hGlobalResClu2La1->Fill(meanrescms); if(stripCounter==6) hGlobalResClu3La1->Fill(meanrescms);}
+		      else if(rollId.station()==1&&rollId.layer()==2){ if(stripCounter==2) hGlobalResClu1La2->Fill(meanrescms); if(stripCounter==4) hGlobalResClu2La2->Fill(meanrescms); if(stripCounter==6) hGlobalResClu3La2->Fill(meanrescms);}
+		      else if(rollId.station()==2&&rollId.layer()==1){ if(stripCounter==2) hGlobalResClu1La3->Fill(meanrescms); if(stripCounter==4) hGlobalResClu2La3->Fill(meanrescms); if(stripCounter==6) hGlobalResClu3La3->Fill(meanrescms);}
+		      else if(rollId.station()==2&&rollId.layer()==2){ if(stripCounter==2) hGlobalResClu1La4->Fill(meanrescms); if(stripCounter==4) hGlobalResClu2La4->Fill(meanrescms); if(stripCounter==6) hGlobalResClu3La4->Fill(meanrescms);}
+		      else if(rollId.station()==3)                   { if(stripCounter==2) hGlobalResClu1La5->Fill(meanrescms); if(stripCounter==4) hGlobalResClu2La5->Fill(meanrescms); if(stripCounter==6) hGlobalResClu3La5->Fill(meanrescms);}
+		      //------------------------
+		      		
 		      anycoincidence=true;
 		      totalcounter[1]++;
 		      buff=counter[1];
@@ -615,8 +645,15 @@ void RPCEfficiency::analyze(const edm::Event& iEvent, const edm::EventSetup& iSe
 		      
 		      
 			  if(fabs(meanrescms) < MinimalResidualRB4 ){
-			
-			
+			    
+			    //-----GLOBAL HISTOGRAM----------
+			    if(rollId.station()==4){ 
+			      if(stripCounter==2) hGlobalResClu1La6->Fill(meanrescms);
+			      else if(stripCounter==4) hGlobalResClu2La6->Fill(meanrescms);
+			      else if(stripCounter==6) hGlobalResClu3La6->Fill(meanrescms);
+			    }
+			    //--------------------------------
+
 			    anycoincidence=true;
 			    totalcounter[1]++;
 			    buff=counter[1];

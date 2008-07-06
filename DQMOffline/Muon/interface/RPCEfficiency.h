@@ -143,6 +143,28 @@ class RPCEfficiency : public edm::EDAnalyzer {
       //Giuseppe
       std::map<std::string, std::map<std::string, MonitorElement*> >  meCollection;
       MonitorElement * statistics;
+
+      MonitorElement * hGlobalResClu1La1;
+      MonitorElement * hGlobalResClu1La2;
+      MonitorElement * hGlobalResClu1La3;
+      MonitorElement * hGlobalResClu1La4;
+      MonitorElement * hGlobalResClu1La5;
+      MonitorElement * hGlobalResClu1La6;
+
+      MonitorElement * hGlobalResClu2La1;
+      MonitorElement * hGlobalResClu2La2;
+      MonitorElement * hGlobalResClu2La3;
+      MonitorElement * hGlobalResClu2La4;
+      MonitorElement * hGlobalResClu2La5;
+      MonitorElement * hGlobalResClu2La6;
+
+      MonitorElement * hGlobalResClu3La1;
+      MonitorElement * hGlobalResClu3La2;
+      MonitorElement * hGlobalResClu3La3;
+      MonitorElement * hGlobalResClu3La4;
+      MonitorElement * hGlobalResClu3La5;
+      MonitorElement * hGlobalResClu3La6;
+
       bool EffSaveRootFile;
       int  EffSaveRootFileEventsInterval;
       std::string EffRootFileName;
