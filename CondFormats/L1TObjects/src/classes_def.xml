@@ -34,7 +34,6 @@
   <class name="std::map<std::pair<short,short>,std::pair<short,std::vector<short> > >::value_type"/>
   <class name="L1MuDTQualPatternLut"/>
   <class name="L1MuDTTFParameters"/>
-  <class name="L1CSCTPParameters"/>
   <class name="L1MuCSCTFConfiguration"/>
   <class name="L1MuCSCTFAlignment"/>
   <class name="L1MuCSCPtLut"/>
