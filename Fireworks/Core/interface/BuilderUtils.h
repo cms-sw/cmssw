@@ -62,7 +62,7 @@ namespace fw {
      void addStraightLineSegment( TEveStraightLineSet * marker,
 				  reco::Candidate const * cand,
 				  double scale_factor = 2);
-     
+     double estimate_field( const reco::Track& track );
 }
 
 #endif

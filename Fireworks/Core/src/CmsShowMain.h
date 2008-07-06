@@ -16,7 +16,7 @@
 //
 // Original Author:  
 //         Created:  Mon Dec  3 08:34:30 PST 2007
-// $Id: CmsShowMain.h,v 1.24 2008/06/09 20:22:14 chrjones Exp $
+// $Id: CmsShowMain.h,v 1.1 2008/06/17 00:08:11 chrjones Exp $
 //
 
 // system include files
@@ -67,8 +67,12 @@ public:
    
   //  void writeConfigurationFile(const std::string& iFileName) const;
   // ---------- static member functions --------------------
-  static double getMagneticField() { return m_magneticField; }
-  static void   setMagneticField(double var) { m_magneticField = var; }
+  static void   setAutoFieldMode(bool state) { m_autoField = state; }
+  static bool   isAutoField() { return m_autoField; }
+  static double getMagneticField();
+  static void   setMagneticField(double var);    
+  static int    getFieldEstimates() { return m_numberOfFieldEstimates; }
+  static void   guessFieldIsOn( bool guess );
   static double getCaloScale() { return m_caloScale; }
   static void   setCaloScale(double var) { m_caloScale = var; }
 
@@ -97,7 +101,10 @@ private:
   std::string m_inputFileName;
   std::string m_configFileName;
   std::string m_geomFileName;
-  static double m_magneticField;
+  static bool   m_autoField;                   // data derived magnetif field state
+  static double m_magneticField;               
+  static int    m_numberOfFieldEstimates;      
+  static int    m_numberOfFieldIsOnEstimates;  
   static double m_caloScale;
 };
 

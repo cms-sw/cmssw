@@ -20,7 +20,8 @@
 #include "DataFormats/MuonDetId/interface/MuonSubdetId.h"
 #include "Fireworks/Core/interface/DetIdToMatrix.h"
 #include "DataFormats/MuonDetId/interface/DTChamberId.h"
-#include "Fireworks/Core/interface/FWDisplayEvent.h"
+#include "Fireworks/Core/interface/BuilderUtils.h"
+#include "Fireworks/Core/src/CmsShowMain.h"
 
 MuonsProxyRhoPhiZ2DBuilder::MuonsProxyRhoPhiZ2DBuilder()
 {
@@ -64,16 +65,7 @@ void MuonsProxyRhoPhiZ2DBuilder::build(const FWEventItem* iItem,
    outerPropagator->SetRnrDaughters(true);
    outerPropagator->RefPMAtt().SetMarkerStyle(3);
    outerPropagator->RefPMAtt().SetMarkerColor(Color_t(kBlue));
-   //units are Telsa
-   double gMagneticField = FWDisplayEvent::getMagneticField();
-   // double gMagneticField = 0;
-   innerPropagator->SetMagField( -gMagneticField);
-   double maxR = 350;
-   double maxZ = 650;
-   outerPropagator->SetMagField( gMagneticField * 2.5/4);
-   outerPropagator->SetMaxR( 750 );
-   outerPropagator->SetMaxZ( 1100 );
-
+   
    const reco::MuonCollection* muons=0;
    iItem->get(muons);
    //fwlite::Handle<reco::MuonCollection> muons;
@@ -84,6 +76,30 @@ void MuonsProxyRhoPhiZ2DBuilder::build(const FWEventItem* iItem,
       return;
    }
    
+   // if auto field estimation mode, do extra loop over muons.
+   if ( CmsShowMain::isAutoField() )
+     for ( reco::MuonCollection::const_iterator muon = muons->begin(); 
+	   muon != muons->end(); ++muon) {
+	if ( fabs( muon->eta() ) > 2.0 || muon->pt() < 3 || 
+	     !muon->standAloneMuon().isAvailable()) continue;
+	double estimate = fw::estimate_field(*(muon->standAloneMuon()));
+	if ( estimate < 0 ) continue;
+	CmsShowMain::guessFieldIsOn( estimate > 0.5 );
+     }
+   
+   // if ( CmsShowMain::isAutoField() )
+   //  printf("Field auto mode status: field=%0.1f, #estimates=%d\n",
+   //    CmsShowMain::getMagneticField(), CmsShowMain::getFieldEstimates());
+   //units are Telsa
+   double gMagneticField = CmsShowMain::getMagneticField();
+   // double gMagneticField = 0;
+   innerPropagator->SetMagField( -gMagneticField);
+   double maxR = 350;
+   double maxZ = 650;
+   outerPropagator->SetMagField( gMagneticField * 1.5/4);
+   outerPropagator->SetMaxR( 750 );
+   outerPropagator->SetMaxZ( 1100 );
+
    TEveRecTrack innerRecTrack;
    TEveRecTrack outerRecTrack;
    innerRecTrack.fBeta = 1.;
@@ -125,7 +141,6 @@ void MuonsProxyRhoPhiZ2DBuilder::build(const FWEventItem* iItem,
 	     innerPropagator->SetMaxR( muon->standAloneMuon()->innerPosition().Rho()+10 );
 	     innerPropagator->SetMaxZ( fabs(muon->standAloneMuon()->innerPosition().z())+10 );
 	  }
-	
 	Double_t lastPointVX2(0), lastPointVY2(0), lastPointVZ2(0), lastPointVX1(0), lastPointVY1(0), lastPointVZ1(0);
 	bool useLastPoint = false;
 	

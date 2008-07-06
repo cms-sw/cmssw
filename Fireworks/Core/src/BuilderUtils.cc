@@ -223,6 +223,21 @@ void fw::addStraightLineSegment( TEveStraightLineSet * marker,
   marker->AddLine( 0, 0, 0, size * cos(phi)*sin(theta), size *sin(phi)*sin(theta), size*cos(theta));
 }
 
+double 
+fw::estimate_field( const reco::Track& track )
+{
+   if ( ! track.extra().isAvailable() ) return -1;
+   math::XYZVector displacement(track.outerPosition().x()-track.innerPosition().x(),
+				track.outerPosition().y()-track.innerPosition().y(),
+				0);
+   math::XYZVector transverseMomentum(track.innerMomentum().x(),
+				      track.innerMomentum().y(),
+				      0);
+   double cosAlpha = transverseMomentum.Dot(displacement)/transverseMomentum.r()/displacement.r();
+   return 200*sqrt(1-cosAlpha*cosAlpha)/0.2998*transverseMomentum.r()/displacement.r();
+}
+
+
 /*TEveElementList *fw::getMuonCalTowers (double eta, double phi) 
   {
   // Input muon eta, phi and return towers within certain radius of muon object

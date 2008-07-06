@@ -8,7 +8,7 @@
 //
 // Original Author:  
 //         Created:  Mon Dec  3 08:38:38 PST 2007
-// $Id: CmsShowMain.cc,v 1.15 2008/07/04 00:54:18 dmytro Exp $
+// $Id: CmsShowMain.cc,v 1.16 2008/07/06 00:49:26 dmytro Exp $
 //
 
 // system include files
@@ -76,8 +76,31 @@
 //
 // static data member definitions
 //
-double CmsShowMain::m_magneticField = 4;
+bool CmsShowMain::m_autoField = true;
+double CmsShowMain::m_magneticField = 3.8;
+int CmsShowMain::m_numberOfFieldEstimates = 0;
+int CmsShowMain::m_numberOfFieldIsOnEstimates = 0;
 double CmsShowMain::m_caloScale = 2;
+
+void CmsShowMain::setMagneticField(double var)
+{
+   m_magneticField = var;
+}
+
+double CmsShowMain::getMagneticField()
+{
+   if ( m_numberOfFieldIsOnEstimates > m_numberOfFieldEstimates/2 ||
+	m_numberOfFieldEstimates == 0 )
+     return m_magneticField;
+   else
+     return 0;
+}
+
+void CmsShowMain::guessFieldIsOn(bool isOn)
+{
+   if ( isOn ) ++m_numberOfFieldIsOnEstimates;
+   ++m_numberOfFieldEstimates;
+}
 
 //
 // constructors and destructor

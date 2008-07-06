@@ -14,7 +14,7 @@
 //
 // Original Author:  
 //         Created:  Thu Dec  6 18:01:21 PST 2007
-// $Id: TracksProxy3DBuilder.cc,v 1.8 2008/07/02 22:47:25 dmytro Exp $
+// $Id: TracksProxy3DBuilder.cc,v 1.9 2008/07/03 02:06:42 dmytro Exp $
 //
 
 // system include files
@@ -32,7 +32,8 @@
 #include "DataFormats/TrackReco/interface/TrackFwd.h"
 
 #include "Fireworks/Core/interface/TracksProxy3DBuilder.h"
-
+#include "Fireworks/Core/interface/BuilderUtils.h"
+#include "Fireworks/Core/src/CmsShowMain.h"
 
 void TracksProxy3DBuilder::build(const FWEventItem* iItem, TEveElementList** product)
 {
@@ -49,12 +50,12 @@ void TracksProxy3DBuilder::build(const FWEventItem* iItem, TEveElementList** pro
       tlist =  new TEveTrackList(iItem->name().c_str());
       *product = tlist;
       tlist->SetMainColor(iItem->defaultDisplayProperties().color());
-      TEveTrackPropagator* rnrStyle = tlist->GetPropagator();
+      TEveTrackPropagator* propagator = tlist->GetPropagator();
       //units are Tesla
-      rnrStyle->SetMagField( -4.0);
+      propagator->SetMagField( -4.0);
       //get this from geometry, units are CM
-      rnrStyle->SetMaxR(120.0);
-      rnrStyle->SetMaxZ(300.0);
+      propagator->SetMaxR(120.0);
+      propagator->SetMaxZ(300.0);
       
       gEve->AddElement(tlist);
     } else {
@@ -73,8 +74,22 @@ void TracksProxy3DBuilder::build(const FWEventItem* iItem, TEveElementList** pro
     }
    
     
-    TEveTrackPropagator* rnrStyle = tlist->GetPropagator();
+    TEveTrackPropagator* propagator = tlist->GetPropagator();
     
+   // if auto field estimation mode, do extra loop over the tracks.
+   if ( CmsShowMain::isAutoField() )
+     for(reco::TrackCollection::const_iterator it = tracks->begin(); it != tracks->end();++it) {
+	if ( fabs( it->eta() ) > 2.0 || it->pt() < 1 ) continue;
+	double estimate = fw::estimate_field(*it);
+	if ( estimate < 0 ) continue;
+	CmsShowMain::guessFieldIsOn(estimate>2.0);
+     }
+
+   // if ( CmsShowMain::isAutoField() )
+   //  printf("Field auto mode status: field=%0.1f, #estimates=%d\n",
+   //	    CmsShowMain::getMagneticField(), CmsShowMain::getFieldEstimates());
+   propagator->SetMagField( - CmsShowMain::getMagneticField() );
+   
     int index=0;
     //cout <<"----"<<endl;
     TEveRecTrack t;
@@ -82,23 +97,26 @@ void TracksProxy3DBuilder::build(const FWEventItem* iItem, TEveElementList** pro
     t.fBeta = 1.;
     for(reco::TrackCollection::const_iterator it = tracks->begin();
 	it != tracks->end();++it,++index) {
-      t.fP = TEveVector(it->px(),
-                        it->py(),
-                        it->pz());
-      t.fV = TEveVector(it->vx(),
-                        it->vy(),
-                        it->vz());
-      t.fSign = it->charge();
-      TEveTrack* trk = new TEveTrack(&t,rnrStyle);
-      char s[1024];
-      sprintf(s,"Track %d, Pt: %0.1f GeV",index,it->pt());
-      trk->SetTitle(s);
-      trk->SetMainColor(iItem->defaultDisplayProperties().color());
-      gEve->AddElement(trk,tlist);
-      //cout << it->px()<<" "
-      //   <<it->py()<<" "
-      //   <<it->pz()<<endl;
-      //cout <<" *";
+       // use extra information if available
+       t.fP = TEveVector(it->px(), it->py(), it->pz());
+       t.fV = TEveVector(it->vx(), it->vy(), it->vz());
+       t.fSign = it->charge();
+       
+       TEveTrack* trk = new TEveTrack(&t,propagator);
+       char s[1024];
+       sprintf(s,"Track %d, Pt: %0.1f GeV",index,it->pt());
+       trk->SetTitle(s);
+       trk->SetMainColor(iItem->defaultDisplayProperties().color());
+       
+       if ( it->extra().isAvailable() ) {
+	  TEvePathMark mark( TEvePathMark::kDaughter );
+	  mark.fV = TEveVector( it->outerPosition().x(), it->outerPosition().y(), it->outerPosition().z() );
+	  trk->AddPathMark( mark );
+       }
+       trk->MakeTrack();
+
+       gEve->AddElement(trk,tlist);
+      // printf("track pt: %.1f, eta: %0.1f => B: %0.2f T\n", it->pt(), it->eta(), fw::estimate_field(*it));
     }
     
 }
