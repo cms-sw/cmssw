@@ -8,7 +8,7 @@
  *
  * \author Slava Valuev
  * Created: Thu Apr 12 11:26:54 CEST 2007
- * $Id: L1CSCTriggerPrimitivesConfigProducer.h,v 1.2 2007/08/15 12:46:01 slava Exp $
+ * $Id: L1CSCTriggerPrimitivesConfigProducer.h,v 1.3 2007/10/08 13:48:36 slava Exp $
  *
  */
 
@@ -20,8 +20,8 @@
 #include "FWCore/Framework/interface/ModuleFactory.h"
 #include "FWCore/Framework/interface/ESProducer.h"
 
-class L1CSCTPParameters;
-class L1CSCTPParametersRcd;
+class CSCL1TPParameters;
+class CSCL1TPParametersRcd;
 
 class L1CSCTriggerPrimitivesConfigProducer : public edm::ESProducer {
  public:
@@ -30,7 +30,7 @@ class L1CSCTriggerPrimitivesConfigProducer : public edm::ESProducer {
 
   //typedef boost::shared_ptr<L1CSCTriggerPrimitivesConfigProducer> ReturnType;
 
-  std::auto_ptr<L1CSCTPParameters> produce(const L1CSCTPParametersRcd&);
+  std::auto_ptr<CSCL1TPParameters> produce(const CSCL1TPParametersRcd&);
 
  private:
   /** ALCT configuration parameters. */

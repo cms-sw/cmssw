@@ -10,8 +10,8 @@
 
 #include <L1TriggerConfig/L1CSCTPConfigProducers/src/L1CSCTriggerPrimitivesConfigProducer.h>
 
-#include "CondFormats/L1TObjects/interface/L1CSCTPParameters.h"
-#include "CondFormats/DataRecord/interface/L1CSCTPParametersRcd.h"
+#include "CondFormats/CSCObjects/interface/CSCL1TPParameters.h"
+#include "CondFormats/DataRecord/interface/CSCL1TPParametersRcd.h"
 
 //----------------
 // Constructors --
@@ -83,13 +83,13 @@ L1CSCTriggerPrimitivesConfigProducer::~L1CSCTriggerPrimitivesConfigProducer() {
 //------------------
 
 // ------------ method called to produce the data  ------------
-std::auto_ptr<L1CSCTPParameters>
-L1CSCTriggerPrimitivesConfigProducer::produce(const L1CSCTPParametersRcd& iRecord) {
+std::auto_ptr<CSCL1TPParameters>
+L1CSCTriggerPrimitivesConfigProducer::produce(const CSCL1TPParametersRcd& iRecord) {
   using namespace edm::es;
   //boost::shared_ptr<L1CSCTriggerPrimitivesConfigProducer> pL1CSCTPConfigProducer;
 
   // Create empty collection of CSCTPParameters.
-  std::auto_ptr<L1CSCTPParameters> pL1CSCTPParams(new L1CSCTPParameters);
+  std::auto_ptr<CSCL1TPParameters> pL1CSCTPParams(new CSCL1TPParameters);
 
   // Set ALCT parameters.
   pL1CSCTPParams->setAlctFifoTbins(m_alct_fifo_tbins);
