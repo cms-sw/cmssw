@@ -2,7 +2,7 @@ import FWCore.ParameterSet.Config as cms
 
 process = cms.Process("ANALYSIS")
 process.maxEvents = cms.untracked.PSet(
-    input = cms.untracked.int32(-1)
+    input = cms.untracked.int32(10)
 )
 process.source = cms.Source("PoolSource",
     fileNames = cms.untracked.vstring('file:aod.root')
@@ -10,7 +10,8 @@ process.source = cms.Source("PoolSource",
 
 process.pfCandidateAnalyzer = cms.EDAnalyzer("PFCandidateAnalyzer",
     PFCandidates = cms.InputTag("particleFlow"),
-    verbose = cms.untracked.bool(True)
+    verbose = cms.untracked.bool(True),
+    printBlocks = cms.untracked.bool(True)
 )
 
 process.p = cms.Path(process.pfCandidateAnalyzer)

@@ -4,6 +4,7 @@
 // system include files
 #include <memory>
 #include <string>
+#include <iostream>
 
 // user include files
 #include "FWCore/Framework/interface/Frameworkfwd.h"
@@ -43,6 +44,9 @@ class PFCandidateAnalyzer : public edm::EDAnalyzer {
 			     const edm::InputTag& tag, 
 			     const edm::Event& iSetup) const;
 
+  void printElementsInBlocks(const reco::PFCandidate& cand,
+			     std::ostream& out=std::cout) const;
+
 
   
   /// PFCandidates in which we'll look for pile up particles 
@@ -50,6 +54,9 @@ class PFCandidateAnalyzer : public edm::EDAnalyzer {
   
   /// verbose ?
   bool   verbose_;
+
+  /// print the blocks associated to a given candidate ?
+  bool   printBlocks_;
 
 };
 

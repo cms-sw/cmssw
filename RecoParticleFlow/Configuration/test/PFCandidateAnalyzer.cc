@@ -1,5 +1,6 @@
 #include "RecoParticleFlow/Configuration/test/PFCandidateAnalyzer.h"
 #include "DataFormats/ParticleFlowCandidate/interface/PFCandidate.h"
+#include "DataFormats/ParticleFlowReco/interface/PFBlock.h"
 
 #include "FWCore/Framework/interface/ESHandle.h"
 
@@ -22,7 +23,10 @@ PFCandidateAnalyzer::PFCandidateAnalyzer(const edm::ParameterSet& iConfig) {
   verbose_ = 
     iConfig.getUntrackedParameter<bool>("verbose",false);
 
-  
+  printBlocks_ = 
+    iConfig.getUntrackedParameter<bool>("printBlocks",false);
+
+
 
   LogDebug("PFCandidateAnalyzer")
     <<" input collection : "<<inputTagPFCandidates_ ;
@@ -61,9 +65,10 @@ void PFCandidateAnalyzer::analyze(const Event& iEvent,
     
     const reco::PFCandidate& cand = (*pfCandidates)[i];
     
-    if( verbose_ )
+    if( verbose_ ) {
       cout<<cand<<endl;
-    
+      if (printBlocks_) printElementsInBlocks(cand);
+    }    
   }
     
   LogDebug("PFCandidateAnalyzer")<<"STOP event: "<<iEvent.id().event()
@@ -71,6 +76,7 @@ void PFCandidateAnalyzer::analyze(const Event& iEvent,
 }
 
 
+  
 void 
 PFCandidateAnalyzer::fetchCandidateCollection(Handle<reco::PFCandidateCollection>& c, 
 				      const InputTag& tag, 
@@ -88,6 +94,18 @@ PFCandidateAnalyzer::fetchCandidateCollection(Handle<reco::PFCandidateCollection
   
 }
 
+
+void PFCandidateAnalyzer::printElementsInBlocks(const PFCandidate& cand,
+						ostream& out) const {
+  if(!out) return;
+
+  for(unsigned i=0; i<cand.elementsInBlocks().size(); i++) {
+    PFBlockRef blockRef = cand.elementsInBlocks()[i].first;
+    if(blockRef.isNull()) continue;
+    else 
+      out<<(*blockRef);
+  }
+}
 
 
 DEFINE_FWK_MODULE(PFCandidateAnalyzer);
