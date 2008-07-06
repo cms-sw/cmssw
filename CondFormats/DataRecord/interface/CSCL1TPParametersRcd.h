@@ -1,6 +1,6 @@
-#ifndef DataRecord_L1CSCTPParametersRcd_h
+#ifndef DataRecord_CSCL1TPParametersRcd_h
 
-#define DataRecord_L1CSCTPParametersRcd_h
+#define DataRecord_CSCL1TPParametersRcd_h
 
 
 
@@ -10,11 +10,11 @@
 
 // Package:     DataRecord
 
-// Class  :     L1CSCTPParametersRcd
+// Class  :     CSCL1TPParametersRcd
 
 // 
 
-/** \class L1CSCTPParametersRcd L1CSCTPParametersRcd.h CondFormats/DataRecord/interface/L1CSCTPParametersRcd.h
+/** \class CSCL1TPParametersRcd CSCL1TPParametersRcd.h CondFormats/DataRecord/interface/CSCL1TPParametersRcd.h
 
 *
 
@@ -30,7 +30,7 @@
 
 // Created:     Thu Apr 12 11:18:05 CEST 2007
 
-// $Id: L1CSCTPParametersRcd.h,v 1.1 2007/04/19 15:52:08 jbrooke Exp $
+// $Id: CSCL1TPParametersRcd.h,v 1.2 2008/03/03 07:09:47 wsun Exp $
 
 //
 
@@ -43,8 +43,8 @@
 
 
 
-//class L1CSCTPParametersRcd : public edm::eventsetup::EventSetupRecordImplementation<L1CSCTPParametersRcd> {};
-class L1CSCTPParametersRcd : public edm::eventsetup::DependentRecordImplementation<L1CSCTPParametersRcd, boost::mpl::vector<L1TriggerKeyListRcd,L1TriggerKeyRcd> > {};
+//class CSCL1TPParametersRcd : public edm::eventsetup::EventSetupRecordImplementation<CSCL1TPParametersRcd> {};
+class CSCL1TPParametersRcd : public edm::eventsetup::DependentRecordImplementation<CSCL1TPParametersRcd, boost::mpl::vector<L1TriggerKeyListRcd,L1TriggerKeyRcd> > {};
 
 
 
