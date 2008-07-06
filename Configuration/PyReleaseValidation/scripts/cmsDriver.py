@@ -107,8 +107,8 @@ parser.add_option("--beamspot",
                    dest="beamspot")
 
 parser.add_option("--magField",
-                   help="What magnetic fiel to use (from Configuration/StandardSequences). Default=4.0T",
-                   default="4.0T",
+                   help="What magnetic fiel to use (from Configuration/StandardSequences). Default=3.8T",
+                   default="3.8T",
                    dest="magField")
 
 parser.add_option("--altcffs",
