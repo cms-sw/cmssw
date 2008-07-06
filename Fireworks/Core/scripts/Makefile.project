@@ -12,7 +12,7 @@ include project.mk
 # 
 # common compiler flags
 # COMPILERFLAGS := -Wall -O2
-COMPILERFLAGS := -Wall -O2 -g -m32
+COMPILERFLAGS := -Wall -O0 -g -m32
 # common includes
 INCLUDE := -I./ -Isrc -I$(FWROOTSYS)/include -Icms $(addprefix -I,$(CoreIncludes)) $(addprefix -I,$(ProjectIncludes))
 # compiler
