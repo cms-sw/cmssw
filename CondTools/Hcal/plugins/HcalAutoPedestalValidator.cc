@@ -13,7 +13,6 @@ HcalAutoPedestalValidator::~HcalAutoPedestalValidator()
 void HcalAutoPedestalValidator::analyze(const edm::Event& ev, const edm::EventSetup& es)
 {
   using namespace edm::eventsetup;
-  std::cout << "\n";
   // get fake pedestals from file ("new pedestals")
   edm::ESHandle<HcalPedestals> newPeds;
   es.get<HcalPedestalsRcd>().get("update",newPeds);
@@ -23,11 +22,6 @@ void HcalAutoPedestalValidator::analyze(const edm::Event& ev, const edm::EventSe
   edm::ESHandle<HcalPedestals> refPeds;
   es.get<HcalPedestalsRcd>().get("reference",refPeds);
   const HcalPedestals* myRefPeds = refPeds.product();
-
-  // get e-map from reference
-//  edm::ESHandle<HcalElectronicsMap> refEMap;
-//  es.get<HcalElectronicsMapRcd>().get("reference",refEMap);
-//  const HcalElectronicsMap* myRefEMap = refEMap.product();
 
   std::vector<DetId> listNewChan = myNewPeds->getAllChannels();
   std::vector<DetId> listRefChan = myRefPeds->getAllChannels();
@@ -54,7 +48,7 @@ void HcalAutoPedestalValidator::analyze(const edm::Event& ev, const edm::EventSe
   if(!failflag) std::cout << "These are identical to within deltaP" << std::endl;
   if(failflag)
   {
-    // dump the resulting list of pedestals into a file
+    // if changed, this creates the empty file changed.bool which the auto job uses as a flag
     std::ofstream outStream3(outfile.c_str());
     std::cout << "--- Pedestals changed! ---" << std::endl;
   }
