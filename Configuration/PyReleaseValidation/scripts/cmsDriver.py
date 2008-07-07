@@ -334,8 +334,10 @@ if options.no_exec_flag:
     print "Config file "+python_config_filename+ " created"
     sys.exit(0)
 else:
-    print "Starting cmsRun "+python_config_filename
-    os.execvpe("cmsRun",["cmsRun", python_config_filename],os.environ)
+    commandString = options.prefix+" cmsRun"
+    print "Starting "+commandString+' '+python_config_filename
+    commands = commandString.lstrip().split()
+    os.execvpe(commands[0],commands+[python_config_filename],os.environ)
     sys.exit()
     
 
