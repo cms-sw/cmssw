@@ -16,7 +16,7 @@
 //
 // Original Author:  
 //         Created:  Sat Jan  5 15:02:03 EST 2008
-// $Id: FWGlimpseDataProxyBuilder.h,v 1.1 2008/06/19 06:57:27 dmytro Exp $
+// $Id: FWGlimpseDataProxyBuilder.h,v 1.2 2008/07/04 23:55:39 chrjones Exp $
 //
 
 // system include files
@@ -52,7 +52,7 @@ class FWGlimpseDataProxyBuilder
 
       void modelChanges(const FWModelIds&);
       void itemChanged(const FWEventItem*);
-
+   
       TEveElement* usedInScene();
    
       void setScaler(FWEveValueScaler* iScaler) {
@@ -77,10 +77,13 @@ class FWGlimpseDataProxyBuilder
 
       //Override this if you need to special handle selection or other changes
       virtual void modelChanges(const FWModelIds&, TEveElement*);
-   
+      virtual void applyChangesToAllModels(TEveElement* iElements);
+
       virtual void itemBeingDestroyed(const FWEventItem*);
 
-      FWGlimpseDataProxyBuilder(const FWGlimpseDataProxyBuilder&); // stop default
+      void applyChangesToAllModels();
+
+   FWGlimpseDataProxyBuilder(const FWGlimpseDataProxyBuilder&); // stop default
 
       const FWGlimpseDataProxyBuilder& operator=(const FWGlimpseDataProxyBuilder&); // stop default
 
@@ -92,6 +95,7 @@ class FWGlimpseDataProxyBuilder
       bool m_modelsChanged;
       bool m_haveViews;
       FWEveValueScaler* m_scaler;
+      bool m_mustBuild;
 };
 
 

@@ -8,7 +8,7 @@
 //
 // Original Author:  
 //         Created:  Thu Dec  6 17:49:54 PST 2007
-// $Id: FWGlimpseDataProxyBuilder.cc,v 1.2 2008/06/21 21:19:31 chrjones Exp $
+// $Id: FWGlimpseDataProxyBuilder.cc,v 1.3 2008/07/04 23:55:41 chrjones Exp $
 //
 
 // system include files
@@ -37,7 +37,7 @@
 // constructors and destructor
 //
 FWGlimpseDataProxyBuilder::FWGlimpseDataProxyBuilder():
-  m_item(0),m_haveViews(false), m_scaler(0)
+  m_item(0),m_haveViews(false), m_scaler(0), m_mustBuild(true)
 {
 }
 
@@ -74,8 +74,11 @@ FWGlimpseDataProxyBuilder::setHaveAWindow(bool iFlag)
 
    if(iFlag && !oldValue) {
       //this is our first view so may need to rerun our building
-      build();
+      if(m_mustBuild) {
+         build();
+      }
       if(m_modelsChanged) {
+         applyChangesToAllModels();
       }
    }
 }
@@ -103,6 +106,8 @@ FWGlimpseDataProxyBuilder::itemChanged(const FWEventItem* iItem)
 {
    if(m_haveViews) {
       build();
+   } else {
+      m_mustBuild=true;
    }
    m_modelsChanged=false;
 }
@@ -161,6 +166,7 @@ FWGlimpseDataProxyBuilder::build()
         }
      }
   }
+   m_mustBuild=false;
 }
 
 void 
@@ -176,6 +182,19 @@ FWGlimpseDataProxyBuilder::modelChanges(const FWModelIds& iIds)
    }
 }
 
+void 
+FWGlimpseDataProxyBuilder::applyChangesToAllModels()
+{
+   applyChangesToAllModels(m_elementHolder.FirstChild());
+   m_modelsChanged=false;
+}
+
+void 
+FWGlimpseDataProxyBuilder::applyChangesToAllModels(TEveElement* iElements)
+{
+   FWModelIds ids(m_ids.begin(), m_ids.end());
+   modelChanges(ids,iElements);
+}
 
 void 
 FWGlimpseDataProxyBuilder::modelChanges(const FWModelIds& iIds,
