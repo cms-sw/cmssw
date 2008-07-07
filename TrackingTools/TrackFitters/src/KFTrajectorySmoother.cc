@@ -9,6 +9,10 @@
 #include "DataFormats/SiStripDetId/interface/TECDetId.h"
 #include "DataFormats/SiPixelDetId/interface/PXBDetId.h"
 #include "DataFormats/SiPixelDetId/interface/PXFDetId.h"
+#include "DataFormats/MuonDetId/interface/CSCDetId.h"
+#include "DataFormats/MuonDetId/interface/DTWireId.h"
+#include "DataFormats/MuonDetId/interface/RPCDetId.h"
+#include "DataFormats/MuonDetId/interface/MuonSubdetId.h"
 
 KFTrajectorySmoother::~KFTrajectorySmoother() {
 
@@ -92,21 +96,39 @@ KFTrajectorySmoother::trajectories(const Trajectory& aTraj) const {
 	<< "SURFACE POSITION: " << hit->surface()->position() << "\n"
 	<< "SURFACE ROTATION: " << hit->surface()->rotation() << "\n"
 	<< "hit geographicalId=" << hit->geographicalId().rawId();
-      if (hit->geographicalId().subdetId() == StripSubdetector::TIB ) {
-	LogTrace("TrackFitters") << "I am TIB " << TIBDetId(hit->geographicalId()).layer();
-      }else if (hit->geographicalId().subdetId() == StripSubdetector::TOB ) { 
-	LogTrace("TrackFitters") << "I am TOB "<< TOBDetId(hit->geographicalId()).layer();
-      }else if (hit->geographicalId().subdetId() == StripSubdetector::TEC ) { 
-	LogTrace("TrackFitters") << "I am TEC "<< TECDetId(hit->geographicalId()).wheel();
-      }else if (hit->geographicalId().subdetId() == StripSubdetector::TID ) { 
-	LogTrace("TrackFitters") << "I am TID "<< TIDDetId(hit->geographicalId()).wheel();
-      }else if (hit->geographicalId().subdetId() == (int) PixelSubdetector::PixelBarrel ) {
-	LogTrace("TrackFitters") << "I am PixBar "<< PXBDetId(hit->geographicalId()).layer();
-      } else if (hit->geographicalId().subdetId() == (int) PixelSubdetector::PixelEndcap ){
-	LogTrace("TrackFitters") << "I am PixFwd " << PXFDetId(hit->geographicalId()).disk();
-      } else {
-	LogTrace("TrackFitters") << "UNKNOWN HIT TYPE";
+   
+      DetId hitId = hit->geographicalId();
+
+      if(hitId.det() == DetId::Tracker) {
+	if (hitId.subdetId() == StripSubdetector::TIB )  
+	  LogTrace("TrackFitters") << " I am TIB " << TIBDetId(hitId).layer();
+	else if (hitId.subdetId() == StripSubdetector::TOB ) 
+	  LogTrace("TrackFitters") << " I am TOB " << TOBDetId(hitId).layer();
+	else if (hitId.subdetId() == StripSubdetector::TEC ) 
+	  LogTrace("TrackFitters") << " I am TEC " << TECDetId(hitId).wheel();
+	else if (hitId.subdetId() == StripSubdetector::TID ) 
+	  LogTrace("TrackFitters") << " I am TID " << TIDDetId(hitId).wheel();
+	else if (hitId.subdetId() == StripSubdetector::TID ) 
+	  LogTrace("TrackFitters") << " I am TID " << TIDDetId(hitId).wheel();
+	else if (hitId.subdetId() == (int) PixelSubdetector::PixelBarrel ) 
+	  LogTrace("TrackFitters") << " I am PixBar " << PXBDetId(hitId).layer();
+	else if (hitId.subdetId() == (int) PixelSubdetector::PixelEndcap )
+	  LogTrace("TrackFitters") << " I am PixFwd " << PXFDetId(hitId).disk();
+	else 
+	  LogTrace("TrackFitters") << " UNKNOWN TRACKER HIT TYPE ";
       }
+      else if(hitId.det() == DetId::Muon) {
+	if(hitId.subdetId() == MuonSubdetId::DT)
+	  LogTrace("TrackFitters") << " I am DT " << DTWireId(hitId);
+	else if (hitId.subdetId() == MuonSubdetId::CSC )
+	  LogTrace("TrackFitters") << " I am CSC " << CSCDetId(hitId);
+	else if (hitId.subdetId() == MuonSubdetId::RPC )
+	  LogTrace("TrackFitters") << " I am RPC " << RPCDetId(hitId);
+	else 
+	  LogTrace("TrackFitters") << " UNKNOWN MUON HIT TYPE ";
+      }
+      else
+	LogTrace("TrackFitters") << " UNKNOWN HIT TYPE ";
     
       TSOS combTsos,smooTsos;
 
