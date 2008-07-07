@@ -8,7 +8,7 @@
 //
 // Original Author:  
 //         Created:  Wed Jun 25 15:15:04 EDT 2008
-// $Id$
+// $Id: CmsShowViewPopup.cc,v 1.1 2008/06/29 13:23:47 chrjones Exp $
 //
 
 // system include files
@@ -34,7 +34,8 @@
 //
 // constructors and destructor
 //
-CmsShowViewPopup::CmsShowViewPopup(const TGWindow* p, UInt_t w, UInt_t h, FWViewBase* v) : TGMainFrame(p, w, h)
+CmsShowViewPopup::CmsShowViewPopup(const TGWindow* p, UInt_t w, UInt_t h, FWViewBase* v) : 
+TGTransientFrame(gClient->GetDefaultRoot(),p, w, h)
 {
   m_view = v;
   SetCleanup(kDeepCleanup);
@@ -67,8 +68,8 @@ CmsShowViewPopup::CmsShowViewPopup(const TGWindow* p, UInt_t w, UInt_t h, FWView
   std::cout<<"Default size: "<<GetDefaultWidth()<<", "<<GetDefaultHeight()<<std::endl;
   Resize(GetDefaultSize());
   MapSubwindows();
-  MapWindow();
   Layout();
+  MapWindow();
 }
 
 // CmsShowViewPopup::CmsShowViewPopup(const CmsShowViewPopup& rhs)

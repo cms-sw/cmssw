@@ -16,7 +16,7 @@
 //
 // Original Author:  Joshua Berger
 //         Created:  Mon Jun 23 15:48:42 EDT 2008
-// $Id$
+// $Id: CmsShowEDI.h,v 1.1 2008/06/29 13:23:47 chrjones Exp $
 //
 
 // system include files
@@ -36,7 +36,7 @@ class TGCheckButton;
 class TGTextEntry;
 class TGTextButton;
 
-class CmsShowEDI : public TGMainFrame
+class CmsShowEDI : public TGTransientFrame
 {
 
    public:

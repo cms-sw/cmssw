@@ -8,7 +8,7 @@
 //
 // Original Author:  
 //         Created:  Fri Jun 27 11:23:08 EDT 2008
-// $Id: CmsShowModelPopup.cc,v 1.1 2008/06/29 13:23:47 chrjones Exp $
+// $Id: CmsShowModelPopup.cc,v 1.2 2008/06/30 21:58:48 chrjones Exp $
 //
 
 // system include file
@@ -48,7 +48,8 @@
 //
 // constructors and destructor
 //
-CmsShowModelPopup::CmsShowModelPopup(const TGWindow* p, UInt_t w, UInt_t h)
+CmsShowModelPopup::CmsShowModelPopup(const TGWindow* p, UInt_t w, UInt_t h):
+TGTransientFrame(gClient->GetDefaultRoot(),p,w,h)
 {
   SetCleanup(kDeepCleanup);
   TGHorizontalFrame* objectFrame = new TGHorizontalFrame(this);
@@ -101,8 +102,8 @@ CmsShowModelPopup::CmsShowModelPopup(const TGWindow* p, UInt_t w, UInt_t h)
   SetWindowName("Model Inspector");
   Resize(GetDefaultSize());
   MapSubwindows();
-  MapWindow();
   Layout();
+  MapWindow();
 }
 
 // CmsShowModelPopup::CmsShowModelPopup(const CmsShowModelPopup& rhs)

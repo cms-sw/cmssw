@@ -16,7 +16,7 @@
 //
 // Original Author:  
 //         Created:  Wed Jun 25 15:15:12 EDT 2008
-// $Id$
+// $Id: CmsShowViewPopup.h,v 1.1 2008/06/29 13:23:47 chrjones Exp $
 //
 
 // system include files
@@ -33,7 +33,7 @@ class TGTextButton;
 class TGFrame;
 class FWParameterSetterBase;
 
-class CmsShowViewPopup : public TGMainFrame, public FWParameterSetterEditorBase
+class CmsShowViewPopup : public TGTransientFrame, public FWParameterSetterEditorBase
 {
 
    public:

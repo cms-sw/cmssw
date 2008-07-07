@@ -16,7 +16,7 @@
 //
 // Original Author:  
 //         Created:  Fri Jun 27 11:23:31 EDT 2008
-// $Id: CmsShowModelPopup.h,v 1.1 2008/06/29 13:23:47 chrjones Exp $
+// $Id: CmsShowModelPopup.h,v 1.2 2008/06/30 21:58:48 chrjones Exp $
 //
 
 // system include files
@@ -37,7 +37,7 @@ class TGLabel;
 class TGTextButton;
 class TGTextButton;
 
-class CmsShowModelPopup : public TGMainFrame
+class CmsShowModelPopup : public TGTransientFrame
 {
 
    public:

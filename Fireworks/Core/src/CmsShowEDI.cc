@@ -8,7 +8,7 @@
 //
 // Original Author:  Joshua Berger  
 //         Created:  Mon Jun 23 15:48:11 EDT 2008
-// $Id$
+// $Id: CmsShowEDI.cc,v 1.1 2008/06/29 13:23:47 chrjones Exp $
 //
 
 // system include files
@@ -49,7 +49,8 @@
 //
 // constructors and destructor
 //
-CmsShowEDI::CmsShowEDI(const TGWindow* p, UInt_t w, UInt_t h, FWSelectionManager* selMgr) : TGMainFrame(p, w, h)
+CmsShowEDI::CmsShowEDI(const TGWindow* p, UInt_t w, UInt_t h, FWSelectionManager* selMgr) : 
+TGTransientFrame(gClient->GetDefaultRoot(),p, w, h)
 {
   m_selectionManager = selMgr;
   SetCleanup(kDeepCleanup);
