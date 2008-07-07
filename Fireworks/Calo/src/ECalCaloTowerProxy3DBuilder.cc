@@ -1,5 +1,5 @@
 // -*- C++ -*-
-// $Id: ECalCaloTowerProxy3DBuilder.cc,v 1.3 2008/06/23 06:29:03 dmytro Exp $
+// $Id: ECalCaloTowerProxy3DBuilder.cc,v 1.4 2008/07/01 19:16:43 chrjones Exp $
 //
 
 // system include files
@@ -117,6 +117,7 @@ ECalCaloTowerProxy3DBuilder::applyChangesToAllModels(TEveElement* iElements)
             }
          }
       }
+      m_data->SetSliceColor(m_sliceIndex,item()->defaultDisplayProperties().color());
       m_data->DataChanged();
    }   
 }
