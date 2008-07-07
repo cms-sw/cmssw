@@ -32,10 +32,7 @@ public:
      // can do all the things a TableManager can, but is also
      // text-dumpable
      virtual void dump (FILE *);
-     virtual void format (std::vector<std::string> &ret, 
-			  std::vector<int> &col_widths,
-			  int n_rows);
-     void sort (int col, bool reset = false);
+     //void sort (int col, bool reset = false);
      // and has a utility for making a display frame
      void MakeFrame (TGCompositeFrame *parent, int width, int height);
      void Update (int rows = 5);
@@ -53,8 +50,8 @@ public:
      TGTextEntry	*title_frame;
      FWEventItem	*item;
      std::set<int> 	sel_indices;
-     int		sort_col_;
-     bool		sort_asc_;
+     //int		sort_col_;
+     //bool		sort_asc_;
 };
 
 std::string format_string (const std::string &fmt, int x);

@@ -15,13 +15,16 @@ class TGTextView;
 
 class LightTableManager : public TableManager {
 public:
-   LightTableManager() {}
+   LightTableManager():sort_asc_(true), sort_col_(0) {}
 
-   virtual void format (std::vector<std::string> &ret, 
-                        std::vector<int> &col_widths,
-                        int n_rows)=0;
-   virtual void sort (int col, bool reset = false)=0;
+   void format (std::vector<std::string> &ret, 
+                std::vector<int> &col_widths,
+                int n_rows);
+   virtual void sort (int col, bool reset = false);
    virtual bool rowIsSelected(int row) const = 0;      
+private:
+   bool sort_asc_;
+   int sort_col_;
 };
 
 

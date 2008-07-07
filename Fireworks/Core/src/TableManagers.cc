@@ -188,6 +188,7 @@ void FWTableManager::dump (FILE *f)
      fprintf(f, "\n\n");
 }
 
+/*
 void FWTableManager::format (std::vector<std::string> &ret, 
 			     std::vector<int> &col_width,
 			     int)
@@ -240,7 +241,9 @@ void FWTableManager::format (std::vector<std::string> &ret,
      }
 //      ret.push_back(std::string(total_len, '-')); 
 }
+*/
 
+/*
 void FWTableManager::sort (int col, bool reset) 
 {
      if (reset) {
@@ -256,3 +259,4 @@ void FWTableManager::sort (int col, bool reset)
      }
      Sort(sort_col_, sort_asc_);
 }
+*/

@@ -1,5 +1,7 @@
 #include <string>
 #include <vector>
+#include <sstream>
+#include <iostream>
 
 #include "LightTableWidget.h"
 #include "TGTextView.h"
@@ -12,7 +14,8 @@ const int LightTableWidget::m_titleColor;
 
 LightTableWidget::LightTableWidget (TGCompositeFrame *p, LightTableManager* tm, 
 				    int w, int h)
-     : TGTextView(p, w, h), 
+     : TGTextView(p, w, h),
+textview(0),
        manager(tm)
 {
      SetBackground(GetBlackPixel());
@@ -182,3 +185,81 @@ void LightTableWidget::DrawRegion(Int_t x, Int_t y, UInt_t w, UInt_t h)
       yloc += Int_t(ToScrYCoord(pos.fY) - ToScrYCoord(pos.fY-1));
    }
 }
+
+void LightTableManager::format (std::vector<std::string> &ret, 
+                                std::vector<int> &col_width,
+                                int)
+{
+   ret.reserve(NumberOfRows() + 2); // col titles, horizontal line
+   std::vector<std::string> titles = GetTitles(0);
+   col_width.reserve(titles.size());
+   for (std::vector<std::string>::const_iterator i = titles.begin();
+        i != titles.end(); ++i) {
+      col_width.push_back(i->length());
+   }
+   std::vector<std::string> row_content;
+   for (int row = 0; row < NumberOfRows(); ++row) {
+      FillCells(row, 0, row + 1, NumberOfCols(), row_content);
+      for (std::vector<std::string>::const_iterator i = row_content.begin();
+           i != row_content.end(); ++i) {
+         const int length = i->length();
+         if (col_width[i - row_content.begin()] < length)
+            col_width[i - row_content.begin()] = length;
+      }
+   }
+   int total_len = 0;
+   for (unsigned int i = 0; i < col_width.size(); ++i) 
+      total_len += col_width[i] + 1;
+   //      ret.push_back(std::string(total_len, '=')); 
+   //      sprintf(s, "%*s", (total_len + title().length()) / 2, title().c_str());
+   //      ret.push_back(s);
+   //      ret.push_back(std::string(total_len, '-')); 
+   char *const s = new char[total_len+2];
+   char * const sEnd = s+total_len+1;
+   char *p = s;
+   for (unsigned int i = 0; i < titles.size(); ++i) {
+      p += snprintf(p, sEnd-p,"%*s", col_width[i] + 1, titles[i].c_str());
+      assert(p<=sEnd);
+   }
+   ret.push_back(s);
+   ret.push_back(std::string(total_len, '-')); 
+   for (int row = 0; row < NumberOfRows(); ++row) {
+      // 	  if (row == n_rows) {
+      // 	       const char no_more[] = "more skipped";
+      // 	       sprintf(s, "%*d %s", (total_len - sizeof(no_more)) / 2, 
+      // 		       NumberOfRows() - row, no_more);
+      // 	       ret.push_back(s);
+      // 	       break;
+      // 	  }
+      FillCells(row, 0, row + 1, NumberOfCols(), row_content);
+      char *p = s;
+      for (unsigned int i = 0; i < row_content.size(); ++i) {
+         p += snprintf(p, sEnd-p,"%*s", col_width[i] + 1, row_content[i].c_str());
+         if(p>sEnd) {
+            std::cout <<"exceeded row size of "<<total_len+1<<" with '"<<p
+            <<"'\n while adding row "<<row<<" column "<<i<<" with value '"<<row_content[i]<<"'"<< std::endl;
+         }
+         assert(p<=sEnd);
+      }
+      ret.push_back(s);
+   }
+   delete [] s;
+   //      ret.push_back(std::string(total_len, '-')); 
+}
+
+void LightTableManager::sort (int col, bool reset) 
+{
+   if (reset) {
+      sort_asc_ = true;
+      sort_col_ = col; 
+   } else { 
+      if (sort_col_ == col) {
+         sort_asc_ = not sort_asc_;
+      } else {
+         sort_asc_ = true;
+      }
+      sort_col_ = col;
+   }
+   Sort(sort_col_, sort_asc_);
+}
+
