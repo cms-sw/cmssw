@@ -11,6 +11,7 @@
 #include "CaloOnlineTools/HcalOnlineDb/interface/XMLDOMBlock.h"
 #include "CaloOnlineTools/HcalOnlineDb/interface/HcalQIEManager.h"
 #include "CaloOnlineTools/HcalOnlineDb/interface/LMap.h"
+#include "CaloOnlineTools/HcalOnlineDb/interface/XMLLUTLoader.h"
 //#include "CaloOnlineTools/HcalOnlineDb/interface/RooGKCounter.h"
 #include "DataFormats/HcalDetId/interface/HcalDetId.h"
 
@@ -639,11 +640,11 @@ std::map<int, shared_ptr<LutXml> > HcalLutManager::get_brickSet_from_oracle( std
   return lut_map;
 }
 
-/*
-int HcalLutManager::createLUTLoader( string _prefix, string tag_name, string comment, string version, string subversion )
+
+int HcalLutManager::create_lut_loader( string file_list, string _prefix, string tag_name, string comment, string version, int subversion )
 {
   cout << "Generating XML loader for LUTs..." << endl;
-  cout << _prefix << "..." << tag_name << endl;
+  //cout << _prefix << "..." << tag_name << endl;
 
   XMLLUTLoader::loaderBaseConfig baseConf;
   XMLLUTLoader::lutDBConfig conf;
@@ -656,7 +657,10 @@ int HcalLutManager::createLUTLoader( string _prefix, string tag_name, string com
   baseConf . iov_end = "-1";
 
   conf . version = version;
-  conf . subversion = subversion;
+
+  stringstream _subversion;
+  _subversion << subversion;
+  conf . subversion = _subversion.str();
 
   CSconf . version = conf . version;
   CSconf . subversion = conf . subversion;
@@ -666,31 +670,12 @@ int HcalLutManager::createLUTLoader( string _prefix, string tag_name, string com
   XMLLUTLoader doc( &baseConf );
 
   vector<int> crate_number;
-  crate_number . push_back(0);
-  crate_number . push_back(1);
-  crate_number . push_back(2);
-  crate_number . push_back(4);
-  crate_number . push_back(5);
-  crate_number . push_back(9);
-  crate_number . push_back(10);
-  crate_number . push_back(11);
-  crate_number . push_back(12);
-  crate_number . push_back(14);
-  crate_number . push_back(15);
-  crate_number . push_back(17);
-  vector<string> file_name;
-  file_name . push_back( "./" + _prefix + "_0.xml.dat" );
-  file_name . push_back( "./" + _prefix + "_1.xml.dat" );
-  file_name . push_back( "./" + _prefix + "_2.xml.dat" );
-  file_name . push_back( "./" + _prefix + "_4.xml.dat" );
-  file_name . push_back( "./" + _prefix + "_5.xml.dat" );
-  file_name . push_back( "./" + _prefix + "_9.xml.dat" );
-  file_name . push_back( "./" + _prefix + "_10.xml.dat" );
-  file_name . push_back( "./" + _prefix + "_11.xml.dat" );
-  file_name . push_back( "./" + _prefix + "_12.xml.dat" );
-  file_name . push_back( "./" + _prefix + "_14.xml.dat" );
-  file_name . push_back( "./" + _prefix + "_15.xml.dat" );
-  file_name . push_back( "./" + _prefix + "_17.xml.dat" );
+  vector<string> file_name = HcalQIEManager::splitString(file_list);
+  for (std::vector<string>::const_iterator _f = file_name.begin(); _f != file_name.end(); _f++){
+    int crate_begin = _f->rfind("_");
+    int crate_end = _f->rfind(".xml.dat");
+    crate_number . push_back(getInt(_f->substr(crate_begin+1,crate_end-crate_begin-1)));
+  }
   for ( vector<string>::const_iterator _file = file_name . begin(); _file != file_name . end(); _file++ )
     {
       conf . trig_prim_lookuptbl_data_file = *_file;
@@ -713,4 +698,4 @@ int HcalLutManager::createLUTLoader( string _prefix, string tag_name, string com
 
   return 0;
 }
-*/
+

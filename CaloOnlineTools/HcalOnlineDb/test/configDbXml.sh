@@ -176,6 +176,14 @@ lutMenu()
   echo -n 'Path: '
   read lut_path_temp
   lut_path=`echo ${lut_path_temp%/}/`
+  echo -n 'Please enter version name (string): '
+  read lut_version
+  echo ''
+  echo -n 'Please enter subversion name (integer): '
+  read lut_subversion
+  echo ''
+  echo -n 'Comment (please be descriptive, this can be a long line): '
+  read lut_comment
   echo ''
   echo 'processing LUTs from' $lut_path '...'
   lut_files_num=`find $lut_path -iname "*_[0-9]*.xml" | wc -l`
@@ -192,11 +200,13 @@ lutMenu()
       cp `find $lut_path -iname "*_checksums*.xml"` $lut_temp_dir/
 #      a_lut_file=`find $lut_temp_dir/ -iname "*_[0-9]*.xml" | awk 'NR==1{print $1}'`
       a_lut_file=`find $lut_temp_dir/ -iname "*_*[0-9].xml" | awk 'NR==1{print $1}'`
-      echo 'DEBUG: ' $a_lut_file
-      source luts.sh $a_lut_file
+#      echo 'DEBUG: ' $a_lut_file
+      tag_name=`grep 'CREATIONTAG' $a_lut_file | head -n 1 | sed 's/.*>\(.*\)<.*/\1/'`
+      source luts.sh $a_lut_file "$lut_comment" "$lut_version" "$lut_subversion"
       echo -n 'Cleaning temporary files... '
       rm -rf $lut_temp_dir
       echo 'done'
+      uploadInstructions 'LUTs' './'$tag_name'.zip'
   else
       echo 'LUT XML not found...check path'
   fi
@@ -224,36 +234,36 @@ genLutXml()
     echo -n 'Please enter the desired tag name:'
     read tag_name
     echo ''
-    echo -n 'Please enter the comment:'
-    read comment
-    echo ''
-    if [ $1 -eq 1 -o $1 -eq 3 ]
-    then
+#    echo -n 'Please enter the comment:'
+#    read comment
+#    echo ''
 	echo -n 'Linearization LUT master file:'
 	read lin_master
 	echo ''
-    fi
-    if [ $1 -eq 2 -o $1 -eq 3 ]
-    then
 	echo -n 'Compression LUT master file:'
 	read comp_master
 	echo ''
+#    echo -n 'Split XML files by crate? (y/n)'
+#    read split_by_crate
+#    echo ''
+    dialog --title "Question" --yesno "Split XML files by crate?" 0 0 || split_by_crate=0
+
+    if [ $split_by_crate -eq 0 ]
+    then
+	./xmlToolsRun --create-lut-xml --tag-name="$tag_name" --lin-lut-master-file="$lin_master" --comp-lut-master-file="$comp_master" --do-not-split-by-crate
+    else
+	./xmlToolsRun --create-lut-xml --tag-name="$tag_name" --lin-lut-master-file="$lin_master" --comp-lut-master-file="$comp_master"
     fi
-    echo -n 'Split XML files by crate? (y/n)'
-    read split_by_crate
-    echo ''
-    
-    ./xmlToolsRun --create-lut-xml --tag-name=$tag --lin-lut-master-file=$lin_master --comp-lut-master-file=$comp_master      
 }
 
 lutXml()
 {
   echo ''
   echo '  -- LUT menu'
-  echo ' 1. Generate linearization (input) LUT XML'
-  echo ' 2. Generate compression (output) LUT XML'
-  echo ' 3. Generate full set of LUT XML'
-  echo ' 4. Prepare LUTs for uploading to the database'
+#  echo ' 1. Generate linearization (input) LUT XML'
+#  echo ' 2. Generate compression (output) LUT XML'
+  echo ' 1. Generate full set of LUT XML'
+  echo ' 2. Prepare LUTs for uploading to the database'
   echo ' 0. Main menu'
   
   echo ''
@@ -263,21 +273,12 @@ lutXml()
 
   case $line in
       1)
-        echo 'Generating linearization LUT XML...'
-	echo ''
-	_type=1
-	;;
-      2)
-        echo 'Generating compression LUT XML...'
-	echo ''
-        _type=2
-	;;
-      3)
         echo 'Generating full set of LUT XML...'
 	echo ''
         _type=3        
+        genLutXml
 	;;
-      4)
+      2)
         lutMenu
 	;;
       0)

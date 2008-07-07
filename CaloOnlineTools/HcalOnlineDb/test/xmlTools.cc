@@ -63,8 +63,8 @@ int main( int argc, char **argv )
   //
   //===> command line options parser using boost  
   //
-  int crate;
-  std::string db_accessor;
+  int crate, sub_version;
+  std::string db_accessor, version_name;
   po::options_description general("General options");
   general.add_options()
     ("help", "produce help message")
@@ -76,9 +76,15 @@ int main( int argc, char **argv )
     ("test-lut-xml-access", "test and benchmark LUT reading from local XML file")
     ("test-lut-checksum", "test LUT MD5 checksum calculation")
     ("tag-name", po::value<string>(), "tag name")
+    ("prefix-name", po::value<string>(), "prefix for file names and such")
+    ("comment-line", po::value<string>(), "comment for a database entry")
+    ("version-name", po::value<string>(&version_name)->default_value("V00-01-01"), "version name")
+    ("sub-version", po::value<int>(&sub_version)->default_value( 1 ), "sub-version number")
+    ("file-list", po::value<string>(), "list of files for further processing")
     ("crate", po::value<int>(&crate)->default_value( -1 ), "crate number")
     ("lut-type", po::value<int>(&crate)->default_value( 1 ), "LUT type: 1 - linearization, 2 - compression")
     ("create-lut-xml", "create XML file(s) with LUTs, arg=crate number, default arg=-1 stands for all crates")
+    ("create-lut-loader", "create XML database loader for LUTs, and zip everything ready for uploading to the DB")
     ("get-lut-xml-from-oracle", "Get LUTs from Oracle database")
     ("database-accessor", po::value<string>(&db_accessor)->default_value("occi://CMS_HCL_PRTTYPE_HCAL_READER@anyhost/int2r?PASSWORD=HCAL_Reader_88,LHWM_VERSION=22"), "Database accessor string")
     ("lin-lut-master-file", po::value<string>(), "Linearizer LUT ASCII master file name")
@@ -267,6 +273,31 @@ int main( int argc, char **argv )
       manager . get_xml_files_from_db( _tag, _accessor, !vm.count("do-not-split-by-crate") );
       return 0;
     }
+
+
+    if (vm.count("create-lut-loader")){
+      cout << "===> Processing LUT XML files, creating the database loader..." << "\n";
+      cout << "prefix: ";
+      string _prefix = vm["prefix-name"].as<string>();
+      cout << _prefix << endl;
+      cout << "TAG_NAME: ";
+      string _tag = vm["tag-name"].as<string>();
+      cout << _tag << endl;
+      cout << "COMMENT: " << endl;
+      string _comment = vm["comment-line"].as<string>();
+      cout << _comment << endl;
+      cout << "VERSION: ";
+      string _version = vm["version-name"].as<string>();
+      cout << _version << endl;
+      cout << "SUBVERSION: ";
+      int _subversion = vm["sub-version"].as<int>();
+      cout << _subversion << endl;
+      string _file_list = vm["file-list"].as<string>();
+      HcalLutManager manager;
+      manager . create_lut_loader( _file_list, _prefix, _tag, _comment, _version, _subversion );
+      return 0;
+    }
+
 
     if (vm.count("test-sebastian")) {
       cout << "Hello, Sebastian! What would you like to do?.." << "\n";
@@ -599,7 +630,8 @@ int main( int argc, char **argv )
     printf ("\n");
   }
 
-  // decide what to depending on the params
+  // FIXME: deprecated - remove
+  /*
   if ( luts )
     {
       cout << "path: " << path << endl;
@@ -607,7 +639,9 @@ int main( int argc, char **argv )
       cout << "TAG_NAME: " << tag << endl;
       createLUTLoader( prefix, tag );
     }
-  else if ( rbx )
+  */
+  //else
+  if ( rbx )
     {
       cout << "type: " << rbx_type << endl;
       cout << "TAG_NAME: " << tag << endl;
