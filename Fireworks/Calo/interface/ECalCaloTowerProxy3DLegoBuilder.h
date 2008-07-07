@@ -16,17 +16,21 @@
 //
 // Original Author:  
 //         Created:  Sun Jan  6 23:42:33 EST 2008
-// $Id: ECalCaloTowerProxy3DLegoBuilder.h,v 1.2 2008/03/06 10:17:15 dmytro Exp $
+// $Id: ECalCaloTowerProxy3DLegoBuilder.h,v 1.3 2008/06/09 19:54:03 chrjones Exp $
 //
 
 // system include files
 
 // user include files
-#include "Fireworks/Core/interface/FW3DLegoDataProxyBuilder.h"
+#include "Fireworks/Core/interface/FW3DLegoEveHistProxyBuilder.h"
+
+#include "DataFormats/CaloTowers/interface/CaloTower.h"
+#include "DataFormats/CaloTowers/interface/CaloTowerFwd.h"
 
 // forward declarations
+class TH2F;
 
-class ECalCaloTowerProxy3DLegoBuilder : public FW3DLegoDataProxyBuilder
+class ECalCaloTowerProxy3DLegoBuilder : public FW3DLegoEveHistProxyBuilder
 {
 
    public:
@@ -41,15 +45,17 @@ class ECalCaloTowerProxy3DLegoBuilder : public FW3DLegoDataProxyBuilder
       // ---------- member functions ---------------------------
 
    private:
+      virtual void applyChangesToAllModels();
       virtual void build(const FWEventItem* iItem, 
-			 TH2** product);
+			 TH2F** product);
 
       ECalCaloTowerProxy3DLegoBuilder(const ECalCaloTowerProxy3DLegoBuilder&); // stop default
 
       const ECalCaloTowerProxy3DLegoBuilder& operator=(const ECalCaloTowerProxy3DLegoBuilder&); // stop default
 
       // ---------- member data --------------------------------
-
+      const CaloTowerCollection* m_towers;
+      TH2F* m_hist;
 };
 
 

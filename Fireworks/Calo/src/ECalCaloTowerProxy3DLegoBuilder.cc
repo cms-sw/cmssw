@@ -8,7 +8,7 @@
 //
 // Original Author:  
 //         Created:  Sun Jan  6 23:57:00 EST 2008
-// $Id: ECalCaloTowerProxy3DLegoBuilder.cc,v 1.5 2008/06/09 19:54:03 chrjones Exp $
+// $Id: ECalCaloTowerProxy3DLegoBuilder.cc,v 1.6 2008/06/17 00:00:58 chrjones Exp $
 //
 
 // system include files
@@ -32,7 +32,8 @@
 //
 // constructors and destructor
 //
-ECalCaloTowerProxy3DLegoBuilder::ECalCaloTowerProxy3DLegoBuilder()
+ECalCaloTowerProxy3DLegoBuilder::ECalCaloTowerProxy3DLegoBuilder() :
+m_towers(0)
 {
 }
 
@@ -62,28 +63,49 @@ ECalCaloTowerProxy3DLegoBuilder::~ECalCaloTowerProxy3DLegoBuilder()
 //
 void 
 ECalCaloTowerProxy3DLegoBuilder::build(const FWEventItem* iItem, 
-				       TH2** product)
+				       TH2F** product)
 {
   if (0==*product) {
     Bool_t status = TH1::AddDirectoryStatus();
     TH1::AddDirectory(kFALSE); //Keeps histogram from going into memory
     *product = new TH2F("ecalLego","CaloTower ECAL Et distribution",
 			82, fw3dlego::xbins, 72/legoRebinFactor(), -3.1416, 3.1416);
+    m_hist = *product;
     TH1::AddDirectory(status);
   }
   (*product)->Reset();
   (*product)->SetFillColor(iItem->defaultDisplayProperties().color());
 
-  const CaloTowerCollection* towers=0;
-  iItem->get(towers);
-  if(0==towers) {
+   m_towers=0;
+  iItem->get(m_towers);
+  if(0==m_towers) {
     std::cout <<"Failed to get CaloTowers"<<std::endl;
     return;
   }
+  for(CaloTowerCollection::const_iterator tower = m_towers->begin();
+      tower != m_towers->end(); ++tower) {
+     (*product)->Fill(tower->eta(), tower->phi(), tower->emEt());
+  }
 
-  for(CaloTowerCollection::const_iterator tower = towers->begin(); tower != towers->end(); ++tower)
-    (*product)->Fill(tower->eta(), tower->phi(), tower->emEt());
+}
 
+
+void 
+ECalCaloTowerProxy3DLegoBuilder::applyChangesToAllModels()
+{
+   if(m_towers && item()) {
+      m_hist->Reset();
+      if(item()->defaultDisplayProperties().isVisible()) {
+         
+         assert(item()->size() >= m_towers->size());
+         unsigned int index=0;
+         for(CaloTowerCollection::const_iterator tower = m_towers->begin(); tower != m_towers->end(); ++tower,++index) {
+            if(item()->modelInfo(index).displayProperties().isVisible()) {
+               (m_hist)->Fill(tower->eta(), tower->phi(), tower->emEt());
+            }
+         }
+      }
+   }   
 }
 
 //
