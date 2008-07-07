@@ -1,8 +1,13 @@
 #!/bin/sh
-# $Id: cleanupEmu.sh,v 1.2 2008/04/28 19:55:12 loizides Exp $
+# $Id: cleanupEmu.sh,v 1.3 2008/05/02 12:37:11 loizides Exp $
 
 if test -e "/etc/profile.d/sm_env.sh"; then 
     source /etc/profile.d/sm_env.sh
+fi
+
+if test -n "`ps ax | grep cleanupEmu.sh | grep -v grep`"; then
+    echo "Another instance running, exiting cleanly."
+    exit 0;
 fi
 
 store=/store
