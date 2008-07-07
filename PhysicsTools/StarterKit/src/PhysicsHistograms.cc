@@ -8,7 +8,7 @@
 //
 // Original Author:  Petar Maksimovic
 //         Created:  Christmas 2007
-// $Id: PhysicsHistograms.cc,v 1.3 2008/02/22 22:21:37 srappocc Exp $
+// $Id: PhysicsHistograms.cc,v 1.4 2008/04/11 16:31:17 srappocc Exp $
 //
 // Revision History:
 //------------------------------------------------------------------------
@@ -22,27 +22,37 @@
 //------------------------------------------------------------------------
 //!  Create the objects that manage the histogram groups.
 //------------------------------------------------------------------------
-PhysicsHistograms::PhysicsHistograms()
+PhysicsHistograms::PhysicsHistograms( KinAxisLimits const & muonAxis, 
+				      KinAxisLimits const & electronAxis, 
+				      KinAxisLimits const & tauAxis, 
+				      KinAxisLimits const & jetAxis, 
+				      KinAxisLimits const & METAxis, 
+				      KinAxisLimits const & photonAxis, 
+				      KinAxisLimits const & trackAxis
+				      )
 {
   //--- Initialize histogram objects
   std::cout << "PhysicsHistograms: Creating muon histograms" << std::endl;
-  muonHistograms_     = new pat::HistoMuon    ();
+  muonHistograms_     = 
+    new pat::HistoMuon    ( "muon", "Muon", "mu", muonAxis.pt1, muonAxis.pt2, muonAxis.m1, muonAxis.m2 );
   std::cout << "PhysicsHistograms: Creating electron histograms" << std::endl;
-  electronHistograms_ = new pat::HistoElectron();
+  electronHistograms_ = 
+    new pat::HistoElectron( "electron", "Electron", "e", electronAxis.pt1, electronAxis.pt2, electronAxis.m1, electronAxis.m2 );
   std::cout << "PhysicsHistograms: Creating tau histograms" << std::endl;
-  tauHistograms_      = new pat::HistoTau     ();
+  tauHistograms_      = 
+    new pat::HistoTau     ( "tau", "Tau", "tau", tauAxis.pt1, tauAxis.pt2, tauAxis.m1, tauAxis.m2 );
   std::cout << "PhysicsHistograms: Creating jet histograms" << std::endl;
-  jetHistograms_      = new pat::HistoJet     ();
+  jetHistograms_      =
+    new pat::HistoJet     ( "jet", "Jet", "jet", jetAxis.pt1, jetAxis.pt2, jetAxis.m1, jetAxis.m2 );
   std::cout << "PhysicsHistograms: Creating met histograms" << std::endl;
-  metHistograms_      = new pat::HistoMET     ();
+  metHistograms_      = 
+    new pat::HistoMET     ( "met", "MET", "met", METAxis.pt1, METAxis.pt2, METAxis.m1, METAxis.m2 );
   std::cout << "PhysicsHistograms: Creating photon histograms" << std::endl;
-  photonHistograms_   = new pat::HistoPhoton  ();
+  photonHistograms_   = 
+    new pat::HistoPhoton  ( "photon", "Photon", "photon", photonAxis.pt1, photonAxis.pt2, photonAxis.m1, photonAxis.m2 );
   std::cout << "PhysicsHistograms: Creating track histograms" << std::endl;
-  trackHistograms_    = new pat::HistoTrack   ();
-
-  //--- Output file (still unused?)
-  outputTextName_ = "blahblah.txt";  // &&& need to decide what to do with this.
-  outputFile_.open( outputTextName_.c_str() );
+  trackHistograms_    = 
+    new pat::HistoTrack   ( "track", "Track", "track", trackAxis.pt1, trackAxis.pt2, trackAxis.m1, trackAxis.m2 );
 }
 
 
@@ -62,6 +72,10 @@ PhysicsHistograms::~PhysicsHistograms()
   delete metHistograms_      ;
   delete photonHistograms_   ;
   delete trackHistograms_    ;
+
+  for ( unsigned int i = 0; i < allVarHistos_.size(); ++i ) {
+    if ( allVarHistos_[i] ) delete allVarHistos_[i];
+  }
 
   outputFile_.close();
 }

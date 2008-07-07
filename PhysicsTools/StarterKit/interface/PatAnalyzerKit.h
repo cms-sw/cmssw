@@ -43,7 +43,7 @@
 //
 // Original Author:  Eric Vaandering, Salvatore Rappoccio
 //         Created:  Wed Nov 28 15:31:57 CST 2007
-// $Id: PatAnalyzerKit.h,v 1.1 2008/05/19 15:51:36 srappocc Exp $
+// $Id: PatAnalyzerKit.h,v 1.1 2008/06/04 15:04:33 srappocc Exp $
 //
 // Revision History:
 //       -  Sal Rappoccio, Fri Nov 30 12:49:44 CST 2007: Added other objects as first
@@ -58,7 +58,7 @@
 #include <fstream>
 
 // user include files
-#include "PhysicsTools/StarterKit/interface/PhysicsHistograms.h"
+#include "PhysicsTools/StarterKit/interface/PatKitHelper.h"
 
 #include "FWCore/Framework/interface/Frameworkfwd.h"
 #include "FWCore/Framework/interface/EDProducer.h"
@@ -81,28 +81,7 @@ public:
   explicit PatAnalyzerKit(const edm::ParameterSet&);
   virtual ~PatAnalyzerKit();
 
-
-  // Function to print out candidates
-  friend std::ostream & operator<<( std::ostream & out, const reco::Candidate & cand );
-
-
 protected:
-  // Function to add ntuple variables to the EDProducer
-  virtual void addNtupleVar ( std::string name, std::string type );
-
-  // Save ntuple variables to event evt
-  void saveNtuple ( const std::vector<pat::PhysVarHisto*> & ntvars,
-		    edm::Event & evt );
-
-  // Helper function template to write objects to event
-  template <class T>
-  void saveNtupleVar( std::string name, T value,
-		      edm::Event & evt );
-
-  // Helper function template to write vectors of objects to event
-  template <class T>
-  void saveNtupleVec( std::string name, const std::vector<T> & invec,
-		      edm::Event & evt);
 
   // beginJob
   virtual void beginJob(const edm::EventSetup&) ;
@@ -112,19 +91,10 @@ protected:
   virtual void endJob() ;
 
   // The main sub-object which does the real work
-  PhysicsHistograms  physHistos_ ;
+  pat::PatKitHelper    helper_;
 
-  // Output file (move elsewhere when its function is clear)
-  std::string     outputTextName_ ;
-  ofstream        outputFile_;
   // Verbosity
   int             verboseLevel_;
-
-  // Histogram server
-  edm::Service<TFileService> fs;
-
-  // Variables to ntuplize
-  std::vector< pat::PhysVarHisto* > ntVars_ ;
 
   // Physics objects handles
   edm::Handle<std::vector<pat::Muon> >     muonHandle_;
@@ -134,11 +104,6 @@ protected:
   edm::Handle<std::vector<pat::MET> >      METHandle_;
   edm::Handle<std::vector<pat::Photon> >   photonHandle_;
 
-  // CSA07 "soup" specific information
-  pat::PhysVarHisto *  h_runNumber_;
-  pat::PhysVarHisto *  h_eventNumber_;
-
-  // ----------member data ---------------------------
 };
 
 

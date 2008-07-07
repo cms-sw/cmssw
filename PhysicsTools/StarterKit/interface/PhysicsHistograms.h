@@ -50,9 +50,32 @@
 //--- Class declaration.
 //
 
+
+// Function to print out candidates
+std::ostream & operator<<( std::ostream & out, const reco::Candidate & cand );
+
 class PhysicsHistograms  {
 public:
-  explicit PhysicsHistograms ();
+
+  struct KinAxisLimits {
+  
+    double pt1, pt2, m1, m2;
+
+    KinAxisLimits( double apt1=0, double apt2=0, double am1=0, double am2=0 ) :
+      pt1(apt1), pt2(apt2), m1(am1), m2(am2)
+    {
+    }
+  };
+
+
+  explicit PhysicsHistograms ( KinAxisLimits const & muonAxis, 
+			       KinAxisLimits const & electronAxis, 
+			       KinAxisLimits const & tauAxis, 
+			       KinAxisLimits const & jetAxis, 
+			       KinAxisLimits const & METAxis, 
+			       KinAxisLimits const & photonAxis,
+			       KinAxisLimits const & trackAxis 
+			       );
   virtual ~PhysicsHistograms();
 
   //--- Standard methods used in the event processing, called either by ED analyzer
