@@ -27,6 +27,9 @@ bachtis@hep.wisc.edu
 #include "Math/GenVector/VectorUtil.h"
 #include "DataFormats/HLTReco/interface/TriggerEvent.h"
 
+//MET Includes
+#include "DataFormats/METReco/interface/CaloMETCollection.h"
+#include "DataFormats/METReco/interface/CaloMET.h"
 
 //Electron includes
 #include "DataFormats/EgammaCandidates/interface/Electron.h"
@@ -36,11 +39,9 @@ bachtis@hep.wisc.edu
 #include "DataFormats/RecoCandidate/interface/RecoChargedCandidateFwd.h"
 #include "DataFormats/RecoCandidate/interface/RecoChargedCandidate.h"
 
-
 //Photon Includes
 #include "DataFormats/RecoCandidate/interface/RecoEcalCandidateFwd.h"
 #include "DataFormats/RecoCandidate/interface/RecoEcalCandidate.h"
-
 
 //Track Include
 #include "DataFormats/HcalIsolatedTrack/interface/IsolatedPixelTrackCandidateFwd.h"
@@ -55,12 +56,6 @@ bachtis@hep.wisc.edu
 #include "DataFormats/TrackReco/interface/Track.h"
 
 
-// L1 Trigger data formats
-#include "DataFormats/L1GlobalTrigger/interface/L1GlobalTriggerReadoutRecord.h"
-#include "DataFormats/L1GlobalTrigger/interface/L1GlobalTriggerReadoutSetupFwd.h"
-#include "DataFormats/L1GlobalTrigger/interface/L1GlobalTriggerObjectMapRecord.h"
-#include "DataFormats/L1GlobalTrigger/interface/L1GlobalTriggerObjectMapFwd.h"
-#include "DataFormats/L1GlobalTrigger/interface/L1GlobalTriggerObjectMap.h"
 
 //
 // class declaration
@@ -85,6 +80,7 @@ protected:
   /// Fake Analyze
   void analyze(const edm::Event& e, const edm::EventSetup& c) ;
 
+  ///Luminosity Block 
   void beginLuminosityBlock(const edm::LuminosityBlock& lumiSeg, 
                             const edm::EventSetup& context) ;
   /// DQM Client Diagnostic
@@ -133,17 +129,21 @@ private:
   edm::InputTag l2BackupPath_;
   edm::InputTag l25BackupPath_;
   edm::InputTag l3BackupPath_;
-  std::vector<int> prescales_;
+
 
   //Correlations with other Triggers
   std::vector<edm::InputTag> refFilters_;
-  std::vector<int> ref_prescales_;
-
+  std::vector<int> refIDs_;
 
   //  std::vector<int> refIDs_;
   std::vector<double> PtCut_;
   std::vector<std::string> refFilterDesc_;
   double corrDeltaR_;
+
+  //Missing Et
+   std::vector<double> METCut_;
+   edm::InputTag MET_;
+
 
   //L2 Monitoring Parameters
   bool doL2Monitoring_;
@@ -153,15 +153,11 @@ private:
   //L25 Monitoring Parameters
   bool doL25Monitoring_;
   edm::InputTag l25IsolInfo_;
-  //  double matchCone_;
-  //double minTrackPt_;
 
 
   //L3 Monitoring Parameters
   bool doL3Monitoring_;
   edm::InputTag l3IsolInfo_;
-  // double l3matchCone_;
-  //double l3minTrackPt_;
 
 
   //Number of Tau Events passed the triggers
@@ -171,12 +167,15 @@ private:
   int NEventsPassedL25;
   int NEventsPassedL3;
 
-  //Number of Tau Events passed the Backup Triggers
-  int NEventsPassedMainFilter;
-  int NEventsPassedL1Backup;
-  int NEventsPassedL2Backup;
-  int NEventsPassedL25Backup;
-  int NEventsPassedL3Backup;
+  //Efficiency definitions for the backup triggers
+  int L1EffNum;
+  int L1EffDenom;
+  int L2EffNum;
+  int L2EffDenom;
+  int L25EffNum;
+  int L25EffDenom;
+  int L3EffNum;
+  int L3EffDenom;
 
 
   //Number of Tau Events passed the triggers matched to reference objects
@@ -186,8 +185,20 @@ private:
   std::vector<int> NEventsPassedRefL25;
   std::vector<int> NEventsPassedRefL3;
 
-  //Number of reference objects
-  std::vector<int> NRefEvents;
+
+  //Efficiency measurements for the reference triggers
+  std::vector<int> L1EffNumRef;
+  std::vector<int> L2RecoEffNumRef;
+  std::vector<int> L2EffNumRef;
+  std::vector<int> L25EffNumRef;
+  std::vector<int> L3EffNumRef;
+
+  std::vector<int> L1EffDenomRef;
+  std::vector<int> L2RecoEffDenomRef;
+  std::vector<int> L2EffDenomRef;
+  std::vector<int> L25EffDenomRef;
+  std::vector<int> L3EffDenomRef;
+
 
   //MonitorElements(Trigger Bits and Efficiency with ref to L1)
   MonitorElement *triggerBitInfo_;
@@ -268,10 +279,8 @@ private:
   bool match(const LV&,const LVColl& /*trigger::VRelectron&*/,double,double);
   std::vector<double> calcEfficiency(int,int);
   LVColl importObjectColl(edm::InputTag&,int,const edm::Event&);
-  LVColl importFilterColl(edm::InputTag&,const edm::Event&);
-  
-  //Basic Histogram formating since we have not put any render plugins yet
-  void formatHistogram(MonitorElement*,int);
+  LVColl importFilterColl(edm::InputTag&,int,const edm::Event&);
+
 
 };
 
