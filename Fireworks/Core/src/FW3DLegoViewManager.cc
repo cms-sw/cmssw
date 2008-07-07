@@ -8,7 +8,7 @@
 //
 // Original Author:  
 //         Created:  Sun Jan  6 22:01:27 EST 2008
-// $Id: FW3DLegoViewManager.cc,v 1.19 2008/03/20 09:39:26 dmytro Exp $
+// $Id: FW3DLegoViewManager.cc,v 1.20 2008/06/09 20:18:22 chrjones Exp $
 //
 
 // system include files
@@ -45,6 +45,7 @@
 //
 // constructors and destructor
 //
+#if defined(THIS_WILL_NEVER_BE_DEFINED)
 FW3DLegoViewManager::FW3DLegoViewManager(FWGUIManager* iGUIMgr):
   FWViewManagerBase(),
   m_stack(0),
@@ -107,11 +108,10 @@ FW3DLegoViewManager::buildView(TGFrame* iParent)
    boost::shared_ptr<FW3DLegoView> view( new FW3DLegoView(iParent) );
    m_views.push_back(view);
    view->draw(m_stack);
-   view->connect("FW3DLegoViewManager", this, "exec3event(Int_t,Int_t,Int_t,TObject*)");
+   //view->connect("FW3DLegoViewManager", this, "exec3event(Int_t,Int_t,Int_t,TObject*)");
    return view.get();
 
 }
-
 
 void 
 FW3DLegoViewManager::newEventAvailable()
@@ -295,4 +295,4 @@ void FW3DLegoViewManager::pixel2wc(const Int_t pixelX, const Int_t pixelY,
    wcX = m[3] + m[0]*ndcX + m[1]*ndcY + m[2]/m[10]*part1;
    wcY = m[7] + m[4]*ndcX + m[5]*ndcY + m[6]/m[10]*part1;
 }
-
+#endif
