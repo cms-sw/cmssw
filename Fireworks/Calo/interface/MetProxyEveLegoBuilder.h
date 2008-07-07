@@ -16,16 +16,16 @@
 //
 // Original Author:  
 //         Created:  Sun Jan  6 23:42:33 EST 2008
-// $Id: MetProxyEveLegoBuilder.h,v 1.2 2008/06/09 19:54:03 chrjones Exp $
+// $Id: MetProxyEveLegoBuilder.h,v 1.1 2008/07/04 01:41:49 dmytro Exp $
 //
 
 // system include files
 
 // user include files
-#include "Fireworks/Core/interface/FW3DLegoDataProxyBuilder.h"
+#include "Fireworks/Core/interface/FW3DLegoEveElementProxyBuilder.h"
 
 // forward declarations
-class MetProxyEveLegoBuilder : public FW3DLegoDataProxyBuilder
+class MetProxyEveLegoBuilder : public FW3DLegoEveElementProxyBuilder
 {
 
    public:
