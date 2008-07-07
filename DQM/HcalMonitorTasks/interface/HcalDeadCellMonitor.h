@@ -8,8 +8,8 @@
 
 /** \class HcalDeadCellMonitor
   *  
-  * $Date: 2008/06/10 22:14:30 $
-  * $Revision: 1.11 $
+  * $Date: 2008/07/01 00:06:08 $
+  * $Revision: 1.12 $
   * \author J. Temple - Univ. of Maryland
   */
 
@@ -85,6 +85,7 @@ class HcalDeadCellMonitor: public HcalBaseMonitor {
 			 const HFRecHitCollection& hfHits);
   void setupHists(DeadCellHists& hist,  DQMStore* dbe);
   void reset_Nevents(DeadCellHists& h);
+  void fill_Nevents(DeadCellHists& hcal, DeadCellHists& hb, DeadCellHists& he, DeadCellHists& ho, DeadCellHists& hf);
   void reset();
 
 

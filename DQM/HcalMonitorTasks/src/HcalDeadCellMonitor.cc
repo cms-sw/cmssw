@@ -78,13 +78,13 @@ namespace HcalDeadCellCheck
 
     // Fill (eta,phi) map if digi is found for that cell
     hist.digiCheck->Fill(digi_eta,digi_phi);
-    all.digiCheck->Fill(digi_eta,digi_phi);
+    /////all.digiCheck->Fill(digi_eta,digi_phi);
 
 
     if (hist.makeDiagnostics)
       {
 	hist.digiCheck_depth[digi_depth-1]->Fill(digi_eta,digi_phi);
-	all.digiCheck_depth[digi_depth-1]->Fill(digi_eta,digi_phi);
+	/////all.digiCheck_depth[digi_depth-1]->Fill(digi_eta,digi_phi);
       }
 
     /* Update on 21 May 2008 -- code modified to compare digi values to 
@@ -169,7 +169,7 @@ namespace HcalDeadCellCheck
 
 	// Not yet sure if this histogram is useful, but it gives an idea of the ADC distributions
 	hist.ADCdist->Fill(digi.sample(i).adc());
-	all.ADCdist->Fill(digi.sample(i).adc());
+	/////all.ADCdist->Fill(digi.sample(i).adc());
       } // for (int i = max(0,maxi-1)...)
     
 
@@ -178,11 +178,11 @@ namespace HcalDeadCellCheck
     if (total_digival>total_pedestal+Nsigma*total_pedwidth)
       {
 	hist.above_pedestal_temp_depth[digi_depth-1]->Fill(digi_eta,digi_phi);
-	all.above_pedestal_temp_depth[digi_depth-1]->Fill(digi_eta,digi_phi);
+	/////all.above_pedestal_temp_depth[digi_depth-1]->Fill(digi_eta,digi_phi);
 	hist.above_pedestal->Fill(digi_eta,digi_phi);
-	all.above_pedestal->Fill(digi_eta,digi_phi);
+	/////all.above_pedestal->Fill(digi_eta,digi_phi);
 	hist.above_pedestal_depth[digi_depth-1]->Fill(digi_eta,digi_phi);
-	all.above_pedestal_depth[digi_depth-1]->Fill(digi_eta,digi_phi);
+	/////all.above_pedestal_depth[digi_depth-1]->Fill(digi_eta,digi_phi);
       }
     
     // If ADCsum <= mincount, cell is considered dead
@@ -193,18 +193,18 @@ namespace HcalDeadCellCheck
 	if (hist.makeDiagnostics)
 	  {
 	    hist.deadADC_map_depth[digi_depth-1]->Fill(digi_eta,digi_phi);
-	    all.deadADC_map_depth[digi_depth-1]->Fill(digi_eta,digi_phi); 
+	    /////all.deadADC_map_depth[digi_depth-1]->Fill(digi_eta,digi_phi); 
 	  }
 	//hist.deadADC_temp_depth[digi_depth-1]->Fill(digi_eta,digi_phi);
 	hist.deadADC_eta->Fill(digi_eta);
-	all.deadADC_map->Fill(digi_eta,digi_phi);
-	all.deadADC_eta->Fill(digi_eta);
+	/////all.deadADC_map->Fill(digi_eta,digi_phi);
+	/////all.deadADC_eta->Fill(digi_eta);
 
 	// Dead cell is potentially problematic -- add it to combined "problem cell" histogram
 	hist.problemDeadCells->Fill(digi_eta,digi_phi);
 	all.problemDeadCells->Fill(digi_eta,digi_phi);
 	hist.problemDeadCells_depth[digi_depth-1]->Fill(digi_eta,digi_phi);
-	all.problemDeadCells_depth[digi_depth-1]->Fill(digi_eta,digi_phi);
+	/////all.problemDeadCells_depth[digi_depth-1]->Fill(digi_eta,digi_phi);
 	
       }
 
@@ -214,7 +214,7 @@ namespace HcalDeadCellCheck
 	if (capADC[zz]<=mincount)
 	  {
 	    hist.deadcapADC_map[zz]->Fill(digi_eta,digi_phi);
-	    all.deadcapADC_map[zz]->Fill(digi_eta,digi_phi);
+	    /////all.deadcapADC_map[zz]->Fill(digi_eta,digi_phi);
 	  }
       }
 
@@ -777,6 +777,9 @@ void HcalDeadCellMonitor::processEvent(const HBHERecHitCollection& hbHits,
       reset_Nevents(heHists);
       reset_Nevents(hoHists);
       reset_Nevents(hfHists);
+
+      // fill HcalHists only every N events
+      //fill_Nevents(hcalHists, hbHists, heHists, hoHists, hfHists);
     }
   
 } // void HcalDeadCellMonitor::processEvent
@@ -1069,15 +1072,15 @@ void HcalDeadCellMonitor::reset_Nevents(DeadCellHists &h)
 		    
 		    {
 		      h.coolcell_below_pedestal->Fill(eta,phi,checkNevents_);
-		      hcalHists.coolcell_below_pedestal->Fill(eta,phi,checkNevents_);
+		      /////hcalHists.coolcell_below_pedestal->Fill(eta,phi,checkNevents_);
 		      h.coolcell_below_pedestal_depth[d-1]->Fill(eta,phi,checkNevents_);
-		      hcalHists.coolcell_below_pedestal_depth[d-1]->Fill(eta,phi,checkNevents_);
+		      /////hcalHists.coolcell_below_pedestal_depth[d-1]->Fill(eta,phi,checkNevents_);
 		      // Cells consistently below pedestal go to combined "problem cell" histogram
 		      hcalHists.problemDeadCells->Fill(eta,phi,checkNevents_);
 		      h.problemDeadCells->Fill(eta,phi,checkNevents_);
 
 
-		      hcalHists.problemDeadCells_depth[d-1]->Fill(eta,phi,checkNevents_);
+		      /////hcalHists.problemDeadCells_depth[d-1]->Fill(eta,phi,checkNevents_);
 		      h.problemDeadCells_depth[d-1]->Fill(eta,phi,checkNevents_);
 
 
@@ -1095,7 +1098,35 @@ void HcalDeadCellMonitor::reset_Nevents(DeadCellHists &h)
     }
 
   return;
-}
+} // reset_Nevents(...)
+
+
+void HcalDeadCellMonitor::fill_Nevents(DeadCellHists& hcal, 
+				       DeadCellHists& hb, DeadCellHists& he,
+				       DeadCellHists& ho, DeadCellHists& hf)
+{
+  // JEFF
+  // Idead is to fill overall HcalPlots only ever N events.  However, this seems to take a lot of time, so I'm disabling the hcal fills for now. -- 4 July 2008
+
+  int eta,phi;
+  float newval;
+
+  hcal.digiCheck->Reset();
+  for (int ieta=1;ieta<=etaBins_;++ieta)
+    {
+      for (int iphi=1;iphi<=phiBins_;++iphi)
+	{
+	  newval= hb.digiCheck->getBinContent(ieta,iphi)+he.digiCheck->getBinContent(ieta,iphi)+ho.digiCheck->getBinContent(ieta,iphi)+hf.digiCheck->getBinContent(ieta,iphi);
+	  if (newval==0) continue; // ignore bins with no entries
+	  eta=ieta+int(etaMin_)-1;
+	  phi=iphi+int(phiMin_)-1;
+	
+	  hcal.digiCheck->Fill(eta,phi,newval);
+	} // int iphi=1;...
+    } // int ieta=1;...
+
+}//void HcalDeadCellMonitor::fill_Nevents(...)
+				       
 
 
 void HcalDeadCellMonitor::clearME()
@@ -1152,9 +1183,26 @@ void HcalDeadCellMonitor::done()
 	  
 	  for (int d=0;d<4;++d)
 	    {
-	      binval=hcalHists.problemDeadCells_depth[d]->getBinContent(ieta,iphi);
-	      if (fVerbosity && binval>0) cout <<"Dead Cell ("<<eta<<", "<<phi<<", 1) in "<<binval<<"/"<<ievt_<<" events"<<endl;
+	      binval=hbHists.problemDeadCells_depth[d]->getBinContent(ieta,iphi);
+	      if (fVerbosity && binval>0) cout <<"Dead Cell "<<"HB("<<eta<<", "<<phi<<", "<<d+1<<") in "<<binval<<"/"<<ievt_<<" events"<<endl;
 	    }
+	  for (int d=0;d<4;++d)
+	    {
+	      binval=heHists.problemDeadCells_depth[d]->getBinContent(ieta,iphi);
+	      if (fVerbosity && binval>0) cout <<"Dead Cell "<<"HE("<<eta<<", "<<phi<<", "<<d+1<<") in "<<binval<<"/"<<ievt_<<" events"<<endl;
+	    }
+	  for (int d=0;d<4;++d)
+	    {
+	      binval=hoHists.problemDeadCells_depth[d]->getBinContent(ieta,iphi);
+	      if (fVerbosity && binval>0) cout <<"Dead Cell "<<"HO("<<eta<<", "<<phi<<", "<<d+1<<") in "<<binval<<"/"<<ievt_<<" events"<<endl;
+	    }
+	  for (int d=0;d<4;++d)
+	    {
+	      binval=hfHists.problemDeadCells_depth[d]->getBinContent(ieta,iphi);
+	      if (fVerbosity && binval>0) cout <<"Dead Cell "<<"HF("<<eta<<", "<<phi<<", "<<d+1<<") in "<<binval<<"/"<<ievt_<<" events"<<endl;
+	    }
+
+
 	  
 	} // for (int iphi=1...)
     } // for (int ieta = 1...)
