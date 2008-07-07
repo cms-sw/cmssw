@@ -383,9 +383,9 @@ float HcalSummaryClient::analyze_everything(std::string subdetname, int type, fl
   
   char name[150];
 
-  MonitorElement* me_digi;
-  MonitorElement* me_hotcell;
-  MonitorElement* me_deadcell;
+  MonitorElement* me_digi=0;
+  MonitorElement* me_hotcell=0;
+  MonitorElement* me_deadcell=0;
 
   // Check for histogram containing known Digi problems.  (Formed & filled in DigiMonitor task)
   if (digiClient_)
@@ -543,8 +543,7 @@ float HcalSummaryClient::analyze_everything(std::string subdetname, int type, fl
   else
     status_global_+=1.*status*(it->second)/totalcells_;
 
-  cout <<"TOTALCELLS = "<<totalcells_<<endl;
-  cout <<subdetname.c_str()<<" SUBDET STATUS = "<<status<<"  GLOBAL = "<<status_global_<<"   (scale factor = "<<(it->second)<<"/"<<totalcells_<<" = "<<(1.*(it->second)/totalcells_)<<")"<<endl;
+  //cout <<subdetname.c_str()<<" SUBDET STATUS = "<<status<<"  GLOBAL = "<<status_global_<<"   (scale factor = "<<(it->second)<<"/"<<totalcells_<<" = "<<(1.*(it->second)/totalcells_)<<")"<<endl;
 
   return status;
 } // float HcalSummaryClient::analyze_everything
@@ -744,7 +743,6 @@ void HcalSummaryClient::htmlOutput(int& run, time_t& mytime, int& minlumi, int& 
 	    {
 	      std::map<std::string, int>::const_iterator it;
 	      it = subdetCells_.find(subdets[i]);
-	      cout <<"i = "<<i<<"  SUBDET = "<<subdets[i]<<"# of cells = "<<it->second<<"  status = "<<status_hotcell[i]<<endl;
 	      (tempstatus==-1) ?  tempstatus=status_hotcell[i]*(it->second)/totalcells_ : tempstatus+=status_hotcell[i]*(it->second)/totalcells_;
 
 
