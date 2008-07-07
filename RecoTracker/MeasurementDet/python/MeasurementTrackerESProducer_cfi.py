@@ -2,10 +2,10 @@ import FWCore.ParameterSet.Config as cms
 
 MeasurementTracker = cms.ESProducer("MeasurementTrackerESProducer",
     StripCPE = cms.string('StripCPEfromTrackAngle'),
-    UseStripStripQualityDB = cms.bool(False), ## read Strip status from SiStripQuality
+    UseStripStripQualityDB = cms.bool(True), ## read Strip status from SiStripQuality
 
     OnDemand = cms.bool(False),
-    UseStripAPVFiberQualityDB = cms.bool(False), ## read APV and Fiber status from SiStripQuality
+    UseStripAPVFiberQualityDB = cms.bool(True), ## read APV and Fiber status from SiStripQuality
 
     DebugStripModuleQualityDB = cms.untracked.bool(False), ## dump out info om module status
 
@@ -24,7 +24,7 @@ MeasurementTracker = cms.ESProducer("MeasurementTrackerESProducer",
     stripLazyGetterProducer = cms.string(''),
     # bool   UseStripCablingDB    = false     # NOT LONGER SUPPORTED, see below
     # bool   UseStripNoiseDB      = false     # NOT LONGER SUPPORTED, see below
-    UseStripModuleQualityDB = cms.bool(False),
+    UseStripModuleQualityDB = cms.bool(True),
     PixelCPE = cms.string('PixelCPEGeneric')
 )
 
