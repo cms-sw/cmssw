@@ -1,4 +1,4 @@
-// Last commit: $Id: ApvTimingHistosUsingDb.cc,v 1.20 2008/05/06 12:38:07 bainbrid Exp $
+// Last commit: $Id: ApvTimingHistosUsingDb.cc,v 1.21 2008/07/01 13:05:36 bainbrid Exp $
 
 #include "DQM/SiStripCommissioningDbClients/interface/ApvTimingHistosUsingDb.h"
 #include "CondFormats/SiStripObjects/interface/ApvTimingAnalysis.h"
@@ -250,17 +250,10 @@ bool ApvTimingHistosUsingDb::update( SiStripConfigDb::DeviceDescriptionsRange de
   if ( !invalid.empty() ) {
     std::stringstream ss;
     ss << "[ApvTimingHistosUsingDb::" << __func__ << "]"
-       << " Found PLL coarse setting of >15" 
+       << " Found PLL coarse setting of >15"
        << " (not allowed!) for "
        << invalid.size()
        << " channels";
-    ss << " (Example is crate/FEC/ring/CCU/module/LLD: "
-       << invalid.front().fecCrate() << "/"
-       << invalid.front().fecSlot() << "/"
-       << invalid.front().fecRing() << "/"
-       << invalid.front().ccuAddr() << "/"
-       << invalid.front().ccuChan() << "/"
-       << invalid.front().channel();
     edm::LogWarning(mlDqmClient_) << ss.str();
     return false;
   }
@@ -331,21 +324,10 @@ void ApvTimingHistosUsingDb::update( SiStripConfigDb::FedDescriptionsRange feds 
 	
 	// Debug
 	std::stringstream ss;
-	ss << "[ApvTimingHistosUsingDb::" << __func__ << "]";
-	if ( anal->isValid() ) {
-	  ss << " Updating the frame-finding threshold"
-	     << " from " << old_threshold
-	     << " to " << new_threshold
-	     << " using tick mark base/peak/height "
-	     << anal->base() << "/"
-	     << anal->peak() << "/"
-	     << anal->height();
-	} else {
-	  ss << " Cannot update the frame-finding threshold"
-	     << " from " << old_threshold
-	     << " to a new value using invalid analysis ";
-	}
-	ss << " for crate/FEC/ring/CCU/module/LLD "
+	ss << "[ApvTimingHistosUsingDb::" << __func__ << "]"
+           << " Updating the frame-finding threshold using \"";
+        anal->isValid() ? ( ss << "valid" ) : ( ss << "invalid" );
+        ss << "\" analysis for Crate/FEC/slot/ring/CCU "
 	   << fec_key.fecCrate() << "/"
 	   << fec_key.fecSlot() << "/"
 	   << fec_key.fecRing() << "/"
@@ -354,9 +336,25 @@ void ApvTimingHistosUsingDb::update( SiStripConfigDb::FedDescriptionsRange feds 
 	   << fec_key.channel() 
 	   << " and FED id/ch "
 	   << fed_key.fedId() << "/"
-	   << fed_key.fedChannel();
+	   << fed_key.fedChannel()
+	   << " in loop FED id/ch " 
+	   << (*ifed)->getFedId() << "/" << ichan
+	   << " from "
+	   << static_cast<uint16_t>( (*ifed)->getFrameThreshold( addr ) );
+        if ( anal->isValid() ) {
+	  (*ifed)->setFrameThreshold( addr, anal->frameFindingThreshold() );
+	  updated++;
+	  ss << " to "
+	     << static_cast<uint16_t>( (*ifed)->getFrameThreshold( addr ) )
+	     << " tick base/peak/height: " 
+	     << anal->base() << "/"
+	     << anal->peak() << "/"
+	     << anal->height();
+	} else { ss << " to same value! (Invalid returned!)"; }
+	ss << std::endl; 
 	anal->print(ss);
 	//LogTrace(mlDqmClient_) << ss.str();
+        if ( anal->isValid() ) { edm::LogError(mlDqmClient_) << ss.str(); }
 	
       } else {
 	if ( deviceIsPresent(fec_key) ) { 

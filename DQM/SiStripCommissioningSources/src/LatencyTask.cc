@@ -3,8 +3,8 @@
 #include "DQMServices/Core/interface/DQMStore.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 
-#define NBINS (100)
-#define LOWBIN (-2500)
+#define NBINS (192)
+#define LOWBIN (-4800)
 #define HIGHBIN (0)
 
 // -----------------------------------------------------------------------------
@@ -103,10 +103,12 @@ void LatencyTask::fill( const SiStripEventSummary& summary,
   if(firstReading_==-1) firstReading_ = delay;
   float correctedDelay = 0.;
   LogDebug("Commissioning") << "[LatencyTask::fill]; the delay is " << delay;
+/*
   if(delay==firstReading_) {
     LogDebug("Commissioning") << "[LatencyTask::fill]; skipping event in the first bin.";
     return;
   }
+*/
   // loop on the strips to find the (maybe) non-zero digi
   unsigned int nclusters = 0;
   for(unsigned int strip=0;strip<digis.data.size();strip++) {

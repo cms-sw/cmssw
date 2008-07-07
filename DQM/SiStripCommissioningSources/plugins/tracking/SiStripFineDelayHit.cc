@@ -13,7 +13,7 @@
 //
 // Original Author:  Christophe DELAERE
 //         Created:  Fri Nov 17 10:52:42 CET 2006
-// $Id: SiStripFineDelayHit.cc,v 1.6 2008/06/09 12:43:30 delaer Exp $
+// $Id: SiStripFineDelayHit.cc,v 1.7 2008/06/10 14:42:10 delaer Exp $
 //
 //
 
@@ -55,6 +55,8 @@
 #include <DataFormats/SiStripCommon/interface/SiStripFedKey.h>
 #include <CondFormats/SiStripObjects/interface/FedChannelConnection.h>
 #include <CondFormats/SiStripObjects/interface/SiStripFedCabling.h>
+#include "CondFormats/DataRecord/interface/SiStripNoisesRcd.h"
+#include <CondFormats/SiStripObjects/interface/SiStripNoises.h>
 #include <CondFormats/DataRecord/interface/SiStripFedCablingRcd.h>
 
 #include "DataFormats/GeometryVector/interface/GlobalPoint.h"
@@ -437,7 +439,7 @@ SiStripFineDelayHit::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
   	   }
   	 }
   	 edm::DetSet<SiStripRawDigi> newds(connectionMap_[it->first]);
-           LogDebug("produce") << "    Time and charge:" << it->second.first << " " << leadingCharge << " at " << leadingPosition;
+           LogDebug("produce") << " New Hit...   TOF:" << it->second.first << ", charge: " << int(leadingCharge) << " at " << int(leadingPosition);
   	 // apply some correction to the leading charge, but only if it has not saturated.
   	 if(leadingCharge<255) {
   	   // correct the leading charge for the crossing angle (expressed in degrees)
@@ -506,6 +508,16 @@ SiStripFineDelayHit::produceNoTracking(edm::Event& iEvent, const edm::EventSetup
 	     leadingPosition = leadingStrip;
 	   }
 	 }
+         // apply some sanity cuts. This is needed since we don't use tracking to clean clusters
+         // 1.5< noise <8
+         // charge<250
+         // 50 > s/n > 10
+         edm::ESHandle<SiStripNoises> noiseHandle_;
+         iSetup.get<SiStripNoisesRcd>().get(noiseHandle_);
+         SiStripNoises::Range detNoiseRange = noiseHandle_->getRange(DSViter->id());
+         float noise=noiseHandle_->getNoise(leadingPosition, detNoiseRange);
+         if( noise<1.5 ) continue;
+         if( leadingCharge>=250 || noise>=8 || leadingCharge/noise>50 || leadingCharge/noise<10 ) continue;
 	 // apply some correction to the leading charge, but only if it has not saturated.
 	 if(leadingCharge<255) {
 	   // correct for modulethickness for TEC and TOB

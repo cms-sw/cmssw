@@ -5,7 +5,7 @@
 #include "TVector3.h"
 #include "TMath.h"
 
-#define TIF_COSMIC_SETUP
+//#define TIF_COSMIC_SETUP
 
 double SiStripFineDelayTOF::timeOfFlight(bool cosmics, bool field, double* trackParameters, double* hit, double* phit, bool onDisk)
 {

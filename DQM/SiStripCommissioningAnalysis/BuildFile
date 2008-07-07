@@ -2,6 +2,7 @@
 <use name=DataFormats/SiStripCommon>
 <use name=FWCore/MessageLogger>
 <use name=rootcore>
+<use name=root>
 <use name=boost>
 
 <export>

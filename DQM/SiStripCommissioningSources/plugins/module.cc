@@ -7,3 +7,6 @@ DEFINE_ANOTHER_FWK_MODULE(SiStripCommissioningSource);
 #include "DQM/SiStripCommissioningSources/interface/SiStripCommissioningRunTypeFilter.h"
 DEFINE_ANOTHER_FWK_MODULE(SiStripCommissioningRunTypeFilter);
 
+#include "DQM/SiStripCommissioningSources/interface/SiStripCommissioningSeedFilter.h"
+DEFINE_ANOTHER_FWK_MODULE(SiStripCommissioningSeedFilter);
+

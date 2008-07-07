@@ -3,7 +3,7 @@
 #include "DataFormats/SiStripCommon/interface/SiStripHistoTitle.h"
 #include "DataFormats/SiStripCommon/interface/SiStripEnumsAndStrings.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
-#include "DataFormats/SiStripCommon/interface/SiStripPulseShape.h"
+#include "DQM/SiStripCommissioningAnalysis/interface/SiStripPulseShape.h"
 #include "TProfile.h"
 #include "TF1.h"
 #include "TH1.h"
@@ -177,7 +177,10 @@ void CalibrationAlgorithm::analyse() {
     // tail 125 ns after the maximum
     int lastBin = histo_[i].first->FindBin(histo_[i].first->GetBinCenter(histo_[i].first->GetMaximumBin())+125);
     if(lastBin>histo_[i].first->GetNbinsX()-4) lastBin = histo_[i].first->GetNbinsX()-4;
-    cal_->tail_[apv][strip] = 100*histo_[i].first->GetBinContent(lastBin)/histo_[i].first->GetMaximum();
+     if(histo_[i].first->GetMaximum()!=0)
+       cal_->tail_[apv][strip] = 100*histo_[i].first->GetBinContent(lastBin)/histo_[i].first->GetMaximum();
+     else
+       cal_->tail_[apv][strip] = 100;
   
     // perform the fit for the next quantities
     TF1* fit = fitPulse(histo_[i].first);

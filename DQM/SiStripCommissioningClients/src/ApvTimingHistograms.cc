@@ -92,8 +92,11 @@ void ApvTimingHistograms::histoAnalysis( bool debug ) {
     algo.analysis( profs );
     data()[iter->first] = anal; 
 
-    // Check if tick mark found
-    if ( !anal->foundTickMark() ) { continue; }
+    // Check time of rising edge
+    //if ( anal->time() > sistrip::valid_ ) { continue; }
+
+    // Check if valid
+    if ( !anal->isValid() ) { continue; }
     
     // Find maximum time
     if ( anal->time() > time_max ) { 
