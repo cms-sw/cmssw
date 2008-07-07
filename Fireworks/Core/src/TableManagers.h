@@ -26,7 +26,7 @@ template <class T> int index_to_table_row (const std::vector<T> &v, int idx)
      return 0;
 }
 
-class FWTableManager : public TableManager {
+class FWTableManager : public LightTableManager {
 public:
      FWTableManager ();
      // can do all the things a TableManager can, but is also
@@ -43,6 +43,9 @@ public:
      void selectRows ();
      virtual int table_row_to_index (int) const { return 0; }
      virtual int index_to_table_row (int) const { return 0; }
+     virtual bool rowIsSelected(int row) const { 
+        return sel_indices.count(table_row_to_index(row));
+     }
 
 public:
      LightTableWidget 	*widget;

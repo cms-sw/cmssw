@@ -35,7 +35,7 @@ std::string format_string (const std::string &fmt, double x)
 }
 
 FWTableManager::FWTableManager () 
-     : TableManager(),
+     : LightTableManager(),
        widget	(0),
        frame	(0),
        title_frame	(0),
