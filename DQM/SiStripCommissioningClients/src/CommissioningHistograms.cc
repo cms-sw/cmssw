@@ -536,8 +536,8 @@ void CommissioningHistograms::extractHistograms( const std::vector<std::string>&
   
   //printHistosMap();
   
-  LogTrace(mlDqmClient_)
-    << "[SiStripCommissioningOfflineClient::" << __func__ << "]"
+  edm::LogVerbatim(mlDqmClient_)
+    << "[CommissioningHistograms::" << __func__ << "]"
     << " Found histograms for " << histos_.size()
     << " structures in cached histogram map!";
   
@@ -715,8 +715,8 @@ void CommissioningHistograms::createCollations( const std::vector<std::string>& 
   
   //printHistosMap();
 
-  LogTrace(mlDqmClient_)
-    << "[SiStripCommissioningOfflineClient::" << __func__ << "]"
+  edm::LogVerbatim(mlDqmClient_)
+    << "[CommissioningHistograms::" << __func__ << "]"
     << " Found histograms for " << histos_.size()
     << " structures in cached histogram map!";
   
