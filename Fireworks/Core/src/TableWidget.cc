@@ -1,5 +1,6 @@
 #include <set>
-#include "TableWidget.h"
+#include "Fireworks/Core/interface/TableManager.h"
+#include "Fireworks/Core/src/TableWidget.h"
 
 // TableWidget, a la Excel.
 // Copyright 2008 Cornell University, Ithaca, NY 14853. All rights reserved.

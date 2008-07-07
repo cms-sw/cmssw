@@ -29,29 +29,12 @@
 #include <TGTableLayout.h>
 #include <RQ_OBJECT.h> 
  
+
+class TableManager;
 //enum TableWidgetSortOrder {
 //      m_asc = 0,
 //      m_desc= 1
 //};
-
-// Abstract class interface which is used by TableWidget to access data for a table.
-class TableManager {
-   public:
-     TableManager(void) {} 
-     virtual ~TableManager() {}
-//      virtual const std::string GetTitle(int col) = 0; 
-      virtual int NumberOfRows() const = 0;
-      virtual int NumberOfCols() const = 0;
-      virtual void Sort(int col, bool sortOrder) = 0; // sortOrder=true means desc order
-      virtual std::vector<std::string> GetTitles(int col) = 0;
-      virtual void FillCells(int rowStart, int colStart, 
-                             int rowEnd, int colEnd, std::vector<std::string>& oToFill) = 0;
-      virtual TGFrame* GetRowCell(int row, TGFrame *parentFrame) = 0;
-      virtual void UpdateRowCell(int row, TGFrame *rowCell) = 0;
-     virtual const std::string title() const { return "Table"; }
-     virtual void Selection (int row, int mask) { } 
-     virtual void selectRows () { } 
-};
 
 class TableWidget { 
    RQ_OBJECT("TableWidget") 
