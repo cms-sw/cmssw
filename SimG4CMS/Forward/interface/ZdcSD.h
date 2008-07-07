@@ -7,6 +7,7 @@
 #ifndef ZdcSD_h
 #define ZdcSD_h
 #include "SimG4CMS/Calo/interface/CaloSD.h"
+#include "SimG4CMS/Forward/interface/ZdcShowerLibrary.h"
 #include "SimG4CMS/Forward/interface/ZdcNumberingScheme.h"
 #undef debug
 
@@ -15,14 +16,25 @@ class ZdcSD : public CaloSD {
 public:    
   ZdcSD(G4String, const DDCompactView &, SensitiveDetectorCatalog &, 
 	edm::ParameterSet const &,const SimTrackManager*);
+ 
   virtual ~ZdcSD();
-  void setNumberingScheme(ZdcNumberingScheme* scheme);
+  virtual bool ProcessHits(G4Step * step,G4TouchableHistory * tHistory);
   virtual uint32_t setDetUnitId(G4Step* step);
   virtual double getEnergyDeposit(G4Step*, edm::ParameterSet const &);
+ 
+  void setNumberingScheme(ZdcNumberingScheme* scheme);
+  void getFromLibrary(G4Step * step);
+ 
+
+protected:
+
 private:    
 
   int verbosity;
+  bool  useShowerLibrary,useShowerHits; 
   double thFibDir;
+  double zdcHitEnergyCut;
+  ZdcShowerLibrary *    showerLibrary;
   ZdcNumberingScheme * numberingScheme;
 
 
