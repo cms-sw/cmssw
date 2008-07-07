@@ -32,18 +32,18 @@ TrackerHitAssociator::TrackerHitAssociator(const edm::Event& e)  :
   //
   // Take by default all tracker SimHits
   //
-  trackerContainers.push_back("TrackerHitsTIBLowTof");
-  trackerContainers.push_back("TrackerHitsTIBHighTof");
-  trackerContainers.push_back("TrackerHitsTIDLowTof");
-  trackerContainers.push_back("TrackerHitsTIDHighTof");
-  trackerContainers.push_back("TrackerHitsTOBLowTof");
-  trackerContainers.push_back("TrackerHitsTOBHighTof");
-  trackerContainers.push_back("TrackerHitsTECLowTof");
-  trackerContainers.push_back("TrackerHitsTECHighTof");
-  trackerContainers.push_back("TrackerHitsPixelBarrelLowTof");
-  trackerContainers.push_back("TrackerHitsPixelBarrelHighTof");
-  trackerContainers.push_back("TrackerHitsPixelEndcapLowTof");
-  trackerContainers.push_back("TrackerHitsPixelEndcapHighTof");
+  trackerContainers.push_back("g4SimHitsTrackerHitsTIBLowTof");
+  trackerContainers.push_back("g4SimHitsTrackerHitsTIBHighTof");
+  trackerContainers.push_back("g4SimHitsTrackerHitsTIDLowTof");
+  trackerContainers.push_back("g4SimHitsTrackerHitsTIDHighTof");
+  trackerContainers.push_back("g4SimHitsTrackerHitsTOBLowTof");
+  trackerContainers.push_back("g4SimHitsTrackerHitsTOBHighTof");
+  trackerContainers.push_back("g4SimHitsTrackerHitsTECLowTof");
+  trackerContainers.push_back("g4SimHitsTrackerHitsTECHighTof");
+  trackerContainers.push_back("g4SimHitsTrackerHitsPixelBarrelLowTof");
+  trackerContainers.push_back("g4SimHitsTrackerHitsPixelBarrelHighTof");
+  trackerContainers.push_back("g4SimHitsTrackerHitsPixelEndcapLowTof");
+  trackerContainers.push_back("g4SimHitsTrackerHitsPixelEndcapHighTof");
 
   // Step A: Get Inputs
   //MAKE THIS PRIVATE MEMBERS 
