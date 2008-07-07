@@ -4,8 +4,8 @@
 /*
  * \file EEClusterTask.h
  *
- * $Date: 2008/04/08 15:32:09 $
- * $Revision: 1.11 $
+ * $Date: 2008/05/11 09:35:11 $
+ * $Revision: 1.12 $
  * \author G. Della Ricca
  *
  */
@@ -65,6 +65,7 @@ bool enableCleanup_;
 
 bool mergeRuns_;
 
+edm::InputTag EcalRawDataCollection_;
 edm::InputTag BasicClusterCollection_;
 edm::InputTag SuperClusterCollection_;
 edm::InputTag ClusterShapeAssociation_;

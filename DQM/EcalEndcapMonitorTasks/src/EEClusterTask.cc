@@ -1,8 +1,8 @@
 /*
  * \file EEClusterTask.cc
  *
- * $Date: 2008/04/08 18:11:28 $
- * $Revision: 1.45 $
+ * $Date: 2008/05/11 09:35:12 $
+ * $Revision: 1.46 $
  * \author G. Della Ricca
  * \author E. Di Marco
  *
@@ -20,6 +20,7 @@
 
 #include "DQMServices/Core/interface/DQMStore.h"
 
+#include "DataFormats/EcalRawData/interface/EcalRawDataCollections.h"
 #include "DataFormats/EgammaReco/interface/BasicCluster.h"
 #include "DataFormats/EgammaReco/interface/SuperCluster.h"
 #include "DataFormats/EgammaReco/interface/SuperClusterFwd.h"
@@ -51,6 +52,7 @@ EEClusterTask::EEClusterTask(const ParameterSet& ps){
   mergeRuns_ = ps.getUntrackedParameter<bool>("mergeRuns", false);
 
   // parameters...
+  EcalRawDataCollection_ = ps.getParameter<edm::InputTag>("EcalRawDataCollection");
   BasicClusterCollection_ = ps.getParameter<edm::InputTag>("BasicClusterCollection");
   SuperClusterCollection_ = ps.getParameter<edm::InputTag>("SuperClusterCollection");
   ClusterShapeAssociation_ = ps.getParameter<edm::InputTag>("ClusterShapeAssociation");
@@ -484,6 +486,38 @@ void EEClusterTask::endJob(void){
 }
 
 void EEClusterTask::analyze(const Event& e, const EventSetup& c){
+
+  bool foundEcal=false;
+  bool isData = true;
+  bool enable=false;
+
+  Handle<EcalRawDataCollection> dcchs;
+
+  if ( e.getByLabel(EcalRawDataCollection_, dcchs) ) {
+
+    for ( EcalRawDataCollection::const_iterator dcchItr = dcchs->begin(); 
+	  dcchItr != dcchs->end() && foundEcal == false; ++dcchItr ) {
+
+      EcalDCCHeaderBlock dcch = (*dcchItr);
+
+      if ( Numbers::subDet( dcch ) != EcalEndcap ) continue;
+      else foundEcal = true;
+
+      if ( dcch.getRunType() == EcalDCCHeaderBlock::COSMIC ||
+           dcch.getRunType() == EcalDCCHeaderBlock::MTCC ||
+           dcch.getRunType() == EcalDCCHeaderBlock::COSMICS_GLOBAL ||
+           dcch.getRunType() == EcalDCCHeaderBlock::PHYSICS_GLOBAL ||
+           dcch.getRunType() == EcalDCCHeaderBlock::COSMICS_LOCAL ||
+           dcch.getRunType() == EcalDCCHeaderBlock::PHYSICS_LOCAL ) enable = true;
+
+    }
+
+  } else {
+    
+    isData = false; enable = true;
+    LogWarning("EEClusterTask") << EcalRawDataCollection_ << " not available";
+
+  }
 
   if ( ! init_ ) this->setup();
 
