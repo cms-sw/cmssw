@@ -10,6 +10,7 @@ Options:
   --cmsScimark=...       specify the number of times the cmsScimark benchmark is run before and after the performance suite on cpu1
   --cmsScimarkLarge=...  specify the number of times the cmsScimarkLarge benchmark is run before and after the performance suite on cpu1
   --cmsdriver=...        specify special options to use with the cmsDriver.py commands (designed for integration build use)
+  --step=...             specify the processing steps intended (instead of the default ones)
   --candle=...           specify the candle(s) to run (instead of all 7 default candles)
   --cpu=...              specify the core on which to run the performance suite
   --cores=...            specify the number of cores of the machine (can be used with 0 to stop cmsScimark from running on the other cores)
@@ -28,6 +29,9 @@ OR
 OR
 ./cmsPerfSuite.py -t 200 --candle QCD_80_120 --cmsdriver="--conditions FakeConditions"
 (this will run the performance tests only on candle QCD_80_120, running 200 TimeSize evts, default IgProf and Valgrind evts. It will also add the option "--conditions FakeConditions" to all cmsDriver.py commands executed by the suite)
+OR
+./cmsPerfSuite.py -t 200 --candle QCD_80_120 --cmsdriver="--conditions=FakeConditions --eventcontent=FEVTDEBUGHLT" --step=GEN-SIM,DIGI
+(this will run the performance tests only on candle QCD_80_120, running 200 TimeSize evts, default IgProf and Valgrind evts. It will also add the option "--conditions=FakeConditions" and the option "--eventcontent=FEVTDEBUGHLT" to all cmsDriver.py commands executed by the suite. In addition it will run only 2 cmsDriver.py "steps": "GEN,SIM" and "DIGI". Note the syntax GEN-SIM for combined cmsDriver.py steps)
 
 Legal entries for individual candles (--candle option):
 HiggsZZ4LM190
@@ -68,6 +72,7 @@ def main(argv):
     cmsScimark = "10"
     cmsScimarkLarge = "10"
     cmsdriverOptions = ""
+    stepOptions = ""
     candleoption=""
     #Number of cpu cores on the machine
     cores=4
@@ -75,7 +80,7 @@ def main(argv):
     cpu=1
     #Let's check the command line arguments
     try:
-        opts, args = getopt.getopt(argv, "o:t:i:v:hd", ["output=","timesize=","igprof=","valgrind=","cmsScimark=","cmsScimarkLarge=","cmsdriver=","candle=","cpu=","cores=","help"])
+        opts, args = getopt.getopt(argv, "o:t:i:v:hd", ["output=","timesize=","igprof=","valgrind=","cmsScimark=","cmsScimarkLarge=","cmsdriver=","step=","candle=","cpu=","cores=","help"])
     except getopt.GetoptError:
         print "This argument option is not accepted"
         usage()
@@ -101,6 +106,8 @@ def main(argv):
             cmsScimarkLarge = arg
         elif opt in ("-c","--cmsdriver"):
             cmsdriverOptions= arg
+        elif opt == "--step":
+            stepOptions=arg
         elif opt == "--candle":
             candleoption=arg
         elif opt == "--cpu":
@@ -128,6 +135,10 @@ def main(argv):
         print "Running cmsDriver.py with the special user defined options: %s" % cmsdriverOptions
         #Wrapping the options with "" for the cmsSimPyRelVal.pl until .py developed
         cmsdriverOptions='"'+cmsdriverOptions+'"'
+    if stepOptions !="":
+        print "Running user defined steps only: %s" % stepOptions
+        #Wrapping the options with "" for the cmsSimPyRelVal.pl until .py developed
+        stepOptions='"--usersteps='+stepOptions+'"'
     if candleoption !="":
         print "Running only %s candle, instead of the whole suite" % candleoption
     print "This machine ( %s ) is assumed to have %s cores, and the suite will be run on cpu %s" %(host,cores,cpu)
@@ -205,7 +216,7 @@ def main(argv):
             cmds=[]
             sys.stdout.flush()
             for candle in AllCandles:
-                cmd = 'mkdir '+candle+'_TimeSize;cd '+candle+'_TimeSize;'+Commands[2]+' '+TimeSizeEvents+' "'+Candles[candle]+'" 0123 '+cmsdriverOptions+';'+Commands[1]+' -i SimulationCandles_'+cmssw_version+'.txt -t perfreport_tmp -R -P >& '+candle+'.log'
+                cmd = 'mkdir '+candle+'_TimeSize;cd '+candle+'_TimeSize;'+Commands[2]+' '+TimeSizeEvents+' "'+Candles[candle]+'" 0123 '+cmsdriverOptions+' '+stepOptions+';'+Commands[1]+' -i SimulationCandles_'+cmssw_version+'.txt -t perfreport_tmp -R -P >& '+candle+'.log'
                 for subcmd in cmd.split(";"):
                     print subcmd
                     sys.stdout.flush()
@@ -217,7 +228,7 @@ def main(argv):
         else:
             usercandles=candleoption.split(",")
             for candle in usercandles:
-                cmd = 'mkdir '+candle+'_TimeSize;cd '+candle+'_TimeSize;'+Commands[2]+' '+TimeSizeEvents+' "'+Candles[candle]+'" 0123 '+cmsdriverOptions+';'+Commands[1]+' -i SimulationCandles_'+cmssw_version+'.txt -t perfreport_tmp -R -P >& '+candle+'.log'
+                cmd = 'mkdir '+candle+'_TimeSize;cd '+candle+'_TimeSize;'+Commands[2]+' '+TimeSizeEvents+' "'+Candles[candle]+'" 0123 '+cmsdriverOptions+' '+stepOptions+';'+Commands[1]+' -i SimulationCandles_'+cmssw_version+'.txt -t perfreport_tmp -R -P >& '+candle+'.log'
                 for subcmd in cmd.split(";"):
                     print subcmd
                     sys.stdout.flush()
@@ -236,7 +247,7 @@ def main(argv):
             sys.stdout.flush()
             #By default run IgProf only on QCD_80_120 candle
             candle = "QCD_80_120"
-            cmd = 'mkdir '+candle+'_IgProf;cd '+candle+'_IgProf;'+Commands[2]+' '+IgProfEvents+' "'+Candles[candle]+'" 4567 '+cmsdriverOptions+';'+Commands[1]+' -i SimulationCandles_'+cmssw_version+'.txt -t perfreport_tmp -R -P >& '+candle+'.log'
+            cmd = 'mkdir '+candle+'_IgProf;cd '+candle+'_IgProf;'+Commands[2]+' '+IgProfEvents+' "'+Candles[candle]+'" 4567 '+cmsdriverOptions+' '+stepOptions+';'+Commands[1]+' -i SimulationCandles_'+cmssw_version+'.txt -t perfreport_tmp -R -P >& '+candle+'.log'
             for subcmd in cmd.split(";"):
                 print subcmd
                 sys.stdout.flush()
@@ -249,7 +260,7 @@ def main(argv):
             #In the user-defined candles a different behavior: do IgProf for all specified candles (usually it will only be 1)
             usercandles=candleoption.split(",")
             for candle in usercandles:
-                cmd = 'mkdir '+candle+'_IgProf;cd '+candle+'_IgProf;'+Commands[2]+' '+IgProfEvents+' "'+Candles[candle]+'" 4567 '+cmsdriverOptions+';'+Commands[1]+' -i SimulationCandles_'+cmssw_version+'.txt -t perfreport_tmp -R -P >& '+candle+'.log'
+                cmd = 'mkdir '+candle+'_IgProf;cd '+candle+'_IgProf;'+Commands[2]+' '+IgProfEvents+' "'+Candles[candle]+'" 4567 '+cmsdriverOptions+' '+stepOptions+';'+Commands[1]+' -i SimulationCandles_'+cmssw_version+'.txt -t perfreport_tmp -R -P >& '+candle+'.log'
                 for subcmd in cmd.split(";"):
                     print subcmd
                     sys.stdout.flush()
@@ -269,7 +280,7 @@ def main(argv):
             #By default run Valgrind only on QCD_80_120, skipping SIM step since it would take forever (and do SIM step on SingleMu)
             candle = "QCD_80_120"
             print "Valgrind tests **SKIPPING GEN,SIM** on %s candle" % candle
-            cmd = 'mkdir '+candle+'_Valgrind;cd '+candle+'_Valgrind;cp -pR ../'+candle+'_IgProf/'+candle+'_GEN,SIM.root .;'+Commands[2]+' '+ValgrindEvents+' "'+Candles[candle]+'" 89 '+cmsdriverOptions+';grep -v "step=GEN,SIM" SimulationCandles_'+cmssw_version+'.txt > tmp;mv tmp SimulationCandles_'+cmssw_version+'.txt;'+Commands[1]+' -i SimulationCandles_'+cmssw_version+'.txt -t perfreport_tmp -R -P >& '+candle+'.log'
+            cmd = 'mkdir '+candle+'_Valgrind;cd '+candle+'_Valgrind;cp -pR ../'+candle+'_IgProf/'+candle+'_GEN,SIM.root .;'+Commands[2]+' '+ValgrindEvents+' "'+Candles[candle]+'" 89 '+cmsdriverOptions+' '+stepOptions+';grep -v "step=GEN,SIM" SimulationCandles_'+cmssw_version+'.txt > tmp;mv tmp SimulationCandles_'+cmssw_version+'.txt;'+Commands[1]+' -i SimulationCandles_'+cmssw_version+'.txt -t perfreport_tmp -R -P >& '+candle+'.log'
             for subcmd in cmd.split(";"):
                 print subcmd
                 sys.stdout.flush()
@@ -281,7 +292,7 @@ def main(argv):
             #By default run Valgring GEN,SIM profiling only on SingleMu (fastest) candle
             candle = "SingleMuMinusPt10"
             print "Valgrind tests **GEN,SIM ONLY** on %s candle" % candle
-            cmd = 'mkdir '+candle+'_Valgrind;cd '+candle+'_Valgrind;'+Commands[2]+' '+ValgrindEvents+' "'+Candles[candle]+'" 89 '+cmsdriverOptions+';grep "step=GEN,SIM" SimulationCandles_'+cmssw_version+'.txt > tmp;mv tmp SimulationCandles_'+cmssw_version+'.txt;'+Commands[1]+' -i SimulationCandles_'+cmssw_version+'.txt -t perfreport_tmp -R -P >& '+candle+'.log'
+            cmd = 'mkdir '+candle+'_Valgrind;cd '+candle+'_Valgrind;'+Commands[2]+' '+ValgrindEvents+' "'+Candles[candle]+'" 89 '+cmsdriverOptions+' '+stepOptions+';grep "step=GEN,SIM" SimulationCandles_'+cmssw_version+'.txt > tmp;mv tmp SimulationCandles_'+cmssw_version+'.txt;'+Commands[1]+' -i SimulationCandles_'+cmssw_version+'.txt -t perfreport_tmp -R -P >& '+candle+'.log'
             for subcmd in cmd.split(";"):
                 print subcmd
                 sys.stdout.flush()
@@ -295,7 +306,7 @@ def main(argv):
             usercandles=candleoption.split(",")
             for candle in usercandles:
                 print "Valgrind tests **SKIPPING GEN,SIM** on %s candle" % candle
-                cmd = 'mkdir '+candle+'_Valgrind;cd '+candle+'_Valgrind;cp -pR ../'+candle+'_IgProf/'+candle+'_GEN,SIM.root .;'+Commands[2]+' '+ValgrindEvents+' "'+Candles[candle]+'" 89 '+cmsdriverOptions+';grep -v "step=GEN,SIM" SimulationCandles_'+cmssw_version+'.txt > tmp;mv tmp SimulationCandles_'+cmssw_version+'.txt;'+Commands[1]+' -i SimulationCandles_'+cmssw_version+'.txt -t perfreport_tmp -R -P >& '+candle+'.log'
+                cmd = 'mkdir '+candle+'_Valgrind;cd '+candle+'_Valgrind;cp -pR ../'+candle+'_IgProf/'+candle+'_GEN,SIM.root .;'+Commands[2]+' '+ValgrindEvents+' "'+Candles[candle]+'" 89 '+cmsdriverOptions+' '+stepOptions+';grep -v "step=GEN,SIM" SimulationCandles_'+cmssw_version+'.txt > tmp;mv tmp SimulationCandles_'+cmssw_version+'.txt;'+Commands[1]+' -i SimulationCandles_'+cmssw_version+'.txt -t perfreport_tmp -R -P >& '+candle+'.log'
                 for subcmd in cmd.split(";"):
                     print subcmd
                     sys.stdout.flush()
@@ -307,7 +318,7 @@ def main(argv):
             #Besides always run, only once the GEN,SIM step on SingleMu:
             candle = "SingleMuMinusPt10"
             print "Valgrind tests **GEN,SIM ONLY** on %s candle" % candle
-            cmd = 'mkdir '+candle+'_Valgrind;cd '+candle+'_Valgrind;'+Commands[2]+' '+ValgrindEvents+' "'+Candles[candle]+'" 89 '+cmsdriverOptions+';grep "step=GEN,SIM" SimulationCandles_'+cmssw_version+'.txt > tmp;mv tmp SimulationCandles_'+cmssw_version+'.txt;'+Commands[1]+' -i SimulationCandles_'+cmssw_version+'.txt -t perfreport_tmp -R -P >& '+candle+'.log'
+            cmd = 'mkdir '+candle+'_Valgrind;cd '+candle+'_Valgrind;'+Commands[2]+' '+ValgrindEvents+' "'+Candles[candle]+'" 89 '+cmsdriverOptions+' '+stepOptions+';grep "step=GEN,SIM" SimulationCandles_'+cmssw_version+'.txt > tmp;mv tmp SimulationCandles_'+cmssw_version+'.txt;'+Commands[1]+' -i SimulationCandles_'+cmssw_version+'.txt -t perfreport_tmp -R -P >& '+candle+'.log'
             for subcmd in cmd.split(";"):
                 print subcmd
                 sys.stdout.flush()
