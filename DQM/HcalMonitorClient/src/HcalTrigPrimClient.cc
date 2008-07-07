@@ -180,15 +180,15 @@ void HcalTrigPrimClient::getHistograms(){
   tpSOI_ET_ = getHisto("TrigPrimMonitor/Energy Plots/TP SOI ET", process_, dbe_, debug_,cloneME_);  
   OCC_ETA_ = getHisto("TrigPrimMonitor/Geometry Plots/TrigPrim Eta Occupancy Map",process_, dbe_, debug_,cloneME_);  
   OCC_PHI_ = getHisto("TrigPrimMonitor/Geometry Plots/TrigPrim Phi Occupancy Map",process_, dbe_, debug_,cloneME_);  
-  OCC_ELEC_VME_ = getHisto2("TrigPrimMonitor/Electronics Plots/ZZ Expert Plots/TrigPrim VME Occupancy Map",process_, dbe_, debug_,cloneME_);  
-  OCC_ELEC_DCC_ = getHisto2("TrigPrimMonitor/Electronics Plots/ZZ Expert Plots/TrigPrim Spigot Occupancy Map",process_, dbe_, debug_,cloneME_);  
+  OCC_ELEC_VME_ = getHisto2("TrigPrimMonitor/Electronics Plots/TrigPrim VME Occupancy Map",process_, dbe_, debug_,cloneME_);  
+  OCC_ELEC_DCC_ = getHisto2("TrigPrimMonitor/Electronics Plots/TrigPrim Spigot Occupancy Map",process_, dbe_, debug_,cloneME_);  
   OCC_MAP_GEO_ = getHisto2("TrigPrimMonitor/Geometry Plots/TrigPrim Geo Occupancy Map",process_, dbe_, debug_,cloneME_);  
 
   OCC_MAP_THR_ = getHisto2("TrigPrimMonitor/Geometry Plots/TrigPrim Geo Threshold Map",process_, dbe_, debug_,cloneME_);  
   EN_ETA_ = getHisto("TrigPrimMonitor/Geometry Plots/TrigPrim Eta Energy Map",process_, dbe_, debug_,cloneME_);  
   EN_PHI_ = getHisto("TrigPrimMonitor/Geometry Plots/TrigPrim Phi Energy Map",process_, dbe_, debug_,cloneME_);  
-  EN_ELEC_VME_ = getHisto2("TrigPrimMonitor/Electronics Plots/ZZ Expert Plots/TrigPrim VME Energy Map",process_, dbe_, debug_,cloneME_);  
-  EN_ELEC_DCC_ = getHisto2("TrigPrimMonitor/Electronics Plots/ZZ Expert Plots/TrigPrim Spigot Energy Map",process_, dbe_, debug_,cloneME_);  
+  EN_ELEC_VME_ = getHisto2("TrigPrimMonitor/Electronics Plots/TrigPrim VME Energy Map",process_, dbe_, debug_,cloneME_);  
+  EN_ELEC_DCC_ = getHisto2("TrigPrimMonitor/Electronics Plots/TrigPrim Spigot Energy Map",process_, dbe_, debug_,cloneME_);  
   EN_MAP_GEO_ = getHisto2("TrigPrimMonitor/Geometry Plots/TrigPrim Geo Energy Map",process_, dbe_, debug_,cloneME_);  
 
   TPTiming_ = getHisto("TrigPrimMonitor/Timing Plots/TP Timing",process_, dbe_, debug_,cloneME_);  
