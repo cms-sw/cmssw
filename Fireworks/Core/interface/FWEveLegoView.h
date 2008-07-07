@@ -16,7 +16,7 @@
 //
 // Original Author:  Chris Jones
 //         Created:  Thu Feb 21 11:22:37 EST 2008
-// $Id: FWEveLegoView.h,v 1.6 2008/06/26 00:33:57 dmytro Exp $
+// $Id: FWEveLegoView.h,v 1.7 2008/06/28 22:20:54 dmytro Exp $
 //
 
 // system include files
@@ -57,7 +57,8 @@ class FWEveLegoView : public FWViewBase
       static const std::string& staticTypeName();
    
       // ---------- member functions ---------------------------
-      void draw(TEveCaloDataHist* data);
+      void finishSetup();
+      //void draw(TEveCaloDataHist* data);
       virtual void setFrom(const FWConfiguration&);
       // set energy thresholds from the parameters  
       void setMinEnergy();
@@ -79,13 +80,13 @@ class FWEveLegoView : public FWViewBase
       TEveCaloLego* m_lego;
       
       // FWLongParameter m_range;
-      FWDoubleParameter m_minEcalEnergy;
-      FWDoubleParameter m_minHcalEnergy;
-      double m_minEcalEnergyInit;
-      double m_minHcalEnergyInit;
+      //FWDoubleParameter m_minEcalEnergy;
+      //FWDoubleParameter m_minHcalEnergy;
+      //double m_minEcalEnergyInit;
+      //double m_minHcalEnergyInit;
       
-      TEveCaloData::SliceInfo_t* m_ecalSlice;
-      TEveCaloData::SliceInfo_t* m_hcalSlice;
+      //TEveCaloData::SliceInfo_t* m_ecalSlice;
+      //TEveCaloData::SliceInfo_t* m_hcalSlice;
       
       TGLMatrix*  m_cameraMatrix;
       TGLMatrix*  m_cameraMatrixBase;

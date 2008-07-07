@@ -8,7 +8,7 @@
 //
 // Original Author:  Chris Jones
 //         Created:  Thu Feb 21 11:22:41 EST 2008
-// $Id: FWEveLegoView.cc,v 1.16 2008/07/04 01:35:33 dmytro Exp $
+// $Id: FWEveLegoView.cc,v 1.17 2008/07/05 20:22:21 dmytro Exp $
 //
 
 // system include files
@@ -65,10 +65,10 @@
 // constructors and destructor
 //
 FWEveLegoView::FWEveLegoView(TGFrame* iParent, TEveElementList* list):
- m_minEcalEnergy(this,"ECAL energy threshold (GeV)",1.,0.,100.),
- m_minHcalEnergy(this,"HCAL energy threshold (GeV)",1.,0.,100.),
- m_ecalSlice(0),
- m_hcalSlice(0),
+ //m_minEcalEnergy(this,"ECAL energy threshold (GeV)",1.,0.,100.),
+ //m_minHcalEnergy(this,"HCAL energy threshold (GeV)",1.,0.,100.),
+ //m_ecalSlice(0),
+ //m_hcalSlice(0),
  m_cameraMatrix(0),
  m_cameraMatrixBase(0),
  m_cameraMatrixRef(0),
@@ -107,6 +107,7 @@ FWEveLegoView::FWEveLegoView(TGFrame* iParent, TEveElementList* list):
    m_viewer=nv;
    gEve->AddElement(nv, gEve->GetViewers());
    
+   /*
    TEveRGBAPalette* pal = new TEveRGBAPalette(0, 100);
    // pal->SetLimits(0, data->GetMaxVal());
    pal->SetLimits(0, 100);
@@ -126,15 +127,24 @@ FWEveLegoView::FWEveLegoView(TGFrame* iParent, TEveElementList* list):
    // lego->SetTitle("caloTower Et distribution");
    gEve->AddElement(m_lego, ns);
    gEve->AddToListTree(m_lego, kTRUE);
+    */
    gEve->AddElement(list,ns);
    gEve->AddToListTree(list, kTRUE);
-   m_minEcalEnergy.changed_.connect(boost::bind(&FWEveLegoView::setMinEcalEnergy,this,_1));
-   m_minHcalEnergy.changed_.connect(boost::bind(&FWEveLegoView::setMinHcalEnergy,this,_1));
+   //CDJ This is done too early setCameras();
+   //m_minEcalEnergy.changed_.connect(boost::bind(&FWEveLegoView::setMinEcalEnergy,this,_1));
+   //m_minHcalEnergy.changed_.connect(boost::bind(&FWEveLegoView::setMinHcalEnergy,this,_1));
    
 }
 
 FWEveLegoView::~FWEveLegoView()
 {
+   delete m_viewer;
+}
+
+void
+FWEveLegoView::finishSetup()
+{
+   if ( ! m_cameraSet ) setCameras();
 }
 
 void
@@ -165,7 +175,7 @@ FWEveLegoView::setCameras()
    m_cameraSet = true;
 }
 
-
+#if defined(THIS_WILL_NEVER_BE_DEFINED)
 void
 FWEveLegoView::draw(TEveCaloDataHist* data)
 {
@@ -173,7 +183,7 @@ FWEveLegoView::draw(TEveCaloDataHist* data)
    m_lego->SetData(data);
    m_lego->ElementChanged();
    m_lego->DataChanged();
-   if ( ! m_cameraSet ) setCameras();
+   if ( ! m_cameraSet ) setCameras();*/
      /*
      {
       m_scene->Repaint();
@@ -184,12 +194,13 @@ FWEveLegoView::draw(TEveCaloDataHist* data)
    }
       */
    // m_viewer->GetGLViewer()->UpdateScene();
-   m_viewer->GetGLViewer()->RequestDraw();
+   //CDJ m_viewer->GetGLViewer()->RequestDraw();
 }
 
 void 
 FWEveLegoView::setMinEcalEnergy(double value)
 {
+   /*
    const std::string name = "ecalLego";
    if ( ! m_lego->GetData() ) return;
    if ( ! m_ecalSlice )
@@ -204,11 +215,13 @@ FWEveLegoView::setMinEcalEnergy(double value)
    m_lego->ElementChanged();
    m_lego->DataChanged();
    m_viewer->GetGLViewer()->RequestDraw();
+    */
 }
 
 void 
 FWEveLegoView::setMinHcalEnergy(double value)
 {
+   /*
    const std::string name = "hcalLego";
    if ( ! m_lego->GetData() ) return;
    if ( ! m_hcalSlice )
@@ -223,14 +236,18 @@ FWEveLegoView::setMinHcalEnergy(double value)
    m_lego->ElementChanged();
    m_lego->DataChanged();
    m_viewer->GetGLViewer()->RequestDraw();
+    */
 }
 
 void 
 FWEveLegoView::setMinEnergy()
 {
+   /*
    setMinEcalEnergy( m_minEcalEnergy.value() );
    setMinHcalEnergy( m_minHcalEnergy.value() );
+    */
 }
+#endif
 
 void 
 FWEveLegoView::setFrom(const FWConfiguration& iFrom)
