@@ -203,6 +203,10 @@ void HcalHotCellClient::htmlOutput(int runNo, string htmlDir, string htmlName)
 
   cout << "Preparing HcalHotCellClient html output ..." << endl;
   string client = "HotCellMonitor";
+
+   // Fill overall HCAL histograms from subdetector output (saves time)
+  combineSubDetHistograms(hcalhists, hbhists, hehists, hohists, hfhists);
+  
   htmlErrors(runNo,htmlDir,client,process_,dbe_,dqmReportMapErr_,dqmReportMapWarn_,dqmReportMapOther_);
   
   htmlFile.open((htmlDir + htmlName).c_str());
@@ -335,25 +339,25 @@ htmlFile << "<td align=\"center\">&nbsp;&nbsp;&nbsp;<h3>Cells matching hot condi
 	      eta=ieta+int(etaMin)-1;
 	      phi=iphi+int(phiMin)-1;
 
-	      if (subDetsOn_[0] && hbhists.problemHotCells_DEPTH[depth]!=NULL &&  hbhists.problemHotCells_DEPTH[depth]->GetBinContent(ieta,iphi)>=errorFrac_*ievt_)
+	      if (depth<2 && subDetsOn_[0] && hbhists.problemHotCells_DEPTH[depth]!=NULL &&  hbhists.problemHotCells_DEPTH[depth]->GetBinContent(ieta,iphi)>=errorFrac_*ievt_)
 		{
 		  htmlFile<<"<td align=\"center\"> HB ("<<eta<<", "<<phi<<", "<<depth+1<<") </td><td align=\"center\"> "<<100.*hbhists.problemHotCells_DEPTH[depth]->GetBinContent(ieta,iphi)/ievt_<<"%</td></tr>"<<endl;
 		  hotcellcount[0]++;
 		}
 
-	      if (subDetsOn_[1]&& hehists.problemHotCells_DEPTH[depth]!=NULL && hehists.problemHotCells_DEPTH[depth]->GetBinContent(ieta,iphi)>=errorFrac_*ievt_)
+	      if (depth<3 && subDetsOn_[1]&& hehists.problemHotCells_DEPTH[depth]!=NULL && hehists.problemHotCells_DEPTH[depth]->GetBinContent(ieta,iphi)>=errorFrac_*ievt_)
 		{
 		  htmlFile<<"<td align=\"center\"> HE ("<<eta<<", "<<phi<<", "<<depth+1<<") </td><td align=\"center\"> "<<100.*hehists.problemHotCells_DEPTH[depth]->GetBinContent(ieta,iphi)/ievt_<<"%</td></tr>"<<endl;
 		  hotcellcount[1]++;
 		}
 
-	      if (subDetsOn_[2]&& hohists.problemHotCells_DEPTH[depth]!=NULL && hohists.problemHotCells_DEPTH[depth]->GetBinContent(ieta,iphi)>=errorFrac_*ievt_)
+	      if (depth==3 && subDetsOn_[2]&& hohists.problemHotCells_DEPTH[depth]!=NULL && hohists.problemHotCells_DEPTH[depth]->GetBinContent(ieta,iphi)>=errorFrac_*ievt_)
 		{
 		  htmlFile<<"<td align=\"center\"> HO ("<<eta<<", "<<phi<<", "<<depth+1<<") </td><td align=\"center\"> "<<100.*hohists.problemHotCells_DEPTH[depth]->GetBinContent(ieta,iphi)/ievt_<<"%</td></tr>"<<endl;
 		  hotcellcount[2]++;
 		}
 
-	      if (subDetsOn_[3] && hfhists.problemHotCells_DEPTH[depth]!=NULL && hfhists.problemHotCells_DEPTH[depth]->GetBinContent(ieta,iphi)>=errorFrac_*ievt_)
+	      if (depth<2 && subDetsOn_[3] && hfhists.problemHotCells_DEPTH[depth]!=NULL && hfhists.problemHotCells_DEPTH[depth]->GetBinContent(ieta,iphi)>=errorFrac_*ievt_)
 		{
 		  htmlFile<<"<td align=\"center\"> HF ("<<eta<<", "<<phi<<", "<<depth+1<<") </td><td align=\"center\"> "<<100.*hfhists.problemHotCells_DEPTH[depth]->GetBinContent(ieta,iphi)/ievt_<<"%</td></tr>"<<endl;
 		  hotcellcount[3]++;
@@ -986,6 +990,192 @@ void HcalHotCellClient::getSubDetHistogramsFromFile(HotCellHists& hist, TFile* i
   return;
 }
 
+
+
+void HcalHotCellClient::combineSubDetHistograms(HotCellHists& hcal, HotCellHists& hb, HotCellHists& he, HotCellHists& ho, HotCellHists& hf)
+{
+  if (debug_)
+    cout <<"<HcalHotCellClient::combineSubDetHistograms>"<<endl;
+  //HB
+  if (subDetsOn_[0])
+    {
+      /*
+      if (hb.maxCellOccMap!=NULL) hcal.maxCellOccMap->Add(hb.maxCellOccMap);
+      if (hb.maxCellEnergyMap!=NULL) hcal.maxCellEnergyMap->Add(hb.maxCellEnergyMap);
+      if (hb.maxCellEnergy!=NULL) hcal.maxCellEnergy->Add(hb.maxCellEnergy);
+      if (hb.maxCellTime!=NULL) hcal.maxCellTime->Add(hb.maxCellTime);
+      if (hb.maxCellID!=NULL) hcal.maxCellID->Add(hb.maxCellID);
+      */
+
+      if (hb.abovePedSigma!=NULL) hcal.abovePedSigma->Add(hb.abovePedSigma);
+      // NADA histograms
+      if (hb.nadaOccMap!=NULL) hcal.nadaOccMap->Add(hb.nadaOccMap);
+      if (hb.nadaEnergyMap!=NULL) hcal.nadaEnergyMap->Add(hb.nadaEnergyMap);
+      if (hb.nadaNumHotCells!=NULL) hcal.nadaNumHotCells->Add(hb.nadaNumHotCells);
+      if (hb.nadaEnergy!=NULL) hcal.nadaEnergy->Add(hb.nadaEnergy);
+      if (hb.nadaNumNegCells!=NULL) hcal.nadaNumNegCells->Add(hb.nadaNumNegCells);
+      if (hb.nadaNegOccMap!=NULL) hcal.nadaNegOccMap->Add(hb.nadaNegOccMap);
+      if (hb.nadaNegEnergyMap!=NULL) hcal.nadaNegEnergyMap->Add(hb.nadaNegEnergyMap);
+      
+      for (int i=0;i<5;++i)
+	{
+	  if (hb.threshOccMap[i]!=NULL) hcal.threshOccMap[i]->Add(hb.threshOccMap[i]);
+	  if (hb.threshEnergyMap[i]!=NULL) hcal.threshEnergyMap[i]->Add(hb.threshEnergyMap[i]);
+	  if (hb.threshOccMapDepth1[i]!=NULL) hcal.threshOccMapDepth1[i]->Add(hb.threshOccMapDepth1[i]);
+	  if (hb.threshEnergyMapDepth1[i]!=NULL) hcal.threshEnergyMapDepth1[i]->Add(hb.threshEnergyMapDepth1[i]);
+	  if (hb.threshOccMapDepth2[i]!=NULL) hcal.threshOccMapDepth2[i]->Add(hb.threshOccMapDepth2[i]);
+	  if (hb.threshEnergyMapDepth2[i]!=NULL) hcal.threshEnergyMapDepth2[i]->Add(hb.threshEnergyMapDepth2[i]);
+	  if (hb.threshOccMapDepth3[i]!=NULL) hcal.threshOccMapDepth3[i]->Add(hb.threshOccMapDepth3[i]);
+	  if (hb.threshEnergyMapDepth3[i]!=NULL) hcal.threshEnergyMapDepth3[i]->Add(hb.threshEnergyMapDepth3[i]);
+	  if (hb.threshOccMapDepth4[i]!=NULL) hcal.threshOccMapDepth4[i]->Add(hb.threshOccMapDepth4[i]);
+	  if (hb.threshEnergyMapDepth4[i]!=NULL) hcal.threshEnergyMapDepth4[i]->Add(hb.threshEnergyMapDepth4[i]);
+	}
+
+      for (int i=0;i<4;++i)
+	{
+	  if (hb.problemHotCells_DEPTH[i]!=NULL) hcal.problemHotCells_DEPTH[i]->Add(hb.problemHotCells_DEPTH[i]);
+	  if (hb.nadaOccMapDepth[i]!=NULL) hcal.nadaOccMapDepth[i]->Add(hb.nadaOccMapDepth[i]);
+	  if (hb.nadaNegOccMapDepth[i]!=NULL) hcal.nadaNegOccMapDepth[i]->Add(hb.nadaNegOccMapDepth[i]);
+	 if (hb.nadaEnergyMapDepth[i]!=NULL) hcal.nadaEnergyMapDepth[i]->Add(hb.nadaEnergyMapDepth[i]);
+	  if (hb.nadaNegEnergyMapDepth[i]!=NULL) hcal.nadaNegEnergyMapDepth[i]->Add(hb.nadaNegEnergyMapDepth[i]);
+	}
+    } // HB
+
+  //HE
+  if (subDetsOn_[1])
+    {
+      /*
+      if (he.maxCellOccMap!=NULL) hcal.maxCellOccMap->Add(he.maxCellOccMap);
+      if (he.maxCellEnergyMap!=NULL) hcal.maxCellEnergyMap->Add(he.maxCellEnergyMap);
+      if (he.maxCellEnergy!=NULL) hcal.maxCellEnergy->Add(he.maxCellEnergy);
+      if (he.maxCellTime!=NULL) hcal.maxCellTime->Add(he.maxCellTime);
+      if (he.maxCellID!=NULL) hcal.maxCellID->Add(he.maxCellID);
+      */
+
+      if (he.abovePedSigma!=NULL) hcal.abovePedSigma->Add(he.abovePedSigma);
+      // NADA histograms
+      if (he.nadaOccMap!=NULL) hcal.nadaOccMap->Add(he.nadaOccMap);
+      if (he.nadaEnergyMap!=NULL) hcal.nadaEnergyMap->Add(he.nadaEnergyMap);
+      if (he.nadaNumHotCells!=NULL) hcal.nadaNumHotCells->Add(he.nadaNumHotCells);
+      if (he.nadaEnergy!=NULL) hcal.nadaEnergy->Add(he.nadaEnergy);
+      if (he.nadaNumNegCells!=NULL) hcal.nadaNumNegCells->Add(he.nadaNumNegCells);
+      if (he.nadaNegOccMap!=NULL) hcal.nadaNegOccMap->Add(he.nadaNegOccMap);
+      if (he.nadaNegEnergyMap!=NULL) hcal.nadaNegEnergyMap->Add(he.nadaNegEnergyMap);
+      
+      for (int i=0;i<5;++i)
+	{
+	  if (he.threshOccMap[i]!=NULL) hcal.threshOccMap[i]->Add(he.threshOccMap[i]);
+	  if (he.threshEnergyMap[i]!=NULL) hcal.threshEnergyMap[i]->Add(he.threshEnergyMap[i]);
+	  if (he.threshOccMapDepth1[i]!=NULL) hcal.threshOccMapDepth1[i]->Add(he.threshOccMapDepth1[i]);
+	  if (he.threshEnergyMapDepth1[i]!=NULL) hcal.threshEnergyMapDepth1[i]->Add(he.threshEnergyMapDepth1[i]);
+	  if (he.threshOccMapDepth2[i]!=NULL) hcal.threshOccMapDepth2[i]->Add(he.threshOccMapDepth2[i]);
+	  if (he.threshEnergyMapDepth2[i]!=NULL) hcal.threshEnergyMapDepth2[i]->Add(he.threshEnergyMapDepth2[i]);
+	  if (he.threshOccMapDepth3[i]!=NULL) hcal.threshOccMapDepth3[i]->Add(he.threshOccMapDepth3[i]);
+	  if (he.threshEnergyMapDepth3[i]!=NULL) hcal.threshEnergyMapDepth3[i]->Add(he.threshEnergyMapDepth3[i]);
+	  if (he.threshOccMapDepth4[i]!=NULL) hcal.threshOccMapDepth4[i]->Add(he.threshOccMapDepth4[i]);
+	  if (he.threshEnergyMapDepth4[i]!=NULL) hcal.threshEnergyMapDepth4[i]->Add(he.threshEnergyMapDepth4[i]);
+	}
+
+      for (int i=0;i<4;++i)
+	{
+	  if (he.problemHotCells_DEPTH[i]!=NULL) hcal.problemHotCells_DEPTH[i]->Add(he.problemHotCells_DEPTH[i]);
+	  if (he.nadaOccMapDepth[i]!=NULL) hcal.nadaOccMapDepth[i]->Add(he.nadaOccMapDepth[i]);
+	  if (he.nadaNegOccMapDepth[i]!=NULL) hcal.nadaNegOccMapDepth[i]->Add(he.nadaNegOccMapDepth[i]);
+	 if (he.nadaEnergyMapDepth[i]!=NULL) hcal.nadaEnergyMapDepth[i]->Add(he.nadaEnergyMapDepth[i]);
+	  if (he.nadaNegEnergyMapDepth[i]!=NULL) hcal.nadaNegEnergyMapDepth[i]->Add(he.nadaNegEnergyMapDepth[i]);
+	}
+    } // HE
+
+  //HO
+  if (subDetsOn_[2])
+    {
+      /*
+      if (ho.maxCellOccMap!=NULL) hcal.maxCellOccMap->Add(ho.maxCellOccMap);
+      if (ho.maxCellEnergyMap!=NULL) hcal.maxCellEnergyMap->Add(ho.maxCellEnergyMap);
+      if (ho.maxCellEnergy!=NULL) hcal.maxCellEnergy->Add(ho.maxCellEnergy);
+      if (ho.maxCellTime!=NULL) hcal.maxCellTime->Add(ho.maxCellTime);
+      if (ho.maxCellID!=NULL) hcal.maxCellID->Add(ho.maxCellID);
+      */
+
+      if (ho.abovePedSigma!=NULL) hcal.abovePedSigma->Add(ho.abovePedSigma);
+      // NADA histograms
+      if (ho.nadaOccMap!=NULL) hcal.nadaOccMap->Add(ho.nadaOccMap);
+      if (ho.nadaEnergyMap!=NULL) hcal.nadaEnergyMap->Add(ho.nadaEnergyMap);
+      if (ho.nadaNumHotCells!=NULL) hcal.nadaNumHotCells->Add(ho.nadaNumHotCells);
+      if (ho.nadaEnergy!=NULL) hcal.nadaEnergy->Add(ho.nadaEnergy);
+      if (ho.nadaNumNegCells!=NULL) hcal.nadaNumNegCells->Add(ho.nadaNumNegCells);
+      if (ho.nadaNegOccMap!=NULL) hcal.nadaNegOccMap->Add(ho.nadaNegOccMap);
+      if (ho.nadaNegEnergyMap!=NULL) hcal.nadaNegEnergyMap->Add(ho.nadaNegEnergyMap);
+      
+      for (int i=0;i<5;++i)
+	{
+	  if (ho.threshOccMap[i]!=NULL) hcal.threshOccMap[i]->Add(ho.threshOccMap[i]);
+	  if (ho.threshEnergyMap[i]!=NULL) hcal.threshEnergyMap[i]->Add(ho.threshEnergyMap[i]);
+	  if (ho.threshOccMapDepth1[i]!=NULL) hcal.threshOccMapDepth1[i]->Add(ho.threshOccMapDepth1[i]);
+	  if (ho.threshEnergyMapDepth1[i]!=NULL) hcal.threshEnergyMapDepth1[i]->Add(ho.threshEnergyMapDepth1[i]);
+	  if (ho.threshOccMapDepth2[i]!=NULL) hcal.threshOccMapDepth2[i]->Add(ho.threshOccMapDepth2[i]);
+	  if (ho.threshEnergyMapDepth2[i]!=NULL) hcal.threshEnergyMapDepth2[i]->Add(ho.threshEnergyMapDepth2[i]);
+	  if (ho.threshOccMapDepth3[i]!=NULL) hcal.threshOccMapDepth3[i]->Add(ho.threshOccMapDepth3[i]);
+	  if (ho.threshEnergyMapDepth3[i]!=NULL) hcal.threshEnergyMapDepth3[i]->Add(ho.threshEnergyMapDepth3[i]);
+	  if (ho.threshOccMapDepth4[i]!=NULL) hcal.threshOccMapDepth4[i]->Add(ho.threshOccMapDepth4[i]);
+	  if (ho.threshEnergyMapDepth4[i]!=NULL) hcal.threshEnergyMapDepth4[i]->Add(ho.threshEnergyMapDepth4[i]);
+	}
+
+      for (int i=0;i<4;++i)
+	{
+	  if (ho.problemHotCells_DEPTH[i]!=NULL) hcal.problemHotCells_DEPTH[i]->Add(ho.problemHotCells_DEPTH[i]);
+	  if (ho.nadaOccMapDepth[i]!=NULL) hcal.nadaOccMapDepth[i]->Add(ho.nadaOccMapDepth[i]);
+	  if (ho.nadaNegOccMapDepth[i]!=NULL) hcal.nadaNegOccMapDepth[i]->Add(ho.nadaNegOccMapDepth[i]);
+	 if (ho.nadaEnergyMapDepth[i]!=NULL) hcal.nadaEnergyMapDepth[i]->Add(ho.nadaEnergyMapDepth[i]);
+	  if (ho.nadaNegEnergyMapDepth[i]!=NULL) hcal.nadaNegEnergyMapDepth[i]->Add(ho.nadaNegEnergyMapDepth[i]);
+	}
+    } // HO
+
+  //HF
+  if (subDetsOn_[3])
+    {
+      /*
+	// Max cell histograms filled in Task Monitor
+      if (hf.maxCellOccMap!=NULL) hcal.maxCellOccMap->Add(hf.maxCellOccMap);
+      if (hf.maxCellEnergyMap!=NULL) hcal.maxCellEnergyMap->Add(hf.maxCellEnergyMap);
+      if (hf.maxCellEnergy!=NULL) hcal.maxCellEnergy->Add(hf.maxCellEnergy);
+      if (hf.maxCellTime!=NULL) hcal.maxCellTime->Add(hf.maxCellTime);
+      if (hf.maxCellID!=NULL) hcal.maxCellID->Add(hf.maxCellID);
+      */
+      if (hf.abovePedSigma!=NULL) hcal.abovePedSigma->Add(hf.abovePedSigma);
+      // NADA histograms
+      if (hf.nadaOccMap!=NULL) hcal.nadaOccMap->Add(hf.nadaOccMap);
+      if (hf.nadaEnergyMap!=NULL) hcal.nadaEnergyMap->Add(hf.nadaEnergyMap);
+      if (hf.nadaNumHotCells!=NULL) hcal.nadaNumHotCells->Add(hf.nadaNumHotCells);
+      if (hf.nadaEnergy!=NULL) hcal.nadaEnergy->Add(hf.nadaEnergy);
+      if (hf.nadaNumNegCells!=NULL) hcal.nadaNumNegCells->Add(hf.nadaNumNegCells);
+      if (hf.nadaNegOccMap!=NULL) hcal.nadaNegOccMap->Add(hf.nadaNegOccMap);
+      if (hf.nadaNegEnergyMap!=NULL) hcal.nadaNegEnergyMap->Add(hf.nadaNegEnergyMap);
+      
+      for (int i=0;i<5;++i)
+	{
+	  if (hf.threshOccMap[i]!=NULL) hcal.threshOccMap[i]->Add(hf.threshOccMap[i]);
+	  if (hf.threshEnergyMap[i]!=NULL) hcal.threshEnergyMap[i]->Add(hf.threshEnergyMap[i]);
+	  if (hf.threshOccMapDepth1[i]!=NULL) hcal.threshOccMapDepth1[i]->Add(hf.threshOccMapDepth1[i]);
+	  if (hf.threshEnergyMapDepth1[i]!=NULL) hcal.threshEnergyMapDepth1[i]->Add(hf.threshEnergyMapDepth1[i]);
+	  if (hf.threshOccMapDepth2[i]!=NULL) hcal.threshOccMapDepth2[i]->Add(hf.threshOccMapDepth2[i]);
+	  if (hf.threshEnergyMapDepth2[i]!=NULL) hcal.threshEnergyMapDepth2[i]->Add(hf.threshEnergyMapDepth2[i]);
+	  if (hf.threshOccMapDepth3[i]!=NULL) hcal.threshOccMapDepth3[i]->Add(hf.threshOccMapDepth3[i]);
+	  if (hf.threshEnergyMapDepth3[i]!=NULL) hcal.threshEnergyMapDepth3[i]->Add(hf.threshEnergyMapDepth3[i]);
+	  if (hf.threshOccMapDepth4[i]!=NULL) hcal.threshOccMapDepth4[i]->Add(hf.threshOccMapDepth4[i]);
+	  if (hf.threshEnergyMapDepth4[i]!=NULL) hcal.threshEnergyMapDepth4[i]->Add(hf.threshEnergyMapDepth4[i]);
+	}
+
+      for (int i=0;i<4;++i)
+	{
+	  if (hf.problemHotCells_DEPTH[i]!=NULL) hcal.problemHotCells_DEPTH[i]->Add(hf.problemHotCells_DEPTH[i]);
+	  if (hf.nadaOccMapDepth[i]!=NULL) hcal.nadaOccMapDepth[i]->Add(hf.nadaOccMapDepth[i]);
+	  if (hf.nadaNegOccMapDepth[i]!=NULL) hcal.nadaNegOccMapDepth[i]->Add(hf.nadaNegOccMapDepth[i]);
+	 if (hf.nadaEnergyMapDepth[i]!=NULL) hcal.nadaEnergyMapDepth[i]->Add(hf.nadaEnergyMapDepth[i]);
+	  if (hf.nadaNegEnergyMapDepth[i]!=NULL) hcal.nadaNegEnergyMapDepth[i]->Add(hf.nadaNegEnergyMapDepth[i]);
+	}
+    } // HF
+} // void combineSubDetHistograms(...)
 
 
 void HcalHotCellClient::resetSubDetHistograms(HotCellHists& hist)

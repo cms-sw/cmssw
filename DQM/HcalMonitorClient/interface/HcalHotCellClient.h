@@ -112,6 +112,7 @@ class HcalHotCellClient : public HcalBaseClient{
   void clearHists(HotCellHists& hist);
   void deleteHists(HotCellHists& hist);
 
+  void combineSubDetHistograms(HotCellHists& hcal, HotCellHists& hb, HotCellHists& he, HotCellHists& ho, HotCellHists& hf);
   void getSubDetHistograms(HotCellHists& hist);
   void resetSubDetHistograms(HotCellHists& hist);
   void getSubDetHistogramsFromFile(HotCellHists& hist, TFile* infile);
