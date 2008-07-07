@@ -8,7 +8,7 @@
 //
 // Original Author:  Chris Jones
 //         Created:  Thu Feb 21 11:22:41 EST 2008
-// $Id: FWGlimpseView.cc,v 1.5 2008/07/04 23:48:47 chrjones Exp $
+// $Id: FWGlimpseView.cc,v 1.6 2008/07/05 14:32:43 chrjones Exp $
 //
 
 // system include files
@@ -105,6 +105,7 @@ FWGlimpseView::FWGlimpseView(TGFrame* iParent, TEveElementList* list,
 
 FWGlimpseView::~FWGlimpseView()
 {
+   delete m_viewer;
 }
 
 void 
