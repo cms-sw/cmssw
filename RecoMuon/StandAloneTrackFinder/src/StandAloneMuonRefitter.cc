@@ -1,8 +1,8 @@
 /** \class StandAloneMuonRefitter
  *  Class ti interface the muon system rechits with the standard KF tools.
  *
- *  $Date: 2008/04/24 18:14:59 $
- *  $Revision: 1.43 $
+ *  $Date: 2008/07/07 12:36:58 $
+ *  $Revision: 1.44 $
  *  \author R. Bellan - INFN Torino <riccardo.bellan@cern.ch>
  */
 
@@ -83,9 +83,8 @@ StandAloneMuonRefitter::RefitResult StandAloneMuonRefitter::refit(const Trajecto
 
   LogDebug("Muon|RecoMuon|StandAloneMuonRefitter") << nSuccess << " successful refits!" << endl;
 
-  if(isForceAllIterations)
-    return ( allIter ? RefitResult(true, lastFitted) : RefitResult(false, trajectory) );
-
-  else return RefitResult(allIter, lastFitted);
-
+  if(isForceAllIterations)  
+    return allIter ? RefitResult(allIter, lastFitted) : RefitResult(allIter, trajectory);
+  else 
+    return nSuccess==0 ? RefitResult(false, trajectory) : RefitResult(true, lastFitted);
 }
