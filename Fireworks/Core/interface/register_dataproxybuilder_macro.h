@@ -16,7 +16,7 @@
 //
 // Original Author:  Chris Jones
 //         Created:  Thu Jun  5 15:31:20 EDT 2008
-// $Id$
+// $Id: register_dataproxybuilder_macro.h,v 1.1 2008/06/09 20:00:27 chrjones Exp $
 //
 
 // system include files
@@ -36,7 +36,7 @@ static const std::string& classPurpose()\
 
 #define DEFINE_PROXYBUILDER_METHODS(_builder_,_type_,_purpose_)\
 const std::string& _builder_::classTypeName() { \
-   static std::string s_type = ROOT::Reflex::Type::ByTypeInfo(typeid(_type_)).Name();\
+   static std::string s_type = ROOT::Reflex::Type::ByTypeInfo(typeid(_type_)).Name(ROOT::Reflex::SCOPED);\
    return s_type;}\
 const std::string& _builder_::classPurpose(){ \
 static std::string s_purpose(_purpose_); return s_purpose;} enum {CONCATENATE(dummy_proxybuilder_methods_, __LINE__)}
