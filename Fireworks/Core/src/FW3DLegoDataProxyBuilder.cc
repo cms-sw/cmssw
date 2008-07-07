@@ -8,10 +8,11 @@
 //
 // Original Author:  
 //         Created:  Thu Dec  6 17:49:54 PST 2007
-// $Id: FW3DLegoDataProxyBuilder.cc,v 1.5 2008/06/08 16:59:01 dmytro Exp $
+// $Id: FW3DLegoDataProxyBuilder.cc,v 1.6 2008/06/12 15:07:45 chrjones Exp $
 //
 
 // system include files
+#include <iostream>
 #include <boost/bind.hpp>
 #include "TEveElement.h"
 #include "TEveManager.h"
@@ -54,8 +55,7 @@ namespace fw3dlego
 // constructors and destructor
 //
 FW3DLegoDataProxyBuilder::FW3DLegoDataProxyBuilder():
-  m_item(0),
-  m_elements(0)
+  m_item(0), m_haveViews(false), m_mustBuild(true)
 {
 }
 
@@ -89,21 +89,55 @@ FW3DLegoDataProxyBuilder::setItem(const FWEventItem* iItem)
    m_item = iItem;
    if(0 != m_item) {
       m_item->changed_.connect(boost::bind(&FW3DLegoDataProxyBuilder::modelChanges,this,_1));
+      m_item->itemChanged_.connect(boost::bind(&FW3DLegoDataProxyBuilder::itemChanged,this,_1));
       m_item->goingToBeDestroyed_.connect(boost::bind(&FW3DLegoDataProxyBuilder::itemBeingDestroyed,this,_1));
    }
 
 }
 
 void 
+FW3DLegoDataProxyBuilder::itemChanged(const FWEventItem* iItem)
+{
+   std::cout <<"item changed "<<iItem->name()<<std::endl;
+   if(m_haveViews) {
+      std::cout <<"  building..."<<std::endl;
+      build();
+      m_mustBuild=false;
+   } else {
+      m_mustBuild=true;
+   }
+   m_modelsChanged=false;
+}
+
+void 
 FW3DLegoDataProxyBuilder::itemBeingDestroyed(const FWEventItem* iItem)
 {
    m_item=0;
-   delete m_elements;
-   m_elements=0;
    m_ids.clear();
 }
 
+void 
+FW3DLegoDataProxyBuilder::setHaveAWindow(bool iFlag) 
+{
+   bool oldValue = m_haveViews;
+   
+   m_haveViews=iFlag;
+   
+   if(iFlag && !oldValue) {
+      //this is our first view so may need to rerun our building
+      if(m_mustBuild) {
+         build();
+         m_mustBuild=false;
+      }
+      if(m_modelsChanged) {
+         //Need to update all the models
+         applyChangesToAllModels();
+         m_modelsChanged=false;
+      }
+   }
+}
 
+/*
 static void
 setUserDataElementAndChildren(TEveElement* iElement, 
                               void* iInfo)
@@ -137,8 +171,8 @@ setUserData(const FWEventItem* iItem,TEveElementList* iElements, std::vector<FWM
       }
    }
 }
-
-
+*/
+/*
 void
 FW3DLegoDataProxyBuilder::build(TObject** iObject)
 {
@@ -158,14 +192,20 @@ FW3DLegoDataProxyBuilder::build(TObject** iObject)
       setUserData(m_item,list,m_ids);
    }
 }
-
+*/
 void 
 FW3DLegoDataProxyBuilder::modelChanges(const FWModelIds& iIds)
 {
-   // printf("number of model ids: %d\n", iIds.size() );
-   FW3DLegoDataProxyBuilder::modelChanges(iIds,m_elements);
+   if(m_haveViews) {
+      // printf("number of model ids: %d\n", iIds.size() );
+      modelChangesImp(iIds);
+      m_modelsChanged=false;
+   } else {
+      m_modelsChanged=true;
+   }
 }
 
+/*
 static void
 changeElementAndChildren(TEveElement* iElement, 
                          const FWEventItem::ModelInfo& iInfo)
@@ -187,7 +227,6 @@ changeElementAndChildren(TEveElement* iElement,
       changeElementAndChildren(*itElement, iInfo);
    }
 }
-
 void 
 FW3DLegoDataProxyBuilder::modelChanges(const FWModelIds& iIds,
                                     TEveElement* iElements )
@@ -213,3 +252,4 @@ FW3DLegoDataProxyBuilder::modelChanges(const FWModelIds& iIds,
       (*itElement)->ElementChanged();
    }
 }
+*/

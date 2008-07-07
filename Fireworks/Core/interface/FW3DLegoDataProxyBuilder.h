@@ -16,7 +16,7 @@
 //
 // Original Author:  
 //         Created:  Sat Jan  5 15:02:03 EST 2008
-// $Id: FW3DLegoDataProxyBuilder.h,v 1.6 2008/06/09 19:54:02 chrjones Exp $
+// $Id: FW3DLegoDataProxyBuilder.h,v 1.7 2008/06/12 15:07:45 chrjones Exp $
 //
 
 // system include files
@@ -34,6 +34,7 @@ class TObject;
 class TEveElementList;
 class TEveElement;
 class FWModelId;
+class TEveCaloDataHist;
 
 namespace fw3dlego
 {
@@ -53,21 +54,33 @@ class FW3DLegoDataProxyBuilder
 
       // ---------- member functions ---------------------------
       void setItem(const FWEventItem* iItem);
-      void build(TObject** product);
-      virtual void message( int type, int xbin, int ybin ){}
+      void setHaveAWindow(bool iFlag);
+      virtual void build() = 0;
+   
+      //virtual void message( int type, int xbin, int ybin ){}
       void modelChanges(const FWModelIds&);
+      void itemChanged(const FWEventItem*);
 
+      virtual void attach(TEveElement* iElement,
+                          TEveCaloDataHist* iHist)  = 0;
+   
    protected:
       int legoRebinFactor() const {return 1;}
-      const FWEventItem* getItem() const { return m_item; }
-	
+      const FWEventItem* item() const { return m_item; }
+      std::vector<FWModelId>& ids() {
+         return m_ids;
+      }
+   
+      virtual void applyChangesToAllModels()=0;
    private:
-      virtual void build(const FWEventItem* iItem, TH2** product){}
-      virtual void build(const FWEventItem* iItem, 
-			 TEveElementList** product){}
+        virtual void modelChangesImp(const FWModelIds&)=0;
+        virtual void itemChangedImp(const FWEventItem*)=0;
+      //virtual void build(const FWEventItem* iItem, TH2** product){}
+      //virtual void build(const FWEventItem* iItem, 
+	///		 TEveElementList** product){}
 
+   
       //Override this if you need to special handle selection or other changes
-      virtual void modelChanges(const FWModelIds&, TEveElement*);
       virtual void itemBeingDestroyed(const FWEventItem*);
       
       FW3DLegoDataProxyBuilder(const FW3DLegoDataProxyBuilder&); // stop default
@@ -76,9 +89,11 @@ class FW3DLegoDataProxyBuilder
 
       // ---------- member data --------------------------------
       const FWEventItem* m_item;
-      TEveElementList* m_elements;
       std::vector<FWModelId> m_ids;
 
+      bool m_modelsChanged;
+      bool m_haveViews;
+      bool m_mustBuild;
 };
 
 
