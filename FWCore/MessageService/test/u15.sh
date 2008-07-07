@@ -6,7 +6,7 @@ status=0
   
 rm -f u15_infos.log u15_debugs.log  
 
-cmsRun -p $LOCAL_TEST_DIR/u15.cfg
+cmsRun -p $LOCAL_TEST_DIR/u15_cfg.py
  
 for file in u15_infos.log u15_debugs.log    
 do

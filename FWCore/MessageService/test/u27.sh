@@ -6,7 +6,7 @@ status=0
   
 rm -f u27_infos.log u27FJR.xml
 
-cmsRun -j u27FJR.xml $LOCAL_TEST_DIR/u27.cfg
+cmsRun -j u27FJR.xml $LOCAL_TEST_DIR/u27_cfg.py
  
 for file in u27_infos.log u27FJR.xml
 do

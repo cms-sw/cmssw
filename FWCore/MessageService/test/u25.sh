@@ -6,7 +6,7 @@ status=0
   
 rm -f u25_only.log 
 
-cmsRun -p $LOCAL_TEST_DIR/u25.cfg
+cmsRun -p $LOCAL_TEST_DIR/u25_cfg.py
  
 for file in u25_only.log   
 do

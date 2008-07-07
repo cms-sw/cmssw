@@ -6,7 +6,7 @@ status=0
   
 rm -f u18_system.log u18_everything.log
 
-cmsRun -p $LOCAL_TEST_DIR/u18.cfg
+cmsRun -p $LOCAL_TEST_DIR/u18_cfg.py
  
 for file in u18_system.log u18_everything.log
 do

@@ -6,7 +6,7 @@ status=0
   
 rm -f  u22_warnings.log
 
-cmsRun -p $LOCAL_TEST_DIR/u22.cfg 
+cmsRun -p $LOCAL_TEST_DIR/u22_cfg.py 
  
 for file in u22_warnings.log  
 do

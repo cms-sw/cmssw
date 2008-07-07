@@ -6,7 +6,7 @@ status=0
   
 rm -f u11_overall_unnamed.log u11_overall_specific.log u11_supercede_specific.log u11_non_supercede_common.log u11_specific.log
 
-cmsRun -p $LOCAL_TEST_DIR/u11.cfg
+cmsRun -p $LOCAL_TEST_DIR/u11_cfg.py
  
 for file in u11_overall_unnamed.log u11_overall_specific.log u11_supercede_specific.log u11_non_supercede_common.log u11_specific.log   
 do

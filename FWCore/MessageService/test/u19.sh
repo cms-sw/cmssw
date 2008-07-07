@@ -6,7 +6,7 @@ status=0
   
 rm -f u19_infos.log u19_debugs.log  
 
-cmsRun -p $LOCAL_TEST_DIR/u19.cfg
+cmsRun -p $LOCAL_TEST_DIR/u19_cfg.py
  
 for file in u19_infos.log u19_debugs.log   
 do
