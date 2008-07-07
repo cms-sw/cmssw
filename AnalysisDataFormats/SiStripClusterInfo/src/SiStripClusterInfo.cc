@@ -123,8 +123,8 @@ std::pair<float,float> SiStripClusterInfo::getChargeLR() {
   const std::vector<uint8_t>& amplitudes_ =  cluster_->amplitudes();
   
   for(size_t i=0; i<amplitudes_.size();i++){
-    if (i<maxPosition_) chargeL_+=amplitudes_[i]; 	  
-    if (i>maxPosition_) chargeR_+=amplitudes_[i]; 	  
+    if ((cluster_->firstStrip())+i < maxPosition_) chargeL_+=amplitudes_[i]; 	  
+    if ((cluster_->firstStrip())+i > maxPosition_) chargeR_+=amplitudes_[i]; 	  
   }
   
   return std::pair<float,float>(chargeL_,chargeR_);
