@@ -517,18 +517,21 @@ namespace edm {
     ProductRegistry pReg(reg->productList(), reg->nextID());
     ProductList & pList  = const_cast<ProductList &>(pReg.productList());
     std::set<BranchID>::iterator end = registryItems_.end();
-    for (ProductList::iterator it = pList.begin(), itEnd = pList.end(); it != itEnd; ++it) {
+    for (ProductList::iterator it = pList.begin(); it != pList.end(); ) {
       if (registryItems_.find(it->second.branchID()) == end) {
 	// avoid invalidating iterator on deletion
-	pList.erase(it--);
+	ProductList::iterator itCopy = it;
+	++it;
+	pList.erase(itCopy);
+      } else {
+	++it;
       }
     }
     ProductRegistry * ppReg = &pReg;
     TBranch* b = metaDataTree_->Branch(poolNames::productDescriptionBranchName().c_str(), &ppReg, om_->basketSize(), 0);
     assert(b);
     b->Fill();
-  }
-
+  } 
   void RootOutputFile::writeProductDependencies() { 
     BranchChildren& pDeps = const_cast<BranchChildren&>(om_->branchChildren());
     BranchChildren * ppDeps = &pDeps;
