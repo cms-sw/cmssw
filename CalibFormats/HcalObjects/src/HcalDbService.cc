@@ -1,7 +1,7 @@
 //
 // F.Ratnikov (UMd), Aug. 9, 2005
 //
-// $Id: HcalDbService.cc,v 1.22 2008/03/09 18:22:05 rofierzy Exp $
+// $Id: HcalDbService.cc,v 1.23 2008/05/15 16:44:56 mansj Exp $
 
 #include "FWCore/Framework/interface/eventsetupdata_registration_macro.h"
 
@@ -14,7 +14,6 @@
 
 #include "DataFormats/HcalDetId/interface/HcalGenericDetId.h"
 
-#include "RecoLocalCalo/CaloTowersCreator/interface/EScales.h"
 #include <cmath>
 
 HcalDbService::HcalDbService (const edm::ParameterSet& cfg)
