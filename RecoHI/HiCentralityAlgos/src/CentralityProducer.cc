@@ -11,9 +11,9 @@
      <Notes on implementation>
 */
 //
-// Original Author:  Young Soo Park
+// Original Author:  Yetkin Yilmaz, Young Soo Park
 //         Created:  Wed Jun 11 15:31:41 CEST 2008
-// $Id: CentralityProducer.cc,v 1.1 2008/07/04 13:30:34 pyoungso Exp $
+// $Id: CentralityProducer.cc,v 1.1 2008/07/04 14:14:41 yilmaz Exp $
 //
 //
 
@@ -44,9 +44,6 @@
 #include "HepMC/GenParticle.h"
 
 using namespace std;
-using namespace reco;
-using namespace HepMC;
-
 
 //
 // class decleration
@@ -64,7 +61,8 @@ class CentralityProducer : public edm::EDProducer {
       
       // ----------member data ---------------------------
 
-  bool hfFlag_;
+  bool recoLevel_;
+  bool genLevel_;
 
 };
 
@@ -83,16 +81,17 @@ class CentralityProducer : public edm::EDProducer {
 CentralityProducer::CentralityProducer(const edm::ParameterSet& iConfig)
 {
    //register your products
-
   
-  hfFlag_ = iConfig.getUntrackedParameter<bool>("hfFlag",1);
+  recoLevel_ = iConfig.getUntrackedParameter<bool>("recoLevel",true);
+  genLevel_ = iConfig.getUntrackedParameter<bool>("genLevel",true);
 
-  if(hfFlag_){
-    produces<Centrality>("hfBased");
+  if(recoLevel_){
+    produces<reco::Centrality>("recoBased");
   }
-  if(!hfFlag_){
-    produces<Centrality>("genBased");
+  if(genLevel_){
+    produces<reco::Centrality>("genBased");
   }
+
 }
 
 
@@ -113,17 +112,18 @@ CentralityProducer::~CentralityProducer()
 void
 CentralityProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
 {
-   using namespace edm;
+  using namespace edm;
+  using namespace reco;
    using namespace HepMC;
   
    const GenEvent* evt;
 
-   double eHF     =  0;        // Dummy variable for computing total HF energy 
+   double eHF     =  0;        // Variable for computing total HF energy 
    double eCASTOR =  0;
    double eZDC    =  0;
    int cnt = 0;
 
-   if(hfFlag_){
+   if(recoLevel_){
      Handle<HFRecHitCollection> hits;
      iEvent.getByLabel("hfreco",hits);
      for( size_t ihit = 0; ihit<hits->size(); ++ ihit){
@@ -131,10 +131,16 @@ CentralityProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
        eHF = eHF + rechit.energy();
      }
      std::auto_ptr<Centrality> centOutput(new Centrality(eHF,eCASTOR,eZDC,cnt));
-     iEvent.put(centOutput, "hfBased");
+     iEvent.put(centOutput, "recoBased");
+
+     /*
+     To Do : 
+     - Add other detectors into reconstruction.
+     */
+
    }
-     
-   if(!hfFlag_){
+
+   if(genLevel_){
      Handle<HepMCProduct> mc;
      iEvent.getByLabel("source",mc);   
      evt=mc->GetEvent();
