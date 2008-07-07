@@ -8,7 +8,7 @@
 //
 // Original Author:  Chris Jones
 //         Created:  Mon Feb 11 11:06:40 EST 2008
-// $Id: FWGUIManager.cc,v 1.42 2008/06/29 13:23:48 chrjones Exp $
+// $Id: FWGUIManager.cc,v 1.43 2008/06/30 21:38:01 chrjones Exp $
 //
 
 // system include files
@@ -210,7 +210,11 @@ FWGUIManager::parentForNextView()
    FWGUISubviewArea* hf = new FWGUISubviewArea(m_viewFrames.size(),splitParent,m_splitFrame);
    hf->swappedToBigView_.connect(boost::bind(&FWGUIManager::subviewWasSwappedToBig,this,_1));
    hf->goingToBeDestroyed_.connect(boost::bind(&FWGUIManager::subviewIsBeingDestroyed,this,_1));
+   if(!m_viewFrames.empty()) {
+      m_viewFrames.back()->enableDestructionButton(false);
+   }
    m_viewFrames.push_back(hf);
+   hf->enableDestructionButton(true);
    (splitParent)->AddFrame(hf,new TGLayoutHints(kLHintsExpandX | kLHintsExpandY) );
    
    return m_viewFrames.back();
@@ -365,6 +369,11 @@ FWGUIManager::subviewWasSwappedToBig(unsigned int iIndex)
    m_viewFrames[iIndex]->setIndex(0);
    std::swap(m_viewBases[0], m_viewBases[iIndex]);
    std::swap(m_viewFrames[0],m_viewFrames[iIndex]);
+   //if swapped with last one then toggle destruction button
+   if(m_viewFrames.size() == iIndex+1) {
+      m_viewFrames[0]->enableDestructionButton(false);
+      m_viewFrames[iIndex]->enableDestructionButton(true);
+   }
    if (m_viewPopup != 0) refillViewPopup(m_viewBases[0]);
 }
 
@@ -374,6 +383,9 @@ FWGUIManager::subviewIsBeingDestroyed(unsigned int iIndex)
    m_viewFrames.erase(m_viewFrames.begin()+iIndex);
    (*(m_viewBases.begin()+iIndex))->destroy();
    m_viewBases.erase(m_viewBases.begin()+iIndex);
+   if(!m_viewFrames.empty()) {
+      m_viewFrames.back()->enableDestructionButton(true);
+   }
 }
 
 TGVerticalFrame* 
@@ -453,7 +465,7 @@ FWGUIManager::createViews(TGCompositeFrame *p)
 void
 FWGUIManager::createEDIFrame() {
   if (m_ediFrame == 0) {
-    m_ediFrame = new CmsShowEDI(gClient->GetRoot(), 200, 200, m_selectionManager);
+    m_ediFrame = new CmsShowEDI(m_cmsShowMainFrame, 200, 200, m_selectionManager);
     m_ediFrame->Connect("CloseWindow()", "FWGUIManager", this, "resetEDIFrame()");
   }
 }
@@ -472,7 +484,7 @@ FWGUIManager::resetEDIFrame() {
 void
 FWGUIManager::createModelPopup() {
   if (m_modelPopup == 0) {
-    m_modelPopup = new CmsShowModelPopup(gClient->GetRoot(), 200, 200);
+    m_modelPopup = new CmsShowModelPopup(m_cmsShowMainFrame, 200, 200);
     m_modelPopup->Connect("CloseWindow()", "FWGUIManager", this, "resetModelPopup()");
     m_selectionManager->selectionChanged_.connect(boost::bind(&CmsShowModelPopup::fillModelPopup, m_modelPopup, _1));
     //    m_modelChangeConn = m_changeManager->changeSignalsAreDone_.connect(boost::bind(&CmsShowModelPopup::updateDisplay, m_modelPopup));
@@ -494,7 +506,7 @@ FWGUIManager::resetModelPopup() {
 void
 FWGUIManager::createViewPopup() {
   if (m_viewPopup == 0) {
-    m_viewPopup = new CmsShowViewPopup(gClient->GetRoot(), 200, 200, m_viewBases[0]);
+    m_viewPopup = new CmsShowViewPopup(m_cmsShowMainFrame, 200, 200, m_viewBases[0]);
     m_viewPopup->Connect("CloseWindow()", "FWGUIManager", this, "resetViewPopup()");
   }
 }
