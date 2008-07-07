@@ -3,8 +3,8 @@
 /*
  *  See header file for a description of this class.
  *
- *  $Date: 2008/06/03 16:35:37 $
- *  $Revision: 1.3 $
+ *  $Date: 2008/07/02 14:33:56 $
+ *  $Revision: 1.4 $
  *  \author G. Mila - INFN Torino
  */
 
@@ -104,7 +104,7 @@ void DTSummaryClients::endLuminosityBlock(LuminosityBlock const& lumiSeg, EventS
   for(int wheel = 1; wheel != 6; ++wheel) { // loop over the wheels
     int nDisablesROS = 0;
     for(int sect = 1; sect != 13; ++sect) { // loop over sectors
-      if(dataIntegritySummary->getBinContent(sect,wheel) == -1) {
+      if(dataIntegritySummary->getBinContent(sect,wheel) == 1) {
 	nDisablesROS++;
       }
     }
