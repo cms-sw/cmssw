@@ -8,7 +8,7 @@
 //
 // Original Author:  
 //         Created:  Sat Jan  5 14:08:51 EST 2008
-// $Id: FWRhoPhiZViewManager.cc,v 1.34 2008/07/01 04:43:55 chrjones Exp $
+// $Id: FWRhoPhiZViewManager.cc,v 1.35 2008/07/07 02:15:46 chrjones Exp $
 //
 
 // system include files
@@ -31,6 +31,8 @@
 #include "TGLEmbeddedViewer.h"
 #include "TEveSelection.h"
 #include "TGeoManager.h"
+#include "TEveStraightLineSet.h"
+#include "TEvePointSet.h"
 
 #include "TGeoManager.h"
 
@@ -241,9 +243,15 @@ FWRhoPhiZViewManager::createRhoZView(TGFrame* iParent)
 void 
 FWRhoPhiZViewManager::setupGeometry()
 {
-   if ( m_rhoPhiGeom.empty() ) makeMuonGeometryRhoPhi();
-   // makeMuonGeometryRhoZ();
-   if ( m_rhoZGeom.empty() ) makeMuonGeometryRhoZAdvance();
+   if ( m_rhoPhiGeom.empty() ) {
+      makeMuonGeometryRhoPhi();
+      makeTrackerGeometryRhoPhi();
+   }
+   
+   if ( m_rhoZGeom.empty() ) {
+      makeMuonGeometryRhoZAdvance();
+      makeTrackerGeometryRhoZ();
+   }
 }
 
 
@@ -763,6 +771,51 @@ FWRhoPhiZViewManager::purposeForType(const std::string& iTypeName) const
    return returnValue;
 }
 
+void FWRhoPhiZViewManager::makeTrackerGeometryRhoZ()
+{
+   TEveElementList* list = new TEveElementList( "TrackerRhoZ" );
+   list->SetPickable(kFALSE);
+   list->IncDenyDestroy();
+   TEvePointSet* ref = new TEvePointSet("reference");
+   ref->SetPickable(kTRUE);
+   ref->SetTitle("(0,0,0)");
+   ref->IncDenyDestroy();
+   ref->SetMarkerStyle(4);
+   ref->SetMarkerColor(kWhite);
+   list->AddElement(ref);
+   ref->SetNextPoint(0.,0.,0.);
+   TEveStraightLineSet* el = new TEveStraightLineSet( "outline" );
+   el->SetPickable(kFALSE);
+   el->IncDenyDestroy();
+   list->AddElement(el);
+   el->SetLineColor(Color_t(TColor::GetColor("#007f00")));
+   el->AddLine(0, 123,-300, 0, 123, 300);
+   el->AddLine(0, 123, 300, 0,-123, 300);
+   el->AddLine(0,-123, 300, 0,-123,-300);
+   el->AddLine(0,-123,-300, 0, 123,-300);
+   float layer = m_rhoZGeomProjMgr->GetCurrentDepth();
+   m_rhoZGeomProjMgr->SetCurrentDepth(0.);
+   m_rhoZGeomProjMgr->ImportElements( list );
+   m_rhoZGeomProjMgr->SetCurrentDepth(layer);
+}
+
+void FWRhoPhiZViewManager::makeTrackerGeometryRhoPhi()
+{
+   TEveStraightLineSet* el = new TEveStraightLineSet( "TrackerRhoPhi" );
+   el->SetPickable(kFALSE);
+   el->IncDenyDestroy();
+   el->SetLineColor(Color_t(TColor::GetColor("#007f00")));
+   const unsigned int nSegments = 100;
+   const double r = 123;
+   for ( unsigned int i = 1; i <= nSegments; ++i )
+     el->AddLine(r*sin(2*M_PI/nSegments*(i-1)), r*cos(2*M_PI/nSegments*(i-1)), 0,
+		 r*sin(2*M_PI/nSegments*i), r*cos(2*M_PI/nSegments*i), 0);
+   float layer = m_rhoPhiGeomProjMgr->GetCurrentDepth();
+   m_rhoPhiGeomProjMgr->SetCurrentDepth(0.);
+   m_rhoPhiGeomProjMgr->ImportElements( el );
+   m_rhoPhiGeomProjMgr->SetCurrentDepth(layer);
+}
+   
 std::set<std::pair<std::string,std::string> > 
 FWRhoPhiZViewManager::supportedTypesAndPurpose() const
 {
@@ -776,4 +829,3 @@ FWRhoPhiZViewManager::supportedTypesAndPurpose() const
    return returnValue;
    
 }
-

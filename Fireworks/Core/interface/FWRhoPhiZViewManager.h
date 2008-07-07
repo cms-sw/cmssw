@@ -16,7 +16,7 @@
 //
 // Original Author:  
 //         Created:  Sat Jan  5 11:27:34 EST 2008
-// $Id: FWRhoPhiZViewManager.h,v 1.21 2008/07/01 04:43:54 chrjones Exp $
+// $Id: FWRhoPhiZViewManager.h,v 1.22 2008/07/07 02:15:45 chrjones Exp $
 //
 
 // system include files
@@ -89,6 +89,8 @@ class FWRhoPhiZViewManager : public FWViewManagerBase
       void makeMuonGeometryRhoPhi();
       void makeMuonGeometryRhoZ();
       void makeMuonGeometryRhoZAdvance();
+      void makeTrackerGeometryRhoPhi();
+      void makeTrackerGeometryRhoZ();
       void estimateProjectionSizeDT( const TGeoHMatrix*, const TGeoShape*, double&, double&, double&, double& );
       void estimateProjectionSizeCSC( const TGeoHMatrix*, const TGeoShape*, double&, double&, double&, double& );
       void estimateProjectionSize( const Double_t*, double&, double&, double&, double& );

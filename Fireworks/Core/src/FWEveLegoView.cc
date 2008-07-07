@@ -8,7 +8,7 @@
 //
 // Original Author:  Chris Jones
 //         Created:  Thu Feb 21 11:22:41 EST 2008
-// $Id: FWEveLegoView.cc,v 1.17 2008/07/05 20:22:21 dmytro Exp $
+// $Id: FWEveLegoView.cc,v 1.18 2008/07/07 00:42:41 chrjones Exp $
 //
 
 // system include files
@@ -47,6 +47,7 @@
 #include "TGLPerspectiveCamera.h"
 #include "TGLWidget.h"
 #include "TEveTrans.h"
+#include "TEveStraightLineSet.h"
 
 // user include files
 #include "Fireworks/Core/interface/FWEveLegoView.h"
@@ -123,6 +124,16 @@ FWEveLegoView::FWEveLegoView(TGFrame* iParent, TEveElementList* list):
    m_lego->SetGridColor(Color_t(TColor::GetColor("#202020")));
    m_lego->Set2DMode(TEveCaloLego::kValSize);
    m_lego->SetBinWidth(6);
+   // add calorimeter boundaries
+   TEveStraightLineSet* boundaries = new TEveStraightLineSet("boundaries");
+   boundaries->SetPickable(kFALSE);
+   boundaries->SetLineColor(Color_t(TColor::GetColor("#404040")));
+   // boundaries->SetLineWidth(2);
+   boundaries->AddLine(-1.479,-3.1416,0.001,-1.479,3.1416,0.001);
+   boundaries->AddLine(1.479,-3.1416,0.001,1.479,3.1416,0.001);
+   boundaries->AddLine(-3.0,-3.1416,0.001,-3.0,3.1416,0.001);
+   boundaries->AddLine(3.0,-3.1416,0.001,3.0,3.1416,0.001);
+   gEve->AddElement(boundaries,m_lego);
    // lego->SetEtaLimits(etaLimLow, etaLimHigh);
    // lego->SetTitle("caloTower Et distribution");
    gEve->AddElement(m_lego, ns);
