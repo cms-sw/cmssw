@@ -1,7 +1,7 @@
 import FWCore.ParameterSet.Config as cms
 
 #
-# module du make a jet parton match for semi-leptonic
+# module to make a jet parton match for full-hadronic
 # ttbar decays; the match will be a std::vector<int>
 # in order  (LightQTop, LightQBarTop, B, LightQTopBar,
 # LightQBarTopBar, BBar)

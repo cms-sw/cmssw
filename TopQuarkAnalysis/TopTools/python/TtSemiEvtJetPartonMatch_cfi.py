@@ -1,7 +1,7 @@
 import FWCore.ParameterSet.Config as cms
 
 #
-# module du make a jet parton match for semi-leptonic
+# module to make a jet parton match for semi-leptonic
 # ttbar decays; the match will be a std::vector<int>
 # in order  (LightQ, LightQBar, HadB, LepB)
 #
@@ -35,7 +35,7 @@ ttSemiJetPartonMatch = cms.EDFilter("TtSemiEvtJetPartonMatch",
                                     
     #-------------------------------------------------
     # number of jets to be considered in the matching
-    # (has to be >= 6, can be set to -1 if you want to 
+    # (has to be >= 4, can be set to -1 if you want to 
     # take all)
     #-------------------------------------------------
     nJets = cms.int32(-1)
