@@ -8,16 +8,28 @@
 #include "GuiTypes.h"
 #include "RQ_OBJECT.h"
 #include "TGTextView.h"
- 
-class FWTableManager;
+#include "Fireworks/Core/interface/TableManager.h" 
+
 class TGCompositeFrame;
 class TGTextView;
 
+class LightTableManager : public TableManager {
+public:
+   LightTableManager() {}
+
+   virtual void format (std::vector<std::string> &ret, 
+                        std::vector<int> &col_widths,
+                        int n_rows)=0;
+   virtual void sort (int col, bool reset = false)=0;
+   virtual bool rowIsSelected(int row) const = 0;      
+};
+
+
 class LightTableWidget : public TGTextView { 
-     RQ_OBJECT("TableWidget")
+     RQ_OBJECT("LightTableWidget")
      
 public: 
-     LightTableWidget (TGCompositeFrame *p, FWTableManager* tm,
+     LightTableWidget (TGCompositeFrame *p, LightTableManager* tm,
 		       int w = 0, int h = 0);
      virtual ~LightTableWidget(); 
      void display (int rows = 5);
@@ -45,7 +57,7 @@ protected:
 
 protected:
      TGTextView		*textview;
-     FWTableManager	*manager;
+     LightTableManager	*manager;
      std::vector<int>	col_widths;
 
 // temporary hacks

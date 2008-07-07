@@ -10,7 +10,7 @@ ClassImp(LightTableWidget)
 const int LightTableWidget::m_cellHeight;
 const int LightTableWidget::m_titleColor;
 
-LightTableWidget::LightTableWidget (TGCompositeFrame *p, FWTableManager* tm, 
+LightTableWidget::LightTableWidget (TGCompositeFrame *p, LightTableManager* tm, 
 				    int w, int h)
      : TGTextView(p, w, h), 
        manager(tm)
@@ -160,8 +160,8 @@ void LightTableWidget::DrawRegion(Int_t x, Int_t y, UInt_t w, UInt_t h)
                i++;
             }
 
-	    if (manager->sel_indices.
-		count(manager->table_row_to_index(pos.fY - 3)) == 0) {
+	    if (!manager->rowIsSelected(pos.fY-3)/*manager->sel_indices.
+		count(manager->table_row_to_index(pos.fY - 3)) == 0*/) {
                 gVirtualX->DrawString(fCanvas->GetId(), fNormGC(), Int_t(xoffset),
                                       Int_t(ToScrYCoord(pos.fY+1) - fMaxDescent),
                                       buffer, Int_t(len));
