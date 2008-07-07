@@ -5,7 +5,7 @@
 # creates a complete config file.
 # relval_main + the custom config for it is not needed any more
 
-__version__ = "$Revision: 1.43 $"
+__version__ = "$Revision: 1.44 $"
 __source__ = "$Source: /cvs_server/repositories/CMSSW/CMSSW/Configuration/PyReleaseValidation/python/ConfigBuilder.py,v $"
 
 import FWCore.ParameterSet.Config as cms
@@ -224,10 +224,6 @@ class ConfigBuilder(object):
         """ Enrich the process with alca streams """
         alcaConfig = self.loadAndRemember("Configuration/StandardSequences/AlCaReco_cff")
 
-        #-ap: HACK:
-        # make sure we have the stuff for the tracking, otherwise step3 will fail.
-        self.loadAndRemember( "TrackingTools/TrackAssociator/DetIdAssociatorESProducer_cff")
-
         # decide which ALCA paths to use
         alcaList = sequence.split("+")
         alcaPathList = ["pathALCARECO"+name for name in alcaList]
@@ -358,7 +354,7 @@ class ConfigBuilder(object):
     def build_production_info(self, evt_type, evtnumber):
         """ Add useful info for the production. """
         prod_info=cms.untracked.PSet\
-              (version=cms.untracked.string("$Revision: 1.43 $"),
+              (version=cms.untracked.string("$Revision: 1.44 $"),
                name=cms.untracked.string("PyReleaseValidation"),
                annotation=cms.untracked.string(evt_type+ " nevts:"+str(evtnumber))
               )
