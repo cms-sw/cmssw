@@ -8,7 +8,7 @@
 //
 // Original Author:  
 //         Created:  Sun Jan  6 22:01:27 EST 2008
-// $Id: FWGlimpseViewManager.cc,v 1.3 2008/07/04 23:54:13 chrjones Exp $
+// $Id: FWGlimpseViewManager.cc,v 1.4 2008/07/05 14:32:43 chrjones Exp $
 //
 
 // system include files
@@ -115,6 +115,7 @@ FWGlimpseViewManager::buildView(TGFrame* iParent)
          (*it)->setHaveAWindow(true);
       }
    }
+   view->beingDestroyed_.connect(boost::bind(&FWGlimpseViewManager::beingDestroyed,this,_1));
    return view.get();
 }
 void 
@@ -137,8 +138,7 @@ FWGlimpseViewManager::beingDestroyed(const FWViewBase* iView)
          m_views.erase(it);
          return;
       }
-   }
-   
+   }   
 }
 
 void 
