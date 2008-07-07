@@ -8,7 +8,7 @@
 //
 // Original Author:  
 //         Created:  Sun Jan  6 22:01:27 EST 2008
-// $Id: FWEveLegoViewManager.cc,v 1.7 2008/06/16 18:34:51 dmytro Exp $
+// $Id: FWEveLegoViewManager.cc,v 1.8 2008/07/07 00:44:13 chrjones Exp $
 //
 
 // system include files
@@ -379,5 +379,24 @@ FWEveLegoViewManager::purposeForType(const std::string& iTypeName) const
       
    }
    return returnValue;
+}
+
+std::set<std::pair<std::string,std::string> > 
+FWEveLegoViewManager::supportedTypesAndPurpose() const
+{
+   std::set<std::pair<std::string,std::string> > returnValue;
+   
+   for(TypeToBuilders::const_iterator it = m_typeToBuilders.begin(), itEnd = m_typeToBuilders.end();
+       it != itEnd;
+       ++it) {
+      for ( std::vector<std::string>::const_iterator builderName = it->second.begin();
+	   builderName != it->second.end(); ++builderName )
+      {
+         returnValue.insert(std::make_pair(builderName->substr(0,builderName->find_first_of('@')),
+                                           it->first));
+      }
+      
+   }
+   return returnValue;   
 }
 

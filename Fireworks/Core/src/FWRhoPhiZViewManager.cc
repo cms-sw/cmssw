@@ -8,7 +8,7 @@
 //
 // Original Author:  
 //         Created:  Sat Jan  5 14:08:51 EST 2008
-// $Id: FWRhoPhiZViewManager.cc,v 1.33 2008/06/25 22:25:37 chrjones Exp $
+// $Id: FWRhoPhiZViewManager.cc,v 1.34 2008/07/01 04:43:55 chrjones Exp $
 //
 
 // system include files
@@ -762,3 +762,18 @@ FWRhoPhiZViewManager::purposeForType(const std::string& iTypeName) const
    }
    return returnValue;
 }
+
+std::set<std::pair<std::string,std::string> > 
+FWRhoPhiZViewManager::supportedTypesAndPurpose() const
+{
+   std::set<std::pair<std::string,std::string> > returnValue;
+   for(TypeToBuilder::const_iterator it = m_typeToBuilder.begin(), itEnd = m_typeToBuilder.end();
+       it != itEnd;
+       ++it) {
+      returnValue.insert(std::make_pair(it->second.first.substr(0,it->second.first.find_first_of('@')),
+                                        it->first));
+   }
+   return returnValue;
+   
+}
+
