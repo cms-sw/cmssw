@@ -3,6 +3,7 @@ from Mixins import _ValidatingParameterListBase
 from ExceptionHandling import format_typename, format_outerframe
 
 import codecs
+import copy
 _string_escape_encoder = codecs.getencoder('string_escape')
 
 class _Untracked(object):
@@ -171,8 +172,8 @@ class EventID(_ParameterTypeBase):
         return True
     @staticmethod
     def _valueFromString(value):
-        """only used for cfg-parsing"""
-        return double(float(value))
+        parts = value.split(":")
+        return EventID(int(parts[0]), int(parts[1]))
     def pythonValue(self, options=PrintOptions()):
         return str(self.__run)+ ', '+str(self.__event)
     def cppID(self, parameterSet):
@@ -319,7 +320,6 @@ class SecSource(_ParameterTypeBase,_TypedParameterizable,_ConfigureComponent,_La
         return "cms.SecSource(\""+self.type_()+"\",\n"+_Parameterizable.dumpPython(self, options)+options.indentation()+")"
     def copy(self):
         # TODO is the one in TypedParameterizable better?
-        import copy
         return copy.copy(self)
     def _place(self,name,proc):
         proc._placePSet(name,self)
@@ -348,7 +348,6 @@ class PSet(_ParameterTypeBase,_Parameterizable,_ConfigureComponent,_Labelable):
     def dumpPython(self, options=PrintOptions()):
         return self.pythonTypeName()+"(\n"+_Parameterizable.dumpPython(self, options)+options.indentation()+")"
     def copy(self):
-        import copy
         return copy.copy(self)
     def _place(self,name,proc):
         proc._placePSet(name,self)
@@ -508,7 +507,10 @@ class VEventID(_ValidatingParameterListBase):
     def insertInto(self, parameterSet, myname):
         cppIDs = list()
         for i in self:
-           cppIDs.append(i.cppID(parameterSet))
+            item = i
+            if isinstance(item, str):
+                item = EventID._valueFromString(item)
+            cppIDs.append(item.cppID(parameterSet))
         parameterSet.addVEventID(self.isTracked(), myname, cppIDs)
 
 
@@ -526,7 +528,6 @@ class VPSet(_ValidatingParameterListBase,_ConfigureComponent,_Labelable):
     def pythonValueForItem(self,item, options):
         return PSet.dumpPython(item,options)
     def copy(self):
-        import copy
         return copy.copy(self)
     def _place(self,name,proc):
         proc._placeVPSet(name,self)
@@ -665,9 +666,13 @@ if __name__ == "__main__":
             self.assertEqual( repr(eid), "cms.EventID(2, 3)" )
             pset = PSetTester()
             eid.insertInto(pset,'foo')
+            eid2 = EventID._valueFromString('3:4')
+            eid2.insertInto(pset,'foo2')
         def testVEventID(self):
             veid = VEventID(EventID(2, 3))
+            veid2 = VEventID("1:2", "3:4")
             self.assertEqual( repr(veid[0]), "cms.EventID(2, 3)" )
+            self.assertEqual( repr(veid2[0]), "'1:2'" )
             pset = PSetTester()
             veid.insertInto(pset,'foo')
 
