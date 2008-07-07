@@ -76,7 +76,9 @@ class SiStripThreshold {
 
   void  setData(const uint16_t& strip, const float& lTh,const float& hTh, Container& vthr);
   SiStripThreshold::Data getData (const uint16_t& strip, const Range& range) const;
-  
+ 
+  void  allThresholds(std::vector<float> &lowThs, std::vector<float> &highThs, const Range& range)  const; 
+ 
  private:
   
   Container::iterator compact(Container& input);

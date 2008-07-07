@@ -66,3 +66,24 @@ SiStripThreshold::Data SiStripThreshold::getData(const uint16_t& strip, const Ra
       << "[SiStripThreshold::getData] asking for data for a strip " << strip << " lower then the first stored strip " << p->getFirstStrip();
   }
 }
+
+void SiStripThreshold::allThresholds(std::vector<float> &lowThs, std::vector<float> &highThs, const Range& range) const  {
+    ContainerIterator it = range.first;
+    size_t strips = lowThs.size(); 
+    assert(strips == highThs.size());
+    while (it != range.second) {
+        size_t firstStrip = it->getFirstStrip();
+        //std::cout << "First strip is " << firstStrip << std::endl;
+        float high = it->getHth(), low = it->getLth();
+        //std::cout << "High is " << high << ", low is " << low << std::endl;
+        ++it; // increment the pointer
+        size_t lastStrip = (it == range.second ? strips : it->getFirstStrip());
+        //std::cout << "Last strip is " << lastStrip << std::endl;
+        if (lastStrip > strips) { 
+            it = range.second;  // I should stop here,
+            lastStrip = strips; // and fill only 'strips' strips
+        }
+        std::fill( & lowThs[firstStrip] , & lowThs[lastStrip] , low );
+        std::fill( & highThs[firstStrip], & highThs[lastStrip], high );
+    }
+}    

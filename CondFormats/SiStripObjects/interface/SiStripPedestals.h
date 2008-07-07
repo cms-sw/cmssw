@@ -50,11 +50,13 @@ class SiStripPedestals {
 
 		void  setData(float ped, InputVector& vped);
 		float getPed   (const uint16_t& strip, const Range& range) const;
+                void  allPeds  (std::vector<int> & pefs,  const Range& range) const;
 
 	private:
 
 		void     encode(InputVector& Vi, std::vector<unsigned char>& Vo_CHAR);
 		uint16_t decode (const uint16_t& strip, const Range& range) const;
+                inline uint16_t get10bits(const uint8_t * &ptr, int8_t skip) const ;
 
 		Container v_pedestals; //@@@ blob streaming doesn't work with uint16_t and with SiStripData::Data
 		Registry indexes;

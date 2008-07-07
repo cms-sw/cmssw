@@ -129,6 +129,47 @@ uint16_t SiStripNoises::decode (const uint16_t& strip, const Range& range) const
   return value;
 }
 
+//============ Methods for bulk-decoding all noises for a module ================
+
+
+/// Get 9 bit words from a bit stream, starting from the right, skipping the first 'skip' bits (0 < skip < 8).
+/// Ptr must point to the rightmost byte that has some bits of this word, and is updated by this function
+inline uint16_t SiStripNoises::get9bits(const uint8_t * &ptr, int8_t skip) const {
+    uint8_t maskThis = (0xFF << skip);
+    uint8_t maskThat = ((2 << skip) - 1);
+    uint16_t ret = ( ((*ptr) & maskThis) >> skip );
+    --ptr;
+    return ret | ( ((*ptr) & maskThat) << (8 - skip) );
+}
+
+
+void SiStripNoises::allNoises(std::vector<float> &noises, const Range& range) const {
+    size_t mysize  = ((range.second-range.first) << 3) / 9;
+    size_t size = noises.size();
+    if (mysize < size) throw cms::Exception("CorruptedData") 
+            << "[SiStripNoises::allNoises] Requested noise for " << noises.size() << " strips, I have it only for " << size << " strips\n";
+    size_t size8 = size & (~0x7), carry = size & 0x7; // we have an optimized way of unpacking 8 strips
+    const uint8_t *ptr = (&*range.second) - 1;
+    std::vector<float>::iterator out = noises.begin(), end8 = noises.begin() + size8;
+    // we do it this baroque way instead of just loopin on all the strips because it's faster
+    // as the value of 'skip' is a constant, so the compiler can compute the masks directly
+   while (out < end8) {
+        *out = static_cast<float> ( get9bits(ptr, 0) / 10.0f ); ++out;
+        *out = static_cast<float> ( get9bits(ptr, 1) / 10.0f ); ++out;
+        *out = static_cast<float> ( get9bits(ptr, 2) / 10.0f ); ++out;
+        *out = static_cast<float> ( get9bits(ptr, 3) / 10.0f ); ++out;
+        *out = static_cast<float> ( get9bits(ptr, 4) / 10.0f ); ++out;
+        *out = static_cast<float> ( get9bits(ptr, 5) / 10.0f ); ++out;
+        *out = static_cast<float> ( get9bits(ptr, 6) / 10.0f ); ++out;
+        *out = static_cast<float> ( get9bits(ptr, 7) / 10.0f ); ++out;
+        --ptr; // every 8 strips we have to skip one more bit
+    } 
+    for (size_t rem = 0; rem < carry; ++rem ) {
+        *out = static_cast<float> ( get9bits(ptr, rem) / 10.0f ); ++out;
+    }
+}
+
+
 /*
 const std::string SiStripNoises::print_as_binary(const uint8_t ch) const
 {

@@ -127,6 +127,41 @@ uint16_t SiStripPedestals::decode (const uint16_t& strip, const Range& range) co
   return value;
 }
 
+/// Get 9 bit words from a bit stream, starting from the right, skipping the first 'skip' bits (0 < skip < 7).
+/// Ptr must point to the rightmost byte that has some bits of this word, and is updated by this function
+inline uint16_t SiStripPedestals::get10bits(const uint8_t * &ptr, int8_t skip) const {
+    uint8_t maskThis = (0xFF << skip);
+    uint8_t maskThat = ((4 << skip) - 1);
+    uint16_t ret = ( ((*ptr) & maskThis) >> skip );
+    --ptr;
+    return ret | ( ((*ptr) & maskThat) << (8 - skip) );
+}
+
+void
+SiStripPedestals::allPeds  (std::vector<int>   & peds,  const Range& range) const {
+    size_t mysize  = ((range.second-range.first) << 3) / 10;
+    size_t size = peds.size();
+    if (mysize < size) throw cms::Exception("CorruptedData") 
+            << "[SiStripPedestalss::allPets] Requested pedestals for " << peds.size() << " strips, I have it only for " << size << " strips\n";
+    size_t size4 = size & (~0x3), carry = size & 0x3; // we have an optimized way of unpacking 4 strips
+    const uint8_t *ptr = reinterpret_cast<const uint8_t *>(&*range.second) - 1;
+    std::vector<int>::iterator out = peds.begin(), end4 = peds.begin() + size4;
+    // we do it this baroque way instead of just loopin on all the strips because it's faster
+    // as the value of 'skip' is a constant, so the compiler can compute the masks directly
+   while (out < end4) {
+        *out = static_cast<int> ( get10bits(ptr, 0) ); ++out;
+        *out = static_cast<int> ( get10bits(ptr, 2) ); ++out;
+        *out = static_cast<int> ( get10bits(ptr, 4) ); ++out;
+        *out = static_cast<int> ( get10bits(ptr, 6) ); ++out;
+        --ptr; // every 4 strips we have to skip one more bit
+    } 
+    for (size_t rem = 0; rem < carry; ++rem ) {
+        *out = static_cast<int> ( get10bits(ptr, 2*rem) ); ++out;
+    }
+}
+
+
+
 /**
   const std::string SiStripNoises::print_as_binary(const uint8_t ch) const
   {
