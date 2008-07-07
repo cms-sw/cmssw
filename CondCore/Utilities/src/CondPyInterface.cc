@@ -39,6 +39,7 @@ namespace cond {
     struct FWMagic {
       // A.  Instantiate a plug-in manager first.
       edm::AssertHandler ah;
+      boost::shared_ptr<edm::ServiceRegistry::Operate> operate;
     };
   }
 
@@ -89,7 +90,7 @@ namespace cond {
     edm::ServiceToken tempToken(edm::ServiceRegistry::createSet(*pServiceSets.get()));
     
     // E.  Make the services available.
-    edm::ServiceRegistry::Operate operate(tempToken);
+    magic->operate.reset(new edm::ServiceRegistry::Operate(tempToken));
     
   }
 
