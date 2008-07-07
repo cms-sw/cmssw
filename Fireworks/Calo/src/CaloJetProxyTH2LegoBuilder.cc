@@ -8,7 +8,7 @@
 //
 // Original Author:  
 //         Created:  Sun Jan  6 23:57:00 EST 2008
-// $Id: CaloJetProxyTH2LegoBuilder.cc,v 1.2 2008/05/12 15:38:01 dmytro Exp $
+// $Id: CaloJetProxyTH2LegoBuilder.cc,v 1.3 2008/06/09 19:54:03 chrjones Exp $
 //
 
 // system include files
@@ -112,7 +112,7 @@ CaloJetProxyTH2LegoBuilder::build(const FWEventItem* iItem,
 
 void CaloJetProxyTH2LegoBuilder::message( int type, int xbin, int ybin )
 {
-   const FWEventItem* iItem = getItem();
+   const FWEventItem* iItem = item();
    const reco::CaloJetCollection* jets=0;
    iItem->get(jets);
    if(0==jets) {
