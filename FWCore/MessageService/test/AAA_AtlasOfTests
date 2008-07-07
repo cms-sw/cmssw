@@ -109,12 +109,25 @@ u27	Tests proper output of both ungrouped and grouped categories
 	in summary placed in the FrameworkJobReport.xml. 
 	---------- UnitTestClient_Q
 
+u28	Tests distinct threshold level for linked statistics destination:
+	A destination with different PSet name uses output= to share the
+	same stream as an ordinary output destination.  But their thresholds
+	are different.
+	---------- UnitTestClient_A
+
 
 Non-regression-suite tests (not run via scramv1 b runtests):
 
 u26	Is a near-identical clone of u17, using a different client, and is 
 	not in the Buildfile
 	---------- UnitTestClient_A
+
+u28_cerr  Tests distinct threshold level for linked statistics destination:
+	  A destination with different PSet name uses output=cerr to share the
+	  same stream as an ordinary output destination to cerr.  But their 
+	  thresholds are different.
+	---------- UnitTestClient_A
+
 
 timing_t   Tests output of Timing service to JobReport
 	   (Inherently tough for regression testing as
