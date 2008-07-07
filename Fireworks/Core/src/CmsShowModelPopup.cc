@@ -8,7 +8,7 @@
 //
 // Original Author:  
 //         Created:  Fri Jun 27 11:23:08 EDT 2008
-// $Id: CmsShowModelPopup.cc,v 1.2 2008/06/30 21:58:48 chrjones Exp $
+// $Id: CmsShowModelPopup.cc,v 1.3 2008/07/07 00:19:28 chrjones Exp $
 //
 
 // system include file
@@ -36,6 +36,7 @@
 //#include "Fireworks/Core/src/FWListModel.h"
 #include "Fireworks/Core/interface/FWModelId.h"
 #include "Fireworks/Core/interface/FWSelectionManager.h"
+#include "Fireworks/Core/interface/FWDetailViewManager.h"
 
 //
 // constants, enums and typedefs
@@ -48,8 +49,9 @@
 //
 // constructors and destructor
 //
-CmsShowModelPopup::CmsShowModelPopup(const TGWindow* p, UInt_t w, UInt_t h):
-TGTransientFrame(gClient->GetDefaultRoot(),p,w,h)
+CmsShowModelPopup::CmsShowModelPopup(FWDetailViewManager* iManager,const TGWindow* p, UInt_t w, UInt_t h):
+TGTransientFrame(gClient->GetDefaultRoot(),p,w,h),
+m_detailViewManager(iManager)
 {
   SetCleanup(kDeepCleanup);
   TGHorizontalFrame* objectFrame = new TGHorizontalFrame(this);
@@ -99,6 +101,11 @@ TGTransientFrame(gClient->GetDefaultRoot(),p,w,h)
   m_isVisibleButton->SetState(kButtonDown, kFALSE);
   m_isVisibleButton->SetEnabled(kFALSE);
   AddFrame(m_isVisibleButton);
+  AddFrame(new TGHorizontal3DLine(this, 200, 5), new TGLayoutHints(kLHintsNormal, 0, 0, 5, 5));
+  m_openDetailedViewButton = new TGTextButton(this,"Open Detailed View");
+  m_openDetailedViewButton->SetEnabled(kFALSE);
+  AddFrame(m_openDetailedViewButton);
+  m_openDetailedViewButton->Connect("Clicked()","CmsShowModelPopup", this, "openDetailedView()");
   SetWindowName("Model Inspector");
   Resize(GetDefaultSize());
   MapSubwindows();
@@ -160,6 +167,9 @@ CmsShowModelPopup::fillModelPopup(const FWSelectionManager& iSelMgr) {
       m_modelLabel->SetText("Multiple Items");
     else 
       m_modelLabel->SetText(item->name().c_str());
+    if(m_models.size()==1) {
+       m_openDetailedViewButton->SetEnabled(m_detailViewManager->haveDetailViewFor(id));
+    }
     m_colorSelectWidget->SetColor(gVirtualX->GetPixel(item->modelInfo(id.index()).displayProperties().color()));
     m_isVisibleButton->SetDisabledAndSelected(item->modelInfo(id.index()).displayProperties().isVisible());
     m_colorSelectWidget->SetEnabled(kTRUE);
@@ -199,6 +209,7 @@ CmsShowModelPopup::disconnectAll() {
   m_isVisibleButton->SetDisabledAndSelected(kTRUE);
   m_colorSelectWidget->SetEnabled(kFALSE);
   m_isVisibleButton->SetEnabled(kFALSE);
+  m_openDetailedViewButton->SetEnabled(kFALSE);
 }
 
 void
@@ -222,6 +233,12 @@ CmsShowModelPopup::toggleModelVisible(Bool_t on) {
   }
   //  const FWDisplayProperties changeProperties(m_item->modelInfo(m_model->index()).displayProperties().color(), on);
   //  m_item->setDisplayProperties(m_model->index(), changeProperties);
+}
+
+void 
+CmsShowModelPopup::openDetailedView()
+{
+   m_detailViewManager->openDetailViewFor( *(m_models.begin()) );
 }
 
 

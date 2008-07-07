@@ -16,7 +16,7 @@
 //
 // Original Author:  
 //         Created:  Fri Jun 27 11:23:31 EDT 2008
-// $Id: CmsShowModelPopup.h,v 1.2 2008/06/30 21:58:48 chrjones Exp $
+// $Id: CmsShowModelPopup.h,v 1.3 2008/07/07 00:19:28 chrjones Exp $
 //
 
 // system include files
@@ -36,12 +36,13 @@ class FWColorSelect;
 class TGLabel;
 class TGTextButton;
 class TGTextButton;
+class FWDetailViewManager;
 
 class CmsShowModelPopup : public TGTransientFrame
 {
 
    public:
-      CmsShowModelPopup(const TGWindow* p = 0, UInt_t w = 1, UInt_t h = 1);
+      CmsShowModelPopup(FWDetailViewManager*, const TGWindow* p = 0, UInt_t w = 1, UInt_t h = 1);
       virtual ~CmsShowModelPopup();
 
       // ---------- const member functions ---------------------
@@ -54,7 +55,8 @@ class CmsShowModelPopup : public TGTransientFrame
       void disconnectAll();
       void changeModelColor(Pixel_t pixel = 0x000000);
       void toggleModelVisible(Bool_t on = kTRUE);
-
+      void openDetailedView();
+   
    private:
       CmsShowModelPopup(const CmsShowModelPopup&); // stop default
 
@@ -64,10 +66,12 @@ class CmsShowModelPopup : public TGTransientFrame
       TGLabel* m_modelLabel;
       FWColorSelect* m_colorSelectWidget;
       TGCheckButton* m_isVisibleButton;
+      TGTextButton* m_openDetailedViewButton;
       std::set<FWModelId> m_models;
       sigc::connection m_modelChangedConn;
       sigc::connection m_destroyedConn;
 
+      FWDetailViewManager* m_detailViewManager;
 };
 
 
