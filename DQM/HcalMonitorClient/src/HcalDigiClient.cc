@@ -193,7 +193,7 @@ void HcalDigiClient::cleanup(void) {
   gl_num_bqdigi_ = 0;
   gl_bqdigi_frac_ = 0;
   gl_capid_t0_ = 0;
-  
+
   for(int i=0; i<4; ++i){
     ProblemDigiCells_DEPTH[i]=0;
     RawPedestalMean[i]=0; 
@@ -212,7 +212,7 @@ void HcalDigiClient::cleanup(void) {
     sub_occ_elec_[i][2]=0;
     sub_occ_eta_[i] = 0;
     sub_occ_phi_[i] = 0;
-
+    
     sub_err_geo_[i]=0;  
     sub_err_elec_[i][0]=0;
     sub_err_elec_[i][1]=0;
@@ -247,7 +247,6 @@ void HcalDigiClient::report(){
   }
 
   getHistograms();
-
   return;
 }
 
@@ -265,6 +264,7 @@ void HcalDigiClient::analyze(void){
 
 void HcalDigiClient::getHistograms(){
   if(!dbe_) return;
+
 
   char name[150];    
   sprintf(name,"DigiMonitor/HCAL/HCALProblemDigiCells");
@@ -331,81 +331,83 @@ void HcalDigiClient::getHistograms(){
   sprintf(name,"DigiMonitor/Bad Digi Fraction");
   gl_bqdigi_frac_ = getHisto(name,process_, dbe_,debug_,cloneME_);
    
-  for(int i=0; i<4; ++i){
-    if(!subDetsOn_[i]) continue;
-    string type = "HB";
-    if(i==1) type = "HE";
-    if(i==2) type = "HF"; 
-    if(i==3) type = "HO"; 
-    
-    sprintf(name,"DigiMonitor/%s/%s Digi Geo Error Map",type.c_str(),type.c_str());
-    sub_err_geo_[i] = getHisto2(name, process_, dbe_,debug_,cloneME_);
-    
-    sprintf(name,"DigiMonitor/%s/%s Digi VME Error Map",type.c_str(),type.c_str());
-    sub_err_elec_[i][0] = getHisto2(name,process_, dbe_,debug_,cloneME_);
-    
-    sprintf(name,"DigiMonitor/%s/%s Digi Fiber Error Map",type.c_str(),type.c_str());
-    sub_err_elec_[i][1] = getHisto2(name,process_, dbe_,debug_,cloneME_);
-
-    sprintf(name,"DigiMonitor/%s/%s Digi Spigot Error Map",type.c_str(),type.c_str());
-    sub_err_elec_[i][2] = getHisto2(name,process_, dbe_,debug_,cloneME_);
-
-    sprintf(name,"DigiMonitor/%s/%s Digi Depth 1 Occupancy Map",type.c_str(),type.c_str());
-    sub_occ_geo_[i][0] = getHisto2(name, process_, dbe_,debug_,cloneME_);
-
-    sprintf(name,"DigiMonitor/%s/%s Digi Depth 2 Occupancy Map",type.c_str(),type.c_str());
-    sub_occ_geo_[i][1] = getHisto2(name, process_, dbe_,debug_,cloneME_);
-
-    sprintf(name,"DigiMonitor/%s/%s Digi Depth 3 Occupancy Map",type.c_str(),type.c_str());
-    sub_occ_geo_[i][2] = getHisto2(name, process_, dbe_,debug_,cloneME_);
-
-    sprintf(name,"DigiMonitor/%s/%s Digi Depth 4 Occupancy Map",type.c_str(),type.c_str());
-    sub_occ_geo_[i][3] = getHisto2(name, process_, dbe_,debug_,cloneME_);
-
-    sprintf(name,"DigiMonitor/%s/%s Digi VME Occupancy Map",type.c_str(),type.c_str());
-    sub_occ_elec_[i][0] = getHisto2(name,process_, dbe_,debug_,cloneME_);
-
-    sprintf(name,"DigiMonitor/%s/%s Digi Fiber Occupancy Map",type.c_str(),type.c_str());
-    sub_occ_elec_[i][1] = getHisto2(name,process_, dbe_,debug_,cloneME_);
-
-    sprintf(name,"DigiMonitor/%s/%s Digi Spigot Occupancy Map",type.c_str(),type.c_str());
-    sub_occ_elec_[i][2] = getHisto2(name,process_, dbe_,debug_,cloneME_);
-    
-    sprintf(name,"DigiMonitor/%s/%s Digi Eta Occupancy Map",type.c_str(),type.c_str());
-    sub_occ_eta_[i] = getHisto(name,process_, dbe_,debug_,cloneME_);
-
-    sprintf(name,"DigiMonitor/%s/%s Digi Phi Occupancy Map",type.c_str(),type.c_str());
-    sub_occ_phi_[i] = getHisto(name,process_, dbe_,debug_,cloneME_);
-    
-    sprintf(name,"DigiMonitor/%s/%s QIE ADC Value",type.c_str(),type.c_str());
-    qie_adc_[i] = getHisto(name, process_, dbe_,debug_,cloneME_);
-
-    sprintf(name,"DigiMonitor/%s/%s # of Digis",type.c_str(),type.c_str());
-    num_digi_[i] = getHisto(name, process_, dbe_,debug_,cloneME_);
-
-    sprintf(name,"DigiMonitor/%s/%s QIE Cap-ID",type.c_str(),type.c_str());
-    qie_capid_[i] = getHisto(name, process_, dbe_,debug_,cloneME_);
-
-    sprintf(name,"DigiMonitor/%s/%s QIE Data Valid Err Bits",type.c_str(),type.c_str());
-    qie_dverr_[i] = getHisto(name, process_, dbe_,debug_,cloneME_);
-    qie_dverr_[i]->GetXaxis()->SetBinLabel(1,"Err=0 DV=0");
-    qie_dverr_[i]->GetXaxis()->SetBinLabel(2,"Err=0 DV=1");
-    qie_dverr_[i]->GetXaxis()->SetBinLabel(3,"Err=1 DV=0");
-    qie_dverr_[i]->GetXaxis()->SetBinLabel(4,"Err=1 DV=1");
-
-    sprintf(name,"DigiMonitor/%s/%s # Bad Qual Digis",type.c_str(),type.c_str());
-    sub_num_bqdigi_[i] = getHisto(name, process_, dbe_,debug_,cloneME_);
-
-    sprintf(name,"DigiMonitor/%s/%s Bad Digi Fraction",type.c_str(),type.c_str());
-    sub_bqdigi_frac_[i] = getHisto(name, process_, dbe_,debug_,cloneME_);
-
-    sprintf(name,"DigiMonitor/%s/%s Capid 1st Time Slice",type.c_str(),type.c_str());
-    sub_capid_t0_[i] = getHisto(name, process_, dbe_,debug_,cloneME_);
-
-    sprintf(name,"DigiMonitor/%s/%s Digi Shape - over thresh",type.c_str(),type.c_str());
-    sub_digi_shape_[i] = getHisto(name, process_, dbe_,debug_,cloneME_);
-    sprintf(name,"DigiMonitor/%s/%s Digi Size",type.c_str(),type.c_str());
-    sub_digi_size_[i] = getHisto(name, process_, dbe_,debug_,cloneME_);
+  for(int i=0; i<4; ++i)
+    {
+      if(!subDetsOn_[i]) continue;
+      string type = "HB";
+      if(i==1) type = "HE";
+      if(i==2) type = "HF"; 
+      if(i==3) type = "HO"; 
+      
+      sprintf(name,"DigiMonitor/%s/%s Digi Geo Error Map",type.c_str(),type.c_str());
+   
+      sub_err_geo_[i] = getHisto2(name, process_, dbe_,debug_,cloneME_);
+      
+      sprintf(name,"DigiMonitor/%s/%s Digi VME Error Map",type.c_str(),type.c_str());
+      sub_err_elec_[i][0] = getHisto2(name,process_, dbe_,debug_,cloneME_);
+      
+      sprintf(name,"DigiMonitor/%s/%s Digi Fiber Error Map",type.c_str(),type.c_str());
+      sub_err_elec_[i][1] = getHisto2(name,process_, dbe_,debug_,cloneME_);
+      
+      sprintf(name,"DigiMonitor/%s/%s Digi Spigot Error Map",type.c_str(),type.c_str());
+      sub_err_elec_[i][2] = getHisto2(name,process_, dbe_,debug_,cloneME_);
+      
+      sprintf(name,"DigiMonitor/%s/%s Digi Depth 1 Occupancy Map",type.c_str(),type.c_str());
+      sub_occ_geo_[i][0] = getHisto2(name, process_, dbe_,debug_,cloneME_);
+      
+      sprintf(name,"DigiMonitor/%s/%s Digi Depth 2 Occupancy Map",type.c_str(),type.c_str());
+      sub_occ_geo_[i][1] = getHisto2(name, process_, dbe_,debug_,cloneME_);
+      
+      sprintf(name,"DigiMonitor/%s/%s Digi Depth 3 Occupancy Map",type.c_str(),type.c_str());
+      sub_occ_geo_[i][2] = getHisto2(name, process_, dbe_,debug_,cloneME_);
+      
+      sprintf(name,"DigiMonitor/%s/%s Digi Depth 4 Occupancy Map",type.c_str(),type.c_str());
+      sub_occ_geo_[i][3] = getHisto2(name, process_, dbe_,debug_,cloneME_);
+      
+      sprintf(name,"DigiMonitor/%s/%s Digi VME Occupancy Map",type.c_str(),type.c_str());
+      sub_occ_elec_[i][0] = getHisto2(name,process_, dbe_,debug_,cloneME_);
+      
+      sprintf(name,"DigiMonitor/%s/%s Digi Fiber Occupancy Map",type.c_str(),type.c_str());
+      sub_occ_elec_[i][1] = getHisto2(name,process_, dbe_,debug_,cloneME_);
+      
+      sprintf(name,"DigiMonitor/%s/%s Digi Spigot Occupancy Map",type.c_str(),type.c_str());
+      sub_occ_elec_[i][2] = getHisto2(name,process_, dbe_,debug_,cloneME_);
+      
+      sprintf(name,"DigiMonitor/%s/%s Digi Eta Occupancy Map",type.c_str(),type.c_str());
+      sub_occ_eta_[i] = getHisto(name,process_, dbe_,debug_,cloneME_);
+      
+      sprintf(name,"DigiMonitor/%s/%s Digi Phi Occupancy Map",type.c_str(),type.c_str());
+      sub_occ_phi_[i] = getHisto(name,process_, dbe_,debug_,cloneME_);
+      
+      sprintf(name,"DigiMonitor/%s/%s QIE ADC Value",type.c_str(),type.c_str());
+      qie_adc_[i] = getHisto(name, process_, dbe_,debug_,cloneME_);
+      
+      sprintf(name,"DigiMonitor/%s/%s # of Digis",type.c_str(),type.c_str());
+      num_digi_[i] = getHisto(name, process_, dbe_,debug_,cloneME_);
+      
+      sprintf(name,"DigiMonitor/%s/%s QIE Cap-ID",type.c_str(),type.c_str());
+      qie_capid_[i] = getHisto(name, process_, dbe_,debug_,cloneME_);
+      
+      sprintf(name,"DigiMonitor/%s/%s QIE Data Valid Err Bits",type.c_str(),type.c_str());
+      qie_dverr_[i] = getHisto(name, process_, dbe_,debug_,cloneME_);
+      qie_dverr_[i]->GetXaxis()->SetBinLabel(1,"Err=0 DV=0");
+      qie_dverr_[i]->GetXaxis()->SetBinLabel(2,"Err=0 DV=1");
+      qie_dverr_[i]->GetXaxis()->SetBinLabel(3,"Err=1 DV=0");
+      qie_dverr_[i]->GetXaxis()->SetBinLabel(4,"Err=1 DV=1");
+      
+      sprintf(name,"DigiMonitor/%s/%s # Bad Qual Digis",type.c_str(),type.c_str());
+      sub_num_bqdigi_[i] = getHisto(name, process_, dbe_,debug_,cloneME_);
+      
+      sprintf(name,"DigiMonitor/%s/%s Bad Digi Fraction",type.c_str(),type.c_str());
+      sub_bqdigi_frac_[i] = getHisto(name, process_, dbe_,debug_,cloneME_);
+      
+      sprintf(name,"DigiMonitor/%s/%s Capid 1st Time Slice",type.c_str(),type.c_str());
+      sub_capid_t0_[i] = getHisto(name, process_, dbe_,debug_,cloneME_);
+      
+      sprintf(name,"DigiMonitor/%s/%s Digi Shape - over thresh",type.c_str(),type.c_str());
+      sub_digi_shape_[i] = getHisto(name, process_, dbe_,debug_,cloneME_);
+      sprintf(name,"DigiMonitor/%s/%s Digi Size",type.c_str(),type.c_str());
+      sub_digi_size_[i] = getHisto(name, process_, dbe_,debug_,cloneME_);
 
   }
   return;
@@ -754,14 +756,13 @@ void HcalDigiClient::htmlExpertOutput(int runNo, string htmlDir, string htmlName
 
   return;
 }
-
 void HcalDigiClient::createTests(){
   if(!dbe_) return;
 
   char meTitle[250], name[250];    
   vector<string> params;
   
-  if(debug_) printf("Creating Digi tests...\n");
+  if(debug_) cout <<"Creating Digi tests..."<<endl;
   
   for(int i=0; i<4; ++i){
     if(!subDetsOn_[i]) continue;
@@ -787,7 +788,20 @@ void HcalDigiClient::createTests(){
     /*
     sprintf(meTitle,"%sHcal/DigiMonitor/%s/%s # of Digis",process_.c_str(),type.c_str(),type.c_str());
     sprintf(name,"%s # of Digis",type.c_str());
-    if(dqmQtests_.find(name) == dqmQtests_.end()){	
+    MonitorElement* me = dbe_->get(meTitle);
+    if (!me) cout <<"DID NOT GET TITLE!"<<endl;
+    else
+      {
+	me->runQTests();
+	std::vector<QReport*> warnings = me->getQWarnings();
+	
+	cout <<"ERROR = "<<me->hasError()<<"  WARNING:  "<<me->hasWarning()<<endl;
+      }
+    */
+
+    /*
+    if(dqmQtests_.find(name) == dqmQtests_.end())
+      {	
       MonitorElement* me = dbe_->get(meTitle);
       if(me){	
 	dqmQtests_[name]=meTitle;	  
