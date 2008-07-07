@@ -27,7 +27,7 @@ FWConfiguration* fwConfig() {
 }
 {
   FWConfiguration topaaa(0);
-  topaaa.addValue("");
+  topaaa.addValue("$.emEt()>1");
   topaa.addKeyValue("filterExpression", topaaa);
 }
 {
@@ -76,7 +76,7 @@ FWConfiguration* fwConfig() {
 }
 {
   FWConfiguration topaaa(0);
-  topaaa.addValue("");
+  topaaa.addValue("$.hadEt()+$.outerEt()>1");
   topaa.addKeyValue("filterExpression", topaaa);
 }
 {
@@ -184,7 +184,7 @@ FWConfiguration* fwConfig() {
 }
 {
   FWConfiguration topaaa(0);
-  topaaa.addValue("t");
+  topaaa.addValue("f");
   topaa.addKeyValue("isVisible", topaaa);
 }
 {
@@ -233,7 +233,7 @@ FWConfiguration* fwConfig() {
 }
 {
   FWConfiguration topaaa(0);
-  topaaa.addValue("t");
+  topaaa.addValue("f");
   topaa.addKeyValue("isVisible", topaaa);
 }
 {
@@ -282,7 +282,7 @@ FWConfiguration* fwConfig() {
 }
 {
   FWConfiguration topaaa(0);
-  topaaa.addValue("t");
+  topaaa.addValue("f");
   topaa.addKeyValue("isVisible", topaaa);
 }
 {
@@ -331,7 +331,7 @@ FWConfiguration* fwConfig() {
 }
 {
   FWConfiguration topaaa(0);
-  topaaa.addValue("t");
+  topaaa.addValue("f");
   topaa.addKeyValue("isVisible", topaaa);
 }
 {
@@ -1053,16 +1053,6 @@ FWConfiguration* fwConfig() {
 }
 {
   FWConfiguration topaaa(1);
-{
-  FWConfiguration topaaaa(0);
-  topaaaa.addValue("1");
-  topaaa.addKeyValue("ECAL energy threshold (GeV)", topaaaa);
-}
-{
-  FWConfiguration topaaaa(0);
-  topaaaa.addValue("1");
-  topaaa.addKeyValue("HCAL energy threshold (GeV)", topaaaa);
-}
 {
   FWConfiguration topaaaa(0);
   topaaaa.addValue("0.0598403");
