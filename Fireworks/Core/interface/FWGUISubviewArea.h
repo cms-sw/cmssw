@@ -16,7 +16,7 @@
 //
 // Original Author:  Chris Jones
 //         Created:  Fri Feb 15 14:13:29 EST 2008
-// $Id: FWGUISubviewArea.h,v 1.3 2008/06/20 20:29:37 chrjones Exp $
+// $Id: FWGUISubviewArea.h,v 1.4 2008/06/25 22:05:05 chrjones Exp $
 //
 
 // system include files
@@ -51,6 +51,7 @@ class FWGUISubviewArea : public TGVerticalFrame
       void destroy();
       void undock();
    
+      void enableDestructionButton(bool);
       void setIndex(unsigned int iIndex);   
       sigc::signal<void,unsigned int> swappedToBigView_;
       sigc::signal<void,unsigned int> goingToBeDestroyed_;

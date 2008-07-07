@@ -8,7 +8,7 @@
 //
 // Original Author:  Chris Jones
 //         Created:  Fri Feb 15 14:13:33 EST 2008
-// $Id: FWGUISubviewArea.cc,v 1.4 2008/06/20 20:29:37 chrjones Exp $
+// $Id: FWGUISubviewArea.cc,v 1.5 2008/06/25 22:05:05 chrjones Exp $
 //
 
 // system include files
@@ -111,6 +111,12 @@ FWGUISubviewArea::~FWGUISubviewArea()
 //
 // member functions
 //
+void 
+FWGUISubviewArea::enableDestructionButton(bool iState)
+{
+   m_closeButton->SetEnabled(iState);
+}
+
 void
 FWGUISubviewArea::swapToBigView()
 {
