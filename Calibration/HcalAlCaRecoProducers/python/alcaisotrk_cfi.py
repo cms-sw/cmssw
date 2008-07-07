@@ -2,6 +2,7 @@ import FWCore.ParameterSet.Config as cms
 
 # producer for alcaisotrk (HCAL isolated tracks)
 from TrackingTools.TrackAssociator.default_cfi import *
+from TrackingTools.TrackAssociator.DetIdAssociatorESProducer_cff import *
 IsoProd = cms.EDProducer("AlCaIsoTracksProducer",
     TrackAssociatorParameterBlock,
     hbheInput = cms.InputTag("hbhereco"),
