@@ -14,7 +14,7 @@
 //
 // Original Author:  
 //         Created:  Thu Dec  6 18:01:21 PST 2007
-// $Id: TracksProxy3DBuilder.cc,v 1.9 2008/07/03 02:06:42 dmytro Exp $
+// $Id: TracksProxy3DBuilder.cc,v 1.10 2008/07/06 19:58:54 dmytro Exp $
 //
 
 // system include files
@@ -54,7 +54,7 @@ void TracksProxy3DBuilder::build(const FWEventItem* iItem, TEveElementList** pro
       //units are Tesla
       propagator->SetMagField( -4.0);
       //get this from geometry, units are CM
-      propagator->SetMaxR(120.0);
+      propagator->SetMaxR(123.0);
       propagator->SetMaxZ(300.0);
       
       gEve->AddElement(tlist);
