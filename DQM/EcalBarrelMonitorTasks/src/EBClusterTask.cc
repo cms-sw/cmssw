@@ -1,8 +1,8 @@
 /*
  * \file EBClusterTask.cc
  *
- * $Date: 2008/05/11 09:35:09 $
- * $Revision: 1.58 $
+ * $Date: 2008/07/07 17:11:22 $
+ * $Revision: 1.59 $
  * \author G. Della Ricca
  * \author E. Di Marco
  *
@@ -356,15 +356,13 @@ void EBClusterTask::reset(void) {
 void EBClusterTask::analyze(const Event& e, const EventSetup& c){
 
   bool foundEcal=false;
-  bool isData = true;
-  bool enable=false;
+  bool enable = false;
 
   Handle<EcalRawDataCollection> dcchs;
 
   if ( e.getByLabel(EcalRawDataCollection_, dcchs) ) {
 
-    for ( EcalRawDataCollection::const_iterator dcchItr = dcchs->begin(); 
-	  dcchItr != dcchs->end() && foundEcal == false; ++dcchItr ) {
+    for ( EcalRawDataCollection::const_iterator dcchItr = dcchs->begin(); dcchItr != dcchs->end() && foundEcal == false; ++dcchItr ) {
 
       EcalDCCHeaderBlock dcch = (*dcchItr);
 
@@ -381,8 +379,8 @@ void EBClusterTask::analyze(const Event& e, const EventSetup& c){
     }
 
   } else {
-    
-    isData = false; enable = true;
+
+    enable = true;
     LogWarning("EBClusterTask") << EcalRawDataCollection_ << " not available";
 
   }
@@ -468,14 +466,14 @@ void EBClusterTask::analyze(const Event& e, const EventSetup& c){
 
       // look for the two most energetic super clusters
       if ( nscc >= 2 ) {
-	if ( sCluster->energy() > sc1_p.Energy() ) {
-	  sc2_p=sc1_p;
-	  sc1_p.SetPtEtaPhiE(sCluster->energy()*sin(sCluster->position().theta()),
-			     sCluster->eta(), sCluster->phi(), sCluster->energy());
-	} else if ( sCluster->energy() > sc2_p.Energy() ) {
-	  sc2_p.SetPtEtaPhiE(sCluster->energy()*sin(sCluster->position().theta()),
-			     sCluster->eta(), sCluster->phi(), sCluster->energy());
-	}
+        if ( sCluster->energy() > sc1_p.Energy() ) {
+          sc2_p=sc1_p;
+          sc1_p.SetPtEtaPhiE(sCluster->energy()*sin(sCluster->position().theta()),
+                             sCluster->eta(), sCluster->phi(), sCluster->energy());
+        } else if ( sCluster->energy() > sc2_p.Energy() ) {
+          sc2_p.SetPtEtaPhiE(sCluster->energy()*sin(sCluster->position().theta()),
+                             sCluster->eta(), sCluster->phi(), sCluster->energy());
+        }
       }
     }
     // Get the invariant mass of the two most energetic super clusters

@@ -1,8 +1,8 @@
 /*
  * \file EEClusterTask.cc
  *
- * $Date: 2008/05/11 09:35:12 $
- * $Revision: 1.46 $
+ * $Date: 2008/07/07 17:11:21 $
+ * $Revision: 1.47 $
  * \author G. Della Ricca
  * \author E. Di Marco
  *
@@ -487,16 +487,14 @@ void EEClusterTask::endJob(void){
 
 void EEClusterTask::analyze(const Event& e, const EventSetup& c){
 
-  bool foundEcal=false;
-  bool isData = true;
-  bool enable=false;
+  bool foundEcal = false;
+  bool enable = false;
 
   Handle<EcalRawDataCollection> dcchs;
 
   if ( e.getByLabel(EcalRawDataCollection_, dcchs) ) {
 
-    for ( EcalRawDataCollection::const_iterator dcchItr = dcchs->begin(); 
-	  dcchItr != dcchs->end() && foundEcal == false; ++dcchItr ) {
+    for ( EcalRawDataCollection::const_iterator dcchItr = dcchs->begin(); dcchItr != dcchs->end() && foundEcal == false; ++dcchItr ) {
 
       EcalDCCHeaderBlock dcch = (*dcchItr);
 
@@ -513,8 +511,8 @@ void EEClusterTask::analyze(const Event& e, const EventSetup& c){
     }
 
   } else {
-    
-    isData = false; enable = true;
+
+    enable = true;
     LogWarning("EEClusterTask") << EcalRawDataCollection_ << " not available";
 
   }
@@ -538,36 +536,36 @@ void EEClusterTask::analyze(const Event& e, const EventSetup& c){
       meBCSiz_->Fill(float(bCluster->getHitsByDetId().size()));
 
       if ( bCluster->eta() > 0 ) {
-	meBCEneFwdMap_->Fill(bCluster->x(), bCluster->y(), bCluster->energy());
-	meBCEneFwdMapProjR_->Fill( sqrt(pow(bCluster->x(),2)+pow(bCluster->y(),2)), bCluster->energy() );
-	meBCEneFwdMapProjPhi_->Fill( bCluster->phi(), bCluster->energy() );
+        meBCEneFwdMap_->Fill(bCluster->x(), bCluster->y(), bCluster->energy());
+        meBCEneFwdMapProjR_->Fill( sqrt(pow(bCluster->x(),2)+pow(bCluster->y(),2)), bCluster->energy() );
+        meBCEneFwdMapProjPhi_->Fill( bCluster->phi(), bCluster->energy() );
 
-	meBCNumFwdMap_->Fill(bCluster->x(), bCluster->y());
-	meBCNumFwdMapProjR_->Fill(sqrt(pow(bCluster->x(),2)+pow(bCluster->y(),2)));
-	meBCNumFwdMapProjPhi_->Fill( bCluster->phi() );
+        meBCNumFwdMap_->Fill(bCluster->x(), bCluster->y());
+        meBCNumFwdMapProjR_->Fill(sqrt(pow(bCluster->x(),2)+pow(bCluster->y(),2)));
+        meBCNumFwdMapProjPhi_->Fill( bCluster->phi() );
 
-	meBCETFwdMap_->Fill(bCluster->x(), bCluster->y(),  bCluster->energy() * sin(bCluster->position().theta()) );
-	meBCETFwdMapProjR_->Fill( sqrt(pow(bCluster->x(),2)+pow(bCluster->y(),2)), bCluster->energy() * sin(bCluster->position().theta()) );
-	meBCETFwdMapProjPhi_->Fill( bCluster->phi(), bCluster->energy() * sin(bCluster->position().theta()) );
+        meBCETFwdMap_->Fill(bCluster->x(), bCluster->y(),  bCluster->energy() * sin(bCluster->position().theta()) );
+        meBCETFwdMapProjR_->Fill( sqrt(pow(bCluster->x(),2)+pow(bCluster->y(),2)), bCluster->energy() * sin(bCluster->position().theta()) );
+        meBCETFwdMapProjPhi_->Fill( bCluster->phi(), bCluster->energy() * sin(bCluster->position().theta()) );
 
-	meBCSizFwdMap_->Fill(bCluster->x(), bCluster->y(), float(bCluster->getHitsByDetId().size()) );
-	meBCSizFwdMapProjR_->Fill( sqrt(pow(bCluster->x(),2)+pow(bCluster->y(),2)), float(bCluster->getHitsByDetId().size()) );
+        meBCSizFwdMap_->Fill(bCluster->x(), bCluster->y(), float(bCluster->getHitsByDetId().size()) );
+        meBCSizFwdMapProjR_->Fill( sqrt(pow(bCluster->x(),2)+pow(bCluster->y(),2)), float(bCluster->getHitsByDetId().size()) );
         meBCSizFwdMapProjPhi_->Fill( bCluster->phi(), float(bCluster->getHitsByDetId().size()) );
       } else {
-	meBCEneBwdMap_->Fill(bCluster->x(), bCluster->y(), bCluster->energy());
-	meBCEneBwdMapProjR_->Fill( sqrt(pow(bCluster->x(),2)+pow(bCluster->y(),2)), bCluster->energy() );
-	meBCEneBwdMapProjPhi_->Fill( bCluster->phi(), bCluster->energy() );
+        meBCEneBwdMap_->Fill(bCluster->x(), bCluster->y(), bCluster->energy());
+        meBCEneBwdMapProjR_->Fill( sqrt(pow(bCluster->x(),2)+pow(bCluster->y(),2)), bCluster->energy() );
+        meBCEneBwdMapProjPhi_->Fill( bCluster->phi(), bCluster->energy() );
 
-	meBCNumBwdMap_->Fill(bCluster->x(), bCluster->y());
-	meBCNumBwdMapProjR_->Fill(sqrt(pow(bCluster->x(),2)+pow(bCluster->y(),2)));
-	meBCNumBwdMapProjPhi_->Fill( bCluster->phi() );
+        meBCNumBwdMap_->Fill(bCluster->x(), bCluster->y());
+        meBCNumBwdMapProjR_->Fill(sqrt(pow(bCluster->x(),2)+pow(bCluster->y(),2)));
+        meBCNumBwdMapProjPhi_->Fill( bCluster->phi() );
 
-	meBCETBwdMap_->Fill(bCluster->x(), bCluster->y(),  bCluster->energy() * sin(bCluster->position().theta()) );
-	meBCETBwdMapProjR_->Fill( sqrt(pow(bCluster->x(),2)+pow(bCluster->y(),2)), bCluster->energy() * sin(bCluster->position().theta()) );
-	meBCETBwdMapProjPhi_->Fill( bCluster->phi(), bCluster->energy() * sin(bCluster->position().theta()) );
+        meBCETBwdMap_->Fill(bCluster->x(), bCluster->y(),  bCluster->energy() * sin(bCluster->position().theta()) );
+        meBCETBwdMapProjR_->Fill( sqrt(pow(bCluster->x(),2)+pow(bCluster->y(),2)), bCluster->energy() * sin(bCluster->position().theta()) );
+        meBCETBwdMapProjPhi_->Fill( bCluster->phi(), bCluster->energy() * sin(bCluster->position().theta()) );
 
-	meBCSizBwdMap_->Fill(bCluster->x(), bCluster->y(), float(bCluster->getHitsByDetId().size()) );
-	meBCSizBwdMapProjR_->Fill( sqrt(pow(bCluster->x(),2)+pow(bCluster->y(),2)), float(bCluster->getHitsByDetId().size()) );
+        meBCSizBwdMap_->Fill(bCluster->x(), bCluster->y(), float(bCluster->getHitsByDetId().size()) );
+        meBCSizBwdMapProjR_->Fill( sqrt(pow(bCluster->x(),2)+pow(bCluster->y(),2)), float(bCluster->getHitsByDetId().size()) );
         meBCSizBwdMapProjPhi_->Fill( bCluster->phi(), float(bCluster->getHitsByDetId().size()) );
       }
 
@@ -612,12 +610,12 @@ void EEClusterTask::analyze(const Event& e, const EventSetup& c){
 
       // look for the two most energetic super clusters
       if ( sCluster->energy() > sc1_p.Energy() ) {
-	sc2_p=sc1_p;
-	sc1_p.SetPtEtaPhiE(sCluster->energy()*sin(sCluster->position().theta()),
-			   sCluster->eta(), sCluster->phi(), sCluster->energy());
+        sc2_p=sc1_p;
+        sc1_p.SetPtEtaPhiE(sCluster->energy()*sin(sCluster->position().theta()),
+                           sCluster->eta(), sCluster->phi(), sCluster->energy());
       } else if ( sCluster->energy() > sc2_p.Energy() ) {
-	sc2_p.SetPtEtaPhiE(sCluster->energy()*sin(sCluster->position().theta()),
-			   sCluster->eta(), sCluster->phi(), sCluster->energy());
+        sc2_p.SetPtEtaPhiE(sCluster->energy()*sin(sCluster->position().theta()),
+                           sCluster->eta(), sCluster->phi(), sCluster->energy());
       }
 
     }
