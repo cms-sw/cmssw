@@ -16,7 +16,7 @@
 //
 // Original Author:  
 //         Created:  Sun Jan  6 22:01:21 EST 2008
-// $Id: FWEveLegoViewManager.h,v 1.3 2008/06/09 20:18:22 chrjones Exp $
+// $Id: FWEveLegoViewManager.h,v 1.4 2008/06/10 19:28:01 chrjones Exp $
 //
 
 // system include files
@@ -29,12 +29,6 @@
 #include "Fireworks/Core/interface/FWViewManagerBase.h"
 
 // forward declarations
-class TList;
-class THStack;
-class TH2;
-class TH2F;
-class TH2C;
-class TCanvas;
 class FW3DLegoDataProxyBuilder;
 class FWEventItem;
 class FWGUIManager;
@@ -45,7 +39,9 @@ class TEveCaloDataHist;
 class TEveElementList;
 class TEveSelection;
 class FWSelectionManager;
+class TEveCaloLego;
 
+/*
 struct FWEveLegoModelProxy
 {
    boost::shared_ptr<FW3DLegoDataProxyBuilder>   builder;
@@ -55,7 +51,8 @@ struct FWEveLegoModelProxy
    FWEveLegoModelProxy(boost::shared_ptr<FW3DLegoDataProxyBuilder> iBuilder):
     builder(iBuilder),product(0),ignore(false){}
 };
-
+*/
+ 
 class FWEveLegoViewManager : public FWViewManagerBase
 {
 
@@ -69,7 +66,7 @@ class FWEveLegoViewManager : public FWViewManagerBase
       // ---------- static member functions --------------------
 
       // ---------- member functions ---------------------------
-      virtual void newEventAvailable();
+      //virtual void newEventAvailable();
 
       virtual void newItem(const FWEventItem*);
 
@@ -90,21 +87,26 @@ class FWEveLegoViewManager : public FWViewManagerBase
       const FWEveLegoViewManager& operator=(const FWEveLegoViewManager&); // stop default
    
       void makeProxyBuilderFor(const FWEventItem* iItem);
-      void itemChanged(const FWEventItem*);
-
+      void beingDestroyed(const FWViewBase*);
+      //void itemChanged(const FWEventItem*);
+      void initData();
+   
       // ---------- member data --------------------------------
       typedef  std::map<std::string,std::vector<std::string> > TypeToBuilders;
       TypeToBuilders m_typeToBuilders;
-      std::vector<FWEveLegoModelProxy> m_modelProxies;
+       std::vector<boost::shared_ptr<FW3DLegoDataProxyBuilder> > m_builders;
 
       std::vector<boost::shared_ptr<FWEveLegoView> > m_views;
-      TEveElementList* m_elements;
+      TEveElementList m_elements;
       TEveCaloDataHist* m_data;
+      TEveCaloLego* m_lego;
       int  m_legoRebinFactor;
       
-      bool m_itemChanged;
+      //bool m_itemChanged;
       TEveSelection* m_eveSelection;
       FWSelectionManager* m_selectionManager;
+   
+     bool m_modelsHaveBeenMadeAtLeastOnce;
 };
 
 #endif

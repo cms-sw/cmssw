@@ -8,7 +8,7 @@
 //
 // Original Author:  
 //         Created:  Sun Jan  6 22:01:27 EST 2008
-// $Id: FWEveLegoViewManager.cc,v 1.6 2008/06/11 13:57:32 dmytro Exp $
+// $Id: FWEveLegoViewManager.cc,v 1.7 2008/06/16 18:34:51 dmytro Exp $
 //
 
 // system include files
@@ -29,6 +29,9 @@
 #include "TEveElement.h"
 #include "TROOT.h"
 
+#include "TEveRGBAPalette.h"
+#include "TEveTrans.h"
+
 // user include files
 #include "Fireworks/Core/interface/FWEveLegoViewManager.h"
 #include "Fireworks/Core/interface/FWEveLegoView.h"
@@ -37,6 +40,7 @@
 #include "Fireworks/Core/interface/FWGUIManager.h"
 
 #include "TEveSelection.h"
+#include "TEveCalo.h"
 #include "Fireworks/Core/interface/FWSelectionManager.h"
 
 #include "Fireworks/Core/interface/FW3DLegoDataProxyBuilderFactory.h"
@@ -54,12 +58,13 @@
 //
 FWEveLegoViewManager::FWEveLegoViewManager(FWGUIManager* iGUIMgr):
 FWViewManagerBase(),
-  m_elements(0),
+  m_elements("Lego"),
   m_data(0),
+  m_lego(0),
   m_legoRebinFactor(1),
-  m_itemChanged(false),
   m_eveSelection(0),
-  m_selectionManager(0)
+  m_selectionManager(0),
+m_modelsHaveBeenMadeAtLeastOnce(false)
 {
    FWGUIManager::ViewBuildFunctor f;
    f=boost::bind(&FWEveLegoViewManager::buildView,
@@ -101,27 +106,78 @@ FWViewManagerBase(),
 
 FWEveLegoViewManager::~FWEveLegoViewManager()
 {
+   delete m_data;
+   delete m_lego;
 }
 
 //
 // member functions
 //
-FWViewBase* 
-FWEveLegoViewManager::buildView(TGFrame* iParent)
+void
+FWEveLegoViewManager::initData()
 {
-   if ( ! m_elements ) m_elements = new TEveElementList("Lego");
-   
    if(0==m_data) {
       m_data = new TEveCaloDataHist();
+      Bool_t status = TH1::AddDirectoryStatus();
+      TH1::AddDirectory(kFALSE); //Keeps histogram from going into memory
+      TH2F* background = new TH2F("background","",
+                                  82, fw3dlego::xbins, 72/1, -3.1416, 3.1416);
+      TH1::AddDirectory(status);
+      m_data->AddHistogram(background);
       // m_data->SetMaximum(100);
    }
-   boost::shared_ptr<FWEveLegoView> view( new FWEveLegoView(iParent, m_elements) );
-   m_views.push_back(view);
-   return view.get();
+}
 
+FWViewBase* 
+FWEveLegoViewManager::buildView(TGFrame* iParent)
+{   
+   initData();
+   boost::shared_ptr<FWEveLegoView> view( new FWEveLegoView(iParent, &m_elements) );
+   view->beingDestroyed_.connect(boost::bind(&FWEveLegoViewManager::beingDestroyed,this,_1));
+   m_views.push_back(view);
+
+   if(1 == m_views.size()) {
+      for(std::vector<boost::shared_ptr<FW3DLegoDataProxyBuilder> >::iterator it
+          =m_builders.begin(), itEnd = m_builders.end();
+          it != itEnd;
+          ++it) {
+         (*it)->setHaveAWindow(true);
+      }
+   }
+   view->beingDestroyed_.connect(boost::bind(&FWEveLegoViewManager::beingDestroyed,this,_1));
+
+   //Do this ONLY if we've already added items to the scene else we get seg faults :(
+   if(m_modelsHaveBeenMadeAtLeastOnce) {
+      view->finishSetup();
+   }
+   return view.get();
+}
+
+void 
+FWEveLegoViewManager::beingDestroyed(const FWViewBase* iView)
+{
+   
+   if(1 == m_views.size()) {
+      for(std::vector<boost::shared_ptr<FW3DLegoDataProxyBuilder> >::iterator it
+          =m_builders.begin(), itEnd = m_builders.end();
+          it != itEnd;
+          ++it) {
+         (*it)->setHaveAWindow(false);
+      }
+   }
+   for(std::vector<boost::shared_ptr<FWEveLegoView> >::iterator it=
+       m_views.begin(), itEnd = m_views.end();
+       it != itEnd;
+       ++it) {
+      if(it->get() == iView) {
+         m_views.erase(it);
+         return;
+      }
+   }
 }
 
 
+/*
 void 
 FWEveLegoViewManager::newEventAvailable()
 {
@@ -171,7 +227,7 @@ FWEveLegoViewManager::newEventAvailable()
                  boost::bind(&FWEveLegoView::draw,_1, m_data) );
    for ( unsigned int i = 0; i < m_views.size(); ++i ) m_views[i]->setMinEnergy();
 }
-
+*/
 void 
 FWEveLegoViewManager::makeProxyBuilderFor(const FWEventItem* iItem)
 {
@@ -188,11 +244,38 @@ FWEveLegoViewManager::makeProxyBuilderFor(const FWEventItem* iItem)
 	  if(0!=builder) {
 	     boost::shared_ptr<FW3DLegoDataProxyBuilder> pB( builder );
 	     builder->setItem(iItem);
-	     m_modelProxies.push_back(FWEveLegoModelProxy(pB) );
+             initData();
+             if(0==m_lego) {
+                m_lego = new TEveCaloLego(m_data);
+                TEveRGBAPalette* pal = new TEveRGBAPalette(0, 100);
+                // pal->SetLimits(0, data->GetMaxVal());
+                pal->SetLimits(0, 100);
+                pal->SetDefaultColor((Color_t)1000);
+                
+                m_lego->InitMainTrans();
+                m_lego->RefMainTrans().SetScale(2*M_PI, 2*M_PI, M_PI);
+                
+                m_lego->SetPalette(pal);
+                // m_lego->SetMainColor(Color_t(TColor::GetColor("#0A0A0A")));
+                m_lego->SetGridColor(Color_t(TColor::GetColor("#202020")));
+                m_lego->Set2DMode(TEveCaloLego::kValSize);
+                m_lego->SetBinWidth(6);
+                // lego->SetEtaLimits(etaLimLow, etaLimHigh);
+                // lego->SetTitle("caloTower Et distribution");
+                //m_lego->SetData(m_data);
+                m_elements.AddElement(m_lego);
+             }
+             builder->attach(&m_elements,m_data);
+	     m_builders.push_back(pB);
+             if(m_views.size()) {
+                pB->setHaveAWindow(true);
+             }
+             //m_lego->ElementChanged();
+             //m_lego->DataChanged();
 	  }
        }
   }
-   iItem->itemChanged_.connect(boost::bind(&FWEveLegoViewManager::itemChanged,this,_1));
+   //iItem->itemChanged_.connect(boost::bind(&FWEveLegoViewManager::itemChanged,this,_1));
 }
 
 void 
@@ -201,10 +284,12 @@ FWEveLegoViewManager::newItem(const FWEventItem* iItem)
    makeProxyBuilderFor(iItem);
 }
 
+/*
 void 
 FWEveLegoViewManager::itemChanged(const FWEventItem*) {
    m_itemChanged=true;
 }
+ */
 void 
 FWEveLegoViewManager::modelChangesComing()
 {
@@ -213,6 +298,7 @@ FWEveLegoViewManager::modelChangesComing()
 void 
 FWEveLegoViewManager::modelChangesDone()
 {
+   /*
    if ( m_itemChanged ) 
      newEventAvailable();
    else {
@@ -221,6 +307,10 @@ FWEveLegoViewManager::modelChangesDone()
    }
    
    m_itemChanged = false;
+    */
+   m_modelsHaveBeenMadeAtLeastOnce=true;
+   std::for_each(m_views.begin(), m_views.end(),
+                 boost::bind(&FWEveLegoView::finishSetup,_1) );
    gEve->EnableRedraw();
 }
 
