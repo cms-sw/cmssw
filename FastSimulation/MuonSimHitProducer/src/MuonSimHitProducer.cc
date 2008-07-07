@@ -15,7 +15,7 @@
 //         Created:  Wed Jul 30 11:37:24 CET 2007
 //         Working:  Fri Nov  9 09:39:33 CST 2007
 //
-// $Id: MuonSimHitProducer.cc,v 1.16 2008/06/06 18:16:38 pjanot Exp $
+// $Id: MuonSimHitProducer.cc,v 1.17 2008/06/09 09:26:51 pjanot Exp $
 //
 //
 
@@ -335,7 +335,10 @@ MuonSimHitProducer::produce(edm::Event& iEvent,const edm::EventSetup& iSetup) {
 #endif
 
       tof += dtof;
-      const GeomDet *gd = comps[0].first;
+
+      for ( unsigned int icomp=0; icomp<comps.size(); icomp++ )
+	{
+      const GeomDet *gd = comps[icomp].first;
       if ( gd->subDetector() == GeomDetEnumerators::DT ) {
         DTChamberId id(gd->geographicalId());
         const DTChamber *chamber = dtGeom->chamber(id);
@@ -478,6 +481,7 @@ MuonSimHitProducer::produce(edm::Event& iEvent,const edm::EventSetup& iSetup) {
         std::cout << "Extrapolated to unknown subdetector '" << gd->subDetector() << "'..." << std::endl;
       }
     }
+  }
   }
 
   std::auto_ptr<edm::PSimHitContainer> pcsc(new edm::PSimHitContainer);
