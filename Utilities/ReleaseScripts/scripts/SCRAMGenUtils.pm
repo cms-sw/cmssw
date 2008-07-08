@@ -187,9 +187,12 @@ sub createTmpReleaseArea ()
     if(-d "${dir}/${sdir}"){system("rm -rf ${dir}/${sdir}");}
     system("cp -rpf ${rel}/${sdir} $dir");
   }
+  my $prn="projectrename";
+  if ($SCRAM_VERSION=~/^V1_0_/){$prn="ProjectRename";}
+  system("cd $dir; $SCRAM_CMD build -r $prn >/dev/null 2>&1");
   my $setup=0;
-  my $envfile="${dir}/.SCRAM/Environment";
-  if ($SCRAM_VERSION=~/^V[2-9]/){$envfile="${dir}/.SCRAM/${SCRAM_ARCH}/Environment";}
+  my $envfile="${dir}/.SCRAM/${SCRAM_ARCH}/Environment";
+  if ($SCRAM_VERSION=~/^V1/){$envfile="${dir}/.SCRAM/Environment";}
   if($dev)
   {
     my $rtop=&getFromEnvironmentFile("RELEASETOP",$rel);
@@ -202,17 +205,14 @@ sub createTmpReleaseArea ()
   else
   {
     system("chmod -R u+w $dir");
-    if ($SCRAM_VERSION=~/^V[2-9]/){system("rm -f $envfile");}
-    else
+    if ($SCRAM_VERSION=~/^V1_/)
     {
       system("grep -v \"RELEASETOP=\" $envfile  > ${envfile}.new");
       system("mv ${envfile}.new $envfile");
     }
+    else{system("rm -f $envfile");}
     $setup=1;
   }
-  my $prn="projectrename";
-  if ($SCRAM_VERSION=~/^V1_0_/){$prn="ProjectRename";}
-  system("cd $dir; $SCRAM_CMD build -r $prn >/dev/null 2>&1");
   if($setup){system("cd $dir; $SCRAM_CMD setup self >/dev/null 2>&1");}
   return $dir;
 }
@@ -228,16 +228,43 @@ sub getBuildVariable ()
   return $val;
 }
 
-sub getOrderedTools ()
+sub getOrderedTools (){
+  my $ver=&scramVersion();
+  if ($ver=~/^V1_/){return &getOrderedToolsV1 (@_);}
+  else { return &getOrderedToolsV2 (@_); }
+}
+
+sub getOrderedToolsV2 ()
+{
+  require BuildSystem::ToolManager;
+  my $cache=shift;
+  my $rev=shift || 0;
+  my $otools = $cache->toolsdata();
+  my $tools  = $cache->setup();
+  if (exists $tools->{'self'}){push @$otools,$tools->{'self'};}
+  my @t =();
+  my @compilertools=();
+  foreach my $tool ( reverse @$otools )
+  {
+    if ($tool->scram_compiler()){push @compilertools,$tool; next;}
+    push @t,$tool->toolname();
+  }
+  foreach my $tool ( @compilertools ){push @t,$tool->toolname();}
+  if ($rev){@t=reverse @t;}
+  return @t;
+}
+
+sub getOrderedToolsV1 ()
 {
   my $cache=shift;
+  my $rev=shift || 0;
   my $tool=shift || "";
   my $data=shift || {};
   if($tool eq "self"){return;}
   if($tool eq "")
   {
     $data->{tooldone}={}; $data->{orderedtool}=[]; $data->{scrambased}={};
-    foreach my $t (keys %{$cache->{SETUP}}){&getOrderedTools($cache,$t,$data);}
+    foreach my $t (keys %{$cache->{SETUP}}){&getOrderedToolsV1($cache,$rev,$t,$data);}
     foreach my $stool ("seal","coral","pool","iguana","ignominy","cmssw")
     {
       if(exists $data->{scrambased}{$stool})
@@ -248,7 +275,7 @@ sub getOrderedTools ()
     unshift @{$data->{orderedtool}},"self";
     delete $data->{scrambased};
     delete $data->{tooldone};
-    return $data->{orderedtool};
+    return @{$data->{orderedtool}};
   }
   elsif((!exists $data->{tooldone}{$tool}) && (exists $cache->{SETUP}{$tool}))
   {
@@ -259,7 +286,7 @@ sub getOrderedTools ()
       foreach my $t (@{$cache->{SETUP}{$tool}{USE}})
       {
 	$t=lc($t);
-	&getOrderedTools($cache,$t,$data);
+	&getOrderedToolsV1($cache,$rev,$t,$data);
       }
     }
     unshift @{$data->{orderedtool}},$tool;
@@ -446,12 +473,12 @@ sub readBuildFile ()
   my $bfile=shift;
   my $bfn=basename($bfile);
   eval ("use SCRAM::Plugins::DocParser");
-  if($@){die "Can not local SCRAM/Plugins/DocParser.pm perl module for reading $bfile.\n";}
+  if($@){die "Can not locate SCRAM/Plugins/DocParser.pm perl module for reading $bfile.\n";}
   my $input=undef;
   if ($bfn!~/BuildFile\.xml/)
   {
     eval ("use SCRAM::Plugins::Doc2XML");
-    if($@){die "Can not local SCRAM/Plugins/DocParser.pm perl module for reading $bfile.\n";}
+    if($@){die "Can not locate SCRAM/Plugins/DocParser.pm perl module for reading $bfile.\n";}
     my $doc2xml = SCRAM::Plugins::Doc2XML->new(0);
     my $xml=$doc2xml->convert($bfile);
     $input = join("",@$xml);

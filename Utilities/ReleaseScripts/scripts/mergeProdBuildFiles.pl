@@ -17,6 +17,13 @@ else{$common=0;}
 $dir=&SCRAMGenUtils::fixPath($dir);
 my $release=&SCRAMGenUtils::scramReleaseTop($dir);
 if(!-d "${release}/.SCRAM"){print STDERR "ERROR: $dir is not under a SCRAM-based project.\n"; exit 1;}
+my $scram_ver=&SCRAMGenUtils::scramVersion($release);
+if($scram_ver=~/^V1_0_/)
+{
+  print STDERR "ERROR: This version of script will only work with SCRAM versions V1_1* and above.\n";
+  print STDERR "\"$release\" is based on SCRAM version $scram_ver.\n";
+  exit 1;
+}
 &SCRAMGenUtils::init ($release);
 &process($dir);
 exit 0;
