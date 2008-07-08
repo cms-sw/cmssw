@@ -1,3 +1,5 @@
+import FWCore.ParameterSet.Config as cms
+
 ALCARECOEventContent = cms.PSet(
 	outputCommands = cms.untracked.vstring(
 	'drop *',
@@ -54,5 +56,5 @@ ALCARECOEventContent = cms.PSet(
         'keep RPCDetIdRPCDigiMuonDigiCollection_*_*_*', 
         'keep L1MuGMTCands_*_*_*', 
         'keep L1MuGMTReadoutCollection_*_*_*',
-	'keep *_MEtoEDMConverter_*_*'
+	'keep *_MEtoEDMConverter_*_*')
 )
