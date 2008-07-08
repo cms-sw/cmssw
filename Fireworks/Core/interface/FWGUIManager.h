@@ -16,7 +16,7 @@
 //
 // Original Author:  Chris Jones
 //         Created:  Mon Feb 11 10:52:24 EST 2008
-// $Id: FWGUIManager.h,v 1.29 2008/06/30 21:38:01 chrjones Exp $
+// $Id: FWGUIManager.h,v 1.30 2008/07/08 00:27:19 chrjones Exp $
 //
 
 // system include files
@@ -56,7 +56,7 @@ class FWListModel;
 
 class TGListTreeItem;
 class TGListTree;
-class TEveGedEditor;
+//class TEveGedEditor;
 class TEveElementList;
 class TEveElement;
 
@@ -208,8 +208,8 @@ class FWGUIManager : public FWConfigurable
       NameToViewBuilder m_nameToViewBuilder;
   
       TGListTree* m_listTree;
-      TEveGedEditor* m_editor;
-      TEveElementList* m_views;
+      //TEveGedEditor* m_editor;
+      //TEveElementList* m_views;
    
       TEveElement* m_editableSelected;
 

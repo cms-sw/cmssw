@@ -8,7 +8,7 @@
 //
 // Original Author:  Chris Jones
 //         Created:  Mon Feb 11 11:06:40 EST 2008
-// $Id: FWGUIManager.cc,v 1.48 2008/07/08 17:47:00 chrjones Exp $
+// $Id: FWGUIManager.cc,v 1.49 2008/07/08 18:43:24 chrjones Exp $
 //
 
 // system include files
@@ -31,7 +31,7 @@
 #include "TBrowser.h"
 #include "TGMenu.h"
 #include "TEveManager.h"
-#include "TEveGedEditor.h"
+//#include "TEveGedEditor.h"
 #include "TEveSelection.h"
 #include "TGFileDialog.h"
 #include "TStopwatch.h"
@@ -74,6 +74,8 @@
 #include "Fireworks/Core/interface/CmsShowEDI.h"
 #include "Fireworks/Core/interface/CmsShowModelPopup.h"
 #include "Fireworks/Core/interface/CmsShowViewPopup.h"
+
+#include "Fireworks/Core/src/FWListWidget.h"
 //
 // constants, enums and typedefs
 //
@@ -253,10 +255,12 @@ FWGUIManager::createView(const std::string& iName)
    FWViewBase* view(itFind->second(parentForNextView()));
    addFrameHoldingAView(view->frame());
    
+   /*
    FWListViewObject* lst = new FWListViewObject(iName.c_str(),view);
    lst->AddIntoListTree(m_listTree,m_views);
    //TODO: HACK should keep a hold of 'lst' and keep it so that if view is removed this goes as well
    lst->IncDenyDestroy();
+    */
    m_viewBases.push_back(view);
 }
 
@@ -336,15 +340,17 @@ FWGUIManager::selectionChanged(const FWSelectionManager& iSM)
       model->SetMainColor(info.displayProperties().color());
       model->SetRnrState(info.displayProperties().isVisible());
       m_editableSelected = model;
-      m_editor->DisplayElement(m_editableSelected);
+      //m_editor->DisplayElement(m_editableSelected);
    } else if(1<iSM.selected().size()) {
       delete m_editableSelected;
       m_editableSelected = new FWListMultipleModels(iSM.selected());
-      m_editor->DisplayElement(m_editableSelected);
+      //m_editor->DisplayElement(m_editableSelected);
    } else {
+      /*
       if(m_editor->GetEveElement() == m_editableSelected) {
-         m_editor->DisplayElement(0);
+         //m_editor->DisplayElement(0);
       }
+       */
       delete m_editableSelected;
       m_editableSelected=0;
    }
@@ -418,7 +424,7 @@ FWGUIManager::createList(TGSplitFrame *p)
   addDataButton->Connect("Clicked()", "FWGUIManager", this, "addData()");
   listFrame->AddFrame(addDataButton);
 
-  TEveGListTreeEditorFrame* ltf = new TEveGListTreeEditorFrame(listFrame);
+  FWListWidget* ltf = new FWListWidget(listFrame);
   listFrame->SetEditable(kFALSE);
   listFrame->AddFrame(ltf, new TGLayoutHints(kLHintsExpandX));
   //  p->Resize(listFrame->GetWidth(), listFrame->GetHeight());
@@ -428,10 +434,10 @@ FWGUIManager::createList(TGSplitFrame *p)
 					  m_eiManager,
 					  m_detailViewManager,
                                           m_changeManager);
-  m_views =  new TEveElementList("Views");
-  m_views->AddIntoListTree(m_listTree,reinterpret_cast<TGListTreeItem*>(0));
-  m_editor = ltf->GetEditor();
-  m_editor->DisplayElement(0);
+  //m_views =  new TEveElementList("Views");
+  //m_views->AddIntoListTree(m_listTree,reinterpret_cast<TGListTreeItem*>(0));
+  //m_editor = ltf->GetEditor();
+  //m_editor->DisplayElement(0);
   {
     //m_listTree->Connect("mouseOver(TGListTreeItem*, UInt_t)", "FWGUIManager",
     //                 this, "itemBelowMouse(TGListTreeItem*, UInt_t)");
@@ -587,7 +593,7 @@ FWGUIManager::itemClicked(TGListTreeItem *item, Int_t btn,  UInt_t mask, Int_t x
          
          //NOTE: editor should be decided by looking at FWSelectionManager and NOT directly from clicking
          // in the list
-         m_editor->DisplayElement(el);
+         //m_editor->DisplayElement(el);
       }
    }
 }
