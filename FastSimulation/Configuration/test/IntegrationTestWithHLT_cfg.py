@@ -100,7 +100,7 @@ process.o1 = cms.OutputModule("PoolOutputModule",
 process.outpath = cms.EndPath(process.o1)
 
 # Add endpaths to the schedule
-process.schedule.append(process.HLTEndpath1)
+process.schedule.append(process.HLTAnalyzerEndpath)
 process.schedule.append(process.outpath)
 
 # Keep the logging output to a nice level #
