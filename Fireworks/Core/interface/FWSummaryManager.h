@@ -16,7 +16,7 @@
 //
 // Original Author:  Chris Jones
 //         Created:  Tue Mar  4 09:35:58 EST 2008
-// $Id: FWSummaryManager.h,v 1.1 2008/03/05 15:07:32 chrjones Exp $
+// $Id: FWSummaryManager.h,v 1.2 2008/06/23 15:50:16 chrjones Exp $
 //
 
 // system include files
@@ -66,7 +66,7 @@ class FWSummaryManager
 
       // ---------- member data --------------------------------
       TGListTree* m_listTree;
-      TEveElementList* m_eventObjects;
+      //TEveElementList* m_eventObjects;
       FWDetailViewManager* m_detailViewManager;
 };
 
