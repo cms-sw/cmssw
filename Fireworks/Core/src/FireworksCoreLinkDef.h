@@ -14,6 +14,7 @@
 #include "Fireworks/Core/src/FWGUIEventDataAdder.h"
 #include "Fireworks/Core/src/FWColorSelect.h"
 #include "Fireworks/Core/src/LightTableWidget.h"
+#include "Fireworks/Core/src/FWListWidget.h"
 
 #ifdef __CINT__
 #pragma link off all globals;
@@ -32,6 +33,7 @@
 #pragma link C++ class FWTextView;
 #pragma link C++ class FWTextViewPage;
 #pragma link C++ class FWGUIEventDataAdder;
+#pragma link C++ class FWListWidget;
 
 #pragma link C++ function fwSetInCint(double);
 #pragma link C++ function fwSetInCint(long);
