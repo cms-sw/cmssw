@@ -9,6 +9,53 @@
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 
 //
+// input stream from a gz file
+//
+
+struct GzInputStream
+ {
+  typedef voidp gzFile ;
+  gzFile gzf ;
+  char buffer[256] ;
+  std::istringstream iss ;
+  bool eof ;
+  GzInputStream( const char * file )
+   : eof(false)
+   {
+    gzf = gzopen(file,"rb") ;
+    if (gzf==Z_NULL)
+     {
+      eof = true ;
+      edm::LogWarning("EcalTPG") <<"Database file "<<file<<" not found!!!";
+     }
+    else readLine() ;
+   }
+  void readLine()
+   {
+    char * res = gzgets(gzf,buffer,256) ;
+    eof = (res==Z_NULL) ;
+    if (!eof)
+     {
+      iss.clear() ;
+      iss.str(buffer) ;
+     }
+   }
+  ~GzInputStream()
+   { gzclose(gzf) ; }
+  operator void*()
+   { return ((eof==true)?((void*)0):iss) ; }
+ } ;
+
+template <typename T>
+GzInputStream & operator>>( GzInputStream & gis, T & var )
+ {
+  while ((gis)&&(!(gis.iss>>var)))
+   { gis.readLine() ; }
+  return gis ;
+ }
+
+
+//
 // constructors and destructor
 //
 
@@ -236,125 +283,149 @@ void EcalTrigPrimESProducer::parseTextFile()
   std::string iString;
   std::string fString;
   std::string filename = "SimCalorimetry/EcalTrigPrimProducers/data/"+dbFilename_;
+  std::string finalFileName ;
   size_t slash=dbFilename_.find("/");
   gzFile gzf;
   if (slash!=0) {
     edm::FileInPath fileInPath(filename);
-    gzf=gzopen(fileInPath.fullPath().c_str(),"rb");
+    finalFileName = fileInPath.fullPath() ;
   }
   else {
-    gzf=gzopen(dbFilename_.c_str(),"rb");
+    finalFileName = dbFilename_.c_str() ;
     edm::LogWarning("EcalTPG") <<"Couldnt find database file via fileinpath, trying with pathname directly!!";
   }
-  bufpos_=0;
- 
-  bool eof = false;
-  if  (gzf) {
-    while (!eof) {
-      eof= getNextString(gzf);
-      if (eof) break;
-      dataCard=sub_;
-      if (dataCard == "PHYSICS_EB" || dataCard == "PHYSICS_EE") {
-	getNextString(gzf);
-        id=atoi(sub_.c_str());
-	paramF.clear() ;
-	for (int i=0 ; i <7 ; i++) {
-	  getNextString(gzf);
-	  dataF=atof(sub_.c_str());
-	  paramF.push_back(dataF) ;
-	}
-	mapPhys_[id] = paramF ;
-      }
-	
-      if (dataCard == "CRYSTAL") {
-	getNextString(gzf);
-        id=atoi(sub_.c_str());
 
-	param.clear() ;
-	for (int i=0 ; i <9 ; i++) {
-	  getNextString(gzf);
-	  data = converthex();
-	  param.push_back(data) ;
-	}
-	mapXtal_[id] = param ;
+
+  //gzf=gzopen(finalFileName_.c_str(),"rb");
+  //bufpos_=0;
+  //bool eof = false;
+  //if  (gzf) {
+  //  while (!eof) {
+  //    eof= getNextString(gzf);
+  //    if (eof) break;
+  //    dataCard=sub_;
+
+
+  GzInputStream gis(finalFileName.c_str()) ;
+  while (gis>>dataCard) {
+
+
+      if (dataCard == "PHYSICS_EB" || dataCard == "PHYSICS_EE") {
+ //getNextString(gzf);
+        //id=atoi(sub_.c_str());
+        gis>>std::dec>>id ;
+ paramF.clear() ;
+ for (int i=0 ; i <7 ; i++) {
+   //getNextString(gzf);
+   //dataF=atof(sub_.c_str());
+          gis>>std::dec>>dataF ;
+   paramF.push_back(dataF) ;
+ }
+ mapPhys_[id] = paramF ;
       }
-	
+ 
+      if (dataCard == "CRYSTAL") {
+ //getNextString(gzf);
+        //id=atoi(sub_.c_str());
+        gis>>std::dec>>id ;
+
+ param.clear() ;
+ for (int i=0 ; i <9 ; i++) {
+   //getNextString(gzf);
+   //data = converthex();
+          gis>>std::hex>>data ;
+   param.push_back(data) ;
+ }
+ mapXtal_[id] = param ;
+      }
+ 
       if (dataCard == "STRIP_EB") {
-	getNextString(gzf);
-        id=atoi(sub_.c_str());
-	param.clear() ;
-	for (int i=0 ; i <NBstripparams[0] ; i++) {
-	  getNextString(gzf);
-	  data=atoi(sub_.c_str());
-	  param.push_back(data) ;
-	}
-	mapStrip_[0][id] = param ;
+ //getNextString(gzf);
+        //id=atoi(sub_.c_str());
+        gis>>std::dec>>id ;
+ param.clear() ;
+ for (int i=0 ; i <NBstripparams[0] ; i++) {
+   //getNextString(gzf);
+   //data=atoi(sub_.c_str());
+          gis>>std::hex>>data ;
+          param.push_back(data) ;
+ }
+ mapStrip_[0][id] = param ;
       }
 
       if (dataCard == "STRIP_EE") {
-	//	infile>>std::dec>>id ;
-	getNextString(gzf);
-        id=atoi(sub_.c_str());
-	param.clear() ;
-	for (int i=0 ; i <NBstripparams[1] ; i++) {
-	  getNextString(gzf);
-	  data=atoi(sub_.c_str());
-	  param.push_back(data) ;
-	}
-	mapStrip_[1][id] = param ;
+ // infile>>std::dec>>id ;
+ //getNextString(gzf);
+        //id=atoi(sub_.c_str());
+        gis>>std::dec>>id ;
+ param.clear() ;
+ for (int i=0 ; i <NBstripparams[1] ; i++) {
+   //getNextString(gzf);
+   //data=atoi(sub_.c_str());
+          gis>>std::hex>>data ;
+   param.push_back(data) ;
+ }
+ mapStrip_[1][id] = param ;
       }
-	
+ 
       if (dataCard == "TOWER_EB" || dataCard == "TOWER_EE") {
-	getNextString(gzf);
-        id=atoi(sub_.c_str());
+ //getNextString(gzf);
+        //id=atoi(sub_.c_str());
+        gis>>std::dec>>id ;
 
-	for (int i=0 ; i <2 ; i++) {
-	  getNextString(gzf);
-	  data=atoi(sub_.c_str());
-	  param.push_back(data) ;
-	}
-	if (dataCard == "TOWER_EB") mapTower_[0][id] = param ;
-	if (dataCard == "TOWER_EE") mapTower_[1][id] = param ;
+ for (int i=0 ; i <2 ; i++) {
+   //getNextString(gzf);
+   //data=atoi(sub_.c_str());
+          gis>>std::hex>>data ;
+   param.push_back(data) ;
+ }
+ if (dataCard == "TOWER_EB") mapTower_[0][id] = param ;
+ if (dataCard == "TOWER_EE") mapTower_[1][id] = param ;
       }
-		
+  
       if (dataCard == "WEIGHT") {
-	getNextString(gzf);
-        id=atoi(sub_.c_str());
-	param.clear() ;
-	for (int i=0 ; i <5 ; i++) {
-	  getNextString(gzf);
-	  data=atoi(sub_.c_str());
-	  param.push_back(data) ;
-	}
-	mapWeight_[id] = param ;
+ //getNextString(gzf);
+        //id=atoi(sub_.c_str());
+        gis>>std::dec>>id ;
+ param.clear() ;
+ for (int i=0 ; i <5 ; i++) {
+   //getNextString(gzf);
+   //data=atoi(sub_.c_str());
+          gis>>std::hex>>data ;
+   param.push_back(data) ;
+ }
+ mapWeight_[id] = param ;
       }
-	
+ 
       if (dataCard == "FG") {
-	getNextString(gzf);
-        id=atoi(sub_.c_str());
-	param.clear() ;
-	for (int i=0 ; i <5 ; i++) {
-	  getNextString(gzf);
-	  data=atoi(sub_.c_str());
-	  param.push_back(data) ;
-	}
-	mapFg_[id] = param ;
+ //getNextString(gzf);
+        //id=atoi(sub_.c_str());
+        gis>>std::dec>>id ;
+ param.clear() ;
+ for (int i=0 ; i <5 ; i++) {
+   //getNextString(gzf);
+   //data=atoi(sub_.c_str());
+          gis>>std::hex>>data ;
+   param.push_back(data) ;
+ }
+ mapFg_[id] = param ;
       }
-	
+ 
       if (dataCard == "LUT") {
-	getNextString(gzf);
-        id=atoi(sub_.c_str());
-	param.clear() ;
-	for (int i=0 ; i <1024 ; i++) {
-	  getNextString(gzf);
-	  data=atoi(sub_.c_str());
-	  param.push_back(data) ;
-	}
-	mapLut_[id] = param ;
+ //getNextString(gzf);
+        //id=atoi(sub_.c_str());
+        gis>>std::dec>>id ;
+ param.clear() ;
+ for (int i=0 ; i <1024 ; i++) {
+   //getNextString(gzf);
+   //data=atoi(sub_.c_str());
+          gis>>std::hex>>data ;
+   param.push_back(data) ;
+ }
+ mapLut_[id] = param ;
       }
-
     }
-  } else     edm::LogWarning("EcalTPG") <<"Database file not found!!!";
+//  } else     edm::LogWarning("EcalTPG") <<"Database file not found!!!";
 }
 
 std::vector<int> EcalTrigPrimESProducer::getRange(int subdet, int tccNb, int towerNbInTcc, int stripNbInTower, int xtalNbInStrip)
