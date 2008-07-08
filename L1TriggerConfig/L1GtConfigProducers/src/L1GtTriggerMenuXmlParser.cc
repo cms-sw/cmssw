@@ -126,6 +126,12 @@ void L1GtTriggerMenuXmlParser::setVecJetCountsTemplate(
     m_vecJetCountsTemplate = vecJetCountsTempl;
 }
 
+void L1GtTriggerMenuXmlParser::setVecCastorTemplate(
+        const std::vector<std::vector<L1GtCastorTemplate> >& vecCastorTempl) {
+    
+    m_vecCastorTemplate = vecCastorTempl;
+}
+
 void L1GtTriggerMenuXmlParser::setVecCorrelationTemplate(
         const std::vector<std::vector<L1GtCorrelationTemplate> >& vecCorrelationTempl) {
     
@@ -177,6 +183,7 @@ void L1GtTriggerMenuXmlParser::parseXmlFile(const std::string& defXmlFile,
     m_vecCaloTemplate.resize(m_numberConditionChips);
     m_vecEnergySumTemplate.resize(m_numberConditionChips);
     m_vecJetCountsTemplate.resize(m_numberConditionChips);
+    m_vecCastorTemplate.resize(m_numberConditionChips);
     
     m_vecCorrelationTemplate.resize(m_numberConditionChips);
     m_corMuonTemplate.resize(m_numberConditionChips);
@@ -805,7 +812,7 @@ boost::uint64_t L1GtTriggerMenuXmlParser::mirror(const boost::uint64_t oldLUT,
     
     int firstBin = 0;
     int diffScale = maxBitsLUT - maxBitsReal;
-    int bits16 = maxBitsLUT/4; // hex size
+    //int bits16 = maxBitsLUT/4; // hex size
     
     if (diffScale != 0) {
         firstBin = 1;
@@ -840,14 +847,14 @@ boost::uint64_t L1GtTriggerMenuXmlParser::mirror(const boost::uint64_t oldLUT,
         //        << bitValue << std::endl;
     }
 
-    LogTrace("L1GtTriggerMenuXmlParser") << "\n Converting old LUT  (hex) "
-            << "\n    GTgui.XML:    " 
-            << std::hex << std::setw(bits16) << std::setfill('0') 
-            << oldLUT
-            << "\n    Mirror:       " 
-            << std::hex << std::setw(bits16) << std::setfill('0') 
-            << newLUT << std::dec
-            << std::endl;
+    //LogTrace("L1GtTriggerMenuXmlParser") << "\n Converting old LUT  (hex) "
+    //        << "\n    GTgui.XML:    " 
+    //        << std::hex << std::setw(bits16) << std::setfill('0') 
+    //        << oldLUT
+    //        << "\n    Mirror:       " 
+    //        << std::hex << std::setw(bits16) << std::setfill('0') 
+    //        << newLUT << std::dec
+    //        << std::endl;
 
     return newLUT;
 }
@@ -2172,6 +2179,80 @@ bool L1GtTriggerMenuXmlParser::parseJetCounts(XERCES_CPP_NAMESPACE::DOMNode* nod
 }
 
 /**
+ * parseCastor Parse a CASTOR condition and 
+ * insert an entry to the conditions map
+ *
+ * @param node The corresponding node.
+ * @param name The name of the condition.
+ * @param chipNr The number of the chip this condition is located.
+ *
+ * @return "true" if suceeded, "false" if an error occured.
+ *
+ */
+
+bool L1GtTriggerMenuXmlParser::parseCastor(XERCES_CPP_NAMESPACE::DOMNode* node,
+    const std::string& name, unsigned int chipNr) {
+
+    XERCES_CPP_NAMESPACE_USE
+
+    // get condition, particle name and type name
+    std::string condition = getXMLAttribute(node, m_xmlConditionAttrCondition);
+    std::string particle = getXMLAttribute(node, m_xmlConditionAttrObject);
+    std::string type = getXMLAttribute(node, m_xmlConditionAttrType);
+
+    if (particle != m_xmlConditionAttrObjectCastor) {
+        edm::LogError("L1GtTriggerMenuXmlParser") 
+            << "\nError: wrong particle for Castor condition ("
+            << particle << ")" << std::endl;
+        return false;
+    }
+
+    // object type and condition type
+    // object type - irrelevant for CASTOR conditions
+    L1GtConditionType cType = TypeCastor;
+
+    // no objects for CASTOR conditions
+
+    // set the boolean value for the ge_eq mode - irrelevant for CASTOR conditions
+    bool gEq = false;
+
+    // now create a new CASTOR condition
+
+    L1GtCastorTemplate castorCond(name);
+
+    castorCond.setCondType(cType);
+    castorCond.setCondGEq(gEq);
+    castorCond.setCondChipNr(chipNr);
+
+
+    if (edm::isDebugEnabled() ) {
+
+        std::ostringstream myCoutStream;
+        castorCond.print(myCoutStream);
+        LogTrace("L1GtTriggerMenuXmlParser") << myCoutStream.str() << "\n" << std::endl;
+
+    }
+
+    // insert condition into the map
+    if ( !insertConditionIntoMap(castorCond, chipNr)) {
+
+        edm::LogError("L1GtTriggerMenuXmlParser") 
+            << "    Error: duplicate condition (" << name
+            << ")" << std::endl;
+
+        return false;
+    } else {
+        
+        (m_vecCastorTemplate[chipNr]).push_back(castorCond);
+        
+    }
+
+
+    //
+    return true;
+}
+
+/**
  * parseCorrelation Parse a correlation condition and 
  * insert an entry to the conditions map
  *
@@ -2547,11 +2628,15 @@ bool L1GtTriggerMenuXmlParser::workCondition(XERCES_CPP_NAMESPACE::DOMNode* node
     else if (condition == m_xmlConditionAttrConditionJetCounts) {
         return parseJetCounts(node, name, chipNr);
     }
+    else if (condition == m_xmlConditionAttrConditionCastor) {
+        return parseCastor(node, name, chipNr);
+    }
     else if (condition == m_xmlConditionAttrConditionCorrelation) {
         return parseCorrelation(node, name, chipNr);
     }
     else {
-        edm::LogError("L1GtTriggerMenuXmlParser") << "Unknown condition (" << condition << ")"
+        edm::LogError("L1GtTriggerMenuXmlParser") 
+            << "\n Error: unknown condition (" << condition << ")"
             << std::endl;
 
         return false;

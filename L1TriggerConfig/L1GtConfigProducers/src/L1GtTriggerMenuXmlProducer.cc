@@ -136,6 +136,7 @@ boost::shared_ptr<L1GtTriggerMenu> L1GtTriggerMenuXmlProducer::produceGtTriggerM
                         gtXmlParser.vecCaloTemplate(), 
                         gtXmlParser.vecEnergySumTemplate(), 
                         gtXmlParser.vecJetCountsTemplate(),
+                        gtXmlParser.vecCastorTemplate(),
                         gtXmlParser.vecCorrelationTemplate(),
                         gtXmlParser.corMuonTemplate(),
                         gtXmlParser.corCaloTemplate(),

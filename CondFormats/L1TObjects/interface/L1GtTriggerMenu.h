@@ -31,6 +31,7 @@
 #include "CondFormats/L1TObjects/interface/L1GtCaloTemplate.h"
 #include "CondFormats/L1TObjects/interface/L1GtEnergySumTemplate.h"
 #include "CondFormats/L1TObjects/interface/L1GtJetCountsTemplate.h"
+#include "CondFormats/L1TObjects/interface/L1GtCastorTemplate.h"
 #include "CondFormats/L1TObjects/interface/L1GtCorrelationTemplate.h"
 
 // forward declarations
@@ -51,6 +52,7 @@ public:
             const std::vector<std::vector<L1GtCaloTemplate> >&,
             const std::vector<std::vector<L1GtEnergySumTemplate> >&,
             const std::vector<std::vector<L1GtJetCountsTemplate> >&,
+            const std::vector<std::vector<L1GtCastorTemplate> >&,
             const std::vector<std::vector<L1GtCorrelationTemplate> >&,
             const std::vector<std::vector<L1GtMuonTemplate> >&,
             const std::vector<std::vector<L1GtCaloTemplate> >&,
@@ -111,6 +113,15 @@ public:
     void setVecJetCountsTemplate(
             const std::vector<std::vector<L1GtJetCountsTemplate> >&);
 
+    //
+    inline const std::vector<std::vector<L1GtCastorTemplate> >& 
+        vecCastorTemplate() const {
+        
+        return m_vecCastorTemplate;
+    }
+
+    void setVecCastorTemplate(
+            const std::vector<std::vector<L1GtCastorTemplate> >&);
     //
     inline const std::vector<std::vector<L1GtCorrelationTemplate> >& 
         vecCorrelationTemplate() const {
@@ -181,6 +192,7 @@ private:
     std::vector<std::vector<L1GtCaloTemplate> > m_vecCaloTemplate;
     std::vector<std::vector<L1GtEnergySumTemplate> > m_vecEnergySumTemplate;
     std::vector<std::vector<L1GtJetCountsTemplate> > m_vecJetCountsTemplate;
+    std::vector<std::vector<L1GtCastorTemplate> > m_vecCastorTemplate;
     
     std::vector<std::vector<L1GtCorrelationTemplate> > m_vecCorrelationTemplate;
     std::vector<std::vector<L1GtMuonTemplate> > m_corMuonTemplate;

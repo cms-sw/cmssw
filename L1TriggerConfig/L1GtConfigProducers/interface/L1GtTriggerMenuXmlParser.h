@@ -39,6 +39,7 @@
 #include "CondFormats/L1TObjects/interface/L1GtCaloTemplate.h"
 #include "CondFormats/L1TObjects/interface/L1GtEnergySumTemplate.h"
 #include "CondFormats/L1TObjects/interface/L1GtJetCountsTemplate.h"
+#include "CondFormats/L1TObjects/interface/L1GtCastorTemplate.h"
 #include "CondFormats/L1TObjects/interface/L1GtCorrelationTemplate.h"
 
 // forward declarations
@@ -143,6 +144,15 @@ public:
 
     void setVecJetCountsTemplate(
             const std::vector<std::vector<L1GtJetCountsTemplate> >&);
+
+    //
+    inline const std::vector<std::vector<L1GtCastorTemplate> >& vecCastorTemplate() const {
+
+        return m_vecCastorTemplate;
+    }
+
+    void setVecCastorTemplate(
+            const std::vector<std::vector<L1GtCastorTemplate> >&);
 
     //
     inline const std::vector<std::vector<L1GtCorrelationTemplate> >& vecCorrelationTemplate() const {
@@ -299,6 +309,10 @@ private:
     bool parseJetCounts(XERCES_CPP_NAMESPACE::DOMNode* node,
             const std::string& name, unsigned int chipNr = 0);
 
+    /// parse a CASTOR condition
+    bool parseCastor(XERCES_CPP_NAMESPACE::DOMNode* node,
+            const std::string& name, unsigned int chipNr = 0);
+
     /// parse a correlation condition
     bool parseCorrelation(XERCES_CPP_NAMESPACE::DOMNode* node,
             const std::string& name, unsigned int chipNr = 0);
@@ -359,6 +373,7 @@ private:
     std::vector<std::vector<L1GtCaloTemplate> > m_vecCaloTemplate;
     std::vector<std::vector<L1GtEnergySumTemplate> > m_vecEnergySumTemplate;
     std::vector<std::vector<L1GtJetCountsTemplate> > m_vecJetCountsTemplate;
+    std::vector<std::vector<L1GtCastorTemplate> > m_vecCastorTemplate;
 
     std::vector<std::vector<L1GtCorrelationTemplate> > m_vecCorrelationTemplate;
     std::vector<std::vector<L1GtMuonTemplate> > m_corMuonTemplate;
