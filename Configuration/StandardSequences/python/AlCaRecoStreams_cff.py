@@ -1,9 +1,12 @@
+from Configuration.StandardSequences.AlCaReco_cff import *
+from Configuration.EventContent.AlCaRecoOutput_cff import *
+
 ALCARECOTkAlMinBias = cms.FilteredStream(
 	responsible = 'Gero Flucke',
 	name = 'ALCARECOTkAlMinBias',
 	paths  = (pathALCARECOTkAlMinBias),
 	content = OutALCARECOTkAlMinBias.outputCommands,
-	selectEvents = OutALCARECOTkAlMinBias.SelectEvents
+	selectEvents = OutALCARECOTkAlMinBias.SelectEvents,
 	dataTier = cms.untracked.string('ALCARECO')
 	)
 
@@ -12,7 +15,7 @@ ALCARECOTkAlMuonIsolated = cms.FilteredStream(
 	name = 'ALCARECOTkAlMuonIsolated',
 	paths  = (pathALCARECOTkAlMuonIsolated),
 	content = OutALCARECOTkAlMuonIsolated.outputCommands,
-	selectEvents = OutALCARECOTkAlMuonIsolated.SelectEvents
+	selectEvents = OutALCARECOTkAlMuonIsolated.SelectEvents,
 	dataTier = cms.untracked.string('ALCARECO')
 	)
 
@@ -21,7 +24,7 @@ ALCARECOTkAlZMuMu = cms.FilteredStream(
 	name = 'ALCARECOTkAlZMuMu',
 	paths  = (pathALCARECOTkAlZMuMu),
 	content = OutALCARECOTkAlZMuMu.outputCommands,
-	selectEvents = OutALCARECOTkAlZMuMu.SelectEvents
+	selectEvents = OutALCARECOTkAlZMuMu.SelectEvents,
 	dataTier = cms.untracked.string('ALCARECO')
 	)
 
@@ -30,7 +33,7 @@ ALCARECOTkAlJpsiMuMu = cms.FilteredStream(
 	name = 'ALCARECOTkAlJpsiMuMu',
 	paths  = (pathALCARECOTkAlJpsiMuMu),
 	content = OutALCARECOTkAlJpsiMuMu.outputCommands,
-	selectEvents = OutALCARECOTkAlJpsiMuMu.SelectEvents
+	selectEvents = OutALCARECOTkAlJpsiMuMu.SelectEvents,
 	dataTier = cms.untracked.string('ALCARECO')
 	)
 
@@ -39,7 +42,7 @@ ALCARECOTkAlUpsilonMuMu = cms.FilteredStream(
 	name = 'ALCARECOTkAlUpsilonMuMu',
 	paths  = (pathALCARECOTkAlUpsilonMuMu),
 	content = OutALCARECOTkAlUpsilonMuMu.outputCommands,
-	selectEvents = OutALCARECOTkAlUpsilonMuMu.SelectEvents
+	selectEvents = OutALCARECOTkAlUpsilonMuMu.SelectEvents,
 	dataTier = cms.untracked.string('ALCARECO')
 	)
 
@@ -48,7 +51,7 @@ ALCARECOSiPixelLorentzAngle = cms.FilteredStream(
 	name = 'ALCARECOSiPixelLorentzAngle',
 	paths  = (pathALCARECOSiPixelLorentzAngle),
 	content = OutALCARECOSiPixelLorentzAngle.outputCommands,
-	selectEvents = OutALCARECOSiPixelLorentzAngle.SelectEvents
+	selectEvents = OutALCARECOSiPixelLorentzAngle.SelectEvents,
 	dataTier = cms.untracked.string('ALCARECO')
 	)
 
@@ -57,7 +60,7 @@ ALCARECOSiStripCalMinBias = cms.FilteredStream(
 	name = 'ALCARECOSiStripCalMinBias',
 	paths  = (pathALCARECOSiStripCalMinBias),
 	content = OutALCARECOSiStripCalMinBias.outputCommands,
-	selectEvents = OutALCARECOSiStripCalMinBias.SelectEvents
+	selectEvents = OutALCARECOSiStripCalMinBias.SelectEvents,
 	dataTier = cms.untracked.string('ALCARECO')
 	)
 
@@ -66,7 +69,7 @@ ALCARECOEcalCalPhiSym = cms.FilteredStream(
 	name = 'ALCARECOEcalCalPhiSym',
 	paths  = (pathALCARECOEcalCalPhiSym),
 	content = OutALCARECOEcalCalPhiSym.outputCommands,
-	selectEvents = OutALCARECOEcalCalPhiSym.SelectEvents
+	selectEvents = OutALCARECOEcalCalPhiSym.SelectEvents,
 	dataTier = cms.untracked.string('ALCARECO')
 	)
 
@@ -75,7 +78,7 @@ ALCARECOEcalCalPi0Calib = cms.FilteredStream(
 	name = 'ALCARECOEcalCalPi0Calib',
 	paths  = (pathALCARECOEcalCalPi0Calib),
 	content = OutALCARECOEcalCalPi0Calib.outputCommands,
-	selectEvents = OutALCARECOEcalCalPi0Calib.SelectEvents
+	selectEvents = OutALCARECOEcalCalPi0Calib.SelectEvents,
 	dataTier = cms.untracked.string('ALCARECO')
 	)
 
@@ -84,7 +87,7 @@ ALCARECOEcalCalElectron = cms.FilteredStream(
 	name = 'ALCARECOEcalCalElectron',
 	paths  = (pathALCARECOEcalCalElectron),
 	content = OutALCARECOEcalCalElectron.outputCommands,
-	selectEvents = OutALCARECOEcalCalElectron.SelectEvents
+	selectEvents = OutALCARECOEcalCalElectron.SelectEvents,
 	dataTier = cms.untracked.string('ALCARECO')
 	)
 
@@ -93,7 +96,7 @@ ALCARECOHcalCalMinBias = cms.FilteredStream(
 	name = 'ALCARECOHcalCalMinBias',
 	paths  = (pathALCARECOHcalCalMinBias),
 	content = OutALCARECOHcalCalMinBias.outputCommands,
-	selectEvents = OutALCARECOHcalCalMinBias.SelectEvents
+	selectEvents = OutALCARECOHcalCalMinBias.SelectEvents,
 	dataTier = cms.untracked.string('ALCARECO')
 	)
 
@@ -102,7 +105,7 @@ ALCARECOHcalCalIsoTrk = cms.FilteredStream(
 	name = 'ALCARECOHcalCalIsoTrk',
 	paths  = (pathALCARECOHcalCalIsoTrk),
 	content = OutALCARECOHcalCalIsoTrk.outputCommands,
-	selectEvents = OutALCARECOHcalCalIsoTrk.SelectEvents
+	selectEvents = OutALCARECOHcalCalIsoTrk.SelectEvents,
 	dataTier = cms.untracked.string('ALCARECO')
 	)
 
@@ -111,7 +114,7 @@ ALCARECOHcalCalIsoTrkNoHLT = cms.FilteredStream(
 	name = 'ALCARECOHcalCalIsoTrkNoHLT',
 	paths  = (pathALCARECOHcalCalIsoTrkNoHLT),
 	content = OutALCARECOHcalCalIsoTrkNoHLT.outputCommands,
-	selectEvents = OutALCARECOHcalCalIsoTrkNoHLT.SelectEvents
+	selectEvents = OutALCARECOHcalCalIsoTrkNoHLT.SelectEvents,
 	dataTier = cms.untracked.string('ALCARECO')
 	)
 
@@ -120,7 +123,7 @@ ALCARECOHcalCalDijets = cms.FilteredStream(
 	name = 'ALCARECOHcalCalDijets',
 	paths  = (pathALCARECOHcalCalDijets),
 	content = OutALCARECOHcalCalDijets.outputCommands,
-	selectEvents = OutALCARECOHcalCalDijets.SelectEvents
+	selectEvents = OutALCARECOHcalCalDijets.SelectEvents,
 	dataTier = cms.untracked.string('ALCARECO')
 	)
 
@@ -129,7 +132,7 @@ ALCARECOHcalCalGammaJet = cms.FilteredStream(
 	name = 'ALCARECOHcalCalGammaJet',
 	paths  = (pathALCARECOHcalCalGammaJet),
 	content = OutALCARECOHcalCalGammaJet.outputCommands,
-	selectEvents = OutALCARECOHcalCalGammaJet.SelectEvents
+	selectEvents = OutALCARECOHcalCalGammaJet.SelectEvents,
 	dataTier = cms.untracked.string('ALCARECO')
 	)
 
@@ -138,7 +141,7 @@ ALCARECOHcalCalHO = cms.FilteredStream(
 	name = 'ALCARECOHcalCalHO',
 	paths  = (pathALCARECOHcalCalHO),
 	content = OutALCARECOHcalCalHO.outputCommands,
-	selectEvents = OutALCARECOHcalCalHO.SelectEvents
+	selectEvents = OutALCARECOHcalCalHO.SelectEvents,
 	dataTier = cms.untracked.string('ALCARECO')
 	)
 
@@ -147,7 +150,7 @@ ALCARECOMuCaliMinBias = cms.FilteredStream(
 	name = 'ALCARECOMuCaliMinBias',
 	paths  = (pathALCARECOMuCaliMinBias),
 	content = OutALCARECOMuCaliMinBias.outputCommands,
-	selectEvents = OutALCARECOMuCaliMinBias.SelectEvents
+	selectEvents = OutALCARECOMuCaliMinBias.SelectEvents,
 	dataTier = cms.untracked.string('ALCARECO')
 	)
 
@@ -156,7 +159,7 @@ ALCARECOMuAlCalIsolatedMu = cms.FilteredStream(
 	name = 'ALCARECOMuAlCalIsolatedMu',
 	paths  = (pathALCARECOMuAlCalIsolatedMu),
 	content = OutALCARECOMuAlCalIsolatedMu.outputCommands,
-	selectEvents = OutALCARECOMuAlCalIsolatedMu.SelectEvents
+	selectEvents = OutALCARECOMuAlCalIsolatedMu.SelectEvents,
 	dataTier = cms.untracked.string('ALCARECO')
 	)
 
@@ -165,7 +168,7 @@ ALCARECOMuAlOverlaps = cms.FilteredStream(
 	name = 'ALCARECOMuAlOverlaps',
 	paths  = (pathALCARECOMuAlOverlaps),
 	content = OutALCARECOMuAlOverlaps.outputCommands,
-	selectEvents = OutALCARECOMuAlOverlaps.SelectEvents
+	selectEvents = OutALCARECOMuAlOverlaps.SelectEvents,
 	dataTier = cms.untracked.string('ALCARECO')
 	)
 
@@ -174,7 +177,7 @@ ALCARECORpcCalHLT = cms.FilteredStream(
 	name = 'ALCARECORpcCalHLT',
 	paths  = (pathALCARECORpcCalHLT),
 	content = OutALCARECORpcCalHLT.outputCommands,
-	selectEvents = OutALCARECORpcCalHLT.SelectEvents
+	selectEvents = OutALCARECORpcCalHLT.SelectEvents,
 	dataTier = cms.untracked.string('ALCARECO')
 	)
 
@@ -183,7 +186,7 @@ ALCARECOTkAlCosmics = cms.FilteredStream(
 	name = 'ALCARECOTkAlCosmics',
 	paths  = (pathALCARECOTkAlCosmicsCTF,pathALCARECOTkAlCosmicsCosmicTF,pathALCARECOTkAlCosmicsRS),
 	content = OutALCARECOTkAlCosmics.outputCommands,
-	selectEvents = OutALCARECOTkAlCosmics.SelectEvents
+	selectEvents = OutALCARECOTkAlCosmics.SelectEvents,
 	dataTier = cms.untracked.string('ALCARECO')
 	)
 
@@ -192,7 +195,7 @@ ALCARECOTkAlCosmicsHLT = cms.FilteredStream(
 	name = 'ALCARECOTkAlCosmicsHLT',
 	paths  = (pathALCARECOTkAlCosmicsCTFHLT,pathALCARECOTkAlCosmicsCosmicTFHLT,pathALCARECOTkAlCosmicsRSHLT),
 	content = OutALCARECOTkAlCosmicsHLT.outputCommands,
-	selectEvents = OutALCARECOTkAlCosmicsHLT.SelectEvents
+	selectEvents = OutALCARECOTkAlCosmicsHLT.SelectEvents,
 	dataTier = cms.untracked.string('ALCARECO')
 	)
 
@@ -201,7 +204,7 @@ ALCARECOTkAlCosmics0T = cms.FilteredStream(
 	name = 'ALCARECOTkAlCosmics0T',
 	paths  = (pathALCARECOTkAlCosmicsCTF0T,pathALCARECOTkAlCosmicsCosmicTF0T,pathALCARECOTkAlCosmicsRS0T),
 	content = OutALCARECOTkAlCosmics0T.outputCommands,
-	selectEvents = OutALCARECOTkAlCosmics0T.SelectEvents
+	selectEvents = OutALCARECOTkAlCosmics0T.SelectEvents,
 	dataTier = cms.untracked.string('ALCARECO')
 	)
 
@@ -210,7 +213,7 @@ ALCARECOTkAlCosmics0THLT = cms.FilteredStream(
 	name = 'ALCARECOTkAlCosmics0THLT',
 	paths  = (pathALCARECOTkAlCosmicsCTF0THLT,pathALCARECOTkAlCosmicsCosmicTF0THLT,pathALCARECOTkAlCosmicsRS0THLT),
 	content = OutALCARECOTkAlCosmics0THLT.outputCommands,
-	selectEvents = OutALCARECOTkAlCosmics0THLT.SelectEvents
+	selectEvents = OutALCARECOTkAlCosmics0THLT.SelectEvents,
 	dataTier = cms.untracked.string('ALCARECO')
 	)
 
@@ -219,7 +222,7 @@ ALCARECOMuAlZeroFieldGlobalCosmics = cms.FilteredStream(
 	name = 'ALCARECOMuAlZeroFieldGlobalCosmics',
 	paths  = (pathALCARECOMuAlZeroFieldGlobalCosmics),
 	content = OutALCARECOMuAlZeroFieldGlobalCosmics.outputCommands,
-	selectEvents = OutALCARECOMuAlZeroFieldGlobalCosmics.SelectEvents
+	selectEvents = OutALCARECOMuAlZeroFieldGlobalCosmics.SelectEvents,
 	dataTier = cms.untracked.string('ALCARECO')
 	)
 
@@ -228,7 +231,7 @@ ALCARECOTkAlBeamHalo = cms.FilteredStream(
 	name = 'ALCARECOTkAlBeamHalo',
 	paths  = (pathALCARECOTkAlBeamHalo),
 	content = OutALCARECOTkAlBeamHalo.outputCommands,
-	selectEvents = OutALCARECOTkAlBeamHalo.SelectEvents
+	selectEvents = OutALCARECOTkAlBeamHalo.SelectEvents,
 	dataTier = cms.untracked.string('ALCARECO')
 	)
 
@@ -237,7 +240,7 @@ ALCARECOMuAlBeamHalo = cms.FilteredStream(
 	name = 'ALCARECOMuAlBeamHalo',
 	paths  = (pathALCARECOMuAlBeamHalo),
 	content = OutALCARECOMuAlBeamHalo.outputCommands,
-	selectEvents = OutALCARECOMuAlBeamHalo.SelectEvents
+	selectEvents = OutALCARECOMuAlBeamHalo.SelectEvents,
 	dataTier = cms.untracked.string('ALCARECO')
 	)
 
@@ -246,7 +249,7 @@ ALCARECOMuAlBeamHaloOverlaps = cms.FilteredStream(
 	name = 'ALCARECOMuAlBeamHaloOverlaps',
 	paths  = (pathALCARECOMuAlBeamHaloOverlaps),
 	content = OutALCARECOMuAlBeamHaloOverlaps.outputCommands,
-	selectEvents = OutALCARECOMuAlBeamHaloOverlaps.SelectEvents
+	selectEvents = OutALCARECOMuAlBeamHaloOverlaps.SelectEvents,
 	dataTier = cms.untracked.string('ALCARECO')
 	)
 
@@ -255,6 +258,6 @@ ALCARECOTkAlLAS = cms.FilteredStream(
 	name = 'ALCARECOTkAlLAS',
 	paths  = (pathALCARECOTkAlLAS),
 	content = OutALCARECOTkAlLAS.outputCommands,
-	selectEvents = OutALCARECOTkAlLAS.SelectEvents
+	selectEvents = OutALCARECOTkAlLAS.SelectEvents,
 	dataTier = cms.untracked.string('ALCARECO')
 	)
