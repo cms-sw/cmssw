@@ -8,7 +8,7 @@
 //
 // Original Author:  Chris Jones
 //         Created:  Mon Feb 11 11:06:40 EST 2008
-// $Id: FWGUIManager.cc,v 1.45 2008/07/07 02:15:02 chrjones Exp $
+// $Id: FWGUIManager.cc,v 1.46 2008/07/08 00:27:19 chrjones Exp $
 //
 
 // system include files
@@ -503,9 +503,9 @@ FWGUIManager::resetEDIFrame() {
 void
 FWGUIManager::createModelPopup() {
   if (m_modelPopup == 0) {
-    m_modelPopup = new CmsShowModelPopup(m_detailViewManager,m_cmsShowMainFrame, 200, 200);
+    m_modelPopup = new CmsShowModelPopup(m_detailViewManager,m_selectionManager, m_cmsShowMainFrame, 200, 200);
     m_modelPopup->Connect("CloseWindow()", "FWGUIManager", this, "resetModelPopup()");
-    m_selectionManager->selectionChanged_.connect(boost::bind(&CmsShowModelPopup::fillModelPopup, m_modelPopup, _1));
+    //m_selectionManager->selectionChanged_.connect(boost::bind(&CmsShowModelPopup::fillModelPopup, m_modelPopup, _1));
     //    m_modelChangeConn = m_changeManager->changeSignalsAreDone_.connect(boost::bind(&CmsShowModelPopup::updateDisplay, m_modelPopup));
   }
 }
