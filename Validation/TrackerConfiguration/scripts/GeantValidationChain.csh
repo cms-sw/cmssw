@@ -25,7 +25,7 @@ cd ${DATADIR}/Validation/TrackerConfiguration/test
 
 cp /afs/cern.ch/cms/performance/tracker/activities/validation/G4Validation/Electron.root ./Muon.root
 
-cmsRun SimHits_Validation.cfg
+cmsRun SimHits_Validation_cfg.py
 cp ./TrackerHitHisto.root  TrackerHitHisto_ele_QGSP_EMV.root
 cp ./TrackerHitHisto.root ${DATADIR}/Validation/TrackerHits/test/
 

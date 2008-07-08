@@ -47,7 +47,7 @@ cd ${DATADIR}/Validation/TrackerConfiguration/test
 
 #cmsRun Muon_FullChain.cfg
 
-cmsRun ValidationChainOnly.cfg
+cmsRun ValidationChainOnly_cfg.py
 #if ( -e Muon.root ) /bin/rm Muon.root
 
 cp ./TrackerHitHisto.root ${DATADIR}/Validation/TrackerHits/test/
