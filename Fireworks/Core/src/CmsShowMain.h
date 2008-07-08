@@ -16,7 +16,7 @@
 //
 // Original Author:  
 //         Created:  Mon Dec  3 08:34:30 PST 2007
-// $Id: CmsShowMain.h,v 1.1 2008/06/17 00:08:11 chrjones Exp $
+// $Id: CmsShowMain.h,v 1.2 2008/07/06 19:58:54 dmytro Exp $
 //
 
 // system include files
@@ -91,8 +91,8 @@ private:
   std::auto_ptr<FWModelChangeManager> m_changeManager;
   std::auto_ptr<FWSelectionManager> m_selectionManager;
   std::auto_ptr<FWEventItemsManager> m_eiManager;
-  std::auto_ptr<FWGUIManager> m_guiManager;
   std::auto_ptr<FWViewManagerManager> m_viewManager;
+  std::auto_ptr<FWGUIManager> m_guiManager;
   std::auto_ptr<FWTextView> m_textView;
 
   CmsShowNavigator* m_navigator;

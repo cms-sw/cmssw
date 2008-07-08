@@ -8,7 +8,7 @@
 //
 // Original Author:  
 //         Created:  Mon Dec  3 08:38:38 PST 2007
-// $Id: CmsShowMain.cc,v 1.16 2008/07/06 00:49:26 dmytro Exp $
+// $Id: CmsShowMain.cc,v 1.17 2008/07/06 19:58:54 dmytro Exp $
 //
 
 // system include files
@@ -111,11 +111,12 @@ CmsShowMain::CmsShowMain(int argc, char *argv[]) :
   m_selectionManager(new FWSelectionManager(m_changeManager.get())),
   m_eiManager(new FWEventItemsManager(m_changeManager.get(),
                                       m_selectionManager.get())),
+  m_viewManager( new FWViewManagerManager(m_changeManager.get())),
   m_guiManager(new FWGUIManager(m_selectionManager.get(),
                                 m_eiManager.get(),
                                 m_changeManager.get(),
+                                m_viewManager.get(),
                                 false)),
-  m_viewManager( new FWViewManagerManager(m_changeManager.get())),
   m_textView(0)
   //  m_configFileName(iConfigFileName)
 {
@@ -421,7 +422,8 @@ CmsShowMain::CmsShowMain(int argc, char *argv[]) :
   m_navigator->oldEvent.connect(sigc::mem_fun(*m_guiManager, &FWGUIManager::loadEvent));
   m_navigator->newEvent.connect(sigc::mem_fun(*m_guiManager, &FWGUIManager::loadEvent));
   m_navigator->newEvent.connect(sigc::mem_fun(*this, &CmsShowMain::draw));
-  m_navigator->newFileLoaded.connect(sigc::mem_fun(*this, &CmsShowMain::resetInitialization));
+  m_navigator->newFileLoaded.connect(boost::bind(&CmsShowMain::resetInitialization,this));
+     m_navigator->newFileLoaded.connect(sigc::mem_fun(*m_guiManager,&FWGUIManager::newFile));
   m_navigator->atBeginning.connect(sigc::mem_fun(*m_guiManager, &FWGUIManager::disablePrevious));
   m_navigator->atEnd.connect(sigc::mem_fun(*m_guiManager, &FWGUIManager::disableNext));
   if (m_guiManager->getAction(cmsshow::sOpenData) != 0) m_guiManager->getAction(cmsshow::sOpenData)->activated.connect(sigc::mem_fun(*this, &CmsShowMain::openData));
