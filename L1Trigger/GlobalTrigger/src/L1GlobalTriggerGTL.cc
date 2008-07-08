@@ -36,6 +36,7 @@
 #include "CondFormats/L1TObjects/interface/L1GtCaloTemplate.h"
 #include "CondFormats/L1TObjects/interface/L1GtEnergySumTemplate.h"
 #include "CondFormats/L1TObjects/interface/L1GtJetCountsTemplate.h"
+#include "CondFormats/L1TObjects/interface/L1GtCastorTemplate.h"
 #include "CondFormats/L1TObjects/interface/L1GtCorrelationTemplate.h"
 
 #include "CondFormats/L1TObjects/interface/L1MuTriggerScales.h"
@@ -52,6 +53,7 @@
 #include "L1Trigger/GlobalTrigger/interface/L1GtCaloCondition.h"
 #include "L1Trigger/GlobalTrigger/interface/L1GtEnergySumCondition.h"
 #include "L1Trigger/GlobalTrigger/interface/L1GtJetCountsCondition.h"
+#include "L1Trigger/GlobalTrigger/interface/L1GtCastorCondition.h"
 #include "L1Trigger/GlobalTrigger/interface/L1GtCorrelationCondition.h"
 
 #include "L1Trigger/GlobalTrigger/interface/L1GtEtaPhiConversions.h"
@@ -168,7 +170,9 @@ void L1GlobalTriggerGTL::run(edm::Event& iEvent, const edm::EventSetup& evSetup,
     const int nrL1TauJet,
     const int nrL1JetCounts,
     const int ifMuEtaNumberBits,
-    const int ifCaloEtaNumberBits) {
+    const int ifCaloEtaNumberBits, 
+    const bool receiveCastor,
+    const edm::InputTag castorInputTag) {
 
 
 	// get / update the trigger menu from the EventSetup 
@@ -239,6 +243,43 @@ void L1GlobalTriggerGTL::run(edm::Event& iEvent, const edm::EventSetup& evSetup,
         m_gtEtaPhiConversions->convert(m_l1CaloGeometry, m_l1MuTriggerScales,
                 ifCaloEtaNumberBits, ifMuEtaNumberBits);
     }
+    
+    // get the CASTOR record
+    
+    //bool castorConditionFlag = true;
+    // FIXME remove the following line and uncomment the line above
+    //       when the L1CastorRecord is available
+    //       until then, all CASTOR conditions are set to false
+    bool castorConditionFlag = false;  
+    
+    //edm::Handle<L1CastorRecord > castorData;
+    //iEvent.getByLabel(castorInputTag, castorData);
+
+    //if (receiveCastor) {
+    //
+    //    if (!castorData.isValid()) {
+    //        //throw cms::Exception("ProductNotFound")
+    //        edm::LogError("L1GlobalTriggerGTL")
+    //        << "\nError: CASTOR record with input tag " << castorInputTag
+    //        << "\nrequested in configuration, but not found in the event.\n"
+    //        << std::endl;
+    //        
+    //        castorConditionFlag = false;
+    //    } else {
+    //            LogTrace("L1GlobalTriggerGTL") << *(castorData.product()) << std::endl;
+    //
+    //    }
+    //    
+    //} else {
+    //    
+    //    // channel for CASTOR blocked - set all CASTOR to false
+    //    // MUST NEVER BLOCK CASTOR CHANNEL AND USE OPERATOR "NOT" WITH CASTOR CONDITION
+    //    //     ==> FALSE RESULTS!
+    //    castorConditionResult = false;
+    //    
+    //}
+
+    
 
     // loop over condition maps (one map per condition chip)
     // then loop over conditions in the map
@@ -338,6 +379,31 @@ void L1GlobalTriggerGTL::run(edm::Event& iEvent, const edm::EventSetup& evSetup,
                     }
 
                     //                  delete jcCondition;
+
+                }
+                    break;
+                case CondCastor: {
+                    bool castorCondResult = false;
+                    
+                    // FIXME un-comment when CASTOR record available
+                    //if (castorConditionFlag) {
+                    //    castorCondResult = castorData->conditionResult(itCond->first); 
+                    //}
+                    
+                    L1GtCastorCondition* castorCondition = new L1GtCastorCondition(
+                            itCond->second, castorCondResult);
+                    castorCondition->evaluateConditionStoreResult();
+
+                    cMapResults[itCond->first] = castorCondition;
+
+                    if (edm::isDebugEnabled() ) {
+                        std::ostringstream myCout;
+                        castorCondition->print(myCout);
+
+                        LogTrace("L1GlobalTriggerGTL") << myCout.str() << std::endl;
+                    }
+
+                    //                  delete castorCondition;
 
                 }
                     break;

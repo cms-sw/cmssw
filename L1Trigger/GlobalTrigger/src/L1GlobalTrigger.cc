@@ -95,8 +95,12 @@ L1GlobalTrigger::L1GlobalTrigger(const edm::ParameterSet& parSet)
     // input tag for calorimeter collection from GCT
     m_caloGctInputTag = parSet.getParameter<edm::InputTag>("GctInputTag");
 
+    // input tag for CASTOR record 
+    m_castorInputTag= parSet.getParameter<edm::InputTag>("CastorInputTag");
+
     /// input tag for technical triggers
-    m_technicalTriggersInputTag = parSet.getParameter<edm::InputTag>("TechnicalTriggersInputTag");
+    m_technicalTriggersInputTag = 
+        parSet.getParameter<edm::InputTag>("TechnicalTriggersInputTag");
 
     // logical flag to produce the L1 GT DAQ readout record
     //     if true, produce the record
@@ -135,6 +139,8 @@ L1GlobalTrigger::L1GlobalTrigger(const edm::ParameterSet& parSet)
     << m_muGmtInputTag
     << "\nInput tag for calorimeter collections from GCT: "
     << m_caloGctInputTag
+    << "\nInput tag for CASTOR record                     "
+    << m_castorInputTag
     << "\nInput tag for technical triggers                "
     << m_technicalTriggersInputTag
     << "\nProduce the L1 GT DAQ readout record:           "
@@ -497,6 +503,8 @@ void L1GlobalTrigger::produce(edm::Event& iEvent, const edm::EventSetup& evSetup
     bool receiveHTT = false;
     bool receiveJetCounts = false;
 
+    bool receiveCastor = false;
+
     bool receiveTechTr = false;
 
     for (CItBoardMaps
@@ -579,6 +587,11 @@ void L1GlobalTrigger::produce(edm::Event& iEvent, const edm::EventSetup& evSetup
                                         break;
                                     case JetCountsQ: {
                                             receiveJetCounts = true;
+                                        }
+
+                                        break;
+                                    case CastorQ: {
+                                            receiveCastor = true;
                                         }
 
                                         break;
@@ -939,7 +952,9 @@ void L1GlobalTrigger::produce(edm::Event& iEvent, const edm::EventSetup& evSetup
             m_nrL1TauJet,
             m_nrL1JetCounts,
             m_ifMuEtaNumberBits,
-            m_ifCaloEtaNumberBits);
+            m_ifCaloEtaNumberBits, 
+            receiveCastor, 
+            m_castorInputTag);
 
         //LogDebug("L1GlobalTrigger")
         //<< "\n AlgorithmOR\n" << m_gtGTL->getAlgorithmOR() << "\n"

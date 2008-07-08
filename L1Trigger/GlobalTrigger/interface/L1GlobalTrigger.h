@@ -179,6 +179,9 @@ private:
     /// input tag for calorimeter collections from GCT
     edm::InputTag m_caloGctInputTag;
 
+    /// input tag for CASTOR record 
+    edm::InputTag m_castorInputTag;
+
     /// input tag for technical triggers
     edm::InputTag m_technicalTriggersInputTag;
 
