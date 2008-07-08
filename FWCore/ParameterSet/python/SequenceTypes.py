@@ -368,7 +368,7 @@ class Schedule(_ValidatingParameterListBase,_ConfigureComponent,_Unlabelable):
         import copy
         return copy.copy(self)
     def _place(self,label,process):
-        process.setSchedule_(self)
+        process.setPartialSchedule_(self,label)
     def fillNamesList(self, l, processDict):
         for seq in self:
             seq.fillNamesList(l, processDict)

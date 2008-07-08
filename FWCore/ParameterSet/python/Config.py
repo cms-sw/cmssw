@@ -58,6 +58,7 @@ class Process(object):
         self.__dict__['_cloneToObjectDict'] = {}
         # policy switch to avoid object overwriting during extend/load
         self.__dict__['_Process__OverWriteCheck'] = False
+        self.__dict__['_Process__partialschedules'] = {}
         self.__isStrict = False
 
     def setStrict(self, value):
@@ -128,6 +129,11 @@ class Process(object):
     def schedule_(self):
         """returns the schedule which has been added to the Process or None if none have been added"""
         return self.__schedule
+    def setPartialSchedule_(self,sch,label):
+        if label == "schedule":
+            self.setSchedule_(sch)
+        else:     
+            self._place(label, sch, self.__partialschedules)
     def setSchedule_(self,sch):
         self.__dict__['_Process__schedule'] = sch
     schedule = property(schedule_,setSchedule_,doc='the schedule or None if not set')
@@ -305,6 +311,8 @@ class Process(object):
                 except:
                     item.setLabel(name)
                 continue
+            elif isinstance(item,Schedule):
+                self.__setattr__(name,item)
             elif isinstance(item,_Unlabelable):
                 self.add_(item)
                 
