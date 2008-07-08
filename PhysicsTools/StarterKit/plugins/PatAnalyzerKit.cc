@@ -12,6 +12,7 @@ PatAnalyzerKit::PatAnalyzerKit(const edm::ParameterSet& iConfig)
   verboseLevel_(0),
   helper_(iConfig)
 {
+  helper_.bookHistos(this);
 }
 
 
@@ -74,7 +75,6 @@ void PatAnalyzerKit::produce( edm::Event & evt, const edm::EventSetup & es )
 void
 PatAnalyzerKit::beginJob(const edm::EventSetup&)
 {
-  helper_.bookHistos();
 }
 
 

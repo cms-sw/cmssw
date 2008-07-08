@@ -8,7 +8,7 @@
 //
 // Original Author:  Salvatore Rappoccio
 //         Created:  Mon Jul  7 10:37:27 CDT 2008
-// $Id: PatKitHelper.h,v 1.1 2008/07/07 15:04:33 srappocc Exp $
+// $Id: PatKitHelper.h,v 1.1 2008/07/07 20:06:54 srappocc Exp $
 //
 // Revision History:
 //       -  Sal Rappoccio, Mon Jul  7 10:37:27 CDT 2008
@@ -83,6 +83,8 @@ namespace pat {
 			   std::string name, const std::vector<T> & invec);
 
     
+    // verbose switch
+    int verboseLevel_;
 
     // Keep a version of the parameter set in question
     edm::ParameterSet         parameters_;

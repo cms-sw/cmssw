@@ -65,6 +65,7 @@ public:
       pt1(apt1), pt2(apt2), m1(am1), m2(am2)
     {
     }
+    ~KinAxisLimits() {}
   };
 
 

@@ -39,40 +39,29 @@ process.TFileService = cms.Service("TFileService",
 )
 
 # define event selection to be that which satisfies 'p'
-process.EventSelection = cms.PSet(
-    SelectEvents = cms.untracked.PSet(
-        SelectEvents = cms.vstring('p')
-    )
-)
-
-# setup event content
-process.patEventContent = cms.PSet(
-    outputCommands = cms.untracked.vstring('drop *')
-)
-
-# define event selection to be that which satisfies 'p'
 process.patEventSelection = cms.PSet(
     SelectEvents = cms.untracked.PSet(
         SelectEvents = cms.vstring('p')
     )
 )
 
+
+# define path 'p'
+process.p = cms.Path(process.patLayer0*process.patLayer1*process.patAnalyzerKit)
+# Set the threshold for output logging to 'info'
+process.MessageLogger.cerr.threshold = 'INFO'
+# extend event content to include pat analyzer kit objects
+process.patLayer1EventContent.outputCommands.extend(['keep *_patAnalyzerKit_*_*'])
+
+
 # talk to output module
 process.out = cms.OutputModule("PoolOutputModule",
     process.patEventSelection,
-    process.patEventContent,
+    process.patLayer1EventContent,
     verbose = cms.untracked.bool(False),
     fileName = cms.untracked.string('PatAnalyzerKitSkim.root')
 )
 
-# define path 'p'
-process.p = cms.Path(process.patLayer0*process.patLayer1*process.patAnalyzerKit)
+
 # define output path
 process.outpath = cms.EndPath(process.out)
-# Set the threshold for output logging to 'info'
-process.MessageLogger.cerr.threshold = 'INFO'
-# extend event content to include pat objects
-process.patEventContent.outputCommands.extend(process.patLayer1EventContent.outputCommands)
-# extend event content to include pat analyzer kit objects
-process.patEventContent.outputCommands.extend(['keep *_patAnalyzerKit_*_*'])
-

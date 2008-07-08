@@ -19,7 +19,7 @@
 //
 // Original Author:  Sal Rappoccio
 //         Created:  Wed Nov 28 15:31:57 CST 2007
-// $Id: CompositeKit.h,v 1.2 2008/06/04 15:04:33 srappocc Exp $
+// $Id: CompositeKit.h,v 1.3 2008/06/20 17:06:28 srappocc Exp $
 //
 // Revision History:
 //       -  Sal Rappoccio, Fri Nov 30 12:49:44 CST 2007: Added other objects as first
@@ -32,7 +32,8 @@
 #include <fstream>
 
 // user include files
-#include "PhysicsTools/StarterKit/interface/PatAnalyzerKit.h"
+#include "FWCore/Framework/interface/EDProducer.h"
+#include "PhysicsTools/StarterKit/interface/PatKitHelper.h"
 #include "PhysicsTools/StarterKit/interface/HistoComposite.h"
 #include "PhysicsTools/StarterKit/interface/PhysVarHisto.h"
 #include "DataFormats/Candidate/interface/CompositeCandidate.h"
@@ -41,7 +42,7 @@
 // class declaration
 //
 
-class CompositeKit : public PatAnalyzerKit
+class CompositeKit : public edm::EDProducer
 {
 public:
   explicit CompositeKit(const edm::ParameterSet&);
@@ -54,30 +55,37 @@ protected:
 
   // ----------member data ---------------------------
 
+  // The main sub-object which does the real work
+  pat::PatKitHelper          helper_;
+
+  bool                       verboseLevel_;
+
   // Input tag
   edm::InputTag              src_;
 
   // description
   std::string                description_;
 
-  // Input mass and pt ranges
-  double pt1_, pt2_, m1_, m2_, mm1_, mm2_;
 
-  // Input handle
+  // Physics objects handles
+  edm::Handle<std::vector<pat::Muon> >     muonHandle_;
+  edm::Handle<std::vector<pat::Electron> > electronHandle_;
+  edm::Handle<std::vector<pat::Tau> >      tauHandle_;
+  edm::Handle<std::vector<pat::Jet> >      jetHandle_;
+  edm::Handle<std::vector<pat::MET> >      METHandle_;
+  edm::Handle<std::vector<pat::Photon> >   photonHandle_;
+
+  // Composite Candidates Input handle
   edm::Handle<std::vector<reco::CompositeCandidate> >  compositeCandHandle_;
 
   // Composite variable histograms
   // NOTE! Should be replaced in the future with configurable settings
   pat::HistoComposite *      compositeCandHist_;
-
-  // temporary kludge to get the resonance mass
-  // When we have ExpressionHistograms, this will go away
-  pat::PhysVarHisto          * compositeCandMass_;
-  std::string                  compositeCandMassName_;
   
   // List of variables to ntuplize. This will also
   // go away when we have ExpressionHistograms
-  std::vector<pat::PhysVarHisto *>  compositeNtVars_;  
+  std::vector<pat::PhysVarHisto *>  compositeNtVars_; 
+ 
 };
 
 

@@ -10,66 +10,36 @@ using namespace reco;
 //
 CompositeKit::CompositeKit(const edm::ParameterSet& iConfig)
   :
-  PatAnalyzerKit    ( iConfig ),
   src_              ( iConfig.getParameter<edm::InputTag> ("src") ),
   description_      ( iConfig.getParameter<std::string>   ("description") ),
-  pt1_              ( iConfig.getParameter<double>        ("pt1") ),
-  pt2_              ( iConfig.getParameter<double>        ("pt2") ),
-  m1_               ( iConfig.getParameter<double>        ("m1") ),
-  m2_               ( iConfig.getParameter<double>        ("m2") ),
-  mm1_              ( iConfig.getParameter<double>        ("resonanceM1") ),
-  mm2_              ( iConfig.getParameter<double>        ("resonanceM2") )
+  helper_           ( iConfig )
 {
 
-  verboseLevel_ = 10;
+  verboseLevel_ = 0;
 
 
-  // NOTE: These are hard-coded for now, change to something meaningful in future
-  std::string alias;
-  compositeCandMassName_ = std::string( src_.label() );
-  compositeCandMassName_.append( "ResonanceMass");
+  PhysicsHistograms::KinAxisLimits compositeAxisLimits;
 
-  // Composite histograms
+  compositeAxisLimits = helper_.getAxisLimits("compositeAxis");
+
+  double pt1 = compositeAxisLimits.pt1;
+  double pt2 = compositeAxisLimits.pt2;
+  double m1  = compositeAxisLimits.m1;
+  double m2  = compositeAxisLimits.m2;
+
+  // Now book composite histograms
   compositeCandHist_ = new pat::HistoComposite(src_.label(), 
 					       description_,
 					       src_.label(),
-					       pt1_,pt2_,m1_,m2_ );
-  // Slight kludge until we get expression histograms working
+					       pt1,pt2,m1,m2 );
 
-  // Make service directory
-  edm::Service<TFileService> fs;
-  TFileDirectory res = TFileDirectory( fs->mkdir("resonance") );
-  // Make resonance mass histogram
-  compositeCandMass_ = new pat::PhysVarHisto( compositeCandMassName_, description_, 
-					      20, mm1_, mm2_, &res, "", "vD" );
-  // make associated TH1
-  compositeCandMass_->makeTH1();
-
-
-  // ----- Name production branch -----
-  string list_of_ntuple_vars =
-    iConfig.getParameter<std::string>    ("ntuplize");
-  
-  if ( list_of_ntuple_vars != "" ) {
-
-    // add resonance mass to list of variables to ntuplize
-    compositeNtVars_.push_back( compositeCandMass_ );
-
-    //--- Iterate over the list and "book" them via EDM
-    std::vector< pat::PhysVarHisto* >::iterator
-      p    = compositeNtVars_.begin(),
-      pEnd = compositeNtVars_.end();
-
-    for ( ; p != pEnd; ++p ) {
-      addNtupleVar( (*p)->name(), (*p)->type() );
-    }
-  }
+  // First book standard histograms
+  helper_.bookHistos(this);
 }
 
 
 CompositeKit::~CompositeKit()
 {
-  if ( compositeCandMass_ ) delete compositeCandMass_;
 }
 
 
@@ -83,14 +53,16 @@ void CompositeKit::produce( edm::Event& iEvent, const edm::EventSetup& iSetup)
   using namespace edm;
   using namespace std;
 
-  PatAnalyzerKit::produce( iEvent, iSetup );
-
-
-  // INSIDE OF StarterKit::analyze:
-
   // --------------------------------------------------
   //    Step 1: Retrieve objects from data stream
   // --------------------------------------------------
+  helper_.getHandles( iEvent,
+		      muonHandle_,
+		      electronHandle_,
+		      tauHandle_,
+		      jetHandle_,
+		      METHandle_,
+		      photonHandle_);
 
   // --------------------------------------------------
   //    Step 2: invoke PhysicsHistograms to deal with all this.
@@ -100,6 +72,15 @@ void CompositeKit::produce( edm::Event& iEvent, const edm::EventSetup& iSetup)
   //    so the collections are not copied...
   // --------------------------------------------------
 
+  if ( verboseLevel_ > 10 )
+    std::cout << "PatAnalyzerKit::analyze: calling fillCollection()." << std::endl;
+  helper_.fillHistograms( iEvent,
+			  muonHandle_,
+			  electronHandle_,
+			  tauHandle_,
+			  jetHandle_,
+			  METHandle_,
+			  photonHandle_);
 
 
   // BEGIN YOUR CODE HERE
@@ -122,14 +103,11 @@ void CompositeKit::produce( edm::Event& iEvent, const edm::EventSetup& iSetup)
       iend = compositeCandHandle_->end();
     for ( ; i != iend; ++i ) {
       compositeCandHist_->fill( *i );
-      compositeCandMass_->fill( i->mass() );
     }
     
     // Save the ntuple variables... in this case just the mass
-    saveNtuple( compositeNtVars_, iEvent );
+//     saveNtuple( compositeNtVars_, iEvent );
 
-    // Clear the ntuple cache... in this case just the mass
-    compositeCandMass_->clearVec();
   }
 }
 
@@ -138,7 +116,6 @@ void CompositeKit::produce( edm::Event& iEvent, const edm::EventSetup& iSetup)
 void
 CompositeKit::beginJob(const edm::EventSetup& iSetup)
 {
-  PatAnalyzerKit::beginJob(iSetup);
 }
 
 
@@ -146,7 +123,6 @@ CompositeKit::beginJob(const edm::EventSetup& iSetup)
 // ------------ method called once each job just after ending the event loop  ------------
 void
 CompositeKit::endJob() {
-  PatAnalyzerKit::endJob();
 }
 
 //define this as a plug-in

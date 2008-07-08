@@ -5,7 +5,9 @@ using namespace pat;
 using namespace std;
 
 PatKitHelper::PatKitHelper( const edm::ParameterSet & iConfig )  :
-  parameters_( iConfig )
+  parameters_( iConfig ),
+  physHistos_(0),
+  verboseLevel_(0)
 {
 }
 
@@ -107,12 +109,12 @@ void PatKitHelper::getHandles( edm::Event & event,
 			       )
 {
   
-  std::string muonName     = parameters_.getParameter<string>("muonSrc"    );
-  std::string electronName = parameters_.getParameter<string>("electronSrc");
-  std::string tauName      = parameters_.getParameter<string>("tauSrc"     );
-  std::string jetName      = parameters_.getParameter<string>("jetSrc"     );
-  std::string METName      = parameters_.getParameter<string>("METSrc"     );
-  std::string photonName   = parameters_.getParameter<string>("photonSrc"  );
+  edm::InputTag muonName     = parameters_.getParameter<edm::InputTag>("muonSrc"    );
+  edm::InputTag electronName = parameters_.getParameter<edm::InputTag>("electronSrc");
+  edm::InputTag tauName      = parameters_.getParameter<edm::InputTag>("tauSrc"     );
+  edm::InputTag jetName      = parameters_.getParameter<edm::InputTag>("jetSrc"     );
+  edm::InputTag METName      = parameters_.getParameter<edm::InputTag>("METSrc"     );
+  edm::InputTag photonName   = parameters_.getParameter<edm::InputTag>("photonSrc"  );
 
   
 
@@ -237,6 +239,9 @@ PatKitHelper::saveNtuple( edm::Event & event,
 			  const std::vector<pat::PhysVarHisto*> & ntvars )
 {
   //  Ntuplization
+
+  if ( verboseLevel_ > 0 )
+    cout << "About to save ntuple" << endl;
   if ( ntvars.size() ) {
 
     //--- Iterate over the list and "fill" them via EDM
@@ -335,6 +340,8 @@ PatKitHelper::saveNtupleVar( edm::Event & event,
 			     std::string name, T value )
 {
   std::auto_ptr<T> aptr( new T (value ) );
+  if ( verboseLevel_ > 0 )
+    cout << "Putting variable " << name << " with value " << value << " in event" << endl;
   event.put( aptr, name );
 }
 
@@ -345,6 +352,14 @@ PatKitHelper::saveNtupleVec( edm::Event & event,
 			       std::string name, const vector<T> & value )
 {
   std::auto_ptr<vector<T> > aptr( new vector<T> ( value ) );
+  if ( verboseLevel_ > 0 ) {
+    cout << "Putting variable " << name << " with values : " << endl;
+    typename vector<T>::const_iterator i = aptr->begin(), iend = aptr->end();
+    for ( ; i != iend; ++i ) {
+      cout << *i << " ";
+    }
+    cout << endl;
+  }
   event.put( aptr, name );
 }
 

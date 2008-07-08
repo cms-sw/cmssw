@@ -1,4 +1,6 @@
 import FWCore.ParameterSet.Config as cms
+from PhysicsTools.StarterKit.kinAxis_cfi  import *
+
 
 CompositeKitDemo = cms.EDProducer("CompositeKit",
     description = cms.string('Higgs to Z + Z'),
@@ -7,12 +9,20 @@ CompositeKitDemo = cms.EDProducer("CompositeKit",
     disable = cms.string(''),
     src = cms.InputTag("hToZZ"),
     ntuplize = cms.string('all'),
-    m1 = cms.double(0.0),
-    m2 = cms.double(200.0),
-    pt2 = cms.double(200.0),
-    pt1 = cms.double(0.0),
-    resonanceM1 = cms.double(0.0),
-    resonanceM2 = cms.double(400.0)
+    electronSrc = cms.InputTag("selectedLayer1Electrons"),
+    tauSrc = cms.InputTag("selectedLayer1Taus"),
+    muonSrc = cms.InputTag("selectedLayer1Muons"),
+    jetSrc = cms.InputTag("selectedLayer1Jets"),
+    photonSrc = cms.InputTag("selectedLayer1Photons"),
+    METSrc = cms.InputTag("selectedLayer1METs"),
+    muonAxis     = kinAxis(0, 200, 0, 200),
+    electronAxis = kinAxis(0, 200, 0, 200),
+    tauAxis      = kinAxis(0, 200, 0, 200),
+    jetAxis      = kinAxis(0, 200, 0, 200),
+    METAxis      = kinAxis(0, 200, 0, 200),
+    photonAxis   = kinAxis(0, 200, 0, 200),
+    trackAxis    = kinAxis(0, 200, 0, 200),
+    compositeAxis= kinAxis(0, 100, 0, 300)
 )
 
 
