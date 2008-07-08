@@ -8,7 +8,7 @@
 //
 // Original Author:  Chris Jones
 //         Created:  Tue Jan 15 10:27:12 EST 2008
-// $Id: FWViewManagerManager.cc,v 1.7 2008/03/24 06:41:29 dmytro Exp $
+// $Id: FWViewManagerManager.cc,v 1.8 2008/06/09 20:18:22 chrjones Exp $
 //
 
 // system include files
@@ -93,6 +93,19 @@ FWViewManagerManager::registerEventItem(const FWEventItem*iItem)
 //
 // const member functions
 //
+std::set<std::pair<std::string,std::string> > 
+FWViewManagerManager::supportedTypesAndPurpose() const
+{
+   std::set<std::pair<std::string,std::string> > returnValue;
+   for(std::vector<boost::shared_ptr<FWViewManagerBase> >::const_iterator itVM = m_viewManagers.begin();
+       itVM != m_viewManagers.end();
+       ++itVM) {
+      std::set<std::pair<std::string,std::string> > v = (*itVM)->supportedTypesAndPurpose();
+      returnValue.insert(v.begin(),v.end());
+   }
+   return returnValue;
+}
+
 
 //
 // static member functions

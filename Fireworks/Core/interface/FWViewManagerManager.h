@@ -16,13 +16,15 @@
 //
 // Original Author:  Chris Jones
 //         Created:  Tue Jan 15 10:26:23 EST 2008
-// $Id: FWViewManagerManager.h,v 1.4 2008/03/14 21:14:13 chrjones Exp $
+// $Id: FWViewManagerManager.h,v 1.5 2008/06/09 20:18:22 chrjones Exp $
 //
 
 // system include files
 #include <vector>
 #include <map>
 #include <boost/shared_ptr.hpp>
+#include <set>
+#include <string>
 
 // user include files
 
@@ -39,12 +41,14 @@ class FWViewManagerManager
       virtual ~FWViewManagerManager();
 
       // ---------- const member functions ---------------------
+      std::set<std::pair<std::string,std::string> > supportedTypesAndPurpose() const;
 
       // ---------- static member functions --------------------
 
       // ---------- member functions ---------------------------
       void add( boost::shared_ptr<FWViewManagerBase>);
       void registerEventItem(const FWEventItem*iItem);
+
    private:
       FWViewManagerManager(const FWViewManagerManager&); // stop default
 
