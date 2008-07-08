@@ -8,7 +8,7 @@
 //
 // Original Author:  
 //         Created:  Fri Jun 27 11:23:08 EDT 2008
-// $Id: CmsShowModelPopup.cc,v 1.5 2008/07/08 14:16:25 chrjones Exp $
+// $Id: CmsShowModelPopup.cc,v 1.6 2008/07/08 17:47:00 chrjones Exp $
 //
 
 // system include file
@@ -110,7 +110,7 @@ m_detailViewManager(iManager)
   m_openDetailedViewButton->SetEnabled(kFALSE);
   AddFrame(m_openDetailedViewButton);
   m_openDetailedViewButton->Connect("Clicked()","CmsShowModelPopup", this, "openDetailedView()");
-  SetWindowName("Model Inspector");
+  SetWindowName("Object Display Controller");
   Resize(GetDefaultSize());
   MapSubwindows();
   Layout();
