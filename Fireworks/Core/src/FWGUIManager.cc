@@ -8,7 +8,7 @@
 //
 // Original Author:  Chris Jones
 //         Created:  Mon Feb 11 11:06:40 EST 2008
-// $Id: FWGUIManager.cc,v 1.46 2008/07/08 00:27:19 chrjones Exp $
+// $Id: FWGUIManager.cc,v 1.47 2008/07/08 14:16:46 chrjones Exp $
 //
 
 // system include files
@@ -491,12 +491,14 @@ FWGUIManager::createEDIFrame() {
 
 void
 FWGUIManager::updateEDI(FWEventItem* iItem) {
-  if (m_ediFrame == 0) createEDIFrame();
+  createEDIFrame();
   m_ediFrame->fillEDIFrame(iItem);
 }
 
 void
 FWGUIManager::resetEDIFrame() {
+   std::cout <<"resetEDIFrame()"<<std::endl;
+   delete m_ediFrame;
   m_ediFrame = 0;
 }
 
@@ -518,8 +520,9 @@ FWGUIManager::updateModel(FWEventItem* iItem) {
 
 void
 FWGUIManager::resetModelPopup() {
-  //  m_modelChangeConn.disconnect();
-  m_modelPopup = 0;
+   //  m_modelChangeConn.disconnect();
+   delete m_modelPopup;
+   m_modelPopup = 0;
 }
 
 void
@@ -537,6 +540,7 @@ FWGUIManager::refillViewPopup(FWViewBase* iView) {
 
 void
 FWGUIManager::resetViewPopup() {
+  delete m_viewPopup;
   m_viewPopup = 0;
 }
 

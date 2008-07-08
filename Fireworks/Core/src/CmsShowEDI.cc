@@ -8,7 +8,7 @@
 //
 // Original Author:  Joshua Berger  
 //         Created:  Mon Jun 23 15:48:11 EDT 2008
-// $Id: CmsShowEDI.cc,v 1.1 2008/06/29 13:23:47 chrjones Exp $
+// $Id: CmsShowEDI.cc,v 1.2 2008/07/07 00:19:28 chrjones Exp $
 //
 
 // system include files
@@ -54,6 +54,7 @@ TGTransientFrame(gClient->GetDefaultRoot(),p, w, h)
 {
   m_selectionManager = selMgr;
   SetCleanup(kDeepCleanup);
+   
   TGHorizontalFrame* objectFrame = new TGHorizontalFrame(this);
   m_objectLabel = new TGLabel(objectFrame, " ");
   TGFont* defaultFont = gClient->GetFontPool()->GetFont(m_objectLabel->GetDefaultFontStruct());
@@ -188,7 +189,7 @@ TGTransientFrame(gClient->GetDefaultRoot(),p, w, h)
   dataFrame->AddFrame(processFrame, new TGLayoutHints(kLHintsExpandX));
   ediTabs->AddTab("Data", dataFrame);
   AddFrame(ediTabs, new TGLayoutHints(kLHintsExpandX | kLHintsExpandY, 0, 0, 0, 0));
-  SetWindowName("Event Display Inspector");
+  SetWindowName("Collection Controller");
   Resize(GetDefaultSize());
   MapSubwindows();
   MapWindow();
@@ -202,6 +203,7 @@ TGTransientFrame(gClient->GetDefaultRoot(),p, w, h)
 
 CmsShowEDI::~CmsShowEDI()
 {
+   disconnectAll();
   //  delete m_objectLabel;
   //  delete m_colorSelectWidget;
   //  delete m_isVisibleButton;
@@ -225,6 +227,7 @@ CmsShowEDI::~CmsShowEDI()
 void
 CmsShowEDI::fillEDIFrame(FWEventItem* iItem) {
   if (iItem != m_item) {
+     disconnectAll();
     m_item = iItem;
     m_objectLabel->SetText(iItem->name().c_str());
     m_colorSelectWidget->SetColor(gVirtualX->GetPixel(iItem->defaultDisplayProperties().color()));
@@ -271,7 +274,6 @@ CmsShowEDI::fillEDIFrame(FWEventItem* iItem) {
 void
 CmsShowEDI::removeItem() {
   m_item->destroy();
-  delete m_item;
   m_item = 0;
   gEve->EditElement(0);
   gEve->Redraw3D();
@@ -279,7 +281,7 @@ CmsShowEDI::removeItem() {
 
 void
 CmsShowEDI::updateDisplay() {
-  std::cout<<"Updating display"<<std::endl;
+  //std::cout<<"Updating display"<<std::endl;
   m_colorSelectWidget->SetColor(gVirtualX->GetPixel(m_item->defaultDisplayProperties().color()));
   m_isVisibleButton->SetState(m_item->defaultDisplayProperties().isVisible() ? kButtonDown : kButtonUp, kFALSE);
 }
@@ -291,37 +293,39 @@ CmsShowEDI::updateFilter() {
 
 void
 CmsShowEDI::disconnectAll() {
-  m_displayChangedConn.disconnect();
-  m_modelChangedConn.disconnect();
-  m_destroyedConn.disconnect();
-  m_colorSelectWidget->Disconnect("ColorSelected(Pixel_t)", this, "changeItemColor(Pixel_t)");
-  m_isVisibleButton->Disconnect("Toggled(Bool_t)", this, "toggleItemVisible(Bool_t)");
-  m_filterExpressionEntry->Disconnect("ReturnPressed()", this, "runFilter()");
-  m_selectExpressionEntry->Disconnect("ReturnPressed()", this, "runSelection()");
-  m_filterButton->Disconnect("Clicked()", this, "runFilter()");
-  m_selectButton->Disconnect("Clicked()", this, "runSelection()");
-  m_selectAllButton->Disconnect("Clicked()", this, "selectAll()");
-  m_removeButton->Disconnect("Clicked()", this, "removeItem()");
-  m_item = 0;
-  m_objectLabel->SetText(" ");
-  m_colorSelectWidget->SetColor(gVirtualX->GetPixel(kRed));
-  m_isVisibleButton->SetDisabledAndSelected(kTRUE);
-  m_filterExpressionEntry->SetText(0);
-  m_selectExpressionEntry->SetText(0);
-  m_nameEntry->SetText(0);
-  m_typeEntry->SetText(0);
-  m_moduleEntry->SetText(0);
-  m_instanceEntry->SetText(0);
-  m_processEntry->SetText(0);
-  //  else m_isVisibleButton->SetState(kButtonDown, kFALSE);                                                                                               
-  m_colorSelectWidget->SetEnabled(kFALSE);
-  m_isVisibleButton->SetEnabled(kFALSE);
-  m_filterExpressionEntry->SetEnabled(kFALSE);
-  m_filterButton->SetEnabled(kFALSE);
-  m_selectExpressionEntry->SetEnabled(kFALSE);
-  m_selectButton->SetEnabled(kFALSE);
-  m_selectAllButton->SetEnabled(kFALSE);
-  m_removeButton->SetEnabled(kFALSE);
+   if(0 != m_item) {
+      m_displayChangedConn.disconnect();
+      m_modelChangedConn.disconnect();
+      m_destroyedConn.disconnect();
+      m_colorSelectWidget->Disconnect("ColorSelected(Pixel_t)", this, "changeItemColor(Pixel_t)");
+      m_isVisibleButton->Disconnect("Toggled(Bool_t)", this, "toggleItemVisible(Bool_t)");
+      m_filterExpressionEntry->Disconnect("ReturnPressed()", this, "runFilter()");
+      m_selectExpressionEntry->Disconnect("ReturnPressed()", this, "runSelection()");
+      m_filterButton->Disconnect("Clicked()", this, "runFilter()");
+      m_selectButton->Disconnect("Clicked()", this, "runSelection()");
+      m_selectAllButton->Disconnect("Clicked()", this, "selectAll()");
+      m_removeButton->Disconnect("Clicked()", this, "removeItem()");
+      m_item = 0;
+      m_objectLabel->SetText(" ");
+      m_colorSelectWidget->SetColor(gVirtualX->GetPixel(kRed));
+      m_isVisibleButton->SetDisabledAndSelected(kTRUE);
+      m_filterExpressionEntry->SetText(0);
+      m_selectExpressionEntry->SetText(0);
+      m_nameEntry->SetText(0);
+      m_typeEntry->SetText(0);
+      m_moduleEntry->SetText(0);
+      m_instanceEntry->SetText(0);
+      m_processEntry->SetText(0);
+      //  else m_isVisibleButton->SetState(kButtonDown, kFALSE);                                                                                               
+      m_colorSelectWidget->SetEnabled(kFALSE);
+      m_isVisibleButton->SetEnabled(kFALSE);
+      m_filterExpressionEntry->SetEnabled(kFALSE);
+      m_filterButton->SetEnabled(kFALSE);
+      m_selectExpressionEntry->SetEnabled(kFALSE);
+      m_selectButton->SetEnabled(kFALSE);
+      m_selectAllButton->SetEnabled(kFALSE);
+      m_removeButton->SetEnabled(kFALSE);
+   }
 }
       
 void

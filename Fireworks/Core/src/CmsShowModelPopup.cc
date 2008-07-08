@@ -8,7 +8,7 @@
 //
 // Original Author:  
 //         Created:  Fri Jun 27 11:23:08 EDT 2008
-// $Id: CmsShowModelPopup.cc,v 1.4 2008/07/07 02:14:20 chrjones Exp $
+// $Id: CmsShowModelPopup.cc,v 1.5 2008/07/08 14:16:25 chrjones Exp $
 //
 
 // system include file
@@ -110,7 +110,6 @@ m_detailViewManager(iManager)
   m_openDetailedViewButton->SetEnabled(kFALSE);
   AddFrame(m_openDetailedViewButton);
   m_openDetailedViewButton->Connect("Clicked()","CmsShowModelPopup", this, "openDetailedView()");
-  this->Connect("CloseWindow()","CmsShowModelPopup", this, "windowClosing()");
   SetWindowName("Model Inspector");
   Resize(GetDefaultSize());
   MapSubwindows();
@@ -246,12 +245,6 @@ void
 CmsShowModelPopup::openDetailedView()
 {
    m_detailViewManager->openDetailViewFor( *(m_models.begin()) );
-}
-
-void
-CmsShowModelPopup::windowClosing()
-{
-   delete this;
 }
 
 //

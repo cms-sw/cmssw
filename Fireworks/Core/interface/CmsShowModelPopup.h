@@ -16,7 +16,7 @@
 //
 // Original Author:  
 //         Created:  Fri Jun 27 11:23:31 EDT 2008
-// $Id: CmsShowModelPopup.h,v 1.4 2008/07/07 02:14:20 chrjones Exp $
+// $Id: CmsShowModelPopup.h,v 1.5 2008/07/08 14:16:25 chrjones Exp $
 //
 
 // system include files
@@ -58,7 +58,6 @@ class CmsShowModelPopup : public TGTransientFrame
       void toggleModelVisible(Bool_t on = kTRUE);
       void openDetailedView();
    
-      void windowClosing();
    private:
       CmsShowModelPopup(const CmsShowModelPopup&); // stop default
 
