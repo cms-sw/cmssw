@@ -1,8 +1,8 @@
 /*
  * \file EEClusterTask.cc
  *
- * $Date: 2008/07/07 17:11:21 $
- * $Revision: 1.47 $
+ * $Date: 2008/07/07 18:11:00 $
+ * $Revision: 1.48 $
  * \author G. Della Ricca
  * \author E. Di Marco
  *
@@ -487,19 +487,17 @@ void EEClusterTask::endJob(void){
 
 void EEClusterTask::analyze(const Event& e, const EventSetup& c){
 
-  bool foundEcal = false;
   bool enable = false;
 
   Handle<EcalRawDataCollection> dcchs;
 
   if ( e.getByLabel(EcalRawDataCollection_, dcchs) ) {
 
-    for ( EcalRawDataCollection::const_iterator dcchItr = dcchs->begin(); dcchItr != dcchs->end() && foundEcal == false; ++dcchItr ) {
+    for ( EcalRawDataCollection::const_iterator dcchItr = dcchs->begin(); dcchItr != dcchs->end(); ++dcchItr ) {
 
       EcalDCCHeaderBlock dcch = (*dcchItr);
 
       if ( Numbers::subDet( dcch ) != EcalEndcap ) continue;
-      else foundEcal = true;
 
       if ( dcch.getRunType() == EcalDCCHeaderBlock::COSMIC ||
            dcch.getRunType() == EcalDCCHeaderBlock::MTCC ||
@@ -507,6 +505,8 @@ void EEClusterTask::analyze(const Event& e, const EventSetup& c){
            dcch.getRunType() == EcalDCCHeaderBlock::PHYSICS_GLOBAL ||
            dcch.getRunType() == EcalDCCHeaderBlock::COSMICS_LOCAL ||
            dcch.getRunType() == EcalDCCHeaderBlock::PHYSICS_LOCAL ) enable = true;
+
+      break;
 
     }
 
