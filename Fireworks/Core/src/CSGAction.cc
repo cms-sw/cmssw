@@ -8,7 +8,7 @@
 //
 // Original Author:  Chris Jones
 //         Created:  Thu May 29 20:58:11 CDT 2008
-// $Id: CSGAction.cc,v 1.1 2008/06/17 00:08:11 chrjones Exp $
+// $Id: CSGAction.cc,v 1.2 2008/06/29 13:23:47 chrjones Exp $
 //
 
 // system include files
@@ -17,7 +17,7 @@
 #include <TQObject.h>
 #include <KeySymbols.h>
 #include <TGMenu.h>
-
+#include "TGTextEntry.h"
 // user include files
 #include "Fireworks/Core/interface/CSGAction.h"
 #include "Fireworks/Core/src/CSGConnector.h"
@@ -50,6 +50,7 @@ CSGAction::CSGAction(CmsShowMainFrame *frame, const char *name) {
    m_entry = m_frame->getListOfActions().size();
    m_keycode = 0;
    m_modcode = 0;
+   m_textEntry = 0;
 }
 // CSGAction::CSGAction(const CSGAction& rhs)
 // {
@@ -62,6 +63,7 @@ CSGAction::~CSGAction()
    delete m_picButton;
    delete m_menu;
    delete m_connector;
+   if (m_textEntry) delete m_textEntry;
 }
 
 //
@@ -111,6 +113,17 @@ void CSGAction::createTextButton(TGCompositeFrame* p, TGLayoutHints* l, Int_t id
    if (m_toolTip != "") m_textButton->SetToolTipText(m_toolTip.c_str(), m_frame->getDelay());
    p->AddFrame(m_textButton, l);
    TQObject::Connect(m_textButton, "Pressed()", "CSGConnector", m_connector, "handleTextButton()");
+}
+
+void CSGAction::createTextEntry(TGCompositeFrame* p, TGLayoutHints* l, const char* text, Int_t id) 
+{
+   if (m_textEntry != 0) {
+      delete m_textEntry;
+   }
+   m_textEntry = new TGTextEntry(p, text, id);
+   // if (m_toolTip != "") m_textButton->SetToolTipText(m_toolTip.c_str(), m_frame->getDelay());
+   p->AddFrame(m_textEntry, l);
+   TQObject::Connect(m_textEntry, "ReturnPressed()", "CSGAction", this, "activate()");
 }
 
 void CSGAction::createPictureButton(TGCompositeFrame* p, const TGPicture* pic, TGLayoutHints* l, Int_t id, GContext_t norm, UInt_t option) {

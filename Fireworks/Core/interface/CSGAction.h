@@ -16,7 +16,7 @@
 //
 // Original Author:  Chris Jones
 //         Created:  Thu May 29 18:15:56 CDT 2008
-// $Id$
+// $Id: CSGAction.h,v 1.1 2008/06/17 00:08:11 chrjones Exp $
 //
 
 // system include files
@@ -34,6 +34,8 @@ class CSGConnector;
 class TGMenuBar;
 class TString;
 
+class TGTextEntry;
+
 class CSGAction : public sigc::trackable {
 
 public:
@@ -45,6 +47,7 @@ public:
    const std::string& getToolTip() const;
    TString getSCCombo() const;
    TGTextButton *getTextButton() const;
+   TGTextEntry  *getTextEntry() const { return m_textEntry; }
    TGPictureButton *getPictureButton() const;
    Int_t getKeycode() const;
    Int_t getModcode() const;
@@ -61,6 +64,7 @@ public:
    void setName(const std::string& name);
    void setToolTip(const std::string& tip);
    void createTextButton(TGCompositeFrame* p, TGLayoutHints* l = 0, Int_t id = -1, GContext_t norm = TGButton::GetDefaultGC()(), FontStruct_t font = TGTextButton::GetDefaultFontStruct(), UInt_t option = kRaisedFrame|kDoubleBorder);
+   void createTextEntry(TGCompositeFrame* p, TGLayoutHints* l = 0, const char* text = 0, Int_t id = -1);
    void createPictureButton(TGCompositeFrame* p, const TGPicture* pic, TGLayoutHints* l = 0, Int_t id = -1, GContext_t norm = TGButton::GetDefaultGC()(), UInt_t option = kRaisedFrame|kDoubleBorder);
    void createShortcut(UInt_t key, const char *mod);
    void createMenuEntry(TGPopupMenu *menu);
@@ -71,7 +75,8 @@ public:
    
    void addSCToMenu();
    Bool_t resizeMenuEntry();
-   
+   void activate(){ activated.emit(); }
+	
    sigc::signal<void> activated;
    
 private:
@@ -94,7 +99,7 @@ private:
    ToolBarData_t *m_tools;
    CSGConnector *m_connector;
    Bool_t m_enabled;
-   
+   TGTextEntry* m_textEntry;
 };
 
 

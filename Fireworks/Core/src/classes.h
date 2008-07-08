@@ -37,6 +37,7 @@
 #include "Fireworks/Core/interface/FWBoolParameter.h"
 #include "Fireworks/Core/interface/GenParticleDetailView.h"
 #include "Fireworks/Core/interface/CSGNumAction.h"
+#include "Fireworks/Core/interface/CSGAction.h"
 
 
 namespace {
