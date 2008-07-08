@@ -11,9 +11,9 @@
      <Notes on implementation>
 */
 //
-// Original Author:  Loic QUERTENMONT
+// Original Author:  Loic QUERTENMONT, Vincent ROBERFROID
 //         Created:  Tue Sep 18 14:22:48 CEST 2007
-// $Id: NuclearTrackCorrector.cc,v 1.6 2007/10/08 15:52:14 roberfro Exp $
+// $Id: NuclearTrackCorrector.cc,v 1.7 2008/02/28 09:18:55 roberfro Exp $
 //
 //
 
@@ -36,10 +36,9 @@ conf_(iConfig),
 theInitialState(0)
 {
      str_Input_Trajectory           = iConfig.getParameter<std::string>     ("InputTrajectory");
-     str_Input_NuclearSeed          = iConfig.getParameter<std::string>     ("InputNuclearSeed");
-     int_Input_Hit_Distance         = iConfig.getParameter<int> 	    ("InputHitDistance");
+     str_Input_NuclearInteraction   = iConfig.getParameter<std::string>     ("InputNuclearInteraction");
      verbosity			    = iConfig.getParameter<int>             ("Verbosity");
-     KeepOnlyCorrectedTracks        = iConfig.getParameter<int>             ("KeepOnlyCorrectedTracks");
+     KeepOnlyCorrectedTracks        = iConfig.getParameter<bool>             ("KeepOnlyCorrectedTracks");
 
 
      theAlgo = new TrackProducerAlgorithm<reco::Track>(iConfig);
@@ -97,13 +96,9 @@ NuclearTrackCorrector::produce(edm::Event& iEvent, const edm::EventSetup& iSetup
   iEvent.getByLabel( str_Input_Trajectory.c_str(), temp_m_TrajectoryCollection );
   const TrajectoryCollection m_TrajectoryCollection = *(temp_m_TrajectoryCollection.product());
 
-  edm::Handle< TrajectorySeedCollection > temp_m_NuclearSeedCollection;
-  iEvent.getByLabel( str_Input_NuclearSeed.c_str(), temp_m_NuclearSeedCollection );
-  const TrajectorySeedCollection m_NuclearSeedCollection = *(temp_m_NuclearSeedCollection.product());
-
-  edm::Handle< TrajectoryToSeedsMap > temp_m_TrajectoryToSeedsMap;
-  iEvent.getByLabel( str_Input_NuclearSeed.c_str(), temp_m_TrajectoryToSeedsMap );
-  const TrajectoryToSeedsMap m_TrajectoryToSeedsMap = *(temp_m_TrajectoryToSeedsMap.product());
+  edm::Handle< NuclearInteractionCollection > temp_m_NuclearInteractionCollection;
+  iEvent.getByLabel( str_Input_NuclearInteraction.c_str(), temp_m_NuclearInteractionCollection );
+  const NuclearInteractionCollection m_NuclearInteractionCollection = *(temp_m_NuclearInteractionCollection.product());
 
   edm::Handle< TrajTrackAssociationCollection > h_TrajToTrackCollection;
   iEvent.getByLabel( str_Input_Trajectory.c_str(), h_TrajToTrackCollection );
@@ -114,23 +109,23 @@ NuclearTrackCorrector::produce(edm::Event& iEvent, const edm::EventSetup& iSetup
   // --------------------------------------------------------------------------------------------------
   if(verbosity>=1){
   printf("Number of trajectories                    = %i\n",m_TrajectoryCollection.size() );
-  printf("Number of seeds                           = %i\n",m_NuclearSeedCollection.size() );
-  printf("Number of tracjectories attached to seeds = %i\n",m_TrajectoryToSeedsMap.size() );
+  printf("Number of nuclear interactions            = %i\n",m_NuclearInteractionCollection.size() );
   }
 
-  for(unsigned int i = 0 ; i < m_TrajectoryCollection.size() ; i++)
+  std::map<reco::TrackRef,TrajectoryRef> m_TrackToTrajMap; 
+  swap_map(temp_m_TrajectoryCollection, m_TrackToTrajMap);
+
+  for(unsigned int i = 0 ; i < m_NuclearInteractionCollection.size() ; i++)
   {
+        reco::NuclearInteraction ni =  m_NuclearInteractionCollection[i];
+        if( ni.likelihood()<0.4) continue;
 
-	TrajectoryRef  trajRef( temp_m_TrajectoryCollection, i );
+        reco::TrackRef primTrackRef = ni.primaryTrack().castTo<reco::TrackRef>();
 
-        TrajectorySeedRefVector seedRef;
-	try{
-	       	seedRef = m_TrajectoryToSeedsMap [ trajRef ];
-	}
-	catch(edm::Exception event){}
- 
+	TrajectoryRef  trajRef = m_TrackToTrajMap[primTrackRef];
+
         Trajectory newTraj;
-        if( newTrajNeeded(newTraj, trajRef, seedRef) ) {
+        if( newTrajNeeded(newTraj, trajRef, ni) ) {
 
           AlgoProductCollection   algoResults; 
           bool isOK = getTrackFromTrajectory( newTraj , trajRef, algoResults);
@@ -151,6 +146,13 @@ NuclearTrackCorrector::produce(edm::Event& iEvent, const edm::EventSetup& iSetup
 	        Output_traj->push_back(newTraj);
 
           }
+        }
+        else {
+           if(!KeepOnlyCorrectedTracks) {
+                //Output_track->push_back(*primTrackRef);
+      		//Output_trackextra->push_back( *primTrackRef->extra() );
+                //Output_traj->push_back(*trajRef);
+           }
         }
 
   }
@@ -202,22 +204,12 @@ void
 NuclearTrackCorrector::endJob() {
 }
 //----------------------------------------------------------------------------------------
-bool NuclearTrackCorrector::newTrajNeeded(Trajectory& newtrajectory, const TrajectoryRef& trajRef, const TrajectorySeedRefVector& seedRef) {
+bool NuclearTrackCorrector::newTrajNeeded(Trajectory& newtrajectory, const TrajectoryRef& trajRef, const NuclearInteraction& ni) {
 
- // Find radius of the inner seed
-        double min_seed_radius = 999;
         bool needNewTraj=false;
-        for(unsigned int k=0;k<seedRef.size();k++)
-        {
-                BasicTrajectorySeed::range seed_RecHits = seedRef[k]->recHits();
-
-                if(seedRef[k]->nHits()==0) continue;
-
-                GlobalPoint pos = theG->idToDet(seed_RecHits.first->geographicalId())->surface().toGlobal(seed_RecHits.first->localPosition());
-                double seed_radius = sqrt( pos.x()*pos.x() + pos.y()*pos.y() );
-                if(seed_radius<min_seed_radius) min_seed_radius = seed_radius;
-        }
-        if(verbosity>=2) printf("Min Seed Radius = %f\n",min_seed_radius );
+        reco::Vertex::Point vtx_pos = ni.vertex().position();
+        double vtx_pos_mag = sqrt (vtx_pos.X()*vtx_pos.X()+vtx_pos.Y()*vtx_pos.Y()+vtx_pos.Z()*vtx_pos.Z());
+        if(verbosity>=2) printf("Nuclear Interaction pos = %f\n",vtx_pos_mag );
 
 
         newtrajectory = Trajectory(trajRef->seed(), alongMomentum);
@@ -225,14 +217,15 @@ bool NuclearTrackCorrector::newTrajNeeded(Trajectory& newtrajectory, const Traje
         // Look all the Hits of the trajectory and keep only Hits before seeds
         Trajectory::DataContainer Measurements = trajRef->measurements();
         if(verbosity>=2)printf("Size of Measurements  = %i\n",Measurements.size() );
+
         for(unsigned int m=Measurements.size()-1 ;m!=(unsigned int)-1 ; m--){
 
                 if(!Measurements[m].recHit()->isValid() )continue;
-                GlobalPoint pos = theG->idToDet(Measurements[m].recHit()->geographicalId())->surface().toGlobal(Measurements[m].recHit()->localPosition());
+                GlobalPoint hit_pos = theG->idToDet(Measurements[m].recHit()->geographicalId())->surface().toGlobal(Measurements[m].recHit()->localPosition());
 
-                double hit_radius = sqrt( pow(pos.x(),2) + pow(pos.y(),2) );
-                if(verbosity>=2)printf("Hit Radius = %f",hit_radius );
-                if(hit_radius>min_seed_radius-int_Input_Hit_Distance){
+                if(verbosity>=2)printf("Hit pos = %f",hit_pos.mag() );
+
+                if(hit_pos.mag()>vtx_pos_mag){
                          if(verbosity>=2)printf(" X ");
                          needNewTraj=true;
                 }else{
@@ -241,9 +234,7 @@ bool NuclearTrackCorrector::newTrajNeeded(Trajectory& newtrajectory, const Traje
                 if(verbosity>=2)printf("\n");
         }
 
-	if(KeepOnlyCorrectedTracks)  return needNewTraj;
-
-	return 1;
+	return needNewTraj;
 }
 
 //----------------------------------------------------------------------------------------
@@ -344,4 +335,13 @@ TrajectoryStateOnSurface NuclearTrackCorrector::getInitialState(const reco::Trac
                                                          initialStateFromTrack.surface(),
                                                          theMF); 
   return theInitialStateForRefitting;
+}
+//----------------------------------------------------------------------------------------
+void  NuclearTrackCorrector::swap_map(const  edm::Handle< TrajectoryCollection >& trajColl , std::map< reco::TrackRef, edm::Ref<TrajectoryCollection> >& result) {
+  for(unsigned int i = 0 ; i < trajColl->size() ; i++)
+  {
+     TrajectoryRef      InTrajRef    ( trajColl, i);
+     reco::TrackRef  PrimaryTrackRef     = m_TrajToTrackCollection->operator[]( InTrajRef );
+     result[ PrimaryTrackRef ] = InTrajRef;
+  }
 }

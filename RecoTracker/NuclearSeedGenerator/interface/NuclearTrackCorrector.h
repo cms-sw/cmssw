@@ -15,9 +15,9 @@
      <Notes on implementation>
 */
 //
-// Original Author:  Loic QUERTENMONT
+// Original Author:  Loic QUERTENMONT, Vincent ROBERFROID
 //         Created:  Tue Sep 18 14:22:48 CEST 2007
-// $Id: NuclearTrackCorrector.h,v 1.4 2007/10/08 15:52:14 roberfro Exp $
+// $Id: NuclearTrackCorrector.h,v 1.5 2008/05/02 19:43:17 burkett Exp $
 //
 //
 
@@ -42,7 +42,8 @@
 #include "TrackingTools/PatternTools/interface/Trajectory.h"
 #include "DataFormats/TrackCandidate/interface/TrackCandidate.h"
 #include "DataFormats/TrackCandidate/interface/TrackCandidateCollection.h"
-#include "DataFormats/TrajectorySeed/interface/TrajectorySeedCollection.h"
+#include "DataFormats/VertexReco/interface/NuclearInteraction.h"
+#include "DataFormats/VertexReco/interface/NuclearInteractionFwd.h"
 #include "DataFormats/TrackReco/interface/TrackFwd.h"
 #include "DataFormats/TrackReco/interface/Track.h"
 #include "DataFormats/TrackReco/interface/TrackBase.h"
@@ -91,7 +92,7 @@ class NuclearTrackCorrector :  public edm::EDProducer {
       virtual void endJob() ;
 
       /// check if the trajectory has to be refitted and get the new trajectory
-      bool newTrajNeeded(Trajectory& newtrajectory, const TrajectoryRef& trajRef, const TrajectorySeedRefVector& seedRef);
+      bool newTrajNeeded(Trajectory& newtrajectory, const TrajectoryRef& trajRef, const reco::NuclearInteraction& ni);
 
       /// get a new TrackExtra from an AlgoProductCollection
       reco::TrackExtra getNewTrackExtra(const AlgoProductCollection& algoresults);
@@ -104,12 +105,14 @@ class NuclearTrackCorrector :  public edm::EDProducer {
                                             TransientTrackingRecHit::RecHitContainer& hits,
                                             const TrackingGeometry * theG,
                                             const MagneticField * theMF);
+
+      void  swap_map(const  edm::Handle< TrajectoryCollection >& trajColl , std::map< reco::TrackRef, edm::Ref<TrajectoryCollection> >& result);
       
       // ----------member data ---------------------------
 
 
       std::string str_Input_Trajectory;
-      std::string str_Input_NuclearSeed;
+      std::string str_Input_NuclearInteraction;
       int    int_Input_Hit_Distance;
 
       int    verbosity;
