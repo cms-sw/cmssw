@@ -1,4 +1,4 @@
-// $Id: SMProxyServer.cc,v 1.20 2008/06/13 15:45:09 biery Exp $
+// $Id: SMProxyServer.cc,v 1.21 2008/06/25 18:06:49 biery Exp $
 
 #include <iostream>
 #include <iomanip>
@@ -147,9 +147,9 @@ SMProxyServer::SMProxyServer(xdaq::ApplicationStub * s)
   ispace->fireItemAvailable("DQMmaxESEventRate",&DQMmaxESEventRate_);
   maxDQMEventRequestRate_ = 1.0;  // hertz
   ispace->fireItemAvailable("maxDQMEventRequestRate",&maxDQMEventRequestRate_);
-  DQMactiveConsumerTimeout_ = 300;  // seconds
+  DQMactiveConsumerTimeout_ = 60;  // seconds
   ispace->fireItemAvailable("DQMactiveConsumerTimeout",&DQMactiveConsumerTimeout_);
-  DQMidleConsumerTimeout_ = 600;  // seconds
+  DQMidleConsumerTimeout_ = 120;  // seconds
   ispace->fireItemAvailable("DQMidleConsumerTimeout",&DQMidleConsumerTimeout_);
   DQMconsumerQueueSize_ = 10;
   ispace->fireItemAvailable("DQMconsumerQueueSize",&DQMconsumerQueueSize_);

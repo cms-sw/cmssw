@@ -1,4 +1,4 @@
-// $Id: StorageManager.cc,v 1.63 2008/06/23 09:37:07 loizides Exp $
+// $Id: StorageManager.cc,v 1.64 2008/06/25 18:03:22 biery Exp $
 
 #include <iostream>
 #include <iomanip>
@@ -229,9 +229,9 @@ StorageManager::StorageManager(xdaq::ApplicationStub * s)
   //ispace->fireItemAvailable("fairShareES",&fairShareES_);
   DQMmaxESEventRate_ = 1.0;  // hertz
   ispace->fireItemAvailable("DQMmaxESEventRate",&DQMmaxESEventRate_);
-  DQMactiveConsumerTimeout_ = 300;  // seconds
+  DQMactiveConsumerTimeout_ = 60;  // seconds
   ispace->fireItemAvailable("DQMactiveConsumerTimeout",&DQMactiveConsumerTimeout_);
-  DQMidleConsumerTimeout_ = 600;  // seconds
+  DQMidleConsumerTimeout_ = 120;  // seconds
   ispace->fireItemAvailable("DQMidleConsumerTimeout",&DQMidleConsumerTimeout_);
   DQMconsumerQueueSize_ = 15;
   ispace->fireItemAvailable("DQMconsumerQueueSize",&DQMconsumerQueueSize_);
