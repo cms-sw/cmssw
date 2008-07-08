@@ -52,9 +52,40 @@ void SiStripBaseCondObjDQM::analysis(const edm::EventSetup & eSetup_){
 
 
 // -----
-void SiStripBaseCondObjDQM::analysisOnDemand(const edm::EventSetup & eSetup_, std::vector<uint32_t>  detIdsOnDemand){
+void SiStripBaseCondObjDQM::analysisOnDemand(const edm::EventSetup & eSetup_, 
+                                            std::string requestedSubDetector, 
+                                            uint32_t requestedSide, 
+					    uint32_t requestedLayer){
   
-  //edm::LogInfo("SiStripBaseCondObjDQM") << "[SiStripBaseCondObjDQM::analysisOnDemand] BEGIN";        
+  getConditionObject(eSetup_);
+  getActiveDetIds(eSetup_);
+   
+  std::vector<uint32_t> requestedDetIds_;
+  requestedDetIds_.clear();
+  
+  SiStripSubStructure substructure_;
+  
+  if(requestedSubDetector=="TIB"){ 
+      substructure_.getTIBDetectors( activeDetIds, requestedDetIds_, requestedLayer,0,0,0);
+  }
+  else if(requestedSubDetector=="TID"){ 
+      substructure_.getTIDDetectors( activeDetIds, requestedDetIds_, requestedSide,requestedLayer,0,0);
+  }
+  else if(requestedSubDetector=="TOB"){  
+      substructure_.getTOBDetectors( activeDetIds, requestedDetIds_, requestedLayer,0,0);
+  }
+  else if(requestedSubDetector=="TEC"){  
+      substructure_.getTECDetectors( activeDetIds, requestedDetIds_, requestedSide,requestedLayer,0,0,0,0);
+  } 
+
+  analysisOnDemand(eSetup_,requestedDetIds_);
+ 
+}
+// -----
+
+
+// -----
+void SiStripBaseCondObjDQM::analysisOnDemand(const edm::EventSetup & eSetup_, uint32_t  detIdOnDemand){
  
   unsigned long long cacheID_current=  getCache(eSetup_);
   
@@ -62,15 +93,28 @@ void SiStripBaseCondObjDQM::analysisOnDemand(const edm::EventSetup & eSetup_, st
   
   getConditionObject(eSetup_);
   
-  if(detIdsOnDemand.size()==1)  { fillModMEs(detIdsOnDemand); }
-  else                          { fillSummaryMEs(detIdsOnDemand);}
-  
-  //edm::LogInfo("SiStripBaseCondObjDQM") << "[SiStripBaseCondObjDQM::analysisOnDemand] END";        
+  std::vector<uint32_t> vdetIdsOnDemand_;
+  vdetIdsOnDemand_.push_back(detIdOnDemand); // fillModMEs needs a vector 
 
+  fillModMEs(vdetIdsOnDemand_); 
+  
 }
 // -----
 
+// -----
+void SiStripBaseCondObjDQM::analysisOnDemand(const edm::EventSetup & eSetup_, std::vector<uint32_t>  detIdsOnDemand){
+ 
+  unsigned long long cacheID_current=  getCache(eSetup_);
+  
+  if (cacheID_memory == cacheID_current) return;
+  
+  getConditionObject(eSetup_);
+  
 
+  fillSummaryMEs(detIdsOnDemand); 
+  
+}
+// -----
 
 // -----
 std::vector<uint32_t> SiStripBaseCondObjDQM::getCabledModules() {     
@@ -462,10 +506,10 @@ void SiStripBaseCondObjDQM::bookSummaryProfileMEs(SiStripBaseCondObjDQM::ModMEs&
     sameLayerDetIds_.clear();
   
     if(subDetId_==3){  //  TIB
-      substructure_.getTIBDetectors(activeDetIds, sameLayerDetIds_, TIBDetId(detId_).layerNumber(),0,0,0);  
+      substructure_.getTIBDetectors(activeDetIds, sameLayerDetIds_,TIBDetId(detId_).layerNumber(),0,0,TIBDetId(detId_).stringNumber());  
     }
     else if(subDetId_==4){  // TID
-      substructure_.getTIDDetectors(activeDetIds, sameLayerDetIds_, 0,0,0,0);
+      substructure_.getTIDDetectors(activeDetIds, sameLayerDetIds_,0,0,0,0);
     }
     else if(subDetId_==5){  // TOB
       substructure_.getTOBDetectors(activeDetIds, sameLayerDetIds_, TOBDetId(detId_).layerNumber(),0,0);
@@ -734,13 +778,13 @@ void SiStripBaseCondObjDQM::bookSummaryMEs(SiStripBaseCondObjDQM::ModMEs& CondOb
     substructure_.getTIBDetectors(activeDetIds, sameLayerDetIds_, TIBDetId(detId_).layerNumber(),0,0,0);  
   }
   else if(subDetId_==4){  // TID
-    substructure_.getTIDDetectors(activeDetIds, sameLayerDetIds_, 0,0,0,0);
+    substructure_.getTIDDetectors(activeDetIds, sameLayerDetIds_, TIDDetId(detId_).side(),TIDDetId(detId_).diskNumber(),0,0);
   }
   else if(subDetId_==5){  // TOB
     substructure_.getTOBDetectors(activeDetIds, sameLayerDetIds_, TOBDetId(detId_).layerNumber(),0,0);
   }
   else if(subDetId_==6){  // TEC
-    substructure_.getTECDetectors(activeDetIds, sameLayerDetIds_, 0,0,0,0,0,0);
+    substructure_.getTECDetectors(activeDetIds, sameLayerDetIds_, TECDetId(detId_).side(), TECDetId(detId_).wheelNumber(),0,0,0,0);
   }
 
   hSummary_NchX           = sameLayerDetIds_.size(); 
@@ -1080,7 +1124,7 @@ std::pair<std::string,uint32_t> SiStripBaseCondObjDQM::getStringNameAndId(const 
     }
   }//TOB
 
-  ///****std::cout<<"TEST__layerStringName\t"<<layerStringName_<<"\t detId\t"<<detId_<<std::endl;
+  // std::cout<<"TEST__layerStringName\t"<<layerStringName_<<"\t detId\t"<<detId_<<std::endl;
   return std::make_pair(layerStringName_,layerStringId_);
 }
     

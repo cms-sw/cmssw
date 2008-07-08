@@ -32,7 +32,7 @@ void SiStripPedestalsDQM::fillModMEs(const std::vector<uint32_t> & selectedDetId
    
   ModMEs CondObj_ME;
   
-    
+  
   for(std::vector<uint32_t>::const_iterator detIter_ = selectedDetIds.begin();
                                             detIter_!= selectedDetIds.end();detIter_++){
       
@@ -47,7 +47,7 @@ void SiStripPedestalsDQM::fillModMEs(const std::vector<uint32_t> & selectedDetId
 
 // -----
 void SiStripPedestalsDQM::fillMEsForDet(ModMEs selModME_, uint32_t selDetId_){
-    
+  
   getModMEs(selModME_,selDetId_);
   
   SiStripPedestals::Range pedRange = pedestalHandle_->getRange(selDetId_);
@@ -81,9 +81,9 @@ void SiStripPedestalsDQM::fillSummaryMEs(const std::vector<uint32_t> & selectedD
   for(std::vector<uint32_t>::const_iterator detIter_ = selectedDetIds.begin();
                                             detIter_!= selectedDetIds.end();detIter_++){
     fillMEsForLayer(SummaryMEsMap_, *detIter_);
-
   } 
-}    
+}           
+  
 // -----
 
 

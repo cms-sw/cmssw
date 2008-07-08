@@ -123,11 +123,7 @@ void SiStripMonitorCondData::beginRun(edm::Run const& run, edm::EventSetup const
 //
 // ----- beginJob
 //
-void SiStripMonitorCondData::beginJob(void){
-
-  //edm::LogInfo("SiStripMonitorCondData") << "[SiStripMonitorCondData::beginJob] Starting";        
-
-} //beginJob
+void SiStripMonitorCondData::beginJob(void){} //beginJob
 // -----
 
 
@@ -170,11 +166,8 @@ void SiStripMonitorCondData::endRun(edm::Run const& run, edm::EventSetup const& 
 //
 // ----- endJob
 //
-void SiStripMonitorCondData::endJob(void){
-
-    //edm::LogInfo("SiStripMonitorCondData") << "[SiStripMonitorCondData::EndJob] Finished";        
-
-} //endJob
+void SiStripMonitorCondData::endJob(void){} 
+//endJob
 // -----
 
 

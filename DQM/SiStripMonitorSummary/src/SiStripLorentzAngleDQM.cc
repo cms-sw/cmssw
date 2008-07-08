@@ -200,7 +200,7 @@ void SiStripLorentzAngleDQM::fillMEsForLayer( std::map<uint32_t, ModMEs> selMEsM
       substructure_.getTOBDetectors(activeDetIds, sameLayerDetIds_, TOBDetId(selDetId_).layerNumber(),0,0);
     }
     else if(selSubDetId_==6){  // TEC
-      substructure_.getTECDetectors(activeDetIds, sameLayerDetIds_, 0,0,0,0,0,0);
+      substructure_.getTECDetectors(activeDetIds, sameLayerDetIds_, 0,0,0,0,0);
     }
      
 

@@ -158,13 +158,13 @@ void SiStripApvGainsDQM::fillMEsForLayer( std::map<uint32_t, ModMEs> selMEsMap_,
     substructure_.getTIBDetectors(activeDetIds, sameLayerDetIds_, TIBDetId(selDetId_).layerNumber(),0,0,0);  
   }
   else if(subselDetId_==4){  // TID
-    substructure_.getTIDDetectors(activeDetIds, sameLayerDetIds_, 0,0,0,0);
+    substructure_.getTIDDetectors(activeDetIds, sameLayerDetIds_, TIDDetId(selDetId_).side(),TIDDetId(selDetId_).diskNumber(),0,0);
   }
   else if(subselDetId_==5){  // TOB
     substructure_.getTOBDetectors(activeDetIds, sameLayerDetIds_, TOBDetId(selDetId_).layerNumber(),0,0);
   }
   else if(subselDetId_==6){  // TEC
-    substructure_.getTECDetectors(activeDetIds, sameLayerDetIds_, 0,0,0,0,0,0);
+    substructure_.getTECDetectors(activeDetIds, sameLayerDetIds_, TECDetId(selDetId_).side(), TECDetId(selDetId_).wheelNumber(),0,0,0,0);
   }
   
   unsigned int iBin=0;
