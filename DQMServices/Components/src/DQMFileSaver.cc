@@ -66,6 +66,7 @@ DQMFileSaver::DQMFileSaver(const edm::ParameterSet &ps)
     saveByLumiSection_ (-1),
     saveByEvent_ (-1),
     saveByMinute_ (-1),
+    saveByTime_ (-1),
     saveByRun_ (1),
     saveAtJobEnd_ (false),
     forceRunNumber_ (-1),
@@ -156,6 +157,7 @@ DQMFileSaver::DQMFileSaver(const edm::ParameterSet &ps)
     getAnInt(ps, saveByLumiSection_, "saveByLumiSection");
     getAnInt(ps, saveByEvent_, "saveByEvent");
     getAnInt(ps, saveByMinute_, "saveByMinute");
+    getAnInt(ps, saveByTime_, "saveByTime");
   }
 
   if (convention_ == Online || convention_ == Offline)
@@ -189,6 +191,7 @@ DQMFileSaver::DQMFileSaver(const edm::ParameterSet &ps)
     << " saving every " << saveByLumiSection_ << " lumi section(s)\n"
     << " saving every " << saveByEvent_ << " event(s)\n"
     << " saving every " << saveByMinute_ << " minute(s)\n"
+    << " saving every 2^n*" << saveByTime_ << " minutes \n"
     << " saving every " << saveByRun_ << " run(s)\n"
     << " saving at job end: " << (saveAtJobEnd_ ? "yes" : "no") << "\n";
 }
@@ -239,7 +242,7 @@ void DQMFileSaver::analyze(const edm::Event &e, const edm::EventSetup &)
   }
 
   // Check if we should save due to elapsed time.
-  if (ievent_ > 0 && saveByMinute_ > 0)
+  if ( ievent_ > 0 && ( saveByMinute_ > 0 || saveByTime_ > 0 ) )
   {
     if (convention_ != Online)
       throw cms::Exception("DQMFileSaver")
@@ -249,16 +252,19 @@ void DQMFileSaver::analyze(const edm::Event &e, const edm::EventSetup &)
     // Compute elapsed time in minutes.
     struct timeval tv;
     gettimeofday(&tv, 0);
+
+    double totalelapsed = ((tv.tv_sec + tv.tv_usec*1e-6)
+		 - (start_.tv_sec + start_.tv_usec*1e-6)) / 60;
     double elapsed = ((tv.tv_sec + tv.tv_usec*1e-6)
 		      - (saved_.tv_sec + saved_.tv_usec*1e-6)) / 60;
 
     // Save if enough time has elapsed since the last save.
-    if (elapsed > saveByMinute_)
+    if ( (saveByMinute_ > 0 && elapsed > saveByMinute_ ) ||
+         (saveByTime_ > 0   && totalelapsed > saveByTime_ ) )
     {
+      if ( saveByTime_ > 0 ) saveByTime_ *= 2;
       saved_ = tv;
-      elapsed = ((tv.tv_sec + tv.tv_usec*1e-6)
-		 - (start_.tv_sec + start_.tv_usec*1e-6)) / 60;
-      sprintf(suffix, "_R%09d_T%08d", irun_, int(elapsed));
+      sprintf(suffix, "_R%09d_T%08d", irun_, int(totalelapsed));
       char rewrite[64]; sprintf(rewrite, "Run %d/\\1/Run summary/", irun_);
       saveForOnline(dbe_, fileBaseName_, suffix, rewrite);
     }

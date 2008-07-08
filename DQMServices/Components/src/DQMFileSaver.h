@@ -36,6 +36,7 @@ private:
   int		saveByLumiSection_;
   int		saveByEvent_;
   int		saveByMinute_;
+  int		saveByTime_;
   int		saveByRun_;
   bool		saveAtJobEnd_;
   int		forceRunNumber_;
