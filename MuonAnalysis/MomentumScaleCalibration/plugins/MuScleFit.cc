@@ -1,8 +1,8 @@
 //  \class MuScleFit
 //  Analyzer of the StandAlone muon tracks
 //
-//  $Date: 2008/06/20 15:56:24 $
-//  $Revision: 1.5 $
+//  $Date: 2008/07/03 10:39:21 $
+//  $Revision: 1.1 $
 //  \author R. Bellan, C.Mariotti, S.Bolognesi - INFN Torino / T.Dorigo, M.De Mattia - INFN Padova
 //
 //  Recent additions: 
@@ -707,10 +707,30 @@ edm::EDLooper::Status MuScleFit::duringLoop (const Event & event, const EventSet
 
     pair <reco::Particle::LorentzVector, reco::Particle::LorentzVector> genMu = 
       MuScleFitUtils::findGenMuFromRes(evtMC);
+   //first is always mu-, second is always mu+
+   if(checkDeltaR(genMu.first,recMu1)){
+       mapHisto["hResolPtGenVSMu"]->Fill(genMu.first,genMu.first.Pt(),recMu1.Pt(),-1);
+       mapHisto["hResolEtaGenVSMu"]->Fill(genMu.first,genMu.first.Eta(),recMu1.Eta(),-1);
+       mapHisto["hResolPhiGenVSMu"]->Fill(genMu.first,genMu.first.Phi(),recMu1.Phi(),-1);
+    }
+   if(checkDeltaR(genMu.second,recMu2)){
+       mapHisto["hResolPtGenVSMu"]->Fill(genMu.second,genMu.second.Pt(),recMu2.Pt(),+1);
+       mapHisto["hResolEtaGenVSMu"]->Fill(genMu.second,genMu.second.Eta(),recMu2.Eta(),+1);
+       mapHisto["hResolPhiGenVSMu"]->Fill(genMu.second,genMu.second.Phi(),recMu2.Phi(),+1);
+    }
     pair <reco::Particle::LorentzVector, reco::Particle::LorentzVector> simMu = 
       MuScleFitUtils::findSimMuFromRes(evtMC,simTracks);
-    fillResolutionHistrograms("hResolPtGenVSMu",genMu,recMu1,recMu2);
-    fillResolutionHistrograms("hResolPtSimVSMu",simMu,recMu1,recMu2);
+   //first is always mu-, second is always mu+
+   if(checkDeltaR(simMu.first,recMu1)){
+       mapHisto["hResolPtSimVSMu"]->Fill(simMu.first,simMu.first.Pt(),recMu1.Pt(),-1);
+       mapHisto["hResolEtaSimVSMu"]->Fill(simMu.first,simMu.first.Eta(),recMu1.Eta(),-1);
+       mapHisto["hResolPhiSimVSMu"]->Fill(simMu.first,simMu.first.Phi(),recMu1.Phi(),-1);
+    }
+   if(checkDeltaR(simMu.second,recMu2)){
+       mapHisto["hResolPtSimVSMu"]->Fill(simMu.second,simMu.second.Pt(),recMu2.Pt(),+1);
+       mapHisto["hResolEtaSimVSMu"]->Fill(simMu.second,simMu.second.Eta(),recMu2.Eta(),+1);
+       mapHisto["hResolPhiSimVSMu"]->Fill(simMu.second,simMu.second.Phi(),recMu2.Phi(),+1);
+    }
 
     // Compute likelihood histograms
     // -----------------------------
@@ -743,8 +763,8 @@ edm::EDLooper::Status MuScleFit::duringLoop (const Event & event, const EventSet
 	mapHisto["hLikeVSMu"]->Fill (recMu2, deltalike);
 	mapHisto["hLikeVSMuMinus"]->Fill (recMu1, deltalike);
 	mapHisto["hLikeVSMuPlus"]->Fill (recMu2, deltalike);
-	mapHisto["hResolMassVSMu"]->Fill (recMu1, massResol);
-	mapHisto["hResolMassVSMu"]->Fill (recMu2, massResol);
+	mapHisto["hResolMassVSMu"]->Fill (recMu1, massResol,-1);
+	mapHisto["hResolMassVSMu"]->Fill (recMu2, massResol,+1);
 
 	Mass_P->Fill(bestRecRes.mass(), prob);
 	Mass_fine_P->Fill(bestRecRes.mass(), prob);
@@ -793,11 +813,15 @@ void MuScleFit::fillHistoMap() {
   mapHisto["hLikeVSMuMinus"] =  new HLikelihoodVSPart ("hLikeVSMuMinus");
   mapHisto["hLikeVSMuPlus"]  =  new HLikelihoodVSPart ("hLikeVSMuPlus");
 
-  //Resolution (on mass resonance and muon pt) VS muon kinematic
-  //------------------------------------------------------------
-  mapHisto["hResolMassVSMu"]       =  new HResolutionVSPart ("hResolMassVSMu");
-  mapHisto["hResolPtGenVSMu"]       =  new HResolutionVSPart ("hResolPtGenVSMu");
-  mapHisto["hResolPtSimVSMu"]       =  new HResolutionVSPart ("hResolPtSimVSMu");
+  //Resolution VS muon kinematic
+  //----------------------------
+  mapHisto["hResolMassVSMu"] =  new HResolutionVSPart ("hResolMassVSMu");
+  mapHisto["hResolPtGenVSMu"] =  new HResolutionVSPart ("hResolPtGenVSMu");
+  mapHisto["hResolPtSimVSMu"] =  new HResolutionVSPart ("hResolPtSimVSMu");
+  mapHisto["hResolEtaGenVSMu"] =  new HResolutionVSPart ("hResolEtaGenVSMu");
+  mapHisto["hResolEtaSimVSMu"] =  new HResolutionVSPart ("hResolEtaSimVSMu");
+  mapHisto["hResolPhiGenVSMu"] =  new HResolutionVSPart ("hResolPhiGenVSMu");
+  mapHisto["hResolPhiSimVSMu"] =  new HResolutionVSPart ("hResolPhiSimVSMu");
 
   // Mass probability histograms
   // ---------------------------
@@ -805,30 +829,18 @@ void MuScleFit::fillHistoMap() {
   Mass_fine_P = new TProfile ("Mass_fine_P", "Mass probability", 4000, 0., 20., 0., 1.);
 }
 
-void MuScleFit::fillResolutionHistrograms(string hName, pair <reco::Particle::LorentzVector, reco::Particle::LorentzVector>& genMu,
-					  reco::Particle::LorentzVector& recMu1, reco::Particle::LorentzVector& recMu2){
+bool MuScleFit::checkDeltaR(reco::Particle::LorentzVector& genMu, reco::Particle::LorentzVector& recMu){
   //first is always mu-, second is always mu+
-  double deltaR11 = sqrt(MuScleFitUtils::deltaPhi(recMu1.Phi(),genMu.first.Phi()) * MuScleFitUtils::deltaPhi(recMu1.Phi(),genMu.first.Phi()) +
-			 ((recMu1.Eta()-genMu.first.Eta()) * (recMu1.Eta()-genMu.first.Eta())));
-  double deltaR22 = sqrt(MuScleFitUtils::deltaPhi(recMu2.Phi(),genMu.second.Phi()) * MuScleFitUtils::deltaPhi(recMu2.Phi(),genMu.second.Phi()) +
-			 ((recMu2.Eta()-genMu.second.Eta()) * (recMu2.Eta()-genMu.second.Eta())));
-  if(deltaR11<0.01)
-    mapHisto[hName]->Fill(genMu.first,genMu.first.Pt(),recMu1.Pt());
+  double deltaR = sqrt(MuScleFitUtils::deltaPhi(recMu.Phi(),genMu.Phi()) * MuScleFitUtils::deltaPhi(recMu.Phi(),genMu.Phi()) +
+			 ((recMu.Eta()-genMu.Eta()) * (recMu.Eta()-genMu.Eta())));
+  if(deltaR<0.01)
+    return true;
   else
-    cout<<"Reco muon "<<recMu1<<" with eta "<<recMu1.Eta()<<" and phi "<<recMu1.Phi()<<endl
-	<<" DOES NOT MATCH with generated muons from resonances: "<<endl
-	<<genMu.first<<" with eta "<<genMu.first.Eta()<<" and phi "<<genMu.first.Phi()<<endl
-	<<genMu.second<<" with eta "<<genMu.second.Eta()<<" and phi "<<genMu.second.Phi()<<endl;
-  
-  if(deltaR22<0.01)
-    mapHisto[hName]->Fill(genMu.second,genMu.second.Pt(),recMu2.Pt());
-  else
-    cout<<"Reco muon "<<recMu2<<" with eta "<<recMu2.Eta()<<" and phi "<<recMu2.Phi()<<endl
-	<<" DOES NOT MATCH with generated muons from resonances: "<<endl
-	<<genMu.first<<" with eta "<<genMu.first.Eta()<<" and phi "<<genMu.first.Phi()<<endl
-	<<genMu.second<<" with eta "<<genMu.second.Eta()<<" and phi "<<genMu.second.Phi()<<endl;
+    cout<<"Reco muon "<<recMu<<" with eta "<<recMu.Eta()<<" and phi "<<recMu.Phi()<<endl
+	<<" DOES NOT MATCH with generated muon from resonance: "<<endl
+	<<genMu<<" with eta "<<genMu.Eta()<<" and phi "<<genMu.Phi()<<endl;
+  return false;
 }
-
 
 void MuScleFit::clearHistoMap() {
   for (map<string, Histograms*>::const_iterator histo=mapHisto.begin(); 

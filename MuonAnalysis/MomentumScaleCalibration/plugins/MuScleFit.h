@@ -4,9 +4,9 @@
 /** \class MuScleFit
  *  Analyzer of the Global muon tracks
  *
- *  $Date: 2008/06/20 15:14:51 $
- *  $Revision: 1.3 $
- *  \author R.Bellan, C.Mariotti, S.Bolognesi - INFN Torino / T.Dorigo - INFN Padova
+ *  $Date: 2008/07/03 10:39:22 $
+ *  $Revision: 1.1 $
+ *  \author C.Mariotti, S.Bolognesi - INFN Torino / T.Dorigo - INFN Padova
  */
 
 // Base Class Headers
@@ -52,9 +52,6 @@ class MuScleFit: public edm::EDLooper {
   virtual edm::EDLooper::Status endOfLoop (const edm::EventSetup& eventSetup, unsigned int iLoop) ;
   virtual edm::EDLooper::Status duringLoop (const edm::Event & event, const edm::EventSetup& eventSetup);
 
-  void fillResolutionHistrograms(std::string hName, pair <reco::Particle::LorentzVector, reco::Particle::LorentzVector>& genMu,
-					   reco::Particle::LorentzVector& recMu1, reco::Particle::LorentzVector& recMu2);
-
  template<typename T>
   std::vector<reco::LeafCandidate> fillMuonCollection (const std::vector<T>& tracks){
     std::vector<reco::LeafCandidate> muons;
@@ -87,6 +84,9 @@ class MuScleFit: public edm::EDLooper {
  protected:
 
  private:
+
+  //Check if two lorentzVector are near in deltaR
+  bool checkDeltaR(reco::Particle::LorentzVector& genMu, reco::Particle::LorentzVector& recMu);
 
   // Fill, clean and write to file the Map of Histograms
   // ---------------------------------------------------

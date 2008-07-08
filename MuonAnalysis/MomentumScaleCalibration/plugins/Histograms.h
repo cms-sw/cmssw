@@ -55,7 +55,8 @@ public:
   virtual void Fill (HepLorentzVector momentum1, HepLorentzVector momentum2, int charge) {};
   virtual void Fill (HepLorentzVector p1, reco::Particle::LorentzVector p2) {};
   virtual void Fill (reco::Particle::LorentzVector p4, double likeValue) {};
-  virtual void Fill (reco::Particle::LorentzVector p4, double genValue, double recValue) {};
+  virtual void Fill (reco::Particle::LorentzVector p4, double resValue, int charge) {};
+  virtual void Fill (reco::Particle::LorentzVector p4, double genValue, double recValue,int charge) {};
   virtual void Fill (HepLorentzVector p, double likeValue) {};
   virtual void Fill (int number) {};
   
@@ -87,9 +88,9 @@ class HParticle : public Histograms {
     TString N = name_.c_str();
     name=N;
     // Kinematical variables
-    hPt        = new TH1F (N+"_Pt", "transverse momentum", 40, 0, 100);
-    hEta       = new TH1F (N+"_Eta", "pseudorapidity", 30, -6, 6);
-    hPhi       = new TH1F (N+"_Phi", "phi angle", 32, -3.2, 3.2);
+    hPt        = new TH1F (N+"_Pt", "transverse momentum", 100, 0, 100);
+    hEta       = new TH1F (N+"_Eta", "pseudorapidity", 60, -6, 6);
+    hPhi       = new TH1F (N+"_Phi", "phi angle", 64, -3.2, 3.2);
     hMass      = new TH1F (N+"_Mass", "mass", 40000, 0, 200);
     // hMass_fine = new TH1F (N+"_Mass_fine", "low mass fine binning", 4000, 0., 20. ); //Removed to avoid too many histos (more binning added to hMass)
     hNumber    = new TH1F (N+"_Number", "number", 20, -0.5, 19.5);
@@ -576,10 +577,10 @@ class HMassVSPart : public Histograms{
 
     // Kinematical variables
     // ---------------------
-    hMassVSPt     = new TH2F (N+"_MassVSPt", "re sonance mass vs muon transverse momentum", 200, 0., 200., 1200, 0, 150.);
-    hMassVSEta    = new TH2F (N+"_MassVSEta", "resonance mass vs muon pseudorapidity", 30, -6., 6., 1200, 0, 150.);
-    hMassVSPhiPlus    = new TH2F (N+"_MassVSPhiPlus", "resonance mass vs muon+ phi angle", 32, -3.2, 3.2, 1200, 0, 150.);
-    hMassVSPhiMinus    = new TH2F (N+"_MassVSPhiMinus", "resonance mass vs muon- phi angle", 32, -3.2, 3.2, 1200, 0, 150.);
+    hMassVSPt     = new TH2F (N+"_MassVSPt", "resonance mass vs muon transverse momentum", 200, 0., 200., 3000, 0, 150.);
+    hMassVSEta    = new TH2F (N+"_MassVSEta", "resonance mass vs muon pseudorapidity", 30, -6., 6., 3000, 0, 150.);
+    hMassVSPhiPlus    = new TH2F (N+"_MassVSPhiPlus", "resonance mass vs muon+ phi angle", 32, -3.2, 3.2, 3000, 0, 150.);
+    hMassVSPhiMinus    = new TH2F (N+"_MassVSPhiMinus", "resonance mass vs muon- phi angle", 32, -3.2, 3.2, 3000, 0, 150.);
     hMassVSPt_prof     = new TProfile (N+"_MassVSPt_prof", "resonance mass vs muon transverse momentum", 100, 0., 200., 0, 150.);
     hMassVSEta_prof    = new TProfile (N+"_MassVSEta_prof", "resonance mass vs muon pseudorapidity", 30, -6., 6., 0, 150.);
     hMassVSPhiPlus_prof    = new TProfile (N+"_MassVSPhiPlus_prof", "resonance mass vs muon+ phi angle", 32, -3.2, 3.2, 0, 150.);
@@ -690,7 +691,8 @@ class HResolutionVSPart : public Histograms{
     hResoVSPt_prof = new TProfile (N+"_ResoVSPt_prof", "resolution VS pt", 100, 0, 200, -1, 1);
     hResoVSEta    = new TH2F (N+"_ResoVSEta", "resolution VS eta", 10, -2.5, 2.5, 500, -1, 1);
     hResoVSEta_prof = new TProfile (N+"_ResoVSEta_prof", "resolution VS eta", 10, -2.5, 2.5, -1, 1);
-    hResoVSPhi    = new TH2F (N+"_ResoVSPhi", "resolution VS phi", 14, -3.2, 3.2, 500, -1, 1);
+    hResoVSPhiPlus    = new TH2F (N+"_ResoVSPhiPlus", "resolution VS phi mu+", 14, -3.2, 3.2, 500, -1, 1);
+    hResoVSPhiMinus    = new TH2F (N+"_ResoVSPhiMinus", "resolution VS phi mu-", 14, -3.2, 3.2, 500, -1, 1);
     hResoVSPhi_prof = new TProfile (N+"_ResoVSPhi_prof", "resolution VS phi", 14, -3.2, 3.2, -1, 1);
     hAbsReso    = new TH1F (N+"_AbsReso", "resolution", 100, 0, 1);
     hAbsResoVSPt    = new TH2F (N+"_AbsResoVSPt", "Abs resolution VS pt", 200, 0, 500, 100, 0, 1);
@@ -705,7 +707,8 @@ class HResolutionVSPart : public Histograms{
     hResoVSPt_prof  = (TProfile *) file->Get(name+"_ResoVSPt_prof");
     hResoVSEta  = (TH2F *) file->Get(name+"_ResoVSEta");
     hResoVSEta_prof  = (TProfile *) file->Get(name+"_ResoVSEta_prof");
-    hResoVSPhi  = (TH2F *) file->Get(name+"_ResoVSPhi");
+    hResoVSPhiPlus  = (TH2F *) file->Get(name+"_ResoVSPhiPlus");
+    hResoVSPhiMinus  = (TH2F *) file->Get(name+"_ResoVSPhiMinus");
     hResoVSPhi_prof  = (TProfile *) file->Get(name+"_ResoVSPhi_prof");
     hAbsReso      = (TH1F *) file->Get(name+"_AbsReso");
     hAbsResoVSPt  = (TH2F *) file->Get(name+"_AbsResoVSPt");
@@ -716,11 +719,14 @@ class HResolutionVSPart : public Histograms{
   ~HResolutionVSPart(){
   }
 
-   virtual void Fill(reco::Particle::LorentzVector p4, double resValue) { 
+   virtual void Fill(reco::Particle::LorentzVector p4, double resValue, int charge) { 
      hReso->Fill(resValue); 
      hResoVSPt->Fill(p4.Pt(),resValue); 
      hResoVSEta->Fill(p4.Eta(),resValue); 
-     hResoVSPhi->Fill(p4.Phi(),resValue); 
+     if(charge>0)
+       hResoVSPhiPlus->Fill(p4.Phi(),resValue); 
+     else if(charge<0)
+       hResoVSPhiMinus->Fill(p4.Phi(),resValue); 
      hResoVSPt_prof->Fill(p4.Pt(),resValue); 
      hResoVSEta_prof->Fill(p4.Eta(),resValue); 
      hResoVSPhi_prof->Fill(p4.Phi(),resValue); 
@@ -730,8 +736,8 @@ class HResolutionVSPart : public Histograms{
      hAbsResoVSPhi->Fill(p4.Phi(),fabs(resValue));     
    } 
   
-  virtual void Fill(reco::Particle::LorentzVector p4, double genValue, double recValue) {//1 sim, 2 rec
-    Fill(p4, (recValue-genValue)/genValue);
+  virtual void Fill(reco::Particle::LorentzVector p4, double genValue, double recValue, int charge) {//1 sim, 2 rec
+    Fill(p4, (recValue-genValue)/genValue, charge);
   }
 
   virtual void Write() {
@@ -740,7 +746,8 @@ class HResolutionVSPart : public Histograms{
     hResoVSPt_prof->Write();
     hResoVSEta->Write();
     hResoVSEta_prof->Write();
-    hResoVSPhi->Write();
+    hResoVSPhiMinus->Write();
+    hResoVSPhiPlus->Write();
     hResoVSPhi_prof->Write();
     hAbsReso->Write();
     hAbsResoVSPt->Write();
@@ -757,8 +764,13 @@ class HResolutionVSPart : public Histograms{
       (*graph)->Write();
     }
 
-    vector<TGraphErrors*> graphsPhi ((MuScleFitUtils::fitReso(hResoVSPhi)));
-    for(vector<TGraphErrors*>::const_iterator graph = graphsPhi.begin(); graph != graphsPhi.end(); graph++){
+    vector<TGraphErrors*> graphsPhiPlus ((MuScleFitUtils::fitReso(hResoVSPhiMinus)));
+    for(vector<TGraphErrors*>::const_iterator graph = graphsPhiPlus.begin(); graph != graphsPhiPlus.end(); graph++){
+      (*graph)->Write();
+    }
+
+    vector<TGraphErrors*> graphsPhiMinus ((MuScleFitUtils::fitReso(hResoVSPhiPlus)));
+    for(vector<TGraphErrors*>::const_iterator graph = graphsPhiMinus.begin(); graph != graphsPhiMinus.end(); graph++){
       (*graph)->Write();
     }
  }
@@ -769,7 +781,9 @@ class HResolutionVSPart : public Histograms{
     hResoVSPt_prof->Clear();    
     hResoVSEta->Clear();    
     hResoVSEta_prof->Clear();    
-    hResoVSPhi->Clear();    
+    hResoVSPhiPlus->Clear();    
+    hResoVSPhiMinus->Clear();    
+    hResoVSPhi_prof->Clear();    
     hResoVSPhi_prof->Clear();    
     hAbsReso->Clear();
     hAbsResoVSPt->Clear();
@@ -784,7 +798,8 @@ class HResolutionVSPart : public Histograms{
   TProfile* hResoVSPt_prof;
   TH2F* hResoVSEta;
   TProfile* hResoVSEta_prof;
-  TH2F* hResoVSPhi;
+  TH2F* hResoVSPhiMinus;
+  TH2F* hResoVSPhiPlus;
   TProfile* hResoVSPhi_prof;
   TH1F* hAbsReso;
   TH2F* hAbsResoVSPt;
