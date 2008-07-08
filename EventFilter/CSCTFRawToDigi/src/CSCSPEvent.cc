@@ -25,7 +25,7 @@ bool CSCSPEvent::unpack(const unsigned short *&buf) throw() {
 				if( track.ME1_id() ){ // if track contains LCT from first station
 					unsigned int mpc = ( track.ME1_id()>3 ? 1 : 0 );
 					if( tbin==0 && track.ME1_tbin() ) unpackError |= true;
-					std::vector<CSCSP_MEblock> lcts = ( track.ME1_tbin() ? record_[tbin-1].LCTs(mpc) : record_[tbin].LCTs(mpc) );
+					std::vector<CSCSP_MEblock> lcts = record_[tbin-track.ME1_tbin()].LCTs(mpc);
 					for(std::vector<CSCSP_MEblock>::const_iterator lct=lcts.begin(); lct!=lcts.end(); lct++)
 						// Due to old MPC firmware link information was not accessible for some data:
 						//if( lct->link()==(mpc?track.ME1_id()-3:track.ME1_id()) ){
@@ -36,7 +36,7 @@ bool CSCSPEvent::unpack(const unsigned short *&buf) throw() {
 				}
 				if( track.ME2_id() ){ // ... second station
 					if( tbin==0 && track.ME2_tbin() ) unpackError |= true;
-					std::vector<CSCSP_MEblock> lcts = ( track.ME2_tbin() ? record_[tbin-1].LCTs(2) : record_[tbin].LCTs(2) );
+					std::vector<CSCSP_MEblock> lcts = record_[tbin-track.ME2_tbin()].LCTs(2);
 					for(std::vector<CSCSP_MEblock>::const_iterator lct=lcts.begin(); lct!=lcts.end(); lct++)
 						// Due to old MPC firmware link information was not accessible for some data:
 						//if( lct->link()==track.ME2_id() ){
@@ -47,7 +47,7 @@ bool CSCSPEvent::unpack(const unsigned short *&buf) throw() {
 				}
 				if( track.ME3_id() ){ // ... third station
 					if( tbin==0 && track.ME3_tbin() ) unpackError |= true;
-					std::vector<CSCSP_MEblock> lcts = ( track.ME3_tbin() ? record_[tbin-1].LCTs(3) : record_[tbin].LCTs(3) );
+					std::vector<CSCSP_MEblock> lcts = record_[tbin-track.ME3_tbin()].LCTs(3);
 					for(std::vector<CSCSP_MEblock>::const_iterator lct=lcts.begin(); lct!=lcts.end(); lct++)
 						// Due to old MPC firmware link information was not accessible for some data:
 						//if( lct->link()==track.ME3_id() ){
@@ -58,7 +58,7 @@ bool CSCSPEvent::unpack(const unsigned short *&buf) throw() {
 				}
 				if( track.ME4_id() ){ // ... fourth station
 					if( tbin==0 && track.ME4_tbin() ) unpackError |= true;
-					std::vector<CSCSP_MEblock> lcts = ( track.ME4_tbin() ? record_[tbin-1].LCTs(4) : record_[tbin].LCTs(4) );
+					std::vector<CSCSP_MEblock> lcts = record_[tbin-track.ME3_tbin()].LCTs(4);
 					for(std::vector<CSCSP_MEblock>::const_iterator lct=lcts.begin(); lct!=lcts.end(); lct++)
 						// Due to old MPC firmware link information was not accessible for some data:
 						//if( lct->link()==track.ME4_id() ){
