@@ -84,6 +84,9 @@ def main(argv):
     #Number of events per test (per candle/per step):
     numevtsOption="100"
     numevts=" --timesize=100"
+    #default benchmark does not run igprof nor valgrind
+    igprofevts=" --igprof=0"
+    valgrindevts=" --valgrind=0"
     #Default option for candle is "" since, usually all 7 candles of the suite will be run!
     candleOption=""
     candle=""
@@ -151,13 +154,17 @@ def main(argv):
         print "The benchmarking will be repeated %s times" % repeatOption
     #Now let's play!
     for repetition in range(repeatOption):
-        mkdircmd="mkdir Run"+str(repetition+1)
-        mkdirstdout=os.popen4(mkdircmd)[1].read()
-        if mkdirstdout:
-            print mkdirstdout,
-        print "Here we'd launch cmsPerfSuite.py!"
-        PerfSuitecmd="cmsPerfSuite.py"+cpu+cores+numevts+candle+step
-        print PerfSuitecmd
+        mkdircdcmd="mkdir Run"+str(repetition+1)+";cd Run"+str(repetition+1)
+        #mkdircdstdout=os.popen4(mkdircmd)[1].read()
+        #if mkdirstdout:
+        #    print mkdirstdout,
+        #print "Here we'd launch cmsPerfSuite.py!"
+        PerfSuitecmd="cmsPerfSuite.py"+cpu+cores+numevts+igprofevts+valgrindevts+candle+step+">& cmsPerfSuiteRun"+str(repetition+1)+".log"
+        launchcmd=mkdircdcmd+";"+PerfSuitecmd
+        print launchcmd
+        sys.stdout.flush()
+        launchcmdstdout=os.popen4(launchcmd)[1].read()
+        print launchcmdstdout
         
 if __name__ == "__main__":
     main(sys.argv[1:])
