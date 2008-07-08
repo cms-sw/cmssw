@@ -4,8 +4,8 @@
 /** \class MuScleFit
  *  Analyzer of the Global muon tracks
  *
- *  $Date: 2008/07/03 10:39:22 $
- *  $Revision: 1.1 $
+ *  $Date: 2008/07/08 07:53:24 $
+ *  $Revision: 1.2 $
  *  \author C.Mariotti, S.Bolognesi - INFN Torino / T.Dorigo - INFN Padova
  */
 
@@ -113,10 +113,6 @@ class MuScleFit: public edm::EDLooper {
 
   // Constants
   // ---------
-  double minResMass_sim[6];
-  double maxResMass_sim[6];
-  double minResMass_rec[6];
-  double maxResMass_rec[6];
   double minResMass_hwindow[6]; 
   double maxResMass_hwindow[6];
 

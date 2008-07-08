@@ -1,8 +1,8 @@
 //  \class MuScleFit
 //  Analyzer of the StandAlone muon tracks
 //
-//  $Date: 2008/07/03 10:39:21 $
-//  $Revision: 1.1 $
+//  $Date: 2008/07/08 10:33:51 $
+//  $Revision: 1.3 $
 //  \author R. Bellan, C.Mariotti, S.Bolognesi - INFN Torino / T.Dorigo, M.De Mattia - INFN Padova
 //
 //  Recent additions: 
@@ -139,35 +139,6 @@ MuScleFit::MuScleFit (const ParameterSet& pset) {
   }  
 
   loopCounter = 0;
-
-  // Z mass boundaries
-  // (only for histogramming purposes)
-  // ---------------------------------
-  minResMass_sim[0] = 71.;
-  maxResMass_sim[0] = 111.;
-  minResMass_sim[1] = 10.2;
-  maxResMass_sim[1] = 10.6;
-  minResMass_sim[2] = 9.7;
-  maxResMass_sim[2] = 10.2;
-  minResMass_sim[3] = 9.3;
-  maxResMass_sim[3] = 9.7;
-  minResMass_sim[4] = 3.4;
-  maxResMass_sim[4] = 4.0;
-  minResMass_sim[5] = 2.9;
-  maxResMass_sim[5] = 3.4;
-
-  minResMass_rec[0] = 71.;
-  maxResMass_rec[0] = 111.;
-  minResMass_rec[1] = 10.2;
-  maxResMass_rec[1] = 10.6;
-  minResMass_rec[2] = 9.7;
-  maxResMass_rec[2] = 10.2;
-  minResMass_rec[3] = 9.3;
-  maxResMass_rec[3] = 9.7;
-  minResMass_rec[4] = 3.4;
-  maxResMass_rec[4] = 4.0;
-  minResMass_rec[5] = 2.9;
-  maxResMass_rec[5] = 3.4;
 
   // Boundaries for h-function computation (to be improved!)
   // -------------------------------------------------------
@@ -649,20 +620,23 @@ edm::EDLooper::Status MuScleFit::duringLoop (const Event & event, const EventSet
     double weight = MuScleFitUtils::computeWeight ((recMu1+recMu2).mass());
     
     // Apply the correction (or bias) to the best 2 reconstructed muons
-    // ----------------------------------------------------------------
+    // NNBB work in progress - try to establish how to deal with multiple correction
+    // of the same scale if loop is made multiple times to fit resolution at step>3:
+    // uncomment debug>0, take off loopCounter<3 condition below to restore.
+    // -----------------------------------------------------------------------------  
     if (debug>0) {
-      cout << "Event #" << iev << ": before correction     Pt1 = " << recMu1.Pt() 
-	   << " Pt2 = " << recMu2.Pt() << endl;
+      cout << "Loop #" << loopCounter << "Event #" << iev << ": before correction     Pt1 = " 
+	   << recMu1.Pt() << " Pt2 = " << recMu2.Pt() << endl;
     }
     // If likelihood has been run already, we can correct and "unbias" muons with the latest fit results 
     // -------------------------------------------------------------------------------------------------
-    if (loopCounter>0) {
+    if (loopCounter>0 && loopCounter<3) {
       recMu1 = (MuScleFitUtils::applyScale (recMu1, MuScleFitUtils::parvalue[loopCounter-1], -1));
       recMu2 = (MuScleFitUtils::applyScale (recMu2, MuScleFitUtils::parvalue[loopCounter-1],  1));
     }
     if (debug>0) {
-      cout << "Event #" << iev << ": after correction      Pt1 = " << recMu1.Pt()
-	   << " Pt2 = " << recMu2.Pt() << endl;
+      cout << "Loop #" << loopCounter << "Event #" << iev << ": after correction      Pt1 = " 
+	   << recMu1.Pt() << " Pt2 = " << recMu2.Pt() << endl;
     } 
 
     reco::Particle::LorentzVector bestRecRes (recMu1+recMu2);

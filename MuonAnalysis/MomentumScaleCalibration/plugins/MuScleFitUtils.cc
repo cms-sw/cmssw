@@ -1,7 +1,7 @@
 /** See header file for a class description 
  *
- *  $Date: 2008/06/20 15:14:51 $
- *  $Revision: 1.4 $
+ *  $Date: 2008/07/03 10:39:22 $
+ *  $Revision: 1.1 $
  *  \author S. Bolognesi - INFN Torino / T. Dorigo, M.De Mattia - INFN Padova
  */
 // Some notes:
@@ -17,7 +17,13 @@
 //   resonances. The weight has to depend on the mass and has relative cross sections of
 //   Y(1S), 2S, 3S as parameters. Some overlap is also expected in the J/psi-Psi(2S) region
 //   when reconstructing masses with Standalone muons.
-// ---------------------------------------------------------------------------------------
+//
+//   MODS 7/7/08 TD:
+//   - changed parametrization of resolution in Pt: from sigma_pt = a*Pt + b*|eta| to 
+//                                                       sigma_pt = (a*Pt + b*|eta|)*Pt 
+//                                                  which is more correct (I hope)
+//   - changed parametrization of resolution in cotgth: from sigma_cotgth = f(eta) to f(cotgth)
+// --------------------------------------------------------------------------------------------
 
 #include "MuScleFitUtils.h"
 #include "SimDataFormats/Track/interface/SimTrack.h"
@@ -811,33 +817,33 @@ double MuScleFitUtils::massResolution (const lorentzVector& mu1,
     sigma_cotgth1 = parval[2];
     sigma_cotgth2 = parval[2];
   } else if (ResolFitType==2) {
-    sigma_pt1     = parval[0]*pt1+parval[1]*fabs(eta1);
-    sigma_pt2     = parval[0]*pt2+parval[1]*fabs(eta2);
+    sigma_pt1     = (parval[0]+parval[1]*fabs(eta1))*pt1;
+    sigma_pt2     = (parval[0]+parval[1]*fabs(eta2))*pt2;
     sigma_phi1    = parval[2];
     sigma_phi2    = parval[2];
     sigma_cotgth1 = parval[3];
     sigma_cotgth2 = parval[3];
   } else if (ResolFitType==3) {
-    sigma_pt1     = parval[0]*pt1+parval[1]*fabs(eta1);
-    sigma_pt2     = parval[0]*pt2+parval[1]*fabs(eta2);
+    sigma_pt1     = (parval[0]+parval[1]*fabs(eta1))*pt1;
+    sigma_pt2     = (parval[0]+parval[1]*fabs(eta2))*pt2;
     sigma_phi1    = parval[2];
     sigma_phi2    = parval[2];
-    sigma_cotgth1 = parval[3]+parval[4]*fabs(eta1);
-    sigma_cotgth2 = parval[3]+parval[4]*fabs(eta2);
+    sigma_cotgth1 = parval[3]+parval[4]*fabs(cos(theta1)/sin(theta1));
+    sigma_cotgth2 = parval[3]+parval[4]*fabs(cos(theta2)/sin(theta2));
   } else if (ResolFitType==4) { 
-    sigma_pt1     = parval[0]*pt1+parval[1]*fabs(eta1)+parval[5]*pow(pt1,2);
-    sigma_pt2     = parval[0]*pt2+parval[1]*fabs(eta2)+parval[5]*pow(pt2,2);
+    sigma_pt1     = (parval[0]+parval[1]*fabs(eta1)+parval[5]*pt1)*pt1;
+    sigma_pt2     = (parval[0]+parval[1]*fabs(eta2)+parval[5]*pt2)*pt2;
     sigma_phi1    = parval[2];
     sigma_phi2    = parval[2];
-    sigma_cotgth1 = parval[3]+parval[4]*fabs(eta1);
-    sigma_cotgth2 = parval[3]+parval[4]*fabs(eta2);
+    sigma_cotgth1 = parval[3]+parval[4]*fabs(cos(theta1)/sin(theta1));
+    sigma_cotgth2 = parval[3]+parval[4]*fabs(cos(theta2)/sin(theta2));
   } else if (ResolFitType==5) { 
-    sigma_pt1     = parval[0]*pt1+parval[1]*fabs(eta1)+parval[5]*pow(pt1,2);
-    sigma_pt2     = parval[0]*pt2+parval[1]*fabs(eta2)+parval[5]*pow(pt2,2);
+    sigma_pt1     = (parval[0]*pt1+parval[1]*fabs(eta1)+parval[5]*pt1)*pt1;
+    sigma_pt2     = (parval[0]*pt2+parval[1]*fabs(eta2)+parval[5]*pt2)*pt2;
     sigma_phi1    = parval[2]+parval[6]*pt1;
     sigma_phi2    = parval[2]+parval[6]*pt2;
-    sigma_cotgth1 = parval[3]+parval[4]*fabs(eta1);
-    sigma_cotgth2 = parval[3]+parval[4]*fabs(eta2);
+    sigma_cotgth1 = parval[3]+parval[4]*fabs(cos(theta1)/sin(theta1));
+    sigma_cotgth2 = parval[3]+parval[4]*fabs(cos(theta2)/sin(theta2));
   } 
  
 
@@ -1318,7 +1324,7 @@ void MuScleFitUtils::minimizeLikelihood () {
       }
       for (int ipar=parResol.size(); ipar<parnumber; ipar++) {      
 	if (parfix[ipar]==0 && ind[ipar]==iorder) { // parfix=0 means parameter is free
-	  rmin.Release(ipar);
+	  rmin.Release (ipar);
 	  somethingtodo = true;
 	}
       } 
