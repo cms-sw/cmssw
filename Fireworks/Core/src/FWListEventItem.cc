@@ -8,7 +8,7 @@
 //
 // Original Author:  Chris Jones
 //         Created:  Thu Feb 28 11:13:37 PST 2008
-// $Id: FWListEventItem.cc,v 1.17 2008/06/29 13:23:48 chrjones Exp $
+// $Id: FWListEventItem.cc,v 1.18 2008/07/01 04:28:04 chrjones Exp $
 //
 
 // system include files
@@ -194,6 +194,7 @@ m_memberFunction(findDefaultMember(iItem->modelType()))
    m_item->goingToBeDestroyed_.connect(boost::bind(&FWListEventItem::deleteListEventItem,this));
    m_item->defaultDisplayPropertiesChanged_.connect(boost::bind(&FWListEventItem::defaultDisplayPropertiesChanged,this,_1));
    TEveElementList::SetMainColor(iItem->defaultDisplayProperties().color());
+   TEveElementList::SetRnrState(iItem->defaultDisplayProperties().isVisible());
 }
 
 // FWListEventItem::FWListEventItem(const FWListEventItem& rhs)
