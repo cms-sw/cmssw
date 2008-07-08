@@ -1,8 +1,8 @@
 /** \file
  * Implementation of class RPCRecordFormatter
  *
- *  $Date: 2008/06/23 08:11:59 $
- *  $Revision: 1.36 $
+ *  $Date: 2008/07/04 20:38:52 $
+ *  $Revision: 1.37 $
  *
  * \author Ilaria Segoni
  */
@@ -103,7 +103,7 @@ int RPCRecordFormatter::recordUnpack(
   if(readoutMapping == 0) return status;
   const LinkBoardSpec* linkBoard = readoutMapping->location(eleIndex);
   if (!linkBoard) {
-    LogTrace(" ** PROBLEM ** Invalid Linkboard location, skip CD event, ") 
+    if (debug) LogDebug("")<<" ** PROBLEM ** Invalid Linkboard location, skip CD event, " 
               << "dccId: "<<eleIndex.dccId
               << "dccInputChannelNum: " <<eleIndex.dccInputChannelNum
               << " tbLinkInputNum: "<<eleIndex.tbLinkInputNum
@@ -127,13 +127,13 @@ int RPCRecordFormatter::recordUnpack(
     uint32_t rawDetId = duFrame.first;
     int geomStrip = duFrame.second;
     if (!rawDetId) {
-      LogTrace("** PROBLEM ** no rawDetId, skip at least part of CD data");
+      if (debug) LogTrace("") << " ** PROBLEM ** no rawDetId, skip at least part of CD data";
       status = RPCRawDataCounts::InvalidDetId;
       counter->addReadoutError(status);
       continue;
     }
     if (geomStrip==0) {
-      LogTrace("** PROBLEM ** no strip found");
+      if(debug) LogTrace("") <<" ** PROBLEM ** no strip found";
       status = RPCRawDataCounts::InvalidStrip;
       counter->addReadoutError(status);
       continue;

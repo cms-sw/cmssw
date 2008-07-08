@@ -150,9 +150,9 @@ RPCReadOutMapping::StripInDetUnit
     if (strip) {
       stripInDU = strip->chamberStripNumber;
     } else {
-      LogWarning("detUnitFrame")<<"problem with stip for febInLB: "<<febInLB
-                                   <<" strip pin: "<< stripPinInFeb
-                                   <<" strip pin: "<< stripPinInFeb;
+      // LogWarning("detUnitFrame")<<"problem with stip for febInLB: "<<febInLB
+      //                             <<" strip pin: "<< stripPinInFeb
+      //                             <<" strip pin: "<< stripPinInFeb;
       if (debug) {
         LogDebug("")<<"problem with stip for febInLB: "<<febInLB
                     <<" strip pin: "<< stripPinInFeb
@@ -161,7 +161,7 @@ RPCReadOutMapping::StripInDetUnit
       }
     }
   } else {
-    LogWarning("detUnitFrame")<<"problem with detUnit for febInLB: ";
+    // LogWarning("detUnitFrame")<<"problem with detUnit for febInLB: ";
     if (debug) {  
       LogDebug("") <<"problem with detUnit for febInLB: " <<febInLB
                    <<" for linkBoard: "<<location.print(1);

@@ -79,6 +79,7 @@ void RPCUnpackingModule::produce(Event & ev, const EventSetup& es){
  
   if (debug) LogTrace ("") <<"Beginning To Unpack Event: "<<eventCounter_;
 
+  int status = 0;
   for (int fedId= rpcFEDS.first; fedId<=rpcFEDS.second; ++fedId){  
 
     const FEDRawData & rawData = allFEDRawData->FEDData(fedId);
@@ -97,12 +98,12 @@ void RPCUnpackingModule::produce(Event & ev, const EventSetup& es){
       FEDHeader fedHeader( reinterpret_cast<const unsigned char*>(header));
       if (!fedHeader.check()) {
         producedRawDataCounts->addReadoutError(RPCRawDataCounts::HeaderCheckFail); 
-        LogWarning(" ** PROBLEM **, header.check() failed, break"); 
+        if (debug) LogTrace("") <<" ** PROBLEM **, header.check() failed, break"; 
         break; 
       }
       if ( fedHeader.sourceID() != fedId) {
         producedRawDataCounts->addReadoutError(RPCRawDataCounts::InconsitentFedId); 
-        LogWarning(" ** PROBLEM **, fedHeader.sourceID() != fedId")
+        if (debug) LogTrace ("") <<" ** PROBLEM **, fedHeader.sourceID() != fedId"
             << "fedId = " << fedId<<" sourceID="<<fedHeader.sourceID(); 
       }
       currentBX = fedHeader.bxID();
@@ -129,12 +130,12 @@ void RPCUnpackingModule::produce(Event & ev, const EventSetup& es){
       FEDTrailer fedTrailer(reinterpret_cast<const unsigned char*>(trailer));
       if ( !fedTrailer.check()) {
         producedRawDataCounts->addReadoutError(RPCRawDataCounts::TrailerCheckFail);
-        LogDebug(" ** PROBLEM **, trailer.check() failed, break");
+        if (debug) LogTrace("") <<" ** PROBLEM **, trailer.check() failed, break";
         break;
       }
       if ( fedTrailer.lenght()!= nWords) {
         producedRawDataCounts->addReadoutError(RPCRawDataCounts::InconsistentDataSize); 
-        LogDebug(" ** PROBLEM **, fedTrailer.lenght()!= nWords, break");
+        if (debug) LogTrace("")<<" ** PROBLEM **, fedTrailer.lenght()!= nWords, break";
         break;
       }
       moreTrailers = fedTrailer.moreTrailers();
@@ -160,7 +161,6 @@ void RPCUnpackingModule::produce(Event & ev, const EventSetup& es){
       LogTrace("") << str.str();
     }
     EventRecords event(currentBX);
-    int status = 0;
     for (const Word64* word = header+1; word != trailer; word++) {
       for( int iRecord=1; iRecord<=4; iRecord++){
         typedef DataRecord::RecordType Record;
@@ -169,11 +169,14 @@ void RPCUnpackingModule::produce(Event & ev, const EventSetup& es){
         if (debug) LogTrace("")<<"record: " <<data.print()<<" record type:"<<data.type(); 
         event.add(data);
         producedRawDataCounts->addRecordType(fedId, data.type());
-        if (event.complete()) status = 
+        int statusTMP = 0;
+        if (event.complete()) statusTMP= 
             interpreter.recordUnpack(event, producedRPCDigis, producedRawDataCounts); 
+        if (statusTMP != 0) status = statusTMP;
       }
     }
   }
+  if (status) LogWarning(" RPCUnpackingModule - There was unpacking PROBLEM in this event");
   if (debug) LogTrace("") << DebugDigisPrintout()(producedRPCDigis.get()) << endl;
   ev.put(producedRPCDigis);  
   ev.put(producedRawDataCounts);
