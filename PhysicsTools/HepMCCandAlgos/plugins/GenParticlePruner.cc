@@ -35,6 +35,8 @@ private:
   void flagMothers(const reco::GenParticle &, int); 
   void recursiveFlagDaughters(size_t, const reco::GenParticleCollection &, int); 
   void recursiveFlagMothers(size_t, const reco::GenParticleCollection &, int); 
+  void addDaughterRefs(reco::GenParticle&, reco::GenParticleRefProd, const reco::GenParticleRefVector&) const;
+  void addMotherRefs(reco::GenParticle&, reco::GenParticleRefProd, const reco::GenParticleRefVector&) const;
 };
 
 using namespace edm;
@@ -211,29 +213,46 @@ void GenParticlePruner::produce(Event& evt, const EventSetup&) {
     const Particle & part = gen;
     out->push_back(GenParticle(part));
     GenParticle & newGen = out->back();
-    GenParticleRefVector daughters = gen.daughterRefVector();
-    for(GenParticleRefVector::const_iterator j = daughters.begin(); 
-	j != daughters.end(); ++j) {
-      GenParticleRef dau = *j;
-      int idx = flags_[dau.key()];
-      if(idx > 0) {
-	GenParticleRef newDau(outRef, static_cast<size_t>(idx));
-	newGen.addDaughter(newDau);
-      }
-    }
-    GenParticleRefVector mothers = gen.motherRefVector();
-    for(GenParticleRefVector::const_iterator j = mothers.begin(); 
-	j != mothers.end(); ++j) {
-      GenParticleRef mom = *j;
-      int idx = flags_[mom.key()];
-      if(idx > 0) {
-	GenParticleRef newMom(outRef, static_cast<size_t>(idx));
-	newGen.addMother(newMom);
-      }
-    }
+    addDaughterRefs(newGen, outRef, gen.daughterRefVector());
+    addMotherRefs(newGen, outRef, gen.motherRefVector());
   }
 
   evt.put(out);
+}
+
+
+void GenParticlePruner::addDaughterRefs(GenParticle& newGen, GenParticleRefProd outRef, 
+					const GenParticleRefVector& daughters) const {
+  for(GenParticleRefVector::const_iterator j = daughters.begin();
+      j != daughters.end(); ++j) {
+    GenParticleRef dau = *j;
+    int idx = flags_[dau.key()];
+    if(idx > 0) {
+      GenParticleRef newDau(outRef, static_cast<size_t>(idx));
+      newGen.addDaughter(newDau);
+    } else {
+      const GenParticleRefVector daus = dau->daughterRefVector();
+      if(daus.size()>0)
+	addDaughterRefs(newGen, outRef, daus);
+    }
+  }
+}
+
+void GenParticlePruner::addMotherRefs(GenParticle& newGen, GenParticleRefProd outRef, 
+				      const GenParticleRefVector& mothers) const {
+  for(GenParticleRefVector::const_iterator j = mothers.begin();
+      j != mothers.end(); ++j) {
+    GenParticleRef mom = *j;
+    int idx = flags_[mom.key()];
+    if(idx > 0) {
+      GenParticleRef newMom(outRef, static_cast<size_t>(idx));
+      newGen.addMother(newMom);
+    } else {
+      const GenParticleRefVector moms = mom->motherRefVector();
+      if(moms.size()>0)
+	addMotherRefs(newGen, outRef, moms);
+    }
+  }
 }
 
 #include "FWCore/Framework/interface/MakerMacros.h"
