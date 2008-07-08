@@ -1,4 +1,4 @@
-# /dev/CMSSW_2_1_0_pre6/HLT/V29 (CMSSW_2_1_X_2008-07-03-0200_HLT1)
+# /dev/CMSSW_2_1_0_pre6/HLT/V30 (CMSSW_2_1_X_2008-07-03-0200_HLT1)
 
 import FWCore.ParameterSet.Config as cms
 
@@ -10727,13 +10727,6 @@ hltTriggerSummaryRAW = cms.EDProducer( "TriggerSummaryProducerRAW",
 hltBoolFinal = cms.EDFilter( "HLTBool",
     result = cms.bool( False )
 )
-hltL1gtTrigReport = cms.EDAnalyzer( "L1GtTrigReport",
-    UseL1GlobalTriggerRecord = cms.bool( False ),
-    L1GtRecordInputTag = cms.InputTag( "hltGtDigis" )
-)
-hltTrigReport = cms.EDAnalyzer( "HLTrigReport",
-    HLTriggerResults = cms.InputTag( 'TriggerResults','','HLT' )
-)
 
 HLTBeginSequence = cms.Sequence( hlt2GetRaw + hltGtDigis + hltGctDigis + hltL1GtObjectMap + hltL1extraParticles + hltOfflineBeamSpot )
 HLTEndSequence = cms.Sequence( hltBoolEnd )
@@ -11017,7 +11010,6 @@ AlCa_IsoTrack = cms.Path( HLTBeginSequence + HLTL1SeedFilterSequence + hltPreIso
 AlCa_EcalPhiSym = cms.Path( HLTBeginSequence + hltL1sEcalPhiSym + hltEcalPhiSymPresc + hltEcalDigis + hltEcalWeightUncalibRecHit + hltEcalRecHit + hltAlCaPhiSymStream + HLTEndSequence )
 AlCa_EcalPi0 = cms.Path( HLTBeginSequence + hltPrePi0Ecal + hltL1sEcalPi0 + HLTDoRegionalEgammaEcalSequence + hltAlCaPi0RegRecHits + HLTEndSequence )
 HLTriggerFinalPath = cms.Path( hltTriggerSummaryAOD + hltTriggerSummaryRAWprescaler + hltTriggerSummaryRAW + hltBoolFinal )
-HLTEndpath1 = cms.EndPath( hltL1gtTrigReport + hltTrigReport )
 
 
 
