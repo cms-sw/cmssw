@@ -709,27 +709,27 @@ edm::EDLooper::Status MuScleFit::duringLoop (const Event & event, const EventSet
       MuScleFitUtils::findGenMuFromRes(evtMC);
    //first is always mu-, second is always mu+
    if(checkDeltaR(genMu.first,recMu1)){
-       mapHisto["hResolPtGenVSMu"]->Fill(genMu.first,genMu.first.Pt(),recMu1.Pt(),-1);
-       mapHisto["hResolEtaGenVSMu"]->Fill(genMu.first,genMu.first.Eta(),recMu1.Eta(),-1);
-       mapHisto["hResolPhiGenVSMu"]->Fill(genMu.first,genMu.first.Phi(),recMu1.Phi(),-1);
+       mapHisto["hResolPtGenVSMu"]->Fill(genMu.first,(-genMu.first.Pt()+recMu1.Pt())/genMu.first.Pt(),-1);
+       mapHisto["hResolEtaGenVSMu"]->Fill(genMu.first,(-genMu.first.Eta()+recMu1.Eta()),-1);
+       mapHisto["hResolPhiGenVSMu"]->Fill(genMu.first,(-genMu.first.Phi()+recMu1.Phi()),-1);
     }
    if(checkDeltaR(genMu.second,recMu2)){
-       mapHisto["hResolPtGenVSMu"]->Fill(genMu.second,genMu.second.Pt(),recMu2.Pt(),+1);
-       mapHisto["hResolEtaGenVSMu"]->Fill(genMu.second,genMu.second.Eta(),recMu2.Eta(),+1);
-       mapHisto["hResolPhiGenVSMu"]->Fill(genMu.second,genMu.second.Phi(),recMu2.Phi(),+1);
+       mapHisto["hResolPtGenVSMu"]->Fill(genMu.second,(-genMu.second.Pt()+recMu2.Pt())/genMu.second.Pt(),+1);
+       mapHisto["hResolEtaGenVSMu"]->Fill(genMu.second,(-genMu.second.Eta()+recMu2.Eta()),+1);
+       mapHisto["hResolPhiGenVSMu"]->Fill(genMu.second,(-genMu.second.Phi()+recMu2.Phi()),+1);
     }
     pair <reco::Particle::LorentzVector, reco::Particle::LorentzVector> simMu = 
       MuScleFitUtils::findSimMuFromRes(evtMC,simTracks);
    //first is always mu-, second is always mu+
    if(checkDeltaR(simMu.first,recMu1)){
-       mapHisto["hResolPtSimVSMu"]->Fill(simMu.first,simMu.first.Pt(),recMu1.Pt(),-1);
-       mapHisto["hResolEtaSimVSMu"]->Fill(simMu.first,simMu.first.Eta(),recMu1.Eta(),-1);
-       mapHisto["hResolPhiSimVSMu"]->Fill(simMu.first,simMu.first.Phi(),recMu1.Phi(),-1);
+       mapHisto["hResolPtSimVSMu"]->Fill(simMu.first,(-simMu.first.Pt()+recMu1.Pt())/simMu.first.Pt(),-1);
+       mapHisto["hResolEtaSimVSMu"]->Fill(simMu.first,(-simMu.first.Eta()+recMu1.Eta()),-1);
+       mapHisto["hResolPhiSimVSMu"]->Fill(simMu.first,(-simMu.first.Phi()+recMu1.Phi()),-1);
     }
    if(checkDeltaR(simMu.second,recMu2)){
-       mapHisto["hResolPtSimVSMu"]->Fill(simMu.second,simMu.second.Pt(),recMu2.Pt(),+1);
-       mapHisto["hResolEtaSimVSMu"]->Fill(simMu.second,simMu.second.Eta(),recMu2.Eta(),+1);
-       mapHisto["hResolPhiSimVSMu"]->Fill(simMu.second,simMu.second.Phi(),recMu2.Phi(),+1);
+       mapHisto["hResolPtSimVSMu"]->Fill(simMu.second,(-simMu.second.Pt()+recMu2.Pt())/simMu.first.Pt(),+1);
+       mapHisto["hResolEtaSimVSMu"]->Fill(simMu.second,(-simMu.second.Eta()+recMu2.Eta()),+1);
+       mapHisto["hResolPhiSimVSMu"]->Fill(simMu.second,(-simMu.second.Phi()+recMu2.Phi()),+1);
     }
 
     // Compute likelihood histograms

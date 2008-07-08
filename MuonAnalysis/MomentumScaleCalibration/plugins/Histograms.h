@@ -686,13 +686,13 @@ class HResolutionVSPart : public Histograms{
     TString N = name_.c_str();
     name=N;
     // Kinematical variables
-    hReso    = new TH1F (N+"_Reso", "resolution", 200, -1, 1);
-    hResoVSPt    = new TH2F (N+"_ResoVSPt", "resolution VS pt", 200, 0, 200, 500, -1, 1);
+    hReso    = new TH1F (N+"_Reso", "resolution", 1000, -1, 1);
+    hResoVSPt    = new TH2F (N+"_ResoVSPt", "resolution VS pt", 200, 0, 200, 1000, -1, 1);
     hResoVSPt_prof = new TProfile (N+"_ResoVSPt_prof", "resolution VS pt", 100, 0, 200, -1, 1);
-    hResoVSEta    = new TH2F (N+"_ResoVSEta", "resolution VS eta", 10, -2.5, 2.5, 500, -1, 1);
+    hResoVSEta    = new TH2F (N+"_ResoVSEta", "resolution VS eta", 10, -2.5, 2.5, 1000, -1, 1);
     hResoVSEta_prof = new TProfile (N+"_ResoVSEta_prof", "resolution VS eta", 10, -2.5, 2.5, -1, 1);
-    hResoVSPhiPlus    = new TH2F (N+"_ResoVSPhiPlus", "resolution VS phi mu+", 14, -3.2, 3.2, 500, -1, 1);
-    hResoVSPhiMinus    = new TH2F (N+"_ResoVSPhiMinus", "resolution VS phi mu-", 14, -3.2, 3.2, 500, -1, 1);
+    hResoVSPhiPlus    = new TH2F (N+"_ResoVSPhiPlus", "resolution VS phi mu+", 14, -3.2, 3.2, 1000, -1, 1);
+    hResoVSPhiMinus    = new TH2F (N+"_ResoVSPhiMinus", "resolution VS phi mu-", 14, -3.2, 3.2, 1000, -1, 1);
     hResoVSPhi_prof = new TProfile (N+"_ResoVSPhi_prof", "resolution VS phi", 14, -3.2, 3.2, -1, 1);
     hAbsReso    = new TH1F (N+"_AbsReso", "resolution", 100, 0, 1);
     hAbsResoVSPt    = new TH2F (N+"_AbsResoVSPt", "Abs resolution VS pt", 200, 0, 500, 100, 0, 1);
@@ -735,10 +735,6 @@ class HResolutionVSPart : public Histograms{
      hAbsResoVSEta->Fill(p4.Eta(),fabs(resValue)); 
      hAbsResoVSPhi->Fill(p4.Phi(),fabs(resValue));     
    } 
-  
-  virtual void Fill(reco::Particle::LorentzVector p4, double genValue, double recValue, int charge) {//1 sim, 2 rec
-    Fill(p4, (recValue-genValue)/genValue, charge);
-  }
 
   virtual void Write() {
     hReso->Write();
