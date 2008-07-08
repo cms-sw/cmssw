@@ -86,6 +86,12 @@ L1SubsystemParams = cms.PSet(
             key = cms.string('dummy')
         ), 
         cms.PSet(
+            record = cms.string('L1RPCConfigRcd'),
+            tag = cms.string('L1RPCConfig_CRUZET_hlt'),
+            type = cms.string('L1RPCConfig'),
+            key = cms.string('dummy')
+        ), 
+        cms.PSet(
             record = cms.string('L1MuGMTParametersRcd'),
             tag = cms.string('L1MuGMTParameters_CRUZET_hlt'),
             type = cms.string('L1MuGMTParameters'),

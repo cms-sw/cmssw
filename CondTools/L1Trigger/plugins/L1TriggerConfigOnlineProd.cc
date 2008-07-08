@@ -13,7 +13,7 @@
 //
 // Original Author:  Werner Man-Li Sun
 //         Created:  Sat Mar  1 05:02:13 CET 2008
-// $Id: L1TriggerConfigOnlineProd.cc,v 1.3 2008/05/28 17:54:06 wsun Exp $
+// $Id: L1TriggerConfigOnlineProd.cc,v 1.4 2008/05/29 21:50:33 wsun Exp $
 //
 //
 
@@ -50,6 +50,7 @@ L1TriggerConfigOnlineProd::L1TriggerConfigOnlineProd(const edm::ParameterSet& iC
    //the following line is needed to tell the framework what
    // data is being produced
   setWhatProduced( this, &L1TriggerConfigOnlineProd::produceL1RCTParameters ) ;
+  setWhatProduced( this, &L1TriggerConfigOnlineProd::produceL1RPCConfig ) ;
 
    //now do what ever other initialization is needed
 }
