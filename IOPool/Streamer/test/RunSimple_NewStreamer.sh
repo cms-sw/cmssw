@@ -11,12 +11,12 @@ PREFIX=results_${USER}${P}
 OUTDIR=${LOCAL_TMP_DIR}/${PREFIX}
 
 mkdir ${OUTDIR}
-cp *.cfg ${OUTDIR}
+cp *_cfg.py ${OUTDIR}
 cd ${OUTDIR}
 
-cmsRun --parameter-set NewStreamOut.cfg > out 2>&1
-cmsRun --parameter-set NewStreamIn.cfg  > in  2>&1
-cmsRun --parameter-set NewStreamCopy.cfg  > copy  2>&1
+cmsRun --parameter-set NewStreamOut_cfg.py > out 2>&1
+cmsRun --parameter-set NewStreamIn_cfg.py  > in  2>&1
+cmsRun --parameter-set NewStreamCopy_cfg.py  > copy  2>&1
 
 # echo "CHECKSUM = 1" > out
 # echo "CHECKSUM = 1" > in
