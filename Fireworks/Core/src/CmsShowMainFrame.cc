@@ -8,7 +8,7 @@
 //
 // Original Author:  Chris Jones
 //         Created:  Thu May 29 20:58:23 CDT 2008
-// $Id: CmsShowMainFrame.cc,v 1.4 2008/06/29 13:23:47 chrjones Exp $
+// $Id: CmsShowMainFrame.cc,v 1.5 2008/07/08 00:27:57 chrjones Exp $
 //
 
 // system include files
@@ -29,7 +29,7 @@
 #include <TGNumberEntry.h>
 #include <TTimer.h>
 #include <KeySymbols.h>
-
+#include "TGTextEntry.h"
 // user include files
 #include "DataFormats/FWLite/interface/Event.h"
 #include "DataFormats/Provenance/interface/EventID.h"
@@ -89,6 +89,8 @@ TGMainFrame(p, w, h)
    CSGAction *keyboardShort = new CSGAction(this, cmsshow::sKeyboardShort.c_str());
    m_runEntry = new CSGNumAction(this, "Run Entry");
    m_eventEntry = new CSGNumAction(this, "Event Entry");
+   CSGAction *eventFilter = new CSGAction(this, "Event Filter");
+   addToActionMap(eventFilter);
    //   saveConfigAs->activated.connect(sigc::mem_fun(*m_manager, &FWGUIManager::saveConfigAs));
    //   saveConfig->activated.connect(sigc::mem_fun(*m_manager, &FWGUIManager::saveConfig));
    //   goToFirst->activated.connect(sigc::mem_fun(*m_manager, &FWGUIManager::goToFirst));
@@ -198,23 +200,28 @@ TGMainFrame(p, w, h)
    */
 
    TGHorizontalFrame *fullbar = new TGHorizontalFrame(this, this->GetWidth(), 30);
+   printf("this->GetWidth(): %d\n", this->GetWidth());
    TGToolBar *tools = new TGToolBar(fullbar, 400, 30);
    goToFirst->createToolBarEntry(tools, "first_t.xpm");
    previousEvent->createToolBarEntry(tools, "previous_t.xpm");
    nextEvent->createToolBarEntry(tools, "next_t.xpm");
    pause->createToolBarEntry(tools, "stop_t.xpm");
-   fullbar->AddFrame(tools, new TGLayoutHints(kLHintsExpandX,2,2,2,2));
+   fullbar->AddFrame(tools, new TGLayoutHints(kLHintsLeft,2,2,2,2));
    TGHorizontalFrame *texts = new TGHorizontalFrame(fullbar, fullbar->GetWidth() - tools->GetWidth(), 30);
+   printf("text width: %d\n", this->GetWidth()-tools->GetWidth());
    TGLabel *runText = new TGLabel(texts, "Run: ");
-   texts->AddFrame(runText, new TGLayoutHints(kLHintsCenterY,2,2,2,2));
+   texts->AddFrame(runText, new TGLayoutHints(kLHintsCenterY|kLHintsLeft,2,2,2,2));
    //   m_runEntry = new TGNumberEntryField(texts, -1, 1);
-   m_runEntry->createNumberEntry(texts, new TGLayoutHints(kLHintsCenterY,2,2,2,2));
+   m_runEntry->createNumberEntry(texts, new TGLayoutHints(kLHintsCenterY|kLHintsLeft,2,2,2,2));
    TGLabel *eventText = new TGLabel(texts, "Event: ");
    texts->AddFrame(eventText, new TGLayoutHints(kLHintsCenterY,2,2,2,2));
    //   m_eventEntry = new TGNumberEntryField(texts, -1, 1);
    m_eventEntry->createNumberEntry(texts, new TGLayoutHints(kLHintsCenterY,2,2,2,2));
-   fullbar->AddFrame(texts, new TGLayoutHints(kLHintsExpandX,2,2,2,2));
+   fullbar->AddFrame(texts, new TGLayoutHints(kLHintsExpandX,100,2,2,2));
    AddFrame(fullbar, new TGLayoutHints(kLHintsExpandX,2,2,2,2));
+   TGLabel *filterText = new TGLabel(texts, "Filter: ");
+   texts->AddFrame(filterText, new TGLayoutHints(kLHintsCenterY,2,2,2,2));
+   eventFilter->createTextEntry(texts, new TGLayoutHints(kLHintsCenterY|kLHintsExpandX,2,2,2,2));
    
    TGSplitFrame *csArea = new TGSplitFrame(this, this->GetWidth(), this->GetHeight()-42);
    //   TGGroupFrame *csList = m_manager->createList(csArea);
@@ -293,7 +300,6 @@ CmsShowMainFrame::createNewViewerAction(const std::string& iActionName)
    action->createMenuEntry(m_newViewerMenu);
    return action;
 }
-
 
 Bool_t CmsShowMainFrame::activateTextButton(TGTextButton *button) {
    std::vector<CSGAction*>::iterator it_act;

@@ -16,7 +16,7 @@
 //
 // Original Author:  Joshua Berger
 //         Created:  Tue Jun 10 14:56:34 EDT 2008
-// $Id: CmsShowNavigator.h,v 1.3 2008/07/05 20:24:30 dmytro Exp $
+// $Id: CmsShowNavigator.h,v 1.4 2008/07/08 00:24:42 chrjones Exp $
 //
 
 // system include files
@@ -28,6 +28,7 @@
 
 // forward declarations
 class TEventList;
+class CSGAction;
 
 namespace edm {
   class EventID;
@@ -48,6 +49,7 @@ class CmsShowNavigator
       void nextEvent();
       void previousEvent();
       void firstEvent();
+      void filterEvents(CSGAction* action);
       void goToRun(Double_t run);  // FIXME, run is integer
       void goToEvent(Double_t event); // FIXME, event is integer
       // ---------- static member functions --------------------
@@ -68,6 +70,8 @@ class CmsShowNavigator
       CmsShowNavigator(const CmsShowNavigator&); // stop default
 
       const CmsShowNavigator& operator=(const CmsShowNavigator&); // stop default
+   
+      void filterEventsAndReset(const char* selection);
 
       // ---------- member data --------------------------------
       TFile *m_file;

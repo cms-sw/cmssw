@@ -8,7 +8,7 @@
 //
 // Original Author:  
 //         Created:  Tue Jun 10 14:56:46 EDT 2008
-// $Id: CmsShowNavigator.cc,v 1.6 2008/07/05 21:08:00 dmytro Exp $
+// $Id: CmsShowNavigator.cc,v 1.7 2008/07/08 00:24:42 chrjones Exp $
 //
 
 // hacks
@@ -20,9 +20,11 @@
 #include "TTree.h"
 #include "TEventList.h"
 #include "TError.h"
+#include "TGTextEntry.h"
 
 // user include files
 #include "Fireworks/Core/interface/CmsShowNavigator.h"
+#include "Fireworks/Core/interface/CSGAction.h"
 #include "DataFormats/FWLite/interface/Event.h"
 #include "DataFormats/Provenance/interface/EventID.h"
 
@@ -89,21 +91,11 @@ CmsShowNavigator::loadFile(std::string fileName)
   }
   gErrorIgnoreLevel = -1;
   m_file = newFile;
+  newFileLoaded.emit(m_file);
   m_event = new fwlite::Event(m_file);
   m_eventTree = (TTree*)m_file->Get("Events");
   m_eventList = new TEventList("list","");
-  if (m_selection && m_eventTree) {
-    m_eventTree->Draw(">>list",m_selection);
-    m_eventTree->SetEventList( m_eventList );
-  }
-  m_nEntries = m_event->size();
-  if ( m_eventTree && m_eventTree->GetEventList() ) m_nEntries = m_eventList->GetN();
-  newFileLoaded.emit(m_file);
-  m_event->to(realEntry(0));
-  m_firstID = m_event->id();
-  m_event->to(realEntry(m_nEntries - 1));
-  m_lastID = m_event->id();
-  firstEvent();
+  filterEventsAndReset(m_selection); // first event is loaded at the end
 }
 
 Int_t
@@ -136,7 +128,7 @@ void
 CmsShowNavigator::nextEvent() 
 {
   if (m_currentSelectedEntry < m_nEntries-1 &&
-      m_event->to(m_currentSelectedEntry+1) ) {
+      m_event->to(realEntry(m_currentSelectedEntry+1)) ) {
      ++m_currentSelectedEntry;
      newEvent.emit(*m_event);
      checkPosition();
@@ -148,7 +140,7 @@ void
 CmsShowNavigator::previousEvent()
 {
   if (m_currentSelectedEntry > 0 &&
-      m_event->to(m_currentSelectedEntry-1) ) {
+      m_event->to(realEntry(m_currentSelectedEntry-1)) ) {
      --m_currentSelectedEntry;
      newEvent.emit(*m_event);
      checkPosition();
@@ -206,6 +198,33 @@ CmsShowNavigator::goToEvent(Double_t event)
    }
    else oldEvent.emit(*m_event);
 }
+
+void
+CmsShowNavigator::filterEvents(CSGAction* action)
+{
+   if ( action->getTextEntry() ) 
+     filterEventsAndReset( action->getTextEntry()->GetText() );
+}
+
+void
+CmsShowNavigator::filterEventsAndReset(const char* selection)
+{
+   m_selection = selection;
+   m_eventTree->SetEventList(0);
+   if ( m_selection ) {
+      std::cout << "Selection requested: " << m_selection << std::endl;
+      m_eventTree->Draw(">>list",m_selection);
+      m_eventTree->SetEventList( m_eventList );
+   }	
+   m_nEntries = m_event->size();
+   if ( m_eventTree->GetEventList() ) m_nEntries = m_eventList->GetN();
+   m_event->to(realEntry(0));
+   m_firstID = m_event->id();
+   m_event->to(realEntry(m_nEntries - 1));
+   m_lastID = m_event->id();
+   firstEvent();
+}
+
 
 //
 // const member functions

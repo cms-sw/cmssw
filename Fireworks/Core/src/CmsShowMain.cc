@@ -8,7 +8,7 @@
 //
 // Original Author:  
 //         Created:  Mon Dec  3 08:38:38 PST 2007
-// $Id: CmsShowMain.cc,v 1.17 2008/07/06 19:58:54 dmytro Exp $
+// $Id: CmsShowMain.cc,v 1.18 2008/07/08 00:29:01 chrjones Exp $
 //
 
 // system include files
@@ -435,6 +435,10 @@ CmsShowMain::CmsShowMain(int argc, char *argv[]) :
   if (m_guiManager->getAction(cmsshow::sShowMainViewCtl) != 0) m_guiManager->getAction(cmsshow::sShowMainViewCtl)->activated.connect(sigc::mem_fun(*m_guiManager, &FWGUIManager::createViewPopup));
   if (m_guiManager->getRunEntry() != 0) m_guiManager->getRunEntry()->activated.connect(sigc::mem_fun(*m_navigator, &CmsShowNavigator::goToRun));
   if (m_guiManager->getEventEntry() != 0) m_guiManager->getEventEntry()->activated.connect(sigc::mem_fun(*m_navigator, &CmsShowNavigator::goToEvent));
+  if (CSGAction* action = m_guiManager->getAction("Event Filter")) 
+       action->activated.connect(boost::bind(&CmsShowNavigator::filterEvents,m_navigator,action));
+     else
+       printf("Why?\n\n\n\n\n\n");
   m_navigator->loadFile(m_inputFileName);
    
    if(debugMode) {

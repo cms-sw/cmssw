@@ -16,7 +16,7 @@
 //
 // Original Author:  Chris Jones
 //         Created:  Thu May 29 18:11:16 CDT 2008
-// $Id: CmsShowMainFrame.h,v 1.2 2008/06/23 01:05:55 chrjones Exp $
+// $Id: CmsShowMainFrame.h,v 1.3 2008/06/29 13:23:47 chrjones Exp $
 //
 
 // system include files
@@ -38,6 +38,7 @@ class CSGAction;
 class CSGNumAction;
 class FWGUIManager;
 class TGPopupMenu;
+class TGTextEntry;
 
 namespace fwlite {
   class Event;
