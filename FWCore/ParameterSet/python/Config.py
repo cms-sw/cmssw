@@ -215,6 +215,8 @@ class Process(object):
         if not self.__OverWriteCheck:  
             # if going     
             return True
+        elif not self.__isStrict:
+            return True
         elif name in d:
             # if there's an old copy, and the new one
             # hasn't been modified, we're done.  Still
