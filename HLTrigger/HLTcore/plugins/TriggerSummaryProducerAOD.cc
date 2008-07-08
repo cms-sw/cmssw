@@ -2,8 +2,8 @@
  *
  * See header file for documentation
  *
- *  $Date: 2008/07/08 07:10:23 $
- *  $Revision: 1.24 $
+ *  $Date: 2008/07/08 07:13:26 $
+ *  $Revision: 1.25 $
  *
  *  \author Martin Grunewald
  *
@@ -295,12 +295,13 @@ void TriggerSummaryProducerAOD::fillFilterObjects(const edm::Event& iEvent, cons
   for (size_type i=0; i!=n; ++i) {
     const ProductID pid(refs[i].id());
     if (offset_.find(pid)==offset_.end()) {
-      offset_[pid]=1000000000;
+      offset_[pid]=0;
       const string&    label(iEvent.getProvenance(pid).moduleLabel());
       const string& instance(iEvent.getProvenance(pid).productInstanceName());
       const string&  process(iEvent.getProvenance(pid).processName());
       cout << "#### Error in TriggerSummaryProducerAOD::fillFilterObject (unknown pid):"
-	   << " FilterTag: " << tag.encode()
+	   << " FilterTag/Key: " << tag.encode()
+	   << "/" << i
 	   << " CollectionTag/Key: "
 	   << InputTag(label,instance,process).encode()
 	   << "/" << refs[i].key()
