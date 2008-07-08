@@ -16,7 +16,7 @@
 //
 // Original Author:  Chris Jones
 //         Created:  Mon Feb 11 10:52:24 EST 2008
-// $Id: FWGUIManager.h,v 1.28 2008/06/29 13:23:47 chrjones Exp $
+// $Id: FWGUIManager.h,v 1.29 2008/06/30 21:38:01 chrjones Exp $
 //
 
 // system include files
@@ -69,6 +69,8 @@ class  TGPopupMenu;
 class CSGAction;
 class CSGNumAction;
 
+class TFile;
+
 class FWGUIEventDataAdder;
 
 namespace fwlite {
@@ -78,6 +80,7 @@ namespace fwlite {
 class CmsShowEDI;
 class CmsShowModelPopup;
 class CmsShowViewPopup;
+class FWViewManagerManager;
 
 class FWGUIManager : public FWConfigurable
 {
@@ -86,6 +89,7 @@ class FWGUIManager : public FWConfigurable
       FWGUIManager(FWSelectionManager*,
                    FWEventItemsManager*,
                    FWModelChangeManager*,
+                   const FWViewManagerManager*,
                    bool iDebugInterface = false);
       virtual ~FWGUIManager();
 
@@ -130,6 +134,7 @@ class FWGUIManager : public FWConfigurable
       void disablePrevious();
       void disableNext();
       void loadEvent(const fwlite::Event& event);
+      void newFile(const TFile*);
 
       CSGAction* getAction(const std::string name);
 
@@ -171,6 +176,7 @@ class FWGUIManager : public FWConfigurable
       FWSelectionManager* m_selectionManager;
       FWEventItemsManager* m_eiManager;
       FWModelChangeManager* m_changeManager;
+      const fwlite::Event* m_presentEvent;
       mutable bool m_continueProcessingEvents;
       mutable bool m_waitForUserAction;
       mutable int  m_code; // respond code for the control loop
@@ -213,7 +219,9 @@ class FWGUIManager : public FWConfigurable
       std::vector<FWViewBase* > m_viewBases;
 
       FWDetailViewManager* m_detailViewManager;
+      const FWViewManagerManager* m_viewManagerManager;
    
+      const TFile* m_openFile;
       FWGUIEventDataAdder* m_dataAdder;
 
       // event data inspector

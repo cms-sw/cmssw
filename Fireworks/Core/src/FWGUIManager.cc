@@ -8,7 +8,7 @@
 //
 // Original Author:  Chris Jones
 //         Created:  Mon Feb 11 11:06:40 EST 2008
-// $Id: FWGUIManager.cc,v 1.44 2008/07/07 00:21:47 chrjones Exp $
+// $Id: FWGUIManager.cc,v 1.45 2008/07/07 02:15:02 chrjones Exp $
 //
 
 // system include files
@@ -49,6 +49,7 @@
 #include "Fireworks/Core/interface/FWDetailViewManager.h"
 #include "Fireworks/Core/interface/FWViewBase.h"
 #include "Fireworks/Core/interface/FWModelChangeManager.h"
+#include "Fireworks/Core/interface/FWViewManagerManager.h"
 
 #include "Fireworks/Core/interface/FWEventItem.h"
 #include "Fireworks/Core/src/FWListEventItem.h"
@@ -92,16 +93,19 @@ FWGUIManager* FWGUIManager::m_guiManager = 0;
 FWGUIManager::FWGUIManager(FWSelectionManager* iSelMgr,
                            FWEventItemsManager* iEIMgr,
                            FWModelChangeManager* iCMgr,
+                           const FWViewManagerManager* iVMMgr,
                            bool iDebugInterface
 ):
 m_selectionManager(iSelMgr),
 m_eiManager(iEIMgr),
 m_changeManager(iCMgr),
+m_presentEvent(0),
 m_continueProcessingEvents(false),
 m_waitForUserAction(true),
 m_code(0),
 m_editableSelected(0),
 m_detailViewManager(new FWDetailViewManager),
+m_viewManagerManager(iVMMgr),
 m_dataAdder(0),
 m_ediFrame(0),
 m_modelPopup(0),
@@ -262,10 +266,20 @@ FWGUIManager::enableActions(bool enable)
   m_cmsShowMainFrame->enableActions(enable);
 }
 
+void 
+FWGUIManager::newFile(const TFile* iFile)
+{
+   m_openFile = iFile;
+}
+
 void
 FWGUIManager::loadEvent(const fwlite::Event& event) {
   // To be replaced when we can get index from fwlite::Event
   m_cmsShowMainFrame->loadEvent(event);
+  m_presentEvent=&event;
+  if(m_dataAdder) {
+     m_dataAdder->update(m_openFile, &event);
+  }
 }
 
 CSGAction*
@@ -356,7 +370,12 @@ void
 FWGUIManager::addData()
 {
    if(0==m_dataAdder) {
-      m_dataAdder = new FWGUIEventDataAdder(100,100,m_eiManager);
+      m_dataAdder = new FWGUIEventDataAdder(100,100,
+                                            m_eiManager,
+                                            m_cmsShowMainFrame,
+                                            m_presentEvent,
+                                            m_openFile,
+                                            m_viewManagerManager->supportedTypesAndPurpose());
    }
    m_dataAdder->show();
 }
