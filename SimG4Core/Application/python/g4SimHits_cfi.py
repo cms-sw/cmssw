@@ -82,23 +82,18 @@ g4SimHits = cms.EDProducer("OscarProducer",
     Generator = cms.PSet(
         HectorEtaCut,
         # string HepMCProductLabel = "VtxSmeared"
-        ApplyPtCuts = cms.bool(True),
-        MaxPhiCut = cms.double(3.14159265359), ## according to CMS conventions
-
-        ApplyEtaCuts = cms.bool(True),
-        MaxPtCut = cms.double(99999.0), ## the ptmax=99.TeV in this case
-
-        MinPtCut = cms.double(0.04), ## the pt-cut is in GeV (CMS conventions)
-
-        ApplyPhiCuts = cms.bool(False),
-        Verbosity = cms.untracked.int32(0),
-        MinPhiCut = cms.double(-3.14159265359), ## in radians
-
-        MaxEtaCut = cms.double(5.5),
         HepMCProductLabel = cms.string('source'),
+        ApplyPCuts = cms.bool(True),
+        MinPCut = cms.double(0.04), ## the pt-cut is in GeV (CMS conventions)
+        MaxPCut = cms.double(99999.0), ## the ptmax=99.TeV in this case
+        ApplyEtaCuts = cms.bool(True),
         MinEtaCut = cms.double(-5.5),
-        DecLenCut = cms.double(2.9) ## the minimum decay length in cm (!) for mother tracking
-
+        MaxEtaCut = cms.double(5.5),
+        ApplyPhiCuts = cms.bool(False),
+        MinPhiCut = cms.double(-3.14159265359), ## in radians
+        MaxPhiCut = cms.double(3.14159265359), ## according to CMS conventions
+        RDecLenCut = cms.double(2.9), ## the minimum decay length in cm (!) for mother tracking
+        Verbosity = cms.untracked.int32(0)
     ),
     RunAction = cms.PSet(
         StopFile = cms.string('StopRun')
