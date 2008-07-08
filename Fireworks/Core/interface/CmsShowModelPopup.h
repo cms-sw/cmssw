@@ -16,7 +16,7 @@
 //
 // Original Author:  
 //         Created:  Fri Jun 27 11:23:31 EDT 2008
-// $Id: CmsShowModelPopup.h,v 1.3 2008/07/07 00:19:28 chrjones Exp $
+// $Id: CmsShowModelPopup.h,v 1.4 2008/07/07 02:14:20 chrjones Exp $
 //
 
 // system include files
@@ -37,12 +37,13 @@ class TGLabel;
 class TGTextButton;
 class TGTextButton;
 class FWDetailViewManager;
+class FWSelectionManager;
 
 class CmsShowModelPopup : public TGTransientFrame
 {
 
    public:
-      CmsShowModelPopup(FWDetailViewManager*, const TGWindow* p = 0, UInt_t w = 1, UInt_t h = 1);
+      CmsShowModelPopup(FWDetailViewManager*, FWSelectionManager*, const TGWindow* p = 0, UInt_t w = 1, UInt_t h = 1);
       virtual ~CmsShowModelPopup();
 
       // ---------- const member functions ---------------------
@@ -57,6 +58,7 @@ class CmsShowModelPopup : public TGTransientFrame
       void toggleModelVisible(Bool_t on = kTRUE);
       void openDetailedView();
    
+      void windowClosing();
    private:
       CmsShowModelPopup(const CmsShowModelPopup&); // stop default
 
@@ -70,7 +72,8 @@ class CmsShowModelPopup : public TGTransientFrame
       std::set<FWModelId> m_models;
       sigc::connection m_modelChangedConn;
       sigc::connection m_destroyedConn;
-
+      sigc::connection m_changes;
+   
       FWDetailViewManager* m_detailViewManager;
 };
 
