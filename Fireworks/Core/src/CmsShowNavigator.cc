@@ -8,7 +8,7 @@
 //
 // Original Author:  
 //         Created:  Tue Jun 10 14:56:46 EDT 2008
-// $Id: CmsShowNavigator.cc,v 1.5 2008/07/05 20:24:30 dmytro Exp $
+// $Id: CmsShowNavigator.cc,v 1.6 2008/07/05 21:08:00 dmytro Exp $
 //
 
 // hacks
@@ -98,7 +98,7 @@ CmsShowNavigator::loadFile(std::string fileName)
   }
   m_nEntries = m_event->size();
   if ( m_eventTree && m_eventTree->GetEventList() ) m_nEntries = m_eventList->GetN();
-  newFileLoaded.emit();
+  newFileLoaded.emit(m_file);
   m_event->to(realEntry(0));
   m_firstID = m_event->id();
   m_event->to(realEntry(m_nEntries - 1));

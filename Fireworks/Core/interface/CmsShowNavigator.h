@@ -16,7 +16,7 @@
 //
 // Original Author:  Joshua Berger
 //         Created:  Tue Jun 10 14:56:34 EDT 2008
-// $Id: CmsShowNavigator.h,v 1.2 2008/06/29 13:15:32 chrjones Exp $
+// $Id: CmsShowNavigator.h,v 1.3 2008/07/05 20:24:30 dmytro Exp $
 //
 
 // system include files
@@ -60,7 +60,7 @@ class CmsShowNavigator
       sigc::signal<void, const fwlite::Event&> newEvent;
       sigc::signal<void, const fwlite::Event&> oldEvent;
       //      sigc::signal<void, int> newEventIndex; //To be replaced when we can get index from fwlite::Event
-      sigc::signal<void> newFileLoaded;
+      sigc::signal<void, const TFile*> newFileLoaded;
       sigc::signal<void> atBeginning;
       sigc::signal<void> atEnd;
 
