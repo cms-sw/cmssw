@@ -8,7 +8,7 @@
 //
 // Original Author:  
 //         Created:  Sun Jan  6 23:57:00 EST 2008
-// $Id: L1MuonTrigProxyRhoPhiZ2DBuilder.cc,v 1.1 2008/06/13 18:06:35 srappocc Exp $
+// $Id: L1MuonTrigProxyRhoPhiZ2DBuilder.cc,v 1.2 2008/06/27 18:15:22 srappocc Exp $
 //
 
 // system include files
@@ -23,6 +23,7 @@
 #include "TROOT.h"
 #include "TEvePointSet.h"
 #include "TEveScalableStraightLineSet.h"
+#include "TEveCompound.h"
 
 // user include files
 #include "Fireworks/Calo/interface/L1MuonTrigProxyRhoPhiZ2DBuilder.h"
@@ -79,8 +80,6 @@ L1MuonTrigProxyRhoPhiZ2DBuilder::buildRhoPhi(const FWEventItem* iItem,
     tList->DestroyElements();
   }
    
-
-
   // Get the particle map collection for L1MuonParticles
   l1extra::L1MuonParticleCollection const * triggerColl=0;
   iItem->get(triggerColl);
@@ -90,12 +89,7 @@ L1MuonTrigProxyRhoPhiZ2DBuilder::buildRhoPhi(const FWEventItem* iItem,
   }
 
 
-  // make a counter
    double r_ecal = 126;
-   double scale = FWDisplayEvent::getCaloScale();
-   if ( scale < 0 ) scale = 2;
-   //double minJetEt = 15;
-   double minJetEt = 0;
    fw::NamedCounter counter("l1muontrigs");
 
    // Ready to loop over the triggered objects
@@ -103,31 +97,24 @@ L1MuonTrigProxyRhoPhiZ2DBuilder::buildRhoPhi(const FWEventItem* iItem,
      trigEnd = triggerColl->end();
    // Loop over triggered objects and make some 4-vectors
    for ( ; trigIt != trigEnd; ++trigIt ) {
-
-
-     TEveElementList* container = new TEveElementList( counter.str().c_str() );
-     std::vector<double> p4phis; p4phis.push_back( trigIt->phi() );
-     std::pair<double,double> phiRange = fw::getPhiRange( p4phis, trigIt->phi() );
-     double min_phi = phiRange.first-M_PI/36/2;
-     double max_phi = phiRange.second+M_PI/36/2;
+     char title[1024]; 
+     sprintf(title,"L1 Muon %d, Pt: %0.1f GeV",counter.index(),trigIt->pt());
+     TEveCompound* container = new TEveCompound( counter.str().c_str(), title );
+     container->OpenCompound();
+     //guarantees that CloseCompound will be called no matter what happens
+     boost::shared_ptr<TEveCompound> sentry(container,boost::mem_fn(&TEveCompound::CloseCompound));
       
      double phi = trigIt->phi();
-
-     double size = scale*trigIt->pt();
-     TGeoBBox *sc_box = new TGeoTubeSeg(r_ecal - 1, r_ecal + 1, 1, min_phi * 180 / M_PI, max_phi * 180 / M_PI);
-     TEveGeoShapeExtract *sc = fw::getShapeExtract( "spread", sc_box, iItem->defaultDisplayProperties().color() );
+     double size = trigIt->pt();
       
-     if ( trigIt->pt() > minJetEt ) {
-       TEveScalableStraightLineSet* marker = new TEveScalableStraightLineSet("energy");
-       marker->SetLineWidth(4);
-       marker->SetLineColor(  iItem->defaultDisplayProperties().color() );
-       TEveElement* element = TEveGeoShape::ImportShapeExtract(sc, 0);
-       element->SetPickable(kTRUE);
-       container->AddElement(element);
-       marker->SetScaleCenter( r_ecal*cos(phi), r_ecal*sin(phi), 0 );
-       marker->AddLine( r_ecal*cos(phi), r_ecal*sin(phi), 0, (r_ecal+size)*cos(phi), (r_ecal+size)*sin(phi), 0);
-       container->AddElement(marker);
-     }
+      TEveScalableStraightLineSet* marker = new TEveScalableStraightLineSet("energy");
+      marker->SetLineWidth(1);
+      marker->SetLineStyle(7);
+      marker->SetLineColor(  iItem->defaultDisplayProperties().color() );
+      marker->SetScaleCenter( r_ecal*cos(phi), r_ecal*sin(phi), 0 );
+      marker->AddLine( r_ecal*cos(phi), r_ecal*sin(phi), 0, (r_ecal+size)*cos(phi), (r_ecal+size)*sin(phi), 0);
+      container->AddElement(marker);
+
      tList->AddElement(container);
 
    }// end loop over muon particle objects
@@ -151,8 +138,6 @@ L1MuonTrigProxyRhoPhiZ2DBuilder::buildRhoZ(const FWEventItem* iItem,
   } else {
     tList->DestroyElements();
   }
- 
-
 
   // Get the particle map collection for L1MuonParticles
   l1extra::L1MuonParticleCollection const * triggerColl=0;
@@ -162,21 +147,9 @@ L1MuonTrigProxyRhoPhiZ2DBuilder::buildRhoZ(const FWEventItem* iItem,
     return;
   }
 
-
-   // NOTE:
-   //      We derive eta bin size from xbins array used for LEGO assuming that all 82
-   //      eta bins are accounted there. 
-   assert ( sizeof(fw3dlego::xbins)/sizeof(*fw3dlego::xbins) == 82+1 );
-   static const std::vector<std::pair<double,double> > thetaBins = ECalCaloTowerProxyRhoPhiZ2DBuilder::getThetaBins();
-
-
-   double scale = FWDisplayEvent::getCaloScale();
-   if ( scale < 0 ) scale = 2;
    double z_ecal = 306; // ECAL endcap inner surface
    double r_ecal = 126;
    double transition_angle = atan(r_ecal/z_ecal);
-   //double minJetEt = 15;
-   double minJetEt = 0;
    fw::NamedCounter counter("l1muontrigs");
 
 
@@ -185,16 +158,12 @@ L1MuonTrigProxyRhoPhiZ2DBuilder::buildRhoZ(const FWEventItem* iItem,
      trigEnd = triggerColl->end();
    // Loop over triggered objects and make some 4-vectors
    for ( ; trigIt != trigEnd; ++trigIt ) {
-
-
-     TEveElementList* container = new TEveElementList( counter.str().c_str() );
-
-      
-     // 	 double max_theta = thetaBins[iEtaRange.first].first;
-     // 	 double min_theta = thetaBins[iEtaRange.second].second;;
-
-     double max_theta = trigIt->theta() + 0.0001;
-     double min_theta = trigIt->theta() - 0.0001;
+     char title[1024]; 
+     sprintf(title,"L1 Muon %d, Et: %0.1f GeV",counter.index(),trigIt->et());
+     TEveCompound* container = new TEveCompound( counter.str().c_str(), title );
+     container->OpenCompound();
+     //guarantees that CloseCompound will be called no matter what happens
+     boost::shared_ptr<TEveCompound> sentry(container,boost::mem_fn(&TEveCompound::CloseCompound));
       
      double theta = trigIt->theta();
       
@@ -208,25 +177,20 @@ L1MuonTrigProxyRhoPhiZ2DBuilder::buildRhoZ(const FWEventItem* iItem,
      else
        r = r_ecal/sin(theta);
       
-     double size = scale*trigIt->pt();
+     double size = trigIt->pt();
       
-     if ( trigIt->pt() > minJetEt ) {
-       TEveScalableStraightLineSet* marker = new TEveScalableStraightLineSet("energy");
-       marker->SetLineWidth(4);
-       marker->SetLineColor(  iItem->defaultDisplayProperties().color() );
-       marker->SetScaleCenter( 0., (trigIt->phi()>0 ? r_ecal*fabs(sin(theta)) : -r_ecal*fabs(sin(theta))), r_ecal*cos(theta) );
-       marker->AddLine(0., (trigIt->phi()>0 ? r*fabs(sin(theta)) : -r*fabs(sin(theta))), r*cos(theta),
-		       0., (trigIt->phi()>0 ? (r+size)*fabs(sin(theta)) : -(r+size)*fabs(sin(theta))), (r+size)*cos(theta) );
-       container->AddElement( marker );
-       fw::addRhoZEnergyProjection( container, r_ecal, z_ecal, min_theta-0.003, max_theta+0.003, 
-				    trigIt->phi(), iItem->defaultDisplayProperties().color() );
-     }
+      TEveScalableStraightLineSet* marker = new TEveScalableStraightLineSet("energy");
+      marker->SetLineWidth(1);
+      marker->SetLineStyle(7);
+      marker->SetLineColor(  iItem->defaultDisplayProperties().color() );
+      marker->SetScaleCenter(0., (trigIt->phi()>0 ? r*fabs(sin(theta)) : -r*fabs(sin(theta))), r*cos(theta));
+      marker->AddLine(0., (trigIt->phi()>0 ? r*fabs(sin(theta)) : -r*fabs(sin(theta))), r*cos(theta),
+		      0., (trigIt->phi()>0 ? (r+size)*fabs(sin(theta)) : -(r+size)*fabs(sin(theta))), (r+size)*cos(theta) );
+      container->AddElement( marker );
      tList->AddElement(container);
-
-
 
    }// end loop over muon particle objects
 
 }
 
-REGISTER_FWRPZ2DDATAPROXYBUILDER(L1MuonTrigProxyRhoPhiZ2DBuilder,l1extra::L1MuonParticleCollection,"L1MuonTrig");
+REGISTER_FWRPZ2DDATAPROXYBUILDER(L1MuonTrigProxyRhoPhiZ2DBuilder,l1extra::L1MuonParticleCollection,"L1-Muons");

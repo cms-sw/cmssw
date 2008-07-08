@@ -8,7 +8,7 @@
 //
 // Original Author:  
 //         Created:  Sun Jan  6 23:57:00 EST 2008
-// $Id: L1EmTrigProxyRhoPhiZ2DBuilder.cc,v 1.3 2008/06/28 22:17:33 dmytro Exp $
+// $Id: L1EmTrigProxyRhoPhiZ2DBuilder.cc,v 1.4 2008/07/04 01:40:36 dmytro Exp $
 //
 
 // system include files
@@ -23,6 +23,7 @@
 #include "TROOT.h"
 #include "TEvePointSet.h"
 #include "TEveScalableStraightLineSet.h"
+#include "TEveCompound.h"
 
 // user include files
 #include "Fireworks/Calo/interface/L1EmTrigProxyRhoPhiZ2DBuilder.h"
@@ -93,7 +94,6 @@ L1EmTrigProxyRhoPhiZ2DBuilder::buildRhoPhi(const FWEventItem* iItem,
   // make a counter
    double r_ecal = 126;
    //double minJetEt = 15;
-   double minJetEt = 0;
    fw::NamedCounter counter("l1emtrigs");
 
    // Ready to loop over the triggered objects
@@ -101,32 +101,24 @@ L1EmTrigProxyRhoPhiZ2DBuilder::buildRhoPhi(const FWEventItem* iItem,
      trigEnd = triggerColl->end();
    // Loop over triggered objects and make some 4-vectors
    for ( ; trigIt != trigEnd; ++trigIt ) {
+     char title[1024]; 
+     sprintf(title,"L1 em trig %d, Et: %0.1f GeV",counter.index(),trigIt->et());
+     TEveCompound* container = new TEveCompound( counter.str().c_str(), title );
+     container->OpenCompound();
+     //guarantees that CloseCompound will be called no matter what happens
+     boost::shared_ptr<TEveCompound> sentry(container,boost::mem_fn(&TEveCompound::CloseCompound));
 
-
-     TEveElementList* container = new TEveElementList( counter.str().c_str() );
-     std::vector<double> p4phis; p4phis.push_back( trigIt->phi() );
-     std::pair<double,double> phiRange = fw::getPhiRange( p4phis, trigIt->phi() );
-     double min_phi = phiRange.first-M_PI/36/2;
-     double max_phi = phiRange.second+M_PI/36/2;
-      
      double phi = trigIt->phi();
-
      double size = trigIt->pt();
-     TGeoBBox *sc_box = new TGeoTubeSeg(r_ecal - 1, r_ecal + 1, 1, min_phi * 180 / M_PI, max_phi * 180 / M_PI);
-     TEveGeoShapeExtract *sc = fw::getShapeExtract( "spread", sc_box, iItem->defaultDisplayProperties().color() );
       
-     if ( trigIt->pt() > minJetEt ) {
-       TEveScalableStraightLineSet* marker = new TEveScalableStraightLineSet("energy");
-       marker->SetLineWidth(4);
-       marker->SetLineColor(  iItem->defaultDisplayProperties().color() );
-       TEveElement* element = TEveGeoShape::ImportShapeExtract(sc, 0);
-       element->SetPickable(kTRUE);
-       container->AddElement(element);
-       marker->SetScaleCenter( r_ecal*cos(phi), r_ecal*sin(phi), 0 );
-       marker->AddLine( r_ecal*cos(phi), r_ecal*sin(phi), 0, (r_ecal+size)*cos(phi), (r_ecal+size)*sin(phi), 0);
-       container->AddElement(marker);
-     }
-     tList->AddElement(container);
+      TEveScalableStraightLineSet* marker = new TEveScalableStraightLineSet("energy");
+      marker->SetLineWidth(2);
+      marker->SetLineStyle(2);
+      marker->SetLineColor(  iItem->defaultDisplayProperties().color() );
+      marker->SetScaleCenter( r_ecal*cos(phi), r_ecal*sin(phi), 0 );
+      marker->AddLine( r_ecal*cos(phi), r_ecal*sin(phi), 0, (r_ecal+size)*cos(phi), (r_ecal+size)*sin(phi), 0);
+      container->AddElement(marker);
+      tList->AddElement(container);
 
    }// end loop over em particle objects
 
@@ -160,38 +152,23 @@ L1EmTrigProxyRhoPhiZ2DBuilder::buildRhoZ(const FWEventItem* iItem,
     return;
   }
 
-
-   // NOTE:
-   //      We derive eta bin size from xbins array used for LEGO assuming that all 82
-   //      eta bins are accounted there. 
-   assert ( sizeof(fw3dlego::xbins)/sizeof(*fw3dlego::xbins) == 82+1 );
-   static const std::vector<std::pair<double,double> > thetaBins = ECalCaloTowerProxyRhoPhiZ2DBuilder::getThetaBins();
-
-
    double z_ecal = 306; // ECAL endcap inner surface
    double r_ecal = 126;
    double transition_angle = atan(r_ecal/z_ecal);
-   //double minJetEt = 15;
-   double minJetEt = 0;
    fw::NamedCounter counter("l1emtrigs");
-
 
    // Ready to loop over the triggered objects
    l1extra::L1EmParticleCollection::const_iterator trigIt = triggerColl->begin(),
      trigEnd = triggerColl->end();
    // Loop over triggered objects and make some 4-vectors
    for ( ; trigIt != trigEnd; ++trigIt ) {
+     char title[1024]; 
+     sprintf(title,"L1 em trig %d, Et: %0.1f GeV",counter.index(),trigIt->et());
+     TEveCompound* container = new TEveCompound( counter.str().c_str(), title );
+     container->OpenCompound();
+     //guarantees that CloseCompound will be called no matter what happens
+     boost::shared_ptr<TEveCompound> sentry(container,boost::mem_fn(&TEveCompound::CloseCompound));
 
-
-     TEveElementList* container = new TEveElementList( counter.str().c_str() );
-
-      
-     // 	 double max_theta = thetaBins[iEtaRange.first].first;
-     // 	 double min_theta = thetaBins[iEtaRange.second].second;;
-
-     double max_theta = trigIt->theta() + 0.0001;
-     double min_theta = trigIt->theta() - 0.0001;
-      
      double theta = trigIt->theta();
       
      // distance from the origin of the jet centroid
@@ -206,17 +183,14 @@ L1EmTrigProxyRhoPhiZ2DBuilder::buildRhoZ(const FWEventItem* iItem,
       
      double size = trigIt->pt();
       
-     if ( trigIt->pt() > minJetEt ) {
-       TEveScalableStraightLineSet* marker = new TEveScalableStraightLineSet("energy");
-       marker->SetLineWidth(4);
-       marker->SetLineColor(  iItem->defaultDisplayProperties().color() );
-       marker->SetScaleCenter( 0., (trigIt->phi()>0 ? r*fabs(sin(theta)) : -r*fabs(sin(theta))), r*cos(theta) );
-       marker->AddLine(0., (trigIt->phi()>0 ? r*fabs(sin(theta)) : -r*fabs(sin(theta))), r*cos(theta),
-		       0., (trigIt->phi()>0 ? (r+size)*fabs(sin(theta)) : -(r+size)*fabs(sin(theta))), (r+size)*cos(theta) );
-       container->AddElement( marker );
-       fw::addRhoZEnergyProjection( container, r_ecal, z_ecal, min_theta-0.003, max_theta+0.003, 
-				    trigIt->phi(), iItem->defaultDisplayProperties().color() );
-     }
+      TEveScalableStraightLineSet* marker = new TEveScalableStraightLineSet("energy");
+      marker->SetLineWidth(2);
+      marker->SetLineStyle(2);
+      marker->SetLineColor(  iItem->defaultDisplayProperties().color() );
+      marker->SetScaleCenter( 0., (trigIt->phi()>0 ? r*fabs(sin(theta)) : -r*fabs(sin(theta))), r*cos(theta) );
+      marker->AddLine(0., (trigIt->phi()>0 ? r*fabs(sin(theta)) : -r*fabs(sin(theta))), r*cos(theta),
+		      0., (trigIt->phi()>0 ? (r+size)*fabs(sin(theta)) : -(r+size)*fabs(sin(theta))), (r+size)*cos(theta) );
+      container->AddElement( marker );
      tList->AddElement(container);
 
 
