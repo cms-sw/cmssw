@@ -1,7 +1,7 @@
 /** See header file for a class description 
  *
- *  $Date: 2008/07/03 10:39:22 $
- *  $Revision: 1.1 $
+ *  $Date: 2008/07/08 10:46:54 $
+ *  $Revision: 1.2 $
  *  \author S. Bolognesi - INFN Torino / T. Dorigo, M.De Mattia - INFN Padova
  */
 // Some notes:
@@ -810,36 +810,36 @@ double MuScleFitUtils::massResolution (const lorentzVector& mu1,
   double sigma_cotgth1=0.;
   double sigma_cotgth2=0.;
   if (ResolFitType==1) {
-    sigma_pt1     = parval[0]*pt1;
-    sigma_pt2     = parval[0]*pt2;
+    sigma_pt1     = parval[0];
+    sigma_pt2     = parval[0];
     sigma_phi1    = parval[1];
     sigma_phi2    = parval[1];
     sigma_cotgth1 = parval[2];
     sigma_cotgth2 = parval[2];
   } else if (ResolFitType==2) {
-    sigma_pt1     = (parval[0]+parval[1]*fabs(eta1))*pt1;
-    sigma_pt2     = (parval[0]+parval[1]*fabs(eta2))*pt2;
+    sigma_pt1     = parval[0]+parval[1]*fabs(eta1);
+    sigma_pt2     = parval[0]+parval[1]*fabs(eta2);
     sigma_phi1    = parval[2];
     sigma_phi2    = parval[2];
     sigma_cotgth1 = parval[3];
     sigma_cotgth2 = parval[3];
   } else if (ResolFitType==3) {
-    sigma_pt1     = (parval[0]+parval[1]*fabs(eta1))*pt1;
-    sigma_pt2     = (parval[0]+parval[1]*fabs(eta2))*pt2;
+    sigma_pt1     = parval[0]+parval[1]*fabs(eta1);
+    sigma_pt2     = parval[0]+parval[1]*fabs(eta2);
     sigma_phi1    = parval[2];
     sigma_phi2    = parval[2];
     sigma_cotgth1 = parval[3]+parval[4]*fabs(cos(theta1)/sin(theta1));
     sigma_cotgth2 = parval[3]+parval[4]*fabs(cos(theta2)/sin(theta2));
   } else if (ResolFitType==4) { 
-    sigma_pt1     = (parval[0]+parval[1]*fabs(eta1)+parval[5]*pt1)*pt1;
-    sigma_pt2     = (parval[0]+parval[1]*fabs(eta2)+parval[5]*pt2)*pt2;
+    sigma_pt1     = parval[0]+parval[1]*fabs(eta1)+parval[5]*pt1;
+    sigma_pt2     = parval[0]+parval[1]*fabs(eta2)+parval[5]*pt2;
     sigma_phi1    = parval[2];
     sigma_phi2    = parval[2];
     sigma_cotgth1 = parval[3]+parval[4]*fabs(cos(theta1)/sin(theta1));
     sigma_cotgth2 = parval[3]+parval[4]*fabs(cos(theta2)/sin(theta2));
   } else if (ResolFitType==5) { 
-    sigma_pt1     = (parval[0]*pt1+parval[1]*fabs(eta1)+parval[5]*pt1)*pt1;
-    sigma_pt2     = (parval[0]*pt2+parval[1]*fabs(eta2)+parval[5]*pt2)*pt2;
+    sigma_pt1     = parval[0]*pt1+parval[1]*fabs(eta1)+parval[5]*pt1;
+    sigma_pt2     = parval[0]*pt2+parval[1]*fabs(eta2)+parval[5]*pt2;
     sigma_phi1    = parval[2]+parval[6]*pt1;
     sigma_phi2    = parval[2]+parval[6]*pt2;
     sigma_cotgth1 = parval[3]+parval[4]*fabs(cos(theta1)/sin(theta1));
@@ -853,7 +853,7 @@ double MuScleFitUtils::massResolution (const lorentzVector& mu1,
   //  double mass_res = sqrt(pow(dmdpt1*sigma_pt1,2)+pow(dmdpt2*sigma_pt2,2)+
   //		        pow(dmdphi1*sigma_phi1,2)+pow(dmdphi2*sigma_phi2,2)+
   //		        pow(dmdtheta1*sigma_theta1,2)+pow(dmdtheta2*sigma_theta2,2));
-  double mass_res = sqrt(pow(dmdpt1*sigma_pt1,2)+pow(dmdpt2*sigma_pt2,2)+
+  double mass_res = sqrt(pow(dmdpt1*sigma_pt1*pt1,2)+pow(dmdpt2*sigma_pt2*pt2,2)+
 			 pow(dmdphi1*sigma_phi1,2)+pow(dmdphi2*sigma_phi2,2)+
 			 pow(dmdcotgth1*sigma_cotgth1,2)+pow(dmdcotgth2*sigma_cotgth2,2));
   if (debug>19) { 
