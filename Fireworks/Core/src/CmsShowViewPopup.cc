@@ -8,7 +8,7 @@
 //
 // Original Author:  
 //         Created:  Wed Jun 25 15:15:04 EDT 2008
-// $Id: CmsShowViewPopup.cc,v 1.1 2008/06/29 13:23:47 chrjones Exp $
+// $Id: CmsShowViewPopup.cc,v 1.2 2008/07/07 00:19:28 chrjones Exp $
 //
 
 // system include files
@@ -39,6 +39,7 @@ TGTransientFrame(gClient->GetDefaultRoot(),p, w, h)
 {
   m_view = v;
   SetCleanup(kDeepCleanup);
+
   TGHorizontalFrame* viewFrame = new TGHorizontalFrame(this);
   m_viewLabel = new TGLabel(viewFrame, v->typeName().c_str());
   TGFont* defaultFont = gClient->GetFontPool()->GetFont(m_viewLabel->GetDefaultFontStruct());
@@ -64,8 +65,8 @@ TGTransientFrame(gClient->GetDefaultRoot(),p, w, h)
       m_setters.push_back(ptr.release());
   }
   AddFrame(m_viewContentFrame);
-  SetWindowName("View");
-  std::cout<<"Default size: "<<GetDefaultWidth()<<", "<<GetDefaultHeight()<<std::endl;
+  SetWindowName("View Controller");
+  //std::cout<<"Default size: "<<GetDefaultWidth()<<", "<<GetDefaultHeight()<<std::endl;
   Resize(GetDefaultSize());
   MapSubwindows();
   Layout();
@@ -121,7 +122,7 @@ CmsShowViewPopup::reset(FWViewBase* iView) {
   }
   AddFrame(m_viewContentFrame);
 
-  std::cout<<"Default size: "<<GetDefaultWidth()<<", "<<GetDefaultHeight()<<std::endl;
+  //std::cout<<"Default size: "<<GetDefaultWidth()<<", "<<GetDefaultHeight()<<std::endl;
   Resize(GetDefaultSize());
   MapSubwindows();
   Layout();
@@ -129,7 +130,7 @@ CmsShowViewPopup::reset(FWViewBase* iView) {
 
 void
 CmsShowViewPopup::removeView() {
-  printf("Removed!\n");
+  //printf("Removed!\n");
 }
 
 
