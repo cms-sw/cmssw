@@ -33,27 +33,28 @@ public:
     virtual const double eventWeight() const { return weight_; }
 private:
     bool particlePassesPrimaryCuts(const G4PrimaryParticle * p) const;
-    bool particlePassesPrimaryCuts( const math::XYZTLorentzVector& mom ) const ;
+    bool particlePassesPrimaryCuts( const math::XYZTLorentzVector& mom, const double zimp ) const ;
     void particleAssignDaughters(G4PrimaryParticle * p, HepMC::GenParticle * hp, double length);
     void setGenId(G4PrimaryParticle* p, int id) const 
       {p->SetUserInformation(new GenParticleInfo(id));}
 
 private:
-  bool   fPtCuts;
+  bool   fPCuts;
   bool   fEtaCuts;
   bool   fPhiCuts;
   double theMinPhiCut;
   double theMaxPhiCut;
   double theMinEtaCut;
   double theMaxEtaCut;
-  double theMinPtCut;
-  double theMaxPtCut;
-  double theDecLenCut;
+  double theMinPCut;
+  double theMaxPCut;
+  double theRDecLenCut;
   double theEtaCutForHector; 
   int verbose;
   HepMC::GenEvent*  evt_;
   math::XYZTLorentzVector* vtx_;
   double weight_;    
+  double Z_lmin,Z_lmax,Z_hector;
 };
 
 #endif
