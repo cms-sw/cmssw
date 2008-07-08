@@ -8,7 +8,7 @@
 //
 // Original Author:  Chris Jones
 //         Created:  Thu May 29 20:58:23 CDT 2008
-// $Id: CmsShowMainFrame.cc,v 1.3 2008/06/23 09:49:57 jmuelmen Exp $
+// $Id: CmsShowMainFrame.cc,v 1.4 2008/06/29 13:23:47 chrjones Exp $
 //
 
 // system include files
@@ -63,9 +63,9 @@ TGMainFrame(p, w, h)
    m_playTimer->SetObject(this);
    m_playBackTimer->SetObject(this);
    CSGAction *goToFirst = new CSGAction(this, cmsshow::sHome.c_str());
-   CSGAction *addRhoPhi = new CSGAction(this, cmsshow::sAddRhoPhi.c_str());
-   CSGAction *addRhoZ = new CSGAction(this, cmsshow::sAddRhoZ.c_str());
-   CSGAction *addLego = new CSGAction(this, cmsshow::sAddLego.c_str());
+   //CSGAction *addRhoPhi = new CSGAction(this, cmsshow::sAddRhoPhi.c_str());
+   //CSGAction *addRhoZ = new CSGAction(this, cmsshow::sAddRhoZ.c_str());
+   //CSGAction *addLego = new CSGAction(this, cmsshow::sAddLego.c_str());
    CSGAction *openData = new CSGAction(this, cmsshow::sOpenData.c_str());
    CSGAction *loadConfig = new CSGAction(this, cmsshow::sLoadConfig.c_str());
    CSGAction *saveConfig = new CSGAction(this, cmsshow::sSaveConfig.c_str());
