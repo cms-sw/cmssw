@@ -126,9 +126,19 @@ void L1TEventInfoClient::beginJob(const EventSetup& context){
   dbe_->removeElement(reportSummaryMap_->getName());
   }
 
-  reportSummaryMap_ = dbe_->book2D("reportSummaryMap", "reportSummaryMap", 5, 0., 5., 4, 0., 4);
-  reportSummaryMap_->setAxisTitle("Subsystem Index", 1);
-  reportSummaryMap_->setAxisTitle("Subsystem Index", 2);
+  //reportSummaryMap_ = dbe_->book2D("reportSummaryMap", "reportSummaryMap", 5, 1, 6, 4, 1, 5);
+  reportSummaryMap_ = dbe_->book2D("reportSummaryMap", "reportSummaryMap", 1, 1, 2, 8, 1, 9);
+  reportSummaryMap_->setAxisTitle("", 1);
+  reportSummaryMap_->setAxisTitle("", 2);
+  reportSummaryMap_->setBinLabel(1,"DTTF",2);
+  reportSummaryMap_->setBinLabel(2,"CSCTF",2);
+  reportSummaryMap_->setBinLabel(3,"RPC",2);
+  reportSummaryMap_->setBinLabel(4,"GMT",2);
+  reportSummaryMap_->setBinLabel(5,"RCT",2);
+  reportSummaryMap_->setBinLabel(6,"GCT",2);
+  reportSummaryMap_->setBinLabel(7,"GT",2);
+  reportSummaryMap_->setBinLabel(8,"Timing",2);
+  reportSummaryMap_->setBinLabel(1," ",1);
 
 }
 
@@ -157,13 +167,12 @@ void L1TEventInfoClient::endLuminosityBlock(const edm::LuminosityBlock& lumiSeg,
     reportSummaryContent_[k]->Fill(1.);
   }
   summarySum = 0;
-  int GCT_nXCh = 0,GCT_nYCh=0,RCT_nXCh=0,RCT_nYCh=0,GMT_nXCh=0,GMT_nYCh=0,CSCTF_nXCh=0,CSCTF_nYCh=0,DTTF_nXCh=0,DTTF_nYCh=0;
 
-  if(GCT_QHist){GCT_nXCh = GCT_QHist->getNbinsX(); GCT_nYCh = GCT_QHist->getNbinsY();} 
-  if(RCT_QHist){RCT_nXCh = RCT_QHist->getNbinsX(); RCT_nYCh = RCT_QHist->getNbinsY();}
-  if(GMT_QHist){GMT_nXCh = GMT_QHist->getNbinsX(); GMT_nYCh = GMT_QHist->getNbinsY();}
-  if(CSCTF_QHist){CSCTF_nXCh = CSCTF_QHist->getNbinsX(); CSCTF_nYCh = CSCTF_QHist->getNbinsY();}
-  if(DTTF_QHist){DTTF_nXCh = DTTF_QHist->getNbinsX();  DTTF_nYCh = DTTF_QHist->getNbinsY();}
+  int GCT_nXCh = GCT_QHist->getNbinsX(); int GCT_nYCh = GCT_QHist->getNbinsY(); 
+  int RCT_nXCh = RCT_QHist->getNbinsX(); int RCT_nYCh = RCT_QHist->getNbinsY();
+  int GMT_nXCh = GMT_QHist->getNbinsX(); int GMT_nYCh = GMT_QHist->getNbinsY();
+  int CSCTF_nXCh = CSCTF_QHist->getNbinsX(); int CSCTF_nYCh = CSCTF_QHist->getNbinsY();
+  int DTTF_nXCh = DTTF_QHist->getNbinsX();  int DTTF_nYCh = DTTF_QHist->getNbinsY();
 
   int GCT_nCh=0,RCT_nCh=0,GMT_nCh=0,CSCTF_nCh=0,DTTF_nCh=0;
   
@@ -262,17 +271,28 @@ void L1TEventInfoClient::endLuminosityBlock(const edm::LuminosityBlock& lumiSeg,
   }
   
   reportSummary = summarySum / nSubsystems;
-//  cout << "reportSummary " << reportSummary << endl;
+  cout << "reportSummary " << reportSummary << endl;
   if (reportSummary_) reportSummary_->Fill(reportSummary);
   
 
- int jcount=0;
-   //fill the known systems
-  for (int i = 0; i < nSubsystems; i++) {
-//    cout << "summaryContent[" << i << "]" << summaryContent[i] << endl;
-    if(!(i%5))jcount++;
-    reportSummaryMap_->setBinContent(i%5+1,jcount, summaryContent[i]);
-  }
+    //5x4 summary map
+//  int jcount=0;
+//    //fill the known systems
+//   for (int i = 0; i < nSubsystems; i++) {
+//     cout << "summaryContent[" << i << "]" << summaryContent[i] << endl;
+//     if(!(i%5))jcount++;
+//     reportSummaryMap_->setBinContent(i%5+1,jcount, summaryContent[i]);
+//   }
+
+   //8x1 summary map
+  reportSummaryMap_->setBinContent(1,1,summaryContent[5]);//DTTF
+  reportSummaryMap_->setBinContent(1,2,summaryContent[7]);//CSCTF
+  reportSummaryMap_->setBinContent(1,3,summaryContent[8]);//RPC
+  reportSummaryMap_->setBinContent(1,4,summaryContent[1]);//GMT
+  reportSummaryMap_->setBinContent(1,5,summaryContent[9]);//RCT
+  reportSummaryMap_->setBinContent(1,6,summaryContent[3]);//GCT
+  reportSummaryMap_->setBinContent(1,7,summaryContent[10]);//GT
+  reportSummaryMap_->setBinContent(1,8,summaryContent[13]);//Timing
 
 //   //fill for known systems
 //   for(int i = 1; i < 6; i++){

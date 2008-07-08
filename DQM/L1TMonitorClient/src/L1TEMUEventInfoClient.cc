@@ -123,9 +123,27 @@ void L1TEMUEventInfoClient::beginJob(const EventSetup& context){
   dbe_->removeElement(reportSummaryMap_->getName());
   }
 
-  reportSummaryMap_ = dbe_->book2D("reportSummaryMap", "reportSummaryMap", 5, 0.,5., 4, 0., 4.);
-  reportSummaryMap_->setAxisTitle("Subsystem Index", 1);
-  reportSummaryMap_->setAxisTitle("Subsystem Index", 2);
+  //reportSummaryMap_ = dbe_->book2D("reportSummaryMap", "reportSummaryMap", 5, 0.,5., 4, 0., 4.);
+  //reportSummaryMap_->setAxisTitle("Subsystem Index", 1);
+  //reportSummaryMap_->setAxisTitle("Subsystem Index", 2);
+  reportSummaryMap_ = dbe_->book2D("reportSummaryMap", "reportSummaryMap", 1, 1, 2, 12, 1, 13);
+  reportSummaryMap_->setAxisTitle("", 1);
+  reportSummaryMap_->setAxisTitle("", 2);
+  reportSummaryMap_->setBinLabel(1,"DTTF",2);
+  reportSummaryMap_->setBinLabel(2,"DTTPG",2);
+  reportSummaryMap_->setBinLabel(3,"CSCTF",2);
+  reportSummaryMap_->setBinLabel(4,"CSCTPG",2);
+  reportSummaryMap_->setBinLabel(5,"RPC",2);
+  reportSummaryMap_->setBinLabel(6,"RPCTG",2);
+  reportSummaryMap_->setBinLabel(7,"GMT",2);
+  reportSummaryMap_->setBinLabel(8,"ECAL",2);
+  reportSummaryMap_->setBinLabel(9,"HCAL",2);
+  reportSummaryMap_->setBinLabel(10,"RCT",2);
+  reportSummaryMap_->setBinLabel(11,"GCT",2);
+  reportSummaryMap_->setBinLabel(12,"GT",2);
+  reportSummaryMap_->setBinLabel(1," ",1);
+
+
 
 }
 
@@ -252,17 +270,37 @@ void L1TEMUEventInfoClient::endLuminosityBlock(const edm::LuminosityBlock& lumiS
   }
   
   reportSummary = summarySum / nSubsystems;
-//  cout << "reportSummary " << reportSummary << endl;
+  cout << "reportSummary " << reportSummary << endl;
   if (reportSummary_) reportSummary_->Fill(reportSummary);
 
-  int jcount = 0;
+  //5x4 map
+//   int jcount = 0;
 
-  //fill the known systems
-  for (int i = 0; i < nSubsystems; i++) {
-//    cout << "summaryContent[" << i << "]" << summaryContent[i] << endl;
-    if((i%5)==0)jcount++;
-    reportSummaryMap_->setBinContent(i%5+1,jcount, summaryContent[i]);
-  }
+//   //fill the known systems
+//   for (int i = 0; i < nSubsystems; i++) {
+//     cout << "summaryContent[" << i << "]" << summaryContent[i] << endl;
+//     if((i%5)==0)jcount++;
+//     reportSummaryMap_->setBinContent(i%5+1,jcount, summaryContent[i]);
+//   }
+
+
+
+
+   //12x1 summary map
+  reportSummaryMap_->setBinContent(1,1,summaryContent[5]);//DTTF
+  reportSummaryMap_->setBinContent(1,2,summaryContent[4]);//DTTPG
+  reportSummaryMap_->setBinContent(1,3,summaryContent[7]);//CSCTF
+  reportSummaryMap_->setBinContent(1,4,summaryContent[6]);//CSCTPG
+  reportSummaryMap_->setBinContent(1,5,summaryContent[8]);//RPC
+  reportSummaryMap_->setBinContent(1,6,summaryContent[11]);//RPCTG
+  reportSummaryMap_->setBinContent(1,7,summaryContent[9]);//GMT
+  reportSummaryMap_->setBinContent(1,8,summaryContent[0]);//ECAL
+  reportSummaryMap_->setBinContent(1,9,summaryContent[1]);//HCAL
+  reportSummaryMap_->setBinContent(1,10,summaryContent[2]);//RCT
+  reportSummaryMap_->setBinContent(1,11,summaryContent[3]);//GCT
+  reportSummaryMap_->setBinContent(1,12,summaryContent[10]);//GT
+
+
 
 //   //fill the rest
 //   for (int i = 0; i < 5; i++) {    
