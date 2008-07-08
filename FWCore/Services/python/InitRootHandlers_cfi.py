@@ -1,5 +1,3 @@
-# The following comments couldn't be translated into the new config version:
-
 # Default configuration for the InitRootHandlers service
 
 import FWCore.ParameterSet.Config as cms
@@ -9,5 +7,3 @@ InitRootHandlers = cms.Service("InitRootHandlers",
     ResetRootErrHandler = cms.untracked.bool(True),
     AutoLibraryLoader = cms.untracked.bool(True)
 )
-
-
