@@ -166,6 +166,8 @@ namespace edm {
 		Principal<T> const& principal,
 		std::vector<T> * entryInfoVecPtr) {
 
+    std::vector<boost::shared_ptr<EDProduct> > dummies;
+
     bool const fastCloning = (branchType == InEvent) && currentlyFastCloning_;
     
     OutputItemList const& items = outputItemList_[branchType];
@@ -200,7 +202,9 @@ namespace edm {
 	  // No product with this ID is in the event.
 	  // Add a null product.
 	  TClass *cp = gROOT->GetClass(i->branchDescription_->wrappedName().c_str());
-	  product = static_cast<EDProduct *>(cp->New());
+	  boost::shared_ptr<EDProduct> dummy(static_cast<EDProduct *>(cp->New()));
+	  dummies.push_back(dummy);
+	  product = dummy.get();
 	}
 	i->product_ = product;
       }
