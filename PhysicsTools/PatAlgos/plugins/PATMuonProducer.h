@@ -1,5 +1,5 @@
 //
-// $Id: PATMuonProducer.h,v 1.8 2008/06/08 12:24:03 vadler Exp $
+// $Id: PATMuonProducer.h,v 1.9 2008/06/24 22:58:24 gpetrucc Exp $
 //
 
 #ifndef PhysicsTools_PatAlgos_PATMuonProducer_h
@@ -13,7 +13,7 @@
    a collection of objects of MuonType.
 
   \author   Steven Lowette, Roger Wolf
-  \version  $Id: PATMuonProducer.h,v 1.8 2008/06/08 12:24:03 vadler Exp $
+  \version  $Id: PATMuonProducer.h,v 1.9 2008/06/24 22:58:24 gpetrucc Exp $
 */
 
 
@@ -57,6 +57,7 @@ namespace pat {
       bool          embedStandAloneMuon_;
       bool          embedCombinedMuon_;
       bool          addGenMatch_;
+      bool          embedGenMatch_;
       edm::InputTag genMatchSrc_;
       bool          addTrigMatch_;
       std::vector<edm::InputTag> trigMatchSrc_;

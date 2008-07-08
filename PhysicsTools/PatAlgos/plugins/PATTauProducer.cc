@@ -1,5 +1,5 @@
 //
-// $Id: PATTauProducer.cc,v 1.10 2008/06/13 10:00:02 gpetrucc Exp $
+// $Id: PATTauProducer.cc,v 1.11 2008/06/24 22:58:24 gpetrucc Exp $
 //
 
 #include "PhysicsTools/PatAlgos/plugins/PATTauProducer.h"
@@ -37,6 +37,7 @@ PATTauProducer::PATTauProducer(const edm::ParameterSet & iConfig) {
   embedLeadTrack_       = iConfig.getParameter<bool>         ( "embedLeadTrack" );
   embedSignalTracks_    = iConfig.getParameter<bool>         ( "embedSignalTracks" );
   addGenMatch_    = iConfig.getParameter<bool>         ( "addGenMatch" );
+  embedGenMatch_  = iConfig.getParameter<bool>         ( "embedGenMatch" );
   genMatchSrc_    = iConfig.getParameter<edm::InputTag>( "genParticleMatch" );
   addTrigMatch_   = iConfig.getParameter<bool>               ( "addTrigMatch" );
   trigMatchSrc_   = iConfig.getParameter<std::vector<edm::InputTag> >( "trigPrimMatch" );
@@ -95,7 +96,7 @@ void PATTauProducer::produce(edm::Event & iEvent, const edm::EventSetup & iSetup
     if (addGenMatch_) {
       reco::GenParticleRef genTau = (*genMatch)[tausRef];
       if (genTau.isNonnull() && genTau.isAvailable() ) {
-        aTau.setGenLepton(*genTau);
+        aTau.setGenLepton(genTau, embedGenMatch_);
       } // leave empty if no match found
     }
     

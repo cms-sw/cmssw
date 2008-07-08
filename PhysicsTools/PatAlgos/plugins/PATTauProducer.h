@@ -1,5 +1,5 @@
 //
-// $Id: PATTauProducer.h,v 1.7 2008/06/08 12:24:03 vadler Exp $
+// $Id: PATTauProducer.h,v 1.8 2008/06/24 22:58:24 gpetrucc Exp $
 //
 
 #ifndef PhysicsTools_PatAlgos_PATTauProducer_h
@@ -13,7 +13,7 @@
    a collection of objects of TauType.
 
   \author   Steven Lowette, Christophe Delaere
-  \version  $Id: PATTauProducer.h,v 1.7 2008/06/08 12:24:03 vadler Exp $
+  \version  $Id: PATTauProducer.h,v 1.8 2008/06/24 22:58:24 gpetrucc Exp $
 */
 
 
@@ -54,6 +54,7 @@ namespace pat {
       bool embedLeadTrack_;
       bool embedSignalTracks_;
       bool          addGenMatch_;
+      bool          embedGenMatch_;
       edm::InputTag genMatchSrc_;
       bool          addTrigMatch_;
       std::vector<edm::InputTag> trigMatchSrc_;

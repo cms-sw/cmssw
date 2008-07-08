@@ -1,5 +1,5 @@
 //
-// $Id: PATMuonProducer.cc,v 1.8 2008/06/08 12:24:03 vadler Exp $
+// $Id: PATMuonProducer.cc,v 1.9 2008/06/24 22:58:24 gpetrucc Exp $
 //
 
 #include "PhysicsTools/PatAlgos/plugins/PATMuonProducer.h"
@@ -38,6 +38,7 @@ PATMuonProducer::PATMuonProducer(const edm::ParameterSet & iConfig) :
   
   // MC matching configurables
   addGenMatch_   = iConfig.getParameter<bool>         ( "addGenMatch" );
+  embedGenMatch_ = iConfig.getParameter<bool>         ( "embedGenMatch" );
   genMatchSrc_   = iConfig.getParameter<edm::InputTag>( "genParticleMatch" );
   
   // trigger matching configurables
@@ -125,7 +126,7 @@ void PATMuonProducer::produce(edm::Event & iEvent, const edm::EventSetup & iSetu
     if (addGenMatch_) {
       reco::GenParticleRef genMuon = (*genMatch)[muonsRef];
       if (genMuon.isNonnull() && genMuon.isAvailable() ) {
-        aMuon.setGenLepton(*genMuon);
+        aMuon.setGenLepton(genMuon, embedGenMatch_);
       } // leave empty if no match found
     }
     // matches to trigger primitives

@@ -1,5 +1,5 @@
 //
-// $Id: PATJetProducer.cc,v 1.19 2008/06/09 16:15:37 gpetrucc Exp $
+// $Id: PATJetProducer.cc,v 1.20 2008/06/24 22:58:24 gpetrucc Exp $
 //
 
 #include "PhysicsTools/PatAlgos/plugins/PATJetProducer.h"
@@ -48,6 +48,7 @@ PATJetProducer::PATJetProducer(const edm::ParameterSet& iConfig) {
   getJetMCFlavour_         = iConfig.getParameter<bool> 		      ( "getJetMCFlavour" );
   jetPartonMapSource_      = iConfig.getParameter<edm::InputTag>	      ( "JetPartonMapSource" );
   addGenPartonMatch_       = iConfig.getParameter<bool> 		      ( "addGenPartonMatch" );
+  embedGenPartonMatch_     = iConfig.getParameter<bool> 		      ( "embedGenPartonMatch" );
   genPartonSrc_            = iConfig.getParameter<edm::InputTag>	      ( "genPartonMatch" );
   addGenJetMatch_          = iConfig.getParameter<bool> 		      ( "addGenJetMatch" );
   genJetSrc_               = iConfig.getParameter<edm::InputTag>	      ( "genJetMatch" );
@@ -202,7 +203,7 @@ void PATJetProducer::produce(edm::Event & iEvent, const edm::EventSetup & iSetup
     if (addGenPartonMatch_) {
       reco::GenParticleRef parton = (*partonMatch)[jetRef];
       if (parton.isNonnull() && parton.isAvailable()) {
-          ajet.setGenParton(*parton);
+          ajet.setGenParton(parton, embedGenPartonMatch_);
       } // leave empty if no match found
     }
     // store the match to the GenJets

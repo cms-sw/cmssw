@@ -56,6 +56,7 @@ allLayer1Muons = cms.EDProducer("PATMuonProducer",
 
     # MC matching configurables
     addGenMatch = cms.bool(True),
+    embedGenMatch = cms.bool(False),
     genParticleMatch = cms.InputTag("muonMatch"), ## particles source to be used for the matching
 
     # Efficiencies

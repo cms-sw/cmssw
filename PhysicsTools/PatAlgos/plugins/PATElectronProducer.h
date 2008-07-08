@@ -1,5 +1,5 @@
 //
-// $Id: PATElectronProducer.h,v 1.7 2008/06/13 10:00:02 gpetrucc Exp $
+// $Id: PATElectronProducer.h,v 1.8 2008/06/24 22:58:24 gpetrucc Exp $
 //
 
 #ifndef PhysicsTools_PatAlgos_PATElectronProducer_h
@@ -13,7 +13,7 @@
    a collection of objects of ElectronType.
 
   \author   Steven Lowette, James Lamb
-  \version  $Id: PATElectronProducer.h,v 1.7 2008/06/13 10:00:02 gpetrucc Exp $
+  \version  $Id: PATElectronProducer.h,v 1.8 2008/06/24 22:58:24 gpetrucc Exp $
 */
 
 
@@ -69,6 +69,7 @@ namespace pat {
       bool          embedSuperCluster_;
       bool          embedTrack_;
       bool          addGenMatch_;
+      bool          embedGenMatch_;
       edm::InputTag genMatchSrc_;
       bool          addTrigMatch_;
       std::vector<edm::InputTag> trigMatchSrc_;

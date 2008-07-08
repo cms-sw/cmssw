@@ -1,5 +1,5 @@
 //
-// $Id: PATGenericParticleProducer.cc,v 1.2 2008/06/05 20:05:13 gpetrucc Exp $
+// $Id: PATGenericParticleProducer.cc,v 1.3 2008/06/24 22:58:24 gpetrucc Exp $
 //
 
 #include "PhysicsTools/PatAlgos/plugins/PATGenericParticleProducer.h"
@@ -26,6 +26,7 @@ PATGenericParticleProducer::PATGenericParticleProducer(const edm::ParameterSet &
   
   // MC matching configurables
   addGenMatch_   = iConfig.getParameter<bool>( "addGenMatch" );
+  embedGenMatch_ = iConfig.getParameter<bool>( "embedGenMatch" );
   genPartSrc_    = iConfig.getParameter<edm::InputTag>( "genParticleMatch" );
 #if 0
   // Trigger matching configurables
@@ -140,10 +141,8 @@ void PATGenericParticleProducer::produce(edm::Event & iEvent, const edm::EventSe
     if (addGenMatch_) {
       reco::GenParticleRef genGenericParticle = (*genMatch)[candRef];
       if (genGenericParticle.isNonnull() && genGenericParticle.isAvailable() ) {
-        aGenericParticle.setGenParticle(*genGenericParticle);
-      } else {
-        aGenericParticle.setGenParticle(reco::Particle(0, reco::Particle::LorentzVector(0,0,0,0))); // TQAF way of setting "null"
-      }
+        aGenericParticle.setGenParticleRef(genGenericParticle, embedGenMatch_);
+      } 
     }
 
     if (addQuality_) {

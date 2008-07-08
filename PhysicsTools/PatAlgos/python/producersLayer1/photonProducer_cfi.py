@@ -24,7 +24,7 @@ allLayer1Photons = cms.EDProducer("PATPhotonProducer",
         ),
         ecal = cms.PSet(
             # source IsoDeposit
-            src = cms.InputTag("layer0PhotonIsolations","gamIsoDepositEcalFromClusts"),
+            src = cms.InputTag("layer0PhotonIsolations","gamIsoDepositEcalFromHits"),
             # parameters (E/gamma POG defaults)
             deltaR          = cms.double(0.4),
             vetos           = cms.vstring('EcalBarrel:0.045', 'EcalEndcaps:0.070'),
@@ -39,7 +39,7 @@ allLayer1Photons = cms.EDProducer("PATPhotonProducer",
         #),
         hcal = cms.PSet(
             # source IsoDeposit
-            src = cms.InputTag("layer0PhotonIsolations","gamIsoDepositHcalFromTowers"),
+            src = cms.InputTag("layer0PhotonIsolations","gamIsoDepositHcalFromHits"),
             # parameters (E/gamma POG defaults)
             deltaR          = cms.double(0.4),
             skipDefaultVeto = cms.bool(True),
@@ -49,12 +49,12 @@ allLayer1Photons = cms.EDProducer("PATPhotonProducer",
     #   store isodeposits to recompute isolation
     isoDeposits = cms.PSet(
         tracker = cms.InputTag("layer0PhotonIsolations","gamIsoDepositTk"),
-        ecal    = cms.InputTag("layer0PhotonIsolations","gamIsoDepositEcalFromClusts"),
-        hcal    = cms.InputTag("layer0PhotonIsolations","gamIsoDepositHcalFromTowers"),
+        ecal    = cms.InputTag("layer0PhotonIsolations","gamIsoDepositEcalFromHits"),
+        hcal    = cms.InputTag("layer0PhotonIsolations","gamIsoDepositHcalFromHits"),
     ),
 
     # PhotonID configurables
-    addPhotonID = cms.bool(False),
+    addPhotonID = cms.bool(True),
     photonIDSource = cms.InputTag("layer0PhotonID"), ## ValueMap<reco::PhotonID> keyed to photonSource
 
     # Trigger matching configurables
@@ -63,6 +63,7 @@ allLayer1Photons = cms.EDProducer("PATPhotonProducer",
 
     # MC matching configurables
     addGenMatch = cms.bool(True),
+    embedGenMatch = cms.bool(False),
     genParticleMatch = cms.InputTag("photonMatch"), ## particles source to be used for the matching
 
     # Efficiencies

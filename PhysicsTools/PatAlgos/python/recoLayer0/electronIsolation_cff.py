@@ -7,9 +7,11 @@ from RecoEgamma.EgammaIsolationAlgos.egammaBasicClusterMerger_cfi import *
 # define module labels for old (tk-based isodeposit) POG isolation
 patAODElectronIsolationLabels = cms.VInputTag(
         cms.InputTag("eleIsoDepositTk"),
-        cms.InputTag("eleIsoDepositEcalFromClusts"),      # on RECO you might want eleIsoDepositEcalFromHits
+        cms.InputTag("eleIsoDepositEcalFromHits"),
+        cms.InputTag("eleIsoDepositHcalFromHits"),
+     #  cms.InputTag("eleIsoDepositEcalFromClusts"),       # try these two if you want to compute them from AOD
+     #  cms.InputTag("eleIsoDepositHcalFromTowers"),       # instead of reading the values computed in RECO
       # cms.InputTag("eleIsoDepositEcalSCVetoFromClust"), # somebody might want this one for ECAL instead
-        cms.InputTag("eleIsoDepositHcalFromTowers"),      # on RECO you might want eleIsoDepositHcalFromHits
 )
 
 # read and convert to ValueMap<IsoDeposit> keyed to Candidate
@@ -30,7 +32,11 @@ layer0ElectronIsolations = cms.EDFilter("CandManyValueMapsSkimmerIsoDeposits",
 eleIsoDepositAOD = cms.Sequence( eleIsoDepositTk * eleIsoDepositEcalFromClusts * eleIsoDepositHcalFromTowers)
 
 # sequence to run on AOD before PAT
-patAODElectronIsolation = cms.Sequence(egammaSuperClusterMerger * egammaBasicClusterMerger * eleIsoDepositAOD * patAODElectronIsolations)
+patAODElectronIsolation = cms.Sequence(
+        ## egammaSuperClusterMerger *  ## Not needed and no longer working (can't find input data)
+        ## egammaBasicClusterMerger *  ## Not needed any more
+        ## eleIsoDepositAOD *          ## Not needed any more, we use values from RECO
+        patAODElectronIsolations)
 
 # sequence to run after the PAT cleaners
 patLayer0ElectronIsolation = cms.Sequence(layer0ElectronIsolations)

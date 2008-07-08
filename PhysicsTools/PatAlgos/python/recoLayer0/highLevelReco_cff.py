@@ -9,8 +9,9 @@ from PhysicsTools.PatAlgos.recoLayer0.electronIsolation_cff import *
 # Muon Isolation 
 from PhysicsTools.PatAlgos.recoLayer0.muonIsolation_cff import *
 
-# Photon Isolation 
+# Photon Isolation and ID
 from PhysicsTools.PatAlgos.recoLayer0.photonIsolation_cff import *
+from PhysicsTools.PatAlgos.recoLayer0.photonId_cff import *
 
 # jet-parton matching
 from PhysicsTools.PatAlgos.recoLayer0.jetFlavourId_cff import *
@@ -30,6 +31,7 @@ patHighLevelReco_withoutPFTau = cms.Sequence(
     patJetFlavourId *
     patLayer0ElectronIsolation *
     patLayer0PhotonIsolation *
+    patLayer0PhotonID *
     patLayer0MuonIsolation *
     patLayer0BTagging *
     patLayer0JetMETCorrections *

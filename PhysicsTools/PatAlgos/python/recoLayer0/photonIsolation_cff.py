@@ -6,9 +6,11 @@ from RecoEgamma.EgammaIsolationAlgos.egammaIsoDeposits_cff import *
 # define module labels for POG isolation
 patAODPhotonIsolationLabels = cms.VInputTag(
         cms.InputTag("gamIsoDepositTk"),
-        cms.InputTag("gamIsoDepositEcalFromClusts"),       # on RECO you might want 'gamIsoDepositEcalFromHits'
+        cms.InputTag("gamIsoDepositEcalFromHits"),
+        cms.InputTag("gamIsoDepositHcalFromHits"),
+     #  cms.InputTag("gamIsoDepositEcalFromClusts"),       # try these two if you want to compute them from AOD
+     #  cms.InputTag("gamIsoDepositHcalFromTowers"),       # instead of reading the values computed in RECO
      #  cms.InputTag("gamIsoDepositEcalSCVetoFromClusts"), # this is an alternative to 'gamIsoDepositEcalFromClusts'
-        cms.InputTag("gamIsoDepositHcalFromTowers"),       # on RECO you might want 'gamIsoDepositHcalFromHits'
 )
 
 # read and convert to ValueMap<IsoDeposit> keyed to Candidate
@@ -26,10 +28,13 @@ layer0PhotonIsolations = cms.EDFilter("CandManyValueMapsSkimmerIsoDeposits",
 )
 
 # selecting POG modules that can run on top of AOD
-gamIsoDepositAOD = cms.Sequence(gamIsoDepositTk * gamIsoDepositEcalFromClusts * gamIsoDepositHcalFromTowers)
+## FIXME: this does not work (no islandSuperClusters in the input file, so the superClusterMerger fails)
+##        anyway it's not needed, as the isolation from hits is already in RECO
+## gamIsoDepositAOD = cms.Sequence(gamIsoDepositTk * gamIsoDepositEcalFromClusts * gamIsoDepositHcalFromTowers)
 
 # sequence to run on AOD before PAT 
-patAODPhotonIsolation = cms.Sequence(gamIsoDepositAOD * patAODPhotonIsolations)
+## patAODPhotonIsolation = cms.Sequence(gamIsoDepositAOD * patAODPhotonIsolations)
+patAODPhotonIsolation = cms.Sequence(patAODPhotonIsolations)
 
 # sequence to run after PAT cleaners
 patLayer0PhotonIsolation = cms.Sequence(layer0PhotonIsolations)

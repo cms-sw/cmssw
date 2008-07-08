@@ -1,5 +1,5 @@
 //
-// $Id: PATPhotonProducer.cc,v 1.9 2008/06/19 12:51:26 gpetrucc Exp $
+// $Id: PATPhotonProducer.cc,v 1.10 2008/06/24 22:58:24 gpetrucc Exp $
 //
 
 #include "PhysicsTools/PatAlgos/plugins/PATPhotonProducer.h"
@@ -25,6 +25,7 @@ PATPhotonProducer::PATPhotonProducer(const edm::ParameterSet & iConfig) :
 
    // MC matching configurables
   addGenMatch_       = iConfig.getParameter<bool>         ( "addGenMatch" );
+  embedGenMatch_     = iConfig.getParameter<bool>         ( "embedGenMatch" );
   genMatchSrc_       = iConfig.getParameter<edm::InputTag>( "genParticleMatch" );
   
   // trigger matching configurables
@@ -99,7 +100,7 @@ void PATPhotonProducer::produce(edm::Event & iEvent, const edm::EventSetup & iSe
     if (addGenMatch_) {
       reco::GenParticleRef genPhoton = (*genMatch)[photonRef];
       if (genPhoton.isNonnull() && genPhoton.isAvailable() ) {
-        aPhoton.setGenPhoton(*genPhoton);
+        aPhoton.setGenPhoton(genPhoton, embedGenMatch_);
       } // leave empty if no match found
     }
     

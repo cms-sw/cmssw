@@ -1,5 +1,5 @@
 //
-// $Id: PATElectronProducer.cc,v 1.9 2008/06/13 10:00:02 gpetrucc Exp $
+// $Id: PATElectronProducer.cc,v 1.10 2008/06/24 22:58:24 gpetrucc Exp $
 //
 
 #include "PhysicsTools/PatAlgos/plugins/PATElectronProducer.h"
@@ -37,6 +37,7 @@ PATElectronProducer::PATElectronProducer(const edm::ParameterSet & iConfig) :
   
   // MC matching configurables
   addGenMatch_      = iConfig.getParameter<bool>          ( "addGenMatch" );
+  embedGenMatch_    = iConfig.getParameter<bool>          ( "embedGenMatch" );
   genMatchSrc_       = iConfig.getParameter<edm::InputTag>( "genParticleMatch" );
   
   // trigger matching configurables
@@ -177,7 +178,7 @@ void PATElectronProducer::produce(edm::Event & iEvent, const edm::EventSetup & i
     if (addGenMatch_) {
       reco::GenParticleRef genElectron = (*genMatch)[elecsRef];
       if (genElectron.isNonnull() && genElectron.isAvailable() ) {
-        anElectron.setGenLepton(*genElectron);
+        anElectron.setGenLepton(genElectron, embedGenMatch_);
       } // leave empty if no match found
     }
     
