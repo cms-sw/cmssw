@@ -1,5 +1,5 @@
 //
-// $Id: GenericParticle.h,v 1.1.4.2 2008/06/03 20:08:23 gpetrucc Exp $
+// $Id: GenericParticle.h,v 1.2 2008/06/03 22:28:07 gpetrucc Exp $
 //
 
 #ifndef DataFormats_PatCandidates_GenericParticle_h
@@ -13,7 +13,7 @@
    namespace.
 
   \author   Giovanni Petrucciani
-  \version  $Id: GenericParticle.h,v 1.1.4.2 2008/06/03 20:08:23 gpetrucc Exp $
+  \version  $Id: GenericParticle.h,v 1.2 2008/06/03 22:28:07 gpetrucc Exp $
 */
 
 #include "DataFormats/PatCandidates/interface/PATObject.h"
@@ -23,6 +23,7 @@
 #include "DataFormats/GsfTrackReco/interface/GsfTrackFwd.h"
 #include "DataFormats/GsfTrackReco/interface/GsfTrack.h"
 #include "DataFormats/PatCandidates/interface/Isolation.h"
+#include "DataFormats/HepMCCandidate/interface/GenParticle.h"
 
 
 namespace pat {
@@ -50,11 +51,6 @@ namespace pat {
       /// and if they reference to at least one same non null track, supercluster or calotower (except for the multiple tracks)
       /// NOTE: It won't work with embedded references
       virtual bool overlap( const Candidate & ) const ;
-
-      /// return the match to the generated photon
-      const reco::Particle * genParticle() const;
-      /// method to set the generated photon
-      void setGenParticle(const reco::Particle & gp);
 
       /// reference to a master track (might be transient refs if Tracks are embedded)
       /// returns null ref if there is no master track
@@ -228,9 +224,6 @@ namespace pat {
       reco::TrackCollection tracks_;    // embedded
 
       // information originally in external branches
-      // MC info
-      std::vector<reco::Particle> genParticle_;
-
       // some quality variable
       float quality_;
 

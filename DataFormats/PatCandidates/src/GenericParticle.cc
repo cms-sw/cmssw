@@ -1,5 +1,5 @@
 //
-// $Id: GenericParticle.cc,v 1.1.4.2 2008/06/03 20:08:24 gpetrucc Exp $
+// $Id: GenericParticle.cc,v 1.2 2008/06/03 22:28:07 gpetrucc Exp $
 //
 
 #include "DataFormats/PatCandidates/interface/GenericParticle.h"
@@ -44,20 +44,6 @@ GenericParticle::GenericParticle(const edm::Ptr<Candidate> & cand) :
 /// destructor
 GenericParticle::~GenericParticle() {
 }
-
-
-/// return the match to the generated particle
-const reco::Particle * GenericParticle::genParticle() const {
-  return (genParticle_.size() > 0 ? &genParticle_.front() : 0);
-}
-
-/// method to set the generated particle
-void GenericParticle::setGenParticle(const reco::Particle & gp) {
-  genParticle_.clear();
-  genParticle_.push_back(gp);
-}
-
-
 
 // ====== SETTERS =====
 /// sets master track reference (or even embed it into the object)

@@ -1,5 +1,5 @@
 //
-// $Id: Jet.cc,v 1.18 2008/06/09 16:19:23 gpetrucc Exp $
+// $Id: Jet.cc,v 1.19 2008/06/20 07:46:37 fronga Exp $
 //
 
 #include "DataFormats/PatCandidates/interface/Jet.h"
@@ -110,12 +110,6 @@ std::vector <const reco::PFCandidate*> Jet::getPFConstituents () const {
   for (unsigned i = 0;  i <  numberOfDaughters (); i++) result.push_back (getPFConstituent (i));
   return result;
 }
-
-/// return the matched generated parton
-const reco::Particle * Jet::genParton() const {
-  return (genParton_.size() > 0 ? &genParton_.front() : 0);
-}
-
 
 /// return the matched generated jet
 const reco::GenJet * Jet::genJet() const {
@@ -320,13 +314,6 @@ void Jet::setCaloTowers(const std::vector<CaloTowerPtr> & caloTowers) {
     caloTowers_.push_back(*caloTowers.at(i));
   }
   embeddedCaloTowers_ = true;
-}
-
-
-/// method to set the matched parton
-void Jet::setGenParton(const reco::Particle & gp) {
-  genParton_.clear();
-  genParton_.push_back(gp);
 }
 
 

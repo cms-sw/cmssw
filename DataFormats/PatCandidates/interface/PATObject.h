@@ -9,7 +9,7 @@
  *
  *  \author   Steven Lowette
  *
- *  \version  $Id: PATObject.h,v 1.10 2008/06/08 12:23:59 vadler Exp $
+ *  \version  $Id: PATObject.h,v 1.11 2008/06/24 22:33:12 gpetrucc Exp $
  *
  */
 
@@ -22,6 +22,7 @@
 
 #include "DataFormats/PatCandidates/interface/TriggerPrimitive.h"
 
+#include "DataFormats/HepMCCandidate/interface/GenParticle.h"
 
 namespace pat {
 
@@ -100,7 +101,18 @@ namespace pat {
       /// If an efficiency with the same name exists, the old value is replaced by this one
       /// Calling this method many times with names not sorted alphabetically will be slow
       void setEfficiency(const std::string &name, const Measurement1DFloat & value) ;
-      
+     
+      /// Get generator level particle reference (might be a transient ref if the genParticle was embedded)
+      reco::GenParticleRef      genParticleRef() const { return genParticleEmbedded_.empty() ? genParticleRef_ : reco::GenParticleRef(&genParticleEmbedded_, 0); }
+      /// Get generator level particle, as C++ pointer (might be 0 if the ref was null)
+      const reco::GenParticle * genParticle()    const { reco::GenParticleRef ref = genParticleRef(); return ref.isNonnull() ? ref.get() : 0; }
+      /// Set the generator level particle reference
+      void setGenParticleRef(const reco::GenParticleRef &ref, bool embed=false) ; 
+      /// Set the generator level particle from a particle not in the Event (embedding it, of course)
+      void setGenParticle( const reco::GenParticle &particle ) ; 
+      /// Embed the generator level particle in this PATObject
+      void embedGenParticle() ;
+ 
     protected:
       // reference back to the original object
       edm::Ptr<reco::Candidate> refToOrig_;
@@ -130,6 +142,11 @@ namespace pat {
       /// vector of the efficiencies (names)
       std::vector<std::string> efficiencyNames_;
 
+      /// Reference to a generator level particle
+      reco::GenParticleRef genParticleRef_;
+      /// vector to hold an embedded generator level particle
+      std::vector<reco::GenParticle> genParticleEmbedded_; 
+   
   };
 
 
@@ -283,6 +300,29 @@ namespace pat {
         efficiencyNames_. insert(it, name);
         efficiencyValues_.insert( efficiencyValues_.begin() + (it - efficiencyNames_.begin()), value );
     }
+  }
+
+  template <class ObjectType>
+  void PATObject<ObjectType>::setGenParticleRef(const reco::GenParticleRef &ref, bool embed) {
+          genParticleRef_ = ref;
+          genParticleEmbedded_.clear(); 
+          if (embed) embedGenParticle();
+  }
+  
+  template <class ObjectType>
+  void PATObject<ObjectType>::setGenParticle( const reco::GenParticle &particle ) {
+        genParticleEmbedded_.clear(); 
+        genParticleEmbedded_.push_back(particle);
+        genParticleRef_ = reco::GenParticleRef();
+  }
+
+  template <class ObjectType>
+  void PATObject<ObjectType>::embedGenParticle() {
+      if (genParticleRef_.isNonnull()) {
+            genParticleEmbedded_.clear(); 
+            genParticleEmbedded_.push_back(*genParticleRef_); 
+      }
+      genParticleRef_ = reco::GenParticleRef();
   }
 
 }

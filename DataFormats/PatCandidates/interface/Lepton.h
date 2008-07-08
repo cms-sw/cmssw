@@ -1,5 +1,5 @@
 //
-// $Id: Lepton.h,v 1.11.2.1 2008/06/03 20:08:24 gpetrucc Exp $
+// $Id: Lepton.h,v 1.12 2008/06/03 22:28:07 gpetrucc Exp $
 //
 
 #ifndef DataFormats_PatCandidates_Lepton_h
@@ -13,7 +13,7 @@
    namespace.
 
   \author   Steven Lowette
-  \version  $Id: Lepton.h,v 1.11.2.1 2008/06/03 20:08:24 gpetrucc Exp $
+  \version  $Id: Lepton.h,v 1.12 2008/06/03 22:28:07 gpetrucc Exp $
 */
 
 #include "DataFormats/Candidate/interface/Particle.h"
@@ -37,9 +37,9 @@ namespace pat {
 
       virtual Lepton<LeptonType> * clone() const { return new Lepton<LeptonType>(*this); }
 
-      const reco::Particle * genLepton() const;
+      const reco::GenParticle * genLepton() const { return PATObject<LeptonType>::genParticle(); }
 
-      void setGenLepton(const reco::Particle & gl);
+      void setGenLepton(const reco::GenParticleRef & gl, bool embed=false) { PATObject<LeptonType>::setGenParticleRef(gl, embed); }
 
       //============ BEGIN ISOLATION BLOCK =====
       /// Returns the isolation variable for a specifc key (or pseudo-key like CaloIso), or -1.0 if not available
@@ -131,9 +131,6 @@ namespace pat {
 
 
     protected:
-
-      std::vector<reco::Particle> genLepton_;
-
       // --- Isolation and IsoDeposit related datamebers ---
       typedef std::vector<std::pair<IsolationKeys, pat::IsoDeposit> > IsoDepositPairs;
       IsoDepositPairs    isoDeposits_;
@@ -177,22 +174,6 @@ namespace pat {
   template <class LeptonType>
   Lepton<LeptonType>::~Lepton() {
   }
-
-
-  /// return the match to the generated lepton
-  template <class LeptonType>
-  const reco::Particle * Lepton<LeptonType>::genLepton() const {
-    return (genLepton_.size() > 0 ? &genLepton_.front() : 0);
-  }
-
-
-  /// method to set the generated lepton
-  template <class LeptonType>
-  void Lepton<LeptonType>::setGenLepton(const reco::Particle & gl) {
-    genLepton_.clear();
-    genLepton_.push_back(gl);
-  }
-
 }
 
 #endif

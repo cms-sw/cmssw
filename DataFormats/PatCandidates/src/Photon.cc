@@ -1,5 +1,5 @@
 //
-// $Id: Photon.cc,v 1.13 2008/06/19 10:59:48 gpetrucc Exp $
+// $Id: Photon.cc,v 1.14 2008/06/23 22:22:18 gpetrucc Exp $
 //
 
 #include "DataFormats/PatCandidates/interface/Photon.h"
@@ -52,13 +52,6 @@ reco::SuperClusterRef Photon::superCluster() const {
   }
 }
 
-
-/// return the match to the generated photon
-const reco::Particle * Photon::genPhoton() const {
-  return (genPhoton_.size() > 0 ? &genPhoton_.front() : 0);
-}
-
-
 /// method to store the photon's supercluster internally
 void Photon::embedSuperCluster() {
   superCluster_.clear();
@@ -68,9 +61,3 @@ void Photon::embedSuperCluster() {
   }
 }
 
-
-/// method to set the generated photon
-void Photon::setGenPhoton(const reco::Particle & gp) {
-  genPhoton_.clear();
-  genPhoton_.push_back(gp);
-}

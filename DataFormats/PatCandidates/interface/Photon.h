@@ -1,5 +1,5 @@
 //
-// $Id: Photon.h,v 1.12 2008/06/03 22:28:07 gpetrucc Exp $
+// $Id: Photon.h,v 1.13 2008/06/19 10:59:48 gpetrucc Exp $
 //
 
 #ifndef DataFormats_PatCandidates_Photon_h
@@ -13,7 +13,7 @@
    namespace.
 
   \author   Steven Lowette
-  \version  $Id: Photon.h,v 1.12 2008/06/03 22:28:07 gpetrucc Exp $
+  \version  $Id: Photon.h,v 1.13 2008/06/19 10:59:48 gpetrucc Exp $
 */
 
 #include "DataFormats/PatCandidates/interface/PATObject.h"
@@ -51,12 +51,12 @@ namespace pat {
       /// this returns a transient Ref which *should never be persisted*!
       reco::SuperClusterRef superCluster() const;
       /// return the match to the generated photon
-      const reco::Particle * genPhoton() const;
+      const reco::Particle * genPhoton() const { return genParticle(); }
 
       /// method to store the photon's supercluster internally
       void embedSuperCluster();
       /// method to set the generated photon
-      void setGenPhoton(const reco::Particle & gp);
+      void setGenPhoton(const reco::GenParticleRef & gp, bool embed=false) { setGenParticleRef(gp, embed); }
 
       /// returns the PhotonID object, or a null pointer if no ID is available
       const reco::PhotonID * photonID() const { return photonID_.empty() ? 0 : & photonID_[0]; }
@@ -204,7 +204,7 @@ namespace pat {
       bool embeddedSuperCluster_;
       std::vector<reco::SuperCluster> superCluster_;
       // MC info
-      std::vector<reco::Particle> genPhoton_;
+      std::vector<reco::GenParticle> genPhoton_;
       // holder for a reco::PhotonID object
       std::vector<reco::PhotonID> photonID_;
       // --- Isolation and IsoDeposit related datamebers ---

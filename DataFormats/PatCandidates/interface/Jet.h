@@ -1,5 +1,5 @@
 //
-// $Id: Jet.h,v 1.20 2008/06/09 16:19:23 gpetrucc Exp $
+// $Id: Jet.h,v 1.21 2008/06/20 07:46:37 fronga Exp $
 //
 
 #ifndef DataFormats_PatCandidates_Jet_h
@@ -13,7 +13,7 @@
    'pat' namespace
 
   \author   Steven Lowette
-  \version  $Id: Jet.h,v 1.20 2008/06/09 16:19:23 gpetrucc Exp $
+  \version  $Id: Jet.h,v 1.21 2008/06/20 07:46:37 fronga Exp $
 */
 
 
@@ -70,7 +70,7 @@ namespace pat {
       virtual Jet * clone() const { return new Jet(*this); }
 
       /// return the matched generated parton
-      const reco::Particle * genParton() const;
+      const reco::GenParticle * genParton() const { return genParticle(); }
       /// return the matched generated jet
       const reco::GenJet * genJet() const;
       /// return the flavour of the parton underlying the jet
@@ -129,7 +129,7 @@ namespace pat {
       /// method to store the CaloJet constituents internally
       void setCaloTowers(const std::vector<CaloTowerPtr> & caloTowers);
       /// method to set the matched parton
-      void setGenParton(const reco::Particle & gp);
+      void setGenParton(const reco::GenParticleRef & gp, bool embed=false) { setGenParticleRef(gp, embed); }
       /// method to set the matched generated jet
       void setGenJet(const reco::GenJet & gj);
       /// method to set the flavour of the parton underlying the jet
@@ -246,7 +246,6 @@ namespace pat {
       bool embeddedCaloTowers_;
       CaloTowerCollection caloTowers_;
       // MC info
-      std::vector<reco::Particle> genParton_;
       std::vector<reco::GenJet> genJet_;
       int partonFlavour_;
       // energy scale correction factors
