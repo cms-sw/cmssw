@@ -2,8 +2,8 @@
  *
  * See header file for documentation
  *
- *  $Date: 2008/05/02 13:29:56 $
- *  $Revision: 1.21 $
+ *  $Date: 2008/05/19 13:16:47 $
+ *  $Revision: 1.22 $
  *
  *  \author Martin Grunewald
  *
@@ -210,18 +210,18 @@ TriggerSummaryProducerAOD::produce(edm::Event& iEvent, const edm::EventSetup& iS
        const InputTag filterTag(InputTag(label,instance,process));
        ids_.clear();
        keys_.clear();
-       fillFilterObjects(filterTag,fobs_[ifob]->photonIds()   ,fobs_[ifob]->photonRefs());
-       fillFilterObjects(filterTag,fobs_[ifob]->electronIds() ,fobs_[ifob]->electronRefs());
-       fillFilterObjects(filterTag,fobs_[ifob]->muonIds()     ,fobs_[ifob]->muonRefs());
-       fillFilterObjects(filterTag,fobs_[ifob]->jetIds()      ,fobs_[ifob]->jetRefs());
-       fillFilterObjects(filterTag,fobs_[ifob]->compositeIds(),fobs_[ifob]->compositeRefs());
-       fillFilterObjects(filterTag,fobs_[ifob]->metIds()      ,fobs_[ifob]->metRefs());
-       fillFilterObjects(filterTag,fobs_[ifob]->htIds()       ,fobs_[ifob]->htRefs());
-       fillFilterObjects(filterTag,fobs_[ifob]->pixtrackIds() ,fobs_[ifob]->pixtrackRefs());
-       fillFilterObjects(filterTag,fobs_[ifob]->l1emIds()     ,fobs_[ifob]->l1emRefs());
-       fillFilterObjects(filterTag,fobs_[ifob]->l1muonIds()   ,fobs_[ifob]->l1muonRefs());
-       fillFilterObjects(filterTag,fobs_[ifob]->l1jetIds()    ,fobs_[ifob]->l1jetRefs());
-       fillFilterObjects(filterTag,fobs_[ifob]->l1etmissIds() ,fobs_[ifob]->l1etmissRefs());
+       fillFilterObjects(iEvent,filterTag,fobs_[ifob]->photonIds()   ,fobs_[ifob]->photonRefs());
+       fillFilterObjects(iEvent,filterTag,fobs_[ifob]->electronIds() ,fobs_[ifob]->electronRefs());
+       fillFilterObjects(iEvent,filterTag,fobs_[ifob]->muonIds()     ,fobs_[ifob]->muonRefs());
+       fillFilterObjects(iEvent,filterTag,fobs_[ifob]->jetIds()      ,fobs_[ifob]->jetRefs());
+       fillFilterObjects(iEvent,filterTag,fobs_[ifob]->compositeIds(),fobs_[ifob]->compositeRefs());
+       fillFilterObjects(iEvent,filterTag,fobs_[ifob]->metIds()      ,fobs_[ifob]->metRefs());
+       fillFilterObjects(iEvent,filterTag,fobs_[ifob]->htIds()       ,fobs_[ifob]->htRefs());
+       fillFilterObjects(iEvent,filterTag,fobs_[ifob]->pixtrackIds() ,fobs_[ifob]->pixtrackRefs());
+       fillFilterObjects(iEvent,filterTag,fobs_[ifob]->l1emIds()     ,fobs_[ifob]->l1emRefs());
+       fillFilterObjects(iEvent,filterTag,fobs_[ifob]->l1muonIds()   ,fobs_[ifob]->l1muonRefs());
+       fillFilterObjects(iEvent,filterTag,fobs_[ifob]->l1jetIds()    ,fobs_[ifob]->l1jetRefs());
+       fillFilterObjects(iEvent,filterTag,fobs_[ifob]->l1etmissIds() ,fobs_[ifob]->l1etmissRefs());
        product->addFilter(filterTag,ids_,keys_);
      }
    }
@@ -279,7 +279,7 @@ void TriggerSummaryProducerAOD::fillTriggerObjects(const edm::Event& iEvent) {
 }
 
 template <typename C>
-void TriggerSummaryProducerAOD::fillFilterObjects(const edm::InputTag& tag, const trigger::Vids& ids, const std::vector<edm::Ref<C> >& refs) {
+void TriggerSummaryProducerAOD::fillFilterObjects(const edm::Event& iEvent, const edm::InputTag& tag, const trigger::Vids& ids, const std::vector<edm::Ref<C> >& refs) {
 
   /// this routine takes a vector of Ref<C>s and determines the
   /// corresponding vector of keys (i.e., indices) into the
@@ -296,8 +296,14 @@ void TriggerSummaryProducerAOD::fillFilterObjects(const edm::InputTag& tag, cons
     const ProductID pid(refs[i].id());
     if (offset_.find(pid)==offset_.end()) {
       offset_[pid]=0;
-      cout << "#### Error in fillFilterObject (unknown pid):"
+      const string&    label(iEvent.getProvenance(pid).moduleLabel());
+      const string& instance(iEvent.getProvenance(pid).productInstanceName());
+      const string&  process(iEvent.getProvenance(pid).processName());
+      cout << "#### Error in TriggerSummaryProducerAOD::fillFilterObject (unknown pid):"
 	   << " FilterTag: " << tag.encode()
+	   << " CollectionTag/Key: "
+	   << InputTag(label,instance,process).encode()
+	   << "/" << refs[i].key()
 	   << " CollectionType: " << typeid(C).name()
 	   << endl;
     }
