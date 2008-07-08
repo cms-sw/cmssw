@@ -8,7 +8,7 @@
 //
 // Original Author:  
 //         Created:  Sun Jan  6 22:01:27 EST 2008
-// $Id: FWEveLegoViewManager.cc,v 1.9 2008/07/07 02:15:46 chrjones Exp $
+// $Id: FWEveLegoViewManager.cc,v 1.10 2008/07/07 14:49:33 dmytro Exp $
 //
 
 // system include files
@@ -261,6 +261,7 @@ FWEveLegoViewManager::makeProxyBuilderFor(const FWEventItem* iItem)
                 m_lego->SetGridColor(Color_t(TColor::GetColor("#202020")));
                 m_lego->Set2DMode(TEveCaloLego::kValSize);
                 m_lego->SetBinWidth(6);
+		m_lego->SetTopViewUseMaxColor(kTRUE);
                 // lego->SetEtaLimits(etaLimLow, etaLimHigh);
                 // lego->SetTitle("caloTower Et distribution");
                 //m_lego->SetData(m_data);
