@@ -59,14 +59,15 @@ void DDTIDModuleAlgo::initialize(const DDNumericArguments & nArgs,
   boxFrameThick     = nArgs["BoxFrameThick"];
   boxFrameHeight    = nArgs["BoxFrameHeight"];
   boxFrameWidth     = nArgs["BoxFrameWidth"];
-  LogDebug("TIDGeom") << "DDTIDModuleAlgo debug: " << boxFrameName 
-		      << " Material " << boxFrameMat << " Thickness " << boxFrameThick 
-		      << " width " << boxFrameWidth <<  " height " << boxFrameHeight
-                      << " Extra Height at Bottom " << bottomFrameHeight << " Overlap " 
-		      << bottomFrameOver;
-
   bottomFrameHeight = nArgs["BottomFrameHeight"];
   bottomFrameOver   = nArgs["BottomFrameOver"];
+  LogDebug("TIDGeom") << "DDTIDModuleAlgo debug: " << boxFrameName 
+		      << " Material " << boxFrameMat << " Thickness " 
+		      << boxFrameThick << " width " << boxFrameWidth 
+		      <<  " height " << boxFrameHeight
+		      << " Extra Height at Bottom " << bottomFrameHeight 
+		      << " Overlap " << bottomFrameOver;
+
   topFrameHeight    = nArgs["TopFrameHeight"];
   topFrameOver      = nArgs["TopFrameOver"];
   sideFrameName     = vsArgs["SideFrameName"];
@@ -99,8 +100,8 @@ void DDTIDModuleAlgo::initialize(const DDNumericArguments & nArgs,
 
   waferName         = vsArgs["WaferName"];
   waferMat          = sArgs["WaferMaterial"];
-  sideWidthTop   = nArgs["SideWidthTop"];
-  sideWidthBottom= nArgs["SideWidthBottom"];
+  sideWidthTop      = nArgs["SideWidthTop"];
+  sideWidthBottom   = nArgs["SideWidthBottom"];
 
   LogDebug("TIDGeom") << "DDTIDModuleAlgo debug: Wafer Material " 
 		      << waferMat  << " Side Width Top " << sideWidthTop
@@ -118,8 +119,8 @@ void DDTIDModuleAlgo::initialize(const DDNumericArguments & nArgs,
 		      << activeMat << " Height " << activeHeight 
 		      << " rotated by " << activeRot;
   for (i = 0; i < detectorN; i++)
-    LogDebug("TIDGeom") << " translated by (0," << -0.5*backplaneThick[i] << ",0)"
-			<< "\tactiveName[" << i << "] = " << activeName[i]
+    LogDebug("TIDGeom") << " translated by (0," << -0.5*backplaneThick[i] 
+			<< ",0)\tactiveName[" << i << "] = " << activeName[i]
 			<< " of thickness " << waferThick[i]-backplaneThick[i];
   
   hybridName        = sArgs["HybridName"];
@@ -149,6 +150,9 @@ void DDTIDModuleAlgo::initialize(const DDNumericArguments & nArgs,
   coolHeight       = nArgs["CoolInsertHeight"];
   coolThick        = nArgs["CoolInsertThick"];
   coolWidth        = nArgs["CoolInsertWidth"];
+  LogDebug("TIDGeom") << "DDTIDModuleAlgo debug: Cool Element Material "
+		      << coolMat << " Height " << coolHeight
+		      << " Thickness " << coolThick << " Width " << coolWidth;
 }
 
 void DDTIDModuleAlgo::execute() {
