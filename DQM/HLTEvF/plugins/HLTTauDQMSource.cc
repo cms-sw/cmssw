@@ -210,11 +210,12 @@ HLTTauDQMSource::beginJob(const EventSetup& context){
          L25EffNumRef.push_back(0);
          L3EffNumRef.push_back(0);
 
-         L1EffDenomRef.push_back(0);
-         L2RecoEffDenomRef.push_back(0);
-         L2EffDenomRef.push_back(0);
-         L25EffDenomRef.push_back(0);
-         L3EffDenomRef.push_back(0);
+         DenomRef.push_back(0);
+
+	 //L2RecoEffDenomRef.push_back(0);
+         //L2EffDenomRef.push_back(0);
+         //L25EffDenomRef.push_back(0);
+         //L3EffDenomRef.push_back(0);
 
 	 
 
@@ -396,7 +397,6 @@ HLTTauDQMSource::analyze(const Event& iEvent, const EventSetup& iSetup )
       //Do L3 Analysis
       if(doL3Monitoring_)
 	doL3(iEvent,iSetup);
-    
   
       counterEvt_ = 0;
     }
@@ -446,12 +446,12 @@ HLTTauDQMSource::doSummary(const Event& iEvent, const EventSetup& iSetup)
 	     if(tev->filterIndex(mainPath_)!=tev->sizeFilters())
 		{
 		  passedMain = true;
-		   printf("Passed main filter\n");
+
 
 		}
 	     if(tev->filterIndex(l1BackupPath_)!=tev->sizeFilters())
 		{
-		  printf("Passed L1 Filter\n");
+
 		  
 		  L1EffDenom++;
 		  if(passedMain)
@@ -462,7 +462,7 @@ HLTTauDQMSource::doSummary(const Event& iEvent, const EventSetup& iSetup)
 	     if(tev->filterIndex(l2BackupPath_)!=tev->sizeFilters())
 		{
 		  L2EffDenom++;
-       	          printf("Passed L2 Filter\n");
+
 
 		  if(passedMain)
 		   {
@@ -519,16 +519,23 @@ HLTTauDQMSource::doSummary(const Event& iEvent, const EventSetup& iSetup)
 	      if(refObjects[j].Pt()>PtCut_[i])
 		{
 		  object_counter++;
+		 
 		}
 	    }
 	  if(object_counter>=nTriggeredTaus_)
 	    {
 	      //Apply MET CUTS to the event
-	      if(METCut_[i]<0.5)
-		RefBits[i] = true;
 
+	      if(METCut_[i]<0.5)
+		{
+		  RefBits[i] = true;
+		  DenomRef[i]++;
+		}
 	      else if(met>METCut_[i])
-		RefBits[i] = true;
+		{
+		  RefBits[i] = true;
+		  DenomRef[i]++;
+		}
 	
 	    }
   
@@ -564,13 +571,13 @@ HLTTauDQMSource::doSummary(const Event& iEvent, const EventSetup& iSetup)
 	      if(match_counter>=nTriggeredTaus_ && RefBits[i])
 		{
 		  L1EffNumRef[i]++;
-		  L1EffDenomRef[i]++;
+		  // L1EffDenomRef[i]++;
 		}
-	      else if(match_counter<nTriggeredTaus_ && RefBits[i])
-		{
-		  L1EffDenomRef[i]++;
+	      // else if(match_counter<nTriggeredTaus_ && RefBits[i])
+	      //	{
+	      //	  L1EffDenomRef[i]++;
 	
-		}
+	      //		}
 
 
 	    }
@@ -594,6 +601,8 @@ HLTTauDQMSource::doSummary(const Event& iEvent, const EventSetup& iSetup)
 		  if(match(L2RTaus[j],refObjects,corrDeltaR_,PtCut_[i]))
 		    {
 		      match_counter++;
+		 
+
 		    }
 		}
 	      if(match_counter>=nTriggeredTaus_)
@@ -605,13 +614,13 @@ HLTTauDQMSource::doSummary(const Event& iEvent, const EventSetup& iSetup)
 	      if(match_counter>=nTriggeredTaus_ && RefBits[i])
 		{
 		  L2RecoEffNumRef[i]++;
-		  L2RecoEffDenomRef[i]++;
+		  //  L2RecoEffDenomRef[i]++;
 		}
-	      else if(match_counter<nTriggeredTaus_ && RefBits[i])
-		{
-		  L2RecoEffDenomRef[i]++;
+	      // else if(match_counter<nTriggeredTaus_ && RefBits[i])
+	      //	{
+	      //	  L2RecoEffDenomRef[i]++;
 	
-		}
+	      //		}
 	  
 
 	    }
@@ -641,6 +650,8 @@ HLTTauDQMSource::doSummary(const Event& iEvent, const EventSetup& iSetup)
 		  if(match(L2Taus[j],refObjects,corrDeltaR_,PtCut_[i]))
 		    {
 		      match_counter++;
+		 
+
 		    }
 		}
 	      if(match_counter>=nTriggeredTaus_)
@@ -651,13 +662,13 @@ HLTTauDQMSource::doSummary(const Event& iEvent, const EventSetup& iSetup)
 	      if(match_counter>=nTriggeredTaus_ && RefBits[i])
 		{
 		  L2EffNumRef[i]++;
-		  L2EffDenomRef[i]++;
+		  //  L2EffDenomRef[i]++;
 		}
-	      else if(match_counter<nTriggeredTaus_ && RefBits[i])
-		{
-		  L2EffDenomRef[i]++;
-	
-		}
+	      //	      else if(match_counter<nTriggeredTaus_ && RefBits[i])
+	      //	{
+	      //	  L2EffDenomRef[i]++;
+	      //	
+	      //	}
 	  
 
 
@@ -702,13 +713,13 @@ HLTTauDQMSource::doSummary(const Event& iEvent, const EventSetup& iSetup)
 	      if(match_counter>=nTriggeredTaus_ && RefBits[i])
 		{
 		  L25EffNumRef[i]++;
-		  L25EffDenomRef[i]++;
+		  ///		  L25EffDenomRef[i]++;
 		}
-	      else if(match_counter<nTriggeredTaus_ && RefBits[i])
-		{
-		  L25EffDenomRef[i]++;
+	      //  else if(match_counter<nTriggeredTaus_ && RefBits[i])
+	      //	{
+	      //	  L25EffDenomRef[i]++;
 	
-		}
+	      //		}
 	  
 	  
 
@@ -748,13 +759,13 @@ HLTTauDQMSource::doSummary(const Event& iEvent, const EventSetup& iSetup)
 	      if(match_counter>=nTriggeredTaus_ && RefBits[i])
 		{
 		  L3EffNumRef[i]++;
-		  L3EffDenomRef[i]++;
+		  ///  L3EffDenomRef[i]++;
 		}
-	      else if(match_counter<nTriggeredTaus_ && RefBits[i])
-		{
-		  L3EffDenomRef[i]++;
-	
-		}
+	      //  else if(match_counter<nTriggeredTaus_ && RefBits[i])
+	      //	{
+	      //	  L3EffDenomRef[i]++;
+	      //	
+	      //	}
 	
 	    }
 
@@ -790,16 +801,16 @@ HLTTauDQMSource::doSummary(const Event& iEvent, const EventSetup& iSetup)
 	  triggerBitInfoRef_[i]->setBinContent(10,NEventsPassedRefL3[i]);
 
 	  //Efficiency With Ref to Reference trigger
-	  triggerEfficiencyRef_[i]->setBinContent(2,calcEfficiency(L1EffNumRef[i],L1EffDenomRef[i])[0]);
-	  triggerEfficiencyRef_[i]->setBinError(2,calcEfficiency(L1EffNumRef[i],L1EffDenomRef[i])[1]);
-	  triggerEfficiencyRef_[i]->setBinContent(4,calcEfficiency(L2RecoEffNumRef[i],L2RecoEffDenomRef[i])[0]);
-	  triggerEfficiencyRef_[i]->setBinError(4,calcEfficiency(L2RecoEffNumRef[i],L2RecoEffDenomRef[i])[1]);
-	  triggerEfficiencyRef_[i]->setBinContent(6,calcEfficiency(L2EffNumRef[i],L2EffDenomRef[i])[0]);
-	  triggerEfficiencyRef_[i]->setBinError(6,calcEfficiency(L2EffNumRef[i],L2EffDenomRef[i])[1]);
-	  triggerEfficiencyRef_[i]->setBinContent(8,calcEfficiency(L25EffNumRef[i],L25EffDenomRef[i])[0]);
-	  triggerEfficiencyRef_[i]->setBinError(8,calcEfficiency(L25EffNumRef[i],L25EffDenomRef[i])[1]);
-	  triggerEfficiencyRef_[i]->setBinContent(10,calcEfficiency(L3EffNumRef[i],L3EffDenomRef[i])[0]);
-	  triggerEfficiencyRef_[i]->setBinError(10,calcEfficiency(L3EffNumRef[i],L3EffDenomRef[i])[1]);
+	  triggerEfficiencyRef_[i]->setBinContent(2,calcEfficiency(L1EffNumRef[i],DenomRef[i])[0]);
+	  triggerEfficiencyRef_[i]->setBinError(2,calcEfficiency(L1EffNumRef[i],DenomRef[i])[1]);
+	  triggerEfficiencyRef_[i]->setBinContent(4,calcEfficiency(L2RecoEffNumRef[i],DenomRef[i])[0]);
+	  triggerEfficiencyRef_[i]->setBinError(4,calcEfficiency(L2RecoEffNumRef[i],DenomRef[i])[1]);
+	  triggerEfficiencyRef_[i]->setBinContent(6,calcEfficiency(L2EffNumRef[i],DenomRef[i])[0]);
+	  triggerEfficiencyRef_[i]->setBinError(6,calcEfficiency(L2EffNumRef[i],DenomRef[i])[1]);
+	  triggerEfficiencyRef_[i]->setBinContent(8,calcEfficiency(L25EffNumRef[i],DenomRef[i])[0]);
+	  triggerEfficiencyRef_[i]->setBinError(8,calcEfficiency(L25EffNumRef[i],DenomRef[i])[1]);
+	  triggerEfficiencyRef_[i]->setBinContent(10,calcEfficiency(L3EffNumRef[i],DenomRef[i])[0]);
+	  triggerEfficiencyRef_[i]->setBinError(10,calcEfficiency(L3EffNumRef[i],DenomRef[i])[1]);
 
 	}
 

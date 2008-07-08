@@ -193,11 +193,12 @@ private:
   std::vector<int> L25EffNumRef;
   std::vector<int> L3EffNumRef;
 
-  std::vector<int> L1EffDenomRef;
-  std::vector<int> L2RecoEffDenomRef;
-  std::vector<int> L2EffDenomRef;
-  std::vector<int> L25EffDenomRef;
-  std::vector<int> L3EffDenomRef;
+  std::vector<int> DenomRef;
+
+  //std::vector<int> L2RecoEffDenomRef;
+  //std::vector<int> L2EffDenomRef;
+  //std::vector<int> L25EffDenomRef;
+  //std::vector<int> L3EffDenomRef;
 
 
   //MonitorElements(Trigger Bits and Efficiency with ref to L1)
