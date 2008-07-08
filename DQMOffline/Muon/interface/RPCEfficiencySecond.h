@@ -2,8 +2,8 @@
  *
  * Class for RPC Monitoring using RPCDigi and DT and CSC Segments.
  *
- *  $Date: 2008/07/02 08:18:30 $
- *  $Revision: 1.1 $
+ *  $Date: 2008/07/03 16:25:09 $
+ *  $Revision: 1.3 $
  *
  * \author Camilo Carrillo (Uniandes)
  *
@@ -45,9 +45,6 @@ class RPCEfficiencySecond : public edm::EDAnalyzer {
 
   MonitorElement * histoRPC;
   MonitorElement * histoDT;
-  MonitorElement * histoRPC_2D;
-  MonitorElement * histoDT_2D;
-  MonitorElement * histoeffIdRPC_DT_2D;
   MonitorElement * histoeffIdRPC_DT;
   MonitorElement * BXDistribution;
   MonitorElement * histoRealRPC;
@@ -88,8 +85,31 @@ class RPCEfficiencySecond : public edm::EDAnalyzer {
   MonitorElement * MaskedGlobW1far;
   MonitorElement * MaskedGlobW2far;
 
-  TGaxis * bxAxis;
-  
+  MonitorElement * AverageEffWm2;
+  MonitorElement * AverageEffWm1;
+  MonitorElement * AverageEffW0;
+  MonitorElement * AverageEffW1;
+  MonitorElement * AverageEffW2;
+
+  MonitorElement * AverageEffWm2far;
+  MonitorElement * AverageEffWm1far;
+  MonitorElement * AverageEffW0far;
+  MonitorElement * AverageEffW1far;
+  MonitorElement * AverageEffW2far;
+
+  MonitorElement * NoPredictionWm2;
+  MonitorElement * NoPredictionWm1;
+  MonitorElement * NoPredictionW0;
+  MonitorElement * NoPredictionW1;
+  MonitorElement * NoPredictionW2;
+
+  MonitorElement * NoPredictionWm2far;
+  MonitorElement * NoPredictionWm1far;
+  MonitorElement * NoPredictionW0far;
+  MonitorElement * NoPredictionW1far;
+  MonitorElement * NoPredictionW2far;
+
+
    private:
       virtual void beginJob(const edm::EventSetup&) ;
       virtual void analyze(const edm::Event&, const edm::EventSetup&);
