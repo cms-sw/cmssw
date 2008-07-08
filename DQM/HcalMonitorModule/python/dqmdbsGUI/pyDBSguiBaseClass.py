@@ -1630,6 +1630,12 @@ class dbsBaseGui:
                 outputroot=newfilename
             self.cmsRunOutput.append(outputroot)
 
+
+        # Hack for Jason to look at Timing Code
+        timingoutput="HcalTiming_run%i.root"%runnum
+        if os.path.exists(timingoutput):
+            self.cmsRunOutput.append(timingoutput)
+
         if (self.debug):
             print "<getcmsRunOutput>  The following cmsRun outputs were found:"
             for i in self.cmsRunOutput:
