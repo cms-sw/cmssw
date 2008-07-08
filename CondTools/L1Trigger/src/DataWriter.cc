@@ -75,16 +75,25 @@ void DataWriter::writeKey (L1TriggerKey * key,
 	editor->create( globalSince, timetype ) ;
       }
 
-    if( sinceRun == globalSince )
+    if( sinceRun == globalSince || requireMapping )
       {
 	cond::Time_t globalTill = cond::timeTypeSpecs[timetype].endValue; 
 	editor->insert (globalTill, ref.token ());
+	tagToken = editor->token ();
+	std::cout << "L1TriggerKey IOV TOKEN " << tagToken << std::endl ;
       }
     else
       {
-	editor->append(sinceRun, ref.token ());
+	if( iov.payloadToken( tagToken, sinceRun ) != ref.token() )
+	  {
+	    editor->append( sinceRun, ref.token() ) ;
+	    std::cout << tag << "L1TriggerKey IOV TOKEN " << tagToken << std::endl ;
+	  }
+	else
+	  {
+	    std::cout << "IOV already up to date." << std::endl ;
+	  }
       }
-    tagToken = editor->token ();
     delete editor;
 
     pool.commit ();
@@ -97,8 +106,6 @@ void DataWriter::writeKey (L1TriggerKey * key,
     // Assign payload token with IOV value
     if (requireMapping)
         addMappings (tag, tagToken);
-
-    std::cout << "L1TriggerKey TOKEN " << tagToken << std::endl ;
 }
 
 void DataWriter::addMappings (const std::string tag, const std::string iovToken)
@@ -219,7 +226,7 @@ DataWriter::writeKeyList( L1TriggerKeyList* keyList,
 	editor->create( globalSince, timetype ) ;
       }
 
-    if( sinceRun == globalSince )
+    if( sinceRun == globalSince || requireMapping )
       {
 	cond::Time_t globalTill = cond::timeTypeSpecs[timetype].endValue; 
 	editor->insert (globalTill, ref.token ());
@@ -279,10 +286,12 @@ DataWriter::updateIOV( const std::string& tag,
 	editor->create( globalSince, timetype ) ;
       }
 
-    if( sinceRun == globalSince )
+    if( sinceRun == globalSince || requireMapping )
       {
 	cond::Time_t globalTill = cond::timeTypeSpecs[timetype].endValue; 
 	editor->insert (globalTill, payloadToken );
+	tagToken = editor->token() ;
+	std::cout << tag << " IOV TOKEN " << tagToken << std::endl ;
       }
     else
       {
@@ -296,7 +305,6 @@ DataWriter::updateIOV( const std::string& tag,
 	    std::cout << "IOV already up to date." << std::endl ;
 	  }
       }
-    tagToken = editor->token() ;
     delete editor ;
 
     // Is this necessary?
