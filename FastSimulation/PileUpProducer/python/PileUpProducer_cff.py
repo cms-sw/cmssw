@@ -3,7 +3,10 @@ import FWCore.ParameterSet.Config as cms
 # Copied here so python will auto-translate the names
 # Now beta function vertex smearing 
 from FastSimulation.Event.EarlyCollisionVertexGenerator_cfi import *
+# 14 TeV pile-up files
 from FastSimulation.PileUpProducer.PileUpSimulator_cfi import *
+# 10 TeV pile-up files
+#from FastSimulation.PileUpProducer.PileUpSimulator10TeV_cfi import *
 # Gaussian or flat or no primary vertex smearing
 # include "FastSimulation/Event/data/GaussianVertexGenerator.cfi"
 # include "FastSimulation/Event/data/FlatVertexGenerator.cfi"

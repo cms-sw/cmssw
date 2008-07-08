@@ -7,18 +7,18 @@ PileUpSimulatorBlock = cms.PSet(
         # to be put in the local running directory (if desired)
         inputFile = cms.untracked.string('PileUpInputFile.txt'),
         # Special files of minimum bias events (generated with 
-        # cmsRun FastSimulation/PileUpProducer/test/producePileUpEvents_cfg.py)
+        # cmsRun FastSimulation/PileUpProducer/test/producePileUpEvents10TeV_cfg.py)
         fileNames = cms.untracked.vstring(
-            'MinBias_001.root', 
-            'MinBias_002.root', 
-            'MinBias_003.root', 
-            'MinBias_004.root', 
-            'MinBias_005.root', 
-            'MinBias_006.root', 
-            'MinBias_007.root', 
-            'MinBias_008.root', 
-            'MinBias_009.root', 
-            'MinBias_010.root'),
+            'MinBias10TeV_001.root', 
+            'MinBias10TeV_002.root', 
+            'MinBias10TeV_003.root', 
+            'MinBias10TeV_004.root', 
+            'MinBias10TeV_005.root', 
+            'MinBias10TeV_006.root', 
+            'MinBias10TeV_007.root', 
+            'MinBias10TeV_008.root', 
+            'MinBias10TeV_009.root', 
+            'MinBias10TeV_010.root'),
         averageNumber = cms.double(0.0)
     )
 )
