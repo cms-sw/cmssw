@@ -8,7 +8,7 @@
 //
 // Original Author:  Chris Jones
 //         Created:  Mon Feb 11 11:06:40 EST 2008
-// $Id: FWGUIManager.cc,v 1.47 2008/07/08 14:16:46 chrjones Exp $
+// $Id: FWGUIManager.cc,v 1.48 2008/07/08 17:47:00 chrjones Exp $
 //
 
 // system include files
@@ -544,107 +544,6 @@ FWGUIManager::resetViewPopup() {
   m_viewPopup = 0;
 }
 
-/*
-void
-FWGUIManager::createEDIFrame(FWListEventItem* iItem) {
-  if (m_ediFrame == 0) {
-    m_ediFrame = new TGMainFrame(gClient->GetRoot(), 200, 400);
-    m_ediFrame->SetCleanup(kDeepCleanup);
-    if (iItem != 0) {
-      m_item = iItem;
-      TGLabel* objectLabel = new TGLabel(m_ediFrame, iItem->eventItem()->name().c_str());
-      m_ediFrame->AddFrame(objectLabel);
-      TGTab* ediTabs = new TGTab(m_ediFrame, m_ediFrame->GetWidth(), m_ediFrame->GetHeight());
-      TGVerticalFrame* graphicsFrame = new TGVerticalFrame(ediTabs, 200, 400);
-      TGHorizontalFrame* colorSelectFrame = new TGHorizontalFrame(graphicsFrame, 200, 100);
-      TGLabel* colorSelectLabel = new TGLabel(colorSelectFrame, "Color:");
-      colorSelectFrame->AddFrame(colorSelectLabel, new TGLayoutHints(kLHintsNormal, 0, 50, 0, 0));
-      TGString* graphicsLabel = new TGString(iItem->eventItem()->name().c_str());
-      Pixel_t selection = gVirtualX->GetPixel(iItem->eventItem()->defaultDisplayProperties().color());
-      std::vector<Pixel_t> colors;
-      //      colors.push_back((Pixel_t)gVirtualX->GetPixel(iItem->eventItem()->defaultDisplayProperties().color()));
-      colors.push_back((Pixel_t)gVirtualX->GetPixel(kRed));
-      colors.push_back((Pixel_t)gVirtualX->GetPixel(kBlue));
-      colors.push_back((Pixel_t)gVirtualX->GetPixel(kYellow));
-      colors.push_back((Pixel_t)gVirtualX->GetPixel(kGreen));
-      colors.push_back((Pixel_t)gVirtualX->GetPixel(kCyan));
-      colors.push_back((Pixel_t)gVirtualX->GetPixel(kMagenta));
-      colors.push_back((Pixel_t)gVirtualX->GetPixel(kOrange));
-      colors.push_back((Pixel_t)gVirtualX->GetPixel(TColor::GetColorDark(kRed)));
-      colors.push_back((Pixel_t)gVirtualX->GetPixel(TColor::GetColorDark(kBlue)));
-      colors.push_back((Pixel_t)gVirtualX->GetPixel(TColor::GetColorDark(kYellow)));
-      colors.push_back((Pixel_t)gVirtualX->GetPixel(TColor::GetColorDark(kGreen)));
-      colors.push_back((Pixel_t)gVirtualX->GetPixel(TColor::GetColorDark(kCyan)));
-      colors.push_back((Pixel_t)gVirtualX->GetPixel(TColor::GetColorDark(kMagenta)));
-      colors.push_back((Pixel_t)gVirtualX->GetPixel(TColor::GetColorDark(kOrange)));
-      bool haveColor = false;
-      for (std::vector<Pixel_t>::const_iterator iCol = colors.begin(); iCol != colors.end(); ++iCol) {
-	if (*iCol == selection) haveColor = true;
-      }
-      if(!haveColor) {
-	printf("Error: Color is not present in palette!\n");
-	colors.push_back(selection);
-      }
-      //      colours.push_back(0x0000ff);
-      //      colours.push_back(0x00ff00);
-      //      colours.push_back(0xff0000);
-      //      colours.push_back(0x00ffff);
-      //      colours.push_back(0xffff00);
-      //      colours.push_back(0xff00ff);
-      //      colours.push_back(0x000000);
-	TGListTreeItem* it_lti = m_listTree->GetFirstItem();
-	while (it_lti) {
-	colours.push_back(it_lti->GetActiveColor());
-	it_lti = it_lti->GetNextSibling();
-	}
-      FWColorSelect* colorSelectWidget = new FWColorSelect(colorSelectFrame, graphicsLabel, selection, colors, -1);
-      colorSelectWidget->Connect("ColorSelected(Pixel_t)", "FWGUIManager", this, "changeItemColor(Pixel_t)");
-      colorSelectFrame->AddFrame(colorSelectWidget);
-      graphicsFrame->AddFrame(colorSelectFrame);
-      TGHorizontal3DLine* colorVisSeperator = new TGHorizontal3DLine(graphicsFrame, 200, 5);
-      graphicsFrame->AddFrame(colorVisSeperator, new TGLayoutHints(kLHintsNormal, 0, 0, 5, 5));
-      TGCheckButton* isVisible = new TGCheckButton(graphicsFrame, "Visible");
-      isVisible->SetState(kButtonDown, kFALSE);
-      isVisible->Connect("Toggled(Bool_t)", "FWGUIManager", this, "toggleItemVisible(Bool_t)");
-      graphicsFrame->AddFrame(isVisible);
-      ediTabs->AddTab("Graphics", graphicsFrame);
-      TGVerticalFrame* filter = new TGVerticalFrame(ediTabs, 200, 600);
-      ediTabs->AddTab("Filter", filter);
-      TGVerticalFrame* select = new TGVerticalFrame(ediTabs, 200, 600);
-      ediTabs->AddTab("Select", select);
-      TGVerticalFrame* data = new TGVerticalFrame(ediTabs, 200, 600);
-      ediTabs->AddTab("Data", data);
-      m_ediFrame->AddFrame(ediTabs, new TGLayoutHints(kLHintsExpandX | kLHintsExpandY, 0, 0, 0, 0));
-    }
-    m_ediFrame->SetWindowName("Event Display Inspector");
-    m_ediFrame->MapSubwindows();
-    m_ediFrame->MapWindow();
-    m_ediFrame->Layout();
-    m_ediFrame->Connect("CloseWindow()", "FWGUIManager", this, "closeEDIFrame()");
-  }
-}
-
-void
-FWGUIManager::closeEDIFrame() {
-  //  m_ediFrame->UnmapWindow();
-  delete m_ediFrame;
-  m_ediFrame = 0;
-}
-
-void
-FWGUIManager::changeItemColor(Pixel_t pixel) {
-  printf("Changing color\n");
-  Color_t color(TColor::GetColor(pixel));
-  const FWDisplayProperties changeProperties(color, m_item->eventItem()->defaultDisplayProperties().isVisible());
-  m_item->eventItem()->setDefaultDisplayProperties(changeProperties);
-}
-
-void
-FWGUIManager::toggleItemVisible(Bool_t on) {
-  const FWDisplayProperties changeProperties(m_item->eventItem()->defaultDisplayProperties().color(), on);
-  m_item->eventItem()->setDefaultDisplayProperties(changeProperties);
-}
-*/
 
 TGMainFrame *FWGUIManager::createTextView (TGTab *p) 
 {
