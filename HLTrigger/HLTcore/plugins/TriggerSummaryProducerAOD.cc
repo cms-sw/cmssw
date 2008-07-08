@@ -2,8 +2,8 @@
  *
  * See header file for documentation
  *
- *  $Date: 2008/07/08 07:06:24 $
- *  $Revision: 1.23 $
+ *  $Date: 2008/07/08 07:10:23 $
+ *  $Revision: 1.24 $
  *
  *  \author Martin Grunewald
  *
@@ -295,6 +295,7 @@ void TriggerSummaryProducerAOD::fillFilterObjects(const edm::Event& iEvent, cons
   for (size_type i=0; i!=n; ++i) {
     const ProductID pid(refs[i].id());
     if (offset_.find(pid)==offset_.end()) {
+      offset_[pid]=1000000000;
       const string&    label(iEvent.getProvenance(pid).moduleLabel());
       const string& instance(iEvent.getProvenance(pid).productInstanceName());
       const string&  process(iEvent.getProvenance(pid).processName());
