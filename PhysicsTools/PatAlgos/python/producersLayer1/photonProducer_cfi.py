@@ -24,7 +24,8 @@ allLayer1Photons = cms.EDProducer("PATPhotonProducer",
         ),
         ecal = cms.PSet(
             # source IsoDeposit
-            src = cms.InputTag("layer0PhotonIsolations","gamIsoDepositEcalFromHits"),
+            #src = cms.InputTag("layer0PhotonIsolations","gamIsoDepositEcalFromHits"),
+            src = cms.InputTag("layer0PhotonIsolations","gamIsoDepositEcalFromClusts"),
             # parameters (E/gamma POG defaults)
             deltaR          = cms.double(0.4),
             vetos           = cms.vstring('EcalBarrel:0.045', 'EcalEndcaps:0.070'),
@@ -39,7 +40,8 @@ allLayer1Photons = cms.EDProducer("PATPhotonProducer",
         #),
         hcal = cms.PSet(
             # source IsoDeposit
-            src = cms.InputTag("layer0PhotonIsolations","gamIsoDepositHcalFromHits"),
+            #src = cms.InputTag("layer0PhotonIsolations","gamIsoDepositHcalFromHits"),
+            src = cms.InputTag("layer0PhotonIsolations","gamIsoDepositHcalFromTowers"),
             # parameters (E/gamma POG defaults)
             deltaR          = cms.double(0.4),
             skipDefaultVeto = cms.bool(True),
@@ -49,8 +51,10 @@ allLayer1Photons = cms.EDProducer("PATPhotonProducer",
     #   store isodeposits to recompute isolation
     isoDeposits = cms.PSet(
         tracker = cms.InputTag("layer0PhotonIsolations","gamIsoDepositTk"),
-        ecal    = cms.InputTag("layer0PhotonIsolations","gamIsoDepositEcalFromHits"),
-        hcal    = cms.InputTag("layer0PhotonIsolations","gamIsoDepositHcalFromHits"),
+        #ecal    = cms.InputTag("layer0PhotonIsolations","gamIsoDepositEcalFromHits"),
+        ecal    = cms.InputTag("layer0PhotonIsolations","gamIsoDepositEcalFromClusts"),
+        #hcal    = cms.InputTag("layer0PhotonIsolations","gamIsoDepositHcalFromHits"),
+        hcal    = cms.InputTag("layer0PhotonIsolations","gamIsoDepositHcalFromTowers"),
     ),
 
     # PhotonID configurables

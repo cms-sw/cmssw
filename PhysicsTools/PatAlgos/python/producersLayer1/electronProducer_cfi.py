@@ -33,7 +33,8 @@ allLayer1Electrons = cms.EDProducer("PATElectronProducer",
         ),
         ecal = cms.PSet(
             # source IsoDeposit
-            src = cms.InputTag("layer0ElectronIsolations","eleIsoDepositEcalFromHits"),
+            #src = cms.InputTag("layer0ElectronIsolations","eleIsoDepositEcalFromHits"),
+            src = cms.InputTag("layer0ElectronIsolations","eleIsoDepositEcalFromClusts"),
             # parameters to compute isolation (Egamma POG defaults)
             deltaR = cms.double(0.4),
             vetos = cms.vstring('EcalBarrel:0.040', 'EcalBarrel:RectangularEtaPhiVeto(-0.01,0.01,-0.5,0.5)',  # Barrel (|eta| < 1.479)
@@ -49,7 +50,8 @@ allLayer1Electrons = cms.EDProducer("PATElectronProducer",
         #),
         hcal = cms.PSet(
             # source IsoDeposit
-            src = cms.InputTag("layer0ElectronIsolations","eleIsoDepositHcalFromHits"),
+            #src = cms.InputTag("layer0ElectronIsolations","eleIsoDepositHcalFromHits"),
+            src = cms.InputTag("layer0ElectronIsolations","eleIsoDepositHcalFromTowers"),
             # parameters to compute isolation (Egamma POG defaults)
             deltaR = cms.double(0.4),
             skipDefaultVeto = cms.bool(True),
@@ -59,8 +61,10 @@ allLayer1Electrons = cms.EDProducer("PATElectronProducer",
     # Store IsoDeposits
     isoDeposits = cms.PSet(
         tracker = cms.InputTag("layer0ElectronIsolations","eleIsoDepositTk"),
-        ecal    = cms.InputTag("layer0ElectronIsolations","eleIsoDepositEcalFromHits"),
-        hcal    = cms.InputTag("layer0ElectronIsolations","eleIsoDepositHcalFromHits"),
+        #ecal    = cms.InputTag("layer0ElectronIsolations","eleIsoDepositEcalFromHits"),
+        ecal    = cms.InputTag("layer0ElectronIsolations","eleIsoDepositEcalFromClusts"),
+        #hcal    = cms.InputTag("layer0ElectronIsolations","eleIsoDepositHcalFromHits"),
+        hcal    = cms.InputTag("layer0ElectronIsolations","eleIsoDepositHcalFromTowers"),
     ),
 
 
