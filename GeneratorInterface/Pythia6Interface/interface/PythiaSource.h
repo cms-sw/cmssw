@@ -21,7 +21,7 @@
 #include "HepMC/GenEvent.h"
 
 #include "GeneratorInterface/Pythia6Interface/interface/PtYDistributor.h"
-#include "GeneratorInterface/Pythia6Interface/interface/TauolaInterface.h"
+#include "GeneratorInterface/CommonInterface/interface/TauolaInterface.h"
 
 class Run;
 namespace CLHEP {
