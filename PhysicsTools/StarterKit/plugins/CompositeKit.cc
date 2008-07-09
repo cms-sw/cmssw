@@ -18,6 +18,9 @@ CompositeKit::CompositeKit(const edm::ParameterSet& iConfig)
   verboseLevel_ = 0;
 
 
+  // First book standard histograms
+  helper_.bookHistos(this);
+
   PhysicsHistograms::KinAxisLimits compositeAxisLimits;
 
   compositeAxisLimits = helper_.getAxisLimits("compositeAxis");
@@ -33,13 +36,14 @@ CompositeKit::CompositeKit(const edm::ParameterSet& iConfig)
 					       src_.label(),
 					       pt1,pt2,m1,m2 );
 
-  // First book standard histograms
-  helper_.bookHistos(this);
+
 }
 
 
 CompositeKit::~CompositeKit()
 {
+  // clean up
+  if ( compositeCandHist_ ) delete compositeCandHist_;
 }
 
 

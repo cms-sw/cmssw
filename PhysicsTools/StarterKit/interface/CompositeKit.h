@@ -19,7 +19,7 @@
 //
 // Original Author:  Sal Rappoccio
 //         Created:  Wed Nov 28 15:31:57 CST 2007
-// $Id: CompositeKit.h,v 1.3 2008/06/20 17:06:28 srappocc Exp $
+// $Id: CompositeKit.h,v 1.4 2008/07/08 21:53:11 srappocc Exp $
 //
 // Revision History:
 //       -  Sal Rappoccio, Fri Nov 30 12:49:44 CST 2007: Added other objects as first
@@ -55,9 +55,6 @@ protected:
 
   // ----------member data ---------------------------
 
-  // The main sub-object which does the real work
-  pat::PatKitHelper          helper_;
-
   bool                       verboseLevel_;
 
   // Input tag
@@ -65,6 +62,10 @@ protected:
 
   // description
   std::string                description_;
+
+  // The main sub-object which does the real work
+  pat::PatKitHelper          helper_;
+
 
 
   // Physics objects handles
