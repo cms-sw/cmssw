@@ -3,8 +3,8 @@
 /*
  *  See header file for a description of this class.
  *
- *  $Date: 2008/07/04 10:14:18 $
- *  $Revision: 1.1 $
+ *  $Date: 2008/07/09 10:41:11 $
+ *  $Revision: 1.2 $
  *  \author G. Mila - INFN Torino
  */
 
@@ -92,14 +92,14 @@ void DTNoiseAnalysisTest::endLuminosityBlock(LuminosityBlock const& lumiSeg, Eve
   edm::LogVerbatim ("noise") <<"[DTNoiseAnalysisTest]: End of LS transition, performing the DQM client operation";
 
   // Reset the summary plots
-  for(map<int, MonitorElement* >::interator plot =  noiseHistos.begin();
+  for(map<int, MonitorElement* >::iterator plot =  noiseHistos.begin();
       plot != noiseHistos.end(); ++plot) {
-    (*plot)->Reset();
+    (*plot).second->Reset();
   }
   
-  for(map<int,  MonitorElement* >::interator plot = noisyCellHistos.begin();
+  for(map<int,  MonitorElement* >::iterator plot = noisyCellHistos.begin();
       plot != noisyCellHistos.end(); ++plot) {
-    (*plot)->Reset();
+    (*plot).second->Reset();
   }
 
 
