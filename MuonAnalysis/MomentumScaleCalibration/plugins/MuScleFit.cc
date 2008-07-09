@@ -1,8 +1,8 @@
 //  \class MuScleFit
 //  Analyzer of the StandAlone muon tracks
 //
-//  $Date: 2008/07/08 10:33:51 $
-//  $Revision: 1.3 $
+//  $Date: 2008/07/08 10:46:54 $
+//  $Revision: 1.4 $
 //  \author R. Bellan, C.Mariotti, S.Bolognesi - INFN Torino / T.Dorigo, M.De Mattia - INFN Padova
 //
 //  Recent additions: 
@@ -684,11 +684,17 @@ edm::EDLooper::Status MuScleFit::duringLoop (const Event & event, const EventSet
    //first is always mu-, second is always mu+
    if(checkDeltaR(genMu.first,recMu1)){
        mapHisto["hResolPtGenVSMu"]->Fill(genMu.first,(-genMu.first.Pt()+recMu1.Pt())/genMu.first.Pt(),-1);
+       mapHisto["hResolThetaGenVSMu"]->Fill(genMu.first,(-genMu.first.Theta()+recMu1.Theta()),-1);
+       mapHisto["hResolCotgThetaGenVSMu"]->Fill(genMu.first,(-cos(genMu.first.Theta())/sin(genMu.first.Theta())
+							     +cos(recMu1.Theta())/sin(recMu1.Theta())),-1);
        mapHisto["hResolEtaGenVSMu"]->Fill(genMu.first,(-genMu.first.Eta()+recMu1.Eta()),-1);
        mapHisto["hResolPhiGenVSMu"]->Fill(genMu.first,(-genMu.first.Phi()+recMu1.Phi()),-1);
     }
    if(checkDeltaR(genMu.second,recMu2)){
        mapHisto["hResolPtGenVSMu"]->Fill(genMu.second,(-genMu.second.Pt()+recMu2.Pt())/genMu.second.Pt(),+1);
+       mapHisto["hResolThetaGenVSMu"]->Fill(genMu.second,(-genMu.second.Theta()+recMu2.Theta()),+1);
+       mapHisto["hResolCotgThetaGenVSMu"]->Fill(genMu.second,(-cos(genMu.second.Theta())/sin(genMu.second.Theta())
+							     +cos(recMu2.Theta())/sin(recMu2.Theta())),+1);
        mapHisto["hResolEtaGenVSMu"]->Fill(genMu.second,(-genMu.second.Eta()+recMu2.Eta()),+1);
        mapHisto["hResolPhiGenVSMu"]->Fill(genMu.second,(-genMu.second.Phi()+recMu2.Phi()),+1);
     }
@@ -697,11 +703,17 @@ edm::EDLooper::Status MuScleFit::duringLoop (const Event & event, const EventSet
    //first is always mu-, second is always mu+
    if(checkDeltaR(simMu.first,recMu1)){
        mapHisto["hResolPtSimVSMu"]->Fill(simMu.first,(-simMu.first.Pt()+recMu1.Pt())/simMu.first.Pt(),-1);
+       mapHisto["hResolThetaSimVSMu"]->Fill(simMu.first,(-simMu.first.Theta()+recMu1.Theta()),-1);
+       mapHisto["hResolCotgThetaSimVSMu"]->Fill(simMu.first,(-cos(simMu.first.Theta())/sin(simMu.first.Theta())
+							     +cos(recMu1.Theta())/sin(recMu1.Theta())),-1);
        mapHisto["hResolEtaSimVSMu"]->Fill(simMu.first,(-simMu.first.Eta()+recMu1.Eta()),-1);
        mapHisto["hResolPhiSimVSMu"]->Fill(simMu.first,(-simMu.first.Phi()+recMu1.Phi()),-1);
     }
    if(checkDeltaR(simMu.second,recMu2)){
        mapHisto["hResolPtSimVSMu"]->Fill(simMu.second,(-simMu.second.Pt()+recMu2.Pt())/simMu.first.Pt(),+1);
+       mapHisto["hResolThetaSimVSMu"]->Fill(simMu.second,(-simMu.second.Theta()+recMu2.Theta()),+1);
+       mapHisto["hResolCotgThetaSimVSMu"]->Fill(simMu.second,(-cos(simMu.second.Theta())/sin(simMu.second.Theta())
+							     +cos(recMu2.Theta())/sin(recMu2.Theta())),+1);
        mapHisto["hResolEtaSimVSMu"]->Fill(simMu.second,(-simMu.second.Eta()+recMu2.Eta()),+1);
        mapHisto["hResolPhiSimVSMu"]->Fill(simMu.second,(-simMu.second.Phi()+recMu2.Phi()),+1);
     }
@@ -794,6 +806,10 @@ void MuScleFit::fillHistoMap() {
   mapHisto["hResolPtSimVSMu"] =  new HResolutionVSPart ("hResolPtSimVSMu");
   mapHisto["hResolEtaGenVSMu"] =  new HResolutionVSPart ("hResolEtaGenVSMu");
   mapHisto["hResolEtaSimVSMu"] =  new HResolutionVSPart ("hResolEtaSimVSMu");
+  mapHisto["hResolThetaGenVSMu"] =  new HResolutionVSPart ("hResolThetaGenVSMu");
+  mapHisto["hResolThetaSimVSMu"] =  new HResolutionVSPart ("hResolThetaSimVSMu");
+  mapHisto["hResolCotgThetaGenVSMu"] =  new HResolutionVSPart ("hResolCotgThetaGenVSMu");
+  mapHisto["hResolCotgThetaSimVSMu"] =  new HResolutionVSPart ("hResolCotgThetaSimVSMu");
   mapHisto["hResolPhiGenVSMu"] =  new HResolutionVSPart ("hResolPhiGenVSMu");
   mapHisto["hResolPhiSimVSMu"] =  new HResolutionVSPart ("hResolPhiSimVSMu");
 

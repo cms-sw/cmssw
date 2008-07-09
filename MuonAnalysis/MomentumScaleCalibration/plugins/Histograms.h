@@ -577,14 +577,14 @@ class HMassVSPart : public Histograms{
 
     // Kinematical variables
     // ---------------------
-    hMassVSPt     = new TH2F (N+"_MassVSPt", "resonance mass vs muon transverse momentum", 200, 0., 200., 3000, 0, 150.);
-    hMassVSEta    = new TH2F (N+"_MassVSEta", "resonance mass vs muon pseudorapidity", 30, -6., 6., 3000, 0, 150.);
-    hMassVSPhiPlus    = new TH2F (N+"_MassVSPhiPlus", "resonance mass vs muon+ phi angle", 32, -3.2, 3.2, 3000, 0, 150.);
-    hMassVSPhiMinus    = new TH2F (N+"_MassVSPhiMinus", "resonance mass vs muon- phi angle", 32, -3.2, 3.2, 3000, 0, 150.);
-    hMassVSPt_prof     = new TProfile (N+"_MassVSPt_prof", "resonance mass vs muon transverse momentum", 100, 0., 200., 0, 150.);
-    hMassVSEta_prof    = new TProfile (N+"_MassVSEta_prof", "resonance mass vs muon pseudorapidity", 30, -6., 6., 0, 150.);
-    hMassVSPhiPlus_prof    = new TProfile (N+"_MassVSPhiPlus_prof", "resonance mass vs muon+ phi angle", 32, -3.2, 3.2, 0, 150.);
-    hMassVSPhiMinus_prof    = new TProfile (N+"_MassVSPhiMinus_prof", "resonance mass vs muon- phi angle", 32, -3.2, 3.2, 0, 150.);
+    hMassVSPt     = new TH2F (N+"_MassVSPt", "resonance mass vs muon transverse momentum", 200, 0., 200., 6000, 0, 150.);
+    hMassVSEta    = new TH2F (N+"_MassVSEta", "resonance mass vs muon pseudorapidity", 60, -6., 6., 6000, 0, 150.);
+    hMassVSPhiPlus    = new TH2F (N+"_MassVSPhiPlus", "resonance mass vs muon+ phi angle", 64, -3.2, 3.2, 6000, 0, 150.);
+    hMassVSPhiMinus    = new TH2F (N+"_MassVSPhiMinus", "resonance mass vs muon- phi angle", 64, -3.2, 3.2, 6000, 0, 150.);
+    //hMassVSPt_prof     = new TProfile (N+"_MassVSPt_prof", "resonance mass vs muon transverse momentum", 100, 0., 200., 0, 150.);
+    //hMassVSEta_prof    = new TProfile (N+"_MassVSEta_prof", "resonance mass vs muon pseudorapidity", 30, -6., 6., 0, 150.);
+    //hMassVSPhiPlus_prof    = new TProfile (N+"_MassVSPhiPlus_prof", "resonance mass vs muon+ phi angle", 32, -3.2, 3.2, 0, 150.);
+    //hMassVSPhiMinus_prof    = new TProfile (N+"_MassVSPhiMinus_prof", "resonance mass vs muon- phi angle", 32, -3.2, 3.2, 0, 150.);
    }
   
   HMassVSPart(TString name_, TFile* file){
@@ -593,10 +593,10 @@ class HMassVSPart : public Histograms{
     hMassVSEta    = (TH2F *) file->Get(name+"_MassVSEta");
     hMassVSPhiPlus    = (TH2F *) file->Get(name+"_MassVSPhiPlus");
     hMassVSPhiMinus    = (TH2F *) file->Get(name+"_MassVSPhiMinus");
-    hMassVSPt_prof     = (TProfile *) file->Get(name+"_MassVSPt_prof");
-    hMassVSEta_prof    = (TProfile *) file->Get(name+"_MassVSEta_prof");
-    hMassVSPhiPlus_prof    = (TProfile *) file->Get(name+"_MassVSPhiPlus_prof");
-    hMassVSPhiMinus_prof    = (TProfile *) file->Get(name+"_MassVSPhiMinus_prof");
+    //hMassVSPt_prof     = (TProfile *) file->Get(name+"_MassVSPt_prof");
+    //hMassVSEta_prof    = (TProfile *) file->Get(name+"_MassVSEta_prof");
+    //hMassVSPhiPlus_prof    = (TProfile *) file->Get(name+"_MassVSPhiPlus_prof");
+    //hMassVSPhiMinus_prof    = (TProfile *) file->Get(name+"_MassVSPhiMinus_prof");
   }
 
   ~HMassVSPart(){
@@ -610,16 +610,16 @@ class HMassVSPart : public Histograms{
   
    virtual void Fill(HepLorentzVector momentum1, HepLorentzVector momentum2, int charge) { 
      hMassVSPt->Fill(momentum1.perp(),momentum2.m()); 
-     hMassVSPt_prof->Fill(momentum1.perp(),momentum2.m()); 
+     //hMassVSPt_prof->Fill(momentum1.perp(),momentum2.m()); 
      hMassVSEta->Fill(momentum1.eta(),momentum2.m()); 
-     hMassVSEta_prof->Fill(momentum1.eta(),momentum2.m()); 
+     //hMassVSEta_prof->Fill(momentum1.eta(),momentum2.m()); 
      if(charge>0){
        hMassVSPhiPlus->Fill(momentum1.phi(),momentum2.m()); 
-       hMassVSPhiPlus_prof->Fill(momentum1.phi(),momentum2.m()); 
+       //hMassVSPhiPlus_prof->Fill(momentum1.phi(),momentum2.m()); 
      }
      else if(charge<0){
        hMassVSPhiMinus->Fill(momentum1.phi(),momentum2.m()); 
-       hMassVSPhiMinus_prof->Fill(momentum1.phi(),momentum2.m()); 
+       //hMassVSPhiMinus_prof->Fill(momentum1.phi(),momentum2.m()); 
      }
      else 
        abort();
@@ -630,12 +630,12 @@ class HMassVSPart : public Histograms{
     hMassVSEta->Write();    
     hMassVSPhiPlus->Write();
     hMassVSPhiMinus->Write();
-    hMassVSPt_prof->Write();
-    hMassVSEta_prof->Write();    
-    hMassVSPhiPlus_prof->Write();
-    hMassVSPhiMinus_prof->Write();
+    //hMassVSPt_prof->Write();
+    //hMassVSEta_prof->Write();    
+    //hMassVSPhiPlus_prof->Write();
+    //hMassVSPhiMinus_prof->Write();
 
-    vector<TGraphErrors*> graphPt ((MuScleFitUtils::fitMass(hMassVSPt)));
+    /*vector<TGraphErrors*> graphPt ((MuScleFitUtils::fitMass(hMassVSPt)));
     for(vector<TGraphErrors*>::const_iterator graph = graphPt.begin(); graph != graphPt.end(); graph++){
       (*graph)->Write();
     }   
@@ -650,7 +650,7 @@ class HMassVSPart : public Histograms{
     vector<TGraphErrors*> graphEta ((MuScleFitUtils::fitMass(hMassVSEta)));
     for(vector<TGraphErrors*>::const_iterator graph = graphEta.begin(); graph != graphEta.end(); graph++){
       (*graph)->Write();
-    }   
+      }*/   
   }
   
   virtual void Clear() {
@@ -658,10 +658,10 @@ class HMassVSPart : public Histograms{
     hMassVSEta->Clear();    
     hMassVSPhiPlus->Clear();
     hMassVSPhiMinus->Clear();
-    hMassVSPt_prof->Clear();
-    hMassVSEta_prof->Clear();    
-    hMassVSPhiPlus_prof->Clear();
-    hMassVSPhiMinus_prof->Clear();
+    //hMassVSPt_prof->Clear();
+    //hMassVSEta_prof->Clear();    
+    //hMassVSPhiPlus_prof->Clear();
+    //hMassVSPhiMinus_prof->Clear();
    }
   
  public:
@@ -669,10 +669,10 @@ class HMassVSPart : public Histograms{
   TH2F* hMassVSEta;
   TH2F* hMassVSPhiPlus; 
   TH2F* hMassVSPhiMinus; 
-  TProfile* hMassVSPt_prof;
-  TProfile* hMassVSEta_prof;
-  TProfile* hMassVSPhiPlus_prof;
-  TProfile* hMassVSPhiMinus_prof;
+  //TProfile* hMassVSPt_prof;
+  //TProfile* hMassVSEta_prof;
+  //TProfile* hMassVSPhiPlus_prof;
+  //TProfile* hMassVSPhiMinus_prof;
  
   TString name;
 
@@ -686,17 +686,18 @@ class HResolutionVSPart : public Histograms{
     TString N = name_.c_str();
     name=N;
     // Kinematical variables
-    hReso    = new TH1F (N+"_Reso", "resolution", 1000, -1, 1);
-    hResoVSPt    = new TH2F (N+"_ResoVSPt", "resolution VS pt", 200, 0, 200, 1000, -1, 1);
-    hResoVSPt_prof = new TProfile (N+"_ResoVSPt_prof", "resolution VS pt", 100, 0, 200, -1, 1);
-    hResoVSEta    = new TH2F (N+"_ResoVSEta", "resolution VS eta", 10, -2.5, 2.5, 1000, -1, 1);
-    hResoVSEta_prof = new TProfile (N+"_ResoVSEta_prof", "resolution VS eta", 10, -2.5, 2.5, -1, 1);
-    hResoVSPhiPlus    = new TH2F (N+"_ResoVSPhiPlus", "resolution VS phi mu+", 14, -3.2, 3.2, 1000, -1, 1);
-    hResoVSPhiMinus    = new TH2F (N+"_ResoVSPhiMinus", "resolution VS phi mu-", 14, -3.2, 3.2, 1000, -1, 1);
-    hResoVSPhi_prof = new TProfile (N+"_ResoVSPhi_prof", "resolution VS phi", 14, -3.2, 3.2, -1, 1);
+    hReso    = new TH1F (N+"_Reso", "resolution", 4000, -1, 1);
+    hResoVSPt    = new TH2F (N+"_ResoVSPt", "resolution VS pt", 200, 0, 200, 4000, -1, 1);
+    //hResoVSPt_prof = new TProfile (N+"_ResoVSPt_prof", "resolution VS pt", 100, 0, 200, -1, 1);
+    hResoVSEta    = new TH2F (N+"_ResoVSEta", "resolution VS eta", 30, -3, 3, 4000, -1, 1);
+    hResoVSTheta    = new TH2F (N+"_ResoVSTheta", "resolution VS theta", 30, 0, TMath::Pi(), 4000, -1, 1);
+    //hResoVSEta_prof = new TProfile (N+"_ResoVSEta_prof", "resolution VS eta", 10, -2.5, 2.5, -1, 1);
+    hResoVSPhiPlus    = new TH2F (N+"_ResoVSPhiPlus", "resolution VS phi mu+", 14, -3.2, 3.2, 4000, -1, 1);
+    hResoVSPhiMinus    = new TH2F (N+"_ResoVSPhiMinus", "resolution VS phi mu-", 14, -3.2, 3.2, 4000, -1, 1);
+    //hResoVSPhi_prof = new TProfile (N+"_ResoVSPhi_prof", "resolution VS phi", 14, -3.2, 3.2, -1, 1);
     hAbsReso    = new TH1F (N+"_AbsReso", "resolution", 100, 0, 1);
     hAbsResoVSPt    = new TH2F (N+"_AbsResoVSPt", "Abs resolution VS pt", 200, 0, 500, 100, 0, 1);
-    hAbsResoVSEta    = new TH2F (N+"_AbsResoVSEta", "Abs resolution VS eta", 10, -2.5, 2.5, 100, 0, 1);
+    hAbsResoVSEta    = new TH2F (N+"_AbsResoVSEta", "Abs resolution VS eta", 30, -3, 3, 100, 0, 1);
     hAbsResoVSPhi    = new TH2F (N+"_AbsResoVSPhi", "Abs resolution VS phi", 14, -3.2, 3.2, 100, 0, 1);
   }
   
@@ -704,12 +705,13 @@ class HResolutionVSPart : public Histograms{
     name=name_;
     hReso      = (TH1F *) file->Get(name+"_Reso");
     hResoVSPt  = (TH2F *) file->Get(name+"_ResoVSPt");
-    hResoVSPt_prof  = (TProfile *) file->Get(name+"_ResoVSPt_prof");
+    //hResoVSPt_prof  = (TProfile *) file->Get(name+"_ResoVSPt_prof");
     hResoVSEta  = (TH2F *) file->Get(name+"_ResoVSEta");
-    hResoVSEta_prof  = (TProfile *) file->Get(name+"_ResoVSEta_prof");
+    hResoVSTheta  = (TH2F *) file->Get(name+"_ResoVSTheta");
+    //hResoVSEta_prof  = (TProfile *) file->Get(name+"_ResoVSEta_prof");
     hResoVSPhiPlus  = (TH2F *) file->Get(name+"_ResoVSPhiPlus");
     hResoVSPhiMinus  = (TH2F *) file->Get(name+"_ResoVSPhiMinus");
-    hResoVSPhi_prof  = (TProfile *) file->Get(name+"_ResoVSPhi_prof");
+    //hResoVSPhi_prof  = (TProfile *) file->Get(name+"_ResoVSPhi_prof");
     hAbsReso      = (TH1F *) file->Get(name+"_AbsReso");
     hAbsResoVSPt  = (TH2F *) file->Get(name+"_AbsResoVSPt");
     hAbsResoVSEta  = (TH2F *) file->Get(name+"_AbsResoVSEta");
@@ -723,13 +725,14 @@ class HResolutionVSPart : public Histograms{
      hReso->Fill(resValue); 
      hResoVSPt->Fill(p4.Pt(),resValue); 
      hResoVSEta->Fill(p4.Eta(),resValue); 
+     hResoVSTheta->Fill(p4.Theta(),resValue); 
      if(charge>0)
        hResoVSPhiPlus->Fill(p4.Phi(),resValue); 
      else if(charge<0)
        hResoVSPhiMinus->Fill(p4.Phi(),resValue); 
-     hResoVSPt_prof->Fill(p4.Pt(),resValue); 
-     hResoVSEta_prof->Fill(p4.Eta(),resValue); 
-     hResoVSPhi_prof->Fill(p4.Phi(),resValue); 
+     //hResoVSPt_prof->Fill(p4.Pt(),resValue); 
+     //hResoVSEta_prof->Fill(p4.Eta(),resValue); 
+     //hResoVSPhi_prof->Fill(p4.Phi(),resValue); 
      hAbsReso->Fill(fabs(resValue)); 
      hAbsResoVSPt->Fill(p4.Pt(),fabs(resValue)); 
      hAbsResoVSEta->Fill(p4.Eta(),fabs(resValue)); 
@@ -739,17 +742,18 @@ class HResolutionVSPart : public Histograms{
   virtual void Write() {
     hReso->Write();
     hResoVSPt->Write();
-    hResoVSPt_prof->Write();
+    //hResoVSPt_prof->Write();
     hResoVSEta->Write();
-    hResoVSEta_prof->Write();
+    hResoVSTheta->Write();
+    //hResoVSEta_prof->Write();
     hResoVSPhiMinus->Write();
     hResoVSPhiPlus->Write();
-    hResoVSPhi_prof->Write();
+    //hResoVSPhi_prof->Write();
     hAbsReso->Write();
     hAbsResoVSPt->Write();
     hAbsResoVSEta->Write();
     hAbsResoVSPhi->Write();
-
+    /*
     vector<TGraphErrors*> graphs ((MuScleFitUtils::fitReso(hResoVSPt)));
     for(vector<TGraphErrors*>::const_iterator graph = graphs.begin(); graph != graphs.end(); graph++){
       (*graph)->Write();
@@ -768,19 +772,19 @@ class HResolutionVSPart : public Histograms{
     vector<TGraphErrors*> graphsPhiMinus ((MuScleFitUtils::fitReso(hResoVSPhiPlus)));
     for(vector<TGraphErrors*>::const_iterator graph = graphsPhiMinus.begin(); graph != graphsPhiMinus.end(); graph++){
       (*graph)->Write();
-    }
- }
+      }*/
+  }
   
   virtual void Clear() {
     hReso->Clear();    
     hResoVSPt->Clear();    
-    hResoVSPt_prof->Clear();    
+    //hResoVSPt_prof->Clear();    
     hResoVSEta->Clear();    
-    hResoVSEta_prof->Clear();    
+    hResoVSTheta->Clear();    
+    //hResoVSEta_prof->Clear();    
     hResoVSPhiPlus->Clear();    
     hResoVSPhiMinus->Clear();    
-    hResoVSPhi_prof->Clear();    
-    hResoVSPhi_prof->Clear();    
+    //hResoVSPhi_prof->Clear();    
     hAbsReso->Clear();
     hAbsResoVSPt->Clear();
     hAbsResoVSEta->Clear();
@@ -791,12 +795,13 @@ class HResolutionVSPart : public Histograms{
  public:
   TH1F* hReso;
   TH2F* hResoVSPt;
-  TProfile* hResoVSPt_prof;
+  //TProfile* hResoVSPt_prof;
   TH2F* hResoVSEta;
-  TProfile* hResoVSEta_prof;
+  TH2F* hResoVSTheta;
+  //TProfile* hResoVSEta_prof;
   TH2F* hResoVSPhiMinus;
   TH2F* hResoVSPhiPlus;
-  TProfile* hResoVSPhi_prof;
+  //TProfile* hResoVSPhi_prof;
   TH1F* hAbsReso;
   TH2F* hAbsResoVSPt;
   TH2F* hAbsResoVSEta;
