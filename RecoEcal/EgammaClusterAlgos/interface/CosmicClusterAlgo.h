@@ -37,8 +37,8 @@ class CosmicClusterAlgo
   CosmicClusterAlgo() {
   }
 
-  CosmicClusterAlgo(double ebst, double ebSt , double ebDt, double ecst, double ecSt, double ecDt, const PositionCalc& posCalc, VerbosityLevel the_verbosity = pERROR) : 
-    ecalBarrelSeedThreshold(ebst), ecalBarrelSingleThreshold(ebSt), ecalBarrelSecondThreshold(ebDt), ecalEndcapSeedThreshold(ecst), ecalEndcapSingleThreshold(ecSt), ecalEndcapSecondThreshold(ecDt), verbosity(the_verbosity) {
+  CosmicClusterAlgo(double ebst, double ebSt , double ebDt, double ebSp, double ecst, double ecSt, double ecDt, double ecSp, const PositionCalc& posCalc, VerbosityLevel the_verbosity = pERROR) : 
+    ecalBarrelSeedThreshold(ebst), ecalBarrelSingleThreshold(ebSt), ecalBarrelSecondThreshold(ebDt), ecalBarrelSupThreshold(ebSp), ecalEndcapSeedThreshold(ecst), ecalEndcapSingleThreshold(ecSt), ecalEndcapSecondThreshold(ecDt), ecalEndcapSupThreshold(ecSp), verbosity(the_verbosity) {
     posCalculator_ = posCalc;
   }
 
@@ -57,8 +57,8 @@ class CosmicClusterAlgo
                                                const CaloSubdetectorTopology *topology_p,
                                                const CaloSubdetectorGeometry *geometryES_p,
                                                EcalPart ecalPart,
-											   const EcalIntercalibConstantMap& icalMap,
 											   const std::vector<int>& masked = std::vector<int>(),
+											   const EcalIntercalibConstantMap& icalMap = 1.0,
 					       bool regional = false,
 					       const std::vector<EcalEtaPhiRegion>& regions = std::vector<EcalEtaPhiRegion>());
 
@@ -75,9 +75,12 @@ class CosmicClusterAlgo
   double ecalBarrelSeedThreshold;
   double ecalBarrelSingleThreshold;
   double ecalBarrelSecondThreshold;
+  double ecalBarrelSupThreshold;
+  
   double ecalEndcapSeedThreshold;
   double ecalEndcapSingleThreshold;
   double ecalEndcapSecondThreshold;
+  double ecalEndcapSupThreshold;
   
   // collection of all rechits
   const EcalRecHitCollection *recHits_;
@@ -94,6 +97,7 @@ class CosmicClusterAlgo
   // The vector of DetId's in the cluster currently reconstructed
   std::vector<DetId> current_v9;
   std::vector<DetId> current_v25;
+  std::vector<DetId> current_v25Sup;
 
   // The vector of clusters
   std::vector<reco::BasicCluster> clusters_v;

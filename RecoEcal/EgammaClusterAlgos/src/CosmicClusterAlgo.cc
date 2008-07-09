@@ -22,8 +22,8 @@ std::vector<reco::BasicCluster> CosmicClusterAlgo::makeClusters(
 				  const CaloSubdetectorTopology *topology_p,
 				  const CaloSubdetectorGeometry *geometryES_p,
 				  EcalPart ecalPart,
-				  const EcalIntercalibConstantMap& icalMap,
 				  const std::vector<int>& masked,
+				  const EcalIntercalibConstantMap& icalMap,
 				  bool regional,
 				  const std::vector<EcalEtaPhiRegion>& regions)
 {
@@ -136,8 +136,8 @@ void CosmicClusterAlgo::mainSearch(const EcalRecHitCollection* hits,
    {
       std::cout << "Building clusters............" << std::endl;
    }
-
-   // Loop over seeds:
+     
+  // Loop over seeds:
    std::vector<EcalRecHit>::iterator it;
    for (it = seeds.begin(); it != seeds.end(); it++)
    {
@@ -168,6 +168,7 @@ void CosmicClusterAlgo::mainSearch(const EcalRecHitCollection* hits,
       // clear the vector of hits in current cluster
       current_v9.clear();
       current_v25.clear();
+      current_v25Sup.clear();
 
       // Create a navigator at the seed
       CaloNavigator<DetId> navigator(it->id(), topology_p);
@@ -208,8 +209,7 @@ void CosmicClusterAlgo::makeCluster(const EcalRecHitCollection* hits,
    DetId detFir;
    DetId detSec;
    //bool goodCluster = false; //JHaupt 4-27-08 Added so that some can be earased.. used another day Might not be needed as seeds are energy ordered... 
-   Point position;
-   position = posCalculator_.Calculate_Location(current_v25, hits,geometry, geometryES);
+  
    
    std::vector<DetId>::iterator it;
    for (it = current_v9.begin(); it != current_v9.end(); it++)
@@ -233,15 +233,26 @@ void CosmicClusterAlgo::makeCluster(const EcalRecHitCollection* hits,
    {
       EcalRecHitCollection::const_iterator itt = hits->find(*it);
       EcalRecHit hit_p = *itt;
-      energy += hit_p.energy();
-      chi2 += 0;
+      EcalIntercalibConstantMap::const_iterator icalit=icalMap.find(hit_p.id());
+      EcalIntercalibConstant icalconst = 1.;
+      if( icalit!=icalMap.end() ){icalconst = (*icalit);}
+      double hitEnergy = hit_p.energy()/icalconst;
+      if ( hitEnergy > ecalBarrelSupThreshold ) 
+      {
+         current_v25Sup.push_back(hit_p.id());
+         energy += hitEnergy;
+         chi2 += 0;
+      }     
    }
+   
+   Point position;
+   position = posCalculator_.Calculate_Location(current_v25Sup, hits,geometry, geometryES);
    
    chi2 /= energy;
    if (verbosity < pINFO)
    { 
       std::cout << "JH******** NEW CLUSTER ********" << std::endl;
-      std::cout << "JHNo. of crystals = " << current_v25.size() << std::endl;
+      std::cout << "JHNo. of crystals = " << current_v25Sup.size() << std::endl;
       std::cout << "JH     Energy     = " << energy << std::endl;
       std::cout << "JH     Phi        = " << position.phi() << std::endl;
       std::cout << "JH     Eta        = " << position.eta() << std::endl;
@@ -251,7 +262,7 @@ void CosmicClusterAlgo::makeCluster(const EcalRecHitCollection* hits,
 //       std::cout << "JH****Esec****  "<<energySecond << " ieta " <<detSec.ieta() <<" iphi "<<detSec.ieta() << std::endl;
     }
 
-   clusters_v.push_back(reco::BasicCluster(energy, position, chi2, current_v25, reco::island));
+   clusters_v.push_back(reco::BasicCluster(energy, position, chi2, current_v25Sup, reco::island));
 }
 
 bool CosmicClusterAlgo::checkMaxima(CaloNavigator<DetId> &navigator,
