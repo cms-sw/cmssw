@@ -1,4 +1,5 @@
 <use name=boost>
+<use name=DataFormats/HcalIsolatedTrack>
 <use name=DataFormats/CaloTowers>
 <use name=DataFormats/HcalRecHit>
 <use name=DataFormats/EcalDetId>
@@ -36,6 +37,7 @@
 <flags EDM_PLUGIN=1>
 <export>
    <lib name=CalibrationHcalAlCaRecoProducers>
+   <use name=DataFormats/HcalIsolatedTrack>
    <use name=DataFormats/DetId>
    <use name=DataFormats/MuonReco>
    <use name=DataFormats/EcalDigi>
