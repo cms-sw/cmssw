@@ -47,6 +47,7 @@ ElectronOfETauDQM::ElectronOfETauDQM(const edm::ParameterSet& pset)
   genEtaAcc_ = pset.getParameter<double>("genEtaAcc");
   genEtAcc_ = pset.getParameter<double>("genEtAcc");
   outputFile_= pset.getParameter<std::string>("outputFile");
+  triggerName_=pset.getParameter<std::string>("triggerName");
   //plotting paramters
   thePtMin_ = pset.getUntrackedParameter<double>("PtMin",0.);
   thePtMax_ = pset.getUntrackedParameter<double>("PtMax",1000.);
@@ -78,7 +79,8 @@ void ElectronOfETauDQM::beginJob(const edm::EventSetup&){
   DQMStore* store = &*edm::Service<DQMStore>();
   if(store){
 
-    store->setCurrentFolder("ElectronOfETauDQM");
+    std::string fold="ElectronOf"+triggerName_+"DQM";
+    store->setCurrentFolder(fold.c_str());
     m_total = store->book1D(histoname.c_str(),histoname.c_str(),m_theHLTCollectionLabels.size()+2,0,m_theHLTCollectionLabels.size()+2);
     m_total->setBinLabel(m_theHLTCollectionLabels.size()+1,"Total");
     m_total->setBinLabel(m_theHLTCollectionLabels.size()+2,"Gen");
@@ -143,7 +145,6 @@ void ElectronOfETauDQM::analyze(const edm::Event & event , const edm::EventSetup
   LVColl mcparts;
   unsigned int ncand = 0;
   if(event.getByLabel(refCollection_,refC)){
-    std::cout<<"LALALALA"<<std::endl;
     ref_ok=true;
     for (size_t i=0;i<refC->size();++i)
       {
@@ -163,7 +164,7 @@ void ElectronOfETauDQM::analyze(const edm::Event & event , const edm::EventSetup
   //event.getByLabel("source", genEvt);
   
   for(unsigned int n=0; n < m_theHLTCollectionLabels.size() ; n++) { //loop over filter modules
-    std::cout<<"OUTPUT TYPE==============="<<m_theHLTOutputTypes[n]<<std::endl;
+
     switch(m_theHLTOutputTypes[n]){
     case 82: // non-iso L1
       fillHistos<l1extra::L1EmParticleCollection>(triggerObj,event,n,mcparts);break;
@@ -178,7 +179,7 @@ void ElectronOfETauDQM::analyze(const edm::Event & event , const edm::EventSetup
     default: throw(cms::Exception("Release Validation Error")<< "HLT output type not implemented: theHLTOutputTypes[n]" );
     }
   }
-  std::cout<<"NEW EVENT=================="<<std::endl;
+
 }
 
 template <class T> void ElectronOfETauDQM::fillHistos(edm::Handle<trigger::TriggerEventWithRefs>& triggerObj,const edm::Event& iEvent ,unsigned int n,LVColl& mcparts){
@@ -200,7 +201,7 @@ template <class T> void ElectronOfETauDQM::fillHistos(edm::Handle<trigger::Trigg
     
     //fill filter objects into histos
     if (recoecalcands.size()!=0){
-      std::cout<<"FILTER COLLETION SIZE=============="<<recoecalcands.size()<<std::endl;
+
       if(recoecalcands.size() >= reqNum_ ) 
 	m_total->Fill(n+0.5);
       for (unsigned int i=0; i<recoecalcands.size(); i++) {
@@ -225,7 +226,6 @@ template <class T> void ElectronOfETauDQM::fillHistos(edm::Handle<trigger::Trigg
 	  }
 	  if( (closestDr<0.5&&(m_theHLTOutputTypes[n]==82 || m_theHLTOutputTypes[n]==83)) ||
 	      (closestDr<0.1&&m_theHLTOutputTypes[n]>90) ){
-	    std::cout<<":::::DFADSFADSFASDF:::::"<<closestDr<<std::endl;
 	    float eta   =mcparts[i].Eta();//closest.Eta();
 	    float et    =mcparts[i].Et();//closest.Et();
 	    m_ethistmatch[n]->Fill( et );
