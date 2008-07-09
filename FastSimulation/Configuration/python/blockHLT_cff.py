@@ -209,8 +209,3 @@ block_hltL3TrajectorySeed = cms.PSet(
   Phi_fixed = cms.double( 0.2 ),
   OnDemand = cms.double( -1.0 )
 )
-
-HLTSchedule = cms.Schedule( )
-
-
-
