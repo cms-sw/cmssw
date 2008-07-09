@@ -95,7 +95,11 @@ class uint64(_SimpleParameterTypeBase):
 class double(_SimpleParameterTypeBase):
     @staticmethod
     def _isValid(value):
-        return True
+        try:
+            tmp = float(value)
+            return True
+        except:
+            return False
     @staticmethod
     def _valueFromString(value):
         """only used for cfg-parsing"""
