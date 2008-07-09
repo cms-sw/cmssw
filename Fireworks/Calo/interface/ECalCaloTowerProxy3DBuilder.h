@@ -3,7 +3,7 @@
 //
 // Original Author:  
 //         Created:  Thu Dec  6 18:01:21 PST 2007
-// $Id: ECalCaloTowerProxy3DBuilder.h,v 1.2 2008/06/23 06:29:03 dmytro Exp $
+// $Id: ECalCaloTowerProxy3DBuilder.h,v 1.3 2008/07/01 19:16:43 chrjones Exp $
 //
 
 // system include files
@@ -39,6 +39,9 @@ class ECalCaloTowerProxy3DBuilder : public FWRPZDataProxyBuilder
       }
    
       virtual std::string histName() const;
+
+      void itemBeingDestroyedImp(const FWEventItem*);
+
    private:
       virtual void build(const FWEventItem* iItem, TEveElementList** product);
 

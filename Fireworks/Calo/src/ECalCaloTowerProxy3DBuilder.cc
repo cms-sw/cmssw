@@ -1,5 +1,5 @@
 // -*- C++ -*-
-// $Id: ECalCaloTowerProxy3DBuilder.cc,v 1.4 2008/07/01 19:16:43 chrjones Exp $
+// $Id: ECalCaloTowerProxy3DBuilder.cc,v 1.5 2008/07/07 00:44:44 chrjones Exp $
 //
 
 // system include files
@@ -26,7 +26,6 @@ TEveCaloDataHist*ECalCaloTowerProxy3DBuilder::m_data=0;
 
 void ECalCaloTowerProxy3DBuilder::build(const FWEventItem* iItem, TEveElementList** product)
 {
-   if( *product == 0) *product = new TEveElementList();
 /*
    TH2F* hist = 0;
    TEveCaloDataHist* data = 0;
@@ -80,6 +79,11 @@ void ECalCaloTowerProxy3DBuilder::build(const FWEventItem* iItem, TEveElementLis
       //	 m_calo3d->IncDenyDestroy();
       // gEve->AddElement(m_calo3d);
       //	(*product)->AddElement(m_calo3d);
+   }
+   if( *product == 0) {
+      *product = new TEveElementList();
+      //Since m_calo3d can be shared by multiple proxy builders we have to
+      // be sure it gets attached to multiple outputs
       gEve->AddElement(*product);
       gEve->AddElement(m_calo3d, *product);
    }
@@ -90,6 +94,15 @@ ECalCaloTowerProxy3DBuilder::histName() const
 {
    return "ecal3D";
 }
+
+void 
+ECalCaloTowerProxy3DBuilder::itemBeingDestroyedImp(const FWEventItem* iItem)
+{
+   FWRPZDataProxyBuilder::itemBeingDestroyedImp(iItem);
+   m_hist->Reset();
+   m_data->DataChanged();
+}
+
 
 void 
 ECalCaloTowerProxy3DBuilder::modelChanges(const FWModelIds& iIds,
