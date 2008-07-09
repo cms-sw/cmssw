@@ -13,7 +13,7 @@
 //
 // Original Author:  Dmytro Kovalskyi
 //         Created:  Fri Apr 21 10:59:41 PDT 2006
-// $Id: TestTrackAssociator.cc,v 1.19 2007/10/20 12:17:36 dlange Exp $
+// $Id: TestTrackAssociator.cc,v 1.20 2008/05/10 14:43:36 fambrogl Exp $
 //
 //
 
@@ -206,7 +206,8 @@ void TestTrackAssociator::analyze( const edm::Event& iEvent, const edm::EventSet
 	{
 	   GlobalPoint point = info.getPosition((*hit)->detid());
 	   LogVerbatim("TrackAssociator") << "\t" << (*hit)->detid().rawId() << ", " << (*hit)->energy() << 
-	     " \t(" << point.z() << ", \t" << point.perp() << ", \t" << point.eta() << ", \t" << point.phi() << ")";
+	     " \t(" << point.z() << ", \t" << point.perp() << ", \t" << (*hit)->id().depth() << ", \t" << 
+	     point.eta() << ", \t" << point.phi() << ")";
 	}
       LogVerbatim("TrackAssociator") << "HCAL crossed DetIds: (id, z, perp, eta, phi)";
       for(std::vector<DetId>::const_iterator id = info.crossedHcalIds.begin(); 
@@ -216,13 +217,14 @@ void TestTrackAssociator::analyze( const edm::Event& iEvent, const edm::EventSet
 	   LogVerbatim("TrackAssociator") << "\t" << id->rawId() << 
 	     " \t(" << point.z() << ", \t" << point.perp() << ", \t" << point.eta() << ", \t" << point.phi() << ")";
 	}
-      LogVerbatim("TrackAssociator") << "HCAL associated DetIds: (id, energy)";
+      LogVerbatim("TrackAssociator") << "HCAL associated DetIds: id, (energy, z, perp, depth, eta, phi)";
       for(std::vector<const HBHERecHit*>::const_iterator hit = info.hcalRecHits.begin(); 
 	  hit != info.hcalRecHits.end(); ++hit)
 	{
 	   GlobalPoint point = info.getPosition((*hit)->detid());
 	   LogVerbatim("TrackAssociator") << "\t" << (*hit)->detid().rawId() << ", " << (*hit)->energy() << 
-	     " \t(" << point.z() << ", \t" << point.perp() << ", \t" << point.eta() << ", \t" << point.phi() << ")";
+	     " \t(" << point.z() << ", \t" << point.perp() << ", \t" << (*hit)->id().depth() << ", \t" << 
+	     point.eta() << ", \t" << point.phi() << ")";
 	}
 
       LogVerbatim("TrackAssociator") << "---------------------------------------------------------------------------" ;
