@@ -28,8 +28,7 @@ struct SortMuonSegmentMatches {
          flag_ == reco::MuonSegmentMatch::BestInStationByDR || 
          flag_ == reco::MuonSegmentMatch::BelongsToTrackByDR)
       {
-         if((cm1->station()==4 && cm1->detector()==MuonSubdetId::DT) ||
-               (cm2->station()==4 && cm2->detector()==MuonSubdetId::DT)) // no y information so return dx
+         if((! sm1->hasZed()) || (! sm2->hasZed())) // no y information so return dx
             return fabs(sm1->x-cm1->x) < fabs(sm2->x-cm2->x);
          return sqrt(pow(sm1->x-cm1->x,2)+pow(sm1->y-cm1->y,2)) <
             sqrt(pow(sm2->x-cm2->x,2)+pow(sm2->y-cm2->y,2)); 
@@ -42,8 +41,7 @@ struct SortMuonSegmentMatches {
          flag_ == reco::MuonSegmentMatch::BestInStationByDRSlope ||
          flag_ == reco::MuonSegmentMatch::BelongsToTrackByDRSlope)
       {
-         if((cm1->station()==4 && cm1->detector()==MuonSubdetId::DT) ||
-               (cm2->station()==4 && cm2->detector()==MuonSubdetId::DT)) // no y information so return dx
+         if((! sm1->hasZed()) || (! sm2->hasZed())) // no y information so return dx
             return fabs(sm1->dXdZ-cm1->dXdZ) < fabs(sm2->dXdZ-cm2->dXdZ);
          return sqrt(pow(sm1->dXdZ-cm1->dXdZ,2)+pow(sm1->dYdZ-cm1->dYdZ,2)) <
             sqrt(pow(sm2->dXdZ-cm2->dXdZ,2)+pow(sm2->dYdZ-cm2->dYdZ,2)); 
