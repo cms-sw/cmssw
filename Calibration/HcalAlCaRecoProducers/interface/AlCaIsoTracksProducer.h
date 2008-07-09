@@ -49,56 +49,42 @@ class TFile;
 //
 
 class AlCaIsoTracksProducer : public edm::EDProducer {
-   public:
-      explicit AlCaIsoTracksProducer(const edm::ParameterSet&);
-      ~AlCaIsoTracksProducer();
+public:
+  explicit AlCaIsoTracksProducer(const edm::ParameterSet&);
+  ~AlCaIsoTracksProducer();
+  
+  virtual void produce(edm::Event &, const edm::EventSetup&);
+  void endJob(void);
 
-      virtual void produce(edm::Event &, const edm::EventSetup&);
-      void endJob(void);
+private:
+  
+  TrackDetectorAssociator trackAssociator_;
+  TrackAssociatorParameters parameters_;
+  
+  
+  const CaloGeometry* geo;
+  edm::InputTag hoLabel_;
+  edm::InputTag hbheLabel_;
+  std::vector<edm::InputTag> ecalLabels_;
+  bool allowMissingInputs_;
 
-   private:
-      
-   TrackDetectorAssociator trackAssociator_;
-   TrackAssociatorParameters parameters_;
-      
-      
-      const CaloGeometry* geo;
-      edm::InputTag hoLabel_;
-      edm::InputTag hbheLabel_;
-      std::vector<edm::InputTag> ecalLabels_;
-      bool allowMissingInputs_;
-      
-      std::string m_inputTrackLabel;
-      
-      double m_dvCut;
-      double m_ddirCut;
-      double m_pCut;
-      double m_ptCut;
-      double m_ecalCut;
-      int m_histoFlag;
-      TFile* m_Hfile;
-      struct{
-        TH1F* Ntrk;
-        TH1F* vx;
-        TH1F* vy;
-        TH1F* vz;
-        TH1F* vr;
-        TH1F* eta;
-        TH1F* phi;
-        TH1F* p;
-        TH1F* pt;
-        TH1F* Dvertx;
-        TH1F* Dverty;
-        TH1F* Dvertz;
-        TH1F* Dvert;
-        TH1F* Dtheta;
-        TH1F* Dphi;
-        TH1F* Ddir;
-        TH1F* Nisotr;
-        TH1F* Dering;
-        TH1F* eecal;
-        TH1F* ehcal;
-      } IsoHists;
+  edm::InputTag m_inputTrackLabel_;
+  
+  double m_dvCut;
+  double m_ddirCut;
+  double m_pCut;
+  double m_ptCut;
+  double m_ecalCut;
+
+  double taECALCone_;
+  double taHCALCone_;
+
+  bool skipNeutrals_;
+
+  double isolE_;
+  double etaMax_;
+  double cluRad_;
+  double ringRad_;
 
 };
 
