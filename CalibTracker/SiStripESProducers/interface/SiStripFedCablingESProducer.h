@@ -34,21 +34,21 @@ class SiStripFedCablingESProducer : public edm::ESProducer {
  public:
   
   // Utility methods that generate "fake" control structure numbering
-  static inline uint16_t fecCrate( const uint16_t& nth_module ); // 4 crates within system
-  static inline uint16_t fecSlot( const uint16_t& nth_module );  // 11 FECs per crate
-  static inline uint16_t fecRing( const uint16_t& nth_module );  // 8 control rings per FEC
-  static inline uint16_t ccuAddr( const uint16_t& nth_module );  // 8 CCUMs per control ring
-  static inline uint16_t ccuChan( const uint16_t& nth_module );  // 8 modules per CCUM
+  static uint16_t fecCrate( const uint16_t& nth_module ); // 4 crates within system
+  static uint16_t fecSlot( const uint16_t& nth_module );  // 11 FECs per crate
+  static uint16_t fecRing( const uint16_t& nth_module );  // 8 control rings per FEC
+  static uint16_t ccuAddr( const uint16_t& nth_module );  // 8 CCU modules per control ring
+  static uint16_t ccuChan( const uint16_t& nth_module );  // 8 modules per CCU
   
 };
 
 // ---------- inline methods ----------
 
-uint16_t SiStripFedCablingESProducer::fecCrate( const uint16_t& module ) { return (module/(8*8*8*11)) % 4 + 1; }
-uint16_t SiStripFedCablingESProducer::fecSlot( const uint16_t& module ) { return (module/(8*8*8)) % 11 + 2; }
-uint16_t SiStripFedCablingESProducer::fecRing( const uint16_t& module ) { return (module/(8*8)) % 8 + 1; }
-uint16_t SiStripFedCablingESProducer::ccuAddr( const uint16_t& module ) { return (module/8) % 8 + 1; }
-uint16_t SiStripFedCablingESProducer::ccuChan( const uint16_t& module ) { return (module/1) % 8 + 16; }
+inline uint16_t SiStripFedCablingESProducer::fecCrate( const uint16_t& module ) { return (module/(8*8*8*11)) % 4 + 1; } 
+inline uint16_t SiStripFedCablingESProducer::fecSlot( const uint16_t& module ) { return (module/(8*8*8)) % 11 + 2; }
+inline uint16_t SiStripFedCablingESProducer::fecRing( const uint16_t& module ) { return (module/(8*8)) % 8 + 1; }
+inline uint16_t SiStripFedCablingESProducer::ccuAddr( const uint16_t& module ) { return (module/8) % 8 + 1; }
+inline uint16_t SiStripFedCablingESProducer::ccuChan( const uint16_t& module ) { return (module/1) % 8 + 16; }
 
 #endif // CalibTracker_SiStripESProducers_SiStripFedCablingESProducer_H
 
