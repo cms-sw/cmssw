@@ -1775,12 +1775,13 @@ class dbsBaseGui:
             x.case.set(self.myDBS.case.get())
             x.details.set(self.myDBS.details.get())
             x.debug.set(self.myDBS.debug.get())
-            x.site.set(self.myDBS.site.get())
+            #x.site.set(self.myDBS.site.get())
+            x.site.set("")  # we already know file exists at this site -- don't check for site again (causes crash in dbs search)
             # beginRun, endRun don't need to be set -- we're looking for one specific run here
             
             # give new accessor same defaults as set for self.myDBS
             text="find file,dataset where %s run=%i"%(self.myDBS.formParsedString(),r)
-            
+
             x.searchDBS(mytext=text)
             
             files=string.split(x.searchResult,"\n")
