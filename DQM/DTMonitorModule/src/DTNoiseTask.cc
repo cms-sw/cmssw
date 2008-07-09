@@ -2,8 +2,8 @@
 /*
  *  See header file for a description of this class.
  *
- *  $Date: 2008/07/09 10:40:25 $
- *  $Revision: 1.7 $
+ *  $Date: 2008/07/09 14:13:08 $
+ *  $Revision: 1.8 $
  *  \authors G. Mila , G. Cerminara - INFN Torino
  */
 
@@ -124,6 +124,8 @@ void DTNoiseTask::analyze(const edm::Event& e, const edm::EventSetup& c) {
       //Check the TDC trigger width
       int tdcTime = (*digiIt).countsTDC();
       double upperLimit = tTrigStMap[(*dtLayerId_It).first.superlayerId().chamberId()]-200.;
+      double upperLimit_ns = double(upperLimit*25)/32;	 
+      double upperLimit_s = upperLimit_ns/1e9;
       if(doTimeBoxHistos)
 	tbHistos[(*dtLayerId_It).first.superlayerId()]->Fill(tdcTime);
       if(tdcTime>upperLimit)
@@ -141,8 +143,8 @@ void DTNoiseTask::analyze(const edm::Event& e, const edm::EventSetup& c) {
 	 LogVerbatim("DTNoiseTask")  << " Last fill: # of events: "
 				     << mapEvt[(*dtLayerId_It).first.superlayerId().chamberId()]
 	     << endl;
-	normalization =  1e-9*upperLimit*mapEvt[(*dtLayerId_It).first.superlayerId().chamberId()];
-	noise_root->Scale(1./normalization);
+	 normalization = upperLimit_s*mapEvt[(*dtLayerId_It).first.superlayerId().chamberId()];
+	 noise_root->Scale(normalization);
       }
       int yBin=(*dtLayerId_It).first.layer()+(4*((*dtLayerId_It).first.superlayerId().superlayer()-1));
       noise_root->Fill((*digiIt).wire(),yBin);
@@ -152,12 +154,13 @@ void DTNoiseTask::analyze(const edm::Event& e, const edm::EventSetup& c) {
 				  << " # counts: " << noise_root->GetBinContent((*digiIt).wire(),yBin)
 				  << " Time interval: " << upperLimit
 				  << " # of events: " << evtNumber << endl;
-      normalization = double( 1e-9*upperLimit*mapEvt[(*dtLayerId_It).first.superlayerId().chamberId()]);
+      normalization = 1/double(upperLimit_s*mapEvt[(*dtLayerId_It).first.superlayerId().chamberId()]);
       noise_root->Scale(normalization);
       LogVerbatim("DTNoiseTask")  << "    noise rate: "
 				  << noise_root->GetBinContent((*digiIt).wire(),yBin) << endl;
     }
   }
+
 }
   
 
