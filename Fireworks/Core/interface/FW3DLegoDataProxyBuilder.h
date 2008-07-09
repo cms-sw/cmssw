@@ -16,7 +16,7 @@
 //
 // Original Author:  
 //         Created:  Sat Jan  5 15:02:03 EST 2008
-// $Id: FW3DLegoDataProxyBuilder.h,v 1.7 2008/06/12 15:07:45 chrjones Exp $
+// $Id: FW3DLegoDataProxyBuilder.h,v 1.8 2008/07/07 00:33:51 chrjones Exp $
 //
 
 // system include files
@@ -75,6 +75,7 @@ class FW3DLegoDataProxyBuilder
    private:
         virtual void modelChangesImp(const FWModelIds&)=0;
         virtual void itemChangedImp(const FWEventItem*)=0;
+        virtual void itemBeingDestroyedImp(const FWEventItem*);
       //virtual void build(const FWEventItem* iItem, TH2** product){}
       //virtual void build(const FWEventItem* iItem, 
 	///		 TEveElementList** product){}

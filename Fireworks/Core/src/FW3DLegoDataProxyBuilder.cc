@@ -8,7 +8,7 @@
 //
 // Original Author:  
 //         Created:  Thu Dec  6 17:49:54 PST 2007
-// $Id: FW3DLegoDataProxyBuilder.cc,v 1.6 2008/06/12 15:07:45 chrjones Exp $
+// $Id: FW3DLegoDataProxyBuilder.cc,v 1.7 2008/07/07 00:33:50 chrjones Exp $
 //
 
 // system include files
@@ -114,7 +114,14 @@ FW3DLegoDataProxyBuilder::itemBeingDestroyed(const FWEventItem* iItem)
 {
    m_item=0;
    m_ids.clear();
+   itemBeingDestroyedImp(iItem);
 }
+
+void 
+FW3DLegoDataProxyBuilder::itemBeingDestroyedImp(const FWEventItem*)
+{
+}
+
 
 void 
 FW3DLegoDataProxyBuilder::setHaveAWindow(bool iFlag) 

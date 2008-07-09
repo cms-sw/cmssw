@@ -8,11 +8,12 @@
 //
 // Original Author:  Chris Jones
 //         Created:  Sat Jul  5 11:26:11 EDT 2008
-// $Id$
+// $Id: FW3DLegoEveHistProxyBuilder.cc,v 1.1 2008/07/07 00:30:27 chrjones Exp $
 //
 
 // system include files
 #include "TEveCaloData.h"
+#include "TH2F.h"
 
 // user include files
 #include "Fireworks/Core/interface/FW3DLegoEveHistProxyBuilder.h"
@@ -89,6 +90,13 @@ void
 FW3DLegoEveHistProxyBuilder::itemChangedImp(const FWEventItem*)
 {
    
+}
+
+void 
+FW3DLegoEveHistProxyBuilder::itemBeingDestroyedImp(const FWEventItem* iItem)
+{
+   m_hist->Reset();
+   m_data->DataChanged();
 }
 
 

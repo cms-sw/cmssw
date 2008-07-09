@@ -16,7 +16,7 @@
 //
 // Original Author:  Chris Jones
 //         Created:  Sat Jul  5 11:26:06 EDT 2008
-// $Id$
+// $Id: FW3DLegoEveHistProxyBuilder.h,v 1.1 2008/07/07 00:30:27 chrjones Exp $
 //
 
 // system include files
@@ -48,6 +48,8 @@ class FW3DLegoEveHistProxyBuilder : public FW3DLegoDataProxyBuilder
    private:
       virtual void modelChangesImp(const FWModelIds&);
       virtual void itemChangedImp(const FWEventItem*);
+
+      virtual void itemBeingDestroyedImp(const FWEventItem*);
 
       //virtual void applyChangesToAllModels() = 0;
       virtual void build(const FWEventItem* iItem, TH2F** product) = 0;
