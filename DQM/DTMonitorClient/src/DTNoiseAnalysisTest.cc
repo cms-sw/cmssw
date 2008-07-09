@@ -3,8 +3,8 @@
 /*
  *  See header file for a description of this class.
  *
- *  $Date: 2008/07/09 13:37:17 $
- *  $Revision: 1.3 $
+ *  $Date: 2008/07/09 13:57:01 $
+ *  $Revision: 1.4 $
  *  \author G. Mila - INFN Torino
  */
 
@@ -136,7 +136,7 @@ void DTNoiseAnalysisTest::endLuminosityBlock(LuminosityBlock const& lumiSeg, Eve
 	    }
 	    if(noise>noisyCellDef) {
 	      noisyCellHistos[chID.wheel()]->Fill(sector,chID.station());
-	      summaryNoiseHisto->Fill(chID.wheel(), sector);
+	      summaryNoiseHisto->Fill(sector,chID.wheel());
 	    }
 	  }
 	}
