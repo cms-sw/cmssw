@@ -2,8 +2,8 @@
 /*
  *  See header file for a description of this class.
  *
- *  $Date: 2008/07/04 09:45:34 $
- *  $Revision: 1.4 $
+ *  $Date: 2008/07/09 08:57:46 $
+ *  $Revision: 1.5 $
  *  \authors G. Mila , G. Cerminara - INFN Torino
  */
 
@@ -68,37 +68,6 @@ DTNoiseTask::~DTNoiseTask(){}
 void DTNoiseTask::beginJob(const edm::EventSetup& setup) {
 
    LogVerbatim("DTNoiseTask") << "[DTNoiseTask]: BeginJob"<<endl;
-
-  // tTrig Map
-  edm::ESHandle<DTTtrig> tTrigMap;
-  setup.get<DTTtrigRcd>().get(tTrigMap);
-
-  // get the geometry
-  setup.get<MuonGeometryRecord>().get(dtGeom);
-
-  // Loop over all the chambers 	 
-  vector<DTChamber*>::const_iterator ch_it = dtGeom->chambers().begin(); 	 
-  vector<DTChamber*>::const_iterator ch_end = dtGeom->chambers().end(); 	 
-  for (; ch_it != ch_end; ++ch_it) { 	 
-    DTChamberId chId = (*ch_it)->id();
-    // histo booking
-    bookHistos(chId);
-    vector<const DTSuperLayer*>::const_iterator sl_it = (*ch_it)->superLayers().begin(); 	 
-    vector<const DTSuperLayer*>::const_iterator sl_end = (*ch_it)->superLayers().end(); 	 
-    // Loop over the SLs 	 
-    for(; sl_it != sl_end; ++sl_it) { 
-      DTSuperLayerId slId = (*sl_it)->id();
-      if(doTimeBoxHistos)
-	bookHistos(slId);
-      float tTrig, tTrigRMS;
-      tTrigMap->slTtrig(slId, tTrig, tTrigRMS,DTTimeUnits::ns);
-      // tTrig mapping per station
-      // check that the ttrig is the lowest of the 3 SLs
-      if(tTrigStMap.find(chId)==tTrigStMap.end() || 
-	 (tTrigStMap.find(chId)!=tTrigStMap.end() && tTrig < tTrigStMap[chId]))
-	tTrigStMap[chId] = tTrig;
-    }
-  }
 
 }
 
@@ -278,11 +247,41 @@ void DTNoiseTask::bookHistos(DTSuperLayerId slId) {
 }
 
 
-void DTNoiseTask::beginRun(Run const&, EventSetup const&) {
-//     // tTrig Map
-//   edm::ESHandle<DTTtrig> tTrigMap;
-//   setup.get<DTTtrigRcd>().get(tTrigMap);
-// FIXME: DB should be read here
+void DTNoiseTask::beginRun(const Run& run, const EventSetup& setup) {
+
+  LogVerbatim("DTNoiseTask") <<"[DTNoiseTask]: Begin of run"<<endl;
+
+  // tTrig Map
+  edm::ESHandle<DTTtrig> tTrigMap;
+  setup.get<DTTtrigRcd>().get(tTrigMap);
+
+  // get the geometry
+  setup.get<MuonGeometryRecord>().get(dtGeom);
+
+  // Loop over all the chambers 	 
+  vector<DTChamber*>::const_iterator ch_it = dtGeom->chambers().begin(); 	 
+  vector<DTChamber*>::const_iterator ch_end = dtGeom->chambers().end(); 	 
+  for (; ch_it != ch_end; ++ch_it) { 	 
+    DTChamberId chId = (*ch_it)->id();
+    // histo booking
+    bookHistos(chId);
+    vector<const DTSuperLayer*>::const_iterator sl_it = (*ch_it)->superLayers().begin(); 	 
+    vector<const DTSuperLayer*>::const_iterator sl_end = (*ch_it)->superLayers().end(); 	 
+    // Loop over the SLs 	 
+    for(; sl_it != sl_end; ++sl_it) { 
+      DTSuperLayerId slId = (*sl_it)->id();
+      if(doTimeBoxHistos)
+	bookHistos(slId);
+      float tTrig, tTrigRMS;
+      tTrigMap->slTtrig(slId, tTrig, tTrigRMS,DTTimeUnits::ns);
+      // tTrig mapping per station
+      // check that the ttrig is the lowest of the 3 SLs
+      if(tTrigStMap.find(chId)==tTrigStMap.end() || 
+	 (tTrigStMap.find(chId)!=tTrigStMap.end() && tTrig < tTrigStMap[chId]))
+	tTrigStMap[chId] = tTrig;
+    }
+  }
+
 
 }
 
