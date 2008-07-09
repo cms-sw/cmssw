@@ -76,6 +76,8 @@ namespace pos{
 					unsigned int roc) const;
 					  
     PixelChannel ChannelFromFEDChannel(unsigned int fednumber, unsigned int fedchannel) const;
+
+    bool FEDChannelExist(unsigned int fednumber, unsigned int fedchannel) const;
 					  
     std::vector<PixelROCName> getROCsFromChannel(const PixelChannel& aChannel) const;
     std::vector<PixelROCName> getROCsFromModule(const PixelModuleName& aModule) const;
