@@ -16,7 +16,7 @@ struct GzInputStream
  {
   typedef voidp gzFile ;
   gzFile gzf ;
-  char buffer[256] ;
+  char buffer[10000] ;
   std::istringstream iss ;
   bool eof ;
   GzInputStream( const char * file )
@@ -32,7 +32,7 @@ struct GzInputStream
    }
   void readLine()
    {
-    char * res = gzgets(gzf,buffer,256) ;
+    char * res = gzgets(gzf,buffer,10000) ;
     eof = (res==Z_NULL) ;
     if (!eof)
      {
@@ -268,7 +268,6 @@ void EcalTrigPrimESProducer::parseTextFile()
 {
   if (mapXtal_.size() != 0) return ; // just parse the file once!
 
-  typedef voidp gzFile;
   uint32_t id ;
   std::string dataCard ;
   std::string line;
@@ -285,7 +284,6 @@ void EcalTrigPrimESProducer::parseTextFile()
   std::string filename = "SimCalorimetry/EcalTrigPrimProducers/data/"+dbFilename_;
   std::string finalFileName ;
   size_t slash=dbFilename_.find("/");
-  gzFile gzf;
   if (slash!=0) {
     edm::FileInPath fileInPath(filename);
     finalFileName = fileInPath.fullPath() ;
@@ -296,136 +294,114 @@ void EcalTrigPrimESProducer::parseTextFile()
   }
 
 
-  //gzf=gzopen(finalFileName_.c_str(),"rb");
-  //bufpos_=0;
-  //bool eof = false;
-  //if  (gzf) {
-  //  while (!eof) {
-  //    eof= getNextString(gzf);
-  //    if (eof) break;
-  //    dataCard=sub_;
-
-
   GzInputStream gis(finalFileName.c_str()) ;
   while (gis>>dataCard) {
 
-
-      if (dataCard == "PHYSICS_EB" || dataCard == "PHYSICS_EE") {
- //getNextString(gzf);
-        //id=atoi(sub_.c_str());
-        gis>>std::dec>>id ;
- paramF.clear() ;
- for (int i=0 ; i <7 ; i++) {
-   //getNextString(gzf);
-   //dataF=atof(sub_.c_str());
-          gis>>std::dec>>dataF ;
-   paramF.push_back(dataF) ;
- }
- mapPhys_[id] = paramF ;
+    if (dataCard == "PHYSICS_EB" || dataCard == "PHYSICS_EE") {
+      gis>>std::dec>>id ;
+      //std::cout<<dataCard<<" "<<std::dec<<id ;
+      paramF.clear() ;
+      for (int i=0 ; i <7 ; i++) {
+        gis>>std::dec>>dataF ;
+        paramF.push_back(dataF) ;
+        //std::cout<<", "<<std::dec<<dataF ;
       }
- 
-      if (dataCard == "CRYSTAL") {
- //getNextString(gzf);
-        //id=atoi(sub_.c_str());
-        gis>>std::dec>>id ;
-
- param.clear() ;
- for (int i=0 ; i <9 ; i++) {
-   //getNextString(gzf);
-   //data = converthex();
-          gis>>std::hex>>data ;
-   param.push_back(data) ;
- }
- mapXtal_[id] = param ;
-      }
- 
-      if (dataCard == "STRIP_EB") {
- //getNextString(gzf);
-        //id=atoi(sub_.c_str());
-        gis>>std::dec>>id ;
- param.clear() ;
- for (int i=0 ; i <NBstripparams[0] ; i++) {
-   //getNextString(gzf);
-   //data=atoi(sub_.c_str());
-          gis>>std::hex>>data ;
-          param.push_back(data) ;
- }
- mapStrip_[0][id] = param ;
-      }
-
-      if (dataCard == "STRIP_EE") {
- // infile>>std::dec>>id ;
- //getNextString(gzf);
-        //id=atoi(sub_.c_str());
-        gis>>std::dec>>id ;
- param.clear() ;
- for (int i=0 ; i <NBstripparams[1] ; i++) {
-   //getNextString(gzf);
-   //data=atoi(sub_.c_str());
-          gis>>std::hex>>data ;
-   param.push_back(data) ;
- }
- mapStrip_[1][id] = param ;
-      }
- 
-      if (dataCard == "TOWER_EB" || dataCard == "TOWER_EE") {
- //getNextString(gzf);
-        //id=atoi(sub_.c_str());
-        gis>>std::dec>>id ;
-
- for (int i=0 ; i <2 ; i++) {
-   //getNextString(gzf);
-   //data=atoi(sub_.c_str());
-          gis>>std::hex>>data ;
-   param.push_back(data) ;
- }
- if (dataCard == "TOWER_EB") mapTower_[0][id] = param ;
- if (dataCard == "TOWER_EE") mapTower_[1][id] = param ;
-      }
-  
-      if (dataCard == "WEIGHT") {
- //getNextString(gzf);
-        //id=atoi(sub_.c_str());
-        gis>>std::dec>>id ;
- param.clear() ;
- for (int i=0 ; i <5 ; i++) {
-   //getNextString(gzf);
-   //data=atoi(sub_.c_str());
-          gis>>std::hex>>data ;
-   param.push_back(data) ;
- }
- mapWeight_[id] = param ;
-      }
- 
-      if (dataCard == "FG") {
- //getNextString(gzf);
-        //id=atoi(sub_.c_str());
-        gis>>std::dec>>id ;
- param.clear() ;
- for (int i=0 ; i <5 ; i++) {
-   //getNextString(gzf);
-   //data=atoi(sub_.c_str());
-          gis>>std::hex>>data ;
-   param.push_back(data) ;
- }
- mapFg_[id] = param ;
-      }
- 
-      if (dataCard == "LUT") {
- //getNextString(gzf);
-        //id=atoi(sub_.c_str());
-        gis>>std::dec>>id ;
- param.clear() ;
- for (int i=0 ; i <1024 ; i++) {
-   //getNextString(gzf);
-   //data=atoi(sub_.c_str());
-          gis>>std::hex>>data ;
-   param.push_back(data) ;
- }
- mapLut_[id] = param ;
-      }
+      //std::cout<<std::endl ;
+      mapPhys_[id] = paramF ;
     }
-//  } else     edm::LogWarning("EcalTPG") <<"Database file not found!!!";
+
+    if (dataCard == "CRYSTAL") {
+      gis>>std::dec>>id ;
+      //std::cout<<dataCard<<" "<<std::dec<<id ;
+      param.clear() ;
+      for (int i=0 ; i <9 ; i++) {
+        gis>>std::hex>>data ;
+        //std::cout<<", "<<std::hex<<data ;
+        param.push_back(data) ;
+      }
+      //std::cout<<std::endl ;
+      mapXtal_[id] = param ;
+    }
+
+    if (dataCard == "STRIP_EB") {
+      gis>>std::dec>>id ;
+      //std::cout<<dataCard<<" "<<std::dec<<id ;
+      param.clear() ;
+      for (int i=0 ; i <NBstripparams[0] ; i++) {
+        gis>>std::hex>>data ;
+        //std::cout<<", "<<std::hex<<data ;
+        param.push_back(data) ;
+      }
+      //std::cout<<std::endl ;
+      mapStrip_[0][id] = param ;
+    }
+
+    if (dataCard == "STRIP_EE") {
+      gis>>std::dec>>id ;
+      //std::cout<<dataCard<<" "<<std::dec<<id ;
+      param.clear() ;
+      for (int i=0 ; i <NBstripparams[1] ; i++) {
+        gis>>std::hex>>data ;
+        //std::cout<<", "<<std::hex<<data ;
+        param.push_back(data) ;
+      }
+      //std::cout<<std::endl ;
+      mapStrip_[1][id] = param ;
+    }
+
+    if (dataCard == "TOWER_EB" || dataCard == "TOWER_EE") {
+      gis>>std::dec>>id ;
+      //std::cout<<dataCard<<" "<<std::dec<<id ;
+      param.clear() ;
+      for (int i=0 ; i <2 ; i++) {
+        gis>>std::hex>>data ;
+        //std::cout<<", "<<std::hex<<data ;
+        param.push_back(data) ;
+      }
+      //std::cout<<std::endl ;
+      if (dataCard == "TOWER_EB") mapTower_[0][id] = param ;
+      if (dataCard == "TOWER_EE") mapTower_[1][id] = param ;
+    }
+
+    if (dataCard == "WEIGHT") {
+      gis>>std::hex>>id ;
+      //std::cout<<dataCard<<" "<<std::dec<<id ;
+      param.clear() ;
+      for (int i=0 ; i <5 ; i++) {
+        gis>>std::hex>>data ;
+        //std::cout<<", "<<std::hex<<data ;
+        param.push_back(data) ;
+      }
+      //std::cout<<std::endl ;
+      mapWeight_[id] = param ;
+    }
+
+    if (dataCard == "FG") {
+      gis>>std::hex>>id ;
+      //std::cout<<dataCard<<" "<<std::dec<<id ;
+      param.clear() ;
+      for (int i=0 ; i <5 ; i++) {
+        gis>>std::hex>>data ;
+        //std::cout<<", "<<std::hex<<data ;
+        param.push_back(data) ;
+      }
+      //std::cout<<std::endl ;
+      mapFg_[id] = param ;
+    }
+ 
+    if (dataCard == "LUT") {
+      gis>>std::hex>>id ;
+      //std::cout<<dataCard<<" "<<std::dec<<id ;
+      param.clear() ;
+      for (int i=0 ; i <1024 ; i++) {
+        gis>>std::hex>>data ;
+        //std::cout<<", "<<std::hex<<data ;
+        param.push_back(data) ;
+      }
+      //std::cout<<std::endl ;
+      mapLut_[id] = param ;
+    }
+  }
 }
 
 std::vector<int> EcalTrigPrimESProducer::getRange(int subdet, int tccNb, int towerNbInTcc, int stripNbInTower, int xtalNbInStrip)
@@ -478,39 +454,39 @@ std::vector<int> EcalTrigPrimESProducer::getRange(int subdet, int tccNb, int tow
   return range ;
 }
 
-bool EcalTrigPrimESProducer::getNextString(gzFile &gzf){
-  size_t blank;
-  if (bufpos_==0) {
-    gzgets(gzf,buf_,80);
-    if (gzeof(gzf)) return true;
-    bufString_=std::string(buf_);
-  }
-  int  pos=0;
-  pos =bufpos_;
-  // look for next non-blank
-  while (pos<bufString_.size()) {
-    if (!bufString_.compare(pos,1," ")) pos++;
-    else break;
-  }
-  blank=bufString_.find(" ",pos);
-  size_t end = blank;
-  if (blank==std::string::npos) end=bufString_.size();
-  sub_=bufString_.substr(pos,end-pos);
-  bufpos_= blank;
-  if (blank==std::string::npos) bufpos_=0;
-  return false;
-}
- 
-int EcalTrigPrimESProducer::converthex() {
-  // converts hex dec string sub to hexa
-  //FIXME:: find something better (istrstream?)!!!!
-
-  std::string chars("0123456789abcdef");
-  int hex=0;
-  for (size_t i=2;i<sub_.length();++i) {
-    size_t f=chars.find(sub_[i]);
-    if (f==std::string::npos) break;  //FIXME: length is 4 for 0x3!!
-    hex=hex*16+chars.find(sub_[i]);
-  }
-  return hex;
-}
+// bool EcalTrigPrimESProducer::getNextString(gzFile &gzf){
+//   size_t blank;
+//   if (bufpos_==0) {
+//     gzgets(gzf,buf_,80);
+//     if (gzeof(gzf)) return true;
+//     bufString_=std::string(buf_);
+//   }
+//   int  pos=0;
+//   pos =bufpos_;
+//   // look for next non-blank
+//   while (pos<bufString_.size()) {
+//     if (!bufString_.compare(pos,1," ")) pos++;
+//     else break;
+//   }
+//   blank=bufString_.find(" ",pos);
+//   size_t end = blank;
+//   if (blank==std::string::npos) end=bufString_.size();
+//   sub_=bufString_.substr(pos,end-pos);
+//   bufpos_= blank;
+//   if (blank==std::string::npos) bufpos_=0;
+//   return false;
+// }
+//  
+// int EcalTrigPrimESProducer::converthex() {
+//   // converts hex dec string sub to hexa
+//   //FIXME:: find something better (istrstream?)!!!!
+// 
+//   std::string chars("0123456789abcdef");
+//   int hex=0;
+//   for (size_t i=2;i<sub_.length();++i) {
+//     size_t f=chars.find(sub_[i]);
+//     if (f==std::string::npos) break;  //FIXME: length is 4 for 0x3!!
+//     hex=hex*16+chars.find(sub_[i]);
+//   }
+//   return hex;
+// }
