@@ -4,8 +4,8 @@
 /** \class DTNoiseTask
  *  No description available.
  *
- *  $Date: 2008/07/02 09:06:32 $
- *  $Revision: 1.3 $
+ *  $Date: 2008/07/09 08:57:46 $
+ *  $Revision: 1.4 $
  *  \authors G. Mila , G. Cerminara - INFN Torino
  */
 
@@ -16,7 +16,7 @@
 #include <DataFormats/MuonDetId/interface/DTChamberId.h>
 #include <DataFormats/MuonDetId/interface/DTSuperLayerId.h>
 #include <FWCore/Framework/interface/ESHandle.h>
-
+#include "FWCore/ParameterSet/interface/InputTag.h"
 
 
 namespace edm {
@@ -59,12 +59,16 @@ private:
   void bookHistos(DTChamberId chId);
   void bookHistos(DTSuperLayerId slId);
 
+  // The label to retrieve the digis 
+  edm::InputTag dtDigiLabel;
   // counter of processed events
   int evtNumber;
   //switch for time boxes filling
   bool doTimeBoxHistos;
   // Lable of 4D segments in the event
   std::string theRecHits4DLabel;
+  //switch for segment veto
+  bool doSegmentVeto;
 
   DQMStore *dbe;
   edm::ESHandle<DTGeometry> dtGeom;

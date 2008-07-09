@@ -2,8 +2,8 @@
 /*
  *  See header file for a description of this class.
  *
- *  $Date: 2008/07/09 10:36:33 $
- *  $Revision: 1.6 $
+ *  $Date: 2008/07/09 10:40:25 $
+ *  $Revision: 1.7 $
  *  \authors G. Mila , G. Cerminara - INFN Torino
  */
 
@@ -52,9 +52,15 @@ DTNoiseTask::DTNoiseTask(const ParameterSet& ps) : evtNumber(0) {
   //switch for timeBox booking
   doTimeBoxHistos = ps.getUntrackedParameter<bool>("doTbHistos", false);
   
+  // The label to retrieve the digis 
+  dtDigiLabel = ps.getParameter<InputTag>("dtDigiLabel");
+
   // the name of the 4D rec hits collection
   theRecHits4DLabel = ps.getParameter<string>("recHits4DLabel");
   
+  //switch for segment veto
+  doSegmentVeto = ps.getUntrackedParameter<bool>("doSegmentVeto", false);
+
 }
 
 
@@ -86,8 +92,6 @@ void DTNoiseTask::beginLuminosityBlock(const edm::LuminosityBlock&  lumiSeg,
 /// Analyze
 void DTNoiseTask::analyze(const edm::Event& e, const edm::EventSetup& c) {
 
-  bool vetoEventsWithSegments = false; // FIXME: should become a parameter
-
   evtNumber++;
   if(evtNumber%1000==0)
      LogVerbatim("DTNoiseTask") <<"[DTNoiseTask]: Analyzing evt number :"<<evtNumber<<endl;
@@ -109,7 +113,7 @@ void DTNoiseTask::analyze(const edm::Event& e, const edm::EventSetup& c) {
  
   // Get the digis from the event
   edm::Handle<DTDigiCollection> dtdigis;
-  e.getByLabel("dtunpacker", dtdigis);
+  e.getByLabel(dtDigiLabel, dtdigis);
   
   // LOOP OVER ALL THE DIGIS OF THE EVENT
   DTDigiCollection::DigiRangeIterator dtLayerId_It;
@@ -126,7 +130,7 @@ void DTNoiseTask::analyze(const edm::Event& e, const edm::EventSetup& c) {
 	continue;
 
       //Check the chamber has no 4D segments (optional)
-      if(vetoEventsWithSegments &&
+      if(doSegmentVeto &&
 	 segmentsChId.find((*dtLayerId_It).first.superlayerId().chamberId())!=segmentsChId.end())
 	continue;
 
