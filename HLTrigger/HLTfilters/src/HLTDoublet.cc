@@ -2,8 +2,8 @@
  *
  * See header file for documentation
  *
- *  $Date: 2008/04/22 08:00:54 $
- *  $Revision: 1.6 $
+ *  $Date: 2008/05/05 15:48:34 $
+ *  $Revision: 1.7 $
  *
  *  \author Martin Grunewald
  *
@@ -85,18 +85,16 @@ HLTDoublet<T1,Tid1,T2,Tid2>::filter(edm::Event& iEvent, const edm::EventSetup& i
    // The filter object
    auto_ptr<TriggerFilterObjectWithRefs>
      filterobject (new TriggerFilterObjectWithRefs(path(),module()));
-   if (saveTags_) {
-     filterobject->addCollectionTag(inputTag1_);
-     filterobject->addCollectionTag(inputTag2_);
-   }
+   // Don't saveTag the TFOWRs, but rather the collections pointed to!
+   //   if (saveTags_) {
+   //     filterobject->addCollectionTag(inputTag1_);
+   //     filterobject->addCollectionTag(inputTag2_);
+   //   }
    bool accept(false);
 
    // get hold of pre-filtered object collections
-   T1Ref r1;
-   T2Ref r2;
    Handle<TriggerFilterObjectWithRefs> coll1,coll2;
    if (iEvent.getByLabel (inputTag1_,coll1) && iEvent.getByLabel (inputTag2_,coll2)) {
-     int n(0);
      coll1_.clear();
      coll1->getObjects(Tid1,coll1_);
      const size_type n1(coll1_.size());
@@ -104,6 +102,37 @@ HLTDoublet<T1,Tid1,T2,Tid2>::filter(edm::Event& iEvent, const edm::EventSetup& i
      coll2->getObjects(Tid2,coll2_);
      const size_type n2(coll2_.size());
 
+     if (saveTags_) {
+       InputTag tagOld;
+       tagOld=InputTag();
+       for (size_type i1=0; i1!=n1; ++i1) {
+	 const ProductID pid(coll1_[i1].id());
+	 const string&    label(iEvent.getProvenance(pid).moduleLabel());
+	 const string& instance(iEvent.getProvenance(pid).productInstanceName());
+	 const string&  process(iEvent.getProvenance(pid).processName());
+	 InputTag tagNew(InputTag(label,instance,process));
+	 if (tagOld.encode()!=tagNew.encode()) {
+	   filterobject->addCollectionTag(tagNew);
+	   tagOld=tagNew;
+	 }
+       }
+       tagOld=InputTag();
+       for (size_type i2=0; i2!=n2; ++i2) {
+	 const ProductID pid(coll2_[i2].id());
+	 const string&    label(iEvent.getProvenance(pid).moduleLabel());
+	 const string& instance(iEvent.getProvenance(pid).productInstanceName());
+	 const string&  process(iEvent.getProvenance(pid).processName());
+	 InputTag tagNew(InputTag(label,instance,process));
+	 if (tagOld.encode()!=tagNew.encode()) {
+	   filterobject->addCollectionTag(tagNew);
+	   tagOld=tagNew;
+	 }
+       }
+     }
+
+     int n(0);
+     T1Ref r1;
+     T2Ref r2;
      Particle p1,p2,p;
      for (unsigned int i1=0; i1!=n1; i1++) {
        r1=coll1_[i1];
@@ -134,8 +163,8 @@ HLTDoublet<T1,Tid1,T2,Tid2>::filter(edm::Event& iEvent, const edm::EventSetup& i
      }
      // filter decision
      accept = accept || (n>=min_N_);
-     iEvent.put(filterobject);
    }
 
+   iEvent.put(filterobject);
    return accept;
 }
