@@ -3,8 +3,8 @@
 /*
  *  See header file for a description of this class.
  *
- *  $Date: 2008/07/02 14:33:56 $
- *  $Revision: 1.4 $
+ *  $Date: 2008/07/07 20:43:11 $
+ *  $Revision: 1.5 $
  *  \author G. Mila - INFN Torino
  */
 
@@ -53,6 +53,8 @@ void DTSummaryClients::beginRun(Run const& run, EventSetup const& eSetup) {
   // book the summary histos
   dbe->setCurrentFolder("DT/EventInfo"); 
   summaryReport = dbe->bookFloat("reportSummary");
+  // Initialize to 1 so that no alarms are thrown at the beginning of the run
+  summaryReport->Fill(1.);
 
   summaryReportMap = dbe->book2D("reportSummaryMap","DT Report Summary Map",12,1,13,5,-2,3);
   summaryReportMap->setAxisTitle("sector",1);
@@ -65,7 +67,13 @@ void DTSummaryClients::beginRun(Run const& run, EventSetup const& eSetup) {
     streams << "DT_Wheel" << wheel;
     string meName = streams.str();    
     theSummaryContents.push_back(dbe->bookFloat(meName));
+    // Initialize to 1 so that no alarms are thrown at the beginning of the run
+    theSummaryContents[wheel+2]->Fill(1.);
   }
+
+
+
+
 }
 
 
@@ -96,6 +104,8 @@ void DTSummaryClients::endLuminosityBlock(LuminosityBlock const& lumiSeg, EventS
   LogVerbatim ("DTSummaryClient")
     <<"[DTSummaryClients]: End of LS transition, performing the DQM client operation";
 
+  bool noDTData = false;
+
   // Check if DT data in each ROS have been read out and set the SummaryContents and the ErrorSummary
   // accordignly
   MonitorElement * dataIntegritySummary = dbe->get("DT/00-DataIntegrity/DataIntegritySummary");
@@ -114,14 +124,19 @@ void DTSummaryClients::endLuminosityBlock(LuminosityBlock const& lumiSeg, EventS
     }
   }
   
-  if(nDisabledFED == 5) summaryReport->Fill(-1);
+  if(nDisabledFED == 5) {
+    noDTData = true;
+    summaryReport->Fill(-1);
+  }
   
   } else {
     cout <<  "Data Integrity Summary not found with name: DT/00-DataIntegrity/DataIntegritySummary" <<endl;
   }
 
   double totalStatus = 0;
-  
+  // protection 
+  bool occupancyFound = true;
+
   // Fill the map using, at the moment, only the information from DT occupancy
   // problems at a granularity smaller than the chamber are ignored
   for(int wheel=-2; wheel<=2; wheel++){ // loop over wheels
@@ -144,13 +159,14 @@ void DTSummaryClients::endLuminosityBlock(LuminosityBlock const& lumiSeg, EventS
       theSummaryContents[wheel+2]->Fill((48.-nFailingChambers)/48.);
       totalStatus += (48.-nFailingChambers)/48.;
     } else {
+      occupancyFound = false;
       cout << " Wheel Occupancy Summary not found with name: " << str.str() << endl;
     }
   }
 
 
-
-  summaryReport->Fill(totalStatus/5.);
+  if(occupancyFound && !noDTData)
+    summaryReport->Fill(totalStatus/5.);
 }
 
 
