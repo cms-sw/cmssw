@@ -8,10 +8,11 @@
 //
 // Original Author:  Chris Jones
 //         Created:  Thu Jul  3 10:30:04 EDT 2008
-// $Id$
+// $Id: FWEveValueScaler.cc,v 1.1.2.1 2008/07/08 10:02:34 jmuelmen Exp $
 //
 
 // system include files
+#include <assert.h>
 #include "TEveElement.h"
 #include "TEveManager.h"
 

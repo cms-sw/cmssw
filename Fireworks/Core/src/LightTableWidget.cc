@@ -1,21 +1,26 @@
 #include <string>
 #include <vector>
+#include <assert.h>
 #include <sstream>
 #include <iostream>
 
 #include "LightTableWidget.h"
+#include "TColor.h"
 #include "TGTextView.h"
+#include "TGResourcePool.h"
+#include "TGGC.h"
+#include "TROOT.h"
 #include "TableManagers.h"
 
 ClassImp(LightTableWidget)
 
 const int LightTableWidget::m_cellHeight;
 const int LightTableWidget::m_titleColor;
+const TGGC *LightTableWidget::fgShadowGC;
 
 LightTableWidget::LightTableWidget (TGCompositeFrame *p, LightTableManager* tm, 
 				    int w, int h)
      : TGTextView(p, w, h),
-textview(0),
        manager(tm)
 {
      SetBackground(GetBlackPixel());
@@ -25,11 +30,28 @@ textview(0),
      TGLayoutHints *hints = new TGLayoutHints(kLHintsExpandX | kLHintsExpandY | 
 					      kLHintsShrinkX | kLHintsShrinkY);
      p->AddFrame(this, hints);
+
+     // add "shadow" GC, which is 60% as bright as default
+     if (fgShadowGC == 0) 
+	  fgShadowGC = gClient->GetResourcePool()->GetFrameShadowGC();
+     invisibleGC = *fgShadowGC;
+     invisibleGC.SetFont(fNormGC.GetFont());
 }
 
 LightTableWidget::~LightTableWidget ()
 {
-     delete textview;
+
+}
+
+void LightTableWidget::SetTextColor (Color_t col) 
+{
+     TColor *color = gROOT->GetColor(col);
+     Pixel_t invisible = TColor::RGB2Pixel(Float_t(0.4 * color->GetRed()),
+					   Float_t(0.4 * color->GetGreen()),
+					   Float_t(0.4 * color->GetBlue()));
+     invisibleGC.SetBackground(invisible);
+     invisibleGC.SetForeground(invisible);
+     TGTextView::SetForegroundColor(TColor::Number2Pixel(col));
 }
 
 void LightTableWidget::display (int rows)
@@ -165,9 +187,16 @@ void LightTableWidget::DrawRegion(Int_t x, Int_t y, UInt_t w, UInt_t h)
 
 	    if (!manager->rowIsSelected(pos.fY-3)/*manager->sel_indices.
 		count(manager->table_row_to_index(pos.fY - 3)) == 0*/) {
-                gVirtualX->DrawString(fCanvas->GetId(), fNormGC(), Int_t(xoffset),
-                                      Int_t(ToScrYCoord(pos.fY+1) - fMaxDescent),
-                                      buffer, Int_t(len));
+		 if (pos.fY > 2 && !manager->rowIsVisible(pos.fY - 3)) {
+		      // "invisible" items are greyed out
+		      gVirtualX->DrawString(fCanvas->GetId(), invisibleGC(), Int_t(xoffset),
+					    Int_t(ToScrYCoord(pos.fY+1) - fMaxDescent),
+					    buffer, Int_t(len));
+		 } else {
+		      gVirtualX->DrawString(fCanvas->GetId(), fNormGC(), Int_t(xoffset),
+					    Int_t(ToScrYCoord(pos.fY+1) - fMaxDescent),
+					    buffer, Int_t(len));
+		 }
 	    } else {
 		 gVirtualX->FillRectangle(fCanvas->GetId(), fSelbackGC(),
 					  Int_t(ToScrXCoord(pos.fX, pos.fY)),
@@ -263,3 +292,7 @@ void LightTableManager::sort (int col, bool reset)
    Sort(sort_col_, sort_asc_);
 }
 
+void LightTableManager::resort ()
+{
+     Sort(sort_col_, sort_asc_);
+}

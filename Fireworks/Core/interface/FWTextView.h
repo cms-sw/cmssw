@@ -25,6 +25,8 @@ class FWTableManager;
 class FWTextView;
 class FWDisplayEvent;
 class FWSelectionManager;
+class FWModelChangeManager;
+class FWEventItem;
 class FWGUIManager;
 class CmsShowMain;
 
@@ -65,11 +67,14 @@ public:
 class FWTextView {
      RQ_OBJECT("FWTextView") 
 public:
-     FWTextView (CmsShowMain *, FWSelectionManager *, FWGUIManager *);
+     FWTextView (CmsShowMain *, FWSelectionManager *, FWModelChangeManager *,
+		 FWGUIManager *);
      void newEvent (const fwlite::Event &, const CmsShowMain *);
      void nextPage ();
      void prevPage ();
      void selectionChanged (const FWSelectionManager &);
+     void itemChanged (const FWEventItem *);
+     void changesDone (const CmsShowMain *);
      void update (int tab);
 
 protected:
@@ -92,6 +97,7 @@ protected:
      FWTextViewPage		*pages[3];
 
      FWSelectionManager		*seleman;
+     FWModelChangeManager	*changeman;
 
      TGTab			*parent_tab;
 };

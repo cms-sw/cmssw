@@ -12,6 +12,7 @@
 
 class TGCompositeFrame;
 class TGTextView;
+class TGGC;
 
 class LightTableManager : public TableManager {
 public:
@@ -21,7 +22,9 @@ public:
                 std::vector<int> &col_widths,
                 int n_rows);
    virtual void sort (int col, bool reset = false);
+   virtual void resort ();
    virtual bool rowIsSelected(int row) const = 0;      
+   virtual bool rowIsVisible (int row) const { return true; }
 private:
    bool sort_asc_;
    int sort_col_;
@@ -49,6 +52,7 @@ public:
 	  {
 	       selectRows(row, mask, hcolor);
 	  }
+     void SetTextColor (Color_t col);
      
 // GUI functions
 public:
@@ -59,9 +63,10 @@ protected:
 
 
 protected:
-     TGTextView		*textview;
      LightTableManager	*manager;
      std::vector<int>	col_widths;
+     static const TGGC	*fgShadowGC;
+     TGGC		invisibleGC;
 
 // temporary hacks
 public:

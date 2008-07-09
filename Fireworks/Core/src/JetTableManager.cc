@@ -30,20 +30,9 @@ int JetTableManager::NumberOfCols() const
      return sizeof(titles) / sizeof(std::string);
 }
 
-struct sort_asc {
-     int i;
-     bool order;
-     bool operator () (const JetRow &r1, const JetRow &r2) const 
-	  {
-	       if (order)
-		    return r1.vec()[i] > r2.vec()[i];
-	       else return r1.vec()[i] < r2.vec()[i];
-	  }
-};
-
 void JetTableManager::Sort(int col, bool sortOrder)
 {
-     sort_asc sort_fun;
+     sort_asc<JetRow> sort_fun(this);
      sort_fun.i = col;
      sort_fun.order = sortOrder;
      std::sort(rows.begin(), rows.end(), sort_fun);

@@ -43,6 +43,16 @@ public:
      virtual bool rowIsSelected(int row) const { 
         return sel_indices.count(table_row_to_index(row));
      }
+     virtual bool rowIsVisible (int row) const { 
+        return vis_indices.count(table_row_to_index(row));
+     }
+     virtual bool idxIsSelected (int idx) const { 
+	  return sel_indices.count(idx);
+     }
+     virtual bool idxIsVisible (int idx) const { 
+	  return vis_indices.count(idx);
+     }
+     void setItem (FWEventItem *);
 
 public:
      LightTableWidget 	*widget;
@@ -50,12 +60,34 @@ public:
      TGTextEntry	*title_frame;
      FWEventItem	*item;
      std::set<int> 	sel_indices;
+     std::set<int> 	vis_indices;
      //int		sort_col_;
      //bool		sort_asc_;
 };
 
 std::string format_string (const std::string &fmt, int x);
 std::string format_string (const std::string &fmt, double x);
+
+template <class Row> struct sort_asc {
+     sort_asc (FWTableManager *m) : manager(m) { }
+     int i;
+     bool order;
+     FWTableManager *manager;
+     bool operator () (const Row &r1, const Row &r2) const 
+	  {
+	       // visible rows always win over invisible rows
+	       bool r1_vis = manager->idxIsVisible(r1.index);
+	       bool r2_vis = manager->idxIsVisible(r2.index);
+	       if (r1_vis && !r2_vis)
+		    return true;
+	       if (!r1_vis && r2_vis)
+		    return false;
+	       // otherwise the column content decides
+	       if (order)
+		    return r1.vec()[i] > r2.vec()[i];
+	       else return r1.vec()[i] < r2.vec()[i];
+	  }
+};
 
 enum { FLAG_NO, FLAG_YES, FLAG_MAYBE };
 

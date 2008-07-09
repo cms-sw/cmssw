@@ -16,6 +16,7 @@
 #include "Fireworks/Core/interface/FWEventItemsManager.h"
 #include "Fireworks/Core/interface/FWEventItem.h"
 #include "Fireworks/Core/interface/FWSelectionManager.h"
+#include "Fireworks/Core/interface/FWModelChangeManager.h"
 #include "Fireworks/Core/interface/FWGUIManager.h"
 #include "CmsShowMain.h"
 #undef private
@@ -218,6 +219,7 @@ void FWTextViewPage::dumpToPrinter ()
 }
 
 FWTextView::FWTextView (CmsShowMain *de, FWSelectionManager *sel,
+			FWModelChangeManager *chg,
 			FWGUIManager *gui)
      : el_manager(new ElectronTableManager),
        mu_manager(new MuonTableManager),
@@ -227,6 +229,7 @@ FWTextView::FWTextView (CmsShowMain *de, FWSelectionManager *sel,
        track_manager 	(new TrackTableManager),
        vertex_manager  	(new VertexTableManager),
        seleman		(sel),
+       changeman	(chg),
        parent_tab	(gui->m_textViewTab)
 {      
      // stick managers in a vector for easier collective operations
@@ -251,21 +254,31 @@ FWTextView::FWTextView (CmsShowMain *de, FWSelectionManager *sel,
 	  i != end; ++i) {
 // 	  printf("event item: %s\n", (*i)->name().c_str());
 	  if ((*i)->name() == "Electrons") { 
-	       el_manager->item = *i;
+	       el_manager->setItem(*i);
 	  } else if ((*i)->name() == "Muons") { 
-	       mu_manager->item = *i;
+	       mu_manager->setItem(*i);
 	  } else if ((*i)->name() == "Jets") { 
-	       jet_manager->item = *i;
+	       jet_manager->setItem(*i);
 	  } else if ((*i)->name() == "Tracks") { 
-	       track_manager->item = *i;
+	       track_manager->setItem(*i);
 	  } else if ((*i)->name() == "Vertices") { 
-	       vertex_manager->item = *i;
+	       vertex_manager->setItem(*i);
 	  } 
      }
 #endif
      // connect to the selection manager
      seleman->selectionChanged_.
 	  connect(boost::bind(&FWTextView::selectionChanged,this,_1));
+     // and to the change manager
+     changeman->changeSignalsAreDone_.
+ 	  connect(boost::bind(&FWTextView::changesDone,this, de));
+//      for (std::vector<FWItemChangeSignal>::iterator i = 
+// 	       changeman->m_itemChangeSignals.begin();
+// 	  i != changeman->m_itemChangeSignals.end(); 
+// 	  ++i) {
+// 	  i->connect(boost::bind(&FWTextView::itemChanged, this, _1));
+// 	  printf("connecting to something\n");
+//      }
      //------------------------------------------------------------
      // widget up some tables (moved to CmsShowMainFrame)
      //------------------------------------------------------------
@@ -393,15 +406,15 @@ void FWTextView::newEvent (const fwlite::Event &ev, const CmsShowMain *de)
 	       continue;
 // 	  printf("event item: %s\n", (*i)->name().c_str());
 	  if ((*i)->name() == "Electrons") { 
-	       el_manager->item = *i;
+	       el_manager->setItem(*i);
 	  } else if ((*i)->name() == "Muons") { 
-	       mu_manager->item = *i;
+	       mu_manager->setItem(*i);
 	  } else if ((*i)->name() == "Jets") { 
-	       jet_manager->item = *i;
+	       jet_manager->setItem(*i);
 	  } else if ((*i)->name() == "Tracks") { 
-	       track_manager->item = *i;
+	       track_manager->setItem(*i);
 	  } else if ((*i)->name() == "Vertices") { 
-	       vertex_manager->item = *i;
+	       vertex_manager->setItem(*i);
 	  } 
      }
      //------------------------------------------------------------
@@ -639,6 +652,7 @@ void FWTextView::newEvent (const fwlite::Event &ev, const CmsShowMain *de)
 // 	  page = page->next;
 // 	  page->select();
 //      }
+     changesDone(0);
      printf("read: ");
      stopwatch_read.Stop();
      stopwatch_read.Print("m");
@@ -687,6 +701,32 @@ void FWTextView::selectionChanged (const FWSelectionManager &m)
      for (std::vector<FWTableManager *>::iterator 
 	       i = managers.begin(), end = managers.end();
 	  i != end; ++i) 
-	  if ((*i)->item != 0)
+	  if ((*i)->item != 0) {
 	       (*i)->selectRows();
+	  }
 }
+
+void FWTextView::changesDone (const CmsShowMain *)
+{
+     for (std::vector<FWTableManager *>::iterator 
+	       i = managers.begin(), end = managers.end();
+	  i != end; ++i) {
+	  (*i)->vis_indices.clear();
+	  if ((*i)->item == 0)
+	       continue;
+	  for (unsigned int j = 0; j < (*i)->item->m_itemInfos.size(); ++j) {
+	       if ((*i)->item->m_itemInfos[j].displayProperties().isVisible()) {
+		    (*i)->vis_indices.insert(j);
+	       }
+	  }
+	  (*i)->resort(); // because invisible lines are supposed to
+			  // be at the bottom 
+ 	  (*i)->selectRows();
+     }
+}
+
+void FWTextView::itemChanged (const FWEventItem *item)
+{
+     printf("item %s changed!\n", item->name().c_str());
+}
+

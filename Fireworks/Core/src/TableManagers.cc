@@ -5,6 +5,7 @@
 #include "Fireworks/Core/interface/FWSelectionManager.h"
 #undef private
 #include <string.h>
+#include "TColor.h"
 #include "TableManagers.h"
 
 std::string format_string (const std::string &fmt, int x)
@@ -124,6 +125,9 @@ void FWTableManager::Selection (int row, int mask)
 
 void FWTableManager::selectRows ()
 {
+     if (widget != 0)
+	  widget->display();
+     /* no longer necessary:      
      // highlight whatever rows the framework told us to
      std::set<int> rows;
      for (std::set<int>::const_iterator i = sel_indices.begin(), 
@@ -132,6 +136,7 @@ void FWTableManager::selectRows ()
      }
      if (widget != 0)
 	  widget->SelectRows(rows);
+     */
 }
 
 void FWTableManager::dump (FILE *f)
@@ -260,3 +265,9 @@ void FWTableManager::sort (int col, bool reset)
      Sort(sort_col_, sort_asc_);
 }
 */
+
+void FWTableManager::setItem (FWEventItem *i)
+{
+     item = i;
+     widget->SetTextColor(item->m_displayProperties.color());
+}
