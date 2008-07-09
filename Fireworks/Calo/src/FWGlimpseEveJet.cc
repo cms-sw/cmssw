@@ -8,7 +8,7 @@
 //
 // Original Author:  Chris Jones
 //         Created:  Fri Jul  4 10:23:00 EDT 2008
-// $Id$
+// $Id: FWGlimpseEveJet.cc,v 1.1 2008/07/04 23:56:28 chrjones Exp $
 //
 
 // system include files
@@ -34,8 +34,10 @@ namespace {
 FWGlimpseEveJet::FWGlimpseEveJet(const reco::CaloJet* iJet,
                                  const Text_t* iName, const Text_t* iTitle):
 TEveBoxSet(iName, iTitle),
-m_jet(iJet)
+m_jet(iJet),
+m_color(0)
 {
+   SetMainColorPtr(&m_color);
    Reset(TEveBoxSet::kBT_EllipticCone, kTRUE, 64);
    setScale(1.0);
 }
@@ -67,6 +69,9 @@ FWGlimpseEveJet::~FWGlimpseEveJet()
 void 
 FWGlimpseEveJet::setScale(float iScale)
 {
+   //it appears that Reset resets the color as well so we need to set it back
+   Color_t color = GetMainColor();
+   UChar_t trans = GetMainTransparency();
    Reset();
 
    double height = m_jet->et()*iScale;
@@ -80,12 +85,15 @@ FWGlimpseEveJet::setScale(float iScale)
    double phi_size = sqrt(m_jet->phiphiMoment());
    AddEllipticCone(pos, dir, theta_size*height, phi_size*height);
 
-   DigitColor( GetMainColor(), GetMainTransparency() );
+   SetMainColor(color);
+   SetMainTransparency(trans);
+   //DigitColor( GetMainColor(), GetMainTransparency() );
 }
 
 void
 FWGlimpseEveJet::SetMainColor(Color_t iColor)
 {
+   m_color = iColor;
    TEveBoxSet::SetMainColor(iColor);
    DigitColor( iColor, GetMainTransparency() );
 }

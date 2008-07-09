@@ -16,7 +16,7 @@
 //
 // Original Author:  Chris Jones
 //         Created:  Fri Jul  4 10:22:47 EDT 2008
-// $Id$
+// $Id: FWGlimpseEveJet.h,v 1.1 2008/07/04 23:56:27 chrjones Exp $
 //
 
 // system include files
@@ -57,6 +57,7 @@ class FWGlimpseEveJet : public TEveBoxSet, public FWEveValueScaled
 
       // ---------- member data --------------------------------
       const reco::CaloJet* m_jet;
+      Color_t m_color;
 };
 
 
