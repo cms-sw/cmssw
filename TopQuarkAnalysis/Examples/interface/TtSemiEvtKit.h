@@ -40,7 +40,7 @@
 //
 // Original Author:  Malina Kirn
 //         Created:  Wed Jan 23 12:31:57 EST 2008
-// $Id: TtSemiEvtKit.h,v 1.1 2008/07/03 21:28:31 srappocc Exp $
+// $Id: TtSemiEvtKit.h,v 1.2 2008/07/03 22:16:20 srappocc Exp $
 //
 // Revision History:
 //       -  Malina Kirn, v0.9, Wed Jan 23 12:31:57 EST 2008:
@@ -54,6 +54,7 @@
 
 // user include files
 #include "PhysicsTools/StarterKit/interface/PatAnalyzerKit.h"
+#include "PhysicsTools/StarterKit/interface/PatKitHelper.h"
 #include "AnalysisDataFormats/TopObjects/interface/TtSemiEvtSolution.h"
 #include "PhysicsTools/StarterKit/interface/HistoComposite.h"
 
@@ -61,7 +62,7 @@
 // class declaration
 //
 
-class TtSemiEvtKit : public PatAnalyzerKit 
+class TtSemiEvtKit : public edm::EDProducer
 {
 public:
   explicit TtSemiEvtKit(const edm::ParameterSet&);
@@ -73,21 +74,32 @@ protected:
   virtual void endJob() ;
 
   // ----------member data ---------------------------
+
+  // Verbosity
+  int             verboseLevel_;
+
   edm::InputTag evtsols;
 
   pat::HistoComposite        * histoTtSemiEvt_;  
-  pat::HistoJet              * histoHadb_;
-  pat::HistoJet              * histoHadq_;
-  pat::HistoJet              * histoHadp_;
-  pat::HistoJet              * histoLepb_;
 
   pat::PhysVarHisto          * histoLRJetCombProb_;
   pat::PhysVarHisto          * histoLRSignalEvtProb_;
   pat::PhysVarHisto          * histoKinFitProbChi2_;
-  pat::PhysVarHisto          * histoTtMass_;
+
+  std::vector<pat::PhysVarHisto *> ntvars_;
 
 
-  std::vector<pat::PhysVarHisto *>  ttNtVars_;
+  // The main sub-object which does the real work
+  pat::PatKitHelper    helper_;
+
+
+  // Physics objects handles
+  edm::Handle<std::vector<pat::Muon> >     muonHandle_;
+  edm::Handle<std::vector<pat::Electron> > electronHandle_;
+  edm::Handle<std::vector<pat::Tau> >      tauHandle_;
+  edm::Handle<std::vector<pat::Jet> >      jetHandle_;
+  edm::Handle<std::vector<pat::MET> >      METHandle_;
+  edm::Handle<std::vector<pat::Photon> >   photonHandle_;
 };
 
 

@@ -11,23 +11,32 @@ using namespace pat;
 //
 TtSemiEvtKit::TtSemiEvtKit(const edm::ParameterSet& iConfig) 
   :
-  PatAnalyzerKit( iConfig )
+  verboseLevel_(0),
+  helper_(iConfig)
 {
 
+  helper_.bookHistos(this);
 
   evtsols           = iConfig.getParameter<edm::InputTag> ("EvtSolution");
 
   cout << "About to book histoTtSemiEvtHypothesis" << endl;
-  histoTtSemiEvt_ = new HistoComposite("ttSemiEvt", "ttSemiEvt", "ttSemiEvt");
+
+
+  PhysicsHistograms::KinAxisLimits compositeAxisLimits;
+
+  compositeAxisLimits = helper_.getAxisLimits("topAxis");
+
+  double pt1 = compositeAxisLimits.pt1;
+  double pt2 = compositeAxisLimits.pt2;
+  double m1  = compositeAxisLimits.m1;
+  double m2  = compositeAxisLimits.m2;
+
+  histoTtSemiEvt_ = new HistoComposite("ttSemiEvt", "ttSemiEvt", "ttSemiEvt",
+				       pt1, pt2, m1, m2);
 
 
   edm::Service<TFileService> fs;
   TFileDirectory ttbar = TFileDirectory( fs->mkdir("ttbar") );
-
-  histoHadb_ = new HistoJet("ttbar", "hadb", "hadb");
-  histoHadq_ = new HistoJet("ttbar", "hadq", "hadq");
-  histoHadp_ = new HistoJet("ttbar", "hadp", "hadp");
-  histoLepb_ = new HistoJet("ttbar", "lepb", "lepb");
 
   histoLRJetCombProb_ = new PhysVarHisto( "lrJetCombProb", "Jet Comb Probability",
 					  100, 0, 1, &ttbar, "", "vD" );
@@ -35,42 +44,16 @@ TtSemiEvtKit::TtSemiEvtKit(const edm::ParameterSet& iConfig)
 					  100, 0, 1, &ttbar, "", "vD" );
   histoKinFitProbChi2_ = new PhysVarHisto( "kinFitProbChi2", "Kin Fitter Chi2 Prob",
 					  100, 0, 1, &ttbar, "", "vD" );
-  histoTtMass_ = new PhysVarHisto( "ttMass", "ttbar invariant mass",
-				   100, 0, 5000, &ttbar, "", "vD" );
 
 
   histoLRJetCombProb_ ->makeTH1();
   histoLRSignalEvtProb_ ->makeTH1();
   histoKinFitProbChi2_ ->makeTH1();
-  histoTtMass_ ->makeTH1();
+
+  helper_.physHistos_->addHisto( histoLRJetCombProb_ );
+  helper_.physHistos_->addHisto( histoLRSignalEvtProb_ );
+  helper_.physHistos_->addHisto( histoKinFitProbChi2_ );
   
-
-  // ----- Name production branch -----
-  string list_of_ntuple_vars =
-    iConfig.getParameter<std::string>    ("ntuplize");
-  
-  if ( list_of_ntuple_vars != "" ) {
-
-    ttNtVars_.push_back( histoLRJetCombProb_ );
-    ttNtVars_.push_back( histoLRSignalEvtProb_ );
-    ttNtVars_.push_back( histoKinFitProbChi2_ );
-    ttNtVars_.push_back( histoTtMass_ );
-
-    histoHadb_->select( list_of_ntuple_vars, ttNtVars_ );
-    histoHadq_->select( list_of_ntuple_vars, ttNtVars_ );
-    histoHadp_->select( list_of_ntuple_vars, ttNtVars_ );
-    histoLepb_->select( list_of_ntuple_vars, ttNtVars_ );
-
-    
-    //--- Iterate over the list and "book" them via EDM
-    std::vector< PhysVarHisto* >::iterator
-      p    = ttNtVars_.begin(),
-      pEnd = ttNtVars_.end();
-
-    for ( ; p != pEnd; ++p ) {
-      addNtupleVar( (*p)->name(), (*p)->type() );
-    }
-  }
 }
 
 TtSemiEvtKit::~TtSemiEvtKit() 
@@ -86,14 +69,18 @@ void TtSemiEvtKit::produce( edm::Event& iEvent, const edm::EventSetup& iSetup)
 {
   using namespace edm;
 
-//   cout << "About to produce LepJetMetKit" << endl;
-  PatAnalyzerKit::produce( iEvent, iSetup );
-
   // INSIDE OF LepJetMetKit::produce:
 
   // --------------------------------------------------
   //    Step 1: Retrieve objects from data stream
   // --------------------------------------------------
+  helper_.getHandles( iEvent,
+		      muonHandle_,
+		      electronHandle_,
+		      tauHandle_,
+		      jetHandle_,
+		      METHandle_,
+		      photonHandle_);
 
   // --------------------------------------------------
   //    Step 2: invoke PhysicsHistograms to deal with all this.
@@ -102,6 +89,16 @@ void TtSemiEvtKit::produce( edm::Event& iEvent, const edm::EventSetup& iSetup)
   //    however the fillCollection() method takes a reference,
   //    so the collections are not copied...
   // --------------------------------------------------
+
+  if ( verboseLevel_ > 10 )
+    std::cout << "PatAnalyzerKit::analyze: calling fillCollection()." << std::endl;
+  helper_.fillHistograms( iEvent,
+			  muonHandle_,
+			  electronHandle_,
+			  tauHandle_,
+			  jetHandle_,
+			  METHandle_,
+			  photonHandle_);
 
   // --------------------------------------------------
   //    Step 3: Plot LepJetMet data
@@ -129,34 +126,20 @@ void TtSemiEvtKit::produce( edm::Event& iEvent, const edm::EventSetup& iSetup)
      
 //      cout << "About to fill the ttSemiEvt solution : " << bestSol << endl;
        histoTtSemiEvt_->fill( sols[bestSol].getRecoHyp() );
-       histoHadb_->fill( sols[bestSol].getHadb() );
-       histoHadq_->fill( sols[bestSol].getHadq() );
-       histoHadp_->fill( sols[bestSol].getHadp() );
-       histoLepb_->fill( sols[bestSol].getLepb() );
 
      
        histoLRJetCombProb_->fill( sols[bestSol].getLRJetCombProb());
        histoLRSignalEvtProb_->fill( sols[bestSol].getLRSignalEvtProb());
        histoKinFitProbChi2_->fill( sols[bestSol].getProbChi2());
-       histoTtMass_->fill( sols[bestSol].getRecoHyp().mass() );
      }
    }
-  
-   saveNtuple( ttNtVars_, iEvent );
 
-   
-   histoTtSemiEvt_->clearVec();  
-   histoHadb_->clearVec();
-   histoHadq_->clearVec();
-   histoHadp_->clearVec();
-   histoLepb_->clearVec();
-   
+
    histoLRJetCombProb_->clearVec();
    histoLRSignalEvtProb_->clearVec();
    histoKinFitProbChi2_->clearVec();
-   histoTtMass_->clearVec();
-
-
+   
+  
    // cout << "Done with produce" << endl;
 }
 
@@ -165,7 +148,6 @@ void TtSemiEvtKit::produce( edm::Event& iEvent, const edm::EventSetup& iSetup)
 void
 TtSemiEvtKit::beginJob(const edm::EventSetup& iSetup)
 {
-  PatAnalyzerKit::beginJob(iSetup);
 }
 
 
@@ -173,7 +155,6 @@ TtSemiEvtKit::beginJob(const edm::EventSetup& iSetup)
 // ------------ method called once each job just after ending the event loop  ------------
 void
 TtSemiEvtKit::endJob() {
-  PatAnalyzerKit::endJob();
 }
 
 //define this as a plug-in
