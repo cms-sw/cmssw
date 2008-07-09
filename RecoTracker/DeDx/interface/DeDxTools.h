@@ -15,10 +15,11 @@ namespace DeDxTools  {
     double charge;
     double angleCosine;
     DetId detId;
+    const TrajectoryMeasurement * trajectoryMeasurement;
    
   };
   
-  std::vector<RawHits> trajectoryRawHits(const Trajectory & trajectory);
+  trajectoryRawHits(const Trajectory & trajectory, std::vector<RawHits> & hits);
  
 ///////// some helper function maybe they are useless 
  

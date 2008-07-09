@@ -1,21 +1,16 @@
-#ifndef MedianDeDxEstimator_h
-#define MedianDeDxEstimator_h
+#ifndef RecoTrackerDeDx_MedianDeDxEstimator_h
+#define RecoTrackerDeDx_MedianDeDxEstimator_h
 
+#include "RecoTracker/DeDx/interface/DeDxTools.h"
+#include "DataFormats/TrackReco/interface/DeDxHit.h"
 
 class MedianDeDxEstimator: public BaseDeDxEstimator
 {
 public: 
  MedianDeDxEstimator(float expo) {}
 
- virtual Measurement1D  dedx(std::vector<Measurement1D> ChargeMeasurements){
-
-    if(ChargeMeasurements.size()<=0)return 0;
-
-    std::sort(ChargeMeasurements.begin(), ChargeMeasurements.end(), LessFunc() );
-    return Measurement1D( ChargeMeasurements[ChargeMeasurements.size()/2].value() , 0 ); 
- }
-
- 
+ virtual float dedx(const reco::DeDxHitCollection & Hits) 
+ {return Hits[Hits.size()/2].charge(); } 
 };
 
 #endif

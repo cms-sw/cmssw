@@ -1,6 +1,8 @@
-#ifndef TruncatedAverageDeDxEstimator_h
-#define TruncatedAverageDeDxEstimator_h
+#ifndef RecoTrackerDeDx_TruncatedAverageDeDxEstimator_h
+#define RecoTrackerDeDx_TruncatedAverageDeDxEstimator_h
 
+#include "RecoTracker/DeDx/interface/DeDxTools.h"
+#include "DataFormats/TrackReco/interface/DeDxHit.h"
 #include <numeric>
 
 class TruncatedAverageDeDxEstimator: public BaseDeDxEstimator
@@ -8,17 +10,17 @@ class TruncatedAverageDeDxEstimator: public BaseDeDxEstimator
 public: 
  TruncatedAverageDeDxEstimator(float fraction): m_fraction(fraction) {}
 
- virtual Measurement1D  dedx(std::vector<Measurement1D> ChargeMeasurements){
-    if(ChargeMeasurements.size()<=0) return 0;
+ virtual float dedx(const reco::DeDxHitCollection & Hits) 
+ {
+  int nTrunc = int( Hits.size()*m_fraction);
+  double sumdedx = 0;
+  for(size_t i=0;i + nTrunc <  Hits.size() ; i++)
+   {
+     sumdedx+=Hits[i].charge();
+   } 
+ double avrdedx = (Hits.size()) ? sumdedx/(Hits.size()-nTrunc) :0.0;
 
-    std::sort(ChargeMeasurements.begin(), ChargeMeasurements.end(), LessFunc() );
-
-    int     nTrunc = int( ChargeMeasurements.size()*m_fraction);
-    double sumdedx = 0;
-    for(unsigned int i=0;i + nTrunc <  ChargeMeasurements.size() ; i++){
-       sumdedx+=ChargeMeasurements[i].value();
-    } 
-    return Measurement1D( sumdedx/(ChargeMeasurements.size()-nTrunc) , 0 );
+  return  avrdedx;
  } 
 
 private:

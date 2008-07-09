@@ -1,23 +1,16 @@
-#ifndef GenericAverageDeDxEstimator_h
-#define GenericAverageDeDxEstimator_h
+#ifndef RecoTrackerDeDx_GenericAverageDeDxEstimator_h
+#define RecoTrackerDeDx_GenericAverageDeDxEstimator_h
 
+#include "RecoTracker/DeDx/interface/DeDxTools.h"
+#include "DataFormats/TrackReco/interface/DeDxHit.h"
 
 class GenericAverageDeDxEstimator: public BaseDeDxEstimator
 {
 public: 
  GenericAverageDeDxEstimator(float expo): m_expo(expo) {}
 
- virtual Measurement1D  dedx(std::vector<Measurement1D> ChargeMeasurements){ 
-    size_t n = ChargeMeasurements.size();
-    if(ChargeMeasurements.size()<=0)return 0;
-
-    double result = 0;
-    for(size_t i = 0; i< n; i ++){
-       result += pow(ChargeMeasurements[i].value(),m_expo);
-    }
-
-    return Measurement1D( result , 0 );
- } 
+ virtual float dedx(const reco::DeDxHitCollection & Hits) 
+ {return DeDxTools::genericAverage(Hits, m_expo); } 
 
 private:
  float m_expo;
