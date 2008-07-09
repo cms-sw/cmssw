@@ -1,8 +1,7 @@
 <use name=CondFormats/SiStripObjects>
 <use name=DataFormats/SiStripCommon>
 <use name=FWCore/MessageLogger>
-<use name=rootcore>
-<use name=root>
+<use name=roothistmatrix>
 <use name=boost>
 
 <export>
