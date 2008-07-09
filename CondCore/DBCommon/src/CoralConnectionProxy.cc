@@ -18,6 +18,8 @@ cond::CoralConnectionProxy::CoralConnectionProxy(
   m_transaction(new cond::CoralTransaction(this)){
 }
 cond::CoralConnectionProxy::~CoralConnectionProxy(){
+  disconnect();
+  delete  m_transaction;
 }
 cond::ITransaction&  
 cond::CoralConnectionProxy::transaction(){

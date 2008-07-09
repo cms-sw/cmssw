@@ -8,8 +8,8 @@ os.putenv("CORAL_AUTH_PATH","/afs/cern.ch/cms/DB/conddb")
 import coral
 from CondCore.TagCollection import Node,tagInventory,TagTree
 context = coral.Context()
-# context.setVerbosityLevel( 'ERROR' )
-context.setVerbosityLevel( 'DEBUG' )
+context.setVerbosityLevel( 'ERROR' )
+# context.setVerbosityLevel( 'DEBUG' )
 svc = coral.ConnectionService( context )
 session = svc.connect("oracle://cms_orcoff_prod/CMS_COND_20X_GLOBALTAG",accessMode = coral.access_ReadOnly )
 inv=tagInventory.tagInventory(session)
