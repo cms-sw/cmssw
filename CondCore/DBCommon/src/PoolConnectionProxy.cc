@@ -32,6 +32,7 @@ cond::PoolConnectionProxy::PoolConnectionProxy(
 }
 cond::PoolConnectionProxy::~PoolConnectionProxy(){
   //std::cout<<"PoolConnectionProxy::~PoolConnectionProxy"<<std::endl;
+  disconnect();
   m_catalog->commit();
   m_catalog->disconnect();
   //m_datasvc->session().disconnectAll();
@@ -74,6 +75,7 @@ cond::PoolConnectionProxy::connect(){
 }
 void
 cond::PoolConnectionProxy::disconnect(){
+  if (0==m_datasvc) return;
   m_datasvc->transaction().commit();
   m_datasvc->session().disconnectAll();
   delete m_datasvc;

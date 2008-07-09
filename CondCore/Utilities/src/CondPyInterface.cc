@@ -108,6 +108,8 @@ namespace cond {
   }
 
   CondDB & CondDB::operator=(const CondDB & other) {
+    if (me==other.me) return *this; // unless =0 this is an error condition!
+    if (me!=0) me->disconnect();
     me = other.me;
     other.me=0;
     return *this;
