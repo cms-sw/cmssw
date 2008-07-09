@@ -364,6 +364,8 @@ void FWTextView::newEvent (const fwlite::Event &ev, const CmsShowMain *de)
 	       i = de->m_eiManager->m_items.begin(),
 	       end = de->m_eiManager->m_items.end(); 
 	  i != end; ++i) {
+	  if (*i == 0) // event items can be null after they'be been removed
+	       continue;
 //  	  printf("event item: %s found\n", (*i)->name().c_str());
 	  if ((*i)->name() == "Electrons") { 
 	       (*i)->get(els);
@@ -387,6 +389,8 @@ void FWTextView::newEvent (const fwlite::Event &ev, const CmsShowMain *de)
 	       i = de->m_eiManager->m_items.begin(),
 	       end = de->m_eiManager->m_items.end(); 
 	  i != end; ++i) {
+	  if (*i == 0) // event items can be null after they'be been removed
+	       continue;
 // 	  printf("event item: %s\n", (*i)->name().c_str());
 	  if ((*i)->name() == "Electrons") { 
 	       el_manager->item = *i;
