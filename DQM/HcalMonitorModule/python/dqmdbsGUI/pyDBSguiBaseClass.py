@@ -1693,7 +1693,7 @@ class dbsBaseGui:
             print self.parseDBSInfo.__doc__
 
 
-        
+        hcalrunlist=[]
         # Added on 4 June 2008:  Try to get run list by explicitly check the RunSummary page to make sure that HCAL was included in the run.  Not yet enabled(need to generalize for non-HCAL running?)
 
         if (self.dbsSetHcalValue.get()=="Only runs including HCAL"):
