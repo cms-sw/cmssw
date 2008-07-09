@@ -5,7 +5,7 @@
 // 
 //
 // Original Author:  Dmytro Kovalskyi
-// $Id: MuonIdProducer.cc,v 1.22 2008/04/01 14:45:08 dmytro Exp $
+// $Id: MuonIdProducer.cc,v 1.23 2008/05/30 11:36:54 jribnik Exp $
 //
 //
 
@@ -617,12 +617,12 @@ void MuonIdProducer::fillMuonId(edm::Event& iEvent, const edm::EventSetup& iSetu
 	     segment != chamber->segments.end(); segment++ ) 
 	  {
 	     reco::MuonSegmentMatch matchedSegment;
-	     matchedSegment.x = segment->segmentLocalPosition.x();
-	     matchedSegment.y = segment->segmentLocalPosition.y();
-	     matchedSegment.dXdZ = segment->segmentLocalDirection.x()/segment->segmentLocalDirection.z();
-	     matchedSegment.dYdZ = segment->segmentLocalDirection.y()/segment->segmentLocalDirection.z();
-	     matchedSegment.xErr = segment->segmentLocalErrorXX>0?sqrt(segment->segmentLocalErrorXX):0;
-	     matchedSegment.yErr = segment->segmentLocalErrorYY>0?sqrt(segment->segmentLocalErrorYY):0;
+	     matchedSegment.x = segment->hasPhi?segment->segmentLocalPosition.x():0;
+	     matchedSegment.y = segment->hasZed?segment->segmentLocalPosition.y():0;
+	     matchedSegment.dXdZ = segment->segmentLocalDirection.z()?segment->segmentLocalDirection.x()/segment->segmentLocalDirection.z():0;
+	     matchedSegment.dYdZ = segment->segmentLocalDirection.z()?segment->segmentLocalDirection.y()/segment->segmentLocalDirection.z():0;
+	     matchedSegment.xErr = segment->hasPhi&&segment->segmentLocalErrorXX>0?sqrt(segment->segmentLocalErrorXX):0;
+	     matchedSegment.yErr = segment->hasZed&&segment->segmentLocalErrorYY>0?sqrt(segment->segmentLocalErrorYY):0;
 	     matchedSegment.dXdZErr = segment->segmentLocalErrorDxDz>0?sqrt(segment->segmentLocalErrorDxDz):0;
 	     matchedSegment.dYdZErr = segment->segmentLocalErrorDyDz>0?sqrt(segment->segmentLocalErrorDyDz):0;
 	     matchedSegment.t0 = segment->t0;
