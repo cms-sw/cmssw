@@ -4,7 +4,7 @@ import FWCore.ParameterSet.Config as cms
 jetCorrFactors = cms.EDProducer("JetCorrFactorsProducer",
     jetSource = cms.InputTag("iterativeCone5CaloJets"),
     # Basic JES correction, applied in PAT Layer 1 to pat::Jets
-    defaultJetCorrector = cms.string('MCJetCorrectorIcone5'),
+    defaultJetCorrector = cms.string('L2L3JetCorrectorIcone5'),
     # L5 Flavour corrections, on top of 'defaultJetCorrector'
     udsJetCorrector   = cms.string('L5FlavorJetCorrectorUds'),
     gluonJetCorrector = cms.string('L5FlavorJetCorrectorGluon'),
