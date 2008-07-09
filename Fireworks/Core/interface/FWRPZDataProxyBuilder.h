@@ -16,7 +16,7 @@
 //
 // Original Author:  
 //         Created:  Sat Jan  5 15:02:03 EST 2008
-// $Id: FWRPZDataProxyBuilder.h,v 1.11 2008/06/25 22:23:36 chrjones Exp $
+// $Id: FWRPZDataProxyBuilder.h,v 1.12 2008/07/01 04:43:54 chrjones Exp $
 //
 
 // system include files
@@ -55,15 +55,15 @@ class FWRPZDataProxyBuilder : public FWRPZDataProxyBuilderBase
    protected:
       static TEveCalo3D* m_calo3d;
 
-   private:
+   virtual void itemChangedImp(const FWEventItem*) ;
+   virtual void itemBeingDestroyedImp(const FWEventItem*);
+   virtual void modelChangesImp(const FWModelIds&);
+private:
       virtual void build(const FWEventItem* iItem, 
 			 TEveElementList** product) = 0 ;
 
 
       //abstract functions from the base class
-      virtual void itemChangedImp(const FWEventItem*) ;
-      virtual void itemBeingDestroyedImp(const FWEventItem*);
-      virtual void modelChangesImp(const FWModelIds&);
       virtual TEveElementList* getRhoPhiProduct() const;
       virtual TEveElementList* getRhoZProduct() const;
    
