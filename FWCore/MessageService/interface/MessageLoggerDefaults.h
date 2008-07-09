@@ -24,7 +24,7 @@
 //
 // Original Author:  M. Fischler 
 //         Created:  Tues Jun 14 10:38:19 CST 2007
-// $Id:  $
+// $Id: MessageLoggerDefaults.h,v 1.1 2007/06/20 16:04:34 fischler Exp $
 //
 
 // Framework include files
@@ -87,6 +87,7 @@ public:
     std::string threshold;
     std::map<std::string,Category> category; 
     std::map<std::string,Category> sev; 
+    std::string output;
   };
   
   // publicly available collections and structures
@@ -100,6 +101,7 @@ public:
   // access to values set
   
   std::string threshold (std::string const & dest);
+  std::string output    (std::string const & dest);
 
   int limit      (std::string const & dest, std::string const & cat);
   int reportEvery(std::string const & dest, std::string const & cat);

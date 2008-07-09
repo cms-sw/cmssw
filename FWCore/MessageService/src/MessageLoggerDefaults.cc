@@ -41,7 +41,21 @@ threshold(std::string const & dest)
     }
   }
   return thr;   
-} // limit
+} // threshold
+
+std::string 
+MessageLoggerDefaults::
+output(std::string const & dest)
+{
+  std::string otpt = "";
+  std::map<std::string,Destination>::iterator d = destination.find(dest);  
+  if (d != destination.end()) {
+    Destination & destin = d->second;
+    otpt = destin.output;
+  }
+  // There is no default output; so if we did not find the dest, then return ""
+  return otpt;   
+} // output
 
 int 
 MessageLoggerDefaults::

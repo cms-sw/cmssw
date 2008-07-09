@@ -12,6 +12,8 @@
 //
 // Changes:
 //
+// 7/7/08   mf	Statistics with different threshold
+//
 // ----------------------------------------------------------------------
 
 
@@ -44,7 +46,7 @@ hardwireGridJobMode()
   categories.push_back   ( "FwkReport"         );
   categories.push_back   ( "FwkSummary"        );
   categories.push_back   ( "Root_NoDictionary" );
-  statistics.push_back   ( "cerr"              );
+  statistics.push_back   ( "cerr_stats"        );
   // cerr destination - 
   //      note that using the name cerr is OK since it is not std::cerr
   //      but when we want to use default as a name, we have to be circumspect
@@ -81,6 +83,12 @@ hardwireGridJobMode()
       FrameworkJobReport.category["FwkJob"] = FwkJob;
     destination["FrameworkJobReport"] = FrameworkJobReport;
   }
+  { Destination cerr_stats;			 // PSet cerr_stats
+    cerr_stats.threshold = "WARNING";		 // string threshold = "INFO"
+    cerr_stats.output = "cerr";		 	 // string output = "cerr"
+    destination["cerr_stats"] = cerr_stats;
+  }
+
 } // hardwireGridJobMode
 
 void MessageLoggerDefaults::

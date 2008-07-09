@@ -127,7 +127,12 @@ u28_cerr  Tests distinct threshold level for linked statistics destination:
 	  same stream as an ordinary output destination to cerr.  But their 
 	  thresholds are different.
 	---------- UnitTestClient_A
-
+	
+u29	Tests the hardwired defaults. Does not include MessageLogger.cfi nor 
+	explicitly mention MessageLogger or MessageService at all.  Unlike
+	u20, this is not directly suitable for a unit test because the we
+	can't disable time stamps and still be true to the "no Message
+	---------- UnitTestClient_A
 
 timing_t   Tests output of Timing service to JobReport
 	   (Inherently tough for regression testing as

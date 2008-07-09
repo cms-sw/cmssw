@@ -152,6 +152,10 @@
 //  30 - 6/20/08 mf - in run() 
 //	 Setting MessageLoggerScribeIsRunning
 //
+//  31 - 7/9/08  mf - in configure_ordinary_destinations()
+//		 and configure_statistics()
+//	 using hardwired default output filename if there is one
+//
 // ----------------------------------------------------------------------
 
 #include "FWCore/MessageService/interface/ELadministrator.h"
@@ -233,8 +237,8 @@ void
       case MessageLoggerQ::END_THREAD:  {
         assert( operand == 0 );
         done = true;
-        MessageDrop::instance()->messageLoggerScribeIsRunning = -1; 
-								// ChangeLog 30
+        MessageDrop::instance()->messageLoggerScribeIsRunning = 
+		(unsigned char) -1; 				// ChangeLog 30
         break;
       }
       case MessageLoggerQ::LOG_A_MESSAGE:  {
@@ -856,8 +860,27 @@ void
 
     // Modify the file name if extension or name is explicitly specified
     // change log 14 
+
+    // Although for an ordinary destination there is no output attribute
+    // for the cfg (you can use filename instead) we provide output() for
+    // uniformity with the statistics destinations.  The "right way" to
+    // work this would have been to provide a filename() method, along with 
+    // an extension() method.  We recognize the potential name confusion here
+    // (filename(filename))!
+    
+    // Determine the destination file name to use if no explicit filename is
+    // supplied in the cfg.
+    String filename_default 
+        = getAparameter<String>(&dest_pset,"output",empty_String);
+    if ( filename_default == empty_String ) {
+      filename_default = messageLoggerDefaults->output(psetname); // change log 31
+      if (filename_default  == empty_String) {
+        filename_default  = filename;
+      }        
+    }
+
     String explicit_filename 
-        = getAparameter<String>(&dest_pset,"filename",empty_String);
+        = getAparameter<String>(&dest_pset,"filename",filename_default);
     if (explicit_filename != empty_String) filename = explicit_filename;
     String explicit_extension 
         = getAparameter<String>(&dest_pset,"extension",empty_String);
@@ -937,8 +960,18 @@ void
      = getAparameter<vString>(job_pset_p,"statistics", empty_vString);
   
   bool no_statistics_configured = statistics.empty();		// change log 24
-  std::vector<std::string> hardstats;
-  if ( no_statistics_configured ) hardstats = messageLoggerDefaults->statistics;
+  
+  if ( no_statistics_configured ) {
+    // Read the list of staistics destinations from hardwired defaults,
+    // but only if there is also no list of ordinary destinations.
+    // (If a cfg specifies destinations, and no statistics, assume that
+    // is what the user wants.)
+    vString  destinations
+     = getAparameter<vString>(job_pset_p, "destinations", empty_vString);
+    if (destinations.empty()) { 
+      statistics = messageLoggerDefaults->statistics;
+    }
+  }
 
    // establish each statistics destination:
   for( vString::const_iterator it = statistics.begin()
@@ -955,14 +988,22 @@ void
 	= getAparameter<bool>(&stat_pset,"placeholder", false);
     if (is_placeholder) continue;
 
+    // Determine the destination file name
     String filename 
-        = getAparameter<String>(&stat_pset,"output",statname);
-    
+        = getAparameter<String>(&stat_pset,"output",empty_String);
+    if ( filename == empty_String ) {
+      filename = messageLoggerDefaults->output(psetname);	// change log 31
+      if (filename == empty_String) {
+        filename = statname;
+      }        
+    }
+
     // Modify the file name if extension or name is explicitly specified
     // change log 14 -- probably suspenders and a belt, because ouput option
     // is present, but uniformity is nice.
+					
     String explicit_filename 
-        = getAparameter<String>(&stat_pset,"filename",empty_String);
+        = getAparameter<String>(&stat_pset,"filename",filename);
     if (explicit_filename != empty_String) filename = explicit_filename;
     String explicit_extension 
         = getAparameter<String>(&stat_pset,"extension",empty_String);
