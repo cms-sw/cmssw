@@ -49,12 +49,12 @@ TreeReader &TreeReader::operator = (const TreeReader &orig)
 
 	multiDouble.resize(orig.multiDouble.size());
 	multiFloat.resize(orig.multiFloat.size());
-	multiInt.resize(orig.multiBool.size());
+	multiInt.resize(orig.multiInt.size());
 	multiBool.resize(orig.multiBool.size());
 
 	singleDouble.resize(orig.singleDouble.size());
 	singleFloat.resize(orig.singleFloat.size());
-	singleInt.resize(orig.singleBool.size());
+	singleInt.resize(orig.singleInt.size());
 	singleBool.resize(orig.singleBool.size());
 
 	valueMap = orig.valueMap;
