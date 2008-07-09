@@ -4,8 +4,8 @@
 /** \class LaserAlignment
  *  Main reconstruction module for the Laser Alignment System
  *
- *  $Date: 2008/05/01 08:12:26 $
- *  $Revision: 1.14 $
+ *  $Date: 2008/05/10 15:36:26 $
+ *  $Revision: 1.15 $
  *  \author Maarten Thomas
  */
 
@@ -34,9 +34,12 @@
 
 #include "CondFormats/SiStripObjects/interface/SiStripPedestals.h"
 #include "CondFormats/DataRecord/interface/SiStripPedestalsRcd.h"
+#include "CondFormats/Alignment/interface/DetectorGlobalPosition.h"
+#include "CondFormats/AlignmentRecord/interface/GlobalPositionRcd.h"
 
 #include "Geometry/TrackerGeometryBuilder/interface/StripGeomDetUnit.h"
 #include "Geometry/CommonTopologies/interface/StripTopology.h"
+#include "Geometry/TrackerGeometryBuilder/interface/TrackerGeomBuilderFromGeometricDet.h"
 
 // Alignable Tracker needed to propagate the alignment corrections calculated 
 // for the disks down to the lowest levels
@@ -145,6 +148,7 @@ class LaserAlignment : public edm::EDProducer, public TObject {
   int theEvents;
   bool theDoPedestalSubtraction;
   bool enableJudgeZeroFilter;
+  bool updateFromIdealGeometry;
   bool theStoreToDB;
   bool theSaveHistograms;
   int theDebugLevel;
@@ -270,6 +274,7 @@ class LaserAlignment : public edm::EDProducer, public TObject {
   // tracker geometry;
   edm::ESHandle<GeometricDet> gD;
   edm::ESHandle<TrackerGeometry> theTrackerGeometry;
+  edm::ESHandle<Alignments> theGlobalPositionRcd;
 
 
 /*  edm::ESHandle<DDCompactView> cpv;
