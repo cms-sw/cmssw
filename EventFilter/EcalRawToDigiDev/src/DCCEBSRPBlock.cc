@@ -28,6 +28,8 @@ void DCCEBSRPBlock::addSRFlagToCollection(){
   data_++;
   uint16_t * my16Bitp_ = reinterpret_cast<uint16_t *> (data_);
 
+  uint towersInPhi = EcalElectronicsMapper::kTowersInPhi;
+
 
   for( uint n=0; n<expNumbSrFlags_ ; n++ ){
     
@@ -36,10 +38,21 @@ void DCCEBSRPBlock::addSRFlagToCollection(){
     ushort  srFlag =  ( *my16Bitp_ >> ( (n-(n/4)*4) * 3 ) )  &  SRP_SRFLAG_MASK ;
     srFlags_[n] = srFlag;
 
-    if(unpackInternalData_){  
-     EBSrFlag * sr = (EBSrFlag*) mapper_->getSrFlagPointer(n+1);
-     sr->setValue(srFlag);
-     (*ebSrFlagsDigis_)->push_back(*sr);
+
+    if(unpackInternalData_){ 
+
+      uint theSRPi = n ;
+
+      if(NUMB_SM_EB_PLU_MIN<= mapper_->getActiveSM() && mapper_->getActiveSM()<=NUMB_SM_EB_PLU_MAX){
+        uint u   = n%towersInPhi;
+        u        = towersInPhi-u;
+        theSRPi  = ( n/towersInPhi )*towersInPhi + u - 1;
+      }
+
+      EBSrFlag * sr = (EBSrFlag*) mapper_->getSrFlagPointer(theSRPi+1);
+      sr->setValue(srFlag);
+      (*ebSrFlagsDigis_)->push_back(*sr);
+
     } 
   }
   
@@ -58,8 +71,8 @@ bool DCCEBSRPBlock::checkSrpIdAndNumbSRFlags(){
       edm::LogWarning("EcalRawToDigi@SUB=DCCSRPBlock::unpack")
         <<"\nUnable to unpack SRP block for event "<<event_->l1A()<<" in fed <<"<<mapper_->getActiveDCC()
         <<"\nNumber of flags "<<nSRFlags_<<" is different from expected "<<expNumbSrFlags_;
-     }
-    //Note : add to error collection ?
+      //Note : add to error collection ?		 
+    }
     return false;
   }
   return true;

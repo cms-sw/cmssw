@@ -49,7 +49,7 @@ int DCCMemBlock::unpack(uint64_t ** data, uint * dwToEnd, uint expectedTowerID){
   if( (*dwToEnd_)<1){
     if( ! DCCDataUnpacker::silentMode_ ){
       edm::LogWarning("EcalRawToDigiDevMemBlock")
-        <<"\nUnable to unpack MEM block for event "<<event_->l1A()<<" in fed "<<mapper_->getActiveDCC()
+        <<"\nUnable to unpack MEM block for event "<<event_->l1A()<<" in fed <<"<<mapper_->getActiveDCC()
         <<"\nThe end of event was reached !";
     }
     return STOP_EVENT_UNPACKING;
@@ -91,7 +91,7 @@ int DCCMemBlock::unpack(uint64_t ** data, uint * dwToEnd, uint expectedTowerID){
   if((*dwToEnd_)<blockLength_){
     if( ! DCCDataUnpacker::silentMode_ ){
       edm::LogWarning("EcalRawToDigiDevMemBlock")
-        <<"\nUnable to unpack MEM block for event "<<event_->l1A()<<" in fed "<<mapper_->getActiveDCC()
+        <<"\nUnable to unpack MEM block for event "<<event_->l1A()<<" in fed <<"<<mapper_->getActiveDCC()
         <<"\n Only "<<((*dwToEnd_)*8)<<" bytes are available while "<<(blockLength_*8)<<" are needed!";
       // chosing channel 1 as representative of a dummy...
     } 
@@ -121,7 +121,7 @@ int DCCMemBlock::unpack(uint64_t ** data, uint * dwToEnd, uint expectedTowerID){
   if( nTSamples_ != expXtalTSamples_ ){
     if( ! DCCDataUnpacker::silentMode_ ){
       edm::LogWarning("EcalRawToDigiDevMemBlock")
-        <<"\nUnable to unpack MEM block for event "<<event_->l1A()<<" in fed "<<mapper_->getActiveDCC()
+        <<"\nUnable to unpack MEM block for event "<<event_->l1A()<<" in fed <<"<<mapper_->getActiveDCC()
         <<"\nNumber of time samples "<<nTSamples_<<" is not the same as expected ("<<expXtalTSamples_<<")";
      }
     //Note : add to error collection ?		 

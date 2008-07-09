@@ -1,7 +1,6 @@
 #include <EventFilter/EcalRawToDigiDev/interface/EcalDCCHeaderRuntypeDecoder.h>
-#include "EventFilter/EcalRawToDigiDev/interface/DCCDataUnpacker.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
-
+#include "EventFilter/EcalRawToDigiDev/interface/DCCDataUnpacker.h"
 #include <string>
 #include <iostream>
 
@@ -143,7 +142,7 @@ void EcalDCCHeaderRuntypeDecoder::DecodeSettingGlobal ( ulong TrigType, ulong de
   else {
     if( ! DCCDataUnpacker::silentMode_ ){
       edm::LogError("EcalDCCHeaderRuntypeDecoder") <<"Unrecognized detailed trigger type";
-    }
+    } 
     theHeader->setRunType(-1);
     WasDecodingOk_ = false;
   }

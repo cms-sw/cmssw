@@ -9,8 +9,8 @@
  *
  * \file EcalRawToDigi.h
  *
- * $Date: 2008/04/07 19:35:06 $
- * $Revision: 1.12 $
+ * $Date: 2008/07/03 13:43:40 $
+ * $Revision: 1.13 $
  * \author N. Almeida
  * \author G. Franzoni
  *
@@ -73,7 +73,6 @@ class EcalRawToDigiDev : public edm::EDProducer{
   bool feUnpacking_;
   bool memUnpacking_;
   bool syncCheck_;
-  bool feIdCheck_;
   bool first_;
   bool put_;
 
@@ -81,7 +80,7 @@ class EcalRawToDigiDev : public edm::EDProducer{
 
   // -- For regional unacking :
   bool REGIONAL_ ;
-  edm::InputTag fedsLabel_ ;
+  std::string fedsLabel_ ;
 
   //an electronics mapper class 
   EcalElectronicsMapper * myMap_;
