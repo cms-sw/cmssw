@@ -1,4 +1,4 @@
-// Last commit: $Id: CommissioningHistosUsingDb.cc,v 1.12 2008/05/06 12:38:07 bainbrid Exp $
+// Last commit: $Id: CommissioningHistosUsingDb.cc,v 1.13 2008/07/01 13:04:24 bainbrid Exp $
 
 #include "DQM/SiStripCommissioningDbClients/interface/CommissioningHistosUsingDb.h"
 #include "CalibFormats/SiStripObjects/interface/NumberOfDevices.h"
@@ -477,7 +477,7 @@ void CommissioningHistosUsingDb::disableProblemDevices() {
 	   << ", ApvPair= " << iii->second << std::endl;
       }
     }
-    LogTrace(mlDqmClient_) << ss.str();
+    edm::LogVerbatim(mlDqmClient_) << ss.str();
   }
   
   if ( !db_ ) {
@@ -506,18 +506,21 @@ void CommissioningHistosUsingDb::disableProblemDevices() {
       DisabledDevices::const_iterator jjj = ii->second.end();
       for ( ; iii != jjj; ++iii ) { dcus.push_back(iii->first); }
 #ifdef USING_NEW_DATABASE_MODEL
+      edm::LogVerbatim(mlDqmClient_) 
+	<< "[CommissioningHistosUsingDb::" << __func__ << "]"
+	<< " Disabling " << dcus.size() 
+	<< " devices for partition \"" << ii->first << "\"...";
       try { df->setEnableModules( ii->first, dcus, false ); } //@@ disable!
       catch (...) { db_->handleException( __func__ ); }
+      edm::LogVerbatim(mlDqmClient_) 
+	<< "[CommissioningHistosUsingDb::" << __func__ << "]"
+	<< " Disabled " << dcus.size()
+	<< " devices for partition \"" << ii->first << "\"!";
 #else
       edm::LogWarning(mlDqmClient_) 
 	<< "[CommissioningHistosUsingDb::" << __func__ << "]"
 	<< " Cannot disable devices using old DB model!";
 #endif
-      edm::LogVerbatim(mlDqmClient_) 
-	<< "[CommissioningHistosUsingDb::" << __func__ << "]"
-	<< " Disabled " << dcus.size() 
-	<< " devices for partition " << ii->first;
-      edm::LogWarning(mlDqmClient_) << "TEST 6";
     }
   } else {
     edm::LogVerbatim(mlDqmClient_) 

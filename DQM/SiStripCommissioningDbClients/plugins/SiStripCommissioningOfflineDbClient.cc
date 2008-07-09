@@ -1,4 +1,4 @@
-// Last commit: $Id: SiStripCommissioningOfflineDbClient.cc,v 1.16 2008/05/06 12:38:06 bainbrid Exp $
+// Last commit: $Id: SiStripCommissioningOfflineDbClient.cc,v 1.17 2008/07/01 14:35:17 bainbrid Exp $
 
 #include "DQM/SiStripCommissioningDbClients/plugins/SiStripCommissioningOfflineDbClient.h"
 #include "DataFormats/SiStripCommon/interface/SiStripEnumsAndStrings.h"
@@ -149,7 +149,7 @@ void SiStripCommissioningOfflineDbClient::createHistos( const edm::ParameterSet&
        << " Uploading calibrations from analysis? : " 
        << ( tmp->doUploadAnal() ? "true" : "false" )
        << std::endl
-       << " Disable problematic devices? : " 
+       << " Disable problematic devices?          : " 
        << ( tmp->disableDevices() ? "true" : "false" );
     edm::LogVerbatim(mlDqmClient_) << ss.str();
   } else {
@@ -170,11 +170,19 @@ void SiStripCommissioningOfflineDbClient::createHistos( const edm::ParameterSet&
 // -----------------------------------------------------------------------------
 // 
 void SiStripCommissioningOfflineDbClient::uploadToConfigDb() {
-  LogTrace(mlDqmClient_)
+  edm::LogVerbatim(mlDqmClient_)
     << "[SiStripCommissioningOfflineDbClient::" << __func__ << "]"
     << " Uploading parameters to database...";
-  
   CommissioningHistosUsingDb* tmp = dynamic_cast<CommissioningHistosUsingDb*>(histos_);
-  if ( tmp ) { tmp->uploadToConfigDb(); }
-  
+  if ( tmp ) { 
+    tmp->uploadToConfigDb(); 
+    edm::LogVerbatim(mlDqmClient_)
+      << "[SiStripCommissioningOfflineDbClient::" << __func__ << "]"
+      << " Uploaded parameters to database!";
+  } else {
+    edm::LogError(mlDqmClient_)
+      << "[SiStripCommissioningOfflineDbClient::" << __func__ << "]"
+      << " NULL pointer to CommissioningHistosUsingDb object!"
+      << " Upload aborted!...";
+  }
 }
