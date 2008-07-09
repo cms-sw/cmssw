@@ -4,8 +4,8 @@
 /** \class DTNoiseTask
  *  No description available.
  *
- *  $Date: 2008/06/30 12:50:03 $
- *  $Revision: 1.1 $
+ *  $Date: 2008/07/02 09:06:32 $
+ *  $Revision: 1.3 $
  *  \authors G. Mila , G. Cerminara - INFN Torino
  */
 
@@ -43,6 +43,8 @@ protected:
   /// BeginJob
   void beginJob(const edm::EventSetup& c);
 
+  void beginRun(const edm::Run&, const edm::EventSetup&);
+
   /// To reset the MEs
   void beginLuminosityBlock(const edm::LuminosityBlock&  lumiSeg, const edm::EventSetup& context);
   
@@ -68,7 +70,7 @@ private:
   edm::ESHandle<DTGeometry> dtGeom;
 
   //tTrig map per Station
-  std::map<DTChamberId, int> tTrigStMap;
+  std::map<DTChamberId, double> tTrigStMap;
 
   //the noise histos (Hz)
   std::map<DTChamberId, MonitorElement*> noiseHistos;

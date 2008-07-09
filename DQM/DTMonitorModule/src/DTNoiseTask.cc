@@ -2,8 +2,8 @@
 /*
  *  See header file for a description of this class.
  *
- *  $Date: 2008/06/30 12:50:03 $
- *  $Revision: 1.1 $
+ *  $Date: 2008/07/04 09:45:34 $
+ *  $Revision: 1.4 $
  *  \authors G. Mila , G. Cerminara - INFN Torino
  */
 
@@ -45,7 +45,7 @@ using namespace std;
 
 DTNoiseTask::DTNoiseTask(const ParameterSet& ps) : evtNumber(0) {
 
-  cout<< "[DTNoiseTask]: Constructor"<<endl;
+   LogVerbatim("DTNoiseTask") << "[DTNoiseTask]: Constructor"<<endl;
 
   dbe = edm::Service<DQMStore>().operator->();
 
@@ -67,7 +67,7 @@ DTNoiseTask::~DTNoiseTask(){}
 /// BeginJob
 void DTNoiseTask::beginJob(const edm::EventSetup& setup) {
 
-  cout<< "[DTNoiseTask]: BeginJob"<<endl;
+   LogVerbatim("DTNoiseTask") << "[DTNoiseTask]: BeginJob"<<endl;
 
   // tTrig Map
   edm::ESHandle<DTTtrig> tTrigMap;
@@ -91,11 +91,12 @@ void DTNoiseTask::beginJob(const edm::EventSetup& setup) {
       if(doTimeBoxHistos)
 	bookHistos(slId);
       float tTrig, tTrigRMS;
-      tTrigMap->slTtrig(slId, tTrig, tTrigRMS);
+      tTrigMap->slTtrig(slId, tTrig, tTrigRMS,DTTimeUnits::ns);
       // tTrig mapping per station
+      // check that the ttrig is the lowest of the 3 SLs
       if(tTrigStMap.find(chId)==tTrigStMap.end() || 
-	 (tTrigStMap.find(chId)!=tTrigStMap.end() && tTrig<tTrigStMap[chId]))
-	tTrigStMap[chId]=int(tTrig);
+	 (tTrigStMap.find(chId)!=tTrigStMap.end() && tTrig < tTrigStMap[chId]))
+	tTrigStMap[chId] = tTrig;
     }
   }
 
@@ -107,21 +108,7 @@ void DTNoiseTask::beginJob(const edm::EventSetup& setup) {
 void DTNoiseTask::beginLuminosityBlock(const edm::LuminosityBlock&  lumiSeg,
 				       const edm::EventSetup& context) {
 
-  cout<<"[DTNoiseTask]: Begin of LS transition"<<endl;
-
-  /*for(map<DTChamberId, MonitorElement* > ::const_iterator histo = noiseHistos.begin();
-	histo != noiseHistos.end();
-	histo++) {
-    (*histo).second->Reset();
-  }
-
-  if(doTimeBoxHistos){
-    for(map<DTSuperLayerId, MonitorElement* > ::const_iterator histo = tbHistos.begin();
-	histo != tbHistos.end();
-	histo++) {
-      (*histo).second->Reset();
-    }
-    }*/
+   LogVerbatim("DTNoiseTask") <<"[DTNoiseTask]: Begin of LS transition"<<endl;
 
 }
 
@@ -130,9 +117,11 @@ void DTNoiseTask::beginLuminosityBlock(const edm::LuminosityBlock&  lumiSeg,
 /// Analyze
 void DTNoiseTask::analyze(const edm::Event& e, const edm::EventSetup& c) {
 
+  bool vetoEventsWithSegments = false; // FIXME: should become a parameter
+
   evtNumber++;
   if(evtNumber%1000==0)
-    cout<<"[DTNoiseTask]: Analyzing evt number :"<<evtNumber<<endl;
+     LogVerbatim("DTNoiseTask") <<"[DTNoiseTask]: Analyzing evt number :"<<evtNumber<<endl;
 
   // map of the chambers with at least 1 segment
   std::map<DTChamberId, int> segmentsChId;
@@ -161,39 +150,41 @@ void DTNoiseTask::analyze(const edm::Event& e, const edm::EventSetup& c) {
   
       //Check the TDC trigger width
       int tdcTime = (*digiIt).countsTDC();
-      int upperLimit = tTrigStMap[(*dtLayerId_It).first.superlayerId().chamberId()]-200;
-      double upperLimit_ns = double(upperLimit*25)/32;
-      double upperLimit_s = upperLimit_ns/1e9;
+      double upperLimit = tTrigStMap[(*dtLayerId_It).first.superlayerId().chamberId()]-200.;
       if(doTimeBoxHistos)
 	tbHistos[(*dtLayerId_It).first.superlayerId()]->Fill(tdcTime);
       if(tdcTime>upperLimit)
 	continue;
 
-      //Check the chamber has no 4D segments
-      if(segmentsChId.find((*dtLayerId_It).first.superlayerId().chamberId())!=segmentsChId.end())
+      //Check the chamber has no 4D segments (optional)
+      if(vetoEventsWithSegments &&
+	 segmentsChId.find((*dtLayerId_It).first.superlayerId().chamberId())!=segmentsChId.end())
 	continue;
 
       // fill the occupancy histo
       TH2F* noise_root = noiseHistos[(*dtLayerId_It).first.superlayerId().chamberId()]->getTH2F();
       double normalization=0;
       if(mapEvt.find((*dtLayerId_It).first.superlayerId().chamberId())!=mapEvt.end()){
-	normalization = upperLimit_s*mapEvt[(*dtLayerId_It).first.superlayerId().chamberId()];
-	noise_root->Scale(normalization);
+	 LogVerbatim("DTNoiseTask")  << " Last fill: # of events: "
+				     << mapEvt[(*dtLayerId_It).first.superlayerId().chamberId()]
+	     << endl;
+	normalization =  1e-9*upperLimit*mapEvt[(*dtLayerId_It).first.superlayerId().chamberId()];
+	noise_root->Scale(1./normalization);
       }
       int yBin=(*dtLayerId_It).first.layer()+(4*((*dtLayerId_It).first.superlayerId().superlayer()-1));
       noise_root->Fill((*digiIt).wire(),yBin);
       // normalize the occupancy histo
-      mapEvt[(*dtLayerId_It).first.superlayerId().chamberId()]=evtNumber;
-      normalization = 1/double(upperLimit_s*mapEvt[(*dtLayerId_It).first.superlayerId().chamberId()]);
+      mapEvt[(*dtLayerId_It).first.superlayerId().chamberId()] = evtNumber;
+      LogVerbatim("DTNoiseTask")  << (*dtLayerId_It).first << " wire: " << (*digiIt).wire()
+				  << " # counts: " << noise_root->GetBinContent((*digiIt).wire(),yBin)
+				  << " Time interval: " << upperLimit
+				  << " # of events: " << evtNumber << endl;
+      normalization = double( 1e-9*upperLimit*mapEvt[(*dtLayerId_It).first.superlayerId().chamberId()]);
       noise_root->Scale(normalization);
-      
+      LogVerbatim("DTNoiseTask")  << "    noise rate: "
+				  << noise_root->GetBinContent((*digiIt).wire(),yBin) << endl;
     }
   }
-
-  //if(evtNumber%1000==0)
-  //dbe->save("prova.root");
-
-  
 }
   
 
@@ -218,11 +209,11 @@ void DTNoiseTask::bookHistos(DTChamberId chId) {
     + "_St" + station.str() 
     + "_Sec" + sector.str() ;
   
-  cout<< "[DTNoiseTask]: booking chamber histo:"<<endl;
-  cout<< "              folder "<< "DT/01-Noise/Wheel" + wheel.str() +
+   LogVerbatim("DTNoiseTask") << "[DTNoiseTask]: booking chamber histo:"<<endl;
+   LogVerbatim("DTNoiseTask") << "              folder "<< "DT/01-Noise/Wheel" + wheel.str() +
     "/Station" + station.str() +
     "/Sector" + sector.str() + "/"<<endl; 
-  cout<< "              histoName "<<histoName<<endl;
+   LogVerbatim("DTNoiseTask") << "              histoName "<<histoName<<endl;
 
   // Get the chamber from the geometry
   int nWires_max = 0;
@@ -242,18 +233,18 @@ void DTNoiseTask::bookHistos(DTChamberId chId) {
 
   noiseHistos[chId] = dbe->book2D(histoName,"Noise rate (Hz) per channel", nWires_max,1, nWires_max+1,12,1,13);
   noiseHistos[chId]->setAxisTitle("wire number",1);
-  noiseHistos[chId]->setBinLabel(1,"SL1_L1",2);
-  noiseHistos[chId]->setBinLabel(2,"SL1_L2",2);
-  noiseHistos[chId]->setBinLabel(3,"SL1_L3",2);
-  noiseHistos[chId]->setBinLabel(4,"SL1_L4",2);
-  noiseHistos[chId]->setBinLabel(5,"SL2_L1",2);
-  noiseHistos[chId]->setBinLabel(6,"SL2_L2",2);
-  noiseHistos[chId]->setBinLabel(7,"SL2_L3",2);
-  noiseHistos[chId]->setBinLabel(8,"SL2_L4",2);
-  noiseHistos[chId]->setBinLabel(9,"SL3_L1",2);
-  noiseHistos[chId]->setBinLabel(10,"SL3_L2",2);
-  noiseHistos[chId]->setBinLabel(11,"SL3_L3",2);
-  noiseHistos[chId]->setBinLabel(12,"SL3_L4",2);
+  noiseHistos[chId]->setBinLabel(1,"SL1-L1",2);
+  noiseHistos[chId]->setBinLabel(2,"SL1-L2",2);
+  noiseHistos[chId]->setBinLabel(3,"SL1-L3",2);
+  noiseHistos[chId]->setBinLabel(4,"SL1-L4",2);
+  noiseHistos[chId]->setBinLabel(5,"SL2-L1",2);
+  noiseHistos[chId]->setBinLabel(6,"SL2-L2",2);
+  noiseHistos[chId]->setBinLabel(7,"SL2-L3",2);
+  noiseHistos[chId]->setBinLabel(8,"SL2-L4",2);
+  noiseHistos[chId]->setBinLabel(9,"SL3-L1",2);
+  noiseHistos[chId]->setBinLabel(10,"SL3-L2",2);
+  noiseHistos[chId]->setBinLabel(11,"SL3-L3",2);
+  noiseHistos[chId]->setBinLabel(12,"SL3-L4",2);
 
 }
 
@@ -276,12 +267,22 @@ void DTNoiseTask::bookHistos(DTSuperLayerId slId) {
     + "_Sec" + sector.str()
     + "_SL" + superlayer.str();
   
-  cout<<"[DTNoiseTask]: booking SL histo:"<<endl;
-  cout<<"              folder "<< "DT/05-Noise/Wheel" + wheel.str() +
+   LogVerbatim("DTNoiseTask") <<"[DTNoiseTask]: booking SL histo:"<<endl;
+   LogVerbatim("DTNoiseTask") <<"              folder "<< "DT/05-Noise/Wheel" + wheel.str() +
     "/Station" + station.str() +
     "/Sector" + sector.str() + "/" << endl; 
-  cout<<"              histoName "<<histoName<<endl;
+   LogVerbatim("DTNoiseTask") <<"              histoName "<<histoName<<endl;
 
   tbHistos[slId] = dbe->book1D(histoName,"Time Box (TDC counts)", 1000, 0, 6000);
 
 }
+
+
+void DTNoiseTask::beginRun(Run const&, EventSetup const&) {
+//     // tTrig Map
+//   edm::ESHandle<DTTtrig> tTrigMap;
+//   setup.get<DTTtrigRcd>().get(tTrigMap);
+// FIXME: DB should be read here
+
+}
+
