@@ -80,6 +80,9 @@
   <class name="std::vector<L1GtJetCountsTemplate::ObjectParameter>"/>
   <class name="std::vector<L1GtJetCountsTemplate>"/>
   <class name="std::vector<std::vector<L1GtJetCountsTemplate> >"/>
+  <class name="L1GtCastorTemplate"/>
+  <class name="std::vector<L1GtCastorTemplate>"/>
+  <class name="std::vector<std::vector<L1GtCastorTemplate> >"/>
   <class name="L1GtCorrelationTemplate"/>
   <class name="L1GtCorrelationTemplate::CorrelationParameter"/>
   <class name="std::vector<L1GtCorrelationTemplate>"/>
