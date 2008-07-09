@@ -1,4 +1,4 @@
-// Last commit: $Id: SiStripCommissioningOfflineClient.cc,v 1.38 2008/07/01 12:47:21 bainbrid Exp $
+// Last commit: $Id: SiStripCommissioningOfflineClient.cc,v 1.39 2008/07/07 16:24:06 delaer Exp $
 
 #include "DQM/SiStripCommissioningClients/interface/SiStripCommissioningOfflineClient.h"
 #include "DataFormats/SiStripCommon/interface/SiStripEnumsAndStrings.h"
@@ -117,7 +117,7 @@ void SiStripCommissioningOfflineClient::beginJob( const edm::EventSetup& setup )
     }
   }
   if ( clientHistos_ && inputFiles_.size() == 1 ) {
-    LogTrace(mlDqmClient_)
+    edm::LogVerbatim(mlDqmClient_)
       << "[SiStripCommissioningOfflineClient::" << __func__ << "]"
       << " Collated histograms found in input root file \""
       << inputFiles_[0] << "\"";
@@ -182,6 +182,9 @@ void SiStripCommissioningOfflineClient::beginJob( const edm::EventSetup& setup )
       << "[SiStripCommissioningOfflineClient::" << __func__ << "]"
       << " Opened root file \"" << *jfile << "\"!";
   }
+  edm::LogVerbatim(mlDqmClient_)
+    << "[SiStripCommissioningOfflineClient::" << __func__ << "]"
+    << " Opened " << inputFiles_.size() << " root files!";
   
   // Retrieve list of histograms
   std::vector<std::string> contents;
@@ -234,7 +237,7 @@ void SiStripCommissioningOfflineClient::beginJob( const edm::EventSetup& setup )
       << " and run number is " << runNumber_;
     return;
   } else {
-    LogTrace(mlDqmClient_)
+    edm::LogVerbatim(mlDqmClient_)
       << "[SiStripCommissioningOfflineClient::" << __func__ << "]"
       << " Run type is " 
       << SiStripEnumsAndStrings::runType( runType_ )
@@ -243,18 +246,18 @@ void SiStripCommissioningOfflineClient::beginJob( const edm::EventSetup& setup )
   
   // Open and parse "summary plot" xml file
   if ( createSummaryPlots_ ) {
-    LogTrace(mlDqmClient_)
+    edm::LogVerbatim(mlDqmClient_)
       << "[SiStripCommissioningOfflineClient::" << __func__ << "]"
       << " Parsing summary plot XML file...";
     SummaryPlotXmlParser xml_file;
     xml_file.parseXML(xmlFile_);
     plots_ = xml_file.summaryPlots(runType_);
-    LogTrace(mlDqmClient_)
+    edm::LogVerbatim(mlDqmClient_)
       << "[SiStripCommissioningOfflineClient::" << __func__ << "]"
       << " Parsed summary plot XML file and found " 
       << plots_.size() << " plots defined!";
   } else {
-    LogTrace(mlDqmClient_)
+    edm::LogWarning(mlDqmClient_)
       << "[SiStripCommissioningOfflineClient::" << __func__ << "]"
       << " Null string for SummaryPlotXmlFile!"
       << " No summary plots will be created!";
@@ -338,7 +341,7 @@ void SiStripCommissioningOfflineClient::beginJob( const edm::EventSetup& setup )
   
   // Create summary plots
   if ( createSummaryPlots_ ) { 
-    LogTrace(mlDqmClient_)
+    edm::LogVerbatim(mlDqmClient_)
       << "[SiStripCommissioningOfflineClient::" << __func__ << "]"
       << " Generating summary plots...";
     std::vector<SummaryPlot>::const_iterator iplot =  plots_.begin();
@@ -350,7 +353,7 @@ void SiStripCommissioningOfflineClient::beginJob( const edm::EventSetup& setup )
 				     iplot->granularity() );
       }
     }
-    LogTrace(mlDqmClient_)
+    edm::LogVerbatim(mlDqmClient_)
       << "[SiStripCommissioningOfflineClient::" << __func__ << "]"
       << " Generated summary plots!";
   } else {
@@ -360,8 +363,15 @@ void SiStripCommissioningOfflineClient::beginJob( const edm::EventSetup& setup )
   }
   
   // Save client root file
-  bool save = parameters_.getUntrackedParameter<bool>( "SaveRootFile", true );
-  if ( histos_ && save ) { histos_->save( outputFileName_, runNumber_ ); }
+  if ( histos_ ) {
+    bool save = parameters_.getUntrackedParameter<bool>( "SaveClientFile", true );
+    if ( save ) { histos_->save( outputFileName_, runNumber_ ); }
+    else {
+      edm::LogVerbatim(mlDqmClient_)
+	<< "[SiStripCommissioningOfflineClient::" << __func__ << "]"
+	<< " Client file not saved!";
+    }
+  }
   
   // Virtual method to trigger the database upload
   uploadToConfigDb();
@@ -375,7 +385,7 @@ void SiStripCommissioningOfflineClient::beginJob( const edm::EventSetup& setup )
   // Remove all ME/CME objects
   if ( histos_ ) { histos_->remove(); } 
   
-  LogTrace(mlDqmClient_)
+  edm::LogVerbatim(mlDqmClient_)
     << "[SiStripCommissioningOfflineClient::" << __func__ << "]"
     << " Finished analyzing root file(s)...";
   
