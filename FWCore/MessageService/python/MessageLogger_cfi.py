@@ -51,7 +51,11 @@ MessageLogger = cms.Service("MessageLogger",
         )
     ),
     suppressWarning = cms.untracked.vstring(),
-    statistics = cms.untracked.vstring('cerr'),
+    statistics = cms.untracked.vstring('cerr_stats'),
+    cerr_stats = cms.untracked.PSet(
+        threshold = cms.untracked.string('WARNING'),
+        output = cms.untracked.string('cerr')
+    ),
     infos = cms.untracked.PSet(
         Root_NoDictionary = cms.untracked.PSet(
             limit = cms.untracked.int32(0)
