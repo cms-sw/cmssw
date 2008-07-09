@@ -85,19 +85,22 @@ PixelTBMSettings::PixelTBMSettings(std::vector < std::vector< std::string> > &ta
     }
   }
  
-  PixelModuleName tmp(tableMat[1][colM["MODULE_NAME"]]);
-  moduleId_ = tmp ;
-  
-  analogInputBias_  = atoi(tableMat[1][colM["ANLG_INBIAS_VAL"]].c_str());
-  analogOutputBias_ = atoi(tableMat[1][colM["ANLG_OUTBIAS_VAL"]].c_str());
-  analogOutputGain_ = atoi(tableMat[1][colM["ANLG_OUTGAIN_VAL"]].c_str());
-  
-  if( tableMat[1][colM["TBM_MODE"]] == "Single"){
-    singlemode_=true;
-  }
-  else{
-    singlemode_=false;
-  }
+  if(tableMat.size() >1)
+    {
+      PixelModuleName tmp(tableMat[1][colM["MODULE_NAME"]]);
+      moduleId_ = tmp ;
+      
+      analogInputBias_  = atoi(tableMat[1][colM["ANLG_INBIAS_VAL"]].c_str());
+      analogOutputBias_ = atoi(tableMat[1][colM["ANLG_OUTBIAS_VAL"]].c_str());
+      analogOutputGain_ = atoi(tableMat[1][colM["ANLG_OUTGAIN_VAL"]].c_str());
+      
+      if( tableMat[1][colM["TBM_MODE"]] == "Single"){
+	singlemode_=true;
+      }
+      else{
+	singlemode_=false;
+      }
+    }
 }//end contructor
 
 //++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++

@@ -251,9 +251,9 @@ PixelDACSettings::PixelDACSettings(std::vector< std::vector<std::string> > &tabl
 
 	
   dacsettings_.clear();
-  struct timeval  start_time  ;
-  struct timeval  end_time    ;
-  gettimeofday(&start_time, (struct timezone *)0 );
+//   struct timeval  start_time  ;
+//   struct timeval  end_time    ;
+//   gettimeofday(&start_time, (struct timezone *)0 );
   for(unsigned int r = 1 ; r < tableMat.size() ; r++){    //Goes to every row of the Matrix
     // currentRocName.str("");
     // currentRocName << tableMat[r][colM["NAME"]] ; 
@@ -283,9 +283,9 @@ PixelDACSettings::PixelDACSettings(std::vector< std::vector<std::string> > &tabl
     tmp.read(dbin, rocid) ;
     dacsettings_.push_back(tmp) ;
   }//end for r
-  gettimeofday(&end_time, (struct timezone *)0 );
-  int total_usecs = (end_time.tv_sec - start_time.tv_sec)*1000000 + (end_time.tv_usec - start_time.tv_usec);
-  std::cout << mthn << "Time taken : " << total_usecs / 1000000.  << " secs" << std::endl;
+//   gettimeofday(&end_time, (struct timezone *)0 );
+//   int total_usecs = (end_time.tv_sec - start_time.tv_sec)*1000000 + (end_time.tv_usec - start_time.tv_usec);
+//   std::cout << mthn << "Time taken : " << total_usecs / 1000000.  << " secs" << std::endl;
   
 //   dacsettings_.clear();
 //   std::string currentRocName2 = "";
