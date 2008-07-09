@@ -13,7 +13,7 @@
 //
 // Original Author:  Dmytro Kovalskyi
 //         Created:  Fri Apr 21 10:59:41 PDT 2006
-// $Id: TrackDetectorAssociator.cc,v 1.28 2008/03/31 13:31:42 dmytro Exp $
+// $Id: TrackDetectorAssociator.cc,v 1.29 2008/05/15 17:04:50 heltsley Exp $
 //
 //
 
@@ -873,15 +873,15 @@ void TrackDetectorAssociator::addTAMuonSegmentMatch(TAMuonChamberMatch& matchedC
      << "\tphi hit: " << segmentGlobalPosition.phi() << " \tpropagator: " << trajectoryStateOnSurface.freeState()->position().phi() << std::endl;
    
    bool isGood = false;
-   bool isDTOuterStation = false;
-   if( const DTChamber* chamberDT = dynamic_cast<const DTChamber*>(chamber))
-     if (chamberDT->id().station()==4)
-       isDTOuterStation = true;
+   bool isDTWithoutY = false;
+   const DTRecSegment4D* dtseg = dynamic_cast<const DTRecSegment4D*>(segment);
+   if ( dtseg && (! dtseg->hasZed()) )
+      isDTWithoutY = true;
 
    double deltaPhi(fabs(segmentGlobalPosition.phi()-trajectoryStateOnSurface.freeState()->position().phi()));
    if(deltaPhi>M_PI) deltaPhi = fabs(deltaPhi-M_PI*2.);
 
-   if( isDTOuterStation )
+   if( isDTWithoutY )
      {
 	isGood = deltaPhi < parameters.dRMuon;
 	// Be in chamber
@@ -906,18 +906,20 @@ void TrackDetectorAssociator::addTAMuonSegmentMatch(TAMuonChamberMatch& matchedC
       // muonSegment.segmentLocalErrorYDyDz = segmentCovMatrix[3][1];
       muonSegment.segmentLocalErrorXDxDz = -999;
       muonSegment.segmentLocalErrorYDyDz = -999;
+      muonSegment.hasZed = true;
+      muonSegment.hasPhi = true;
       
       // timing information
       muonSegment.t0 = 0;
-      if ( const DTRecSegment4D* s = dynamic_cast<const DTRecSegment4D*>(segment) ) {
-        if ( (s->hasPhi()) && (s->hasZed()) ) {
-  	  int phiHits = s->phiSegment()->specificRecHits().size();
-	  int zHits = s->zSegment()->specificRecHits().size();
+      if ( dtseg ) {
+        if ( (dtseg->hasPhi()) && (! isDTWithoutY) ) {
+  	  int phiHits = dtseg->phiSegment()->specificRecHits().size();
+	  int zHits = dtseg->zSegment()->specificRecHits().size();
 	  int hits=0;
 	  double t0=0.;
 	  // TODO: cuts on hit numbers not optimized in any way yet...
 	  if (phiHits>5) {
-	    t0+=s->phiSegment()->t0()*phiHits;
+	    t0+=dtseg->phiSegment()->t0()*phiHits;
 	    hits+=phiHits;
 //	    std::cout << " Phi t0: " << s->phiSegment()->t0() << " hits: " << phiHits << std::endl;
 	  }
@@ -929,6 +931,10 @@ void TrackDetectorAssociator::addTAMuonSegmentMatch(TAMuonChamberMatch& matchedC
 //	  }
 	  if (hits) muonSegment.t0 = t0/hits;
 //	  std::cout << " --- t0: " << muonSegment.t0 << std::endl;
+        } else {
+           // check and set dimensionality
+           if (isDTWithoutY) muonSegment.hasZed = false;
+           if (! dtseg->hasPhi()) muonSegment.hasPhi = false;
         }
       }
       matchedChamber.segments.push_back(muonSegment);
