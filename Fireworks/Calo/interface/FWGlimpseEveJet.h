@@ -16,7 +16,7 @@
 //
 // Original Author:  Chris Jones
 //         Created:  Fri Jul  4 10:22:47 EDT 2008
-// $Id: FWGlimpseEveJet.h,v 1.1 2008/07/04 23:56:27 chrjones Exp $
+// $Id: FWGlimpseEveJet.h,v 1.2 2008/07/09 18:23:39 chrjones Exp $
 //
 
 // system include files
@@ -57,6 +57,8 @@ class FWGlimpseEveJet : public TEveBoxSet, public FWEveValueScaled
 
       // ---------- member data --------------------------------
       const reco::CaloJet* m_jet;
+      //NOTE: need to hold our own color since TEveBoxSet doesn't so that
+      // If we later call GetMainColor we'd always get white back
       Color_t m_color;
 };
 
