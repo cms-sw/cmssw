@@ -1,5 +1,5 @@
 /** \class ThePEGInterface
- *  $Id: ThePEGInterface.cc,v 1.3 2008/06/27 16:59:51 stober Exp $
+ *  $Id: ThePEGInterface.cc,v 1.4 2008/07/09 10:00:22 stober Exp $
  *  
  *  Oliver Oberst <oberst@ekp.uni-karlsruhe.de>
  *  Fred-Markus Stober <stober@ekp.uni-karlsruhe.de>
@@ -103,7 +103,9 @@ string ThePEGInterface::resolveEnvVars(const string &s)
 void ThePEGInterface::readParameterSet(const edm::ParameterSet &pset, const string &paramSet) const
 {
 	stringstream logstream;
-	ofstream cfgDump(configDump_.c_str(), ios_base::app);
+	ofstream cfgDump;
+	if (!configDump_.empty())
+		cfgDump.open(configDump_.c_str(), ios_base::app);
 
 	// Read CMSSW config file parameter set
 	vector<string> params = pset.getParameter<vector<string> >(paramSet);
@@ -115,18 +117,23 @@ void ThePEGInterface::readParameterSet(const edm::ParameterSet &pset, const stri
 		// Include other parameter sets specified by +psName
 		if (psIter->find_first_of('+') == 0) {
 			edm::LogInfo("ThePEGInterface") << "Loading parameter set (" << psIter->substr(1) << ")";
+			if (!configDump_.empty())
+				cfgDump << endl << "####### " << psIter->substr(1) << " #######" << endl;
 			readParameterSet(pset, psIter->substr(1));
 		}
 		// Topmost parameter set is called "parameterSets"
 		else if (paramSet == "parameterSets") {
 			edm::LogInfo("ThePEGInterface") << "Loading parameter set (" << *psIter << ")";
+			if (!configDump_.empty())
+				cfgDump << endl << "####### " << *psIter << " #######" << endl;
 			readParameterSet(pset, *psIter);
 		}
 		// Transfer parameters to the repository
 		else {
 			string line = resolveEnvVars(*psIter);
 			string out = ThePEG::Repository::exec(line, logstream);
-			cfgDump << line << endl;
+			if (!configDump_.empty())
+				cfgDump << line << endl;
 			if (out != "")
 				edm::LogInfo("ThePEGInterface") << line << " => " << out;
 		}
