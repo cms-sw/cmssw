@@ -66,10 +66,11 @@ CosmicClusterProducer::CosmicClusterProducer(const edm::ParameterSet& ps)
   double barrelSeedThreshold   = ps.getParameter<double>("BarrelSeedThr");
   double barrelSingleThreshold = ps.getParameter<double>("BarrelSingleThr");
   double barrelSecondThreshold = ps.getParameter<double>("BarrelSecondThr");
+  double barrelSupThreshold    = ps.getParameter<double>("BarrelSupThr");
   double endcapSeedThreshold   = ps.getParameter<double>("EndcapSeedThr");
   double endcapSingleThreshold = ps.getParameter<double>("EndcapSingleThr");
   double endcapSecondThreshold = ps.getParameter<double>("EndcapSecondThr");
-  
+  double endcapSupThreshold    = ps.getParameter<double>("EndcapSupThr");
 
   // Parameters for the position calculation:
   std::map<std::string,double> providedParameters;
@@ -98,7 +99,7 @@ CosmicClusterProducer::CosmicClusterProducer(const edm::ParameterSet& ps)
   produces< reco::BasicClusterShapeAssociationCollection >(barrelClusterShapeAssociation_);
   produces< reco::BasicClusterShapeAssociationCollection >(endcapClusterShapeAssociation_);
 
-  island_p = new CosmicClusterAlgo(barrelSeedThreshold, barrelSingleThreshold, barrelSecondThreshold, endcapSeedThreshold, endcapSingleThreshold, endcapSecondThreshold, posCalculator_,verbosity);
+  island_p = new CosmicClusterAlgo(barrelSeedThreshold, barrelSingleThreshold, barrelSecondThreshold, barrelSupThreshold, endcapSeedThreshold, endcapSingleThreshold, endcapSecondThreshold, endcapSupThreshold, posCalculator_,verbosity);
 
   nEvt_ = 0;
 }
