@@ -124,8 +124,6 @@ void DTNoiseTask::analyze(const edm::Event& e, const edm::EventSetup& c) {
       //Check the TDC trigger width
       int tdcTime = (*digiIt).countsTDC();
       double upperLimit = tTrigStMap[(*dtLayerId_It).first.superlayerId().chamberId()]-200.;
-      double upperLimit_ns = double(upperLimit*25)/32;	 
-      double upperLimit_s = upperLimit_ns/1e9;
       if(doTimeBoxHistos)
 	tbHistos[(*dtLayerId_It).first.superlayerId()]->Fill(tdcTime);
       if(tdcTime>upperLimit)
@@ -140,11 +138,11 @@ void DTNoiseTask::analyze(const edm::Event& e, const edm::EventSetup& c) {
       TH2F* noise_root = noiseHistos[(*dtLayerId_It).first.superlayerId().chamberId()]->getTH2F();
       double normalization=0;
       if(mapEvt.find((*dtLayerId_It).first.superlayerId().chamberId())!=mapEvt.end()){
-	 LogVerbatim("DTNoiseTask")  << " Last fill: # of events: "
-				     << mapEvt[(*dtLayerId_It).first.superlayerId().chamberId()]
-	     << endl;
-	 normalization = upperLimit_s*mapEvt[(*dtLayerId_It).first.superlayerId().chamberId()];
-	 noise_root->Scale(normalization);
+	LogVerbatim("DTNoiseTask")  << " Last fill: # of events: "
+				    << mapEvt[(*dtLayerId_It).first.superlayerId().chamberId()]
+				    << endl;
+	normalization =  1e-9*upperLimit*mapEvt[(*dtLayerId_It).first.superlayerId().chamberId()];
+	noise_root->Scale(normalization);
       }
       int yBin=(*dtLayerId_It).first.layer()+(4*((*dtLayerId_It).first.superlayerId().superlayer()-1));
       noise_root->Fill((*digiIt).wire(),yBin);
@@ -153,14 +151,13 @@ void DTNoiseTask::analyze(const edm::Event& e, const edm::EventSetup& c) {
       LogVerbatim("DTNoiseTask")  << (*dtLayerId_It).first << " wire: " << (*digiIt).wire()
 				  << " # counts: " << noise_root->GetBinContent((*digiIt).wire(),yBin)
 				  << " Time interval: " << upperLimit
-				  << " # of events: " << evtNumber << endl;
-      normalization = 1/double(upperLimit_s*mapEvt[(*dtLayerId_It).first.superlayerId().chamberId()]);
-      noise_root->Scale(normalization);
+				  << " # of events: " << evtNumber << endl;;
+      normalization = double( 1e-9*upperLimit*mapEvt[(*dtLayerId_It).first.superlayerId().chamberId()]);
+      noise_root->Scale(1./normalization);
       LogVerbatim("DTNoiseTask")  << "    noise rate: "
 				  << noise_root->GetBinContent((*digiIt).wire(),yBin) << endl;
     }
   }
-
 }
   
 
