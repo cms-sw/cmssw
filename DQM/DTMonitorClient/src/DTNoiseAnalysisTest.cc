@@ -3,8 +3,8 @@
 /*
  *  See header file for a description of this class.
  *
- *  $Date: 2008/07/09 10:41:11 $
- *  $Revision: 1.2 $
+ *  $Date: 2008/07/09 13:37:17 $
+ *  $Revision: 1.3 $
  *  \author G. Mila - INFN Torino
  */
 
@@ -102,7 +102,7 @@ void DTNoiseAnalysisTest::endLuminosityBlock(LuminosityBlock const& lumiSeg, Eve
     (*plot).second->Reset();
   }
 
-
+  summaryNoiseHisto->Reset();
 
 
 
@@ -134,8 +134,10 @@ void DTNoiseAnalysisTest::endLuminosityBlock(LuminosityBlock const& lumiSeg, Eve
 	    } else if(sector == 14) {
 	      sector = 10;
 	    }
-	    if(noise>noisyCellDef)
+	    if(noise>noisyCellDef) {
 	      noisyCellHistos[chID.wheel()]->Fill(sector,chID.station());
+	      summaryNoiseHisto->Fill(chID.wheel(), sector);
+	    }
 	  }
 	}
       }
