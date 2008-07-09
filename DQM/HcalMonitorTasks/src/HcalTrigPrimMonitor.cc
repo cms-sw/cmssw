@@ -45,8 +45,9 @@ void HcalTrigPrimMonitor::setup(const edm::ParameterSet& ps, DQMStore* dbe){
   cout << "TP digi set to " << TPdigi_ << endl;
 
   ADCdigi_ = ps.getUntrackedParameter<int>("ADCdigiTS", 3);
-  cout << "ADC dgisi set to " << ADCdigi_ << endl;
+  cout << "ADC digi set to " << ADCdigi_ << endl;
 
+  checkNevents_=ps.getUntrackedParameter<int>("checkNevents",1000);
 
   ievt_=0;
   
@@ -96,7 +97,7 @@ void HcalTrigPrimMonitor::setup(const edm::ParameterSet& ps, DQMStore* dbe){
     tpSOI_ET_ = m_dbe->book1D(type,type,100,-0.5,99.5);
     
     m_dbe->setCurrentFolder(baseFolder_+"/Energy Plots/TP Spectra by TS");
-    for (int i=0; i<10; i++) {
+    for (int i=0; i<10; ++i) {
       type = "TP Spectrum sample ";
       std::stringstream samp;
       std::string teststr;
@@ -140,7 +141,7 @@ void HcalTrigPrimMonitor::setup(const edm::ParameterSet& ps, DQMStore* dbe){
   
     meEVT_->Fill(ievt_);
 
-  }
+  } // if (m_dbe !=NULL)
 
   return;
 }
@@ -157,132 +158,155 @@ void HcalTrigPrimMonitor::processEvent(const HBHERecHitCollection& hbHits,
   
 
   if(!m_dbe) { 
-    printf("HcalTrigPrimMonitor::processEvent   DQMStore not instantiated!!!\n");  
+    cout <<"HcalTrigPrimMonitor::processEvent   DQMStore not instantiated!!!"<<endl;  
     return; 
   }
 
   ievt_++;
   meEVT_->Fill(ievt_);
-
+  
   tpCount_->Fill(tpDigis.size()*1.0);  // number of TPGs collected per event
   
- float data[10];
+  float data[10];
   ClearEvent();
   try{
-         edm::Handle<HcalTrigPrimDigiCollection> Tr_hbhe;
-     
-
+    edm::Handle<HcalTrigPrimDigiCollection> Tr_hbhe;
+    
+    
     int TPGsOverThreshold = 0;
-    // for(HBHEDigiCollection::const_iterator j=hbhedigi.begin(); j!=hbhedigi.end(); j++){
-    // HBHEDataFrame digi = (const HBHEDataFrame)(*j);
-
-       for (HcalTrigPrimDigiCollection::const_iterator j=tpDigis.begin(); j!=tpDigis.end(); j++){
-    const HcalTriggerPrimitiveDigi digi = (const HcalTriggerPrimitiveDigi)(*j);
-
-// for(HcalTrigPrimDigiCollection::const_iterator j=Tr_hbhe->begin();j!=Tr_hbhe->end();j++){
-  //        HcalTriggerPrimitiveDigi digi = (const HcalTriggerPrimitiveDigi)(*j);
-
-      // find corresponding rechit and digis
-      HcalTrigTowerDetId tpid=digi.id();
-      HcalElectronicsId eid = emap.lookupTrigger(tpid);
-
-      tpSOI_ET_->Fill(digi.SOI_compressedEt());      
-      if(digi.SOI_compressedEt()>0 || true){	
-	tpSize_->Fill(digi.size());	
-	OCC_ETA->Fill(tpid.ieta());
-	OCC_PHI->Fill(tpid.iphi());
-	OCC_MAP_GEO->Fill(tpid.ieta(), tpid.iphi());
-
-	EN_ETA->Fill(tpid.ieta(),digi.SOI_compressedEt());
-	EN_PHI->Fill(tpid.iphi(),digi.SOI_compressedEt());
-	EN_MAP_GEO->Fill(tpid.ieta(), tpid.iphi(),digi.SOI_compressedEt());
+    
+    
+    for (HcalTrigPrimDigiCollection::const_iterator j=tpDigis.begin(); j!=tpDigis.end(); ++j)
+      {
+	const HcalTriggerPrimitiveDigi digi = (const HcalTriggerPrimitiveDigi)(*j);
 	
-	float slotnum = eid.htrSlot() + 0.5*eid.htrTopBottom();	
-	OCC_ELEC_VME->Fill(slotnum,eid.readoutVMECrateId());
-	OCC_ELEC_DCC->Fill(eid.spigot(),eid.dccid());
-	EN_ELEC_VME->Fill(slotnum,eid.readoutVMECrateId(),digi.SOI_compressedEt());
-	EN_ELEC_DCC->Fill(eid.spigot(),eid.dccid(),digi.SOI_compressedEt());
-	double etSum = 0;
-	bool threshCond = false;
-	//	printf("\nSampling\n");
-	for (int j=0; j<digi.size(); j++) {
-	  //	  printf("Sample %d\n",j);
-	  float compressedEt = digi.sample(j).compressedEt();
-	  //	  float compressedEt =1;
-	  tpSpectrum_[j]->Fill(compressedEt);
-	  tpSpectrumAll_->Fill(compressedEt);
-	  etSum += compressedEt;
-	  if (compressedEt>occThresh_) threshCond = true;
-	}
+	
+	// find corresponding rechit and digis
+	HcalTrigTowerDetId tpid=digi.id();
+	HcalElectronicsId eid = emap.lookupTrigger(tpid);
+	
+	tpSOI_ET_->Fill(digi.SOI_compressedEt());      
+	//if(digi.SOI_compressedEt()>0 || true) // digi.SOI_compressedEt() check does nothing here -- do we only want to fill when SOI_compressedEt >0?
+
+	{	
+	  
+	  tpSize_->Fill(digi.size());	
+	  OCC_ETA->Fill(tpid.ieta());
+	  OCC_PHI->Fill(tpid.iphi());
+	  OCC_MAP_GEO->Fill(tpid.ieta(), tpid.iphi());
+	  
+	  EN_ETA->Fill(tpid.ieta(),digi.SOI_compressedEt());
+	  EN_PHI->Fill(tpid.iphi(),digi.SOI_compressedEt());
+	  EN_MAP_GEO->Fill(tpid.ieta(), tpid.iphi(),digi.SOI_compressedEt());
+	  
+	  float slotnum = eid.htrSlot() + 0.5*eid.htrTopBottom();	
+	  OCC_ELEC_VME->Fill(slotnum,eid.readoutVMECrateId());
+	  OCC_ELEC_DCC->Fill(eid.spigot(),eid.dccid());
+	  EN_ELEC_VME->Fill(slotnum,eid.readoutVMECrateId(),digi.SOI_compressedEt());
+	  EN_ELEC_DCC->Fill(eid.spigot(),eid.dccid(),digi.SOI_compressedEt());
+	  double etSum = 0;
+	  bool threshCond = false;
+	  //	printf("\nSampling\n");
+	  float compressedEt;
+	  
+	  for (int j=0; j<digi.size(); ++j) 
+	    {
+	      //	  printf("Sample %d\n",j);
+	      
+	      compressedEt = digi.sample(j).compressedEt();
+	      //	  float compressedEt =1;
+	      /*
+	      // According to Kerem, we only need to fill these if > TPThresh (see code below)
+	      tpSpectrum_[j]->Fill(compressedEt);
+	      tpSpectrumAll_->Fill(compressedEt);
+	      */
+	      etSum += compressedEt;
+	      if (compressedEt>occThresh_) threshCond = true;
+	    }
 	tpETSumAll_->Fill(etSum);
 	
-	if (threshCond){
-	  OCC_MAP_THR->Fill(tpid.ieta(),tpid.iphi());  // which ieta and iphi positions the TPGs have for overThreshold cut
-	  
-	  TPGsOverThreshold++;
-	}
-      }
-  ///////
-   for (int i=0; i<digi.size(); i++) {
-        data[i]=digi.sample(i).compressedEt();
-	if(digi.sample(i).compressedEt()>TPThresh_){
-	    tpSpectrum_[i]->Fill(digi.sample(i).compressedEt());
-	    tpSpectrumAll_->Fill(digi.sample(i).compressedEt());
-	    TPTiming_->Fill(i);
-	    if(digi.id().iphi()>1  && digi.id().iphi()<36)  TPTimingTop_->Fill(i);
-	    if(digi.id().iphi()>37 && digi.id().iphi()<72)  TPTimingBot_->Fill(i);
-	    TPOcc_->Fill(digi.id().ieta(),digi.id().iphi());
-	}
-      }
-    set_tp(digi.id().ieta(),digi.id().iphi(),1,data);
-    /////////
-    }
-    tpCountThr_->Fill(TPGsOverThreshold*1.0);  // number of TPGs collected per event
-  } catch (...) {    
-    printf("HcalTrigPrimMonitor:  no tp digis\n");
-  }
- try{
-    for(HBHEDigiCollection::const_iterator j=hbhedigi.begin(); j!=hbhedigi.end(); j++){
-       HBHEDataFrame digi = (const HBHEDataFrame)(*j);
-       for(int i=0; i<digi.size(); i++) data[i]=digi.sample(i).adc();
-       set_adc(digi.id().ieta(),digi.id().iphi(),digi.id().depth(),data);
-    }
-  } catch (...) {    
-    printf("HcalTrigPrimMonitor:  no hcal digis\n");
-  }
-    // Correlation plots...
-  int eta,phi;
-  for(eta=-16;eta<=16;eta++) for(phi=1;phi<=72;phi++){
-    for(int i=1;i<10;i++){
-      int j1=(int)get_adc(eta,phi,1)[ADCdigi_];
-      float tmp11 = (TrigMonAdc2fc[j1]+0.5);
-      int j2=(int)get_adc(eta,phi,1)[ADCdigi_+1];
-      float tmp21 = (TrigMonAdc2fc[j2]+0.5);
-      int j3=(int)get_adc(eta,phi,2)[ADCdigi_];
-      float tmp12 = (TrigMonAdc2fc[j3]+0.5);
-      int j4=(int)get_adc(eta,phi,2)[ADCdigi_+1];
-      float tmp22 = (TrigMonAdc2fc[j4]+0.5);
-      if(IsSet_adc(eta,phi,1) && IsSet_tp(eta,phi,1)){
-        if(get_tp(eta,phi)[TPdigi_]>TPThresh_){ 
-          TPvsDigi_->Fill(tmp11+tmp21+tmp12+tmp22,get_tp(eta,phi)[TPdigi_]);
+	if (threshCond)
+	  {
+	    OCC_MAP_THR->Fill(tpid.ieta(),tpid.iphi());  // which ieta and iphi positions the TPGs have for overThreshold cut
+	    
+	    TPGsOverThreshold++;
+	  }
+	} // if (digi.SOI_compressedEt() || true) -- defunct loop
 
-          float Energy=0;
-          int TS = 0;
-          for(int j=0;j<10;j++){
-            if (get_adc(eta,phi,1)[j]>Energy){
-              Energy=get_adc(eta,phi,1)[j];
-              TS = j;
-            }
-          }
-          MAX_ADC_->Fill(Energy);
-          TS_MAX_->Fill(TS);
-          //This may need to continue?
-          Energy=0; for(int j=0;j<10;j++) Energy+=get_adc(eta,phi,1)[j]; 
-	  TP_ADC_->Fill(Energy);	       	       
+	/**************/
+	  
+	for (int i=0; i<digi.size(); ++i) {
+	  data[i]=digi.sample(i).compressedEt();
+	  if(digi.sample(i).compressedEt()>TPThresh_)
+	    {
+	      tpSpectrum_[i]->Fill(digi.sample(i).compressedEt());
+	      tpSpectrumAll_->Fill(digi.sample(i).compressedEt());
+	      TPTiming_->Fill(i);
+	      if(digi.id().iphi()>1  && digi.id().iphi()<36)  TPTimingTop_->Fill(i);
+	      if(digi.id().iphi()>37 && digi.id().iphi()<72)  TPTimingBot_->Fill(i);
+	      //TPOcc_->Fill(digi.id().ieta(),digi.id().iphi());
+	    }
+	  TPOcc_->Fill(digi.id().ieta(),digi.id().iphi());
 	}
-      }
-    }	   
+	set_tp(digi.id().ieta(),digi.id().iphi(),1,data);
+	/*************/
+      } // for (HcalTrigPrimDigiCollection...)
+
+    tpCountThr_->Fill(TPGsOverThreshold*1.0);  // number of TPGs collected per event
+    
+  } // try
+  catch (...) 
+    {    
+      cout<<"HcalTrigPrimMonitor:  no tp digis"<<endl;;
+    }
+
+  try{
+    for(HBHEDigiCollection::const_iterator j=hbhedigi.begin(); j!=hbhedigi.end(); ++j){
+       HBHEDataFrame digi = (const HBHEDataFrame)(*j);
+       for(int i=0; i<digi.size(); ++i) data[i]=digi.sample(i).adc();
+       set_adc(digi.id().ieta(),digi.id().iphi(),digi.id().depth(),data);
+    } // for (HBHEDigiCollection...)
+  } // try 
+  catch (...) {    
+    cout <<"HcalTrigPrimMonitor:  no hcal digis"<<endl;
   }
+
+  // Correlation plots...
+  int eta,phi;
+  for(eta=-16;eta<=16;++eta) 
+    {for(phi=1;phi<=72;++phi)
+	{
+	  //for(int i=1;i<10;++i){ // not sure what this loop was supposed to accomplish
+	  int j1=(int)get_adc(eta,phi,1)[ADCdigi_];
+	  float tmp11 = (TrigMonAdc2fc[j1]+0.5);
+	  int j2=(int)get_adc(eta,phi,1)[ADCdigi_+1];
+	  float tmp21 = (TrigMonAdc2fc[j2]+0.5);
+	  int j3=(int)get_adc(eta,phi,2)[ADCdigi_];
+	  float tmp12 = (TrigMonAdc2fc[j3]+0.5);
+	  int j4=(int)get_adc(eta,phi,2)[ADCdigi_+1];
+	  float tmp22 = (TrigMonAdc2fc[j4]+0.5);
+	  if(IsSet_adc(eta,phi,1) && IsSet_tp(eta,phi,1)){
+	    
+	    if(get_tp(eta,phi)[TPdigi_]>TPThresh_){ 
+	      TPvsDigi_->Fill(tmp11+tmp21+tmp12+tmp22,get_tp(eta,phi)[TPdigi_]);
+	      
+	      float Energy=0;
+	      int TS = 0;
+	      for(int j=0;j<10;++j){
+		if (get_adc(eta,phi,1)[j]>Energy){
+		  Energy=get_adc(eta,phi,1)[j];
+		  TS = j;
+		}
+	      } // for (int j=0;j<10;++j)
+	      MAX_ADC_->Fill(Energy);
+	      TS_MAX_->Fill(TS);
+	      //This may need to continue?
+	      Energy=0; for(int j=0;j<10;++j) Energy+=get_adc(eta,phi,1)[j]; 
+	      TP_ADC_->Fill(Energy);	       	       
+	    } // if (get_tp(eta,phi)[TPdigi_]>TPThresh_)
+	  } // if (IsSet_adc(...))
+	} //for (eta=-16;...)
+    } // for (phi=1;...)
 
   return;
 }
