@@ -163,10 +163,10 @@ parser.add_option("--dump_python",
                   default=False,                  
                   dest="dump_python")
                                                     
-parser.add_option("--dump_pickle",
-                  help="Dump a pickle object of the process.",
+parser.add_option("--python_filename",
+                  help="Change the name of the created config file ",
                   default='',
-                  dest="dump_pickle")
+                  dest="python_filename")
 
 parser.add_option("--dump_DSetName",
                   help="Dump the primary datasetname.",
@@ -308,23 +308,12 @@ configBuilder = ConfigBuilder(options)
 configBuilder.prepare()
 
 # fetch the results and write it to file
+if options.python_filename: python_config_filename = options.python_filename
 config = file(python_config_filename,"w")
 config.write(configBuilder.pythonCfgCode)
 config.close()
 
 # handle different dump options
-if options.dump_pickle:
-    import pickle
-    result = {}
-    execfile(python_config_filename, result)
-    process = result["process"]
-
-    pickleFile = open(options.dump_pickle,"w")
-    pickle.dump(process,pickleFile)
-    pickleFile.close()
-    print "wrote "+options.dump_pickle
-    sys.exit(0)
-
 if options.dump_python:
     execfile(python_config_filename, result)
     process = result["process"]
