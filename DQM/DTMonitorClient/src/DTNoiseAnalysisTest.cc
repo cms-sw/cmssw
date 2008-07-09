@@ -3,8 +3,8 @@
 /*
  *  See header file for a description of this class.
  *
- *  $Date: 2008/05/30 16:30:17 $
- *  $Revision: 1.10 $
+ *  $Date: 2008/07/04 10:14:18 $
+ *  $Revision: 1.1 $
  *  \author G. Mila - INFN Torino
  */
 
@@ -91,6 +91,21 @@ void DTNoiseAnalysisTest::endLuminosityBlock(LuminosityBlock const& lumiSeg, Eve
   
   edm::LogVerbatim ("noise") <<"[DTNoiseAnalysisTest]: End of LS transition, performing the DQM client operation";
 
+  // Reset the summary plots
+  for(map<int, MonitorElement* >::interator plot =  noiseHistos.begin();
+      plot != noiseHistos.end(); ++plot) {
+    (*plot)->Reset();
+  }
+  
+  for(map<int,  MonitorElement* >::interator plot = noisyCellHistos.begin();
+      plot != noisyCellHistos.end(); ++plot) {
+    (*plot)->Reset();
+  }
+
+
+
+
+
   vector<DTChamber*>::const_iterator ch_it = muonGeom->chambers().begin();
   vector<DTChamber*>::const_iterator ch_end = muonGeom->chambers().end();
   
@@ -113,8 +128,14 @@ void DTNoiseAnalysisTest::endLuminosityBlock(LuminosityBlock const& lumiSeg, Eve
 	  if(noise!=0){
 	    noiseHistos[chID.wheel()]->Fill(noise);
 	    noiseHistos[3]->Fill(noise);
+	    int sector = chID.sector();
+	    if(sector == 13) {
+	      sector = 4;
+	    } else if(sector == 14) {
+	      sector = 10;
+	    }
 	    if(noise>noisyCellDef)
-	      noisyCellHistos[chID.wheel()]->Fill(chID.sector(),chID.station());
+	      noisyCellHistos[chID.wheel()]->Fill(sector,chID.station());
 	  }
 	}
       }
@@ -132,7 +153,7 @@ string DTNoiseAnalysisTest::getMEName(const DTChamberId & chID) {
   stringstream sector; sector << chID.sector();	
   
   string folderName = 
-    "DT/05-Noise/Wheel" +  wheel.str() +
+    "DT/04-Noise/Wheel" +  wheel.str() +
     "/Station" + station.str() +
     "/Sector" + sector.str() + "/";
 
@@ -148,17 +169,17 @@ string DTNoiseAnalysisTest::getMEName(const DTChamberId & chID) {
 
 void DTNoiseAnalysisTest::bookHistos() {
   
-  dbe->setCurrentFolder("DT/05-Noise");
+  dbe->setCurrentFolder("DT/04-Noise");
   string histoName;
 
   for(int wh=-2; wh<=2; wh++){
       stringstream wheel; wheel << wh;
-      histoName =  "noiseSummary_W" + wheel.str();
+      histoName =  "NoiseRateSummary_W" + wheel.str();
       noiseHistos[wh] = dbe->book1D(histoName.c_str(),histoName.c_str(),100,0,2000);
       noiseHistos[wh]->setAxisTitle("rate (Hz)",1);
       noiseHistos[wh]->setAxisTitle("entries",2);
   }
-  histoName =  "noiseSummary_allW";
+  histoName =  "NoiseRateSummary";
   noiseHistos[3] = dbe->book1D(histoName.c_str(),histoName.c_str(),100,0,2000);
   noiseHistos[3]->setAxisTitle("rate (Hz)",1);
   noiseHistos[3]->setAxisTitle("entries",2);
@@ -166,29 +187,16 @@ void DTNoiseAnalysisTest::bookHistos() {
   
   for(int wh=-2; wh<=2; wh++){
     stringstream wheel; wheel << wh;
-    histoName =  "noisyCell_W" + wheel.str();
-    noisyCellHistos[wh] = dbe->book2D(histoName.c_str(),histoName.c_str(),14,1,15,4,1,5);
-    noisyCellHistos[wh]->setBinLabel(1,"Sector1",1);
-    noisyCellHistos[wh]->setBinLabel(2,"Sector2",1);
-    noisyCellHistos[wh]->setBinLabel(3,"Sector3",1);
-    noisyCellHistos[wh]->setBinLabel(4,"Sector4",1);
-    noisyCellHistos[wh]->setBinLabel(5,"Sector5",1);
-    noisyCellHistos[wh]->setBinLabel(6,"Sector6",1);
-    noisyCellHistos[wh]->setBinLabel(7,"Sector7",1);
-    noisyCellHistos[wh]->setBinLabel(8,"Sector8",1);
-    noisyCellHistos[wh]->setBinLabel(9,"Sector9",1);
-    noisyCellHistos[wh]->setBinLabel(10,"Sector10",1);
-    noisyCellHistos[wh]->setBinLabel(11,"Sector11",1);
-    noisyCellHistos[wh]->setBinLabel(12,"Sector12",1);
-    noisyCellHistos[wh]->setBinLabel(13,"Sector13",1);
-    noisyCellHistos[wh]->setBinLabel(14,"Sector14",1);
+    histoName =  "NoiseSummary_W" + wheel.str();
+    noisyCellHistos[wh] = dbe->book2D(histoName.c_str(),histoName.c_str(),12,1,13,4,1,5);
     noisyCellHistos[wh]->setBinLabel(1,"MB1",2);
     noisyCellHistos[wh]->setBinLabel(2,"MB2",2);
     noisyCellHistos[wh]->setBinLabel(3,"MB3",2);
     noisyCellHistos[wh]->setBinLabel(4,"MB4",2);  
+    noisyCellHistos[wh]->setAxisTitle("Sector",1);
   }
 
-  histoName =  "noisyCellSummary_allW";
+  histoName =  "NoiseSummary";
   summaryNoiseHisto =  dbe->book2D(histoName.c_str(),histoName.c_str(),12,1,13,5,-2,3);
   summaryNoiseHisto->setAxisTitle("Sector",1);
   summaryNoiseHisto->setAxisTitle("Wheel",2);
