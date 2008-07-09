@@ -1,6 +1,8 @@
 #ifndef MuonReco_MuonSegmentMatch_h
 #define MuonReco_MuonSegmentMatch_h
 
+#include <cmath>
+
 namespace reco {
    class MuonSegmentMatch {
       public:
@@ -34,6 +36,9 @@ namespace reco {
          float t0;
       MuonSegmentMatch():x(0),y(0),xErr(0),yErr(0),dXdZ(0),dYdZ(0),
       dXdZErr(0),dYdZErr(0) {}
+
+         bool hasZed() const { return ! (fabs(y)<1E-6&&fabs(yErr)<1E-6); }
+         bool hasPhi() const { return ! (fabs(x)<1E-6&&fabs(xErr)<1E-6); }
    };
 }
 

@@ -310,6 +310,7 @@ float Muon::dX( int station, int muonSubdetId, ArbitrationType type ) const
 {
    std::pair<const MuonChamberMatch*,const MuonSegmentMatch*> chamberSegmentPair = pair(chambers(station,muonSubdetId),type);
    if(chamberSegmentPair.first==0 || chamberSegmentPair.second==0) return 999999;
+   if(! chamberSegmentPair.second->hasPhi()) return 999999;
    return chamberSegmentPair.first->x-chamberSegmentPair.second->x;
 }
 
@@ -318,6 +319,7 @@ float Muon::dY( int station, int muonSubdetId, ArbitrationType type ) const
    if(station==4 && muonSubdetId==MuonSubdetId::DT) return 999999; // no y information
    std::pair<const MuonChamberMatch*,const MuonSegmentMatch*> chamberSegmentPair = pair(chambers(station,muonSubdetId),type);
    if(chamberSegmentPair.first==0 || chamberSegmentPair.second==0) return 999999;
+   if(! chamberSegmentPair.second->hasZed()) return 999999;
    return chamberSegmentPair.first->y-chamberSegmentPair.second->y;
 }
 
@@ -325,6 +327,7 @@ float Muon::dDxDz( int station, int muonSubdetId, ArbitrationType type ) const
 {
    std::pair<const MuonChamberMatch*,const MuonSegmentMatch*> chamberSegmentPair = pair(chambers(station,muonSubdetId),type);
    if(chamberSegmentPair.first==0 || chamberSegmentPair.second==0) return 999999;
+   if(! chamberSegmentPair.second->hasPhi()) return 999999;
    return chamberSegmentPair.first->dXdZ-chamberSegmentPair.second->dXdZ;
 }
 
@@ -333,6 +336,7 @@ float Muon::dDyDz( int station, int muonSubdetId, ArbitrationType type ) const
    if(station==4 && muonSubdetId==MuonSubdetId::DT) return 999999; // no y information
    std::pair<const MuonChamberMatch*,const MuonSegmentMatch*> chamberSegmentPair = pair(chambers(station,muonSubdetId),type);
    if(chamberSegmentPair.first==0 || chamberSegmentPair.second==0) return 999999;
+   if(! chamberSegmentPair.second->hasZed()) return 999999;
    return chamberSegmentPair.first->dYdZ-chamberSegmentPair.second->dYdZ;
 }
 
@@ -340,6 +344,7 @@ float Muon::pullX( int station, int muonSubdetId, ArbitrationType type, bool inc
 {
    std::pair<const MuonChamberMatch*,const MuonSegmentMatch*> chamberSegmentPair = pair(chambers(station,muonSubdetId),type);
    if(chamberSegmentPair.first==0 || chamberSegmentPair.second==0) return 999999;
+   if(! chamberSegmentPair.second->hasPhi()) return 999999;
    if(includeSegmentError)
       return (chamberSegmentPair.first->x-chamberSegmentPair.second->x)/sqrt(pow(chamberSegmentPair.first->xErr,2)+pow(chamberSegmentPair.second->xErr,2));
    return (chamberSegmentPair.first->x-chamberSegmentPair.second->x)/chamberSegmentPair.first->xErr;
@@ -350,6 +355,7 @@ float Muon::pullY( int station, int muonSubdetId, ArbitrationType type, bool inc
    if(station==4 && muonSubdetId==MuonSubdetId::DT) return 999999; // no y information
    std::pair<const MuonChamberMatch*,const MuonSegmentMatch*> chamberSegmentPair = pair(chambers(station,muonSubdetId),type);
    if(chamberSegmentPair.first==0 || chamberSegmentPair.second==0) return 999999;
+   if(! chamberSegmentPair.second->hasZed()) return 999999;
    if(includeSegmentError)
       return (chamberSegmentPair.first->y-chamberSegmentPair.second->y)/sqrt(pow(chamberSegmentPair.first->yErr,2)+pow(chamberSegmentPair.second->yErr,2));
    return (chamberSegmentPair.first->y-chamberSegmentPair.second->y)/chamberSegmentPair.first->yErr;
@@ -359,6 +365,7 @@ float Muon::pullDxDz( int station, int muonSubdetId, ArbitrationType type, bool 
 {
    std::pair<const MuonChamberMatch*,const MuonSegmentMatch*> chamberSegmentPair = pair(chambers(station,muonSubdetId),type);
    if(chamberSegmentPair.first==0 || chamberSegmentPair.second==0) return 999999;
+   if(! chamberSegmentPair.second->hasPhi()) return 999999;
    if(includeSegmentError)
       return (chamberSegmentPair.first->dXdZ-chamberSegmentPair.second->dXdZ)/sqrt(pow(chamberSegmentPair.first->dXdZErr,2)+pow(chamberSegmentPair.second->dXdZErr,2));
    return (chamberSegmentPair.first->dXdZ-chamberSegmentPair.second->dXdZ)/chamberSegmentPair.first->dXdZErr;
@@ -369,6 +376,7 @@ float Muon::pullDyDz( int station, int muonSubdetId, ArbitrationType type, bool 
    if(station==4 && muonSubdetId==MuonSubdetId::DT) return 999999; // no y information
    std::pair<const MuonChamberMatch*,const MuonSegmentMatch*> chamberSegmentPair = pair(chambers(station,muonSubdetId),type);
    if(chamberSegmentPair.first==0 || chamberSegmentPair.second==0) return 999999;
+   if(! chamberSegmentPair.second->hasZed()) return 999999;
    if(includeSegmentError)
       return (chamberSegmentPair.first->dYdZ-chamberSegmentPair.second->dYdZ)/sqrt(pow(chamberSegmentPair.first->dYdZErr,2)+pow(chamberSegmentPair.second->dYdZErr,2));
    return (chamberSegmentPair.first->dYdZ-chamberSegmentPair.second->dYdZ)/chamberSegmentPair.first->dYdZErr;
@@ -378,6 +386,7 @@ float Muon::segmentX( int station, int muonSubdetId, ArbitrationType type ) cons
 {
    std::pair<const MuonChamberMatch*,const MuonSegmentMatch*> chamberSegmentPair = pair(chambers(station,muonSubdetId),type);
    if(chamberSegmentPair.first==0 || chamberSegmentPair.second==0) return 999999;
+   if(! chamberSegmentPair.second->hasPhi()) return 999999;
    return chamberSegmentPair.second->x;
 }
 
@@ -386,6 +395,7 @@ float Muon::segmentY( int station, int muonSubdetId, ArbitrationType type ) cons
    if(station==4 && muonSubdetId==MuonSubdetId::DT) return 999999; // no y information
    std::pair<const MuonChamberMatch*,const MuonSegmentMatch*> chamberSegmentPair = pair(chambers(station,muonSubdetId),type);
    if(chamberSegmentPair.first==0 || chamberSegmentPair.second==0) return 999999;
+   if(! chamberSegmentPair.second->hasZed()) return 999999;
    return chamberSegmentPair.second->y;
 }
 
@@ -393,6 +403,7 @@ float Muon::segmentDxDz( int station, int muonSubdetId, ArbitrationType type ) c
 {
    std::pair<const MuonChamberMatch*,const MuonSegmentMatch*> chamberSegmentPair = pair(chambers(station,muonSubdetId),type);
    if(chamberSegmentPair.first==0 || chamberSegmentPair.second==0) return 999999;
+   if(! chamberSegmentPair.second->hasPhi()) return 999999;
    return chamberSegmentPair.second->dXdZ;
 }
 
@@ -401,6 +412,7 @@ float Muon::segmentDyDz( int station, int muonSubdetId, ArbitrationType type ) c
    if(station==4 && muonSubdetId==MuonSubdetId::DT) return 999999; // no y information
    std::pair<const MuonChamberMatch*,const MuonSegmentMatch*> chamberSegmentPair = pair(chambers(station,muonSubdetId),type);
    if(chamberSegmentPair.first==0 || chamberSegmentPair.second==0) return 999999;
+   if(! chamberSegmentPair.second->hasZed()) return 999999;
    return chamberSegmentPair.second->dYdZ;
 }
 
@@ -408,6 +420,7 @@ float Muon::segmentXErr( int station, int muonSubdetId, ArbitrationType type ) c
 {
    std::pair<const MuonChamberMatch*,const MuonSegmentMatch*> chamberSegmentPair = pair(chambers(station,muonSubdetId),type);
    if(chamberSegmentPair.first==0 || chamberSegmentPair.second==0) return 999999;
+   if(! chamberSegmentPair.second->hasPhi()) return 999999;
    return chamberSegmentPair.second->xErr;
 }
 
@@ -416,6 +429,7 @@ float Muon::segmentYErr( int station, int muonSubdetId, ArbitrationType type ) c
    if(station==4 && muonSubdetId==MuonSubdetId::DT) return 999999; // no y information
    std::pair<const MuonChamberMatch*,const MuonSegmentMatch*> chamberSegmentPair = pair(chambers(station,muonSubdetId),type);
    if(chamberSegmentPair.first==0 || chamberSegmentPair.second==0) return 999999;
+   if(! chamberSegmentPair.second->hasZed()) return 999999;
    return chamberSegmentPair.second->yErr;
 }
 
@@ -423,6 +437,7 @@ float Muon::segmentDxDzErr( int station, int muonSubdetId, ArbitrationType type 
 {
    std::pair<const MuonChamberMatch*,const MuonSegmentMatch*> chamberSegmentPair = pair(chambers(station,muonSubdetId),type);
    if(chamberSegmentPair.first==0 || chamberSegmentPair.second==0) return 999999;
+   if(! chamberSegmentPair.second->hasPhi()) return 999999;
    return chamberSegmentPair.second->dXdZErr;
 }
 
@@ -431,6 +446,7 @@ float Muon::segmentDyDzErr( int station, int muonSubdetId, ArbitrationType type 
    if(station==4 && muonSubdetId==MuonSubdetId::DT) return 999999; // no y information
    std::pair<const MuonChamberMatch*,const MuonSegmentMatch*> chamberSegmentPair = pair(chambers(station,muonSubdetId),type);
    if(chamberSegmentPair.first==0 || chamberSegmentPair.second==0) return 999999;
+   if(! chamberSegmentPair.second->hasZed()) return 999999;
    return chamberSegmentPair.second->dYdZErr;
 }
 
