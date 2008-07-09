@@ -2,8 +2,8 @@
  *
  * See header file for documentation
  *
- *  $Date: 2008/07/08 07:13:26 $
- *  $Revision: 1.25 $
+ *  $Date: 2008/07/08 07:53:36 $
+ *  $Revision: 1.26 $
  *
  *  \author Martin Grunewald
  *
@@ -131,13 +131,19 @@ TriggerSummaryProducerAOD::produce(edm::Event& iEvent, const edm::EventSetup& iS
      maskFilters_[ifob]=false;
      collectionTags_.clear();
      fobs_[ifob]->getCollectionTags(collectionTags_);
-     if (collectionTags_.size()>0) {
+     const size_type ncol(collectionTags_.size());
+     if (ncol>0) {
        maskFilters_[ifob]=true;
        const string& label    (fobs_[ifob].provenance()->moduleLabel());
        const string& instance (fobs_[ifob].provenance()->productInstanceName());
        const string& process  (fobs_[ifob].provenance()->processName());
        filterTagsEvent_.insert(InputTag(label,instance,process));
-       collectionTagsEvent_.insert(collectionTags_.begin(),collectionTags_.end());
+
+       for (size_type icol=0; icol!=ncol; ++icol) {
+	 const string&    label(collectionTags_[icol].label());
+	 const string& instance(collectionTags_[icol].instance());
+	 collectionTagsEvent_.insert(InputTag(label,instance,pn_));
+       }
      }
    }
    collectionTagsGlobal_.insert(collectionTagsEvent_.begin(),collectionTagsEvent_.end());
