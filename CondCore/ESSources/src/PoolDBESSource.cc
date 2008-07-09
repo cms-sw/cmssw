@@ -107,19 +107,21 @@ PoolDBESSource::PoolDBESSource( const edm::ParameterSet& iConfig ) :
   if( iConfig.exists("globaltag") ){
     usetagDB=true;
   }
-  std::string userconnect=iConfig.getParameter<std::string>("connect"); 
+ 
+  std::string userconnect;
+  userconnect=iConfig.getParameter<std::string>("connect");
   //ignore "timetype" parameter
   //std::string timetype=iConfig.getParameter<std::string>("timetype");
-  //std::cout<<"userconnect "<<userconnect<<std::endl;
   //std::cout<<"timetype "<<timetype<<std::endl;
   edm::ParameterSet connectionPset = iConfig.getParameter<edm::ParameterSet>("DBParameters"); 
   cond::ConfigSessionFromParameterSet configConnection(*m_session,connectionPset);
   m_session->open();
   
+  if(!userconnect.empty()){
+    conHandler.registerConnection(userconnect,*m_session,0);
+  }
+
   fillRecordToTypeMap(m_recordToTypes);
-  //std::cout<<"userconnect "<<userconnect<<std::endl;
-  conHandler.registerConnection(userconnect,*m_session,0);
-  //std::cout<<"done "<<std::endl;
   std::string lastRecordName;
   if( !usetagDB ){
     typedef std::vector< edm::ParameterSet > Parameters;
@@ -191,6 +193,7 @@ PoolDBESSource::PoolDBESSource( const edm::ParameterSet& iConfig ) :
       throw cond::Exception("NoRecord")<<" The record \""<<it->second.recordname<<"\" is not known by the PoolDBESSource";
       }
       std::string datumName = it->second.recordname+"@"+it->second.objectname+"@"+it->second.labelname;
+      //std::cout<<"datumName "<<datumName<<std::endl;
       m_datumToToken.insert( make_pair(datumName,"") );
       //fill in dummy tokens now, change in setIntervalFor
       DatumToToken::iterator pos=m_datumToToken.find(datumName);
@@ -288,21 +291,21 @@ PoolDBESSource::setIntervalFor( const edm::eventsetup::EventSetupRecordKey& iKey
   std::string payloadToken=iovservice.payloadToken(leadingToken,abtime);
   std::string datumName=recordname+"@"+objectname+"@"+leadingLable;
   m_datumToToken[datumName]=payloadToken;  
-  //pooldb.commit();
+  pooldb.commit();
 
   std::vector<cond::IOVInfo>::iterator itProxy;
   for(itProxy=pos->second.begin(); itProxy!=pos->second.end(); ++itProxy){
     if( (itProxy->label) != leadingLable){
       std::string datumName=recordname+"@"+objectname+"@"+itProxy->label;
-      //cond::Connection* c=conHandler.getConnection(itProxy->pfn);
-      //cond::PoolTransaction& pooldb=c->poolTransaction();
-      //cond::IOVService iovservice(pooldb);  
-      //pooldb.start(true);
-      std::string payloadToken=iovservice.payloadToken(itProxy->token,abtime);
+      cond::Connection* c=conHandler.getConnection(itProxy->pfn);
+      cond::PoolTransaction& labelpooldb=c->poolTransaction();
+      cond::IOVService labeliovservice(labelpooldb);  
+      labelpooldb.start(true);
+      std::string payloadToken=labeliovservice.payloadToken(itProxy->token,abtime);
+      labelpooldb.commit();
       m_datumToToken[datumName]=payloadToken;  
     }
   }
-  pooldb.commit();
 }
 
 void 

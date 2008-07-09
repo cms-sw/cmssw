@@ -70,7 +70,12 @@ ParticlePropagator::ParticlePropagator(const FSimTrack& simTrack,
 {
   setVertex(simTrack.vertex().position());
   setMagneticField(fieldMap(X(),Y(),Z()));
-  initProperDecayTime();
+  if ( simTrack.decayTime() < 0. ) 
+    // No pre-defined decay time
+    initProperDecayTime();
+  else
+    // Decay time pre-defined at generator level 
+    this->setProperDecayTime(simTrack.decayTime());
 }
 
 ParticlePropagator::ParticlePropagator(const ParticlePropagator& myPropPart) :

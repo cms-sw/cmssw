@@ -9,12 +9,14 @@
  *
  * \author Luca Lista, INFN
  *
- * \version $Id: CompositeCandidate.h,v 1.25 2007/11/30 14:03:26 llista Exp $
+ * \version $Id: CompositeCandidate.h,v 1.26 2007/12/10 12:16:40 llista Exp $
  *
  */
 
 #include "DataFormats/Candidate/interface/iterator_imp_specific.h"
 #include "DataFormats/Candidate/interface/CompositeCandidateFwd.h"
+#include <string>
+#include <vector> 
 
 namespace reco {
 
@@ -22,23 +24,36 @@ namespace reco {
   public:
     /// collection of daughters
     typedef CandidateCollection daughters;
+    typedef std::vector<std::string> role_collection; 
     /// default constructor
-    CompositeCandidate() : Candidate() { }
+    CompositeCandidate(std::string name="") : Candidate(), name_(name) { }
     /// constructor from values
     CompositeCandidate( Charge q, const LorentzVector & p4, const Point & vtx = Point( 0, 0, 0 ),
-			int pdgId = 0, int status = 0, bool integerCharge = true ) :
-      Candidate( q, p4, vtx, pdgId, status, integerCharge ) { }
+			int pdgId = 0, int status = 0, bool integerCharge = true,
+			std::string name="") :
+      Candidate( q, p4, vtx, pdgId, status, integerCharge ), name_(name) { }
     /// constructor from values
     CompositeCandidate( Charge q, const PolarLorentzVector & p4, const Point & vtx = Point( 0, 0, 0 ),
-			int pdgId = 0, int status = 0, bool integerCharge = true ) :
-      Candidate( q, p4, vtx, pdgId, status, integerCharge ) { }
+			int pdgId = 0, int status = 0, bool integerCharge = true,
+			std::string name="" ) :
+      Candidate( q, p4, vtx, pdgId, status, integerCharge ), name_(name) { }
     /// constructor from values
-    explicit CompositeCandidate( const Particle & p ) :
-      Candidate( p ) { }
+    explicit CompositeCandidate( const Particle & p, std::string name="" ) :
+      Candidate( p ), name_(name) { }
     /// constructor from values
-    explicit CompositeCandidate( const Candidate & p );
+    explicit CompositeCandidate( const Candidate & p, std::string name="" );
+    /// constructor from values
+    explicit CompositeCandidate( const Candidate & p, std::string name, role_collection const & roles );
     /// destructor
     virtual ~CompositeCandidate();
+    /// get the name of the candidate
+    std::string name() const { return name_;}
+    /// set the name of the candidate
+    void        setName(std::string name) { name_ = name;}
+    /// get the roles
+    role_collection const & roles() const { return roles_; }
+    /// set the roles    
+    void                    setRoles( const role_collection & roles ) { roles_.clear(); roles_ = roles; }
     /// returns a clone of the candidate
     virtual CompositeCandidate * clone() const;
     /// first daughter const_iterator
@@ -55,12 +70,19 @@ namespace reco {
     virtual const Candidate * daughter( size_type ) const;
     /// return daughter at a given position, i = 0, ... numberOfDaughters() - 1
     virtual Candidate * daughter( size_type );
+    // Get candidate based on role
+    virtual Candidate *       daughter( std::string s );
+    virtual const Candidate * daughter( std::string s ) const;
     /// add a clone of the passed candidate as daughter 
-    void addDaughter( const Candidate & );
+    void addDaughter( const Candidate &, std::string s="" );
     /// add a clone of the passed candidate as daughter 
-    void addDaughter( std::auto_ptr<Candidate> );
+    void addDaughter( std::auto_ptr<Candidate>, std::string s="" );
     /// clear daughters
     void clearDaughters() { dau.clear(); }
+    // clear roles
+    void clearRoles() { roles_.clear(); }
+    // Apply the roles to the objects
+    void applyRoles();
     /// number of mothers (zero or one in most of but not all the cases)
     virtual size_type numberOfMothers() const;
     /// return pointer to mother
@@ -75,16 +97,11 @@ namespace reco {
     daughters dau;
     /// check overlap with another daughter
     virtual bool overlap( const Candidate & ) const;
+    /// candidate name
+    std::string name_;
+    /// candidate roles
+    role_collection roles_;
   };
-
-  inline void CompositeCandidate::addDaughter( const Candidate & cand ) { 
-    Candidate * c = cand.clone();
-    dau.push_back( c ); 
-  }
-
-  inline void CompositeCandidate::addDaughter( std::auto_ptr<Candidate> cand ) {
-    dau.push_back( cand );
-  }
 
 }
 

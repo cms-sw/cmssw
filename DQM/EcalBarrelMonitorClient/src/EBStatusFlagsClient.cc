@@ -1,8 +1,8 @@
 /*
  * \file EBStatusFlagsClient.cc
  *
- * $Date: 2008/03/15 14:07:44 $
- * $Revision: 1.11 $
+ * $Date: 2008/06/25 14:16:16 $
+ * $Revision: 1.22 $
  * \author G. Della Ricca
  *
 */
@@ -26,13 +26,19 @@ using namespace cms;
 using namespace edm;
 using namespace std;
 
-EBStatusFlagsClient::EBStatusFlagsClient(const ParameterSet& ps){
+EBStatusFlagsClient::EBStatusFlagsClient(const ParameterSet& ps) {
 
   // cloneME switch
   cloneME_ = ps.getUntrackedParameter<bool>("cloneME", true);
 
-  // verbosity switch
-  verbose_ = ps.getUntrackedParameter<bool>("verbose", false);
+  // verbose switch
+  verbose_ = ps.getUntrackedParameter<bool>("verbose", true);
+
+  // debug switch
+  debug_ = ps.getUntrackedParameter<bool>("debug", false);
+
+  // prefixME path
+  prefixME_ = ps.getUntrackedParameter<string>("prefixME", "");
 
   // enableCleanup_ switch
   enableCleanup_ = ps.getUntrackedParameter<bool>("enableCleanup", false);
@@ -58,24 +64,24 @@ EBStatusFlagsClient::EBStatusFlagsClient(const ParameterSet& ps){
 
 }
 
-EBStatusFlagsClient::~EBStatusFlagsClient(){
+EBStatusFlagsClient::~EBStatusFlagsClient() {
 
 }
 
-void EBStatusFlagsClient::beginJob(DQMStore* dbe){
+void EBStatusFlagsClient::beginJob(DQMStore* dqmStore) {
 
-  dbe_ = dbe;
+  dqmStore_ = dqmStore;
 
-  if ( verbose_ ) cout << "EBStatusFlagsClient: beginJob" << endl;
+  if ( debug_ ) cout << "EBStatusFlagsClient: beginJob" << endl;
 
   ievt_ = 0;
   jevt_ = 0;
 
 }
 
-void EBStatusFlagsClient::beginRun(void){
+void EBStatusFlagsClient::beginRun(void) {
 
-  if ( verbose_ ) cout << "EBStatusFlagsClient: beginRun" << endl;
+  if ( debug_ ) cout << "EBStatusFlagsClient: beginRun" << endl;
 
   jevt_ = 0;
 
@@ -85,7 +91,7 @@ void EBStatusFlagsClient::beginRun(void){
 
 void EBStatusFlagsClient::endJob(void) {
 
-  if ( verbose_ ) cout << "EBStatusFlagsClient: endJob, ievt = " << ievt_ << endl;
+  if ( debug_ ) cout << "EBStatusFlagsClient: endJob, ievt = " << ievt_ << endl;
 
   this->cleanup();
 
@@ -93,7 +99,7 @@ void EBStatusFlagsClient::endJob(void) {
 
 void EBStatusFlagsClient::endRun(void) {
 
-  if ( verbose_ ) cout << "EBStatusFlagsClient: endRun, jevt = " << jevt_ << endl;
+  if ( debug_ ) cout << "EBStatusFlagsClient: endRun, jevt = " << jevt_ << endl;
 
   this->cleanup();
 
@@ -101,7 +107,7 @@ void EBStatusFlagsClient::endRun(void) {
 
 void EBStatusFlagsClient::setup(void) {
 
-  dbe_->setCurrentFolder( "EcalBarrel/EBStatusFlagsClient" );
+  dqmStore_->setCurrentFolder( prefixME_ + "/EBStatusFlagsClient" );
 
 }
 
@@ -126,37 +132,42 @@ void EBStatusFlagsClient::cleanup(void) {
 
   }
 
-  dbe_->setCurrentFolder( "EcalBarrel/EBStatusFlagsClient" );
+  dqmStore_->setCurrentFolder( prefixME_ + "/EBStatusFlagsClient" );
 
 }
 
-bool EBStatusFlagsClient::writeDb(EcalCondDBInterface* econn, RunIOV* runiov, MonRunIOV* moniov) {
+bool EBStatusFlagsClient::writeDb(EcalCondDBInterface* econn, RunIOV* runiov, MonRunIOV* moniov, bool& status, bool flag) {
 
-  bool status = true;
+  status = true;
+
+  if ( ! flag ) return false;
 
   for ( unsigned int i=0; i<superModules_.size(); i++ ) {
 
     int ism = superModules_[i];
 
-    cout << " " << Numbers::sEB(ism) << " (ism=" << ism << ")" << endl;
-    cout << endl;
+    if ( verbose_ ) {
+      cout << " " << Numbers::sEB(ism) << " (ism=" << ism << ")" << endl;
+      cout << endl;
+      UtilsClient::printBadChannels(meh01_[ism-1], UtilsClient::getHisto<TH2F*>(meh01_[ism-1]), true);
+    }
 
-    UtilsClient::printBadChannels(meh01_[ism-1], UtilsClient::getHisto<TH2F*>(meh01_[ism-1]), true);
-
-    if ( meh01_[ism-1]->getEntries() != 0 ) status = false;
+    if ( meh01_[ism-1] ) {
+      if ( meh01_[ism-1]->getEntries() != 0 ) status = false;
+    }
 
   }
 
-  return status;
+  return true;
 
 }
 
-void EBStatusFlagsClient::analyze(void){
+void EBStatusFlagsClient::analyze(void) {
 
   ievt_++;
   jevt_++;
   if ( ievt_ % 10 == 0 ) {
-    if ( verbose_ ) cout << "EBStatusFlagsClient: ievt/jevt = " << ievt_ << "/" << jevt_ << endl;
+    if ( debug_ ) cout << "EBStatusFlagsClient: ievt/jevt = " << ievt_ << "/" << jevt_ << endl;
   }
 
   char histo[200];
@@ -167,13 +178,13 @@ void EBStatusFlagsClient::analyze(void){
 
     int ism = superModules_[i];
 
-    sprintf(histo, "EcalBarrel/EBStatusFlagsTask/FEStatus/EBSFT front-end status %s", Numbers::sEB(ism).c_str());
-    me = dbe_->get(histo);
+    sprintf(histo, (prefixME_ + "/EBStatusFlagsTask/FEStatus/EBSFT front-end status %s").c_str(), Numbers::sEB(ism).c_str());
+    me = dqmStore_->get(histo);
     h01_[ism-1] = UtilsClient::getHisto<TH2F*>( me, cloneME_, h01_[ism-1] );
     meh01_[ism-1] = me;
 
-    sprintf(histo, "EcalBarrel/EBStatusFlagsTask/FEStatus/EBSFT front-end status bits %s", Numbers::sEB(ism).c_str());
-    me = dbe_->get(histo);
+    sprintf(histo, (prefixME_ + "/EBStatusFlagsTask/FEStatus/EBSFT front-end status bits %s").c_str(), Numbers::sEB(ism).c_str());
+    me = dqmStore_->get(histo);
     h02_[ism-1] = UtilsClient::getHisto<TH1F*>( me, cloneME_, h02_[ism-1] );
     meh02_[ism-1] = me;
 
@@ -181,9 +192,13 @@ void EBStatusFlagsClient::analyze(void){
 
 }
 
-void EBStatusFlagsClient::htmlOutput(int run, string& htmlDir, string& htmlName){
+void EBStatusFlagsClient::softReset(bool flag) {
 
-  cout << "Preparing EBStatusFlagsClient html output ..." << endl;
+}
+
+void EBStatusFlagsClient::htmlOutput(int run, string& htmlDir, string& htmlName) {
+
+  if ( verbose_ ) cout << "Preparing EBStatusFlagsClient html output ..." << endl;
 
   ofstream htmlFile;
 
@@ -296,9 +311,9 @@ void EBStatusFlagsClient::htmlOutput(int run, string& htmlDir, string& htmlName)
       gStyle->SetOptStat("e");
       obj1f->SetStats(kTRUE);
       if ( obj1f->GetMaximum(histMax) > 0. ) {
-        gPad->SetLogy(1);
+        gPad->SetLogy(kTRUE);
       } else {
-        gPad->SetLogy(0);
+        gPad->SetLogy(kFALSE);
       }
       gPad->SetBottomMargin(0.25);
       obj1f->GetXaxis()->LabelsOption("v");
@@ -306,7 +321,7 @@ void EBStatusFlagsClient::htmlOutput(int run, string& htmlDir, string& htmlName)
       obj1f->Draw();
       cStatusBits->Update();
       cStatusBits->SaveAs(imgName.c_str());
-      gPad->SetLogy(0);
+      gPad->SetLogy(kFALSE);
 
     }
 

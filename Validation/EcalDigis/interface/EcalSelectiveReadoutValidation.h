@@ -4,8 +4,8 @@
 /*
  * \file EcalSelectiveReadoutValidation.h
  *
- * $Date: 2007/05/21 13:21:51 $
- * $Revision: 1.2 $
+ * $Date: 2008/02/29 20:48:25 $
+ * $Revision: 1.3 $
  *
  */
 
@@ -27,10 +27,12 @@
 //#include "DataFormats/EcalDetId/interface/EBDetId.h"
 #include "DataFormats/EcalRecHit/interface/EcalRecHitCollections.h"
 #include "DataFormats/GeometryVector/interface/GlobalPoint.h"
+#include "DataFormats/FEDRawData/interface/FEDRawDataCollection.h"
 
 #include "Validation/EcalDigis/src/CollHandle.h"
 
 #include <string>
+#include <set>
 #include <utility>
 #include "DQMServices/Core/interface/DQMStore.h"
 #include "DQMServices/Core/interface/MonitorElement.h"
@@ -145,7 +147,7 @@ private:
    */
   double getDccOverhead(subdet_t subdet) const{
     //  return (subdet==EB?34:25)*8;
-    return (subdet==EB?33:51)*8;
+    return (subdet==EB?34:52)*8;
   }
 
   /** Gets the number of bytes per crystal channel of the event part
@@ -278,7 +280,7 @@ private:
   //@}
 
   //@{
-  /** Wrappers to the book method of the DQMStore DQM
+  /** Wrappers to the book methods of the DQMStore DQM
    *  histogramming interface.
    */
   MonitorElement* book1D(const std::string& name,
@@ -293,6 +295,29 @@ private:
   MonitorElement* bookProfile(const std::string& name,
 			      const std::string& title,
 			      int nbins, double xmin, double xmax);
+  
+  MonitorElement* bookProfile2D(const std::string& name,
+				const std::string& title,
+				int nbinx, double xmin, double xmax,
+				int nbiny, double ymin, double ymax,
+				const char* option = "");
+  //@}
+
+  //@{
+  /** Wrapper to fill methods of DQM monitor elements.
+   */
+  void fill(MonitorElement* me, float x){
+    if(me) me->Fill(x);
+  }
+  void fill(MonitorElement* me,float x, float yw){
+    if(me) me->Fill(x, yw);
+  }
+  void fill(MonitorElement* me,float x, float y, float zw){
+    if(me) me->Fill(x, y, zw);
+  }
+  void fill(MonitorElement* me,float x, float y, float z, float w){
+    if(me) me->Fill(x, y, z, w);
+  }
   //@}
 
 private:
@@ -353,6 +378,9 @@ private:
   ///EE crystal grid size along Y
   static const int nEeY = 100;
 
+  ///Number of crystals along an EB TT
+  static const int ebTtEdge = 5;
+  
   ///Number of crystals along a supercrystal edge
   static const int scEdge = 5;
 
@@ -388,12 +416,14 @@ private:
   CollHandle<EcalTrigPrimDigiCollection> tps_;
   CollHandle<EcalRecHitCollection>       ebRecHits_;
   CollHandle<EcalRecHitCollection>       eeRecHits_;
+  CollHandle<FEDRawDataCollection>       fedRaw_;
   //@}
 
   //@{
   /** The histograms
    */
   MonitorElement* meDccVol_;
+  MonitorElement* meDccVolFromData_;
   MonitorElement* meVol_;
   MonitorElement* meVolB_;
   MonitorElement* meVolE_;
@@ -426,6 +456,16 @@ private:
   MonitorElement* meEeRecEHitXtal_;
   MonitorElement* meEeRecVsSimE_;
   MonitorElement* meEeNoZsRecVsSimE_;
+
+  MonitorElement* meFullRoTt_;
+  MonitorElement* meZs1Tt_;
+  MonitorElement* meForcedTt_;
+
+  MonitorElement* meLiTtf_;
+  MonitorElement* meHiTtf_;
+
+  MonitorElement* meTpMap_;
+  
   //@}
 
   /** ECAL trigger tower mapping
@@ -450,6 +490,10 @@ private:
    */
   std::vector<double> weights_;
 
+  /** Switch for uncompressing TP value
+   */
+  bool tpInGeV_;
+  
   /** ECAL barrel read channel count
    */
   int nEb_;
@@ -474,10 +518,21 @@ private:
    */
   int nEbHI_;
 
-  /** ECAL endcap read channel count
+  /** ECAL read channel count for each DCC:
    */
   int nPerDcc_[nDccs];
 
+  /** Count for each DCC of RUs with at leat one channel read out:
+   */
+  int nRuPerDcc_[nDccs];
+
+  //@{
+  /** For book keeping of RU actually read out (not fully zero suppressed)
+   */
+  bool ebRuActive_[nEbEta/ebTtEdge][nEbPhi/ebTtEdge];
+  bool eeRuActive_[nEndcaps][nEeX/scEdge][nEeY/scEdge];
+  //@}
+  
   /** Event sequence number
    */
   int ievt_;
@@ -498,6 +553,35 @@ private:
    * system.
    */
   energiesEe_t eeEnergies[nEndcaps][nEeX][nEeY];
+
+  /** List of enabled histograms. Special name "all" is used to indicate
+   * all available histograms.
+   */
+  std::set<std::string> histList_;
+
+  /** When true, every histogram is enabled.
+   */
+  bool allHists_;
+
+  /** Histogram directory PATH in DQM or within the output ROOT file
+   */
+  std::string histDir_;
+  
+  /** List of available histograms. Filled by the booking methods.
+   * key: name, value: title.
+   */
+  std::map<std::string, std::string> availableHistList_;
+
+  /** Register a histogram in the available histogram list and check if
+   * the histogram is enabled. Called by the histogram booking methods.
+   * @return true if the histogram is enable, false otherwise
+   */
+  bool registerHist(const std::string& name, const std::string& title);
+
+  /** Prints the list of available histograms
+   * (registered by the registerHist method), including disabled one.
+   */
+  void printAvailableHists();
   
 private:
   /** Used to sort crystal by decrasing simulated energy.

@@ -1,10 +1,18 @@
 #include <functional>
 #include <ext/functional>
 #include <algorithm>
+#include <utility>
+#include <vector>
 
 #include "FWCore/Utilities/interface/EDMException.h"
+#include "DataFormats/GeometryCommonDetAlgo/interface/Measurement1D.h"
+#include "DataFormats/GeometryVector/interface/GlobalVector.h"
 #include "DataFormats/GeometryVector/interface/VectorUtil.h"
+#include "DataFormats/TrackReco/interface/TrackFwd.h"
 #include "DataFormats/BTauReco/interface/TaggingVariable.h"
+#include "DataFormats/JetReco/interface/JetTracksAssociation.h"
+#include "DataFormats/BTauReco/interface/JTATagInfo.h"
+#include "DataFormats/BTauReco/interface/TrackIPTagInfo.h"
 
 #include "DataFormats/BTauReco/interface/SecondaryVertexTagInfo.h"
 

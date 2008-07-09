@@ -11,4 +11,3 @@ mumugenfilter = cms.EDFilter("MCParticlePairFilter",
 )
 
 
-

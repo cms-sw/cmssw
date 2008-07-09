@@ -2,6 +2,8 @@
 <use name=Utilities/General>
 <use name=rootrflx>
 <use name=rootminuit>
+<use name=rootminuit2>
+<use name=root>
 <use name=boost>
 <use name=DataFormats/Math>
 <!-- <flags CXXFLAGS="-DBOOST_SPIRIT_DEBUG -DBOOST_SPIRIT_DEBUG_OUT=std::cerr"> -->
@@ -11,6 +13,8 @@
   <use name=Utilities/General>
   <use name=rootrflx>
   <use name=rootminuit>
+  <use name=rootminuit2>
+  <use name=root>
   <use name=boost>
   <use name=DataFormats/Math>
 </export>

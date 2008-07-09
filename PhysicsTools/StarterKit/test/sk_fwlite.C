@@ -3,7 +3,7 @@
    #include "DataFormats/FWLite/interface/Handle.h"
 
    
-  TFile file("/tmp/PATLayer1Output.root");
+  TFile file("/uscms_data/d1/rappocc/StarterKitSkim.root");
 
   using namespace std;
 

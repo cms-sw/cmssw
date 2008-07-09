@@ -8,7 +8,7 @@
 //
 // Original Author:  Tomasz Frueboes
 //         Created:  Fri Feb 22 12:26:49 CET 2008
-// $Id: L1RPCConeBuilder.cc,v 1.1 2008/03/03 14:14:21 fruboes Exp $
+// $Id: L1RPCConeBuilder.cc,v 1.2 2008/03/14 12:38:20 fruboes Exp $
 //
 
 #include "CondFormats/RPCObjects/interface/L1RPCConeBuilder.h"
@@ -56,3 +56,4 @@ std::pair<L1RPCConeBuilder::TStripConVec::const_iterator, L1RPCConeBuilder::TStr
   return std::make_pair(m_coneConnectionMap[det][strip].begin(),m_coneConnectionMap[det][strip].end());    
     
 }*/
+

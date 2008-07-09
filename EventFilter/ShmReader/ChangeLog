@@ -1,3 +1,10 @@
+2008-06-13  Philipp SCHIEFERDECKER  <philipp.schieferdecker@cern.ch>
+
+	* tag V01-02-00
+	* if we are still attached to shm when the destructor hits, send
+	the last processed event to the error stream and deregister this
+	process from the buffer.
+
 2007-11-23  Philipp SCHIEFERDECKER  <philipp.schieferdecker@cern.ch>
 
 	* tag V01-01-01

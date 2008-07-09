@@ -1,5 +1,9 @@
 
 #include "Alignment/TwoBodyDecay/interface/TwoBodyDecayLinearizationPointFinder.h"
+#include "TrackingTools/TrajectoryState/interface/CopyUsingClone.h" 
+#include "DataFormats/Math/interface/Vector.h" 
+#include "DataFormats/Math/interface/Error.h" 
+#include "TrackingTools/TrajectoryState/interface/FreeTrajectoryState.h" 
 #include "DataFormats/CLHEP/interface/AlgebraicObjects.h" 
 #include "Alignment/TwoBodyDecay/interface/TwoBodyDecayModel.h"
 

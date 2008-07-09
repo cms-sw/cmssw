@@ -1,27 +1,25 @@
 /*!
-\page L1SoftwareReleaseNotes L1 Software Release Notes - CMSSW_1_8_x
+\page L1SoftwareReleaseNotes L1 Software Release Notes - CMSSW_2_0_x
 
 
 - General:
-  - The main change for this release was a major upgrade of the GT emulator.
 
 - Main changes and new features:
-  - GT emulator takes trigger menu from dummy ESProducer/DB
-  - GT emulator timing improved
-  - DigiToRaw/RawToDigi complete
-    - CSCTF and DTTF modules now included in default sequences
-    - CSC and DT TPG digis can be accessed via CSCTF/DTTF RawToDigi
-    - GCT modules now include RCT region energies
-  - GCT default jet algorithm changed to match hardware
-  - GCT default jet corrections based on 17X
-  - HLT seeding sequence and test job added to L1Trigger/Configuration
+  - New HF-based minbias trigger quantities
+  - CSC beam halo trigger
+  - New L1 trigger menus for 1030, 1031 lumi
+  - HLT seeding possible from `technical triggers'
+  - Lightweight interface to trigger results for AOD
+  - Firmware related updates to CSC TPG, CSC TF, DTTF
+  - ORCON population modules written
+  - L1 branches renamed
 
 - Major bug fixes:
 
 - Known issues:
-  - Outstanding bug in write-read of CondFormats other than L1TriggerKey
+
 
 <hr>
-Last updated: @DATE@ Jim Brooke
+Last updated: 15 April 2008 Jim Brooke
  
 */

@@ -54,6 +54,20 @@ BeamHaloNavigationSchool::BeamHaloNavigationSchool(const GeometricSearchTracker*
   LogDebug("BeamHaloNavigationSchool")<<"linkOtherEndLayer";
   linkOtherEndLayers( symFinder);
 
+  //set checkCrossing = false to all layers
+  SimpleNavigationSchool::StateType allLayers=navigableLayers();
+  SimpleNavigationSchool::StateType::iterator layerIt=allLayers.begin();
+  SimpleNavigationSchool::StateType::iterator layerIt_end=allLayers.end();
+  for (;layerIt!=layerIt_end;++layerIt)
+    {
+      //convert to SimpleNavigableLayer
+      SimpleNavigableLayer* snl=dynamic_cast<SimpleNavigableLayer*>(*layerIt);
+      if (!snl){
+	edm::LogError("BeamHaloNavigationSchool")<<"navigable layer not casting to simplenavigablelayer.";
+	continue;}
+      snl->setCheckCrossingSide(false);
+    }
+
 }
 
 void BeamHaloNavigationSchool::establishInverseRelations() {

@@ -4,8 +4,8 @@
  *
  *  the validator assumes single muon events
  *
- *  $Date: 2007/10/16 17:46:28 $
- *  $Revision: 1.5 $
+ *  $Date: 2008/04/28 17:36:59 $
+ *  $Revision: 1.7 $
  *  \author Chang Liu   -  Purdue University <Chang.Liu@cern.ch>
  */
 
@@ -41,12 +41,8 @@
 
 #include <iostream>
 
-#include <TFile.h>
 #include <TH1D.h>
-#include <TTree.h>
-#include <TROOT.h>
 #include <TSystem.h>
-#include <TFile.h>
 #include <TH1.h>
 #include <TH2.h>
 #include <TLegend.h>
@@ -95,8 +91,6 @@ class CosmicMuonValidator : public edm::EDAnalyzer {
       int nEvent;
       int successR;
       int nNoSignal;
-
-      TStyle* myStyle;
 
       TH2F* h_innerPosXY;
       TH2F* h_innerPosEP;
@@ -322,14 +316,8 @@ void CosmicMuonValidator::analyze(const edm::Event& iEvent, const edm::EventSetu
 void CosmicMuonValidator::beginJob(const edm::EventSetup&)
 {
 
+  cout<<"Prepare histograms "<<"\n";
   edm::Service<TFileService> fs;
-
-  myStyle = new TStyle("myStyle","Cosmic Muon Validator Style");
-
-  myStyle->SetCanvasBorderMode(0);
-  myStyle->SetCanvasBorderMode(0);
-  myStyle->SetOptTitle(0);
-  myStyle->SetOptStat(1000010);
 
   h_res = fs->make<TH1F>("h_res","resolution of P_{T}",50,-5.0,5.0);
 
@@ -366,22 +354,6 @@ void CosmicMuonValidator::endJob() {
   std::cout << nNoSignal<< " events do not have good enough signals. "<< std::endl;
   std::cout << "Reconstruction efficiency is approximately "<< eff << "%. "<< std::endl;
   std::cout << "++++++++++++++++++++++++++++++++++++++++" << std::endl;
-
-  myStyle->SetCanvasBorderMode(0);
-  myStyle->SetPadBorderMode(1);
-  myStyle->SetOptTitle(0);
-  myStyle->SetStatFont(42);
-  myStyle->SetTitleFont(22);
-  myStyle->SetCanvasColor(10);
-  myStyle->SetPadColor(0);
-  myStyle->SetLabelFont(42,"x");
-  myStyle->SetLabelFont(42,"y");
-  myStyle->SetHistFillStyle(1001);
-  myStyle->SetHistFillColor(0);
-  myStyle->SetOptStat(0);
-  myStyle->SetOptFit(0111);
-  myStyle->SetStatH(0.05);
-  gROOT->SetStyle("myStyle");
 
   h_innerPosXY->SetXTitle("X");
   h_innerPosXY->SetYTitle("Y");
@@ -838,7 +810,3 @@ edm::ESHandle<Propagator> CosmicMuonValidator::propagator() const {
    return theService->propagator("SteppingHelixPropagatorAny");
 }
 
-
-//define this as a plug-in
-DEFINE_SEAL_MODULE();
-DEFINE_ANOTHER_FWK_MODULE(CosmicMuonValidator);

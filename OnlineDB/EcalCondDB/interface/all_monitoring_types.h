@@ -6,7 +6,6 @@
 #include "OnlineDB/EcalCondDB/interface/MonRunTag.h"
 #include "OnlineDB/EcalCondDB/interface/MonRunIOV.h"
 #include "OnlineDB/EcalCondDB/interface/RunDat.h"
-#include "OnlineDB/EcalCondDB/interface/RunCommentDat.h"
 #include "OnlineDB/EcalCondDB/interface/RunPTMTempDat.h"
 #include "OnlineDB/EcalCondDB/interface/RunConfigDat.h"
 #include "OnlineDB/EcalCondDB/interface/RunH4TablePositionDat.h"

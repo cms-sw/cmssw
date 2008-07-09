@@ -6,7 +6,7 @@
  *
  * \author Luca Lista, INFN
  *
- * \version $Id: Candidate.h,v 1.40 2007/10/29 10:22:10 llista Exp $
+ * \version $Id: Candidate.h,v 1.43 2008/04/22 10:59:31 cbern Exp $
  *
  */
 #include "DataFormats/Candidate/interface/Particle.h"
@@ -69,6 +69,14 @@ namespace reco {
     virtual size_type numberOfMothers() const = 0;
     /// return pointer to mother
     virtual const Candidate * mother( size_type i = 0 ) const = 0;
+    /// return the number of source Candidates 
+    /// ( the candidates used to construct this Candidate)
+    virtual size_type numberOfSourceCandidateRefs() const {return 0;} 
+    /// return a RefToBase to one of the source Candidates 
+    /// ( the candidates used to construct this Candidate)
+    virtual CandidateBaseRef sourceCandidateRef( size_type i ) const {
+      return CandidateBaseRef();
+    }
     /// chi-squares
     virtual double vertexChi2() const;
     /** Number of degrees of freedom
@@ -89,9 +97,15 @@ namespace reco {
     /// returns true if this candidate has a reference to a master clone.
     /// This only happens if the concrete Candidate type is ShallowCloneCandidate
     virtual bool hasMasterClone() const;
-    /// returns reference to master clone, if existing.
+    /// returns ptr to master clone, if existing.
     /// Throws an exception unless the concrete Candidate type is ShallowCloneCandidate
     virtual const CandidateBaseRef & masterClone() const;
+    /// returns true if this candidate has a ptr to a master clone.
+    /// This only happens if the concrete Candidate type is ShallowClonePtrCandidate
+    virtual bool hasMasterClonePtr() const;
+    /// returns ptr to master clone, if existing.
+    /// Throws an exception unless the concrete Candidate type is ShallowClonePtrCandidate
+    virtual const CandidatePtr & masterClonePtr() const;
     /// cast master clone reference to a concrete type
     template<typename Ref>
     Ref masterRef() const { return masterClone().template castTo<Ref>(); }
@@ -140,12 +154,23 @@ namespace reco {
       return boost::make_filter_iterator(s, end(), end());
     }
 
+    virtual bool isElectron() const;
+    virtual bool isMuon() const;
+    virtual bool isStandAloneMuon() const;
+    virtual bool isGlobalMuon() const;
+    virtual bool isTrackerMuon() const;
+    virtual bool isCaloMuon() const;
+    virtual bool isPhoton() const;
+    virtual bool isConvertedPhoton() const;
+    virtual bool isJet() const;
+
   private:
     /// check overlap with another Candidate
     virtual bool overlap( const Candidate & ) const = 0;
     template<typename, typename, typename> friend struct component; 
     friend class ::OverlapChecker;
     friend class ShallowCloneCandidate;
+    friend class ShallowClonePtrCandidate;
   };
 
 }

@@ -1,11 +1,11 @@
-// $Id: EEClient.h,v 1.8 2008/02/29 15:05:06 dellaric Exp $
+// $Id: EEClient.h,v 1.14 2008/06/25 14:16:16 dellaric Exp $
 
 /*!
   \file EEClient.h
   \brief Ecal Barrel Monitor Client mom class
   \author B. Gobbo
-  \version $Revision: 1.8 $
-  \date $Date: 2008/02/29 15:05:06 $
+  \version $Revision: 1.14 $
+  \date $Date: 2008/06/25 14:16:16 $
 */
 
 
@@ -28,23 +28,23 @@ class EEClient {
   */
   virtual void analyze(void)      = 0;
 
-  /*! \fn virtual void beginJob(DQMStore* dbe)
-    \brief Begin of job method
+  /*! \fn virtual void beginJob(DQMStore* dqmStore)
+    \brief begin of job method
   */
-  virtual void beginJob(DQMStore* dbe)     = 0;
+  virtual void beginJob(DQMStore* dqmStore)     = 0;
 
   /*! \fn virtual void endJob(void)
-    \brief End of Job method
+    \brief end of job method
   */
   virtual void endJob(void)       = 0;
 
   /*! \fn virtual void beginRun(void)
-    \brief Begin of Run method
+    \brief begin of run method
   */
   virtual void beginRun(void)     = 0;
 
   /*! \fn virtual void endRun(void)
-    \brief End of Run method
+    \brief end of run method
   */
   virtual void endRun(void)       = 0;
 
@@ -54,9 +54,15 @@ class EEClient {
   virtual void setup(void)        = 0;
 
   /*! \fn virtual void cleanup(void)
-    \brief Clean up method
+    \brief clean up method
   */
   virtual void cleanup(void)      = 0;
+
+  /*! \fn virtual void softReset(bool flag)
+    \brief soft reset method
+    \param flag on/off switch
+  */
+  virtual void softReset(bool flag)    = 0;
 
   /*! \fn virtual void htmlOutput(int run, std::string& htmlDir, std::string& htmlName);
     \brief create HTML page
@@ -67,12 +73,14 @@ class EEClient {
   */
   virtual void htmlOutput(int run, std::string& htmlDir, std::string& htmlName) = 0;
 
-  /*! \fn virtual bool writeDb(EcalCondDBInterface* econn, RunIOV* runiov, MonRunIOV* moniov);
+  /*! \fn virtual bool writeDb(EcalCondDBInterface* econn, RunIOV* runiov, MonRunIOV* moniov, bool& status, bool flag);
     \brief Write data to DataBase
     \param econn DB interface
     \param moniov IOV interface
+    \param status good or bad
+    \param flag run with softReset or not
   */
-  virtual bool writeDb(EcalCondDBInterface* econn, RunIOV* runiov, MonRunIOV* moniov) = 0;
+  virtual bool writeDb(EcalCondDBInterface* econn, RunIOV* runiov, MonRunIOV* moniov, bool& status, bool flag) = 0;
 
   /*! \fn virtual int getEvtPerJob( void );
     \brief Returns the total number of processed events

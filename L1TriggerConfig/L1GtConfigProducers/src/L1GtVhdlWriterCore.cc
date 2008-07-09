@@ -9,8 +9,8 @@
  *
  * \author: Philipp Wagner
  *
- * $Date$
- * $Revision$
+ * $Date: 2008/02/27 18:49:11 $
+ * $Revision: 1.6 $
  *
  */
 
@@ -24,7 +24,6 @@
 #include <string>
 #include <sstream>
 #include <vector>
-#include <sys/stat.h>
 
 // CMSSW headers
 #include "L1TriggerConfig/L1GtConfigProducers/interface/L1GtVhdlTemplateFile.h"
@@ -740,12 +739,10 @@ bool L1GtVhdlWriterCore::getCondChipVhdContentFromTriggerMenu(
                     indStr<<(*op)[i].countIndex;
 
                     std::string tempStr2 = jet.returnParameterMap()[stringConstantCommon_];
-                    while (jet.findAndReplaceString(tempStr2,
-                            sp(substParamParticle_), objType2Str_[JetCounts]))
-                        ;
-                    while (jet.findAndReplaceString(tempStr2,
-                            sp(substParamType_), indStr.str()))
-                        ;
+                    jet.findAndReplaceString(tempStr2, sp(substParamParticle_),
+                            objType2Str_[JetCounts]);
+                    jet.findAndReplaceString(tempStr2, sp(substParamType_),
+                            indStr.str());
                     commonParams[substParamJetCntsCommon_]+=tempStr2+"\n"; // +"<= '0';\n");
                     processedTypes.push_back((*op)[i].countIndex);
                 }
@@ -765,8 +762,7 @@ bool L1GtVhdlWriterCore::getCondChipVhdContentFromTriggerMenu(
 
             L1GtVhdlTemplateFile jetcopy = jet;
 
-            jetcopy.substitute("particle", condType2Str_[(iterCond->second)->condType()]);
-            jetcopy.substitute("type", int2str((*op)[0].countIndex));
+            jetcopy.substitute("type", condType2Str_[(iterCond->second)->condType()]);
             jetcopy.substitute("name", iterCond->first);
 
             jetcopy.substitute("ser_no", intVal);
@@ -776,7 +772,7 @@ bool L1GtVhdlWriterCore::getCondChipVhdContentFromTriggerMenu(
 
             jetcopy.findAndReplaceString(tempStr, "$(particle)", "jet_cnt");
             jetcopy.findAndReplaceString(tempStr, "$(ser_no)", intVal);
-            jetcopy.findAndReplaceString(tempStr, "$(type)", int2str((*op)[0].countIndex));
+            jetcopy.findAndReplaceString(tempStr, "$(type)", condType2Str_[(iterCond->second)->condType()]);
 
             jetcopy.append(tempStr);
             jetcopy.removeEmptyLines();
@@ -835,7 +831,7 @@ bool L1GtVhdlWriterCore::processAlgorithmMap(std::vector< std::map<int, std::str
         L1GtVhdlTemplateFile dummy;
 
         // get the logical expression
-        std::string logicalExpr = (algoIter->second).algoLogicalExpression();
+        std::string logicalExpr = algoIter->second->algoLogicalExpression();
         std::vector<std::string> conditions;
 
         dummy.getConditionsFromAlgo(logicalExpr, conditions);
@@ -851,7 +847,7 @@ bool L1GtVhdlWriterCore::processAlgorithmMap(std::vector< std::map<int, std::str
            
             std::vector<ConditionMap> * conditionMapCp = const_cast< std::vector<ConditionMap>* >(conditionMap_);
             
-            L1GtCondition* cond = (*conditionMapCp).at((algoIter->second).algoChipNumber())[conditions.at(i)];
+            L1GtCondition* cond = (*conditionMapCp).at(algoIter->second->algoChipNumber())[conditions.at(i)];
 
             // check weather condition exists
             if (cond!=NULL)
@@ -872,19 +868,19 @@ bool L1GtVhdlWriterCore::processAlgorithmMap(std::vector< std::map<int, std::str
         orderConditionChip.push_back(2);
         orderConditionChip.push_back(1);
 
-        int pin = (algoIter->second).algoOutputPin(2, 96, orderConditionChip);
+        int pin = algoIter->second->algoOutputPin(2, 96, orderConditionChip);
 
         //msg(int2str(pin));
 
         if (pin<0)
             pin*=-1;
 
-        if ((algoIter->second).algoChipNumber()==0)
+        if (algoIter->second->algoChipNumber()==0)
         {
             algorithmsChip1[pin]=logicalExpr;
             if (debugMode_)
                 algorithmsChip1[pin]+=("-- "+logicalExprCopy);
-        } else if ((algoIter->second).algoChipNumber()==1)
+        } else if (algoIter->second->algoChipNumber()==1)
         {
             algorithmsChip2[pin]=logicalExpr;
             if (debugMode_)
@@ -902,41 +898,13 @@ bool L1GtVhdlWriterCore::processAlgorithmMap(std::vector< std::map<int, std::str
 
 }
 
-std::string L1GtVhdlWriterCore::chip2OutputSubDir(const int &chip)
-{
-    if (chip==1)
-        return outputDir_+"/"+outputSubDir1_+"/";
-    if (chip==2)
-        return outputDir_+"/"+outputSubDir2_+"/";
-    
-    return "";
-}
-
-
 bool L1GtVhdlWriterCore::makeFirmware(const std::vector<ConditionMap> &conditionMap,
         const AlgorithmMap &algorithmMap)
 {
     conditionMap_ = &conditionMap;
 
     algorithmMap_ = &algorithmMap;
-    
-    std::string subDir1 = outputDir_+outputSubDir1_;
-    std::string subDir2  = outputDir_+outputSubDir2_;
-    
-    if (!mkdir(subDir1.c_str(), 666));
-    if (!mkdir(subDir2.c_str(), 666));
-    
-    chmod(subDir1.c_str(), 0777);
-    chmod(subDir2.c_str(), 0777);
-    
-    /*
-    subDirs_.push_back(subDir1);
-    subDirs_.push_back(subDir2);
-    */
-    
-    writeQsfSetupFiles(version_);
-    
-    
+
     //--------------------------------------build setups-------------------------------------------------------
 
     // loop over the two condition chips
@@ -1015,7 +983,7 @@ bool L1GtVhdlWriterCore::makeFirmware(const std::vector<ConditionMap> &condition
     }
 
     if (debugMode_)
-        writeCond2intMap2File();
+        writeCond2intMap2File(conditionToIntegerMap_);
 
     //-------------------------------process algorithms----------------------------------------------------------
 
@@ -1062,9 +1030,7 @@ void L1GtVhdlWriterCore::buildCommonHeader(
 
     //---------------------build the Quartus configuration files----------------------------------------
 
-    //writeQsfSetupFiles(headerParameters["version"]);
-    
-    version_=headerParameters["version"];
+    writeQsfSetupFiles(headerParameters["version"]);
 
     msg("Build Common header and Quartus setup files sucessuflly!");
 
@@ -1111,7 +1077,7 @@ void L1GtVhdlWriterCore::writeMuonSetupVhdl(
         muonTemplate.findAndReplaceString(outputFile, "calo", particle);
 
     // add condition chip index to output filename
-    //muonTemplate.findAndReplaceString(outputFile, ".", int2str(condChip)+".");
+    muonTemplate.findAndReplaceString(outputFile, ".", int2str(condChip)+".");
 
     // open the template file and insert header
     muonTemplate = openVhdlFileWithCommonHeader(filename, outputFile);
@@ -1155,15 +1121,8 @@ void L1GtVhdlWriterCore::writeMuonSetupVhdl(
             }
         }
 
-        if (particle=="muon")
-        {
         // final preparation of the internal template before it is inserted in the actual template file
         internalTemplateCopy.substitute("type", substitutionParameters[i]);
-        } else
-            
-        {
-            internalTemplateCopy.substitute("type", substitutionParameters[i].substr(4)); 
-        }
 
         // subsitute the second occurance of type without "_l" and "_h"
 
@@ -1199,8 +1158,7 @@ void L1GtVhdlWriterCore::writeMuonSetupVhdl(
     }
 
     // save the muon template file
-    muonTemplate.save(chip2OutputSubDir(condChip)+outputFile);
-    chmod((chip2OutputSubDir(condChip)+outputFile).c_str(), 0666);
+    muonTemplate.save(outputDir_+outputFile);
 
 }
 
@@ -1244,8 +1202,7 @@ void L1GtVhdlWriterCore::writeConditionChipSetup(
         iter2++;
     }
 
-    myTemplate.save(chip2OutputSubDir(chip)+filename);
-    chmod((chip2OutputSubDir(chip)+filename).c_str(), 0666);
+    myTemplate.save(outputDir_+outputFileName);
 
 }
 
@@ -1273,14 +1230,13 @@ void L1GtVhdlWriterCore::writeAlgoSetup(std::vector< std::map<int, std::string> 
 
             buffer<< stringConstantAlgo_<<"("<<k<<")";
             if (algoStrings.at(i-1)[k]!="")
-                buffer<<" <= "<<algoStrings.at(i-1)[k]<<";"<<std::endl;
+                buffer<<" <= "<<algoStrings.at(i-1)[k]<<std::endl;
             else
                 buffer<<" <= '0';"<<std::endl;
         }
 
         templateFile.substitute(substParamAlgos_, buffer.str());
-        templateFile.save(chip2OutputSubDir(i)+filename);
-        chmod((chip2OutputSubDir(i)+filename).c_str(), 0666);
+        templateFile.save(outputDir_+outputFileName);
     }
 
 }
@@ -1311,8 +1267,7 @@ void L1GtVhdlWriterCore::writeEtmSetup(std::string &etmString,
 
     myTemplate.substitute("phi", etmString);
 
-    myTemplate.save(chip2OutputSubDir(condChip)+filename);
-    chmod((chip2OutputSubDir(condChip)+filename).c_str(), 0666);
+    myTemplate.save(outputDir_+outputFile);
 
 }
 
@@ -1340,15 +1295,7 @@ void L1GtVhdlWriterCore::writeQsfSetupFiles(const std::string &version)
         myTemplate.open(vhdlDir_+"Templates/"+filenames.at(i));
         myTemplate.substitute("version", version);
 
-        std::string tempStr = filenames.at(i);
-        
-        if (i==0)
-            L1GtVhdlTemplateFile::findAndReplaceString(tempStr , "cond1","cond");
-        if (i==1)
-            L1GtVhdlTemplateFile::findAndReplaceString(tempStr , "cond2","cond");
-        
-        myTemplate.save(chip2OutputSubDir(i+1)+tempStr);
-        chmod((chip2OutputSubDir(i+1)+tempStr).c_str(), 0666);
+        myTemplate.save(outputDir_+filenames.at(i));
     }
 
 }
@@ -1429,39 +1376,9 @@ void L1GtVhdlWriterCore::addJetCountsToCond2IntMap(const int chip,
 
 }
 
-void L1GtVhdlWriterCore::writeCond2intMap2File()
+void L1GtVhdlWriterCore::writeCond2intMap2File(
+        const std::map<std::string,int> &conditionToIntegerMap_)
 {
-   
-    
-    for (unsigned int i=0; i<=1;i++)
-    {
-        ConditionMap::const_iterator iterCond =
-            conditionMap_->at(i).begin();
-       
-        std::string filename=chip2OutputSubDir(i+1)+"cond_names_integer.txt";
-        
-        std::ofstream outputFile(filename.c_str());
-        
-        while (iterCond!=conditionMap_->at(i).end())
-        {
-            conditionToIntegerMap_[(*iterCond).first];
-            
-            outputFile<<(iterCond->first)<<": "<<conditionToIntegerMap_[(*iterCond).first]<<std::endl;
-            iterCond++;
-        }
-        
-        outputFile.close();
-        
-        chmod(filename.c_str(), 0666);
-          
-        
-    }
-   
-    /*
-    
-    
-    const std::vector<ConditionMap> * conditionMap_;
-    
     std::string filename=outputDir_+"cond_names_integer.txt";
     std::ofstream outputFile(filename.c_str());
 
@@ -1471,8 +1388,6 @@ void L1GtVhdlWriterCore::writeCond2intMap2File()
     {
         outputFile<<(iterCond->first)<<": "<<(iterCond->second)<<std::endl;
     }
-    
-    */
 
 }
 
@@ -1654,12 +1569,7 @@ void L1GtVhdlWriterCore::writeDefValPkg(
     defValTemplate.insert(sp(substParamJetsDefVals_), jetCountsDefValuesBuffer);
 
     // close and save the file
-    
-    L1GtVhdlTemplateFile::findAndReplaceString(outputFile, "1","");
-    L1GtVhdlTemplateFile::findAndReplaceString(outputFile, "2","");
-    
-    defValTemplate.save(chip2OutputSubDir(chip)+outputFile);
-    chmod((chip2OutputSubDir(chip)+outputFile).c_str(), 0666);
+    defValTemplate.save(outputDir_+outputFile);
 
 }
 
@@ -1734,7 +1644,7 @@ bool L1GtVhdlWriterCore::buildDefValuesBuffer(L1GtVhdlTemplateFile &buffer,
             std::string othersString;
 
             // jet_cnts are a special case
-            if (object==JetCounts || object==HTT || object==ETM || object==ETT )
+            if (object==JetCounts)
                 othersString
                         = internalTemplate.getInternalParameter(objType2Str_[JetCounts]);
             else
@@ -1890,16 +1800,8 @@ void L1GtVhdlWriterCore::writeCondChipPkg(const int &chip)
     // write the output
     L1GtVhdlTemplateFile myTemplate = openVhdlFileWithCommonHeader(filename,
             filename);
-    
-    myTemplate.substitute("version",version_);
-    
     myTemplate.insert("$(conditions_nr)", numberOfConditions_.at(chip-1));
-   
-    L1GtVhdlTemplateFile::findAndReplaceString(filename, "1","");
-    L1GtVhdlTemplateFile::findAndReplaceString(filename, "2","");
-    
-    myTemplate.save(chip2OutputSubDir(chip)+filename);
-    chmod((chip2OutputSubDir(chip)+filename).c_str(), 0666);
+    myTemplate.save(outputDir_+filename);
 }
 
 std::string L1GtVhdlWriterCore::retNumberOfConditionsString(

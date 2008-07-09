@@ -12,7 +12,7 @@
 
      See CMS EventFilter wiki page for further notes.
 
-   $Id: SMProxyServer.h,v 1.6 2007/10/14 14:40:03 hcheung Exp $
+   $Id: SMProxyServer.h,v 1.9.2.1 2008/05/27 18:15:03 biery Exp $
 */
 
 #include <string>
@@ -96,6 +96,8 @@ namespace stor {
       (xgi::Input *in, xgi::Output *out) throw (xgi::exception::Exception);
     void consumerWebPage
       (xgi::Input *in, xgi::Output *out) throw (xgi::exception::Exception);
+    void eventServerWebPage
+      (xgi::Input *in, xgi::Output *out) throw (xgi::exception::Exception);
     void DQMeventdataWebPage
       (xgi::Input *in, xgi::Output *out) throw (xgi::exception::Exception);
     void DQMconsumerWebPage
@@ -126,6 +128,7 @@ namespace stor {
 
     xdata::Boolean collateDQM_;
     xdata::Boolean archiveDQM_;
+    xdata::Integer archiveIntervalDQM_;
     xdata::String  filePrefixDQM_;
     xdata::Integer purgeTimeDQM_;
     xdata::Integer readyTimeDQM_;
@@ -143,6 +146,7 @@ namespace stor {
     xdata::String DQMconsumerName_;
 
     xdata::Double maxESEventRate_;  // hertz
+    xdata::Double maxESDataRate_;  // hertz
     xdata::Double maxEventRequestRate_;  // hertz
     xdata::Integer activeConsumerTimeout_;  // seconds
     xdata::Integer idleConsumerTimeout_;  // seconds
@@ -152,6 +156,7 @@ namespace stor {
     xdata::Integer DQMactiveConsumerTimeout_;  // seconds
     xdata::Integer DQMidleConsumerTimeout_;  // seconds
     xdata::Integer DQMconsumerQueueSize_;
+    xdata::String esSelectedHLTOutputModule_;
 
     std::map< std::string, bool > smsenders_;
     xdata::UnsignedInteger32 connectedSMs_;
@@ -204,8 +209,8 @@ namespace stor {
     xdata::String            progressMarker_;
     enum
     {
-      DEFAULT_PURGE_TIME = 20,
-      DEFAULT_READY_TIME = 10
+      DEFAULT_PURGE_TIME = 120,
+      DEFAULT_READY_TIME = 30
     };
   }; 
 } 

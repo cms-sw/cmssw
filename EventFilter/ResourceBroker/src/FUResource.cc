@@ -114,6 +114,8 @@ void FUResource::release()
   iSuperFrag_   =0;
   nSuperFrag_   =0xffffffff;
 
+  nbSent_       =0;
+  
   nbErrors_     =0;
   nbCrcErrors_  =0;
 

@@ -6,8 +6,8 @@
  * *
  *  DQM Test Client
  *
- *  $Date: 2008/03/08 19:15:10 $
- *  $Revision: 1.2 $
+ *  $Date: 2008/03/16 18:52:20 $
+ *  $Revision: 1.3 $
  *  \author 
  *   
  */
@@ -100,15 +100,13 @@ private:
   std::ofstream myfile;
   std::ifstream referenceFile_;
 
+
   DQMStore* dbe_;
-  //  QTestHandle *qtHandler;
-  // DQMOldReceiver * mui_;
 
   edm::ParameterSet parameters;
   edm::ESHandle<RPCGeometry> muonGeom;
   //edm::ESHandle<DTTtrig> tTrigMap;
 
-  // std::map< std::string , MonitorElement* > OccupancyHistos;
   std::map<RPCDetId,MonitorElement*>  meCollection;
 };
 

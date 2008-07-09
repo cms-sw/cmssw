@@ -1,10 +1,11 @@
 #ifndef PixelMaxVsf_h
 #define PixelMaxVsf_h
-/**
-* \file CalibFormats/SiPixelObjects/interface/PixelMaxVsf.h
-* \brief This class specifies the maximum Vsf setting that should be used
-*        for each ROC.
-*/
+//
+// This class specifies the maximum
+// Vsf setting that should be used
+// for each ROC.
+//
+//
 
 #include <map>
 #include <string>
@@ -13,16 +14,7 @@
 #include "CalibFormats/SiPixelObjects/interface/PixelROCName.h"
 
 namespace pos{
-/*!  \ingroup ConfigurationObjects "Configuration Objects"
-*    
-*  @{
-*
-*  \class PixelMaxVsf PixelMaxVsf.h
-*  \brief This is the documentation about PixelMaxVsf...
-*
-*   This class specifies the maximum Vsf setting that should be used
-*   for each ROC.
-*/
+
   class PixelMaxVsf: public PixelConfigBase {
 
   public:
@@ -43,5 +35,4 @@ namespace pos{
   };
 
 }
-/* @} */
 #endif

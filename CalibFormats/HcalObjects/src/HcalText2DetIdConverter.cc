@@ -1,6 +1,6 @@
 /** \class HcalText2DetIdConverter
     \author F.Ratnikov, UMd
-    $Id: HcalText2DetIdConverter.cc,v 1.5 2008/01/22 18:58:53 muzaffar Exp $
+    $Id: HcalText2DetIdConverter.cc,v 1.6 2008/03/03 16:52:51 rofierzy Exp $
 */
 #include <stdlib.h>
 #include <iostream>
@@ -152,7 +152,9 @@ bool HcalText2DetIdConverter::init (DetId fId) {
     case 7: field2 = "RadDam3"; break;
     default: result = false;
     }
+    setField (2, calibId.cboxChannel() );
     setField (3, -99);
+    //    std::cout << "Calib: " << calibId.rbx() << " " <<  calibId.cboxChannel() << " " << field2 << std::endl;
   }
   else {
     flavorName = "UNKNOWN_FLAVOR";

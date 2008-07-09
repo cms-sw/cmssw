@@ -5,7 +5,6 @@
 
 #include "FWCore/Utilities/interface/Exception.h"
 
-
 #include <iomanip>
 
 using namespace reco;
@@ -232,17 +231,6 @@ ostream& reco::operator<<(ostream& out,
      <<c.phi();
   if( c.flag( PFCandidate::T_FROM_NUCLINT ) ) out<<", T_FROM_NUCL" << endl;
   else if( c.flag( PFCandidate::T_TO_NUCLINT ) ) out<<", T_TO_NUCL" << endl;
-  
-  out<<", blocks/iele: ";
-  
-  PFCandidate::ElementsInBlocks eleInBlocks = c.elementsInBlocks();
-  for(unsigned i=0; i<eleInBlocks.size(); i++) {
-    PFBlockRef blockRef = eleInBlocks[i].first;
-    unsigned indexInBlock = eleInBlocks[i].second;
-    
-    out<<"("<<blockRef.key()<<"|"<<indexInBlock<<"), ";
-  }
-
 //   PFBlockRef blockRef = c.block(); 
 //   int blockid = blockRef.key(); 
 //   const edm::OwnVector< reco::PFBlockElement >& elements = c.elements();

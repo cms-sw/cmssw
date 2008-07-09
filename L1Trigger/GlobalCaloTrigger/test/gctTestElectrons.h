@@ -29,17 +29,17 @@ public:
   ~gctTestElectrons();
 
   /// Load another event into the gct. Overloaded for the various ways of doing this.
-  std::vector<L1CaloEmCand> loadEvent(L1GlobalCaloTrigger* &gct, const std::string fileName, const int16_t bx);
+  std::vector<L1CaloEmCand> loadEvent(L1GlobalCaloTrigger* &gct, const std::string fileName);
 
   /// Read the input electron data (after GCT processing).
   void fillElectronData(const L1GlobalCaloTrigger* gct);
 
   /// Repeat the sort locally and check the result
-  bool checkElectrons(const L1GlobalCaloTrigger* gct, const int bxStart, const int numOfBx);
+  bool checkElectrons(const L1GlobalCaloTrigger* gct);
 
 private:
 
-  void LoadFileData(const std::string &inputFile, const int16_t bx);
+  void LoadFileData(const std::string &inputFile);
   void print(const std::vector<L1GctEmCand> cands) const;
 
   L1GctElectronSorter* m_theIsoEmCandSorter;

@@ -20,7 +20,6 @@
 <use name=SimDataFormats/CrossingFrame>
 <use name=SimDataFormats/EncodedEventId>
 <use name=SimDataFormats/TrackingHit>
-<use name=rootcore>
 <flags EDM_PLUGIN="1">
 
 <export>

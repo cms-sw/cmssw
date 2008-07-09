@@ -3,7 +3,7 @@
 //
 // (W.Badgett)
 //
-// $Id: DQMServiceManager.cc,v 1.3 2007/06/11 10:04:49 badgett Exp $
+// $Id: DQMServiceManager.cc,v 1.4 2008/01/22 19:28:36 muzaffar Exp $
 //
 
 #include "FWCore/Utilities/interface/DebugMacros.h"
@@ -22,15 +22,14 @@ DQMServiceManager::DQMServiceManager(std::string filePrefix,
 				     int  readyTime,
                                      bool collateDQM,
 				     bool archiveDQM,
+				     int archiveInterval,
 				     bool useCompression,
 				     int  compressionLevel):
   useCompression_(useCompression),
   compressionLevel_(compressionLevel),
   collateDQM_(collateDQM),
   archiveDQM_(archiveDQM),
-  runNumber_(-1),
-  lumiSection_(-1),
-  instance_(-1),
+  archiveInterval_(archiveInterval),
   nUpdates_(0),
   filePrefix_(filePrefix),
   purgeTime_(purgeTime),
@@ -62,31 +61,6 @@ void DQMServiceManager::manageDQMEventMsg(DQMEventMsgView& msg)
       DQMeventServer_->processDQMEvent(msg);
     }
     return;
-  }
-
-  if ( (int)msg.runNumber() > runNumber_ )
-  {
-    FDEBUG(1) << "DQMServiceManager found new run " << 
-	msg.runNumber() << std::endl;
-    runNumber_   = msg.runNumber();
-    lumiSection_ = msg.lumiSection();
-    instance_    = msg.updateNumber();
-  }
-  else if ((int)msg.lumiSection() > lumiSection_ )
-  {
-    FDEBUG(2) << "DQMServiceManager found new lumiSection " << 
-      msg.lumiSection() << " run " <<
-      msg.runNumber() << std::endl;
-    lumiSection_ = msg.lumiSection();
-    instance_    = msg.updateNumber();
-  }
-  else if ( (int)msg.updateNumber() > instance_ )
-  {
-    FDEBUG(3) << "DQMServiceManager found new instance " << 
-      msg.updateNumber() << " lumiSection " <<
-      msg.lumiSection()  << " run " <<
-      msg.runNumber()    << std::endl;
-    instance_    = msg.updateNumber();
   }
 
   DQMInstance * dqm = findDQMInstance(msg.runNumber(),
@@ -165,7 +139,7 @@ void DQMServiceManager::manageDQMEventMsg(DQMEventMsgView& msg)
 	      table[folderName] = newObjectVector;
 	      subFolderSize += 2*sizeof(uint32) + folderName.length();
 	    }
-	    std::vector<TObject *> objectVector = table[folderName];
+	    std::vector<TObject *> &objectVector = table[folderName];
 	    objectVector.push_back(object);
 	  }
 	}
@@ -201,9 +175,9 @@ void DQMServiceManager::manageDQMEventMsg(DQMEventMsgView& msg)
       unsigned char * source = serializer.bufferPointer();
       std::copy(source,source+sourceSize, builder.eventAddress());
       builder.setEventLength(sourceSize);
-      if ( useCompression_ ) { builder.setCompressionFlag(sourceSize); }
+      if ( useCompression_ ) { builder.setCompressionFlag(serializer.currentEventSize()); }
       DQMEventMsgView serveMessage(&buffer[0]);
-      DQMeventServer_->processDQMEvent(msg);
+      DQMeventServer_->processDQMEvent(serveMessage);
       
       free(buffer);
     }
@@ -211,17 +185,17 @@ void DQMServiceManager::manageDQMEventMsg(DQMEventMsgView& msg)
   }
 }
 
-DQMInstance * DQMServiceManager::findDQMInstance(int runNumber_, 
-						 int lumiSection_, 
-						 int instance_)
+DQMInstance * DQMServiceManager::findDQMInstance(int runNumber, 
+						 int lumiSection, 
+						 int instance)
 {
   DQMInstance * reply = NULL;
   int n = dqmInstances_.size();
   for ( int i=0; (i<n) && (reply==NULL); i++)
   {
-    if ( ( dqmInstances_[i]->getRunNumber()   == runNumber_ ) && 
-	 ( dqmInstances_[i]->getLumiSection() == lumiSection_ ) && 
-	 ( dqmInstances_[i]->getInstance()    == instance_ ) )
+    if ( ( dqmInstances_[i]->getRunNumber()   == runNumber ) && 
+	 ( dqmInstances_[i]->getLumiSection() == lumiSection ) && 
+	 ( dqmInstances_[i]->getInstance()    == instance ) )
     { reply = dqmInstances_[i]; }
   }
   return(reply);
@@ -234,10 +208,27 @@ int DQMServiceManager::writeAndPurgeDQMInstances(bool writeAll)
   TTimeStamp now;
   now.Set();
 
+  // Always keep at least one instance in memory, unless we're
+  // writing everything
   int minInstances = 1;
   if ( writeAll ) { minInstances=0;}
 
-  // Always keep at least one instance in memory
+  // if we're writing everything, find the last instance that is ready
+  int listSizeWithOneReady = 0;
+  if ( writeAll )
+  {
+    std::vector<DQMInstance *>::reverse_iterator r0 = dqmInstances_.rbegin();
+    while ( ( r0 != dqmInstances_.rend() ) )
+    {
+      ++listSizeWithOneReady;
+      DQMInstance * instance = *r0;
+      if (instance->isReady(now.GetSec()))
+      {
+        break;
+      }
+      ++r0;
+    }
+  }
 
   int n = dqmInstances_.size();
   std::vector<DQMInstance *>::iterator i0 = dqmInstances_.begin(); 
@@ -246,7 +237,13 @@ int DQMServiceManager::writeAndPurgeDQMInstances(bool writeAll)
     DQMInstance * instance = *i0;
     if ( instance->isStale(now.GetSec()) || writeAll)
     {
-      if ( archiveDQM_ ) { instance->writeFile(filePrefix_);}
+      if (archiveDQM_ && instance->isReady(now.GetSec()) &&
+          ((archiveInterval_ > 0 &&
+            (instance->getLumiSection() % archiveInterval_) == 0)
+           || (writeAll && n == listSizeWithOneReady)))
+      {
+        instance->writeFile(filePrefix_);
+      }
       delete(instance);
       reply++;
       i0 = dqmInstances_.erase(i0);
@@ -270,23 +267,18 @@ DQMGroupDescriptor * DQMServiceManager::getBestDQMGroupDescriptor(std::string gr
   DQMGroup * newestGroup    = NULL;
   int maxTime = 0;
   for (std::vector<DQMInstance * >::iterator i0 = 
-	 dqmInstances_.begin(); i0 != dqmInstances_.end() ; ++i0)
+         dqmInstances_.begin(); i0 != dqmInstances_.end() ; ++i0)
   {
     DQMInstance * instance = *i0;
-    for (std::map<std::string, DQMGroup * >::iterator i1 = 
-	   instance->dqmGroups_.begin(); 
-	 i1 != instance->dqmGroups_.end() ; ++i1)
+    DQMGroup * group = instance->getDQMGroup(groupName);
+    if (group != NULL && group->isReady(now.GetSec()))
     {
-      DQMGroup  * group     = i1->second;
-      if ( group->isReady(now.GetSec()))
+      TTimeStamp * zeit = group->getLastUpdate();
+      if ( ( zeit != NULL ) && ( zeit->GetSec() > maxTime ))
       {
-        TTimeStamp * zeit = group->getLastUpdate();
-        if ( ( zeit != NULL ) && ( zeit->GetSec() > maxTime ))
-        {
-	  maxTime = zeit->GetSec();
-	  newestInstance  = instance; 
-	  newestGroup     = group; 
-        }
+        maxTime = zeit->GetSec();
+        newestInstance  = instance; 
+        newestGroup     = group; 
       }
     }
   }

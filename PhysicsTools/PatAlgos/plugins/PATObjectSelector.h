@@ -1,5 +1,5 @@
 //
-// $Id: PATObjectSelector.h,v 1.2 2008/02/07 18:20:08 lowette Exp $
+// $Id: PATObjectSelector.h,v 1.1 2008/03/06 09:23:10 llista Exp $
 //
 
 #ifndef PhysicsTools_PatAlgos_PATObjectSelector_h
@@ -18,6 +18,7 @@
 #include "DataFormats/PatCandidates/interface/Jet.h"
 #include "DataFormats/PatCandidates/interface/MET.h"
 #include "DataFormats/PatCandidates/interface/Particle.h"
+#include "DataFormats/PatCandidates/interface/GenericParticle.h"
 
 #include <vector>
 
@@ -53,6 +54,10 @@ namespace pat {
               std::vector<Particle>,
               StringCutObjectSelector<Particle>
           > PATParticleSelector;
+  typedef SingleObjectSelector<
+              std::vector<GenericParticle>,
+              StringCutObjectSelector<GenericParticle>
+          > PATGenericParticleSelector;
 
 
 }

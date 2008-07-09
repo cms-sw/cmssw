@@ -26,8 +26,8 @@
 * with older data.
 *
 * \author Robert Frazier
-* $Revision: 1.7 $
-* $Date: 2008/03/19 18:12:14 $
+* $Revision: 1.8 $
+* $Date: 2008/03/19 21:29:05 $
 */ 
 
 
@@ -134,9 +134,15 @@ protected:
   
   /// unpack Fibres and RCT EM Candidates
   void blockToFibresAndToRctEmCand(const unsigned char * d, const GctBlockHeaderBase& hdr);
+
+  /// unpack Fibres and RCT Regions
+  void blockToFibresAndToRctCaloRegions(const unsigned char * d, const GctBlockHeaderBase& hdr);
   
   /// Unpack RCT Calo Regions
   void blockToRctCaloRegions(const unsigned char * d, const GctBlockHeaderBase& hdr);
+
+  /// Unpack All RCT Calo Regions ('orrible hack for DigiToRaw use)
+  void blockToAllRctCaloRegions(const unsigned char * d, const GctBlockHeaderBase& hdr);
   
   /// Do nothing
   void blockDoNothing(const unsigned char * d, const GctBlockHeaderBase& hdr) {}

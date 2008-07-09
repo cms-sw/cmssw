@@ -2,6 +2,7 @@
 #define FWCore_MessageService_MessageLoggerScribe_h
 
 #include "FWCore/Utilities/interface/value_ptr.h"
+#include "FWCore/Utilities/interface/EDMException.h"
 
 #include "FWCore/MessageService/interface/ELdestControl.h"
 #include "FWCore/MessageService/interface/MsgContext.h"
@@ -14,6 +15,7 @@
 #include <vector>
 #include <map>
 
+#include <iostream>
 
 namespace edm {
 namespace service {       
@@ -47,10 +49,14 @@ namespace service {
 //   5 - 6/15/07 mf
 //	 Accommodations for use of MessageLoggerDefault structure 
 //
-//   5 - 7/24/07 mf
+//   6 - 7/24/07 mf
 //	 Instace variable indicating that we really are logging what is sent.
 //	 This is to be able to supress the <generator> info sent at exit by
-//	 the JobReport, in the case where no .cfg file was given. 
+//	 the JobReport, in the case where no .cfg file was given.
+//
+//   7 - 4/8/08 mf
+//	 Modified getAparameter behavior when tracked parameter is found,
+//	 for nicer output message. 
 //
 // -----------------------------------------------------------------------
 
@@ -108,6 +114,7 @@ private:
     return t;
   }
 #else
+#ifdef SIMPLESTYLE
   template <class T>
   T  getAparameter ( PSet * p, std::string const & id, T const & def ) 
   {
@@ -115,6 +122,37 @@ private:
     t = p->template getUntrackedParameter<T>(id, def);
     return t;
   }								// changelog 2
+#else
+  template <class T>
+  T  getAparameter ( PSet * p, std::string const & id, T const & def ) 
+  {								// changelog 7
+    T t;
+    try { 
+      t = p->template getUntrackedParameter<T>(id, def);
+    } catch (cms::Exception& e) {
+      try {
+        t = p->template getParameter<T>(id);
+      } catch (...) {
+        // if we get here, this was NOT a simple tracked parameter goof.
+	// we should just rethrow the ORIGINAL error
+	throw e;
+      } 
+      std::cerr << "Tracked parameter " << id 
+                << " used in MessageLogger configuration.\n"
+		<< "Use of tracked parameters for the message service "
+		<< "is not allowed.\n"
+		<< "The .cfg file should be modified to make this untracked.\n";
+      throw e;		
+    } catch (...) {
+      // This is not the usual tracked/untracked error; we can't add useful info
+      throw;
+    }
+    return t;
+  }
+
+
+
+#endif
 #endif
 
 #ifdef REMOVE

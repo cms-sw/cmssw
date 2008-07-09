@@ -9,16 +9,19 @@
 FSimTrack:: FSimTrack() : 
   SimTrack(), mom_(0), id_(-1), endv_(-1),
   layer1(0), layer2(0), ecal(0), hcal(0), vfcal(0), 
-  prop(false), closestDaughterId_(-1), info_(0) {;}
+  prop(false), closestDaughterId_(-1), info_(0),
+  properDecayTime(1E99) {;}
   
 FSimTrack::FSimTrack(const RawParticle* p, 
 		     int iv, int ig, int id, 
-		     FBaseSimEvent* mom) :
+		     FBaseSimEvent* mom,
+		     double dt) :
   //  SimTrack(p->pid(),*p,iv,ig),   // to uncomment once Mathcore is installed 
   SimTrack(p->pid(),p->momentum(),iv,ig), 
   mom_(mom), id_(id), endv_(-1),
   layer1(0), layer2(0), ecal(0), hcal(0), vfcal(0), prop(false),
-  closestDaughterId_(-1), momentum_(p->momentum())
+  closestDaughterId_(-1), momentum_(p->momentum()),
+  properDecayTime(dt)
 { 
   setTrackId(id);
   info_ = mom_->theTable()->particle(HepPDT::ParticleID(type()));

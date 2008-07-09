@@ -3,6 +3,8 @@
 #include "DataFormats/FEDRawData/interface/FEDRawData.h"
 #include "DataFormats/FEDRawData/interface/FEDNumbering.h"
 #include "DataFormats/FEDRawData/interface/FEDRawDataCollection.h"
+#include "TBDataFormats/ESTBRawData/interface/ESDCCHeaderBlock.h"
+#include "TBDataFormats/ESTBRawData/interface/ESKCHIPBlock.h"
 #include "DataFormats/EcalDigi/interface/EcalDigiCollections.h" 
 
 #include <iostream>

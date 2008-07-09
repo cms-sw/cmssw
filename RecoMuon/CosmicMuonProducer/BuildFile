@@ -3,6 +3,7 @@
 <use name=FWCore/ParameterSet>
 <use name=FWCore/Utilities>
 <use name=DataFormats/Common>
+<use name=DataFormats/MuonReco>
 <use name=DataFormats/FEDRawData>
 <use name=RecoMuon/DetLayers>
 <use name=RecoMuon/Navigation>

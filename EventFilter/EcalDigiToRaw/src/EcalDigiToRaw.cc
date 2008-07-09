@@ -13,13 +13,15 @@
 //
 // Original Author:  Emmanuelle Perez
 //         Created:  Sat Nov 25 13:59:51 CET 2006
-// $Id: EcalDigiToRaw.cc,v 1.7 2007/08/03 07:57:37 eperez Exp $
+// $Id: EcalDigiToRaw.cc,v 1.6 2007/06/05 14:48:54 eperez Exp $
 //
 //
 
 
 // system include files
+#include <memory>
 
+#include "FWCore/MessageLogger/interface/MessageLogger.h"
 
 // user include files
 #include "EventFilter/EcalDigiToRaw/interface/EcalDigiToRaw.h"
@@ -32,11 +34,15 @@
 #include "DataFormats/FEDRawData/interface/FEDRawData.h"
 #include "DataFormats/FEDRawData/interface/FEDNumbering.h"
 
+#include "FWCore/Framework/interface/Frameworkfwd.h"
 
 // #include "DataFormats/Common/interface/Handle.h"
 #include "DataFormats/Common/interface/Handle.h"
+#include "FWCore/Framework/interface/Event.h"
+#include "FWCore/Framework/interface/MakerMacros.h"
 #include "FWCore/Framework/interface/EventSetup.h"
 #include "FWCore/Framework/interface/ESHandle.h"
+#include "FWCore/ParameterSet/interface/ParameterSet.h"
 
 #include "Geometry/EcalMapping/interface/EcalElectronicsMapping.h"
 #include "Geometry/EcalMapping/interface/EcalMappingRcd.h"

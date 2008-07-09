@@ -48,8 +48,8 @@ class matchOneToOne : public edm::EDAnalyzer {
 
     Handle<CandidateCollection> source;
     Handle<CandidateCollection> matched;
-    Handle<CandMatchMap>        matchedjetsOne1;
-    Handle<CandMatchMap>        matchedjetsOne2;
+    Handle<CandViewMatchMap>        matchedjetsOne1;
+    Handle<CandViewMatchMap>        matchedjetsOne2;
 
     TFile*      hOutputFile ;
     TH1D*       hTotalLenght;
@@ -103,9 +103,9 @@ void matchOneToOne::analyze(const edm::Event& iEvent, const edm::EventSetup& iSe
   cout << "**********************" << endl;
   cout << "* OneToOne Printout  *" << endl;
   cout << "**********************" << endl;
-  for( CandMatchMap::const_iterator f  = matchedjetsOne1->begin();
-                                    f != matchedjetsOne1->end();
-                                    f++) {
+  for( CandViewMatchMap::const_iterator f  = matchedjetsOne1->begin();
+                                        f != matchedjetsOne1->end();
+                                        f++) {
 
       const Candidate *sourceRef = &*(f->key);
       const Candidate *matchRef  = &*(f->val);
@@ -127,9 +127,9 @@ void matchOneToOne::analyze(const edm::Event& iEvent, const edm::EventSetup& iSe
 
   cout << "-----------------" << endl;
 
-  for( CandMatchMap::const_iterator f  = matchedjetsOne2->begin();
-                                    f != matchedjetsOne2->end();
-                                    f++) {
+  for( CandViewMatchMap::const_iterator f  = matchedjetsOne2->begin();
+                                        f != matchedjetsOne2->end();
+                                        f++) {
   
       const Candidate *sourceRef = &*(f->key);
       const Candidate *matchRef  = &*(f->val);

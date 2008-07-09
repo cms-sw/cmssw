@@ -101,7 +101,8 @@ namespace evf {
     void           scheduleRawEmptyCellForDiscard();
     void           scheduleRawEmptyCellForDiscard(FUShmRawCell* cell);
     
-    bool           writeRecoInitMsg(unsigned char *data,
+    bool           writeRecoInitMsg(unsigned int   outModId,
+				    unsigned char *data,
 				    unsigned int   dataSize);
 
     bool           writeRecoEventData(unsigned int   runNumber,

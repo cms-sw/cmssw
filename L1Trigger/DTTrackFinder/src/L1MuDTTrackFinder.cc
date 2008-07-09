@@ -5,8 +5,8 @@
 //   Description: L1 barrel Muon Trigger Track Finder
 //
 //
-//   $Date: 2006/11/20 15:41:03 $
-//   $Revision: 1.2 $
+//   $Date: 2008/02/25 16:35:32 $
+//   $Revision: 1.9 $
 //
 //   Author :
 //   N. Neumeister            CERN EP
@@ -200,7 +200,7 @@ void L1MuDTTrackFinder::run(const edm::Event& e, const edm::EventSetup& c) {
       if ( L1MuDTTFConfig::Debug(2) ) cout << "reading " 
                                            << (*it_sp).second->id() << endl;
       for ( int number = 0; number < 2; number++ ) {
-        const L1MuDTTrack* cand = (*it_sp).second->track(number);
+        const L1MuDTTrack* cand = (*it_sp).second->tracK(number);
         if ( cand && !cand->empty() ) _cache0.push_back(L1MuDTTrackCand(cand->getDataWord(),cand->bx(),
                                               cand->spid().wheel(),cand->spid().sector(),number,cand->address(1),
                                               cand->address(2),cand->address(3),cand->address(4),cand->tc()));

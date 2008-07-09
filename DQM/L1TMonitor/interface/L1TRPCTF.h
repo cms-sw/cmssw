@@ -4,8 +4,8 @@
 /*
  * \file L1TRPCTF.h
  *
- * $Date: 2007/09/26 14:18:03 $
- * $Revision: 1.4 $
+ * $Date: 2008/06/04 13:17:26 $
+ * $Revision: 1.9 $
  * \author J. Berryhill
  *
 */
@@ -36,6 +36,7 @@
 #include <iostream>
 #include <fstream>
 #include <vector>
+#include <set>
 
 //
 // class decleration
@@ -61,7 +62,16 @@ void beginJob(const edm::EventSetup& c);
 // EndJob
 void endJob(void);
 
+void beginLuminosityBlock(const edm::LuminosityBlock& lumiSeg, 
+                          const edm::EventSetup& context);
+void endLuminosityBlock(const edm::LuminosityBlock& lumiSeg, 
+                        const edm::EventSetup& c);
+
+
 private:
+
+  void fillNorm(); /// fills  normalized histograms
+
   // ----------member data ---------------------------
   DQMStore * dbe;
 
@@ -72,13 +82,31 @@ private:
   MonitorElement* rpctfquality[3];
   MonitorElement* rpctfntrack;
   MonitorElement* rpctfbx;
-
+  MonitorElement*  m_digiBx;
+  MonitorElement*  m_digiBxLast;
+  MonitorElement* m_qualVsEta;
+  MonitorElement* m_muonsEtaPhi;
+  MonitorElement* m_phipacked;
+  MonitorElement * m_phipackednorm;
+  MonitorElement * m_muonsEtaPhiNorm;
+  MonitorElement * m_floatSynchro;
+  
   int nev_; // Number of events processed
+  int nevRPC_; // Number of events processed where muon was found by rpc trigger
   std::string outputFile_; //file name for ROOT ouput
   bool verbose_;
   bool monitorDaemon_;
+  
+  unsigned long m_ntracks;
+  
   ofstream logFile_;
   edm::InputTag rpctfSource_ ;
+  edm::InputTag digiSource_ ;
+
+  std::set<int> m_bxs;
+  int m_rpcDigiWithBX0;
+  int m_rpcDigiWithBXnon0;
+
 };
 
 #endif

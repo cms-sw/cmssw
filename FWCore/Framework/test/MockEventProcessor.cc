@@ -1,6 +1,6 @@
 
 /*
-$Id: MockEventProcessor.cc,v 1.6 2008/03/17 17:32:43 wdd Exp $
+$Id: MockEventProcessor.cc,v 1.10 2008/04/15 19:20:50 wdd Exp $
 */
 
 #include "FWCore/Framework/test/MockEventProcessor.h"
@@ -104,6 +104,12 @@ namespace edm {
     return epSuccess;
   }
 
+  // Not used, this one does nothing
+  edm::MockEventProcessor::StatusCode
+  MockEventProcessor::runEventCount(int numberOfEventsToProcess) {
+    return epSuccess;
+  }
+
   void MockEventProcessor::readFile() {
     output_ << " \treadFile\n";
   }
@@ -166,11 +172,11 @@ namespace edm {
     output_ << "\tdoErrorStuff\n";
   }
 
-  void MockEventProcessor::smBeginRun(int run) {
+  void MockEventProcessor::beginRun(int run) {
     output_ << "\tbeginRun " << run << "\n";
   }
 
-  void MockEventProcessor::smEndRun(int run) {
+  void MockEventProcessor::endRun(int run) {
     output_ << "\tendRun " << run << "\n";
   }
 
@@ -220,4 +226,10 @@ namespace edm {
     output_ << "\tshouldWeStop\n";
     return shouldWeStop_;
   }
+
+  void MockEventProcessor::setExceptionMessageFiles(std::string& message) { }
+  void MockEventProcessor::setExceptionMessageRuns(std::string& message) { }
+  void MockEventProcessor::setExceptionMessageLumis(std::string& message) { }
+
+  bool MockEventProcessor::alreadyHandlingException() const { return false; }
 }

@@ -5,12 +5,14 @@
 #include "DataFormats/HcalRecHit/interface/HcalRecHitCollections.h"
 #include "DQMServices/Core/interface/DQMStore.h"
 #include "DQMServices/Core/interface/MonitorElement.h"
+//#include "CalibFormats/HcalObjects/interface/HcalCalibrationWidths.h"
+
 #include <map>
 
 /** \class HcalHotCellMonitor
   *  
-  * $Date: 2008/01/22 22:21:45 $
-  * $Revision: 1.12 $
+  * $Date: 2008/06/10 22:14:30 $
+  * $Revision: 1.16 $
   * \author W. Fisher - FNAL
   * \ updated by J. Temple - Univ. of Maryland
   */
@@ -18,7 +20,16 @@
 
 // Structure holds all hot cell data for a subdetector
 struct HotCellHists{
-  //Miscellaneous hot cell plots
+  bool check;
+
+  // Main problem cell histogram
+  MonitorElement* problemHotCells;
+  MonitorElement* problemHotCells_depth[4];
+
+  double hotDigiSigma; // digi values - pedestal must be > hotDigiSigma * pedestal to be considered hot
+  bool makeDiagnostics; // if disabled, don't make 
+
+  //Miscellaneous hot cell plots -- could remove these?
   MonitorElement* maxCellOccMap;
   MonitorElement* maxCellEnergyMap;
   MonitorElement* maxCellEnergy;
@@ -29,26 +40,42 @@ struct HotCellHists{
   std::vector<double> thresholds;
   std::vector<MonitorElement*> threshOccMap;
   std::vector<MonitorElement*> threshEnergyMap;
-  // Are these histograms overkill?
-  std::vector <std::vector<MonitorElement*> > threshOccMapDepth;
-  std::vector <std::vector<MonitorElement*> > threshEnergyMapDepth;
   
   // NADA hot cell info
   MonitorElement* nadaOccMap;
   MonitorElement* nadaEnergyMap;
   MonitorElement* nadaNumHotCells;
-  MonitorElement* nadaTestPlot;
   MonitorElement* nadaEnergy;
   MonitorElement* nadaNumNegCells;
   MonitorElement* nadaNegOccMap;
   MonitorElement* nadaNegEnergyMap;
-  std::vector<MonitorElement*> nadaOccMapDepth;
-  std::vector<MonitorElement*> nadaEnergyMapDepth;
-  std::vector<MonitorElement*> nadaNegOccMapDepth;
-  std::vector<MonitorElement*> nadaNegEnergyMapDepth;
+  
 
+  // Digi Plots
+  MonitorElement* abovePedSigma;
+  std::vector<MonitorElement*> digiPedestalPlots;
+  
   // diagnostic histograms (remove eventually?)
   std::vector<MonitorElement*> diagnostic;
+  MonitorElement* RecHitEnergyDist;
+  MonitorElement* DigiEnergyDist;
+  MonitorElement* EnergyVsNADAcube;
+  MonitorElement* HOT_EnergyVsNADAcube;
+
+  MonitorElement* pedestalValues_depth[4];
+  MonitorElement* pedestalWidths_depth[4];
+  MonitorElement* RecHitEnergyDist_depth[4];
+
+  // Depth plots -- these are diagnostics
+  std::vector <std::vector<MonitorElement*> > threshOccMap_depth;
+  std::vector <std::vector<MonitorElement*> > threshEnergyMap_depth;
+  MonitorElement* nadaOccMap_depth[4];
+  MonitorElement* nadaEnergyMap_depth[4];
+  MonitorElement* nadaNegOccMap_depth[4];
+  MonitorElement* nadaNegEnergyMap_depth[4];
+  
+  // Skip over these plots now
+  //std::vector <std::vector<MonitorElement*> > digiPedestalPlots_depth;
 
   // Parameters used in setting NADA cube sizes, thresholds
   double nadaEnergyCandCut0,nadaEnergyCandCut1, nadaEnergyCandCut2;
@@ -70,7 +97,7 @@ struct HotCellHists{
   std::vector<std::string> vetoCells;
   int numhotcells;
   int numnegcells;
-  bool fVerbosity;
+  int fVerbosity; //0 = no message, 1 = basic messages, 2 = full verbosity
 };
 
 
@@ -80,7 +107,18 @@ public:
   ~HcalHotCellMonitor(); 
 
   void setup(const edm::ParameterSet& ps, DQMStore* dbe);
-  void processEvent(const HBHERecHitCollection& hbHits, const HORecHitCollection& hoHits, const HFRecHitCollection& hfHits);
+  void processEvent(const HBHERecHitCollection& hbHits,
+		    const HORecHitCollection& hoHits, 
+		    const HFRecHitCollection& hfHits,
+		    const HBHEDigiCollection& hbhedigi,
+		    const HODigiCollection& hodigi,
+		    const HFDigiCollection& hfdigi,
+		    const HcalDbService& cond);
+  void processEvent_digi(const HBHEDigiCollection& hbhedigi,
+			 const HODigiCollection& hodigi,
+			 const HFDigiCollection& hfdigi,
+			 const HcalDbService& cond);
+
   void reset();
   void setupVals(HotCellHists& h, int type, HotCellHists& base, const edm::ParameterSet& ps);
   void setupHists(HotCellHists& h, DQMStore* dbe);
@@ -88,6 +126,7 @@ public:
 private:  ///Monitoring elements
 
   bool debug_;
+  
   int ievt_;
 
   float HF_offsets[13][36][2];
@@ -98,6 +137,7 @@ private:  ///Monitoring elements
  
   MonitorElement* meEVT_;
 
+  bool doFCpeds_; // determins if pedestals are in fC or ADC counts
 };
 
 #endif

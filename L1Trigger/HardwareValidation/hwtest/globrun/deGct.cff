@@ -1,26 +1,4 @@
-/* GCT */
+# Trigger configuration data
+# please include 'replace' statements 
+# as appropriate for the subsystem
 
-
-### emulator
-
-include "L1TriggerConfig/GctConfigProducers/data/L1GctConfig.cff"
-
-#include "L1Trigger/GlobalCaloTrigger/data/gctDigis.cfi"
-module gctDigis = L1GctEmulator { 
-    InputTag inputLabel = gctUnpacker
-    string jetFinderType = "tdrJetFinder"
-}
-
-### unpacker
-
-module gctUnpacker = GctRawToDigi {
-    //InputTag inputLabel = "rawDataCollector"
-    InputTag inputLabel = source
-    int32 gctFedId               = 745
-    untracked bool verbose       = false
-    untracked bool unpackEm      = true
-    untracked bool unpackJets    = true
-    untracked bool unpackEtSums  = false
-    untracked bool unpackInternEm= false
-    untracked bool unpackFibres  = false
-}

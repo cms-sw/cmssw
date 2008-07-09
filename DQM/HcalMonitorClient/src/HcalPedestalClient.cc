@@ -106,22 +106,22 @@ void HcalPedestalClient::setup(void) {
 void HcalPedestalClient::cleanup(void) {
   if(cloneME_){
     for(int i=0; i<4; i++){
-      if(all_peds_[i]); delete all_peds_[i];   
-      if(ped_rms_[i]); delete ped_rms_[i];
-      if(ped_mean_[i]); delete ped_mean_[i];   
+      if(all_peds_[i]);     delete all_peds_[i];   
+      if(ped_rms_[i]);      delete ped_rms_[i];
+      if(ped_mean_[i]);     delete ped_mean_[i];   
 
-      if(sub_rms_[i]); delete sub_rms_[i];
-      if(sub_mean_[i]); delete sub_mean_[i];   
-      if(capid_rms_[i]); delete capid_rms_[i];
-      if(capid_mean_[i]); delete capid_mean_[i]; 
-      if(qie_rms_[i]); delete qie_rms_[i];
-      if(qie_mean_[i]); delete qie_mean_[i];   
-      if(err_map_geo_[i]); delete err_map_geo_[i];
+      if(sub_rms_[i]);      delete sub_rms_[i];
+      if(sub_mean_[i]);     delete sub_mean_[i];   
+      if(capid_rms_[i]);    delete capid_rms_[i];
+      if(capid_mean_[i]);   delete capid_mean_[i]; 
+      if(qie_rms_[i]);      delete qie_rms_[i];
+      if(qie_mean_[i]);     delete qie_mean_[i];   
+      if(err_map_geo_[i]);  delete err_map_geo_[i];
       if(err_map_elec_[i]); delete err_map_elec_[i];
-      if(pedMapMean_E[i]) delete pedMapMean_E[i];
-      if(pedMapRMS_E[i]) delete pedMapRMS_E[i];
-      if(pedMapMeanD_[i]) delete pedMapMeanD_[i];
-      if(pedMapRMSD_[i]) delete pedMapRMSD_[i];
+      if(pedMapMean_E[i]);  delete pedMapMean_E[i];
+      if(pedMapRMS_E[i]);   delete pedMapRMS_E[i];
+      if(pedMapMeanD_[i]);  delete pedMapMeanD_[i];
+      if(pedMapRMSD_[i]);   delete pedMapRMSD_[i];
     }
   }
   for(int i=0; i<4; i++){
@@ -228,7 +228,7 @@ void HcalPedestalClient::getHistograms(){
     if(!meCapRMS || !meCapMean)continue;
     if(!meQieRMS || !meQieMean)continue;
     
-    if(dbe_){      
+    if(false) { //dbe_){      
       dbe_->softReset(mePedRMS); dbe_->softReset(mePedMean);
       dbe_->softReset(meSubRMS); dbe_->softReset(meSubMean);
       dbe_->softReset(meCapRMS); dbe_->softReset(meCapMean);

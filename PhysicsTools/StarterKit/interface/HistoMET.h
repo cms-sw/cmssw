@@ -50,14 +50,22 @@ namespace pat {
   class HistoMET : public HistoGroup<MET> {
 
   public:
-    HistoMET( std::string dir = "met",
+    HistoMET( std::string dir = "met", std::string group = "MET",
+	      std::string pre = "met",
 	      double pt1=0, double pt2=200, double m1=0, double m2=200 );
     virtual ~HistoMET();
 
-    virtual void fill( const MET * met, uint iPart = 0  );
-    virtual void fill( const MET & met, uint iPart = 0  ) { fill(&met, iPart); }
+    // fill a plain ol' met:
+    virtual void fill( const MET *met, uint iPart = 1, double weight = 1.0 );
+    virtual void fill( const MET &met, uint iPart = 1, double weight = 1.0 ) { fill(&met, iPart, weight); }
 
-    virtual void fillCollection( const std::vector<MET> & coll );
+    // fill a met that is a shallow clone, and take kinematics from 
+    // shallow clone but detector plots from the met itself
+    virtual void fill( const reco::ShallowClonePtrCandidate *met, uint iPart = 1, double weight = 1.0 );
+    virtual void fill( const reco::ShallowClonePtrCandidate &met, uint iPart = 1, double weight = 1.0 )
+    { fill(&met, iPart,weight); }
+
+    virtual void fillCollection( const std::vector<MET> & coll, double weight = 1.0 );
 
     // Clear ntuple cache
     void clearVec();

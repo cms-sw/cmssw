@@ -41,8 +41,6 @@ HLTAnalyzer::HLTAnalyzer(edm::ParameterSet const& conf) {
   //ecalDigisLabel_ = conf.getParameter<std::string> ("ecalDigisLabel");
   //hcalDigisLabel_ = conf.getParameter<std::string> ("hcalDigisLabel");
 
-  gctCounts_ = conf.getParameter< std::string > ("l1GctCounts");
-
   errCnt=0;
 
   edm::ParameterSet myAnaParams = conf.getParameter<edm::ParameterSet>("RunParameters") ;
@@ -114,7 +112,6 @@ void HLTAnalyzer::analyze(edm::Event const& iEvent, edm::EventSetup const& iSetu
   edm::Handle<L1GlobalTriggerObjectMap> l1GtOM;
 //  edm::Handle<EcalTrigPrimDigiCollection> ecal;
 //  edm::Handle<HcalTrigPrimDigiCollection> hcal;
-  edm::Handle<L1GctJetCounts> l1GctCounts;
 
   
   // ccla double pthat = *genEventScale;
@@ -174,9 +171,6 @@ void HLTAnalyzer::analyze(edm::Event const& iEvent, edm::EventSetup const& iSetu
   try {iEvent.getByLabel(gtReadoutRecord_,l1GtRR);} catch (...) { errMsg=errMsg + "  -- No L1 GT ReadouRecord";}
   try {iEvent.getByLabel(gtObjectMap_,l1GtOMRec);} catch (...) { errMsg=errMsg + "  -- No L1 GT ObjectMap";}
 
-  try {iEvent.getByLabel(gctCounts_,l1GctCounts);} catch (...) { errMsg=errMsg + "  -- No L1 GCT JetCount Digis";}
-
-  
   if (! mctruth.isValid()    ) { errMsg=errMsg + "  -- No Gen Particles"; mctruth = mctruthDummy;}
 
 
@@ -202,7 +196,7 @@ void HLTAnalyzer::analyze(edm::Event const& iEvent, edm::EventSetup const& iSetu
   mct_analysis_.analyze(*mctruth,*genEventScale,HltTree);
   // hlt_analysis_.analyze(/**hltobj,*/*hltresults,*l1extemi,*l1extemn,*l1extmu,*l1extjetc,*l1extjetf,*l1exttaujet,*l1extmet,/* *l1mapcoll, */HltTree);
   hlt_analysis_.analyze(*hltresults,*l1extemi,*l1extemn,*l1extmu,*l1extjetc,*l1extjetf,*l1exttaujet,*l1extmet,
-			*l1GtRR.product(),*l1GtOMRec.product(),*l1GctCounts,HltTree);
+			*l1GtRR.product(),*l1GtOMRec.product(),HltTree);
   // std::cout << " Ending Event Analysis" << std::endl;
   // After analysis, fill the variables tree
   m_file->cd();

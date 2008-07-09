@@ -362,8 +362,7 @@ void EcalSimRawData::genTccIn(string basename, int iEvent,
 	int iTtEta0 = (iZ0==0) ? 27 - iTtEtaInSm0 : 28 + iTtEtaInSm0; 
 	for(int iTtPhiInSm0 = 0; iTtPhiInSm0 < nTtSmPhi; ++iTtPhiInSm0){
 	  //phi=0deg at middle of 1st barrel DCC:
-	  int iTtPhi0 = -nTtPhisPerEbTcc/2 + iTccPhi0*nTtPhisPerEbTcc
-	    + iTtPhiInSm0;
+	  int iTtPhi0 = (iZ0==0) ? -2 + iTtPhiInSm0 : 1-iTtPhiInSm0;
 	  iTtPhi0 += nTtPhisPerEbTcc*iTccPhi0;
 	  if(iTtPhi0<0) iTtPhi0 += nTtPhi;
 	  uint16_t tp_fe2tcc = (tcp[iTtEta0][iTtPhi0] & 0x7ff) ; //keep only Et (9:0) and FineGrain (10)

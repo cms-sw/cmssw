@@ -1,6 +1,7 @@
 #include <cppunit/extensions/HelperMacros.h>
 #include "PhysicsTools/Utilities/interface/Simplify.h"
 #include "PhysicsTools/Utilities/interface/Fraction.h"
+#include "PhysicsTools/Utilities/interface/Variables.h"
 #include <boost/static_assert.hpp>
 #include <boost/type_traits.hpp>
 
@@ -56,5 +57,19 @@ void testSimplifications::checkAll() {
   BOOST_STATIC_ASSERT((is_same<
 		       Fraction<3,1>::type,
 		       Numerical<3>
+		       >::value));
+  BOOST_STATIC_ASSERT((is_same<
+		       Product<Minus<X>::type, Minus<Y>::type>::type,
+		       Product<X, Y>::type
+		       >::value));
+  BOOST_STATIC_ASSERT((!Parametric<Power<X, Y>::type>::value));
+  BOOST_STATIC_ASSERT((is_same<
+		       Product<Power<X, Y>::type, Power<X, Z>::type>::type,
+		       Power<X, Sum<Y, Z>::type>::type
+		       >::value));
+  BOOST_STATIC_ASSERT((!Parametric<Ratio<Sin<X>::type, Cos<X>::type>::type>::value));
+  BOOST_STATIC_ASSERT((is_same<
+		       Ratio<Sin<X>::type, Cos<X>::type>::type,
+		       Tan<X>::type
 		       >::value));
 }

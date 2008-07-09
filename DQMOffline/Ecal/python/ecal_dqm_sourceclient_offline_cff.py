@@ -1,0 +1,8 @@
+import FWCore.ParameterSet.Config as cms
+
+from DQMOffline.Ecal.ecal_dqm_source_offline_cff import *
+from DQMOffline.Ecal.ecal_dqm_client_offline_cff import *
+
+ecal_dqm_sourceclient_offline1 = cms.Sequence(ecalBarrelMonitorModule*ecalBarrelMonitorClient)
+ecal_dqm_sourceclient_offline2 = cms.Sequence(ecalBarrelOccupancyTask*ecalBarrelIntegrityTask*ecalBarrelStatusFlagsTask*ecalBarrelPedestalOnlineTask*ecalBarrelTriggerTowerTask*ecalBarrelTimingTask*ecalBarrelCosmicTask*ecalBarrelClusterTask)
+

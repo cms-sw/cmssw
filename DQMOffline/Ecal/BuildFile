@@ -1,0 +1,21 @@
+<use name=DQMServices/Components>
+<use name=DQMServices/Core>
+<use name=DQMServices/WebComponents>
+<use name=FWCore/Framework>
+<use name=Geometry/Records>
+<use name=Geometry/CaloEventSetup>
+<use name=Geometry/CaloGeometry>
+<use name=DataFormats/EcalRecHit>
+
+<export>
+  <use name=DQMServices/Components>
+  <use name=DQMServices/Core>
+  <use name=DQMServices/WebComponents>
+  <use name=FWCore/Framework>
+  <use name=Geometry/Records>
+  <use name=Geometry/CaloEventSetup>
+  <use name=Geometry/CaloGeometry>
+  <use name=DataFormats/EcalRecHit>
+  <lib name=DQMOfflineEcal>
+</export>
+

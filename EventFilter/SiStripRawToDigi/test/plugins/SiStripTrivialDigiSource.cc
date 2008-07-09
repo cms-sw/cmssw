@@ -1,19 +1,24 @@
-// Last commit: $Id: SiStripTrivialDigiSource.cc,v 1.6 2008/03/31 16:51:50 bainbrid Exp $
+// Last commit: $Id: SiStripTrivialDigiSource.cc,v 1.4 2007/04/30 13:54:19 pwing Exp $
 
 #include "EventFilter/SiStripRawToDigi/test/plugins/SiStripTrivialDigiSource.h"
-#include "CondFormats/DataRecord/interface/SiStripFedCablingRcd.h"
-#include "CondFormats/SiStripObjects/interface/SiStripFedCabling.h"
-#include "DataFormats/Common/interface/DetSetVector.h"
-#include "DataFormats/SiStripCommon/interface/SiStripConstants.h"
-#include "DataFormats/SiStripDigi/interface/SiStripDigi.h"
-#include "DataFormats/SiStripDigi/interface/SiStripRawDigi.h"
-#include "FWCore/Framework/interface/ESHandle.h"
+// edm 
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/EventSetup.h"
-#include "FWCore/MessageLogger/interface/MessageLogger.h"
+#include "FWCore/Framework/interface/ESHandle.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
+#include "FWCore/MessageLogger/interface/MessageLogger.h"
+// data formats
+#include "DataFormats/Common/interface/DetSetVector.h"
+#include "DataFormats/SiStripDigi/interface/SiStripDigi.h"
+#include "DataFormats/SiStripCommon/interface/SiStripConstants.h"
+// cabling
+#include "CondFormats/DataRecord/interface/SiStripFedCablingRcd.h"
+#include "CondFormats/SiStripObjects/interface/SiStripFedCabling.h"
+// fed
+// clhep
 #include "CLHEP/Random/RandGauss.h"
 #include "CLHEP/Random/RandFlat.h"
+// std
 #include <cstdlib>
 #include <iostream>
 #include <sstream>
@@ -22,173 +27,98 @@
 #include <ctime>
 #include <cmath>
 
+using namespace std;
+
 // -----------------------------------------------------------------------------
-//
+/** */
 SiStripTrivialDigiSource::SiStripTrivialDigiSource( const edm::ParameterSet& pset ) :
-  meanOcc_( pset.getUntrackedParameter<double>("MeanOccupancy",1.) ),
+  eventCounter_(0),
+  testDistr_( pset.getUntrackedParameter<bool>("TestDistribution",false) ),
+  meanOcc_( pset.getUntrackedParameter<double>("MeanOccupancy",1.0) ),
   rmsOcc_( pset.getUntrackedParameter<double>("RmsOccupancy",0.1) ),
-  ped_( pset.getUntrackedParameter<int>("PedestalLevel",100) ),
-  raw_( pset.getUntrackedParameter<bool>("FedRawDataMode",false) ),
-  useFedKey_( pset.getUntrackedParameter<bool>("UseFedKey",false) )
+  anal_()
 {
-  LogTrace("TrivialDigiSource")
-    << "[SiStripTrivialDigiSource::" << __func__ << "]"
-    << " Constructing object...";
+  LogDebug("TrivialDigiSource") << "[SiStripTrivialDigiSource::SiStripTrivialDigiSource] Constructing object...";
+  
+  //srand( time( NULL ) ); // seed for random number generator
   produces< edm::DetSetVector<SiStripDigi> >();
 }
 
 // -----------------------------------------------------------------------------
-//
+/** */
 SiStripTrivialDigiSource::~SiStripTrivialDigiSource() {
-  LogTrace("TrivialDigiSource")
-    << "[SiStripTrivialDigiSource::" << __func__ << "]"
-    << " Destructing object...";
+  LogDebug("TrivialDigiSource") << "[SiStripTrivialDigiSource::~SiStripTrivialDigiSource] Destructing object...";
 }
 
 // -----------------------------------------------------------------------------
-//
-void SiStripTrivialDigiSource::produce( edm::Event& event, 
-					const edm::EventSetup& setup ) {
+/** */
+void SiStripTrivialDigiSource::produce( edm::Event& iEvent, 
+					const edm::EventSetup& iSetup ) {
   
-  LogTrace("TrivialDigiSource") 
-    << "[SiStripRawToDigiModule::" << __func__ << "]"
-    << " Analyzing run/event "
-    << event.id().run() << "/"
-    << event.id().event();
-
-  // Retrieve cabling
+  eventCounter_++; 
+  LogDebug("TrivialDigiSource") << "[SiStripTrivialDigiSource::produce] Event: " << eventCounter_;
+  //anal_.addEvent();
+  
   edm::ESHandle<SiStripFedCabling> cabling;
-  setup.get<SiStripFedCablingRcd>().get( cabling );
-
-  // Temp container
-  typedef std::vector< edm::DetSet<SiStripDigi> > digi_work_vector;
-  digi_work_vector zero_suppr_vector;
-
-  // Some init
+  iSetup.get<SiStripFedCablingRcd>().get( cabling );
+  
+  auto_ptr< edm::DetSetVector<SiStripDigi> > collection( new edm::DetSetVector<SiStripDigi> );
+  
   uint32_t nchans = 0;
   uint32_t ndigis = 0;
-
-  // Retrieve fed ids
-  const std::vector<uint16_t>& fed_ids = cabling->feds(); 
-
-  // Iterate through fed ids and channels
-  std::vector<uint16_t>::const_iterator ifed;
+  const vector<uint16_t>& fed_ids = cabling->feds(); 
+  vector<uint16_t>::const_iterator ifed;
   for ( ifed = fed_ids.begin(); ifed != fed_ids.end(); ifed++ ) {
+    //anal_.addFed();
     for ( uint16_t ichan = 0; ichan < 96; ichan++ ) {
-
-      // Retrieve FED channel info
       const FedChannelConnection& conn = cabling->connection( *ifed, ichan );
-      
-      // Build FED key
-      uint32_t fed_key = ( ( conn.fedId() & sistrip::invalid_ ) << 16 ) | ( conn.fedCh() & sistrip::invalid_ );
-      
-      // Determine key (FED key or DetId) to index DSV
-      uint32_t key = useFedKey_ ? fed_key : conn.detId();
-
-      // Determine APV pair number
-      uint16_t ipair = useFedKey_ ? 0 : conn.apvPairNumber();
-
-      // Check key is non-zero and valid
-      if ( !key || ( key == sistrip::invalid32_ ) ) { continue; }
-      
-      // Random number of digis
-      double tmp = 0.; 
-      float rdm = 2.56 * RandGauss::shoot( meanOcc_, rmsOcc_ );
-      bool extra = ( RandFlat::shoot() > modf(rdm,&tmp) );
-      uint16_t ndigi = static_cast<uint16_t>(rdm) + static_cast<uint16_t>(extra);
-
-      // Create DetSet
-      if ( zero_suppr_vector.empty() ) { zero_suppr_vector.reserve(40000); }
-      zero_suppr_vector.push_back( edm::DetSet<SiStripDigi>(key) );
-      edm::DetSet<SiStripDigi>& zs = zero_suppr_vector.back();
-      zs.data.reserve(768); 
-
-      // Remember strips used
-      std::vector<uint16_t> used_strips; 
-      used_strips.reserve(ndigi);
-
-      // Create digis
+      // Check DetID is non-zero and valid
+      if (!conn.detId() ||
+	  (conn.detId() == sistrip::invalid32_)) { continue; }
+      //anal_.addChan(); nchans++;
+      edm::DetSet<SiStripDigi>& digis = collection->find_or_insert( conn.detId() );
+      uint16_t ngroups = 1;
+      uint16_t ndigi;
+      if ( testDistr_ ) { ndigi = 256 / ngroups; }
+      else {
+	float rdm = 2.56 * RandGauss::shoot( meanOcc_, rmsOcc_ );
+	float tmp; bool extra = ( RandFlat::shoot() > modf(rdm,&tmp) );
+	ndigi = static_cast<uint16_t>(rdm) + static_cast<uint16_t>(extra);
+      }
+      vector<uint16_t> used_strips; used_strips.reserve(ndigi);
+      vector<uint16_t>::iterator iter;
       uint16_t idigi = 0;
       while ( idigi < ndigi ) {
-	
-	// Random values
-	uint16_t str = static_cast<uint16_t>( 256. * RandFlat::shoot() );
-	uint16_t adc = static_cast<uint16_t>( 256. * RandFlat::shoot() );
-	
-	// Generate and check strip number
-	uint16_t nstrips = conn.nDetStrips();
-	uint16_t strip = str + 256 * ipair;
-	if ( strip >= nstrips ) { continue; }
-
-	// Create digi object
-	std::vector<uint16_t>::iterator iter = find( used_strips.begin(), used_strips.end(), strip );
+	uint16_t str;
+	uint16_t adc;
+	if ( testDistr_ ) { str = idigi*ngroups; adc = (idigi+1)*ngroups-1; }
+	else {
+	  str = static_cast<uint16_t>( 256. * RandFlat::shoot() );
+	  adc = static_cast<uint16_t>( 256. * RandFlat::shoot() );
+	}
+	iter = find( used_strips.begin(), used_strips.end(), str );
 	if ( iter == used_strips.end() && adc ) { // require non-zero adc!
-	  uint16_t level = raw_ ? ped_ + adc : adc;
-	  zs.data.push_back( SiStripDigi( strip, level ) );
-	  used_strips.push_back( strip ); 
+	  digis.data.push_back( SiStripDigi( str+conn.apvPairNumber()*256, adc ) );
+	  used_strips.push_back( str ); 
+	  //anal_.zsDigi( str+conn.apvPairNumber()*256, adc );
 	  ndigis++;
 	  idigi++;
 	}
-	
       }
-
-      // Populate DetSet with remaining "raw" digis
-      if ( raw_ ) {
-	for ( uint16_t istr = 256*ipair; istr < 256*(ipair+1); ++istr ) {
-	  if ( find( used_strips.begin(), used_strips.end(), istr ) == used_strips.end() ) { 
-	    zs.data.push_back( SiStripDigi( istr, ped_ ) );
-	  }
-	}
-      }
-      
     }
-
   }
-
-  // Create final DetSetVector container
-  std::auto_ptr< edm::DetSetVector<SiStripDigi> > collection( new edm::DetSetVector<SiStripDigi> );
   
-  // Populate final DetSetVector container with ZS data 
-  if ( !zero_suppr_vector.empty() ) {
-    
-    std::sort( zero_suppr_vector.begin(), zero_suppr_vector.end() );
-    std::vector< edm::DetSet<SiStripDigi> > sorted_and_merged;
-    sorted_and_merged.reserve( zero_suppr_vector.size() );
-    
-    edm::det_id_type old_id = 0;
-    std::vector< edm::DetSet<SiStripDigi> >::iterator ii = zero_suppr_vector.begin();
-    std::vector< edm::DetSet<SiStripDigi> >::iterator jj = zero_suppr_vector.end(); 
-    for ( ; ii != jj; ++ii ) {
-      if ( old_id == ii->detId() ) {
-	sorted_and_merged.back().data.insert( sorted_and_merged.back().end(), ii->begin(), ii->end() );
-      } else {
-	sorted_and_merged.push_back( *ii );
-	old_id = ii->detId();
-      }
-    }
-    
-    std::vector< edm::DetSet<SiStripDigi> >::iterator iii = sorted_and_merged.begin();
-    std::vector< edm::DetSet<SiStripDigi> >::iterator jjj = sorted_and_merged.end(); 
-    for ( ; iii != jjj; ++iii ) { std::sort( iii->begin(), iii->end() ); }
-    
-    edm::DetSetVector<SiStripDigi> zero_suppr_dsv( sorted_and_merged, true ); 
-    collection->swap( zero_suppr_dsv );
-    
-  } 
-
-  // Put collection in event
-  event.put( collection );
+  iEvent.put( collection );
   
-  // Some debug
   if ( nchans ) { 
-    std::stringstream ss;
-    ss << "[SiStripTrivialDigiSource::" << __func__ << "]"
+    stringstream ss;
+    ss << "[SiStripTrivialDigiSource::produce]"
        << " Generated " << ndigis 
        << " digis for " << nchans
        << " channels with a mean occupancy of " 
-       << std::dec << std::setprecision(2)
+       << dec << setprecision(2)
        << ( 1. / 2.56 ) * (float)ndigis / (float)nchans << " %";
-    LogTrace("TrivialDigiSource") << ss.str();
+    LogDebug("TrivialDigiSource") << ss.str();
   }
   
 }

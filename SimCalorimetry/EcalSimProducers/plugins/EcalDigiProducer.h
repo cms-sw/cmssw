@@ -83,6 +83,9 @@ private:
   double EBs25notCont;
   double EEs25notCont;
 
+  bool cosmicsPhase;
+  double cosmicsShift;
+
   bool doFast; 
 };
 

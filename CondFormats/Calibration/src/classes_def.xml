@@ -8,8 +8,7 @@
  <class name="BlobNoises::DetRegistry"/>  
  <class name="std::vector<BlobNoises::DetRegistry>"/>
 
- <class name="mySiStripNoises"/>
- <class name="mySiStripNoises::SiStripData"/>
+ <class name="mySiStripNoises" class_version="0"/>
  <class name="mySiStripNoises::DetRegistry"/>
  <class name="std::vector<mySiStripNoises::DetRegistry>"/>
 

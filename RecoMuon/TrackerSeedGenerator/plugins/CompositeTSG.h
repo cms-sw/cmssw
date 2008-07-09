@@ -1,14 +1,6 @@
 #ifndef RecoMuon_TrackerSeedGenerator_CompositeTSG_H
 #define RecoMuon_TrackerSeedGenerator_CompositeTSG_H
 
-/** \class CompositeTSG
- * Description:
- * TrackerSeedGenerator generic class to allow more than one TSG to be used.
- * used as a SeparatingTSG of CombinedTSG
- *
- * \author Jean-Roch Vlimant, Adam Everett
- */
-
 #include "RecoMuon/TrackerSeedGenerator/interface/TrackerSeedGenerator.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "DataFormats/TrajectorySeed/interface/TrajectorySeed.h"
@@ -27,12 +19,9 @@ public:
   CompositeTSG(const edm::ParameterSet &pset);
   virtual ~CompositeTSG();
 
-  /// initialized the TSGs
   void init(const MuonServiceProxy *service);
-  /// set the event to the TSGs
   void setEvent(const edm::Event &event);
 
-  /// provides the seeds from the TSGs: must be overloaded
   virtual void trackerSeeds(const TrackCand&, const TrackingRegion&, BTSeedCollection &) =0;
 
  protected:

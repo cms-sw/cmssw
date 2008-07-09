@@ -30,7 +30,7 @@ std::ostream& operator<<(std::ostream& os,const TECDetId& id) {
   side  = (id.side() == 1 ) ? "-" : "+";
   petal = (thePetal[0] == 1 ) ? "back" : "front";
   std::string type;
-  type = (id.stereo() == 0) ? "r#varphi" : "stereo";
+  type = (id.stereo() == 0) ? "r-phi" : "stereo";
   type = (id.glued() == 0) ? type : type+" glued";
   type = (id.isDoubleSide()) ? "double side" : type;
   return os << "TEC" << side

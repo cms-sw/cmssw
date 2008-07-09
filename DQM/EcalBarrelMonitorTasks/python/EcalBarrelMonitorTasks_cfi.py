@@ -13,7 +13,10 @@ from DQM.EcalBarrelMonitorTasks.EBTimingTask_cfi import *
 from DQM.EcalBarrelMonitorTasks.EBBeamHodoTask_cfi import *
 from DQM.EcalBarrelMonitorTasks.EBBeamCaloTask_cfi import *
 from DQM.EcalBarrelMonitorTasks.EBClusterTask_cfi import *
+
 ecalBarrelDefaultTasksSequence = cms.Sequence(ecalBarrelOccupancyTask*ecalBarrelIntegrityTask*ecalBarrelStatusFlagsTask*ecalBarrelLaserTask*ecalBarrelPedestalOnlineTask*ecalBarrelPedestalTask*ecalBarrelTestPulseTask*ecalBarrelTriggerTowerTask*ecalBarrelTimingTask)
+
 ecalBarrelCosmicTasksSequence = cms.Sequence(ecalBarrelDefaultTasksSequence*ecalBarrelCosmicTask)
+
 ecalBarrelTestBeamTasksSequence = cms.Sequence(ecalBarrelDefaultTasksSequence*ecalBarrelBeamHodoTask*ecalBarrelBeamCaloTask)
 

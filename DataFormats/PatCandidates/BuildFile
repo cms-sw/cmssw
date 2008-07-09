@@ -1,5 +1,6 @@
 <use name=FWCore/Utilities>
 <use name=DataFormats/Common>
+<use name=DataFormats/Candidate>
 <use name=DataFormats/MuonReco>
 <use name=DataFormats/TauReco>
 <use name=DataFormats/JetReco>
@@ -7,10 +8,13 @@
 <use name=DataFormats/EgammaCandidates>
 <use name=DataFormats/TrackReco>
 <use name=DataFormats/HepMCCandidate>
+<use name=DataFormats/BTauReco>
+<use name=RecoMuon/MuonIdentification>
 <use name=rootrflx>
 <use name=root>
 <export>
   <use name=DataFormats/Common>
+  <use name=DataFormats/Candidate>
   <use name=DataFormats/MuonReco>
   <use name=DataFormats/TauReco>
   <use name=DataFormats/JetReco>
@@ -18,6 +22,7 @@
   <use name=DataFormats/EgammaCandidates>
   <use name=DataFormats/TrackReco>
   <use name=DataFormats/HepMCCandidate>
+  <use name=DataFormats/BTauReco>
   <use name=root>
   <lib name=DataFormatsPatCandidates>
 </export>

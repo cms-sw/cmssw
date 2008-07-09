@@ -53,10 +53,6 @@ public:
   /// set the type of correction function to use
   void setCorrectionFunctionType(const CorrectionFunctionType cft) { m_corrFunType = cft;
                                                                    }
-
-  /// set the look-up table to return energy, rather than Et
-  void setConversionToEnergyOn(const std::vector<double>& conversionFunc);
-  void setConversionToEnergyOff();
                                                                    
   /// Overload << operator
   friend std::ostream& operator << (std::ostream& os, const L1GctJetEtCalibrationFunction& fn);
@@ -93,8 +89,6 @@ private:
   /// type of correction function to apply
   CorrectionFunctionType m_corrFunType; 
 
-  bool m_convertToEnergy;
-
   /// scale and threshold parameters
   double m_htScaleLSB;
   double m_threshold;
@@ -102,8 +96,6 @@ private:
   /// the calibration function - converts jet Et to linear 
   std::vector< std::vector<double> > m_jetCalibFunc;
   std::vector< std::vector<double> > m_tauCalibFunc;
-
-  std::vector<double> m_energyConversion;
 
 };
 

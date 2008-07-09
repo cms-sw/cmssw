@@ -38,7 +38,7 @@ class EgammaSCEnergyCorrectionAlgo
     }
  
   private:
-    // Zhang shower leakage corrections
+    // shower leakage corrections
     double fEta(double e, double eta);
     // F(brem) correction with brem = phiWidth/etaWidth
     double fBrem(double e, double brem);
@@ -65,10 +65,7 @@ class EgammaSCEnergyCorrectionAlgo
     //Paramete sets for corrections functions
     std::vector<double> fBrem_; 
     std::vector<double> fEtEta_; 
-    std::vector<int> corrF_;
-
-    double brLinearLowThr_;
-    double brLinearHighThr_;
+    double brLinearThr_;
 };
 
 #endif /*RecoECAL_ECALClusters_EgammaSCEnergyCorrectionAlgo_h_*/

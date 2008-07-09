@@ -51,7 +51,6 @@ void HLTMCtruth::setup(const edm::ParameterSet& pSet, TTree* HltTree) {
   HltTree->Branch("MCphi",mcphi,"MCphi[NMCpart]/F");
   HltTree->Branch("MCPtHat",&pthatf,"MCPtHat/F");
   HltTree->Branch("MCmu3",&nmu3,"MCmu3/I");
-  HltTree->Branch("MCel1",&nel1,"MCel1/I");
   HltTree->Branch("MCbb",&nbb,"MCbb/I");
   HltTree->Branch("MCab",&nab,"MCab/I");
 
@@ -68,7 +67,6 @@ void HLTMCtruth::analyze(const CandidateView& mctruth,
   if (_Monte) {
     int nmc = 0;
     int mu3 = 0;
-    int el1 = 0;
     int mab = 0;
     int mbb = 0;
 
@@ -89,8 +87,6 @@ void HLTMCtruth::analyze(const CandidateView& mctruth,
 	mcvy[nmc] = p.vy();
 	mcvz[nmc] = p.vz();
 	if (((mcpid[nmc]==13)||(mcpid[nmc]==-13))&&(mcpt[nmc]>2.5)) {mu3 += 1;} // Flag for muons with pT > 2.5 GeV/c
-	if (((mcpid[nmc]==11)||(mcpid[nmc]==-11))&&(mcpt[nmc]>1.)) {el1 += 1;} // Flag for electrons with pT > 1 GeV/c
-
 	if (mcpid[nmc]==-5) {mab += 1;} // Flag for bbar
 	if (mcpid[nmc]==5) {mbb += 1;} // Flag for b
 	nmc++;
@@ -101,7 +97,6 @@ void HLTMCtruth::analyze(const CandidateView& mctruth,
 
     nmcpart = nmc;
     nmu3 = mu3;
-    nel1 = el1;
     nbb = mbb;
     nab = mab;
 

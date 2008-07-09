@@ -1,3 +1,40 @@
+2008-06-19  Emilio Meschi <emilio.meschi@cern.ch>
+	
+	* tag V00-14-12
+	* added fast access functions to bst, orbit and bunch crossing from EVM GT block
+	* removed stray printout
+
+2008-06-04  Emilio Meschi <emilio.meschi@cern.ch>
+	
+	* tag V00-14-11
+	* modified ModuleWeb and ModuleWebRegistry to allow modules registered 
+	to publish to xmas and to give access to a lock or other types of "back door"
+	interaction with the dataflow. This is currently used in DaqSource to lock
+	the scalers update to the lumi section change
+
+2008-05-30  Philipp SCHIEFERDECKER  <philipp.schieferdecker@cern.ch>
+
+	* tag V00-14-10
+	* add plugin 'ErrorStreamSource', a 'source' to read error
+	events.
+
+2008-05-23  Philipp SCHIEFERDECKER  <philipp.schieferdecker@cern.ch>
+
+	* tag V00-14-09
+	* add 'outModID' to I2O_SM_PREAMBLE_MESSAGE_FRAME as requested by
+	Harry.
+
+2008-05-14  Philipp SCHIEFERDECKER  <philipp.schieferdecker@cern.ch>
+
+	* tag V00-14-08
+	* account for new options '--nosequences' and '--nomodules' in
+	edmConfigFromDB
+
+2008-04-22  Philipp SCHIEFERDECKER  <philipp.schieferdecker@cern.ch>
+
+	* tag V00-14-07
+	* account for new option '--blocks' in edmConfigFromDB
+
 2008-04-02  Philipp SCHIEFERDECKER  <philipp.schieferdecker@cern.ch>
 
 	* tag V00-14-06

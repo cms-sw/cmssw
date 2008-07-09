@@ -10,11 +10,17 @@
 
 // Parser parts
 #include "DDLNumeric.h"
+#include "DDLElementRegistry.h"
 
 // other DD parts
+#include "DetectorDescription/Core/interface/DDNumeric.h"
 #include "DetectorDescription/Base/interface/DDdebug.h"
+#include "DetectorDescription/Base/interface/DDException.h"
+#include "CLHEP/Units/SystemOfUnits.h"
 #include "DetectorDescription/ExprAlgo/interface/ExprEvalSingleton.h"
 
+#include <map>
+#include <string>
 
 DDLNumeric::DDLNumeric()
 {

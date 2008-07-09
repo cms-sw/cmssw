@@ -19,7 +19,7 @@
 //
 // Original Author:  Andrea Perrotta
 //         Created:  Mon Oct 30 14:37:24 CET 2006
-// $Id: ParamL3MuonProducer.cc,v 1.12 2008/01/08 17:42:19 pjanot Exp $
+// $Id: ParamL3MuonProducer.cc,v 1.14 2008/04/10 17:37:38 pjanot Exp $
 //
 //
 
@@ -66,9 +66,6 @@
 #include "DataFormats/TrackerRecHit2D/interface/SiTrackerGSRecHit2DCollection.h"
 #include "DataFormats/MuonReco/interface/Muon.h"
 
-// Root
-#include <TRandom3.h>
-
 // constants, enums and typedefs
 typedef std::vector<L1MuGMTCand> L1MuonCollection;
 
@@ -105,14 +102,7 @@ ParamL3MuonProducer::ParamL3MuonProducer(const edm::ParameterSet& iConfig)
       "or remove the module that requires it.";
   }
 
-  bool useTRandom = iConfig.getParameter<bool>("UseTRandomEngine");
-  if ( !useTRandom ) { 
-    random = new RandomEngine(&(*rng));
-  } else {
-    TRandom3* anEngine = new TRandom3();
-    anEngine->SetSeed(rng->mySeed());
-    random = new RandomEngine(anEngine);
-  }
+  random = new RandomEngine(&(*rng));
 
 }
 
@@ -124,7 +114,6 @@ ParamL3MuonProducer::~ParamL3MuonProducer()
   // (e.g. close files, deallocate resources etc.)
   
   if ( random ) { 
-    if ( random->theRootEngine() ) delete random->theRootEngine();
     delete random;
   }
 }
@@ -142,6 +131,7 @@ void ParamL3MuonProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSe
 
   Handle<std::vector<SimTrack> > simMuons;
   iEvent.getByLabel(theSimModuleLabel_,theSimModuleProcess_,simMuons);
+
   unsigned nmuons = simMuons->size();
   //  Handle<std::vector<SimVertex> > simVertices;
   //  iEvent.getByLabel(theSimModuleLabel_,simVertices);
@@ -239,7 +229,13 @@ void ParamL3MuonProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSe
 
 
   for( unsigned fsimi=0; fsimi < nmuons; ++fsimi) {
+    // The sim track can be a muon or a decaying hadron
     const SimTrack& mySimTrack = (*simMuons)[fsimi];
+    int pid = mySimTrack.type();        
+    // The daughter muons in case of a decaying hadron is just after the muon in the list
+    // We keep the daughter muon momentum for L1 and skip the daughter muon in the loop 
+    // to avoid double counting at L1 
+    const SimTrack& mySimMuon = fabs(pid)==13 ? (*simMuons)[fsimi] : (*simMuons)[++fsimi];
 
     bool hasL1 = false , hasL3 = false , hasTK = false , hasGL = false;
 
@@ -256,7 +252,7 @@ void ParamL3MuonProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSe
       std::cout << " : pT = " << mySimP4.Pt()
 		<< ", eta = " << mySimP4.Eta()
 		<< ", phi = " << mySimP4.Phi() << std::endl;
-    }
+    }      
 
 // *** Reconstruct parameterized muons starting from undecayed simulated muons
  
@@ -267,7 +263,8 @@ void ParamL3MuonProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSe
 //
 // Now L1
 //
-      SimpleL1MuGMTCand * thisL1MuonCand = new SimpleL1MuGMTCand(&mySimTrack);
+      
+      SimpleL1MuGMTCand * thisL1MuonCand = new SimpleL1MuGMTCand(&mySimMuon);
       if (doL1_ || doL3_ || doGL_) {
 	hasL1 = myL1EfficiencyHandler->kill(thisL1MuonCand);
 	if (hasL1) {

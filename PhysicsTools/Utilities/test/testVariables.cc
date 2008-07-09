@@ -19,9 +19,8 @@ IMPLEMENT_VARIABLE(W);
 CPPUNIT_TEST_SUITE_REGISTRATION(testVariables);
 
 void testVariables::checkAll() {
-  using namespace funct;
   double value = 1.234, value1 = 2.345;
-  X x;
+  funct::X x;
   CPPUNIT_ASSERT(x.name() == "x");
   x = value;
   double v = x;
@@ -32,13 +31,13 @@ void testVariables::checkAll() {
   CPPUNIT_ASSERT(v == value1);
   CPPUNIT_ASSERT(x() == v);
 
-  W w;
+  funct::W w;
   w = value;
   v = w;
   CPPUNIT_ASSERT(v == value);
   CPPUNIT_ASSERT(w() == v);
 
-  Y y;
+  funct::Y y;
   
   x = value;
   y = value1;

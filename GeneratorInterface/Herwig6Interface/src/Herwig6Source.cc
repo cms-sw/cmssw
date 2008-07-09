@@ -9,7 +9,10 @@
 #include "SimDataFormats/HepMCProduct/interface/HepMCProduct.h"
 
 #include "FWCore/Framework/interface/Event.h"
+#include "FWCore/ServiceRegistry/interface/Service.h"
 #include "FWCore/Utilities/interface/RandomNumberGenerator.h"
+#include "CLHEP/Random/JamesRandom.h"
+#include "CLHEP/Random/RandFlat.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include "SimDataFormats/HepMCProduct/interface/GenInfoProduct.h"
 #include "FWCore/Framework/interface/Run.h"
@@ -23,6 +26,7 @@ using namespace std;
 
 #include "HepMC/HerwigWrapper6_4.h"
 #include "HepMC/IO_HERWIG.h"
+#include "HepMC/HEPEVT_Wrapper.h"
 
 // INCLUDE JIMMY,HERWIG,LHAPDF COMMON BLOCKS AND FUNTIONS
 #include "herwig.h"

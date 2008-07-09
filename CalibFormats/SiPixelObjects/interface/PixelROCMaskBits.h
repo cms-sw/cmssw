@@ -1,21 +1,14 @@
 #ifndef PixelROCMaskBits_h
 #define PixelROCMaskBits_h
-/*! \file CalibFormats/SiPixelObjects/interface/PixelROCMaskBits.h
-*   \brief This class implements..
-*
-*   A longer explanation will be placed here later
-*/
+//
+//
+//
 
 #include <fstream>
 #include <string>
 #include "CalibFormats/SiPixelObjects/interface/PixelROCName.h"
 
 namespace pos{
-/*! \class PixelROCMaskBits PixelROCMaskBits.h "interface/PixelROCMaskBits.h"
-*   \brief This class implements..
-*
-*   A longer explanation will be placed here later
-*/
   class PixelROCMaskBits {
 
   public:

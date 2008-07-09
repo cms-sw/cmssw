@@ -12,15 +12,15 @@
 //
 // Original Author:  Werner Sun
 //         Created:  Sat Jul 15 12:41:07 EDT 2006
-// $Id: L1EtMissParticle.h,v 1.12 2007/11/13 17:27:23 wsun Exp $
+// $Id: L1EtMissParticle.h,v 1.11 2007/11/13 03:07:45 wsun Exp $
 //
 
 // system include files
 
 // user include files
 #include "DataFormats/Candidate/interface/LeafCandidate.h"
-#include "DataFormats/L1GlobalCaloTrigger/interface/L1GctCollections.h"
-#include "DataFormats/Common/interface/Ref.h"
+#include "DataFormats/L1GlobalCaloTrigger/interface/L1GctEtSums.h"
+#include "DataFormats/Common/interface/RefProd.h"
 
 // forward declarations
 
@@ -33,29 +33,25 @@ namespace l1extra {
 	 L1EtMissParticle();
 
 	 // Default Refs are null.
-	 L1EtMissParticle(
-            const LorentzVector& p4,
-	    const double& etTotal,
-	    const double& etHad,
-	    const edm::Ref< L1GctEtMissCollection >& aEtMissRef =
-	       edm::Ref< L1GctEtMissCollection >(),
-	    const edm::Ref< L1GctEtTotalCollection >& aEtTotalRef =
-	       edm::Ref< L1GctEtTotalCollection >(),
-	    const edm::Ref< L1GctEtHadCollection >& aEtHadRef =
-	       edm::Ref< L1GctEtHadCollection >(),
-	    int bx = 0 ) ;
+	 L1EtMissParticle( const LorentzVector& p4,
+			   const double& etTotal,
+			   const double& etHad,
+			   const edm::RefProd< L1GctEtMiss >& aEtMissRef =
+			      edm::RefProd< L1GctEtMiss >(),
+			   const edm::RefProd< L1GctEtTotal >& aEtTotalRef =
+			      edm::RefProd< L1GctEtTotal >(),
+			   const edm::RefProd< L1GctEtHad >& aEtHadRef =
+			      edm::RefProd< L1GctEtHad >() ) ;
 
-	 L1EtMissParticle(
-	    const PolarLorentzVector& p4,
-	    const double& etTotal,
-	    const double& etHad,
-	    const edm::Ref< L1GctEtMissCollection >& aEtMissRef =
-	       edm::Ref< L1GctEtMissCollection >(),
-	    const edm::Ref< L1GctEtTotalCollection >& aEtTotalRef =
-	       edm::Ref< L1GctEtTotalCollection >(),
-	    const edm::Ref< L1GctEtHadCollection >& aEtHadRef =
-	       edm::Ref< L1GctEtHadCollection >(),
-	    int bx = 0 ) ;
+	 L1EtMissParticle( const PolarLorentzVector& p4,
+			   const double& etTotal,
+			   const double& etHad,
+			   const edm::RefProd< L1GctEtMiss >& aEtMissRef =
+			      edm::RefProd< L1GctEtMiss >(),
+			   const edm::RefProd< L1GctEtTotal >& aEtTotalRef =
+			      edm::RefProd< L1GctEtTotal >(),
+			   const edm::RefProd< L1GctEtHad >& aEtHadRef =
+			      edm::RefProd< L1GctEtHad >() ) ;
 
 	 virtual ~L1EtMissParticle() {}
 
@@ -69,13 +65,13 @@ namespace l1extra {
 	 const double& etHad() const
 	 { return etHad_ ; }
 
-	 const edm::Ref< L1GctEtMissCollection >& gctEtMissRef() const
+	 const edm::RefProd< L1GctEtMiss >& gctEtMissRef() const
 	 { return etMissRef_ ; }
 
-	 const edm::Ref< L1GctEtTotalCollection >& gctEtTotalRef() const
+	 const edm::RefProd< L1GctEtTotal >& gctEtTotalRef() const
 	 { return etTotRef_ ; }
 
-	 const edm::Ref< L1GctEtHadCollection >& gctEtHadRef() const
+	 const edm::RefProd< L1GctEtHad >& gctEtHadRef() const
 	 { return etHadRef_ ; }
 
 	 const L1GctEtMiss* gctEtMiss() const
@@ -90,9 +86,6 @@ namespace l1extra {
          virtual L1EtMissParticle* clone() const
          { return new L1EtMissParticle( *this ) ; }
 
-	 int bx() const
-	 { return bx_ ; }
-
 	 // ---------- static member functions --------------------
 
 	 // ---------- member functions ---------------------------
@@ -101,9 +94,6 @@ namespace l1extra {
 
 	 void setEtHad( const double& etHad )
 	 { etHad_ = etHad ; }
-
-	 void setBx( int bx )
-	 { bx_ = bx ; }
 
       private:
 	 // L1EtMissParticle(const L1EtMissParticle&); // stop default
@@ -114,11 +104,9 @@ namespace l1extra {
 	 double etTot_ ;
 	 double etHad_ ;
 
-	 edm::Ref< L1GctEtMissCollection > etMissRef_ ;
-	 edm::Ref< L1GctEtTotalCollection > etTotRef_ ;
-	 edm::Ref< L1GctEtHadCollection > etHadRef_ ;
-
-	 int bx_ ;
+	 edm::RefProd< L1GctEtMiss > etMissRef_ ;
+	 edm::RefProd< L1GctEtTotal > etTotRef_ ;
+	 edm::RefProd< L1GctEtHad > etHadRef_ ;
    };
 }
 

@@ -69,9 +69,6 @@ namespace edmNew {
     id_type id() const { return m_id;}
     
     inline
-    id_type detId() const { return m_id;}
-    
-    inline
     size_type size() const { return m_size; }
 
     inline

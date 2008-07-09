@@ -88,11 +88,11 @@ void FamosProducer::produce(edm::Event & iEvent, const edm::EventSetup & es)
    } 
 
    // In case there is no HepMCProduct, seek a genParticle Candidate Collection
-   const reco::CandidateCollection* myGenParticles = 0;
+   const reco::GenParticleCollection* myGenParticles = 0;
    if ( !myGenEvent ) { 
      // Look for the particle CandidateCollection
-     Handle<reco::CandidateCollection> genEvt;
-     bool genPart = iEvent.getByLabel("genParticleCandidates",genEvt);
+     Handle<reco::GenParticleCollection> genEvt;
+     bool genPart = iEvent.getByLabel("genParticles",genEvt);
      if ( genPart ) myGenParticles = &(*genEvt);
    }
 

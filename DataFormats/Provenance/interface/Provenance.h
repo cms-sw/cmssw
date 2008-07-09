@@ -6,7 +6,7 @@
 Provenance: The full description of a product and how it came into
 existence.
 
-$Id: Provenance.h,v 1.5 2007/05/29 19:16:50 wmtan Exp $
+$Id: Provenance.h,v 1.6 2008/01/30 00:17:51 wmtan Exp $
 ----------------------------------------------------------------------*/
 #include <iosfwd>
 
@@ -30,12 +30,12 @@ $Id: Provenance.h,v 1.5 2007/05/29 19:16:50 wmtan Exp $
 namespace edm {
   class Provenance {
   public:
-    explicit Provenance(BranchDescription const& p);
-    explicit Provenance(ConstBranchDescription const& p);
-    Provenance(BranchDescription const& p, boost::shared_ptr<EntryDescription> e);
-    Provenance(ConstBranchDescription const& p, boost::shared_ptr<EntryDescription> e);
-    Provenance(BranchDescription const& p, EntryDescription const& e);
-    Provenance(ConstBranchDescription const& p, EntryDescription const& e);
+    Provenance(BranchDescription const& p, bool present);
+    Provenance(ConstBranchDescription const& p, bool present);
+    Provenance(BranchDescription const& p, boost::shared_ptr<EntryDescription> e, bool present);
+    Provenance(ConstBranchDescription const& p, boost::shared_ptr<EntryDescription> e, bool present);
+    Provenance(BranchDescription const& p, EntryDescription const& e, bool present);
+    Provenance(ConstBranchDescription const& p, EntryDescription const& e, bool present);
 
     ~Provenance() {}
 
@@ -60,6 +60,7 @@ namespace edm {
     std::set<std::string> const& branchAliases() const {return product().branchAliases();}
     ModuleDescriptionID const& moduleDescriptionID() const {return event().moduleDescriptionID();}
     ModuleDescription const& moduleDescription() const {return event().moduleDescription();}
+    bool const& isPresent() const {return isPresent_;}
 
     std::vector<ProductID> const& parents() const {return event().parents();}
 
@@ -69,6 +70,7 @@ namespace edm {
   private:
     ConstBranchDescription const product_;
     mutable boost::shared_ptr<EntryDescription> event_;
+    mutable bool isPresent_;
     boost::shared_ptr<ProvenanceDelayedReader> store_;
   };
   

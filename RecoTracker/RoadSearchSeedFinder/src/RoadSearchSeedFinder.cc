@@ -9,8 +9,8 @@
 // Created:         Sat Jan 14 22:00:00 UTC 2006
 //
 // $Author: noeding $
-// $Date: 2008/04/02 15:02:15 $
-// $Revision: 1.13 $
+// $Date: 2008/04/05 08:58:12 $
+// $Revision: 1.15 $
 //
 
 #include <iostream>
@@ -30,7 +30,7 @@
 #include "FWCore/Framework/interface/EventSetup.h"
 
 #include "FWCore/ParameterSet/interface/InputTag.h"
-#include "DataFormats/SiStripCommon/interface/SiStripLazyGetter.h"
+#include "RecoTracker/SpecialSeedGenerators/interface/ClusterChecker.h"
 
 RoadSearchSeedFinder::RoadSearchSeedFinder(edm::ParameterSet const& conf) : 
   roadSearchSeedFinderAlgorithm_(conf) ,
@@ -74,42 +74,16 @@ void RoadSearchSeedFinder::produce(edm::Event& e, const edm::EventSetup& es)
   if( e.getByLabel(pixelRecHitsInputTag, pixelRecHits)) {
     pixelRecHitCollection = pixelRecHits.product();
   } else {
-    edm::LogWarning("RoadSearch") << "Collection SiPixelRecHitCollection with InputTag " << pixelRecHitsInputTag << " cannot be found, using empty collection of same type. The RoadSearch algorithm is also fully functional without Pixel RecHits.";
-  }
-
-   //special parameters for cosmic track reconstruction
-  bool cosmicTracking              = conf_.getParameter<bool>("CosmicTracking");
-  unsigned int maxNrOfCosmicClusters = conf_.getParameter<unsigned int>("MaxNumberOfCosmicClusters");
-  
-  // cluster multiplicity filter for cosmic track reconstruction
-  // HLT: use SiStripLazyGetter to access clusters
-  // T0: use DetSetVector to access clusters
-  bool tooManyClusters=false;
-  edm::Handle<edm::DetSetVector<SiStripCluster> > clusterDSV;
-  e.getByLabel(clusterCollectionInputTag,clusterDSV);
-
-  if (!clusterDSV.failedToGet()) {
-    const edm::DetSetVector<SiStripCluster> *clusters = clusterDSV.product();
-    tooManyClusters = (roadSearchSeedFinderAlgorithm_.ClusterCounter(clusters)>maxNrOfCosmicClusters);  
-  } else {
-    edm::Handle<edm::SiStripLazyGetter<SiStripCluster> > lazyGH;
-    e.getByLabel(clusterCollectionInputTag, lazyGH);
-    if (!lazyGH.failedToGet()){
-      tooManyClusters = (lazyGH->size()>maxNrOfCosmicClusters);
-    } else {
-      edm::LogWarning("RoadSearch") << "No cluster collection has been found in the event. Put empty RS collection in the event.";
-      tooManyClusters = true;
-    }
+    LogDebug("RoadSearch") << "Collection SiPixelRecHitCollection with InputTag " << pixelRecHitsInputTag << " cannot be found, using empty collection of same type. The RoadSearch algorithm is also fully functional without Pixel RecHits.";
   }
 
   // create empty output collection
   std::auto_ptr<RoadSearchSeedCollection> output(new RoadSearchSeedCollection);
- 
-  
+
+  ClusterChecker check(conf_);
+    
   // invoke the seed finding algorithm: check number of clusters per event *only* in cosmic tracking mode
-  if(!cosmicTracking 
-     || (cosmicTracking && !tooManyClusters))
-    {
+  if (!check.tooManyClusters(e)) {
 
     roadSearchSeedFinderAlgorithm_.run(rphiRecHits.product(),  
 				       stereoRecHits.product(),

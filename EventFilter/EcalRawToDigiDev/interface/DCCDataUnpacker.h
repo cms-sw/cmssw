@@ -11,8 +11,8 @@
  *
  * \file DCCDataUnpacker.h
  *
- * $Date: 2008/02/20 23:51:57 $
- * $Revision: 1.12 $
+ * $Date: 2008/07/03 13:43:40 $
+ * $Revision: 1.18 $
  * \author N. Almeida
  * \author G. Franzoni
  *
@@ -195,6 +195,8 @@ public :
   Get the associated event
   */
   DCCEventBlock * currentEvent(){ return currentEvent_;}
+
+  static bool silentMode_; 
  
 protected :
 

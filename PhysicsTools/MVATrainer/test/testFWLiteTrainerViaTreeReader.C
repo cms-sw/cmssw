@@ -3,7 +3,6 @@ void testFWLiteTrainerViaTreeReader()
 	using namespace PhysicsTools;
 
 	MVATrainer trainer("testMVATrainer.xml");
-	trainer.setMonitoring(true);	// ROOT file with histograms
 
 	// obtain signal and background training trees;
 	// 

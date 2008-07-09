@@ -1,11 +1,14 @@
 import FWCore.ParameterSet.Config as cms
 
 l1tcsctf = cms.EDFilter("L1TCSCTF",
-    outputFile = cms.untracked.string('./L1TDQM.root'),
-    MonitorDaemon = cms.untracked.bool(True),
+    gmtProducer = cms.InputTag("null"), ##l1GtUnpack::DQM
+
+    statusProducer = cms.InputTag("csctfunpacker"),
+    outputFile = cms.untracked.string(''),
+    lctProducer = cms.InputTag("csctfunpacker"),
     verbose = cms.untracked.bool(False),
-    csctfSource = cms.InputTag("l1GtUnpack","","DQM"),
-    DaqMonitorBEInterface = cms.untracked.bool(True),
+    trackProducer = cms.InputTag("csctfunpacker"),
+    DQMStore = cms.untracked.bool(True),
     disableROOToutput = cms.untracked.bool(True)
 )
 

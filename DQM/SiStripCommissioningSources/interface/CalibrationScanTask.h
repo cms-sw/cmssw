@@ -22,18 +22,16 @@ class CalibrationScanTask : public CommissioningTask {
 		     const edm::DetSet<SiStripRawDigi>& );
   virtual void update();
   void checkAndSave(const uint16_t& isha, const uint16_t& vfs );
-  void directory( std::stringstream&, uint32_t run_number = 0 );
   
   sistrip::RunType runType_;
   
   HistoSet calib1_, calib2_;
 
   uint16_t nBins_;
-  uint16_t lastISHA_,lastVFS_, lastCalchan_;
+  uint16_t lastISHA_,lastVFS_;
   std::string filename_;
   std::vector<uint16_t> ped;
   uint32_t run_;
-  MonitorElement *ishaElement_, *vfsElement_, *calchanElement_;
 
 };
 

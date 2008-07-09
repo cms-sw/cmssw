@@ -1,6 +1,8 @@
 /*!
-\page ReleaseNotes Release Notes for CMSSW_1_8_x
+\page ReleaseNotes Release Notes for CMSSW_2_0_x
 
+
+<a href="https://twiki.cern.ch/twiki/bin/view/CMS/CMSSW_2_0_0">Goals for the CMSSW_2_0_0 release cycle</a>
 
 \htmlonly
 <table class="doctable">
@@ -34,7 +36,12 @@
   </td> </tr>
 <td>  \endhtmlonly \ref DQMReleaseNotes \htmlonly  </td> 
   <td class="contact">
-    <a href="mailto:">Andreas Meier</a>
+    <a href="mailto:">Andreas Meyer</a>
+  </td> </tr>
+<td>  \endhtmlonly \ref CalAliReleaseNotes \htmlonly  </td>
+   <td class="contact">
+    <a href="mailto:">David Futyan</a>,
+    <a href="mailto:">Reiner Mankel</a>
   </td> </tr>
 <td>  \endhtmlonly \ref ReconstructionReleaseNotes \htmlonly  </td>
    <td class="contact">
@@ -54,9 +61,11 @@
 
 \section other Release notes for other release series: 
 - <a href="http://cms-service-sdtweb.web.cern.ch/cms-service-sdtweb/doxygen/CMSSW_1_7_5/doc/html/ReleaseNotes.html">CMSSW_1_7_x</a>
+- <a href="http://cms-service-sdtweb.web.cern.ch/cms-service-sdtweb/doxygen/CMSSW_1_8_3/doc/html/ReleaseNotes.html">CMSSW_1_8_x</a>
+
 
 
 <hr>
-Last updated: @DATE@ K. Lassila-Perini
+Last updated: 10 April 2008 K. Lassila-Perini
  
 */

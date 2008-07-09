@@ -15,9 +15,24 @@
 
 using namespace std;
 using namespace edm;
+//using namespace raw;
+
+// EcalTBDaqFileReader * EcalTBDaqFileReader::instance_=0;
+
+// EcalTBDaqFileReader * EcalTBDaqFileReader::instance(){
+
+//   if (instance_== 0) {
+//     instance_ = new EcalTBDaqFileReader();
+//   }
+//   return instance_;
+
+// }
+
 
 EcalTBDaqFileReader::EcalTBDaqFileReader(): initialized_(false), inputFile_(0) { 
+
   LogDebug("EcalTBInputService") << "@SUB=EcalTBDaqFileReader";
+  //   if(instance_ == 0) instance_ = this;
 
 }
 
@@ -29,15 +44,12 @@ EcalTBDaqFileReader::~EcalTBDaqFileReader(){
   if(inputFile_) {
     inputFile_->close();
     delete inputFile_;
-    inputFile_=0;
   }
+  //   instance_=0;
 
   //Cleaning the event
-  if (cachedData_.len > 0) {
+  if (cachedData_.fedData)
     delete[] cachedData_.fedData;
-    cachedData_.len = 0;
-  }
-
 }
 
 void EcalTBDaqFileReader::setInitialized(bool value){initialized_=value;}
@@ -62,7 +74,6 @@ void EcalTBDaqFileReader::initialize(const string & file, bool isBinary){
     if(inputFile_) {
       inputFile_->close();
       delete inputFile_;
-      inputFile_=0;
     }
   }
 
@@ -82,10 +93,8 @@ bool EcalTBDaqFileReader::fillDaqEventData() {
   const int MAXFEDID = 1024;
 
   //Cleaning the event before filling
-  if (cachedData_.len > 0) {
+  if (cachedData_.fedData)
     delete[] cachedData_.fedData;
-    cachedData_.len = 0;
-  }
 
   pair<int,int> fedInfo;  //int =FED id, int = event data length 
   try 

@@ -121,11 +121,26 @@ class _SequenceOperator(_Sequenceable):
         self._left = left
         self._right = right
     def __str__(self):
-        return str(self._left)+self._pySymbol+str(self._right)
+        returnValue = self._dumpChild(self._left, str(self._left))
+        returnValue +=self._pySymbol
+        returnValue +=self._dumpChild(self._right, str(self._right))
+        return returnValue
     def dumpSequenceConfig(self):
-        return '('+self._left.dumpSequenceConfig()+self._cfgSymbol+self._right.dumpSequenceConfig()+')'
+        returnValue = self._dumpChild(self._left, self._left.dumpSequenceConfig())
+        returnValue +=self._cfgSymbol
+        returnValue +=self._dumpChild(self._right, self._right.dumpSequenceConfig())
+        return returnValue
     def dumpSequencePython(self):
-        return self._left.dumpSequencePython()+self._pySymbol+self._right.dumpSequencePython()
+        returnValue = self._dumpChild(self._left, self._left.dumpSequencePython())
+        returnValue +=self._pySymbol
+        returnValue +=self._dumpChild(self._right, self._right.dumpSequencePython())
+        return returnValue
+    def _dumpChild(self, child, dump):
+        returnValue = dump
+        # see if it needs parentheses for precedence
+        if isinstance(child, _SequenceOperator) and (child._precedence() < self._precedence()):
+           returnValue = '('+returnValue+')'
+        return returnValue
     def _clonesequence(self, lookuptable):
         return type(self)(self._left._clonesequence(lookuptable),self._right._clonesequence(lookuptable))
     def resolve(self, processDict):
@@ -140,6 +155,10 @@ class _SequenceOperator(_Sequenceable):
     def _visitSubNodes(self,visitor):
         self._left.visitNode(visitor)
         self._right.visitNode(visitor)
+    def _precedence(self):
+        """Precedence order for this operation, the larger the value the higher the precedence"""
+        raise RuntimeError("_precedence must be overwritten by inheriting classes")
+        return 0
 
 class _SequenceOpAids(_SequenceOperator):
     """Used in the expression tree for a sequence as a stand in for the ',' operator"""
@@ -151,6 +170,8 @@ class _SequenceOpAids(_SequenceOperator):
         #do left first and then right since right depends on left
         self._left._findDependencies(knownDeps,presentDeps)
         self._right._findDependencies(knownDeps,presentDeps)
+    def _precedence(self):
+        return 2
 
 class _SequenceOpFollows(_SequenceOperator):
     """Used in the expression tree for a sequence as a stand in for the '&' operator"""
@@ -166,11 +187,15 @@ class _SequenceOpFollows(_SequenceOperator):
         end = len(presentDeps)
         presentDeps.update(oldDepsL)
         presentDeps.update(oldDepsR)
+    def _precedence(self):
+        return 1
 
 class _SequenceNegation(_Sequenceable):
     """Used in the expression tree for a sequence as a stand in for the '!' operator"""
     def __init__(self, operand):
         self.__operand = operand
+        if isinstance(operand, _ModuleSequenceType):
+            raise RuntimeError("The ~ operator cannot accept a sequence")
     def __str__(self):
         return '~%s' %self.__operand
     def dumpSequenceConfig(self):
@@ -180,7 +205,7 @@ class _SequenceNegation(_Sequenceable):
     def _findDependencies(self,knownDeps, presentDeps):
         self.__operand._findDependencies(knownDeps, presentDeps)
     def fillNamesList(self, l, processDict):
-        l.append(self.__str__())
+        l.append(self.dumpSequenceConfig())
     def _clonesequence(self, lookuptable):
         return type(self)(self.__operand._clonesequence(lookuptable))
     def resolve(self, processDict):
@@ -190,6 +215,37 @@ class _SequenceNegation(_Sequenceable):
         return True
     def _visitSubNodes(self,visitor):
         self.__operand.visitNode(visitor)
+
+class _SequenceIgnore(_Sequenceable):
+    """Used in the expression tree for a sequence as a stand in for the '-' operator"""
+    def __init__(self, operand):
+        self.__operand = operand
+        if isinstance(operand, _ModuleSequenceType):
+            raise RuntimeError("The ignore command cannot accept a sequence")
+    def __str__(self):
+        return 'cms.ignore(%s)' %self.__operand
+    def dumpSequenceConfig(self):
+        return '-%s' %self.__operand.dumpSequenceConfig()
+    def dumpSequencePython(self):
+        return 'cms.ignore(%s)' %self.__operand.dumpSequencePython()
+    def _findDependencies(self,knownDeps, presentDeps):
+        self.__operand._findDependencies(knownDeps, presentDeps)
+    def fillNamesList(self, l, processDict):
+        l.append(self.dumpSequenceConfig())
+    def _clonesequence(self, lookuptable):
+        return type(self)(self.__operand._clonesequence(lookuptable))
+    def resolve(self, processDict):
+        self.__operand = self.__operand.resolve(processDict)
+        return self
+    def isOperation(self):
+        return True
+    def _visitSubNodes(self,visitor):
+        self.__operand.visitNode(visitor)
+
+def ignore(seq):
+    """The EDFilter passed as an argument will be run but its filter value will be ignored
+    """
+    return _SequenceIgnore(seq)
 
 class Path(_ModuleSequenceType):
     def __init__(self,*arg,**argv):
@@ -287,17 +343,44 @@ if __name__=="__main__":
     class TestModuleCommand(unittest.TestCase):
         def setUp(self):
             """Nothing to do """
-            print 'testing'
+            pass
         def testDumpPython(self):
             a = DummyModule("a")
             b = DummyModule('b')
             p = Path((a*b))
+            #print p.dumpConfig('')
             self.assertEqual(p.dumpPython(None),"cms.Path(process.a*process.b)\n")
             p2 = Path((b+a))
+            #print p2.dumpConfig('')
             self.assertEqual(p2.dumpPython(None),"cms.Path(process.b+process.a)\n")
             c = DummyModule('c')
             p3 = Path(c*(a+b))
-            self.assertEqual(p3.dumpPython(None),"cms.Path(process.c*process.a+process.b)\n")
+            #print p3.dumpConfig('')
+            self.assertEqual(p3.dumpPython(None),"cms.Path(process.c*(process.a+process.b))\n")
+            p4 = Path(c*a+b)
+            #print p4.dumpConfig('')
+            self.assertEqual(p4.dumpPython(None),"cms.Path(process.c*process.a+process.b)\n")
+            p5 = Path(a+ignore(b))
+            #print p5.dumpConfig('')
+            self.assertEqual(p5.dumpPython(None),"cms.Path(process.a+cms.ignore(process.b))\n")
+            p6 = Path(c+a*b)
+            #print p6.dumpConfig('')
+            self.assertEqual(p6.dumpPython(None),"cms.Path(process.c+process.a*process.b)\n")
+            p7 = Path(a+~b)
+            self.assertEqual(p7.dumpPython(None),"cms.Path(process.a+~process.b)\n")
+            p8 = Path((a+b)*c)
+            self.assertEqual(p8.dumpPython(None),"cms.Path((process.a+process.b)*process.c)\n")
+            l = list()
+            d = dict()
+            p.fillNamesList(l, d)
+            self.assertEqual(l, ['a', 'b'])
+            l = list()
+            p5.fillNamesList(l, d)
+            self.assertEqual(l, ['a', '-b'])
+            l = list()
+            p7.fillNamesList(l, d)
+            self.assertEqual(l, ['a', '!b'])
+
         def testVisitor(self):
             class TestVisitor(object):
                 def __init__(self, enters, leaves):

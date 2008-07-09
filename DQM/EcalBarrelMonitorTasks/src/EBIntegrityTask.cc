@@ -1,8 +1,8 @@
 /*
  * \file EBIntegrityTask.cc
  *
- * $Date: 2008/03/14 14:57:58 $
- * $Revision: 1.65 $
+ * $Date: 2008/04/08 15:35:12 $
+ * $Revision: 1.71 $
  * \author G. Della Ricca
  *
  */
@@ -35,10 +35,13 @@ EBIntegrityTask::EBIntegrityTask(const ParameterSet& ps){
 
   init_ = false;
 
-  // get hold of back-end interface
-  dbe_ = Service<DQMStore>().operator->();
+  dqmStore_ = Service<DQMStore>().operator->();
+
+  prefixME_ = ps.getUntrackedParameter<string>("prefixME", "");
 
   enableCleanup_ = ps.getUntrackedParameter<bool>("enableCleanup", false);
+
+  mergeRuns_ = ps.getUntrackedParameter<bool>("mergeRuns", false);
 
   EBDetIdCollection0_ =  ps.getParameter<edm::InputTag>("EBDetIdCollection0");
   EBDetIdCollection1_ =  ps.getParameter<edm::InputTag>("EBDetIdCollection1");
@@ -75,12 +78,39 @@ void EBIntegrityTask::beginJob(const EventSetup& c){
 
   ievt_ = 0;
 
-  if ( dbe_ ) {
-    dbe_->setCurrentFolder("EcalBarrel/EBIntegrityTask");
-    dbe_->rmdir("EcalBarrel/EBIntegrityTask");
+  if ( dqmStore_ ) {
+    dqmStore_->setCurrentFolder(prefixME_ + "/EBIntegrityTask");
+    dqmStore_->rmdir(prefixME_ + "/EBIntegrityTask");
   }
 
-  Numbers::initGeometry(c);
+  Numbers::initGeometry(c, false);
+
+}
+
+void EBIntegrityTask::beginRun(const Run& r, const EventSetup& c) {
+
+  if ( ! mergeRuns_ ) this->reset();
+
+}
+
+void EBIntegrityTask::endRun(const Run& r, const EventSetup& c) {
+
+}
+
+void EBIntegrityTask::reset(void) {
+
+  if ( meIntegrityDCCSize ) meIntegrityDCCSize->Reset();
+  for (int i = 0; i < 36; i++) {
+    if ( meIntegrityGain[i] ) meIntegrityGain[i]->Reset();
+    if ( meIntegrityChId[i] ) meIntegrityChId[i]->Reset();
+    if ( meIntegrityGainSwitch[i] ) meIntegrityGainSwitch[i]->Reset();
+    if ( meIntegrityTTId[i] ) meIntegrityTTId[i]->Reset();
+    if ( meIntegrityTTBlockSize[i] ) meIntegrityTTBlockSize[i]->Reset();
+    if ( meIntegrityMemChId[i] ) meIntegrityMemChId[i]->Reset();
+    if ( meIntegrityMemGain[i] ) meIntegrityMemGain[i]->Reset();
+    if ( meIntegrityMemTTId[i] ) meIntegrityMemTTId[i]->Reset();
+    if ( meIntegrityMemTTBlockSize[i] ) meIntegrityMemTTBlockSize[i]->Reset();
+  }
 
 }
 
@@ -90,107 +120,107 @@ void EBIntegrityTask::setup(void){
 
   char histo[200];
 
-  if ( dbe_ ) {
-    dbe_->setCurrentFolder("EcalBarrel/EBIntegrityTask");
+  if ( dqmStore_ ) {
+    dqmStore_->setCurrentFolder(prefixME_ + "/EBIntegrityTask");
 
     // checking when number of towers in data different than expected from header
     sprintf(histo, "EBIT DCC size error");
-    meIntegrityDCCSize = dbe_->book1D(histo, histo, 36, 1, 37.);
+    meIntegrityDCCSize = dqmStore_->book1D(histo, histo, 36, 1, 37.);
     for (int i = 0; i < 36; i++) {
       meIntegrityDCCSize->setBinLabel(i+1, Numbers::sEB(i+1).c_str(), 1);
     }
 
     // checking when the gain is 0
-    dbe_->setCurrentFolder("EcalBarrel/EBIntegrityTask/Gain");
+    dqmStore_->setCurrentFolder(prefixME_ + "/EBIntegrityTask/Gain");
     for (int i = 0; i < 36; i++) {
       sprintf(histo, "EBIT gain %s", Numbers::sEB(i+1).c_str());
-      meIntegrityGain[i] = dbe_->book2D(histo, histo, 85, 0., 85., 20, 0., 20.);
+      meIntegrityGain[i] = dqmStore_->book2D(histo, histo, 85, 0., 85., 20, 0., 20.);
       meIntegrityGain[i]->setAxisTitle("ieta", 1);
       meIntegrityGain[i]->setAxisTitle("iphi", 2);
-      dbe_->tag(meIntegrityGain[i], i+1);
+      dqmStore_->tag(meIntegrityGain[i], i+1);
     }
 
     // checking when channel has unexpected or invalid ID
-    dbe_->setCurrentFolder("EcalBarrel/EBIntegrityTask/ChId");
+    dqmStore_->setCurrentFolder(prefixME_ + "/EBIntegrityTask/ChId");
     for (int i = 0; i < 36; i++) {
       sprintf(histo, "EBIT ChId %s", Numbers::sEB(i+1).c_str());
-      meIntegrityChId[i] = dbe_->book2D(histo, histo, 85, 0., 85., 20, 0., 20.);
+      meIntegrityChId[i] = dqmStore_->book2D(histo, histo, 85, 0., 85., 20, 0., 20.);
       meIntegrityChId[i]->setAxisTitle("ieta", 1);
       meIntegrityChId[i]->setAxisTitle("iphi", 2);
-      dbe_->tag(meIntegrityChId[i], i+1);
+      dqmStore_->tag(meIntegrityChId[i], i+1);
     }
 
     // checking when channel has unexpected or invalid ID
-    dbe_->setCurrentFolder("EcalBarrel/EBIntegrityTask/GainSwitch");
+    dqmStore_->setCurrentFolder(prefixME_ + "/EBIntegrityTask/GainSwitch");
     for (int i = 0; i < 36; i++) {
       sprintf(histo, "EBIT gain switch %s", Numbers::sEB(i+1).c_str());
-      meIntegrityGainSwitch[i] = dbe_->book2D(histo, histo, 85, 0., 85., 20, 0., 20.);
+      meIntegrityGainSwitch[i] = dqmStore_->book2D(histo, histo, 85, 0., 85., 20, 0., 20.);
       meIntegrityGainSwitch[i]->setAxisTitle("ieta", 1);
       meIntegrityGainSwitch[i]->setAxisTitle("iphi", 2);
-      dbe_->tag(meIntegrityGainSwitch[i], i+1);
+      dqmStore_->tag(meIntegrityGainSwitch[i], i+1);
     }
 
     // checking when trigger tower has unexpected or invalid ID
-    dbe_->setCurrentFolder("EcalBarrel/EBIntegrityTask/TTId");
+    dqmStore_->setCurrentFolder(prefixME_ + "/EBIntegrityTask/TTId");
     for (int i = 0; i < 36; i++) {
       sprintf(histo, "EBIT TTId %s", Numbers::sEB(i+1).c_str());
-      meIntegrityTTId[i] = dbe_->book2D(histo, histo, 17, 0., 17., 4, 0., 4.);
+      meIntegrityTTId[i] = dqmStore_->book2D(histo, histo, 17, 0., 17., 4, 0., 4.);
       meIntegrityTTId[i]->setAxisTitle("ieta'", 1);
       meIntegrityTTId[i]->setAxisTitle("iphi'", 2);
-      dbe_->tag(meIntegrityTTId[i], i+1);
+      dqmStore_->tag(meIntegrityTTId[i], i+1);
     }
 
     // checking when trigger tower has unexpected or invalid size
-    dbe_->setCurrentFolder("EcalBarrel/EBIntegrityTask/TTBlockSize");
+    dqmStore_->setCurrentFolder(prefixME_ + "/EBIntegrityTask/TTBlockSize");
     for (int i = 0; i < 36; i++) {
       sprintf(histo, "EBIT TTBlockSize %s", Numbers::sEB(i+1).c_str());
-      meIntegrityTTBlockSize[i] = dbe_->book2D(histo, histo, 17, 0., 17., 4, 0., 4.);
+      meIntegrityTTBlockSize[i] = dqmStore_->book2D(histo, histo, 17, 0., 17., 4, 0., 4.);
       meIntegrityTTBlockSize[i]->setAxisTitle("ieta'", 1);
       meIntegrityTTBlockSize[i]->setAxisTitle("iphi'", 2);
-      dbe_->tag(meIntegrityTTBlockSize[i], i+1);
+      dqmStore_->tag(meIntegrityTTBlockSize[i], i+1);
     }
 
     // checking when mem channels have unexpected ID
-    dbe_->setCurrentFolder("EcalBarrel/EBIntegrityTask/MemChId");
+    dqmStore_->setCurrentFolder(prefixME_ + "/EBIntegrityTask/MemChId");
     for (int i = 0; i < 36; i++) {
       sprintf(histo, "EBIT MemChId %s", Numbers::sEB(i+1).c_str());
-      meIntegrityMemChId[i] = dbe_->book2D(histo, histo, 10, 0., 10., 5, 0., 5.);
+      meIntegrityMemChId[i] = dqmStore_->book2D(histo, histo, 10, 0., 10., 5, 0., 5.);
       meIntegrityMemChId[i]->setAxisTitle("pseudo-strip", 1);
       meIntegrityMemChId[i]->setAxisTitle("channel", 2);
-      dbe_->tag(meIntegrityMemChId[i], i+1);
+      dqmStore_->tag(meIntegrityMemChId[i], i+1);
     }
 
     // checking when mem samples have second bit encoding the gain different from 0
     // note: strictly speaking, this does not corrupt the mem sample gain value (since only first bit is considered)
     // but indicates that data are not completely correct
-    dbe_->setCurrentFolder("EcalBarrel/EBIntegrityTask/MemGain");
+    dqmStore_->setCurrentFolder(prefixME_ + "/EBIntegrityTask/MemGain");
     for (int i = 0; i < 36; i++) {
       sprintf(histo, "EBIT MemGain %s", Numbers::sEB(i+1).c_str());
-      meIntegrityMemGain[i] = dbe_->book2D(histo, histo, 10, 0., 10., 5, 0., 5.);
+      meIntegrityMemGain[i] = dqmStore_->book2D(histo, histo, 10, 0., 10., 5, 0., 5.);
       meIntegrityMemGain[i]->setAxisTitle("pseudo-strip", 1);
       meIntegrityMemGain[i]->setAxisTitle("channel", 2);
-      dbe_->tag(meIntegrityMemGain[i], i+1);
+      dqmStore_->tag(meIntegrityMemGain[i], i+1);
     }
 
     // checking when mem tower block has unexpected ID
-    dbe_->setCurrentFolder("EcalBarrel/EBIntegrityTask/MemTTId");
+    dqmStore_->setCurrentFolder(prefixME_ + "/EBIntegrityTask/MemTTId");
     for (int i = 0; i < 36; i++) {
       sprintf(histo, "EBIT MemTTId %s", Numbers::sEB(i+1).c_str());
-      meIntegrityMemTTId[i] = dbe_->book2D(histo, histo, 2, 0., 2., 1, 0., 1.);
+      meIntegrityMemTTId[i] = dqmStore_->book2D(histo, histo, 2, 0., 2., 1, 0., 1.);
       meIntegrityMemTTId[i]->setAxisTitle("pseudo-strip", 1);
       meIntegrityMemTTId[i]->setAxisTitle("channel", 2);
-      dbe_->tag(meIntegrityMemTTId[i], i+1);
+      dqmStore_->tag(meIntegrityMemTTId[i], i+1);
     }
 
     // checking when mem tower block has invalid size
-    dbe_->setCurrentFolder("EcalBarrel/EBIntegrityTask/MemSize");
+    dqmStore_->setCurrentFolder(prefixME_ + "/EBIntegrityTask/MemSize");
     for (int i = 0; i < 36; i++) {
       sprintf(histo, "EBIT MemSize %s", Numbers::sEB(i+1).c_str());
-      meIntegrityMemTTBlockSize[i] = dbe_->book2D(histo, histo, 2, 0., 2., 1, 0., 1.);
+      meIntegrityMemTTBlockSize[i] = dqmStore_->book2D(histo, histo, 2, 0., 2., 1, 0., 1.);
       meIntegrityMemTTBlockSize[i]->setAxisTitle("pseudo-strip", 1);
       meIntegrityMemTTId[i]->setAxisTitle("pseudo-strip", 1);
       meIntegrityMemTTId[i]->setAxisTitle("channel", 2);
-      dbe_->tag(meIntegrityMemTTBlockSize[i], i+1);
+      dqmStore_->tag(meIntegrityMemTTBlockSize[i], i+1);
     }
 
   }
@@ -199,65 +229,65 @@ void EBIntegrityTask::setup(void){
 
 void EBIntegrityTask::cleanup(void){
 
-  if ( ! enableCleanup_ ) return;
+  if ( ! init_ ) return;
 
-  if ( dbe_ ) {
-    dbe_->setCurrentFolder("EcalBarrel/EBIntegrityTask");
+  if ( dqmStore_ ) {
+    dqmStore_->setCurrentFolder(prefixME_ + "/EBIntegrityTask");
 
-    if ( meIntegrityDCCSize ) dbe_->removeElement( meIntegrityDCCSize->getName() );
+    if ( meIntegrityDCCSize ) dqmStore_->removeElement( meIntegrityDCCSize->getName() );
     meIntegrityDCCSize = 0;
 
-    dbe_->setCurrentFolder("EcalBarrel/EBIntegrityTask/Gain");
+    dqmStore_->setCurrentFolder(prefixME_ + "/EBIntegrityTask/Gain");
     for (int i = 0; i < 36; i++) {
-      if ( meIntegrityGain[i] ) dbe_->removeElement( meIntegrityGain[i]->getName() );
+      if ( meIntegrityGain[i] ) dqmStore_->removeElement( meIntegrityGain[i]->getName() );
       meIntegrityGain[i] = 0;
     }
 
-    dbe_->setCurrentFolder("EcalBarrel/EBIntegrityTask/ChId");
+    dqmStore_->setCurrentFolder(prefixME_ + "/EBIntegrityTask/ChId");
     for (int i = 0; i < 36; i++) {
-      if ( meIntegrityChId[i] ) dbe_->removeElement( meIntegrityChId[i]->getName() );
+      if ( meIntegrityChId[i] ) dqmStore_->removeElement( meIntegrityChId[i]->getName() );
       meIntegrityChId[i] = 0;
     }
 
-    dbe_->setCurrentFolder("EcalBarrel/EBIntegrityTask/GainSwitch");
+    dqmStore_->setCurrentFolder(prefixME_ + "/EBIntegrityTask/GainSwitch");
     for (int i = 0; i < 36; i++) {
-      if ( meIntegrityGainSwitch[i] ) dbe_->removeElement( meIntegrityGainSwitch[i]->getName() );
+      if ( meIntegrityGainSwitch[i] ) dqmStore_->removeElement( meIntegrityGainSwitch[i]->getName() );
       meIntegrityGainSwitch[i] = 0;
     }
 
-    dbe_->setCurrentFolder("EcalBarrel/EBIntegrityTask/TTId");
+    dqmStore_->setCurrentFolder(prefixME_ + "/EBIntegrityTask/TTId");
     for (int i = 0; i < 36; i++) {
-      if ( meIntegrityTTId[i] ) dbe_->removeElement( meIntegrityTTId[i]->getName() );
+      if ( meIntegrityTTId[i] ) dqmStore_->removeElement( meIntegrityTTId[i]->getName() );
       meIntegrityTTId[i] = 0;
     }
 
-    dbe_->setCurrentFolder("EcalBarrel/EBIntegrityTask/TTBlockSize");
+    dqmStore_->setCurrentFolder(prefixME_ + "/EBIntegrityTask/TTBlockSize");
     for (int i = 0; i < 36; i++) {
-      if ( meIntegrityTTBlockSize[i] ) dbe_->removeElement( meIntegrityTTBlockSize[i]->getName() );
+      if ( meIntegrityTTBlockSize[i] ) dqmStore_->removeElement( meIntegrityTTBlockSize[i]->getName() );
       meIntegrityTTBlockSize[i] = 0;
     }
 
-    dbe_->setCurrentFolder("EcalBarrel/EBIntegrityTask/MemChId");
+    dqmStore_->setCurrentFolder(prefixME_ + "/EBIntegrityTask/MemChId");
     for (int i = 0; i < 36; i++) {
-      if ( meIntegrityMemChId[i] ) dbe_->removeElement( meIntegrityMemChId[i]->getName() );
+      if ( meIntegrityMemChId[i] ) dqmStore_->removeElement( meIntegrityMemChId[i]->getName() );
       meIntegrityMemChId[i] = 0;
     }
 
-    dbe_->setCurrentFolder("EcalBarrel/EBIntegrityTask/MemGain");
+    dqmStore_->setCurrentFolder(prefixME_ + "/EBIntegrityTask/MemGain");
     for (int i = 0; i < 36; i++) {
-      if ( meIntegrityMemGain[i] ) dbe_->removeElement( meIntegrityMemGain[i]->getName() );
+      if ( meIntegrityMemGain[i] ) dqmStore_->removeElement( meIntegrityMemGain[i]->getName() );
       meIntegrityMemGain[i] = 0;
     }
 
-    dbe_->setCurrentFolder("EcalBarrel/EBIntegrityTask/MemTTId");
+    dqmStore_->setCurrentFolder(prefixME_ + "/EBIntegrityTask/MemTTId");
     for (int i = 0; i < 36; i++) {
-      if ( meIntegrityMemTTId[i] ) dbe_->removeElement( meIntegrityMemTTId[i]->getName() );
+      if ( meIntegrityMemTTId[i] ) dqmStore_->removeElement( meIntegrityMemTTId[i]->getName() );
       meIntegrityMemTTId[i] = 0;
     }
 
-    dbe_->setCurrentFolder("EcalBarrel/EBIntegrityTask/MemSize");
+    dqmStore_->setCurrentFolder(prefixME_ + "/EBIntegrityTask/MemSize");
     for (int i = 0; i < 36; i++) {
-      if ( meIntegrityMemTTBlockSize[i] ) dbe_->removeElement( meIntegrityMemTTBlockSize[i]->getName() );
+      if ( meIntegrityMemTTBlockSize[i] ) dqmStore_->removeElement( meIntegrityMemTTBlockSize[i]->getName() );
       meIntegrityMemTTBlockSize[i] = 0;
     }
 
@@ -271,7 +301,7 @@ void EBIntegrityTask::endJob(void){
 
   LogInfo("EBIntegrityTask") << "analyzed " << ievt_ << " events";
 
-  if ( init_ ) this->cleanup();
+  if ( enableCleanup_ ) this->cleanup();
 
 }
 
@@ -299,7 +329,7 @@ void EBIntegrityTask::analyze(const Event& e, const EventSetup& c){
 
   } else {
 
-    LogWarning("EBIntegrityTask") << EBDetIdCollection0_ << " not available";
+//    LogWarning("EBIntegrityTask") << EBDetIdCollection0_ << " not available";
 
   }
 

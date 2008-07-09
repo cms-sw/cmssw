@@ -74,6 +74,9 @@ SeedGeneratorForCosmics::SeedGeneratorForCosmics(edm::ParameterSet const& conf):
 void SeedGeneratorForCosmics::run(TrajectorySeedCollection &output,const edm::EventSetup& iSetup){
   seeds(output,iSetup,region);
   delete thePairGenerator;
+  delete thePropagatorAl;
+  delete thePropagatorOp;
+  delete theUpdator;
 }
 void SeedGeneratorForCosmics::seeds(TrajectorySeedCollection &output,
 				    const edm::EventSetup& iSetup,
@@ -134,9 +137,9 @@ void SeedGeneratorForCosmics::seeds(TrajectorySeedCollection &output,
 	  
 	  PTrajectoryStateOnDet *PTraj=  
 	    transformer.persistentState(outerUpdated,(*(HitTriplets[it].outer())).geographicalId().rawId());
-	  
-	  TrajectorySeed *trSeed=new TrajectorySeed(*PTraj,hits,alongMomentum);
-	  output.push_back(*trSeed);
+	  output.push_back(TrajectorySeed(*PTraj,hits,alongMomentum));
+
+	  delete PTraj;
 	}
       }
     } else {
@@ -151,9 +154,8 @@ void SeedGeneratorForCosmics::seeds(TrajectorySeedCollection &output,
 	  
 	  PTrajectoryStateOnDet *PTraj=  
 	    transformer.persistentState(outerUpdated, (*(HitTriplets[it].outer())).geographicalId().rawId());
-	  
-	  TrajectorySeed *trSeed=new TrajectorySeed(*PTraj,hits,oppositeToMomentum);
-	  output.push_back(*trSeed);
+	  output.push_back(TrajectorySeed(*PTraj,hits,oppositeToMomentum));
+	  delete PTraj;
 	}
       }
     }

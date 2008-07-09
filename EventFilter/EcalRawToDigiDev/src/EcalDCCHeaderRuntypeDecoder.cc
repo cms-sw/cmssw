@@ -1,7 +1,6 @@
 #include <EventFilter/EcalRawToDigiDev/interface/EcalDCCHeaderRuntypeDecoder.h>
-
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
-
+#include "EventFilter/EcalRawToDigiDev/interface/DCCDataUnpacker.h"
 #include <string>
 #include <iostream>
 
@@ -62,7 +61,9 @@ bool EcalDCCHeaderRuntypeDecoder::Decode( ulong TrigType,            // global h
   else if (type ==6 && sequence == 3){EcalDCCHeaderInfos->setRunType(EcalDCCHeaderBlock::CALIB_LOCAL);}
 
   else {
-    edm::LogError("EcalDCCHeaderRuntypeDecoder") <<"Unrecognized runtype and sequence: "<<type<<" "<<sequence;
+    if( ! DCCDataUnpacker::silentMode_ ){
+      edm::LogError("EcalDCCHeaderRuntypeDecoder") <<"Unrecognized runtype and sequence: "<<type<<" "<<sequence;
+    }
     EcalDCCHeaderInfos->setRunType(-1);
     WasDecodingOk_ = false;
     return WasDecodingOk_;
@@ -127,7 +128,9 @@ void EcalDCCHeaderRuntypeDecoder::DecodeSettingGlobal ( ulong TrigType, ulong de
     }
 
     else {
-      edm::LogError("EcalDCCHeaderRuntypeDecoder") <<"Unrecognized detailedTriggerTypeInTTCCommand: " << detailedTriggerTypeInTTCCommand;
+      if( ! DCCDataUnpacker::silentMode_ ){
+        edm::LogError("EcalDCCHeaderRuntypeDecoder") <<"Unrecognized detailedTriggerTypeInTTCCommand: " << detailedTriggerTypeInTTCCommand;
+      }
       theHeader->setRunType(-1);
       WasDecodingOk_ = false;
     }
@@ -137,7 +140,9 @@ void EcalDCCHeaderRuntypeDecoder::DecodeSettingGlobal ( ulong TrigType, ulong de
   }
   
   else {
-    edm::LogError("EcalDCCHeaderRuntypeDecoder") <<"Unrecognized detailed trigger type";
+    if( ! DCCDataUnpacker::silentMode_ ){
+      edm::LogError("EcalDCCHeaderRuntypeDecoder") <<"Unrecognized detailed trigger type";
+    } 
     theHeader->setRunType(-1);
     WasDecodingOk_ = false;
   }
@@ -201,7 +206,9 @@ void  EcalDCCHeaderRuntypeDecoder::DecodeSetting ( int Setting,  EcalDCCHeaderBl
     theSettings.wavelength = Setting & 7;
   }
   else {
-    edm::LogError("EcalDCCHeaderRuntypeDecoder") <<"Unrecognized run type: "<<theHeader->getRunType();
+    if( ! DCCDataUnpacker::silentMode_ ){
+      edm::LogError("EcalDCCHeaderRuntypeDecoder") <<"Unrecognized run type: "<<theHeader->getRunType();
+    }
     WasDecodingOk_ = false;
   }
 

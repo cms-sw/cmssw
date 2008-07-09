@@ -1,5 +1,5 @@
 //
-// $Id$
+// $Id: PATJetProducer.h,v 1.6 2008/04/29 12:38:15 gpetrucc Exp $
 //
 
 #ifndef PhysicsTools_PatAlgos_PATJetProducer_h
@@ -13,7 +13,7 @@
    a collection of objects of JetType.
 
   \author   Steven Lowette, Jeremy Andrea
-  \version  $Id$
+  \version  $Id: PATJetProducer.h,v 1.6 2008/04/29 12:38:15 gpetrucc Exp $
 */
 
 
@@ -24,8 +24,6 @@
 #include "DataFormats/Common/interface/View.h"
 
 #include "PhysicsTools/Utilities/interface/EtComparator.h"
-#include "PhysicsTools/JetCharge/interface/JetCharge.h"
-#include "PhysicsTools/PatUtils/interface/SimpleJetTrackAssociator.h"
 
 #include "DataFormats/PatCandidates/interface/Jet.h"
 #include "DataFormats/PatCandidates/interface/Electron.h"
@@ -63,31 +61,29 @@ namespace pat {
       edm::InputTag            genJetSrc_;
       bool                     addPartonJetMatch_;
       edm::InputTag            partonJetSrc_;
+      bool                     addJetCorrFactors_;
       edm::InputTag            jetCorrFactorsSrc_;
+      bool                     addTrigMatch_;
+      std::vector<edm::InputTag> trigMatchSrc_;
       bool                     addResolutions_;
       bool                     useNNReso_;
       std::string              caliJetResoFile_;
       std::string              caliBJetResoFile_;
 
       bool                     addBTagInfo_;
-      std::string              tagModuleLabelPostfix_; 
       bool                     addDiscriminators_; 
-      std::vector<std::string> tagModuleLabelsToKeep_;
-      std::vector<std::string> tagInfoModuleLabelsToKeep_;
-      std::vector<edm::InputTag> ipTagInfoLabel_;
-      std::vector<edm::InputTag> softETagInfoLabel_;
-      std::vector<edm::InputTag> softMTagInfoLabel_;
-      std::vector<edm::InputTag> svTagInfoLabel_;
+      edm::InputTag            discriminatorModule_;
+      std::set<std::string>    discriminatorNames_;
+      bool                     addTagInfoRefs_; 
+      edm::InputTag            tagInfoModule_;
+      std::set<std::string>    tagInfoNames_;
       bool                     addAssociatedTracks_;
-      edm::ParameterSet        trackAssociationPSet_;
+      edm::InputTag            trackAssociation_;
       bool                     addJetCharge_;
-      bool                     addTagInfoRefs_;
-      edm::ParameterSet        jetChargePSet_;
+      edm::InputTag            jetCharge_;
       // tools
       ObjectResolutionCalc             * theResoCalc_;
       ObjectResolutionCalc             * theBResoCalc_;
-      ::helper::SimpleJetTrackAssociator   simpleJetTrackAssociator_;
-      JetCharge                        * jetCharge_;
       GreaterByEt<Jet>                   eTComparator_;
 
   };

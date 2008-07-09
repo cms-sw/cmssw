@@ -9,7 +9,7 @@
  *
  * \author Luca Lista, INFN
  *
- * \version $Id: CompositeRefBaseCandidate.h,v 1.16 2007/10/15 12:44:33 llista Exp $
+ * \version $Id: CompositeRefBaseCandidate.h,v 1.18 2008/04/21 15:33:50 llista Exp $
  *
  */
 #include "DataFormats/Candidate/interface/iterator_imp_specific.h"
@@ -60,11 +60,21 @@ namespace reco {
     void clearDaughters() { dau.clear(); }
     /// reference to daughter at given position
     CandidateBaseRef daughterRef( size_type i ) const { return dau[ i ]; }
+    /// number of source candidates 
+    /// ( the candidates used to construct this Candidate). 
+    /// for CompositeRefBaseCandidates, the source candidates 
+    /// are the daughters. 
+    virtual size_type numberOfSourceCandidateRefs() const ;
+    /// return a RefToBase to one of the source Candidates 
+    /// ( the candidates used to construct this Candidate). 
+    /// for CompositeRefBaseCandidates, the source candidates 
+    /// are the daughters. 
+    virtual CandidateBaseRef sourceCandidateRef( size_type i ) const;
 
   private:
-    /// const iterator implentation
+    /// const iterator implementation
     typedef candidate::const_iterator_imp_specific<daughters> const_iterator_imp_specific;
-    /// iterator implentation
+    /// iterator implementation
     typedef candidate::iterator_imp_specific_dummy<daughters> iterator_imp_specific;
     /// collection of references to daughters
     daughters dau;

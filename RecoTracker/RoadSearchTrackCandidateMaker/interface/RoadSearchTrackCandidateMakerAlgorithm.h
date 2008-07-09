@@ -12,9 +12,9 @@
 // Original Author: Oliver Gutsche, gutsche@fnal.gov
 // Created:         Wed Mar 15 13:00:00 UTC 2006
 //
-// $Author: burkett $
-// $Date: 2008/01/10 19:28:10 $
-// $Revision: 1.16 $
+// $Author: noeding $
+// $Date: 2008/04/05 12:39:36 $
+// $Revision: 1.18 $
 //
 
 #include <string>
@@ -115,7 +115,9 @@ class RoadSearchTrackCandidateMakerAlgorithm
   int nFoundMin_;
 
   double initialVertexErrorXY_;
+  bool splitMatchedHits_;
 
+  double maxPropagationDistance;
 
   std::string measurementTrackerName_;
   

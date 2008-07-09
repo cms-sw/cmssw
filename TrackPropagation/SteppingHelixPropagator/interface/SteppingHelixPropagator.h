@@ -9,15 +9,15 @@
  *  Material effects (multiple scattering and energy loss) are based on tuning
  *  to MC and (eventually) data. 
  *
- *  $Date: 2007/05/13 03:28:44 $
- *  $Revision: 1.23 $
+ *  $Date: 2007/10/09 01:37:23 $
+ *  $Revision: 1.24 $
  *  \author Vyacheslav Krutelyov (slava77)
  */
 
 //
 // Original Author:  Vyacheslav Krutelyov
 //         Created:  Fri Mar  3 16:01:24 CST 2006
-// $Id: SteppingHelixPropagator.h,v 1.23 2007/05/13 03:28:44 slava77 Exp $
+// $Id: SteppingHelixPropagator.h,v 1.24 2007/10/09 01:37:23 slava77 Exp $
 //
 //
 
@@ -182,6 +182,11 @@ class SteppingHelixPropagator : public Propagator {
   //! force getting field value from MagneticField, not the geometric one
   void setUseInTeslaFromMagField(bool val) { useInTeslaFromMagField_ = val;}
 
+  //! set shifts in Z for endcap pieces (includes EE, HE, ME, YE)
+  void setEndcapShiftsInZPosNeg(double valPos, double valNeg){
+    ecShiftPos_ = valPos; ecShiftNeg_ = valNeg;
+  }
+
  protected:
   typedef SteppingHelixStateInfo::VolumeBounds MatBounds;
   //! (Internals) Init starting point
@@ -277,6 +282,9 @@ class SteppingHelixPropagator : public Propagator {
   bool useTuningForL2Speed_;
 
   double defaultStep_;
+
+  double ecShiftPos_;
+  double ecShiftNeg_;
 };
 
 #endif

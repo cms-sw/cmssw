@@ -22,16 +22,10 @@ public:
   using Storage::read;
   using Storage::write;
 
-  virtual bool		prefetch (const IOPosBuffer *what, IOSize n);
   virtual IOSize	read (void *into, IOSize n);
-  virtual IOSize	read (void *into, IOSize n, IOOffset pos);
-  virtual IOSize	readv (IOBuffer *into, IOSize n);
-  virtual IOSize	readv (IOPosBuffer *into, IOSize n);
   virtual IOSize	write (const void *from, IOSize n);
-  virtual IOSize	write (const void *from, IOSize n, IOOffset pos);
-  virtual IOSize	writev (const IOBuffer *from, IOSize n);
-  virtual IOSize	writev (const IOPosBuffer *from, IOSize n);
 
+  virtual void		preseek (const IOBuffer *offsets, IOSize buffers);
   virtual IOOffset	position (IOOffset offset, Relative whence = SET);
   virtual void		resize (IOOffset size);
   virtual void		flush (void);

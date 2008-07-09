@@ -40,7 +40,8 @@ public:
   typedef L1GctUnsignedInt<  L1GctEtMiss::kEtMissNBits    > etMissType;
   typedef L1GctUnsignedInt<  L1GctEtMiss::kEtMissPhiNBits > etMissPhiType;
 
-  enum { etComponentSize=L1GctEtMiss::kEtMissNBits+2 };
+  // Use the same number of bits as the firmware (range -131072 to 131071)
+  enum { etComponentSize=18 };
   typedef L1GctTwosComplement<etComponentSize> etComponentType;
 
   typedef L1GctJetFinderBase::hfTowerSumsType hfTowerSumsType;
@@ -60,19 +61,13 @@ public:
   friend std::ostream& operator << (std::ostream& os, const L1GctJetLeafCard& card);
 
   /// clear internal buffers
-  void reset();
+  virtual void reset();
 
   /// set the input buffers
   virtual void fetchInput();
  
   /// process the data and set outputs
   virtual void process();
-
-  /// define the bunch crossing range to process
-  void setBxRange(const int firstBx, const int numberOfBx);
-
-  /// partially clear buffers
-  void setNextBx(const int bx);
 
   /// get pointers to associated jetfinders
   L1GctJetFinderBase* getJetFinderA() const { return m_jetFinderA; }
@@ -96,29 +91,7 @@ public:
 
   hfTowerSumsType getOutputHfSums() const { return m_hfSums; }
    
-  /// Bunch crossing history acces methods
-  /// get the Ex output history
-  std::vector< etComponentType > getAllOutputEx() const { return m_exSumPipe.contents; }
-   
-  /// get the Ey output history
-  std::vector< etComponentType > getAllOutputEy() const { return m_eySumPipe.contents; }
-    
-  /// get the Et output history
-  std::vector< etTotalType > getAllOutputEt() const { return m_etSumPipe.contents; }
-  std::vector< etHadType >   getAllOutputHt() const { return m_htSumPipe.contents; }
-
-  std::vector< hfTowerSumsType > getAllOutputHfSums() const { return m_hfSumsPipe.contents; }
-   
- protected:
-
-  /// Separate reset methods for the processor itself and any data stored in pipelines
-  virtual void resetProcessor();
-  virtual void resetPipelines();
-
-  /// Initialise inputs with null objects for the correct bunch crossing if required
-  virtual void setupObjects() {}
-
- private:
+private:
 
   // Leaf card ID
   int m_id;
@@ -142,20 +115,14 @@ public:
 
   hfTowerSumsType m_hfSums;
 
-  // stored copies of output data
-  Pipeline<etComponentType> m_exSumPipe;
-  Pipeline<etComponentType> m_eySumPipe;
-  Pipeline<etTotalType>     m_etSumPipe;
-  Pipeline<etHadType>       m_htSumPipe;
-  Pipeline<hfTowerSumsType> m_hfSumsPipe;
-
   // PRIVATE MEMBER FUNCTIONS
   // Given a strip Et sum, perform rotations by sine and cosine
   // factors to find the corresponding Ex and Ey
-  etComponentType exComponent(const etTotalType etStrip, const unsigned jphi) const;
-  etComponentType eyComponent(const etTotalType etStrip, const unsigned jphi) const;
+  etComponentType exComponent(const etTotalType etStrip0, const etTotalType etStrip1, const unsigned jphi) const;
+  etComponentType eyComponent(const etTotalType etStrip0, const etTotalType etStrip1, const unsigned jphi) const;
   // Here is where the rotations are actually done
-  etComponentType rotateEtValue(const etTotalType etStrip, const unsigned fact) const;
+  etComponentType etValueForJetFinder(const etTotalType etStrip0, const unsigned fact0,
+                                      const etTotalType etStrip1, const unsigned fact1) const;
 
 };
 

@@ -23,7 +23,7 @@ MuonSelector::filter( const unsigned int&    index,
       if ( muons[index].isGlobalMuon() ) return GOOD;
       else return BAD;
     }
-  else if ( config_.selectionType == "muId"  )
+  else if ( config_.selectionType == "muonPOG"  )
     {
       return muIdSelection_( index, muons );
     }
@@ -69,17 +69,23 @@ MuonSelector::customSelection_( const unsigned int&    index,
 }
 
 
+//______________________________________________________________________________
 const pat::ParticleStatus
 MuonSelector::muIdSelection_( const unsigned int&    index, 
-                                const edm::View<Muon>& muons ) const
+                              const edm::View<Muon>& muons ) const
 {
-  // Muon Id
-  if(muons[index].isTrackerMuon()){
-  	// TMLastStation algorithm
-  	if(!muonid::isGoodMuon(muons[index], config_.flag)){
-  		return BAD;	
-  	}
-  }
+  // MuonID algorithm
+  if ( !muonid::isGoodMuon(muons[index], config_.flag))
+    {
+      return BAD;
+    }
+
+  // Direct cuts on compatibility
+  if (  muonid::getCaloCompatibility(muons[index])    <= config_.minCaloCompatibility
+     || muonid::getSegmentCompatibility(muons[index]) <= config_.minSegmentCompatibility )
+    {
+      return BAD;
+    }
 
   return GOOD;
 }

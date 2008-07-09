@@ -31,25 +31,19 @@ writeBlob::analyze( const edm::Event& evt, const edm::EventSetup& evtSetup)
   try{
     mySiStripNoises* me = new mySiStripNoises;
     unsigned int detidseed=1234;
-    unsigned int bsize=10;
-    unsigned int nstrips=5;
+    unsigned int bsize=100;
     unsigned int nAPV=2;
     for (uint32_t detid=detidseed;detid<(detidseed+bsize);detid++){
       //Generate Noise for det detid
-      mySiStripNoises::SiStripNoiseVector theSiStripVector;
-      mySiStripNoises::SiStripData theSiStripData;
-      for(unsigned short j=0; j<nAPV; ++j){
-	for(unsigned int strip=0; strip<nstrips; ++strip){
-	  float noiseValue=uni();
-	  std::cout<<"\t encoding noise value "<<noiseValue<<std::endl;
-	  theSiStripData.setData(noiseValue,false);
-	  theSiStripVector.push_back(theSiStripData.Data);
-	  std::cout<<"\t encoding noise as short "<<theSiStripData.Data<<std::endl;
-	}
+      std::vector<short> theSiStripVector;
+      for(unsigned int strip=0; strip<128*nAPV; ++strip){
+	std::cout<<strip<<std::endl;
+	float noise = uni();;      
+	me->setData(noise,theSiStripVector);
       }
-      mySiStripNoises::Range range(theSiStripVector.begin(),theSiStripVector.end());
-      me->put(detid,range);
+      me->put(detid,theSiStripVector);
     }
+
     if( mydbservice->isNewTagRequest(m_StripRecordName) ){
       mydbservice->createNewIOV<mySiStripNoises>(me,mydbservice->beginOfTime(),mydbservice->endOfTime(),m_StripRecordName);
     }else{

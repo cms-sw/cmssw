@@ -1,10 +1,9 @@
 #include <DQM/HcalMonitorModule/src/HcalMonitorModule.h>
-
 /*
  * \file HcalMonitorModule.cc
  * 
- * $Date: 2008/03/01 00:39:57 $
- * $Revision: 1.50 $
+ * $Date: 2008/05/27 03:09:17 $
+ * $Revision: 1.62 $
  * \author W Fisher
  *
 */
@@ -132,33 +131,33 @@ HcalMonitorModule::HcalMonitorModule(const edm::ParameterSet& ps){
 //--------------------------------------------------------
 HcalMonitorModule::~HcalMonitorModule(){
   
-  if(debug_) printf("HcalMonitorModule: Destructor.....");
+  if(true /* debug_ */) printf("HcalMonitorModule: Destructor.....");
   
-  if (dbe_){    
-    if(digiMon_!=NULL) {  digiMon_->clearME();}
-    if(dfMon_!=NULL)   {  dfMon_->clearME();}
-    if(pedMon_!=NULL)  {  pedMon_->clearME();}
-    if(ledMon_!=NULL)  {  ledMon_->clearME();}
-    if(hotMon_!=NULL)  {  hotMon_->clearME();}
-    if(deadMon_!=NULL) {  deadMon_->clearME();}
-    if(mtccMon_!=NULL) {  mtccMon_->clearME();}
-    if(rhMon_!=NULL)   {  rhMon_->clearME();}
-    
-    dbe_->setCurrentFolder(rootFolder_);
-    dbe_->removeContents();
-  }
-  
-  if(digiMon_!=NULL) { delete digiMon_; digiMon_=NULL; }
-  if(dfMon_!=NULL) { delete dfMon_; dfMon_=NULL; }
-  if(pedMon_!=NULL) { delete pedMon_; pedMon_=NULL; }
-  if(ledMon_!=NULL) { delete ledMon_; ledMon_=NULL; }
-  if(hotMon_!=NULL) { delete hotMon_; hotMon_=NULL; }
-  if(deadMon_!=NULL) { delete deadMon_; deadMon_=NULL; }
-  if(mtccMon_!=NULL) { delete mtccMon_; mtccMon_=NULL; }
-  if(rhMon_!=NULL) { delete rhMon_; rhMon_=NULL; }
-  if(tempAnalysis_!=NULL) { delete tempAnalysis_; tempAnalysis_=NULL; }
-  delete evtSel_; evtSel_ = NULL;
-
+// if (dbe_){    
+//   if(digiMon_!=NULL) {  digiMon_->clearME();}
+//   if(dfMon_!=NULL)   {  dfMon_->clearME();}
+//   if(pedMon_!=NULL)  {  pedMon_->clearME();}
+//   if(ledMon_!=NULL)  {  ledMon_->clearME();}
+//   if(hotMon_!=NULL)  {  hotMon_->clearME();}
+//   if(deadMon_!=NULL) {  deadMon_->clearME();}
+//   if(mtccMon_!=NULL) {  mtccMon_->clearME();}
+//   if(rhMon_!=NULL)   {  rhMon_->clearME();}
+//   
+//   dbe_->setCurrentFolder(rootFolder_);
+//   dbe_->removeContents();
+// }
+//
+//  if(digiMon_!=NULL) { delete digiMon_;  digiMon_=NULL; }
+//  if(dfMon_!=NULL) { delete dfMon_;     dfMon_=NULL; }
+//  if(pedMon_!=NULL) { delete pedMon_;   pedMon_=NULL; }
+//  if(ledMon_!=NULL) { delete ledMon_;   ledMon_=NULL; }
+//  if(hotMon_!=NULL) { delete hotMon_;   hotMon_=NULL; }
+//  if(deadMon_!=NULL) { delete deadMon_; deadMon_=NULL; }
+//  if(mtccMon_!=NULL) { delete mtccMon_; mtccMon_=NULL; }
+//  if(rhMon_!=NULL) { delete rhMon_;     rhMon_=NULL; }
+//  if(tempAnalysis_!=NULL) { delete tempAnalysis_; tempAnalysis_=NULL; }
+//  delete evtSel_; evtSel_ = NULL;
+//
 
 }
 
@@ -166,15 +165,18 @@ HcalMonitorModule::~HcalMonitorModule(){
 void HcalMonitorModule::beginJob(const edm::EventSetup& c){
   ievt_ = 0;
   
+  ievt_pre_=0;
+
   if(debug_) cout << "HcalMonitorModule: begin job...." << endl;
   
   if ( dbe_ != NULL ){
-    dbe_->setCurrentFolder(rootFolder_ );
+    dbe_->setCurrentFolder(rootFolder_+"DQM Job Status" );
     meStatus_  = dbe_->bookInt("STATUS");
     meRunType_ = dbe_->bookInt("RUN TYPE");
     meEvtMask_ = dbe_->bookInt("EVT MASK");
     meFEDS_    = dbe_->book1D("FEDs Unpacked","FEDs Unpacked",100,700,799);
-    meLatency_ = dbe_->book1D("Process Latency","Process Latency",200,0,1);
+    // process latency was (200,0,1), but that gave overflows
+    meLatency_ = dbe_->book1D("Process Latency","Process Latency",2000,0,10);
     meQuality_ = dbe_->book1D("Quality Status","Quality Status",100,0,1);
     meStatus_->Fill(0);
     meRunType_->Fill(-1);
@@ -223,8 +225,7 @@ void HcalMonitorModule::endLuminosityBlock(const edm::LuminosityBlock& lumiSeg,
 //--------------------------------------------------------
 void HcalMonitorModule::endRun(const edm::Run& r, const edm::EventSetup& context){
   cout <<"HcalMonitorModule::endRun"<<endl;
-
-}
+  }
 
 
 //--------------------------------------------------------
@@ -251,7 +252,7 @@ void HcalMonitorModule::endJob(void) {
 //--------------------------------------------------------
 void HcalMonitorModule::reset(){
 
-  if(debug_) cout << "HcalMonitorModule: reset...." << endl;
+  if(true /* debug_ */) cout << "HcalMonitorModule: reset...." << endl;
 
   if(rhMon_!=NULL)   rhMon_->reset();
   if(digiMon_!=NULL) digiMon_->reset();
@@ -275,9 +276,10 @@ void HcalMonitorModule::analyze(const edm::Event& e, const edm::EventSetup& even
   ievent_   = e.id().event();
   itime_    = e.time().value();
 
-  if (debug_) cout << "HcalMonitorModule: evts: "<< nevt_ << ", run: " << irun_ << ", LS: " << ilumisec_ << ", evt: " << ievent_ << ", time: " << itime_ << endl; 
+  if (debug_) cout << "HcalMonitorModule: evts: "<< nevt_ << ", run: " << irun_ << ", LS: " << ilumisec_ << ", evt: " << ievent_ << ", time: " << itime_ << endl <<"\t counter = "<<ievt_pre_<<"\t total count = "<<ievt_<<endl; 
 
   // skip this event if we're prescaling...
+  ievt_pre_++; // need to increment counter before calling prescale
   if(prescale()) return;
 
   meLatency_->Fill(psTime_.elapsedTime);
@@ -396,7 +398,8 @@ void HcalMonitorModule::analyze(const edm::Event& e, const edm::EventSetup& even
 
   // Hot Cell monitor task
   if((hotMon_ != NULL) && (evtMask&DO_HCAL_RECHITMON) && rechitOK_) 
-    hotMon_->processEvent(*hb_hits,*ho_hits,*hf_hits);
+    hotMon_->processEvent(*hb_hits,*ho_hits,*hf_hits, 
+			  *hbhe_digi,*ho_digi,*hf_digi,*conditions_);
 
   // Dead Cell monitor task -- may end up using both rec hits and digis?
   if((deadMon_ != NULL) && (evtMask&DO_HCAL_RECHITMON) && rechitOK_ && digiOK_) 
@@ -448,7 +451,9 @@ bool HcalMonitorModule::prescale(){
 
   //check each instance
   if(lsPS && (ilumisec_%prescaleLS_)!=0) lsPS = false; //LS veto
-  if(evtPS && (ievent_%prescaleEvt_)!=0) evtPS = false; //evt # veto
+  //if(evtPS && (ievent_%prescaleEvt_)!=0) evtPS = false; //evt # veto
+  // we can't just call (ievent_%prescaleEvt_) because ievent values not consecutive
+  if (evtPS && (ievt_pre_%prescaleEvt_)!=0) evtPS = false;
   if(timePS){
     double elapsed = (psTime_.updateTime - psTime_.vetoTime)/60.0;
     if(elapsed<prescaleTime_){

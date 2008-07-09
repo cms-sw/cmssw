@@ -58,9 +58,9 @@ void GctBlockPacker::writeGctOutJetBlock(unsigned char * d,
 {
   if(cenJets->size()<4 || forJets->size()<4 || tauJets->size()<4)  // Simple guard clause to stop crappy data from crashing the packer.
   {
-    edm::LogError("GCT") << "Block pack error: bad L1GctJetCandCollection size detected!\n"
-                         << "L1GctJetCandCollecion size is too small for at least one of the collections!\n"
-                         << "Aborting packing of GCT Jet Output to GT data!" << endl;
+    LogDebug("GCT") << "Block pack error: bad L1GctJetCandCollection size detected!\n"
+                    << "L1GctJetCandCollecion size is too small for at least one of the collections!\n"
+                    << "Aborting packing of GCT Jet Output to GT data!";
     return;
   }
   
@@ -114,9 +114,9 @@ void GctBlockPacker::writeGctOutEmAndEnergyBlock(unsigned char * d,
 {
   if(iso->size()<4 || nonIso->size()<4)  // Simple guard clause to stop crappy data from crashing the packer.
   {
-    edm::LogError("GCT") << "Block pack error: bad L1GctEmCandCollection size detected!\n"
-                         << "L1GctEmCandCollection size is too small for at least one of the collections!\n"
-                         << "Aborting packing of GCT EM Cands + EnergySum Output to GT data!" << endl;
+    LogDebug("GCT") << "Block pack error: bad L1GctEmCandCollection size detected!\n"
+                    << "L1GctEmCandCollection size is too small for at least one of the collections!\n"
+                    << "Aborting packing of GCT EM Cands + EnergySum Output to GT data!";
     return;
   }
 
@@ -167,8 +167,8 @@ void GctBlockPacker::writeRctEmCandBlocks(unsigned char * d, const L1CaloEmColle
 
   if(rctEm->size() == 0 || rctEm->size()%144 != 0)  // Should be 18 crates * 2 types (iso/noniso) * 4 electrons = 144 for 1 bx.
   {
-    edm::LogError("GCT") << "Block pack error: bad L1CaloEmCollection size detected!\n"
-                         << "Aborting packing of RCT EM Cand data!" << endl;
+    LogDebug("GCT") << "Block pack error: bad L1CaloEmCollection size detected!\n"
+                    << "Aborting packing of RCT EM Cand data!";
     return;
   }
 
@@ -250,8 +250,8 @@ void GctBlockPacker::writeRctCaloRegionBlock(unsigned char * d, const L1CaloRegi
 
   if(rctCalo->size() == 0 || rctCalo->size()%396 != 0)  // Should be 396 calo regions for 1 bx.
   {
-    edm::LogError("GCT") << "Block pack error: bad L1CaloRegionCollection size detected!\n"
-                         << "Aborting packing of RCT Calo Region data!" << endl;
+    LogDebug("GCT") << "Block pack error: bad L1CaloRegionCollection size detected!\n"
+                    << "Aborting packing of RCT Calo Region data!";
     return;
   }
 

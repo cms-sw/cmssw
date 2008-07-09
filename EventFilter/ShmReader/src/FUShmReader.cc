@@ -9,12 +9,10 @@
 
 #include "EventFilter/ShmReader/interface/FUShmReader.h"
 
-#include "DataFormats/FEDRawData/interface/FEDRawDataCollection.h"
-
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
-
-#include "IORawData/DaqSource/interface/DaqReaderPluginFactory.h"
 #include "FWCore/PluginManager/interface/ModuleDef.h"
+#include "IORawData/DaqSource/interface/DaqReaderPluginFactory.h"
+#include "DataFormats/FEDRawData/interface/FEDRawDataCollection.h"
 
 
 #include <iostream>
@@ -46,6 +44,10 @@ FUShmReader::~FUShmReader()
 {
   if (0!=shmBuffer_) {
     edm::LogInfo("FUShmReader")<<"detach from shared memory segment."<<endl;
+    if (lastCellIndex_<0xffffffff) {
+      shmBuffer_->writeErrorEventData(runNumber_,lastCellIndex_);
+      shmBuffer_->removeClientPrcId(getpid());
+    }
     shmdt(shmBuffer_);
   }
 }

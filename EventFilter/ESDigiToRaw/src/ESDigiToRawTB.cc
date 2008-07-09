@@ -1,11 +1,13 @@
 #include "EventFilter/ESDigiToRaw/interface/ESDigiToRawTB.h"
 
+#include "DataFormats/Common/interface/DetSetVector.h"
 #include "DataFormats/FEDRawData/interface/FEDRawDataCollection.h"
 #include "DataFormats/FEDRawData/interface/FEDRawData.h"
 #include "DataFormats/FEDRawData/interface/FEDNumbering.h"
 
 #include "DataFormats/EcalDigi/interface/ESDataFrame.h"
 #include "DataFormats/EcalDigi/interface/EcalDigiCollections.h"
+#include "DataFormats/EcalDetId/interface/EcalDetIdCollections.h"
 
 ESDigiToRawTB::ESDigiToRawTB(const edm::ParameterSet& ps)
 {

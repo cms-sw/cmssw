@@ -17,7 +17,7 @@ gStyle->SetHistLineStyle(1);
 gStyle->SetHistLineWidth(1);
 gStyle->SetHistLineColor(1);
 gStyle->SetTitleXOffset(1.1);
-gStyle->SetTitleYOffset(1.15);
+gStyle->SetTitleYOffset(0.9);
 gStyle->SetOptStat(1110);
 gStyle->SetOptStat(kFALSE);
 gStyle->SetOptFit(0111);
@@ -30,8 +30,8 @@ Canv->SetLogy(1);
 Canv->SetGrid(1,1);
 Canv->cd(); 
 
-TFile f0("../../singlemu_310607/Misalignment_scenarioIdeal_singlemu131.root");  
-TTree *MyTree=Tracks;
+TFile f0("ValidationMisalignedTracker_singlemu100_merged.root");  
+TTree *MyTree=EffTracks;
 
 TFile f1("../../SurveyLAS/singlemu/Misalignment_SurveyLASOnlyScenario_refitter_singlemu.root");
 TTree *MyTree2=Tracks;
@@ -93,7 +93,7 @@ for (int i=1;i<=nbin;i++){
   errsigma[i-1]=1.*gaus->GetParError(2);
   entry[i-1]=resd0->GetEntries();
   chiq[i-1]=(gaus->GetChisquare()) /(gaus->GetNDF());
-  cout << "mean is= " << mean[i-1] << " sigma is= " << sigma[i-1]/(sqrt(entry[i-1])) << " Entries= " << entry[i-1] << endl;
+  //cout << "mean is= " << mean[i-1] << " sigma is= " << sigma[i-1]/(sqrt(entry[i-1])) << " Entries= " << entry[i-1] << endl;
   delete resd0;
 }
 
@@ -315,16 +315,17 @@ gr_scen2->Draw("Psame");
 gr_scen3->Draw("Psame");
 gr_scen1_NOAPE->Draw("Psame");
 
-TLegend *leg1 = new TLegend(0.1,0.76,0.47,0.9);                            
+TLegend *leg1 = new TLegend(0.105,0.68,0.455,0.895);                            
 leg1->SetTextAlign(32);
 leg1->SetTextColor(1);
-leg1->SetTextSize(0.025);
+leg1->SetTextSize(0.033);
+leg1->SetFillColor(0);
 
-leg1->AddEntry(gr,"perfect alignment", "P");
-leg1->AddEntry(gr_scen1,"SurveyLAS alignment", "P");
-leg1->AddEntry(gr_scen2,"SurveyLASCosmics alignment", "P");
-leg1->AddEntry(gr_scen3,"10 pb-1  alignment", "P");
-leg1->AddEntry(gr_scen1_NOAPE,"100 pb-1  alignment", "P");
+leg1->AddEntry(gr,"perfect", "P");
+leg1->AddEntry(gr_scen1,"SurveyLAS", "P");
+leg1->AddEntry(gr_scen2,"SurveyLASCosmics", "P");
+leg1->AddEntry(gr_scen3,"10 pb^{-1}", "P");
+leg1->AddEntry(gr_scen1_NOAPE,"100 pb^{-1}", "P");
 
 
 leg1->Draw();

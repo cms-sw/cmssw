@@ -32,15 +32,16 @@ TOBLayer::TOBLayer(vector<const TOBRod*>& innerRods,
 			 (**it).basicComponents().end());
   }
 
-  
   theInnerCylinder = cylinder( theInnerComps);
   theOuterCylinder = cylinder( theOuterComps);
 
-  theInnerBinFinder = BinFinderType(theInnerComps.front()->position().phi(),
-				    theInnerComps.size());
-  theOuterBinFinder = BinFinderType(theOuterComps.front()->position().phi(),
-				    theOuterComps.size());
+  if (theInnerComps.size())
+    theInnerBinFinder = BinFinderType(theInnerComps.front()->position().phi(),
+				      theInnerComps.size());
 
+  if (theOuterComps.size())
+    theOuterBinFinder = BinFinderType(theOuterComps.front()->position().phi(),
+				      theOuterComps.size());
   
   BarrelDetLayer::initialize();
 

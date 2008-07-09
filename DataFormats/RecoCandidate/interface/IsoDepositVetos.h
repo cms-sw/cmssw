@@ -56,14 +56,14 @@ namespace reco {
 
         class RectangularEtaPhiVeto : public AbsVeto { 
             public:
-                RectangularEtaPhiVeto(double etaMin, double etaMax, double phiMin, double phiMax) :
-                    etaMin_(etaMin), etaMax_(etaMax), phiMin_(phiMin), phiMax_(phiMax) { }
+                RectangularEtaPhiVeto(math::XYZVectorD dir, double etaMin, double etaMax, double phiMin, double phiMax) ;
+                RectangularEtaPhiVeto(Direction dir, double etaMin, double etaMax, double phiMin, double phiMax) ;
                 virtual bool veto(double eta, double phi, float value) const ;
+  			    virtual void centerOn(double eta, double phi) ;
             private:
+				Direction vetoDir_;
                 double etaMin_, etaMax_, phiMin_, phiMax_;
         };
-
-
 
     } 
 }

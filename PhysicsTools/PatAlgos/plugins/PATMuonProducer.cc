@@ -1,5 +1,5 @@
 //
-// $Id: PATMuonProducer.cc,v 1.1.2.3 2008/04/03 13:34:22 gpetrucc Exp $
+// $Id: PATMuonProducer.cc,v 1.5.2.1 2008/05/31 19:33:38 lowette Exp $
 //
 
 #include "PhysicsTools/PatAlgos/plugins/PATMuonProducer.h"
@@ -17,7 +17,6 @@
 #include "DataFormats/Common/interface/Association.h"
 
 #include "PhysicsTools/PatUtils/interface/ObjectResolutionCalc.h"
-#include "PhysicsTools/PatUtils/interface/LeptonLRCalc.h"
 
 #include "TMath.h"
 
@@ -32,20 +31,26 @@ PATMuonProducer::PATMuonProducer(const edm::ParameterSet & iConfig) :
   isolator_(iConfig.exists("isolation") ? iConfig.getParameter<edm::ParameterSet>("isolation") : edm::ParameterSet(), false) 
 {
   // general configurables
-  muonSrc_       = iConfig.getParameter<edm::InputTag>( "muonSource" );
+  muonSrc_             = iConfig.getParameter<edm::InputTag>( "muonSource" );
+  embedTrack_          = iConfig.getParameter<bool>         ( "embedTrack" );
+  embedStandAloneMuon_ = iConfig.getParameter<bool>         ( "embedStandAloneMuon" );
+  embedCombinedMuon_   = iConfig.getParameter<bool>         ( "embedCombinedMuon" );
+  
   // MC matching configurables
-  addGenMatch_   = iConfig.getParameter<bool>         ( "addGenMatch" );
-  genPartSrc_    = iConfig.getParameter<edm::InputTag>( "genParticleMatch" );
+  addGenMatch_   = iConfig.getParameter<bool>               ( "addGenMatch" );
+  genMatchSrc_   = iConfig.getParameter<edm::InputTag>      ( "genParticleMatch" );
+  
+  // trigger matching configurables
+  addTrigMatch_     = iConfig.getParameter<bool>            ( "addTrigMatch" );
+  trigMatchSrc_     = iConfig.getParameter<std::vector<edm::InputTag> >( "trigPrimMatch" );
+  
   // resolution configurables
-  addResolutions_= iConfig.getParameter<bool>         ( "addResolutions" );
-  useNNReso_     = iConfig.getParameter<bool>         ( "useNNResolutions" );
-  muonResoFile_  = iConfig.getParameter<std::string>  ( "muonResoFile" );
+  addResolutions_= iConfig.getParameter<bool>               ( "addResolutions" );
+  useNNReso_     = iConfig.getParameter<bool>               ( "useNNResolutions" );
+  muonResoFile_  = iConfig.getParameter<std::string>        ( "muonResoFile" );
+  
   // muon ID configurables
-  addMuonID_     = iConfig.getParameter<bool>         ( "addMuonID" );
-  // likelihood ratio configurables
-  addLRValues_   = iConfig.getParameter<bool>         ( "addLRValues" );
-  tracksSrc_     = iConfig.getParameter<edm::InputTag>( "tracksSource" );
-  muonLRFile_    = iConfig.getParameter<std::string>  ( "muonLRFile" );
+  addMuonID_     = iConfig.getParameter<bool>               ( "addMuonID" );
 
   // construct resolution calculator
   if (addResolutions_) {
@@ -94,14 +99,7 @@ void PATMuonProducer::produce(edm::Event & iEvent, const edm::EventSetup & iSetu
 
   // prepare the MC matching
   edm::Handle<edm::Association<reco::GenParticleCollection> > genMatch;
-  if (addGenMatch_) iEvent.getByLabel(genPartSrc_, genMatch);
-
-  // prepare LR calculation
-  edm::Handle<edm::View<reco::Track> > tracks;
-  if (addLRValues_) {
-    iEvent.getByLabel(tracksSrc_, tracks);
-    theLeptonLRCalc_ = new LeptonLRCalc(iSetup, "", edm::FileInPath(muonLRFile_).fullPath(), "");
-  }
+  if (addGenMatch_) iEvent.getByLabel(genMatchSrc_, genMatch);
 
   // loop over muons
   std::vector<Muon> * patMuons = new std::vector<Muon>();
@@ -109,14 +107,28 @@ void PATMuonProducer::produce(edm::Event & iEvent, const edm::EventSetup & iSetu
     // construct the Muon from the ref -> save ref to original object
     unsigned int idx = itMuon - muons->begin();
     edm::RefToBase<MuonType> muonsRef = muons->refAt(idx);
+
     Muon aMuon(muonsRef);
-    // match to generated final state muons
+    if (embedTrack_) aMuon.embedTrack();
+    if (embedStandAloneMuon_) aMuon.embedStandAloneMuon();
+    if (embedCombinedMuon_) aMuon.embedCombinedMuon();
+
+    // store the match to the generated final state muons
     if (addGenMatch_) {
       reco::GenParticleRef genMuon = (*genMatch)[muonsRef];
       if (genMuon.isNonnull() && genMuon.isAvailable() ) {
         aMuon.setGenLepton(*genMuon);
-      } else {
-        aMuon.setGenLepton(reco::Particle(0, reco::Particle::LorentzVector(0,0,0,0))); // TQAF way of setting "null"
+      } // leave empty if no match found
+    }
+    // matches to trigger primitives
+    if ( addTrigMatch_ ) {
+      for ( size_t i = 0; i < trigMatchSrc_.size(); ++i ) {
+        edm::Handle<edm::Association<TriggerPrimitiveCollection> > trigMatch;
+        iEvent.getByLabel(trigMatchSrc_[i], trigMatch);
+        TriggerPrimitiveRef trigPrim = (*trigMatch)[muonsRef];
+        if ( trigPrim.isNonnull() && trigPrim.isAvailable() ) {
+          aMuon.addTriggerMatch(*trigPrim);
+        }
       }
     }
     // add resolution info
@@ -145,10 +157,6 @@ void PATMuonProducer::produce(edm::Event & iEvent, const edm::EventSetup & iSetu
         aMuon.setIsoDeposit(isoDepositLabels_[j].first, (*deposits[j])[muonsRef]);
     }
 
-   // add lepton LR info
-    if (addLRValues_) {
-      theLeptonLRCalc_->calcLikelihood(aMuon, tracks, iEvent);
-    }
     // add sel to selected
     patMuons->push_back(aMuon);
   }
@@ -159,8 +167,6 @@ void PATMuonProducer::produce(edm::Event & iEvent, const edm::EventSetup & iSetu
   // put genEvt object in Event
   std::auto_ptr<std::vector<Muon> > ptr(patMuons);
   iEvent.put(ptr);
-
-  if (addLRValues_) delete theLeptonLRCalc_;
 
   if (isolator_.enabled()) isolator_.endEvent();
 }

@@ -1,14 +1,3 @@
-/** \file
- * Implementation of class RPCUnpackingModule
- *
- *  $Date: 2008/03/27 13:51:05 $
- *  $Revision: 1.4 $
- *
- * \author Ilaria Segoni
- */
-
-
-
 #include "RPCUnpackingModule.h"
 #include "EventFilter/RPCRawToDigi/interface/RPCRecordFormatter.h"
 #include "DataFormats/FEDRawData/interface/FEDRawData.h"
@@ -17,6 +6,7 @@
 #include "DataFormats/FEDRawData/interface/FEDHeader.h"
 #include "DataFormats/FEDRawData/interface/FEDTrailer.h"
 #include "DataFormats/RPCDigi/interface/RPCDigiCollection.h"
+#include "EventFilter/RPCRawToDigi/interface/RPCRawDataCounts.h"
 #include "DataFormats/Common/interface/Handle.h"
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/ESHandle.h"
@@ -32,6 +22,7 @@
 #include "EventFilter/RPCRawToDigi/interface/DataRecord.h"
 #include "EventFilter/RPCRawToDigi/interface/EventRecords.h"
 #include "EventFilter/RPCRawToDigi/interface/DebugDigisPrintout.h"
+#include "DataFormats/SiPixelRawData/interface/SiPixelRawDataError.h"
 
 #include <iostream>
 #include <bitset>
@@ -49,6 +40,7 @@ RPCUnpackingModule::RPCUnpackingModule(const edm::ParameterSet& pset)
 {
   theCabling = new RPCReadOutMapping("");
   produces<RPCDigiCollection>();
+  produces<RPCRawDataCounts>();
 }
 
 RPCUnpackingModule::~RPCUnpackingModule()
@@ -59,8 +51,8 @@ RPCUnpackingModule::~RPCUnpackingModule()
 
 void RPCUnpackingModule::produce(Event & ev, const EventSetup& es){
 
-  edm::LogInfo ("RPCUnpacker") <<"+++\nEntering RPCUnpackingModule::produce";
   static bool debug = edm::MessageDrop::instance()->debugEnabled;
+  if (debug) LogDebug ("RPCUnpacker") <<"+++\nEntering RPCUnpackingModule::produce";
  
   Handle<FEDRawDataCollection> allFEDRawData; 
   ev.getByLabel(dataLabel_,allFEDRawData); 
@@ -71,20 +63,21 @@ void RPCUnpackingModule::produce(Event & ev, const EventSetup& es){
   if (recordWatcher.check(es)) {  
     delete theCabling;
     ESHandle<RPCEMap> readoutMapping;
-    LogTrace("") << "record has CHANGED!!, initialise readout map!";
+    if (debug) LogTrace("") << "record has CHANGED!!, initialise readout map!";
     es.get<RPCEMapRcd>().get(readoutMapping);
     theCabling = readoutMapping->convert();
-    LogTrace("") <<" READOUT MAP VERSION: " << theCabling->version() << endl;
+    if (debug) LogTrace("") <<" READOUT MAP VERSION: " << theCabling->version() << endl;
     readoutMappingSearch.init(theCabling);
   }
 
   std::auto_ptr<RPCDigiCollection> producedRPCDigis(new RPCDigiCollection);
+  std::auto_ptr<RPCRawDataCounts> producedRawDataCounts( new RPCRawDataCounts);
 
   std::pair<int,int> rpcFEDS=FEDNumbering::getRPCFEDIds();
  
   eventCounter_++; 
  
-  edm::LogInfo ("RPCUnpacker") <<"Beginning To Unpack Event: "<<eventCounter_;
+  if (debug) LogTrace ("") <<"Beginning To Unpack Event: "<<eventCounter_;
 
   for (int fedId= rpcFEDS.first; fedId<=rpcFEDS.second; ++fedId){  
 
@@ -103,11 +96,13 @@ void RPCUnpackingModule::produce(Event & ev, const EventSetup& es){
       header++;
       FEDHeader fedHeader( reinterpret_cast<const unsigned char*>(header));
       if (!fedHeader.check()) {
-        LogError(" ** PROBLEM **, header.check() failed, break"); 
+        producedRawDataCounts->addReadoutError(RPCRawDataCounts::HeaderCheckFail); 
+        LogWarning(" ** PROBLEM **, header.check() failed, break"); 
         break; 
       }
       if ( fedHeader.sourceID() != fedId) {
-        LogError(" ** PROBLEM **, fedHeader.sourceID() != fedId")
+        producedRawDataCounts->addReadoutError(RPCRawDataCounts::InconsitentFedId); 
+        LogWarning(" ** PROBLEM **, fedHeader.sourceID() != fedId")
             << "fedId = " << fedId<<" sourceID="<<fedHeader.sourceID(); 
       }
       currentBX = fedHeader.bxID();
@@ -133,11 +128,13 @@ void RPCUnpackingModule::produce(Event & ev, const EventSetup& es){
       trailer--;
       FEDTrailer fedTrailer(reinterpret_cast<const unsigned char*>(trailer));
       if ( !fedTrailer.check()) {
-        LogError(" ** PROBLEM **, trailer.check() failed, break");
+        producedRawDataCounts->addReadoutError(RPCRawDataCounts::TrailerCheckFail);
+        LogDebug(" ** PROBLEM **, trailer.check() failed, break");
         break;
       }
       if ( fedTrailer.lenght()!= nWords) {
-        LogError(" ** PROBLEM **, fedTrailer.lenght()!= nWords, break");
+        producedRawDataCounts->addReadoutError(RPCRawDataCounts::InconsistentDataSize); 
+        LogDebug(" ** PROBLEM **, fedTrailer.lenght()!= nWords, break");
         break;
       }
       moreTrailers = fedTrailer.moreTrailers();
@@ -169,12 +166,15 @@ void RPCUnpackingModule::produce(Event & ev, const EventSetup& es){
         typedef DataRecord::RecordType Record;
         const Record* pRecord = reinterpret_cast<const Record* >(word+1)-iRecord;
         DataRecord data(*pRecord);
-        LogTrace("")<<"record: " <<data.print()<<" record type:"<<data.type(); 
+        if (debug) LogTrace("")<<"record: " <<data.print()<<" record type:"<<data.type(); 
         event.add(data);
-        if (event.complete()) status = interpreter.recordUnpack(event, producedRPCDigis); 
+        producedRawDataCounts->addRecordType(fedId, data.type());
+        if (event.complete()) status = 
+            interpreter.recordUnpack(event, producedRPCDigis, producedRawDataCounts); 
       }
     }
   }
   if (debug) LogTrace("") << DebugDigisPrintout()(producedRPCDigis.get()) << endl;
   ev.put(producedRPCDigis);  
+  ev.put(producedRawDataCounts);
 }

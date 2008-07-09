@@ -1,5 +1,5 @@
 /*
- * $Id: pset_lex.l,v 1.32 2008/02/07 17:06:19 paterno Exp $
+ * $Id: pset_lex.l,v 1.33 2008/03/12 19:56:52 wmtan Exp $
  * Author: Us
  * Date: 4/28/05
  * History:
@@ -233,8 +233,9 @@ namespace edm {
        // ownership of the created structure.
        if (pset_parse() != 0) {
 	 yy_delete_buffer(buf);
-	 throw edm::Exception(errors::Configuration) 
-	   << "Parsing of input file failed\n";
+         throw edm::Exception(errors::Configuration) 
+	   << "Parsing of input file failed\n" 
+           << errorMessage();
        }
 
        ParseResults ps(global_gunk);

@@ -1,20 +1,9 @@
-// Last commit: $Id: FineDelayHistosUsingDb.cc,v 1.7 2008/03/06 18:16:07 delaer Exp $
+// Last commit: $Id: FineDelayHistosUsingDb.cc,v 1.5 2008/02/20 11:26:11 bainbrid Exp $
 
-#include "Geometry/TrackerGeometryBuilder/interface/TrackerGeometry.h"
-#include "Geometry/Records/interface/TrackerDigiGeometryRecord.h"
 #include "DQM/SiStripCommissioningDbClients/interface/FineDelayHistosUsingDb.h"
 #include "DataFormats/SiStripCommon/interface/SiStripConstants.h"
 #include "DataFormats/SiStripCommon/interface/SiStripFecKey.h"
 #include "DataFormats/SiStripCommon/interface/SiStripFedKey.h"
-#include "FWCore/Framework/interface/ESHandle.h"
-#include "DataFormats/GeometryVector/interface/GlobalPoint.h"
-#include "Geometry/CommonDetUnit/interface/GeomDetType.h"
-#include "Geometry/CommonDetUnit/interface/GeomDetUnit.h"
-#include <Geometry/CommonTopologies/interface/Topology.h>
-#include <CondFormats/DataRecord/interface/SiStripFedCablingRcd.h>
-#include <CondFormats/SiStripObjects/interface/SiStripFedCabling.h>
-#include <CondFormats/SiStripObjects/interface/FedChannelConnection.h>
-
 #include <iostream>
 
 using namespace sistrip;
@@ -24,13 +13,11 @@ using namespace sistrip;
 FineDelayHistosUsingDb::FineDelayHistosUsingDb( DQMOldReceiver* mui,
 						const DbParams& params )
   : CommissioningHistosUsingDb( params ),
-    SamplingHistograms( mui, FINE_DELAY ),
-    tracker_(0)
+    FineDelayHistograms( mui )
 {
   LogTrace(mlDqmClient_) 
     << "[FineDelayHistosUsingDb::" << __func__ << "]"
     << " Constructing object...";
-  delays_.clear();
 }
 
 // -----------------------------------------------------------------------------
@@ -38,13 +25,11 @@ FineDelayHistosUsingDb::FineDelayHistosUsingDb( DQMOldReceiver* mui,
 FineDelayHistosUsingDb::FineDelayHistosUsingDb( DQMOldReceiver* mui,
 						SiStripConfigDb* const db ) 
   : CommissioningHistosUsingDb( db ),
-    SamplingHistograms( mui, FINE_DELAY ),
-    tracker_(0)
+    FineDelayHistograms( mui )
 {
   LogTrace(mlDqmClient_) 
     << "[FineDelayHistosUsingDb::" << __func__ << "]"
     << " Constructing object...";
-  delays_.clear();
 }
 
 // -----------------------------------------------------------------------------
@@ -52,13 +37,11 @@ FineDelayHistosUsingDb::FineDelayHistosUsingDb( DQMOldReceiver* mui,
 FineDelayHistosUsingDb::FineDelayHistosUsingDb( DQMStore* bei,
 						SiStripConfigDb* const db ) 
   : CommissioningHistosUsingDb( db ),
-    SamplingHistograms( bei, FINE_DELAY ),
-    tracker_(0)
+    FineDelayHistograms( bei )
 {
   LogTrace(mlDqmClient_) 
     << "[FineDelayHistosUsingDb::" << __func__ << "]"
     << " Constructing object...";
-  delays_.clear();
 }
 
 // -----------------------------------------------------------------------------
@@ -67,15 +50,6 @@ FineDelayHistosUsingDb::~FineDelayHistosUsingDb() {
   LogTrace(mlDqmClient_) 
     << "[FineDelayHistosUsingDb::" << __func__ << "]"
     << " Destructing object...";
-}
-
-// -----------------------------------------------------------------------------
-/** */
-void FineDelayHistosUsingDb::configure(const edm::ParameterSet&, const edm::EventSetup& setup) {
-  // get geometry
-  edm::ESHandle<TrackerGeometry> estracker;
-  setup.get<TrackerDigiGeometryRecord>().get(estracker);
-  tracker_=&(* estracker);
 }
 
 // -----------------------------------------------------------------------------
@@ -139,63 +113,11 @@ void FineDelayHistosUsingDb::uploadConfigurations() {
 
 }
 
-void FineDelayHistosUsingDb::computeDelays() {
-  // do nothing if delays_ map is already filled
-  if(delays_.size()>0) return;
-
-  // the point from which track should originate
-  float x = 0.;
-  float y = 0.;
-  float z = 0.;
-  GlobalPoint referenceP_ = GlobalPoint(x,y,z);
-  const double c = 30; // cm/ns
-  
-  // the reference parameters (best delay in ns, initial Latency)
-  float bestDelay_ = 0.;
-  if(data().size()) {
-    Analyses::const_iterator iter = data().begin();
-    bestDelay_ = dynamic_cast<SamplingAnalysis*>(iter->second)->maximum();
-  }
-
-  // Retrieve FED ids from cabling
-  std::vector<uint16_t> ids = cabling()->feds() ;
-  
-  // loop over the FED ids
-  for (std::vector<uint16_t>::const_iterator ifed = ids.begin(); ifed != ids.end(); ++ifed) {
-    const std::vector<FedChannelConnection>& conns = cabling()->connections(*ifed);
-    // loop over the connections for that FED 
-    for ( std::vector<FedChannelConnection>::const_iterator iconn = conns.begin(); iconn != conns.end(); iconn++ ) {
-      // check that this is a tracker module
-      if(DetId(iconn->detId()).det()!=DetId::Tracker) continue;
-      // retrieve the position of that module in the tracker using the geometry
-      // and use it to compute the distance to the reference point set in the configuration
-      if(tracker_) {
-        float dist = tracker_->idToDetUnit(DetId(iconn->detId()))->toLocal(referenceP_).mag(); 
-        float tof  = dist/c ;
-        // compute the PLL delay shift for the module as delay + tof 
-        int delay = int(round(bestDelay_+tof));
-        // store that in the map
-        delays_[SiStripFecKey( iconn->fecCrate(),
-                               iconn->fecSlot(),
-                               iconn->fecRing(),
-                               iconn->ccuAddr(),
-                               iconn->ccuChan(), 0 ).key()] = delay;
-      } else {
-        edm::LogError(mlDqmClient_)
-           << "[FineDelayHistosUsingDb::" << __func__ << "]"
-           << " Tracker geometry not initialized. Impossible to compute the delays.";
-      }
-    }
-  }
-}
-
 // -----------------------------------------------------------------------------
 /** */
 bool FineDelayHistosUsingDb::update( SiStripConfigDb::DeviceDescriptions& devices ) {
-
-  // do the core computation of delays per FED connection
-  computeDelays();
-
+  //TODO: write this later
+  /*
   // Iterate through devices and update device descriptions
   uint16_t updated = 0;
   std::vector<SiStripFecKey> invalid;
@@ -211,26 +133,69 @@ bool FineDelayHistosUsingDb::update( SiStripConfigDb::DeviceDescriptions& device
     
     // Retrieve device addresses from device description
     const SiStripConfigDb::DeviceAddress& addr = db()->deviceAddress(*desc);
-
-    // Construct key from device description
-    uint32_t fec_key = SiStripFecKey( addr.fecCrate_,
-                                      addr.fecSlot_, 
-                                      addr.fecRing_,
-                                      addr.ccuAddr_, 
-                                      addr.ccuChan_,
-                                      0 ).key();
-    SiStripFecKey fec_path = SiStripFecKey( fec_key );
+    SiStripFecKey fec_path;
     
-    // extract the delay from the map
-    int delay = delays_[fec_key];
-    int delayCoarse = delay/25;
-    int delayFine   = int(round((delay-25*delayCoarse)*24./25.));
-    //  maximum coarse setting
-    if ( delayCoarse > 15 ) { invalid.push_back(fec_key); delayCoarse = sistrip::invalid_; }
-		    
+    // PLL delay settings
+    uint32_t coarse = sistrip::invalid_; 
+    uint32_t fine = sistrip::invalid_; 
+
+    // Iterate through LLD channels
+    for ( uint16_t ichan = 0; ichan < sistrip::CHANS_PER_LLD; ichan++ ) {
+      
+      // Construct key from device description
+      uint32_t fec_key = SiStripFecKey( addr.fecCrate_,
+					addr.fecSlot_, 
+					addr.fecRing_,
+					addr.ccuAddr_, 
+					addr.ccuChan_,
+					ichan+1 ).key();
+      fec_path = SiStripFecKey( fec_key );
+      {
+	std::stringstream sss;
+	sss << "[FineDelayHistosUsingDb::" << __func__ << "]"
+	    << " FEC crate: " << addr.fecCrate_
+	    << " FEC ring " << addr.fecRing_
+	    << " FEC key " << fec_key;
+	edm::LogWarning(mlDqmClient_) << sss.str();
+      }
+
+      // Locate appropriate analysis object    
+      map<uint32_t,FineDelayAnalysis*>::const_iterator iter = data_.find( fec_key );
+      if ( iter != data_.end() ) { 
+	
+	// Check delay value
+	if ( !iter->second->isValid() ) { continue; }
+	
+	// Calculate coarse and fine delays
+	uint32_t delay = static_cast<uint32_t>( rint( iter->second->delay() * 24. / 25. ) ); 
+	coarse = static_cast<uint16_t>( desc->getDelayCoarse() ) 
+	  + ( static_cast<uint16_t>( desc->getDelayFine() ) + delay ) / 24;
+	fine = ( static_cast<uint16_t>( desc->getDelayFine() ) + delay ) % 24;
+	
+	// Record PPLs maximum coarse setting
+	if ( coarse > 15 ) { invalid.push_back(fec_path); }
+	
+      } else {
+	edm::LogWarning(mlDqmClient_) 
+	  << "[FineDelayHistosUsingDb::" << __func__ << "]"
+	  << " Unable to find FEC key with params Crate/FEC/slot/ring/CCU/LLD: " 
+	  << fec_path.fecCrate() << "/"
+	  << fec_path.fecSlot() << "/"
+	  << fec_path.fecRing() << "/"
+	  << fec_path.ccuAddr() << "/"
+	  << fec_path.ccuChan() << "/"
+	  << fec_path.channel();
+      }
+
+      // Exit LLD channel loop if coarse and fine delays are known
+      if ( coarse != sistrip::invalid_ && 
+	   fine != sistrip::invalid_ ) { break; }
+      
+    } // lld channel loop
+    
     // Update PLL settings
-    if ( delayCoarse != sistrip::invalid_ && 
-	 delayFine != sistrip::invalid_ ) { 
+    if ( coarse != sistrip::invalid_ && 
+	 fine != sistrip::invalid_ ) { 
       
       std::stringstream ss;
       ss << "[FineDelayHistosUsingDb::" << __func__ << "]"
@@ -244,8 +209,8 @@ bool FineDelayHistosUsingDb::update( SiStripConfigDb::DeviceDescriptions& device
 	 << " from "
 	 << static_cast<uint16_t>( desc->getDelayCoarse() ) << "/" 
 	 << static_cast<uint16_t>( desc->getDelayFine() );
-      desc->setDelayCoarse(delayCoarse);
-      desc->setDelayFine(delayFine);
+      desc->setDelayCoarse(coarse);
+      desc->setDelayFine(fine);
       updated++;
       ss << " to "
 	 << static_cast<uint16_t>( desc->getDelayCoarse() ) << "/" 
@@ -290,63 +255,99 @@ bool FineDelayHistosUsingDb::update( SiStripConfigDb::DeviceDescriptions& device
     << " Updated PLL settings for " 
     << updated << " modules";
   return true;
+    */
+  return false;
 }
 
 // -----------------------------------------------------------------------------
 /** */
 void FineDelayHistosUsingDb::update( SiStripConfigDb::FedDescriptions& feds ) {
+  //TODO: write this later
+  /*
+  // Iterate through feds and update fed descriptions
+  uint16_t updated = 0;
+  SiStripConfigDb::FedDescriptions::iterator ifed;
+  for ( ifed = feds.begin(); ifed != feds.end(); ifed++ ) {
+    
+    for ( uint16_t ichan = 0; ichan < sistrip::FEDCH_PER_FED; ichan++ ) {
 
-  // do the core computation of delays per FED connection
-  computeDelays();
+      // Build FED and FEC keys
+      const FedChannelConnection& conn = cabling()->connection( (*ifed)->getFedId(), ichan );
+      if ( conn.fecCrate() == sistrip::invalid_ ||
+	   conn.fecSlot() == sistrip::invalid_ ||
+	   conn.fecRing() == sistrip::invalid_ ||
+	   conn.ccuAddr() == sistrip::invalid_ ||
+	   conn.ccuChan() == sistrip::invalid_ ||
+	   conn.lldChannel() == sistrip::invalid_ ) { continue; }
+      SiStripFedKey fed_key( conn.fedId(), 
+			     SiStripFedKey::feUnit( conn.fedCh() ),
+			     SiStripFedKey::feChan( conn.fedCh() ) );
+      SiStripFecKey fec_key( conn.fecCrate(), 
+			     conn.fecSlot(), 
+			     conn.fecRing(), 
+			     conn.ccuAddr(), 
+			     conn.ccuChan(), 
+			     conn.lldChannel() );
+      
+      // Locate appropriate analysis object 
+      map<uint32_t,FineDelayAnalysis*>::const_iterator iter = data_.find( fec_key.key() );
+      if ( iter != data_.end() ) { 
 
-  // Retrieve FED ids from cabling
-  std::vector<uint16_t> ids = cabling()->feds() ;
-  
-  // loop over the FED ids
-  for ( SiStripConfigDb::FedDescriptions::iterator ifed = feds.begin(); ifed != feds.end(); ifed++ ) {
-    // If FED id not found in list (from cabling), then continue
-    if ( find( ids.begin(), ids.end(), (*ifed)->getFedId() ) == ids.end() ) { continue; }
-    const std::vector<FedChannelConnection>& conns = cabling()->connections((*ifed)->getFedId());
-    // loop over the connections for that FED 
-    for ( std::vector<FedChannelConnection>::const_iterator iconn = conns.begin(); iconn != conns.end(); iconn++ ) {
-      // check that this is a tracker module
-      if(DetId(iconn->detId()).det()!=DetId::Tracker) continue;
-      // build the Fed9UAddress for that channel. Used to update the description.
-      Fed9U::Fed9UAddress fedChannel = Fed9U::Fed9UAddress(iconn->fedCh()); 
-      // retreive the current value for the delays
-      int fedDelayCoarse = (*ifed)->getCoarseDelay(fedChannel);
-      int fedDelayFine = (*ifed)->getFineDelay(fedChannel);
-      int fedDelay = int(round(fedDelayCoarse*25. + fedDelayFine*24./25.));
-      // extract the delay from the map
-      int delay = delays_[SiStripFecKey( iconn->fecCrate(),
-                                         iconn->fecSlot(),
-                                         iconn->fecRing(),
-                                         iconn->ccuAddr(),
-                                         iconn->ccuChan(), 0 ).key()];
-      // compute the FED delay
-      // this is done by substracting the best (PLL) delay to the present value (from the db)
-      fedDelay -= delay;
-      fedDelayCoarse = fedDelay/25;
-      fedDelayFine = int(round((fedDelay-25*fedDelayCoarse)*24./25.));
-      // update the FED delay
-      std::stringstream ss;
-      ss << "[FineDelayHistosUsingDb::" << __func__ << "]"
-         << " Updating the FED delay"
-         << " for loop FED id/ch "
-         << (*ifed)->getFedId() << "/" << iconn->fedCh()
-         << " from "
-         << (*ifed)->getCoarseDelay( fedChannel) << "/" << (*ifed)->getFineDelay( fedChannel)
-         << " to ";
-      (*ifed)->setDelay(fedChannel, fedDelayCoarse, fedDelayFine);
-      ss << (*ifed)->getCoarseDelay(fedChannel) << "/" << (*ifed)->getFineDelay( fedChannel) << std::endl;
-      data().begin()->second->print(ss);
+	Fed9U::Fed9UAddress addr( ichan );
+	std::stringstream ss;
+	ss << "[FineDelayHistosUsingDb::" << __func__ << "]"
+	   << " Updating the frame-finding threshold"
+	   << " for Crate/FEC/slot/ring/CCU "
+	   << fec_key.fecCrate() << "/"
+	   << fec_key.fecSlot() << "/"
+	   << fec_key.fecRing() << "/"
+	   << fec_key.ccuAddr() << "/"
+	   << fec_key.ccuChan() 
+	   << " and FED id/ch "
+	   << fed_key.fedId() << "/"
+	   << fed_key.fedChannel()
+	   << " in loop FED id/ch " 
+	   << (*ifed)->getFedId() << "/" << ichan
+	   << " from "
+	   << static_cast<uint16_t>( (*ifed)->getFrameThreshold( addr ) );
+	if ( iter->second->frameFindingThreshold() < sistrip::valid_ ) {
+	  (*ifed)->setFrameThreshold( addr, iter->second->frameFindingThreshold() );
+	  updated++;
+	  ss << " to "
+	     << static_cast<uint16_t>( (*ifed)->getFrameThreshold( addr ) )
+	     << " tick base/peak/height: " 
+	     << iter->second->base() << "/"
+	     << iter->second->peak() << "/"
+	     << iter->second->height();
+	} else { ss << " to same value! (Invalid returned!)"; }
+	ss << std::endl; 
+	iter->second->print(ss);
+	LogTrace(mlDqmClient_) << ss.str();
+
+      } else {
+	edm::LogWarning(mlDqmClient_) 
+	  << "[FineDelayHistosUsingDb::" << __func__ << "]"
+	  << " Unable to find ticker thresholds for FedKey/Id/Ch: 0x" 
+	  << hex << setw(8) << setfill('0') << fed_key.key() << dec << "/"
+	  << (*ifed)->getFedId() << "/"
+	  << ichan
+	  << " and device with Crate/FEC/slot/ring/CCU/LLD " 
+	  << fec_key.fecCrate() << "/"
+	  << fec_key.fecSlot() << "/"
+	  << fec_key.fecRing() << "/"
+	  << fec_key.ccuAddr() << "/"
+	  << fec_key.ccuChan() << "/"
+	  << fec_key.channel();
+      }
+
     }
   }
 
-  edm::LogVerbatim(mlDqmClient_)
-      << "[FineDelayHistosUsingDb::" << __func__ << "]"
-      << " Updated FED delay for " << ids.size() << " FEDs!";
-
+  edm::LogVerbatim(mlDqmClient_) 
+    << "[FineDelayHistosUsingDb::" << __func__ << "]"
+    << " Updated FED ticker thresholds for " 
+    << updated << " channels";
+  */
 }
 
 // -----------------------------------------------------------------------------
@@ -356,7 +357,7 @@ void FineDelayHistosUsingDb::create( SiStripConfigDb::AnalysisDescriptions& desc
 
 #ifdef USING_NEW_DATABASE_MODEL
 
-  SamplingAnalysis* anal = dynamic_cast<SamplingAnalysis*>( analysis->second );
+  FineDelayAnalysis* anal = dynamic_cast<FineDelayAnalysis*>( analysis->second );
   if ( !anal ) { return; }
   
   SiStripFecKey fec_key( anal->fecKey() ); //@@ analysis->first

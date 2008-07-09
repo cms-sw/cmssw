@@ -24,7 +24,7 @@ std::ostream& operator<<(std::ostream& os,const TOBDetId& id) {
   std::string part;
   side = (theRod[0] == 1 ) ? "-" : "+";
   std::string type;
-  type = (id.stereo() == 0) ? "r#varphi" : "stereo";
+  type = (id.stereo() == 0) ? "r-phi" : "stereo";
   type = (id.glued() == 0) ? type : type+" glued";
   type = (id.isDoubleSide()) ? "double side" : type;
   return os << "TOB" << side

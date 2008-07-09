@@ -1,24 +1,14 @@
 #ifndef PixelFEDParameters_h
 #define PixelFEDParameters_h
-/**
-*   \file CalibFormats/SiPixelObjects/interface/PixelFEDParameters.h
-*   \brief This class implements..
-*
-*   This class specifies which FED boards
-*   are used and how they are addressed
-*/
 
 #include <iostream>
 #include <vector>
 #include <string>
 
 namespace pos{
-/*! \class PixelFEDParameters PixelFEDParameters.h "interface/PixelFEDParameters.h"
-*   \brief This class implements..
-*
-*   A longer explanation will be placed here later
-*/
   class PixelFEDParameters {
+
+
 
   public:
 

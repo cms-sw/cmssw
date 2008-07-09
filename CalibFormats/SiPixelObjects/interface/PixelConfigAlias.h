@@ -1,19 +1,10 @@
 #ifndef PixelConfigAlias_h
 #define PixelConfigAlias_h
-/*! \file CalibFormats/SiPixelObjects/interface/PixelConfigAlias.h
-*   \brief This class implements the steps that are used in a scan over Threshold and CalDelay
-*
-*   A longer explanation will be placed here later
-*/
 
 #include <string>
 #include <vector>
 
 namespace pos{
-/*! \class PixelConfigAlias PixelConfigAlias.h "interface/PixelConfigAlias.h"
-*
-*   A longer explanation will be placed here later
-*/
   class PixelConfigAlias {
 
   public:

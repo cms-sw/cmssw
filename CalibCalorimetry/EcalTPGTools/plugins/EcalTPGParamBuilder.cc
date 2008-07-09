@@ -60,8 +60,10 @@ EcalTPGParamBuilder::EcalTPGParamBuilder(edm::ParameterSet const& pSet)
 
   writeToFiles_ =  pSet.getParameter<bool>("writeToFiles") ;
   if (writeToFiles_) {
-    std::string outFile = pSet.getParameter<std::string>("outFile") ;
-    out_file_ = new std::ofstream(outFile.c_str(), std::ios::out) ;  
+    std::string outFileEB = pSet.getParameter<std::string>("outFileEB") ;
+    out_fileEB_ = new std::ofstream(outFileEB.c_str(), std::ios::out) ;  
+    std::string outFileEE = pSet.getParameter<std::string>("outFileEE") ;
+    out_fileEE_ = new std::ofstream(outFileEE.c_str(), std::ios::out) ;  
     geomFile_   = new std::ofstream("geomFile.txt", std::ios::out) ;  
   }
 
@@ -69,14 +71,12 @@ EcalTPGParamBuilder::EcalTPGParamBuilder(edm::ParameterSet const& pSet)
 
   useTransverseEnergy_ = pSet.getParameter<bool>("useTransverseEnergy") ;
   
-  Et_sat_EB_ = pSet.getParameter<double>("Et_sat_EB") ;
-  Et_sat_EE_ = pSet.getParameter<double>("Et_sat_EE") ;
+  Et_sat_ = pSet.getParameter<double>("Et_sat") ;
   sliding_ = pSet.getParameter<unsigned int>("sliding") ;
   sampleMax_ = pSet.getParameter<unsigned int>("weight_sampleMax") ;
 
   LUT_option_ = pSet.getParameter<std::string>("LUT_option") ;
-  LUT_threshold_EB_ = pSet.getParameter<double>("LUT_threshold_EB") ;
-  LUT_threshold_EE_ = pSet.getParameter<double>("LUT_threshold_EE") ;
+  LUT_threshold_ = pSet.getParameter<double>("LUT_threshold") ;
   LUT_stochastic_EB_ = pSet.getParameter<double>("LUT_stochastic_EB") ;
   LUT_noise_EB_ =pSet.getParameter<double>("LUT_noise_EB") ;
   LUT_constant_EB_ =pSet.getParameter<double>("LUT_constant_EB") ;
@@ -102,9 +102,12 @@ EcalTPGParamBuilder::EcalTPGParamBuilder(edm::ParameterSet const& pSet)
 EcalTPGParamBuilder::~EcalTPGParamBuilder()
 { 
   if (writeToFiles_) {
-    (*out_file_ )<<"EOF"<<std::endl ;
-    out_file_->close() ;
-    delete out_file_ ;
+    (*out_fileEB_ )<<"EOF"<<std::endl ;
+    (*out_fileEE_ )<<"EOF"<<std::endl ;
+    out_fileEB_->close() ;
+    out_fileEE_->close() ;
+    delete out_fileEB_ ;
+    delete out_fileEE_ ;
   }
 }
 
@@ -144,15 +147,13 @@ void EcalTPGParamBuilder::analyze(const edm::Event& evt, const edm::EventSetup& 
   const EcalADCToGeVConstant * ADCToGeV = pADCToGeV.product() ;
   xtal_LSB_EB_ = ADCToGeV->getEBValue() ;
   xtal_LSB_EE_ = ADCToGeV->getEEValue() ;
-  std::cout<<"xtal_LSB_EB_ = "<<xtal_LSB_EB_<<std::endl ;
-  std::cout<<"xtal_LSB_EE_ = "<<xtal_LSB_EE_<<std::endl ;
+
 
   /////////////////////////////////////////
   // Compute linearization coeff section //
   /////////////////////////////////////////
 
   // loop on EB xtals
-  (*out_file_)<<"COMMENT ====== barrel crystals ====== "<<std::endl ;
   std::vector<DetId> ebCells = theBarrelGeometry_->getValidDetIds(DetId::Ecal, EcalBarrel);
   for (vector<DetId>::const_iterator it = ebCells.begin(); it != ebCells.end(); ++it) {
     EBDetId id(*it) ;
@@ -168,7 +169,7 @@ void EcalTPGParamBuilder::analyze(const edm::Event& evt, const edm::EventSetup& 
     int stripInTower = elId.pseudoStripId() ;
     int xtalInStrip = elId.channelId() ;
 
-    if (writeToFiles_) (*out_file_)<<"CRYSTAL "<<dec<<id.rawId()<<std::endl ;
+    if (writeToFiles_) (*out_fileEB_)<<"CRYSTAL "<<dec<<id.rawId()<<std::endl ;
 
     coeffStruc coeff ;
     getCoeff(coeff, calibMap, gainMap, pedMap, id.rawId()) ;
@@ -178,18 +179,14 @@ void EcalTPGParamBuilder::analyze(const edm::Event& evt, const edm::EventSetup& 
       int mult, shift ;
       bool ok = computeLinearizerParam(theta, coeff.gainRatio_[i], coeff.calibCoeff_, "EB", mult , shift) ;
       if (writeToFiles_) {
-	if (ok) (*out_file_) << hex <<" 0x"<<coeff.pedestals_[i]<<" 0x"<<mult<<" 0x"<<shift<<std::endl; 
-	else { 
-	  (*out_file_) << "unable to compute the parameters"<<std::endl ; 
-	  std::cout << "unable to compute the parameters for "<<dec<<id.rawId()<<std::endl ; 
-	}
+	if (ok) (*out_fileEB_) << hex <<" 0x"<<coeff.pedestals_[i]<<" 0x"<<mult<<" 0x"<<shift<<std::endl; 
+	else (*out_fileEB_) << "unable to compute the parameters"<<std::endl ; 
       }
     }
   } //ebCells
 
 
   // loop on EE xtals
-  (*out_file_)<<"COMMENT ====== endcap crystals ====== "<<std::endl ;
   std::vector<DetId> eeCells = theEndcapGeometry_->getValidDetIds(DetId::Ecal, EcalEndcap);
   for (vector<DetId>::const_iterator it = eeCells.begin(); it != eeCells.end(); ++it) {
     EEDetId id(*it);
@@ -205,7 +202,7 @@ void EcalTPGParamBuilder::analyze(const edm::Event& evt, const edm::EventSetup& 
     int stripInTower = elId.pseudoStripId() ;
     int xtalInStrip = elId.channelId() ;
 
-    if (writeToFiles_) (*out_file_)<<"CRYSTAL "<<dec<<id.rawId()<<std::endl ;
+    if (writeToFiles_) (*out_fileEE_)<<"CRYSTAL "<<dec<<id.rawId()<<std::endl ;
 
     coeffStruc coeff ;
     getCoeff(coeff, calibMap, gainMap, pedMap, id.rawId()) ;
@@ -215,11 +212,8 @@ void EcalTPGParamBuilder::analyze(const edm::Event& evt, const edm::EventSetup& 
       int mult, shift ;
       bool ok = computeLinearizerParam(theta, coeff.gainRatio_[i], coeff.calibCoeff_, "EE", mult , shift) ;
       if (writeToFiles_) {
-	if (ok) (*out_file_) << hex <<" 0x"<<coeff.pedestals_[i]<<" 0x"<<mult<<" 0x"<<shift<<std::endl; 
-	else { 
-	  (*out_file_) << "unable to compute the parameters"<<std::endl ; 
-	  std::cout << "unable to compute the parameters for "<<dec<<id.rawId()<<std::endl ; 
-	}
+	if (ok) (*out_fileEE_) << hex <<" 0x"<<coeff.pedestals_[i]<<" 0x"<<mult<<" 0x"<<shift<<std::endl; 
+	else (*out_fileEE_) << "unable to compute the parameters"<<std::endl ; 
       }
     }
   } //eeCells
@@ -238,10 +232,17 @@ void EcalTPGParamBuilder::analyze(const edm::Event& evt, const edm::EventSetup& 
 
   if (writeToFiles_) {
     if (weights.size() == 5) {
-      (*out_file_) <<std::endl ;
-      (*out_file_) <<"WEIGHT 0"<<endl ;
-      for (uint sample=0 ; sample<5 ; sample++) (*out_file_) << "0x" <<hex<<weights[sample]<<" " ;
-      (*out_file_)<<std::endl ; 
+      // barrel
+      (*out_fileEB_) <<std::endl ;
+      (*out_fileEB_) <<"WEIGHT 0"<<endl ;
+      for (uint sample=0 ; sample<5 ; sample++) (*out_fileEB_) << "0x" <<hex<<weights[sample]<<" " ;
+      (*out_fileEB_)<<std::endl ; 
+      
+      // endcap
+      (*out_fileEE_) <<std::endl ;
+      (*out_fileEE_) <<"WEIGHT 0"<<endl ;
+      for (uint sample=0 ; sample<5 ; sample++) (*out_fileEE_) << "0x" <<hex<<weights[sample]<<" " ;
+      (*out_fileEE_)<<std::endl ; 
     }
   }
 
@@ -253,9 +254,9 @@ void EcalTPGParamBuilder::analyze(const edm::Event& evt, const edm::EventSetup& 
   uint lowRatio, highRatio, lowThreshold, highThreshold, lutFG ;
   computeFineGrainEBParameters(lowRatio, highRatio, lowThreshold, highThreshold, lutFG) ;
   if (writeToFiles_) {
-    (*out_file_) <<std::endl ;
-    (*out_file_) <<"FG 0"<<std::endl ;
-    (*out_file_)<<hex<<"0x"<<lowThreshold<<" 0x"<<highThreshold
+    (*out_fileEB_) <<std::endl ;
+    (*out_fileEB_) <<"FG 0"<<std::endl ;
+    (*out_fileEB_)<<hex<<"0x"<<lowThreshold<<" 0x"<<highThreshold
 		  <<" 0x"<<lowRatio<<" 0x"<<highRatio<<" 0x"<<lutFG
 		  <<std::endl ;
   }
@@ -269,76 +270,53 @@ void EcalTPGParamBuilder::analyze(const edm::Event& evt, const edm::EventSetup& 
   // Compute LUT section //
   /////////////////////////
 
-  int lut_EB[1024], lut_EE[1024] ;
+  int lut[1024] ;
 
   // barrel
-  computeLUT(lut_EB, "EB") ; 
+  computeLUT(lut, "EB") ; 
   if (writeToFiles_) {
-    (*out_file_) <<std::endl ;
-    (*out_file_) <<"LUT 0"<<std::endl ;
-    for (int i=0 ; i<1024 ; i++) (*out_file_)<<"0x"<<hex<<lut_EB[i]<<" " ;
-    (*out_file_)<<endl ;
+    (*out_fileEB_) <<std::endl ;
+    (*out_fileEB_) <<"LUT 0"<<std::endl ;
+    for (int i=0 ; i<1024 ; i++) (*out_fileEB_)<<"0x"<<hex<<lut[i]<<" " ;
+    (*out_fileEB_)<<endl ;
   }
   
   // endcap
-  computeLUT(lut_EE, "EE") ;
-  // check first if lut_EB and lut_EE are the same
-  bool newLUT(false) ;
-  for (int i=0 ; i<1024 ; i++) if (lut_EE[i] != lut_EB[i]) newLUT = true ;
-  if (newLUT && writeToFiles_) { 
-    (*out_file_) <<std::endl ;
-    (*out_file_) <<"LUT 1"<<std::endl ;
-    for (int i=0 ; i<1024 ; i++) (*out_file_)<<"0x"<<hex<<lut_EE[i]<<" " ;
-    (*out_file_)<<endl ;
+  computeLUT(lut, "EE") ;
+  if (writeToFiles_) { 
+    (*out_fileEE_) <<std::endl ;
+    (*out_fileEE_) <<"LUT 0"<<std::endl ;
+    for (int i=0 ; i<1024 ; i++) (*out_fileEE_)<<"0x"<<hex<<lut[i]<<" " ;
+    (*out_fileEE_)<<endl ;
   }
 
 
-  ///////////////////////////////////////////////////////////
-  // loop on strips and associate them with default values //
-  ///////////////////////////////////////////////////////////
+  //////////////////////////////////////////////////////////////////////
+  // loop on strips and towers and associate them with default values //
+  //////////////////////////////////////////////////////////////////////
 
   // Barrel
   stripListEB.sort() ;
   stripListEB.unique() ;
   cout<<"Number of EB strips="<<stripListEB.size()<<endl ;
   if (writeToFiles_) {
-    (*out_file_) <<std::endl ;
+    (*out_fileEB_) <<std::endl ;
     for (itList = stripListEB.begin(); itList != stripListEB.end(); itList++ ) {
-      (*out_file_) <<"STRIP_EB "<<dec<<(*itList)<<endl ;
-      (*out_file_) << hex << "0x" <<sliding_<<std::endl ;
-      (*out_file_) <<" 0" << std::endl ;
+      (*out_fileEB_) <<"STRIP "<<dec<<(*itList)<<endl ;
+      (*out_fileEB_) << hex << "0x" <<sliding_<<std::endl ;
+      (*out_fileEB_) <<" 0" << std::endl ;
     }
   }
 
-  // Endcap
-  stripListEE.sort() ;
-  stripListEE.unique() ;
-  cout<<"Number of EE strips="<<stripListEE.size()<<endl ;
-  if (writeToFiles_) {
-    (*out_file_) <<std::endl ;
-    for (itList = stripListEE.begin(); itList != stripListEE.end(); itList++ ) {
-      (*out_file_) <<"STRIP_EE "<<dec<<(*itList)<<endl ;
-      (*out_file_) << hex << "0x" <<sliding_<<std::endl ;
-      (*out_file_) <<" 0" << std::endl ;
-      (*out_file_)<<hex<<"0x"<<threshold<<" 0x"<<lut_strip<<std::endl ;  
-    }
-  }
-
-
-  ///////////////////////////////////////////////////////////
-  // loop on towers and associate them with default values //
-  ///////////////////////////////////////////////////////////
-
-  // Barrel
   towerListEB.sort() ;
   towerListEB.unique() ;
   cout<<"Number of EB towers="<<towerListEB.size()<<endl ;
   if (writeToFiles_) {
-    (*out_file_) <<std::endl ;
+    (*out_fileEB_) <<std::endl ;
     (*geomFile_)<<"BARREL"<<endl ;
     for (itList = towerListEB.begin(); itList != towerListEB.end(); itList++ ) {
-      (*out_file_) <<"TOWER_EB "<<dec<<(*itList)<<endl ;
-      (*out_file_) <<" 0\n 0\n" ;
+      (*out_fileEB_) <<"TOWER "<<dec<<(*itList)<<endl ;
+      (*out_fileEB_) <<" 0\n 0\n" ;
       EcalTrigTowerDetId towerId((*itList)) ;
       int dccNb = theMapping_->DCCid(towerId) ;
       int tccNb = theMapping_->TCCid(towerId) ;
@@ -349,17 +327,29 @@ void EcalTPGParamBuilder::analyze(const edm::Event& evt, const edm::EventSetup& 
   }
 
   // Endcap
+  stripListEE.sort() ;
+  stripListEE.unique() ;
+  cout<<"Number of EE strips="<<stripListEE.size()<<endl ;
+  if (writeToFiles_) {
+    (*out_fileEE_) <<std::endl ;
+    for (itList = stripListEE.begin(); itList != stripListEE.end(); itList++ ) {
+      (*out_fileEE_) <<"STRIP "<<dec<<(*itList)<<endl ;
+      (*out_fileEE_) << hex << "0x" <<sliding_<<std::endl ;
+      (*out_fileEE_) <<" 0" << std::endl ;
+      (*out_fileEE_)<<hex<<"0x"<<threshold<<" 0x"<<lut_strip<<std::endl ;  
+    }
+  }
+
   towerListEE.sort() ;
   towerListEE.unique() ;
   cout<<"Number of EE towers="<<towerListEE.size()<<endl ;
   if (writeToFiles_) {
-    (*out_file_) <<std::endl ;
+    (*out_fileEE_) <<std::endl ;
     (*geomFile_)<<"ENDCAP"<<endl ;
     for (itList = towerListEE.begin(); itList != towerListEE.end(); itList++ ) {
-      (*out_file_) <<"TOWER_EE "<<dec<<(*itList)<<endl ;
-      if (newLUT) (*out_file_) <<" 1\n" ;
-      else  (*out_file_) <<" 0\n" ;
-      (*out_file_)<<hex<<"0x"<<lut_tower<<std::endl ;
+      (*out_fileEE_) <<"TOWER "<<dec<<(*itList)<<endl ;
+      (*out_fileEE_) <<" 0\n" ;
+      (*out_fileEE_)<<hex<<"0x"<<lut_tower<<std::endl ;
       EcalTrigTowerDetId towerId((*itList)) ;
       int dccNb = theMapping_->DCCid(towerId) ;
       int tccNb = theMapping_->TCCid(towerId) ;
@@ -368,7 +358,6 @@ void EcalTPGParamBuilder::analyze(const edm::Event& evt, const edm::EventSetup& 
 		  <<" dccNb="<<dccNb<<" tccNb="<<tccNb<<" towerInTCC="<<towerInTCC<<endl ;      
     }
   }
-
 }
 
 void EcalTPGParamBuilder::beginJob(const edm::EventSetup& evtSetup)
@@ -391,23 +380,24 @@ void EcalTPGParamBuilder::beginJob(const edm::EventSetup& evtSetup)
   evtSetup.get< EcalMappingRcd >().get(ecalmapping);
   theMapping_ = ecalmapping.product();  
 
-  create_header() ; 
+  create_header(out_fileEB_, "EB") ; 
+  create_header(out_fileEE_, "EE") ; 
 
   DetId eb(DetId::Ecal,EcalBarrel) ;
   DetId ee(DetId::Ecal,EcalEndcap) ;
 
   if (writeToFiles_) {
-    (*out_file_)<<"PHYSICS_EB "<<dec<<eb.rawId()<<std::endl ;
-    (*out_file_)<<Et_sat_EB_<<" "<<TTF_lowThreshold_EB_<<" "<<TTF_highThreshold_EB_<<std::endl ;
-    (*out_file_)<<FG_lowThreshold_EB_<<" "<<FG_highThreshold_EB_<<" "
+    (*out_fileEB_)<<"PHYSICS "<<dec<<eb.rawId()<<std::endl ;
+    (*out_fileEB_)<<Et_sat_<<" "<<TTF_lowThreshold_EB_<<" "<<TTF_highThreshold_EB_<<std::endl ;
+    (*out_fileEB_)<<FG_lowThreshold_EB_<<" "<<FG_highThreshold_EB_<<" "
 		  <<FG_lowRatio_EB_<<" "<<FG_highRatio_EB_<<std::endl ;
-    (*out_file_) <<std::endl ;
+    (*out_fileEB_) <<std::endl ;
 
-    (*out_file_)<<"PHYSICS_EE "<<dec<<ee.rawId()<<std::endl ;
-    (*out_file_)<<Et_sat_EE_<<" "<<TTF_lowThreshold_EE_<<" "<<TTF_highThreshold_EE_<<std::endl ;
-    (*out_file_)<<FG_Threshold_EE_<<" "<<-1<<" "
+    (*out_fileEE_)<<"PHYSICS "<<dec<<ee.rawId()<<std::endl ;
+    (*out_fileEE_)<<Et_sat_<<" "<<TTF_lowThreshold_EE_<<" "<<TTF_highThreshold_EE_<<std::endl ;
+    (*out_fileEE_)<<FG_Threshold_EE_<<" "<<-1<<" "
 		  <<-1<<" "<<-1<<std::endl ;
-    (*out_file_) <<std::endl ;
+    (*out_fileEE_) <<std::endl ;
   }
 }
 
@@ -435,14 +425,14 @@ bool EcalTPGParamBuilder::computeLinearizerParam(double theta, double gainRatio,
 
   // case barrel:
   int shiftDet = 2 ;
-  double ratio = xtal_LSB_EB_/Et_sat_EB_ ;
+  double xtal_LSB = xtal_LSB_EB_ ;
   // case endcap:
   if (subdet=="EE") {
     shiftDet = 0 ;
-    ratio = xtal_LSB_EE_/Et_sat_EE_ ;
+    xtal_LSB = xtal_LSB_EE_ ;
   }
 
-  double factor = 1024 * ratio * gainRatio * calibCoeff * sin(theta) * (1 << (sliding_ + shiftDet + 2)) ;
+  double factor = 1024/Et_sat_ * xtal_LSB * gainRatio * calibCoeff * sin(theta) * (1 << (sliding_ + shiftDet + 2)) ;
   // Let's try first with shift = 0 (trivial solution)
   mult = (int)(factor+0.5) ; 
   for (shift = 0 ; shift<15 ; shift++) {
@@ -453,94 +443,78 @@ bool EcalTPGParamBuilder::computeLinearizerParam(double theta, double gainRatio,
   return false ;
 }
 
-void EcalTPGParamBuilder::create_header() 
+void EcalTPGParamBuilder::create_header(std::ofstream * out_file, std::string subdet) 
 {
   if (!writeToFiles_) return ;
-  (*out_file_) <<"COMMENT put your comments here"<<std::endl ; 
-
-  (*out_file_) <<"COMMENT ================================="<<std::endl ;
-  (*out_file_) <<"COMMENT           physics EB structure"<<std::endl ;
-  (*out_file_) <<"COMMENT"<<std::endl ;
-  (*out_file_) <<"COMMENT  EtSaturation (GeV), ttf_threshold_Low (GeV), ttf_threshold_High (GeV)"<<std::endl ;
-  (*out_file_) <<"COMMENT  FG_lowThreshold (GeV), FG_highThreshold (GeV), FG_lowRatio, FG_highRatio"<<std::endl ;
-  (*out_file_) <<"COMMENT ================================="<<std::endl ;
-  (*out_file_) <<"COMMENT"<<std::endl ;
-
-  (*out_file_) <<"COMMENT ================================="<<std::endl ;
-  (*out_file_) <<"COMMENT           physics EE structure"<<std::endl ;
-  (*out_file_) <<"COMMENT"<<std::endl ;
-  (*out_file_) <<"COMMENT  EtSaturation (GeV), ttf_threshold_Low (GeV), ttf_threshold_High (GeV)"<<std::endl ;
-  (*out_file_) <<"COMMENT  FG_Threshold (GeV), dummy, dummy, dummy"<<std::endl ;
-  (*out_file_) <<"COMMENT ================================="<<std::endl ;
-  (*out_file_) <<"COMMENT"<<std::endl ;
-
-  (*out_file_) <<"COMMENT ================================="<<std::endl ;
-  (*out_file_) <<"COMMENT           crystal structure (same for EB and EE)"<<std::endl ;
-  (*out_file_) <<"COMMENT"<<std::endl ;
-  (*out_file_) <<"COMMENT  ped, mult, shift [gain12]"<<std::endl ;
-  (*out_file_) <<"COMMENT  ped, mult, shift [gain6]"<<std::endl ;
-  (*out_file_) <<"COMMENT  ped, mult, shift [gain1]"<<std::endl ;
-  (*out_file_) <<"COMMENT ================================="<<std::endl ;
-  (*out_file_) <<"COMMENT"<<std::endl ;
-
-  (*out_file_) <<"COMMENT ================================="<<std::endl ;
-  (*out_file_) <<"COMMENT           strip EB structure"<<std::endl ;
-  (*out_file_) <<"COMMENT"<<std::endl ;
-  (*out_file_) <<"COMMENT  sliding_window"<<std::endl ;
-  (*out_file_) <<"COMMENT  weightGroupId"<<std::endl ;
-  (*out_file_) <<"COMMENT ================================="<<std::endl ;
-  (*out_file_) <<"COMMENT"<<std::endl ;
-
-  (*out_file_) <<"COMMENT ================================="<<std::endl ;
-  (*out_file_) <<"COMMENT           strip EE structure"<<std::endl ;
-  (*out_file_) <<"COMMENT"<<std::endl ;
-  (*out_file_) <<"COMMENT  sliding_window"<<std::endl ;
-  (*out_file_) <<"COMMENT  weightGroupId"<<std::endl ;
-  (*out_file_) <<"COMMENT  threshold_fg strip_lut_fg"<<std::endl ;
-  (*out_file_) <<"COMMENT ================================="<<std::endl ;
-  (*out_file_) <<"COMMENT"<<std::endl ;
-
-  (*out_file_) <<"COMMENT ================================="<<std::endl ;
-  (*out_file_) <<"COMMENT           tower EB structure"<<std::endl ;
-  (*out_file_) <<"COMMENT"<<std::endl ;
-  (*out_file_) <<"COMMENT  LUTGroupId"<<std::endl ;
-  (*out_file_) <<"COMMENT  FgGroupId"<<std::endl ;
-  (*out_file_) <<"COMMENT ================================="<<std::endl ;
-  (*out_file_) <<"COMMENT"<<std::endl ;
-
-  (*out_file_) <<"COMMENT ================================="<<std::endl ;
-  (*out_file_) <<"COMMENT           tower EE structure"<<std::endl ;
-  (*out_file_) <<"COMMENT"<<std::endl ;
-  (*out_file_) <<"COMMENT  LUTGroupId"<<std::endl ;
-  (*out_file_) <<"COMMENT  tower_lut_fg"<<std::endl ;
-  (*out_file_) <<"COMMENT ================================="<<std::endl ;
-  (*out_file_) <<"COMMENT"<<std::endl ;
+  (*out_file) <<"COMMENT put your comments here"<<std::endl ; 
+  (*out_file) <<"COMMENT ================================="<<std::endl ;
+  (*out_file) <<"COMMENT           physics structure"<<std::endl ;
+  (*out_file) <<"COMMENT"<<std::endl ;
+  (*out_file) <<"COMMENT  EtSaturation (GeV), ttf_threshold_Low (GeV), ttf_threshold_High (GeV)"<<std::endl ;
+  if (subdet=="EB") (*out_file) <<"COMMENT  FG_lowThreshold (GeV), FG_highThreshold (GeV), FG_lowRatio, FG_highRatio"<<std::endl ;
+  else if (subdet=="EE") (*out_file) <<"COMMENT  FG_Threshold (GeV), dummy, dummy, dummy"<<std::endl ;
+  (*out_file) <<"COMMENT ================================="<<std::endl ;
+  (*out_file) <<"COMMENT"<<std::endl ;
+  (*out_file) <<"COMMENT ================================="<<std::endl ;
+  (*out_file) <<"COMMENT           crystal structure"<<std::endl ;
+  (*out_file) <<"COMMENT"<<std::endl ;
+  (*out_file) <<"COMMENT  ped, mult, shift [gain12]"<<std::endl ;
+  (*out_file) <<"COMMENT  ped, mult, shift [gain6]"<<std::endl ;
+  (*out_file) <<"COMMENT  ped, mult, shift [gain1]"<<std::endl ;
+  (*out_file) <<"COMMENT ================================="<<std::endl ;
+  (*out_file) <<"COMMENT"<<std::endl ;
+  (*out_file) <<"COMMENT ================================="<<std::endl ;
+  (*out_file) <<"COMMENT           strip structure"<<std::endl ;
+  (*out_file) <<"COMMENT"<<std::endl ;
+  (*out_file) <<"COMMENT  sliding_window"<<std::endl ;
+  (*out_file) <<"COMMENT  weightGroupId"<<std::endl ;
   
-  (*out_file_) <<"COMMENT ================================="<<std::endl ;
-  (*out_file_) <<"COMMENT           Weight structure"<<std::endl ;
-  (*out_file_) <<"COMMENT"<<std::endl ;
-  (*out_file_) <<"COMMENT  weightGroupId"<<std::endl ;
-  (*out_file_) <<"COMMENT  w0, w1, w2, w3, w4"<<std::endl ;
-  (*out_file_) <<"COMMENT ================================="<<std::endl ;
-  (*out_file_) <<"COMMENT"<<std::endl ;
+  if (subdet=="EE") {
+    (*out_file) <<"COMMENT  threshold_fg strip_lut_fg"<<std::endl ;
+    (*out_file) <<"COMMENT ================================="<<std::endl ;
+    (*out_file) <<"COMMENT"<<std::endl ;
+    (*out_file) <<"COMMENT ================================="<<std::endl ;
+    (*out_file) <<"COMMENT           tower structure"<<std::endl ;
+    (*out_file) <<"COMMENT"<<std::endl ;
+    (*out_file) <<"COMMENT  LUTGroupId"<<std::endl ;
+    (*out_file) <<"COMMENT  tower_lut_fg"<<std::endl ;
+  }
+  if (subdet=="EB") {
+    (*out_file) <<"COMMENT ================================="<<std::endl ;
+    (*out_file) <<"COMMENT"<<std::endl ;
+    (*out_file) <<"COMMENT ================================="<<std::endl ;
+    (*out_file) <<"COMMENT           tower structure"<<std::endl ;
+    (*out_file) <<"COMMENT"<<std::endl ;
+    (*out_file) <<"COMMENT  LUTGroupId"<<std::endl ;
+    (*out_file) <<"COMMENT  FgGroupId"<<std::endl ;
+  }
+  (*out_file) <<"COMMENT ================================="<<std::endl ;
+  (*out_file) <<"COMMENT"<<std::endl ;
 
-  (*out_file_) <<"COMMENT ================================="<<std::endl ;
-  (*out_file_) <<"COMMENT           lut structure"<<std::endl ;
-  (*out_file_) <<"COMMENT"<<std::endl ;
-  (*out_file_) <<"COMMENT  LUTGroupId"<<std::endl ;
-  (*out_file_) <<"COMMENT  LUT[1-1024]"<<std::endl ;
-  (*out_file_) <<"COMMENT ================================="<<std::endl ;
-  (*out_file_) <<"COMMENT"<<std::endl ;
-
-  (*out_file_) <<"COMMENT ================================="<<std::endl ;
-  (*out_file_) <<"COMMENT           fg EB structure"<<std::endl ;
-  (*out_file_) <<"COMMENT"<<std::endl ;
-  (*out_file_) <<"COMMENT  FgGroupId"<<std::endl ;
-  (*out_file_) <<"COMMENT  el, eh, tl, th, lut_fg"<<std::endl ;
-  (*out_file_) <<"COMMENT ================================="<<std::endl ;
-  (*out_file_) <<"COMMENT"<<std::endl ;
-
-  (*out_file_) <<std::endl ;
+  (*out_file) <<"COMMENT ================================="<<std::endl ;
+  (*out_file) <<"COMMENT           Weight structure"<<std::endl ;
+  (*out_file) <<"COMMENT"<<std::endl ;
+  (*out_file) <<"COMMENT  weightGroupId"<<std::endl ;
+  (*out_file) <<"COMMENT  w0, w1, w2, w3, w4"<<std::endl ;
+  (*out_file) <<"COMMENT ================================="<<std::endl ;
+  (*out_file) <<"COMMENT"<<std::endl ;
+  (*out_file) <<"COMMENT ================================="<<std::endl ;
+  (*out_file) <<"COMMENT           lut structure"<<std::endl ;
+  (*out_file) <<"COMMENT"<<std::endl ;
+  (*out_file) <<"COMMENT  LUTGroupId"<<std::endl ;
+  (*out_file) <<"COMMENT  LUT[1-1024]"<<std::endl ;
+  (*out_file) <<"COMMENT ================================="<<std::endl ;
+  (*out_file) <<"COMMENT"<<std::endl ;
+  if (subdet=="EB") {
+    (*out_file) <<"COMMENT ================================="<<std::endl ;
+    (*out_file) <<"COMMENT           fg structure"<<std::endl ;
+    (*out_file) <<"COMMENT"<<std::endl ;
+    (*out_file) <<"COMMENT  FgGroupId"<<std::endl ;
+    (*out_file) <<"COMMENT  el, eh, tl, th, lut_fg"<<std::endl ;
+    (*out_file) <<"COMMENT ================================="<<std::endl ;
+    (*out_file) <<"COMMENT"<<std::endl ;
+  }
+  (*out_file) <<std::endl ;
 }
 
 
@@ -638,16 +612,12 @@ std::vector<unsigned int> EcalTPGParamBuilder::computeWeights(EcalShape & shape)
 
 void EcalTPGParamBuilder::computeLUT(int * lut, std::string det) 
 {
-  double Et_sat = Et_sat_EB_ ;
-  double LUT_threshold = LUT_threshold_EB_ ;
   double LUT_stochastic = LUT_stochastic_EB_ ;
   double LUT_noise = LUT_noise_EB_ ;
   double LUT_constant = LUT_constant_EB_ ;
   double TTF_lowThreshold = TTF_lowThreshold_EB_ ;
   double TTF_highThreshold = TTF_highThreshold_EB_ ;
   if (det == "EE") {
-    Et_sat = Et_sat_EE_ ;
-    LUT_threshold = LUT_threshold_EE_ ;
     LUT_stochastic = LUT_stochastic_EE_ ;
     LUT_noise = LUT_noise_EE_ ;
     LUT_constant = LUT_constant_EE_ ;
@@ -672,24 +642,24 @@ void EcalTPGParamBuilder::computeLUT(int * lut, std::string det)
 
   // case LUT following Ecal resolution
   if (LUT_option_ == "EcalResolution") {
-    TF1 * func = new TF1("func",oneOverEtResolEt, 0., Et_sat,3) ;
+    TF1 * func = new TF1("func",oneOverEtResolEt, 0., Et_sat_,3) ;
     func->SetParameters(LUT_stochastic, LUT_noise, LUT_constant) ;
-    double norm = func->Integral(0., Et_sat) ;
+    double norm = func->Integral(0., Et_sat_) ;
     for (int i=0 ; i<1024 ; i++) {   
-      double Et = i*Et_sat/1024. ;
+      double Et = i*Et_sat_/1024. ;
       lut[i] =  int(0xff*func->Integral(0., Et)/norm + 0.5) ;
     }
   }
 
   // Now, add TTF thresholds to LUT and apply LUT threshold if needed
   for (int j=0 ; j<1024 ; j++) {
-    double Et_GeV = Et_sat/1024*(j+0.5) ;
+    double Et_GeV = Et_sat_/1024*j ;
     int ttf = 0x0 ;    
     if (Et_GeV >= TTF_highThreshold) ttf = 3 ;
     if (Et_GeV >= TTF_lowThreshold && Et_GeV < TTF_highThreshold) ttf = 1 ;
     ttf = ttf << 8 ;
     lut[j] += ttf ;
-    if (Et_GeV <= LUT_threshold) lut[j] = 0 ;
+    if (Et_GeV < LUT_threshold_) lut[j] = 0 ;
   }
 
 }
@@ -740,7 +710,7 @@ void EcalTPGParamBuilder::computeFineGrainEBParameters(uint & lowRatio, uint & h
   if (highRatio>0x7f) highRatio = 0x7f ;
   
   // lsb at the stage of the FG calculation is:
-  double lsb_FG = Et_sat_EB_/1024./4 ;
+  double lsb_FG = Et_sat_/1024./4 ;
   lowThreshold = int(FG_lowThreshold_EB_/lsb_FG+0.5) ;
   if (lowThreshold>0xff) lowThreshold = 0xff ;
   highThreshold = int(FG_highThreshold_EB_/lsb_FG+0.5) ;
@@ -760,7 +730,7 @@ void EcalTPGParamBuilder::computeFineGrainEBParameters(uint & lowRatio, uint & h
 void EcalTPGParamBuilder::computeFineGrainEEParameters(uint & threshold, uint & lut_strip, uint & lut_tower) 
 {
   // lsb for EE:
-  double lsb_FG = Et_sat_EE_/1024. ; // FIXME is it true????
+  double lsb_FG = Et_sat_/1024. ; // FIXME is it true????
   threshold = int(FG_Threshold_EE_/lsb_FG+0.5) ;
   lut_strip = FG_lut_strip_EE_  ;
   lut_tower = FG_lut_tower_EE_  ;

@@ -81,7 +81,7 @@ class TECDetId : public SiStripDetId {
   
   /** Returns true if the module is in TEC- (z<0 side) */
   bool isZMinusSide() const
-  { return (side()==0);}
+  { return (side()==1);}
   
   /** Returns the wheel number */
   unsigned int wheelNumber() const

@@ -30,6 +30,7 @@ namespace evf {
     // member functions
     //
     UInt_t sendInitMessage(UInt_t  fuResourceId,
+			   UInt_t  outModId,
 			   UChar_t*data,
 			   UInt_t  dataSize) throw (evf::Exception);
     

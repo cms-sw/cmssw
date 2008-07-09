@@ -15,7 +15,7 @@
 //
 // Original Author:  Victor Bazterra
 //         Created:  Tue Mar 13 14:15:40 CDT 2007
-// $Id: OptTOA.cc,v 1.5 2008/02/23 09:34:05 bazterra Exp $
+// $Id: OptTOA.cc,v 1.4 2008/02/20 22:28:23 bazterra Exp $
 //
 //
 
@@ -387,8 +387,8 @@ OptTOA::LoopOverJetTracksAssociation(
 	  double dta = - IPTools::jetTrackDistance(transientTrack, direction, pv).second.value();
 	  double sdl = IPTools::signedDecayLength3D(transientTrack, direction, pv).second.value();
       double ips = IPTools::signedImpactParameter3D(transientTrack, direction, pv).second.value();
-	  double d0 = IPTools::signedTransverseImpactParameter(transientTrack, direction, pv).second.value();
       double dz = tracks[index]->dz() - pvZ;
+	  double d0 = tracks[index]->d0();
 	  
 	  // Classify the reco track;
 	  if ( classifier_.evaluate(edm::RefToBase<reco::Track>(tracks[index])) )

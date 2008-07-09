@@ -2,8 +2,7 @@
 #define PixelTrackFitting_TracksWithHits_H
 
 #include "DataFormats/TrackReco/interface/TrackFwd.h"
-#include "DataFormats/TrackingRecHit/interface/TrackingRecHit.h"
-
+#include "DataFormats/TrackerRecHit2D/interface/SiPixelRecHitCollection.h"
 #include <vector>
 
 namespace pixeltrackfitting {

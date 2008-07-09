@@ -5,8 +5,8 @@
  * *
  *  DQM Client to check the data integrity
  *
- *  $Date: 2007/11/07 15:23:27 $
- *  $Revision: 1.7 $
+ *  $Date: 2008/03/01 00:39:51 $
+ *  $Revision: 1.8 $
  *  \author S. Bolognesi - INFN TO
  *   
  */
@@ -57,28 +57,39 @@ private:
   //Number of onUpdates
   int nupdates;
   //int nSTAEvents;
-  
-  //If you want info VS time histos
-  bool doTimeHisto;
+
+
   //Number of bin in time histo
   int nTimeBin;
+  //If you want info VS time histos
+  bool doTimeHisto;
+  // switch to write histos to file
+  bool writeHisto;
+  // prefix of the name of the root file (lumi# and run# will be appended)
+  std::string outputFile;
+  // prescale on the # of LS to update the test
+  int prescaleFactor;
+
+
   //Counter between 0 and nTimeBin
   int counter;
 
   int nevents;
   unsigned int nLumiSegs;
-  int prescaleFactor;
+
   int run;
 
-  DQMStore* dbe;
 
-  edm::ParameterSet parameters;
+  DQMStore* dbe;
 
   // Monitor Elements
   // <histoType, <DDU index , histo> >    
   std::map<std::string, std::map<int, MonitorElement*> > dduHistos;
   // <histoType, <DDU index , vector of histos> >    
   std::map<std::string, std::map<int, std::vector <MonitorElement*> > > dduVectorHistos;
+
+  MonitorElement *summaryHisto;
+
  };
 
 #endif

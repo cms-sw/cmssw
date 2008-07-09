@@ -1,5 +1,7 @@
 import FWCore.ParameterSet.Config as cms
 
+from RecoMuon.TrackingTools.MuonServiceProxy_cff import *
+from RecoMuon.TrackingTools.MuonTrackLoader_cff import *
 globalCosmicMuons = cms.EDProducer("GlobalCosmicMuonProducer",
     MuonTrackLoaderForCosmic,
     MuonServiceProxy,
@@ -9,8 +11,8 @@ globalCosmicMuons = cms.EDProducer("GlobalCosmicMuonProducer",
         TkTrackCollectionLabel = cms.string('cosmictrackfinder'),
         Propagator = cms.string('SteppingHelixPropagatorAny'),
         SmootherParameters = cms.PSet(
-            PropagatorAlong = cms.string('SteppingHelixPropagatorAlong'),
-            PropagatorOpposite = cms.string('SteppingHelixPropagatorOpposite')
+            PropagatorAlong = cms.string('SmartPropagatorAny'),
+            PropagatorOpposite = cms.string('SmartPropagatorAnyOpposite')
         )
     ),
     MuonCollectionLabel = cms.InputTag("cosmicMuons")

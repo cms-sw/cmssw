@@ -1,7 +1,7 @@
 #include "DataFormats/PatCandidates/interface/EventHypothesis.h"
 #include "DataFormats/PatCandidates/interface/EventHypothesisLooper.h"
 
-void pat::EventHypothesis::add(const reco::CandidateBaseRef &ref, const std::string &role) {
+void pat::EventHypothesis::add(const CandRefType &ref, const std::string &role) {
     particles_.push_back(value_type(role,ref));
 }
 

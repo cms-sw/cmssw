@@ -1,8 +1,8 @@
 /*
  * \file EEIntegrityTask.cc
  *
- * $Date: 2008/03/14 14:57:58 $
- * $Revision: 1.32 $
+ * $Date: 2008/04/08 18:11:28 $
+ * $Revision: 1.38 $
  * \author G. Della Ricca
  *
  */
@@ -35,10 +35,13 @@ EEIntegrityTask::EEIntegrityTask(const ParameterSet& ps){
 
   init_ = false;
 
-  // get hold of back-end interface
-  dbe_ = Service<DQMStore>().operator->();
+  dqmStore_ = Service<DQMStore>().operator->();
+
+  prefixME_ = ps.getUntrackedParameter<string>("prefixME", "");
 
   enableCleanup_ = ps.getUntrackedParameter<bool>("enableCleanup", false);
+
+  mergeRuns_ = ps.getUntrackedParameter<bool>("mergeRuns", false);
 
   EEDetIdCollection0_ =  ps.getParameter<edm::InputTag>("EEDetIdCollection0");
   EEDetIdCollection1_ =  ps.getParameter<edm::InputTag>("EEDetIdCollection1");
@@ -75,12 +78,39 @@ void EEIntegrityTask::beginJob(const EventSetup& c){
 
   ievt_ = 0;
 
-  if ( dbe_ ) {
-    dbe_->setCurrentFolder("EcalEndcap/EEIntegrityTask");
-    dbe_->rmdir("EcalEndcap/EEIntegrityTask");
+  if ( dqmStore_ ) {
+    dqmStore_->setCurrentFolder(prefixME_ + "/EEIntegrityTask");
+    dqmStore_->rmdir(prefixME_ + "/EEIntegrityTask");
   }
 
-  Numbers::initGeometry(c);
+  Numbers::initGeometry(c, false);
+
+}
+
+void EEIntegrityTask::beginRun(const Run& r, const EventSetup& c) {
+
+  if ( ! mergeRuns_ ) this->reset();
+
+}
+
+void EEIntegrityTask::endRun(const Run& r, const EventSetup& c) {
+
+}
+
+void EEIntegrityTask::reset(void) {
+
+  if ( meIntegrityDCCSize ) meIntegrityDCCSize->Reset();
+  for (int i = 0; i < 18; i++) {
+    if ( meIntegrityGain[i] ) meIntegrityGain[i]->Reset();
+    if ( meIntegrityChId[i] ) meIntegrityChId[i]->Reset();
+    if ( meIntegrityGainSwitch[i] ) meIntegrityGainSwitch[i]->Reset();
+    if ( meIntegrityTTId[i] ) meIntegrityTTId[i]->Reset();
+    if ( meIntegrityTTBlockSize[i] ) meIntegrityTTBlockSize[i]->Reset();
+    if ( meIntegrityMemChId[i] ) meIntegrityMemChId[i]->Reset();
+    if ( meIntegrityMemGain[i] ) meIntegrityMemGain[i]->Reset();
+    if ( meIntegrityMemTTId[i] ) meIntegrityMemTTId[i]->Reset();
+    if ( meIntegrityMemTTBlockSize[i] ) meIntegrityMemTTBlockSize[i]->Reset();
+  }
 
 }
 
@@ -90,106 +120,106 @@ void EEIntegrityTask::setup(void){
 
   char histo[200];
 
-  if ( dbe_ ) {
-    dbe_->setCurrentFolder("EcalEndcap/EEIntegrityTask");
+  if ( dqmStore_ ) {
+    dqmStore_->setCurrentFolder(prefixME_ + "/EEIntegrityTask");
 
     // checking when number of towers in data different than expected from header
     sprintf(histo, "EEIT DCC size error");
-    meIntegrityDCCSize = dbe_->book1D(histo, histo, 18, 1, 19.);
+    meIntegrityDCCSize = dqmStore_->book1D(histo, histo, 18, 1, 19.);
     for (int i = 0; i < 18; i++) {
       meIntegrityDCCSize->setBinLabel(i+1, Numbers::sEE(i+1).c_str(), 1);
     }
 
     // checking when the gain is 0
-    dbe_->setCurrentFolder("EcalEndcap/EEIntegrityTask/Gain");
+    dqmStore_->setCurrentFolder(prefixME_ + "/EEIntegrityTask/Gain");
     for (int i = 0; i < 18; i++) {
       sprintf(histo, "EEIT gain %s", Numbers::sEE(i+1).c_str());
-      meIntegrityGain[i] = dbe_->book2D(histo, histo, 50, Numbers::ix0EE(i+1)+0., Numbers::ix0EE(i+1)+50., 50, Numbers::iy0EE(i+1)+0., Numbers::iy0EE(i+1)+50.);
+      meIntegrityGain[i] = dqmStore_->book2D(histo, histo, 50, Numbers::ix0EE(i+1)+0., Numbers::ix0EE(i+1)+50., 50, Numbers::iy0EE(i+1)+0., Numbers::iy0EE(i+1)+50.);
       meIntegrityGain[i]->setAxisTitle("jx", 1);
       meIntegrityGain[i]->setAxisTitle("jy", 2);
-      dbe_->tag(meIntegrityGain[i], i+1);
+      dqmStore_->tag(meIntegrityGain[i], i+1);
     }
 
     // checking when channel has unexpected or invalid ID
-    dbe_->setCurrentFolder("EcalEndcap/EEIntegrityTask/ChId");
+    dqmStore_->setCurrentFolder(prefixME_ + "/EEIntegrityTask/ChId");
     for (int i = 0; i < 18; i++) {
       sprintf(histo, "EEIT ChId %s", Numbers::sEE(i+1).c_str());
-      meIntegrityChId[i] = dbe_->book2D(histo, histo, 50, Numbers::ix0EE(i+1)+0., Numbers::ix0EE(i+1)+50., 50, Numbers::iy0EE(i+1)+0., Numbers::iy0EE(i+1)+50.);
+      meIntegrityChId[i] = dqmStore_->book2D(histo, histo, 50, Numbers::ix0EE(i+1)+0., Numbers::ix0EE(i+1)+50., 50, Numbers::iy0EE(i+1)+0., Numbers::iy0EE(i+1)+50.);
       meIntegrityChId[i]->setAxisTitle("jx", 1);
       meIntegrityChId[i]->setAxisTitle("jy", 2);
-      dbe_->tag(meIntegrityChId[i], i+1);
+      dqmStore_->tag(meIntegrityChId[i], i+1);
     }
 
     // checking when channel has unexpected or invalid ID
-    dbe_->setCurrentFolder("EcalEndcap/EEIntegrityTask/GainSwitch");
+    dqmStore_->setCurrentFolder(prefixME_ + "/EEIntegrityTask/GainSwitch");
     for (int i = 0; i < 18; i++) {
       sprintf(histo, "EEIT gain switch %s", Numbers::sEE(i+1).c_str());
-      meIntegrityGainSwitch[i] = dbe_->book2D(histo, histo, 50, Numbers::ix0EE(i+1)+0., Numbers::ix0EE(i+1)+50., 50, Numbers::iy0EE(i+1)+0., Numbers::iy0EE(i+1)+50.);
+      meIntegrityGainSwitch[i] = dqmStore_->book2D(histo, histo, 50, Numbers::ix0EE(i+1)+0., Numbers::ix0EE(i+1)+50., 50, Numbers::iy0EE(i+1)+0., Numbers::iy0EE(i+1)+50.);
       meIntegrityGainSwitch[i]->setAxisTitle("jx", 1);
       meIntegrityGainSwitch[i]->setAxisTitle("jy", 2);
-      dbe_->tag(meIntegrityGainSwitch[i], i+1);
+      dqmStore_->tag(meIntegrityGainSwitch[i], i+1);
     }
 
     // checking when trigger tower has unexpected or invalid ID
-    dbe_->setCurrentFolder("EcalEndcap/EEIntegrityTask/TTId");
+    dqmStore_->setCurrentFolder(prefixME_ + "/EEIntegrityTask/TTId");
     for (int i = 0; i < 18; i++) {
       sprintf(histo, "EEIT TTId %s", Numbers::sEE(i+1).c_str());
-      meIntegrityTTId[i] = dbe_->book2D(histo, histo, 50, Numbers::ix0EE(i+1)+0., Numbers::ix0EE(i+1)+50., 50, Numbers::iy0EE(i+1)+0., Numbers::iy0EE(i+1)+50.);
+      meIntegrityTTId[i] = dqmStore_->book2D(histo, histo, 50, Numbers::ix0EE(i+1)+0., Numbers::ix0EE(i+1)+50., 50, Numbers::iy0EE(i+1)+0., Numbers::iy0EE(i+1)+50.);
       meIntegrityTTId[i]->setAxisTitle("jx", 1);
       meIntegrityTTId[i]->setAxisTitle("jy", 2);
-      dbe_->tag(meIntegrityTTId[i], i+1);
+      dqmStore_->tag(meIntegrityTTId[i], i+1);
     }
 
     // checking when trigger tower has unexpected or invalid size
-    dbe_->setCurrentFolder("EcalEndcap/EEIntegrityTask/TTBlockSize");
+    dqmStore_->setCurrentFolder(prefixME_ + "/EEIntegrityTask/TTBlockSize");
     for (int i = 0; i < 18; i++) {
       sprintf(histo, "EEIT TTBlockSize %s", Numbers::sEE(i+1).c_str());
-      meIntegrityTTBlockSize[i] = dbe_->book2D(histo, histo, 50, Numbers::ix0EE(i+1)+0., Numbers::ix0EE(i+1)+50., 50, Numbers::iy0EE(i+1)+0., Numbers::iy0EE(i+1)+50.);
+      meIntegrityTTBlockSize[i] = dqmStore_->book2D(histo, histo, 50, Numbers::ix0EE(i+1)+0., Numbers::ix0EE(i+1)+50., 50, Numbers::iy0EE(i+1)+0., Numbers::iy0EE(i+1)+50.);
       meIntegrityTTBlockSize[i]->setAxisTitle("jx", 1);
       meIntegrityTTBlockSize[i]->setAxisTitle("jy", 2);
-      dbe_->tag(meIntegrityTTBlockSize[i], i+1);
+      dqmStore_->tag(meIntegrityTTBlockSize[i], i+1);
     }
 
     // checking when mem channels have unexpected ID
-    dbe_->setCurrentFolder("EcalEndcap/EEIntegrityTask/MemChId");
+    dqmStore_->setCurrentFolder(prefixME_ + "/EEIntegrityTask/MemChId");
     for (int i = 0; i < 18; i++) {
       sprintf(histo, "EEIT MemChId %s", Numbers::sEE(i+1).c_str());
-      meIntegrityMemChId[i] = dbe_->book2D(histo, histo, 10, 0., 10., 5, 0., 5.);
+      meIntegrityMemChId[i] = dqmStore_->book2D(histo, histo, 10, 0., 10., 5, 0., 5.);
       meIntegrityMemChId[i]->setAxisTitle("pseudo-strip", 1);
       meIntegrityMemChId[i]->setAxisTitle("channel", 2);
-      dbe_->tag(meIntegrityMemChId[i], i+1);
+      dqmStore_->tag(meIntegrityMemChId[i], i+1);
     }
 
     // checking when mem samples have second bit encoding the gain different from 0
     // note: strictly speaking, this does not corrupt the mem sample gain value (since only first bit is considered)
     // but indicates that data are not completely correct
-    dbe_->setCurrentFolder("EcalEndcap/EEIntegrityTask/MemGain");
+    dqmStore_->setCurrentFolder(prefixME_ + "/EEIntegrityTask/MemGain");
     for (int i = 0; i < 18; i++) {
       sprintf(histo, "EEIT MemGain %s", Numbers::sEE(i+1).c_str());
-      meIntegrityMemGain[i] = dbe_->book2D(histo, histo, 10, 0., 10., 5, 0., 5.);
+      meIntegrityMemGain[i] = dqmStore_->book2D(histo, histo, 10, 0., 10., 5, 0., 5.);
       meIntegrityMemGain[i]->setAxisTitle("pseudo-strip", 1);
       meIntegrityMemGain[i]->setAxisTitle("channel", 2);
-      dbe_->tag(meIntegrityMemGain[i], i+1);
+      dqmStore_->tag(meIntegrityMemGain[i], i+1);
     }
 
     // checking when mem tower block has unexpected ID
-    dbe_->setCurrentFolder("EcalEndcap/EEIntegrityTask/MemTTId");
+    dqmStore_->setCurrentFolder(prefixME_ + "/EEIntegrityTask/MemTTId");
     for (int i = 0; i < 18; i++) {
       sprintf(histo, "EEIT MemTTId %s", Numbers::sEE(i+1).c_str());
-      meIntegrityMemTTId[i] = dbe_->book2D(histo, histo, 2, 0., 2., 1, 0., 1.);
+      meIntegrityMemTTId[i] = dqmStore_->book2D(histo, histo, 2, 0., 2., 1, 0., 1.);
       meIntegrityMemTTId[i]->setAxisTitle("pseudo-strip", 1);
       meIntegrityMemTTId[i]->setAxisTitle("channel", 2);
-      dbe_->tag(meIntegrityMemTTId[i], i+1);
+      dqmStore_->tag(meIntegrityMemTTId[i], i+1);
     }
 
     // checking when mem tower block has invalid size
-    dbe_->setCurrentFolder("EcalEndcap/EEIntegrityTask/MemSize");
+    dqmStore_->setCurrentFolder(prefixME_ + "/EEIntegrityTask/MemSize");
     for (int i = 0; i < 18; i++) {
       sprintf(histo, "EEIT MemSize %s", Numbers::sEE(i+1).c_str());
-      meIntegrityMemTTBlockSize[i] = dbe_->book2D(histo, histo, 2, 0., 2., 1, 0., 1.);
+      meIntegrityMemTTBlockSize[i] = dqmStore_->book2D(histo, histo, 2, 0., 2., 1, 0., 1.);
       meIntegrityMemTTId[i]->setAxisTitle("pseudo-strip", 1);
       meIntegrityMemTTId[i]->setAxisTitle("channel", 2);
-      dbe_->tag(meIntegrityMemTTBlockSize[i], i+1);
+      dqmStore_->tag(meIntegrityMemTTBlockSize[i], i+1);
     }
 
   }
@@ -198,65 +228,65 @@ void EEIntegrityTask::setup(void){
 
 void EEIntegrityTask::cleanup(void){
 
-  if ( ! enableCleanup_ ) return;
+  if ( ! init_ ) return;
 
-  if ( dbe_ ) {
-    dbe_->setCurrentFolder("EcalEndcap/EEIntegrityTask");
+  if ( dqmStore_ ) {
+    dqmStore_->setCurrentFolder(prefixME_ + "/EEIntegrityTask");
 
-    if ( meIntegrityDCCSize ) dbe_->removeElement( meIntegrityDCCSize->getName() );
+    if ( meIntegrityDCCSize ) dqmStore_->removeElement( meIntegrityDCCSize->getName() );
     meIntegrityDCCSize = 0;
 
-    dbe_->setCurrentFolder("EcalEndcap/EEIntegrityTask/Gain");
+    dqmStore_->setCurrentFolder(prefixME_ + "/EEIntegrityTask/Gain");
     for (int i = 0; i < 18; i++) {
-      if ( meIntegrityGain[i] ) dbe_->removeElement( meIntegrityGain[i]->getName() );
+      if ( meIntegrityGain[i] ) dqmStore_->removeElement( meIntegrityGain[i]->getName() );
       meIntegrityGain[i] = 0;
     }
 
-    dbe_->setCurrentFolder("EcalEndcap/EEIntegrityTask/ChId");
+    dqmStore_->setCurrentFolder(prefixME_ + "/EEIntegrityTask/ChId");
     for (int i = 0; i < 18; i++) {
-      if ( meIntegrityChId[i] ) dbe_->removeElement( meIntegrityChId[i]->getName() );
+      if ( meIntegrityChId[i] ) dqmStore_->removeElement( meIntegrityChId[i]->getName() );
       meIntegrityChId[i] = 0;
     }
 
-    dbe_->setCurrentFolder("EcalEndcap/EEIntegrityTask/GainSwitch");
+    dqmStore_->setCurrentFolder(prefixME_ + "/EEIntegrityTask/GainSwitch");
     for (int i = 0; i < 18; i++) {
-      if ( meIntegrityGainSwitch[i] ) dbe_->removeElement( meIntegrityGainSwitch[i]->getName() );
+      if ( meIntegrityGainSwitch[i] ) dqmStore_->removeElement( meIntegrityGainSwitch[i]->getName() );
       meIntegrityGainSwitch[i] = 0;
     }
 
-    dbe_->setCurrentFolder("EcalEndcap/EEIntegrityTask/TTId");
+    dqmStore_->setCurrentFolder(prefixME_ + "/EEIntegrityTask/TTId");
     for (int i = 0; i < 18; i++) {
-      if ( meIntegrityTTId[i] ) dbe_->removeElement( meIntegrityTTId[i]->getName() );
+      if ( meIntegrityTTId[i] ) dqmStore_->removeElement( meIntegrityTTId[i]->getName() );
       meIntegrityTTId[i] = 0;
     }
 
-    dbe_->setCurrentFolder("EcalEndcap/EEIntegrityTask/TTBlockSize");
+    dqmStore_->setCurrentFolder(prefixME_ + "/EEIntegrityTask/TTBlockSize");
     for (int i = 0; i < 18; i++) {
-      if ( meIntegrityTTBlockSize[i] ) dbe_->removeElement( meIntegrityTTBlockSize[i]->getName() );
+      if ( meIntegrityTTBlockSize[i] ) dqmStore_->removeElement( meIntegrityTTBlockSize[i]->getName() );
       meIntegrityTTBlockSize[i] = 0;
     }
 
-    dbe_->setCurrentFolder("EcalEndcap/EEIntegrityTask/MemChId");
+    dqmStore_->setCurrentFolder(prefixME_ + "/EEIntegrityTask/MemChId");
     for (int i = 0; i < 18; i++) {
-      if ( meIntegrityMemChId[i] ) dbe_->removeElement( meIntegrityMemChId[i]->getName() );
+      if ( meIntegrityMemChId[i] ) dqmStore_->removeElement( meIntegrityMemChId[i]->getName() );
       meIntegrityMemChId[i] = 0;
     }
 
-    dbe_->setCurrentFolder("EcalEndcap/EEIntegrityTask/MemGain");
+    dqmStore_->setCurrentFolder(prefixME_ + "/EEIntegrityTask/MemGain");
     for (int i = 0; i < 18; i++) {
-      if ( meIntegrityMemGain[i] ) dbe_->removeElement( meIntegrityMemGain[i]->getName() );
+      if ( meIntegrityMemGain[i] ) dqmStore_->removeElement( meIntegrityMemGain[i]->getName() );
       meIntegrityMemGain[i] = 0;
     }
 
-    dbe_->setCurrentFolder("EcalEndcap/EEIntegrityTask/MemTTId");
+    dqmStore_->setCurrentFolder(prefixME_ + "/EEIntegrityTask/MemTTId");
     for (int i = 0; i < 18; i++) {
-      if ( meIntegrityMemTTId[i] ) dbe_->removeElement( meIntegrityMemTTId[i]->getName() );
+      if ( meIntegrityMemTTId[i] ) dqmStore_->removeElement( meIntegrityMemTTId[i]->getName() );
       meIntegrityMemTTId[i] = 0;
     }
 
-    dbe_->setCurrentFolder("EcalEndcap/EEIntegrityTask/MemSize");
+    dqmStore_->setCurrentFolder(prefixME_ + "/EEIntegrityTask/MemSize");
     for (int i = 0; i < 18; i++) {
-      if ( meIntegrityMemTTBlockSize[i] ) dbe_->removeElement( meIntegrityMemTTBlockSize[i]->getName() );
+      if ( meIntegrityMemTTBlockSize[i] ) dqmStore_->removeElement( meIntegrityMemTTBlockSize[i]->getName() );
       meIntegrityMemTTBlockSize[i] = 0;
     }
 
@@ -270,7 +300,7 @@ void EEIntegrityTask::endJob(void){
 
   LogInfo("EEIntegrityTask") << "analyzed " << ievt_ << " events";
 
-  if ( init_ ) this->cleanup();
+  if ( enableCleanup_ ) this->cleanup();
 
 }
 
@@ -298,7 +328,7 @@ void EEIntegrityTask::analyze(const Event& e, const EventSetup& c){
 
   } else {
 
-    LogWarning("EEIntegrityTask") << EEDetIdCollection0_ << " not available";
+//    LogWarning("EEIntegrityTask") << EEDetIdCollection0_ << " not available";
 
   }
 

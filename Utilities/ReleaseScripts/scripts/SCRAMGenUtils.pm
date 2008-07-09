@@ -10,8 +10,7 @@ local $InternalCache={};
 sub init ()
 {
   my $dir=shift;
-  if(!-f "${dir}/config/scram_version"){die "${dir}/config/scram_version file does not exist.";}
-  $SCRAM_VERSION=`cat ${dir}/config/scram_version`; chomp $SCRAM_VERSION;
+  &scramVersion ($dir);
   my $arch=&getScramArch();
   if (!-f "${dir}/tmp/${arch}/Makefile"){system("cd ${dir}; $SCRAM_CMD b -r echo_CXX ufast>/dev/null 2>&1");}
   my $scram_home=dirname(dirname(&SCRAMGenUtils::getBuildVariable($dir,"SCRAM","ufast")));
@@ -98,11 +97,26 @@ sub getTmpDir ()
 # Reading Project Cache DB
 #########################################################################
 
+sub scramVersion ()
+{
+  my $rel=shift;
+  if ($SCRAM_VERSION eq "")
+  {
+    my $ref;
+    if(open($ref,"${rel}/config/scram_version"))
+    {
+      $SCRAM_VERSION=<$ref>; chomp $SCRAM_VERSION;
+      close($ref);
+    }
+  }
+  return $SCRAM_VERSION;
+}
+
 sub fixCacheFileName ()
 {
   my $file=shift;
   my $gz="";
-  if ($SCRAM_VERSION=~/^V[2-9]_/){$gz=".gz";}
+  if ($SCRAM_VERSION=~/^V[2-9]/){if($file!~/\.gz$/){$gz=".gz";}}
   return "$file$gz";
 }
 
@@ -175,7 +189,7 @@ sub createTmpReleaseArea ()
   }
   my $setup=0;
   my $envfile="${dir}/.SCRAM/Environment";
-  if ($SCRAM_VERSION=~/^V[2-9]_/){$envfile="${dir}/.SCRAM/${SCRAM_ARCH}/Environment";}
+  if ($SCRAM_VERSION=~/^V[2-9]/){$envfile="${dir}/.SCRAM/${SCRAM_ARCH}/Environment";}
   if($dev)
   {
     my $rtop=&getFromEnvironmentFile("RELEASETOP",$rel);
@@ -188,10 +202,10 @@ sub createTmpReleaseArea ()
   else
   {
     system("chmod -R u+w $dir");
-    if ($SCRAM_VERSION=~/^V[2-9]_/){system("rm -f $envfile");}
+    if ($SCRAM_VERSION=~/^V[2-9]/){system("rm -f $envfile");}
     else
     {
-      system("grep -v \"RELEASETOP\" $envfile  > ${envfile}.new");
+      system("grep -v \"RELEASETOP=\" $envfile  > ${envfile}.new");
       system("mv ${envfile}.new $envfile");
     }
     $setup=1;
@@ -445,131 +459,6 @@ sub readBuildFile ()
   my $xml = SCRAM::Plugins::DocParser->new();
   $xml->parse($bfile,$input);
   return &XML2DATA($xml->{output});
-}
-
-sub parseBF ()
-{
-  my $ref=shift;
-  my $data=shift;
-  my $line=shift;
-  my $intype=uc(shift) || "";
-  my $linenum=shift || 0;
-  my $bfile=shift;
-  my $pline="";
-  while($line=$line||(++${$linenum}?<$ref>:""))
-  {
-    chomp $line;
-    if($pline eq $line)
-    {
-      if($line=~/.*?>.*$/){$line=$1;}
-      else{$line="";}
-    }
-    $pline=$line;
-    if(($line=~/^\s*#/) || ($line=~/^\s*$/)){$line="";next;}
-    if(($line=~/</) && ($line!~/>/)){$line.=<$ref>; next;}
-    if($line && $line=~/^\s*<\s*(\/|)environment\s*>(.*)$/i){$line=$2;next;}
-    if($line && $line=~/^\s*<\s*\/use\s*>(.*)$/i){$line=$2;next;}
-    if($line && $line=~/^\s*<\s*\/(export|bin|library|architecture)\s*>(.*)$/i)
-    {
-      my $type=$1; $line=$2;
-      if(uc($type) eq $intype){return $line;}
-      print STDERR "ERROR: Extra closing tag \"$type\" at line number \"${$linenum}\" of \"$bfile\".\n";
-    }
-    if($line && $line=~/^\s*<\s*export\s*>(.*)$/i){$data->{export}={};$line=&parseBF($ref,$data->{export},$1,"export",$linenum,$bfile);}
-    if($line && $line=~/^\s*<architecture\s+name=(.+?)\s*>(.*)$/i)
-    {
-      $line=$2;
-      my $x=$1; $x=~s/[\"\']//g; 
-      
-      if(!exists $data->{arch}{$x}){$data->{arch}{$x}={};}
-      $line=&parseBF($ref,$data->{arch}{$x},$line,"architecture",$linenum,$bfile);
-    }
-    if($line && $line=~/^\s*<use\s+name=(.+?)\s*>(.*)$/i)
-    {
-      $line=$2;
-      my $x=$1; $x=~s/[\"\']//g;
-      
-      $data->{use}{$x}=1;
-    }
-    if($line && $line=~/^\s*<include_path\s+path=(.+?)\s*>(.*)$/i)
-    {
-      $line=$2;
-      my $x=$1; $x=~s/[\"\']//g;
-      $data->{include_path}{$x}=1;
-      print "MSG:include_path:$x:$intype\n";
-    }
-    if($line && $line=~/^\s*<flags\s+([^=]+?)=(.+?)\s*>(.*)$/i)
-    {
-      $line=$3;
-      my $n=uc($1); my $v=$2;
-      my $x="";
-      if($v=~/^([\"\'])(.+)$/)
-      {
-        $x=$1;
-	$v=$2;
-	$v=~s/^(.+?)[$x]$/$1/;
-      }
-      if(!exists $data->{flags}{$n}){$data->{flags}{$n}=[];}
-      my $i=scalar(@{$data->{flags}{$n}});
-      $data->{flags}{$n}[$i]{v}=$v;
-      $data->{flags}{$n}[$i]{q}=$x;
-    }
-    if($line && $line=~/^\s*<lib\s+name=(.+?)\s*>(.*)$/i)
-    {
-      $line=$2;
-      my $x=$1;$x=~s/[\"\']//g;
-      
-      $data->{lib}{$x}=1;
-    }
-    foreach my $type ("bin", "library")
-    {
-      if($line && $line=~/^\s*<$type\s+([^>]+?\s*>)(.*)$/i)
-      {
-	$line=$2;
-	my $line1=$1;
-	my $name="";
-        if($line1=~/^(.*?)\bname=([^\s>]+)(\s|)(.*)$/i)
-        {
-          $line1="${1}${4}\n";
-	  $name=$2; $name=~s/[\"\']//g;
-	  
-        }
-        if($line1=~/^(.*?)\bfile=(.+?)>(.*)$/i)
-        {
-          $line1="${1}${3}";
-	  my $n=$2; $n=~s/[\"\']//g;$n=~s/,/ /g;
-	  
-	  if($name ne ""){$data->{$type}{$name}{file}=[];}
-	  foreach my $f (split /\s+/,$n)
-	  {
-	    if($name eq "")
-	    {
-	      $name=basename($f); $name=~s/\.[^.]+$//;
-	      $data->{$type}{$name}{file}=[];
-	    }
-	    push @{$data->{$type}{$name}{file}},"$f";
-	  }
-        }
-	if($name ne "")
-	{
-          $data->{$type}{$name}{deps}={};
-          $line=&parseBF($ref,$data->{$type}{$name}{deps},$line,"$type",$linenum,$bfile);
-	}
-      }
-    }
-    if($line && $line=~/^\s*<\s*makefile\s*>(.*)$/i)
-    {
-      $line=$1;
-      if($line=~/^\s*$/){$line="";}
-      if(!exists $data->{makefile}){$data->{makefile}=[];}
-      while($line=$line||<$ref>)
-      {
-        if($line && $line=~/^\s*<\s*\/makefile\s*>(.*)$/i){$line=$1; last;}
-	else{push @{$data->{makefile}},$line;}
-	$line="";
-      }
-    }
-  }
 }
 
 sub findBuildFileTag ()

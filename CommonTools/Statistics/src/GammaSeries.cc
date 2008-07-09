@@ -1,4 +1,5 @@
 #include "CommonTools/Statistics/src/GammaSeries.h"
+#include "CommonTools/Statistics/src/GammaLn.h"
 #include <iostream>
 #include <cmath>
 

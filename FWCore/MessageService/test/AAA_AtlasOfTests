@@ -57,13 +57,30 @@ u15	LogVerbatim and LogTrace; also whether isInfoEnalbled() works
 	when it is enabled.  
 	---------- UnitTestClient_H
 	
-u16	Explicit specificatoin of filenames and of extensions in destinations,
+u16	Explicit specification of filenames and of extensions in destinations,
 	statistics, and jobReports.
 	---------- UnitTestClient_A
 	
-
+u17	Threshold levels for destinations, limit=0 for a category,
+	enabling all (*) LogDebug, with one destination responding.
+	Also verify that by default, the threshold for a destination is INF,
+	and verify name used for "severe" errors is System, not Severe, in 
+	summary statistics, and jobReports.
+	---------- UnitTestClient_K
 	
-<This Atlas is not yet complete; will add to it.>
+u18	LogSystem, LogAbsolute, LogProblem, LogPrint, and LogVerbatim.
+	---------- UnitTestClient_M
+	
+u19	Long header lines, to test the non-breaking behavior.
+	---------- UnitTestClient_N
+	
+u20	Test default configuration file for MessageLogger service
+	for users that include MessageLogger.cfi and nothing else.
+	---------- UnitTestClient_G
+
+u21	By-severity default limit on each type of message,
+	and specific-category override of that default.
+	---------- UnitTestClient_O
 	
 u22	Tests effect of LogFlush by cfg-configurable choices of how many 
 	messages to use to clog the queue and whether or not FlushMessageLog
@@ -80,4 +97,8 @@ u24	Behavior when duplicate file names are supplied.  We create two
 	destinations, with ERROR and WARNING thresholds, and force the
 	files both to be u24.log.
 	---------- UnitTestClient_A
+	
+u25	Imposition of limits and thresholds of specific interest to user
+	requests:  Limits per-category on ERROR and WARNING messages.
+	---------- UnitTestClient_R
 	

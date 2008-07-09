@@ -4,8 +4,8 @@
 /*
  * \file EBCosmicClient.h
  *
- * $Date: 2008/03/14 14:38:54 $
- * $Revision: 1.48 $
+ * $Date: 2008/06/25 14:16:15 $
+ * $Revision: 1.56 $
  * \author G. Della Ricca
  * \author F. Cossutti
  *
@@ -44,7 +44,7 @@ virtual ~EBCosmicClient();
 void analyze(void);
 
 /// BeginJob
-void beginJob(DQMStore* mui);
+void beginJob(DQMStore* dqmStore);
 
 /// EndJob
 void endJob(void);
@@ -61,11 +61,14 @@ void setup(void);
 /// Cleanup
 void cleanup(void);
 
+/// SoftReset
+void softReset(bool flag);
+
 /// HtmlOutput
 void htmlOutput(int run, std::string& htmlDir, std::string& htmlName);
 
 /// WriteDB
-bool writeDb(EcalCondDBInterface* econn, RunIOV* runiov, MonRunIOV* moniov);
+bool writeDb(EcalCondDBInterface* econn, RunIOV* runiov, MonRunIOV* moniov, bool& status, bool flag);
 
 /// Get Functions
 inline int getEvtPerJob() { return ievt_; }
@@ -79,14 +82,15 @@ int jevt_;
 bool cloneME_;
 
 bool verbose_;
+bool debug_;
 
-bool enableMonitorDaemon_;
+std::string prefixME_;
 
 bool enableCleanup_;
 
 std::vector<int> superModules_;
 
-DQMStore* dbe_;
+DQMStore* dqmStore_;
 
 MonitorElement* meh01_[36];
 MonitorElement* meh02_[36];

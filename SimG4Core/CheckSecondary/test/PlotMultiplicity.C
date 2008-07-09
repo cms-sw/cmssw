@@ -1,391 +1,91 @@
 #include <iostream>
 #include <vector>
-#include <string>
 #include <map>
 
-char *g4ver = "G4.9.1";
-int mstyle[15] = { 29, 29, 20, 21, 20, 21, 22, 21, 22, 20, 21, 22, 20, 20, 21};
-int mcolor[15] = {  1,  1,  3,  3,  4,  4,  4,  7,  7,  7,  2,  2,  2, 28, 28};
-float msiz[15] = {1.4,1.4,1.1,1.1,1.1,1.1,1.4,1.1,1.4,1.1,1.1,1.4,1.1,1.1,1.1};
-int lcolor[15] = {  1,  1,  3,  3,  4,  4,  4,  7,  7,  7,  2,  2,  2, 28, 28};
-int lstyle[15] = {  1,  1,  1,  2,  1,  2,  2,  2,  2,  1,  2,  2,  1,  1,  2};
-int lwidth[15] = {  1,  1,  1,  2,  1,  2,  2,  2,  2,  1,  2,  2,  1,  1,  2};
 
-void plotMomentum(char target[6], char list[10], char ene[6], char part[4]) {
-  
-  setStyle();
-  gStyle->SetOptLogy(1);
+void PlotMultiplicity() {
 
-  std::vector<std::string> types = typesOld();
-  int energy = atoi(ene);
-  
-  char ofile[100];
-  sprintf (ofile, "histo/histo_%s%s_%s_%sGeV.root", target, list, part, ene);
-  std::cout << "Input file " << ofile << "\n";
-  TFile *fout = TFile::Open(ofile);
-  fout->cd();
+  char element[6];
+  sprintf(element, "PbWO4");
+  PlotMultiplicity(element);
 
-  char name[60], title[160], ctype[20], ytitle[20], cname[160];
-  TH1F *hiParticle[5][20];
-  for (unsigned int ii=0; ii<=(types.size()); ii++) {
-    if      (ii == 0) sprintf (ctype, "All Particles");
-    else              sprintf (ctype, "%s", types[ii-1].c_str());
-    for (unsigned int jj=0; jj<5; jj++) {
-      sprintf (name, "Particle%i_KE%s%s%sGeV(%s)",jj,target, list, ene, ctype);
-      hiParticle[jj][ii] = (TH1F*)fout->FindObjectAny(name);
-      hiParticle[jj][ii]->SetFillColor(30);
-    }
-  }
+  sprintf(element, "Brass");
+  PlotMultiplicity(element);
 
-  TCanvas *c[5];
-  for (unsigned int jj=0; jj<2; jj++) {
-    hiParticle[jj][11]->Rebin(25);
-    hiParticle[jj][12]->Rebin(25);
-    hiParticle[jj][13]->Rebin(25);
-
-    sprintf(cname, "c_%s%s%sGeV_nucleons_particle%i", target, list, ene, jj);
-    c[jj] = new TCanvas(cname, cname, 800, 800);
-    c[jj]->Divide(2,2);
-    c[jj]->cd(1); hiParticle[jj][11]->Draw();
-    c[jj]->cd(2); hiParticle[jj][12]->Draw();
-    c[jj]->cd(3); hiParticle[jj][13]->Draw();
-    c[jj]->cd(4); hiParticle[jj][14]->Draw();
-  }
 }
 
-void plotParticles(char target[6], char list[10], char ene[6], char part[4]) {
+void PlotMultiplicity(char element[6]) {
+
+  char list[10], name[50];
+  sprintf(list, "QGSP");
   
-  gStyle->SetOptLogy(1);
-  gStyle->SetTitleX(.1);
-  gStyle->SetTitleY(.9);
-
+  std::map<string, double> means_300 = getMean(element, "QGSP", "300.0");
+  printMeans(means_300);
   
-  std::vector<std::string> types = types();
-  char ofile[100];
-  sprintf (ofile, "histo/histo_%s%s_%s_%sGeV.root", target, list, part, ene);
-  std::cout << "Input file " << ofile << "\n";
-  TFile *fout = TFile::Open(ofile);
-  fout->cd();
+  std::map<string, double> means_200 = getMean(element, "QGSP", "200.0");
+  printMeans(means_200);
 
-  char ctype[20], title[160], cname[160];
-  sprintf(ctype,"Ions");
-  TH1F *hProton[2],   *hNeutron[2],   *hHeavy[2],   *hIon[2];
-  TH1F *hProton_1[2], *hNeutron_1[2], *hHeavy_1[2], *hIon_1[2];
-  for (int i=0; i<2; i++) {
-    sprintf(title, "proton%i_%s%s%sGeV(%s)", i, target, list, ene, ctype);
-    hProton[i] = (TH1F*)fout->FindObjectAny(title);
-    sprintf(title, "proton%i_%s%s%sGeV", i, target, list, ene);
-    hProton[i]->SetName(title);
-    hProton[i]->SetTitle(title);
+  std::map<string, double> means_150 = getMean(element, "QGSP", "150.0");
+  printMeans(means_150);
 
-    hProton_1[i] = (TH1F*) hProton[i]->Clone();
-    sprintf(title, "new_%s", title);
-    hProton_1[i]->SetName(title);
+  std::map<string, double> means_100 = getMean(element, "QGSP", "100.0");
+  printMeans(means_100);
 
-    sprintf(title, "neutron%i_%s%s%sGeV(%s)", i, target, list, ene, ctype);
-    hNeutron[i] = (TH1F*)fout->FindObjectAny(title);
-    sprintf(title, "neutron%i_%s%s%sGeV", i, target, list, ene);
-    hNeutron[i]->SetName(title);
-    hNeutron[i]->SetTitle(title);
+  std::map<string, double>  means_50 = getMean(element, "QGSP", "50.0");
+  printMeans(means_50);
 
-    hNeutron_1[i] = (TH1F*) hNeutron[i]->Clone();
-    sprintf(title, "new_%s", title);
-    hNeutron_1[i]->SetName(title);
+  std::map<string, double>  means_30 = getMean(element, "QGSP", "30.0");
+  printMeans(means_30);
 
-    sprintf(title, "heavy%i_%s%s%sGeV(%s)", i, target, list, ene, ctype);
-    hHeavy[i] = (TH1F*)fout->FindObjectAny(title);
-    sprintf(title, "heavy%i_%s%s%sGeV", i, target, list, ene);
-    hHeavy[i]->SetName(title);
-    hHeavy[i]->SetTitle(title);
+  std::map<string, double>  means_20 = getMean(element, "QGSP", "20.0");
+  printMeans(means_30);
 
-    hHeavy_1[i] = (TH1F*) hHeavy[i]->Clone();
-    sprintf(title, "new_%s", title);
-    hHeavy_1[i]->SetName(title);
+  std::map<string, double>  means_15 = getMean(element, "QGSP", "15.0");
+  printMeans(means_15);
 
-    sprintf(title, "ion%i_%s%s%sGeV(%s)", i, target, list, ene, ctype);
-    hIon[i] = (TH1F*)fout->FindObjectAny(title);
-    sprintf(title, "ion%i_%s%s%sGeV", i, target, list, ene);
-    hIon[i]->SetName(title);
-    hIon[i]->SetTitle(title);
+  std::map<string, double>   means_9 = getMean(element, "QGSP", "9.0");
+  printMeans(means_9);
 
-    hIon_1[i] = (TH1F*) hIon[i]->Clone();
-    sprintf(title, "new_%s", title);
-    hIon_1[i]->SetName(title);
-  }
+  std::map<string, double>   means_7 = getMean(element, "QGSP", "7.0");
+  printMeans(means_7);
 
-  int energy = atoi(ene);
-  std::cout << "Energy " << energy << "\n";
-  if (energy>=10) {
-    hProton[0]->Rebin(5);   hProton[1]->Rebin(5);
-    hProton_1[0]->GetXaxis()->SetRangeUser(0.0, 5.0);
-    hProton_1[1]->GetXaxis()->SetRangeUser(0.0, 2.5);
-    
-    hNeutron[0]->Rebin(5);  hNeutron[1]->Rebin(5);
-    hNeutron_1[0]->GetXaxis()->SetRangeUser(0.0, 5.0);
-    hNeutron_1[1]->GetXaxis()->SetRangeUser(0.0, 2.5);
+  std::map<string, double>   means_5 = getMean(element, "QGSP", "5.0");
+  printMeans(means_5);
 
-    hHeavy[0]->Rebin(5);    hHeavy[1]->Rebin(5);
-    hHeavy_1[0]->GetXaxis()->SetRangeUser(0.0, 5.0);
-    hHeavy_1[1]->GetXaxis()->SetRangeUser(0.0, 5.0);
+  std::map<string, double>   means_3 = getMean(element, "QGSP", "3.0");
+  printMeans(means_3);
 
-    hIon[0]->GetXaxis()->SetRangeUser(0.0, 0.03);
-    hIon[1]->GetXaxis()->SetRangeUser(0.0, 0.03);
-  } else {
-    
-    hProton_1[0]->GetXaxis()->SetRangeUser(0.0, 1.0);
-    hProton_1[1]->GetXaxis()->SetRangeUser(0.0, 0.5);
+  std::map<string, double>   means_2 = getMean(element, "QGSP", "2.0");
+  printMeans(means_2);
 
-    hNeutron_1[0]->GetXaxis()->SetRangeUser(0.0, 1.0);
-    hNeutron_1[1]->GetXaxis()->SetRangeUser(0.0, 0.5);
-    
-    hHeavy_1[0]->GetXaxis()->SetRangeUser(0.0, 5.0);
-    hHeavy_1[1]->GetXaxis()->SetRangeUser(0.0, 5.0);
-
-    hIon[0]->Rebin(5);      hIon[1]->Rebin(5);
-    hIon[0]->GetXaxis()->SetRangeUser(0.0, 1.5);
-    hIon[1]->GetXaxis()->SetRangeUser(0.0, 1.5);
-  }
-  
-  for (int i=0; i<2; i++) {
-    hProton[i]->SetFillColor(30);
-    hNeutron[i]->SetFillColor(30);
-    hHeavy[i]->SetFillColor(30);
-    hIon[i]->SetFillColor(30);
-
-    hProton_1[i]->SetFillColor(30);
-    hNeutron_1[i]->SetFillColor(30);
-    hHeavy_1[i]->SetFillColor(30);
-    hIon_1[i]->SetFillColor(30);
-
-    hProton[i]->GetXaxis()->SetRangeUser(0.0, energy);
-    hNeutron[i]->GetXaxis()->SetRangeUser(0.0, energy);
-    hHeavy[i]->GetXaxis()->SetRangeUser(0.0, energy);
-  }
-
-  sprintf(cname, "c_%s%s%sGeV_protons", target, list, ene);
-  TCanvas *cc4 = new TCanvas(cname, cname, 800, 800);
-  cc4->Divide(2,2);
-  cc4->cd(1); hProton[0]->Draw();
-  cc4->cd(2); hProton_1[0]->Draw();
-  cc4->cd(3); hProton[1]->Draw();
-  cc4->cd(4); hProton_1[1]->Draw();
-
-  sprintf(cname, "c_%s%s%sGeV_neutrons", target, list, ene);
-  TCanvas *cc5 = new TCanvas(cname, cname, 800, 800);
-  cc5->Divide(2,2);
-  cc5->cd(1); hNeutron[0]->Draw();
-  cc5->cd(2); hNeutron_1[0]->Draw();
-  cc5->cd(3); hNeutron[1]->Draw();
-  cc5->cd(4); hNeutron_1[1]->Draw();
-
-  sprintf(cname, "c_%s%s%sGeV_Heavy", target, list, ene);
-  TCanvas *cc6 = new TCanvas(cname, cname, 800, 800);
-  cc6->Divide(2,2);
-  cc6->cd(1); hHeavy[0]->Draw();
-  cc6->cd(2); hHeavy_1[0]->Draw();
-  cc6->cd(3); hHeavy[1]->Draw();
-  cc6->cd(4); hHeavy_1[1]->Draw();
-
-  sprintf(cname, "c_%s%s%sGeV_Ion", target, list, ene);
-  TCanvas *cc7 = new TCanvas(cname, cname, 800, 500);
-  cc7->Divide(2,1);
-  cc7->cd(1); hIon[0]->Draw();
-  cc7->cd(2); hIon[1]->Draw();
-}
-
-
-void plotMultiplicity(char target[6],char list[10],char part[4],int ymax=25) {
-
-  setStyle();
-  gStyle->SetOptTitle(0);
-  
-  char name[1024], sym[10];
-  if      (part=="pim") sprintf(sym, "#pi^{-}");
-  else if (part=="pip") sprintf(sym, "#pi^{+}");
-  else                  sprintf(sym, "p");
-
-  std::map<string, double> means_300=getMean(target,list,part,"300.0","Multi");
-  std::map<string, double> means_200=getMean(target,list,part,"200.0","Multi");
-  std::map<string, double> means_150=getMean(target,list,part,"150.0","Multi");
-  std::map<string, double> means_100=getMean(target,list,part,"100.0","Multi");
-  std::map<string, double> means_50 =getMean(target,list,part,"50.0", "Multi");
-  std::map<string, double> means_30 =getMean(target,list,part,"30.0", "Multi");
-  std::map<string, double> means_20 =getMean(target,list,part,"20.0", "Multi");
-  std::map<string, double> means_15 =getMean(target,list,part,"15.0", "Multi");
-  std::map<string, double> means_9  =getMean(target,list,part,"9.0",  "Multi");
-  std::map<string, double> means_7  =getMean(target,list,part,"7.0",  "Multi");
-  std::map<string, double> means_5  =getMean(target,list,part,"5.0",  "Multi");
-  std::map<string, double> means_3  =getMean(target,list,part,"3.0",  "Multi");
-  std::map<string, double> means_2  =getMean(target,list,part,"2.0",  "Multi");
-  std::map<string, double> means_1  =getMean(target,list,part,"1.0",  "Multi");
+  std::map<string, double>   means_1 = getMean(element, "QGSP", "1.0");
+  printMeans(means_1);
 
   char ctype[20];
-  std::vector<std::string> types   = types();
-  std::vector<std::string> typeOld = typesOld();
-  //  std::cout << "Number of types: " << types.size() << "\n";
-
-  TGraph *gr[20];
-  TLegend *leg = new TLegend(0.35, 0.5, 0.8, 0.87);
-  char hdr[40];
-  sprintf(hdr, "%s (%s-%s)", target, g4ver, list);
-  leg->SetHeader(hdr);  leg->SetFillColor(10); leg->SetMargin(0.45);
-  leg->SetTextSize(.027);
-  sprintf(name, "c_%s_%sMultiplicity_%s", part,target,list);
-  TCanvas *cc = new TCanvas(name, name, 700, 700);
-
-  for (unsigned int ii=0; ii<=(types.size()); ii++) {
-    if      (ii == 0) sprintf (ctype, "All Particles");
-    else              sprintf (ctype, "%s", typeOld[ii-1].c_str());
-
-    // std::cout<<"ii "<<ii<<"  ctype "<<ctype<<std::endl;
-
-    string a(ctype);
-    double vx[14], vy[14];
-    vx[0]  = 300.0;  vy[0]  = means_300[a];
-    vx[1]  = 200.0;  vy[1]  = means_200[a];
-    vx[2]  = 150.0;  vy[2]  = means_150[a];
-    vx[3]  = 100.0;  vy[3]  = means_100[a];
-    vx[4]  = 50.0;   vy[4]  = means_50[a];
-    vx[5]  = 30.0;   vy[5]  = means_30[a];
-    vx[6]  = 20.0;   vy[6]  = means_20[a];
-    vx[7]  = 15.0;   vy[7]  = means_15[a];
-    vx[8]  = 9.0;    vy[8]  = means_9[a];
-    vx[9]  = 7.0;    vy[9]  = means_7[a];
-    vx[10] = 5.0;    vy[10] = means_5[a];
-    vx[11] = 3.0;    vy[11] = means_3[a];
-    vx[12] = 2.0;    vy[12] = means_2[a];
-    vx[13] = 1.0;    vy[13] = means_1[a];
-
-    gPad->SetLogx(1);
-    gPad->SetGridx(1); gPad->SetGridy(1);
-    gr[ii] = new TGraph(14, vx,vy);
-    sprintf(name, "Multiplicity of secondaries %s-%s (%s %s)", sym, target, g4ver, list);
-    gr[ii]->SetTitle(name);
-    gr[ii]->GetXaxis()->SetTitle("Beam Momentum (GeV)");
-    gr[ii]->GetYaxis()->SetTitle("Average Multiplicity");
-
-    gr[ii]->SetMarkerStyle(mstyle[ii]);
-    gr[ii]->SetMarkerSize(msiz[ii]);
-    gr[ii]->SetMarkerColor(mcolor[ii]);
-    gr[ii]->SetLineColor(lcolor[ii]);
-    gr[ii]->SetLineStyle(lstyle[ii]);
-    gr[ii]->SetLineWidth(lwidth[ii]); 
-
-    gr[ii]->GetYaxis()->SetRangeUser(-0.2, ymax);
-    if (ii>1) {
-      sprintf (ctype, "%s", types[ii-1].c_str());
-      leg->AddEntry(gr[ii], ctype, "lP");
-    }
-    if      (ii==2) gr[ii]->Draw("APl"); 
-    else if (ii>2)  gr[ii]->Draw("Pl");
-  }
-  leg->Draw("same");
-}
-
-void plotMultiplicity(char target[6],char list[10],char ene[6],char part[4]) {
+  std::vector<double> masses = massScan();
 
   setStyle();
-  gStyle->SetOptTitle(0);
   
-  char name[1024], sym[10];
-  if      (part=="pim") sprintf(sym, "#pi^{-}");
-  else if (part=="pip") sprintf(sym, "#pi^{+}");
-  else                  sprintf(sym, "p");
-
-  std::vector<std::string> typeOld = typesOld();
-  int energy = atoi(ene);
-  
-  char ofile[100];
-  sprintf (ofile, "histo/histo_%s%s_%s_%sGeV.root", target, list, part, ene);
-  std::cout << "Input file " << ofile << "\n";
-  TFile *fout = TFile::Open(ofile);
-  fout->cd();
-
-  char name[60], title[160], ctype[20], ytitle[20], cname[160];
-  TH1I *hiMulti[20];
-  for (unsigned int ii=0; ii<=(typeOld.size()); ii++) {
-    if      (ii == 0) sprintf (ctype, "All Particles");
-    else              sprintf (ctype, "%s", typeOld[ii-1].c_str());
-    sprintf (name, "Multi%s%s%sGeV(%s)", target, list, ene, ctype);
-    hiMulti[ii] = (TH1I*)fout->FindObjectAny(name);
-    //    std::cout << ii << " (" << ctype << ") " << name << " " << hiMulti[ii] << "\n";
-  }
-
-  TCanvas *c[20];
-  std::vector<std::string> types = types();
-  for (unsigned int ii=0; ii<types.size(); ii++) {
-    if      (ii == 0) sprintf (ctype, "All Particles");
-    else              sprintf (ctype, "%s", types[ii-1].c_str());
-    sprintf (cname, "Multiplicity (%s)", ctype);
-    hiMulti[ii]->GetXaxis()->SetTitle(cname);
-    hiMulti[ii]->SetMarkerStyle(mstyle[ii]);
-    hiMulti[ii]->SetMarkerSize(msiz[ii]);
-    hiMulti[ii]->SetMarkerColor(mcolor[ii]);
-    hiMulti[ii]->SetLineColor(lcolor[ii]);
-    hiMulti[ii]->SetLineStyle(lstyle[ii]);
-    hiMulti[ii]->SetLineWidth(lwidth[ii]); 
-
-    sprintf(cname, "c_%s%s_%s_%sGeV_Multiplicity(%s)", target, list, part, 
-	    ene, ctype);
-    c[ii] = new TCanvas(cname, cname, 800, 500);
-    hiMulti[ii]->Draw();
-
-    TLegend *leg = new TLegend(0.35, 0.80, 0.8, 0.87);
-    char hdr[120];
-    sprintf(hdr, "%s+%s at %s GeV (%s-%s)", sym, target, ene, g4ver, list);
-    leg->SetHeader(hdr);  leg->SetFillColor(10); leg->SetMargin(0.45);
-    leg->SetTextSize(.036); leg->Draw("same");
-  }
-}
-
-void plotTotalKE(char target[6], char list[10], char part[4]) {
-
-  setStyle();
-  gStyle->SetOptTitle(0);
-
-  char name[500];
-  char sym[10];
-  if      (part=="pim") sprintf(sym, "#pi^{-}");
-  else if (part=="pip") sprintf(sym, "#pi^{+}");
-  else                  sprintf(sym, "p");
-
-  std::map<string, double> means_300=getMean(target,list,part,"300.0","TotalKE");
-  std::map<string, double> means_200=getMean(target,list,part,"200.0","TotalKE");
-  std::map<string, double> means_150=getMean(target,list,part,"150.0","TotalKE");
-  std::map<string, double> means_100=getMean(target,list,part,"100.0","TotalKE");
-  std::map<string, double> means_50 =getMean(target,list,part,"50.0", "TotalKE");
-  std::map<string, double> means_30 =getMean(target,list,part,"30.0", "TotalKE");
-  std::map<string, double> means_20 =getMean(target,list,part,"20.0", "TotalKE");
-  std::map<string, double> means_15 =getMean(target,list,part,"15.0", "TotalKE");
-  std::map<string, double> means_9  =getMean(target,list,part,"9.0",  "TotalKE");
-  std::map<string, double> means_7  =getMean(target,list,part,"7.0",  "TotalKE");
-  std::map<string, double> means_5  =getMean(target,list,part,"5.0",  "TotalKE");
-  std::map<string, double> means_3  =getMean(target,list,part,"3.0",  "TotalKE");
-  std::map<string, double> means_2  =getMean(target,list,part,"2.0",  "TotalKE");
-  std::map<string, double> means_1  =getMean(target,list,part,"1.0",  "TotalKE");
-
-  char ctype[20];
-  std::vector<std::string> types   = types();
-  std::vector<std::string> typeOld = typesOld();
-  //  std::cout << "Number of types " << types.size() << "\n";
-
-  TGraph *gr[20];
-  TLegend *leg = new TLegend(0.55, 0.45, 0.9, 0.80);
-  char hdr[40];
-  sprintf(hdr, "%s (%s-%s)", target, g4ver, list);
-  leg->SetHeader(hdr);
+  TGraph *gr[15];
+  TLegend *leg = new TLegend(0.2, 0.5, 0.6, 0.85);
   leg->SetFillColor(10);
-  leg->SetMargin(0.45);
-  leg->SetTextSize(.02);
-  sprintf(name, "c_%s_%s_totalKE_%s", part,target,list);
+  sprintf(name, "c_%sMultiplicity", element);
   TCanvas *cc = new TCanvas(name, name, 700, 700);
 
-  for (unsigned int ii=0; ii<=(types.size()); ii++) {
+  for (unsigned int ii=0; ii<=(masses.size())+1; ii++) {
     if      (ii == 0) sprintf (ctype, "All Particles");
-    else              sprintf (ctype, "%s", typeOld[ii-1].c_str());
+    else if (ii == 1) sprintf (ctype, "Photons");
+    else if (ii == 2) sprintf (ctype, "Electrons/Positrons");
+    else if (ii == 3) sprintf (ctype, "Neutral Pions");
+    else if (ii == 4) sprintf (ctype, "Charged Pions");
+    else if (ii == 5) sprintf (ctype, "Charged Kaons");
+    else if (ii == 6) sprintf (ctype, "Neutral Kaons");
+    else if (ii == 7) sprintf (ctype, "Protons/Antiportons");
+    else if (ii == 8) sprintf (ctype, "Neutrons");
+    else if (ii == 9) sprintf (ctype, "Heavy hadrons");
+    else              sprintf (ctype, "Ions");
 
     string a(ctype);
-    //    std::cout<<a<<" "<< means_300[a]<<std::endl;
     double vx[14], vy[14];
     vx[0]  = 300.0;  vy[0]  = means_300[a];
     vx[1]  = 200.0;  vy[1]  = means_200[a];
@@ -401,116 +101,68 @@ void plotTotalKE(char target[6], char list[10], char part[4]) {
     vx[11] = 3.0;    vy[11] = means_3[a];
     vx[12] = 2.0;    vy[12] = means_2[a];
     vx[13] = 1.0;    vy[13] = means_1[a];
-
-    for (int i=0; i<14; i++) vy[i] = vy[i]/vx[i];
 
     gPad->SetLogx(1);
     gPad->SetGridx(1);
     gPad->SetGridy(1);
     gr[ii] = new TGraph(14, vx,vy);
-    sprintf(name, "KE carried by secondaries in %s-%s (%s)", sym, target, list);
+    sprintf(name, "Multiplicity of particles in %s (%s)", element, list);
     gr[ii]->SetTitle(name);
-    gr[ii]->GetXaxis()->SetTitle("Beam Momentum (GeV)");
-    gr[ii]->GetYaxis()->SetTitle("Mean Total KE/Beam Momentum");
-
-    gr[ii]->SetMarkerStyle(mstyle[ii]);
-    gr[ii]->SetMarkerSize(msiz[ii]);
-    gr[ii]->SetMarkerColor(mcolor[ii]);
-    gr[ii]->SetLineColor(lcolor[ii]);
-    gr[ii]->SetLineStyle(lstyle[ii]);
-    gr[ii]->SetLineWidth(lwidth[ii]); 
-
-    gr[ii]->GetYaxis()->SetRangeUser(-0.02, 1.0);
-    if (ii!= 0) sprintf (ctype, "%s", types[ii-1].c_str());
-    if (ii!= 1) leg->AddEntry(gr[ii], ctype, "lP");
-    if (ii==0)      gr[ii]->Draw("APl");
-    else if (ii>1)  gr[ii]->Draw("Pl");
+    gr[ii]->GetXaxis()->SetTitle("Beam Energy (GeV)");
+    gr[ii]->SetMarkerStyle(20);
+    gr[ii]->SetMarkerColor(ii+1);
+    gr[ii]->SetLineColor(ii+1);
+    if(ii+1 == 3){ 
+      gr[ii]->SetMarkerStyle(21);
+      gr[ii]->SetMarkerColor(ii); 
+      gr[ii]->SetLineColor(ii); 
+      gr[ii]->SetLineStyle(2); 
+      gr[ii]->SetLineWidth(2);
+    }
+    if(ii+1 == 5){ 
+      gr[ii]->SetMarkerStyle(21);
+      gr[ii]->SetMarkerColor(ii); 
+      gr[ii]->SetLineColor(ii); 
+      gr[ii]->SetLineStyle(2); 
+      gr[ii]->SetLineWidth(2);
+    }
+    if(ii+1 == 7){ 
+      gr[ii]->SetMarkerStyle(21);
+      gr[ii]->SetMarkerColor(ii); 
+      gr[ii]->SetLineColor(ii); 
+      gr[ii]->SetLineStyle(2); 
+      gr[ii]->SetLineWidth(2);
+    }
+    if(ii+1 == 9){ 
+      gr[ii]->SetMarkerStyle(21);
+      gr[ii]->SetMarkerColor(ii); 
+      gr[ii]->SetLineColor(ii); 
+      gr[ii]->SetLineStyle(2); 
+      gr[ii]->SetLineWidth(2);
+    }
+    if(ii+1 == 10) {
+      gr[ii]->SetMarkerColor(28);
+      gr[ii]->SetLineColor(28);
+    }
+    if(ii+1 == 11){ 
+      gr[ii]->SetMarkerStyle(21);
+      gr[ii]->SetMarkerColor(28); 
+      gr[ii]->SetLineColor(28); 
+      gr[ii]->SetLineStyle(2); 
+      gr[ii]->SetLineWidth(2);
+    }
+    
+    gr[ii]->GetYaxis()->SetRangeUser(-0.1, 14);
+    if(ii>0)leg->AddEntry(gr[ii], ctype, "lP");
+    if(ii==1)      gr[ii]->Draw("APC");
+    else if(ii>1)  gr[ii]->Draw("PC");
   }
+
   leg->Draw("same");
-}
-
-void plotKE(char target[6],char list[10],char ene[6],char part[4],int typ=0) {
-
-  setStyle();
-  gStyle->SetOptTitle(0);
-  gStyle->SetOptLogy(1);
-
-  char name[500];
-  char sym[10];
-  if      (part=="pim") sprintf(sym, "#pi^{-}");
-  else if (part=="pip") sprintf(sym, "#pi^{+}");
-  else                  sprintf(sym, "p");
-
-  std::vector<std::string> typeOld = typesOld();
-  int energy = atoi(ene);
-  int bins=energy/4;
-  float ener = energy;
-  std::cout << "Energy " << ener << "\n";
   
-  char ofile[100];
-  sprintf (ofile, "histo/histo_%s%s_%s_%sGeV.root", target, list, part, ene);
-  std::cout << "Input file " << ofile << "\n";
-  TFile *fout = TFile::Open(ofile);
-  fout->cd();
-
-  char name[60], title[160], ctype[20], ytitle[20], cname[160], pre[10];
-  TH1F *hiKE[20];
-  if (typ == 0) sprintf (pre, "KE2");
-  else          sprintf (pre, "TotalKE");
-  for (unsigned int ii=0; ii<=(typeOld.size()); ii++) {
-    if      (ii == 0) sprintf (ctype, "All Particles");
-    else              sprintf (ctype, "%s", typeOld[ii-1].c_str());
-    sprintf (name, "%s%s%s%sGeV(%s)", pre, target, list, ene, ctype);
-    hiKE[ii] = (TH1F*)fout->FindObjectAny(name);
-    //    std::cout << ii << " (" << ctype << ") " << name << " " << hiKE[ii] <<"\n";
-  }
-
-  TCanvas *c[20];
-  std::vector<std::string> types = types();
-  for (unsigned int ii=0; ii<types.size(); ii++) {
-    if      (ii == 0) sprintf (ctype, "All Particles");
-    else              sprintf (ctype, "%s", types[ii-1].c_str());
-    if (typ == 0) sprintf (cname, "Kinetic Energy of %s (GeV)", ctype);
-    else          sprintf (cname, "Total Kinetic Energy of %s (GeV)", ctype);
-    hiKE[ii]->GetXaxis()->SetTitle(cname);
-    hiKE[ii]->SetMarkerStyle(mstyle[ii]);
-    hiKE[ii]->SetMarkerSize(msiz[ii]);
-    hiKE[ii]->SetMarkerColor(mcolor[ii]);
-    hiKE[ii]->SetLineColor(lcolor[ii]);
-    hiKE[ii]->SetLineStyle(lstyle[ii]);
-    hiKE[ii]->SetLineWidth(lwidth[ii]); 
-    if (bins > 0) hiKE[ii]->Rebin(bins);
-    hiKE[ii]->GetXaxis()->SetRangeUser(0.0, ener);
-
-    sprintf(cname, "c_%s%s_%s_%sGeV_%s(%s)", target,list,part,ene,pre,ctype);
-    c[ii] = new TCanvas(cname, cname, 800, 500);
-    hiKE[ii]->Draw();
-
-    TLegend *leg = new TLegend(0.35, 0.80, 0.8, 0.87);
-    char hdr[120];
-    sprintf(hdr, "%s+%s at %s GeV (%s-%s)", sym, target, ene, g4ver, list);
-    leg->SetHeader(hdr);  leg->SetFillColor(10); leg->SetMargin(0.45);
-    leg->SetTextSize(.036); leg->Draw("same");
-  }
-
-  TLegend *leg = new TLegend(0.35, 0.80, 0.8, 0.87);
-  char hdr[120];
-  sprintf(hdr, "%s+%s at %s GeV (%s-%s)", sym, target, ene, g4ver, list);
-  leg->SetHeader(hdr);  leg->SetFillColor(10); leg->SetMargin(0.45);
-  sprintf(cname, "c_%s%s_%s_%sGeV_%s(All)", target,list,part,ene,pre);
-  leg->SetTextSize(.030); 
-  c[19] = new TCanvas(cname, cname, 1100, 600);
-  c[19]->Divide(3,2);
-  c[19]->cd(1); hiKE[6]->Draw(); leg->Draw("same");
-  c[19]->cd(2); hiKE[5]->Draw(); leg->Draw("same");
-  c[19]->cd(3); hiKE[4]->Draw(); leg->Draw("same");
-  c[19]->cd(4); hiKE[11]->Draw(); leg->Draw("same");
-  c[19]->cd(5); hiKE[12]->Draw(); leg->Draw("same");
-  c[19]->cd(6); hiKE[7]->Draw(); 
-  hiKE[8]->Draw("same"); hiKE[9]->Draw("same"); leg->Draw("same");
 }
 
-void printMeans(std::map<string, double> means) {
+void printMeans(std::map<string, double> means){
 
   std::map<string, double>::iterator iter;
   for( iter = means.begin(); iter != means.end(); iter++ ) {
@@ -518,78 +170,64 @@ void printMeans(std::map<string, double> means) {
   }
 }
 
-std::map<string, double> getMean(char target[6], char list[10], char part[5], char ene[6], char ctyp0[10]="Multi") {
+std::map<string, double> getMean(char element[6], char list[10], char ene[6]){
 
-  std::vector<std::string> types = typesOld();
+  std::vector<double> masses = massScan();
+
   std::map<string, double> means;
   
-  char ofile[100];
-  sprintf (ofile, "histo/histo_%s%s_%s_%sGeV.root", target, list, part, ene);
-  std::cout << "Input File: " << ofile << "\n";
+  char ofile[50];
+  sprintf (ofile, "histo_%s%s%sGeV.root", element, list, ene);
+  std::cout<<ofile<<std::endl;
   TFile *fout = TFile::Open(ofile);
   fout->cd();
+  //  fout->ls();
 
-  TH1I *hi[20];
-  char name[160], title[160], ctype[20];
+  TH1I *hiMulti[15];
+  char name[60], title[160], ctype[20], cname[160];
 
-  for (unsigned int ii=0; ii<=(types.size()); ii++) {
+  sprintf(cname, "c_%s%s%sGeV", element, list, ene);
+  //  TCanvas *cc3 = new TCanvas(cname, cname, 800, 800);
+
+  for (unsigned int ii=0; ii<=(masses.size())+1; ii++) {
     if      (ii == 0) sprintf (ctype, "All Particles");
-    else              sprintf (ctype, "%s", types[ii-1].c_str());
+    else if (ii == 1) sprintf (ctype, "Photons");
+    else if (ii == 2) sprintf (ctype, "Electrons/Positrons");
+    else if (ii == 3) sprintf (ctype, "Neutral Pions");
+    else if (ii == 4) sprintf (ctype, "Charged Pions");
+    else if (ii == 5) sprintf (ctype, "Charged Kaons");
+    else if (ii == 6) sprintf (ctype, "Neutral Kaons");
+    else if (ii == 7) sprintf (ctype, "Protons/Antiportons");
+    else if (ii == 8) sprintf (ctype, "Neutrons");
+    else if (ii == 9) sprintf (ctype, "Heavy hadrons");
+    else              sprintf (ctype, "Ions");
 
-    sprintf (name, "%s%s%s%sGeV(%s)", ctyp0, target, list, ene, ctype);
-    hi[ii] = (TH1I*)fout->FindObjectAny(name);
-    //    std::cout << "Histo " << ii << " Name " << name << " " << hi[ii] << "\n";
+    sprintf (name, "Multi%s%s%sGeV(%s)", element, list, ene, ctype);
+    //    std::cout<<name<<std::endl;
+    hiMulti[ii] = (TH1I*)fout->FindObjectAny(name);
+
+    hiMulti[ii]->SetLineColor(ii+1);
+    if(ii>=9) hiMulti[ii]->SetLineColor(ii+2);
+    //    if(ii==0) hiMulti[ii]->Draw();
+    //    else      hiMulti[ii]->Draw("sames");
     
     string a(ctype);
-    means[a] = hi[ii]->GetMean();
-  }
+    means[a] = hiMulti[ii]->GetMean();
+  } //int ii for types
 
-  //  printMeans(means);
+  std::cout<<"means size "<<means.size()<<std::endl;
+
+  /*
+  std::map<string, double>::iterator iter;
+  for( iter = means.begin(); iter != means.end(); iter++ ) {
+    std::cout<<(*iter).first << " "<<(*iter).second << std::endl;
+  }
+  */
 
   return means;
 }
 
-std::vector<std::string> types() {
 
-  std::vector<string> tmp;
-  tmp.push_back("Photon/Neutrino");     // 1
-  tmp.push_back("e^{-}");               // 2
-  tmp.push_back("e^{+}");               // 3 
-  tmp.push_back("#pi^{0}");             // 4 
-  tmp.push_back("#pi^{-}");             // 5
-  tmp.push_back("#pi^{+}");             // 6
-  tmp.push_back("K^{-}");               // 7
-  tmp.push_back("K^{+}");               // 8
-  tmp.push_back("K^{0}");               // 9
-  tmp.push_back("AntiProton");          // 10
-  tmp.push_back("p");                   // 11
-  tmp.push_back("n");                   // 12
-  tmp.push_back("Heavy Hadrons");       // 13
-  tmp.push_back("Ions");                // 14
-
-  return tmp;
-}
-
-std::vector<std::string> typesOld() {
-
-  std::vector<string> tmp;
-  tmp.push_back("Photon/Neutrino");     // 1
-  tmp.push_back("Electron");            // 2
-  tmp.push_back("Positron");            // 3 
-  tmp.push_back("Pizero");              // 4 
-  tmp.push_back("Piminus");             // 5
-  tmp.push_back("Piplus");              // 6
-  tmp.push_back("Kminus");              // 7
-  tmp.push_back("Kiplus");              // 8
-  tmp.push_back("Kzero");               // 9
-  tmp.push_back("AntiProton");          // 10
-  tmp.push_back("Proton");              // 11
-  tmp.push_back("Neutron/AntiNeutron"); // 12
-  tmp.push_back("Heavy Hadrons");       // 13
-  tmp.push_back("Ions");                // 14
-
-  return tmp;
-}
 
 std::vector<double> massScan() {
 
@@ -619,7 +257,7 @@ void setStyle() {
   gStyle->SetFrameBorderSize(1);  gStyle->SetFrameFillColor(0);
   gStyle->SetFrameFillStyle(0);   gStyle->SetFrameLineColor(1);
   gStyle->SetFrameLineStyle(1);   gStyle->SetFrameLineWidth(1);
-  gStyle->SetTitleOffset(1.2,"Y");  gStyle->SetOptStat(0);
+  gStyle->SetTitleOffset(1.6,"Y");  gStyle->SetOptStat(0);
   gStyle->SetLegendBorderSize(1);
 
 }

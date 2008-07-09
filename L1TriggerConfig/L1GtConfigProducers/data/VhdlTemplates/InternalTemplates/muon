@@ -1,6 +1,6 @@
 #COMMON
-$(particle)_$(type)(0) <= '0';
-dtack_$(particle)_$(type)(0) <= '0';
+$(particle)_$(type)(0);
+dtack_$(particle)_$(type)(0);
 ##
 
 #charge_1_s
@@ -37,11 +37,11 @@ $(particle)_$(type)($(ser_no)));
 
 $(name): m_cond_$(type)_reg
 GENERIC MAP ($(ser_no),
-	$(particle)_$(type)_pth_def_val($(ser_no)-1),
-    	$(particle)_$(type)_qual_def_val($(ser_no)-1),
-    	$(particle)_$(type)_ptl_def_val($(ser_no)-1),
-    	$(particle)_$(type)_charge_def_val($(ser_no)-1),
-    	rd_reg_inst, def_val_inst, dtack_inst)
+$(particle)_$(type)_pth_def_val($(ser_no)-1),
+$(particle)_$(type)_qual_def_val($(ser_no)-1),
+$(particle)_$(type)_ptl_def_val($(ser_no)-1),
+$(particle)_$(type)_charge_def_val($(ser_no)-1),
+rd_reg_inst, def_val_inst, dtack_inst)
 PORT MAP (clk_cond, reset,
 reg_muon_pt_1, reg_muon_pt_2,
 reg_muon_pt_3, reg_muon_pt_4,

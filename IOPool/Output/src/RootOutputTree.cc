@@ -93,8 +93,9 @@ namespace edm {
 			    bool selected,
 			    EntryDescriptionID *& pEntryDescID,
 			    void const*& pProd, bool inInput) {
+      int const smallBasketSize = 1024;
       prod.init();
-      TBranch *meta = metaTree_->Branch(prod.branchName().c_str(), &pEntryDescID, basketSize_, 0);
+      TBranch *meta = metaTree_->Branch(prod.branchName().c_str(), &pEntryDescID, smallBasketSize, 0);
       if (inInput) {
 	clonedMetaBranches_.push_back(meta);
       } else {
@@ -111,8 +112,6 @@ namespace edm {
 	} else {
 	  branches_.push_back(branch);
         }
-	// we want the new branch name for the JobReport
-	branchNames_.push_back(prod.branchName());
       }
   }
 }

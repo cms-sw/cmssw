@@ -1,4 +1,4 @@
-// Last commit: $Id: PedestalsHistosUsingDb.h,v 1.7 2008/03/06 13:30:50 delaer Exp $
+// Last commit: $Id: PedestalsHistosUsingDb.h,v 1.6 2008/02/07 17:02:56 bainbrid Exp $
 
 #ifndef DQM_SiStripCommissioningClients_PedestalsHistosUsingDb_H
 #define DQM_SiStripCommissioningClients_PedestalsHistosUsingDb_H
@@ -11,16 +11,16 @@ class PedestalsHistosUsingDb : public CommissioningHistosUsingDb, public Pedesta
  public:
   
   PedestalsHistosUsingDb( DQMOldReceiver*,
-			     const DbParams& );
-  
+			  const DbParams& );
+
   PedestalsHistosUsingDb( DQMOldReceiver*,
-			     SiStripConfigDb* const );
+			  SiStripConfigDb* const );
   
   PedestalsHistosUsingDb( DQMStore*,
-			     SiStripConfigDb* const );
+			  SiStripConfigDb* const );
   
   virtual ~PedestalsHistosUsingDb();
-  
+ 
   virtual void uploadConfigurations();
   
  private:

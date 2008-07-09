@@ -1,52 +1,52 @@
 #ifndef PhysicsTools_Utilities_Convolution_h
 #define PhysicsTools_Utilities_Convolution_h
 #include "FWCore/Utilities/interface/EDMException.h"
+#include "PhysicsTools/Utilities/interface/NumericalIntegration.h"
 
 namespace funct {
-  template<typename A, typename B>
+  template<typename A, typename B, typename Integrator>
   class ConvolutionStruct {
-   public:
-    static const unsigned int arguments = 1;
+  public:
     // min and max are defined in the domain of b
     ConvolutionStruct(const A& a, const B& b, 
-		double min, double max, size_t steps) : 
-      _1(a), _2(b), min_(min), max_(max), 
-      delta_((max-min)/(steps-1)), steps_(steps) { 
+		      double min, double max, const Integrator & integrator) : 
+      f_(a, b), min_(min), max_(max), integrator_(integrator) { 
       if(max < min)
 	throw edm::Exception(edm::errors::Configuration)
 	  << "Convolution: min must be smaller than max\n"; 
     }
-    double operator()(double x) const;  
+    double operator()(double x) const {
+      f_.setX(x);
+      return integrator_(f_, x - max_, x - min_);
+    }
    private:
-    A _1;
-    B _2;
+    struct function {
+      function(const A& a, const B& b) : _1(a), _2(b) { }
+      void setX(double x) const { x_ = x; }
+      double operator()(double y) const {
+	return _1(y) * _2(x_ - y);
+      }
+    private:
+      A _1;
+      B _2;
+      mutable double x_;
+    };
+    function f_;
     double min_, max_, delta_;
-    size_t steps_;
+    Integrator integrator_;
   };
 
-  template<typename A, typename B>
-  double ConvolutionStruct<A, B>::operator()(double x) const {
-    double f = 0; 
-    // x - max < y < x - min
-    double y0 = x - max_;
-    for(size_t n = 0; n < steps_; ++n) {
-      double y = y0 + n*delta_;
-      f += _1(y) * _2(x - y);
-    }   
-    return f * delta_;
-  }
-
-  template<typename A, typename B>
+  template<typename A, typename B, typename Integrator>
   struct Convolution {
-    typedef ConvolutionStruct<A, B> type;
-    static type compose(const A& a, const B& b) {
-      return type(a, b);
+    typedef ConvolutionStruct<A, B, Integrator> type;
+    static type compose(const A& a, const B& b, double min, double max, const Integrator& i) {
+      return type(a, b, min, max, i);
     }
   };
 
-  template<typename A, typename B>
-  inline typename funct::Composition<A, B>::type conv(const A& a, const B& b) {
-    return funct::Composition<A, B>::compose(a, b);
+  template<typename A, typename B, typename Integrator>
+  inline typename funct::Convolution<A, B, Integrator>::type conv(const A& a, const B& b, double min, double max, const Integrator& i) {
+    return funct::Convolution<A, B, Integrator>::compose(a, b, min, max, i);
   }
 
 }

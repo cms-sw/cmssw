@@ -50,6 +50,7 @@ using namespace reco;
 using namespace edm;
 using namespace ROOT::Math::VectorUtil;
 
+namespace reco { namespace modules {
 class JetFlavourIdentifier : public edm::EDProducer 
 {
   public:
@@ -64,6 +65,8 @@ class JetFlavourIdentifier : public edm::EDProducer
     bool physDefinition;
 
 };
+} }
+using reco::modules::JetFlavourIdentifier;
 
 //=========================================================================
 

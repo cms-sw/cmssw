@@ -54,7 +54,6 @@ class PFSimParticleProducer : public edm::EDProducer {
 
   // parameters for retrieving true particles information --
 
-  edm::ParameterSet vertexGenerator_;
   edm::ParameterSet particleFilter_;
   FSimEvent* mySimEvent;
 

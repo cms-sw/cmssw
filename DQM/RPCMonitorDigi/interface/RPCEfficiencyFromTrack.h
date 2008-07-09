@@ -48,10 +48,11 @@ class RPCEfficiencyFromTrack : public edm::EDAnalyzer {
       virtual void analyze(const edm::Event&, const edm::EventSetup&);
       virtual void endJob() ;
       typedef std::vector<Trajectory> Trajectories;
-      std::map<std::string, MonitorElement*> bookDetUnitTrackEff(RPCDetId & detId);
+      std::map<std::string, MonitorElement*> bookDetUnitTrackEff(RPCDetId & detId, const edm::EventSetup & iSetup);
  
    private:
 
+      edm::InputTag gmtSource_ ;
       TFile* fOutputFile;
       TH1F* hRecPt;
       TH1F* hGlobalRes;
@@ -62,23 +63,29 @@ class RPCEfficiencyFromTrack : public edm::EDAnalyzer {
       bool MeasureBarrel;
       bool EffSaveRootFile;
       int EffSaveRootFileEventsInterval;
-      int ringSelection;
-      bool selectwheel;
+      int DTTrigValue;
+
+
+      int wh;
+      bool cosmic;
+
       int Run;
       time_t aTime;
 
       ofstream* effres;
       std::string EffRootFileName;
+      std::string digiLabel;
       std::string TjInput;
       std::string RPCDataLabel;
       std::string GlobalRootLabel;
       std::map<std::string, std::map<std::string, MonitorElement*> >  meCollection;
       std::string thePropagatorName;
       mutable Propagator* thePropagator;
-      DQMStore * dbe;
 
       std::vector<std::string> _idList;
       std::vector<std::map<RPCDetId, int> > counter;
       std::vector<int> totalcounter;
+
+      DQMStore * dbe;
 };
 #endif

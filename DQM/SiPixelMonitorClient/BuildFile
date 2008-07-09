@@ -8,6 +8,7 @@
 <use name=DQMServices/ClientConfig>
 <use name=DQMServices/XdaqCollector>
 <use name=CommonTools/TrackerMap>
+<use name=DQM/SiPixelCommon>
 <use name=boost>
 <flags EDM_PLUGIN=1>
 <export>
@@ -22,5 +23,6 @@
 <use name=DQMServices/ClientConfig>
 <use name=DQMServices/XdaqCollector>
 <use name=CommonTools/TrackerMap>
+<use name=DQM/SiPixelCommon>
 <use name=boost>
 </export>

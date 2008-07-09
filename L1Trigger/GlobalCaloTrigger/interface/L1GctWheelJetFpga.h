@@ -57,19 +57,13 @@ public:
   friend std::ostream& operator << (std::ostream& os, const L1GctWheelJetFpga& fpga);
 
   /// clear internal buffers
-  void reset();
+  virtual void reset();
 
   /// get input data from sources
   virtual void fetchInput();
 
   /// process the data, fill output buffers
   virtual void process();
-
-  /// define the bunch crossing range to process
-  void setBxRange(const int firstBx, const int numberOfBx);
-
-  /// partially clear buffers
-  void setNextBx(const int bx);
 
   /// set input data      
   void setInputJet(int i, L1GctJetCand jet); 
@@ -106,15 +100,6 @@ public:
   /// Get the jet counters
   L1GctJetCounter* getJetCounter(unsigned jcnum) const
     { return ( (jcnum<N_JET_COUNTERS) ? m_jetCounters.at(jcnum) : 0); }
-
- protected:
-
-  /// Separate reset methods for the processor itself and any data stored in pipelines
-  virtual void resetProcessor();
-  virtual void resetPipelines() {}
-
-  /// Initialise inputs with null objects for the correct bunch crossing if required
-  virtual void setupObjects();
 
 private:
 
@@ -164,7 +149,7 @@ private:
   /// Classifies jets into central, forward or tau.
   void classifyJets();
   /// Initialises all the jet vectors with jets of the correct type.
-  void setupJetsVectors(const int16_t bx);
+  void setupJetsVectors();
 };
 
 std::ostream& operator << (std::ostream& os, const L1GctWheelJetFpga& fpga);

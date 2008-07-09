@@ -8,7 +8,6 @@
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/MakerMacros.h"
 #include "DataFormats/ParticleFlowReco/interface/PFRecTrack.h"
-#include "DataFormats/ParticleFlowReco/interface/GsfPFRecTrack.h"
 #include "DataFormats/TrackReco/interface/TrackFwd.h"
 #include "TrackingTools/TrajectoryState/interface/TrajectoryStateOnSurface.h"
 
@@ -43,7 +42,7 @@ class PFTrackTransformer{
 		 const reco::Track& track,
 		 const Trajectory& traj) const; 
 
-  bool addPointsAndBrems(reco::GsfPFRecTrack& pftrack, 
+  bool addPointsAndBrems(reco::PFRecTrack& pftrack, 
 			 const reco::Track& track,
 			 const Trajectory& traj,
 			 const bool& GetMode) const; 

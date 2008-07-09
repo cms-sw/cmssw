@@ -18,7 +18,7 @@
  * - DQMServices/NodeROOT/src/SenderBase.cc
  * - DQMServices/NodeROOT/src/ReceiverBase.cc
  *
- * $Id: FUShmDQMOutputService.cc,v 1.6 2008/01/31 03:38:18 wmtan Exp $
+ * $Id: FUShmDQMOutputService.cc,v 1.8 2008/05/28 13:56:12 hcheung Exp $
  */
 
 #include "EventFilter/Modules/interface/FUShmDQMOutputService.h"
@@ -372,7 +372,7 @@ void FUShmDQMOutputService::findMonitorElements(DQMEvent::TObjectTable &toTable,
     // loop over the subdirectories, find the MEs in each one
     std::vector<std::string>::const_iterator dirIter;
     for (dirIter = subDirList.begin(); dirIter != subDirList.end(); dirIter++) {
-      std::string subDirPath = folderPath + "/" + (*dirIter);
+      std::string subDirPath = (*dirIter);
       findMonitorElements(toTable, subDirPath);
     }
   }

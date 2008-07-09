@@ -146,30 +146,23 @@ namespace evf {
 
     
     xdata::Double            deltaT_;
-    xdata::UnsignedInteger32 deltaNbInput_;
-    xdata::UnsignedInteger32 deltaNbOutput_;
-    xdata::Double            deltaInputSumOfSquares_;
-    xdata::Double            deltaOutputSumOfSquares_;
-    xdata::UnsignedInteger32 deltaInputSumOfSizes_;
-    xdata::UnsignedInteger32 deltaOutputSumOfSizes_;
+    xdata::UnsignedInteger32 deltaN_;
+    xdata::Double            deltaSumOfSquares_;
+    xdata::UnsignedInteger32 deltaSumOfSizes_;
     
-    xdata::Double            ratio_;
-    xdata::Double            inputThroughput_;
-    xdata::Double            inputRate_;
-    xdata::Double            inputAverage_;
-    xdata::Double            inputRms_;
-    xdata::Double            outputThroughput_;
-    xdata::Double            outputRate_;
-    xdata::Double            outputAverage_;
-    xdata::Double            outputRms_;
+    xdata::Double            throughput_;
+    xdata::Double            rate_;
+    xdata::Double            average_;
+    xdata::Double            rms_;
     
     // monitored counters
     xdata::UnsignedInteger32 nbAllocatedEvents_;
     xdata::UnsignedInteger32 nbPendingRequests_;
     xdata::UnsignedInteger32 nbReceivedEvents_;
     xdata::UnsignedInteger32 nbProcessedEvents_;
-    xdata::UnsignedInteger32 nbAcceptedEvents_;
     xdata::UnsignedInteger32 nbSentEvents_;
+    xdata::UnsignedInteger32 nbSentErrorEvents_;
+    xdata::UnsignedInteger32 nbPendingSMDiscards_;
     xdata::UnsignedInteger32 nbDiscardedEvents_;
     
     xdata::UnsignedInteger32 nbLostEvents_;
@@ -212,14 +205,12 @@ namespace evf {
     xdata::UnsignedInteger32 nbDataDiscardReceived_;
     xdata::UnsignedInteger32 nbDqmDiscardReceived_;
     
+    
     // helper variables for monitoring
     struct timeval           monStartTime_;
-    UInt_t                   nbInputLast_;
-    uint64_t                 nbInputLastSumOfSquares_;
-    UInt_t                   nbInputLastSumOfSizes_;
-    UInt_t                   nbOutputLast_;
-    uint64_t                 nbOutputLastSumOfSquares_;
-    UInt_t                   nbOutputLastSumOfSizes_;
+    UInt_t                   nbSentLast_;
+    uint64_t                 sumOfSquaresLast_;
+    UInt_t                   sumOfSizesLast_;
     
   };
 
