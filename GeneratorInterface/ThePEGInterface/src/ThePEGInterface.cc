@@ -1,5 +1,5 @@
 /** \class ThePEGInterface
- *  $Id: ThePEGInterface.cc,v 1.2 2008/06/27 16:34:01 stober Exp $
+ *  $Id: ThePEGInterface.cc,v 1.3 2008/06/27 16:59:51 stober Exp $
  *  
  *  Oliver Oberst <oberst@ekp.uni-karlsruhe.de>
  *  Fred-Markus Stober <stober@ekp.uni-karlsruhe.de>
@@ -40,6 +40,7 @@ ThePEGInterface::ThePEGInterface(const edm::ParameterSet &pset) :
 	dataLocation_(resolveEnvVars(pset.getParameter<string>("dataLocation"))),
 	generator_(pset.getParameter<string>("generatorModule")),
 	run_(pset.getParameter<string>("run")),
+	configDump_(pset.getUntrackedParameter<string>("configDump", "")),
 	skipEvents_(pset.getUntrackedParameter<int>("skipEvents", 0))
 {
 	// Write events in hepmc ascii format for debugging purposes
@@ -48,6 +49,9 @@ ThePEGInterface::ThePEGInterface(const edm::ParameterSet &pset) :
 		iobc_.reset(new HepMC::IO_ExtendedAscii(eventLog.c_str(), ios::out));
 		edm::LogInfo("ThePEGSource") << "Event logging switched on (=> " << eventLog << ")";
 	}
+	// Clear configDump target
+	if (!configDump_.empty())
+		ofstream cfgDump(configDump_.c_str(), ios_base::trunc);
 }
 
 ThePEGInterface::~ThePEGInterface()
@@ -99,6 +103,7 @@ string ThePEGInterface::resolveEnvVars(const string &s)
 void ThePEGInterface::readParameterSet(const edm::ParameterSet &pset, const string &paramSet) const
 {
 	stringstream logstream;
+	ofstream cfgDump(configDump_.c_str(), ios_base::app);
 
 	// Read CMSSW config file parameter set
 	vector<string> params = pset.getParameter<vector<string> >(paramSet);
@@ -121,6 +126,7 @@ void ThePEGInterface::readParameterSet(const edm::ParameterSet &pset, const stri
 		else {
 			string line = resolveEnvVars(*psIter);
 			string out = ThePEG::Repository::exec(line, logstream);
+			cfgDump << line << endl;
 			if (out != "")
 				edm::LogInfo("ThePEGInterface") << line << " => " << out;
 		}
