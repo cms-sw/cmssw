@@ -142,7 +142,7 @@ float muon::segmentCompatibility(const reco::Muon& muon) {
 
       if( station_has_segmentmatch[i-1] > 0 && 42 == 42 ) { // if track has matching segment, but the matching is not high quality, penalize
 	if(i<=4) { // we are in the DTs
-	  if( muon.dY(i,1) != 999999 ) { // have both X and Y match
+	  if( muon.dY(i,1) < 999999 && muon.dX(i,1) < 999999) { // have both X and Y match
 	    if(
 	       TMath::Sqrt(TMath::Power(muon.pullX(i,1),2.)+TMath::Power(muon.pullY(i,1),2.))> 1. ) {
 	      // reduce weight
@@ -159,8 +159,8 @@ float muon::segmentCompatibility(const reco::Muon& muon) {
 	      }
 	    }
 	  }
-	  else { // has no match in Y
-	    if( muon.pullX(i,1) > 1. ) { // has a match in X
+	  else if (muon.dY(i,1) >= 999999) { // has no match in Y
+	    if( muon.pullX(i,1) > 1. ) { // has a match in X. Pull larger that 1 to avoid increasing the weight (just penalize, don't anti-penalize)
 	      // reduce weight
 	      if(use_match_dist_penalty) {
 		// only use pull if 3 sigma is not smaller than 3 cm
@@ -169,6 +169,20 @@ float muon::segmentCompatibility(const reco::Muon& muon) {
 		}
 		else {
 		  station_weight[i-1] *= 1./TMath::Power(muon.pullX(i,1),.25);
+		}
+	      }
+	    }
+	  }
+	  else { // has no match in X
+	    if( muon.pullY(i,1) > 1. ) { // has a match in Y. Pull larger that 1 to avoid increasing the weight (just penalize, don't anti-penalize)
+	      // reduce weight
+	      if(use_match_dist_penalty) {
+		// only use pull if 3 sigma is not smaller than 3 cm
+		if( muon.dY(i,1) < 3. && muon.pullY(i,1) > 3. ) { 
+		  station_weight[i-1] *= 1./TMath::Power(TMath::Max((double)muon.dY(i,1),(double)1.),.25);
+		}
+		else {
+		  station_weight[i-1] *= 1./TMath::Power(muon.pullY(i,1),.25);
 		}
 	      }
 	    }
@@ -231,7 +245,7 @@ bool muon::isGoodMuon( const reco::Muon& muon,
   switch( type ) {
   case TM2DCompatibility:
     // Simplistic first cut in the 2D segment- vs calo-compatibility plane. Will have to be refined!
-    if( ( caloCompatibility( muon )+segmentCompatibility( muon ) ) > minCompatibility ) goodMuon = true;
+    if( ( (0.8*caloCompatibility( muon ))+(1.2*segmentCompatibility( muon )) ) > minCompatibility ) goodMuon = true;
     else goodMuon = false;
     return goodMuon;
     break;
@@ -364,7 +378,7 @@ bool muon::isGoodMuon( const reco::Muon& muon, reco::Muon::SelectionType type )
 	break;
 	//compatibility tight
       case reco::Muon::TM2DCompatibilityTight:
-	return isGoodMuon(muon,TM2DCompatibility,1.1);
+	return isGoodMuon(muon,TM2DCompatibility,1.0);
 	break;
       default:
 	return false;
