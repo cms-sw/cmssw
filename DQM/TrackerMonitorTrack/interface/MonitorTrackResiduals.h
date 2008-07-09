@@ -11,38 +11,48 @@ Monitoring source for track residuals on each detector module
 */
 // Original Author:  Israel Goitom
 //         Created:  Fri May 26 14:12:01 CEST 2006
-// $Id: MonitorTrackResiduals.h,v 1.13 2008/03/25 19:51:36 ebutz Exp $
+// $Id: MonitorTrackResiduals.h,v 1.14 2008/06/09 17:28:09 ebutz Exp $
 #include <memory>
 #include <fstream>
 #include "FWCore/Framework/interface/Frameworkfwd.h"
 #include "FWCore/Framework/interface/EDAnalyzer.h"
 #include "FWCore/Framework/interface/MakerMacros.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
-#include "DQMServices/Core/interface/MonitorElement.h"
+#include "FWCore/Framework/interface/Run.h"
 
-typedef std::map<int, MonitorElement *> HistoClass;
 
+class MonitorElement;
 class DQMStore;
 namespace edm { class Event; }
 
-class MonitorTrackResiduals : public edm::EDAnalyzer {
-   public:
-      explicit MonitorTrackResiduals(const edm::ParameterSet&);
-      ~MonitorTrackResiduals();
-      virtual void beginJob(edm::EventSetup const& iSetup);
-      virtual void endJob(void);
+typedef std::map<int32_t, MonitorElement *> HistoClass;
 
-      virtual void analyze(const edm::Event&, const edm::EventSetup&);
-      
+class MonitorTrackResiduals : public edm::EDAnalyzer {
+ public:
+  // constructors and EDAnalyzer Methods
+  explicit MonitorTrackResiduals(const edm::ParameterSet&);
+  ~MonitorTrackResiduals();
+  virtual void beginRun(edm::Run const& run, edm::EventSetup const& iSetup);
+  virtual void endRun(const edm::Run&, const edm::EventSetup&);
+  virtual void beginJob(const edm::EventSetup& es);
+  virtual void endJob(void);
+  virtual void analyze(const edm::Event&, const edm::EventSetup&);
+  // Own methods 
+  void createMEs(const edm::EventSetup&);
+  void resetModuleMEs(int32_t modid);
+  void resetLayerMEs(const std::pair<std::string, int32_t>&);
  private:
       
-      DQMStore * dqmStore_;
-      edm::ParameterSet conf_;
-      edm::ParameterSet Parameters;
-      std::map< std::pair<std::string,int32_t>, MonitorElement* > m_SubdetLayerResiduals;
-      std::map< std::pair<std::string,int32_t>, MonitorElement* > m_SubdetLayerNormedResiduals;
-      HistoClass HitResidual;
-      HistoClass NormedHitResiduals;
-      SiStripFolderOrganizer *folder_organizer;
+  DQMStore * dqmStore_;
+  edm::ParameterSet conf_;
+  edm::ParameterSet Parameters;
+  std::map< std::pair<std::string,int32_t>, MonitorElement* > m_SubdetLayerResiduals;
+  std::map< std::pair<std::string,int32_t>, MonitorElement* > m_SubdetLayerNormedResiduals;
+  HistoClass HitResidual;
+  HistoClass NormedHitResiduals;
+  SiStripFolderOrganizer *folder_organizer;
+  unsigned long long m_cacheID_;
+  bool reset_me_after_each_run;
+  bool ModOn;
 };
 #endif

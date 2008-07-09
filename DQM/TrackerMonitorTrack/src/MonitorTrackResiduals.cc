@@ -22,17 +22,49 @@
 #include "Alignment/OfflineValidation/interface/TrackerValidationVariables.h"
 #include "Alignment/TrackerAlignment/interface/TrackerAlignableId.h"
 #include "DQMServices/Core/interface/DQMStore.h"
+#include "DQMServices/Core/interface/MonitorElement.h"
 
-MonitorTrackResiduals::MonitorTrackResiduals(const edm::ParameterSet& iConfig) :   conf_(iConfig) {
+MonitorTrackResiduals::MonitorTrackResiduals(const edm::ParameterSet& iConfig) : conf_(iConfig), m_cacheID_(0) {
   dqmStore_ = edm::Service<DQMStore>().operator->();
-
   folder_organizer = new SiStripFolderOrganizer();
 }
 
+
+
 MonitorTrackResiduals::~MonitorTrackResiduals() { }
 
-void MonitorTrackResiduals::beginJob(edm::EventSetup const& iSetup) {
 
+void MonitorTrackResiduals::beginJob(const edm::EventSetup& es) {
+  ModOn = conf_.getParameter<bool>("Mod_On");
+  reset_me_after_each_run = conf_.getParameter<bool>("ResetAfterRun");
+}
+
+void MonitorTrackResiduals::beginRun(edm::Run const& run, edm::EventSetup const& iSetup) {
+  
+  
+  unsigned long long cacheID = iSetup.get<SiStripDetCablingRcd>().cacheIdentifier();
+  if (m_cacheID_ != cacheID) {
+    m_cacheID_ = cacheID;     
+    this->createMEs(iSetup);
+  }
+  if(reset_me_after_each_run) {
+    if(ModOn) {
+      for(std::map<int32_t, MonitorElement*>::const_iterator it = HitResidual.begin(), 
+	    itEnd = HitResidual.end(); it!= itEnd;++it) {
+	this->resetModuleMEs(it->first);
+	this->resetLayerMEs(folder_organizer->GetSubDetAndLayer(it->first));
+      }
+    } else {
+      for(std::map< std::pair<std::string,int32_t>, MonitorElement*>::const_iterator it = m_SubdetLayerResiduals.begin(), 
+	    itEnd = m_SubdetLayerResiduals.end(); it!= itEnd;++it) {
+	this->resetLayerMEs(it->first);
+      }
+    } // end if-else Module level on
+  } // end reset after run
+  
+}
+
+void MonitorTrackResiduals::createMEs(const edm::EventSetup& iSetup){
   Parameters = conf_.getParameter<edm::ParameterSet>("TH1ResModules");
   int32_t i_residuals_Nbins =  Parameters.getParameter<int32_t>("Nbinx");
   double d_residual_xmin = Parameters.getParameter<double>("xmin");
@@ -42,19 +74,20 @@ void MonitorTrackResiduals::beginJob(edm::EventSetup const& iSetup) {
   double d_normres_xmin = Parameters.getParameter<double>("xmin");
   double d_normres_xmax = Parameters.getParameter<double>("xmax");
 
+  
   // use SistripHistoId for producing histogram id (and title)
   SiStripHistoId hidmanager;
   folder_organizer->setSiStripFolder(); // top SiStrip folder
-
+  
   // take from eventSetup the SiStripDetCabling object
   edm::ESHandle<SiStripDetCabling> tkmechstruct;
   iSetup.get<SiStripDetCablingRcd>().get(tkmechstruct);
-
+  
   // get list of active detectors from SiStripDetCabling
   std::vector<uint32_t> activeDets;
   activeDets.clear(); // just in case
   tkmechstruct->addActiveDetectorsRawIds(activeDets);
-
+  
   // use SiStripSubStructure for selecting certain regions
   SiStripSubStructure substructure;
   std::vector<uint32_t> DetIds = activeDets;
@@ -70,7 +103,7 @@ void MonitorTrackResiduals::beginJob(edm::EventSetup const& iSetup) {
 	
 	folder_organizer->setDetectorFolder(ModuleID); //  detid sets appropriate detector folder		
 	// Book module histogramms? 
-	if (conf_.getParameter<bool>("Mod_On")) { 
+	if (ModOn) { 
 	  std::string hid = hidmanager.createHistoId("HitResiduals","det",ModuleID);
 	  std::string normhid = hidmanager.createHistoId("NormalizedHitResiduals","det",ModuleID);	
 	  HitResidual[ModuleID] = dqmStore_->book1D(hid, hid, 
@@ -105,6 +138,23 @@ void MonitorTrackResiduals::beginJob(edm::EventSetup const& iSetup) {
     } // end loop over activeDets
 }
 
+
+void MonitorTrackResiduals::resetModuleMEs(int32_t modid) {
+  HitResidual[modid]->Reset();
+  NormedHitResiduals[modid]->Reset();
+}
+
+void MonitorTrackResiduals::resetLayerMEs(const std::pair<std::string, int32_t> &subdetandlayer) {
+  m_SubdetLayerResiduals      [subdetandlayer]->Reset();
+  m_SubdetLayerNormedResiduals[subdetandlayer]->Reset();
+}
+
+
+
+void MonitorTrackResiduals::endRun(const edm::Run&, const edm::EventSetup&){
+}
+
+
 void MonitorTrackResiduals::endJob(void){
 
   //dqmStore_->showDirStructure();
@@ -127,7 +177,7 @@ void MonitorTrackResiduals::analyze(const edm::Event& iEvent, const edm::EventSe
     
     // fill if hit belongs to StripDetector and its error is not zero
     if( it->resErrX != 0 && SiStripDetId(RawId).subDetector()  != 0 )  {
-      if (conf_.getParameter<bool>("Mod_On") && HitResidual[RawId]) { 
+      if (ModOn && HitResidual[RawId]) { 
 	HitResidual[RawId]->Fill(it->resX);
 	NormedHitResiduals[RawId]->Fill(it->resX/it->resErrX);
       }
