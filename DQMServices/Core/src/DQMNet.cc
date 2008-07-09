@@ -385,6 +385,34 @@ DQMNet::releaseFromWait(Bucket *msg, WaitObject &w, Object *o)
   }
 }
 
+// Extract data value of a scalar object @a o into @a objdata.
+bool
+DQMNet::extractScalarData(DataBlob &objdata, Object &o)
+{
+  if (! o.flags & DQM_FLAG_SCALAR)
+    return false;
+
+  TObject *obj = o.object;
+  if (! obj && o.rawdata.size())
+  {
+    DQMRootBuffer buf(DQMRootBuffer::kRead, o.rawdata.size(), &o.rawdata[0], kFALSE);
+    buf.InitMap();
+    buf.Reset();
+    obj = extractNextObject(buf);
+  }
+
+  if (TObjString *ostr = dynamic_cast<TObjString *>(obj))
+  {
+    const TString &s = ostr->String();
+    objdata.insert(objdata.end(),
+		   (unsigned char *) s.Data(),
+		   (unsigned char *) s.Data() + s.Length());
+    return true;
+  }
+
+  return false;
+}
+
 // Send an object to a peer.  If not @a data, only sends a summary
 // without the object data, except the data is always sent for scalar
 // objects.  If @a text is @c true, sends an ASCII text version of the
@@ -395,26 +423,8 @@ DQMNet::sendObjectToPeer(Bucket *msg, Object &o, bool data, bool text)
   uint32_t flags = o.flags;
   DataBlob objdata;
 
-  if (text && (flags & DQM_FLAG_SCALAR))
-  {
-    TObject *obj = o.object;
-    if (! obj && o.rawdata.size())
-    {
-      DQMRootBuffer buf(DQMRootBuffer::kRead, o.rawdata.size(), &o.rawdata[0], kFALSE);
-      buf.InitMap();
-      buf.Reset();
-      obj = extractNextObject(buf);
-    }
-
-    if (TObjString *ostr = dynamic_cast<TObjString *>(obj))
-    {
-      const TString &s = ostr->String();
-      objdata.insert(objdata.end(),
-		     (unsigned char *) s.Data(),
-		     (unsigned char *) s.Data() + s.Length());
-      flags |= DQM_FLAG_TEXT;
-    }
-  }
+  if (text && extractScalarData(objdata, o))
+    flags |= DQM_FLAG_TEXT;
   else if (data || (flags & DQM_FLAG_SCALAR))
     objdata.insert(objdata.end(),
 		   &o.rawdata[0],

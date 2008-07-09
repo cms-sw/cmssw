@@ -144,6 +144,7 @@ public:
 protected:
   std::ostream &	logme(void);
   static void		copydata(Bucket *b, const void *data, size_t len);
+  bool			extractScalarData(DataBlob &objdata, Object &o);
   void			sendObjectToPeer(Bucket *msg, Object &o, bool data, bool text);
 
   virtual bool		shouldStop(void);
