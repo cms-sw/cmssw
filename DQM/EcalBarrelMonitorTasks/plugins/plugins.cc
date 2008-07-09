@@ -42,3 +42,5 @@ DEFINE_ANOTHER_FWK_MODULE(EBTriggerTowerTask);
 #include <DQM/EcalBarrelMonitorTasks/interface/EBTimingTask.h>
 DEFINE_ANOTHER_FWK_MODULE(EBTimingTask);
 
+#include <DQM/EcalBarrelMonitorTasks/interface/EBSelectiveReadoutTask.h>
+DEFINE_ANOTHER_FWK_MODULE(EBSelectiveReadoutTask);
