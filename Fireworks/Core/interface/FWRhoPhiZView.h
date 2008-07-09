@@ -16,7 +16,7 @@
 //
 // Original Author:  Chris Jones
 //         Created:  Tue Feb 19 10:33:21 EST 2008
-// $Id: FWRhoPhiZView.h,v 1.10 2008/06/24 07:40:43 dmytro Exp $
+// $Id: FWRhoPhiZView.h,v 1.11 2008/07/01 04:30:10 chrjones Exp $
 //
 
 // system include files
@@ -100,8 +100,8 @@ class FWRhoPhiZView : public FWViewBase
       FWBoolParameter    m_caloAutoScale;
       FWBoolParameter*   m_showHF;
       FWBoolParameter*   m_showEndcaps;
-      FWDoubleParameter  m_minEcalEnergy;
-      FWDoubleParameter  m_minHcalEnergy;
+      //FWDoubleParameter  m_minEcalEnergy;
+      //FWDoubleParameter  m_minHcalEnergy;
       
       // camera parameters
       double* m_cameraZoom;

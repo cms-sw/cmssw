@@ -8,7 +8,7 @@
 //
 // Original Author:  Chris Jones
 //         Created:  Tue Feb 19 10:33:25 EST 2008
-// $Id: FWRhoPhiZView.cc,v 1.19 2008/06/27 03:30:26 dmytro Exp $
+// $Id: FWRhoPhiZView.cc,v 1.20 2008/07/06 19:52:14 dmytro Exp $
 //
 
 #define private public
@@ -102,8 +102,8 @@ m_caloFixedScale(this,"Calo scale",2.,0.1,100.),
 m_caloAutoScale(this,"Calo auto scale",false),
 m_showHF(0),
 m_showEndcaps(0),
-m_minEcalEnergy(this,"ECAL energy threshold (GeV)",0.,0.,100.),
-m_minHcalEnergy(this,"HCAL energy threshold (GeV)",0.,0.,100.),
+//m_minEcalEnergy(this,"ECAL energy threshold (GeV)",0.,0.,100.),
+//m_minHcalEnergy(this,"HCAL energy threshold (GeV)",0.,0.,100.),
 m_cameraZoom(0),
 m_cameraMatrix(0)
 {
@@ -118,8 +118,8 @@ m_cameraMatrix(0)
    m_projMgr->GetProjection()->SetPastFixZFac(0.0);
    */
    
-   m_minEcalEnergy.changed_.connect(  boost::bind(&FWRhoPhiZView::updateCaloThresholdParameters, this) );
-   m_minHcalEnergy.changed_.connect(  boost::bind(&FWRhoPhiZView::updateCaloThresholdParameters, this) );
+   //m_minEcalEnergy.changed_.connect(  boost::bind(&FWRhoPhiZView::updateCaloThresholdParameters, this) );
+   //m_minHcalEnergy.changed_.connect(  boost::bind(&FWRhoPhiZView::updateCaloThresholdParameters, this) );
    
    if ( iProjType == TEveProjection::kPT_RPhi ) {
       // compression
@@ -211,7 +211,9 @@ FWRhoPhiZView::doDistortion()
       m_projMgr->GetProjection()->ChangePreScaleEntry(1,2,m_muonDistortion.value());
    }
    m_projMgr->UpdateName();
-   m_projMgr->ProjectChildren();
+   m_projMgr->ProjectChildren();   
+   //NOTE: Looks like I have to kick the scene since it doesn't know the project changed?
+   m_embeddedViewer->UpdateScene();
 }
 
 void 
@@ -220,6 +222,9 @@ FWRhoPhiZView::doCompression(bool flag)
    m_projMgr->GetProjection()->SetUsePreScale(flag);
    m_projMgr->UpdateName();
    m_projMgr->ProjectChildren();
+   //NOTE: Looks like I have to kick the scene since it doesn't know the project changed?
+   m_embeddedViewer->UpdateScene();
+
 }
 
 /*
@@ -277,7 +282,7 @@ FWRhoPhiZView::importElements(TEveElement* iChildren, float iLayer)
    TEveElement::List_i it = m_projMgr->BeginChildren();
    std::advance(it, m_projMgr->NumChildren() -1 );
    
-   updateCaloThresholds( *it );
+   //updateCaloThresholds( *it );
    updateCalo( *it, true );
    updateCaloLines( *it );
       
@@ -287,6 +292,7 @@ FWRhoPhiZView::importElements(TEveElement* iChildren, float iLayer)
 void 
 FWRhoPhiZView::updateCaloThresholds(TEveElement* iParent)
 {
+   /*
    TEveElementIter child(iParent);
    while ( TEveElement* element = child.current() )
      {
@@ -296,6 +302,7 @@ FWRhoPhiZView::updateCaloThresholds(TEveElement* iParent)
 	}
 	child.next();
      }
+    */
 }
 
 void 
@@ -425,18 +432,22 @@ FWRhoPhiZView::updateScaleParameters()
 {
    updateCalo(m_projMgr);
    updateCaloLines(m_projMgr);
+   //NOTE: Looks like I have to kick the scene since it doesn't know the project changed?
+   m_embeddedViewer->UpdateScene();
 }
 
 void
 FWRhoPhiZView::updateCaloParameters()
 {
    updateCalo(m_projMgr);
+   //NOTE: Looks like I have to kick the scene since it doesn't know the project changed?
+   m_embeddedViewer->UpdateScene();
 }
 
 void
 FWRhoPhiZView::updateCaloThresholdParameters()
 {
-   updateCaloThresholds(m_projMgr);
+   //updateCaloThresholds(m_projMgr);
 }
 
 
