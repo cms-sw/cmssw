@@ -159,7 +159,7 @@ void L1TEventInfoClient::endLuminosityBlock(const edm::LuminosityBlock& lumiSeg,
   MonitorElement *RCT_QHist = dbe_->get("L1T/L1TRCT/RctNonIsoEmOccEtaPhi");
   MonitorElement *GMT_QHist = dbe_->get("L1T/L1TGMT/GMT_etaphi");
   MonitorElement *CSCTF_QHist = dbe_->get("L1T/L1TCSCTF/CSCTF_occupancies");
-  MonitorElement *DTTF_QHist = dbe_->get("L1T/L1TDTTF/DTTF_TRACKS/INTEG/dttf_p_phi_eta");
+  MonitorElement *DTTF_QHist = dbe_->get("L1T/L1TDTTF/DTTF_TRACKS/INTEG/Occupancy_Summary");
   
   int nSubsystems = 20;
   for (int k = 0; k < nSubsystems; k++) {
@@ -168,15 +168,33 @@ void L1TEventInfoClient::endLuminosityBlock(const edm::LuminosityBlock& lumiSeg,
   }
   summarySum = 0;
 
-  int GCT_nXCh = GCT_QHist->getNbinsX(); int GCT_nYCh = GCT_QHist->getNbinsY(); 
-  int RCT_nXCh = RCT_QHist->getNbinsX(); int RCT_nYCh = RCT_QHist->getNbinsY();
-  int GMT_nXCh = GMT_QHist->getNbinsX(); int GMT_nYCh = GMT_QHist->getNbinsY();
-  int CSCTF_nXCh = CSCTF_QHist->getNbinsX(); int CSCTF_nYCh = CSCTF_QHist->getNbinsY();
-  int DTTF_nXCh = DTTF_QHist->getNbinsX();  int DTTF_nYCh = DTTF_QHist->getNbinsY();
+  
+  int GCT_nXCh = 0,GCT_nYCh=0,RCT_nXCh=0,RCT_nYCh=0,GMT_nXCh=0,GMT_nYCh=0,CSCTF_nXCh=0,CSCTF_nYCh=0,DTTF_nXCh=0,DTTF_nYCh=0;
+
+  if(GCT_QHist){
+    GCT_nXCh = GCT_QHist->getNbinsX(); 
+    GCT_nYCh = GCT_QHist->getNbinsY();
+  }
+  if(RCT_QHist){
+    RCT_nXCh = RCT_QHist->getNbinsX(); 
+    RCT_nYCh = RCT_QHist->getNbinsY();
+  }
+  if(GMT_QHist){
+    GMT_nXCh = GMT_QHist->getNbinsX(); 
+    GMT_nYCh = GMT_QHist->getNbinsY();
+  }
+  if(CSCTF_QHist){
+    CSCTF_nXCh = CSCTF_QHist->getNbinsX(); 
+    CSCTF_nYCh = CSCTF_QHist->getNbinsY();
+  }
+  if(DTTF_QHist){
+    DTTF_nXCh = DTTF_QHist->getNbinsX();  
+    DTTF_nYCh = DTTF_QHist->getNbinsY();
+  } 
+
 
   int GCT_nCh=0,RCT_nCh=0,GMT_nCh=0,CSCTF_nCh=0,DTTF_nCh=0;
   
-  //cout << "CSCTF_nXCh = " << CSCTF_nXCh << ", CSCTF_nYCh = " << CSCTF_nYCh << endl;
   if(GCT_nYCh) 
     GCT_nCh = GCT_nXCh*GCT_nYCh;
   if(RCT_nYCh) 
@@ -253,15 +271,26 @@ void L1TEventInfoClient::endLuminosityBlock(const edm::LuminosityBlock& lumiSeg,
   }
 
   if (DTTF_QHist){
-    const QReport *DTTF_QReport = DTTF_QHist->getQReport("HotChannels");
-    //cout << "DTTF_QReport: " << DTTF_QReport << endl;
-    if (DTTF_QReport) {
-      int DTTF_nBadCh = DTTF_QReport->getBadChannels().size();
-      //cout << "nBadCh(DTTF): "  << DTTF_nBadCh << endl;
-      summaryContent[5] = 1 - DTTF_nBadCh/DTTF_nCh;
-      //cout << "summaryContent[4]-DTTF=" << summaryContent[4] << endl;
-      reportSummaryContent_[5]->Fill( summaryContent[5] );
-    } 
+//     const QReport *DTTF_QReport = DTTF_QHist->getQReport("HotChannels");
+//     //cout << "DTTF_QReport: " << DTTF_QReport << endl;
+//     if (DTTF_QReport) {
+//       int DTTF_nBadCh = DTTF_QReport->getBadChannels().size();
+//       //cout << "nBadCh(DTTF): "  << DTTF_nBadCh << endl;
+//       summaryContent[5] = 1 - DTTF_nBadCh/DTTF_nCh;
+//       //cout << "summaryContent[4]-DTTF=" << summaryContent[4] << endl;
+//       reportSummaryContent_[5]->Fill( summaryContent[5] );
+//    } 
+
+    //summaryContent = fraction of filled bins
+    int nFilledBins = 0;
+    int nTotalBins  = 72;
+    for(int i=1; i<7; i++)//6 logical wheels
+      for(int j=1; j<13;j++){ //12 sectors
+	if(DTTF_QHist->getBinContent(i,j)) nFilledBins++;
+      }
+    summaryContent[5] = (float)nFilledBins / (float)nTotalBins;
+    reportSummaryContent_[5]->Fill( summaryContent[5] );
+    //cout << "summaryContent DTTF: " << summaryContent[5] << endl;
   }
 
   
@@ -271,7 +300,7 @@ void L1TEventInfoClient::endLuminosityBlock(const edm::LuminosityBlock& lumiSeg,
   }
   
   reportSummary = summarySum / nSubsystems;
-  cout << "reportSummary " << reportSummary << endl;
+  //cout << "reportSummary " << reportSummary << endl;
   if (reportSummary_) reportSummary_->Fill(reportSummary);
   
 
