@@ -51,7 +51,13 @@ LDLIBRARYPATH := `pwd` `pwd`/external/lib $(FWROOTSYS)/lib
 
 all: display
 
-display: lib$(LibProject).so tmp/lib$(LibProject).so.out
+display: lib$(LibProject).so tmp/lib$(LibProject).so.out cmsShow.exe
+
+cmsShow.exe: lib$(LibProject).so lib$(LibCore).so src/Fireworks/Core/test/cmsShow.cc
+	$(QUIET) echo "linking cmsShow.exe"; \
+	$(CC) $(INCLUDE) $(COMPILERFLAGS) src/Fireworks/Core/test/cmsShow.cc \
+		-o cmsShow.exe -L. -lCMSShow -lCMSDataFormats
+
 
 lib$(LibProject).so: $(ProjectObjects) $(ProjectRootDicObjects) $(ProjectDictionaryObjects) lib$(LibCore).so
 	$(QUIET) echo "linking core library $(LibProject)"; \
