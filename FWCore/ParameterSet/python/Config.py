@@ -234,7 +234,7 @@ class Process(object):
 
     def _place(self, name, mod, d):
         if self._okToPlace(name, mod, d):
-            if isinstance(mod, _ModuleSequenceType):
+            if self.__isStrict and isinstance(mod, _ModuleSequenceType):
                 d[name] = mod._postProcessFixup(self._cloneToObjectDict)
             else:
                 d[name] = mod
