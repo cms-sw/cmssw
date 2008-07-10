@@ -8,6 +8,7 @@ HcalDigiMonitor::HcalDigiMonitor() {
   doPerChannel_ = false;
   occThresh_ = 1;
   ievt_=0;
+  shape_=NULL;
 }
 
 HcalDigiMonitor::~HcalDigiMonitor() {}
@@ -928,6 +929,7 @@ void HcalDigiMonitor::processEvent(const HBHEDigiCollection& hbhe,
   
   ievt_++;
   meEVT_->Fill(ievt_);
+  if(!shape_) shape_ = cond.getHcalShape(); // this one is generic
 
   int ndigi = 0;  int nbqdigi = 0;
   int nbqdigi_report = report.badQualityDigis();
@@ -1335,13 +1337,11 @@ void HcalDigiMonitor::HBHEDigiCheck(const HBHEDigiCollection& hbhe, DigiHists& h
 {
   //try
     {
-      
       float normVals[10]; bool digiErr=false;
       bool digiOcc=false; bool digiUpset=false;
       
       CaloSamples tool;
-      const HcalQIECoder* channelCoder=0;
-      const HcalQIEShape* shape=0;
+
       
       int nhedigi = 0;   int nhbdigi = 0;
       int nhbbqdigi = 0;  int nhebqdigi = 0;
@@ -1414,14 +1414,13 @@ void HcalDigiMonitor::HBHEDigiCheck(const HBHEDigiCollection& hbhe, DigiHists& h
 	  int maxadc=0;
 	  float myval=0;
 
-	
-	  if (doFCpeds_)
+	  if(doFCpeds_)
 	    {
-	      channelCoder = cond.getHcalCoder(digi.id());
-	      HcalCoderDb coderDB(*channelCoder, *shape);
+	      channelCoder_ = cond.getHcalCoder(digi.id());
+	      HcalCoderDb coderDB(*channelCoder_, *shape_);
 	      coderDB.adc2fC(digi,tool);
-	      // digi (ADC) is input, tool (fC) is output
 	    }
+
 
 	  for (int k=0; k<digi.size(); ++k)
 	    {     
@@ -1545,8 +1544,8 @@ void HcalDigiMonitor::HBHEDigiCheck(const HBHEDigiCollection& hbhe, DigiHists& h
 
 	  if (doFCpeds_)
 	    {
-	      channelCoder = cond.getHcalCoder(digi.id());
-	      HcalCoderDb coderDB(*channelCoder, *shape);
+	      channelCoder_ = cond.getHcalCoder(digi.id());
+	      HcalCoderDb coderDB(*channelCoder_, *shape_);
 	      coderDB.adc2fC(digi,tool);
 	      // digi (ADC) is input, tool (fC) is output
 	    }
@@ -1644,8 +1643,6 @@ void HcalDigiMonitor::HODigiCheck(const HODigiCollection& ho, DigiHists& hoHists
       bool digiOcc=false; bool digiUpset=false;
      
       CaloSamples tool;
-      const HcalQIECoder* channelCoder=0;
-      const HcalQIEShape* shape=0;
     
       int firsthocap = -1; int nhobqdigi = 0;
       int nhodigi = ho.size();
@@ -1723,8 +1720,8 @@ void HcalDigiMonitor::HODigiCheck(const HODigiCollection& ho, DigiHists& hoHists
 
 	  if (doFCpeds_)
 	    {
-	      channelCoder = cond.getHcalCoder(digi.id());
-	      HcalCoderDb coderDB(*channelCoder, *shape);
+	      channelCoder_ = cond.getHcalCoder(digi.id());
+	      HcalCoderDb coderDB(*channelCoder_, *shape_);
 	      coderDB.adc2fC(digi,tool);
 	      // digi (ADC) is input, tool (fC) is output
 	    }
@@ -1814,8 +1811,6 @@ void HcalDigiMonitor::HFDigiCheck(const HFDigiCollection& hf, DigiHists& hfHists
      bool digiOcc=false; bool digiUpset=false;
      
      CaloSamples tool;
-     const HcalQIECoder* channelCoder=0;
-     const HcalQIEShape* shape=0;
      
      int firsthfcap = -1; int nhfbqdigi = 0;
      int nhfdigi = hf.size();
@@ -1887,8 +1882,8 @@ void HcalDigiMonitor::HFDigiCheck(const HFDigiCollection& hf, DigiHists& hfHists
 	
 	 if (doFCpeds_)
 	   {
-	     channelCoder = cond.getHcalCoder(digi.id());
-	     HcalCoderDb coderDB(*channelCoder, *shape);
+	     channelCoder_ = cond.getHcalCoder(digi.id());
+	     HcalCoderDb coderDB(*channelCoder_, *shape_);
 	     coderDB.adc2fC(digi,tool);
 	     // digi (ADC) is input, tool (fC) is output
 	   }

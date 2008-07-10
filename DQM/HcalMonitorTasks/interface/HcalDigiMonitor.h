@@ -5,11 +5,14 @@
 #include "DQMServices/Core/interface/DQMStore.h"
 #include "DQMServices/Core/interface/MonitorElement.h"
 #include "EventFilter/HcalRawToDigi/interface/HcalUnpacker.h"
+// The following are needed for using pedestals in fC:
+#include "CondFormats/HcalObjects/interface/HcalPedestal.h"
+#include "CondFormats/HcalObjects/interface/HcalPedestalWidth.h"
 
 /** \class HcalDigiMonitor
   *  
-  * $Date: 2008/07/02 22:27:22 $
-  * $Revision: 1.26 $
+  * $Date: 2008/07/04 20:38:02 $
+  * $Revision: 1.27 $
   * \author W. Fisher - FNAL
   */
 
@@ -116,7 +119,11 @@ private:  ///Methods
   HcalCalibrations calibs_;
   int checkNevents_;
 
-private:  ///Monitoring elements
+private:  
+  const HcalQIEShape* shape_;
+  const HcalQIECoder* channelCoder_;
+
+  // Monitoring elements
   MonitorElement* meEVT_;
   MonitorElement* OCC_ETA;
   MonitorElement* OCC_PHI;
