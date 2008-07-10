@@ -324,10 +324,16 @@ config.close()
 
 # handle different dump options
 if options.dump_python:
+    result = {}
     execfile(python_config_filename, result)
     process = result["process"]
-    print "NOT YET IMPLEMENTED"
-
+    expanded = process.dumpPython()
+    expandedFile = file(python_config_filename.rstrip('.py')+'_expanded.py',"w")
+    expandedFile.write(expanded)
+    expandedFile.close()
+    print "Config file "+python_config_filename.rstrip('.py')+'_expanded.py'+ " created"
+    sys.exit(0)           
+  
 if options.no_exec_flag:
     print "Config file "+python_config_filename+ " created"
     sys.exit(0)
