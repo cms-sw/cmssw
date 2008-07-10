@@ -7,7 +7,6 @@
 <use name=DataFormats/EcalRecHit>
 <use name=DataFormats/EgammaReco>
 <use name=DataFormats/Math>
-<use name=Geometry/CaloEventSetup>
 <use name=Geometry/CaloGeometry>
 <use name=Geometry/CaloTopology>
 <use name=Geometry/EcalMapping>
@@ -28,7 +27,6 @@
   <use name=DataFormats/EcalRecHit>
   <use name=DataFormats/EgammaReco>
   <use name=DataFormats/Math>
-  <use name=Geometry/CaloEventSetup>
   <use name=Geometry/CaloGeometry>
   <use name=Geometry/CaloTopology>
   <use name=Geometry/EcalMapping>
