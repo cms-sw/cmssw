@@ -76,6 +76,8 @@ static const int nTtEta = 56;
 ///Number of Trigger Towers along Phi
 static const int nTtPhi = 72;
 
+///Number of bytes per crystal
+static const int bytesPerCrystal = 24;
 
 private:
 
@@ -160,14 +162,6 @@ private:
    return (subdet==EB?34:52)*8;
  }
 
- /** Gets the number of bytes per crystal channel of the event part
-  * depending on the number of read crystal channels.
-  * @return the number of bytes.
-  */
- double getBytesPerCrystal() const{
-   return 3*8;
- }
-
  /** Gets the size of an DCC event fragment.
   * @param iDcc0 the DCC logical number starting from 0.
   * @param nReadXtals number of read crystal channels.
@@ -180,15 +174,34 @@ private:
    } else{
      subdet = EB;
    }
-   return getDccOverhead(subdet)+nReadXtals*getBytesPerCrystal()
-     + getRuCount(iDcc0)*8;
+   return getDccOverhead(subdet)+nReadXtals*bytesPerCrystal
+     + nRuPerDcc_[iDcc0]*8;
  }
 
- /** Gets the number of readout unit read by a DCC. A readout unit
-  * correspond to an active DCC input channel.
-  * @param iDcc0 DCC logical number starting from 0.
+ /** Gets the phi index of the DCC reading a RU (SC or TT)
+  * @param i iEta 
+  * @param j iPhi 
+  * @return DCC phi index between 0 and 17 for EB
   */
- int getRuCount(int iDcc0) const;
+ int dccPhiIndexOfRU(int i, int j) const;
+
+
+ /** Gets the phi index of the DCC reading a crystal
+  * @param i iEta
+  * @param j iPhi
+  * @return DCC phi index between 0 and 17 for EB
+  */
+ int dccPhiIndex(int i, int j) const {
+   return dccPhiIndexOfRU(i/5, j/5);
+ }
+
+
+/** Gets the index of the DCC reading a crystal
+ * @param i iEta
+ * @param j iPhi
+ * @return DCC index between 0 and 17 
+ */
+ int dccIndex(int i, int j) const;
 
  /** ECAL barrel read channel count
   */

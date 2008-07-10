@@ -22,8 +22,6 @@
 #include <DQM/EcalCommon/interface/Numbers.h>
 #include <DQM/EcalBarrelMonitorTasks/interface/EBSelectiveReadoutTask.h>
 
-#include "Validation/EcalDigis/src/ecalDccMap.h"
-
 #include "TLorentzVector.h"
 
 using namespace cms;
@@ -82,11 +80,6 @@ void EBSelectiveReadoutTask::beginJob(const EventSetup& c) {
   edm::ESHandle<EcalTrigTowerConstituentsMap> hTriggerTowerMap;
   c.get<IdealGeometryRecord>().get(hTriggerTowerMap);
   triggerTowerMap_ = hTriggerTowerMap.product();
-
-  //electronics map
-  ESHandle< EcalElectronicsMapping > ecalmapping;
-  c.get< EcalMappingRcd >().get(ecalmapping);
-  elecMap_ = ecalmapping.product();
 
 }
 
@@ -308,11 +301,11 @@ void EBSelectiveReadoutTask::analyze(const Event& e, const EventSetup& c){
     }
     
     //low interesest channels:
-    aLowInterest = nEbLI_*getBytesPerCrystal()/kByte;
+    aLowInterest = nEbLI_*bytesPerCrystal/kByte;
     EBLowInterestPayload_->Fill(aLowInterest);
 
     //low interesest channels:
-    aHighInterest = nEbHI_*getBytesPerCrystal()/kByte;
+    aHighInterest = nEbHI_*bytesPerCrystal/kByte;
     EBHighInterestPayload_->Fill(aHighInterest);
 
     //any-interest channels:
@@ -376,42 +369,23 @@ EBSelectiveReadoutTask::readOutUnitOf(const EBDetId& xtalId) const{
   return triggerTowerMap_->towerOf(xtalId);
 }
 
-int EBSelectiveReadoutTask::getRuCount(int iDcc0) const{
-//   static int nEemRu[] = {34, 32, 33, 33, 32, 34, 33, 34, 33};
-//   static int nEepRu[] = {32, 33, 33, 32, 34, 33, 34, 33, 34};
-//   if(iDcc0<9){//EE-
-//     return nEemRu[iDcc0];
-//   } else if(iDcc0>=45){//EE+
-//     return nEepRu[iDcc0-45];
-//   } else{//EB
-//     return 68;
-//   }
-  return nRuPerDcc_[iDcc0];
-}
-
 unsigned EBSelectiveReadoutTask::dccNum(const DetId& xtalId) const{
-  int i;
   int j;
   int k;
   
-  assert(xtalId.det()==DetId::Ecal);
-  assert(!xtalId.null());
-  
+  if ( xtalId.det()!=DetId::Ecal ) {
+    throw cms::Exception("EBSelectiveReadoutTask") << "Crystal does not belong to ECAL";
+  }
+
   if(xtalId.subdetId()==EcalBarrel){
     EBDetId ebDetId(xtalId);
-    i = 1; //barrel
     j = iEta2cIndex(ebDetId.ieta());
     k = iPhi2cIndex(ebDetId.iphi());
-  } else if(xtalId.subdetId()==EcalEndcap){
-    EEDetId eeDetId(xtalId);
-    i = eeDetId.zside()<0?0:2;
-    j = iXY2cIndex(eeDetId.ix());
-    k = iXY2cIndex(eeDetId.iy());
-  } else{
+  } else {
     throw cms::Exception("EBSelectiveReadoutTask")
       <<"Not recognized subdetector. Probably a bug.";
   }
-  int iDcc0 = dccIndex(i,j,k);
+  int iDcc0 = dccIndex(j,k);
   assert(iDcc0>=0 && iDcc0<nECALDcc);
   return iDcc0+1;
 }
@@ -421,9 +395,27 @@ double EBSelectiveReadoutTask::getEbEventSize(double nReadXtals) const{
   const int nEEDcc = 18;
   const int firstEbDcc0 = nEEDcc/2;
   for(int iDcc0 = firstEbDcc0; iDcc0 < firstEbDcc0 + nEBDcc; ++iDcc0){
-    ruHeaderPayload += getRuCount(iDcc0)*8.;
+    ruHeaderPayload += nRuPerDcc_[iDcc0]*8.;
   }
   
-  return getDccOverhead(EB)*nEBDcc + nReadXtals*getBytesPerCrystal()
+  return getDccOverhead(EB)*nEBDcc + nReadXtals*bytesPerCrystal
     + ruHeaderPayload;
 }
+
+
+int EBSelectiveReadoutTask::dccPhiIndexOfRU(int i, int j) const {
+  //iEta=i, iPhi=j
+  //phi edge of a SM is 4 TT
+  return j/4;
+}
+
+
+int EBSelectiveReadoutTask::dccIndex(int i, int j) const {
+    //a SM is 85 crystal long:
+    int iEtaSM = i/85;
+    //a SM is 20 crystal wide:
+    int iPhiSM = j/20;
+    //DCC numbers start at 9 in the barrel and there 18 DCC/SM
+    return 9+18*iEtaSM+iPhiSM;
+}
+
