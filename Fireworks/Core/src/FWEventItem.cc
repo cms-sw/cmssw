@@ -8,7 +8,7 @@
 //
 // Original Author:  
 //         Created:  Thu Jan  3 14:59:23 EST 2008
-// $Id: FWEventItem.cc,v 1.16 2008/06/12 15:01:08 chrjones Exp $
+// $Id$
 //
 
 // system include files
@@ -337,11 +337,16 @@ FWEventItem::data(const std::type_info& iInfo) const
     void* wrapper=0;
     void* temp = &wrapper;
     if(m_event) {
-      m_event->getByLabel(m_wrapperType.TypeInfo(),
-			  m_moduleLabel.c_str(),
-			  m_productInstanceLabel.c_str(),
-			  m_processName.size()?m_processName.c_str():0,
-			  temp);
+	 try {
+	      m_event->getByLabel(m_wrapperType.TypeInfo(),
+				  m_moduleLabel.c_str(),
+				  m_productInstanceLabel.c_str(),
+				  m_processName.size()?m_processName.c_str():0,
+				  temp);
+	 } 
+	 catch (...) {
+	      wrapper = 0;
+	 }
       if(wrapper==0) {
 	//should report a problem
 	std::cerr<<"failed getByLabel"<<std::endl;
