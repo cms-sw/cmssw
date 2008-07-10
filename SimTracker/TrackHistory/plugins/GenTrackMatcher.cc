@@ -3,7 +3,7 @@
  * \author Luca Lista, INFN
  * \author Victor E. Bazterra, UIC
  *
- * \version $Id: GenTrackMatcher.cc,v 1.2 2008/02/23 09:34:05 bazterra Exp $
+ * \version $Id: GenTrackMatcher.cc,v 1.3 2008/02/27 23:11:13 bazterra Exp $
  *
  */
 
@@ -23,7 +23,7 @@ class GenTrackMatcher : public edm::EDProducer {
  private:
   void produce( edm::Event& evt, const edm::EventSetup& es );
   TrackOrigin tracer_;
-  std::string tracks_, genParticles_;
+  edm::InputTag tracks_, genParticles_;
   typedef edm::Association<reco::GenParticleCollection> GenParticleMatch;
 };
 
@@ -39,8 +39,8 @@ using namespace reco;
 
 GenTrackMatcher::GenTrackMatcher(const ParameterSet & p) :
   tracer_(p),
-  tracks_(p.getParameter<std::string>("recoTrackModule")),
-  genParticles_(p.getParameter<std::string>("genParticles")) {
+  tracks_(p.getUntrackedParameter<edm::InputTag>("trackProducer")),
+  genParticles_(p.getUntrackedParameter<edm::InputTag>("genParticles")) {
   produces<GenParticleMatch>();
 }
 

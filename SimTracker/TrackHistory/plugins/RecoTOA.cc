@@ -61,7 +61,7 @@ private:
   typedef std::vector<vstring> vvstring;  
   typedef std::vector<edm::ParameterSet> vParameterSet;
 
-  std::string trackCollection_;
+  edm::InputTag trackProducer_;
   
   std::string rootFile_;
   bool antiparticles_;
@@ -120,35 +120,35 @@ private:
 };
 
 
-RecoTOA::RecoTOA(const edm::ParameterSet& iConfig) : tracer_(iConfig)
+RecoTOA::RecoTOA(const edm::ParameterSet& config) : tracer_(config)
 {
-  trackCollection_ = iConfig.getParameter<std::string> ( "recoTrackModule" );
-
-  rootFile_ = iConfig.getParameter<std::string> ( "rootFile" );
+  trackProducer_ = config.getUntrackedParameter<edm::InputTag> ( "trackProducer" );
+	
+  rootFile_ = config.getUntrackedParameter<std::string> ( "rootFile" );
   
-  antiparticles_     = iConfig.getParameter<bool> ( "antiparticles" );
+  antiparticles_ = config.getUntrackedParameter<bool> ( "antiparticles" );
 
-  status_ = iConfig.getParameter<bool> ( "status2" );
+  status_ = config.getUntrackedParameter<bool> ( "status2" );
 
-  edm::ParameterSet pset = iConfig.getParameter<edm::ParameterSet> ( "veto" );
+  edm::ParameterSet pset = config.getUntrackedParameter<edm::ParameterSet> ( "veto" );
   
   vstring vetoListNames = pset.getParameterNames();
   
   vetoList_.reserve(vetoListNames.size());
   
   for(std::size_t i=0; i < vetoListNames.size(); i++)
-    vetoList_.push_back(pset.getParameter<vstring> (vetoListNames[i]));
+    vetoList_.push_back(pset.getUntrackedParameter<vstring> (vetoListNames[i]));
 }
 
 RecoTOA::~RecoTOA() { }
 
 void
-RecoTOA::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
+RecoTOA::analyze(const edm::Event& event, const edm::EventSetup& setup)
 {
   // Track collection
   edm::Handle<edm::View<reco::Track> > trackCollection;
   // Get reco::TrackCollection from the file.
-  iEvent.getByLabel(trackCollection_,trackCollection);
+  event.getByLabel(trackProducer_,trackCollection);
 
   // Initialive the TrackOrigin object.
   if (status_)
@@ -157,7 +157,7 @@ RecoTOA::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
     tracer_.depth(-1);
     
   // Set the tracer for a new event  
-  tracer_.newEvent(iEvent, iSetup);
+  tracer_.newEvent(event, setup);
      
   // Initialize and reset the temporal counters 
   InitCounter();
@@ -182,10 +182,10 @@ RecoTOA::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
 
 
 void 
-RecoTOA::beginJob(const edm::EventSetup& iSetup) 
+RecoTOA::beginJob(const edm::EventSetup& setup) 
 {
   // Get the particles table.
-  iSetup.getData( pdt_ );
+  setup.getData( pdt_ );
 }
 
 

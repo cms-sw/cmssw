@@ -59,7 +59,7 @@ private:
   typedef std::vector<vstring> vvstring;  
   typedef std::vector<edm::ParameterSet> vParameterSet;
 
-  std::string trackCollection_;
+  edm::InputTag trackCollection_;
   
   std::string rootFile_;
     
@@ -82,25 +82,25 @@ private:
   void Count(const std::string &);  
 };
 
-VertexTHA::VertexTHA(const edm::ParameterSet& iConfig) : tracer_(iConfig)
+VertexTHA::VertexTHA(const edm::ParameterSet& config) : tracer_(config)
 {
-  trackCollection_ = iConfig.getParameter<std::string> ( "recoTrackModule" );
+  trackCollection_ = config.getUntrackedParameter<edm::InputTag> ( "trackProducer" );
 
-  rootFile_ = iConfig.getParameter<std::string> ( "rootFile" );
+  rootFile_ = config.getUntrackedParameter<std::string> ( "rootFile" );
   
-  sourceCut_ = iConfig.getParameter<double> ( "sourceCut" );
+  sourceCut_ = config.getUntrackedParameter<double> ( "sourceCut" );
 }
 
 VertexTHA::~VertexTHA() { }
 
-void VertexTHA::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
+void VertexTHA::analyze(const edm::Event& event, const edm::EventSetup& setup)
 {
   // Track collection
   edm::Handle<edm::View<reco::Track> > trackCollection;
-  iEvent.getByLabel(trackCollection_, trackCollection);
+  event.getByLabel(trackCollection_, trackCollection);
   
   // Set the tracer for a new event
-  tracer_.newEvent(iEvent, iSetup);
+  tracer_.newEvent(event, setup);
   
   // Loop over the track collection.
   for (std::size_t index = 0; index < trackCollection->size(); index++)
@@ -184,10 +184,10 @@ void VertexTHA::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
 
 
 void 
-VertexTHA::beginJob(const edm::EventSetup& iSetup) 
+VertexTHA::beginJob(const edm::EventSetup& setup) 
 {
   // Get the particles table.
-  iSetup.getData( pdt_ );
+  setup.getData( pdt_ );
   
   totalTracks_ = 0;
 }

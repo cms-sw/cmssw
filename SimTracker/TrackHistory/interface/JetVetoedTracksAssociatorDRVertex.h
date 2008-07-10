@@ -8,7 +8,7 @@
 #include "DataFormats/JetReco/interface/JetTracksAssociation.h"
 #include "DataFormats/TrackReco/interface/Track.h"
 
-#include "SimTracker/TrackHistory/interface/TrackCategories.h"
+#include "SimTracker/TrackHistory/interface/TrackClassifier.h"
 
 class JetVetoedTracksAssociationDRVertex {
 
@@ -21,7 +21,7 @@ class JetVetoedTracksAssociationDRVertex {
     reco::JetTracksAssociation::Container* fAssociation,
     const std::vector<edm::RefToBase<reco::Jet> >& fJets,
     const std::vector<reco::TrackRef>& fTracks,
-    TrackCategories & classifier
+    TrackClassifier & classifier
   ) const;
 
  private:

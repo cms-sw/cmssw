@@ -142,15 +142,13 @@ private:
   bool traceSimHistory (TrackingParticleRef, int);
   
   bool bestMatchByMaxValue_;  
- 
-  std::string associationModule_;
 
-  std::string recoTrackModule_;
+  edm::InputTag trackProducer_;
   
-  std::string trackingParticleModule_;
+  edm::InputTag trackingTruth_;
 
-  std::string trackingParticleInstance_;
-
+  std::string trackAssociator_;
+  
   reco::RecoToSimCollection association_;
   
   TrackingParticleRef match ( edm::RefToBase<reco::Track> );  

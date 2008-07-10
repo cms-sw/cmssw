@@ -27,7 +27,7 @@
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 
 #include "SimGeneral/HepPDTRecord/interface/ParticleDataTable.h"
-#include "SimTracker/TrackHistory/interface/TrackOrigin.h"
+#include "SimTracker/TrackHistory/interface/TrackClassifier.h"
 
 //
 // class decleration
@@ -47,7 +47,7 @@ private:
 
   // Member data
   
-  std::string trackCollection_;
+  edm::InputTag trackProducer_;
       
   std::size_t totalTracks_;
    
@@ -55,7 +55,7 @@ private:
    
   std::string particleString(int) const;
   
-  TrackHistory tracer_;
+  TrackClassifier classifier_;
   
   std::string vertexString(
     TrackingParticleRefVector,
@@ -71,35 +71,37 @@ private:
 };
 
 
-SimpleTHA::SimpleTHA(const edm::ParameterSet& iConfig) : tracer_(iConfig)
+SimpleTHA::SimpleTHA(const edm::ParameterSet& config) : classifier_(config)
 {
-  trackCollection_ = iConfig.getParameter<std::string> ( "recoTrackModule" );
+  trackProducer_ = config.getUntrackedParameter<edm::InputTag> ( "trackProducer" );
 }
 
 
 SimpleTHA::~SimpleTHA() { }
 
 
-void SimpleTHA::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
+void SimpleTHA::analyze(const edm::Event& event, const edm::EventSetup& setup)
 {
   // Track collection
   edm::Handle<edm::View<reco::Track> > trackCollection;
-  iEvent.getByLabel(trackCollection_,trackCollection);
+  event.getByLabel(trackProducer_, trackCollection);
 
-  tracer_.depth(-2);
-  tracer_.newEvent(iEvent, iSetup);
+  // Set the classifier for a new event
+  classifier_.newEvent(event, setup);
+
+  // Get a constant reference to the track history associated to the classifier
+  TrackHistory const & tracer = classifier_.history(); 
   
   // Loop over the track collection.
   for (std::size_t index = 0; index < trackCollection->size(); index++)
   {
+    std::cout << std::endl << "History for track #" << index << " : " << std::endl;
 
-    // If the track is not fake then get the vertexes
-    if ( tracer_.evaluate( edm::RefToBase<reco::Track>(trackCollection, index) ) )
+    // Classify the track and detect for fakes
+    if ( ! classifier_.evaluate( edm::RefToBase<reco::Track>(trackCollection, index) ).is(TrackCategories::Fake) )
     {
       // Get the list of TrackingParticles associated to
-      TrackOrigin::SimParticleTrail simParticles(tracer_.simParticleTrail());
-
-      std::cout << std::endl << "History for track #" << index << " : " << std::endl;
+      TrackOrigin::SimParticleTrail simParticles(tracer.simParticleTrail());
 
       // Loop over all simParticles
       for(std::size_t hindex=0; hindex<simParticles.size(); hindex++) 
@@ -110,7 +112,7 @@ void SimpleTHA::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
       }
       
       // Get the list of TrackingVertexes associated to
-      TrackOrigin::SimVertexTrail simVertexes(tracer_.simVertexTrail());
+      TrackOrigin::SimVertexTrail simVertexes(tracer.simVertexTrail());
          
       // Loop over all simVertexes                       
       if( !simVertexes.empty() )
@@ -129,7 +131,7 @@ void SimpleTHA::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
         std::cout << "  simVertex no found" << std::endl;
 
       // Get the list of GenParticles associated to
-      TrackHistory::GenParticleTrail genParticles(tracer_.genParticleTrail());
+      TrackHistory::GenParticleTrail genParticles(tracer.genParticleTrail());
 
       // Loop over all genParticles
       for(std::size_t hindex=0; hindex<genParticles.size(); hindex++) 
@@ -140,7 +142,7 @@ void SimpleTHA::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
       }
       
       // Get the list of TrackingVertexes associated to
-      TrackHistory::GenVertexTrail genVertexes(tracer_.genVertexTrail());
+      TrackHistory::GenVertexTrail genVertexes(tracer.genVertexTrail());
          
       // Loop over all simVertexes                       
       if( !genVertexes.empty() )
@@ -158,21 +160,22 @@ void SimpleTHA::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
         }
       }
       else
-        std::cout << "  genVertex no found" << std::endl;
+        std::cout << "  genVertex no found" << std::endl;        
     }
     else
-      std::cout << "  Fake track" << std::endl;
+      std::cout << "  fake track" << std::endl;
 
+    std::cout << "  track categories : " << classifier_.flags();
     std::cout << std::endl;
   }
 }
 
 
 void 
-SimpleTHA::beginJob(const edm::EventSetup& iSetup) 
+SimpleTHA::beginJob(const edm::EventSetup& setup) 
 {
   // Get the particles table.
-  iSetup.getData( pdt_ );
+  setup.getData( pdt_ );
   
   totalTracks_ = 0;
 }

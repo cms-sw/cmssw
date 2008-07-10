@@ -60,8 +60,7 @@ private:
   typedef std::vector<vstring> vvstring;  
   typedef std::vector<edm::ParameterSet> vParameterSet;
   
-  std::string trackingParticleModule_;
-  std::string trackingParticleInstance_;
+  edm::InputTag trackingTruth_;
   
   std::string rootFile_;
   bool status_, antiparticles_;
@@ -119,28 +118,26 @@ private:
 };
 
 
-TruthTOA::TruthTOA(const edm::ParameterSet& iConfig) : tracer_(iConfig)
+TruthTOA::TruthTOA(const edm::ParameterSet& config) : tracer_(config)
 {
-  trackingParticleModule_ = iConfig.getParameter<std::string> ( "trackingParticleModule" );
+  trackingTruth_ = config.getUntrackedParameter<edm::InputTag> ( "trackingTruth" );
 
-  trackingParticleInstance_ = iConfig.getParameter<std::string> ( "trackingParticleProduct" );
+  matchedHits_ = config.getUntrackedParameter<int> ( "matchedHits" );
 
-  matchedHits_ = iConfig.getParameter<int> ( "matchedHits" );
-
-  rootFile_ = iConfig.getParameter<std::string> ( "rootFile" );
+  rootFile_ = config.getUntrackedParameter<std::string> ( "rootFile" );
   
-  antiparticles_ = iConfig.getParameter<bool> ( "antiparticles" );
+  antiparticles_ = config.getUntrackedParameter<bool> ( "antiparticles" );
 
-  status_ = iConfig.getParameter<bool> ( "status2" );
+  status_ = config.getUntrackedParameter<bool> ( "status2" );
 
-  edm::ParameterSet pset = iConfig.getParameter<edm::ParameterSet> ( "veto" );
+  edm::ParameterSet pset = config.getUntrackedParameter<edm::ParameterSet> ( "veto" );
   
   vstring vetoListNames = pset.getParameterNames();
   
   vetoList_.reserve(vetoListNames.size());
   
   for(std::size_t i=0; i < vetoListNames.size(); i++)
-    vetoList_.push_back(pset.getParameter<vstring> (vetoListNames[i]));
+    vetoList_.push_back(pset.getUntrackedParameter<vstring> (vetoListNames[i]));
 }
 
 
@@ -148,11 +145,11 @@ TruthTOA::~TruthTOA() { }
 
 
 void
-TruthTOA::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
+TruthTOA::analyze(const edm::Event& event, const edm::EventSetup& setup)
 {
   // Tracking particle information
   edm::Handle<TrackingParticleCollection>  TPCollection;
-  iEvent.getByLabel(trackingParticleModule_, trackingParticleInstance_, TPCollection);
+  event.getByLabel(trackingTruth_, TPCollection);
 
   // Set the history depth
   if(status_)
@@ -188,10 +185,10 @@ TruthTOA::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
 
 
 void 
-TruthTOA::beginJob(const edm::EventSetup& iSetup) 
+TruthTOA::beginJob(const edm::EventSetup& setup) 
 {  
   // Get the particles table.
-  iSetup.getData( pdt_ );
+  setup.getData( pdt_ );
 }
 
 

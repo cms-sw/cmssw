@@ -15,7 +15,7 @@
 //
 // Original Author:  Victor Bazterra
 //         Created:  Tue Mar 13 14:15:40 CDT 2007
-// $Id: OptTOA.cc,v 1.7 2008/04/07 14:12:56 bazterra Exp $
+// $Id: OptTOA.cc,v 1.8 2008/04/14 15:36:11 bazterra Exp $
 //
 //
 
@@ -47,7 +47,7 @@
 
 #include "RecoVertex/PrimaryVertexProducer/interface/PrimaryVertexSorter.h"
 
-#include "SimTracker/TrackHistory/interface/TrackCategories.h"
+#include "SimTracker/TrackHistory/interface/TrackClassifier.h"
 
 #include "TrackingTools/Records/interface/TransientTrackRecord.h"
 
@@ -74,8 +74,9 @@ private:
   typedef std::vector<int> vint;
   typedef std::vector<std::string> vstring;
 
-  std::string trackCollection_;
-  std::string jetTracks_;
+  edm::InputTag trackProducer_;
+  edm::InputTag primaryVertexProducer_;
+  edm::InputTag jetTracksAssociation_;
   
   std::string rootFile_;
 
@@ -229,10 +230,8 @@ private:
     }
   };
   
-  std::string primaryVertex_;
-
   // Track classification.
-  TrackCategories classifier_;
+  TrackClassifier classifier_;
 
 };
 
@@ -240,19 +239,20 @@ private:
 //
 // constructors and destructor
 //
-OptTOA::OptTOA(const edm::ParameterSet& iConfig) : classifier_(iConfig)
+OptTOA::OptTOA(const edm::ParameterSet& config) : classifier_(config)
 {
-  trackCollection_ = iConfig.getParameter<std::string> ( "recoTrackModule" );
-  jetTracks_       = iConfig.getParameter<std::string> ( "jetTracks" ); 
+  trackProducer_         = config.getUntrackedParameter<edm::InputTag> ( "trackProducer" );
+  primaryVertexProducer_ = config.getUntrackedParameter<edm::InputTag> ( "primaryVertexProducer" );
+  jetTracksAssociation_  = config.getUntrackedParameter<edm::InputTag> ( "jetTracksAssociation" ); 
 
-  rootFile_ = iConfig.getParameter<std::string> ( "rootFile" );
+  rootFile_ = config.getUntrackedParameter<std::string> ( "rootFile" );
 
-  minimumNumberOfHits_       = iConfig.getParameter<int> ( "minimumNumberOfHits" );  
-  minimumNumberOfPixelHits_  = iConfig.getParameter<int> ( "minimumNumberOfPixelHits" );
-  minimumTransverseMomentum_ = iConfig.getParameter<double> ( "minimumTransverseMomentum" );
-  maximumChiSquared_         = iConfig.getParameter<double> ( "maximumChiSquared" );
+  minimumNumberOfHits_       = config.getUntrackedParameter<int> ( "minimumNumberOfHits" );  
+  minimumNumberOfPixelHits_  = config.getUntrackedParameter<int> ( "minimumNumberOfPixelHits" );
+  minimumTransverseMomentum_ = config.getUntrackedParameter<double> ( "minimumTransverseMomentum" );
+  maximumChiSquared_         = config.getUntrackedParameter<double> ( "maximumChiSquared" );
 
-  std::string trackQualityType = iConfig.getParameter<std::string>("trackQualityClass"); //used
+  std::string trackQualityType = config.getUntrackedParameter<std::string>("trackQualityClass"); //used
   trackQuality_ =  reco::TrackBase::qualityByName(trackQualityType);
   useAllQualities_ = false;
 
@@ -262,7 +262,6 @@ OptTOA::OptTOA(const edm::ParameterSet& iConfig) : classifier_(iConfig)
   	std::cout << "Using any" << std::endl;
     useAllQualities_ = true;
   }
-  primaryVertex_ = iConfig.getParameter<std::string> ( "primaryVertex" );
 }
 
 OptTOA::~OptTOA() {}
@@ -273,27 +272,27 @@ OptTOA::~OptTOA() {}
 
 // ------------ method called to for each event  ------------
 void
-OptTOA::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
+OptTOA::analyze(const edm::Event& event, const edm::EventSetup& setup)
 {
   // Track collection
   edm::Handle<edm::View<reco::Track> > trackCollection;
-  iEvent.getByLabel(trackCollection_,trackCollection);
+  event.getByLabel(trackProducer_,trackCollection);
   // Primary vertex
-  edm::Handle<reco::VertexCollection> primaryVertex;
-  iEvent.getByLabel(primaryVertex_, primaryVertex);  
+  edm::Handle<reco::VertexCollection> primaryVertexCollection;
+  event.getByLabel(primaryVertexProducer_, primaryVertexCollection);  
   // Jet to tracks associator
   edm::Handle<reco::JetTracksAssociationCollection> jetTracks;
-  iEvent.getByLabel(jetTracks_, jetTracks);
+  event.getByLabel(jetTracksAssociation_, jetTracks);
   // Trasient track builder
   edm::ESHandle<TransientTrackBuilder> TTbuilder;
-  iSetup.get<TransientTrackRecord>().get("TransientTrackBuilder", TTbuilder);
- 
+  setup.get<TransientTrackRecord>().get("TransientTrackBuilder", TTbuilder);
+
   // Setting up event information for the track categories.
-  classifier_.newEvent(iEvent, iSetup);
+  classifier_.newEvent(event, setup);
 
   LoopOverJetTracksAssociation(
     TTbuilder,
-    primaryVertex,
+    primaryVertexCollection,
     jetTracks
   );
 }    
@@ -301,7 +300,7 @@ OptTOA::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
 
 // ------------ method called once each job just before starting event loop  ------------
 void 
-OptTOA::beginJob(const edm::EventSetup& iSetup) 
+OptTOA::beginJob(const edm::EventSetup& setup) 
 {    
   histogram_data_.resize(5);
 }
@@ -344,7 +343,7 @@ OptTOA::endJob()
 void
 OptTOA::LoopOverJetTracksAssociation(
   const edm::ESHandle<TransientTrackBuilder> & TTbuilder,
-  const edm::Handle<reco::VertexCollection> & primaryVertex,
+  const edm::Handle<reco::VertexCollection> & primaryVertexProducer_,
   const edm::Handle<reco::JetTracksAssociationCollection> & jetTracksAssociation
 )
 {
@@ -354,10 +353,10 @@ OptTOA::LoopOverJetTracksAssociation(
   // use first pv of the collection
   reco::Vertex pv;
  
-  if(primaryVertex->size() != 0)
+  if(primaryVertexProducer_->size() != 0)
   {
     PrimaryVertexSorter pvs;
-    std::vector<reco::Vertex> sortedList = pvs.sortedList(*(primaryVertex.product()));
+    std::vector<reco::Vertex> sortedList = pvs.sortedList(*(primaryVertexProducer_.product()));
     pv = (sortedList.front());
   }
   else 
@@ -408,21 +407,30 @@ OptTOA::LoopOverJetTracksAssociation(
       double ips = IPTools::signedImpactParameter3D(transientTrack, direction, pv).second.value();
 	  double d0 = IPTools::signedTransverseImpactParameter(transientTrack, direction, pv).second.value();
       double dz = tracks[index]->dz() - pvZ;
-	  
+  
 	  // Classify the reco track;
-	  if ( classifier_.evaluate(edm::RefToBase<reco::Track>(tracks[index])) )
-	  {
-	    if ( classifier_.is(TrackCategories::Fake) )
-	      histogram_data_[4].push_back(histogram_element_t(sdl, dta, d0, dz, ips, pt, chi2, hits, pixelHits));
-        else if ( classifier_.is(TrackCategories::Bottom) )
-		  histogram_data_[0].push_back(histogram_element_t(sdl, dta, d0, dz, ips, pt, chi2, hits, pixelHits));      
-        else if ( classifier_.is(TrackCategories::Bad) )
-          histogram_data_[3].push_back(histogram_element_t(sdl, dta, d0, dz, ips, pt, chi2, hits, pixelHits));          
-        else if ( classifier_.is(TrackCategories::Displaced) )
-          histogram_data_[2].push_back(histogram_element_t(sdl, dta, d0, dz, ips, pt, chi2, hits, pixelHits));
-	    else
-	      histogram_data_[1].push_back(histogram_element_t(sdl, dta, d0, dz, ips, pt, chi2, hits, pixelHits));	    
-      }
+	  classifier_.evaluate( edm::RefToBase<reco::Track>(tracks[index]) );
+  
+      // Check for the different categories
+	  if ( classifier_.is(TrackCategories::Fake) )
+	    histogram_data_[4].push_back(histogram_element_t(sdl, dta, d0, dz, ips, pt, chi2, hits, pixelHits));
+      else if ( classifier_.is(TrackCategories::BWeakDecay) )
+        histogram_data_[0].push_back(histogram_element_t(sdl, dta, d0, dz, ips, pt, chi2, hits, pixelHits));
+      else if ( classifier_.is(TrackCategories::Bad) )
+        histogram_data_[3].push_back(histogram_element_t(sdl, dta, d0, dz, ips, pt, chi2, hits, pixelHits));
+      else if ( 
+        (
+           !classifier_.is(TrackCategories::CWeakDecay) && 
+            classifier_.is(TrackCategories::LongLivedDecay)
+        ) ||
+        classifier_.is(TrackCategories::Conversion) ||
+        classifier_.is(TrackCategories::Interaction) ||            
+        classifier_.is(TrackCategories::Unknown) 
+      )
+        histogram_data_[2].push_back(histogram_element_t(sdl, dta, d0, dz, ips, pt, chi2, hits, pixelHits));
+	  else
+	    histogram_data_[1].push_back(histogram_element_t(sdl, dta, d0, dz, ips, pt, chi2, hits, pixelHits));	    
+
 	}
   }
 }

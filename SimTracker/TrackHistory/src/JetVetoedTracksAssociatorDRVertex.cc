@@ -1,6 +1,7 @@
 
 #include "SimTracker/TrackHistory/interface/JetVetoedTracksAssociatorDRVertex.h"
 
+
 JetVetoedTracksAssociationDRVertex::JetVetoedTracksAssociationDRVertex (double dr) : mDeltaR2Threshold(dr*dr) {}
 
 
@@ -8,7 +9,7 @@ void JetVetoedTracksAssociationDRVertex::produce (
   reco::JetTracksAssociation::Container* fAssociation, 
   const std::vector<edm::RefToBase<reco::Jet> >& fJets,
   const std::vector<reco::TrackRef>& fTracks,
-  TrackCategories & classifier
+  TrackClassifier & classifier
 ) const 
 {
   // cache tracks kinematics
@@ -33,11 +34,14 @@ void JetVetoedTracksAssociationDRVertex::produce (
       if ( 
         dR2 < mDeltaR2Threshold && 
         ( 
-          classifier.is(TrackCategories::Bottom) ||
+          classifier.is(TrackCategories::BWeakDecay) ||
           ( 
             !classifier.is(TrackCategories::Fake) &&
             !classifier.is(TrackCategories::Bad) &&
-            !classifier.is(TrackCategories::Displaced) &&
+            !classifier.is(TrackCategories::KsDecay) &&
+            !classifier.is(TrackCategories::LambdaDecay) &&
+            !classifier.is(TrackCategories::Conversion) &&
+            !classifier.is(TrackCategories::Interaction) &&            
             !classifier.is(TrackCategories::Unknown) 
           ) 
         ) 
