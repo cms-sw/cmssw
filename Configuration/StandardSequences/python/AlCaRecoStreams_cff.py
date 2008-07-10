@@ -1,6 +1,41 @@
 from Configuration.StandardSequences.AlCaReco_cff import *
 from Configuration.EventContent.AlCaRecoOutput_cff import *
 
+class FilteredStream(dict):
+    """a dictionary with fixed keys"""
+    def _blocked_attribute(obj):
+        raise AttributeError, "An FilteredStream defintion cannot be modified after creation."
+    _blocked_attribute = property(_blocked_attribute)
+    __setattr__ = __delitem__ = __setitem__ = clear = _blocked_attribute
+    pop = popitem = setdefault = update = _blocked_attribute
+    def __new__(cls, *args, **kw):
+        new = dict.__new__(cls)
+        dict.__init__(new, *args, **kw)
+        keys = kw.keys()
+        keys.sort()
+        if keys != ['content', 'dataTier', 'name', 'paths', 'responsible', 'selectEvents']:
+           raise ValueError("The needed parameters are: content, dataTier, name, paths, responsible, selectEvents")
+        if not isinstance(kw['name'],str):
+           raise ValueError("name must be of type string")
+        if not isinstance(kw['content'],cms.vstring):
+           raise ValueError("content must be of type vstring")
+        if not isinstance(kw['dataTier'],cms.string):
+           raise ValueError("dataTier must be of type string")
+        if not isinstance(kw['selectEvents'],cms.PSet):
+           raise ValueError("selectEvents must be of type PSet")
+        if not isinstance(kw['paths'],(tuple,cms.Path)):
+           raise ValueError("'paths' must be a tuple of paths")
+        return new
+    def __init__(self, *args, **kw):
+        pass
+    def __repr__(self):
+        return "FilteredStream object: %s" %self["name"]
+    def __getattr__(self,attr):
+        return self[attr]
+
+
+cms.FilteredStream = FilteredStream
+
 ALCARECOTkAlMinBias = cms.FilteredStream(
 	responsible = 'Gero Flucke',
 	name = 'ALCARECOTkAlMinBias',
@@ -97,15 +132,6 @@ ALCARECOHcalCalMinBias = cms.FilteredStream(
 	paths  = (pathALCARECOHcalCalMinBias),
 	content = OutALCARECOHcalCalMinBias.outputCommands,
 	selectEvents = OutALCARECOHcalCalMinBias.SelectEvents,
-	dataTier = cms.untracked.string('ALCARECO')
-	)
-
-ALCARECOHcalCalIsoTrk = cms.FilteredStream(
-	responsible = 'Grigory Safronov',
-	name = 'ALCARECOHcalCalIsoTrk',
-	paths  = (pathALCARECOHcalCalIsoTrk),
-	content = OutALCARECOHcalCalIsoTrk.outputCommands,
-	selectEvents = OutALCARECOHcalCalIsoTrk.SelectEvents,
 	dataTier = cms.untracked.string('ALCARECO')
 	)
 
