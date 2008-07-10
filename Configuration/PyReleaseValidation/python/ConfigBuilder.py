@@ -5,7 +5,7 @@
 # creates a complete config file.
 # relval_main + the custom config for it is not needed any more
 
-__version__ = "$Revision: 1.45 $"
+__version__ = "$Revision: 1.46 $"
 __source__ = "$Source: /cvs_server/repositories/CMSSW/CMSSW/Configuration/PyReleaseValidation/python/ConfigBuilder.py,v $"
 
 import FWCore.ParameterSet.Config as cms
@@ -162,7 +162,7 @@ class ConfigBuilder(object):
                 self.imports.append('Configuration/StandardSequences/MixingNoPileUp_cff')
 
             # the geometry
-            self.imports.append('Configuration/StandardSequences/Geometry_'+self._options.geometry+'cff')
+            self.imports.append('Configuration/StandardSequences/Geometry'+self._options.geometry+'_cff')
 
         # the magnetic field
         self.imports.append('Configuration/StandardSequences/MagneticField_'+self._options.magField.replace('.','')+'_cff')
@@ -388,7 +388,7 @@ class ConfigBuilder(object):
     def build_production_info(self, evt_type, evtnumber):
         """ Add useful info for the production. """
         prod_info=cms.untracked.PSet\
-              (version=cms.untracked.string("$Revision: 1.45 $"),
+              (version=cms.untracked.string("$Revision: 1.46 $"),
                name=cms.untracked.string("PyReleaseValidation"),
                annotation=cms.untracked.string(evt_type+ " nevts:"+str(evtnumber))
               )
