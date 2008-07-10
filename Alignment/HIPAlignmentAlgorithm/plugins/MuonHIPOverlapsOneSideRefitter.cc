@@ -13,7 +13,7 @@
 //
 // Original Author:  Jim Pivarski
 //         Created:  Wed Dec 12 13:31:55 CST 2007
-// $Id: MuonHIPOverlapsOneSideRefitter.cc,v 1.2 2008/06/16 15:53:55 pivarski Exp $
+// $Id: MuonHIPOverlapsOneSideRefitter.cc,v 1.3 2008/06/19 19:58:16 pivarski Exp $
 //
 //
 
@@ -377,81 +377,83 @@ MuonHIPOverlapsOneSideRefitter::filter(edm::Event& iEvent, const edm::EventSetup
 
 	    // calculate the least-squares fit
 	    double denom = (SzzXX*(SXX*(SzzYY*SYY - pow(SzYY,2)) - pow(SzXY,2)*SYY - SzzYY*pow(SXY,2) + 2*SzXY*SzYY*SXY) + SzzXY*(SzXY*(2*SzXX*SYY + 2*SzYY*SXX) - 2*SzXX*SzYY*SXY - 2*pow(SzXY,2)*SXY) + pow(SzzXY,2)*(pow(SXY,2) - SXX*SYY) + pow(SzXX,2)*(pow(SzYY,2) - SzzYY*SYY) + 2*SzXX*SzXY*SzzYY*SXY + pow(SzXY,2)*(-SzzYY*SXX - 2*SzXX*SzYY) + pow(SzXY,4));
-	    double a = (-SzXX*(SyXY*(SzzYY*SYY - pow(SzYY,2)) + SxXX*(SzzYY*SYY - pow(SzYY,2)) + ((-SyYY - SxXY)*SzzYY + (SyzYY + SxzXY)*SzYY)*SXY) - SyzXY*(SXX*(pow(SzYY,2) - SzzYY*SYY) + SzzYY*pow(SXY,2)) - SxzXX*(SXX*(pow(SzYY,2) - SzzYY*SYY) + SzzYY*pow(SXY,2)) - SzzXY*(SXX*(SyzYY*SYY + SxzXY*SYY + (-SyYY - SxXY)*SzYY) + SzXY*(-SyXY*SYY - SxXX*SYY + (SyYY + SxXY)*SXY) + (-SyzYY - SxzXY)*pow(SXY,2) + (SyXY*SzYY + SxXX*SzYY)*SXY) - SzXY*(SzXX*(-SyzYY*SYY - SxzXY*SYY + (SyYY + SxXY)*SzYY) + (-SyXY*SzzYY - SxXX*SzzYY)*SXY - 2*SyzXY*SzYY*SXY - 2*SxzXX*SzYY*SXY + ((SyYY + SxXY)*SzzYY + (-SyzYY - SxzXY)*SzYY)*SXX) - pow(SzXY,2)*(SyzXY*SYY + SxzXX*SYY + (SyzYY + SxzXY)*SXY + SyXY*SzYY + SxXX*SzYY) - (-SyYY - SxXY)*pow(SzXY,3))/denom;
-	    double b = (SzzXX*(SyXY*(SzzYY*SYY - pow(SzYY,2)) + SxXX*(SzzYY*SYY - pow(SzYY,2)) + SzXY*(-SyzYY*SYY - SxzXY*SYY + (SyYY + SxXY)*SzYY) + ((-SyYY - SxXY)*SzzYY + (SyzYY + SxzXY)*SzYY)*SXY) + SzXX*(SyzXY*(pow(SzYY,2) - SzzYY*SYY) + SxzXX*(pow(SzYY,2) - SzzYY*SYY)) + SzzXY*(SzXX*(SyzYY*SYY + SxzXY*SYY + (-SyYY - SxXY)*SzYY) + SzXY*(SyzXY*SYY + SxzXX*SYY + (-SyzYY - SxzXY)*SXY + 2*SyXY*SzYY + 2*SxXX*SzYY) - SyzXY*SzYY*SXY - SxzXX*SzYY*SXY + (-SyYY - SxXY)*pow(SzXY,2)) + pow(SzzXY,2)*(-SyXY*SYY - SxXX*SYY + (SyYY + SxXY)*SXY) + SzXY*(SyzXY*SzzYY*SXY + SxzXX*SzzYY*SXY + SzXX*((SyYY + SxXY)*SzzYY + (-SyzYY - SxzXY)*SzYY)) + pow(SzXY,2)*(-SyXY*SzzYY - SxXX*SzzYY - SyzXY*SzYY - SxzXX*SzYY) + (SyzYY + SxzXY)*pow(SzXY,3))/denom;
-	    double c = (-SzzXY*(SyzXY*(SXX*SYY - pow(SXY,2)) + SxzXX*(SXX*SYY - pow(SXY,2)) + SzXX*(-SyXY*SYY - SxXX*SYY + (SyYY + SxXY)*SXY) + SzXY*((SyXY + SxXX)*SXY + (-SyYY - SxXY)*SXX)) - SzzXX*(SXX*(-SyzYY*SYY - SxzXY*SYY + (SyYY + SxXY)*SzYY) + SzXY*(SyXY*SYY + SxXX*SYY + (-SyYY - SxXY)*SXY) + (SyzYY + SxzXY)*pow(SXY,2) + (-SyXY*SzYY - SxXX*SzYY)*SXY) - SzXY*(SzXX*(-SyzXY*SYY - SxzXX*SYY + (-2*SyzYY - 2*SxzXY)*SXY + SyXY*SzYY + SxXX*SzYY) - SyzXY*SzYY*SXX - SxzXX*SzYY*SXX) - pow(SzXX,2)*(SyzYY*SYY + SxzXY*SYY + (-SyYY - SxXY)*SzYY) - SzXX*(SyzXY*SzYY*SXY + SxzXX*SzYY*SXY) - pow(SzXY,2)*(SyzXY*SXY + SxzXX*SXY + (SyzYY + SxzXY)*SXX + (SyYY + SxXY)*SzXX) - (-SyXY - SxXX)*pow(SzXY,3))/denom;
-	    double d = (SzzXX*(SzXY*((SyzYY + SxzXY)*SXY + SyXY*SzYY + SxXX*SzYY) + (-SyXY*SzzYY - SxXX*SzzYY)*SXY + ((SyYY + SxXY)*SzzYY + (-SyzYY - SxzXY)*SzYY)*SXX + (-SyYY - SxXY)*pow(SzXY,2)) + SzzXY*(SzXX*((-SyzYY - SxzXY)*SXY - SyXY*SzYY - SxXX*SzYY) + SzXY*(-SyzXY*SXY - SxzXX*SXY + (SyzYY + SxzXY)*SXX + (2*SyYY + 2*SxXY)*SzXX) + SyzXY*SzYY*SXX + SxzXX*SzYY*SXX + (-SyXY - SxXX)*pow(SzXY,2)) + SzXX*(SyzXY*SzzYY*SXY + SxzXX*SzzYY*SXY) + pow(SzzXY,2)*((SyXY + SxXX)*SXY + (-SyYY - SxXY)*SXX) + SzXY*(-SyzXY*SzzYY*SXX - SxzXX*SzzYY*SXX + SzXX*(SyXY*SzzYY + SxXX*SzzYY - SyzXY*SzYY - SxzXX*SzYY)) + pow(SzXX,2)*((-SyYY - SxXY)*SzzYY + (SyzYY + SxzXY)*SzYY) + (SyzXY + SxzXX)*pow(SzXY,3) + (-SyzYY - SxzXY)*SzXX*pow(SzXY,2))/denom;
+	    if (denom != 0.) {
+	       double a = (-SzXX*(SyXY*(SzzYY*SYY - pow(SzYY,2)) + SxXX*(SzzYY*SYY - pow(SzYY,2)) + ((-SyYY - SxXY)*SzzYY + (SyzYY + SxzXY)*SzYY)*SXY) - SyzXY*(SXX*(pow(SzYY,2) - SzzYY*SYY) + SzzYY*pow(SXY,2)) - SxzXX*(SXX*(pow(SzYY,2) - SzzYY*SYY) + SzzYY*pow(SXY,2)) - SzzXY*(SXX*(SyzYY*SYY + SxzXY*SYY + (-SyYY - SxXY)*SzYY) + SzXY*(-SyXY*SYY - SxXX*SYY + (SyYY + SxXY)*SXY) + (-SyzYY - SxzXY)*pow(SXY,2) + (SyXY*SzYY + SxXX*SzYY)*SXY) - SzXY*(SzXX*(-SyzYY*SYY - SxzXY*SYY + (SyYY + SxXY)*SzYY) + (-SyXY*SzzYY - SxXX*SzzYY)*SXY - 2*SyzXY*SzYY*SXY - 2*SxzXX*SzYY*SXY + ((SyYY + SxXY)*SzzYY + (-SyzYY - SxzXY)*SzYY)*SXX) - pow(SzXY,2)*(SyzXY*SYY + SxzXX*SYY + (SyzYY + SxzXY)*SXY + SyXY*SzYY + SxXX*SzYY) - (-SyYY - SxXY)*pow(SzXY,3))/denom;
+	       double b = (SzzXX*(SyXY*(SzzYY*SYY - pow(SzYY,2)) + SxXX*(SzzYY*SYY - pow(SzYY,2)) + SzXY*(-SyzYY*SYY - SxzXY*SYY + (SyYY + SxXY)*SzYY) + ((-SyYY - SxXY)*SzzYY + (SyzYY + SxzXY)*SzYY)*SXY) + SzXX*(SyzXY*(pow(SzYY,2) - SzzYY*SYY) + SxzXX*(pow(SzYY,2) - SzzYY*SYY)) + SzzXY*(SzXX*(SyzYY*SYY + SxzXY*SYY + (-SyYY - SxXY)*SzYY) + SzXY*(SyzXY*SYY + SxzXX*SYY + (-SyzYY - SxzXY)*SXY + 2*SyXY*SzYY + 2*SxXX*SzYY) - SyzXY*SzYY*SXY - SxzXX*SzYY*SXY + (-SyYY - SxXY)*pow(SzXY,2)) + pow(SzzXY,2)*(-SyXY*SYY - SxXX*SYY + (SyYY + SxXY)*SXY) + SzXY*(SyzXY*SzzYY*SXY + SxzXX*SzzYY*SXY + SzXX*((SyYY + SxXY)*SzzYY + (-SyzYY - SxzXY)*SzYY)) + pow(SzXY,2)*(-SyXY*SzzYY - SxXX*SzzYY - SyzXY*SzYY - SxzXX*SzYY) + (SyzYY + SxzXY)*pow(SzXY,3))/denom;
+	       double c = (-SzzXY*(SyzXY*(SXX*SYY - pow(SXY,2)) + SxzXX*(SXX*SYY - pow(SXY,2)) + SzXX*(-SyXY*SYY - SxXX*SYY + (SyYY + SxXY)*SXY) + SzXY*((SyXY + SxXX)*SXY + (-SyYY - SxXY)*SXX)) - SzzXX*(SXX*(-SyzYY*SYY - SxzXY*SYY + (SyYY + SxXY)*SzYY) + SzXY*(SyXY*SYY + SxXX*SYY + (-SyYY - SxXY)*SXY) + (SyzYY + SxzXY)*pow(SXY,2) + (-SyXY*SzYY - SxXX*SzYY)*SXY) - SzXY*(SzXX*(-SyzXY*SYY - SxzXX*SYY + (-2*SyzYY - 2*SxzXY)*SXY + SyXY*SzYY + SxXX*SzYY) - SyzXY*SzYY*SXX - SxzXX*SzYY*SXX) - pow(SzXX,2)*(SyzYY*SYY + SxzXY*SYY + (-SyYY - SxXY)*SzYY) - SzXX*(SyzXY*SzYY*SXY + SxzXX*SzYY*SXY) - pow(SzXY,2)*(SyzXY*SXY + SxzXX*SXY + (SyzYY + SxzXY)*SXX + (SyYY + SxXY)*SzXX) - (-SyXY - SxXX)*pow(SzXY,3))/denom;
+	       double d = (SzzXX*(SzXY*((SyzYY + SxzXY)*SXY + SyXY*SzYY + SxXX*SzYY) + (-SyXY*SzzYY - SxXX*SzzYY)*SXY + ((SyYY + SxXY)*SzzYY + (-SyzYY - SxzXY)*SzYY)*SXX + (-SyYY - SxXY)*pow(SzXY,2)) + SzzXY*(SzXX*((-SyzYY - SxzXY)*SXY - SyXY*SzYY - SxXX*SzYY) + SzXY*(-SyzXY*SXY - SxzXX*SXY + (SyzYY + SxzXY)*SXX + (2*SyYY + 2*SxXY)*SzXX) + SyzXY*SzYY*SXX + SxzXX*SzYY*SXX + (-SyXY - SxXX)*pow(SzXY,2)) + SzXX*(SyzXY*SzzYY*SXY + SxzXX*SzzYY*SXY) + pow(SzzXY,2)*((SyXY + SxXX)*SXY + (-SyYY - SxXY)*SXX) + SzXY*(-SyzXY*SzzYY*SXX - SxzXX*SzzYY*SXX + SzXX*(SyXY*SzzYY + SxXX*SzzYY - SyzXY*SzYY - SxzXX*SzYY)) + pow(SzXX,2)*((-SyYY - SxXY)*SzzYY + (SyzYY + SxzXY)*SzYY) + (SyzXY + SxzXX)*pow(SzXY,3) + (-SyzYY - SxzXY)*SzXX*pow(SzXY,2))/denom;
 
-	    double p = track->p();
-	    if (p < 1e-5) p = 1.;
-	    GlobalVector momentum = chamberSurface->toGlobal(LocalVector(a, c, 1.) / sqrt(pow(a,2) + pow(c,2) + 1.) * p);
+	       double p = track->p();
+	       if (p < 1e-5) p = 1.;
+	       GlobalVector momentum = chamberSurface->toGlobal(LocalVector(a, c, 1.) / sqrt(pow(a,2) + pow(c,2) + 1.) * p);
 
-	    double chi2 = 0.;
-	    int dof = 0;
-	    std::vector<const TrackingRecHit*>::const_iterator hit = station->begin();
-	    std::vector<double>::const_iterator xi = listx.begin();
-	    std::vector<double>::const_iterator yi = listy.begin();
-	    std::vector<double>::const_iterator zi = listz.begin();
-	    std::vector<double>::const_iterator XX = listXX.begin();
-	    std::vector<double>::const_iterator XY = listXY.begin();
-	    std::vector<double>::const_iterator YY = listYY.begin();
+	       double chi2 = 0.;
+	       int dof = 0;
+	       std::vector<const TrackingRecHit*>::const_iterator hit = station->begin();
+	       std::vector<double>::const_iterator xi = listx.begin();
+	       std::vector<double>::const_iterator yi = listy.begin();
+	       std::vector<double>::const_iterator zi = listz.begin();
+	       std::vector<double>::const_iterator XX = listXX.begin();
+	       std::vector<double>::const_iterator XY = listXY.begin();
+	       std::vector<double>::const_iterator YY = listYY.begin();
 
-	    for (;  hit != station->end();  ++hit, ++xi, ++yi, ++zi, ++XX, ++XY, ++YY) {
-	       double x = a * (*zi) + b;
-	       double y = c * (*zi) + d;
+	       for (;  hit != station->end();  ++hit, ++xi, ++yi, ++zi, ++XX, ++XY, ++YY) {
+		  double x = a * (*zi) + b;
+		  double y = c * (*zi) + d;
 
-	       double chi2i = (x - (*xi))*(x - (*xi))*(*XX) + 2*(x - (*xi))*(y - (*yi))*(*XY) + (y - (*yi))*(y - (*yi))*(*YY);
-	       chi2 += chi2i;
-	       if ((*hit)->geographicalId().subdetId() == MuonSubdetId::DT)
-		  dof += 1;
-	       else
-		  dof += 2; 
-	    }
-	    dof -= 4;
-	    
-	    if (m_debuggingHistograms) {
-	       if (dof > 0) {
-		  th1f_redchi2_10->Fill(chi2 / dof);
-		  th1f_redchi2_100->Fill(chi2 / dof);
+		  double chi2i = (x - (*xi))*(x - (*xi))*(*XX) + 2*(x - (*xi))*(y - (*yi))*(*XY) + (y - (*yi))*(y - (*yi))*(*YY);
+		  chi2 += chi2i;
+		  if ((*hit)->geographicalId().subdetId() == MuonSubdetId::DT)
+		     dof += 1;
+		  else
+		     dof += 2; 
 	       }
-	    }
+	       dof -= 4;
+	    
+	       if (m_debuggingHistograms) {
+		  if (dof > 0) {
+		     th1f_redchi2_10->Fill(chi2 / dof);
+		     th1f_redchi2_100->Fill(chi2 / dof);
+		  }
+	       }
 
-	    if (!m_filterMode  ||  (dof >= m_minDOF  &&  chi2 / dof < m_maxRedChi2)) {
-	       tracklets++;
+	       if (!m_filterMode  ||  (dof >= m_minDOF  &&  chi2 / dof < m_maxRedChi2)) {
+		  tracklets++;
 
-	       hit = station->begin();
-	       xi = listx.begin();
-	       yi = listy.begin();
-	       zi = listz.begin();
-	       XX = listXX.begin();
-	       XY = listXY.begin();
-	       YY = listYY.begin();
-	       std::vector<TrajectoryMeasurement::ConstRecHitPointer>::const_iterator transHitPtr = transHits.begin();
-	       for (;  hit != station->end();  ++hit, ++xi, ++yi, ++zi, ++XX, ++XY, ++YY, ++transHitPtr) {
-		  // must be synchronized with transHits (see above)
-		  if (m_plusIsReference != onPlusSide(*hit, &*dtGeometry, &*cscGeometry)) {
-		     double x = a * (*zi) + b;
-		     double y = c * (*zi) + d;
+		  hit = station->begin();
+		  xi = listx.begin();
+		  yi = listy.begin();
+		  zi = listz.begin();
+		  XX = listXX.begin();
+		  XY = listXY.begin();
+		  YY = listYY.begin();
+		  std::vector<TrajectoryMeasurement::ConstRecHitPointer>::const_iterator transHitPtr = transHits.begin();
+		  for (;  hit != station->end();  ++hit, ++xi, ++yi, ++zi, ++XX, ++XY, ++YY, ++transHitPtr) {
+		     // must be synchronized with transHits (see above)
+		     if (m_plusIsReference != onPlusSide(*hit, &*dtGeometry, &*cscGeometry)) {
+			double x = a * (*zi) + b;
+			double y = c * (*zi) + d;
 
-		     GlobalPoint position = chamberSurface->toGlobal(LocalPoint(x, y, (*zi)));
-		     DetId id = (*hit)->geographicalId();
+			GlobalPoint position = chamberSurface->toGlobal(LocalPoint(x, y, (*zi)));
+			DetId id = (*hit)->geographicalId();
 
-		     GlobalTrajectoryParameters globalTrajectoryParameters(position, momentum, track->charge(), &*magneticField);
-		     AlgebraicSymMatrix66 error;
-		     error(0,0) = 1e-6 * position.x();
-		     error(1,1) = 1e-6 * position.y();
-		     error(2,2) = 1e-6 * position.z();
-		     error(3,3) = 1e-6 * momentum.x();
-		     error(4,4) = 1e-6 * momentum.y();
-		     error(5,5) = 1e-6 * momentum.z();
+			GlobalTrajectoryParameters globalTrajectoryParameters(position, momentum, track->charge(), &*magneticField);
+			AlgebraicSymMatrix66 error;
+			error(0,0) = 1e-6 * position.x();
+			error(1,1) = 1e-6 * position.y();
+			error(2,2) = 1e-6 * position.z();
+			error(3,3) = 1e-6 * momentum.x();
+			error(4,4) = 1e-6 * momentum.y();
+			error(5,5) = 1e-6 * momentum.z();
 
-		     clonedHits.push_back((*hit)->clone());
-		     TSOSes.push_back(TrajectoryStateOnSurface(globalTrajectoryParameters, CartesianTrajectoryError(error),
-							       id.subdetId() == MuonSubdetId::DT ? dtGeometry->idToDet(id)->surface() : cscGeometry->idToDet(id)->surface()));
-		  } // end if we use hits from this side
-	       } // end loop over hits
-	    } // end if we're filtering
+			clonedHits.push_back((*hit)->clone());
+			TSOSes.push_back(TrajectoryStateOnSurface(globalTrajectoryParameters, CartesianTrajectoryError(error),
+								  id.subdetId() == MuonSubdetId::DT ? dtGeometry->idToDet(id)->surface() : cscGeometry->idToDet(id)->surface()));
+		     } // end if we use hits from this side
+		  } // end loop over hits
+	       } // end if we're filtering
 
+	    } // end if denominator is non-zero
 	 } // end if there are any hits to work with
       } // end loop over stations
 
