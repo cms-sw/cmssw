@@ -16,7 +16,7 @@ struct GzInputStream
  {
   typedef voidp gzFile ;
   gzFile gzf ;
-  char buffer[10000] ;
+  char buffer[256] ;
   std::istringstream iss ;
   bool eof ;
   GzInputStream( const char * file )
@@ -32,7 +32,7 @@ struct GzInputStream
    }
   void readLine()
    {
-    char * res = gzgets(gzf,buffer,10000) ;
+    char * res = gzgets(gzf,buffer,256) ;
     eof = (res==Z_NULL) ;
     if (!eof)
      {
