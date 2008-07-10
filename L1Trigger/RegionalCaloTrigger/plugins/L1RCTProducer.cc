@@ -4,6 +4,14 @@
 #include "DataFormats/EcalDigi/interface/EcalDigiCollections.h"
 #include "DataFormats/HcalDigi/interface/HcalDigiCollections.h"
 
+// default scales
+#include "CondFormats/L1TObjects/interface/L1CaloEcalScale.h"
+#include "CondFormats/DataRecord/interface/L1CaloEcalScaleRcd.h"
+#include "CondFormats/L1TObjects/interface/L1CaloHcalScale.h"
+#include "CondFormats/DataRecord/interface/L1CaloHcalScaleRcd.h"
+
+// debug scales
+#include "CalibCalorimetry/EcalTPGTools/interface/EcalTPGScale.h"
 #include "CalibFormats/CaloTPG/interface/CaloTPGTranscoder.h"
 #include "CalibFormats/CaloTPG/interface/CaloTPGRecord.h"
 
@@ -14,12 +22,10 @@
 #include "CondFormats/DataRecord/interface/L1RCTParametersRcd.h"
 #include "CondFormats/L1TObjects/interface/L1RCTChannelMask.h"
 #include "CondFormats/DataRecord/interface/L1RCTChannelMaskRcd.h"
-#include "CondFormats/EcalObjects/interface/EcalTPGScale.h"
 
 #include "L1Trigger/RegionalCaloTrigger/interface/L1RCT.h"
 #include "L1Trigger/RegionalCaloTrigger/interface/L1RCTLookupTables.h" 
 
-//#include "FWCore/Utilities/interface/Exception.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 
 #include <vector>
@@ -36,8 +42,7 @@ L1RCTProducer::L1RCTProducer(const edm::ParameterSet& conf) :
   useHcal(conf.getParameter<bool>("useHcal")),
   ecalDigisLabel(conf.getParameter<edm::InputTag>("ecalDigisLabel")),
   hcalDigisLabel(conf.getParameter<edm::InputTag>("hcalDigisLabel")),
-  ecalESLabel(conf.getParameter<std::string>("ecalESLabel")),
-  hcalESLabel(conf.getParameter<std::string>("hcalESLabel")),
+  useDebugTpgScales(conf.getParameter<bool>("useDebugTpgScales")),
   useHcalCosmicTiming(conf.getParameter<bool>("useHcalCosmicTiming")),
   useEcalCosmicTiming(conf.getParameter<bool>("useEcalCosmicTiming")),
   preSamples(conf.getParameter<unsigned>("preSamples")),
@@ -65,27 +70,135 @@ void L1RCTProducer::produce(edm::Event& event, const edm::EventSetup& eventSetup
   // There should be a call back function in future to
   // handle changes in configuration
 
+  // parameters to configure RCT (thresholds, etc)
   edm::ESHandle<L1RCTParameters> rctParameters;
   eventSetup.get<L1RCTParametersRcd>().get(rctParameters);
   const L1RCTParameters* r = rctParameters.product();
+
+  // list of RCT channels to mask
   edm::ESHandle<L1RCTChannelMask> channelMask;
   eventSetup.get<L1RCTChannelMaskRcd>().get(channelMask);
   const L1RCTChannelMask* c = channelMask.product();
-  edm::ESHandle<CaloTPGTranscoder> transcoder;
-  eventSetup.get<CaloTPGRecord>().get(hcalESLabel, transcoder);
-  const CaloTPGTranscoder* t = transcoder.product();
+  
+  // energy scale to convert eGamma output
   edm::ESHandle<L1CaloEtScale> emScale;
   eventSetup.get<L1EmEtScaleRcd>().get(emScale);
   const L1CaloEtScale* s = emScale.product();
 
-  EcalTPGScale* e = new EcalTPGScale();
-  e->setEventSetup(eventSetup);
-
   rctLookupTables->setRCTParameters(r);
   rctLookupTables->setChannelMask(c);
-  rctLookupTables->setTranscoder(t);
   rctLookupTables->setL1CaloEtScale(s);
-  rctLookupTables->setEcalTPGScale(e);
+
+  // use these dummies to get the delete right when using old-style
+  // scales to create set of L1CaloXcalScales
+  L1CaloEcalScale* dummyE(0);
+  L1CaloHcalScale* dummyH(0);
+
+  if (useDebugTpgScales) // generate new-style scales from tpg scales
+    {
+
+      std::cout << "Using old-style TPG scales!" << endl;
+
+      // old version of hcal energy scale to convert input
+      edm::ESHandle<CaloTPGTranscoder> transcoder;
+      eventSetup.get<CaloTPGRecord>().get(transcoder);
+      const CaloTPGTranscoder* h_tpg = transcoder.product();
+
+      // old version of ecal energy scale to convert input
+      EcalTPGScale* e_tpg = new EcalTPGScale();
+      e_tpg->setEventSetup(eventSetup);
+
+      L1CaloEcalScale* ecalScale = new L1CaloEcalScale();
+      L1CaloHcalScale* hcalScale = new L1CaloHcalScale();
+
+      // generate L1CaloXcalScales from old-style scales (thanks, werner!)
+      // ECAL
+      //std::cout << "ECAL Pos " << L1CaloEcalScale::nBinRank << std::endl ;
+      for( unsigned short ieta = 1 ; ieta <= L1CaloEcalScale::nBinEta; ++ieta )
+	{
+	  for( unsigned short irank = 0 ; irank < L1CaloEcalScale::nBinRank; ++irank )
+	    {
+	      //std::cout << ieta << " " << irank ;
+	      EcalSubdetector subdet = ( ieta <= 17 ) ? EcalBarrel : EcalEndcap ;
+	      double etGeVPos =
+		e_tpg->getTPGInGeV
+		( irank, EcalTrigTowerDetId(1, // +ve eta
+					    subdet,
+					    ieta,
+					    1 )); // dummy phi value
+	      ecalScale->setBin( irank, ieta, 1, etGeVPos ) ;
+	      //std::cout << etGeVPos << ", " ;
+	    }
+	  //std::cout << std::endl ;
+	}
+      //std::cout << std::endl ;
+      
+      //std::cout << "ECAL Neg" << std::endl ;
+      for( unsigned short ieta = 1 ; ieta <= L1CaloEcalScale::nBinEta; ++ieta )
+	{
+	  for( unsigned short irank = 0 ; irank < L1CaloEcalScale::nBinRank; ++irank )
+	    {
+	      EcalSubdetector subdet = ( ieta <= 17 ) ? EcalBarrel : EcalEndcap ;
+	      
+	      //std::cout << ieta << " " << irank ;
+	      double etGeVNeg =
+		e_tpg->getTPGInGeV
+		( irank,
+		  EcalTrigTowerDetId(-1, // -ve eta
+				     subdet,
+				     ieta,
+				     2 )); // dummy phi value
+	      ecalScale->setBin( irank, ieta, -1, etGeVNeg ) ;
+	      //std::cout << etGeVNeg << ", " ;
+	    }
+	  //std::cout << std::endl ;
+	}
+      //std::cout << std::endl ;
+
+      // HCAL
+      //std::cout << "HCAL" << std::endl ;
+      for( unsigned short ieta = 1 ; ieta <= L1CaloHcalScale::nBinEta; ++ieta )
+	{
+	  for( unsigned short irank = 0 ; irank < L1CaloHcalScale::nBinRank; ++irank )
+	    {
+	      double etGeV = h_tpg->hcaletValue( ieta, irank ) ;
+
+	      hcalScale->setBin( irank, ieta, 1, etGeV ) ;
+	      hcalScale->setBin( irank, ieta, -1, etGeV ) ;
+	      //std::cout << etGeV << ", " ;
+	    }
+	  //std::cout << std::endl ;
+	}
+      //std::cout << std::endl ;
+
+      // set the input scales
+      rctLookupTables->setEcalScale(ecalScale);
+      rctLookupTables->setHcalScale(hcalScale);
+
+      dummyE = ecalScale;
+      dummyH = hcalScale;
+
+      delete e_tpg;
+
+    }
+  else
+    {
+
+      // get energy scale to convert input from ECAL
+      edm::ESHandle<L1CaloEcalScale> ecalScale;
+      eventSetup.get<L1CaloEcalScaleRcd>().get(ecalScale);
+      const L1CaloEcalScale* e = ecalScale.product();
+      
+      // get energy scale to convert input from HCAL
+      edm::ESHandle<L1CaloHcalScale> hcalScale;
+      eventSetup.get<L1CaloHcalScaleRcd>().get(hcalScale);
+      const L1CaloHcalScale* h = hcalScale.product();
+
+      // set scales
+      rctLookupTables->setEcalScale(e);
+      rctLookupTables->setHcalScale(h);
+
+    }
 
   edm::Handle<EcalTrigPrimDigiCollection> ecal;
   edm::Handle<HcalTrigPrimDigiCollection> hcal;
@@ -120,7 +233,7 @@ void L1RCTProducer::produce(edm::Event& event, const edm::EventSetup& eventSetup
 			<< ecal_it->compressedEt() << std::endl;
 	    }
 	  */
-	  // loop through time samples for each digi
+	  // loop through requested time samples for each digi
 	  unsigned short digiSize = ecal_it->size();
 	  // (size of each digi must be no less than nSamples)
 	  unsigned short nSOI = (unsigned short) ( ecal_it->
@@ -167,7 +280,6 @@ void L1RCTProducer::produce(edm::Event& event, const edm::EventSetup& eventSetup
 
 		  if (useEcalCosmicTiming && iphi >= 1 && iphi <= 36)
 		    {
-		      //if (nSOI == 0)
 		      if (nSOI < (preSamples + 1))
 			{
 			  edm::LogWarning ("TooLittleData")
@@ -245,7 +357,6 @@ void L1RCTProducer::produce(edm::Event& event, const edm::EventSetup& eventSetup
 
 		  if (useEcalCosmicTiming && iphi >= 1 && iphi <=36)
 		    {
-		      //if (nSOI == 0)
 		      if (nSOI < (preSamples + 1))
 			{
 			  edm::LogWarning ("TooLittleData")
@@ -347,8 +458,6 @@ void L1RCTProducer::produce(edm::Event& event, const edm::EventSetup& eventSetup
 		  */
 		  if (useHcalCosmicTiming && iphi >= 1 && iphi <= 36)
 		    {
-		      //if (hcal_it->presamples() == 0)
-		      //if (nSOI == 0)
 		      if (nSOI < (preSamples + 1))
 			{
 			  edm::LogWarning ("TooLittleData")
@@ -404,9 +513,6 @@ void L1RCTProducer::produce(edm::Event& event, const edm::EventSetup& eventSetup
 	      for (unsigned short sample = 0; sample < nSamples; sample++)
 		{
 		  // put each (relevant) time sample into its own digi
-		  //HcalTriggerPrimitiveDigi hcalDigi(HcalTrigTowerDetId
-		  //			    ((int) hcal_it->id().ieta(),
-		  //			     (int) hcal_it->id().iphi()));
 		  HcalTriggerPrimitiveDigi hcalDigi(HcalTrigTowerDetId(
 						    (int) ieta, (int) iphi));
 		  hcalDigi.setSize(1);
@@ -425,8 +531,6 @@ void L1RCTProducer::produce(edm::Event& event, const edm::EventSetup& eventSetup
 		  */
 		  if (useHcalCosmicTiming && iphi >= 1 && iphi <= 36)
 		    {
-		      //if (hcal_it->presamples() == 0)
-		      //if (nSOI == 0)
 		      if (nSOI < (preSamples + 1))
 			{
 			  edm::LogWarning ("TooLittleData")
@@ -465,8 +569,6 @@ void L1RCTProducer::produce(edm::Event& event, const edm::EventSetup& eventSetup
 	    }
 	}
     }
-
-  //rct->digiInput(ecalColl, hcalColl);
 
   std::auto_ptr<L1CaloEmCollection> rctEmCands (new L1CaloEmCollection);
   std::auto_ptr<L1CaloRegionCollection> rctRegions (new L1CaloRegionCollection);
@@ -508,5 +610,7 @@ void L1RCTProducer::produce(edm::Event& event, const edm::EventSetup& eventSetup
   event.put(rctEmCands);
   event.put(rctRegions);
 
-  delete e;
+  if (dummyE != 0) delete dummyE;
+  if (dummyH != 0) delete dummyH;
+
 }

@@ -12,9 +12,9 @@ using std::endl;
 
 #include "CondFormats/L1TObjects/interface/L1RCTParameters.h"
 #include "CondFormats/L1TObjects/interface/L1RCTChannelMask.h"
-#include "CalibFormats/CaloTPG/interface/CaloTPGTranscoder.h"
+#include "CondFormats/L1TObjects/interface/L1CaloEcalScale.h"
+#include "CondFormats/L1TObjects/interface/L1CaloHcalScale.h"
 #include "CondFormats/L1TObjects/interface/L1CaloEtScale.h"
-#include "CondFormats/EcalObjects/interface/EcalTPGScale.h"
 
 unsigned int L1RCTLookupTables::lookup(unsigned short ecalInput,
 				       unsigned short hcalInput,
@@ -38,7 +38,6 @@ unsigned int L1RCTLookupTables::lookup(unsigned short ecalInput,
   if(fgbit > 1) 
     throw cms::Exception("Invalid Data") 
       << "ECAL finegrain should be a single bit, is " << fgbit;
-  //unsigned short iAbsEta = rctParameters_->calcIAbsEta(crtNo, crdNo, twrNo);
   short iEta = (short) rctParameters_->calcIEta(crtNo, crdNo, twrNo);
   unsigned short iAbsEta = (unsigned short) abs(iEta);
   short sign = iEta/iAbsEta;
@@ -56,7 +55,7 @@ unsigned int L1RCTLookupTables::lookup(unsigned short ecalInput,
     }
   else
     {
-      ecal = convertEcal(ecalInput, iAbsEta, iPhi, sign);
+      ecal = convertEcal(ecalInput, iAbsEta, sign);
     }
   // masking off hcal for channels in channel mask
   if (channelMask_->hcalMask[crtNo][phiSide][iAbsEta])
@@ -65,7 +64,7 @@ unsigned int L1RCTLookupTables::lookup(unsigned short ecalInput,
     }
   else
     {
-      hcal = convertHcal(hcalInput, iAbsEta);
+      hcal = convertHcal(hcalInput, iAbsEta, sign);
     }
   // couts!
   //std::cout << "LUTs: ecalInput=" << ecalInput << " ecalConverted="
@@ -73,12 +72,12 @@ unsigned int L1RCTLookupTables::lookup(unsigned short ecalInput,
   unsigned long etIn7Bits;
   unsigned long etIn9Bits;
   // Saturated input towers cause tower ET pegging at the highest value
-  if(ecalInput == 0xFF || hcalInput == 0xFF)
+  /*if(ecalInput == 0xFF || hcalInput == 0xFF)
     {
       etIn7Bits = 0x7F;
       etIn9Bits = 0x1FF;
-    }
-  else if((ecalInput == 0 && hcalInput > 0) &&
+      }*/
+  /*else*/ if((ecalInput == 0 && hcalInput > 0) &&
   	  ((rctParameters_->noiseVetoHB() && iAbsEta > 0 && iAbsEta < 18)
   	   || (rctParameters_->noiseVetoHEplus() && iAbsEta>17 && crtNo>8)
   	   || (rctParameters_->noiseVetoHEminus() && iAbsEta>17 && crtNo<9)))
@@ -90,25 +89,44 @@ unsigned int L1RCTLookupTables::lookup(unsigned short ecalInput,
     {
       etIn7Bits = eGammaETCode(ecal, hcal, iAbsEta);
       etIn9Bits = jetMETETCode(ecal, hcal, iAbsEta);
-      /*
-      if (etIn7Bits > 0)
-	{
-	  std::cout << "LUTs: ecalInput=" << ecalInput << " hcalInput=" 
-	  << hcalInput << " ecal=" << ecal << " hcal=" << hcal 
-	  << " etIn7Bits=" << etIn7Bits << " etIn9Bits="
-	  << etIn9Bits << std::endl;
-	}
-      */
     }
-  /*
-  std::cout << "LUTs: ecalInput=" << ecalInput << " hcalInput=" 
-	    << hcalInput << " ecal=" << ecal << " hcal=" << hcal 
-	    << " etIn7Bits=" << etIn7Bits << " etIn9Bits="
-	    << etIn9Bits << std::endl;
-  */
+  // Saturated input towers cause tower ET pegging at the highest value
+  if((ecalInput == 0xFF && 
+      rctParameters_->eGammaECalScaleFactors()[iAbsEta-1] != 0. ) 
+     || (hcalInput == 0xFF &&
+	 rctParameters_->eGammaHCalScaleFactors()[iAbsEta-1] != 0. )
+     )
+    {
+      etIn7Bits = 0x7F; // egamma path
+    }
+  if((ecalInput == 0xFF &&
+      rctParameters_->jetMETECalScaleFactors()[iAbsEta-1] != 0. )
+     || (hcalInput == 0xFF &&
+	 rctParameters_->jetMETHCalScaleFactors()[iAbsEta-1] != 0. ))
+    {
+      etIn9Bits = 0x1FF; // sums path
+    }
+
   unsigned long shiftEtIn9Bits = etIn9Bits<<8;
   unsigned long shiftHE_FGBit = hOeFGVetoBit(ecal, hcal, fgbit)<<7;
-  unsigned long shiftActivityBit = activityBit(ecal, hcal)<<17;
+  unsigned long shiftActivityBit = 0;
+  if ( rctParameters_->jetMETECalScaleFactors()[iAbsEta-1] == 0.
+       && rctParameters_->jetMETHCalScaleFactors()[iAbsEta-1] == 0. )
+    {
+      // do nothing, it's already zero
+    }
+  else if (rctParameters_->jetMETECalScaleFactors()[iAbsEta-1] == 0. )
+    {
+      shiftActivityBit = activityBit(0., hcal)<<17;
+    }
+  else if (rctParameters_->jetMETHCalScaleFactors()[iAbsEta-1] == 0. )
+    {
+      shiftActivityBit = activityBit(ecal, 0.)<<17;
+    }
+  else
+    {
+      shiftActivityBit = activityBit(ecal, hcal)<<17;
+    }
   unsigned long output=etIn7Bits+shiftHE_FGBit+shiftEtIn9Bits+shiftActivityBit;
   return output;
 }
@@ -128,7 +146,9 @@ unsigned int L1RCTLookupTables::lookup(unsigned short hfInput,
   if(hfInput > 0xFF) 
     throw cms::Exception("Invalid Data") 
       << "HF compressedET should be less than 0xFF, is " << hfInput;
-  unsigned short iAbsEta = rctParameters_->calcIAbsEta(crtNo, crdNo, twrNo);
+  short iEta = rctParameters_->calcIEta(crtNo, crdNo, twrNo);
+  unsigned short iAbsEta = abs(iEta);
+  short sign = (iEta/iAbsEta);
   unsigned short phiSide = twrNo/4;
   if(iAbsEta < 29 || iAbsEta > 32) 
     throw cms::Exception("Invalid Data") 
@@ -140,7 +160,7 @@ unsigned int L1RCTLookupTables::lookup(unsigned short hfInput,
     }
   else
     {
-      et = convertHcal(hfInput, iAbsEta);
+      et = convertHcal(hfInput, iAbsEta, sign);
     }
   return convertToInteger(et, rctParameters_->jetMETLSB(), 8);
 }
@@ -191,29 +211,14 @@ unsigned int L1RCTLookupTables::emRank(unsigned short energy) const
 }
 
 // converts compressed ecal energy to linear (real) scale
-float L1RCTLookupTables::convertEcal(unsigned short ecal, unsigned short iAbsEta, unsigned short iRctPhi, short sign) const
+float L1RCTLookupTables::convertEcal(unsigned short ecal, unsigned short iAbsEta, short sign) const
 {
   if(ecalScale_)
     {
-      // ieta iphi etc need to be the CAL (global) version!!
-      unsigned short iPhi = (72 + 18 - iRctPhi) % 72;
-      if (iPhi == 0) 
-	{
-	  iPhi = 72;
-	}
       //std::cout << "[luts] energy " << ecal << " sign " << sign 
       //<< " iAbsEta " << iAbsEta << " iPhi "	<< iPhi << std::endl;
       float dummy = 0;
-      if (iAbsEta <= 17)
-	{
-	  //dummy = float (ecalScale_->getLinearizedTPG( (uint) ecal, EcalTrigTowerDetId(sign, EcalBarrel, iAbsEta, iPhi)));
-	  dummy = float (ecalScale_->getTPGInGeV( (uint) ecal, EcalTrigTowerDetId(sign, EcalBarrel, iAbsEta, iPhi)));	
-	}
-      else
-	{
-	  //dummy = float (ecalScale_->getLinearizedTPG( (uint) ecal, EcalTrigTowerDetId(sign, EcalEndcap, iAbsEta, iPhi)));
-	  dummy = float (ecalScale_->getTPGInGeV( (uint) ecal, EcalTrigTowerDetId(sign, EcalEndcap, iAbsEta, iPhi)));	
-	}
+      dummy = float (ecalScale_->et( ecal, iAbsEta, sign ));
       /*
       if (ecal > 0)
 	{
@@ -235,11 +240,11 @@ float L1RCTLookupTables::convertEcal(unsigned short ecal, unsigned short iAbsEta
 }
 
 // converts compressed hcal energy to linear (real) scale
-float L1RCTLookupTables::convertHcal(unsigned short hcal, unsigned short iAbsEta) const
+float L1RCTLookupTables::convertHcal(unsigned short hcal, unsigned short iAbsEta, short sign) const
 {
-  if(transcoder_ != 0)
+  if (hcalScale_ != 0)
     {
-      return (transcoder_->hcaletValue(iAbsEta, hcal));
+      return (hcalScale_->et( hcal, iAbsEta, sign ));
     }
   else
     {

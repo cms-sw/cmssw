@@ -3,14 +3,19 @@
 #include "DataFormats/EcalDigi/interface/EcalDigiCollections.h"
 #include "DataFormats/HcalDigi/interface/HcalDigiCollections.h"
 
-#include "CalibFormats/CaloTPG/interface/CaloTPGTranscoder.h"
-#include "CalibFormats/CaloTPG/interface/CaloTPGRecord.h"
+#include "CondFormats/L1TObjects/interface/L1CaloHcalScale.h"
+#include "CondFormats/DataRecord/interface/L1CaloHcalScaleRcd.h"
+#include "CondFormats/L1TObjects/interface/L1CaloEcalScale.h"
+#include "CondFormats/DataRecord/interface/L1CaloEcalScaleRcd.h"
 
 #include "CondFormats/L1TObjects/interface/L1CaloEtScale.h"
 #include "CondFormats/DataRecord/interface/L1EmEtScaleRcd.h"
 
 #include "CondFormats/L1TObjects/interface/L1RCTParameters.h"
 #include "CondFormats/DataRecord/interface/L1RCTParametersRcd.h"
+
+#include "CondFormats/L1TObjects/interface/L1RCTChannelMask.h"
+#include "CondFormats/DataRecord/interface/L1RCTChannelMaskRcd.h"
 
 #include "L1Trigger/RegionalCaloTrigger/interface/L1RCT.h"
 #include "L1Trigger/RegionalCaloTrigger/interface/L1RCTLookupTables.h" 
@@ -65,14 +70,23 @@ void L1RCTInputProducer::produce(edm::Event& event, const edm::EventSetup& event
   edm::ESHandle<L1RCTParameters> rctParameters;
   eventSetup.get<L1RCTParametersRcd>().get(rctParameters);
   const L1RCTParameters* r = rctParameters.product();
-  edm::ESHandle<CaloTPGTranscoder> transcoder;
-  eventSetup.get<CaloTPGRecord>().get(transcoder);
-  const CaloTPGTranscoder* t = transcoder.product();
+  edm::ESHandle<L1RCTChannelMask> channelMask;
+  eventSetup.get<L1RCTChannelMaskRcd>().get(channelMask);
+  const L1RCTChannelMask* c = channelMask.product();
+  edm::ESHandle<L1CaloEcalScale> ecalScale;
+  eventSetup.get<L1CaloEcalScaleRcd>().get(ecalScale);
+  const L1CaloEcalScale* e = ecalScale.product();
+  edm::ESHandle<L1CaloHcalScale> hcalScale;
+  eventSetup.get<L1CaloHcalScaleRcd>().get(hcalScale);
+  const L1CaloHcalScale* h = hcalScale.product();
   edm::ESHandle<L1CaloEtScale> emScale;
   eventSetup.get<L1EmEtScaleRcd>().get(emScale);
   const L1CaloEtScale* s = emScale.product();
+
   rctLookupTables->setRCTParameters(r);
-  rctLookupTables->setTranscoder(t);
+  rctLookupTables->setChannelMask(c);
+  rctLookupTables->setHcalScale(h);
+  rctLookupTables->setEcalScale(e);
   rctLookupTables->setL1CaloEtScale(s);
 
   edm::Handle<EcalTrigPrimDigiCollection> ecal;

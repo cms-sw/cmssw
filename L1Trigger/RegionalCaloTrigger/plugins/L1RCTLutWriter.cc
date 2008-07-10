@@ -7,11 +7,19 @@
 #include "CondFormats/L1TObjects/interface/L1RCTChannelMask.h"
 #include "CondFormats/DataRecord/interface/L1RCTChannelMaskRcd.h"
 
+// default scales
+#include "CondFormats/DataRecord/interface/L1CaloEcalScaleRcd.h"
+#include "CondFormats/L1TObjects/interface/L1CaloEcalScale.h"
+#include "CondFormats/DataRecord/interface/L1CaloHcalScaleRcd.h"
+#include "CondFormats/L1TObjects/interface/L1CaloHcalScale.h"
+
+// debug scales
+#include "CalibCalorimetry/EcalTPGTools/interface/EcalTPGScale.h"
+#include "CalibFormats/CaloTPG/interface/CaloTPGTranscoder.h"
 #include "CalibFormats/CaloTPG/interface/CaloTPGRecord.h"
 
 #include "CondFormats/DataRecord/interface/L1EmEtScaleRcd.h"
-
-#include "CalibCalorimetry/EcalTPGTools/interface/EcalTPGScale.h"
+#include "CondFormats/L1TObjects/interface/L1CaloEtScale.h"
 
 //
 // constants, enums and typedefs
@@ -25,7 +33,9 @@
 // constructors and destructor
 //
 L1RCTLutWriter::L1RCTLutWriter(const edm::ParameterSet& iConfig) :
-  lookupTable_(new L1RCTLookupTables)
+  lookupTable_(new L1RCTLookupTables),
+  keyName_(iConfig.getParameter<std::string>("key")),
+  useDebugTpgScales_(iConfig.getParameter<bool>("useDebugTpgScales"))
 {
    //now do what ever initialization is needed
  
@@ -35,7 +45,7 @@ L1RCTLutWriter::L1RCTLutWriter(const edm::ParameterSet& iConfig) :
 L1RCTLutWriter::~L1RCTLutWriter()
 {
  
-   // do anything here that needs to be done at desctruction time
+   // do anything here that needs to be done at destruction time
    // (e.g. close files, deallocate resources etc.)
   
   if (lookupTable_ != 0) delete lookupTable_;
@@ -66,21 +76,16 @@ L1RCTLutWriter::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
    // in the lookuptable
    edm::ESHandle<L1RCTParameters> rctParameters;
    iSetup.get<L1RCTParametersRcd>().get(rctParameters);
-   //const L1RCTParameters* r = rctParameters.product();
    rctParameters_ = rctParameters.product();
-   // don't get channel mask, make dummy below
-   //edm::ESHandle<L1RCTChannelMask> channelMask;
-   //iSetup.get<L1RCTChannelMaskRcd>().get(channelMask);
-   //const L1RCTChannelMask* m = channelMask.product();
-   edm::ESHandle<CaloTPGTranscoder> transcoder;
-   iSetup.get<CaloTPGRecord>().get(transcoder);
-   const CaloTPGTranscoder* t = transcoder.product();
+   //   edm::ESHandle<L1CaloHcalScale> hcalScale;
+   //   iSetup.get<L1CaloHcalScaleRcd>().get(hcalScale);
+   //   const L1CaloHcalScale* h = hcalScale.product();
+   //   edm::ESHandle<L1CaloEcalScale> ecalScale;
+   //   iSetup.get<L1CaloEcalScaleRcd>().get(ecalScale);
+   //   const L1CaloEcalScale* e = ecalScale.product();
    edm::ESHandle<L1CaloEtScale> emScale;
    iSetup.get<L1EmEtScaleRcd>().get(emScale);
    const L1CaloEtScale* s = emScale.product();
-
-   EcalTPGScale* e = new EcalTPGScale();
-   e->setEventSetup(iSetup);
 
    // make dummy channel mask -- we don't want to mask
    // any channels when writing LUTs, that comes afterwards
@@ -101,12 +106,109 @@ L1RCTLutWriter::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
 	 }
      }
    
+  // use these dummies to get the delete right when using old-style
+  // scales to create set of L1CaloXcalScales
+  L1CaloEcalScale* dummyE(0);
+  L1CaloHcalScale* dummyH(0);
+
+  if (useDebugTpgScales_) // generate new-style scales from tpg scales
+    {
+
+      std::cout << "Using old-style TPG scales!" << endl;
+
+      // old version of hcal energy scale to convert input
+      edm::ESHandle<CaloTPGTranscoder> transcoder;
+      iSetup.get<CaloTPGRecord>().get(transcoder);
+      const CaloTPGTranscoder* h_tpg = transcoder.product();
+
+      // old version of ecal energy scale to convert input
+      EcalTPGScale* e_tpg = new EcalTPGScale();
+      e_tpg->setEventSetup(iSetup);
+
+      L1CaloEcalScale* ecalScale = new L1CaloEcalScale();
+      L1CaloHcalScale* hcalScale = new L1CaloHcalScale();
+
+      // generate L1CaloXcalScales from old-style scales (thanks, werner!)
+
+      // ECAL
+      for( unsigned short ieta = 1 ; ieta <= L1CaloEcalScale::nBinEta; ++ieta )
+	{
+	  for( unsigned short irank = 0 ; irank < L1CaloEcalScale::nBinRank; ++irank )
+	    {
+	      EcalSubdetector subdet = ( ieta <= 17 ) ? EcalBarrel : EcalEndcap ;
+	      double etGeVPos =
+		e_tpg->getTPGInGeV
+		( irank, EcalTrigTowerDetId(1, // +ve eta
+					    subdet,
+					    ieta,
+					    1 )); // dummy phi value
+	      ecalScale->setBin( irank, ieta, 1, etGeVPos ) ;
+	    }
+	}
+      
+      for( unsigned short ieta = 1 ; ieta <= L1CaloEcalScale::nBinEta; ++ieta )
+	{
+	  for( unsigned short irank = 0 ; irank < L1CaloEcalScale::nBinRank; ++irank )
+	    {
+	      EcalSubdetector subdet = ( ieta <= 17 ) ? EcalBarrel : EcalEndcap ;
+	      
+	      double etGeVNeg =
+		e_tpg->getTPGInGeV
+		( irank,
+		  EcalTrigTowerDetId(-1, // -ve eta
+				     subdet,
+				     ieta,
+				     2 )); // dummy phi value
+	      ecalScale->setBin( irank, ieta, -1, etGeVNeg ) ;
+	    }
+	}
+
+      // HCAL
+      for( unsigned short ieta = 1 ; ieta <= L1CaloHcalScale::nBinEta; ++ieta )
+	{
+	  for( unsigned short irank = 0 ; irank < L1CaloHcalScale::nBinRank; ++irank )
+	    {
+	      double etGeV = h_tpg->hcaletValue( ieta, irank ) ;
+
+	      hcalScale->setBin( irank, ieta, 1, etGeV ) ;
+	      hcalScale->setBin( irank, ieta, -1, etGeV ) ;
+	    }
+	}
+
+      // set the input scales
+      lookupTable_->setEcalScale(ecalScale);
+      lookupTable_->setHcalScale(hcalScale);
+
+      dummyE = ecalScale;
+      dummyH = hcalScale;
+
+      delete e_tpg;
+
+    }
+  else
+    {
+
+      // get energy scale to convert input from ECAL
+      edm::ESHandle<L1CaloEcalScale> ecalScale;
+      iSetup.get<L1CaloEcalScaleRcd>().get(ecalScale);
+      const L1CaloEcalScale* e = ecalScale.product();
+      
+      // get energy scale to convert input from HCAL
+      edm::ESHandle<L1CaloHcalScale> hcalScale;
+      iSetup.get<L1CaloHcalScaleRcd>().get(hcalScale);
+      const L1CaloHcalScale* h = hcalScale.product();
+
+      // set scales
+      lookupTable_->setEcalScale(e);
+      lookupTable_->setHcalScale(h);
+
+    }
+
    lookupTable_->setRCTParameters(rctParameters_);
    lookupTable_->setChannelMask(m);
-   lookupTable_->setTranscoder(t);
+   //lookupTable_->setHcalScale(h);
+   //lookupTable_->setEcalScale(e);
    lookupTable_->setL1CaloEtScale(s);
-   lookupTable_->setEcalTPGScale(e);
-
 
    for (unsigned short nCard = 0; nCard <= 6; nCard = nCard + 2)
      {
@@ -115,7 +217,13 @@ L1RCTLutWriter::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
      }
    writeJscLutFile();
 
-   delete e;
+   unsigned int eicThreshold = rctParameters_->eicIsolationThreshold();
+   unsigned int jscThresholdBarrel = rctParameters_->jscQuietThresholdBarrel();
+   unsigned int jscThresholdEndcap = rctParameters_->jscQuietThresholdEndcap();
+   writeThresholdsFile(eicThreshold, jscThresholdBarrel, jscThresholdEndcap);
+
+  if (dummyE != 0) delete dummyE;
+  if (dummyH != 0) delete dummyH;
 
 }
 
@@ -137,21 +245,32 @@ void
 L1RCTLutWriter::writeRcLutFile(unsigned short card)
 {
 
-  // don't mess yet with timestamp etc.
+  // don't mess yet with name
   char filename[64];
+  char command[64];
   if (card != 6)
     {
       int card2 = card + 1;
-      sprintf(filename,"rctReceiverCard%i%i.dat",card,card2);
+      sprintf(filename,"RC%i%i-%s.dat",card,card2,keyName_.c_str() );
+      //sprintf(filename, "RC%i%i.dat", card, card2);
     }
   else
     {
-      sprintf(filename,"rctReceiverCard6.dat");
+      sprintf(filename,"RC6-%s.dat",keyName_.c_str() );
+      //sprintf(filename, "RC6.dat");
     }
   // open file for writing, delete any existing content
   lutFile_.open(filename, ios::trunc);
   lutFile_ << "Emulator-parameter generated lut file, card " 
-	   << card << std::endl;
+	   << card << " key " << keyName_ << "   ";
+
+  // close to append timestamp info
+  lutFile_.close();
+  sprintf(command, "date >> %s", filename);
+  system(command);
+
+  // reopen file for writing values
+  lutFile_.open(filename, ios::app);
 
   unsigned long data = 0;
 
@@ -172,35 +291,12 @@ L1RCTLutWriter::writeRcLutFile(unsigned short card)
 	  iAbsEta = (card/2)*8 + (nLUT%4) + 1;
 	}
 
-      unsigned short iPhi = 1;
-      float dummy = 0;
-      short sign = 1;
-      do
-	{
-	  dummy = lookupTable_->convertEcal(127, iAbsEta, iPhi, sign);
-	  iPhi++;
-	}
-      while (dummy == 0 && iPhi < 73);
-      if (dummy == 0)
-	{
-	  sign = -1;
-	  iPhi = 1;
-	  do
-	    {
-	      dummy = lookupTable_->convertEcal(127, iAbsEta, iPhi, sign);
-	      iPhi++;
-	    }
-	  while (dummy == 0 && iPhi < 73);
-	}
-      if (iPhi == 73)
-	{
-	  iPhi = 1;
-	}
 
-      short iEta = sign * ( (short) iAbsEta);
+      // All RCT stuff uniform in phi, symmetric wrt eta = 0
 
-      unsigned short crate = rctParameters_->calcCrate(iPhi, iEta);
-      unsigned short tower = rctParameters_->calcTower(iPhi, iAbsEta);
+      // below line always gives crate in +eta; makes no difference to us
+      unsigned short crate = rctParameters_->calcCrate(1, iAbsEta); 
+      unsigned short tower = rctParameters_->calcTower(1, iAbsEta);
 
       // first do region sums half of LUTs, bit 18 of address is 0
       // loop through 8 bits of hcal energy, 2^8 is 256
@@ -269,16 +365,16 @@ L1RCTLutWriter::writeEicLutFile(unsigned short card)
   if (card != 6)
     {
       int card2 = card + 1;
-      sprintf(filename,"rctElectronIsolationCard%i%i.dat",card,card2);
+      sprintf(filename,"EIC%i%i-%s.dat", card, card2, keyName_.c_str() );
     }
   else
     {
-      sprintf(filename,"rctElectronIsolationCard6.dat");
+      sprintf(filename,"EIC6-%s.dat", keyName_.c_str() );
     }
   // open file for writing, delete any existing content
   lutFile_.open(filename, ios::trunc);
   lutFile_ << "Emulator-parameter generated EIC lut file, card " 
-	   << card << std::endl;
+	   << card << " key " << keyName_ << "   ";
   // close to append timestamp info
   lutFile_.close();
   sprintf(command, "date >> %s", filename);
@@ -307,15 +403,17 @@ L1RCTLutWriter::writeEicLutFile(unsigned short card)
 }
 
 // ------------ method to write one jet summary card lut file
-void L1RCTLutWriter::writeJscLutFile()
+void 
+L1RCTLutWriter::writeJscLutFile()
 {
   char filename[64];
   char command[64];
-  sprintf(filename, "rctJetSummaryCard.dat");
+  sprintf(filename, "JSC-%s.dat", keyName_.c_str() );
 
   // open file; if it already existed, delete existing content
   lutFile_.open(filename, ios::trunc);
-  lutFile_ << "Emulator parameter-generated lut file    ";
+  lutFile_ << "Emulator parameter-generated lut file, key " << keyName_ 
+	   << "   ";
   // close to append time-stamp
   lutFile_.close();
   sprintf(command, "date >> %s", filename);
@@ -371,6 +469,26 @@ void L1RCTLutWriter::writeJscLutFile()
   
   lutFile_.close();
   return;
+}
+
+//-----------Write text file containing the 1 JSC and 2 EIC thresholds
+void
+L1RCTLutWriter::writeThresholdsFile(unsigned int eicThreshold, 
+				    unsigned int jscThresholdBarrel,
+				    unsigned int jscThresholdEndcap)
+{
+  //
+  std::ofstream thresholdsFile;
+  char filename[64];
+  sprintf(filename, "Thresholds-%s.dat", keyName_.c_str() );
+  thresholdsFile.open(filename, ios::trunc);
+
+  thresholdsFile << "key is " << keyName_ << std::endl << std::endl;
+  thresholdsFile << "eicIsolationThreshold " << eicThreshold << std::endl;
+  thresholdsFile << "jscQuietThresholdBarrel " << jscThresholdBarrel << std::endl;
+  thresholdsFile << "jscQuietThresholdEndcap " << jscThresholdEndcap << std::endl;
+
+  thresholdsFile.close();
 }
 
 //define this as a plug-in

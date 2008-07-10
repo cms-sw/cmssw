@@ -1,12 +1,9 @@
 import FWCore.ParameterSet.Config as cms
 
-rctDigis = cms.EDProducer("L1RCTProducer",
+rctSaveInput = cms.EDFilter("L1RCTSaveInput",
     hcalDigisLabel = cms.InputTag("hcalTriggerPrimitiveDigis"),
     useDebugTpgScales = cms.bool(False),
-    useEcalCosmicTiming = cms.bool(False),
-    postSamples = cms.uint32(0),
-    preSamples = cms.uint32(0),
-    useHcalCosmicTiming = cms.bool(False),
+    rctTestInputFile = cms.untracked.string('rctSaveTest.txt'),
     useEcal = cms.bool(True),
     useHcal = cms.bool(True),
     ecalDigisLabel = cms.InputTag("ecalTriggerPrimitiveDigis")

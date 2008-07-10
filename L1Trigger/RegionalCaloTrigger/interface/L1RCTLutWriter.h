@@ -16,7 +16,7 @@
 //
 // Original Author:  jleonard
 //         Created:  Fri Apr 11 16:27:07 CEST 2008
-// $Id: L1RCTLutWriter.h,v 1.1 2008/05/06 10:08:14 jleonard Exp $
+// $Id: L1RCTLutWriter.h,v 1.2 2008/05/30 14:32:04 jleonard Exp $
 //
 //
 
@@ -63,6 +63,9 @@ private:
   void writeRcLutFile(unsigned short card);
   void writeEicLutFile(unsigned short card);
   void writeJscLutFile();
+  void writeThresholdsFile(unsigned int eicThreshold,
+			   unsigned int jscThresholdBarrel,
+			   unsigned int jscThresholdEndcap);
   
   // ----------member data ---------------------------
   
@@ -70,6 +73,8 @@ private:
   const L1RCTParameters* rctParameters_;
   //const L1RCTChannelMask* channelMask_;
   std::ofstream lutFile_;
+  std::string keyName_;
+  bool useDebugTpgScales_;
 
 };
 #endif

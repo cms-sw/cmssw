@@ -21,16 +21,23 @@ using std::endl;
 #include "DataFormats/EcalDigi/interface/EcalDigiCollections.h"
 #include "DataFormats/HcalDigi/interface/HcalDigiCollections.h"
 
+#include "CondFormats/L1TObjects/interface/L1CaloHcalScale.h"
+#include "CondFormats/DataRecord/interface/L1CaloHcalScaleRcd.h"
+#include "CondFormats/L1TObjects/interface/L1CaloEcalScale.h"
+#include "CondFormats/DataRecord/interface/L1CaloEcalScaleRcd.h"
+
+// also include old-style scales -- same as L1RCTProducer?
 #include "CalibFormats/CaloTPG/interface/CaloTPGTranscoder.h"
 #include "CalibFormats/CaloTPG/interface/CaloTPGRecord.h"
+#include "CalibCalorimetry/EcalTPGTools/interface/EcalTPGScale.h"
 
 #include "CondFormats/L1TObjects/interface/L1CaloEtScale.h"
 #include "CondFormats/DataRecord/interface/L1EmEtScaleRcd.h"
 
-#include "CondFormats/EcalObjects/interface/EcalTPGScale.h"
-
 #include "CondFormats/L1TObjects/interface/L1RCTParameters.h"
 #include "CondFormats/DataRecord/interface/L1RCTParametersRcd.h"
+#include "CondFormats/L1TObjects/interface/L1RCTChannelMask.h"
+#include "CondFormats/DataRecord/interface/L1RCTChannelMaskRcd.h"
 
 #include "L1Trigger/RegionalCaloTrigger/interface/L1RCT.h"
 #include "L1Trigger/RegionalCaloTrigger/interface/L1RCTLookupTables.h" 
@@ -42,7 +49,8 @@ L1RCTSaveInput::L1RCTSaveInput(const edm::ParameterSet& conf) :
   useEcal(conf.getParameter<bool>("useEcal")),
   useHcal(conf.getParameter<bool>("useHcal")),
   ecalDigisLabel(conf.getParameter<edm::InputTag>("ecalDigisLabel")),
-  hcalDigisLabel(conf.getParameter<edm::InputTag>("hcalDigisLabel"))
+  hcalDigisLabel(conf.getParameter<edm::InputTag>("hcalDigisLabel")),
+  useDebugTpgScales(conf.getParameter<bool>("useDebugTpgScales"))
 {
   ofs.open(fileName.c_str(), std::ios::app);
   if(!ofs)
@@ -65,20 +73,117 @@ L1RCTSaveInput::analyze(const edm::Event& event,
   edm::ESHandle<L1RCTParameters> rctParameters;
   eventSetup.get<L1RCTParametersRcd>().get(rctParameters);
   const L1RCTParameters* r = rctParameters.product();
-  edm::ESHandle<CaloTPGTranscoder> transcoder;
-  eventSetup.get<CaloTPGRecord>().get(transcoder);
-  const CaloTPGTranscoder* t = transcoder.product();
+  edm::ESHandle<L1RCTChannelMask> channelMask;
+  eventSetup.get<L1RCTChannelMaskRcd>().get(channelMask);
+  const L1RCTChannelMask* c = channelMask.product();
   edm::ESHandle<L1CaloEtScale> emScale;
   eventSetup.get<L1EmEtScaleRcd>().get(emScale);
   const L1CaloEtScale* s = emScale.product();
 
-  EcalTPGScale* e = new EcalTPGScale();
-  e->setEventSetup(eventSetup);
-
   rctLookupTables->setRCTParameters(r);
-  rctLookupTables->setTranscoder(t);
+  rctLookupTables->setChannelMask(c);
   rctLookupTables->setL1CaloEtScale(s);
-  rctLookupTables->setEcalTPGScale(e);
+
+  // use dummies to get delete right when creating new scales from old
+  L1CaloEcalScale* dummyE(0);
+  L1CaloHcalScale* dummyH(0);
+
+  if (useDebugTpgScales)
+    {
+      // use old-style scales
+      edm::ESHandle<CaloTPGTranscoder> transcoder;
+      eventSetup.get<CaloTPGRecord>().get(transcoder);
+      const CaloTPGTranscoder* h_tpg = transcoder.product();
+
+      EcalTPGScale* e_tpg = new EcalTPGScale();
+      e_tpg->setEventSetup(eventSetup);
+
+      L1CaloEcalScale* ecalScale = new L1CaloEcalScale();
+      L1CaloHcalScale* hcalScale = new L1CaloHcalScale();
+
+      // create input scales, werner's code
+      // ECAL
+      std::cout << "ECAL Pos " << L1CaloEcalScale::nBinRank << std::endl ;
+      for( unsigned short ieta = 1 ; ieta <= L1CaloEcalScale::nBinEta; ++ieta )
+        {
+          for( unsigned short irank = 0 ; irank < L1CaloEcalScale::nBinRank; ++irank )
+            {
+              std::cout << ieta << " " << irank ;
+              EcalSubdetector subdet = ( ieta <= 17 ) ? EcalBarrel : EcalEndcap ;
+              double etGeVPos =
+                e_tpg->getTPGInGeV
+                ( irank, EcalTrigTowerDetId(1, // +ve eta
+                                            subdet,
+                                            ieta,
+                                            1 )); // dummy phi value
+              ecalScale->setBin( irank, ieta, 1, etGeVPos ) ;
+	      std::cout << etGeVPos << ", " ;
+            }
+	  std::cout << std::endl ;
+        }
+      std::cout << std::endl ;
+
+      std::cout << "ECAL Neg" << std::endl ;
+      for( unsigned short ieta = 1 ; ieta <= L1CaloEcalScale::nBinEta; ++ieta )
+        {
+          for( unsigned short irank = 0 ; irank < L1CaloEcalScale::nBinRank; ++irank )
+            {
+              EcalSubdetector subdet = ( ieta <= 17 ) ? EcalBarrel : EcalEndcap ;
+
+	      std::cout << ieta << " " << irank ;
+              double etGeVNeg =
+                e_tpg->getTPGInGeV
+                ( irank,
+                  EcalTrigTowerDetId(-1, // -ve eta
+                                     subdet,
+                                     ieta,
+                                     2 )); // dummy phi value
+              ecalScale->setBin( irank, ieta, -1, etGeVNeg ) ;
+	      std::cout << etGeVNeg << ", " ;
+            }
+	  std::cout << std::endl ;
+        }
+      std::cout << std::endl ;
+
+      // HCAL
+      std::cout << "HCAL" << std::endl ;
+      for( unsigned short ieta = 1 ; ieta <= L1CaloHcalScale::nBinEta; ++ieta )
+        {
+          for( unsigned short irank = 0 ; irank < L1CaloHcalScale::nBinRank; ++irank )
+            {
+              double etGeV = h_tpg->hcaletValue( ieta, irank ) ;
+
+              hcalScale->setBin( irank, ieta, 1, etGeV ) ;
+              hcalScale->setBin( irank, ieta, -1, etGeV ) ;
+	      std::cout << etGeV << ", " ;
+	      std::cout << std::endl ;
+	    }
+	  std::cout << std::endl ;
+	}
+
+      // set the input scales
+      rctLookupTables->setEcalScale(ecalScale);
+      rctLookupTables->setHcalScale(hcalScale);
+      
+      dummyE = ecalScale;
+      dummyH = hcalScale;
+      
+      delete e_tpg;
+      
+    }
+  else
+    {
+      edm::ESHandle<L1CaloHcalScale> hcalScale;
+      eventSetup.get<L1CaloHcalScaleRcd>().get(hcalScale);
+      const L1CaloHcalScale* h = hcalScale.product();
+      edm::ESHandle<L1CaloEcalScale> ecalScale;
+      eventSetup.get<L1CaloEcalScaleRcd>().get(ecalScale);
+      const L1CaloEcalScale* e = ecalScale.product();
+
+      rctLookupTables->setHcalScale(h);
+      rctLookupTables->setEcalScale(e);
+
+    }
 
   edm::Handle<EcalTrigPrimDigiCollection> ecal;
   edm::Handle<HcalTrigPrimDigiCollection> hcal;

@@ -3,9 +3,9 @@
 
 class L1RCTParameters;
 struct L1RCTChannelMask;
-class CaloTPGTranscoder;
+class L1CaloEcalScale;
+class L1CaloHcalScale;
 class L1CaloEtScale;
-class EcalTPGScale;
 
 class L1RCTLookupTables {
  
@@ -13,7 +13,7 @@ class L1RCTLookupTables {
 
   // constructor
 
-  L1RCTLookupTables() : rctParameters_(0), channelMask_(0), transcoder_(0), etScale_(0) {}
+  L1RCTLookupTables() : rctParameters_(0), channelMask_(0), ecalScale_(0), hcalScale_(0), etScale_(0) {}
   
   // this needs to be refreshed every event -- constructor inits to zero
   // to indicate that it cannot be used -- if this set function is
@@ -27,18 +27,18 @@ class L1RCTLookupTables {
     {
       channelMask_ = channelMask;
     }
-  // ditto for transcoder
-  void setTranscoder(const CaloTPGTranscoder* transcoder)
+  // ditto for hcal TPG scale
+  void setHcalScale(const L1CaloHcalScale* hcalScale)
     {
-      transcoder_ = transcoder;
+      hcalScale_ = hcalScale;
     }
   // ditto for caloEtScale
   void setL1CaloEtScale(const L1CaloEtScale* etScale)
     {
       etScale_ = etScale;
     }
-  // ditto for ecalTPGScale
-  void setEcalTPGScale(EcalTPGScale* ecalScale)
+  // ditto for ecal TPG Scale
+  void setEcalScale(const L1CaloEcalScale* ecalScale)
     {
       ecalScale_ = ecalScale;
     }
@@ -65,23 +65,19 @@ class L1RCTLookupTables {
   bool hOeFGVetoBit(float ecal, float hcal, bool fgbit) const;
   bool activityBit(float ecal, float hcal) const;
 
-  // need this to be public to determine good ecal tower in phi for
-  // ecaldetid in L1RCTLutWriter
-  float convertEcal(unsigned short ecal, unsigned short iAbsEta, unsigned short iPhi, short sign) const;
-  
  private:
 
   // helper functions
 
-
-  float convertHcal(unsigned short hcal, unsigned short iAbsEta) const;
+  float convertEcal(unsigned short ecal, unsigned short iAbsEta, short sign) const;  
+  float convertHcal(unsigned short hcal, unsigned short iAbsEta, short sign) const;
   unsigned long convertToInteger(float et, float lsb, int precision) const;
 
   const L1RCTParameters* rctParameters_;
   const L1RCTChannelMask* channelMask_;
-  const CaloTPGTranscoder* transcoder_;
+  const L1CaloEcalScale* ecalScale_;
+  const L1CaloHcalScale* hcalScale_;
   const L1CaloEtScale* etScale_;
-  EcalTPGScale* ecalScale_;
 
 };
 #endif

@@ -14,7 +14,7 @@
 //
 // Original Author:  Sridhara Dasu
 //         Created:  Tue Jul 31 17:10:13 CEST 2007
-// $Id: L1RCTSaveInput.h,v 1.1 2007/07/31 20:23:29 dasu Exp $
+// $Id: L1RCTSaveInput.h,v 1.2 2007/08/01 10:00:00 dasu Exp $
 //
 //
 
@@ -49,5 +49,6 @@ private:
   bool useHcal;
   edm::InputTag ecalDigisLabel;
   edm::InputTag hcalDigisLabel;
+  bool useDebugTpgScales;
   std::ofstream ofs;
 };
