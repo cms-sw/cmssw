@@ -8,7 +8,7 @@
 //
 // Original Author:  Joshua Berger  
 //         Created:  Mon Jun 23 15:48:11 EDT 2008
-// $Id: CmsShowEDI.cc,v 1.2 2008/07/07 00:19:28 chrjones Exp $
+// $Id: CmsShowEDI.cc,v 1.3 2008/07/08 17:47:00 chrjones Exp $
 //
 
 // system include files
@@ -114,7 +114,7 @@ TGTransientFrame(gClient->GetDefaultRoot(),p, w, h)
   filterFrame->AddFrame(filterExpressionLabel);
   m_filterExpressionEntry = new TGTextEntry(filterFrame);
   m_filterExpressionEntry->SetEnabled(kFALSE);
-  filterFrame->AddFrame(m_filterExpressionEntry);
+  filterFrame->AddFrame(m_filterExpressionEntry, new TGLayoutHints(kLHintsExpandX));
   m_filterButton = new TGTextButton(filterFrame, "Filter");
   m_filterButton->SetEnabled(kFALSE);
   filterFrame->AddFrame(m_filterButton);
@@ -126,7 +126,7 @@ TGTransientFrame(gClient->GetDefaultRoot(),p, w, h)
   selectFrame->AddFrame(expressionLabel);
   m_selectExpressionEntry = new TGTextEntry(selectFrame);
   m_selectExpressionEntry->SetEnabled(kFALSE);
-  selectFrame->AddFrame(m_selectExpressionEntry);
+  selectFrame->AddFrame(m_selectExpressionEntry,new TGLayoutHints(kLHintsExpandX));
   m_selectButton = new TGTextButton(selectFrame, "Select");
   m_selectButton->SetEnabled(kFALSE);
   selectFrame->AddFrame(m_selectButton);  
@@ -143,7 +143,7 @@ TGTransientFrame(gClient->GetDefaultRoot(),p, w, h)
   dataFrame->AddFrame(nameLabel);
   m_nameEntry = new TGTextEntry(dataFrame);
   m_nameEntry->SetEnabled(kFALSE);
-  dataFrame->AddFrame(m_nameEntry);
+  dataFrame->AddFrame(m_nameEntry,new TGLayoutHints(kLHintsExpandX));
   TGHorizontal3DLine* dataSeperator = new TGHorizontal3DLine(dataFrame, 200, 5);
   dataFrame->AddFrame(dataSeperator, new TGLayoutHints(kLHintsNormal, 0, 0, 5, 5));
   TGLabel* labelsLabel = new TGLabel(dataFrame, "Labels:");
