@@ -13,7 +13,7 @@
 //
 // Original Author:  Werner Man-Li Sun
 //         Created:  Thu May 29 23:36:18 CEST 2008
-// $Id: produceL1RCTParameters.cc,v 1.1 2008/05/29 21:50:18 wsun Exp $
+// $Id: produceL1RCTParameters.cc,v 1.2 2008/07/04 23:26:14 wsun Exp $
 //
 //
 
@@ -27,11 +27,6 @@
 
 #include "FWCore/Framework/interface/HCTypeTagTemplate.h"
 #include "FWCore/Framework/interface/EventSetup.h"
-
-#include "RelationalAccess/ICursor.h"
-#include "CoralBase/AttributeList.h"
-#include "CoralBase/AttributeSpecification.h"
-#include "CoralBase/Attribute.h"
 
 // ------------ method called to produce the data  ------------
 
@@ -51,38 +46,18 @@ L1TriggerConfigOnlineProd::produceL1RCTParameters( const L1RCTParametersRcd& iRe
 
      // ~~~~~~~~~ Get rct_parameter from rct_key ~~~~~~~~~
 
-     std::string table = "RCT_CONF" ;
-
-     std::vector< std::string > queryStrings ;
-     queryStrings.push_back( "RCT_PARAMETER" ) ;
-
-     std::string condition = "RCT_CONF.RCT_KEY = :key" ;
-
-     coral::AttributeList attributes ;
-     attributes.extend( "key", typeid( std::string ) ) ;
-     attributes[ "key" ].data< std::string >() = key ;
-
-     boost::shared_ptr< coral::IQuery > query
-       ( m_omdsReader.newQuery( table, queryStrings,
-				condition, attributes ) ) ;
-     coral::ICursor& cursor = query->execute() ;
-     cursor.next() ;
-     const coral::AttributeList& paremKeyAttributes = cursor.currentRow() ;
-
-//      std::string rct_parameter =
-//        paremKeyAttributes[ "RCT_PARAMETER" ].data< std::string >() ;
-//      std::cout << "rct_parameter = " << rct_parameter << std::endl ;
-
-     std::string paremKeyCondition =
-       "PAREM_CONF.PAREM_KEY = :RCT_PARAMETER" ;
+     // SELECT RCT_PARAMETER FROM RCT_CONF WHERE RCT_CONF.RCT_KEY = key
+     l1t::OMDSReader::QueryResults paremKeyResults =
+       m_omdsReader.basicQuery( "RCT_PARAMETER",
+				"RCT_CONF",
+				"RCT_CONF.RCT_KEY",
+				m_omdsReader.singleAttribute( key ) );
 
      // ~~~~~~~~~ Cut values ~~~~~~~~~
 
      // select egamma_lsb, jetmet_lsb, e_min_for_fg_cut, e_max_for_fg_cut, h_over_e_cut, e_min_for_h_over_e_cut, e_max_for_h_over_e_cut, h_min_for_h_over_e_cut, e_activity_cut, h_activity_cut, eic_isolation_threshold, jsc_quiet_threshold_barrel, jsc_quiet_threshold_endcap, noisevetohb, noisevetoheplus, noisevetoheminus from parem_conf where parem_conf.parem_key = (select rct_parameter from rct_conf where rct_conf.rct_key = 'rct_cmssw_def');
 
-     table = "PAREM_CONF" ;
-
-     queryStrings.clear() ;
+     std::vector< std::string > queryStrings ;
      queryStrings.push_back( "EGAMMA_LSB" ) ;
      queryStrings.push_back( "JETMET_LSB" ) ;
      queryStrings.push_back( "E_MIN_FOR_FG_CUT" ) ;
@@ -100,12 +75,12 @@ L1TriggerConfigOnlineProd::produceL1RCTParameters( const L1RCTParametersRcd& iRe
      queryStrings.push_back( "NOISEVETOHEPLUS" ) ;
      queryStrings.push_back( "NOISEVETOHEMINUS" ) ;
 
-     boost::shared_ptr< coral::IQuery > query2
-       ( m_omdsReader.newQuery( table, queryStrings,
-				paremKeyCondition, paremKeyAttributes ));
-     coral::ICursor& cursor2 = query2->execute() ;
-     cursor2.next() ;
-     const coral::AttributeList& row2 = cursor2.currentRow() ;
+     l1t::OMDSReader::QueryResults results2 =
+       m_omdsReader.basicQuery( queryStrings,
+				"PAREM_CONF",
+				"PAREM_CONF.PAREM_KEY",
+				paremKeyResults ) ;
+     const coral::AttributeList& row2 = results2.second.front() ;
 
      double eGammaLSB = row2[ "EGAMMA_LSB" ].data< double >() ;
      double jetMETLSB = row2[ "JETMET_LSB" ].data< double >() ;
@@ -148,33 +123,19 @@ L1TriggerConfigOnlineProd::produceL1RCTParameters( const L1RCTParametersRcd& iRe
 
      // select scalefactor, fk_rct_eta from egamma_ecal_scalefactor where egamma_ecal_scalefactor.fk_version = (select egamma_ecal from parem_conf where parem_conf.parem_key = (select rct_parameter from rct_conf where rct_conf.rct_key='rct_cmssw_def'));
 
-     // First, get version number.
-
-     table = "PAREM_CONF" ;
-     queryStrings.clear() ;
-     queryStrings.push_back( "EGAMMA_ECAL" ) ;
-
-     // Use previous condition.
-     boost::shared_ptr< coral::IQuery > query3
-       ( m_omdsReader.newQuery( table, queryStrings,
-				paremKeyCondition, paremKeyAttributes ));
-     coral::ICursor& cursor3 = query3->execute() ;
-     cursor3.next() ;
-     const coral::AttributeList& egammaEcalVersion = cursor3.currentRow() ;
-
-     // Now get scale factors
-
-     table = "EGAMMA_ECAL_SCALEFACTOR" ;
-     condition = "EGAMMA_ECAL_SCALEFACTOR.FK_VERSION = :EGAMMA_ECAL" ;
-
      std::vector< std::string > scaleFactorQueryStrings ;
      scaleFactorQueryStrings.push_back( "SCALEFACTOR") ;
      scaleFactorQueryStrings.push_back( "FK_RCT_ETA" ) ;
 
-     boost::shared_ptr< coral::IQuery > query4
-       ( m_omdsReader.newQuery( table, scaleFactorQueryStrings,
-				condition, egammaEcalVersion ) ) ;
-     coral::ICursor& cursor4 = query4->execute() ;
+     l1t::OMDSReader::QueryResults egammaEcalResults =
+       m_omdsReader.basicQuery(
+	 scaleFactorQueryStrings,
+	 "EGAMMA_ECAL_SCALEFACTOR",
+	 "EGAMMA_ECAL_SCALEFACTOR.FK_VERSION",
+	 m_omdsReader.basicQuery( "EGAMMA_ECAL",
+				  "PAREM_CONF",
+				  "PAREM_CONF.PAREM_KEY",
+				  paremKeyResults ) ) ;
 
      // Store scale factors in temporary array to get ordering right.
      // Reserve space for 100 bins.
@@ -187,11 +148,15 @@ L1TriggerConfigOnlineProd::produceL1RCTParameters( const L1RCTParametersRcd& iRe
        }
 
      int maxBin = 0 ;
-     while( cursor4.next() )
+     std::vector< coral::AttributeList >::const_iterator itr =
+       egammaEcalResults.second.begin() ;
+     std::vector< coral::AttributeList >::const_iterator end =
+       egammaEcalResults.second.end() ;
+     for( ; itr != end ; ++itr )
        {
-	 const coral::AttributeList& row4 = cursor4.currentRow() ;
-	 double sf = row4[ "SCALEFACTOR" ].data< double >() ;
-	 int ieta = ( int ) row4[ "FK_RCT_ETA" ].data< short >() ;
+	 const coral::AttributeList& row = *itr ;
+	 double sf = row[ "SCALEFACTOR" ].data< double >() ;
+	 int ieta = ( int ) row[ "FK_RCT_ETA" ].data< short >() ;
 
 	 sfTmp[ ieta-1 ] = sf ; // eta bins start at 1.
 
@@ -213,29 +178,15 @@ L1TriggerConfigOnlineProd::produceL1RCTParameters( const L1RCTParametersRcd& iRe
 
      // select scalefactor, fk_rct_eta from egamma_hcal_scalefactor where egamma_hcal_scalefactor.fk_version = (select egamma_hcal from parem_conf where parem_conf.parem_key = (select rct_parameter from rct_conf where rct_conf.rct_key='rct_cmssw_def'));
 
-     // First, get version number.
-
-     table = "PAREM_CONF" ;
-     queryStrings.clear() ;
-     queryStrings.push_back( "EGAMMA_HCAL" ) ;
-
-     // Use previous condition.
-     boost::shared_ptr< coral::IQuery > query5
-       ( m_omdsReader.newQuery( table, queryStrings,
-				paremKeyCondition, paremKeyAttributes ));
-     coral::ICursor& cursor5 = query5->execute() ;
-     cursor5.next() ;
-     const coral::AttributeList& egammaHcalVersion = cursor5.currentRow() ;
-
-     // Now get scale factors
-
-     table = "EGAMMA_HCAL_SCALEFACTOR" ;
-     condition = "EGAMMA_HCAL_SCALEFACTOR.FK_VERSION = :EGAMMA_HCAL" ;
-
-     boost::shared_ptr< coral::IQuery > query6
-       ( m_omdsReader.newQuery( table, scaleFactorQueryStrings,
-				condition, egammaHcalVersion ) ) ;
-     coral::ICursor& cursor6 = query6->execute() ;
+     l1t::OMDSReader::QueryResults egammaHcalResults =
+       m_omdsReader.basicQuery(
+	 scaleFactorQueryStrings,
+	 "EGAMMA_HCAL_SCALEFACTOR",
+	 "EGAMMA_HCAL_SCALEFACTOR.FK_VERSION",
+	 m_omdsReader.basicQuery( "EGAMMA_HCAL",
+				  "PAREM_CONF",
+				  "PAREM_CONF.PAREM_KEY",
+				  paremKeyResults ) ) ;
 
      // Store scale factors in temporary array to get ordering right.
      for( int i = 0 ; i < reserve ; ++i )
@@ -244,11 +195,13 @@ L1TriggerConfigOnlineProd::produceL1RCTParameters( const L1RCTParametersRcd& iRe
        }
 
      maxBin = 0 ;
-     while( cursor6.next() )
+     itr = egammaHcalResults.second.begin() ;
+     end = egammaHcalResults.second.end() ;
+     for( ; itr != end ; ++itr )
        {
-	 const coral::AttributeList& row6 = cursor6.currentRow() ;
-	 double sf = row6[ "SCALEFACTOR" ].data< double >() ;
-	 int ieta = ( int ) row6[ "FK_RCT_ETA" ].data< short >() ;
+	 const coral::AttributeList& row = *itr ;
+	 double sf = row[ "SCALEFACTOR" ].data< double >() ;
+	 int ieta = ( int ) row[ "FK_RCT_ETA" ].data< short >() ;
 
 	 sfTmp[ ieta-1 ] = sf ; // eta bins start at 1.
 
@@ -270,29 +223,15 @@ L1TriggerConfigOnlineProd::produceL1RCTParameters( const L1RCTParametersRcd& iRe
 
      // select scalefactor, fk_rct_eta from jetmet_ecal_scalefactor where jetmet_ecal_scalefactor.fk_version = (select jetmet_ecal from parem_conf where parem_conf.parem_key = (select rct_parameter from rct_conf where rct_conf.rct_key='rct_cmssw_def'));
 
-     // First, get version number.
-
-     table = "PAREM_CONF" ;
-     queryStrings.clear() ;
-     queryStrings.push_back( "JETMET_ECAL" ) ;
-
-     // Use previous condition.
-     boost::shared_ptr< coral::IQuery > query7
-       ( m_omdsReader.newQuery( table, queryStrings,
-				paremKeyCondition, paremKeyAttributes ));
-     coral::ICursor& cursor7 = query7->execute() ;
-     cursor7.next() ;
-     const coral::AttributeList& jetmetEcalVersion = cursor7.currentRow() ;
-
-     // Now get scale factors
-
-     table = "JETMET_ECAL_SCALEFACTOR" ;
-     condition = "JETMET_ECAL_SCALEFACTOR.FK_VERSION = :JETMET_ECAL" ;
-
-     boost::shared_ptr< coral::IQuery > query8
-       ( m_omdsReader.newQuery( table, scaleFactorQueryStrings,
-				condition, jetmetEcalVersion ) ) ;
-     coral::ICursor& cursor8 = query8->execute() ;
+     l1t::OMDSReader::QueryResults jetmetEcalResults =
+       m_omdsReader.basicQuery(
+	 scaleFactorQueryStrings,
+	 "JETMET_ECAL_SCALEFACTOR",
+	 "JETMET_ECAL_SCALEFACTOR.FK_VERSION",
+	 m_omdsReader.basicQuery( "JETMET_ECAL",
+				  "PAREM_CONF",
+				  "PAREM_CONF.PAREM_KEY",
+				  paremKeyResults ) ) ;
 
      // Store scale factors in temporary array to get ordering right.
      for( int i = 0 ; i < reserve ; ++i )
@@ -301,11 +240,13 @@ L1TriggerConfigOnlineProd::produceL1RCTParameters( const L1RCTParametersRcd& iRe
        }
 
      maxBin = 0 ;
-     while( cursor8.next() )
+     itr = jetmetEcalResults.second.begin() ;
+     end = jetmetEcalResults.second.end() ;
+     for( ; itr != end ; ++itr )
        {
-	 const coral::AttributeList& row8 = cursor8.currentRow() ;
-	 double sf = row8[ "SCALEFACTOR" ].data< double >() ;
-	 int ieta = ( int ) row8[ "FK_RCT_ETA" ].data< short >() ;
+	 const coral::AttributeList& row = *itr ;
+	 double sf = row[ "SCALEFACTOR" ].data< double >() ;
+	 int ieta = ( int ) row[ "FK_RCT_ETA" ].data< short >() ;
 
 	 sfTmp[ ieta-1 ] = sf ; // eta bins start at 1.
 
@@ -327,29 +268,15 @@ L1TriggerConfigOnlineProd::produceL1RCTParameters( const L1RCTParametersRcd& iRe
 
      // select scalefactor, fk_rct_eta from jetmet_hcal_scalefactor where jetmet_hcal_scalefactor.fk_version = (select jetmet_hcal from parem_conf where parem_conf.parem_key = (select rct_parameter from rct_conf where rct_conf.rct_key='rct_cmssw_def'));
 
-     // First, get version number.
-
-     table = "PAREM_CONF" ;
-     queryStrings.clear() ;
-     queryStrings.push_back( "JETMET_HCAL" ) ;
-
-     // Use previous condition.
-     boost::shared_ptr< coral::IQuery > query9
-       ( m_omdsReader.newQuery( table, queryStrings,
-				paremKeyCondition, paremKeyAttributes ));
-     coral::ICursor& cursor9 = query9->execute() ;
-     cursor9.next() ;
-     const coral::AttributeList& jetmetHcalVersion = cursor9.currentRow() ;
-
-     // Now get scale factors
-
-     table = "JETMET_HCAL_SCALEFACTOR" ;
-     condition = "JETMET_HCAL_SCALEFACTOR.FK_VERSION = :JETMET_HCAL" ;
-
-     boost::shared_ptr< coral::IQuery > query10
-       ( m_omdsReader.newQuery( table, scaleFactorQueryStrings,
-				condition, jetmetHcalVersion ) ) ;
-     coral::ICursor& cursor10 = query10->execute() ;
+     l1t::OMDSReader::QueryResults jetmetHcalResults =
+       m_omdsReader.basicQuery(
+	 scaleFactorQueryStrings,
+	 "JETMET_HCAL_SCALEFACTOR",
+	 "JETMET_HCAL_SCALEFACTOR.FK_VERSION",
+	 m_omdsReader.basicQuery( "JETMET_HCAL",
+				  "PAREM_CONF",
+				  "PAREM_CONF.PAREM_KEY",
+				  paremKeyResults ) ) ;
 
      // Store scale factors in temporary array to get ordering right.
      for( int i = 0 ; i < reserve ; ++i )
@@ -358,11 +285,13 @@ L1TriggerConfigOnlineProd::produceL1RCTParameters( const L1RCTParametersRcd& iRe
        }
 
      maxBin = 0 ;
-     while( cursor10.next() )
+     itr = jetmetHcalResults.second.begin() ;
+     end = jetmetHcalResults.second.end() ;
+     for( ; itr != end ; ++itr )
        {
-	 const coral::AttributeList& row10 = cursor10.currentRow() ;
-	 double sf = row10[ "SCALEFACTOR" ].data< double >() ;
-	 int ieta = ( int ) row10[ "FK_RCT_ETA" ].data< short >() ;
+	 const coral::AttributeList& row = *itr ;
+	 double sf = row[ "SCALEFACTOR" ].data< double >() ;
+	 int ieta = ( int ) row[ "FK_RCT_ETA" ].data< short >() ;
 
 	 sfTmp[ ieta-1 ] = sf ; // eta bins start at 1.
 

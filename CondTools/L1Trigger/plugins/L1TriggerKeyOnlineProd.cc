@@ -13,7 +13,7 @@
 //
 // Original Author:  Werner Man-Li Sun
 //         Created:  Sun Mar  2 03:03:32 CET 2008
-// $Id: L1TriggerKeyOnlineProd.cc,v 1.4 2008/06/23 20:04:35 wsun Exp $
+// $Id: L1TriggerKeyOnlineProd.cc,v 1.5 2008/07/04 23:26:14 wsun Exp $
 //
 //
 
@@ -30,11 +30,6 @@
 
 #include "FWCore/Framework/interface/HCTypeTagTemplate.h"
 #include "FWCore/Framework/interface/EventSetup.h"
-
-#include "RelationalAccess/ICursor.h"
-#include "CoralBase/AttributeList.h"
-#include "CoralBase/AttributeSpecification.h"
-#include "CoralBase/Attribute.h"
 
 //
 // class declaration
@@ -106,8 +101,8 @@ L1TriggerKeyOnlineProd::produce(const L1TriggerKeyRcd& iRecord)
       if( !m_forceGeneration )
 	{
 	  // Get subsystem keys from OMDS
-	  std::string tableString = "TRIGGERSUP_CONF" ;
 
+	  // SELECT CSCTF_KEY, DTTF_KEY, RPC_KEY, GMT_KEY, RCT_KEY, GCT_KEY, GT_KEY FROM TRIGGERSUP_CONF WHERE TRIGGERSUP_CONF.TS_KEY = m_tscKey
 	  std::vector< std::string > queryStrings ;
 	  queryStrings.push_back( "CSCTF_KEY" ) ;
 	  queryStrings.push_back( "DTTF_KEY" ) ;
@@ -118,18 +113,12 @@ L1TriggerKeyOnlineProd::produce(const L1TriggerKeyRcd& iRecord)
 	  queryStrings.push_back( "GT_KEY" ) ;
 	  //	  queryStrings.push_back( "TSP0_KEY" ) ;
 
-	  std::string conditionString = "TRIGGERSUP_CONF.TS_KEY = :tscKey" ;
-	  coral::AttributeList attributes ;
-	  attributes.extend( "tscKey", typeid( std::string ) ) ;
-	  attributes[ "tscKey" ].data< std::string >() = m_tscKey ;
-
-	  boost::shared_ptr< coral::IQuery > query
-	    ( m_omdsReader.newQuery( tableString, queryStrings,
-				     conditionString, attributes ) ) ;
-	  coral::ICursor& cursor = query->execute() ;
-
-	  cursor.next() ;
-	  const coral::AttributeList& row = cursor.currentRow() ;
+	  l1t::OMDSReader::QueryResults subkeyResults =
+	    m_omdsReader.basicQuery( queryStrings,
+				     "TRIGGERSUP_CONF",
+				     "TRIGGERSUP_CONF.TS_KEY",
+				     m_omdsReader.singleAttribute(m_tscKey) ) ;
+	  const coral::AttributeList& row = subkeyResults.second.front() ;
 
 	  // ~~~~~~~~~~~~~~~~~~~~
 
@@ -175,36 +164,22 @@ L1TriggerKeyOnlineProd::produce(const L1TriggerKeyRcd& iRecord)
 
 	  // ~~~~~~~~~~~~~~~~~~~~
 
-	  std::string gmtKey = row[ "GMT_KEY" ].data< std::string >() ;
+	  // SELECT GMT_SOFTWARE_CONFIG FROM GMT_LUTS WHERE GMT_LUTS.KEY =
+	  // ( SELECT LUT_KEY FROM GMT_CONFIG WHERE GMT_CONFIG.KEY = GMT_KEY [from subkeyResults] )
 
-	  std::vector< std::string > gmtQueryStrings1 ;
-	  gmtQueryStrings1.push_back( "LUT_KEY" ) ;
-	  std::string gmtConditionString1 = "GMT_CONFIG.KEY = :gmtKey" ;
-	  coral::AttributeList gmtAttributes1 ;
-	  gmtAttributes1.extend( "gmtKey", typeid( std::string ) ) ;
-	  gmtAttributes1[ "gmtKey" ].data< std::string >() = gmtKey ;
-	  boost::shared_ptr< coral::IQuery > gmtQuery1
-	    ( m_omdsReader.newQuery( "GMT_CONFIG", gmtQueryStrings1,
-				     gmtConditionString1, gmtAttributes1 ) ) ;
-	  coral::ICursor& gmtCursor1 = gmtQuery1->execute() ;
-	  gmtCursor1.next() ;
-	  const coral::AttributeList& gmtRow1 = gmtCursor1.currentRow() ;
-	  std::string gmtLutKey = gmtRow1[ "LUT_KEY" ].data< std::string >() ;
+	  l1t::OMDSReader::QueryResults gmtSWKeyResults =
+	    m_omdsReader.basicQuery(
+	      "GMT_SOFTWARE_CONFIG",
+	      "GMT_LUTS",
+	      "GMT_LUTS.KEY",
+	      m_omdsReader.basicQuery( "LUT_KEY",
+				       "GMT_CONFIG",
+				       "GMT_CONFIG.KEY",
+				       subkeyResults, "GMT_KEY" ) ) ;
 
-	  std::vector< std::string > gmtQueryStrings2 ;
-	  gmtQueryStrings2.push_back( "GMT_SOFTWARE_CONFIG" ) ;
-	  std::string gmtConditionString2 = "GMT_LUTS.KEY = :gmtLutKey" ;
-	  coral::AttributeList gmtAttributes2 ;
-	  gmtAttributes2.extend( "gmtLutKey", typeid( std::string ) ) ;
-	  gmtAttributes2[ "gmtLutKey" ].data< std::string >() = gmtLutKey ;
-	  boost::shared_ptr< coral::IQuery > gmtQuery2
-	    ( m_omdsReader.newQuery( "GMT_LUTS", gmtQueryStrings2,
-				     gmtConditionString2, gmtAttributes2 ) ) ;
-	  coral::ICursor& gmtCursor2 = gmtQuery2->execute() ;
-	  gmtCursor2.next() ;
-	  const coral::AttributeList& gmtRow2 = gmtCursor2.currentRow() ;
+	  const coral::AttributeList& gmtRow = gmtSWKeyResults.second.front() ;
 	  std::string gmtSwKey =
-	    gmtRow2[ "GMT_SOFTWARE_CONFIG" ].data< std::string >() ;
+	    gmtRow[ "GMT_SOFTWARE_CONFIG" ].data< std::string >() ;
 
 	  pL1TriggerKey->add( "L1MuGMTParameters",
 			      "L1MuGMTParametersRcd",
@@ -225,22 +200,22 @@ L1TriggerKeyOnlineProd::produce(const L1TriggerKeyRcd& iRecord)
 
 	  // ~~~~~~~~~~~~~~~~~~~~
 
+	  // SELECT PARTITION0_SETUP_FK FROM GT_SETUP WHERE GT_SETUP.ID = GT_KEY [from subkeyResults]
+
+	  // In the future, do this only if TSP0_KEY is null.
+
 	  std::string gtKey = row[ "GT_KEY" ].data< std::string >() ;
 
-	  std::vector< std::string > gtQueryStrings ;
-	  gtQueryStrings.push_back( "PARTITION0_SETUP_FK" ) ;
-	  std::string gtConditionString = "GT_SETUP.ID = :gtKey" ;
-	  coral::AttributeList gtAttributes ;
-	  gtAttributes.extend( "gtKey", typeid( std::string ) ) ;
-	  gtAttributes[ "gtKey" ].data< std::string >() = gtKey ;
-	  boost::shared_ptr< coral::IQuery > gtQuery
-	    ( m_omdsReader.newQuery( "GT_SETUP", gtQueryStrings,
-				     gtConditionString, gtAttributes ) ) ;
-	  coral::ICursor& gtCursor = gtQuery->execute() ;
-	  gtCursor.next() ;
-	  const coral::AttributeList& gtRow = gtCursor.currentRow() ;
+	  l1t::OMDSReader::QueryResults gtPartitionKeyResults =
+	    m_omdsReader.basicQuery( "PARTITION0_SETUP_FK",
+				     "GT_SETUP",
+				     "GT_SETUP.ID",
+				     subkeyResults, "GT_KEY" ) ;
+
+	  const coral::AttributeList& gtPartitionKeyRow =
+	    gtPartitionKeyResults.second.front() ;
 	  std::string gtPartitionKey =
-	    gtRow[ "PARTITION0_SETUP_FK" ].data< std::string >() ;
+	    gtPartitionKeyRow[ "PARTITION0_SETUP_FK" ].data< std::string >() ;
 
 	  pL1TriggerKey->add( "L1GtPrescaleFactors",
 			      "L1GtPrescaleFactorsAlgoTrigRcd",
@@ -270,56 +245,40 @@ L1TriggerKeyOnlineProd::produce(const L1TriggerKeyRcd& iRecord)
 	  std::cout << "GT_KEY " << gtKey << std::endl ;
 	  std::cout << "GT_PARTITION_KEY " << gtPartitionKey << std::endl ;
 
-	  std::vector< std::string > gtQueryStrings1 ;
-	  gtQueryStrings1.push_back( "L1T_MENU_FK" ) ;
-	  std::string gtConditionString1 = "GT_SETUP.ID = :gtKey" ;
-	  coral::AttributeList gtAttributes1 ;
-	  gtAttributes1.extend( "gtKey", typeid( std::string ) ) ;
-	  gtAttributes1[ "gtKey" ].data< std::string >() = gtKey ;
-	  boost::shared_ptr< coral::IQuery > gtQuery1
-	    ( m_omdsReader.newQuery( "GT_SETUP", gtQueryStrings1,
-				     gtConditionString1, gtAttributes1 ) ) ;
-	  coral::ICursor& gtCursor1 = gtQuery1->execute() ;
-	  gtCursor1.next() ;
-	  const coral::AttributeList& gtRow1 = gtCursor1.currentRow() ;
-	  std::string gtMenuId =
-	    gtRow1[ "L1T_MENU_FK" ].data< std::string >() ;
+	  // Muon scales
 
-	  std::vector< std::string > gtQueryStrings2 ;
-	  gtQueryStrings2.push_back( "SCALES_FK" ) ;
-	  std::string gtConditionString2 = "L1T_MENU.ID = :gtMenuId" ;
-	  coral::AttributeList gtAttributes2 ;
-	  gtAttributes2.extend( "gtMenuId", typeid( std::string ) ) ;
-	  gtAttributes2[ "gtMenuId" ].data< std::string >() = gtMenuId ;
-	  boost::shared_ptr< coral::IQuery > gtQuery2
-	    ( m_omdsReader.newQuery( "L1T_MENU", gtQueryStrings2,
-				     gtConditionString2, gtAttributes2 ) ) ;
-	  coral::ICursor& gtCursor2 = gtQuery2->execute() ;
-	  gtCursor2.next() ;
-	  const coral::AttributeList& gtRow2 = gtCursor2.currentRow() ;
-	  std::string gtScalesId =
-	    gtRow2[ "SCALES_FK" ].data< std::string >() ;
+	  // SELECT SCALE_MUON_PT_REF, SCALE_MUON_ETA_REF, SCALE_MUON_PHI_REF FROM L1T_SCALES WHERE L1T_SCALES.ID =
+	  // ( SELECT SCALES_FK FROM L1T_MENU WHERE L1T_MENU.ID =
+	  // ( SELECT L1T_MENU_FK FROM GT_SETUP WHERE GT_SETUP.ID GT_KEY [from subkeyResults] ) )
 
-	  std::vector< std::string > gtQueryStrings3 ;
-	  gtQueryStrings3.push_back( "SCALE_MUON_PT_REF" ) ;
-	  gtQueryStrings3.push_back( "SCALE_MUON_ETA_REF" ) ;
-	  gtQueryStrings3.push_back( "SCALE_MUON_PHI_REF" ) ;
-	  std::string gtConditionString3 = "L1T_SCALES.ID = :gtScalesId" ;
-	  coral::AttributeList gtAttributes3 ;
-	  gtAttributes3.extend( "gtScalesId", typeid( std::string ) ) ;
-	  gtAttributes3[ "gtScalesId" ].data< std::string >() = gtScalesId ;
-	  boost::shared_ptr< coral::IQuery > gtQuery3
-	    ( m_omdsReader.newQuery( "L1T_SCALES", gtQueryStrings3,
-				     gtConditionString3, gtAttributes3 ) ) ;
-	  coral::ICursor& gtCursor3 = gtQuery3->execute() ;
-	  gtCursor3.next() ;
-	  const coral::AttributeList& gtRow3 = gtCursor3.currentRow() ;
+	  std::vector< std::string > gtQueryStrings ;
+	  gtQueryStrings.push_back( "SCALE_MUON_PT_REF" ) ;
+	  gtQueryStrings.push_back( "SCALE_MUON_ETA_REF" ) ;
+	  gtQueryStrings.push_back( "SCALE_MUON_PHI_REF" ) ;
+
+	  l1t::OMDSReader::QueryResults muonScaleKeyResults =
+	    m_omdsReader.basicQuery(
+	      gtQueryStrings,
+	      "L1T_SCALES",
+	      "L1T_SCALES.ID",
+	      m_omdsReader.basicQuery(
+		"SCALES_FK",
+		"L1T_MENU",
+		"L1T_MENU.ID",
+		m_omdsReader.basicQuery(
+		  "L1T_MENU_FK",
+		  "GT_SETUP",
+		  "GT_SETUP.ID",
+		  subkeyResults, "GT_KEY" ) ) ) ;
+
+	  const coral::AttributeList& gtRow =
+	    muonScaleKeyResults.second.front() ;
 	  std::string gtMuPtScaleId =
-	    gtRow3[ "SCALE_MUON_PT_REF" ].data< std::string >() ;
+	    gtRow[ "SCALE_MUON_PT_REF" ].data< std::string >() ;
 	  std::string gtMuEtaScaleId =
-	    gtRow3[ "SCALE_MUON_ETA_REF" ].data< std::string >() ;
+	    gtRow[ "SCALE_MUON_ETA_REF" ].data< std::string >() ;
 	  std::string gtMuPhiScaleId =
-	    gtRow3[ "SCALE_MUON_PHI_REF" ].data< std::string >() ;
+	    gtRow[ "SCALE_MUON_PHI_REF" ].data< std::string >() ;
 
 	  pL1TriggerKey->add( "L1MuTriggerPtScale",
 			      "L1MuTriggerPtScaleRcd",

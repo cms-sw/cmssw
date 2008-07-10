@@ -8,7 +8,7 @@
 //
 // Original Author:  
 //         Created:  Sun Mar  2 01:46:46 CET 2008
-// $Id: OMDSReader.cc,v 1.1 2008/03/03 21:52:19 wsun Exp $
+// $Id: OMDSReader.cc,v 1.2 2008/05/28 17:52:55 wsun Exp $
 //
 
 // system include files
@@ -17,6 +17,7 @@
 #include "CondTools/L1Trigger/interface/OMDSReader.h"
 #include "RelationalAccess/ITable.h"
 #include "RelationalAccess/ISchema.h"
+#include "RelationalAccess/ICursor.h"
 
 //
 // constants, enums and typedefs
@@ -65,35 +66,90 @@ OMDSReader::~OMDSReader()
 // member functions
 //
 
-  boost::shared_ptr< coral::IQuery >
-  OMDSReader::newQuery( const std::string& tableString,
-			const std::vector< std::string >& queryStrings,
-			const std::string& conditionString,
-			const coral::AttributeList& conditionAttributes ) const
-  {
-    // need CoralSessionProxy?
-    coral::ITable& table =
-      m_coralTransaction->nominalSchema().tableHandle( tableString ) ;
+//
+// const member functions
+//
 
-    // Ownership is transferred to calling function
+  const OMDSReader::QueryResults
+  OMDSReader::basicQuery(
+    const std::vector< std::string >& columnNames,
+    const std::string& tableName,
+    const std::string& conditionLHS,
+    const QueryResults conditionRHS,
+    const std::string& conditionRHSName ) const
+  {
+    coral::ITable& table =
+      m_coralTransaction->nominalSchema().tableHandle( tableName ) ;
+
+    // Pointer is deleted automatically at end of function.
     boost::shared_ptr< coral::IQuery > query( table.newQuery() ) ;
 
     // Construct query
-    std::vector< std::string >::const_iterator it = queryStrings.begin() ;    
-    std::vector< std::string >::const_iterator end = queryStrings.end() ;
+    std::vector< std::string >::const_iterator it = columnNames.begin() ;
+    std::vector< std::string >::const_iterator end = columnNames.end() ;
     for( ; it != end ; ++it )
       {
 	query->addToOutputList( *it ) ;
       }
 
-    query->setCondition( conditionString, conditionAttributes ) ;
+    // Only apply condition if RHS has one row.
+    if( !conditionLHS.empty() && conditionRHS.second.size() == 1 )
+      {
+	if( !conditionRHSName.empty() )
+	  {
+	    query->setCondition( conditionLHS + " = :" + conditionRHSName,
+				 conditionRHS.second.front() ) ;
+	  }
+	else if( conditionRHS.first.size() == 1 ) // check for only one column
+	  {
+	    query->setCondition( conditionLHS + " = :" +
+				    conditionRHS.first.front(),
+				 conditionRHS.second.front() ) ;
+	  }
+      }
 
-    return query ;
+    coral::ICursor& cursor = query->execute() ;
+
+    // Copy AttributeLists for external use because the cursor is deleted
+    // when the query goes out of scope.
+    std::vector< coral::AttributeList > atts ;
+    while( cursor.next() )
+      {
+	atts.push_back( cursor.currentRow() ) ;
+      } ;
+
+    return std::make_pair( columnNames, atts ) ;
   }
 
-//
-// const member functions
-//
+  const OMDSReader::QueryResults
+  OMDSReader::basicQuery(
+    const std::string& columnName,
+    const std::string& tableName,
+    const std::string& conditionLHS,
+    const QueryResults conditionRHS,
+    const std::string& conditionRHSName ) const
+  {
+    std::vector< std::string > columnNames ;
+    columnNames.push_back( columnName ) ;
+    return basicQuery( columnNames, tableName,
+			conditionLHS, conditionRHS, conditionRHSName ) ;
+  }
+
+  const OMDSReader::QueryResults
+  OMDSReader::singleAttribute( const std::string& data ) const
+  {
+    std::vector< std::string > names ;
+    names.push_back( "dummy" ) ;
+
+    coral::AttributeList attList ;
+    attList.extend( "dummy", typeid( std::string ) ) ;
+    attList[ "dummy" ].data< std::string >() = data ;
+
+    std::vector< coral::AttributeList > atts ;
+    atts.push_back( attList ) ;
+
+    return std::make_pair( names, atts ) ;
+  }
 
 //
 // static member functions
