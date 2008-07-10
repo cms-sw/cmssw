@@ -138,11 +138,11 @@ TrajectorySeed MuonSeedCreator::createSeed(int type, SegmentContainer seg, std::
   LocalTrajectoryParameters param;
   double p_err =0.0;
   // check chi2 to determine "inside-out" or "outside-in"
-  bool out_in = false;
-  bool in_out = false;
-  bool expand = false;
+  //bool out_in = false;
+  //bool in_out = false;
+  //bool expand = false;
   unsigned int best_seg= 0;
-  double chi2_dof=-1.0;
+  double chi2_dof = -1.0;
 
   // determine the seed layer
   if ( seg.size() ==1 ) {
@@ -175,6 +175,7 @@ TrajectorySeed MuonSeedCreator::createSeed(int type, SegmentContainer seg, std::
 
   badSeedLayer.clear();
   // determine seed direction
+  /*
   if ( abs(layers[best_seg])== 1 ) {
      in_out = true;
   } else if ( (abs(layers[best_seg])== 0) && ( seg.size()==1 ) ) {
@@ -186,10 +187,9 @@ TrajectorySeed MuonSeedCreator::createSeed(int type, SegmentContainer seg, std::
   } else {
      expand = true;
   }
-
+  */
   
-  if ( type==1 || type==5 ) {
-  //if ( type==1 ) {
+  if ( type==1 || type==5 || type== 4) {
      // Fill the LocalTrajectoryParameters
      /// get the Global position
      last = best_seg;
@@ -214,21 +214,15 @@ TrajectorySeed MuonSeedCreator::createSeed(int type, SegmentContainer seg, std::
      p_err =  (sptmean*sptmean)/(polar.mag()*polar.mag()*ptmean*ptmean) ;
      mat = seg[last]->parametersError().similarityT( seg[last]->projectionMatrix() );  
      mat[0][0]= p_err;
-     if (in_out) {
-        if (type==5) { mat[0][0] = 4.0*mat[0][0]; }
-        mat[1][1]= 3.*mat[1][1];
-	mat[2][2]= 3.*mat[2][2];
-	mat[3][3]= 2.*mat[3][3];
-	mat[4][4]= 2.*mat[4][4];
-     }
-     else {
-        mat[0][0]= 2.25*mat[0][0];
-        mat[1][1]= 2.25*mat[1][1];
-	mat[3][3]= 2.25*mat[3][3];
-	mat[4][4]= 2.25*mat[4][4];
-     }
+     if (type==5 || type ==4 ) { mat[0][0] = 4.0*mat[0][0]; }
+
+     mat[1][1]= 3.*mat[1][1];
+     mat[2][2]= 3.*mat[2][2];
+     mat[3][3]= 2.*mat[3][3];
+     mat[4][4]= 2.*mat[4][4];
   }
-  /*else if ( type==5 ) {
+  /*
+  else if ( type== 4 ) {
      // Fill the LocalTrajectoryParameters
      /// get the Global position
      last = best_seg;
@@ -243,7 +237,6 @@ TrajectorySeed MuonSeedCreator::createSeed(int type, SegmentContainer seg, std::
      double QbP = charge / totalP ;
      double dxdz = segLocalDir.x()/segLocalDir.z();
      double dydz = segLocalDir.y()/segLocalDir.z();
-     //double dydz = segDirFromPos.y()/segDirFromPos.z();
      double lx = segLocalPos.x();
      double ly = segLocalPos.y();
      double pz_sign =  segLocalDir.z() > 0.0 ? 1.0:-1.0 ;
@@ -252,9 +245,8 @@ TrajectorySeed MuonSeedCreator::createSeed(int type, SegmentContainer seg, std::
      p_err =  (sptmean*sptmean)/(totalP*totalP*ptmean*ptmean) ;
      mat = seg[last]->parametersError().similarityT( seg[last]->projectionMatrix() );
      mat[0][0]= 4.0*p_err;
-     mat[3][3]= 4.0*mat[3][3];
-     mat[4][4]= 4.0*mat[4][4];
-  }*/
+  }
+  */ 
   else {
      // Fill the LocalTrajectoryParameters
      /// get the Global position
