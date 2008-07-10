@@ -8,7 +8,7 @@
 //
 // Original Author:  
 //         Created:  Thu Dec  6 17:49:54 PST 2007
-// $Id: FWRPZDataProxyBuilder.cc,v 1.16 2008/07/01 04:43:54 chrjones Exp $
+// $Id: FWRPZDataProxyBuilder.cc,v 1.17 2008/07/01 19:14:54 chrjones Exp $
 //
 
 // system include files
@@ -39,6 +39,7 @@ TEveCalo3D* FWRPZDataProxyBuilder::m_calo3d = 0;
 //
 FWRPZDataProxyBuilder::FWRPZDataProxyBuilder():
   m_priority(false),
+  m_elements(0),
 m_needsUpdate(true)
 {
 }

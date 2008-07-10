@@ -8,7 +8,7 @@
 //
 // Original Author:  
 //         Created:  Thu Dec  6 17:49:54 PST 2007
-// $Id: FW3DLegoDataProxyBuilder.cc,v 1.7 2008/07/07 00:33:50 chrjones Exp $
+// $Id: FW3DLegoDataProxyBuilder.cc,v 1.8 2008/07/09 20:06:17 chrjones Exp $
 //
 
 // system include files
@@ -55,7 +55,7 @@ namespace fw3dlego
 // constructors and destructor
 //
 FW3DLegoDataProxyBuilder::FW3DLegoDataProxyBuilder():
-  m_item(0), m_haveViews(false), m_mustBuild(true)
+  m_item(0), m_modelsChanged(false), m_haveViews(false), m_mustBuild(true)
 {
 }
 

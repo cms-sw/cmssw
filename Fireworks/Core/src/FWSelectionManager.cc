@@ -8,7 +8,7 @@
 //
 // Original Author:  Chris Jones
 //         Created:  Fri Jan 18 14:40:51 EST 2008
-// $Id: FWSelectionManager.cc,v 1.5 2008/01/25 04:05:36 chrjones Exp $
+// $Id: FWSelectionManager.cc,v 1.6 2008/03/05 16:42:32 chrjones Exp $
 //
 
 // system include files
@@ -33,7 +33,8 @@
 // constructors and destructor
 //
 FWSelectionManager::FWSelectionManager(FWModelChangeManager* iCM):
-m_changeManager(iCM)
+m_changeManager(iCM),
+m_wasChanged(false)
 {
    assert(0!=m_changeManager);
    m_changeManager->changeSignalsAreDone_.connect(boost::bind(&FWSelectionManager::finishedAllSelections,this));

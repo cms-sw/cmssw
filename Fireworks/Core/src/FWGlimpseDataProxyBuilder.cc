@@ -8,7 +8,7 @@
 //
 // Original Author:  
 //         Created:  Thu Dec  6 17:49:54 PST 2007
-// $Id: FWGlimpseDataProxyBuilder.cc,v 1.3 2008/07/04 23:55:41 chrjones Exp $
+// $Id: FWGlimpseDataProxyBuilder.cc,v 1.4 2008/07/07 00:26:05 chrjones Exp $
 //
 
 // system include files
@@ -37,7 +37,7 @@
 // constructors and destructor
 //
 FWGlimpseDataProxyBuilder::FWGlimpseDataProxyBuilder():
-  m_item(0),m_haveViews(false), m_scaler(0), m_mustBuild(true)
+  m_item(0), m_modelsChanged(false), m_haveViews(false), m_scaler(0), m_mustBuild(true)
 {
 }
 
