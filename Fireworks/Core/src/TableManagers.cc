@@ -5,6 +5,7 @@
 #include "Fireworks/Core/interface/FWSelectionManager.h"
 #undef private
 #include <string.h>
+#include "boost/bind.hpp"
 #include "TColor.h"
 #include "TableManagers.h"
 
@@ -269,5 +270,14 @@ void FWTableManager::sort (int col, bool reset)
 void FWTableManager::setItem (FWEventItem *i)
 {
      item = i;
-     widget->SetTextColor(item->m_displayProperties.color());
+     if (item != 0) {
+	  widget->SetTextColor(item->m_displayProperties.color());
+	  i->goingToBeDestroyed_.connect(
+	       boost::bind(&FWTableManager::itemGoingToBeDestroyed, this));
+     }
+}
+
+void FWTableManager::itemGoingToBeDestroyed ()
+{
+     item = 0;
 }
