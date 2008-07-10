@@ -223,8 +223,9 @@ unsigned short L1RCTReceiverCard::calcRegionSum(L1RCTRegion region){
     for(int j = 0; j<4; j++){
       unsigned short towerEt = region.getEtIn9Bits(i,j);
       // If tower is saturated, peg the region to max value
-      if(towerEt == 0x1FF) sum = 0x3FF;
-      else sum = sum + towerEt;
+      //if(towerEt == 0x1FF) sum = 0x3FF;  // HARDWARE DOESN'T DO THIS!!
+      //else 
+      sum = sum + towerEt;
     }
   }
   if(sum > 1023){
