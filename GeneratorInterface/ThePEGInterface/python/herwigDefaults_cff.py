@@ -23,6 +23,7 @@ herwigDefaultsBlock = cms.PSet(
 		'set LHCGenerator:MaxErrors 10000',
 		'cd /',
 	),
+
 	pdfCTEQ5l1 = cms.vstring(
 		'mkdir /LHAPDF',
 		'cd /LHAPDF',
@@ -34,6 +35,7 @@ herwigDefaultsBlock = cms.PSet(
 		'set /Herwig/Particles/pbar-:PDF cmsPDFSet',
 		'cd /',
 	),
+
 	pdfCTEQ6l = cms.vstring(
 		'mkdir /LHAPDF',
 		'cd /LHAPDF',
@@ -45,14 +47,17 @@ herwigDefaultsBlock = cms.PSet(
 		'set /Herwig/Particles/pbar-:PDF cmsPDFSet',
 		'cd /',
 	),
+
 	cm10TeV = cms.vstring(
 		'set /Herwig/Generators/LHCGenerator:EventHandler:LuminosityFunction:Energy 10000.0',
 		'set /Herwig/Shower/Evolver:IntrinsicPtGaussian 2.1*GeV',
 	),
+
 	cm14TeV = cms.vstring(
 		'set /Herwig/Generators/LHCGenerator:EventHandler:LuminosityFunction:Energy 14000.0',
 		'set /Herwig/Shower/Evolver:IntrinsicPtGaussian 2.2*GeV',
 	),
+
 	disableCtau10mmDecays = cms.vstring(
 		'cd /Herwig/Particles',
 		'set K-/K-->nu_ebar,e-;:OnOff Off',
