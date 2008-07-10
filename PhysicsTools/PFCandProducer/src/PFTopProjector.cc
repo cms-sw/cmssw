@@ -113,8 +113,8 @@ void PFTopProjector::produce(Event& iEvent,
 			 iEvent );
 
   Handle<IsolatedPFCandidateCollection> pfIsolatedMuons;
-  pfpat::fetchCollection(pfIsolatedElectrons, 
-			 inputTagIsolatedElectrons_, 
+  pfpat::fetchCollection(pfIsolatedMuons, 
+			 inputTagIsolatedMuons_, 
 			 iEvent );
 
   Handle<PFJetCollection> pfJets;
@@ -153,131 +153,17 @@ void PFTopProjector::produce(Event& iEvent,
     
   assert( pfCandidates.isValid() );
 
-  if( pfTaus.isValid() ) {
-    const PFTauCollection& taus = *pfTaus;
 
-    if(verbose_) 
-      cout<<" PFTaus ------ "<<taus.size()<<endl;
-    
-    for(unsigned i=0; i<taus.size(); i++) {
-      
-      
-      PFTauRef tauRef(pfTaus, i );
-      CandidateBaseRef baseRef( tauRef );
- 
-      CandidateBaseRefVector ancestors;
-      refToAncestor( baseRef,
-		     ancestors,
-		     pfCandidatesID );
-      
-      if(verbose_) {
-	cout<<"    tau "<<i<<" : "<<taus[i]<<endl;
-	printAncestors( ancestors, pfCandidates );
-      }
-      maskAncestors( ancestors, masked );
-    }
-  }
-
-  
-  if( pfJets.isValid() ) {
-    const PFJetCollection& jets = *pfJets;
-
-    if(verbose_) 
-      cout<<" PFJets ------ "<<jets.size()<<endl;
-    
-    for(unsigned i=0; i<jets.size(); i++) {
-
-      PFJetRef jetRef(pfJets, i );
-      CandidateBaseRef baseRef( jetRef );
-
-      CandidateBaseRefVector ancestors;
-      refToAncestor( baseRef,
-		     ancestors,
-		     pfCandidatesID );
-
-      if(verbose_) {
-	cout<<"    jet "<<i<<endl;
-	printAncestors( ancestors, pfCandidates );
-      }
-
-      maskAncestors( ancestors, masked );
-    }
-  }
-
-  
-
-  if( pfPileUpCandidates.isValid() ) {  
-    const PileUpPFCandidateCollection& pileUps = *pfPileUpCandidates;
-    
-    if(verbose_) 
-      cout<<" PFPU ------ "<<pileUps.size()<<endl;
- 
-    for(unsigned i=0; i<pileUps.size(); i++) {
-      
-      PileUpPFCandidateRef isoRef( pfPileUpCandidates, i ); 
-      CandidateBaseRef baseRef( isoRef );
-
-      CandidateBaseRefVector ancestors;
-      refToAncestor( baseRef,
-		     ancestors,
-		     pfCandidatesID );
-      if(verbose_) {
-	printAncestors( ancestors, pfCandidates );
-      }
-      maskAncestors( ancestors, masked );
-
-    }
-  }
-  
-
-  if( pfIsolatedElectrons.isValid() ) {
-    const IsolatedPFCandidateCollection& isolated = *pfIsolatedElectrons;
-
-    if(verbose_) 
-      cout<<" PFIso ele ------ "<<isolated.size()<<endl;
-    
-    for(unsigned i=0; i<isolated.size(); i++) {
-
-      IsolatedPFCandidateRef isoRef( pfIsolatedElectrons, i ); 
-      CandidateBaseRef baseRef( isoRef );
-      CandidateBaseRefVector ancestors;
-      refToAncestor( baseRef,
-		     ancestors,
-		     pfCandidatesID );
-
-      if(verbose_) {
-	printAncestors( ancestors, pfCandidates );
-      }
-
-      maskAncestors( ancestors, masked );
-    }
-  }
-  
-
-  if( pfIsolatedMuons.isValid() ) {
-    const IsolatedPFCandidateCollection& isolated = *pfIsolatedMuons;
-
-    if(verbose_) 
-      cout<<" PFIso mu ------ "<<isolated.size()<<endl;
-    
-    for(unsigned i=0; i<isolated.size(); i++) {
-
-      IsolatedPFCandidateRef isoRef( pfIsolatedMuons, i ); 
-      CandidateBaseRef baseRef( isoRef );
-      CandidateBaseRefVector ancestors;
-      refToAncestor( baseRef,
-		     ancestors,
-		     pfCandidatesID );
-
-      if(verbose_) {
-	printAncestors( ancestors, pfCandidates );
-      }
-
-      maskAncestors( ancestors, masked );
-    }
-  }
-  
-
+  processCollection( pfTaus, pfCandidates, masked, 
+		     "PFTau");
+  processCollection( pfJets, pfCandidates, masked, 
+		     "PFJet");
+  processCollection( pfPileUpCandidates, pfCandidates, masked, 
+		     "PileUpParticle");
+  processCollection( pfIsolatedElectrons, pfCandidates, masked, 
+		     "IsoElectron");
+  processCollection( pfIsolatedMuons, pfCandidates, masked, 
+		     "IsoMuon");
 
   const PFCandidateCollection& inCands = *pfCandidates;
 
@@ -294,9 +180,9 @@ void PFTopProjector::produce(Event& iEvent,
     else {
       if(verbose_)
 	cout<<"O "<<i<<" "<<inCands[i]<<endl;
-      PFCandidateRef motherRef( pfCandidates, i );
+      PFCandidatePtr motherPtr( pfCandidates, i );
       pPFCandidateOutput->push_back( inCands[i] );
-      pPFCandidateOutput->back().setSourceRef(motherRef);
+      pPFCandidateOutput->back().setSourcePtr(motherPtr);
     }
   }
   
@@ -310,28 +196,26 @@ void PFTopProjector::produce(Event& iEvent,
 
 
 void
-PFTopProjector::refToAncestor( CandidateBaseRef candRef,
-			       CandidateBaseRefVector& ancestors,
-			       const edm::ProductID& ancestorsID) const {
+  PFTopProjector::ptrToAncestor( reco::CandidatePtr candPtr,
+				 reco::CandidatePtrVector& ancestors,
+				 const edm::ProductID& ancestorsID ) const {
 
   
-
-  //   CandidateBaseRefVector mothers = candRef->motherRefs(); 
  
-  unsigned nSources = candRef->numberOfSourceCandidateRefs();
+  unsigned nSources = candPtr->numberOfSourceCandidatePtrs();
 
-  //   cout<<"going down from "<<candRef.id()
-  //       <<"/"<<candRef.key()<<" #mothers "<<nSources
-  //       <<" ancestor id "<<allPFCandidates.id()<<endl;
+//   cout<<"going down from "<<candPtr.id()
+//       <<"/"<<candPtr.key()<<" #mothers "<<nSources
+//       <<" ancestor id "<<ancestorsID<<endl;
   
   for(unsigned i=0; i<nSources; i++) {
     
-    CandidateBaseRef mother = candRef->sourceCandidateRef(i);
-    //     cout<<"  mother id "<<mother.id()<<endl;
+    CandidatePtr mother = candPtr->sourceCandidatePtr(i);
+//     cout<<"  mother id "<<mother.id()<<endl;
     
     if(  mother.id() != ancestorsID ) {
       // the mother is not yet at lowest level
-      refToAncestor( mother, ancestors, ancestorsID);
+      ptrToAncestor( mother, ancestors, ancestorsID);
     }
     else {
       // adding mother to the list of ancestors
@@ -342,7 +226,7 @@ PFTopProjector::refToAncestor( CandidateBaseRef candRef,
 
 
 
-void PFTopProjector::maskAncestors( const reco::CandidateBaseRefVector& ancestors,
+void PFTopProjector::maskAncestors( const reco::CandidatePtrVector& ancestors,
 				    std::vector<bool>& masked ) const {
   
   for(unsigned i=0; i<ancestors.size(); i++) {
@@ -359,8 +243,8 @@ void PFTopProjector::maskAncestors( const reco::CandidateBaseRefVector& ancestor
 
 
 
-void  PFTopProjector::printAncestors( const reco::CandidateBaseRefVector& ancestors,
-				      const edm::Handle<reco::PFCandidateCollection> allPFCandidates ) const {
+void  PFTopProjector::printAncestors( const reco::CandidatePtrVector& ancestors,
+				      const edm::Handle<reco::PFCandidateCollection>& allPFCandidates ) const {
   
   PFCandidateCollection pfs = *allPFCandidates;
 
@@ -372,9 +256,7 @@ void  PFTopProjector::printAncestors( const reco::CandidateBaseRefVector& ancest
     unsigned index = ancestors[i].key();
     assert( index < pfs.size() );
     
-    cout<<"   "<<pfs[index]<<endl;
+    cout<<"\t\t"<<pfs[index]<<endl;
   }
 }
-
-
 

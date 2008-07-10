@@ -46,22 +46,29 @@ class PFTopProjector : public edm::EDProducer {
 
  private:
  
-  /// fills ancestors with RefToBases to the PFCandidates that in
+  /// fills ancestors with ptrs to the PFCandidates that in
   /// one way or another contribute to the candidate pointed to by 
-  /// candRef
+  /// candPtr
   void
-    refToAncestor( reco::CandidateBaseRef candRef,
-		   reco::CandidateBaseRefVector& ancestors,
+    ptrToAncestor( reco::CandidatePtr candRef,
+		   reco::CandidatePtrVector& ancestors,
 		   const edm::ProductID& ancestorsID ) const;
 
   /// ancestors is a RefToBase vector. For each object in this vector
   /// get the index and set the corresponding slot to true in the 
   /// masked vector
-  void maskAncestors( const reco::CandidateBaseRefVector& ancestors,
+  void maskAncestors( const reco::CandidatePtrVector& ancestors,
 		      std::vector<bool>& masked ) const;
     
-  void printAncestors( const reco::CandidateBaseRefVector& ancestors,
-		       const edm::Handle<reco::PFCandidateCollection> allPFCandidates ) const;
+  void printAncestors( const reco::CandidatePtrVector& ancestors,
+		       const edm::Handle<reco::PFCandidateCollection>& allPFCandidates ) const;
+
+
+  template< class T > 
+    void processCollection( const edm::Handle< std::vector<T> >& handle,
+			    const edm::Handle<reco::PFCandidateCollection>& allPFCandidates ,
+			    std::vector<bool>& masked,
+			    const char* objectName  ) const; 
 
   /// ancestor PFCandidates
   edm::InputTag   inputTagPFCandidates_;
@@ -86,7 +93,46 @@ class PFTopProjector : public edm::EDProducer {
 
 };
 
-/* std::ostream& operator<<(std::ostream& out, const reco::PFTau& tau); */
+template< class T > 
+void PFTopProjector::processCollection( const edm::Handle< std::vector<T> >& handle,
+					const edm::Handle<reco::PFCandidateCollection>& allPFCandidates ,
+					std::vector<bool>& masked,
+					const char* objectName) const {
+  if( handle.isValid() ) {
+    const std::vector<T>& collection = *handle;
+    
+    if(verbose_) 
+      std::cout<<" Collection: "<<objectName<<"s"
+	       <<" size = "<<collection.size()<<std::endl;
+    
+    for(unsigned i=0; i<collection.size(); i++) {
+      
+      
+      edm::Ptr<T>   ptr( handle, i);
+      reco::CandidatePtr basePtr( ptr );
+ 
+
+      reco::CandidatePtrVector ancestors;
+      ptrToAncestor( basePtr,
+		     ancestors,
+		     allPFCandidates.id() );
+      
+      if(verbose_) {
+	std::cout<<"\t"<<objectName<<" "<<i
+		 <<" pt,eta,phi = "
+		 <<basePtr->pt()<<","
+		 <<basePtr->eta()<<","
+		 <<basePtr->phi()<<std::endl;
+	printAncestors( ancestors, allPFCandidates );
+      }
+  
+      maskAncestors( ancestors, masked );
+    }
+  }
+
+}
+
+
 
 
 #endif

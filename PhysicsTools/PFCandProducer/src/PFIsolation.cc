@@ -89,14 +89,14 @@ void PFIsolation::produce(Event& iEvent,
   
   for( unsigned i=0; i<pfCandidates->size(); i++ ) {
 
-    const PFCandidateRef candref( pfCandidates,i);
+    const PFCandidatePtr candptr( pfCandidates,i);
 
-    double ptFractionInCone = computeIsolation( *candref,
+    double ptFractionInCone = computeIsolation( *candptr,
 						*pfCandidatesForIsolation,
 						isolation_Cone_DeltaR_ );
 
     if( ptFractionInCone < max_ptFraction_InCone_ ) {
-      pOutput->push_back( IsolatedPFCandidate( candref, 
+      pOutput->push_back( IsolatedPFCandidate( candptr, 
 					       ptFractionInCone ) );
     }
     
