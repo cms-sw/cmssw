@@ -91,7 +91,7 @@ Bool_t LightTableWidget::HandleButton(Event_t *event)
 	   if (fMousePos.fY >= 3 && fMousePos.fY <= manager->NumberOfRows() + 2) 
 		manager->Selection(fMousePos.fY - 3, event->fState);
 	   else if (fMousePos.fY == 1) {
-		for (int col = 0, i = 0; i < col_widths.size(); ++i) {
+		for (int col = 0, i = 0; i < static_cast<int>(col_widths.size()); ++i) {
 		     col += col_widths[i] + 1;
 		     if (col > fMousePos.fX) {
 			  manager->sort(i);
@@ -142,7 +142,7 @@ void LightTableWidget::DrawRegion(Int_t x, Int_t y, UInt_t w, UInt_t h)
      char *buffer;
 
    TGLongPosition pos;
-   Long_t xoffset, len, len1, len2;
+   Long_t xoffset, len;
    Long_t line_count = fText->RowCount();
    Rectangle_t rect;
    rect.fX = x;
