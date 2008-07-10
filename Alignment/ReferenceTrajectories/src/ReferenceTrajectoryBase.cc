@@ -13,3 +13,20 @@ ReferenceTrajectoryBase::ReferenceTrajectoryBase(unsigned int nPar, unsigned int
   theTsosVec.reserve(nHits);
   theRecHits.reserve(nHits);
 }
+
+
+unsigned int
+ReferenceTrajectoryBase::numberOfUsedRecHits( const TransientTrackingRecHit::ConstRecHitContainer &recHits ) const
+{
+  unsigned int nUsedHits = 0;
+  TransientTrackingRecHit::ConstRecHitContainer::const_iterator itHit;
+  for ( itHit = recHits.begin(); itHit != recHits.end(); ++itHit ) if ( useRecHit( *itHit ) ) ++nUsedHits;
+  return nUsedHits;
+}
+
+
+bool
+ReferenceTrajectoryBase::useRecHit( const TransientTrackingRecHit::ConstRecHitPointer& hitPtr ) const
+{
+  return hitPtr->isValid();
+}

@@ -40,10 +40,11 @@ BzeroReferenceTrajectoryFactory::trajectories( const edm::EventSetup & setup,
     if ( input.first.isValid() )
     {
       // set the flag for reversing the RecHits to false, since they are already in the correct order.
-      trajectories.push_back( ReferenceTrajectoryPtr( new BzeroReferenceTrajectory( input.first, input.second, 
-										    false, magneticField.product(),
-										    materialEffects(), propagationDirection(),
-										    theMass, theMomentumEstimate ) ) );
+      trajectories.push_back(ReferenceTrajectoryPtr(new BzeroReferenceTrajectory(input.first, input.second, false,
+										 magneticField.product(),
+										 materialEffects(),
+										 propagationDirection(),
+										 theMass, theMomentumEstimate)));
     }
 
     ++itTracks;
@@ -66,7 +67,6 @@ BzeroReferenceTrajectoryFactory::trajectories( const edm::EventSetup & setup,
 					  << "Inconsistent input:\n"
 					  << "\tnumber of tracks = " << tracks.size()
 					  << "\tnumber of external predictions = " << external.size();
-
     return trajectories;
   }
 
@@ -78,8 +78,7 @@ BzeroReferenceTrajectoryFactory::trajectories( const edm::EventSetup & setup,
 
   while ( itTracks != tracks.end() )
   {
-    TrajectoryInput input = innermostStateAndRecHits( *itTracks  );
-
+    TrajectoryInput input = innermostStateAndRecHits( *itTracks );
     // Check input: If all hits were rejected, the TSOS is initialized as invalid.
     if ( input.first.isValid() )
     {
@@ -88,18 +87,21 @@ BzeroReferenceTrajectoryFactory::trajectories( const edm::EventSetup & setup,
 	// set the flag for reversing the RecHits to false, since they are already in the correct order.
 	ReferenceTrajectoryPtr refTraj( new BzeroReferenceTrajectory( *itExternal, input.second, false,
 								      magneticField.product(), materialEffects(),
-								      propagationDirection(), theMass, theMomentumEstimate ) );
+								      propagationDirection(), theMass,
+								      theMomentumEstimate ) );
 
 	AlgebraicSymMatrix externalParamErrors( asHepMatrix<5>( (*itExternal).localError().matrix() ) );
 	refTraj->setParameterErrors( externalParamErrors.sub( 2, 5 ) );
+
 	trajectories.push_back( refTraj );
       }
       else
       {
-	trajectories.push_back( ReferenceTrajectoryPtr( new BzeroReferenceTrajectory( input.first, input.second, 
-										      false, magneticField.product(),
-										      materialEffects(), propagationDirection(),
-										      theMass, theMomentumEstimate ) ) );
+	trajectories.push_back(ReferenceTrajectoryPtr(new BzeroReferenceTrajectory(input.first, input.second, false,
+										   magneticField.product(),
+										   materialEffects(),
+										   propagationDirection(),
+										   theMass, theMomentumEstimate)));
       }
     }
 
@@ -109,6 +111,7 @@ BzeroReferenceTrajectoryFactory::trajectories( const edm::EventSetup & setup,
 
   return trajectories;
 }
+
 
 
 DEFINE_EDM_PLUGIN( TrajectoryFactoryPlugin, BzeroReferenceTrajectoryFactory, "BzeroReferenceTrajectoryFactory" );

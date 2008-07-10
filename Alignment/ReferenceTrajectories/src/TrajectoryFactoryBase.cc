@@ -15,13 +15,13 @@ TrajectoryFactoryBase::TrajectoryFactoryBase( const edm::ParameterSet & config )
   const std::string strPropagationDirection = config.getParameter< std::string >( "PropagationDirection" );
   thePropDir = this->propagationDirection( strPropagationDirection );
 
+  theUseWithoutDet = config.getParameter< bool >( "UseHitWithoutDet" );
   theUseInvalidHits = config.getParameter< bool >( "UseInvalidHits" );
   theUseProjectedHits = config.getParameter< bool >( "UseProjectedHits" );
 }
 
 
 TrajectoryFactoryBase::~TrajectoryFactoryBase( void ) {}
-
 
 
 const TrajectoryFactoryBase::TrajectoryInput
@@ -54,7 +54,8 @@ TrajectoryFactoryBase::innermostStateAndRecHits( const ConstTrajTrackPair & trac
 }
 
 
-const Trajectory::DataContainer TrajectoryFactoryBase::orderedTrajectoryMeasurements( const Trajectory & trajectory ) const
+const Trajectory::DataContainer
+TrajectoryFactoryBase::orderedTrajectoryMeasurements( const Trajectory & trajectory ) const
 {
   const PropagationDirection dir = trajectory.direction();
   const bool hitsAreReverse = ( ( dir == thePropDir || thePropDir == anyDirection ) ? false : true );
@@ -65,7 +66,9 @@ const Trajectory::DataContainer TrajectoryFactoryBase::orderedTrajectoryMeasurem
   {
     Trajectory::DataContainer reordered;
     reordered.reserve( original.size() );
-    for ( Trajectory::DataContainer::const_reverse_iterator itM = original.rbegin(); itM != original.rend(); ++itM )
+
+    Trajectory::DataContainer::const_reverse_iterator itM;
+    for ( itM = original.rbegin(); itM != original.rend(); ++itM )
     {
       reordered.push_back( *itM );
     }
@@ -82,23 +85,26 @@ bool TrajectoryFactoryBase::sameSurface( const Surface& s1, const Surface& s2 ) 
 }
 
 
-bool TrajectoryFactoryBase::useRecHit( const TransientTrackingRecHit::ConstRecHitPointer& hitPtr ) const
+bool
+TrajectoryFactoryBase::useRecHit( const TransientTrackingRecHit::ConstRecHitPointer& hitPtr ) const
 {
-  bool useHit = true;
+  const GeomDet* det = hitPtr->det();
+  if ( !det && !theUseWithoutDet ) return false;
 
-  if ( !( theUseInvalidHits || hitPtr->isValid() ) ) useHit = false;
+  if ( !( theUseInvalidHits || hitPtr->isValid() ) ) return false;
 
   if ( !theUseProjectedHits )
   {
     const ProjectedRecHit2D* projectedHit = dynamic_cast< const ProjectedRecHit2D* >( hitPtr.get() );
-    if ( projectedHit != 0 ) useHit = false;
+    if ( projectedHit != 0 ) return false;
   }
 
-  return useHit;
+  return true;
 }
 
 
-const TrajectoryFactoryBase::MaterialEffects TrajectoryFactoryBase::materialEffects( const std::string & strME ) const
+const TrajectoryFactoryBase::MaterialEffects
+TrajectoryFactoryBase::materialEffects( const std::string & strME ) const
 {
   if ( strME == "MultipleScattering" ) return ReferenceTrajectoryBase::multipleScattering;
   if ( strME == "EnergyLoss" ) return ReferenceTrajectoryBase::energyLoss;
@@ -110,7 +116,8 @@ const TrajectoryFactoryBase::MaterialEffects TrajectoryFactoryBase::materialEffe
 }
 
 
-const PropagationDirection TrajectoryFactoryBase::propagationDirection( const std::string & strPD ) const
+const PropagationDirection
+TrajectoryFactoryBase::propagationDirection( const std::string & strPD ) const
 {
   if ( strPD == "oppositeToMomentum" ) return oppositeToMomentum;
   if ( strPD == "alongMomentum" ) return alongMomentum;

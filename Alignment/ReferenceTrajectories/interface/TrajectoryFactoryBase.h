@@ -45,10 +45,9 @@ protected:
   virtual const TrajectoryInput innermostStateAndRecHits( const ConstTrajTrackPair & track ) const;
   virtual const Trajectory::DataContainer orderedTrajectoryMeasurements( const Trajectory & trajectory ) const;
   bool sameSurface( const Surface& s1, const Surface& s2 ) const;
+  bool useRecHit( const TransientTrackingRecHit::ConstRecHitPointer& hitPtr ) const;
 
 private:
-
-  bool useRecHit( const TransientTrackingRecHit::ConstRecHitPointer& hitPtr ) const;
 
   const MaterialEffects materialEffects( const std::string & strME ) const;
   const PropagationDirection propagationDirection( const std::string & strPD ) const;
@@ -56,8 +55,10 @@ private:
   MaterialEffects theMaterialEffects;
   PropagationDirection thePropDir;
 
+  bool theUseWithoutDet;
   bool theUseInvalidHits;
   bool theUseProjectedHits;
+
 };
 
 

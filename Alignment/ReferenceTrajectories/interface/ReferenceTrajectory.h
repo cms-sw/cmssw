@@ -4,7 +4,7 @@
 /**
  * Author     : Gero Flucke (based on code by Edmund Widl replacing ORCA's TkReferenceTrack)
  * date       : 2006/09/17
- * last update: $Date: 2007/12/11 13:53:37 $
+ * last update: $Date: 2007/12/14 16:50:23 $
  * by         : $Author: ewidl $
  *
  *  Class implementing the reference trajectory of a single charged
@@ -105,9 +105,11 @@ protected:
 				     const std::vector<AlgebraicSymMatrix> &allCurvChanges,
 				     const std::vector<AlgebraicSymMatrix> &allDeltaParaCovs);
 
-  unsigned int numberOfUsedRecHits( const TransientTrackingRecHit::ConstRecHitContainer &recHits ) const;
+  // Don't care for propagation direction 'anyDirection' - in that case the ,aterial effects
+  // are anyway not updated ...
+  inline const SurfaceSide surfaceSide(const PropagationDirection dir) const
+  { return ( dir == alongMomentum ) ? beforeSurface : afterSurface; }
 
-  bool useRecHit( const TransientTrackingRecHit::ConstRecHitPointer& hitPtr ) const;
 };
 
 #endif

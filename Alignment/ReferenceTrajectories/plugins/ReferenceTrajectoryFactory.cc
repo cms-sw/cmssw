@@ -37,9 +37,9 @@ ReferenceTrajectoryFactory::trajectories( const edm::EventSetup & setup,
     if ( input.first.isValid() )
     {
       // set the flag for reversing the RecHits to false, since they are already in the correct order.
-      trajectories.push_back( ReferenceTrajectoryPtr( new ReferenceTrajectory( input.first, input.second, false,
-									       magneticField.product(), materialEffects(),
-									       propagationDirection(), theMass ) ) );
+      trajectories.push_back(ReferenceTrajectoryPtr(new ReferenceTrajectory(input.first, input.second, false,
+									    magneticField.product(), materialEffects(),
+									    propagationDirection(), theMass)));
     }
 
     ++itTracks;
@@ -47,6 +47,7 @@ ReferenceTrajectoryFactory::trajectories( const edm::EventSetup & setup,
 
   return trajectories;
 }
+
 
 const ReferenceTrajectoryFactory::ReferenceTrajectoryCollection
 ReferenceTrajectoryFactory::trajectories( const edm::EventSetup & setup,
@@ -81,17 +82,18 @@ ReferenceTrajectoryFactory::trajectories( const edm::EventSetup & setup,
 	// set the flag for reversing the RecHits to false, since they are already in the correct order.
 	ReferenceTrajectoryPtr refTraj( new ReferenceTrajectory( *itExternal, input.second, false,
 								 magneticField.product(), materialEffects(),
-								 propagationDirection(), theMass ) );
+								 propagationDirection(), theMass) );
 
 	AlgebraicSymMatrix externalParamErrors( asHepMatrix<5>( (*itExternal).localError().matrix() ) );
 	refTraj->setParameterErrors( externalParamErrors );
+
 	trajectories.push_back( refTraj );
       }
       else
       {
-	trajectories.push_back( ReferenceTrajectoryPtr( new ReferenceTrajectory( input.first, input.second, false,
-										 magneticField.product(), materialEffects(),
-										 propagationDirection(), theMass ) ) );
+	trajectories.push_back(ReferenceTrajectoryPtr(new ReferenceTrajectory(input.first, input.second, false,
+									      magneticField.product(), materialEffects(),
+									      propagationDirection(), theMass)));
       }
     }
 
