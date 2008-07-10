@@ -1,4 +1,5 @@
 #include "DataFormats/TauReco/interface/PFTau.h"
+#include "DataFormats/Common/interface/RefToPtr.h"
 
 using namespace reco;
 using namespace std;
@@ -149,11 +150,11 @@ void PFTau::setMuonDecision(const bool& x) {muonDecision_ = x;}
 //
 
 
-CandidateBaseRef PFTau::sourceCandidateRef( size_type i ) const {
-  if( i!=0 ) return CandidateBaseRef();
+CandidatePtr PFTau::sourceCandidatePtr( size_type i ) const {
+  if( i!=0 ) return CandidatePtr();
   
   const PFJetRef& pfJetRef = pfTauTagInfoRef()->pfjetRef();
-  return CandidateBaseRef( pfJetRef );
+  return  refToPtr( pfJetRef );
 }
 
 

@@ -106,11 +106,11 @@ namespace reco {
     /// ( the candidates used to construct this Candidate)
     /// in the case of taus, there is only one source candidate,
     /// which is the corresponding PFJet
-    size_type numberOfSourceCandidateRefs() const {return 1;}
+    size_type numberOfSourceCandidatePtrs() const {return 1;}
 
     /// return a RefToBase to the source Candidates
     /// ( the candidates used to construct this Candidate)
-    CandidateBaseRef sourceCandidateRef( size_type i ) const;
+    CandidatePtr sourceCandidatePtr( size_type i ) const;
 
     /// prints information on this PFTau
     void dump(std::ostream& out=std::cout) const;
