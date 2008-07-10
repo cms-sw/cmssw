@@ -31,6 +31,10 @@ HLXMonitor::HLXMonitor(const edm::ParameterSet& iConfig)
    reconnTime       = iConfig.getUntrackedParameter< unsigned int >("ReconnectionTime",5);
    DistribIP        = iConfig.getUntrackedParameter< std::string  >("HLXDAQIP",    "vmepcs2f17-19");
    ResetAtNewRun    = iConfig.getUntrackedParameter< bool         >("NewRun_Reset","true");
+   SaveAtEndJob     = iConfig.getUntrackedParameter< bool         >("SaveAtEndJob","true");
+
+   eventInfoFolder_ = iConfig.getUntrackedParameter<std::string   >("eventInfoFolder", "EventInfo") ;
+   subSystemName_   = iConfig.getUntrackedParameter<std::string   >("subSystemName", "HLX") ;
 
    // HLX Config info
    set1BelowIndex   = 0;
@@ -42,8 +46,6 @@ HLXMonitor::HLXMonitor(const edm::ParameterSet& iConfig)
 
    runNumLength     = 9;
    secNumLength     = 6;
-
-   runNumber_       = 0;
 
    if(NUM_HLX > 36)       
      NUM_HLX = 36;
@@ -71,20 +73,24 @@ HLXMonitor::HLXMonitor(const edm::ParameterSet& iConfig)
    prescaleEvt_ = iConfig.getUntrackedParameter<int>("prescaleEvt", -1);
    cout << "===>DQM event prescale = " << prescaleEvt_ << " events "<< endl;
 
-   int HLXHFMapTemp[] = {31,32,33,34,35,18,  // s2f02 hf-
-			 13,14,15,16,17,0,   // s2f02 hf+
-			 25,26,27,28,29,30,  // s2f05 hf-
-			 7,8,9,10,11,12,     // s2f05 hf+
-			 19,20,21,22,23,24,  // s2f07 hf-
-			 1,2,3,4,5,6};       // s2f07 hf+
+   unsigned int HLXHFMapTemp[] = {31,32,33,34,35,18,  // s2f07 hf-
+				  13,14,15,16,17,0,   // s2f07 hf+
+				  25,26,27,28,29,30,  // s2f05 hf-
+				  7, 8, 9, 10,11,12,     // s2f05 hf+
+				  19,20,21,22,23,24,  // s2f02 hf-
+				  1, 2, 3, 4, 5, 6};       // s2f02 hf+
+
+   runNumber_       = 0;
+   expectedNibbles_ = 0;
 
    for( int iHLX = 0; iHLX < 36; ++iHLX ){
      HLXHFMap[iHLX] = HLXHFMapTemp[iHLX];
+     std::cout << "At " << iHLX << " Wedge " << HLXHFMap[iHLX] << std::endl;
+     totalNibbles_[iHLX] = 0;
    }
 
    SetupHists();
-   
-   SetupEventInfo(iConfig);
+   SetupEventInfo();
 }
 
 HLXMonitor::~HLXMonitor()
@@ -99,8 +105,8 @@ HLXMonitor::SetupHists()
 
   dbe_->setCurrentFolder(monitorName_+"/HFPlus");
 
-   for( unsigned int iWedge = 0; iWedge < 18 && iWedge < NUM_HLX; ++iWedge )
-   {  
+  for( unsigned int iWedge = 0; iWedge < 18 && iWedge < NUM_HLX; ++iWedge )
+    {  
       std::ostringstream tempStreamer;
       tempStreamer << std::dec << std::setw(2) << std::setfill('0') << (iWedge+1);
 
@@ -196,22 +202,6 @@ HLXMonitor::SetupHists()
       EtXAxisTitle  = "E_{T} Sum";
       EtYAxisTitle  = "Count";
    }
-//    else if(Style.compare("History")==0)
-//    {
-//       OccXAxisTitle = "Lumi Section";
-//       OccYAxisTitle = "Avg Occupancy";
-//       EtXAxisTitle  = "Lumi Section";
-//       EtYAxisTitle  = "Avg Et Sum Occupancy";
-    
-//       Set1Below[HLXHFMap[i]]->setResetMe(false);
-//       Set1Between[HLXHFMap[i]]->setResetMe(false);
-//       Set1Above[HLXHFMap[i]]->setResetMe(false);
-//       Set2Below[HLXHFMap[i]]->setResetMe(false);
-//       Set2Between[HLXHFMap[i]]->setResetMe(false);
-//       Set2Above[HLXHFMap[i]]->setResetMe(false);
-//       ETSum[HLXHFMap[i]]->setResetMe(false);
-    
-//    }
   
    for( unsigned int iWedge=0; iWedge < NUM_HLX; ++iWedge )
    {
@@ -389,33 +379,34 @@ HLXMonitor::SetupHists()
 }
 
 
-void HLXMonitor::SetupEventInfo(const edm::ParameterSet & ps)
+void HLXMonitor::SetupEventInfo( )
 {
 
-  using std::string;
+   using std::string;
 
-  parameters_ = ps;
-  pEvent_ = 0;
-  evtRateCount_ = 0;
-  gettimeofday(&currentTime_,NULL);
-  lastAvgTime_ = currentTime_;
-  
-  dbe_ = edm::Service<DQMStore>().operator->();
+   string currentfolder = subSystemName_ + "/" +  eventInfoFolder_;
+   cout << "currentfolder " << currentfolder << endl;
 
-  string eventinfofolder = parameters_.getUntrackedParameter<std::string>("eventInfoFolder", "EventInfo") ;
-  string subsystemname = parameters_.getUntrackedParameter<std::string>("subSystemFolder", "YourSubsystem") ;
-  string currentfolder = subsystemname + "/" +  eventinfofolder ;
-  cout << "currentfolder " << currentfolder << endl;
+   dbe_->setCurrentFolder(currentfolder) ;
 
-  evtRateWindow_ = parameters_.getUntrackedParameter<double>("eventRateWindow", 0.5);
-  if(evtRateWindow_<=0.15) evtRateWindow_=0.15;
-  cout << "Event Rate averaged over " << evtRateWindow_ << " minutes" << endl;
+   //Event specific contents
+   runId_     = dbe_->bookInt("iRun");
+   lumisecId_ = dbe_->bookInt("iLumiSection");
 
-  dbe_->setCurrentFolder(currentfolder) ;
+   reportSummary_ = dbe_->bookFloat("reportSummary");
+   reportSummaryMap_ = dbe_->book2D("reportSummaryMap", "reportSummaryMap", 18, 0., 18., 2, -1.5, 1.5);
 
-  //Event specific contents
-  runId_     = dbe_->bookInt("iRun");
-  lumisecId_ = dbe_->bookInt("iLumiSection");
+   // Fill the report summary objects with default values, since these will only
+   // be filled at the change of run.
+   std::cout << "Filling report summary! Initial." << std::endl;
+   reportSummary_->Fill(-1.0);
+
+   for( unsigned int iHLX = 0; iHLX < NUM_HLX; ++iHLX ){
+      unsigned int iWedge = HLXHFMap[iHLX] + 1;
+      unsigned int iEta = 2;
+      if( iWedge >= 19 ){ iEta = 1; iWedge -= 18; }
+      reportSummaryMap_->setBinContent(iWedge,iEta,-1.0);
+   }   
 }
 
 
@@ -444,6 +435,10 @@ HLXMonitor::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
 	 }
       }    
    } while( errorCode != 1 );
+
+   // If this is the first time through, set the runNumber ...
+   if( runNumber_ == 0 ) runNumber_ = lumiSection.hdr.runNumber;
+   //std::cout << "Run number is: " << runNumber_ << std::endl;
   
    // Fill the monitoring histograms 
    if(Style.compare("BX") == 0)
@@ -454,38 +449,12 @@ HLXMonitor::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
    {
       FillHistoDist(lumiSection);
    }
-   // not implemented
-   //else if(Style.compare("History")==0)
-   //{
-      // FillHistoHistory(lumiSection);
-   //}
 
    FillHistoHFCompare(lumiSection);
    FillHistoAvg(lumiSection);
    FillHistoLumi(lumiSection);
    FillHistoSum(lumiSection);
    FillEventInfo(lumiSection);
-
-   // Not implemented
-//    if(lumiSection.hdr.runNumber != runNumber_)
-//    {
-//       //SaveDQMFile();  
-//       runNumber_ = lumiSection.hdr.runNumber;
-//       if(ResetAtNewRun)
-//       {
-// 	 for( unsigned int i=0; i < NUM_HLX; ++i )
-// 	 {
-// 	    //need a good way to do this
-// 	    Set1Below[  HLXHFMap[i]]->softReset();
-// 	    Set1Between[HLXHFMap[i]]->softReset();
-// 	    Set1Above[  HLXHFMap[i]]->softReset();
-// 	    Set2Below[  HLXHFMap[i]]->softReset();
-// 	    Set2Between[HLXHFMap[i]]->softReset();
-// 	    Set2Above[  HLXHFMap[i]]->softReset();
-// 	    ETSum[      HLXHFMap[i]]->softReset();    
-// 	 }
-//       }
-//    }
 
    cout << "Run: " << lumiSection.hdr.runNumber 
 	<< " Section: " << lumiSection.hdr.sectionNumber 
@@ -496,22 +465,18 @@ HLXMonitor::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
    cout << "Noise[0]: " << lumiSection.lumiSummary.lumiNoise[0] << endl;
    cout << "Noise[1]: " << lumiSection.lumiSummary.lumiNoise[1] << endl;
 
-//    if( (lumiSection.hdr.sectionNumber % SavePeriod == 0) && (SavePeriod != -1))
-//    {
-//       SaveDQMFile();
-//    }
 }
 
 
 void HLXMonitor::SaveDQMFile(){
 
   std::ostringstream tempStreamer;
-  tempStreamer << OutputDir << "/" << OutputFilePrefix 
-	       << "_" << std::setfill('0') << std::setw(runNumLength) 
+  tempStreamer << OutputDir << "/" << OutputFilePrefix << "_" << subSystemName_
+	       << "_R" << std::setfill('0') << std::setw(runNumLength) 
 	       << runNumber_ 
-	       << "_" << std::setfill('0') << std::setw(secNumLength) 
-	       << lumiSection.hdr.sectionNumber
-	       << ".root";
+// 	       << "_" << std::setfill('0') << std::setw(secNumLength) 
+// 	       << lumiSection.hdr.sectionNumber
+ 	       << ".root";
   dbe_->save(tempStreamer.str());
 }
 
@@ -540,22 +505,21 @@ void HLXMonitor::beginJob(const edm::EventSetup&)
 // ------------ method called once each job just after ending the event loop  ------------
 void HLXMonitor::endJob() 
 {
+   if( SaveAtEndJob ) SaveDQMFile();
    HLXTCP.Disconnect();
 }
 
 void HLXMonitor::FillHistoAvg(const LUMI_SECTION & section)
 {
 
-   for( unsigned int iHLX = 0; iHLX < NUM_HLX; ++iHLX )
+   for( int iHLX = 0; iHLX < (int)NUM_HLX; ++iHLX )
    {
+      unsigned int iWedge = HLXHFMap[iHLX];
       if(section.occupancy[iHLX].hdr.numNibbles != 0)
       {
-	for( unsigned int iBX = 0; iBX < (NUM_BUNCHES - 100); ++iBX )  // Don't include the last one hundred BX in the average.
+	 for( unsigned int iBX = 0; iBX < (NUM_BUNCHES - 100); ++iBX )  // Don't include the last one hundred BX in the average.
 	 {
-	   
-	   unsigned int iWedge = HLXHFMap[iHLX];
-	   
-	   AvgEtSum->Fill( iWedge,section.etSum[iHLX].data[iBX]);
+	    AvgEtSum->Fill( iWedge,section.etSum[iHLX].data[iBX]);
 	
 	    AvgOccBelowSet1->  Fill( iWedge, section.occupancy[iHLX].data[set1BelowIndex  ][iBX] );
 	    AvgOccBetweenSet1->Fill( iWedge, section.occupancy[iHLX].data[set1BetweenIndex][iBX] );
@@ -572,16 +536,13 @@ void HLXMonitor::FillHistoAvg(const LUMI_SECTION & section)
 
 void HLXMonitor::FillHistoBX(const LUMI_SECTION & section)
 {
-
-   for( unsigned int iHLX = 0; iHLX < NUM_HLX; ++iHLX )
+   for( int iHLX = 0; iHLX < NUM_HLX; ++iHLX )
    {
+      unsigned int iWedge = HLXHFMap[iHLX];
       if(section.occupancy[iHLX].hdr.numNibbles != 0)
       {
 	 for( unsigned int iBX = 0; iBX < NUM_BUNCHES; ++iBX)
 	 { 
-
-	   unsigned int iWedge = HLXHFMap[iHLX];
-
 	    Set1Below[iWedge]->  Fill(iBX, section.occupancy[iHLX].data[set1BelowIndex  ][iBX]);
 	    Set1Between[iWedge]->Fill(iBX, section.occupancy[iHLX].data[set1BetweenIndex][iBX]);
 	    Set1Above[iWedge]->  Fill(iBX, section.occupancy[iHLX].data[set1AboveIndex  ][iBX]);
@@ -618,7 +579,6 @@ void HLXMonitor::FillHistoLumi(const LUMI_SECTION & section)
 
 void HLXMonitor::FillHistoSum(const LUMI_SECTION & section)
 {
-
    for( unsigned int iHLX = 0; iHLX < NUM_HLX; ++iHLX )
    {
       if(section.occupancy[iHLX].hdr.numNibbles != 0)
@@ -627,7 +587,6 @@ void HLXMonitor::FillHistoSum(const LUMI_SECTION & section)
 	 float total1 = 0;
 	 float total2 = 0;
 	 for( unsigned int iBX = 0; iBX < (NUM_BUNCHES - 100); ++iBX )  // Don't include the last one hundred BX in the average.
-	 //for( unsigned int iBX = 50; iBX < 51; ++iBX )  // Don't include the last one hundred BX in the average.
 	 {
 	    total1 += (float)section.occupancy[iHLX].data[set1BelowIndex  ][iBX];
 	    total1 += (float)section.occupancy[iHLX].data[set1BetweenIndex][iBX];
@@ -638,10 +597,17 @@ void HLXMonitor::FillHistoSum(const LUMI_SECTION & section)
 	    total2 += (float)section.occupancy[iHLX].data[set2AboveIndex  ][iBX];
 	 }
 
-	 //cout << "At HLX " << iHLX << " " << total1 << " " << total2 << endl;
-	 total1 = total1/(float)(NUM_BUNCHES-100);
-	 total2 = total2/(float)(NUM_BUNCHES-100);
-	 //cout << "At HLX " << iHLX << " " << total1 << " " << total2 << endl << endl;
+	 // Get the number of towers per wedge per BX (assuming non-zero numbers)
+	 if( (NUM_BUNCHES-100)>0 )
+	 {
+	    total1 = total1/(float)(NUM_BUNCHES-100);
+	    total2 = total2/(float)(NUM_BUNCHES-100);
+	 }
+	 if( section.hdr.numOrbits > 0 ) 
+	 {
+	    total1 = total1/(float)section.hdr.numOrbits;
+	    total2 = total2/(float)section.hdr.numOrbits;
+	 }
 
 	 SumAllOccSet1->  Fill( iWedge, total1 );
 	 SumAllOccSet2->  Fill( iWedge, total2 );
@@ -726,48 +692,92 @@ void HLXMonitor::FillEventInfo(const LUMI_SECTION & section)
 {
    runId_->Fill( section.hdr.runNumber );
    lumisecId_->Fill( (int)(section.hdr.sectionNumber/64) + 1 );
+
+   // Update the total nibbles & the expected number
+   expectedNibbles_ += 4;
+   for( unsigned int iHLX = 0; iHLX < NUM_HLX; ++iHLX ){
+      unsigned int iWedge = HLXHFMap[iHLX] + 1;
+      totalNibbles_[iWedge-1] += section.occupancy[iHLX].hdr.numNibbles; 
+   }   
+
+   // New run .. set the run number and fill run summaries ...
+   if( runNumber_ != section.hdr.runNumber )
+   {
+      //std::cout << "New Run!!" << std::endl;
+
+      // Run summary - Loop over the HLX's and fill the map, 
+      // also calculate the overall quality.
+      float overall = 0.0;
+      for( unsigned int iHLX = 0; iHLX < NUM_HLX; ++iHLX ){
+	 unsigned int iWedge = HLXHFMap[iHLX] + 1;
+	 unsigned int iEta = 2;
+	 if( iWedge >= 19 ){ iEta = 1; iWedge -= 18; }
+	 float frac = (float)totalNibbles_[iWedge-1]/(float)expectedNibbles_; 
+	 reportSummaryMap_->setBinContent(iWedge,iEta,frac);
+	 overall += frac;
+      }   
+      
+      overall /= (float)NUM_HLX;
+      if( overall > 1.0 ) overall = -1.0;
+      //std::cout << "Filling report summary! Main. " << overall << std::endl;
+      reportSummary_->Fill(overall);
+
+      // Do some things that should be done at the end of the run ...
+      SaveDQMFile();  
+      if(ResetAtNewRun) ResetAll();
+
+      runNumber_ = section.hdr.runNumber;
+      expectedNibbles_ = 0;
+      for( unsigned int iHLX = 0; iHLX < NUM_HLX; ++iHLX ) totalNibbles_[iHLX] = 0;
+   }
 }
 
-// void HLXMonitor::FillHistoHistory(const LUMI_SECTION & section)
-// {
-//   unsigned int i;
-//   float ETSumData;
-//   float avgOcc[6];
+void HLXMonitor::ResetAll()
+{
+   for( unsigned int iHLX = 0; iHLX < NUM_HLX; ++iHLX )
+   {
+      dbe_->softReset( Set1Below[iHLX] );
+      dbe_->softReset( Set1Between[iHLX] );
+      dbe_->softReset( Set1Above[iHLX] );
+      dbe_->softReset( Set1Below[iHLX] );
+      dbe_->softReset( Set1Between[iHLX] );
+      dbe_->softReset( Set1Above[iHLX] );
+	   
+      dbe_->softReset( ETSum[iHLX] );
+	   
+   }
+	 
+   dbe_->softReset(HFCompareEtSum);
+   dbe_->softReset(HFCompareOccBelowSet1);
+   dbe_->softReset(HFCompareOccBetweenSet1);
+   dbe_->softReset(HFCompareOccAboveSet1);
+   dbe_->softReset(HFCompareOccBelowSet2);
+   dbe_->softReset(HFCompareOccBetweenSet2);
+   dbe_->softReset(HFCompareOccAboveSet2);
 
-//   for(i=0; i<NUM_HLX; i++){
-    
-//     AvgOccupancy(section.occupancy[iHLX], avgOcc, NUM_BUNCHES,1);
-//     ETSumData = AvgETSum(section.etSum[iHLX],NUM_BUNCHES,1);
+   dbe_->softReset(AvgEtSum);
+   dbe_->softReset(AvgOccBelowSet1);
+   dbe_->softReset(AvgOccBetweenSet1);
+   dbe_->softReset(AvgOccAboveSet1);
+   dbe_->softReset(AvgOccBelowSet2);
+   dbe_->softReset(AvgOccBetweenSet2);
+   dbe_->softReset(AvgOccAboveSet2);
 
-//     if(Accumulate==true){
-//       avgOcc[set1BelowIndex]   += Set1Below[iWedge]->getBinContent(counter-1);
-//       avgOcc[set1BetweenIndex] += Set1Between[iWedge]->getBinContent(counter-1);
-//       avgOcc[set1AboveIndex]   += Set1Above[iWedge]->getBinContent(counter-1);
-//       avgOcc[set2BelowIndex]   += Set2Below[iWedge]->getBinContent(counter-1);
-//       avgOcc[set2BetweenIndex] += Set2Between[iWedge]->getBinContent(counter-1);
-//       avgOcc[set2AboveIndex]   += Set2Above[iWedge]->getBinContent(counter-1);
-//       ETSumData                += ETSum[iWedge]->getBinContent(counter-1);
-//     }
+   // Luminosity Monitoring
+   dbe_->softReset(LumiEtSum);
+   dbe_->softReset(LumiOccSet1);
+   dbe_->softReset(LumiOccSet2);
+   dbe_->softReset(LumiDiffEtSumOcc1);
+   dbe_->softReset(LumiDiffEtSumOcc2);
+   dbe_->softReset(LumiDiffOcc1Occ2);
 
-//     Set1Below[iWedge]   ->Fill(counter,avgOcc[set1BelowIndex]);
-//     Set1Between[iWedge] ->Fill(counter,avgOcc[set1BetweenIndex]);
-//     Set1Above[iWedge]   ->Fill(counter,avgOcc[set1AboveIndex]);
-//     Set2Below[iWedge]   ->Fill(counter,avgOcc[set2BelowIndex]);
-//     Set2Between[iWedge] ->Fill(counter,avgOcc[set2BetweenIndex]);
-//     Set2Above[iWedge]   ->Fill(counter,avgOcc[set2AboveIndex]);
-//     ETSum[iWedge]       ->Fill(counter,ETSumData);
+   // Sanity Check for Occupancy
+   dbe_->softReset(SumAllOccSet1);
+   dbe_->softReset(SumAllOccSet2);
 
-//     //setAxisRange doesn't seem to do anything yet.  
-//     Set1Below[iWedge]  ->setAxisRange(0,counter+1,1);
-//     Set1Between[iWedge]->setAxisRange(0,counter+1,1);
-//     Set1Above[iWedge]  ->setAxisRange(0,counter+1,1);
-//     Set2Below[iWedge]  ->setAxisRange(0,counter+1,1);
-//     Set2Between[iWedge]->setAxisRange(0,counter+1,1);
-//     Set2Above[iWedge]  ->setAxisRange(0,counter+1,1);
-//     ETSum[iWedge]      ->setAxisRange(0,counter+1,1);
-//   }
-// }
+}
+
+
 
 //define this as a plug-in
-
 DEFINE_FWK_MODULE(HLXMonitor);
