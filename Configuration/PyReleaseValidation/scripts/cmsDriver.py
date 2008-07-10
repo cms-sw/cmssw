@@ -106,8 +106,17 @@ parser.add_option("--beamspot",
                    default="Early10TeVCollision",
                    dest="beamspot")
 
+
+parser.add_option("--geometry",
+                   help="What geometry to use (from Configuration/StandardSequences)",
+                   default="",
+                   dest="geometry"
+
+
+                  )
+
 parser.add_option("--magField",
-                   help="What magnetic fiel to use (from Configuration/StandardSequences). Default=3.8T",
+                   help="What magnetic field to use (from Configuration/StandardSequences). Default=3.8T",
                    default="3.8T",
                    dest="magField")
 
