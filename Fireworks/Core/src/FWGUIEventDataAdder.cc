@@ -8,7 +8,7 @@
 //
 // Original Author:  Chris Jones
 //         Created:  Fri Jun 13 09:58:53 EDT 2008
-// $Id: FWGUIEventDataAdder.cc,v 1.3 2008/06/20 20:04:42 chrjones Exp $
+// $Id: FWGUIEventDataAdder.cc,v 1.4 2008/07/08 00:25:27 chrjones Exp $
 //
 
 // system include files
@@ -41,13 +41,13 @@ static const std::string& dataForColumn( const FWGUIEventDataAdder::Data& iData,
       case 0:
          return iData.purpose_;
          break;
-      case 1:
+      case 3:
          return iData.type_;
          break;
-      case 2:
+      case 1:
          return iData.moduleLabel_;
          break;
-      case 3:
+      case 2:
          return iData.productInstanceLabel_;
          break;
       case 4:
@@ -73,9 +73,9 @@ public:
       std::vector<std::string> returnValue;
       returnValue.reserve(kNColumns);
       returnValue.push_back("Purpose");
-      returnValue.push_back("C++ Class");
       returnValue.push_back("Module Label");
       returnValue.push_back("Product Instance Label");
+      returnValue.push_back("C++ Class");
       returnValue.push_back("Process Name");
       return returnValue;
    }
@@ -198,9 +198,9 @@ DataAdderTableManager::Sort(int col, bool sortOrder)
 static void addToFrame(TGVerticalFrame* iParent, const char* iName, TGTextEntry*& oSet)
 {
    TGCompositeFrame* hf = new TGHorizontalFrame(iParent);
-   hf->AddFrame(new TGLabel(hf,iName),new TGLayoutHints(kLHintsLeft|kLHintsCenterY));
+   hf->AddFrame(new TGLabel(hf,iName),new TGLayoutHints(kLHintsLeft|kLHintsCenterY,2,2,2,2));
    oSet = new TGTextEntry(hf,"");
-   hf->AddFrame(oSet,new TGLayoutHints(kLHintsExpandX));
+   hf->AddFrame(oSet,new TGLayoutHints(kLHintsExpandX|kLHintsCenterY));
    iParent->AddFrame(hf);
 }
 
@@ -275,6 +275,7 @@ FWGUIEventDataAdder::show()
    // Map main frame 
    if(0==m_frame) {
       createWindow();
+      m_tableWidget->Reinit();
    }
    m_frame->MapWindow(); 
 }
@@ -288,7 +289,7 @@ FWGUIEventDataAdder::windowIsClosing()
    /*
    delete m_tableWidget;
    m_tableWidget=0;
-    */
+   */ 
    delete m_tableManager;
    m_tableManager=0;
 }
@@ -297,11 +298,12 @@ FWGUIEventDataAdder::windowIsClosing()
 void
 FWGUIEventDataAdder::createWindow()
 {
-   m_frame = new TGTransientFrame(gClient->GetDefaultRoot(),m_parentFrame,100,100);
+   m_frame = new TGTransientFrame(gClient->GetDefaultRoot(),m_parentFrame,600,400);
+   // m_frame->MapWindow(); 
    //m_frame->SetCleanup(kDeepCleanup);
    m_frame->Connect("CloseWindow()","FWGUIEventDataAdder",this,"windowIsClosing()");
    TGVerticalFrame* vf = new TGVerticalFrame(m_frame);
-   m_frame->AddFrame(vf, new TGLayoutHints(kLHintsExpandX| kLHintsExpandY,10,10,10,1));
+   m_frame->AddFrame(vf, new TGLayoutHints(kLHintsExpandX|kLHintsExpandY,10,10,10,10));
    
    addToFrame(vf, "Name:", m_name);
    addToFrame(vf, "Purpose:", m_purpose);
@@ -310,14 +312,13 @@ FWGUIEventDataAdder::createWindow()
    addToFrame(vf,"Product instance label:",m_productInstanceLabel);
    addToFrame(vf,"Process name:",m_processName);
    
-   
    m_tableManager= new DataAdderTableManager(&m_useableData);
    m_tableManager->indexSelected_.connect(boost::bind(&FWGUIEventDataAdder::newIndexSelected,this,_1));
-   m_tableWidget = new LightTableWidget(vf,m_tableManager);
-   vf->AddFrame(m_tableWidget, new TGLayoutHints(kLHintsExpandX|kLHintsExpandY));
+   m_tableWidget = new LightTableWidget(vf,m_tableManager,600,400);
+   // vf->AddFrame(m_tableWidget, new TGLayoutHints(kLHintsExpandX|kLHintsExpandY));
    
    m_apply = new TGTextButton(vf,"Add Data");
-   vf->AddFrame(m_apply);
+   vf->AddFrame(m_apply, new TGLayoutHints(kLHintsBottom|kLHintsCenterX));
    m_apply->Connect("Clicked()","FWGUIEventDataAdder",this,"addNewItem()");
    
    // Set a name to the main frame 
