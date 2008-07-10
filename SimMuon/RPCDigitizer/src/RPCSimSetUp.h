@@ -31,10 +31,10 @@ public:
   virtual ~RPCSimSetUp();
 
   void setRPCSetUp(std::vector<RPCStripNoises::NoiseItem> vnoise, std::vector<float> vcls);
-  std::vector<float> getNoise(uint32_t id);
-  std::vector<float> getEff(uint32_t id);
+  const std::vector<float>& getNoise(uint32_t id);
+  const std::vector<float>& getEff(uint32_t id);
   float getTime(uint32_t id);
-  std::map< int, std::vector<double> > getClsMap();
+  const std::map< int, std::vector<double> >& getClsMap();
 
   /// sets geometry
   void setGeometry(const RPCGeometry * geom) {theGeometry = geom;}

@@ -45,15 +45,8 @@ RPCDigiProducer::~RPCDigiProducer() {
   delete theRPCSimSetUp;
 }
 
-void RPCDigiProducer::produce(edm::Event& e, const edm::EventSetup& eventSetup) {
+void RPCDigiProducer::beginRun( edm::Run& r, const edm::EventSetup& eventSetup){
 
-  edm::Handle<CrossingFrame<PSimHit> > cf;
-  e.getByLabel("mix", collection_for_XF, cf);
-
-  std::auto_ptr<MixCollection<PSimHit> > 
-    hits( new MixCollection<PSimHit>(cf.product()) );
-
-  // find the geometry & conditions for this event
   edm::ESHandle<RPCGeometry> hGeom;
   eventSetup.get<MuonGeometryRecord>().get( hGeom );
   const RPCGeometry *pGeom = &*hGeom;
@@ -66,6 +59,15 @@ void RPCDigiProducer::produce(edm::Event& e, const edm::EventSetup& eventSetup) 
   theDigitizer->setGeometry( pGeom );
   theRPCSimSetUp->setGeometry( pGeom );
   theDigitizer->setRPCSimSetUp( theRPCSimSetUp );
+}
+
+void RPCDigiProducer::produce(edm::Event& e, const edm::EventSetup& eventSetup) {
+
+  edm::Handle<CrossingFrame<PSimHit> > cf;
+  e.getByLabel("mix", collection_for_XF, cf);
+
+  std::auto_ptr<MixCollection<PSimHit> > 
+    hits( new MixCollection<PSimHit>(cf.product()) );
 
   // Create empty output
   std::auto_ptr<RPCDigiCollection> pDigis(new RPCDigiCollection());

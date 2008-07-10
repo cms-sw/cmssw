@@ -23,6 +23,9 @@ public:
   explicit RPCDigiProducer(const edm::ParameterSet& ps);
   virtual ~RPCDigiProducer();
 
+  virtual void beginRun( edm::Run&, const edm::EventSetup& );
+  virtual void endRun( edm::Run&, const edm::EventSetup& ) {;}
+
   /**Produces the EDM products,*/
   virtual void produce(edm::Event& e, const edm::EventSetup& c);
 

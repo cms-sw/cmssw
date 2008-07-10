@@ -100,13 +100,13 @@ void RPCSimSetUp::setRPCSetUp(std::vector<RPCStripNoises::NoiseItem> vnoise, std
   }
 }
 
-std::vector<float> RPCSimSetUp::getNoise(uint32_t id)
+const std::vector<float>& RPCSimSetUp::getNoise(uint32_t id)
 {
   map<uint32_t,std::vector<float> >::iterator iter = _mapDetIdNoise.find(id);
   return iter->second;
 }
 
-std::vector<float> RPCSimSetUp::getEff(uint32_t id)
+const std::vector<float>& RPCSimSetUp::getEff(uint32_t id)
 {
   map<uint32_t,std::vector<float> >::iterator iter = _mapDetIdEff.find(id);
   return iter->second;
@@ -119,7 +119,7 @@ float RPCSimSetUp::getTime(uint32_t id)
   return iter->second;
 }
 
-std::map< int, std::vector<double> > RPCSimSetUp::getClsMap()
+const std::map< int, std::vector<double> >& RPCSimSetUp::getClsMap()
 {
   return _clsMap;
 }
