@@ -13,6 +13,7 @@ from DQM.EcalBarrelMonitorTasks.EBStatusFlagsTask_cfi import *
 from DQM.EcalBarrelMonitorTasks.EBTestPulseTask_cfi import *
 from DQM.EcalBarrelMonitorTasks.EBTimingTask_cfi import *
 from DQM.EcalBarrelMonitorTasks.EBTriggerTowerTask_cfi import *
+from DQM.EcalBarrelMonitorTasks.EBSelectiveReadoutTask_cfi import *
 
 ecalBarrelOccupancyTask.mergeRuns = True
 ecalBarrelIntegrityTask.mergeRuns = True
@@ -33,3 +34,4 @@ ecalBarrelBeamCaloTask.mergeRuns = True
 
 ecalBarrelClusterTask.mergeRuns = True
 
+ecalBarrelSelectiveReadoutTask.mergeRuns = True
