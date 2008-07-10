@@ -53,6 +53,7 @@ public:
 	  return vis_indices.count(idx);
      }
      void setItem (FWEventItem *);
+     void itemGoingToBeDestroyed ();
 
 public:
      LightTableWidget 	*widget;
@@ -383,6 +384,46 @@ public:
 	  { return ::index_to_table_row(rows, i); }
 
      std::vector<HLTRow>	rows;
+     static std::string		titles[];
+     static std::string		formats[];
+};
+
+struct L1RowStruct {
+     int	index;
+     float	Et, eta, phi;
+     char	type[100];
+};
+
+class L1Row : public L1RowStruct {
+public:
+     L1Row (const L1RowStruct &e) : L1RowStruct(e) { }
+     const std::vector<std::string> 	&str () const;
+     const std::vector<float> 		&vec () const;
+protected:
+     mutable std::vector<std::string>	str_;
+     mutable std::vector<float>		vec_;
+};
+
+class L1TableManager : public FWTableManager {
+     
+public:
+     virtual int NumberOfRows() const;
+     virtual int NumberOfCols() const;
+     virtual void Sort(int col, bool sortOrder); // sortOrder=true means desc order
+     virtual std::vector<std::string> GetTitles(int col);
+     virtual void FillCells(int rowStart, int colStart, 
+			    int rowEnd, int colEnd, 
+			    std::vector<std::string>& oToFill);
+     virtual TGFrame* GetRowCell(int row, TGFrame *parentFrame);
+     virtual void UpdateRowCell(int row, TGFrame *rowCell);
+     const std::string		title () const { return "L1 objects"; }
+
+     virtual int table_row_to_index (int i) const 
+	  { return ::table_row_to_index(rows, i); }
+     virtual int index_to_table_row (int i) const 
+	  { return ::index_to_table_row(rows, i); }
+
+     std::vector<L1Row>		rows;
      static std::string		titles[];
      static std::string		formats[];
 };
