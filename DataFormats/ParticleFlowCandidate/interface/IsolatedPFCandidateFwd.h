@@ -1,6 +1,7 @@
 #ifndef ParticleFlowCandidate_IsolatedPFCandidateFwd_h
 #define ParticleFlowCandidate_IsolatedPFCandidateFwd_h
 #include <vector>
+#include "DataFormats/Common/interface/Ptr.h"
 #include "DataFormats/Common/interface/Ref.h"
 #include "DataFormats/Common/interface/RefProd.h"
 #include "DataFormats/Common/interface/RefVector.h"
@@ -19,6 +20,9 @@ namespace reco {
 
   /// persistent reference to a IsolatedPFCandidate
   typedef edm::Ref<IsolatedPFCandidateCollection> IsolatedPFCandidateRef;
+
+  /// persistent reference to a IsolatedPFCandidate
+  typedef edm::Ptr<IsolatedPFCandidate> IsolatedPFCandidatePtr;  
 
   /// persistent reference to a IsolatedPFCandidates collection
   typedef edm::RefProd<IsolatedPFCandidateCollection> IsolatedPFCandidateRefProd;

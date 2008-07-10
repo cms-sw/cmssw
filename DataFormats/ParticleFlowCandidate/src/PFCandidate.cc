@@ -34,9 +34,9 @@ PFCandidate::PFCandidate() :
 }
 
 
-PFCandidate::PFCandidate( const PFCandidateRef& sourceRef ) {
-  *this = *sourceRef;
-  sourceRef_ = sourceRef;
+PFCandidate::PFCandidate( const PFCandidatePtr& sourcePtr ) {
+  *this = *sourcePtr;
+  sourcePtr_ = sourcePtr;
 }
 
 
@@ -259,7 +259,7 @@ ostream& reco::operator<<(ostream& out,
     out<<"("<<blockRef.key()<<"|"<<indexInBlock<<"), ";
   }
 
-  out<<" source:"<<c.sourceRef_.id()<<"/"<<c.sourceRef_.key();
+  out<<" source:"<<c.sourcePtr_.id()<<"/"<<c.sourcePtr_.key();
 
 //   PFBlockRef blockRef = c.block(); 
 //   int blockid = blockRef.key(); 

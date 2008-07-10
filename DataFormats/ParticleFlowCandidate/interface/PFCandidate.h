@@ -47,7 +47,7 @@ namespace reco {
     PFCandidate();
 
     /// constructor from a reference (keeps track of source relationship)
-    PFCandidate( const PFCandidateRef& sourceRef );
+    PFCandidate( const PFCandidatePtr& sourcePtr );
     
     /*     PFCandidate( Charge q,  */
     /*                  const LorentzVector & p4,  */
@@ -64,13 +64,23 @@ namespace reco {
     virtual PFCandidate * clone() const;
 
 
-    /// set source ref
-    void setSourceRef(const PFCandidateRef& ref) { sourceRef_ = ref; }
+ /*    /// set source ref */
+/*     void setSourceRef(const PFCandidateRef& ref) { sourceRef_ = ref; } */
 
-    size_type numberOfSourceCandidateRefs() const {return 1;}
+/*     size_type numberOfSourceCandidateRefs() const {return 1;} */
 
-    CandidateBaseRef sourceCandidateRef( size_type i ) const {
-      return  CandidateBaseRef(sourceRef_);
+/*     CandidateBaseRef sourceCandidateRef( size_type i ) const { */
+/*       return  CandidateBaseRef(sourceRef_); */
+/*     } */
+
+    void setSourcePtr(const PFCandidatePtr& ptr) { sourcePtr_ = ptr; }
+
+    size_t numberOfSourceCandidatePtrs() const { 
+      return 1;
+    }
+    
+    CandidatePtr sourceCandidatePtr( size_type i ) const {
+      return sourcePtr_;
     }
 
     /// returns the pdg id corresponding to the particle type.
@@ -271,7 +281,8 @@ namespace reco {
     ElementsInBlocks elementsInBlocks_;
 
     /// reference to the source PFCandidate, if any
-    PFCandidateRef sourceRef_;
+/*     PFCandidateRef sourceRef_; */
+    PFCandidatePtr sourcePtr_;
 
     reco::TrackRef trackRef_;
     

@@ -6,9 +6,8 @@ using namespace reco;
 PileUpPFCandidate::PileUpPFCandidate() : PFCandidate() {}
 
 
-PileUpPFCandidate::PileUpPFCandidate( const PFCandidateRef & candidateRef ) : 
-  PFCandidate(candidateRef) {
-
+PileUpPFCandidate::PileUpPFCandidate( const PFCandidatePtr & candidatePtr ) : 
+  PFCandidate(candidatePtr) {
 }
 
 PileUpPFCandidate * PileUpPFCandidate::clone() const {
@@ -25,8 +24,8 @@ std::ostream& operator<<( std::ostream& out,
   
   
   out<<"PileUpPFCandidate, "
-     <<c.sourceCandidateRef(0).id()<<"/"
-     <<c.sourceCandidateRef(0).key();
+     <<c.sourceCandidatePtr(0).id()<<"/"
+     <<c.sourceCandidatePtr(0).key();
   
   return out;
 }
