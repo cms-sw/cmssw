@@ -48,27 +48,27 @@ FWTableManager::FWTableManager ()
 void FWTableManager::MakeFrame (TGCompositeFrame *parent, int width, int height) 
 {
      // display the table name prominently
-     TGTextEntry *m_tNameEntry = new TGTextEntry(title().c_str(), parent);
-     TGLayoutHints *m_tNameHints = new TGLayoutHints(
-	  kLHintsCenterX |
-	  kLHintsExpandX |
-	  kLHintsFillX );
-     parent->AddFrame(m_tNameEntry, m_tNameHints);
+//      TGTextEntry *m_tNameEntry = new TGTextEntry(title().c_str(), parent);
+//      TGLayoutHints *m_tNameHints = new TGLayoutHints(
+// 	  kLHintsCenterX |
+// 	  kLHintsExpandX |
+// 	  kLHintsFillX );
+//      parent->AddFrame(m_tNameEntry, m_tNameHints);
 
      frame = new TGCompositeFrame(parent, width, height);
      TGLayoutHints *tFrameHints = 
  	  new TGLayoutHints(kLHintsTop|kLHintsLeft|
- 			    kLHintsExpandX);
+ 			    kLHintsExpandX | kLHintsExpandY);
      parent->AddFrame(frame,tFrameHints);
      parent->HideFrame(frame);
      
 //      widget = new LightTableWidget(frame, this); 
      widget = new LightTableWidget(frame, this, width, height / 4); 
-     m_tNameEntry->Resize(width, widget->m_cellHeight);
-     m_tNameEntry->SetBackgroundColor(widget->m_titleColor);
-     m_tNameEntry->SetAlignment(kTextCenterX);
-     m_tNameEntry->ChangeOptions(kRaisedFrame);
-     title_frame = m_tNameEntry;
+//      m_tNameEntry->Resize(width, widget->m_cellHeight);
+//      m_tNameEntry->SetBackgroundColor(widget->m_titleColor);
+//      m_tNameEntry->SetAlignment(kTextCenterX);
+//      m_tNameEntry->ChangeOptions(kRaisedFrame);
+//      title_frame = m_tNameEntry;
 //      parent->MapSubwindows();
 //      parent->MapWindow();
 //      parent->Layout();

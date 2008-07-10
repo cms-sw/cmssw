@@ -27,8 +27,7 @@ LightTableWidget::LightTableWidget (TGCompositeFrame *p, LightTableManager* tm,
      SetForegroundColor(GetWhitePixel());
      SetSelectBack(GetWhitePixel());
      SetSelectFore(GetBlackPixel());
-     TGLayoutHints *hints = new TGLayoutHints(kLHintsExpandX | kLHintsExpandY | 
-					      kLHintsShrinkX | kLHintsShrinkY);
+     TGLayoutHints *hints = new TGLayoutHints(kLHintsExpandX | kLHintsExpandY);
      p->AddFrame(this, hints);
 
      // add "shadow" GC, which is 60% as bright as default
@@ -77,6 +76,7 @@ void LightTableWidget::selectRows (const std::set<int> &rows, Mask_t mask,
 
 Bool_t LightTableWidget::HandleButton(Event_t *event)
 {
+//      return TGTextView::HandleButton(event);
    // Handle mouse button event in text editor.
 
    if (event->fWindow != fCanvas->GetId()) {
@@ -130,6 +130,8 @@ Bool_t LightTableWidget::HandleButton(Event_t *event)
 
 void LightTableWidget::DrawRegion(Int_t x, Int_t y, UInt_t w, UInt_t h)
 {
+//      TGTextView::DrawRegion(x, y, w, h);
+//      return;
    // Draw lines in exposed region.
 
      x = 0;

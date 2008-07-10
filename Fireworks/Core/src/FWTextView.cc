@@ -90,8 +90,8 @@ FWTextViewPage::FWTextViewPage (const std::string &title_,
 // 	  printf("frame: adding frame\n");
      }
      frame->MapSubwindows();
-     frame->MapWindow(); 
      frame->Layout();
+     frame->MapWindow(); 
 } 
 
 void FWTextViewPage::undock ()
