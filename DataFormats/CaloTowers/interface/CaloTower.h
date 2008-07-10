@@ -13,8 +13,8 @@
 
 /** \class CaloTower
     
-$Date: 2008/04/22 12:51:15 $
-$Revision: 1.7 $
+$Date: 2008/04/28 17:45:41 $
+$Revision: 1.8 $
 \author J. Mans - Minnesota
 */
 
@@ -55,24 +55,25 @@ public:
 
   // getters
   CaloTowerDetId id() const { return id_; }
+  const std::vector<DetId>& constituents() const { return constituents_; }
   size_t constituentsSize() const { return constituents_.size(); }
   DetId constituent( size_t i ) const { return constituents_[ i ]; }
 
   double emEnergy() const { return emE_ ; }
   double hadEnergy() const { return hadE_ ; }
-  double outerEnergy() const { return outerE_; }
+  double outerEnergy() const { return (id_.ietaAbs()<16)? outerE_ : 0.0; }
   double emEt() const { return emE_ * sin( theta() ); }
   double hadEt() const { return hadE_ * sin( theta() ); }
-  double outerEt() const { return outerE_ * sin( theta() ); }
+  double outerEt() const { return (id_.ietaAbs()<16)? outerE_ * sin( theta() ) : 0.0; }
 
-  GlobalPoint emPosition()  const { return emPosition_ ; }
-  GlobalPoint hadPosition() const { return hadPosition_ ; }
+  const GlobalPoint& emPosition()  const { return emPosition_ ; }
+  const GlobalPoint& hadPosition() const { return hadPosition_ ; }
 
   int emLvl1() const { return emLvl1_; }
   int hadLv11() const { return hadLvl1_; }
 
-  double hadEnergyHeOuterLayer() { return (id_.ietaAbs()<=17)? 0 : outerE_; }
-  double hadEnergyHeInnerLayer() { return (id_.ietaAbs()<=17)? 0 : hadE_ - outerE_; }
+  double hadEnergyHeOuterLayer() const { return (id_.ietaAbs()<18 || id_.ietaAbs()>29)? 0 : outerE_; }
+  double hadEnergyHeInnerLayer() const { return (id_.ietaAbs()<18 || id_.ietaAbs()>29)? 0 : hadE_ - outerE_; }
 
   float ecalTime() const { return float(ecalTime_) * 0.01; }
   float hcalTime() const { return float(hcalTime_) * 0.01; }
@@ -82,7 +83,7 @@ public:
   int iphi() const { return id_.iphi(); }
   int zside() const { return id_.zside(); }
 
-  int numCrystals(); 
+  int numCrystals() const; 
 
 private:
   CaloTowerDetId id_;
