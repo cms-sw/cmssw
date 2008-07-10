@@ -787,7 +787,7 @@ int MuonSeedBuilder::build( edm::Event& event, const edm::EventSetup& eventSetup
   for (SegmentContainer::iterator it = DTlist1.begin(); it != DTlist1.end(); ++it ){
     index++;
     if (usedDTlist1[index] == true) continue;
-    //if ((*it)->dimension() != 4) continue;
+    if ((*it)->dimension() != 4) continue;
 
     GlobalPoint gp = (*it)->globalPosition();
     float eta_temp = gp.eta();
@@ -810,7 +810,7 @@ int MuonSeedBuilder::build( edm::Event& event, const edm::EventSetup& eventSetup
   for (SegmentContainer::iterator it = DTlist2.begin(); it != DTlist2.end(); ++it ){
     index++;
     if (usedDTlist2[index] == true) continue;
-    //if ((*it)->dimension() != 4) continue;
+    if ((*it)->dimension() != 4) continue;
 
     GlobalPoint gp = (*it)->globalPosition();
     float eta_temp = gp.eta();
@@ -834,7 +834,7 @@ int MuonSeedBuilder::build( edm::Event& event, const edm::EventSetup& eventSetup
   for (SegmentContainer::iterator it = DTlist3.begin(); it != DTlist3.end(); ++it ){
     index++;
     if (usedDTlist3[index] == true) continue;
-    //if ((*it)->dimension() != 4) continue;
+    if ((*it)->dimension() != 4) continue;
 
     GlobalPoint gp = (*it)->globalPosition();
     float eta_temp = gp.eta();
@@ -1063,54 +1063,10 @@ bool MuonSeedBuilder::foundMatchingSegment( int type, SegmentContainer& protoTra
     maxdPhi = maxDeltaPhiDT;
   }
 
-  // showering test
-  int showerIdx =0;
-  double aveIdx = 0.;
-  double aveEta = 0.;
-  double avePhi = 0.;
-  int showerLayer = 9;
-  for (SegmentContainer::iterator it=segs.begin(); it!=segs.end(); ++it){
-
-      DetId pdid = (*it)->geographicalId();
-      if ( pdid.subdetId() == MuonSubdetId::DT ) {
-         DTChamberId MB_Id = DTChamberId( pdid );
-         showerLayer = -1*MB_Id.station();
-      }
-      if ( pdid.subdetId() == MuonSubdetId::CSC ) {
-         CSCDetId ME_Id = CSCDetId( pdid );
-         if (ME_Id.station()==1 && ME_Id.ring()==1 ) {
-           showerLayer = 0;     
-         } else {
-           showerLayer = ME_Id.station();
-         }
-      }
-
-      GlobalPoint gp1 = (*it)->globalPosition(); 
-      double dh = fabs( gp1.eta() - eta_last ); 
-      double df = fabs( gp1.phi() - phi_last );
-
-      if ( dh > maxdEta || df > maxdPhi ) continue;
-      showerIdx++;
-      // don't count the MB4 
-      if ( (*it)->dimension() != 4  ) continue;
-      aveIdx += 1.0;
-      aveEta += gp1.eta(); 
-      avePhi += gp1.phi(); 
-  }
-
-  if (showerIdx > 2) {
-     aveEta = aveEta/aveIdx ;
-     avePhi = avePhi/aveIdx ;
-     badSeedLayer.push_back( showerLayer ); 
-  } else {
-     aveEta = eta_last;
-     avePhi = phi_last;
-  }
-
 
   // global phi/eta from previous segment 
-  float eta_temp = aveEta;
-  float phi_temp = avePhi;
+  float eta_temp = eta_last;
+  float phi_temp = phi_last;
 
   // Index counter to keep track of element used in segs 
   int          index = -1;
@@ -1123,26 +1079,23 @@ bool MuonSeedBuilder::foundMatchingSegment( int type, SegmentContainer& protoTra
   for (SegmentContainer::iterator it=segs.begin(); it!=segs.end(); ++it){
 
     index++;
-    //if (usedSeg[index]) continue;
+
+    // min rechit requirement for CSC
     if ( (type == 1) && ( int ((*it)->recHits().size()) < minCSCHitsPerSegment ) ) continue;  
 
     // chi2 cut !
     double dof = static_cast<double>( (*it)->degreesOfFreedom() ) ;
     //if ( ((*it)->chi2()/dof) > best_chi2 ) continue;
 
-    GlobalPoint gp2 = (*it)->globalPosition(); 
-    //GlobalError ge2 = (*it)->globalDirectionError();
-    //GlobalError ge2 = (*it)->globalPositionError();
-    //double rerr  = ge2.rerr(gp2) ;
-
     // Not to get confused:  eta_last is from the previous layer.
     // This is only to find the best set of segments by comparing at the distance layer-by-layer 
+    GlobalPoint gp2 = (*it)->globalPosition(); 
     double deltaEtaTest = fabs( gp2.eta() - eta_temp ); 
     double deltaPhiTest = fabs( gp2.phi() - phi_temp );
 
-
     float R = sqrt( deltaEtaTest*deltaEtaTest + deltaPhiTest*deltaPhiTest );
-
+    
+    // dEta and dPhi should be within certain range
     bool case1 = ( fabs(deltaEtaTest) < maxdEta && fabs(deltaPhiTest)< maxdPhi ) ? true:false ;
     // for DT station 4
     bool case2 = ((*it)->dimension()!= 4) && (fabs(deltaEtaTest)< 0.6) && (fabs(deltaPhiTest)< maxdPhi)? true:false ;
@@ -1181,21 +1134,15 @@ bool MuonSeedBuilder::foundMatchingSegment( int type, SegmentContainer& protoTra
   index = -1;
  
    
-  if (showerIdx <= 2) { 
-    // Add best matching segment to protoTrack:
-    for (SegmentContainer::iterator it=segs.begin(); it!=segs.end(); ++it){
+  // Add best matching segment to protoTrack:
+  for (SegmentContainer::iterator it=segs.begin(); it!=segs.end(); ++it){
       index++;
       if (index != best_match) continue;
       protoTrack.push_back(*it);
       usedSeg[best_match] = true;
       ok = true;     
-    }  
+  }  
     return ok; 
-  } else {
-     ok = false;
-     return ok;
-  }
-
 }
 
 double MuonSeedBuilder::etaError(const GlobalPoint gp, double rErr) {
@@ -1257,8 +1204,16 @@ void MuonSeedBuilder::seedCleaner(const edm::EventSetup& eventSetup, std::vector
             double dy = gp1.y() - gp2.y() ;
             double dz = gp1.z() - gp2.z() ;
             double dR = sqrt( dx*dx + dy*dy + dz*dz);
-
             if( dR < 15.0 ) sameseg++;
+
+            // cleaning for single segment seed  
+            if ( seeds[j].nHits() ==1 ) {
+               double dh = gp1.theta() - gp2.theta() ;
+               double df = gp1.phi() - gp2.phi() ;
+               double dC = sqrt( dh*dh + df*df );
+               if ( dC < 0.2 ) sameseg++ ;
+            }
+
         }
       }
       //flag and group the used seeds
@@ -1282,9 +1237,6 @@ void MuonSeedBuilder::seedCleaner(const edm::EventSetup& eventSetup, std::vector
     int bestseed = -1;
     int grpleader=0;
     bool keep_all = false;
-    //std::cout<<" grp"<<i<<" size= "<< grpSize[i] << std::endl;
-    //double pt1 = -1.0; 
-    //double h1 = -99.0;   
 
     for (unsigned int j= 0; j<seeds.size(); j++){
  
@@ -1300,6 +1252,7 @@ void MuonSeedBuilder::seedCleaner(const edm::EventSetup& eventSetup, std::vector
 	GlobalVector seed_m   = SeedTSOS.globalMomentum();
         GlobalPoint  seed_xyz = SeedTSOS.globalPosition();
 	double seed_mt = sqrt ( (seed_m.x()*seed_m.x()) + (seed_m.y()*seed_m.y()) );
+
         std::vector<float> err_mx = pTSOD.errorMatrix();
         double ddx = err_mx[2]; 
         double ddy = err_mx[5]; 
@@ -1308,27 +1261,33 @@ void MuonSeedBuilder::seedCleaner(const edm::EventSetup& eventSetup, std::vector
         
         double dRR = sqrt (ddx*36. + ddy*36 + dxx + dyy ) ; 
         double relErr = fabs(sqrt(err_mx[0]) / pTSOD.parameters().signedInverseMomentum()) ; 
-        //std::cout<<"     seeds "<<j<<" dRErr: "<<dRR<<"  pt= "<<seed_mt<<" dPt:"<<relErr <<" with "<<seeds[j].nHits()<<" segs "<<std::endl;
 
-	if ( (seed_mt <= 5.0 || seed_mt > 5000.0 ) && ( grpSize[i] > 1 ) ) continue;
+	//if ( (seed_mt <= 5.0 || seed_mt > 5000.0 ) && ( grpSize[i] > 1 ) ) continue;
+	bool badPt = ( seed_mt <= 5.0 || seed_mt > 5000.0  ) ? true : false  ;
 
         if ( keep_all ) {
            goodSeeds.push_back(seeds[j]);
         } else {
           // pick the one associated with more segments
           if ( seeds[j].nHits() > segSize ) {
+             if (badPt && segSize != 0 ) continue;
              bestseed = j;
              segSize = seeds[j].nHits();
              dRErr = sqrt (ddx*36. + ddy*36 + dxx + dyy ) ;
              drelE = relErr ;
           } 
-          // or pick the one with better relative error
+          // or pick the one with better relative pt error
           else if ( (seeds[j].nHits() == segSize) && (drelE > relErr) ){
+
+	     if ( badPt ) continue;
              bestseed = j;
              dRErr = sqrt (ddx*36. + ddy*36 + dxx + dyy);
              drelE = relErr;
           } 
+          // at least pick the one with better direction error
           else if ( (seeds[j].nHits() == segSize) && (drelE == relErr) && (dRErr > dRR) ){
+
+	     if ( badPt ) continue;
              bestseed =j;
              dRErr = sqrt (ddx*36. + ddy*36 + dxx + dyy);
              drelE = relErr;
