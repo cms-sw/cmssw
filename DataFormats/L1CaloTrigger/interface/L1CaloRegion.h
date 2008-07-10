@@ -65,29 +65,29 @@ public:
   // named ctors
 
   /// constructor HB/HE region from components
-  static L1CaloRegion makeHBHERegion(unsigned et, 
-				     bool overFlow, 
-				     bool tauVeto, 
-				     bool mip,
-				     bool quiet, 
-				     unsigned crate, 
-				     unsigned card, 
-				     unsigned rgn);
+  static L1CaloRegion makeHBHERegion(const unsigned et, 
+				     const bool overFlow, 
+				     const bool tauVeto, 
+				     const bool mip,
+				     const bool quiet, 
+				     const unsigned crate, 
+				     const unsigned card, 
+				     const unsigned rgn);
   
   /// construct HF region from components
-  static L1CaloRegion makeHFRegion(unsigned et, 
-				   bool fineGrain, 
-				   unsigned crate, 
-				   unsigned rgn);
+  static L1CaloRegion makeHFRegion(const unsigned et, 
+				   const bool fineGrain, 
+				   const unsigned crate, 
+				   const unsigned rgn);
   
   /// construct region from GCT indices
-  static L1CaloRegion makeRegionFromGctIndices(unsigned et, 
-					       bool overFlow, 
-					       bool fineGrain, 
-					       bool mip, 
-					       bool quiet, 
-					       unsigned ieta, 
-					       unsigned iphi);
+  static L1CaloRegion makeRegionFromGctIndices(const unsigned et, 
+					       const bool overFlow, 
+					       const bool fineGrain, 
+					       const bool mip, 
+					       const bool quiet, 
+					       const unsigned ieta, 
+					       const unsigned iphi);
   
 
   // get/set methods for the data
