@@ -26,8 +26,6 @@
 using namespace cms;
 using namespace edm;
 using namespace std;
-using namespace reco;
-
 
 EBSelectiveReadoutTask::EBSelectiveReadoutTask(const ParameterSet& ps){
 
@@ -247,7 +245,6 @@ void EBSelectiveReadoutTask::analyze(const Event& e, const EventSetup& c){
     LogWarning("EBSlectiveReadoutTask") << EBSRFlagCollection_ << " not available";
   }
 
-
   Handle<EcalTrigPrimDigiCollection> TPCollection;
   if ( e.getByLabel(EcalTrigPrimDigiCollection_, TPCollection) ) {
     
@@ -277,7 +274,6 @@ void EBSelectiveReadoutTask::analyze(const Event& e, const EventSetup& c){
   else {
     LogWarning("EBSlectiveReadoutTask") << EcalTrigPrimDigiCollection_ << " not available";
   }
-
 
   // Data Volume
   double aLowInterest=0;
@@ -311,9 +307,7 @@ void EBSelectiveReadoutTask::analyze(const Event& e, const EventSetup& c){
     LogWarning("EBSlectiveReadoutTask") << EBDigiCollection_ << " not available";
   }
 
-
 }
-
 
 template<class T, class U>
 void EBSelectiveReadoutTask::anaDigi(const T& frame,
@@ -396,13 +390,11 @@ double EBSelectiveReadoutTask::getEbEventSize(double nReadXtals) const{
     + ruHeaderPayload;
 }
 
-
 int EBSelectiveReadoutTask::dccPhiIndexOfRU(int i, int j) const {
   //iEta=i, iPhi=j
   //phi edge of a SM is 4 TT
   return j/4;
 }
-
 
 int EBSelectiveReadoutTask::dccIndex(int i, int j) const {
     //a SM is 85 crystal long:

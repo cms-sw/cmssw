@@ -10,7 +10,6 @@
 #include "Geometry/CaloGeometry/interface/CaloSubdetectorGeometry.h"
 #include "Geometry/CaloGeometry/interface/CaloCellGeometry.h"
 #include "Geometry/CaloGeometry/interface/CaloGeometry.h"
-//#include "Geometry/Records/interface/IdealGeometryRecord.h"
 
 #include "DataFormats/EcalDetId/interface/EcalScDetId.h"
 #include "DataFormats/EcalDetId/interface/EcalTrigTowerDetId.h"
@@ -27,8 +26,6 @@
 using namespace cms;
 using namespace edm;
 using namespace std;
-using namespace reco;
-
 
 EESelectiveReadoutTask::EESelectiveReadoutTask(const ParameterSet& ps){
 
@@ -74,11 +71,6 @@ void EESelectiveReadoutTask::beginJob(const EventSetup& c) {
   }
 
   Numbers::initGeometry(c, false);
-
-  // endcap mapping
-//   edm::ESHandle<EcalTrigTowerConstituentsMap> hTriggerTowerMap;
-//   c.get<IdealGeometryRecord>().get(hTriggerTowerMap);
-//   triggerTowerMap_ = hTriggerTowerMap.product();
 
 }
 
@@ -234,7 +226,6 @@ void EESelectiveReadoutTask::analyze(const Event& e, const EventSetup& c){
     LogWarning("EESlectiveReadoutTask") << EESRFlagCollection_ << " not available";
   }
 
-
   Handle<EcalTrigPrimDigiCollection> TPCollection;
   if ( e.getByLabel(EcalTrigPrimDigiCollection_, TPCollection) ) {
     
@@ -276,7 +267,6 @@ void EESelectiveReadoutTask::analyze(const Event& e, const EventSetup& c){
     LogWarning("EESlectiveReadoutTask") << EcalTrigPrimDigiCollection_ << " not available";
   }
 
-
   // Data Volume
   double aLowInterest=0;
   double aHighInterest=0;
@@ -311,7 +301,6 @@ void EESelectiveReadoutTask::analyze(const Event& e, const EventSetup& c){
 
 
 }
-
 
 template<class T, class U>
 void EESelectiveReadoutTask::anaDigi(const T& frame,
