@@ -308,7 +308,6 @@ bool CSCDDUEventData::check() const
 
 boost::dynamic_bitset<> CSCDDUEventData::pack() 
 {
-  
   boost::dynamic_bitset<> result = bitset_utilities::ushortToBitset( theDDUHeader.sizeInWords()*16,
 								     theDDUHeader.data());
   //std::cout <<"SANDRIK inside DDUEvdata check = ";
@@ -328,7 +327,8 @@ boost::dynamic_bitset<> CSCDDUEventData::pack()
     {
       result = bitset_utilities::append(result,theData[i].pack());
     }
-  
+  theSizeInWords = result.size()*16 + theDDUTrailer.sizeInWords();
+  theDDUTrailer.setWordCount(theSizeInWords); 
   boost::dynamic_bitset<> dduTrailer = bitset_utilities::ushortToBitset ( theDDUTrailer.sizeInWords()*16, 
 									  theDDUTrailer.data());
   result =  bitset_utilities::append(result,dduTrailer);
