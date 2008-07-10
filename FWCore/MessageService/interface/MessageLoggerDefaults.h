@@ -24,7 +24,7 @@
 //
 // Original Author:  M. Fischler 
 //         Created:  Tues Jun 14 10:38:19 CST 2007
-// $Id: MessageLoggerDefaults.h,v 1.1 2007/06/20 16:04:34 fischler Exp $
+// $Id: MessageLoggerDefaults.h,v 1.2 2008/07/09 21:47:29 fischler Exp $
 //
 
 // Framework include files
@@ -114,6 +114,7 @@ public:
   // Modes with hardwired defaults
   
   void hardwireGridJobMode();
+  void hardwireReleaseValidationJobMode();
   void hardwireAnalysisJobMode();
   void hardwireNilJobMode();
 
@@ -134,6 +135,9 @@ public:
       //		event processing. 
       case GridJobMode: 
         hardwireGridJobMode();
+	break;       
+      case ReleaseValidationJobMode:
+        hardwireReleaseValidationJobMode();
 	break;       
       case AnalysisJobMode:
         hardwireAnalysisJobMode();

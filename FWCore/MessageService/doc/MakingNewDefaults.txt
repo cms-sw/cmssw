@@ -25,6 +25,10 @@ concerning info messages as well.  In the example below, we will show how to
 a) Change the default summary threshold for the existing default mode.
 b) Create a new mode, with a different summary threshold.
 
+If you are changing the main default (that is, the one gotten wheen no mode
+is specified), it is probably a good idea to change the MessageLogger_cfi.py 
+file to keep the default in step with the contents of that file.
+
 ---
 
 All the default information is kept in three files:
@@ -62,7 +66,7 @@ becomes
     ),
 
 Also note that the "default mode" that you would get by just saying cmsRun
-with no --mode= is ==mode="grid", which gives GridJobMode.  You can see this 
+with no --mode= is mode="grid", which gives GridJobMode.  You can see this 
 in HardwiredDefaults.cc:
 
 edm::JobMode 
@@ -134,4 +138,129 @@ Step 4:
 
 Build -- almost nothing needs recompilation -- and try it out.
 
+-------------------------------------------------------------------------
+
+EXAMPLE 2 -   
+ 	Add a new default mode, named infos,
+	intended for release validators use.
+	This should be the same as grid, but
+	with statistics thresholds at INFO,
+	and with the default limit for INFO
+	at 5 instead of 0.
+
+Step 0:
+
+Create a new mode, identical to one of the existing modes:
+
+a) In FWCore/Utilities/interface/JobMode.h, add a value to the JobMode enum
+   with a name for this mode.  I changed
+  enum JobMode {
+         GridJobMode
+       , AnalysisJobMode
+       , NilJobMode
+  };
+  to
+  enum JobMode {
+         GridJobMode
+       , ReleaseValidationJobMode
+       , AnalysisJobMode
+       , NilJobMode
+  };
+ 
+b) In MessageService/src/MessageLoggerDefaults.h, add a method
+   to set up that mode.  In the section with comment 
+   // Modes with hardwired defaults  
+   I  added the line 
+   
+     void hardwireReleaseValidationJobMode();
+
+c) Still in MessageLoggerDefaults.h, ad a case to dispatch that method
+   to the  MessageLoggerDefaults ctor:
+    switch (mode) {
+      case GridJobMode: 
+        hardwireGridJobMode();
+	break;       
+      case ReleaseValidationJobMode:
+        hardwireReleaseValidationJobMode();
+	break; 
+	...
+
+d) In MessageService/src/HardwiredDefaults.cc, make a copy of one of
+   the hardwireXXXJobMode methods (I started from hardwireGridJobMode)
+   and change the name (and the comment at the end) to the new one:
+   
+    void MessageLoggerDefaults::
+    hardwireReleaseValidationJobMode() 
+    {
+    .
+    .
+    .
+    } // hardwireReleaseValidationJobMode
+   
+e) Place the name of the new mode (infos) into the decision logic in the
+   mode() method right at the beginning of HardwiredDefaults.cc:
+	edm::JobMode 
+	MessageLoggerDefaults::
+	mode(std::string const & jm)
+	{
+	  if (jm == "")           return       GridJobMode;  
+	  if (jm == "grid")       return       GridJobMode;
+	  if (jm == "infos")      return       ReleaseValidationJobMode;
+	  if (jm == "analysis")   return       AnalysisJobMode;
+ 	  ...
+   
+At this point, you have a new mode, IDENTICAL to the one you copied.
+It is a good idea to build (starting at FWCore or higher, because the
+JobModes.h file has changed) and try a cmsRun using the new mode.
+
+All the remaining steps will concern the new method in HardiredDefaults.cc
+(in this example, MessageLoggerDefaults::hardwireReleaseValidationJobMode()) 
+
+Step 1:
+
+If a new destination (or change in a destination PSet name) has been done, 
+add or change the item destinations or statistics list as in step 1 of 
+Example 1.
+
+Here there was nothing to do, since we still want everything going to cerr.
+
+Step 2:
+
+A new destination would require creating a new instance of the Destination
+class.  
+
+Here there was nothing to do, since we have no new destinations.
+
+
+Step 3: 
+ 
+Add (or change in an existing Destination) whatever options you need 
+added or changed. In this example, we want to change to:
+
+  untracked PSet INFO = {
+    untracked int32 limit = 5;
+  } 
+  
+where that 5 was zero earlier; that becomes
+    
+    Category INFO_limits;		  // PSet INFO = { ... } 
+      INFO_limits.limit = 5;		  // int32 limit = 5
+      cerr.sev["INFO"] = INFO_limits; 
+
+And we want the threshold for the statistics destination to go down to INFO
+rather than WARNING:
+
+  { Destination cerr_stats;			 // PSet cerr_stats
+    cerr_stats.threshold = "INFO";		 // string threshold = "INFO"
+    cerr_stats.output = "cerr";		 	 // string output = "cerr"
+    destination["cerr_stats"] = cerr_stats;
+  }
+
+This is the code which is in the current (as of July 2008) 
+hardwireReleaseValidationJobMode() method, right near the end.
+
+Step 4:
+
+Build -- almost nothing needs recompilation if you already tried out
+the new mode before changing it -- and try it out.
 

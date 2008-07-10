@@ -970,6 +970,7 @@ void
      = getAparameter<vString>(job_pset_p, "destinations", empty_vString);
     if (destinations.empty()) { 
       statistics = messageLoggerDefaults->statistics;
+      no_statistics_configured = statistics.empty();
     }
   }
 
