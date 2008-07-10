@@ -1,23 +1,10 @@
-
-// -*- C++ -*-
-//
-// Package:    OptTOA
-// Class:      OptTOA
-// 
-/**\class OptTOA OptTOA.cc temp/TrackOriginAnalyzerOptTOA/src/OptTOA.cc
-
- Description: This analyzer calculates the relative composition from a list of
- particle categories.
-
- Implementation:
-     <Notes on implementation>
-*/
-//
-// Original Author:  Victor Bazterra
-//         Created:  Tue Mar 13 14:15:40 CDT 2007
-// $Id: OptTOA.cc,v 1.8 2008/04/14 15:36:11 bazterra Exp $
-//
-//
+/*
+ *  OptTOA.C
+ *
+ *  Created by Victor Eduardo Bazterra on 5/31/07.
+ *  Copyright 2007 __MyCompanyName__. All rights reserved.
+ *
+ */
 
 #include <algorithm>
 #include <cctype>

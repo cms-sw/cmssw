@@ -3,7 +3,7 @@
  * \author Luca Lista, INFN
  * \author Victor E. Bazterra, UIC
  *
- * \version $Id: GenTrackMatcher.cc,v 1.3 2008/02/27 23:11:13 bazterra Exp $
+ * \version $Id: GenTrackMatcher.cc,v 1.4 2008/07/10 05:02:12 bazterra Exp $
  *
  */
 
@@ -11,7 +11,7 @@
 #include "FWCore/Framework/interface/EDProducer.h"
 #include "DataFormats/Common/interface/Association.h"
 #include "DataFormats/HepMCCandidate/interface/GenParticle.h"
-#include "SimTracker/TrackHistory/interface/TrackOrigin.h"
+#include "SimTracker/TrackHistory/interface/TrackHistory.h"
 
 namespace edm { class ParameterSet; }
 
@@ -22,7 +22,7 @@ class GenTrackMatcher : public edm::EDProducer {
 
  private:
   void produce( edm::Event& evt, const edm::EventSetup& es );
-  TrackOrigin tracer_;
+  TrackHistory tracer_;
   edm::InputTag tracks_, genParticles_;
   typedef edm::Association<reco::GenParticleCollection> GenParticleMatch;
 };
@@ -59,7 +59,7 @@ void GenTrackMatcher::produce(Event& evt, const EventSetup& es) {
   for (size_t i = 0; i < n; ++ i ) {
     RefToBase<Track> track(tracks, i);
     if(tracer_.evaluate(track)) { 
-      const HepMC::GenParticle * particle = tracer_.particle();
+      const HepMC::GenParticle * particle = tracer_.genParticle();
       if(particle) {
         int barCode = particle->barcode();
         vector<int>::const_iterator b = barCodes->begin(), e = barCodes->end(), f = find( b, e, barCode );

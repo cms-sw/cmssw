@@ -1,6 +1,5 @@
 /*
  *  RecoTOA.C
- *  CMSSW_1_3_1
  *
  *  Created by Victor Eduardo Bazterra on 5/31/07.
  *  Copyright 2007 __MyCompanyName__. All rights reserved.
@@ -33,7 +32,7 @@
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 
 #include "SimGeneral/HepPDTRecord/interface/ParticleDataTable.h"
-#include "SimTracker/TrackHistory/interface/TrackOrigin.h"
+#include "SimTracker/TrackHistory/interface/TrackHistory.h"
 
 //
 // class decleration
@@ -69,7 +68,7 @@ private:
     
   vvstring vetoList_;
 
-  TrackOrigin tracer_;
+  TrackHistory tracer_;
   
   // Track origin
 
@@ -150,7 +149,7 @@ RecoTOA::analyze(const edm::Event& event, const edm::EventSetup& setup)
   // Get reco::TrackCollection from the file.
   event.getByLabel(trackProducer_,trackCollection);
 
-  // Initialive the TrackOrigin object.
+  // Initialive the TrackHistory object.
   if (status_)
     tracer_.depth(-2);
   else
@@ -169,7 +168,7 @@ RecoTOA::analyze(const edm::Event& event, const edm::EventSetup& setup)
     if ( tracer_.evaluate( edm::RefToBase<reco::Track>(trackCollection, index) ))
     {
       //TrackingParticle::GenParticleRefVector particles = tracer.genParticles();
-      const HepMC::GenParticle * particle = tracer_.particle();
+      const HepMC::GenParticle * particle = tracer_.genParticle();
       // If the origin can be determined then take the first particle as the original
       if (particle)
         Count(particle->barcode(), particle->pdg_id());

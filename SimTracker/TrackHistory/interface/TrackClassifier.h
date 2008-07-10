@@ -9,16 +9,20 @@
 #ifndef TrackClassifier_h
 #define TrackClassifier_h
 
-#include "MagneticField/Records/interface/IdealMagneticFieldRecord.h"#include "MagneticField/Engine/interface/MagneticField.h"
+#include "MagneticField/Records/interface/IdealMagneticFieldRecord.h"
+#include "MagneticField/Engine/interface/MagneticField.h"
 
 #include "SimDataFormats/HepMCProduct/interface/HepMCProduct.h"
 
 #include "SimGeneral/HepPDTRecord/interface/ParticleDataTable.h"
 
 #include "SimTracker/TrackHistory/interface/TrackCategories.h"
-#include "SimTracker/TrackHistory/interface/TrackOrigin.h"
+#include "SimTracker/TrackHistory/interface/TrackHistory.h"
 
-#include "TrackingTools/PatternTools/interface/TSCPBuilderNoMaterial.h"#include "TrackingTools/Records/interface/TransientTrackRecord.h"#include "TrackingTools/TrajectoryState/interface/FreeTrajectoryState.h"#include "TrackingTools/TransientTrack/interface/TransientTrackBuilder.h"
+#include "TrackingTools/PatternTools/interface/TSCPBuilderNoMaterial.h"
+#include "TrackingTools/Records/interface/TransientTrackRecord.h"
+#include "TrackingTools/TrajectoryState/interface/FreeTrajectoryState.h"
+#include "TrackingTools/TransientTrack/interface/TransientTrackBuilder.h"
 
 
 //! Get track history and classify it in function of their .
@@ -96,7 +100,7 @@ private:
  
   TrackCategories::Flags flags_;
   
-  TrackOrigin tracer_;
+  TrackHistory tracer_;
 
   edm::ESHandle<MagneticField> magneticField_;
   

@@ -30,7 +30,7 @@
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 
 #include "SimGeneral/HepPDTRecord/interface/ParticleDataTable.h"
-#include "SimTracker/TrackHistory/interface/TrackOrigin.h"
+#include "SimTracker/TrackHistory/interface/TrackHistory.h"
 
 //
 // class decleration
@@ -65,7 +65,7 @@ private:
   std::string rootFile_;
   bool status_, antiparticles_;
 
-  TrackOrigin tracer_;
+  TrackHistory tracer_;
     
   vvstring vetoList_;
   
@@ -171,7 +171,7 @@ TruthTOA::analyze(const edm::Event& event, const edm::EventSetup& setup)
     {
       if ( tracer_.evaluate(track) )
       {
-        const HepMC::GenParticle * particle = tracer_.particle();
+        const HepMC::GenParticle * particle = tracer_.genParticle();
         // If the origin can be determined then take the first particle as the original
         if (particle)
           Count(particle->barcode(), particle->pdg_id());

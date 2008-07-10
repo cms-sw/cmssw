@@ -11,7 +11,10 @@
 
 #include "DataFormats/TrackReco/interface/TrackFwd.h"
 
-#include "FWCore/Framework/interface/Event.h"#include "FWCore/Framework/interface/ESHandle.h"#include "FWCore/Framework/interface/EventSetup.h"#include "FWCore/ParameterSet/interface/ParameterSet.h"
+#include "FWCore/Framework/interface/Event.h"
+#include "FWCore/Framework/interface/ESHandle.h"
+#include "FWCore/Framework/interface/EventSetup.h"
+#include "FWCore/ParameterSet/interface/ParameterSet.h"
 
 #include "SimDataFormats/TrackingAnalysis/interface/TrackingParticle.h"
 #include "SimDataFormats/TrackingAnalysis/interface/TrackingParticleFwd.h"
@@ -86,6 +89,13 @@ public:
   const TrackingParticleRef & simParticle() const
   {
     return simParticleTrail_[0];
+  }
+
+  //! Returns a pointer to most primitive status 1 or 2 particle.
+  const HepMC::GenParticle * genParticle() const
+  {
+    if ( genParticleTrail_.empty() ) return 0;
+    return genParticleTrail_[genParticleTrail_.size()-1];
   }
 
   //! Return all the simulated vertexes in the history.

@@ -176,7 +176,7 @@ void TrackClassifier::simulationInformation()
 void TrackClassifier::hadronFlavor()
 {
   // Get the initial hadron
-  const HepMC::GenParticle * particle = tracer_.particle();
+  const HepMC::GenParticle * particle = tracer_.genParticle();
 
   // Check for the initial hadron
   if (particle)

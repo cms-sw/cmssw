@@ -101,7 +101,7 @@ void SimpleTHA::analyze(const edm::Event& event, const edm::EventSetup& setup)
     if ( ! classifier_.evaluate( edm::RefToBase<reco::Track>(trackCollection, index) ).is(TrackCategories::Fake) )
     {
       // Get the list of TrackingParticles associated to
-      TrackOrigin::SimParticleTrail simParticles(tracer.simParticleTrail());
+      TrackHistory::SimParticleTrail simParticles(tracer.simParticleTrail());
 
       // Loop over all simParticles
       for(std::size_t hindex=0; hindex<simParticles.size(); hindex++) 
@@ -112,7 +112,7 @@ void SimpleTHA::analyze(const edm::Event& event, const edm::EventSetup& setup)
       }
       
       // Get the list of TrackingVertexes associated to
-      TrackOrigin::SimVertexTrail simVertexes(tracer.simVertexTrail());
+      TrackHistory::SimVertexTrail simVertexes(tracer.simVertexTrail());
          
       // Loop over all simVertexes                       
       if( !simVertexes.empty() )

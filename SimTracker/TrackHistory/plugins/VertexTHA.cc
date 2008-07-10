@@ -31,7 +31,7 @@
 
 #include "SimGeneral/HepPDTRecord/interface/ParticleDataTable.h"
 #include "SimTracker/Records/interface/TrackAssociatorRecord.h"
-#include "SimTracker/TrackHistory/interface/TrackOrigin.h"
+#include "SimTracker/TrackHistory/interface/TrackHistory.h"
 
 //
 // class decleration
@@ -65,7 +65,7 @@ private:
     
   vvstring vetoList_;
 
-  TrackOrigin tracer_;  
+  TrackHistory tracer_;  
   
   // Track history
 
@@ -109,7 +109,7 @@ void VertexTHA::analyze(const edm::Event& event, const edm::EventSetup& setup)
     if ( tracer_.evaluate( edm::RefToBase<reco::Track>(trackCollection, index) ) )
     {
       // Get the list of TrackingVertexes associated to
-      TrackOrigin::SimVertexTrail vertexes(tracer_.simVertexTrail());
+      TrackHistory::SimVertexTrail vertexes(tracer_.simVertexTrail());
          
       // Loop over all vertexes                       
       if( !vertexes.empty() )
