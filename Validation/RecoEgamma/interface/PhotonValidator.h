@@ -23,8 +23,8 @@
  **  
  **
  **  $Id: PhotonValidator
- **  $Date: 2008/06/27 12:21:53 $ 
- **  $Revision: 1.2 $
+ **  $Date: 2008/07/01 21:17:13 $ 
+ **  $Revision: 1.3 $
  **  \author Nancy Marinelli, U. of Notre Dame, US
  **
  ***/
@@ -74,8 +74,11 @@ class PhotonValidator : public edm::EDAnalyzer
   int nEntry_;
   int nSimPho_;
   int nSimConv_[2];
-
   int nMatched_;
+  int nRecConv_;
+  int nRecConvAss_;
+  int nRecConvAssWithEcal_;
+
   edm::ParameterSet parameters_;
   edm::ESHandle<CaloGeometry> theCaloGeom_;	    
   edm::ESHandle<CaloTopology> theCaloTopo_;
@@ -146,6 +149,8 @@ class PhotonValidator : public edm::EDAnalyzer
   MonitorElement* h_SimConvEt_[2];
   MonitorElement* h_SimConvPhi_[2];
   MonitorElement* h_SimConvEta_[2];
+  MonitorElement* h_SimConvEtaPix_[2];
+
   MonitorElement* h_SimConvR_[2];
   MonitorElement* h_SimConvZ_[2];
   //
@@ -190,27 +195,52 @@ class PhotonValidator : public edm::EDAnalyzer
 
 
 
-  /// conversion infos
+  /// info per conversion
   MonitorElement* h_nConv_[2][3];
   MonitorElement* h_convEta_[2];
   MonitorElement* h_convPhi_[2];
   MonitorElement* h_convERes_[2][3];
+  MonitorElement* h_convPRes_[2][3];
 
+  MonitorElement* h_invMass_[2][3];
   MonitorElement* h_r9VsNofTracks_[2][3];
   MonitorElement* h_EoverPTracks_[2][3];
-  MonitorElement* h_nHitsVsEta_[2]; 
-  MonitorElement* nHitsVsEta_[2]; 
-  MonitorElement* h_nHitsVsR_[2]; 
-  MonitorElement* nHitsVsR_[2]; 
-  MonitorElement* h_tkChi2_[2];
+
+  MonitorElement* h2_EoverEtrueVsEoverP_[3];
+  MonitorElement* h2_PoverPtrueVsEoverP_[3];
+
+  MonitorElement* h2_EoverPVsEta_[3];
+  MonitorElement* p_EoverPVsEta_[3];
+
+  MonitorElement* h2_EoverEtrueVsEta_[3];
+  MonitorElement* h2_PoverPtrueVsEta_[3];
+  MonitorElement* p_EoverEtrueVsEta_[3];
+  MonitorElement* p_PoverPtrueVsEta_[3];
+
   MonitorElement* h_DPhiTracksAtVtx_[2][3];
   MonitorElement* h_DCotTracks_[2][3];
-  MonitorElement* h_invMass_[2][3];
+
   MonitorElement* h_DPhiTracksAtEcal_[2][3];
   MonitorElement* h_DEtaTracksAtEcal_[2][3];
 
   MonitorElement* h_convVtxRvsZ_[2]; 
   MonitorElement* h_zPVFromTracks_[2]; 
+  MonitorElement* h_dzPVFromTracks_[2]; 
+
+
+  //////////// info per track
+  MonitorElement* h_nHitsVsEta_[2]; 
+  MonitorElement* nHitsVsEta_[2]; 
+  MonitorElement* h_nHitsVsR_[2]; 
+  MonitorElement* nHitsVsR_[2]; 
+  MonitorElement* h_tkChi2_[2];
+  MonitorElement* h_TkPtPull_[3];
+  MonitorElement* h2_TkPtPull_[3];
+  MonitorElement* p_TkPtPull_[3];
+  MonitorElement* h2_PtRecVsPtSim_[3];
+
+  MonitorElement* hBCEnergyOverTrackPout_[3];
+
 
   //
   //
