@@ -2,6 +2,7 @@
 
 #include "DataFormats/Common/interface/Handle.h"
 #include "FWCore/Framework/interface/ESHandle.h"
+#include "FWCore/Framework/interface/ESWatcher.h"
 
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 
@@ -75,9 +76,22 @@ void SiPixelRawToDigi::produce( edm::Event& ev,
                               const edm::EventSetup& es) 
 {
 
-  edm::ESHandle<SiPixelFedCablingMap> map;
-  es.get<SiPixelFedCablingMapRcd>().get( map );
-  LogDebug("map version:")<< map->version();
+// initialize cabling map or update if necessary
+  static edm::ESWatcher<SiPixelFedCablingMapRcd> recordWatcher;
+  if (recordWatcher.check( es )) {
+    edm::ESHandle<SiPixelFedCablingMap> map;
+    es.get<SiPixelFedCablingMapRcd>().get( map );
+    LogDebug("map version:")<< map->version();
+    delete fedCablingMap_;
+    fedCablingMap_ = map.product();
+    typedef std::vector<const sipixelobjects::PixelFEDCabling *>::iterator FLI;
+    std::vector<const sipixelobjects::PixelFEDCabling *> feds = map.product()->fedList();
+
+    for (FLI fedIds = feds.begin(); fedIds != feds.end(); fedIds++) {
+      int fedId = (*fedIds)->id();
+      fedList_.push_back( fedId );
+    }
+  }
 
   edm::Handle<FEDRawDataCollection> buffers;
   static string label = config_.getUntrackedParameter<string>("InputLabel","source");
@@ -90,22 +104,14 @@ void SiPixelRawToDigi::produce( edm::Event& ev,
   static int ndigis = 0;
   static int nwords = 0;
 
-  PixelDataFormatter formatter(map.product());
+  PixelDataFormatter formatter(fedCablingMap_);
   formatter.setErrorStatus(includeErrors, checkOrder);
 
   if (theTimer) theTimer->start();
 
-//  FEDNumbering fednum;
-//  pair<int,int> fedIds = fednum.getSiPixelFEDIds();
-//  fedIds.first = 0;
-//  fedIds.second = 39; //  temporary FIX !!!!
-  typedef sipixelobjects::PixelFEDCabling PixelFEDCabling;
-  typedef std::vector<const PixelFEDCabling *>::iterator FLI;
-  std::vector<const PixelFEDCabling *> feds = map.product()->fedList();
-  int fedId = 0;
-  
-  for (FLI fedIds = feds.begin(); fedIds != feds.end(); fedIds++) {
-    fedId = (int) (*fedIds)->id();
+  typedef std::vector<int>::iterator IF;
+  for (IF theFed = fedList_.begin(); theFed != fedList_.end(); theFed++) {
+    int fedId = *theFed;
     LogDebug("SiPixelRawToDigi")<< " PRODUCE DIGI FOR FED: " <<  fedId << endl;
     PixelDataFormatter::Digis digis;
     PixelDataFormatter::Errors errors;

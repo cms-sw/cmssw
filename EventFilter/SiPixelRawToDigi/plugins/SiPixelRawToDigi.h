@@ -40,7 +40,8 @@ private:
   unsigned long eventCounter_;
 //  edm::InputTag theLabel;
   edm::ParameterSet config_;
-  SiPixelFedCablingMap * fedCablingMap_;
+  const SiPixelFedCablingMap * fedCablingMap_;
+  std::vector<int> fedList_;
   TH1D *hCPU, *hDigi;
   TFile * rootFile;
   R2DTimerObserver * theTimer;
