@@ -36,7 +36,7 @@ class FilteredStream(dict):
 
 cms.FilteredStream = FilteredStream
 
-ALCARECOTkAlMinBias = cms.FilteredStream(
+ALCARECOStreamTkAlMinBias = cms.FilteredStream(
 	responsible = 'Gero Flucke',
 	name = 'ALCARECOTkAlMinBias',
 	paths  = (pathALCARECOTkAlMinBias),
@@ -45,7 +45,7 @@ ALCARECOTkAlMinBias = cms.FilteredStream(
 	dataTier = cms.untracked.string('ALCARECO')
 	)
 
-ALCARECOTkAlMuonIsolated = cms.FilteredStream(
+ALCARECOStreamTkAlMuonIsolated = cms.FilteredStream(
 	responsible = 'Gero Flucke',
 	name = 'ALCARECOTkAlMuonIsolated',
 	paths  = (pathALCARECOTkAlMuonIsolated),
@@ -54,7 +54,7 @@ ALCARECOTkAlMuonIsolated = cms.FilteredStream(
 	dataTier = cms.untracked.string('ALCARECO')
 	)
 
-ALCARECOTkAlZMuMu = cms.FilteredStream(
+ALCARECOStreamTkAlZMuMu = cms.FilteredStream(
 	responsible = 'Gero Flucke',
 	name = 'ALCARECOTkAlZMuMu',
 	paths  = (pathALCARECOTkAlZMuMu),
@@ -63,7 +63,7 @@ ALCARECOTkAlZMuMu = cms.FilteredStream(
 	dataTier = cms.untracked.string('ALCARECO')
 	)
 
-ALCARECOTkAlJpsiMuMu = cms.FilteredStream(
+ALCARECOStreamTkAlJpsiMuMu = cms.FilteredStream(
 	responsible = 'Gero Flucke',
 	name = 'ALCARECOTkAlJpsiMuMu',
 	paths  = (pathALCARECOTkAlJpsiMuMu),
@@ -72,7 +72,7 @@ ALCARECOTkAlJpsiMuMu = cms.FilteredStream(
 	dataTier = cms.untracked.string('ALCARECO')
 	)
 
-ALCARECOTkAlUpsilonMuMu = cms.FilteredStream(
+ALCARECOStreamTkAlUpsilonMuMu = cms.FilteredStream(
 	responsible = 'Gero Flucke',
 	name = 'ALCARECOTkAlUpsilonMuMu',
 	paths  = (pathALCARECOTkAlUpsilonMuMu),
@@ -81,7 +81,7 @@ ALCARECOTkAlUpsilonMuMu = cms.FilteredStream(
 	dataTier = cms.untracked.string('ALCARECO')
 	)
 
-ALCARECOSiPixelLorentzAngle = cms.FilteredStream(
+ALCARECOStreamSiPixelLorentzAngle = cms.FilteredStream(
 	responsible = 'Lotte Wilke',
 	name = 'ALCARECOSiPixelLorentzAngle',
 	paths  = (pathALCARECOSiPixelLorentzAngle),
@@ -90,7 +90,7 @@ ALCARECOSiPixelLorentzAngle = cms.FilteredStream(
 	dataTier = cms.untracked.string('ALCARECO')
 	)
 
-ALCARECOSiStripCalMinBias = cms.FilteredStream(
+ALCARECOStreamSiStripCalMinBias = cms.FilteredStream(
 	responsible = 'Vitaliano Ciulli',
 	name = 'ALCARECOSiStripCalMinBias',
 	paths  = (pathALCARECOSiStripCalMinBias),
@@ -99,7 +99,7 @@ ALCARECOSiStripCalMinBias = cms.FilteredStream(
 	dataTier = cms.untracked.string('ALCARECO')
 	)
 
-ALCARECOEcalCalPhiSym = cms.FilteredStream(
+ALCARECOStreamEcalCalPhiSym = cms.FilteredStream(
 	responsible = 'Stefano Argiro',
 	name = 'ALCARECOEcalCalPhiSym',
 	paths  = (pathALCARECOEcalCalPhiSym),
@@ -108,7 +108,7 @@ ALCARECOEcalCalPhiSym = cms.FilteredStream(
 	dataTier = cms.untracked.string('ALCARECO')
 	)
 
-ALCARECOEcalCalPi0Calib = cms.FilteredStream(
+ALCARECOStreamEcalCalPi0Calib = cms.FilteredStream(
 	responsible = 'Vladimir Litvine',
 	name = 'ALCARECOEcalCalPi0Calib',
 	paths  = (pathALCARECOEcalCalPi0Calib),
@@ -117,7 +117,7 @@ ALCARECOEcalCalPi0Calib = cms.FilteredStream(
 	dataTier = cms.untracked.string('ALCARECO')
 	)
 
-ALCARECOEcalCalElectron = cms.FilteredStream(
+ALCARECOStreamEcalCalElectron = cms.FilteredStream(
 	responsible = 'Pietro Govoni',
 	name = 'ALCARECOEcalCalElectron',
 	paths  = (pathALCARECOEcalCalElectron),
@@ -126,7 +126,7 @@ ALCARECOEcalCalElectron = cms.FilteredStream(
 	dataTier = cms.untracked.string('ALCARECO')
 	)
 
-ALCARECOHcalCalMinBias = cms.FilteredStream(
+ALCARECOStreamHcalCalMinBias = cms.FilteredStream(
 	responsible = 'Grigory Safronov',
 	name = 'ALCARECOHcalCalMinBias',
 	paths  = (pathALCARECOHcalCalMinBias),
@@ -135,7 +135,7 @@ ALCARECOHcalCalMinBias = cms.FilteredStream(
 	dataTier = cms.untracked.string('ALCARECO')
 	)
 
-ALCARECOHcalCalIsoTrkNoHLT = cms.FilteredStream(
+ALCARECOStreamHcalCalIsoTrkNoHLT = cms.FilteredStream(
 	responsible = 'Grigory Safronov',
 	name = 'ALCARECOHcalCalIsoTrkNoHLT',
 	paths  = (pathALCARECOHcalCalIsoTrkNoHLT),
@@ -144,7 +144,7 @@ ALCARECOHcalCalIsoTrkNoHLT = cms.FilteredStream(
 	dataTier = cms.untracked.string('ALCARECO')
 	)
 
-ALCARECOHcalCalDijets = cms.FilteredStream(
+ALCARECOStreamHcalCalDijets = cms.FilteredStream(
 	responsible = 'Grigory Safronov',
 	name = 'ALCARECOHcalCalDijets',
 	paths  = (pathALCARECOHcalCalDijets),
@@ -153,7 +153,7 @@ ALCARECOHcalCalDijets = cms.FilteredStream(
 	dataTier = cms.untracked.string('ALCARECO')
 	)
 
-ALCARECOHcalCalGammaJet = cms.FilteredStream(
+ALCARECOStreamHcalCalGammaJet = cms.FilteredStream(
 	responsible = 'Grigory Safronov',
 	name = 'ALCARECOHcalCalGammaJet',
 	paths  = (pathALCARECOHcalCalGammaJet),
@@ -162,7 +162,7 @@ ALCARECOHcalCalGammaJet = cms.FilteredStream(
 	dataTier = cms.untracked.string('ALCARECO')
 	)
 
-ALCARECOHcalCalHO = cms.FilteredStream(
+ALCARECOStreamHcalCalHO = cms.FilteredStream(
 	responsible = 'Grigory Safronov',
 	name = 'ALCARECOHcalCalHO',
 	paths  = (pathALCARECOHcalCalHO),
@@ -171,7 +171,7 @@ ALCARECOHcalCalHO = cms.FilteredStream(
 	dataTier = cms.untracked.string('ALCARECO')
 	)
 
-ALCARECOMuCaliMinBias = cms.FilteredStream(
+ALCARECOStreamMuCaliMinBias = cms.FilteredStream(
 	responsible = 'Jim Pivarski',
 	name = 'ALCARECOMuCaliMinBias',
 	paths  = (pathALCARECOMuCaliMinBias),
@@ -180,7 +180,7 @@ ALCARECOMuCaliMinBias = cms.FilteredStream(
 	dataTier = cms.untracked.string('ALCARECO')
 	)
 
-ALCARECOMuAlCalIsolatedMu = cms.FilteredStream(
+ALCARECOStreamMuAlCalIsolatedMu = cms.FilteredStream(
 	responsible = 'Jim Pivarski',
 	name = 'ALCARECOMuAlCalIsolatedMu',
 	paths  = (pathALCARECOMuAlCalIsolatedMu),
@@ -189,7 +189,7 @@ ALCARECOMuAlCalIsolatedMu = cms.FilteredStream(
 	dataTier = cms.untracked.string('ALCARECO')
 	)
 
-ALCARECOMuAlOverlaps = cms.FilteredStream(
+ALCARECOStreamMuAlOverlaps = cms.FilteredStream(
 	responsible = 'Jim Pivarski',
 	name = 'ALCARECOMuAlOverlaps',
 	paths  = (pathALCARECOMuAlOverlaps),
@@ -198,7 +198,7 @@ ALCARECOMuAlOverlaps = cms.FilteredStream(
 	dataTier = cms.untracked.string('ALCARECO')
 	)
 
-ALCARECORpcCalHLT = cms.FilteredStream(
+ALCARECOStreamRpcCalHLT = cms.FilteredStream(
 	responsible = 'Marcello Maggi',
 	name = 'ALCARECORpcCalHLT',
 	paths  = (pathALCARECORpcCalHLT),
@@ -207,7 +207,7 @@ ALCARECORpcCalHLT = cms.FilteredStream(
 	dataTier = cms.untracked.string('ALCARECO')
 	)
 
-ALCARECOTkAlCosmics = cms.FilteredStream(
+ALCARECOStreamTkAlCosmics = cms.FilteredStream(
 	responsible = 'Gero Flucke',
 	name = 'ALCARECOTkAlCosmics',
 	paths  = (pathALCARECOTkAlCosmicsCTF,pathALCARECOTkAlCosmicsCosmicTF,pathALCARECOTkAlCosmicsRS),
@@ -216,7 +216,7 @@ ALCARECOTkAlCosmics = cms.FilteredStream(
 	dataTier = cms.untracked.string('ALCARECO')
 	)
 
-ALCARECOTkAlCosmicsHLT = cms.FilteredStream(
+ALCARECOStreamTkAlCosmicsHLT = cms.FilteredStream(
 	responsible = 'Gero Flucke',
 	name = 'ALCARECOTkAlCosmicsHLT',
 	paths  = (pathALCARECOTkAlCosmicsCTFHLT,pathALCARECOTkAlCosmicsCosmicTFHLT,pathALCARECOTkAlCosmicsRSHLT),
@@ -225,7 +225,7 @@ ALCARECOTkAlCosmicsHLT = cms.FilteredStream(
 	dataTier = cms.untracked.string('ALCARECO')
 	)
 
-ALCARECOTkAlCosmics0T = cms.FilteredStream(
+ALCARECOStreamTkAlCosmics0T = cms.FilteredStream(
 	responsible = 'Gero Flucke',
 	name = 'ALCARECOTkAlCosmics0T',
 	paths  = (pathALCARECOTkAlCosmicsCTF0T,pathALCARECOTkAlCosmicsCosmicTF0T,pathALCARECOTkAlCosmicsRS0T),
@@ -234,7 +234,7 @@ ALCARECOTkAlCosmics0T = cms.FilteredStream(
 	dataTier = cms.untracked.string('ALCARECO')
 	)
 
-ALCARECOTkAlCosmics0THLT = cms.FilteredStream(
+ALCARECOStreamTkAlCosmics0THLT = cms.FilteredStream(
 	responsible = 'Gero Flucke',
 	name = 'ALCARECOTkAlCosmics0THLT',
 	paths  = (pathALCARECOTkAlCosmicsCTF0THLT,pathALCARECOTkAlCosmicsCosmicTF0THLT,pathALCARECOTkAlCosmicsRS0THLT),
@@ -243,7 +243,7 @@ ALCARECOTkAlCosmics0THLT = cms.FilteredStream(
 	dataTier = cms.untracked.string('ALCARECO')
 	)
 
-ALCARECOMuAlZeroFieldGlobalCosmics = cms.FilteredStream(
+ALCARECOStreamMuAlZeroFieldGlobalCosmics = cms.FilteredStream(
 	responsible = 'Jim Pivarski',
 	name = 'ALCARECOMuAlZeroFieldGlobalCosmics',
 	paths  = (pathALCARECOMuAlZeroFieldGlobalCosmics),
@@ -252,7 +252,7 @@ ALCARECOMuAlZeroFieldGlobalCosmics = cms.FilteredStream(
 	dataTier = cms.untracked.string('ALCARECO')
 	)
 
-ALCARECOTkAlBeamHalo = cms.FilteredStream(
+ALCARECOStreamTkAlBeamHalo = cms.FilteredStream(
 	responsible = 'Gero Flucke',
 	name = 'ALCARECOTkAlBeamHalo',
 	paths  = (pathALCARECOTkAlBeamHalo),
@@ -261,7 +261,7 @@ ALCARECOTkAlBeamHalo = cms.FilteredStream(
 	dataTier = cms.untracked.string('ALCARECO')
 	)
 
-ALCARECOMuAlBeamHalo = cms.FilteredStream(
+ALCARECOStreamMuAlBeamHalo = cms.FilteredStream(
 	responsible = 'Jim Pivarski',
 	name = 'ALCARECOMuAlBeamHalo',
 	paths  = (pathALCARECOMuAlBeamHalo),
@@ -270,7 +270,7 @@ ALCARECOMuAlBeamHalo = cms.FilteredStream(
 	dataTier = cms.untracked.string('ALCARECO')
 	)
 
-ALCARECOMuAlBeamHaloOverlaps = cms.FilteredStream(
+ALCARECOStreamMuAlBeamHaloOverlaps = cms.FilteredStream(
 	responsible = 'Jim Pivarski',
 	name = 'ALCARECOMuAlBeamHaloOverlaps',
 	paths  = (pathALCARECOMuAlBeamHaloOverlaps),
@@ -279,7 +279,7 @@ ALCARECOMuAlBeamHaloOverlaps = cms.FilteredStream(
 	dataTier = cms.untracked.string('ALCARECO')
 	)
 
-ALCARECOTkAlLAS = cms.FilteredStream(
+ALCARECOStreamTkAlLAS = cms.FilteredStream(
 	responsible = 'Jan Olzem',
 	name = 'ALCARECOTkAlLAS',
 	paths  = (pathALCARECOTkAlLAS),
