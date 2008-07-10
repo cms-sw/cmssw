@@ -122,6 +122,13 @@ PixelDelay25Calib::PixelDelay25Calib(vector< vector<string> > &tableMat) :
   assert(tmp=="Tests:");
   in >> numTests_;
 
+  in >> tmp;
+  if(tmp=="Commands:") {
+    in >> commands_;
+  } else {
+    commands_=0;
+  }
+
   //Number of steps in the grid
   gridSteps_ = range_/gridSize_;
 }
@@ -196,6 +203,13 @@ PixelDelay25Calib::PixelDelay25Calib(std::string filename) :
   assert(tmp=="Tests:");
   in >> numTests_;
 
+  in >> tmp;
+  if(tmp=="Commands:") {
+    in >> commands_;
+  } else {
+    commands_=0;
+  }
+
   in.close();
 
   //Number of steps in the grid
@@ -209,9 +223,7 @@ PixelDelay25Calib::~PixelDelay25Calib() {
 void PixelDelay25Calib::openFiles(std::string portcardName, std::string moduleName, std::string path) {
   if (path!="") path+="/";
   graph_ = path+"graph_"+portcardName+"_"+moduleName+".dat";
-  good_ = path+"good_"+portcardName+"_"+moduleName+".dat";
   graphout_.open(graph_.c_str());
-  goodout_.open(good_.c_str());
   return;
 }
 
@@ -234,14 +246,11 @@ void PixelDelay25Calib::writeFiles( std::string tmp ) {
 
 void PixelDelay25Calib::writeFiles( int currentSDa, int currentRDa, int number ) {
   graphout_ << currentSDa << " " << currentRDa << " " << number << endl;
-  if(number==numTests_)
-    goodout_ << currentSDa << " " << currentRDa << endl;
   return;
 }
 
 void PixelDelay25Calib::closeFiles() {
   graphout_.close();
-  goodout_.close();
   return;
 }
 
@@ -285,6 +294,9 @@ void PixelDelay25Calib::writeASCII(std::string dir) const {
   
   out << "Tests:"<<endl;
   out << numTests_<<endl;
+
+  out << "Commands:"<<endl;
+  out << commands_<<endl;
   
   out.close();
 }

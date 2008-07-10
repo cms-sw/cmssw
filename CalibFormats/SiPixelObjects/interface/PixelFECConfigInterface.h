@@ -122,6 +122,7 @@ namespace pos{
 			    int mymask, 
 			    int mytrim,
 			    int nTry,
+			    int commands,
 			    int& success0, 
 			    int& success1,
 			    int& success2, 

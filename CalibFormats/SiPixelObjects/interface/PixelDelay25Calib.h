@@ -43,6 +43,7 @@ namespace pos{
     int getRange() {return range_;}
     int getOrigSDa() {return origSDa_;}
     int getOrigRDa() {return origRDa_;}
+    int getCommands() {return commands_;}
     void openFiles(std::string portcardName, std::string moduleName, 
 		   std::string path="");
     void writeSettings(std::string portcardName, std::string moduleName);
@@ -54,10 +55,9 @@ namespace pos{
     std::string mode_;
     std::set<std::string> portcardNames_;
     bool allPortcards_, allModules_;
-    int origSDa_, origRDa_, range_, gridSize_, gridSteps_, numTests_;
+    int origSDa_, origRDa_, range_, gridSize_, gridSteps_, numTests_, commands_;
     std::ofstream graphout_;
-    std::ofstream goodout_;
-    std::string graph_, good_;
+    std::string graph_;
 
   };
 }
