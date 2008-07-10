@@ -6,7 +6,7 @@
  *
  * \author Luca Lista, INFN
  *
- * \version $Id: Candidate.h,v 1.43 2008/04/22 10:59:31 cbern Exp $
+ * \version $Id: Candidate.h,v 1.44 2008/05/08 15:29:35 srappocc Exp $
  *
  */
 #include "DataFormats/Candidate/interface/Particle.h"
@@ -71,11 +71,11 @@ namespace reco {
     virtual const Candidate * mother( size_type i = 0 ) const = 0;
     /// return the number of source Candidates 
     /// ( the candidates used to construct this Candidate)
-    virtual size_type numberOfSourceCandidateRefs() const {return 0;} 
-    /// return a RefToBase to one of the source Candidates 
+    virtual size_t numberOfSourceCandidatePtrs() const { return 0;}
+    /// return a Ptr to one of the source Candidates 
     /// ( the candidates used to construct this Candidate)
-    virtual CandidateBaseRef sourceCandidateRef( size_type i ) const {
-      return CandidateBaseRef();
+    virtual CandidatePtr sourceCandidatePtr( size_type i ) const {
+      return CandidatePtr();
     }
     /// chi-squares
     virtual double vertexChi2() const;
