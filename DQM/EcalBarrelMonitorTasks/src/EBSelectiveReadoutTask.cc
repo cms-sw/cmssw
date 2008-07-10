@@ -10,7 +10,6 @@
 #include "Geometry/CaloGeometry/interface/CaloSubdetectorGeometry.h"
 #include "Geometry/CaloGeometry/interface/CaloCellGeometry.h"
 #include "Geometry/CaloGeometry/interface/CaloGeometry.h"
-#include "Geometry/Records/interface/IdealGeometryRecord.h"
 
 #include "DataFormats/EcalDetId/interface/EcalScDetId.h"
 #include "DataFormats/EcalDetId/interface/EcalTrigTowerDetId.h"
@@ -51,10 +50,10 @@ EBSelectiveReadoutTask::EBSelectiveReadoutTask(const ParameterSet& ps){
 
   // histograms...
   EcalDccEventSize_ = 0;
-  EcalReadoutUnitForcedBitMap_ = 0;
-  EcalFullReadoutSRFlagMap_ = 0;
-  EcalHighInterestTriggerTowerFlagMap_ = 0;
-  EcalLowInterestTriggerTowerFlagMap_ = 0;
+  EBReadoutUnitForcedBitMap_ = 0;
+  EBFullReadoutSRFlagMap_ = 0;
+  EBHighInterestTriggerTowerFlagMap_ = 0;
+  EBLowInterestTriggerTowerFlagMap_ = 0;
   EBEventSize_ = 0;
   EBHighInterestPayload_ = 0;
   EBLowInterestPayload_ = 0;
@@ -76,11 +75,6 @@ void EBSelectiveReadoutTask::beginJob(const EventSetup& c) {
 
   Numbers::initGeometry(c, false);
 
-  // endcap mapping
-  edm::ESHandle<EcalTrigTowerConstituentsMap> hTriggerTowerMap;
-  c.get<IdealGeometryRecord>().get(hTriggerTowerMap);
-  triggerTowerMap_ = hTriggerTowerMap.product();
-
 }
 
 void EBSelectiveReadoutTask::setup(void) {
@@ -96,25 +90,25 @@ void EBSelectiveReadoutTask::setup(void) {
     EcalDccEventSize_ = dqmStore_->bookProfile(histo, histo, nECALDcc, 0, nECALDcc, 100, 0., 200., "s");
     EcalDccEventSize_->setAxisTitle("Event size (kB)",1);
 
-    sprintf(histo, "EBSRT Ecal readout unit with SR forced");
-    EcalReadoutUnitForcedBitMap_ = dqmStore_->book2D(histo, histo, 72, 0, 72, 34, -17, 17);
-    EcalReadoutUnitForcedBitMap_->setAxisTitle("jphi", 1);
-    EcalReadoutUnitForcedBitMap_->setAxisTitle("jeta", 2);
+    sprintf(histo, "EBSRT EB readout unit with SR forced");
+    EBReadoutUnitForcedBitMap_ = dqmStore_->book2D(histo, histo, 72, 0, 72, 34, -17, 17);
+    EBReadoutUnitForcedBitMap_->setAxisTitle("jphi", 1);
+    EBReadoutUnitForcedBitMap_->setAxisTitle("jeta", 2);
 
-    sprintf(histo, "EBSRT Ecal full readout SR flags");
-    EcalFullReadoutSRFlagMap_ = dqmStore_->book2D(histo, histo, 72, 0, 72, 34, -17, 17);
-    EcalFullReadoutSRFlagMap_->setAxisTitle("jphi", 1);
-    EcalFullReadoutSRFlagMap_->setAxisTitle("jeta", 2);
+    sprintf(histo, "EBSRT EB full readout SR flags");
+    EBFullReadoutSRFlagMap_ = dqmStore_->book2D(histo, histo, 72, 0, 72, 34, -17, 17);
+    EBFullReadoutSRFlagMap_->setAxisTitle("jphi", 1);
+    EBFullReadoutSRFlagMap_->setAxisTitle("jeta", 2);
 
-    sprintf(histo, "EBSRT Ecal high interest TT Flags");
-    EcalHighInterestTriggerTowerFlagMap_ = dqmStore_->book2D(histo, histo, 72, 0, 72, 34, -17, 17);
-    EcalHighInterestTriggerTowerFlagMap_->setAxisTitle("jphi", 1);
-    EcalHighInterestTriggerTowerFlagMap_->setAxisTitle("jeta", 2);
+    sprintf(histo, "EBSRT EB high interest TT Flags");
+    EBHighInterestTriggerTowerFlagMap_ = dqmStore_->book2D(histo, histo, 72, 0, 72, 34, -17, 17);
+    EBHighInterestTriggerTowerFlagMap_->setAxisTitle("jphi", 1);
+    EBHighInterestTriggerTowerFlagMap_->setAxisTitle("jeta", 2);
 
-    sprintf(histo, "EBSRT Ecal low interest TT Flags");
-    EcalLowInterestTriggerTowerFlagMap_ = dqmStore_->book2D(histo, histo, 72, 0, 72, 34, -17, 17);
-    EcalLowInterestTriggerTowerFlagMap_->setAxisTitle("jphi", 1);
-    EcalLowInterestTriggerTowerFlagMap_->setAxisTitle("jeta", 2);
+    sprintf(histo, "EBSRT EB low interest TT Flags");
+    EBLowInterestTriggerTowerFlagMap_ = dqmStore_->book2D(histo, histo, 72, 0, 72, 34, -17, 17);
+    EBLowInterestTriggerTowerFlagMap_->setAxisTitle("jphi", 1);
+    EBLowInterestTriggerTowerFlagMap_->setAxisTitle("jeta", 2);
 
     sprintf(histo, "EBSRT EB event size");
     EBEventSize_ = dqmStore_->book1D(histo, histo, 100, 0, 200);
@@ -142,17 +136,17 @@ void EBSelectiveReadoutTask::cleanup(void){
     if ( EcalDccEventSize_ ) dqmStore_->removeElement( EcalDccEventSize_->getName() );
     EcalDccEventSize_ = 0;
 
-    if ( EcalReadoutUnitForcedBitMap_ ) dqmStore_->removeElement( EcalReadoutUnitForcedBitMap_->getName() );
-    EcalReadoutUnitForcedBitMap_ = 0;
+    if ( EBReadoutUnitForcedBitMap_ ) dqmStore_->removeElement( EBReadoutUnitForcedBitMap_->getName() );
+    EBReadoutUnitForcedBitMap_ = 0;
 
-    if ( EcalFullReadoutSRFlagMap_ ) dqmStore_->removeElement( EcalFullReadoutSRFlagMap_->getName() );
-    EcalFullReadoutSRFlagMap_ = 0;
+    if ( EBFullReadoutSRFlagMap_ ) dqmStore_->removeElement( EBFullReadoutSRFlagMap_->getName() );
+    EBFullReadoutSRFlagMap_ = 0;
 
-    if ( EcalHighInterestTriggerTowerFlagMap_ ) dqmStore_->removeElement( EcalHighInterestTriggerTowerFlagMap_->getName() );
-    EcalHighInterestTriggerTowerFlagMap_ = 0;
+    if ( EBHighInterestTriggerTowerFlagMap_ ) dqmStore_->removeElement( EBHighInterestTriggerTowerFlagMap_->getName() );
+    EBHighInterestTriggerTowerFlagMap_ = 0;
 
-    if ( EcalLowInterestTriggerTowerFlagMap_ ) dqmStore_->removeElement( EcalLowInterestTriggerTowerFlagMap_->getName() );
-    EcalLowInterestTriggerTowerFlagMap_ = 0;
+    if ( EBLowInterestTriggerTowerFlagMap_ ) dqmStore_->removeElement( EBLowInterestTriggerTowerFlagMap_->getName() );
+    EBLowInterestTriggerTowerFlagMap_ = 0;
 
     if ( EBEventSize_ ) dqmStore_->removeElement( EBEventSize_->getName() );
     EBEventSize_ = 0;
@@ -191,13 +185,13 @@ void EBSelectiveReadoutTask::reset(void) {
    
   if ( EcalDccEventSize_ ) EcalDccEventSize_->Reset();
   
-  if ( EcalReadoutUnitForcedBitMap_ ) EcalReadoutUnitForcedBitMap_->Reset();
+  if ( EBReadoutUnitForcedBitMap_ ) EBReadoutUnitForcedBitMap_->Reset();
 
-  if ( EcalFullReadoutSRFlagMap_ ) EcalFullReadoutSRFlagMap_->Reset();
+  if ( EBFullReadoutSRFlagMap_ ) EBFullReadoutSRFlagMap_->Reset();
 
-  if ( EcalHighInterestTriggerTowerFlagMap_ ) EcalHighInterestTriggerTowerFlagMap_->Reset();
+  if ( EBHighInterestTriggerTowerFlagMap_ ) EBHighInterestTriggerTowerFlagMap_->Reset();
 
-  if ( EcalLowInterestTriggerTowerFlagMap_ ) EcalLowInterestTriggerTowerFlagMap_->Reset();
+  if ( EBLowInterestTriggerTowerFlagMap_ ) EBLowInterestTriggerTowerFlagMap_->Reset();
 
   if ( EBEventSize_ ) EBEventSize_->Reset();
 
@@ -242,10 +236,10 @@ void EBSelectiveReadoutTask::analyze(const Event& e, const EventSetup& c){
 
       int flag = srf.value() & ~EcalSrFlag::SRF_FORCED_MASK;
       if(flag == EcalSrFlag::SRF_FULL){ 
-	EcalFullReadoutSRFlagMap_->Fill(xipt,xiet);
+	EBFullReadoutSRFlagMap_->Fill(xipt,xiet);
       }
       if(srf.value() & EcalSrFlag::SRF_FORCED_MASK){
-	EcalReadoutUnitForcedBitMap_->Fill(xipt,xiet);
+	EBReadoutUnitForcedBitMap_->Fill(xipt,xiet);
       }
     }
   }
@@ -271,11 +265,11 @@ void EBSelectiveReadoutTask::analyze(const Event& e, const EventSetup& c){
       float xipt = ipt-0.5;
 
       if ( (TPdigi->ttFlag() & 0x3) == 0 ) {
-	EcalLowInterestTriggerTowerFlagMap_->Fill(xipt,xiet);
+	EBLowInterestTriggerTowerFlagMap_->Fill(xipt,xiet);
       }
 
       if ( (TPdigi->ttFlag() & 0x3) == 3 ) {
-	EcalHighInterestTriggerTowerFlagMap_->Fill(xipt,xiet);
+	EBHighInterestTriggerTowerFlagMap_->Fill(xipt,xiet);
       }
 
     }

@@ -231,11 +231,6 @@ private:
   */
  const EcalTrigTowerConstituentsMap * triggerTowerMap_;
 
- /** Ecal electronics/geometrical mapping.
-  */
- const EcalElectronicsMapping* elecMap_;
-
-
 int ievt_;
 
 DQMStore* dqmStore_;
@@ -254,10 +249,10 @@ edm::InputTag EcalTrigPrimDigiCollection_;
 edm::InputTag EcalFEDRawCollection_;
 
 MonitorElement *EcalDccEventSize_;
-MonitorElement *EcalReadoutUnitForcedBitMap_;
-MonitorElement *EcalFullReadoutSRFlagMap_;
-MonitorElement *EcalHighInterestTriggerTowerFlagMap_;
-MonitorElement *EcalLowInterestTriggerTowerFlagMap_;
+MonitorElement *EBReadoutUnitForcedBitMap_;
+MonitorElement *EBFullReadoutSRFlagMap_;
+MonitorElement *EBHighInterestTriggerTowerFlagMap_;
+MonitorElement *EBLowInterestTriggerTowerFlagMap_;
 MonitorElement *EBEventSize_;
 MonitorElement *EBHighInterestPayload_;
 MonitorElement *EBLowInterestPayload_;
