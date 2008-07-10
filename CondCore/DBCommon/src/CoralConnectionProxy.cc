@@ -14,6 +14,7 @@ cond::CoralConnectionProxy::CoralConnectionProxy(
       int connectionTimeOut,
       int idleConnectionCleanupPeriod):
   cond::IConnectionProxy(connectionServiceHandle,con,connectionTimeOut,idleConnectionCleanupPeriod),
+  m_coralHandle(0),
   m_transactionCounter(0),
   m_transaction(new cond::CoralTransaction(this)){
 }

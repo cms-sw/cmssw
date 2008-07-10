@@ -30,7 +30,8 @@ rdbms = RDBMS()
 
 
 frontiers=[
-    "frontier://PromptProd",
+    "frontier://FrontierProd",
+    "frontier://FrontierProd",
     "frontier://cmsfrontier.cern.ch:8000/Frontier",
     "frontier://cmsfrontier1.cern.ch:8000/Frontier",
     "frontier://cmsfrontier2.cern.ch:8000/Frontier",
@@ -38,24 +39,29 @@ frontiers=[
     ]
 
 for tag in tags:
-    db_o = rdbms.getDB(tag[1].replace('frontier://FrontierProd',"oracle:///cms_orcoff_prod"))
+    dbname = tag[1][tag[1].rfind('/'):]
+    # db_o = rdbms.getDB(tag[1])
+    db_o = rdbms.getDB("oracle://cms_orcoff_prod"+dbname)
     try :
         iov_o = db_o.iov(tag[0])
         size_o = iov_o.size()
         iov_o=0
         size_f = []
         for f in frontiers:
-            db_f = rdbms.getDB(tag[1].replace('frontier://FrontierProd',f))
+            db_f = rdbms.getDB(f+dbname)
             iov_f = db_f.iov(tag[0])
             size_f.append(iov_f.size())
             iov_f=0
-        print tag[0], size_o, size_f
+        print tag[1], tag[0], size_o, size_f
         #for elem in iov_o.elements :
         #    print elem.since(), elem.till(), elem.payloadToken()
     except RuntimeError :
         print tag," no iov?"
+        iov_o=0
+        iov_f=0
 
 
+# SiStripFedCabling_TKCC_20X_v3_hlt
 
 rdbms = RDBMS()
 dba = rdbms.getDB("oracle://cms_orcoff_prod/CMS_COND_20X_ALIGNMENT")
