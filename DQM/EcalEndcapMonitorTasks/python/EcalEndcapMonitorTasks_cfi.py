@@ -14,6 +14,7 @@ from DQM.EcalEndcapMonitorTasks.EETimingTask_cfi import *
 from DQM.EcalEndcapMonitorTasks.EEBeamHodoTask_cfi import *
 from DQM.EcalEndcapMonitorTasks.EEBeamCaloTask_cfi import *
 from DQM.EcalEndcapMonitorTasks.EEClusterTask_cfi import *
+from DQM.EcalEndcapMonitorTasks.EESelectiveReadoutTask_cfi import *
 
 ecalEndcapDefaultTasksSequence = cms.Sequence(ecalEndcapOccupancyTask*ecalEndcapIntegrityTask*ecalEndcapStatusFlagsTask*ecalEndcapLaserTask*ecalEndcapLedTask*ecalEndcapPedestalOnlineTask*ecalEndcapPedestalTask*ecalEndcapTestPulseTask*ecalEndcapTriggerTowerTask*ecalEndcapTimingTask)
 

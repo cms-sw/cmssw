@@ -14,6 +14,7 @@ from DQM.EcalEndcapMonitorTasks.EEStatusFlagsTask_cfi import *
 from DQM.EcalEndcapMonitorTasks.EETestPulseTask_cfi import *
 from DQM.EcalEndcapMonitorTasks.EETimingTask_cfi import *
 from DQM.EcalEndcapMonitorTasks.EETriggerTowerTask_cfi import *
+from DQM.EcalEndcapMonitorTasks.EESelectiveReadoutTask_cfi import *
 
 ecalEndcapOccupancyTask.mergeRuns = True
 ecalEndcapIntegrityTask.mergeRuns = True
@@ -35,3 +36,4 @@ ecalEndcapBeamCaloTask.mergeRuns = True
 
 ecalEndcapClusterTask.mergeRuns = True
 
+ecalEndcapSelectiveReadoutTask.mergeRuns = True
