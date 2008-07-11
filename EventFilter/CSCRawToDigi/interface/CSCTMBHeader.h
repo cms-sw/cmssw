@@ -178,6 +178,72 @@ struct CSCTMBHeader2007 {///this struct is for 2007 version of dataformat
 };
 
 
+struct CSCTMBHeader2007_rev0x50c3 {///this struct is for 2007 version of dataformat revision 0x50c3
+  CSCTMBHeader2007_rev0x50c3() {
+    bzero(this, sizeInWords()*2);
+  }
+  short unsigned int sizeInWords() const {//size of TMBHeader
+    return 43;
+  }
+  void addALCT0(const CSCALCTDigi & digi);
+  void addALCT1(const CSCALCTDigi & digi);
+  // 0
+  unsigned b0cline:16; 
+  unsigned bxnCount:12, dduCode1:3, flag1:1;
+  unsigned l1aNumber:12, dduCode2:3, flag2:1;
+  unsigned readoutCounter:12, dduCode3:3, flag3:1;
+  // 4
+  unsigned boardID:5, cscID:4, runID:4, stackOvf:1, syncError:1, flag4:1;
+  unsigned nHeaderFrames:6, fifoMode:3, r_type:2, l1atype:2, hasBuf:1, bufFull:1, flag5:1;
+  unsigned bd_status:15, flag6:1;
+  unsigned firmRevCode:15, flag7:1;\
+  // 8
+  unsigned bxnPreTrigger:12, reserved:2, lock_lost:1, flag8:1; 
+  unsigned preTrigCounterLow:15, flag9:1;
+  unsigned preTrigCounterHigh:15, flag10:1;
+  unsigned clctCounterLow:15, flag11:1;
+  // 12
+  unsigned clctCounterHigh:15, flag12:1;
+  unsigned trigCounterLow:15, flag13:1;
+  unsigned trigCounterHigh:15, flag14:1;
+  unsigned alctCounterLow:15, flag15:1;
+  // 16
+  unsigned alctCounterHigh:15, flag16:1;
+  unsigned uptimeCounterLow:15, flag17:1;
+  unsigned uptimeCounterHigh:15, flag18:1;
+  unsigned nCFEBs:3, nTBins:5, fifoPretrig:5, scopeExists:1, vmeExists:1, flag19:1;
+  // 20
+  unsigned hitThresh:3, pidThresh:4, nphThresh:3, lyrThresh:3, layerTrigEnabled:1, staggerCSC:1, flag20:1;
+  unsigned triadPersist:4, dmbThresh:3, alct_delay:4, clct_width:4, flag21:1;
+  unsigned trigSourceVect:9, r_nlayers_hit_vec:6, flag22:1;
+  unsigned activeCFEBs:5, readCFEBs:5, pop_l1a_match_win:4, aff_source:1, flag23:1;
+  // 24
+  unsigned tmbMatch:1, alctOnly:1, clctOnly:1, matchWin:4, noALCT:1, oneALCT:1, oneCLCT:1, twoALCT:1, twoCLCT:1, dupeALCT:1, dupeCLCT:1, lctRankErr:1, flag24:1;
+  unsigned clct0_valid:1, clct0_quality:3, clct0_shape:4, clct0_key_low:7, flag25:1;
+  unsigned clct1_valid:1, clct1_quality:3, clct1_shape:4, clct1_key_low:7, flag26:1;
+  unsigned clct0_key_high:1, clct1_key_high:1, clct_bxn:2, clct_sync_err:1,  clct0Invalid:1, clct1Invalid:1, clct1Busy:1, parity_err_cfeb_ram:5, parity_err_rpc:1, parity_err_summary:1, flag27:1;
+  // 28
+  unsigned alct0Valid:1, alct0Quality:2, alct0Amu:1, alct0Key:7, alct_pretrig_win:4, flag28:1;
+  unsigned alct1Valid:1, alct1Quality:2, alct1Amu:1, alct1Key:7, drift_delay:2, reserved3:1, layerTriggered:1, flag29:1;
+  unsigned alctBXN:5, alctSeqStatus:2, alctSEUStatus:2, alctReserved:4, alctCfg:1, reserved4:1, flag30:1;
+  unsigned MPC_Muon0_wire_:7, MPC_Muon0_clct_pattern_:4, MPC_Muon0_quality_:4, flag31:1;
+  // 32
+  unsigned MPC_Muon0_halfstrip_clct_pattern:8, MPC_Muon0_bend_:1, MPC_Muon0_SyncErr_:1, MPC_Muon0_bx_:1, MPC_Muon0_bc0_:1, MPC_Muon0_cscid_low:3, flag32:1;
+  unsigned MPC_Muon1_wire_: 7, MPC_Muon1_clct_pattern_:4, MPC_Muon1_quality_:4, flag33:1;
+  unsigned MPC_Muon1_halfstrip_clct_pattern:8, MPC_Muon1_bend_:1, MPC_Muon1_SyncErr_:1, MPC_Muon1_bx_:1, MPC_Muon1_bc0_:1, MPC_Muon1_cscid_low:3, flag34:1;
+  unsigned MPC_Muon0_vpf_:1, MPC_Muon0_cscid_bit4:1, MPC_Muon1_vpf_:1, MPC_Muon1_cscid_bit4:1, MPCDelay:4, MPCAccept:2, CFEBsEnabled:5, flag35:1;
+  // 36
+  unsigned RPCExists:2, RPCList:2, NRPCs:2, RPCEnable:1, RPCMatch:8, flag36:1;
+
+  unsigned r_wr_buf_adr:11, r_wr_buf_ready:1, wr_buf_ready:1, buf_q_full:1, buf_q_empty:1, flag37:1;
+  unsigned r_buf_fence_dist:11, buf_q_ovf_err:1, buf_q_udf_err:1, buf_q_adr_err:1, buf_stalled:1, flag38:1;
+  unsigned buf_fence_cnt:12, reserved7:3, flag39:1;
+  // 40
+  unsigned buf_fence_cnt_peak:12, reserved8:3, flag40:1;
+  unsigned reserved9:15, flag41:1;
+  unsigned e0bline:16;
+};
+
 class CSCTMBHeader {
 
  public:
@@ -188,7 +254,20 @@ class CSCTMBHeader {
   CSCTMBHeader(const unsigned short * buf);
 
   int FirmwareVersion() const {return firmwareVersion;}
-  
+
+  // Return firmware revision 
+  unsigned FirmwareRevision() const {
+    switch (firmwareVersion) {
+    case 2006:
+      return header2006.firmRevCode;
+    case 2007:
+      return header2007.firmRevCode;
+    default:
+      edm::LogError("CSCTMBHeader|CSCRawToDigi")
+        <<"couldn't get firmware revison: TMB firmware version is bad/not defined!";
+      return 0;
+    }
+  }
 
   uint16_t BXNCount() const {
     switch (firmwareVersion) {
@@ -314,7 +393,7 @@ class CSCTMBHeader {
     default:
       edm::LogError("CSCTMBHeader|CSCRawToDigi")
         <<"couldn't get tbin: TMB firmware version is bad/not defined!";
-      break;
+      return 0;
     }
   }
   uint16_t NCFEBs() const {
@@ -326,7 +405,7 @@ class CSCTMBHeader {
     default:
       edm::LogError("CSCTMBHeader|CSCRawToDigi")
         <<"couldn't get ncfebs: TMB firmware version is bad/not defined!";
-      break;
+      return 0;
     }
   }
 
@@ -350,7 +429,7 @@ class CSCTMBHeader {
     default:
       edm::LogError("CSCTMBHeader|CSCRawToDigi")
         <<"couldn't header frames: TMB firmware version is bad/not defined!";
-      break;
+      return 0;
     }
   }
   
@@ -387,6 +466,7 @@ class CSCTMBHeader {
   }
 
   /// Needed before data packing
+
   //void setChamberId(const CSCDetId & detId) {theChamberId = detId;}
 
   /// for data packing
@@ -399,7 +479,6 @@ class CSCTMBHeader {
   /// these methods need more brains to figure which one goes first
   void add(const CSCCLCTDigi & digi);
   void add(const CSCCorrelatedLCTDigi & digi);
-
 
   // templated on the header struct
   template<typename T> void addCLCT0(const CSCCLCTDigi & digi, T & t);
@@ -414,6 +493,7 @@ class CSCTMBHeader {
 
 private:
   // helper method to reverse the strip numbers in the ME1 readout
+
   //void offlineStripNumbering(int & strip, int & cfeb,
   //			     int& pattern, int& bend) const;
   //  void hardwareStripNumbering(int & strip, int & cfeb,
@@ -440,7 +520,6 @@ private:
   static unsigned short int firmwareVersion;
 
   // only used in data packing, and not set during unpacking
-  // but set during LCT retrieval
   //mutable CSCDetId theChamberId;
 };
 
