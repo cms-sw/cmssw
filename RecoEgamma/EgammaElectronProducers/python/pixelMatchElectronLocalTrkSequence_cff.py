@@ -4,13 +4,10 @@ import FWCore.ParameterSet.Config as cms
 # create a sequence with all required modules and sources needed to make
 # pixel based electrons
 #
-# $Id: pixelMatchElectronLocalTrkSequence_cff.py,v 1.3 2008/05/19 23:54:04 rpw Exp $
+# $Id: pixelMatchElectronLocalTrkSequence_cff.py,v 1.4 2008/06/19 14:54:59 rahatlou Exp $
 #
 # initialize magnetic field #########################
 # initialize geometry #####################
-from Geometry.CMSCommonData.cmsIdealGeometryXML_cfi import *
-from Geometry.TrackerGeometryBuilder.trackerGeometry_cfi import *
-from Geometry.TrackerNumberingBuilder.trackerNumberingGeometry_cfi import *
 from RecoTracker.GeometryESProducer.TrackerRecoGeometryESProducer_cfi import *
 # SiliconStrip Clusterizer and RecHit producer modules
 from RecoLocalTracker.SiStripClusterizer.SiStripClusterizer_SimData_cfi import *

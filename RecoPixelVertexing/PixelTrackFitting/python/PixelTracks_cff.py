@@ -2,11 +2,8 @@ import FWCore.ParameterSet.Config as cms
 
 # Magntic field
 # Geometry (all CMS)
-from Geometry.CMSCommonData.cmsIdealGeometryXML_cfi import *
 # Tracker Geometry Builder
-from Geometry.TrackerGeometryBuilder.trackerGeometry_cfi import *
 # Tracker Numbering Builder
-from Geometry.TrackerNumberingBuilder.trackerNumberingGeometry_cfi import *
 # Reco geometry 
 from RecoTracker.GeometryESProducer.TrackerRecoGeometryESProducer_cfi import *
 # for Transient rechits?

@@ -9,7 +9,6 @@ from RecoLocalCalo.Configuration.ecalLocalRecoSequenceCosmics_cff import *
 # Hcal part
 #
 # calo geometry
-from Geometry.CaloEventSetup.CaloGeometry_cff import *
 #
 # changed by tommaso. now the calibrations are read from Configuration/StaqndardSequences/data/*Conditions.cff
 #

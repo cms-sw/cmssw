@@ -2,9 +2,6 @@ import FWCore.ParameterSet.Config as cms
 
 # initialize magnetic field #########################
 # initialize geometry #####################
-from Geometry.CMSCommonData.cmsIdealGeometryXML_cfi import *
-from Geometry.TrackerGeometryBuilder.trackerGeometry_cfi import *
-from Geometry.TrackerNumberingBuilder.trackerNumberingGeometry_cfi import *
 from RecoTracker.GeometryESProducer.TrackerRecoGeometryESProducer_cfi import *
 # pixelCPE
 from RecoLocalTracker.SiPixelRecHits.PixelCPEParmError_cfi import *

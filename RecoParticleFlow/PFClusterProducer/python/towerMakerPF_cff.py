@@ -1,6 +1,5 @@
 import FWCore.ParameterSet.Config as cms
 
-from Geometry.CMSCommonData.cmsIdealGeometryXML_cfi import *
 # Calo geometry/topology services
 from Geometry.CaloEventSetup.CaloGeometry_cfi import *
 #include "Geometry/CaloEventSetup/data/CaloTowerConstituents.cfi"

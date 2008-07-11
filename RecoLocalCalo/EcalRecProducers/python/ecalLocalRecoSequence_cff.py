@@ -1,7 +1,6 @@
 import FWCore.ParameterSet.Config as cms
 
 # Calo geometry service model
-from Geometry.CaloEventSetup.CaloGeometry_cff import *
 #ECAL conditions
 #
 # removed : this goes into CalibCalorimetry/Configuration/data/Ecal_FakeCalibrations.cff

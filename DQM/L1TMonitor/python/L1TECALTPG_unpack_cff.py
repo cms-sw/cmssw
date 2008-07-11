@@ -12,7 +12,6 @@ from RecoLocalCalo.EcalRecProducers.ecalWeightUncalibRecHit_cfi import *
 ecalUncalibHit = copy.deepcopy(ecalWeightUncalibRecHit)
 from RecoLocalCalo.EcalRecProducers.ecalRecHit_cfi import *
 from SimCalorimetry.EcalTrigPrimProducers.ecalTriggerPrimitiveDigis_cff import *
-from Geometry.EcalMapping.EcalMapping_cfi import *
 from RecoEcal.EgammaClusterProducers.ecalClusteringSequence_cff import *
 ecalConditions = cms.ESSource("PoolDBESSource",
     CondDBSetup,

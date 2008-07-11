@@ -1,7 +1,7 @@
 import FWCore.ParameterSet.Config as cms
 
 #
-# $Id: siStripElectronSequence_cff.py,v 1.3 2008/05/19 23:54:05 rpw Exp $
+# $Id: siStripElectronSequence_cff.py,v 1.4 2008/06/19 14:55:00 rahatlou Exp $
 #
 # complete sequence to 1) make siStripElectrons
 #                      2) do tracking based on these siStripElectrons
@@ -11,11 +11,8 @@ import FWCore.ParameterSet.Config as cms
 # based on the cfg files from Jim Pivarsky, Cornell
 #
 # tracker geometry
-from Geometry.TrackerGeometryBuilder.trackerGeometry_cfi import *
 # tracker numbering
-from Geometry.TrackerNumberingBuilder.trackerNumberingGeometry_cfi import *
 # standard geometry
-from Geometry.CMSCommonData.cmsIdealGeometryXML_cfi import *
 # magnetic field
 from RecoLocalTracker.SiStripRecHitConverter.StripCPEfromTrackAngle_cfi import *
 from RecoLocalTracker.SiPixelRecHits.PixelCPEParmError_cfi import *

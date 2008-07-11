@@ -4,9 +4,6 @@ import FWCore.ParameterSet.Config as cms
 #
 from CalibTracker.SiStripESProducers.SiStripPedestalsFakeSource_cfi import *
 from CalibTracker.SiStripESProducers.SiStripQualityFakeESSource_cfi import *
-from Geometry.TrackerGeometryBuilder.trackerGeometry_cfi import *
-from Geometry.DTGeometry.dtGeometry_cfi import *
-from Geometry.CSCGeometry.cscGeometry_cfi import *
 from CalibCalorimetry.EcalLaserCorrection.ecalLaserCorrectionService_cfi import *
 from CalibTracker.SiStripESProducers.SiStripGainESProducer_cfi import *
 from RecoLocalTracker.SiStripRecHitConverter.StripCPEfromTrackAngle_cfi import *
@@ -27,6 +24,10 @@ sistripconn = cms.ESProducer("SiStripConnectivity")
 # end fake calibrations
 
 from Configuration.StandardSequences.FrontierConditions_GlobalTag_cfi import *
+
+from Geometry.TrackerGeometryBuilder.trackerGeometry_cfi import *
+from Geometry.DTGeometry.dtGeometry_cfi import *
+from Geometry.CSCGeometry.cscGeometry_cfi import *
 
 TrackerDigiGeometryESModule.applyAlignment = True
 DTGeometryESModule.applyAlignment = True

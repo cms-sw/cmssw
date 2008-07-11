@@ -2,11 +2,8 @@ import FWCore.ParameterSet.Config as cms
 
 # magnetic field
 # geometry
-from Geometry.CMSCommonData.cmsIdealGeometryXML_cfi import *
 # tracker geometry
-from Geometry.TrackerGeometryBuilder.trackerGeometry_cfi import *
 # tracker numbering
-from Geometry.TrackerNumberingBuilder.trackerNumberingGeometry_cfi import *
 # tracker reco geometry builder
 from RecoTracker.GeometryESProducer.TrackerRecoGeometryESProducer_cfi import *
 # stripCPE

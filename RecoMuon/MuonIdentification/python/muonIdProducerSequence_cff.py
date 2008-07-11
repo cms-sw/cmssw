@@ -5,11 +5,7 @@ import FWCore.ParameterSet.Config as cms
 from Geometry.CMSCommonData.cmsIdealGeometryXML_cff import *
 from Geometry.CaloEventSetup.CaloGeometry_cfi import *
 from Geometry.CaloEventSetup.CaloTopology_cfi import *
-from Geometry.DTGeometry.dtGeometry_cfi import *
-from Geometry.RPCGeometry.rpcGeometry_cfi import *
-from Geometry.CSCGeometry.cscGeometry_cfi import *
 from Geometry.CommonDetUnit.bareGlobalTrackingGeometry_cfi import *
-from Geometry.MuonNumbering.muonNumberingInitialization_cfi import *
 # add the SteppingHelixPropagator to the EventSetup
 from TrackPropagation.SteppingHelixPropagator.SteppingHelixPropagatorAny_cfi import *
 from TrackPropagation.SteppingHelixPropagator.SteppingHelixPropagatorAlong_cfi import *

@@ -7,12 +7,7 @@ import FWCore.ParameterSet.Config as cms
 #--- Allow for multiple calls to the database ---#
 from CondCore.DBCommon.CondDBSetup_cfi import *
 #--- Geometry Setup ---#
-from Geometry.CMSCommonData.cmsIdealGeometryXML_cfi import *
-from Geometry.TrackerGeometryBuilder.trackerGeometry_cfi import *
-from Geometry.TrackerNumberingBuilder.trackerNumberingGeometry_cfi import *
 #from HLTrigger.Configuration.rawToDigi.EcalGeometrySetup_cff import *
-from Geometry.DTGeometry.dtGeometry_cfi import *
-from Geometry.RPCGeometry.rpcGeometry_cfi import *
 #-------------------------#
 #--- RawToDigi modules ---#
 #-------------------------#

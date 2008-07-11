@@ -11,14 +11,12 @@ import L1Trigger.GlobalCaloTrigger.gctDigis_cfi
 # GCT emulator
 simGctDigis = L1Trigger.GlobalCaloTrigger.gctDigis_cfi.gctDigis.clone()
 # DT Trigger emulator
-from Geometry.DTGeometry.dtGeometry_cfi import *
 import L1Trigger.DTTrigger.dtTriggerPrimitiveDigis_cfi
 simDtTriggerPrimitiveDigis = L1Trigger.DTTrigger.dtTriggerPrimitiveDigis_cfi.dtTriggerPrimitiveDigis.clone()
 import L1Trigger.DTTrackFinder.dttfDigis_cfi
 # DT Track Finder emulator
 simDttfDigis = L1Trigger.DTTrackFinder.dttfDigis_cfi.dttfDigis.clone()
 # CSC Trigger emulator
-from Geometry.CSCGeometry.cscGeometry_cfi import *
 from L1Trigger.CSCCommonTrigger.CSCCommonTrigger_cfi import *
 import L1Trigger.CSCTriggerPrimitives.cscTriggerPrimitiveDigis_cfi
 simCscTriggerPrimitiveDigis = L1Trigger.CSCTriggerPrimitives.cscTriggerPrimitiveDigis_cfi.cscTriggerPrimitiveDigis.clone()
@@ -28,7 +26,6 @@ simCsctfTrackDigis = L1Trigger.CSCTrackFinder.csctfTrackDigis_cfi.csctfTrackDigi
 import L1Trigger.CSCTrackFinder.csctfDigis_cfi
 simCsctfDigis = L1Trigger.CSCTrackFinder.csctfDigis_cfi.csctfDigis.clone()
 # RPC Trigger emulator
-from Geometry.RPCGeometry.rpcGeometry_cfi import *
 import L1Trigger.RPCTrigger.rpcTriggerDigis_cfi
 simRpcTriggerDigis = L1Trigger.RPCTrigger.rpcTriggerDigis_cfi.rpcTriggerDigis.clone()
 import L1Trigger.GlobalMuonTrigger.gmtDigis_cfi

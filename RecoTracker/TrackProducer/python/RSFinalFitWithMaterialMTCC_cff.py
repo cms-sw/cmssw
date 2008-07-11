@@ -5,9 +5,7 @@ from MagneticField.Engine.uniformMagneticField_cfi import *
 # cms geometry
 from Geometry.CMSCommonData.cmsMTCCGeometryXML_cfi import *
 # tracker geometry
-from Geometry.TrackerGeometryBuilder.trackerGeometry_cfi import *
 # tracker numbering
-from Geometry.TrackerNumberingBuilder.trackerNumberingGeometry_cfi import *
 # KFUpdatoerESProducer
 from TrackingTools.KalmanUpdators.KFUpdatorESProducer_cfi import *
 # Chi2MeasurementEstimatorESProducer

@@ -4,11 +4,8 @@ import FWCore.ParameterSet.Config as cms
 # Geometry
 from Geometry.CMSCommonData.cmsIdealGeometryXML_cff import *
 # DT Geometry
-from Geometry.DTGeometry.dtGeometry_cfi import *
 # CSC Geometry
-from Geometry.CSCGeometry.cscGeometry_cfi import *
 # RPC Geometry
-from Geometry.RPCGeometry.rpcGeometry_cfi import *
 #------------------------------------ DT ------------------------------------------------
 # 1D RecHits
 from RecoLocalMuon.DTRecHit.dt1DRecHits_ParamDrift_cfi import *
