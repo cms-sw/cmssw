@@ -5,8 +5,6 @@ import FWCore.ParameterSet.Config as cms
 #  $Id: conversionTrackCandidates_cfi.py,v 1.9 2008/05/30 16:26:19 rpw Exp $
 #
 # Tracker geometry #####################
-from Geometry.TrackerGeometryBuilder.trackerGeometry_cfi import *
-from Geometry.TrackerNumberingBuilder.trackerNumberingGeometry_cfi import *
 from RecoTracker.GeometryESProducer.TrackerRecoGeometryESProducer_cfi import *
 # stripCPE
 from RecoLocalTracker.SiStripRecHitConverter.StripCPEfromTrackAngle_cfi import *
@@ -24,18 +22,27 @@ from RecoEgamma.EgammaPhotonProducers.trajectoryFilterForConversions_cfi import 
 #TrajectoryBuilder
 from RecoEgamma.EgammaPhotonProducers.trajectoryBuilderForConversions_cfi import *
 conversionTrackCandidates = cms.EDProducer("ConversionTrackCandidateProducer",
+    #    string  bcProducer  =        "islandBasicClusters"
+    #    string  bcBarrelCollection = "islandBarrelBasicClusters"
+    #    string  bcEndcapCollection = "islandEndcapBasicClusters"
     scHybridBarrelProducer = cms.string('correctedHybridSuperClusters'),
     inOutTrackCandidateSCAssociationCollection = cms.string('inOutTrackCandidateSCAssociationCollection'),
     maxHOverE = cms.double(0.2),
     scHybridBarrelCollection = cms.string(''),
     hbheModule = cms.string('hbhereco'),
     inOutTrackCandidateCollection = cms.string('inOutTracksFromConversions'),
+    # old endcap clustering
+    #    string scIslandEndcapProducer   =     "correctedEndcapSuperClustersWithPreshower"
+    #    string scIslandEndcapCollection =     ""
     outInTrackCandidateCollection = cms.string('outInTracksFromConversions'),
     minSCEt = cms.double(5.0),
     MeasurementTrackerName = cms.string(''),
     InOutRedundantSeedCleaner = cms.string('CachingSeedCleanerBySharedInput'),
     bcEndcapCollection = cms.InputTag("multi5x5BasicClusters","multi5x5EndcapBasicClusters"),
     outInTrackCandidateSCAssociationCollection = cms.string('outInTrackCandidateSCAssociationCollection'),
+    #     string  bcProducer  =   "multi5x5BasicClusters"
+    #     string  bcBarrelCollection = "multi5x5BarrelBasicClusters"
+    #     string  bcEndcapCollection = "multi5x5EndcapBasicClusters"
     bcBarrelCollection = cms.InputTag("hybridSuperClusters","hybridBarrelBasicClusters"),
     scIslandEndcapProducer = cms.string('correctedMulti5x5SuperClustersWithPreshower'),
     OutInRedundantSeedCleaner = cms.string('CachingSeedCleanerBySharedInput'),
