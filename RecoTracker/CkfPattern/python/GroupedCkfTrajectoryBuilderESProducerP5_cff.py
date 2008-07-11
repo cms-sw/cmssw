@@ -3,9 +3,6 @@ import FWCore.ParameterSet.Config as cms
 # initialize magnetic field #########################
 #include "Geometry/CMSCommonData/data/cmsMagneticFieldXML.cfi"
 # initialize geometry #####################
-from Geometry.CMSCommonData.cmsIdealGeometryXML_cfi import *
-from Geometry.TrackerGeometryBuilder.trackerGeometry_cfi import *
-from Geometry.TrackerNumberingBuilder.trackerNumberingGeometry_cfi import *
 from RecoTracker.GeometryESProducer.TrackerRecoGeometryESProducer_cfi import *
 # KFUpdatoerESProducer
 from TrackingTools.KalmanUpdators.KFUpdatorESProducer_cfi import *
@@ -32,9 +29,9 @@ from TrackingTools.TrajectoryFiltering.TrajectoryFilterESProducer_cff import *
 import TrackingTools.TrajectoryFiltering.TrajectoryFilterESProducer_cfi
 ckfBaseTrajectoryFilterP5 = TrackingTools.TrajectoryFiltering.TrajectoryFilterESProducer_cfi.trajectoryFilterESProducer.clone()
 import RecoTracker.CkfPattern.GroupedCkfTrajectoryBuilderESProducer_cfi
-replace ckfBaseTrajectoryFilterP5.filterPset.minPt = 0.5
-replace ckfBaseTrajectoryFilterP5.filterPset.maxLostHits = 4
-replace ckfBaseTrajectoryFilterP5.filterPset.maxConsecLostHits = 3
+#replace ckfBaseTrajectoryFilterP5.filterPset.minPt = 0.01
+#replace ckfBaseTrajectoryFilterP5.filterPset.maxLostHits = 4
+#replace ckfBaseTrajectoryFilterP5.filterPset.maxConsecLostHits = 3
 #replace ckfBaseTrajectoryFilterP5.filterPset.minimumNumberOfHits =  4
 #
 GroupedCkfTrajectoryBuilderP5 = RecoTracker.CkfPattern.GroupedCkfTrajectoryBuilderESProducer_cfi.GroupedCkfTrajectoryBuilder.clone()
