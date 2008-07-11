@@ -24,6 +24,9 @@
 #include "TrackingTools/PatternTools/interface/Trajectory.h"
 //
 #include "RecoParticleFlow/PFTracking/interface/PFTrackTransformer.h"
+#include "FWCore/Framework/interface/ESHandle.h"
+#include "MagneticField/Engine/interface/MagneticField.h"
+#include "MagneticField/Records/interface/IdealMagneticFieldRecord.h"
 #include <vector>
 
 
@@ -56,8 +59,10 @@ void PFConversionsProducer::beginJob( const edm::EventSetup& setup)
 {
 
   nEvt_=0;
+  edm::ESHandle<MagneticField> magneticField;
+  setup.get<IdealMagneticFieldRecord>().get(magneticField);
+  pfTransformer_= new PFTrackTransformer(math::XYZVector(magneticField->inTesla(GlobalPoint(0,0,0))));
 
-  pfTransformer_= new PFTrackTransformer();
   //  pfTransformer_->OnlyProp();
   return ;
 }

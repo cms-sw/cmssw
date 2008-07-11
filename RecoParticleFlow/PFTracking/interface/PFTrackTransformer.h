@@ -11,9 +11,13 @@
 #include "DataFormats/ParticleFlowReco/interface/GsfPFRecTrack.h"
 #include "DataFormats/TrackReco/interface/TrackFwd.h"
 #include "TrackingTools/TrajectoryState/interface/TrajectoryStateOnSurface.h"
-
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "DataFormats/GeometryVector/interface/GlobalVector.h"
+#include "DataFormats/Math/interface/Vector3D.h"
+
+
+
+
 /// \brief Abstract
 /*!
 \author Michele Pioppi
@@ -34,7 +38,7 @@ class PFTrackTransformer{
 
 
  public:
-  PFTrackTransformer();
+  PFTrackTransformer(math::XYZVector);
   ~PFTrackTransformer();
 
 
@@ -55,7 +59,8 @@ class PFTrackTransformer{
   bool  onlyprop_;
   
  private:
-
+  ///B field
+   math::XYZVector B_;
 };
 
 #endif
