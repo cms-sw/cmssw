@@ -3,6 +3,7 @@
 <use name=DataFormats/EcalDetId>
 <use name=DataFormats/EcalDigi>
 <use name=DataFormats/EcalRawData>
+<use name=DataFormats/FEDRawData>
 <use name=DataFormats/EcalRecHit>
 <use name=DataFormats/EgammaReco>
 <use name=DataFormats/Math>
@@ -18,6 +19,7 @@
   <use name=DataFormats/EcalDetId>
   <use name=DataFormats/EcalDigi>
   <use name=DataFormats/EcalRawData>
+  <use name=DataFormats/FEDRawData>
   <use name=DataFormats/EcalRecHit>
   <use name=DataFormats/EgammaReco>
   <use name=DataFormats/Math>
