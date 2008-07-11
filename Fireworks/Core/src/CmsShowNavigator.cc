@@ -8,7 +8,7 @@
 //
 // Original Author:  
 //         Created:  Tue Jun 10 14:56:46 EDT 2008
-// $Id: CmsShowNavigator.cc,v 1.7 2008/07/08 00:24:42 chrjones Exp $
+// $Id: CmsShowNavigator.cc,v 1.8 2008/07/08 02:43:46 dmytro Exp $
 //
 
 // hacks
@@ -73,29 +73,31 @@ CmsShowNavigator::~CmsShowNavigator()
 // member functions
 //
 void
-CmsShowNavigator::loadFile(std::string fileName) 
+CmsShowNavigator::loadFile(const std::string& fileName) 
 {
-  if (fileName == "") fileName = "data.root";
-  if (m_file != 0) {
-    delete m_eventList;
-    delete m_eventTree;
-    delete m_event;
-    m_file->Close();
-    delete m_file;
-  }
-  gErrorIgnoreLevel = 3000; // suppress warnings about missing dictionaries
-  TFile *newFile = TFile::Open(fileName.c_str());
-  if (newFile == 0) {
-    // Throw an exception
-    printf("Invalid file\n");
-  }
-  gErrorIgnoreLevel = -1;
-  m_file = newFile;
-  newFileLoaded.emit(m_file);
-  m_event = new fwlite::Event(m_file);
-  m_eventTree = (TTree*)m_file->Get("Events");
-  m_eventList = new TEventList("list","");
-  filterEventsAndReset(m_selection); // first event is loaded at the end
+   gErrorIgnoreLevel = 3000; // suppress warnings about missing dictionaries
+   TFile *newFile = TFile::Open(fileName.c_str());
+   if (newFile == 0) {
+      // Throw an exception
+      printf("Invalid file\n");
+      return;
+   }
+   if (m_file != 0) {
+      delete m_eventList;
+      delete m_eventTree;
+      delete m_event;
+      m_file->Close();
+      delete m_file;
+   }
+   
+   gErrorIgnoreLevel = -1;
+   m_file = newFile;
+   newFileLoaded.emit(m_file);
+   m_event = new fwlite::Event(m_file);
+   m_eventTree = dynamic_cast<TTree*> (m_file->Get("Events"));
+   assert(m_eventTree!=0);
+   m_eventList = new TEventList("list","");
+   filterEventsAndReset(m_selection); // first event is loaded at the end
 }
 
 Int_t
