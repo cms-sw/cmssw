@@ -80,7 +80,7 @@ public:
   L1CaloRegionDetId regionId() const { return regionId_; }
 
   /// was an object really found?
-  bool empty() const { return (data_ != 0); }
+  bool empty() const { return (data_ == 0); }
 
   /// get capture block
   uint16_t capBlock() const { return capBlock_; }

@@ -76,7 +76,7 @@ L1GctInternJetData L1GctInternJetData::fromJetClusterMinimal(L1CaloRegionDetId r
   d.setCapIndex(capIndex);
   d.setBx(bx);
   d.setType(jet_cluster_minimal);
-  d.setData( 0, (data>>10)&0x1, 0, (data>>6)&0xf, (data>>12)&0x1, (data>>1)&0x1, data&0x3f );
+  d.setData( 0, (data>>10)&0x1, 0, (data>>6)&0xf, (data>>12)&0x1, (data>>11)&0x1, data&0x3f );
 
   return d;
 }
@@ -138,12 +138,17 @@ std::ostream& operator<<(std::ostream& s, const L1GctInternJetData& c) {
     return s; 
   }
   else {
+    s << " type=" << c.type();
     s << " oflow=" << c.oflow();
     s << " et=" << c.et();
     s << " eta=" << c.eta();
     s << " phi=" << c.phi();
     s << " tauVeto=" << c.tauVeto();
     s << " rank=" << c.rank();
+    s << " cap block=" << std::hex << c.capBlock();
+    s << " index=" << c.capIndex();
+    s << " BX=" << c.bx();
+
   }
   return s; 
 }
