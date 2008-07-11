@@ -24,7 +24,7 @@ CFLAGS := $(COMPILERFLAGS) $(INCLUDE)  $(EXTRACFLAGS)
 LINKER = c++
 # linker flags
 ProjectMissingFlags = -lGeom
-ProjectLinkerFlags = -m32 -Lexternal/lib -L$(FWROOTSYS)/lib $(addprefix -l,$(ProjectLibs)) $(ProjectMissingFlags)
+ProjectLinkerFlags = -shared -m32 -Lexternal/lib -L$(FWROOTSYS)/lib $(addprefix -l,$(ProjectLibs)) $(ProjectMissingFlags)
 
 # cmsShow source code and its object files
 ProjectSources = $(wildcard src/*/*/src/*.cc)
