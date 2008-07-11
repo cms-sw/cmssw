@@ -38,7 +38,7 @@ void HcalAutoPedestalValidator::analyze(const edm::Event& ev, const edm::EventSe
         const float* oldvalue = (myRefPeds->getValues( mydetid ))->getValues();
         if( (fabs(*oldvalue-*values) + fabs(*(oldvalue+1)-*(values+1)) + fabs(*(oldvalue+2)-*(values+2)) + fabs(*(oldvalue+3)-*(values+3)))/4 > epsilon)
         {
-           std::cout << "Channel " << mydetid.rawId() <<  " Values differ by " << (*oldvalue-*values) << "  " << (*(oldvalue+1)-*(values+1)) << "  " << (*(oldvalue+2)-*(values+2)) << "  " << (*(oldvalue+3)-*(values+3)) << std::endl;
+           std::cout << "Channel " << std::hex << mydetid.rawId() <<  " Values differ by " << std::dec << (*oldvalue-*values) << "  " << (*(oldvalue+1)-*(values+1)) << "  " << (*(oldvalue+2)-*(values+2)) << "  " << (*(oldvalue+3)-*(values+3)) << std::endl;
            failflag = true;
         }
      listNewChan.erase(cell);  // fix 25.02.08
