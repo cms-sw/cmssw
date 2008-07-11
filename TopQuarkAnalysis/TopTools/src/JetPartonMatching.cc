@@ -1,5 +1,7 @@
 #include "TopQuarkAnalysis/TopTools/interface/JetPartonMatching.h"
 
+#include <Math/VectorUtil.h>
+
 JetPartonMatching::JetPartonMatching(const std::vector<const reco::Candidate*>& p, const std::vector<reco::GenJet>& j,
 				     const int algorithm = 3, const bool useMaxDist = true, 
 				     const bool useDeltaR = true, const double maxDist = 0.3)

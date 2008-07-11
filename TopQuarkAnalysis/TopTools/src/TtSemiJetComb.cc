@@ -1,5 +1,5 @@
 #include "TopQuarkAnalysis/TopTools/interface/TtSemiJetComb.h"
-#include "TopQuarkAnalysis/TopTools/interface/JetPartonMatching.h"
+#include "TopQuarkAnalysis/TopTools/interface/TtSemiEvtPartons.h"
 
 TtSemiJetComb::TtSemiJetComb(){}
 

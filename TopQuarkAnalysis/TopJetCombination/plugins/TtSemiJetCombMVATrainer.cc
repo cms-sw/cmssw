@@ -7,7 +7,7 @@
 
 #include "TopQuarkAnalysis/TopJetCombination/plugins/TtSemiJetCombMVATrainer.h"
 #include "TopQuarkAnalysis/TopTools/interface/TtSemiJetCombEval.h"
-#include "TopQuarkAnalysis/TopTools/interface/JetPartonMatching.h"
+#include "TopQuarkAnalysis/TopTools/interface/TtSemiEvtPartons.h"
 
 #include "DataFormats/RecoCandidate/interface/RecoCandidate.h"
 #include "DataFormats/PatCandidates/interface/Jet.h"
