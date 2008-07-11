@@ -262,11 +262,11 @@ famosPhotonSequence = cms.Sequence(
 )
 
 # Add isolation information for electrons and photons
-from RecoEgamma.EgammaIsolationAlgos.egammaCalExtractorBlocks_cff import *
-EgammaIsoEcalFromHitsExtractorBlock.barrelRecHits = 'caloRecHits:EcalRecHitsEB'
-EgammaIsoEcalFromHitsExtractorBlock.endcapRecHits = 'caloRecHits:EcalRecHitsEE'
-EgammaIsoHcalFromHitsExtractorBlock.hcalRecHits = 'caloRecHits'
-from RecoEgamma.EgammaIsolationAlgos.egammaIsolationSequence_cff import *
+#from RecoEgamma.EgammaIsolationAlgos.egammaCalExtractorBlocks_cff import *
+#EgammaIsoEcalFromHitsExtractorBlock.barrelRecHits = 'caloRecHits:EcalRecHitsEB'
+#EgammaIsoEcalFromHitsExtractorBlock.endcapRecHits = 'caloRecHits:EcalRecHitsEE'
+#EgammaIsoHcalFromHitsExtractorBlock.hcalRecHits = 'caloRecHits'
+#from RecoEgamma.EgammaIsolationAlgos.egammaIsolationSequence_cff import *
 
 # B tagging
 from RecoJets.JetAssociationProducers.ic5JetTracksAssociatorAtVertex_cfi import *
@@ -426,8 +426,7 @@ famosWithElectronsAndPhotons = cms.Sequence(
     caloRecHits+
     ecalClusters+
     famosElectronSequence+
-    famosPhotonSequence+
-    egammaIsolationSequence
+    famosPhotonSequence
 )
 
 famosWithBTagging = cms.Sequence(
@@ -470,7 +469,6 @@ reconstructionWithFamos = cms.Sequence(
     ecalClusters+
     famosElectronSequence+
     famosPhotonSequence+
-    egammaIsolationSequence+
     famosMuonSequence+
     famosMuonIdAndIsolationSequence+
     famosParticleFlowSequence+
