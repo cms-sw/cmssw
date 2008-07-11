@@ -16,7 +16,7 @@
 //
 // Original Author:  Joshua Berger
 //         Created:  Tue Jun 10 14:56:34 EDT 2008
-// $Id: CmsShowNavigator.h,v 1.4 2008/07/08 00:24:42 chrjones Exp $
+// $Id: CmsShowNavigator.h,v 1.5 2008/07/08 02:43:46 dmytro Exp $
 //
 
 // system include files
@@ -44,7 +44,7 @@ class CmsShowNavigator
       Int_t realEntry(Int_t rawEntry);
       Int_t realEntry(Int_t run, Int_t event); // -1 means event not found
       // ---------- const member functions --------------------- 
-      void loadFile(std::string fileName);
+      void loadFile(const std::string& fileName);
       void checkPosition();
       void nextEvent();
       void previousEvent();
