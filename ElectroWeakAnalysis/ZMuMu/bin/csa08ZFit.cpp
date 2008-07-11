@@ -104,20 +104,17 @@ int main(int ac, char *av[]) {
     typedef funct::Product<funct::Constant, funct::Sum<ZMuTkSig, ZMuTkBkg>::type>::type ZMuTk;
     typedef funct::Product<funct::Constant, funct::Sum<ZMuSaSig, ZMuSaBkg>::type>::type ZMuSa;
     typedef fit::MultiHistoChiSquare<ZMuMu, ZMuTk, ZMuSa, ZMuMuNoIso> ChiSquared;
-    fit::RootMinuitCommands<ChiSquared> commands("csa08ZFit.txt");
 
     double fMin, fMax;
     string ext;
     po::options_description desc("Allowed options");
     desc.add_options()
       ("help,h", "produce help message")
-      ("include-path,I", po::value< vector<string> >(), 
-       "include path")
       ("input-file,i", po::value< vector<string> >(), "input file")
       ("min,m", po::value<double>(&fMin)->default_value(60), "minimum value for fit range")
       ("max,M", po::value<double>(&fMax)->default_value(120), "maximum value for fit range")
-      ("output-file,O", po::value<string>(&ext)->default_value("ps"), 
-       "output file format")
+      ("plot-format,p", po::value<string>(&ext)->default_value("ps"), 
+       "output plot format")
       ;
     
     po::positional_options_description p;
@@ -134,11 +131,8 @@ int main(int ac, char *av[]) {
       return 0;
       }
     
-    if (vm.count("include-path")) {
-      cout << "Include paths are: " 
-	   << vm["include-path"].as< vector<string> >() << "\n";
-    }
-    
+    fit::RootMinuitCommands<ChiSquared> commands("csa08ZFit.txt");
+
     const int rebinMuMuNoIso = 2,rebinMuMu = 1, rebinMuTk = 2, rebinMuSa = 8;
     // assume that the bin size is 1 GeV!!!
     funct::Constant rebinMuMuNoIsoConst(rebinMuMuNoIso),rebinMuMuConst(rebinMuMu), rebinMuTkConst(rebinMuTk), rebinMuSaConst(rebinMuSa);
@@ -327,16 +321,16 @@ int main(int ac, char *av[]) {
 			  kRed, 2, kDashed, 100, 
 			  "Z -> #mu #mu mass", "#mu #mu invariant mass (GeV/c^{2})", 
 			  "Events");
-
+	
 	string ZMuMuNoIsoPlot = "ZMuMuNoIsoFit_" + plot_string;
-		root::plot<ZMuMuNoIso>(ZMuMuNoIsoPlot.c_str(), *histoZMuMuNoIso, zMuMuNoIso, fMin, fMax, 
-		  efficiencyTk, efficiencySa, efficiencyIso, 
-		  yieldZMuMu, lambdaZMuMu, mass, gamma, photonFactorZMuMu, interferenceFactorZMuMu, 
-		  meanZMuMu, sigmaZMuMu, 
-		  kRed, 2, kDashed, 100, 
-			  "Z -> #mu #mu Not Iso mass", "#mu #mu invariant mass (GeV/c^{2})", 
-			  "Events");	
-
+	root::plot<ZMuMuNoIso>(ZMuMuNoIsoPlot.c_str(), *histoZMuMuNoIso, zMuMuNoIso, fMin, fMax, 
+			       efficiencyTk, efficiencySa, efficiencyIso, 
+			       yieldZMuMu, lambdaZMuMu, mass, gamma, photonFactorZMuMu, interferenceFactorZMuMu, 
+			       meanZMuMu, sigmaZMuMu, 
+			       kRed, 2, kDashed, 100, 
+			       "Z -> #mu #mu Not Iso mass", "#mu #mu invariant mass (GeV/c^{2})", 
+			       "Events");	
+	
 	string ZMuTkPlot = "ZMuTkFit_" + plot_string;
 	TF1 funZMuTk = root::tf1<ZMuTk>("ZMuTkFunction", zMuTk, fMin, fMax, 
 					efficiencyTk, efficiencySa,efficiencyIso,
