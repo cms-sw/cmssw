@@ -56,7 +56,7 @@ display: lib$(LibProject).so tmp/lib$(LibProject).so.out cmsShow.exe
 cmsShow.exe: lib$(LibProject).so lib$(LibCore).so src/Fireworks/Core/test/cmsShow.cc
 	$(QUIET) echo "linking cmsShow.exe"; \
 	$(CC) $(INCLUDE) $(COMPILERFLAGS) src/Fireworks/Core/test/cmsShow.cc \
-		-o cmsShow.exe -L. -lCMSShow -lCMSDataFormats
+		-o cmsShow.exe $(ProjectLinkerFlags)
 
 
 lib$(LibProject).so: $(ProjectObjects) $(ProjectRootDicObjects) $(ProjectDictionaryObjects) lib$(LibCore).so
