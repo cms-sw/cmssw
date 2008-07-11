@@ -11,12 +11,10 @@ import FWCore.ParameterSet.Config as cms
 
 # magnetic field
 #include "Geometry/CMSCommonData/data/cmsMagneticFieldXML.cfi"
+from MagneticField.Engine.volumeBasedMagneticField_cfi import *
 # cms geometry
-from Geometry.CMSCommonData.cmsIdealGeometryXML_cfi import *
 # tracker geometry
-from Geometry.TrackerGeometryBuilder.trackerGeometry_cfi import *
 # tracker numbering
-from Geometry.TrackerNumberingBuilder.trackerNumberingGeometry_cfi import *
 #stripCPE
 from RecoLocalTracker.SiStripRecHitConverter.StripCPEfromTrackAngle_cfi import *
 #pixelCPE
