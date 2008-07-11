@@ -1,8 +1,8 @@
 /*
  * \file DTLocalTriggerTask.cc
  * 
- * $Date: 2008/06/10 14:58:47 $
- * $Revision: 1.26 $
+ * $Date: 2008/07/02 15:05:45 $
+ * $Revision: 1.27 $
  * \author M. Zanetti - INFN Padova
  *
 */
@@ -187,7 +187,7 @@ void DTLocalTriggerTask::beginJob(const edm::EventSetup& context){
 void DTLocalTriggerTask::endJob(){
 
   cout << "[DTLocalTriggerTask]: analyzed " << nevents << " events" << endl;
-  dbe->rmdir("DT/DTLocalTriggerTask");
+  dbe->rmdir("DT/03-LocalTrigger");
 
 }
 
