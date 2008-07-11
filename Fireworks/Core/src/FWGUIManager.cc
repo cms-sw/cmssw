@@ -8,7 +8,7 @@
 //
 // Original Author:  Chris Jones
 //         Created:  Mon Feb 11 11:06:40 EST 2008
-// $Id: FWGUIManager.cc,v 1.49 2008/07/08 18:43:24 chrjones Exp $
+// $Id: FWGUIManager.cc,v 1.50 2008/07/08 20:13:01 chrjones Exp $
 //
 
 // system include files
@@ -504,8 +504,7 @@ FWGUIManager::updateEDI(FWEventItem* iItem) {
 void
 FWGUIManager::resetEDIFrame() {
    std::cout <<"resetEDIFrame()"<<std::endl;
-   delete m_ediFrame;
-  m_ediFrame = 0;
+   m_ediFrame = 0;
 }
 
 void
