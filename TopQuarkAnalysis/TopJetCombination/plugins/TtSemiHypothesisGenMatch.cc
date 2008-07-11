@@ -1,5 +1,6 @@
 #include "TopQuarkAnalysis/TopJetCombination/plugins/TtSemiHypothesisGenMatch.h"
 
+#include "TopQuarkAnalysis/TopTools/interface/TtSemiEvtPartons.h"
 
 TtSemiHypothesisGenMatch::TtSemiHypothesisGenMatch(const edm::ParameterSet& cfg):
   TtSemiHypothesis( cfg ) { }
@@ -19,25 +20,25 @@ TtSemiHypothesisGenMatch::buildHypo(const edm::Handle<edm::View<reco::RecoCandid
     int ij = (*match)[idx];     
     if( isValid( ij, jets) ){
       switch(idx){
-      case 0:
+      case TtSemiEvtPartons::LightQ:
 	{ 
 	  edm::Ptr<pat::Jet> jet = edm::Ptr<pat::Jet>(jets, ij);
 	  lightQ_   = new reco::ShallowClonePtrCandidate( jet, jet->charge(), jet->p4(), jet->vertex() ); 
 	  break;
 	}
-      case 1:
+      case TtSemiEvtPartons::LightQBar:
 	{
 	  edm::Ptr<pat::Jet> jet = edm::Ptr<pat::Jet>(jets, ij);
 	  lightQBar_= new reco::ShallowClonePtrCandidate( jet, jet->charge(), jet->p4(), jet->vertex() ); 
 	  break;
 	}
-      case 2:
+      case TtSemiEvtPartons::HadB:
 	{
 	  edm::Ptr<pat::Jet> jet = edm::Ptr<pat::Jet>(jets, ij);
 	  hadronicB_= new reco::ShallowClonePtrCandidate( jet, jet->charge(), jet->p4(), jet->vertex() ); 
 	  break;
 	}
-      case 3:
+      case TtSemiEvtPartons::LepB:
 	{
 	  edm::Ptr<pat::Jet> jet = edm::Ptr<pat::Jet>(jets, ij);
 	  leptonicB_= new reco::ShallowClonePtrCandidate( jet, jet->charge(), jet->p4(), jet->vertex() ); 
