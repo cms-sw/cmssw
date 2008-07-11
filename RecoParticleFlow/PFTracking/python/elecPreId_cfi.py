@@ -22,7 +22,7 @@ elecpreid = cms.EDProducer("GoodSeedProducer",
     MinPt = cms.double(2.0),
     TkColList = cms.VInputTag(cms.InputTag("generalTracks")),
     UseTMVA = cms.untracked.bool(True),
-    TrackQuality = cms.string('goodIterative'),
+    TrackQuality = cms.string('highPurity'),
     MaxPt = cms.double(50.0),
     ClusterThreshold = cms.double(0.5)
 )
