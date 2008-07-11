@@ -1,6 +1,7 @@
 #include "CondFormats/SiStripObjects/interface/SiStripThreshold.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include "FWCore/Utilities/interface/Exception.h"
+#include <cassert>
 
 bool SiStripThreshold::put(const uint32_t& DetId, InputVector vect) {
   // put in SiStripThreshold::v_threshold of DetId
