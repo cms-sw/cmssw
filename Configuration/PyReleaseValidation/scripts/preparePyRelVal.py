@@ -27,16 +27,20 @@ def pickleParameterSet(pklname,command):
 
     """
     # Add the option to dump a pickle on disk
-    command += ' --dump_pickle %s' %pklname
+    command += ' --no_exec --python_filename %s' %pklname.replace("pkl","py")
     print yellow('\nExecuting %s ..\n' %command)
     os.system(command)
     
     parameter_set=command
-        
+#    command = 'python2.4 createPkl.py %s' %pklname.rstrip(".pkl") 
+#    os.system(command)    
     try:
-        file=open(pklname,"r")
-        process=pickle.load(file)
-        file.close()        
+        result = {}
+        execfile(pklname.replace("pkl","py"), result)
+        process = result["process"]
+#        file=open(pklname,"r")
+#        process=pickle.load(file)
+#        file.close() 
     except Exception,ex:
         print ''
         print 'ParameterSet: ',parameter_set,'could not be converted to python dictionary, error msg:',str(ex)
