@@ -19,6 +19,10 @@ SiStripBaseCondObjDQM::SiStripBaseCondObjDQM(const edm::EventSetup & eSetup,
   CondObj_fillId_    = hPSet_.getParameter<std::string>("CondObj_fillId");
   CondObj_name_      = hPSet_.getParameter<std::string>("CondObj_name");
 
+  FillSummaryAtLayerLevel = hPSet_.getParameter<bool>("FillSummaryAtLayerLevel");
+  FillSummaryProfileAtLayerLevel = hPSet_.getParameter<bool>("FillSummaryProfileAtLayerLevel");
+  FillCumulativeSummaryAtLayerLevel = hPSet_.getParameter<bool>("FillCumulativeSummaryAtLayerLevel");
+
   //Warning message from wrong input:
   if(SummaryOnLayerLevel_On_ && SummaryOnStringLevel_On_){
     edm::LogWarning("SiStripBaseCondObjDQM") 
@@ -332,13 +336,14 @@ void SiStripBaseCondObjDQM::getSummaryMEs(ModMEs& CondObj_ME, const uint32_t& de
       CondObj_name_ == "noise"         || 
       CondObj_name_ == "apvgain"       || 
       CondObj_name_ == "lorentzangle" ) {
-	
-    if (CondObj_ME.SummaryOfProfileDistr) { bookSummaryProfileMEs(CondObj_ME,detId_);}  
-  
+    if(FillSummaryProfileAtLayerLevel)	
+      if (CondObj_ME.SummaryOfProfileDistr) { bookSummaryProfileMEs(CondObj_ME,detId_);}  
+    
   }
     
   // --> currently only genuine cumul LA
-  if(  CondObj_name_ == "lorentzangle"   ) {
+  if(  CondObj_name_ == "lorentzangle" ||  CondObj_name_ == "noise"  ) {
+    if(FillCumulativeSummaryAtLayerLevel)
       if (CondObj_ME.SummaryOfCumulDistr) { bookSummaryCumulMEs(CondObj_ME,detId_); } 
   } 
                           
@@ -347,9 +352,9 @@ void SiStripBaseCondObjDQM::getSummaryMEs(ModMEs& CondObj_ME, const uint32_t& de
           CondObj_name_ == "apvgain"        || 
 	  CondObj_name_ == "pedestal"       || 
 	  CondObj_name_ == "quality"           ) {
-              
+    if(FillSummaryAtLayerLevel)          
       if (CondObj_ME.SummaryDistr) { bookSummaryMEs(CondObj_ME,detId_); } 
-      
+    
   } 
                           
   if(CondObj_name_ == "lorentzangle" && SummaryOnStringLevel_On_) {
@@ -1128,5 +1133,31 @@ std::pair<std::string,uint32_t> SiStripBaseCondObjDQM::getStringNameAndId(const 
   return std::make_pair(layerStringName_,layerStringId_);
 }
     
+//========================
+std::vector<uint32_t> SiStripBaseCondObjDQM::GetSameLayerDetId(std::vector<uint32_t> activeDetIds,uint32_t selDetId ){
+ 
+  std::vector<uint32_t> sameLayerDetIds;
+  sameLayerDetIds.clear();
+
+  SiStripSubStructure substructure_;
+  
+  uint32_t subselDetId_ =  ((selDetId>>25)&0x7);
+
+  if(subselDetId_==3){  //  TIB
+    substructure_.getTIBDetectors(activeDetIds, sameLayerDetIds, TIBDetId(selDetId).layer(),0,0,0);  
+  }
+  else if(subselDetId_==4){  // TID
+    substructure_.getTIDDetectors(activeDetIds, sameLayerDetIds, TIDDetId(selDetId).side(),TIDDetId(selDetId).wheel(),0,0);
+  }
+  else if(subselDetId_==5){  // TOB
+    substructure_.getTOBDetectors(activeDetIds, sameLayerDetIds, TOBDetId(selDetId).layer(),0,0);
+  }
+  else if(subselDetId_==6){  // TEC
+    substructure_.getTECDetectors(activeDetIds, sameLayerDetIds, TECDetId(selDetId).side(),TECDetId(selDetId).wheel(),0,0,0,0);
+  }
+
+  return sameLayerDetIds;
+  
+}
 
 

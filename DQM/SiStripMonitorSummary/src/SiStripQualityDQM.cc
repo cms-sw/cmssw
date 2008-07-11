@@ -142,22 +142,7 @@ void SiStripQualityDQM::fillMEsForLayer( std::map<uint32_t, ModMEs> selMEsMap_, 
   
   std::vector<uint32_t> sameLayerDetIds_;
   sameLayerDetIds_.clear();
-  
-  if(selSubDetId_==3){  //  TIB
-    substructure_.getTIBDetectors(activeDetIds, sameLayerDetIds_, TIBDetId(selDetId_).layerNumber(),0,0,0);  
-  }
-  else if(selSubDetId_==4){  // TID
-    substructure_.getTIDDetectors(activeDetIds, sameLayerDetIds_, 0,0,0,0);
-  }
-  else if(selSubDetId_==5){  // TOB
-    substructure_.getTOBDetectors(activeDetIds, sameLayerDetIds_, TOBDetId(selDetId_).layerNumber(),0,0);
-  }
-  else if(selSubDetId_==6){  // TEC
-    substructure_.getTECDetectors(activeDetIds, sameLayerDetIds_, 0,0,0,0,0,0);
-  }
-     
-  //sort(sameLayerDetIds_.begin(),sameLayerDetIds_.end()); 
-        
+  sameLayerDetIds_=GetSameLayerDetId(activeDetIds,selSubDetId_);
   // -----
   
   for(unsigned int i=0;i< sameLayerDetIds_.size(); i++){

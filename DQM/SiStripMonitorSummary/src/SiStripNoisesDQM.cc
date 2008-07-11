@@ -126,64 +126,132 @@ void SiStripNoisesDQM::fillMEsForLayer( std::map<uint32_t, ModMEs> selMEsMap_, u
   int nStrip =  reader->getNumberOfApvsAndStripLength(selDetId_).first*128;
   
   SiStripHistoId hidmanager;
-  
-  // --> profile summary    
-  std::string hSummaryOfProfile_description;
-  hSummaryOfProfile_description  = hPSet_.getParameter<std::string>("SummaryOfProfile_description");
-  
-  std::string hSummaryOfProfile_name; 
-  hSummaryOfProfile_name = hidmanager.createHistoLayer(hSummaryOfProfile_description, 
-						       "layer", 
-						       getLayerNameAndId(selDetId_).first, 
-						       "") ;
   float gainFactor=1;
   
-  for( int istrip=0;istrip<nStrip;++istrip){
+  if(FillSummaryProfileAtLayerLevel){
+    // --> profile summary    
+    std::string hSummaryOfProfile_description;
+    hSummaryOfProfile_description  = hPSet_.getParameter<std::string>("SummaryOfProfile_description");
     
-    try{ 	
-      if(gainRenormalisation_ ){
-	SiStripApvGain::Range gainRange = gainHandle_->getRange(selDetId_);
-	gainFactor= gainHandle_ ->getStripGain(istrip,gainRange);
-	selME_.SummaryOfProfileDistr->Fill(istrip+1,noiseHandle_->getNoise(istrip,noiseRange)/gainFactor);
-      }
-      else{
-	selME_.SummaryOfProfileDistr->Fill(istrip+1,noiseHandle_->getNoise(istrip,noiseRange));
-      }
-    } 
-    catch(cms::Exception& e){
-      edm::LogError("SiStripNoisesDQM")          
-	<< "[SiStripNoisesDQM::fillMEsForLayer] cms::Exception accessing noiseHandle_->getNoise(istrip,noiseRange) for strip "  
-	<< istrip 
-	<< " and detid " 
-	<< selDetId_  
-	<< " :  " 
-	<< e.what() ;
-    }
-  }// istrip
-  
-  // --> cumul summary    
-  std::string hSummary_description;
-  hSummary_description  = hPSet_.getParameter<std::string>("Summary_description");
-  
-  std::string hSummary_name; 
-  hSummary_name = hidmanager.createHistoLayer(hSummary_description, 
-					      "layer", 
-					      getLayerNameAndId(selDetId_).first, 
-					      "") ;
-  gainFactor=1;
-  
-  float meanNoise=0;
-  
-  for( int istrip=0;istrip<nStrip;++istrip){
-    
-    if( gainRenormalisation_){           
-      SiStripApvGain::Range gainRange = gainHandle_->getRange(selDetId_);
-      gainFactor= gainHandle_ ->getStripGain(istrip,gainRange);
-      try{
-	meanNoise = meanNoise +noiseHandle_->getNoise(istrip,noiseRange)/gainFactor;
-      }
+    std::string hSummaryOfProfile_name; 
+    hSummaryOfProfile_name = hidmanager.createHistoLayer(hSummaryOfProfile_description, 
+							 "layer", 
+							 getLayerNameAndId(selDetId_).first, 
+							 "") ;
+    for( int istrip=0;istrip<nStrip;++istrip){
+      
+      try{ 	
+	if(gainRenormalisation_ ){
+	  SiStripApvGain::Range gainRange = gainHandle_->getRange(selDetId_);
+	  gainFactor= gainHandle_ ->getStripGain(istrip,gainRange);
+	  selME_.SummaryOfProfileDistr->Fill(istrip+1,noiseHandle_->getNoise(istrip,noiseRange)/gainFactor);
+	}
+	else{
+	  selME_.SummaryOfProfileDistr->Fill(istrip+1,noiseHandle_->getNoise(istrip,noiseRange));
+	}
+      } 
       catch(cms::Exception& e){
 	edm::LogError("SiStripNoisesDQM")          
+	  << "[SiStripNoisesDQM::fillMEsForLayer] cms::Exception accessing noiseHandle_->getNoise(istrip,noiseRange) for strip "  
+	  << istrip 
+	  << " and detid " 
+	  << selDetId_  
+	  << " :  " 
+	  << e.what() ;
+      }
+    }// istrip
+  }//if fill
+  
+  if(FillSummaryAtLayerLevel){
+    // --> cumul summary    
+    std::string hSummary_description;
+    hSummary_description  = hPSet_.getParameter<std::string>("Summary_description");
+    
+    std::string hSummary_name; 
+    hSummary_name = hidmanager.createHistoLayer(hSummary_description, 
+						"layer", 
+						getLayerNameAndId(selDetId_).first, 
+						"") ;
+    gainFactor=1;
+    
+    float meanNoise=0;
+    
+    for( int istrip=0;istrip<nStrip;++istrip){
+      
+      if( gainRenormalisation_){           
+	SiStripApvGain::Range gainRange = gainHandle_->getRange(selDetId_);
+	gainFactor= gainHandle_ ->getStripGain(istrip,gainRange);
+	try{
+	  meanNoise = meanNoise +noiseHandle_->getNoise(istrip,noiseRange)/gainFactor;
+	}
+	catch(cms::Exception& e){
+	  edm::LogError("SiStripNoisesDQM")          
+	    << "[SiStripNoisesDQM::fillMEsForLayer] cms::Exception accessing noiseHandle_->getNoise(istrip,noiseRange) for strip "  
+	    << istrip 
+	    << "and detid " 
+	    << selDetId_  
+	    << " :  " 
+	    << e.what() ;
+	}
+      }	
+      else {  
+	try{
+	  meanNoise = meanNoise +noiseHandle_->getNoise(istrip,noiseRange)/gainFactor;
+	}
+	catch(cms::Exception& e){
+	  edm::LogError("SiStripNoisesDQM")          
+	    << "[SiStripNoisesDQM::fillMEsForLayer] cms::Exception accessing noiseHandle_->getNoise(istrip,noiseRange) for strip "  
+	    << istrip 
+	    << "and detid " 
+	    << selDetId_  
+	    << " :  " 
+	    << e.what() ;      
+	}
+      } 
+    }//istrip
+    meanNoise = meanNoise/nStrip;
+  // get detIds belonging to same layer to fill X-axis with detId-number
+  
+    std::vector<uint32_t> sameLayerDetIds_;
+    
+    uint32_t subselDetId_ =  ((selDetId_>>25)&0x7);
+    SiStripSubStructure substructure_;
+    
+    sameLayerDetIds_.clear();
+    
+    sameLayerDetIds_=GetSameLayerDetId(activeDetIds,subselDetId_);
+    
+    
+    unsigned int iBin=0;
+    for(unsigned int i=0;i<sameLayerDetIds_.size();i++){
+      if(sameLayerDetIds_[i]==selDetId_){iBin=i+1;}
+    }  
+    selME_.SummaryDistr->Fill(iBin,meanNoise);
+    
+    
+  }//if fill
+
+  /// Cumulative distr. for Noise:
+  if(FillCumulativeSummaryAtLayerLevel){
+    std::string hSummaryOfCumul_description;
+    hSummaryOfCumul_description  = hPSet_.getParameter<std::string>("Cumul_description");
+    
+    std::string hSummaryOfCumul_name; 
+    hSummaryOfCumul_name = hidmanager.createHistoLayer(hSummaryOfCumul_description, "layer", getStringNameAndId(selDetId_).first, "") ;
+    
+    for( int istrip=0;istrip<nStrip;++istrip){
+      try{ 
+	if(gainRenormalisation_){           
+	  SiStripApvGain::Range gainRange = gainHandle_->getRange(selDetId_);
+	  gainFactor= gainHandle_ ->getStripGain(istrip,gainRange);
+	  selME_.SummaryOfCumulDistr->Fill(noiseHandle_->getNoise(istrip,noiseRange)/gainFactor);
+	}
+	else{
+	  selME_.SummaryOfCumulDistr->Fill(noiseHandle_->getNoise(istrip,noiseRange));
+	}
+      } 
+      catch(cms::Exception& e){
+        edm::LogError("SiStripNoisesDQM")          
 	  << "[SiStripNoisesDQM::fillMEsForLayer] cms::Exception accessing noiseHandle_->getNoise(istrip,noiseRange) for strip "  
 	  << istrip 
 	  << "and detid " 
@@ -191,53 +259,9 @@ void SiStripNoisesDQM::fillMEsForLayer( std::map<uint32_t, ModMEs> selMEsMap_, u
 	  << " :  " 
 	  << e.what() ;
       }
-    }	
-    else {  
-      try{
-	meanNoise = meanNoise +noiseHandle_->getNoise(istrip,noiseRange)/gainFactor;
-      }
-      catch(cms::Exception& e){
-	edm::LogError("SiStripNoisesDQM")          
-	  << "[SiStripNoisesDQM::fillMEsForLayer] cms::Exception accessing noiseHandle_->getNoise(istrip,noiseRange) for strip "  
-	  << istrip 
-	  << "and detid " 
-	  << selDetId_  
-	  << " :  " 
-	  << e.what() ;      
-      }
-    } 
-  }//istrip
-  meanNoise = meanNoise/nStrip;
-  
+    }//istrip
+  }//if fill
   // -----
-  // get detIds belonging to same layer to fill X-axis with detId-number
-  
-  std::vector<uint32_t> sameLayerDetIds_;
-  
-  uint32_t subselDetId_ =  ((selDetId_>>25)&0x7);
-  SiStripSubStructure substructure_;
-  
-  sameLayerDetIds_.clear();
-  
-  if(subselDetId_==3){  //  TIB
-    substructure_.getTIBDetectors(activeDetIds, sameLayerDetIds_, TIBDetId(selDetId_).layerNumber(),0,0,0);  
-  }
-  else if(subselDetId_==4){  // TID
-    substructure_.getTIDDetectors(activeDetIds, sameLayerDetIds_, TIDDetId(selDetId_).side(),TIDDetId(selDetId_).diskNumber(),0,0);
-  }
-  else if(subselDetId_==5){  // TOB
-    substructure_.getTOBDetectors(activeDetIds, sameLayerDetIds_, TOBDetId(selDetId_).layerNumber(),0,0);
-  }
-  else if(subselDetId_==6){  // TEC
-    substructure_.getTECDetectors(activeDetIds, sameLayerDetIds_, TECDetId(selDetId_).side(), TECDetId(selDetId_).wheelNumber(),0,0,0,0);
-  }
-
-  unsigned int iBin=0;
-  for(unsigned int i=0;i<sameLayerDetIds_.size();i++){
-    if(sameLayerDetIds_[i]==selDetId_){iBin=i+1;}
-  }  
-  selME_.SummaryDistr->Fill(iBin,meanNoise);
-  
 }  
 // -----
 

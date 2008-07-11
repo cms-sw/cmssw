@@ -79,6 +79,7 @@ class SiStripBaseCondObjDQM {
     void getSummaryMEs(ModMEs& CondObj_ME, const uint32_t& detId_);
     std::pair<std::string,uint32_t> getLayerNameAndId(const uint32_t& detId_);
     std::pair<std::string,uint32_t> getStringNameAndId(const uint32_t& detId_);
+    std::vector<uint32_t> GetSameLayerDetId(std::vector<uint32_t> activeDetIds, uint32_t selDetId);
     
     SiStripDetInfoFileReader* reader; 
     
@@ -91,6 +92,9 @@ class SiStripBaseCondObjDQM {
     bool SummaryOnStringLevel_On_;
     std::string CondObj_fillId_;
     std::string CondObj_name_;
+    bool FillSummaryAtLayerLevel;
+    bool FillSummaryProfileAtLayerLevel;
+    bool FillCumulativeSummaryAtLayerLevel;
      
     std::map<uint32_t, ModMEs> ModMEsMap_;
     std::map<uint32_t, ModMEs> SummaryMEsMap_;
