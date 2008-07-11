@@ -8,7 +8,7 @@
 //
 // Original Author:  Chris Jones
 //         Created:  Thu May 29 20:58:23 CDT 2008
-// $Id: CmsShowMainFrame.cc,v 1.6 2008/07/08 02:43:46 dmytro Exp $
+// $Id: CmsShowMainFrame.cc,v 1.7 2008/07/11 00:03:35 chrjones Exp $
 //
 
 // system include files
@@ -181,6 +181,7 @@ TGMainFrame(p, w, h)
    
    AddFrame(menuBar, new TGLayoutHints(kLHintsExpandX,2,2,2,2));
 
+   /*DEBUGGING menu
    FontStruct_t font = gClient->GetResourcePool()->GetMenuHiliteFont()->GetFontStruct();
    std::vector<CSGAction*>::iterator it_act;
    printf("Width of <shift> : %d\n", gVirtualX->TextWidth(font, "<shift> ", 8));
@@ -189,6 +190,7 @@ TGMainFrame(p, w, h)
        printf("Menu %s has width %d\n", (*it_act)->getMenu()->GetEntry((*it_act)->getMenuEntry())->GetLabel()->Data(), gVirtualX->TextWidth(font, (*it_act)->getMenu()->GetEntry((*it_act)->getMenuEntry())->GetLabel()->Data(), (*it_act)->getMenu()->GetEntry((*it_act)->getMenuEntry())->GetLabel()->Length()));
      }
    }
+    */
 
    /*
    if(0==gSystem->Getenv("ROOTSYS")) {
@@ -208,7 +210,7 @@ TGMainFrame(p, w, h)
    pause->createToolBarEntry(tools, "stop_t.xpm");
    fullbar->AddFrame(tools, new TGLayoutHints(kLHintsLeft,2,2,2,2));
    TGHorizontalFrame *texts = new TGHorizontalFrame(fullbar, fullbar->GetWidth() - tools->GetWidth(), 30);
-   printf("text width: %d\n", this->GetWidth()-tools->GetWidth());
+   //printf("text width: %d\n", this->GetWidth()-tools->GetWidth());
    TGLabel *runText = new TGLabel(texts, "Run: ");
    texts->AddFrame(runText, new TGLayoutHints(kLHintsCenterY|kLHintsLeft,2,2,2,2));
    //   m_runEntry = new TGNumberEntryField(texts, -1, 1);
@@ -222,6 +224,12 @@ TGMainFrame(p, w, h)
    TGLabel *filterText = new TGLabel(texts, "Filter: ");
    texts->AddFrame(filterText, new TGLayoutHints(kLHintsCenterY,2,2,2,2));
    eventFilter->createTextEntry(texts, new TGLayoutHints(kLHintsCenterY|kLHintsExpandX,2,2,2,2));
+   
+   //Start disabled
+   goToFirst->disable();
+   previousEvent->disable();
+   nextEvent->disable();
+   pause->disable();
    
    TGSplitFrame *csArea = new TGSplitFrame(this, this->GetWidth(), this->GetHeight()-42);
    //   TGGroupFrame *csList = m_manager->createList(csArea);
