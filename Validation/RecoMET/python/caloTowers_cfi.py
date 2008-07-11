@@ -7,7 +7,8 @@ import FWCore.ParameterSet.Config as cms
 # Fill validation histograms for caloTowers.
 towerSchemeBAnalyzer = cms.EDAnalyzer("CaloTowerAnalyzer",
     Debug = cms.bool(False),
-    CaloTowersLabel = cms.InputTag("caloTowers"),
+    #CaloTowersLabel = cms.InputTag("caloTowers"),
+    CaloTowersLabel = cms.InputTag("towerMaker"),
     OutputFile = cms.untracked.string('CaloTowerAnalyzer_SchemeB.root'),
     DumpGeometry = cms.bool(False),
     GeometryFile = cms.untracked.string('CaloTowerAnalyzer_geometry.dat')
@@ -15,7 +16,8 @@ towerSchemeBAnalyzer = cms.EDAnalyzer("CaloTowerAnalyzer",
 
 towerOptAnalyzer = cms.EDAnalyzer("CaloTowerAnalyzer",
     Debug = cms.bool(False),
-    CaloTowersLabel = cms.InputTag("caloTowersOpt"),
+   # CaloTowersLabel = cms.InputTag("caloTowersOpt"),
+    CaloTowersLabel = cms.InputTag("calotoweroptmaker"),
     OutputFile = cms.untracked.string('CaloTowerAnalyzer_Opt.root'),
     DumpGeometry = cms.bool(False),
     GeometryFile = cms.untracked.string('CaloTowerAnalyzer_geometry.dat')
