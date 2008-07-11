@@ -87,6 +87,7 @@ class L1TDTTF : public edm::EDAnalyzer {
   MonitorElement* dttpgthmapbx[3];
 
   MonitorElement* dttf_p_phi[3][6][12];
+  MonitorElement* dttf_p_eta[3][6][12];
   MonitorElement* dttf_p_qual[3][6][12];
   MonitorElement* dttf_p_q[3][6][12];
   MonitorElement* dttf_p_pt[3][6][12];  

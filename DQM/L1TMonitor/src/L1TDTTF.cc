@@ -420,56 +420,94 @@ void L1TDTTF::beginJob(const EventSetup& c)
       
 //DTTF Output (6 wheels)
       
+     
+      
       dbe->setCurrentFolder(dttf_trk_folder);
       
-      for(int ibx=0;ibx<3;ibx++){
-	int tbx=ibx-1; 
-      
-	dbe->setCurrentFolder(dttf_trk_folder);
-      
-	for(int iwh=0;iwh<6;iwh++){
-	  int twh=iwh-3;
-	  if(iwh>=3) twh+=1;
+      for(int iwh=0;iwh<6;iwh++){
+	int twh=iwh-3;
+	if(iwh>=3) twh+=1;
+	
+	//ostringstream whnum;
+	//whnum << iwh;
+	string whn;
+	//whn = whnum.str();
+	
+	switch(iwh){
+	case 0:  whn = "N2";  break;
+	case 1:  whn = "N1";  break;
+	case 2:  whn = "N0";  break;
+	case 3:  whn = "P0";  break;
+	case 4:  whn = "P1";  break;
+	case 5:  whn = "P2";  break;   
+	}
+	
+	string dttf_trk_folder_wheel = dttf_trk_folder + "/WHEEL_" + whn;
+	dbe->setCurrentFolder(dttf_trk_folder_wheel);
+	
+	
+	for(int ibx=0;ibx<3;ibx++){
+	  int tbx=ibx-1; 
 	  
-	  ostringstream whnum;
-	  whnum << iwh;
-	  string whn;
-	  whn = whnum.str();
-	
-	  string dttf_trk_folder_wheel = dttf_trk_folder + "/WHEEL_" + whn;
-	  dbe->setCurrentFolder(dttf_trk_folder_wheel);
-	
+	  ostringstream bxnum;
+	  bxnum << ibx;
+	  string bxn = bxnum.str();
+	  string dttf_trk_folder_bx = dttf_trk_folder_wheel + "/BX_" + bxn;
+	  
+	  dbe->setCurrentFolder(dttf_trk_folder_bx);
+	  
+	  //QUALITY folder
+	  string dttf_trk_folder_quality = dttf_trk_folder_bx + "/Quality";
+	  dbe->setCurrentFolder(dttf_trk_folder_quality);
+
 	  for(int ise=0;ise<12;ise++){
-	  
-	    
-	    ostringstream senum;
-	    senum << ise;
-	    string sen;
-	    sen = senum.str();
-	    string dttf_trk_folder_sector = dttf_trk_folder_wheel + "/SECTOR_" + sen;
-	    dbe->setCurrentFolder(dttf_trk_folder_sector);
-	    
-	    sprintf(hname,"dttf_p_phi_bx%d_wh%d_se%d",tbx,twh,ise);
-	    //dttf_p_phi[ibx][iwh][ise] = dbe->book1D(hname,hname,256,-0.5,255.5);
-	    dttf_p_phi[ibx][iwh][ise] = dbe->book1D(hname,hname,144,-0.5,143.5);//<--DON: CHANGED RANGE (according to Ref Manual, phi (packed) has range of 0->143
-	    
 	    sprintf(hname,"dttf_p_qual_bx%d_wh%d_se%d",tbx,twh,ise);
-	    dttf_p_qual[ibx][iwh][ise] = dbe->book1D(hname,hname,8,-0.5,7.5);
-	    
-	    sprintf(hname,"dttf_p_q_bx%d_wh%d_se%d",tbx,twh,ise);
-	    dttf_p_q[ibx][iwh][ise] = dbe->book1D(hname,hname,2,-0.5,1.5);
-	    
-	    sprintf(hname,"dttf_p_pt_bx%d_wh%d_se%d",tbx,twh,ise);
-	    dttf_p_pt[ibx][iwh][ise]= dbe->book1D(hname,hname,32,-0.5,31.5);
-	    
+	    dttf_p_qual[ibx][iwh][ise] = dbe->book1D(hname,hname,8,-0.5,7.5);	  
 	  }
 
-	  //track occupancy info - for each wheel
-	  dbe->setCurrentFolder(dttf_trk_folder_wheel);
-	  sprintf(hname,"dttf_p_phi_eta_wh%d",twh);
-	  dttf_p_phi_eta[iwh] = dbe->book2D(hname,hname,144,-0.5,143.5,100,-0.5,99.5);
+	  //PHI folder
+	  string dttf_trk_folder_phi = dttf_trk_folder_bx + "/Phi";
+	  dbe->setCurrentFolder(dttf_trk_folder_phi);
+
+	  for(int ise=0;ise<12;ise++){
+	    sprintf(hname,"dttf_p_phi_bx%d_wh%d_se%d",tbx,twh,ise);
+	    dttf_p_phi[ibx][iwh][ise] = dbe->book1D(hname,hname,144,-0.5,144.5);
+	    //dttf_p_phi[ibx][iwh][ise] = dbe->book1D(hname,hname, 32,-16.5, 15.5);
+	  }
+
+	  //ETA folder
+	  string dttf_trk_folder_eta = dttf_trk_folder_bx + "/Eta";
+	  dbe->setCurrentFolder(dttf_trk_folder_eta);
+
+	  for(int ise=0;ise<12;ise++){
+	    sprintf(hname,"dttf_p_eta_bx%d_wh%d_se%d",tbx,twh,ise);
+	    dttf_p_eta[ibx][iwh][ise] = dbe->book1D(hname,hname,64,-32.5,32.5);//fix range and bin size!
+	  }
+	  
+	  //PT folder
+	  string dttf_trk_folder_pt = dttf_trk_folder_bx + "/PT";
+	  dbe->setCurrentFolder(dttf_trk_folder_pt);
+
+	  for(int ise=0;ise<12;ise++){
+	    sprintf(hname,"dttf_p_pt_bx%d_wh%d_se%d",tbx,twh,ise);
+	    dttf_p_pt[ibx][iwh][ise]= dbe->book1D(hname,hname,32,-0.5,31.5);
+	  }
+
+	  //CHARGE folder
+	  string dttf_trk_folder_charge = dttf_trk_folder_bx + "/Charge";
+	  dbe->setCurrentFolder(dttf_trk_folder_charge);
+	  
+	  for(int ise=0;ise<12;ise++){
+	    sprintf(hname,"dttf_p_q_bx%d_wh%d_se%d",tbx,twh,ise);
+	    dttf_p_q[ibx][iwh][ise] = dbe->book1D(hname,hname,2,-0.5,1.5);
+	  }
 
 	}
+	
+	//track occupancy info - for each wheel
+	dbe->setCurrentFolder(dttf_trk_folder_wheel);
+	sprintf(hname,"dttf_p_phi_eta_wh%d",twh);
+	dttf_p_phi_eta[iwh] = dbe->book2D(hname,hname,144,-0.5,143.5,64,-0.5,64.5);
       }	
 
       //integrated values
@@ -481,7 +519,7 @@ void L1TDTTF::beginJob(const EventSetup& c)
       dttf_p_phi_integ = dbe->book1D(hname,hname,144,-0.5,143.5);
 	    
       sprintf(hname,"dttf_p_eta_integ");
-      dttf_p_eta_integ = dbe->book1D(hname,hname,2,-0.5,1.5);//what is the eta_packed range??
+      dttf_p_eta_integ = dbe->book1D(hname,hname,64,-32.5,32.5);
 	    
       sprintf(hname,"dttf_p_pt_integ");
       dttf_p_pt_integ  = dbe->book1D(hname,hname,32,-0.5,31.5);
@@ -492,17 +530,17 @@ void L1TDTTF::beginJob(const EventSetup& c)
 
       //physical values
       sprintf(hname,"dttf_phys_phi_integ");
-      dttf_phys_phi_integ = dbe->book1D(hname,hname,144,-0.5,6.5);
+      dttf_phys_phi_integ = dbe->book1D(hname,hname,144,-0.5,360.5);
 	    
       sprintf(hname,"dttf_phys_eta_integ");
-      dttf_phys_eta_integ = dbe->book1D(hname,hname,100,-0.5,99.5);//what is max eta value?
+      dttf_phys_eta_integ = dbe->book1D(hname,hname,64,-1.2,1.2);//eta range (-1.2,1.2)
 	    
       sprintf(hname,"dttf_phys_pt_integ");
       dttf_phys_pt_integ  = dbe->book1D(hname,hname,100,-0.5,99.5);//what is max pt value?
 
       //track occupancy info - everything
       sprintf(hname,"dttf_p_phi_eta");
-      dttf_p_phi_eta_integ = dbe->book2D(hname,hname,144,-0.5,143.5,100,-0.5,99.5);
+      dttf_p_phi_eta_integ = dbe->book2D(hname,hname,144,-0.5,360.5,64,-1.2,1.2);
 
       sprintf(hname,"Occupancy_Summary");
       //dttf_occupancySummary = dbe->book2D(hname,hname,12,1,13,6,0,6);
@@ -994,21 +1032,40 @@ void L1TDTTF::analyze(const Event& e, const EventSetup& c)
     //std::cout << "eta_packed = " << i->eta_packed() << std::endl;
     //std::cout << "count = " << count << std::endl;
 
-    dttf_p_phi[bxindex][wh2][se]->Fill(i->phi_packed());
+
+    int phi_local = i->phi_packed();//range: 0 < phi_local < 31 
+    if(phi_local > 15) phi_local -= 32; //range: -16 < phi_local < 15
+    
+    int phi_global = phi_local + se*12; //range: -16 < phi_global < 147
+    if(phi_global < 0) phi_global = 144; //range: 0 < phi_global < 147
+    if(phi_global > 143) phi_global -= 144; //range: 0 < phi_global < 143
+
+    float phi_phys = phi_global * 2.5;  
+
+    dttf_p_phi[bxindex][wh2][se]->Fill(phi_global);
+
     dttf_p_qual[bxindex][wh2][se]->Fill(i->quality_packed());
     dttf_p_pt[bxindex][wh2][se]->Fill(i->pt_packed());
     dttf_p_q[bxindex][wh2][se]->Fill(i->charge_packed());
 
-    
+    int eta_global = i->eta_packed() - 32;
+    dttf_p_eta[bxindex][wh2][se]->Fill(eta_global);
+
+    float eta_phys = eta_global / 2.4 ;
+
     if(bxindex==1){
-      dttf_p_phi_integ->Fill(i->phi_packed());
+      //dttf_p_phi_integ->Fill(i->phi_packed());
+      dttf_p_phi_integ->Fill(phi_global);
       dttf_p_pt_integ->Fill(i->pt_packed());
-      dttf_p_eta_integ->Fill(i->eta_packed());
+      dttf_p_eta_integ->Fill(eta_global);
       dttf_p_qual_integ->Fill(i->quality_packed());
 
-      dttf_phys_phi_integ->Fill(i->phiValue());
+
+      //dttf_phys_phi_integ->Fill(i->phiValue());
+      dttf_phys_phi_integ->Fill(phi_phys);
       dttf_phys_pt_integ->Fill(i->ptValue());
-      dttf_phys_eta_integ->Fill(i->etaValue());
+      //dttf_phys_eta_integ->Fill(i->etaValue());
+      dttf_phys_eta_integ->Fill(eta_phys);
       
       dttf_p_phi_eta[wh2]->Fill(i->phi_packed(),i->eta_packed());
       dttf_p_phi_eta_integ->Fill(i->phi_packed(),i->eta_packed());
