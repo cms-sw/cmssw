@@ -24,7 +24,7 @@ CFLAGS := $(COMPILERFLAGS) $(INCLUDE)  $(EXTRACFLAGS)
 LINKER = c++
 # linker flags
 ProjectMissingFlags = -lGeom
-ProjectLinkerFlags = -shared -m32 -Lexternal/lib -L$(FWROOTSYS)/lib $(addprefix -l,$(ProjectLibs)) $(ProjectMissingFlags)
+ProjectLinkerFlags = -m32 -Lexternal/lib -L$(FWROOTSYS)/lib $(addprefix -l,$(ProjectLibs)) $(ProjectMissingFlags)
 
 # cmsShow source code and its object files
 ProjectSources = $(wildcard src/*/*/src/*.cc)
@@ -55,9 +55,8 @@ display: lib$(LibProject).so tmp/lib$(LibProject).so.out cmsShow.exe
 
 cmsShow.exe: lib$(LibProject).so lib$(LibCore).so src/Fireworks/Core/test/cmsShow.cc
 	$(QUIET) echo "linking cmsShow.exe"; \
-	$(CC) $(INCLUDE) $(COMPILERFLAGS) src/Fireworks/Core/test/cmsShow.cc \
-		-o cmsShow.exe $(ProjectLinkerFlags)
-
+	$(CC) $(CFLAGS) -Wl,-rpath -Wl,./ -L$(FWROOTSYS)/lib $(addprefix $(LinkerOptions),$(LDLIBRARYPATH)) \
+	  -lRIO -lNet -o cmsShow.exe libCMSShow.so src/Fireworks/Core/test/cmsShow.cc
 
 lib$(LibProject).so: $(ProjectObjects) $(ProjectRootDicObjects) $(ProjectDictionaryObjects) lib$(LibCore).so
 	$(QUIET) echo "linking core library $(LibProject)"; \
