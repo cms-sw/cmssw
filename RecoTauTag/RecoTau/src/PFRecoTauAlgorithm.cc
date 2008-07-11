@@ -207,19 +207,10 @@ PFTau PFRecoTauAlgorithm::buildPFTau(const PFTauTagInfoRef& myPFTauTagInfoRef,co
   double myEmfrac = -1.;
   bool   myElecPreid = false;
   reco::TrackRef myElecTrk;
-<<<<<<< PFRecoTauAlgorithm.cc
   
   typedef std::pair<reco::PFBlockRef, unsigned> ElementInBlock;
   typedef std::vector< ElementInBlock > ElementsInBlocks; 
-=======
-  
-  // Corrected Cluster energies
-  for(int i=0;i<(int)myPFCands.size();i++){
-    myHCALenergy += myPFCands[i]->hcalEnergy();
-    myECALenergy += myPFCands[i]->ecalEnergy();
-  }
-  
->>>>>>> 1.39
+
   if(myleadPFCand.isNonnull()){
     if (myleadPFCand->mva_e_pi()==1) {
       myElecPreid = true;
@@ -228,7 +219,6 @@ PFTau PFRecoTauAlgorithm::buildPFTau(const PFTauTagInfoRef& myPFTauTagInfoRef,co
     myElecTrk = myleadPFCand->trackRef();//Electron candidate
     
     if(myElecTrk.isNonnull()) {
-<<<<<<< PFRecoTauAlgorithm.cc
             
       // Against double counting of clusters
       std::vector<math::XYZPoint> hcalPosV; hcalPosV.clear();
@@ -279,31 +269,14 @@ PFTau PFRecoTauAlgorithm::buildPFTau(const PFTauTagInfoRef& myPFTauTagInfoRef,co
 	}
       }
       
-=======
->>>>>>> 1.39
       if ((myHCALenergy+myECALenergy)>0.)
 	myEmfrac = myECALenergy/(myHCALenergy+myECALenergy);
       myPFTau.setemFraction((float)myEmfrac);
-<<<<<<< PFRecoTauAlgorithm.cc
       myPFTau.sethcalTotOverPLead((float)myHCALenergy/(float)myElecTrk->p());
       myPFTau.sethcalMaxOverPLead((float)myMaximumHCALPFClusterE/(float)myElecTrk->p());
       myPFTau.sethcal3x3OverPLead((float)myHCALenergy3x3/(float)myElecTrk->p());
       myPFTau.setecalStripSumEOverPLead((float)myStripClusterE/(float)myElecTrk->p());
       myPFTau.setmaximumHCALPFClusterEt(myMaximumHCALPFClusterEt);
-=======
-      
-      /* Not filled yet: need to use CaloTowers in future!!!!!!
-	 myPFTau.sethcalTotOverPLead((float)myHCALenergy/(float)myElecTrk->p());
-	 myPFTau.sethcalMaxOverPLead((float)myMaximumHCALPFClusterE/(float)myElecTrk->p());
-	 myPFTau.sethcal3x3OverPLead((float)myHCALenergy3x3/(float)myElecTrk->p());
-	 myPFTau.setmaximumHCALPFClusterEt(myMaximumHCALPFClusterEt);
-      */
-      
-      // Here use the corrected energies from PFCandidate (to be changed - can be confusing)
-      myPFTau.setecalStripSumEOverPLead((float)myECALenergy/(float)myElecTrk->p());
-      myPFTau.sethcalTotOverPLead((float)myHCALenergy/(float)myElecTrk->p());
-      
->>>>>>> 1.39
       myPFTau.setelectronPreIDDecision(myElecPreid);
       if (myElecTrk.isNonnull()) myPFTau.setelectronPreIDTrack(myElecTrk);
       
