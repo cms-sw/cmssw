@@ -13,7 +13,7 @@ Implementation:
 //
 // Original Author:  Giovanni FRANZONI
 //         Created:  Tue Jan 22 13:55:00 CET 2008
-// $Id: TriggerTypeFilter.cc,v 1.2 2008/06/19 06:03:35 gruen Exp $
+// $Id: TriggerTypeFilter.cc,v 1.3 2008/07/11 14:59:47 mzanetti Exp $
 //
 //
 
@@ -119,7 +119,6 @@ TriggerTypeFilter::filter(edm::Event& iEvent, const edm::EventSetup& iSetup)
   if (fedData.size()< EMPTY_FEDSIZE) return false;
 
   uint64_t * pData = (uint64_t *)(fedData.data());
-<<<<<<< TriggerTypeFilter.cc
 
   // First Header Word of fed block
   unsigned short triggerTypeFED       = ((*pData)>>H_TTYPE_B)   & H_TTYPE_MASK;
@@ -136,12 +135,6 @@ TriggerTypeFilter::filter(edm::Event& iEvent, const edm::EventSetup& iSetup)
 
 
 
-=======
-  
-  // First Header Word of fed block contains trigger type
-  unsigned short triggerType       = ((*pData)>>H_TTYPE_B)   & H_TTYPE_MASK;
-  
->>>>>>> 1.2
   return (triggerType == SelectedTriggerType_) ? true : false;
 }
 
