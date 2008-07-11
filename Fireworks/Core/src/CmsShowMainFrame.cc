@@ -8,7 +8,7 @@
 //
 // Original Author:  Chris Jones
 //         Created:  Thu May 29 20:58:23 CDT 2008
-// $Id: CmsShowMainFrame.cc,v 1.5 2008/07/08 00:27:57 chrjones Exp $
+// $Id: CmsShowMainFrame.cc,v 1.6 2008/07/08 02:43:46 dmytro Exp $
 //
 
 // system include files
@@ -259,8 +259,8 @@ TGMainFrame(p, w, h)
    //   printf("Default main frame size: %d, %d\n", this->GetDefaultSize().fWidth, this->GetDefaultSize().fHeight);
    //   printf("Main frame size: %d, %d\n", this->GetWidth(), this->GetHeight());
    //   Resize(this->GetDefaultSize());
-   MapWindow();   
    Layout();
+   MapWindow();   
 }
 
 // CmsShowMainFrame::CmsShowMainFrame(const CmsShowMainFrame& rhs)
