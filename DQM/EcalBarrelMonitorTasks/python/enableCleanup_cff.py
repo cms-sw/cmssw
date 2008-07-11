@@ -14,6 +14,7 @@ from DQM.EcalBarrelMonitorTasks.EBTestPulseTask_cfi import *
 from DQM.EcalBarrelMonitorTasks.EBTimingTask_cfi import *
 from DQM.EcalBarrelMonitorTasks.EBTriggerTowerTask_cfi import *
 from DQM.EcalBarrelMonitorTasks.EBSelectiveReadoutTask_cfi import *
+from DQM.EcalBarrelMonitorTasks.EBRawDataTask_cfi import *
 
 ecalBarrelOccupancyTask.enableCleanup = True
 ecalBarrelIntegrityTask.enableCleanup = True
@@ -35,4 +36,5 @@ ecalBarrelBeamCaloTask.enableCleanup = True
 ecalBarrelClusterTask.enableCleanup = True
 
 ecalBarrelSelectiveReadoutTask.enableCleanup = True
+ecalBarrelRawDataTask.enableCleanup = True
 
