@@ -162,9 +162,9 @@ PFTau PFRecoTauAlgorithm::buildPFTau(const PFTauTagInfoRef& myPFTauTagInfoRef,co
     } 
     myPFTau.setisolationPFGammaCandsEtSum(myIsolPFGammaCands_Etsum);
     myPFTau.setisolationPFCands(myIsolPFCands);
-    
+     
   }
-  
+
   math::XYZTLorentzVector alternatLorentzVect(0.,0.,0.,0.);
   for (PFCandidateRefVector::const_iterator iGammaCand=myPFGammaCands.begin();iGammaCand!=myPFGammaCands.end();iGammaCand++) alternatLorentzVect+=(**iGammaCand).p4();
   for (PFCandidateRefVector::const_iterator iChargedHadrCand=myPFChargedHadrCands.begin();iChargedHadrCand!=myPFChargedHadrCands.end();iChargedHadrCand++) alternatLorentzVect+=(**iChargedHadrCand).p4();  
@@ -196,8 +196,9 @@ PFTau PFRecoTauAlgorithm::buildPFTau(const PFTauTagInfoRef& myPFTauTagInfoRef,co
       myPFTau.setisolationTracks(myFilteredTracks);
     }
   }
+
   
-  /* For elecron rejection */
+   /* For elecron rejection */
   double myECALenergy=0.;
   double myHCALenergy=0.;
   double myHCALenergy3x3=0.;
@@ -287,7 +288,7 @@ PFTau PFRecoTauAlgorithm::buildPFTau(const PFTauTagInfoRef& myPFTauTagInfoRef,co
     }  
   }
   /* End elecron rejection */
-  
+ 
   
   return myPFTau;  
 }
