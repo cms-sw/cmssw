@@ -132,6 +132,9 @@ void SiStripActionExecutor::bookGlobalStatus(DQMStore* dqm_store) {
 // -- Fill Dummy Global Status
 //
 void SiStripActionExecutor::fillDummyGlobalStatus(){
+  
+  resetGlobalStatus();
+
   SummaryReport->Fill(-1.0);
 
   SummaryTIB->Fill(-1.0);
@@ -336,6 +339,9 @@ void SiStripActionExecutor::fillGlobalStatus(const edm::ESHandle<SiStripDetCabli
 // -- fill subDetStatus
 //
 void SiStripActionExecutor::fillSubDetStatus(DQMStore* dqm_store, string& dname, unsigned int xbin) {
+  if (SummaryReportMap->kind() != MonitorElement::DQM_KIND_TH2F) return;
+  TH2F* hist2 = SummaryReportMap->getTH2F();
+  if (!hist2) return;
   if (dqm_store->dirExists(dname)) {
     dqm_store->cd(dname);
     SiStripFolderOrganizer folder_organizer;
@@ -368,12 +374,15 @@ void SiStripActionExecutor::fillSubDetStatus(DQMStore* dqm_store, string& dname,
       }
       ybin++;
       float eff_fac = 1 - (err_det*1.0/tot_det);
-      if (tot_det > 0.0) SummaryReportMap->Fill(xbin,ybin, eff_fac);
+      if (tot_det > 0.0) hist2->SetBinContent(xbin,ybin, eff_fac);
     }
   }
 }
 void SiStripActionExecutor::fillSubDetStatus(DQMStore* dqm_store, string& dname,  
                             int& tot_me_subdet, int& error_me_subdet, unsigned int xbin) {
+  if (SummaryReportMap->kind() != MonitorElement::DQM_KIND_TH2F) return;
+  TH2F* hist2 = SummaryReportMap->getTH2F();
+  if (!hist2) return;
   if (dqm_store->dirExists(dname)) {
     dqm_store->cd(dname);
     vector<string> subDirVec = dqm_store->getSubdirs();
@@ -403,7 +412,7 @@ void SiStripActionExecutor::fillSubDetStatus(DQMStore* dqm_store, string& dname,
       }
       ybin++;
       float eff_fac = 1 - (error_me*1.0/tot_me);
-      if (tot_me > 0.0) SummaryReportMap->Fill(xbin,ybin, eff_fac);
+      if (tot_me > 0.0) hist2->SetBinContent(xbin,ybin, eff_fac);
     }
   }
 }

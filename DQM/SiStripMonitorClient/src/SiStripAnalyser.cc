@@ -1,8 +1,8 @@
 /*
  * \file SiStripAnalyser.cc
  * 
- * $Date: 2008/05/21 21:35:27 $
- * $Revision: 1.35 $
+ * $Date: 2008/06/02 10:58:56 $
+ * $Revision: 1.36 $
  * \author  S. Dutta INFN-Pisa
  *
  */
@@ -156,6 +156,10 @@ void SiStripAnalyser::beginLuminosityBlock(edm::LuminosityBlock const& lumiSeg, 
 //
 void SiStripAnalyser::analyze(edm::Event const& e, edm::EventSetup const& eSetup){
   nEvents_++;  
+  if (nEvents_ == 1 && globalStatusFilling_) {
+    actionExecutor_->fillGlobalStatus(detCabling_, dqmStore_);
+  }
+
   unsigned int nval = sistripWebInterface_->getNumberOfConDBPlotRequest();
   if (nval > 0) {
     for (unsigned int ival = 0; ival < nval; ival++) {
@@ -204,7 +208,6 @@ void SiStripAnalyser::endLuminosityBlock(edm::LuminosityBlock const& lumiSeg, ed
     sistripWebInterface_->performAction();
   }
   if (globalStatusFilling_) {
-    actionExecutor_->resetGlobalStatus();
     actionExecutor_->fillGlobalStatus(detCabling_, dqmStore_);
   }
 }
