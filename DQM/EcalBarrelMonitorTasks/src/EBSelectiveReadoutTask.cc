@@ -1,8 +1,8 @@
 /*
  * \file EBSelectiveReadoutTask.cc
  *
- * $Date: 2008/07/12 08:37:24 $
- * $Revision: 1.5 $
+ * $Date: 2008/07/12 13:04:09 $
+ * $Revision: 1.6 $
  * \author P. Gras
  * \author E. Di Marco
  *
@@ -137,10 +137,10 @@ void EBSelectiveReadoutTask::setup(void) {
 void EBSelectiveReadoutTask::cleanup(void){
 
   if ( ! init_ ) return;
-  
+
   if ( dqmStore_ ) {
     dqmStore_->setCurrentFolder(prefixME_ + "/EBSelectiveReadoutTask");
-    
+
     if ( EcalDccEventSize_ ) dqmStore_->removeElement( EcalDccEventSize_->getName() );
     EcalDccEventSize_ = 0;
 
@@ -166,7 +166,7 @@ void EBSelectiveReadoutTask::cleanup(void){
     EBLowInterestPayload_ = 0;
 
   }
-  
+
   init_ = false;
 
 }
@@ -188,11 +188,11 @@ void EBSelectiveReadoutTask::beginRun(const Run& r, const EventSetup& c) {
 void EBSelectiveReadoutTask::endRun(const Run& r, const EventSetup& c) {
 
 }
- 
+
 void EBSelectiveReadoutTask::reset(void) {
-   
+
   if ( EcalDccEventSize_ ) EcalDccEventSize_->Reset();
-  
+
   if ( EBReadoutUnitForcedBitMap_ ) EBReadoutUnitForcedBitMap_->Reset();
 
   if ( EBFullReadoutSRFlagMap_ ) EBFullReadoutSRFlagMap_->Reset();
@@ -206,9 +206,9 @@ void EBSelectiveReadoutTask::reset(void) {
   if ( EBHighInterestPayload_ ) EBHighInterestPayload_->Reset();
 
   if ( EBLowInterestPayload_ ) EBLowInterestPayload_->Reset();
-  
+
 }
- 
+
 void EBSelectiveReadoutTask::analyze(const Event& e, const EventSetup& c){
 
   if ( ! init_ ) this->setup();
@@ -218,21 +218,21 @@ void EBSelectiveReadoutTask::analyze(const Event& e, const EventSetup& c){
   Handle<FEDRawDataCollection> raw;
   if ( e.getByLabel(EcalFEDRawCollection_, raw) ) {
 
-    for(int iDcc = 0; iDcc < nECALDcc; ++iDcc){
+    for ( int iDcc = 0; iDcc < nECALDcc; ++iDcc ) {
 
       EcalDccEventSize_->Fill(iDcc+1, ((double)raw->FEDData(601+iDcc).size())/kByte );
-      
+
     }
   } else {
-    LogWarning("EBSelectiveReadoutTask") << EcalFEDRawCollection_ << " not available";    
+    LogWarning("EBSelectiveReadoutTask") << EcalFEDRawCollection_ << " not available";
   }
-  
+
   // Selective Readout Flags
   Handle<EBSrFlagCollection> ebSrFlags;
   if ( e.getByLabel(EBSRFlagCollection_,ebSrFlags) ) {
-    
-    for(EBSrFlagCollection::const_iterator it = ebSrFlags->begin();
-	it != ebSrFlags->end(); ++it){
+
+    for ( EBSrFlagCollection::const_iterator it = ebSrFlags->begin(); it != ebSrFlags->end(); ++it ) {
+
       const EBSrFlag& srf = *it;
 
       int iet = srf.id().ieta();
@@ -242,11 +242,11 @@ void EBSelectiveReadoutTask::analyze(const Event& e, const EventSetup& c){
       float xipt = ipt-0.5;
 
       int flag = srf.value() & ~EcalSrFlag::SRF_FORCED_MASK;
-      if(flag == EcalSrFlag::SRF_FULL){ 
-	EBFullReadoutSRFlagMap_->Fill(xipt,xiet);
+      if(flag == EcalSrFlag::SRF_FULL){
+        EBFullReadoutSRFlagMap_->Fill(xipt,xiet);
       }
       if(srf.value() & EcalSrFlag::SRF_FORCED_MASK){
-	EBReadoutUnitForcedBitMap_->Fill(xipt,xiet);
+        EBReadoutUnitForcedBitMap_->Fill(xipt,xiet);
       }
     }
   } else {
@@ -255,10 +255,10 @@ void EBSelectiveReadoutTask::analyze(const Event& e, const EventSetup& c){
 
   Handle<EcalTrigPrimDigiCollection> TPCollection;
   if ( e.getByLabel(EcalTrigPrimDigiCollection_, TPCollection) ) {
-    
+
     // Trigger Primitives
     EcalTrigPrimDigiCollection::const_iterator TPdigi;
-    for(TPdigi = TPCollection->begin(); TPdigi != TPCollection->end(); ++TPdigi) {
+    for (TPdigi = TPCollection->begin(); TPdigi != TPCollection->end(); ++TPdigi ) {
 
       EcalTriggerPrimitiveDigi data = (*TPdigi);
       EcalTrigTowerDetId idt = data.id();
@@ -270,11 +270,11 @@ void EBSelectiveReadoutTask::analyze(const Event& e, const EventSetup& c){
       float xipt = ipt-0.5;
 
       if ( (TPdigi->ttFlag() & 0x3) == 0 ) {
-	EBLowInterestTriggerTowerFlagMap_->Fill(xipt,xiet);
+        EBLowInterestTriggerTowerFlagMap_->Fill(xipt,xiet);
       }
 
       if ( (TPdigi->ttFlag() & 0x3) == 3 ) {
-	EBHighInterestTriggerTowerFlagMap_->Fill(xipt,xiet);
+        EBHighInterestTriggerTowerFlagMap_->Fill(xipt,xiet);
       }
 
     }
@@ -289,14 +289,14 @@ void EBSelectiveReadoutTask::analyze(const Event& e, const EventSetup& c){
 
   Handle<EBDigiCollection> ebDigis;
   if ( e.getByLabel(EBDigiCollection_ , ebDigis) ) {
-    
+
     anaDigiInit();
-    
+
     for (unsigned int digis=0; digis<ebDigis->size(); ++digis){
       EBDataFrame ebdf = (*ebDigis)[digis];
       anaDigi(ebdf, *ebSrFlags);
     }
-    
+
     //low interesest channels:
     aLowInterest = nEbLI_*bytesPerCrystal/kByte;
     EBLowInterestPayload_->Fill(aLowInterest);
@@ -315,19 +315,19 @@ void EBSelectiveReadoutTask::analyze(const Event& e, const EventSetup& c){
 
 }
 
-template<class T, class U>
-void EBSelectiveReadoutTask::anaDigi(const T& frame, const U& srFlagColl){
-  const DetId& xtalId = frame.id();
-  typename U::const_iterator srf = srFlagColl.find(readOutUnitOf(frame.id()));
-  
+void EBSelectiveReadoutTask::anaDigi(const EBDataFrame& frame, const EBSrFlagCollection& srFlagColl){
+
+  EBSrFlagCollection::const_iterator srf = srFlagColl.find(readOutUnitOf(frame.id()));
+
   if(srf == srFlagColl.end()){
     LogWarning("EBSelectiveReadoutTask") << "SR flag not found";
     return;
   }
-  
+
   bool highInterest = ((srf->value() & ~EcalSrFlag::SRF_FORCED_MASK)
-		       == EcalSrFlag::SRF_FULL);
-  
+                       == EcalSrFlag::SRF_FULL);
+
+  const DetId& xtalId = frame.id();
   bool barrel = (xtalId.subdetId()==EcalBarrel);
 
   if(barrel){
@@ -365,7 +365,7 @@ EBSelectiveReadoutTask::readOutUnitOf(const EBDetId& xtalId) const{
 unsigned EBSelectiveReadoutTask::dccNum(const DetId& xtalId) const{
   int j;
   int k;
-  
+
   if ( xtalId.det()!=DetId::Ecal ) {
     throw cms::Exception("EBSelectiveReadoutTask") << "Crystal does not belong to ECAL";
   }
@@ -387,10 +387,10 @@ double EBSelectiveReadoutTask::getEbEventSize(double nReadXtals) const{
   double ruHeaderPayload = 0.;
   const int nEEDcc = 18;
   const int firstEbDcc0 = nEEDcc/2;
-  for(int iDcc0 = firstEbDcc0; iDcc0 < firstEbDcc0 + nEBDcc; ++iDcc0){
+  for (int iDcc0 = firstEbDcc0; iDcc0 < firstEbDcc0 + nEBDcc; ++iDcc0 ) {
     ruHeaderPayload += nRuPerDcc_[iDcc0]*8.;
   }
-  
+
   return getDccOverhead(EB)*nEBDcc + nReadXtals*bytesPerCrystal
     + ruHeaderPayload;
 }

@@ -1,8 +1,8 @@
 /*
  * \file EESelectiveReadoutTask.cc
  *
- * $Date: 2008/07/12 08:37:24 $
- * $Revision: 1.3 $
+ * $Date: 2008/07/12 13:04:10 $
+ * $Revision: 1.4 $
  * \author P. Gras
  * \author E. Di Marco
  *
@@ -132,10 +132,10 @@ void EESelectiveReadoutTask::setup(void) {
 void EESelectiveReadoutTask::cleanup(void){
 
   if ( ! init_ ) return;
-  
+
   if ( dqmStore_ ) {
     dqmStore_->setCurrentFolder(prefixME_ + "/EESelectiveReadoutTask");
-    
+
     if ( EEReadoutUnitForcedBitMap_ ) dqmStore_->removeElement( EEReadoutUnitForcedBitMap_->getName() );
     EEReadoutUnitForcedBitMap_ = 0;
 
@@ -158,7 +158,7 @@ void EESelectiveReadoutTask::cleanup(void){
     EELowInterestPayload_ = 0;
 
   }
-  
+
   init_ = false;
 
 }
@@ -180,9 +180,9 @@ void EESelectiveReadoutTask::beginRun(const Run& r, const EventSetup& c) {
 void EESelectiveReadoutTask::endRun(const Run& r, const EventSetup& c) {
 
 }
- 
+
 void EESelectiveReadoutTask::reset(void) {
-   
+
   if ( EEReadoutUnitForcedBitMap_ ) EEReadoutUnitForcedBitMap_->Reset();
 
   if ( EEFullReadoutSRFlagMap_ ) EEFullReadoutSRFlagMap_->Reset();
@@ -196,9 +196,9 @@ void EESelectiveReadoutTask::reset(void) {
   if ( EEHighInterestPayload_ ) EEHighInterestPayload_->Reset();
 
   if ( EELowInterestPayload_ ) EELowInterestPayload_->Reset();
-  
+
 }
- 
+
 void EESelectiveReadoutTask::analyze(const Event& e, const EventSetup& c){
 
   if ( ! init_ ) this->setup();
@@ -208,9 +208,9 @@ void EESelectiveReadoutTask::analyze(const Event& e, const EventSetup& c){
   // Selective Readout Flags
   Handle<EESrFlagCollection> eeSrFlags;
   if ( e.getByLabel(EESRFlagCollection_,eeSrFlags) ) {
-    
-    for(EESrFlagCollection::const_iterator it = eeSrFlags->begin();
-	it != eeSrFlags->end(); ++it){
+
+    for ( EESrFlagCollection::const_iterator it = eeSrFlags->begin(); it != eeSrFlags->end(); ++it ) {
+
       const EESrFlag& srf = *it;
 
       int ix = srf.id().ix();
@@ -224,11 +224,11 @@ void EESelectiveReadoutTask::analyze(const Event& e, const EventSetup& c){
       float xiy = iy-0.5;
 
       int flag = srf.value() & ~EcalSrFlag::SRF_FORCED_MASK;
-      if(flag == EcalSrFlag::SRF_FULL){ 
-	EEFullReadoutSRFlagMap_->Fill(xix,xiy);
+      if(flag == EcalSrFlag::SRF_FULL){
+        EEFullReadoutSRFlagMap_->Fill(xix,xiy);
       }
       if(srf.value() & EcalSrFlag::SRF_FORCED_MASK){
-	EEReadoutUnitForcedBitMap_->Fill(xix,xiy);
+        EEReadoutUnitForcedBitMap_->Fill(xix,xiy);
       }
     }
   } else {
@@ -237,10 +237,10 @@ void EESelectiveReadoutTask::analyze(const Event& e, const EventSetup& c){
 
   Handle<EcalTrigPrimDigiCollection> TPCollection;
   if ( e.getByLabel(EcalTrigPrimDigiCollection_, TPCollection) ) {
-    
+
     // Trigger Primitives
     EcalTrigPrimDigiCollection::const_iterator TPdigi;
-    for(TPdigi = TPCollection->begin(); TPdigi != TPCollection->end(); ++TPdigi) {
+    for ( TPdigi = TPCollection->begin(); TPdigi != TPCollection->end(); ++TPdigi ) {
 
       EcalTriggerPrimitiveDigi data = (*TPdigi);
       EcalTrigTowerDetId idt = data.id();
@@ -248,26 +248,26 @@ void EESelectiveReadoutTask::analyze(const Event& e, const EventSetup& c){
       int ismt = Numbers::iSM( idt );
 
       vector<DetId> crystals = Numbers::crystals( idt );
-      
-      for ( unsigned int i=0; i<crystals.size(); i++ ) {
-	
-	EEDetId id = crystals[i];
-	
-	int ix = id.ix();
-	int iy = id.iy();
-	
-	if ( ismt >= 1 && ismt <= 9 ) ix = 101 - ix;
 
-	float xix = ix-0.5;
-	float xiy = iy-0.5;
-	
-	if ( (TPdigi->ttFlag() & 0x3) == 0 ) {
-	  EELowInterestTriggerTowerFlagMap_->Fill(xix,xiy);
-	}
-	
-	if ( (TPdigi->ttFlag() & 0x3) == 3 ) {
-	  EEHighInterestTriggerTowerFlagMap_->Fill(xix,xiy);
-	}
+      for ( unsigned int i=0; i<crystals.size(); i++ ) {
+
+        EEDetId id = crystals[i];
+
+        int ix = id.ix();
+        int iy = id.iy();
+
+        if ( ismt >= 1 && ismt <= 9 ) ix = 101 - ix;
+
+        float xix = ix-0.5;
+        float xiy = iy-0.5;
+
+        if ( (TPdigi->ttFlag() & 0x3) == 0 ) {
+          EELowInterestTriggerTowerFlagMap_->Fill(xix,xiy);
+        }
+
+        if ( (TPdigi->ttFlag() & 0x3) == 3 ) {
+          EEHighInterestTriggerTowerFlagMap_->Fill(xix,xiy);
+        }
       }
 
     }
@@ -282,14 +282,14 @@ void EESelectiveReadoutTask::analyze(const Event& e, const EventSetup& c){
 
   Handle<EEDigiCollection> eeDigis;
   if ( e.getByLabel(EEDigiCollection_ , eeDigis) ) {
-    
+
     anaDigiInit();
-    
-    for (unsigned int digis=0; digis<eeDigis->size(); ++digis){
+
+    for (unsigned int digis=0; digis<eeDigis->size(); ++digis) {
       EEDataFrame eedf = (*eeDigis)[digis];
       anaDigi(eedf, *eeSrFlags);
     }
-    
+
     //low interesest channels:
     aLowInterest = nEeLI_*bytesPerCrystal/kByte;
     EELowInterestPayload_->Fill(aLowInterest);
@@ -308,19 +308,19 @@ void EESelectiveReadoutTask::analyze(const Event& e, const EventSetup& c){
 
 }
 
-template<class T, class U>
-void EESelectiveReadoutTask::anaDigi(const T& frame, const U& srFlagColl){
-  const DetId& xtalId = frame.id();
-  typename U::const_iterator srf = srFlagColl.find(readOutUnitOf(frame.id()));
-  
+void EESelectiveReadoutTask::anaDigi(const EEDataFrame& frame, const EESrFlagCollection& srFlagColl){
+
+  EESrFlagCollection::const_iterator srf = srFlagColl.find(readOutUnitOf(frame.id()));
+
   if(srf == srFlagColl.end()){
     LogWarning("EESelectiveReadoutTask") << "SR flag not found";
     return;
   }
-  
+
+  const DetId& xtalId = frame.id();
   bool highInterest = ((srf->value() & ~EcalSrFlag::SRF_FORCED_MASK)
-		       == EcalSrFlag::SRF_FULL);
-  
+                       == EcalSrFlag::SRF_FULL);
+
   bool endcap = (xtalId.subdetId()==EcalEndcap);
 
   if(endcap){
@@ -333,7 +333,7 @@ void EESelectiveReadoutTask::anaDigi(const T& frame, const U& srFlagColl){
     int iX0 = iXY2cIndex(static_cast<const EEDetId&>(frame.id()).ix());
     int iY0 = iXY2cIndex(static_cast<const EEDetId&>(frame.id()).iy());
     int iZ0 = static_cast<const EEDetId&>(frame.id()).zside()>0?1:0;
-    
+
     if(!eeRuActive_[iZ0][iX0/scEdge][iY0/scEdge]){
       ++nRuPerDcc_[dccNum(xtalId)];
       eeRuActive_[iZ0][iX0/scEdge][iY0/scEdge] = true;
@@ -357,8 +357,8 @@ EESelectiveReadoutTask::superCrystalOf(const EEDetId& xtalId) const
 {
   const int scEdge = 5;
   return EcalScDetId((xtalId.ix()-1)/scEdge+1,
-		     (xtalId.iy()-1)/scEdge+1,
-		     xtalId.zside());
+                     (xtalId.iy()-1)/scEdge+1,
+                     xtalId.zside());
 }
 
 EcalScDetId
@@ -369,7 +369,7 @@ EESelectiveReadoutTask::readOutUnitOf(const EEDetId& xtalId) const{
 unsigned EESelectiveReadoutTask::dccNum(const DetId& xtalId) const{
   int j;
   int k;
-  
+
   if ( xtalId.det()!=DetId::Ecal ) {
     throw cms::Exception("EESelectiveReadoutTask") << "Crystal does not belong to ECAL";
   }
@@ -396,10 +396,10 @@ unsigned EESelectiveReadoutTask::dccNum(const DetId& xtalId) const{
 double EESelectiveReadoutTask::getEeEventSize(double nReadXtals) const {
   double ruHeaderPayload = 0.;
   const int firstEbDcc0 = nEEDcc/2;
-  for(int iDcc0 = 0; iDcc0 < nECALDcc; ++iDcc0){
+  for ( int iDcc0 = 0; iDcc0 < nECALDcc; ++iDcc0 ) {
     //skip barrel:
     if(iDcc0 == firstEbDcc0) iDcc0 += nEBDcc;
-      ruHeaderPayload += nRuPerDcc_[iDcc0]*8.;      
+      ruHeaderPayload += nRuPerDcc_[iDcc0]*8.;
   }
   return getDccOverhead(EE)*nEEDcc + nReadXtals*bytesPerCrystal
     + ruHeaderPayload;

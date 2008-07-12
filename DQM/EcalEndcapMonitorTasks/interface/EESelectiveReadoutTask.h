@@ -4,8 +4,8 @@
 /*
  * \file EESelectiveReadoutTask.h
  *
- * $Date: 2008/05/11 09:35:07 $
- * $Revision: 1.34 $
+ * $Date: 2008/07/12 08:37:24 $
+ * $Revision: 1.2 $
  * \author P. Gras
  * \author E. Di Marco
  *
@@ -66,10 +66,10 @@ void beginJob(const edm::EventSetup& c);
 void endJob(void);
 
 /// BeginRun
-void beginRun(const edm::Run & r, const edm::EventSetup & c);
+void beginRun(const edm::Run& r, const edm::EventSetup& c);
 
 /// EndRun
-void endRun(const edm::Run & r, const edm::EventSetup & c);
+void endRun(const edm::Run& r, const edm::EventSetup& c);
 
 /// Reset
 void reset(void);
@@ -118,7 +118,7 @@ enum subdet_t {EB, EE};
 /** Accumulates statitics for data volume analysis. To be called for each
  * ECAL digi. See anaDigiInit().
  */
-template<class T, class U> void anaDigi(const T& frame, const U& srFlagColl);
+void anaDigi(const EEDataFrame& frame, const EESrFlagCollection& srFlagColl);
 
 /** Initializes statistics accumalator for data volume analysis. To
  * be call at start of each event analysis.
