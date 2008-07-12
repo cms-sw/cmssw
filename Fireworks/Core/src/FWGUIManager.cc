@@ -8,7 +8,7 @@
 //
 // Original Author:  Chris Jones
 //         Created:  Mon Feb 11 11:06:40 EST 2008
-// $Id: FWGUIManager.cc,v 1.50 2008/07/08 20:13:01 chrjones Exp $
+// $Id: FWGUIManager.cc,v 1.51 2008/07/11 01:15:23 dmytro Exp $
 //
 
 // system include files
@@ -144,8 +144,8 @@ m_viewPopup(0)
      getAction(cmsshow::sSaveConfigAs)->activated.connect(sigc::mem_fun(*this,&FWGUIManager::promptForConfigurationFile));
    }
    {
-     createEDIFrame();
-     createModelPopup();
+     // createEDIFrame();
+     // createModelPopup();
    }
 }
 
