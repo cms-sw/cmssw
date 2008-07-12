@@ -16,7 +16,7 @@
 //
 // Original Author:  Chris Jones
 //         Created:  Sat Jul  5 11:13:18 EDT 2008
-// $Id$
+// $Id: FW3DLegoEveElementProxyBuilder.h,v 1.1 2008/07/07 00:30:27 chrjones Exp $
 //
 
 // system include files
@@ -54,6 +54,8 @@ class FW3DLegoEveElementProxyBuilder : public FW3DLegoDataProxyBuilder
 
       const FW3DLegoEveElementProxyBuilder& operator=(const FW3DLegoEveElementProxyBuilder&); // stop default
 
+      virtual void itemBeingDestroyedImp(const FWEventItem*);
+   
       // ---------- member data --------------------------------
       TEveElementList m_elementHolder;
 

@@ -8,7 +8,7 @@
 //
 // Original Author:  Chris Jones
 //         Created:  Sat Jul  5 11:13:22 EDT 2008
-// $Id$
+// $Id: FW3DLegoEveElementProxyBuilder.cc,v 1.1 2008/07/07 00:30:27 chrjones Exp $
 //
 
 // system include files
@@ -18,7 +18,6 @@
 #include "Fireworks/Core/interface/FWEventItem.h"
 #include "Fireworks/Core/interface/FWModelId.h"
 #include "Fireworks/Core/src/changeElementAndChildren.h"
-
 
 //
 // constants, enums and typedefs
@@ -179,6 +178,12 @@ FW3DLegoEveElementProxyBuilder::modelChanges(const FWModelIds& iIds,
       (*itElement)->SetRnrChildren(info.displayProperties().isVisible());
       (*itElement)->ElementChanged();
    }
+}
+
+void 
+FW3DLegoEveElementProxyBuilder::itemBeingDestroyedImp(const FWEventItem* iItem)
+{
+   m_elementHolder.DestroyElements();
 }
 
 //
