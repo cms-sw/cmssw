@@ -229,6 +229,7 @@ electronGSPixelSeeds.SeedConfiguration.initialSeeds = cms.InputTag("globalMixedS
 pixelMatchGsfFit = TrackingTools.GsfTracking.GsfElectronFit_cfi.GsfGlobalElectronTest.clone()
 pixelMatchGsfFit.src = 'electronGSGsfTrackCandidates'
 pixelMatchGsfFit.TTRHBuilder = 'WithoutRefit'
+pixelMatchGsfFit.TrajectoryInEvent = True
 pixelMatchGsfElectrons.hcalRecHits = 'caloRecHits'
 pixelMatchGsfElectrons.barrelSuperClusters = cms.InputTag("correctedHybridSuperClusters","electronGSPixelSeeds")
 pixelMatchGsfElectrons.endcapSuperClusters = cms.InputTag("correctedEndcapSuperClustersWithPreshower","electronGSPixelSeeds")
