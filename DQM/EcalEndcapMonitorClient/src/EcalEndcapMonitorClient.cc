@@ -1,8 +1,8 @@
 /*
  * \file EcalEndcapMonitorClient.cc
  *
- * $Date: 2008/06/25 16:02:59 $
- * $Revision: 1.192 $
+ * $Date: 2008/07/12 09:02:11 $
+ * $Revision: 1.193 $
  * \author G. Della Ricca
  * \author F. Cossutti
  *
@@ -106,14 +106,12 @@ EcalEndcapMonitorClient::EcalEndcapMonitorClient(const ParameterSet& ps) : Modul
 
   if ( verbose_ ) {
     if ( dbName_.size() != 0 ) {
-      cout << " Using Ecal Cond DB, "
-           << " dbName = '" << dbName_ << "'"
-           << " dbUserName = '" << dbUserName_ << "'"
-            << endl;
+      cout << " Using Ecal Cond DB: " << endl;
+      cout << " dbName = '" << dbName_ << "'" << endl;
+      cout << " dbUserName = '" << dbUserName_ << "'" << endl;
       if ( dbHostName_.size() != 0 ) {
-        cout << " dbHostName = '" << dbHostName_ << "'"
-             << " dbHostPort = '" << dbHostPort_ << "'"
-             << endl;
+        cout << " dbHostName = '" << dbHostName_ << "'" << endl;
+        cout << " dbHostPort = '" << dbHostPort_ << "'" << endl;
       }
       cout << " dbTagName = '" << dbTagName_ << "'" << endl;
     } else {
@@ -1090,6 +1088,8 @@ void EcalEndcapMonitorClient::beginRunDb(void) {
       try {
         if ( verbose_ ) cout << "Inserting RunIOV ..." << endl;
         econn->insertRunIOV(&runiov_);
+//        runiov_ = econn->fetchRunIOV(&runtag, run_);
+        runiov_ = econn->fetchRunIOV(location_, run_);
         if ( verbose_ ) cout << "done." << endl;
       } catch (runtime_error &e) {
         cerr << e.what() << endl;
