@@ -2,8 +2,8 @@
 /*
  *  See header file for a description of this class.
  *
- *  $Date: 2008/05/23 13:47:24 $
- *  $Revision: 1.9 $
+ *  $Date: 2008/05/28 15:38:12 $
+ *  $Revision: 1.10 $
  *  \author G. Mila - INFN Torino
  */
 
@@ -67,8 +67,10 @@ void MuonRecoAnalyzer::beginJob(edm::EventSetup const& iSetup,DQMStore * dbe) {
   etaResolution.push_back(dbe->book2D("ResVsEta_TkGlb_eta", "ResVsEta_TkGlb_eta", etaBin, etaMin, etaMax, etaBin*binFactor, etaMin/3000, etaMax/3000));
   etaResolution.push_back(dbe->book2D("ResVsEta_GlbSta_eta", "ResVsEta_GlbSta_eta", etaBin, etaMin, etaMax, etaBin*binFactor, etaMin/100, etaMax/100));
   etaResolution.push_back(dbe->book2D("ResVsEta_TkSta_eta", "ResVsTkEta_TkSta_eta", etaBin, etaMin, etaMax, etaBin*binFactor, etaMin/100, etaMax/100));
- etaTrack = dbe->book1D("TkMuon_eta", "TkMuon_eta", etaBin, etaMin, etaMax);
+  etaTrack = dbe->book1D("TkMuon_eta", "TkMuon_eta", etaBin, etaMin, etaMax);
   etaStaTrack = dbe->book1D("StaMuon_eta", "StaMuon_eta", etaBin, etaMin, etaMax);
+  etaEfficiency.push_back(dbe->book1D("StaEta", "StaEta", etaBin, etaMin, etaMax));
+  etaEfficiency.push_back(dbe->book1D("StaEta_ifCombinedAlso", "StaEta_ifCombinedAlso", etaBin, etaMin, etaMax));
 
   // monitoring of theta parameter
   thetaBin = parameters.getParameter<int>("thetaBin");
@@ -101,6 +103,8 @@ void MuonRecoAnalyzer::beginJob(edm::EventSetup const& iSetup,DQMStore * dbe) {
   phiResolution.push_back(dbe->book2D("ResVsPhi_TkSta_phi", "ResVsTkPhi_TkSta_phi", phiBin, phiMin, phiMax, phiBin*binFactor, phiMin/100, phiMax/100));
   phiTrack = dbe->book1D("TkMuon_phi", "TkMuon_phi", phiBin, phiMin, phiMax);
   phiStaTrack = dbe->book1D("StaMuon_phi", "StaMuon_phi", phiBin, phiMin, phiMax);
+  phiEfficiency.push_back(dbe->book1D("StaPhi", "StaPhi", phiBin, phiMin, phiMax));
+  phiEfficiency.push_back(dbe->book1D("StaPhi_ifCombinedAlso", "StaPhi_ifCombinedAlso", phiBin, phiMin, phiMax));
 
   // monitoring of the momentum
   pBin = parameters.getParameter<int>("pBin");
@@ -300,6 +304,21 @@ void MuonRecoAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& 
   if(recoMu.isCaloMuon() && !(recoMu.isGlobalMuon()) && !(recoMu.isTrackerMuon()) && !(recoMu.isStandAloneMuon()))
     muReco->Fill(6);
   
+  //efficiency plots
+  
+  // get the track using only the mu spectrometer data
+  reco::TrackRef recoStaGlbTrack = recoMu.standAloneMuon();
+  
+  if(recoMu.isStandAloneMuon()){
+    etaEfficiency[0]->Fill(recoStaGlbTrack->eta());
+    phiEfficiency[0]->Fill(recoStaGlbTrack->phi());
+  }
+  if(recoMu.isStandAloneMuon() && recoMu.isGlobalMuon()){
+    etaEfficiency[1]->Fill(recoStaGlbTrack->eta());
+    phiEfficiency[1]->Fill(recoStaGlbTrack->phi());
+  }
+
+
 
 
 }

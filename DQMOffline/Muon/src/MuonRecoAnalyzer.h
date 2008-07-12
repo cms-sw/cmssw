@@ -6,8 +6,8 @@
  *
  *  DQM monitoring source for muon reco track
  *
- *  $Date: 2008/04/02 12:18:41 $
- *  $Revision: 1.1 $
+ *  $Date: 2008/04/02 13:59:57 $
+ *  $Revision: 1.2 $
  *  \author G. Mila - INFN Torino
  */
 
@@ -106,6 +106,9 @@ class MuonRecoAnalyzer : public MuonAnalyzerBase {
   MonitorElement* pStaTrack;
   MonitorElement* ptStaTrack;
   MonitorElement* qStaTrack;
+  // efficiency
+  std::vector<MonitorElement*> etaEfficiency;
+  std::vector<MonitorElement*> phiEfficiency;
 
 };
 #endif
