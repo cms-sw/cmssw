@@ -4,8 +4,8 @@
 /*
  * \file EcalEndcapMonitorClient.h
  *
- * $Date: 2008/06/25 08:15:01 $
- * $Revision: 1.45 $
+ * $Date: 2008/06/25 14:16:16 $
+ * $Revision: 1.46 $
  * \author G. Della Ricca
  * \author F. Cossutti
  *
@@ -144,6 +144,8 @@ std::string dbHostName_;
 int         dbHostPort_;
 std::string dbUserName_;
 std::string dbPassword_;
+
+std::string dbTagName_;
 
 std::string maskFile_;
 

@@ -1,8 +1,8 @@
 /*
  * \file EcalBarrelMonitorClient.cc
  *
- * $Date: 2008/06/25 15:08:18 $
- * $Revision: 1.432 $
+ * $Date: 2008/06/25 16:02:59 $
+ * $Revision: 1.433 $
  * \author G. Della Ricca
  * \author F. Cossutti
  *
@@ -101,17 +101,20 @@ EcalBarrelMonitorClient::EcalBarrelMonitorClient(const ParameterSet& ps) : Modul
   dbUserName_ = ps.getUntrackedParameter<string>("dbUserName", "");
   dbPassword_ = ps.getUntrackedParameter<string>("dbPassword", "");
 
+  dbTagName_ = ps.getUntrackedParameter<string>("dbTagName", "CMSSW");
+
   if ( verbose_ ) {
     if ( dbName_.size() != 0 ) {
       cout << " Using Ecal Cond DB, "
            << " dbName = '" << dbName_ << "'"
            << " dbUserName = '" << dbUserName_ << "'"
             << endl;
-      if ( dbUserName_.size() != 0 ) {
+      if ( dbHostName_.size() != 0 ) {
         cout << " dbHostName = '" << dbHostName_ << "'"
              << " dbHostPort = '" << dbHostPort_ << "'"
              << endl;
       }
+      cout << " dbTagName = '" << dbTagName_ << "'" << endl;
     } else {
       cout << " Ecal Cond DB is OFF" << endl;
     }
@@ -1174,7 +1177,7 @@ void EcalBarrelMonitorClient::writeDb(bool flag) {
   MonRunTag montag;
 
   montag.setMonVersionDef(monverdef);
-  montag.setGeneralTag("CMSSW");
+  montag.setGeneralTag(dbTagName_);
 
   Tm startSubRun;
 
