@@ -1,4 +1,4 @@
-#ifdef CondEx_Efficiency_H
+#ifndef CondEx_Efficiency_H
 #define CondEx_Efficiency_H
 /*  example of polymorphic condition
  *  LUT, function, mixed....
@@ -12,6 +12,7 @@ namespace condex {
    */
   class Efficiency {
   public:
+    Efficiency(){}
     virtual ~Efficiency(){}
     float operator()(float pt, float eta) const {
       return value(pt,eta);
@@ -23,8 +24,9 @@ namespace condex {
 
   class ParametricEfficiencyInPt : public Efficiency {
   public:
+    ParametricEfficiencyInPt(){}
     ParametricEfficiencyInPt(float cm, float ch,
-			    float el, eh) :
+			    float el, float eh) :
       cutLow(cm), cutHigh(ch),
       low(el), high(eh){}
   private:
@@ -40,8 +42,9 @@ namespace condex {
 
 class ParametricEfficiencyInEta : public Efficiency {
   public:
+    ParametricEfficiencyInEta(){}
     ParametricEfficiencyInEta(float cmin, float cmax,
-			    float el, eh) :
+			    float el, float eh) :
       cutLow(cmin), cutHigh(cmax),
       low(el), high(eh){}
   private:
@@ -49,7 +52,7 @@ class ParametricEfficiencyInEta : public Efficiency {
       eta = std::abs(eta);
       if ( eta<low) return cutLow;
       if ( eta>high) return cutHigh;
-      return cutLow + (pt-low)/(high-low)*(cutHigh-cutLow);
+      return cutLow + (eta-low)/(high-low)*(cutHigh-cutLow);
     }
     float cutLow, cutHigh;
     float low, high;
