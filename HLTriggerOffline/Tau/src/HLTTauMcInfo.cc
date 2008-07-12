@@ -4,7 +4,6 @@
 #include "DataFormats/TauReco/interface/PFTau.h"
 #include "DataFormats/TauReco/interface/PFTauDiscriminatorByIsolation.h"
 #include "SimDataFormats/HepMCProduct/interface/HepMCProduct.h"
-#include "DataFormats/HepMCCandidate/interface/GenParticleCandidate.h"
 
 using namespace edm;
 using namespace reco;
