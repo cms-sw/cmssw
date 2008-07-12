@@ -8,9 +8,7 @@ from SimCalorimetry.HcalTrigPrimProducers.hcaltpdigi_cff import *
 from SimCalorimetry.HcalSimProducers.hcalSimParameters_cfi import *
 
 # This includes is needed for the ECAL digis
-from Geometry.EcalMapping.EcalMapping_cfi import *
 from SimCalorimetry.EcalTrigPrimProducers.ecalTriggerPrimitiveDigis_cff import *
-
 caloRecHits = cms.EDProducer("CaloRecHitsProducer",
     RecHitsFactory = cms.PSet(
         ECALPreshower = cms.PSet(
