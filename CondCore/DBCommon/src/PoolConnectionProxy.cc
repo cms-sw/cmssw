@@ -32,7 +32,7 @@ cond::PoolConnectionProxy::PoolConnectionProxy(
 }
 cond::PoolConnectionProxy::~PoolConnectionProxy(){
   //std::cout<<"PoolConnectionProxy::~PoolConnectionProxy"<<std::endl;
-  disconnect();
+  // disconnect(); (at the moment crashes)
   m_catalog->commit();
   m_catalog->disconnect();
   //m_datasvc->session().disconnectAll();
