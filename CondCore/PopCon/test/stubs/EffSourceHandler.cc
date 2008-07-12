@@ -12,9 +12,6 @@
 #include <typeinfo>
 
 
-namespace {
-
-
 popcon::ExEffSource::ExEffSource(const edm::ParameterSet& pset) :
   m_name(pset.getUntrackedParameter<std::string>("name","ExEffSource")),
   m_since(pset.getUntrackedParameter<unsigned long long>("since",5)),
@@ -28,29 +25,26 @@ popcon::ExEffSource::~ExEffSource()
 }
 
 void popcon::ExEffSource::getNewObjects() {
-   edm::LogInfo   ("ExEffSource") << "------- " << m_name 
-	     << " - > getNewObjects\n" << 
-  //check whats already inside of database
-      "got offlineInfo"<<
-    tagInfo().name << ", size " << tagInfo().size 
 
-            << ", last object valid since " 
-	    << tagInfo().lastInterval.first << " token "   
-            << tagInfo().lastPayloadToken << std::endl;
-
-   edm::LogInfo ("ExEffsSource")<< " ------ last entry info regarding the payload (if existing): " <<logDBEntry().usertext<< 
-        "; last record with the correct tag (if existing) has been written in the db: " <<logDBEntry().destinationDB<< std::endl; 
+  edm::LogInfo("ExEffSource") << "------- " << m_name 
+			      << " - > getNewObjects\n" 
+    //check whats already inside of database
+			      << "got offlineInfo"
+			      << tagInfo().name << ", size " 
+			      << tagInfo().size 
+			      << ", last object valid since " 
+			      << tagInfo().lastInterval.first << " token "   
+			      << tagInfo().lastPayloadToken << std::endl;
+  
+  edm::LogInfo ("ExEffsSource")<< " ------ last entry info regarding the payload (if existing): " <<logDBEntry().usertext<< 
+    "; last record with the correct tag (if existing) has been written in the db: " <<logDBEntry().destinationDB<< std::endl; 
 
   if (tagInfo().size>0) {
     Ref payload = lastPayload();
     edm::LogInfo   ("ExEffsSource")<<" type of last payload  "<< 
       typeid(*payload).name()<<std::endl;
- 
+  }
 
- }
-
-
- 
 
   std::cout<<"since = "<< m_since <<std::endl;
   
@@ -65,22 +59,22 @@ void popcon::ExEffSource::getNewObjects() {
     edm::LogInfo   ("ExEffsSource")<<" unable to build "<< m_type << std::endl; 
     return;
   }
- 
+  
   m_to_transfer.push_back(std::make_pair(p0,m_since));
   
-     
+  
   std::ostringstream fsince;
   fsince << "type=" << m_type 
          << ", since=" << m_since; 
-
-  m_userTextLog = ss.str()+ ";" + fsince.str();
- 
   
- 
+  m_userTextLog = ss.str()+ ";" + fsince.str();
+  
+  
+  
   edm::LogInfo   ("ExEffsSource") << "------- " << m_name << " - > getNewObjects" << std::endl;
 }
-
-
+  
+  
 #include "CondCore/PopCon/interface/PopConAnalyzer.h"
 #include "FWCore/Framework/interface/MakerMacros.h"
 
