@@ -12,6 +12,7 @@ class CSCDMBHeader;
 
 class CSCVTMBHeaderFormat {
 public:
+  virtual ~CSCVTMBHeaderFormat() {}
   void init() {
     bzero(this, sizeInWords()*2);
   }
@@ -60,9 +61,6 @@ public:
 protected:
 
   void swapCLCTs(CSCCLCTDigi& digi1, CSCCLCTDigi& digi2);
-
-  void setCLCT0PatternType(const int pattern, const int type);
-  void setCLCT1PatternType(const int pattern, const int type);
 };
 
 #endif
