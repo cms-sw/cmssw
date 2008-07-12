@@ -1,17 +1,21 @@
 /** \file
  *
- *  $Date: 2008/06/26 18:43:57 $
- *  $Revision: 1.8 $
+ *  $Date: 2008/06/27 02:56:35 $
+ *  $Revision: 1.9 $
  *  \author A. Tumanov - Rice
  */
 
-#include <EventFilter/CSCRawToDigi/src/CSCDigiToRawModule.h>
-#include <EventFilter/CSCRawToDigi/src/CSCDigiToRaw.h>
-#include <DataFormats/FEDRawData/interface/FEDRawDataCollection.h>
-#include <DataFormats/CSCDigi/interface/CSCStripDigiCollection.h>
-#include <DataFormats/CSCDigi/interface/CSCWireDigiCollection.h>
+#include "EventFilter/CSCRawToDigi/src/CSCDigiToRawModule.h"
+#include "EventFilter/CSCRawToDigi/src/CSCDigiToRaw.h"
+#include "DataFormats/FEDRawData/interface/FEDRawDataCollection.h"
+#include "DataFormats/CSCDigi/interface/CSCStripDigiCollection.h"
+#include "DataFormats/CSCDigi/interface/CSCWireDigiCollection.h"
+#include "DataFormats/CSCDigi/interface/CSCComparatorDigiCollection.h"
+#include "DataFormats/CSCDigi/interface/CSCALCTDigiCollection.h"
+#include "DataFormats/CSCDigi/interface/CSCCLCTDigiCollection.h"
+#include "DataFormats/CSCDigi/interface/CSCCorrelatedLCTDigiCollection.h"
 #include "DataFormats/Common/interface/Handle.h"
-#include <FWCore/Framework/interface/Event.h>
+#include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/ESHandle.h"
 #include "FWCore/Framework/interface/EventSetup.h"
 #include "CondFormats/DataRecord/interface/CSCChamberMapRcd.h"
