@@ -319,9 +319,9 @@ FWTextView::FWTextView (CmsShowMain *de, FWSelectionManager *sel,
      // set up the display pages
      //------------------------------------------------------------
      std::vector<FWTableManager *> v_objs;
-     v_objs.push_back(mu_manager);
-     v_objs.push_back(el_manager);
      v_objs.push_back(jet_manager);
+     v_objs.push_back(el_manager);
+     v_objs.push_back(mu_manager);
      FWTextViewPage *objects = new FWTextViewPage("Physics objects", v_objs, 
 						  gui->m_textViewFrame[0], 
 						  gui->m_textViewTab,
@@ -336,8 +336,8 @@ FWTextView::FWTextView (CmsShowMain *de, FWSelectionManager *sel,
 						  gui->m_textViewTab, this, 
 						  kLHintsTop);
      std::vector<FWTableManager *> v_tracks;
-     v_tracks.push_back(vertex_manager);
      v_tracks.push_back(track_manager);
+     v_tracks.push_back(vertex_manager);
      FWTextViewPage *tracks = new FWTextViewPage("Tracking", v_tracks,
 						 gui->m_textViewFrame[2], 
 						 gui->m_textViewTab, this, 
