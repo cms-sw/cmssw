@@ -6,14 +6,14 @@
 
 #include<cmath>
 
-namespace condex {
+
   /* very simple base class
    * trivial inheritance, no template tricks 
    */
-  class Efficiency {
+  class ExEfficiency {
   public:
-    Efficiency(){}
-    virtual ~Efficiency(){}
+    ExEfficiency(){}
+    virtual ~ExEfficiency(){}
     float operator()(float pt, float eta) const {
       return value(pt,eta);
     }
@@ -21,6 +21,9 @@ namespace condex {
     virtual float value(float pt, float eta) const=0;
 
   };
+
+namespace condex {
+  typedef ::ExEfficiency Efficiency;
 
   class ParametricEfficiencyInPt : public Efficiency {
   public:
