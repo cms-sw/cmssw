@@ -1,3 +1,12 @@
+/*
+ * \file EERawDataTask.cc
+ *
+ * $Date: 2008/05/11 09:35:09 $
+ * $Revision: 1.105 $
+ * \author E. Di Marco
+ *
+*/
+
 #include <iostream>
 
 #include "FWCore/ServiceRegistry/interface/Service.h"

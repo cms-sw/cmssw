@@ -1,6 +1,15 @@
 #ifndef EERawDataTask_H
 #define EERawDataTask_H
 
+/*
+ * \file EERawDataTask.h
+ *
+ * $Date: 2008/05/11 09:35:09 $
+ * $Revision: 1.105 $
+ * \author E. Di Marco
+ *
+*/
+
 #include "FWCore/Framework/interface/EDAnalyzer.h"
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
@@ -10,7 +19,7 @@ class DQMStore;
 
 class EERawDataTask : public edm::EDAnalyzer {
 
- public:
+public:
 
 /// Constructor
 EERawDataTask(const edm::ParameterSet& ps);
