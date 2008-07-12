@@ -52,7 +52,7 @@ namespace edmtest
     }
     edm::ESHandle<condex::Efficiency> hEff;
     std::cout<<"got eshandle"<<std::endl;
-    context.get<ExEfficiencyRcd>().get("lab3d",hEff);
+    context.get<ExEfficiencyRcd>().get("vinEff",hEff);
     std::cout<<"got context"<<std::endl;
     condex::Efficiency const &  eff= *hEff.product();
     std::cout<<"Efficiency*, type "<< (void*)(&eff) << " " << typeid(eff).name() <<std::endl;
