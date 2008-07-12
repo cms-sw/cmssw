@@ -11,6 +11,9 @@
 #include "CondFormats/Calibration/interface/fakeMenu.h"
 #include "CondFormats/Calibration/interface/strKeyMap.h"
 #include "CondFormats/Calibration/interface/simpleInheritance.h"
+
+#include "CondFormats/Calibration/interface/Efficiency.h"
+
 namespace {
   std::vector< Pedestals::Item >::iterator tmp0;
   std::vector< Pedestals::Item >::const_iterator tmp1;
