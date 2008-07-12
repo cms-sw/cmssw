@@ -15,6 +15,7 @@
 #include "Fireworks/Core/src/FWColorSelect.h"
 #include "Fireworks/Core/src/LightTableWidget.h"
 #include "Fireworks/Core/src/FWListWidget.h"
+#include "Fireworks/Core/src/CmsShowTaskExecutorBase.h"
 
 #ifdef __CINT__
 #pragma link off all globals;
@@ -44,6 +45,8 @@
 #pragma link C++ class FWColorPopup;
 #pragma link C++ class FWColorRow;
 #pragma link C++ class FWColorSelect;
+
+#pragma link C++ class CmsShowTaskExecutorBase;
 
 
 #endif
