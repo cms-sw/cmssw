@@ -28,7 +28,7 @@ namespace popcon{
     std::string m_name;
     unsigned long long m_since;
     std::string m_type;
-    std::vector<float> m_params;
+    std::vector<double> m_params;
   };
 }
 #endif // POPCON_EX_PEDESTALS_SRC_H
