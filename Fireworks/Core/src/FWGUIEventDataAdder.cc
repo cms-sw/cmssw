@@ -8,7 +8,7 @@
 //
 // Original Author:  Chris Jones
 //         Created:  Fri Jun 13 09:58:53 EDT 2008
-// $Id: FWGUIEventDataAdder.cc,v 1.5 2008/07/10 08:14:27 dmytro Exp $
+// $Id: FWGUIEventDataAdder.cc,v 1.6 2008/07/11 01:15:22 dmytro Exp $
 //
 
 // system include files
@@ -261,12 +261,19 @@ FWGUIEventDataAdder::addNewItem()
       return;
    }
    
+   if ( m_manager->find( name ) ) {
+      std::cout << "Event item " << name << 
+	" is already registered. Please use another name" << std::endl;
+      return;
+   }
+   
    FWPhysicsObjectDesc desc(name, theClass, m_purpose->GetText(),
                             FWDisplayProperties(),
                             moduleLabel,
                             m_productInstanceLabel->GetText(),
                             m_processName->GetText());
    m_manager->add( desc);
+   if (m_frame) m_frame->CloseWindow();
 }
 
 void 

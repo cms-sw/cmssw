@@ -16,7 +16,7 @@
 //
 // Original Author:  Chris Jones
 //         Created:  Tue Jan 15 10:26:23 EST 2008
-// $Id: FWViewManagerManager.h,v 1.5 2008/06/09 20:18:22 chrjones Exp $
+// $Id: FWViewManagerManager.h,v 1.6 2008/07/08 00:26:18 chrjones Exp $
 //
 
 // system include files
@@ -48,6 +48,7 @@ class FWViewManagerManager
       // ---------- member functions ---------------------------
       void add( boost::shared_ptr<FWViewManagerBase>);
       void registerEventItem(const FWEventItem*iItem);
+      void removeEventItem(const FWEventItem*iItem);
 
    private:
       FWViewManagerManager(const FWViewManagerManager&); // stop default

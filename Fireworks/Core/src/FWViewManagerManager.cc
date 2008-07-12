@@ -8,7 +8,7 @@
 //
 // Original Author:  Chris Jones
 //         Created:  Tue Jan 15 10:27:12 EST 2008
-// $Id: FWViewManagerManager.cc,v 1.8 2008/06/09 20:18:22 chrjones Exp $
+// $Id: FWViewManagerManager.cc,v 1.9 2008/07/08 00:26:17 chrjones Exp $
 //
 
 // system include files
@@ -82,6 +82,8 @@ FWViewManagerManager::registerEventItem(const FWEventItem*iItem)
       return;
    }
    m_typeToItems[iItem->name()]=iItem;
+   iItem->goingToBeDestroyed_.connect(boost::bind(&FWViewManagerManager::removeEventItem,this,_1));
+   
    //std::map<std::string, std::vector<std::string> >::iterator itFind = m_typeToBuilders.find(iItem->name());
    for(std::vector<boost::shared_ptr<FWViewManagerBase> >::iterator itVM = m_viewManagers.begin();
        itVM != m_viewManagers.end();
@@ -89,6 +91,15 @@ FWViewManagerManager::registerEventItem(const FWEventItem*iItem)
       (*itVM)->newItem(iItem);
    }
 }
+
+void 
+FWViewManagerManager::removeEventItem(const FWEventItem* iItem)
+{
+   std::map<std::string, const FWEventItem*>::iterator itr =
+     	m_typeToItems.find(iItem->name());
+   if ( itr != m_typeToItems.end() ) m_typeToItems.erase( itr );
+}
+
 
 //
 // const member functions
