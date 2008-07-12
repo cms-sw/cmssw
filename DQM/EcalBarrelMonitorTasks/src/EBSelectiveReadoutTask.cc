@@ -1,8 +1,8 @@
 /*
  * \file EBSelectiveReadoutTask.cc
  *
- * $Date: 2008/05/11 09:35:07 $
- * $Revision: 1.34 $
+ * $Date: 2008/07/12 08:37:24 $
+ * $Revision: 1.5 $
  * \author P. Gras
  * \author E. Di Marco
  *
@@ -321,8 +321,8 @@ void EBSelectiveReadoutTask::anaDigi(const T& frame, const U& srFlagColl){
   typename U::const_iterator srf = srFlagColl.find(readOutUnitOf(frame.id()));
   
   if(srf == srFlagColl.end()){
-    throw cms::Exception("EBSelectiveReadoutTask")
-      << __FILE__ << ":" << __LINE__ << ": SR flag not found";
+    LogWarning("EBSelectiveReadoutTask") << "SR flag not found";
+    return;
   }
   
   bool highInterest = ((srf->value() & ~EcalSrFlag::SRF_FORCED_MASK)

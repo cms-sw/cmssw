@@ -1,8 +1,8 @@
 /*
  * \file EESelectiveReadoutTask.cc
  *
- * $Date: 2008/05/11 09:35:07 $
- * $Revision: 1.34 $
+ * $Date: 2008/07/12 08:37:24 $
+ * $Revision: 1.3 $
  * \author P. Gras
  * \author E. Di Marco
  *
@@ -314,8 +314,8 @@ void EESelectiveReadoutTask::anaDigi(const T& frame, const U& srFlagColl){
   typename U::const_iterator srf = srFlagColl.find(readOutUnitOf(frame.id()));
   
   if(srf == srFlagColl.end()){
-    throw cms::Exception("EESelectiveReadoutTask")
-      << __FILE__ << ":" << __LINE__ << ": SR flag not found";
+    LogWarning("EESelectiveReadoutTask") << "SR flag not found";
+    return;
   }
   
   bool highInterest = ((srf->value() & ~EcalSrFlag::SRF_FORCED_MASK)

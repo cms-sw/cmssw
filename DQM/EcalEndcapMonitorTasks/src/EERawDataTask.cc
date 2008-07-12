@@ -1,8 +1,8 @@
 /*
  * \file EERawDataTask.cc
  *
- * $Date: 2008/05/11 09:35:09 $
- * $Revision: 1.105 $
+ * $Date: 2008/07/12 08:26:48 $
+ * $Revision: 1.2 $
  * \author E. Di Marco
  *
 */
@@ -196,7 +196,7 @@ void EERawDataTask::analyze(const Event& e, const EventSetup& c){
     
     int length = gtFedData.size()/sizeof(uint64_t);
     
-    std::cout << "GT FED length = " << length << endl;
+    // std::cout << "GT FED length = " << length << endl;
     
     if ( length > 0 ) {
       
