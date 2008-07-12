@@ -22,7 +22,7 @@ process.load("FastSimulation.Configuration.FamosSequences_cff")
 process.load("FWCore.MessageService.MessageLogger_cfi")
 
 process.maxEvents = cms.untracked.PSet(
-    input = cms.untracked.int32(100)
+    input = cms.untracked.int32(50)
 )
 process.source = cms.Source("FlatRandomPtGunSource",
     PGunParameters = cms.untracked.PSet(
@@ -30,10 +30,10 @@ process.source = cms.Source("FlatRandomPtGunSource",
         MinPt = cms.untracked.double(9.99),
         # you can request more than 1 particle
         #untracked vint32  PartID = { 211, 11, -13 }
-        PartID = cms.untracked.vint32(-13),
-        MaxEta = cms.untracked.double(2.4),
+        PartID = cms.untracked.vint32(13,13,13,13),
+        MaxEta = cms.untracked.double(1.5),
         MaxPhi = cms.untracked.double(3.14159265359),
-        MinEta = cms.untracked.double(-2.4),
+        MinEta = cms.untracked.double(1.4),
         MinPhi = cms.untracked.double(-3.14159265359) ## it must be in radians
 
     ),

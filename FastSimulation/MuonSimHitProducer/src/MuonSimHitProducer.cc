@@ -15,7 +15,7 @@
 //         Created:  Wed Jul 30 11:37:24 CET 2007
 //         Working:  Fri Nov  9 09:39:33 CST 2007
 //
-// $Id: MuonSimHitProducer.cc,v 1.17 2008/06/09 09:26:51 pjanot Exp $
+// $Id: MuonSimHitProducer.cc,v 1.18 2008/07/07 09:26:55 mulders Exp $
 //
 //
 
@@ -365,9 +365,8 @@ MuonSimHitProducer::produce(edm::Event& iEvent,const edm::EventSetup& iSetup) {
             std::pair<bool,double> path = crossing.pathLength(det->surface());
             if ( ! path.first ) continue;
             LocalPoint lpos = det->toLocal(GlobalPoint(crossing.position(path.second)));
-            if ( fabs(lpos.x()) > 0.5*det->surface().bounds().width() ||
-                 fabs(lpos.y()) > 0.5*det->surface().bounds().length() ) continue;
-            const DTTopology& dtTopo = layer[ilayer]->specificTopology();
+	    if ( ! det->surface().bounds().inside(lpos) ) continue;
+	    const DTTopology& dtTopo = layer[ilayer]->specificTopology();
             int wire = dtTopo.channel(lpos);
 	    if (wire < dtTopo.firstChannel() || wire > dtTopo.lastChannel()) continue;
 	    // no drift cell here (on the chamber edge or just outside)
@@ -415,8 +414,7 @@ MuonSimHitProducer::produce(edm::Event& iEvent,const edm::EventSetup& iSetup) {
           std::pair<bool,double> path = crossing.pathLength(det->surface());
           if ( ! path.first ) continue;
           LocalPoint lpos = det->toLocal(GlobalPoint(crossing.position(path.second)));
-          if ( fabs(lpos.x()) > 0.5*det->surface().bounds().width() ||
-               fabs(lpos.y()) > 0.5*det->surface().bounds().length() ) continue;
+	  if ( ! det->surface().bounds().inside(lpos) ) continue;
           double thickness = det->surface().bounds().thickness();
           LocalVector lmom = det->toLocal(GlobalVector(crossing.direction(path.second)));
           lmom = lmom.unit()*propagatedState.localMomentum().mag();
@@ -459,8 +457,7 @@ MuonSimHitProducer::produce(edm::Event& iEvent,const edm::EventSetup& iSetup) {
           std::pair<bool,double> path = crossing.pathLength(det->surface());
           if ( ! path.first ) continue;
           LocalPoint lpos = det->toLocal(GlobalPoint(crossing.position(path.second)));
-          if ( fabs(lpos.x()) > 0.5*det->surface().bounds().width() ||
-               fabs(lpos.y()) > 0.5*det->surface().bounds().length() ) continue;
+	  if ( ! det->surface().bounds().inside(lpos) ) continue; 
           double thickness = det->surface().bounds().thickness();
           LocalVector lmom = det->toLocal(GlobalVector(crossing.direction(path.second)));
           lmom = lmom.unit()*propagatedState.localMomentum().mag();
