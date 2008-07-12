@@ -56,28 +56,27 @@ void popcon::ExEffSource::getNewObjects() {
   
   // the most stupid factory It shall be in fase with "record name"
   condex::Efficiency * p0=0;
-  if (type.find("Eta")!=std::string::npos)
-    p0 = new ParametricEfficiencyInEta(m_params[0],m_params[1],m_params[2],m_params[3]);
+  if (m_type.find("Eta")!=std::string::npos)
+    p0 = new condex::ParametricEfficiencyInEta(m_params[0],m_params[1],m_params[2],m_params[3]);
   else
-    p0 = new ParametricEfficiencyInPt(m_params[0],m_params[1],m_params[2],m_params[3]);
+    p0 = new condex::ParametricEfficiencyInPt(m_params[0],m_params[1],m_params[2],m_params[3]);
   
   if (p0==0) {
     edm::LogInfo   ("ExEffsSource")<<" unable to build "<< m_type << std::endl; 
     return;
   }
-  fill(*p0,3);
+ 
   m_to_transfer.push_back(std::make_pair(p0,m_since));
   
- 
-    
+     
   std::ostringstream fsince;
-  fsince<< "iov since == " << m_since; 
+  fsince << "type=" << m_type 
+         << ", since=" << m_since; 
 
   m_userTextLog = ss.str()+ ";" + fsince.str();
  
   
  
-
   edm::LogInfo   ("ExEffsSource") << "------- " << m_name << " - > getNewObjects" << std::endl;
 }
 
