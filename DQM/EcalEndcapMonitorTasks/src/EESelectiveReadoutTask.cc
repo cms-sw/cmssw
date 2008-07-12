@@ -1,3 +1,13 @@
+/*
+ * \file EESelectiveReadoutTask.cc
+ *
+ * $Date: 2008/05/11 09:35:07 $
+ * $Revision: 1.34 $
+ * \author P. Gras
+ * \author E. Di Marco
+ *
+*/
+
 #include <iostream>
 #include <fstream>
 #include <vector>
@@ -221,9 +231,8 @@ void EESelectiveReadoutTask::analyze(const Event& e, const EventSetup& c){
 	EEReadoutUnitForcedBitMap_->Fill(xix,xiy);
       }
     }
-  }
-  else {
-    LogWarning("EESlectiveReadoutTask") << EESRFlagCollection_ << " not available";
+  } else {
+    LogWarning("EESelectiveReadoutTask") << EESRFlagCollection_ << " not available";
   }
 
   Handle<EcalTrigPrimDigiCollection> TPCollection;
@@ -262,9 +271,8 @@ void EESelectiveReadoutTask::analyze(const Event& e, const EventSetup& c){
       }
 
     }
-  }
-  else {
-    LogWarning("EESlectiveReadoutTask") << EcalTrigPrimDigiCollection_ << " not available";
+  } else {
+    LogWarning("EESelectiveReadoutTask") << EcalTrigPrimDigiCollection_ << " not available";
   }
 
   // Data Volume
@@ -294,17 +302,14 @@ void EESelectiveReadoutTask::analyze(const Event& e, const EventSetup& c){
     aAnyInterest = getEeEventSize(nEe_)/kByte;
     EEEventSize_->Fill(aAnyInterest);
 
+  } else {
+    LogWarning("EESelectiveReadoutTask") << EEDigiCollection_ << " not available";
   }
-  else {
-    LogWarning("EESlectiveReadoutTask") << EEDigiCollection_ << " not available";
-  }
-
 
 }
 
 template<class T, class U>
-void EESelectiveReadoutTask::anaDigi(const T& frame,
-				     const U& srFlagColl){
+void EESelectiveReadoutTask::anaDigi(const T& frame, const U& srFlagColl){
   const DetId& xtalId = frame.id();
   typename U::const_iterator srf = srFlagColl.find(readOutUnitOf(frame.id()));
   

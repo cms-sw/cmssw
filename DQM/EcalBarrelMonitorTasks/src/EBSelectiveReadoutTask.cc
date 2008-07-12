@@ -1,3 +1,13 @@
+/*
+ * \file EBSelectiveReadoutTask.cc
+ *
+ * $Date: 2008/05/11 09:35:07 $
+ * $Revision: 1.34 $
+ * \author P. Gras
+ * \author E. Di Marco
+ *
+*/
+
 #include <iostream>
 #include <fstream>
 #include <vector>
@@ -213,9 +223,8 @@ void EBSelectiveReadoutTask::analyze(const Event& e, const EventSetup& c){
       EcalDccEventSize_->Fill(iDcc+1, ((double)raw->FEDData(601+iDcc).size())/kByte );
       
     }
-  }
-  else {
-    LogWarning("EBSlectiveReadoutTask") << EcalFEDRawCollection_ << " not available";    
+  } else {
+    LogWarning("EBSelectiveReadoutTask") << EcalFEDRawCollection_ << " not available";    
   }
   
   // Selective Readout Flags
@@ -240,9 +249,8 @@ void EBSelectiveReadoutTask::analyze(const Event& e, const EventSetup& c){
 	EBReadoutUnitForcedBitMap_->Fill(xipt,xiet);
       }
     }
-  }
-  else {
-    LogWarning("EBSlectiveReadoutTask") << EBSRFlagCollection_ << " not available";
+  } else {
+    LogWarning("EBSelectiveReadoutTask") << EBSRFlagCollection_ << " not available";
   }
 
   Handle<EcalTrigPrimDigiCollection> TPCollection;
@@ -270,9 +278,8 @@ void EBSelectiveReadoutTask::analyze(const Event& e, const EventSetup& c){
       }
 
     }
-  }
-  else {
-    LogWarning("EBSlectiveReadoutTask") << EcalTrigPrimDigiCollection_ << " not available";
+  } else {
+    LogWarning("EBSelectiveReadoutTask") << EcalTrigPrimDigiCollection_ << " not available";
   }
 
   // Data Volume
@@ -302,16 +309,14 @@ void EBSelectiveReadoutTask::analyze(const Event& e, const EventSetup& c){
     aAnyInterest = getEbEventSize(nEb_)/kByte;
     EBEventSize_->Fill(aAnyInterest);
 
-  }
-  else {
-    LogWarning("EBSlectiveReadoutTask") << EBDigiCollection_ << " not available";
+  } else {
+    LogWarning("EBSelectiveReadoutTask") << EBDigiCollection_ << " not available";
   }
 
 }
 
 template<class T, class U>
-void EBSelectiveReadoutTask::anaDigi(const T& frame,
-				     const U& srFlagColl){
+void EBSelectiveReadoutTask::anaDigi(const T& frame, const U& srFlagColl){
   const DetId& xtalId = frame.id();
   typename U::const_iterator srf = srFlagColl.find(readOutUnitOf(frame.id()));
   

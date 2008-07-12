@@ -1,6 +1,16 @@
 #ifndef EBSelectiveReadoutTask_H
 #define EBSelectiveReadoutTask_H
 
+/*
+ * \file EBSelectiveReadoutTask.h
+ *
+ * $Date: 2008/05/11 09:35:07 $
+ * $Revision: 1.34 $
+ * \author P. Gras
+ * \author E. Di Marco
+ *
+*/
+
 #include "FWCore/Framework/interface/EDAnalyzer.h"
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
@@ -14,7 +24,7 @@ class DQMStore;
 
 class EBSelectiveReadoutTask: public edm::EDAnalyzer{
 
- public:
+public:
 
 /// Constructor
 EBSelectiveReadoutTask(const edm::ParameterSet& ps);
@@ -22,7 +32,7 @@ EBSelectiveReadoutTask(const edm::ParameterSet& ps);
 /// Destructor
 virtual ~EBSelectiveReadoutTask();
 
- protected:
+protected:
 
 /// Analyze
 void analyze(const edm::Event& e, const edm::EventSetup& c);
@@ -81,155 +91,150 @@ static const int bytesPerCrystal = 24;
 
 private:
 
- ///distinguishes barral and endcap of ECAL.
- enum subdet_t {EB, EE};
+///distinguishes barral and endcap of ECAL.
+enum subdet_t {EB, EE};
 
 /** Accumulates statitics for data volume analysis. To be called for each
  * ECAL digi. See anaDigiInit().
  */
- template<class T, class U>
-   void anaDigi(const T& frame, const U& srFlagColl);
+template<class T, class U> void anaDigi(const T& frame, const U& srFlagColl);
 
- /** Initializes statistics accumalator for data volume analysis. To
-  * be call at start of each event analysis.
-  */
- void anaDigiInit();
+/** Initializes statistics accumalator for data volume analysis. To
+ * be call at start of each event analysis.
+ */
+void anaDigiInit();
 
- /** Retrieve the logical number of the DCC reading a given crystal channel.
-  * @param xtarId crystal channel identifier
-  * @return the DCC logical number starting from 1.
-  */
- unsigned dccNum(const DetId& xtalId) const;
+/** Retrieve the logical number of the DCC reading a given crystal channel.
+ * @param xtarId crystal channel identifier
+ * @return the DCC logical number starting from 1.
+ */
+unsigned dccNum(const DetId& xtalId) const;
 
- /** Converts a std CMSSW crystal eta index to a c-array index (starting from
-  * zero and without hole).
-  */
- int iEta2cIndex(int iEta) const{
-   return (iEta<0)?iEta+85:iEta+84;
- }
+/** Converts a std CMSSW crystal eta index to a c-array index (starting from
+ * zero and without hole).
+ */
+int iEta2cIndex(int iEta) const{
+  return (iEta<0)?iEta+85:iEta+84;
+}
 
- /** Converts a std CMSSW crystal phi index to a c-array index (starting from
-  * zero and without hole).
-  */
- int iPhi2cIndex(int iPhi) const{
-   return iPhi-1;
- }
+/** Converts a std CMSSW crystal phi index to a c-array index (starting from
+ * zero and without hole).
+ */
+int iPhi2cIndex(int iPhi) const{
+  return iPhi-1;
+}
 
- /** Retrives the readout unit, a trigger tower in the barrel case,
-  * and a supercrystal in the endcap case, a given crystal belongs to.
-  * @param xtalId identifier of the crystal
-  * @return identifer of the supercrystal or of the trigger tower.
-  */
- EcalTrigTowerDetId readOutUnitOf(const EBDetId& xtalId) const;
+/** Retrives the readout unit, a trigger tower in the barrel case,
+ * and a supercrystal in the endcap case, a given crystal belongs to.
+ * @param xtalId identifier of the crystal
+ * @return identifer of the supercrystal or of the trigger tower.
+ */
+EcalTrigTowerDetId readOutUnitOf(const EBDetId& xtalId) const;
   
- /** Converts a std CMSSW crystal x or y index to a c-array index (starting
-  * from zero and without hole).
-  */
- int iXY2cIndex(int iX) const{
-   return iX-1;
- }
+/** Converts a std CMSSW crystal x or y index to a c-array index (starting
+ * from zero and without hole).
+ */
+int iXY2cIndex(int iX) const{
+  return iX-1;
+}
 
- /** converse of iXY2cIndex() method.
-  */
- int cIndex2iXY(int iX0) const{
-   return iX0+1;
- }
+/** converse of iXY2cIndex() method.
+ */
+int cIndex2iXY(int iX0) const{
+  return iX0+1;
+}
 
- /** converse of iEta2cIndex() method.
-  */
- int cIndex2iEta(int i) const{
-   return (i<85)?i-85:i-84;
- }
+/** converse of iEta2cIndex() method.
+ */
+int cIndex2iEta(int i) const{
+  return (i<85)?i-85:i-84;
+}
 
+/** converse of iPhi2cIndex() method.
+ */
+int cIndex2iPhi(int i) const {
+  return i+1;
+}
 
- /** converse of iPhi2cIndex() method.
-  */
- int cIndex2iPhi(int i) const {
-   return i+1;
- }
+/** Computes the size of an ECAL barrel event fragment.
+ * @param nReadXtals number of read crystal channels
+ * @return the event fragment size in bytes
+ */
+double getEbEventSize(double nReadXtals) const;
 
- /** Computes the size of an ECAL barrel event fragment.
-  * @param nReadXtals number of read crystal channels
-  * @return the event fragment size in bytes
-  */
- double getEbEventSize(double nReadXtals) const;
+/** Gets the size in bytes fixed-size part of a DCC event fragment.
+ * @return the fixed size in bytes.
+ */
+double getDccOverhead(subdet_t subdet) const{
+  //  return (subdet==EB?34:25)*8;
+  return (subdet==EB?34:52)*8;
+}
 
- /** Gets the size in bytes fixed-size part of a DCC event fragment.
-  * @return the fixed size in bytes.
-  */
- double getDccOverhead(subdet_t subdet) const{
-   //  return (subdet==EB?34:25)*8;
-   return (subdet==EB?34:52)*8;
- }
+/** Gets the size of an DCC event fragment.
+ * @param iDcc0 the DCC logical number starting from 0.
+ * @param nReadXtals number of read crystal channels.
+ * @return the DCC event fragment size in bytes.
+ */
+double getDccEventSize(int iDcc0, double nReadXtals) const{
+  subdet_t subdet;
+  if(iDcc0<9 || iDcc0>=45){
+    subdet = EE;
+  } else{
+    subdet = EB;
+  }
+  return getDccOverhead(subdet)+nReadXtals*bytesPerCrystal+nRuPerDcc_[iDcc0]*8;
+}
 
- /** Gets the size of an DCC event fragment.
-  * @param iDcc0 the DCC logical number starting from 0.
-  * @param nReadXtals number of read crystal channels.
-  * @return the DCC event fragment size in bytes.
-  */
- double getDccEventSize(int iDcc0, double nReadXtals) const{
-   subdet_t subdet;
-   if(iDcc0<9 || iDcc0>=45){
-     subdet = EE;
-   } else{
-     subdet = EB;
-   }
-   return getDccOverhead(subdet)+nReadXtals*bytesPerCrystal
-     + nRuPerDcc_[iDcc0]*8;
- }
+/** Gets the phi index of the DCC reading a RU (SC or TT)
+ * @param i iEta 
+ * @param j iPhi 
+ * @return DCC phi index between 0 and 17 for EB
+ */
+int dccPhiIndexOfRU(int i, int j) const;
 
- /** Gets the phi index of the DCC reading a RU (SC or TT)
-  * @param i iEta 
-  * @param j iPhi 
-  * @return DCC phi index between 0 and 17 for EB
-  */
- int dccPhiIndexOfRU(int i, int j) const;
-
-
- /** Gets the phi index of the DCC reading a crystal
-  * @param i iEta
-  * @param j iPhi
-  * @return DCC phi index between 0 and 17 for EB
-  */
- int dccPhiIndex(int i, int j) const {
-   return dccPhiIndexOfRU(i/5, j/5);
- }
-
+/** Gets the phi index of the DCC reading a crystal
+ * @param i iEta
+ * @param j iPhi
+ * @return DCC phi index between 0 and 17 for EB
+ */
+int dccPhiIndex(int i, int j) const {
+  return dccPhiIndexOfRU(i/5, j/5);
+}
 
 /** Gets the index of the DCC reading a crystal
  * @param i iEta
  * @param j iPhi
  * @return DCC index between 0 and 17 
  */
- int dccIndex(int i, int j) const;
+int dccIndex(int i, int j) const;
 
- /** ECAL barrel read channel count
-  */
- int nEb_;
+/** ECAL barrel read channel count
+ */
+int nEb_;
 
- /** ECAL barrel low interest read channel count
-  */
- int nEbLI_;
+/** ECAL barrel low interest read channel count
+ */
+int nEbLI_;
 
- /** ECAL barrel high interest read channel count
-  */
- int nEbHI_;
+/** ECAL barrel high interest read channel count
+ */
+int nEbHI_;
 
- /** ECAL read channel count for each DCC:
-  */
- int nPerDcc_[nECALDcc];
+/** ECAL read channel count for each DCC:
+ */
+int nPerDcc_[nECALDcc];
 
  /** Count for each DCC of RUs with at leat one channel read out:
   */
- int nRuPerDcc_[nECALDcc];
+int nRuPerDcc_[nECALDcc];
 
- /** For book keeping of RU actually read out (not fully zero suppressed)
-  */
- bool ebRuActive_[nEbEta/ebTtEdge][nEbPhi/ebTtEdge];
+/** For book keeping of RU actually read out (not fully zero suppressed)
+ */
+bool ebRuActive_[nEbEta/ebTtEdge][nEbPhi/ebTtEdge];
 
- /** ECAL trigger tower mapping
-  */
- const EcalTrigTowerConstituentsMap * triggerTowerMap_;
+/** ECAL trigger tower mapping
+ */
+const EcalTrigTowerConstituentsMap * triggerTowerMap_;
 
 int ievt_;
 
@@ -248,14 +253,14 @@ edm::InputTag EBSRFlagCollection_;
 edm::InputTag EcalTrigPrimDigiCollection_;
 edm::InputTag EcalFEDRawCollection_;
 
-MonitorElement *EcalDccEventSize_;
-MonitorElement *EBReadoutUnitForcedBitMap_;
-MonitorElement *EBFullReadoutSRFlagMap_;
-MonitorElement *EBHighInterestTriggerTowerFlagMap_;
-MonitorElement *EBLowInterestTriggerTowerFlagMap_;
-MonitorElement *EBEventSize_;
-MonitorElement *EBHighInterestPayload_;
-MonitorElement *EBLowInterestPayload_;
+MonitorElement* EcalDccEventSize_;
+MonitorElement* EBReadoutUnitForcedBitMap_;
+MonitorElement* EBFullReadoutSRFlagMap_;
+MonitorElement* EBHighInterestTriggerTowerFlagMap_;
+MonitorElement* EBLowInterestTriggerTowerFlagMap_;
+MonitorElement* EBEventSize_;
+MonitorElement* EBHighInterestPayload_;
+MonitorElement* EBLowInterestPayload_;
 
 bool init_;
 
