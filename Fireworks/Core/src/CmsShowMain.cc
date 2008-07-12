@@ -8,7 +8,7 @@
 //
 // Original Author:  
 //         Created:  Mon Dec  3 08:38:38 PST 2007
-// $Id: CmsShowMain.cc,v 1.20 2008/07/09 06:54:26 jmuelmen Exp $
+// $Id: CmsShowMain.cc,v 1.21 2008/07/11 00:08:18 chrjones Exp $
 //
 
 // system include files
@@ -24,6 +24,7 @@
 #include "TEveTrackProjected.h"
 #include "TEveSelection.h"
 #include "TEveLine.h"
+#include "TTimer.h"
 
 //geometry
 #include "TFile.h"
@@ -68,6 +69,8 @@
 #include "Fireworks/Core/interface/CSGNumAction.h"
 
 #include "Fireworks/Core/interface/ActionsList.h"
+
+#include "Fireworks/Core/src/CmsShowTaskExecutor.h"
 
 //
 // constants, enums and typedefs
@@ -228,11 +231,25 @@ CmsShowMain::CmsShowMain(int argc, char *argv[]) :
       macPath += "/src/Fireworks/Core/macros";
       gROOT->SetMacroPath((std::string("./:")+macPath).c_str());  
       
+      gEve->GetHighlight()->SetPickToSelect(TEveSelection::kPS_PableCompound);
+      TEveTrackProjected::SetBreakTracks(kFALSE);
+
+      m_startupTasks = std::auto_ptr<CmsShowTaskExecutor>(new CmsShowTaskExecutor);
+      CmsShowTaskExecutor::TaskFunctor f;
+      f=boost::bind(&CmsShowMain::loadGeometry,this);
+      m_startupTasks->addTask(f);
+      //loadGeometry();
+      /*
       // prepare geometry service
       // ATTN: this should be made configurable
       m_detIdToGeo.loadGeometry( m_geomFileName.c_str() );
       m_detIdToGeo.loadMap( m_geomFileName.c_str() );
+      */
       
+      //setupViewManagers();
+      f=boost::bind(&CmsShowMain::setupViewManagers,this);
+      m_startupTasks->addTask(f);
+      /*
       boost::shared_ptr<FWViewManagerBase> rpzViewManager( new FWRhoPhiZViewManager(m_guiManager.get()) );
       rpzViewManager->setGeom(&m_detIdToGeo);
       m_viewManager->add(rpzViewManager);
@@ -241,7 +258,12 @@ CmsShowMain::CmsShowMain(int argc, char *argv[]) :
       m_viewManager->add( boost::shared_ptr<FWViewManagerBase>( new FWEveLegoViewManager(m_guiManager.get()) ) );
       
       m_viewManager->add( boost::shared_ptr<FWViewManagerBase>( new FWGlimpseViewManager(m_guiManager.get()) ) );
+      */
       
+      //setupConfiguration();
+      f=boost::bind(&CmsShowMain::setupConfiguration,this);
+      m_startupTasks->addTask(f);
+#if defined(NEVER_TO_BE_DEFINED)
       if(m_configFileName.empty() ) {
          std::cout << "WARNING: no configuration is loaded." << std::endl;
          m_configFileName = "newconfig.fwc";
@@ -440,16 +462,26 @@ CmsShowMain::CmsShowMain(int argc, char *argv[]) :
                                                                             m_configurationManager.get(),
                                                                             m_configFileName));
       }
-      gEve->GetHighlight()->SetPickToSelect(TEveSelection::kPS_PableCompound);
-      TEveTrackProjected::SetBreakTracks(kFALSE);
-      
-      
+#endif
+      //CDJ Old position
+      //gEve->GetHighlight()->SetPickToSelect(TEveSelection::kPS_PableCompound);
+      //TEveTrackProjected::SetBreakTracks(kFALSE);
+   
+      //setupDetailedViewManagers();
+      f=boost::bind(&CmsShowMain::setupDetailedViewManagers,this);
+      m_startupTasks->addTask(f);
+#if defined(NEVER_TO_BE_DEFINED)
       // register detail viewers
       registerDetailView("Electrons", new ElectronDetailView);
       registerDetailView("Muons", new MuonDetailView);
       registerDetailView("Tracks", new TrackDetailView);
       registerDetailView("GenParticles", new GenParticleDetailView);
+#endif
       
+      //setupDataHandling();
+      f=boost::bind(&CmsShowMain::setupDataHandling,this);
+      m_startupTasks->addTask(f);
+      /*
       m_navigator = new CmsShowNavigator();
       m_navigator->oldEvent.connect(sigc::mem_fun(*m_guiManager, &FWGUIManager::loadEvent));
       m_navigator->newEvent.connect(sigc::mem_fun(*m_guiManager, &FWGUIManager::loadEvent));
@@ -474,13 +506,22 @@ CmsShowMain::CmsShowMain(int argc, char *argv[]) :
       if(m_inputFileName.size()) {
          m_navigator->loadFile(m_inputFileName);
       }
-      
+      */
       if(debugMode) {
-         m_guiManager->openEveBrowserForDebugging();
+         //setupDebugSupport();
+         f=boost::bind(&CmsShowMain::setupDebugSupport,this);
+         m_startupTasks->addTask(f);
+         //m_guiManager->openEveBrowserForDebugging();
       }else{
          gSystem->IgnoreSignal(kSigSegmentationViolation, true);
       }
-      
+      TTimer* waitForGUIToDrawTimer = new TTimer();
+      waitForGUIToDrawTimer->Connect("Timeout()",
+                                     "CmsShowTaskExecutorBase",
+                                     static_cast<CmsShowTaskExecutorBase*>(m_startupTasks.get()),
+                                     "startDoingTasks()");
+      waitForGUIToDrawTimer->Start(10,kTRUE);
+      //m_startupTasks->startDoingTasks();
    } catch(std::exception& iException) {
       std::cerr <<"CmsShowMain caught exception "<<iException.what()<<std::endl;
       throw;
@@ -586,6 +627,278 @@ CmsShowMain::writeConfigurationFile(const std::string& iFileName) const
   m_configurationManager->writeToFile(iFileName);
 }
 */
+
+//STARTUP TASKS
+
+void 
+CmsShowMain::loadGeometry()
+{      // prepare geometry service
+   // ATTN: this should be made configurable
+   m_detIdToGeo.loadGeometry( m_geomFileName.c_str() );
+   m_detIdToGeo.loadMap( m_geomFileName.c_str() );
+   
+}
+void 
+CmsShowMain::setupViewManagers()
+{
+   boost::shared_ptr<FWViewManagerBase> rpzViewManager( new FWRhoPhiZViewManager(m_guiManager.get()) );
+   rpzViewManager->setGeom(&m_detIdToGeo);
+   m_viewManager->add(rpzViewManager);
+   //   m_viewManager->add( boost::shared_ptr<FWViewManagerBase>( new MuonPUViewManager));
+   
+   m_viewManager->add( boost::shared_ptr<FWViewManagerBase>( new FWEveLegoViewManager(m_guiManager.get()) ) );
+   
+   m_viewManager->add( boost::shared_ptr<FWViewManagerBase>( new FWGlimpseViewManager(m_guiManager.get()) ) );   
+}
+
+void 
+CmsShowMain::setupConfiguration()
+{
+   if(m_configFileName.empty() ) {
+      std::cout << "WARNING: no configuration is loaded." << std::endl;
+      m_configFileName = "newconfig.fwc";
+      m_guiManager->createView("Rho Phi");
+      m_guiManager->createView("Rho Z");
+      m_guiManager->createView("3D Lego");
+      m_guiManager->createView("Glimpse");
+      
+      FWPhysicsObjectDesc ecal("ECal",
+                               TClass::GetClass("CaloTowerCollection"),
+                               "ECal",
+                               FWDisplayProperties(kRed),
+                               "towerMaker",
+                               "",
+                               "",
+                               "",
+                               2);
+      
+      FWPhysicsObjectDesc hcal("HCal",
+                               TClass::GetClass("CaloTowerCollection"),
+                               "HCal",
+                               FWDisplayProperties(kBlue),
+                               "towerMaker",
+                               "",
+                               "",
+                               "",
+                               2);
+      
+      FWPhysicsObjectDesc jets("Jets",
+                               TClass::GetClass("reco::CaloJetCollection"),
+                               "Jets",
+                               FWDisplayProperties(kYellow),
+                               "iterativeCone5CaloJets",
+                               "",
+                               "",
+                               "$.pt()>15",
+                               3);
+      
+      
+      FWPhysicsObjectDesc l1EmTrigs("L1EmTrig",
+                                    TClass::GetClass("l1extra::L1EmParticleCollection"),
+                                    "L1EmTrig",
+                                    FWDisplayProperties(kOrange),
+                                    "hltL1extraParticles",
+                                    "Isolated",
+                                    "",
+                                    "$.pt()>15",
+                                    3);
+      
+      FWPhysicsObjectDesc l1Muons("L1-Muons",
+                                  TClass::GetClass("l1extra::L1MuonParticleCollection"),
+                                  "L1-Muons",
+                                  FWDisplayProperties(kViolet),
+                                  "hltL1extraParticles",
+                                  "",
+                                  "",
+                                  "",
+                                  3);
+      
+      FWPhysicsObjectDesc l1MET("L1-MET",
+                                TClass::GetClass("l1extra::L1EtMissParticleCollection"),
+                                "L1-MET",
+                                FWDisplayProperties(kTeal),
+                                "hltL1extraParticles",
+                                "",
+                                "",
+                                "",
+                                3);
+      
+      FWPhysicsObjectDesc l1Jets("L1-Jets",
+                                 TClass::GetClass("l1extra::L1JetParticleCollection"),
+                                 "L1-Jets",
+                                 FWDisplayProperties(kMagenta),
+                                 "hltL1extraParticles",
+                                 "Central",
+                                 "",
+                                 "$.pt()>15",
+                                 3);
+      
+      
+      FWPhysicsObjectDesc tracks("Tracks",
+                                 TClass::GetClass("reco::TrackCollection"),
+                                 "Tracks",
+                                 FWDisplayProperties(kGreen),
+                                 "generalTracks",
+                                 "",
+                                 "",
+                                 "$.pt()>2",
+                                 1);
+      
+      FWPhysicsObjectDesc muons("Muons",
+                                TClass::GetClass("reco::MuonCollection"),
+                                "Muons",
+                                FWDisplayProperties(kRed),
+                                "muons",
+                                "",
+                                "",
+                                "$.isGlobalMuon()",
+                                5);
+      
+      FWPhysicsObjectDesc electrons("Electrons",
+                                    TClass::GetClass("reco::GsfElectronCollection"),
+                                    "Electrons",
+                                    FWDisplayProperties(kCyan),
+                                    "pixelMatchGsfElectrons",
+                                    "",
+                                    "",
+                                    "$.hadronicOverEm()<0.05",
+                                    3);
+      
+      FWPhysicsObjectDesc genParticles("GenParticles",
+                                       TClass::GetClass("reco::GenParticleCollection"),
+                                       "GenParticles",
+                                       FWDisplayProperties(kMagenta),
+                                       "genParticles",
+                                       "",
+                                       "",
+                                       "abs($.pdgId())==11 || abs($.pdgId())==13",
+                                       6);
+      
+      // Vertices
+      FWPhysicsObjectDesc vertices("Vertices",
+                                   TClass::GetClass("std::vector<reco::Vertex>"),
+                                   "Vertices",
+                                   FWDisplayProperties(kYellow),
+                                   "offlinePrimaryVertices",
+                                   "",
+                                   "",
+                                   "",
+                                   10);
+      
+      FWPhysicsObjectDesc mets("MET",
+                               TClass::GetClass("reco::CaloMETCollection"),
+                               "MET",
+                               FWDisplayProperties(kRed),
+                               "metNoHF",
+                               "",
+                               "",
+                               "",
+                               3);
+      
+      FWPhysicsObjectDesc dtSegments("DT-segments",
+                                     TClass::GetClass("DTRecSegment4DCollection"),
+                                     "DT-segments",
+                                     FWDisplayProperties(kBlue),
+                                     "dt4DSegments",
+                                     "",
+                                     "",
+                                     "",
+                                     1);
+      
+      FWPhysicsObjectDesc cscSegments("CSC-segments",
+                                      TClass::GetClass("CSCSegmentCollection"),
+                                      "CSC-segments",
+                                      FWDisplayProperties(kBlue),
+                                      "cscSegments",
+                                      "",
+                                      "",
+                                      "",
+                                      1);
+      registerPhysicsObject(ecal);
+      registerPhysicsObject(hcal);
+      registerPhysicsObject(jets);
+      registerPhysicsObject(l1EmTrigs);
+      registerPhysicsObject(l1Muons);
+      registerPhysicsObject(l1MET);
+      registerPhysicsObject(l1Jets);
+      registerPhysicsObject(tracks);
+      registerPhysicsObject(muons);
+      registerPhysicsObject(electrons);
+      registerPhysicsObject(genParticles);
+      registerPhysicsObject(vertices);
+      registerPhysicsObject(mets);
+      registerPhysicsObject(dtSegments);
+      registerPhysicsObject(cscSegments);
+      
+   } else {
+      char* whereConfig = gSystem->Which(TROOT::GetMacroPath(), m_configFileName.c_str(), kReadPermission);
+      if(0==whereConfig) {
+         m_configFileName = "default.fwc";
+      } 
+      
+      delete [] whereConfig;
+      m_configurationManager->readFromFile(m_configFileName);
+   }
+   
+   if(not m_configFileName.empty() ) {
+      /* //when the program quits we will want to save the configuration automatically
+       m_guiManager->goingToQuit_.connect(
+       boost::bind(&FWConfigurationManager::writeToFile,
+       m_configurationManager.get(),
+       m_configFileName));
+       */
+      m_guiManager->writeToPresentConfigurationFile_.connect(
+                                                             boost::bind(&FWConfigurationManager::writeToFile,
+                                                                         m_configurationManager.get(),
+                                                                         m_configFileName));
+   }
+   
+}
+
+void 
+CmsShowMain::setupDetailedViewManagers()
+{
+   // register detail viewers
+   registerDetailView("Electrons", new ElectronDetailView);
+   registerDetailView("Muons", new MuonDetailView);
+   registerDetailView("Tracks", new TrackDetailView);
+   registerDetailView("GenParticles", new GenParticleDetailView);
+   
+}
+void 
+CmsShowMain::setupDataHandling()
+{
+   m_navigator = new CmsShowNavigator();
+   m_navigator->oldEvent.connect(sigc::mem_fun(*m_guiManager, &FWGUIManager::loadEvent));
+   m_navigator->newEvent.connect(sigc::mem_fun(*m_guiManager, &FWGUIManager::loadEvent));
+   m_navigator->newEvent.connect(sigc::mem_fun(*this, &CmsShowMain::draw));
+   m_navigator->newFileLoaded.connect(boost::bind(&CmsShowMain::resetInitialization,this));
+   m_navigator->newFileLoaded.connect(sigc::mem_fun(*m_guiManager,&FWGUIManager::newFile));
+   m_navigator->atBeginning.connect(sigc::mem_fun(*m_guiManager, &FWGUIManager::disablePrevious));
+   m_navigator->atEnd.connect(sigc::mem_fun(*m_guiManager, &FWGUIManager::disableNext));
+   if (m_guiManager->getAction(cmsshow::sOpenData) != 0) m_guiManager->getAction(cmsshow::sOpenData)->activated.connect(sigc::mem_fun(*this, &CmsShowMain::openData));
+   if (m_guiManager->getAction(cmsshow::sNextEvent) != 0) m_guiManager->getAction(cmsshow::sNextEvent)->activated.connect(sigc::mem_fun(*m_navigator, &CmsShowNavigator::nextEvent));
+   if (m_guiManager->getAction(cmsshow::sPreviousEvent) != 0) m_guiManager->getAction(cmsshow::sPreviousEvent)->activated.connect(sigc::mem_fun(*m_navigator, &CmsShowNavigator::previousEvent));
+   if (m_guiManager->getAction(cmsshow::sHome) != 0) m_guiManager->getAction(cmsshow::sHome)->activated.connect(sigc::mem_fun(*m_navigator, &CmsShowNavigator::firstEvent));
+   if (m_guiManager->getAction(cmsshow::sQuit) != 0) m_guiManager->getAction(cmsshow::sQuit)->activated.connect(sigc::mem_fun(*this, &CmsShowMain::quit));
+   if (m_guiManager->getAction(cmsshow::sShowEventDisplayInsp) != 0) m_guiManager->getAction(cmsshow::sShowEventDisplayInsp)->activated.connect(sigc::mem_fun(*m_guiManager, &FWGUIManager::createEDIFrame));
+   if (m_guiManager->getAction(cmsshow::sShowMainViewCtl) != 0) m_guiManager->getAction(cmsshow::sShowMainViewCtl)->activated.connect(sigc::mem_fun(*m_guiManager, &FWGUIManager::createViewPopup));
+   if (m_guiManager->getRunEntry() != 0) m_guiManager->getRunEntry()->activated.connect(sigc::mem_fun(*m_navigator, &CmsShowNavigator::goToRun));
+   if (m_guiManager->getEventEntry() != 0) m_guiManager->getEventEntry()->activated.connect(sigc::mem_fun(*m_navigator, &CmsShowNavigator::goToEvent));
+   if (CSGAction* action = m_guiManager->getAction("Event Filter")) 
+      action->activated.connect(boost::bind(&CmsShowNavigator::filterEvents,m_navigator,action));
+   else
+      printf("Why?\n\n\n\n\n\n");
+   if(m_inputFileName.size()) {
+      m_navigator->loadFile(m_inputFileName);
+   }   
+}
+void 
+CmsShowMain::setupDebugSupport()
+{
+   m_guiManager->openEveBrowserForDebugging();
+}
+
 
 //
 // static member functions

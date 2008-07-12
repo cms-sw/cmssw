@@ -16,7 +16,7 @@
 //
 // Original Author:  
 //         Created:  Mon Dec  3 08:34:30 PST 2007
-// $Id: CmsShowMain.h,v 1.2 2008/07/06 19:58:54 dmytro Exp $
+// $Id: CmsShowMain.h,v 1.3 2008/07/08 00:29:01 chrjones Exp $
 //
 
 // system include files
@@ -45,6 +45,7 @@ class FWConfigurationManager;
 class FWTextView;
 
 class CmsShowNavigator;
+class CmsShowTaskExecutor;
 
 namespace fwlite {
   class Event;
@@ -85,6 +86,13 @@ private:
   CmsShowMain(const CmsShowMain&); // stop default
   
   const CmsShowMain& operator=(const CmsShowMain&); // stop default
+   
+   void loadGeometry();
+   void setupViewManagers();
+   void setupConfiguration();
+   void setupDetailedViewManagers();
+   void setupDataHandling();
+   void setupDebugSupport();
   
   // ---------- member data --------------------------------
   std::auto_ptr<FWConfigurationManager> m_configurationManager;
@@ -106,6 +114,8 @@ private:
   static int    m_numberOfFieldEstimates;      
   static int    m_numberOfFieldIsOnEstimates;  
   static double m_caloScale;
+   
+   std::auto_ptr<CmsShowTaskExecutor> m_startupTasks;
 };
 
 
