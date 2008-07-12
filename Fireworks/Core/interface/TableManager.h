@@ -1,6 +1,6 @@
+// -*- C++ -*-
 #ifndef Fireworks_Core_TableManager_h
 #define Fireworks_Core_TableManager_h
-// -*- C++ -*-
 //
 // Package:     Core
 // Class  :     TableManager
@@ -16,7 +16,7 @@
 //
 // Original Author:  Chris Jones
 //         Created:  Sun Jul  6 23:28:39 EDT 2008
-// $Id$
+// $Id: TableManager.h,v 1.1 2008/07/07 03:59:54 chrjones Exp $
 //
 
 // system include files
@@ -41,7 +41,7 @@ public:
                           int rowEnd, int colEnd, std::vector<std::string>& oToFill) = 0;
    virtual TGFrame* GetRowCell(int row, TGFrame *parentFrame) = 0;
    virtual void UpdateRowCell(int row, TGFrame *rowCell) = 0;
-   virtual const std::string title() const { return "Table"; }
+   virtual const std::string title() const { return ""; }
    virtual void Selection (int row, int mask) { } 
    virtual void selectRows () { } 
 };

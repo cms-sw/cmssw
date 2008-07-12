@@ -4,6 +4,12 @@
 #include "DataFormats/EgammaCandidates/interface/GsfElectron.h"
 #include "DataFormats/EgammaCandidates/interface/GsfElectronFwd.h"
 #include "DataFormats/JetReco/interface/CaloJetCollection.h"
+#include "DataFormats/L1Trigger/interface/L1EmParticleFwd.h"
+#include "DataFormats/L1Trigger/interface/L1MuonParticleFwd.h"
+#include "DataFormats/L1Trigger/interface/L1JetParticleFwd.h"
+#include "DataFormats/L1Trigger/interface/L1EmParticle.h"
+#include "DataFormats/L1Trigger/interface/L1MuonParticle.h"
+#include "DataFormats/L1Trigger/interface/L1JetParticle.h"
 #include "DataFormats/METReco/interface/CaloMETCollection.h"
 #include "DataFormats/METReco/interface/CaloMET.h"
 #include "DataFormats/MuonReco/interface/Muon.h"
@@ -39,7 +45,8 @@ FWTextViewPage::FWTextViewPage (const std::string &title_,
 				const std::vector<FWTableManager *> &tables_,
 				TGCompositeFrame *frame_,
 				TGTab *parent_tab_,
-				FWTextView *view_)
+				FWTextView *view_,
+				unsigned int layout)
      : title(title_),
        tables(tables_),
        frame(frame_),
@@ -83,9 +90,15 @@ FWTextViewPage::FWTextViewPage (const std::string &title_,
      print_command->SetHeight(25);
      m_buttons->AddFrame(print_command, new TGLayoutHints(kLHintsExpandX));
      frame->AddFrame(m_buttons, new TGLayoutHints(kLHintsTop | kLHintsExpandX));
+     TGCompositeFrame *table_frame = frame;
+     if (layout & kLHintsTop) {
+	  table_frame = new TGHorizontalFrame(frame);
+	  frame->AddFrame(table_frame, new TGLayoutHints(kLHintsTop | kLHintsExpandX |
+							 kLHintsExpandY));
+     }
      for (std::vector<FWTableManager *>::const_iterator i = tables.begin();
 	  i != tables.end(); ++i) {
-	  (*i)->MakeFrame(frame, width, height);
+	  (*i)->MakeFrame(table_frame, width, height, layout);
 // 	  frame->AddFrame((*i)->frame, tFrameHints);
 // 	  printf("frame: adding frame\n");
      }
@@ -224,7 +237,9 @@ FWTextView::FWTextView (CmsShowMain *de, FWSelectionManager *sel,
      : el_manager(new ElectronTableManager),
        mu_manager(new MuonTableManager),
        jet_manager(new JetTableManager),
-       l1_manager    	(new ElectronTableManager),
+       l1em_manager    	(new L1TableManager),
+       l1mu_manager    	(new L1TableManager),
+       l1jet_manager   	(new L1TableManager),
        hlt_manager   	(new HLTTableManager),
        track_manager 	(new TrackTableManager),
        vertex_manager  	(new VertexTableManager),
@@ -237,35 +252,20 @@ FWTextView::FWTextView (CmsShowMain *de, FWSelectionManager *sel,
 	  el_manager		,
 	  mu_manager		,
 	  jet_manager		,
-	  l1_manager    	,	
+	  l1em_manager    	,	
+	  l1mu_manager    	,	
+	  l1jet_manager    	,	
 	  hlt_manager   	,	
 	  track_manager 	,	
 	  vertex_manager	,
      };
+     l1em_manager->setTitle("L1 EM objects");
+     l1mu_manager->setTitle("L1 muons");
+     l1jet_manager->setTitle("L1 jets");
      managers.insert(managers.begin(), 
 		     managers_retreat, 
 		     managers_retreat + 
 		     sizeof(managers_retreat) / sizeof(FWTableManager *));
-#if 0
-     // apparently this is no good
-     for (std::vector<FWEventItem *>::const_iterator 
-	       i = de->m_eiManager->m_items.begin(),
-	       end = de->m_eiManager->m_items.end(); 
-	  i != end; ++i) {
-// 	  printf("event item: %s\n", (*i)->name().c_str());
-	  if ((*i)->name() == "Electrons") { 
-	       el_manager->setItem(*i);
-	  } else if ((*i)->name() == "Muons") { 
-	       mu_manager->setItem(*i);
-	  } else if ((*i)->name() == "Jets") { 
-	       jet_manager->setItem(*i);
-	  } else if ((*i)->name() == "Tracks") { 
-	       track_manager->setItem(*i);
-	  } else if ((*i)->name() == "Vertices") { 
-	       vertex_manager->setItem(*i);
-	  } 
-     }
-#endif
      // connect to the selection manager
      seleman->selectionChanged_.
 	  connect(boost::bind(&FWTextView::selectionChanged,this,_1));
@@ -325,19 +325,23 @@ FWTextView::FWTextView (CmsShowMain *de, FWSelectionManager *sel,
      FWTextViewPage *objects = new FWTextViewPage("Physics objects", v_objs, 
 						  gui->m_textViewFrame[0], 
 						  gui->m_textViewTab,
-						  this);
+						  this, kLHintsLeft);
      std::vector<FWTableManager *> v_trigger;
-     v_trigger.push_back(l1_manager);
-     v_trigger.push_back(hlt_manager);
+     v_trigger.push_back(l1mu_manager);
+     v_trigger.push_back(l1em_manager);
+     v_trigger.push_back(l1jet_manager);
+//      v_trigger.push_back(hlt_manager);
      FWTextViewPage *trigger = new FWTextViewPage("Trigger information", v_trigger,
 						  gui->m_textViewFrame[1], 
-						  gui->m_textViewTab, this);
+						  gui->m_textViewTab, this, 
+						  kLHintsTop);
      std::vector<FWTableManager *> v_tracks;
      v_tracks.push_back(vertex_manager);
      v_tracks.push_back(track_manager);
      FWTextViewPage *tracks = new FWTextViewPage("Tracking", v_tracks,
-						  gui->m_textViewFrame[2], 
-						  gui->m_textViewTab, this);
+						 gui->m_textViewFrame[2], 
+						 gui->m_textViewTab, this, 
+						 kLHintsLeft);
      page = objects;
      objects->setNext(trigger);
      trigger->setPrev(objects);
@@ -373,6 +377,9 @@ void FWTextView::newEvent (const fwlite::Event &ev, const CmsShowMain *de)
      const reco::CaloMETCollection *mets = 0;
      const reco::TrackCollection *tracks = 0;
      const std::vector<reco::Vertex> *vertices = 0;
+     const l1extra::L1EmParticleCollection	*l1ems = 0;
+     const l1extra::L1MuonParticleCollection	*l1mus = 0;
+     const l1extra::L1JetParticleCollection	*l1jets = 0;
      for (std::vector<FWEventItem *>::const_iterator 
 	       i = de->m_eiManager->m_items.begin(),
 	       end = de->m_eiManager->m_items.end(); 
@@ -394,7 +401,13 @@ void FWTextView::newEvent (const fwlite::Event &ev, const CmsShowMain *de)
 	       (*i)->get(tracks);
 	  } else if ((*i)->name() == "Vertices") { 
 	       (*i)->get(vertices);
-	  } 
+	  } else if ((*i)->name() == "L1EmTrig") { 
+	       (*i)->get(l1ems);
+	  } else if ((*i)->name() == "L1-Muons") { 
+	       (*i)->get(l1mus);
+	  } else if ((*i)->name() == "L1-Jets") { 
+	       (*i)->get(l1jets);
+	  }
      }
      // if I try to do this in the ctor, someone pulls the items out
      // from under me later
@@ -415,7 +428,13 @@ void FWTextView::newEvent (const fwlite::Event &ev, const CmsShowMain *de)
 	       track_manager->setItem(*i);
 	  } else if ((*i)->name() == "Vertices") { 
 	       vertex_manager->setItem(*i);
-	  } 
+	  } else if ((*i)->name() == "L1EmTrig") { 
+	       l1em_manager->setItem(*i);
+	  } else if ((*i)->name() == "L1-Muons") { 	
+	       l1mu_manager->setItem(*i);
+	  } else if ((*i)->name() == "L1-Jets") { 
+	       l1jet_manager->setItem(*i);
+	  }
      }
      //------------------------------------------------------------
      // electrons
@@ -453,6 +472,24 @@ void FWTextView::newEvent (const fwlite::Event &ev, const CmsShowMain *de)
      int n_vertices = 0;
      if (vertices != 0)
 	  n_vertices = vertices->size();
+     //------------------------------------------------------------
+     // L1 EMs
+     //------------------------------------------------------------
+     int n_l1ems = 0;
+     if (l1ems != 0)
+	  n_l1ems = l1ems->size();
+     //------------------------------------------------------------
+     // L1 mus
+     //------------------------------------------------------------
+     int n_l1mus = 0;
+     if (l1mus != 0)
+	  n_l1mus = l1mus->size();
+     //------------------------------------------------------------
+     // L1 jets
+     //------------------------------------------------------------
+     int n_l1jets = 0;
+     if (l1jets != 0)
+	  n_l1jets = l1jets->size();
 
      //------------------------------------------------------------
      // print header
@@ -645,6 +682,51 @@ void FWTextView::newEvent (const fwlite::Event &ev, const CmsShowMain *de)
 	  vertex_manager->rows.push_back(row);
      }
      vertex_manager->sort(0, true);
+     //------------------------------------------------------------
+     // print L1 EMs
+     //------------------------------------------------------------
+//      printf("%d tracks\n", n_tracks);
+     l1em_manager->rows.clear();
+//      printf("Et\t eta\t phi\t ECAL\t HCAL\t emf\t chf\n");
+     for (int i = 0; i < n_l1ems; ++i) {
+	  const l1extra::L1EmParticle &l1 = l1ems->at(i);
+	  L1RowStruct row = {
+	       i,
+	       l1.et(), l1.eta(), l1.phi()
+	  };
+	  l1em_manager->rows.push_back(row);
+     }
+     l1em_manager->sort(0, true);
+     //------------------------------------------------------------
+     // print L2 mus
+     //------------------------------------------------------------
+//      printf("%d tracks\n", n_tracks);
+     l1mu_manager->rows.clear();
+//      printf("Et\t eta\t phi\t ECAL\t HCAL\t emf\t chf\n");
+     for (int i = 0; i < n_l1mus; ++i) {
+	  const l1extra::L1MuonParticle &l1 = l1mus->at(i);
+	  L1RowStruct row = {
+	       i,
+	       l1.et(), l1.eta(), l1.phi()
+	  };
+	  l1mu_manager->rows.push_back(row);
+     }
+     l1mu_manager->sort(0, true);
+     //------------------------------------------------------------
+     // print L1 jets
+     //------------------------------------------------------------
+//      printf("%d tracks\n", n_tracks);
+     l1jet_manager->rows.clear();
+//      printf("Et\t eta\t phi\t ECAL\t HCAL\t emf\t chf\n");
+     for (int i = 0; i < n_l1jets; ++i) {
+	  const l1extra::L1JetParticle &l1 = l1jets->at(i);
+	  L1RowStruct row = {
+	       i,
+	       l1.et(), l1.eta(), l1.phi()
+	  };
+	  l1jet_manager->rows.push_back(row);
+     }
+     l1jet_manager->sort(0, true);
 //      static int i = 0; 
 //      i++;
 //      if (i == 3) {

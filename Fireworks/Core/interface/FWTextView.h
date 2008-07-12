@@ -13,6 +13,7 @@ class ElectronTableManager;
 class MuonTableManager;
 class JetTableManager;
 class HLTTableManager;
+class L1TableManager;
 class TrackTableManager;
 class VertexTableManager;
 class TGMainFrame;
@@ -37,7 +38,7 @@ public:
 		     const std::vector<FWTableManager *> &tables,
 		     TGCompositeFrame *frame,
 		     TGTab *parent_tab,
-		     FWTextView *view);
+		     FWTextView *view, unsigned int layou);
      void	setNext (FWTextViewPage *);
      void	setPrev (FWTextViewPage *);
      void	deselect ();
@@ -83,7 +84,9 @@ protected:
      MuonTableManager		*mu_manager;
      JetTableManager		*jet_manager;
      // trigger
-     ElectronTableManager	*l1_manager;
+     L1TableManager		*l1em_manager;
+     L1TableManager		*l1mu_manager;
+     L1TableManager		*l1jet_manager;
      HLTTableManager		*hlt_manager;
      // tracks
      TrackTableManager		*track_manager;

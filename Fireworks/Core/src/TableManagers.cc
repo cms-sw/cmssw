@@ -46,7 +46,8 @@ FWTableManager::FWTableManager ()
 
 }
 
-void FWTableManager::MakeFrame (TGCompositeFrame *parent, int width, int height) 
+void FWTableManager::MakeFrame (TGCompositeFrame *parent, int width, int height,
+				unsigned int layout) 
 {
      // display the table name prominently
 //      TGTextEntry *m_tNameEntry = new TGTextEntry(title().c_str(), parent);
@@ -58,13 +59,13 @@ void FWTableManager::MakeFrame (TGCompositeFrame *parent, int width, int height)
 
      frame = new TGCompositeFrame(parent, width, height);
      TGLayoutHints *tFrameHints = 
- 	  new TGLayoutHints(kLHintsTop|kLHintsLeft|
- 			    kLHintsExpandX | kLHintsExpandY);
+ 	  new TGLayoutHints(layout | kLHintsExpandX | kLHintsExpandY);
      parent->AddFrame(frame,tFrameHints);
      parent->HideFrame(frame);
      
+     static int i = 2;
 //      widget = new LightTableWidget(frame, this); 
-     widget = new LightTableWidget(frame, this, width, height / 4); 
+     widget = new LightTableWidget(frame, this, width, height / i++); 
 //      m_tNameEntry->Resize(width, widget->m_cellHeight);
 //      m_tNameEntry->SetBackgroundColor(widget->m_titleColor);
 //      m_tNameEntry->SetAlignment(kTextCenterX);

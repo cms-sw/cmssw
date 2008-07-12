@@ -34,7 +34,8 @@ public:
      virtual void dump (FILE *);
      //void sort (int col, bool reset = false);
      // and has a utility for making a display frame
-     void MakeFrame (TGCompositeFrame *parent, int width, int height);
+     void MakeFrame (TGCompositeFrame *parent, int width, int height, 
+		     unsigned int layout);
      void Update (int rows = 5);
      void Selection (int row, int mask);
      void selectRows ();
@@ -407,6 +408,7 @@ protected:
 class L1TableManager : public FWTableManager {
      
 public:
+     L1TableManager () : title_("L1 objects") { }
      virtual int NumberOfRows() const;
      virtual int NumberOfCols() const;
      virtual void Sort(int col, bool sortOrder); // sortOrder=true means desc order
@@ -416,7 +418,8 @@ public:
 			    std::vector<std::string>& oToFill);
      virtual TGFrame* GetRowCell(int row, TGFrame *parentFrame);
      virtual void UpdateRowCell(int row, TGFrame *rowCell);
-     const std::string		title () const { return "L1 objects"; }
+     const std::string		title () const { return title_; }
+     void	setTitle (const std::string &t) { title_ = t; }
 
      virtual int table_row_to_index (int i) const 
 	  { return ::table_row_to_index(rows, i); }
@@ -426,6 +429,7 @@ public:
      std::vector<L1Row>		rows;
      static std::string		titles[];
      static std::string		formats[];
+     std::string		title_;
 };
 
 #endif
