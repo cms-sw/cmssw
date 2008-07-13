@@ -6,7 +6,7 @@
 // Implementation:
 //
 // Original Author:  Jim Kowalkowski
-// $Id: Memory.cc,v 1.14 2008/06/16 04:06:58 wmtan Exp $
+// $Id: Memory.cc,v 1.15 2008/06/20 20:55:48 fischler Exp $
 //
 // Change Log
 //
@@ -145,8 +145,8 @@ namespace edm {
 	  pr_size = (double)pinfo.vsize;
 	  pr_rssize = (double)pinfo.rss;
 	  
-	  ret.vsize = pr_size   / 1000000.0;
-	  ret.rss   = pr_rssize * pg_size_ / 1000000.0;
+	  ret.vsize = pr_size / (1024.0*1024.0);
+	  ret.rss   = (pr_rssize * pg_size_) / (1024.0*1024.0);
 	}
 #else
       ret.vsize=0;
