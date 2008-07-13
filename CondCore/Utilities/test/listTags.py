@@ -29,36 +29,55 @@ del svc
 rdbms = RDBMS()
 
 
+// cmscond_list_iov -c "frontier://(proxyurl=http://cmst0frontier1.cern.ch:3128)(serverurl=http://cmsfrontier.cern.ch:8000/FrontierProd)(forcereload=short)/CMS_COND_20X_HCAL"
+
+
+
+def iovSize(rdbms,conn,tag) :
+    try :
+        db = rdbms.getDB(conn)
+        iov = db.iov(tag)
+        size = iov.size()
+        #for elem in iov.elements :
+        #    print elem.since(), elem.till(), elem.payloadToken()
+    except RuntimeError :
+        print conn, tag," no iov?"
+        size=-1
+    iov=0
+    db=0
+    return size
+
+
 frontiers=[
+    "frontier://PromptProd",
     "frontier://FrontierProd",
-    "frontier://FrontierProd",
-    "frontier://cmsfrontier.cern.ch:8000/Frontier",
-    "frontier://cmsfrontier1.cern.ch:8000/Frontier",
-    "frontier://cmsfrontier2.cern.ch:8000/Frontier",
-    "frontier://cmsfrontier3.cern.ch:8000/Frontier"
+    "frontier://(serverurl=http://cmsfrontier.cern.ch:8000/FrontierProd)",
+    "frontier://(serverurl=http://cmsfrontier1.cern.ch:8000/FrontierProd)",
+    "frontier://(serverurl=http://cmsfrontier2.cern.ch:8000/FrontierProd)",
+    "frontier://(serverurl=http://cmsfrontier3.cern.ch:8000/FrontierProd)",
+    "frontier://(serverurl=http://cmsfrontier4.cern.ch:8000/FrontierProd)",
+    "frontier://(proxyurl=http://cmst0frontier1.cern.ch:3128)(serverurl=http://cmsfrontier.cern.ch:8000/FrontierProd)",
+    "frontier://(proxyurl=http://cmst0frontier2.cern.ch:3128)(serverurl=http://cmsfrontier.cern.ch:8000/FrontierProd)",
+    "frontier://(proxyurl=http://cmst0frontier3.cern.ch:3128)(serverurl=http://cmsfrontier.cern.ch:8000/FrontierProd)",
+    "frontier://(proxyurl=http://cmst0frontier.cern.ch:3128)(serverurl=http://cmsfrontier.cern.ch:8000/FrontierProd)"
     ]
 
 for tag in tags:
     dbname = tag[1][tag[1].rfind('/'):]
     # db_o = rdbms.getDB(tag[1])
-    db_o = rdbms.getDB("oracle://cms_orcoff_prod"+dbname)
-    try :
-        iov_o = db_o.iov(tag[0])
-        size_o = iov_o.size()
-        iov_o=0
-        size_f = []
-        for f in frontiers:
-            db_f = rdbms.getDB(f+dbname)
-            iov_f = db_f.iov(tag[0])
-            size_f.append(iov_f.size())
-            iov_f=0
-        print tag[1], tag[0], size_o, size_f
-        #for elem in iov_o.elements :
-        #    print elem.since(), elem.till(), elem.payloadToken()
-    except RuntimeError :
-        print tag," no iov?"
-        iov_o=0
-        iov_f=0
+    # db_o = rdbms.getDB("oracle://cms_orcoff_prod"+dbname)
+    size_o = iovSize(rdbms,"oracle://cms_orcoff_prod"+dbname,tag[0])
+    size_f = []
+    for f in frontiers:
+        size =  iovSize(rdbms,f+dbname,tag[0])
+        size_f.append(size)
+        if (size!=size_o):
+            print tag[0], 'not updated in',  f, size, size_o
+            if (f.find(')')!=-1) :
+                size =  iovSize(rdbms,f+"(forcereload=short)"+dbname,tag[0])
+                if (size!=size_o):
+                    print "update failed", size
+    print tag[1], tag[0], size_o, size_f
 
 
 # SiStripFedCabling_TKCC_20X_v3_hlt
