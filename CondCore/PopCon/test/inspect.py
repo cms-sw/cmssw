@@ -12,9 +12,17 @@ for tag in tags.split() :
         exec('import '+db.moduleName(tag)+' as Plug')   
         iov = db.iov(tag)
         print tag, iov.size()
+        vi = VInt()
+        vi.append(0)
+        vi.append(2)
+        vi.append(12)
+        ex = Plug.Extractor("",vi)
         for elem in iov.elements :
             p = Plug.Object(elem)
             print elem.since(), elem.till(),p.summary()
+            p.extract(ex)
+            for v in ex.values() :
+                print v
     except RuntimeError :
         print " no iov?"
         
