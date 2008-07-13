@@ -2,18 +2,21 @@
 #define CondEx_Efficiency_H
 /*  example of polymorphic condition
  *  LUT, function, mixed....
+ * this is just a prototype: classes do not need to be defined and declared in the same file
+ * at the moment though all derived classes better sit in the same package together with the base one
  */
 
 #include<cmath>
 
+namespace condex {
 
   /* very simple base class
    * trivial inheritance, no template tricks 
    */
-  class ExEfficiency {
+  class Efficiency {
   public:
-    ExEfficiency(){}
-    virtual ~ExEfficiency(){}
+    Efficiency(){}
+    virtual ~Efficiency(){}
     float operator()(float pt, float eta) const {
       return value(pt,eta);
     }
@@ -22,8 +25,6 @@
 
   };
 
-namespace condex {
-  typedef ::ExEfficiency Efficiency;
 
   class ParametricEfficiencyInPt : public Efficiency {
   public:

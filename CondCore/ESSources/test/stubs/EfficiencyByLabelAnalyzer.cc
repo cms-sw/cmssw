@@ -50,7 +50,7 @@ namespace edmtest
       //record not found
       std::cout <<"Record \"ExEfficiencyRcd"<<"\" does not exist "<<std::endl;
     }
-    edm::ESHandle<ExEfficiency> hEff;
+    edm::ESHandle<condex::Efficiency> hEff;
     std::cout<<"got eshandle"<<std::endl;
 //    context.get<ExEfficiencyRcd>().get("vinEff",hEff);
     context.get<ExEfficiencyRcd>().get(hEff);
