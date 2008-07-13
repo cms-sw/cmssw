@@ -1,0 +1,19 @@
+#run Efficiency writer and reader
+mkdir EffTest
+pushd EffTest
+
+cp $LOCALRT/src/CondCore/PopCon/test/PopConEffExample.cfg PopConEffExample.cfg
+
+foreach T in (Test1 Test2 Test3 Test4)
+  sed PopConEffExample.cfg "s/TestN/$4/" > conf.cfg
+  cmsRun conf.cfg
+  rm conf.cfg
+end
+
+cmscond_list_iov -c sqlite_file:pop_test.db -t Example_tag1
+
+popd
+
+
+
+
