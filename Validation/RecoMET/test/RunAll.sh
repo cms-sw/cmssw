@@ -11,6 +11,7 @@ eval `scramv1 runtime -sh`
 
 for i in $dirlist; do
 echo "Currently running over sample: $i"
-cmsRun RunAnalyzers-$i.cfg > LOG-$i 2> Err-$i 
+#cmsRun RunAnalyzers-$i.cfg > LOG-$i 2> Err-$i 
+cmsRun RunAnalyzers-${i}_cfg.py > LOG-$i 2> Err-$i 
 cd $current_area
 done
