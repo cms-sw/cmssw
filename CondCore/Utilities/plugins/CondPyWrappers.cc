@@ -13,6 +13,7 @@
 
 
 #include <boost/python.hpp>
+#include <boost/python/suite/indexing/vector_indexing_suite.hpp>
 
 using namespace boost::python;
 
@@ -46,6 +47,14 @@ namespace {
 
 BOOST_PYTHON_MODULE(pluginCondDBPyInterface) {
   
+  class_<std::vector<float> >("VFloat")
+    .def(vector_indexing_suite<std::vector<float> >())
+    ;
+
+  class_<std::vector<int> >("VInt")
+    .def(vector_indexing_suite<std::vector<int> >())
+    ;
+   
   class_<cond::IOVElement>("IOVElement", init<>())
     .def("since", &cond::IOVElement::since)
     .def("till", &cond::IOVElement::till)
