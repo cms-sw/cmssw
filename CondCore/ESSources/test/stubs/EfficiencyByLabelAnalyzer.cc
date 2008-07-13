@@ -57,8 +57,12 @@ namespace edmtest
      std::cout<<"got context"<<std::endl;
     condex::Efficiency const &  eff= *hEff.product();
     std::cout<<"Efficiency*, type "<< (void*)(&eff) << " " << typeid(eff).name() <<std::endl;
-    
-  
+    for (float pt=0;pt<10; pt+=2) {
+     std::cout << "\npt="<<pt<<"    :";
+     for (float eta=-3;eta<3; eta+=1)
+       std::cout << eff(pt,eta) <<" ";    
+   }  
+   std::cout << std::endl;
   }
 
   DEFINE_FWK_MODULE(EfficiencyByLabelAnalyzer);
