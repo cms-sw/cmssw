@@ -16,7 +16,7 @@
 //
 // Original Author:  Chris Jones
 //         Created:  Fri Jul 11 12:09:38 EDT 2008
-// $Id$
+// $Id: CmsShowTaskExecutorBase.h,v 1.1 2008/07/12 00:32:58 chrjones Exp $
 //
 
 // system include files
@@ -25,6 +25,7 @@
 // user include files
 
 // forward declarations
+class TTimer;
 
 class CmsShowTaskExecutorBase : public TQObject {
    RQ_OBJECT("CmsShowTaskExecutorBase");
@@ -38,7 +39,7 @@ public:
    // ---------- static member functions --------------------
    
    // ---------- member functions ---------------------------
-   void requestNextTask();//SIGNAL
+   void requestNextTask();
    void doNextTask();
    
    virtual void startDoingTasks()=0;
@@ -52,6 +53,7 @@ private:
    const CmsShowTaskExecutorBase& operator=(const CmsShowTaskExecutorBase&); // stop default
    
    // ---------- member data --------------------------------
+   //TTimer* m_timer;
    
 };
 

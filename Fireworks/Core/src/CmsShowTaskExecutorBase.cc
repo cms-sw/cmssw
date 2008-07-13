@@ -8,11 +8,12 @@
 //
 // Original Author:  Chris Jones
 //         Created:  Fri Jul 11 12:09:41 EDT 2008
-// $Id: CmsShowTaskExecutorBase.cc,v 1.1 2008/07/12 00:32:58 chrjones Exp $
+// $Id: CmsShowTaskExecutorBase.cc,v 1.2 2008/07/13 15:35:51 chrjones Exp $
 //
 
 // system include files
 #include <iostream>
+#include <TTimer.h>
 
 // user include files
 #include "Fireworks/Core/src/CmsShowTaskExecutorBase.h"
@@ -29,9 +30,10 @@
 //
 // constructors and destructor
 //
-CmsShowTaskExecutorBase::CmsShowTaskExecutorBase()
+CmsShowTaskExecutorBase::CmsShowTaskExecutorBase() 
+//:m_timer( new TTimer(1) )
 {
-   Connect("requestNextTask()","CmsShowTaskExecutorBase",this,"doNextTask()");
+   //m_timer->Connect("Timeout()","CmsShowTaskExecutorBase",this,"doNextTask()");
 }
 
 // CmsShowTaskExecutorBase::CmsShowTaskExecutorBase(const CmsShowTaskExecutorBase& rhs)
@@ -41,6 +43,7 @@ CmsShowTaskExecutorBase::CmsShowTaskExecutorBase()
 
 CmsShowTaskExecutorBase::~CmsShowTaskExecutorBase()
 {
+   //delete m_timer;
 }
 
 //
@@ -61,8 +64,13 @@ CmsShowTaskExecutorBase::~CmsShowTaskExecutorBase()
 void 
 CmsShowTaskExecutorBase::requestNextTask()
 {
+   //NOTE: If I use my own timer then the first time I call Start it works but the second
+   //  time causes a segmentation fault
+
+   //Emit("requestNextTask()");
+   //m_timer->Start(1,kTRUE);
    //std::cout <<"requestNextTask"<<std::endl;
-   Emit("requestNextTask()");
+   TTimer::SingleShot(10,"CmsShowTaskExecutorBase",this,"doNextTask()");
 }
 
 void 
