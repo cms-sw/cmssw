@@ -20,6 +20,28 @@ namespace {
 
 namespace cond {
 
+  template<<Pedestals>
+  class ValueExtractor {
+  public:
+    typedef T Class;
+    ValueExtractor(std::string const & what, std::vector<int> const& which)
+      : m_which(which)
+    {
+      // here one can make stuff really complicated...
+    }
+    std::vector<float> const & values() const { return m_values;}
+    void compute(Class const & it){
+      for (int i=0; i<m_which.size();i++) {
+	if (m_which[i]<  it.m_pedestals.size())
+	  m_values.push_back(it.m_pedestals[m_which[i]].m_mean);
+      }
+    }
+  private:
+    std::vector<float> m_values;
+    std::vector<float> m_which;
+  };
+
+
   template<>
   std::string
   PayLoadInspector<Pedestals>::print() const {

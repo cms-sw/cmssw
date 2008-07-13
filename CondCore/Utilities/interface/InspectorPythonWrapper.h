@@ -16,12 +16,11 @@ namespace {
 
     class_<Wrapper>("Object",init<>()) 
       .def(init<cond::IOVElement>())
-      .def("print",&PythonWrapper::print)
-      .def("summary",&PythonWrapper::summary) 
-      .def("extract",&PythonWrapper::extractor)
+      .def("print",&Wrapper::print)
+      .def("summary",&Wrapper::summary) 
+      .def("extract",&Wrapper::extractor)
       ; 
   }
-
 }
 
 

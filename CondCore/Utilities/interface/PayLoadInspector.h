@@ -11,7 +11,9 @@ namespace cond {
   class ValueExtractor {
   public:
     typedef T Class;
+    ValueExtractor(){}
     ValueExtractor(std::string const &, std::vector<int> const&){}
+    void compute(Class const &){}
     std::vector<float> const & values() const { return m_values;}
   private:
     std::vector<float> m_values;
@@ -21,6 +23,7 @@ namespace cond {
   class PayLoadInspector {
   public:
     typedef T Class;
+    typedef ValueExtractor<T> Extractor;
         
     PayLoadInspector() {}
     PayLoadInspector(const cond::IOVElement & elem) : 
@@ -29,6 +32,8 @@ namespace cond {
     std::string print() const { return ""; }
 
     std::string summary() const {return ""; }
+
+    void extract(Extractor & extractor){extractor.compute(*object); }
 
   private:
     cond::TypedRef<Class> object;    
