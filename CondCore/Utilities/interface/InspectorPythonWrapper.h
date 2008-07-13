@@ -18,7 +18,7 @@ namespace {
       .def(init<cond::IOVElement>())
       .def("print",&Wrapper::print)
       .def("summary",&Wrapper::summary) 
-      .def("extract",&Wrapper::extractor)
+      .def("extract",&Wrapper::extract)
       ; 
   }
 }

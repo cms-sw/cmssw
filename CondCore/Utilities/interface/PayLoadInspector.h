@@ -33,7 +33,7 @@ namespace cond {
 
     std::string summary() const {return ""; }
 
-    void extract(Extractor & extractor){extractor.compute(*object); }
+    void extract(Extractor & extractor) const {extractor.compute(*object); }
 
   private:
     cond::TypedRef<Class> object;    
