@@ -8,7 +8,7 @@
 //
 // Original Author:  Chris Jones
 //         Created:  Tue Feb 19 10:33:25 EST 2008
-// $Id: FWRhoPhiZView.cc,v 1.20 2008/07/06 19:52:14 dmytro Exp $
+// $Id: FWRhoPhiZView.cc,v 1.21 2008/07/09 14:37:15 chrjones Exp $
 //
 
 #define private public
@@ -27,7 +27,10 @@
 #include "TEveProjectionManager.h"
 #include "TEveScene.h"
 #include "TGLViewer.h"
+//EVIL, but only way I can avoid a double delete of TGLEmbeddedViewer::fFrame
+#define private public
 #include "TGLEmbeddedViewer.h"
+#undef private
 #include "TEveViewer.h"
 #include "TEveManager.h"
 #include "TClass.h"
@@ -179,6 +182,12 @@ m_cameraMatrix(0)
 
 FWRhoPhiZView::~FWRhoPhiZView()
 {
+   //NOTE: have to do this EVIL activity to avoid double deletion. The fFrame inside glviewer
+   // was added to a CompositeFrame which will delete it.  However, TGLEmbeddedViewer will also
+   // delete fFrame in its destructor
+   TGLEmbeddedViewer* glviewer = dynamic_cast<TGLEmbeddedViewer*>(m_viewer->GetGLViewer());
+   glviewer->fFrame=0;
+   delete glviewer;
    delete m_viewer;
    delete m_projMgr;
 }

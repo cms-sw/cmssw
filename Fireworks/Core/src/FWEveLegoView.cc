@@ -8,7 +8,7 @@
 //
 // Original Author:  Chris Jones
 //         Created:  Thu Feb 21 11:22:41 EST 2008
-// $Id: FWEveLegoView.cc,v 1.19 2008/07/07 06:15:33 dmytro Exp $
+// $Id: FWEveLegoView.cc,v 1.20 2008/07/07 14:50:48 dmytro Exp $
 //
 
 // system include files
@@ -37,7 +37,10 @@
 #include "TColor.h"
 #include "TEveScene.h"
 #include "TGLViewer.h"
+//EVIL, but only way I can avoid a double delete of TGLEmbeddedViewer::fFrame
+#define private public
 #include "TGLEmbeddedViewer.h"
+#undef private
 #include "TEveViewer.h"
 #include "TEveManager.h"
 #include "TEveElement.h"
@@ -149,6 +152,13 @@ FWEveLegoView::FWEveLegoView(TGFrame* iParent, TEveElementList* list):
 
 FWEveLegoView::~FWEveLegoView()
 {
+   //NOTE: have to do this EVIL activity to avoid double deletion. The fFrame inside glviewer
+   // was added to a CompositeFrame which will delete it.  However, TGLEmbeddedViewer will also
+   // delete fFrame in its destructor
+   TGLEmbeddedViewer* glviewer = dynamic_cast<TGLEmbeddedViewer*>(m_viewer->GetGLViewer());
+   glviewer->fFrame=0;
+   delete glviewer;
+   
    delete m_viewer;
 }
 
