@@ -20,8 +20,8 @@ namespace {
 
 namespace cond {
 
-  template<<Pedestals>
-  class ValueExtractor {
+  template<>
+  class ValueExtractor<Pedestals> {
   public:
     typedef T Class;
     ValueExtractor(std::string const & what, std::vector<int> const& which)

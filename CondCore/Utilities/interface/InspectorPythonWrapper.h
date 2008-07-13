@@ -10,7 +10,7 @@ namespace {
   void define() {
     typedef typename Wrapper::Extractor Extractor;
     class_<Extractor>("Extractor", init<>())
-      .def(init<std::string, std::vector<int> )
+      .def(init<std::string, std::vector<int> >())
       .def("values",&Extractor::values, return_value_policy<copy_const_reference>())
       ;
 
@@ -26,7 +26,7 @@ namespace {
 
 #define PYTHON_WRAPPER(_class,_name) \
 namespace { typedef cond::PayLoadInspector< _class > PythonWrapper;} \
- BOOST_PYTHON_MODULE(plugin ## _name ## PyInterface) { define<PythonWrapper>(); } 
+ BOOST_PYTHON_MODULE(plugin ## _name ## PyInterface) { define<PythonWrapper>(); } \
 namespace { const char * pluginName_="plugin"  #_name "PyInterface"; }\
 PYTHON_ID(PythonWrapper::Class, pluginName_)
 
