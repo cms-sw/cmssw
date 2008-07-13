@@ -16,7 +16,7 @@
 //
 // Original Author:  Chris Jones
 //         Created:  Mon Feb 11 10:52:24 EST 2008
-// $Id: FWGUIManager.h,v 1.30 2008/07/08 00:27:19 chrjones Exp $
+// $Id: FWGUIManager.h,v 1.31 2008/07/08 20:13:01 chrjones Exp $
 //
 
 // system include files
@@ -26,6 +26,7 @@
 #include <sigc++/sigc++.h>
 #include "Rtypes.h"
 #include "GuiTypes.h"
+#include <memory>
 
 // user include files
 #include "Fireworks/Core/interface/FWConfigurable.h"
@@ -72,6 +73,8 @@ class CSGNumAction;
 class TFile;
 
 class FWGUIEventDataAdder;
+
+class CmsShowTaskExecutor;
 
 namespace fwlite {
   class Event;
@@ -233,6 +236,8 @@ class FWGUIManager : public FWConfigurable
       TGCompositeFrame	*m_textViewFrame[3];
 
       sigc::connection m_modelChangeConn;
+   
+      std::auto_ptr<CmsShowTaskExecutor> m_tasks;
 };
 
 

@@ -8,7 +8,7 @@
 //
 // Original Author:  Chris Jones
 //         Created:  Fri Feb 15 14:13:33 EST 2008
-// $Id: FWGUISubviewArea.cc,v 1.5 2008/06/25 22:05:05 chrjones Exp $
+// $Id: FWGUISubviewArea.cc,v 1.6 2008/07/07 00:17:31 chrjones Exp $
 //
 
 // system include files
@@ -132,11 +132,8 @@ FWGUISubviewArea::destroy()
 {
    goingToBeDestroyed_(index());
 
-   //We know the parent is a TGSplitFrame because the constructor requires it to be so
-   TGSplitFrame* p = const_cast<TGSplitFrame*>(static_cast<const TGSplitFrame*>(GetParent()));
-   p->CloseAndCollapse();
-   //the above causes the FWGUISubviewArea to be deleted
-   //delete this;
+   //NOTE: FWGUIManager will actually handle the deletion of the window in order to avoid a
+   // button sending a signal which causes the button to be destroyed leading to a memory error problem
 }
 
 void

@@ -8,7 +8,7 @@
 //
 // Original Author:  Chris Jones
 //         Created:  Mon Feb 11 11:06:40 EST 2008
-// $Id: FWGUIManager.cc,v 1.52 2008/07/12 01:29:56 dmytro Exp $
+// $Id: FWGUIManager.cc,v 1.53 2008/07/12 13:50:36 chrjones Exp $
 //
 
 // system include files
@@ -76,6 +76,8 @@
 #include "Fireworks/Core/interface/CmsShowViewPopup.h"
 
 #include "Fireworks/Core/src/FWListWidget.h"
+
+#include "Fireworks/Core/src/CmsShowTaskExecutor.h"
 //
 // constants, enums and typedefs
 //
@@ -111,7 +113,8 @@ m_viewManagerManager(iVMMgr),
 m_dataAdder(0),
 m_ediFrame(0),
 m_modelPopup(0),
-m_viewPopup(0)
+m_viewPopup(0),
+m_tasks(new CmsShowTaskExecutor)
 {
   m_guiManager = this;
   m_selectionManager->selectionChanged_.connect(boost::bind(&FWGUIManager::selectionChanged,this,_1));
@@ -409,6 +412,16 @@ FWGUIManager::subviewWasSwappedToBig(unsigned int iIndex)
 void
 FWGUIManager::subviewIsBeingDestroyed(unsigned int iIndex)
 {
+   //We need to delay actually removing the window until the next 'iteration' of the GUI event loop because we need the
+   // Button to return from its 'Clicked()' function before we delete the button
+   CmsShowTaskExecutor::TaskFunctor f;
+   //We know the parent is a TGSplitFrame because the constructor requires it to be so
+   TGSplitFrame* p = const_cast<TGSplitFrame*>(static_cast<const TGSplitFrame*>(m_viewFrames[iIndex]->GetParent()));
+
+   f= boost::bind(&TGSplitFrame::CloseAndCollapse,p);
+   m_tasks->addTask(f);
+   m_tasks->startDoingTasks();
+   
    m_viewFrames.erase(m_viewFrames.begin()+iIndex);
    (*(m_viewBases.begin()+iIndex))->destroy();
    m_viewBases.erase(m_viewBases.begin()+iIndex);
