@@ -1,7 +1,6 @@
 #ifndef L1GCTINTERNJETDATA_H
 #define L1GCTINTERNJETDATA_H
 
-#include <ostream>
 #include <string>
 
 #include "DataFormats/L1CaloTrigger/interface/L1CaloRegionDetId.h"
@@ -50,21 +49,21 @@ public:
 		     uint16_t capBlock,
 		     uint16_t capIndex,
 		     int16_t bx,
-		     uint32_t data);
+                     uint32_t data);
 
   /// construct from "jet_cluster_minimal"
   static L1GctInternJetData fromJetClusterMinimal(L1CaloRegionDetId rgn,
 		     uint16_t capBlock,
 		     uint16_t capIndex,
 		     int16_t bx,
-		     uint32_t data);
+  		     uint32_t data);
 
   /// construct from "gct_trig_object"
   static L1GctInternJetData fromGctTrigObject(L1CaloRegionDetId rgn,
 		     uint16_t capBlock,
 		     uint16_t capIndex,
 		     int16_t bx,
-		     uint32_t data);
+                     uint32_t data);
 
 
   /// destructor (virtual to prevent compiler warnings)
@@ -91,32 +90,31 @@ public:
   /// get BX number
   int16_t bx() const { return bx_; }
 
-
   /// get the actual bits
 
   /// get the raw data
   uint32_t raw() const { return data_; }
   
   /// get rank bits
-  uint8_t rank() const { return data_ & 0x3f; }
-
+  uint16_t rank() const { return data_ & 0x3f; }
+  
   /// get tau veto
-  uint8_t tauVeto() const { return (data_>>6) & 0x1; }
+  uint16_t tauVeto() const { return (data_>>6) & 0x1; }
 
   /// get phi
-  uint8_t phi() const { return (data_>>7) & 0x1f; }
+  uint16_t phi() const { return (data_>>7) & 0x1f; }
 
   /// get eta
-  uint8_t eta() const { return (data_>>12) & 0xf; }
+  uint16_t eta() const { return (data_>>12) & 0xf; }
   
   /// get et
   uint16_t et() const { return (data_>>16) & 0xfff; }
 
   /// get oflow
-  uint8_t oflow() const { return (data_>>28) & 0x1; }
+  uint16_t oflow() const { return (data_>>28) & 0x1; }
 
   /// get sign of eta
-  uint8_t sgnEta() const { return (data_>>29) & 0x1; }
+  uint16_t sgnEta() const { return (data_>>29) & 0x1; }
 
   /// operators
 
