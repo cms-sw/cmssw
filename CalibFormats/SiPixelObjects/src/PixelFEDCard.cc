@@ -223,6 +223,9 @@ PixelFEDCard::PixelFEDCard(vector<vector<string> > &tableMat):PixelConfigBase(" 
       ClkDes2     = atoi(tableMat[1][colM["REG3_TTCRX_CLKD2"]].c_str() ) ;
       FineDes2Del = atoi(tableMat[1][colM["REG1_TTCRX_FDLA"]].c_str()  ) ;
       
+      Ccntrl       = atoi(tableMat[1][colM["CENTER_CTRL"]].c_str()  ) ;
+      modeRegister = atoi(tableMat[1][colM["CENTER_MODE"]].c_str()  ) ;
+
       //data Regs adjustable fifo Almost Full levels
       Nfifo1Bzlvl  =  atoi(tableMat[1][colM["NORTH_FIFO1_BZ_LVL"]].c_str()       ) ;
       NCfifo1Bzlvl =  atoi(tableMat[1][colM["NORTHCENTER_FIFO1_BZ_LVL"]].c_str() ) ;
@@ -240,6 +243,17 @@ PixelFEDCard::PixelFEDCard(vector<vector<string> > &tableMat):PixelConfigBase(" 
       NC_Pword =   atoi(tableMat[1][colM["NORTHCENTER_PWORD"]].c_str() ) ;
       SC_Pword =   atoi(tableMat[1][colM["SOUTHCENTER_PWORD"]].c_str() ) ;
       S_Pword  =   atoi(tableMat[1][colM["SOUTH_PWORD"]].c_str()       ) ;
+      
+      Nbaseln  = atoi(tableMat[1][colM["NORTH_BADJ"]].c_str()       ) ;
+      NCbaseln = atoi(tableMat[1][colM["NORTHCENTER_BADJ"]].c_str() ) ;
+      SCbaseln = atoi(tableMat[1][colM["SOUTHCENTER_BADJ"]].c_str() ) ;
+      Sbaseln  = atoi(tableMat[1][colM["SOUTH_BADJ"]].c_str()       ) ;
+
+      Ncntrl  =   atoi(tableMat[1][colM["NORTH_CTRL"]].c_str()       ) ;
+      NCcntrl =   atoi(tableMat[1][colM["NORTHCENTER_CTRL"]].c_str() ) ;
+      SCcntrl =   atoi(tableMat[1][colM["SOUTHCENTER_CTRL"]].c_str() ) ;
+      Scntrl  =   atoi(tableMat[1][colM["SOUTH_CTRL"]].c_str()       ) ;
+      
 
        //These bit sets the special dac mode for random triggers 
       SpecialDac = atoi(tableMat[1][colM["SPECDAC"]].c_str()       ) ;

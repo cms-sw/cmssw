@@ -61,14 +61,24 @@ PixelNameTranslation::PixelNameTranslation(std::vector< std::vector<std::string>
      {
        TBMChannel = "A" ;
      }
+   /* // modified by MR on 13-07-2008 11:32:50
+      Umesh changed the content of the column and 
+      stripped out the FPix_Pxl_FEC_ part of the "number"
    tableMat[r][colM["PXLFEC_NAME"]].erase(0 , 13);//PIXFEC
+   unsigned int fecnumber    = (unsigned int)atoi(tableMat[r][colM["PXLFEC_NAME"]].c_str());
+   */
    unsigned int fecnumber    = (unsigned int)atoi(tableMat[r][colM["PXLFEC_NAME"]].c_str());
    unsigned int mfec         = (unsigned int)atoi(tableMat[r][colM["MFEC_POSN"]].c_str());
    unsigned int mfecchannel  = (unsigned int)atoi(tableMat[r][colM["MFEC_CHAN"]].c_str());
    unsigned int hubaddress   = (unsigned int)atoi(tableMat[r][colM["HUB_ADDRS"]].c_str());
    unsigned int portaddress  = (unsigned int)atoi(tableMat[r][colM["PORT_NUM"]].c_str());
    unsigned int rocid	     = (unsigned int)atoi(tableMat[r][colM["ROC_I2C_ADDR"]].c_str());
+   // modified by MR on 13-07-2008 11:47:32
+   /* Umesh changed the content of the column and 
+      stripped out the PxlFED_ part of the "number"
+     
    tableMat[r][colM["PXLFED_NAME"]].erase(0,7);//FED
+   */
    unsigned int fednumber    = (unsigned int)atoi(tableMat[r][colM["PXLFED_NAME"]].c_str());
    unsigned int fedchannel   = (unsigned int)atoi(tableMat[r][colM["FED_CHAN"]].c_str());
    unsigned int fedrocnumber = (unsigned int)(atoi(tableMat[r][colM["FED_ROC_NUM"]].c_str())-1);
