@@ -48,7 +48,7 @@ process.maxEvents = cms.untracked.PSet(
     input = cms.untracked.int32(-1)
 )
 process.source = cms.Source("EventStreamHttpReader",
-    sourceURL = cms.string('http://localhost.localdomain:40003/urn:xdaq-application:lid=44'), ##localhost.localdomain:40003/urn:xdaq-application:lid=44"
+    sourceURL = cms.string('http://localhost.localdomain:40003/urn:xdaq-application:lid=44'),
 
     consumerPriority = cms.untracked.string('normal'),
     max_event_size = cms.int32(7000000),
