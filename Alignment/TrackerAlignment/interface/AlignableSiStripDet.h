@@ -7,8 +7,8 @@
  *
  *  First implementation April/May 2008
  *  \author Gero Flucke, Hamburg University
- *  $Date: 2008/05/02 09:57:29 $
- *  $Revision: 1.2 $
+ *  $Date: 2008/05/02 13:23:48 $
+ *  $Revision: 1.3 $
  */
  
 #include "Alignment/CommonAlignment/interface/AlignableDet.h"
@@ -25,7 +25,7 @@ class AlignableSiStripDet: public AlignableDet {
   /// Constructor
   AlignableSiStripDet(const GluedGeomDet *geomDet);
   /// reduntantly make destructor virtual
-  virtual ~AlignableSiStripDet() {}
+  virtual ~AlignableSiStripDet();
 
   /// first consistify with component detunits, then call method from AlignableDet
   virtual Alignments* alignments() const;
@@ -47,12 +47,12 @@ class AlignableSiStripDet: public AlignableDet {
 
   /// The following four members are needed to recalculate the surface in consistifyAlignments,
   /// to get rid of a GluedDet* which is disregarded since it could become an invalid pointer
-  /// in the next event (theoretically...). But this solution is not better, the references  
-  /// would become invalid together with the GeomDets they are taken from. For the Bounds I could
-  /// use instead pointers and clone()/delete, but StripGeomDetType has neither clone() and nor a
-  /// decent copy constructor. Sigh!
-  const Bounds     &theMonoBounds;
-  const Bounds     &theStereoBounds;
+  /// in the next event (theoretically...). But this solution is not better, the references for the
+  /// types would become invalid together with the GeomDets they are taken from.
+  /// StripGeomDetType has neither clone() and nor a decent copy constructor, so I cannot go the
+  /// the same way as for the bounds. Sigh!
+  const Bounds     *theMonoBounds;
+  const Bounds     *theStereoBounds;
   StripGeomDetType &theMonoType;
   StripGeomDetType &theStereoType;
 };

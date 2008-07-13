@@ -1,6 +1,6 @@
 /* 
- *  $Date: 2008/05/02 13:23:49 $
- *  $Revision: 1.3 $
+ *  $Date: 2008/05/05 17:53:21 $
+ *  $Revision: 1.4 $
  */
 
 #include "Alignment/TrackerAlignment/interface/AlignableSiStripDet.h"
@@ -25,8 +25,8 @@
 
 AlignableSiStripDet::AlignableSiStripDet(const GluedGeomDet *gluedDet) 
   : AlignableDet(gluedDet, true), // true: adding DetUnits
-    theMonoBounds  (gluedDet->monoDet()  ->surface().bounds()), // .clone()
-    theStereoBounds(gluedDet->stereoDet()->surface().bounds()), // .clone()
+    theMonoBounds  (gluedDet->monoDet()  ->surface().bounds().clone()),
+    theStereoBounds(gluedDet->stereoDet()->surface().bounds().clone()),
     theMonoType  (static_cast<const StripGeomDetUnit*>(gluedDet->monoDet())  ->specificType()),
     theStereoType(static_cast<const StripGeomDetUnit*>(gluedDet->stereoDet())->specificType())
 {
@@ -35,7 +35,7 @@ AlignableSiStripDet::AlignableSiStripDet(const GluedGeomDet *gluedDet)
   // GeomDet comes from TrackerGeometry that is created from GeometricDet that depends on
   // IdealGeometryRecord from EventSetup, so it could change in next event!
   //  ==> Need to store directly what I need from it. 
-  // Unfortunately the current way with references for bounds and type does not solve that,
+  // Unfortunately the current way with references for the type does not solve that,
   // either. But currently no way out, see header file.
 
   // check order mono/stereo
@@ -47,6 +47,13 @@ AlignableSiStripDet::AlignableSiStripDet(const GluedGeomDet *gluedDet)
       << "[AlignableSiStripDet] " << "Either != 2 components or "
       << "mono/stereo in wrong order for consistifyAlignments.";
   }
+}
+
+//__________________________________________________________________________________________________
+AlignableSiStripDet::~AlignableSiStripDet()
+{
+  delete theMonoBounds;
+  delete theStereoBounds;
 }
 
 //__________________________________________________________________________________________________
@@ -81,13 +88,13 @@ void AlignableSiStripDet::consistifyAlignments()
 
   BoundPlane::BoundPlanePointer monoPlane
     = BoundPlane::build(aliUnits[0]->globalPosition(), aliUnits[0]->globalRotation(),
-			theMonoBounds);
+			*theMonoBounds);
   // Fortunately we do not seem to need a GeometricDet pointer and can use 0:
   const StripGeomDetUnit monoDet(&(*monoPlane), &theMonoType, 0);
 
   BoundPlane::BoundPlanePointer stereoPlane
     = BoundPlane::build(aliUnits[1]->globalPosition(), aliUnits[1]->globalRotation(),
-			theStereoBounds);
+			*theStereoBounds);
   // Fortunately we do not seem to need a GeometricDet pointer and can use 0:
   const StripGeomDetUnit stereoDet(&(*stereoPlane), &theStereoType, 0);
 
@@ -98,6 +105,7 @@ void AlignableSiStripDet::consistifyAlignments()
   // Now we have all to calculate new position and rotation via PlaneBuilderForGluedDet.
   const PositionType oldPos(theSurface.position()); // From old surface for keeping...
   const RotationType oldRot(theSurface.rotation()); // ...track of changes.
+
   PlaneBuilderForGluedDet planeBuilder;
   theSurface = AlignableSurface(*planeBuilder.plane(detComps));
 
