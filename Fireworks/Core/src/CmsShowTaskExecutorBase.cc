@@ -8,7 +8,7 @@
 //
 // Original Author:  Chris Jones
 //         Created:  Fri Jul 11 12:09:41 EDT 2008
-// $Id$
+// $Id: CmsShowTaskExecutorBase.cc,v 1.1 2008/07/12 00:32:58 chrjones Exp $
 //
 
 // system include files
@@ -61,7 +61,7 @@ CmsShowTaskExecutorBase::~CmsShowTaskExecutorBase()
 void 
 CmsShowTaskExecutorBase::requestNextTask()
 {
-   std::cout <<"requestNextTask"<<std::endl;
+   //std::cout <<"requestNextTask"<<std::endl;
    Emit("requestNextTask()");
 }
 
