@@ -134,9 +134,9 @@ void SiStripMonitorTrack::analyze(const edm::Event& e, const edm::EventSetup& es
   
     name=flags[j]+"_NumberOfClusters";
     iME = MEMap.find(name);
-    if(iME!=MEMap.end()) iME->second->Fill(nTot);
+    if(iME!=MEMap.end() && nTot) iME->second->Fill(nTot);
     iME = MEMap.find(name+"Trend");
-    if(iME!=MEMap.end()) fillTrend(iME->second,nTot);
+    if(iME!=MEMap.end() && nTot) fillTrend(iME->second,nTot);
 
  } // loop over ontrack, offtrack
   
