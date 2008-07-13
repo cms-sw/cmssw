@@ -1,7 +1,5 @@
 #include "DataFormats/L1GlobalCaloTrigger/interface/L1GctInternJetData.h"
 
-#include "iostream"
-
 L1GctInternJetData::L1GctInternJetData() {
 
 }
