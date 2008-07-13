@@ -23,7 +23,8 @@ namespace cond {
   template<>
   class ValueExtractor<Pedestals> {
   public:
-    typedef T Class;
+    typedef Pedestals Class;
+    ValueExtractor(){}
     ValueExtractor(std::string const & what, std::vector<int> const& which)
       : m_which(which)
     {
@@ -38,7 +39,7 @@ namespace cond {
     }
   private:
     std::vector<float> m_values;
-    std::vector<float> m_which;
+    std::vector<int> m_which;
   };
 
 
