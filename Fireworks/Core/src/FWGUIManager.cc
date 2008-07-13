@@ -8,7 +8,7 @@
 //
 // Original Author:  Chris Jones
 //         Created:  Mon Feb 11 11:06:40 EST 2008
-// $Id: FWGUIManager.cc,v 1.53 2008/07/12 13:50:36 chrjones Exp $
+// $Id: FWGUIManager.cc,v 1.54 2008/07/13 15:36:45 chrjones Exp $
 //
 
 // system include files
@@ -227,7 +227,10 @@ FWGUIManager::parentForNextView()
       m_viewFrames.back()->enableDestructionButton(false);
    }
    m_viewFrames.push_back(hf);
-   hf->enableDestructionButton(true);
+   //at the moment we have a problem with deleting the last view.  So do not allow it
+   if(m_viewFrames.size()>1) {
+      hf->enableDestructionButton(true);
+   }
    (splitParent)->AddFrame(hf,new TGLayoutHints(kLHintsExpandX | kLHintsExpandY) );
    
    return m_viewFrames.back();
@@ -412,6 +415,7 @@ FWGUIManager::subviewWasSwappedToBig(unsigned int iIndex)
 void
 FWGUIManager::subviewIsBeingDestroyed(unsigned int iIndex)
 {
+   assert(iIndex < m_viewFrames.size());
    //We need to delay actually removing the window until the next 'iteration' of the GUI event loop because we need the
    // Button to return from its 'Clicked()' function before we delete the button
    CmsShowTaskExecutor::TaskFunctor f;
@@ -425,7 +429,9 @@ FWGUIManager::subviewIsBeingDestroyed(unsigned int iIndex)
    m_viewFrames.erase(m_viewFrames.begin()+iIndex);
    (*(m_viewBases.begin()+iIndex))->destroy();
    m_viewBases.erase(m_viewBases.begin()+iIndex);
-   if(!m_viewFrames.empty()) {
+   //At the moment there is a problem with trying to get rid of the last
+   // view, so for now do not allow it
+   if(!m_viewFrames.empty() && m_viewFrames.size()>1) {
       m_viewFrames.back()->enableDestructionButton(true);
    }
 }
