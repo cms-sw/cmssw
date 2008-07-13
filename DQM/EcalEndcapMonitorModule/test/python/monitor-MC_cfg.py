@@ -48,7 +48,8 @@ process.maxEvents = cms.untracked.PSet(
 )
 process.source = cms.Source("PoolSource",
 #---
-    fileNames = cms.untracked.vstring('/store/users/dellaric/data/5E883D60-4B98-DC11-BD17-000423D6A6F4.root')
+#    fileNames = cms.untracked.vstring('/store/users/dellaric/data/5E883D60-4B98-DC11-BD17-000423D6A6F4.root')
+    fileNames = cms.untracked.vstring('/store/unmerged/relval/2008/7/11/RelVal-RelValQCD_Pt_3000_3500-1215820540/GEN-SIM-DIGI-RAW-HLTDEBUG/STARTUP_V4/0000/F6A790A1-0F50-DD11-AA79-000423D6CAF2.root')
 #---
 )
 
@@ -84,21 +85,21 @@ process.q = cms.EndPath(process.ecalEndcapDefaultTasksSequence*process.ecalEndca
 
 process.ecalUncalibHit.MinAmplBarrel = 12.
 process.ecalUncalibHit.MinAmplEndcap = 16.
-process.ecalUncalibHit.EBdigiCollection = cms.InputTag("ecalDigis","ebDigis")
-process.ecalUncalibHit.EEdigiCollection = cms.InputTag("ecalDigis","eeDigis")
+process.ecalUncalibHit.EBdigiCollection = cms.InputTag("simEcalDigis","ebDigis")
+process.ecalUncalibHit.EEdigiCollection = cms.InputTag("simEcalDigis","eeDigis")
 
 process.ecalRecHit.EBuncalibRecHitCollection = cms.InputTag("ecalUncalibHit","EcalUncalibRecHitsEB")
 process.ecalRecHit.EEuncalibRecHitCollection = cms.InputTag("ecalUncalibHit","EcalUncalibRecHitsEE")
 
 process.ecalEndcapMonitorModule.mergeRuns = True
-process.ecalEndcapMonitorModule.EEDigiCollection = cms.InputTag("ecalDigis","eeDigis")
+process.ecalEndcapMonitorModule.EEDigiCollection = cms.InputTag("simEcalDigis","eeDigis")
 process.ecalEndcapMonitorModule.runType = 3 # MTCC/PHYSICS
 process.ecalEndcapMonitorModule.EcalTrigPrimDigiCollection = 'ecalTriggerPrimitiveDigis'
 
-process.ecalEndcapOccupancyTask.EEDigiCollection = cms.InputTag("ecalDigis","eeDigis")
+process.ecalEndcapOccupancyTask.EEDigiCollection = cms.InputTag("simEcalDigis","eeDigis")
 process.ecalEndcapOccupancyTask.EcalTrigPrimDigiCollection = 'ecalTriggerPrimitiveDigis'
 
-process.ecalEndcapPedestalOnlineTask.EEDigiCollection = cms.InputTag("ecalDigis","eeDigis")
+process.ecalEndcapPedestalOnlineTask.EEDigiCollection = cms.InputTag("simEcalDigis","eeDigis")
 
 process.ecalEndcapMonitorClient.maskFile = 'maskfile-EE.dat'
 process.ecalEndcapMonitorClient.mergeRuns = True

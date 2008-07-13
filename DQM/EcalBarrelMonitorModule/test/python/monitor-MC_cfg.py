@@ -44,7 +44,8 @@ process.maxEvents = cms.untracked.PSet(
 )
 process.source = cms.Source("PoolSource",
 #---
-    fileNames = cms.untracked.vstring('/store/users/dellaric/data/5E883D60-4B98-DC11-BD17-000423D6A6F4.root')
+#    fileNames = cms.untracked.vstring('/store/users/dellaric/data/5E883D60-4B98-DC11-BD17-000423D6A6F4.root')
+    fileNames = cms.untracked.vstring('/store/unmerged/relval/2008/7/11/RelVal-RelValQCD_Pt_3000_3500-1215820540/GEN-SIM-DIGI-RAW-HLTDEBUG/STARTUP_V4/0000/F6A790A1-0F50-DD11-AA79-000423D6CAF2.root')
 #---
 )
 
@@ -80,21 +81,21 @@ process.q = cms.EndPath(process.ecalBarrelDefaultTasksSequence*process.ecalBarre
 
 process.ecalUncalibHit.MinAmplBarrel = 12.
 process.ecalUncalibHit.MinAmplEndcap = 16.
-process.ecalUncalibHit.EBdigiCollection = cms.InputTag("ecalDigis","ebDigis")
-process.ecalUncalibHit.EEdigiCollection = cms.InputTag("ecalDigis","eeDigis")
+process.ecalUncalibHit.EBdigiCollection = cms.InputTag("simEcalDigis","ebDigis")
+process.ecalUncalibHit.EEdigiCollection = cms.InputTag("simEcalDigis","eeDigis")
 
 process.ecalRecHit.EBuncalibRecHitCollection = cms.InputTag("ecalUncalibHit","EcalUncalibRecHitsEB")
 process.ecalRecHit.EEuncalibRecHitCollection = cms.InputTag("ecalUncalibHit","EcalUncalibRecHitsEE")
 
 process.ecalBarrelMonitorModule.mergeRuns = True
-process.ecalBarrelMonitorModule.EBDigiCollection = cms.InputTag("ecalDigis","ebDigis")
+process.ecalBarrelMonitorModule.EBDigiCollection = cms.InputTag("simEcalDigis","ebDigis")
 process.ecalBarrelMonitorModule.runType = 3 # MTCC/PHYSICS
 process.ecalBarrelMonitorModule.EcalTrigPrimDigiCollection = 'ecalTriggerPrimitiveDigis'
 
-process.ecalBarrelOccupancyTask.EBDigiCollection = cms.InputTag("ecalDigis","ebDigis")
+process.ecalBarrelOccupancyTask.EBDigiCollection = cms.InputTag("simEcalDigis","ebDigis")
 process.ecalBarrelOccupancyTask.EcalTrigPrimDigiCollection = 'ecalTriggerPrimitiveDigis'
 
-process.ecalBarrelPedestalOnlineTask.EBDigiCollection = cms.InputTag("ecalDigis","ebDigis")
+process.ecalBarrelPedestalOnlineTask.EBDigiCollection = cms.InputTag("simEcalDigis","ebDigis")
 
 process.ecalBarrelMonitorClient.maskFile = 'maskfile-EB.dat'
 process.ecalBarrelMonitorClient.mergeRuns = True

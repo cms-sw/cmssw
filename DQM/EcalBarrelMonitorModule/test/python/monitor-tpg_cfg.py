@@ -24,9 +24,11 @@ process.load("SimCalorimetry.EcalTrigPrimProducers.ecalTriggerPrimitiveDigis_cff
 
 process.load("Geometry.EcalMapping.EcalMapping_cfi")
 
+process.load("Geometry.EcalMapping.EcalMappingRecord_cfi")
+
 import SimCalorimetry.EcalTrigPrimProducers.ecalTriggerPrimitiveDigis_cfi
 
-process.ecalTriggerPrimitiveDigis2 = SimCalorimetry.EcalTrigPrimProducers.ecalTriggerPrimitiveDigis_cfi.ecalTriggerPrimitiveDigis.clone()
+process.simEcalTriggerPrimitiveDigis2 = SimCalorimetry.EcalTrigPrimProducers.ecalTriggerPrimitiveDigis_cfi.simEcalTriggerPrimitiveDigis.clone()
 process.load("DQM.EcalBarrelMonitorClient.EcalBarrelMonitorClient_cfi")
 
 process.load("CalibCalorimetry.EcalLaserCorrection.ecalLaserCorrectionService_cfi")
@@ -190,7 +192,7 @@ process.MessageLogger = cms.Service("MessageLogger",
     destinations = cms.untracked.vstring('cout')
 )
 
-process.ecalDataSequence = cms.Sequence(process.preScaler*process.ecalEBunpacker*process.ecal2006TBHodoscopeReconstructor*process.ecal2006TBTDCReconstructor*process.ecalUncalibHit*process.ecalRecHit*process.ecalTriggerPrimitiveDigis*process.ecalTriggerPrimitiveDigis2)
+process.ecalDataSequence = cms.Sequence(process.preScaler*process.ecalEBunpacker*process.ecal2006TBHodoscopeReconstructor*process.ecal2006TBTDCReconstructor*process.ecalUncalibHit*process.ecalRecHit*process.simEcalTriggerPrimitiveDigis*process.simEcalTriggerPrimitiveDigis2)
 process.ecalBarrelMonitorSequence = cms.Sequence(process.ecalBarrelMonitorModule*process.dqmInfoEB*process.ecalBarrelMonitorClient*process.dqmSaverEB)
 
 process.p = cms.Path(process.ecalDataSequence*process.ecalBarrelMonitorSequence)
@@ -209,21 +211,21 @@ process.ecalUncalibHit.EEdigiCollection = cms.InputTag("ecalEBunpacker","eeDigis
 process.ecalRecHit.EBuncalibRecHitCollection = cms.InputTag("ecalUncalibHit","EcalUncalibRecHitsEB")
 process.ecalRecHit.EEuncalibRecHitCollection = cms.InputTag("ecalUncalibHit","EcalUncalibRecHitsEE")
 
-process.ecalTriggerPrimitiveDigis.Label = 'ecalEBunpacker'
-process.ecalTriggerPrimitiveDigis.InstanceEB = 'ebDigis'
-process.ecalTriggerPrimitiveDigis.InstanceEE = 'eeDigis'
-process.ecalTriggerPrimitiveDigis.BarrelOnly = True
+process.simEcalTriggerPrimitiveDigis.Label = 'ecalEBunpacker'
+process.simEcalTriggerPrimitiveDigis.InstanceEB = 'ebDigis'
+process.simEcalTriggerPrimitiveDigis.InstanceEE = 'eeDigis'
+process.simEcalTriggerPrimitiveDigis.BarrelOnly = True
 
-process.ecalTriggerPrimitiveDigis2.Label = 'ecalEBunpacker'
-process.ecalTriggerPrimitiveDigis2.InstanceEB = 'ebDigis'
-process.ecalTriggerPrimitiveDigis2.InstanceEE = 'eeDigis'
-process.ecalTriggerPrimitiveDigis2.BarrelOnly = True
+process.simEcalTriggerPrimitiveDigis2.Label = 'ecalEBunpacker'
+process.simEcalTriggerPrimitiveDigis2.InstanceEB = 'ebDigis'
+process.simEcalTriggerPrimitiveDigis2.InstanceEE = 'eeDigis'
+process.simEcalTriggerPrimitiveDigis2.BarrelOnly = True
 
-process.ecalBarrelTriggerTowerTask.EcalTrigPrimDigiCollectionReal = 'ecalTriggerPrimitiveDigis2'
+process.ecalBarrelTriggerTowerTask.EcalTrigPrimDigiCollectionReal = 'simEcalTriggerPrimitiveDigis2'
 
-process.ecalBarrelMonitorModule.EcalTrigPrimDigiCollection = 'ecalTriggerPrimitiveDigis2'
+process.ecalBarrelMonitorModule.EcalTrigPrimDigiCollection = 'simEcalTriggerPrimitiveDigis2'
 
-process.ecalBarrelOccupancyTask.EcalTrigPrimDigiCollection = 'ecalTriggerPrimitiveDigis2'
+process.ecalBarrelOccupancyTask.EcalTrigPrimDigiCollection = 'simEcalTriggerPrimitiveDigis2'
 
 process.ecalBarrelMonitorClient.location = 'H4B'
 process.ecalBarrelMonitorClient.baseHtmlDir = '.'
