@@ -12,6 +12,8 @@ end
 
 cmscond_list_iov -c sqlite_file:pop_test.db -t Example_tag1
 
+cmsRun $LOCALRT/src/CondCore/ESSources/test/data/print_eff_example.cfg
+
 popd
 
 
