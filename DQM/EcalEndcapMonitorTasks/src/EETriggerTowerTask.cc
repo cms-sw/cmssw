@@ -1,8 +1,8 @@
 /*
  * \file EETriggerTowerTask.cc
  *
- * $Date: 2008/04/24 18:38:05 $
- * $Revision: 1.36 $
+ * $Date: 2008/05/11 09:35:13 $
+ * $Revision: 1.37 $
  * \author C. Bernet
  * \author G. Della Ricca
  * \author E. Di Marco
@@ -55,10 +55,6 @@ EETriggerTowerTask::EETriggerTowerTask(const ParameterSet& ps) {
   realCollection_ =  ps.getParameter<InputTag>("EcalTrigPrimDigiCollectionReal");
   emulCollection_ =  ps.getParameter<InputTag>("EcalTrigPrimDigiCollectionEmul");
 
-//   realModuleLabel_
-//     = ps.getUntrackedParameter<string>("real_digis_moduleLabel", "ecalEBunpacker");
-//   emulModuleLabel_
-//     = ps.getUntrackedParameter<string>("emulated_digis_moduleLabel", "ecalTriggerPrimitiveDigis");
   outputFile_ = ps.getUntrackedParameter<string>("OutputRootFile", "");
 
   ostringstream  str;
