@@ -8,7 +8,7 @@
 //
 // Original Author:  
 //         Created:  Mon Dec  3 08:38:38 PST 2007
-// $Id: CmsShowMain.cc,v 1.23 2008/07/12 00:39:19 chrjones Exp $
+// $Id: CmsShowMain.cc,v 1.24 2008/07/12 13:50:14 chrjones Exp $
 //
 
 // system include files
@@ -515,15 +515,8 @@ CmsShowMain::CmsShowMain(int argc, char *argv[]) :
       }else{
          gSystem->IgnoreSignal(kSigSegmentationViolation, true);
       }
-      //NOTE: by waiting 1/100 of a second this makes ROOT think that there are not waiting tasks and this
-      // seems to cause its' GUI system to actually draw the program's interface, which is what we want
-      TTimer* waitForGUIToDrawTimer = new TTimer();
-      waitForGUIToDrawTimer->Connect("Timeout()",
-                                     "CmsShowTaskExecutorBase",
-                                     static_cast<CmsShowTaskExecutorBase*>(m_startupTasks.get()),
-                                     "startDoingTasks()");
-      waitForGUIToDrawTimer->Start(10,kTRUE);
-      //m_startupTasks->startDoingTasks();
+      
+      m_startupTasks->startDoingTasks();
    } catch(std::exception& iException) {
       std::cerr <<"CmsShowMain caught exception "<<iException.what()<<std::endl;
       throw;
