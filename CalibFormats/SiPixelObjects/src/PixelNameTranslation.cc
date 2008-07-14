@@ -6,6 +6,7 @@
 
 #include "CalibFormats/SiPixelObjects/interface/PixelNameTranslation.h"
 #include "CalibFormats/SiPixelObjects/interface/PixelDetectorConfig.h"
+#include "CalibFormats/SiPixelObjects/interface/PixelTimer.h"
 #include <fstream>
 #include <sstream>
 #include <map>
@@ -559,15 +560,16 @@ void PixelNameTranslation::writeASCII(std::string dir) const {
 
 }
 
+//=============================================================================================
 void PixelNameTranslation::writeXML(pos::PixelConfigKey key, std::string path) const {
   std::string mthn = "[PixelNameTranslation::writeXML()]\t\t\t    " ;
   std::stringstream fullPath ;
+
   fullPath << path << "/nametranslation.xml" ;
   cout << mthn << "Writing to: |" << fullPath.str()  << "|" << endl ;
   
   std::ofstream out(fullPath.str().c_str()) ;
   
-  out << ""										 << endl ;
   out << "<?xml version='1.0' encoding='UTF-8' standalone='yes'?>"			 << endl ;
   out << "<ROOT xmlns:xsi='http://www.w3.org/2001/XMLSchema-instance'>" 		 << endl ;
   out << ""										 << endl ;
@@ -577,23 +579,15 @@ void PixelNameTranslation::writeXML(pos::PixelConfigKey key, std::string path) c
   out << "   <NAME>FPix Name Translation</NAME>"				         << endl ;
   out << "  </TYPE>"								         << endl ;
   out << "  <RUN>"								         << endl ;
-  out << "   <RUN_TYPE>FPix_BmI_D1 Name Translation</RUN_TYPE>" 		         << endl ;
+  out << "   <RUN_TYPE>test</RUN_TYPE>" 		                                 << endl ;
   out << "   <RUN_NUMBER>1</RUN_NUMBER>"					         << endl ;
-  out << "   <RUN_BEGIN_TIMESTAMP>2008-02-22 00:00:00</RUN_BEGIN_TIMESTAMP>"	         << endl ;
-  out << "   <COMMENT_DESCRIPTION>FPix_BmI_D1 Name Translation</COMMENT_DESCRIPTION>"    << endl ;
-  out << "   <LOCATION>Fermilab</LOCATION>"					         << endl ;
-  out << "   <INITIATED_BY_USER>joshi</INITIATED_BY_USER>"			         << endl ;
+  out << "   <RUN_BEGIN_TIMESTAMP>" << PixelTimer::getTime() << "</RUN_BEGIN_TIMESTAMP>" << endl ;
+  out << "   <COMMENT_DESCRIPTION>Test of Name Translation xml</COMMENT_DESCRIPTION>"    << endl ;
+  out << "   <LOCATION>CERN TAC</LOCATION>"					         << endl ;
+  out << "   <INITIATED_BY_USER>Dario Menasce</INITIATED_BY_USER>"			 << endl ;
   out << "  </RUN>"								         << endl ;
   out << " </HEADER>"								         << endl ;
   out << ""										 << endl ;
-  out << " <DATA_SET>"  								 << endl ;
-  out << "  <COMMENT_DESCRIPTION>FPix_BmI_D1 Name Translation</COMMENT_DESCRIPTION>" 	 << endl ;
-  out << "  <DATA_FILE_NAME>FPix_BmI_D1_NameTranslation.xml</DATA_FILE_NAME>"	     	 << endl ;
-  out << "  <VERSION>T_1_0_0</VERSION>" 					     	 << endl ;
-  out << "  <PART>"								     	 << endl ;
-  out << "   <SERIAL_NUMBER>XK4K3ET-35_0</SERIAL_NUMBER>"		      	     	 << endl ;
-  out << "   <KIND_OF_PART>Pixel Disk ROC</KIND_OF_PART>"		      	     	 << endl ;
-  out << "  </PART>"								     	 << endl ;
 
   std::map<PixelROCName,PixelHdwAddress>::const_iterator iroc=translationtable_.begin();
 
@@ -602,24 +596,30 @@ void PixelNameTranslation::writeXML(pos::PixelConfigKey key, std::string path) c
       // Find the PixelChannel for this ROC, in order to get the TBM channel.
       std::string TBMChannel = getChannelFromHdwAddress(iroc->second).TBMChannelString();
 
+      out << " <DATA_SET>"							    	 << endl ;
+      out << "  <VERSION>" << key.key() << "</VERSION>"		                         << endl ;
+      out << "  <PART>" 								 << endl ;
+      out << "   <NAME_LABEL>" << iroc->first.rocname() << "</NAME_LABEL>"		 << endl ;
+      out << "   <KIND_OF_PART>Pixel Disk ROC</KIND_OF_PART>"				 << endl ;
+      out << "  </PART>"								 << endl ;
       out << "" 									 << endl ;
       out << "  <DATA>" 								 << endl ;
-      out << "   <ROC_NAME>"     << iroc->first.rocname()       << "</ROC_NAME>"	 << endl ;
-      out << "   <PXLFEC_NAME>"  << iroc->second.fecnumber()    << "</PXLFEC_NAME>"	 << endl ;
-      out << "   <MFEC_POSN>"    << iroc->second.mfec()	   	<< "</MFEC_POSN>"	 << endl ;
-      out << "   <MFEC_CHAN>"    << iroc->second.mfecchannel()	<< "</MFEC_CHAN>"	 << endl ;
+      out << "   <PXLFEC_NAME>"  << iroc->second.fecnumber()	<< "</PXLFEC_NAME>"	 << endl ;
+      out << "   <MFEC_POSN>"    << iroc->second.mfec() 	<< "</MFEC_POSN>"	 << endl ;
+      out << "   <MFEC_CHAN>"    << iroc->second.mfecchannel()  << "</MFEC_CHAN>"	 << endl ;
       out << "   <HUB_ADDRS>"    << iroc->second.hubaddress()	<< "</HUB_ADDRS>"	 << endl ;
-      out << "   <PORT_NUM>"     << iroc->second.portaddress()	<< "</PORT_NUM>"	 << endl ;
+      out << "   <PORT_NUM>"     << iroc->second.portaddress()  << "</PORT_NUM>" 	 << endl ;
       out << "   <ROC_I2C_ADDR>" << iroc->second.rocid()	<< "</ROC_I2C_ADDR>"	 << endl ;
       out << "   <PXLFED_NAME>"  << iroc->second.fednumber()	<< "</PXLFED_NAME>"	 << endl ;
-      out << "   <FED_CHAN>"     << iroc->second.fedchannel()	<< "</FED_CHAN>"	 << endl ;
-      out << "   <FED_ROC_NUM>"  << iroc->second.fedrocnumber()	<< "</FED_ROC_NUM>"	 << endl ;
+      out << "   <FED_CHAN>"     << iroc->second.fedchannel()	<< "</FED_CHAN>" 	 << endl ;
+      out << "   <FED_ROC_NUM>"  << iroc->second.fedrocnumber() << "</FED_ROC_NUM>"	 << endl ;
       out << "  </DATA>"	 							 << endl ;
+      out << " </DATA_SET> "								 << endl ;
+      out << "  "								         << endl ;
     }
-  out << " </DATA_SET> "								 << endl ;
   out << "</ROOT> "								         << endl ;
   out.close() ;
-  
+  assert(0) ;
 }
 
 std::vector<PixelROCName> PixelNameTranslation::getROCsFromChannel(const PixelChannel& aChannel) const
