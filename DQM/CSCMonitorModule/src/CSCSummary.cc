@@ -116,7 +116,7 @@ void CSCSummary::ReadReportingChambersRef(TH2*& h2, TH2*& refh2, const double ep
         }
       }
     }
-    double factor = num / denum;
+    double factor = num / denum, eps_meas = 0.0;
 
     CSCAddress adr;
     unsigned int N = 0, n = 0;
@@ -131,11 +131,18 @@ void CSCSummary::ReadReportingChambersRef(TH2*& h2, TH2*& refh2, const double ep
           if (n == 0) {
             val = 0;
           } else if (N > 0) {
-            if ((n / N) < eps_min) {
+            eps_meas = (1.0 * n) / (1.0 * N);
+            if (eps_meas < eps_min) {
               if (SignificanceLevel(N, n, eps_min, false) > Sfail) {
                 val = -1;
               }
-              LOGINFO("ReadReportingChambersRef") << " N = " << N << ", n = " << n << ", Sbeta = " << SignificanceLevel(N, n, eps_min, false);
+              LOGINFO("ReadReportingChambersRef") << "eps_min = " << eps_min << 
+                                                     ", Sfail = " << Sfail << 
+                                                     ", eps_meas = " << eps_meas << 
+                                                     ", N = " << N << 
+                                                     ", n = " << n << 
+                                                     ", Sbeta = " << SignificanceLevel(N, n, eps_min, false) << 
+                                                     ", value = " << val;
             }
           }
           SetValue(adr, val);
