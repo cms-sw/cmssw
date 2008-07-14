@@ -69,9 +69,9 @@ HLXMonitor::HLXMonitor(const edm::ParameterSet& iConfig)
    }
 
    monitorName_ = iConfig.getUntrackedParameter<std::string>("monitorName","HLX");
-   cout << "Monitor name = " << monitorName_ << endl;
+   //cout << "Monitor name = " << monitorName_ << endl;
    prescaleEvt_ = iConfig.getUntrackedParameter<int>("prescaleEvt", -1);
-   cout << "===>DQM event prescale = " << prescaleEvt_ << " events "<< endl;
+   //cout << "===>DQM event prescale = " << prescaleEvt_ << " events "<< endl;
 
    unsigned int HLXHFMapTemp[] = {31,32,33,34,35,18,  // s2f07 hf-
 				  13,14,15,16,17,0,   // s2f07 hf+
@@ -85,7 +85,7 @@ HLXMonitor::HLXMonitor(const edm::ParameterSet& iConfig)
 
    for( int iHLX = 0; iHLX < 36; ++iHLX ){
      HLXHFMap[iHLX] = HLXHFMapTemp[iHLX];
-     std::cout << "At " << iHLX << " Wedge " << HLXHFMap[iHLX] << std::endl;
+     //std::cout << "At " << iHLX << " Wedge " << HLXHFMap[iHLX] << std::endl;
      totalNibbles_[iHLX] = 0;
    }
 
@@ -398,7 +398,7 @@ void HLXMonitor::SetupEventInfo( )
 
    // Fill the report summary objects with default values, since these will only
    // be filled at the change of run.
-   std::cout << "Filling report summary! Initial." << std::endl;
+   //std::cout << "Filling report summary! Initial." << std::endl;
    reportSummary_->Fill(-1.0);
 
    for( unsigned int iHLX = 0; iHLX < NUM_HLX; ++iHLX ){
@@ -420,12 +420,12 @@ HLXMonitor::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
    do
    {
       errorCode = HLXTCP.ReceiveLumiSection(lumiSection);
-      cout << "ReceiveLumiSection: " << errorCode << endl;
+      //cout << "ReceiveLumiSection: " << errorCode << endl;
 
       while(errorCode !=1)
       {
 	 HLXTCP.Disconnect();
-	 cout << "Connecting to TCPDistributor" << endl;
+	 //cout << "Connecting to TCPDistributor" << endl;
 	 errorCode = HLXTCP.Connect();
 	 if(errorCode != 1)
 	 {
@@ -456,14 +456,14 @@ HLXMonitor::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
    FillHistoSum(lumiSection);
    FillEventInfo(lumiSection);
 
-   cout << "Run: " << lumiSection.hdr.runNumber 
-	<< " Section: " << lumiSection.hdr.sectionNumber 
-	<< " Orbit: " << lumiSection.hdr.startOrbit << endl;
-   cout << "Et Lumi: " << lumiSection.lumiSummary.InstantETLumi << endl;
-   cout << "Occ Lumi 1: " << lumiSection.lumiSummary.InstantOccLumi[0] << endl;
-   cout << "Occ Lumi 2: " << lumiSection.lumiSummary.InstantOccLumi[1] << endl;
-   cout << "Noise[0]: " << lumiSection.lumiSummary.lumiNoise[0] << endl;
-   cout << "Noise[1]: " << lumiSection.lumiSummary.lumiNoise[1] << endl;
+//    cout << "Run: " << lumiSection.hdr.runNumber 
+// 	<< " Section: " << lumiSection.hdr.sectionNumber 
+// 	<< " Orbit: " << lumiSection.hdr.startOrbit << endl;
+//    cout << "Et Lumi: " << lumiSection.lumiSummary.InstantETLumi << endl;
+//    cout << "Occ Lumi 1: " << lumiSection.lumiSummary.InstantOccLumi[0] << endl;
+//    cout << "Occ Lumi 2: " << lumiSection.lumiSummary.InstantOccLumi[1] << endl;
+//    cout << "Noise[0]: " << lumiSection.lumiSummary.lumiNoise[0] << endl;
+//    cout << "Noise[1]: " << lumiSection.lumiSummary.lumiNoise[1] << endl;
 
 }
 
@@ -492,7 +492,7 @@ void HLXMonitor::beginJob(const edm::EventSetup&)
   
    do
    {
-      // cout << "Connecting to TCPDistributor" << endl;
+      cout << "Connecting to TCPDistributor" << endl;
       errorCode = HLXTCP.Connect();
       if(errorCode != 1)
       {
@@ -505,9 +505,31 @@ void HLXMonitor::beginJob(const edm::EventSetup&)
 // ------------ method called once each job just after ending the event loop  ------------
 void HLXMonitor::endJob() 
 {
+   // Fill the report summaries at end job?? 
+   // Loop over the HLX's and fill the map, 
+   // also calculate the overall quality.
+   float overall = 0.0;
+   for( unsigned int iHLX = 0; iHLX < NUM_HLX; ++iHLX ){
+      unsigned int iWedge = HLXHFMap[iHLX] + 1;
+      unsigned int iEta = 2;
+      if( iWedge >= 19 ){ iEta = 1; iWedge -= 18; }
+      float frac = (float)totalNibbles_[iWedge-1]/(float)expectedNibbles_; 
+      reportSummaryMap_->setBinContent(iWedge,iEta,frac);
+      overall += frac;
+   }   
+      
+   overall /= (float)NUM_HLX;
+   if( overall > 1.0 ) overall = -1.0;
+   //std::cout << "Filling report summary! Main. " << overall << std::endl;
+   reportSummary_->Fill(overall);
+
+   expectedNibbles_ = 0;
+   for( unsigned int iHLX = 0; iHLX < NUM_HLX; ++iHLX ) totalNibbles_[iHLX] = 0;
+
    if( SaveAtEndJob ) SaveDQMFile();
    HLXTCP.Disconnect();
 }
+
 
 void HLXMonitor::FillHistoAvg(const LUMI_SECTION & section)
 {
@@ -690,16 +712,6 @@ void HLXMonitor::FillHistoHFCompare(const LUMI_SECTION & section)
 
 void HLXMonitor::FillEventInfo(const LUMI_SECTION & section)
 {
-   runId_->Fill( section.hdr.runNumber );
-   lumisecId_->Fill( (int)(section.hdr.sectionNumber/64) + 1 );
-
-   // Update the total nibbles & the expected number
-   expectedNibbles_ += 4;
-   for( unsigned int iHLX = 0; iHLX < NUM_HLX; ++iHLX ){
-      unsigned int iWedge = HLXHFMap[iHLX] + 1;
-      totalNibbles_[iWedge-1] += section.occupancy[iHLX].hdr.numNibbles; 
-   }   
-
    // New run .. set the run number and fill run summaries ...
    if( runNumber_ != section.hdr.runNumber )
    {
@@ -724,12 +736,23 @@ void HLXMonitor::FillEventInfo(const LUMI_SECTION & section)
 
       // Do some things that should be done at the end of the run ...
       SaveDQMFile();  
-      if(ResetAtNewRun) ResetAll();
-
-      runNumber_ = section.hdr.runNumber;
       expectedNibbles_ = 0;
       for( unsigned int iHLX = 0; iHLX < NUM_HLX; ++iHLX ) totalNibbles_[iHLX] = 0;
+
+      if(ResetAtNewRun) ResetAll();
+      runNumber_ = section.hdr.runNumber;
    }
+
+   runId_->Fill( section.hdr.runNumber );
+   lumisecId_->Fill( (int)(section.hdr.sectionNumber/64) + 1 );
+
+   // Update the total nibbles & the expected number
+   expectedNibbles_ += 4;
+   for( unsigned int iHLX = 0; iHLX < NUM_HLX; ++iHLX ){
+      unsigned int iWedge = HLXHFMap[iHLX] + 1;
+      totalNibbles_[iWedge-1] += section.occupancy[iHLX].hdr.numNibbles; 
+   }   
+
 }
 
 void HLXMonitor::ResetAll()
