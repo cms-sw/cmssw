@@ -1,5 +1,5 @@
 #!/usr/bin/perl -w
-# $Id: injectFileIntoTransferSystem.pl,v 1.17 2008/07/04 14:28:21 loizides Exp $
+# $Id: injectFileIntoTransferSystem.pl,v 1.18 2008/07/04 14:39:49 loizides Exp $
 
 use strict;
 use DBI;
@@ -278,7 +278,7 @@ if($check) {
     unless($result[0]) {print "File not found in database.\n"; exit;}
     unless($result[1]) {print "FILES_CREATED: File found in database but not passed over to T0 system.\n";              exit 0;}
     unless($result[2]) {print "FILES_INJECTED: File found in database and handed over to T0 system.\n";                 exit 0;}
-    unless($result[3]) {print "FILES_TRANS_NEW: File found in database and processed by T0 system.\n";                  exit 0;}
+    unless($result[3]) {print "FILES_TRANS_NEW: File found in database and being processed by T0 system.\n";                  exit 0;}
     unless($result[4]) {print "FILES_TRANS_COPIED: File found in database and copied by T0 system.\n";                  exit 0;}
     unless($result[5]) {print "FILES_TRANS_CHECKED: File found in database and checked by T0 system.\n";                exit 0;}
     unless($result[6]) {print "FILES_TRANS_INSERTED: File found in database and sucessfully processed by T0 system.\n"; exit 0;}
@@ -338,7 +338,7 @@ if($type eq "streamer") {
         usageShort();
     }
 } elsif($type eq "dqm") {
-    $destination = 'dqm'; # if ($destination eq 'default');
+    $destination = 'dqm' if ($destination eq 'default');
     unless( $runnumber && $lumisection != -1 && $appname && $appversion) {
 	print "Error: For dqm files need runnumber, lumisection, appname, and appversion specified.\n";
         usageShort();
@@ -420,6 +420,10 @@ if($appname)           {$TIERZERO .= " --APP_NAME $appname";}
 if($appname)           {$TIERZERO .= " --APP_VERSION $appversion";}
 if($checksum)          {$TIERZERO .= " --CHECKSUM $checksum";}
 $debug && print "Notify command: \n $TIERZERO \n";
+
+#
+sleep(1);
+#
 
 # setup DB connection
 my $dbi    = "DBI:Oracle:cms_rcms";
