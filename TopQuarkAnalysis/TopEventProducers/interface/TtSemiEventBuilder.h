@@ -31,12 +31,14 @@ class TtSemiEventBuilder : public edm::EDProducer {
   std::vector<edm::InputTag> hyps_;
   std::vector<edm::InputTag> keys_;  
 
+  // meta information
+  std::vector<edm::InputTag> matches_;  
+
   // gen match extras
   int decay_;
   edm::InputTag genEvt_;
 
   edm::ParameterSet genMatch_;
-  edm::InputTag match_;
   edm::InputTag sumPt_;
   edm::InputTag sumDR_;
 

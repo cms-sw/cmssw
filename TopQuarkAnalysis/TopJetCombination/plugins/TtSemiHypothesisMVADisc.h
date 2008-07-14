@@ -19,7 +19,7 @@ class TtSemiHypothesisMVADisc : public TtSemiHypothesis  {
   virtual void buildHypo(const edm::Handle<edm::View<reco::RecoCandidate> >&,
 			 const edm::Handle<std::vector<pat::MET> >&,
 			 const edm::Handle<std::vector<pat::Jet> >&,
-			 const edm::Handle<std::vector<int> >& );
+			 std::vector<int>& );
 };
 
 #endif

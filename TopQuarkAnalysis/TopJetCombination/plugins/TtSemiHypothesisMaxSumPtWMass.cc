@@ -1,5 +1,5 @@
 #include "TopQuarkAnalysis/TopJetCombination/plugins/TtSemiHypothesisMaxSumPtWMass.h"
-
+#include "TopQuarkAnalysis/TopTools/interface/TtSemiEvtPartons.h"
 
 TtSemiHypothesisMaxSumPtWMass::TtSemiHypothesisMaxSumPtWMass(const edm::ParameterSet& cfg):
   TtSemiHypothesis( cfg ),  
@@ -12,14 +12,17 @@ TtSemiHypothesisMaxSumPtWMass::~TtSemiHypothesisMaxSumPtWMass() { }
 
 void
 TtSemiHypothesisMaxSumPtWMass::buildHypo(const edm::Handle<edm::View<reco::RecoCandidate> >& leps, 
-				    const edm::Handle<std::vector<pat::MET> >& mets, 
-				    const edm::Handle<std::vector<pat::Jet> >& jets, 
-				    const edm::Handle<std::vector<int> >& match)
+					 const edm::Handle<std::vector<pat::MET> >& mets, 
+					 const edm::Handle<std::vector<pat::Jet> >& jets, 
+					 std::vector<int>& match)
 {
   if(leps->empty() || mets->empty() || jets->size()<maxNJets_ || maxNJets_<4){
     // create empty hypothesis
     return;
   }
+
+  for(unsigned int i=0; i<4; ++i)
+    match.push_back(-1);
 
   // -----------------------------------------------------
   // associate those jets with maximum pt of the vectorial 
@@ -98,12 +101,14 @@ TtSemiHypothesisMaxSumPtWMass::buildHypo(const edm::Handle<edm::View<reco::RecoC
     int ij = closestToWMassIndices[0];  
     edm::Ptr<pat::Jet> jet = edm::Ptr<pat::Jet>(jets, ij);
     lightQ_= new reco::ShallowClonePtrCandidate( jet, jet->charge(), jet->p4(), jet->vertex() );
+    match[TtSemiEvtPartons::LightQ] = closestToWMassIndices[0];
   }
 
   if( isValid(closestToWMassIndices[1], jets) ){
     int ij = closestToWMassIndices[1];  
     edm::Ptr<pat::Jet> jet = edm::Ptr<pat::Jet>(jets, ij);
     lightQBar_= new reco::ShallowClonePtrCandidate( jet, jet->charge(), jet->p4(), jet->vertex() );
+    match[TtSemiEvtPartons::LightQBar] = closestToWMassIndices[1];
   }
 
   for(unsigned idx=0; idx<maxPtIndices.size(); ++idx){
@@ -114,6 +119,7 @@ TtSemiHypothesisMaxSumPtWMass::buildHypo(const edm::Handle<edm::View<reco::RecoC
 	int ij = maxPtIndices[idx];  
 	edm::Ptr<pat::Jet> jet = edm::Ptr<pat::Jet>(jets, ij);
 	hadronicB_= new reco::ShallowClonePtrCandidate( jet, jet->charge(), jet->p4(), jet->vertex() );
+	match[TtSemiEvtPartons::HadB] = maxPtIndices[idx];
 	break; // there should be no other cadidates!
       }
     }
@@ -123,6 +129,7 @@ TtSemiHypothesisMaxSumPtWMass::buildHypo(const edm::Handle<edm::View<reco::RecoC
     int ij = lepB;  
     edm::Ptr<pat::Jet> jet = edm::Ptr<pat::Jet>(jets, ij);
     leptonicB_= new reco::ShallowClonePtrCandidate( jet, jet->charge(), jet->p4(), jet->vertex() );
+    match[TtSemiEvtPartons::LepB] = lepB;
   }
 
   // -----------------------------------------------------

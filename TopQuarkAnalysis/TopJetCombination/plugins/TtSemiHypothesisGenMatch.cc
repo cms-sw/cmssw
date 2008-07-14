@@ -11,13 +11,13 @@ void
 TtSemiHypothesisGenMatch::buildHypo(const edm::Handle<edm::View<reco::RecoCandidate> >& leps, 
 				    const edm::Handle<std::vector<pat::MET> >& mets, 
 				    const edm::Handle<std::vector<pat::Jet> >& jets, 
-				    const edm::Handle<std::vector<int> >& match)
+				    std::vector<int>& match)
 {
   // -----------------------------------------------------
   // add jets; the order of match is Q, QBar, hadB, lepB
   // -----------------------------------------------------
-  for(unsigned idx=0; idx<match->size(); ++idx){
-    int ij = (*match)[idx];     
+  for(unsigned idx=0; idx<match.size(); ++idx){
+    int ij = match[idx];     
     if( isValid( ij, jets) ){
       switch(idx){
       case TtSemiEvtPartons::LightQ:

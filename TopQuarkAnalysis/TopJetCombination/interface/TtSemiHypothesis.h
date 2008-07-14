@@ -46,9 +46,11 @@ class TtSemiHypothesis : public edm::EDProducer {
   virtual void buildHypo(const edm::Handle<edm::View<reco::RecoCandidate> >& lepton, 
 			 const edm::Handle<std::vector<pat::MET> >& neutrino, 
 			 const edm::Handle<std::vector<pat::Jet> >& jets, 
-			 const edm::Handle<std::vector<int> >& jetPartonAssociation) = 0;
+			 std::vector<int>& jetPartonAssociation) = 0;
 
  protected:
+
+  bool getMatch_;
 
   edm::InputTag jets_;
   edm::InputTag leps_;

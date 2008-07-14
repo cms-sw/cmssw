@@ -25,11 +25,16 @@ ttSemiEvent = cms.EDProducer("TtSemiEventBuilder",
                          cms.InputTag("ttSemiHypothesisMVADisc","Key")
                          ),
 
+    ## event hypotheses' jet parton association as meta information
+    matches = cms.VInputTag(cms.InputTag("ttSemiHypothesisMaxSumPtWMass","Match"),
+                            cms.InputTag("ttSemiHypothesisGenMatch","Match"),
+                            cms.InputTag("ttSemiHypothesisMVADisc","Match")
+                            ),
+
     ## add extra information on genMatch
     genMatch = cms.PSet(
         sumPt = cms.InputTag("ttSemiJetPartonMatch","SumPt"),
         sumDR = cms.InputTag("ttSemiJetPartonMatch","SumDR"),
-        match = cms.InputTag("ttSemiJetPartonMatch")
     ),
 
     mvaDisc = cms.PSet(
