@@ -6,6 +6,7 @@ sens1_posY  0.
 sens2_posY  0.
 
 GLOBAL_OPTIONS
+writeXML 1
 dumpInAllFrames 1
 
 //stopAfter1stIteration 1
@@ -16,7 +17,7 @@ rotateAroundLocal 1
 
 report_verbose 1
 
-debug_verbose 3
+debug_verbose 5
 
 length_value_dimension 1//millimeter
 
@@ -50,7 +51,7 @@ mirr_ang_err 10
 SYSTEM_TREE_DESCRIPTION
 
 object system table 2 sensor2D 
-object table laser mirror 
+object table laser mirror tiltmeter
 
 SYSTEM_TREE_DATA
 
@@ -89,12 +90,21 @@ mirror mirror
     X       0.    mirr_ang_err  fix
     Y      45.    mirr_ang_err  fix
     Z       0.    mirr_ang_err  fix
+tiltmeter tilt1
+  centre
+    X   0  0  cal
+    Y   0  0  cal
+    Z   0  0  cal 
+  angles           
+    X   0  0  cal
+    Y   0  0  cal
+    Z   0 10  cal
 sensor2D sens1
   centre
     X   0  sens_pos_err  cal
     Y   sens1_posY  sens_pos_err  cal
-    Z   100  sens_pos_err  cal 
-  angles           
+    Z   100  sens_pos_err  cal
+  angles
     X   0   sens_ang_err  cal
     Y   0   sens_ang_err  cal
     Z   0   sens_ang_err  cal
@@ -123,14 +133,16 @@ OCMS/table/laser1 & OCMS/sens1
 H simulated_value    error_prec_mes_ccd  
 V simulated_value    error_prec_mes_ccd  
 
-SENSOR2D
+SENSOR2D sens2
 OCMS/table/laser1 & OCMS/table/mirror:DD & OCMS/sens2
 //H   2.468519  error_prec_mes_ccd  
 //V   2.568519  error_prec_mes_ccd  
 H simulated_value error_prec_mes_ccd  
 V simulated_value  error_prec_mes_ccd	
 
-
-//measurements_from_file simple2DWithMirror.meas
+TILTMETER tilt1
+OCMS/table/tilt1
+T simulated_value 10
+measurements_from_file table2DWithMirror.meas
 
 

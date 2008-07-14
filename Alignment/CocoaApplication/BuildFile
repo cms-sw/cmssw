@@ -1,9 +1,6 @@
 <use name=clhep>
 <use name=root>
 <use name=DetectorDescription/Core>
-<use name=CondFormats/DataRecord>
-<use name=CondFormats/OptAlignObjects>
-<use name=CondCore/DBCommon>
 <use name=CondCore/IOVService>
 <use name=CondCore/MetaDataService>
 <use name=FWCore/Framework>
@@ -11,6 +8,9 @@
 <use name=Geometry/Records>
 
 <use name=CondFormats/OptAlignObjects>
+<use name=CondFormats/DataRecord>
+<use name=CondFormats/Alignment>
+<use name=CondFormats/AlignmentRecord>
 <use name=Alignment/CocoaModel>
 <use name=Alignment/CocoaFit>
 <use name=meschach>
@@ -18,9 +18,9 @@
 
 <use name=CondCore/DBCommon>
 <use name=CondCore/DBOutputService>
-
 <export>
- <lib name=AlignmentCocoaApplication></lib> 
+<lib name=AlignmentCocoaApplication></lib> 
 </export>
+  <flags EDM_PLUGIN=1>
 
 
