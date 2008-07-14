@@ -7,7 +7,7 @@
 #include "FWCore/ServiceRegistry/interface/Service.h"
 #include <iostream>
 int main(){
-  /* edmplugin::PluginManager::Config config;
+  edmplugin::PluginManager::Config config;
   const char* path = getenv("LD_LIBRARY_PATH");
   std::string spath(path? path: "");
   std::string::size_type last=0;
@@ -21,7 +21,7 @@ int main(){
   paths.push_back(spath.substr(last,std::string::npos));
   config.searchPath(paths);
   edmplugin::PluginManager::configure(config);
-  */
+  
   std::cout<<"testing Connection Handler "<<std::endl;
   cond::DBSession* session=new cond::DBSession;
   static cond::ConnectionHandler& conHandler=cond::ConnectionHandler::Instance();

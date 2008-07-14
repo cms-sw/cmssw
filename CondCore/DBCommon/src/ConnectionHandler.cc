@@ -45,7 +45,7 @@ cond::ConnectionHandler::removeConnection(const std::string& name ){
 cond::ConnectionHandler& 
 cond::ConnectionHandler::Instance(){
   //std::cout<<"in ConnectionHandler::Instance"<<std::endl;
-  if(!edmplugin::PluginManager::isAvailable()){
+  /*if(!edmplugin::PluginManager::isAvailable()){
     edmplugin::PluginManager::Config config;
     const char* path = getenv("LD_LIBRARY_PATH");
     std::string spath(path? path: "");
@@ -61,6 +61,7 @@ cond::ConnectionHandler::Instance(){
     config.searchPath(paths);
     edmplugin::PluginManager::configure(config);
   }
+  */
   static cond::ConnectionHandler me;
   return me;
 }
