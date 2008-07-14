@@ -6,7 +6,7 @@
 //
 
 #include "CalibFormats/SiPixelObjects/interface/PixelDetectorConfig.h"
-#include "CalibFormats/SiPixelObjects/interface/PixelTimer.h"
+#include "CalibFormats/SiPixelObjects/interface/PixelTimeFormatter.h"
 #include <fstream>
 #include <iostream>
 #include <sstream>
@@ -378,7 +378,7 @@ void PixelDetectorConfig::writeXML(pos::PixelConfigKey key, std::string path) co
   out << "  <RUN>"								         << endl ;
   out << "   <RUN_TYPE>test</RUN_TYPE>" 		                                 << endl ;
   out << "   <RUN_NUMBER>1</RUN_NUMBER>"					         << endl ;
-  out << "   <RUN_BEGIN_TIMESTAMP>" << PixelTimer::getTime() << "</RUN_BEGIN_TIMESTAMP>" << endl ;
+  out << "   <RUN_BEGIN_TIMESTAMP>" << pos::PixelTimeFormatter::getTime() << "</RUN_BEGIN_TIMESTAMP>" << endl ;
   out << "   <COMMENT_DESCRIPTION>Test of DetectorConfig xml</COMMENT_DESCRIPTION>"      << endl ;
   out << "   <LOCATION>CERN TAC</LOCATION>"					         << endl ;
   out << "   <INITIATED_BY_USER>Dario Menasce</INITIATED_BY_USER>"			 << endl ;
