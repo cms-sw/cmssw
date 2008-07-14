@@ -118,8 +118,10 @@ class OpticalObject
   const double getEntryRMangle( const XYZcoor coor ) const;
   const double getEntryRMangle( const ALIstring& coor ) const;
 
-  const uint32_t ID() const { return theCmsSwID; }
-  const uint32_t cmsSwID() const { return theCmsSwID; }
+  const uint32_t ID() const { return theCmsswID; }
+  const uint32_t getCmsswID() const { return theCmsswID; }
+  void setCmsswID( uint32_t id ){ theCmsswID = id; }
+  void setID( uint32_t id ) { theCmsswID = id; }
 
   // SET DATA METHODS
   void setRmGlobalOriginal( const HepRotation& rm ){
@@ -152,8 +154,6 @@ class OpticalObject
      theExtraEntryValueOriginalOriginalVector.push_back( entry_value );
   }
 
-  void setCmsSwID( uint32_t id ) { theCmsSwID = id; }
-  void setID( uint32_t id ) { theCmsSwID = id; }
 
   //-  void test(){};
   //@@@@@----- METHODS USED IN Fit
@@ -352,7 +352,7 @@ private:
   Hep3Vector axisYLocalInGlobal;
   Hep3Vector axisZLocalInGlobal;
 
-  uint32_t theCmsSwID;
+  uint32_t theCmsswID;
 
  protected:
   CocoaMaterialElementary* theMaterial;
