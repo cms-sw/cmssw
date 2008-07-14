@@ -130,6 +130,7 @@ namespace evf
     edm::ServiceToken                serviceToken_;    
     bool                             servicesDone_;
     bool                             inRecovery_;
+    unsigned int                     recoveryCount_;
     bool                             triggerReportIncomplete_;
 
     // prescale (cmssw framework-) service

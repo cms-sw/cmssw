@@ -91,6 +91,7 @@ FUEventProcessor::FUEventProcessor(xdaq::ApplicationStub *s)
   , serviceToken_()
   , servicesDone_(false)
   , inRecovery_(false)
+  , recoveryCount_(0)
   , triggerReportIncomplete_(false)
   , prescaleSvc_(0)
   , runNumber_(0)
@@ -919,6 +920,14 @@ void FUEventProcessor::defaultWebPage(xgi::Input  *in, xgi::Output *out)
   }
   *out << "<tr>" << endl;
   *out << "<td >" << endl;
+  *out << "Successful Recoveries" << endl;
+  *out << "</td>" << endl;
+  *out << "<td>" << endl;
+  *out << recoveryCount_ << endl;
+  *out << "</td>" << endl;
+  *out << "</tr>"                                            << endl;
+  *out << "<tr>" << endl;
+  *out << "<td >" << endl;
   *out << "Output Enabled" << endl;
   *out << "</td>" << endl;
   *out << "<td>" << endl;
@@ -952,7 +961,7 @@ void FUEventProcessor::defaultWebPage(xgi::Input  *in, xgi::Output *out)
   *out << "</table>" << endl;
   *out << "</tr>"                                            << endl;
 
-  if(evtProcessor_)
+  if(evtProcessor_ && !inRecovery_)
     {
       edm::TriggerReport tr; 
       evtProcessor_->getTriggerReport(tr);
@@ -1050,6 +1059,12 @@ void FUEventProcessor::defaultWebPage(xgi::Input  *in, xgi::Output *out)
 	*out << "  </tr >"								<< endl;
 	
       }
+    }
+  else if(inRecovery_)
+    {
+      *out << "  <tr>"							<< endl;
+      *out << "    <td bgcolor=\"red\"> In Recovery !!! </td>"	      		<< endl;
+      *out << "  </tr>"							<< endl;
     }
   *out << "</table>" << endl;
   *out << "</td>" << endl;
@@ -1535,6 +1550,7 @@ bool FUEventProcessor::monitoring(toolbox::task::WorkLoop* wl)
 	  LOG4CPLUS_WARN(getApplicationLogger(),
 			 "edm::EventProcessor recovery completed successfully - please check operation of this and other nodes");
 	  inRecovery_ = false;
+	  recoveryCount_++;
 	  startScalersWorkLoop();
 	}
     }
