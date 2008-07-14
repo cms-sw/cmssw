@@ -8,15 +8,36 @@
 namespace cond {
 
   template<typename T>
-  class ValueExtractor {
+  class BaseValueExtractor {
+    BaseValueExtractor(){}
+    
+    virtual ~BaseValueExtractor(){}
+    void computeW(Class const &o){
+      reset();
+      compute(o);
+    }
+    std::vector<float> const & values() const { return m_values;}
+  protected:
+    void add(float v) { m_values.push_back(v); }
+  private:
+    void reset() { m_values.clear();}
+    virtual void compute(Class const &){}
+    
+    
+  private:
+    std::vector<float> m_values;
+  };
+
+
+  template<typename T>
+  class ValueExtractor : public  BaseValueExtractor<T> {
   public:
     typedef T Class;
     ValueExtractor(){}
     ValueExtractor(std::string const &, std::vector<int> const&){}
-    void compute(Class const &){}
-    std::vector<float> const & values() const { return m_values;}
   private:
-    std::vector<float> m_values;
+    void compute(Class const &){}
+  private:
   };
 
   template<typename T>
@@ -33,7 +54,7 @@ namespace cond {
 
     std::string summary() const {return ""; }
 
-    void extract(Extractor & extractor) const {extractor.compute(*object); }
+    void extract(Extractor & extractor) const {extractor.computeW(*object); }
 
   private:
     cond::TypedRef<Class> object;    

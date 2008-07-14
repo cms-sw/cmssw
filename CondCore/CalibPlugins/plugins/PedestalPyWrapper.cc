@@ -21,7 +21,7 @@ namespace {
 namespace cond {
 
   template<>
-  class ValueExtractor<Pedestals> {
+  class ValueExtractor<Pedestals>: public  BaseValueExtractor<Pedestals> {
   public:
 
     typedef Pedestals Class;
@@ -31,16 +31,13 @@ namespace cond {
     {
       // here one can make stuff really complicated...
     }
-    std::vector<float> const & values() const { return m_values;}
     void compute(Class const & it){
-      m_values.clear();
       for (int i=0; i<m_which.size();i++) {
 	if (m_which[i]<  it.m_pedestals.size())
-	  m_values.push_back(it.m_pedestals[m_which[i]].m_mean);
+	  add(it.m_pedestals[m_which[i]].m_mean);
       }
     }
   private:
-    std::vector<float> m_values;
     std::vector<int> m_which;
   };
 
