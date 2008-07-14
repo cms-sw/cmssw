@@ -16,7 +16,7 @@
 //
 // Original Author:  Jim Brooke
 //         Created:  Wed Nov  1 11:57:10 CET 2006
-// $Id: GctRawToDigi.h,v 1.18 2008/03/19 20:27:28 frazier Exp $
+// $Id: GctRawToDigi.h,v 1.20 2008/03/20 16:38:10 jbrooke Exp $
 //
 //
 
@@ -74,6 +74,7 @@ private: // members
   const bool doJets_;
   const bool doEtSums_;
   const bool doInternEm_;
+  const bool doInternJets_;
   const bool doRct_;
   const bool doFibres_;
 

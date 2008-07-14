@@ -26,8 +26,8 @@
 * with older data.
 *
 * \author Robert Frazier
-* $Revision: 1.10 $
-* $Date: 2008/05/27 19:52:23 $
+* $Revision: 1.11 $
+* $Date: 2008/06/14 13:33:10 $
 */ 
 
 
@@ -69,6 +69,9 @@ public:
   void setEtHadCollection(L1GctEtHadCollection* etHad) { gctEtHad_ = etHad; }
   void setEtMissCollection(L1GctEtMissCollection* etMiss) { gctEtMiss_ = etMiss; }
 
+  void setInternJetDataCollection(L1GctInternJetDataCollection* coll) { gctInternJetData_ = coll; }
+  void setInternEtSumCollection(L1GctInternEtSumCollection* coll) { gctInternEtSums_ = coll; }
+
   /// Get digis from the block - will return true if it succeeds, false otherwise.
   virtual bool convertBlock(const unsigned char * d, const GctBlockHeaderBase& hdr) = 0;
 
@@ -108,6 +111,8 @@ protected:
   L1GctEtTotalCollection* gctEtTotal_;  ///< Total Et
   L1GctEtHadCollection* gctEtHad_;  /// Total Ht
   L1GctEtMissCollection* gctEtMiss_;  /// Missing Et
+  L1GctInternJetDataCollection* gctInternJetData_; ///< GCT internal jet data
+  L1GctInternEtSumCollection* gctInternEtSums_; ///< GCT internal Et sums
 
 
   // PROTECTED METHODS
@@ -146,6 +151,24 @@ protected:
   
   /// Do nothing
   void blockDoNothing(const unsigned char * d, const GctBlockHeaderBase& hdr) {}
+
+  /// unpack GCT internal Et sums
+  void blockToGctInternEtSums(const unsigned char * d, const GctBlockHeaderBase& hdr);
+
+  /// unpack GCT internal output of leaf jet finder
+  void blockToGctInternEtSumsAndJetCluster(const unsigned char * d, const GctBlockHeaderBase& hdr);
+
+  /// unpack GCT internal wheel and conc jets
+  void blockToGctTrigObjects(const unsigned char * d, const GctBlockHeaderBase& hdr);
+
+  /// unpack GCT internal input to wheel jet sort
+  void blockToGctJetClusterMinimal(const unsigned char * d, const GctBlockHeaderBase& hdr);
+
+  /// unpack GCT internal shared jet finder info
+  void blockToGctJetPreCluster(const unsigned char * d, const GctBlockHeaderBase& hdr);
+
+  /// unpack GCT internal HF ring sums
+  void blockToGctInternRingSums(const unsigned char * d, const GctBlockHeaderBase& hdr);
 
 private:
 

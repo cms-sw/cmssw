@@ -50,6 +50,7 @@ GctRawToDigi::GctRawToDigi(const edm::ParameterSet& iConfig) :
   doJets_(iConfig.getUntrackedParameter<bool>("unpackJets",true)),
   doEtSums_(iConfig.getUntrackedParameter<bool>("unpackEtSums",true)),
   doInternEm_(iConfig.getUntrackedParameter<bool>("unpackInternEm",true)),
+  doInternJets_(iConfig.getUntrackedParameter<bool>("unpackInternJets",true)),
   doRct_(iConfig.getUntrackedParameter<bool>("unpackRct",true)),
   doFibres_(iConfig.getUntrackedParameter<bool>("unpackFibres",true)),
   blockUnpacker_(0),
@@ -80,6 +81,8 @@ GctRawToDigi::GctRawToDigi(const edm::ParameterSet& iConfig) :
   produces<L1GctEtMissCollection>();
   produces<L1GctJetCountsCollection>();
   produces<L1GctFibreCollection>();
+  produces<L1GctInternJetDataCollection>();
+  produces<L1GctInternEtSumCollection>();
 }
 
 
@@ -131,6 +134,8 @@ void GctRawToDigi::unpack(const FEDRawData& d, edm::Event& e, const bool invalid
   
   // GCT intermediate data
   std::auto_ptr<L1GctInternEmCandCollection> gctInternEm( new L1GctInternEmCandCollection() ); 
+  std::auto_ptr<L1GctInternJetDataCollection> gctInternJets( new L1GctInternJetDataCollection() ); 
+  std::auto_ptr<L1GctInternEtSumCollection> gctInternEtSums( new L1GctInternEtSumCollection() ); 
 
   // GCT output data
   std::auto_ptr<L1GctEmCandCollection>  gctIsoEm   ( new L1GctEmCandCollection() );  gctIsoEm->reserve(4);
@@ -162,6 +167,8 @@ void GctRawToDigi::unpack(const FEDRawData& d, edm::Event& e, const bool invalid
     blockUnpacker_->setEtTotalCollection( etTotResult.get() );
     blockUnpacker_->setEtHadCollection( etHadResult.get() );
     blockUnpacker_->setEtMissCollection( etMissResult.get() );
+    blockUnpacker_->setInternJetDataCollection( gctInternJets.get() );
+    blockUnpacker_->setInternEtSumCollection( gctInternEtSums.get() );
   
     const unsigned char * data = d.data();  // The 8-bit wide raw-data array.  
 
@@ -214,6 +221,8 @@ void GctRawToDigi::unpack(const FEDRawData& d, edm::Event& e, const bool invalid
       os << "Read " << gctCenJets->size() << " GCT central jet candidates" << endl;
       os << "Read " << gctForJets->size() << " GCT forward jet candidates" << endl;
       os << "Read " << gctTauJets->size() << " GCT tau jet candidates" << endl;
+      os << "Read " << gctInternJets->size() << " GCT intermediate jet candidates" << endl;
+      os << "Read " << gctInternEtSums->size() << " GCT intermediate et sums" << endl;
       
       edm::LogVerbatim("GCT") << os.str();
     }
@@ -240,6 +249,11 @@ void GctRawToDigi::unpack(const FEDRawData& d, edm::Event& e, const bool invalid
     e.put(etMissResult);
   }
   if (!hltMode_ && doInternEm_) { e.put(gctInternEm); }
+  if (!hltMode_ && doInternJets_) { 
+    e.put(gctInternJets); 
+    e.put(gctInternEtSums); 
+  }
+
   if (!hltMode_ && doRct_)
   {
     e.put(rctEm);
