@@ -13,8 +13,8 @@
  * in ORCA).
  * Porting from ORCA by S. Valuev (Slava.Valuev@cern.ch), May 2006.
  *
- * $Date: 2008/05/01 15:51:03 $
- * $Revision: 1.11 $
+ * $Date: 2008/07/06 05:17:00 $
+ * $Revision: 1.12 $
  *
  */
 
@@ -114,7 +114,7 @@ class CSCAnodeLCTProcessor
 
   /** Configuration parameters. */
   unsigned int fifo_tbins, fifo_pretrig, bx_width, drift_delay;
-  unsigned int nph_thresh, nph_pattern;
+  unsigned int nph_thresh, nph_pattern, acc_thresh, acc_pattern;
   unsigned int trig_mode, alct_amode, l1a_window;
 
   /** Chosen pattern mask. */

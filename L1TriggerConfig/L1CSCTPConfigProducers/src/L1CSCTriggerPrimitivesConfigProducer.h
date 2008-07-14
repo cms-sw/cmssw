@@ -8,7 +8,7 @@
  *
  * \author Slava Valuev
  * Created: Thu Apr 12 11:26:54 CEST 2007
- * $Id: L1CSCTriggerPrimitivesConfigProducer.h,v 1.3 2007/10/08 13:48:36 slava Exp $
+ * $Id: L1CSCTriggerPrimitivesConfigProducer.h,v 1.4 2008/07/06 05:24:25 wsun Exp $
  *
  */
 
@@ -37,6 +37,7 @@ class L1CSCTriggerPrimitivesConfigProducer : public edm::ESProducer {
   unsigned int m_alct_fifo_tbins, m_alct_fifo_pretrig;
   unsigned int m_alct_bx_width,   m_alct_drift_delay;
   unsigned int m_alct_nph_thresh, m_alct_nph_pattern;
+  unsigned int m_alct_acc_thresh, m_alct_acc_pattern;
   unsigned int m_alct_trig_mode,  m_alct_alct_amode, m_alct_l1a_window;
 
   /** CLCT configuration parameters. */

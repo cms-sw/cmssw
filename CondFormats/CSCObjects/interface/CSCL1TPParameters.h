@@ -33,6 +33,12 @@ class CSCL1TPParameters
   /** returns ALCT nph_pattern */
   inline unsigned int alctNphPattern() const  {return m_alct_nph_pattern;}
 
+  /** returns ALCT acc_thresh */
+  inline unsigned int alctAccThresh() const   {return m_alct_acc_thresh;}
+
+  /** returns ALCT acc_pattern */
+  inline unsigned int alctAccPattern() const  {return m_alct_acc_pattern;}
+
   /** returns ALCT trig_mode */
   inline unsigned int alctTrigMode() const    {return m_alct_trig_mode;}
 
@@ -103,6 +109,16 @@ class CSCL1TPParameters
   /** sets ALCT nph_pattern */
   void setAlctNphPattern(const unsigned int theValue) {
     m_alct_nph_pattern = theValue;
+  }
+
+  /** sets ALCT acc_thresh */
+  void setAlctAccThresh(const unsigned int theValue) {
+    m_alct_acc_thresh = theValue;
+  }
+
+  /** sets ALCT acc_pattern */
+  void setAlctAccPattern(const unsigned int theValue) {
+    m_alct_acc_pattern = theValue;
   }
 
   /** sets ALCT trig_mode */
@@ -180,6 +196,7 @@ class CSCL1TPParameters
   unsigned int m_alct_fifo_tbins, m_alct_fifo_pretrig;
   unsigned int m_alct_bx_width,   m_alct_drift_delay;
   unsigned int m_alct_nph_thresh, m_alct_nph_pattern;
+  unsigned int m_alct_acc_thresh, m_alct_acc_pattern;
   unsigned int m_alct_trig_mode,  m_alct_alct_amode, m_alct_l1a_window;
 
   /** CLCT configuration parameters. */
