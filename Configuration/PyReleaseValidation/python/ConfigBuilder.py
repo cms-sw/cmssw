@@ -5,7 +5,7 @@
 # creates a complete config file.
 # relval_main + the custom config for it is not needed any more
 
-__version__ = "$Revision: 1.47 $"
+__version__ = "$Revision: 1.48 $"
 __source__ = "$Source: /cvs_server/repositories/CMSSW/CMSSW/Configuration/PyReleaseValidation/python/ConfigBuilder.py,v $"
 
 import FWCore.ParameterSet.Config as cms
@@ -38,12 +38,8 @@ class ConfigBuilder(object):
         # creating a process to catch errors
         # building the code to re-create the process
         # check the code at the very end
-        self.pythonCfgCode =  "# Auto generated configuration file\n"
-        self.pythonCfgCode += "# using: \n# "+__version__+"\n# "+__source__+"\n"
-        self.pythonCfgCode += "import FWCore.ParameterSet.Config as cms\n\n"
-        self.pythonCfgCode += "process = cms.Process('"+self._options.name+"')\n\n"       
         self.imports = []  #could we use a set instead?
-        self.commands = []
+        self.additionalCommands = []
         # TODO: maybe a list of to be dumped objects would help as well        
         self.blacklist_paths = [] 
         self.additionalObjects = []
@@ -203,7 +199,7 @@ class ConfigBuilder(object):
         
         # set non-default conditions 
         if ( len(conditionsSP)>1 ):
-            self.commands.append("process.GlobalTag.globaltag = '"+str(conditionsSP[1]+"'"))
+            self.additionalCommands.append("process.GlobalTag.globaltag = '"+str(conditionsSP[1]+"'"))
                         
     def addCustomise(self):
         """Include the customise code """
@@ -302,15 +298,10 @@ class ConfigBuilder(object):
     def prepare_HLT(self, sequence = None):
         """ Enrich the schedule with the HLT simulation step"""
         self.loadAndRemember("HLTrigger/Configuration/HLT_2E30_cff")
-        hltconfig = __import__("HLTrigger/Configuration/HLT_2E30_cff")
 
         self.process.schedule.extend(self.process.HLTSchedule)
-               
-        [self.blacklist_paths.append(name) for name in hltconfig.__dict__ if isinstance(getattr(hltconfig,name),cms.Path)]
-        [self.process.schedule.append(getattr(self.process,name)) for name in hltconfig.__dict__ if isinstance(getattr(hltconfig,name),cms.EndPath)]
-        [self.blacklist_paths.append(name) for name in hltconfig.__dict__ if isinstance(getattr(hltconfig,name),cms.EndPath)]
+        [self.blacklist_paths.append(path) for path in self.process.HLTSchedule if isinstance(path,(cms.Path,cms.EndPath))]
   
-
     def prepare_RAW2DIGI(self, sequence = "RawToDigi"):
         if ( len(sequence.split(','))==1 ):
             self.loadAndRemember("Configuration/StandardSequences/RawToDigi_cff")
@@ -348,35 +339,52 @@ class ConfigBuilder(object):
         self.process.schedule.append(self.process.validation_step)
 
 
-    def prepare_FASTSIM(self, sequence = "famosWithEverything"):
-        """ Enrich the schedule with fastsim """
+    def prepare_FASTSIM(self, sequence = "all"):
+        """Enrich the schedule with fastsim"""
         self.loadAndRemember("FastSimulation/Configuration/FamosSequences_cff")
-        self.process.fastsim_step = cms.Path( getattr(self.process, sequence) )
-        self.process.schedule.append(self.process.fastsim_step)
 
-        # now the additional commands we need to make the config work
-        self.additionalCommands.append("process.VolumeBasedMagneticFieldESProducer.useParametrizedTrackerField = True")
+        if sequence == "all":
+            self.loadAndRemember("FastSimulation/Configuration/HLT_cff")
 
-    def prepare_FASTSIMHLT(self, sequence = None):
-        """ Enrich the schedule with fastsim + HLT """
-        self.loadAndRemember("FastSimulation/Configuration/FamosSequences_cff")
-        
-        self.additionalCommands.append("process.famosSimHits.SimulateCalorimetry = True")
-        self.additionalCommands.append("process.famosSimHits.SimulateTracking = True")
-        self.additionalCommands.append("process.famosPileUp.PileUpSimulator.averageNumber = 0.0")        
-        self.additionalCommands.append("process.caloRecHits.RecHitsFactory.doMiscalib = True")
+            # no need to repeat the definition later on in the created file 
+            [self.blacklist_paths.append(path) for path in self.process.HLTSchedule if isinstance(path,(cms.Path,cms.EndPath))]
 
-        # Apply Tracker misalignment (ideal alignment though)
-        self.additionalCommands.append("process.famosSimHits.ApplyAlignment = True")
-        self.additionalCommands.append("process.misalignedTrackerGeometry.applyAlignment = True")
-        self.additionalCommands.append("process.caloRecHits.RecHitsFactory.HCAL.Refactor = 1.0")
-        self.additionalCommands.append("process.caloRecHits.RecHitsFactory.HCAL.Refactor_mean = 1.0")
+            # endpaths do logging only which should be suppressed in production
+            self.process.HLTSchedule.remove(self.process.HLTAnalyzerEndpath)
 
-        
+            self.loadAndRemember("Configuration.StandardSequences.L1TriggerDefaultMenu_cff")
+            self.additionalCommands.append("process.famosSimHits.SimulateCalorimetry = True")
+            self.additionalCommands.append("process.famosSimHits.SimulateTracking = True")
+            self.additionalCommands.append("process.famosPileUp.PileUpSimulator.averageNumber = 0.0")
+            self.additionalCommands.append("process.caloRecHits.RecHitsFactory.doMiscalib = True")
+
+            # Apply Tracker misalignment (ideal alignment though)
+            self.additionalCommands.append("process.famosSimHits.ApplyAlignment = True")
+            self.additionalCommands.append("process.misalignedTrackerGeometry.applyAlignment = True")
+            self.additionalCommands.append("process.caloRecHits.RecHitsFactory.HCAL.Refactor = 1.0")
+            self.additionalCommands.append("process.caloRecHits.RecHitsFactory.HCAL.Refactor_mean = 1.0")
+
+            self.additionalCommands.append("process.simulation = cms.Sequence(process.simulationWithFamos)")
+            self.additionalCommands.append("process.HLTEndSequence = cms.Sequence(process.reconstructionWithFamos)")
+
+            # since we have HLT here, the process should be called HLT
+            self._options.name = "HLT"
+
+            self.process.schedule.extend(self.process.HLTSchedule)
+            self.process.reconstruction = cms.Path(self.process.reconstructionWithFamos)
+            self.process.schedule.append(self.process.reconstruction)
+        else:
+            self.process.fastsim_step = cms.Path( getattr(self.process, "famosWithEverything") )
+            self.process.schedule.append(self.process.fastsim_step)
+
+            # now the additional commands we need to make the config work
+            self.additionalCommands.append("process.VolumeBasedMagneticFieldESProducer.useParametrizedTrackerField = True")
+                                            
+
     def build_production_info(self, evt_type, evtnumber):
         """ Add useful info for the production. """
         prod_info=cms.untracked.PSet\
-              (version=cms.untracked.string("$Revision: 1.47 $"),
+              (version=cms.untracked.string("$Revision: 1.48 $"),
                name=cms.untracked.string("PyReleaseValidation"),
                annotation=cms.untracked.string(evt_type+ " nevts:"+str(evtnumber))
               )
@@ -393,6 +401,11 @@ class ConfigBuilder(object):
         self.addConditions()
         self.addOutput()
         self.addCommon()
+
+        self.pythonCfgCode =  "# Auto generated configuration file\n"
+        self.pythonCfgCode += "# using: \n# "+__version__+"\n# "+__source__+"\n"
+        self.pythonCfgCode += "import FWCore.ParameterSet.Config as cms\n\n"
+        self.pythonCfgCode += "process = cms.Process('"+self._options.name+"')\n\n"
         
         self.pythonCfgCode += "# import of standard configurations\n"
         for module in self.imports:
@@ -429,7 +442,7 @@ class ConfigBuilder(object):
 
         # dump all additional commands
         self.pythonCfgCode += "\n# Other statements\n"
-        for command in self.commands:
+        for command in self.additionalCommands:
             self.pythonCfgCode += command + "\n"
 
         # special treatment for a production filter sequence 
@@ -446,10 +459,10 @@ class ConfigBuilder(object):
         # dump all paths
         self.pythonCfgCode += "\n# Path and EndPath definitions\n"
         for path in self.process.paths:
-            if path not in self.blacklist_paths:
+            if getattr(self.process,path) not in self.blacklist_paths:
                 self.pythonCfgCode += dumpPython(self.process,path)
         for endpath in self.process.endpaths:
-            if endpath not in self.blacklist_paths:
+            if getattr(self.process,endpath) not in self.blacklist_paths:
                 self.pythonCfgCode += dumpPython(self.process,endpath)
 
         # dump the schedule
