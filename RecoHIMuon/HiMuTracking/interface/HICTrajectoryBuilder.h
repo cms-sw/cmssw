@@ -30,6 +30,10 @@ class TrajectoryFilter;
 #include "RecoHIMuon/HiMuTracking/interface/HICMeasurementEstimator.h"
 #include "TrackingTools/PatternTools/interface/TempTrajectory.h"
 #include "RecoHIMuon/HiMuSeed/interface/HICConst.h"
+#include "Geometry/CommonDetUnit/interface/GlobalTrackingGeometry.h"
+#include "Geometry/Records/interface/GlobalTrackingGeometryRecord.h"
+#include "TrackingTools/PatternTools/interface/TrajectoryFitter.h"
+#include "TrackingTools/PatternTools/interface/TrajectorySmoother.h"
 class TransientTrackingRecHitBuilder;
 class TrajectoryFilter;
 
@@ -48,6 +52,7 @@ public:
   //			const edm::EventSetup& es,
   //		const MeasurementTracker* theInputMeasurementTracker);
   HICTrajectoryBuilder(const edm::ParameterSet&              conf,
+                       const edm::EventSetup&                es, 
 		       const TrajectoryStateUpdator*         updator,
 		       const Propagator*                     propagatorAlong,
 		       const Propagator*                     propagatorOpposite,
@@ -72,7 +77,12 @@ public:
   const Propagator*                     thePropagatorOpposite;
   const Chi2MeasurementEstimatorBase*   theEstimator;
 //  const HICMeasurementEstimator*        theEstimator;
-  mutable cms::HICConst*                theHICConst;   
+  mutable cms::HICConst*                theHICConst; 
+    
+  edm::ESHandle<GlobalTrackingGeometry> globTkGeomHandle;
+  edm::ESHandle<TrajectoryFitter>       theFitterTrack;
+  edm::ESHandle<TrajectorySmoother>     theSmootherTrack;
+  edm::ESHandle<Propagator>             thePropagatorTrack;
   
   const TransientTrackingRecHitBuilder* theTTRHBuilder;
   const MeasurementTracker*             theMeasurementTracker;
@@ -82,8 +92,8 @@ public:
   mutable const Propagator*             theForwardPropagator;
   mutable const Propagator*             theBackwardPropagator;
   
-  TrajectoryFilter*              theMinPtCondition;
-  TrajectoryFilter*              theMaxHitsCondition;
+  TrajectoryFilter*                     theMinPtCondition;
+  TrajectoryFilter*                     theMaxHitsCondition;
 
   int theMaxCand;               /**< Maximum number of trajectory candidates 
 		                     to propagate to the next layer. */

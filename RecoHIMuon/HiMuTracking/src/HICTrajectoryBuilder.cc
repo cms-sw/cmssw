@@ -27,12 +27,22 @@
 #include "RecoHIMuon/HiMuTracking/interface/HICMuonUpdator.h"
 #include "RecoHIMuon/HiMuPropagator/interface/HICMuonPropagator.h"
 
+
+#include "Geometry/CommonDetUnit/interface/GlobalTrackingGeometry.h"
+#include "Geometry/Records/interface/GlobalTrackingGeometryRecord.h"
+#include "DataFormats/BeamSpot/interface/BeamSpot.h"
+#include "DataFormats/TrackReco/interface/TrackBase.h"
+#include "TrackingTools/PatternTools/interface/TrajectorySmoother.h"
+#include "TrackingTools/Records/interface/TrackingComponentsRecord.h"
+#include "TrackingTools/PatternTools/interface/TrajectoryStateClosestToBeamLineBuilder.h"
+
 using namespace std;
 using namespace cms;
 //#define DEBUG
 
 HICTrajectoryBuilder::
-  HICTrajectoryBuilder(const edm::ParameterSet&              conf,
+  HICTrajectoryBuilder(const edm::ParameterSet&              conf, 
+                       const edm::EventSetup&                es1,
 		       const TrajectoryStateUpdator*         updator,
 		       const Propagator*                     propagatorAlong,
 		       const Propagator*                     propagatorOpposite,
@@ -57,6 +67,11 @@ HICTrajectoryBuilder::
   theIntermediateCleaning = false;
   theMinimumNumberOfHits  = 5;
   theAlwaysUseInvalidHits = false;
+  es1.get<GlobalTrackingGeometryRecord>().get(globTkGeomHandle);
+  es1.get<TrackingComponentsRecord>().get("KFFitterForRefitInsideOut",theFitterTrack);
+  es1.get<TrackingComponentsRecord>().get("KFSmootherForRefitInsideOut",theSmootherTrack);
+  es1.get<TrackingComponentsRecord>().get("SmartPropagatorAny",thePropagatorTrack);
+  
 #ifdef DEBUG  
   cout<<" HICTrajectoryBuilder::contructor "<<endl;
 #endif 
@@ -153,8 +168,12 @@ limitedCandidates( TempTrajectory& startingTraj,
 #ifdef DEBUG
   cout<<" Number of measurements "<<startingTraj.measurements().size()<<endl;
 #endif
- // return;
-
+//
+// Calculate the number of final trajectories. Allow no more then 4.
+//
+   
+  int numtraj = 0; 
+   
   while ( !candidates.empty()) {
 #ifdef DEBUG
   cout<<" HICTrajectoryBuilder::limitedCandidates::cycle "<<candidates.size()<<endl;
@@ -175,7 +194,7 @@ limitedCandidates( TempTrajectory& startingTraj,
 #ifdef DEBUG
         cout<<": Measurements empty : "<<endl;
 #endif
-	if ( qualityFilter( *traj)) addToResult( *traj, result);
+	if ( qualityFilter( *traj)) {addToResult( *traj, result); numtraj++;}
       }
       else {
 #ifdef DEBUG
@@ -188,7 +207,7 @@ limitedCandidates( TempTrajectory& startingTraj,
           if(good)
           {
 	    if ( toBeContinued(newTraj)) {
-	       newCand.push_back(newTraj);
+	                newCand.push_back(newTraj);
 #ifdef DEBUG
                cout<<": toBeContinued : increase "<<newCand.size()<<" maximal size "<<theMaxCand<<endl;
 #endif
@@ -197,7 +216,7 @@ limitedCandidates( TempTrajectory& startingTraj,
 #ifdef DEBUG
                cout<<": good TM : to be stored :"<<endl;
 #endif
-	       if ( qualityFilter(newTraj)) addToResult( newTraj, result);
+	       if ( qualityFilter(newTraj)) {addToResult( newTraj, result); numtraj++;}
 	    //// don't know yet
 	          }
           } // good
@@ -206,7 +225,7 @@ limitedCandidates( TempTrajectory& startingTraj,
 #ifdef DEBUG
                   cout<<": bad TM : to be stored :"<<endl;
 #endif
-               if ( qualityFilter( *traj)) addToResult( *traj, result);
+               if ( qualityFilter( *traj)) {addToResult( *traj, result);numtraj++;}
             }
 	 } //meas 
       }
@@ -216,9 +235,16 @@ limitedCandidates( TempTrajectory& startingTraj,
 //	newCand.erase( newCand.begin()+theMaxCand, newCand.end());
 //      }
 
-    }
+        if(numtraj > 4) break;
+    } // trajectories
+        if(numtraj > 4) break;
         candidates.swap(newCand);
   }
+
+#ifdef DEBUG 
+  std::cout<<" qualityFilter::Number of trajectories "<<numtraj<<std::endl;
+#endif
+  
 }
 
 
@@ -267,27 +293,69 @@ HICTrajectoryBuilder::seedMeasurements(const TrajectorySeed& seed) const
   for( Trajectory::DataContainer::const_iterator itm = tms.begin(); itm != tms.end(); itm++) {
      if((*itm).layer()->subDetector() == GeomDetEnumerators::PixelEndcap || (*itm).layer()->subDetector() == GeomDetEnumerators::PixelBarrel) ipix++;
   }
+  
 #ifdef DEBUG
  cout<<" Number of pixels "<<ipix<<endl;
 #endif
+
  if(ipix < 1) return false;
+ 
 //
 // Refit the trajectory
 //
-/*
-  ConstRecHitContainer myrechits = traj0.recHits();
 
-  PTrjectoryStateOnDet garbage1;
-  edm::OwnVector<TrackingRecHit> garbage2;
-  PropagationDirection propDir = alongMomentum;
-  TrajectorySeed seed(garbage1,garbage2,propDir);
-  vector<Trajectory> trajectories = theFitter->fit(seed,recHitsForReFit,firstTSOS);
-  if(trajectories.empty()) return false;
-  Trajectory trajectoryBW = trajectories.front();
-  vector<Trajectory> trajectoriesSM = theSmoother->trajectories(trajectoryBW);
-*/
+    reco::BeamSpot::CovarianceMatrix matrix;
+    matrix(2,2) = 0.001;
+    matrix(3,3) = 0.001;
+
+    reco::BeamSpot bs( reco::BeamSpot::Point(0., 0., theHICConst->zvert),
+                                                     0.1,
+                                                     0.,
+                                                     0.,
+                                                     0.,
+                                                    matrix
+                     );
+    
+    enum RefitDirection{insideOut,outsideIn,undetermined};
+    
+    Trajectory::ConstRecHitContainer recHitsForReFit = traj0.recHits();
+    
+    PTrajectoryStateOnDet garbage1;
+    edm::OwnVector<TrackingRecHit> garbage2;
+    TrajectoryStateOnSurface firstTSOS = traj0.firstMeasurement().updatedState(); 
+
+    PropagationDirection propDir = oppositeToMomentum;
+
+    TrajectorySeed seed(garbage1,garbage2,propDir);
+    vector<Trajectory> trajectories = theFitterTrack->fit(seed,recHitsForReFit,firstTSOS);
+
+    TrajectoryStateOnSurface innertsos;
+
+    if (traj0.direction() == alongMomentum) {
+   //    cout<<" Direction is along momentum "<<endl;
+      innertsos = traj0.firstMeasurement().updatedState();
+    } else {
+      innertsos = traj0.lastMeasurement().updatedState();
+   //   cout<<" Direction is opposite to momentum "<<endl;
+      
+    }
+
+    TrajectoryStateClosestToBeamLineBuilder tscblBuilder;
+    TrajectoryStateClosestToBeamLine tscbl = tscblBuilder(*(innertsos.freeState()),bs);
+
+    if (tscbl.isValid()==false) {
+    //cout<<" false track "<<endl; 
+     return false;
+    }
+    
+    GlobalPoint v = tscbl.trackStateAtPCA().position();
+    math::XYZPoint  pos( v.x(), v.y(), v.z() );
+    
+    if(v.perp() > 0.1 ) return false;
+    if(fabs(v.z() - theHICConst->zvert ) > 0.4 ) return false;
 
  return true;
+ 
 }
 
 

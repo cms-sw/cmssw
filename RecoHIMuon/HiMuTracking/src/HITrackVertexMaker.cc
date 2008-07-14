@@ -7,7 +7,7 @@
 //
 // Original Author:  Dong Ho Moon
 //         Created:  Wed May  9 06:22:36 CEST 2007
-// $Id: HITrackVertexMaker.cc,v 1.3 2008/05/22 15:31:36 kodolova Exp $
+// $Id: HITrackVertexMaker.cc,v 1.4 2008/07/04 08:26:26 kodolova Exp $
 //
 //
  
@@ -46,7 +46,7 @@
 #include "TrackingTools/Records/interface/TransientRecHitRecord.h"
 #include "TrackingTools/Records/interface/TrackingComponentsRecord.h"
 #include "TrackingTools/TrajectoryFiltering/interface/RegionalTrajectoryFilter.h"
-#include "TrackingTools/PatternTools/interface//TrajectoryMeasurement.h"
+#include "TrackingTools/PatternTools/interface/TrajectoryMeasurement.h"
 #include "DataFormats/TrajectorySeed/interface/TrajectorySeedCollection.h"
 #include "RecoTracker/TkNavigation/interface/NavigationSchoolFactory.h"
 #include "DataFormats/TrackReco/interface/TrackBase.h"
@@ -56,7 +56,10 @@
 #include "RecoTracker/TkNavigation/interface/SimpleNavigationSchool.h"
 #include "TrackingTools/DetLayers/interface/NavigationSetter.h"
 #include "TrackingTools/DetLayers/interface/NavigationSchool.h"
-
+#include "DataFormats/BeamSpot/interface/BeamSpot.h"
+#include "DataFormats/TrackReco/interface/TrackBase.h"
+#include "TrackingTools/PatternTools/interface/TrajectorySmoother.h"
+#include "TrackingTools/PatternTools/interface/TrajectoryFitter.h"
 // Geometry includes
 
 #include "Geometry/CommonDetUnit/interface/GeomDetType.h"
@@ -66,6 +69,8 @@
 #include "Geometry/TrackerGeometryBuilder/interface/TrackerGeometry.h"
 #include "Geometry/Records/interface/TrackerDigiGeometryRecord.h"
 #include "Geometry/TrackerNumberingBuilder/interface/GeometricDet.h"
+#include "Geometry/CommonDetUnit/interface/GlobalTrackingGeometry.h"
+#include "Geometry/Records/interface/GlobalTrackingGeometryRecord.h"
 
 // RecoHIMuon includes
 
@@ -109,6 +114,8 @@ HITrackVertexMaker::HITrackVertexMaker(const edm::ParameterSet& ps1, const edm::
     es1.get<TrackerRecoGeometryRecord>().get( tracker );
     es1.get<IdealMagneticFieldRecord>().get(magfield);
     es1.get<CkfComponentsRecord>().get("",measurementTrackerHandle);
+    es1.get<TransientRecHitRecord>().get("WithoutRefit",recHitBuilderHandle); 
+       
     double theChiSquareCut = 500.;
     double nsig = 3.;
     int theLowMult = 1;
@@ -121,7 +128,7 @@ HITrackVertexMaker::HITrackVertexMaker(const edm::ParameterSet& ps1, const edm::
     es1.get<TrackingComponentsRecord>().get(updatorName,updatorHandle);
     double ptmin=1.;
     theMinPtFilter = new MinPtTrajectoryFilter(ptmin); 
-    theTrajectoryBuilder = new HICTrajectoryBuilder(        pset_,
+    theTrajectoryBuilder = new HICTrajectoryBuilder(        pset_, es1,
                                                      updatorHandle.product(),
                                                      propagatorAlongHandle.product(),
                                                      propagatorOppositeHandle.product(),
@@ -159,14 +166,20 @@ bool HITrackVertexMaker::produceTracks(const edm::Event& e1, const edm::EventSet
 //
 
   es1.get<TransientRecHitRecord>().get("WithoutRefit",recHitBuilderHandle);
-  
+
 //
 // Get measurement tracker
 //
+//  
+ 
+  es1.get<CkfComponentsRecord>().get("",measurementTrackerHandle);
+    
 #ifdef DEBUG  
   std::cout<<" Before first tracker update "<<std::endl;
 #endif
+
   measurementTrackerHandle->update(e1);
+  
 #ifdef DEBUG
   std::cout<<" After first tracker update "<<std::endl;
 #endif
@@ -234,7 +247,10 @@ for(gmt_iter1 = exc1.begin(); gmt_iter1!=exc1.end(); gmt_iter1++)
       
    cout<<" Number of muon candidates "<<mucands->size()<<" "<<excall.size()<<endl;
 
-   if(mucands->size() == 0 && excall.size() == 0) return dimuon;
+//   if(mucands->size() == 0 && excall.size() == 0) return dimuon;
+
+   if( mucands->size() < 2 ) return dimuon;
+   
 // For trajectory builder   
    int  theLowMult = 1;
    theEstimator->setHICConst(theHICConst);
@@ -268,6 +284,8 @@ for(gmt_iter1 = exc1.begin(); gmt_iter1!=exc1.end(); gmt_iter1++)
 #ifdef DEBUG
     cout<<" Size of the freeTS "<<theFts.size()<<endl;
 #endif 
+   
+   
     
    DiMuonSeedGeneratorHIC::SeedContainer myseeds;  
    map<DetLayer*, DiMuonSeedGeneratorHIC::SeedContainer> seedmap;
@@ -309,20 +327,23 @@ for(gmt_iter1 = exc1.begin(); gmt_iter1!=exc1.end(); gmt_iter1++)
         map<DetLayer*, DiMuonSeedGeneratorHIC::SeedContainer> seedmap = Seed.produce(e1 ,es1, (*ftsnew), tsos, (*ifts), 
 	                                       recHitBuilderHandle.product(), measurementTrackerHandle.product(), &seedlayers);
 	
-	
+	int ilnum = 0;
 	  for( vector<DetLayer*>::iterator it = seedlayers.begin(); it != seedlayers.end(); it++)
 	  {
-	  
+	    ilnum++;
 	    vector<Trajectory> theTmpTrajectories0;
 	    DiMuonSeedGeneratorHIC::SeedContainer seeds = (*seedmap.find(*it)).second;
     // set the correct navigation
             NavigationSetter setter( *theNavigationSchool);
+#ifdef DEBUG
+       std::cout<<" Layer "<<ilnum<<" Number of seeds in layer "<<seeds.size()<<std::endl;	    
+#endif	    
 	    if(seeds.size() > 0) {
        for(DiMuonSeedGeneratorHIC::SeedContainer::iterator iseed=seeds.begin();iseed!=seeds.end();iseed++)
        {
          std::vector<TrajectoryMeasurement> theV = (*iseed).measurements();
 #ifdef DEBUG
-         std::cout<< " Seed number "<<iseedn<<"position r "<<theV[0].recHit()->globalPosition().perp()<<" phi "<<theV[0].recHit()->globalPosition().phi()<<" z "<<
+         std::cout<< "Layer " <<ilnum<<" Seed number "<<iseedn<<"position r "<<theV[0].recHit()->globalPosition().perp()<<" phi "<<theV[0].recHit()->globalPosition().phi()<<" z "<<
          theV[0].recHit()->globalPosition().z()<<" momentum "<<theV[0].updatedState().freeTrajectoryState()->parameters().momentum().perp()<<" "<<
          theV[0].updatedState().freeTrajectoryState()->parameters().momentum().z()<<std::endl;
 #endif
@@ -334,6 +355,8 @@ for(gmt_iter1 = exc1.begin(); gmt_iter1!=exc1.end(); gmt_iter1++)
 	                                    allTraj.insert(allTraj.end(),theTmpTrajectories.begin(),theTmpTrajectories.end());
 					    theTmpTrajectories0.insert(theTmpTrajectories0.end(),theTmpTrajectories.begin(),theTmpTrajectories.end());
 	                                }
+	if(theTmpTrajectories0.size() > 0) { std::cout<<"We found trajectories for at least one seed "<<std::endl; break;}
+					
         iseedn++;
 	    
        } // seeds 	    
@@ -349,7 +372,7 @@ for(gmt_iter1 = exc1.begin(); gmt_iter1!=exc1.end(); gmt_iter1++)
      if(iseedn > 0) numofseeds++;
    } // Muon Free trajectory state
 
-   cout<<" Number of muons trajectories in MUON "<<theFts.size()<<" Number of seeds "<<numofseeds<<endl;
+   cout<<" Number of muons trajectories in MUON "<<theFts.size()<<" Number of seeds "<<numofseeds+1<<endl;
         
 //
 // start fitting procedure
@@ -494,25 +517,25 @@ for(gmt_iter1 = exc1.begin(); gmt_iter1!=exc1.end(); gmt_iter1++)
        theTwoTransTracks.push_back(*iminus);
        theRecoVertex = theFitter.vertex(theTwoTransTracks);
       if( !theRecoVertex.isValid() ) {
-//        cout<<" Vertex is failed "<<endl;
         continue;
       } 
       
 //        cout<<" Vertex is found "<<endl;
-//        cout<<" Chi2 = "<<theRecoVertex.totalChiSquared()<<endl;
-//        cout<<" There are refitted tracks "<<theRecoVertex.hasRefittedTracks()<<endl;
+//        cout<<" Chi2 = "<<theRecoVertex.totalChiSquared()<<
+//	          " r= "<<theRecoVertex.position().perp()<<
+//		  " z= "<<theRecoVertex.position().z()<<endl;
 
 // Additional cuts       
-     if ( theRecoVertex.totalChiSquared() > 13. ) {
-        //cout<<" Vertex is failed with Chi2 : "<<theRecoVertex.totalChiSquared()<<endl; 
+     if ( theRecoVertex.totalChiSquared() > 0.0002 ) {
+//        cout<<" Vertex is failed with Chi2 : "<<theRecoVertex.totalChiSquared()<<endl; 
      continue;
      }
-     if ( theRecoVertex.position().perp() > 0.1 ) {
-      //  cout<<" Vertex is failed with r position : "<<theRecoVertex.position().perp()<<endl; 
+     if ( theRecoVertex.position().perp() > 0.08 ) {
+//        cout<<" Vertex is failed with r position : "<<theRecoVertex.position().perp()<<endl; 
 	continue;
       }    
-     if ( fabs(theRecoVertex.position().z()-theHICConst->zvert) > 0.1 ) {
-       //  cout<<" Vertex is failed with z position : "<<theRecoVertex.position().z()<<endl; 
+     if ( fabs(theRecoVertex.position().z()-theHICConst->zvert) > 0.06 ) {
+//         cout<<" Vertex is failed with z position : "<<theRecoVertex.position().z()<<endl; 
 	 continue;
      }
      double quality = theRecoVertex.normalisedChiSquared();
@@ -533,46 +556,15 @@ for(gmt_iter1 = exc1.begin(); gmt_iter1!=exc1.end(); gmt_iter1++)
       theVertexContainer.push_back(theRecoVertex);
      } // iminus
   } // iplus
-   if( theVertexContainer.size() < 1 ) { 
-       // cout<<" No vertex found in event "<<endl; 
-       return dimuon; } else {
+  
+       if( theVertexContainer.size() < 1 ) { 
+        std::cout<<" No vertex found in event "<<std::endl; 
+       return dimuon; 
+       } else {
           // cout<<" Event vertex is selected "<<endl;
        }
-/*
-     vector<TransientTrack> refittedTrax;
-        if( theRecoVertex.hasRefittedTracks() ) {
-          refittedTrax = theRecoVertex.refittedTracks();
-        }
-     if( refittedTrax.size() < 2 ) {cout<<" Refit of tracks with vertex is failed "<<endl; return; }
-        vector<TransientTrack>::iterator traxIter = refittedTrax.begin(),
-          traxEnd = refittedTrax.end();
 
-        // TransientTrack objects to hold the positive and negative
-        //  refitted tracks
-        TransientTrack* thePositiveRefTrack = 0;
-        TransientTrack* theNegativeRefTrack = 0;
-        
-        // Store track info in reco::Vertex object.  If the option is set,
-        //  store the refitted ones as well.
-        //if(storeRefTrax) {
-        for( ; traxIter != traxEnd; traxIter++) {
-          if( traxIter->track().charge() > 0. ) {
-            thePositiveRefTrack = new TransientTrack(*traxIter);
-          }
-          else if (traxIter->track().charge() < 0.) {
-            theNegativeRefTrack = new TransientTrack(*traxIter);
-          }
-        }
 
-        GlobalPoint vtxPos(theVtx.x(), theVtx.y(), theVtx.z());
-
-        TrajectoryStateClosestToPoint* trajPlus;
-        TrajectoryStateClosestToPoint* trajMins;
-          trajPlus = new TrajectoryStateClosestToPoint(
-                  thePositiveRefTrack->trajectoryStateClosestToPoint(vtxPos));
-          trajMins = new TrajectoryStateClosestToPoint(
-                  theNegativeRefTrack->trajectoryStateClosestToPoint(vtxPos));
-*/     
     dimuon = true;
     return dimuon;
 } 
