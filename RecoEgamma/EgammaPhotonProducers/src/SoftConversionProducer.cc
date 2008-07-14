@@ -42,9 +42,8 @@ SoftConversionProducer::SoftConversionProducer(const edm::ParameterSet& config) 
   outInTrackClusterAssociationCollection_ = conf_.getParameter<std::string>("outInTrackClusterAssociationCollection");
   inOutTrackClusterAssociationCollection_ = conf_.getParameter<std::string>("inOutTrackClusterAssociationCollection");
   clusterType_                            = conf_.getParameter<std::string>("clusterType");
-  clusterProducer_                        = conf_.getParameter<std::string>("clusterProducer");
-  clusterBarrelCollection_                = conf_.getParameter<std::string>("clusterBarrelCollection");
-  clusterEndcapCollection_                = conf_.getParameter<std::string>("clusterEndcapCollection");
+  clusterBarrelCollection_                = conf_.getParameter<edm::InputTag>("clusterBarrelCollection");
+  clusterEndcapCollection_                = conf_.getParameter<edm::InputTag>("clusterEndcapCollection");
   softConversionCollection_               = conf_.getParameter<std::string>("softConversionCollection");
   trackMaxChi2_                           = conf_.getParameter<double>("trackMaxChi2");
   trackMinHits_                           = conf_.getParameter<double>("trackMinHits");
@@ -105,17 +104,19 @@ void SoftConversionProducer::produce(edm::Event& theEvent, const edm::EventSetup
   theEvent.getByLabel( conversionIOTrackProducer_, inOutTrackClusterAssociationCollection_, inOutTrkClusterAssocHandle);
 
   edm::Handle<edm::View<reco::CaloCluster> > clusterBarrelHandle;
-  theEvent.getByLabel(clusterProducer_, clusterBarrelCollection_, clusterBarrelHandle);
-    
+  theEvent.getByLabel(clusterBarrelCollection_, clusterBarrelHandle);
+
   edm::Handle<edm::View<reco::CaloCluster> > clusterEndcapHandle;
   if(clusterType_ == "BasicCluster"){
-    theEvent.getByLabel(clusterProducer_, clusterEndcapCollection_, clusterEndcapHandle);
+    //theEvent.getByLabel(clusterEndcapProducer_, clusterEndcapCollection_, clusterEndcapHandle);
+    theEvent.getByLabel(clusterEndcapCollection_, clusterEndcapHandle);
   }
 
   // create temporary map to loop over tracks conveniently
   TrackClusterMap trackClusterMap;
 
   int nTracksOI = (int) outInTrkHandle->size();
+  //  std::cout << "  nTracksOI " <<  nTracksOI << std::endl;
   for(int itrk=0; itrk<nTracksOI; itrk++){
     reco::TrackRef tRef(outInTrkHandle,itrk);
     if(!trackQualityCut(tRef)) continue;
@@ -124,6 +125,7 @@ void SoftConversionProducer::produce(edm::Event& theEvent, const edm::EventSetup
   }
 
   int nTracksIO = (int) inOutTrkHandle->size();
+  //  std::cout << "  nTracksIO " <<  nTracksIO << std::endl;
   for(int itrk=0; itrk<nTracksIO; itrk++){
     reco::TrackRef tRef(inOutTrkHandle,itrk);
     if(!trackQualityCut(tRef)) continue;
@@ -143,18 +145,25 @@ void SoftConversionProducer::produce(edm::Event& theEvent, const edm::EventSetup
   TrackClusterMap::iterator iter2    = trackClusterMap.begin();
   TrackClusterMap::iterator iter_end = trackClusterMap.end();
 
+
+
   // double-loop to make pairs
   for( ; iter1 != iter_end; iter1++) {
+    //    std::cout << " back to start of loop 1 " << std::endl;
     const reco::TrackRef trk1 = iter1->first;
     const reco::CaloClusterPtr cls1 = iter1->second;
     reco::TransientTrack tsk1 = theTransientTrackBuilder->build(*trk1);
+    //std::cout << " after transient " << std::endl;
 
     for(iter2 = iter1+1; iter2 != iter_end; iter2++) {
+      //      std::cout << " back to start of loop 2 " << std::endl;
       const reco::TrackRef trk2 = iter2->first;
       if(trk1 == trk2) continue;
 
       const reco::CaloClusterPtr cls2 = iter2->second;
       reco::TransientTrack tsk2 = theTransientTrackBuilder->build(*trk2);
+      //      std::cout << " after transient " << std::endl;
+      // std::cout << " eta1 " << cls1->position().Eta() << " eta2 " << cls2->position().Eta() << std::endl;
 
       double dEta = std::abs(cls1->position().Eta() - cls2->position().Eta());
       if(dEta > clustersMaxDeltaEta_) continue;
@@ -165,20 +174,28 @@ void SoftConversionProducer::produce(edm::Event& theEvent, const edm::EventSetup
       toBeFitted.push_back(tsk1);
       toBeFitted.push_back(tsk2);
 
+      //      std::cout << " Before vertex " << std::endl;
       reco::Vertex theConversionVertex = (reco::Vertex) theVertexFinder_->run(toBeFitted);
+      // std::cout << " After vertex " << std::endl;
 
       if(theConversionVertex.isValid()){
+	//	std::cout << " valid vertex " << std::endl;
 	reco::CaloClusterPtrVector scRefs;
 	scRefs.push_back(cls1);
 	scRefs.push_back(cls2);
+	//std::cout << " after push back scref " << std::endl; 
 	std::vector<reco::CaloClusterPtr> clusterRefs;
 	clusterRefs.push_back(cls1);
 	clusterRefs.push_back(cls2);
+	//std::cout << " after push back slusterref " << std::endl; 
 	std::vector<reco::TrackRef> trkRefs;
 	trkRefs.push_back(trk1);
 	trkRefs.push_back(trk2);
 
+
+	//	std::cout << " Before impact finder " << std::endl;
 	std::vector<math::XYZPoint> trkPositionAtEcal = theEcalImpactPositionFinder_->find(toBeFitted,clusterBarrelHandle);
+	//std::cout << " After impact finder " << std::endl;
 	if((clusterType_ == "BasicCluster") && (std::abs(cls2->position().Eta()) > 1.5)){
 	  trkPositionAtEcal.clear();
 	  trkPositionAtEcal = theEcalImpactPositionFinder_->find(toBeFitted,clusterEndcapHandle);
@@ -187,12 +204,15 @@ void SoftConversionProducer::produce(edm::Event& theEvent, const edm::EventSetup
 	// @@@ need to check duplicated candidates
 
 	reco::Conversion newCandidate(scRefs, trkRefs, trkPositionAtEcal, theConversionVertex, clusterRefs);
+
 	outputColl->push_back(newCandidate);
 
-// 	printf("=====> run(%d), event(%d) <=====\n",theEvent.id().run(),theEvent.id().event());
-// 	printf("Found a softConverion with vtxR(%f), vtxEta(%f), pt(%f), pt1(%f), pt2(%f)\n",
-// 	       newCandidate.conversionVertex().position().rho(),newCandidate.conversionVertex().position().eta(),
-// 	       newCandidate.pairMomentum().perp(),trk1->momentum().rho(),trk2->momentum().rho());
+	// 	printf("=====> run(%d), event(%d) <=====\n",theEvent.id().run(),theEvent.id().event());
+	//	printf("Found a softConverion with vtxR(%f), vtxEta(%f), pt(%f), pt1(%f), pt2(%f)\n",
+	//      newCandidate.conversionVertex().position().rho(),newCandidate.conversionVertex().position().eta(),
+	//      newCandidate.pairMomentum().perp(),trk1->momentum().rho(),trk2->momentum().rho());
+
+
 
 	clusterRefs.clear();
 	trkRefs.clear();
@@ -204,6 +224,7 @@ void SoftConversionProducer::produce(edm::Event& theEvent, const edm::EventSetup
     }// end of iter2
   }// end of iter1
 
+  //  std::cout << " Putting stuff in the event " << std::endl;
   // put the collection into the event
   theEvent.put( outputColl, softConversionCollection_);
   

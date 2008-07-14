@@ -3,9 +3,9 @@
 /** \class SoftConversionTrackCandidateProducer
  **  
  **
- **  $Id: SoftConversionTrackCandidateProducer.h,v 1.1 2008/05/28 03:45:36 dwjang Exp $ 
- **  $Date: 2008/05/28 03:45:36 $ 
- **  $Revision: 1.1 $
+ **  $Id: SoftConversionTrackCandidateProducer.h,v 1.2 2008/05/28 04:18:11 dwjang Exp $ 
+ **  $Date: 2008/05/28 04:18:11 $ 
+ **  $Revision: 1.2 $
  **  \author Dongwook Jang, Carnegie Mellon University
  **  Modified version of original ConversionTrackCandidateProducer
  ***/
@@ -55,9 +55,8 @@ class SoftConversionTrackCandidateProducer : public edm::EDProducer {
   void setEventSetup( const edm::EventSetup& es ) ;
 
   std::string clusterType_;
-  std::string clusterProducer_;
-  std::string clusterBarrelCollection_;
-  std::string clusterEndcapCollection_;
+  edm::InputTag clusterBarrelCollection_;
+  edm::InputTag clusterEndcapCollection_;
   std::string OutInTrackCandidateCollection_;
   std::string InOutTrackCandidateCollection_;
   std::string OutInTrackClusterAssociationCollection_;

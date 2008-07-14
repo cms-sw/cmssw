@@ -46,9 +46,8 @@ SoftConversionTrackCandidateProducer::SoftConversionTrackCandidateProducer(const
   LogDebug("SoftConversionTrackCandidateProducer") << "SoftConversionTrackCandidateProducer CTOR " << "\n";
   
   clusterType_                 = conf_.getParameter<std::string>("clusterType");
-  clusterProducer_             = conf_.getParameter<std::string>("clusterProducer");
-  clusterBarrelCollection_     = conf_.getParameter<std::string>("clusterBarrelCollection");
-  clusterEndcapCollection_     = conf_.getParameter<std::string>("clusterEndcapCollection");
+  clusterBarrelCollection_     = conf_.getParameter<edm::InputTag>("clusterBarrelCollection");
+  clusterEndcapCollection_     = conf_.getParameter<edm::InputTag>("clusterEndcapCollection");
   
   OutInTrackCandidateCollection_ = conf_.getParameter<std::string>("outInTrackCandidateCollection");
   InOutTrackCandidateCollection_ = conf_.getParameter<std::string>("inOutTrackCandidateCollection");
@@ -134,9 +133,9 @@ void SoftConversionTrackCandidateProducer::produce(edm::Event& theEvent, const e
 
   // Get the basic cluster collection in the Barrel 
   edm::Handle<edm::View<reco::CaloCluster> > clusterBarrelHandle;
-  theEvent.getByLabel(clusterProducer_, clusterBarrelCollection_, clusterBarrelHandle);
+  theEvent.getByLabel(clusterBarrelCollection_, clusterBarrelHandle);
   if (!clusterBarrelHandle.isValid()) {
-    edm::LogError("SoftConverionTrackCandidateProducer") << "Error! Can't get the product "<<clusterBarrelCollection_.c_str();
+    edm::LogError("SoftConverionTrackCandidateProducer") << "Error! Can't get the product "<<clusterBarrelCollection_;
     return;
   }
   
@@ -145,9 +144,10 @@ void SoftConversionTrackCandidateProducer::produce(edm::Event& theEvent, const e
   if(clusterType_ == "BasicCluster") {
     // Get the basic cluster collection in the Endcap 
     edm::Handle<edm::View<reco::CaloCluster> > clusterEndcapHandle;
-    theEvent.getByLabel(clusterProducer_, clusterEndcapCollection_, clusterEndcapHandle);
+    //theEvent.getByLabel(clusterEndcapProducer_, clusterEndcapCollection_, clusterEndcapHandle);
+    theEvent.getByLabel(clusterEndcapCollection_, clusterEndcapHandle);
     if (!clusterEndcapHandle.isValid()) {
-      edm::LogError("SoftConversionTrackCandidateProducer") << "Error! Can't get the product "<<clusterEndcapCollection_.c_str();
+      edm::LogError("SoftConversionTrackCandidateProducer") << "Error! Can't get the product "<<clusterEndcapCollection_;
       return;
     }
 
