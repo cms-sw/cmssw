@@ -63,7 +63,6 @@ void LightTableWidget::display (int rows)
 	  i != text.end(); ++i) {
 	  AddLineFast(i->c_str());
      }
-//      Resize(GetWidth(), 100);
      Update();
 }
 

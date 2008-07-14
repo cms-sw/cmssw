@@ -4,6 +4,7 @@
 
 #include "RQ_OBJECT.h"
 #include <vector>
+#include <string>
 
 namespace fwlite {
      class Event;
@@ -17,8 +18,10 @@ class L1TableManager;
 class TrackTableManager;
 class VertexTableManager;
 class TGMainFrame;
+class TGPicture;
 class TGTab;
 class TGTextEntry;
+class TGTextView;
 class TGCheckButton;
 class TGCompositeFrame;
 class TGTransientFrame;
@@ -31,6 +34,18 @@ class FWEventItem;
 class FWGUIManager;
 class CmsShowMain;
 
+class FWTextViewHeader {
+public:
+     void dump (FILE *) const;
+     void setContent (int run, int event, double met, double metPhi, 
+		      double sumEt, double mEtSig); 
+     void update (TGTextView *) const; // one header serves multiple views
+     
+public:
+     long int 		run, event;
+     double 		met, metPhi, sumEt, mEtSig;
+};
+
 class FWTextViewPage {
      RQ_OBJECT("FWTextViewPage") 
 public:
@@ -38,7 +53,7 @@ public:
 		     const std::vector<FWTableManager *> &tables,
 		     TGCompositeFrame *frame,
 		     TGTab *parent_tab,
-		     FWTextView *view, unsigned int layou);
+		     FWTextView *view, unsigned int layout);
      void	setNext (FWTextViewPage *);
      void	setPrev (FWTextViewPage *);
      void	deselect ();
@@ -47,11 +62,15 @@ public:
      void	undock ();
      void	redock ();
      void	dumpToFile ();
+     void	dumpToTerminal ();
+     void	copyToSelection ();
      void	dumpToPrinter ();
+     static const TGPicture *copyIcon ();
 		     
 public:
      std::string			title;
      std::vector<FWTableManager *>	tables;
+     TGTextView				*header_view;
      TGCompositeFrame			*frame;
      TGTab				*parent_tab;
      TGTransientFrame			*undocked;
@@ -78,7 +97,7 @@ public:
      void changesDone (const CmsShowMain *);
      void update (int tab);
 
-protected:
+public:
      // objects
      ElectronTableManager	*el_manager;
      MuonTableManager		*mu_manager;
@@ -92,6 +111,8 @@ protected:
      TrackTableManager		*track_manager;
      VertexTableManager		*vertex_manager;
 //       TGMainFrame		*fMain;
+
+     FWTextViewHeader		header;
 
      std::vector<FWTableManager *>	managers;
 

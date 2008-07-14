@@ -34,12 +34,56 @@
 #include "TGButton.h"
 #include "TStopwatch.h"
 #include "TGTab.h"
+#include "TString.h"
+#include "TSystem.h"
+#include "TGClient.h"
 
 #include "boost/bind.hpp"
 #include <iostream>
 
 #include "TableManagers.h"
 #include "Fireworks/Core/interface/FWGUISubviewArea.h"
+
+void FWTextViewHeader::update (TGTextView *view) const
+{
+     view->Clear();
+     char s[1024];
+     int n = snprintf(s, 1024, "Run %ld%16sEvent %ld", run, "", event);
+     view->AddLineFast(s);
+     n = snprintf(s, 1024, "MET %5.1f GeV%8sMET phi %6.3f%8sSum ET %5.1f GeV"
+		  "%8sMET significance %5.2f (GeV)^1/2",
+		  met, "", metPhi, "", sumEt, "", mEtSig);
+     view->AddLineFast(s);
+     view->Update();
+}
+
+void FWTextViewHeader::dump (FILE *f) const
+{
+     char s1[1024], s2[1024];
+     int n1 = snprintf(s1, 1024, "Run %ld%8s%8sEvent %ld", run, "", "", event);
+     int n2 = snprintf(s2, 1024, "MET %5.1f GeV%8sMET phi %6.3f%8sSum ET %5.1f GeV"
+		       "%8sMET significance %5.2f (GeV)^1/2",
+		       met, "", metPhi, "", sumEt, "", mEtSig);
+     int len = std::max(n1, n2);
+     for (int i = 0; i < len; ++i) 
+	  fprintf(f, "=");
+     fprintf(f, "\n%s\n", s1);
+     fprintf(f, "%s\n", s2);
+     for (int i = 0; i < len; ++i) 
+	  fprintf(f, "=");
+     fprintf(f, "\n");
+}
+
+void FWTextViewHeader::setContent (int run_, int event_, double met_, 
+				   double metPhi_, double sumEt_, double mEtSig_)
+{
+     run 	= run_;
+     event 	= event_;
+     met	= met_    ;
+     metPhi	= metPhi_ ;
+     sumEt	= sumEt_  ;
+     mEtSig	= mEtSig_ ;
+}
 
 FWTextViewPage::FWTextViewPage (const std::string &title_, 
 				const std::vector<FWTableManager *> &tables_,
@@ -74,11 +118,24 @@ FWTextViewPage::FWTextViewPage (const std::string &title_,
      file_name = new TGTextEntry(m_buttons, "event_dump.txt");
      file_name->SetToolTipText("File name for dump (- for stdout)");
      file_name->SetHeight(25);
+     file_name->Connect("ReturnPressed()", "FWTextViewPage", this, "dumpToFile()");
      m_buttons->AddFrame(file_name, new TGLayoutHints(kLHintsExpandX));
      append_button = new TGCheckButton(m_buttons, "append to file");
      append_button->SetToolTipText("Append to dump file");
      append_button->SetHeight(25);
      m_buttons->AddFrame(append_button, new TGLayoutHints());
+     TGTextButton *m_termDumpButton = 
+	  new TGTextButton(m_buttons, "Dump to terminal");
+     m_termDumpButton->SetToolTipText("Dump tables to terminal");
+     m_termDumpButton->SetHeight(25);
+     m_buttons->AddFrame(m_termDumpButton, new TGLayoutHints);
+     m_termDumpButton->Connect("Clicked()", "FWTextViewPage", this, "dumpToTerminal()");
+     TGPictureButton *m_copyButton = 
+	  new TGPictureButton(m_buttons, copyIcon());
+     m_copyButton->SetToolTipText("Copy tables to X server selection");
+     m_copyButton->SetHeight(25);
+     m_buttons->AddFrame(m_copyButton, new TGLayoutHints);
+     m_copyButton->Connect("Clicked()", "FWTextViewPage", this, "copyToSelection()");
      TGTextButton *m_printButton = 
 	  new TGTextButton(m_buttons, "Dump to printer");
      m_printButton->SetToolTipText("Dump tables to printer");
@@ -88,8 +145,15 @@ FWTextViewPage::FWTextViewPage (const std::string &title_,
      print_command = new TGTextEntry(m_buttons, "enscript -r -f Courier7");
      print_command->SetToolTipText("Print command");
      print_command->SetHeight(25);
+     print_command->Connect("ReturnPressed()", "FWTextViewPage", this, "dumpToPrinter()");
      m_buttons->AddFrame(print_command, new TGLayoutHints(kLHintsExpandX));
      frame->AddFrame(m_buttons, new TGLayoutHints(kLHintsTop | kLHintsExpandX));
+     header_view = new TGTextView(frame, width, 70);
+     frame->AddFrame(header_view, new TGLayoutHints(kLHintsTop | kLHintsExpandX));
+     header_view->SetBackground		(header_view->GetBlackPixel());
+     header_view->SetForegroundColor	(header_view->GetWhitePixel());
+     header_view->SetSelectBack(header_view->GetWhitePixel());
+     header_view->SetSelectFore(header_view->GetBlackPixel());
      TGCompositeFrame *table_frame = frame;
      if (layout & kLHintsTop) {
 	  table_frame = new TGHorizontalFrame(frame);
@@ -182,6 +246,12 @@ void FWTextViewPage::update ()
 // 	  printf("\t%s: %d entries\n", (*i)->title().c_str(), (*i)->NumberOfRows());
 //      }     
 //      printf("current tab is %d\n", parent_tab->GetCurrent());
+     view->header.update(header_view);
+//      int total_lines = 0;
+//      for (std::vector<FWTableManager *>::const_iterator i = tables.begin();
+// 	  i != tables.end(); ++i) {
+// 	  total_lines += (*i)->NumberOfRows() + 3;
+//      }
      for (std::vector<FWTableManager *>::const_iterator i = tables.begin();
 	  i != tables.end(); ++i) {
  	  (*i)->Update();
@@ -189,15 +259,23 @@ void FWTextViewPage::update ()
      }
 }
 
+void FWTextViewPage::dumpToTerminal ()
+{
+     view->header.dump(stdout);
+     for (std::vector<FWTableManager *>::const_iterator i = tables.begin();
+	  i != tables.end(); ++i) {
+	  (*i)->dump(stdout);
+     }
+}
+
 void FWTextViewPage::dumpToFile ()
 {
      if (strcmp(file_name->GetBuffer()->GetString(), "-") == 0) {
-	  printf("dumping to stdout... ");
+	  view->header.dump(stdout);
 	  for (std::vector<FWTableManager *>::const_iterator i = tables.begin();
 	       i != tables.end(); ++i) {
 	       (*i)->dump(stdout);
 	  }
-	  printf("done.\n");
      } else {
 	  FILE *f = fopen(file_name->GetBuffer()->GetString(),
 			  append_button->IsOn() ? "a" : "w");
@@ -206,6 +284,7 @@ void FWTextViewPage::dumpToFile ()
 	       return;
 	  }
 	  printf("dumping to file... ");
+	  view->header.dump(f);
 	  for (std::vector<FWTableManager *>::const_iterator i = tables.begin();
 	       i != tables.end(); ++i) {
 	       (*i)->dump(f);
@@ -223,6 +302,7 @@ void FWTextViewPage::dumpToPrinter ()
 	  return;
      }
      printf("dumping to printer... ");
+     view->header.dump(f);
      for (std::vector<FWTableManager *>::const_iterator i = tables.begin();
 	  i != tables.end(); ++i) {
  	  (*i)->dump(f);
@@ -230,6 +310,22 @@ void FWTextViewPage::dumpToPrinter ()
      printf("done.\n");
      pclose(f);
 }
+
+void FWTextViewPage::copyToSelection ()
+{
+
+}
+
+const TGPicture *FWTextViewPage::copyIcon ()
+{
+     const char* cmspath = gSystem->Getenv("ROOTSYS");
+     if (0 == cmspath) {
+	  throw std::runtime_error("ROOTSYS environment variable not set");
+     }
+     TString coreIcondir(Form("%s/icons/", gSystem->Getenv("ROOTSYS")));
+     return gClient->GetPicture(coreIcondir+"bld_copy.xpm");
+}
+
 
 FWTextView::FWTextView (CmsShowMain *de, FWSelectionManager *sel,
 			FWModelChangeManager *chg,
@@ -498,14 +594,20 @@ void FWTextView::newEvent (const fwlite::Event &ev, const CmsShowMain *de)
      printf("run %d event %d:\n", ev.aux_.run(), ev.aux_.event());
      std::cout << ev.aux_;
 #if 1
-     assert(n_mets == 1);
-     const CaloMET &met = *mets->begin();
      printf("MET %5.1f\t MET phi %.2f\t Sum Et %5.1f\t sig(MET) %.2f\n",
 	    met.p4().Et(), met.phi(), met.sumEt(), met.mEtSig());
 #endif
      printf("%d electrons\t%d muons\t%d jets\t\n", 
 	    n_els, n_mus, n_jets);
 #endif
+     if (n_mets == 1) { // this should always be the case for non-sick files
+	  const CaloMET &met = *mets->begin();
+	  header.setContent(ev.aux_.run(), ev.aux_.event(), 
+			    met.p4().Et(), met.phi(), met.sumEt(), met.mEtSig());
+     } else {
+	  header.setContent(ev.aux_.run(), ev.aux_.event(), 
+			    -1, -1, -1, -1);
+     }	  
      //------------------------------------------------------------
      // print muons
      //------------------------------------------------------------
