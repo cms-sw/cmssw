@@ -2,7 +2,7 @@ import FWCore.ParameterSet.Config as cms
 
 #
 #  configuration for producer of converted photons
-#  $Id: softConversionTrackCandidates_cfi.py,v 1.1 2008/05/28 03:45:36 dwjang Exp $
+#  $Id: softConversionTrackCandidates_cfi.py,v 1.2 2008/07/11 14:35:24 rahatlou Exp $
 #
 # Tracker geometry #####################
 from RecoTracker.GeometryESProducer.TrackerRecoGeometryESProducer_cfi import *
@@ -28,11 +28,12 @@ softConversionTrackCandidates = cms.EDProducer("SoftConversionTrackCandidateProd
     ),
     inOutTrackCandidateCollection = cms.string('softIOTrackCandidates'),
     inOutTrackCandidateClusterAssociationCollection = cms.string('inOutTrackCandidateClusterAssociationCollection'),
-    clusterBarrelCollection = cms.string('islandBarrelBasicClusters'),
-    clusterType = cms.string('BasicCluster'),
+    #clusterType = cms.string('BasicCluster'),
+    clusterType = cms.string('pfCluster'),
     MeasurementTrackerName = cms.string(''),
-    clusterProducer = cms.string('islandBasicClusters'),
-    clusterEndcapCollection = cms.string('islandEndcapBasicClusters'),
+#    clusterBarrelCollection = cms.InputTag("hybridSuperClusters","hybridBarrelBasicClusters"),
+    clusterBarrelCollection = cms.InputTag("particleFlowClusterECAL"),
+    clusterEndcapCollection = cms.InputTag("multi5x5BasicClusters","multi5x5EndcapBasicClusters"),
     outInTrackCandidateClusterAssociationCollection = cms.string('outInTrackCandidateClusterAssociationCollection'),
     InOutRedundantSeedCleaner = cms.string('CachingSeedCleanerBySharedInput'),
     OutInRedundantSeedCleaner = cms.string('CachingSeedCleanerBySharedInput'),
