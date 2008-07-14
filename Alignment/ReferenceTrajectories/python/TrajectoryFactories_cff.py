@@ -17,16 +17,12 @@ import FWCore.ParameterSet.Config as cms
 #
 TrajectoryFactoryBase = cms.PSet(
     PropagationDirection = cms.string('alongMomentum'), ## or "oppositeToMomentum" or "anyDirection"
-
     MaterialEffects = cms.string('Combined'), ## or "MultipleScattering" or "EnergyLoss" or "None"
-
     UseProjectedHits = cms.bool(True), ## if false, projected hits are skipped
-
     UseInvalidHits = cms.bool(False), ## if false, invalid hits are skipped
-
-    UseHitWithoutDet = cms.bool(True) ## if true, RecHits that are not attached to GeomDets are skipped
-
+    UseHitWithoutDet = cms.bool(True) ## if false, RecHits that are not attached to GeomDets are skipped
 )
+
 #
 #
 # ReferenceTrajectoryFactory
@@ -37,17 +33,19 @@ ReferenceTrajectoryFactory = cms.PSet(
     ParticleMass = cms.double(0.10565836),
     TrajectoryFactoryName = cms.string('ReferenceTrajectoryFactory')
 )
-Bzero#
-#
-# ReferenceTrajectoryFactory
+
 #
 #
-ReferenceTrajectoryFactory = cms.PSet(
+# BzeroReferenceTrajectoryFactory
+#
+#
+BzeroReferenceTrajectoryFactory = cms.PSet(
     TrajectoryFactoryBase,
     ParticleMass = cms.double(0.10565836),
     TrajectoryFactoryName = cms.string('BzeroReferenceTrajectoryFactory'),
     MomentumEstimate = cms.double(2.0)
 )
+
 #
 #
 # DualTrajectoryFactory
@@ -58,6 +56,7 @@ DualTrajectoryFactory = cms.PSet(
     ParticleMass = cms.double(0.10565836),
     TrajectoryFactoryName = cms.string('DualTrajectoryFactory')
 )
+
 #
 #
 # DualBzeroTrajectoryFactory
@@ -69,6 +68,7 @@ DualBzeroTrajectoryFactory = cms.PSet(
     TrajectoryFactoryName = cms.string('DualBzeroTrajectoryFactory'),
     MomentumEstimate = cms.double(2.0)
 )
+
 #
 #
 # TwoBodyDecayReferenceTrajectoryFactory
@@ -103,6 +103,7 @@ TwoBodyDecayTrajectoryFactory = cms.PSet(
     ),
     TrajectoryFactoryName = cms.string('TwoBodyDecayTrajectoryFactory')
 )
+
 #
 #
 # CombinedTrajectoryFactory using an instance of TwoBodyDecayTrajectoryFactory
