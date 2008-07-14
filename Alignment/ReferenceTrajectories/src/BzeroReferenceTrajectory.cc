@@ -29,7 +29,8 @@ BzeroReferenceTrajectory::BzeroReferenceTrajectory(const TrajectoryStateOnSurfac
 						       refTsos.localParameters().charge() );
 
   const TrajectoryStateOnSurface refTsosWithFixedMomentum(locParamWithFixedMomentum, refTsos.localError(),
-							  refTsos.surface(), magField, beforeSurface);
+							  refTsos.surface(), magField,
+							  surfaceSide(propDir));
 
   if (hitsAreReverse)
   {

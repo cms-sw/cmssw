@@ -4,7 +4,7 @@
 /**
  * Author     : Gero Flucke (based on code by Edmund Widl replacing ORCA's TkReferenceTrack)
  * date       : 2006/09/17
- * last update: $Date: 2007/12/14 16:50:23 $
+ * last update: $Date: 2008/07/10 15:24:35 $
  * by         : $Author: ewidl $
  *
  *  Class implementing the reference trajectory of a single charged
@@ -32,6 +32,7 @@
 #include "Alignment/ReferenceTrajectories/interface/ReferenceTrajectoryBase.h"
 #include "TrackingTools/TransientTrackingRecHit/interface/TransientTrackingRecHit.h"
 #include "DataFormats/TrajectorySeed/interface/PropagationDirection.h"
+#include "TrackingTools/TrajectoryState/interface/SurfaceSideDefinition.h"
 
 class TrajectoryStateOnSurface;
 class MagneticField;
@@ -42,6 +43,9 @@ class ReferenceTrajectory : public ReferenceTrajectoryBase
 {
 
 public:
+
+  typedef SurfaceSideDefinition::SurfaceSide SurfaceSide;
+
   /**Constructor with Tsos at first hit (in physical order) and list of hits 
      [if (hitsAreReverse) ==> order of hits is in opposite direction compared
      to the flight of particle, but note that ReferenceTrajectory::recHits()
@@ -105,10 +109,14 @@ protected:
 				     const std::vector<AlgebraicSymMatrix> &allCurvChanges,
 				     const std::vector<AlgebraicSymMatrix> &allDeltaParaCovs);
 
-  // Don't care for propagation direction 'anyDirection' - in that case the ,aterial effects
+  // Don't care for propagation direction 'anyDirection' - in that case the material effects
   // are anyway not updated ...
   inline const SurfaceSide surfaceSide(const PropagationDirection dir) const
-  { return ( dir == alongMomentum ) ? beforeSurface : afterSurface; }
+  {
+    return ( dir == alongMomentum ) ?
+      SurfaceSideDefinition::beforeSurface :
+      SurfaceSideDefinition::afterSurface;
+  }
 
 };
 
