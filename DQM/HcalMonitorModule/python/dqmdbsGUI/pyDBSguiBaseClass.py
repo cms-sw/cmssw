@@ -147,6 +147,10 @@ class dbsBaseGui:
         self.maxDQMEvents=IntVar()
         self.maxDQMEvents.set(1000)
 
+        self.prescaleOverRun=BooleanVar()
+        self.prescaleOverRun.set(False)
+        self.prescaleOverRunText="# prescale (unused) = "
+
         # TO DO:  Make this default value changeable by user?  Save in cPickle?
         self.dbsRange.set(100) # specify range of runs over which to search, starting at the LastDBS value
 
@@ -1005,23 +1009,29 @@ class dbsBaseGui:
         
         myvars={"  Final DQM Save Directory = ":self.finalDir,
                 "  # of events to run for each DQM = ":self.maxDQMEvents,
+                "  Prescale to run over entire run (1=yes/0=no)?":self.prescaleOverRun,
                 "  .cfg file to run for each DQM = ":self.cfgFileName}
         temp=myvars.keys()
         temp.sort()
 
         # Create variable labels, entries
-        for i in temp:
+        for i in range(len(temp)):
+            # Skip prescale-over-run option if prescaleOverRunText value is the default (user must specify his/her own text output option in inherited code for this option to become active)
+
+            if (temp[i]== "  Prescale to run over entire run (1=yes/0=no)? " and self.prescaleOverRunText=="# prescale (unused) = "):
+                continue
             Label(self.dqmvaluewin,
                   width=40,
-                  text="%s"%i).grid(row=myrow,column=0)
+                  text="%s"%temp[i]).grid(row=myrow,column=0)
+
             tempEnt=Entry(self.dqmvaluewin,
                           width=80,
                           bg="white",
-                          textvar=myvars[i])
+                          textvar=myvars[temp[i]])
             tempEnt.grid(row=myrow,column=1)
-            if i=="  Final DQM Save Directory = ": 
+            if temp[i]=="  Final DQM Save Directory = ": 
                 tempEnt.bind("<Return>",(lambda event:self.checkExistence(self.finalDir)))
-            elif i== "  .cfg file to run for each DQM = ":
+            elif temp[i]== "  .cfg file to run for each DQM = ":
                 tempEnt.bind("<Return>",(lambda event:self.checkExistence(self.cfgFileName)))
             myrow=myrow+1
         newFrame=Frame(self.dqmvaluewin)
@@ -1058,6 +1068,7 @@ class dbsBaseGui:
                 self.finalDir.set(cPickle.load(pcl))
                 self.maxDQMEvents.set(cPickle.load(pcl))
                 self.cfgFileName.set(cPickle.load(pcl))
+                self.prescaleOverRun.set(cPickle.load(pcl))
                 pcl.close()
             except:
                 self.commentLabel.configure(text="Could not read file '.dqmDefaults.cPickle' ")
@@ -1082,6 +1093,7 @@ class dbsBaseGui:
             cPickle.dump(self.finalDir.get(),pcl)
             cPickle.dump(self.maxDQMEvents.get(),pcl)
             cPickle.dump(self.cfgFileName.get(),pcl)
+            cPickle.dump(self.prescaleOverRun.get(),pcl)
             pcl.close()
             os.system("chmod a+rw %s"%os.path.join(self.basedir,".dqmDefaults.cPickle"))
                       
@@ -1494,6 +1506,18 @@ class dbsBaseGui:
         
         # Allow a different # for each file?
         #temp.write("replace maxEvents.input=%i\n"%self.filesInDBS[i].maxEvents)
+
+        # If wish to prescale over entire file, calculate prescale here:
+        if (self.prescaleOverRun.get() and self.prescaleOverRunText<>"# prescale (unused) = "):
+            myruninfo=pyRunSummaryBaseClass.goodHCALRun(i,self.debug)
+
+            try:
+                # Get prescale value
+                prescaleVal=myruninfo.runinfo.events/self.maxDQMEvents.get()
+                if (prescaleVal>0):
+                    temp.write("%s %i\n\n"%(self.prescaleOverRunText,prescaleVal))
+            except:
+                pass
 
         # Set luminosity blocks over which to run
         temp.write("replace maxEvents.input=%i\n"%self.maxDQMEvents.get())
