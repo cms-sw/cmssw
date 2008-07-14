@@ -11,10 +11,10 @@ from TrackingTools.KalmanUpdators.KFUpdatorESProducer_cfi import *
 #include "TrackingTools/KalmanUpdators/data/Chi2MeasurementEstimatorESProducer.cfi"
 # Chi2MeasurementEstimatorESProducer this is used by the fitting-smoother
 from TrackingTools.KalmanUpdators.MRHChi2MeasurementEstimatorESProducer_cfi import *
-import copy
-from TrackingTools.MaterialEffects.MaterialPropagator_cfi import *
+#import copy
+#from TrackingTools.MaterialEffects.MaterialPropagator_cfi import *
 # PropagatorWithMaterialESProducer
-RungeKuttaTrackerPropagator = copy.deepcopy(MaterialPropagator)
+#RungeKuttaTrackerPropagator = copy.deepcopy(MaterialPropagator)
 import copy
 from TrackingTools.MaterialEffects.OppositeMaterialPropagator_cfi import *
 # PropagatorWithMaterialESProducer
@@ -41,8 +41,8 @@ from RecoLocalTracker.SiPixelRecHits.PixelCPEParmError_cfi import *
 from RecoTracker.TransientTrackingRecHit.TransientTrackingRecHitBuilder_cfi import *
 # TrackProducer
 from RecoTracker.TrackProducer.CTFFinalFitWithMaterialDAF_cfi import *
-RungeKuttaTrackerPropagator.ComponentName = 'RungeKuttaTrackerPropagator'
-RungeKuttaTrackerPropagator.useRungeKutta = True
+#RungeKuttaTrackerPropagator.ComponentName = 'RungeKuttaTrackerPropagator'
+#RungeKuttaTrackerPropagator.useRungeKutta = True
 OppositeRungeKuttaTrackerPropagator.ComponentName = 'OppositeRungeKuttaTrackerPropagator'
 OppositeRungeKuttaTrackerPropagator.useRungeKutta = True
 
