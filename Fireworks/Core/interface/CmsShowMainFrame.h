@@ -16,7 +16,7 @@
 //
 // Original Author:  Chris Jones
 //         Created:  Thu May 29 18:11:16 CDT 2008
-// $Id: CmsShowMainFrame.h,v 1.3 2008/06/29 13:23:47 chrjones Exp $
+// $Id: CmsShowMainFrame.h,v 1.4 2008/07/08 02:43:46 dmytro Exp $
 //
 
 // system include files
@@ -45,7 +45,6 @@ namespace fwlite {
 }
 
 class CmsShowMainFrame : public TGMainFrame, public sigc::trackable {
-   RQ_OBJECT("CmsShowMainFrame")
 
 public:
    CmsShowMainFrame(const TGWindow *p = 0,UInt_t w = 1,UInt_t h = 1,FWGUIManager *m = 0);
@@ -65,7 +64,6 @@ public:
    Bool_t activatePictureButton(TGPictureButton *button);
    Bool_t activateMenuEntry(int entry);
    Bool_t activateToolBarEntry(int entry);
-   void connect(TQObject *sender, const char *signal, const char *slot);
    void defaultAction();
    void loadEvent(const fwlite::Event& event);
    void goForward();
