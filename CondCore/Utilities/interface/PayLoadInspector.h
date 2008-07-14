@@ -9,6 +9,9 @@ namespace cond {
 
   template<typename T>
   class BaseValueExtractor {
+  public:
+    typedef T Class;
+
     BaseValueExtractor(){}
     
     virtual ~BaseValueExtractor(){}
