@@ -1,8 +1,8 @@
 //  \class MuScleFit
 //  Analyzer of the StandAlone muon tracks
 //
-//  $Date: 2008/07/08 10:46:54 $
-//  $Revision: 1.4 $
+//  $Date: 2008/07/09 14:23:14 $
+//  $Revision: 1.5 $
 //  \author R. Bellan, C.Mariotti, S.Bolognesi - INFN Torino / T.Dorigo, M.De Mattia - INFN Padova
 //
 //  Recent additions: 
@@ -599,7 +599,7 @@ edm::EDLooper::Status MuScleFit::duringLoop (const Event & event, const EventSet
 
     // On loops>0 the two muons are directly obtained from the SavedMuon array
     // -----------------------------------------------------------------------
-
+    MuScleFitUtils::ResFound = false;
     recMu1 = (MuScleFitUtils::SavedPair[iev].first);
     recMu2 = (MuScleFitUtils::SavedPair[iev].second);
     if (recMu1.Pt()>0 && recMu2.Pt()>0) {
