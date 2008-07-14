@@ -38,7 +38,7 @@
 #include "Fireworks/Core/interface/GenParticleDetailView.h"
 #include "Fireworks/Core/interface/CSGNumAction.h"
 #include "Fireworks/Core/interface/CSGAction.h"
-
+#include "Fireworks/Core/interface/CmsShowMainFrame.h"
 
 namespace {
    struct Fireworks_Core {

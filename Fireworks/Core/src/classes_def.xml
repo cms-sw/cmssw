@@ -38,4 +38,5 @@
   <class name="GenParticleDetailView"/>
   <class name="CSGNumAction"/>
   <class name="CSGAction"/>
+  <class name="CmsShowMainFrame"/>
 </lcgdict>
