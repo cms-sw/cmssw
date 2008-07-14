@@ -359,7 +359,7 @@ void PixelDetectorConfig::writeASCII(std::string dir) const {
 }
 
 //=============================================================================================
-void PixelDetectorConfig::writeXML(pos::PixelConfigKey key, std::string path) const {
+void PixelDetectorConfig::writeXML(pos::PixelConfigKey key, int version, std::string path) const {
   std::string mthn = "[PixelDetectorConfig::writeXML()]\t\t\t    " ;
   std::stringstream fullPath ;
 
@@ -368,43 +368,44 @@ void PixelDetectorConfig::writeXML(pos::PixelConfigKey key, std::string path) co
   
   std::ofstream out(fullPath.str().c_str()) ;
   
-  out << "<?xml version='1.0' encoding='UTF-8' standalone='yes'?>"			 << endl ;
-  out << "<ROOT xmlns:xsi='http://www.w3.org/2001/XMLSchema-instance'>" 		 << endl ;
-  out << " <HEADER>"								         << endl ;
-  out << "  <TYPE>"								         << endl ;
-  out << "   <EXTENSION_TABLE_NAME>FPIX_DETECTOR_CONFIG</EXTENSION_TABLE_NAME>"          << endl ;
-  out << "   <NAME>FPix Detector Configuration</NAME>"				         << endl ;
-  out << "  </TYPE>"								         << endl ;
-  out << "  <RUN>"								         << endl ;
-  out << "   <RUN_TYPE>test</RUN_TYPE>" 		                                 << endl ;
-  out << "   <RUN_NUMBER>1</RUN_NUMBER>"					         << endl ;
+  out << "<?xml version='1.0' encoding='UTF-8' standalone='yes'?>"			 	      << endl ;
+  out << "<ROOT xmlns:xsi='http://www.w3.org/2001/XMLSchema-instance'>" 		 	      << endl ;
+  out << " <HEADER>"								         	      << endl ;
+  out << "  <TYPE>"								         	      << endl ;
+  out << "   <EXTENSION_TABLE_NAME>FPIX_DETECTOR_CONFIG</EXTENSION_TABLE_NAME>"          	      << endl ;
+  out << "   <NAME>FPix Detector Configuration</NAME>"				         	      << endl ;
+  out << "  </TYPE>"								         	      << endl ;
+  out << "  <RUN>"								         	      << endl ;
+  out << "   <RUN_TYPE>test</RUN_TYPE>" 		                                 	      << endl ;
+  out << "   <RUN_NUMBER>1</RUN_NUMBER>"					         	      << endl ;
   out << "   <RUN_BEGIN_TIMESTAMP>" << pos::PixelTimeFormatter::getTime() << "</RUN_BEGIN_TIMESTAMP>" << endl ;
-  out << "   <COMMENT_DESCRIPTION>Test of DetectorConfig xml</COMMENT_DESCRIPTION>"      << endl ;
-  out << "   <LOCATION>CERN TAC</LOCATION>"					         << endl ;
-  out << "   <INITIATED_BY_USER>Dario Menasce</INITIATED_BY_USER>"			 << endl ;
-  out << "  </RUN>"								         << endl ;
-  out << " </HEADER>"								         << endl ;
-  out << ""										 << endl ;
+  out << "   <COMMENT_DESCRIPTION>Test of DetectorConfig xml</COMMENT_DESCRIPTION>"      	      << endl ;
+  out << "   <LOCATION>CERN TAC</LOCATION>"					         	      << endl ;
+  out << "   <INITIATED_BY_USER>Dario Menasce</INITIATED_BY_USER>"			 	      << endl ;
+  out << "  </RUN>"								         	      << endl ;
+  out << " </HEADER>"								         	      << endl ;
+  out << ""										 	      << endl ;
 
   if(rocs_.size() == 0) 
     {
       std::vector<PixelModuleName>::const_iterator imodule=modules_.begin();
       
+      // This needs to be fixed: given a module name, actually loop over ROCs to write the XML data
       for (;imodule!=modules_.end();++imodule) 
         {
           out << *imodule << std::endl;
-          out << " <DATA_SET>"  						    	 << endl ;
-          out << "  <VERSION>" << key.key() << "</VERSION>"			    	 << endl ;
-          out << "  <PART>"							    	 << endl ;
-          out << "   <NAME_LABEL>" << (*imodule).modulename() << "</NAME_LABEL>"   	 << endl ;
-          out << "   <KIND_OF_PART>Pixel Disk ROC</KIND_OF_PART>"		    	 << endl ;
-          out << "  </PART>"							    	 << endl ;
-          out << " "                                                                     << endl ;
-          out << "  <DATA>"							    	 << endl ;
-          out << "   <ROC_STATUS>on</ROC_STATUS>"	                                 << endl ;
-          out << "  </DATA>"							    	 << endl ;
-          out << " </DATA_SET>" 						    	 << endl ;
-          out << " "                                                                     << endl ;
+          out << " <DATA_SET>"  						    	 	      << endl ;
+          out << "  <VERSION>" << version << "</VERSION>"			    	 	      << endl ;
+          out << "  <PART>"							    	 	      << endl ;
+          out << "   <NAME_LABEL>" << (*imodule).modulename() << "</NAME_LABEL>"   	 	      << endl ;
+          out << "   <KIND_OF_PART>Pixel Disk ROC</KIND_OF_PART>"		    	 	      << endl ;
+          out << "  </PART>"							    	 	      << endl ;
+          out << " "                                                                     	      << endl ;
+          out << "  <DATA>"							    	 	      << endl ;
+          out << "   <ROC_STATUS>on</ROC_STATUS>"	                                 	      << endl ;
+          out << "  </DATA>"							    	 	      << endl ;
+          out << " </DATA_SET>" 						    	 	      << endl ;
+          out << " "                                                                     	      << endl ;
         }
     } 
   else 
@@ -414,21 +415,21 @@ void PixelDetectorConfig::writeXML(pos::PixelConfigKey key, std::string path) co
         {
           std::string sts = (irocs->second).statusName() ;
           if( sts == "" ) {sts = "on" ;}
-          out << " <DATA_SET>"  						    	 << endl ;
-          out << "  <VERSION>" << key.key() << "</VERSION>"			    	 << endl ;
-          out << "  <PART>"							    	 << endl ;
-          out << "   <NAME_LABEL>" << (irocs->first).rocname() << "</NAME_LABEL>"   	 << endl ;
-          out << "   <KIND_OF_PART>Pixel Disk ROC</KIND_OF_PART>"		    	 << endl ;
-          out << "  </PART>"							    	 << endl ;
-          out << " "                                                                     << endl ;
-          out << "  <DATA>"							    	 << endl ;
-          out << "   <ROC_STATUS>" << sts << "</ROC_STATUS>"	                         << endl ;
-          out << "  </DATA>"							    	 << endl ;
-          out << " </DATA_SET>" 						    	 << endl ;
-          out << " "                                                                     << endl ;
+          out << " <DATA_SET>"  						    	 	      << endl ;
+          out << "  <VERSION>" << key.key() << "</VERSION>"			    	 	      << endl ;
+          out << "  <PART>"							    	 	      << endl ;
+          out << "   <NAME_LABEL>" << (irocs->first).rocname() << "</NAME_LABEL>"   	 	      << endl ;
+          out << "   <KIND_OF_PART>Pixel Disk ROC</KIND_OF_PART>"		    	 	      << endl ;
+          out << "  </PART>"							    	 	      << endl ;
+          out << " "                                                                     	      << endl ;
+          out << "  <DATA>"							    	 	      << endl ;
+          out << "   <ROC_STATUS>" << sts << "</ROC_STATUS>"	                         	      << endl ;
+          out << "  </DATA>"							    	 	      << endl ;
+          out << " </DATA_SET>" 						    	 	      << endl ;
+          out << " "                                                                     	      << endl ;
         }
     }
-  out << "</ROOT> "								         << endl ;
+  out << "</ROOT> "								         	      << endl ;
   out.close() ;
   assert(0) ;
 }

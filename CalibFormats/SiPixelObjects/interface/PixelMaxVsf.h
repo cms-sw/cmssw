@@ -31,7 +31,7 @@ namespace pos{
     PixelMaxVsf(std::string filename);
 
     void writeASCII(std::string dir="") const;
-    void writeXML(pos::PixelConfigKey key, std::string path) const {;}
+    void writeXML(pos::PixelConfigKey key, int version, std::string path) const {;}
 
     bool getVsf(PixelROCName roc, unsigned int& Vsf) const;
 

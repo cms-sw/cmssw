@@ -50,7 +50,8 @@ namespace pos{
 
     //Interface to write out data to ascii file
     virtual void writeASCII(std::string dir="") const = 0;
-    virtual void writeXML(pos::PixelConfigKey key, std::string path) const {;}
+    //Interface to write out data to XML file for DB population
+    virtual void writeXML(pos::PixelConfigKey key, int version, std::string path) const {;}
     
   private:
 

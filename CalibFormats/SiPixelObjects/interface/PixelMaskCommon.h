@@ -28,7 +28,7 @@ namespace pos{
     void writeBinary(std::string filename) const;
 
     void writeASCII(std::string filename) const;
-    void writeXML(pos::PixelConfigKey key, std::string path) const {;}
+    void writeXML(pos::PixelConfigKey key, int version, std::string path) const {;}
 
   private:
 

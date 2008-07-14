@@ -12,6 +12,7 @@
 #include <map>
 #include <fstream>
 #include <sstream>
+#include "CalibFormats/SiPixelObjects/interface/PixelConfigKey.h"
 #include "CalibFormats/SiPixelObjects/interface/PixelROCName.h"
 
 namespace pos{
@@ -43,7 +44,7 @@ namespace pos{
     void writeBinary(std::ofstream& out) const;
 
     void writeASCII(std::ostream& out) const;
-//    void writeXML(pos::PixelConfigKey key, std::string path) const {;}
+    void writeXML(std::ostream& out, pos::PixelConfigKey key, int version, std::string path) const ;
 
     void getDACs(std::vector<unsigned int>& dacs) const;
     void getDACs(std::map<std::string, unsigned int>& dacs) const;

@@ -167,7 +167,7 @@ namespace pos{
     friend std::ostream& pos::operator<<(std::ostream& s, const PixelCalibConfiguration& calib);
 
     virtual void writeASCII(std::string dir="") const;
-    virtual void writeXML(pos::PixelConfigKey key, std::string path) const {;}
+    virtual void writeXML(pos::PixelConfigKey key, int version, std::string path) const {;}
 
 
   private:

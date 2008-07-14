@@ -32,7 +32,7 @@ namespace pos{
     PixelPortCardConfig(std::string);
 
     void writeASCII(std::string dir="") const;
-    void writeXML(pos::PixelConfigKey key, std::string path) const {;}
+    void writeXML(pos::PixelConfigKey key, int version, std::string path) const {;}
   
     const std::string& getPortCardName() const { return portcardname_; }
     void setPortCardName(std::string newName) { portcardname_ = newName; }

@@ -302,38 +302,86 @@ void PixelROCDACSettings::writeASCII(ostream& out) const{
 
     out << "ROC:           " << rocid_.rocname()   <<endl;
 
-    out << k_DACName_Vdd << ":           " << (int)Vdd_	   <<endl;
-    out << k_DACName_Vana << ":          " << (int)Vana_	   <<endl;
-    out << k_DACName_Vsf << ":           " << (int)Vsf_	   <<endl;
-    out << k_DACName_Vcomp << ":         " << (int)Vcomp_	   <<endl;
-    out << k_DACName_Vleak << ":         " << (int)Vleak_	   <<endl;
-    out << k_DACName_VrgPr << ":         " << (int)VrgPr_	   <<endl;
-    out << k_DACName_VwllPr << ":        " << (int)VwllPr_	   <<endl;
-    out << k_DACName_VrgSh << ":         " << (int)VrgSh_	   <<endl;
-    out << k_DACName_VwllSh << ":        " << (int)VwllSh_	   <<endl;
-    out << k_DACName_VHldDel << ":       " << (int)VHldDel_	   <<endl;
-    out << k_DACName_Vtrim << ":         " << (int)Vtrim_	   <<endl;
-    out << k_DACName_VcThr << ":         " << (int)VcThr_	   <<endl;
+    out << k_DACName_Vdd << ":           " << (int)Vdd_	         <<endl;
+    out << k_DACName_Vana << ":          " << (int)Vana_	 <<endl;
+    out << k_DACName_Vsf << ":           " << (int)Vsf_	         <<endl;
+    out << k_DACName_Vcomp << ":         " << (int)Vcomp_	 <<endl;
+    out << k_DACName_Vleak << ":         " << (int)Vleak_	 <<endl;
+    out << k_DACName_VrgPr << ":         " << (int)VrgPr_	 <<endl;
+    out << k_DACName_VwllPr << ":        " << (int)VwllPr_	 <<endl;
+    out << k_DACName_VrgSh << ":         " << (int)VrgSh_	 <<endl;
+    out << k_DACName_VwllSh << ":        " << (int)VwllSh_	 <<endl;
+    out << k_DACName_VHldDel << ":       " << (int)VHldDel_	 <<endl;
+    out << k_DACName_Vtrim << ":         " << (int)Vtrim_	 <<endl;
+    out << k_DACName_VcThr << ":         " << (int)VcThr_	 <<endl;
     out << k_DACName_VIbias_bus << ":    " << (int)VIbias_bus_   <<endl;
     out << k_DACName_VIbias_sf << ":     " << (int)VIbias_sf_    <<endl;
     out << k_DACName_VOffsetOp << ":     " << (int)VOffsetOp_    <<endl;
-    out << k_DACName_VbiasOp << ":       " << (int)VbiasOp_	   <<endl;
+    out << k_DACName_VbiasOp << ":       " << (int)VbiasOp_	 <<endl;
     out << k_DACName_VOffsetRO << ":     " << (int)VOffsetRO_    <<endl;
-    out << k_DACName_VIon << ":          " << (int)VIon_	   <<endl;
+    out << k_DACName_VIon << ":          " << (int)VIon_	 <<endl;
     out << k_DACName_VIbias_PH << ":     " << (int)VIbias_PH_    <<endl;
     out << k_DACName_VIbias_DAC << ":    " << (int)VIbias_DAC_   <<endl;
     out << k_DACName_VIbias_roc << ":    " << (int)VIbias_roc_   <<endl;
-    out << k_DACName_VIColOr << ":       " << (int)VIColOr_	   <<endl;
-    out << k_DACName_Vnpix << ":         " << (int)Vnpix_	   <<endl;
+    out << k_DACName_VIColOr << ":       " << (int)VIColOr_	 <<endl;
+    out << k_DACName_Vnpix << ":         " << (int)Vnpix_	 <<endl;
     out << k_DACName_VsumCol << ":       " << (int)VsumCol_      <<endl;
-    out << k_DACName_Vcal << ":          " << (int)Vcal_	   <<endl;
-    out << k_DACName_CalDel << ":        " << (int)CalDel_	   <<endl;
+    out << k_DACName_Vcal << ":          " << (int)Vcal_	 <<endl;
+    out << k_DACName_CalDel << ":        " << (int)CalDel_	 <<endl;
     out << k_DACName_TempRange << ":     " << (int)TempRange_    <<endl;
-    out << k_DACName_WBC << ":           " << (int)WBC_	   <<endl;
+    out << k_DACName_WBC << ":           " << (int)WBC_	         <<endl;
     out << k_DACName_ChipContReg << ":   " << (int)ChipContReg_  <<endl;
 
 }
 
+//=============================================================================================
+void PixelROCDACSettings::writeXML(ostream& out, pos::PixelConfigKey key, int version, std::string path) const {
+  std::string mthn = "[PixelROCDACSettings::writeXML()]\t\t\t    " ;
+
+  out << " <DATA_SET>"                                                             << endl ;
+  out << "  <COMMENT_DESCRIPTION>" << rocid_.rocname() << "</COMMENT_DESCRIPTION>" << endl ;
+  out << "  <VERSION>" << version << "</VERSION>"                                  << endl ;
+  out << "  <PART>"                                                                << endl ;
+  out << "   <KIND_OF_PART>Pixel Disk ROC</KIND_OF_PART>"                          << endl ;
+  out << "  </PART>"                                                               << endl ;
+  out << " "                                                                       << endl ;
+  out << "  <DATA>"                                                                << endl ;
+  out << "   <VDD>"   	    << (int)Vdd_	 << "</VDD>"			   << endl ;
+  out << "   <VANA>"  	    << (int)Vana_	 << "</VANA>"			   << endl ;
+  out << "   <VSF>"   	    << (int)Vsf_	 << "</VSF>"			   << endl ;
+  out << "   <VCOMP>" 	    << (int)Vcomp_	 << "</VCOMP>"			   << endl ;
+  out << "   <VLEAK>" 	    << (int)Vleak_	 << "</VLEAK>"			   << endl ;
+  out << "   <VRGPR>" 	    << (int)VrgPr_	 << "</VRGPR>"			   << endl ;
+  out << "   <VWLLPR>"	    << (int)VwllPr_	 << "</VWLLPR>" 		   << endl ;
+  out << "   <VRGSH>" 	    << (int)VrgSh_	 << "</VRGSH>"			   << endl ;
+  out << "   <VWLLSH>"	    << (int)VwllSh_	 << "</VWLLSH>" 		   << endl ;
+  out << "   <VHLDDEL>"     << (int)VHldDel_	 << "</VHLDDEL>"		   << endl ;
+  out << "   <VTRIM>" 	    << (int)Vtrim_	 << "</VTRIM>"			   << endl ;
+  out << "   <VCTHR>" 	    << (int)VcThr_	 << "</VCTHR>"			   << endl ;
+  out << "   <VIBIAS_BUS>"  << (int)VIbias_bus_  << "</VIBIAS_BUS>"		   << endl ;
+  out << "   <VIBIAS_SF>"   << (int)VIbias_sf_   << "</VIBIAS_SF>"		   << endl ;
+  out << "   <VOFFSETOP>"   << (int)VOffsetOp_   << "</VOFFSETOP>"		   << endl ;
+  out << "   <VBIASOP>"     << (int)VbiasOp_	 << "</VBIASOP>"		   << endl ;
+  out << "   <VOFFSETRO>"   << (int)VOffsetRO_   << "</VOFFSETRO>"		   << endl ;
+  out << "   <VION>"        << (int)VIon_	 << "</VION>"			   << endl ;
+  out << "   <VIBIAS_PH>"   << (int)VIbias_PH_   << "</VIBIAS_PH>"		   << endl ;
+  out << "   <VIBIAS_DAC>"  << (int)VIbias_DAC_  << "</VIBIAS_DAC>"		   << endl ;
+  out << "   <VIBIAS_ROC>"  << (int)VIbias_roc_  << "</VIBIAS_ROC>"		   << endl ;
+  out << "   <VICOLOR>"     << (int)VIColOr_	 << "</VICOLOR>"		   << endl ;
+  out << "   <VNPIX>"       << (int)Vnpix_	 << "</VNPIX>"			   << endl ;
+  out << "   <VSUMCOL>"     << (int)VsumCol_	 << "</VSUMCOL>"		   << endl ;
+  out << "   <VCAL>"        << (int)Vcal_	 << "</VCAL>"			   << endl ;
+  out << "   <CALDEL>"      << (int)CalDel_	 << "</CALDEL>" 		   << endl ;
+  out << "   <TEMPRANGE>"   << (int)TempRange_   << "</TEMPRANGE>"		   << endl ;
+  out << "   <WBC>"         << (int)WBC_	 << "</WBC>"			   << endl ;
+  out << "   <CHIPCONTREG>" << (int)ChipContReg_ << "</CHIPCONTREG>"		   << endl ;
+  out << "  </DATA>"								   << endl ;
+  out << " </DATA_SET>"								   << endl ;
+  out << " "								           << endl ;
+
+}
+
+//=============================================================================================
 void PixelROCDACSettings::checkTag(string tag, 
 				   string dacName,
 				   const PixelROCName& rocid){

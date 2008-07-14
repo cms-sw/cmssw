@@ -10,6 +10,7 @@
 #include "CalibFormats/SiPixelObjects/interface/PixelDACSettings.h"
 #include "CalibFormats/SiPixelObjects/interface/PixelROCDACSettings.h"
 #include "CalibFormats/SiPixelObjects/interface/PixelDACNames.h"
+#include "CalibFormats/SiPixelObjects/interface/PixelTimeFormatter.h"
 #include <fstream>
 #include <iostream>
 #include <ios>
@@ -361,8 +362,42 @@ void PixelDACSettings::writeASCII(std::string dir) const {
 
 }
 
+//=============================================================================================
+void PixelDACSettings::writeXML(pos::PixelConfigKey key, int version, std::string path) const {
+  std::string mthn = "[PixelDACSettings::writeXML()]\t\t\t    " ;
+  std::stringstream fullPath ;
 
+  fullPath << path << "/dacsettings.xml" ;
+  std::cout << mthn << "Writing to: |" << fullPath.str()  << "|" << std::endl ;
+  
 
+  std::ofstream out(fullPath.str().c_str()) ;
+  
+  out << "<?xml version='1.0' encoding='UTF-8' standalone='yes'?>"		         	 << std::endl ;
+  out << "<ROOT xmlns:xsi='http://www.w3.org/2001/XMLSchema-instance'>" 	         	 << std::endl ;
+  out << " <HEADER>"								         	 << std::endl ;
+  out << "  <TYPE>"								         	 << std::endl ;
+  out << "   <EXTENSION_TABLE_NAME>ROC_DAC_SETTINGS_COL</EXTENSION_TABLE_NAME>" 	 	 << std::endl ;
+  out << "   <NAME>ROC DAC Settings Col</NAME>" 					 	 << std::endl ;
+  out << "  </TYPE>"								         	 << std::endl ;
+  out << "  <RUN>"								         	 << std::endl ;
+  out << "   <RUN_TYPE>test</RUN_TYPE>" 					         	 << std::endl ;
+  out << "   <RUN_NUMBER>1</RUN_NUMBER>"					         	 << std::endl ;
+  out << "   <RUN_BEGIN_TIMESTAMP>" << PixelTimeFormatter::getTime() << "</RUN_BEGIN_TIMESTAMP>" << std::endl ;
+  out << "   <COMMENT_DESCRIPTION>Test of DAC Settings xml</COMMENT_DESCRIPTION>"	 	 << std::endl ;
+  out << "   <LOCATION>CERN TAC</LOCATION>"					         	 << std::endl ;
+  out << "   <INITIATED_BY_USER>Dario Menasce</INITIATED_BY_USER>"		         	 << std::endl ;
+  out << "  </RUN>"								         	 << std::endl ;
+  out << " </HEADER>"								         	 << std::endl ;
+  out << ""									         	 << std::endl ;
+
+  for(unsigned int i=0;i<dacsettings_.size();i++){
+    dacsettings_[i].writeXML(out, key, version, path);
+  }
+
+}
+
+//=============================================================================================
 void PixelDACSettings::generateConfiguration(PixelFECConfigInterface* pixelFEC,
 					     PixelNameTranslation* trans) const{
 
