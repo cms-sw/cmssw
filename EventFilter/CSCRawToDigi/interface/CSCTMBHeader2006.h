@@ -20,6 +20,8 @@ struct CSCTMBHeader2006 : public CSCVTMBHeaderFormat {
   virtual uint16_t L1ANumber() const {return bits.l1aNumber;}
   virtual uint16_t NTBins() const {return bits.nTBins;}
   virtual uint16_t NCFEBs() const {return bits.nCFEBs;}
+  virtual uint16_t firmwareRevision() const {return bits.firmRevCode;}
+
   ///returns CLCT digis
   virtual std::vector<CSCCLCTDigi> CLCTDigis(uint32_t idlayer);
   ///returns CorrelatedLCT digis
@@ -27,7 +29,7 @@ struct CSCTMBHeader2006 : public CSCVTMBHeaderFormat {
  
   /// in 16-bit words.  Add olne because we include beginning(b0c) and
   /// end (e0c) flags
-      unsigned short int sizeInWords() const {return NWORDS;}
+  unsigned short int sizeInWords() const {return NWORDS;}
 
   virtual unsigned short int NHeaderFrames() const {return bits.nHeaderFrames;}
   /// returns the first data word
