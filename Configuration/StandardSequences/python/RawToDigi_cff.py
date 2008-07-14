@@ -1,12 +1,12 @@
 import FWCore.ParameterSet.Config as cms
 
 from CondCore.DBCommon.CondDBSetup_cfi import *
-from Geometry.CMSCommonData.cmsIdealGeometryXML_cfi import *
-from Geometry.TrackerGeometryBuilder.trackerGeometry_cfi import *
-from Geometry.TrackerNumberingBuilder.trackerNumberingGeometry_cfi import *
+#from Geometry.CMSCommonData.cmsIdealGeometryXML_cfi import *
+#from Geometry.TrackerGeometryBuilder.trackerGeometry_cfi import *
+#from Geometry.TrackerNumberingBuilder.trackerNumberingGeometry_cfi import *
 #from HLTrigger.Configuration.rawToDigi.EcalGeometrySetup_cff import *
-from Geometry.DTGeometry.dtGeometry_cfi import *
-from Geometry.RPCGeometry.rpcGeometry_cfi import *
+#from Geometry.DTGeometry.dtGeometry_cfi import *
+#from Geometry.RPCGeometry.rpcGeometry_cfi import *
 from L1TriggerConfig.L1ScalesProducers.L1MuTriggerScalesConfig_cff import *
 from L1TriggerConfig.L1ScalesProducers.L1MuTriggerPtScaleConfig_cff import *
 from L1TriggerConfig.L1ScalesProducers.L1MuGMTScalesConfig_cff import *
