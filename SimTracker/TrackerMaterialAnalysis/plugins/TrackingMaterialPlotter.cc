@@ -1,6 +1,7 @@
 #include <iostream>
 
 #include <TROOT.h>
+#include <TObjArray.h>
 #include <TColor.h>
 #include <TStyle.h>
 #include <TCanvas.h>
@@ -61,9 +62,7 @@ unsigned int TrackingMaterialPlotter::fill_gradient(const TColor & first, const 
 {
   if (index == 0) {
     // if no index was given, find the highest used one and start from that plus one
-    for (TColor * c = (TColor *) gROOT->GetListOfColors()->First(); c != 0; c = (TColor *) gROOT->GetListOfColors()->After( c ))
-      if (c->GetNumber() > (int) index)
-      index = c->GetNumber();
+    index = ((TObjArray*) gROOT->GetListOfColors())->GetLast() + 1;
   }
   
   float r1, g1, b1, r2, g2, b2;
@@ -75,7 +74,7 @@ unsigned int TrackingMaterialPlotter::fill_gradient(const TColor & first, const 
   
   m_gradient.resize(steps);
   for (unsigned int i = 0; i < steps; ++i) {
-    new TColor(index + 1, r1 + delta_r * i, g1 + delta_g * i, b1 + delta_b * i);
+    new TColor(index + i, r1 + delta_r * i, g1 + delta_g * i, b1 + delta_b * i);
     m_gradient[i] = index + i;
   }
 
@@ -101,8 +100,9 @@ TrackingMaterialPlotter::TrackingMaterialPlotter( float maxZ, float maxR, float 
   max.push_back( 0.04 ); 
   m_tracker = XHistogram( 2, rzBinsZ, rzBinsR, std::make_pair(rzMinZ, rzMaxZ), std::make_pair(rzMinR, rzMaxR), m_color.size(), max);
 
+  TColor::InitializeColors();
   fill_color();
-  fill_gradient( kWhite, kBlack, 100, 1000);    // 100-steps gradient from white to black, indexed starting from 1000
+  fill_gradient( kWhite, kBlack, 100);              // 100-steps gradient from white to black
 }
  
 void TrackingMaterialPlotter::plotSegmentUnassigned( const MaterialAccountingStep & step )
