@@ -104,7 +104,7 @@ void Measurement::constructFromOA( OpticalAlignMeasurementInfo&  measInfo)
   buildOptONamesList( wordlist );
 
   if(ALIUtils::debug >= 3) {
-    std::cout << this << "@@@@ Reading Measurement " << name() << " TYPE= " << type() << " " << measInfo << std::endl
+    std::cout << "@@@@ Reading Measurement " << name() << " TYPE= " << type() << " " << measInfo << std::endl
 	      << " MEASURED OPTO NAMES: ";
     for( size_t ii = 0; ii < _OptONameList.size(); ii++ ){
       std::cout << _OptONameList[ii] << " ";
@@ -441,7 +441,7 @@ void Measurement::Substitute2p( ALIstring& ref, const ALIstring& firstref, int N
 //@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@
 void Measurement::printStartCalculateSimulatedValue( const Measurement* meas) 
 {
-  std::cout << std::endl << "@@@@ Start calculation of simulated value of " << meas->type() << " Measurement " << meas->name() << std::endl;
+  std::cout << std::endl << "@@@ Start calculation of simulated value of " << meas->type() << " Measurement " << meas->name() << std::endl;
 }
 
 //@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@

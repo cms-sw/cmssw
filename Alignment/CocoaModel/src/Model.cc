@@ -92,7 +92,6 @@ Model& Model::getInstance()
 //@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@
 Model::Model()
 {
-  GlobalOptionMgr::getInstance()->setDefaultGlobalOptions();
   //  theMeasurementsTime = clock();
 }
 
@@ -1633,7 +1632,7 @@ void Model::BuildMeasurementsFromOA( OpticalAlignMeasurements& measList )
   for( mite = measInfos.begin(); mite != measInfos.end(); mite++ ) {
     std::string measType = (*mite).type_;
     std::string measName = (*mite).name_;
-    std::cout << " BuildMeasurementsFromOA measType " << measType << " measName " << measName << std::endl;
+  if( ALIUtils::debug >= 4 ) std::cout << " BuildMeasurementsFromOA measType " << measType << " measName " << measName << std::endl;
     //---------- Create Measurement with appropiate dimension
     Measurement* meastemp = 0;
     if ( measType == ALIstring("SENSOR2D") ) {
