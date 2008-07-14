@@ -3,6 +3,8 @@
 <use name=FWCore/ParameterSet>
 <use name=CondFormats/L1TObjects>
 <use name=CondFormats/DataRecord>
+<use name=CalibFormats/CaloTPG>
+<use name=CalibCalorimetry/EcalTPGTools>
 <flags EDM_PLUGIN=1>
 
 <export>
@@ -12,4 +14,6 @@
    <use name=FWCore/ParameterSet>
    <use name=CondFormats/L1TObjects>
    <use name=CondFormats/DataRecord>
+   <use name=CalibFormats/CaloTPG>
+   <use name=CalibCalorimetry/EcalTPGTools>
 </export>
