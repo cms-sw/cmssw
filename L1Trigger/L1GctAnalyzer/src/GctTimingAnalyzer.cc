@@ -11,7 +11,7 @@ Description: Analyse the timing of all of the GCT pipelines
 //
 // Original Author:  Alex Tapper
 //         Created:  Mon Apr 21 14:21:06 CEST 2008
-// $Id: GctTimingAnalyzer.cc,v 1.3 2008/05/13 20:13:41 tapper Exp $
+// $Id: GctTimingAnalyzer.cc,v 1.4 2008/05/22 15:07:30 tapper Exp $
 //
 //
 
@@ -23,6 +23,7 @@ GctTimingAnalyzer::GctTimingAnalyzer(const edm::ParameterSet& iConfig):
   m_isoEmSource(iConfig.getUntrackedParameter<edm::InputTag>("isoEmSource")),
   m_nonIsoEmSource(iConfig.getUntrackedParameter<edm::InputTag>("nonIsoEmSource")),
   m_internEmSource(iConfig.getUntrackedParameter<edm::InputTag>("internEmSource")),
+  m_internJetSource(iConfig.getUntrackedParameter<edm::InputTag>("internJetSource")),
   m_cenJetsSource(iConfig.getUntrackedParameter<edm::InputTag>("cenJetsSource")),
   m_forJetsSource(iConfig.getUntrackedParameter<edm::InputTag>("forJetsSource")),
   m_tauJetsSource(iConfig.getUntrackedParameter<edm::InputTag>("tauJetsSource")),
@@ -162,6 +163,27 @@ void GctTimingAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup&
       m_outputFile << "BX = " << m_evtNum << " " << (*rn) << std::endl; 
     }
   }
+
+  // Internal GCT jet cands
+  Handle<L1GctInternJetDataCollection> internJets; 
+  iEvent.getByLabel(m_internJetSource,internJets);    
+
+  for (L1GctInternJetDataCollection::const_iterator j=internJets->begin(); j!=internJets->end(); j++){
+    if ( (j->et()>0) || (j->rank()>0) )  {
+      m_outputFile << "BX = " << m_evtNum << " " << (*j) << std::endl; 
+    }
+  }
+
+  // Internal GCT Et sums
+  Handle<L1GctInternEtSumCollection> Et;
+  iEvent.getByLabel(m_eSumsSource,Et);
+
+  for (L1GctInternEtSumCollection::const_iterator e=Et->begin(); e!=Et->end(); e++){
+    if (e->et()>0){
+      m_outputFile << "BX = " << m_evtNum << " " << (*e) << std::endl;
+    }
+  }
+
 
   m_evtNum++;
 }

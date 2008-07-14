@@ -14,7 +14,7 @@ Description: Analyse the timing of all of the GCT pipelines
 //
 // Original Author:  Alex Tapper
 //         Created:  Mon Apr 21 14:21:06 CEST 2008
-// $Id: GctTimingAnalyzer.h,v 1.2 2008/04/21 14:48:19 tapper Exp $
+// $Id: GctTimingAnalyzer.h,v 1.3 2008/05/13 20:13:41 tapper Exp $
 //
 //
 
@@ -50,6 +50,7 @@ class GctTimingAnalyzer : public edm::EDAnalyzer {
   edm::InputTag m_isoEmSource;
   edm::InputTag m_nonIsoEmSource;
   edm::InputTag m_internEmSource;
+  edm::InputTag m_internJetSource;
   edm::InputTag m_cenJetsSource;
   edm::InputTag m_forJetsSource;
   edm::InputTag m_tauJetsSource;
