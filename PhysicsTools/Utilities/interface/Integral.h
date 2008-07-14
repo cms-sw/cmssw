@@ -110,7 +110,7 @@ namespace funct {
     DefIntegral(const F & f, const MIN & min, const MAX & max, const Integrator & integrator) : 
       f_(f), min_(min), max_(max), integrator_(integrator) { } 
     double operator()() const {
-      return integral<X>(f_, min_(). max_(), integrator_);
+      return integral<X>(f_, min_(), max_(), integrator_);
     }
   private:
     F f_;

@@ -27,7 +27,13 @@ namespace fit {
    chi4_(t4, histo4, rangeMin, rangeMax) {
    }
    double operator()() const { 
-     return chi1_() + chi2_() + chi3_() + chi4_();
+     double chi2 = chi1_() + chi2_() + chi3_() + chi4_();
+     static size_t count = 0;
+     ++count;
+     if(count % 10 == 0)
+     std::cout << ">>> " << count << ") chi2 = " << chi2 << std::endl;
+     return chi2;
+
    }
    void setHistos(TH1 *histo1, TH1 *histo2, TH1 *histo3, TH1 * histo4) { 
      chi1_.setHistos(histo1);
@@ -37,10 +43,10 @@ namespace fit {
    }
    size_t degreesOfFreedom() const { 
      return 
-       chi1_.degreesOfFreedom() +
-       chi2_.degreesOfFreedom() +
-       chi3_.degreesOfFreedom() +
-       chi4_.degreesOfFreedom();
+     chi1_.degreesOfFreedom() +
+     chi2_.degreesOfFreedom() +
+     chi3_.degreesOfFreedom() +
+     chi4_.degreesOfFreedom();
    }
    T1 & function1() { return chi1_.function(); }
    const T1 & function1() const { return chi1_.function(); }
