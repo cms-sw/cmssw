@@ -96,8 +96,8 @@ namespace HcalDigiMap{
     int last = -1; float pval = -1;
     bitUp=false; err=false; occ=false;
     
-    // Add in for CRUZET 3:  require digi size = 10
-    if (digi.size()!=10) err=true; 
+    // Add in for CRUZET 3:  require digi size = 10  (new update:  size>1)
+    if (digi.size()<=1) err=true; 
 
     for (int i=0; i<digi.size(); i++) {
       int thisCapid = digi.sample(i).capid();
