@@ -32,7 +32,6 @@ class Entry;
 #include "CondFormats/OptAlignObjects/interface/OpticalAlignInfo.h"
 #include "CondFormats/OptAlignObjects/interface/OpticalAlignMeasurements.h"
 
-
 class DDFilteredView;
 class DDCompactView;
 class DDSpecifics;
@@ -62,9 +61,6 @@ class CocoaAnalyzer : public edm::EDAnalyzer
 
   void RunCocoa();
 
-  bool DumpCocoaResults(); 
-  double GetEntryError( const Entry* entry );
- 
   OpticalAlignInfo GetOptAlignInfoFromOptO( OpticalObject* opto );
   double myFetchDbl(const DDsvalues_type& dvst, 
 	        		      const std::string& spName,

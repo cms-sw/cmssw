@@ -1,36 +1,45 @@
-#include "FWCore/Framework/interface/ESHandle.h"
 #include "FWCore/ServiceRegistry/interface/Service.h"
+#include "CondCore/DBCommon/interface/Exception.h"
 #include "CondCore/DBOutputService/interface/PoolDBOutputService.h"
+#include "FWCore/ParameterSet/interface/ParameterSet.h" 
+#include "FWCore/Framework/interface/ESHandle.h"
 
 #include "../interface/CocoaAnalyzer.h"
-#include "FWCore/ParameterSet/interface/ParameterSet.h" 
 #include "CondFormats/OptAlignObjects/interface/OpticalAlignMeasurementInfo.h" 
 #include "CondFormats/DataRecord/interface/OpticalAlignmentsRcd.h" 
-#include "Geometry/Records/interface/IdealGeometryRecord.h" 
-
 #include "DetectorDescription/Core/interface/DDFilteredView.h"
+#include "DetectorDescription/Core/interface/DDCompactView.h"
+#include "Geometry/Records/interface/IdealGeometryRecord.h"
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/EventSetup.h"
-#include <list>
+
 #include "Alignment/CocoaUtilities/interface/ALIUtils.h"
-#include <assert.h>
 #include "Alignment/CocoaModel/interface/Model.h"
 #include "Alignment/CocoaFit/interface/Fit.h"
 #include "Alignment/CocoaModel/interface/Entry.h"
 #include "Alignment/CocoaUtilities/interface/ALIFileOut.h"
 #include "Alignment/CocoaModel/interface/CocoaDaqReaderRoot.h"
 #include "Alignment/CocoaModel/interface/OpticalObject.h"
-#include "DetectorDescription/Core/interface/DDCompactView.h"
+#include "Alignment/CocoaUtilities/interface/GlobalOptionMgr.h"
+#include "Alignment/CocoaFit/interface/CocoaDBMgr.h"
 
 //----------------------------------------------------------------------
 CocoaAnalyzer::CocoaAnalyzer(edm::ParameterSet const& pset) 
 {
   theCocoaDaqRootFileName = pset.getParameter< std::string >("cocoaDaqRootFile");
+
+  int maxEvents = pset.getParameter< int32_t >("maxEvents");
+  GlobalOptionMgr::getInstance()->setDefaultGlobalOptions();
+  GlobalOptionMgr::getInstance()->setGlobalOption("maxEvents",maxEvents);
+  GlobalOptionMgr::getInstance()->setGlobalOption("writeDBAlign",1);
+  GlobalOptionMgr::getInstance()->setGlobalOption("writeDBOptAlign",1);
 }
 
 //----------------------------------------------------------------------
 void CocoaAnalyzer::beginJob( const edm::EventSetup& evts ) 
 {
+  ALIUtils::setDebugVerbosity( 5 );
+
   ReadXMLFile( evts );
 
   std::vector<OpticalAlignInfo> oaListCalib = ReadCalibrationDB( evts );
@@ -50,25 +59,61 @@ void CocoaAnalyzer::beginJob( const edm::EventSetup& evts )
 
   //  std::cout << "!!!! NOT  DumpCocoaResults() " << std::endl;  
 
-  DumpCocoaResults();  
+  //  CocoaDBMgr::getInstance()->DumpCocoaResults();  
 }
+
+
+//------------------------------------------------------------------------
+void CocoaAnalyzer::RunCocoa()
+{
+  if(ALIUtils::debug >= 3) {
+    std::cout << std::endl << "$$$ CocoaAnalyzer::RunCocoa: " << std::endl;
+  }
+  //-ALIFileIn fin;
+  //-  GlobalOptionMgr::getInstance()->setGlobalOption("debug_verbose",5, fin );
+
+  //---------- Build the Model out of the system description text file
+  Model& model = Model::getInstance();
+
+  model.BuildSystemDescriptionFromOA( oaList_ );
+
+  if(ALIUtils::debug >= 3) {
+    std::cout << "$$ CocoaAnalyzer::RunCocoa: geometry built " << std::endl;
+  }
+
+  model.BuildMeasurementsFromOA( measList_ );
+
+  if(ALIUtils::debug >= 3) {
+    std::cout << "$$ CocoaAnalyzer::RunCocoa: measurements built " << std::endl;
+  }
+
+  Fit::getInstance();
+
+  Fit::startFit();
+
+  if(ALIUtils::debug >= 0) std::cout << "............ program ended OK" << std::endl;
+  if( ALIUtils::report >=1 ) {
+    ALIFileOut& fileout = ALIFileOut::getInstance( Model::ReportFName() );
+    fileout << "............ program ended OK" << std::endl;
+  }
+
+} // end of ::beginJob
+
 
 //-----------------------------------------------------------------------
 void CocoaAnalyzer::ReadXMLFile( const edm::EventSetup& evts ) 
 {
-
-  ALIUtils::setDebugVerbosity( 5 );
 
   // STEP ONE:  Initial COCOA objects will be built from a DDL geometry
   // description.  
   
   edm::ESHandle<DDCompactView> cpv;
   evts.get<IdealGeometryRecord>().get(cpv);
-  
-  if(ALIUtils::debug >= 3) {
-    std::cout << " CocoaAnalyzer ROOT " << cpv->root() << std::endl;
-  }
 
+  if(ALIUtils::debug >= 3) {
+    std::cout << std::endl << "$$$ CocoaAnalyzer::ReadXML: root object= " << cpv->root() << std::endl;
+  }
+  
   //Build OpticalAlignInfo "system"
   const DDLogicalPart lv = cpv->root();
   
@@ -131,12 +176,12 @@ void CocoaAnalyzer::ReadXMLFile( const edm::EventSetup& evts )
 
   while ( doCOCOA ){
     ++nObjects;
-    oaInfo.ID_ = nObjects;
+    //    oaInfo.ID_ = nObjects;
     const DDsvalues_type params(fv.mergedSpecifics());
     
     const DDLogicalPart lv = fv.logicalPart();
     if(ALIUtils::debug >= 4) {
-      std::cout << " CocoaAnalyzer: reading object " << lv.name() << std::endl;
+      std::cout << " CocoaAnalyzer::ReadXML reading object " << lv.name() << std::endl;
     }
 
     std::vector<DDExpandedNode> history = fv.geoHistory();
@@ -159,8 +204,9 @@ void CocoaAnalyzer::ReadXMLFile( const edm::EventSetup& evts )
     int icol = name.find(":");
     name = name.substr(icol+1,name.length());
     oaInfo.name_ = oaInfo.parentName_ + "/" + name;
-    std::cout << " @@@@@@@@@@@@@@@@ NAme built " << oaInfo.name_ << " parent " << oaInfo.parentName_ << " short " << name << std::endl;
-
+    if(ALIUtils::debug >= 5) {
+      std::cout << " @@ Name built= " << oaInfo.name_ << " short_name= " << name << " parent= " << oaInfo.parentName_ << std::endl; 
+    }
     //----- Read centre and angles
     oaInfo.x_.quality_  = int (myFetchDbl(params, "centre_X_quality", 0));
     DDTranslation transl = (fv.translation());
@@ -178,20 +224,20 @@ void CocoaAnalyzer::ReadXMLFile( const edm::EventSetup& evts )
 
     oaInfo.x_.name_ = "X";
     oaInfo.x_.dim_type_ = "centre";
-    oaInfo.x_.value_ = transl.x(); 
-    oaInfo.x_.error_ = myFetchDbl(params, "centre_X_sigma", 0);
+    oaInfo.x_.value_ = transl.x()*0.001; // CLHEP units are mm, COCOA are m 
+    oaInfo.x_.error_ = myFetchDbl(params, "centre_X_sigma", 0)*0.001; // CLHEP units are mm, COCOA are m 
     oaInfo.x_.quality_  = int (myFetchDbl(params, "centre_X_quality", 0));
     
     oaInfo.y_.name_ = "Y";
     oaInfo.y_.dim_type_ = "centre";
-    oaInfo.y_.value_ = transl.y();
-    oaInfo.y_.error_ = myFetchDbl(params, "centre_Y_sigma", 0);
+    oaInfo.y_.value_ = transl.y()*0.001; // CLHEP units are mm, COCOA are m 
+    oaInfo.y_.error_ = myFetchDbl(params, "centre_Y_sigma", 0)*0.001; // CLHEP units are mm, COCOA are m 
     oaInfo.y_.quality_  = int (myFetchDbl(params, "centre_Y_quality", 0));
 
     oaInfo.z_.name_ = "Z";
     oaInfo.z_.dim_type_ = "centre";
-    oaInfo.z_.value_ = transl.z();
-    oaInfo.z_.error_ = myFetchDbl(params, "centre_Z_sigma", 0);
+    oaInfo.z_.value_ = transl.z()*0.001; // CLHEP units are mm, COCOA are m 
+    oaInfo.z_.error_ = myFetchDbl(params, "centre_Z_sigma", 0)*0.001; // CLHEP units are mm, COCOA are m 
     oaInfo.z_.quality_  = int (myFetchDbl(params, "centre_Z_quality", 0));
 
   //---- DDD convention is to use the inverse matrix, COCOA is the direct one!!!
@@ -229,8 +275,10 @@ void CocoaAnalyzer::ReadXMLFile( const edm::EventSetup& evts )
 
     oaInfo.type_ = myFetchString(params, "cocoa_type", 0);
 
+    oaInfo.ID_ = int(myFetchDbl(params, "cmssw_ID", 0));
+
     if(ALIUtils::debug >= 4) {
-      std::cout << "CocoaAnalyzer OBJECT " << oaInfo.name_ << " pos/angle read " << std::endl;
+      std::cout << "CocoaAnalyzer::ReadXML OBJECT " << oaInfo.name_ << " pos/angles read " << std::endl;
     }
 
     if( fabs( oaInfo.angx_.value_ - angles[0] ) > 1.E-9 || 
@@ -306,9 +354,11 @@ void CocoaAnalyzer::ReadXMLFile( const edm::EventSetup& evts )
 	    measParamSigmas[*vsite] = sit->second.doubles();
 	  }else if (sit->second.name() == "meas_is_simulated_value_"+(*vsite)) {
 	    measIsSimulatedValue[*vsite] = sit->second.doubles(); // this is not in OptAlignParam info
-	    std::cout << *vsite << " setting issimu " << measIsSimulatedValue[*vsite][0] << std::endl;
+	    if(ALIUtils::debug >= 5) {
+	      std::cout << *vsite << " setting issimu " << measIsSimulatedValue[*vsite][0] << std::endl;
+	    }
 	  }
-	  if(ALIUtils::debug >= 4) {
+	  if(ALIUtils::debug >= 5) {
 	    std::cout << "CocoaAnalyser: looped measObjectNames " << "meas_object_name_"+(*vsite) << " n obj " << measObjectNames[*vsite].size() << std::endl;
 	  }
 
@@ -318,14 +368,21 @@ void CocoaAnalyzer::ReadXMLFile( const edm::EventSetup& evts )
     }
     
     if(ALIUtils::debug >= 4) {
-      std::cout << " CocoaAnalyzer:  Fill extra entries with read parameters " << std::endl;
+      std::cout << " CocoaAnalyzer::ReadXML:  Fill extra entries with read parameters " << std::endl;
     }
     //--- Fill extra entries with read parameters    
     if ( names.size() == dims.size() && dims.size() == values.size() 
 	 && values.size() == errors.size() && errors.size() == quality.size() ) {
       for ( size_t ind = 0; ind < names.size(); ++ind ) {
-	oaParam.value_ = values[ind];
-	oaParam.error_ = errors[ind];
+	double dimFactor = 1.;
+	std::string type = oaParam.dimType();
+	if( type == "centre" || type == "length" ) {
+	  dimFactor = 0.001; // in XML it is in mm 
+	}else if ( type == "angles" || type == "angle" || type == "nodim" ){
+	  dimFactor = 1.;
+	} 
+	oaParam.value_ = values[ind]*dimFactor;
+	oaParam.error_ = errors[ind]*dimFactor;
 	oaParam.quality_ = int (quality[ind]);
 	oaParam.name_ = names[ind];
 	oaParam.dim_type_ = dims[ind];
@@ -343,7 +400,7 @@ void CocoaAnalyzer::ReadXMLFile( const edm::EventSetup& evts )
     }
 
     if(ALIUtils::debug >= 4) {
-      std::cout << " CocoaAnalyzer:  Fill measurements with read parameters " << std::endl;
+      std::cout << " CocoaAnalyzer::ReadXML:  Fill measurements with read parameters " << std::endl;
     }
     //--- Fill measurements with read parameters    
     if ( measNames.size() == measTypes.size() ) {
@@ -368,13 +425,17 @@ void CocoaAnalyzer::ReadXMLFile( const edm::EventSetup& evts )
 	    
 	    oaMeas.values_.push_back( oaParam );
 	    oaMeas.isSimulatedValue_.push_back( measIsSimulatedValue[oaMeas.name_][ind2] );
-	    std::cout << oaMeas.name_ << " copying issimu " << oaMeas.isSimulatedValue_[oaMeas.isSimulatedValue_.size()-1]  << " = " << measIsSimulatedValue[oaMeas.name_][ind2] << std::endl;
+	    if(ALIUtils::debug >= 5) {
+	      std::cout << oaMeas.name_ << " copying issimu " << oaMeas.isSimulatedValue_[oaMeas.isSimulatedValue_.size()-1]  << " = " << measIsSimulatedValue[oaMeas.name_][ind2] << std::endl;
 	    //-           std::cout << ind2 << " adding meas value " << oaParam << std::endl;
+	    }
             oaParam.clear();	
 	  }
 	} else {
-	  std::cout << "WARNING FOR NOW: sizes of measurement parameters (name, value, sigma) do"
-		    << " not match! for measurement " << oaMeas.name_ << " !Did not fill parameters for this measurement " << std::endl;
+	  if(ALIUtils::debug >= 2) {
+	    std::cout << "WARNING FOR NOW: sizes of measurement parameters (name, value, sigma) do"
+		      << " not match! for measurement " << oaMeas.name_ << " !Did not fill parameters for this measurement " << std::endl;
+	  }
 	}
 	measList_.oaMeasurements_.push_back (oaMeas);
 	if(ALIUtils::debug >= 5) {
@@ -384,9 +445,11 @@ void CocoaAnalyzer::ReadXMLFile( const edm::EventSetup& evts )
       }
       
     } else {
-      std::cout << "WARNING FOR NOW: sizes of measurements (names, types do"
-		<< " not match!  Did not add " << nObjects << " item to XXXMeasurements" 
-		<< std::endl;
+      if(ALIUtils::debug >= 2) {
+	std::cout << "WARNING FOR NOW: sizes of measurements (names, types do"
+		  << " not match!  Did not add " << nObjects << " item to XXXMeasurements" 
+		  << std::endl;
+      }
     }
 
 //       std::cout << "sizes are values=" << values.size();
@@ -398,7 +461,7 @@ void CocoaAnalyzer::ReadXMLFile( const edm::EventSetup& evts )
     doCOCOA = fv.next(); // go to next part
   } // while (doCOCOA)
   if(ALIUtils::debug >= 3) {
-    std::cout << "Finished making " << nObjects+1 << " OpticalAlignInfo objects" << " and " <<  measList_.oaMeasurements_.size() << " OpticalAlignMeasurementInfo objects " << std::endl;
+    std::cout << "CocoaAnalyzer::ReadXML: Finished building " << nObjects+1 << " OpticalAlignInfo objects" << " and " <<  measList_.oaMeasurements_.size() << " OpticalAlignMeasurementInfo objects " << std::endl;
   }
   if(ALIUtils::debug >= 5) {
     std::cout << " @@@@@@ OpticalAlignments " << oaList_ << std::endl;
@@ -410,13 +473,24 @@ void CocoaAnalyzer::ReadXMLFile( const edm::EventSetup& evts )
 //------------------------------------------------------------------------
 std::vector<OpticalAlignInfo> CocoaAnalyzer::ReadCalibrationDB( const edm::EventSetup& evts ) 
 {
+  if(ALIUtils::debug >= 3) {
+    std::cout<< std::endl <<"$$$ CocoaAnalyzer::ReadCalibrationDB: " << std::endl;
+  }
+  
   using namespace edm::eventsetup;
   edm::ESHandle<OpticalAlignments> pObjs;
   evts.get<OpticalAlignmentsRcd>().get(pObjs);
   const OpticalAlignments* dbObj = pObjs.product();
-  std::vector<OpticalAlignInfo>::const_iterator it;
-  for( it=dbObj->opticalAlignments_.begin();it!=dbObj->opticalAlignments_.end(); ++it ){
-    std::cout<<"@@@@@ OpticalAlignInfo READ "<< *it << std::endl;
+  
+  if(ALIUtils::debug >= 5) {
+    std::vector<OpticalAlignInfo>::const_iterator it;
+    for( it=dbObj->opticalAlignments_.begin();it!=dbObj->opticalAlignments_.end(); ++it ){
+      std::cout<<"CocoaAnalyzer::ReadCalibrationDB:  OpticalAlignInfo READ "<< *it << std::endl;
+    }
+  }
+  
+  if(ALIUtils::debug >= 4) {
+    std::cout<<"CocoaAnalyzer::ReadCalibrationDB:  Number of OpticalAlignInfo READ "<< dbObj->opticalAlignments_.size() << std::endl;
   }
 
   return dbObj->opticalAlignments_;
@@ -425,17 +499,25 @@ std::vector<OpticalAlignInfo> CocoaAnalyzer::ReadCalibrationDB( const edm::Event
 
 //------------------------------------------------------------------------
 void CocoaAnalyzer::CorrectOptAlignments( std::vector<OpticalAlignInfo>& oaListCalib )
-{
+{ 
+  if(ALIUtils::debug >= 3) {
+    std::cout<< std::endl<< "$$$ CocoaAnalyzer::CorrectOptAlignments: " << std::endl;
+  }
+
   std::vector<OpticalAlignInfo>::const_iterator it;
   for( it=oaListCalib.begin();it!=oaListCalib.end(); ++it ){
     OpticalAlignInfo oaInfoDB = *it;
     OpticalAlignInfo* oaInfoXML = FindOpticalAlignInfoXML( oaInfoDB );
-    std::cout << " oaInfoXML found " << *oaInfoXML << std::endl;
+    std::cerr << "error " << (*it).name_ << std::endl;
     if( oaInfoXML == 0 ) {
-      std::cerr << "@@@@@ WARNING CocoaAnalyzer::CorrectOptAlignments:  OpticalAlignInfo read from DB is not present in XML "<< *it << std::endl;
+      if(ALIUtils::debug >= 2) {
+	std::cerr << "@@@@@ WARNING CocoaAnalyzer::CorrectOptAlignments:  OpticalAlignInfo read from DB is not present in XML "<< *it << std::endl;
+      }
     } else {
       //------ Correct info       
-      std::cout << " correcting info " << std::endl;
+      if(ALIUtils::debug >= 5) {
+	std::cout << "CocoaAnalyzer::CorrectOptAlignments: correcting data from DB info " << std::endl;
+      }
       CorrectOaParam( &oaInfoXML->x_, oaInfoDB.x_ );
       CorrectOaParam( &oaInfoXML->y_, oaInfoDB.y_ );
       CorrectOaParam( &oaInfoXML->z_, oaInfoDB.z_ );
@@ -447,7 +529,7 @@ void CocoaAnalyzer::CorrectOptAlignments( std::vector<OpticalAlignInfo>& oaListC
       std::vector<OpticalAlignParam>* extraEntXML = &(oaInfoXML->extraEntries_);
       for( itoap1 = extraEntDB.begin(); itoap1 != extraEntDB.end(); itoap1++ ){
 	bool pFound = false;
-	//----- Look fot the extra parameter in XML oaInfo that has the same name
+	//----- Look for the extra parameter in XML oaInfo that has the same name
 	std::string oaName = (*itoap1).name_.substr( 1, (*itoap1).name_.size()-2 );
 	for( itoap2 = extraEntXML->begin(); itoap2 != extraEntXML->end(); itoap2++ ){
 	  if( oaName == (*itoap2).name_ ) {
@@ -456,13 +538,16 @@ void CocoaAnalyzer::CorrectOptAlignments( std::vector<OpticalAlignInfo>& oaListC
 	    break;
 	  }
 	}
-	if( !pFound ) {
-	  std::cerr << "@@@@@ WARNING CocoaAnalyzer::CorrectOptAlignments:  extra enty read from DB is not present in XML "<< *itoap1 << " in object " << *it << std::endl;
+	if( !pFound && oaName != "None" ) {
+	  if(ALIUtils::debug >= 2) {
+	    std::cerr << "@@@@@ WARNING CocoaAnalyzer::CorrectOptAlignments:  extra entry read from DB is not present in XML "<< *itoap1 << " in object " << *it << std::endl;
+	  }
 	}
 
       }
-      std::cout << " oaInfoXML corrected " << *oaInfoXML << std::endl;
-      std::cout << " all oaInfo " << oaList_ << std::endl;
+      if(ALIUtils::debug >= 5) {
+	std::cout << "CocoaAnalyzer::CorrectOptAlignments: corrected OpticalAlingInfo " << oaList_ << std::endl;
+      }
 
     }
   }
@@ -477,9 +562,15 @@ OpticalAlignInfo* CocoaAnalyzer::FindOpticalAlignInfoXML( OpticalAlignInfo oaInf
   std::vector<OpticalAlignInfo>::iterator it;
   for( it=oaList_.opticalAlignments_.begin();it!=oaList_.opticalAlignments_.end(); ++it ){
     std::string oaName = oaInfo.name_.substr( 1, oaInfo.name_.size()-2 );
-    std::cout << "findoaixml " << (*it).name_ << " =? " << oaName << std::endl;
+
+    if(ALIUtils::debug >= 5) {
+      std::cout << "CocoaAnalyzer::FindOpticalAlignInfoXML:  looking for OAI " << (*it).name_ << " =? " << oaName << std::endl;
+    }
     if( (*it).name_ == oaName ) {
       oaInfoXML = &(*it);
+      if(ALIUtils::debug >= 4) {
+	std::cout << "CocoaAnalyzer::FindOpticalAlignInfoXML:  OAI found " << oaInfoXML->name_ << std::endl;
+      }
       break;
     }
   }
@@ -491,11 +582,24 @@ OpticalAlignInfo* CocoaAnalyzer::FindOpticalAlignInfoXML( OpticalAlignInfo oaInf
 //------------------------------------------------------------------------
 bool CocoaAnalyzer::CorrectOaParam( OpticalAlignParam* oaParamXML, OpticalAlignParam oaParamDB )
 {
-  std::cout << " CorrectOaParam " << std::endl;
-  std::cout << " CorrectOaParam  al " << oaParamDB.value_ << std::endl;
+  if(ALIUtils::debug >= 4) {
+    std::cout << "CocoaAnalyzer::CorrectOaParam  old value= " << oaParamXML->value_  << " new value= " << oaParamDB.value_ << std::endl;
+  }
   if( oaParamDB.value_ == -9.999E9 ) return false;
  
-  oaParamXML->value_ = oaParamDB.value_;
+  double dimFactor = 1.; 
+  //loop for an Entry with equal type to entries to know which is the 
+  std::string type = oaParamDB.dimType();
+  if( type == "centre" || type == "length" ) {
+    dimFactor = 0.01; // in DB it is in cm 
+  }else if ( type == "angles" || type == "angle" || type == "nodim" ){
+    dimFactor = 1.;
+  }else {
+    std::cerr << "!!! COCOA programming error: inform responsible: incorrect OpticalAlignParam type = " << type << std::endl;
+    std::exception();
+  }
+
+  oaParamXML->value_ = oaParamDB.value_*dimFactor;
 
   return true;
 
@@ -504,40 +608,6 @@ bool CocoaAnalyzer::CorrectOaParam( OpticalAlignParam* oaParamXML, OpticalAlignP
 
 //-#include "Alignment/CocoaUtilities/interface/GlobalOptionMgr.h"
 //-#include "Alignment/CocoaUtilities/interface/ALIFileIn.h"
-
-//------------------------------------------------------------------------
-void CocoaAnalyzer::RunCocoa()
-{
-  //-ALIFileIn fin;
-  //-  GlobalOptionMgr::getInstance()->setGlobalOption("debug_verbose",5, fin );
-
-  //---------- Build the Model out of the system description text file
-  Model& model = Model::getInstance();
-
-  model.BuildSystemDescriptionFromOA( oaList_ );
-
-  if(ALIUtils::debug >= 3) {
-    std::cout << "RunCocoa: geometry built " << std::endl;
-  }
-
-  model.BuildMeasurementsFromOA( measList_ );
-
-  if(ALIUtils::debug >= 3) {
-    std::cout << "RunCocoa: measurements built " << std::endl;
-  }
-
-  Fit::getInstance();
-
-  Fit::startFit();
-
-  if(ALIUtils::debug >= 0) std::cout << "............ program ended OK" << std::endl;
-  if( ALIUtils::report >=1 ) {
-    ALIFileOut& fileout = ALIFileOut::getInstance( Model::ReportFName() );
-    fileout << "............ program ended OK" << std::endl;
-  }
-
-} // end of ::beginJob
-
 
 //-----------------------------------------------------------------------
 void CocoaAnalyzer::analyze(const edm::Event& e, const edm::EventSetup& context)
@@ -600,7 +670,7 @@ void CocoaAnalyzer::analyze(const edm::Event& e, const edm::EventSetup& context)
 
 
 //-----------------------------------------------------------------------
-double CocoaAnalyzer:: myFetchDbl(const DDsvalues_type& dvst, 
+double CocoaAnalyzer::myFetchDbl(const DDsvalues_type& dvst, 
 				      const std::string& spName,
 				      const size_t& vecInd ) {
   DDValue val(spName, 0.0);
@@ -616,7 +686,7 @@ double CocoaAnalyzer:: myFetchDbl(const DDsvalues_type& dvst,
 }
 
 //-----------------------------------------------------------------------
-std::string CocoaAnalyzer:: myFetchString(const DDsvalues_type& dvst, 
+std::string CocoaAnalyzer::myFetchString(const DDsvalues_type& dvst, 
 				      const std::string& spName,
 				      const size_t& vecInd ) {
   DDValue val(spName, 0.0);
@@ -629,119 +699,5 @@ std::string CocoaAnalyzer:: myFetchString(const DDsvalues_type& dvst,
     }
   }
   return "";
-}
-
-
-
-//-----------------------------------------------------------------------
-bool CocoaAnalyzer::DumpCocoaResults()
-{
-
-  OpticalAlignments* myobj=new OpticalAlignments;
-
-  static std::vector< OpticalObject* > optolist = Model::OptOList();
-  static std::vector< OpticalObject* >::const_iterator ite;
-  for(ite = optolist.begin(); ite != optolist.end(); ite++ ){
-    if( (*ite)->type() == "system" ) continue;    
-    OpticalAlignInfo data = GetOptAlignInfoFromOptO( *ite );
-    myobj->opticalAlignments_.push_back(data);
-  std::cout << "@@@@ OPTALIGNINFO WRITTEN TO DB " 
-	    << data 
-	    << std::endl;  }
-
-  edm::Service<cond::service::PoolDBOutputService> mydbservice;
-  if( mydbservice.isAvailable() ){
-    mydbservice->createNewIOV<OpticalAlignments>(myobj,
-                            mydbservice->endOfTime(),
-                            "OpticalAlignmentsRcd");
-       /*? compilation error??
-    }catch(const cond::Exception& er){
-      std::cout<<er.what()<<std::endl;
-    }catch(const std::exception& er){
-      std::cout<<"caught std::exception "<<er.what()<<std::endl;
-    }catch(...){
-      std::cout<<"Funny error"<<std::endl;
-    }
-       */
-  }
-
-  //? gives unreadable error???  std::cout << "@@@@ OPTICALALIGNMENTS WRITTEN TO DB " << *myobj << std::endl;
-
-  return TRUE;
-}
-
-
-//@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@
-OpticalAlignInfo CocoaAnalyzer::GetOptAlignInfoFromOptO( OpticalObject* opto )
-{
-  std::cout << " CocoaAnalyzer::GetOptAlignInfoFromOptO " << opto->name() << std::endl;
-  OpticalAlignInfo data;
-  data.ID_=opto->cmsSwID();
-  data.type_=opto->type();
-  data.name_=opto->name();
-
-  //----- Centre in local coordinates
-  Hep3Vector centreLocal = opto->centreGlob() - opto->parent()->centreGlob();
-  CLHEP::HepRotation parentRmGlobInv = inverseOf( opto->parent()->rmGlob() );
-  centreLocal = parentRmGlobInv * centreLocal;
-
-  const std::vector< Entry* > theCoordinateEntryVector = opto->CoordinateEntryList();
-  std::cout << " CocoaAnalyzer::GetOptAlignInfoFromOptO starting coord " <<std::endl;
-
-  data.x_.value_= centreLocal.x() / 100.; // in cm
-  std::cout << " matrix " << Fit::GetAtWAMatrix() << std::endl;
-  std::cout << " matrix " << Fit::GetAtWAMatrix()->Mat() << " " << theCoordinateEntryVector[0]->fitPos() << std::endl;
-  data.x_.error_= GetEntryError( theCoordinateEntryVector[0] ) / 100.; // in cm
-
-  data.y_.value_= centreLocal.y() / 100.; // in cm
-  std::cout << " matrix " << Fit::GetAtWAMatrix()->Mat()  << " " << theCoordinateEntryVector[1]->fitPos() << std::endl;
-  data.y_.error_= GetEntryError( theCoordinateEntryVector[1] ) / 100.; // in cm
-
-  data.z_.value_= centreLocal.z() / 100.; // in cm
-  std::cout << " matrix " << Fit::GetAtWAMatrix()->Mat()  << " " << theCoordinateEntryVector[2]->fitPos() << std::endl;
-  data.z_.error_= GetEntryError( theCoordinateEntryVector[2] ) / 100.; // in cm
-
-  //----- angles in local coordinates
-  std::vector<double> anglocal = opto->getLocalRotationAngles( theCoordinateEntryVector );
-
-  data.angx_.value_= anglocal[0] *180./M_PI; // in deg
-  std::cout << " matrix " << Fit::GetAtWAMatrix()->Mat() << theCoordinateEntryVector[3]->fitPos() << std::endl;
-  data.angx_.error_= GetEntryError( theCoordinateEntryVector[3] ) * 180./M_PI; // in deg;
-
-  data.angy_.value_= anglocal[1] * 180./M_PI; // in deg
-  std::cout << " matrix " << Fit::GetAtWAMatrix()->Mat() << theCoordinateEntryVector[4]->fitPos() << std::endl;
-  data.angy_.error_= GetEntryError( theCoordinateEntryVector[4] ) * 180./M_PI; // in deg;;
-
-  data.angz_.value_= anglocal[2] *180./M_PI; // in deg
-  std::cout << " matrix " << Fit::GetAtWAMatrix()->Mat() << theCoordinateEntryVector[5]->fitPos() << std::endl;
-  data.angz_.error_= GetEntryError( theCoordinateEntryVector[5] ) * 180./M_PI; // in deg;
-
-  
-  const std::vector< Entry* > theExtraEntryVector = opto->ExtraEntryList();  std::cout << " CocoaAnalyzer::GetOptAlignInfoFromOptO starting entry " << std::endl;
-
-  std::vector< Entry* >::const_iterator ite;
-  for( ite = theExtraEntryVector.begin(); ite != theExtraEntryVector.end(); ite++ ) {
-    OpticalAlignParam extraEntry; 
-    extraEntry.name_ = (*ite)->name();
-    extraEntry.dim_type_ = (*ite)->type();
-    extraEntry.value_ = (*ite)->value();
-    extraEntry.error_ = (*ite)->sigma();
-    extraEntry.quality_ = (*ite)->quality();
-    data.extraEntries_.push_back( extraEntry );
-  std::cout << " CocoaAnalyzer::GetOptAlignInfoFromOptO done extra entry " << extraEntry.name_ << std::endl;
-
-  }
-
-  return data;
-}
-
-
-double CocoaAnalyzer::GetEntryError( const Entry* entry )
-{
-  if( entry->quality() > 0 ) {
-    return sqrt(Fit::GetAtWAMatrix()->Mat()->me[entry->fitPos()][entry->fitPos()]) / 100.;
-  } else { //entry not fitted, return original error
-    return entry->sigma();
-  }
 }
 
