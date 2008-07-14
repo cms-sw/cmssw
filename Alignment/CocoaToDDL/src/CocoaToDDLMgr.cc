@@ -623,8 +623,9 @@ void CocoaToDDLMgr::newSectPre_specPar(std::string name)
 void CocoaToDDLMgr::specPar(OpticalObject * opto)
 {
   file_ << " <SpecPar name=\"" << opto->name() << "_PARAMS\">" << std::endl;
-  file_ << "    <PartSelector path=\"/" << opto->name() << "\"/> " << std::endl;
+  file_ << "   <PartSelector path=\"/" << opto->name() << "\"/> " << std::endl;
   file_ << "   <Parameter name=\"cocoa_type\""  << " value=\"" << opto->type() << "\"   eval=\"false\" /> " << std::endl;
+  file_ << "   <Parameter name=\"cmssw_ID\""  << " value=\"" << opto->getCmsswID() << "\" /> " << std::endl;
 
   const std::vector< Entry* > coord = opto->CoordinateEntryList();
   for( int ii=3; ii<6; ii++ ){
