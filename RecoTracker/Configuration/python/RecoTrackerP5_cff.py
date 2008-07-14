@@ -4,6 +4,8 @@ import FWCore.ParameterSet.Config as cms
 # Tracking configuration file fragment for P5 cosmic running
 #
 from RecoTracker.MeasurementDet.MeasurementTrackerESProducer_cff import *
+# TTRHBuilders
+from RecoTracker.TransientTrackingRecHit.TTRHBuilders_cff import *
 # COSMIC TRACK FINDER
 from RecoTracker.SpecialSeedGenerators.CosmicSeedP5Pairs_cff import *
 from RecoTracker.SingleTrackPattern.CosmicTrackFinderP5_cff import *
