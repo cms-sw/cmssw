@@ -91,6 +91,7 @@ class _IncludeFile(file):
         except KeyError:
             raise RuntimeError("The environment variable 'CMSSW_SEARCH_PATH' must be set for include to work")
         lpaths = paths.split(':')
+        lpaths.append('/afs/cern.ch/cms/sdt/misc/oldConfig/CMSSW')
         lpaths.append('.')
         f = None
         for path in lpaths:
