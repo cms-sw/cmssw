@@ -8,7 +8,7 @@
 //
 // Original Author:  Chris Jones
 //         Created:  Thu May 29 20:58:23 CDT 2008
-// $Id: CmsShowMainFrame.cc,v 1.7 2008/07/11 00:03:35 chrjones Exp $
+// $Id: CmsShowMainFrame.cc,v 1.8 2008/07/11 00:22:08 chrjones Exp $
 //
 
 // system include files
@@ -54,6 +54,8 @@
 CmsShowMainFrame::CmsShowMainFrame(const TGWindow *p,UInt_t w,UInt_t h,FWGUIManager *m) : 
 TGMainFrame(p, w, h) 
 {
+   Connect("CloseWindow()","CmsShowMainFrame",this,"quit()");
+   
    m_manager = m;
    m_delay = 250;
    m_playRate = 1000;
@@ -399,7 +401,7 @@ void CmsShowMainFrame::pause() {
 }
 
 void CmsShowMainFrame::quit() {
-   gApplication->Terminate(0);
+   getAction(cmsshow::sQuit)->activated();
 }
 
 CSGAction*
