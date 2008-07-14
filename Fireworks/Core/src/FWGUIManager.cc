@@ -8,7 +8,7 @@
 //
 // Original Author:  Chris Jones
 //         Created:  Mon Feb 11 11:06:40 EST 2008
-// $Id: FWGUIManager.cc,v 1.55 2008/07/13 21:57:06 chrjones Exp $
+// $Id: FWGUIManager.cc,v 1.56 2008/07/14 18:42:08 chrjones Exp $
 //
 
 // system include files
@@ -343,6 +343,11 @@ FWGUIManager::unselectAll()
 void 
 FWGUIManager::selectionChanged(const FWSelectionManager& iSM)
 {
+   //open the modify window the first time someone selects something
+   if (m_modelPopup == 0) createModelPopup();
+
+   
+#if defined(THIS_WILL_NEVER_BE_DEFINED)
    if(1 ==iSM.selected().size() ) {
       delete m_editableSelected;
       FWListModel* model = new FWListModel(*(iSM.selected().begin()), m_detailViewManager);
@@ -365,6 +370,7 @@ FWGUIManager::selectionChanged(const FWSelectionManager& iSM)
       m_editableSelected=0;
    }
    m_unselectAllButton->SetEnabled( 0 !=iSM.selected().size() );
+#endif
 }
 
 void 
@@ -376,10 +382,12 @@ FWGUIManager::processGUIEvents()
 void
 FWGUIManager::newItem(const FWEventItem* iItem)
 {
+#if defined(THIS_WILL_NEVER_BE_DEFINED)
    m_selectionItemsComboBox->AddEntry(iItem->name().c_str(),iItem->id());
    if(iItem->id()==0) {
       m_selectionItemsComboBox->Select(0);
    }
+#endif
 }
 
 void 
@@ -443,7 +451,7 @@ FWGUIManager::createList(TGSplitFrame *p)
 
 
   TGTextButton* addDataButton = new TGTextButton(listFrame,"+");
-  addDataButton->SetToolTipText("Show additional event data");
+  addDataButton->SetToolTipText("Show additional collections");
   addDataButton->Connect("Clicked()", "FWGUIManager", this, "addData()");
   listFrame->AddFrame(addDataButton);
 
@@ -471,7 +479,7 @@ FWGUIManager::createList(TGSplitFrame *p)
     m_listTree->Connect("KeyPressed(TGListTreeItem*, ULong_t, ULong_t)", "FWGUIManager",
 			this, "itemKeyPress(TGListTreeItem*, UInt_t, UInt_t)");
   }
-         
+  /*
   TGGroupFrame* vf = new TGGroupFrame(listFrame,"Selection",kVerticalFrame);
   {
     
@@ -493,6 +501,7 @@ FWGUIManager::createList(TGSplitFrame *p)
     
   }
   listFrame->AddFrame(vf);
+   */
 
   return listFrame;
 }
@@ -522,8 +531,8 @@ FWGUIManager::createEDIFrame() {
 
 void
 FWGUIManager::updateEDI(FWEventItem* iItem) {
-  createEDIFrame();
-  m_ediFrame->fillEDIFrame(iItem);
+   if(0==m_ediFrame) {createEDIFrame(); }
+   m_ediFrame->fillEDIFrame(iItem);
 }
 
 void
