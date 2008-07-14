@@ -1,4 +1,4 @@
-# /dev/CMSSW_2_1_0_pre7/HLT/V8 (CMSSW_2_1_X_2008-07-10-0000)
+# /dev/CMSSW_2_1_0_pre7/HLT/V9 (CMSSW_2_1_X_2008-07-10-0000)
 
 import FWCore.ParameterSet.Config as cms
 
@@ -4765,6 +4765,7 @@ hltDt4DSegments = cms.EDProducer( "DTRecSegment4DProducer",
 )
 hltMuonCSCDigis = cms.EDProducer( "CSCDCCUnpacker",
     PrintEventNumber = cms.untracked.bool( False ),
+    UseExaminer = cms.untracked.bool( False ),
     ExaminerMask = cms.untracked.uint32( 0x1febf3f6 ),
     ErrorMask = cms.untracked.uint32( 0x0 ),
     InputObjects = cms.InputTag( "rawDataCollector" )
