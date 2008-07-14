@@ -464,7 +464,8 @@ class Process(object):
         return result
     def dumpPython(self, options=PrintOptions()):
         """return a string containing the equivalent process defined using the configuration language"""
-        result = "process = cms.Process(\""+self.__name+"\")\n\n"
+        result = "import FWCore.ParameterSet.Config as cms\n\n"
+        result += "process = cms.Process(\""+self.__name+"\")\n\n"
         if self.source_():
             result += "process.source = "+self.source_().dumpPython(options)
         if self.looper_():
@@ -729,7 +730,9 @@ if __name__=="__main__":
 """)
             d=p.dumpPython()
             self.assertEqual(d,
-"""process = cms.Process("test")
+"""import FWCore.ParameterSet.Config as cms
+
+process = cms.Process("test")
 
 process.a = cms.EDAnalyzer("MyAnalyzer")
 
@@ -770,7 +773,9 @@ process.schedule = cms.Schedule(process.p2,process.p)
 """)
             d=p.dumpPython()
             self.assertEqual(d,
-"""process = cms.Process("test")
+"""import FWCore.ParameterSet.Config as cms
+
+process = cms.Process("test")
 
 process.a = cms.EDAnalyzer("MyAnalyzer")
 
