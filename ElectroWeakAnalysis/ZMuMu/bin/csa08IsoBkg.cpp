@@ -47,23 +47,56 @@ void fix(TH1* histo) {
 }
 
 typedef funct::GaussIntegrator IntegratorConv;
+typedef funct::GaussIntegrator IntegratorNorm;
 
 typedef funct::Product<funct::Exponential, 
 		       funct::Convolution<funct::ZLineShape, funct::Gaussian, IntegratorConv>::type>::type ZPeak;
 
+typedef funct::Master<ZPeak> SigPeak;
+typedef funct::Slave<ZPeak> SigPeakClone;
+typedef funct::Product<funct::Parameter, SigPeak>::type Sig1;
+typedef funct::Product<funct::Parameter, SigPeakClone>::type Sig2;
+
+typedef funct::Product<
+            funct::Exponential, 
+            funct::Polynomial<2> >::type ExpPoly;
+
+NUMERICAL_FUNCT_INTEGRAL(ExpPoly, GaussIntegrator);
+
+typedef funct::DefIntegral<ExpPoly, funct::Constant, funct::Constant, IntegratorNorm> ExpPolyNormFactor;
+typedef funct::Ratio<ExpPoly, ExpPolyNormFactor>::type ExpPolyNorm;
+
+typedef funct::Product<
+          funct::Parameter, 
+          funct::Difference<
+            funct::Ratio<
+              funct::Numerical<2>, 
+              funct::Parameter>::type,
+            funct::Numerical<2> >::type>::type Coeff1;
+
+typedef funct::Product<Coeff1, ExpPolyNorm>::type Bkg1;
+
+typedef funct::Product<
+          funct::Parameter, 
+          funct::Square<
+            funct::Difference<
+              funct::Ratio<
+                funct::Numerical<1>, 
+                funct::Parameter>::type,
+              funct::Numerical<1> >::type>::type>::type Coeff2;
+
+typedef funct::Product<Coeff2, ExpPolyNorm>::type Bkg2;
+
+NUMERICAL_FUNCT_INTEGRAL(Bkg1, GaussIntegrator);
+NUMERICAL_FUNCT_INTEGRAL(Bkg2, GaussIntegrator);
+
+typedef funct::Sum<Sig1, Bkg1>::type Fun1;
+typedef funct::Sum<Sig2, Bkg2>::type Fun2;
+typedef fit::MultiHistoChiSquare<Fun1, Fun2> ChiSquared;
+
 int main(int ac, char *av[]) {
   gROOT->SetStyle("Plain");
   try {
-    typedef funct::Master<ZPeak> SigPeak;
-    typedef funct::Slave<ZPeak> SigPeakClone;
-    typedef funct::Product<funct::Parameter, SigPeak>::type Sig1;
-    typedef funct::Product<funct::Parameter, SigPeakClone>::type Sig2;
-    typedef funct::Product<funct::Parameter, 
-                           funct::Product<funct::Exponential, funct::Polynomial<2> >::type>::type Bkg;
-    typedef funct::Sum<Sig1, Bkg>::type Fun1;
-    typedef funct::Sum<Sig2, Bkg>::type Fun2;
-    typedef fit::MultiHistoChiSquare<Fun1, Fun2> ChiSquared;
-
     double fMin, fMax;
     string ext;
     po::options_description desc("Allowed options");
@@ -114,8 +147,8 @@ int main(int ac, char *av[]) {
 	
 	const char * kYieldZMuMu1 = "YieldZMuMu1";
 	const char * kYieldZMuMu2 = "YieldZMuMu2";
-	const char * kYieldBkg1 = "YieldBkg1"; 
-	const char * kYieldBkg2 = "YieldBkg2"; 
+	const char * kYieldBkg = "YieldBkg"; 
+	const char * kEffBkg = "EffBkg"; 
 	const char * kLambdaZMuMu = "LambdaZMuMu";
 	const char * kMass = "Mass";
 	const char * kGamma = "Gamma";
@@ -135,8 +168,8 @@ int main(int ac, char *av[]) {
 	funct::Parameter interferenceFactorZMuMu(kInterferenceFactorZMuMu, commands.par(kInterferenceFactorZMuMu)); 
 	funct::Parameter yieldZMuMu1(kYieldZMuMu1, commands.par(kYieldZMuMu1));
 	funct::Parameter yieldZMuMu2(kYieldZMuMu2, commands.par(kYieldZMuMu2));
-	funct::Parameter yieldBkg1(kYieldBkg1, commands.par(kYieldBkg1));
-	funct::Parameter yieldBkg2(kYieldBkg2, commands.par(kYieldBkg2));
+	funct::Parameter yieldBkg(kYieldBkg, commands.par(kYieldBkg));
+	funct::Parameter effBkg(kEffBkg, commands.par(kEffBkg));
 	funct::Parameter meanZMuMu(kMeanZMuMu, commands.par(kMeanZMuMu));
 	funct::Parameter sigmaZMuMu(kSigmaZMuMu, commands.par(kSigmaZMuMu)); 
 	funct::Parameter alpha(kAlpha, commands.par(kAlpha));
@@ -146,6 +179,7 @@ int main(int ac, char *av[]) {
 	funct::Constant cFMin(fMin), cFMax(fMax);
 
 	IntegratorConv integratorConv(1.e-4);
+	IntegratorNorm integratorNorm(1.e-4);
 
 	ZPeak zPeak = funct::Exponential(lambdaZMuMu) * 
 	  funct::conv(funct::ZLineShape(mass, gamma, photonFactorZMuMu, interferenceFactorZMuMu), 
@@ -155,8 +189,14 @@ int main(int ac, char *av[]) {
 	SigPeakClone spc = funct::slave(sp);
 	Sig1 sig1 = yieldZMuMu1 * sp;
 	Sig2 sig2 = yieldZMuMu2 * spc;
-	Bkg bkg1 = yieldBkg1 * (funct::Exponential(alpha) * funct::Polynomial<2>(a0, a1, a2));
-	Bkg bkg2 = yieldBkg2 * (funct::Exponential(alpha) * funct::Polynomial<2>(a0, a1, a2));
+	funct::Numerical<1> _1;
+	funct::Numerical<2> _2;
+	ExpPoly ep = funct::Exponential(alpha) * funct::Polynomial<2>(a0, a1, a2);
+	ExpPolyNorm epn = ep / ExpPolyNormFactor(ep, cFMin, cFMax, integratorNorm);
+	Coeff1 c1 = yieldBkg * (_2 / effBkg - _2);
+	Bkg1 bkg1 = c1 * epn;
+	Coeff2 c2 = yieldBkg * ((_1 /effBkg - _1) ^ _2);
+	Bkg2 bkg2 = c2 * epn;
 	Fun1 f1 = sig1 + bkg1;
 	Fun2 f2 = sig2 + bkg2;
 
@@ -165,8 +205,8 @@ int main(int ac, char *av[]) {
 	fit::RootMinuit<ChiSquared> minuit(chi2, true);
 	commands.add(minuit, yieldZMuMu1);
 	commands.add(minuit, yieldZMuMu2);
-	commands.add(minuit, yieldBkg1);
-	commands.add(minuit, yieldBkg2);
+	commands.add(minuit, yieldBkg);
+	commands.add(minuit, effBkg);
 	commands.add(minuit, lambdaZMuMu);
 	commands.add(minuit, mass);
 	commands.add(minuit, gamma);
@@ -191,6 +231,18 @@ int main(int ac, char *av[]) {
 	} 
 	minuit.printFitResults();
 
+	funct::GaussIntegrator integrator(1.e-6);
+	double nbkg1 = funct::integral_f(bkg1, fMin, fMax, integrator);
+	double nbkg2 = funct::integral_f(bkg2, fMin, fMax, integrator);
+	std::cout << "Background yields in [" << fMin <<", " << fMax << "]: "
+		  << nbkg1 <<", " <<nbkg2 << std::endl;
+
+
+	// binning is at 1 GeV, fortunately
+	double i1 = histo1->Integral(int(fMin), int(fMax));
+	double i2 = histo2->Integral(int(fMin), int(fMax));
+	std::cout << "Histogram integrals in [" << fMin <<", " << fMax << "]: "
+		  << i1 <<", " << i2 << std::endl;
 	double s;
 	s = 0;
 	for(int i = 1; i <= histo1->GetNbinsX(); ++i)
@@ -201,17 +253,20 @@ int main(int ac, char *av[]) {
 	  s += histo2->GetBinContent(i);
 	histo2->SetEntries(s);
 
+	double extrap = nbkg1*nbkg1 / nbkg2 /4;
+	cout << "extrapolated background with no isolated muons:" << extrap << endl;
+
 	string Plot1 = "OneIsolated_" + plot_string;
 	root::plot<Fun1>(Plot1.c_str(), *histo1, f1, fMin, fMax, 
 			 yieldZMuMu1, lambdaZMuMu, mass, gamma, photonFactorZMuMu, interferenceFactorZMuMu, 
-			 meanZMuMu, sigmaZMuMu, yieldBkg1, alpha, a0, a1, a2,
+			 meanZMuMu, sigmaZMuMu, yieldBkg, effBkg, alpha, a0, a1, a2,
 			 kRed, 2, kDashed, 100, 
 			 "Z -> #mu #mu mass", "#mu #mu invariant mass (GeV/c^{2})", 
 			 "Events");
 	string Plot2 = "TwoIsolated_" + plot_string;
 	root::plot<Fun2>(Plot2.c_str(), *histo2, f2, fMin, fMax, 
 			 yieldZMuMu2, lambdaZMuMu, mass, gamma, photonFactorZMuMu, interferenceFactorZMuMu, 
-			 meanZMuMu, sigmaZMuMu, yieldBkg2, alpha, a0, a1, a2,
+			 meanZMuMu, sigmaZMuMu, yieldBkg, effBkg, alpha, a0, a1, a2,
 			 kRed, 2, kDashed, 100, 
 			 "Z -> #mu #mu mass", "#mu #mu invariant mass (GeV/c^{2})", 
 			 "Events");
