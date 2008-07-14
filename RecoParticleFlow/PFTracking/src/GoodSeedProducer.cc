@@ -449,9 +449,7 @@ GoodSeedProducer::beginJob(const EventSetup& es)
   //Magnetic Field
   ESHandle<MagneticField> magneticField;
   es.get<IdealMagneticFieldRecord>().get(magneticField);
-  cout<<"GK "<<magneticField->inTesla(GlobalPoint(90,90,180))<<endl;
   B_=magneticField->inTesla(GlobalPoint(0,0,0));
-  cout<<"BBB hhhh"<<B_.x()<<" "<<B_.y()<<" "<<B_.z()<<endl;
   
   pfTransformer_= new PFTrackTransformer(B_);
 

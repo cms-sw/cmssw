@@ -67,7 +67,7 @@ PFTrackTransformer::addPoints( reco::PFRecTrack& pftrack,
 							 track.vertex().z(),
 							 0.)),
 			   0.,0.,B_.z());
-  cout<<"BB "<<B_.z()<<endl;
+
   theParticle.setCharge(track.charge());
   float pfoutenergy=sqrt((pfmass*pfmass)+track.outerMomentum().Mag2());
   BaseParticlePropagator theOutParticle = 
