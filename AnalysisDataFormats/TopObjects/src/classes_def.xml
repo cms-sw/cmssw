@@ -16,6 +16,7 @@
   <class name="std::vector<int>" />
   <class name="std::vector<std::pair<std::string, double> >" />
   <class name="std::map<TtSemiEvent::HypoKey, reco::CompositeCandidate>" />
+  <class name="std::map<TtSemiEvent::HypoKey, std::vector<int> >" />
 
   <class name="PtrMet" />
   <class name="PtrJet" />

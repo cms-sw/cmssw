@@ -30,6 +30,7 @@ namespace {
     std::vector<int> v_int;
     std::vector<std::pair<std::string, double> > v_p_str_dbl;
     std::map<TtSemiEvent::HypoKey, reco::CompositeCandidate> m_key_hyp;
+    std::map<TtSemiEvent::HypoKey, std::vector<int> > m_key_vint;
 
     typedef edm::Ptr<pat::MET> PtrMet;
     typedef edm::Ptr<pat::Jet> PtrJet;
