@@ -1,10 +1,14 @@
 /////////////////////////////////////////////////////////////////////////////////////////////////
 //
-//   Program to calculate HLT rates
+//        Program to calculate rates of trigger paths using variables of OHltTree class,
 //
-//   Contacts: Jonathan Hollar (LLNL), Chi Nhan Nguyen (TAMU)
+//				Note: OHltTree class needs to be updated if any new variables become available 
+//				in OpenHLT (HLTAnalyzer).
+//				
+//        Author:  Vladimir Rekovic,     Date: 2007/12/10
+//					
 //
-//   2008 June 10
+//        Contacts: Jonathan Hollar (LLNL), Chi Nhan Nguyen (TAMU)
 //
 /////////////////////////////////////////////////////////////////////////////////////////////////
 
@@ -103,7 +107,7 @@ int main(int argc, char *argv[]){
 
   /**** Different Beam conditions: ****/ 
   // Fixed LHC defaults
-  const double bunchCrossingTime = 25.0E-09;  // 25 ns
+  const double bunchCrossingTime = 50.0E-09;  // Design: 25 ns Startup: 25, 50 or 75 ns?
   const double maxFilledBunches = 3557;
     
   // Defaults, to be changed in the menu booking
@@ -248,7 +252,7 @@ int main(int argc, char *argv[]){
     }
     doMuonCut.push_back(true); doElecCut.push_back(false);
     
-    xsec.push_back(9.51E7); // PYTHIA cross-section times filter pp->eleX (7.923E10*0.0012)
+    xsec.push_back(2.5E8); // pp 10 TeV PYTHIA cross-section times filter pp->eleX (5.16E10*0.005)
     skmeff.push_back(1.);  //
 
 
@@ -280,7 +284,7 @@ int main(int argc, char *argv[]){
     }
     doMuonCut.push_back(false); doElecCut.push_back(true);
     
-    xsec.push_back(6.8375E7); // PYTHIA cross-section times filter pp->muX (7.923E10*0.000863)
+    xsec.push_back(2.5E7); // pp 10 TeV PYTHIA cross-section times filter pp->muX (5.16E10*0.0005)
     skmeff.push_back(1.);  //
 
     // Minbias
@@ -579,7 +583,7 @@ int main(int argc, char *argv[]){
     }
     doMuonCut.push_back(true); doElecCut.push_back(true);
     
-    xsec.push_back(7.923E10); // 
+    xsec.push_back(7.53E10); // pp 10 TeV PYTHIA xsec
     skmeff.push_back(1.);  //
 
 

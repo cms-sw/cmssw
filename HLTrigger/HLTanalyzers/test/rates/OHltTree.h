@@ -1,8 +1,11 @@
 //////////////////////////////////////////////////////////
 // This class has been automatically generated on
-// Sun Jun 15 05:16:15 2008 by ROOT version 5.18/00a
+// Wed Dec 12 10:37:25 2007 by ROOT version 5.14/00f
 // from TTree HltTree/
-// found on file: Zmumu_hltree_1pb.root
+// found on file: /tmp/test.root
+//
+// Adapted to hold methods for OpenHLT rate counting
+// Author: Vladimir Rekovic (UMN)   Dec, 2007
 //////////////////////////////////////////////////////////
 
 #ifndef OHltTree_h
