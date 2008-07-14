@@ -8,7 +8,7 @@
 //
 // Original Author:  Chris Jones
 //         Created:  Mon Feb 11 11:06:40 EST 2008
-// $Id: FWGUIManager.cc,v 1.56 2008/07/14 18:42:08 chrjones Exp $
+// $Id: FWGUIManager.cc,v 1.57 2008/07/14 19:56:12 chrjones Exp $
 //
 
 // system include files
@@ -457,7 +457,7 @@ FWGUIManager::createList(TGSplitFrame *p)
 
   FWListWidget* ltf = new FWListWidget(listFrame);
   listFrame->SetEditable(kFALSE);
-  listFrame->AddFrame(ltf, new TGLayoutHints(kLHintsExpandX));
+  listFrame->AddFrame(ltf, new TGLayoutHints(kLHintsExpandX|kLHintsExpandY));
   //  p->Resize(listFrame->GetWidth(), listFrame->GetHeight());
   m_listTree = ltf->GetListTree();
   m_summaryManager = new FWSummaryManager(m_listTree,
