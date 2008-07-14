@@ -19,14 +19,14 @@ bool DCCEBTCCBlock::checkTccIdAndNumbTTs(){
   expTccId_ = mapper_->getActiveSM()+TCCID_SMID_SHIFT_EB;
 
   if( tccId_ != expTccId_ ){
-    if( ! DCCDataUnpacker::silentMode_ ){ 
+
+    if( ! DCCDataUnpacker::silentMode_ ){
       edm::LogWarning("EcalRawToDigiDevTCC")
-       <<"\n Error on event "<<event_->l1A()<<" with bx "<<event_->bx()<<" in fed "<<mapper_->getActiveDCC()
-       <<"\n TCC id is "<<tccId_<<" while expected is "<<expTccId_
-       <<"\n TCC Block Skipped ...";  
-    }
-    //todo : add this to error colection
-     
+        <<"\n Error on event "<<event_->l1A()<<" with bx "<<event_->bx()<<" in fed "<<mapper_->getActiveDCC()
+        <<"\n TCC id is "<<tccId_<<" while expected is "<<expTccId_
+        <<"\n TCC Block Skipped ...";  
+	 //todo : add this to error colection
+     }
      return false;
   }
   
@@ -37,8 +37,8 @@ bool DCCEBTCCBlock::checkTccIdAndNumbTTs(){
        <<"\n Unable to unpack TCC block for event "<<event_->l1A()<<" in fed "<<mapper_->getActiveDCC()
        <<"\n Number of TTs "<<nTTs_<<" is different from expected "<<expNumbTTs_
        <<"\n TCC Block Skipped ..."; 
+	 //todo : add this to error colection
      }
-    //todo : add this to error colection
      return false;
   }  
   return true;
