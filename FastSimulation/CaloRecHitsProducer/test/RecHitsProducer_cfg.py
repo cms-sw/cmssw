@@ -1,54 +1,14 @@
-# The following comments couldn't be translated into the new config version:
-
-# It might be necessary to have the xml file locally to activate the miscalibration
-#include "FastSimulation/Configuration/data/MisCalibration.cff"
-
 import FWCore.ParameterSet.Config as cms
 
 process = cms.Process("PROD")
-#The module which reade from a HepMC ASCII file
-#   source = MCFileSource
-#   {
-#      # The HepMC test File
-#      untracked vstring fileNames = {"SherpaWriteHepMC.dat"}
-#   }
+
 # Include the RandomNumberGeneratorService definition
 process.load("FastSimulation.Configuration.RandomServiceInitialization_cff")
 
-# 
-# source = FlatRandomEGunSource 
-# {	 
-# untracked uint32 firstRun  = 1
-# untracked      PSet  PGunParameters =
-# {
-# # you can request more than 1 particle
-# #untracked vint32  PartID = { 211, 11, -13 }
-# untracked vint32 PartID = {11} 
-# untracked double MinEta = 0.0
-# untracked double MaxEta = 0.5
-# untracked double MinPhi = -3.14159265358979323846  # it must be in radians
-# untracked double MaxPhi =  3.14159265358979323846
-# untracked double MinE   = 200.
-# untracked double MaxE   = 200.
-# }      
-# untracked int32 Verbosity = 0 # for printouts, set it to 1 (or greater)   
-# }
-# 
-process.load("DQMServices.Core.DQM_cfg")
-
-# Famos SimHits 
-process.load("FastSimulation.Configuration.CommonInputsFake_cff")
-
-process.load("FastSimulation.Configuration.FamosSequences_cff")
-
-#    endpath outpath = { o1 }
-# To get rid of the CaloNumbering messages 
-# Keep the logging output to a nice level #
-process.load("FWCore.MessageService.MessageLogger_cfi")
-
 process.maxEvents = cms.untracked.PSet(
-    input = cms.untracked.int32(100)
+    input = cms.untracked.int32(1000)
 )
+
 process.source = cms.Source("PythiaSource",
     PythiaParameters = cms.PSet(
         #
@@ -103,6 +63,24 @@ process.source = cms.Source("PythiaSource",
     )
 )
 
+
+# Famos SimHits 
+process.load("FastSimulation.Configuration.CommonInputsFake_cff")
+process.load("FastSimulation.Configuration.FamosSequences_cff")
+
+
+# To make histograms
+process.load("DQMServices.Core.DQM_cfg")
+
+# Fast Sim settings
+process.load("Configuration.StandardSequences.MagneticField_40T_cff")
+#process.load("Configuration.StandardSequences.MagneticField_38T_cff")
+process.VolumeBasedMagneticFieldESProducer.useParametrizedTrackerField = True
+process.famosSimHits.SimulateCalorimetry = True
+process.famosSimHits.SimulateTracking = False
+process.caloRecHits.RecHitsFactory.doDigis = True
+
+
 process.o1 = cms.OutputModule("PoolOutputModule",
     fileName = cms.untracked.string('test-cfg.root')
 )
@@ -110,12 +88,9 @@ process.o1 = cms.OutputModule("PoolOutputModule",
 process.digiCheck = cms.EDFilter("DigiCheck")
 
 process.p1 = cms.Path(process.famosWithCaloHits*process.digiCheck)
-process.load("Configuration.StandardSequences.MagneticField_40T_cff")
-#process.load("Configuration.StandardSequences.MagneticField_38T_cff")
-process.VolumeBasedMagneticFieldESProducer.useParametrizedTrackerField = True
-process.famosSimHits.SimulateCalorimetry = True
-process.famosSimHits.SimulateTracking = False
-process.caloRecHits.RecHitsFactory.doDigis = True
-process.MessageLogger.destinations = ['detailedInfo.txt']
 
+
+process.load("FWCore.MessageService.MessageLogger_cfi")
+process.MessageLogger.destinations = ['detailedInfo.txt']
+process.Timing =  cms.Service("Timing")
 

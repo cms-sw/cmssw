@@ -47,10 +47,6 @@ class HcalRecHitsMaker
 
  private:
   float thresholdHB_,  thresholdHE_, thresholdHO_, thresholdHF_;
-  float  satHB_;
-  float  satHE_;
-  float  satHO_;
-  float  satHF_;
   float noiseHB_, noiseHE_, noiseHO_, noiseHF_;
   double hcalHotFractionHB_,  hcalHotFractionHE_, hcalHotFractionHO_, hcalHotFractionHF_; 
 
@@ -59,6 +55,7 @@ class HcalRecHitsMaker
   bool initialized_;
   bool doDigis_;
   bool doMiscalib_;
+  bool doSaturation_;
   double refactor_;
   double refactor_mean_;
   std::string hcalfileinpath_;
@@ -78,7 +75,8 @@ class HcalRecHitsMaker
 
   std::vector<float> peds_;
   std::vector<float> gains_;
-
+  std::vector<float> sat_;
+  
   std::vector<float> TPGFactor_;
  
   // the hashed indices

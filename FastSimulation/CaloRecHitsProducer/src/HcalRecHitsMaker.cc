@@ -45,13 +45,8 @@ HcalRecHitsMaker::HcalRecHitsMaker(edm::ParameterSet const & p1,edm::ParameterSe
   thresholdHE_ = RecHitsParameters.getParameter<double>("ThresholdHE");
   thresholdHO_ = RecHitsParameters.getParameter<double>("ThresholdHO");
   thresholdHF_ = RecHitsParameters.getParameter<double>("ThresholdHF");
-
+  doSaturation_ = RecHitsParameters.getParameter<bool>("EnableSaturation");
   
-  satHB_ = RecHitsParameters.getParameter<double>("SaturationHB");
-  satHE_ = RecHitsParameters.getParameter<double>("SaturationHE");
-  satHO_ = RecHitsParameters.getParameter<double>("SaturationHO");
-  satHF_ = RecHitsParameters.getParameter<double>("SaturationHF");
-
   refactor_ = RecHitsParameters.getParameter<double> ("Refactor");
   refactor_mean_ = RecHitsParameters.getParameter<double> ("Refactor_mean");
   hcalfileinpath_= RecHitsParameters.getParameter<std::string> ("fileNameHcal");  
@@ -62,6 +57,7 @@ HcalRecHitsMaker::HcalRecHitsMaker(edm::ParameterSet const & p1,edm::ParameterSe
 
   peds_.resize(10000);
   gains_.resize(10000);
+  sat_.resize(10000);
   hbhi_.reserve(2600);
   hehi_.reserve(2600);
   hohi_.reserve(2200);
@@ -102,7 +98,6 @@ HcalRecHitsMaker::HcalRecHitsMaker(edm::ParameterSet const & p1,edm::ParameterSe
     hcalHotFractionHF_ =0.;
   }
 
-  
 }
 
 HcalRecHitsMaker::~HcalRecHitsMaker()
@@ -159,14 +154,6 @@ void HcalRecHitsMaker::init(const edm::EventSetup &es,bool doDigis,bool doMiscal
 	}
     }
 
-
-
-
-  if(!doDigis_)
-    {
-      initialized_=true;
-      return;
-    }
 
 // Will be needed for the DB-based miscalibration
   std::cout << " Getting HcalDb service " ;
@@ -226,6 +213,11 @@ void HcalRecHitsMaker::init(const edm::EventSetup &es,bool doDigis,bool doMiscal
   for(unsigned ic=0;ic<nhbcells_;++ic)
     {
       float gain = theDbService->getGain(theDetIds_[hbhi_[ic]])->getValue(0);
+      float mgain=0.;
+      for(unsigned ig=0;ig<4;++ig)
+	mgain+=theDbService->getGain(theDetIds_[hbhi_[ic]])->getValue(ig);
+      mgain*=2500.;// 10000 (ADC scale) / 4. (to compute the mean)
+      sat_[hbhi_[ic]]=(doSaturation_)?mgain:99999.;
       peds_[hbhi_[ic]]=theDbService->getPedestal(theDetIds_[hbhi_[ic]])->getValue(0);
       int ieta=theDetIds_[hbhi_[ic]].ieta();
       gain*=TPGFactor_[(ieta>0)?ieta+43:-ieta];
@@ -236,7 +228,12 @@ void HcalRecHitsMaker::init(const edm::EventSetup &es,bool doDigis,bool doMiscal
     {
       float gain= theDbService->getGain(theDetIds_[hehi_[ic]])->getValue(0);
       int ieta=theDetIds_[hehi_[ic]].ieta();
-
+      float mgain=0.;
+      for(unsigned ig=0;ig<4;++ig)
+	mgain+=theDbService->getGain(theDetIds_[hehi_[ic]])->getValue(ig);
+      mgain*=2500.;
+      sat_[hehi_[ic]]=(doSaturation_)?mgain:99999.;
+      
       gain*=TPGFactor_[(ieta>0)?ieta+44:-ieta+1];
 //      if(abs(ieta)>=21&&abs(ieta)<=26)
 //	gain*=2.;
@@ -250,6 +247,11 @@ void HcalRecHitsMaker::init(const edm::EventSetup &es,bool doDigis,bool doMiscal
     {
       float ped=theDbService->getPedestal(theDetIds_[hohi_[ic]])->getValue(0);
       float gain=theDbService->getGain(theDetIds_[hohi_[ic]])->getValue(0);
+      float mgain=0.;
+      for(unsigned ig=0;ig<4;++ig)
+	mgain+=theDbService->getGain(theDetIds_[hohi_[ic]])->getValue(ig);
+      mgain*=2500.;
+      sat_[hohi_[ic]]=(doSaturation_)?mgain:99999.;
       int ieta=HcalDetId(hohi_[ic]).ieta();
       gain*=TPGFactor_[(ieta>0)?ieta+43:-ieta];
       peds_[hohi_[ic]]=ped;
@@ -260,13 +262,18 @@ void HcalRecHitsMaker::init(const edm::EventSetup &es,bool doDigis,bool doMiscal
     {
       float ped=theDbService->getPedestal(theDetIds_[hfhi_[ic]])->getValue(0);
       float gain=theDbService->getGain(theDetIds_[hfhi_[ic]])->getValue(0);
+      float mgain=0.;
+      for(unsigned ig=0;ig<4;++ig)
+	mgain+=theDbService->getGain(theDetIds_[hfhi_[ic]])->getValue(ig);
+      mgain*=2500.;
+      sat_[hfhi_[ic]]=(doSaturation_)?mgain:99999.;
       int ieta=theDetIds_[hfhi_[ic]].ieta();
       gain*=TPGFactor_[(ieta>0)?ieta+45:-ieta+2];
       peds_[hfhi_[ic]]=ped;
       gains_[hfhi_[ic]]=gain;
     }
+
   initialized_=true; 
-  
 }
 
 
@@ -347,7 +354,11 @@ void HcalRecHitsMaker::loadHcalRecHits(edm::Event &iEvent,HBHERecHitCollection& 
       if(hcalRecHits_[cellhashedindex]<thresholdHB_) continue; 
       float energy=hcalRecHits_[cellhashedindex];
       // poor man saturation
-      if(energy>satHB_) energy=satHB_;
+      if(energy>sat_[cellhashedindex]) 
+	{
+	  //	  std::cout << " Saturation " << energy << " " << sat_[cellhashedindex] << " HB " << std::endl;
+	  energy=sat_[cellhashedindex];
+	}
 
       const HcalDetId& detid  = theDetIds_[cellhashedindex];
       hbheHits.push_back(HBHERecHit(detid,energy,0.));      
@@ -373,7 +384,11 @@ void HcalRecHitsMaker::loadHcalRecHits(edm::Event &iEvent,HBHERecHitCollection& 
       if(hcalRecHits_[cellhashedindex]<thresholdHE_) continue; 
       float energy=hcalRecHits_[cellhashedindex];
       // poor man saturation
-      if(energy>satHE_) energy=satHE_;
+      if(energy>sat_[cellhashedindex]) 
+	{
+	  std::cout << " Op saturation " << energy << " " << sat_[cellhashedindex] << " HE " << std::endl;
+	  energy=sat_[cellhashedindex];
+	}
 
       const HcalDetId & detid= theDetIds_[cellhashedindex];
       hbheHits.push_back(HBHERecHit(detid,energy,0.));      
@@ -401,7 +416,7 @@ void HcalRecHitsMaker::loadHcalRecHits(edm::Event &iEvent,HBHERecHitCollection& 
 
       float energy=hcalRecHits_[cellhashedindex];
       // poor man saturation
-      if(energy>satHO_) energy=satHO_;
+      if(energy>sat_[cellhashedindex]) energy=sat_[cellhashedindex];
 
       const HcalDetId&  detid=theDetIds_[cellhashedindex];
       hoHits.push_back(HORecHit(detid,energy,0));
@@ -417,7 +432,7 @@ void HcalRecHitsMaker::loadHcalRecHits(edm::Event &iEvent,HBHERecHitCollection& 
 
       float energy=hcalRecHits_[cellhashedindex];
       // poor man saturation
-      if(energy>satHF_) energy=satHF_;
+      if(energy>sat_[cellhashedindex]) energy=sat_[cellhashedindex];
 
       const HcalDetId & detid=theDetIds_[cellhashedindex];
       hfHits.push_back(HFRecHit(detid,energy,0.));      
@@ -536,7 +551,7 @@ void HcalRecHitsMaker::noisify()
 
 unsigned HcalRecHitsMaker::noisifySubdet(std::vector<float>& theMap, std::vector<int>& theHits, const std::vector<int>& thecells, unsigned ncells, double hcalHotFraction,const GaussianTail *myGT,double sigma,double threshold)
 {
- // If the fraction of "hot " is small, use an optimzed method to inject noise only in noisy cells. The 30% has not been tuned
+ // If the fraction of "hot " is small, use an optimized method to inject noise only in noisy cells. The 30% has not been tuned
 
   if(hcalHotFraction<0.3)
     {
