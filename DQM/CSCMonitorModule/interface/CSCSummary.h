@@ -35,7 +35,8 @@ class CSCSummary {
 
     const CSCDetector Detector() const { return detector; }
 
-    void ReadReportingChambers(TH2*& h2, const double threshold = 1);
+    void ReadReportingChambers(TH2*& h2, const double threshold = 1.0);
+    void ReadReportingChambersRef(TH2*& h2, TH2*& refh2, const double eps_min = 0.1, const double Sfail = 5.0);
     void ReadErrorChambers(TH2*& evs, TH2*& err, const double eps_max = 0.1, const double Sfail = 5.0);
 
     const unsigned int setMaskedHWElements(std::vector<std::string>& tokens);
@@ -59,7 +60,7 @@ class CSCSummary {
 
     const bool ChamberCoords(const unsigned int x, const unsigned int y, CSCAddress& adr) const;
     const double GetReportingArea(CSCAddress adr) const; 
-    const double SignificanceAlpha(const unsigned int N, const unsigned int n, const double eps_max) const;
+    const double SignificanceLevel(const unsigned int N, const unsigned int n, const double eps, const bool op_less = true) const;
 
     // Atomic HW element status matrix
     // Possible values and appropriate color codes in maps:

@@ -79,10 +79,70 @@ void CSCSummary::ReadReportingChambers(TH2*& h2, const double threshold) {
       for(unsigned int y = 1; y <= 18; y++) {
         z = h2->GetBinContent(x, y);
         if(ChamberCoords(x, y, adr)) {
-          SetValue(adr, (z >= threshold ? 1 : 0));
+          if(z >= threshold) {
+            SetValue(adr, 1);
+          } else {
+            SetValue(adr, 0);
+          }
         }
       }
     }
+  }
+}
+
+/**
+ * @brief  Read Reporting Chamber histogram and fill in detector map based on
+ * reference histogram.
+ * @param  h2 Histogram to read
+ * @param  refh2 Reference histogram of hit occupancies
+ * @param  eps_min Minimum tolerance of difference (rate)
+ * @param  Sfail Significance threshold for failure report
+ * @return 
+ */
+void CSCSummary::ReadReportingChambersRef(TH2*& h2, TH2*& refh2, const double eps_min, const double Sfail) {
+
+  if(h2->GetXaxis()->GetXmin() <= 1 && h2->GetXaxis()->GetXmax() >= 36 &&
+     h2->GetYaxis()->GetXmin() <= 1 && h2->GetYaxis()->GetXmax() >= 18 &&
+     refh2->GetXaxis()->GetXmin() <= 1 && refh2->GetXaxis()->GetXmax() >= 36 &&
+     refh2->GetYaxis()->GetXmin() <= 1 && refh2->GetYaxis()->GetXmax() >= 18) {
+
+    // Rate Factor calculation
+    double num = 0.0, denum = 0.0;
+    for(unsigned int x = 1; x <= 36; x++) {
+      for(unsigned int y = 1; y <= 18; y++) {
+        num += refh2->GetBinContent(x, y);
+        if (h2->GetBinContent(x, y) > 0) {
+          denum += (refh2->GetBinContent(x, y) * refh2->GetBinContent(x, y)) / h2->GetBinContent(x, y);
+        }
+      }
+    }
+    double factor = num / denum;
+
+    CSCAddress adr;
+    unsigned int N = 0, n = 0;
+    int val = 1;
+
+    for(unsigned int x = 1; x <= 36; x++) {
+      for(unsigned int y = 1; y <= 18; y++) {
+        N = int(refh2->GetBinContent(x, y) * factor);
+        n = int(h2->GetBinContent(x, y));
+        if(ChamberCoords(x, y, adr)) {
+          val = 1;
+          if (n == 0) {
+            val = 0;
+          } else if (N > 0) {
+            if ((n / N) < eps_min) {
+              if (SignificanceLevel(N, n, eps_min, false) > Sfail) {
+                val = -1;
+              }
+              LOGINFO("ReadReportingChambersRef") << " N = " << N << ", n = " << n << ", Sbeta = " << SignificanceLevel(N, n, eps_min, false);
+            }
+          }
+          SetValue(adr, val);
+        }
+      }
+    }
+
   }
 }
 
@@ -109,8 +169,8 @@ void CSCSummary::ReadErrorChambers(TH2*& evs, TH2*& err, const double eps_max, c
         N = int(evs->GetBinContent(x, y));
         n = int(err->GetBinContent(x, y));
         if(ChamberCoords(x, y, adr)) {
-          if(SignificanceAlpha(N, n, eps_max) > Sfail) { 
-            //LOGINFO("ReadErrorChambers") << " N = " << N << ", n = " << n << ", Salpha = " << SignificanceAlpha(N, n, eps_max);
+          if(SignificanceLevel(N, n, eps_max, true) > Sfail) { 
+            //LOGINFO("ReadErrorChambers") << " N = " << N << ", n = " << n << ", Salpha = " << SignificanceLevel(N, n, eps_max, true);
             SetValue(adr, -1);
           }
         }
@@ -636,29 +696,34 @@ const bool CSCSummary::ChamberCoords(const unsigned int x, const unsigned int y,
 }
 
 /**
- * @brief  Calculate error significance for the given number of errors
+ * @brief  Calculate error significance alpha for the given number of errors
  * @param  N Number of events
  * @param  n Number of errors
- * @param  eps_max Maximum rate of tolerance
+ * @param  eps Rate of tolerance
+ * @param  op_less TRUE to return (alpha) significance probability that the true failure rate is *less* than emax, 
+ *                 FALSE to return (beta) probability that the true failure rate is *larger* than emax
  * @return Significance level
  */
-const double CSCSummary::SignificanceAlpha(const unsigned int N, const unsigned int n, const double eps_max) const {
+const double CSCSummary::SignificanceLevel(const unsigned int N, const unsigned int n, const double eps, const bool op_less) const {
 
-  double l_eps_max = eps_max;
-  if (l_eps_max <= 0.0) l_eps_max = 0.000001;
-  if (l_eps_max >= 1.0) l_eps_max = 0.999999;
+  double l_eps = eps;
+  if (l_eps <= 0.0) l_eps = 0.000001;
+  if (l_eps >= 1.0) l_eps = 0.999999;
 
   double eps_meas = (1.0 * n) / (1.0 * N);
   double a = 1.0, b = 1.0;
 
   if (n > 0) {
-    for (unsigned int r = 0; r < n; r++) a = a * (eps_meas / l_eps_max);
+    for (unsigned int r = 0; r < n; r++) a = a * (eps_meas / l_eps);
   }
 
   if (n > 0 && n < N) {
-    for (unsigned int r = 0; r < (N - n); r++) b = b * (1 - eps_meas) / (1 - l_eps_max);
+    for (unsigned int r = 0; r < (N - n); r++) b = b * (1 - eps_meas) / (1 - l_eps);
   }
 
-  return sqrt(2.0 * log(a * b));
+  double q = (op_less ? a * b : 1 / (a * b));
+
+  return sqrt(2.0 * log(q));
 
 }
+

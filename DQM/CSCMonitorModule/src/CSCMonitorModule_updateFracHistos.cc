@@ -128,8 +128,14 @@ void CSCMonitorModule::updateFracHistos() {
 
   if (MEEMU("CSC_Reporting", me1)) {
 
+    // Getting reference and reporting histograms for CSC_Reporting
+    TH2* ref = dynamic_cast<TH2*>(me1->getRefRootObject());
     TH2* rep = dynamic_cast<TH2*>(me1->getTH1());
-    summary.ReadReportingChambers(rep, 1.0);
+    if (ref) {
+      summary.ReadReportingChambersRef(rep, ref, 0.1, 5.0);
+    } else {
+      summary.ReadReportingChambers(rep, 1.0);
+    }
 
     if (MEEMU("CSC_Format_Errors", me2)) {
       TH2* err = dynamic_cast<TH2*>(me2->getTH1());

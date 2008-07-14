@@ -39,6 +39,7 @@ CSCMonitorModule::CSCMonitorModule(const edm::ParameterSet& ps){
   fractUpdateKey = parameters.getUntrackedParameter<unsigned int>("FractUpdateKey", 1);
   fractUpdateEvF = parameters.getUntrackedParameter<unsigned int>("FractUpdateEventFreq", 1);
 
+  // Get ant apply dead HW element masks if any
   std::vector<std::string> hwMasks = parameters.getUntrackedParameter<std::vector<std::string> >("AddressMask");
   unsigned int masks_ok = summary.setMaskedHWElements(hwMasks);
   LOGINFO("HW Address Masks") << masks_ok << " out of " << hwMasks.size() << " HW Masks are accepted.";
