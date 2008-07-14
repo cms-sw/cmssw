@@ -1009,7 +1009,7 @@ class dbsBaseGui:
         
         myvars={"  Final DQM Save Directory = ":self.finalDir,
                 "  # of events to run for each DQM = ":self.maxDQMEvents,
-                "  Prescale to run over entire run (1=yes/0=no)?":self.prescaleOverRun,
+                "  Prescale to run over entire run (1=yes/0=no)? ":self.prescaleOverRun,
                 "  .cfg file to run for each DQM = ":self.cfgFileName}
         temp=myvars.keys()
         temp.sort()
