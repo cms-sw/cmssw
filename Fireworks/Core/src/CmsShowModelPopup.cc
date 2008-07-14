@@ -8,7 +8,7 @@
 //
 // Original Author:  
 //         Created:  Fri Jun 27 11:23:08 EDT 2008
-// $Id: CmsShowModelPopup.cc,v 1.6 2008/07/08 17:47:00 chrjones Exp $
+// $Id: CmsShowModelPopup.cc,v 1.7 2008/07/08 20:10:14 chrjones Exp $
 //
 
 // system include file
@@ -115,6 +115,7 @@ m_detailViewManager(iManager)
   MapSubwindows();
   Layout();
   MapWindow();
+  fillModelPopup(*iSelMgr);
 }
 
 // CmsShowModelPopup::CmsShowModelPopup(const CmsShowModelPopup& rhs)
