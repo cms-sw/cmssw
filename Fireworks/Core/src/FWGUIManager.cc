@@ -8,7 +8,7 @@
 //
 // Original Author:  Chris Jones
 //         Created:  Mon Feb 11 11:06:40 EST 2008
-// $Id: FWGUIManager.cc,v 1.54 2008/07/13 15:36:45 chrjones Exp $
+// $Id: FWGUIManager.cc,v 1.55 2008/07/13 21:57:06 chrjones Exp $
 //
 
 // system include files
@@ -515,7 +515,9 @@ FWGUIManager::createEDIFrame() {
   if (m_ediFrame == 0) {
     m_ediFrame = new CmsShowEDI(m_cmsShowMainFrame, 200, 200, m_selectionManager);
     m_ediFrame->Connect("CloseWindow()", "FWGUIManager", this, "resetEDIFrame()");
+     m_ediFrame->CenterOnParent(kTRUE,TGTransientFrame::kTopRight);
   }
+   m_ediFrame->MapWindow();
 }
 
 void
@@ -526,8 +528,8 @@ FWGUIManager::updateEDI(FWEventItem* iItem) {
 
 void
 FWGUIManager::resetEDIFrame() {
-   std::cout <<"resetEDIFrame()"<<std::endl;
-   m_ediFrame = 0;
+   m_ediFrame->DontCallClose();
+   m_ediFrame->UnmapWindow();
 }
 
 void
@@ -537,7 +539,9 @@ FWGUIManager::createModelPopup() {
     m_modelPopup->Connect("CloseWindow()", "FWGUIManager", this, "resetModelPopup()");
     //m_selectionManager->selectionChanged_.connect(boost::bind(&CmsShowModelPopup::fillModelPopup, m_modelPopup, _1));
     //    m_modelChangeConn = m_changeManager->changeSignalsAreDone_.connect(boost::bind(&CmsShowModelPopup::updateDisplay, m_modelPopup));
+     m_modelPopup->CenterOnParent(kTRUE,TGTransientFrame::kRight);
   }
+   m_modelPopup->MapWindow();
 }
 
 void
@@ -549,8 +553,8 @@ FWGUIManager::updateModel(FWEventItem* iItem) {
 void
 FWGUIManager::resetModelPopup() {
    //  m_modelChangeConn.disconnect();
-   delete m_modelPopup;
-   m_modelPopup = 0;
+   m_modelPopup->DontCallClose();
+   m_modelPopup->UnmapWindow();
 }
 
 void
@@ -558,18 +562,28 @@ FWGUIManager::createViewPopup() {
   if (m_viewPopup == 0) {
     m_viewPopup = new CmsShowViewPopup(m_cmsShowMainFrame, 200, 200, m_viewBases[0]);
     m_viewPopup->Connect("CloseWindow()", "FWGUIManager", this, "resetViewPopup()");
+     m_viewPopup->CenterOnParent(kTRUE,TGTransientFrame::kBottomRight);
   }
+  m_viewPopup->MapWindow();
+   /* seems to work but a small scale test caused seg faults
+   Int_t x,y;
+   UInt_t w,h;
+   gVirtualX->GetWindowSize(m_viewPopup->GetId(),
+                          x,y,w,h);
+   m_viewPopup->SetWMPosition(x,y);
+   std::cout <<x<<" "<< y<<std::endl;
+    */
 }
 
 void
 FWGUIManager::refillViewPopup(FWViewBase* iView) {
-  m_viewPopup->reset(iView);
+   m_viewPopup->reset(iView);
 }
 
 void
 FWGUIManager::resetViewPopup() {
-  delete m_viewPopup;
-  m_viewPopup = 0;
+   m_viewPopup->DontCallClose();
+   m_viewPopup->UnmapWindow();
 }
 
 
@@ -678,15 +692,11 @@ static const std::string kViewArea("view area");
 namespace {
    template<class Op>
    void recursivelyApplyToFrame(TGSplitFrame* iParent, Op& iOp) {
-      std::cout <<"recursivelyApplyToFrame "<<iParent<<std::endl;
       if(0==iParent) { return;}
       if(iParent->GetFrame()) {
-         std::cout <<"   Frame"<<std::endl;
          iOp(iParent);
       } else {
-         std::cout <<"   First"<<std::endl;
          recursivelyApplyToFrame(iParent->GetFirst(),iOp);
-         std::cout <<"   Second"<<std::endl;
          recursivelyApplyToFrame(iParent->GetSecond(),iOp);         
       }
    }
@@ -703,10 +713,8 @@ namespace {
          if(m_isFirst) {
             m_isFirst = false;
             s<< static_cast<int>(iFrame->GetHeight());
-            std::cout <<"height "<<s.str()<<std::endl;
          }else {
             s<< static_cast<int>(iFrame->GetWidth());
-            std::cout <<"width "<<s.str()<<std::endl;
          }
          m_config->addValue(s.str());
       }         
@@ -727,13 +735,11 @@ namespace {
             width = iFrame->GetWidth();
             std::stringstream s(m_config->value(m_index));
             s >> height;
-            std::cout <<"height "<<height<<std::endl;
          } else {
          // bottom left split frame
             height = iFrame->GetHeight();
             std::stringstream s(m_config->value(m_index));
             s >> width;
-            std::cout <<"width "<<width<<std::endl;
          }
          iFrame->Resize(width, height);
          ++m_index;
