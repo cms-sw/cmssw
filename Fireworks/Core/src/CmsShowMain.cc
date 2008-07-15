@@ -8,7 +8,7 @@
 //
 // Original Author:  
 //         Created:  Mon Dec  3 08:38:38 PST 2007
-// $Id: CmsShowMain.cc,v 1.24 2008/07/12 13:50:14 chrjones Exp $
+// $Id: CmsShowMain.cc,v 1.25 2008/07/13 21:55:10 chrjones Exp $
 //
 
 // system include files
@@ -124,6 +124,8 @@ static const char* const kAdvancedRenderOpt = "shine";
 static const char* const kAdvancedRenderCommandOpt = "shine,s";
 static char const* const kHelpOpt = "help";
 static char const* const kHelpCommandOpt = "help,h";
+// static char const* const kSoftOpt = "soft";
+static char const* const kSoftCommandOpt = "soft";
 
 CmsShowMain::CmsShowMain(int argc, char *argv[]) :
   m_configurationManager(new FWConfigurationManager),
@@ -137,7 +139,7 @@ CmsShowMain::CmsShowMain(int argc, char *argv[]) :
 {
    try {
       std::string descString(argv[0]);
-      descString += " [options]\nAllowed options";
+      descString += " [options] <data file>\nAllowed options";
       
       namespace po = boost::program_options;
       po::options_description desc(descString);
@@ -149,6 +151,7 @@ CmsShowMain::CmsShowMain(int argc, char *argv[]) :
       (kFastCommandOpt,        "Faster running by not providing tables")
       (kDebugCommandOpt,       "Show Eve browser to help debug problems")
       (kAdvancedRenderCommandOpt,       "Use advance options to improve rendering quality (anti-alias etc)")
+      (kSoftCommandOpt,       "Try to force software rendering to avoid problems with bad hardware drivers")
       (kHelpCommandOpt, "Display help message");
       po::positional_options_description p;
       p.add(kInputFileOpt, -1);
@@ -170,6 +173,8 @@ CmsShowMain::CmsShowMain(int argc, char *argv[]) :
          m_inputFileName = vm[kInputFileOpt].as<std::string>();
       } else {
          printf("No data file name.\n");
+         std::cout << desc <<std::endl;
+         exit(0);
       }
       if (vm.count(kConfigFileOpt)) {
          m_configFileName = vm[kConfigFileOpt].as<std::string>();
