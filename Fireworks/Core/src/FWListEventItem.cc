@@ -8,7 +8,7 @@
 //
 // Original Author:  Chris Jones
 //         Created:  Thu Feb 28 11:13:37 PST 2008
-// $Id: FWListEventItem.cc,v 1.18 2008/07/01 04:28:04 chrjones Exp $
+// $Id: FWListEventItem.cc,v 1.19 2008/07/08 20:09:42 chrjones Exp $
 //
 
 // system include files
@@ -112,7 +112,8 @@ namespace {
       std::stringstream s;
       s.setf(std::ios_base::fixed,std::ios_base::floatfield);
       s.precision(2);
-      s<<iName <<" = "<<*(reinterpret_cast<T*>(iObj.Address()));
+      T temp = *(reinterpret_cast<T*>(iObj.Address()));
+      s<<iName <<" = "<<temp;
       return s.str();
    }
 
@@ -270,61 +271,64 @@ FWListEventItem::itemChanged(const FWEventItem* iItem)
    m_indexOrderedItems.reserve(eventItem()->size());
    typedef std::multimap<double, FWListModel*, std::greater<double> > OrderedMap;
    OrderedMap orderedMap;
-   for(unsigned int index = 0; index < eventItem()->size(); ++index) {
-      ROOT::Reflex::Object obj;
-      std::string data;
-      double doubleData=index;
-      if(m_memberFunction) {
-         //the const_cast is fine since I'm calling a const member function
-         ROOT::Reflex::Object temp(m_memberFunction.DeclaringType(),
-                                   const_cast<void*>(eventItem()->modelData(index)));
-         obj=temp;
-         data = stringValueFor(obj,m_memberFunction);
-         doubleData = doubleValueFor(obj,m_memberFunction);
+   if(iItem->isCollection() ) {
+      for(unsigned int index = 0; index < eventItem()->size(); ++index) {
+         ROOT::Reflex::Object obj;
+         std::string data;
+         double doubleData=index;
+         if(m_memberFunction) {
+            //the const_cast is fine since I'm calling a const member function
+            ROOT::Reflex::Object temp(m_memberFunction.DeclaringType(),
+                                      const_cast<void*>(eventItem()->modelData(index)));
+            obj=temp;
+            data = stringValueFor(obj,m_memberFunction);
+            doubleData = doubleValueFor(obj,m_memberFunction);
+         }
+         FWListModel* model = new FWListModel(FWModelId(eventItem(),index), 
+                                              m_detailViewManager,
+                                              data);
+         m_indexOrderedItems.push_back(model);
+         orderedMap.insert(std::make_pair(doubleData, model));
+         model->SetMainColor(m_item->defaultDisplayProperties().color());
       }
-      FWListModel* model = new FWListModel(FWModelId(eventItem(),index), 
-                                           m_detailViewManager,
-                                           data);
-      m_indexOrderedItems.push_back(model);
-      orderedMap.insert(std::make_pair(doubleData, model));
-      model->SetMainColor(m_item->defaultDisplayProperties().color());
+      for(OrderedMap::iterator it = orderedMap.begin(), itEnd = orderedMap.end();
+          it != itEnd;
+          ++it) {
+         this->AddElement( it->second );
+      }
    }
-   for(OrderedMap::iterator it = orderedMap.begin(), itEnd = orderedMap.end();
-       it != itEnd;
-       ++it) {
-      this->AddElement( it->second );
-   }
-
 }
 
 void 
 FWListEventItem::modelsChanged( const std::set<FWModelId>& iModels )
 {
    //std::cout <<"modelsChanged "<<std::endl;
-   bool aChildChanged = false;
-   for(FWModelIds::const_iterator it = iModels.begin(), itEnd = iModels.end();
-       it != itEnd;
-       ++it) {
-      int index = it->index();
-      assert(index < static_cast<int>(m_indexOrderedItems.size()));
-      FWListModel* element = m_indexOrderedItems[index];
-      //std::cout <<"   "<<index<<std::endl;
-      bool modelChanged = false;
-      const FWEventItem::ModelInfo& info = it->item()->modelInfo(index);
-      FWListModel* model = element;
-      modelChanged = model->update(info.displayProperties());
-      if(info.isSelected() xor element->GetSelectedLevel()==1) {
-         modelChanged = true;
-         if(info.isSelected()) {         
-            gEve->GetSelection()->AddElement(element);
-         } else {
-            gEve->GetSelection()->RemoveElement(element);
+   if(m_item->isCollection()) {
+      bool aChildChanged = false;
+      for(FWModelIds::const_iterator it = iModels.begin(), itEnd = iModels.end();
+          it != itEnd;
+          ++it) {
+         int index = it->index();
+         assert(index < static_cast<int>(m_indexOrderedItems.size()));
+         FWListModel* element = m_indexOrderedItems[index];
+         //std::cout <<"   "<<index<<std::endl;
+         bool modelChanged = false;
+         const FWEventItem::ModelInfo& info = it->item()->modelInfo(index);
+         FWListModel* model = element;
+         modelChanged = model->update(info.displayProperties());
+         if(info.isSelected() xor element->GetSelectedLevel()==1) {
+            modelChanged = true;
+            if(info.isSelected()) {         
+               gEve->GetSelection()->AddElement(element);
+            } else {
+               gEve->GetSelection()->RemoveElement(element);
+            }
+         }      
+         if(modelChanged) {
+            element->ElementChanged();
+            aChildChanged=true;
+            //(*itElement)->UpdateItems();  //needed to force list tree to update immediately
          }
-      }      
-      if(modelChanged) {
-         element->ElementChanged();
-         aChildChanged=true;
-         //(*itElement)->UpdateItems();  //needed to force list tree to update immediately
       }
    }
    // obsolete
