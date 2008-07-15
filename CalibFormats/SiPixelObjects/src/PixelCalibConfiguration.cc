@@ -1410,7 +1410,7 @@ void PixelCalibConfiguration::disablePixels(PixelFECConfigInterface* pixelFEC,
 					    pos::PixelROCTrimBits* trims, 
 					    PixelHdwAddress theROC) const{
 
-  cout<<" disable ROC "<<theROC.hubaddress()<<" "<<theROC.rocid()<<endl;
+  //cout<<" disable ROC "<<theROC.hubaddress()<<" "<<theROC.rocid()<<endl;
   //FIXME This should be done with more efficient commands!
   for (unsigned int row=0;row<80;row++){
     for (unsigned int col=0;col<52;col++){
