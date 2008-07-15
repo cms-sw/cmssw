@@ -3,6 +3,7 @@
 #include "EventFilter/CSCRawToDigi/src/cscPackerCompare.h"
 #include "EventFilter/CSCRawToDigi/interface/CSCTMBHeader2006.h"
 #include "EventFilter/CSCRawToDigi/interface/CSCTMBHeader2007.h"
+#include "EventFilter/CSCRawToDigi/interface/CSCTMBHeader2007_rev0x50c3.h"
 #include "DataFormats/CSCDigi/interface/CSCCLCTDigi.h"
 #include "DataFormats/CSCDigi/interface/CSCCorrelatedLCTDigi.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
@@ -29,16 +30,19 @@ CSCTMBHeader::CSCTMBHeader(const unsigned short * buf)
   if (buf[0]==0xDB0C) {
     firmwareVersion=2007;
     theHeaderFormat = boost::shared_ptr<CSCVTMBHeaderFormat>(new CSCTMBHeader2007(buf));
-    
+    if(theHeaderFormat->firmwareRevision() > 0x50c3)
+    {   
+      theHeaderFormat = boost::shared_ptr<CSCVTMBHeaderFormat>(new CSCTMBHeader2007_rev0x50c3(buf));
+    }
   }
   else if (buf[0]==0x6B0C) {
     firmwareVersion=2006;
     theHeaderFormat = boost::shared_ptr<CSCVTMBHeaderFormat>(new CSCTMBHeader2006(buf));
+
   }
   else {
     edm::LogError("CSCTMBHeader|CSCRawToDigi") <<"failed to determine TMB firmware version!!";
   }
-std::cout << "TMB FIRMWARE " << firmwareVersion << std::endl;
 }    
 /*
 void CSCTMBHeader::swapCLCTs(CSCCLCTDigi& digi1, CSCCLCTDigi& digi2)
