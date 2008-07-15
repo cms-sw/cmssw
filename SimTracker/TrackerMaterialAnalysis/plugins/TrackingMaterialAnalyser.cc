@@ -29,7 +29,11 @@ TrackingMaterialAnalyser::TrackingMaterialAnalyser(const edm::ParameterSet& iPSe
   m_skipAfterLastDetector   = iPSet.getParameter<bool>("SkipAfterLastDetector");
   m_skipBeforeFirstDetector = iPSet.getParameter<bool>("SkipBeforeFirstDetector");
   m_symmetricForwardLayers  = iPSet.getParameter<bool>("SymmetricForwardLayers");
-  m_plotter                 = new TrackingMaterialPlotter( 300., 120., 10 );      // 10x10 points per cm2
+  m_saveSummaryPlot         = iPSet.getParameter<bool>("SaveSummaryPlot");
+  m_saveDetailedPlots       = iPSet.getParameter<bool>("SaveDetailedPlots");
+  m_saveParameters          = iPSet.getParameter<bool>("SaveParameters");
+  if (m_saveSummaryPlot)
+    m_plotter               = new TrackingMaterialPlotter( 300., 120., 10 );      // 10x10 points per cm2
 }    
 
 //-------------------------------------------------------------------------
@@ -76,10 +80,13 @@ void TrackingMaterialAnalyser::saveLayerPlots()
 //-------------------------------------------------------------------------
 void TrackingMaterialAnalyser::endJob(void)
 {
-  saveParameters("parameters");
-  //saveLayerPlots();
+  if (m_saveParameters)
+    saveParameters("parameters");
+
+  if (m_saveDetailedPlots)
+    saveLayerPlots();
   
-  if (m_plotter) {
+  if (m_saveSummaryPlot and m_plotter) {
     m_plotter->normalize();
     m_plotter->draw();
   }

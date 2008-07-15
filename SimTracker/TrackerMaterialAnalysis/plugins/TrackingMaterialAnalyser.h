@@ -37,6 +37,9 @@ private:
   bool                                      m_skipAfterLastDetector;
   bool                                      m_skipBeforeFirstDetector;
   bool                                      m_symmetricForwardLayers;
+  bool                                      m_saveSummaryPlot;
+  bool                                      m_saveDetailedPlots;
+  bool                                      m_saveParameters;
   std::vector<MaterialAccountingLayer *>    m_layers;
   TrackingMaterialPlotter *                 m_plotter;
 };
