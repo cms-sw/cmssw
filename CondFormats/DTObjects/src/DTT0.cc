@@ -1,8 +1,8 @@
 /*
  *  See header file for a description of this class.
  *
- *  $Date: 2007/12/07 15:00:53 $
- *  $Revision: 1.13 $
+ *  $Date: 2008/01/28 12:38:07 $
+ *  $Revision: 1.14 $
  *  \author Paolo Ronchese INFN Padova
  *
  */
@@ -101,6 +101,7 @@ int DTT0::get( int   wheelId,
   }
 
   std::vector<int> chanKey;
+  chanKey.reserve(6);
   chanKey.push_back(   wheelId );
   chanKey.push_back( stationId );
   chanKey.push_back(  sectorId );
@@ -185,6 +186,7 @@ int DTT0::set( int   wheelId,
     DTDataBuffer<int,int>::findBuffer( mName );
   }
   std::vector<int> chanKey;
+  chanKey.reserve(6);
   chanKey.push_back(   wheelId );
   chanKey.push_back( stationId );
   chanKey.push_back(  sectorId );
@@ -273,11 +275,13 @@ void DTT0::cacheMap() const {
 
   int entryNum = 0;
   int entryMax = dataList.size();
+  std::vector<int> chanKey;
+  chanKey.reserve(6);
   while ( entryNum < entryMax ) {
 
     const DTT0Id& chan = dataList[entryNum].first;
 
-    std::vector<int> chanKey;
+    chanKey.clear();
     chanKey.push_back( chan.  wheelId );
     chanKey.push_back( chan.stationId );
     chanKey.push_back( chan. sectorId );

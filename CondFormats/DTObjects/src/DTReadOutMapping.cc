@@ -1,8 +1,8 @@
 /*
  *  See header file for a description of this class.
  *
- *  $Date: 2007/12/07 15:00:51 $
- *  $Revision: 1.16 $
+ *  $Date: 2008/01/28 12:38:06 $
+ *  $Revision: 1.17 $
  *  \author Paolo Ronchese INFN Padova
  *
  */
@@ -133,6 +133,7 @@ int DTReadOutMapping::readOutToGeometry( int      dduId,
   }
 
   std::vector<int> chanKey;
+  chanKey.reserve(5);
   chanKey.push_back(     dduId );
   chanKey.push_back(     rosId );
   chanKey.push_back(     robId );
@@ -203,6 +204,7 @@ int DTReadOutMapping::geometryToReadOut( int    wheelId,
   }
 
   std::vector<int> cellKey;
+  cellKey.reserve(6);
   cellKey.push_back(   wheelId );
   cellKey.push_back( stationId );
   cellKey.push_back(  sectorId );
@@ -292,6 +294,7 @@ int DTReadOutMapping::insertReadOutGeometryLink( int     dduId,
   DTDataBuffer<int,int>::openBuffer( mNameGR );
 
   std::vector<int> cellKey;
+  cellKey.reserve(6);
   cellKey.push_back(   wheelId );
   cellKey.push_back( stationId );
   cellKey.push_back(  sectorId );
@@ -301,6 +304,7 @@ int DTReadOutMapping::insertReadOutGeometryLink( int     dduId,
   int grStatus =
   grBuf->insert( cellKey.begin(), cellKey.end(), ientry );
   std::vector<int> chanKey;
+  chanKey.reserve(5);
   chanKey.push_back(     dduId );
   chanKey.push_back(     rosId );
   chanKey.push_back(     robId );
@@ -365,11 +369,15 @@ void DTReadOutMapping::cacheMap() const {
 
   int entryNum = 0;
   int entryMax = readOutChannelDriftTubeMap.size();
+  std::vector<int> cellKey;
+  cellKey.reserve(6);
+  std::vector<int> chanKey;
+  chanKey.reserve(5);
   while ( entryNum < entryMax ) {
 
     const DTReadOutGeometryLink& link( readOutChannelDriftTubeMap[entryNum] );
 
-    std::vector<int> cellKey;
+    cellKey.clear();
     cellKey.push_back( link.  wheelId );
     cellKey.push_back( link.stationId );
     cellKey.push_back( link. sectorId );
@@ -379,7 +387,7 @@ void DTReadOutMapping::cacheMap() const {
 
     grBuf->insert( cellKey.begin(), cellKey.end(), entryNum );
 
-    std::vector<int> chanKey;
+    chanKey.clear();
     chanKey.push_back( link.    dduId );
     chanKey.push_back( link.    rosId );
     chanKey.push_back( link.    robId );
