@@ -246,7 +246,10 @@ void LightTableManager::format (std::vector<std::string> &ret,
      char * const sEnd = s+total_len+1;
      //      ret.push_back(std::string(total_len, '=')); 
      if (title().length() != 0) {
-	  sprintf(s, "%*s", (total_len + title().length()) / 2, title().c_str());
+	  if ((total_len + title().length()) / 2 > 0)
+	       snprintf(s, total_len, "%*s", (total_len + title().length()) / 2,
+			title().c_str());
+	  else snprintf(s, total_len, "%s", title().c_str());
 	  ret.push_back(s);
      }
      //      ret.push_back(std::string(total_len, '-')); 
