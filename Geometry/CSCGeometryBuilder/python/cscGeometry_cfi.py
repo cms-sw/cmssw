@@ -14,7 +14,7 @@ CSCGeometryESModule = cms.ESProducer("CSCGeometryESModule",
     useOnlyWiresInME1a = cms.bool(False),
     useRealWireGeometry = cms.bool(True),
     useCentreTIOffsets = cms.bool(False),
-    applyAlignment = cms.bool(False) ## GF: to be abandoned
+    applyAlignment = cms.bool(True) ## GF: to be abandoned
 
 )
 
