@@ -312,15 +312,28 @@ void CSCEventData::setEventInformation(int bxnum, int lvl1num) {
 }
     
 
-void CSCEventData::createALCTClasses() {
-  assert(theChamberType>0);
-  theALCTHeader = new CSCALCTHeader(theChamberType);
-  theALCTHeader->setEventInformation(theDMBHeader);
-  theAnodeData = new CSCAnodeData(*theALCTHeader);
-  theALCTTrailer = new CSCALCTTrailer();
-  // set data available flag
-  theDMBHeader.addNALCT();
+void CSCEventData::checkALCTClasses() {
+  if(theAnodeData == NULL)
+  {
+    assert(theChamberType>0);
+    theALCTHeader = new CSCALCTHeader(theChamberType);
+    theALCTHeader->setEventInformation(theDMBHeader);
+    theAnodeData = new CSCAnodeData(*theALCTHeader);
+    theALCTTrailer = new CSCALCTTrailer();
+    // set data available flag
+    theDMBHeader.addNALCT();
+  }
 }
+
+
+void CSCEventData::checkTMBClasses() 
+{
+  if(theTMBData == NULL)    {
+    theTMBData = new CSCTMBData();
+    theDMBHeader.addNCLCT();
+  }
+}
+
 
 void CSCEventData::add(const CSCStripDigi & digi, int layer) {
   //@@ need special logic here for ME11
@@ -336,44 +349,31 @@ void CSCEventData::add(const CSCStripDigi & digi, int layer) {
 
 
 void CSCEventData::add(const CSCWireDigi & digi, int layer) {
-  if(theAnodeData == NULL)    {
-    createALCTClasses();
-  }
+  checkALCTClasses();
   theAnodeData->add(digi, layer);
 }
 
 void CSCEventData::add(const CSCComparatorDigi & digi, int layer) {
-  if(theTMBData == NULL)    {
-    theTMBData = new CSCTMBData();
-    theDMBHeader.addNCLCT();
-  }
+  checkTMBClasses();
   theTMBData->clctData()->add(digi, layer);
 }
 
 
 
-void CSCEventData::add(const CSCALCTDigi & digi) {
-  if(theAnodeData == NULL)    {
-    createALCTClasses();
-  }
-  theALCTHeader->add(digi);
+void CSCEventData::add(const std::vector<CSCALCTDigi> & digis) {
+  checkALCTClasses();
+  theALCTHeader->add(digis);
 }
 
 
-void CSCEventData::add(const CSCCLCTDigi & digi) {
-  if(theTMBData == NULL)    {
-    theTMBData = new CSCTMBData();
-    theDMBHeader.addNCLCT();
-  }
-  theTMBData->tmbHeader()->add(digi);
+void CSCEventData::add(const std::vector<CSCCLCTDigi> & digis) {
+  checkTMBClasses();
+  theTMBData->tmbHeader()->add(digis);
 }
 
-void CSCEventData::add(const CSCCorrelatedLCTDigi & digi) {
-  if(theTMBData == NULL)    {
-    theTMBData = new CSCTMBData();
-    theDMBHeader.addNCLCT();
-  }
-  theTMBData->tmbHeader()->add(digi);
+void CSCEventData::add(const std::vector<CSCCorrelatedLCTDigi> & digis) {
+  checkTMBClasses();
+  theTMBData->tmbHeader()->add(digis);
 }
 
 
@@ -432,18 +432,18 @@ boost::dynamic_bitset<> CSCEventData::pack() {
 void CSCEventData::selfTest() {
   CSCEventData chamberData(5);
   CSCDetId detId(1, 3, 2, 1, 3);
-  CSCCLCTDigi clct0(1, 1, 4, 1, 0, 30, 3, 0, 1); // valid for 2007
-  CSCCLCTDigi clct1(1, 1, 2, 1, 1, 31, 1, 2, 2);
-
+  std::vector<CSCCLCTDigi> clctDigis;
+  clctDigis.push_back(CSCCLCTDigi(1, 1, 4, 1, 0, 30, 3, 0, 1)); // valid for 2007
+  clctDigis.push_back(CSCCLCTDigi(1, 1, 2, 1, 1, 31, 1, 2, 2));
+  
   // BX of LCT (8th argument) is 1-bit word (the least-significant bit
   // of ALCT's bx).
-  CSCCorrelatedLCTDigi lct0(1, 1, 2, 10, 98, 5, 0, 1, 0, 0, 0, 0);
-  CSCCorrelatedLCTDigi lct1(2, 1, 2, 20, 15, 9, 1, 0, 0, 0, 0, 0);
+  std::vector<CSCCorrelatedLCTDigi> corrDigis;
+  corrDigis.push_back(CSCCorrelatedLCTDigi(1, 1, 2, 10, 98, 5, 0, 1, 0, 0, 0, 0));
+  corrDigis.push_back(CSCCorrelatedLCTDigi(2, 1, 2, 20, 15, 9, 1, 0, 0, 0, 0, 0));
 
-  chamberData.add(clct0);
-  chamberData.add(clct1);
-  chamberData.add(lct0);
-  chamberData.add(lct1);
+  chamberData.add(clctDigis);
+  chamberData.add(corrDigis);
 
   CSCWireDigi wireDigi(10, 6);
   CSCComparatorDigi comparatorDigi(30, 1, 6);
@@ -453,12 +453,12 @@ void CSCEventData::selfTest() {
   CSCEventData newData = cscPackAndUnpack(chamberData);
 
   std::vector<CSCCLCTDigi> clcts = newData.tmbHeader()->CLCTDigis(detId.rawId());
-  assert(cscPackerCompare(clcts[0],clct0));
-  assert(cscPackerCompare(clcts[1],clct1));
+  assert(cscPackerCompare(clcts[0],clctDigis[0]));
+  assert(cscPackerCompare(clcts[1],clctDigis[1]));
 
   std::vector<CSCCorrelatedLCTDigi> lcts = newData.tmbHeader()->CorrelatedLCTDigis(detId.rawId());
-  assert(cscPackerCompare(lcts[0], lct0));
-  assert(cscPackerCompare(lcts[1], lct1));
+  assert(cscPackerCompare(lcts[0], corrDigis[0]));
+  assert(cscPackerCompare(lcts[1], corrDigis[1]));
 
 }
  

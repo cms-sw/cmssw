@@ -1,7 +1,7 @@
 /** \file
  *
- *  $Date: 2008/06/27 02:56:35 $
- *  $Revision: 1.25 $
+ *  $Date: 2008/06/27 03:19:50 $
+ *  $Revision: 1.26 $
  *  \author A. Tumanov - Rice
  */
 
@@ -43,7 +43,6 @@ CSCEventData & CSCDigiToRaw::findEventData(const CSCDetId & cscDetId)
   map<CSCDetId, CSCEventData>::iterator chamberMapItr = theChamberDataMap.find(chamberID);
   if(chamberMapItr == theChamberDataMap.end())
     {
-      // make an entry, telling it the correct chamberType
       // make an entry, telling it the correct chamberType
       int chamberType = chamberID.iChamberType();
       chamberMapItr = theChamberDataMap.insert(pair<CSCDetId, CSCEventData>(chamberID, CSCEventData(chamberType))).first;
@@ -120,10 +119,7 @@ void CSCDigiToRaw::add(const CSCALCTDigiCollection & alctDigis)
       CSCDetId cscDetId=(*j).first;
       CSCEventData & cscData = findEventData(cscDetId);
 
-      BOOST_FOREACH(CSCALCTDigi digi, (*j).second)
-        {
-          cscData.add(digi);
-        }
+       cscData.add(std::vector<CSCALCTDigi>((*j).second.first, (*j).second.second));
     }
 }
 
@@ -134,10 +130,7 @@ void CSCDigiToRaw::add(const CSCCLCTDigiCollection & clctDigis)
       CSCDetId cscDetId=(*j).first;
       CSCEventData & cscData = findEventData(cscDetId);
 
-      BOOST_FOREACH(CSCCLCTDigi digi, (*j).second)
-        {
-          cscData.add(digi);
-        }
+      cscData.add(std::vector<CSCCLCTDigi>((*j).second.first, (*j).second.second));
     }
 }
 
@@ -148,10 +141,7 @@ void CSCDigiToRaw::add(const CSCCorrelatedLCTDigiCollection & corrLCTDigis)
       CSCDetId cscDetId=(*j).first;
       CSCEventData & cscData = findEventData(cscDetId);
 
-      BOOST_FOREACH(CSCCorrelatedLCTDigi digi, (*j).second)
-        {
-          cscData.add(digi);
-        }
+      cscData.add(std::vector<CSCCorrelatedLCTDigi>((*j).second.first, (*j).second.second));
     }
 
 }
@@ -175,10 +165,10 @@ void CSCDigiToRaw::createFedBuffers(const CSCStripDigiCollection& stripDigis,
   beginEvent(mapping);
   add(stripDigis);
   add(wireDigis);
-  //add(comparatorDigis);
-  //add(alctDigis);
-  //add(clctDigis);
-  //add(correlatedLCTDigis);
+  add(comparatorDigis);
+  add(alctDigis);
+  add(clctDigis);
+  add(correlatedLCTDigis);
   
   int l1a=1; //need to add increments or get it from lct digis 
   int bx = 0;//same as above

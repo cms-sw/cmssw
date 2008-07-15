@@ -370,7 +370,7 @@ class CSCALCTHeader {
   }
  
   /// should try to sort, but doesn't for now
-  void add(const CSCALCTDigi & digi);
+  void add(const std::vector<CSCALCTDigi> & digis);
   void addALCT0(const CSCALCTDigi & digi);
   void addALCT1(const CSCALCTDigi & digi);
 

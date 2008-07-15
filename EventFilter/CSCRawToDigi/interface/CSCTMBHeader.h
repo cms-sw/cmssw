@@ -122,8 +122,8 @@ class CSCTMBHeader {
   }
 
   /// these methods need more brains to figure which one goes first
-  void add(const CSCCLCTDigi & digi);
-  void add(const CSCCorrelatedLCTDigi & digi);
+  void add(const std::vector<CSCCLCTDigi> & digis);
+  void add(const std::vector<CSCCorrelatedLCTDigi> & digis);
 
 
   /// tests that packing and unpacking give same results
@@ -133,7 +133,7 @@ class CSCTMBHeader {
 
 private:
 
-  void swapCLCTs(CSCCLCTDigi& digi1, CSCCLCTDigi& digi2);
+  //void swapCLCTs(CSCCLCTDigi& digi1, CSCCLCTDigi& digi2);
 
   static bool debug;
   static unsigned short int firmwareVersion;

@@ -74,22 +74,22 @@ void CSCTMBHeader::swapCLCTs(CSCCLCTDigi& digi1, CSCCLCTDigi& digi2)
     }
   }
 }
-*/
+i*/
 
 
 //FIXME Pick which LCT goes first
-void CSCTMBHeader::add(const CSCCLCTDigi & digi)
+void CSCTMBHeader::add(const std::vector<CSCCLCTDigi> & digis)
 {
-  int nLCT = CLCTDigis(0).size();
-  if(nLCT == 0) addCLCT0(digi);
-  else if(nLCT == 1) addCLCT1(digi);
+  // sort???
+  if(digis.size() > 0) addCLCT0(digis[0]);
+  if(digis.size() > 1) addCLCT1(digis[1]);
 }
 
-void CSCTMBHeader::add(const CSCCorrelatedLCTDigi & digi)
+void CSCTMBHeader::add(const std::vector<CSCCorrelatedLCTDigi> & digis)
 {
-  int nLCT = CorrelatedLCTDigis(0).size();
-  if(nLCT == 0) addCorrelatedLCT0(digi);
-  else if(nLCT == 1) addCorrelatedLCT1(digi);
+  // sort???
+  if(digis.size() > 0) addCorrelatedLCT0(digis[0]);
+  if(digis.size() > 1) addCorrelatedLCT1(digis[1]);
 }
 
 
@@ -145,7 +145,6 @@ void CSCTMBHeader::selfTest()
       std::vector<CSCCLCTDigi> clcts = tmbHeader.CLCTDigis(detId.rawId());
       assert(cscPackerCompare(clcts[0],clct0));
       assert(cscPackerCompare(clcts[1],clct1));
-std::cout << "TESTED " << station << " " << iendcap << std::endl;
       if (debug) {
 	std::cout << "Match for: " << clct0 << "\n";
 	std::cout << "           " << clct1 << "\n \n";

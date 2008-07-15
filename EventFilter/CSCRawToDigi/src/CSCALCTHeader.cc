@@ -165,12 +165,11 @@ std::vector<CSCALCTDigi> CSCALCTHeader::ALCTDigis() const
 }
 
 
-void CSCALCTHeader::add(const CSCALCTDigi & digi)
+void CSCALCTHeader::add(const std::vector<CSCALCTDigi> & digis)
 {
   //FIXME doesn't do any sorting
-  int nALCT = ALCTDigis().size();
-  if(nALCT == 0) addALCT0(digi);
-  else if(nALCT == 1) addALCT1(digi);
+  if(digis.size() > 0) addALCT0(digis[0]);
+  if(digis.size() > 1) addALCT1(digis[1]);
 }
 
 void CSCALCTHeader::addALCT0(const CSCALCTDigi & digi)
@@ -223,7 +222,6 @@ void CSCALCTHeader::selfTest()
     assert(alcts[0] == alct0);
     assert(alcts[1] == alct1);
   }
-
 }
 
 std::ostream & operator<<(std::ostream & os, const CSCALCTHeader & header) 

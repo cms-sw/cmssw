@@ -113,9 +113,10 @@ class CSCEventData {
   void add(const CSCStripDigi &, int layer);
   void add(const CSCWireDigi &, int layer);
   void add(const CSCComparatorDigi &, int layer);
-  void add(const CSCALCTDigi &);
-  void add(const CSCCLCTDigi &);
-  void add(const CSCCorrelatedLCTDigi &);
+  /// these go in as vectors, so they get sorted right away
+  void add(const std::vector<CSCALCTDigi> &);
+  void add(const std::vector<CSCCLCTDigi> &);
+  void add(const std::vector<CSCCorrelatedLCTDigi> &);
 
   
   /// this will fill the DMB header, and change all related fields in
@@ -143,8 +144,11 @@ private:
   void copy(const CSCEventData &);
   void destroy();
 
-  /// makes new ALCT classes
-  void createALCTClasses();
+  /// makes new ALCT classes, if needed
+  void checkALCTClasses();
+  /// makes new TMB classes, if needed
+  void checkTMBClasses();
+
   /// adds the comparators to the strip digis
   void addComparatorInformation(std::vector<CSCStripDigi>&, int layer) const;
 
