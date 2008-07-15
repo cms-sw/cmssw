@@ -4,7 +4,6 @@
 #include "Fireworks/Core/src/FWListMultipleModels.h"
 #include "Fireworks/Core/src/FWListModelEditor.h"
 #include "Fireworks/Core/src/FWListViewObject.h"
-#include "Fireworks/Core/src/FWListViewObjectEditor.h"
 #include "Fireworks/Core/src/FWListItemBase.h"
 #include "Fireworks/Core/src/TableWidget.h"
 #include "Fireworks/Core/src/fwCintInterfaces.h"
@@ -27,7 +26,6 @@
 #pragma link C++ class FWListMultipleModels;
 #pragma link C++ class FWListModelEditor;
 #pragma link C++ class FWListViewObject;
-#pragma link C++ class FWListViewObjectEditor;
 #pragma link C++ class FWListItemBase;
 #pragma link C++ class TableWidget;
 #pragma link C++ class LightTableWidget;

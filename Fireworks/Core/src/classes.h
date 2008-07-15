@@ -26,7 +26,6 @@
 #include "Fireworks/Core/src/FWListModelEditor.h"
 #include "Fireworks/Core/interface/ElectronView.h"
 #include "Fireworks/Core/src/FWListViewObject.h"
-#include "Fireworks/Core/src/FWListViewObjectEditor.h"
 #include "Fireworks/Core/src/FWListItemBase.h"
 #include "Fireworks/Core/interface/FWParameterSetterBase.h"
 #include "Fireworks/Core/src/FWDoubleParameterSetter.h"
