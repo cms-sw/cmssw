@@ -80,8 +80,11 @@ namespace edm {
     T ei(bid);
     typename eiSet::const_iterator it = entryInfoSet_.find(ei);
     if (it == entryInfoSet_.end()) {
-      assert(nextMapper_);
-      return nextMapper_->branchToEntryInfo(bid);
+      if (nextMapper_) {
+	return nextMapper_->branchToEntryInfo(bid);
+      } else {
+	return boost::shared_ptr<T>();
+      }
     }
     return boost::shared_ptr<T>(new T(*it));
   }

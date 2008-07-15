@@ -106,7 +106,7 @@ namespace edm {
   ProductRegistry::throwIfFrozen() const {
     if (frozen_) {
       throw cms::Exception("ProductRegistry", "throwIfFrozen")
-            << "cannot modify the ProductRegistry because it is frozen";
+            << "cannot modify the ProductRegistry because it is frozen\n";
     }
   }
   
@@ -114,7 +114,7 @@ namespace edm {
   ProductRegistry::throwIfNotFrozen() const {
     if (!frozen_) {
       throw cms::Exception("ProductRegistry", "throwIfNotFrozen")
-            << "cannot read the ProductRegistry because it is not yet frozen";
+            << "cannot read the ProductRegistry because it is not yet frozen\n";
     }
   }
   
@@ -166,8 +166,10 @@ namespace edm {
 	// Ignore branches just produced (i.e. not in input file).
 	++j;
       } else if (j == s || i != e && i->first < j->first) {
-	differences << "Branch '" << i->second.branchName() << "' is in file '" << fileName << "'\n";
-	differences << "    but not in previous files.\n";
+	if (i->second.present()) {
+	  differences << "Branch '" << i->second.branchName() << "' is in file '" << fileName << "'\n";
+	  differences << "    but not in previous files.\n";
+	}
 	++i;
       } else if (i == e || j != s && j->first < i->first) {
 	// Allow branch to be missing in new file
