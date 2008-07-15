@@ -141,9 +141,12 @@ namespace edm {
   inline
   void 
   GroupT<T>::setProvenance(boost::shared_ptr<T> entryInfo) const {
-    assert (!entryInfo_);
     entryInfo_ = entryInfo;  // Group takes ownership
-    prov_.reset(new Provenance(*branchDescription_, entryInfo_));
+    if (entryInfo_) {
+      prov_.reset(new Provenance(*branchDescription_, entryInfo_));
+    } else {
+      prov_.reset(new Provenance(*branchDescription_));
+    }
   }
 
   template <typename T>
