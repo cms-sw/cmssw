@@ -71,7 +71,6 @@ namespace edm {
     bool isValid() const;
 
     void addBranch(BranchDescription const& prod,
-		   bool selected,
 		   void const*& pProd, bool inInput);
 
     void fastCloneTree(TTree *tree);

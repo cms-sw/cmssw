@@ -47,7 +47,6 @@ namespace edm {
     //void endFile();
     void writeLuminosityBlock(LuminosityBlockPrincipal const& lb);
     bool writeRun(RunPrincipal const& r);
-    //BMM void writeBranchMapper();
     void writeEntryDescriptions();
     void writeFileFormatVersion();
     void writeFileIdentifier();
@@ -76,21 +75,16 @@ namespace edm {
         std::map<std::string, int> treeMap_;
       };
 
-      OutputItem() : branchDescription_(0),
-	selected_(false), renamed_(false), product_(0) {}
+      OutputItem() : branchDescription_(0), renamed_(false), product_(0) {}
 
-      OutputItem(BranchDescription const* bd, bool sel, bool ren) :
-	branchDescription_(bd),
-	selected_(sel), renamed_(ren), product_(0) {}
+      OutputItem(BranchDescription const* bd, bool ren) :
+	branchDescription_(bd), renamed_(ren), product_(0) {}
 
       ~OutputItem() {}
 
       BranchID branchID() const { return branchDescription_->branchID(); }
-      bool     selected() const { return selected_; }
-
 
       BranchDescription const* branchDescription_;
-      bool selected_;
       bool renamed_;
       mutable void const* product_;
 
@@ -113,7 +107,8 @@ namespace edm {
     // Private functions
 
     void setBranchAliases(TTree *tree, Selections const& branches) const;
-    void fillItemList(BranchType branchtype, TTree *theTree);
+    void fillSelectedItemList(BranchType branchtype, TTree *theTree);
+    void fillDroppedItemList(BranchType branchtype);
 
     template <typename T>
     void fillBranches(BranchType const& branchType, Principal<T> const& principal, std::vector<T> * entryInfoVecPtr);
@@ -123,7 +118,9 @@ namespace edm {
     //-------------------------------
     // Member data
 
-    OutputItemListArray outputItemList_;
+    OutputItemListArray selectedOutputItemList_;
+    OutputItemListArray droppedOutputItemList_;
+    OutputItemListArray prunedOutputItemList_;
     std::set<BranchID> registryItems_;
     std::string file_;
     std::string logicalFile_;
@@ -139,7 +136,6 @@ namespace edm {
     FileIndex::EntryNumber_t lumiEntryNumber_;
     FileIndex::EntryNumber_t runEntryNumber_;
     TTree * metaDataTree_;
-    //BMM TTree * branchMapperTree_;
     TTree * entryDescriptionTree_;
     TTree * eventHistoryTree_;
     EventAuxiliary const*           pEventAux_;
@@ -170,14 +166,14 @@ namespace edm {
 
     bool const fastCloning = (branchType == InEvent) && currentlyFastCloning_;
     
-    OutputItemList const& items = outputItemList_[branchType];
+    OutputItemList const& items = selectedOutputItemList_[branchType];
 
     // Loop over EDProduct branches, fill the provenance, and write the branch.
     for (OutputItemList::const_iterator i = items.begin(), iEnd = items.end(); i != iEnd; ++i) {
 
       BranchID const& id = i->branchDescription_->branchID();
 
-      bool getProd = i->selected_ && (i->branchDescription_->produced() || i->renamed_ || !fastCloning);
+      bool getProd = (i->branchDescription_->produced() || i->renamed_ || !fastCloning);
 
       EDProduct const* product = 0;
       OutputHandle<T> const oh = principal.getForOutput(id, getProd);
@@ -209,6 +205,32 @@ namespace edm {
 	i->product_ = product;
       }
     }
+
+    OutputItemList const& droppedItems = prunedOutputItemList_[branchType];
+
+    // Loop over pruned branches (branches that survived pruning) and fill the provenance.
+    for (OutputItemList::const_iterator i = droppedItems.begin(), iEnd = droppedItems.end(); i != iEnd; ++i) {
+
+      BranchID const& id = i->branchDescription_->branchID();
+
+      OutputHandle<T> const oh = principal.getForOutput(id, false);
+      if (!oh.entryInfo()) {
+	// No product with this ID is in the event.
+	// Create and write the provenance.
+	if (i->branchDescription_->produced()) {
+          entryInfoVecPtr->push_back(T(i->branchDescription_->branchID(),
+			      productstatus::neverCreated(),
+			      i->branchDescription_->moduleDescriptionID()));
+	} else {
+          entryInfoVecPtr->push_back(T(i->branchDescription_->branchID(),
+			      productstatus::dropped(),
+			      i->branchDescription_->moduleDescriptionID()));
+	}
+      } else {
+        entryInfoVecPtr->push_back(*oh.entryInfo());
+      }
+    }
+
     sort_all(*entryInfoVecPtr);
     treePointers_[branchType]->fillTree();
     entryInfoVecPtr->clear();

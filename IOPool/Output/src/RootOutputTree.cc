@@ -83,20 +83,17 @@ namespace edm {
 
   void
   RootOutputTree::addBranch(BranchDescription const& prod,
-			    bool selected,
 			    void const*& pProd, bool inInput) {
       prod.init();
-      if (selected) {
-	TBranch *branch = tree_->Branch(prod.branchName().c_str(),
+      TBranch *branch = tree_->Branch(prod.branchName().c_str(),
 		 prod.wrappedName().c_str(),
 		 &pProd,
 		 (prod.basketSize() == BranchDescription::invalidBasketSize ? basketSize_ : prod.basketSize()),
 		 (prod.splitLevel() == BranchDescription::invalidSplitLevel ? splitLevel_ : prod.splitLevel()));
-        if (inInput) {
-	  clonedBranches_.push_back(branch);
-	} else {
-	  branches_.push_back(branch);
-        }
+      if (inInput) {
+	clonedBranches_.push_back(branch);
+      } else {
+	branches_.push_back(branch);
       }
   }
 }

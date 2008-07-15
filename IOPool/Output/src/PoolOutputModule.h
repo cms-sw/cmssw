@@ -58,7 +58,6 @@ namespace edm {
     virtual void writeProductDescriptionRegistry();
     virtual void writeProductDependencies();
     virtual void writeEntryDescriptions();
-    // BMM virtual void writeBranchMapper();
     virtual void finishEndFile();
 
     std::string const fileName_;

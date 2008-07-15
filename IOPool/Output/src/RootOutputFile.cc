@@ -18,8 +18,6 @@
 #include "FWCore/Framework/interface/RunPrincipal.h"
 #include "DataFormats/Provenance/interface/BranchChildren.h"
 #include "DataFormats/Provenance/interface/BranchID.h"
-// BMM #include "DataFormats/Provenance/interface/BranchMapper.h"
-// BMM #include "DataFormats/Provenance/interface/BranchMapperRegistry.h"
 #include "DataFormats/Provenance/interface/EventEntryDescription.h"
 #include "DataFormats/Provenance/interface/EntryDescriptionRegistry.h"
 #include "DataFormats/Provenance/interface/EventID.h"
@@ -100,7 +98,9 @@ namespace edm {
   }
 
   RootOutputFile::RootOutputFile(PoolOutputModule *om, std::string const& fileName, std::string const& logicalFileName) :
-      outputItemList_(), 
+      selectedOutputItemList_(), 
+      droppedOutputItemList_(), 
+      prunedOutputItemList_(), 
       registryItems_(), 
       file_(fileName),
       logicalFile_(logicalFileName),
@@ -116,7 +116,6 @@ namespace edm {
       lumiEntryNumber_(0LL),
       runEntryNumber_(0LL),
       metaDataTree_(0),
-      // BMM branchMapperTree_(0),
       entryDescriptionTree_(0),
       eventHistoryTree_(0),
       pEventAux_(0),
@@ -151,19 +150,18 @@ namespace edm {
       TTree * theTree = (branchType == InEvent ? om_->fileBlock_->tree() : 
 		        (branchType == InLumi ? om_->fileBlock_->lumiTree() :
                         om_->fileBlock_->runTree()));
-      fillItemList(branchType, theTree);
-      for (OutputItemList::const_iterator it = outputItemList_[branchType].begin(),
-	  itEnd = outputItemList_[branchType].end();
+      fillSelectedItemList(branchType, theTree);
+      fillDroppedItemList(branchType);
+      for (OutputItemList::const_iterator it = selectedOutputItemList_[branchType].begin(),
+	  itEnd = selectedOutputItemList_[branchType].end();
 	  it != itEnd; ++it) {
 	treePointers_[branchType]->addBranch(*it->branchDescription_,
-					      it->selected_,
 					      it->product_,
 					      !it->branchDescription_->produced());
       }
     }
     // Don't split metadata tree or event description tree
     metaDataTree_         = RootOutputTree::makeTTree(filePtr_.get(), poolNames::metaDataTreeName(), 0);
-    // BMM branchMapperTree_     = RootOutputTree::makeTTree(filePtr_.get(), poolNames::branchMapperTreeName(), 0);
     entryDescriptionTree_ = RootOutputTree::makeTTree(filePtr_.get(), poolNames::entryDescriptionTreeName(), 0);
 
     // Create the tree that will carry (event) History objects.
@@ -185,15 +183,13 @@ namespace edm {
     // and use a custom comparison operator for sorting.
     std::vector<std::string> branchNames;
     std::vector<BranchDescription const*> branches;
-    branchNames.reserve(outputItemList_[InEvent].size());
-    branches.reserve(outputItemList_[InEvent].size());
-    for (OutputItemList::const_iterator it = outputItemList_[InEvent].begin(),
-	  itEnd = outputItemList_[InEvent].end();
+    branchNames.reserve(selectedOutputItemList_[InEvent].size());
+    branches.reserve(selectedOutputItemList_[InEvent].size());
+    for (OutputItemList::const_iterator it = selectedOutputItemList_[InEvent].begin(),
+	  itEnd = selectedOutputItemList_[InEvent].end();
 	  it != itEnd; ++it) {
-      if (it->selected_) {
-	branchNames.push_back(it->branchDescription_->branchName());
-	branches.push_back(it->branchDescription_);
-      }
+      branchNames.push_back(it->branchDescription_->branchName());
+      branches.push_back(it->branchDescription_);
     }
     // Now sort the branches for the hash.
     sort_all(branches, sorterForJobReportHash);
@@ -225,28 +221,40 @@ namespace edm {
 		      branchNames); // branch names being written
   }
 
-  void RootOutputFile::fillItemList(BranchType branchType, TTree * theTree) {
+  void RootOutputFile::fillSelectedItemList(BranchType branchType, TTree * theTree) {
 
     Selections const& keptVector =    om_->keptProducts()[branchType];
-    Selections const& droppedVector = om_->droppedProducts()[branchType];
-    OutputItemList&   outputItemList = outputItemList_[branchType];
+    OutputItemList&   outputItemList = selectedOutputItemList_[branchType];
 
-    // Fill outputItemList with an entry for each branch, including dropped branches.
+    // Fill outputItemList with an entry for each branch.
     std::vector<std::string> const& renamed = om_->fileBlock_->sortedNewBranchNames();
     for (Selections::const_iterator it = keptVector.begin(), itEnd = keptVector.end(); it != itEnd; ++it) {
       BranchDescription const& prod = **it;
-      outputItemList.push_back(OutputItem(&prod, true, binary_search_all(renamed, prod.branchName())));
+      outputItemList.push_back(OutputItem(&prod, binary_search_all(renamed, prod.branchName())));
     }
 
-    for (Selections::const_iterator it = droppedVector.begin(), itEnd = droppedVector.end(); it != itEnd; ++it) {
-      BranchDescription const& prod = **it;
-      outputItemList.push_back(OutputItem(&prod, false, binary_search_all(renamed, prod.branchName())));
-    }
-
-    pruneOutputItemList(branchType, *om_->fileBlock_);
     // Sort outputItemList to allow fast copying.
     // The branches in outputItemList must be in the same order as in the input tree, with all new branches at the end.
     sort_all(outputItemList, OutputItem::Sorter(theTree));
+
+    for(OutputItemList::const_iterator it = outputItemList.begin(), itEnd = outputItemList.end();
+        it != itEnd; ++it) {
+      registryItems_.insert(it->branchDescription_->branchID());
+    }
+  }
+
+  void RootOutputFile::fillDroppedItemList(BranchType branchType) {
+
+    Selections const& droppedVector = om_->droppedProducts()[branchType];
+    OutputItemList&   outputItemList = droppedOutputItemList_[branchType];
+
+    // Fill outputItemList with an entry for each branch, including dropped branches.
+    std::vector<std::string> const& renamed = om_->fileBlock_->sortedNewBranchNames();
+
+    for (Selections::const_iterator it = droppedVector.begin(), itEnd = droppedVector.end(); it != itEnd; ++it) {
+      BranchDescription const& prod = **it;
+      outputItemList.push_back(OutputItem(&prod, binary_search_all(renamed, prod.branchName())));
+    }
 
     for(OutputItemList::const_iterator it = outputItemList.begin(), itEnd = outputItemList.end();
         it != itEnd; ++it) {
@@ -276,14 +284,9 @@ namespace edm {
     // Get the BranchIDs for the data product branches we will write.
     std::vector<BranchID> productBranches;
     // If we had transform_copy_if, I'd use it here...
-    for (RootOutputFile::OutputItemList::const_iterator
-	   i = items.begin(),
-	   e = items.end();
-	 i != e;
-	 ++i)
-      {
-	if (i->selected()) productBranches.push_back(i->branchID());
-      }
+    for (RootOutputFile::OutputItemList::const_iterator i = items.begin(), e = items.end(); i != e; ++i) {
+      productBranches.push_back(i->branchID());
+    }
 
     // Go through the BranchIDs for the data product branches we will
     // write, and get all the ancestors for each.
@@ -307,12 +310,20 @@ namespace edm {
   }
 
   void RootOutputFile::pruneOutputItemList(BranchType branchType, FileBlock const& inputFile) {
-    OutputItemList& items = outputItemList_[branchType];
+    OutputItemList& items = prunedOutputItemList_[branchType];
+    items.clear();
+    items = droppedOutputItemList_[branchType];
     MatchItemWithoutPedigree pred(items, inputFile.branchChildren());
     items.erase(std::remove_if(items.begin(), items.end(), pred), items.end());
   }
 
   void RootOutputFile::beginInputFile(FileBlock const& fb, bool fastClone) {
+
+    for (int i = InEvent; i < NumBranchTypes; ++i) {
+      BranchType branchType = static_cast<BranchType>(i);
+      pruneOutputItemList(branchType, fb);
+    }
+
     currentlyFastCloning_ = om_->fastCloning() && fb.fastClonable() && fastClone;
     eventTree_.beginInputFile(currentlyFastCloning_);
     eventTree_.fastCloneTree(fb.tree());
@@ -397,34 +408,6 @@ namespace edm {
     fillBranches(InRun, r, pRunEntryInfoVector_);
     return newFileAtEndOfRun_;
   }
-
-  /* BMM
-  void RootOutputFile::writeBranchMapper() {
-    BranchMapperID const* hash(0);
-    BranchMapper const*   desc(0);
-    
-    if (!branchMapperTree_->Branch(poolNames::branchMapperIDBranchName().c_str(), 
-					&hash, om_->basketSize(), 0))
-      throw edm::Exception(edm::errors::FatalRootError) 
-	<< "Failed to create a branch for BranchMapperIDs in the output file";
-
-    if (!branchMapperTree_->Branch(poolNames::branchMapperBranchName().c_str(), 
-					&desc, om_->basketSize(), 0))
-      throw edm::Exception(edm::errors::FatalRootError) 
-	<< "Failed to create a branch for BranchMappers in the output file";
-
-    BranchMapperRegistry& edreg = *BranchMapperRegistry::instance();
-    for (BranchMapperRegistry::const_iterator
-	   i = edreg.begin(),
-	   e = edreg.end();
-	 i != e;
-	 ++i) {
-	hash = const_cast<BranchMapperID*>(&(i->first)); // cast needed because keys are const
-	desc = &(i->second);
-	branchMapperTree_->Fill();
-      }
-  }
-  */
 
   void RootOutputFile::writeEntryDescriptions() {
     EntryDescriptionID const* hash(0);
@@ -543,8 +526,6 @@ namespace edm {
   void RootOutputFile::finishEndFile() { 
     metaDataTree_->SetEntries(-1);
     RootOutputTree::writeTTree(metaDataTree_);
-
-    // BMM RootOutputTree::writeTTree(branchMapperTree_);
 
     RootOutputTree::writeTTree(entryDescriptionTree_);
 
