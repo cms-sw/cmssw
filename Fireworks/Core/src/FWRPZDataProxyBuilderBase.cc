@@ -8,7 +8,7 @@
 //
 // Original Author:  Chris Jones
 //         Created:  Sat Jun 28 09:51:35 PDT 2008
-// $Id: FWRPZDataProxyBuilderBase.cc,v 1.2 2008/07/04 01:36:57 dmytro Exp $
+// $Id: FWRPZDataProxyBuilderBase.cc,v 1.3 2008/07/14 23:34:10 chrjones Exp $
 //
 
 // system include files
@@ -193,7 +193,7 @@ void
 FWRPZDataProxyBuilderBase::attachToRhoPhiView(boost::shared_ptr<FWRhoPhiZView> iView)
 {
    //std::cout <<"attachToRhoPhiView " << typeid(*this).name() <<std::endl;
-   if(m_item && m_item->getEvent()) {
+   if(m_item && m_item->hasEvent()) {
       if(TEveElementList* prod = getRhoPhiProduct()) {
          addRhoPhiProj( iView->importElements(prod,layer()));
       }  
@@ -210,7 +210,7 @@ FWRPZDataProxyBuilderBase::attachToRhoZView(boost::shared_ptr<FWRhoPhiZView> iVi
 {
    //std::cout <<"attachToRhoZView " << typeid(*this).name() <<std::endl;
 
-   if(m_item && m_item->getEvent()) {
+   if(m_item && m_item->hasEvent()) {
       if(TEveElementList* prod = getRhoZProduct()) {
          addRhoZProj( iView->importElements(prod,layer()));
       }  
