@@ -2,8 +2,8 @@
  *  Class:PostProcessor 
  *
  *
- *  $Date: 2008/05/27 14:12:35 $
- *  $Revision: 1.1 $
+ *  $Date: 2008/05/28 06:11:50 $
+ *  $Revision: 1.2 $
  * 
  *  \author Junghwan Goh - SungKyunKwan University
  */
@@ -141,10 +141,19 @@ void PostProcessor::computeResolution(const string& namePrefix, const string& ti
   }
 
   theDQM->setCurrentFolder(subDir_);
-  ME* sigmaME = theDQM->book1D(namePrefix+"_Sigma", titlePrefix+" Sigma", 
-                               hSrc->GetNbinsX(), hSrc->GetXaxis()->GetXmin(), hSrc->GetXaxis()->GetXmax());
+
+  const int nBin = hSrc->GetNbinsX();
+  const double xMin = hSrc->GetXaxis()->GetXmin();
+  const double xMax = hSrc->GetXaxis()->GetXmax();
+
+  ME* meanME = theDQM->book1D(namePrefix+"_Mean", titlePrefix+" Mean", nBin, xMin, xMax);
+  ME* sigmaME = theDQM->book1D(namePrefix+"_Sigma", titlePrefix+" Sigma", nBin, xMin, xMax);
+//  ME* chi2ME  = theDQM->book1D(namePrefix+"_Chi2" , titlePrefix+" #Chi^{2}", nBin, xMin, xMax); // N/A
+
   FitSlicesYTool fitTool(srcME);
+  fitTool.getFittedMeanWithError(meanME);
   fitTool.getFittedSigmaWithError(sigmaME);
+//  fitTool.getFittedChisqWithError(chi2ME); // N/A
 
 }
 
