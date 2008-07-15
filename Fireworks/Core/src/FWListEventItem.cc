@@ -8,7 +8,7 @@
 //
 // Original Author:  Chris Jones
 //         Created:  Thu Feb 28 11:13:37 PST 2008
-// $Id: FWListEventItem.cc,v 1.19 2008/07/08 20:09:42 chrjones Exp $
+// $Id: FWListEventItem.cc,v 1.20 2008/07/15 03:50:58 chrjones Exp $
 //
 
 // system include files
@@ -289,7 +289,8 @@ FWListEventItem::itemChanged(const FWEventItem* iItem)
                                               data);
          m_indexOrderedItems.push_back(model);
          orderedMap.insert(std::make_pair(doubleData, model));
-         model->SetMainColor(m_item->defaultDisplayProperties().color());
+         //model->SetMainColor(m_item->defaultDisplayProperties().color());
+         model->update(m_item->defaultDisplayProperties());
       }
       for(OrderedMap::iterator it = orderedMap.begin(), itEnd = orderedMap.end();
           it != itEnd;
