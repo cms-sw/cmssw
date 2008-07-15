@@ -25,14 +25,14 @@ class HcalCondObjectContainer
   const bool exists(DetId fId) const;
 
   // set the object/fill it in:
-  bool addValues(const Item& myItem);
+  bool addValues(const Item& myItem, bool h2mode_=false);
 
   // list of available channels:
   std::vector<DetId> getAllChannels() const;
 
 
  private:
-  void initContainer(int container);
+  void initContainer(int container, bool h2mode_ = false);
 
   std::vector<Item> HBcontainer;
   std::vector<Item> HEcontainer;
@@ -56,14 +56,17 @@ HcalCondObjectContainer<Item>::~HcalCondObjectContainer()
 }
 
 template<class Item> void
-HcalCondObjectContainer<Item>::initContainer(int container)
+HcalCondObjectContainer<Item>::initContainer(int container, bool h2mode_)
 {
   Item emptyItem;
 
   switch (container) 
     {
     case HcalGenericDetId::HcalGenBarrel: for (int i=0; i<2592; i++) HBcontainer.push_back(emptyItem); break;
-    case HcalGenericDetId::HcalGenEndcap: for (int i=0; i<2592; i++) HEcontainer.push_back(emptyItem); break;
+    case HcalGenericDetId::HcalGenEndcap: 
+      if (!h2mode_) for (int i=0; i<2592; i++) HEcontainer.push_back(emptyItem); 
+      else for (int i=0; i<3024; i++) HEcontainer.push_back(emptyItem); 
+      break;
     case HcalGenericDetId::HcalGenOuter: for (int i=0; i<2160; i++) HOcontainer.push_back(emptyItem); break;
     case HcalGenericDetId::HcalGenForward: for (int i=0; i<1728; i++) HFcontainer.push_back(emptyItem); break;
     case HcalGenericDetId::HcalGenTriggerTower: for (int i=0; i<4176; i++) HTcontainer.push_back(emptyItem); break;
@@ -175,58 +178,86 @@ HcalCondObjectContainer<Item>::exists(DetId fId) const
 }
 
 template<class Item> bool
-HcalCondObjectContainer<Item>::addValues(const Item& myItem)
+HcalCondObjectContainer<Item>::addValues(const Item& myItem, bool h2mode_)
 {
   unsigned long myRawId = myItem.rawId();
   HcalGenericDetId myId(myRawId);
-  int index = myId.hashedId();
-  if (index < 0) return false;
+  int index = myId.hashedId(h2mode_);
   bool success = false;
+  if (index < 0) success = false;
+  unsigned int index1 = abs(index); // b/c I'm fed up with compiler warnings about comparison betw. signed and unsigned int
 
   switch (myId.genericSubdet() ) {
   case HcalGenericDetId::HcalGenBarrel:
     if (!HBcontainer.size() ) initContainer(myId.genericSubdet() );
-    HBcontainer.at(index)  = myItem;
-    success = true;
+    if (index1 < HBcontainer.size())
+      {
+	HBcontainer.at(index1)  = myItem;
+	success = true;
+      }
     break;
   case HcalGenericDetId::HcalGenEndcap: 
-    if (!HEcontainer.size() ) initContainer(myId.genericSubdet() );
-    HEcontainer.at(index)  = myItem; 
-    success = true;
+    if (!HEcontainer.size() ) initContainer(myId.genericSubdet(), h2mode_ );
+    if (index1 < HEcontainer.size())
+      {
+	HEcontainer.at(index1)  = myItem; 
+	success = true;
+      }
     break;
   case HcalGenericDetId::HcalGenOuter:  
     if (!HOcontainer.size() ) initContainer(myId.genericSubdet() );
-    HOcontainer.at(index)  = myItem; 
-    success = true;
+    if (index1 < HOcontainer.size())
+      {
+	HOcontainer.at(index1)  = myItem; 
+	success = true;
+      }
     break;
   case HcalGenericDetId::HcalGenForward: 
     if (!HFcontainer.size() ) initContainer(myId.genericSubdet() );
-    HFcontainer.at(index)  = myItem;
-    success = true;
+    if (index1 < HFcontainer.size())
+      {
+	HFcontainer.at(index1)  = myItem;
+	success = true;
+      }
     break;
   case HcalGenericDetId::HcalGenTriggerTower: 
     if (!HTcontainer.size() ) initContainer(myId.genericSubdet() );
-    HTcontainer.at(index)  = myItem;
-    success = true;
+    if (index1 < HTcontainer.size())
+      {
+	HTcontainer.at(index1)  = myItem;
+	success = true;
+      }
     break;
   case HcalGenericDetId::HcalGenZDC: 
     if (!ZDCcontainer.size() ) initContainer(myId.genericSubdet() );
-    ZDCcontainer.at(index)  = myItem; 
-    success = true;
+    if (index1 < ZDCcontainer.size())
+      {
+	ZDCcontainer.at(index1)  = myItem; 
+	success = true;
+      }
     break;
   case HcalGenericDetId::HcalGenCastor: 
     if (!CASTORcontainer.size() ) initContainer(myId.genericSubdet() );
-    CASTORcontainer.at(index)  = myItem; 
-    success = true;
+    if (index1 < CASTORcontainer.size())
+      {
+	CASTORcontainer.at(index1)  = myItem; 
+	success = true;
+      }
     break;
   case HcalGenericDetId::HcalGenCalibration: 
     if (!CALIBcontainer.size() ) initContainer(myId.genericSubdet() );
-    CALIBcontainer.at(index)  = myItem;  
-    success = true;
+    if (index1 < CALIBcontainer.size())
+      {
+	CALIBcontainer.at(index1)  = myItem;  
+	success = true;
+      }
     break;
   default: break;
   }
 
+  if (!success) 
+    throw cms::Exception ("Filling of conditions failed") 
+      << " no valid filling possible for DetId " << myId;
   return success;
 }
 
