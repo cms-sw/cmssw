@@ -3,7 +3,7 @@
 
 // Various simple tools
 // F.Ratnikov, UMd
-// $Id: JetAlgoHelper.h,v 1.5 2007/07/20 18:46:37 fedor Exp $
+// $Id: JetAlgoHelper.h,v 1.6 2007/09/20 21:05:01 fedor Exp $
 
 #include<limits>
 #include <iostream>
@@ -40,6 +40,7 @@ namespace {
     if (!sorted) { // needs sorting
       std::sort (sortable.begin(), sortable.end(), so_gt);
       std::vector <T> result;
+      result.reserve(container->size());
       for (unsigned i = 0; i < container->size(); i++) {
 	result.push_back ((*container)[sortable[i].index]);
       }
