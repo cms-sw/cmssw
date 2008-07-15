@@ -8,7 +8,7 @@ import FWCore.ParameterSet.Config as cms
 TrackerDigiGeometryESModule = cms.ESProducer("TrackerDigiGeometryESModule",
     appendToDataLabel = cms.string(''),
     fromDDD = cms.bool(True),
-    applyAlignment = cms.bool(False), ## GF: to be abandoned/set to true
+    applyAlignment = cms.bool(True), # to be abondoned
 
     alignmentsLabel = cms.string('')
 )
