@@ -1,6 +1,29 @@
 #!/usr/bin/env python
 
 import sys
+import string
+
+class FileInfo:
+    '''Stores info about a given file within a run.
+    '''
+    def __init__(self,infotext=None):
+        self.fileName=None
+        self.numEvents=0
+        self.lumiBlock=0
+        self.dataset=None
+        self.goodFile=False
+        self.infotext=string.split(infotext,",")
+        if len(self.infotext)>0:
+            self.fileName=self.infotext[0]
+        if len(self.infotext)>1:
+            self.numEvents=string.atoi(self.infotext[1])
+        if len(self.infotext)>2:
+            self.lumiBlock=string.atoi(self.infotext[2])
+        if len(self.infotext)>3:
+            self.dataset=self.infotext[3]
+            self.goodFile=True
+        return
+        
 
 class DBSRun:
     '''
@@ -8,20 +31,25 @@ class DBSRun:
     (Run number, files in run, whether DQM has been performed on run.)
     '''
     
-    def __init__(self,filelist=None):
+    def __init__(self,filelist=None,lumiblocks=None,debug=False):
         
-        '''
-        Class stores all files associated with a given run number, as
-        given by DBS.  Also stores local DQM status, checking whether
-        DQM has run on the set of files, and whether it has successfully
-        completed.
-        '''
+        #'''
+        #Class stores all files associated with a given run number, as
+        #given by DBS.  Also stores local DQM status, checking whether
+        #DQM has run on the set of files, and whether it has successfully
+        #completed.
+        #'''
+        self.debug=debug
         
         self.runnum=-1
         self.dataset=None
         self.files=[] # Stores files associated with run
         if (filelist<>None):
             self.files=filelist
+
+        self.fileInfo=[]
+
+        self.totalEvents=0
         self.ignoreRun=0 # if true, DQM won't be performed on run
         self.startedDQM=0 # set to true once DQM started 
         self.finishedDQM=0 # set to true once DQM finished (DQM directory for run exists)
@@ -32,9 +60,36 @@ class DBSRun:
         self.numLumiBlocks=0
         self.lumiBlockIncrement=0
         self.currentLumiBlock=1
-
+        
         return
 
+    def AddFileInfo(self,FileInfo):
+        ''' Adds run info from File to lists.'''
+        if (FileInfo.goodFile==True):
+            self.fileInfo.append(FileInfo)
+        self.files.append(FileInfo.fileName)
+        #self.UpdateRunInfo()
+        return
+
+    def UpdateRunInfo(self):
+        ''' Finds largest luminosity block and updates total number of events.'''
+        tempevents=0
+        
+        for i in self.fileInfo:
+            if (i.fileName not in self.files):
+                self.files.append(i.fileName)
+            if (self.dataset==None):
+                self.dataset=i.dataset
+            elif (self.dataset<>i.dataset):
+                print "<pyDBSRunClass:  UpdateRunInfo WARNING>:  datasets do not agree!"
+                print "\tRun dataset = ",self.dataset
+                print "\tFile dataset = ",i.dataset
+            if i.lumiBlock>self.numLumiBlocks:
+                self.numLumiBlocks=i.lumiBlock
+            tempevents=tempevents+i.numEvents
+        self.totalEvents=tempevents
+        return
+    
 
     def Print(self,screenoutput=False):
         '''
@@ -43,13 +98,15 @@ class DBSRun:
         mylen=0
         if (self.files<>None):
             mylen=len(self.files)
-        x= "%10s     %55s     %10s%12s%15s%15s\n"%(self.runnum,
-                                                       self.dataset,
-                                                       mylen,
-                                                       self.ignoreRun,
-                                                       self.startedDQM,
-                                                       self.finishedDQM
-                                                       #self.previouslyFinishedDQM
+        x= "%10s     %35s     %10s     %14s%12s%15s%15s     %20s\n"%(self.runnum,
+                                                                self.dataset,
+                                                                mylen,
+                                                                self.totalEvents,
+                                                                self.ignoreRun,
+                                                                self.startedDQM,
+                                                                self.finishedDQM,
+                                                                #self.previouslyFinishedDQM
+                                                            self.currentLumiBlock
                                                        )
         if screenoutput:
             print "%10s     %55s     %10s%12s%15s%15s\n"%("Run","Dataset",
@@ -110,6 +167,7 @@ class DBSRun:
             print "\t\t# lumi blocks in file: %s"%self.numLumiBlocks
             print "\t\tlumi block increment: %s"%self.lumiBlockIncrement 
             print "\t\tcurrent lumi block: %s"%self.currentLumiBlock
+
 
         return temp
     
