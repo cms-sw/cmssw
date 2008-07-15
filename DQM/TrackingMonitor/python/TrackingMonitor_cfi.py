@@ -11,7 +11,7 @@ TrackMon = cms.EDFilter("TrackingMonitor",
     MeasurementState = cms.string('default'),
     etaErrMax = cms.double(0.5),
     TrackPxBin = cms.int32(100),
-    RecHitBin = cms.int32(22),
+    RecHitBin = cms.int32(50),
     TrackPzMin = cms.double(-50.0),
     Chi2Max = cms.double(500.0),
     Chi2Bin = cms.int32(100),
@@ -34,10 +34,10 @@ TrackMon = cms.EDFilter("TrackingMonitor",
     ThetaMin = cms.double(0.0),
     PhiMin = cms.double(-3.2),
     TrackPtMax = cms.double(30.0),
-    RecHitMax = cms.double(25.0),
+    RecHitMax = cms.double(150.0),
     TrackPyBin = cms.int32(100),
     ptErrMin = cms.double(0.0),
-    TkSizeMin = cms.double(0.0),
+    TkSizeMin = cms.double(-0.5),
     TrackPxMin = cms.double(-50.0),
     pyErrMax = cms.double(1000.0),
     ThetaMax = cms.double(3.2),
@@ -65,6 +65,5 @@ TrackMon = cms.EDFilter("TrackingMonitor",
     TrackPtMin = cms.double(-0.5),
     ptErrBin = cms.int32(500)
 )
-
 
 

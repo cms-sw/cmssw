@@ -1,8 +1,8 @@
 /*
  *  See header file for a description of this class.
  *
- *  $Date: 2008/05/12 14:19:04 $
- *  $Revision: 1.7 $
+ *  $Date: 2008/06/09 13:47:26 $
+ *  $Revision: 1.8 $
  *  \author Suchandra Dutta , Giorgia Mila
  */
 
@@ -61,7 +61,7 @@ void TrackingMonitor::beginJob(edm::EventSetup const& iSetup) {
 
 
   histname = "NumberOfTracks_";
-  NumberOfTracks = dqmStore_->book1D(histname+AlgoName, histname+AlgoName, TKNoBin, TKNoMin, TKNoMax);
+  NumberOfTracks = dqmStore_->book1D(histname+AlgoName, histname+AlgoName, TKNoBin, TKNoMin, TKNoMax-0.5);
 
   histname = "NumberOfRecHitsPerTrack_";
   NumberOfRecHitsPerTrack = dqmStore_->book1D(histname+AlgoName, histname+AlgoName, TKHitBin, TKHitMin, TKHitMax);
