@@ -10,7 +10,7 @@ herwigDefaultsBlock = cms.PSet(
 
 	cmsDefaults = cms.vstring(
 		'+basicSetup',
-		'+pdfCTEQ6l',
+		'+pdfCTEQ6L1',
 		'+cm14TeV',
 		'+disableCtau10mmDecays',
 	),
@@ -24,25 +24,24 @@ herwigDefaultsBlock = cms.PSet(
 		'cd /',
 	),
 
-	pdfCTEQ5l1 = cms.vstring(
+	pdfCTEQ5L = cms.vstring(
 		'mkdir /LHAPDF',
 		'cd /LHAPDF',
-		'create ThePEG::LHAPDF CTEQ5l',
-		'set CTEQ5l:PDFName cteq5l.LHgrid',
-		'set CTEQ5l:RemnantHandler /Herwig/Partons/HadronRemnants',
-		'cp CTEQ5l cmsPDFSet',
+		'create ThePEG::LHAPDF CTEQ5L',
+		'set CTEQ5L:PDFName cteq5l.LHgrid',
+		'set CTEQ5L:RemnantHandler /Herwig/Partons/HadronRemnants',
+		'cp CTEQ5L cmsPDFSet',
 		'set /Herwig/Particles/p+:PDF cmsPDFSet',
 		'set /Herwig/Particles/pbar-:PDF cmsPDFSet',
 		'cd /',
 	),
-
-	pdfCTEQ6l = cms.vstring(
+	pdfCTEQ6L1 = cms.vstring(
 		'mkdir /LHAPDF',
 		'cd /LHAPDF',
-		'create ThePEG::LHAPDF CTEQ6l',
-		'set CTEQ6l:PDFName cteq6l.LHpdf',
-		'set CTEQ6l:RemnantHandler /Herwig/Partons/HadronRemnants',
-		'cp CTEQ6l cmsPDFSet',
+		'create ThePEG::LHAPDF CTEQ6L1',
+		'set CTEQ6L1:PDFName cteq6ll.LHpdf',
+		'set CTEQ6L1:RemnantHandler /Herwig/Partons/HadronRemnants',
+		'cp CTEQ6L1 cmsPDFSet',
 		'set /Herwig/Particles/p+:PDF cmsPDFSet',
 		'set /Herwig/Particles/pbar-:PDF cmsPDFSet',
 		'cd /',
@@ -52,7 +51,6 @@ herwigDefaultsBlock = cms.PSet(
 		'set /Herwig/Generators/LHCGenerator:EventHandler:LuminosityFunction:Energy 10000.0',
 		'set /Herwig/Shower/Evolver:IntrinsicPtGaussian 2.1*GeV',
 	),
-
 	cm14TeV = cms.vstring(
 		'set /Herwig/Generators/LHCGenerator:EventHandler:LuminosityFunction:Energy 14000.0',
 		'set /Herwig/Shower/Evolver:IntrinsicPtGaussian 2.2*GeV',
