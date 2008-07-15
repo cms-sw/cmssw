@@ -1,7 +1,7 @@
 #include <string>
 
 namespace cmsshow {
-  extern const std::string sHome;
+  extern const std::string sGotoFirstEvent;
   extern const std::string sAddRhoPhi;
   extern const std::string sAddRhoZ;
   extern const std::string sAddLego;
