@@ -1,7 +1,7 @@
 import FWCore.ParameterSet.Config as cms
 
 XMLIdealGeometryESSource = cms.ESSource("XMLIdealGeometryESSource",
-    # Geometry with one EE (Forward) which also has a preshower
+    # Geometry with full EE (Forward) and no preshower
     geomXMLFiles = cms.vstring('Geometry/CMSCommonData/data/materials.xml', 
         'Geometry/CMSCommonData/data/rotations.xml', 
         'Geometry/CMSCommonData/data/normal/cmsextent.xml', 
@@ -204,8 +204,8 @@ XMLIdealGeometryESSource = cms.ESSource("XMLIdealGeometryESSource",
         'Geometry/EcalCommonData/data/eehier.xml', 
         'Geometry/EcalCommonData/data/eealgo.xml', 
         'Geometry/EcalCommonData/data/escon.xml', 
-        'Geometry/EcalCommonData/data/esalgo.xml', 
         'Geometry/EcalCommonData/data/eeF.xml', 
+        'Geometry/EcalCommonData/data/eeB.xml', 
         'Geometry/HcalCommonData/data/hcalrotations.xml', 
         'Geometry/HcalCommonData/data/hcalalgo.xml', 
         'Geometry/HcalCommonData/data/hcalbarrelalgo.xml', 
@@ -234,7 +234,8 @@ XMLIdealGeometryESSource = cms.ESSource("XMLIdealGeometryESSource",
         'Geometry/TrackerCommonData/data/trackerStructureTopology.xml', 
         'Geometry/TrackerSimData/data/trackersens.xml', 
         'Geometry/TrackerRecoData/data/trackerRecoMaterial.xml', 
-        'Geometry/EcalSimData/data/ecalsens.xml', 
+        'Geometry/EcalSimData/data/ebsens.xml', 
+        'Geometry/EcalSimData/data/eesens.xml', 
         'Geometry/HcalCommonData/data/hcalsens.xml', 
         'Geometry/HcalSimData/data/CaloUtil.xml', 
         'Geometry/MuonSimData/data/muonSens.xml', 
@@ -244,12 +245,13 @@ XMLIdealGeometryESSource = cms.ESSource("XMLIdealGeometryESSource",
         'Geometry/RPCGeometryBuilder/data/RPCSpecs.xml', 
         'Geometry/ForwardCommonData/data/brmsens.xml', 
         'Geometry/HcalSimData/data/HcalProdCuts.xml', 
-        'Geometry/EcalSimData/data/EcalProdCuts.xml', 
+        'Geometry/EcalSimData/data/EBProdCuts.xml', 
         'Geometry/TrackerSimData/data/trackerProdCuts.xml', 
         'Geometry/TrackerSimData/data/trackerProdCutsBEAM.xml', 
         'Geometry/MuonSimData/data/muonProdCuts.xml', 
         'Geometry/CMSCommonData/data/FieldParameters.xml'),
     rootNodeName = cms.string('cms:OCMS')
 )
+
 
 
