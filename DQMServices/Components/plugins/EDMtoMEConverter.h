@@ -6,8 +6,8 @@
  *  Class to take dqm monitor elements and convert into a
  *  ROOT dataformat stored in Run tree of edm file
  *
- *  $Date: 2008/03/26 22:11:30 $
- *  $Revision: 1.7 $
+ *  $Date: 2008/03/29 19:37:13 $
+ *  $Revision: 1.8 $
  *  \author M. Strang SUNY-Buffalo
  */
 
@@ -16,6 +16,7 @@
 #include "FWCore/Framework/interface/Frameworkfwd.h"
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/Run.h"
+#include "FWCore/Framework/interface/LuminosityBlock.h"
 #include "FWCore/Framework/interface/FileBlock.h"
 #include "FWCore/Framework/interface/EventSetup.h"
 #include "DataFormats/Common/interface/Handle.h"
@@ -60,7 +61,11 @@ class EDMtoMEConverter : public edm::EDAnalyzer
   virtual void analyze(const edm::Event&, const edm::EventSetup&);
   virtual void beginRun(const edm::Run&, const edm::EventSetup&);
   virtual void endRun(const edm::Run&, const edm::EventSetup&);
+  virtual void beginLuminosityBlock(const edm::LuminosityBlock&, const edm::EventSetup&);
+  virtual void endLuminosityBlock(const edm::LuminosityBlock&, const edm::EventSetup&);
   virtual void respondToOpenInputFile(const edm::FileBlock&);
+
+  virtual void convert(const edm::Run&);
 
   typedef std::vector<uint32_t> TagList;
 
@@ -69,6 +74,9 @@ class EDMtoMEConverter : public edm::EDAnalyzer
   std::string name;
   int verbosity;
   int frequency;
+
+  bool convertOnEndLumi;
+  bool convertOnEndRun;
 
   DQMStore *dbe;
   std::vector<MonitorElement*> me1, me2, me3, me4, me5, me6, me7, me8;

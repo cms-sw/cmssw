@@ -141,7 +141,7 @@ DQMStore::DQMStore(const edm::ParameterSet &pset)
   if (verbose_ > 0)
     std::cout << "DQMStore: verbosity set to " << verbose_ << std::endl;
 
-  collateHistograms_ = pset.getUntrackedParameter<bool>("collateHistograms", true);
+  collateHistograms_ = pset.getUntrackedParameter<bool>("collateHistograms", false);
   if (! collateHistograms_)
     std::cout << "DQMStore: disabling histogram collation\n";
 
@@ -326,11 +326,16 @@ DQMStore::book(const std::string &dir, const std::string &name,
       return me;
     }
     else
-    {
-      delete h;
-      throw cms::Exception("DQMStore")
-	<< context << ": monitor element '"
-	<< path << "' already exists";
+    {    
+//      delete h;
+//      throw cms::Exception("DQMStore")
+//	<< context << ": monitor element '"
+//	<< path << "' already exists";
+      if (verbose_)
+        std::cout << "DQMStore: "
+                  << context << ": monitor element '"
+                  << path << "' already exists" << std::endl;
+      me->Reset();
     }
   }
 
@@ -344,10 +349,17 @@ DQMStore::book(const std::string &dir, const std::string &name,
 	       std::string &path, const char *context)
 {
   // Check if the request monitor element already exists.
-  if (findObject(dir, name, path))
-    throw cms::Exception("DQMStore")
-      << context << ": monitor element '"
-      << path << "' already exists";
+//  if (findObject(dir, name, path))
+//    throw cms::Exception("DQMStore")
+//      << context << ": monitor element '"
+//      << path << "' already exists";
+  if (MonitorElement *me = findObject(dir, name, path)) {
+      if (verbose_)
+        std::cout << "DQMStore: "
+                  << context << ": monitor element '"
+                  << path << "' already exists" << std::endl;
+      me->Reset();
+  }
 
   // Create it and return for initialisation.
   return initialise(&data_[path], path);

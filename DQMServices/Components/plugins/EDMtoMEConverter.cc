@@ -18,6 +18,9 @@ EDMtoMEConverter::EDMtoMEConverter(const edm::ParameterSet & iPSet) :
   name = iPSet.getUntrackedParameter<std::string>("Name");
   verbosity = iPSet.getUntrackedParameter<int>("Verbosity");
   frequency = iPSet.getUntrackedParameter<int>("Frequency");
+
+  convertOnEndLumi = iPSet.getUntrackedParameter<bool>("convertOnEndLumi",false);
+  convertOnEndRun = iPSet.getUntrackedParameter<bool>("convertOnEndRun",false);
   
   // reset the release tag
   releaseTag = false;
@@ -92,14 +95,6 @@ void EDMtoMEConverter::beginRun(const edm::Run& iRun,
 {
   std::string MsgLoggerCat = "EDMtoMEConverter_beginRun";
   
-  return;
-}
-
-void EDMtoMEConverter::endRun(const edm::Run& iRun, 
-			      const edm::EventSetup& iSetup)
-{
-  std::string MsgLoggerCat = "EDMtoMEConverter_endRun";
-    
   int nrun = iRun.run();
   
   // keep track of number of unique runs processed
@@ -115,12 +110,46 @@ void EDMtoMEConverter::endRun(const edm::Run& iRun,
     }
   }
 
+}
+
+void EDMtoMEConverter::endRun(const edm::Run& iRun, 
+			      const edm::EventSetup& iSetup)
+{
+  if (convertOnEndRun) convert(iRun);
+    
+  return;
+}
+
+void EDMtoMEConverter::beginLuminosityBlock(const edm::LuminosityBlock& iLumi,
+					    const edm::EventSetup& iSetup)
+{
+  return;
+}
+
+void EDMtoMEConverter::endLuminosityBlock(const edm::LuminosityBlock& iLumi,
+					  const edm::EventSetup& iSetup)
+{
+  const edm::Run& iRun = iLumi.getRun();
+  if (convertOnEndLumi) convert(iRun);
+
+  return;
+}
+
+void EDMtoMEConverter::analyze(const edm::Event& iEvent, 
+			       const edm::EventSetup& iSetup)
+{
+  return;
+}
+
+void EDMtoMEConverter::convert(const edm::Run& iRun)
+{
+  std::string MsgLoggerCat = "EDMtoMEConverter_convert";
+
   if (verbosity >= 0)
     edm::LogInfo (MsgLoggerCat) << "\nRestoring MonitorElements.";
-  
+ 
   for (unsigned int ii = 0; ii < classtypes.size(); ++ii) {    
     if (classtypes[ii] == "TH1F") {
-      
       edm::Handle<MEtoEDM<TH1F> > metoedm;
       iRun.getByType(metoedm);
       
@@ -189,7 +218,7 @@ void EDMtoMEConverter::endRun(const edm::Run& iRun,
       if (!metoedm.isValid()) {
       	//edm::LogWarning(MsgLoggerCat)
       	//  << "MEtoEDM<TH2F> doesn't exist in run";
-      	continue;
+             	continue;
       }
       
       std::vector<MEtoEDM<TH2F>::MEtoEDMObject> metoedmobject = 
@@ -626,12 +655,6 @@ void EDMtoMEConverter::endRun(const edm::Run& iRun,
     }
   }
 
-  return;
-}
-
-void EDMtoMEConverter::analyze(const edm::Event& iEvent, 
-			       const edm::EventSetup& iSetup)
-{
   return;
 }
 

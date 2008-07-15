@@ -1,11 +1,11 @@
-# The following comments couldn't be translated into the new config version:
+import FWCore.ParameterSet.Config as cms
 
 # needed backend
-
-import FWCore.ParameterSet.Config as cms
+DQMStore = cms.Service("DQMStore",
+    referenceFileName = cms.untracked.string(''),
+    verbose = cms.untracked.int32(0)
+)
 
 # actual producer
 from DQMServices.Components.MEtoEDMConverter_cfi import *
-DQMStore = cms.Service("DQMStore")
-
 
