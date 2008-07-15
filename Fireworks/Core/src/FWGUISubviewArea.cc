@@ -8,7 +8,7 @@
 //
 // Original Author:  Chris Jones
 //         Created:  Fri Feb 15 14:13:33 EST 2008
-// $Id: FWGUISubviewArea.cc,v 1.6 2008/07/07 00:17:31 chrjones Exp $
+// $Id: FWGUISubviewArea.cc,v 1.7 2008/07/13 15:36:45 chrjones Exp $
 //
 
 // system include files
@@ -161,7 +161,7 @@ FWGUISubviewArea::swapIcon()
          throw std::runtime_error("CMSSW_BASE environment variable not set");
       }
       TString coreIcondir(Form("%s/src/Fireworks/Core/icons/",gSystem->Getenv("CMSSW_BASE")));
-      s_icon = gClient->GetPicture(coreIcondir+"swapToMainView.png");
+      s_icon = gClient->GetPicture(coreIcondir+"swapToMainView.gif");
    }
    return s_icon;
 }
@@ -176,7 +176,7 @@ FWGUISubviewArea::closeIcon()
          throw std::runtime_error("CMSSW_BASE environment variable not set");
       }
       TString coreIcondir(Form("%s/src/Fireworks/Core/icons/",gSystem->Getenv("CMSSW_BASE")));
-      s_icon = gClient->GetPicture(coreIcondir+"closeView.png");
+      s_icon = gClient->GetPicture(coreIcondir+"closeView.gif");
    }
    return s_icon;
 }
@@ -191,7 +191,7 @@ FWGUISubviewArea::undockIcon()
          throw std::runtime_error("CMSSW_BASE environment variable not set");
       }
       TString coreIcondir(Form("%s/src/Fireworks/Core/icons/",gSystem->Getenv("CMSSW_BASE")));
-      s_icon = gClient->GetPicture(coreIcondir+"undockView.png");
+      s_icon = gClient->GetPicture(coreIcondir+"undockView.gif");
    }
    return s_icon;
 }
