@@ -74,7 +74,7 @@ cscTriggerPrimitiveDigis = cms.EDProducer("CSCTriggerPrimitivesProducer",
         clctFifoTbins   = cms.uint32(12),
         clctFifoPretrig = cms.uint32(7),
         # TMB07 parameters
-        clctPidThresh   = cms.uint32(2)
+        clctPidThresh   = cms.uint32(2),
         clctSepSrc      = cms.uint32(1),
         clctSepVme      = cms.uint32(10),
         # Debug
