@@ -14,21 +14,28 @@ reco::TrackRef muon::tevOptimized( const reco::TrackRef& combinedTrack,
                                    const reco::TrackToTrackMap tevMap3 ) {
 
   std::vector<reco::TrackRef> refit(4);
-  
+  bool ok[4];
+  ok[0] = true; // Assume tracker track OK.
+
   reco::TrackToTrackMap::const_iterator gmrTrack = tevMap1.find(combinedTrack);
   reco::TrackToTrackMap::const_iterator fmsTrack = tevMap2.find(combinedTrack);
   reco::TrackToTrackMap::const_iterator pmrTrack = tevMap3.find(combinedTrack);
 
+  ok[1] = gmrTrack != tevMap1.end();
+  ok[2] = fmsTrack != tevMap2.end();
+  ok[3] = pmrTrack != tevMap3.end();
+
   double prob[4];
   int chosen=3;
 
-  refit[0] = trackerTrack;
-  refit[1] = (*gmrTrack).val;
-  refit[2] = (*fmsTrack).val;
-  refit[3] = (*pmrTrack).val;
+  if (ok[0]) refit[0] = trackerTrack;
+  if (ok[1]) refit[1] = (*gmrTrack).val;
+  if (ok[2]) refit[2] = (*fmsTrack).val;
+  if (ok[3]) refit[3] = (*pmrTrack).val;
   
   for (unsigned int i=0; i<4; i++)
-    prob[i] = (refit[i]->recHitsSize()) ? trackProbability(refit[i]) : 0.0; 
+    prob[i] = (ok[i] && refit[i]->recHitsSize())
+      ? trackProbability(refit[i]) : 0.0; 
 
 //  std::cout << "Probabilities: " << prob[0] << " " << prob[1] << " " << prob[2] << " " << prob[3] << std::endl;
 
@@ -55,20 +62,27 @@ reco::TrackRef muon::tevOptimizedOld( const reco::TrackRef& combinedTrack,
 
   std::vector<reco::TrackRef> refit(4);
   reco::TrackRef result;
+  bool ok[4];
+  ok[0] = true; // Assume tracker track OK.
   
   reco::TrackToTrackMap::const_iterator gmrTrack = tevMap1.find(combinedTrack);
   reco::TrackToTrackMap::const_iterator fmsTrack = tevMap2.find(combinedTrack);
   reco::TrackToTrackMap::const_iterator pmrTrack = tevMap3.find(combinedTrack);
 
+  ok[1] = gmrTrack != tevMap1.end();
+  ok[2] = fmsTrack != tevMap2.end();
+  ok[3] = pmrTrack != tevMap3.end();
+
   double prob[4];
 
-  refit[0] = trackerTrack;
-  refit[1] = (*gmrTrack).val;
-  refit[2] = (*fmsTrack).val;
-  refit[3] = (*pmrTrack).val;
+  if (ok[0]) refit[0] = trackerTrack;
+  if (ok[1]) refit[1] = (*gmrTrack).val;
+  if (ok[2]) refit[2] = (*fmsTrack).val;
+  if (ok[3]) refit[3] = (*pmrTrack).val;
   
   for (unsigned int i=0; i<4; i++)
-    prob[i] = (refit[i]->recHitsSize()) ? trackProbability(refit[i]) : 0.0; 
+    prob[i] = (ok[i] && refit[i]->recHitsSize())
+      ? trackProbability(refit[i]) : 0.0; 
 
 //  std::cout << "Probabilities: " << prob[0] << " " << prob[1] << " " << prob[2] << " " << prob[3] << std::endl;
 
