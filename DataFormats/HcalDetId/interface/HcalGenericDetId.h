@@ -30,7 +30,7 @@ class HcalGenericDetId : public DetId {
 
   // delivers hashed id for this cell
   // hashed id's are determined separately for each subdetector !
-  int hashedId(bool h2mode_=false) const;
+  int hashedId(bool h2mode_ = false) const;
 };
 
 std::ostream& operator<<(std::ostream&,const HcalGenericDetId& id);

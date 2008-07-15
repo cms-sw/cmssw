@@ -65,7 +65,7 @@ HcalCondObjectContainer<Item>::initContainer(int container, bool h2mode_)
     case HcalGenericDetId::HcalGenBarrel: for (int i=0; i<2592; i++) HBcontainer.push_back(emptyItem); break;
     case HcalGenericDetId::HcalGenEndcap: 
       if (!h2mode_) for (int i=0; i<2592; i++) HEcontainer.push_back(emptyItem); 
-      else for (int i=0; i<3024; i++) HEcontainer.push_back(emptyItem); 
+      else for (int i=0; i<8064; i++) HEcontainer.push_back(emptyItem); 
       break;
     case HcalGenericDetId::HcalGenOuter: for (int i=0; i<2160; i++) HOcontainer.push_back(emptyItem); break;
     case HcalGenericDetId::HcalGenForward: for (int i=0; i<1728; i++) HFcontainer.push_back(emptyItem); break;

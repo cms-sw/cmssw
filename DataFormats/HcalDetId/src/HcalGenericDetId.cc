@@ -93,7 +93,7 @@ int HcalGenericDetId::hashedId(bool h2mode_) const {
 
   int HBhalf = 1296;
   int HEhalf = 1296;
-  if (h2mode_) HEhalf = 1512;
+  if (h2mode_) HEhalf = 4032;
   int HOhalf = 1080;
   int HFhalf = 864;
   int HThalf = 2088;
@@ -138,12 +138,15 @@ int HcalGenericDetId::hashedId(bool h2mode_) const {
 	}
       else
 	{
-	  if (ietaAbs == 16)                   index = (iphi - 1)*11 + (iphi/2)*20 + (ietaAbs - 16);
-	  if (ietaAbs == 17)                   index = (iphi - 1)*11 + (iphi/2)*20 + 1 + (ietaAbs - 17) + (depth - 1);
-	  if (ietaAbs >= 18 && ietaAbs <= 20)  index = (iphi - 1)*11 + (iphi/2)*20 + 5  + 2*(ietaAbs-18) + (depth - 1);
-	  if (ietaAbs >= 21 && ietaAbs <= 26)  index = (iphi - 1)*11 + (iphi/2)*20 + 11 + 2*(ietaAbs-21) + (depth - 1);
-	  if (ietaAbs >= 27 && ietaAbs <= 28)  index = (iphi - 1)*11 + (iphi/2)*20 + 23 + 3*(ietaAbs-27) + (depth - 1);
-	  if (ietaAbs == 29)                   index = (iphi - 1)*11 + (iphi/2)*20 + 29 + 2*(ietaAbs-29) + (depth - 1);
+	  // make as general as possible, don't care about tight packing for the moment
+	  index = (iphi-1)*4*14 + (ietaAbs - 16)*4 + (depth - 1);
+
+//	  if (ietaAbs == 16)                   index = (iphi - 1)*11 + (iphi/2)*20 + (ietaAbs - 16);
+//	  if (ietaAbs == 17)                   index = (iphi - 1)*11 + (iphi/2)*20 + 1 + (ietaAbs - 17) + (depth - 1);
+//	  if (ietaAbs >= 18 && ietaAbs <= 20)  index = (iphi - 1)*11 + (iphi/2)*20 + 5  + 2*(ietaAbs-18) + (depth - 1);
+//	  if (ietaAbs >= 21 && ietaAbs <= 26)  index = (iphi - 1)*11 + (iphi/2)*20 + 11 + 2*(ietaAbs-21) + (depth - 1);
+//	  if (ietaAbs >= 27 && ietaAbs <= 28)  index = (iphi - 1)*11 + (iphi/2)*20 + 23 + 3*(ietaAbs-27) + (depth - 1);
+//	  if (ietaAbs == 29)                   index = (iphi - 1)*11 + (iphi/2)*20 + 29 + 2*(ietaAbs-29) + (depth - 1);
 	}
       if (zside == -1) index += HEhalf;
 
