@@ -8,7 +8,7 @@
 //
 // Original Author:  Chris Jones
 //         Created:  Thu May 29 20:58:23 CDT 2008
-// $Id: CmsShowMainFrame.cc,v 1.8 2008/07/11 00:22:08 chrjones Exp $
+// $Id: CmsShowMainFrame.cc,v 1.9 2008/07/14 14:06:44 chrjones Exp $
 //
 
 // system include files
@@ -167,12 +167,14 @@ TGMainFrame(p, w, h)
    playEventsBack->createMenuEntry(viewMenu);
    playEventsBack->createShortcut(kKey_Left, "CTRL+SHIFT");
    pause->createMenuEntry(viewMenu);
-   viewMenu->AddSeparator();
+
+   TGPopupMenu* windowMenu = new TGPopupMenu(gClient->GetRoot());
+   menuBar->AddPopup("Window", windowMenu, new TGLayoutHints(kLHintsTop | kLHintsLeft, 0, 4, 0, 0));
    
-   showObjInsp->createMenuEntry(viewMenu);
+   showObjInsp->createMenuEntry(windowMenu);
    showObjInsp->createShortcut(kKey_I, "CTRL");
-   showEventDisplayInsp->createMenuEntry(viewMenu);
-   showMainViewCtl->createMenuEntry(viewMenu);
+   showEventDisplayInsp->createMenuEntry(windowMenu);
+   showMainViewCtl->createMenuEntry(windowMenu);
    
    TGPopupMenu *helpMenu = new TGPopupMenu(gClient->GetRoot());
    menuBar->AddPopup("Help", helpMenu, new TGLayoutHints(kLHintsTop | kLHintsLeft, 0, 4, 0, 0));
