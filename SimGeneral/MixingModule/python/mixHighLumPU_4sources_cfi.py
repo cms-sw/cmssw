@@ -22,7 +22,7 @@ mix = cms.EDFilter("MixingModule",
     input = cms.SecSource("PoolSource",
         nbPileupEvents = cms.PSet(
             sigmaInel = cms.double(80.0),
-            Lumi = cms.double(2.8)
+            Lumi = cms.double(10.)
         ),
         seed = cms.int32(1234567),
         type = cms.string('poisson'),

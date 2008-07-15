@@ -16,13 +16,13 @@ mix = cms.EDFilter("MixingModule",
     maxBunch = cms.int32(3),
     minBunch = cms.int32(-5), ## in units of 25 nsec
 
-    bunchspace = cms.int32(25), ## nsec
+    bunchspace = cms.int32(75), ## nsec
 
     playback = cms.untracked.bool(False),
     input = cms.SecSource("PoolSource",
         nbPileupEvents = cms.PSet(
             sigmaInel = cms.double(80.0),
-            Lumi = cms.double(2.8)
+            Lumi = cms.double(0.5)
         ),
         seed = cms.int32(1234567),
         type = cms.string('poisson'),
