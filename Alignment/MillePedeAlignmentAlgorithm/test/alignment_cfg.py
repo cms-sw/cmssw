@@ -1,4 +1,4 @@
-# last update on $Date: 2008/06/15 07:53:41 $ by $Author: flucke $
+# last update on $Date: 2008/07/14 18:20:43 $ by $Author: flucke $
 
 import FWCore.ParameterSet.Config as cms
 
@@ -52,6 +52,12 @@ process.MessageLogger = cms.Service("MessageLogger",
 
 # initialize magnetic field
 process.load("Configuration.StandardSequences.MagneticField_cff")
+# 0 T field, untested:
+#process.load("MagneticField.Engine.uniformMagneticField_cfi")
+# Are these prefers still needed?
+#process.es_prefer_magfield = cms.ESPrefer("XMLIdealGeometryESSource", "magfield")
+#process.es_prefer_uniform = cms.ESPrefer("UniformMagneticFieldESProducer")
+
 
 # ideal geometry and interface
 process.load("Geometry.CMSCommonData.cmsIdealGeometryXML_cfi")
@@ -59,13 +65,27 @@ process.load("Geometry.TrackerNumberingBuilder.trackerNumberingGeometry_cfi")
 # for Muon: process.load("Geometry.MuonNumbering.muonNumberingInitialization_cfi")
 
 process.load("Configuration.StandardSequences.FrontierConditions_GlobalTag_cff")
-# process.GlobalTag.globaltag = 'IDEAL_V1::All'
+process.GlobalTag.globaltag = 'IDEAL_V1::All'  # take your favourite
+#    # if alignment constants not from global tag, add this
+#from CondCore.DBCommon.CondDBSetup_cfi import *
+#process.trackerAlignment = cms.ESSource("PoolDBESSource",CondDBSetup,
+#                                        connect = cms.string("frontier://FrontierProd/CMS_COND_21X_ALIGNMENT"),
+#                                        timetype = cms.string("runnumber"),
+#                                        toGet = cms.VPSet(cms.PSet(record = cms.string("TrackerAlignmentRcd"),
+#                                                                   tag = cms.string("TrackerIdealGeometry210_mc")
+#                                                                   ),
+#                                                          cms.PSet(record = cms.string("TrackerAlignmentErrorRcd"),
+#                                                                   tag = cms.string("TrackerIdealGeometryErrors210_mc")
+#                                                                   )
+#                                                          )
+#                                        )
+#process.es_prefer_trackerAlignment = cms.ESPrefer("PoolDBESSource", "trackerAlignment")
 
 process.load("RecoVertex.BeamSpotProducer.BeamSpot_cfi")
 
 # track selection for alignment
 process.load("Alignment.CommonAlignmentProducer.AlignmentTrackSelector_cfi")
-process.AlignmentTrackSelector.src = 'generalTracks' ## ALCARECOTkAlMinBias #cosmictrackfinderP5
+process.AlignmentTrackSelector.src = 'generalTracks' ## ALCARECOTkAlMinBias # adjust to input file
 process.AlignmentTrackSelector.ptMin = 2.
 process.AlignmentTrackSelector.etaMin = -5.
 process.AlignmentTrackSelector.etaMax = 5.
@@ -73,6 +93,13 @@ process.AlignmentTrackSelector.nHitMin = 9
 process.AlignmentTrackSelector.chi2nMax = 100.
 process.AlignmentTrackSelector.applyNHighestPt = True
 process.AlignmentTrackSelector.nHighestPt = 2
+# some further possibilities
+#process.AlignmentTrackSelector.applyChargeCheck = True
+#process.AlignmentTrackSelector.minHitChargeStrip = 50.
+# needs RECO files:
+#process.AlignmentTrackSelector.applyIsolationCut = True 
+#process.AlignmentTrackSelector.minHitIsolation = 0.8
+
 
 # refitting
 process.load("RecoTracker.TrackProducer.RefitterWithMaterial_cff")
@@ -80,6 +107,25 @@ process.TrackRefitter.src = 'AlignmentTrackSelector'
 process.TrackRefitter.TrajectoryInEvent = True
 # beam halo propagation needs larger phi changes going from one TEC to another
 #process.MaterialPropagator.MaxDPhi = 1000.
+# the following for refitting with analytical propagator (maybe for CRUZET?)
+#process.load("TrackingTools.KalmanUpdators.KFUpdatorESProducer_cfi")
+#process.load("TrackingTools.KalmanUpdators.Chi2MeasurementEstimatorESProducer_cfi")
+#process.load("TrackingTools.TrackFitters.KFTrajectoryFitterESProducer_cfi")
+#process.load("TrackingTools.TrackFitters.KFTrajectorySmootherESProducer_cfi")
+#process.load("TrackingTools.TrackFitters.KFFittingSmootherESProducer_cfi")
+#process.load("TrackingTools.GeomPropagators.AnalyticalPropagator_cfi")
+#process.load("TrackingTools.KalmanUpdators.Chi2MeasurementEstimatorESProducer_cfi")
+#process.TrackRefitter.Propagator = "AnalyticalPropagator"
+#process.KFTrajectoryFitter.Propagator = "AnalyticalPropagator"
+#process.KFTrajectorySmoother.Propagator = "AnalyticalPropagator"
+## Not to loose hits/tracks, we might want to open the allowed chi^2 contribution for single hits:
+##process.Chi2MeasurementEstimator.MaxChi2 = 50. # untested, default 30
+#process.load("RecoLocalTracker.SiStripRecHitConverter.StripCPEfromTrackAngle_cfi")
+#process.load("RecoLocalTracker.SiStripRecHitConverter.SiStripRecHitMatcher_cfi")
+#process.load("RecoLocalTracker.SiPixelRecHits.PixelCPEParmError_cfi")
+#process.load("RecoTracker.TransientTrackingRecHit.TransientTrackingRecHitBuilder_cfi")
+## end refitting with analytical propagator
+
 
 # Alignment producer
 process.load("Alignment.CommonAlignmentProducer.AlignmentProducer_cff")
@@ -122,9 +168,17 @@ process.AlignmentProducer.ParameterBuilder.Selector = cms.PSet(
         zRanges = cms.vdouble()
     )
 )
-#process.AlignmentProducer.doMuon = True
+#process.AlignmentProducer.doMuon = True # to align muon system
 process.AlignmentProducer.doMisalignmentScenario = False
-#process.AlignmentProducer.saveToDB = True
+# If the above is true, you might want to choose the scenario:
+#from Alignment.TrackerAlignment.Scenarios_cff import *
+#process.AlignmentProducer.MisalignmentScenario = TrackerSurveyLASOnlyScenario
+process.AlignmentProducer.applyDbAlignment = True #false # otherwise neither globalTag not trackerAlignment
+# monitor not strictly needed:
+#process.TFileService = cms.Service("TFileService", fileName = cms.string("histograms.root"))
+#process.AlignmentProducer.monitorConfig = cms.PSet(monitors = cms.untracked.vstring ("AlignmentMonitorGeneric"),
+#                                                   AlignmentMonitorGeneric = cms.untracked.PSet()
+#                                                   )
 
 process.AlignmentProducer.algoConfig = cms.PSet(
     process.MillePedeAlignmentAlgorithm
@@ -132,15 +186,16 @@ process.AlignmentProducer.algoConfig = cms.PSet(
 
 from Alignment.MillePedeAlignmentAlgorithm.PresigmaScenarios_cff import *
 process.AlignmentProducer.algoConfig.pedeSteerer.Presigmas.extend(TrackerShortTermPresigmas.Presigmas)
-#process.AlignmentProducer.algoConfig.mode = 'full' # 'mille' # 'pede' # 'pedeSteerer'
+process.AlignmentProducer.algoConfig.mode = 'full' # 'mille' # 'pede' # 'pedeSteerer'
+process.AlignmentProducer.algoConfig.mergeBinaryFiles = cms.vstring()
+process.AlignmentProducer.algoConfig.monitorFile = cms.untracked.string("millePedeMonitor.root")
+process.AlignmentProducer.algoConfig.binaryFile = cms.string("milleBinaryISN.dat")
 #process.AlignmentProducer.algoConfig.TrajectoryFactory = process.BzeroReferenceTrajectoryFactory
 # ...OR TwoBodyDecayTrajectoryFactory OR ...
 #process.AlignmentProducer.algoConfig.max2Dcorrelation = 2. # to switch off
 #process.AlignmentProducer.algoConfig.fileDir = '/tmp/flucke/test'
 #process.AlignmentProducer.algoConfig.pedeReader.fileDir = './'
-#process.AlignmentProducer.algoConfig.binaryFile = '/tmp/flucke/milleBinary.dat' 
 #process.AlignmentProducer.algoConfig.treeFile = 'treeFile_GF.root'
-#process.AlignmentProducer.algoConfig.monitorFile = 'millePedeMonitor_GF.root'
 ##default is sparsGMRES                                    <method>  n(iter)  Delta(F)
 #process.AlignmentProducer.algoConfig.pedeSteerer.method = 'inversion  9  0.8'
 #process.AlignmentProducer.algoConfig.pedeSteerer.options = cms.vstring(
@@ -162,18 +217,24 @@ process.source = cms.Source("PoolSource",
 
 process.p = cms.Path(process.offlineBeamSpot*process.AlignmentTrackSelector*process.TrackRefitter)
 
-from CondCore.DBCommon.CondDBSetup_cfi import *
-process.PoolDBOutputService = cms.Service("PoolDBOutputService",
-                                          CondDBSetup,
-                                          timetype = cms.untracked.string('runnumber'),
-                                          connect = cms.string('sqlite_file:TkAlignment.db'),
-                                          toPut = cms.VPSet(cms.PSet(
-    record = cms.string('TrackerAlignmentRcd'),
-    tag = cms.string('testTag')
-    ),
-                                                            cms.PSet(
-    record = cms.string('TrackerAlignmentErrorRcd'),
-    tag = cms.string('testTagAPE')
-    ))
-                                          )
+#--- SAVE ALIGNMENT CONSTANTS TO DB --------------------------------
+# Default in MPS is saving as alignment_MP.db. Uncomment next line not to save them.
+# For a standalone (non-MPS) run, uncomment also the PoolDBOutputService part.
+#process.AlignmentProducer.saveToDB = True
+#from CondCore.DBCommon.CondDBSetup_cfi import *
+#process.PoolDBOutputService = cms.Service("PoolDBOutputService",
+#                                          CondDBSetup,
+#                                          timetype = cms.untracked.string('runnumber'),
+#                                          connect = cms.string('sqlite_file:TkAlignment.db'),
+#                                          toPut = cms.VPSet(cms.PSet(
+#    record = cms.string('TrackerAlignmentRcd'),
+#    tag = cms.string('testTag')
+#    ),
+#                                                            cms.PSet(
+#    record = cms.string('TrackerAlignmentErrorRcd'),
+#    tag = cms.string('testTagAPE')
+#    ))
+#                                          )
+# MPS needs next line as placeholder for pede _cfg.p:
+#MILLEPEDEBLOCK
 
