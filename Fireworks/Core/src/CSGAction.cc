@@ -8,7 +8,7 @@
 //
 // Original Author:  Chris Jones
 //         Created:  Thu May 29 20:58:11 CDT 2008
-// $Id: CSGAction.cc,v 1.2 2008/06/29 13:23:47 chrjones Exp $
+// $Id: CSGAction.cc,v 1.3 2008/07/08 02:31:25 dmytro Exp $
 //
 
 // system include files
@@ -224,6 +224,7 @@ void CSGAction::createToolBarEntry(TGToolBar *toolbar, const char *filename) {
    m_tools->fPixmap = filename;
    m_tools->fStayDown = kFALSE;
    m_tools->fId = m_entry;
+   if(m_toolTip.size()) {m_tools->fTipText = m_toolTip.c_str();}
    toolbar->AddButton(m_frame,m_tools,5);
    int size = toolbar->GetList()->GetSize();
    if (size == 1) {
