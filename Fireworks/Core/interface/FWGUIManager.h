@@ -16,7 +16,7 @@
 //
 // Original Author:  Chris Jones
 //         Created:  Mon Feb 11 10:52:24 EST 2008
-// $Id: FWGUIManager.h,v 1.31 2008/07/08 20:13:01 chrjones Exp $
+// $Id: FWGUIManager.h,v 1.32 2008/07/13 15:36:45 chrjones Exp $
 //
 
 // system include files
@@ -169,6 +169,9 @@ class FWGUIManager : public FWConfigurable
 
       void subviewWasSwappedToBig(unsigned int);
       void subviewIsBeingDestroyed(unsigned int);
+   
+      void mainViewWasUndocked();
+      void mainViewWasDocked();
    
       void exportImageOfMainView();
       void promptForConfigurationFile();

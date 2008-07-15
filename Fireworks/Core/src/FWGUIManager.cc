@@ -8,7 +8,7 @@
 //
 // Original Author:  Chris Jones
 //         Created:  Mon Feb 11 11:06:40 EST 2008
-// $Id: FWGUIManager.cc,v 1.57 2008/07/14 19:56:12 chrjones Exp $
+// $Id: FWGUIManager.cc,v 1.58 2008/07/14 20:04:28 chrjones Exp $
 //
 
 // system include files
@@ -223,6 +223,8 @@ FWGUIManager::parentForNextView()
    FWGUISubviewArea* hf = new FWGUISubviewArea(m_viewFrames.size(),splitParent,m_splitFrame);
    hf->swappedToBigView_.connect(boost::bind(&FWGUIManager::subviewWasSwappedToBig,this,_1));
    hf->goingToBeDestroyed_.connect(boost::bind(&FWGUIManager::subviewIsBeingDestroyed,this,_1));
+   hf->bigViewUndocked_.connect(boost::bind(&FWGUIManager::mainViewWasUndocked,this));
+   hf->bigViewDocked_.connect(boost::bind(&FWGUIManager::mainViewWasDocked,this));
    if(!m_viewFrames.empty()) {
       m_viewFrames.back()->enableDestructionButton(false);
    }
@@ -230,6 +232,10 @@ FWGUIManager::parentForNextView()
    //at the moment we have a problem with deleting the last view.  So do not allow it
    if(m_viewFrames.size()>1) {
       hf->enableDestructionButton(true);
+      //at the moment we have a problem swapping to big if the big view is undocked
+      if(!m_viewFrames.front()->isDocked()) {
+         hf->enableSwapButton(false);
+      }
    }
    (splitParent)->AddFrame(hf,new TGLayoutHints(kLHintsExpandX | kLHintsExpandY) );
    
@@ -443,6 +449,29 @@ FWGUIManager::subviewIsBeingDestroyed(unsigned int iIndex)
       m_viewFrames.back()->enableDestructionButton(true);
    }
 }
+
+void 
+FWGUIManager::mainViewWasUndocked()
+{
+   if(m_viewFrames.size()>1) {
+      for_each(m_viewFrames.begin()+1,
+               m_viewFrames.end(),
+               boost::bind(&FWGUISubviewArea::enableSwapButton,_1,false));
+   }
+}
+
+void 
+FWGUIManager::mainViewWasDocked()
+{
+   if(m_viewFrames.size()>1) {
+      for_each(m_viewFrames.begin()+1,
+               m_viewFrames.end(),
+               boost::bind(&FWGUISubviewArea::enableSwapButton,_1,true));
+   }
+   
+}
+
+
 
 TGVerticalFrame* 
 FWGUIManager::createList(TGSplitFrame *p) 

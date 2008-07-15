@@ -8,7 +8,7 @@
 //
 // Original Author:  Chris Jones
 //         Created:  Fri Feb 15 14:13:33 EST 2008
-// $Id: FWGUISubviewArea.cc,v 1.7 2008/07/13 15:36:45 chrjones Exp $
+// $Id: FWGUISubviewArea.cc,v 1.8 2008/07/15 13:23:46 chrjones Exp $
 //
 
 // system include files
@@ -37,7 +37,8 @@
 FWGUISubviewArea::FWGUISubviewArea(unsigned int iIndex, const TGSplitFrame *iParent, TGSplitFrame* iMainSplit)
 : TGVerticalFrame(iParent),
   m_mainSplit(iMainSplit),
-  m_index(iIndex)
+  m_index(iIndex),
+  m_docked(true)
 {
    //This doesn't seem to do anything
    //SetCleanup(kNoCleanup);
@@ -118,6 +119,12 @@ FWGUISubviewArea::enableDestructionButton(bool iState)
 }
 
 void
+FWGUISubviewArea::enableSwapButton(bool iState)
+{
+   m_swapButton->SetEnabled(iState);
+}
+
+void
 FWGUISubviewArea::swapToBigView()
 {
    //We know the parent is a TGSplitFrame because the constructor requires it to be so
@@ -141,9 +148,37 @@ FWGUISubviewArea::undock()
 {
    //We know the parent is a TGSplitFrame because the constructor requires it to be so
    TGSplitFrame* p = const_cast<TGSplitFrame*>(static_cast<const TGSplitFrame*>(GetParent()));
-   p->ExtractFrame();
+   m_undockedSwappableView = m_swapButton->IsEnabled();
+   m_undockedDestructabledView = m_closeButton->IsEnabled();
    
+   m_swapButton->SetEnabled(kFALSE);
+   m_closeButton->SetEnabled(kFALSE);
+   m_undockButton->SetEnabled(kFALSE);
+   
+   m_docked = false;
+   if(index() == 0 ) {
+      bigViewUndocked_();
+   }
+   p->Connect("Docked(TGFrame*)","FWGUISubviewArea",this,"beingDocked(TGFrame*)");
+   p->ExtractFrame();
+
 }   
+
+void 
+FWGUISubviewArea::beingDocked(TGFrame*)
+{
+   m_swapButton->SetEnabled(m_undockedSwappableView);
+   m_closeButton->SetEnabled(m_undockedDestructabledView);
+   m_undockButton->SetEnabled(kTRUE);
+   TGSplitFrame* p = const_cast<TGSplitFrame*>(static_cast<const TGSplitFrame*>(GetParent()));
+   p->Disconnect("Docked(TGFrame*)",this,"beingDocked()");
+
+   m_docked=true;
+   if(index() == 0 ) {
+      bigViewDocked_();
+   }
+}
+
 //
 // const member functions
 //

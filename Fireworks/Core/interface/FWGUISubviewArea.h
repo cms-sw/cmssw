@@ -16,7 +16,7 @@
 //
 // Original Author:  Chris Jones
 //         Created:  Fri Feb 15 14:13:29 EST 2008
-// $Id: FWGUISubviewArea.h,v 1.4 2008/06/25 22:05:05 chrjones Exp $
+// $Id: FWGUISubviewArea.h,v 1.5 2008/07/07 00:17:32 chrjones Exp $
 //
 
 // system include files
@@ -41,6 +41,9 @@ class FWGUISubviewArea : public TGVerticalFrame
          return m_index;
       }
    
+      bool isDocked() const {
+         return m_docked;
+      }
       // ---------- static member functions --------------------
       static const TGPicture * swapIcon();
       static const TGPicture * undockIcon();
@@ -51,10 +54,16 @@ class FWGUISubviewArea : public TGVerticalFrame
       void destroy();
       void undock();
    
+      void beingDocked(TGFrame*);
+   
       void enableDestructionButton(bool);
-      void setIndex(unsigned int iIndex);   
+      void setIndex(unsigned int iIndex);
+      void enableSwapButton(bool);
       sigc::signal<void,unsigned int> swappedToBigView_;
       sigc::signal<void,unsigned int> goingToBeDestroyed_;
+   
+      sigc::signal<void> bigViewUndocked_;
+      sigc::signal<void> bigViewDocked_;
    private:
       FWGUISubviewArea(const FWGUISubviewArea&); // stop default
 
@@ -67,6 +76,10 @@ class FWGUISubviewArea : public TGVerticalFrame
       TGButton* m_undockButton;
       TGButton* m_closeButton;
       TGCompositeFrame* m_buttons;
+   
+      bool m_undockedSwappableView;
+      bool m_undockedDestructabledView;
+      bool m_docked;
 };
 
 
