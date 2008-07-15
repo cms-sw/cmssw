@@ -1,8 +1,8 @@
 /*
  *  See header file for a description of this class.
  *
- *  $Date: 2008/01/28 12:38:07 $
- *  $Revision: 1.14 $
+ *  $Date: 2008/07/15 00:18:32 $
+ *  $Revision: 1.15 $
  *  \author Paolo Ronchese INFN Padova
  *
  */
@@ -34,12 +34,14 @@
 DTT0::DTT0():
   dataVersion( " " ),
   nsPerCount( 25.0 / 32.0 ) {
+  dataList.reserve( 12000 );
 }
 
 
 DTT0::DTT0( const std::string& version ):
   dataVersion( version ),
   nsPerCount( 25.0 / 32.0 ) {
+  dataList.reserve( 12000 );
 }
 
 
@@ -254,13 +256,6 @@ DTT0::const_iterator DTT0::end() const {
 
 
 std::string DTT0::mapName() const {
-/*
-  std::string name = dataVersion + "_map_T0";
-  char nptr[100];
-  sprintf( nptr, "%x", reinterpret_cast<unsigned int>( this ) );
-  name += nptr;
-  return name;
-*/
   std::stringstream name;
   name << dataVersion << "_map_T0" << this;
   return name.str();

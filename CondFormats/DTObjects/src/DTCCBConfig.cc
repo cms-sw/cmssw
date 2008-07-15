@@ -1,8 +1,8 @@
 /*
  *  See header file for a description of this class.
  *
- *  $Date: 2007/12/07 15:00:50 $
- *  $Revision: 1.2 $
+ *  $Date: 2008/01/28 12:38:06 $
+ *  $Revision: 1.4 $
  *  \author Paolo Ronchese INFN Padova
  *
  */
@@ -34,11 +34,13 @@
 //----------------
 DTCCBConfig::DTCCBConfig():
   dataVersion( " " ) {
+  dataList.reserve( 1000 );
 }
 
 
 DTCCBConfig::DTCCBConfig( const std::string& version ):
   dataVersion( version ) {
+  dataList.reserve( 1000 );
 }
 
 
@@ -90,6 +92,7 @@ int DTCCBConfig::configKey( int   wheelId,
   }
 
   std::vector<int> chanKey;
+  chanKey.reserve(3);
   chanKey.push_back(   wheelId );
   chanKey.push_back( stationId );
   chanKey.push_back(  sectorId );
@@ -194,6 +197,7 @@ int DTCCBConfig::setConfigKey( int   wheelId,
     DTDataBuffer< int,std::vector<int>* >::findBuffer( mName );
   }
   std::vector<int> chanKey;
+  chanKey.reserve(3);
   chanKey.push_back(   wheelId );
   chanKey.push_back( stationId );
   chanKey.push_back(  sectorId );
@@ -253,13 +257,6 @@ DTCCBConfig::const_iterator DTCCBConfig::end() const {
 
 
 std::string DTCCBConfig::mapName() const {
-/*
-  std::string name = dataVersion + "_map_CCBConfig";
-  char nptr[100];
-  sprintf( nptr, "%x", reinterpret_cast<unsigned int>( this ) );
-  name += nptr;
-  return name;
-*/
   std::stringstream name;
   name << dataVersion << "_map_CCBConfig" << this;
   return name.str();
@@ -275,11 +272,13 @@ void DTCCBConfig::cacheMap() const {
 
   const_iterator iter = dataList.begin();
   const_iterator iend = dataList.end();
+  std::vector<int> chanKey;
+  chanKey.reserve(3);
   while ( iter != iend ) {
 
     const DTCCBId& chan = iter->first;
 
-    std::vector<int> chanKey;
+    chanKey.clear();
     chanKey.push_back( chan.  wheelId );
     chanKey.push_back( chan.stationId );
     chanKey.push_back( chan. sectorId );

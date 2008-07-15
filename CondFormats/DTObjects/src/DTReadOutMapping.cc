@@ -1,8 +1,8 @@
 /*
  *  See header file for a description of this class.
  *
- *  $Date: 2008/01/28 12:38:06 $
- *  $Revision: 1.17 $
+ *  $Date: 2008/07/15 00:18:32 $
+ *  $Revision: 1.18 $
  *  \author Paolo Ronchese INFN Padova
  *
  */
@@ -34,6 +34,7 @@
 DTReadOutMapping::DTReadOutMapping():
   cellMapVersion( " " ),
    robMapVersion( " " ) {
+  readOutChannelDriftTubeMap.reserve( 12000 );
 }
 
 
@@ -41,7 +42,7 @@ DTReadOutMapping::DTReadOutMapping( const std::string& cell_map_version,
                                     const std::string&  rob_map_version ):
   cellMapVersion( cell_map_version ),
    robMapVersion(  rob_map_version ) {
-
+  readOutChannelDriftTubeMap.reserve( 12000 );
 }
 
 
@@ -330,13 +331,6 @@ DTReadOutMapping::const_iterator DTReadOutMapping::end() const {
 
 
 std::string DTReadOutMapping::mapNameGR() const {
-/*
-  std::string name = cellMapVersion + "_" + robMapVersion + "_map_GR";
-  char nptr[100];
-  sprintf( nptr, "%x", reinterpret_cast<unsigned int>( this ) );
-  name += nptr;
-  return name;
-*/
   std::stringstream name;
   name << cellMapVersion << "_" << robMapVersion << "_map_GR" << this;
   return name.str();
@@ -344,13 +338,6 @@ std::string DTReadOutMapping::mapNameGR() const {
 
 
 std::string DTReadOutMapping::mapNameRG() const {
-/*
-  std::string name = cellMapVersion + "_" + robMapVersion + "_map_RG";
-  char nptr[100];
-  sprintf( nptr, "%x", reinterpret_cast<unsigned int>( this ) );
-  name += nptr;
-  return name;
-*/
   std::stringstream name;
   name << cellMapVersion << "_" << robMapVersion << "_map_RG" << this;
   return name.str();

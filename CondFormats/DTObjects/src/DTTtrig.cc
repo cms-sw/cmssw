@@ -1,8 +1,8 @@
 /*
  *  See header file for a description of this class.
  *
- *  $Date: 2007/12/07 15:00:53 $
- *  $Revision: 1.13 $
+ *  $Date: 2008/01/28 12:38:07 $
+ *  $Revision: 1.14 $
  *  \author Paolo Ronchese INFN Padova
  *
  */
@@ -34,12 +34,14 @@
 DTTtrig::DTTtrig():
   dataVersion( " " ),
   nsPerCount( 25.0 / 32.0 ) {
+  dataList.reserve( 1000 );
 }
 
 
 DTTtrig::DTTtrig( const std::string& version ):
   dataVersion( version ),
   nsPerCount( 25.0 / 32.0 ) {
+  dataList.reserve( 1000 );
 }
 
 
@@ -115,6 +117,7 @@ int DTTtrig::get( int   wheelId,
   }
 
   std::vector<int> chanKey;
+  chanKey.reserve(6);
   chanKey.push_back(   wheelId );
   chanKey.push_back( stationId );
   chanKey.push_back(  sectorId );
@@ -226,6 +229,7 @@ int DTTtrig::set( int   wheelId,
     DTDataBuffer<int,int>::findBuffer( mName );
   }
   std::vector<int> chanKey;
+  chanKey.reserve(6);
   chanKey.push_back(   wheelId );
   chanKey.push_back( stationId );
   chanKey.push_back(  sectorId );
@@ -306,13 +310,6 @@ DTTtrig::const_iterator DTTtrig::end() const {
 
 
 std::string DTTtrig::mapName() const {
-/*
-  std::string name = dataVersion + "_map_Ttrig";
-  char nptr[100];
-  sprintf( nptr, "%x", reinterpret_cast<unsigned int>( this ) );
-  name += nptr;
-  return name;
-*/
   std::stringstream name;
   name << dataVersion << "_map_Ttrig" << this;
   return name.str();
@@ -327,11 +324,13 @@ void DTTtrig::cacheMap() const {
 
   int entryNum = 0;
   int entryMax = dataList.size();
+  std::vector<int> chanKey;
+  chanKey.reserve(6);
   while ( entryNum < entryMax ) {
 
     const DTTtrigId& chan = dataList[entryNum].first;
 
-    std::vector<int> chanKey;
+    chanKey.clear();
     chanKey.push_back( chan.  wheelId );
     chanKey.push_back( chan.stationId );
     chanKey.push_back( chan. sectorId );

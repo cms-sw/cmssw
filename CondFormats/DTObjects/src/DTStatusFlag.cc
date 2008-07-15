@@ -1,8 +1,8 @@
 /*
  *  See header file for a description of this class.
  *
- *  $Date: 2007/12/07 15:00:53 $
- *  $Revision: 1.8 $
+ *  $Date: 2008/01/28 12:38:07 $
+ *  $Revision: 1.9 $
  *  \author Paolo Ronchese INFN Padova
  *
  */
@@ -28,11 +28,13 @@
 //----------------
 DTStatusFlag::DTStatusFlag():
   dataVersion( " " ) {
+  dataList.reserve( 1000 );
 }
 
 
 DTStatusFlag::DTStatusFlag( const std::string& version ):
   dataVersion( version ) {
+  dataList.reserve( 1000 );
 }
 
 
@@ -104,6 +106,7 @@ int DTStatusFlag::get( int   wheelId,
   }
 
   std::vector<int> chanKey;
+  chanKey.reserve(6);
   chanKey.push_back(   wheelId );
   chanKey.push_back( stationId );
   chanKey.push_back(  sectorId );
@@ -185,6 +188,7 @@ int DTStatusFlag::setCellStatus( int   wheelId,
     DTDataBuffer<int,int>::findBuffer( mName );
   }
   std::vector<int> chanKey;
+  chanKey.reserve(6);
   chanKey.push_back(   wheelId );
   chanKey.push_back( stationId );
   chanKey.push_back(  sectorId );
@@ -590,13 +594,6 @@ DTStatusFlag::const_iterator DTStatusFlag::end() const {
 
 
 std::string DTStatusFlag::mapName() const {
-/*
-  std::string name = dataVersion + "_map_StatusFlag";
-  char nptr[100];
-  sprintf( nptr, "%x", reinterpret_cast<unsigned int>( this ) );
-  name += nptr;
-  return name;
-*/
   std::stringstream name;
   name << dataVersion << "_map_StatusFlag" << this;
   return name.str();
@@ -611,11 +608,13 @@ void DTStatusFlag::cacheMap() const {
 
   int entryNum = 0;
   int entryMax = dataList.size();
+  std::vector<int> chanKey;
+  chanKey.reserve(6);
   while ( entryNum < entryMax ) {
 
     const DTStatusFlagId& chan = dataList[entryNum].first;
 
-    std::vector<int> chanKey;
+    chanKey.clear();
     chanKey.push_back( chan.  wheelId );
     chanKey.push_back( chan.stationId );
     chanKey.push_back( chan. sectorId );

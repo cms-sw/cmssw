@@ -1,8 +1,8 @@
 /*
  *  See header file for a description of this class.
  *
- *  $Date: 2007/12/07 15:00:51 $
- *  $Revision: 1.4 $
+ *  $Date: 2008/01/28 12:38:06 $
+ *  $Revision: 1.5 $
  *  \author Paolo Ronchese INFN Padova
  *
  */
@@ -33,11 +33,13 @@
 //----------------
 DTPerformance::DTPerformance():
   dataVersion( " " ) {
+  dataList.reserve( 1000 );
 }
 
 
 DTPerformance::DTPerformance( const std::string& version ):
   dataVersion( version ) {
+  dataList.reserve( 1000 );
 }
 
 
@@ -110,6 +112,7 @@ int DTPerformance::get( int   wheelId,
   }
 
   std::vector<int> chanKey;
+  chanKey.reserve(4);
   chanKey.push_back(   wheelId );
   chanKey.push_back( stationId );
   chanKey.push_back(  sectorId );
@@ -212,6 +215,7 @@ int DTPerformance::set( int   wheelId,
     DTDataBuffer<int,int>::findBuffer( mName );
   }
   std::vector<int> chanKey;
+  chanKey.reserve(4);
   chanKey.push_back(   wheelId );
   chanKey.push_back( stationId );
   chanKey.push_back(  sectorId );
@@ -296,13 +300,6 @@ DTPerformance::const_iterator DTPerformance::end() const {
 
 
 std::string DTPerformance::mapName() const {
-/*
-  std::string name = dataVersion + "_map_Performance";
-  char nptr[100];
-  sprintf( nptr, "%x", reinterpret_cast<unsigned int>( this ) );
-  name += nptr;
-  return name;
-*/
   std::stringstream name;
   name << dataVersion << "_map_Performance" << this;
   return name.str();
@@ -317,11 +314,13 @@ void DTPerformance::cacheMap() const {
 
   int entryNum = 0;
   int entryMax = dataList.size();
+  std::vector<int> chanKey;
+  chanKey.reserve(6);
   while ( entryNum < entryMax ) {
 
     const DTPerformanceId& chan = dataList[entryNum].first;
 
-    std::vector<int> chanKey;
+    chanKey.clear();
     chanKey.push_back( chan.  wheelId );
     chanKey.push_back( chan.stationId );
     chanKey.push_back( chan. sectorId );

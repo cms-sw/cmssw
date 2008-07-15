@@ -1,8 +1,8 @@
 /*
  *  See header file for a description of this class.
  *
- *  $Date: 2007/12/07 15:00:51 $
- *  $Revision: 1.8 $
+ *  $Date: 2008/01/28 12:38:06 $
+ *  $Revision: 1.9 $
  *  \author Paolo Ronchese INFN Padova
  *
  */
@@ -33,11 +33,13 @@
 //----------------
 DTRangeT0::DTRangeT0():
   dataVersion( " " ) {
+  dataList.reserve( 1000 );
 }
 
 
 DTRangeT0::DTRangeT0( const std::string& version ):
   dataVersion( version ) {
+  dataList.reserve( 1000 );
 }
 
 
@@ -94,6 +96,7 @@ int DTRangeT0::get( int   wheelId,
   }
 
   std::vector<int> chanKey;
+  chanKey.reserve(4);
   chanKey.push_back(   wheelId );
   chanKey.push_back( stationId );
   chanKey.push_back(  sectorId );
@@ -156,6 +159,7 @@ int DTRangeT0::set( int   wheelId,
     DTDataBuffer<int,int>::findBuffer( mName );
   }
   std::vector<int> chanKey;
+  chanKey.reserve(4);
   chanKey.push_back(   wheelId );
   chanKey.push_back( stationId );
   chanKey.push_back(  sectorId );
@@ -211,13 +215,6 @@ DTRangeT0::const_iterator DTRangeT0::end() const {
 
 
 std::string DTRangeT0::mapName() const {
-/*
-  std::string name = dataVersion + "_map_RangeT0";
-  char nptr[100];
-  sprintf( nptr, "%x", reinterpret_cast<unsigned int>( this ) );
-  name += nptr;
-  return name;
-*/
   std::stringstream name;
   name << dataVersion << "_map_RangeT0" << this;
   return name.str();
@@ -232,11 +229,13 @@ void DTRangeT0::cacheMap() const {
 
   int entryNum = 0;
   int entryMax = dataList.size();
+  std::vector<int> chanKey;
+  chanKey.reserve(4);
   while ( entryNum < entryMax ) {
 
     const DTRangeT0Id& chan = dataList[entryNum].first;
 
-    std::vector<int> chanKey;
+    chanKey.clear();
     chanKey.push_back( chan.  wheelId );
     chanKey.push_back( chan.stationId );
     chanKey.push_back( chan. sectorId );

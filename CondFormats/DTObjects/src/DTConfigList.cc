@@ -1,8 +1,8 @@
 /*
  *  See header file for a description of this class.
  *
- *  $Date: 2007/12/07 15:00:50 $
- *  $Revision: 1.2 $
+ *  $Date: 2008/01/28 12:38:06 $
+ *  $Revision: 1.3 $
  *  \author Paolo Ronchese INFN Padova
  *
  */
@@ -145,13 +145,6 @@ DTConfigList::const_iterator DTConfigList::end() const {
 
 
 std::string DTConfigList::mapName() const {
-/*
-  std::string name = dataVersion + "_map_config_bricks";
-  char nptr[100];
-  sprintf( nptr, "%x", reinterpret_cast<unsigned int>( this ) );
-  name += nptr;
-  return name;
-*/
   std::stringstream name;
   name << dataVersion << "_map_config_bricks" << this;
   return name.str();
