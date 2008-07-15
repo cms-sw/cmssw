@@ -34,63 +34,63 @@ PixelFEDCard::PixelFEDCard(vector<vector<string> > &tableMat):PixelConfigBase(" 
     CONFIG_KEY                                NOT NULL      VARCHAR2(80)
     FED_CHAN_VERS                                           VARCHAR2(40)
     FED_CONFIG_VERS                                         VARCHAR2(40)
-    SERIAL_NUMBER                                           VARCHAR2(40)
-    PIXEL_FED                                 NOT NULL      VARCHAR2(200)
+    SERIAL_NUMBER                                           VARCHAR2(40)   
+    PIXEL_FED                                 NOT NULL      VARCHAR2(200) fedNumber
     CRATE_NUMBER                              NOT NULL      NUMBER(38)
     SLOT_NUMBER                               NOT NULL      NUMBER(38)
     VME_ADDRS_HEX                                           VARCHAR2(17)
     CHANNEL_ID                                NOT NULL      NUMBER(10)
-    NUM_ROCS                                  NOT NULL      NUMBER(4)
-    CHAN_OFFST_DAC                            NOT NULL      NUMBER(10)
-    CHAN_DELAY                                NOT NULL      NUMBER(10)
-    CHAN_BHIGH                                NOT NULL      NUMBER(10)
-    CHAN_BLOW                                 NOT NULL      NUMBER(10)
-    CHAN_UB                                   NOT NULL      NUMBER(10)
-    OPT1_CAP                                  NOT NULL      NUMBER(38)
-    OPT2_CAP                                  NOT NULL      NUMBER(38)
-    OPT3_CAP                                  NOT NULL      NUMBER(38)
-    OPT1_INP                                  NOT NULL      NUMBER(38)
-    OPT2_INP                                  NOT NULL      NUMBER(38)
-    OPT3_INP                                  NOT NULL      NUMBER(38)
-    OPT1_OUT                                  NOT NULL      NUMBER(38)
-    OPT2_OUT                                  NOT NULL      NUMBER(38)
-    OPT3_OUT                                  NOT NULL      NUMBER(38)
-    NORTH_CLKPHB                              NOT NULL      NUMBER(38)
-    NORTHCENTER_CLKPHB                        NOT NULL      NUMBER(38)
-    SOUTHCENTER_CLKPHB                        NOT NULL      NUMBER(38)
-    SOUTH_CLKPHB                              NOT NULL      NUMBER(38)
-    NORTH_CTRL                                NOT NULL      NUMBER(38)
-    NORTHCENTER_CTRL                          NOT NULL      NUMBER(38)
-    SOUTHCENTER_CTRL                          NOT NULL      NUMBER(38)
-    SOUTH_CTRL                                NOT NULL      NUMBER(38)
-    REG1_TTCRX_FDLA                           NOT NULL      NUMBER(38)
-    REG2_TTCRX_CDLA                           NOT NULL      NUMBER(38)
-    REG3_TTCRX_CLKD2                          NOT NULL      NUMBER(38)
-    CENTER_CTRL                               NOT NULL      NUMBER(38)
-    CENTER_MODE                               NOT NULL      NUMBER(38)
-    B1_ADCGN                                  NOT NULL      NUMBER(38)
-    B2_ADCGN                                  NOT NULL      NUMBER(38)
-    B3_ADCGN                                  NOT NULL      NUMBER(38)
-    B4_ADCGN                                  NOT NULL      NUMBER(38)
-    NORTH_BADJ                                NOT NULL      NUMBER(38)
-    NORTHCENTER_BADJ                          NOT NULL      NUMBER(38)
-    SOUTHCENTER_BADJ                          NOT NULL      NUMBER(38)
-    SOUTH_BADJ                                NOT NULL      NUMBER(38)
-    NORTH_TBMMASK                                           NUMBER(38)
-    NORTHCENTER_TBMMASK                                     NUMBER(38)
-    SOUTHCENTER_TBMMASK                                     NUMBER(38)
-    SOUTH_TBMMASK                                           NUMBER(38)
-    NORTH_PWORD                                             NUMBER(38)
-    NORTHCENTER_PWORD                                       NUMBER(38)
-    SOUTH_PWORD                                             NUMBER(38)
-    SOUTHCENTER_PWORD                                       NUMBER(38)
-    SPECDAC                                                 NUMBER(38)
-    OOS_LVL                                                 NUMBER(38)
-    ERR_LVL                                                 NUMBER(38)
-    NORTH_FIFO1_BZ_LVL                                      NUMBER(38)
-    NORTHCENTER_FIFO1_BZ_LVL                                NUMBER(38)
-    SOUTHCENTER_FIFO1_BZ_LVL                                NUMBER(38)
-    SOUTH_FIFO1_BZ_LVL                                      NUMBER(38)
+    NUM_ROCS                                  NOT NULL      NUMBER(4)  NRocs[1-36]    index taken from CHANNEL_ID
+    CHAN_OFFST_DAC                            NOT NULL      NUMBER(10) offs_dac[1-36] index taken from CHANNEL_ID
+    CHAN_DELAY                                NOT NULL      NUMBER(10) DelayCh[1-36]  index taken from CHANNEL_ID
+    CHAN_BHIGH                                NOT NULL      NUMBER(10) BlackHi[1-36]  index taken from CHANNEL_ID
+    CHAN_BLOW                                 NOT NULL      NUMBER(10) BlackLo[1-36]  index taken from CHANNEL_ID
+    CHAN_UB                                   NOT NULL      NUMBER(10) Ublack[1-36]   index taken from CHANNEL_ID
+    OPT1_CAP                                  NOT NULL      NUMBER(38) opt_cap[0]
+    OPT2_CAP                                  NOT NULL      NUMBER(38) opt_cap[1]
+    OPT3_CAP                                  NOT NULL      NUMBER(38) opt_cap[2]
+    OPT1_INP                                  NOT NULL      NUMBER(38) opt_inadj[0] 
+    OPT2_INP                                  NOT NULL      NUMBER(38) opt_inadj[1] 
+    OPT3_INP                                  NOT NULL      NUMBER(38) opt_inadj[2] 
+    OPT1_OUT                                  NOT NULL      NUMBER(38) opt_outadj[0] 
+    OPT2_OUT                                  NOT NULL      NUMBER(38) opt_outadj[1] 
+    OPT3_OUT                                  NOT NULL      NUMBER(38) opt_outadj[2] 
+    NORTH_CLKPHB                              NOT NULL      NUMBER(38) clkphs1_9
+    NORTHCENTER_CLKPHB                        NOT NULL      NUMBER(38) clkphs10_18
+    SOUTHCENTER_CLKPHB                        NOT NULL      NUMBER(38) clkphs19_27
+    SOUTH_CLKPHB                              NOT NULL      NUMBER(38) clkphs28_36
+    NORTH_CTRL                                NOT NULL      NUMBER(38) Ncntrl 
+    NORTHCENTER_CTRL                          NOT NULL      NUMBER(38) NCcntrl
+    SOUTHCENTER_CTRL                          NOT NULL      NUMBER(38) SCcntrl
+    SOUTH_CTRL                                NOT NULL      NUMBER(38) Scntrl 
+    REG1_TTCRX_FDLA                           NOT NULL      NUMBER(38) FineDes2Del
+    REG2_TTCRX_CDLA                           NOT NULL      NUMBER(38) CoarseDel
+    REG3_TTCRX_CLKD2                          NOT NULL      NUMBER(38) ClkDes2
+    CENTER_CTRL                               NOT NULL      NUMBER(38) Ccntrl
+    CENTER_MODE                               NOT NULL      NUMBER(38) modeRegister
+    B1_ADCGN                                  NOT NULL      NUMBER(38) Nadcg 
+    B2_ADCGN                                  NOT NULL      NUMBER(38) NCadcg
+    B3_ADCGN                                  NOT NULL      NUMBER(38) SCadcg
+    B4_ADCGN                                  NOT NULL      NUMBER(38) Sadcg 
+    NORTH_BADJ                                NOT NULL      NUMBER(38) Nbaseln 
+    NORTHCENTER_BADJ                          NOT NULL      NUMBER(38) NCbaseln
+    SOUTHCENTER_BADJ                          NOT NULL      NUMBER(38) SCbaseln
+    SOUTH_BADJ                                NOT NULL      NUMBER(38) Sbaseln 
+    NORTH_TBMMASK                                           NUMBER(38) N_TBMmask
+    NORTHCENTER_TBMMASK                                     NUMBER(38) NC_TBMmask
+    SOUTHCENTER_TBMMASK                                     NUMBER(38) SC_TBMmask
+    SOUTH_TBMMASK                                           NUMBER(38) S_TBMmask
+    NORTH_PWORD                                             NUMBER(38) N_Pword 
+    NORTHCENTER_PWORD                                       NUMBER(38) NC_Pword
+    SOUTH_PWORD                                             NUMBER(38) S_Pword
+    SOUTHCENTER_PWORD                                       NUMBER(38) SC_Pword 
+    SPECDAC                                                 NUMBER(38) SpecialDac
+    OOS_LVL                                                 NUMBER(38) Ooslvl
+    ERR_LVL                                                 NUMBER(38) Errlvl
+    NORTH_FIFO1_BZ_LVL                                      NUMBER(38) Nfifo1Bzlvl
+    NORTHCENTER_FIFO1_BZ_LVL                                NUMBER(38) NCfifo1Bzlvl
+    SOUTHCENTER_FIFO1_BZ_LVL                                NUMBER(38) SCfifo1Bzlvl
+    SOUTH_FIFO1_BZ_LVL                                      NUMBER(38) Sfifo1Bzlvl
   */
   colNames.push_back("CONFIG_KEY_ID"            );
   colNames.push_back("CONFIG_KEY"               );
@@ -307,16 +307,16 @@ void PixelFEDCard::readDBTBMLevels(std::vector<std::vector<std::string> > &table
      TBM_SER_NUM                                        VARCHAR2(40)
      PANEL_NAME                                         VARCHAR2(99)
      HUB_ADDRS                                          NUMBER(38)
-     TBMA_HEAD_L0                                       VARCHAR2(200)
-     TBMA_HEAD_L1                                       VARCHAR2(200)
-     TBMA_HEAD_L2                                       VARCHAR2(200)
-     TBMA_HEAD_L3                                       VARCHAR2(200)
-     TBMA_HEAD_L4                                       VARCHAR2(200)
-     TBMA_TRAIL_L0                                      VARCHAR2(200)
-     TBMA_TRAIL_L1                                      VARCHAR2(200)
-     TBMA_TRAIL_L2                                      VARCHAR2(200)
-     TBMA_TRAIL_L3                                      VARCHAR2(200)
-     TBMA_TRAIL_L4                                      VARCHAR2(200)
+     TBMA_HEAD_L0                                       VARCHAR2(200) TBM_L0[1-36] index taken from FED_CHAN 
+     TBMA_HEAD_L1                                       VARCHAR2(200) TBM_L1[1-36] index taken from FED_CHAN 
+     TBMA_HEAD_L2                                       VARCHAR2(200) TBM_L2[1-36] index taken from FED_CHAN 
+     TBMA_HEAD_L3                                       VARCHAR2(200) TBM_L3[1-36] index taken from FED_CHAN 
+     TBMA_HEAD_L4                                       VARCHAR2(200) TBM_L4[1-36] index taken from FED_CHAN 
+     TBMA_TRAIL_L0                                      VARCHAR2(200) TRL_L0[1-36] index taken from FED_CHAN 
+     TBMA_TRAIL_L1                                      VARCHAR2(200) TRL_L1[1-36] index taken from FED_CHAN 
+     TBMA_TRAIL_L2                                      VARCHAR2(200) TRL_L2[1-36] index taken from FED_CHAN 
+     TBMA_TRAIL_L3                                      VARCHAR2(200) TRL_L3[1-36] index taken from FED_CHAN 
+     TBMA_TRAIL_L4                                      VARCHAR2(200) TRL_L4[1-36] index taken from FED_CHAN 
   */
   
   colNames.push_back("CONFIG_KEY_ID"           );
@@ -397,11 +397,11 @@ void PixelFEDCard::readDBROCLevels(std::vector<std::vector<std::string> > &table
      I2C_ADDR                                           NUMBER
      GEOM_ROC_NUM                                       NUMBER(10)
      FED_ROC_NUM                                        NUMBER(10)
-     ROC_L0                                             VARCHAR2(200)
-     ROC_L1                                             VARCHAR2(200)
-     ROC_L2                                             VARCHAR2(200)
-     ROC_L3                                             VARCHAR2(200)
-     ROC_L4                                             VARCHAR2(200)
+     ROC_L0                                             VARCHAR2(200) ROC_L0[1-36][1-21/24/8/16] indexes taken from FED_CHAN and FED_ROC_NUM respec.
+     ROC_L1                                             VARCHAR2(200) ROC_L1[1-36][1-21/24/8/16] indexes taken from FED_CHAN and FED_ROC_NUM respec.
+     ROC_L2                                             VARCHAR2(200) ROC_L2[1-36][1-21/24/8/16] indexes taken from FED_CHAN and FED_ROC_NUM respec.
+     ROC_L3                                             VARCHAR2(200) ROC_L3[1-36][1-21/24/8/16] indexes taken from FED_CHAN and FED_ROC_NUM respec.
+     ROC_L4                                             VARCHAR2(200) ROC_L4[1-36][1-21/24/8/16] indexes taken from FED_CHAN and FED_ROC_NUM respec.
   */
   
   colNames.push_back("CONFIG_KEY_ID"    );
