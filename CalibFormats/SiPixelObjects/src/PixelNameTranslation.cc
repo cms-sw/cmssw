@@ -614,7 +614,6 @@ void PixelNameTranslation::writeXML(pos::PixelConfigKey key, int version, std::s
       out << "   <FED_CHAN>"     << iroc->second.fedchannel()	<< "</FED_CHAN>" 	 	      << endl ;
       out << "   <FED_ROC_NUM>"  << iroc->second.fedrocnumber() << "</FED_ROC_NUM>"	 	      << endl ;
       out << "  </DATA>"	 							 	      << endl ;
-      out << " </DATA_SET> "								 	      << endl ;
       out << ""								         	              << endl ;
     }
   out << " </DATA_SET> "								              << endl ;
