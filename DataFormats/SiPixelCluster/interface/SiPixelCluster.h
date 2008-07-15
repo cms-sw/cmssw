@@ -142,6 +142,7 @@ class SiPixelCluster {
 	const std::vector<Pixel> pixels() const {
 		std::vector<Pixel> oldPixVector;
 		int isize = thePixelADC.size();
+                oldPixVector.reserve(isize); 
 		for(int i=0; i<isize; ++i) {
 			int x = theMinPixelRow + (thePixelOffset[i*2]  );
 			int y = theMinPixelCol + (thePixelOffset[i*2+1] );
