@@ -11,5 +11,3 @@ RandomNumberGeneratorService = cms.Service("RandomNumberGeneratorService",
     ),
     sourceSeed = cms.untracked.uint32(442302)
 )
-
-
