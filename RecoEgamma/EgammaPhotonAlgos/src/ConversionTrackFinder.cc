@@ -67,5 +67,5 @@ void ConversionTrackFinder::setEventSetup(const edm::EventSetup& es )   {
 
 void ConversionTrackFinder::setEvent(const edm::Event& e )   {
   theMeasurementTracker_->update( e );
-  theCkfTrajectoryBuilder_->setEvent(e);
+  //  theCkfTrajectoryBuilder_->setEvent(e);
 }
