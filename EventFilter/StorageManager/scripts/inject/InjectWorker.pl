@@ -1,5 +1,5 @@
 #!/usr/bin/perl -w
-# $Id: InjectWorker.pl,v 1.16 2008/06/27 15:59:39 loizides Exp $
+# $Id: InjectWorker.pl,v 1.17 2008/07/04 13:40:55 loizides Exp $
 
 use strict;
 use DBI;
@@ -463,10 +463,12 @@ while( !$endflag ) {
         my $ret=inject($useHandle,$type);
 	    
         if ($ret == 0) {
-            print OUTDATA "$line\n";
-            my $cmd=$ENV{'SM_HOOKSCRIPT'};
-            if (defined $cmd) {
-                system($cmd);
+            print OUTDATA "$line\n"
+            if ($type == 1) {
+              my $cmd=$ENV{'SM_HOOKSCRIPT'};
+              if (defined $cmd) {
+                  system($cmd);
+              }
             }
         } else {
             my $timestr = gettimestr();
