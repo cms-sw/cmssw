@@ -8,7 +8,7 @@
 //
 // Original Author:  
 //         Created:  Thu Jan  3 14:59:23 EST 2008
-// $Id: FWEventItem.cc,v 1.19 2008/07/15 03:50:25 chrjones Exp $
+// $Id: FWEventItem.cc,v 1.20 2008/07/15 14:34:49 chrjones Exp $
 //
 
 // system include files
@@ -238,19 +238,26 @@ FWEventItem::runFilter()
 {   
    m_shouldFilterConnection.block(true);
 
-   if(not m_filter.trivialFilter() && m_colProxy.get() && m_data) {
-      std::cout <<"runFilter"<<std::endl;
+   //if(not m_filter.trivialFilter() && m_colProxy.get() && m_data) {
+   if(m_colProxy.get() && m_data) {
+      //std::cout <<"runFilter"<<std::endl;
       FWChangeSentry sentry(*(this->changeManager()));
       int size = m_colProxy->Size();
       std::vector<ModelInfo>::iterator itInfo = m_itemInfos.begin();
       for(int index = 0; index != size; ++index,++itInfo) {
+         bool changed = false;
+         bool wasVisible = itInfo->m_displayProperties.isVisible();
          if(not m_filter.passesFilter(m_colProxy->At(index))) {
             itInfo->m_displayProperties.setIsVisible(false);
+            changed = wasVisible==true;
          } else {
             itInfo->m_displayProperties.setIsVisible(true);
+            changed = wasVisible==false;
          }
-         FWModelId id(this,index);
-         m_changeManager->changed(id);
+         if(changed) {
+            FWModelId id(this,index);
+            m_changeManager->changed(id);
+         }
       }
    }
 }
@@ -337,20 +344,20 @@ FWEventItem::data(const std::type_info& iInfo) const
     void* wrapper=0;
     void* temp = &wrapper;
     if(m_event) {
-	 try {
-	      m_event->getByLabel(m_wrapperType.TypeInfo(),
-				  m_moduleLabel.c_str(),
-				  m_productInstanceLabel.c_str(),
-				  m_processName.size()?m_processName.c_str():0,
-				  temp);
-	 } 
-	 catch (...) {
-	      wrapper = 0;
-	 }
+      try {
+          m_event->getByLabel(m_wrapperType.TypeInfo(),
+                              m_moduleLabel.c_str(),
+                              m_productInstanceLabel.c_str(),
+                              m_processName.size()?m_processName.c_str():0,
+                              temp);
+      } catch (std::exception& iException) {
+         std::cerr << "Failed to get "<<name()<<" because \n" <<iException.what()<<std::endl;
+         return 0;
+      }
       if(wrapper==0) {
-	//should report a problem
-	std::cerr<<"failed getByLabel"<<std::endl;
-	return 0;
+          //should report a problem
+          std::cerr<<"failed getByLabel"<<std::endl;
+          return 0;
       }
       //Get Reflex to do the work
       Object wrapperObj(m_wrapperType,wrapper);
