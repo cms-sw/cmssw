@@ -7,7 +7,7 @@ import FWCore.ParameterSet.Config as cms
 # there was no name, replace statements in other configs would not work anymore...
 DTGeometryESModule = cms.ESProducer("DTGeometryESModule",
     appendToDataLabel = cms.string(''),
-    applyAlignment = cms.bool(False), ## to be abondoned
+    applyAlignment = cms.bool(True), ## to be abondoned (?)
 
     alignmentsLabel = cms.string('')
 )
