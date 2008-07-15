@@ -77,6 +77,9 @@ class DQMfromDBSgui(dbsBaseGui):
         '''
         
         dbsBaseGui.__init__(self,parent,debug)
+        # Not ready to use prescaling just yet -- it's awfully slow
+        # Maybe run the Prescaler module at FWCore/Modules/src/Prescaler.cc?
+        self.prescaleOverRunText="#replace hcalMonitor.diagnosticPrescaleEvt = "
 
         if (self.debug):
             print self.__doc__
