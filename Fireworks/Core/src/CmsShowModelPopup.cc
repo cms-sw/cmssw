@@ -8,11 +8,12 @@
 //
 // Original Author:  
 //         Created:  Fri Jun 27 11:23:08 EDT 2008
-// $Id: CmsShowModelPopup.cc,v 1.8 2008/07/14 20:03:47 chrjones Exp $
+// $Id: CmsShowModelPopup.cc,v 1.9 2008/07/15 14:59:43 chrjones Exp $
 //
 
 // system include file
 #include <iostream>
+#include <sstream>
 #include <set>
 #include <sigc++/sigc++.h>
 #include <boost/bind.hpp>
@@ -170,10 +171,15 @@ CmsShowModelPopup::fillModelPopup(const FWSelectionManager& iSelMgr) {
     }
     id = *m_models.begin();
     item = (*(m_models.begin())).item();
-    if (multipleNames) 
-      m_modelLabel->SetText("Multiple objects");
-    else 
-       m_modelLabel->SetText((std::string("Multiple ")+item->name()).c_str());
+    if (multipleNames) { 
+       std::ostringstream s;
+       s<<m_models.size()<<" objects";
+      m_modelLabel->SetText(s.str().c_str());
+    } else {
+       std::ostringstream s;
+       s<<m_models.size()<<" "<<item->name();
+       m_modelLabel->SetText(s.str().c_str());
+    }
     if(m_models.size()==1) {
        m_modelLabel->SetText(item->modelName(id.index()).c_str());
        m_openDetailedViewButton->SetEnabled(m_detailViewManager->haveDetailViewFor(id));
