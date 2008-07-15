@@ -8,7 +8,7 @@
 //
 // Original Author:  Chris Jones
 //         Created:  Mon Mar  3 17:20:14 EST 2008
-// $Id: FWListModel.cc,v 1.12 2008/06/08 16:59:01 dmytro Exp $
+// $Id: FWListModel.cc,v 1.13 2008/06/29 13:23:48 chrjones Exp $
 //
 
 // system include files
@@ -45,12 +45,7 @@ m_id(iId),
  m_detailViewManager(iDVM)
 {
    std::ostringstream s;
-   size_t lastChar = iId.item()->name().size();
-   //if name ends in 's' assume it is plural and remove the s for the individual object
-   if(iId.item()->name()[lastChar-1]=='s') {
-      --lastChar;
-   }
-   s<<iId.item()->name().substr(0,lastChar)<<" "<<m_id.index();
+   s<<iId.item()->modelName(iId.index());
    if(not iData.empty()) {
       s<<": "<<iData;
    }
