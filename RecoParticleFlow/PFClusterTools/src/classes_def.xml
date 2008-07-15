@@ -14,6 +14,12 @@
   <class name="pftools::Exercises2"/>
   <class name="pftools::CalibrationResultWrapper"/>
   <class name="pftools::Calibratable" />
+  <class name="pftools::Calibration" />
+  <class name="pftools::LinearCalibration" />
+  <class name="pftools::CalibratableElement" />
+  <class name="pftools::CandidateWrapper" />
+  <class name="std::vector<pftools::CalibratableElement>" />
+  <class name="std::vector<pftools::CandidateWrapper>" />
   <class name="std::vector<pftools::CalibrationResultWrapper> "/>
   <class name="std::vector<pftools::ParticleDeposit*>"/>
   <class name="std::vector<boost::shared_ptr<pftools::DetectorElement> >"/>

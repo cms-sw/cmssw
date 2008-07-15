@@ -9,20 +9,35 @@ PFEnergyCalibration::PFEnergyCalibration() {
 //--- initialize calibration parameters
 //    for energy correction applied to energy deposits of electrons 
 //    and photons in ECAL
+//  paramECAL_slope_ = 1.;
+//  paramECAL_offset_ = 0.;
+//  
+////--- initialize calibration parameters
+////    for energy correction applied to energy deposits of hadrons in HCAL
+//  paramHCAL_slope_ = 2.17;
+//  paramHCAL_offset_ = 1.73;
+//  paramHCAL_damping_ = 2.49;
+//
+////--- initialize calibration parameters
+////    for energy correction applied to combined energy deposits of hadrons in HCAL and ECAL
+//  paramECALplusHCAL_slopeECAL_ = 1.05;
+//  paramECALplusHCAL_slopeHCAL_ = 1.06;
+//  paramECALplusHCAL_offset_ = 6.11;
+	
   paramECAL_slope_ = 1.;
   paramECAL_offset_ = 0.;
   
 //--- initialize calibration parameters
 //    for energy correction applied to energy deposits of hadrons in HCAL
-  paramHCAL_slope_ = 2.17;
-  paramHCAL_offset_ = 1.73;
-  paramHCAL_damping_ = 2.49;
+  paramHCAL_slope_ = 1.0;
+  paramHCAL_offset_ = 0.0;
+  paramHCAL_damping_ = 1.0;
 
 //--- initialize calibration parameters
 //    for energy correction applied to combined energy deposits of hadrons in HCAL and ECAL
-  paramECALplusHCAL_slopeECAL_ = 1.05;
-  paramECALplusHCAL_slopeHCAL_ = 1.06;
-  paramECALplusHCAL_offset_ = 6.11;
+  paramECALplusHCAL_slopeECAL_ = 1.0;
+  paramECALplusHCAL_slopeHCAL_ = 1.0;
+  paramECALplusHCAL_offset_ = 0.0;
 }
 
 

@@ -17,10 +17,10 @@ namespace pftools {
  * \date April 2008
  */
 enum DetectorElementType {
-	ECAL = 0, HCAL = 1, PRESHOWER = 2, OFFSET = 3
+	ECAL = 0, HCAL = 1, PRESHOWER = 2, OFFSET = 3, ECAL2 = 4, HCAL2 = 5
 };
 
-const char* const DetElNames[] = { "ECAL", "HCAL", "PRESHOWER", "OFFSET" };
+const char* const DetElNames[] = { "ECAL", "HCAL", "PRESHOWER", "OFFSET", "ECAL2", "HCAL2" };
 
 }
 #endif /* DETECTORELEMENTTYPE_HH_ */

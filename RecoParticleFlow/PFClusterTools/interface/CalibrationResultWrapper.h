@@ -74,6 +74,11 @@ public:
 	
 	double bias_;
 
+	/*
+	* Target function contribution
+	*/
+	double targetFuncContrib_;
+
 private:
 	
 	virtual void computeCore() {
@@ -88,6 +93,7 @@ private:
 		provenance_ = UNCALIBRATED;
 		target_ = UNDEFINED;
 		bias_ = 0;
+		targetFuncContrib_ = 0;
 	}
 
 };

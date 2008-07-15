@@ -18,10 +18,19 @@
 #include "RecoParticleFlow/PFClusterTools/interface/CalibrationProvenance.h"
 #include "RecoParticleFlow/PFClusterTools/interface/CalibrationTarget.h"
 #include "RecoParticleFlow/PFClusterTools/interface/Calibratable.h"
+#include "RecoParticleFlow/PFClusterTools/interface/Calibration.h"
+#include "RecoParticleFlow/PFClusterTools/interface/LinearCalibration.h"
+
 namespace { 
   namespace {
 	pftools::SingleParticleWrapper spw;
 	pftools::CalibrationResultWrapper crw;
 	pftools::Calibratable c;
+	pftools::CalibratableElement ce;
+	pftools::CandidateWrapper cw;
+	std::vector<pftools::CalibratableElement> svce;
+	std::vector<pftools::CandidateWrapper> svcw;
+	pftools::Calibration calib;
+	pftools::LinearCalibration linCalib;
   }
 }

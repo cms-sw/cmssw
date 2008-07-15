@@ -75,6 +75,8 @@ public:
 		myEta = eta;
 	}
 
+	double getTargetFunctionContrib() const;
+
 	friend std::ostream& operator<<(std::ostream& s, const ParticleDeposit& p);
 
 private:
