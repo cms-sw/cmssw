@@ -8,7 +8,7 @@
 //
 // Original Author:  Chris Jones
 //         Created:  Fri Mar  7 14:16:20 EST 2008
-// $Id: FWParameterSetterBase.cc,v 1.2 2008/05/18 09:42:48 jmuelmen Exp $
+// $Id: FWParameterSetterBase.cc,v 1.3 2008/06/29 13:10:03 chrjones Exp $
 //
 
 // system include files
@@ -18,6 +18,7 @@
 
 #include <assert.h>
 #include <iostream>
+#include <boost/bind.hpp>
 
 // user include files
 #include "FWCore/Utilities/interface/TypeID.h"
@@ -88,7 +89,7 @@ FWParameterSetterBase::update() const
 //
 // static member functions
 //
-FWParameterSetterBase* 
+boost::shared_ptr<FWParameterSetterBase>
 FWParameterSetterBase::makeSetterFor(FWParameterBase* iParam)
 {
    static std::map<edm::TypeID,ROOT::Reflex::Type> s_paramToSetterMap;
@@ -115,12 +116,15 @@ FWParameterSetterBase::makeSetterFor(FWParameterBase* iParam)
       itFind = s_paramToSetterMap.find(paramType);
    }
    //create the instance we want
+   //NOTE: for some odd reason Reflex 'Construct' uses 'malloc' to allocate the memory.  This means the object
+   // can not be deleted using 'delete'!  So we must call Type::Destruct on the object
    ROOT::Reflex::Object setterObj = itFind->second.Construct();
    
    //make it into the base class
    ROOT::Reflex::Type s_setterBaseType( ROOT::Reflex::Type::ByTypeInfo( typeid(FWParameterSetterBase) ) );
    assert(s_setterBaseType != ROOT::Reflex::Type());
-   setterObj = setterObj.CastObject(s_setterBaseType);
-   
-   return reinterpret_cast<FWParameterSetterBase*>( setterObj.Address() );
+   ROOT::Reflex::Object castSetterObj = setterObj.CastObject(s_setterBaseType);
+   boost::shared_ptr<FWParameterSetterBase> ptr(reinterpret_cast<FWParameterSetterBase*>( castSetterObj.Address() ),
+                                                boost::bind(&ROOT::Reflex::Type::Destruct,itFind->second,setterObj.Address(),true));
+   return ptr;
 }

@@ -8,7 +8,7 @@
 //
 // Original Author:  
 //         Created:  Wed Jun 25 15:15:04 EDT 2008
-// $Id: CmsShowViewPopup.cc,v 1.2 2008/07/07 00:19:28 chrjones Exp $
+// $Id: CmsShowViewPopup.cc,v 1.3 2008/07/08 17:46:22 chrjones Exp $
 //
 
 // system include files
@@ -52,17 +52,15 @@ TGTransientFrame(gClient->GetDefaultRoot(),p, w, h)
   viewFrame->AddFrame(m_removeButton);
   AddFrame(viewFrame, new TGLayoutHints(kLHintsExpandX, 2, 2, 0, 0));
   m_viewContentFrame = new TGCompositeFrame(this);
-  std::for_each(m_setters.begin(),m_setters.end(),
-		boost::checked_deleter<FWParameterSetterBase>());
   m_setters.clear();
   for(FWParameterizable::const_iterator itP = v->begin(), itPEnd = v->end();
        itP != itPEnd;
        ++itP) {
-      std::auto_ptr<FWParameterSetterBase> ptr( FWParameterSetterBase::makeSetterFor(*itP) );
+     boost::shared_ptr<FWParameterSetterBase> ptr( FWParameterSetterBase::makeSetterFor(*itP) );
       ptr->attach(*itP, this);
       TGFrame* pframe = ptr->build(m_viewContentFrame);
       m_viewContentFrame->AddFrame(pframe,new TGLayoutHints(kLHintsTop));
-      m_setters.push_back(ptr.release());
+      m_setters.push_back(ptr);
   }
   AddFrame(m_viewContentFrame);
   SetWindowName("View Controller");
@@ -108,17 +106,15 @@ CmsShowViewPopup::reset(FWViewBase* iView) {
   m_viewContentFrame->DestroyWindow();
   delete m_viewContentFrame;
   m_viewContentFrame = new TGCompositeFrame(this);
-  std::for_each(m_setters.begin(),m_setters.end(),
-		boost::checked_deleter<FWParameterSetterBase>());
   m_setters.clear();
   for(FWParameterizable::const_iterator itP = iView->begin(), itPEnd = iView->end();
        itP != itPEnd;
        ++itP) {
-      std::auto_ptr<FWParameterSetterBase> ptr( FWParameterSetterBase::makeSetterFor(*itP) );
+     boost::shared_ptr<FWParameterSetterBase> ptr( FWParameterSetterBase::makeSetterFor(*itP) );
       ptr->attach(*itP, this);
       TGFrame* pframe = ptr->build(m_viewContentFrame);
       m_viewContentFrame->AddFrame(pframe,new TGLayoutHints(kLHintsTop));
-      m_setters.push_back(ptr.release());
+      m_setters.push_back(ptr);
   }
   AddFrame(m_viewContentFrame);
 

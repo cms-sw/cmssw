@@ -16,10 +16,11 @@
 //
 // Original Author:  Chris Jones
 //         Created:  Fri Mar  7 14:16:14 EST 2008
-// $Id: FWParameterSetterBase.h,v 1.1 2008/03/11 02:43:57 chrjones Exp $
+// $Id: FWParameterSetterBase.h,v 1.2 2008/06/29 13:10:03 chrjones Exp $
 //
 
 // system include files
+#include <boost/shared_ptr.hpp>
 
 // user include files
 
@@ -40,7 +41,7 @@ class FWParameterSetterBase
 
       // ---------- static member functions --------------------
    
-      static FWParameterSetterBase* makeSetterFor(FWParameterBase*);
+      static boost::shared_ptr<FWParameterSetterBase> makeSetterFor(FWParameterBase*);
       // ---------- member functions ---------------------------
       void attach(FWParameterBase*, FWParameterSetterEditorBase*);
       virtual TGFrame* build(TGFrame* iParent) = 0;

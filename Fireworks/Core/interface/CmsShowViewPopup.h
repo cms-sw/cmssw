@@ -16,11 +16,12 @@
 //
 // Original Author:  
 //         Created:  Wed Jun 25 15:15:12 EDT 2008
-// $Id: CmsShowViewPopup.h,v 1.1 2008/06/29 13:23:47 chrjones Exp $
+// $Id: CmsShowViewPopup.h,v 1.2 2008/07/07 00:19:29 chrjones Exp $
 //
 
 // system include files
 #include <vector>
+#include <boost/shared_ptr.hpp>
 #include "TGFrame.h"
 
 // user include files
@@ -58,7 +59,7 @@ class CmsShowViewPopup : public TGTransientFrame, public FWParameterSetterEditor
       TGTextButton* m_removeButton;
       TGCompositeFrame* m_viewContentFrame;
       FWViewBase* m_view;
-      std::vector<FWParameterSetterBase*> m_setters;
+      std::vector<boost::shared_ptr<FWParameterSetterBase> > m_setters;
 };
 
 
