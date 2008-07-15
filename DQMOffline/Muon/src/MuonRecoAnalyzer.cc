@@ -2,8 +2,8 @@
 /*
  *  See header file for a description of this class.
  *
- *  $Date: 2008/05/28 15:38:12 $
- *  $Revision: 1.10 $
+ *  $Date: 2008/07/12 10:47:19 $
+ *  $Revision: 1.11 $
  *  \author G. Mila - INFN Torino
  */
 
@@ -167,6 +167,18 @@ void MuonRecoAnalyzer::beginJob(edm::EventSetup const& iSetup,DQMStore * dbe) {
   oneOverptResolution.push_back(dbe->book2D("ResVsPt_TkGlb_oneOverpt", "ResVsPt_TkGlb_oneOverpt", ptBin, ptMin, ptMax, pResBin*binFactor*2, pResMin/10, pResMax/10));
   oneOverptResolution.push_back(dbe->book2D("ResVsPt_GlbSta_oneOverpt", "ResVsPt_GlbSta_oneOverpt", ptBin, ptMin, ptMax, pResBin*binFactor, pResMin, pResMax));
   oneOverptResolution.push_back(dbe->book2D("ResVsPt_TkSta_oneOverpt", "ResVsPt_TkSta_oneOverpt", ptBin, ptMin, ptMax, pResBin*binFactor, pResMin, pResMax));
+
+  // monitoring of the recHits provenance
+  rhBin=parameters.getParameter<int>("rhBin");
+  rhMin=parameters.getParameter<double>("rhMin");
+  rhMax=parameters.getParameter<double>("rhMax");
+  rhAnalysis.push_back(dbe->book1D("glb_hit_percentual_from_sta", "glb_hit_percentual_from_sta", rhBin, rhMin, rhMax));
+  rhAnalysis.push_back(dbe->book1D("glb_hit_percentual_from_tk", "glb_hit_percentual_from_tk", rhBin, rhMin, rhMax));
+  rhAnalysis.push_back(dbe->book1D("glb_hit_percentual_sta", "glb_hit_percentual_sta", rhBin, rhMin, rhMax));
+  rhAnalysis.push_back(dbe->book1D("glb_hit_percentual_tk", "glb_hit_percentual_tk", rhBin, rhMin, rhMax));
+  rhAnalysis.push_back(dbe->book1D("used_hit_percentual", "used_hit_percentual", rhBin, rhMin, rhMax));
+  rhAnalysis.push_back(dbe->book1D("invalid_hit_percentual", "invalid_hit_percentual", rhBin, rhMin, rhMax));
+
 }
 
 
@@ -262,8 +274,47 @@ void MuonRecoAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& 
     oneOverptResolution[9]->Fill(recoCombinedGlbTrack->pt(),(1/recoGlbTrack->pt())-(1/recoCombinedGlbTrack->pt()));
     oneOverptResolution[10]->Fill(recoCombinedGlbTrack->pt(),-(1/recoStaGlbTrack->pt())+(1/recoCombinedGlbTrack->pt()));
     oneOverptResolution[11]->Fill(recoCombinedGlbTrack->pt(),(1/recoGlbTrack->pt())-(1/recoStaGlbTrack->pt()));
-
+    
+    // valid hits Glb track
+    double rhGlb = recoCombinedGlbTrack->found();
+    // invalid hits Glb track
+    double rhGlb_notValid = recoCombinedGlbTrack->recHitsSize()-recoCombinedGlbTrack->found();
+    // valid hits Glb track from Tracker
+    double rhGlb_StaProvenance=0;
+    // valid hits Glb track from Sta system
+    double rhGlb_TkProvenance=0;
+    for (trackingRecHit_iterator recHit = recoCombinedGlbTrack->recHitsBegin();
+	 recHit!=recoCombinedGlbTrack->recHitsEnd(); ++recHit){
+      if((*recHit)->isValid()){
+	DetId id = (*recHit)->geographicalId();
+	if (id.det() == DetId::Muon)
+	  rhGlb_StaProvenance++;
+	if (id.det() == DetId::Tracker)
+	  rhGlb_TkProvenance++;
+      }
+    }
+    // valid hits Sta track associated to Glb track
+    double rhStaGlb = recoStaGlbTrack->found();
+    // valid hits Traker track associated to Glb track
+    double rhTkGlb = recoGlbTrack->found();
+    // invalid hits Traker track associated to Glb track
+    double rhTkGlb_notValid = recoGlbTrack->recHitsSize()-recoGlbTrack->found();
+   
+    // fill the histos
+    rhAnalysis[0]->Fill(rhGlb_StaProvenance/rhGlb);
+    rhAnalysis[1]->Fill(rhGlb_TkProvenance/rhGlb);
+    rhAnalysis[2]->Fill(rhGlb_StaProvenance/rhStaGlb);
+    rhAnalysis[3]->Fill(rhGlb_TkProvenance/rhTkGlb);
+    rhAnalysis[4]->Fill(rhGlb/(rhStaGlb+rhTkGlb));
+    if(rhGlb_notValid!=0)
+      rhAnalysis[5]->Fill(rhGlb_notValid/rhGlb);
+    else{
+      if(rhTkGlb_notValid!=0)
+	rhAnalysis[5]->Fill(rhTkGlb_notValid/rhGlb);
+    }
+    
   }
+
 
   if(recoMu.isTrackerMuon() && !(recoMu.isGlobalMuon())) {
     LogTrace(metname)<<"[MuonRecoAnalyzer] The mu is tracker only - filling the histos";

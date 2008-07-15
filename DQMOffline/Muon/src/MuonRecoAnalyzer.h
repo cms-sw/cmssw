@@ -6,8 +6,8 @@
  *
  *  DQM monitoring source for muon reco track
  *
- *  $Date: 2008/04/02 13:59:57 $
- *  $Revision: 1.2 $
+ *  $Date: 2008/07/12 10:47:25 $
+ *  $Revision: 1.3 $
  *  \author G. Mila - INFN Torino
  */
 
@@ -75,6 +75,9 @@ class MuonRecoAnalyzer : public MuonAnalyzerBase {
   double pResMin;
   double pResMax;
 
+  int rhBin;
+  double rhMin;
+  double rhMax;
 
   //the histos
   MonitorElement* muReco;
@@ -92,6 +95,7 @@ class MuonRecoAnalyzer : public MuonAnalyzerBase {
   std::vector<MonitorElement*> qOverptResolution;
   std::vector<MonitorElement*> oneOverpResolution;
   std::vector<MonitorElement*> oneOverptResolution;
+  std::vector<MonitorElement*> rhAnalysis;
   // tracker muon
   MonitorElement* etaTrack;
   MonitorElement* thetaTrack;
