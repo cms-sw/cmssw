@@ -8,7 +8,7 @@
 //
 // Original Author:  
 //         Created:  Sun Jan  6 23:57:00 EST 2008
-// $Id: MetProxyRhoPhiZ2DBuilder.cc,v 1.2 2008/07/03 02:06:41 dmytro Exp $
+// $Id: MetProxyRhoPhiZ2DBuilder.cc,v 1.3 2008/07/04 01:40:36 dmytro Exp $
 //
 
 // system include files
@@ -73,11 +73,13 @@ MetProxyRhoPhiZ2DBuilder::buildRhoPhi(const FWEventItem* iItem,
    if(0 == tList) {
       tList =  new TEveElementList(iItem->name().c_str(),"Mets RhoPhi",true);
       *product = tList;
-      tList->SetMainColor(iItem->defaultDisplayProperties().color());
+      tList->SetMainColor(   iItem->defaultDisplayProperties().color() );
       gEve->AddElement(tList);
    } else {
       tList->DestroyElements();
    }
+   tList->SetRnrSelf(     iItem->defaultDisplayProperties().isVisible() );
+   tList->SetRnrChildren( iItem->defaultDisplayProperties().isVisible() );
    
    const reco::CaloMETCollection* mets=0;
    iItem->get(mets);
@@ -97,6 +99,8 @@ MetProxyRhoPhiZ2DBuilder::buildRhoPhi(const FWEventItem* iItem,
       container->OpenCompound();
       //guarantees that CloseCompound will be called no matter what happens
       boost::shared_ptr<TEveCompound> sentry(container,boost::mem_fn(&TEveCompound::CloseCompound));
+      container->SetRnrSelf(     iItem->defaultDisplayProperties().isVisible() );
+      container->SetRnrChildren( iItem->defaultDisplayProperties().isVisible() );
       
       double phi = mets->at(i).phi();
       double min_phi = phi-M_PI/36/2;
@@ -138,6 +142,8 @@ MetProxyRhoPhiZ2DBuilder::buildRhoZ(const FWEventItem* iItem,
    } else {
       tList->DestroyElements();
    }
+   tList->SetRnrSelf(     iItem->defaultDisplayProperties().isVisible() );
+   tList->SetRnrChildren( iItem->defaultDisplayProperties().isVisible() );
    
    const reco::CaloMETCollection* mets=0;
    iItem->get(mets);
@@ -157,6 +163,8 @@ MetProxyRhoPhiZ2DBuilder::buildRhoZ(const FWEventItem* iItem,
       container->OpenCompound();
       //guarantees that CloseCompound will be called no matter what happens
       boost::shared_ptr<TEveCompound> sentry(container,boost::mem_fn(&TEveCompound::CloseCompound));
+      container->SetRnrSelf(     iItem->defaultDisplayProperties().isVisible() );
+      container->SetRnrChildren( iItem->defaultDisplayProperties().isVisible() );
 
       double phi = mets->at(i).phi();
       double size = mets->at(i).et();

@@ -18,6 +18,7 @@
 #include "DataFormats/MuonDetId/interface/DTChamberId.h"
 #include "Fireworks/Core/interface/FWDisplayEvent.h"
 #include "DataFormats/CSCRecHit/interface/CSCSegmentCollection.h"
+#include "Fireworks/Core/src/changeElementAndChildren.h"
 
 CSCSegmentsProxyRhoPhiZ2DBuilder::CSCSegmentsProxyRhoPhiZ2DBuilder()
 {
@@ -113,6 +114,28 @@ void CSCSegmentsProxyRhoPhiZ2DBuilder::build(const FWEventItem* iItem,
 				 globalSegmentOuterPoint[0], globalSegmentOuterPoint[1], globalSegmentOuterPoint[2] );
 	  }
      }
+}
+
+void 
+CSCSegmentsProxyRhoPhiZ2DBuilder::modelChanges(const FWModelIds& iIds, TEveElement* iElements)
+{
+   //for now, only if all items selected will will apply the action
+   if(iIds.size() && iIds.size() == iIds.begin()->item()->size()) {
+      applyChangesToAllModels(iElements);
+   }
+}
+
+void 
+CSCSegmentsProxyRhoPhiZ2DBuilder::applyChangesToAllModels(TEveElement* iElements)
+{
+   if(ids().size() != 0 ) {
+      //make the bad assumption that everything is being changed indentically
+      const FWEventItem::ModelInfo& info = ids().begin()->item()->modelInfo(ids().begin()->index());
+      changeElementAndChildren(iElements, info);
+      iElements->SetRnrSelf(info.displayProperties().isVisible());
+      iElements->SetRnrChildren(info.displayProperties().isVisible());
+      iElements->ElementChanged();      
+   }
 }
 
 REGISTER_FWRPZ2DDATAPROXYBUILDER(CSCSegmentsProxyRhoPhiZ2DBuilder,CSCSegmentCollection,"CSC-segments");

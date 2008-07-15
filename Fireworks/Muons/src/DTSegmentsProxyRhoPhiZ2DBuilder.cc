@@ -18,6 +18,7 @@
 #include "DataFormats/MuonDetId/interface/DTChamberId.h"
 #include "Fireworks/Core/interface/FWDisplayEvent.h"
 #include "DataFormats/DTRecHit/interface/DTRecSegment4DCollection.h"
+#include "Fireworks/Core/src/changeElementAndChildren.h"
 
 DTSegmentsProxyRhoPhiZ2DBuilder::DTSegmentsProxyRhoPhiZ2DBuilder()
 {
@@ -118,6 +119,28 @@ void DTSegmentsProxyRhoPhiZ2DBuilder::build(const FWEventItem* iItem,
 				 globalSegmentOuterPoint[0], globalSegmentOuterPoint[1], globalSegmentOuterPoint[2] );
 	  }
      }
+}
+
+void 
+DTSegmentsProxyRhoPhiZ2DBuilder::modelChanges(const FWModelIds& iIds, TEveElement* iElements)
+{
+   //for now, only if all items selected will will apply the action
+   if(iIds.size() && iIds.size() == iIds.begin()->item()->size()) {
+      applyChangesToAllModels(iElements);
+   }
+}
+
+void 
+DTSegmentsProxyRhoPhiZ2DBuilder::applyChangesToAllModels(TEveElement* iElements)
+{
+   if(ids().size() != 0 ) {
+      //make the bad assumption that everything is being changed indentically
+      const FWEventItem::ModelInfo& info = ids().begin()->item()->modelInfo(ids().begin()->index());
+      changeElementAndChildren(iElements, info);
+      iElements->SetRnrSelf(info.displayProperties().isVisible());
+      iElements->SetRnrChildren(info.displayProperties().isVisible());
+      iElements->ElementChanged();      
+   }
 }
 
 REGISTER_FWRPZ2DDATAPROXYBUILDER(DTSegmentsProxyRhoPhiZ2DBuilder,DTRecSegment4DCollection,"DT-segments");

@@ -8,7 +8,7 @@
 //
 // Original Author:  
 //         Created:  Sun Jan  6 23:42:33 EST 2008
-// $Id: DTSegmentsProxyRhoPhiZ2DBuilder.h,v 1.1 2008/05/26 14:40:06 dmytro Exp $
+// $Id: DTSegmentsProxyRhoPhiZ2DBuilder.h,v 1.2 2008/06/09 19:54:04 chrjones Exp $
 //
 
 // system include files
@@ -53,6 +53,9 @@ class DTSegmentsProxyRhoPhiZ2DBuilder : public FWRPZ2DDataProxyBuilder
       virtual void buildRhoZ(const FWEventItem* iItem, 
                                TEveElementList** product);
 
+      virtual void modelChanges(const FWModelIds& iIds, 
+				TEveElement* iElements);
+      virtual void applyChangesToAllModels(TEveElement* iElements);
    
       DTSegmentsProxyRhoPhiZ2DBuilder(const DTSegmentsProxyRhoPhiZ2DBuilder&); // stop default
 
