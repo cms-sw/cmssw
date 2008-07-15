@@ -7,7 +7,7 @@
 
   Description: Example DQM Client 
 
-  $Id: SMDQMClientExample.cc,v 1.6 2008/01/31 03:46:20 wmtan Exp $
+  $Id: SMDQMClientExample.cc,v 1.7 2008/03/04 17:12:40 hcheung Exp $
 
 */
 
@@ -157,6 +157,13 @@ void SMDQMClientExample::analyze(const edm::Event& iEvent,
      //root_ob->Reset();
   } else {
     std::cout << "did not find histo8" << std::endl;
+  }
+
+  i1 = dbe->get("C1/C3/int1");
+  if(i1) {
+    std::cout << "int1 value string: \"" << i1->valueString() << "\"" << std::endl;
+  } else {
+    std::cout << "did not find int1" << std::endl;
   }
 
   ++counter;
