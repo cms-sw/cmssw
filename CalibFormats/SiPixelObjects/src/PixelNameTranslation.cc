@@ -588,6 +588,13 @@ void PixelNameTranslation::writeXML(pos::PixelConfigKey key, int version, std::s
   out << "  </RUN>"								         	      << endl ;
   out << " </HEADER>"								         	      << endl ;
   out << ""										 	      << endl ;
+  out << " <DATA_SET>"  									      << endl ;
+  out << "  <VERSION>" << version << "</VERSION>"						      << endl ;
+  out << "  <PART>"										      << endl ;
+  out << "   <NAME_LABEL>CMS-PIXEL-ROOT</NAME_LABEL>"  			                              << endl ;
+  out << "   <KIND_OF_PART>Detector ROOT</KIND_OF_PART>"					      << endl ;
+  out << "  </PART>"										      << endl ;
+  out << "" 									 	              << endl ;
 
   std::map<PixelROCName,PixelHdwAddress>::const_iterator iroc=translationtable_.begin();
 
@@ -596,13 +603,6 @@ void PixelNameTranslation::writeXML(pos::PixelConfigKey key, int version, std::s
       // Find the PixelChannel for this ROC, in order to get the TBM channel.
       std::string TBMChannel = getChannelFromHdwAddress(iroc->second).TBMChannelString();
 
-      out << " <DATA_SET>"							    	 	      << endl ;
-      out << "  <VERSION>" << key.key() << "</VERSION>"		                         	      << endl ;
-      out << "  <PART>" 								 	      << endl ;
-      out << "   <NAME_LABEL>" << iroc->first.rocname() << "</NAME_LABEL>"		 	      << endl ;
-      out << "   <KIND_OF_PART>Pixel Disk ROC</KIND_OF_PART>"				 	      << endl ;
-      out << "  </PART>"								 	      << endl ;
-      out << "" 									 	      << endl ;
       out << "  <DATA>" 								 	      << endl ;
       out << "   <PXLFEC_NAME>"  << iroc->second.fecnumber()	<< "</PXLFEC_NAME>"	 	      << endl ;
       out << "   <MFEC_POSN>"    << iroc->second.mfec() 	<< "</MFEC_POSN>"	 	      << endl ;
@@ -615,8 +615,9 @@ void PixelNameTranslation::writeXML(pos::PixelConfigKey key, int version, std::s
       out << "   <FED_ROC_NUM>"  << iroc->second.fedrocnumber() << "</FED_ROC_NUM>"	 	      << endl ;
       out << "  </DATA>"	 							 	      << endl ;
       out << " </DATA_SET> "								 	      << endl ;
-      out << "  "								         	      << endl ;
+      out << ""								         	              << endl ;
     }
+  out << " </DATA_SET> "								              << endl ;
   out << "</ROOT> "								         	      << endl ;
   out.close() ;
   assert(0) ;

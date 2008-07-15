@@ -338,13 +338,6 @@ void PixelROCDACSettings::writeASCII(ostream& out) const{
 void PixelROCDACSettings::writeXML(ostream& out, pos::PixelConfigKey key, int version, std::string path) const {
   std::string mthn = "[PixelROCDACSettings::writeXML()]\t\t\t    " ;
 
-  out << " <DATA_SET>"                                                             << endl ;
-  out << "  <COMMENT_DESCRIPTION>" << rocid_.rocname() << "</COMMENT_DESCRIPTION>" << endl ;
-  out << "  <VERSION>" << version << "</VERSION>"                                  << endl ;
-  out << "  <PART>"                                                                << endl ;
-  out << "   <KIND_OF_PART>Pixel Disk ROC</KIND_OF_PART>"                          << endl ;
-  out << "  </PART>"                                                               << endl ;
-  out << " "                                                                       << endl ;
   out << "  <DATA>"                                                                << endl ;
   out << "   <VDD>"   	    << (int)Vdd_	 << "</VDD>"			   << endl ;
   out << "   <VANA>"  	    << (int)Vana_	 << "</VANA>"			   << endl ;

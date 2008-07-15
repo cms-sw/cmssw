@@ -390,10 +390,21 @@ void PixelDACSettings::writeXML(pos::PixelConfigKey key, int version, std::strin
   out << "  </RUN>"								         	 << std::endl ;
   out << " </HEADER>"								         	 << std::endl ;
   out << ""									         	 << std::endl ;
+  out << " <DATA_SET>"                                                             		 << std::endl ;
+  out << "  <VERSION>" << version << "</VERSION>"                                  		 << std::endl ;
+  out << " "                                                                       		 << std::endl ;
+  out << "  <PART>"                                                                		 << std::endl ;
+  out << "   <NAME_LABEL>CMS-PIXEL_ROOT</NAME_LABEL>"                              		 << std::endl ;
+  out << "   <KIND_OF_PART>Detector ROOT</KIND_OF_PART>"                           		 << std::endl ;
+  out << "  </PART>"                                                               		 << std::endl ;
+  out << " "                                                                       		 << std::endl ;
 
   for(unsigned int i=0;i<dacsettings_.size();i++){
     dacsettings_[i].writeXML(out, key, version, path);
   }
+
+  out << " </DATA_SET>"                                                                          << std::endl ;
+  out << "</ROOT>"                                                                               << std::endl ;
 
 }
 
