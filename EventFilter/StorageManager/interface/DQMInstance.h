@@ -8,7 +8,7 @@
      Container class for one snapshot instance of a collection of 
      collated DQM objects
 
-   $Id: DQMInstance.h,v 1.5.4.1 2008/06/18 19:24:20 biery Exp $
+   $Id: DQMInstance.h,v 1.6 2008/06/25 18:03:22 biery Exp $
 */
 
 #include <string>
@@ -94,6 +94,8 @@ namespace stor
       bool isReady(int currentTime);
       bool isStale(int currentTime);
       std::map<std::string, DQMGroup *> dqmGroups_;
+
+      static std::string getSafeMEName(TObject *object);
 
     protected:  
       int                    runNumber_;

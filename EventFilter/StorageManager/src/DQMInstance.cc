@@ -16,6 +16,10 @@
 #include "TString.h"
 #include "TDirectory.h"
 #include "sys/stat.h"
+#include "classlib/utils/Regexp.h"
+
+// 15-Jul-2008, KAB: copied from DQMStore
+static const lat::Regexp s_rxmeval ("^<(.*)>(i|f|s|qr)=(.*)</\\1>$");
 
 using edm::debugit;
 using namespace std;
@@ -115,7 +119,7 @@ int DQMInstance::updateObject(std::string groupName,
 			      int eventNumber)
 {
   lastEvent_ = eventNumber;
-  std::string objectName = object->GetName();
+  std::string objectName = getSafeMEName(object);
   DQMGroup * group = dqmGroups_[groupName];
   if ( group == NULL )
   {
@@ -147,9 +151,12 @@ int DQMInstance::updateObject(std::string groupName,
     }
     else
     {
-      // Unrecognized objects just take the last instance
-      delete(storedObject);
-      folder->dqmObjects_[objectName] = object->Clone(object->GetName());
+      // 15-Jul-2008, KAB - switch to the first instance at the 
+      // request of Andreas Meyer...
+
+      //// Unrecognized objects just take the last instance
+      //delete(storedObject);
+      //folder->dqmObjects_[objectName] = object->Clone(object->GetName());
     }
   }
 
@@ -261,3 +268,21 @@ int DQMInstance::writeFile(std::string filePrefix)
 
 DQMGroup * DQMInstance::getDQMGroup(std::string groupName)
 { return(dqmGroups_[groupName]);}
+
+// 15-Jul-2008, KAB - this method should probably exist in DQMStore
+// rather than here, but I'm going for expediency...
+// The main purpose of the method is to pull out the ME name
+// from scalar MEs (ints, floats, strings)
+std::string DQMInstance::getSafeMEName(TObject *object)
+{
+  std::string rawName = object->GetName();
+  std::string safeName = rawName;
+
+  lat::RegexpMatch patternMatch;
+  if (dynamic_cast<TObjString *>(object) &&
+      s_rxmeval.match(rawName, 0, 0, &patternMatch)) {
+    safeName = patternMatch.matchString(rawName, 1);
+  }
+
+  return safeName;
+}
