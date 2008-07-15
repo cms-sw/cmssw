@@ -8,7 +8,7 @@
 //
 // Original Author:  
 //         Created:  Thu Dec  6 17:49:54 PST 2007
-// $Id: FW3DLegoDataProxyBuilder.cc,v 1.8 2008/07/09 20:06:17 chrjones Exp $
+// $Id: FW3DLegoDataProxyBuilder.cc,v 1.9 2008/07/10 21:21:58 dmytro Exp $
 //
 
 // system include files
@@ -98,9 +98,9 @@ FW3DLegoDataProxyBuilder::setItem(const FWEventItem* iItem)
 void 
 FW3DLegoDataProxyBuilder::itemChanged(const FWEventItem* iItem)
 {
-   std::cout <<"item changed "<<iItem->name()<<std::endl;
+   //std::cout <<"item changed "<<iItem->name()<<std::endl;
    if(m_haveViews) {
-      std::cout <<"  building..."<<std::endl;
+      //std::cout <<"  building..."<<std::endl;
       build();
       m_mustBuild=false;
    } else {
