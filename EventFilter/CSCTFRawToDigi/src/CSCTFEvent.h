@@ -15,6 +15,7 @@ public:
 
 	std::vector<CSCSPEvent> SPs(void) const throw() {
 		std::vector<CSCSPEvent> result;
+                result.reserve(nRecords);
 		for(int spNum=0; spNum<nRecords; spNum++) result.push_back(sp[spNum]);
 		return result;
 	}
