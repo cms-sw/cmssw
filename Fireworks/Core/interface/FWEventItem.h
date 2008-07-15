@@ -16,7 +16,7 @@
 //
 // Original Author:  Chris Jones
 //         Created:  Thu Jan  3 14:02:21 EST 2008
-// $Id: FWEventItem.h,v 1.20 2008/06/12 15:01:08 chrjones Exp $
+// $Id: FWEventItem.h,v 1.21 2008/07/15 03:50:24 chrjones Exp $
 //
 
 // system include files
@@ -112,6 +112,7 @@ class FWEventItem
       ModelInfo modelInfo(int iIndex) const; //return copy for now since want to be able to change visibility
       size_t size() const;
       const void* modelData(int iIndex) const;
+      std::string modelName(int iIndex) const;
    
       bool isCollection() const;
    

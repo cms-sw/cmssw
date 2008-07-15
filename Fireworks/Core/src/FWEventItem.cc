@@ -8,7 +8,7 @@
 //
 // Original Author:  
 //         Created:  Thu Jan  3 14:59:23 EST 2008
-// $Id: FWEventItem.cc,v 1.18 2008/07/10 09:05:02 jmuelmen Exp $
+// $Id: FWEventItem.cc,v 1.19 2008/07/15 03:50:25 chrjones Exp $
 //
 
 // system include files
@@ -488,6 +488,19 @@ FWEventItem::modelData(int iIndex) const
    getPrimaryData();
    if ( 0 == m_data) { return m_data; }
    return 0 != m_colProxy.get()? m_colProxy->At(iIndex) : m_data;
+}
+
+std::string 
+FWEventItem::modelName(int iIndex) const
+{
+   std::ostringstream s;
+   size_t lastChar = name().size();
+   //if name ends in 's' assume it is plural and remove the s for the individual object
+   if(name()[lastChar-1]=='s') {
+      --lastChar;
+   }
+   s<<name().substr(0,lastChar)<<" "<<iIndex;
+   return s.str();
 }
 
 const std::string& 
