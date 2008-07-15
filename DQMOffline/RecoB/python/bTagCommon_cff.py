@@ -2,7 +2,7 @@ import FWCore.ParameterSet.Config as cms
 
 bTagCommonBlock = cms.PSet(
     # rec. jet
-    ptRecJetMin = cms.double(0.0),
+    ptRecJetMin = cms.double(30.0),
     # This option enables/disables the output of the full list of histograms
     # With false, only a subset of the histograms (the most useful) will
     # be written to file.
