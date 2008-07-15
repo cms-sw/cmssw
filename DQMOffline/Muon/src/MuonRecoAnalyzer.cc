@@ -2,8 +2,8 @@
 /*
  *  See header file for a description of this class.
  *
- *  $Date: 2008/07/12 10:47:19 $
- *  $Revision: 1.11 $
+ *  $Date: 2008/07/15 10:17:20 $
+ *  $Revision: 1.12 $
  *  \author G. Mila - INFN Torino
  */
 
@@ -172,12 +172,12 @@ void MuonRecoAnalyzer::beginJob(edm::EventSetup const& iSetup,DQMStore * dbe) {
   rhBin=parameters.getParameter<int>("rhBin");
   rhMin=parameters.getParameter<double>("rhMin");
   rhMax=parameters.getParameter<double>("rhMax");
-  rhAnalysis.push_back(dbe->book1D("glb_hit_percentual_from_sta", "glb_hit_percentual_from_sta", rhBin, rhMin, rhMax));
-  rhAnalysis.push_back(dbe->book1D("glb_hit_percentual_from_tk", "glb_hit_percentual_from_tk", rhBin, rhMin, rhMax));
-  rhAnalysis.push_back(dbe->book1D("glb_hit_percentual_sta", "glb_hit_percentual_sta", rhBin, rhMin, rhMax));
-  rhAnalysis.push_back(dbe->book1D("glb_hit_percentual_tk", "glb_hit_percentual_tk", rhBin, rhMin, rhMax));
-  rhAnalysis.push_back(dbe->book1D("used_hit_percentual", "used_hit_percentual", rhBin, rhMin, rhMax));
-  rhAnalysis.push_back(dbe->book1D("invalid_hit_percentual", "invalid_hit_percentual", rhBin, rhMin, rhMax));
+  rhAnalysis.push_back(dbe->book1D("StaRh_Frac_inGlb", "StaRh_Frac_inGlb", rhBin, rhMin, rhMax));
+  rhAnalysis.push_back(dbe->book1D("TkRh_Frac_inGlb", "TkRh_Frac_inGlb", rhBin, rhMin, rhMax));
+  rhAnalysis.push_back(dbe->book1D("StaRh_inGlb_Div_RhAssoSta", "StaRh_inGlb_Div_RhAssoSta", rhBin, rhMin, rhMax));
+  rhAnalysis.push_back(dbe->book1D("TkRh_inGlb_Div_RhAssoTk", "TkRh_inGlb_Div_RhAssoTk", rhBin, rhMin, rhMax));
+  rhAnalysis.push_back(dbe->book1D("invalidRh_Frac_inTk", "invalidRh_Frac_inTk", rhBin, rhMin, rhMax));
+  rhAnalysis.push_back(dbe->book1D("GlbRh_Div_RhAssoStaTk", "GlbRh_Div_RhAssoStaTk", rhBin, rhMin, rhMax));
 
 }
 
@@ -199,86 +199,84 @@ void MuonRecoAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& 
     // get the track combinig the information from both the Tracker and the Spectrometer
     reco::TrackRef recoCombinedGlbTrack = recoMu.combinedMuon();
     // get the track using only the tracker data
-    reco::TrackRef recoGlbTrack = recoMu.track();
+    reco::TrackRef recoTkGlbTrack = recoMu.track();
     // get the track using only the mu spectrometer data
     reco::TrackRef recoStaGlbTrack = recoMu.standAloneMuon();
   
     etaGlbTrack[0]->Fill(recoCombinedGlbTrack->eta());
-    etaGlbTrack[1]->Fill(recoGlbTrack->eta());
+    etaGlbTrack[1]->Fill(recoTkGlbTrack->eta());
     etaGlbTrack[2]->Fill(recoStaGlbTrack->eta());
-    etaResolution[0]->Fill(recoGlbTrack->eta()-recoCombinedGlbTrack->eta());
+    etaResolution[0]->Fill(recoTkGlbTrack->eta()-recoCombinedGlbTrack->eta());
     etaResolution[1]->Fill(-recoStaGlbTrack->eta()+recoCombinedGlbTrack->eta());
-    etaResolution[2]->Fill(recoGlbTrack->eta()-recoStaGlbTrack->eta());
-    etaResolution[3]->Fill(recoCombinedGlbTrack->eta(), recoGlbTrack->eta()-recoCombinedGlbTrack->eta());
+    etaResolution[2]->Fill(recoTkGlbTrack->eta()-recoStaGlbTrack->eta());
+    etaResolution[3]->Fill(recoCombinedGlbTrack->eta(), recoTkGlbTrack->eta()-recoCombinedGlbTrack->eta());
     etaResolution[4]->Fill(recoCombinedGlbTrack->eta(), -recoStaGlbTrack->eta()+recoCombinedGlbTrack->eta());
-    etaResolution[5]->Fill(recoCombinedGlbTrack->eta(), recoGlbTrack->eta()-recoStaGlbTrack->eta());
+    etaResolution[5]->Fill(recoCombinedGlbTrack->eta(), recoTkGlbTrack->eta()-recoStaGlbTrack->eta());
 
     thetaGlbTrack[0]->Fill(recoCombinedGlbTrack->theta());
-    thetaGlbTrack[1]->Fill(recoGlbTrack->theta());
+    thetaGlbTrack[1]->Fill(recoTkGlbTrack->theta());
     thetaGlbTrack[2]->Fill(recoStaGlbTrack->theta());
-    thetaResolution[0]->Fill(recoGlbTrack->theta()-recoCombinedGlbTrack->theta());
+    thetaResolution[0]->Fill(recoTkGlbTrack->theta()-recoCombinedGlbTrack->theta());
     thetaResolution[1]->Fill(-recoStaGlbTrack->theta()+recoCombinedGlbTrack->theta());
-    thetaResolution[2]->Fill(recoGlbTrack->theta()-recoStaGlbTrack->theta());
-    thetaResolution[3]->Fill(recoCombinedGlbTrack->theta(), recoGlbTrack->theta()-recoCombinedGlbTrack->theta());
+    thetaResolution[2]->Fill(recoTkGlbTrack->theta()-recoStaGlbTrack->theta());
+    thetaResolution[3]->Fill(recoCombinedGlbTrack->theta(), recoTkGlbTrack->theta()-recoCombinedGlbTrack->theta());
     thetaResolution[4]->Fill(recoCombinedGlbTrack->theta(), -recoStaGlbTrack->theta()+recoCombinedGlbTrack->theta());
-    thetaResolution[5]->Fill(recoCombinedGlbTrack->theta(), recoGlbTrack->theta()-recoStaGlbTrack->theta());
+    thetaResolution[5]->Fill(recoCombinedGlbTrack->theta(), recoTkGlbTrack->theta()-recoStaGlbTrack->theta());
      
     phiGlbTrack[0]->Fill(recoCombinedGlbTrack->phi());
-    phiGlbTrack[1]->Fill(recoGlbTrack->phi());
+    phiGlbTrack[1]->Fill(recoTkGlbTrack->phi());
     phiGlbTrack[2]->Fill(recoStaGlbTrack->phi());
-    phiResolution[0]->Fill(recoGlbTrack->phi()-recoCombinedGlbTrack->phi());
+    phiResolution[0]->Fill(recoTkGlbTrack->phi()-recoCombinedGlbTrack->phi());
     phiResolution[1]->Fill(-recoStaGlbTrack->phi()+recoCombinedGlbTrack->phi());
-    phiResolution[2]->Fill(recoGlbTrack->phi()-recoStaGlbTrack->phi());
-    phiResolution[3]->Fill(recoCombinedGlbTrack->phi(), recoGlbTrack->phi()-recoCombinedGlbTrack->phi());
+    phiResolution[2]->Fill(recoTkGlbTrack->phi()-recoStaGlbTrack->phi());
+    phiResolution[3]->Fill(recoCombinedGlbTrack->phi(), recoTkGlbTrack->phi()-recoCombinedGlbTrack->phi());
     phiResolution[4]->Fill(recoCombinedGlbTrack->phi(), -recoStaGlbTrack->phi()+recoCombinedGlbTrack->phi());
-    phiResolution[5]->Fill(recoCombinedGlbTrack->phi(), recoGlbTrack->phi()-recoStaGlbTrack->phi());
+    phiResolution[5]->Fill(recoCombinedGlbTrack->phi(), recoTkGlbTrack->phi()-recoStaGlbTrack->phi());
     
     pGlbTrack[0]->Fill(recoCombinedGlbTrack->p());
-    pGlbTrack[1]->Fill(recoGlbTrack->p());
+    pGlbTrack[1]->Fill(recoTkGlbTrack->p());
     pGlbTrack[2]->Fill(recoStaGlbTrack->p());
 
     ptGlbTrack[0]->Fill(recoCombinedGlbTrack->pt());
-    ptGlbTrack[1]->Fill(recoGlbTrack->pt());
+    ptGlbTrack[1]->Fill(recoTkGlbTrack->pt());
     ptGlbTrack[2]->Fill(recoStaGlbTrack->pt());
 
     qGlbTrack[0]->Fill(recoCombinedGlbTrack->charge());
-    qGlbTrack[1]->Fill(recoGlbTrack->charge());
+    qGlbTrack[1]->Fill(recoTkGlbTrack->charge());
     qGlbTrack[2]->Fill(recoStaGlbTrack->charge());
     if(recoCombinedGlbTrack->charge()==recoStaGlbTrack->charge()) qGlbTrack[3]->Fill(1);
     else qGlbTrack[3]->Fill(2);
-    if(recoCombinedGlbTrack->charge()==recoGlbTrack->charge()) qGlbTrack[3]->Fill(3);
+    if(recoCombinedGlbTrack->charge()==recoTkGlbTrack->charge()) qGlbTrack[3]->Fill(3);
     else qGlbTrack[3]->Fill(4);
-    if(recoStaGlbTrack->charge()==recoGlbTrack->charge()) qGlbTrack[3]->Fill(5);
+    if(recoStaGlbTrack->charge()==recoTkGlbTrack->charge()) qGlbTrack[3]->Fill(5);
     else qGlbTrack[3]->Fill(6);
-    if(recoCombinedGlbTrack->charge()!=recoStaGlbTrack->charge() && recoCombinedGlbTrack->charge()!=recoGlbTrack->charge()) qGlbTrack[3]->Fill(7);
-    if(recoCombinedGlbTrack->charge()==recoStaGlbTrack->charge() && recoCombinedGlbTrack->charge()==recoGlbTrack->charge()) qGlbTrack[3]->Fill(8);
+    if(recoCombinedGlbTrack->charge()!=recoStaGlbTrack->charge() && recoCombinedGlbTrack->charge()!=recoTkGlbTrack->charge()) qGlbTrack[3]->Fill(7);
+    if(recoCombinedGlbTrack->charge()==recoStaGlbTrack->charge() && recoCombinedGlbTrack->charge()==recoTkGlbTrack->charge()) qGlbTrack[3]->Fill(8);
     
-    qOverpResolution[0]->Fill((recoGlbTrack->charge()/recoGlbTrack->p())-(recoCombinedGlbTrack->charge()/recoCombinedGlbTrack->p()));
+    qOverpResolution[0]->Fill((recoTkGlbTrack->charge()/recoTkGlbTrack->p())-(recoCombinedGlbTrack->charge()/recoCombinedGlbTrack->p()));
     qOverpResolution[1]->Fill(-(recoStaGlbTrack->charge()/recoStaGlbTrack->p())+(recoCombinedGlbTrack->charge()/recoCombinedGlbTrack->p()));
-    qOverpResolution[2]->Fill((recoGlbTrack->charge()/recoGlbTrack->p())-(recoStaGlbTrack->charge()/recoStaGlbTrack->p()));
-    oneOverpResolution[0]->Fill((1/recoGlbTrack->p())-(1/recoCombinedGlbTrack->p()));
+    qOverpResolution[2]->Fill((recoTkGlbTrack->charge()/recoTkGlbTrack->p())-(recoStaGlbTrack->charge()/recoStaGlbTrack->p()));
+    oneOverpResolution[0]->Fill((1/recoTkGlbTrack->p())-(1/recoCombinedGlbTrack->p()));
     oneOverpResolution[1]->Fill(-(1/recoStaGlbTrack->p())+(1/recoCombinedGlbTrack->p()));
-    oneOverpResolution[2]->Fill((1/recoGlbTrack->p())-(1/recoStaGlbTrack->p()));
-    qOverptResolution[0]->Fill((recoGlbTrack->charge()/recoGlbTrack->pt())-(recoCombinedGlbTrack->charge()/recoCombinedGlbTrack->pt()));
+    oneOverpResolution[2]->Fill((1/recoTkGlbTrack->p())-(1/recoStaGlbTrack->p()));
+    qOverptResolution[0]->Fill((recoTkGlbTrack->charge()/recoTkGlbTrack->pt())-(recoCombinedGlbTrack->charge()/recoCombinedGlbTrack->pt()));
     qOverptResolution[1]->Fill(-(recoStaGlbTrack->charge()/recoStaGlbTrack->pt())+(recoCombinedGlbTrack->charge()/recoCombinedGlbTrack->pt()));
-    qOverptResolution[2]->Fill((recoGlbTrack->charge()/recoGlbTrack->pt())-(recoStaGlbTrack->charge()/recoStaGlbTrack->pt()));
-    oneOverptResolution[0]->Fill((1/recoGlbTrack->pt())-(1/recoCombinedGlbTrack->pt()));
+    qOverptResolution[2]->Fill((recoTkGlbTrack->charge()/recoTkGlbTrack->pt())-(recoStaGlbTrack->charge()/recoStaGlbTrack->pt()));
+    oneOverptResolution[0]->Fill((1/recoTkGlbTrack->pt())-(1/recoCombinedGlbTrack->pt()));
     oneOverptResolution[1]->Fill(-(1/recoStaGlbTrack->pt())+(1/recoCombinedGlbTrack->pt()));
-    oneOverptResolution[2]->Fill((1/recoGlbTrack->pt())-(1/recoStaGlbTrack->pt()));
-    oneOverptResolution[3]->Fill(recoCombinedGlbTrack->eta(),(1/recoGlbTrack->pt())-(1/recoCombinedGlbTrack->pt()));
+    oneOverptResolution[2]->Fill((1/recoTkGlbTrack->pt())-(1/recoStaGlbTrack->pt()));
+    oneOverptResolution[3]->Fill(recoCombinedGlbTrack->eta(),(1/recoTkGlbTrack->pt())-(1/recoCombinedGlbTrack->pt()));
     oneOverptResolution[4]->Fill(recoCombinedGlbTrack->eta(),-(1/recoStaGlbTrack->pt())+(1/recoCombinedGlbTrack->pt()));
-    oneOverptResolution[5]->Fill(recoCombinedGlbTrack->eta(),(1/recoGlbTrack->pt())-(1/recoStaGlbTrack->pt()));
-    oneOverptResolution[6]->Fill(recoCombinedGlbTrack->phi(),(1/recoGlbTrack->pt())-(1/recoCombinedGlbTrack->pt()));
+    oneOverptResolution[5]->Fill(recoCombinedGlbTrack->eta(),(1/recoTkGlbTrack->pt())-(1/recoStaGlbTrack->pt()));
+    oneOverptResolution[6]->Fill(recoCombinedGlbTrack->phi(),(1/recoTkGlbTrack->pt())-(1/recoCombinedGlbTrack->pt()));
     oneOverptResolution[7]->Fill(recoCombinedGlbTrack->phi(),-(1/recoStaGlbTrack->pt())+(1/recoCombinedGlbTrack->pt()));
-    oneOverptResolution[8]->Fill(recoCombinedGlbTrack->phi(),(1/recoGlbTrack->pt())-(1/recoStaGlbTrack->pt()));
-    oneOverptResolution[9]->Fill(recoCombinedGlbTrack->pt(),(1/recoGlbTrack->pt())-(1/recoCombinedGlbTrack->pt()));
+    oneOverptResolution[8]->Fill(recoCombinedGlbTrack->phi(),(1/recoTkGlbTrack->pt())-(1/recoStaGlbTrack->pt()));
+    oneOverptResolution[9]->Fill(recoCombinedGlbTrack->pt(),(1/recoTkGlbTrack->pt())-(1/recoCombinedGlbTrack->pt()));
     oneOverptResolution[10]->Fill(recoCombinedGlbTrack->pt(),-(1/recoStaGlbTrack->pt())+(1/recoCombinedGlbTrack->pt()));
-    oneOverptResolution[11]->Fill(recoCombinedGlbTrack->pt(),(1/recoGlbTrack->pt())-(1/recoStaGlbTrack->pt()));
+    oneOverptResolution[11]->Fill(recoCombinedGlbTrack->pt(),(1/recoTkGlbTrack->pt())-(1/recoStaGlbTrack->pt()));
     
     // valid hits Glb track
     double rhGlb = recoCombinedGlbTrack->found();
-    // invalid hits Glb track
-    double rhGlb_notValid = recoCombinedGlbTrack->recHitsSize()-recoCombinedGlbTrack->found();
     // valid hits Glb track from Tracker
     double rhGlb_StaProvenance=0;
     // valid hits Glb track from Sta system
@@ -294,11 +292,11 @@ void MuonRecoAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& 
       }
     }
     // valid hits Sta track associated to Glb track
-    double rhStaGlb = recoStaGlbTrack->found();
+    double rhStaGlb = recoStaGlbTrack->recHitsSize();
     // valid hits Traker track associated to Glb track
-    double rhTkGlb = recoGlbTrack->found();
+    double rhTkGlb = recoTkGlbTrack->found();
     // invalid hits Traker track associated to Glb track
-    double rhTkGlb_notValid = recoGlbTrack->recHitsSize()-recoGlbTrack->found();
+    double rhTkGlb_notValid = recoTkGlbTrack->lost();
    
     // fill the histos
     rhAnalysis[0]->Fill(rhGlb_StaProvenance/rhGlb);
@@ -306,12 +304,7 @@ void MuonRecoAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& 
     rhAnalysis[2]->Fill(rhGlb_StaProvenance/rhStaGlb);
     rhAnalysis[3]->Fill(rhGlb_TkProvenance/rhTkGlb);
     rhAnalysis[4]->Fill(rhGlb/(rhStaGlb+rhTkGlb));
-    if(rhGlb_notValid!=0)
-      rhAnalysis[5]->Fill(rhGlb_notValid/rhGlb);
-    else{
-      if(rhTkGlb_notValid!=0)
-	rhAnalysis[5]->Fill(rhTkGlb_notValid/rhGlb);
-    }
+    rhAnalysis[5]->Fill(rhTkGlb_notValid/rhGlb);
     
   }
 
