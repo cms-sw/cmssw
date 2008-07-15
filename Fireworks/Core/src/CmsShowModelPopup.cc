@@ -8,7 +8,7 @@
 //
 // Original Author:  
 //         Created:  Fri Jun 27 11:23:08 EDT 2008
-// $Id: CmsShowModelPopup.cc,v 1.7 2008/07/08 20:10:14 chrjones Exp $
+// $Id: CmsShowModelPopup.cc,v 1.8 2008/07/14 20:03:47 chrjones Exp $
 //
 
 // system include file
@@ -171,10 +171,11 @@ CmsShowModelPopup::fillModelPopup(const FWSelectionManager& iSelMgr) {
     id = *m_models.begin();
     item = (*(m_models.begin())).item();
     if (multipleNames) 
-      m_modelLabel->SetText("Multiple Items");
+      m_modelLabel->SetText("Multiple objects");
     else 
-      m_modelLabel->SetText(item->name().c_str());
+       m_modelLabel->SetText((std::string("Multiple ")+item->name()).c_str());
     if(m_models.size()==1) {
+       m_modelLabel->SetText(item->modelName(id.index()).c_str());
        m_openDetailedViewButton->SetEnabled(m_detailViewManager->haveDetailViewFor(id));
     }
     m_colorSelectWidget->SetColor(gVirtualX->GetPixel(item->modelInfo(id.index()).displayProperties().color()));
@@ -211,7 +212,7 @@ CmsShowModelPopup::disconnectAll() {
   m_isVisibleButton->Disconnect("Toggled(Bool_t)", this, "toggleModelVisible(Bool_t)");
   //  m_item = 0;
   //  m_model = 0;
-  m_modelLabel->SetText(" ");
+  m_modelLabel->SetText("No object selected");
   m_colorSelectWidget->SetColor(gVirtualX->GetPixel(kRed));
   m_isVisibleButton->SetDisabledAndSelected(kTRUE);
   m_colorSelectWidget->SetEnabled(kFALSE);
