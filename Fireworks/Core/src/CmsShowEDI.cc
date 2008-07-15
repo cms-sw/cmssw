@@ -8,7 +8,7 @@
 //
 // Original Author:  Joshua Berger  
 //         Created:  Mon Jun 23 15:48:11 EDT 2008
-// $Id: CmsShowEDI.cc,v 1.4 2008/07/10 14:28:51 chrjones Exp $
+// $Id: CmsShowEDI.cc,v 1.5 2008/07/10 21:24:32 dmytro Exp $
 //
 
 // system include files
@@ -307,7 +307,7 @@ CmsShowEDI::disconnectAll() {
       m_selectAllButton->Disconnect("Clicked()", this, "selectAll()");
       m_removeButton->Disconnect("Clicked()", this, "removeItem()");
       m_item = 0;
-      m_objectLabel->SetText(" ");
+      m_objectLabel->SetText("No collection selected");
       m_colorSelectWidget->SetColor(gVirtualX->GetPixel(kRed));
       m_isVisibleButton->SetDisabledAndSelected(kTRUE);
       m_filterExpressionEntry->SetText(0);
