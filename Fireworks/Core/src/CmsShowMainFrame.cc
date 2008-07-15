@@ -8,7 +8,7 @@
 //
 // Original Author:  Chris Jones
 //         Created:  Thu May 29 20:58:23 CDT 2008
-// $Id: CmsShowMainFrame.cc,v 1.9 2008/07/14 14:06:44 chrjones Exp $
+// $Id: CmsShowMainFrame.cc,v 1.10 2008/07/15 20:26:33 chrjones Exp $
 //
 
 // system include files
@@ -30,6 +30,7 @@
 #include <TTimer.h>
 #include <KeySymbols.h>
 #include "TGTextEntry.h"
+#include <TSystem.h>
 // user include files
 #include "DataFormats/FWLite/interface/Event.h"
 #include "DataFormats/Provenance/interface/EventID.h"
@@ -64,7 +65,6 @@ TGMainFrame(p, w, h)
    m_playBackTimer = new TTimer(m_playBackRate);
    m_playTimer->SetObject(this);
    m_playBackTimer->SetObject(this);
-   CSGAction *goToFirst = new CSGAction(this, cmsshow::sHome.c_str());
    //CSGAction *addRhoPhi = new CSGAction(this, cmsshow::sAddRhoPhi.c_str());
    //CSGAction *addRhoZ = new CSGAction(this, cmsshow::sAddRhoZ.c_str());
    //CSGAction *addLego = new CSGAction(this, cmsshow::sAddLego.c_str());
@@ -75,10 +75,16 @@ TGMainFrame(p, w, h)
    CSGAction *exportImage = new CSGAction(this, cmsshow::sExportImage.c_str());
    CSGAction *quit = new CSGAction(this, cmsshow::sQuit.c_str());
    CSGAction *undo = new CSGAction(this, cmsshow::sUndo.c_str());
+   undo->disable();
    CSGAction *redo = new CSGAction(this, cmsshow::sRedo.c_str());
+   redo->disable();
    CSGAction *cut = new CSGAction(this, cmsshow::sCut.c_str());
+   cut->disable();
    CSGAction *copy = new CSGAction(this, cmsshow::sCopy.c_str());
+   copy->disable();
    CSGAction *paste = new CSGAction(this, cmsshow::sPaste.c_str());
+   paste->disable();
+   CSGAction *goToFirst = new CSGAction(this, cmsshow::sGotoFirstEvent.c_str());
    CSGAction *nextEvent = new CSGAction(this, cmsshow::sNextEvent.c_str());
    CSGAction *previousEvent = new CSGAction(this, cmsshow::sPreviousEvent.c_str());
    CSGAction *playEvents = new CSGAction(this, cmsshow::sPlayEvents.c_str());
@@ -107,7 +113,9 @@ TGMainFrame(p, w, h)
    //   quit->activated.connect(sigc::mem_fun(*m_manager, &FWGUIManager::quit));
    //    enableNext->activated.connect(sigc::mem_fun(*nextEvent, &CSGAction::enable));
 
-   nextEvent->setToolTip("Load next event");
+   goToFirst->setToolTip("Goto first event");
+   previousEvent->setToolTip("Goto previous event");
+   nextEvent->setToolTip("Goto next event");
 
    TGMenuBar *menuBar = new TGMenuBar(this, this->GetWidth(), 12);
 
@@ -162,11 +170,12 @@ TGMainFrame(p, w, h)
    nextEvent->createShortcut(kKey_Right, "CTRL");
    previousEvent->createMenuEntry(viewMenu);
    previousEvent->createShortcut(kKey_Left, "CTRL");
-   playEvents->createMenuEntry(viewMenu);
-   playEvents->createShortcut(kKey_Right, "CTRL+SHIFT");
-   playEventsBack->createMenuEntry(viewMenu);
-   playEventsBack->createShortcut(kKey_Left, "CTRL+SHIFT");
-   pause->createMenuEntry(viewMenu);
+   goToFirst->createMenuEntry(viewMenu);
+   //playEvents->createMenuEntry(viewMenu);
+   //playEvents->createShortcut(kKey_Right, "CTRL+SHIFT");
+   //playEventsBack->createMenuEntry(viewMenu);
+   //playEventsBack->createShortcut(kKey_Left, "CTRL+SHIFT");
+   //pause->createMenuEntry(viewMenu);
 
    TGPopupMenu* windowMenu = new TGPopupMenu(gClient->GetRoot());
    menuBar->AddPopup("Window", windowMenu, new TGLayoutHints(kLHintsTop | kLHintsLeft, 0, 4, 0, 0));
@@ -208,10 +217,15 @@ TGMainFrame(p, w, h)
    TGHorizontalFrame *fullbar = new TGHorizontalFrame(this, this->GetWidth(), 30);
    printf("this->GetWidth(): %d\n", this->GetWidth());
    TGToolBar *tools = new TGToolBar(fullbar, 400, 30);
-   goToFirst->createToolBarEntry(tools, "first_t.xpm");
-   previousEvent->createToolBarEntry(tools, "previous_t.xpm");
-   nextEvent->createToolBarEntry(tools, "next_t.xpm");
-   pause->createToolBarEntry(tools, "stop_t.xpm");
+   TString coreIcondir(Form("%s/src/Fireworks/Core/icons/",gSystem->Getenv("CMSSW_BASE")));
+
+   //goToFirst->createToolBarEntry(tools, "first_t.xpm");
+   //previousEvent->createToolBarEntry(tools, "previous_t.xpm");
+   //nextEvent->createToolBarEntry(tools, "next_t.xpm");
+   goToFirst->createToolBarEntry(tools, coreIcondir+"First.gif");
+   previousEvent->createToolBarEntry(tools, coreIcondir+"Back.gif");
+   nextEvent->createToolBarEntry(tools, coreIcondir+"Forward.gif");
+   //pause->createToolBarEntry(tools, "stop_t.xpm");
    fullbar->AddFrame(tools, new TGLayoutHints(kLHintsLeft,2,2,2,2));
    TGHorizontalFrame *texts = new TGHorizontalFrame(fullbar, fullbar->GetWidth() - tools->GetWidth(), 30);
    //printf("text width: %d\n", this->GetWidth()-tools->GetWidth());
