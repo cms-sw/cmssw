@@ -1024,10 +1024,17 @@ class dbsBaseGui:
                   width=40,
                   text="%s"%temp[i]).grid(row=myrow,column=0)
 
-            tempEnt=Entry(self.dqmvaluewin,
-                          width=80,
+            if temp[i]=="  Prescale to run over entire run (1=yes/0=no)? ":
+                tempEnt=OptionMenu(self.dqmvaluewin,
+                                   self.prescaleOverRun,
+                                   'True',
+                                   'False')
+                tempEnt.configure(width=75,bg="white")
+            else:
+                tempEnt=Entry(self.dqmvaluewin,
+                              width=80,
                           bg="white",
-                          textvar=myvars[temp[i]])
+                              textvar=myvars[temp[i]])
             tempEnt.grid(row=myrow,column=1)
             if temp[i]=="  Final DQM Save Directory = ": 
                 tempEnt.bind("<Return>",(lambda event:self.checkExistence(self.finalDir)))
