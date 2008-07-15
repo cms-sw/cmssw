@@ -8,9 +8,9 @@
 //
 // Original Author:  Chris Jones
 //         Created:  Mon Mar 10 09:02:57 CDT 2008
-// $Id: FWListViewObjectEditor.cc,v 1.3 2008/06/06 13:24:40 fwyzard Exp $
+// $Id: FWListViewObjectEditor.cc,v 1.4 2008/06/29 13:23:48 chrjones Exp $
 //
-
+#if defined(THIS_IS_NOT_DEFINED)
 // system include files
 #include <assert.h>
 #include <algorithm>
@@ -54,8 +54,6 @@ m_frame(0)
 
 FWListViewObjectEditor::~FWListViewObjectEditor()
 {
-   std::for_each(m_setters.begin(),m_setters.end(),
-                 boost::checked_deleter<FWParameterSetterBase>());
 }
 
 //
@@ -90,17 +88,15 @@ FWListViewObjectEditor::SetModel(TObject* iView)
    m_frame = new TGVerticalFrame(this);
    AddFrame(m_frame);
 
-   std::for_each(m_setters.begin(),m_setters.end(),
-                 boost::checked_deleter<FWParameterSetterBase>());
    m_setters.clear();
    for(FWParameterizable::const_iterator itP = view->begin(), itPEnd = view->end();
        itP != itPEnd;
        ++itP) {
-      std::auto_ptr<FWParameterSetterBase> ptr( FWParameterSetterBase::makeSetterFor(*itP) );
+      boost::shared_ptr<FWParameterSetterBase> ptr( FWParameterSetterBase::makeSetterFor(*itP) );
       ptr->attach(*itP,this);
       TGFrame* pframe = ptr->build(m_frame);
       m_frame->AddFrame(pframe,new TGLayoutHints(kLHintsTop));
-      m_setters.push_back(ptr.release());
+      m_setters.push_back(ptr);
    }
    
    MapSubwindows();
@@ -118,3 +114,4 @@ FWListViewObjectEditor::updateEditor() {
 // static member functions
 //
 ClassImp(FWListViewObjectEditor)
+#endif

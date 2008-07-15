@@ -16,11 +16,12 @@
 //
 // Original Author:  Chris Jones
 //         Created:  Mon Mar 10 09:02:56 CDT 2008
-// $Id: FWListViewObjectEditor.h,v 1.1 2008/03/11 02:45:43 chrjones Exp $
+// $Id: FWListViewObjectEditor.h,v 1.2 2008/06/29 13:23:48 chrjones Exp $
 //
 
 // system include files
 #include <vector>
+#include <boost/shared_ptr.hpp>
 #include "TGedFrame.h"
 
 // user include files
@@ -45,7 +46,7 @@ class FWListViewObjectEditor : public TGedFrame, public FWParameterSetterEditorB
       // ---------- member functions ---------------------------
       virtual void SetModel(TObject* obj);
       virtual void updateEditor();
-      ClassDef(FWListViewObjectEditor, 0);
+      //ClassDef(FWListViewObjectEditor, 0);
 
    private:
       FWListViewObjectEditor(const FWListViewObjectEditor&); // stop default
@@ -55,7 +56,7 @@ class FWListViewObjectEditor : public TGedFrame, public FWParameterSetterEditorB
       // ---------- member data --------------------------------
       TGVerticalFrame* m_frame;
       //can't use boost::shared_ptr because CINT will see this
-      std::vector<FWParameterSetterBase*> m_setters;
+   std::vector<boost::shared_ptr<FWParameterSetterBase> > m_setters;
 
 };
 
