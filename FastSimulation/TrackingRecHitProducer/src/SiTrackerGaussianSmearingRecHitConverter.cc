@@ -565,10 +565,6 @@ SiTrackerGaussianSmearingRecHitConverter::beginRun(edm::Run & run, const edm::Ev
 	theForwardMultiplicityBetaCumulativeProbabilities,
 	thePixelForwardResolutionFile,
 	random);
-  // Initialize the si strip error parametrization
-  theSiStripErrorParametrization = 
-    new SiStripGaussianSmearingRecHitConverterAlgorithm(random);
-
 }
 
 void SiTrackerGaussianSmearingRecHitConverter::produce(edm::Event& e, const edm::EventSetup& es) 
