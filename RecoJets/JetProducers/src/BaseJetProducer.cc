@@ -1,6 +1,6 @@
 // File: BaseJetProducer.cc
 // Author: F.Ratnikov UMd Aug 22, 2006
-// $Id: BaseJetProducer.cc,v 1.32 2008/05/21 13:12:06 rahatlou Exp $
+// $Id: BaseJetProducer.cc,v 1.34 2008/06/23 14:35:15 oehler Exp $
 //--------------------------------------------
 #include <memory>
 
@@ -146,6 +146,7 @@ namespace cms
       const CaloSubdetectorGeometry* towerGeometry = 
 	geometry->getSubdetectorGeometry(DetId::Calo, CaloTowerDetId::SubdetId);
       auto_ptr<CaloJetCollection> jets (new CaloJetCollection);
+      jets->reserve(output.size());
       for (unsigned iJet = 0; iJet < output.size (); ++iJet) {
 	ProtoJet* protojet = &(output [iJet]);
 	const JetReco::InputCollection& constituents = protojet->getTowerList();
@@ -161,6 +162,7 @@ namespace cms
     }
     else if (makePFJet (mJetType)) {
       auto_ptr<PFJetCollection> jets (new PFJetCollection);
+      jets->reserve(output.size());
       for (unsigned iJet = 0; iJet < output.size (); ++iJet) {
 	ProtoJet* protojet = &(output [iJet]);
 	const JetReco::InputCollection& constituents = protojet->getTowerList();
@@ -176,6 +178,7 @@ namespace cms
     }
     else if (makeGenJet (mJetType)) {
       auto_ptr<GenJetCollection> jets (new GenJetCollection);
+      jets->reserve(output.size());
       for (unsigned iJet = 0; iJet < output.size (); ++iJet) {
 	ProtoJet* protojet = &(output [iJet]);
 	const JetReco::InputCollection& constituents = protojet->getTowerList();
@@ -191,6 +194,7 @@ namespace cms
     }
     else if (makeBasicJet (mJetType)) {
       auto_ptr<BasicJetCollection> jets (new BasicJetCollection);
+      jets->reserve(output.size());
       for (unsigned iJet = 0; iJet < output.size (); ++iJet) {
 	ProtoJet* protojet = &(output [iJet]);
 	const JetReco::InputCollection& constituents = protojet->getTowerList();
@@ -204,6 +208,7 @@ namespace cms
     }
 //     else if (makeGenericJet (mJetType)) {
 //       auto_ptr<GenericJetCollection> jets (new GenericJetCollection);
+//       jets->reserve(output.size());
 //       for (unsigned iJet = 0; iJet < output.size (); ++iJet) {
 // 	ProtoJet* protojet = output [iJet];
 // 	const JetReco::InputCollection& constituents = protojet->getTowerList();
