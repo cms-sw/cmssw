@@ -8,7 +8,7 @@
 //
 // Original Author:  
 //         Created:  Thu Jan  3 14:59:23 EST 2008
-// $Id$
+// $Id: FWEventItem.cc,v 1.18 2008/07/10 09:05:02 jmuelmen Exp $
 //
 
 // system include files
@@ -468,6 +468,12 @@ FWEventItem::size() const
 {
    getPrimaryData();
    return m_itemInfos.size();
+}
+
+bool 
+FWEventItem::isCollection() const
+{
+   return 0!= m_colProxy.get();
 }
 
 const TClass* 
