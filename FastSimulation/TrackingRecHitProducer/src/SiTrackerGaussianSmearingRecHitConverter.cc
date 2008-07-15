@@ -15,12 +15,14 @@
 // SiStripGaussianSmearing
 #include "FastSimulation/TrackingRecHitProducer/interface/SiStripGaussianSmearingRecHitConverterAlgorithm.h"
 
-// Geometry
+// Geometry and magnetic field
 #include "Geometry/TrackerGeometryBuilder/interface/TrackerGeometry.h"
 #include "Geometry/Records/interface/TrackerDigiGeometryRecord.h"
 #include "Geometry/CommonDetUnit/interface/GeomDetUnit.h"
 #include "Geometry/TrackerGeometryBuilder/interface/GluedGeomDet.h"
 #include "Geometry/TrackerGeometryBuilder/interface/StripGeomDetUnit.h"
+#include "MagneticField/Records/interface/IdealMagneticFieldRecord.h"
+#include "MagneticField/Engine/interface/MagneticField.h"
 
 // Data Formats
 #include "DataFormats/Common/interface/Handle.h"
@@ -37,6 +39,8 @@
 #include "FWCore/Utilities/interface/Exception.h"
 
 // Numbering scheme
+#include "DataFormats/SiPixelDetId/interface/PXBDetId.h"
+#include "DataFormats/SiPixelDetId/interface/PXFDetId.h"
 #include "DataFormats/SiStripDetId/interface/TIBDetId.h"
 #include "DataFormats/SiStripDetId/interface/TIDDetId.h"
 #include "DataFormats/SiStripDetId/interface/TOBDetId.h"
@@ -66,6 +70,7 @@
 
 SiTrackerGaussianSmearingRecHitConverter::SiTrackerGaussianSmearingRecHitConverter(
   edm::ParameterSet const& conf) 
+  : pset_(conf)
 {
 #ifdef FAMOS_DEBUG
   std::cout << "SiTrackerGaussianSmearingRecHitConverter instantiated" << std::endl;
@@ -201,16 +206,7 @@ SiTrackerGaussianSmearingRecHitConverter::SiTrackerGaussianSmearingRecHitConvert
 	    << "\tAll:\tz = " << localPositionResolution_z     << " cm" 
 	    << std::endl;
 #endif
-  //    
-  // from FAMOS: take into account the angle of the strips in the barrel
-  //--- The name of the files with the Pixel information
-  if(useCMSSWPixelParameterization)
-    thePixelMultiplicityFileName = conf.getParameter<std::string>( "PixelMultiplicityFileNew" );
-  else
-    thePixelMultiplicityFileName = conf.getParameter<std::string>( "PixelMultiplicityFile" );
-#ifdef FAMOS_DEBUG
-  std::cout << "Pixel multiplicity data are taken from file " << thePixelMultiplicityFileName << std::endl;
-#endif
+
   //--- Number of histograms for alpha/beta barrel/forward multiplicity
   if(useCMSSWPixelParameterization) {
     nAlphaBarrel  = conf.getParameter<int>("AlphaBarrelMultiplicityNew");
@@ -231,9 +227,9 @@ SiTrackerGaussianSmearingRecHitConverter::SiTrackerGaussianSmearingRecHitConvert
 	    << "\tbeta " << nBetaForward
 	    << std::endl;
 #endif
+  
   // Resolution Barrel    
   if(useCMSSWPixelParameterization) {
-    thePixelBarrelResolutionFileName = conf.getParameter<std::string>( "PixelBarrelResolutionFileNew");
     resAlphaBarrel_binMin   = conf.getParameter<double>("AlphaBarrel_BinMinNew"  );
     resAlphaBarrel_binWidth = conf.getParameter<double>("AlphaBarrel_BinWidthNew");
     resAlphaBarrel_binN     = conf.getParameter<int>(   "AlphaBarrel_BinNNew"    );
@@ -241,7 +237,6 @@ SiTrackerGaussianSmearingRecHitConverter::SiTrackerGaussianSmearingRecHitConvert
     resBetaBarrel_binWidth  = conf.getParameter<double>("BetaBarrel_BinWidthNew" );
     resBetaBarrel_binN      = conf.getParameter<int>(   "BetaBarrel_BinNNew"     );
   } else {
-    thePixelBarrelResolutionFileName = conf.getParameter<std::string>( "PixelBarrelResolutionFile");
     resAlphaBarrel_binMin   = conf.getParameter<double>("AlphaBarrel_BinMin"  );
     resAlphaBarrel_binWidth = conf.getParameter<double>("AlphaBarrel_BinWidth");
     resAlphaBarrel_binN     = conf.getParameter<int>(   "AlphaBarrel_BinN"    );
@@ -249,23 +244,9 @@ SiTrackerGaussianSmearingRecHitConverter::SiTrackerGaussianSmearingRecHitConvert
     resBetaBarrel_binWidth  = conf.getParameter<double>("BetaBarrel_BinWidth" );
     resBetaBarrel_binN      = conf.getParameter<int>(   "BetaBarrel_BinN"     );
   }
-#ifdef FAMOS_DEBUG
-  std::cout << "Barrel Pixel resolution data are taken from file " 
-	    << thePixelBarrelResolutionFileName << "\n"
-	    << "Alpha bin min = " << resAlphaBarrel_binMin
-	    << "\twidth = "       << resAlphaBarrel_binWidth
-	    << "\tbins = "        << resAlphaBarrel_binN
-	    << "\n"
-	    << " Beta bin min = " << resBetaBarrel_binMin
-	    << "\twidth = "       << resBetaBarrel_binWidth
-	    << "\tbins = "        << resBetaBarrel_binN
-	    << std::endl;
-#endif
-  //
   
   // Resolution Forward
   if(useCMSSWPixelParameterization) {
-    thePixelForwardResolutionFileName = conf.getParameter<std::string>( "PixelForwardResolutionFileNew");
     resAlphaForward_binMin   = conf.getParameter<double>("AlphaForward_BinMinNew"   );
     resAlphaForward_binWidth = conf.getParameter<double>("AlphaForward_BinWidthNew" );
     resAlphaForward_binN     = conf.getParameter<int>(   "AlphaForward_BinNNew"     );
@@ -273,7 +254,6 @@ SiTrackerGaussianSmearingRecHitConverter::SiTrackerGaussianSmearingRecHitConvert
     resBetaForward_binWidth  = conf.getParameter<double>("BetaForward_BinWidthNew"  );
     resBetaForward_binN      = conf.getParameter<int>(   "BetaForward_BinNNew"      );
   } else {
-    thePixelForwardResolutionFileName = conf.getParameter<std::string>( "PixelForwardResolutionFile");
     resAlphaForward_binMin   = conf.getParameter<double>("AlphaForward_BinMin"   );
     resAlphaForward_binWidth = conf.getParameter<double>("AlphaForward_BinWidth" );
     resAlphaForward_binN     = conf.getParameter<int>(   "AlphaForward_BinN"     );
@@ -281,20 +261,7 @@ SiTrackerGaussianSmearingRecHitConverter::SiTrackerGaussianSmearingRecHitConvert
     resBetaForward_binWidth  = conf.getParameter<double>("BetaForward_BinWidth"  );
     resBetaForward_binN      = conf.getParameter<int>(   "BetaForward_BinN"      );
   }
-#ifdef FAMOS_DEBUG
-  std::cout << "Forward Pixel resolution data are taken from file " 
-	    << thePixelForwardResolutionFileName << "\n"
-	    << "Alpha bin min = " << resAlphaForward_binMin
-	    << "\twidth = "       << resAlphaForward_binWidth
-	    << "\tbins = "        << resAlphaForward_binN
-	    << "\n"
-	    << " Beta bin min = " << resBetaForward_binMin
-	    << "\twidth = "       << resBetaForward_binWidth
-	    << "\tbins = "        << resBetaForward_binN
-	    << std::endl;
-#endif 
-  //
-  
+
   // Hit Finding Probability
   theHitFindingProbability_PXB  = conf.getParameter<double>("HitFindingProbability_PXB" );
   theHitFindingProbability_PXF  = conf.getParameter<double>("HitFindingProbability_PXF" );
@@ -345,32 +312,12 @@ SiTrackerGaussianSmearingRecHitConverter::SiTrackerGaussianSmearingRecHitConvert
 	    << "\tTEC7 = " << theHitFindingProbability_TEC7 << "\n"
 	    << std::endl;
 #endif
-  //    
-  // load pixel data
-  loadPixelData();
-  //
 
-  // Initialize and open relevant files for the pixel barrel error parametrization
-  thePixelBarrelParametrization = 
-    new SiPixelGaussianSmearingRecHitConverterAlgorithm(
-        conf,
-	GeomDetEnumerators::PixelBarrel,
-	theBarrelMultiplicityAlphaCumulativeProbabilities,
-	theBarrelMultiplicityBetaCumulativeProbabilities,
-	thePixelBarrelResolutionFile,
-	random);
-  // Initialize and open relevant files for the pixel forward error parametrization 
-  thePixelEndcapParametrization = 
-    new SiPixelGaussianSmearingRecHitConverterAlgorithm(
-        conf,
-	GeomDetEnumerators::PixelEndcap,
-	theForwardMultiplicityAlphaCumulativeProbabilities,
-	theForwardMultiplicityBetaCumulativeProbabilities,
-	thePixelForwardResolutionFile,
-	random);
   // Initialize the si strip error parametrization
   theSiStripErrorParametrization = 
     new SiStripGaussianSmearingRecHitConverterAlgorithm(random);
+
+  // Initialization of pixel parameterization posponed to beginRun(), since it depends on the magnetic field
 
 }
 
@@ -535,6 +482,92 @@ SiTrackerGaussianSmearingRecHitConverter::beginRun(edm::Run & run, const edm::Ev
   edm::ESHandle<TrackerGeometry> theMisAlignedGeometry;
   es.get<TrackerDigiGeometryRecord>().get("MisAligned",theMisAlignedGeometry);
   misAlignedGeometry = &(*theMisAlignedGeometry);
+
+  const MagneticField* magfield;
+  edm::ESHandle<MagneticField> magField;
+  es.get<IdealMagneticFieldRecord>().get(magField);
+  magfield=&(*magField);
+  GlobalPoint center(0.0, 0.0, 0.0);
+  double magFieldAtCenter = magfield->inTesla(center).mag();
+
+  // For new parameterization: select multiplicity and resolution files according to magnetic field
+  if(useCMSSWPixelParameterization) {
+    if(magFieldAtCenter > 3.9) {
+      thePixelMultiplicityFileName = pset_.getParameter<std::string>( "PixelMultiplicityFile40T");
+      thePixelBarrelResolutionFileName = pset_.getParameter<std::string>( "PixelBarrelResolutionFile40T");
+      thePixelForwardResolutionFileName = pset_.getParameter<std::string>( "PixelForwardResolutionFile40T");
+    } else {
+      thePixelMultiplicityFileName = pset_.getParameter<std::string>( "PixelMultiplicityFile38T");
+      thePixelBarrelResolutionFileName = pset_.getParameter<std::string>( "PixelBarrelResolutionFile38T");      
+      thePixelForwardResolutionFileName = pset_.getParameter<std::string>( "PixelForwardResolutionFile38T");
+    }
+  } else {
+    thePixelMultiplicityFileName = pset_.getParameter<std::string>( "PixelMultiplicityFile" );
+    thePixelBarrelResolutionFileName = pset_.getParameter<std::string>( "PixelBarrelResolutionFile");
+    thePixelForwardResolutionFileName = pset_.getParameter<std::string>( "PixelForwardResolutionFile");
+  }
+
+
+#ifdef FAMOS_DEBUG
+  std::cout << "Pixel multiplicity data are taken from file " << thePixelMultiplicityFileName << std::endl;
+
+  std::cout << "Pixel maximum multiplicity set to " 
+	    << "\nBarrel"  << "\talpha " << nAlphaBarrel  
+	    << "\tbeta " << nBetaBarrel
+	    << "\nForward" << "\talpha " << nAlphaForward 
+	    << "\tbeta " << nBetaForward
+	    << std::endl;
+
+  std::cout << "Barrel Pixel resolution data are taken from file " 
+	    << thePixelBarrelResolutionFileName << "\n"
+	    << "Alpha bin min = " << resAlphaBarrel_binMin
+	    << "\twidth = "       << resAlphaBarrel_binWidth
+	    << "\tbins = "        << resAlphaBarrel_binN
+	    << "\n"
+	    << " Beta bin min = " << resBetaBarrel_binMin
+	    << "\twidth = "       << resBetaBarrel_binWidth
+	    << "\tbins = "        << resBetaBarrel_binN
+	    << std::endl;
+
+  std::cout << "Forward Pixel resolution data are taken from file " 
+	    << thePixelForwardResolutionFileName << "\n"
+	    << "Alpha bin min = " << resAlphaForward_binMin
+	    << "\twidth = "       << resAlphaForward_binWidth
+	    << "\tbins = "        << resAlphaForward_binN
+	    << "\n"
+	    << " Beta bin min = " << resBetaForward_binMin
+	    << "\twidth = "       << resBetaForward_binWidth
+	    << "\tbins = "        << resBetaForward_binN
+	    << std::endl;
+#endif 
+  //
+
+  //    
+  // load pixel data
+  loadPixelData();
+  //
+
+  // Initialize and open relevant files for the pixel barrel error parametrization
+  thePixelBarrelParametrization = 
+    new SiPixelGaussianSmearingRecHitConverterAlgorithm(
+        pset_,
+	GeomDetEnumerators::PixelBarrel,
+	theBarrelMultiplicityAlphaCumulativeProbabilities,
+	theBarrelMultiplicityBetaCumulativeProbabilities,
+	thePixelBarrelResolutionFile,
+	random);
+  // Initialize and open relevant files for the pixel forward error parametrization 
+  thePixelEndcapParametrization = 
+    new SiPixelGaussianSmearingRecHitConverterAlgorithm(
+        pset_,
+	GeomDetEnumerators::PixelEndcap,
+	theForwardMultiplicityAlphaCumulativeProbabilities,
+	theForwardMultiplicityBetaCumulativeProbabilities,
+	thePixelForwardResolutionFile,
+	random);
+  // Initialize the si strip error parametrization
+  theSiStripErrorParametrization = 
+    new SiStripGaussianSmearingRecHitConverterAlgorithm(random);
 
 }
 

@@ -16,7 +16,8 @@ siTrackerGaussianSmearingRecHits = cms.EDFilter("SiTrackerGaussianSmearingRecHit
     #
     DeltaRaysMomentumCut = cms.double(0.5),
     AlphaForward_BinNNew = cms.int32(0),
-    PixelBarrelResolutionFileNew = cms.string('FastSimulation/TrackingRecHitProducer/data/PixelBarrelResolutionNew.root'),
+    PixelBarrelResolutionFile40T = cms.string('FastSimulation/TrackingRecHitProducer/data/PixelBarrelResolution40T.root'),
+    PixelBarrelResolutionFile38T = cms.string('FastSimulation/TrackingRecHitProducer/data/PixelBarrelResolution38T.root'),
     BetaForward_BinMin = cms.double(0.0),
     HitFindingProbability_TID1 = cms.double(1.0),
     HitFindingProbability_TID3 = cms.double(1.0),
@@ -132,11 +133,14 @@ siTrackerGaussianSmearingRecHits = cms.EDFilter("SiTrackerGaussianSmearingRecHit
     HitFindingProbability_TOB3 = cms.double(1.0),
     HitFindingProbability_TIB4 = cms.double(1.0),
     # Pixel CMSSW Parametrization
-    PixelMultiplicityFileNew = cms.string('FastSimulation/TrackingRecHitProducer/data/PixelDataNew.root'),
+    PixelMultiplicityFile40T = cms.string('FastSimulation/TrackingRecHitProducer/data/PixelData40T.root'),
+    PixelMultiplicityFile38T = cms.string('FastSimulation/TrackingRecHitProducer/data/PixelData38T.root'),
+
     TEC7x = cms.double(0.00422),
     TEC7y = cms.double(6.9859), ## 2*12.1/sqrt(12.)
 
-    PixelForwardResolutionFileNew = cms.string('FastSimulation/TrackingRecHitProducer/data/PixelForwardResolutionNew.root'),
+    PixelForwardResolutionFile40T = cms.string('FastSimulation/TrackingRecHitProducer/data/PixelForwardResolution40T.root'),
+    PixelForwardResolutionFile38T = cms.string('FastSimulation/TrackingRecHitProducer/data/PixelForwardResolution38T.root'),
     TOB2x = cms.double(0.00458),
     TIB4y = cms.double(3.3775), ## 11.7/sqrt(12.)
 

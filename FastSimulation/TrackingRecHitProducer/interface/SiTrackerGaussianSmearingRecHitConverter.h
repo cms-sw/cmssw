@@ -84,6 +84,7 @@ class SiTrackerGaussianSmearingRecHitConverter : public edm::EDProducer
   //
   // parameters
   std::vector<edm::InputTag> trackerContainers;
+  edm::ParameterSet pset_;
   double deltaRaysPCut; // GeV/c
   bool trackingPSimHits; // in case it is true make RecHit = replica of PSimHit without errors (1 um)
   //

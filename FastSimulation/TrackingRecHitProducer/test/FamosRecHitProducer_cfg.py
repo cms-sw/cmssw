@@ -11,13 +11,14 @@ process.load("FastSimulation.Configuration.CommonInputsFake_cff")
 process.load("FastSimulation.Configuration.FamosSequences_cff")
 
 # Magnetic Field (new mapping, 3.8 and 4.0T)
-# include "Configuration/StandardSequences/data/MagneticField_38T.cff"
 process.load("Configuration.StandardSequences.MagneticField_40T_cff")
+# process.load("Configuration.StandardSequences.MagneticField_38T_cff")
 
-process.load("FastSimulation.TrackingRecHitProducer.test.FamosRecHitAnalysis_cfi")
+# process.load("FastSimulation.TrackingRecHitProducer.test.FamosRecHitAnalysis_cfi")
 
 process.maxEvents = cms.untracked.PSet(
     input = cms.untracked.int32(50000)
+#    input = cms.untracked.int32(10)
 )
 process.source = cms.Source("FlatRandomEGunSource",
     PGunParameters = cms.untracked.PSet(
@@ -42,7 +43,8 @@ process.Output = cms.OutputModule("PoolOutputModule",
     fileName = cms.untracked.string('rechits.root')
 )
 
-process.Path = cms.Path(process.famosWithTrackerHits*process.trackerGSRecHitTranslator*process.FamosRecHitAnalysis)
+# process.Path = cms.Path(process.famosWithTrackerHits*process.trackerGSRecHitTranslator*process.FamosRecHitAnalysis)
+process.Path = cms.Path(process.famosWithTrackerHits*process.trackerGSRecHitTranslator)
 process.famosSimHits.SimulateCalorimetry = False
 process.famosSimHits.SimulateTracking = True
 process.siTrackerGaussianSmearingRecHits.UseCMSSWPixelParametrization = True
