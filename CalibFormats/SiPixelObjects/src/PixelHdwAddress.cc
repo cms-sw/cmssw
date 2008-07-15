@@ -117,6 +117,6 @@ bool PixelHdwAddress::operator()(const PixelHdwAddress& roc1, const PixelHdwAddr
   if (roc1.fedchannel_<roc2.fedchannel_) return true;
   if (roc1.fedchannel_>roc2.fedchannel_) return false;
 
-  return (roc1.fedrocnumber_<=roc2.fedrocnumber_);
+  return (roc1.fedrocnumber_<roc2.fedrocnumber_);
 
 }
