@@ -45,9 +45,6 @@ CSCEventData::CSCEventData(unsigned short * buf){
     }
   }
   
-  nalct_ = theDMBHeader.nalct();
-  nclct_ = theDMBHeader.nclct();
-   
       
   if (debug) {
     LogTrace ("CSCEventData|CSCRawToDigi") << "nalct = " << nalct();
@@ -188,8 +185,6 @@ void CSCEventData::copy(const CSCEventData & data) {
     if(data.theCFEBData[icfeb] != NULL) 
       theCFEBData[icfeb] = new CSCCFEBData(*(data.theCFEBData[icfeb]));
   }   
-  nalct_ = data.nalct_;
-  nclct_ = data.nclct_;
   size_  = data.size_;
   theChamberType = data.theChamberType;
   
@@ -330,6 +325,7 @@ void CSCEventData::checkTMBClasses()
 {
   if(theTMBData == NULL)    {
     theTMBData = new CSCTMBData();
+    theTMBData->tmbHeader()->setEventInformation(theDMBHeader);
     theDMBHeader.addNCLCT();
   }
 }
@@ -393,7 +389,7 @@ std::ostream & operator<<(std::ostream & os, const CSCEventData & evt) {
 boost::dynamic_bitset<> CSCEventData::pack() {
   boost::dynamic_bitset<> result = bitset_utilities::ushortToBitset( theDMBHeader.sizeInWords()*16, 
 								     theDMBHeader.data());
- 
+
   if(theALCTHeader != NULL)     {
     boost::dynamic_bitset<> alctHeader = bitset_utilities::ushortToBitset(theALCTHeader->sizeInWords()*16,
 									  theALCTHeader->data());

@@ -79,11 +79,11 @@ class CSCEventData {
   std::vector< std::vector<CSCWireDigi> > wireDigis() const;
 
 
-  /// the number of ALCT's
-  int nalct() const {return nalct_;}
+  /// the flag for existence of ALCT data
+  int nalct() const {return theDMBHeader.nalct();}
 
   /// the number of CLCTs
-  int nclct() const {return nclct_;}
+  int nclct() const {return theDMBHeader.nclct();}
 
   /// the DAQ motherboard header.  A good place for event and chamber info
   const CSCDMBHeader * dmbHeader() const {return &theDMBHeader;}
@@ -167,8 +167,6 @@ private:
 
   CSCDMBTrailer theDMBTrailer;
 
-  int nalct_;
-  int nclct_;
   int size_;
   /// this won't be filled when real data is read it.  It's only used when packing
   /// simulated data, so we know how many wire and strip channels to make.
