@@ -8,16 +8,18 @@
 //
 // Original Author:  Chris Jones
 //         Created:  Fri Feb 15 14:13:33 EST 2008
-// $Id: FWGUISubviewArea.cc,v 1.8 2008/07/15 13:23:46 chrjones Exp $
+// $Id: FWGUISubviewArea.cc,v 1.9 2008/07/15 20:27:32 chrjones Exp $
 //
 
 // system include files
-#include "TSystem.h"
-#include "TGButton.h"
-#include "TGSplitFrame.h"
 #include <assert.h>
 #include <stdexcept>
 #include <iostream>
+
+#include "TSystem.h"
+#include "TGButton.h"
+#include "TGSplitFrame.h"
+#include "TGFont.h"
 
 // user include files
 #include "Fireworks/Core/interface/FWGUISubviewArea.h"
@@ -51,19 +53,37 @@ FWGUISubviewArea::FWGUISubviewArea(unsigned int iIndex, const TGSplitFrame *iPar
    m_swapButton= new TGPictureButton(m_buttons, swapIcon());
    m_swapButton->SetToolTipText("Swap to big view");
    m_swapButton->SetHeight(kIconHeight);
-   m_buttons->AddFrame(m_swapButton, new TGLayoutHints(kLHintsTop|kLHintsLeft));
+   m_buttons->AddFrame(m_swapButton, new TGLayoutHints(kLHintsTop|kLHintsLeft|kLHintsExpandY));
    m_swapButton->Connect("Clicked()","FWGUISubviewArea",this,"swapToBigView()");
 
    m_undockButton = new TGPictureButton(m_buttons,undockIcon());
    m_undockButton->SetToolTipText("Undock view to own window");
    m_undockButton->SetHeight(kIconHeight);
-   m_buttons->AddFrame(m_undockButton, new TGLayoutHints(kLHintsTop|kLHintsLeft));
+   m_buttons->AddFrame(m_undockButton, new TGLayoutHints(kLHintsTop|kLHintsLeft|kLHintsExpandY));
    m_undockButton->Connect("Clicked()", "FWGUISubviewArea",this,"undock()");
+   
+   
+   m_label = new TGTextButton(m_buttons,"");
+   TGFont* defaultFont = gClient->GetFontPool()->GetFont(m_label->GetDefaultFontStruct());
+   m_label->SetFont(gClient->GetFontPool()->GetFont(
+                                                    defaultFont->GetFontAttributes().fFamily,
+                                                    7, 
+                                                    defaultFont->GetFontAttributes().fWeight,
+                                                    defaultFont->GetFontAttributes().fSlant)->GetFontStruct()
+   );
+   //m_label->SetTextJustify(kTextCenter);
+   m_label->SetTopMargin(m_label->GetTopMargin()-1);
+   m_label->SetBottomMargin(m_label->GetBottomMargin()-1);   
+   m_label->AllowStayDown(kTRUE);
+   m_buttons->AddFrame(m_label, new TGLayoutHints(kLHintsExpandX));
+   m_label->Connect("Pressed()","FWGUISubviewArea",this,"selectButtonDown()");
+   m_label->Connect("Released()","FWGUISubviewArea",this,"selectButtonUp()");
+   m_label->SetToolTipText("Edit View");
    
    m_closeButton = new TGPictureButton(m_buttons,closeIcon());
    m_closeButton->SetToolTipText("Close view");
    m_closeButton->SetHeight(kIconHeight);
-   m_buttons->AddFrame(m_closeButton, new TGLayoutHints(kLHintsRight|kLHintsTop));
+   m_buttons->AddFrame(m_closeButton, new TGLayoutHints(kLHintsRight|kLHintsTop|kLHintsExpandY));
    m_closeButton->Connect("Clicked()", "FWGUISubviewArea",this,"destroy()");
    
    //Turn off until we can get this to work consistently correct
@@ -72,6 +92,7 @@ FWGUISubviewArea::FWGUISubviewArea(unsigned int iIndex, const TGSplitFrame *iPar
    if(0==iIndex) {
       m_swapButton->SetEnabled(kFALSE);
    }
+   m_buttons->SetBackgroundColor(TGFrame::GetBlackPixel());
 }
 
 // FWGUISubviewArea::FWGUISubviewArea(const FWGUISubviewArea& rhs)
@@ -81,7 +102,7 @@ FWGUISubviewArea::FWGUISubviewArea(unsigned int iIndex, const TGSplitFrame *iPar
 
 FWGUISubviewArea::~FWGUISubviewArea()
 {
-   std::cout <<"IN dstr FWGUISubviewArea"<<std::endl;
+   //std::cout <<"IN dstr FWGUISubviewArea"<<std::endl;
    m_swapButton->Disconnect("Clicked()",this,"swapToBigView()");
    m_undockButton->Disconnect("Clicked()",this,"undock()");
    m_closeButton->Disconnect("Clicked()", this,"destroy()");
@@ -94,7 +115,7 @@ FWGUISubviewArea::~FWGUISubviewArea()
    //delete m_closeButton;
    m_closeButton->UnmapWindow();
    m_buttons->RemoveFrame(m_closeButton);
-   std::cout <<"OUT dstr FWGUISubviewArea"<<std::endl;
+   //std::cout <<"OUT dstr FWGUISubviewArea"<<std::endl;
 }
 
 //
@@ -112,6 +133,32 @@ FWGUISubviewArea::~FWGUISubviewArea()
 //
 // member functions
 //
+void 
+FWGUISubviewArea::selectButtonDown()
+{
+      selected_(index());
+}
+
+void 
+FWGUISubviewArea::selectButtonUp()
+{
+   unselected_(index());
+}
+
+
+void 
+FWGUISubviewArea::setName(const std::string& iName)
+{
+   m_label->SetText(iName.c_str());
+}
+
+void 
+FWGUISubviewArea::unselect()
+{
+   m_label->SetDown(kFALSE);
+}
+
+
 void 
 FWGUISubviewArea::enableDestructionButton(bool iState)
 {
@@ -182,6 +229,11 @@ FWGUISubviewArea::beingDocked(TGFrame*)
 //
 // const member functions
 //
+bool 
+FWGUISubviewArea::isSelected() const
+{
+   return m_label->IsDown();
+}
 
 //
 // static member functions
