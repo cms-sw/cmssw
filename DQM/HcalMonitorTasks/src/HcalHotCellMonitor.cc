@@ -90,7 +90,9 @@ namespace HcalHotCellCheck
 	// Add widths in quadrature; need to account for correlations between capids at some point
 	total_pedwidth+=pow(widths.pedestal(thisCapid),2);
 	if (pedsInFC)
-	  digival = coder->charge(*shape,digi.sample(i).adc(),digi.sample(i).capid());
+	  {
+	    digival = coder->charge(*shape,digi.sample(i).adc(),digi.sample(i).capid());
+	  }
 	else
 	  digival = (float)digi.sample(i).adc();
 
@@ -113,7 +115,8 @@ namespace HcalHotCellCheck
 	h.DigiEnergyDist->Fill((total_digival-total_pedestal)/total_pedwidth);
 	//////hcal.DigiEnergyDist->Fill((total_digival-total_pedestal)/total_pedwidth);
       }
-
+    if (h.makeDiagnostics)
+      h.hotcellsigma->Fill((total_digival-total_pedestal)/total_pedwidth);
     if (total_digival-total_pedestal>h.hotDigiSigma*total_pedwidth)
       {
 	h.abovePedSigma->Fill(digi_eta,digi_phi);
@@ -1057,6 +1060,9 @@ void HcalHotCellMonitor::setupHists(HotCellHists& h, DQMStore* dbe)
       std::stringstream diagFoldername;
       diagFoldername<<baseFolder_+"/"+subdet.c_str()+"/Diagnostics";
       m_dbe->setCurrentFolder(diagFoldername.str().c_str());
+      
+      h.hotcellsigma=m_dbe->book1D(subdet+"diagnostic_pedestal","(value - pedestal)/sigma(pedestal)",100,-10,10);
+
       h.diagnostic.push_back(m_dbe->book2D(subdet+"diagnostic_NADA","NADA cube energy vs. NADA cell energy",200,0,20,200,0,20));
       h.diagnostic.push_back(m_dbe->book2D(subdet+"diagnostic_depth","Cube size/Nominal vs. depth",4,0,4,100,0,1.1));
 

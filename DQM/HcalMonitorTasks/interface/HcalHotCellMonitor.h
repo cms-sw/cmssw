@@ -11,8 +11,8 @@
 
 /** \class HcalHotCellMonitor
   *  
-  * $Date: 2008/06/12 01:35:01 $
-  * $Revision: 1.17 $
+  * $Date: 2008/06/26 18:52:28 $
+  * $Revision: 1.18 $
   * \author W. Fisher - FNAL
   * \ updated by J. Temple - Univ. of Maryland
   */
@@ -57,6 +57,8 @@ struct HotCellHists{
   
   // diagnostic histograms (remove eventually?)
   std::vector<MonitorElement*> diagnostic;
+
+  MonitorElement* hotcellsigma;
   MonitorElement* RecHitEnergyDist;
   MonitorElement* DigiEnergyDist;
   MonitorElement* EnergyVsNADAcube;
