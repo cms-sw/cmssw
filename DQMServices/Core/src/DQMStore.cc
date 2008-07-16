@@ -336,6 +336,7 @@ DQMStore::book(const std::string &dir, const std::string &name,
                   << context << ": monitor element '"
                   << path << "' already exists" << std::endl;
       me->Reset();
+      return me;
     }
   }
 
@@ -359,6 +360,7 @@ DQMStore::book(const std::string &dir, const std::string &name,
                   << context << ": monitor element '"
                   << path << "' already exists" << std::endl;
       me->Reset();
+      return me;
   }
 
   // Create it and return for initialisation.
@@ -373,8 +375,10 @@ DQMStore::bookInt(const std::string &dir, const std::string &name)
   std::string path;
   if (collateHistograms_)
   {
-    if (MonitorElement *me = findObject(dir, name, path))
+    if (MonitorElement *me = findObject(dir, name, path)) {
+      me->Fill(0);
       return me;
+    }
   }
   return book(dir, name, path, "bookInt")
     ->initialise(MonitorElement::DQM_KIND_INT, path);
@@ -395,8 +399,10 @@ DQMStore::bookFloat(const std::string &dir, const std::string &name)
   std::string path;
   if (collateHistograms_)
   {
-    if (MonitorElement *me = findObject(dir, name, path))
+    if (MonitorElement *me = findObject(dir, name, path)) {
+      me->Fill(0.);
       return me;
+    }
   }
   return book(dir, name, path, "bookFloat")
     ->initialise(MonitorElement::DQM_KIND_REAL, path);
@@ -419,8 +425,9 @@ DQMStore::bookString(const std::string &dir,
   std::string path;
   if (collateHistograms_)
   {
-    if (MonitorElement *me = findObject(dir, name, path))
+    if (MonitorElement *me = findObject(dir, name, path)) {
       return me;
+    }
   }
   return book(dir, name, path, "bookString")
     ->initialise(MonitorElement::DQM_KIND_STRING, path, value);
