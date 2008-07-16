@@ -1,3 +1,4 @@
+Begin processing the 1st record. Run 1, Event 1, LumiSection 1 at {Timestamp} 
 %MSG-e cat_A:  UnitTestClient_I:sendSomeMessages Run: 1 Event: 1
 LogError was used to send this message-which is long enough to span lines but-will not be broken up by the logger any more
 %MSG
@@ -10,6 +11,7 @@ LogWarning was used to send this message
 %MSG-w cat_B:  UnitTestClient_I:sendSomeMessages Run: 1 Event: 1
 LogWarning was used to send this other message
 %MSG
+Begin processing the 2nd record. Run 1, Event 2, LumiSection 1 at {Timestamp} 
 %MSG-e cat_A:  UnitTestClient_I:sendSomeMessages Run: 1 Event: 2
 LogError was used to send this message-which is long enough to span lines but-will not be broken up by the logger any more
 %MSG

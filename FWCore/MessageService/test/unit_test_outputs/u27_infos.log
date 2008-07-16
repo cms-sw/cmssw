@@ -1,6 +1,4 @@
-%MSG-i FwkReport:  main_input:source BeforeEvents
-Begin processing the 1st record. Run 1, Event 1, LumiSection 1
-%MSG
+Begin processing the 1st record. Run 1, Event 1, LumiSection 1 at {Timestamp} 
 %MSG-i cat_A:  UTC_Q1:ssm_1a Run: 1 Event: 1
 Q1 with identifier 11
 %MSG

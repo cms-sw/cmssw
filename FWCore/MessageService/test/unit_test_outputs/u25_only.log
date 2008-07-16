@@ -1,6 +1,4 @@
-%MSG-i FwkReport:  main_input:source BeforeEvents
-Begin processing the 1st record. Run 1, Event 1, LumiSection 1
-%MSG
+Begin processing the 1st record. Run 1, Event 1, LumiSection 1 at {Timestamp} 
 %MSG-e cat_A:  UnitTestClient_R:sendSomeMessages Run: 1 Event: 1
 A 0
 %MSG

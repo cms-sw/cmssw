@@ -1,6 +1,4 @@
-%MSG-i FwkReport:  main_input:source BeforeEvents
-Begin processing the 1st record. Run 1, Event 1, LumiSection 1
-%MSG
+Begin processing the 1st record. Run 1, Event 1, LumiSection 1 at {Timestamp} 
 %MSG-s system:  UnitTestClient_M:sendSomeMessages Run: 1 Event: 1
 Text sent to LogSystem
 %MSG
@@ -8,9 +6,7 @@ Text sent to LogAbsolute - should be unformatted
 Text sent to LogProblem - should be unformatted
 Text sent to LogPrint- should be unformatted
 Text sent to LogVerbatim - should be unformatted
-%MSG-i FwkReport:  main_input:source Run: 1 Event: 1
-Begin processing the 2nd record. Run 1, Event 2, LumiSection 1
-%MSG
+Begin processing the 2nd record. Run 1, Event 2, LumiSection 1 at {Timestamp} 
 %MSG-s system:  UnitTestClient_M:sendSomeMessages Run: 1 Event: 2
 Text sent to LogSystem
 %MSG

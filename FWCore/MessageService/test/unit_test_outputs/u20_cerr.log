@@ -1,6 +1,4 @@
-%MSG-i FwkReport:  main_input:source BeforeEvents
-Begin processing the 1st record. Run 1, Event 1, LumiSection 1
-%MSG
+Begin processing the 1st record. Run 1, Event 1, LumiSection 1 at {Timestamp} 
 %MSG-w cat_A:  UnitTestClient_G:sendSomeMessages Run: 1 Event: 1
 Test of std::setprecision(p): Pi with precision 12 is 3.14159265358
 %MSG

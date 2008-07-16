@@ -1,6 +1,4 @@
-%MSG-i FwkReport:  main_input:source BeforeEvents
-Begin processing the 1st record. Run 1, Event 1, LumiSection 1
-%MSG
+Begin processing the 1st record. Run 1, Event 1, LumiSection 1 at {Timestamp} 
 %MSG-! ridiculously_long_category_name_to_make_header_wrap_A:   UnitTestClient_N:sendSomeMessages  Run: 1 Event: 1 UnitTestClient_N.cc:19
 LogDebug was used to send this message
 %MSG
@@ -13,9 +11,7 @@ LogInfo was used to send this message
 %MSG-i ridiculously_long_category_name_to_make_header_wrap_B:   UnitTestClient_N:sendSomeMessages  Run: 1 Event: 1
 LogInfo was used to send this other message
 %MSG
-%MSG-i FwkReport:  main_input:source Run: 1 Event: 1
-Begin processing the 2nd record. Run 1, Event 2, LumiSection 1
-%MSG
+Begin processing the 2nd record. Run 1, Event 2, LumiSection 1 at {Timestamp} 
 %MSG-! ridiculously_long_category_name_to_make_header_wrap_A:   UnitTestClient_N:sendSomeMessages  Run: 1 Event: 2 UnitTestClient_N.cc:19
 LogDebug was used to send this message
 %MSG

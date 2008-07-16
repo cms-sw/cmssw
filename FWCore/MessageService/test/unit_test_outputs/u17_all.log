@@ -1,6 +1,4 @@
-%MSG-i FwkReport:  main_input:source BeforeEvents
-Begin processing the 1st record. Run 1, Event 1, LumiSection 1
-%MSG
+Begin processing the 1st record. Run 1, Event 1, LumiSection 1 at {Timestamp} 
 LogPrint: 0
 %MSG-s cat_S:  UnitTestClient_K:sendSomeMessages Run: 1 Event: 1
 LogSystem: 0
@@ -36,9 +34,7 @@ LogPrint: 9
 %MSG-s cat_S:  UnitTestClient_K:sendSomeMessages Run: 1 Event: 1
 LogSystem: 9
 %MSG
-%MSG-i FwkReport:  main_input:source Run: 1 Event: 1
-Begin processing the 2nd record. Run 1, Event 2, LumiSection 1
-%MSG
+Begin processing the 2nd record. Run 1, Event 2, LumiSection 1 at {Timestamp} 
 %MSG-s cat_S:  UnitTestClient_K:sendSomeMessages Run: 1 Event: 2
 LogSystem: 0
 %MSG

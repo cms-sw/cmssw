@@ -1,6 +1,4 @@
-%MSG-i FwkReport:  main_input:source BeforeEvents
-Begin processing the 1st record. Run 1, Event 1, LumiSection 1
-%MSG
+Begin processing the 1st record. Run 1, Event 1, LumiSection 1 at {Timestamp} 
 %MSG-! cat_A:  UnitTestClient_A:sendSomeMessages Run: 1 Event: 1 UnitTestClient_A.cc:19
 LogDebug was used to send this message
 %MSG
@@ -25,9 +23,7 @@ LogInfo was used to send this message
 %MSG-i cat_B:  UnitTestClient_A:sendSomeMessages Run: 1 Event: 1
 LogInfo was used to send this other message
 %MSG
-%MSG-i FwkReport:  main_input:source Run: 1 Event: 1
-Begin processing the 2nd record. Run 1, Event 2, LumiSection 1
-%MSG
+Begin processing the 2nd record. Run 1, Event 2, LumiSection 1 at {Timestamp} 
 %MSG-! cat_A:  UnitTestClient_A:sendSomeMessages Run: 1 Event: 2 UnitTestClient_A.cc:19
 LogDebug was used to send this message
 %MSG
