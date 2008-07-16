@@ -216,67 +216,52 @@ class _SequenceOpFollows(_SequenceOperator):
     def _precedence(self):
         return 1
 
-class _SequenceNegation(_Sequenceable):
+class _UnarySequenceOperator(_Sequenceable):
+    """For ~ and - operators"""
+    def __init__(self, operand):
+       self._operand = operand
+       if isinstance(operand, _ModuleSequenceType):
+           raise RuntimeError("This operator cannot accept a sequence")
+    def _findDependencies(self,knownDeps, presentDeps):
+        self._operand._findDependencies(knownDeps, presentDeps)
+    def fillNamesList(self, l, processDict):
+        l.append(self.dumpSequenceConfig())
+    def _clonesequence(self, lookuptable):
+        return type(self)(self._operand._clonesequence(lookuptable))
+    def _replace(self, original, replacement):
+        if self._operand == original:
+            self._operand = replacement
+        else:
+            self._operand._replace(original, replacement)
+    def resolve(self, processDict):
+        self._operand = self._operand.resolve(processDict)
+        return self
+    def isOperation(self):
+        return True
+    def _visitSubNodes(self,visitor):
+        self._operand.visitNode(visitor)
+
+class _SequenceNegation(_UnarySequenceOperator):
     """Used in the expression tree for a sequence as a stand in for the '!' operator"""
     def __init__(self, operand):
-        self.__operand = operand
-        if isinstance(operand, _ModuleSequenceType):
-            raise RuntimeError("The ~ operator cannot accept a sequence")
+        super(_SequenceNegation,self).__init__(operand)
     def __str__(self):
-        return '~%s' %self.__operand
+        return '~%s' %self._operand
     def dumpSequenceConfig(self):
-        return '!%s' %self.__operand.dumpSequenceConfig()
+        return '!%s' %self._operand.dumpSequenceConfig()
     def dumpSequencePython(self):
-        return '~%s' %self.__operand.dumpSequencePython()
-    def _findDependencies(self,knownDeps, presentDeps):
-        self.__operand._findDependencies(knownDeps, presentDeps)
-    def fillNamesList(self, l, processDict):
-        l.append(self.dumpSequenceConfig())
-    def _clonesequence(self, lookuptable):
-        return type(self)(self.__operand._clonesequence(lookuptable))
-    def _replace(self, original, replacement):
-        if self.__operand == original:
-            self.__operand = replacement
-        else:
-            self.__operand._replace(original, replacement)
-    def resolve(self, processDict):
-        self.__operand = self.__operand.resolve(processDict)
-        return self
-    def isOperation(self):
-        return True
-    def _visitSubNodes(self,visitor):
-        self.__operand.visitNode(visitor)
+        return '~%s' %self._operand.dumpSequencePython()
 
-class _SequenceIgnore(_Sequenceable):
+class _SequenceIgnore(_UnarySequenceOperator):
     """Used in the expression tree for a sequence as a stand in for the '-' operator"""
     def __init__(self, operand):
-        self.__operand = operand
-        if isinstance(operand, _ModuleSequenceType):
-            raise RuntimeError("The ignore command cannot accept a sequence")
+        super(_SequenceIgnore,self).__init__(operand)
     def __str__(self):
-        return 'cms.ignore(%s)' %self.__operand
+        return 'cms.ignore(%s)' %self._operand
     def dumpSequenceConfig(self):
-        return '-%s' %self.__operand.dumpSequenceConfig()
+        return '-%s' %self._operand.dumpSequenceConfig()
     def dumpSequencePython(self):
-        return 'cms.ignore(%s)' %self.__operand.dumpSequencePython()
-    def _findDependencies(self,knownDeps, presentDeps):
-        self.__operand._findDependencies(knownDeps, presentDeps)
-    def fillNamesList(self, l, processDict):
-        l.append(self.dumpSequenceConfig())
-    def _clonesequence(self, lookuptable):
-        return type(self)(self.__operand._clonesequence(lookuptable))
-    def _replace(self, original, replacement):
-        if self.__operand == original:
-            self.__operand = replacement
-        else:
-            self.__operand._replace(original, replacement)
-    def resolve(self, processDict):
-        self.__operand = self.__operand.resolve(processDict)
-        return self
-    def isOperation(self):
-        return True
-    def _visitSubNodes(self,visitor):
-        self.__operand.visitNode(visitor)
+        return 'cms.ignore(%s)' %self._operand.dumpSequencePython()
 
 def ignore(seq):
     """The EDFilter passed as an argument will be run but its filter value will be ignored
