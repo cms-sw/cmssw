@@ -39,7 +39,17 @@ SiTrivialDigitalConverter::convertRaw(const std::vector<double>& analogSignal, e
   
   
   for ( unsigned int i=0; i<analogSignal.size(); i++) {
-    if (analogSignal[i]<=0) continue;
+    // Raw Digis: we need all the channels
+    //            saturation below the baseline
+    //            (baseline=0 if we do not add pedestals)
+    //        --> the following line not needed:
+    //    if (analogSignal[i]<=0) continue;
+    // and replace with this:
+    if (analogSignal[i]<=0) {
+      _temp.push_back(SiStripRawDigi(0));
+      continue;
+    }
+    
     float gainFactor  = (gainHandle.isValid()) ? gainHandle->getStripGain(i, detGainRange) : 1;
     
     // convert analog amplitude to digital
