@@ -8,7 +8,7 @@
 //
 // Original Author:  Chris Jones
 //         Created:  Fri Jun 13 09:58:53 EDT 2008
-// $Id: FWGUIEventDataAdder.cc,v 1.6 2008/07/11 01:15:22 dmytro Exp $
+// $Id: FWGUIEventDataAdder.cc,v 1.7 2008/07/12 17:55:30 dmytro Exp $
 //
 
 // system include files
@@ -327,7 +327,7 @@ FWGUIEventDataAdder::createWindow()
    m_apply->Connect("Clicked()","FWGUIEventDataAdder",this,"addNewItem()");
    
    // Set a name to the main frame 
-   m_frame->SetWindowName("Show Additional Event Data"); 
+   m_frame->SetWindowName("Add Collection"); 
    
    // Map all subwindows of main frame 
    m_frame->MapSubwindows(); 
