@@ -8,7 +8,7 @@
 //
 // Original Author:  Chris Jones
 //         Created:  Mon Feb 11 11:06:40 EST 2008
-// $Id: FWGUIManager.cc,v 1.59 2008/07/15 20:27:32 chrjones Exp $
+// $Id: FWGUIManager.cc,v 1.60 2008/07/16 00:00:40 chrjones Exp $
 //
 
 // system include files
@@ -226,6 +226,8 @@ FWGUIManager::parentForNextView()
    hf->goingToBeDestroyed_.connect(boost::bind(&FWGUIManager::subviewIsBeingDestroyed,this,_1));
    hf->bigViewUndocked_.connect(boost::bind(&FWGUIManager::mainViewWasUndocked,this));
    hf->bigViewDocked_.connect(boost::bind(&FWGUIManager::mainViewWasDocked,this));
+   hf->selected_.connect(boost::bind(&FWGUIManager::viewSelected,this,_1));
+   hf->unselected_.connect(boost::bind(&FWGUIManager::viewUnselected,this,_1));
    if(!m_viewFrames.empty()) {
       m_viewFrames.back()->enableDestructionButton(false);
    }
@@ -271,7 +273,7 @@ FWGUIManager::createView(const std::string& iName)
    }
    FWViewBase* view(itFind->second(parentForNextView()));
    addFrameHoldingAView(view->frame());
-   
+   m_viewFrames.back()->setName(iName);
    /*
    FWListViewObject* lst = new FWListViewObject(iName.c_str(),view);
    lst->AddIntoListTree(m_listTree,m_views);
@@ -424,7 +426,6 @@ FWGUIManager::subviewWasSwappedToBig(unsigned int iIndex)
       m_viewFrames[0]->enableDestructionButton(false);
       m_viewFrames[iIndex]->enableDestructionButton(true);
    }
-   if (m_viewPopup != 0) refillViewPopup(m_viewBases[0]);
 }
 
 void
@@ -440,6 +441,10 @@ FWGUIManager::subviewIsBeingDestroyed(unsigned int iIndex)
    f= boost::bind(&TGSplitFrame::CloseAndCollapse,p);
    m_tasks->addTask(f);
    m_tasks->startDoingTasks();
+   
+   if(m_viewFrames[iIndex]->isSelected()) {
+      if(0!= m_viewPopup) {refillViewPopup(0);}
+   }
    
    m_viewFrames.erase(m_viewFrames.begin()+iIndex);
    (*(m_viewBases.begin()+iIndex))->destroy();
@@ -472,6 +477,25 @@ FWGUIManager::mainViewWasDocked()
    
 }
 
+void 
+FWGUIManager::viewSelected(unsigned int iSelIndex)
+{
+   unsigned int index=0;
+   for(std::vector<FWGUISubviewArea*>::iterator it = m_viewFrames.begin(), itEnd=m_viewFrames.end();
+       it != itEnd; ++it,++index) {
+      if(index != iSelIndex) {
+         (*it)->unselect();
+      }
+   }
+   createViewPopup();
+   refillViewPopup(m_viewBases[iSelIndex]);
+}
+
+void 
+FWGUIManager::viewUnselected(unsigned int iSelIndex)
+{
+   if(m_viewPopup) {refillViewPopup(0);}
+}   
 
 
 TGVerticalFrame* 
