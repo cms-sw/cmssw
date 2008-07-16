@@ -1533,11 +1533,17 @@ class dbsBaseGui:
                     print "Run #%i  Total events = %i  Max Events to run = %i  Prescale = %i"%(i,self.filesInDBS[i].totalEvents, self.maxDQMEvents.get(),prescaleVal)
                 if (prescaleVal>0):
                     temp.write("%s %i\n\n"%(self.prescaleOverRunText,prescaleVal))
+                    # Need to run over all events if using prescale
+                    temp.write("replace maxEvents.input=%i\n"%self.filesInDBS[i].totalEvents)
+                     
             except:
-                pass
+                # If above fails for some reason, still dump out the maxEvents replacement (replace with maxDQMEvents)
+                temp.write("replace maxEvents.input=%i\n"%self.maxDQMEvents.get())
+                 
 
         # Set luminosity blocks over which to run
-        temp.write("replace maxEvents.input=%i\n"%self.maxDQMEvents.get())
+        else:
+            temp.write("replace maxEvents.input=%i\n"%self.maxDQMEvents.get())
 
         if (self.debug):
             print "run= ",i," lumi increment = ",self.lumiBlockRange.get()
@@ -2044,7 +2050,7 @@ class dbsBaseGui:
                                string.ljust("IgnoreRun?",20),string.ljust("# of files",20),
                                string.ljust("Dataset",30))
         Label(scrollwin,
-              text=temp).grid(row=myrow,column=0)
+              text=temp).grid(row=myrow,column=0,sticky=W)
         myrow=myrow+1
         self.lb=Listbox(scrollwin,
                         bg="white",
