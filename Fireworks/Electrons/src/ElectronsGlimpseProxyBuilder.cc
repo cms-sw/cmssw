@@ -8,7 +8,7 @@
 //
 // Original Author:  
 //         Created:  Sun Jan  6 23:57:00 EST 2008
-// $Id: ElectronsGlimpseProxyBuilder.cc,v 1.5 2008/07/04 23:56:58 chrjones Exp $
+// $Id: ElectronsGlimpseProxyBuilder.cc,v 1.6 2008/07/16 13:51:01 dmytro Exp $
 //
 
 // system include files
@@ -78,8 +78,10 @@ ElectronsGlimpseProxyBuilder::build(const FWEventItem* iItem, TEveElementList** 
    for(reco::GsfElectronCollection::const_iterator electron = electrons->begin(); 
        electron != electrons->end(); ++electron, ++counter) {
       char title[1024];
-      sprintf(title,"Electron %d, Pt: %0.1f GeV",counter.index(), electron->pt());
+      snprintf(title,1024,"Electron %d, Pt: %0.1f GeV",counter.index(), electron->pt());
       FWEveScalableStraightLineSet* marker = new FWEveScalableStraightLineSet( counter.str().c_str(), title );
+      marker->SetRnrSelf(iItem->defaultDisplayProperties().isVisible());
+      marker->SetRnrChildren(iItem->defaultDisplayProperties().isVisible());
       marker->SetLineWidth(2);
       marker->SetLineColor(  iItem->defaultDisplayProperties().color() );
       fw::addStraightLineSegment( marker, &*electron, 1.0 );

@@ -8,7 +8,7 @@
 //
 // Original Author:  
 //         Created:  Sun Jan  6 23:57:00 EST 2008
-// $Id: CaloJetProxyEveLegoBuilder.cc,v 1.5 2008/07/04 01:40:36 dmytro Exp $
+// $Id: CaloJetProxyEveLegoBuilder.cc,v 1.6 2008/07/16 13:50:59 dmytro Exp $
 //
 
 // system include files
@@ -102,6 +102,8 @@ CaloJetProxyEveLegoBuilder::build(const FWEventItem* iItem, TEveElementList** pr
       TEveStraightLineSet* container = new TEveStraightLineSet( counter.str().c_str(), title );
       // container->SetLineWidth(4);
       container->SetLineColor(  iItem->defaultDisplayProperties().color() );
+      container->SetRnrSelf(iItem->defaultDisplayProperties().isVisible());
+      container->SetRnrChildren(iItem->defaultDisplayProperties().isVisible());
       
       for ( unsigned int iphi = 0; iphi < nLineSegments; ++iphi ) {
 	 container->AddLine(jet->eta()+jetRadius*cos(2*M_PI/nLineSegments*iphi),
@@ -111,8 +113,6 @@ CaloJetProxyEveLegoBuilder::build(const FWEventItem* iItem, TEveElementList** pr
 			    jet->phi()+jetRadius*sin(2*M_PI/nLineSegments*(iphi+1)),
 			    0.1);
       }
-      // tList->SetRnrSelf(iItem->defaultDisplayProperties().isVisible());
-      // tList->SetRnrChildren(iItem->defaultDisplayProperties().isVisible());
       tList->AddElement(container);
    }
 }

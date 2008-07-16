@@ -14,7 +14,7 @@
 //
 // Original Author:  
 //         Created:  Thu Dec  6 18:01:21 PST 2007
-// $Id: TracksProxy3DBuilder.cc,v 1.10 2008/07/06 19:58:54 dmytro Exp $
+// $Id: TracksProxy3DBuilder.cc,v 1.11 2008/07/07 06:14:02 dmytro Exp $
 //
 
 // system include files
@@ -107,6 +107,8 @@ void TracksProxy3DBuilder::build(const FWEventItem* iItem, TEveElementList** pro
        sprintf(s,"Track %d, Pt: %0.1f GeV",index,it->pt());
        trk->SetTitle(s);
        trk->SetMainColor(iItem->defaultDisplayProperties().color());
+       trk->SetRnrSelf(iItem->defaultDisplayProperties().isVisible());
+       trk->SetRnrChildren(iItem->defaultDisplayProperties().isVisible());
        
        if ( it->extra().isAvailable() ) {
 	  TEvePathMark mark( TEvePathMark::kDaughter );

@@ -14,7 +14,7 @@
 //
 // Original Author:  
 //         Created:  Thu Dec  6 18:01:21 PST 2007
-// $Id: GenParticleProxy3DBuilder.cc,v 1.3 2008/06/23 06:26:07 dmytro Exp $
+// $Id: GenParticleProxy3DBuilder.cc,v 1.4 2008/07/05 22:56:33 dmytro Exp $
 //
 
 // system include files
@@ -103,6 +103,8 @@ void GenParticleProxy3DBuilder::build(const FWEventItem* iItem, TEveElementList*
 	  sprintf(s,"gen pdg %d, Pt: %0.1f GeV", it->pdgId(), it->pt());
       genPart->SetTitle(s);
       genPart->SetMainColor(iItem->defaultDisplayProperties().color());
+      genPart->SetRnrSelf(iItem->defaultDisplayProperties().isVisible());
+      genPart->SetRnrChildren(iItem->defaultDisplayProperties().isVisible());
       gEve->AddElement(genPart,tlist);
       //cout << it->px()<<" "
       //   <<it->py()<<" "

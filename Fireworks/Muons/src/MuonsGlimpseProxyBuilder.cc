@@ -8,7 +8,7 @@
 //
 // Original Author:  
 //         Created:  Sun Jan  6 23:57:00 EST 2008
-// $Id: MuonsGlimpseProxyBuilder.cc,v 1.5 2008/07/04 23:57:02 chrjones Exp $
+// $Id: MuonsGlimpseProxyBuilder.cc,v 1.6 2008/07/16 13:51:02 dmytro Exp $
 //
 
 // system include files
@@ -82,6 +82,8 @@ MuonsGlimpseProxyBuilder::build(const FWEventItem* iItem, TEveElementList** prod
       FWEveScalableStraightLineSet* marker = new FWEveScalableStraightLineSet( counter.str().c_str(), title );
       marker->SetLineWidth(2);
       marker->SetLineColor(  iItem->defaultDisplayProperties().color() );
+      marker->SetRnrSelf(iItem->defaultDisplayProperties().isVisible());
+      marker->SetRnrChildren(iItem->defaultDisplayProperties().isVisible());
       fw::addStraightLineSegment( marker, &*muon, 1.0 );
       tList->AddElement(marker);
       //add to scaler at end so that it can scale the line after all ends have been added

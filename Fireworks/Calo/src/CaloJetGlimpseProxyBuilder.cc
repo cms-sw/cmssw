@@ -8,7 +8,7 @@
 //
 // Original Author:  
 //         Created:  Sun Jan  6 23:57:00 EST 2008
-// $Id: CaloJetGlimpseProxyBuilder.cc,v 1.7 2008/07/04 23:56:59 chrjones Exp $
+// $Id: CaloJetGlimpseProxyBuilder.cc,v 1.8 2008/07/16 13:50:59 dmytro Exp $
 //
 
 // system include files
@@ -111,13 +111,13 @@ CaloJetGlimpseProxyBuilder::build(const FWEventItem* iItem, TEveElementList** pr
       */
       cone->SetMainColor(iItem->defaultDisplayProperties().color());
       cone->SetMainTransparency(50);
+      cone->SetRnrSelf(iItem->defaultDisplayProperties().isVisible());
+      cone->SetRnrChildren(iItem->defaultDisplayProperties().isVisible());
       //cone->DigitColor( iItem->defaultDisplayProperties().color(), 50 );
       // TColor* c = gROOT->GetColor(iItem->defaultDisplayProperties().color());
       // cone->DigitColor( UChar_t(255*c->GetRed()), UChar_t(255*c->GetGreen()), UChar_t(255*c->GetBlue()), 20 );
       cone->SetDrawConeCap(kFALSE);
       cone->SetMainTransparency(50);
-      // tList->SetRnrSelf(iItem->defaultDisplayProperties().isVisible());
-      // tList->SetRnrChildren(iItem->defaultDisplayProperties().isVisible());
       tList->AddElement(cone);
       scaler()->addElement(cone);
       /*
