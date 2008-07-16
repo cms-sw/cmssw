@@ -651,6 +651,7 @@ void SiTrackerGaussianSmearingRecHitConverter::smearHits(
     unsigned int alphaMult = 0;
     unsigned int betaMult  = 0;
     bool isCreated = gaussianSmearing(*isim, position, error, alphaMult, betaMult);
+    // std::cout << "Error as simulated     " << error.xx() << " " << error.xy() << " " << error.yy() << std::endl;
     //
     unsigned int subdet = det.subdetId();
     
@@ -711,6 +712,7 @@ void SiTrackerGaussianSmearingRecHitConverter::smearHits(
 			     error.xy()+lape.xy(),
 			     error.yy()+lape.yy() );
       }
+      // std::cout << "Error as reconstructed " << error.xx() << " " << error.xy() << " " << error.yy() << std::endl;
 
       // create rechit
       temporaryRecHits[trackID].push_back(
