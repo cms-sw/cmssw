@@ -2,12 +2,16 @@
 
 from FWCore.ParameterSet.TreeCrawler import getImportTree, Color
 import sys, os
+import optparse
+usage = "%prog [configuration file name] [optional search string]"
+parser = optparse.OptionParser(usage=usage)
+
 
 try:
     filename = sys.argv[2]
     pattern = sys.argv[1]
 except:
-    raise StandardError("Usage: edmPythonSearch <target> <fileName>")
+    parser.error("Error")
 
 sys.path.append(os.environ["PWD"])
 path = sys.path[:]
@@ -21,10 +25,13 @@ importTree.search(pattern,result)
 
 # sort the output by file name
 result.sort(key= lambda x: x.filename)
-
+dumpStack = True
 # dump to screen
 for item in result:
-    print "%s (line: %s) : %s"  %(item.filename, item.number, item.line.replace(pattern,Color.hilight+pattern+Color.none) )
+    print  item.line.replace(pattern,Color.hilight+pattern+Color.none)
+    print "%s (line: %s)"  %(item.filename, item.number)
+    if dumpStack and hasattr(item, 'stack'):
+       print 'From',' -> '.join(item.stack), '\n'
                 
 
 
