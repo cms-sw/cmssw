@@ -24,11 +24,3 @@ sistripconn = cms.ESProducer("SiStripConnectivity")
 # end fake calibrations
 
 from Configuration.StandardSequences.FrontierConditions_GlobalTag_cfi import *
-
-from Geometry.TrackerGeometryBuilder.trackerGeometry_cfi import *
-from Geometry.DTGeometry.dtGeometry_cfi import *
-from Geometry.CSCGeometry.cscGeometry_cfi import *
-
-TrackerDigiGeometryESModule.applyAlignment = True
-DTGeometryESModule.applyAlignment = True
-CSCGeometryESModule.applyAlignment = True
