@@ -20,7 +20,8 @@ class JetTagProducer : public edm::EDProducer {
 
     private:
 	virtual void produce(edm::Event&, const edm::EventSetup&);
-	virtual void beginJob(const edm::EventSetup&);
+
+	void setup(const edm::EventSetup&);
 
 	const JetTagComputer			*m_computer;
 	std::string				m_jetTagComputer;

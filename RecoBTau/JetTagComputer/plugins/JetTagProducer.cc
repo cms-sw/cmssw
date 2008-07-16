@@ -13,7 +13,7 @@
 //
 // Original Author:  Andrea Rizzi
 //         Created:  Thu Apr  6 09:56:23 CEST 2006
-// $Id: JetTagProducer.cc,v 1.7 2007/11/23 16:07:50 saout Exp $
+// $Id: JetTagProducer.cc,v 1.8 2008/04/22 12:29:44 saout Exp $
 //
 //
 
@@ -77,7 +77,7 @@ JetTagProducer::~JetTagProducer()
 //
 // ------------ method called once each job just before starting event loop  ------------
 void
-JetTagProducer::beginJob(const edm::EventSetup& iSetup) {
+JetTagProducer::setup(const edm::EventSetup& iSetup) {
   edm::ESHandle<JetTagComputer> computer;
   iSetup.get<JetTagComputerRecord>().get( m_jetTagComputer, computer );
   m_computer = computer.product();
@@ -125,7 +125,10 @@ namespace {
 void
 JetTagProducer::produce(Event& iEvent, const EventSetup& iSetup)
 {
-  m_computer->setEventSetup(iSetup);
+  if (m_computer)
+    m_computer->setEventSetup(iSetup);
+  else
+    setup(iSetup);
 
   // now comes the tricky part:
   // we need to collect all requested TagInfos belonging to the same jet
