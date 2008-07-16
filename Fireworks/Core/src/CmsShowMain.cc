@@ -8,7 +8,7 @@
 //
 // Original Author:  
 //         Created:  Mon Dec  3 08:38:38 PST 2007
-// $Id: CmsShowMain.cc,v 1.27 2008/07/15 23:39:53 chrjones Exp $
+// $Id: CmsShowMain.cc,v 1.28 2008/07/16 07:08:12 jmuelmen Exp $
 //
 
 // system include files
@@ -554,7 +554,7 @@ CmsShowMain::~CmsShowMain()
 // member functions
 //
 void CmsShowMain::resetInitialization() {
-  printf("Need to reset\n");
+  //printf("Need to reset\n");
 } 
 
 void CmsShowMain::draw(const fwlite::Event& event) 

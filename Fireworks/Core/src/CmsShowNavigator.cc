@@ -8,7 +8,7 @@
 //
 // Original Author:  
 //         Created:  Tue Jun 10 14:56:46 EDT 2008
-// $Id: CmsShowNavigator.cc,v 1.8 2008/07/08 02:43:46 dmytro Exp $
+// $Id: CmsShowNavigator.cc,v 1.9 2008/07/11 00:05:00 chrjones Exp $
 //
 
 // hacks
@@ -214,7 +214,7 @@ CmsShowNavigator::filterEventsAndReset(const char* selection)
    m_selection = selection;
    m_eventTree->SetEventList(0);
    if ( m_selection ) {
-      std::cout << "Selection requested: " << m_selection << std::endl;
+      //std::cout << "Selection requested: " << m_selection << std::endl;
       m_eventTree->Draw(">>list",m_selection);
       m_eventTree->SetEventList( m_eventList );
    }	

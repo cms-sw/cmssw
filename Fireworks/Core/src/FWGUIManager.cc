@@ -8,7 +8,7 @@
 //
 // Original Author:  Chris Jones
 //         Created:  Mon Feb 11 11:06:40 EST 2008
-// $Id: FWGUIManager.cc,v 1.62 2008/07/16 03:56:34 jmuelmen Exp $
+// $Id: FWGUIManager.cc,v 1.63 2008/07/16 13:38:20 chrjones Exp $
 //
 
 // system include files
@@ -674,11 +674,11 @@ TGMainFrame *FWGUIManager::createTextView (TGTab *p)
      m_textViewTab = p;
      p->Resize(m_mainFrame->GetWidth(), m_mainFrame->GetHeight());
      m_textViewFrame[0] = p->AddTab("Physics objects");
-     printf("current tab: %d\n", p->GetCurrent());
+     //printf("current tab: %d\n", p->GetCurrent());
      m_textViewFrame[1] = p->AddTab("Triggers");
-     printf("current tab: %d\n", p->GetCurrent());
+     //printf("current tab: %d\n", p->GetCurrent());
      m_textViewFrame[2] = p->AddTab("Tracking");
-     printf("current tab: %d\n", p->GetCurrent());
+     //printf("current tab: %d\n", p->GetCurrent());
      
      p->MapSubwindows();
      p->MapWindow();

@@ -8,7 +8,7 @@
 //
 // Original Author:  Chris Jones
 //         Created:  Thu May 29 20:58:23 CDT 2008
-// $Id: CmsShowMainFrame.cc,v 1.11 2008/07/15 23:42:21 chrjones Exp $
+// $Id: CmsShowMainFrame.cc,v 1.12 2008/07/16 00:00:40 chrjones Exp $
 //
 
 // system include files
@@ -217,7 +217,7 @@ TGMainFrame(p, w, h)
    */
 
    TGHorizontalFrame *fullbar = new TGHorizontalFrame(this, this->GetWidth(), 30);
-   printf("this->GetWidth(): %d\n", this->GetWidth());
+   //printf("this->GetWidth(): %d\n", this->GetWidth());
    TGToolBar *tools = new TGToolBar(fullbar, 400, 30);
    TString coreIcondir(Form("%s/src/Fireworks/Core/icons/",gSystem->Getenv("CMSSW_BASE")));
 
