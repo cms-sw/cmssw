@@ -6,8 +6,8 @@
  *
  *  DQM muon analysis monitoring
  *
- *  $Date: 2008/05/22 15:38:33 $
- *  $Revision: 1.10 $
+ *  $Date: 2008/06/09 13:41:20 $
+ *  $Revision: 1.11 $
  *  \author G. Mila - INFN Torino
  */
 
@@ -43,7 +43,7 @@ class MuonAnalyzer : public edm::EDAnalyzer {
  private:
   // ----------member data ---------------------------
   
-  DQMStore* dbe;
+  DQMStore* theDbe;
   edm::ParameterSet parameters;
   MuonServiceProxy *theService;
   // Switch for verbosity

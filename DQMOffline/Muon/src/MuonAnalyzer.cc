@@ -2,8 +2,8 @@
 /*
  *  See header file for a description of this class.
  *
- *  $Date: 2008/05/22 15:38:29 $
- *  $Revision: 1.15 $
+ *  $Date: 2008/06/09 13:41:20 $
+ *  $Revision: 1.16 $
  *  \author G. Mila - INFN Torino
  */
 
@@ -102,15 +102,15 @@ void MuonAnalyzer::beginJob(edm::EventSetup const& iSetup) {
   metname = "muonAnalyzer";
 
   LogTrace(metname)<<"[MuonAnalyzer] Parameters initialization";
-  dbe = edm::Service<DQMStore>().operator->();
-  dbe->setVerbose(1);
+  theDbe = edm::Service<DQMStore>().operator->();
+  theDbe->setVerbose(1);
 
-  if(theMuEnergyAnalyzerFlag) theMuEnergyAnalyzer->beginJob(iSetup, dbe);
-  if(theSeedsAnalyzerFlag) theSeedsAnalyzer->beginJob(iSetup, dbe);
-  if(theMuonRecoAnalyzerFlag) theMuonRecoAnalyzer->beginJob(iSetup, dbe);
+  if(theMuEnergyAnalyzerFlag) theMuEnergyAnalyzer->beginJob(iSetup, theDbe);
+  if(theSeedsAnalyzerFlag) theSeedsAnalyzer->beginJob(iSetup, theDbe);
+  if(theMuonRecoAnalyzerFlag) theMuonRecoAnalyzer->beginJob(iSetup, theDbe);
   if(theMuonSegmentsAnalyzerFlag) {
-    theGlbMuonSegmentsAnalyzer->beginJob(iSetup, dbe);
-    theStaMuonSegmentsAnalyzer->beginJob(iSetup, dbe);
+    theGlbMuonSegmentsAnalyzer->beginJob(iSetup, theDbe);
+    theStaMuonSegmentsAnalyzer->beginJob(iSetup, theDbe);
   }
 
 }
@@ -183,11 +183,11 @@ void MuonAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& iSet
 
 void MuonAnalyzer::endJob(void) {
   LogTrace(metname)<<"[MuonAnalyzer] Saving the histos";
-  dbe->showDirStructure();
+  theDbe->showDirStructure();
   bool outputMEsInRootFile = parameters.getParameter<bool>("OutputMEsInRootFile");
   std::string outputFileName = parameters.getParameter<std::string>("OutputFileName");
   if(outputMEsInRootFile){
-    dbe->save(outputFileName);
+    theDbe->save(outputFileName);
   }
 }
 
