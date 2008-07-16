@@ -8,7 +8,7 @@
 //
 // Original Author:  
 //         Created:  Mon Dec  3 08:38:38 PST 2007
-// $Id: CmsShowMain.cc,v 1.26 2008/07/15 03:15:20 dmytro Exp $
+// $Id: CmsShowMain.cc,v 1.27 2008/07/15 23:39:53 chrjones Exp $
 //
 
 // system include files
@@ -576,7 +576,12 @@ void CmsShowMain::openData()
 			     0,0};
   TGFileInfo fi;
   fi.fFileTypes = kRootType;
-  fi.fIniDir = ".";
+  /* this is how things used to be done:
+     fi.fIniDir = ".";
+     this is bad because the destructor calls delete[] on fIniDir.
+  */
+  fi.fIniDir = new char[10];
+  strcpy(fi.fIniDir, ".");
   new TGFileDialog(gClient->GetDefaultRoot(), gClient->GetDefaultRoot(), kFDOpen, &fi);
   if (fi.fFilename) m_navigator->loadFile(fi.fFilename);
 }
