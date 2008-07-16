@@ -21,6 +21,9 @@ multiTrackValidator = cms.EDFilter("MultiTrackValidator",
     useInvPt = cms.bool(False),
     dirName = cms.string('RecoTrackV/Track/'),
     minHit = cms.double(0.0),
+    minPhi = cms.double(-3.15),
+    maxPhi = cms.double(3.15),
+    nintPhi = cms.int32(63),
     # 
     sim = cms.string('g4SimHits'),
     # 
