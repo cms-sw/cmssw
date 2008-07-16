@@ -15,7 +15,7 @@
 //----------------------------------------------------------------------
 CocoaDaqReaderRoot::CocoaDaqReaderRoot(const std::string& m_inFileName )
 {
-  std::cout << " CocoaDaqReaderRoot opening file: " << m_inFileName << std::endl;
+  if ( ALIUtils::debug >= 3) std::cout << " CocoaDaqReaderRoot opening file: " << m_inFileName << std::endl;
   // Open root file
   theFile = new TFile(m_inFileName.c_str()); 
   if( !theTree ) {
@@ -31,12 +31,9 @@ CocoaDaqReaderRoot::CocoaDaqReaderRoot(const std::string& m_inFileName )
     std::cerr << " CocoaDaqReaderRoot TTree in file " << m_inFileName << " should be called 'CocoaDaq' " << std::endl;
     std::exception();
   }
-
   TBranch *branch = theTree->GetBranch("Alignment_Cocoa");
 
   nev = branch->GetEntries(); // number of entries in Tree
-
-  //nev = theTree->GetEntries(); // number of entries in Tree
   //if ( ALIUtils::debug >= 2) std::cout << "CocoaDaqReaderRoot::CocoaDaqReaderRoot:  number of entries in Tree " << nev << std::endl;
  
   nextEvent = 0;
@@ -44,9 +41,8 @@ CocoaDaqReaderRoot::CocoaDaqReaderRoot(const std::string& m_inFileName )
   // Event object must be created before setting the branch address
   theEvent = new CocoaDaqRootEvent();
 
-  // link pointer to Tree branch  
-  theTree->SetBranchAddress("Alignment_Cocoa", &theEvent);
-  //theTree->SetBranchAddress("CocoaDaq", &theEvent);  //  !! SHOULD BE CALLED Alignment_Cocoa
+  // link pointer to Tree branch
+   theTree->SetBranchAddress("CocoaDaq", &theEvent);  //  !! SHOULD BE CALLED Alignment_Cocoa
   // theTree->SetBranchAddress("Alignment_Link", &theEvent);  //  !! SHOULD BE CALLED Alignment_Cocoa
 
   CocoaDaqReader::SetDaqReader( this );
@@ -75,26 +71,27 @@ bool CocoaDaqReaderRoot::ReadEvent( int nev )
   // Loop over all events
   nb = theTree->GetEntry(nev);  // read in entire event
  
- if ( ALIUtils::debug >= -2) std::cout << "CocoaDaqReaderRoot reading event " << nev << " " << nb << std::endl;
+  if ( ALIUtils::debug >= 3) std::cout << "CocoaDaqReaderRoot reading event " << nev << " " << nb << std::endl;
   if( nb == 0 ) return 0; //end of file reached??
 
   // Every n events, dump one to screen
-  if(nev%1 == 0) theEvent->DumpIt();
+  int n = 1;
+  if(nev%n == 0 &&  ALIUtils::debug >= 3 ) theEvent->DumpIt();
   
-  //if ( ALIUtils::debug >= 2) std::cout<<" CocoaDaqReaderRoot::ReadEvent "<< nev <<std::endl;
+  //if ( ALIUtils::debug >= 3) std::cout<<" CocoaDaqReaderRoot::ReadEvent "<< nev <<std::endl;
 
-   if ( ALIUtils::debug >= -2) std::cout<<" CocoaDaqReaderRoot::ReadEvent npos2D "<< theEvent->GetNumPos2D() << " nCOPS " << theEvent->GetNumPosCOPS() << std::endl;
+   if ( ALIUtils::debug >= 3) std::cout<<" CocoaDaqReaderRoot::ReadEvent npos2D "<< theEvent->GetNumPos2D() << " nCOPS " << theEvent->GetNumPosCOPS() << std::endl;
   
   for(int ii=0; ii<theEvent->GetNumPos2D(); ii++) {
     AliDaqPosition2D* pos2D = (AliDaqPosition2D*) theEvent->GetArray_Position2D()->At(ii);
-    std::cout<<"2D sensor "<<ii<<" has ID = "<<pos2D->GetID()
-	<<" and (x,y) = ("<<pos2D->GetX()<<","<<pos2D->GetY()<<")"<<std::endl;
+    if ( ALIUtils::debug >= 4) std::cout<<"2D sensor "<<ii<<" has ID = "<<pos2D->GetID()<< std::endl;
+      pos2D->DumpIt("2DSENSOR"); 
      measList.push_back( GetMeasFromPosition2D( pos2D ) );
   }
   for(int ii=0; ii<theEvent->GetNumPosCOPS(); ii++) {
     AliDaqPositionCOPS* posCOPS = (AliDaqPositionCOPS*) theEvent->GetArray_PositionCOPS()->At(ii);
     measList.push_back( GetMeasFromPositionCOPS( posCOPS ) );
-    if ( ALIUtils::debug >= 2) {
+    if ( ALIUtils::debug >= 4) {
       std::cout<<"COPS sensor "<<ii<<" has ID = "<<posCOPS->GetID()<< std::endl;
       posCOPS->DumpIt("COPS"); 
     }
@@ -102,7 +99,7 @@ bool CocoaDaqReaderRoot::ReadEvent( int nev )
   for(int ii=0; ii<theEvent->GetNumTilt(); ii++) {
     AliDaqTilt* tilt = (AliDaqTilt*) theEvent->GetArray_Tilt()->At(ii);
     measList.push_back( GetMeasFromTilt( tilt ) );
-     if ( ALIUtils::debug >= 2) {
+     if ( ALIUtils::debug >= 4) {
        std::cout<<"TILT sensor "<<ii<<" has ID = "<<tilt->GetID()<< std::endl;
        tilt->DumpIt("TILT"); 
      }
@@ -111,7 +108,7 @@ bool CocoaDaqReaderRoot::ReadEvent( int nev )
   for(int ii=0; ii<theEvent->GetNumDist(); ii++) {
     AliDaqDistance* dist = (AliDaqDistance*) theEvent->GetArray_Dist()->At(ii);
     measList.push_back( GetMeasFromDist( dist ) );
-    if ( ALIUtils::debug >= 2) {
+    if ( ALIUtils::debug >= 4) {
       std::cout<<"DIST sensor "<<ii<<" has ID = "<<dist->GetID()<< std::endl;
       dist->DumpIt("DIST"); 
     }
@@ -141,14 +138,14 @@ OpticalAlignMeasurementInfo CocoaDaqReaderRoot::GetMeasFromPosition2D( AliDaqPos
   std::vector<OpticalAlignParam> paramList;
   OpticalAlignParam oaParam1;
   oaParam1.name_ = "H:";
-  oaParam1.value_ = pos2D->GetX();
-  oaParam1.error_ = pos2D->GetXerror();
+  oaParam1.value_ = pos2D->GetX()/100.;
+  oaParam1.error_ = pos2D->GetXerror()/100.;
   paramList.push_back(oaParam1);
   
   OpticalAlignParam oaParam2;
   oaParam2.name_ = "V:";
-  oaParam2.value_ = pos2D->GetY();
-  oaParam2.error_ = pos2D->GetYerror();
+  oaParam2.value_ = pos2D->GetY()/100.;
+  oaParam2.error_ = pos2D->GetYerror()/100.;
   paramList.push_back(oaParam2);
   
   meas.values_ = paramList;
@@ -174,26 +171,26 @@ OpticalAlignMeasurementInfo CocoaDaqReaderRoot::GetMeasFromPositionCOPS( AliDaqP
   std::vector<OpticalAlignParam> paramList;
   OpticalAlignParam oaParam1;
   oaParam1.name_ = "U:";
-  oaParam1.value_ = posCOPS->GetUp();
-  oaParam1.error_ = posCOPS->GetUpError();
+  oaParam1.value_ = posCOPS->GetUp()/100.;
+  oaParam1.error_ = posCOPS->GetUpError()/100.;
   paramList.push_back(oaParam1);
 
   OpticalAlignParam oaParam2;
   oaParam2.name_ = "U:";
-  oaParam2.value_ = posCOPS->GetDown();
-  oaParam2.error_ = posCOPS->GetDownError();
+  oaParam2.value_ = posCOPS->GetDown()/100.;
+  oaParam2.error_ = posCOPS->GetDownError()/100.;
   paramList.push_back(oaParam2);
 
   OpticalAlignParam oaParam3;
   oaParam3.name_ = "U:";
-  oaParam3.value_ = posCOPS->GetRight();
-  oaParam3.error_ = posCOPS->GetRightError();
+  oaParam3.value_ = posCOPS->GetRight()/100.;
+  oaParam3.error_ = posCOPS->GetRightError()/100.;
   paramList.push_back(oaParam3);
 
   OpticalAlignParam oaParam4;
   oaParam4.name_ = "U:";
-  oaParam4.value_ = posCOPS->GetLeft();
-  oaParam4.error_ = posCOPS->GetLeftError();
+  oaParam4.value_ = posCOPS->GetLeft()/100.;
+  oaParam4.error_ = posCOPS->GetLeftError()/100.;
   paramList.push_back(oaParam4);
   
   meas.values_ = paramList;
@@ -224,7 +221,6 @@ OpticalAlignMeasurementInfo CocoaDaqReaderRoot::GetMeasFromTilt( AliDaqTilt* til
   
   meas.values_ = paramList;
 
-
   return meas;
 
 }
@@ -246,27 +242,27 @@ OpticalAlignMeasurementInfo CocoaDaqReaderRoot::GetMeasFromDist( AliDaqDistance*
   std::vector<OpticalAlignParam> paramList;
   OpticalAlignParam oaParam;
   oaParam.name_ = "D:";
-  oaParam.value_ = dist->GetDistance();
-  oaParam.error_ = dist->GetDistanceError();
+  oaParam.value_ = dist->GetDistance()/100.;
+  oaParam.error_ = dist->GetDistanceError()/100.;
   paramList.push_back(oaParam);
 
   meas.values_ = paramList;
 
   return meas;
-
 }
 
 
 //----------------------------------------------------------------------
 void CocoaDaqReaderRoot::BuildMeasurementsFromOptAlign( std::vector<OpticalAlignMeasurementInfo>& measList )
 {
-  std::cout << "  CocoaDaqReaderRoot::BuildMeasurementsFromOptAlign " << ALIUtils::debug << std::endl;
+  if ( ALIUtils::debug >= 3) std::cout << "@@@ CocoaDaqReaderRoot::BuildMeasurementsFromOptAlign " << std::endl;
 
  //set date and time of current measurement
   //  if( wordlist[0] == "DATE:" ) {
   //   Measurement::setCurrentDate( wordlist ); 
   // } 
 
+  //---------- loop measurements read from ROOT and check for corresponding measurement in Model
   //  ALIint nMeasModel = Model::MeasurementList().size();
   ALIint nMeasRoot = measList.size();
   if(ALIUtils::debug >= 4) {
