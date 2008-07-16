@@ -5,6 +5,7 @@
 #include <string>
 #include <stdexcept>
 #include <cstring>
+#include <cstdlib>
 #include <boost/tuple/tuple.hpp>
 #include <boost/format.hpp>
 
@@ -47,6 +48,8 @@ TrackingMaterialAnalyser::TrackingMaterialAnalyser(const edm::ParameterSet& iPSe
   m_saveParameters          = iPSet.getParameter<bool>("SaveParameters");
   if (m_saveSummaryPlot)
     m_plotter               = new TrackingMaterialPlotter( 300., 120., 10 );      // 10x10 points per cm2
+  else
+    m_plotter               = NULL;
 }
 
 //-------------------------------------------------------------------------
@@ -203,7 +206,7 @@ void TrackingMaterialAnalyser::split( MaterialAccountingTrack & track )
     else
       limits[detectors] = track.m_total.length() + TOLERANCE;
     limits[detectors+1] = INFINITY;     // this is probably no more needed, but doesn't harm...
-   
+
     // pick the algorithm to define the non-trivial limits
     switch (m_splitMode) {
       // assign each segment to the the nearest layer
