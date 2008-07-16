@@ -6,7 +6,7 @@ HITSiStripRoI = cms.EDFilter("HITSiStripRawToClustersRoI",
     ptrackEtaWindow = cms.untracked.double(0.3),
     pixelTrackLabel = cms.InputTag("isolPixelTrackFilterL2"),
     # define objects of interest
-    global = cms.untracked.bool(False),
+    doGlobal = cms.untracked.bool(False),
     usePixelTracks = cms.untracked.bool(True),
     l1tauJetLabel = cms.InputTag("l1extraParticles","Tau"),
     random = cms.untracked.bool(False),

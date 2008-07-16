@@ -12,7 +12,7 @@ HITSiStripRawToClustersRoI::HITSiStripRawToClustersRoI(const edm::ParameterSet& 
   cabling_(),
   allregions_(),
   nlayers_(conf.getUntrackedParameter<int>("layers",-1)),
-  global_(conf.getUntrackedParameter<bool>("global",true)),
+  global_(conf.getUntrackedParameter<bool>("doGlobal",true)),
   random_(conf.getUntrackedParameter<bool>("random",false)),
   taujets_(conf.getUntrackedParameter<bool>("useTauJets",false)),
   ptrack_(conf.getUntrackedParameter<bool>("usePixelTracks",true)),

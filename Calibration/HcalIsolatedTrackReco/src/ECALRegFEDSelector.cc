@@ -17,7 +17,7 @@ ECALRegFEDSelector::ECALRegFEDSelector(const edm::ParameterSet& iConfig)
   produces<FEDRawDataCollection>();
   produces<EcalListOfFEDS>();
 
-  for (int p=0; p<1000; p++)
+  for (int p=0; p<1200; p++)
     {
       fedSaved[p]=false;
     }
@@ -31,7 +31,7 @@ ECALRegFEDSelector::~ECALRegFEDSelector()
 
 void ECALRegFEDSelector::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
 {
-  for (int p=0; p<1000; p++)
+  for (int p=0; p<1200; p++)
     {
       fedSaved[p]=false;
     }
@@ -69,13 +69,18 @@ void ECALRegFEDSelector::produce(edm::Event& iEvent, const edm::EventSetup& iSet
 	    {
 	      if (j==EcalRegionCabling::fedIndex(EC_FED_IDs[k])) 
 		{
-		  if (!fedSaved[p]) 
+		  if (!fedSaved[j]) 
 		    {
 		      fedList->AddFED(j);
 		      rightFED=true;
-		      fedSaved[p]=true;
+		      fedSaved[j]=true;
 		    }
 		}
+	    }
+	  if (j>=FEDNumbering::getPreShowerFEDIds().first&&j<=FEDNumbering::getPreShowerFEDIds().second) 
+	    {
+	      fedSaved[j]=true;
+	      rightFED=true;
 	    }
 	  if (!rightFED) continue;
 	  const FEDRawData & fedData = rdc->FEDData(j);

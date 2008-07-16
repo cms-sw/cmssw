@@ -34,7 +34,7 @@ class ECALRegFEDSelector : public edm::EDProducer {
 
   edm::InputTag seedLabel_;
   double delta_;
-  bool fedSaved[1000];
+  bool fedSaved[1200];
   
   edm::InputTag rawInLabel_;
   
