@@ -8,7 +8,7 @@
 //
 // Original Author:  Chris Jones
 //         Created:  Mon Feb 11 11:06:40 EST 2008
-// $Id: FWGUIManager.cc,v 1.61 2008/07/16 03:08:27 chrjones Exp $
+// $Id: FWGUIManager.cc,v 1.62 2008/07/16 03:56:34 jmuelmen Exp $
 //
 
 // system include files
@@ -750,22 +750,11 @@ FWGUIManager::promptForConfigurationFile()
 void 
 FWGUIManager::exportImageOfMainView()
 {
-   static TString dir(".");
-   const char *  kImageExportTypes[] = {"Encapsulated PostScript", "*.eps",
-      "PDF",                     "*.pdf",
-      "GIF",                     "*.gif",
-      "JPEG",                    "*.jpg",
-      "PNG",                     "*.png",
-   0, 0};
-   
-   TGFileInfo fi;
-   fi.fFileTypes = kImageExportTypes;
-   fi.fIniDir    = StrDup(dir);
-   new TGFileDialog(gClient->GetDefaultRoot(), m_cmsShowMainFrame,
-                    kFDSave,&fi);
-   dir = fi.fIniDir;
-   m_viewBases[0]->saveImageTo(fi.fFilename);
+   if(m_viewBases.size()) {
+      m_viewBases[0]->promptForSaveImageTo(m_cmsShowMainFrame);
+   }
 }
+
 
 static const std::string kMainWindow("main window");
 static const std::string kViews("views");
