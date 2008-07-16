@@ -35,7 +35,7 @@ process.GlobalTag.globaltag = "STARTUP_V1::All"
 # Apply ECAL miscalibration
 process.caloRecHits.RecHitsFactory.doMiscalib = True
 
-# Apply Tracker misalignment (ideal alignment though)
+# Apply Tracker misalignment
 process.famosSimHits.ApplyAlignment = True
 process.misalignedTrackerGeometry.applyAlignment = True
 
