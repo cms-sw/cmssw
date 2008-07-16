@@ -8,10 +8,11 @@
 //
 // Original Author:  Chris Jones
 //         Created:  Thu Feb 21 14:43:19 EST 2008
-// $Id: FWViewBase.cc,v 1.2 2008/03/16 19:58:19 chrjones Exp $
+// $Id: FWViewBase.cc,v 1.3 2008/06/25 21:58:29 chrjones Exp $
 //
 
 // system include files
+#include "TGFileDialog.h"
 
 // user include files
 #include "Fireworks/Core/interface/FWViewBase.h"
@@ -66,6 +67,25 @@ FWViewBase::destroy()
 //
 // const member functions
 //
+void 
+FWViewBase::promptForSaveImageTo(TGFrame* iParent) const
+{
+   static TString dir(".");
+   const char *  kImageExportTypes[] = {"Encapsulated PostScript", "*.eps",
+      "PDF",                     "*.pdf",
+      "GIF",                     "*.gif",
+      "JPEG",                    "*.jpg",
+      "PNG",                     "*.png",
+   0, 0};
+   
+   TGFileInfo fi;
+   fi.fFileTypes = kImageExportTypes;
+   fi.fIniDir    = StrDup(dir);
+   new TGFileDialog(gClient->GetDefaultRoot(), iParent,
+                    kFDSave,&fi);
+   dir = fi.fIniDir;
+   saveImageTo(fi.fFilename);
+}
 
 //
 // static member functions
