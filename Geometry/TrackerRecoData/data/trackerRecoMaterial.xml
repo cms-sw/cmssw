@@ -69,8 +69,8 @@
       <PartSelector path="//TIB/TIBLayer3/TIBLayer3Down/TIBString3Lo1/TIBString3LoPls1/TIBModule2/TIBWaferRphi2/TIBActiveRphi2"/>
       <PartSelector path="//TIB/TIBLayer3/TIBLayer3Up/TIBString3Up1/TIBString3UpMin1/TIBModule2/TIBWaferRphi2/TIBActiveRphi2"/>
       <PartSelector path="//TIB/TIBLayer3/TIBLayer3Up/TIBString3Up1/TIBString3UpPls1/TIBModule2/TIBWaferRphi2/TIBActiveRphi2"/>
-      <Parameter name="TrackerRadLength" value="0.0499"/>
-      <Parameter name="TrackerXi" value="0.0001115"/>
+      <Parameter name="TrackerRadLength" value="0.0497"/>
+      <Parameter name="TrackerXi" value="0.0001108"/>
    </SpecPar>
 
     <SpecPar name="TrackerRecMaterialTOBLayer0" eval="true">
@@ -78,8 +78,8 @@
       <PartSelector path="//TOB/TOBLayer0/TOBRod0/TOBRod0L/TOBRodCentral0L/TOBModule0/TOBWaferSter0/TOBActiveSter0"/>
       <PartSelector path="//TOB/TOBLayer0/TOBRod0/TOBRod0H/TOBRodCentral0H/TOBModule0/TOBWaferRphi0/TOBActiveRphi0"/>
       <PartSelector path="//TOB/TOBLayer0/TOBRod0/TOBRod0H/TOBRodCentral0H/TOBModule0/TOBWaferSter0/TOBActiveSter0"/>
-      <Parameter name="TrackerRadLength" value="0.0642"/>
-      <Parameter name="TrackerXi" value="0.0001349"/>
+      <Parameter name="TrackerRadLength" value="0.0632"/>
+      <Parameter name="TrackerXi" value="0.0001317"/>
     </SpecPar>
 
     <SpecPar name="TrackerRecMaterialTOBLayer1" eval="true">
@@ -87,15 +87,15 @@
       <PartSelector path="//TOB/TOBLayer1/TOBRod1/TOBRod1L/TOBRodCentral1L/TOBModule0/TOBWaferSter0/TOBActiveSter0"/>
       <PartSelector path="//TOB/TOBLayer1/TOBRod1/TOBRod1H/TOBRodCentral1H/TOBModule0/TOBWaferRphi0/TOBActiveRphi0"/>
       <PartSelector path="//TOB/TOBLayer1/TOBRod1/TOBRod1H/TOBRodCentral1H/TOBModule0/TOBWaferSter0/TOBActiveSter0"/>
-      <Parameter name="TrackerRadLength" value="0.053"/>
+      <Parameter name="TrackerRadLength" value="0.0529"/>
       <Parameter name="TrackerXi" value="0.0001046"/>
     </SpecPar>
 
     <SpecPar name="TrackerRecMaterialTOBLayer2" eval="true">
       <PartSelector path="//TOB/TOBLayer2/TOBRod2/TOBRod2L/TOBRodCentral2L/TOBModule2/TOBWaferRphi2/TOBActiveRphi2"/>
       <PartSelector path="//TOB/TOBLayer2/TOBRod2/TOBRod2H/TOBRodCentral2H/TOBModule2/TOBWaferRphi2/TOBActiveRphi2"/>
-      <Parameter name="TrackerRadLength" value="0.038"/>
-      <Parameter name="TrackerXi" value="7.48e-05"/>
+      <Parameter name="TrackerRadLength" value="0.0377"/>
+      <Parameter name="TrackerXi" value="7.43e-05"/>
     </SpecPar>
 
     <SpecPar name="TrackerRecMaterialTOBLayer3" eval="true">
@@ -116,7 +116,7 @@
       <PartSelector path="//TOB/TOBLayer5/TOBRod5/TOBRod5L/TOBRodCentral5L/TOBModule4/TOBWaferRphi4/TOBActiveRphi4"/>
       <PartSelector path="//TOB/TOBLayer5/TOBRod5/TOBRod5H/TOBRodCentral5H/TOBModule4/TOBWaferRphi4/TOBActiveRphi4"/>
       <Parameter name="TrackerRadLength" value="0.0196"/>
-      <Parameter name="TrackerXi" value="3.93e-05"/>
+      <Parameter name="TrackerXi" value="3.92e-05"/>
     </SpecPar>
 
     <SpecPar name="TrackerRecMaterialPixelEndcapDisk1Fw" eval="true">
@@ -153,7 +153,7 @@
       <PartSelector path="//PixelForwardZPlus/PixelForwardDiskZPlus[2]/PixelForwardPanel4Left/PixelForwardPlaquette2x3Up/PixelForwardSensor2x3/PixelForwardActive2x3"/>
       <PartSelector path="//PixelForwardZPlus/PixelForwardDiskZPlus[2]/PixelForwardPanel4Left/PixelForwardPlaquette2x4Up/PixelForwardSensor2x4/PixelForwardActive2x4"/>
       <PartSelector path="//PixelForwardZPlus/PixelForwardDiskZPlus[2]/PixelForwardPanel4Left/PixelForwardPlaquette1x5Right/PixelForwardSensor1x5/PixelForwardActive1x5"/>
-      <Parameter name="TrackerRadLength" value="0.1618"/>
+      <Parameter name="TrackerRadLength" value="0.1617"/>
       <Parameter name="TrackerXi" value="0.0003217"/>
     </SpecPar>
 
@@ -191,7 +191,7 @@
       <PartSelector path="//PixelForwardZMinus/PixelForwardDiskZMinus[2]/PixelForwardPanel4Left/PixelForwardPlaquette2x3Up/PixelForwardSensor2x3/PixelForwardActive2x3"/>
       <PartSelector path="//PixelForwardZMinus/PixelForwardDiskZMinus[2]/PixelForwardPanel4Left/PixelForwardPlaquette2x4Up/PixelForwardSensor2x4/PixelForwardActive2x4"/>
       <PartSelector path="//PixelForwardZMinus/PixelForwardDiskZMinus[2]/PixelForwardPanel4Left/PixelForwardPlaquette1x5Right/PixelForwardSensor1x5/PixelForwardActive1x5"/>
-      <Parameter name="TrackerRadLength" value="0.1618"/>
+      <Parameter name="TrackerRadLength" value="0.1617"/>
       <Parameter name="TrackerXi" value="0.0003217"/>
     </SpecPar>
 
@@ -205,8 +205,8 @@
       <PartSelector path="//TIDF/TIDWheelF[1]/TIDRing1F/TIDModule1R/TIDModule1RphiWafer/TIDModule1RphiActive"/>
       <PartSelector path="//TIDF/TIDWheelF[1]/TIDRing1F/TIDModule1R/TIDModule1StereoWafer/TIDModule1StereoActive"/>
       <PartSelector path="//TIDF/TIDWheelF[1]/TIDRing2/TIDModule2/TIDModule2RphiWafer/TIDModule2RphiActive"/>
-      <Parameter name="TrackerRadLength" value="0.1904"/>
-      <Parameter name="TrackerXi" value="0.0003809"/>
+      <Parameter name="TrackerRadLength" value="0.1878"/>
+      <Parameter name="TrackerXi" value="0.0003763"/>
     </SpecPar>
 
     <SpecPar name="TrackerRecMaterialTIDDisk2Fw" eval="true">
@@ -219,8 +219,8 @@
       <PartSelector path="//TIDF/TIDWheelF[2]/TIDRing1F/TIDModule1R/TIDModule1RphiWafer/TIDModule1RphiActive"/>
       <PartSelector path="//TIDF/TIDWheelF[2]/TIDRing1F/TIDModule1R/TIDModule1StereoWafer/TIDModule1StereoActive"/>
       <PartSelector path="//TIDF/TIDWheelF[2]/TIDRing2/TIDModule2/TIDModule2RphiWafer/TIDModule2RphiActive"/>
-      <Parameter name="TrackerRadLength" value="0.0921"/>
-      <Parameter name="TrackerXi" value="0.0002131"/>
+      <Parameter name="TrackerRadLength" value="0.0891"/>
+      <Parameter name="TrackerXi" value="0.0002074"/>
     </SpecPar>
 
     <SpecPar name="TrackerRecMaterialTIDDisk3Fw" eval="true">
@@ -233,8 +233,8 @@
       <PartSelector path="//TIDF/TIDWheelF[3]/TIDRing1F/TIDModule1R/TIDModule1RphiWafer/TIDModule1RphiActive"/>
       <PartSelector path="//TIDF/TIDWheelF[3]/TIDRing1F/TIDModule1R/TIDModule1StereoWafer/TIDModule1StereoActive"/>
       <PartSelector path="//TIDF/TIDWheelF[3]/TIDRing2/TIDModule2/TIDModule2RphiWafer/TIDModule2RphiActive"/>
-      <Parameter name="TrackerRadLength" value="0.1234"/>
-      <Parameter name="TrackerXi" value="0.0003012"/>
+      <Parameter name="TrackerRadLength" value="0.1208"/>
+      <Parameter name="TrackerXi" value="0.0002966"/>
     </SpecPar>
 
     <SpecPar name="TrackerRecMaterialTIDDisk1Bw" eval="true">
@@ -247,8 +247,8 @@
       <PartSelector path="//TIDB/TIDWheelB[1]/TIDRing1B/TIDModule1R/TIDModule1RphiWafer/TIDModule1RphiActive"/>
       <PartSelector path="//TIDB/TIDWheelB[1]/TIDRing1B/TIDModule1R/TIDModule1StereoWafer/TIDModule1StereoActive"/>
       <PartSelector path="//TIDB/TIDWheelB[1]/TIDRing2/TIDModule2/TIDModule2RphiWafer/TIDModule2RphiActive"/>
-      <Parameter name="TrackerRadLength" value="0.1904"/>
-      <Parameter name="TrackerXi" value="0.0003809"/>
+      <Parameter name="TrackerRadLength" value="0.1878"/>
+      <Parameter name="TrackerXi" value="0.0003763"/>
     </SpecPar>
 
     <SpecPar name="TrackerRecMaterialTIDDisk2Bw" eval="true">
@@ -261,8 +261,8 @@
       <PartSelector path="//TIDB/TIDWheelB[2]/TIDRing1B/TIDModule1R/TIDModule1RphiWafer/TIDModule1RphiActive"/>
       <PartSelector path="//TIDB/TIDWheelB[2]/TIDRing1B/TIDModule1R/TIDModule1StereoWafer/TIDModule1StereoActive"/>
       <PartSelector path="//TIDB/TIDWheelB[2]/TIDRing2/TIDModule2/TIDModule2RphiWafer/TIDModule2RphiActive"/>
-      <Parameter name="TrackerRadLength" value="0.0921"/>
-      <Parameter name="TrackerXi" value="0.0002131"/>
+      <Parameter name="TrackerRadLength" value="0.0891"/>
+      <Parameter name="TrackerXi" value="0.0002074"/>
     </SpecPar>
 
     <SpecPar name="TrackerRecMaterialTIDDisk3Bw" eval="true">
@@ -275,8 +275,8 @@
       <PartSelector path="//TIDB/TIDWheelB[3]/TIDRing1B/TIDModule1R/TIDModule1RphiWafer/TIDModule1RphiActive"/>
       <PartSelector path="//TIDB/TIDWheelB[3]/TIDRing1B/TIDModule1R/TIDModule1StereoWafer/TIDModule1StereoActive"/>
       <PartSelector path="//TIDB/TIDWheelB[3]/TIDRing2/TIDModule2/TIDModule2RphiWafer/TIDModule2RphiActive"/>
-      <Parameter name="TrackerRadLength" value="0.1234"/>
-      <Parameter name="TrackerXi" value="0.0003012"/>
+      <Parameter name="TrackerRadLength" value="0.1208"/>
+      <Parameter name="TrackerXi" value="0.0002966"/>
     </SpecPar>
 
     <SpecPar name="TrackerRecMaterialTECDisk0Fw" eval="true">
@@ -300,8 +300,8 @@
       <PartSelector path="//TEC[1]/TECWheels/TECWheelA[0]/TECPetalCont0B/TECRing4B/TECModule4/TECModule4StereoWafer/TECModule4StereoActive"/>
       <PartSelector path="//TEC[1]/TECWheels/TECWheelA[0]/TECPetalCont0B/TECRing5B/TECModule5/TECModule5RphiWafer/TECModule5RphiActive"/>
       <PartSelector path="//TEC[1]/TECWheels/TECWheelA[0]/TECPetalCont0B/TECRing6B/TECModule6/TECModule6RphiWafer/TECModule6RphiActive"/>
-      <Parameter name="TrackerRadLength" value="0.1297"/>
-      <Parameter name="TrackerXi" value="0.0002923"/>
+      <Parameter name="TrackerRadLength" value="0.1288"/>
+      <Parameter name="TrackerXi" value="0.0002906"/>
     </SpecPar>
 
     <SpecPar name="TrackerRecMaterialTECDisk1Fw" eval="true">
@@ -325,7 +325,7 @@
       <PartSelector path="//TEC[1]/TECWheels/TECWheelA[1]/TECPetalCont0B/TECRing4B/TECModule4/TECModule4StereoWafer/TECModule4StereoActive"/>
       <PartSelector path="//TEC[1]/TECWheels/TECWheelA[1]/TECPetalCont0B/TECRing5B/TECModule5/TECModule5RphiWafer/TECModule5RphiActive"/>
       <PartSelector path="//TEC[1]/TECWheels/TECWheelA[1]/TECPetalCont0B/TECRing6B/TECModule6/TECModule6RphiWafer/TECModule6RphiActive"/>
-      <Parameter name="TrackerRadLength" value="0.0542"/>
+      <Parameter name="TrackerRadLength" value="0.0541"/>
       <Parameter name="TrackerXi" value="0.0001434"/>
     </SpecPar>
 
@@ -448,7 +448,7 @@
       <PartSelector path="//TEC[1]/TECWheels/TECWheelC[7]/TECPetalCont6B/TECRing5B/TECModule5/TECModule5RphiWafer/TECModule5RphiActive"/>
       <PartSelector path="//TEC[1]/TECWheels/TECWheelC[7]/TECPetalCont6B/TECRing6B/TECModule6/TECModule6RphiWafer/TECModule6RphiActive"/>
       <Parameter name="TrackerRadLength" value="0.0351"/>
-      <Parameter name="TrackerXi" value="9.04e-05"/>
+      <Parameter name="TrackerXi" value="9.03e-05"/>
     </SpecPar>
 
     <SpecPar name="TrackerRecMaterialTECDisk8Fw" eval="true">
@@ -463,7 +463,7 @@
       <PartSelector path="//TEC[1]/TECWheels/TECWheelD[8]/TECPetalCont8B/TECRing5B/TECModule5/TECModule5RphiWafer/TECModule5RphiActive"/>
       <PartSelector path="//TEC[1]/TECWheels/TECWheelD[8]/TECPetalCont8B/TECRing6B/TECModule6/TECModule6RphiWafer/TECModule6RphiActive"/>
       <Parameter name="TrackerRadLength" value="0.0245"/>
-      <Parameter name="TrackerXi" value="6.06e-05"/>
+      <Parameter name="TrackerXi" value="6.05e-05"/>
     </SpecPar>
 
 
@@ -488,8 +488,8 @@
       <PartSelector path="//TEC[2]/TECWheels/TECWheelA[0]/TECPetalCont0B/TECRing4B/TECModule4/TECModule4StereoWafer/TECModule4StereoActive"/>
       <PartSelector path="//TEC[2]/TECWheels/TECWheelA[0]/TECPetalCont0B/TECRing5B/TECModule5/TECModule5RphiWafer/TECModule5RphiActive"/>
       <PartSelector path="//TEC[2]/TECWheels/TECWheelA[0]/TECPetalCont0B/TECRing6B/TECModule6/TECModule6RphiWafer/TECModule6RphiActive"/>
-      <Parameter name="TrackerRadLength" value="0.1297"/>
-      <Parameter name="TrackerXi" value="0.0002923"/>
+      <Parameter name="TrackerRadLength" value="0.1288"/>
+      <Parameter name="TrackerXi" value="0.0002906"/>
     </SpecPar>
 
     <SpecPar name="TrackerRecMaterialTECDisk1Bw" eval="true">
@@ -513,7 +513,7 @@
       <PartSelector path="//TEC[2]/TECWheels/TECWheelA[1]/TECPetalCont0B/TECRing4B/TECModule4/TECModule4StereoWafer/TECModule4StereoActive"/>
       <PartSelector path="//TEC[2]/TECWheels/TECWheelA[1]/TECPetalCont0B/TECRing5B/TECModule5/TECModule5RphiWafer/TECModule5RphiActive"/>
       <PartSelector path="//TEC[2]/TECWheels/TECWheelA[1]/TECPetalCont0B/TECRing6B/TECModule6/TECModule6RphiWafer/TECModule6RphiActive"/>
-      <Parameter name="TrackerRadLength" value="0.0542"/>
+      <Parameter name="TrackerRadLength" value="0.0541"/>
       <Parameter name="TrackerXi" value="0.0001434"/>
     </SpecPar>
 
@@ -636,7 +636,7 @@
       <PartSelector path="//TEC[2]/TECWheels/TECWheelC[7]/TECPetalCont6B/TECRing5B/TECModule5/TECModule5RphiWafer/TECModule5RphiActive"/>
       <PartSelector path="//TEC[2]/TECWheels/TECWheelC[7]/TECPetalCont6B/TECRing6B/TECModule6/TECModule6RphiWafer/TECModule6RphiActive"/>
       <Parameter name="TrackerRadLength" value="0.0351"/>
-      <Parameter name="TrackerXi" value="9.04e-05"/>
+      <Parameter name="TrackerXi" value="9.03e-05"/>
     </SpecPar>
 
     <SpecPar name="TrackerRecMaterialTECDisk8Bw" eval="true">
@@ -651,7 +651,7 @@
       <PartSelector path="//TEC[2]/TECWheels/TECWheelD[8]/TECPetalCont8B/TECRing5B/TECModule5/TECModule5RphiWafer/TECModule5RphiActive"/>
       <PartSelector path="//TEC[2]/TECWheels/TECWheelD[8]/TECPetalCont8B/TECRing6B/TECModule6/TECModule6RphiWafer/TECModule6RphiActive"/>
       <Parameter name="TrackerRadLength" value="0.0245"/>
-      <Parameter name="TrackerXi" value="6.06e-05"/>
+      <Parameter name="TrackerXi" value="6.05e-05"/>
     </SpecPar>
 
   </SpecParSection>
