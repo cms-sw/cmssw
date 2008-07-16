@@ -1,7 +1,18 @@
 #ifndef SegmentsTrackAssociator_H
 #define SegmentsTrackAssociator_H
 
-//standard include
+
+/** \class SegmentsTrackAssociator
+ *
+ *  tool which take as input a muon track and return a vector 
+ *  with the segments used to fit it
+ *
+ *  $Date: 2008/03/28 15:21:03 $
+ *  $Revision: 1.6 $
+ *  \author C. Botta, G. Mila - INFN Torino
+ */
+
+
 #include "FWCore/Framework/interface/Frameworkfwd.h"
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/MakerMacros.h"
@@ -19,29 +30,33 @@
 #include "DataFormats/TrackReco/interface/TrackFwd.h"
 #include "DataFormats/TrackReco/interface/Track.h"
 
+
 namespace edm {class ParameterSet; class Event; class EventSetup;}
+
 
 class SegmentsTrackAssociator{
   
 public:
   
-  //constructor
+  /// Constructor
   SegmentsTrackAssociator (const edm::ParameterSet& );
-  //distructor 
+  
+  /// Destructor 
   virtual ~SegmentsTrackAssociator() {} 
-  //function associate
+
+  /// Get the analysis
   MuonTransientTrackingRecHit::MuonRecHitContainer associate(const edm::Event&, const edm::EventSetup&, const reco::Track& );
-							     //reco::TrackCollection::const_iterator);
   
   
 
 private:
 
-  int NrecHit;
-  int NrecHitDT;
-  int NrecHitCSC;
-  int Nseg;
+  // the counters
+  int numRecHit;
+  int numRecHitDT;
+  int numRecHitCSC;
   
+  // collection label
   edm::InputTag theDTSegmentLabel;
   edm::InputTag theCSCSegmentLabel;
   edm::InputTag theSegmentContainerName;
