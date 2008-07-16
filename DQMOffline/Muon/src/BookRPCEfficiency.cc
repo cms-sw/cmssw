@@ -50,7 +50,7 @@ std::map<std::string, MonitorElement*> RPCEfficiency::bookDetUnitSeg(RPCDetId & 
     
     sprintf(meId,"BXDistribution_%s",detUnitLabel);
     sprintf(meTitle,"BXDistribution_for_%s",layerLabel);
-    meMap[meId] = dbe->book1D(meId, meTitle, 11,-5, 5);
+    meMap[meId] = dbe->book1D(meId, meTitle, 11,-5.5, 5.5);
   }
 
   return meMap;
