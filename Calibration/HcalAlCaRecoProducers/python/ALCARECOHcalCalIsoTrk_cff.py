@@ -5,9 +5,6 @@ import FWCore.ParameterSet.Config as cms
 #------------------------------------------------
 
 from Configuration.StandardSequences.Reconstruction_cff import *
-from Configuration.StandardSequences.Generator_cff import *
-from Configuration.StandardSequences.Geometry_cff import *
-from Configuration.StandardSequences.MagneticField_cff import *
 
 import EventFilter.SiPixelRawToDigi.SiPixelRawToDigi_cfi
 isoTrSiPixelDigis = EventFilter.SiPixelRawToDigi.SiPixelRawToDigi_cfi.siPixelDigis.clone()
@@ -27,7 +24,7 @@ import EventFilter.HcalRawToDigi.HcalRawToDigi_cfi
 isoTrHcalDigis = EventFilter.HcalRawToDigi.HcalRawToDigi_cfi.hcalDigis.clone()
 
 isoTrSiPixelDigis.InputLabel = 'hltSubdetFED'
-isoTrSiStripDigis.ProductLabel = 'hltStripFED'
+isoTrSiStripDigis.ProductLabel = 'hltSiStripFED'
 isoTrEcalDigis.DoRegional = True
 isoTrEcalDigis.InputLabel = 'hltEcalFED'
 isoTrEcalDigis.FedLabel = 'hltEcalFED'

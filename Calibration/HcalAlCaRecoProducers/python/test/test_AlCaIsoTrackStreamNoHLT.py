@@ -2,6 +2,9 @@ import FWCore.ParameterSet.Config as cms
 
 process = cms.Process("iptRECOID2")
 process.load("Configuration.StandardSequences.FrontierConditions_GlobalTag_cff")
+process.load("Configuration.StandardSequences.Reconstruction_cff")
+process.load("Configuration.StandardSequences.Geometry_cff")
+process.load("Configuration.StandardSequences.MagneticField_cff")
 
 process.load("Configuration.StandardSequences.VtxSmearedBetafuncEarlyCollision_cff")
 
@@ -17,7 +20,7 @@ process.maxEvents = cms.untracked.PSet(
 process.source = cms.Source("PoolSource",
     fileNames =
 cms.untracked.vstring(
-        'rfio:/castor/cern.ch/user/s/safronov/isoTracksFromReco.root'
+        'rfio:/castor/cern.ch/user/s/safronov/forIsoTracksFromReco.root'
 )
 )
 

@@ -5,7 +5,12 @@ process.load("Configuration.StandardSequences.FrontierConditions_GlobalTag_cff")
 
 process.load("Configuration.StandardSequences.VtxSmearedBetafuncEarlyCollision_cff")
 
+process.load("Configuration.StandardSequences.Generator_cff")
+process.load("Configuration.StandardSequences.Geometry_cff")
+process.load("Configuration.StandardSequences.MagneticField_cff")
+
 process.load("Calibration.HcalAlCaRecoProducers.ALCARECOHcalCalIsoTrk_cff")
+process.isoHLT.TriggerResultsTag = cms.InputTag("TriggerResults","","HLT1")
 
 process.load("Calibration.HcalAlCaRecoProducers.ALCARECOHcalCalIsoTrk_Output_cff")
 
@@ -17,7 +22,7 @@ process.maxEvents = cms.untracked.PSet(
 process.source = cms.Source("PoolSource",
     fileNames =
 cms.untracked.vstring(
-        'rfio:/castor/cern.ch/user/s/safronov/isoTracksFromHLT.root'
+        'rfio:/castor/cern.ch/user/s/safronov/forIsoTracksFromAlCaRaw.root'
 )
 )
 
