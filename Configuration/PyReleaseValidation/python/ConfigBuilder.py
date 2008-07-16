@@ -5,7 +5,7 @@
 # creates a complete config file.
 # relval_main + the custom config for it is not needed any more
 
-__version__ = "$Revision: 1.48 $"
+__version__ = "$Revision: 1.49 $"
 __source__ = "$Source: /cvs_server/repositories/CMSSW/CMSSW/Configuration/PyReleaseValidation/python/ConfigBuilder.py,v $"
 
 import FWCore.ParameterSet.Config as cms
@@ -142,6 +142,9 @@ class ConfigBuilder(object):
             self.contentFile = "FastSimulation/Configuration/EventContent_cff"
             self.imports=['FastSimulation/Configuration/RandomServiceInitialization_cff']
 
+            # pile up handling for fastsim
+            # TODO - do we want a map config - number or actual values?             
+
         # no fast sim   
         else:
             # this may get overriden by the user setting of --eventcontent
@@ -151,14 +154,19 @@ class ConfigBuilder(object):
                           'FWCore/MessageService/MessageLogger_cfi',
                           'Configuration/StandardSequences/Generator_cff']         # rm    
 
-            # pile up handling is full sim specific
-            if self._options.PU_flag:
-                self.imports.append('Configuration/StandardSequences/MixingLowLumiPileUp_cff')
-            else:
-                self.imports.append('Configuration/StandardSequences/MixingNoPileUp_cff')
+            # load the pile up file
+            try: 
+                self.loadAndRemember('Configuration/StandardSequences/Mixing'+self._options.pileup+'_cff')
+            except ImportError:
+                print "Pile up option",self._options.pileup,"unknown."
+                raise
 
-            # the geometry
-            self.imports.append('Configuration/StandardSequences/Geometry'+self._options.geometry+'_cff')
+            # load the geometry file
+            try:
+                self.loadAndRemember('Configuration/StandardSequences/Geometry'+self._options.geometry+'_cff')
+            except ImportError:
+                print "Geometry option",self._options.geometry,"unknown."
+                raise 
 
         # the magnetic field
         self.imports.append('Configuration/StandardSequences/MagneticField_'+self._options.magField.replace('.','')+'_cff')
@@ -192,6 +200,8 @@ class ConfigBuilder(object):
             # fake or real conditions?
             if len(conditionsSP)>1:
                 self.loadAndRemember('FastSimulation/Configuration/CommonInputs_cff')
+                self.additionalCommands.append('process.caloRecHits.RecHitsFactory.HCAL.fileNameHcal = "hcalmiscalib_startup.xml"')
+                self.additionalCommands.append("process.caloRecHits.RecHitsFactory.doMiscalib = True")
             else:
                 self.loadAndRemember('FastSimulation/Configuration/CommonInputsFake_cff')
         else:
@@ -343,7 +353,7 @@ class ConfigBuilder(object):
         """Enrich the schedule with fastsim"""
         self.loadAndRemember("FastSimulation/Configuration/FamosSequences_cff")
 
-        if sequence == "all":
+        if sequence in ('all','allWithHLTFiltering',''):
             self.loadAndRemember("FastSimulation/Configuration/HLT_cff")
 
             # no need to repeat the definition later on in the created file 
@@ -356,7 +366,6 @@ class ConfigBuilder(object):
             self.additionalCommands.append("process.famosSimHits.SimulateCalorimetry = True")
             self.additionalCommands.append("process.famosSimHits.SimulateTracking = True")
             self.additionalCommands.append("process.famosPileUp.PileUpSimulator.averageNumber = 0.0")
-            self.additionalCommands.append("process.caloRecHits.RecHitsFactory.doMiscalib = True")
 
             # Apply Tracker misalignment (ideal alignment though)
             self.additionalCommands.append("process.famosSimHits.ApplyAlignment = True")
@@ -370,21 +379,26 @@ class ConfigBuilder(object):
             # since we have HLT here, the process should be called HLT
             self._options.name = "HLT"
 
-            self.process.schedule.extend(self.process.HLTSchedule)
-            self.process.reconstruction = cms.Path(self.process.reconstructionWithFamos)
-            self.process.schedule.append(self.process.reconstruction)
-        else:
+            # if we don't want to filter after HLT but simulate everything regardless of what HLT tells, we have to add reconstruction explicitly
+            if sequence == 'all':
+                self.process.schedule.extend(self.process.HLTSchedule)
+                self.process.reconstruction = cms.Path(self.process.reconstructionWithFamos)
+                self.process.schedule.append(self.process.reconstruction)
+        elif sequence == 'famosWithEverything': 
             self.process.fastsim_step = cms.Path( getattr(self.process, "famosWithEverything") )
             self.process.schedule.append(self.process.fastsim_step)
 
             # now the additional commands we need to make the config work
             self.additionalCommands.append("process.VolumeBasedMagneticFieldESProducer.useParametrizedTrackerField = True")
-                                            
-
+        else:
+             print "FastSim setting",self._options.beamspot, "unknown."
+             raise
+                  
+        
     def build_production_info(self, evt_type, evtnumber):
         """ Add useful info for the production. """
         prod_info=cms.untracked.PSet\
-              (version=cms.untracked.string("$Revision: 1.48 $"),
+              (version=cms.untracked.string("$Revision: 1.49 $"),
                name=cms.untracked.string("PyReleaseValidation"),
                annotation=cms.untracked.string(evt_type+ " nevts:"+str(evtnumber))
               )

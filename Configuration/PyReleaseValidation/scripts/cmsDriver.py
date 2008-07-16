@@ -44,11 +44,10 @@ parser.add_option("--relval",
                    default="5000,250",
                    dest="relval")                   
                 
-parser.add_option("--PU",
+parser.add_option("--pileup",
                   help="Enable the pile up.",
-                  action="store_true",
-                  default=False,
-                  dest="PU_flag")                     
+                  default='NoPileUp',
+                  dest="pileup")                     
                                      
 parser.add_option("--filein",
                    help="The infile name. If absent and necessary a "+\
@@ -110,10 +109,7 @@ parser.add_option("--beamspot",
 parser.add_option("--geometry",
                    help="What geometry to use (from Configuration/StandardSequences)",
                    default="",
-                   dest="geometry"
-
-
-                  )
+                   dest="geometry")
 
 parser.add_option("--magField",
                    help="What magnetic field to use (from Configuration/StandardSequences). Default=3.8T",
@@ -245,7 +241,7 @@ if options.filein=="" and not first_step in ("ALL","GEN","SIM_CHAIN"):
 standardFileName = ""
 standardFileName = trimmedEvtType+"_"+trimmedStep
 standardFileName = standardFileName.replace(",","_").replace(".","_")
-if options.PU_flag:
+if options.pileup != "NoPileUp":
     standardFileName += "_PU"
 
 
