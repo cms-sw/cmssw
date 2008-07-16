@@ -8,7 +8,7 @@
 //
 // Original Author:  
 //         Created:  Wed Jun 25 15:15:04 EDT 2008
-// $Id: CmsShowViewPopup.cc,v 1.3 2008/07/08 17:46:22 chrjones Exp $
+// $Id: CmsShowViewPopup.cc,v 1.4 2008/07/15 02:01:01 chrjones Exp $
 //
 
 // system include files
@@ -45,11 +45,14 @@ TGTransientFrame(gClient->GetDefaultRoot(),p, w, h)
   TGFont* defaultFont = gClient->GetFontPool()->GetFont(m_viewLabel->GetDefaultFontStruct());
   m_viewLabel->SetTextFont(gClient->GetFontPool()->GetFont(defaultFont->GetFontAttributes().fFamily, 14, defaultFont->GetFontAttributes().fWeight + 2, defaultFont->GetFontAttributes().fSlant));
   m_viewLabel->SetTextJustify(kTextLeft);
+  m_viewLabel->SetText("No view selected");
   viewFrame->AddFrame(m_viewLabel, new TGLayoutHints(kLHintsExpandX));
+#if defined(CAN_REMOVE_ANY_VIEW)
   m_removeButton = new TGTextButton(viewFrame, "Remove", -1, TGTextButton::GetDefaultGC()(), TGTextButton::GetDefaultFontStruct(), kRaisedFrame|kDoubleBorder|kFixedWidth);
   m_removeButton->SetWidth(60);
   m_removeButton->SetEnabled(kFALSE);
   viewFrame->AddFrame(m_removeButton);
+#endif
   AddFrame(viewFrame, new TGLayoutHints(kLHintsExpandX, 2, 2, 0, 0));
   m_viewContentFrame = new TGCompositeFrame(this);
   m_setters.clear();
@@ -97,7 +100,6 @@ CmsShowViewPopup::~CmsShowViewPopup()
 //
 void
 CmsShowViewPopup::reset(FWViewBase* iView) {
-  m_viewLabel->SetText(iView->typeName().c_str());
   //  m_viewContentFrame->RemoveFrame(m_view->frame());
   //  m_viewContentFrame->AddFrame(iView->frame());
   //  m_view = iView;
@@ -107,14 +109,19 @@ CmsShowViewPopup::reset(FWViewBase* iView) {
   delete m_viewContentFrame;
   m_viewContentFrame = new TGCompositeFrame(this);
   m_setters.clear();
-  for(FWParameterizable::const_iterator itP = iView->begin(), itPEnd = iView->end();
-       itP != itPEnd;
-       ++itP) {
-     boost::shared_ptr<FWParameterSetterBase> ptr( FWParameterSetterBase::makeSetterFor(*itP) );
-      ptr->attach(*itP, this);
-      TGFrame* pframe = ptr->build(m_viewContentFrame);
-      m_viewContentFrame->AddFrame(pframe,new TGLayoutHints(kLHintsTop));
-      m_setters.push_back(ptr);
+  if(iView) {
+     m_viewLabel->SetText(iView->typeName().c_str());
+     for(FWParameterizable::const_iterator itP = iView->begin(), itPEnd = iView->end();
+         itP != itPEnd;
+         ++itP) {
+        boost::shared_ptr<FWParameterSetterBase> ptr( FWParameterSetterBase::makeSetterFor(*itP) );
+        ptr->attach(*itP, this);
+        TGFrame* pframe = ptr->build(m_viewContentFrame);
+        m_viewContentFrame->AddFrame(pframe,new TGLayoutHints(kLHintsTop));
+        m_setters.push_back(ptr);
+     }
+  } else {
+     m_viewLabel->SetText("No view selected");
   }
   AddFrame(m_viewContentFrame);
 
