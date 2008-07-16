@@ -8,7 +8,7 @@
 //
 // Original Author:  Chris Jones
 //         Created:  Thu May 29 20:58:11 CDT 2008
-// $Id: CSGAction.cc,v 1.3 2008/07/08 02:31:25 dmytro Exp $
+// $Id: CSGAction.cc,v 1.4 2008/07/15 23:38:39 chrjones Exp $
 //
 
 // system include files
@@ -147,7 +147,7 @@ void CSGAction::createShortcut(UInt_t key, const char *mod) {
    }
    else if (strcmp(mod, "CTRL+SHIFT") == 0) {
       modcode = kKeyControlMask | kKeyShiftMask;
-      scText = "<ctrl> "; 
+      scText = "<ctrl> <shift> "; 
    }
    else {
       // Default to ALT for now
