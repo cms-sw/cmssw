@@ -1,8 +1,8 @@
 /** \class StandAloneMuonRefitter
  *  Class ti interface the muon system rechits with the standard KF tools.
  *
- *  $Date: 2008/07/07 12:36:58 $
- *  $Revision: 1.44 $
+ *  $Date: 2008/07/07 17:28:58 $
+ *  $Revision: 1.45 $
  *  \author R. Bellan - INFN Torino <riccardo.bellan@cern.ch>
  */
 
@@ -27,6 +27,7 @@ StandAloneMuonRefitter::StandAloneMuonRefitter(const ParameterSet& par, const Mu
   theFitterName = par.getParameter<string>("FitterName");
   theNumberOfIterations = par.getParameter<unsigned int>("NumberOfIterations");
   isForceAllIterations = par.getParameter<bool>("ForceAllIterations");
+  theMaxFractionOfLostHits = par.getParameter<double>("MaxFractionOfLostHits");
 }
 
 /// Destructor
@@ -62,13 +63,16 @@ StandAloneMuonRefitter::RefitResult StandAloneMuonRefitter::refit(const Trajecto
   LogDebug("Muon|RecoMuon|StandAloneMuonRefitter") << "Starting refitting loop:" << endl;
 
   unsigned int nSuccess=0;
+  unsigned int nOrigHits=trajectory.recHits().size();
   Trajectory lastFitted=trajectory;
   bool allIter=true;
+  bool enoughRH=true;
 
   for(unsigned int j=0; j<theNumberOfIterations; ++j) {
 
     StandAloneMuonRefitter::RefitResult singleRefitResult = singleRefit(lastFitted);
     lastFitted = singleRefitResult.second;
+    unsigned int nLastHits=lastFitted.recHits().size();
 
     if(!singleRefitResult.first) {
       allIter=false;
@@ -76,15 +80,30 @@ StandAloneMuonRefitter::RefitResult StandAloneMuonRefitter::refit(const Trajecto
       break;
     }
 
+    double lostFract= 1 - double(nLastHits)/nOrigHits;
+    if(lostFract>theMaxFractionOfLostHits) {
+      enoughRH=false;
+      LogDebug("Muon|RecoMuon|StandAloneMuonRefitter") << "  refit n. " << nSuccess+1 << ": too many RH lost" << endl;
+      LogDebug("Muon|RecoMuon|StandAloneMuonRefitter") << "     Survived RecHits: " << nLastHits << "/" << nOrigHits << endl;
+      break;
+    }
+
     nSuccess++;
     LogDebug("Muon|RecoMuon|StandAloneMuonRefitter") << "  refit n. " << nSuccess << ": OK" << endl;
+    LogDebug("Muon|RecoMuon|StandAloneMuonRefitter") << "     Survived RecHits: " << nLastHits << "/" << nOrigHits << endl;
 
   } // end for
 
   LogDebug("Muon|RecoMuon|StandAloneMuonRefitter") << nSuccess << " successful refits!" << endl;
 
-  if(isForceAllIterations)  
+  // if isForceAllIterations==true  =>   3 successful refits: (true, refitted trajectory)
+  //                                    <3 successful refits: (false, original trajectory)
+  // if isForceAllIterations==false =>  >0 successful refits: (true, last refitted trajectory)
+  //                                     0 successful refits: (false, original trajectory)
+  if(!enoughRH)
+    return RefitResult(false, trajectory);
+  else if(isForceAllIterations)
     return allIter ? RefitResult(allIter, lastFitted) : RefitResult(allIter, trajectory);
-  else 
+  else
     return nSuccess==0 ? RefitResult(false, trajectory) : RefitResult(true, lastFitted);
 }

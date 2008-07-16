@@ -4,8 +4,8 @@
 /** \class StandAloneMuonRefitter
  *  Class ti interface the muon system rechits with the standard KF tools.
  *
- *  $Date: 2008/04/24 18:14:58 $
- *  $Revision: 1.30 $
+ *  $Date: 2008/07/07 12:36:41 $
+ *  $Revision: 1.31 $
  *  \author R. Bellan - INFN Torino <riccardo.bellan@cern.ch>
  */
 
@@ -43,6 +43,7 @@ private:
   std::string  theFitterName;
   unsigned int theNumberOfIterations;
   bool isForceAllIterations;
+  double theMaxFractionOfLostHits;
 };
 #endif
 
