@@ -3,6 +3,10 @@
 from FWCore.ParameterSet.TreeCrawler import getImportTree
 import sys, os
 
+import optparse
+usage = "%prog [configuration file name] [optional search string]"
+parser = optparse.OptionParser(usage=usage)
+
 try:
     filename = sys.argv[1]
 except:
