@@ -8,7 +8,7 @@
 //
 // Original Author:  
 //         Created:  Sun Jan  6 23:57:00 EST 2008
-// $Id: MuonsProxyEveLegoBuilder.cc,v 1.5 2008/07/04 01:40:36 dmytro Exp $
+// $Id: MuonsProxyEveLegoBuilder.cc,v 1.2 2008/07/08 07:01:44 dmytro Exp $
 //
 
 // system include files
@@ -31,6 +31,8 @@
 
 #include "DataFormats/MuonReco/interface/Muon.h"
 #include "DataFormats/MuonReco/interface/MuonFwd.h"
+
+#include "DataFormats/TrackReco/interface/Track.h"
 
 //
 // constants, enums and typedefs
@@ -87,12 +89,35 @@ MuonsProxyEveLegoBuilder::build(const FWEventItem* iItem, TEveElementList** prod
 	gEve->AddElement(muonList, tList);
         //guarantees that CloseCompound will be called no matter what happens
         boost::shared_ptr<TEveCompound> sentry(muonList,boost::mem_fn(&TEveCompound::CloseCompound));
+	muonList->SetRnrSelf(iItem->defaultDisplayProperties().isVisible());
+	muonList->SetRnrChildren(iItem->defaultDisplayProperties().isVisible());
 	TEvePointSet* points = new TEvePointSet("points");
 	gEve->AddElement(points, muonList);
 	points->IncDenyDestroy();
 	points->SetMarkerStyle(2);
 	points->SetMarkerSize(0.2);
-	points->SetNextPoint(muon->eta(),muon->phi(),0.1);
+	if ( muon->track().isAvailable() ) {
+	   // get position of the muon at surface of the tracker
+	   points->SetNextPoint(muon->track()->outerPosition().eta(),
+				muon->track()->outerPosition().phi(),
+				0.1);
+	} else {
+	   if ( muon->standAloneMuon().isAvailable() ) {
+	      // get position of the inner state of the stand alone muon
+	      if (  muon->standAloneMuon()->innerPosition().R() <  muon->standAloneMuon()->outerPosition().R() )
+		points->SetNextPoint(muon->standAloneMuon()->innerPosition().eta(),
+				     muon->standAloneMuon()->innerPosition().phi(),
+				     0.1);
+	      else
+		points->SetNextPoint(muon->standAloneMuon()->outerPosition().eta(),
+				     muon->standAloneMuon()->outerPosition().phi(),
+				     0.1);
+	   } else {
+	      // WARNING: use direction at POCA as the last option
+	      points->SetNextPoint(muon->eta(),muon->phi(),0.1);
+	   }
+	}
+	points->SetMarkerColor(  iItem->defaultDisplayProperties().color() );
 	// muonList->AddElement( points );
 	// tList->AddElement(muonList);
      }
