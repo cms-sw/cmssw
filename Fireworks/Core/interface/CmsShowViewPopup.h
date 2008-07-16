@@ -16,7 +16,7 @@
 //
 // Original Author:  
 //         Created:  Wed Jun 25 15:15:12 EDT 2008
-// $Id: CmsShowViewPopup.h,v 1.2 2008/07/07 00:19:29 chrjones Exp $
+// $Id: CmsShowViewPopup.h,v 1.3 2008/07/15 02:01:01 chrjones Exp $
 //
 
 // system include files
@@ -31,6 +31,7 @@
 class FWViewBase;
 class TGLabel;
 class TGTextButton;
+class TGButton;
 class TGFrame;
 class FWParameterSetterBase;
 
@@ -49,6 +50,7 @@ class CmsShowViewPopup : public TGTransientFrame, public FWParameterSetterEditor
       void reset(FWViewBase* iView);
       void removeView();
  
+      void saveImage();
    private:
       CmsShowViewPopup(const CmsShowViewPopup&); // stop default
 
@@ -58,6 +60,7 @@ class CmsShowViewPopup : public TGTransientFrame, public FWParameterSetterEditor
       TGLabel* m_viewLabel;
       TGTextButton* m_removeButton;
       TGCompositeFrame* m_viewContentFrame;
+      TGButton* m_saveImageButton;
       FWViewBase* m_view;
       std::vector<boost::shared_ptr<FWParameterSetterBase> > m_setters;
 };

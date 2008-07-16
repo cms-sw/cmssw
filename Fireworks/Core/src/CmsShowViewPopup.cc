@@ -8,7 +8,7 @@
 //
 // Original Author:  
 //         Created:  Wed Jun 25 15:15:04 EDT 2008
-// $Id: CmsShowViewPopup.cc,v 1.4 2008/07/15 02:01:01 chrjones Exp $
+// $Id: CmsShowViewPopup.cc,v 1.5 2008/07/16 03:07:03 chrjones Exp $
 //
 
 // system include files
@@ -17,6 +17,7 @@
 #include "TGFrame.h"
 #include "TGLabel.h"
 #include "TGButton.h"
+#include "TG3DLine.h"
 
 // user include files
 #include "Fireworks/Core/interface/CmsShowViewPopup.h"
@@ -54,6 +55,15 @@ TGTransientFrame(gClient->GetDefaultRoot(),p, w, h)
   viewFrame->AddFrame(m_removeButton);
 #endif
   AddFrame(viewFrame, new TGLayoutHints(kLHintsExpandX, 2, 2, 0, 0));
+  AddFrame(new TGHorizontal3DLine(this, 200, 5), new TGLayoutHints(kLHintsNormal, 0, 0, 5, 5));
+  m_saveImageButton= new TGTextButton(this,"Save Image ...");
+  AddFrame(m_saveImageButton);
+  if(!m_view) {
+     m_saveImageButton->SetEnabled(kFALSE);
+  }
+  m_saveImageButton->Connect("Clicked()","CmsShowViewPopup",this,"saveImage()");
+   
+  AddFrame(new TGHorizontal3DLine(this, 200, 5), new TGLayoutHints(kLHintsNormal, 0, 0, 5, 5));
   m_viewContentFrame = new TGCompositeFrame(this);
   m_setters.clear();
   for(FWParameterizable::const_iterator itP = v->begin(), itPEnd = v->end();
@@ -65,7 +75,7 @@ TGTransientFrame(gClient->GetDefaultRoot(),p, w, h)
       m_viewContentFrame->AddFrame(pframe,new TGLayoutHints(kLHintsTop));
       m_setters.push_back(ptr);
   }
-  AddFrame(m_viewContentFrame);
+  AddFrame(m_viewContentFrame,new TGLayoutHints(kLHintsExpandX|kLHintsExpandY));
   SetWindowName("View Controller");
   //std::cout<<"Default size: "<<GetDefaultWidth()<<", "<<GetDefaultHeight()<<std::endl;
   Resize(GetDefaultSize());
@@ -102,7 +112,7 @@ void
 CmsShowViewPopup::reset(FWViewBase* iView) {
   //  m_viewContentFrame->RemoveFrame(m_view->frame());
   //  m_viewContentFrame->AddFrame(iView->frame());
-  //  m_view = iView;
+  m_view = iView;
   m_viewContentFrame->UnmapWindow();
   RemoveFrame(m_viewContentFrame);
   m_viewContentFrame->DestroyWindow();
@@ -110,6 +120,8 @@ CmsShowViewPopup::reset(FWViewBase* iView) {
   m_viewContentFrame = new TGCompositeFrame(this);
   m_setters.clear();
   if(iView) {
+     m_saveImageButton->SetEnabled(kTRUE);
+
      m_viewLabel->SetText(iView->typeName().c_str());
      for(FWParameterizable::const_iterator itP = iView->begin(), itPEnd = iView->end();
          itP != itPEnd;
@@ -122,6 +134,7 @@ CmsShowViewPopup::reset(FWViewBase* iView) {
      }
   } else {
      m_viewLabel->SetText("No view selected");
+     m_saveImageButton->SetEnabled(kFALSE);
   }
   AddFrame(m_viewContentFrame);
 
@@ -134,6 +147,14 @@ CmsShowViewPopup::reset(FWViewBase* iView) {
 void
 CmsShowViewPopup::removeView() {
   //printf("Removed!\n");
+}
+
+void 
+CmsShowViewPopup::saveImage()
+{
+   if(m_view) {
+      m_view->promptForSaveImageTo(this);
+   }
 }
 
 
