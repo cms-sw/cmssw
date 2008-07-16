@@ -23,6 +23,7 @@ using namespace std;
 
 void resetME(const char* name, DQMStore* dbe);
 
+bool isValidGeom(std::string type, int depth);
 bool isValidGeom(int subdet, int iEta, int iPhi, int depth);
 
 TH2F* getHisto2(string name, string process, DQMStore* dbe_, bool verb=false, bool clone=false);

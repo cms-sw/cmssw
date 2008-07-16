@@ -10,6 +10,19 @@ void resetME(const char* name, DQMStore* dbe){
   return;
 }
 
+bool isValidGeom(std::string type, int depth)
+{
+  if (type=="HB" && (depth==1 || depth==2))
+    return true;
+  if (type=="HE" && (depth==1 || depth==2 || depth==3))
+    return true;
+  if (type=="HO" && (depth==4))
+    return true;
+  if (type=="HF" && (depth==1 || depth==2))
+    return true;
+  return false;
+}
+
 bool isValidGeom(int subdet, int iEta, int iPhi, int depth){
   
   if(subdet<0 || subdet>3) return false;

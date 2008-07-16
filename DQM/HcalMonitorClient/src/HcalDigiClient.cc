@@ -676,20 +676,23 @@ void HcalDigiClient::htmlExpertOutput(int runNo, string htmlDir, string htmlName
     htmlFile << "</tr>" << endl;
 
     int count = 0;
-    htmlFile << "<tr align=\"left\">" << endl;	
-    if(isValidGeom(i,0,0,1)){ histoHTML2(runNo,sub_occ_geo_[i][0],"iEta","iPhi", 92, htmlFile,htmlDir); count++; }
-    // In HB, isValidGeom(i,0,0,2) will fail (no valid depth=2 cell at 0,0,), but there are depth=2 cells (at eta>15) -- Show occ. plots for HB depth 2 regardless of validgeom test.
-    if(isValidGeom(i,0,0,2||i==1)) { histoHTML2(runNo,sub_occ_geo_[i][1],"iEta","iPhi", 100, htmlFile,htmlDir); count++;}
+    htmlFile << "<tr align=\"left\">" << endl;
+    cout <<"TYPE = "<<type<<"DEPTH = 1"<< " VALID = "<<isValidGeom(type,1)<<endl;
+    if(isValidGeom(type,1)){ histoHTML2(runNo,sub_occ_geo_[i][0],"iEta","iPhi", 92, htmlFile,htmlDir); count++; }
+    if(isValidGeom(type,2)) 
+      { histoHTML2(runNo,sub_occ_geo_[i][1],"iEta","iPhi", 100, htmlFile,htmlDir); 
+	count++;
+      }
     if(count%2==0){
       htmlFile << "</tr>" << endl;      
       htmlFile << "<tr align=\"left\">" << endl;	
     }
-    if(isValidGeom(i,0,0,3)){histoHTML2(runNo,sub_occ_geo_[i][2],"iEta","iPhi", 92, htmlFile,htmlDir); count++;}
+    if(isValidGeom(type,3)){histoHTML2(runNo,sub_occ_geo_[i][2],"iEta","iPhi", 92, htmlFile,htmlDir); count++;}
     if(count%2==0){
       htmlFile << "</tr>" << endl;      
       htmlFile << "<tr align=\"left\">" << endl;	
     }
-    if(isValidGeom(i,0,0,4))
+    if(isValidGeom(type,4))
       { 
 	histoHTML2(runNo,sub_occ_geo_[i][3],"iEta","iPhi", 100, htmlFile,htmlDir);
 	count++;
