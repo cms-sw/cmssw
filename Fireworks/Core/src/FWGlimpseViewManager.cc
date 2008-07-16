@@ -8,7 +8,7 @@
 //
 // Original Author:  
 //         Created:  Sun Jan  6 22:01:27 EST 2008
-// $Id: FWGlimpseViewManager.cc,v 1.5 2008/07/07 00:25:13 chrjones Exp $
+// $Id: FWGlimpseViewManager.cc,v 1.6 2008/07/07 02:15:46 chrjones Exp $
 //
 
 // system include files
@@ -60,12 +60,14 @@ FWViewManagerBase(),
                  this, _1);
    iGUIMgr->registerViewBuilder(FWGlimpseView::staticTypeName(), f);
    
+   /*
    m_eveSelection=gEve->GetSelection();
    m_eveSelection->SetPickToSelect(TEveSelection::kPS_Projectable);
    m_eveSelection->Connect("SelectionAdded(TEveElement*)","FWGlimpseViewManager",this,"selectionAdded(TEveElement*)");
    m_eveSelection->Connect("SelectionRemoved(TEveElement*)","FWGlimpseViewManager",this,"selectionRemoved(TEveElement*)");
    m_eveSelection->Connect("SelectionCleared()","FWGlimpseViewManager",this,"selectionCleared()");
-
+    */
+   
    //create a list of the available ViewManager's
    std::set<std::string> builders;
    

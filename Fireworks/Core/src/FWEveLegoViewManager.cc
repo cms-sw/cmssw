@@ -8,7 +8,7 @@
 //
 // Original Author:  
 //         Created:  Sun Jan  6 22:01:27 EST 2008
-// $Id: FWEveLegoViewManager.cc,v 1.10 2008/07/07 14:49:33 dmytro Exp $
+// $Id: FWEveLegoViewManager.cc,v 1.11 2008/07/08 07:12:00 dmytro Exp $
 //
 
 // system include files
@@ -71,13 +71,15 @@ m_modelsHaveBeenMadeAtLeastOnce(false)
    f=boost::bind(&FWEveLegoViewManager::buildView,
                  this, _1);
    iGUIMgr->registerViewBuilder(FWEveLegoView::staticTypeName(), f);
-   
+
+   /*
    m_eveSelection=gEve->GetSelection();
    m_eveSelection->SetPickToSelect(TEveSelection::kPS_Projectable);
    m_eveSelection->Connect("SelectionAdded(TEveElement*)","FWEveLegoViewManager",this,"selectionAdded(TEveElement*)");
    m_eveSelection->Connect("SelectionRemoved(TEveElement*)","FWEveLegoViewManager",this,"selectionRemoved(TEveElement*)");
    m_eveSelection->Connect("SelectionCleared()","FWEveLegoViewManager",this,"selectionCleared()");
-
+    */
+   
    //create a list of the available ViewManager's
    std::set<std::string> builders;
    
