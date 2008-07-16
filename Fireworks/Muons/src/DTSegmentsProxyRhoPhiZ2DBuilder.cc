@@ -71,6 +71,8 @@ void DTSegmentsProxyRhoPhiZ2DBuilder::build(const FWEventItem* iItem,
 	TEvePointSet* pointSet = new TEvePointSet();
 	segmentSet->SetLineWidth(3);
 	segmentSet->SetMainColor(iItem->defaultDisplayProperties().color());
+        segmentSet->SetRnrSelf(iItem->defaultDisplayProperties().isVisible());
+        segmentSet->SetRnrChildren(iItem->defaultDisplayProperties().isVisible());
 	pointSet->SetMainColor(iItem->defaultDisplayProperties().color());
         gEve->AddElement( segmentSet, tList );
         segmentSet->AddElement( pointSet );
