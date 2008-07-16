@@ -23,5 +23,6 @@ const std::string cmsshow::sPause = "Pause";
 const std::string cmsshow::sShowObjInsp = "Show Object Display Controller";
 const std::string cmsshow::sShowEventDisplayInsp = "Show Collection Controller";
 const std::string cmsshow::sShowMainViewCtl = "Show Main View Controller";
+const std::string cmsshow::sShowAddCollection ="Show Add Collection";
 const std::string cmsshow::sHelp = "cmsShow Help...";
 const std::string cmsshow::sKeyboardShort = "Keyboard Shortcuts...";

@@ -8,7 +8,7 @@
 //
 // Original Author:  Chris Jones
 //         Created:  Thu May 29 20:58:23 CDT 2008
-// $Id: CmsShowMainFrame.cc,v 1.10 2008/07/15 20:26:33 chrjones Exp $
+// $Id: CmsShowMainFrame.cc,v 1.11 2008/07/15 23:42:21 chrjones Exp $
 //
 
 // system include files
@@ -93,6 +93,7 @@ TGMainFrame(p, w, h)
    CSGAction *showObjInsp = new CSGAction(this, cmsshow::sShowObjInsp.c_str());
    CSGAction *showEventDisplayInsp = new CSGAction(this, cmsshow::sShowEventDisplayInsp.c_str());
    CSGAction *showMainViewCtl = new CSGAction(this, cmsshow::sShowMainViewCtl.c_str());
+   CSGAction *showAddCollection = new CSGAction(this, cmsshow::sShowAddCollection.c_str());
    CSGAction *help = new CSGAction(this, cmsshow::sHelp.c_str());
    CSGAction *keyboardShort = new CSGAction(this, cmsshow::sKeyboardShort.c_str());
    m_runEntry = new CSGNumAction(this, "Run Entry");
@@ -184,6 +185,7 @@ TGMainFrame(p, w, h)
    showObjInsp->createShortcut(kKey_I, "CTRL");
    showEventDisplayInsp->createMenuEntry(windowMenu);
    showMainViewCtl->createMenuEntry(windowMenu);
+   showAddCollection->createMenuEntry(windowMenu);
    
    TGPopupMenu *helpMenu = new TGPopupMenu(gClient->GetRoot());
    menuBar->AddPopup("Help", helpMenu, new TGLayoutHints(kLHintsTop | kLHintsLeft, 0, 4, 0, 0));
