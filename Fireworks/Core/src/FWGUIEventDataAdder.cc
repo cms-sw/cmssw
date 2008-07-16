@@ -8,7 +8,7 @@
 //
 // Original Author:  Chris Jones
 //         Created:  Fri Jun 13 09:58:53 EDT 2008
-// $Id: FWGUIEventDataAdder.cc,v 1.7 2008/07/12 17:55:30 dmytro Exp $
+// $Id: FWGUIEventDataAdder.cc,v 1.8 2008/07/16 00:00:14 chrjones Exp $
 //
 
 // system include files
@@ -290,6 +290,9 @@ FWGUIEventDataAdder::show()
 void
 FWGUIEventDataAdder::windowIsClosing()
 {
+   m_frame->UnmapWindow();
+   m_frame->DontCallClose();
+   /*
    // m_frame->Cleanup();
    // delete m_frame;
    m_frame=0;
@@ -297,6 +300,7 @@ FWGUIEventDataAdder::windowIsClosing()
    m_tableWidget=0;
    delete m_tableManager;
    m_tableManager=0;
+    */
 }
 
 
