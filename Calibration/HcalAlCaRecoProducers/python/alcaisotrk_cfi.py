@@ -5,13 +5,20 @@ from TrackingTools.TrackAssociator.default_cfi import *
 from TrackingTools.TrackAssociator.DetIdAssociatorESProducer_cff import *
 IsoProd = cms.EDProducer("AlCaIsoTracksProducer",
     TrackAssociatorParameterBlock,
-    hbheInput = cms.InputTag("hbhereco"),
-    hoInput = cms.InputTag("horeco"),
-    pCut = cms.untracked.double(2.0),
-    ecalInputs = cms.VInputTag(cms.InputTag("ecalRecHit","EcalRecHitsEB"), cms.InputTag("ecalRecHit","EcalRecHitsEE")),
-    histoFlag = cms.untracked.int32(0),
-    ptCut = cms.untracked.double(1.5),
-    inputTrackLabel = cms.untracked.string('generalTracks')
+    HBHEInput = cms.InputTag("hbhereco"),
+    InputTracksLabel = cms.InputTag("generalTracks"),
+    vtxCut = cms.double(10.0),
+    MinTrackPt = cms.double(0.0),
+    ECALOuterRingRadius = cms.double(18.0),
+    ECALClusterRadius = cms.double(9.0),
+    HOInput = cms.InputTag("horeco"),
+    MaxNearbyTrackEnergy = cms.double(2.0),
+    RIsolAtECALSurface = cms.double(40.0),
+    ECALInputs = cms.VInputTag(cms.InputTag("ecalRecHit","EcalRecHitsEB"), cms.InputTag("ecalRecHit","EcalRecHitsEE")),
+    MaxTrackEta = cms.double(1.9),
+    SkipNeutralIsoCheck = cms.untracked.bool(False),
+    MinTrackP = cms.double(15.0),
+    CheckHLTMatch=cms.bool(True)
 )
 
 

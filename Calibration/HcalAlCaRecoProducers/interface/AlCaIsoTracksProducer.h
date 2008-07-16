@@ -66,7 +66,6 @@ private:
   edm::InputTag hoLabel_;
   edm::InputTag hbheLabel_;
   std::vector<edm::InputTag> ecalLabels_;
-  bool allowMissingInputs_;
 
   edm::InputTag m_inputTrackLabel_;
   
@@ -80,6 +79,7 @@ private:
   double taHCALCone_;
 
   bool skipNeutrals_;
+  bool checkHLTMatch_;
 
   double isolE_;
   double etaMax_;

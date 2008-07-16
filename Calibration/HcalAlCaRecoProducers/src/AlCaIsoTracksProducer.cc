@@ -2,7 +2,7 @@
 #include "FWCore/Framework/interface/EventSetup.h"
 #include "Calibration/HcalAlCaRecoProducers/interface/AlCaIsoTracksProducer.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
-#include "Geometry/Records/interface/IdealGeometryRecord.h"
+#include "Geometry/Records/interface/CaloGeometryRecord.h"
 #include "Geometry/CaloGeometry/interface/CaloGeometry.h"
 #include "Geometry/CaloGeometry/interface/CaloSubdetectorGeometry.h"
 #include "Geometry/CaloGeometry/interface/CaloCellGeometry.h" 
@@ -28,6 +28,8 @@
 #include "DataFormats/HcalIsolatedTrack/interface/IsolatedPixelTrackCandidate.h"
 #include "DataFormats/HcalIsolatedTrack/interface/IsolatedPixelTrackCandidateFwd.h"
 
+#include "DataFormats/HLTReco/interface/TriggerFilterObjectWithRefs.h"
+
 #include "DataFormats/EcalDetId/interface/EBDetId.h"
 #include "DataFormats/EcalDetId/interface/EEDetId.h"
 
@@ -48,7 +50,7 @@ double getDistInCM(double eta1, double phi1, double eta2, double phi2)
   double theta2=2*atan(exp(-eta2));
   if (fabs(eta1)<1.479) Rec=129;
   else Rec=275;
-  //|vect| times tg of scalar product
+  //|vect| times tg of acos(scalar product)
   dR=fabs((Rec/sin(theta1))*tan(acos(sin(theta1)*sin(theta2)*(sin(phi1)*sin(phi2)+cos(phi1)*cos(phi2))+cos(theta1)*cos(theta2))));
   return dR;
 }
@@ -61,16 +63,45 @@ double getDist(double eta1, double phi1, double eta2, double phi2)
   return dr;
 }
 
+bool checkHLTMatch(edm::Event& iEvent, double eta, double phi)
+{
+  bool match =false;
+  edm::Handle<trigger::TriggerFilterObjectWithRefs> fiCand;
+  iEvent.getByLabel("hltIsolPixelTrackFilterL3",fiCand);
+  
+  std::vector< edm::Ref<reco::IsolatedPixelTrackCandidateCollection> > isoPixTrackRefs;
+  
+  fiCand->getObjects(trigger::TriggerTrack, isoPixTrackRefs);
+  
+  int nCand=isoPixTrackRefs.size();
+
+  double minDDD=100;
+  for (int p=0; p<nCand; p++)
+    {
+      double iptEta=isoPixTrackRefs[p]->track()->eta();
+      double iptPhi=isoPixTrackRefs[p]->track()->phi();
+      double dHit=getDist(iptEta,iptPhi,eta,phi);
+      if (dHit<minDDD)
+	{
+	  minDDD=dHit;
+	}
+    }
+  if (minDDD>0.4) match=false;
+  else match=true;
+  return match;
+}
+
+
 
 AlCaIsoTracksProducer::AlCaIsoTracksProducer(const edm::ParameterSet& iConfig)
 { 
   
   m_inputTrackLabel_ = iConfig.getParameter<edm::InputTag>("InputTracksLabel");
+
   hoLabel_ = iConfig.getParameter<edm::InputTag>("HOInput");
-//
-// Ecal Collection
-//  
+
   ecalLabels_=iConfig.getParameter<std::vector<edm::InputTag> >("ECALInputs");
+
   hbheLabel_= iConfig.getParameter<edm::InputTag>("HBHEInput");
   
   m_dvCut = iConfig.getParameter<double>("vtxCut");
@@ -88,6 +119,8 @@ AlCaIsoTracksProducer::AlCaIsoTracksProducer(const edm::ParameterSet& iConfig)
   etaMax_= iConfig.getParameter<double>("MaxTrackEta");
   cluRad_ = iConfig.getParameter<double>("ECALClusterRadius");
   ringRad_ = iConfig.getParameter<double>("ECALOuterRingRadius");
+
+  checkHLTMatch_=iConfig.getParameter<bool>("CheckHLTMatch");
 
 //
 // Parameters for track associator   ===========================
@@ -109,7 +142,6 @@ AlCaIsoTracksProducer::AlCaIsoTracksProducer(const edm::ParameterSet& iConfig)
   produces<HBHERecHitCollection>("IsoTrackHBHERecHitCollection");
   produces<HORecHitCollection>("IsoTrackHORecHitCollection");
 
-  allowMissingInputs_ = true;
 }
 
 
@@ -129,7 +161,7 @@ void AlCaIsoTracksProducer::produce(edm::Event& iEvent, const edm::EventSetup& i
   std::auto_ptr<HORecHitCollection> outputHOColl(new HORecHitCollection);
   
   edm::ESHandle<CaloGeometry> pG;
-  iSetup.get<IdealGeometryRecord>().get(pG);
+  iSetup.get<CaloGeometryRecord>().get(pG);
   geo = pG.product();
   
   edm::Handle<reco::TrackCollection> trackCollection;
@@ -195,6 +227,9 @@ void AlCaIsoTracksProducer::produce(edm::Event& iEvent, const edm::EventSetup& i
     
     double thetaecal = 2*atan(exp(-etaecal));
 
+    //check matching to HLT object to make sure that ecal FEDs are present (optional)
+    if (checkHLTMatch_&&!checkHLTMatch(iEvent, etaecal,phiecal)) continue;
+    
     if (fabs(etaecal)>etaMax_) continue;
     
     // check charged isolation from all other tracks
@@ -387,7 +422,7 @@ void AlCaIsoTracksProducer::produce(edm::Event& iEvent, const edm::EventSetup& i
       
       // get the ps geometry
       edm::ESHandle<CaloGeometry> geoHandle;
-      iSetup.get<IdealGeometryRecord>().get(geoHandle);
+      iSetup.get<CaloGeometryRecord>().get(geoHandle);
       
       // get the ps topology
       EcalPreshowerTopology psTopology(geoHandle);
