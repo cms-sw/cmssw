@@ -1,6 +1,6 @@
+// -*- C++ -*-
 #ifndef Fireworks_Core_FWGUIManager_h
 #define Fireworks_Core_FWGUIManager_h
-// -*- C++ -*-
 //
 // Package:     Core
 // Class  :     FWGUIManager
@@ -16,7 +16,7 @@
 //
 // Original Author:  Chris Jones
 //         Created:  Mon Feb 11 10:52:24 EST 2008
-// $Id: FWGUIManager.h,v 1.33 2008/07/15 20:27:32 chrjones Exp $
+// $Id: FWGUIManager.h,v 1.34 2008/07/16 03:08:27 chrjones Exp $
 //
 
 // system include files
@@ -85,6 +85,8 @@ class CmsShowModelPopup;
 class CmsShowViewPopup;
 class FWViewManagerManager;
 
+class CmsShowHelpPopup;
+
 class FWGUIManager : public FWConfigurable
 {
 
@@ -112,6 +114,11 @@ class FWGUIManager : public FWConfigurable
       void createViewPopup();
       void refillViewPopup(FWViewBase* iView);
       void resetViewPopup();
+
+     // help
+     void createHelpPopup ();
+     void resetHelpPopup ();
+
       // ---------- const member functions ---------------------
       //      bool waitingForUserAction() const;
       CSGNumAction* getRunEntry();
@@ -236,6 +243,9 @@ class FWGUIManager : public FWConfigurable
       CmsShowEDI* m_ediFrame;
       CmsShowModelPopup* m_modelPopup;
       CmsShowViewPopup* m_viewPopup;
+     
+     // help
+     CmsShowHelpPopup *m_helpPopup;
 
       TGTab		*m_textViewTab;
       TGCompositeFrame	*m_textViewFrame[3];

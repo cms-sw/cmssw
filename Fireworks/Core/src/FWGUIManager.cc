@@ -8,7 +8,7 @@
 //
 // Original Author:  Chris Jones
 //         Created:  Mon Feb 11 11:06:40 EST 2008
-// $Id: FWGUIManager.cc,v 1.60 2008/07/16 00:00:40 chrjones Exp $
+// $Id: FWGUIManager.cc,v 1.61 2008/07/16 03:08:27 chrjones Exp $
 //
 
 // system include files
@@ -75,6 +75,8 @@
 #include "Fireworks/Core/interface/CmsShowModelPopup.h"
 #include "Fireworks/Core/interface/CmsShowViewPopup.h"
 
+#include "Fireworks/Core/interface/CmsShowHelpPopup.h"
+
 #include "Fireworks/Core/src/FWListWidget.h"
 
 #include "Fireworks/Core/src/CmsShowTaskExecutor.h"
@@ -114,6 +116,7 @@ m_dataAdder(0),
 m_ediFrame(0),
 m_modelPopup(0),
 m_viewPopup(0),
+m_helpPopup(0),
 m_tasks(new CmsShowTaskExecutor)
 {
   m_guiManager = this;
@@ -149,7 +152,8 @@ m_tasks(new CmsShowTaskExecutor)
      getAction(cmsshow::sShowMainViewCtl)->activated.connect(sigc::mem_fun(*m_guiManager, &FWGUIManager::createViewPopup));
       getAction(cmsshow::sShowObjInsp)->activated.connect(sigc::mem_fun(*m_guiManager, &FWGUIManager::createModelPopup));
       getAction(cmsshow::sShowAddCollection)->activated.connect(sigc::mem_fun(*m_guiManager, &FWGUIManager::addData));
-      
+      assert(getAction(cmsshow::sHelp) != 0);
+      getAction(cmsshow::sHelp)->activated.connect(sigc::mem_fun(*m_guiManager, &FWGUIManager::createHelpPopup));
    }
    {
      // createEDIFrame();
@@ -649,6 +653,21 @@ FWGUIManager::resetViewPopup() {
    m_viewPopup->UnmapWindow();
 }
 
+void FWGUIManager::createHelpPopup ()
+{
+     if (m_helpPopup == 0) {
+	  m_helpPopup = new CmsShowHelpPopup(m_cmsShowMainFrame, 800, 600);
+	  m_helpPopup->Connect("CloseWindow()", "FWGUIManager", this, "resetHelpPopup()");
+	  m_helpPopup->CenterOnParent(kTRUE,TGTransientFrame::kBottomRight);
+     }
+     m_helpPopup->MapWindow();
+}
+
+void FWGUIManager::resetHelpPopup ()
+{
+     m_helpPopup->DontCallClose();
+     m_helpPopup->UnmapWindow();
+}
 
 TGMainFrame *FWGUIManager::createTextView (TGTab *p) 
 {
