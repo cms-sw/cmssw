@@ -2,8 +2,8 @@
 /*
  *  See header file for a description of this class.
  *
- *  $Date: 2008/05/28 15:39:03 $
- *  $Revision: 1.4 $
+ *  $Date: 2008/06/09 13:41:20 $
+ *  $Revision: 1.5 $
  *  \author G. Mila - INFN Torino
  */
 
@@ -38,8 +38,8 @@ MuonTrackResidualsTest::MuonTrackResidualsTest(const edm::ParameterSet& ps){
   cout << "[MuonTrackResidualsTest]: Constructor called!"<<endl;
   parameters = ps;
 
-  dbe = edm::Service<DQMStore>().operator->();
-  dbe->setVerbose(1);
+  theDbe = edm::Service<DQMStore>().operator->();
+  theDbe->setVerbose(1);
 
   prescaleFactor = parameters.getUntrackedParameter<int>("diagnosticPrescale", 1);
 
@@ -56,7 +56,7 @@ MuonTrackResidualsTest::~MuonTrackResidualsTest(){
 void MuonTrackResidualsTest::beginJob(const edm::EventSetup& context){
 
   metname = "trackResidualsTest";
-  dbe->setCurrentFolder("Muons/Tests/trackResidualsTest");
+  theDbe->setCurrentFolder("Muons/Tests/trackResidualsTest");
 
   cout<<"[MuonTrackResidualsTest] Parameters initialization"<<endl;
  
@@ -81,13 +81,13 @@ void MuonTrackResidualsTest::beginJob(const edm::EventSetup& context){
     histoNames[type[c]].push_back(histName);
 
     
-    MeanHistos[type[c]] = dbe->book1D(MeanHistoName.c_str(),MeanHistoName.c_str(),3,0.5,3.5);
+    MeanHistos[type[c]] = theDbe->book1D(MeanHistoName.c_str(),MeanHistoName.c_str(),3,0.5,3.5);
     (MeanHistos[type[c]])->setBinLabel(1,"Res_StaGlb",1);
     (MeanHistos[type[c]])->setBinLabel(2,"Res_TkGlb",1);
     (MeanHistos[type[c]])->setBinLabel(3,"Res_TkSta",1);
     
     
-    SigmaHistos[type[c]] = dbe->book1D(SigmaHistoName.c_str(),SigmaHistoName.c_str(),3,0.5,3.5);
+    SigmaHistos[type[c]] = theDbe->book1D(SigmaHistoName.c_str(),SigmaHistoName.c_str(),3,0.5,3.5);
     (SigmaHistos[type[c]])->setBinLabel(1,"Res_StaGlb",1);  
     (SigmaHistos[type[c]])->setBinLabel(2,"Res_TkGlb",1);
     (SigmaHistos[type[c]])->setBinLabel(3,"Res_TkSta",1);
@@ -101,7 +101,7 @@ void MuonTrackResidualsTest::beginJob(const edm::EventSetup& context){
 
 void MuonTrackResidualsTest::beginLuminosityBlock(LuminosityBlock const& lumiSeg, EventSetup const& context) {
 
-  cout<<"[MuonTrackResidualsTest]: Begin of LS transition"<<endl;
+  LogTrace(metname)<<"[MuonTrackResidualsTest]: Begin of LS transition";
 
   // Get the run number
   run = lumiSeg.run();
@@ -136,7 +136,7 @@ void MuonTrackResidualsTest::endLuminosityBlock(LuminosityBlock const& lumiSeg, 
     for (unsigned int type=0; type< (*histo).second.size(); type++){
 
       string path = "Muons/MuonRecoAnalyzer/" + (*histo).second[type];
-      MonitorElement * res_histo = dbe->get(path);
+      MonitorElement * res_histo = theDbe->get(path);
       if (res_histo) {
  
 	// gaussian test
@@ -198,7 +198,7 @@ void MuonTrackResidualsTest::endLuminosityBlock(LuminosityBlock const& lumiSeg, 
 void MuonTrackResidualsTest::endJob(){
   
   LogTrace(metname)<< "[MuonTrackResidualsTest] endjob called!";
-  dbe->rmdir("Muons/Tests/trackResidualsTest");
+  theDbe->rmdir("Muons/Tests/trackResidualsTest");
   
 }
 
