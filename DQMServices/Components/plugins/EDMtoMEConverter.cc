@@ -2,8 +2,8 @@
  *  
  *  See header file for description of class
  *
- *  $Date: 2008/05/06 19:00:34 $
- *  $Revision: 1.11 $
+ *  $Date: 2008/07/15 12:58:40 $
+ *  $Revision: 1.13 $
  *  \author M. Strang SUNY-Buffalo
  */
 
@@ -115,8 +115,9 @@ void EDMtoMEConverter::beginRun(const edm::Run& iRun,
 void EDMtoMEConverter::endRun(const edm::Run& iRun, 
 			      const edm::EventSetup& iSetup)
 {
-  if (convertOnEndRun) convert(iRun);
-    
+  if (convertOnEndRun) {
+    convert(iRun);
+  }
   return;
 }
 
@@ -129,9 +130,10 @@ void EDMtoMEConverter::beginLuminosityBlock(const edm::LuminosityBlock& iLumi,
 void EDMtoMEConverter::endLuminosityBlock(const edm::LuminosityBlock& iLumi,
 					  const edm::EventSetup& iSetup)
 {
-  const edm::Run& iRun = iLumi.getRun();
-  if (convertOnEndLumi) convert(iRun);
-
+  if (convertOnEndLumi) {
+    const edm::Run& iRun = iLumi.getRun();
+    convert(iRun);
+  }
   return;
 }
 
