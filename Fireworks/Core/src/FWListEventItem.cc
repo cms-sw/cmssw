@@ -8,7 +8,7 @@
 //
 // Original Author:  Chris Jones
 //         Created:  Thu Feb 28 11:13:37 PST 2008
-// $Id: FWListEventItem.cc,v 1.20 2008/07/15 03:50:58 chrjones Exp $
+// $Id: FWListEventItem.cc,v 1.21 2008/07/15 15:25:37 chrjones Exp $
 //
 
 // system include files
@@ -86,7 +86,7 @@ findDefaultMember(const TClass* iClass) {
    
    Type rType = Type::ByTypeInfo(*(iClass->GetTypeInfo()));
    assert(rType != Type() );
-   //std::cout <<"Type "<<rType.Name()<<std::endl;
+   //std::cout <<"Type "<<rType.Name(SCOPED)<<std::endl;
    
    Member returnValue;
    const std::vector<std::string>& names = defaultMemberFunctionNames();
@@ -98,6 +98,7 @@ findDefaultMember(const TClass* iClass) {
       if(temp) {
          if(0==temp.FunctionParameterSize(true)) {
             //std::cout <<"    FOUND "<<temp.Name()<<std::endl;
+            //std::cout <<"     in type "<<temp.DeclaringType().Name(SCOPED)<<std::endl;
             returnValue = temp;
             break;
          }
@@ -171,6 +172,7 @@ doubleValueFor(const ROOT::Reflex::Object& iObj, const ROOT::Reflex::Member& iMe
 
    ROOT::Reflex::Object val = iMember.Invoke(iObj);
 
+   //std::cout << val.TypeOf().TypeInfo().name()<<std::endl;
    TypeToDoubleMap::iterator itFound =s_map.find(val.TypeOf().TypeInfo().name());
    if(itFound == s_map.end()) {
       //std::cout <<" could not print because type is "<<iObj.TypeOf().TypeInfo().name()<<std::endl;
@@ -265,7 +267,7 @@ FWListEventItem::defaultDisplayPropertiesChanged(const FWEventItem* iItem)
 void 
 FWListEventItem::itemChanged(const FWEventItem* iItem)
 {
-   //std::cout <<"item changed "<<eventItem()->size()<<std::endl;
+   //std::cout <<"item changed "<<iItem->name()<<std::endl;
    this->DestroyElements();
    m_indexOrderedItems.clear();
    m_indexOrderedItems.reserve(eventItem()->size());
@@ -278,9 +280,12 @@ FWListEventItem::itemChanged(const FWEventItem* iItem)
          double doubleData=index;
          if(m_memberFunction) {
             //the const_cast is fine since I'm calling a const member function
-            ROOT::Reflex::Object temp(m_memberFunction.DeclaringType(),
+            ROOT::Reflex::Type rType = ROOT::Reflex::Type::ByTypeInfo(*(iItem->modelType()->GetTypeInfo()));
+            
+            ROOT::Reflex::Object temp(rType,
                                       const_cast<void*>(eventItem()->modelData(index)));
-            obj=temp;
+            //now convert it to the type expected by the function (since it might want a base class
+            obj= temp.CastObject(m_memberFunction.DeclaringType());
             data = stringValueFor(obj,m_memberFunction);
             doubleData = doubleValueFor(obj,m_memberFunction);
          }
