@@ -1,9 +1,9 @@
 import FWCore.ParameterSet.Config as cms
 
 # Standard CalooJets parameters
-# $Id: CaloJetPileupSubtractionParameters.cfi,v 1.3 2007/06/01 07:37:40 kodolova Exp $
+# $Id: CaloJetPileupSubtractionParameters_cfi.py,v 1.2 2008/04/21 03:28:09 rpw Exp $
 CaloJetPileupSubtractionParameters = cms.PSet(
-    src = cms.InputTag("caloTowers"),
+    src = cms.InputTag("towerMaker"),
     inputEtJetMin = cms.double(10.0),
     inputEtMin = cms.double(0.5),
     nSigmaPU = cms.double(1.0),

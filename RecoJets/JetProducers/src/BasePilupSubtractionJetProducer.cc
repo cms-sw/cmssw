@@ -1,6 +1,6 @@
 // File: BasePilupSubtractionJetProducer.cc
 // Author: F.Ratnikov UMd Aug 22, 2006
-// $Id: BasePilupSubtractionJetProducer.cc,v 1.18 2008/05/12 19:04:27 fedor Exp $
+// $Id: BasePilupSubtractionJetProducer.cc,v 1.19 2008/05/21 13:12:06 rahatlou Exp $
 //--------------------------------------------
 #include <memory>
 #include "DataFormats/Common/interface/EDProduct.h"
@@ -19,7 +19,7 @@
 #include "RecoJets/JetAlgorithms/interface/ProtoJet.h"
 #include "DataFormats/Candidate/interface/CandidateFwd.h"
 #include "DataFormats/RecoCandidate/interface/RecoCandidate.h"
-#include "DataFormats/RecoCandidate/interface/RecoCaloTowerCandidate.h"
+#include "DataFormats/Candidate/interface/LeafCandidate.h"
 
 #include "FWCore/Framework/interface/ESHandle.h"
 #include "Geometry/CaloGeometry/interface/CaloGeometry.h"
@@ -98,7 +98,7 @@ namespace cms
   // Functions that gets called by framework every event
   void BasePilupSubtractionJetProducer::produce(edm::Event& e, const edm::EventSetup& fSetup)
   {
-    //    std::cout<<"========================BasePilupSubtractionJetProducer::produce::start"<<std::endl;
+ //      std::cout<<"========================BasePilupSubtractionJetProducer::produce::start"<<std::endl;
     
     // Provenance
     /*
@@ -132,7 +132,7 @@ namespace cms
 		HcalDetId hid = HcalDetId(*did);
 		if( (hid).depth() == 1 )
 		  { 
-		    //                  std::cout<<" Hcal detector eta,phi,depth "<<(hid).ieta()<<" "<<(hid).iphi()<<" "<<(hid).depth()<<std::endl; 
+//		                      std::cout<<" Hcal detector eta,phi,depth "<<(hid).ieta()<<" "<<(hid).iphi()<<" "<<(hid).depth()<<std::endl; 
 		    allgeomid.push_back(*did);
 		    
 		    if((hid).ieta() != ietaold)
@@ -171,26 +171,29 @@ namespace cms
     //
     // Create the initial vector for Candidates
     //  
-    //    std::cout<<"============================================= Before calculate pedestal "<<std::endl;  
+//        std::cout<<"============================================= Before first calculate pedestal "<<std::endl;  
     
     calculate_pedestal(input); 
     std::vector<ProtoJet> output;
     
-    //    std::cout<<"============================================= After calculate pedestal "<<std::endl;
+//        std::cout<<"============================================= After first calculate pedestal "<<std::endl;
     
-    CandidateCollection inputTMPN = subtract_pedestal(input);
+    InputCollection inputTMPN = subtract_pedestal(input);
     
-    //    std::cout<<"============================================= After pedestal subtraction "<<inputTMPN.size()<<std::endl;
+//        std::cout<<"============================================= After pedestal subtraction "<<inputTMPN.size()<<std::endl;
     
     
     // run algorithm
     vector <ProtoJet> firstoutput;
     
-    //   std::cout<<" We are here at Point 0 "<<std::endl;   
+ //      std::cout<<" We are here at Point 0 "<<std::endl;   
     
-    runAlgorithm (input, &firstoutput);
+//    runAlgorithm (input, &firstoutput);
+
+     runAlgorithm (inputTMPN, &firstoutput);
+
     
-    //   std::cout<<" We are here at Point 1 with firstoutput size (Njets) "<<firstoutput.size()<<std::endl; 
+//       std::cout<<" We are here at Point 1 with firstoutput size (Njets) "<<firstoutput.size()<<std::endl; 
     //
     // Now we find jets and need to recalculate their energy,
     // mark towers participated in jet,
@@ -203,15 +206,15 @@ namespace cms
     
     for (; protojetTMP != firstoutput.end (); protojetTMP++) {
       
-      //         std::cout<<" Before mEtJetInputCut, firstoutput.size()="<<firstoutput.size()
-      //                  <<" (*protojetTMP).et()="<<(*protojetTMP).et()<<std::endl;
+ //              std::cout<<" Before mEtJetInputCut, firstoutput.size()="<<firstoutput.size()
+ //                       <<" (*protojetTMP).et()="<<(*protojetTMP).et()<<std::endl;
       
       if( (*protojetTMP).et() < mEtJetInputCut) continue;
       
       ProtoJet::Constituents newtowers;
       
-      //        std::cout<<" First passed cut, (*protojetTMP).et()= "<<(*protojetTMP).et()
-      //                 <<" Eta_jet= "<< (*protojetTMP).eta()<<" Phi_jet="<<(*protojetTMP).phi()<<std::endl;
+ //             std::cout<<" First passed cut, (*protojetTMP).et()= "<<(*protojetTMP).et()
+ //                      <<" Eta_jet= "<< (*protojetTMP).eta()<<" Phi_jet="<<(*protojetTMP).phi()<<std::endl;
       
       double eta2 = (*protojetTMP).eta();
       double phi2 = (*protojetTMP).phi();
@@ -225,14 +228,14 @@ namespace cms
 	  if (dphi > 4.*atan(1.)) dphi = 8.*atan(1.) - dphi;
 	  double dr = sqrt(dphi*dphi+deta*deta);
 	  
-	  //               std::cout<<" dr="<<dr<<std::endl;
+//	                 std::cout<<" dr="<<dr<<std::endl;
 	  
 	  if( dr < radiusPU) {
 	    ntowers_with_jets[(*im).ieta()]++; 
 	    
-	    //               std::cout<<"Towers WITH jets, eta1="<<eta1<<" phi1="<<phi1
-	    //                        <<" ntowers_with_jets="<<ntowers_with_jets[(*im).ieta()]
-	    //                        <<"(DetId)(*im)="<<(*im)<<std::endl;
+//	                   std::cout<<"Towers WITH jets, eta1="<<eta1<<" phi1="<<phi1
+//	                            <<" ntowers_with_jets="<<ntowers_with_jets[(*im).ieta()]
+//	                           <<"(DetId)(*im)="<<(*im)<<std::endl;
 	    
 	  }
 	  
@@ -254,20 +257,20 @@ namespace cms
 	  newtowers.push_back(*it);
 	  jettowers.push_back(*it);
 	  
-	  //                int ieta1 = ieta(&(**it));
-	  //                int iphi1 = iphi(&(**it));
-	  //       std::cout<<" Take Et of tower inputs, (dr < 0.5), (**it).et()= "<<(**it).et()<<" eta= "<<(**it).eta()
-	  //                <<" phi= "<<(**it).phi()<<" ieta1= "<<ieta1<<" iphi1= "<<iphi1<<std::endl;
+	                  int ieta1 = ieta(&(**it));
+	                 int iphi1 = iphi(&(**it));
+//	       std::cout<<" Take Et of tower inputs, (dr < 0.5), (**it).et()= "<<(**it).et()<<" eta= "<<(**it).eta()
+//	                  <<" phi= "<<(**it).phi()<<" ieta1= "<<ieta1<<" iphi1= "<<iphi1<<std::endl;
 	  
 	} //dr < 0.5
 	
       } // initial input collection
       
-      //         std::cout<<" Jet with new towers before putTowers (after background subtraction) "<<(*protojetTMP).et()<<std::endl;
+ //              std::cout<<" Jet with new towers before putTowers (after background subtraction) "<<(*protojetTMP).et()<<std::endl;
       
       (*protojetTMP).putTowers(newtowers);  // put the reference of the towers from initial map
       
-      //         std::cout<<" Jet with new towers (Initial tower energy)"<<(*protojetTMP).et()<<std::endl;	
+//               std::cout<<" Jet with new towers (Initial tower energy)"<<(*protojetTMP).et()<<std::endl;	
       
       
       //========> PRINT  Tower after Subtraction
@@ -286,9 +289,9 @@ namespace cms
 	    int ieta_pu1 = ieta(&(**itt));
 	    int iphi_pu1 = iphi(&(**itt));
 	    
-	    std::cout<<" Take Et of tower after Subtraction, (**itt).et()= "<<(**itt).et()
-		     <<" eta= "<<(**itt).eta()<<" phi= "<<(**itt).phi()
-		     <<" ieta_pu1= "<<ieta_pu1<<" iphi_pu1= "<<iphi_pu1<<std::endl;
+//	    std::cout<<" Take Et of tower after Subtraction, (**itt).et()= "<<(**itt).et()
+//		     <<" eta= "<<(**itt).eta()<<" phi= "<<(**itt).phi()
+//		     <<" ieta_pu1= "<<ieta_pu1<<" iphi_pu1= "<<iphi_pu1<<std::endl;
 	    
 	  } //dr < 0.5
 	  
@@ -300,7 +303,7 @@ namespace cms
       
     } // protojets
     
-    //       std::cout<<" We are at Point 2 with "<<firstoutput.size()<<std::endl;
+ //          std::cout<<" We are at Point 2 with "<<firstoutput.size()<<std::endl;
     //
     // Create a new collections from the towers not included in jets 
     //
@@ -309,7 +312,7 @@ namespace cms
       InputCollection::const_iterator itjet = find(jettowers.begin(),jettowers.end(),*it);
       if( itjet == jettowers.end() ) orphanInput.push_back(*it); 
     }
-    //       std::cout<<" We are at Point 3, Number of tower not included in jets= "<<orphanInput.size()<<std::endl;
+ //          std::cout<<" We are at Point 3, Number of tower not included in jets= "<<orphanInput.size()<<std::endl;
     
     /*
     //======================> PRINT NEW InputCollection without jets
@@ -329,9 +332,12 @@ namespace cms
     //
     // Recalculate pedestal
     //
+       
+//       std::cout<<" We are at Point 4, Before Recalculation of pedestal"<<std::endl;
+       
     calculate_pedestal(orphanInput);
     
-    //    std::cout<<" We are at Point 4, After Recalculation of pedestal"<<std::endl;
+//        std::cout<<" We are at Point 4, After Recalculation of pedestal"<<std::endl;
     //    
     // Reestimate energy of jet (energy of jet with initial map)
     //
@@ -339,44 +345,49 @@ namespace cms
     int kk = 0; 
     for (; protojetTMP != firstoutput.end (); protojetTMP++) {
       
-      //      std::cout<<" ++++++++++++++Jet with initial map energy "<<kk<<" "<<(*protojetTMP).et()
-      //               <<" mEtJetInputCut="<<mEtJetInputCut<<std::endl;
+//            std::cout<<" ++++++++++++++Jet with initial map energy "<<kk<<" "<<(*protojetTMP).et()
+//                     <<" mEtJetInputCut="<<mEtJetInputCut<<std::endl;
       
       if( (*protojetTMP).et() < mEtJetInputCut) continue;
       
-      //      std::cout<<" Jet with energyi passed condition "<<kk<<" "<<(*protojetTMP).et()<<std::endl;
+//            std::cout<<" Jet with energyi passed condition "<<kk<<" "<<(*protojetTMP).et()<<std::endl;
       
       const ProtoJet::Constituents towers = (*protojetTMP).getTowerList();
       
-      //      std::cout<<" List of candidates "<<towers.size()<<std::endl;
+//            std::cout<<" List of candidates "<<towers.size()<<std::endl;
       
       double offset = 0.;
       
       for(ProtoJet::Constituents::const_iterator ito = towers.begin(); ito != towers.end(); ito++)
 	{
-	  //       std::cout<<" start towers list "<<std::endl;
+//	         std::cout<<" start towers list "<<std::endl;
 	  
 	  int it = ieta(&(**ito));
 	  
-	  //       std::cout<<" Reference to tower : "<<it<<std::endl;
 	  //       offset = offset + (*emean.find(it)).second + (*esigma.find(it)).second;
 	  // Temporarily for test       
 	  
 	  double etnew = (**ito).et() - (*emean.find(it)).second - (*esigma.find(it)).second; 
+	  
+//	  std::cout<<" Reference to tower : "<<it<<" etold "<<(**ito).et()<<" etnew "<<etnew<<std::endl;
+	  
 	  if( etnew <0.) etnew = 0.;
 	  
 	  offset = offset + etnew;
+//	  	  std::cout<<" it = "<<it<<", etnew = "<<etnew<<", offset = "<<offset<<endl;
+
 	}
       //      double mScale = ((*protojetTMP).et()-offset)/(*protojetTMP).et();
       // Temporarily for test only
       
       double mScale = offset/(*protojetTMP).et();
       
+//      std::cout<<"offset = "<<offset<<" , protojetTMP.et() = "<<(*protojetTMP).et()<<" , mScale = "<<mScale<<endl;
       //////
       Jet::LorentzVector fP4((*protojetTMP).px()*mScale, (*protojetTMP).py()*mScale,
 			     (*protojetTMP).pz()*mScale, (*protojetTMP).energy()*mScale);      
       
-      //      std::cout<<" Final energy of jet, fP4.pt()= "<<fP4.pt()<<" Eta "<<fP4.eta()<<" Phi "<<fP4.phi()<<std::endl;      
+//            std::cout<<" Final energy of jet, fP4.pt()= "<<fP4.pt()<<" Eta "<<fP4.eta()<<" Phi "<<fP4.phi()<<std::endl;      
       ///
       ///!!! Change towers to rescaled towers///
       ///
@@ -385,7 +396,7 @@ namespace cms
       output.push_back(pj);
     }    
     
-    //   std::cout<<" Size of final collection "<<output.size()<<std::endl;
+ //      std::cout<<" Size of final collection "<<output.size()<<std::endl;
     
     reco::Jet::Point vertex (0,0,0); // do not have true vertex yet, use default
     // make sure protojets are sorted
@@ -413,12 +424,13 @@ namespace cms
     }
     if (mVerbose) dumpJets (*jets);
     e.put(jets);
+//     std::cout<<" Done with BasePilupSubtractionJetProducer"<<endl;
   }
   
   void BasePilupSubtractionJetProducer::calculate_pedestal(const JetReco::InputCollection& fInputs)
   {
 //   std::cout<<"========== Start BasePilupSubtractionJetProducer::calculate_pedestal"<<std::endl;
-//   std::cout<<" ietamax="<<ietamax<<" ietamin="<<ietamin<<std::endl;
+//   std::cout<<" BasePilupSubtractionJetProducer::calculate_pedestal::ietamax="<<ietamax<<" ietamin="<<ietamin<<std::endl;
 
     map<int,double> emean2;
     map<int,int> ntowers;
@@ -456,8 +468,8 @@ namespace cms
 
         ietaold = ieta0;
 
-///        std::cout<<"--NEW ETA, emean[ieta0]="<<emean[ieta0]
-///                 <<" ntowers[ieta0]="<<ntowers[ieta0]<<" ieta0="<<ieta0<<std::endl;
+ //       std::cout<<"--NEW ETA, emean[ieta0]="<<emean[ieta0]
+ //                <<" ntowers[ieta0]="<<ntowers[ieta0]<<" ieta0="<<ieta0<<std::endl;
       }
         else
         {
@@ -465,8 +477,8 @@ namespace cms
            emean2[ieta0] = emean2[ieta0]+((**input_object).et())*((**input_object).et());
            ntowers[ieta0]++;
 
-///           std::cout<<"--OLD ETA, emean[ieta0]="<<emean[ieta0]
-///                 <<" ntowers[ieta0]="<<ntowers[ieta0]<<" ieta0="<<ieta0<<std::endl;
+//           std::cout<<"--OLD ETA, emean[ieta0]="<<emean[ieta0]
+//                 <<" ntowers[ieta0]="<<ntowers[ieta0]<<" ieta0="<<ieta0<<std::endl;
         }
 
 //=>
@@ -486,73 +498,102 @@ namespace cms
        double e2 = (*emean2.find(it)).second;
        int nt = (*gt).second - (*ntowers_with_jets.find(it)).second;
         
-       if(nt == 0) {
-          emean[it] = 0.;
-          esigma[it] = 0.;
+       if(nt > 0) {
+            emean[it] = e1/nt;
+	    double eee = e2/nt - e1*e1/(nt*nt);
+	    
+//	    std::cout<<" Pedestal "<<it<<" "<<emean[it]<<" "<<eee<<" "<<e2<<" "<<e1<<" "<<nt<<std::endl;
+	    
+	    if(eee<0.) eee = 0.;
+            esigma[it] = nSigmaPU*sqrt(eee);
        }
           else
          {
-            emean[it] = e1/nt;
-            esigma[it] = nSigmaPU*sqrt(e2/nt - e1*e1/(nt*nt));
-         }
+          emean[it] = 0.;
+          esigma[it] = 0.;
+       }
 
-//          std::cout<<"---calculate_pedestal, emean[it]= "
-//                   <<(*emean.find(it)).second<<"esigma[it]="<<(*esigma.find(it)).second
-//                   <<" ntowers_without_jets{it]="<<nt<<" it="<<it
-//                   <<" ntowers_map(it)="<<(*ntowers.find(it)).second
-//                   <<" geomtowers(it)="<<(*geomtowers.find(it)).second<<" gt.second "<<(*gt).second<<
-//                   " ntow_with_jets "<<(*ntowers_with_jets.find(it)).second<<std::endl;
+//           std::cout<<"---calculate_pedestal, emean[it]= "
+//                    <<(*emean.find(it)).second<<"esigma[it]="<<(*esigma.find(it)).second
+//                    <<" ntowers_without_jets{it]="<<nt<<" it="<<it
+//                    <<" ntowers_map(it)="<<(*ntowers.find(it)).second
+//                    <<" geomtowers(it)="<<(*geomtowers.find(it)).second<<" gt.second "<<(*gt).second<<
+//                    " ntow_with_jets "<<(*ntowers_with_jets.find(it)).second<<std::endl;
 
     }
 
 }
 
-CandidateCollection BasePilupSubtractionJetProducer::subtract_pedestal(const JetReco::InputCollection& fInputs)
+//CandidateCollection BasePilupSubtractionJetProducer::subtract_pedestal(const JetReco::InputCollection& fInputs)
+JetReco::InputCollection BasePilupSubtractionJetProducer::subtract_pedestal(const JetReco::InputCollection& fInputs)
 {
 //
 // Subtract mean and sigma and prepare collection for jet finder
 //    
-    CandidateCollection inputCache;
+//    CandidateCollection inputCache;
+
+    JetReco::InputCollection  inputCache;
     
     Candidate * mycand;
 
     JetReco::InputCollection inputTMP;
     int it = -100;
+    int ip = -100;
+    int icand = 0;
+    
+//    std::cout<<" BasePilupSubtractionJetProducer::subtract_pedestal::Number of candidates "<<fInputs.size()<<std::endl;
     
     for (JetReco::InputCollection::const_iterator input_object = fInputs.begin (); input_object != fInputs.end (); input_object++) {
          
        it = ieta(&(**input_object));
+       ip = iphi(&(**input_object));
+       
        double etnew = (**input_object).et() - (*emean.find(it)).second - (*esigma.find(it)).second;
        float mScale = etnew/(**input_object).et(); 
 
 // Temporarily //////
        if(etnew < 0.) mScale = 0.;
 
-//       std::cout<<" Subtraction from tower with eta "<<it<<" phi "<<iphi(&(**input_object))<<" OLD energy "<<
-//                                                 (**input_object).et()<<" NEW energy "<<etnew<<" mScale "<<mScale<<
-//                                                 " Mean energy "<<(*emean.find(it)).second<<" Sigma "<<(*esigma.find(it)).second<<std::endl;
+ //      std::cout<<" subtract_pedestal::Subtraction from tower with ieta "<<icand<<" "<<it<<" iphi "<<ip<<
+ //                                                         " OLD energy "<<
+ //                                                (**input_object).et()<<" NEW energy "<<etnew<<" mScale "<<mScale<<
+ //                                                " Mean energy "<<(*emean.find(it)).second<<" Sigma "
+ // <<(*esigma.find(it)).second<<std::endl;
 
 
 //////
        math::XYZTLorentzVectorD p4((**input_object).px()*mScale, (**input_object).py()*mScale,
                                          (**input_object).pz()*mScale, (**input_object).energy()*mScale);
 
-//       std::cout<<"NEW energy from p4 "<<p4.pt()<<std::endl;
-//       std::cout<<" CaloJet "<<makeCaloJetPU (mJetType)<<" "<<mJetType<<std::endl;
+//       std::cout<<"subtract_pedestal::NEW energy from p4 "<<p4.pt()<<std::endl;
+//       std::cout<<" subtract_pedestal::CaloJet "<<makeCaloJetPU (mJetType)<<" "<<mJetType<<std::endl;
 
        if (makeCaloJetPU (mJetType)) {
-       mycand = new RecoCaloTowerCandidate( 0, Candidate::LorentzVector( p4 ) );
-       const RecoCaloTowerCandidate* ct = dynamic_cast<const RecoCaloTowerCandidate*>(&(**input_object));
+//       mycand = new CaloTower( 0, Candidate::LorentzVector( p4 ) );
+
+       const CaloTower* ct = dynamic_cast<const CaloTower*>(&(**input_object));
+
+//       std::cout<<" subtract_pedestal::dynamic_cast<const CaloTower*> "<<ct<<std::endl;
+
        if(ct)
        {
-          dynamic_cast<RecoCaloTowerCandidate*>(mycand)->setCaloTower(ct->caloTower());
+ // 
+//          std::cout<<" subtract_pedestal::before Candidate* mycand = new CaloTower (*ct); "<<std::endl;
+//          Candidate* mycand = new CaloTower (*ct);
+	  mycand = new CaloTower (*ct);
+//	  std::cout<<" subtract_pedestal::after Candidate* mycand = new CaloTower (*ct); "<<std::endl;
+	  
+          mycand->setP4(p4);
+// old method:          dynamic_cast<RecoCaloTowerCandidate*>(mycand)->setCaloTower(ct->caloTower());
+//          std::cout<<" subtract_pedestal::after mycand->setP4(p4); "<<std::endl;
        }
         else
        {
-            throw cms::Exception("Invalid Constituent") << "CaloJet constituent is not of RecoCandidate type";
+            throw cms::Exception("Invalid Constituent") << "CaloJet constituent is not of CaloTower type";
        }      
        }
-       inputCache.push_back (mycand);          
+       inputCache.push_back (JetReco::InputItem(mycand,icand));
+       icand++;          
     }
 
 //    std::cout<<" OLD size "<<fInputs.size()<<" NEW size "<<inputCache.size()<<std::endl;
@@ -560,6 +601,7 @@ CandidateCollection BasePilupSubtractionJetProducer::subtract_pedestal(const Jet
 /*
 //===> Print NEW tower energy after background Subtraction
         for (CandidateCollection::const_iterator itt = inputCache.begin(); itt != inputCache.end(); itt++ ) {
+	
               double et_pu = (*itt).et();
               double eta_pu = (*itt).eta();
               double phi_pu = (*itt).phi();
@@ -567,8 +609,8 @@ CandidateCollection BasePilupSubtractionJetProducer::subtract_pedestal(const Jet
               int ieta_pu = ieta(&(*itt));
               int iphi_pu = iphi(&(*itt));    
 
-//         std::cout<<"---inputCache, Subtraction from tower with eta= "<<ieta_pu
-//                 <<" phi="<<iphi_pu<<" NEW et="<<et_pu<<std::endl;
+         std::cout<<"---inputCache, Subtraction from tower with eta= "<<ieta_pu
+                  <<" phi="<<iphi_pu<<" NEW et="<<et_pu<<std::endl;
 
           }
 //===>
@@ -581,36 +623,39 @@ int BasePilupSubtractionJetProducer::ieta(const reco::Candidate* in)
 //   std::cout<<" Start BasePilupSubtractionJetProducer::ieta "<<std::endl;
    int it = 0;
    if (makeCaloJetPU (mJetType)) {
-//     std::cout<<" PU type "<<std::endl;
-     const RecoCaloTowerCandidate* ctc = dynamic_cast<const RecoCaloTowerCandidate*>(in);
+//     std::cout<<" BasePilupSubtractionJetProducer::ieta::PU type "<<std::endl;
+// updated from RecoCaloTowerCandidate (MBT 10 July 2008)
+     const CaloTower* ctc = dynamic_cast<const CaloTower*>(in);
+     
      if(ctc)
      {
-          it = ctc->caloTower()->id().ieta(); 
+          it = ctc->id().ieta(); 
      } else
      {
-          throw cms::Exception("Invalid Constituent") << "CaloJet constituent is not of RecoCandidate type";
+          throw cms::Exception("Invalid Constituent") << "CaloJet constituent is not of CaloTower type";
      }
    }  
-//   std::cout<<" BasePilupSubtractionJetProducer::ieta "<<it<<std::endl; 
+//   std::cout<<" End BasePilupSubtractionJetProducer::ieta "<<it<<std::endl; 
    return it;
 }
 
 int BasePilupSubtractionJetProducer::iphi(const reco::Candidate* in)
 {
-//   std::cout<<" Start BasePilupSubtractionJetProducer::ieta "<<std::endl;
+//   std::cout<<" Start BasePilupSubtractionJetProducer::iphi "<<std::endl;
    int it = 0;
    if (makeCaloJetPU (mJetType)) {
-//     std::cout<<" PU type "<<std::endl;
-     const RecoCaloTowerCandidate* ctc = dynamic_cast<const RecoCaloTowerCandidate*>(in);
+//     std::cout<<"BasePilupSubtractionJetProducer::iphi::PU type "<<std::endl;
+// updated from RecoCaloTowerCandidate (MBT 10 July 2008)
+     const CaloTower* ctc = dynamic_cast<const CaloTower*>(in);
      if(ctc)
      {
-          it = ctc->caloTower()->id().iphi();
+          it = ctc->id().iphi();
      } else
      {
-          throw cms::Exception("Invalid Constituent") << "CaloJet constituent is not of RecoCandidate type";
+          throw cms::Exception("Invalid Constituent") << "CaloJet constituent is not of CaloTower type";
      }
    }
-//   std::cout<<" BasePilupSubtractionJetProducer::ieta "<<it<<std::endl;
+//   std::cout<<" End BasePilupSubtractionJetProducer::iphi "<<it<<std::endl;
    return it;
 }
 

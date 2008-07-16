@@ -7,7 +7,7 @@
  * It handles generic manipulations of input and output collections
  *
  * \author Fedor Ratnikov (UMd) Aug. 22, 2006
- * $Id: BasePilupSubtractionJetProducer.h,v 1.2 2007/08/15 17:43:16 fedor Exp $
+ * $Id: BasePilupSubtractionJetProducer.h,v 1.4 2007/08/20 17:53:34 fedor Exp $
  *
  ************************************************************/
 
@@ -16,6 +16,7 @@
 #include "RecoJets/JetAlgorithms/interface/JetRecoTypes.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "DataFormats/RecoCandidate/interface/RecoCandidate.h"
+#include "DataFormats/Candidate/interface/LeafCandidate.h"
 #include "DataFormats/Candidate/interface/CandidateFwd.h"
 #include "Geometry/CaloGeometry/interface/CaloGeometry.h"
 #include "FWCore/Framework/interface/ESHandle.h"
@@ -55,7 +56,8 @@ namespace cms
     virtual bool runAlgorithm (const  JetReco::InputCollection& fInput,  JetReco::OutputCollection* fOutput) = 0;
     
     void calculate_pedestal(const JetReco::InputCollection&);
-    reco::CandidateCollection subtract_pedestal(const JetReco::InputCollection&);
+//    reco::CandidateCollection subtract_pedestal(const JetReco::InputCollection&);
+    JetReco::InputCollection subtract_pedestal(const JetReco::InputCollection&);
 
   private:
     edm::InputTag mSrc;
