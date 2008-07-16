@@ -1050,13 +1050,6 @@ long CSCDCCExaminer::check(const unsigned short* &buffer, long length){
       CFEB_SampleWordCount=0;
     }
 
-    // == If it is nither ALCT record nor TMB - probably it is CFEB record and we try to count CRC sum.
-    // It very few words of CFEB occasionaly will be misinterpreted as ALCT or TMB header the result
-    // for the CRC sum will be wrong, but other errors of Trailers counting will appear as well
-    if( checkCrcCFEB && fDMB_Header && !fTMB_Header && !fALCT_Header && CFEB_SampleWordCount )
-      for(int pos=0; pos<4; ++pos)
-	CFEB_CRC=(buf0[pos]&0x1fff)^((buf0[pos]&0x1fff)<<1)^(((CFEB_CRC&0x7ffc)>>2)|((0x0003&CFEB_CRC)<<13))^((CFEB_CRC&0x7ffc)>>1);
-
 
     // == CFEB B-word found
     if( (buf0[0]&0xF000)==0xB000 && (buf0[1]&0xF000)==0xB000 && (buf0[2]&0xF000)==0xB000 && (buf0[3]&0xF000)==0xB000 ){
@@ -1071,10 +1064,18 @@ long CSCDCCExaminer::check(const unsigned short* &buffer, long length){
       if( (CFEB_SampleCount%8)==0 ){
 	cout << ">";
 	CFEB_BSampleCount=0;
+	DAV_CFEB--;
       }
 
       CFEB_SampleWordCount=0;
     }
+
+     // == If it is nither ALCT record nor TMB - probably it is CFEB record and we try to count CRC sum.
+    // It very few words of CFEB occasionaly will be misinterpreted as ALCT or TMB header the result
+    // for the CRC sum will be wrong, but other errors of Trailers counting will appear as well
+    if( checkCrcCFEB && fDMB_Header && !fTMB_Header && !fALCT_Header && CFEB_SampleWordCount )
+      for(int pos=0; pos<4; ++pos)
+        CFEB_CRC=(buf0[pos]&0x1fff)^((buf0[pos]&0x1fff)<<1)^(((CFEB_CRC&0x7ffc)>>2)|((0x0003&CFEB_CRC)<<13))^((CFEB_CRC&0x7ffc)>>1);
 
 
     // == DMB F-Trailer found
