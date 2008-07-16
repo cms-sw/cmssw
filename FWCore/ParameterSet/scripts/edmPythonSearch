@@ -3,15 +3,16 @@
 from FWCore.ParameterSet.TreeCrawler import getImportTree, Color
 import sys, os
 import optparse
-usage = "%prog [configuration file name] [optional search string]"
-parser = optparse.OptionParser(usage=usage)
+usage = "%prog [searchString] [configFile]"
+parser = optparse.OptionParser(usage)
 
+(options, args) = parser.parse_args()
 
-try:
-    filename = sys.argv[2]
-    pattern = sys.argv[1]
-except:
-    parser.error("Error")
+if len(args) != 2:
+    parser.error("wrong number of arguments")
+else:
+    filename = args[1]
+    pattern = args[0]
 
 sys.path.append(os.environ["PWD"])
 path = sys.path[:]
