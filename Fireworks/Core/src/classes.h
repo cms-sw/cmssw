@@ -38,6 +38,7 @@
 #include "Fireworks/Core/interface/CSGNumAction.h"
 #include "Fireworks/Core/interface/CSGAction.h"
 #include "Fireworks/Core/interface/CmsShowMainFrame.h"
+#include "Fireworks/Core/interface/FWGlimpseViewManager.h"
 
 namespace {
    struct Fireworks_Core {
