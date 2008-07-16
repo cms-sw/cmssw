@@ -393,7 +393,11 @@ float HcalSummaryClient::analyze_everything(std::string subdetname, int type, fl
       sprintf(name,"%s/DigiMonitor/%s/%sProblemDigiCells",prefixME_.c_str(),
 	      subdetname.c_str(),subdetname.c_str());  // form histogram name
       me_digi = dqmStore_->get(name);
-      if (!me_digi) return status; // histogram couldn't be found
+      if (!me_digi) 
+	{
+	  if (debug_) cout <<"<HcalSummaryClient>  Could not find DigiMonitor histogram named: "<<name<<endl;
+	  return status; // histogram couldn't be found
+	}
     }
 
   //Check for histogram containing known HotCell problems
@@ -404,7 +408,7 @@ float HcalSummaryClient::analyze_everything(std::string subdetname, int type, fl
       me_hotcell = dqmStore_->get(name); // get Monitor Element named 'name'
       if (!me_hotcell) 
 	{
-	  if (debug_) cout <<"<HcalSummaryClient>  Could not get ProblemHotCells"<<endl;
+	  if (debug_) cout <<"<HcalSummaryClient>  Could not find HotCellMonitor histogram named: "<<name<<endl;
 	  return status;
 	}
     }
@@ -415,7 +419,11 @@ float HcalSummaryClient::analyze_everything(std::string subdetname, int type, fl
       sprintf(name,"%s/DeadCellMonitor/%s/%sProblemDeadCells",prefixME_.c_str(),
 	      subdetname.c_str(),subdetname.c_str());
       me_deadcell = dqmStore_->get(name); // get Monitor Element named 'name'
-      if (!me_deadcell) return status;
+      if (!me_deadcell) 
+	{
+	  if (debug_) cout <<"<HcalSummaryClient>  Could not find DeadCellMonitor histogram named: "<<name<<endl;
+	  return status;
+	}
     }
 
   // loop over cells
@@ -453,6 +461,7 @@ float HcalSummaryClient::analyze_everything(std::string subdetname, int type, fl
 	  if (digiClient_) 
 	    {
 	      tempval=me_digi->getBinContent(ieta,iphi);
+	      //cout <<"("<<eta<<","<<phi<<"): "<<tempval<<endl;
 	      baddigis+=tempval;
 	      newbincontent+=tempval;
 
@@ -472,11 +481,41 @@ float HcalSummaryClient::analyze_everything(std::string subdetname, int type, fl
 	   
 	  //if (newbincontent==0) continue; 
 	   
-	  
 	  newbincontent/=ievt_; // normalize to number of events
 	  if (newbincontent>0)
 	    {
-	      //cout <<"BAD BIN "<<ieta<<"  "<< iphi<<"  ("<<eta<<", "<<phi<<") "<<newbincontent<<endl;
+	      /* now don't let avg number of bad events/bin be greater than
+		 number of depths/bin (which could happen if, say, digi and 
+		 dead cells are both bad for a cell)
+		 Make individual changes based on eta range (boy, this
+		 never gets old...)
+	      */
+	      if (type==1)
+		{
+		  if (newbincontent>1 && abs(eta)<15)
+		    newbincontent=1;
+		  else if (newbincontent>2 && abs(eta)>14)
+		    newbincontent=2;
+		}
+	      else if (type==2)
+		{
+		  if (newbincontent>1 && abs(eta)>15 && abs(eta)<17)
+		    newbincontent=1;
+		  else if (newbincontent>2 && abs(eta)>17 && abs(eta)<27)
+		    newbincontent=2;
+		  else if (newbincontent>3 && abs(eta)>26 && abs(eta)<29)
+		    newbincontent=3;
+		}
+	      else if (type==3)
+		{
+		  if (newbincontent>1)
+		    newbincontent=1;
+		}
+	      else if (type==4)
+		{
+		  if (newbincontent>2)
+		    newbincontent=2;
+		}
 	      badcells+=newbincontent;
 	    }
 	  
@@ -502,6 +541,16 @@ float HcalSummaryClient::analyze_everything(std::string subdetname, int type, fl
   std::map<std::string, int>::const_iterator it;
   
   it =subdetCells_.find(subdetname);
+  
+  if (debug_)
+    {
+      if (it==subdetCells_.end())
+	cout <<"COULD NOT FIND NAME "<<subdetname<<endl;
+      if (it->second==0)
+	cout <<"MAP CLAIMS THAT SUBDETECTOR "<<type<<" HAS NO CELLS"<<endl;
+      if ((it->second)<badcells)
+	cout <<"BADCELLS = "<<badcells<<", more than TOTAL CELLS = "<<(it->second)<<endl;
+    }
 
   // didn't find subdet in map -- return -1
   if (it==subdetCells_.end())
@@ -511,33 +560,35 @@ float HcalSummaryClient::analyze_everything(std::string subdetname, int type, fl
   if (it->second == 0 || (it->second)<badcells)
     return -1;
 
-  // Normalize by number of events
+
   baddigis/=ievt_;
   badhotcells/=ievt_;
   baddeadcells/=ievt_;
-  
+
   // Status is 1 if no bad cells found
   // Otherwise, status = 1 - (avg fraction of bad cells/event)
-  status_digi[type-1]=1.-(1.*baddigis)/it->second;
-  status_deadcell[type-1]=1.-(1.*baddeadcells)/it->second;
-  status_hotcell[type-1]=1.-(1.*badhotcells)/it->second;
+  if (digiClient_) status_digi[type-1]=1.-(1.*baddigis)/it->second;
+  if (deadCellClient_) status_deadcell[type-1]=1.-(1.*baddeadcells)/it->second;
+  if (hotCellClient_) status_hotcell[type-1]=1.-(1.*badhotcells)/it->second;
  
   // overall status is product of individual statuses.  Is this what we want?
-  status=status_digi[type-1]*status_deadcell[type-1]*status_hotcell[type-1];
-  // status = 1. - (1.*badcells)/it->second;  // old definition
+  //if (digiClient_) status*=status_digi[type-1];
+  //if (deadCellClient_) status*=status_deadcell[type-1];
+  //if (hotCellClient_) status*=status_hotcell[type-1];
+
+
+/* 
+bad cells now treated "almost" properly --each  bad cell = (baddigi+badhotcell+baddeadcell)/(Max depth/cell), so that bad value for individual cell should never be greater than depth of cell.  We still run into the problem of having, for instance, one digi and dead cell bad for HF.  The # of bad cells will be counted as 2 (digi +dead), even if the digi and dead cell are from the same depth.  But this is close to a true measure of the overall bad cell rate.
+*/
+  status = 1. - (1.*badcells)/it->second;  
 
   // Set subdetector status to 'status' value
   subdet=status;
 
-  // Old status version: Global status set by multiplying subdetector statuses
-  /*
-  if (status_global_==-1)
-    status_global_=status;
-  else
-    status_global_*=status;
-  */
-
   // New version:  status is average over all cells (this means scaling each subdetector status value by its fractional contribution (it->second)/totalcells_ )
+  if (status==-1)
+    return status;  // don't modify global status if subdet status is unknown -- correct behavior?
+
   if (status_global_==-1)
     status_global_=1.*status*(it->second)/totalcells_;
   else
@@ -770,8 +821,8 @@ void HcalSummaryClient::htmlOutput(int& run, time_t& mytime, int& minlumi, int& 
 
   htmlFile <<"<br><h2> A note on Status Values </h2><br>"<<endl;
   htmlFile <<"Status values in each subdetector task represent the average fraction of good channels per event.  (For example, a value of .99 in the HB Hot Cell monitor means that, on average, 1% of the cells in HB are hot.)  Status values should range from 0 to 1, with a perfectly-functioning detector will have all status values = 1.  If the status is unknown, a value of -1 or \"--\" will be shown. <br>"<<endl;
-  htmlFile <<"The HCAL status values for each task are a weighted average from each subdetector.  Weights are assigned as (# of cells in the subdetector)/(total # of cells being checked).<br>"<<endl;
-  htmlFile <<"The overall Status Values at the bottom of the table are the product of each of the individual Monitor values.  These values are not quite the same as the overall fraction of good channels in an event.  (For instance, if the Digi Monitor and Dead Cell Monitor both had a status of 0.5, the overall status would then be 0.25.  This does not mean that only 25% of the cells in HCAL are bad, because the Digi and Dead Cell Monitors could be complaining about different cells.  The overall Status Values thus represent a 'worst case' scenario, assuming that all Task problems are independent.<br>"<<endl;
+  htmlFile <<"<br>The HCAL status values for each task are a weighted average from each subdetector.  Weights are assigned as (# of cells in the subdetector)/(total # of cells being checked).<br>"<<endl;
+  htmlFile <<"<br>The overall Status Values at the bottom of the table are a combination of the individual status values.  These values are not quite the same as the overall fraction of good channels in an event, because of ambiguities in the eta-phi plots.  (The summary code does not store the results of monitor tests on individual events, and thus can't tell the difference between a run where the digi monitor failed in the first half of events and the dead cell monitor failed the second half and a run in which the digi and dead cell monitors were both bad only for the first 50% of the run.  For the moment, the errors from the different monitors are added together, but this can lead to double-counting, and an overall status value less than the individual values.)"<<endl;
 
 
   /*
