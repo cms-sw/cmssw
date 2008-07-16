@@ -23,7 +23,7 @@
 # TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE
 # SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
-import sys, os, inspect
+import sys, os, inspect, copy
 import modulefinder
 
 def packageNameFromFilename(name):
@@ -42,16 +42,17 @@ class Color:
   deemphasis    = "\033[1;30m"
   none          = "\033[0m"
 
+_stack = []
 
 class SearchHit:
-    pass 
-
+    pass
 
 class Package(object):
     def __init__(self,name,top=False):
         self.name = name
         self.dependencies = []
         self.searched = False
+        self.stack = []
         if top:
             self.module = None
         else:    
@@ -74,10 +75,13 @@ class Package(object):
                      hit.number = number
                      hit.filename = filename
                      hit.line = line
+                     hit.stack = copy.copy(_stack)
                      result.append(hit)
         # then go on with dependencies
+        _stack.append(self.name)
         for package in self.dependencies:
             package.search(pattern,result)
+        _stack.pop() 
         self.searched = True    
 
 
