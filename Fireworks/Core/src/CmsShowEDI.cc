@@ -8,7 +8,7 @@
 //
 // Original Author:  Joshua Berger  
 //         Created:  Mon Jun 23 15:48:11 EDT 2008
-// $Id: CmsShowEDI.cc,v 1.5 2008/07/10 21:24:32 dmytro Exp $
+// $Id: CmsShowEDI.cc,v 1.6 2008/07/15 14:57:05 chrjones Exp $
 //
 
 // system include files
@@ -27,6 +27,8 @@
 #include "TGLayout.h"
 #include "TGFont.h"
 #include "TEveManager.h"
+
+#include "TGMsgBox.h"
 
 // user include files
 #include "Fireworks/Core/interface/CmsShowEDI.h"
@@ -62,10 +64,6 @@ m_item(0)
   m_objectLabel->SetTextFont(gClient->GetFontPool()->GetFont(defaultFont->GetFontAttributes().fFamily, 14, defaultFont->GetFontAttributes().fWeight + 2, defaultFont->GetFontAttributes().fSlant));
   m_objectLabel->SetTextJustify(kTextLeft);
   objectFrame->AddFrame(m_objectLabel, new TGLayoutHints(kLHintsExpandX));
-  m_removeButton = new TGTextButton(objectFrame, "Remove", -1, TGTextButton::GetDefaultGC()(), TGTextButton::GetDefaultFontStruct(), kRaisedFrame|kDoubleBorder|kFixedWidth);
-  m_removeButton->SetWidth(60);
-  m_removeButton->SetEnabled(kFALSE);
-  objectFrame->AddFrame(m_removeButton);
   AddFrame(objectFrame, new TGLayoutHints(kLHintsExpandX, 2, 2, 0, 0));
   TGTab* ediTabs = new TGTab(this, GetWidth(), GetHeight());
   TGVerticalFrame* graphicsFrame = new TGVerticalFrame(ediTabs, 200, 400);
@@ -188,6 +186,12 @@ m_item(0)
   m_processEntry->SetEnabled(kFALSE);
   processFrame->AddFrame(m_processEntry, new TGLayoutHints(kLHintsExpandX, 0, 2, 0, 0));
   dataFrame->AddFrame(processFrame, new TGLayoutHints(kLHintsExpandX));
+  dataSeperator = new TGHorizontal3DLine(dataFrame, 200, 5);
+  dataFrame->AddFrame(dataSeperator, new TGLayoutHints(kLHintsNormal, 0, 0, 5, 5));
+  m_removeButton = new TGTextButton(dataFrame, "Remove Collection");
+  m_removeButton->SetEnabled(kFALSE);
+  dataFrame->AddFrame(m_removeButton);
+   
   ediTabs->AddTab("Data", dataFrame);
   AddFrame(ediTabs, new TGLayoutHints(kLHintsExpandX | kLHintsExpandY, 0, 0, 0, 0));
   SetWindowName("Collection Controller");
@@ -274,10 +278,23 @@ CmsShowEDI::fillEDIFrame(FWEventItem* iItem) {
 
 void
 CmsShowEDI::removeItem() {
-  m_item->destroy();
-  m_item = 0;
-  gEve->EditElement(0);
-  gEve->Redraw3D();
+   Int_t chosen=0;
+   std::string message("This action will remove the ");
+   message += m_item->name();
+   message +=" collection from the display."
+   "\nIf you wish to return the collection you would have to use the 'Add Collection' window.";
+  new TGMsgBox(gClient->GetDefaultRoot(),
+               this,
+               "Remove Collection Confirmation",
+               message.c_str(), 
+               kMBIconExclamation,
+               kMBCancel | kMBApply,
+               &chosen);
+   if(kMBApply == chosen) { 
+      m_item->destroy();
+      m_item = 0;
+      gEve->Redraw3D();
+   }
 }
 
 void
