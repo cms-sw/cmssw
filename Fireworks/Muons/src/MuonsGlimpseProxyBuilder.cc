@@ -8,7 +8,7 @@
 //
 // Original Author:  
 //         Created:  Sun Jan  6 23:57:00 EST 2008
-// $Id: MuonsGlimpseProxyBuilder.cc,v 1.4 2008/07/03 02:06:42 dmytro Exp $
+// $Id: MuonsGlimpseProxyBuilder.cc,v 1.5 2008/07/04 23:57:02 chrjones Exp $
 //
 
 // system include files
@@ -71,10 +71,7 @@ MuonsGlimpseProxyBuilder::build(const FWEventItem* iItem, TEveElementList** prod
    
    const reco::MuonCollection* muons=0;
    iItem->get(muons);
-   if(0==muons) {
-      std::cout <<"Failed to get Muonss"<<std::endl;
-      return;
-   }
+   if(0==muons) return;
    
    fw::NamedCounter counter("muon");
 

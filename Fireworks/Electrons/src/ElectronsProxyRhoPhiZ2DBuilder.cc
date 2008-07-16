@@ -8,7 +8,7 @@
 //
 // Original Author:  
 //         Created:  Sun Jan  6 23:57:00 EST 2008
-// $Id: ElectronsProxyRhoPhiZ2DBuilder.cc,v 1.10 2008/07/03 02:06:42 dmytro Exp $
+// $Id: ElectronsProxyRhoPhiZ2DBuilder.cc,v 1.11 2008/07/04 01:40:37 dmytro Exp $
 //
 
 // system include files
@@ -91,8 +91,9 @@ ElectronsProxyRhoPhiZ2DBuilder::buildRhoPhi(const FWEventItem* iItem,
      // loop over electrons
      for (reco::GsfElectronCollection::const_iterator electron = electrons->begin();
 	  electron != electrons->end(); ++electron,++counter) {
-	char title[1024];
-	sprintf(title,"Electron %d, Pt: %0.1f GeV",counter.index(), electron->pt());
+	const unsigned int nBuffer = 1024;
+	char title[nBuffer]; 
+	snprintf(title, nBuffer, "Electron %d, Pt: %0.1f GeV",counter.index(), electron->pt());
 	TEveCompound* container = new TEveCompound( counter.str().c_str(), title );
         container->OpenCompound();
         //guarantees that CloseCompound will be called no matter what happens
@@ -118,6 +119,8 @@ ElectronsProxyRhoPhiZ2DBuilder::buildRhoPhi(const FWEventItem* iItem,
 	TEveTrack* track = fw::getEveTrack( *(electron->gsfTrack()) );
 	track->SetMainColor( iItem->defaultDisplayProperties().color() );
 	container->AddElement(track);
+	container->SetRnrSelf(     iItem->defaultDisplayProperties().isVisible() );
+	container->SetRnrChildren( iItem->defaultDisplayProperties().isVisible() );
 	tList->AddElement(container);
      }
 
@@ -148,8 +151,9 @@ ElectronsProxyRhoPhiZ2DBuilder::buildRhoZ(const FWEventItem* iItem,
      double r_ecal = 122;
      for (reco::GsfElectronCollection::const_iterator electron = electrons->begin();
 	  electron != electrons->end(); ++electron, ++counter) {
-	char title[1024];
-	sprintf(title,"Electron %d, Pt: %0.1f GeV",counter.index(), electron->pt());
+	const unsigned int nBuffer = 1024;
+	char title[nBuffer]; 
+	snprintf(title, nBuffer, "Electron %d, Pt: %0.1f GeV",counter.index(), electron->pt());
 	TEveCompound* container = new TEveCompound( counter.str().c_str(), title );
         container->OpenCompound();
         //guarantees that CloseCompound will be called no matter what happens
@@ -178,7 +182,8 @@ ElectronsProxyRhoPhiZ2DBuilder::buildRhoZ(const FWEventItem* iItem,
 	if ( theta_min <= theta_max ) 
 	  fw::addRhoZEnergyProjection( container, r_ecal, z_ecal, theta_min-0.003, theta_max+0.003, 
 				       electron->phi(), iItem->defaultDisplayProperties().color() );
-
+	container->SetRnrSelf(     iItem->defaultDisplayProperties().isVisible() );
+	container->SetRnrChildren( iItem->defaultDisplayProperties().isVisible() );
 	tList->AddElement(container);
      }
 }

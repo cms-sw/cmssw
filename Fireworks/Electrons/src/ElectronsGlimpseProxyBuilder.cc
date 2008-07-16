@@ -8,7 +8,7 @@
 //
 // Original Author:  
 //         Created:  Sun Jan  6 23:57:00 EST 2008
-// $Id: ElectronsGlimpseProxyBuilder.cc,v 1.4 2008/07/03 02:06:42 dmytro Exp $
+// $Id: ElectronsGlimpseProxyBuilder.cc,v 1.5 2008/07/04 23:56:58 chrjones Exp $
 //
 
 // system include files
@@ -71,10 +71,7 @@ ElectronsGlimpseProxyBuilder::build(const FWEventItem* iItem, TEveElementList** 
    
    const reco::GsfElectronCollection* electrons=0;
    iItem->get(electrons);
-   if(0==electrons) {
-      std::cout <<"Failed to get GsfElectrons"<<std::endl;
-      return;
-   }
+   if(0==electrons) return;
    
    fw::NamedCounter counter("electron");
 

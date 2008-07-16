@@ -8,7 +8,7 @@
 //
 // Original Author:  
 //         Created:  Sun Jan  6 23:57:00 EST 2008
-// $Id: L1MuonTrigProxyEveLegoBuilder.cc,v 1.2 2008/06/09 19:54:03 chrjones Exp $
+// $Id: L1MuonTrigProxyEveLegoBuilder.cc,v 1.1 2008/06/13 18:06:35 srappocc Exp $
 //
 
 // system include files
@@ -84,10 +84,7 @@ L1MuonTrigProxyEveLegoBuilder::build(const FWEventItem* iItem, TEveElementList**
   // Get the particle map collection for L1MuonParticles
   l1extra::L1MuonParticleCollection const * triggerColl=0;
   iItem->get(triggerColl);
-  if(0==triggerColl) {
-    std::cout <<"Failed to get L1MuonTrig particle collection"<<std::endl;
-    return;
-  }
+  if(0==triggerColl) return;
    
   // make a counter
   fw::NamedCounter counter("l1muontrigs");

@@ -8,7 +8,7 @@
 //
 // Original Author:  
 //         Created:  Sun Jan  6 23:57:00 EST 2008
-// $Id: CaloJetProxyTH2LegoBuilder.cc,v 1.3 2008/06/09 19:54:03 chrjones Exp $
+// $Id: CaloJetProxyTH2LegoBuilder.cc,v 1.4 2008/07/07 00:45:41 chrjones Exp $
 //
 
 // system include files
@@ -85,11 +85,8 @@ CaloJetProxyTH2LegoBuilder::build(const FWEventItem* iItem,
 {
    const reco::CaloJetCollection* jets=0;
    iItem->get(jets);
-   if(0==jets) {
-      std::cout <<"Failed to get CaloJets"<<std::endl;
-      return;
-   }
-   
+   if(0==jets) return;
+
    for ( unsigned int i = 0; i < jets->size(); ++i ) {
       // printf("jet pt: %0.2f, eta: %0.2f, phi: %0.2f\n",jets->at(i).pt(), jets->at(i).eta(), jets->at(i).phi());
       if ( ! iItem->modelInfo(i).displayProperties().isVisible() ) continue;
@@ -115,10 +112,7 @@ void CaloJetProxyTH2LegoBuilder::message( int type, int xbin, int ybin )
    const FWEventItem* iItem = item();
    const reco::CaloJetCollection* jets=0;
    iItem->get(jets);
-   if(0==jets) {
-      std::cout <<"Failed to get CaloJets"<<std::endl;
-      return;
-   }
+   if(0==jets) return;
    if ( ! m_product ) return;
    
    // check if any jets contibute to the selected bin

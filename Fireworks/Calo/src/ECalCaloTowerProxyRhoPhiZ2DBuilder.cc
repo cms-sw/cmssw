@@ -1,5 +1,5 @@
 // -*- C++ -*-
-// $Id: ECalCaloTowerProxyRhoPhiZ2DBuilder.cc,v 1.14 2008/07/01 12:44:54 chrjones Exp $
+// $Id: ECalCaloTowerProxyRhoPhiZ2DBuilder.cc,v 1.15 2008/07/01 19:16:43 chrjones Exp $
 //
 
 // system include files
@@ -78,10 +78,8 @@ void ECalCaloTowerProxyRhoPhiZ2DBuilder::buildCalo(const FWEventItem* iItem,
    }
    const CaloTowerCollection* towers=0;
    iItem->get(towers);
-   if(0==towers) {
-      std::cout <<"Failed to get CaloTowers"<<std::endl;
-      return;
-   }
+   if(0==towers) return;
+
    bool newHist = false;
    if ( hist == 0 ) {
       Bool_t status = TH1::AddDirectoryStatus();

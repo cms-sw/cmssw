@@ -119,13 +119,16 @@ void MuonsProxyRhoPhiZ2DBuilder::build(const FWEventItem* iItem,
 	s << "muon" << index;
         //in order to keep muonList having the same number of elements as 'muons' we will always
         // create a list even if it will get no children
-	char title[1024];
-	sprintf(title,"Muon %d, Pt: %0.1f GeV",index,muon->pt());
+	const unsigned int nBuffer = 1024;
+	char title[nBuffer]; 
+	snprintf(title, nBuffer,"Muon %d, Pt: %0.1f GeV",index,muon->pt());
 	TEveCompound* muonList = new TEveCompound(s.str().c_str(), title);
         muonList->OpenCompound();
         //guarantees that CloseCompound will be called no matter what happens
         boost::shared_ptr<TEveCompound> sentry(muonList,boost::mem_fn(&TEveCompound::CloseCompound));
         gEve->AddElement( muonList, tList );
+	muonList->SetRnrSelf(     iItem->defaultDisplayProperties().isVisible() );
+	muonList->SetRnrChildren( iItem->defaultDisplayProperties().isVisible() );
 	
 	// need to decide how deep the inner propagator should go
 	// - tracker muon (R=350, Z=650)

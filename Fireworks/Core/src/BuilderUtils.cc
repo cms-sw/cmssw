@@ -236,21 +236,3 @@ fw::estimate_field( const reco::Track& track )
    double cosAlpha = transverseMomentum.Dot(displacement)/transverseMomentum.r()/displacement.r();
    return 200*sqrt(1-cosAlpha*cosAlpha)/0.2998*transverseMomentum.r()/displacement.r();
 }
-
-
-/*TEveElementList *fw::getMuonCalTowers (double eta, double phi) 
-  {
-  // Input muon eta, phi and return towers within certain radius of muon object
-  // Well, shit.  That ain't going to work...
-  
-  TEveElementList *ret = new TEveElementList("ECAL Towers");
-  
-  const CaloTowerCollection* towers=0;
-  m_item->get(towers);
-  if(0==towers) {
-  std::cout <<"Failed to get CaloTowers"<<std::endl;
-  return;
-  }
-  
-  }
-*/

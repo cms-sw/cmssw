@@ -8,7 +8,7 @@
 //
 // Original Author:  
 //         Created:  Sun Jan  6 23:57:00 EST 2008
-// $Id: CaloJetProxyRhoPhiZ2DBuilder.cc,v 1.14 2008/07/03 02:06:41 dmytro Exp $
+// $Id: CaloJetProxyRhoPhiZ2DBuilder.cc,v 1.15 2008/07/15 17:45:01 chrjones Exp $
 //
 
 // system include files
@@ -82,11 +82,8 @@ CaloJetProxyRhoPhiZ2DBuilder::buildRhoPhi(const FWEventItem* iItem,
    
    const reco::CaloJetCollection* jets=0;
    iItem->get(jets);
-   if(0==jets) {
-      std::cout <<"Failed to get CaloJets"<<std::endl;
-      return;
-   }
-   
+   if(0==jets) return;
+
    double r_ecal = 126;
    double scale = 1; //m_caloScale;
    if ( scale < 0 ) scale = 2;
@@ -147,12 +144,8 @@ CaloJetProxyRhoPhiZ2DBuilder::buildRhoZ(const FWEventItem* iItem,
    
    const reco::CaloJetCollection* jets=0;
    iItem->get(jets);
-   if(0==jets) {
-      //Error reporting is handled by the FWEventItem itself
-      //std::cout <<"Failed to get CaloJets"<<std::endl;
-      return;
-   }
-   
+   if(0==jets) return;
+
    // NOTE:
    //      We derive eta bin size from xbins array used for LEGO assuming that all 82
    //      eta bins are accounted there. 

@@ -8,7 +8,7 @@
 //
 // Original Author:  
 //         Created:  Sun Jan  6 23:57:00 EST 2008
-// $Id: ECalCaloTowerProxy3DLegoBuilder.cc,v 1.6 2008/06/17 00:00:58 chrjones Exp $
+// $Id: ECalCaloTowerProxy3DLegoBuilder.cc,v 1.7 2008/07/07 00:32:35 chrjones Exp $
 //
 
 // system include files
@@ -78,10 +78,7 @@ ECalCaloTowerProxy3DLegoBuilder::build(const FWEventItem* iItem,
 
    m_towers=0;
   iItem->get(m_towers);
-  if(0==m_towers) {
-    std::cout <<"Failed to get CaloTowers"<<std::endl;
-    return;
-  }
+  if(0==m_towers) return;
   for(CaloTowerCollection::const_iterator tower = m_towers->begin();
       tower != m_towers->end(); ++tower) {
      (*product)->Fill(tower->eta(), tower->phi(), tower->emEt());

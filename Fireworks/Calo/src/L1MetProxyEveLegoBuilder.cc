@@ -1,14 +1,14 @@
 // -*- C++ -*-
 //
 // Package:     Calo
-// Class  :     MetProxyEveLegoBuilder
+// Class  :     L1MetProxyEveLegoBuilder
 // 
 // Implementation:
 //     <Notes on implementation>
 //
 // Original Author:  
 //         Created:  Sun Jan  6 23:57:00 EST 2008
-// $Id: MetProxyEveLegoBuilder.cc,v 1.1 2008/07/04 01:41:49 dmytro Exp $
+// $Id: L1MetProxyEveLegoBuilder.cc,v 1.1 2008/07/04 01:41:49 dmytro Exp $
 //
 
 // system include files
@@ -23,12 +23,12 @@
 #include "TEveCompound.h"
 
 // user include files
-#include "Fireworks/Calo/interface/MetProxyEveLegoBuilder.h"
+#include "Fireworks/Calo/interface/L1MetProxyEveLegoBuilder.h"
 #include "Fireworks/Core/interface/FWEventItem.h"
 #include "Fireworks/Core/interface/BuilderUtils.h"
 
-#include "DataFormats/METReco/interface/CaloMETFwd.h"
-#include "DataFormats/METReco/interface/CaloMET.h"
+#include "DataFormats/L1Trigger/interface/L1EtMissParticle.h"
+#include "DataFormats/L1Trigger/interface/L1EtMissParticleFwd.h"
 
 //
 // constants, enums and typedefs
@@ -41,34 +41,16 @@
 //
 // constructors and destructor
 //
-MetProxyEveLegoBuilder::MetProxyEveLegoBuilder()
+L1MetProxyEveLegoBuilder::L1MetProxyEveLegoBuilder()
 {
 }
 
-// MetProxyEveLegoBuilder::MetProxyEveLegoBuilder(const MetProxyEveLegoBuilder& rhs)
-// {
-//    // do actual copying here;
-// }
-
-MetProxyEveLegoBuilder::~MetProxyEveLegoBuilder()
+L1MetProxyEveLegoBuilder::~L1MetProxyEveLegoBuilder()
 {
 }
-
-//
-// assignment operators
-//
-// const MetProxyEveLegoBuilder& MetProxyEveLegoBuilder::operator=(const MetProxyEveLegoBuilder& rhs)
-// {
-//   //An exception safe implementation is
-//   MetProxyEveLegoBuilder temp(rhs);
-//   swap(rhs);
-//
-//   return *this;
-// }
-
 
 void
-MetProxyEveLegoBuilder::build(const FWEventItem* iItem, TEveElementList** product)
+L1MetProxyEveLegoBuilder::build(const FWEventItem* iItem, TEveElementList** product)
 {
    TEveElementList* tList = *product;
 
@@ -80,7 +62,8 @@ MetProxyEveLegoBuilder::build(const FWEventItem* iItem, TEveElementList** produc
       tList->DestroyElements();
    }
    
-   const reco::CaloMETCollection* mets=0;
+   // Get the particle map collection for L1EtMissParticles
+   l1extra::L1EtMissParticleCollection const * mets=0;
    iItem->get(mets);
    if(0==mets) return;
 
@@ -88,7 +71,7 @@ MetProxyEveLegoBuilder::build(const FWEventItem* iItem, TEveElementList** produc
 
    for(unsigned int i = 0; i < mets->size(); ++i, ++counter) {
       char title[1024]; 
-      sprintf(title,"MET: %0.1f GeV",mets->at(i).et());
+      sprintf(title,"L1 MET: %0.1f GeV",mets->at(i).et());
       TEveCompound* container = new TEveCompound( counter.str().c_str(), title );
       container->OpenCompound();
       //guarantees that CloseCompound will be called no matter what happens
@@ -113,4 +96,4 @@ MetProxyEveLegoBuilder::build(const FWEventItem* iItem, TEveElementList** produc
    }
 }
 
-REGISTER_FW3DLEGODATAPROXYBUILDER(MetProxyEveLegoBuilder,reco::CaloMETCollection,"MET");
+REGISTER_FW3DLEGODATAPROXYBUILDER(L1MetProxyEveLegoBuilder,l1extra::L1EtMissParticleCollection,"L1-MET");

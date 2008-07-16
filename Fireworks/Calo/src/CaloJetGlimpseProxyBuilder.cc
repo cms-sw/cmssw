@@ -8,7 +8,7 @@
 //
 // Original Author:  
 //         Created:  Sun Jan  6 23:57:00 EST 2008
-// $Id: CaloJetGlimpseProxyBuilder.cc,v 1.6 2008/07/03 02:06:41 dmytro Exp $
+// $Id: CaloJetGlimpseProxyBuilder.cc,v 1.7 2008/07/04 23:56:59 chrjones Exp $
 //
 
 // system include files
@@ -85,10 +85,7 @@ CaloJetGlimpseProxyBuilder::build(const FWEventItem* iItem, TEveElementList** pr
    
    const reco::CaloJetCollection* jets=0;
    iItem->get(jets);
-   if(0==jets) {
-      std::cout <<"Failed to get CaloJets"<<std::endl;
-      return;
-   }
+   if(0==jets) return;
    
    fw::NamedCounter counter("jet");
 
@@ -119,6 +116,8 @@ CaloJetGlimpseProxyBuilder::build(const FWEventItem* iItem, TEveElementList** pr
       // cone->DigitColor( UChar_t(255*c->GetRed()), UChar_t(255*c->GetGreen()), UChar_t(255*c->GetBlue()), 20 );
       cone->SetDrawConeCap(kFALSE);
       cone->SetMainTransparency(50);
+      // tList->SetRnrSelf(iItem->defaultDisplayProperties().isVisible());
+      // tList->SetRnrChildren(iItem->defaultDisplayProperties().isVisible());
       tList->AddElement(cone);
       scaler()->addElement(cone);
       /*

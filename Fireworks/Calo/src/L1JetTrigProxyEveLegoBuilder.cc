@@ -8,7 +8,7 @@
 //
 // Original Author:  
 //         Created:  Sun Jan  6 23:57:00 EST 2008
-// $Id: L1JetTrigProxyEveLegoBuilder.cc,v 1.1 2008/06/13 18:06:35 srappocc Exp $
+// $Id: L1JetTrigProxyEveLegoBuilder.cc,v 1.2 2008/07/04 01:40:36 dmytro Exp $
 //
 
 // system include files
@@ -85,10 +85,7 @@ L1JetTrigProxyEveLegoBuilder::build(const FWEventItem* iItem, TEveElementList** 
   // Get the particle map collection for L1JetParticles
   l1extra::L1JetParticleCollection const * triggerColl=0;
   iItem->get(triggerColl);
-  if(0==triggerColl) {
-    std::cout <<"Failed to get L1JetTrig particle collection"<<std::endl;
-    return;
-  }
+  if(0==triggerColl) return;
    
   // make a counter
   fw::NamedCounter counter("l1jettrigs");

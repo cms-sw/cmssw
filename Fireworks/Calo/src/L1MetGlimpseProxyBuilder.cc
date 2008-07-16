@@ -1,14 +1,14 @@
 // -*- C++ -*-
 //
 // Package:     Calo
-// Class  :     MetGlimpseProxyBuilder
+// Class  :     L1MetGlimpseProxyBuilder
 // 
 // Implementation:
 //     <Notes on implementation>
 //
 // Original Author:  
 //         Created:  Sun Jan  6 23:57:00 EST 2008
-// $Id: MetGlimpseProxyBuilder.cc,v 1.1 2008/07/08 06:59:21 dmytro Exp $
+// $Id: L1MetGlimpseProxyBuilder.cc,v 1.1 2008/07/08 06:59:21 dmytro Exp $
 //
 
 // system include files
@@ -22,15 +22,15 @@
 #include "TEveCompound.h"
 
 // user include files
-#include "Fireworks/Calo/interface/MetGlimpseProxyBuilder.h"
+#include "Fireworks/Calo/interface/L1MetGlimpseProxyBuilder.h"
 #include "Fireworks/Core/interface/FWEventItem.h"
 #include "Fireworks/Core/interface/BuilderUtils.h"
 #include "Fireworks/Core/interface/FWGlimpseView.h"
 #include "Fireworks/Core/interface/FWEveScalableStraightLineSet.h"
 #include "Fireworks/Core/interface/FWEveValueScaler.h"
 
-#include "DataFormats/METReco/interface/CaloMETFwd.h"
-#include "DataFormats/METReco/interface/CaloMET.h"
+#include "DataFormats/L1Trigger/interface/L1EtMissParticle.h"
+#include "DataFormats/L1Trigger/interface/L1EtMissParticleFwd.h"
 
 //
 // constants, enums and typedefs
@@ -43,33 +43,29 @@
 //
 // constructors and destructor
 //
-MetGlimpseProxyBuilder::MetGlimpseProxyBuilder()
+L1MetGlimpseProxyBuilder::L1MetGlimpseProxyBuilder()
 {
 }
 
-// MetGlimpseProxyBuilder::MetGlimpseProxyBuilder(const MetGlimpseProxyBuilder& rhs)
-// {
-//    // do actual copying here;
-// }
-
-MetGlimpseProxyBuilder::~MetGlimpseProxyBuilder()
+L1MetGlimpseProxyBuilder::~L1MetGlimpseProxyBuilder()
 {
 }
 
 void
-MetGlimpseProxyBuilder::build(const FWEventItem* iItem, TEveElementList** product)
+L1MetGlimpseProxyBuilder::build(const FWEventItem* iItem, TEveElementList** product)
 {
    TEveElementList* tList = *product;
 
    if(0 == tList) {
-      tList =  new TEveElementList(iItem->name().c_str(),"Met",true);
+      tList =  new TEveElementList(iItem->name().c_str(),"L1Met",true);
       *product = tList;
       tList->SetMainColor(iItem->defaultDisplayProperties().color());
    } else {
       tList->DestroyElements();
    }
    
-   const reco::CaloMETCollection* mets=0;
+   // Get the particle map collection for L1EtMissParticles
+   l1extra::L1EtMissParticleCollection const * mets=0;
    iItem->get(mets);
    if(0==mets) return;
    
@@ -77,7 +73,7 @@ MetGlimpseProxyBuilder::build(const FWEventItem* iItem, TEveElementList** produc
 
    for(unsigned int i = 0; i < mets->size(); ++i, ++counter) {
       char title[1024]; 
-      sprintf(title,"MET: %0.1f GeV",mets->at(i).et());
+      sprintf(title,"L1 MET: %0.1f GeV",mets->at(i).et());
       TEveCompound* container = new TEveCompound( counter.str().c_str(), title );
       container->OpenCompound();
       //guarantees that CloseCompound will be called no matter what happens
@@ -86,7 +82,8 @@ MetGlimpseProxyBuilder::build(const FWEventItem* iItem, TEveElementList** produc
       double phi = mets->at(i).phi();
       double size = mets->at(i).et();
       TEveScalableStraightLineSet* marker = new TEveScalableStraightLineSet("energy");
-      marker->SetLineWidth(2);
+      marker->SetLineWidth(1);
+      marker->SetLineStyle(2);
       // marker->SetLineStyle(kDotted);
       marker->SetLineColor(  iItem->defaultDisplayProperties().color() );
       marker->AddLine( 0, 0, 0, size*cos(phi), size*sin(phi), 0);
@@ -99,5 +96,5 @@ MetGlimpseProxyBuilder::build(const FWEventItem* iItem, TEveElementList** produc
    
 }
 
-REGISTER_FWGLIMPSEDATAPROXYBUILDER(MetGlimpseProxyBuilder,reco::CaloMETCollection,"MET");
+REGISTER_FWGLIMPSEDATAPROXYBUILDER(L1MetGlimpseProxyBuilder,l1extra::L1EtMissParticleCollection,"L1-MET");
 

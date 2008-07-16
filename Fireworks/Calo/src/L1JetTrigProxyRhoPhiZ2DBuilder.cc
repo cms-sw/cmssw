@@ -8,7 +8,7 @@
 //
 // Original Author:  
 //         Created:  Sun Jan  6 23:57:00 EST 2008
-// $Id: L1JetTrigProxyRhoPhiZ2DBuilder.cc,v 1.6 2008/07/04 01:40:36 dmytro Exp $
+// $Id: L1JetTrigProxyRhoPhiZ2DBuilder.cc,v 1.7 2008/07/08 06:53:20 dmytro Exp $
 //
 //
 // system include files
@@ -88,11 +88,7 @@ L1JetTrigProxyRhoPhiZ2DBuilder::buildRhoPhi(const FWEventItem* iItem,
   // Get the particle map collection for L1JetParticles
   l1extra::L1JetParticleCollection const * triggerColl=0;
   iItem->get(triggerColl);
-  if(0==triggerColl) {
-    std::cout <<"Failed to get L1JetTrig particle collection"<<std::endl;
-    return;
-  }
-
+  if(0==triggerColl) return;
 
   // make a counter
    double r_ecal = 126;
@@ -103,8 +99,9 @@ L1JetTrigProxyRhoPhiZ2DBuilder::buildRhoPhi(const FWEventItem* iItem,
      trigEnd = triggerColl->end();
    // Loop over triggered objects and make some 4-vectors
    for ( ; trigIt != trigEnd; ++trigIt, ++counter ) {
-     char title[1024]; 
-     sprintf(title,"L1 Jet %d, Et: %0.1f GeV",counter.index(),trigIt->et());
+      const unsigned int nBuffer = 1024;
+      char title[nBuffer]; 
+      snprintf(title, nBuffer,"L1 Jet %d, Et: %0.1f GeV",counter.index(),trigIt->et());
      TEveCompound* container = new TEveCompound( counter.str().c_str(), title );
      container->OpenCompound();
      //guarantees that CloseCompound will be called no matter what happens
@@ -120,6 +117,8 @@ L1JetTrigProxyRhoPhiZ2DBuilder::buildRhoPhi(const FWEventItem* iItem,
       marker->SetScaleCenter( r_ecal*cos(phi), r_ecal*sin(phi), 0 );
       marker->AddLine( r_ecal*cos(phi), r_ecal*sin(phi), 0, (r_ecal+size)*cos(phi), (r_ecal+size)*sin(phi), 0);
       container->AddElement(marker);
+      container->SetRnrSelf(     iItem->defaultDisplayProperties().isVisible() );
+      container->SetRnrChildren( iItem->defaultDisplayProperties().isVisible() );
 
      tList->AddElement(container);
 
@@ -151,11 +150,7 @@ L1JetTrigProxyRhoPhiZ2DBuilder::buildRhoZ(const FWEventItem* iItem,
   // Get the particle map collection for L1JetParticles
   l1extra::L1JetParticleCollection const * triggerColl=0;
   iItem->get(triggerColl);
-  if(0==triggerColl) {
-    std::cout <<"Failed to get L1JetTrig particle collection"<<std::endl;
-    return;
-  }
-
+  if(0==triggerColl) return;
 
    double z_ecal = 306; // ECAL endcap inner surface
    double r_ecal = 126;
@@ -168,8 +163,9 @@ L1JetTrigProxyRhoPhiZ2DBuilder::buildRhoZ(const FWEventItem* iItem,
      trigEnd = triggerColl->end();
    // Loop over triggered objects and make some 4-vectors
    for ( ; trigIt != trigEnd; ++trigIt, ++counter ) {
-     char title[1024]; 
-     sprintf(title,"L1 Jet %d, Et: %0.1f GeV",counter.index(),trigIt->et());
+      const unsigned int nBuffer = 1024;
+      char title[nBuffer]; 
+      snprintf(title, nBuffer,"L1 Jet %d, Et: %0.1f GeV",counter.index(),trigIt->et());
      TEveCompound* container = new TEveCompound( counter.str().c_str(), title );
      container->OpenCompound();
      //guarantees that CloseCompound will be called no matter what happens
@@ -197,6 +193,8 @@ L1JetTrigProxyRhoPhiZ2DBuilder::buildRhoZ(const FWEventItem* iItem,
       marker->AddLine(0., (trigIt->phi()>0 ? r*fabs(sin(theta)) : -r*fabs(sin(theta))), r*cos(theta),
 		      0., (trigIt->phi()>0 ? (r+size)*fabs(sin(theta)) : -(r+size)*fabs(sin(theta))), (r+size)*cos(theta) );
       container->AddElement( marker );
+      container->SetRnrSelf(     iItem->defaultDisplayProperties().isVisible() );
+      container->SetRnrChildren( iItem->defaultDisplayProperties().isVisible() );
      tList->AddElement(container);
 
 

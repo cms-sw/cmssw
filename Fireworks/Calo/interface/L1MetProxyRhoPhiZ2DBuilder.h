@@ -1,11 +1,11 @@
-#ifndef Fireworks_Calo_L1EtMissTrigProxyRhoPhiZ2DBuilder_h
-#define Fireworks_Calo_L1EtMissTrigProxyRhoPhiZ2DBuilder_h
+#ifndef Fireworks_Calo_L1MetProxyRhoPhiZ2DBuilder_h
+#define Fireworks_Calo_L1MetProxyRhoPhiZ2DBuilder_h
 // -*- C++ -*-
 //
 // Package:     Calo
-// Class  :     L1EtMissTrigProxyRhoPhiZ2DBuilder
+// Class  :     L1MetProxyRhoPhiZ2DBuilder
 // 
-/**\class L1EtMissTrigProxyRhoPhiZ2DBuilder L1EtMissTrigProxyRhoPhiZ2DBuilder.h Fireworks/Calo/interface/L1EtMissTrigProxyRhoPhiZ2DBuilder.h
+/**\class L1MetProxyRhoPhiZ2DBuilder L1MetProxyRhoPhiZ2DBuilder.h Fireworks/Calo/interface/L1MetProxyRhoPhiZ2DBuilder.h
 
  Description: <one line class summary>
 
@@ -16,7 +16,7 @@
 //
 // Original Author:  
 //         Created:  Sun Jan  6 23:42:33 EST 2008
-// $Id: L1EtMissTrigProxyRhoPhiZ2DBuilder.h,v 1.2 2008/06/09 19:54:03 chrjones Exp $
+// $Id: L1MetProxyRhoPhiZ2DBuilder.h,v 1.1 2008/06/24 07:42:16 dmytro Exp $
 //
 
 // system include files
@@ -24,23 +24,22 @@
 // user include files
 #include "Fireworks/Core/interface/FWRPZ2DDataProxyBuilder.h"
 
-
 // forward declarations
 
 class TEveGeoShapeExtract;
-class L1EtMissTrigProxyRhoPhiZ2DBuilder : public FWRPZ2DDataProxyBuilder
+class L1MetProxyRhoPhiZ2DBuilder : public FWRPZ2DDataProxyBuilder
 {
 
    public:
-      L1EtMissTrigProxyRhoPhiZ2DBuilder();
-      virtual ~L1EtMissTrigProxyRhoPhiZ2DBuilder();
+      L1MetProxyRhoPhiZ2DBuilder();
+      virtual ~L1MetProxyRhoPhiZ2DBuilder();
 
       // ---------- const member functions ---------------------
+      REGISTER_PROXYBUILDER_METHODS();
 
       // ---------- static member functions --------------------
 
       // ---------- member functions ---------------------------
-      REGISTER_PROXYBUILDER_METHODS();
    
    private:
       virtual void buildRhoPhi(const FWEventItem* iItem,
@@ -51,9 +50,9 @@ class L1EtMissTrigProxyRhoPhiZ2DBuilder : public FWRPZ2DDataProxyBuilder
 
       double getTheta( double eta ) { return 2*atan(exp(-eta)); }
    
-      L1EtMissTrigProxyRhoPhiZ2DBuilder(const L1EtMissTrigProxyRhoPhiZ2DBuilder&); // stop default
+      L1MetProxyRhoPhiZ2DBuilder(const L1MetProxyRhoPhiZ2DBuilder&); // stop default
 
-      const L1EtMissTrigProxyRhoPhiZ2DBuilder& operator=(const L1EtMissTrigProxyRhoPhiZ2DBuilder&); // stop default
+      const L1MetProxyRhoPhiZ2DBuilder& operator=(const L1MetProxyRhoPhiZ2DBuilder&); // stop default
 
       // ---------- member data --------------------------------
 };

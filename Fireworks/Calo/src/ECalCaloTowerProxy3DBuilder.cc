@@ -1,5 +1,5 @@
 // -*- C++ -*-
-// $Id: ECalCaloTowerProxy3DBuilder.cc,v 1.5 2008/07/07 00:44:44 chrjones Exp $
+// $Id: ECalCaloTowerProxy3DBuilder.cc,v 1.6 2008/07/09 20:04:29 chrjones Exp $
 //
 
 // system include files
@@ -44,10 +44,8 @@ void ECalCaloTowerProxy3DBuilder::build(const FWEventItem* iItem, TEveElementLis
  */
    m_towers=0;
    iItem->get(m_towers);
-   if(0==m_towers) {
-      std::cout <<"Failed to get CaloTowers"<<std::endl;
-      return;
-   }
+   if(0==m_towers) return;
+
    bool newHist = false;
    if ( m_hist == 0 ) {
      Bool_t status = TH1::AddDirectoryStatus();
