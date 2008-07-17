@@ -339,6 +339,7 @@ void PixelROCDACSettings::writeXML(ostream& out, pos::PixelConfigKey key, int ve
   std::string mthn = "[PixelROCDACSettings::writeXML()]\t\t\t    " ;
 
   out << "  <DATA>"                                                                << endl ;
+  out << "   <NAME_LABEL>"  << rocid_.rocname()  << "</NAME_LABEL>"                << endl ;
   out << "   <VDD>"   	    << (int)Vdd_	 << "</VDD>"			   << endl ;
   out << "   <VANA>"  	    << (int)Vana_	 << "</VANA>"			   << endl ;
   out << "   <VSF>"   	    << (int)Vsf_	 << "</VSF>"			   << endl ;
@@ -369,7 +370,6 @@ void PixelROCDACSettings::writeXML(ostream& out, pos::PixelConfigKey key, int ve
   out << "   <WBC>"         << (int)WBC_	 << "</WBC>"			   << endl ;
   out << "   <CHIPCONTREG>" << (int)ChipContReg_ << "</CHIPCONTREG>"		   << endl ;
   out << "  </DATA>"								   << endl ;
-  out << " </DATA_SET>"								   << endl ;
   out << " "								           << endl ;
 
 }

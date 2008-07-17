@@ -367,7 +367,8 @@ void PixelDACSettings::writeXML(pos::PixelConfigKey key, int version, std::strin
   std::string mthn = "[PixelDACSettings::writeXML()]\t\t\t    " ;
   std::stringstream fullPath ;
 
-  fullPath << path << "/dacsettings.xml" ;
+  PixelModuleName module(dacsettings_[0].getROCName().rocname());
+  fullPath << path << "/dacsettings_" << module.modulename() << ".xml" ;
   std::cout << mthn << "Writing to: |" << fullPath.str()  << "|" << std::endl ;
   
 
@@ -394,7 +395,7 @@ void PixelDACSettings::writeXML(pos::PixelConfigKey key, int version, std::strin
   out << "  <VERSION>" << version << "</VERSION>"                                  		 << std::endl ;
   out << " "                                                                       		 << std::endl ;
   out << "  <PART>"                                                                		 << std::endl ;
-  out << "   <NAME_LABEL>CMS-PIXEL_ROOT</NAME_LABEL>"                              		 << std::endl ;
+  out << "   <NAME_LABEL>CMS-PIXEL-ROOT</NAME_LABEL>"                              		 << std::endl ;
   out << "   <KIND_OF_PART>Detector ROOT</KIND_OF_PART>"                           		 << std::endl ;
   out << "  </PART>"                                                               		 << std::endl ;
   out << " "                                                                       		 << std::endl ;
