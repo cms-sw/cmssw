@@ -46,6 +46,26 @@ int main(int argc, char *argv[]){
 		for(int sp=0; sp<SPs.size(); sp++){
 ///			cout<<" L1A="<<SPs[0].header().L1A()<<endl;
 			for(unsigned int tbin=0; tbin<SPs[sp].header().nTBINs(); tbin++){
+				bool mismatch = false;
+				vector<CSCSP_SPblock> tracks = SPs[sp].record(tbin).tracks();
+				for(vector<CSCSP_SPblock>::const_iterator track=tracks.begin(); track!=tracks.end(); track++){
+					unsigned int nStations=0;
+					if( track->ME1_id() ) nStations++;
+					if( track->ME2_id() ) nStations++;
+					if( track->ME3_id() ) nStations++;
+					if( track->ME4_id() ) nStations++;
+					if( track->LCTs().size() != nStations ){
+						mismatch = true;
+						cout<<" mismatch found in tbin="<<tbin<<": ("<<track->LCTs().size()<<"!="<<nStations<<")"<<ends;
+					}
+
+					if( mismatch ){
+						cout<<hex<<" ME1: 0x"<<track->ME1_id()<<" tbin: "<<track->ME1_tbin()<<", "<<dec;
+						cout<<hex<<" ME2: 0x"<<track->ME2_id()<<" tbin: "<<track->ME2_tbin()<<", "<<dec;
+						cout<<hex<<" ME3: 0x"<<track->ME3_id()<<" tbin: "<<track->ME3_tbin()<<", "<<dec;
+						cout<<hex<<" ME4: 0x"<<track->ME4_id()<<" tbin: "<<track->ME4_tbin()<<" "<<dec;
+					}
+				}
 				vector<CSCSP_MEblock> lct = SPs[sp].record(tbin).LCTs();
 				if( lct.size() ){
 					cout<<"Event: "<<nevents<<" SP"<<sp<<" L1A="<<SPs[sp].header().L1A()<<endl;
