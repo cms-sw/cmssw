@@ -15,7 +15,6 @@
 #include "TestBase.h"
 #include "CoralBase/TimeStamp.h"
 #include "RPCSourceHandler.h"
-#include "RPCGasSH.h"
 
 struct dbread{
     float alias;
@@ -36,9 +35,6 @@ public:
   std::vector<RPCdbData::Item> createIMON(int from);
   std::vector<RPCdbData::Item> createVMON(int from); 
   std::vector<RPCdbData::Item> createSTATUS(int from); 
-  std::vector<RPCGas::GasItem> createGAS(int from);
-
-
   
 private:
   std::string m_connectionString;
