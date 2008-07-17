@@ -8,7 +8,7 @@
 //
 // Original Author:  Chris Jones
 //         Created:  Thu Feb 21 11:22:41 EST 2008
-// $Id: FWGlimpseView.cc,v 1.8 2008/07/13 21:53:28 chrjones Exp $
+// $Id: FWGlimpseView.cc,v 1.9 2008/07/17 10:11:32 dmytro Exp $
 //
 
 // system include files
@@ -150,7 +150,7 @@ FWGlimpseView::FWGlimpseView(TGFrame* iParent, TEveElementList* list,
    gEve->AddElement(element, ns);
    */
    
-   
+   /*
    TEveStraightLineSet* outline = new TEveStraightLineSet( "EnergyScale" );
    outline->SetPickable(kTRUE);
    outline->SetTitle("100 GeV Energy Scale Cube");
@@ -170,7 +170,7 @@ FWGlimpseView::FWGlimpseView(TGFrame* iParent, TEveElementList* list,
    outline->AddLine( size, -size, -size,  size, -size,  size);
    outline->AddLine( size,  size, -size,  size,  size,  size);
    gEve->AddElement(outline, ns);
-   
+   */
    // m_scaleParam.changed_.connect(boost::bind(&FWGlimpseView::updateScale,this,_1));
    m_showAxes.changed_.connect(boost::bind(&FWGlimpseView::showAxes,this));
 }
@@ -311,7 +311,7 @@ FWGlimpseView::showAxes( )
 const std::string& 
 FWGlimpseView::staticTypeName()
 {
-   static std::string s_name("Energy");
+   static std::string s_name("Glimpse");
    return s_name;
 }
 

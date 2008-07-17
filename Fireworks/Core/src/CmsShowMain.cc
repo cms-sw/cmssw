@@ -8,7 +8,7 @@
 //
 // Original Author:  
 //         Created:  Mon Dec  3 08:38:38 PST 2007
-// $Id: CmsShowMain.cc,v 1.29 2008/07/16 17:53:06 chrjones Exp $
+// $Id: CmsShowMain.cc,v 1.30 2008/07/17 10:11:32 dmytro Exp $
 //
 
 // system include files
@@ -275,7 +275,7 @@ CmsShowMain::CmsShowMain(int argc, char *argv[]) :
          m_guiManager->createView("Rho Phi");
          m_guiManager->createView("Rho Z");
          m_guiManager->createView("3D Lego");
-         m_guiManager->createView("Energy");
+         m_guiManager->createView("Glimpse");
          
          FWPhysicsObjectDesc ecal("ECal",
                                   TClass::GetClass("CaloTowerCollection"),
@@ -665,7 +665,7 @@ CmsShowMain::setupConfiguration()
       m_guiManager->createView("Rho Phi");
       m_guiManager->createView("Rho Z");
       m_guiManager->createView("3D Lego");
-      m_guiManager->createView("Energy");
+      m_guiManager->createView("Glimpse");
       
       FWPhysicsObjectDesc ecal("ECal",
                                TClass::GetClass("CaloTowerCollection"),

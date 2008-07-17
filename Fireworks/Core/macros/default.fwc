@@ -1254,7 +1254,7 @@ FWConfiguration* fwConfig() {
   FWConfiguration topaaa(1);
 {
   FWConfiguration topaaaa(0);
-  topaaaa.addValue("0");
+  topaaaa.addValue("1");
   topaaa.addKeyValue("Show Axes", topaaaa);
 }
 {
@@ -1422,7 +1422,7 @@ FWConfiguration* fwConfig() {
   topaaaa.addValue("14.3489");
   topaaa.addKeyValue("Glimpse FOV", topaaaa);
 }
-  topaa.addKeyValue("Energy", topaaa);
+  topaa.addKeyValue("Glimpse", topaaa);
 }
   topa.addKeyValue("views", topaa);
 }
