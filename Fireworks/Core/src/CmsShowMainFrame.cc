@@ -8,7 +8,7 @@
 //
 // Original Author:  Chris Jones
 //         Created:  Thu May 29 20:58:23 CDT 2008
-// $Id: CmsShowMainFrame.cc,v 1.12 2008/07/16 00:00:40 chrjones Exp $
+// $Id: CmsShowMainFrame.cc,v 1.13 2008/07/16 17:53:43 chrjones Exp $
 //
 
 // system include files
@@ -38,6 +38,7 @@
 #include "Fireworks/Core/interface/CSGNumAction.h"
 #include "Fireworks/Core/interface/CmsShowMainFrame.h"
 #include "Fireworks/Core/interface/ActionsList.h"
+#include "Fireworks/Core/interface/BuilderUtils.h"
 
 #include "Fireworks/Core/interface/FWGUIManager.h"
 
@@ -229,21 +230,32 @@ TGMainFrame(p, w, h)
    nextEvent->createToolBarEntry(tools, coreIcondir+"Forward.gif");
    //pause->createToolBarEntry(tools, "stop_t.xpm");
    fullbar->AddFrame(tools, new TGLayoutHints(kLHintsLeft,2,2,2,2));
-   TGHorizontalFrame *texts = new TGHorizontalFrame(fullbar, fullbar->GetWidth() - tools->GetWidth(), 30);
-   //printf("text width: %d\n", this->GetWidth()-tools->GetWidth());
-   TGLabel *runText = new TGLabel(texts, "Run: ");
-   texts->AddFrame(runText, new TGLayoutHints(kLHintsCenterY|kLHintsLeft,2,2,2,2));
-   //   m_runEntry = new TGNumberEntryField(texts, -1, 1);
-   m_runEntry->createNumberEntry(texts, new TGLayoutHints(kLHintsCenterY|kLHintsLeft,2,2,2,2));
-   TGLabel *eventText = new TGLabel(texts, "Event: ");
-   texts->AddFrame(eventText, new TGLayoutHints(kLHintsCenterY,2,2,2,2));
-   //   m_eventEntry = new TGNumberEntryField(texts, -1, 1);
-   m_eventEntry->createNumberEntry(texts, new TGLayoutHints(kLHintsCenterY,2,2,2,2));
+   // TGHorizontalFrame *texts = new TGHorizontalFrame(fullbar, fullbar->GetWidth() - tools->GetWidth(), 60);
+   TGVerticalFrame *texts   = new TGVerticalFrame(fullbar, fullbar->GetWidth() - tools->GetWidth(), 60);
+   
    fullbar->AddFrame(texts, new TGLayoutHints(kLHintsExpandX,100,2,2,2));
    AddFrame(fullbar, new TGLayoutHints(kLHintsExpandX,2,2,2,2));
-   TGLabel *filterText = new TGLabel(texts, "Filter: ");
-   texts->AddFrame(filterText, new TGLayoutHints(kLHintsCenterY,2,2,2,2));
-   eventFilter->createTextEntry(texts, new TGLayoutHints(kLHintsCenterY|kLHintsExpandX,2,2,2,2));
+   
+   TGHorizontalFrame *runInfo   = new TGHorizontalFrame(texts, fullbar->GetWidth() - tools->GetWidth(), 30);
+   texts->AddFrame(runInfo, new TGLayoutHints(kLHintsExpandX|kLHintsExpandY,0,0,0,0));
+   TGHorizontalFrame *evtFilter = new TGHorizontalFrame(texts, fullbar->GetWidth() - tools->GetWidth(), 30);
+   texts->AddFrame(evtFilter, new TGLayoutHints(kLHintsExpandX|kLHintsExpandY,0,0,0,0));
+   
+   //printf("text width: %d\n", this->GetWidth()-tools->GetWidth());
+   TGLabel *runText = new TGLabel(runInfo, "Run:  ");
+   runInfo->AddFrame(runText, new TGLayoutHints(kLHintsCenterY|kLHintsLeft,1,1,1,1));
+   //   m_runEntry = new TGNumberEntryField(texts, -1, 1);
+   m_runEntry->createNumberEntry(runInfo, new TGLayoutHints(kLHintsCenterY|kLHintsLeft,10,1,1,1));
+   TGLabel *eventText = new TGLabel(runInfo, "Event:  ");
+   runInfo->AddFrame(eventText, new TGLayoutHints(kLHintsCenterY|kLHintsLeft,20,1,1,1));
+   //   m_eventEntry = new TGNumberEntryField(texts, -1, 1);
+   m_eventEntry->createNumberEntry(runInfo, new TGLayoutHints(kLHintsCenterY|kLHintsLeft,10,1,1,1));
+   m_timeText = new TGLabel(runInfo, "Time:  Tue Jul  8 19:10:59 2008");
+   runInfo->AddFrame(m_timeText, new TGLayoutHints(kLHintsCenterY|kLHintsLeft,20,1,1,1));
+   
+   TGLabel *filterText = new TGLabel(evtFilter, "Filter: ");
+   evtFilter->AddFrame(filterText, new TGLayoutHints(kLHintsCenterY|kLHintsLeft,1,1,1,1));
+   eventFilter->createTextEntry(evtFilter, new TGLayoutHints(kLHintsCenterY|kLHintsExpandX,10,1,1,1));
    
    //Start disabled
    goToFirst->disable();
@@ -384,6 +396,7 @@ void CmsShowMainFrame::defaultAction() {
 void CmsShowMainFrame::loadEvent(const fwlite::Event& event) {
   m_runEntry->setNumber(event.id().run());
   m_eventEntry->setNumber(event.id().event());
+  m_timeText->SetText( fw::getTimeGMT( event ).c_str() );
 }
 
 void CmsShowMainFrame::goForward() {

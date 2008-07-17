@@ -16,7 +16,7 @@
 //
 // Original Author:  Chris Jones
 //         Created:  Thu May 29 18:11:16 CDT 2008
-// $Id: CmsShowMainFrame.h,v 1.4 2008/07/08 02:43:46 dmytro Exp $
+// $Id: CmsShowMainFrame.h,v 1.5 2008/07/14 14:05:52 chrjones Exp $
 //
 
 // system include files
@@ -39,6 +39,7 @@ class CSGNumAction;
 class FWGUIManager;
 class TGPopupMenu;
 class TGTextEntry;
+class TGLabel;
 
 namespace fwlite {
   class Event;
@@ -96,6 +97,7 @@ private:
    Long_t m_delay;
    CSGNumAction *m_runEntry;
    CSGNumAction *m_eventEntry;
+   TGLabel* m_timeText;
    CSGAction *m_nextEvent;
    CSGAction *m_previousEvent;
    CSGAction *m_goToFirst;
